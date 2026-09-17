@@ -245,6 +245,49 @@ func (c *BaseRedactStoragePolicyCase) SetBaseRedactStoragePolicyStatus(ctx conte
 	return redact.RefreshRedactRuntime(ctx, c.resolver)
 }
 
+// ListBaseRedactStorageColumn 查询可入库脱敏的字符串字段列表。
+func (c *BaseRedactStoragePolicyCase) ListBaseRedactStorageColumn(ctx context.Context, req *adminv1.ListBaseRedactStorageColumnRequest) (*adminv1.ListBaseRedactStorageColumnResponse, error) {
+	client, err := GormClientBySourceName(c.BaseCase, req.GetSourceName())
+	if err != nil {
+		return nil, errorsx.InvalidArgument("请选择已初始化的数据源").WithCause(err)
+	}
+	if !client.Migrator().HasTable(req.GetTableName()) {
+		return nil, errorsx.ResourceNotFound("数据库表不存在")
+	}
+	var columnTypes []gorm.ColumnType
+	columnTypes, err = client.Migrator().ColumnTypes(req.GetTableName())
+	if err != nil {
+		return nil, errorsx.Internal("查询数据库字段失败").WithCause(err)
+	}
+	columns := make([]*adminv1.BaseRedactStorageColumn, 0, len(columnTypes))
+	for _, columnType := range columnTypes {
+		if !redact.IsRedactStringDatabaseType(columnType.DatabaseTypeName()) {
+			continue
+		}
+		if primary, ok := columnType.PrimaryKey(); ok && primary {
+			continue
+		}
+		if unique, ok := columnType.Unique(); ok && unique {
+			continue
+		}
+		comment, _ := columnType.Comment()
+		if comment == "" {
+			comment = columnType.Name()
+		}
+		columnTypeName, _ := columnType.ColumnType()
+		if columnTypeName == "" {
+			columnTypeName = columnType.DatabaseTypeName()
+		}
+		columns = append(columns, &adminv1.BaseRedactStorageColumn{
+			Name:       columnType.Name(),
+			Comment:    comment,
+			DbType:     columnType.DatabaseTypeName(),
+			ColumnType: columnTypeName,
+		})
+	}
+	return &adminv1.ListBaseRedactStorageColumnResponse{Columns: columns}, nil
+}
+
 // ensureNoStoredValues 检查入库策略是否已经保存敏感字段原文。
 func (c *BaseRedactStoragePolicyCase) ensureNoStoredValues(ctx context.Context, ids []int64) error {
 	query := c.storageValueRepo.Query(ctx).BaseRedactStorageValue

@@ -118,6 +118,32 @@ export interface BaseRedactStoragePolicy {
   updated_at: string;
 }
 
+/** 查询可入库脱敏字段请求。 */
+export interface ListBaseRedactStorageColumnRequest {
+  /** 数据源名称 */
+  source_name: string;
+  /** 数据库表名 */
+  table_name: string;
+}
+
+/** 可入库脱敏字段。 */
+export interface BaseRedactStorageColumn {
+  /** 字段名 */
+  name: string;
+  /** 字段注释 */
+  comment: string;
+  /** 数据库类型 */
+  db_type: string;
+  /** 数据库完整类型 */
+  column_type: string;
+}
+
+/** 可入库脱敏字段列表响应。 */
+export interface ListBaseRedactStorageColumnResponse {
+  /** 可脱敏字段列表 */
+  columns: BaseRedactStorageColumn[];
+}
+
 /** Admin入库脱敏策略服务。 */
 export interface BaseRedactStoragePolicyService {
   /** 查询入库脱敏策略分页列表。 */
@@ -134,4 +160,8 @@ export interface BaseRedactStoragePolicyService {
   DeleteBaseRedactStoragePolicy(request: DeleteBaseRedactStoragePolicyRequest): Promise<Empty>;
   /** 设置入库脱敏策略状态。 */
   SetBaseRedactStoragePolicyStatus(request: SetBaseRedactStoragePolicyStatusRequest): Promise<Empty>;
+  /** 查询可入库脱敏的字符串字段列表。 */
+  ListBaseRedactStorageColumn(
+    request: ListBaseRedactStorageColumnRequest,
+  ): Promise<ListBaseRedactStorageColumnResponse>;
 }

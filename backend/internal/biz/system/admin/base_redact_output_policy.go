@@ -27,13 +27,14 @@ type BaseRedactOutputPolicyCase struct {
 	tx data.Transaction
 	*data.BaseRedactOutputPolicyRepository
 	baseAPIRepo *data.BaseAPIRepository
+	baseAPICase *BaseAPICase
 	ruleRepo    *data.BaseRedactRuleRepository
 	resolver    *kit.RedactPolicyResolver
 }
 
 // NewBaseRedactOutputPolicyCase 创建出库脱敏策略业务实例。
-func NewBaseRedactOutputPolicyCase(baseCase *biz.BaseCase, tx data.Transaction, repo *data.BaseRedactOutputPolicyRepository, baseAPIRepo *data.BaseAPIRepository, ruleRepo *data.BaseRedactRuleRepository, resolver *kit.RedactPolicyResolver) *BaseRedactOutputPolicyCase {
-	return &BaseRedactOutputPolicyCase{BaseCase: baseCase, tx: tx, BaseRedactOutputPolicyRepository: repo, baseAPIRepo: baseAPIRepo, ruleRepo: ruleRepo, resolver: resolver}
+func NewBaseRedactOutputPolicyCase(baseCase *biz.BaseCase, tx data.Transaction, repo *data.BaseRedactOutputPolicyRepository, baseAPIRepo *data.BaseAPIRepository, baseAPICase *BaseAPICase, ruleRepo *data.BaseRedactRuleRepository, resolver *kit.RedactPolicyResolver) *BaseRedactOutputPolicyCase {
+	return &BaseRedactOutputPolicyCase{BaseCase: baseCase, tx: tx, BaseRedactOutputPolicyRepository: repo, baseAPIRepo: baseAPIRepo, baseAPICase: baseAPICase, ruleRepo: ruleRepo, resolver: resolver}
 }
 
 // PageBaseRedactOutputPolicy 分页查询出库脱敏策略。
@@ -237,6 +238,16 @@ func (c *BaseRedactOutputPolicyCase) SetBaseRedactOutputPolicyStatus(ctx context
 		return err
 	}
 	return redact.RefreshRedactRuntime(ctx, c.resolver)
+}
+
+// GetBaseRedactOutputFieldDoc 查询可出库脱敏的响应字段文档。
+func (c *BaseRedactOutputPolicyCase) GetBaseRedactOutputFieldDoc(ctx context.Context, req *adminv1.GetBaseRedactOutputFieldDocRequest) (*adminv1.BaseApiDoc, error) {
+	doc, err := c.baseAPICase.GetBaseAPIDoc(ctx, req.GetApiId())
+	if err != nil {
+		return nil, err
+	}
+	redact.FilterBaseAPIDocResponseFields(doc)
+	return doc, nil
 }
 
 // validateOutputForm 校验出库策略接口、模式和规则参数。

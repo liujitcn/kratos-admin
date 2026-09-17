@@ -94,7 +94,6 @@ import { useAuthButtons } from "@liujitcn/kratos-admin-core/auth";
 import { buildPageRequest, normalizeSelectedIds } from "@liujitcn/kratos-admin-core/table";
 import { t } from "@liujitcn/kratos-admin-core";
 import { defBaseTableSourceService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/base_table_source";
-import { defCodeGenColumnService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/code_gen_column";
 import { defCodeGenTableService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/code_gen_table";
 import { defBaseRedactRuleService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/base_redact_rule";
 import { defBaseRedactStoragePolicyService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/base_redact_storage_policy";
@@ -229,7 +228,7 @@ async function loadTables(sourceName = form.source_name) { if (!sourceName) { ta
 /** 预加载数据表中文注释，供列表显示。 */
 async function loadTableComments() { await loadSourceOptions(); const comments = new Map<string, string>(); await Promise.all(sourceOptions.value.map(async option => { const sourceName = String(option.value); const data = await defCodeGenTableService.ListCodeGenDatabaseTable({ source_name: sourceName }); for (const item of data.tables ?? []) { if (item.comment) comments.set(`${sourceName}\x00${item.name}`, item.comment); } })); tableCommentMap.value = comments; }
 /** 加载并过滤数据库字段。 */
-async function loadColumns() { if (!form.source_name || !form.table_name) { form.column_rows = []; return; } const data = await defCodeGenColumnService.ListCodeGenDatabaseColumn({ source_name: form.source_name, table_name: form.table_name }); form.column_rows = (data.columns ?? []).filter(item => !item.is_primary && !STORAGE_AUDIT_COLUMN_NAMES.has(item.name.toLowerCase())).map(item => createColumnRow({ label: item.name, value: item.name, name: item.name, comment: item.comment, db_type: item.db_type })); }
+async function loadColumns() { if (!form.source_name || !form.table_name) { form.column_rows = []; return; } const data = await defBaseRedactStoragePolicyService.ListBaseRedactStorageColumn({ source_name: form.source_name, table_name: form.table_name }); form.column_rows = (data.columns ?? []).filter(item => !STORAGE_AUDIT_COLUMN_NAMES.has(item.name.toLowerCase())).map(item => createColumnRow({ label: item.name, value: item.name, name: item.name, comment: item.comment, db_type: item.db_type })); }
 /** 打开新增或编辑弹窗。 */
 async function openDialog(id?: number) { resetForm(); await Promise.all([loadSourceOptions(), loadRules()]); if (id !== undefined) { const data = await defBaseRedactStoragePolicyService.GetBaseRedactStoragePolicy({ id }); Object.assign(form, data); await loadTables(); await loadColumns(); const row = form.column_rows.find(item => item.name === data.column_name); if (row) applyPolicy(row, data); } dialog.titleKey = id !== undefined ? "common.action.edit_resource" : "common.action.create_resource"; dialog.visible = true; }
 /** 重置弹窗表单。 */

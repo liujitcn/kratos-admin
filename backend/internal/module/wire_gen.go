@@ -234,7 +234,7 @@ func BuildModules(migrations *migration.Migration, config2 *configv1.Bootstrap, 
 	baseTableSourceService := admin.NewBaseTableSourceService(baseTableSourceCase)
 	baseRedactOutputPolicyRepository := data2.NewBaseRedactOutputPolicyRepository(dataData)
 	baseRedactRuleRepository := data2.NewBaseRedactRuleRepository(dataData)
-	baseRedactOutputPolicyCase := biz3.NewBaseRedactOutputPolicyCase(baseCase, transaction, baseRedactOutputPolicyRepository, baseAPIRepository, baseRedactRuleRepository, redactResolver)
+	baseRedactOutputPolicyCase := biz3.NewBaseRedactOutputPolicyCase(baseCase, transaction, baseRedactOutputPolicyRepository, baseAPIRepository, baseAPICase, baseRedactRuleRepository, redactResolver)
 	baseRedactOutputPolicyService := admin.NewBaseRedactOutputPolicyService(baseRedactOutputPolicyCase)
 	baseRedactStoragePolicyRepository := data2.NewBaseRedactStoragePolicyRepository(dataData)
 	baseRedactRuleCase := biz3.NewBaseRedactRuleCase(baseCase, baseRedactRuleRepository, baseRedactStoragePolicyRepository, baseRedactOutputPolicyRepository, redactResolver)

@@ -82,3 +82,13 @@ func (s *BaseRedactOutputPolicyService) SetBaseRedactOutputPolicyStatus(ctx cont
 	}
 	return new(emptypb.Empty), nil
 }
+
+// GetBaseRedactOutputFieldDoc 查询可出库脱敏的响应字段文档。
+func (s *BaseRedactOutputPolicyService) GetBaseRedactOutputFieldDoc(ctx context.Context, req *adminv1.GetBaseRedactOutputFieldDocRequest) (*adminv1.BaseApiDoc, error) {
+	result, err := s.baseRedactOutputPolicyCase.GetBaseRedactOutputFieldDoc(ctx, req)
+	if err != nil {
+		log.Error(fmt.Sprintf("GetBaseRedactOutputFieldDoc %v", err))
+		return nil, errorsx.WrapInternal(err, "查询可出库脱敏字段失败")
+	}
+	return result, nil
+}

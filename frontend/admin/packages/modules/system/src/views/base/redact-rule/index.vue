@@ -1,6 +1,6 @@
 <template>
   <div class="table-box">
-    <ProTable ref="table" row-key="id" :columns="columns" :request-api="requestTable" />
+    <ProTable ref="table" row-key="id" :columns="columns" :header-actions="headerActions" :request-api="requestTable" />
     <FormDialog
       v-model="dialog.visible"
       ref="dialogRef"
@@ -113,13 +113,14 @@
 <script setup lang="ts">
 import { computed, reactive, ref } from "vue";
 import { ElMessage, ElMessageBox } from "element-plus";
-import { EditPen } from "@element-plus/icons-vue";
-import type { ColumnProps, ProTableInstance } from "@liujitcn/kratos-admin-core/components/ProTable/interface";
+import type { FormRules } from "element-plus";
+import { CirclePlus, Delete, EditPen } from "@element-plus/icons-vue";
+import type { ColumnProps, HeaderActionProps, ProTableInstance } from "@liujitcn/kratos-admin-core/components/ProTable/interface";
 import ProTable from "@liujitcn/kratos-admin-core/components/ProTable";
 import FormDialog from "@liujitcn/kratos-admin-core/components/Dialog/FormDialog.vue";
 import type { ProFormField } from "@liujitcn/kratos-admin-core/components/ProForm/interface";
 import { useAuthButtons } from "@liujitcn/kratos-admin-core/auth";
-import { buildPageRequest } from "@liujitcn/kratos-admin-core/table";
+import { buildPageRequest, normalizeSelectedIds } from "@liujitcn/kratos-admin-core/table";
 import { t } from "@liujitcn/kratos-admin-core";
 import { defBaseRedactRuleService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/base_redact_rule";
 import type { BaseRedactRule, BaseRedactRuleForm, PageBaseRedactRuleRequest } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_redact_rule";
@@ -157,16 +158,21 @@ const statusOptions = computed(() => [
   { label: t("common.status.enabled"), value: Status.STATUS_ENABLE },
   { label: t("common.status.disabled"), value: Status.STATUS_DISABLE }
 ]);
+/** 运行时支持的规则类型选项。 */
+const ruleTypeOptions = ["MASK", "EMAIL", "REGEX", "TRUNCATE", "HASH", "UUID", "IP", "URL", "FIXED_LENGTH"].map(value => ({ label: value, value }));
 const fields = computed<ProFormField[]>(() => [
-  { prop: "code", label: t("system.base.redact_rule.field.code"), component: "input", props: { disabled: true } },
-  { prop: "name", label: t("system.base.redact_rule.field.name"), component: "input", props: { disabled: true } },
-  { prop: "rule_type", label: t("system.base.redact_rule.field.rule_type"), component: "input", props: { disabled: true } },
+  { prop: "code", label: t("system.base.redact_rule.field.code"), component: "input", props: { disabled: Boolean(form.id) } },
+  { prop: "name", label: t("system.base.redact_rule.field.name"), component: "input", props: { disabled: Boolean(form.id) } },
+  { prop: "rule_type", label: t("system.base.redact_rule.field.rule_type"), component: "select", options: ruleTypeOptions, props: { disabled: Boolean(form.id), onChange: handleRuleTypeChange } },
   { prop: "rule", label: t("system.base.redact_rule.field.parameters"), component: "slot", slotName: "rule", colSpan: 24 },
   { prop: "status", label: t("common.field.status"), component: "radio-group", options: statusOptions.value },
   { prop: "remark", label: t("common.field.remark"), component: "textarea" }
 ]);
 
-const rules = computed(() => ({
+const rules = computed<FormRules>(() => ({
+  code: [{ required: true, message: t("system.base.redact_rule.validation.code"), trigger: "blur" }],
+  name: [{ required: true, message: t("system.base.redact_rule.validation.name"), trigger: "blur" }],
+  rule_type: [{ required: true, message: t("system.base.redact_rule.validation.rule_type"), trigger: "change" }],
   rule: [{ required: true, message: t("system.base.redact_rule.validation.parameters"), trigger: "change" }]
 }));
 
@@ -193,9 +199,10 @@ const columns = computed<ColumnProps[]>(() => [
     prop: "actions",
     label: t("common.field.operation"),
     cellType: "actions",
-    actions: [{ label: t("common.action.edit"), type: "primary", link: true, icon: EditPen, hidden: () => !BUTTONS.value["base:redact-rule:update"], onClick: scope => openDialog((scope.row as BaseRedactRule).id) }]
+    actions: [{ label: t("common.action.edit"), type: "primary", link: true, icon: EditPen, hidden: () => !BUTTONS.value["base:redact-rule:update"], onClick: scope => openDialog((scope.row as BaseRedactRule).id) }, { label: t("common.action.delete"), type: "danger", link: true, icon: Delete, hidden: () => !BUTTONS.value["base:redact-rule:delete"], onClick: scope => deleteItems(scope.row as BaseRedactRule) }]
   }
 ]);
+const headerActions = computed<HeaderActionProps[]>(() => [{ label: t("common.action.create"), type: "success", icon: CirclePlus, hidden: () => !BUTTONS.value["base:redact-rule:create"], onClick: () => openDialog() }, { label: t("common.action.delete"), type: "danger", icon: Delete, hidden: () => !BUTTONS.value["base:redact-rule:delete"], disabled: scope => !scope.selectedList.length, onClick: scope => deleteItems(scope.selectedList as BaseRedactRule[]) }]);
 
 /** 请求固定规则列表。 */
 async function requestTable(params: PageBaseRedactRuleRequest) {
@@ -203,11 +210,14 @@ async function requestTable(params: PageBaseRedactRuleRequest) {
   return { data: { list: data.base_redact_rules ?? [], total: data.total } };
 }
 
-/** 打开固定规则编辑弹窗。 */
-async function openDialog(id: number) {
+/** 打开新增或编辑弹窗。 */
+async function openDialog(id?: number) {
   resetForm();
-  const data = await defBaseRedactRuleService.GetBaseRedactRule({ id });
-  Object.assign(form, data, { params: parseRuleParams(data.rule_type, data.rule) });
+  if (id !== undefined) {
+    const data = await defBaseRedactRuleService.GetBaseRedactRule({ id });
+    Object.assign(form, data, { params: parseRuleParams(data.rule_type, data.rule) });
+  }
+  dialog.titleKey = id !== undefined ? "common.action.edit_resource" : "common.action.create_resource";
   dialog.visible = true;
 }
 
@@ -218,11 +228,11 @@ function resetForm() {
   Object.assign(form, defaultForm());
 }
 
-/** 提交固定规则参数。 */
+/** 提交新增或编辑的规则。 */
 async function submit() {
+  syncRule();
   const valid = await dialogRef.value?.validate();
   if (!valid) return;
-  syncRule();
   const payload: BaseRedactRuleForm = {
     id: form.id,
     code: form.code,
@@ -232,8 +242,12 @@ async function submit() {
     status: form.status,
     remark: form.remark
   };
-  await defBaseRedactRuleService.UpdateBaseRedactRule({ base_redact_rule: payload });
-  ElMessage.success(t("common.message.update_success", { resource: t("system.base.redact_rule.title") }));
+  if (form.id) {
+    await defBaseRedactRuleService.UpdateBaseRedactRule({ base_redact_rule: payload });
+  } else {
+    await defBaseRedactRuleService.CreateBaseRedactRule({ base_redact_rule: payload });
+  }
+  ElMessage.success(t(form.id ? "common.message.update_success" : "common.message.create_success", { resource: t("system.base.redact_rule.title") }));
   resetForm();
   table.value?.getTableList();
 }
@@ -260,9 +274,34 @@ async function changeStatus(row: BaseRedactRule) {
   }
 }
 
+/** 删除未被引用的规则。 */
+function deleteItems(selected?: BaseRedactRule | BaseRedactRule[] | number | string | Array<number | string>) {
+  const items = Array.isArray(selected) ? selected.filter((item): item is BaseRedactRule => typeof item === "object") : selected && typeof selected === "object" ? [selected] : [];
+  const ids = items.length ? items.map(item => item.id) : normalizeSelectedIds(selected as number | string | Array<number | string>);
+  if (!ids.length) {
+    ElMessage.warning(t("common.message.select_delete_item"));
+    return;
+  }
+  ElMessageBox.confirm(t("common.dialog.delete_selected", { resource: t("system.base.redact_rule.title") }), t("common.title.warning"), { type: "warning" }).then(async () => {
+    await defBaseRedactRuleService.DeleteBaseRedactRule({ id: ids.join(",") });
+    ElMessage.success(t("common.message.delete_success", { resource: t("system.base.redact_rule.title") }));
+    table.value?.getTableList();
+  });
+}
+
 /** 将参数表单同步为运行时规则 JSON。 */
 function syncRule() {
+  if (!form.rule_type) {
+    form.rule = "";
+    return;
+  }
   form.rule = JSON.stringify({ [form.rule_type.toLowerCase()]: form.params }, null, 2);
+}
+
+/** 切换规则类型时重置参数。 */
+function handleRuleTypeChange(ruleType?: string) {
+  form.rule_type = ruleType ?? "";
+  form.params = {};
 }
 
 /** 解析数据库规则 JSON 中当前类型的参数。 */

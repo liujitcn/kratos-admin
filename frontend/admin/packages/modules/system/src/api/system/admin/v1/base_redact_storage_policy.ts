@@ -5,6 +5,8 @@ import type {
   CreateBaseRedactStoragePolicyRequest,
   DeleteBaseRedactStoragePolicyRequest,
   GetBaseRedactStoragePolicyRequest,
+  ListBaseRedactStorageColumnRequest,
+  ListBaseRedactStorageColumnResponse,
   PageBaseRedactStoragePolicyRequest,
   PageBaseRedactStoragePolicyResponse,
   SetBaseRedactStoragePolicyStatusRequest,
@@ -44,6 +46,11 @@ export class BaseRedactStoragePolicyServiceImpl implements BaseRedactStoragePoli
   /** 设置入库脱敏策略状态。 */
   SetBaseRedactStoragePolicyStatus(request: SetBaseRedactStoragePolicyStatusRequest): Promise<Empty> {
     return service<SetBaseRedactStoragePolicyStatusRequest, Empty>({ url: `${BASE_REDACT_STORAGE_POLICY_URL}/${request.id}/status`, method: "put", data: request });
+  }
+
+  /** 查询可入库脱敏的字符串字段列表。 */
+  ListBaseRedactStorageColumn(request: ListBaseRedactStorageColumnRequest): Promise<ListBaseRedactStorageColumnResponse> {
+    return service<ListBaseRedactStorageColumnRequest, ListBaseRedactStorageColumnResponse>({ url: `${BASE_REDACT_STORAGE_POLICY_URL}/columns`, method: "get", params: request });
   }
 }
 

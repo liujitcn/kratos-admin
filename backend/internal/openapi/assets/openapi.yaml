@@ -3445,6 +3445,25 @@ paths:
                 "200":
                     description: OK
                     content: {}
+    /api/v1/admin/base/redact-output-policy/fields/{api_id}:
+        get:
+            tags:
+                - BaseRedactOutputPolicyService
+            description: 查询可出库脱敏的响应字段文档。
+            operationId: BaseRedactOutputPolicyService_GetBaseRedactOutputFieldDoc
+            parameters:
+                - name: api_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.BaseApiDoc'
     /api/v1/admin/base/redact-output-policy/{id}:
         get:
             tags:
@@ -3732,6 +3751,28 @@ paths:
                 "200":
                     description: OK
                     content: {}
+    /api/v1/admin/base/redact-storage-policy/columns:
+        get:
+            tags:
+                - BaseRedactStoragePolicyService
+            description: 查询可入库脱敏的字符串字段列表。
+            operationId: BaseRedactStoragePolicyService_ListBaseRedactStorageColumn
+            parameters:
+                - name: source_name
+                  in: query
+                  schema:
+                    type: string
+                - name: table_name
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.ListBaseRedactStorageColumnResponse'
     /api/v1/admin/base/redact-storage-policy/{id}:
         get:
             tags:
@@ -10938,6 +10979,22 @@ components:
                     type: string
                     description: 备注
             description: 脱敏规则表单。
+        system.admin.v1.BaseRedactStorageColumn:
+            type: object
+            properties:
+                name:
+                    type: string
+                    description: 字段名
+                comment:
+                    type: string
+                    description: 字段注释
+                db_type:
+                    type: string
+                    description: 数据库类型
+                column_type:
+                    type: string
+                    description: 数据库完整类型
+            description: 可入库脱敏字段。
         system.admin.v1.BaseRedactStoragePolicy:
             type: object
             properties:
@@ -12488,6 +12545,15 @@ components:
                         $ref: '#/components/schemas/system.admin.v1.BaseLogTraceItem'
                     description: 关联日志时间线
             description: 关联审计查询响应。
+        system.admin.v1.ListBaseRedactStorageColumnResponse:
+            type: object
+            properties:
+                columns:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.BaseRedactStorageColumn'
+                    description: 可脱敏字段列表
+            description: 可入库脱敏字段列表响应。
         system.admin.v1.ListBaseUserResponse:
             type: object
             properties:

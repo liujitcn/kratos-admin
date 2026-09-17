@@ -4,12 +4,14 @@ import type {
   BaseRedactOutputPolicyService,
   CreateBaseRedactOutputPolicyRequest,
   DeleteBaseRedactOutputPolicyRequest,
+  GetBaseRedactOutputFieldDocRequest,
   GetBaseRedactOutputPolicyRequest,
   PageBaseRedactOutputPolicyRequest,
   PageBaseRedactOutputPolicyResponse,
   SetBaseRedactOutputPolicyStatusRequest,
   UpdateBaseRedactOutputPolicyRequest
 } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_redact_output_policy";
+import type { BaseApiDoc } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_api";
 import type { Empty } from "@liujitcn/kratos-admin-system/rpc/google/protobuf/empty";
 
 const BASE_REDACT_OUTPUT_POLICY_URL = "/v1/admin/base/redact-output-policy";
@@ -44,6 +46,11 @@ export class BaseRedactOutputPolicyServiceImpl implements BaseRedactOutputPolicy
   /** 设置出库脱敏策略状态。 */
   SetBaseRedactOutputPolicyStatus(request: SetBaseRedactOutputPolicyStatusRequest): Promise<Empty> {
     return service<SetBaseRedactOutputPolicyStatusRequest, Empty>({ url: `${BASE_REDACT_OUTPUT_POLICY_URL}/${request.id}/status`, method: "put", data: request });
+  }
+
+  /** 查询可出库脱敏的响应字段文档。 */
+  GetBaseRedactOutputFieldDoc(request: GetBaseRedactOutputFieldDocRequest): Promise<BaseApiDoc> {
+    return service<GetBaseRedactOutputFieldDocRequest, BaseApiDoc>({ url: `${BASE_REDACT_OUTPUT_POLICY_URL}/fields/${request.api_id}`, method: "get" });
   }
 }
 

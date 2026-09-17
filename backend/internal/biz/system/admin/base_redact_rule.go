@@ -16,6 +16,7 @@ import (
 	"github.com/liujitcn/kratos-core/errorsx"
 	authData "github.com/liujitcn/kratos-kit/auth/data"
 
+	_string "github.com/liujitcn/go-utils/string"
 	"github.com/liujitcn/gorm-kit/repository"
 	"gorm.io/gen/field"
 )
@@ -199,13 +200,59 @@ func (c *BaseRedactRuleCase) UpdateBaseRedactRule(ctx context.Context, input *ad
 	return redact.RefreshRedactRuntime(ctx, c.resolver)
 }
 
-// DeleteBaseRedactRule 删除脱敏规则模板。
-func (c *BaseRedactRuleCase) DeleteBaseRedactRule(ctx context.Context, _ string) error {
+// DeleteBaseRedactRule 删除未被脱敏策略引用的规则。
+func (c *BaseRedactRuleCase) DeleteBaseRedactRule(ctx context.Context, value string) error {
 	err := redact.EnsureRedactPlatformOperator(ctx, c.BaseCase)
 	if err != nil {
 		return err
 	}
-	return errorsx.ProtectedResourceConflict("脱敏规则由系统内置，不支持删除", "base_redact_rule")
+	ids := _string.ConvertStringToInt64Array(value)
+	if len(ids) == 0 {
+		return errorsx.InvalidArgument("规则ID不能为空")
+	}
+	var items []*models.BaseRedactRule
+	items, err = c.ListByIDs(ctx, ids)
+	if err != nil {
+		return err
+	}
+	if len(items) != len(ids) {
+		return errorsx.ResourceNotFound("脱敏规则不存在")
+	}
+	for _, item := range items {
+		err = c.ensureRuleCanDelete(ctx, item.ID)
+		if err != nil {
+			return err
+		}
+	}
+	err = c.DeleteByIDs(ctx, ids)
+	if err != nil {
+		return err
+	}
+	return redact.RefreshRedactRuntime(ctx, c.resolver)
+}
+
+// ensureRuleCanDelete 检查规则是否仍被未删除的脱敏策略引用。
+func (c *BaseRedactRuleCase) ensureRuleCanDelete(ctx context.Context, ruleID int64) error {
+	storageQuery := c.storagePolicyRepo.Query(ctx).BaseRedactStoragePolicy
+	var storageCount int64
+	var err error
+	storageCount, err = c.storagePolicyRepo.Count(ctx, repository.Where(storageQuery.RuleID.Eq(ruleID)))
+	if err != nil {
+		return err
+	}
+	if storageCount > 0 {
+		return errorsx.ProtectedResourceConflict("已有入库脱敏策略引用该规则，不能删除", "base_redact_rule")
+	}
+	outputQuery := c.outputPolicyRepo.Query(ctx).BaseRedactOutputPolicy
+	var outputCount int64
+	outputCount, err = c.outputPolicyRepo.Count(ctx, repository.Where(outputQuery.RuleID.Eq(ruleID)))
+	if err != nil {
+		return err
+	}
+	if outputCount > 0 {
+		return errorsx.ProtectedResourceConflict("已有出库脱敏策略引用该规则，不能删除", "base_redact_rule")
+	}
+	return nil
 }
 
 // SetBaseRedactRuleStatus 设置脱敏规则模板状态。

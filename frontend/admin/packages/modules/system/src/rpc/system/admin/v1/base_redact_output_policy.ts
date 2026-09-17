@@ -7,6 +7,7 @@
 /* eslint-disable */
 import type { Status } from "../../../common/v1/enum";
 import type { Empty } from "../../../google/protobuf/empty";
+import type { BaseApiDoc } from "./base_api";
 
 /** 出库脱敏策略处理模式。 */
 export enum BaseRedactOutputPolicyMode {
@@ -140,6 +141,12 @@ export interface BaseRedactOutputPolicy {
   updated_at: string;
 }
 
+/** 查询可出库脱敏字段请求。 */
+export interface GetBaseRedactOutputFieldDocRequest {
+  /** 接口ID */
+  api_id: number;
+}
+
 /** Admin出库脱敏策略服务。 */
 export interface BaseRedactOutputPolicyService {
   /** 查询出库脱敏策略分页列表。 */
@@ -154,4 +161,6 @@ export interface BaseRedactOutputPolicyService {
   DeleteBaseRedactOutputPolicy(request: DeleteBaseRedactOutputPolicyRequest): Promise<Empty>;
   /** 设置出库脱敏策略状态。 */
   SetBaseRedactOutputPolicyStatus(request: SetBaseRedactOutputPolicyStatusRequest): Promise<Empty>;
+  /** 查询可出库脱敏的响应字段文档。 */
+  GetBaseRedactOutputFieldDoc(request: GetBaseRedactOutputFieldDocRequest): Promise<BaseApiDoc>;
 }
