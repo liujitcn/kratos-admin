@@ -35,7 +35,7 @@ const resultOptions = computed(() =>
   ])
 );
 const columns = computed<ColumnProps[]>(() => [
-  { prop: "operation", label: t("system.base.log.field.operation"), minWidth: 320, search: { el: "input" } },
+  { prop: "operation", label: t("system.base.log.field.operation"), minWidth: 320, search: { el: "input", key: "keyword" } },
   { prop: "method", label: t("system.base.log.field.method"), minWidth: 90 },
   { prop: "status_code", label: t("system.base.log.field.status_code"), minWidth: 100, align: "right" },
   {

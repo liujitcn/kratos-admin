@@ -207,6 +207,7 @@ const ruleOptions = ref<ProFormOption[]>([]);
 const ruleCatalog = ref<BaseRedactRule[]>([]);
 const dialog = reactive({ visible: false, titleKey: "common.action.create_resource" });
 const form = reactive<OutputFormState>(defaultForm());
+let responseFieldsRequestRevision = 0;
 const statusOptions = computed<ProFormOption[]>(() => [{ label: t("common.status.enabled"), value: Status.STATUS_ENABLE }, { label: t("common.status.disabled"), value: Status.STATUS_DISABLE }]);
 const serviceOptions = computed<ProFormOption[]>(() => {
   const services = new Map<string, string>();
@@ -258,11 +259,11 @@ async function loadApis() { const data = await defBaseApiService.OptionBaseApi({
 /** 加载脱敏规则选项。 */
 async function loadRules() { const data = await defBaseRedactRuleService.PageBaseRedactRule({ code: "", name: "", rule_type: "", page_num: 1, page_size: 100 }); ruleCatalog.value = data.base_redact_rules ?? []; ruleOptions.value = ruleCatalog.value.map(item => ({ label: `${item.name} (${item.code})`, value: item.id, disabled: item.status !== Status.STATUS_ENABLE })); }
 /** 服务变更后清空接口和返回字段。 */
-function handleServiceChange(serviceName?: string) { form.service_name = serviceName ?? ""; form.api_id = undefined; form.operation = ""; form.message_ref = ""; form.field_path = ""; form.field_rows = []; }
+function handleServiceChange(serviceName?: string) { responseFieldsRequestRevision += 1; form.service_name = serviceName ?? ""; form.api_id = undefined; form.operation = ""; form.message_ref = ""; form.field_path = ""; form.field_rows = []; }
 /** API 变更后重新加载返回字段。 */
 async function handleApiChange(apiId?: number) { const api = interfaceOptions.value.find(item => item.id === apiId); form.service_name = api?.service_name ?? form.service_name; form.operation = api?.operation ?? ""; form.field_rows = []; if (apiId !== undefined) await loadResponseFields(apiId); }
 /** 加载 API 返回字段并初始化表格行。 */
-async function loadResponseFields(apiId: number) { const api = apiCatalog.value.find(item => item.id === apiId); if (!api) return; const doc = await defBaseRedactOutputPolicyService.GetBaseRedactOutputFieldDoc({ api_id: apiId }); const rows: OutputFieldRow[] = []; for (const response of doc.responses ?? []) { if (response.body) collectFields(response.body, "", "", rows, true); } form.field_rows = [...new Map(rows.map(item => [String(item.value), item])).values()]; }
+async function loadResponseFields(apiId: number) { const revision = ++responseFieldsRequestRevision; const api = apiCatalog.value.find(item => item.id === apiId); if (!api) return; const doc = await defBaseRedactOutputPolicyService.GetBaseRedactOutputFieldDoc({ api_id: apiId }); if (revision !== responseFieldsRequestRevision) return; const rows: OutputFieldRow[] = []; for (const response of doc.responses ?? []) { if (response.body) collectFields(response.body, "", "", rows, true); } form.field_rows = [...new Map(rows.map(item => [String(item.value), item])).values()]; }
 /** 递归收集可配置的返回叶子字段。 */
 function collectFields(schema: BaseApiDocSchema, parentRef: string, parentPath: string, result: OutputFieldRow[], root: boolean) { const schemaRef = normalizeRef(schema.ref); const messageRef = schemaRef || parentRef; const startsNewMessage = Boolean(schemaRef && parentRef && schemaRef !== parentRef); const rootContainer = root || (!parentRef && (schema.name === "body" || schema.name === "body[]")); const path = rootContainer || startsNewMessage ? "" : schema.name ? (parentPath ? `${parentPath}.${schema.name}` : schema.name) : parentPath; if (!schema.children?.length) { const fieldName = path.split(".").pop()?.toLowerCase() ?? ""; if (path && !OUTPUT_SYSTEM_FIELD_NAMES.has(fieldName)) result.push(createFieldRow({ label: `${messageRef}.${path}${schema.description ? ` (${schema.description})` : ""}`, value: `${messageRef}\u0000${path}`, message_ref: messageRef, field_path: path, description: schema.description })); return; } for (const child of schema.children) collectFields(child, messageRef, path, result, false); }
 /** 规范化 OpenAPI 引用名称。 */

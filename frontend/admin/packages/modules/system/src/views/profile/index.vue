@@ -102,7 +102,7 @@ const userProfileForm = reactive<UserProfileForm>({
   user_name: "",
   nick_name: "",
   avatar: "",
-  gender: 3,
+  gender: 1,
   phone: "",
   email: "",
   id_type: 0,

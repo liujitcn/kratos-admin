@@ -61,10 +61,10 @@ export class SseServiceImpl {
   }
 
   /** 释放 SSE 共享连接。 */
-  ReleaseSse(request: SubscribeSseRequest) {
+  ReleaseSse(request: SubscribeSseRequest, connection?: SharedSseConnection) {
     const connectionKey = this.buildConnectionKey(request);
     const cachedConnection = this.sharedConnections.get(connectionKey);
-    if (!cachedConnection) {
+    if (!cachedConnection || (connection && cachedConnection !== connection)) {
       return;
     }
     cachedConnection.refCount -= 1;
@@ -77,10 +77,9 @@ export class SseServiceImpl {
 
   /** 构建 SSE 订阅地址。 */
   private buildSubscribeURL(request: SubscribeSseRequest) {
-    const url = new URL(SSE_URL, window.location.origin);
-    url.searchParams.set("stream", request.stream);
+    const url = new URL(`${SSE_URL}/${encodeURIComponent(request.stream)}`, window.location.origin);
     if (request.channel_id) {
-      url.searchParams.set("channel", request.channel_id);
+      url.searchParams.set("channel_id", request.channel_id);
     }
     return url.toString();
   }
@@ -100,19 +99,27 @@ export class SseServiceImpl {
     try {
       const accessToken = await getRequestAccessToken();
       if (!accessToken) {
-        this.sharedConnections.delete(connectionKey);
+        if (this.sharedConnections.get(connectionKey) === connection) this.sharedConnections.delete(connectionKey);
         return;
       }
 
+      const headers: Record<string, string> = {
+        Accept: EventStreamContentType,
+        Authorization: accessToken,
+        ...getLocaleRequestHeaders()
+      };
       await fetchEventSource(url, {
         method: "GET",
         signal: controller.signal,
         openWhenHidden: true,
-        headers: {
-          Accept: EventStreamContentType,
-          Authorization: accessToken,
-          ...getLocaleRequestHeaders()
+        fetch: async (input, init) => {
+          const token = await getRequestAccessToken();
+          if (!token) return new Response(null, { status: 401 });
+          const requestHeaders = new Headers(init?.headers);
+          requestHeaders.set("Authorization", token);
+          return window.fetch(input, { ...init, headers: requestHeaders });
         },
+        headers,
         async onopen(response) {
           const contentType = response.headers.get("content-type") ?? "";
           if (response.ok && contentType.startsWith(EventStreamContentType)) {
@@ -161,7 +168,7 @@ export class SseServiceImpl {
       } else if (error instanceof SsePermissionError) {
         ElMessage.error(error.message);
       }
-      this.sharedConnections.delete(connectionKey);
+      if (this.sharedConnections.get(connectionKey) === connection) this.sharedConnections.delete(connectionKey);
     }
   }
 }
@@ -199,6 +206,6 @@ export function subscribeSseEvent<T>(
     if (currentListeners && currentListeners.size === 0) {
       connection.listeners.delete(eventName);
     }
-    defSseService.ReleaseSse(request);
+    defSseService.ReleaseSse(request, connection);
   };
 }

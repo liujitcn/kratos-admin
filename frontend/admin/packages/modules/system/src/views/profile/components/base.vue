@@ -120,7 +120,7 @@ const submitLoading = ref(false);
 const avatarSrc = ref(defaultAvatar);
 const accountForm = reactive<Pick<UserProfileForm, "nick_name" | "gender" | "email" | "id_type" | "id_code">>({
   nick_name: "",
-  gender: 3,
+  gender: 1,
   email: "",
   id_type: BaseUserIDType.BASE_USER_ID_TYPE_UNSPECIFIED,
   id_code: ""

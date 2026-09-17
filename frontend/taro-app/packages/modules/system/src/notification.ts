@@ -71,7 +71,7 @@ function startNotificationSse(): () => void {
       try {
         const token = await getRequestAccessToken()
         if (!token || controller.signal.aborted) return
-        const response = await fetch(`${window.location.origin}/events?stream=base.notification`, {
+        const response = await fetch(`${window.location.origin}/events/base.notification`, {
           headers: { Accept: 'text/event-stream', Authorization: token },
           signal: controller.signal,
         })

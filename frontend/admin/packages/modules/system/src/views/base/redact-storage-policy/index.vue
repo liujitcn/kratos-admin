@@ -188,6 +188,7 @@ const ruleOptions = ref<ProFormOption[]>([]);
 const ruleCatalog = ref<BaseRedactRule[]>([]);
 const dialog = reactive({ visible: false, titleKey: "common.action.create_resource" });
 const form = reactive<StorageFormState>(defaultForm());
+let columnsRequestRevision = 0;
 const statusOptions = computed<ProFormOption[]>(() => [{ label: t("common.status.enabled"), value: Status.STATUS_ENABLE }, { label: t("common.status.disabled"), value: Status.STATUS_DISABLE }]);
 const configuredFieldCount = computed(() => form.column_rows.filter(row => Boolean(row.rule_id)).length);
 const fields = computed<ProFormField[]>(() => [
@@ -218,9 +219,9 @@ async function requestTable(params: PageBaseRedactStoragePolicyRequest) { const 
 /** 加载脱敏规则选项。 */
 async function loadRules() { const data = await defBaseRedactRuleService.PageBaseRedactRule({ code: "", name: "", rule_type: "", page_num: 1, page_size: 100 }); ruleCatalog.value = data.base_redact_rules ?? []; ruleOptions.value = ruleCatalog.value.map(item => ({ label: `${item.name} (${item.code})`, value: item.id, disabled: item.status !== Status.STATUS_ENABLE })); }
 /** 数据源变更后清空下级选择并加载数据表。 */
-async function handleSourceChange(sourceName: string) { form.source_name = sourceName; form.table_name = ""; form.column_name = ""; form.column_rows = []; tableOptions.value = []; await loadTables(); }
+async function handleSourceChange(sourceName: string) { columnsRequestRevision += 1; form.source_name = sourceName; form.table_name = ""; form.column_name = ""; form.column_rows = []; tableOptions.value = []; await loadTables(); }
 /** 数据表变更后加载字段表格。 */
-async function handleTableChange(tableName: string) { form.table_name = tableName; form.column_name = ""; form.column_rows = []; await loadColumns(); }
+async function handleTableChange(tableName: string) { columnsRequestRevision += 1; form.table_name = tableName; form.column_name = ""; form.column_rows = []; await loadColumns(); }
 /** 加载数据源选项。 */
 async function loadSourceOptions() { const data = await defBaseTableSourceService.OptionBaseTableSource({}); sourceOptions.value = (data.value ?? []).map(value => ({ label: value, value })); }
 /** 加载指定数据源的数据表选项。 */
@@ -228,13 +229,28 @@ async function loadTables(sourceName = form.source_name) { if (!sourceName) { ta
 /** 预加载数据表中文注释，供列表显示。 */
 async function loadTableComments() { await loadSourceOptions(); const comments = new Map<string, string>(); await Promise.all(sourceOptions.value.map(async option => { const sourceName = String(option.value); const data = await defCodeGenTableService.ListCodeGenDatabaseTable({ source_name: sourceName }); for (const item of data.tables ?? []) { if (item.comment) comments.set(`${sourceName}\x00${item.name}`, item.comment); } })); tableCommentMap.value = comments; }
 /** 加载并过滤数据库字段。 */
-async function loadColumns() { if (!form.source_name || !form.table_name) { form.column_rows = []; return; } const data = await defBaseRedactStoragePolicyService.ListBaseRedactStorageColumn({ source_name: form.source_name, table_name: form.table_name }); form.column_rows = (data.columns ?? []).filter(item => !STORAGE_AUDIT_COLUMN_NAMES.has(item.name.toLowerCase())).map(item => createColumnRow({ label: item.name, value: item.name, name: item.name, comment: item.comment, db_type: item.db_type })); }
+async function loadColumns() { const revision = ++columnsRequestRevision; if (!form.source_name || !form.table_name) { form.column_rows = []; return; } const data = await defBaseRedactStoragePolicyService.ListBaseRedactStorageColumn({ source_name: form.source_name, table_name: form.table_name }); if (revision !== columnsRequestRevision) return; form.column_rows = (data.columns ?? []).filter(item => !STORAGE_AUDIT_COLUMN_NAMES.has(item.name.toLowerCase())).map(item => createColumnRow({ label: item.name, value: item.name, name: item.name, comment: item.comment, db_type: item.db_type })); }
 /** 打开新增或编辑弹窗。 */
 async function openDialog(id?: number) { resetForm(); await Promise.all([loadSourceOptions(), loadRules()]); if (id !== undefined) { const data = await defBaseRedactStoragePolicyService.GetBaseRedactStoragePolicy({ id }); Object.assign(form, data); await loadTables(); await loadColumns(); const row = form.column_rows.find(item => item.name === data.column_name); if (row) applyPolicy(row, data); } dialog.titleKey = id !== undefined ? "common.action.edit_resource" : "common.action.create_resource"; dialog.visible = true; }
 /** 重置弹窗表单。 */
 function resetForm() { dialog.visible = false; dialogRef.value?.resetFields(); Object.assign(form, defaultForm()); sourceOptions.value = []; tableOptions.value = []; }
 /** 保存表格中已配置的全部字段。 */
-async function submit() { const valid = await dialogRef.value?.validate(); if (!valid || !form.column_rows.some(row => Boolean(row.rule_id))) return; const rows = form.column_rows.filter(row => Boolean(row.rule_id)); const createPolicies = rows.filter(row => !row.id).map(buildPayload); const updatePolicies = rows.filter(row => Boolean(row.id)).map(buildPayload); const requests: Promise<unknown>[] = []; if (createPolicies.length) requests.push(defBaseRedactStoragePolicyService.CreateBaseRedactStoragePolicy({ base_redact_storage_policy: createPolicies })); if (updatePolicies.length) requests.push(defBaseRedactStoragePolicyService.UpdateBaseRedactStoragePolicy({ base_redact_storage_policy: updatePolicies })); await Promise.all(requests); ElMessage.success(t("system.base.redact_storage_policy.message.batch_save_success", { count: rows.length })); resetForm(); table.value?.getTableList(); }
+async function submit() {
+  const valid = await dialogRef.value?.validate();
+  const rows = form.column_rows.filter(row => Boolean(row.rule_id));
+  const removedIds = form.column_rows.filter(row => row.id > 0 && !row.rule_id).map(row => row.id);
+  if (!valid || (!rows.length && !removedIds.length)) return;
+  const createPolicies = rows.filter(row => !row.id).map(buildPayload);
+  const updatePolicies = rows.filter(row => Boolean(row.id)).map(buildPayload);
+  const requests: Promise<unknown>[] = [];
+  if (createPolicies.length) requests.push(defBaseRedactStoragePolicyService.CreateBaseRedactStoragePolicy({ base_redact_storage_policy: createPolicies }));
+  if (updatePolicies.length) requests.push(defBaseRedactStoragePolicyService.UpdateBaseRedactStoragePolicy({ base_redact_storage_policy: updatePolicies }));
+  if (removedIds.length) requests.push(defBaseRedactStoragePolicyService.DeleteBaseRedactStoragePolicy({ id: removedIds.join(",") }));
+  await Promise.all(requests);
+  ElMessage.success(t("system.base.redact_storage_policy.message.batch_save_success", { count: rows.length }));
+  resetForm();
+  table.value?.getTableList();
+}
 /** 将表格行转换为入库策略请求。 */
 function buildPayload(row: StorageColumnRow): BaseRedactStoragePolicyForm { syncRowParams(row); return { id: row.id, source_name: form.source_name, table_name: form.table_name, column_name: row.name, rule_id: row.rule_id ?? 0, rule_params: row.rule_params, status: form.status, remark: form.remark }; }
 /** 将已保存的策略回填到对应字段行。 */

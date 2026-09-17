@@ -310,6 +310,8 @@ async function openDialog(id?: number) {
 
 /** 提交消息分类表单。 */
 async function handleSubmit() {
+  const valid = await formDialogRef.value?.validate();
+  if (!valid) return;
   const payload = formData as BaseMessageCategoryForm;
   if (payload.id) await defBaseMessageCategoryService.UpdateBaseMessageCategory({ base_message_category: payload });
   else await defBaseMessageCategoryService.CreateBaseMessageCategory({ base_message_category: payload });

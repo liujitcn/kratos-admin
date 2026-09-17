@@ -369,6 +369,11 @@ function handleDelete(selected?: number | string | Array<number | string> | Oaut
 }
 
 async function handleCopyCredentials(row: OauthClient) {
+  await ElMessageBox.confirm(
+    t("system.base.oauth_client.confirm.rotate_credentials"),
+    t("common.title.warning"),
+    { type: "warning" }
+  );
   const credentials = await defOauthClientService.RotateOauthClientCredentials({ id: row.id });
   const content = [
     `${t("system.base.oauth_client.field.client_id")}：${credentials.client_id}`,

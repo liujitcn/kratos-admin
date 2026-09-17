@@ -32,9 +32,11 @@ export function formatDateTime(value?: string | number | Date) {
 export function formatSrc(src: string) {
   const value = String(src ?? "").trim();
   if (!value) return value;
-  if (/^(https?:)?\/\//.test(value) || value.startsWith("data:") || value.startsWith("blob:")) {
+  if (/^(https?:)?\/\//.test(value) || value.startsWith("blob:")) {
     return value;
   }
+  if (value.startsWith("data:")) return /^data:image\/(?:gif|jpe?g|png|webp|bmp);base64,/i.test(value) ? value : "";
+  if (/^[a-z][a-z0-9+.-]*:/i.test(value)) return "";
 
   const configuredBase = String(import.meta.env.VITE_APP_STATIC_URL ?? "").trim();
   const staticBase = configuredBase

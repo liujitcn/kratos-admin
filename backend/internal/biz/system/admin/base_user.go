@@ -2,7 +2,6 @@ package biz
 
 import (
 	"context"
-	"strings"
 	"time"
 
 	"github.com/go-kratos/kratos/v3/transport"
@@ -834,6 +833,6 @@ func baseUserGRPCContext(ctx context.Context) context.Context {
 
 // baseUserLocalCall 判断请求是否来自其他进程内模块。
 func baseUserLocalCall(ctx context.Context) bool {
-	serverTransport, ok := transport.FromServerContext(ctx)
-	return !ok || !strings.HasPrefix(serverTransport.Operation(), "/system.admin.v1.BaseUserService/")
+	_, ok := transport.FromServerContext(ctx)
+	return !ok
 }

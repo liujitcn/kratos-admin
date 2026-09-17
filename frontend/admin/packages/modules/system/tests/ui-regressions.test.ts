@@ -172,6 +172,51 @@ test("消息标题单独打开正文，发送详情只展示投递信息", async
   assert.doesNotMatch(sendDetailDialog, /message-detail-content|detail\.data\.form\?\.content/);
 });
 
+test("消息页面单删和提交都使用正确的表单数据", async () => {
+  const source = await readSource("src/views/base/message/index.vue");
+  const submitBlock = source.match(/async function handleSubmit\(\) \{[\s\S]*?\n\}/)?.[0];
+  const deleteBlock = source.match(/async function handleDelete\([\s\S]*?\n\}/)?.[0];
+  assert.ok(submitBlock, "缺少消息提交方法");
+  assert.ok(deleteBlock, "缺少消息删除方法");
+  assert.match(submitBlock, /const valid = await formDialogRef\.value\?\.validate\(\);/);
+  assert.match(deleteBlock, /typeof item === "object" \? item\.id : item/);
+});
+
+test("缓存和 API 日志搜索使用后端 keyword 字段", async () => {
+  const [cacheSource, apiLogSource] = await Promise.all([
+    readSource("src/views/tool/cache/index.vue"),
+    readSource("src/views/base/api-log/index.vue")
+  ]);
+  assert.match(cacheSource, /prop: "key"[\s\S]*search: \{ el: "input", key: "keyword"/);
+  assert.match(apiLogSource, /prop: "operation"[\s\S]*search: \{ el: "input", key: "keyword"/);
+});
+
+test("入库脱敏策略清空已有规则时提交删除请求", async () => {
+  const source = await readSource("src/views/base/redact-storage-policy/index.vue");
+  assert.match(source, /const removedIds = form\.column_rows\.filter\(row => row\.id > 0 && !row\.rule_id\)/);
+  assert.match(source, /DeleteBaseRedactStoragePolicy\(\{ id: removedIds\.join\(","\) \}\)/);
+});
+
+test("SSE 和资源地址只使用有效的协议与路由格式", async () => {
+  const [sseSource, utilsSource] = await Promise.all([
+    readSource("src/api/base/v1/sse.ts"),
+    readSource("../../core/src/utils/utils.ts")
+  ]);
+  assert.match(sseSource, /new URL\(`\$\{SSE_URL\}\/\$\{encodeURIComponent\(request\.stream\)\}`/);
+  assert.match(sseSource, /url\.searchParams\.set\("channel_id", request\.channel_id\)/);
+  assert.ok(utilsSource.includes('if (/^[a-z][a-z0-9+.-]*:/i.test(value)) return "";'));
+});
+
+test("用户默认性别为保密且凭据轮换需要确认", async () => {
+  const [userSource, oauthSource] = await Promise.all([
+    readSource("src/views/base/user/index.vue"),
+    readSource("src/views/base/oauth-client/index.vue")
+  ]);
+  assert.match(userSource, /gender: 1/);
+  assert.match(oauthSource, /await ElMessageBox\.confirm\(/);
+  assert.match(oauthSource, /system\.base\.oauth_client\.confirm\.rotate_credentials/);
+});
+
 test("新增回归校验使用的国际化键在四种语言中均存在", async () => {
   const locales = await Promise.all(["zh-CN", "en-US", "ja-JP", "zh-TW"].map(locale => readSource(`src/locales/${locale}.json`)));
   const requiredKeys = [

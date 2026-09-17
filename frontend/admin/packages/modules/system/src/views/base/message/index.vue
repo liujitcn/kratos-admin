@@ -112,7 +112,9 @@
           <el-table-column prop="include_children" :label="t('system.base.message.field.include_children')" width="120">
             <template #default="scope">{{ scope.row.include_children ? t("common.value.yes") : t("common.value.no") }}</template>
           </el-table-column>
-          <el-table-column prop="status" :label="t('common.field.status')" width="120" />
+          <el-table-column prop="status" :label="t('common.field.status')" width="120">
+            <template #default="scope">{{ optionLabel(dispatchStatusOptions, scope.row.status) }}</template>
+          </el-table-column>
           <el-table-column prop="matched_total" :label="t('system.base.message.field.matched_total')" width="110" align="right" />
           <el-table-column prop="inserted_total" :label="t('system.base.message.field.inserted_total')" width="110" align="right" />
           <el-table-column prop="attempt_count" :label="t('system.base.message.field.attempt_count')" width="90" align="right" />
@@ -218,6 +220,13 @@ const statusOptions = computed<ProFormOption[]>(() => [
   { label: t("system.base.message.status.publishing"), value: MessageStatus.MESSAGE_STATUS_PUBLISHING },
   { label: t("system.base.message.status.published"), value: MessageStatus.MESSAGE_STATUS_PUBLISHED },
   { label: t("system.base.message.status.revoked"), value: MessageStatus.MESSAGE_STATUS_REVOKED }
+]);
+const dispatchStatusOptions = computed<ProFormOption[]>(() => [
+  { label: t("system.base.message.dispatch_status.pending"), value: MessageDispatchStatus.MESSAGE_DISPATCH_STATUS_PENDING },
+  { label: t("system.base.message.dispatch_status.running"), value: MessageDispatchStatus.MESSAGE_DISPATCH_STATUS_RUNNING },
+  { label: t("system.base.message.dispatch_status.succeeded"), value: MessageDispatchStatus.MESSAGE_DISPATCH_STATUS_SUCCEEDED },
+  { label: t("system.base.message.dispatch_status.failed"), value: MessageDispatchStatus.MESSAGE_DISPATCH_STATUS_FAILED },
+  { label: t("system.base.message.dispatch_status.cancelled"), value: MessageDispatchStatus.MESSAGE_DISPATCH_STATUS_CANCELLED }
 ]);
 onMounted(() => {
   void loadCategoryOptions();
@@ -559,6 +568,8 @@ async function openDialog(id?: number) {
 
 /** 提交消息草稿。 */
 async function handleSubmit() {
+  const valid = await formDialogRef.value?.validate();
+  if (!valid) return;
   const audiences = formState.audiences.length > 0 ? formState.audiences.map(item => ({ ...item })) : [defaultAudience()];
   const payload: BaseMessageForm = {
     ...formState,
@@ -604,7 +615,16 @@ async function retryDispatch(id: number) {
 
 /** 删除草稿消息。 */
 async function handleDelete(value: BaseMessage | BaseMessage[] | number | number[]) {
-  const ids = normalizeSelectedIds(value as Parameters<typeof normalizeSelectedIds>[0]);
+  const idList = Array.isArray(value)
+    ? value.map(item => (typeof item === "object" ? item.id : item))
+    : typeof value === "object"
+      ? [value.id]
+      : normalizeSelectedIds(value);
+  const ids = idList.filter(item => item !== undefined && item !== null && item !== "");
+  if (!ids.length) {
+    ElMessage.warning(t("common.message.select_delete_item"));
+    return;
+  }
   await ElMessageBox.confirm(t("common.confirm.delete"), t("common.title.warning"), { type: "warning" });
   await defBaseMessageService.DeleteBaseMessage({ id: ids.join(",") });
   ElMessage.success(t("common.message.operation_success"));

@@ -351,6 +351,11 @@ func (c *CodeGenCase) runCodeGenTask(
 	taskID string,
 	tableIDs []int64,
 ) {
+	defer func() {
+		if recovered := recover(); recovered != nil {
+			c.failCodeGenTask(ctx, taskID, tableIDs, fmt.Errorf("代码生成任务异常退出: %v", recovered))
+		}
+	}()
 	// 文件、生成产物和格式化都会改写共享工作树，整批任务必须串行执行。
 	codeGenGenerationProcessLock.Lock()
 	defer codeGenGenerationProcessLock.Unlock()

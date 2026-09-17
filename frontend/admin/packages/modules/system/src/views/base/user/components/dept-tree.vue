@@ -22,7 +22,7 @@
 </template>
 
 <script setup lang="ts">
-import { onBeforeMount, ref, watchEffect } from "vue";
+import { nextTick, onBeforeMount, ref, watch } from "vue";
 import { useVModel } from "@vueuse/core";
 import { ElTree } from "element-plus";
 import { defBaseDeptService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/base_dept";
@@ -43,14 +43,9 @@ const emits = defineEmits(["nodeClick"]);
 
 const baseDeptId = useVModel(props, "modelValue", emits);
 
-watchEffect(
-  () => {
-    baseDeptTreeRef.value?.filter(name.value);
-  },
-  {
-    flush: "post" // watchEffect会在DOM挂载或者更新之前就会触发，此属性控制在DOM元素更新后运行
-  }
-);
+watch([name, baseDeptList], () => {
+  void nextTick(() => baseDeptTreeRef.value?.filter(name.value));
+}, { flush: "post" });
 
 /**
  * 部门筛选

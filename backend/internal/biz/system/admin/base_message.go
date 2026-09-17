@@ -1482,6 +1482,7 @@ func (c *BaseMessageCase) listDispatchUsers(ctx context.Context, dispatch *model
 	case basev1.MessageAudienceType_MESSAGE_AUDIENCE_TYPE_POST:
 		opts = append(opts, repository.Where(query.PostID.Eq(dispatch.AudienceID)))
 	case basev1.MessageAudienceType_MESSAGE_AUDIENCE_TYPE_TENANT:
+		opts = append(opts, repository.Where(query.TenantID.Eq(dispatch.TenantID)))
 	default:
 		return nil, errorsx.InvalidArgument("消息受众类型无效")
 	}

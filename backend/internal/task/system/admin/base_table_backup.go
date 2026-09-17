@@ -218,6 +218,9 @@ func (t *TableBackupTask) rotateBackupRecords(ctx context.Context, config *model
 	if retention < 1 {
 		retention = 1
 	}
+	if retention >= len(records) {
+		return nil
+	}
 	for _, record := range records[retention:] {
 		if record.ObjectKey != "" && t.baseCase.OSS != nil {
 			if err = t.baseCase.OSS.DeleteFile(record.ObjectKey); err != nil {

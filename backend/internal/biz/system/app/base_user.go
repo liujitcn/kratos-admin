@@ -26,9 +26,13 @@ func NewBaseUserCase(baseCase *biz.BaseCase, baseUserRepo *data.BaseUserReposito
 
 // 按手机号查询用户
 func (c *BaseUserCase) findByPhone(ctx context.Context, phone string) (*models.BaseUser, error) {
+	authInfo, err := c.GetAuthInfo(ctx)
+	if err != nil {
+		return nil, err
+	}
 	query := c.Query(ctx).BaseUser
-	opts := make([]repository.QueryOption, 0, 2)
+	opts := make([]repository.QueryOption, 0, 3)
 	opts = append(opts, repository.Select(query.ID))
-	opts = append(opts, repository.Where(query.Phone.Eq(phone)))
+	opts = append(opts, repository.Where(query.TenantID.Eq(authInfo.TenantId)), repository.Where(query.Phone.Eq(phone)))
 	return c.Find(ctx, opts...)
 }

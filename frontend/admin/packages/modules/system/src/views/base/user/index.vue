@@ -169,7 +169,7 @@ const formData = reactive<BaseUserFormState>({
   /** 密码 */
   pwd: "",
   /** 性别 */
-  gender: 3,
+  gender: 1,
   /** 头像 */
   avatar: "",
   /** 用户状态 */
@@ -724,7 +724,7 @@ function resetForm() {
   formData.id_type = BaseUserIDType.BASE_USER_ID_TYPE_UNSPECIFIED;
   formData.id_code = "";
   formData.pwd = "";
-  formData.gender = 3;
+  formData.gender = 1;
   formData.avatar = "";
   formData.status = Status.STATUS_ENABLE;
   formData.remark = "";

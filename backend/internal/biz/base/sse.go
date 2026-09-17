@@ -6,7 +6,10 @@ import (
 
 	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
 	"github.com/liujitcn/kratos-core/biz"
+	_const "github.com/liujitcn/kratos-core/const"
+	"github.com/liujitcn/kratos-core/errorsx"
 	coresse "github.com/liujitcn/kratos-core/sse"
+	"github.com/liujitcn/kratos-kit/database/gorm"
 
 	"google.golang.org/protobuf/types/known/emptypb"
 )
@@ -27,15 +30,20 @@ func NewSseCase(baseCase *biz.BaseCase, sse *coresse.SSE) *SseCase {
 
 // SubscribeSse 订阅 SSE 事件流。
 func (h *SseCase) SubscribeSse(ctx context.Context, req *basev1.SubscribeSseRequest) (*emptypb.Empty, error) {
-	channelID := req.GetChannelId()
-	if req.GetStream() == "base.notification" {
-		authInfo, err := h.GetAuthInfo(ctx)
-		if err != nil {
-			return nil, err
-		}
-		channelID = fmt.Sprintf("%d:%s", authInfo.TenantId, channelID)
+	authInfo, err := h.GetAuthInfo(ctx)
+	if err != nil {
+		return nil, err
 	}
-	err := h.sse.Serve(ctx, req.GetStream(), channelID)
+	channelID := req.GetChannelId()
+	switch req.GetStream() {
+	case "base.notification":
+		channelID = fmt.Sprintf("%d:%s", authInfo.TenantId, channelID)
+	case "system.admin.ops-monitoring", "system.admin.runtime-console":
+		if (authInfo.RoleCode != _const.BASE_ROLE_CODE_SUPER && authInfo.RoleCode != _const.BASE_ROLE_CODE_ADMIN) || authInfo.TenantCode != gorm.DefaultTenantCode {
+			return nil, errorsx.PermissionDenied("只有平台管理员可以订阅运维实时数据")
+		}
+	}
+	err = h.sse.Serve(ctx, req.GetStream(), channelID)
 	if err != nil {
 		return nil, err
 	}

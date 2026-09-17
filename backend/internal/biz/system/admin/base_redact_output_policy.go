@@ -39,7 +39,10 @@ func NewBaseRedactOutputPolicyCase(baseCase *biz.BaseCase, tx data.Transaction, 
 
 // PageBaseRedactOutputPolicy 分页查询出库脱敏策略。
 func (c *BaseRedactOutputPolicyCase) PageBaseRedactOutputPolicy(ctx context.Context, req *adminv1.PageBaseRedactOutputPolicyRequest) (*adminv1.PageBaseRedactOutputPolicyResponse, error) {
-	var err error
+	err := redact.EnsureRedactPlatformOperator(ctx, c.BaseCase)
+	if err != nil {
+		return nil, err
+	}
 	query := c.Query(ctx).BaseRedactOutputPolicy
 	opts := make([]repository.QueryOption, 0, 6)
 	opts = append(opts, repository.Order(query.ID.Asc()))
@@ -81,7 +84,10 @@ func (c *BaseRedactOutputPolicyCase) PageBaseRedactOutputPolicy(ctx context.Cont
 
 // GetBaseRedactOutputPolicy 查询出库脱敏策略详情。
 func (c *BaseRedactOutputPolicyCase) GetBaseRedactOutputPolicy(ctx context.Context, req *adminv1.GetBaseRedactOutputPolicyRequest) (*adminv1.BaseRedactOutputPolicyForm, error) {
-	var err error
+	err := redact.EnsureRedactPlatformOperator(ctx, c.BaseCase)
+	if err != nil {
+		return nil, err
+	}
 	var item *models.BaseRedactOutputPolicy
 	item, err = c.FindByID(ctx, req.GetId())
 	if err != nil {
@@ -92,7 +98,10 @@ func (c *BaseRedactOutputPolicyCase) GetBaseRedactOutputPolicy(ctx context.Conte
 
 // CreateBaseRedactOutputPolicy 批量创建出库脱敏策略。
 func (c *BaseRedactOutputPolicyCase) CreateBaseRedactOutputPolicy(ctx context.Context, inputs []*adminv1.BaseRedactOutputPolicyForm) error {
-	var err error
+	err := redact.EnsureRedactPlatformOperator(ctx, c.BaseCase)
+	if err != nil {
+		return err
+	}
 	if len(inputs) == 0 {
 		return errorsx.InvalidArgument("出库脱敏策略列表不能为空")
 	}
@@ -142,7 +151,10 @@ func (c *BaseRedactOutputPolicyCase) CreateBaseRedactOutputPolicy(ctx context.Co
 
 // UpdateBaseRedactOutputPolicy 批量更新出库脱敏策略。
 func (c *BaseRedactOutputPolicyCase) UpdateBaseRedactOutputPolicy(ctx context.Context, inputs []*adminv1.BaseRedactOutputPolicyForm) error {
-	var err error
+	err := redact.EnsureRedactPlatformOperator(ctx, c.BaseCase)
+	if err != nil {
+		return err
+	}
 	if len(inputs) == 0 {
 		return errorsx.InvalidArgument("出库脱敏策略列表不能为空")
 	}
@@ -199,7 +211,10 @@ func (c *BaseRedactOutputPolicyCase) UpdateBaseRedactOutputPolicy(ctx context.Co
 
 // DeleteBaseRedactOutputPolicy 删除出库脱敏策略。
 func (c *BaseRedactOutputPolicyCase) DeleteBaseRedactOutputPolicy(ctx context.Context, value string) error {
-	var err error
+	err := redact.EnsureRedactPlatformOperator(ctx, c.BaseCase)
+	if err != nil {
+		return err
+	}
 	ids := _string.ConvertStringToInt64Array(value)
 	if len(ids) == 0 {
 		return errorsx.InvalidArgument("出库策略ID不能为空")
@@ -221,7 +236,10 @@ func (c *BaseRedactOutputPolicyCase) DeleteBaseRedactOutputPolicy(ctx context.Co
 
 // SetBaseRedactOutputPolicyStatus 设置出库脱敏策略状态。
 func (c *BaseRedactOutputPolicyCase) SetBaseRedactOutputPolicyStatus(ctx context.Context, req *adminv1.SetBaseRedactOutputPolicyStatusRequest) error {
-	var err error
+	err := redact.EnsureRedactPlatformOperator(ctx, c.BaseCase)
+	if err != nil {
+		return err
+	}
 	if req.GetStatus() != commonv1.Status_STATUS_ENABLE && req.GetStatus() != commonv1.Status_STATUS_DISABLE {
 		return errorsx.InvalidArgument("出库脱敏策略状态无效")
 	}
@@ -242,6 +260,10 @@ func (c *BaseRedactOutputPolicyCase) SetBaseRedactOutputPolicyStatus(ctx context
 
 // GetBaseRedactOutputFieldDoc 查询可出库脱敏的响应字段文档。
 func (c *BaseRedactOutputPolicyCase) GetBaseRedactOutputFieldDoc(ctx context.Context, req *adminv1.GetBaseRedactOutputFieldDocRequest) (*adminv1.BaseApiDoc, error) {
+	err := redact.EnsureRedactPlatformOperator(ctx, c.BaseCase)
+	if err != nil {
+		return nil, err
+	}
 	doc, err := c.baseAPICase.GetBaseAPIDoc(ctx, req.GetApiId())
 	if err != nil {
 		return nil, err

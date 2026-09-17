@@ -107,6 +107,7 @@ const pendingDeltaMap = new Map<string, AiStreamPayload>();
 const runningStreamTaskMap = new Map<string, AiStreamTask>();
 let pendingDeltaFrame = 0;
 let speakingMessageID = "";
+let createSessionPromise: Promise<string | undefined> | undefined;
 
 /** 当前会话的流式任务状态。 */
 type AiStreamTask = {
@@ -728,13 +729,21 @@ async function ensureActiveSession() {
 
 /** 创建新的助手会话，并同步到本地列表。 */
 async function createSession(options?: { title?: string }) {
-  const response = await defAiSessionService.CreateAiSession({
-    title: options?.title || t("system.ai.chat.value.new_conversation"),
-    terminal: Terminal.TERMINAL_ADMIN
-  });
-  const normalizedSession = normalizeSession(response.session);
-  upsertSession(normalizedSession);
-  return normalizedSession.id;
+  if (createSessionPromise) return createSessionPromise;
+  createSessionPromise = (async () => {
+    const response = await defAiSessionService.CreateAiSession({
+      title: options?.title || t("system.ai.chat.value.new_conversation"),
+      terminal: Terminal.TERMINAL_ADMIN
+    });
+    const normalizedSession = normalizeSession(response.session);
+    upsertSession(normalizedSession);
+    return normalizedSession.id;
+  })();
+  try {
+    return await createSessionPromise;
+  } finally {
+    createSessionPromise = undefined;
+  }
 }
 
 /** 使用当前消息内容生成一个易识别的分支会话标题。 */

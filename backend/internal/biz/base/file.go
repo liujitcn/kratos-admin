@@ -22,6 +22,7 @@ import (
 
 	"github.com/go-kratos/kratos/v3/log"
 	"github.com/liujitcn/go-utils/id"
+	"github.com/liujitcn/gorm-kit/repository"
 	"google.golang.org/protobuf/types/known/wrapperspb"
 )
 
@@ -183,6 +184,13 @@ func (c *FileCase) DownloadFile(ctx context.Context, req *basev1.DownloadFileReq
 	objectPath, err = objectFilePath(req.GetPath())
 	if err != nil {
 		return nil, err
+	}
+	if c.baseFileRepo == nil {
+		return nil, errorsx.Internal("文件元数据仓储未配置")
+	}
+	query := c.baseFileRepo.Query(ctx).BaseFile
+	if _, err = c.baseFileRepo.Find(ctx, repository.Where(query.LinkURL.Eq(objectPath))); err != nil {
+		return nil, errorsx.ResourceNotFound("文件不存在或无权访问").WithCause(err)
 	}
 	var fileByte []byte
 	fileByte, err = c.OSS.GetFileByte(objectPath)

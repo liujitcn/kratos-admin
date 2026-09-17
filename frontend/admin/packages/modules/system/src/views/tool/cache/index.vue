@@ -95,7 +95,7 @@ const columns = computed<ColumnProps[]>(() => [
     prop: "key",
     label: t("system.cache.field.key"),
     minWidth: 280,
-    search: { el: "input", props: { clearable: true } },
+    search: { el: "input", key: "keyword", props: { clearable: true } },
     render: scope => h("code", { class: "cache-key-cell", title: scope.row.key }, scope.row.key)
   },
   {

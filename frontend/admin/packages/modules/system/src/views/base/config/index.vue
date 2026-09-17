@@ -13,7 +13,7 @@
       v-model="dialog.visible"
       class="system-config-dialog"
       :title="t(dialog.titleKey, { resource: t('system.base.config.resource') })"
-      width="min(1040px, calc(100vw - 32px))"
+      width="min(1280px, calc(100vw - 32px))"
       top="4vh"
       :confirm-loading="saving"
       @confirm="handleSubmit"
@@ -32,6 +32,7 @@
             :rules="rules"
             :col-span="12"
             :gutter="24"
+            label-width="10em"
             label-position="right"
             scroll-to-error
           >
@@ -96,6 +97,7 @@
                 :fields="localizedFormFields"
                 :col-span="12"
                 :gutter="24"
+                label-width="10em"
                 label-position="right"
                 scroll-to-error
               />

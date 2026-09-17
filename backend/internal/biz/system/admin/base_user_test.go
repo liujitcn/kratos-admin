@@ -1,13 +1,44 @@
 package biz
 
 import (
+	"context"
 	"testing"
 
+	"github.com/go-kratos/kratos/v3/transport"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 	_const "github.com/liujitcn/kratos-core/const"
 	"github.com/liujitcn/kratos-kit/auth/data"
 	"github.com/liujitcn/kratos-kit/database/gorm"
 )
+
+// baseUserTestTransport 提供用户查询测试所需的服务端传输上下文。
+type baseUserTestTransport struct{}
+
+// Kind 返回 HTTP 传输类型。
+func (baseUserTestTransport) Kind() transport.Kind { return transport.KindHTTP }
+
+// Endpoint 返回测试服务端点。
+func (baseUserTestTransport) Endpoint() string { return "http://test" }
+
+// Operation 返回测试操作名称。
+func (baseUserTestTransport) Operation() string { return "/api/v1/admin/base/user" }
+
+// RequestHeader 返回空请求头。
+func (baseUserTestTransport) RequestHeader() transport.Header { return nil }
+
+// ReplyHeader 返回空响应头。
+func (baseUserTestTransport) ReplyHeader() transport.Header { return nil }
+
+// TestBaseUserLocalCallOnlyWithoutServerTransport 验证 HTTP 请求不会被当作进程内调用。
+func TestBaseUserLocalCallOnlyWithoutServerTransport(t *testing.T) {
+	if !baseUserLocalCall(context.Background()) {
+		t.Fatal("没有服务端传输上下文时应识别为进程内调用")
+	}
+	serverContext := transport.NewServerContext(context.Background(), baseUserTestTransport{})
+	if baseUserLocalCall(serverContext) {
+		t.Fatal("存在服务端传输上下文时不应识别为进程内调用")
+	}
+}
 
 // TestIsBaseUserManagementRoleProtectedAllowsDefaultTenantReset 验证默认租户可以重置普通租户管理员密码。
 func TestIsBaseUserManagementRoleProtectedAllowsDefaultTenantReset(t *testing.T) {
