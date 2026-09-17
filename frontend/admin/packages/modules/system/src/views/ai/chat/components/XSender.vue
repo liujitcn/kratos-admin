@@ -236,42 +236,7 @@ function setRecordText(recordText: string) {
 
 /** 标准化语音识别文本，压掉多余空白。 */
 function normalizeRecordText(recordText: string) {
-  return collapseCumulativeRecordText(recordText.replace(/\s+/g, " ").trim());
-}
-
-/** 压缩 useRecord 在中文连续识别时返回的前缀累计文本。 */
-function collapseCumulativeRecordText(text: string) {
-  if (text.length < 4) return text;
-  for (let candidateLength = 2; candidateLength <= Math.floor(text.length / 2); candidateLength++) {
-    const candidate = text.slice(-candidateLength);
-    const matchResult = matchCumulativeRecordCandidate(text, candidate);
-    if (matchResult.matched && (matchResult.hasPartial || matchResult.segmentCount >= 3)) {
-      return candidate;
-    }
-  }
-  return text;
-}
-
-/** 判断文本是否由同一识别结果的前缀片段累计组成。 */
-function matchCumulativeRecordCandidate(text: string, candidate: string) {
-  let index = 0;
-  let segmentCount = 0;
-  let hasPartial = false;
-  while (index < text.length) {
-    let matchedLength = 0;
-    const maxLength = Math.min(candidate.length, text.length - index);
-    for (let length = maxLength; length >= 1; length--) {
-      if (candidate.startsWith(text.slice(index, index + length))) {
-        matchedLength = length;
-        break;
-      }
-    }
-    if (!matchedLength) return { matched: false, segmentCount, hasPartial };
-    if (matchedLength < candidate.length) hasPartial = true;
-    segmentCount++;
-    index += matchedLength;
-  }
-  return { matched: true, segmentCount, hasPartial };
+  return recordText.replace(/\s+/g, " ").trim();
 }
 
 /** 根据浏览器语音识别错误类型生成用户可理解的提示。 */

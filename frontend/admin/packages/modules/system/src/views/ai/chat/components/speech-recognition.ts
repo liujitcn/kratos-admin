@@ -5,6 +5,7 @@ export type SpeechResultList = ArrayLike<{
   0?: {
     transcript: string;
   };
+  isFinal?: boolean;
   length: number;
 }>;
 
@@ -17,6 +18,7 @@ export type SpeechRecognitionError = {
 
 type SpeechRecognitionResultEvent = {
   results: SpeechResultList;
+  resultIndex: number;
 };
 
 type SpeechRecognitionInstance = {
@@ -49,13 +51,28 @@ type SpeechRecognitionOptions = {
   onResult?: (text: string) => void;
 };
 
-/** 收集一次识别事件中的完整文本。 */
-export function collectSpeechResultText(results: SpeechResultList) {
-  let text = "";
-  for (let index = 0; index < results.length; index++) {
-    text += results[index]?.[0]?.transcript ?? "";
+/** 增量累积语音识别结果，避免连续模式下 interim 结果重复计入已确认文本。 */
+export function accumulateSpeechResultText(
+  results: SpeechResultList,
+  resultIndex: number,
+  previousFinalText: string
+): { finalText: string; text: string } {
+  let finalText = previousFinalText;
+  let interimText = "";
+  for (let index = resultIndex; index < results.length; index++) {
+    const result = results[index];
+    const transcript = result?.[0]?.transcript ?? "";
+    if (result?.isFinal) {
+      finalText += transcript;
+    } else {
+      interimText += transcript;
+    }
   }
-  return text;
+  // Chrome 连续模式下 interim 结果会累计包含已确认的 final 文本，去除重复前缀。
+  if (interimText && finalText && interimText.startsWith(finalText)) {
+    interimText = interimText.slice(finalText.length);
+  }
+  return { finalText, text: finalText + interimText };
 }
 
 /** 创建浏览器语音识别实例，并统一结果、状态和卸载处理。 */
@@ -64,6 +81,7 @@ export function useSpeechRecognition({ onError, onStart, onEnd, onResult }: Spee
   const value = ref("");
   let recognition: SpeechRecognitionInstance | null = null;
   let recognitionSession = 0;
+  let finalText = "";
 
   /** 获取当前浏览器支持的语音识别构造函数。 */
   function resolveRecognitionConstructor() {
@@ -84,6 +102,7 @@ export function useSpeechRecognition({ onError, onStart, onEnd, onResult }: Spee
     const nextRecognition = new RecognitionConstructor();
     const currentSession = ++recognitionSession;
     recognition = nextRecognition;
+    finalText = "";
     const isCurrentRecognition = () => recognition === nextRecognition && recognitionSession === currentSession;
     nextRecognition.continuous = true;
     nextRecognition.interimResults = true;
@@ -96,7 +115,9 @@ export function useSpeechRecognition({ onError, onStart, onEnd, onResult }: Spee
     };
     nextRecognition.onresult = event => {
       if (!isCurrentRecognition()) return;
-      value.value = collectSpeechResultText(event.results);
+      const accumulated = accumulateSpeechResultText(event.results, event.resultIndex, finalText);
+      finalText = accumulated.finalText;
+      value.value = accumulated.text;
       onResult?.(value.value);
     };
     nextRecognition.onerror = error => {
