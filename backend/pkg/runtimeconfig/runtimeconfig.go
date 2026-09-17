@@ -460,7 +460,6 @@ func mergeJSONObjects(defaults, overrides []byte) ([]byte, error) {
 			for candidate := range defaultObject {
 				if lowerCamelFieldName(candidate) == key {
 					canonicalKey = candidate
-					delete(defaultObject, candidate)
 					break
 				}
 			}
