@@ -27,6 +27,7 @@ const (
 	BaseRedactOutputPolicyService_UpdateBaseRedactOutputPolicy_FullMethodName    = "/system.admin.v1.BaseRedactOutputPolicyService/UpdateBaseRedactOutputPolicy"
 	BaseRedactOutputPolicyService_DeleteBaseRedactOutputPolicy_FullMethodName    = "/system.admin.v1.BaseRedactOutputPolicyService/DeleteBaseRedactOutputPolicy"
 	BaseRedactOutputPolicyService_SetBaseRedactOutputPolicyStatus_FullMethodName = "/system.admin.v1.BaseRedactOutputPolicyService/SetBaseRedactOutputPolicyStatus"
+	BaseRedactOutputPolicyService_GetBaseRedactOutputFieldDoc_FullMethodName     = "/system.admin.v1.BaseRedactOutputPolicyService/GetBaseRedactOutputFieldDoc"
 )
 
 // BaseRedactOutputPolicyServiceClient is the client API for BaseRedactOutputPolicyService service.
@@ -47,6 +48,8 @@ type BaseRedactOutputPolicyServiceClient interface {
 	DeleteBaseRedactOutputPolicy(ctx context.Context, in *DeleteBaseRedactOutputPolicyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// 设置出库脱敏策略状态。
 	SetBaseRedactOutputPolicyStatus(ctx context.Context, in *SetBaseRedactOutputPolicyStatusRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	// 查询可出库脱敏的响应字段文档。
+	GetBaseRedactOutputFieldDoc(ctx context.Context, in *GetBaseRedactOutputFieldDocRequest, opts ...grpc.CallOption) (*BaseApiDoc, error)
 }
 
 type baseRedactOutputPolicyServiceClient struct {
@@ -117,6 +120,16 @@ func (c *baseRedactOutputPolicyServiceClient) SetBaseRedactOutputPolicyStatus(ct
 	return out, nil
 }
 
+func (c *baseRedactOutputPolicyServiceClient) GetBaseRedactOutputFieldDoc(ctx context.Context, in *GetBaseRedactOutputFieldDocRequest, opts ...grpc.CallOption) (*BaseApiDoc, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(BaseApiDoc)
+	err := c.cc.Invoke(ctx, BaseRedactOutputPolicyService_GetBaseRedactOutputFieldDoc_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // BaseRedactOutputPolicyServiceServer is the server API for BaseRedactOutputPolicyService service.
 // All implementations must embed UnimplementedBaseRedactOutputPolicyServiceServer
 // for forward compatibility.
@@ -135,6 +148,8 @@ type BaseRedactOutputPolicyServiceServer interface {
 	DeleteBaseRedactOutputPolicy(context.Context, *DeleteBaseRedactOutputPolicyRequest) (*emptypb.Empty, error)
 	// 设置出库脱敏策略状态。
 	SetBaseRedactOutputPolicyStatus(context.Context, *SetBaseRedactOutputPolicyStatusRequest) (*emptypb.Empty, error)
+	// 查询可出库脱敏的响应字段文档。
+	GetBaseRedactOutputFieldDoc(context.Context, *GetBaseRedactOutputFieldDocRequest) (*BaseApiDoc, error)
 	mustEmbedUnimplementedBaseRedactOutputPolicyServiceServer()
 }
 
@@ -162,6 +177,9 @@ func (UnimplementedBaseRedactOutputPolicyServiceServer) DeleteBaseRedactOutputPo
 }
 func (UnimplementedBaseRedactOutputPolicyServiceServer) SetBaseRedactOutputPolicyStatus(context.Context, *SetBaseRedactOutputPolicyStatusRequest) (*emptypb.Empty, error) {
 	return nil, status.Error(codes.Unimplemented, "method SetBaseRedactOutputPolicyStatus not implemented")
+}
+func (UnimplementedBaseRedactOutputPolicyServiceServer) GetBaseRedactOutputFieldDoc(context.Context, *GetBaseRedactOutputFieldDocRequest) (*BaseApiDoc, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetBaseRedactOutputFieldDoc not implemented")
 }
 func (UnimplementedBaseRedactOutputPolicyServiceServer) mustEmbedUnimplementedBaseRedactOutputPolicyServiceServer() {
 }
@@ -293,6 +311,24 @@ func _BaseRedactOutputPolicyService_SetBaseRedactOutputPolicyStatus_Handler(srv 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _BaseRedactOutputPolicyService_GetBaseRedactOutputFieldDoc_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetBaseRedactOutputFieldDocRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BaseRedactOutputPolicyServiceServer).GetBaseRedactOutputFieldDoc(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: BaseRedactOutputPolicyService_GetBaseRedactOutputFieldDoc_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BaseRedactOutputPolicyServiceServer).GetBaseRedactOutputFieldDoc(ctx, req.(*GetBaseRedactOutputFieldDocRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // BaseRedactOutputPolicyService_ServiceDesc is the grpc.ServiceDesc for BaseRedactOutputPolicyService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -323,6 +359,10 @@ var BaseRedactOutputPolicyService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "SetBaseRedactOutputPolicyStatus",
 			Handler:    _BaseRedactOutputPolicyService_SetBaseRedactOutputPolicyStatus_Handler,
+		},
+		{
+			MethodName: "GetBaseRedactOutputFieldDoc",
+			Handler:    _BaseRedactOutputPolicyService_GetBaseRedactOutputFieldDoc_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

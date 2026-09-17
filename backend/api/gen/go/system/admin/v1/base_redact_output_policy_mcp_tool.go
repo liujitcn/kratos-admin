@@ -21,6 +21,7 @@ func RegisterBaseRedactOutputPolicyServiceMCPTools(mcpServer *mcp.Server, baseRe
 	RegisterBaseRedactOutputPolicyServiceUpdateBaseRedactOutputPolicyMCPTool(mcpServer, baseRedactOutputPolicyServiceServer)
 	RegisterBaseRedactOutputPolicyServiceDeleteBaseRedactOutputPolicyMCPTool(mcpServer, baseRedactOutputPolicyServiceServer)
 	RegisterBaseRedactOutputPolicyServiceSetBaseRedactOutputPolicyStatusMCPTool(mcpServer, baseRedactOutputPolicyServiceServer)
+	RegisterBaseRedactOutputPolicyServiceGetBaseRedactOutputFieldDocMCPTool(mcpServer, baseRedactOutputPolicyServiceServer)
 }
 
 // RegisterBaseRedactOutputPolicyServicePageBaseRedactOutputPolicyMCPTool 注册查询出库脱敏策略分页列表的 MCP Tool。
@@ -141,6 +142,27 @@ func RegisterBaseRedactOutputPolicyServiceSetBaseRedactOutputPolicyStatusMCPTool
 				input = &SetBaseRedactOutputPolicyStatusRequest{}
 			}
 			reply, err := baseRedactOutputPolicyServiceServer.SetBaseRedactOutputPolicyStatus(ctx, input)
+			if err != nil {
+				return nil, nil, err
+			}
+			return nil, reply, nil
+		},
+	)
+}
+
+// RegisterBaseRedactOutputPolicyServiceGetBaseRedactOutputFieldDocMCPTool 注册查询可出库脱敏的响应字段文档的 MCP Tool。
+func RegisterBaseRedactOutputPolicyServiceGetBaseRedactOutputFieldDocMCPTool(mcpServer *mcp.Server, baseRedactOutputPolicyServiceServer BaseRedactOutputPolicyServiceServer) {
+	mcp.AddTool[*GetBaseRedactOutputFieldDocRequest, any](
+		mcpServer,
+		&mcp.Tool{
+			Name:        "system_admin_v1_base_redact_output_policy_service_get_base_redact_output_field_doc",
+			Description: "查询可出库脱敏的响应字段文档。",
+		},
+		func(ctx context.Context, request *mcp.CallToolRequest, input *GetBaseRedactOutputFieldDocRequest) (*mcp.CallToolResult, any, error) {
+			if input == nil {
+				input = &GetBaseRedactOutputFieldDocRequest{}
+			}
+			reply, err := baseRedactOutputPolicyServiceServer.GetBaseRedactOutputFieldDoc(ctx, input)
 			if err != nil {
 				return nil, nil, err
 			}

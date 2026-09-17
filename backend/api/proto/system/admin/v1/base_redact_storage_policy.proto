@@ -22,6 +22,8 @@ service BaseRedactStoragePolicyService {
   rpc DeleteBaseRedactStoragePolicy(DeleteBaseRedactStoragePolicyRequest) returns (google.protobuf.Empty) { option (google.api.http) = {delete: "/api/v1/admin/base/redact-storage-policy/{id}"}; }
   // 设置入库脱敏策略状态。
   rpc SetBaseRedactStoragePolicyStatus(SetBaseRedactStoragePolicyStatusRequest) returns (google.protobuf.Empty) { option (google.api.http) = {put: "/api/v1/admin/base/redact-storage-policy/{id}/status", body: "*"}; }
+  // 查询可入库脱敏的字符串字段列表。
+  rpc ListBaseRedactStorageColumn(ListBaseRedactStorageColumnRequest) returns (ListBaseRedactStorageColumnResponse) { option (google.api.http) = {get: "/api/v1/admin/base/redact-storage-policy/columns"}; }
 }
 
 // 入库脱敏策略分页查询条件。
@@ -93,4 +95,23 @@ message BaseRedactStoragePolicy {
   string remark = 101 [(gnostic.openapi.v3.property) = {description: "备注"}]; // 备注
   string created_at = 200 [(gnostic.openapi.v3.property) = {description: "创建时间"}]; // 创建时间
   string updated_at = 201 [(gnostic.openapi.v3.property) = {description: "更新时间"}]; // 更新时间
+}
+
+// 查询可入库脱敏字段请求。
+message ListBaseRedactStorageColumnRequest {
+  string source_name = 1 [(gnostic.openapi.v3.property) = {description: "数据源名称"}, (buf.validate.field).cel = {id: "system.admin.base.redact.storage_policy.column_list.source_name.required" message: "数据源名称不能为空且不能超过64个字符" expression: "this.size() > 0 && this.size() <= 64"}]; // 数据源名称
+  string table_name = 2 [(gnostic.openapi.v3.property) = {description: "数据库表名"}, (buf.validate.field).cel = {id: "system.admin.base.redact.storage_policy.column_list.table_name.required" message: "数据库表名不能为空且格式不正确" expression: "this.size() > 0 && this.size() <= 128 && this.matches('^[a-z][a-z0-9_]*$')"}]; // 数据库表名
+}
+
+// 可入库脱敏字段。
+message BaseRedactStorageColumn {
+  string name = 1 [(gnostic.openapi.v3.property) = {description: "字段名"}]; // 字段名
+  string comment = 2 [(gnostic.openapi.v3.property) = {description: "字段注释"}]; // 字段注释
+  string db_type = 3 [(gnostic.openapi.v3.property) = {description: "数据库类型"}]; // 数据库类型
+  string column_type = 4 [(gnostic.openapi.v3.property) = {description: "数据库完整类型"}]; // 数据库完整类型
+}
+
+// 可入库脱敏字段列表响应。
+message ListBaseRedactStorageColumnResponse {
+  repeated BaseRedactStorageColumn columns = 1 [(gnostic.openapi.v3.property) = {description: "可脱敏字段列表"}]; // 可脱敏字段列表
 }

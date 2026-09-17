@@ -21,6 +21,7 @@ const _ = http.SupportPackageIsVersion3
 
 const OperationBaseRedactOutputPolicyServiceCreateBaseRedactOutputPolicy = "/system.admin.v1.BaseRedactOutputPolicyService/CreateBaseRedactOutputPolicy"
 const OperationBaseRedactOutputPolicyServiceDeleteBaseRedactOutputPolicy = "/system.admin.v1.BaseRedactOutputPolicyService/DeleteBaseRedactOutputPolicy"
+const OperationBaseRedactOutputPolicyServiceGetBaseRedactOutputFieldDoc = "/system.admin.v1.BaseRedactOutputPolicyService/GetBaseRedactOutputFieldDoc"
 const OperationBaseRedactOutputPolicyServiceGetBaseRedactOutputPolicy = "/system.admin.v1.BaseRedactOutputPolicyService/GetBaseRedactOutputPolicy"
 const OperationBaseRedactOutputPolicyServicePageBaseRedactOutputPolicy = "/system.admin.v1.BaseRedactOutputPolicyService/PageBaseRedactOutputPolicy"
 const OperationBaseRedactOutputPolicyServiceSetBaseRedactOutputPolicyStatus = "/system.admin.v1.BaseRedactOutputPolicyService/SetBaseRedactOutputPolicyStatus"
@@ -31,6 +32,8 @@ type BaseRedactOutputPolicyServiceHTTPServer interface {
 	CreateBaseRedactOutputPolicy(context.Context, *CreateBaseRedactOutputPolicyRequest) (*emptypb.Empty, error)
 	// DeleteBaseRedactOutputPolicy 删除出库脱敏策略。
 	DeleteBaseRedactOutputPolicy(context.Context, *DeleteBaseRedactOutputPolicyRequest) (*emptypb.Empty, error)
+	// GetBaseRedactOutputFieldDoc 查询可出库脱敏的响应字段文档。
+	GetBaseRedactOutputFieldDoc(context.Context, *GetBaseRedactOutputFieldDocRequest) (*BaseApiDoc, error)
 	// GetBaseRedactOutputPolicy 查询出库脱敏策略详情。
 	GetBaseRedactOutputPolicy(context.Context, *GetBaseRedactOutputPolicyRequest) (*BaseRedactOutputPolicyForm, error)
 	// PageBaseRedactOutputPolicy 查询出库脱敏策略分页列表。
@@ -49,6 +52,7 @@ func RegisterBaseRedactOutputPolicyServiceHTTPServer(s *http.Server, srv BaseRed
 	r.Handle("PUT", "/api/v1/admin/base/redact-output-policy", _BaseRedactOutputPolicyService_UpdateBaseRedactOutputPolicy0_HTTP_Handler(srv))
 	r.Handle("DELETE", "/api/v1/admin/base/redact-output-policy/{id}", _BaseRedactOutputPolicyService_DeleteBaseRedactOutputPolicy0_HTTP_Handler(srv))
 	r.Handle("PUT", "/api/v1/admin/base/redact-output-policy/{id}/status", _BaseRedactOutputPolicyService_SetBaseRedactOutputPolicyStatus0_HTTP_Handler(srv))
+	r.Handle("GET", "/api/v1/admin/base/redact-output-policy/fields/{api_id}", _BaseRedactOutputPolicyService_GetBaseRedactOutputFieldDoc0_HTTP_Handler(srv))
 }
 
 func _BaseRedactOutputPolicyService_PageBaseRedactOutputPolicy0_HTTP_Handler(srv BaseRedactOutputPolicyServiceHTTPServer) func(ctx http.Context) error {
@@ -174,11 +178,35 @@ func _BaseRedactOutputPolicyService_SetBaseRedactOutputPolicyStatus0_HTTP_Handle
 	}
 }
 
+func _BaseRedactOutputPolicyService_GetBaseRedactOutputFieldDoc0_HTTP_Handler(srv BaseRedactOutputPolicyServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in GetBaseRedactOutputFieldDocRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindVars(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationBaseRedactOutputPolicyServiceGetBaseRedactOutputFieldDoc)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.GetBaseRedactOutputFieldDoc(ctx, req.(*GetBaseRedactOutputFieldDocRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*BaseApiDoc)
+		return ctx.Result(200, reply)
+	}
+}
+
 type BaseRedactOutputPolicyServiceHTTPClient interface {
 	// CreateBaseRedactOutputPolicy 批量创建出库脱敏策略。
 	CreateBaseRedactOutputPolicy(ctx context.Context, req *CreateBaseRedactOutputPolicyRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	// DeleteBaseRedactOutputPolicy 删除出库脱敏策略。
 	DeleteBaseRedactOutputPolicy(ctx context.Context, req *DeleteBaseRedactOutputPolicyRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
+	// GetBaseRedactOutputFieldDoc 查询可出库脱敏的响应字段文档。
+	GetBaseRedactOutputFieldDoc(ctx context.Context, req *GetBaseRedactOutputFieldDocRequest, opts ...http.CallOption) (rsp *BaseApiDoc, err error)
 	// GetBaseRedactOutputPolicy 查询出库脱敏策略详情。
 	GetBaseRedactOutputPolicy(ctx context.Context, req *GetBaseRedactOutputPolicyRequest, opts ...http.CallOption) (rsp *BaseRedactOutputPolicyForm, err error)
 	// PageBaseRedactOutputPolicy 查询出库脱敏策略分页列表。
@@ -226,6 +254,23 @@ func (c *BaseRedactOutputPolicyServiceHTTPClientImpl) DeleteBaseRedactOutputPoli
 		http.PathTemplate(pattern),
 	}, opts...)
 	err := c.cc.Invoke(ctx, "DELETE", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+// GetBaseRedactOutputFieldDoc 查询可出库脱敏的响应字段文档。
+func (c *BaseRedactOutputPolicyServiceHTTPClientImpl) GetBaseRedactOutputFieldDoc(ctx context.Context, in *GetBaseRedactOutputFieldDocRequest, opts ...http.CallOption) (*BaseApiDoc, error) {
+	var out BaseApiDoc
+	pattern := "/api/v1/admin/base/redact-output-policy/fields/{api_id}"
+	path := http.BuildPath(pattern, in, http.WithQueryParams())
+	opts = append([]http.CallOption{
+		http.Accept("application/protojson"),
+		http.Operation(OperationBaseRedactOutputPolicyServiceGetBaseRedactOutputFieldDoc),
+		http.PathTemplate(pattern),
+	}, opts...)
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
 	if err != nil {
 		return nil, err
 	}

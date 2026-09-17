@@ -54,6 +54,12 @@ func NewBaseRedactOutputPolicyServiceAgentTools(baseRedactOutputPolicyServiceSer
 		return nil, err
 	}
 	ts = append(ts, setBaseRedactOutputPolicyStatusTool)
+	var getBaseRedactOutputFieldDocTool tool.InvokableTool
+	getBaseRedactOutputFieldDocTool, err = NewBaseRedactOutputPolicyServiceGetBaseRedactOutputFieldDocAgentTool(baseRedactOutputPolicyServiceServer)
+	if err != nil {
+		return nil, err
+	}
+	ts = append(ts, getBaseRedactOutputFieldDocTool)
 	return ts, nil
 }
 
@@ -137,6 +143,24 @@ func NewBaseRedactOutputPolicyServiceSetBaseRedactOutputPolicyStatusAgentTool(ba
 				req = &SetBaseRedactOutputPolicyStatusRequest{}
 			}
 			return baseRedactOutputPolicyServiceServer.SetBaseRedactOutputPolicyStatus(ctx, req)
+		},
+	)
+}
+
+// NewBaseRedactOutputPolicyServiceGetBaseRedactOutputFieldDocAgentTool 创建查询可出库脱敏的响应字段文档的 Agent Tool。
+func NewBaseRedactOutputPolicyServiceGetBaseRedactOutputFieldDocAgentTool(baseRedactOutputPolicyServiceServer BaseRedactOutputPolicyServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*GetBaseRedactOutputFieldDocRequest, any](
+		"system_admin_v1_base_redact_output_policy_service_get_base_redact_output_field_doc",
+		"查询可出库脱敏的响应字段文档。",
+		func(ctx context.Context, req *GetBaseRedactOutputFieldDocRequest) (any, error) {
+			if req == nil {
+				req = &GetBaseRedactOutputFieldDocRequest{}
+			}
+			reply, err := baseRedactOutputPolicyServiceServer.GetBaseRedactOutputFieldDoc(ctx, req)
+			if err != nil {
+				return nil, err
+			}
+			return reply, nil
 		},
 	)
 }

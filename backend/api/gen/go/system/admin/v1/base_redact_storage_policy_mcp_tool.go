@@ -21,6 +21,7 @@ func RegisterBaseRedactStoragePolicyServiceMCPTools(mcpServer *mcp.Server, baseR
 	RegisterBaseRedactStoragePolicyServiceUpdateBaseRedactStoragePolicyMCPTool(mcpServer, baseRedactStoragePolicyServiceServer)
 	RegisterBaseRedactStoragePolicyServiceDeleteBaseRedactStoragePolicyMCPTool(mcpServer, baseRedactStoragePolicyServiceServer)
 	RegisterBaseRedactStoragePolicyServiceSetBaseRedactStoragePolicyStatusMCPTool(mcpServer, baseRedactStoragePolicyServiceServer)
+	RegisterBaseRedactStoragePolicyServiceListBaseRedactStorageColumnMCPTool(mcpServer, baseRedactStoragePolicyServiceServer)
 }
 
 // RegisterBaseRedactStoragePolicyServicePageBaseRedactStoragePolicyMCPTool 注册查询入库脱敏策略分页列表的 MCP Tool。
@@ -141,6 +142,27 @@ func RegisterBaseRedactStoragePolicyServiceSetBaseRedactStoragePolicyStatusMCPTo
 				input = &SetBaseRedactStoragePolicyStatusRequest{}
 			}
 			reply, err := baseRedactStoragePolicyServiceServer.SetBaseRedactStoragePolicyStatus(ctx, input)
+			if err != nil {
+				return nil, nil, err
+			}
+			return nil, reply, nil
+		},
+	)
+}
+
+// RegisterBaseRedactStoragePolicyServiceListBaseRedactStorageColumnMCPTool 注册查询可入库脱敏的字符串字段列表的 MCP Tool。
+func RegisterBaseRedactStoragePolicyServiceListBaseRedactStorageColumnMCPTool(mcpServer *mcp.Server, baseRedactStoragePolicyServiceServer BaseRedactStoragePolicyServiceServer) {
+	mcp.AddTool[*ListBaseRedactStorageColumnRequest, *ListBaseRedactStorageColumnResponse](
+		mcpServer,
+		&mcp.Tool{
+			Name:        "system_admin_v1_base_redact_storage_policy_service_list_base_redact_storage_column",
+			Description: "查询可入库脱敏的字符串字段列表。",
+		},
+		func(ctx context.Context, request *mcp.CallToolRequest, input *ListBaseRedactStorageColumnRequest) (*mcp.CallToolResult, *ListBaseRedactStorageColumnResponse, error) {
+			if input == nil {
+				input = &ListBaseRedactStorageColumnRequest{}
+			}
+			reply, err := baseRedactStoragePolicyServiceServer.ListBaseRedactStorageColumn(ctx, input)
 			if err != nil {
 				return nil, nil, err
 			}

@@ -22,6 +22,7 @@ const _ = http.SupportPackageIsVersion3
 const OperationBaseRedactStoragePolicyServiceCreateBaseRedactStoragePolicy = "/system.admin.v1.BaseRedactStoragePolicyService/CreateBaseRedactStoragePolicy"
 const OperationBaseRedactStoragePolicyServiceDeleteBaseRedactStoragePolicy = "/system.admin.v1.BaseRedactStoragePolicyService/DeleteBaseRedactStoragePolicy"
 const OperationBaseRedactStoragePolicyServiceGetBaseRedactStoragePolicy = "/system.admin.v1.BaseRedactStoragePolicyService/GetBaseRedactStoragePolicy"
+const OperationBaseRedactStoragePolicyServiceListBaseRedactStorageColumn = "/system.admin.v1.BaseRedactStoragePolicyService/ListBaseRedactStorageColumn"
 const OperationBaseRedactStoragePolicyServicePageBaseRedactStoragePolicy = "/system.admin.v1.BaseRedactStoragePolicyService/PageBaseRedactStoragePolicy"
 const OperationBaseRedactStoragePolicyServiceSetBaseRedactStoragePolicyStatus = "/system.admin.v1.BaseRedactStoragePolicyService/SetBaseRedactStoragePolicyStatus"
 const OperationBaseRedactStoragePolicyServiceUpdateBaseRedactStoragePolicy = "/system.admin.v1.BaseRedactStoragePolicyService/UpdateBaseRedactStoragePolicy"
@@ -33,6 +34,8 @@ type BaseRedactStoragePolicyServiceHTTPServer interface {
 	DeleteBaseRedactStoragePolicy(context.Context, *DeleteBaseRedactStoragePolicyRequest) (*emptypb.Empty, error)
 	// GetBaseRedactStoragePolicy 查询入库脱敏策略详情。
 	GetBaseRedactStoragePolicy(context.Context, *GetBaseRedactStoragePolicyRequest) (*BaseRedactStoragePolicyForm, error)
+	// ListBaseRedactStorageColumn 查询可入库脱敏的字符串字段列表。
+	ListBaseRedactStorageColumn(context.Context, *ListBaseRedactStorageColumnRequest) (*ListBaseRedactStorageColumnResponse, error)
 	// PageBaseRedactStoragePolicy 查询入库脱敏策略分页列表。
 	PageBaseRedactStoragePolicy(context.Context, *PageBaseRedactStoragePolicyRequest) (*PageBaseRedactStoragePolicyResponse, error)
 	// SetBaseRedactStoragePolicyStatus 设置入库脱敏策略状态。
@@ -49,6 +52,7 @@ func RegisterBaseRedactStoragePolicyServiceHTTPServer(s *http.Server, srv BaseRe
 	r.Handle("PUT", "/api/v1/admin/base/redact-storage-policy", _BaseRedactStoragePolicyService_UpdateBaseRedactStoragePolicy0_HTTP_Handler(srv))
 	r.Handle("DELETE", "/api/v1/admin/base/redact-storage-policy/{id}", _BaseRedactStoragePolicyService_DeleteBaseRedactStoragePolicy0_HTTP_Handler(srv))
 	r.Handle("PUT", "/api/v1/admin/base/redact-storage-policy/{id}/status", _BaseRedactStoragePolicyService_SetBaseRedactStoragePolicyStatus0_HTTP_Handler(srv))
+	r.Handle("GET", "/api/v1/admin/base/redact-storage-policy/columns", _BaseRedactStoragePolicyService_ListBaseRedactStorageColumn0_HTTP_Handler(srv))
 }
 
 func _BaseRedactStoragePolicyService_PageBaseRedactStoragePolicy0_HTTP_Handler(srv BaseRedactStoragePolicyServiceHTTPServer) func(ctx http.Context) error {
@@ -174,6 +178,25 @@ func _BaseRedactStoragePolicyService_SetBaseRedactStoragePolicyStatus0_HTTP_Hand
 	}
 }
 
+func _BaseRedactStoragePolicyService_ListBaseRedactStorageColumn0_HTTP_Handler(srv BaseRedactStoragePolicyServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in ListBaseRedactStorageColumnRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationBaseRedactStoragePolicyServiceListBaseRedactStorageColumn)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.ListBaseRedactStorageColumn(ctx, req.(*ListBaseRedactStorageColumnRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*ListBaseRedactStorageColumnResponse)
+		return ctx.Result(200, reply)
+	}
+}
+
 type BaseRedactStoragePolicyServiceHTTPClient interface {
 	// CreateBaseRedactStoragePolicy 批量创建入库脱敏策略。
 	CreateBaseRedactStoragePolicy(ctx context.Context, req *CreateBaseRedactStoragePolicyRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
@@ -181,6 +204,8 @@ type BaseRedactStoragePolicyServiceHTTPClient interface {
 	DeleteBaseRedactStoragePolicy(ctx context.Context, req *DeleteBaseRedactStoragePolicyRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	// GetBaseRedactStoragePolicy 查询入库脱敏策略详情。
 	GetBaseRedactStoragePolicy(ctx context.Context, req *GetBaseRedactStoragePolicyRequest, opts ...http.CallOption) (rsp *BaseRedactStoragePolicyForm, err error)
+	// ListBaseRedactStorageColumn 查询可入库脱敏的字符串字段列表。
+	ListBaseRedactStorageColumn(ctx context.Context, req *ListBaseRedactStorageColumnRequest, opts ...http.CallOption) (rsp *ListBaseRedactStorageColumnResponse, err error)
 	// PageBaseRedactStoragePolicy 查询入库脱敏策略分页列表。
 	PageBaseRedactStoragePolicy(ctx context.Context, req *PageBaseRedactStoragePolicyRequest, opts ...http.CallOption) (rsp *PageBaseRedactStoragePolicyResponse, err error)
 	// SetBaseRedactStoragePolicyStatus 设置入库脱敏策略状态。
@@ -240,6 +265,23 @@ func (c *BaseRedactStoragePolicyServiceHTTPClientImpl) GetBaseRedactStoragePolic
 	opts = append([]http.CallOption{
 		http.Accept("application/protojson"),
 		http.Operation(OperationBaseRedactStoragePolicyServiceGetBaseRedactStoragePolicy),
+		http.PathTemplate(pattern),
+	}, opts...)
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+// ListBaseRedactStorageColumn 查询可入库脱敏的字符串字段列表。
+func (c *BaseRedactStoragePolicyServiceHTTPClientImpl) ListBaseRedactStorageColumn(ctx context.Context, in *ListBaseRedactStorageColumnRequest, opts ...http.CallOption) (*ListBaseRedactStorageColumnResponse, error) {
+	var out ListBaseRedactStorageColumnResponse
+	pattern := "/api/v1/admin/base/redact-storage-policy/columns"
+	path := http.BuildPath(pattern, in, http.WithQueryParams())
+	opts = append([]http.CallOption{
+		http.Accept("application/protojson"),
+		http.Operation(OperationBaseRedactStoragePolicyServiceListBaseRedactStorageColumn),
 		http.PathTemplate(pattern),
 	}, opts...)
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)

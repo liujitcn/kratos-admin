@@ -54,6 +54,12 @@ func NewBaseRedactStoragePolicyServiceAgentTools(baseRedactStoragePolicyServiceS
 		return nil, err
 	}
 	ts = append(ts, setBaseRedactStoragePolicyStatusTool)
+	var listBaseRedactStorageColumnTool tool.InvokableTool
+	listBaseRedactStorageColumnTool, err = NewBaseRedactStoragePolicyServiceListBaseRedactStorageColumnAgentTool(baseRedactStoragePolicyServiceServer)
+	if err != nil {
+		return nil, err
+	}
+	ts = append(ts, listBaseRedactStorageColumnTool)
 	return ts, nil
 }
 
@@ -137,6 +143,20 @@ func NewBaseRedactStoragePolicyServiceSetBaseRedactStoragePolicyStatusAgentTool(
 				req = &SetBaseRedactStoragePolicyStatusRequest{}
 			}
 			return baseRedactStoragePolicyServiceServer.SetBaseRedactStoragePolicyStatus(ctx, req)
+		},
+	)
+}
+
+// NewBaseRedactStoragePolicyServiceListBaseRedactStorageColumnAgentTool 创建查询可入库脱敏的字符串字段列表的 Agent Tool。
+func NewBaseRedactStoragePolicyServiceListBaseRedactStorageColumnAgentTool(baseRedactStoragePolicyServiceServer BaseRedactStoragePolicyServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*ListBaseRedactStorageColumnRequest, *ListBaseRedactStorageColumnResponse](
+		"system_admin_v1_base_redact_storage_policy_service_list_base_redact_storage_column",
+		"查询可入库脱敏的字符串字段列表。",
+		func(ctx context.Context, req *ListBaseRedactStorageColumnRequest) (*ListBaseRedactStorageColumnResponse, error) {
+			if req == nil {
+				req = &ListBaseRedactStorageColumnRequest{}
+			}
+			return baseRedactStoragePolicyServiceServer.ListBaseRedactStorageColumn(ctx, req)
 		},
 	)
 }
