@@ -233,7 +233,7 @@ const checkedBaseRole = ref<CheckedBaseRole>({});
 const assignPermDialogVisible = ref(false);
 const permKeywords = ref("");
 const isExpanded = ref(true);
-const parentChildLinked = ref(true);
+const parentChildLinked = ref(false);
 
 const { isDefaultTenant, tenantColumns, tenantFormField, toRequestTenantId, loadTenantOptions } = useTenantScope();
 onMounted(() => {

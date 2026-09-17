@@ -36,6 +36,13 @@ test("登录策略弹窗自适应标签并展示初始化密码强度", async ()
   assert.match(source, /prop: "initialPasswordStrength"[\s\S]*component: "slot"[\s\S]*slotName: "initialPasswordStrength"/);
 });
 
+test("登录策略租户和用户未选择时不显示零值", async () => {
+  const source = await readSource("src/views/base/login-policy/index.vue");
+
+  assert.match(source, /tenant_id: undefined,[\s\S]*?user_id: undefined/);
+  assert.match(source, /formData\.tenant_id = undefined;[\s\S]*?formData\.user_id = undefined;/);
+});
+
 test("新增租户成功后三行文本展示一次性随机管理员凭据", async () => {
   const [pageSource, apiSource] = await Promise.all([
     readSource("src/views/base/tenant/index.vue"),
@@ -180,7 +187,7 @@ test("新增回归校验使用的国际化键在四种语言中均存在", async
 });
 
 test("项目授权新增弹窗默认使用有效授权类型", async () => {
-  const source = await readSource("src/views/base/project-grant/index.vue");
+  const source = await readSource("src/views/base/tenant-project-grant/index.vue");
 
   assert.match(
     source,
@@ -191,8 +198,22 @@ test("项目授权新增弹窗默认使用有效授权类型", async () => {
   assert.match(source, /await Promise\.all\(\[loadProjectOptions\(\), loadSubjectOptions\(\)\]\)/);
 });
 
+test("角色分配权限默认关闭父子联动", async () => {
+  const source = await readSource("src/views/base/role/index.vue");
+
+  assert.match(source, /const parentChildLinked = ref\(false\);/);
+  assert.match(source, /:check-strictly="!parentChildLinked"/);
+});
+
+test("定时任务操作列使用统一操作按钮配置", async () => {
+  const source = await readSource("src/views/base/job/index.vue");
+
+  assert.match(source, /prop: "operation"[\s\S]*?cellType: "actions"[\s\S]*?actions:/);
+  assert.doesNotMatch(source, /renderOperationCell|job-operation|job-action/);
+});
+
 test("项目授权范围提供开关含义说明", async () => {
-  const source = await readSource("src/views/base/project-grant/index.vue");
+  const source = await readSource("src/views/base/tenant-project-grant/index.vue");
   assert.match(source, /labelTooltip: t\("system\.base\.tenant_project_grant\.tooltip\.scope"\)/);
 
   for (const locale of ["zh-CN", "en-US", "ja-JP", "zh-TW"]) {
@@ -202,7 +223,7 @@ test("项目授权范围提供开关含义说明", async () => {
 });
 
 test("项目授权列表沿用统一租户列展示规则", async () => {
-  const source = await readSource("src/views/base/project-grant/index.vue");
+  const source = await readSource("src/views/base/tenant-project-grant/index.vue");
   const tenantColumn = source.match(/\.\.\.tenantColumns\(\{[^}]+\}\)/)?.[0];
 
   assert.ok(tenantColumn, "项目授权列表缺少租户列配置");
@@ -211,7 +232,7 @@ test("项目授权列表沿用统一租户列展示规则", async () => {
 });
 
 test("项目授权列表不展示主体编码列且不保留无用翻译", async () => {
-  const source = await readSource("src/views/base/project-grant/index.vue");
+  const source = await readSource("src/views/base/tenant-project-grant/index.vue");
   assert.doesNotMatch(source, /prop: "subject_code"[\s\S]*?field\.subject_code/);
 
   for (const locale of ["zh-CN", "en-US", "ja-JP", "zh-TW"]) {
@@ -230,13 +251,22 @@ test("国际化自定义翻译使用响应式语言选项并锁定编辑键和�
   assert.match(source, /prop: "locale"[\s\S]*?disabled: dialog\.editing/);
 });
 
-test("租户项目列表分开展示租户、项目名称和项目编号", async () => {
+test("租户项目列表不显示租户字段并分开展示项目名称和项目编号", async () => {
   const source = await readSource("src/components/tenant-project/TenantProjectManager.vue");
 
-  assert.match(source, /\.\.\.tenantColumns\(\{ label: t\("common\.field\.tenant"\), order: 1 \}\)/);
+  assert.doesNotMatch(source, /tenantColumns|tenantFormField|prop: "tenant_id"/);
   assert.match(source, /prop: "name", label: t\("system\.base\.tenant_project\.field\.name"\),[\s\S]*?search: \{ el: "input" \}/);
   assert.match(source, /prop: "code", label: t\("system\.base\.tenant_project\.field\.code"\),[\s\S]*?search: \{ el: "input" \}/);
   assert.doesNotMatch(source, /TenantProjectText|common\.field\.tenant\} \/ \$\{t\("common\.field\.project"\)\}/);
+});
+
+test("项目目录仅允许默认租户执行维护操作", async () => {
+  const source = await readSource("src/components/tenant-project/TenantProjectManager.vue");
+
+  assert.match(source, /disabled: \(\) => !isDefaultTenant\.value \|\|[^\n]*base:tenant:project:status/);
+  assert.match(source, /hidden: \(\) => !isDefaultTenant\.value \|\|[^\n]*base:tenant:project:update/);
+  assert.match(source, /hidden: \(\) => !isDefaultTenant\.value \|\|[^\n]*base:tenant:project:delete/);
+  assert.match(source, /hidden: \(\) => !isDefaultTenant\.value \|\|[^\n]*base:tenant:project:create/);
 });
 
 test("普通租户管理员在用户列表中不可删除但仍可重置密码", async () => {

@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/liujitcn/go-utils/crypto"
+	"github.com/liujitcn/go-utils/mapper"
 	_string "github.com/liujitcn/go-utils/string"
 	"github.com/liujitcn/gorm-kit/repository"
 	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
@@ -13,7 +14,6 @@ import (
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/utils"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
-	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
 	"github.com/liujitcn/kratos-core/biz"
 	_const "github.com/liujitcn/kratos-core/const"
 	"github.com/liujitcn/kratos-core/errorsx"
@@ -28,6 +28,11 @@ type BaseLoginPolicyCase struct {
 	baseLoginPolicyRuleRepo *data.BaseLoginPolicyRuleRepository
 	baseTenantRepo          *data.BaseTenantRepository
 	baseUserRepo            *data.BaseUserRepository
+	formMapper              *mapper.CopierMapper[adminv1.BaseLoginPolicyForm, models.BaseLoginPolicy]
+	mapper                  *mapper.CopierMapper[adminv1.BaseLoginPolicy, models.BaseLoginPolicy]
+	policyMapper            *mapper.CopierMapper[loginpolicy.Policy, models.BaseLoginPolicy]
+	ruleMapper              *mapper.CopierMapper[adminv1.BaseLoginPolicyRule, models.BaseLoginPolicyRule]
+	policyRuleMapper        *mapper.CopierMapper[loginpolicy.Rule, models.BaseLoginPolicyRule]
 }
 
 // NewBaseLoginPolicyCase 创建登录策略业务实例。
@@ -39,15 +44,65 @@ func NewBaseLoginPolicyCase(
 	baseTenantRepo *data.BaseTenantRepository,
 	baseUserRepo *data.BaseUserRepository,
 ) *BaseLoginPolicyCase {
-	return &BaseLoginPolicyCase{BaseCase: baseCase, tx: tx, baseLoginPolicyRepo: baseLoginPolicyRepo, baseLoginPolicyRuleRepo: baseLoginPolicyRuleRepo, baseTenantRepo: baseTenantRepo, baseUserRepo: baseUserRepo}
+	formMapper := mapper.NewCopierMapper[adminv1.BaseLoginPolicyForm, models.BaseLoginPolicy]()
+	formMapper.AppendConverters(mapper.NewGenericTypeConverterPair(
+		false,
+		int32(0),
+		func(value bool) int32 {
+			if value {
+				return 1
+			}
+			return 0
+		},
+		func(value int32) bool {
+			return value == 1
+		},
+	))
+	listMapper := mapper.NewCopierMapper[adminv1.BaseLoginPolicy, models.BaseLoginPolicy]()
+	listMapper.AppendConverters(mapper.NewGenericTypeConverterPair(
+		false,
+		int32(0),
+		func(value bool) int32 {
+			if value {
+				return 1
+			}
+			return 0
+		},
+		func(value int32) bool {
+			return value == 1
+		},
+	))
+	policyMapper := mapper.NewCopierMapper[loginpolicy.Policy, models.BaseLoginPolicy]()
+	policyMapper.AppendConverters(mapper.NewGenericTypeConverterPair(
+		false,
+		int32(0),
+		func(value bool) int32 {
+			if value {
+				return 1
+			}
+			return 0
+		},
+		func(value int32) bool {
+			return value == 1
+		},
+	))
+	return &BaseLoginPolicyCase{
+		BaseCase:                baseCase,
+		tx:                      tx,
+		baseLoginPolicyRepo:     baseLoginPolicyRepo,
+		baseLoginPolicyRuleRepo: baseLoginPolicyRuleRepo,
+		baseTenantRepo:          baseTenantRepo,
+		baseUserRepo:            baseUserRepo,
+		formMapper:              formMapper,
+		mapper:                  listMapper,
+		policyMapper:            policyMapper,
+		ruleMapper:              mapper.NewCopierMapper[adminv1.BaseLoginPolicyRule, models.BaseLoginPolicyRule](),
+		policyRuleMapper:        mapper.NewCopierMapper[loginpolicy.Rule, models.BaseLoginPolicyRule](),
+	}
 }
 
 // PageBaseLoginPolicy 分页查询登录策略及其限制规则。
 func (c *BaseLoginPolicyCase) PageBaseLoginPolicy(ctx context.Context, req *adminv1.PageBaseLoginPolicyRequest) (*adminv1.PageBaseLoginPolicyResponse, error) {
-	err := c.ensurePlatformOperator(ctx)
-	if err != nil {
-		return nil, err
-	}
 	query := c.baseLoginPolicyRepo.Query(ctx).BaseLoginPolicy
 	opts := make([]repository.QueryOption, 0, 4)
 	opts = append(opts, repository.Order(query.ScopeType.Asc()), repository.Order(query.ID.Asc()))
@@ -74,16 +129,13 @@ func (c *BaseLoginPolicyCase) PageBaseLoginPolicy(ctx context.Context, req *admi
 }
 
 // GetBaseLoginPolicy 查询登录策略详情及其限制规则。
-func (c *BaseLoginPolicyCase) getBaseLoginPolicy(ctx context.Context, id int64) (*adminv1.BaseLoginPolicyForm, error) {
-	err := c.ensurePlatformOperator(ctx)
+func (c *BaseLoginPolicyCase) GetBaseLoginPolicy(ctx context.Context, req *adminv1.GetBaseLoginPolicyRequest) (*adminv1.BaseLoginPolicyForm, error) {
+	entity, err := c.baseLoginPolicyRepo.FindByID(ctx, req.GetId())
 	if err != nil {
 		return nil, err
 	}
-	entity, err := c.baseLoginPolicyRepo.FindByID(ctx, id)
-	if err != nil {
-		return nil, err
-	}
-	rules, err := c.listRules(ctx, id)
+	var rules []*models.BaseLoginPolicyRule
+	rules, err = c.listRules(ctx, req.GetId())
 	if err != nil {
 		return nil, err
 	}
@@ -91,22 +143,13 @@ func (c *BaseLoginPolicyCase) getBaseLoginPolicy(ctx context.Context, id int64) 
 }
 
 // CreateBaseLoginPolicy 创建登录策略及其限制规则。
-func (c *BaseLoginPolicyCase) createBaseLoginPolicy(ctx context.Context, input *adminv1.BaseLoginPolicyForm) error {
-	err := c.ensurePlatformOperator(ctx)
-	if err != nil {
-		return err
-	}
+func (c *BaseLoginPolicyCase) CreateBaseLoginPolicy(ctx context.Context, req *adminv1.CreateBaseLoginPolicyRequest) (*emptypb.Empty, error) {
+	input := req.GetBaseLoginPolicy()
 	policy, err := c.policyFromForm(ctx, input)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	authInfo, err := c.GetAuthInfo(ctx)
-	if err != nil {
-		return err
-	}
-	entity := policyToEntity(policy)
-	entity.CreatedBy = authInfo.UserId
-	entity.UpdatedBy = authInfo.UserId
+	entity := c.policyMapper.ToEntity(&policy)
 	err = c.tx.Transaction(ctx, func(txCtx context.Context) error {
 		err = c.baseLoginPolicyRepo.Create(txCtx, entity)
 		if err != nil {
@@ -116,11 +159,9 @@ func (c *BaseLoginPolicyCase) createBaseLoginPolicy(ctx context.Context, input *
 			return err
 		}
 		for _, rule := range policy.Rules {
-			ruleEntity := ruleToEntity(rule)
+			ruleEntity := c.policyRuleMapper.ToEntity(&rule)
 			ruleEntity.ID = 0
 			ruleEntity.PolicyID = entity.ID
-			ruleEntity.CreatedBy = authInfo.UserId
-			ruleEntity.UpdatedBy = authInfo.UserId
 			err = c.baseLoginPolicyRuleRepo.Create(txCtx, ruleEntity)
 			if err != nil {
 				if errorsx.IsDuplicateKey(err) {
@@ -132,40 +173,33 @@ func (c *BaseLoginPolicyCase) createBaseLoginPolicy(ctx context.Context, input *
 		return nil
 	})
 	if err != nil {
-		return err
+		return nil, err
 	}
-	return c.RefreshBaseLoginPolicy(ctx)
+	if err = c.RefreshBaseLoginPolicy(ctx); err != nil {
+		return nil, err
+	}
+	return new(emptypb.Empty), nil
 }
 
 // UpdateBaseLoginPolicy 更新登录策略及其限制规则。
-func (c *BaseLoginPolicyCase) updateBaseLoginPolicy(ctx context.Context, input *adminv1.BaseLoginPolicyForm) error {
-	err := c.ensurePlatformOperator(ctx)
-	if err != nil {
-		return err
-	}
+func (c *BaseLoginPolicyCase) UpdateBaseLoginPolicy(ctx context.Context, req *adminv1.UpdateBaseLoginPolicyRequest) (*emptypb.Empty, error) {
+	input := req.GetBaseLoginPolicy()
 	oldEntity, err := c.baseLoginPolicyRepo.FindByID(ctx, input.GetId())
 	if err != nil {
-		return err
+		return nil, err
 	}
 	policy, err := c.policyFromForm(ctx, input)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	if input.GetInitialPassword() == nil {
 		policy.InitialPasswordHash = oldEntity.InitialPasswordHash
 	}
-	authInfo, err := c.GetAuthInfo(ctx)
-	if err != nil {
-		return err
-	}
-	entity := policyToEntity(policy)
+	entity := c.policyMapper.ToEntity(&policy)
 	entity.ID = oldEntity.ID
-	entity.CreatedBy = oldEntity.CreatedBy
-	entity.CreatedAt = oldEntity.CreatedAt
-	entity.UpdatedBy = authInfo.UserId
 	oldRules, err := c.listRules(ctx, oldEntity.ID)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	err = c.tx.Transaction(ctx, func(txCtx context.Context) error {
 		err = c.baseLoginPolicyRepo.UpdateByID(txCtx, entity)
@@ -186,11 +220,9 @@ func (c *BaseLoginPolicyCase) updateBaseLoginPolicy(ctx context.Context, input *
 			}
 		}
 		for _, rule := range policy.Rules {
-			ruleEntity := ruleToEntity(rule)
+			ruleEntity := c.policyRuleMapper.ToEntity(&rule)
 			ruleEntity.ID = 0
 			ruleEntity.PolicyID = entity.ID
-			ruleEntity.CreatedBy = oldEntity.CreatedBy
-			ruleEntity.UpdatedBy = authInfo.UserId
 			err = c.baseLoginPolicyRuleRepo.Create(txCtx, ruleEntity)
 			if err != nil {
 				if errorsx.IsDuplicateKey(err) {
@@ -202,27 +234,26 @@ func (c *BaseLoginPolicyCase) updateBaseLoginPolicy(ctx context.Context, input *
 		return nil
 	})
 	if err != nil {
-		return err
+		return nil, err
 	}
-	return c.RefreshBaseLoginPolicy(ctx)
+	if err = c.RefreshBaseLoginPolicy(ctx); err != nil {
+		return nil, err
+	}
+	return new(emptypb.Empty), nil
 }
 
 // DeleteBaseLoginPolicy 删除登录策略及其限制规则。
-func (c *BaseLoginPolicyCase) deleteBaseLoginPolicy(ctx context.Context, id string) error {
-	err := c.ensurePlatformOperator(ctx)
-	if err != nil {
-		return err
-	}
-	ids := _string.ConvertStringToInt64Array(id)
+func (c *BaseLoginPolicyCase) DeleteBaseLoginPolicy(ctx context.Context, req *adminv1.DeleteBaseLoginPolicyRequest) (*emptypb.Empty, error) {
+	ids := _string.ConvertStringToInt64Array(req.GetId())
 	if len(ids) == 0 {
-		return errorsx.InvalidArgument("登录策略ID不能为空")
+		return nil, errorsx.InvalidArgument("登录策略ID不能为空")
 	}
 	list, err := c.baseLoginPolicyRepo.ListByIDs(ctx, ids)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	if len(list) != len(ids) {
-		return errorsx.ResourceNotFound("登录策略不存在")
+		return nil, errorsx.ResourceNotFound("登录策略不存在")
 	}
 	err = c.tx.Transaction(ctx, func(txCtx context.Context) error {
 		var rules []*models.BaseLoginPolicyRule
@@ -243,33 +274,35 @@ func (c *BaseLoginPolicyCase) deleteBaseLoginPolicy(ctx context.Context, id stri
 		return c.baseLoginPolicyRepo.DeleteByIDs(txCtx, ids)
 	})
 	if err != nil {
-		return err
+		return nil, err
 	}
-	return c.RefreshBaseLoginPolicy(ctx)
+	if err = c.RefreshBaseLoginPolicy(ctx); err != nil {
+		return nil, err
+	}
+	return new(emptypb.Empty), nil
 }
 
 // SetBaseLoginPolicyStatus 设置登录策略状态。
-func (c *BaseLoginPolicyCase) setBaseLoginPolicyStatus(ctx context.Context, req *adminv1.SetBaseLoginPolicyStatusRequest) error {
-	err := c.ensurePlatformOperator(ctx)
-	if err != nil {
-		return err
-	}
+func (c *BaseLoginPolicyCase) SetBaseLoginPolicyStatus(ctx context.Context, req *adminv1.SetBaseLoginPolicyStatusRequest) (*emptypb.Empty, error) {
 	status := int32(req.GetStatus())
 	if status != _const.STATUS_STATUS_ENABLE && status != _const.STATUS_STATUS_DISABLE {
-		return errorsx.InvalidArgument("登录策略状态无效")
+		return nil, errorsx.InvalidArgument("登录策略状态无效")
 	}
 	entity, err := c.baseLoginPolicyRepo.FindByID(ctx, req.GetId())
 	if err != nil {
-		return err
+		return nil, err
 	}
 	if entity.Status == status {
-		return nil
+		return new(emptypb.Empty), nil
 	}
 	err = c.baseLoginPolicyRepo.UpdateByID(ctx, &models.BaseLoginPolicy{ID: entity.ID, Status: status})
 	if err != nil {
-		return err
+		return nil, err
 	}
-	return c.RefreshBaseLoginPolicy(ctx)
+	if err = c.RefreshBaseLoginPolicy(ctx); err != nil {
+		return nil, err
+	}
+	return new(emptypb.Empty), nil
 }
 
 // RefreshBaseLoginPolicy 从数据库加载全部登录策略到运行时缓存。
@@ -286,51 +319,23 @@ func (c *BaseLoginPolicyCase) RefreshBaseLoginPolicy(ctx context.Context) error 
 		if err != nil {
 			return err
 		}
-		var policy loginpolicy.Policy
-		policy = entityToPolicy(entity, rules)
-		policySet.Policies = append(policySet.Policies, policy)
+		policy := c.policyMapper.ToDTO(entity)
+		if policy.PasswordMinLength == 0 {
+			policy.PasswordMinLength = loginpolicy.DefaultPasswordMinLength
+		}
+		if policy.PasswordMinComplexityClasses == 0 {
+			policy.PasswordMinComplexityClasses = loginpolicy.DefaultPasswordMinComplexityClasses
+		}
+		policy.Rules = make([]loginpolicy.Rule, 0, len(rules))
+		for _, ruleEntity := range rules {
+			policy.Rules = append(policy.Rules, *c.policyRuleMapper.ToDTO(ruleEntity))
+		}
+		policySet.Policies = append(policySet.Policies, *policy)
 	}
 	if len(policySet.Policies) == 0 {
 		policySet = loginpolicy.Load()
 	}
 	return loginpolicy.SaveToCache(c.Cache, policySet)
-}
-
-// GetBaseLoginPolicy 查询登录策略详情。
-func (c *BaseLoginPolicyCase) GetBaseLoginPolicy(ctx context.Context, req *adminv1.GetBaseLoginPolicyRequest) (*adminv1.BaseLoginPolicyForm, error) {
-	return c.getBaseLoginPolicy(ctx, req.GetId())
-}
-
-// CreateBaseLoginPolicy 创建登录策略。
-func (c *BaseLoginPolicyCase) CreateBaseLoginPolicy(ctx context.Context, req *adminv1.CreateBaseLoginPolicyRequest) (*emptypb.Empty, error) {
-	if err := c.createBaseLoginPolicy(ctx, req.GetBaseLoginPolicy()); err != nil {
-		return nil, err
-	}
-	return new(emptypb.Empty), nil
-}
-
-// UpdateBaseLoginPolicy 更新登录策略。
-func (c *BaseLoginPolicyCase) UpdateBaseLoginPolicy(ctx context.Context, req *adminv1.UpdateBaseLoginPolicyRequest) (*emptypb.Empty, error) {
-	if err := c.updateBaseLoginPolicy(ctx, req.GetBaseLoginPolicy()); err != nil {
-		return nil, err
-	}
-	return new(emptypb.Empty), nil
-}
-
-// DeleteBaseLoginPolicy 删除登录策略。
-func (c *BaseLoginPolicyCase) DeleteBaseLoginPolicy(ctx context.Context, req *adminv1.DeleteBaseLoginPolicyRequest) (*emptypb.Empty, error) {
-	if err := c.deleteBaseLoginPolicy(ctx, req.GetId()); err != nil {
-		return nil, err
-	}
-	return new(emptypb.Empty), nil
-}
-
-// SetBaseLoginPolicyStatus 设置登录策略状态。
-func (c *BaseLoginPolicyCase) SetBaseLoginPolicyStatus(ctx context.Context, req *adminv1.SetBaseLoginPolicyStatusRequest) (*emptypb.Empty, error) {
-	if err := c.setBaseLoginPolicyStatus(ctx, req); err != nil {
-		return nil, err
-	}
-	return new(emptypb.Empty), nil
 }
 
 // listRules 查询指定策略的限制规则。
@@ -347,7 +352,8 @@ func (c *BaseLoginPolicyCase) listRulesByPolicyIDs(ctx context.Context, policyID
 
 // policyFromForm 将接口表单转换为策略领域记录并校验作用域。
 func (c *BaseLoginPolicyCase) policyFromForm(ctx context.Context, input *adminv1.BaseLoginPolicyForm) (loginpolicy.Policy, error) {
-	policy := loginpolicy.Policy{ID: input.GetId(), ScopeType: int32(input.GetScopeType()), TenantID: input.GetTenantId(), UserID: input.GetUserId(), Status: int32(input.GetStatus()), MaxFailedAttempts: input.GetMaxFailedAttempts(), LockDurationMinutes: input.GetLockDurationMinutes(), AllowConcurrentLogin: input.GetAllowConcurrentLogin(), PasswordMinLength: input.GetPasswordMinLength(), PasswordHistoryCount: input.GetPasswordHistoryCount(), PasswordMinComplexityClasses: input.GetPasswordMinComplexityClasses(), PasswordMaxAgeDays: input.GetPasswordMaxAgeDays(), MfaRememberDays: input.GetMfaRememberDays(), Rules: make([]loginpolicy.Rule, 0, len(input.GetRules()))}
+	policy := *c.policyMapper.ToDTO(c.formMapper.ToEntity(input))
+	policy.Rules = make([]loginpolicy.Rule, 0, len(input.GetRules()))
 	var err error
 	if policy.Status == 0 {
 		policy.Status = _const.STATUS_STATUS_ENABLE
@@ -395,11 +401,14 @@ func (c *BaseLoginPolicyCase) policyFromForm(ctx context.Context, input *adminv1
 		}
 	}
 	for _, inputRule := range input.GetRules() {
-		status := int32(inputRule.GetStatus())
+		ruleEntity := c.ruleMapper.ToEntity(inputRule)
+		rule := c.policyRuleMapper.ToDTO(ruleEntity)
+		status := rule.Status
 		if status == 0 {
 			status = _const.STATUS_STATUS_ENABLE
 		}
-		policy.Rules = append(policy.Rules, loginpolicy.Rule{ID: inputRule.GetId(), PolicyID: inputRule.GetPolicyId(), RestrictionType: int32(inputRule.GetRestrictionType()), RestrictionMethod: int32(inputRule.GetRestrictionMethod()), RestrictionValue: inputRule.GetRestrictionValue(), Reason: inputRule.GetReason(), Status: status})
+		rule.Status = status
+		policy.Rules = append(policy.Rules, *rule)
 	}
 	err = validatePolicyTarget(ctx, policy, c.baseTenantRepo, c.baseUserRepo)
 	if err != nil {
@@ -418,26 +427,31 @@ func (c *BaseLoginPolicyCase) toBaseLoginPolicy(ctx context.Context, entity *mod
 	if err != nil {
 		return nil, err
 	}
-	policy := entityToPolicy(entity, rules)
-	result := &adminv1.BaseLoginPolicy{Id: policy.ID, ScopeType: adminv1.BaseLoginPolicyScopeType(policy.ScopeType), TenantId: policy.TenantID, UserId: policy.UserID, MaxFailedAttempts: policy.MaxFailedAttempts, LockDurationMinutes: policy.LockDurationMinutes, AllowConcurrentLogin: policy.AllowConcurrentLogin, PasswordMinLength: policy.PasswordMinLength, PasswordHistoryCount: policy.PasswordHistoryCount, PasswordMinComplexityClasses: policy.PasswordMinComplexityClasses, PasswordMaxAgeDays: policy.PasswordMaxAgeDays, MfaRememberDays: policy.MfaRememberDays, Status: commonv1.Status(policy.Status), CreatedAt: entity.CreatedAt.Format("2006-01-02 15:04:05"), UpdatedAt: entity.UpdatedAt.Format("2006-01-02 15:04:05")}
-	result.Rules = make([]*adminv1.BaseLoginPolicyRule, 0, len(policy.Rules))
-	for _, rule := range policy.Rules {
-		result.Rules = append(result.Rules, toBaseLoginPolicyRule(rule))
+	result := c.mapper.ToDTO(entity)
+	if result.PasswordMinLength == 0 {
+		result.PasswordMinLength = loginpolicy.DefaultPasswordMinLength
 	}
-	if policy.TenantID > 0 {
+	if result.PasswordMinComplexityClasses == 0 {
+		result.PasswordMinComplexityClasses = loginpolicy.DefaultPasswordMinComplexityClasses
+	}
+	result.Rules = make([]*adminv1.BaseLoginPolicyRule, 0, len(rules))
+	for _, ruleEntity := range rules {
+		result.Rules = append(result.Rules, c.ruleMapper.ToDTO(ruleEntity))
+	}
+	if result.TenantId > 0 {
 		var tenant *models.BaseTenant
-		tenant, err = c.baseTenantRepo.FindByID(ctx, policy.TenantID)
+		tenant, err = c.baseTenantRepo.FindByID(ctx, result.TenantId)
 		if err != nil {
 			return nil, err
 		}
 		result.TenantName = tenant.Name
 	}
-	if policy.UserID > 0 {
+	if result.UserId > 0 {
 		var user *models.BaseUser
 		query := c.baseUserRepo.Query(ctx).BaseUser
 		user, err = c.baseUserRepo.Find(ctx,
 			repository.Select(query.ID, query.UserName),
-			repository.Where(query.ID.Eq(policy.UserID)),
+			repository.Where(query.ID.Eq(result.UserId)),
 		)
 		if err != nil {
 			return nil, err
@@ -449,30 +463,20 @@ func (c *BaseLoginPolicyCase) toBaseLoginPolicy(ctx context.Context, entity *mod
 
 // toBaseLoginPolicyForm 将数据库记录转换为编辑表单。
 func (c *BaseLoginPolicyCase) toBaseLoginPolicyForm(entity *models.BaseLoginPolicy, rules []*models.BaseLoginPolicyRule) (*adminv1.BaseLoginPolicyForm, error) {
-	policy := entityToPolicy(entity, rules)
-	passwordMaxAgeDays := policy.PasswordMaxAgeDays
-	mfaRememberDays := policy.MfaRememberDays
-	passwordMinLength := policy.PasswordMinLength
-	passwordHistoryCount := policy.PasswordHistoryCount
-	passwordMinComplexityClasses := policy.PasswordMinComplexityClasses
-	result := &adminv1.BaseLoginPolicyForm{Id: policy.ID, ScopeType: adminv1.BaseLoginPolicyScopeType(policy.ScopeType), TenantId: policy.TenantID, UserId: policy.UserID, MaxFailedAttempts: policy.MaxFailedAttempts, LockDurationMinutes: policy.LockDurationMinutes, AllowConcurrentLogin: policy.AllowConcurrentLogin, Status: commonv1.Status(policy.Status), PasswordMinLength: &passwordMinLength, PasswordHistoryCount: &passwordHistoryCount, PasswordMinComplexityClasses: &passwordMinComplexityClasses, PasswordMaxAgeDays: &passwordMaxAgeDays, MfaRememberDays: &mfaRememberDays}
-	result.Rules = make([]*adminv1.BaseLoginPolicyRule, 0, len(policy.Rules))
-	for _, rule := range policy.Rules {
-		result.Rules = append(result.Rules, toBaseLoginPolicyRule(rule))
+	result := c.formMapper.ToDTO(entity)
+	if result.PasswordMinLength == nil || result.GetPasswordMinLength() == 0 {
+		result.PasswordMinLength = new(int32)
+		*result.PasswordMinLength = loginpolicy.DefaultPasswordMinLength
+	}
+	if result.PasswordMinComplexityClasses == nil || result.GetPasswordMinComplexityClasses() == 0 {
+		result.PasswordMinComplexityClasses = new(int32)
+		*result.PasswordMinComplexityClasses = loginpolicy.DefaultPasswordMinComplexityClasses
+	}
+	result.Rules = make([]*adminv1.BaseLoginPolicyRule, 0, len(rules))
+	for _, ruleEntity := range rules {
+		result.Rules = append(result.Rules, c.ruleMapper.ToDTO(ruleEntity))
 	}
 	return result, nil
-}
-
-// ensurePlatformOperator 校验当前操作者具备平台级登录策略管理权限。
-func (c *BaseLoginPolicyCase) ensurePlatformOperator(ctx context.Context) error {
-	authInfo, err := c.GetAuthInfo(ctx)
-	if err != nil {
-		return err
-	}
-	if authInfo.RoleCode != _const.BASE_ROLE_CODE_SUPER {
-		return errorsx.PermissionDenied("只有平台管理员可以管理登录策略")
-	}
-	return nil
 }
 
 // validatePolicyTarget 校验策略作用域和目标记录。
@@ -511,38 +515,4 @@ func validatePolicyTarget(ctx context.Context, policy loginpolicy.Policy, tenant
 		return errorsx.InvalidArgument("登录策略作用域类型无效")
 	}
 	return nil
-}
-
-// policyToEntity 将策略领域记录转换为数据库模型。
-func policyToEntity(policy loginpolicy.Policy) *models.BaseLoginPolicy {
-	allowConcurrentLogin := int32(0)
-	if policy.AllowConcurrentLogin {
-		allowConcurrentLogin = 1
-	}
-	return &models.BaseLoginPolicy{ID: policy.ID, ScopeType: policy.ScopeType, TenantID: policy.TenantID, UserID: policy.UserID, Status: policy.Status, MaxFailedAttempts: policy.MaxFailedAttempts, LockDurationMinutes: policy.LockDurationMinutes, AllowConcurrentLogin: allowConcurrentLogin, PasswordMinLength: policy.PasswordMinLength, PasswordHistoryCount: policy.PasswordHistoryCount, PasswordMinComplexityClasses: policy.PasswordMinComplexityClasses, PasswordMaxAgeDays: policy.PasswordMaxAgeDays, MFARememberDays: policy.MfaRememberDays, InitialPasswordHash: policy.InitialPasswordHash}
-}
-
-// ruleToEntity 将策略规则转换为数据库模型。
-func ruleToEntity(rule loginpolicy.Rule) *models.BaseLoginPolicyRule {
-	return &models.BaseLoginPolicyRule{ID: rule.ID, PolicyID: rule.PolicyID, RestrictionType: rule.RestrictionType, RestrictionMethod: rule.RestrictionMethod, RestrictionValue: rule.RestrictionValue, Reason: rule.Reason, Status: rule.Status}
-}
-
-// entityToPolicy 将数据库模型转换为策略领域记录。
-func entityToPolicy(entity *models.BaseLoginPolicy, rules []*models.BaseLoginPolicyRule) loginpolicy.Policy {
-	policy := loginpolicy.Policy{ID: entity.ID, ScopeType: entity.ScopeType, TenantID: entity.TenantID, UserID: entity.UserID, Status: entity.Status, AllowConcurrentLogin: entity.AllowConcurrentLogin != 0, MaxFailedAttempts: entity.MaxFailedAttempts, LockDurationMinutes: entity.LockDurationMinutes, PasswordMinLength: entity.PasswordMinLength, PasswordHistoryCount: entity.PasswordHistoryCount, PasswordMinComplexityClasses: entity.PasswordMinComplexityClasses, PasswordMaxAgeDays: entity.PasswordMaxAgeDays, MfaRememberDays: entity.MFARememberDays, InitialPasswordHash: entity.InitialPasswordHash, Rules: make([]loginpolicy.Rule, 0, len(rules))}
-	if policy.PasswordMinLength == 0 {
-		policy.PasswordMinLength = loginpolicy.DefaultPasswordMinLength
-	}
-	if policy.PasswordMinComplexityClasses == 0 {
-		policy.PasswordMinComplexityClasses = loginpolicy.DefaultPasswordMinComplexityClasses
-	}
-	for _, entityRule := range rules {
-		policy.Rules = append(policy.Rules, loginpolicy.Rule{ID: entityRule.ID, PolicyID: entityRule.PolicyID, RestrictionType: entityRule.RestrictionType, RestrictionMethod: entityRule.RestrictionMethod, RestrictionValue: entityRule.RestrictionValue, Reason: entityRule.Reason, Status: entityRule.Status})
-	}
-	return policy
-}
-
-// toBaseLoginPolicyRule 将策略规则转换为接口对象。
-func toBaseLoginPolicyRule(rule loginpolicy.Rule) *adminv1.BaseLoginPolicyRule {
-	return &adminv1.BaseLoginPolicyRule{Id: rule.ID, PolicyId: rule.PolicyID, RestrictionType: adminv1.BaseLoginPolicyRestrictionType(rule.RestrictionType), RestrictionMethod: adminv1.BaseLoginPolicyRestrictionMethod(rule.RestrictionMethod), RestrictionValue: rule.RestrictionValue, Reason: rule.Reason, Status: commonv1.Status(rule.Status)}
 }

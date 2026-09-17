@@ -49,7 +49,7 @@ packages/modules/system
 | `src/components/tenant-project/TenantProjectText.vue` | 租户项目列表展示组件，按当前租户身份自动组合名称。 |
 | `src/components/tenant-project/TenantProjectManager.vue` | 可复用的租户项目管理组件，支持追加列、业务数据加载、操作和作用域插槽。 |
 | `src/components/tenant-project/tenant-project-manager.ts` | 租户项目管理组件的扩展类型、双键上下文和数据合并辅助函数。 |
-| `src/components/tenant-project/ProjectGrantDialog.vue` | 岗位、角色、部门和用户的项目授权弹窗。 |
+| `src/components/tenant-project-grant/ProjectGrantDialog.vue` | 岗位、角色、部门和用户的项目授权弹窗。 |
 | `src/rpc/**/*.ts`       | System 页面与 API 自包含的 RPC 类型。                   |
 | `src/typings/*.d.ts`    | 声明 System 页面使用的 Markdown 和 Swagger 模块。       |
 | `package.json`          | 声明依赖以及公开的模块入口、API 和 RPC 子路径。         |
@@ -106,7 +106,7 @@ packages/modules/system
 | `src/views/base/post/index.vue`                                | 岗位管理页。                       |
 | `src/views/base/role/index.vue`                                | 角色管理页。                       |
 | `src/views/base/tenant/index.vue`                              | 租户管理页。                       |
-| `src/views/base/project-grant/index.vue`                         | 项目授权管理页。                   |
+| `src/views/base/tenant-project-grant/index.vue`                  | 项目授权管理页。                   |
 | `src/views/base/user/index.vue`                                | 用户管理页。                       |
 | `src/views/base/user/components/dept-tree.vue`                 | 用户页的部门树筛选组件。           |
 | `src/views/profile/`                                           | 个人中心与安全设置页面。           |

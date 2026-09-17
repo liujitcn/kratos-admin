@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"slices"
 
 	"github.com/liujitcn/gorm-kit/repository"
 	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
@@ -19,13 +18,6 @@ import (
 	"gorm.io/gen/field"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
-)
-
-const (
-	grantViewPermission   = "base/project/grant"
-	grantCreatePermission = "base:tenant:project:grant:create"
-	grantUpdatePermission = "base:tenant:project:grant:update"
-	grantDeletePermission = "base:tenant:project:grant:delete"
 )
 
 // BaseTenantProjectGrantCase 管理岗位、角色、部门和用户在目标租户下的项目授权。
@@ -51,10 +43,6 @@ func NewBaseTenantProjectGrantCase(
 // PageBaseTenantProjectGrant 分页查询项目授权，并补充租户、主体和项目名称。
 func (c *BaseTenantProjectGrantCase) PageBaseTenantProjectGrant(ctx context.Context, req *adminv1.PageBaseTenantProjectGrantRequest) (*adminv1.PageBaseTenantProjectGrantResponse, error) {
 	identity, err := c.GetAuthInfo(ctx)
-	if err != nil {
-		return nil, err
-	}
-	err = c.requireGrantPermission(ctx, grantViewPermission)
 	if err != nil {
 		return nil, err
 	}
@@ -84,7 +72,7 @@ func (c *BaseTenantProjectGrantCase) PageBaseTenantProjectGrant(ctx context.Cont
 
 // GetBaseTenantProjectGrant 查询项目授权详情。
 func (c *BaseTenantProjectGrantCase) GetBaseTenantProjectGrant(ctx context.Context, req *adminv1.GetBaseTenantProjectGrantRequest) (*adminv1.BaseTenantProjectGrant, error) {
-	err := c.requireTarget(ctx, req.GetTenantId(), req.GetSubjectType(), req.GetSubjectId(), grantViewPermission)
+	err := c.requireTarget(ctx, req.GetTenantId(), req.GetSubjectType(), req.GetSubjectId())
 	if err != nil {
 		return nil, err
 	}
@@ -108,7 +96,7 @@ func (c *BaseTenantProjectGrantCase) CreateBaseTenantProjectGrant(ctx context.Co
 	if err != nil {
 		return err
 	}
-	err = c.requireTarget(ctx, grant.GetTenantId(), grant.GetSubjectType(), grant.GetSubjectId(), grantCreatePermission)
+	err = c.requireTarget(ctx, grant.GetTenantId(), grant.GetSubjectType(), grant.GetSubjectId())
 	if err != nil {
 		return err
 	}
@@ -147,7 +135,7 @@ func (c *BaseTenantProjectGrantCase) UpdateBaseTenantProjectGrant(ctx context.Co
 	if err != nil {
 		return err
 	}
-	err = c.requireTarget(ctx, grant.GetTenantId(), grant.GetSubjectType(), grant.GetSubjectId(), grantUpdatePermission)
+	err = c.requireTarget(ctx, grant.GetTenantId(), grant.GetSubjectType(), grant.GetSubjectId())
 	if err != nil {
 		return err
 	}
@@ -181,7 +169,7 @@ func (c *BaseTenantProjectGrantCase) UpdateBaseTenantProjectGrant(ctx context.Co
 
 // DeleteBaseTenantProjectGrant 删除一条项目授权记录。
 func (c *BaseTenantProjectGrantCase) DeleteBaseTenantProjectGrant(ctx context.Context, req *adminv1.DeleteBaseTenantProjectGrantRequest) error {
-	err := c.requireTarget(ctx, req.GetTenantId(), req.GetSubjectType(), req.GetSubjectId(), grantDeletePermission)
+	err := c.requireTarget(ctx, req.GetTenantId(), req.GetSubjectType(), req.GetSubjectId())
 	if err != nil {
 		return err
 	}
@@ -238,8 +226,8 @@ func (c *BaseTenantProjectGrantCase) EffectiveProjects(ctx context.Context) (map
 	if role.TenantID != user.TenantID || dept.TenantID != user.TenantID {
 		return nil, errorsx.PermissionDenied("用户组织关系与所属租户不一致")
 	}
-	// 系统维护的超级管理员用于平台初始化授权，普通默认租户账号仍按四维授权处理。
-	if role.Code == _const.BASE_ROLE_CODE_SUPER {
+	// 默认租户负责维护全局项目目录，普通租户仅按四维授权合并项目范围。
+	if identity.TenantCode == databasegorm.DefaultTenantCode {
 		var tenants []*models.BaseTenant
 		tenants, err = query.BaseTenant.WithContext(ctx).Where(query.BaseTenant.Status.Eq(_const.STATUS_STATUS_ENABLE)).Find()
 		if err != nil {
@@ -308,18 +296,6 @@ func (c *BaseTenantProjectGrantCase) findGrant(ctx context.Context, tenantID int
 
 // validateProjectSelection 校验当前操作者可授予的项目范围和目标租户项目归属。
 func (c *BaseTenantProjectGrantCase) validateProjectSelection(ctx context.Context, tenantID int64, ids []int64) error {
-	scopes, err := c.EffectiveProjects(ctx)
-	if err != nil {
-		return err
-	}
-	allowed := scopes[tenantID]
-	if !slices.Equal(allowed, []int64{0}) {
-		for _, id := range ids {
-			if !projectauth.Allows(allowed, id) {
-				return errorsx.PermissionDenied("不能授予超出自身范围的项目权限")
-			}
-		}
-	}
 	if len(ids) == 0 || ids[0] == 0 {
 		return nil
 	}
@@ -334,13 +310,10 @@ func (c *BaseTenantProjectGrantCase) validateProjectSelection(ctx context.Contex
 	return nil
 }
 
-// requireTarget 校验主体类型、归属、目标租户和操作权限。
-func (c *BaseTenantProjectGrantCase) requireTarget(ctx context.Context, tenantID int64, subjectType adminv1.BaseTenantProjectGrantSubjectType, subjectID int64, permission string) error {
+// requireTarget 校验主体类型、归属和目标租户。
+func (c *BaseTenantProjectGrantCase) requireTarget(ctx context.Context, tenantID int64, subjectType adminv1.BaseTenantProjectGrantSubjectType, subjectID int64) error {
 	if tenantID <= 0 || subjectID <= 0 {
 		return errorsx.InvalidArgument("租户和授权主体ID必须为正数")
-	}
-	if err := c.requireGrantPermission(ctx, permission); err != nil {
-		return err
 	}
 	identity, err := c.GetAuthInfo(ctx)
 	if err != nil {
@@ -395,50 +368,6 @@ func (c *BaseTenantProjectGrantCase) requireTarget(ctx context.Context, tenantID
 	}
 	_, err = query.BaseTenant.WithContext(ctx).Where(query.BaseTenant.ID.Eq(tenantID)).First()
 	return err
-}
-
-// requireGrantPermission 校验当前角色持有统一项目授权入口及对应操作按钮。
-func (c *BaseTenantProjectGrantCase) requireGrantPermission(ctx context.Context, permission string) error {
-	identity, err := c.GetAuthInfo(ctx)
-	if err != nil {
-		return err
-	}
-	query := c.Query(ctx)
-	user, err := query.BaseUser.WithContext(ctx).
-		Select(query.BaseUser.ID, query.BaseUser.TenantID, query.BaseUser.RoleID, query.BaseUser.Status).
-		Where(query.BaseUser.ID.Eq(identity.UserId)).First()
-	if err != nil {
-		return err
-	}
-	if user.Status != _const.STATUS_STATUS_ENABLE {
-		return errorsx.PermissionDenied("用户身份已变更，请重新登录")
-	}
-	role, err := query.BaseRole.WithContext(ctx).Where(query.BaseRole.ID.Eq(user.RoleID)).First()
-	if err != nil {
-		return err
-	}
-	if role.Status != _const.STATUS_STATUS_ENABLE || role.TenantID != user.TenantID {
-		return errorsx.PermissionDenied("角色状态或归属无效")
-	}
-	if role.Code == _const.BASE_ROLE_CODE_SUPER {
-		return nil
-	}
-	var menuIDs []int64
-	err = json.Unmarshal([]byte(role.Menus), &menuIDs)
-	if err != nil {
-		return errorsx.Internal("角色权限数据格式无效").WithCause(err)
-	}
-	if len(menuIDs) == 0 {
-		return errorsx.PermissionDenied("无权管理项目授权")
-	}
-	count, err := query.BaseMenu.WithContext(ctx).Where(query.BaseMenu.ID.In(menuIDs...), query.BaseMenu.Path.Eq(permission), query.BaseMenu.Status.Eq(_const.STATUS_STATUS_ENABLE)).Count()
-	if err != nil {
-		return err
-	}
-	if count == 0 {
-		return errorsx.PermissionDenied("无权管理项目授权")
-	}
-	return nil
 }
 
 // mapGrantPage 将授权记录补齐为管理端列表所需的展示字段。

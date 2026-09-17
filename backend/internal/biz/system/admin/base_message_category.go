@@ -15,7 +15,6 @@ import (
 	"github.com/liujitcn/go-utils/mapper"
 	_string "github.com/liujitcn/go-utils/string"
 	"github.com/liujitcn/gorm-kit/repository"
-	"github.com/liujitcn/kratos-kit/database/gorm"
 )
 
 // BaseMessageCategoryCase 消息分类业务实例。
@@ -43,18 +42,6 @@ func NewBaseMessageCategoryCase(
 		formMapper:                    mapper.NewCopierMapper[adminv1.BaseMessageCategoryForm, models.BaseMessageCategory](),
 		mapper:                        mapper.NewCopierMapper[adminv1.BaseMessageCategory, models.BaseMessageCategory](),
 	}
-}
-
-// ensureDefaultTenantAccess 校验消息分类维护权限，仅默认租户可以修改公共分类。
-func (c *BaseMessageCategoryCase) ensureDefaultTenantAccess(ctx context.Context) error {
-	authInfo, err := c.GetAuthInfo(ctx)
-	if err != nil {
-		return err
-	}
-	if authInfo.TenantCode != gorm.DefaultTenantCode {
-		return errorsx.PermissionDenied("只有默认租户可以维护消息分类")
-	}
-	return nil
 }
 
 // OptionBaseMessageCategory 查询消息分类选项。
@@ -119,10 +106,7 @@ func (c *BaseMessageCategoryCase) GetBaseMessageCategory(ctx context.Context, id
 
 // CreateBaseMessageCategory 创建消息分类。
 func (c *BaseMessageCategoryCase) CreateBaseMessageCategory(ctx context.Context, req *adminv1.BaseMessageCategoryForm) error {
-	err := c.ensureDefaultTenantAccess(ctx)
-	if err != nil {
-		return err
-	}
+	var err error
 	entity := c.formMapper.ToEntity(req)
 	if entity.DefaultPriority == 0 {
 		entity.DefaultPriority = int32(basev1.MessagePriority_MESSAGE_PRIORITY_NORMAL)
@@ -147,10 +131,7 @@ func (c *BaseMessageCategoryCase) CreateBaseMessageCategory(ctx context.Context,
 
 // UpdateBaseMessageCategory 更新消息分类。
 func (c *BaseMessageCategoryCase) UpdateBaseMessageCategory(ctx context.Context, req *adminv1.BaseMessageCategoryForm) error {
-	err := c.ensureDefaultTenantAccess(ctx)
-	if err != nil {
-		return err
-	}
+	var err error
 	var oldEntity *models.BaseMessageCategory
 	oldEntity, err = c.FindByID(ctx, req.GetId())
 	if err != nil {
@@ -178,10 +159,7 @@ func (c *BaseMessageCategoryCase) UpdateBaseMessageCategory(ctx context.Context,
 
 // DeleteBaseMessageCategory 删除未被消息引用的分类。
 func (c *BaseMessageCategoryCase) DeleteBaseMessageCategory(ctx context.Context, id string) error {
-	err := c.ensureDefaultTenantAccess(ctx)
-	if err != nil {
-		return err
-	}
+	var err error
 	ids := _string.ConvertStringToInt64Array(id)
 	var list []*models.BaseMessageCategory
 	list, err = c.ListByIDs(ctx, ids)
@@ -211,10 +189,7 @@ func (c *BaseMessageCategoryCase) DeleteBaseMessageCategory(ctx context.Context,
 
 // SetBaseMessageCategoryStatus 设置消息分类状态。
 func (c *BaseMessageCategoryCase) SetBaseMessageCategoryStatus(ctx context.Context, req *adminv1.SetBaseMessageCategoryStatusRequest) error {
-	err := c.ensureDefaultTenantAccess(ctx)
-	if err != nil {
-		return err
-	}
+	var err error
 	var entity *models.BaseMessageCategory
 	entity, err = c.FindByID(ctx, req.GetId())
 	if err != nil {

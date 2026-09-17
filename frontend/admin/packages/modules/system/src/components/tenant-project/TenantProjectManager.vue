@@ -28,7 +28,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, reactive, ref, useSlots } from "vue";
+import { computed, reactive, ref, useSlots } from "vue";
 import { ElMessage, ElMessageBox } from "element-plus";
 import { CirclePlus, Delete, EditPen } from "@element-plus/icons-vue";
 import type { ColumnProps, HeaderActionProps, ProTableInstance, RenderScope, TableActionProps } from "@liujitcn/kratos-admin-core/components/ProTable/interface";
@@ -66,11 +66,8 @@ const emit = defineEmits<{
   "extra-data-error": [error: unknown];
 }>();
 
-/** 项目表单状态，新增时租户由默认租户管理员选择。 */
-type BaseTenantProjectFormState = Omit<BaseTenantProjectForm, "tenant_id"> & {
-  /** 租户ID。 */
-  tenant_id?: number;
-};
+/** 项目表单状态，租户由服务端租户上下文自动补全。 */
+type BaseTenantProjectFormState = Omit<BaseTenantProjectForm, "tenant_id">;
 
 const { BUTTONS } = useAuthButtons();
 const slots = useSlots();
@@ -91,8 +88,6 @@ const statusOptions = computed<ProFormOption[]>(() => [
 const formData = reactive<BaseTenantProjectFormState>({
   /** 项目ID。 */
   id: 0,
-  /** 租户ID。 */
-  tenant_id: undefined,
   /** 项目名称。 */
   name: "",
   /** 项目编号。 */
@@ -105,13 +100,6 @@ const formData = reactive<BaseTenantProjectFormState>({
   remark: ""
 });
 const rules = computed(() => ({
-  tenant_id: [
-    {
-      required: true,
-      message: t("common.validation.required_select", { field: t("common.field.tenant") }),
-      trigger: "change"
-    }
-  ],
   name: [
     {
       required: true,
@@ -153,14 +141,10 @@ const rules = computed(() => ({
   ]
 }));
 
-const { isDefaultTenant, tenantColumns, tenantFormField, toRequestTenantId, loadTenantOptions } = useTenantScope();
-onMounted(() => {
-  if (isDefaultTenant.value) void loadTenantOptions();
-});
+const { isDefaultTenant } = useTenantScope();
 
 /** 项目表单字段配置。 */
 const formFields = computed<ProFormField[]>(() => [
-  tenantFormField({ label: t("common.field.tenant"), disabledOnEdit: true }),
   {
     prop: "name",
     label: t("system.base.tenant_project.field.name"),
@@ -220,7 +204,6 @@ function resolveProjectBoolean(value: boolean | ((context: TenantProjectContext)
 /** 项目表格列配置。 */
 const columns = computed<ColumnProps[]>(() => [
   { type: "selection", width: 55 },
-  ...tenantColumns({ label: t("common.field.tenant"), order: 1 }),
   { prop: "name", label: t("system.base.tenant_project.field.name"), minWidth: 180, search: { el: "input" } },
   { prop: "code", label: t("system.base.tenant_project.field.code"), minWidth: 140, search: { el: "input" } },
   { prop: "sort", label: t("common.field.sort"), minWidth: 90, align: "right" },
@@ -235,7 +218,7 @@ const columns = computed<ColumnProps[]>(() => [
       inactiveValue: Status.STATUS_DISABLE,
       activeText: t("common.status.enabled"),
       inactiveText: t("common.status.disabled"),
-      disabled: () => !BUTTONS.value["base:tenant:project:status"],
+      disabled: () => !isDefaultTenant.value || !BUTTONS.value["base:tenant:project:status"],
       beforeChange: scope => handleBeforeSetStatus(scope.row as BaseTenantProject)
     }
   },
@@ -254,7 +237,7 @@ const columns = computed<ColumnProps[]>(() => [
         type: "primary",
         link: true,
         icon: EditPen,
-        hidden: () => !BUTTONS.value["base:tenant:project:update"],
+        hidden: () => !isDefaultTenant.value || !BUTTONS.value["base:tenant:project:update"],
         params: scope => ({ projectId: scope.row.id }),
         onClick: (scope, params) => handleOpenDialog((params?.projectId as number | undefined) ?? (scope.row as BaseTenantProject).id)
       },
@@ -263,7 +246,7 @@ const columns = computed<ColumnProps[]>(() => [
         type: "danger",
         link: true,
         icon: Delete,
-        hidden: () => !BUTTONS.value["base:tenant:project:delete"],
+        hidden: () => !isDefaultTenant.value || !BUTTONS.value["base:tenant:project:delete"],
         onClick: scope => handleDelete(scope.row as BaseTenantProject)
       }
     ]
@@ -276,14 +259,14 @@ const headerActions = computed<HeaderActionProps[]>(() => [
     label: t("common.action.create"),
     type: "success",
     icon: CirclePlus,
-    hidden: () => !BUTTONS.value["base:tenant:project:create"],
+    hidden: () => !isDefaultTenant.value || !BUTTONS.value["base:tenant:project:create"],
     onClick: () => handleOpenDialog()
   },
   {
     label: t("common.action.delete"),
     type: "danger",
     icon: Delete,
-    hidden: () => !BUTTONS.value["base:tenant:project:delete"],
+    hidden: () => !isDefaultTenant.value || !BUTTONS.value["base:tenant:project:delete"],
     disabled: scope => !scope.selectedList.length,
     onClick: scope => handleDelete(scope.selectedList as BaseTenantProject[])
   }
@@ -292,10 +275,7 @@ const headerActions = computed<HeaderActionProps[]>(() => [
 /** 请求项目分页列表并加载当前页外部业务字段。 */
 async function requestBaseTenantProjectTable(params: PageBaseTenantProjectRequest) {
   const revision = ++extraDataRequestRevision;
-  const request = {
-    ...buildPageRequest(params),
-    tenant_id: toRequestTenantId(params.tenant_id)
-  } as PageBaseTenantProjectRequest;
+  const request = buildPageRequest(params) as PageBaseTenantProjectRequest;
   const data = await defBaseTenantProjectService.PageBaseTenantProject(request);
   const projects = data.base_tenant_projects ?? [];
   if (!props.loadExtraData || !projects.length) {
@@ -336,7 +316,6 @@ function resolveTenantProjectSlotContext(scope: Record<string, any>) {
 /** 打开项目编辑弹窗。 */
 async function handleOpenDialog(id?: number) {
   resetForm();
-  await loadTenantOptions();
   dialog.titleKey = id ? "common.action.edit_resource" : "common.action.create_resource";
   dialog.visible = true;
   if (id) Object.assign(formData, await defBaseTenantProjectService.GetBaseTenantProject({ id }));
@@ -353,7 +332,6 @@ function resetForm() {
   formDialogRef.value?.resetFields();
   formDialogRef.value?.clearValidate();
   formData.id = 0;
-  formData.tenant_id = undefined;
   formData.name = "";
   formData.code = "";
   formData.sort = 1;
@@ -365,10 +343,11 @@ function resetForm() {
 function handleSubmit() {
   formDialogRef.value?.validate()?.then(valid => {
     if (!valid) return;
-    const submitData = JSON.parse(JSON.stringify(formData)) as BaseTenantProjectForm;
+    const submitData = JSON.parse(JSON.stringify(formData)) as Partial<BaseTenantProjectForm>;
+    delete submitData.tenant_id;
     const request = submitData.id
-      ? defBaseTenantProjectService.UpdateBaseTenantProject({ base_tenant_project: submitData })
-      : defBaseTenantProjectService.CreateBaseTenantProject({ base_tenant_project: submitData });
+      ? defBaseTenantProjectService.UpdateBaseTenantProject({ base_tenant_project: submitData as BaseTenantProjectForm })
+      : defBaseTenantProjectService.CreateBaseTenantProject({ base_tenant_project: submitData as BaseTenantProjectForm });
     request.then(() => {
       ElMessage.success(
         t(submitData.id ? "common.message.update_success" : "common.message.create_success", {

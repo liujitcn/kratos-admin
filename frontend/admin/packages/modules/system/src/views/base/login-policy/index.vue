@@ -94,7 +94,11 @@ import {
 } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_login_policy";
 
 /** 登录策略表单状态，初始化密码仅在提交时转换为一次性密码密文。 */
-interface BaseLoginPolicyFormState extends Omit<BaseLoginPolicyForm, "initial_password"> {
+interface BaseLoginPolicyFormState extends Omit<BaseLoginPolicyForm, "initial_password" | "tenant_id" | "user_id"> {
+  /** 租户作用域目标，未选择时保持未定义。 */
+  tenant_id?: number;
+  /** 用户作用域目标，未选择时保持未定义。 */
+  user_id?: number;
   /** 初始化密码明文只保留在当前表单，留空表示不修改已有值。 */
   initial_password: string;
 }
@@ -370,13 +374,13 @@ watch(
   () => formData.scope_type,
   value => {
     if (value === BaseLoginPolicyScopeType.BASE_LOGIN_POLICY_SCOPE_TYPE_GLOBAL) {
-      formData.tenant_id = 0;
-      formData.user_id = 0;
+      formData.tenant_id = undefined;
+      formData.user_id = undefined;
       userOptions.value = [];
       return;
     }
     if (value === BaseLoginPolicyScopeType.BASE_LOGIN_POLICY_SCOPE_TYPE_TENANT) {
-      formData.user_id = 0;
+      formData.user_id = undefined;
       userOptions.value = [];
     }
   }
@@ -399,8 +403,8 @@ function defaultForm(): BaseLoginPolicyFormState {
   return {
     id: 0,
     scope_type: BaseLoginPolicyScopeType.BASE_LOGIN_POLICY_SCOPE_TYPE_GLOBAL,
-    tenant_id: 0,
-    user_id: 0,
+    tenant_id: undefined,
+    user_id: undefined,
     max_failed_attempts: 5,
     lock_duration_minutes: 15,
     allow_concurrent_login: false,
@@ -464,6 +468,8 @@ async function handleSubmit() {
 
   const baseLoginPolicy: BaseLoginPolicyForm = {
     ...formData,
+    tenant_id: formData.tenant_id ?? 0,
+    user_id: formData.user_id ?? 0,
     initial_password: formData.initial_password
       ? await encryptPassword(formData.initial_password, PASSWORD_CRYPTO_SCENE.PASSWORD_CRYPTO_SCENE_CONFIGURE_PASSWORD_POLICY)
       : undefined

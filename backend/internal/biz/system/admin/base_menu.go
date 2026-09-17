@@ -563,8 +563,10 @@ func (c *BaseMenuCase) buildBaseMenuOption(
 		if item.ParentID != parentID {
 			continue
 		}
-		// 按钮和外链不能承载子菜单，不提供为父级菜单选项。
-		if item.Type != int32(adminv1.BaseMenuType_BASE_MENU_TYPE_FOLDER) && item.Type != int32(adminv1.BaseMenuType_BASE_MENU_TYPE_MENU) {
+		// 外链不能承载子菜单，也不属于角色的按钮权限树。
+		if item.Type != int32(adminv1.BaseMenuType_BASE_MENU_TYPE_FOLDER) &&
+			item.Type != int32(adminv1.BaseMenuType_BASE_MENU_TYPE_MENU) &&
+			item.Type != int32(adminv1.BaseMenuType_BASE_MENU_TYPE_BUTTON) {
 			continue
 		}
 

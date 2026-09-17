@@ -231,7 +231,9 @@ async function handleOpenDialog(row?: BaseTenantProjectGrant) {
 
 /** 加载目标租户项目选项。 */
 async function loadProjectOptions() {
-  projectOptions.value = formData.tenant_id ? (await defBaseTenantProjectService.OptionBaseTenantProject({ tenant_id: formData.tenant_id })).list ?? [] : [];
+  projectOptions.value = formData.tenant_id
+    ? (await defBaseTenantProjectService.OptionBaseTenantProject({ tenant_id: toRequestTenantId(formData.tenant_id) })).list ?? []
+    : [];
 }
 
 /** 根据授权类型加载岗位、角色、部门或用户主体选项。 */

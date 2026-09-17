@@ -55,17 +55,13 @@ func NewBaseTenantProjectCase(
 // OptionBaseTenantProject 查询项目选项。
 func (c *BaseTenantProjectCase) OptionBaseTenantProject(ctx context.Context, req *adminv1.OptionBaseTenantProjectRequest) (*commonv1.SelectOptionResponse, error) {
 	query := c.Query(ctx).BaseTenantProject
-	opts, err := c.projectOptions(ctx)
-	if err != nil {
-		return nil, err
-	}
+	opts := make([]repository.QueryOption, 0, 3)
 	opts = append(opts, repository.Order(query.Sort.Asc()))
 	opts = append(opts, repository.Order(query.CreatedAt.Desc()))
 	if req.GetTenantId() > 0 {
 		opts = append(opts, repository.Where(query.TenantID.Eq(req.GetTenantId())))
 	}
-	var list []*models.BaseTenantProject
-	list, err = c.List(ctx, opts...)
+	list, err := c.List(ctx, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -191,7 +187,9 @@ func (c *BaseTenantProjectCase) CreateBaseTenantProject(ctx context.Context, req
 
 // UpdateBaseTenantProject 更新项目。
 func (c *BaseTenantProjectCase) UpdateBaseTenantProject(ctx context.Context, req *adminv1.BaseTenantProjectForm) error {
-	oldBaseTenantProject, err := c.findProject(ctx, req.GetId())
+	var err error
+	var oldBaseTenantProject *models.BaseTenantProject
+	oldBaseTenantProject, err = c.findProject(ctx, req.GetId())
 	if err != nil {
 		return err
 	}
@@ -221,6 +219,7 @@ func (c *BaseTenantProjectCase) UpdateBaseTenantProject(ctx context.Context, req
 
 // DeleteBaseTenantProject 删除项目。
 func (c *BaseTenantProjectCase) DeleteBaseTenantProject(ctx context.Context, id string) error {
+	var err error
 	ids := _string.ConvertStringToInt64Array(id)
 	if len(ids) == 0 {
 		return errorsx.InvalidArgument("请选择项目")
@@ -230,7 +229,8 @@ func (c *BaseTenantProjectCase) DeleteBaseTenantProject(ctx context.Context, id 
 			return errorsx.InvalidArgument("项目ID必须为正数")
 		}
 	}
-	opts, err := c.projectOptions(ctx)
+	var opts []repository.QueryOption
+	opts, err = c.projectOptions(ctx)
 	if err != nil {
 		return err
 	}
@@ -261,7 +261,9 @@ func (c *BaseTenantProjectCase) DeleteBaseTenantProject(ctx context.Context, id 
 
 // SetBaseTenantProjectStatus 设置项目状态。
 func (c *BaseTenantProjectCase) SetBaseTenantProjectStatus(ctx context.Context, req *adminv1.SetBaseTenantProjectStatusRequest) error {
-	baseTenantProject, err := c.findProject(ctx, req.GetId())
+	var err error
+	var baseTenantProject *models.BaseTenantProject
+	baseTenantProject, err = c.findProject(ctx, req.GetId())
 	if err != nil {
 		return err
 	}
@@ -290,9 +292,8 @@ func (c *BaseTenantProjectCase) resolveTenantID(ctx context.Context, tenantID in
 	}
 	if tenantID == 0 {
 		tenantID = authInfo.TenantId
-	}
-	if authInfo.TenantCode != gorm.DefaultTenantCode && tenantID != authInfo.TenantId {
-		return 0, errorsx.PermissionDenied("不能操作其他租户的项目")
+	} else if authInfo.TenantCode != gorm.DefaultTenantCode && tenantID != authInfo.TenantId {
+		return 0, errorsx.PermissionDenied("不能创建其他租户的项目")
 	}
 	query := c.Query(ctx).BaseTenant
 	var count int64

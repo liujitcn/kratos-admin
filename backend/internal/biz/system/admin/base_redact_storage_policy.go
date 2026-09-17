@@ -38,10 +38,7 @@ func NewBaseRedactStoragePolicyCase(baseCase *biz.BaseCase, tx data.Transaction,
 
 // PageBaseRedactStoragePolicy 分页查询入库脱敏策略。
 func (c *BaseRedactStoragePolicyCase) PageBaseRedactStoragePolicy(ctx context.Context, req *adminv1.PageBaseRedactStoragePolicyRequest) (*adminv1.PageBaseRedactStoragePolicyResponse, error) {
-	err := redact.EnsureRedactPlatformOperator(ctx, c.BaseCase)
-	if err != nil {
-		return nil, err
-	}
+	var err error
 	query := c.Query(ctx).BaseRedactStoragePolicy
 	opts := make([]repository.QueryOption, 0, 6)
 	opts = append(opts, repository.Order(query.ID.Asc()))
@@ -80,10 +77,7 @@ func (c *BaseRedactStoragePolicyCase) PageBaseRedactStoragePolicy(ctx context.Co
 
 // GetBaseRedactStoragePolicy 查询入库脱敏策略详情。
 func (c *BaseRedactStoragePolicyCase) GetBaseRedactStoragePolicy(ctx context.Context, req *adminv1.GetBaseRedactStoragePolicyRequest) (*adminv1.BaseRedactStoragePolicyForm, error) {
-	err := redact.EnsureRedactPlatformOperator(ctx, c.BaseCase)
-	if err != nil {
-		return nil, err
-	}
+	var err error
 	var item *models.BaseRedactStoragePolicy
 	item, err = c.FindByID(ctx, req.GetId())
 	if err != nil {
@@ -94,10 +88,7 @@ func (c *BaseRedactStoragePolicyCase) GetBaseRedactStoragePolicy(ctx context.Con
 
 // CreateBaseRedactStoragePolicy 批量创建入库脱敏策略。
 func (c *BaseRedactStoragePolicyCase) CreateBaseRedactStoragePolicy(ctx context.Context, inputs []*adminv1.BaseRedactStoragePolicyForm) error {
-	err := redact.EnsureRedactPlatformOperator(ctx, c.BaseCase)
-	if err != nil {
-		return err
-	}
+	var err error
 	if len(inputs) == 0 {
 		return errorsx.InvalidArgument("入库脱敏策略列表不能为空")
 	}
@@ -141,10 +132,7 @@ func (c *BaseRedactStoragePolicyCase) CreateBaseRedactStoragePolicy(ctx context.
 
 // UpdateBaseRedactStoragePolicy 批量更新入库脱敏策略。
 func (c *BaseRedactStoragePolicyCase) UpdateBaseRedactStoragePolicy(ctx context.Context, inputs []*adminv1.BaseRedactStoragePolicyForm) error {
-	err := redact.EnsureRedactPlatformOperator(ctx, c.BaseCase)
-	if err != nil {
-		return err
-	}
+	var err error
 	if len(inputs) == 0 {
 		return errorsx.InvalidArgument("入库脱敏策略列表不能为空")
 	}
@@ -204,10 +192,7 @@ func (c *BaseRedactStoragePolicyCase) UpdateBaseRedactStoragePolicy(ctx context.
 
 // DeleteBaseRedactStoragePolicy 删除入库脱敏策略。
 func (c *BaseRedactStoragePolicyCase) DeleteBaseRedactStoragePolicy(ctx context.Context, value string) error {
-	err := redact.EnsureRedactPlatformOperator(ctx, c.BaseCase)
-	if err != nil {
-		return err
-	}
+	var err error
 	ids := _string.ConvertStringToInt64Array(value)
 	if len(ids) == 0 {
 		return errorsx.InvalidArgument("入库策略ID不能为空")
@@ -235,10 +220,7 @@ func (c *BaseRedactStoragePolicyCase) DeleteBaseRedactStoragePolicy(ctx context.
 
 // SetBaseRedactStoragePolicyStatus 设置入库脱敏策略状态。
 func (c *BaseRedactStoragePolicyCase) SetBaseRedactStoragePolicyStatus(ctx context.Context, req *adminv1.SetBaseRedactStoragePolicyStatusRequest) error {
-	err := redact.EnsureRedactPlatformOperator(ctx, c.BaseCase)
-	if err != nil {
-		return err
-	}
+	var err error
 	if req.GetStatus() != commonv1.Status_STATUS_ENABLE && req.GetStatus() != commonv1.Status_STATUS_DISABLE {
 		return errorsx.InvalidArgument("入库脱敏策略状态无效")
 	}

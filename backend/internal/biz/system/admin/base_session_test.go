@@ -133,7 +133,7 @@ func TestListCurrentSessionsIsolatesOwner(t *testing.T) {
 	}
 }
 
-// TestOnlineSessionTenantFilter 验证平台管理员可筛选租户，租户管理员只能查看本租户。
+// TestOnlineSessionTenantFilter 验证默认租户可筛选租户，普通租户身份只能查看本租户。
 func TestOnlineSessionTenantFilter(t *testing.T) {
 	store, cleanup, err := memory.NewMemory()
 	if err != nil {
@@ -156,7 +156,7 @@ func TestOnlineSessionTenantFilter(t *testing.T) {
 	service := NewBaseSessionCase(&biz.BaseCase{Cache: store}, manager)
 	for _, test := range []struct{ viewer, role, filter, want string }{
 		{gorm.DefaultTenantCode, "super", "tenant-a", "tenant-a"},
-		{"tenant-a", "super", "tenant-ab", "tenant-a"},
+		{"tenant-a", "custom", "tenant-ab", "tenant-a"},
 		{"tenant-a", "tenant", "tenant-ab", "tenant-a"},
 	} {
 		user := &data.UserTokenPayload{UserId: 1, RoleCode: test.role, TenantCode: test.viewer}
