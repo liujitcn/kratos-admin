@@ -37,7 +37,7 @@ type deletedState struct {
 }
 
 // rewriteStorageQuery 将敏感字段明文等值条件改写为旁表摘要对应的主键条件。
-func (runtime *storageRuntime) rewriteStorageQuery(db *gorm.DB) {
+func (r *storageRuntime) rewriteStorageQuery(db *gorm.DB) {
 	if db.Error != nil {
 		return
 	}
@@ -48,7 +48,7 @@ func (runtime *storageRuntime) rewriteStorageQuery(db *gorm.DB) {
 	if !ok || where.Expression == nil {
 		return
 	}
-	policies := runtime.resolver.ListStoragePolicies(db.Statement.Context, db.Statement.Table)
+	policies := r.resolver.ListStoragePolicies(db.Statement.Context, db.Statement.Table)
 	if len(policies) == 0 {
 		return
 	}
@@ -57,7 +57,7 @@ func (runtime *storageRuntime) rewriteStorageQuery(db *gorm.DB) {
 		policyByColumn[strings.ToLower(policy.ColumnName)] = policy
 	}
 	primaryColumn := clause.Column{Name: db.Statement.Schema.PrioritizedPrimaryField.DBName}
-	expression, changed, err := rewriteStorageExpression(db.Statement.Context, runtime.storage, where.Expression, policyByColumn, primaryColumn)
+	expression, changed, err := rewriteStorageExpression(db.Statement.Context, r.storage, where.Expression, policyByColumn, primaryColumn)
 	if err != nil {
 		db.AddError(err)
 		return
@@ -69,24 +69,24 @@ func (runtime *storageRuntime) rewriteStorageQuery(db *gorm.DB) {
 }
 
 // prepareStorageCreate 在 GORM 创建前将敏感字段转换为存储值。
-func (runtime *storageRuntime) prepareStorageCreate(db *gorm.DB) {
-	runtime.prepareStorageEntities(db, true)
+func (r *storageRuntime) prepareStorageCreate(db *gorm.DB) {
+	r.prepareStorageEntities(db, true)
 }
 
 // prepareStorageUpdate 在 GORM 更新前将敏感字段转换为存储值。
-func (runtime *storageRuntime) prepareStorageUpdate(db *gorm.DB) {
-	runtime.prepareStorageEntities(db, false)
+func (r *storageRuntime) prepareStorageUpdate(db *gorm.DB) {
+	r.prepareStorageEntities(db, false)
 }
 
 // prepareStorageEntities 按当前物理表处理待持久化实体。
-func (runtime *storageRuntime) prepareStorageEntities(db *gorm.DB, creating bool) {
+func (r *storageRuntime) prepareStorageEntities(db *gorm.DB, creating bool) {
 	if db.Error != nil {
 		return
 	}
 	if isRedactMetadataTable(db.Statement.Table) {
 		return
 	}
-	policies := runtime.resolver.ListStoragePolicies(db.Statement.Context, db.Statement.Table)
+	policies := r.resolver.ListStoragePolicies(db.Statement.Context, db.Statement.Table)
 	if len(policies) == 0 {
 		return
 	}
@@ -101,7 +101,7 @@ func (runtime *storageRuntime) prepareStorageEntities(db *gorm.DB, creating bool
 	var err error
 	for _, entity := range entities {
 		var prepared preparedEntity
-		prepared, err = runtime.prepareStorageEntity(db.Statement.Context, policies, entity, db, creating)
+		prepared, err = r.prepareStorageEntity(db.Statement.Context, policies, entity, db, creating)
 		if err != nil {
 			db.AddError(err)
 			return
@@ -116,8 +116,36 @@ func (runtime *storageRuntime) prepareStorageEntities(db *gorm.DB, creating bool
 	}
 }
 
+// selectedStoragePolicies 返回本次查询实际选中的敏感字段策略。
+func selectedStoragePolicies(db *gorm.DB, policies []redact.StorageFieldPolicy) []redact.StorageFieldPolicy {
+	if db == nil || db.Statement == nil || len(db.Statement.Selects) == 0 {
+		return policies
+	}
+	selected := make([]redact.StorageFieldPolicy, 0, len(policies))
+	for _, policy := range policies {
+		if queryFieldSelected(db.Statement.Selects, policy.ColumnName) {
+			selected = append(selected, policy)
+		}
+	}
+	return selected
+}
+
+// queryFieldSelected 判断查询列集合是否包含指定字段或整表通配符。
+func queryFieldSelected(selects []string, columnName string) bool {
+	for _, selected := range selects {
+		name := strings.TrimSpace(selected)
+		if name == "*" || strings.HasSuffix(name, ".*") {
+			return true
+		}
+		if sameStorageFieldName(name, columnName) {
+			return true
+		}
+	}
+	return false
+}
+
 // prepareStorageEntity 处理单个实体并记录待保存或删除的旁表值。
-func (runtime *storageRuntime) prepareStorageEntity(ctx context.Context, policies []redact.StorageFieldPolicy, entity any, db *gorm.DB, creating bool) (preparedEntity, error) {
+func (r *storageRuntime) prepareStorageEntity(ctx context.Context, policies []redact.StorageFieldPolicy, entity any, db *gorm.DB, creating bool) (preparedEntity, error) {
 	selectedPolicies := make([]redact.StorageFieldPolicy, 0, len(policies))
 	deletePolicyIDs := make([]int64, 0)
 	accessor := gormEntityFieldAccessor{}
@@ -149,7 +177,7 @@ func (runtime *storageRuntime) prepareStorageEntity(ctx context.Context, policie
 		selectedPolicies = append(selectedPolicies, policy)
 	}
 	var values map[int64]*redact.StorageValue
-	values, err = runtime.storage.PrepareEntityWithPolicies(ctx, entity, selectedPolicies)
+	values, err = r.storage.PrepareEntityWithPolicies(ctx, entity, selectedPolicies)
 	if err != nil {
 		return preparedEntity{}, err
 	}
@@ -157,7 +185,7 @@ func (runtime *storageRuntime) prepareStorageEntity(ctx context.Context, policie
 }
 
 // saveStorageValues 在主表写入完成后保存旁表敏感值。
-func (runtime *storageRuntime) saveStorageValues(db *gorm.DB) {
+func (r *storageRuntime) saveStorageValues(db *gorm.DB) {
 	if db.Error != nil {
 		return
 	}
@@ -185,14 +213,14 @@ func (runtime *storageRuntime) saveStorageValues(db *gorm.DB) {
 		}
 		for _, item := range prepared.values {
 			item.RecordID = recordID
-			err = runtime.store.SaveWithDB(db.Statement.Context, db, item)
+			err = r.store.SaveWithDB(db.Statement.Context, db, item)
 			if err != nil {
 				db.AddError(err)
 				return
 			}
 		}
 		for _, storagePolicyID := range prepared.deletePolicyIDs {
-			err = runtime.store.DeleteWithDB(db.Statement.Context, db, storagePolicyID, recordID)
+			err = r.store.DeleteWithDB(db.Statement.Context, db, storagePolicyID, recordID)
 			if err != nil {
 				db.AddError(err)
 				return
@@ -202,14 +230,14 @@ func (runtime *storageRuntime) saveStorageValues(db *gorm.DB) {
 }
 
 // captureStorageDelete 在删除前捕获受保护实体的业务主键。
-func (runtime *storageRuntime) captureStorageDelete(db *gorm.DB) {
+func (r *storageRuntime) captureStorageDelete(db *gorm.DB) {
 	if db.Error != nil {
 		return
 	}
 	if isRedactMetadataTable(db.Statement.Table) {
 		return
 	}
-	policies := runtime.resolver.ListStoragePolicies(db.Statement.Context, db.Statement.Table)
+	policies := r.resolver.ListStoragePolicies(db.Statement.Context, db.Statement.Table)
 	if len(policies) == 0 {
 		return
 	}
@@ -238,7 +266,7 @@ func (runtime *storageRuntime) captureStorageDelete(db *gorm.DB) {
 }
 
 // deleteStorageValues 在主表删除完成后物理删除旁表敏感值。
-func (runtime *storageRuntime) deleteStorageValues(db *gorm.DB) {
+func (r *storageRuntime) deleteStorageValues(db *gorm.DB) {
 	if db.Error != nil {
 		return
 	}
@@ -255,7 +283,7 @@ func (runtime *storageRuntime) deleteStorageValues(db *gorm.DB) {
 	var err error
 	for _, recordID := range state.recordIDs {
 		for _, policy := range state.policies {
-			err = runtime.store.DeleteWithDB(db.Statement.Context, db, policy.ID, recordID)
+			err = r.store.DeleteWithDB(db.Statement.Context, db, policy.ID, recordID)
 			if err != nil {
 				db.AddError(err)
 				return
@@ -265,14 +293,18 @@ func (runtime *storageRuntime) deleteStorageValues(db *gorm.DB) {
 }
 
 // materializeStorageResponse 在业务查询完成后恢复主表敏感字段原文。
-func (runtime *storageRuntime) materializeStorageResponse(db *gorm.DB) {
+func (r *storageRuntime) materializeStorageResponse(db *gorm.DB) {
 	if db.Error != nil {
 		return
 	}
 	if isRedactMetadataTable(db.Statement.Table) {
 		return
 	}
-	policies := runtime.resolver.ListStoragePolicies(db.Statement.Context, db.Statement.Table)
+	policies := r.resolver.ListStoragePolicies(db.Statement.Context, db.Statement.Table)
+	if len(policies) == 0 {
+		return
+	}
+	policies = selectedStoragePolicies(db, policies)
 	if len(policies) == 0 {
 		return
 	}
@@ -290,7 +322,7 @@ func (runtime *storageRuntime) materializeStorageResponse(db *gorm.DB) {
 			responseEntities = append(responseEntities, redact.ResponseEntity{RecordID: recordID, Entity: entity})
 		}
 	}
-	err = runtime.storage.RestoreEntities(db.Statement.Context, policies, responseEntities)
+	err = r.storage.RestoreEntities(db.Statement.Context, policies, responseEntities)
 	if err != nil {
 		db.AddError(err)
 	}

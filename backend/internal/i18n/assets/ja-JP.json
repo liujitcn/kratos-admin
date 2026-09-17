@@ -1175,6 +1175,9 @@
   "system.admin.base.redact.rule.status.invalid": {
     "other": "ルールテンプレートの状態が無効です"
   },
+  "system.admin.base.redact.rule.template.string_mask": {
+    "other": "汎用文字列マスク"
+  },
   "system.admin.base.redact.rule.template.phone_mask": {
     "other": "電話番号マスク"
   },
@@ -1201,6 +1204,9 @@
   },
   "system.admin.base.redact.rule.template.fixed_length_mask": {
     "other": "固定長マスク"
+  },
+  "system.admin.base.redact.rule.description.string_mask": {
+    "other": "設定した先頭と末尾の文字を保持し、中間をマスクします"
   },
   "system.admin.base.redact.rule.description.phone_mask": {
     "other": "電話番号の先頭 3 桁と末尾 4 桁を保持します"

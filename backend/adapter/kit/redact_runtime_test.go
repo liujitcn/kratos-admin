@@ -91,6 +91,50 @@ func TestRedactConstructorHasNoDatabaseSideEffects(t *testing.T) {
 	assertNoStorageCallbacks(t, db)
 }
 
+// TestRedactExpiredRefreshIsSingleFlight 验证缓存过期时并发请求只触发一次数据库刷新。
+func TestRedactExpiredRefreshIsSingleFlight(t *testing.T) {
+	db := newRedactTestDB(t)
+	queries := 0
+	err := db.Callback().Query().Before("gorm:query").Register("test:count-refresh-query", func(*gorm.DB) { queries++ })
+	if err != nil {
+		t.Fatal(err)
+	}
+	var resolver *RedactPolicyResolver
+	resolver, err = NewRedactPolicyResolver(map[string]*kitgorm.Client{kitgorm.DefaultClientName: {DB: db}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	resolver.loadedAt = time.Now().Add(-2 * policyCacheTTL)
+	results := make(chan error, 8)
+	var group sync.WaitGroup
+	for range 8 {
+		group.Add(1)
+		go func() {
+			defer group.Done()
+			results <- resolver.refreshIfExpired(context.Background())
+		}()
+	}
+	group.Wait()
+	close(results)
+	for err = range results {
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+	if queries == 0 {
+		t.Fatal("缓存过期刷新应查询数据库")
+	}
+	queryCount := queries
+	resolver.loadedAt = time.Now()
+	err = resolver.refreshIfExpired(context.Background())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if queries != queryCount {
+		t.Fatalf("缓存未过期时不应重复查询数据库: before=%d after=%d", queryCount, queries)
+	}
+}
+
 // TestRedactInitializeRetriesAndIsIdempotent 验证查询和密钥失败可重试，成功后并发重复初始化无副作用。
 func TestRedactInitializeRetriesAndIsIdempotent(t *testing.T) {
 	previousKey := sdk.Runtime.GetKey()

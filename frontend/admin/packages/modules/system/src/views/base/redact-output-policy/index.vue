@@ -56,6 +56,7 @@
                   <template v-if="row.rule_type === 'MASK'">
                     <ParameterNumber v-model="row.params.keep_first" :label="t('system.base.redact_rule.parameter.keep_first')" />
                     <ParameterNumber v-model="row.params.keep_last" :label="t('system.base.redact_rule.parameter.keep_last')" />
+                    <ParameterNumber v-model="row.params.min_mask" :label="t('system.base.redact_rule.parameter.min_mask')" />
                     <ParameterText v-model="row.params.mask_char" :label="t('system.base.redact_rule.parameter.mask_char')" />
                   </template>
                   <template v-else-if="row.rule_type === 'EMAIL'">
@@ -119,6 +120,7 @@ import { Status } from "@liujitcn/kratos-admin-system/rpc/common/v1/enum";
 interface RuleParams {
   keep_first?: number;
   keep_last?: number;
+  min_mask?: number;
   mask_char?: string;
   keep_local_first?: number;
   mask_domain?: boolean;
@@ -274,7 +276,7 @@ async function submit() { const valid = await dialogRef.value?.validate(); if (!
 /** 将表格行转换为出库策略请求。 */
 function buildPayload(row: OutputFieldRow): BaseRedactOutputPolicyForm { syncRowParams(row); return { id: row.id, operation: form.operation, service_name: form.service_name, message_ref: row.message_ref, field_path: row.field_path, mode: row.mode, rule_id: row.mode === BaseRedactOutputPolicyMode.BASE_REDACT_OUTPUT_POLICY_MODE_RULE ? row.rule_id ?? 0 : 0, rule_params: row.mode === BaseRedactOutputPolicyMode.BASE_REDACT_OUTPUT_POLICY_MODE_RULE ? row.rule_params : "{}", status: form.status, remark: form.remark }; }
 /** 将已保存的策略回填到对应字段行。 */
-function applyPolicy(row: OutputFieldRow, data: BaseRedactOutputPolicyForm) { row.id = data.id; row.mode = data.mode || BaseRedactOutputPolicyMode.BASE_REDACT_OUTPUT_POLICY_MODE_FULL; row.rule_id = data.rule_id || undefined; row.rule_params = data.rule_params; if (row.rule_id) { const rule = ruleCatalog.value.find(item => item.id === row.rule_id); row.rule_type = rule?.rule_type ?? ""; row.params = parseParams(row.rule_type, row.rule_params); } }
+function applyPolicy(row: OutputFieldRow, data: BaseRedactOutputPolicyForm) { row.id = data.id; row.mode = data.mode || BaseRedactOutputPolicyMode.BASE_REDACT_OUTPUT_POLICY_MODE_FULL; row.rule_id = data.rule_id || undefined; row.rule_params = data.rule_params; if (row.rule_id) { const rule = ruleCatalog.value.find(item => item.id === row.rule_id); row.rule_type = rule?.rule_type ?? ""; row.params = rule ? parseParams(row.rule_type, row.rule_params, rule.rule) : {}; } }
 /** 处理行模式变更。 */
 function handleModeChange(row: OutputTableRow) { if (row.mode !== BaseRedactOutputPolicyMode.BASE_REDACT_OUTPUT_POLICY_MODE_RULE) { row.rule_id = undefined; row.rule_type = ""; row.params = {}; row.rule_params = "{}"; } }
 /** 处理行规则变更。 */
@@ -285,7 +287,7 @@ function syncRowParams(row: OutputFieldRow) { const rule = ruleCatalog.value.fin
 function isConfiguredRow(row: OutputFieldRow) { return row.mode === BaseRedactOutputPolicyMode.BASE_REDACT_OUTPUT_POLICY_MODE_HIDE || row.mode === BaseRedactOutputPolicyMode.BASE_REDACT_OUTPUT_POLICY_MODE_FULL || (row.mode === BaseRedactOutputPolicyMode.BASE_REDACT_OUTPUT_POLICY_MODE_RULE && Boolean(row.rule_id)); }
 /** 判断字段表格是否至少配置了一行。 */
 function isConfiguredRowList(rows: OutputFieldRow[] | undefined) { return Boolean(rows?.some(isConfiguredRow)); }
-/** 判断字段行是否使用规则模板。 */
+/** 判断字段行是否使用脱敏规则。 */
 function isRuleRow(row: OutputTableRow) { return row.mode === BaseRedactOutputPolicyMode.BASE_REDACT_OUTPUT_POLICY_MODE_RULE && Boolean(row.rule_id); }
 /** 格式化 API 下拉项。 */
 function apiLabel(api: BaseApi) { return api.desc && api.desc !== api.operation ? `${api.desc}（${api.operation}）` : api.operation; }
@@ -293,10 +295,20 @@ function apiLabel(api: BaseApi) { return api.desc && api.desc !== api.operation 
 function isGetApi(api: BaseApi) { return api.method.toUpperCase() === "GET"; }
 /** 格式化服务下拉项。 */
 function serviceLabel(serviceName: string) { const service = apiCatalog.value.find(item => item.service_name === serviceName); return service?.service_desc && service.service_desc !== serviceName ? `${service.service_desc}（${serviceName}）` : serviceName; }
-/** 解析规则参数。 */
-function parseParams(ruleType: string, raw: string): RuleParams { try { const value = JSON.parse(raw) as Record<string, RuleParams>; return value[ruleType.toLowerCase()] ?? defaultParams(ruleType); } catch { return defaultParams(ruleType); } }
-/** 返回规则默认参数。 */
-function defaultParams(ruleType: string): RuleParams { switch (ruleType) { case "MASK": return { keep_first: 3, keep_last: 4, mask_char: "*" }; case "EMAIL": return { keep_local_first: 2, mask_domain: false, mask_char: "*" }; case "REGEX": return { pattern: "(?s).+", replacement: "[REDACTED]" }; case "TRUNCATE": return { length: 10, suffix: "..." }; case "HASH": return { algo: "SHA256" }; case "IP": return { keep_octets: 2, mask_char: "x" }; case "URL": return { mask_query: true, mask_char: "*" }; case "FIXED_LENGTH": return { char: "X" }; default: return {}; } }
+/** 解析规则参数，空策略参数时回退到数据库规则参数。 */
+function parseParams(ruleType: string, raw: string, fallbackRaw = ""): RuleParams {
+  const candidates = fallbackRaw && fallbackRaw !== raw ? [raw, fallbackRaw] : [raw];
+  for (const candidate of candidates) {
+    try {
+      const value = JSON.parse(candidate) as Record<string, RuleParams>;
+      const params = value[ruleType.toLowerCase()];
+      if (params && typeof params === "object" && !Array.isArray(params)) return params;
+    } catch {
+      continue;
+    }
+  }
+  return {};
+}
 /** 创建空的出库字段行。 */
 function createFieldRow(option: Pick<OutputFieldRow, "label" | "value" | "message_ref" | "field_path"> & { description?: string }): OutputFieldRow { return { ...option, id: 0, mode: BaseRedactOutputPolicyMode.BASE_REDACT_OUTPUT_POLICY_MODE_FULL, rule_id: undefined, rule_type: "", params: {}, rule_params: "{}" }; }
 /** 创建默认出库表单。 */

@@ -6,6 +6,7 @@ import (
 
 	"github.com/go-kratos/kratos/v3/middleware"
 	"github.com/go-kratos/kratos/v3/transport"
+	"github.com/liujitcn/gorm-kit/repository"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/loginpolicy"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/password"
 	_const "github.com/liujitcn/kratos-admin/backend/internal/const"
@@ -36,8 +37,13 @@ func NewMiddleware(baseUserRepo *data.BaseUserRepository, policyCache cache.Cach
 			if authInfo.RoleCode == coreconst.BASE_ROLE_CODE_USER || authInfo.RoleCode == coreconst.BASE_ROLE_CODE_AUTHUSER {
 				return handler(ctx, req)
 			}
+			query := baseUserRepo.Query(ctx).BaseUser
+			opts := []repository.QueryOption{
+				repository.Select(query.ID, query.TenantID, query.PasswordChangedAt, query.MustChangePassword),
+				repository.Where(query.ID.Eq(authInfo.UserId)),
+			}
 			var user *models.BaseUser
-			user, err = baseUserRepo.FindByID(ctx, authInfo.UserId)
+			user, err = baseUserRepo.Find(ctx, opts...)
 			if err != nil {
 				return nil, errorsx.Internal("读取密码策略状态失败").WithCause(err)
 			}

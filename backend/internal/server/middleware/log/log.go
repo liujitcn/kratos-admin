@@ -737,7 +737,9 @@ func (m *Middleware) captureResourceSnapshot(ctx context.Context, info request, 
 	case "base_third_account":
 		record, err = m.logQuery.BaseThirdAccount.WithContext(ctx).Where(m.logQuery.BaseThirdAccount.ID.Eq(resourceIDValue)).First()
 	case "base_user":
-		record, err = m.logQuery.BaseUser.WithContext(ctx).Where(m.logQuery.BaseUser.ID.Eq(resourceIDValue)).First()
+		record, err = m.logQuery.BaseUser.WithContext(ctx).
+			Select(m.logQuery.BaseUser.ID, m.logQuery.BaseUser.UserName, m.logQuery.BaseUser.NickName).
+			Where(m.logQuery.BaseUser.ID.Eq(resourceIDValue)).First()
 	case "code_gen_column":
 		record, err = m.logQuery.CodeGenColumn.WithContext(ctx).Where(m.logQuery.CodeGenColumn.ID.Eq(resourceIDValue)).First()
 	case "code_gen_proto":

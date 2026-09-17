@@ -374,7 +374,11 @@ func (c *MfaCase) VerifyLoginChallenge(ctx context.Context, req *basev1.VerifyMf
 	if challenge.Method == mfaMethodWebAuthn {
 		if req.GetRecoveryCode() != "" {
 			var user *models.BaseUser
-			user, err = c.baseUserCase.FindByID(ctx, challenge.UserID)
+			query := c.baseUserCase.Query(ctx).BaseUser
+			user, err = c.baseUserCase.Find(ctx,
+				repository.Select(query.ID, query.TenantID, query.UserName, query.UserCode, query.NickName, query.RoleID, query.DeptID, query.PasswordChangedAt, query.MustChangePassword, query.Status),
+				repository.Where(query.ID.Eq(challenge.UserID)),
+			)
 			if err != nil {
 				return nil, errorsx.Unauthenticated("多因素认证失败")
 			}
@@ -413,7 +417,11 @@ func (c *MfaCase) VerifyLoginChallenge(ctx context.Context, req *basev1.VerifyMf
 		return user, nil
 	}
 	var user *models.BaseUser
-	user, err = c.baseUserCase.FindByID(ctx, challenge.UserID)
+	query := c.baseUserCase.Query(ctx).BaseUser
+	user, err = c.baseUserCase.Find(ctx,
+		repository.Select(query.ID, query.TenantID, query.UserName, query.UserCode, query.NickName, query.RoleID, query.DeptID, query.PasswordChangedAt, query.MustChangePassword, query.Status),
+		repository.Where(query.ID.Eq(challenge.UserID)),
+	)
 	if err != nil {
 		return nil, errorsx.Unauthenticated("多因素认证失败")
 	}
@@ -512,7 +520,11 @@ func (c *MfaCase) verifyWebAuthnLogin(ctx context.Context, responseJSON string, 
 	if challenge.WebAuthn == nil || challenge.MFAID <= 0 || c.webAuthn == nil {
 		return nil, errorsx.InvalidArgument("WebAuthn认证响应不能为空")
 	}
-	user, err := c.baseUserCase.FindByID(ctx, challenge.UserID)
+	query := c.baseUserCase.Query(ctx).BaseUser
+	user, err := c.baseUserCase.Find(ctx,
+		repository.Select(query.ID, query.TenantID, query.UserName, query.UserCode, query.NickName, query.RoleID, query.DeptID, query.PasswordChangedAt, query.MustChangePassword, query.Status),
+		repository.Where(query.ID.Eq(challenge.UserID)),
+	)
 	if err != nil {
 		return nil, errorsx.Unauthenticated("多因素认证失败")
 	}
@@ -625,7 +637,11 @@ func (c *MfaCase) BeginMfaSetup(ctx context.Context, req *basev1.BeginMfaSetupRe
 		if err != nil || ticket.UserID <= 0 {
 			return nil, errorsx.Unauthenticated("多因素认证绑定票据已失效")
 		}
-		user, err = c.baseUserCase.FindByID(ctx, ticket.UserID)
+		query := c.baseUserCase.Query(ctx).BaseUser
+		user, err = c.baseUserCase.Find(ctx,
+			repository.Select(query.ID, query.TenantID, query.UserName, query.NickName),
+			repository.Where(query.ID.Eq(ticket.UserID)),
+		)
 		if err != nil {
 			return nil, errorsx.Unauthenticated("多因素认证绑定票据已失效")
 		}
@@ -638,7 +654,11 @@ func (c *MfaCase) BeginMfaSetup(ctx context.Context, req *basev1.BeginMfaSetupRe
 		if err != nil {
 			return nil, err
 		}
-		user, err = c.baseUserCase.FindByID(ctx, authInfo.UserId)
+		query := c.baseUserCase.Query(ctx).BaseUser
+		user, err = c.baseUserCase.Find(ctx,
+			repository.Select(query.ID, query.TenantID, query.UserName, query.NickName, query.Password),
+			repository.Where(query.ID.Eq(authInfo.UserId)),
+		)
 		if err != nil {
 			return nil, errorsx.ResourceNotFound("用户不存在").WithCause(err)
 		}
@@ -817,7 +837,11 @@ func (c *MfaCase) confirmWebAuthnSetup(ctx context.Context, ticketKey string, pa
 	}
 	var err error
 	var user *models.BaseUser
-	user, err = c.baseUserCase.FindByID(ctx, payload.UserID)
+	query := c.baseUserCase.Query(ctx).BaseUser
+	user, err = c.baseUserCase.Find(ctx,
+		repository.Select(query.ID, query.UserName, query.NickName),
+		repository.Where(query.ID.Eq(payload.UserID)),
+	)
 	if err != nil {
 		return nil, errorsx.Unauthenticated("多因素认证绑定票据已失效")
 	}
@@ -947,7 +971,11 @@ func (c *MfaCase) BeginMfaDisable(ctx context.Context, _ *basev1.BeginMfaDisable
 		return nil, err
 	}
 	var user *models.BaseUser
-	user, err = c.baseUserCase.FindByID(ctx, authInfo.UserId)
+	query := c.baseUserCase.Query(ctx).BaseUser
+	user, err = c.baseUserCase.Find(ctx,
+		repository.Select(query.ID, query.TenantID, query.UserName, query.NickName),
+		repository.Where(query.ID.Eq(authInfo.UserId)),
+	)
 	if err != nil {
 		return nil, errorsx.ResourceNotFound("用户不存在").WithCause(err)
 	}
@@ -1017,7 +1045,11 @@ func (c *MfaCase) DisableMfa(ctx context.Context, req *basev1.DisableMfaRequest)
 		return err
 	}
 	var user *models.BaseUser
-	user, err = c.baseUserCase.FindByID(ctx, authInfo.UserId)
+	query := c.baseUserCase.Query(ctx).BaseUser
+	user, err = c.baseUserCase.Find(ctx,
+		repository.Select(query.ID, query.TenantID, query.UserName, query.NickName, query.Password),
+		repository.Where(query.ID.Eq(authInfo.UserId)),
+	)
 	if err != nil {
 		return errorsx.ResourceNotFound("用户不存在").WithCause(err)
 	}

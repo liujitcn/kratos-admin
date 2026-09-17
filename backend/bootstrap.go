@@ -51,7 +51,6 @@ type AdminConsumers queue.Consumers
 // 外部项目将本集合与其他业务模块的具名贡献合并后，再交给 kratos-core.ProviderSet
 // 统一创建 HTTP、gRPC、MCP、SSE、队列和定时任务运行时。
 var ProviderSet = wire.NewSet(
-	projectaccess.NewLifecycle,
 	core.ProviderSet,
 	kit.ProviderSet,
 	NewCodeGenManager,
@@ -91,6 +90,7 @@ func NewModules(
 	openAPIRuntime *openapi.OpenAPI,
 	redactResolver *kit.RedactPolicyResolver,
 	progressManager *CodeGenManager,
+	lifecycle *projectaccess.Lifecycle,
 ) (AdminModules, func(), error) {
 	var err error
 	// 迁移完成后再加载策略和绑定存储回调，构造适配器时不查询尚未创建的表。
@@ -104,7 +104,7 @@ func NewModules(
 	}
 	var modules module.Modules
 	var cleanup func()
-	modules, cleanup, err = adminModule.BuildModules(migrations, config, databases, baseCase, authorizer, authenticator, userToken, jobRuntime, sseRuntime, catalog, openAPIRuntime, redactResolver, progressManager)
+	modules, cleanup, err = adminModule.BuildModules(migrations, config, databases, baseCase, authorizer, authenticator, userToken, jobRuntime, sseRuntime, catalog, openAPIRuntime, redactResolver, progressManager, lifecycle)
 	return AdminModules(modules), cleanup, err
 }
 

@@ -2,9 +2,7 @@
 .gitignore
 .idea
 .vscode
-bin
-!bin/
-!bin/server
+bin/
 configs/*.dev.yaml
 data/*
 !data/admin

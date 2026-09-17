@@ -42,6 +42,7 @@
                   <template v-if="row.rule_type === 'MASK'">
                     <ParameterNumber v-model="row.params.keep_first" :label="t('system.base.redact_rule.parameter.keep_first')" />
                     <ParameterNumber v-model="row.params.keep_last" :label="t('system.base.redact_rule.parameter.keep_last')" />
+                    <ParameterNumber v-model="row.params.min_mask" :label="t('system.base.redact_rule.parameter.min_mask')" />
                     <ParameterText v-model="row.params.mask_char" :label="t('system.base.redact_rule.parameter.mask_char')" />
                   </template>
                   <template v-else-if="row.rule_type === 'EMAIL'">
@@ -106,6 +107,7 @@ import { Status } from "@liujitcn/kratos-admin-system/rpc/common/v1/enum";
 interface RuleParams {
   keep_first?: number;
   keep_last?: number;
+  min_mask?: number;
   mask_char?: string;
   keep_local_first?: number;
   mask_domain?: boolean;
@@ -237,17 +239,27 @@ async function submit() { const valid = await dialogRef.value?.validate(); if (!
 /** 将表格行转换为入库策略请求。 */
 function buildPayload(row: StorageColumnRow): BaseRedactStoragePolicyForm { syncRowParams(row); return { id: row.id, source_name: form.source_name, table_name: form.table_name, column_name: row.name, rule_id: row.rule_id ?? 0, rule_params: row.rule_params, status: form.status, remark: form.remark }; }
 /** 将已保存的策略回填到对应字段行。 */
-function applyPolicy(row: StorageColumnRow, data: BaseRedactStoragePolicyForm) { row.id = data.id; row.rule_id = data.rule_id || undefined; row.rule_params = data.rule_params; if (row.rule_id) { const rule = ruleCatalog.value.find(item => item.id === row.rule_id); row.rule_type = rule?.rule_type ?? ""; row.params = parseParams(row.rule_type, row.rule_params); } }
+function applyPolicy(row: StorageColumnRow, data: BaseRedactStoragePolicyForm) { row.id = data.id; row.rule_id = data.rule_id || undefined; row.rule_params = data.rule_params; if (row.rule_id) { const rule = ruleCatalog.value.find(item => item.id === row.rule_id); row.rule_type = rule?.rule_type ?? ""; row.params = rule ? parseParams(row.rule_type, row.rule_params, rule.rule) : {}; } }
 /** 处理行规则变更。 */
 function handleRuleChange(row: StorageTableRow) { const rule = ruleCatalog.value.find(item => item.id === row.rule_id); row.rule_type = rule?.rule_type ?? ""; row.params = rule ? parseParams(rule.rule_type, rule.rule) : {}; row.rule_params = rule ? rule.rule : "{}"; }
 /** 同步单行规则参数。 */
 function syncRowParams(row: StorageColumnRow) { const rule = ruleCatalog.value.find(item => item.id === row.rule_id); if (rule) { row.rule_type = rule.rule_type; row.rule_params = JSON.stringify({ [rule.rule_type.toLowerCase()]: row.params }); } }
 /** 创建空的入库字段行。 */
 function createColumnRow(option: Pick<StorageColumnRow, "label" | "value" | "name" | "comment" | "db_type">): StorageColumnRow { return { ...option, id: 0, rule_id: undefined, rule_type: "", params: {}, rule_params: "{}" }; }
-/** 解析规则参数。 */
-function parseParams(ruleType: string, raw: string): RuleParams { try { const value = JSON.parse(raw) as Record<string, RuleParams>; return value[ruleType.toLowerCase()] ?? defaultParams(ruleType); } catch { return defaultParams(ruleType); } }
-/** 返回规则默认参数。 */
-function defaultParams(ruleType: string): RuleParams { switch (ruleType) { case "MASK": return { keep_first: 3, keep_last: 4, mask_char: "*" }; case "EMAIL": return { keep_local_first: 2, mask_domain: false, mask_char: "*" }; case "REGEX": return { pattern: "(?s).+", replacement: "[REDACTED]" }; case "TRUNCATE": return { length: 10, suffix: "..." }; case "HASH": return { algo: "SHA256" }; case "IP": return { keep_octets: 2, mask_char: "x" }; case "URL": return { mask_query: true, mask_char: "*" }; case "FIXED_LENGTH": return { char: "X" }; default: return {}; } }
+/** 解析规则参数，空策略参数时回退到数据库规则参数。 */
+function parseParams(ruleType: string, raw: string, fallbackRaw = ""): RuleParams {
+  const candidates = fallbackRaw && fallbackRaw !== raw ? [raw, fallbackRaw] : [raw];
+  for (const candidate of candidates) {
+    try {
+      const value = JSON.parse(candidate) as Record<string, RuleParams>;
+      const params = value[ruleType.toLowerCase()];
+      if (params && typeof params === "object" && !Array.isArray(params)) return params;
+    } catch {
+      continue;
+    }
+  }
+  return {};
+}
 /** 修改入库策略状态。 */
 async function changeStatus(row: BaseRedactStoragePolicy) { const next = row.status === Status.STATUS_ENABLE ? Status.STATUS_DISABLE : Status.STATUS_ENABLE; try { await ElMessageBox.confirm(t("common.dialog.status_change", { action: t(next === Status.STATUS_ENABLE ? "common.status.enabled" : "common.status.disabled"), resource: t("system.base.redact_storage_policy.title"), field: t("system.base.redact_storage_policy.field.column_name"), value: row.column_name }), t("common.title.warning"), { type: "warning" }); await defBaseRedactStoragePolicyService.SetBaseRedactStoragePolicyStatus({ id: row.id, status: next }); table.value?.getTableList(); return true; } catch { return false; } }
 /** 删除选中的入库策略。 */

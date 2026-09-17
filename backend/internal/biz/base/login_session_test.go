@@ -2,12 +2,12 @@ package biz
 
 import (
 	"context"
+	"database/sql"
 	"encoding/json"
 	"sync"
 	"testing"
 	"time"
 
-	"github.com/liujitcn/gorm-kit/repository"
 	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/sessionregistry"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
@@ -17,18 +17,10 @@ import (
 	"github.com/liujitcn/kratos-kit/auth/authn/engine"
 	authdata "github.com/liujitcn/kratos-kit/auth/data"
 	"github.com/liujitcn/kratos-kit/cache/memory"
+	kitgorm "github.com/liujitcn/kratos-kit/database/gorm"
+	"gorm.io/driver/sqlite"
+	"gorm.io/gorm"
 )
-
-// loginEntityRepository 返回登录所需的固定关联实体。
-type loginEntityRepository[T any] struct {
-	repository.BaseRepository[T]
-	entity *T
-}
-
-// FindByID 返回角色、部门或租户测试实体。
-func (r loginEntityRepository[T]) FindByID(context.Context, int64) (*T, error) {
-	return r.entity, nil
-}
 
 // loginBarrierIdentity 在第一份令牌签发期间暂停，以固定两个请求的重叠时序。
 type loginBarrierIdentity struct {
@@ -46,6 +38,40 @@ func (a *loginBarrierIdentity) CreateIdentity(claims engine.AuthClaims) (string,
 
 // TestSingleSessionLoginRejectsOverlappingIssuance 验证禁止并发登录时重叠签发被拒绝，后续登录撤销旧会话。
 func TestSingleSessionLoginRejectsOverlappingIssuance(t *testing.T) {
+	db, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	var connection *sql.DB
+	connection, err = db.DB()
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() {
+		if err = connection.Close(); err != nil {
+			t.Error(err)
+		}
+	})
+	err = db.AutoMigrate(&models.BaseRole{}, &models.BaseDept{}, &models.BaseTenant{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = db.Create(&models.BaseRole{ID: 1, Code: "user", Name: "普通用户", Status: 1}).Error
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = db.Create(&models.BaseDept{ID: 1, Name: "默认部门", Status: 1}).Error
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = db.Create(&models.BaseTenant{ID: 1, Code: "default", Status: 1}).Error
+	if err != nil {
+		t.Fatal(err)
+	}
+	dataStore, err := data.NewData(map[string]*kitgorm.Client{kitgorm.DefaultClientName: {DB: db}})
+	if err != nil {
+		t.Fatal(err)
+	}
 	store, cleanup, err := memory.NewMemory()
 	if err != nil {
 		t.Fatal(err)
@@ -62,9 +88,9 @@ func TestSingleSessionLoginRejectsOverlappingIssuance(t *testing.T) {
 	tokens := authdata.NewUserToken(store, identity, "access:", "refresh:", time.Hour, 24*time.Hour)
 	login := &LoginCase{
 		BaseCase: &biz.BaseCase{Cache: store}, loginLocker: manager, userToken: tokens,
-		baseRoleCase:   &BaseRoleCase{BaseRoleRepository: &data.BaseRoleRepository{BaseRepository: loginEntityRepository[models.BaseRole]{entity: &models.BaseRole{Status: 1, Code: "user"}}}},
-		baseDeptCase:   &BaseDeptCase{BaseDeptRepository: &data.BaseDeptRepository{BaseRepository: loginEntityRepository[models.BaseDept]{entity: &models.BaseDept{Status: 1}}}},
-		baseTenantRepo: &data.BaseTenantRepository{BaseRepository: loginEntityRepository[models.BaseTenant]{entity: &models.BaseTenant{Status: 1}}},
+		baseRoleCase:   &BaseRoleCase{BaseRoleRepository: data.NewBaseRoleRepository(dataStore)},
+		baseDeptCase:   &BaseDeptCase{BaseDeptRepository: data.NewBaseDeptRepository(dataStore)},
+		baseTenantRepo: data.NewBaseTenantRepository(dataStore),
 	}
 	user := &models.BaseUser{ID: 1, Status: 1, TenantID: 1, RoleID: 1, DeptID: 1}
 	responses := make(chan *basev1.LoginResponse, 1)

@@ -264,9 +264,7 @@ build-taro-app-mp-weixin:
 
 # 构建管理后台、uni-app 和 Taro 的全部 H5 产物
 build-h5:
-	@$(MAKE) build-admin
-	@$(MAKE) build-uni-app-h5
-	@$(MAKE) build-taro-app-h5
+	@$(MAKE) --jobs=3 build-admin build-uni-app-h5 build-taro-app-h5
 
 # 构建 uni-app 和 Taro 的全部微信小程序产物
 build-mp-weixin:

@@ -49,7 +49,7 @@ import (
 // Injectors from wire.go:
 
 // BuildModules 使用宿主共享的任务管理器装配 Admin 协议服务。
-func BuildModules(migrations *migration.Migration, config2 *configv1.Bootstrap, databases map[string]*gorm.Client, baseCase *biz.BaseCase, authorizer engine.Engine, authenticator engine2.Authenticator, userToken *data.UserToken, jobRuntime *job.Job, sseRuntime *sse.SSE, catalog *i18n.I18n, openAPIRuntime *openapi.OpenAPI, redactResolver *kit.RedactPolicyResolver, progressManager *codegen.Manager) (module.Modules, func(), error) {
+func BuildModules(migrations *migration.Migration, config2 *configv1.Bootstrap, databases map[string]*gorm.Client, baseCase *biz.BaseCase, authorizer engine.Engine, authenticator engine2.Authenticator, userToken *data.UserToken, jobRuntime *job.Job, sseRuntime *sse.SSE, catalog *i18n.I18n, openAPIRuntime *openapi.OpenAPI, redactResolver *kit.RedactPolicyResolver, progressManager *codegen.Manager, lifecycle *projectaccess.Lifecycle) (module.Modules, func(), error) {
 	dataData, err := data2.NewData(databases)
 	if err != nil {
 		return nil, nil, err
@@ -166,7 +166,6 @@ func BuildModules(migrations *migration.Migration, config2 *configv1.Bootstrap, 
 	baseMessageCategoryService := admin.NewBaseMessageCategoryService(baseMessageCategoryCase)
 	basePostCase := biz3.NewBasePostCase(baseCase, transaction, basePostRepository, baseUserRepository)
 	basePostService := admin.NewBasePostService(basePostCase)
-	lifecycle := projectaccess.NewLifecycle()
 	baseTenantProjectGrantRepository := data2.NewBaseTenantProjectGrantRepository(dataData)
 	baseTenantProjectGrantCase := biz3.NewBaseTenantProjectGrantCase(baseCase, transaction, baseTenantProjectGrantRepository)
 	baseTenantProjectRepository := data2.NewBaseTenantProjectRepository(dataData)

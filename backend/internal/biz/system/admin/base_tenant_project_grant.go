@@ -210,7 +210,9 @@ func (c *BaseTenantProjectGrantCase) EffectiveProjects(ctx context.Context) (map
 	}
 	query := c.Query(ctx)
 	var user *models.BaseUser
-	user, err = query.BaseUser.WithContext(ctx).Where(query.BaseUser.ID.Eq(identity.UserId)).First()
+	user, err = query.BaseUser.WithContext(ctx).
+		Select(query.BaseUser.ID, query.BaseUser.TenantID, query.BaseUser.RoleID, query.BaseUser.DeptID, query.BaseUser.PostID, query.BaseUser.Status).
+		Where(query.BaseUser.ID.Eq(identity.UserId)).First()
 	if err != nil {
 		return nil, err
 	}
@@ -373,7 +375,9 @@ func (c *BaseTenantProjectGrantCase) requireTarget(ctx context.Context, tenantID
 		ownerID = row.TenantID
 	case adminv1.BaseTenantProjectGrantSubjectType_BASE_TENANT_PROJECT_GRANT_SUBJECT_TYPE_USER:
 		var row *models.BaseUser
-		row, err = query.BaseUser.WithContext(ctx).Where(query.BaseUser.ID.Eq(subjectID)).First()
+		row, err = query.BaseUser.WithContext(ctx).
+			Select(query.BaseUser.ID, query.BaseUser.TenantID).
+			Where(query.BaseUser.ID.Eq(subjectID)).First()
 		if err != nil {
 			return err
 		}
@@ -400,7 +404,9 @@ func (c *BaseTenantProjectGrantCase) requireGrantPermission(ctx context.Context,
 		return err
 	}
 	query := c.Query(ctx)
-	user, err := query.BaseUser.WithContext(ctx).Where(query.BaseUser.ID.Eq(identity.UserId)).First()
+	user, err := query.BaseUser.WithContext(ctx).
+		Select(query.BaseUser.ID, query.BaseUser.TenantID, query.BaseUser.RoleID, query.BaseUser.Status).
+		Where(query.BaseUser.ID.Eq(identity.UserId)).First()
 	if err != nil {
 		return err
 	}
@@ -521,7 +527,9 @@ func (c *BaseTenantProjectGrantCase) mapGrantPage(ctx context.Context, rows []*m
 		loadSubject(3, names, make(map[int64]string))
 	}
 	if ids := subjectIDs[4]; len(ids) > 0 {
-		users, err := query.BaseUser.WithContext(ctx).Where(query.BaseUser.ID.In(ids...)).Find()
+		users, err := query.BaseUser.WithContext(ctx).
+			Select(query.BaseUser.ID, query.BaseUser.UserName, query.BaseUser.UserCode, query.BaseUser.NickName).
+			Where(query.BaseUser.ID.In(ids...)).Find()
 		if err != nil {
 			return nil, err
 		}

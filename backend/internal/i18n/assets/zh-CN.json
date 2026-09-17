@@ -1175,6 +1175,9 @@
   "system.admin.base.redact.rule.status.invalid": {
     "other": "规则模板状态无效"
   },
+  "system.admin.base.redact.rule.template.string_mask": {
+    "other": "通用字符串掩码"
+  },
   "system.admin.base.redact.rule.template.phone_mask": {
     "other": "手机号掩码"
   },
@@ -1201,6 +1204,9 @@
   },
   "system.admin.base.redact.rule.template.fixed_length_mask": {
     "other": "等长掩码"
+  },
+  "system.admin.base.redact.rule.description.string_mask": {
+    "other": "按配置保留字符串首尾字符并掩码中间内容"
   },
   "system.admin.base.redact.rule.description.phone_mask": {
     "other": "保留手机号前三位和后四位"

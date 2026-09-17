@@ -66,6 +66,32 @@ func TestStorageFieldSelected(t *testing.T) {
 	}
 }
 
+// TestSelectedStoragePolicies 验证查询回调只恢复实际选中的敏感字段。
+func TestSelectedStoragePolicies(t *testing.T) {
+	policies := []redact.StorageFieldPolicy{
+		{ColumnName: "phone"},
+		{ColumnName: "email"},
+		{ColumnName: "id_code"},
+	}
+	db := &gorm.DB{Statement: &gorm.Statement{Selects: []string{"id", "phone"}}}
+	selected := selectedStoragePolicies(db, policies)
+	if len(selected) != 1 || selected[0].ColumnName != "phone" {
+		t.Fatalf("敏感字段选择结果错误: %#v", selected)
+	}
+
+	db.Statement.Selects = []string{"base_user.*"}
+	selected = selectedStoragePolicies(db, policies)
+	if len(selected) != len(policies) {
+		t.Fatalf("整表查询应选择全部敏感字段: %#v", selected)
+	}
+
+	db.Statement.Selects = nil
+	selected = selectedStoragePolicies(db, policies)
+	if len(selected) != len(policies) {
+		t.Fatalf("未指定查询列时应保持原有恢复行为: %#v", selected)
+	}
+}
+
 // TestRewriteStorageExpression 验证敏感字段等值和集合查询会改写为主键条件。
 func TestRewriteStorageExpression(t *testing.T) {
 	policy := redact.StorageFieldPolicy{ID: 2001, TableName: "base_user", ColumnName: "phone"}

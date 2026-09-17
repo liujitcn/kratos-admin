@@ -1175,6 +1175,9 @@
   "system.admin.base.redact.rule.status.invalid": {
     "other": "規則模板狀態無效"
   },
+  "system.admin.base.redact.rule.template.string_mask": {
+    "other": "通用字串遮罩"
+  },
   "system.admin.base.redact.rule.template.phone_mask": {
     "other": "手機號碼遮罩"
   },
@@ -1201,6 +1204,9 @@
   },
   "system.admin.base.redact.rule.template.fixed_length_mask": {
     "other": "等長遮罩"
+  },
+  "system.admin.base.redact.rule.description.string_mask": {
+    "other": "依設定保留字串首尾字元並遮罩中間內容"
   },
   "system.admin.base.redact.rule.description.phone_mask": {
     "other": "保留手機號碼前三碼和後四碼"

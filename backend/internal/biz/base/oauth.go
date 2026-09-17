@@ -24,6 +24,7 @@ import (
 	kratosErrors "github.com/go-kratos/kratos/v3/errors"
 	kratosHTTP "github.com/go-kratos/kratos/v3/transport/http"
 	"github.com/liujitcn/go-utils/id"
+	"github.com/liujitcn/gorm-kit/repository"
 	"github.com/liujitcn/kratos-kit/oauth"
 	"github.com/liujitcn/kratos-kit/oauth/provider"
 	"gorm.io/gorm"
@@ -359,7 +360,11 @@ func (c *OauthCase) HandleOauthCallback(ctx context.Context, req *basev1.HandleO
 	}
 
 	var user *models.BaseUser
-	user, err = c.baseUserCase.FindByID(ctx, thirdAccount.UserID)
+	query := c.baseUserCase.Query(ctx).BaseUser
+	user, err = c.baseUserCase.Find(ctx,
+		repository.Select(query.ID, query.TenantID, query.UserName, query.UserCode, query.NickName, query.RoleID, query.DeptID, query.PasswordChangedAt, query.MustChangePassword, query.Status),
+		repository.Where(query.ID.Eq(thirdAccount.UserID)),
+	)
 	if err != nil {
 		return nil, c.oauthRedirectPayload(payload, "", "三方账号登录失败")
 	}
@@ -448,7 +453,11 @@ func (c *OauthCase) findWechatMiniUserByOpenID(ctx context.Context, openID strin
 		return nil, errorsx.Internal("微信登录失败").WithCause(err)
 	}
 	var user *models.BaseUser
-	user, err = c.baseUserCase.FindByID(ctx, thirdAccount.UserID)
+	query := c.baseUserCase.Query(ctx).BaseUser
+	user, err = c.baseUserCase.Find(ctx,
+		repository.Select(query.ID, query.TenantID, query.UserName, query.UserCode, query.NickName, query.RoleID, query.DeptID, query.PasswordChangedAt, query.MustChangePassword, query.Status),
+		repository.Where(query.ID.Eq(thirdAccount.UserID)),
+	)
 	if err != nil {
 		return nil, errorsx.Internal("微信登录失败").WithCause(err)
 	}
@@ -462,7 +471,11 @@ func (c *OauthCase) createWechatMiniUser(ctx context.Context, openID string) (*m
 		return nil, errorsx.Internal("微信登录默认角色配置错误").WithCause(err)
 	}
 	var defaultDept *models.BaseDept
-	defaultDept, err = c.baseDeptCase.FindByID(ctx, _const.BASE_DEPT_ID_APP_USER)
+	deptQuery := c.baseDeptCase.Query(ctx).BaseDept
+	defaultDept, err = c.baseDeptCase.Find(ctx,
+		repository.Select(deptQuery.ID, deptQuery.TenantID),
+		repository.Where(deptQuery.ID.Eq(_const.BASE_DEPT_ID_APP_USER)),
+	)
 	if err != nil {
 		return nil, errorsx.Internal("微信登录默认部门配置错误").WithCause(err)
 	}

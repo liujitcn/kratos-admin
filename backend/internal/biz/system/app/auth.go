@@ -17,6 +17,7 @@ import (
 	"github.com/go-kratos/kratos/v3/log"
 	"github.com/liujitcn/go-utils/mapper"
 	_string "github.com/liujitcn/go-utils/string"
+	"github.com/liujitcn/gorm-kit/repository"
 	"github.com/liujitcn/kratos-kit/oauth"
 	"github.com/liujitcn/kratos-kit/oauth/provider"
 	"gorm.io/gorm"
@@ -61,7 +62,11 @@ func (c *AuthCase) GetUserProfile(ctx context.Context) (*appv1.UserProfileForm, 
 	}
 
 	var user *models.BaseUser
-	user, err = c.baseUserCase.FindByID(ctx, authInfo.UserId)
+	query := c.baseUserCase.Query(ctx).BaseUser
+	user, err = c.baseUserCase.Find(ctx,
+		repository.Select(query.ID, query.UserName, query.NickName, query.Gender, query.Phone, query.Email, query.IDType, query.IDCode, query.Avatar, query.Status),
+		repository.Where(query.ID.Eq(authInfo.UserId)),
+	)
 	if err != nil {
 		return nil, errorsx.ResourceNotFound("用户不存在").WithCause(err)
 	}
@@ -83,7 +88,11 @@ func (c *AuthCase) UpdateUserProfile(ctx context.Context, req *appv1.UserProfile
 	}
 
 	var oldBaseUser *models.BaseUser
-	oldBaseUser, err = c.baseUserCase.FindByID(ctx, authInfo.UserId)
+	query := c.baseUserCase.Query(ctx).BaseUser
+	oldBaseUser, err = c.baseUserCase.Find(ctx,
+		repository.Select(query.ID, query.Avatar),
+		repository.Where(query.ID.Eq(authInfo.UserId)),
+	)
 	if err != nil {
 		return errorsx.ResourceNotFound("用户不存在").WithCause(err)
 	}

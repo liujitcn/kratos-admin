@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
+	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/redact"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 	"github.com/liujitcn/kratos-core/biz"
@@ -224,7 +225,10 @@ func (c *BaseAPICase) GetBaseAPIDoc(ctx context.Context, id int64) (*adminv1.Bas
 		return nil, err
 	}
 	res := mapBaseAPIDoc(baseAPI.ID, coreDocument)
-	applyBaseAPIDocFallback(c.catalog, res, mapBaseAPIDoc(baseAPI.ID, sourceDocument), baseAPI.Operation, biz.LocaleFromContext(ctx))
+	sourceRes := mapBaseAPIDoc(baseAPI.ID, sourceDocument)
+	redact.FilterBaseAPIDocResponseFields(res)
+	redact.FilterBaseAPIDocResponseFields(sourceRes)
+	applyBaseAPIDocFallback(c.catalog, res, sourceRes, baseAPI.Operation, biz.LocaleFromContext(ctx))
 	return res, nil
 }
 

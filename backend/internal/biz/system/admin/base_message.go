@@ -1172,25 +1172,41 @@ func (c *BaseMessageCase) validateAudience(ctx context.Context, tenantID int64, 
 		return nil
 	case basev1.MessageAudienceType_MESSAGE_AUDIENCE_TYPE_USER:
 		var entity *models.BaseUser
-		entity, err = c.baseUserRepo.FindByID(ctx, audience.GetId())
+		query := c.baseUserRepo.Query(ctx).BaseUser
+		entity, err = c.baseUserRepo.Find(ctx,
+			repository.Select(query.ID, query.TenantID),
+			repository.Where(query.ID.Eq(audience.GetId())),
+		)
 		if err != nil || entity.TenantID != tenantID {
 			return errorsx.InvalidArgument("消息用户受众无效").WithCause(err)
 		}
 	case basev1.MessageAudienceType_MESSAGE_AUDIENCE_TYPE_ROLE:
 		var entity *models.BaseRole
-		entity, err = c.baseRoleRepo.FindByID(ctx, audience.GetId())
+		query := c.baseRoleRepo.Query(ctx).BaseRole
+		entity, err = c.baseRoleRepo.Find(ctx,
+			repository.Select(query.TenantID),
+			repository.Where(query.ID.Eq(audience.GetId())),
+		)
 		if err != nil || entity.TenantID != tenantID {
 			return errorsx.InvalidArgument("消息角色受众无效").WithCause(err)
 		}
 	case basev1.MessageAudienceType_MESSAGE_AUDIENCE_TYPE_DEPT:
 		var entity *models.BaseDept
-		entity, err = c.baseDeptRepo.FindByID(ctx, audience.GetId())
+		query := c.baseDeptRepo.Query(ctx).BaseDept
+		entity, err = c.baseDeptRepo.Find(ctx,
+			repository.Select(query.TenantID),
+			repository.Where(query.ID.Eq(audience.GetId())),
+		)
 		if err != nil || entity.TenantID != tenantID {
 			return errorsx.InvalidArgument("消息部门受众无效").WithCause(err)
 		}
 	case basev1.MessageAudienceType_MESSAGE_AUDIENCE_TYPE_POST:
 		var entity *models.BasePost
-		entity, err = c.basePostRepo.FindByID(ctx, audience.GetId())
+		query := c.basePostRepo.Query(ctx).BasePost
+		entity, err = c.basePostRepo.Find(ctx,
+			repository.Select(query.TenantID),
+			repository.Where(query.ID.Eq(audience.GetId())),
+		)
 		if err != nil || entity.TenantID != tenantID {
 			return errorsx.InvalidArgument("消息岗位受众无效").WithCause(err)
 		}
@@ -1426,8 +1442,9 @@ func (c *BaseMessageCase) toBaseMessageDispatch(entity *models.BaseMessageDispat
 // listDispatchUsers 查询当前投递任务的下一批用户。
 func (c *BaseMessageCase) listDispatchUsers(ctx context.Context, dispatch *models.BaseMessageDispatch) ([]*models.BaseUser, error) {
 	query := c.baseUserRepo.Query(ctx).BaseUser
-	opts := make([]repository.QueryOption, 0, 6)
+	opts := make([]repository.QueryOption, 0, 7)
 	opts = append(opts,
+		repository.Select(query.ID),
 		repository.Where(query.Status.Eq(coreconst.STATUS_STATUS_ENABLE)),
 		repository.Where(query.ID.Gt(dispatch.CursorUserID)),
 		repository.Order(query.ID.Asc()),

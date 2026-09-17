@@ -9,6 +9,7 @@ import (
 
 	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/dto"
+	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/redact"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 	"github.com/liujitcn/kratos-core/biz"
@@ -78,6 +79,10 @@ func (c *CodeGenColumnCase) ListCodeGenDatabaseColumn(ctx context.Context, sourc
 	}
 	columns := make([]*adminv1.CodeGenDatabaseColumn, 0, len(databaseColumns))
 	for _, item := range databaseColumns {
+		// 默认只返回可保存脱敏值的字符串字段，避免管理端配置无效字段。
+		if !redact.IsRedactStringDatabaseType(item.DataType) {
+			continue
+		}
 		columnComment := item.Comment
 		// 数据库未配置字段注释时回退显示字段名。
 		if columnComment == "" {

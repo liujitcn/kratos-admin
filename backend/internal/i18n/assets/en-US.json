@@ -1175,6 +1175,9 @@
   "system.admin.base.redact.rule.status.invalid": {
     "other": "The rule template status is invalid"
   },
+  "system.admin.base.redact.rule.template.string_mask": {
+    "other": "Generic string mask"
+  },
   "system.admin.base.redact.rule.template.phone_mask": {
     "other": "Phone number mask"
   },
@@ -1201,6 +1204,9 @@
   },
   "system.admin.base.redact.rule.template.fixed_length_mask": {
     "other": "Fixed-length mask"
+  },
+  "system.admin.base.redact.rule.description.string_mask": {
+    "other": "Keep configured leading and trailing characters and mask the middle"
   },
   "system.admin.base.redact.rule.description.phone_mask": {
     "other": "Keep the first three and last four digits of a phone number"

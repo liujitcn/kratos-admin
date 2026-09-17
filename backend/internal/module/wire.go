@@ -47,9 +47,9 @@ func BuildModules(
 	openAPIRuntime *openapi.OpenAPI,
 	redactResolver *kit.RedactPolicyResolver,
 	progressManager *codegen.Manager,
+	lifecycle *projectaccess.Lifecycle,
 ) (module.Modules, func(), error) {
 	panic(wire.Build(
-		projectaccess.NewLifecycle,
 		ParseAdminAgentTools,
 		ParseAppAgentTools,
 		configProvider.ProviderSet,

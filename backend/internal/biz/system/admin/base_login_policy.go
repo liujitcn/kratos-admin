@@ -434,7 +434,11 @@ func (c *BaseLoginPolicyCase) toBaseLoginPolicy(ctx context.Context, entity *mod
 	}
 	if policy.UserID > 0 {
 		var user *models.BaseUser
-		user, err = c.baseUserRepo.FindByID(ctx, policy.UserID)
+		query := c.baseUserRepo.Query(ctx).BaseUser
+		user, err = c.baseUserRepo.Find(ctx,
+			repository.Select(query.ID, query.UserName),
+			repository.Where(query.ID.Eq(policy.UserID)),
+		)
 		if err != nil {
 			return nil, err
 		}
@@ -492,7 +496,11 @@ func validatePolicyTarget(ctx context.Context, policy loginpolicy.Policy, tenant
 			return errorsx.InvalidArgument("用户策略目标无效")
 		}
 		var user *models.BaseUser
-		user, err = userRepo.FindByID(ctx, policy.UserID)
+		query := userRepo.Query(ctx).BaseUser
+		user, err = userRepo.Find(ctx,
+			repository.Select(query.ID, query.TenantID),
+			repository.Where(query.ID.Eq(policy.UserID)),
+		)
 		if err != nil {
 			return errorsx.ResourceNotFound("用户不存在").WithCause(err)
 		}

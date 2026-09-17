@@ -2,6 +2,8 @@ package biz
 
 import (
 	"context"
+	"strings"
+	"time"
 
 	"github.com/liujitcn/kratos-admin/backend/adapter/kit"
 	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
@@ -106,12 +108,48 @@ func (c *BaseRedactRuleCase) GetBaseRedactRule(ctx context.Context, id int64) (*
 }
 
 // CreateBaseRedactRule 创建脱敏规则模板。
-func (c *BaseRedactRuleCase) CreateBaseRedactRule(ctx context.Context, _ *adminv1.BaseRedactRuleForm) error {
+func (c *BaseRedactRuleCase) CreateBaseRedactRule(ctx context.Context, input *adminv1.BaseRedactRuleForm) error {
 	err := redact.EnsureRedactPlatformOperator(ctx, c.BaseCase)
 	if err != nil {
 		return err
 	}
-	return errorsx.ProtectedResourceConflict("脱敏规则模板由系统内置，不支持新增", "base_redact_rule")
+	err = kit.ValidateRedactRule(input.GetCode(), input.GetRuleType(), input.GetRule())
+	if err != nil {
+		return errorsx.InvalidArgument("脱敏规则模板参数无效").WithCause(err)
+	}
+	status := int32(input.GetStatus())
+	if status == 0 {
+		status = _const.STATUS_STATUS_ENABLE
+	}
+	if status != _const.STATUS_STATUS_ENABLE && status != _const.STATUS_STATUS_DISABLE {
+		return errorsx.InvalidArgument("脱敏规则模板状态无效")
+	}
+	var authInfo *authData.UserTokenPayload
+	authInfo, err = c.GetAuthInfo(ctx)
+	if err != nil {
+		return err
+	}
+	now := time.Now()
+	item := &models.BaseRedactRule{
+		Code:          input.GetCode(),
+		Name:          input.GetName(),
+		RuleType:      strings.ToUpper(strings.TrimSpace(input.GetRuleType())),
+		DefaultParams: input.GetRule(),
+		Status:        status,
+		Remark:        input.GetRemark(),
+		CreatedBy:     authInfo.UserId,
+		UpdatedBy:     authInfo.UserId,
+		CreatedAt:     now,
+		UpdatedAt:     now,
+	}
+	err = c.Create(ctx, item)
+	if err != nil {
+		if errorsx.IsDuplicateKey(err) {
+			return errorsx.UniqueConflict("脱敏规则编码重复", "base_redact_rule", "code", "unique_base_redact_rule").WithCause(err)
+		}
+		return err
+	}
+	return redact.RefreshRedactRuntime(ctx, c.resolver)
 }
 
 // UpdateBaseRedactRule 更新脱敏规则模板参数和状态。
@@ -121,7 +159,7 @@ func (c *BaseRedactRuleCase) UpdateBaseRedactRule(ctx context.Context, input *ad
 		return err
 	}
 	if input.GetId() <= 0 {
-		return errorsx.InvalidArgument("规则模板ID不能为空")
+		return errorsx.InvalidArgument("规则ID不能为空")
 	}
 	var oldItem *models.BaseRedactRule
 	oldItem, err = c.FindByID(ctx, input.GetId())
@@ -129,18 +167,18 @@ func (c *BaseRedactRuleCase) UpdateBaseRedactRule(ctx context.Context, input *ad
 		return err
 	}
 	if input.GetCode() != oldItem.Code {
-		return errorsx.InvalidArgument("规则模板编码不允许修改")
+		return errorsx.InvalidArgument("规则编码不允许修改")
 	}
 	if input.GetRuleType() != oldItem.RuleType {
-		return errorsx.InvalidArgument("规则模板类型不允许修改")
+		return errorsx.InvalidArgument("规则类型不允许修改")
 	}
-	_, err = redact.ValidateRuleTemplate(oldItem.Code, oldItem.RuleType, input.GetRule())
+	err = kit.ValidateRedactRule(oldItem.Code, oldItem.RuleType, input.GetRule())
 	if err != nil {
-		return errorsx.InvalidArgument("规则模板参数无效").WithCause(err)
+		return errorsx.InvalidArgument("规则参数无效").WithCause(err)
 	}
 	status := int32(input.GetStatus())
 	if status != _const.STATUS_STATUS_ENABLE && status != _const.STATUS_STATUS_DISABLE {
-		return errorsx.InvalidArgument("规则模板状态无效")
+		return errorsx.InvalidArgument("规则状态无效")
 	}
 	if status == _const.STATUS_STATUS_DISABLE {
 		err = c.ensureRuleCanDisable(ctx, oldItem.ID)
@@ -167,7 +205,7 @@ func (c *BaseRedactRuleCase) DeleteBaseRedactRule(ctx context.Context, _ string)
 	if err != nil {
 		return err
 	}
-	return errorsx.ProtectedResourceConflict("脱敏规则模板由系统内置，不支持删除", "base_redact_rule")
+	return errorsx.ProtectedResourceConflict("脱敏规则由系统内置，不支持删除", "base_redact_rule")
 }
 
 // SetBaseRedactRuleStatus 设置脱敏规则模板状态。
@@ -177,7 +215,7 @@ func (c *BaseRedactRuleCase) SetBaseRedactRuleStatus(ctx context.Context, req *a
 		return err
 	}
 	if req.GetStatus() != commonv1.Status_STATUS_ENABLE && req.GetStatus() != commonv1.Status_STATUS_DISABLE {
-		return errorsx.InvalidArgument("规则模板状态无效")
+		return errorsx.InvalidArgument("规则状态无效")
 	}
 	var item *models.BaseRedactRule
 	item, err = c.FindByID(ctx, req.GetId())
@@ -230,12 +268,12 @@ func (c *BaseRedactRuleCase) ensureRuleCanDisable(ctx context.Context, ruleID in
 	return nil
 }
 
-// toBaseRedactRule 转换脱敏规则模板列表项。
+// toBaseRedactRule 转换脱敏规则列表项。
 func toBaseRedactRule(item *models.BaseRedactRule) *adminv1.BaseRedactRule {
 	return &adminv1.BaseRedactRule{Id: item.ID, Code: item.Code, Name: item.Name, RuleType: item.RuleType, Rule: item.DefaultParams, Status: commonv1.Status(item.Status), Remark: item.Remark, CreatedAt: item.CreatedAt.Format("2006-01-02 15:04:05"), UpdatedAt: item.UpdatedAt.Format("2006-01-02 15:04:05")}
 }
 
-// toBaseRedactRuleForm 转换脱敏规则模板表单。
+// toBaseRedactRuleForm 转换脱敏规则表单。
 func toBaseRedactRuleForm(item *models.BaseRedactRule) *adminv1.BaseRedactRuleForm {
 	return &adminv1.BaseRedactRuleForm{Id: item.ID, Code: item.Code, Name: item.Name, RuleType: item.RuleType, Rule: item.DefaultParams, Status: commonv1.Status(item.Status), Remark: item.Remark}
 }

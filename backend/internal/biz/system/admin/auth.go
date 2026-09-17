@@ -86,8 +86,12 @@ func (c *AuthCase) TreeUserMenu(ctx context.Context) (*adminv1.TreeRouteResponse
 		return nil, err
 	}
 
+	roleQuery := c.baseRoleCase.Query(ctx).BaseRole
 	var baseRole *models.BaseRole
-	baseRole, err = c.baseRoleCase.FindByID(ctx, authInfo.RoleId)
+	baseRole, err = c.baseRoleCase.Find(ctx,
+		repository.Select(roleQuery.Code, roleQuery.Menus, roleQuery.Status),
+		repository.Where(roleQuery.ID.Eq(authInfo.RoleId)),
+	)
 	if err != nil {
 		return nil, errorsx.Internal("获取用户菜单失败").WithCause(err)
 	}
@@ -145,8 +149,13 @@ func (c *AuthCase) ListUserButton(ctx context.Context) (*commonv1.StringValues, 
 		return nil, err
 	}
 
+	userQuery := c.baseUserCase.Query(ctx).BaseUser
+	userOpts := []repository.QueryOption{
+		repository.Select(userQuery.RoleID, userQuery.Status),
+		repository.Where(userQuery.ID.Eq(authInfo.UserId)),
+	}
 	var baseUser *models.BaseUser
-	baseUser, err = c.baseUserCase.FindByID(ctx, authInfo.UserId)
+	baseUser, err = c.baseUserCase.Find(ctx, userOpts...)
 	if err != nil {
 		return nil, errorsx.ResourceNotFound("用户不存在").WithCause(err)
 	}
@@ -156,8 +165,12 @@ func (c *AuthCase) ListUserButton(ctx context.Context) (*commonv1.StringValues, 
 	}
 
 	// 查询角色信息
+	roleQuery := c.baseRoleCase.Query(ctx).BaseRole
 	var baseRole *models.BaseRole
-	baseRole, err = c.baseRoleCase.FindByID(ctx, baseUser.RoleID)
+	baseRole, err = c.baseRoleCase.Find(ctx,
+		repository.Select(roleQuery.Code, roleQuery.Menus),
+		repository.Where(roleQuery.ID.Eq(baseUser.RoleID)),
+	)
 	if err != nil {
 		return nil, errorsx.Internal("查询用户按钮权限失败").WithCause(err)
 	}
@@ -200,8 +213,26 @@ func (c *AuthCase) GetUserInfo(ctx context.Context) (*adminv1.UserInfoForm, erro
 		return nil, err
 	}
 
+	userQuery := c.baseUserCase.Query(ctx).BaseUser
+	userOpts := []repository.QueryOption{
+		repository.Select(
+			userQuery.ID,
+			userQuery.TenantID,
+			userQuery.UserName,
+			userQuery.NickName,
+			userQuery.Phone,
+			userQuery.Email,
+			userQuery.IDType,
+			userQuery.IDCode,
+			userQuery.Avatar,
+			userQuery.RoleID,
+			userQuery.DeptID,
+			userQuery.Status,
+		),
+		repository.Where(userQuery.ID.Eq(authInfo.UserId)),
+	}
 	var baseUser *models.BaseUser
-	baseUser, err = c.baseUserCase.FindByID(ctx, authInfo.UserId)
+	baseUser, err = c.baseUserCase.Find(ctx, userOpts...)
 	if err != nil {
 		return nil, errorsx.ResourceNotFound("用户不存在").WithCause(err)
 	}
@@ -211,22 +242,34 @@ func (c *AuthCase) GetUserInfo(ctx context.Context) (*adminv1.UserInfoForm, erro
 	}
 
 	// 查询角色信息
+	roleQuery := c.baseRoleCase.Query(ctx).BaseRole
 	var baseRole *models.BaseRole
-	baseRole, err = c.baseRoleCase.FindByID(ctx, baseUser.RoleID)
+	baseRole, err = c.baseRoleCase.Find(ctx,
+		repository.Select(roleQuery.Code, roleQuery.Name),
+		repository.Where(roleQuery.ID.Eq(baseUser.RoleID)),
+	)
 	if err != nil {
 		return nil, errorsx.Internal("获取用户信息失败").WithCause(err)
 	}
 
 	// 查询部门信息
+	deptQuery := c.baseDeptCase.Query(ctx).BaseDept
 	var baseDept *models.BaseDept
-	baseDept, err = c.baseDeptCase.FindByID(ctx, baseUser.DeptID)
+	baseDept, err = c.baseDeptCase.Find(ctx,
+		repository.Select(deptQuery.Name),
+		repository.Where(deptQuery.ID.Eq(baseUser.DeptID)),
+	)
 	if err != nil {
 		return nil, errorsx.Internal("获取用户信息失败").WithCause(err)
 	}
 
 	// 查询租户信息，用于前端区分默认租户与普通租户展示范围。
+	tenantQuery := c.baseTenantCase.Query(ctx).BaseTenant
 	var baseTenant *models.BaseTenant
-	baseTenant, err = c.baseTenantCase.FindByID(ctx, baseUser.TenantID)
+	baseTenant, err = c.baseTenantCase.Find(ctx,
+		repository.Select(tenantQuery.Code, tenantQuery.Name),
+		repository.Where(tenantQuery.ID.Eq(baseUser.TenantID)),
+	)
 	if err != nil {
 		return nil, errorsx.Internal("获取用户信息失败").WithCause(err)
 	}
@@ -247,8 +290,27 @@ func (c *AuthCase) GetUserProfile(ctx context.Context) (*adminv1.UserProfileForm
 		return nil, err
 	}
 
+	userQuery := c.baseUserCase.Query(ctx).BaseUser
+	userOpts := []repository.QueryOption{
+		repository.Select(
+			userQuery.ID,
+			userQuery.UserName,
+			userQuery.NickName,
+			userQuery.Avatar,
+			userQuery.Gender,
+			userQuery.Phone,
+			userQuery.Email,
+			userQuery.IDType,
+			userQuery.IDCode,
+			userQuery.RoleID,
+			userQuery.DeptID,
+			userQuery.CreatedAt,
+			userQuery.Status,
+		),
+		repository.Where(userQuery.ID.Eq(authInfo.UserId)),
+	}
 	var baseUser *models.BaseUser
-	baseUser, err = c.baseUserCase.FindByID(ctx, authInfo.UserId)
+	baseUser, err = c.baseUserCase.Find(ctx, userOpts...)
 	if err != nil {
 		return nil, errorsx.ResourceNotFound("用户不存在").WithCause(err)
 	}
@@ -257,14 +319,22 @@ func (c *AuthCase) GetUserProfile(ctx context.Context) (*adminv1.UserProfileForm
 		return nil, errorsx.PermissionDenied("账号已被禁用")
 	}
 
+	roleQuery := c.baseRoleCase.Query(ctx).BaseRole
 	var baseRole *models.BaseRole
-	baseRole, err = c.baseRoleCase.FindByID(ctx, baseUser.RoleID)
+	baseRole, err = c.baseRoleCase.Find(ctx,
+		repository.Select(roleQuery.Name),
+		repository.Where(roleQuery.ID.Eq(baseUser.RoleID)),
+	)
 	if err != nil {
 		return nil, errorsx.Internal("获取个人资料失败").WithCause(err)
 	}
 
+	deptQuery := c.baseDeptCase.Query(ctx).BaseDept
 	var baseDept *models.BaseDept
-	baseDept, err = c.baseDeptCase.FindByID(ctx, baseUser.DeptID)
+	baseDept, err = c.baseDeptCase.Find(ctx,
+		repository.Select(deptQuery.Name),
+		repository.Where(deptQuery.ID.Eq(baseUser.DeptID)),
+	)
 	if err != nil {
 		return nil, errorsx.Internal("获取个人资料失败").WithCause(err)
 	}
@@ -292,8 +362,13 @@ func (c *AuthCase) UpdateUserPassword(ctx context.Context, req *adminv1.UserPass
 		return err
 	}
 
+	userQuery := c.baseUserCase.Query(ctx).BaseUser
+	userOpts := []repository.QueryOption{
+		repository.Select(userQuery.ID, userQuery.TenantID, userQuery.Password, userQuery.PasswordHistory),
+		repository.Where(userQuery.ID.Eq(authInfo.UserId)),
+	}
 	var baseUser *models.BaseUser
-	baseUser, err = c.baseUserCase.FindByID(ctx, authInfo.UserId)
+	baseUser, err = c.baseUserCase.Find(ctx, userOpts...)
 	if err != nil {
 		return errorsx.ResourceNotFound("用户不存在").WithCause(err)
 	}
@@ -403,8 +478,13 @@ func (c *AuthCase) UpdateUserProfile(ctx context.Context, req *adminv1.UserProfi
 		return err
 	}
 
+	userQuery := c.baseUserCase.Query(ctx).BaseUser
+	userOpts := []repository.QueryOption{
+		repository.Select(userQuery.Avatar),
+		repository.Where(userQuery.ID.Eq(authInfo.UserId)),
+	}
 	var oldBaseUser *models.BaseUser
-	oldBaseUser, err = c.baseUserCase.FindByID(ctx, authInfo.UserId)
+	oldBaseUser, err = c.baseUserCase.Find(ctx, userOpts...)
 	if err != nil {
 		return errorsx.ResourceNotFound("用户不存在").WithCause(err)
 	}
@@ -462,7 +542,8 @@ func (c *AuthCase) SendPhoneCode(ctx context.Context, req *adminv1.SendPhoneCode
 // findUserIDByPhone 根据手机号查询用户ID
 func (c *AuthCase) findUserIDByPhone(ctx context.Context, phone string) (int64, error) {
 	query := c.baseUserCase.Query(ctx).BaseUser
-	opts := make([]repository.QueryOption, 0, 1)
+	opts := make([]repository.QueryOption, 0, 2)
+	opts = append(opts, repository.Select(query.ID))
 	opts = append(opts, repository.Where(query.Phone.Eq(phone)))
 	baseUser, err := c.baseUserCase.Find(ctx, opts...)
 	if err != nil {

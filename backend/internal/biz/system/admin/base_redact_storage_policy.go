@@ -299,10 +299,7 @@ func (c *BaseRedactStoragePolicyCase) validateStorageForm(ctx context.Context, i
 		if !strings.EqualFold(columnType.Name(), input.GetColumnName()) {
 			continue
 		}
-		databaseType := strings.ToLower(columnType.DatabaseTypeName())
-		switch databaseType {
-		case "char", "varchar", "text", "tinytext", "mediumtext", "longtext", "enum", "set", "json":
-		default:
+		if !redact.IsRedactStringDatabaseType(columnType.DatabaseTypeName()) {
 			return nil, errorsx.InvalidArgument("只有字符串字段支持入库脱敏")
 		}
 		unique, ok := columnType.Unique()
@@ -319,7 +316,7 @@ func (c *BaseRedactStoragePolicyCase) validateStorageForm(ctx context.Context, i
 	if rule.Status != _const.STATUS_STATUS_ENABLE {
 		return nil, errorsx.InvalidArgument("脱敏规则已停用")
 	}
-	_, err = redact.ValidateRuleTemplate(rule.Code, rule.RuleType, input.GetRuleParams())
+	err = kit.ValidateRedactRule(rule.Code, rule.RuleType, input.GetRuleParams())
 	if err != nil {
 		return nil, errorsx.InvalidArgument("入库脱敏规则参数无效").WithCause(err)
 	}

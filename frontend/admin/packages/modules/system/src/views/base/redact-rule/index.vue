@@ -14,7 +14,7 @@
     >
       <template #rule>
         <div class="rule-editor">
-          <div class="rule-description">{{ t(templateDescriptionKey) }}</div>
+          <div v-if="form.remark" class="rule-description">{{ form.remark }}</div>
           <div v-if="form.rule_type === 'MASK'" class="parameter-grid">
             <div class="parameter-item">
               <span>{{ t("system.base.redact_rule.parameter.keep_first") }}</span>
@@ -23,6 +23,10 @@
             <div class="parameter-item">
               <span>{{ t("system.base.redact_rule.parameter.keep_last") }}</span>
               <el-input-number v-model="form.params.keep_last" :min="0" :precision="0" controls-position="right" />
+            </div>
+            <div class="parameter-item">
+              <span>{{ t("system.base.redact_rule.parameter.min_mask") }}</span>
+              <el-input-number v-model="form.params.min_mask" :min="0" :precision="0" controls-position="right" />
             </div>
             <div class="parameter-item">
               <span>{{ t("system.base.redact_rule.parameter.mask_char") }}</span>
@@ -124,6 +128,7 @@ import { Status } from "@liujitcn/kratos-admin-system/rpc/common/v1/enum";
 interface RuleParams {
   keep_first?: number;
   keep_last?: number;
+  min_mask?: number;
   mask_char?: string;
   keep_local_first?: number;
   mask_domain?: boolean;
@@ -152,8 +157,6 @@ const statusOptions = computed(() => [
   { label: t("common.status.enabled"), value: Status.STATUS_ENABLE },
   { label: t("common.status.disabled"), value: Status.STATUS_DISABLE }
 ]);
-const templateDescriptionKey = computed(() => `system.base.redact_rule.description.${form.code || "unknown"}`);
-
 const fields = computed<ProFormField[]>(() => [
   { prop: "code", label: t("system.base.redact_rule.field.code"), component: "input", props: { disabled: true } },
   { prop: "name", label: t("system.base.redact_rule.field.name"), component: "input", props: { disabled: true } },
@@ -194,13 +197,13 @@ const columns = computed<ColumnProps[]>(() => [
   }
 ]);
 
-/** 请求固定规则模板列表。 */
+/** 请求固定规则列表。 */
 async function requestTable(params: PageBaseRedactRuleRequest) {
   const data = await defBaseRedactRuleService.PageBaseRedactRule(buildPageRequest(params));
   return { data: { list: data.base_redact_rules ?? [], total: data.total } };
 }
 
-/** 打开固定规则模板编辑弹窗。 */
+/** 打开固定规则编辑弹窗。 */
 async function openDialog(id: number) {
   resetForm();
   const data = await defBaseRedactRuleService.GetBaseRedactRule({ id });
@@ -208,14 +211,14 @@ async function openDialog(id: number) {
   dialog.visible = true;
 }
 
-/** 重置规则模板编辑表单。 */
+/** 重置规则编辑表单。 */
 function resetForm() {
   dialog.visible = false;
   dialogRef.value?.resetFields();
   Object.assign(form, defaultForm());
 }
 
-/** 提交固定规则模板参数。 */
+/** 提交固定规则参数。 */
 async function submit() {
   const valid = await dialogRef.value?.validate();
   if (!valid) return;
@@ -235,7 +238,7 @@ async function submit() {
   table.value?.getTableList();
 }
 
-/** 切换固定规则模板状态。 */
+/** 切换固定规则状态。 */
 async function changeStatus(row: BaseRedactRule) {
   const next = row.status === Status.STATUS_ENABLE ? Status.STATUS_DISABLE : Status.STATUS_ENABLE;
   try {
@@ -259,44 +262,19 @@ async function changeStatus(row: BaseRedactRule) {
 
 /** 将参数表单同步为运行时规则 JSON。 */
 function syncRule() {
-  form.params = { ...defaultRuleParams(form.rule_type), ...form.params };
   form.rule = JSON.stringify({ [form.rule_type.toLowerCase()]: form.params }, null, 2);
 }
 
-/** 解析规则 JSON 中当前类型的参数。 */
+/** 解析数据库规则 JSON 中当前类型的参数。 */
 function parseRuleParams(ruleType: string, rawRule: string): RuleParams {
   try {
     const value = JSON.parse(rawRule) as Record<string, unknown>;
     const params = value[ruleType.toLowerCase()];
     if (params && typeof params === "object" && !Array.isArray(params)) return params as RuleParams;
   } catch {
-    return defaultRuleParams(ruleType);
+    return {};
   }
-  return defaultRuleParams(ruleType);
-}
-
-/** 返回固定规则模板的默认参数。 */
-function defaultRuleParams(ruleType: string): RuleParams {
-  switch (ruleType) {
-    case "MASK":
-      return { keep_first: 3, keep_last: 4, mask_char: "*" };
-    case "EMAIL":
-      return { keep_local_first: 2, mask_domain: false, mask_char: "*" };
-    case "REGEX":
-      return { pattern: "(?s).+", replacement: "[REDACTED]" };
-    case "TRUNCATE":
-      return { length: 10, suffix: "..." };
-    case "HASH":
-      return { algo: "SHA256" };
-    case "IP":
-      return { keep_octets: 2, mask_char: "x" };
-    case "URL":
-      return { mask_query: true, mask_char: "*" };
-    case "FIXED_LENGTH":
-      return { char: "X" };
-    default:
-      return {};
-  }
+  return {};
 }
 
 /** 返回规则参数的紧凑展示文本。 */
@@ -304,9 +282,9 @@ function ruleSummary(row: BaseRedactRule) {
   return JSON.stringify(parseRuleParams(row.rule_type, row.rule));
 }
 
-/** 返回规则模板表单的初始值。 */
+/** 返回规则表单的初始值。 */
 function defaultForm(): RuleFormState {
-  return { id: 0, code: "", name: "", rule_type: "MASK", rule: "", status: Status.STATUS_ENABLE, remark: "", params: defaultRuleParams("MASK") };
+  return { id: 0, code: "", name: "", rule_type: "", rule: "", status: Status.STATUS_ENABLE, remark: "", params: {} };
 }
 </script>
 

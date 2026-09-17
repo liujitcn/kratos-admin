@@ -433,7 +433,8 @@ func (c *BaseTenantCase) deleteTenantData(ctx context.Context, tenantIDs []int64
 	}
 
 	userQuery := c.baseUserRepo.Query(ctx).BaseUser
-	userOpts := make([]repository.QueryOption, 0, 1)
+	userOpts := make([]repository.QueryOption, 0, 2)
+	userOpts = append(userOpts, repository.Select(userQuery.ID))
 	userOpts = append(userOpts, repository.Where(userQuery.TenantID.In(tenantIDs...)))
 	var users []*models.BaseUser
 	users, err = c.baseUserRepo.List(ctx, userOpts...)

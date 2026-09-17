@@ -7,12 +7,14 @@ import (
 	"github.com/go-kratos/kratos/v3"
 	"github.com/google/wire"
 	"github.com/liujitcn/kratos-admin/backend"
+	"github.com/liujitcn/kratos-admin/backend/pkg/projectaccess"
 	kratoscore "github.com/liujitcn/kratos-core"
 	"github.com/liujitcn/kratos-kit/bootstrap"
 )
 
 // hostProviderSet 将 Admin 的具名贡献收口为 Core 最终集合。
 var hostProviderSet = wire.NewSet(
+	projectaccess.NewLifecycle,
 	provideResources,
 	provideModules,
 	provideTasks,

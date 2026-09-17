@@ -36,5 +36,8 @@ func (c *BaseRoleCase) FindDefaultUser(ctx context.Context) (*models.BaseRole, e
 // FindDefaultByCode 按编码查询默认租户的基础角色。
 func (c *BaseRoleCase) FindDefaultByCode(ctx context.Context, roleCode string) (*models.BaseRole, error) {
 	roleQuery := c.Query(ctx).BaseRole
-	return c.Find(ctx, repository.Where(roleQuery.Code.Eq(roleCode)))
+	return c.Find(ctx,
+		repository.Select(roleQuery.ID, roleQuery.TenantID),
+		repository.Where(roleQuery.Code.Eq(roleCode)),
+	)
 }

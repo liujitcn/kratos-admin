@@ -29,6 +29,7 @@ type RedactPolicyResolver struct {
 	defaultDB               *gorm.DB
 	store                   *StorageValueStore
 	initializeMu            sync.Mutex
+	refreshMu               sync.Mutex
 	runtime                 *storageRuntime
 	storagePolicyRepository *data.BaseRedactStoragePolicyRepository
 	outputPolicyRepository  *data.BaseRedactOutputPolicyRepository
@@ -37,6 +38,7 @@ type RedactPolicyResolver struct {
 	outputPolicies          map[string]redact.FieldPolicy
 	storagePolicies         map[string][]redact.StorageFieldPolicy
 	loadedAt                time.Time
+	refreshAttemptedAt      time.Time
 }
 
 // NewRedactPolicyResolver 构造默认数据库仓储和空缓存，迁移完成后须调用 Initialize。
@@ -91,15 +93,30 @@ func (r *RedactPolicyResolver) Initialize(ctx context.Context) error {
 
 // Refresh 从数据库刷新启用的入库和出库策略。
 func (r *RedactPolicyResolver) Refresh(ctx context.Context) error {
+	if r == nil {
+		return fmt.Errorf("脱敏策略解析器未初始化")
+	}
+	r.refreshMu.Lock()
+	defer r.refreshMu.Unlock()
+	return r.refreshLocked(ctx)
+}
+
+// refreshLocked 从数据库刷新启用的入库和出库策略，调用方必须持有刷新锁。
+func (r *RedactPolicyResolver) refreshLocked(ctx context.Context) error {
 	if r == nil || r.storagePolicyRepository == nil || r.outputPolicyRepository == nil || r.ruleRepository == nil {
 		return fmt.Errorf("脱敏策略仓储未完整初始化")
 	}
+	r.refreshAttemptedAt = time.Now()
 	rules, err := r.ruleRepository.List(ctx)
 	if err != nil {
-		return fmt.Errorf("查询脱敏规则模板失败: %w", err)
+		return fmt.Errorf("查询脱敏规则失败: %w", err)
 	}
 	ruleByID := make(map[int64]*models.BaseRedactRule, len(rules))
 	for _, rule := range rules {
+		err = ValidateRedactRule(rule.Code, rule.RuleType, rule.DefaultParams)
+		if err != nil {
+			return fmt.Errorf("解析脱敏规则 %d 失败: %w", rule.ID, err)
+		}
 		ruleByID[rule.ID] = rule
 	}
 
@@ -141,6 +158,22 @@ func (r *RedactPolicyResolver) Refresh(ctx context.Context) error {
 	return nil
 }
 
+// refreshIfExpired 在缓存过期时串行刷新，避免并发请求重复查询数据库。
+func (r *RedactPolicyResolver) refreshIfExpired(ctx context.Context) error {
+	r.refreshMu.Lock()
+	defer r.refreshMu.Unlock()
+	r.mu.RLock()
+	loadedAt := r.loadedAt
+	r.mu.RUnlock()
+	if time.Since(loadedAt) < policyCacheTTL {
+		return nil
+	}
+	if !r.refreshAttemptedAt.IsZero() && time.Since(r.refreshAttemptedAt) < policyCacheTTL {
+		return nil
+	}
+	return r.refreshLocked(ctx)
+}
+
 // Resolve 按接口和 Proto 字段解析出库策略，仅在初始化成功后自动刷新缓存。
 func (r *RedactPolicyResolver) Resolve(ctx context.Context, fieldRef string) (redact.FieldPolicy, bool) {
 	if r == nil || redact.DirectionFromContext(ctx) != redact.DirectionResponse {
@@ -152,7 +185,7 @@ func (r *RedactPolicyResolver) Resolve(ctx context.Context, fieldRef string) (re
 	policy, ok := r.lookupOutputPolicy(ctx, fieldRef)
 	r.mu.RUnlock()
 	if initialized && time.Since(loadedAt) >= policyCacheTTL {
-		err := r.Refresh(ctx)
+		err := r.refreshIfExpired(ctx)
 		if err != nil {
 			log.Error(fmt.Sprintf("刷新脱敏策略失败: %v", err))
 			return policy, ok
@@ -175,7 +208,7 @@ func (r *RedactPolicyResolver) ListStoragePolicies(ctx context.Context, tableNam
 	policies := append([]redact.StorageFieldPolicy(nil), r.storagePolicies[storagePolicyKey(kitgorm.DefaultClientName, tableName)]...)
 	r.mu.RUnlock()
 	if initialized && time.Since(loadedAt) >= policyCacheTTL {
-		err := r.Refresh(ctx)
+		err := r.refreshIfExpired(ctx)
 		if err == nil {
 			r.mu.RLock()
 			policies = append([]redact.StorageFieldPolicy(nil), r.storagePolicies[storagePolicyKey(kitgorm.DefaultClientName, tableName)]...)
@@ -269,11 +302,11 @@ func storagePolicyKey(sourceName, tableName string) string {
 }
 
 // effectiveRuleParams 返回策略实际使用的完整规则参数。
-func effectiveRuleParams(policyParams, defaultParams string) string {
+func effectiveRuleParams(policyParams, ruleDefaultParams string) string {
 	if policyParams != "" && policyParams != "{}" {
 		return policyParams
 	}
-	return defaultParams
+	return ruleDefaultParams
 }
 
 // authenticationResponseOperation 判断必须保留认证响应原值的协议方法。

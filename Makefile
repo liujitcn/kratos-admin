@@ -202,15 +202,16 @@ docker-buildx-check: docker-check
 docker-config:
 	@test -d "$(DOCKER_CONFIG_DIR)" || (echo "未找到 Docker 配置目录: $(DOCKER_CONFIG_DIR)" && exit 1)
 
-# 构建三端静态资源和当前指定平台的 Docker 镜像。
-docker-build: docker-check
+# 构建三端静态资源并将当前平台的 Docker 镜像加载到本机。
+docker-build: docker-buildx-check
 	@test -f "$(DOCKERFILE)" || (echo "未找到 Dockerfile: $(DOCKERFILE)，请通过 DOCKERFILE 指定有效文件" && exit 1)
 	@$(MAKE) build-frontend
-	@BUILDKIT_PROGRESS=plain "$(DOCKER)" build $(DOCKER_BUILD_ARGS) \
+	@BUILDKIT_PROGRESS=plain "$(DOCKER)" buildx build $(DOCKER_BUILD_ARGS) \
 		--build-arg BUILD_FLAGS="$(BUILD_FLAGS)" \
 		--platform "$(DOCKER_PLATFORM)" \
+		--load \
 		-f "$(DOCKERFILE)" -t "$(IMAGE):$(TAG)" "$(DOCKER_CONTEXT)"
-	@echo "==> Docker 镜像已生成: $(IMAGE):$(TAG) ($(DOCKER_PLATFORM))"
+	@echo "==> Docker 镜像已加载到本机: $(IMAGE):$(TAG) ($(DOCKER_PLATFORM))"
 
 # 构建并输出 Linux AMD64、ARM64 多架构 Docker 镜像。
 docker-build-multiarch: docker-buildx-check
