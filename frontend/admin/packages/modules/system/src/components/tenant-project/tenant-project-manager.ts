@@ -1,8 +1,17 @@
-import type { BaseTenantProject, PageBaseTenantProjectRequest } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_tenant_project";
+import type {
+  BaseTenantProject,
+  PageBaseTenantProjectRequest
+} from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_tenant_project";
 import type { ColumnProps, TableActionProps } from "@liujitcn/kratos-admin-core/components/ProTable/interface";
 import type { TenantProjectExtraData, TenantProjectKey } from "./tenant-project-manager-data";
 
-export { mergeTenantProjectExtraData, tenantProjectKey, type TenantProjectExtraData, type TenantProjectKey } from "./tenant-project-manager-data";
+export {
+  arrangeTenantProjectColumns,
+  mergeTenantProjectExtraData,
+  tenantProjectKey,
+  type TenantProjectExtraData,
+  type TenantProjectKey
+} from "./tenant-project-manager-data";
 
 /** 租户项目单条业务上下文。 */
 export interface TenantProjectContext<TData extends Record<string, unknown> = Record<string, unknown>> extends TenantProjectKey {
@@ -37,10 +46,16 @@ export type TenantProjectAction = Omit<TableActionProps, "disabled" | "hidden" |
   onClick: (context: TenantProjectContext, params?: Record<string, any>) => void | Promise<void>;
 };
 
+/** 租户项目管理的扩展列配置。 */
+export type TenantProjectExtraColumn = ColumnProps & {
+  /** 插入到指定基础字段后面，未配置时默认插入备注字段后面。 */
+  after?: string;
+};
+
 /** 租户项目管理组件属性。 */
 export interface TenantProjectManagerProps {
-  /** 追加到基础列表的表格列。 */
-  extraColumns?: ColumnProps[];
+  /** 追加到基础列表的表格列，可通过 after 指定插入位置。 */
+  extraColumns?: TenantProjectExtraColumn[];
   /** 追加到基础操作列的业务操作。 */
   extraActions?: TenantProjectAction[];
   /** 加载当前页外部业务字段。 */

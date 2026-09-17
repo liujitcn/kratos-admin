@@ -149,7 +149,26 @@ func TestDefaultTenantProjectScope(t *testing.T) {
 	}
 }
 
-// TestProjectCatalogManagement 验证普通租户可在自身租户创建项目但不能跨租户创建。
+// TestDefaultTenantCanQueryAllProjects 验证默认租户查询项目不依赖项目授权记录。
+func TestDefaultTenantCanQueryAllProjects(t *testing.T) {
+	grantService, db, _ := newGrantTestCase(t)
+	store, err := data.NewData(map[string]*kitgorm.Client{kitgorm.DefaultClientName: {DB: db}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	projectService := NewBaseTenantProjectCase(projectaccess.NewLifecycle(), &biz.BaseCase{}, grantService, data.NewTransaction(store), data.NewBaseTenantProjectRepository(store))
+	identity := &authdata.UserTokenPayload{TenantId: 99, TenantCode: kitgorm.DefaultTenantCode, UserId: 200, RoleId: 90, RoleCode: "tenant", DeptId: 90, DataScope: 1}
+	ctx := engine.ContextWithAuthClaims(context.Background(), identity.MakeAuthClaims())
+	result, err := projectService.PageBaseTenantProject(ctx, &adminv1.PageBaseTenantProjectRequest{PageNum: 1, PageSize: 10})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if result.Total != 5 || len(result.BaseTenantProjects) != 5 {
+		t.Fatalf("默认租户项目查询错误: total=%d len=%d", result.Total, len(result.BaseTenantProjects))
+	}
+}
+
+// TestProjectCatalogManagement 验证默认租户可选择目标租户创建项目，普通租户只能查看项目。
 func TestProjectCatalogManagement(t *testing.T) {
 	grantService, db, normalCtx := newGrantTestCase(t)
 	store, err := data.NewData(map[string]*kitgorm.Client{kitgorm.DefaultClientName: {DB: db}})
@@ -161,13 +180,22 @@ func TestProjectCatalogManagement(t *testing.T) {
 	if err != nil || len(options.List) != 5 {
 		t.Fatalf("普通租户项目目录错误: len=%d err=%v", len(options.List), err)
 	}
-	form := &adminv1.BaseTenantProjectForm{TenantId: 1, Code: "normal-create", Name: "普通租户创建", Sort: 1}
-	if err = projectService.CreateBaseTenantProject(normalCtx, form); err != nil {
-		t.Fatalf("普通租户应可在自身租户创建项目: %v", err)
+	defaultIdentity := &authdata.UserTokenPayload{TenantId: 99, TenantCode: kitgorm.DefaultTenantCode, UserId: 200, RoleId: 90, RoleCode: "tenant", DeptId: 90, DataScope: 1}
+	defaultCtx := engine.ContextWithAuthClaims(context.Background(), defaultIdentity.MakeAuthClaims())
+	form := &adminv1.BaseTenantProjectForm{TenantId: 1, Code: "default-create", Name: "默认租户创建", Sort: 1}
+	if err = projectService.CreateBaseTenantProject(defaultCtx, form); err != nil {
+		t.Fatalf("默认租户应可为指定租户创建项目: %v", err)
 	}
-	crossTenantForm := &adminv1.BaseTenantProjectForm{TenantId: 99, Code: "cross-tenant-create", Name: "跨租户创建", Sort: 1}
-	if err = projectService.CreateBaseTenantProject(normalCtx, crossTenantForm); err == nil {
-		t.Fatal("普通租户不应跨租户创建项目")
+	var createdProject models.BaseTenantProject
+	if err = db.Where("code = ?", "default-create").First(&createdProject).Error; err != nil {
+		t.Fatal(err)
+	}
+	if createdProject.TenantID != 1 {
+		t.Fatalf("项目所属租户错误: got=%d", createdProject.TenantID)
+	}
+	normalForm := &adminv1.BaseTenantProjectForm{TenantId: 1, Code: "normal-create", Name: "普通租户创建", Sort: 1}
+	if err = projectService.CreateBaseTenantProject(normalCtx, normalForm); err == nil {
+		t.Fatal("普通租户不应创建项目")
 	}
 }
 

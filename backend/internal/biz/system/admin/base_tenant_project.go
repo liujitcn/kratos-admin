@@ -161,11 +161,16 @@ func (c *BaseTenantProjectCase) GetBaseTenantProject(ctx context.Context, id int
 
 // CreateBaseTenantProject 创建项目。
 func (c *BaseTenantProjectCase) CreateBaseTenantProject(ctx context.Context, req *adminv1.BaseTenantProjectForm) error {
+	err := c.requireProjectManager(ctx)
+	if err != nil {
+		return err
+	}
 	if req.GetId() != 0 {
 		return errorsx.InvalidArgument("新增项目不能指定ID")
 	}
 	baseTenantProject := c.formMapper.ToEntity(req)
-	tenantID, err := c.resolveTenantID(ctx, req.GetTenantId())
+	var tenantID int64
+	tenantID, err = c.resolveTenantID(ctx, req.GetTenantId())
 	if err != nil {
 		return err
 	}
@@ -188,6 +193,10 @@ func (c *BaseTenantProjectCase) CreateBaseTenantProject(ctx context.Context, req
 // UpdateBaseTenantProject 更新项目。
 func (c *BaseTenantProjectCase) UpdateBaseTenantProject(ctx context.Context, req *adminv1.BaseTenantProjectForm) error {
 	var err error
+	err = c.requireProjectManager(ctx)
+	if err != nil {
+		return err
+	}
 	var oldBaseTenantProject *models.BaseTenantProject
 	oldBaseTenantProject, err = c.findProject(ctx, req.GetId())
 	if err != nil {
@@ -220,6 +229,10 @@ func (c *BaseTenantProjectCase) UpdateBaseTenantProject(ctx context.Context, req
 // DeleteBaseTenantProject 删除项目。
 func (c *BaseTenantProjectCase) DeleteBaseTenantProject(ctx context.Context, id string) error {
 	var err error
+	err = c.requireProjectManager(ctx)
+	if err != nil {
+		return err
+	}
 	ids := _string.ConvertStringToInt64Array(id)
 	if len(ids) == 0 {
 		return errorsx.InvalidArgument("请选择项目")
@@ -262,6 +275,10 @@ func (c *BaseTenantProjectCase) DeleteBaseTenantProject(ctx context.Context, id 
 // SetBaseTenantProjectStatus 设置项目状态。
 func (c *BaseTenantProjectCase) SetBaseTenantProjectStatus(ctx context.Context, req *adminv1.SetBaseTenantProjectStatusRequest) error {
 	var err error
+	err = c.requireProjectManager(ctx)
+	if err != nil {
+		return err
+	}
 	var baseTenantProject *models.BaseTenantProject
 	baseTenantProject, err = c.findProject(ctx, req.GetId())
 	if err != nil {
@@ -282,6 +299,18 @@ func (c *BaseTenantProjectCase) SetBaseTenantProjectStatus(ctx context.Context, 
 		return c.lifecycle.Change(ctx, []projectaccess.ProjectKey{{TenantID: baseTenantProject.TenantID, ProjectID: baseTenantProject.ID}}, apply)
 	}
 	return apply(ctx)
+}
+
+// requireProjectManager 校验当前账号是否为项目目录维护者。
+func (c *BaseTenantProjectCase) requireProjectManager(ctx context.Context) error {
+	authInfo, err := c.GetAuthInfo(ctx)
+	if err != nil {
+		return err
+	}
+	if authInfo.TenantCode != gorm.DefaultTenantCode {
+		return errorsx.PermissionDenied("只有默认租户可以维护项目目录")
+	}
+	return nil
 }
 
 // resolveTenantID 解析项目创建时的所属租户并校验租户范围。

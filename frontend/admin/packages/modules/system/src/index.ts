@@ -3,9 +3,11 @@ export type { AdminAiExtension } from "./ai";
 export { default as TenantProjectManager } from "./components/tenant-project/TenantProjectManager.vue";
 export {
   mergeTenantProjectExtraData,
+  arrangeTenantProjectColumns,
   tenantProjectKey,
   type TenantProjectAction,
   type TenantProjectContext,
+  type TenantProjectExtraColumn,
   type TenantProjectExtraData,
   type TenantProjectExtraDataLoadContext,
   type TenantProjectExtraDataLoader,

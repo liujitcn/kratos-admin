@@ -251,10 +251,13 @@ test("国际化自定义翻译使用响应式语言选项并锁定编辑键和�
   assert.match(source, /prop: "locale"[\s\S]*?disabled: dialog\.editing/);
 });
 
-test("租户项目列表不显示租户字段并分开展示项目名称和项目编号", async () => {
+test("租户项目列表按默认租户展示租户字段并支持扩展列定位", async () => {
   const source = await readSource("src/components/tenant-project/TenantProjectManager.vue");
 
-  assert.doesNotMatch(source, /tenantColumns|tenantFormField|prop: "tenant_id"/);
+  assert.match(source, /tenantColumns\(\{ label: t\("common\.field\.tenant"\), order: 1 \}\)/);
+  assert.match(source, /tenantFormField\(\{ label: t\("common\.field\.tenant"\), disabledOnEdit: true \}\)/);
+  assert.match(source, /tenant_id: toRequestTenantId\(params\.tenant_id\)/);
+  assert.match(source, /arrangeTenantProjectColumns\(baseColumns, props\.extraColumns/);
   assert.match(source, /prop: "name", label: t\("system\.base\.tenant_project\.field\.name"\),[\s\S]*?search: \{ el: "input" \}/);
   assert.match(source, /prop: "code", label: t\("system\.base\.tenant_project\.field\.code"\),[\s\S]*?search: \{ el: "input" \}/);
   assert.doesNotMatch(source, /TenantProjectText|common\.field\.tenant\} \/ \$\{t\("common\.field\.project"\)\}/);
