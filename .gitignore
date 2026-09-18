@@ -75,3 +75,4 @@ service_tmp/
 .workbuddy/
 /docs/superpowers/
 /.audit/
+/gui-test-screenshots/

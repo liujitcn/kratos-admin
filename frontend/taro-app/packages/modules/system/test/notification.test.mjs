@@ -58,6 +58,7 @@ async function loadNotificationRuntime(state) {
               loader: 'js',
               contents: `
                 const state = ${stateExpression}
+                export const requestBaseURL = 'http://localhost/api'
                 export function getRequestAccessToken() { return Promise.resolve(state.token) }
                 export function http() {
                   state.summaryCalls += 1
