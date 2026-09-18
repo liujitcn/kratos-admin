@@ -3,6 +3,8 @@ package main
 import (
 	"context"
 
+	"github.com/go-kratos/kratos/v3/log"
+
 	_const "github.com/liujitcn/kratos-admin/backend/internal/const"
 	configv1 "github.com/liujitcn/kratos-kit/api/gen/go/config/v1"
 
@@ -50,6 +52,8 @@ func main() {
 		},
 	)
 	if err := bootstrap.RunApp(ctx, NewApp); err != nil {
+		// 显式记录启动失败原因，保证端口占用等错误在控制台和日志文件中可见。
+		log.Error("服务启动失败", "error", err)
 		panic(err)
 	}
 }
