@@ -135,6 +135,7 @@ import { EditPen, View } from "@element-plus/icons-vue";
 import type { ColumnProps, ProTableInstance } from "@liujitcn/kratos-admin-core/components/ProTable/interface";
 import ProTable from "@liujitcn/kratos-admin-core/components/ProTable";
 import FormDialog from "@liujitcn/kratos-admin-core/components/Dialog/FormDialog.vue";
+import { createDialogRequestController } from "@liujitcn/kratos-admin-core/components/Dialog/interface";
 import type { ProFormField } from "@liujitcn/kratos-admin-core/components/ProForm/interface";
 import { useAuthButtons } from "@liujitcn/kratos-admin-core/auth";
 import { defBaseApiService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/base_api";
@@ -159,6 +160,7 @@ const proTable = ref<ProTableInstance>();
 const editDialogRef = ref<InstanceType<typeof FormDialog>>();
 const detailData = ref<BaseApi>();
 const detailDoc = ref<BaseApiDoc>();
+const detailRequestController = createDialogRequestController();
 
 const detailDrawer = reactive({
   visible: false
@@ -318,19 +320,25 @@ function refreshTable() {
  * 打开 API 详情抽屉。
  */
 async function handleOpenDetail(apiId: number) {
-  const [baseApi, baseApiDoc] = await Promise.all([
-    defBaseApiService.GetBaseApi({ id: apiId }),
-    defBaseApiService.GetBaseApiDoc({ id: apiId })
-  ]);
-  detailData.value = baseApi;
-  detailDoc.value = baseApiDoc;
-  detailDrawer.visible = true;
+  await detailRequestController.open({
+    load: () =>
+      Promise.all([
+        defBaseApiService.GetBaseApi({ id: apiId }),
+        defBaseApiService.GetBaseApiDoc({ id: apiId })
+      ]),
+    commit: ([baseApi, baseApiDoc]) => {
+      detailData.value = baseApi;
+      detailDoc.value = baseApiDoc;
+      detailDrawer.visible = true;
+    }
+  });
 }
 
 /**
  * 关闭详情抽屉并清空旧数据，避免下次打开时短暂展示旧详情。
  */
 function handleCloseDetail() {
+  detailRequestController.invalidate();
   detailDrawer.visible = false;
   detailData.value = undefined;
   detailDoc.value = undefined;

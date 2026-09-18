@@ -3,6 +3,7 @@ syntax = "proto3";
 package system.admin.v1;
 
 import "buf/validate/validate.proto";
+import "base/v1/file.proto";
 import "gnostic/openapi/v3/annotations.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/empty.proto";
@@ -116,4 +117,5 @@ message BaseFile {
   string content_hash = 13 [(gnostic.openapi.v3.property) = {description: "文件内容SHA-256哈希"}]; // 文件内容SHA-256哈希
   int64 created_by = 14 [(gnostic.openapi.v3.property) = {description: "创建者ID"}]; // 创建者ID
   string created_at = 15 [(gnostic.openapi.v3.property) = {description: "创建时间"}]; // 创建时间
+  base.v1.BaseFileAccessMode access_mode = 16 [(gnostic.openapi.v3.property) = {description: "文件访问方式"}]; // 文件访问方式
 }

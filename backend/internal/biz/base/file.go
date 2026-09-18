@@ -95,7 +95,7 @@ func (c *FileCase) MultiUploadFile(ctx context.Context, req *basev1.MultiUploadF
 		if err != nil {
 			return nil, errorsx.Internal("文件上传失败").WithCause(err)
 		}
-		if err = c.recordUploadedFile(ctx, authInfo.TenantId, authInfo.UserId, item.GetName(), item.GetExtname(), item.GetContent(), url); err != nil {
+		if err = c.recordUploadedFile(ctx, authInfo.TenantId, authInfo.UserId, item.GetName(), item.GetExtname(), item.GetContent(), url, item.GetAccessMode()); err != nil {
 			_ = c.OSS.DeleteFile(url)
 			return nil, err
 		}
@@ -131,7 +131,7 @@ func (c *FileCase) UploadFile(ctx context.Context, req *basev1.UploadFileRequest
 	if err != nil {
 		return nil, errorsx.Internal("文件上传失败").WithCause(err)
 	}
-	if err = c.recordUploadedFile(ctx, authInfo.TenantId, authInfo.UserId, file.GetName(), file.GetExtname(), file.GetContent(), url); err != nil {
+	if err = c.recordUploadedFile(ctx, authInfo.TenantId, authInfo.UserId, file.GetName(), file.GetExtname(), file.GetContent(), url, file.GetAccessMode()); err != nil {
 		_ = c.OSS.DeleteFile(url)
 		return nil, err
 	}
@@ -143,7 +143,7 @@ func (c *FileCase) UploadFile(ctx context.Context, req *basev1.UploadFileRequest
 }
 
 // recordUploadedFile 保存上传成功后的文件元数据。
-func (c *FileCase) recordUploadedFile(ctx context.Context, tenantID, userID int64, fileName, extension string, content []byte, objectPath string) error {
+func (c *FileCase) recordUploadedFile(ctx context.Context, tenantID, userID int64, fileName, extension string, content []byte, objectPath string, requestedAccessMode basev1.BaseFileAccessMode) error {
 	if c.baseFileRepo == nil {
 		return errorsx.Internal("文件元数据仓储未配置")
 	}
@@ -153,6 +153,13 @@ func (c *FileCase) recordUploadedFile(ctx context.Context, tenantID, userID int6
 		directory = ""
 	}
 	hash := sha256.Sum256(content)
+	accessMode := requestedAccessMode
+	if accessMode == basev1.BaseFileAccessMode_BASE_FILE_ACCESS_MODE_UNSPECIFIED {
+		accessMode = basev1.BaseFileAccessMode_BASE_FILE_ACCESS_MODE_AUTHORIZED
+	}
+	if accessMode != basev1.BaseFileAccessMode_BASE_FILE_ACCESS_MODE_PUBLIC && accessMode != basev1.BaseFileAccessMode_BASE_FILE_ACCESS_MODE_AUTHORIZED {
+		return errorsx.InvalidArgument("文件访问方式不合法")
+	}
 	now := time.Now()
 	entity := &models.BaseFile{
 		TenantID:      tenantID,
@@ -165,6 +172,7 @@ func (c *FileCase) recordUploadedFile(ctx context.Context, tenantID, userID int6
 		MimeType:      http.DetectContentType(content),
 		Size:          int64(len(content)),
 		LinkURL:       objectPath,
+		AccessMode:    int32(accessMode),
 		ContentHash:   hex.EncodeToString(hash[:]),
 		CreatedBy:     userID,
 		UpdatedBy:     userID,

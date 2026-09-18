@@ -45,7 +45,7 @@ import { Delete, Document, Download } from "@element-plus/icons-vue";
 import { ElNotification, formContextKey, formItemContextKey } from "element-plus";
 import type { UploadProps, UploadRequestOptions, UploadUserFile } from "element-plus";
 import { defFileService } from "@/api/base/v1/file";
-import type { FileInfo } from "@/rpc/base/v1/file";
+import { BaseFileAccessMode, type FileInfo } from "@/rpc/base/v1/file";
 import { useLocaleStore } from "@/locales";
 
 const { t } = useLocaleStore();
@@ -59,6 +59,7 @@ interface UploadFilesProps {
   fileSize?: number;
   fileType?: string[];
   uploadType?: string;
+  accessMode?: BaseFileAccessMode;
 }
 
 const props = withDefaults(defineProps<UploadFilesProps>(), {
@@ -67,7 +68,8 @@ const props = withDefaults(defineProps<UploadFilesProps>(), {
   limit: 5,
   fileSize: 20,
   fileType: () => [],
-  uploadType: "file"
+  uploadType: "file",
+  accessMode: BaseFileAccessMode.BASE_FILE_ACCESS_MODE_AUTHORIZED
 });
 
 const emit = defineEmits<{
@@ -129,7 +131,7 @@ const beforeUpload: UploadProps["beforeUpload"] = rawFile => {
 /** 执行多文件自定义上传。 */
 const handleHttpUpload = async (options: UploadRequestOptions) => {
   try {
-    const api = props.api ?? (file => defFileService.UploadFile(file, props.uploadType));
+    const api = props.api ?? (file => defFileService.UploadFile(file, props.uploadType, props.accessMode));
     const data = await api(options.file);
     options.onSuccess(data);
   } catch (error) {

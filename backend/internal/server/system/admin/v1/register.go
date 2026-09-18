@@ -29,6 +29,7 @@ type Services struct {
 	OauthClient *admin.OauthClientService
 
 	BaseAPICase              *biz.BaseAPICase
+	BaseFileRepository       *data.BaseFileRepository
 	BaseUserRepository       *data.BaseUserRepository
 	OauthClientRepository    *data.OauthClientRepository
 	Authenticator            engine.Authenticator

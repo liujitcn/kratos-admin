@@ -1,10 +1,15 @@
 import type { FileInfo, MultiUploadFileResponse } from '../rpc/base/v1/file'
+import { BaseFileAccessMode } from '../rpc/base/v1/file'
 import { formatSrc } from './index'
 import { getLocaleRequestHeaders, t } from '../locales'
 import { getRequestAccessToken } from './http'
 
 // 文件上传-兼容小程序端、H5端、App端
-export const uploadFile = async (fileType: string, filePath: string): Promise<FileInfo> => {
+export const uploadFile = async (
+  fileType: string,
+  filePath: string,
+  accessMode = BaseFileAccessMode.BASE_FILE_ACCESS_MODE_AUTHORIZED,
+): Promise<FileInfo> => {
   const token = await getRequestAccessToken()
   const res = await uni.uploadFile({
     url: '/v1/base/file',
@@ -12,6 +17,7 @@ export const uploadFile = async (fileType: string, filePath: string): Promise<Fi
     filePath: filePath,
     formData: {
       fileType: fileType,
+      accessMode: String(accessMode),
     },
     header: {
       ...getLocaleRequestHeaders(),
@@ -30,15 +36,20 @@ export const uploadFile = async (fileType: string, filePath: string): Promise<Fi
 export const uploadFileList = async (
   fileType: string,
   filePaths: string[],
+  accessMode = BaseFileAccessMode.BASE_FILE_ACCESS_MODE_AUTHORIZED,
 ): Promise<FileInfo[]> => {
   const results = await Promise.allSettled(
-    filePaths.map((filePath) => uploadFile(fileType, filePath)),
+    filePaths.map((filePath) => uploadFile(fileType, filePath, accessMode)),
   )
   return results.flatMap((result) => (result.status === 'fulfilled' ? [result.value] : []))
 }
 
 // 多文件上传-兼容小程序端、H5端、App端
-export const multiUploadFile = async (fileType: string, files: any): Promise<FileInfo[]> => {
+export const multiUploadFile = async (
+  fileType: string,
+  files: any,
+  accessMode = BaseFileAccessMode.BASE_FILE_ACCESS_MODE_AUTHORIZED,
+): Promise<FileInfo[]> => {
   const token = await getRequestAccessToken()
   const res = await uni.uploadFile({
     url: '/v1/base/file/multi',
@@ -47,6 +58,7 @@ export const multiUploadFile = async (fileType: string, files: any): Promise<Fil
     files: files,
     formData: {
       fileType: fileType,
+      accessMode: String(accessMode),
     },
     header: {
       ...getLocaleRequestHeaders(),

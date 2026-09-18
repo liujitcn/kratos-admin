@@ -7,6 +7,7 @@ import (
 	context "context"
 
 	validate "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
+	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
 	redact "github.com/liujitcn/kratos-kit/redact"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
@@ -22,6 +23,7 @@ var (
 	_ codes.Code
 	_ status.Status
 	_ validate.Rule
+	_ basev1.MultiUploadFileRequest
 	_ emptypb.Empty
 )
 
@@ -182,4 +184,6 @@ func (x *BaseFile) Redact() {
 	// Safe field: CreatedBy
 
 	// Safe field: CreatedAt
+
+	// Safe field: AccessMode
 }

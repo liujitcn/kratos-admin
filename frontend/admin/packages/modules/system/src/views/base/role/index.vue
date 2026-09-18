@@ -25,6 +25,7 @@
       v-model="assignPermDialogVisible"
       :title="t('system.base.role.title.assign_permission', { name: checkedBaseRole.name || '' })"
       size="500"
+      @close="handleCloseAssignPermDialog"
     >
       <div class="perm-toolbar">
         <el-input v-model="permKeywords" clearable class="perm-search" :placeholder="t('system.base.role.placeholder.menu_permission')">
@@ -91,6 +92,7 @@ import { CirclePlus, Delete, EditPen, Position, QuestionFilled, Search, Switch }
 import type { ColumnProps, HeaderActionProps, ProTableInstance } from "@liujitcn/kratos-admin-core/components/ProTable/interface";
 import ProTable from "@liujitcn/kratos-admin-core/components/ProTable";
 import FormDialog from "@liujitcn/kratos-admin-core/components/Dialog/FormDialog.vue";
+import { createDialogRequestController } from "@liujitcn/kratos-admin-core/components/Dialog/interface";
 import type { ProFormField, ProFormOption } from "@liujitcn/kratos-admin-core/components/ProForm/interface";
 import { useAuthButtons } from "@liujitcn/kratos-admin-core/auth";
 import { defBaseRoleService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/base_role";
@@ -231,6 +233,7 @@ const rules = computed(() => ({
 
 const checkedBaseRole = ref<CheckedBaseRole>({});
 const assignPermDialogVisible = ref(false);
+const assignPermRequestController = createDialogRequestController();
 const permKeywords = ref("");
 const isExpanded = ref(true);
 const parentChildLinked = ref(false);
@@ -585,12 +588,23 @@ async function handleOpenAssignPermDialog(row: BaseRole) {
     ElMessage.warning(t("system.base.role.message.protected_permission"));
     return;
   }
-  checkedBaseRole.value = { id: row.id, name: row.name };
-  await loadMenuPermOptions(row.id);
-  assignPermDialogVisible.value = true;
-  nextTick(() => {
-    permTreeRef.value?.setCheckedKeys(row.menus, false);
+  await assignPermRequestController.open({
+    load: () => requestMenuPermOptions(row.id),
+    commit: menuOptions => {
+      checkedBaseRole.value = { id: row.id, name: row.name };
+      menuPermOptions.value = menuOptions;
+      assignPermDialogVisible.value = true;
+      nextTick(() => {
+        permTreeRef.value?.setCheckedKeys(row.menus, false);
+      });
+    }
   });
+}
+
+/** 关闭权限抽屉并使未完成的权限请求失效。 */
+function handleCloseAssignPermDialog() {
+  assignPermRequestController.invalidate();
+  assignPermDialogVisible.value = false;
 }
 
 /**

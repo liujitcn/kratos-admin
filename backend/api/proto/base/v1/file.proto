@@ -31,6 +31,13 @@ service FileService {
   }
 }
 
+// 文件访问方式。
+enum BaseFileAccessMode {
+  BASE_FILE_ACCESS_MODE_UNSPECIFIED = 0;
+  BASE_FILE_ACCESS_MODE_PUBLIC = 1;      // 公开访问
+  BASE_FILE_ACCESS_MODE_AUTHORIZED = 2;  // 携带访问令牌访问
+}
+
 // 批量上传文件请求参数
 message MultiUploadFileRequest {
   repeated UploadFileInfo files = 1 [(gnostic.openapi.v3.property) = {description: "上传文件信息"}, (buf.validate.field).repeated = {min_items: 1}]; // 文件名
@@ -53,6 +60,7 @@ message UploadFileInfo {
   string path = 3 [(gnostic.openapi.v3.property) = {description: "文件路径"}]; // 文件路径
 
   bytes content = 4 [(gnostic.openapi.v3.property) = {description: " 二进制内容将通过 base64 编码传输"}]; //  二进制内容将通过 base64 编码传输
+  BaseFileAccessMode access_mode = 5 [(gnostic.openapi.v3.property) = {description: "文件访问方式"}]; // 文件访问方式
 }
 
 // 下载文件请求参数

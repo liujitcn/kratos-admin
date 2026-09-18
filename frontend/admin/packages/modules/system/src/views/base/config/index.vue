@@ -44,7 +44,11 @@
               />
             </template>
             <template #imageValue>
-              <UploadImg v-model:image-url="formData.value" upload-type="config" />
+              <UploadImg
+                v-model:image-url="formData.value"
+                upload-type="config"
+                :access-mode="imageAccessMode"
+              />
             </template>
             <template #richTextValue>
               <WangEditor v-model:value="formData.value" upload-type="config" />
@@ -138,6 +142,7 @@ import { BaseConfigSite } from "@liujitcn/kratos-admin-system/rpc/base/v1/config
 import { Status } from "@liujitcn/kratos-admin-system/rpc/common/v1/enum";
 import { BaseConfigType } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_config";
 import { I18nTargetType } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_i18n";
+import { BaseFileAccessMode } from "@liujitcn/kratos-admin-system/rpc/base/v1/file";
 import { buildPageRequest, normalizeSelectedIds } from "@liujitcn/kratos-admin-core/table";
 import { t } from "@liujitcn/kratos-admin-core";
 import DynamicI18nEditor from "@liujitcn/kratos-admin-system/components/i18n/DynamicI18nEditor.vue";
@@ -171,6 +176,12 @@ const saving = ref(false);
 const valueFormRef = ref<ProFormInstance>();
 const formValue = ref<RuntimeConfigModel>({});
 const formDefinition = computed(() => runtimeConfigDefinitions.find(item => item.key === formData.key));
+const publicImageConfigKeys = new Set(["adminLogo", "appLogo", "background"]);
+const imageAccessMode = computed(() =>
+  publicImageConfigKeys.has(formData.key)
+    ? BaseFileAccessMode.BASE_FILE_ACCESS_MODE_PUBLIC
+    : BaseFileAccessMode.BASE_FILE_ACCESS_MODE_AUTHORIZED
+);
 const localizedFormFields = computed<ProFormField[]>(() =>
   (formDefinition.value?.fields ?? []).map(field => ({
     prop: field.prop,

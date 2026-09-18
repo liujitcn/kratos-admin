@@ -13,6 +13,7 @@ import (
 
 	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	_ "github.com/google/gnostic/openapiv3"
+	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -248,22 +249,23 @@ func (x *DeleteBaseFileRequest) GetId() int64 {
 
 // 文件资产元数据。
 type BaseFile struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                           // 文件ID
-	TenantId      int64                  `protobuf:"varint,2,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`               // 租户ID
-	Provider      int32                  `protobuf:"varint,3,opt,name=provider,proto3" json:"provider,omitempty"`                               // 存储供应商
-	BucketName    string                 `protobuf:"bytes,4,opt,name=bucket_name,json=bucketName,proto3" json:"bucket_name,omitempty"`          // 存储桶名称
-	FileDirectory string                 `protobuf:"bytes,5,opt,name=file_directory,json=fileDirectory,proto3" json:"file_directory,omitempty"` // 文件目录
-	FileGuid      string                 `protobuf:"bytes,6,opt,name=file_guid,json=fileGuid,proto3" json:"file_guid,omitempty"`                // 文件唯一标识
-	SaveFileName  string                 `protobuf:"bytes,7,opt,name=save_file_name,json=saveFileName,proto3" json:"save_file_name,omitempty"`  // 实际存储文件名
-	FileName      string                 `protobuf:"bytes,8,opt,name=file_name,json=fileName,proto3" json:"file_name,omitempty"`                // 原始文件名
-	Extension     string                 `protobuf:"bytes,9,opt,name=extension,proto3" json:"extension,omitempty"`                              // 文件扩展名
-	MimeType      string                 `protobuf:"bytes,10,opt,name=mime_type,json=mimeType,proto3" json:"mime_type,omitempty"`               // 文件MIME类型
-	Size          int64                  `protobuf:"varint,11,opt,name=size,proto3" json:"size,omitempty"`                                      // 文件大小，单位字节
-	LinkUrl       string                 `protobuf:"bytes,12,opt,name=link_url,json=linkUrl,proto3" json:"link_url,omitempty"`                  // 文件访问地址
-	ContentHash   string                 `protobuf:"bytes,13,opt,name=content_hash,json=contentHash,proto3" json:"content_hash,omitempty"`      // 文件内容SHA-256哈希
-	CreatedBy     int64                  `protobuf:"varint,14,opt,name=created_by,json=createdBy,proto3" json:"created_by,omitempty"`           // 创建者ID
-	CreatedAt     string                 `protobuf:"bytes,15,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`            // 创建时间
+	state         protoimpl.MessageState    `protogen:"open.v1"`
+	Id            int64                     `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                                                    // 文件ID
+	TenantId      int64                     `protobuf:"varint,2,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`                                        // 租户ID
+	Provider      int32                     `protobuf:"varint,3,opt,name=provider,proto3" json:"provider,omitempty"`                                                        // 存储供应商
+	BucketName    string                    `protobuf:"bytes,4,opt,name=bucket_name,json=bucketName,proto3" json:"bucket_name,omitempty"`                                   // 存储桶名称
+	FileDirectory string                    `protobuf:"bytes,5,opt,name=file_directory,json=fileDirectory,proto3" json:"file_directory,omitempty"`                          // 文件目录
+	FileGuid      string                    `protobuf:"bytes,6,opt,name=file_guid,json=fileGuid,proto3" json:"file_guid,omitempty"`                                         // 文件唯一标识
+	SaveFileName  string                    `protobuf:"bytes,7,opt,name=save_file_name,json=saveFileName,proto3" json:"save_file_name,omitempty"`                           // 实际存储文件名
+	FileName      string                    `protobuf:"bytes,8,opt,name=file_name,json=fileName,proto3" json:"file_name,omitempty"`                                         // 原始文件名
+	Extension     string                    `protobuf:"bytes,9,opt,name=extension,proto3" json:"extension,omitempty"`                                                       // 文件扩展名
+	MimeType      string                    `protobuf:"bytes,10,opt,name=mime_type,json=mimeType,proto3" json:"mime_type,omitempty"`                                        // 文件MIME类型
+	Size          int64                     `protobuf:"varint,11,opt,name=size,proto3" json:"size,omitempty"`                                                               // 文件大小，单位字节
+	LinkUrl       string                    `protobuf:"bytes,12,opt,name=link_url,json=linkUrl,proto3" json:"link_url,omitempty"`                                           // 文件访问地址
+	ContentHash   string                    `protobuf:"bytes,13,opt,name=content_hash,json=contentHash,proto3" json:"content_hash,omitempty"`                               // 文件内容SHA-256哈希
+	CreatedBy     int64                     `protobuf:"varint,14,opt,name=created_by,json=createdBy,proto3" json:"created_by,omitempty"`                                    // 创建者ID
+	CreatedAt     string                    `protobuf:"bytes,15,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`                                     // 创建时间
+	AccessMode    basev1.BaseFileAccessMode `protobuf:"varint,16,opt,name=access_mode,json=accessMode,proto3,enum=base.v1.BaseFileAccessMode" json:"access_mode,omitempty"` // 文件访问方式
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -403,11 +405,18 @@ func (x *BaseFile) GetCreatedAt() string {
 	return ""
 }
 
+func (x *BaseFile) GetAccessMode() basev1.BaseFileAccessMode {
+	if x != nil {
+		return x.AccessMode
+	}
+	return basev1.BaseFileAccessMode(0)
+}
+
 var File_system_admin_v1_base_file_proto protoreflect.FileDescriptor
 
 const file_system_admin_v1_base_file_proto_rawDesc = "" +
 	"\n" +
-	"\x1fsystem/admin/v1/base_file.proto\x12\x0fsystem.admin.v1\x1a\x1bbuf/validate/validate.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\x92\x04\n" +
+	"\x1fsystem/admin/v1/base_file.proto\x12\x0fsystem.admin.v1\x1a\x1bbuf/validate/validate.proto\x1a\x12base/v1/file.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\x92\x04\n" +
 	"\x13PageBaseFileRequest\x12G\n" +
 	"\akeyword\x18\x01 \x01(\tB-\xbaG*\x92\x02'原始文件名或内容哈希关键字R\akeyword\x123\n" +
 	"\textension\x18\x02 \x01(\tB\x15\xbaG\x12\x92\x02\x0f文件扩展名R\textension\x120\n" +
@@ -427,7 +436,7 @@ const file_system_admin_v1_base_file_proto_rawDesc = "" +
 	"&system.admin.base.file.get.id.positive\x12\x15文件ID必须大于0\x1a\bthis > 0R\x02id\"\x89\x01\n" +
 	"\x15DeleteBaseFileRequest\x12p\n" +
 	"\x02id\x18\x01 \x01(\x03B`\xbaG\v\x92\x02\b文件ID\xbaHO\xba\x01L\n" +
-	")system.admin.base.file.delete.id.positive\x12\x15文件ID必须大于0\x1a\bthis > 0R\x02id\"\xaa\x06\n" +
+	")system.admin.base.file.delete.id.positive\x12\x15文件ID必须大于0\x1a\bthis > 0R\x02id\"\x82\a\n" +
 	"\bBaseFile\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b文件IDR\x02id\x12+\n" +
 	"\ttenant_id\x18\x02 \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDR\btenantId\x121\n" +
@@ -447,7 +456,9 @@ const file_system_admin_v1_base_file_proto_rawDesc = "" +
 	"\n" +
 	"created_by\x18\x0e \x01(\x03B\x11\xbaG\x0e\x92\x02\v创建者IDR\tcreatedBy\x121\n" +
 	"\n" +
-	"created_at\x18\x0f \x01(\tB\x12\xbaG\x0f\x92\x02\f创建时间R\tcreatedAt2\xfc\x02\n" +
+	"created_at\x18\x0f \x01(\tB\x12\xbaG\x0f\x92\x02\f创建时间R\tcreatedAt\x12V\n" +
+	"\vaccess_mode\x18\x10 \x01(\x0e2\x1b.base.v1.BaseFileAccessModeB\x18\xbaG\x15\x92\x02\x12文件访问方式R\n" +
+	"accessMode2\xfc\x02\n" +
 	"\x0fBaseFileService\x12|\n" +
 	"\fPageBaseFile\x12$.system.admin.v1.PageBaseFileRequest\x1a%.system.admin.v1.PageBaseFileResponse\"\x1f\x82\xd3\xe4\x93\x02\x19\x12\x17/api/v1/admin/base/file\x12s\n" +
 	"\vGetBaseFile\x12#.system.admin.v1.GetBaseFileRequest\x1a\x19.system.admin.v1.BaseFile\"$\x82\xd3\xe4\x93\x02\x1e\x12\x1c/api/v1/admin/base/file/{id}\x12v\n" +
@@ -468,26 +479,28 @@ func file_system_admin_v1_base_file_proto_rawDescGZIP() []byte {
 
 var file_system_admin_v1_base_file_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
 var file_system_admin_v1_base_file_proto_goTypes = []any{
-	(*PageBaseFileRequest)(nil),   // 0: system.admin.v1.PageBaseFileRequest
-	(*PageBaseFileResponse)(nil),  // 1: system.admin.v1.PageBaseFileResponse
-	(*GetBaseFileRequest)(nil),    // 2: system.admin.v1.GetBaseFileRequest
-	(*DeleteBaseFileRequest)(nil), // 3: system.admin.v1.DeleteBaseFileRequest
-	(*BaseFile)(nil),              // 4: system.admin.v1.BaseFile
-	(*emptypb.Empty)(nil),         // 5: google.protobuf.Empty
+	(*PageBaseFileRequest)(nil),    // 0: system.admin.v1.PageBaseFileRequest
+	(*PageBaseFileResponse)(nil),   // 1: system.admin.v1.PageBaseFileResponse
+	(*GetBaseFileRequest)(nil),     // 2: system.admin.v1.GetBaseFileRequest
+	(*DeleteBaseFileRequest)(nil),  // 3: system.admin.v1.DeleteBaseFileRequest
+	(*BaseFile)(nil),               // 4: system.admin.v1.BaseFile
+	(basev1.BaseFileAccessMode)(0), // 5: base.v1.BaseFileAccessMode
+	(*emptypb.Empty)(nil),          // 6: google.protobuf.Empty
 }
 var file_system_admin_v1_base_file_proto_depIdxs = []int32{
 	4, // 0: system.admin.v1.PageBaseFileResponse.base_files:type_name -> system.admin.v1.BaseFile
-	0, // 1: system.admin.v1.BaseFileService.PageBaseFile:input_type -> system.admin.v1.PageBaseFileRequest
-	2, // 2: system.admin.v1.BaseFileService.GetBaseFile:input_type -> system.admin.v1.GetBaseFileRequest
-	3, // 3: system.admin.v1.BaseFileService.DeleteBaseFile:input_type -> system.admin.v1.DeleteBaseFileRequest
-	1, // 4: system.admin.v1.BaseFileService.PageBaseFile:output_type -> system.admin.v1.PageBaseFileResponse
-	4, // 5: system.admin.v1.BaseFileService.GetBaseFile:output_type -> system.admin.v1.BaseFile
-	5, // 6: system.admin.v1.BaseFileService.DeleteBaseFile:output_type -> google.protobuf.Empty
-	4, // [4:7] is the sub-list for method output_type
-	1, // [1:4] is the sub-list for method input_type
-	1, // [1:1] is the sub-list for extension type_name
-	1, // [1:1] is the sub-list for extension extendee
-	0, // [0:1] is the sub-list for field type_name
+	5, // 1: system.admin.v1.BaseFile.access_mode:type_name -> base.v1.BaseFileAccessMode
+	0, // 2: system.admin.v1.BaseFileService.PageBaseFile:input_type -> system.admin.v1.PageBaseFileRequest
+	2, // 3: system.admin.v1.BaseFileService.GetBaseFile:input_type -> system.admin.v1.GetBaseFileRequest
+	3, // 4: system.admin.v1.BaseFileService.DeleteBaseFile:input_type -> system.admin.v1.DeleteBaseFileRequest
+	1, // 5: system.admin.v1.BaseFileService.PageBaseFile:output_type -> system.admin.v1.PageBaseFileResponse
+	4, // 6: system.admin.v1.BaseFileService.GetBaseFile:output_type -> system.admin.v1.BaseFile
+	6, // 7: system.admin.v1.BaseFileService.DeleteBaseFile:output_type -> google.protobuf.Empty
+	5, // [5:8] is the sub-list for method output_type
+	2, // [2:5] is the sub-list for method input_type
+	2, // [2:2] is the sub-list for extension type_name
+	2, // [2:2] is the sub-list for extension extendee
+	0, // [0:2] is the sub-list for field type_name
 }
 
 func init() { file_system_admin_v1_base_file_proto_init() }

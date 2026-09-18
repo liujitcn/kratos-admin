@@ -112,6 +112,10 @@
       "types": "./dist/package/declarations/src/components/Dialog/ProDialog.vue.d.ts",
       "default": "./dist/package/src/components/Dialog/ProDialog.vue"
     },
+    "./components/Dialog/interface": {
+      "types": "./dist/package/declarations/src/components/Dialog/interface/index.d.ts",
+      "default": "./dist/package/src/components/Dialog/interface/index.ts"
+    },
     "./components/Dialog/PasswordVerifyDialog.vue": {
       "types": "./dist/package/declarations/src/components/Dialog/PasswordVerifyDialog.vue.d.ts",
       "default": "./dist/package/src/components/Dialog/PasswordVerifyDialog.vue"
@@ -183,6 +187,14 @@
     "./components/Upload/Img.vue": {
       "types": "./dist/package/declarations/src/components/Upload/Img.vue.d.ts",
       "default": "./dist/package/src/components/Upload/Img.vue"
+    },
+    "./components/Upload/FileAsset.vue": {
+      "types": "./dist/package/declarations/src/components/Upload/FileAsset.vue.d.ts",
+      "default": "./dist/package/src/components/Upload/FileAsset.vue"
+    },
+    "./components/Upload/ImageAsset.vue": {
+      "types": "./dist/package/declarations/src/components/Upload/ImageAsset.vue.d.ts",
+      "default": "./dist/package/src/components/Upload/ImageAsset.vue"
     },
     "./components/WangEditor/index.vue": {
       "types": "./dist/package/declarations/src/components/WangEditor/index.vue.d.ts",

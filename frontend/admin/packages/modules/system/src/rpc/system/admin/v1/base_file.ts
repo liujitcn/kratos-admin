@@ -5,6 +5,7 @@
 // source: system/admin/v1/base_file.proto
 
 /* eslint-disable */
+import type { BaseFileAccessMode } from "../../../base/v1/file";
 import type { Empty } from "../../../google/protobuf/empty";
 
 /** 文件资产分页查询条件。 */
@@ -75,6 +76,8 @@ export interface BaseFile {
   created_by: number;
   /** 创建时间 */
   created_at: string;
+  /** 文件访问方式 */
+  access_mode: BaseFileAccessMode;
 }
 
 /** Admin文件资产管理服务。 */

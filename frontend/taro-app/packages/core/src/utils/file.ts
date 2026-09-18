@@ -1,17 +1,22 @@
 import Taro from '@tarojs/taro'
 import type { FileInfo, MultiUploadFileResponse } from '../rpc/base/v1/file'
+import { BaseFileAccessMode } from '../rpc/base/v1/file'
 import { getLocaleRequestHeaders, t } from '../locales'
 import { formatSrc } from './index'
 import { getRequestAccessToken, requestBaseURL } from './http'
 
 /** 上传单个文件。 */
-export async function uploadFile(fileType: string, filePath: string): Promise<FileInfo> {
+export async function uploadFile(
+  fileType: string,
+  filePath: string,
+  accessMode = BaseFileAccessMode.BASE_FILE_ACCESS_MODE_AUTHORIZED,
+): Promise<FileInfo> {
   const token = await getRequestAccessToken()
   const response = await Taro.uploadFile({
     url: `${requestBaseURL}/v1/base/file`,
     name: 'file',
     filePath,
-    formData: { fileType },
+    formData: { fileType, accessMode: String(accessMode) },
     header: {
       ...getLocaleRequestHeaders(),
       'source-client': 'miniapp',
@@ -23,8 +28,12 @@ export async function uploadFile(fileType: string, filePath: string): Promise<Fi
 }
 
 /** 并发上传文件列表。 */
-export async function uploadFileList(fileType: string, filePaths: string[]): Promise<FileInfo[]> {
-  const results = await Promise.allSettled(filePaths.map((filePath) => uploadFile(fileType, filePath)))
+export async function uploadFileList(
+  fileType: string,
+  filePaths: string[],
+  accessMode = BaseFileAccessMode.BASE_FILE_ACCESS_MODE_AUTHORIZED,
+): Promise<FileInfo[]> {
+  const results = await Promise.allSettled(filePaths.map((filePath) => uploadFile(fileType, filePath, accessMode)))
   return results.flatMap((result) => (result.status === 'fulfilled' ? [result.value] : []))
 }
 

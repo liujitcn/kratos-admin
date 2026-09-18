@@ -10,18 +10,17 @@ import {
   ElDropdown,
   ElDropdownItem,
   ElDropdownMenu,
-  ElImage,
   ElSwitch,
   ElTableColumn,
-  ElTag,
-  ElText
+  ElTag
 } from "element-plus";
 import DictLabel from "@/components/Dict/DictLabel.vue";
 import { ColumnProps, HeaderRenderScope, RenderScope, TableActionProps } from "@/components/ProTable/interface";
 import type { TableAlign } from "@/utils/proTable";
 import { filterEnum, formatValue, handleProp, handleRowAccordingToProp } from "@/utils";
-import { formatPrice, formatSrc } from "@/utils/utils";
+import { formatPrice } from "@/utils/utils";
 import { t } from "@/locales";
+import ImageAsset from "@/components/Upload/ImageAsset.vue";
 
 const props = defineProps<{
   column: ColumnProps;
@@ -161,30 +160,19 @@ const renderImageCell = (item: ColumnProps, scope: RenderScope<any>) => {
       : (imageProps.src ?? handleRowAccordingToProp(scope.row, item.prop!));
   const rawPreviewSrc = typeof imageProps.previewSrc === "function" ? imageProps.previewSrc(scope) : (imageProps.previewSrc ?? rawSrc);
   if (!rawSrc || rawSrc === "--") return "--";
-  const src = formatSrc(String(rawSrc));
-  const previewSrc = formatSrc(String(rawPreviewSrc));
   const thumbWidth = typeof imageProps.width === "number" ? `${imageProps.width}px` : (imageProps.width ?? "60px");
   const thumbHeight = typeof imageProps.height === "number" ? `${imageProps.height}px` : (imageProps.height ?? "60px");
   return h(
-    ElImage,
+    ImageAsset,
     {
-      src,
-      previewSrcList: [previewSrc],
-      previewTeleported: true,
-      zoomRate: 1.2,
-      maxScale: 7,
-      minScale: 0.2,
-      showProgress: true,
-      initialIndex: 0,
-      fit: "cover",
+      src: String(rawSrc),
+      preview: true,
+      previewSrc: String(rawPreviewSrc),
       style: {
         width: thumbWidth,
         height: thumbHeight,
         borderRadius: "var(--admin-page-radius)"
       }
-    },
-    {
-      error: () => h(ElText, { type: "info", size: "small" }, () => t("common.message.no_data"))
     }
   );
 };

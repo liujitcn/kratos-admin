@@ -8,6 +8,7 @@
     />
 
     <ProDialog
+      ref="detailDialogRef"
       v-model="detailVisible"
       :title="detail?.file_name || t('system.base.file.detail')"
       width="min(960px, calc(100vw - 32px))"
@@ -58,6 +59,7 @@
           </el-descriptions-item>
           <el-descriptions-item :label="t('system.base.file.field.mime')">{{ detail.mime_type || "-" }}</el-descriptions-item>
           <el-descriptions-item :label="t('system.base.file.field.size')">{{ formatFileSize(detail.size) }}</el-descriptions-item>
+          <el-descriptions-item :label="t('system.base.file.field.access_mode')">{{ accessModeLabel(detail.access_mode) }}</el-descriptions-item>
           <el-descriptions-item :label="t('system.base.file.field.path')" :span="2">
             <code class="file-meta__value">{{ detail.link_url }}</code>
           </el-descriptions-item>
@@ -89,12 +91,14 @@ import { t } from "@liujitcn/kratos-admin-core";
 import { defFileService } from "@liujitcn/kratos-admin-core/api/base/v1/file";
 import { defBaseFileService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/base_file";
 import type { BaseFile, PageBaseFileRequest } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_file";
+import { BaseFileAccessMode } from "@liujitcn/kratos-admin-system/rpc/base/v1/file";
 
 defineOptions({ name: "BaseFile", inheritAttrs: false });
 
 const { BUTTONS } = useAuthButtons();
 const { isDefaultTenant, tenantColumns, toRequestTenantId, loadTenantOptions } = useTenantScope();
 const proTable = ref<ProTableInstance>();
+const detailDialogRef = ref<InstanceType<typeof ProDialog>>();
 const detailVisible = ref(false);
 const detail = ref<BaseFile>();
 const previewLoading = ref(false);
@@ -117,6 +121,7 @@ const columns = computed<ColumnProps[]>(() => [
   { prop: "extension", label: t("system.base.file.field.extension"), width: 100, search: { el: "input" } },
   { prop: "mime_type", label: t("system.base.file.field.mime"), minWidth: 180 },
   { prop: "size", label: t("system.base.file.field.size"), width: 120, align: "right", render: scope => formatFileSize((scope.row as BaseFile).size) },
+  { prop: "access_mode", label: t("system.base.file.field.access_mode"), width: 120, render: scope => accessModeLabel((scope.row as BaseFile).access_mode) },
   { prop: "content_hash", label: t("system.base.file.field.hash"), minWidth: 220 },
   ...tenantColumns({ label: t("system.base.file.field.tenant"), minWidth: 100 }),
   { prop: "created_at", align: "center", label: t("common.field.created_at"), minWidth: 180 },
@@ -157,16 +162,18 @@ async function requestBaseFileTable(params: PageBaseFileRequest) {
 /** 查看文件资产详情。 */
 async function handleView(row: BaseFile) {
   const requestId = ++viewRequestId;
-  detailVisible.value = true;
-  detail.value = undefined;
   resetPreview();
   try {
-    const loadedDetail = await defBaseFileService.GetBaseFile({ id: row.id });
-    if (requestId !== viewRequestId) return;
-    detail.value = loadedDetail;
-    await loadPreview(loadedDetail, requestId);
+    await detailDialogRef.value?.open({
+      load: () => defBaseFileService.GetBaseFile({ id: row.id }),
+      commit: loadedDetail => {
+        detail.value = loadedDetail;
+      }
+    });
+    if (requestId !== viewRequestId || !detail.value) return;
+    await loadPreview(detail.value, requestId);
   } catch {
-    if (requestId === viewRequestId) detailVisible.value = false;
+    if (requestId === viewRequestId) detailDialogRef.value?.close();
   }
 }
 
@@ -225,6 +232,12 @@ function getPreviewKind(file: BaseFile): PreviewKind {
   if (mimeType === "application/pdf") return "pdf";
   if (mimeType.startsWith("text/") || mimeType === "application/json") return "text";
   return "unsupported";
+}
+
+/** 返回文件访问方式的本地化名称。 */
+function accessModeLabel(accessMode: BaseFileAccessMode) {
+  if (accessMode === BaseFileAccessMode.BASE_FILE_ACCESS_MODE_PUBLIC) return t("system.base.file.access_mode.public");
+  return t("system.base.file.access_mode.authorized");
 }
 
 /** 判断异步预览请求是否仍对应当前打开的文件详情。 */

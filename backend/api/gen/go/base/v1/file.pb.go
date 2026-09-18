@@ -26,6 +26,56 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// 文件访问方式。
+type BaseFileAccessMode int32
+
+const (
+	BaseFileAccessMode_BASE_FILE_ACCESS_MODE_UNSPECIFIED BaseFileAccessMode = 0
+	BaseFileAccessMode_BASE_FILE_ACCESS_MODE_PUBLIC      BaseFileAccessMode = 1 // 公开访问
+	BaseFileAccessMode_BASE_FILE_ACCESS_MODE_AUTHORIZED  BaseFileAccessMode = 2 // 携带访问令牌访问
+)
+
+// Enum value maps for BaseFileAccessMode.
+var (
+	BaseFileAccessMode_name = map[int32]string{
+		0: "BASE_FILE_ACCESS_MODE_UNSPECIFIED",
+		1: "BASE_FILE_ACCESS_MODE_PUBLIC",
+		2: "BASE_FILE_ACCESS_MODE_AUTHORIZED",
+	}
+	BaseFileAccessMode_value = map[string]int32{
+		"BASE_FILE_ACCESS_MODE_UNSPECIFIED": 0,
+		"BASE_FILE_ACCESS_MODE_PUBLIC":      1,
+		"BASE_FILE_ACCESS_MODE_AUTHORIZED":  2,
+	}
+)
+
+func (x BaseFileAccessMode) Enum() *BaseFileAccessMode {
+	p := new(BaseFileAccessMode)
+	*p = x
+	return p
+}
+
+func (x BaseFileAccessMode) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (BaseFileAccessMode) Descriptor() protoreflect.EnumDescriptor {
+	return file_base_v1_file_proto_enumTypes[0].Descriptor()
+}
+
+func (BaseFileAccessMode) Type() protoreflect.EnumType {
+	return &file_base_v1_file_proto_enumTypes[0]
+}
+
+func (x BaseFileAccessMode) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use BaseFileAccessMode.Descriptor instead.
+func (BaseFileAccessMode) EnumDescriptor() ([]byte, []int) {
+	return file_base_v1_file_proto_rawDescGZIP(), []int{0}
+}
+
 // 批量上传文件请求参数
 type MultiUploadFileRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -164,10 +214,11 @@ func (x *UploadFileRequest) GetFile() *UploadFileInfo {
 // 上传文件信息
 type UploadFileInfo struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`       // 文件名
-	Extname       string                 `protobuf:"bytes,2,opt,name=extname,proto3" json:"extname,omitempty"` // 文件扩展名
-	Path          string                 `protobuf:"bytes,3,opt,name=path,proto3" json:"path,omitempty"`       // 文件路径
-	Content       []byte                 `protobuf:"bytes,4,opt,name=content,proto3" json:"content,omitempty"` //  二进制内容将通过 base64 编码传输
+	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`                                                                // 文件名
+	Extname       string                 `protobuf:"bytes,2,opt,name=extname,proto3" json:"extname,omitempty"`                                                          // 文件扩展名
+	Path          string                 `protobuf:"bytes,3,opt,name=path,proto3" json:"path,omitempty"`                                                                // 文件路径
+	Content       []byte                 `protobuf:"bytes,4,opt,name=content,proto3" json:"content,omitempty"`                                                          //  二进制内容将通过 base64 编码传输
+	AccessMode    BaseFileAccessMode     `protobuf:"varint,5,opt,name=access_mode,json=accessMode,proto3,enum=base.v1.BaseFileAccessMode" json:"access_mode,omitempty"` // 文件访问方式
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -228,6 +279,13 @@ func (x *UploadFileInfo) GetContent() []byte {
 		return x.Content
 	}
 	return nil
+}
+
+func (x *UploadFileInfo) GetAccessMode() BaseFileAccessMode {
+	if x != nil {
+		return x.AccessMode
+	}
+	return BaseFileAccessMode_BASE_FILE_ACCESS_MODE_UNSPECIFIED
 }
 
 // 下载文件请求参数
@@ -354,12 +412,14 @@ const file_base_v1_file_proto_rawDesc = "" +
 	"\x17MultiUploadFileResponse\x12A\n" +
 	"\x05files\x18\x01 \x03(\v2\x11.base.v1.FileInfoB\x18\xbaG\x15\x92\x02\x12文件上传结果R\x05files\"`\n" +
 	"\x11UploadFileRequest\x12K\n" +
-	"\x04file\x18\x01 \x01(\v2\x17.base.v1.UploadFileInfoB\x1e\xbaG\x15\x92\x02\x12上传文件信息\xbaH\x03\xc8\x01\x01R\x04file\"\xdd\x01\n" +
+	"\x04file\x18\x01 \x01(\v2\x17.base.v1.UploadFileInfoB\x1e\xbaG\x15\x92\x02\x12上传文件信息\xbaH\x03\xc8\x01\x01R\x04file\"\xb5\x02\n" +
 	"\x0eUploadFileInfo\x12#\n" +
 	"\x04name\x18\x01 \x01(\tB\x0f\xbaG\f\x92\x02\t文件名R\x04name\x12/\n" +
 	"\aextname\x18\x02 \x01(\tB\x15\xbaG\x12\x92\x02\x0f文件扩展名R\aextname\x12&\n" +
 	"\x04path\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f文件路径R\x04path\x12M\n" +
-	"\acontent\x18\x04 \x01(\fB3\xbaG0\x92\x02- 二进制内容将通过 base64 编码传输R\acontent\"\xb5\x01\n" +
+	"\acontent\x18\x04 \x01(\fB3\xbaG0\x92\x02- 二进制内容将通过 base64 编码传输R\acontent\x12V\n" +
+	"\vaccess_mode\x18\x05 \x01(\x0e2\x1b.base.v1.BaseFileAccessModeB\x18\xbaG\x15\x92\x02\x12文件访问方式R\n" +
+	"accessMode\"\xb5\x01\n" +
 	"\x13DownloadFileRequest\x12#\n" +
 	"\x04name\x18\x01 \x01(\tB\x0f\xbaG\f\x92\x02\t文件名R\x04name\x12y\n" +
 	"\x04path\x18\x02 \x01(\tBe\xbaG\x0f\x92\x02\f文件路径\xbaHP\xba\x01M\n" +
@@ -367,7 +427,11 @@ const file_base_v1_file_proto_rawDesc = "" +
 	"\bFileInfo\x12$\n" +
 	"\x03url\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f文件路径R\x03url\x12#\n" +
 	"\x04name\x18\x02 \x01(\tB\x0f\xbaG\f\x92\x02\t文件名R\x04name\x12/\n" +
-	"\aextname\x18\x03 \x01(\tB\x15\xbaG\x12\x92\x02\x0f文件扩展名R\aextname2\xc8\x02\n" +
+	"\aextname\x18\x03 \x01(\tB\x15\xbaG\x12\x92\x02\x0f文件扩展名R\aextname*\x83\x01\n" +
+	"\x12BaseFileAccessMode\x12%\n" +
+	"!BASE_FILE_ACCESS_MODE_UNSPECIFIED\x10\x00\x12 \n" +
+	"\x1cBASE_FILE_ACCESS_MODE_PUBLIC\x10\x01\x12$\n" +
+	" BASE_FILE_ACCESS_MODE_AUTHORIZED\x10\x022\xc8\x02\n" +
 	"\vFileService\x12x\n" +
 	"\x0fMultiUploadFile\x12\x1f.base.v1.MultiUploadFileRequest\x1a .base.v1.MultiUploadFileResponse\"\"\x82\xd3\xe4\x93\x02\x1c:\x01*\"\x17/api/v1/base/file/multi\x12Y\n" +
 	"\n" +
@@ -387,31 +451,34 @@ func file_base_v1_file_proto_rawDescGZIP() []byte {
 	return file_base_v1_file_proto_rawDescData
 }
 
+var file_base_v1_file_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
 var file_base_v1_file_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
 var file_base_v1_file_proto_goTypes = []any{
-	(*MultiUploadFileRequest)(nil),  // 0: base.v1.MultiUploadFileRequest
-	(*MultiUploadFileResponse)(nil), // 1: base.v1.MultiUploadFileResponse
-	(*UploadFileRequest)(nil),       // 2: base.v1.UploadFileRequest
-	(*UploadFileInfo)(nil),          // 3: base.v1.UploadFileInfo
-	(*DownloadFileRequest)(nil),     // 4: base.v1.DownloadFileRequest
-	(*FileInfo)(nil),                // 5: base.v1.FileInfo
-	(*wrapperspb.BytesValue)(nil),   // 6: google.protobuf.BytesValue
+	(BaseFileAccessMode)(0),         // 0: base.v1.BaseFileAccessMode
+	(*MultiUploadFileRequest)(nil),  // 1: base.v1.MultiUploadFileRequest
+	(*MultiUploadFileResponse)(nil), // 2: base.v1.MultiUploadFileResponse
+	(*UploadFileRequest)(nil),       // 3: base.v1.UploadFileRequest
+	(*UploadFileInfo)(nil),          // 4: base.v1.UploadFileInfo
+	(*DownloadFileRequest)(nil),     // 5: base.v1.DownloadFileRequest
+	(*FileInfo)(nil),                // 6: base.v1.FileInfo
+	(*wrapperspb.BytesValue)(nil),   // 7: google.protobuf.BytesValue
 }
 var file_base_v1_file_proto_depIdxs = []int32{
-	3, // 0: base.v1.MultiUploadFileRequest.files:type_name -> base.v1.UploadFileInfo
-	5, // 1: base.v1.MultiUploadFileResponse.files:type_name -> base.v1.FileInfo
-	3, // 2: base.v1.UploadFileRequest.file:type_name -> base.v1.UploadFileInfo
-	0, // 3: base.v1.FileService.MultiUploadFile:input_type -> base.v1.MultiUploadFileRequest
-	2, // 4: base.v1.FileService.UploadFile:input_type -> base.v1.UploadFileRequest
-	4, // 5: base.v1.FileService.DownloadFile:input_type -> base.v1.DownloadFileRequest
-	1, // 6: base.v1.FileService.MultiUploadFile:output_type -> base.v1.MultiUploadFileResponse
-	5, // 7: base.v1.FileService.UploadFile:output_type -> base.v1.FileInfo
-	6, // 8: base.v1.FileService.DownloadFile:output_type -> google.protobuf.BytesValue
-	6, // [6:9] is the sub-list for method output_type
-	3, // [3:6] is the sub-list for method input_type
-	3, // [3:3] is the sub-list for extension type_name
-	3, // [3:3] is the sub-list for extension extendee
-	0, // [0:3] is the sub-list for field type_name
+	4, // 0: base.v1.MultiUploadFileRequest.files:type_name -> base.v1.UploadFileInfo
+	6, // 1: base.v1.MultiUploadFileResponse.files:type_name -> base.v1.FileInfo
+	4, // 2: base.v1.UploadFileRequest.file:type_name -> base.v1.UploadFileInfo
+	0, // 3: base.v1.UploadFileInfo.access_mode:type_name -> base.v1.BaseFileAccessMode
+	1, // 4: base.v1.FileService.MultiUploadFile:input_type -> base.v1.MultiUploadFileRequest
+	3, // 5: base.v1.FileService.UploadFile:input_type -> base.v1.UploadFileRequest
+	5, // 6: base.v1.FileService.DownloadFile:input_type -> base.v1.DownloadFileRequest
+	2, // 7: base.v1.FileService.MultiUploadFile:output_type -> base.v1.MultiUploadFileResponse
+	6, // 8: base.v1.FileService.UploadFile:output_type -> base.v1.FileInfo
+	7, // 9: base.v1.FileService.DownloadFile:output_type -> google.protobuf.BytesValue
+	7, // [7:10] is the sub-list for method output_type
+	4, // [4:7] is the sub-list for method input_type
+	4, // [4:4] is the sub-list for extension type_name
+	4, // [4:4] is the sub-list for extension extendee
+	0, // [0:4] is the sub-list for field type_name
 }
 
 func init() { file_base_v1_file_proto_init() }
@@ -424,13 +491,14 @@ func file_base_v1_file_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_base_v1_file_proto_rawDesc), len(file_base_v1_file_proto_rawDesc)),
-			NumEnums:      0,
+			NumEnums:      1,
 			NumMessages:   6,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
 		GoTypes:           file_base_v1_file_proto_goTypes,
 		DependencyIndexes: file_base_v1_file_proto_depIdxs,
+		EnumInfos:         file_base_v1_file_proto_enumTypes,
 		MessageInfos:      file_base_v1_file_proto_msgTypes,
 	}.Build()
 	File_base_v1_file_proto = out.File

@@ -34,6 +34,7 @@ export const useUserStore = defineStore("admin-user", {
     isLoggingOut: false,
     authVersion: 0,
     authInvalidated: false,
+    userInfoLoaded: false,
     userInfo: defaultUserInfo
   }),
   getters: {},
@@ -53,6 +54,7 @@ export const useUserStore = defineStore("admin-user", {
     /** 设置用户信息 */
     setUserInfo(userInfo: UserState["userInfo"]) {
       this.userInfo = userInfo;
+      this.userInfoLoaded = true;
     },
     /** 根据接口返回统一更新令牌信息 */
     updateTokenAuth(accessToken: string, tokenType: string, expiresIn?: number) {
@@ -90,9 +92,13 @@ export const useUserStore = defineStore("admin-user", {
     },
     /** 获取用户信息 */
     async getUserInfo() {
-      const data = await defAuthService.GetUserInfo({});
-      this.setUserInfo(data);
-      return data;
+      try {
+        const data = await defAuthService.GetUserInfo({});
+        this.setUserInfo(data);
+        return data;
+      } finally {
+        this.userInfoLoaded = true;
+      }
     },
     /** 清理认证数据 */
     clearAuthData() {
@@ -102,6 +108,7 @@ export const useUserStore = defineStore("admin-user", {
       useAuthStore().$reset();
       this.authVersion += 1;
       this.authInvalidated = true;
+      this.userInfoLoaded = false;
       this.setToken("");
       this.setTokenType("");
       this.setTokenExpiresAt(0);

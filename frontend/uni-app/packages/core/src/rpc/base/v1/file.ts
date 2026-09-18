@@ -7,6 +7,15 @@
 /* eslint-disable */
 import type { BytesValue } from "../../google/protobuf/wrappers";
 
+/** 文件访问方式。 */
+export enum BaseFileAccessMode {
+  BASE_FILE_ACCESS_MODE_UNSPECIFIED = 0,
+  /** BASE_FILE_ACCESS_MODE_PUBLIC - 公开访问 */
+  BASE_FILE_ACCESS_MODE_PUBLIC = 1,
+  /** BASE_FILE_ACCESS_MODE_AUTHORIZED - 携带访问令牌访问 */
+  BASE_FILE_ACCESS_MODE_AUTHORIZED = 2,
+}
+
 /** 批量上传文件请求参数 */
 export interface MultiUploadFileRequest {
   /** 文件名 */
@@ -35,6 +44,8 @@ export interface UploadFileInfo {
   path: string;
   /** 二进制内容将通过 base64 编码传输 */
   content: Uint8Array;
+  /** 文件访问方式 */
+  access_mode: BaseFileAccessMode;
 }
 
 /** 下载文件请求参数 */

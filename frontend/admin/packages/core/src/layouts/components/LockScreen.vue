@@ -9,7 +9,7 @@
       </header>
       <div class="lock-dialog-body">
         <div class="lock-avatar lock-avatar--setup">
-          <img :src="avatarSrc" :alt="t('core.layout.avatar')" @error="handleAvatarError" />
+          <ImageAsset :src="avatarSrc" :alt="t('core.layout.avatar')" :fallback="defaultAvatar" @error="handleAvatarError" />
         </div>
         <div class="lock-user-name">{{ displayName }}</div>
         <form class="lock-form" @submit.prevent="handleLock">
@@ -46,7 +46,7 @@
       </button>
       <section v-else class="unlock-panel" :aria-label="t('core.layout.lock_screen')">
         <div class="lock-avatar lock-avatar--unlock">
-          <img :src="avatarSrc" :alt="t('core.layout.avatar')" @error="handleAvatarError" />
+          <ImageAsset :src="avatarSrc" :alt="t('core.layout.avatar')" :fallback="defaultAvatar" @error="handleAvatarError" />
         </div>
         <form class="lock-form" @submit.prevent="handleUnlock">
           <el-input
@@ -103,6 +103,7 @@ import defaultAvatar from "@/assets/images/avatar.png";
 import { useLocaleStore } from "@/locales";
 import { useLockScreenStore } from "@/stores/modules/lockScreen";
 import { useUserStore } from "@/stores/modules/user";
+import ImageAsset from "@/components/Upload/ImageAsset.vue";
 
 const router = useRouter();
 const userStore = useUserStore();

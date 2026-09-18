@@ -1,13 +1,23 @@
 <template>
   <el-dropdown ref="dropdownRef" trigger="click" placement="bottom-end" popper-class="header-avatar-dropdown">
     <div class="avatar">
-      <img :src="avatarSrc" :alt="t('core.layout.avatar')" @error="handleAvatarError" />
+      <ImageAsset
+        v-if="userInfoReady"
+        :src="avatarSrc"
+        :alt="t('core.layout.avatar')"
+        :fallback="defaultAvatar"
+      />
     </div>
     <template #dropdown>
       <div class="user-panel">
         <div class="user-panel__summary">
           <div class="user-panel__avatar">
-            <img :src="avatarSrc" :alt="t('core.layout.avatar')" @error="handleAvatarError" />
+            <ImageAsset
+              v-if="userInfoReady"
+              :src="avatarSrc"
+              :alt="t('core.layout.avatar')"
+              :fallback="defaultAvatar"
+            />
           </div>
           <div class="user-panel__identity">
             <div class="user-panel__name">{{ displayName }}</div>
@@ -40,7 +50,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from "vue";
+import { computed, ref } from "vue";
 import { LOGIN_URL } from "@/config";
 import { useRouter } from "vue-router";
 import { useUserStore } from "@/stores/modules/user";
@@ -51,6 +61,7 @@ import { navigateTo } from "@/utils/router";
 import { getAdminUserMenuActions } from "@/modules";
 import { useLocaleStore } from "@/locales";
 import { useLockScreenStore } from "@/stores/modules/lockScreen";
+import ImageAsset from "@/components/Upload/ImageAsset.vue";
 
 const router = useRouter();
 const userStore = useUserStore();
@@ -59,7 +70,8 @@ const lockScreenStore = useLockScreenStore();
 const userMenuActions = getAdminUserMenuActions();
 const dropdownRef = ref<DropdownInstance>();
 const { t } = useLocaleStore();
-const avatarSrc = ref(defaultAvatar);
+const userInfoReady = computed(() => userStore.userInfoLoaded);
+const avatarSrc = computed(() => userStore.userInfo.avatar || defaultAvatar);
 const displayName = computed(() => userStore.userInfo.nick_name || userStore.userInfo.user_name || t("core.layout.not_set"));
 const roleName = computed(() => userStore.userInfo.role_name || t("core.layout.role_unassigned"));
 const deptName = computed(() => userStore.userInfo.dept_name || t("core.layout.department_unassigned"));
@@ -70,24 +82,6 @@ const availableUserMenuActions = computed(() => {
     return menu?.path ? [{ ...action, path: menu.path }] : [];
   });
 });
-
-/**
- * 同步头部头像展示，优先使用用户头像，为空时回退默认头像。
- *
- * @param avatar 用户头像地址
- */
-const syncAvatarSrc = (avatar?: string) => {
-  // 用户未上传头像时，统一回退到本地默认头像。
-  avatarSrc.value = avatar || defaultAvatar;
-};
-
-watch(
-  () => userStore.userInfo.avatar,
-  avatar => {
-    syncAvatarSrc(avatar);
-  },
-  { immediate: true }
-);
 
 /** 退出登录并清理当前登录态。 */
 const logout = () => {
@@ -103,11 +97,6 @@ const logout = () => {
     router.replace(LOGIN_URL);
     ElMessage.success(t("core.layout.logout_success"));
   });
-};
-
-/** 头像加载失败时兜底显示默认头像，避免出现破图。 */
-const handleAvatarError = () => {
-  avatarSrc.value = defaultAvatar;
 };
 
 /**
@@ -134,7 +123,7 @@ const lockScreen = () => {
   border: 2px solid rgb(255 255 255 / 85%);
   border-radius: 50%;
   box-shadow: 0 8px 18px rgb(15 23 42 / 12%);
-  img {
+  :deep(img) {
     display: block;
     width: 100%;
     height: 100%;
@@ -161,7 +150,7 @@ const lockScreen = () => {
     overflow: hidden;
     background: #edf2f7;
     border-radius: 50%;
-    img {
+    :deep(img) {
       display: block;
       width: 100%;
       height: 100%;

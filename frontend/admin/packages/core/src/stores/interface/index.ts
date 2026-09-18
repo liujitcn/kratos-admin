@@ -61,6 +61,8 @@ export interface UserState {
   authVersion: number;
   /** 当前认证是否已被本地显式清理。 */
   authInvalidated: boolean;
+  /** 用户资料接口是否已经完成首次加载。 */
+  userInfoLoaded: boolean;
   userInfo: UserInfoForm;
 }
 

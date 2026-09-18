@@ -13,7 +13,7 @@
     <div class="base-layout">
       <div class="avatar-panel">
         <div class="avatar-shell">
-          <el-avatar :src="avatarSrc" :size="116" @error="handleAvatarError" />
+          <ImageAsset :src="avatarSrc" :fallback="defaultAvatar" class="profile-avatar" @error="handleAvatarError" />
           <el-button class="avatar-trigger" circle type="primary" @click="triggerFileUpload">
             <el-icon><Camera /></el-icon>
           </el-button>
@@ -100,6 +100,7 @@ import defaultAvatar from "@liujitcn/kratos-admin-core/assets/images/avatar.png"
 import ProDialog from "@liujitcn/kratos-admin-core/components/Dialog/ProDialog.vue";
 import ProForm from "@liujitcn/kratos-admin-core/components/ProForm/index.vue";
 import type { ProFormField, ProFormInstance } from "@liujitcn/kratos-admin-core/components/ProForm/interface";
+import ImageAsset from "@liujitcn/kratos-admin-core/components/Upload/ImageAsset.vue";
 
 /** 个人中心基础资料组件属性。 */
 interface ProfileBaseProps {
@@ -342,6 +343,15 @@ function handleDialogClosed() {
 .avatar-shell {
   position: relative;
   display: inline-flex;
+  width: 116px;
+  height: 116px;
+}
+.profile-avatar {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
 }
 .avatar-trigger {
   position: absolute;

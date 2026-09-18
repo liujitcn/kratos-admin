@@ -23,7 +23,7 @@
         </slot>
       </div>
       <template #file="{ file }">
-        <img :src="formatSrc(file.url ?? '')" class="upload-image" />
+        <ImageAsset :src="file.url ?? ''" class="upload-image" />
         <div class="upload-handle" @click.stop>
           <div class="handle-icon" @click="handlePictureCardPreview(file)">
             <el-icon><ZoomIn /></el-icon>
@@ -44,14 +44,15 @@
 </template>
 
 <script setup lang="ts" name="UploadImgs">
-import { ref, computed, inject, watch } from "vue";
+import { ref, computed, inject, watch, onBeforeUnmount } from "vue";
 import { Plus } from "@element-plus/icons-vue";
 import { defFileService } from "@/api/base/v1/file";
-import { formatSrc } from "@/utils/utils";
+import { loadFileAssetSource } from "@/utils/fileAsset";
 import type { UploadProps, UploadFile, UploadUserFile, UploadRequestOptions } from "element-plus";
 import { ElNotification, formContextKey, formItemContextKey } from "element-plus";
-import type { FileInfo } from "@/rpc/base/v1/file";
+import { BaseFileAccessMode, type FileInfo } from "@/rpc/base/v1/file";
 import { useLocaleStore } from "@/locales";
+import ImageAsset from "@/components/Upload/ImageAsset.vue";
 
 const { t } = useLocaleStore();
 
@@ -60,6 +61,7 @@ interface UploadFileProps {
   fileList: UploadUserFile[];
   api?: (file: File) => Promise<FileInfo>; // 上传图片的 api 方法，默认使用当前文件服务 ==> 非必传
   uploadType?: string; // 上传文件业务类型 ==> 非必传（默认为 image）
+  accessMode?: BaseFileAccessMode; // 文件访问方式 ==> 非必传（默认为授权访问）
   drag?: boolean; // 是否支持拖拽上传 ==> 非必传（默认为 true）
   disabled?: boolean; // 是否禁用上传组件 ==> 非必传（默认为 false）
   limit?: number; // 最大图片上传数 ==> 非必传（默认为 5张）
@@ -73,6 +75,7 @@ interface UploadFileProps {
 const props = withDefaults(defineProps<UploadFileProps>(), {
   fileList: () => [],
   uploadType: "image",
+  accessMode: BaseFileAccessMode.BASE_FILE_ACCESS_MODE_AUTHORIZED,
   drag: true,
   disabled: false,
   limit: 5,
@@ -133,7 +136,7 @@ const beforeUpload: UploadProps["beforeUpload"] = rawFile => {
 const handleHttpUpload = async (options: UploadRequestOptions) => {
   try {
     // 优先使用页面显式传入的业务上传类型，避免不同业务图片都落到同一个 image 分类。
-    const api = props.api ?? (file => defFileService.UploadFile(file, props.uploadType));
+    const api = props.api ?? (file => defFileService.UploadFile(file, props.uploadType, props.accessMode));
     const data = await api(options.file);
     options.onSuccess(data);
   } catch (error) {
@@ -201,9 +204,15 @@ const handleExceed = () => {
 const viewImageUrl = ref("");
 const imgViewVisible = ref(false);
 const handlePictureCardPreview: UploadProps["onPreview"] = file => {
-  viewImageUrl.value = formatSrc(file.url ?? "");
-  imgViewVisible.value = true;
+  void loadFileAssetSource(file.url ?? "").then(url => {
+    viewImageUrl.value = url;
+    imgViewVisible.value = true;
+  });
 };
+
+onBeforeUnmount(() => {
+  if (viewImageUrl.value.startsWith("blob:")) URL.revokeObjectURL(viewImageUrl.value);
+});
 </script>
 
 <style scoped lang="scss">
