@@ -11,6 +11,7 @@ import (
 	sync "sync"
 	unsafe "unsafe"
 
+	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	_ "github.com/google/gnostic/openapiv3"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
@@ -413,7 +414,7 @@ var File_system_admin_v1_base_table_backup_record_proto protoreflect.FileDescrip
 
 const file_system_admin_v1_base_table_backup_record_proto_rawDesc = "" +
 	"\n" +
-	".system/admin/v1/base_table_backup_record.proto\x12\x0fsystem.admin.v1\x1a\x1cgoogle/api/annotations.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a'system/admin/v1/base_table_backup.proto\"\x8d\x06\n" +
+	".system/admin/v1/base_table_backup_record.proto\x12\x0fsystem.admin.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a'system/admin/v1/base_table_backup.proto\"\x8d\x06\n" +
 	"\x15BaseTableBackupRecord\x12$\n" +
 	"\x02id\x18\x01 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e备份记录IDR\x02id\x121\n" +
 	"\tbackup_id\x18\x02 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e备份配置IDR\bbackupId\x126\n" +
@@ -438,14 +439,14 @@ const file_system_admin_v1_base_table_backup_record_proto_rawDesc = "" +
 	"\vfinished_at\x18\r \x01(\tB\x12\xbaG\x0f\x92\x02\f完成时间R\n" +
 	"finishedAt\x123\n" +
 	"\vverified_at\x18\x0e \x01(\tB\x12\xbaG\x0f\x92\x02\f校验时间R\n" +
-	"verifiedAt\"\xef\x02\n" +
+	"verifiedAt\"\x83\x03\n" +
 	" PageBaseTableBackupRecordRequest\x121\n" +
 	"\tbackup_id\x18\x01 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e备份配置IDR\bbackupId\x126\n" +
 	"\vsource_name\x18\x02 \x01(\tB\x15\xbaG\x12\x92\x02\x0f数据源名称R\n" +
 	"sourceName\x12]\n" +
-	"\x06status\x18\x03 \x01(\x0e2,.system.admin.v1.BaseTableBackupRecordStatusB\x12\xbaG\x0f\x92\x02\f备份状态H\x00R\x06status\x88\x01\x01\x129\n" +
-	"\bpage_num\x18e \x01(\x03B\x1e\xbaG\x1b\x8a\x02\t\t\x00\x00\x00\x00\x00\x00\xf0?\x92\x02\f当前页码R\apageNum\x12;\n" +
-	"\tpage_size\x18f \x01(\x03B\x1e\xbaG\x1b\x8a\x02\t\t\x00\x00\x00\x00\x00\x00$@\x92\x02\f每页行数R\bpageSizeB\t\n" +
+	"\x06status\x18\x03 \x01(\x0e2,.system.admin.v1.BaseTableBackupRecordStatusB\x12\xbaG\x0f\x92\x02\f备份状态H\x00R\x06status\x88\x01\x01\x12D\n" +
+	"\bpage_num\x18e \x01(\x03B)\xbaG\x1b\x8a\x02\t\t\x00\x00\x00\x00\x00\x00\xf0?\x92\x02\f当前页码\xbaH\b\"\x06\x18\xc0\x84=(\x01R\apageNum\x12D\n" +
+	"\tpage_size\x18f \x01(\x03B'\xbaG\x1b\x8a\x02\t\t\x00\x00\x00\x00\x00\x00$@\x92\x02\f每页行数\xbaH\x06\"\x04\x18d(\x01R\bpageSizeB\t\n" +
 	"\a_status\"\xc4\x01\n" +
 	"!PageBaseTableBackupRecordResponse\x12{\n" +
 	"\x19base_table_backup_records\x18\x01 \x03(\v2&.system.admin.v1.BaseTableBackupRecordB\x18\xbaG\x15\x92\x02\x12备份记录列表R\x16baseTableBackupRecords\x12\"\n" +

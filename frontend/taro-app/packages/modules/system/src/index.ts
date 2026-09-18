@@ -13,6 +13,6 @@ registerUserStoreExtension({
   onSilentLogout: stopNotificationPolling,
 })
 
-export { pauseNotificationPolling, resumeNotificationPolling }
+export { pauseNotificationPolling, resumeNotificationPolling, startNotificationPolling }
 export { systemModule }
 export default systemModule

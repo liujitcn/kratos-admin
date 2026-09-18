@@ -2,7 +2,7 @@
   <div class="table-box">
     <ProTable ref="proTable" row-key="id" :columns="resolvedColumns" :request-api="requestTable" />
 
-    <ProDialog v-model="dialog.visible" :title="config.detailTitle" width="1280px" @close="handleCloseDialog">
+    <ProDialog ref="dialogRef" v-model="dialog.visible" :title="config.detailTitle" width="1280px" @close="handleCloseDialog">
       <el-descriptions border :column="2" class="detail-container">
         <el-descriptions-item
           v-for="field in config.detailFields"
@@ -93,6 +93,7 @@ export interface LogTableConfig {
 
 const props = defineProps<{ config: LogTableConfig }>();
 const proTable = ref<ProTableInstance>();
+const dialogRef = ref<InstanceType<typeof ProDialog>>();
 const detail = reactive<Record<string, unknown>>({});
 const dialog = reactive({ visible: false });
 const traceItems = ref<BaseLogTraceItem[]>([]);
@@ -107,27 +108,33 @@ async function requestTable(params: Record<string, unknown>) {
 
 /** 打开审计详情弹窗。 */
 async function handleOpenDialog(id: string) {
-  const value = await props.config.get(id);
-  Object.keys(detail).forEach(key => delete detail[key]);
-  Object.assign(detail, value);
-  dialog.visible = true;
-  traceItems.value = [];
-  const requestID = String(detail.request_id ?? "");
-  const traceID = String(detail.trace_id ?? "");
-  if (!props.config.trace || (!requestID && !traceID)) return;
-  traceLoading.value = true;
-  try {
-    traceItems.value = await props.config.trace(requestID, traceID);
-  } catch {
-    traceItems.value = [];
-  } finally {
-    traceLoading.value = false;
-  }
+  await dialogRef.value?.open({
+    load: async () => {
+      const value = await props.config.get(id);
+      const requestID = String(value.request_id ?? "");
+      const traceID = String(value.trace_id ?? "");
+      let traces: BaseLogTraceItem[] = [];
+      if (props.config.trace && (requestID || traceID)) {
+        try {
+          traces = await props.config.trace(requestID, traceID);
+        } catch {
+          traces = [];
+        }
+      }
+      return { value, traces };
+    },
+    commit: ({ value, traces }) => {
+      Object.keys(detail).forEach(key => delete detail[key]);
+      Object.assign(detail, value);
+      traceItems.value = traces;
+      traceLoading.value = false;
+    }
+  });
 }
 
 /** 关闭并清理审计详情弹窗。 */
 function handleCloseDialog() {
-  dialog.visible = false;
+  dialogRef.value?.close();
   Object.keys(detail).forEach(key => delete detail[key]);
   traceItems.value = [];
   traceLoading.value = false;

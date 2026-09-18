@@ -212,13 +212,14 @@ async function requestTable(params: PageBaseRedactRuleRequest) {
 
 /** 打开新增或编辑弹窗。 */
 async function openDialog(id?: number) {
-  resetForm();
-  if (id !== undefined) {
-    const data = await defBaseRedactRuleService.GetBaseRedactRule({ id });
-    Object.assign(form, data, { params: parseRuleParams(data.rule_type, data.rule) });
-  }
-  dialog.titleKey = id !== undefined ? "common.action.edit_resource" : "common.action.create_resource";
-  dialog.visible = true;
+  await dialogRef.value?.open({
+    load: () => (id !== undefined ? defBaseRedactRuleService.GetBaseRedactRule({ id }) : undefined),
+    commit: data => {
+      resetForm();
+      if (data) Object.assign(form, data, { params: parseRuleParams(data.rule_type, data.rule) });
+      dialog.titleKey = id !== undefined ? "common.action.edit_resource" : "common.action.create_resource";
+    }
+  });
 }
 
 /** 重置规则编辑表单。 */

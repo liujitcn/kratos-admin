@@ -16,6 +16,7 @@ inputs:
   - directory: .
     paths:
       - proto/base/v1/ai_message.proto
+      - proto/base/v1/ai_search.proto
       - proto/base/v1/ai_session.proto
       - proto/base/v1/ai_tool.proto
       - proto/base/v1/notification.proto

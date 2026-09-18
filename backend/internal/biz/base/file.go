@@ -49,12 +49,17 @@ func NewFileCase(baseCase *biz.BaseCase, baseFileRepo *data.BaseFileRepository) 
 func (c *FileCase) DeleteFile(oldFile string, newFile string) {
 	// 新旧文件不一致时，删除历史文件资源。
 	if newFile == "" || oldFile != newFile {
-		err := validateFilePath(oldFile)
+		// 存储字段保存的是浏览器访问路径，先转换为 OSS 对象路径再删除。
+		objectPath, err := objectFilePath(oldFile)
 		if err != nil {
 			log.Error(fmt.Sprintf("DeleteFile %v", err))
 			return
 		}
-		err = c.OSS.DeleteFile(oldFile)
+		// 外部地址的文件不属于本地 OSS 管理范围，跳过删除。
+		if strings.HasPrefix(objectPath, "http://") || strings.HasPrefix(objectPath, "https://") {
+			return
+		}
+		err = c.OSS.DeleteFile(objectPath)
 		// 删除单个旧文件失败时，只记录日志不阻断调用方流程。
 		if err != nil {
 			log.Error(fmt.Sprintf("DeleteFile %v", err))
@@ -228,6 +233,11 @@ func objectFilePath(filePath string) (string, error) {
 		return "", errorsx.InvalidArgument("文件路径不合法")
 	}
 	return strings.TrimPrefix(normalized, "/"), nil
+}
+
+// ObjectFilePath 将浏览器访问路径转换为 OSS 对象路径，供跨模块清理本地文件使用。
+func ObjectFilePath(filePath string) (string, error) {
+	return objectFilePath(filePath)
 }
 
 // publicFileURL 将本地 OSS 对象路径转换为统一的浏览器访问路径。

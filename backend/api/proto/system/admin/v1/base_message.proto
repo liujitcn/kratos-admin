@@ -36,8 +36,10 @@ message PageBaseMessageRequest {
   optional int64 category_id = 2 [(gnostic.openapi.v3.property) = {description: "消息分类ID"}]; // 消息分类ID
   optional string title = 3 [(gnostic.openapi.v3.property) = {description: "消息标题"}]; // 消息标题
   optional .base.v1.MessageStatus status = 4 [(gnostic.openapi.v3.property) = {description: "消息状态"}, (buf.validate.field).enum = {defined_only: true}]; // 消息状态
-  int64 page_num = 101 [(gnostic.openapi.v3.property) = {description: "当前页码", default: {number: 1}}]; // 当前页码
-  int64 page_size = 102 [(gnostic.openapi.v3.property) = {description: "每页数量", default: {number: 10}}]; // 每页数量
+  int64 page_num = 101 [(gnostic.openapi.v3.property) = {description: "当前页码", default: {number: 1}},
+    (buf.validate.field).int64 = {gte: 1, lte: 1000000}]; // 当前页码
+  int64 page_size = 102 [(gnostic.openapi.v3.property) = {description: "每页数量", default: {number: 10}},
+    (buf.validate.field).int64 = {gte: 1, lte: 100}]; // 每页数量
 }
 
 // 消息分页响应。

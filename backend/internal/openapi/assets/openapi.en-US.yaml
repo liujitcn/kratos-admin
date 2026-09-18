@@ -6018,6 +6018,25 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/system.app.v1.ListBaseMenuResponse'
+    /api/v1/base/ai/search:
+        post:
+            tags:
+                - AiSearchService
+            description: Search public information on the web and return result summaries
+            operationId: AiSearchService_SearchAiWeb
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/base.v1.SearchAiWebRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.SearchAiWebResponse'
     /api/v1/base/ai/session:
         get:
             tags:
@@ -8349,6 +8368,39 @@ components:
                     type: string
                     description: failure message ID
             description: AI assistant failure message Retry request
+        base.v1.SearchAiWebItem:
+            type: object
+            properties:
+                title:
+                    type: string
+                    description: Result title
+                url:
+                    type: string
+                    description: Result URL
+                snippet:
+                    type: string
+                    description: Result summary
+            description: AI assistant web search result
+        base.v1.SearchAiWebRequest:
+            type: object
+            properties:
+                query:
+                    type: string
+                    description: Search keyword
+                limit:
+                    type: integer
+                    description: "Number of results to return: 0 uses the default of 5; maximum 10"
+                    format: int32
+            description: AI assistant web search request
+        base.v1.SearchAiWebResponse:
+            type: object
+            properties:
+                items:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/base.v1.SearchAiWebItem'
+                    description: Search result list
+            description: AI assistant web search response
         base.v1.SendAiMessageRequest:
             type: object
             properties:
@@ -14627,6 +14679,8 @@ components:
 tags:
     - name: AiMessageService
       description: Base AI assistant message service
+    - name: AiSearchService
+      description: Base AI assistant web search service
     - name: AiSessionService
       description: Base AI assistant session service
     - name: AiToolService
@@ -14676,9 +14730,9 @@ tags:
     - name: BaseLoginPolicyService
       description: admin login policy management service.
     - name: BaseMenuService
-      description: admin menu management service
-    - name: BaseMenuService
       description: app menu service
+    - name: BaseMenuService
+      description: admin menu management service
     - name: BaseMessageCategoryService
       description: Admin message category management service.
     - name: BaseMessageService

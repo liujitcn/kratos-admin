@@ -2,6 +2,7 @@ syntax = "proto3";
 
 package system.admin.v1;
 
+import "buf/validate/validate.proto";
 import "gnostic/openapi/v3/annotations.proto";
 import "google/api/annotations.proto";
 
@@ -43,12 +44,14 @@ message PageBaseJobLogRequest {
   int64 page_num = 101 [(gnostic.openapi.v3.property) = {
     description: "当前页码"
     default: {number: 1}
-  }]; // 当前页码
+  },
+    (buf.validate.field).int64 = {gte: 1, lte: 1000000}]; // 当前页码
 
   int64 page_size = 102 [(gnostic.openapi.v3.property) = {
     description: "每一页的行数"
     default: {number: 10}
-  }]; // 每一页的行数
+  },
+    (buf.validate.field).int64 = {gte: 1, lte: 100}]; // 每一页的行数
 }
 
 // 定时任务日志分页响应

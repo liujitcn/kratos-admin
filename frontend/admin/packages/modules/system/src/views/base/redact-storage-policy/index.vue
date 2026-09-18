@@ -217,21 +217,29 @@ const headerActions = computed<HeaderActionProps[]>(() => [{ label: t("common.ac
 /** 请求入库脱敏策略分页列表。 */
 async function requestTable(params: PageBaseRedactStoragePolicyRequest) { const data = await defBaseRedactStoragePolicyService.PageBaseRedactStoragePolicy(buildPageRequest(params)); return { data: { list: data.base_redact_storage_policies ?? [], total: data.total } }; }
 /** 加载脱敏规则选项。 */
-async function loadRules() { const data = await defBaseRedactRuleService.PageBaseRedactRule({ code: "", name: "", rule_type: "", page_num: 1, page_size: 100 }); ruleCatalog.value = data.base_redact_rules ?? []; ruleOptions.value = ruleCatalog.value.map(item => ({ label: `${item.name} (${item.code})`, value: item.id, disabled: item.status !== Status.STATUS_ENABLE })); }
+async function loadRules() { const rules = await requestRules(); ruleCatalog.value = rules.catalog; ruleOptions.value = rules.options; }
+/** 请求脱敏规则选项。 */
+async function requestRules() { const data = await defBaseRedactRuleService.PageBaseRedactRule({ code: "", name: "", rule_type: "", page_num: 1, page_size: 100 }); const catalog = data.base_redact_rules ?? []; return { catalog, options: catalog.map(item => ({ label: `${item.name} (${item.code})`, value: item.id, disabled: item.status !== Status.STATUS_ENABLE })) }; }
 /** 数据源变更后清空下级选择并加载数据表。 */
 async function handleSourceChange(sourceName: string) { columnsRequestRevision += 1; form.source_name = sourceName; form.table_name = ""; form.column_name = ""; form.column_rows = []; tableOptions.value = []; await loadTables(); }
 /** 数据表变更后加载字段表格。 */
 async function handleTableChange(tableName: string) { columnsRequestRevision += 1; form.table_name = tableName; form.column_name = ""; form.column_rows = []; await loadColumns(); }
 /** 加载数据源选项。 */
-async function loadSourceOptions() { const data = await defBaseTableSourceService.OptionBaseTableSource({}); sourceOptions.value = (data.value ?? []).map(value => ({ label: value, value })); }
+async function loadSourceOptions() { sourceOptions.value = await requestSourceOptions(); }
+/** 请求数据源选项。 */
+async function requestSourceOptions() { const data = await defBaseTableSourceService.OptionBaseTableSource({}); return (data.value ?? []).map(value => ({ label: value, value })); }
 /** 加载指定数据源的数据表选项。 */
-async function loadTables(sourceName = form.source_name) { if (!sourceName) { tableOptions.value = []; return; } const data = await defCodeGenTableService.ListCodeGenDatabaseTable({ source_name: sourceName }); tableOptions.value = (data.tables ?? []).map((item: CodeGenDatabaseTable) => ({ label: item.comment ? `${item.comment}（${item.name}）` : item.name, value: item.name })); }
+async function loadTables(sourceName = form.source_name) { tableOptions.value = await requestTables(sourceName); }
+/** 请求指定数据源的数据表选项。 */
+async function requestTables(sourceName: string) { if (!sourceName) return []; const data = await defCodeGenTableService.ListCodeGenDatabaseTable({ source_name: sourceName }); return (data.tables ?? []).map((item: CodeGenDatabaseTable) => ({ label: item.comment ? `${item.comment}（${item.name}）` : item.name, value: item.name })); }
 /** 预加载数据表中文注释，供列表显示。 */
 async function loadTableComments() { await loadSourceOptions(); const comments = new Map<string, string>(); await Promise.all(sourceOptions.value.map(async option => { const sourceName = String(option.value); const data = await defCodeGenTableService.ListCodeGenDatabaseTable({ source_name: sourceName }); for (const item of data.tables ?? []) { if (item.comment) comments.set(`${sourceName}\x00${item.name}`, item.comment); } })); tableCommentMap.value = comments; }
 /** 加载并过滤数据库字段。 */
-async function loadColumns() { const revision = ++columnsRequestRevision; if (!form.source_name || !form.table_name) { form.column_rows = []; return; } const data = await defBaseRedactStoragePolicyService.ListBaseRedactStorageColumn({ source_name: form.source_name, table_name: form.table_name }); if (revision !== columnsRequestRevision) return; form.column_rows = (data.columns ?? []).filter(item => !STORAGE_AUDIT_COLUMN_NAMES.has(item.name.toLowerCase())).map(item => createColumnRow({ label: item.name, value: item.name, name: item.name, comment: item.comment, db_type: item.db_type })); }
+async function loadColumns() { const revision = ++columnsRequestRevision; const rows = await requestColumns(form.source_name, form.table_name); if (revision === columnsRequestRevision) form.column_rows = rows; }
+/** 请求并转换数据库字段。 */
+async function requestColumns(sourceName: string, tableName: string) { if (!sourceName || !tableName) return []; const data = await defBaseRedactStoragePolicyService.ListBaseRedactStorageColumn({ source_name: sourceName, table_name: tableName }); return (data.columns ?? []).filter(item => !STORAGE_AUDIT_COLUMN_NAMES.has(item.name.toLowerCase())).map(item => createColumnRow({ label: item.name, value: item.name, name: item.name, comment: item.comment, db_type: item.db_type })); }
 /** 打开新增或编辑弹窗。 */
-async function openDialog(id?: number) { resetForm(); await Promise.all([loadSourceOptions(), loadRules()]); if (id !== undefined) { const data = await defBaseRedactStoragePolicyService.GetBaseRedactStoragePolicy({ id }); Object.assign(form, data); await loadTables(); await loadColumns(); const row = form.column_rows.find(item => item.name === data.column_name); if (row) applyPolicy(row, data); } dialog.titleKey = id !== undefined ? "common.action.edit_resource" : "common.action.create_resource"; dialog.visible = true; }
+async function openDialog(id?: number) { await dialogRef.value?.open({ load: async () => { const [sources, rules, data] = await Promise.all([requestSourceOptions(), requestRules(), id !== undefined ? defBaseRedactStoragePolicyService.GetBaseRedactStoragePolicy({ id }) : Promise.resolve(undefined)]); const sourceName = data?.source_name ?? ""; const tables = await requestTables(sourceName); const columns = data ? await requestColumns(sourceName, data.table_name) : []; return { sources, rules, data, tables, columns }; }, commit: ({ sources, rules, data, tables, columns }) => { resetForm(); sourceOptions.value = sources; tableOptions.value = tables; ruleCatalog.value = rules.catalog; ruleOptions.value = rules.options; if (data) { Object.assign(form, data); form.column_rows = columns; const row = form.column_rows.find(item => item.name === data.column_name); if (row) applyPolicy(row, data); } dialog.titleKey = id !== undefined ? "common.action.edit_resource" : "common.action.create_resource"; } }); }
 /** 重置弹窗表单。 */
 function resetForm() { dialog.visible = false; dialogRef.value?.resetFields(); Object.assign(form, defaultForm()); sourceOptions.value = []; tableOptions.value = []; }
 /** 保存表格中已配置的全部字段。 */

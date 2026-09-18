@@ -83,7 +83,7 @@ func refreshTokenFromCookie(ctx context.Context) string {
 	return cookie.Value
 }
 
-// requestUsesTLS 判断当前请求是否使用 HTTPS 或由 HTTPS 代理转发。
+// requestUsesTLS 判断当前请求是否直接使用 HTTPS。
 func requestUsesTLS(ctx context.Context) bool {
 	serverTransport, ok := transport.FromServerContext(ctx)
 	if !ok {
@@ -94,5 +94,5 @@ func requestUsesTLS(ctx context.Context) bool {
 		return false
 	}
 	request := httpServerTransport.Request()
-	return request.TLS != nil || strings.EqualFold(request.Header.Get("X-Forwarded-Proto"), "https")
+	return request.TLS != nil
 }

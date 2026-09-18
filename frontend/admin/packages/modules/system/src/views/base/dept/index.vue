@@ -301,16 +301,15 @@ function refreshTable() {
 /**
  * 加载部门下拉树数据，供弹窗选择上级部门。
  */
-async function loadDeptOptions() {
+async function requestDeptOptions(tenantId = formData.tenant_id) {
   // 默认租户未选择目标租户时仅保留顶级部门，避免混入其他租户的部门树。
-  if (isDefaultTenant.value && !formData.tenant_id) {
-    deptOptions.value = [{ value: 0, label: t("system.base.dept.value.root"), disabled: false, has_children: true, children: [] }];
-    return;
+  if (isDefaultTenant.value && !tenantId) {
+    return [{ value: 0, label: t("system.base.dept.value.root"), disabled: false, has_children: true, children: [] }];
   }
   const optionBaseDeptResponse = await defBaseDeptService.OptionBaseDept({
-    tenant_id: toRequestTenantId(formData.tenant_id)
+    tenant_id: toRequestTenantId(tenantId)
   });
-  deptOptions.value = [
+  return [
     {
       value: 0,
       label: t("system.base.dept.value.root"),
@@ -319,6 +318,11 @@ async function loadDeptOptions() {
       children: optionBaseDeptResponse.list
     }
   ];
+}
+
+/** 加载部门下拉树数据并更新表单选项。 */
+async function loadDeptOptions() {
+  deptOptions.value = await requestDeptOptions();
 }
 
 /**
@@ -333,31 +337,33 @@ async function handleFormTenantChange() {
  * 打开部门弹窗。
  */
 async function handleOpenDialog(parent_id?: number, deptId?: number, tenantId?: number) {
-  resetForm();
-  await loadTenantOptions();
-  if (deptId) {
-    dialog.titleKey = "common.action.edit_resource";
-    dialog.visible = true;
-    defBaseDeptService.GetBaseDept({ id: deptId }).then(async data => {
-      Object.assign(formData, data);
-      await loadDeptOptions();
-    });
-    return;
-  }
-
-  // 从部门行新增子部门时，继承父部门租户并加载同租户上级部门树。
-  formData.tenant_id = tenantId;
-  await loadDeptOptions();
-  dialog.titleKey = "common.action.create_resource";
-  dialog.visible = true;
-  formData.parent_id = parent_id ?? 0;
+  await formDialogRef.value?.open({
+    load: async () => {
+      await loadTenantOptions();
+      const data = deptId ? await defBaseDeptService.GetBaseDept({ id: deptId }) : undefined;
+      const options = await requestDeptOptions(data?.tenant_id ?? tenantId);
+      return { data, options };
+    },
+    commit: ({ data, options }) => {
+      resetForm();
+      deptOptions.value = options;
+      dialog.titleKey = deptId ? "common.action.edit_resource" : "common.action.create_resource";
+      if (data) {
+        Object.assign(formData, data);
+      } else {
+        // 从部门行新增子部门时，继承父部门租户并加载同租户上级部门树。
+        formData.tenant_id = tenantId;
+        formData.parent_id = parent_id ?? 0;
+      }
+    }
+  });
 }
 
 /**
  * 关闭部门弹窗。
  */
 function handleCloseDialog() {
-  dialog.visible = false;
+  formDialogRef.value?.close();
   resetForm();
 }
 

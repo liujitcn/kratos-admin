@@ -1,7 +1,9 @@
 ai:
   model:
     type: CLOUD_MODEL
-    model_name: gpt-5.6
+    model_name: deepseek-v4-flash-vision-exp
+    # 模型 API 协议类型：当前网关只实现了聊天补全协议。
+    api_type: CHAT_COMPLETIONS
     cloud:
-      base_url: http://subapi.openclawrouter.site/v1
-      api_key: ENC[y84v5UY0idWEvUxMqCf1MXULmDyOOmKB3AH6Z4PjQ0PBPO04gBpJPUM4lHCQ9E-6FDT552sWRpDS5-ww4Y9joVFabNXX1lk4uhxzYrcDDNlD5DRQDmdA1eXh5TLT_gA]
+      base_url: https://ai-gateway.newcapec.cn/v1
+      api_key: 'sk-RT7RpDcPWhMBnWBPW7gimXzSPuayoDL3Il89Rg7RGMZHs5xW'

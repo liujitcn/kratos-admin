@@ -789,33 +789,58 @@ function refreshTable() {
 
 /** 打开新增或编辑弹窗，并加载当前表单所需选项。 */
 async function handleOpenDialog(tableId?: number) {
-  resetForm();
-  await loadSourceOptions();
-  const detail = tableId ? await defCodeGenTableService.GetCodeGenTable({ id: tableId }) : undefined;
-  if (detail) Object.assign(formData, detail);
-  if (!formData.source_name) formData.source_name = String(sourceOptions.value[0]?.value ?? "");
-  const [tableData, menuData, dictionaryData] = await Promise.all([
-    loadDatabaseTables(formData.source_name),
-    defBaseMenuService.TreeBaseMenu({}),
-    defBaseDictService.OptionBaseDict({})
-  ]);
-  databaseTables.value = tableData.tables ?? [];
-  parentMenuOptions.value = convertMenuOptions(menuData.base_menus ?? []);
-  businessModuleItems.value = dictionaryData.base_dicts?.find(item => item.code === "business_module")?.items ?? [];
-  if (detail) {
-    formData.parent_menu_id = detail.parent_menu_id || undefined;
-    formData.left_tree_config ??= createDefaultCodeGenLeftTreeConfig();
-    if (!formData.comment) {
-      formData.comment = databaseTables.value.find(item => item.name === formData.name)?.comment ?? "";
+  await formDialogRef.value?.open({
+    load: async () => {
+      await loadSourceOptions();
+      const detail = tableId ? await defCodeGenTableService.GetCodeGenTable({ id: tableId }) : undefined;
+      const sourceName = detail?.source_name || String(sourceOptions.value[0]?.value ?? "");
+      const [tableData, menuData, dictionaryData] = await Promise.all([
+        loadDatabaseTables(sourceName),
+        defBaseMenuService.TreeBaseMenu({}),
+        defBaseDictService.OptionBaseDict({})
+      ]);
+      const tables = tableData.tables ?? [];
+      const form = {
+        ...createDefaultCodeGenTableForm(),
+        ...(detail ?? {}),
+        source_name: sourceName,
+        parent_menu_id: detail?.parent_menu_id || undefined,
+        left_tree_config: detail?.left_tree_config
+          ? { ...detail.left_tree_config }
+          : createDefaultCodeGenLeftTreeConfig()
+      };
+      if (detail) {
+        if (!form.comment) form.comment = tables.find(item => item.name === form.name)?.comment ?? "";
+        if (!form.left_tree_config.comment) {
+          form.left_tree_config.comment = tables.find(item => item.name === form.left_tree_config?.table_name)?.comment ?? "";
+        }
+      }
+      const [columns, leftTreeColumns] = detail
+        ? await Promise.all([
+            requestDatabaseColumns(form.source_name, form.name),
+            form.page_type === "left_tree" ? requestDatabaseColumns(form.source_name, form.left_tree_config.table_name) : Promise.resolve([])
+          ])
+        : [[], []];
+      return {
+        form,
+        tables,
+        menuOptions: convertMenuOptions(menuData.base_menus ?? []),
+        businessModuleItems: dictionaryData.base_dicts?.find(item => item.code === "business_module")?.items ?? [],
+        columns,
+        leftTreeColumns
+      };
+    },
+    commit: ({ form, tables, menuOptions, businessModuleItems: items, columns, leftTreeColumns }) => {
+      resetForm();
+      Object.assign(formData, form);
+      databaseTables.value = tables;
+      parentMenuOptions.value = menuOptions;
+      businessModuleItems.value = items;
+      databaseColumns.value = columns;
+      leftTreeDatabaseColumns.value = leftTreeColumns;
+      dialog.editing = Boolean(tableId);
     }
-    if (!formData.left_tree_config.comment) {
-      formData.left_tree_config.comment =
-        databaseTables.value.find(item => item.name === formData.left_tree_config?.table_name)?.comment ?? "";
-    }
-    await Promise.all([loadDatabaseColumns(databaseColumns, formData.source_name, formData.name), loadLeftTreeDatabaseColumns()]);
-    dialog.editing = true;
-  }
-  dialog.visible = true;
+  });
 }
 
 /** 加载已初始化的数据源选项。 */
@@ -971,12 +996,14 @@ async function loadDatabaseTables(sourceName: string) {
 
 /** 查询指定数据源的数据表字段选项。 */
 async function loadDatabaseColumns(target: { value: CodeGenDatabaseColumn[] }, sourceName: string, tableName: string) {
-  if (!tableName) {
-    target.value = [];
-    return;
-  }
+  target.value = await requestDatabaseColumns(sourceName, tableName);
+}
+
+/** 请求指定数据源和数据表的字段选项。 */
+async function requestDatabaseColumns(sourceName: string, tableName: string) {
+  if (!tableName) return [];
   const data = await defCodeGenColumnService.ListCodeGenDatabaseColumn({ source_name: sourceName, table_name: tableName });
-  target.value = data.columns ?? [];
+  return data.columns ?? [];
 }
 
 /** 查询左树来源表字段选项。 */

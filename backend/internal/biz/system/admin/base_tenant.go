@@ -196,13 +196,8 @@ func (c *BaseTenantCase) CreateBaseTenant(ctx context.Context, req *adminv1.Base
 
 		// 租户编号只允许后端生成，避免客户端传入自定义编号。
 		baseTenant.Code = code
-		// 新租户 ID 与租户编号保持一致，编号从 1000 开始生成。
-		var tenantID int64
-		tenantID, err = strconv.ParseInt(code, 10, 64)
-		if err != nil {
-			return errorsx.Internal("解析租户编号失败").WithCause(err)
-		}
-		baseTenant.ID = tenantID
+		// 租户 ID 由数据库自增，避免客户端或表单中的 ID 参与新租户创建。
+		baseTenant.ID = 0
 		// 未指定状态时，新租户默认启用，避免初始化完成后仍无法登录。
 		if baseTenant.Status == 0 {
 			baseTenant.Status = coreconst.STATUS_STATUS_ENABLE
@@ -296,10 +291,40 @@ func (c *BaseTenantCase) SetBaseTenantStatus(ctx context.Context, req *adminv1.S
 	if err != nil {
 		return err
 	}
-	return c.UpdateByID(ctx, &models.BaseTenant{
+	err = c.UpdateByID(ctx, &models.BaseTenant{
 		ID:     req.GetId(),
 		Status: req.GetStatus(),
 	})
+	if err != nil {
+		return err
+	}
+	if req.GetStatus() == coreconst.STATUS_STATUS_DISABLE && baseTenant.Status != coreconst.STATUS_STATUS_DISABLE {
+		if err = c.revokeTenantUserTokens(ctx, baseTenant.ID); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// revokeTenantUserTokens 撤销指定租户全部用户的访问令牌和刷新令牌。
+func (c *BaseTenantCase) revokeTenantUserTokens(ctx context.Context, tenantID int64) error {
+	if c.userToken == nil {
+		return nil
+	}
+	query := c.baseUserRepo.Query(ctx).BaseUser
+	users, err := c.baseUserRepo.List(ctx,
+		repository.Select(query.ID),
+		repository.Where(query.TenantID.Eq(tenantID)),
+	)
+	if err != nil {
+		return errorsx.Internal("查询租户用户失败").WithCause(err)
+	}
+	for _, user := range users {
+		if err = c.userToken.RemoveToken(user.ID); err != nil {
+			return errorsx.Internal("撤销租户用户登录令牌失败").WithCause(err)
+		}
+	}
+	return nil
 }
 
 // getNextBaseTenantCode 获取下一个可用租户编号。

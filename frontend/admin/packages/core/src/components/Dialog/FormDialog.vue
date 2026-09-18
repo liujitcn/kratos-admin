@@ -1,5 +1,6 @@
 <template>
   <ProDialog
+    ref="proDialogRef"
     :model-value="modelValue"
     :title="title"
     :width="width"
@@ -53,6 +54,7 @@ import ProDialog from "@/components/Dialog/ProDialog.vue";
 import ProForm from "@/components/ProForm/index.vue";
 import type { ProFormField, ProFormInstance, ProFormLabelPosition } from "@/components/ProForm/interface";
 import { useLocaleStore } from "@/locales";
+import type { DialogOpenOptions } from "./interface";
 
 const { t } = useLocaleStore();
 
@@ -105,6 +107,7 @@ const emit = defineEmits<{
 }>();
 
 const slots = useSlots();
+const proDialogRef = ref<InstanceType<typeof ProDialog>>();
 const proFormRef = ref<ProFormInstance>();
 
 /** 弹窗打开后再清理校验状态，兼容异步加载选项后才显示的表单。 */
@@ -160,7 +163,19 @@ function clearValidate(props?: string | string[]) {
   proFormRef.value?.clearValidate(props);
 }
 
+/** 异步加载弹窗数据，并只提交最新一次打开请求。 */
+function open<T>(options: DialogOpenOptions<T>) {
+  return proDialogRef.value?.open(options) ?? Promise.resolve(false);
+}
+
+/** 关闭弹窗并使未完成的打开请求失效。 */
+function close() {
+  proDialogRef.value?.close();
+}
+
 defineExpose({
+  open,
+  close,
   validate,
   resetFields,
   clearValidate

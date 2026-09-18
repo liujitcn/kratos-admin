@@ -30,33 +30,6 @@ func (w *MessageDeliveryWriter) CreateIgnore(ctx context.Context, list []*models
 		batchSize = 500
 	}
 	query := w.queryProvider.Query(ctx).BaseMessageDelivery
-	userIDs := make([]int64, 0, len(list))
-	for _, item := range list {
-		userIDs = append(userIDs, item.UserID)
-	}
-	existing, err := query.WithContext(ctx).Unscoped().Where(
-		query.MessageID.Eq(list[0].MessageID),
-		query.UserID.In(userIDs...),
-	).Find()
-	if err != nil {
-		return 0, err
-	}
-	if len(existing) > 0 {
-		existingUsers := make(map[int64]struct{}, len(existing))
-		for _, item := range existing {
-			existingUsers[item.UserID] = struct{}{}
-		}
-		filtered := make([]*models.BaseMessageDelivery, 0, len(list))
-		for _, item := range list {
-			if _, ok := existingUsers[item.UserID]; !ok {
-				filtered = append(filtered, item)
-			}
-		}
-		list = filtered
-		if len(list) == 0 {
-			return 0, nil
-		}
-	}
 	// gorm/gen 当前没有带 OnConflict 的批量 Create API；此处仅用于唯一键幂等写入，输入字段来自受控模型。
 	//nolint:forbidigo // 受控的批量幂等写入需要底层 CreateInBatches。
 	result := query.WithContext(ctx).Clauses(clause.OnConflict{DoNothing: true}).UnderlyingDB().CreateInBatches(list, batchSize)

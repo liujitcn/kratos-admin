@@ -15,6 +15,7 @@ export const useTable = (
   dataCallBack?: (data: any) => any,
   requestError?: (error: any) => void
 ) => {
+  let requestSerial = 0;
   const state = reactive<Table.StateProps>({
     // 表格加载状态
     loading: false,
@@ -58,11 +59,13 @@ export const useTable = (
    * */
   const getTableList = async () => {
     if (!api) return;
+    const currentRequestSerial = ++requestSerial;
     state.loading = true;
     try {
       // 先把初始化参数和分页参数放到总参数里面
       Object.assign(state.totalParam, initParam, isPageable ? pageParam.value : {});
       let { data } = await api({ ...state.searchInitParam, ...state.totalParam });
+      if (currentRequestSerial !== requestSerial) return;
       dataCallBack && (data = dataCallBack(data));
       state.tableData = isPageable ? data.list : data;
       // 解构后台返回的分页数据 (如果有分页更新分页信息)
@@ -72,9 +75,10 @@ export const useTable = (
         state.pageable.total = Number.isFinite(total) && total >= 0 ? total : 0;
       }
     } catch (error) {
+      if (currentRequestSerial !== requestSerial) return;
       requestError && requestError(error);
     } finally {
-      state.loading = false;
+      if (currentRequestSerial === requestSerial) state.loading = false;
     }
   };
 

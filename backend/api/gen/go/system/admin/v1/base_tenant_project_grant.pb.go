@@ -617,14 +617,14 @@ const file_system_admin_v1_base_tenant_project_grant_proto_rawDesc = "" +
 	"\fsubject_code\x18\a \x01(\tB\x18\xbaG\x15\x92\x02\x12授权主体编码R\vsubjectCode\x12C\n" +
 	"\rproject_names\x18\b \x03(\tB\x1e\xbaG\x1b\x92\x02\x18授权项目名称列表R\fprojectNames\x12D\n" +
 	"\tgrant_key\x18\t \x01(\tB'\xbaG$\x92\x02!项目授权联合主键展示值R\bgrantKey:\x8d\x02\xbaH\x89\x02\x1a\x86\x02\n" +
-	"7system.admin.base.tenant.project.grant.project_id.valid\x12E项目ID必须为安全非负整数，全部授权只能单独使用0\x1a\x83\x01this.project_id.all(id, id >= 0 && id <= 9007199254740991) && (!this.project_id.exists(id, id == 0) || this.project_id.size() == 1)\"\xd5\x03\n" +
+	"7system.admin.base.tenant.project.grant.project_id.valid\x12E项目ID必须为安全非负整数，全部授权只能单独使用0\x1a\x83\x01this.project_id.all(id, id >= 0 && id <= 9007199254740991) && (!this.project_id.exists(id, id == 0) || this.project_id.size() == 1)\"\xe9\x03\n" +
 	"!PageBaseTenantProjectGrantRequest\x12C\n" +
 	"\ttenant_id\x18\x01 \x01(\x03B!\xbaG\x17\x92\x02\x14授权目标租户ID\xbaH\x04\"\x02 \x00H\x00R\btenantId\x88\x01\x01\x12~\n" +
 	"\fsubject_type\x18\x02 \x01(\x0e22.system.admin.v1.BaseTenantProjectGrantSubjectTypeB\"\xbaG\x15\x92\x02\x12授权主体类型\xbaH\a\x82\x01\x04\x10\x01 \x00H\x01R\vsubjectType\x88\x01\x01\x12?\n" +
 	"\n" +
-	"subject_id\x18\x03 \x01(\x03B\x1b\xbaG\x11\x92\x02\x0e授权主体ID\xbaH\x04\"\x02 \x00H\x02R\tsubjectId\x88\x01\x01\x129\n" +
-	"\bpage_num\x18e \x01(\x03B\x1e\xbaG\x1b\x8a\x02\t\t\x00\x00\x00\x00\x00\x00\xf0?\x92\x02\f当前页码R\apageNum\x12A\n" +
-	"\tpage_size\x18f \x01(\x03B$\xbaG!\x8a\x02\t\t\x00\x00\x00\x00\x00\x00$@\x92\x02\x12每一页的行数R\bpageSizeB\f\n" +
+	"subject_id\x18\x03 \x01(\x03B\x1b\xbaG\x11\x92\x02\x0e授权主体ID\xbaH\x04\"\x02 \x00H\x02R\tsubjectId\x88\x01\x01\x12D\n" +
+	"\bpage_num\x18e \x01(\x03B)\xbaG\x1b\x8a\x02\t\t\x00\x00\x00\x00\x00\x00\xf0?\x92\x02\f当前页码\xbaH\b\"\x06\x18\xc0\x84=(\x01R\apageNum\x12J\n" +
+	"\tpage_size\x18f \x01(\x03B-\xbaG!\x8a\x02\t\t\x00\x00\x00\x00\x00\x00$@\x92\x02\x12每一页的行数\xbaH\x06\"\x04\x18d(\x01R\bpageSizeB\f\n" +
 	"\n" +
 	"_tenant_idB\x0f\n" +
 	"\r_subject_typeB\r\n" +

@@ -3,7 +3,9 @@ package module
 import (
 	"context"
 	"fmt"
+	nethttp "net/http"
 	"os"
+	"strings"
 
 	"github.com/go-kratos/kratos/v3/middleware"
 	kratosGRPC "github.com/go-kratos/kratos/v3/transport/grpc"
@@ -110,7 +112,18 @@ func (m *Module) RegisterHTTP(server *http.Server) {
 		m.adminServices.OauthClientRepository,
 		m.adminServices.Authenticator,
 		m.adminServices.OauthCredentialProtector,
-	)(server.Server.Handler))
+	)(blockStaticDirectoryListing(server.Server.Handler)))
+}
+
+// blockStaticDirectoryListing 阻止本地 OSS 静态路由返回目录索引，同时保留精确文件访问。
+func blockStaticDirectoryListing(handler nethttp.Handler) nethttp.Handler {
+	return nethttp.HandlerFunc(func(writer nethttp.ResponseWriter, request *nethttp.Request) {
+		if strings.HasPrefix(request.URL.Path, "/data/") && strings.HasSuffix(request.URL.Path, "/") {
+			nethttp.NotFound(writer, request)
+			return
+		}
+		handler.ServeHTTP(writer, request)
+	})
 }
 
 // RegisterMCP 注册 Admin 的全部 MCP 工具。

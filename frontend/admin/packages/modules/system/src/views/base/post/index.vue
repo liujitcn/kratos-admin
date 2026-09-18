@@ -249,15 +249,21 @@ function refreshTable() {
 /** 打开岗位编辑弹窗。 */
 async function handleOpenDialog(id?: number) {
   resetForm();
-  await loadTenantOptions();
   dialog.titleKey = id ? "common.action.edit_resource" : "common.action.create_resource";
-  dialog.visible = true;
-  if (id) Object.assign(formData, await defBasePostService.GetBasePost({ id }));
+  await formDialogRef.value?.open({
+    load: async () => ({
+      data: id ? await defBasePostService.GetBasePost({ id }) : undefined,
+      tenants: await loadTenantOptions()
+    }),
+    commit: ({ data }) => {
+      if (data) Object.assign(formData, data);
+    }
+  });
 }
 
 /** 关闭岗位弹窗并清理表单。 */
 function handleCloseDialog() {
-  dialog.visible = false;
+  formDialogRef.value?.close();
   resetForm();
 }
 

@@ -6018,6 +6018,25 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/system.app.v1.ListBaseMenuResponse'
+    /api/v1/base/ai/search:
+        post:
+            tags:
+                - AiSearchService
+            description: 聯網搜尋公開資訊並返回結果摘要
+            operationId: AiSearchService_SearchAiWeb
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/base.v1.SearchAiWebRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.SearchAiWebResponse'
     /api/v1/base/ai/session:
         get:
             tags:
@@ -8349,6 +8368,39 @@ components:
                     type: string
                     description: 失敗訊息ID
             description: AI 助手失敗訊息重試請求
+        base.v1.SearchAiWebItem:
+            type: object
+            properties:
+                title:
+                    type: string
+                    description: 結果標題
+                url:
+                    type: string
+                    description: 結果連結
+                snippet:
+                    type: string
+                    description: 結果摘要
+            description: AI 助手聯網搜尋結果
+        base.v1.SearchAiWebRequest:
+            type: object
+            properties:
+                query:
+                    type: string
+                    description: 搜尋關鍵詞
+                limit:
+                    type: integer
+                    description: 返回結果數量：0 表示預設5條，最大10條
+                    format: int32
+            description: AI 助手聯網搜尋請求
+        base.v1.SearchAiWebResponse:
+            type: object
+            properties:
+                items:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/base.v1.SearchAiWebItem'
+                    description: 搜尋結果列表
+            description: AI 助手聯網搜尋響應
         base.v1.SendAiMessageRequest:
             type: object
             properties:
@@ -14627,6 +14679,8 @@ components:
 tags:
     - name: AiMessageService
       description: Base AI 助手訊息服務
+    - name: AiSearchService
+      description: Base AI 助手聯網搜尋服務
     - name: AiSessionService
       description: Base AI 助手會話服務
     - name: AiToolService
@@ -14676,9 +14730,9 @@ tags:
     - name: BaseLoginPolicyService
       description: Admin登入策略管理服務。
     - name: BaseMenuService
-      description: Admin 選單管理服務
-    - name: BaseMenuService
       description: App 選單服務
+    - name: BaseMenuService
+      description: Admin 選單管理服務
     - name: BaseMessageCategoryService
       description: Admin訊息分類管理服務。
     - name: BaseMessageService

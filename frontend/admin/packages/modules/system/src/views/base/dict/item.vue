@@ -310,22 +310,26 @@ function refreshTable() {
  * 打开字典项编辑弹窗。
  */
 async function handleOpenDialog(dictItemId?: number) {
-  await loadEnabledBaseLanguages();
   resetForm();
   dialog.editing = Boolean(dictItemId);
-  dialog.visible = true;
-  if (!dictItemId) return;
-
-  const data = await defBaseDictItemService.GetBaseDictItem({ id: dictItemId });
-  Object.assign(formData, data);
-  i18nValues.value = normalizeDynamicI18ns(data.i18ns as DynamicI18nRecord[]);
+  await formDialogRef.value?.open({
+    load: async () => ({
+      data: dictItemId ? await defBaseDictItemService.GetBaseDictItem({ id: dictItemId }) : undefined,
+      languages: await loadEnabledBaseLanguages()
+    }),
+    commit: ({ data }) => {
+      if (!data) return;
+      Object.assign(formData, data);
+      i18nValues.value = normalizeDynamicI18ns(data.i18ns as DynamicI18nRecord[]);
+    }
+  });
 }
 
 /**
  * 关闭字典项弹窗并恢复默认值。
  */
 function handleCloseDialog() {
-  dialog.visible = false;
+  formDialogRef.value?.close();
   resetForm();
 }
 

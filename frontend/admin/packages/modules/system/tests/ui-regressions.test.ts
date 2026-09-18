@@ -159,7 +159,7 @@ test("脱敏列表和下拉使用中文名称并保持简洁选择器", async ()
 
 test("消息标题单独打开正文，发送详情只展示投递信息", async () => {
   const source = await readSource("src/views/base/message/index.vue");
-  const sendDetailDialog = source.match(/<ProDialog\s+v-model="detail\.visible"[\s\S]*?<\/ProDialog>/)?.[0];
+  const sendDetailDialog = source.match(/<ProDialog(?=[^>]*v-model="detail\.visible")[\s\S]*?<\/ProDialog>/)?.[0];
 
   assert.match(source, /prop: "title"[\s\S]*?openContent\(row\.id\)/);
   assert.match(source, /system\.base\.message\.content\.title/);
@@ -291,9 +291,34 @@ test("国际化自定义翻译使用响应式语言选项并锁定编辑键和�
 
   assert.match(source, /search: \{ el: "select", enum: localeOptions \}/);
   assert.match(source, /async function requestBaseI18nCustomTable[\s\S]*?await loadLanguages\(\);/);
-  assert.match(source, /async function handleOpenDialog\(id\?: number\) \{\s*await loadLanguages\(\);/);
+  assert.match(source, /async function handleOpenDialog\(id\?: number\) \{[\s\S]*?await formDialogRef\.value\?\.open\(/);
   assert.match(source, /field: "key"|prop: "key"[\s\S]*?disabled: dialog\.editing/);
   assert.match(source, /prop: "locale"[\s\S]*?disabled: dialog\.editing/);
+});
+
+test("基础管理编辑弹窗统一使用通用异步打开控制器", async () => {
+  const pages = [
+    "area/index.vue",
+    "config/index.vue",
+    "dept/index.vue",
+    "dict/index.vue",
+    "dict/item.vue",
+    "i18n-custom/index.vue",
+    "job/index.vue",
+    "language/index.vue",
+    "menu/index.vue",
+    "oauth-client/index.vue",
+    "post/index.vue",
+    "role/index.vue",
+    "tenant/index.vue",
+    "user/index.vue"
+  ];
+  const sources = await Promise.all(pages.map(page => readSource(`src/views/base/${page}`)));
+  for (const source of sources) {
+    assert.doesNotMatch(source, /dialogRequestSerial|detailRequestSerial/);
+    assert.match(source, /\.value\?\.open\(/);
+    assert.match(source, /\.value\?\.close\(/);
+  }
 });
 
 test("租户项目列表按默认租户展示租户字段并支持扩展列定位", async () => {

@@ -47,6 +47,7 @@
       </template>
     </FormDialog>
     <ProDialog
+      ref="contentDialogRef"
       v-model="content.visible"
       :title="content.data?.base_message?.title || t('system.base.message.content.title')"
       width="760px"
@@ -68,6 +69,7 @@
       </template>
     </ProDialog>
     <ProDialog
+      ref="detailDialogRef"
       v-model="detail.visible"
       :title="t('system.base.message.send_detail.title')"
       width="min(1200px, calc(100vw - 32px))"
@@ -192,6 +194,8 @@ const { BUTTONS } = useAuthButtons();
 const { isDefaultTenant, tenantColumns, tenantFormField, loadTenantOptions } = useTenantScope();
 const proTable = ref<ProTableInstance>();
 const formDialogRef = ref<InstanceType<typeof FormDialog>>();
+const contentDialogRef = ref<InstanceType<typeof ProDialog>>();
+const detailDialogRef = ref<InstanceType<typeof ProDialog>>();
 const categoryOptions = ref<ProFormOption[]>([]);
 const dialog = reactive({ visible: false, titleKey: "common.action.create" });
 const content = reactive<{ visible: boolean; loading: boolean; data?: BaseMessageDetail }>({ visible: false, loading: false });
@@ -548,22 +552,36 @@ async function requestTable(params: Record<string, unknown>) {
 
 /** 加载消息分类选项。 */
 async function loadCategoryOptions() {
+  categoryOptions.value = await requestCategoryOptions();
+}
+
+/** 请求消息分类选项。 */
+async function requestCategoryOptions() {
   const result = await defBaseMessageCategoryService.OptionBaseMessageCategory({});
-  categoryOptions.value = result.list.map(item => ({ label: item.label, value: item.value, disabled: item.disabled }));
+  return result.list.map(item => ({ label: item.label, value: item.value, disabled: item.disabled }));
 }
 
 /** 打开消息草稿表单。 */
 async function openDialog(id?: number) {
-  await loadTenantOptions();
-  Object.assign(formState, defaultForm());
-  dialog.titleKey = id ? "common.action.edit" : "common.action.create";
-  if (id) {
-    const detail = await defBaseMessageService.GetBaseMessage({ id });
-    Object.assign(formState, detail.form);
-    formState.audiences = detail.form?.audiences?.map(item => ({ ...item })) ?? [defaultAudience()];
-  }
-  await loadCategoryOptions();
-  dialog.visible = true;
+  await formDialogRef.value?.open({
+    load: async () => {
+      await loadTenantOptions();
+      const [detail, categories] = await Promise.all([
+        id ? defBaseMessageService.GetBaseMessage({ id }) : Promise.resolve(undefined),
+        requestCategoryOptions()
+      ]);
+      return { detail, categories };
+    },
+    commit: ({ detail, categories }) => {
+      Object.assign(formState, defaultForm());
+      dialog.titleKey = id ? "common.action.edit" : "common.action.create";
+      categoryOptions.value = categories;
+      if (detail) {
+        Object.assign(formState, detail.form);
+        formState.audiences = detail.form?.audiences?.map(item => ({ ...item })) ?? [defaultAudience()];
+      }
+    }
+  });
 }
 
 /** 提交消息草稿。 */
@@ -587,21 +605,27 @@ async function handleSubmit() {
 
 /** 打开发送详情并加载投递进度。 */
 async function openDetail(id: number) {
-  detail.data = await defBaseMessageService.GetBaseMessage({ id });
-  detail.visible = true;
+  await detailDialogRef.value?.open({
+    load: () => defBaseMessageService.GetBaseMessage({ id }),
+    commit: data => {
+      detail.data = data;
+    }
+  });
 }
 
 /** 打开消息正文并单独展示内容。 */
 async function openContent(id: number) {
-  content.visible = true;
-  content.loading = true;
-  content.data = undefined;
   try {
-    content.data = await defBaseMessageService.GetBaseMessage({ id });
+    await contentDialogRef.value?.open({
+      load: () => defBaseMessageService.GetBaseMessage({ id }),
+      commit: data => {
+        content.data = data;
+        content.loading = false;
+      }
+    });
   } catch {
-    content.visible = false;
-  } finally {
     content.loading = false;
+    contentDialogRef.value?.close();
   }
 }
 

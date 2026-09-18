@@ -3,7 +3,7 @@ package biz
 import (
 	"testing"
 
-	_mapper "github.com/liujitcn/go-utils/mapper"
+	"github.com/liujitcn/go-utils/mapper"
 	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 )
@@ -11,7 +11,7 @@ import (
 // TestBuildBaseMenuOptionIncludesButtonPermissions 验证角色权限树包含按钮权限且不包含外链。
 func TestBuildBaseMenuOptionIncludesButtonPermissions(t *testing.T) {
 	baseMenuCase := &BaseMenuCase{
-		routerMapper: _mapper.NewCopierMapper[adminv1.RouteItem, models.BaseMenu](),
+		routerMapper: mapper.NewCopierMapper[adminv1.RouteItem, models.BaseMenu](),
 	}
 	options := baseMenuCase.buildBaseMenuOption(
 		[]*models.BaseMenu{

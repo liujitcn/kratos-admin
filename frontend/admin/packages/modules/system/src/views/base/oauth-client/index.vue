@@ -266,12 +266,17 @@ async function loadApiOptions() {
 }
 
 async function handleOpenDialog(id?: number) {
-  await loadTenantOptions();
-  await loadApiOptions();
   resetForm();
   dialog.titleKey = id ? "common.action.edit" : "common.action.create";
-  dialog.visible = true;
-  if (id) Object.assign(formData, await defOauthClientService.GetOauthClient({ id }));
+  await formDialogRef.value?.open({
+    load: async () => ({
+      data: id ? await defOauthClientService.GetOauthClient({ id }) : undefined,
+      resources: await Promise.all([loadTenantOptions(), loadApiOptions()])
+    }),
+    commit: ({ data }) => {
+      if (data) Object.assign(formData, data);
+    }
+  });
 }
 
 function resetForm() {
@@ -289,7 +294,7 @@ function resetForm() {
 }
 
 function handleCloseDialog() {
-  dialog.visible = false;
+  formDialogRef.value?.close();
   resetForm();
 }
 

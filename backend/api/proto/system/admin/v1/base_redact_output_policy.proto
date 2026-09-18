@@ -47,8 +47,10 @@ message PageBaseRedactOutputPolicyRequest {
   string service_name = 4 [(gnostic.openapi.v3.property) = {description: "服务名"}]; // 服务名
   optional BaseRedactOutputPolicyMode mode = 100 [(gnostic.openapi.v3.property) = {description: "处理模式"}]; // 处理模式
   optional .common.v1.Status status = 101 [(gnostic.openapi.v3.property) = {description: "状态"}]; // 状态
-  int64 page_num = 102 [(gnostic.openapi.v3.property) = {description: "当前页码", default: {number: 1}}]; // 当前页码
-  int64 page_size = 103 [(gnostic.openapi.v3.property) = {description: "每页数量", default: {number: 10}}]; // 每页数量
+  int64 page_num = 102 [(gnostic.openapi.v3.property) = {description: "当前页码", default: {number: 1}},
+    (buf.validate.field).int64 = {gte: 1, lte: 1000000}]; // 当前页码
+  int64 page_size = 103 [(gnostic.openapi.v3.property) = {description: "每页数量", default: {number: 10}},
+    (buf.validate.field).int64 = {gte: 1, lte: 100}]; // 每页数量
 }
 
 // 出库脱敏策略分页响应。

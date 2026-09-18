@@ -2,7 +2,7 @@
   <div class="table-box">
     <ProTable ref="proTable" row-key="id" :columns="columns" :request-api="requestBaseJobLogTable" />
 
-    <ProDialog v-model="dialog.visible" :title="t('system.base.job.log.title.detail')" width="1200px" @close="handleCloseDialog">
+    <ProDialog ref="dialogRef" v-model="dialog.visible" :title="t('system.base.job.log.title.detail')" width="1200px" @close="handleCloseDialog">
       <div class="detail-container">
         <el-descriptions :title="t('system.base.job.log.section.basic')" border :column="2">
           <el-descriptions-item :label="t('common.field.status')">
@@ -60,6 +60,7 @@ defineOptions({
 
 const route = useRoute();
 const proTable = ref<ProTableInstance>();
+const dialogRef = ref<InstanceType<typeof ProDialog>>();
 const initialJobID = Number(route.query.jobId ?? 0);
 
 const dialog = reactive({
@@ -180,21 +181,25 @@ async function requestBaseJobLogTable(params: PageBaseJobLogRequest) {
 /**
  * 打开定时任务日志详情弹窗。
  */
-function handleOpenDialog(logId?: number) {
+async function handleOpenDialog(logId?: number) {
   resetDetail();
-  dialog.visible = true;
-  if (!logId) return;
-
-  defBaseJobLogService.GetBaseJobLog({ id: logId }).then(data => {
-    Object.assign(detail, data);
-  });
+  try {
+    await dialogRef.value?.open({
+      load: () => (logId ? defBaseJobLogService.GetBaseJobLog({ id: logId }) : undefined),
+      commit: data => {
+        if (data) Object.assign(detail, data);
+      }
+    });
+  } catch {
+    dialogRef.value?.close();
+  }
 }
 
 /**
  * 关闭定时任务日志详情弹窗。
  */
 function handleCloseDialog() {
-  dialog.visible = false;
+  dialogRef.value?.close();
   resetDetail();
 }
 

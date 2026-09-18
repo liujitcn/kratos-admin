@@ -392,10 +392,13 @@ function refreshTable() {
  * 按目标角色加载可分配的菜单权限树数据。
  */
 async function loadMenuPermOptions(roleId?: number) {
-  const optionBaseMenuRes = await defBaseMenuService.OptionBaseMenu({
-    role_id: roleId
-  });
-  menuPermOptions.value = optionBaseMenuRes.list ?? [];
+  menuPermOptions.value = await requestMenuPermOptions(roleId);
+}
+
+/** 请求指定角色可分配的菜单权限树。 */
+async function requestMenuPermOptions(roleId?: number) {
+  const optionBaseMenuRes = await defBaseMenuService.OptionBaseMenu({ role_id: roleId });
+  return optionBaseMenuRes.list ?? [];
 }
 
 /**
@@ -410,25 +413,29 @@ async function handleFormTenantChange() {
  * 打开角色弹窗。
  */
 async function handleOpenDialog(roleId?: number) {
-  resetForm();
-  await loadTenantOptions();
-  dialog.editing = Boolean(roleId);
-  dialog.visible = true;
-  if (!roleId) {
-    await loadMenuPermOptions();
-    return;
-  }
-
-  const data = await defBaseRoleService.GetBaseRole({ id: roleId });
-  Object.assign(formData, data);
-  await loadMenuPermOptions(roleId);
+  await formDialogRef.value?.open({
+    load: async () => {
+      await loadTenantOptions();
+      const [data, menuOptions] = await Promise.all([
+        roleId ? defBaseRoleService.GetBaseRole({ id: roleId }) : Promise.resolve(undefined),
+        requestMenuPermOptions(roleId)
+      ]);
+      return { data, menuOptions };
+    },
+    commit: ({ data, menuOptions }) => {
+      resetForm();
+      dialog.editing = Boolean(roleId);
+      menuPermOptions.value = menuOptions;
+      if (data) Object.assign(formData, data);
+    }
+  });
 }
 
 /**
  * 关闭角色弹窗并恢复默认表单值。
  */
 function handleCloseDialog() {
-  dialog.visible = false;
+  formDialogRef.value?.close();
   resetForm();
 }
 

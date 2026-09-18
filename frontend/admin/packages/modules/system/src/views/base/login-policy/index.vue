@@ -442,23 +442,34 @@ async function requestTable(params: Record<string, unknown>) {
 
 /** 打开登录策略表单。 */
 async function openDialog(id?: number) {
-  Object.assign(formData, defaultForm());
-  dialog.titleKey = id ? "common.action.edit" : "common.action.create";
-  await loadTenantOptions();
-  if (id) {
-    const detail = await defBaseLoginPolicyService.GetBaseLoginPolicy({ id });
-    Object.assign(formData, detail, { initial_password: "", rules: detail.rules ?? [] });
-    if (formData.scope_type === BaseLoginPolicyScopeType.BASE_LOGIN_POLICY_SCOPE_TYPE_USER && formData.tenant_id) {
-      await loadUserOptions(formData.tenant_id);
+  await formDialogRef.value?.open({
+    load: async () => {
+      await loadTenantOptions();
+      const detail = id ? await defBaseLoginPolicyService.GetBaseLoginPolicy({ id }) : undefined;
+      const loadedUserOptions =
+        detail?.scope_type === BaseLoginPolicyScopeType.BASE_LOGIN_POLICY_SCOPE_TYPE_USER && detail.tenant_id
+          ? await requestUserOptions(detail.tenant_id)
+          : [];
+      return { detail, loadedUserOptions };
+    },
+    commit: ({ detail, loadedUserOptions }) => {
+      Object.assign(formData, defaultForm());
+      dialog.titleKey = id ? "common.action.edit" : "common.action.create";
+      if (detail) Object.assign(formData, detail, { initial_password: "", rules: detail.rules ?? [] });
+      userOptions.value = loadedUserOptions;
     }
-  }
-  dialog.visible = true;
+  });
 }
 
 /** 加载指定租户的用户选项。 */
 async function loadUserOptions(tenantId: number) {
+  userOptions.value = await requestUserOptions(tenantId);
+}
+
+/** 请求指定租户的用户选项。 */
+async function requestUserOptions(tenantId: number) {
   const response = await defBaseUserService.OptionBaseUser({ keyword: "", tenant_id: tenantId });
-  userOptions.value = response.list ?? [];
+  return response.list ?? [];
 }
 
 /** 提交登录策略表单。 */

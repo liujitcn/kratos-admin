@@ -100,12 +100,14 @@ message PageBaseConfigRequest {
   int64 page_num = 101 [(gnostic.openapi.v3.property) = {
     description: "当前页码"
     default: {number: 1}
-  }]; // 当前页码
+  },
+    (buf.validate.field).int64 = {gte: 1, lte: 1000000}]; // 当前页码
 
   int64 page_size = 102 [(gnostic.openapi.v3.property) = {
     description: "每一页的行数"
     default: {number: 10}
-  }]; // 每一页的行数
+  },
+    (buf.validate.field).int64 = {gte: 1, lte: 100}]; // 每一页的行数
 }
 
 // 系统配置分页响应

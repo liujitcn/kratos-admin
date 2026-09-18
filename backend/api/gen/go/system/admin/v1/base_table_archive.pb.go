@@ -564,15 +564,16 @@ var File_system_admin_v1_base_table_archive_proto protoreflect.FileDescriptor
 
 const file_system_admin_v1_base_table_archive_proto_rawDesc = "" +
 	"\n" +
-	"(system/admin/v1/base_table_archive.proto\x12\x0fsystem.admin.v1\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x14common/v1/enum.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1bbuf/validate/validate.proto\"\x84\v\n" +
+	"(system/admin/v1/base_table_archive.proto\x12\x0fsystem.admin.v1\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x14common/v1/enum.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1bbuf/validate/validate.proto\"\xff\n" +
+	"\n" +
 	"\x14BaseTableArchiveForm\x12$\n" +
 	"\x02id\x18\x01 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e归档配置IDR\x02id\x12\xb4\x01\n" +
 	"\n" +
 	"table_name\x18\x03 \x01(\tB\x94\x01\xbaG\x12\x92\x02\x0f数据表名称\xbaH|\xba\x01y\n" +
 	"3system.admin.base.table_archive.table_name.required\x12\x1b数据表名称不能为空\x1a%this.size() > 0 && this.size() <= 128R\ttableName\x12d\n" +
-	"\farchive_mode\x18\x04 \x01(\x0e2%.system.admin.v1.BaseTableArchiveModeB\x1a\xbaG\x0f\x92\x02\f归档模式\xbaH\x05\x82\x01\x02\x10\x01R\varchiveMode\x12\xc5\x01\n" +
-	"\x15online_retention_days\x18\x05 \x01(\x05B\x90\x01\xbaG\x15\x92\x02\x12在线保留天数\xbaHu\xba\x01r\n" +
-	"Bsystem.admin.base.table_archive.online_retention_days.non_negative\x12!在线保留天数不能小于零\x1a\tthis >= 0R\x13onlineRetentionDays\x12\xc8\x01\n" +
+	"\farchive_mode\x18\x04 \x01(\x0e2%.system.admin.v1.BaseTableArchiveModeB\x1a\xbaG\x0f\x92\x02\f归档模式\xbaH\x05\x82\x01\x02\x10\x01R\varchiveMode\x12\xc0\x01\n" +
+	"\x15online_retention_days\x18\x05 \x01(\x05B\x8b\x01\xbaG\x15\x92\x02\x12在线保留天数\xbaHp\xba\x01m\n" +
+	">system.admin.base.table_archive.online_retention_days.positive\x12!在线保留天数必须大于零\x1a\bthis > 0R\x13onlineRetentionDays\x12\xc8\x01\n" +
 	"\x16archive_retention_days\x18\x06 \x01(\x05B\x91\x01\xbaG\x15\x92\x02\x12归档保留天数\xbaHv\xba\x01s\n" +
 	"Csystem.admin.base.table_archive.archive_retention_days.non_negative\x12!归档保留天数不能小于零\x1a\tthis >= 0R\x14archiveRetentionDays\x12\x99\x01\n" +
 	"\n" +
@@ -586,15 +587,15 @@ const file_system_admin_v1_base_table_archive_proto_rawDesc = "" +
 	" \x01(\tB\x94\x01\xbaG\x12\x92\x02\x0f数据源名称\xbaH|\xba\x01y\n" +
 	"4system.admin.base.table_archive.source_name.required\x12\x1b数据源名称不能为空\x1a$this.size() > 0 && this.size() <= 64R\n" +
 	"sourceName\x12?\n" +
-	"\x06status\x18d \x01(\x0e2\x11.common.v1.StatusB\x14\xbaG\t\x92\x02\x06状态\xbaH\x05\x82\x01\x02\x10\x01R\x06status\"\xcc\x02\n" +
+	"\x06status\x18d \x01(\x0e2\x11.common.v1.StatusB\x14\xbaG\t\x92\x02\x06状态\xbaH\x05\x82\x01\x02\x10\x01R\x06status\"\xe0\x02\n" +
 	"\x1bPageBaseTableArchiveRequest\x124\n" +
 	"\n" +
 	"table_name\x18\x02 \x01(\tB\x15\xbaG\x12\x92\x02\x0f数据表名称R\ttableName\x126\n" +
 	"\vsource_name\x18\x03 \x01(\tB\x15\xbaG\x12\x92\x02\x0f数据源名称R\n" +
 	"sourceName\x12<\n" +
-	"\x06status\x18d \x01(\x0e2\x11.common.v1.StatusB\f\xbaG\t\x92\x02\x06状态H\x00R\x06status\x88\x01\x01\x129\n" +
-	"\bpage_num\x18e \x01(\x03B\x1e\xbaG\x1b\x8a\x02\t\t\x00\x00\x00\x00\x00\x00\xf0?\x92\x02\f当前页码R\apageNum\x12;\n" +
-	"\tpage_size\x18f \x01(\x03B\x1e\xbaG\x1b\x8a\x02\t\t\x00\x00\x00\x00\x00\x00$@\x92\x02\f每页行数R\bpageSizeB\t\n" +
+	"\x06status\x18d \x01(\x0e2\x11.common.v1.StatusB\f\xbaG\t\x92\x02\x06状态H\x00R\x06status\x88\x01\x01\x12D\n" +
+	"\bpage_num\x18e \x01(\x03B)\xbaG\x1b\x8a\x02\t\t\x00\x00\x00\x00\x00\x00\xf0?\x92\x02\f当前页码\xbaH\b\"\x06\x18\xc0\x84=(\x01R\apageNum\x12D\n" +
+	"\tpage_size\x18f \x01(\x03B'\xbaG\x1b\x8a\x02\t\t\x00\x00\x00\x00\x00\x00$@\x92\x02\f每页行数\xbaH\x06\"\x04\x18d(\x01R\bpageSizeB\t\n" +
 	"\a_status\"\xb3\x01\n" +
 	"\x1cPageBaseTableArchiveResponse\x12o\n" +
 	"\x13base_table_archives\x18\x01 \x03(\v2%.system.admin.v1.BaseTableArchiveFormB\x18\xbaG\x15\x92\x02\x12归档配置列表R\x11baseTableArchives\x12\"\n" +

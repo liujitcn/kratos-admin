@@ -22,6 +22,8 @@ import (
 	"gorm.io/gorm"
 )
 
+const maxOAuthCryptoBodyBytes = 10 << 20
+
 // NewCryptoFilter 创建开放授权接口的数据加解密 HTTP Filter。
 //
 // Filter 必须包裹整个 Kratos HTTP 路由树，原因是 Proto HTTP 适配器会先绑定请求体，
@@ -57,6 +59,10 @@ func NewCryptoFilter(clientRepo *data.OauthClientRepository, authenticator engin
 
 			buffered := newOauthCryptoResponseWriter(writer)
 			next.ServeHTTP(buffered, request)
+			if buffered.overflow {
+				writeOauthCryptoError(writer, http.StatusRequestEntityTooLarge, "响应数据超过大小限制")
+				return
+			}
 			var responseBody []byte
 			responseBody, err = encryptOauthResponse(buffered.body.Bytes(), buffered.status, crypto)
 			if err != nil {
@@ -122,9 +128,15 @@ func decryptOauthRequest(request *http.Request, crypto oauthcrypto.Crypto) error
 	if request.Method != http.MethodPost && request.Method != http.MethodPut && request.Method != http.MethodPatch {
 		return nil
 	}
-	body, err := io.ReadAll(request.Body)
+	if request.ContentLength > maxOAuthCryptoBodyBytes {
+		return errors.New("请求数据超过大小限制")
+	}
+	body, err := io.ReadAll(io.LimitReader(request.Body, maxOAuthCryptoBodyBytes+1))
 	if err != nil {
 		return err
+	}
+	if int64(len(body)) > maxOAuthCryptoBodyBytes {
+		return errors.New("请求数据超过大小限制")
 	}
 	if len(bytes.TrimSpace(body)) == 0 {
 		request.Body = io.NopCloser(bytes.NewReader(nil))
@@ -176,6 +188,7 @@ type oauthCryptoResponseWriter struct {
 	body                bytes.Buffer // 尚未加密的响应正文。
 	status              int          // 被缓存的 HTTP 状态码。
 	wroteHeader         bool         // 是否已经记录响应头，避免重复写状态。
+	overflow            bool         // 响应正文是否超过缓存上限。
 }
 
 // newOauthCryptoResponseWriter 创建缓存响应正文和状态码的写入器。
@@ -196,6 +209,10 @@ func (w *oauthCryptoResponseWriter) WriteHeader(status int) {
 func (w *oauthCryptoResponseWriter) Write(value []byte) (int, error) {
 	if !w.wroteHeader {
 		w.wroteHeader = true
+	}
+	if int64(w.body.Len()+len(value)) > maxOAuthCryptoBodyBytes {
+		w.overflow = true
+		return 0, errors.New("响应数据超过大小限制")
 	}
 	return w.body.Write(value)
 }

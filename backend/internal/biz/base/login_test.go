@@ -88,7 +88,7 @@ func TestFindUserByPasswordUsesTenantCode(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = db.Create(&models.BaseTenant{ID: 1000, Code: "1000", Name: "普通租户", Status: 1}).Error
+	err = db.Create(&models.BaseTenant{ID: 2, Code: "1000", Name: "普通租户", Status: 1}).Error
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -104,7 +104,7 @@ func TestFindUserByPasswordUsesTenantCode(t *testing.T) {
 	}
 	users := []*models.BaseUser{
 		{ID: 1, TenantID: 1, UserName: "admin", Password: defaultPasswordHash, Status: 1},
-		{ID: 2, TenantID: 1000, UserName: "admin", Password: tenantPasswordHash, Status: 1},
+		{ID: 2, TenantID: 2, UserName: "admin", Password: tenantPasswordHash, Status: 1},
 	}
 	for _, user := range users {
 		if err = db.Create(user).Error; err != nil {
@@ -134,7 +134,7 @@ func TestFindUserByPasswordUsesTenantCode(t *testing.T) {
 	if err != nil {
 		t.Fatalf("普通租户同名管理员登录失败: %v", err)
 	}
-	if user.ID != 2 || user.TenantID != 1000 {
+	if user.ID != 2 || user.TenantID != 2 {
 		t.Fatalf("命中了错误租户账号: %+v", user)
 	}
 }

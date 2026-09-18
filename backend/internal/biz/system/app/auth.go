@@ -4,9 +4,11 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
+	baseBiz "github.com/liujitcn/kratos-admin/backend/internal/biz/base"
 	"github.com/liujitcn/kratos-core/biz"
 	_const "github.com/liujitcn/kratos-core/const"
 	"github.com/liujitcn/kratos-core/errorsx"
@@ -117,9 +119,15 @@ func (c *AuthCase) UpdateUserProfile(ctx context.Context, req *appv1.UserProfile
 	if oss != nil {
 		// 新头像为空或发生变更时，旧头像文件需要尝试删除。
 		if baseUser.Avatar == "" || originalAvatar != baseUser.Avatar {
-			// 头像文件删除失败时，只记录日志不影响主流程。
-			if err = oss.DeleteFile(originalAvatar); err != nil {
-				log.Error(fmt.Sprintf("DeleteFile %v", err))
+			// 头像字段保存浏览器访问路径，先转换为 OSS 对象路径再删除，避免根目录重复拼接。
+			objectPath, pathErr := baseBiz.ObjectFilePath(originalAvatar)
+			if pathErr != nil {
+				log.Error(fmt.Sprintf("DeleteFile %v", pathErr))
+			} else if objectPath != "" && !strings.HasPrefix(objectPath, "http://") && !strings.HasPrefix(objectPath, "https://") {
+				// 外部地址文件不属于本地 OSS 管理范围，跳过删除；删除失败时只记录日志不影响主流程。
+				if err = oss.DeleteFile(objectPath); err != nil {
+					log.Error(fmt.Sprintf("DeleteFile %v", err))
+				}
 			}
 		}
 	}

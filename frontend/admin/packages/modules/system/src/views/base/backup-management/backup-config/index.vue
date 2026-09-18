@@ -68,12 +68,19 @@ function refresh() { proTable.value?.getTableList(); }
 function defaultForm(): BaseTableBackupForm { return { id: 0, source_name: "", backup_type: BaseTableBackupType.BASE_TABLE_BACKUP_TYPE_FULL, oss_prefix: "backup/database", retention_count: 7, status: Status.STATUS_ENABLE }; }
 function resetForm() { dialog.visible = false; formDialogRef.value?.resetFields(); Object.assign(formData, defaultForm()); }
 async function openDialog(id?: number) {
-  await loadSourceOptions();
-  Object.assign(formData, defaultForm());
-  dialog.editing = Boolean(id);
-  if (id) Object.assign(formData, await defBaseTableBackupService.GetBaseTableBackup({ id }));
-  if (!formData.source_name) formData.source_name = String(sourceOptions.value[0]?.value ?? "");
-  dialog.visible = true;
+  await formDialogRef.value?.open({
+    load: async () => {
+      await loadSourceOptions();
+      const data = id ? await defBaseTableBackupService.GetBaseTableBackup({ id }) : undefined;
+      const form = { ...defaultForm(), ...(data ?? {}) };
+      if (!form.source_name) form.source_name = String(sourceOptions.value[0]?.value ?? "");
+      return form;
+    },
+    commit: form => {
+      Object.assign(formData, form);
+      dialog.editing = Boolean(id);
+    }
+  });
 }
 async function loadSourceOptions() {
   if (sourceOptions.value.length || loadingSources.value) return;

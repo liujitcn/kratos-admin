@@ -142,6 +142,9 @@ func validateTableArchiveForm(baseCase *biz.BaseCase, req *adminv1.BaseTableArch
 	if req.GetBatchSize() <= 0 {
 		return errorsx.InvalidArgument("批处理数量必须大于零")
 	}
+	if req.GetOnlineRetentionDays() <= 0 {
+		return errorsx.InvalidArgument("在线保留天数必须大于零")
+	}
 	return nil
 }
 

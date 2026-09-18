@@ -45,14 +45,29 @@ func NewChatClient(modelCfg *configv1.AI_Model) *ChatClient {
 	return client
 }
 
-// NewResponsesClient 创建 AI 助手专用 Responses 模型客户端。
-func NewResponsesClient(modelCfg *configv1.AI_Model) *ResponsesClient {
-	client := &ResponsesClient{}
+// Name 返回当前结构化聊天模型名称。
+func (c *ChatClient) Name() string {
+	if c == nil {
+		return ""
+	}
+	return c.name
+}
+
+// NewAssistantClient 创建 AI 助手专用模型客户端。
+func NewAssistantClient(modelCfg *configv1.AI_Model) *AssistantClient {
+	client := &AssistantClient{apiType: resolveAssistantAPIType(modelCfg)}
 	// AI 未配置完整时保持空客户端，避免服务启动阶段因为可选能力缺失而失败。
 	if !aiModelConfigured(modelCfg) {
 		return client
 	}
-	agenticModel, err := newResponsesModel(context.Background(), modelCfg)
+	var agenticModel model.AgenticModel
+	var err error
+	// Responses 协议能力更强，但部分网关只实现了聊天补全协议，按部署配置选择。
+	if client.apiType == configv1.AI_Model_API_TYPE_RESPONSES {
+		agenticModel, err = newResponsesModel(context.Background(), modelCfg)
+	} else {
+		agenticModel, err = newChatModel(context.Background(), modelCfg, nil)
+	}
 	if err != nil {
 		return client
 	}
@@ -61,31 +76,46 @@ func NewResponsesClient(modelCfg *configv1.AI_Model) *ResponsesClient {
 	return client
 }
 
-// ResponsesClient 表示 AI 助手专用 Responses 模型客户端。
-type ResponsesClient struct {
+// AssistantClient 表示 AI 助手专用模型客户端，按配置选择 Chat Completions 或 Responses 协议。
+type AssistantClient struct {
 	model.AgenticModel
-	name string
+	name    string
+	apiType configv1.AI_Model_APIType
 }
 
-// Name 返回当前聊天模型名称。
-func (c *ChatClient) Name() string {
-	if c == nil {
-		return ""
-	}
-	return c.name
-}
-
-// Enabled 判断 Responses 模型客户端是否可用。
-func (c *ResponsesClient) Enabled() bool {
+// Enabled 判断 AI 助手模型客户端是否可用。
+func (c *AssistantClient) Enabled() bool {
 	return c != nil && c.AgenticModel != nil
 }
 
-// Name 返回当前 Responses 模型名称。
-func (c *ResponsesClient) Name() string {
+// Name 返回当前 AI 助手模型名称。
+func (c *AssistantClient) Name() string {
 	if c == nil {
 		return ""
 	}
 	return c.name
+}
+
+// APIType 返回当前模型客户端使用的 API 协议类型。
+func (c *AssistantClient) APIType() configv1.AI_Model_APIType {
+	if c == nil {
+		return configv1.AI_Model_API_TYPE_UNSPECIFIED
+	}
+	return c.apiType
+}
+
+// SupportsResponsesServerTools 判断当前协议是否支持 Responses 服务端工具。
+func (c *AssistantClient) SupportsResponsesServerTools() bool {
+	return c != nil && c.apiType == configv1.AI_Model_API_TYPE_RESPONSES
+}
+
+// resolveAssistantAPIType 解析 AI 助手使用的 API 协议类型，未配置时默认聊天补全。
+func resolveAssistantAPIType(modelCfg *configv1.AI_Model) configv1.AI_Model_APIType {
+	if modelCfg != nil && modelCfg.GetApiType() == configv1.AI_Model_API_TYPE_RESPONSES {
+		return configv1.AI_Model_API_TYPE_RESPONSES
+	}
+	// 聊天补全协议是所有 OpenAI 兼容网关的公共子集，作为默认值最稳妥。
+	return configv1.AI_Model_API_TYPE_CHAT_COMPLETIONS
 }
 
 // aiModelConfigured 判断大模型启动配置是否完整。

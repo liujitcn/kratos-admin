@@ -9,6 +9,7 @@ import { UserState } from "@/stores/interface";
 import piniaPersistConfig from "@/stores/helper/persist";
 import { useDictStoreHook } from "@/stores/modules/dict";
 import { useLockScreenStore } from "@/stores/modules/lockScreen";
+import { useAuthStore } from "@/stores/modules/auth";
 
 const defaultUserInfo: UserInfoForm = {
   user_name: "",
@@ -56,7 +57,7 @@ export const useUserStore = defineStore("admin-user", {
     /** 根据接口返回统一更新令牌信息 */
     updateTokenAuth(accessToken: string, tokenType: string, expiresIn?: number) {
       const tokenPrefix = tokenType ? `${tokenType} ` : "";
-      const expiresAt = expiresIn ? Date.now() + expiresIn * 1000 : 0;
+      const expiresAt = expiresIn && expiresIn > 0 ? Date.now() + expiresIn * 1000 : Number.MAX_SAFE_INTEGER;
 
       this.authInvalidated = false;
       this.setToken(`${tokenPrefix}${accessToken}`.trim());
@@ -98,6 +99,7 @@ export const useUserStore = defineStore("admin-user", {
       // 清理登录态时同步清空字典缓存，避免切换账号后读到旧字典。
       useDictStoreHook().clearDictionaryCache();
       useLockScreenStore().clearLock();
+      useAuthStore().$reset();
       this.authVersion += 1;
       this.authInvalidated = true;
       this.setToken("");

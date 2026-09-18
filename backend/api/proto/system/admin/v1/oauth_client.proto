@@ -82,9 +82,11 @@ message PageOauthClientRequest {
 
   optional int64 tenant_id = 3 [(gnostic.openapi.v3.property) = {description: "绑定租户ID"}]; // 绑定租户ID
 
-  int64 page_num = 101 [(gnostic.openapi.v3.property) = {description: "页码"}]; // 页码
+  int64 page_num = 101 [(gnostic.openapi.v3.property) = {description: "页码"},
+    (buf.validate.field).int64 = {gte: 1, lte: 1000000}]; // 页码
 
-  int64 page_size = 102 [(gnostic.openapi.v3.property) = {description: "每页数量"}]; // 每页数量
+  int64 page_size = 102 [(gnostic.openapi.v3.property) = {description: "每页数量"},
+    (buf.validate.field).int64 = {gte: 1, lte: 100}]; // 每页数量
 }
 
 // 开放授权客户端分页响应。

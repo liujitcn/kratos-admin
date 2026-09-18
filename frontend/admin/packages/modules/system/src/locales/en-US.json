@@ -398,6 +398,8 @@
   "system.base.log.field.os": "Operating system",
   "system.base.log.field.path": "Path",
   "system.base.log.field.project": "Project",
+  "system.base.log.field.role_code": "Role code",
+  "system.base.log.field.role_id": "Role ID",
   "system.base.log.field.reason": "Reason",
   "system.base.log.field.reason_code": "Reason code",
   "system.base.log.field.referer": "Referrer",

@@ -13,6 +13,7 @@ var ProviderSet = wire.NewSet(
 	NewAiSessionCase,
 	NewAiMessageCase,
 	NewAiToolCase,
+	NewAiSearchCase,
 	NewBaseDeptCase,
 	NewBaseRoleCase,
 	NewBaseThirdAccountCase,

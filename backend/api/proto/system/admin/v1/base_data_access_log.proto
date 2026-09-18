@@ -2,6 +2,7 @@ syntax = "proto3";
 
 package system.admin.v1;
 
+import "buf/validate/validate.proto";
 import "gnostic/openapi/v3/annotations.proto";
 import "google/api/annotations.proto";
 import "system/admin/v1/base_log.proto";
@@ -48,8 +49,10 @@ message PageBaseDataAccessLogRequest {
   repeated string occurred_at = 6 [(gnostic.openapi.v3.property) = {description: "事件时间"}]; // 事件时间
   string resource_type = 7 [(gnostic.openapi.v3.property) = {description: "资源类型"}]; // 资源类型
   string keyword = 8 [(gnostic.openapi.v3.property) = {description: "表名、资源或请求ID关键字"}]; // 关键字
-  int64 page_num = 101 [(gnostic.openapi.v3.property) = {description: "当前页码"}]; // 当前页码
-  int64 page_size = 102 [(gnostic.openapi.v3.property) = {description: "每页行数"}]; // 每页行数
+  int64 page_num = 101 [(gnostic.openapi.v3.property) = {description: "当前页码"},
+    (buf.validate.field).int64 = {gte: 1, lte: 1000000}]; // 当前页码
+  int64 page_size = 102 [(gnostic.openapi.v3.property) = {description: "每页行数"},
+    (buf.validate.field).int64 = {gte: 1, lte: 100}]; // 每页行数
 }
 
 // 数据访问日志分页响应。

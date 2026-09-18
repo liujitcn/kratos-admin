@@ -6018,6 +6018,25 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/system.app.v1.ListBaseMenuResponse'
+    /api/v1/base/ai/search:
+        post:
+            tags:
+                - AiSearchService
+            description: ウェブで公開情報を検索して結果の概要を返します
+            operationId: AiSearchService_SearchAiWeb
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/base.v1.SearchAiWebRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.SearchAiWebResponse'
     /api/v1/base/ai/session:
         get:
             tags:
@@ -8349,6 +8368,39 @@ components:
                     type: string
                     description: 失敗メッセージ ID
             description: AI アシスタント失敗メッセージ再試行リクエスト
+        base.v1.SearchAiWebItem:
+            type: object
+            properties:
+                title:
+                    type: string
+                    description: 結果タイトル
+                url:
+                    type: string
+                    description: 結果URL
+                snippet:
+                    type: string
+                    description: 結果概要
+            description: AIアシスタントのWeb検索結果
+        base.v1.SearchAiWebRequest:
+            type: object
+            properties:
+                query:
+                    type: string
+                    description: 検索キーワード
+                limit:
+                    type: integer
+                    description: "返却結果数: 0 はデフォルトの5件、最大10件"
+                    format: int32
+            description: AIアシスタントのWeb検索リクエスト
+        base.v1.SearchAiWebResponse:
+            type: object
+            properties:
+                items:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/base.v1.SearchAiWebItem'
+                    description: 検索結果一覧
+            description: AIアシスタントのWeb検索レスポンス
         base.v1.SendAiMessageRequest:
             type: object
             properties:
@@ -14627,6 +14679,8 @@ components:
 tags:
     - name: AiMessageService
       description: Base AI アシスタントメッセージサービス
+    - name: AiSearchService
+      description: Base AI アシスタントWeb検索サービス
     - name: AiSessionService
       description: Base AI アシスタントセッションサービス
     - name: AiToolService
@@ -14676,9 +14730,9 @@ tags:
     - name: BaseLoginPolicyService
       description: Adminログインポリシー管理サービス。
     - name: BaseMenuService
-      description: Adminメニュー管理サービス
-    - name: BaseMenuService
       description: Appメニューサービス
+    - name: BaseMenuService
+      description: Adminメニュー管理サービス
     - name: BaseMessageCategoryService
       description: Adminメッセージカテゴリ管理サービス。
     - name: BaseMessageService

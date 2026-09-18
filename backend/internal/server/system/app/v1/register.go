@@ -2,8 +2,10 @@ package app
 
 import (
 	"github.com/go-kratos/kratos/v3/transport/http"
+	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
 	appv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/app/v1"
 	einoTool "github.com/liujitcn/kratos-admin/backend/internal/biz/agent/tool"
+	base "github.com/liujitcn/kratos-admin/backend/internal/service/base/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/service/system/app/v1"
 	"github.com/liujitcn/kratos-kit/transport/mcp"
 	"google.golang.org/grpc"
@@ -15,6 +17,7 @@ type Services struct {
 	BaseArea *app.BaseAreaService
 	BaseDict *app.BaseDictService
 	BaseMenu *app.BaseMenuService
+	AiSearch *base.AiSearchService
 }
 
 // RegisterGRPC 注册 system.app.v1 的 gRPC 服务。
@@ -66,6 +69,11 @@ func (s Services) AppAgentTools() ([]einoTool.Invokable, error) {
 	}
 	tools = append(tools, values...)
 	values, err = appv1.NewBaseMenuServiceAgentTools(s.BaseMenu)
+	if err != nil {
+		return nil, err
+	}
+	tools = append(tools, values...)
+	values, err = basev1.NewAiSearchServiceAgentTools(s.AiSearch)
 	if err != nil {
 		return nil, err
 	}

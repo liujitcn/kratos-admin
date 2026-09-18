@@ -830,13 +830,13 @@ var File_system_admin_v1_base_job_proto protoreflect.FileDescriptor
 const file_system_admin_v1_base_job_proto_rawDesc = "" +
 	"\n" +
 	"\x1esystem/admin/v1/base_job.proto\x12\x0fsystem.admin.v1\x1a\x16common/v1/common.proto\x1a\x14common/v1/enum.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1bbuf/validate/validate.proto\x1a\x1fsystem/admin/v1/base_i18n.proto\"\x16\n" +
-	"\x14OptionBaseJobRequest\"\xbc\x02\n" +
+	"\x14OptionBaseJobRequest\"\xd0\x02\n" +
 	"\x12PageBaseJobRequest\x12&\n" +
 	"\x04name\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f任务名称R\x04name\x127\n" +
 	"\rinvoke_target\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f调用目标R\finvokeTarget\x12<\n" +
-	"\x06status\x18d \x01(\x0e2\x11.common.v1.StatusB\f\xbaG\t\x92\x02\x06状态H\x00R\x06status\x88\x01\x01\x129\n" +
-	"\bpage_num\x18e \x01(\x03B\x1e\xbaG\x1b\x8a\x02\t\t\x00\x00\x00\x00\x00\x00\xf0?\x92\x02\f当前页码R\apageNum\x12A\n" +
-	"\tpage_size\x18f \x01(\x03B$\xbaG!\x8a\x02\t\t\x00\x00\x00\x00\x00\x00$@\x92\x02\x12每一页的行数R\bpageSizeB\t\n" +
+	"\x06status\x18d \x01(\x0e2\x11.common.v1.StatusB\f\xbaG\t\x92\x02\x06状态H\x00R\x06status\x88\x01\x01\x12D\n" +
+	"\bpage_num\x18e \x01(\x03B)\xbaG\x1b\x8a\x02\t\t\x00\x00\x00\x00\x00\x00\xf0?\x92\x02\f当前页码\xbaH\b\"\x06\x18\xc0\x84=(\x01R\apageNum\x12J\n" +
+	"\tpage_size\x18f \x01(\x03B-\xbaG!\x8a\x02\t\t\x00\x00\x00\x00\x00\x00$@\x92\x02\x12每一页的行数\xbaH\x06\"\x04\x18d(\x01R\bpageSizeB\t\n" +
 	"\a_status\"\x84\x01\n" +
 	"\x13PageBaseJobResponse\x12I\n" +
 	"\tbase_jobs\x18\x01 \x03(\v2\x18.system.admin.v1.BaseJobB\x12\xbaG\x0f\x92\x02\f分页数据R\bbaseJobs\x12\"\n" +

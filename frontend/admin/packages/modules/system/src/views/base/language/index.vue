@@ -144,14 +144,17 @@ async function requestBaseLanguageTable(params: PageBaseLanguageRequest) {
 async function handleOpenDialog(id?: number) {
   resetForm();
   dialog.editing = Boolean(id);
-  dialog.visible = true;
-  if (!id) return;
-  Object.assign(formData, await defBaseLanguageService.GetBaseLanguage({ id }));
+  await formDialogRef.value?.open({
+    load: () => (id ? defBaseLanguageService.GetBaseLanguage({ id }) : undefined),
+    commit: data => {
+      if (data) Object.assign(formData, data);
+    }
+  });
 }
 
 /** 关闭语言编辑弹窗。 */
 function handleCloseDialog() {
-  dialog.visible = false;
+  formDialogRef.value?.close();
   resetForm();
 }
 

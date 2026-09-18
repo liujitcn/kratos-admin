@@ -64,7 +64,7 @@ func BuildModules(migrations *migration.Migration, config2 *configv1.Bootstrap, 
 	if err != nil {
 		return nil, nil, err
 	}
-	responsesClient := model.NewResponsesClient(ai_Model)
+	assistantClient := model.NewAssistantClient(ai_Model)
 	baseAPIRepository := data2.NewBaseAPIRepository(dataData)
 	mcpCase, err := biz2.NewMcpCase(baseCase, baseAPIRepository, authorizer)
 	if err != nil {
@@ -242,6 +242,8 @@ func BuildModules(migrations *migration.Migration, config2 *configv1.Bootstrap, 
 	baseRedactStorageValueRepository := data2.NewBaseRedactStorageValueRepository(dataData)
 	baseRedactStoragePolicyCase := biz3.NewBaseRedactStoragePolicyCase(baseCase, transaction, baseRedactStoragePolicyRepository, baseRedactStorageValueRepository, baseRedactRuleRepository, redactResolver)
 	baseRedactStoragePolicyService := admin.NewBaseRedactStoragePolicyService(baseRedactStoragePolicyCase)
+	aiSearchCase := biz2.NewAiSearchCase(baseCase)
+	aiSearchService := base.NewAiSearchService(aiSearchCase)
 	services := admin2.Services{
 		Auth:                     authService,
 		BaseAPI:                  baseApiService,
@@ -303,6 +305,7 @@ func BuildModules(migrations *migration.Migration, config2 *configv1.Bootstrap, 
 		BaseRedactOutputPolicy:   baseRedactOutputPolicyService,
 		BaseRedactRule:           baseRedactRuleService,
 		BaseRedactStoragePolicy:  baseRedactStoragePolicyService,
+		AiSearch:                 aiSearchService,
 	}
 	adminTools, err := ParseAdminAgentTools(services)
 	if err != nil {
@@ -329,20 +332,21 @@ func BuildModules(migrations *migration.Migration, config2 *configv1.Bootstrap, 
 		BaseArea: appBaseAreaService,
 		BaseDict: appBaseDictService,
 		BaseMenu: appBaseMenuService,
+		AiSearch: aiSearchService,
 	}
 	appTools, err := ParseAppAgentTools(appServices)
 	if err != nil {
 		cleanup()
 		return nil, nil, err
 	}
-	runtime := ai.NewRuntime(responsesClient, mcpCase, adminTools, appTools)
+	runtime := ai.NewRuntime(assistantClient, mcpCase, adminTools, appTools)
 	aiMessageCase := biz2.NewAiMessageCase(baseCase, transaction, aiMessageRepository, aiSessionCase, baseUserCase, runtime)
 	aiSessionService := base.NewAiSessionService(aiSessionCase, aiMessageCase)
 	aiToolCase := biz2.NewAiToolCase(baseCase, runtime)
 	aiToolService := base.NewAiToolService(aiToolCase)
 	aiMessageService := base.NewAiMessageService(aiMessageCase)
 	configCase := biz2.NewConfigCase(baseCase, baseConfigRepository, baseI18NRepository, baseI18NCustomRepository, baseLanguageRepository)
-	configService := base.NewConfigService(configCase, responsesClient)
+	configService := base.NewConfigService(configCase, assistantClient)
 	languageCase := biz2.NewLanguageCase(baseCase, baseLanguageRepository)
 	languageService := base.NewLanguageService(languageCase)
 	fileService := base.NewFileService(fileCase)
@@ -370,6 +374,7 @@ func BuildModules(migrations *migration.Migration, config2 *configv1.Bootstrap, 
 		AiSession:    aiSessionService,
 		AiTool:       aiToolService,
 		AiMessage:    aiMessageService,
+		AiSearch:     aiSearchService,
 		Config:       configService,
 		Language:     languageService,
 		File:         fileService,
@@ -442,12 +447,14 @@ func BuildModules(migrations *migration.Migration, config2 *configv1.Bootstrap, 
 		BaseRedactOutputPolicy:   baseRedactOutputPolicyService,
 		BaseRedactRule:           baseRedactRuleService,
 		BaseRedactStoragePolicy:  baseRedactStoragePolicyService,
+		AiSearch:                 aiSearchService,
 	}
 	services2 := &app2.Services{
 		Auth:     appAuthService,
 		BaseArea: appBaseAreaService,
 		BaseDict: appBaseDictService,
 		BaseMenu: appBaseMenuService,
+		AiSearch: aiSearchService,
 	}
 	modules, err := NewModules(baseServices, adminServices, services2, baseConfigCase, baseLoginPolicyCase, redactResolver)
 	if err != nil {

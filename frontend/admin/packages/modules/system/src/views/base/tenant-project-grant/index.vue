@@ -208,22 +208,33 @@ async function requestProjectGrantTable(params: Record<string, unknown>) {
 
 /** 打开项目授权新增或编辑弹窗。 */
 async function handleOpenDialog(row?: BaseTenantProjectGrant) {
-  resetForm();
-  dialog.editing = Boolean(row);
-  dialog.titleKey = row ? "common.action.edit_resource" : "common.action.create_resource";
   loading.value = true;
   try {
-    await loadTenantOptions(true);
-    if (!isDefaultTenant.value) formData.tenant_id = Number(tenantOptions.value[0]?.value) || undefined;
-    if (row) {
-      formData.tenant_id = row.tenant_id;
-      formData.subject_type = row.subject_type;
-      formData.subject_id = row.subject_id;
-      formData.all = row.project_id.length === 1 && row.project_id[0] === 0;
-      formData.project_id = formData.all ? [] : [...row.project_id];
-    }
-    await Promise.all([loadProjectOptions(), loadSubjectOptions()]);
-    dialog.visible = true;
+    await formDialogRef.value?.open({
+      load: async () => {
+        await loadTenantOptions(true);
+        const nextForm = {
+          tenant_id: row?.tenant_id ?? (isDefaultTenant.value ? undefined : Number(tenantOptions.value[0]?.value) || undefined),
+          subject_type: row?.subject_type ?? DEFAULT_SUBJECT_TYPE,
+          subject_id: row?.subject_id,
+          project_id: row && !(row.project_id.length === 1 && row.project_id[0] === 0) ? [...row.project_id] : [],
+          all: Boolean(row && row.project_id.length === 1 && row.project_id[0] === 0)
+        } satisfies ProjectGrantFormState;
+        const [projects, subjects] = await Promise.all([
+          requestProjectOptions(nextForm.tenant_id),
+          requestSubjectOptions(nextForm.tenant_id, nextForm.subject_type)
+        ]);
+        return { nextForm, projects, subjects };
+      },
+      commit: ({ nextForm, projects, subjects }) => {
+        resetForm();
+        dialog.editing = Boolean(row);
+        dialog.titleKey = row ? "common.action.edit_resource" : "common.action.create_resource";
+        Object.assign(formData, nextForm);
+        projectOptions.value = projects;
+        subjectOptions.value = subjects;
+      }
+    });
   } finally {
     loading.value = false;
   }
@@ -231,28 +242,34 @@ async function handleOpenDialog(row?: BaseTenantProjectGrant) {
 
 /** 加载目标租户项目选项。 */
 async function loadProjectOptions() {
-  projectOptions.value = formData.tenant_id
-    ? (await defBaseTenantProjectService.OptionBaseTenantProject({ tenant_id: toRequestTenantId(formData.tenant_id) })).list ?? []
-    : [];
+  projectOptions.value = await requestProjectOptions(formData.tenant_id);
+}
+
+/** 请求目标租户项目选项。 */
+async function requestProjectOptions(tenantId?: number) {
+  if (!tenantId) return [];
+  return (await defBaseTenantProjectService.OptionBaseTenantProject({ tenant_id: toRequestTenantId(tenantId) })).list ?? [];
 }
 
 /** 根据授权类型加载岗位、角色、部门或用户主体选项。 */
 async function loadSubjectOptions() {
-  subjectOptions.value = [];
-  if (!formData.tenant_id || formData.subject_type === BaseTenantProjectGrantSubjectType.BASE_TENANT_PROJECT_GRANT_SUBJECT_TYPE_UNSPECIFIED) return;
-  switch (formData.subject_type) {
+  subjectOptions.value = await requestSubjectOptions(formData.tenant_id, formData.subject_type);
+}
+
+/** 请求指定租户和主体类型的主体选项。 */
+async function requestSubjectOptions(tenantId: number | undefined, subjectType: BaseTenantProjectGrantSubjectType) {
+  if (!tenantId || subjectType === BaseTenantProjectGrantSubjectType.BASE_TENANT_PROJECT_GRANT_SUBJECT_TYPE_UNSPECIFIED) return [];
+  switch (subjectType) {
     case BaseTenantProjectGrantSubjectType.BASE_TENANT_PROJECT_GRANT_SUBJECT_TYPE_POST:
-      subjectOptions.value = (await defBasePostService.OptionBasePost({ tenant_id: formData.tenant_id })).list ?? [];
-      return;
+      return (await defBasePostService.OptionBasePost({ tenant_id: tenantId })).list ?? [];
     case BaseTenantProjectGrantSubjectType.BASE_TENANT_PROJECT_GRANT_SUBJECT_TYPE_ROLE:
-      subjectOptions.value = (await defBaseRoleService.OptionBaseRole({ tenant_id: formData.tenant_id })).list ?? [];
-      return;
+      return (await defBaseRoleService.OptionBaseRole({ tenant_id: tenantId })).list ?? [];
     case BaseTenantProjectGrantSubjectType.BASE_TENANT_PROJECT_GRANT_SUBJECT_TYPE_DEPT:
-      subjectOptions.value = ((await defBaseDeptService.OptionBaseDept({ tenant_id: formData.tenant_id })).list ?? []) as unknown as ProFormOption[];
-      return;
+      return ((await defBaseDeptService.OptionBaseDept({ tenant_id: tenantId })).list ?? []) as unknown as ProFormOption[];
     case BaseTenantProjectGrantSubjectType.BASE_TENANT_PROJECT_GRANT_SUBJECT_TYPE_USER:
-      subjectOptions.value = (await defBaseUserService.OptionBaseUser({ keyword: "", tenant_id: formData.tenant_id })).list ?? [];
+      return (await defBaseUserService.OptionBaseUser({ keyword: "", tenant_id: tenantId })).list ?? [];
   }
+  return [];
 }
 
 /** 切换目标租户时重置主体和项目选择。 */

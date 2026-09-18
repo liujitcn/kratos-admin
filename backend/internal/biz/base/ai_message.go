@@ -401,12 +401,13 @@ func (c *AiMessageCase) buildAiAttachments(attachments []*basev1.AiAttachment) (
 			MIMEType: ai.DetectAttachmentMIME(item.GetName(), item.GetMimeType()),
 		}
 		if next.URL != "" {
-			err := validateFilePath(next.URL)
+			// 前端回传的是带 /data 前缀的浏览器访问路径，先转换为 OSS 对象路径再读取，避免根目录重复拼接。
+			objectPath, err := objectFilePath(next.URL)
 			if err != nil {
 				return nil, err
 			}
 			var fileBytes []byte
-			fileBytes, err = ossClient.GetFileByte(next.URL)
+			fileBytes, err = ossClient.GetFileByte(objectPath)
 			if err != nil {
 				return nil, errorsx.Internal("读取 AI 助手附件失败").WithCause(err)
 			}

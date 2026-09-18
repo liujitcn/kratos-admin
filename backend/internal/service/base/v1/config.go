@@ -17,13 +17,13 @@ import (
 type ConfigService struct {
 	basev1.UnimplementedConfigServiceServer
 	configCase *biz.ConfigCase
-	aiClient   *model.ResponsesClient
+	aiClient   *model.AssistantClient
 }
 
 // NewConfigService 创建系统配置公共服务
 func NewConfigService(
 	configCase *biz.ConfigCase,
-	aiClient *model.ResponsesClient,
+	aiClient *model.AssistantClient,
 ) *ConfigService {
 	var ss = ConfigService{
 		configCase: configCase,

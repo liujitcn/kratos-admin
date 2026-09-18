@@ -1193,7 +1193,7 @@ const file_system_admin_v1_base_api_proto_rawDesc = "" +
 	"\x0einclude_public\x18\x01 \x01(\bB0\xbaG-\x92\x02*是否包含免鉴权和可选鉴权接口H\x00R\rincludePublic\x88\x01\x01B\x11\n" +
 	"\x0f_include_public\"_\n" +
 	"\x15OptionBaseApiResponse\x12F\n" +
-	"\tbase_apis\x18\x01 \x03(\v2\x18.system.admin.v1.BaseApiB\x0f\xbaG\f\x92\x02\tAPI列表R\bbaseApis\"\xe6\a\n" +
+	"\tbase_apis\x18\x01 \x03(\v2\x18.system.admin.v1.BaseApiB\x0f\xbaG\f\x92\x02\tAPI列表R\bbaseApis\"\xfa\a\n" +
 	"\x12PageBaseApiRequest\x121\n" +
 	"\ttool_name\x18\x01 \x01(\tB\x0f\xbaG\f\x92\x02\t工具名H\x00R\btoolName\x88\x01\x01\x12S\n" +
 	"\vtool_prompt\x18\x02 \x01(\tB-\xbaG*\x92\x02'Agent/MCP工具提示词搜索关键字H\x01R\n" +
@@ -1209,9 +1209,9 @@ const file_system_admin_v1_base_api_proto_rawDesc = "" +
 	"\fagent_status\x18\n" +
 	" \x01(\x0e2\x11.common.v1.StatusB,\xbaG)\x92\x02&Agent工具状态：枚举【Status】H\tR\vagentStatus\x88\x01\x01\x12M\n" +
 	"\x14openapi_service_code\x18\v \x01(\tB\x16\xbaG\x13\x92\x02\x10OpenAPI文档keyH\n" +
-	"R\x12openapiServiceCode\x88\x01\x01\x12'\n" +
-	"\bpage_num\x18e \x01(\x03B\f\xbaG\t\x92\x02\x06页码R\apageNum\x12/\n" +
-	"\tpage_size\x18f \x01(\x03B\x12\xbaG\x0f\x92\x02\f每页数量R\bpageSizeB\f\n" +
+	"R\x12openapiServiceCode\x88\x01\x01\x122\n" +
+	"\bpage_num\x18e \x01(\x03B\x17\xbaG\t\x92\x02\x06页码\xbaH\b\"\x06\x18\xc0\x84=(\x01R\apageNum\x128\n" +
+	"\tpage_size\x18f \x01(\x03B\x1b\xbaG\x0f\x92\x02\f每页数量\xbaH\x06\"\x04\x18d(\x01R\bpageSizeB\f\n" +
 	"\n" +
 	"_tool_nameB\x0e\n" +
 	"\f_tool_promptB\x0f\n" +

@@ -11,6 +11,7 @@ import (
 	sync "sync"
 	unsafe "unsafe"
 
+	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	_ "github.com/google/gnostic/openapiv3"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
@@ -418,14 +419,14 @@ var File_system_admin_v1_base_migration_proto protoreflect.FileDescriptor
 
 const file_system_admin_v1_base_migration_proto_rawDesc = "" +
 	"\n" +
-	"$system/admin/v1/base_migration.proto\x12\x0fsystem.admin.v1\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\"\xc5\x02\n" +
+	"$system/admin/v1/base_migration.proto\x12\x0fsystem.admin.v1\x1a\x1bbuf/validate/validate.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\"\xd9\x02\n" +
 	"\x18PageBaseMigrationRequest\x120\n" +
 	"\vdata_source\x18\x01 \x01(\tB\x0f\xbaG\f\x92\x02\t数据源R\n" +
 	"dataSource\x12/\n" +
 	"\x06module\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f迁移模块H\x00R\x06module\x88\x01\x01\x121\n" +
-	"\aversion\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f迁移版本H\x01R\aversion\x88\x01\x01\x129\n" +
-	"\bpage_num\x18e \x01(\x03B\x1e\xbaG\x1b\x8a\x02\t\t\x00\x00\x00\x00\x00\x00\xf0?\x92\x02\f当前页码R\apageNum\x12A\n" +
-	"\tpage_size\x18f \x01(\x03B$\xbaG!\x8a\x02\t\t\x00\x00\x00\x00\x00\x00$@\x92\x02\x12每一页的行数R\bpageSizeB\t\n" +
+	"\aversion\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f迁移版本H\x01R\aversion\x88\x01\x01\x12D\n" +
+	"\bpage_num\x18e \x01(\x03B)\xbaG\x1b\x8a\x02\t\t\x00\x00\x00\x00\x00\x00\xf0?\x92\x02\f当前页码\xbaH\b\"\x06\x18\xc0\x84=(\x01R\apageNum\x12J\n" +
+	"\tpage_size\x18f \x01(\x03B-\xbaG!\x8a\x02\t\t\x00\x00\x00\x00\x00\x00$@\x92\x02\x12每一页的行数\xbaH\x06\"\x04\x18d(\x01R\bpageSizeB\t\n" +
 	"\a_moduleB\n" +
 	"\n" +
 	"\b_version\"\xf4\x01\n" +

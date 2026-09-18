@@ -6,6 +6,7 @@ package adminv1
 import (
 	context "context"
 
+	validate "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	redact "github.com/liujitcn/kratos-kit/redact"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
@@ -19,6 +20,7 @@ var (
 	_ redact.Redactor
 	_ codes.Code
 	_ status.Status
+	_ validate.Rule
 )
 
 // RegisterRedactedBaseApiLogServiceServer wraps the BaseApiLogServiceServer with the redacted server and registers the service in GRPC

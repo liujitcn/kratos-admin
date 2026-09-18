@@ -1,6 +1,6 @@
 import { setAppMenuBadge } from '@liujitcn/kratos-taro-app-core/navigation'
 import { getToken } from '@liujitcn/kratos-taro-app-core/utils/auth'
-import { getRequestAccessToken } from '@liujitcn/kratos-taro-app-core/utils/http'
+import { getRequestAccessToken, requestBaseURL } from '@liujitcn/kratos-taro-app-core/utils/http'
 import { defNotificationService } from './api/base/v1/notification'
 
 /** System 模块共享的站内信未读数。 */
@@ -71,7 +71,8 @@ function startNotificationSse(): () => void {
       try {
         const token = await getRequestAccessToken()
         if (!token || controller.signal.aborted) return
-        const response = await fetch(`${window.location.origin}/events/base.notification`, {
+        const sseBaseURL = requestBaseURL.replace(/\/api\/?$/, '') || window.location.origin
+        const response = await fetch(`${sseBaseURL}/events/base.notification`, {
           headers: { Accept: 'text/event-stream', Authorization: token },
           signal: controller.signal,
         })

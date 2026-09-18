@@ -76,6 +76,24 @@ func TestReplayBaseLogFallbackFileKeepsFailedRecord(t *testing.T) {
 	}
 }
 
+// TestReplayBaseLogFallbackFileSkipsCorruptedRecord 验证损坏的完整记录不会阻塞后续日志重放。
+func TestReplayBaseLogFallbackFileSkipsCorruptedRecord(t *testing.T) {
+	directory := t.TempDir()
+	path := filepath.Join(directory, "admin-log.jsonl")
+	if err := os.WriteFile(path, []byte("not-json\n"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	appendBaseLogFallbackTestRecord(t, path, "event-2")
+	replayedIDs := make([]string, 0, 1)
+	count, err := replayBaseLogFallbackFile(context.Background(), path, baseLogFallbackTestKey, func(_ context.Context, eventID string, _ []byte) error {
+		replayedIDs = append(replayedIDs, eventID)
+		return nil
+	})
+	if err != nil || count != 1 || len(replayedIDs) != 1 || replayedIDs[0] != "event-2" {
+		t.Fatalf("损坏记录不应阻塞后续重放: count=%d ids=%v err=%v", count, replayedIDs, err)
+	}
+}
+
 // TestDecodeBaseLogFallbackRecordRejectsTampering 验证日志入库回退记录被篡改时不会进入重新写入流程。
 func TestDecodeBaseLogFallbackRecordRejectsTampering(t *testing.T) {
 	directory := t.TempDir()

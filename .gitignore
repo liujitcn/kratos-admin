@@ -66,6 +66,7 @@ service_tmp/
 /backend/runtime/
 /backend/configs/root.key
 /backend/configs/full/root.key
+/backend/configs/ai.local.yaml
 /gorse/data/
 
 .pnpm-store/
@@ -73,3 +74,18 @@ service_tmp/
 .turbo/
 .workbuddy/
 /docs/superpowers/
+/.audit/backend-biz-base.md
+/.audit/backend-biz-system.md
+/.audit/backend-infra-pkg.md
+/.audit/backend-infra-server.md
+/.audit/backend-service.md
+/.audit/final-report.md
+/.audit/frontend-admin.md
+/.audit/frontend-taro-app.md
+/.audit/frontend-uni-app.md
+/.audit/migration.md
+/.audit/verify-report.md
+/.audit/verify-report-2.md
+/.audit/verify-report-3.md
+/.audit/verify-report-4.md
+/.audit/verify-report-5.md

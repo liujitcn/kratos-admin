@@ -605,14 +605,14 @@ var File_system_admin_v1_base_i18n_custom_proto protoreflect.FileDescriptor
 
 const file_system_admin_v1_base_i18n_custom_proto_rawDesc = "" +
 	"\n" +
-	"&system/admin/v1/base_i18n_custom.proto\x12\x0fsystem.admin.v1\x1a\x14base/v1/config.proto\x1a\x14common/v1/enum.proto\x1a\x1bbuf/validate/validate.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\xaf\x03\n" +
+	"&system/admin/v1/base_i18n_custom.proto\x12\x0fsystem.admin.v1\x1a\x14base/v1/config.proto\x1a\x14common/v1/enum.proto\x1a\x1bbuf/validate/validate.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\xc3\x03\n" +
 	"\x19PageBaseI18nCustomRequest\x12[\n" +
 	"\x04site\x18\x01 \x01(\x0e2\x17.base.v1.BaseConfigSiteB)\xbaG&\x92\x02#位置：枚举【BaseConfigSite】H\x00R\x04site\x88\x01\x01\x12*\n" +
 	"\x03key\x18\x02 \x01(\tB\x18\xbaG\x15\x92\x02\x12国际化语言键R\x03key\x12*\n" +
 	"\x06locale\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f语言区域R\x06locale\x12Q\n" +
-	"\x06status\x18d \x01(\x0e2\x11.common.v1.StatusB!\xbaG\x1e\x92\x02\x1b状态：枚举【Status】H\x01R\x06status\x88\x01\x01\x129\n" +
-	"\bpage_num\x18e \x01(\x03B\x1e\xbaG\x1b\x8a\x02\t\t\x00\x00\x00\x00\x00\x00\xf0?\x92\x02\f当前页码R\apageNum\x12;\n" +
-	"\tpage_size\x18f \x01(\x03B\x1e\xbaG\x1b\x8a\x02\t\t\x00\x00\x00\x00\x00\x00$@\x92\x02\f每页数量R\bpageSizeB\a\n" +
+	"\x06status\x18d \x01(\x0e2\x11.common.v1.StatusB!\xbaG\x1e\x92\x02\x1b状态：枚举【Status】H\x01R\x06status\x88\x01\x01\x12D\n" +
+	"\bpage_num\x18e \x01(\x03B)\xbaG\x1b\x8a\x02\t\t\x00\x00\x00\x00\x00\x00\xf0?\x92\x02\f当前页码\xbaH\b\"\x06\x18\xc0\x84=(\x01R\apageNum\x12D\n" +
+	"\tpage_size\x18f \x01(\x03B'\xbaG\x1b\x8a\x02\t\t\x00\x00\x00\x00\x00\x00$@\x92\x02\f每页数量\xbaH\x06\"\x04\x18d(\x01R\bpageSizeB\a\n" +
 	"\x05_siteB\t\n" +
 	"\a_status\"\x9d\x01\n" +
 	"\x1aPageBaseI18nCustomResponse\x12[\n" +

@@ -11,6 +11,7 @@ import (
 	sync "sync"
 	unsafe "unsafe"
 
+	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	_ "github.com/google/gnostic/openapiv3"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
@@ -580,7 +581,7 @@ var File_system_admin_v1_base_policy_evaluation_log_proto protoreflect.FileDescr
 
 const file_system_admin_v1_base_policy_evaluation_log_proto_rawDesc = "" +
 	"\n" +
-	"0system/admin/v1/base_policy_evaluation_log.proto\x12\x0fsystem.admin.v1\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\"\x8a\x05\n" +
+	"0system/admin/v1/base_policy_evaluation_log.proto\x12\x0fsystem.admin.v1\x1a\x1bbuf/validate/validate.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\"\x9e\x05\n" +
 	"\"PageBasePolicyEvaluationLogRequest\x120\n" +
 	"\ttenant_id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDH\x00R\btenantId\x88\x01\x01\x12,\n" +
 	"\auser_id\x18\x02 \x01(\x03B\x0e\xbaG\v\x92\x02\b用户IDH\x01R\x06userId\x88\x01\x01\x12k\n" +
@@ -589,9 +590,9 @@ const file_system_admin_v1_base_policy_evaluation_log_proto_rawDesc = "" +
 	"\voccurred_at\x18\x05 \x03(\tB\x12\xbaG\x0f\x92\x02\f事件时间R\n" +
 	"occurredAt\x12(\n" +
 	"\bresource\x18\x06 \x01(\tB\f\xbaG\t\x92\x02\x06资源R\bresource\x12C\n" +
-	"\akeyword\x18\a \x01(\tB)\xbaG&\x92\x02#资源、动作或请求ID关键字R\akeyword\x12-\n" +
-	"\bpage_num\x18e \x01(\x03B\x12\xbaG\x0f\x92\x02\f当前页码R\apageNum\x12/\n" +
-	"\tpage_size\x18f \x01(\x03B\x12\xbaG\x0f\x92\x02\f每页行数R\bpageSizeB\f\n" +
+	"\akeyword\x18\a \x01(\tB)\xbaG&\x92\x02#资源、动作或请求ID关键字R\akeyword\x128\n" +
+	"\bpage_num\x18e \x01(\x03B\x1d\xbaG\x0f\x92\x02\f当前页码\xbaH\b\"\x06\x18\xc0\x84=(\x01R\apageNum\x128\n" +
+	"\tpage_size\x18f \x01(\x03B\x1b\xbaG\x0f\x92\x02\f每页行数\xbaH\x06\"\x04\x18d(\x01R\bpageSizeB\f\n" +
 	"\n" +
 	"_tenant_idB\n" +
 	"\n" +

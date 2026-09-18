@@ -329,18 +329,19 @@ function isProtectedManagementTenant(row?: BaseTenant) {
 async function handleOpenDialog(tenantId?: number) {
   resetForm();
   dialog.titleKey = tenantId ? "common.action.edit_resource" : "common.action.create_resource";
-  dialog.visible = true;
-  if (!tenantId) return;
-
-  const data = await defBaseTenantService.GetBaseTenant({ id: tenantId });
-  Object.assign(formData, data);
+  await formDialogRef.value?.open({
+    load: () => (tenantId ? defBaseTenantService.GetBaseTenant({ id: tenantId }) : undefined),
+    commit: data => {
+      if (data) Object.assign(formData, data);
+    }
+  });
 }
 
 /**
  * 关闭租户弹窗并恢复默认表单值。
  */
 function handleCloseDialog() {
-  dialog.visible = false;
+  formDialogRef.value?.close();
   resetForm();
 }
 

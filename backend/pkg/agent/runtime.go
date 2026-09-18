@@ -22,6 +22,7 @@ const (
 	maxToolQueryAttachmentText = 800
 	maxHistoryToolText         = 2000
 	agentToolCatalogName       = "internal_agent_tool_catalog"
+	aiWebSearchToolName        = "base_v1_ai_search_service_search_ai_web"
 )
 
 const aiInstruction = `你是一个通用 AI 助手，可以自然、友好、准确地回答用户提出的各种问题。
@@ -30,7 +31,7 @@ const aiInstruction = `你是一个通用 AI 助手，可以自然、友好、�
 2. 可以处理通用知识、日常问答、写作润色、代码说明、方案整理、思路分析等请求。
 3. 如果用户提供了附件、历史上下文或系统上下文，可以按需参考。
 4. 涉及用户、字典、配置、报表等系统内私有数据时，优先调用当前终端可用的内部工具获取真实数据。
-5. 内部工具不匹配、工具无结果、或用户问题属于公开实时信息时，可以继续使用联网搜索。
+5. 内部工具不匹配、工具无结果、或用户问题属于公开实时信息时，可以继续使用联网搜索工具。
 6. 不要编造当前上下文和工具结果没有提供的私有系统数据、精确数值或操作结果。
 7. 工具返回的分页游标、内部ID、base64、图片数据或调试字段不要直接展示给用户；如需说明，只用自然语言提示还有下一页或可继续查询。
 8. 如果历史上下文标记某个内部工具已禁用或不可用，而用户要求继续相关查询，必须明确提示错误原因：工具已禁用或不可用，不能继续调用。
@@ -42,7 +43,7 @@ const aiInstruction = `你是一个通用 AI 助手，可以自然、友好、�
 // OSS、鉴权或前端协议。这样 AI 助手链路可以把“业务准备”和“模型运行”分开维护。
 type Runtime struct {
 	toolsMu    sync.RWMutex
-	client     *model.ResponsesClient
+	client     *model.AssistantClient
 	adminTools []tool.Invokable
 	appTools   []tool.Invokable
 	toolGate   ToolAccessChecker
@@ -50,7 +51,7 @@ type Runtime struct {
 
 // newRuntime 创建 AI 助手运行时。
 func newRuntime(
-	client *model.ResponsesClient,
+	client *model.AssistantClient,
 	checker ToolAccessChecker,
 	adminTools []Tool,
 	appTools []Tool,
@@ -246,10 +247,14 @@ func (r *Runtime) runADK(
 	onDelta func(string),
 ) (*adk.Result, *callback.Recorder, error) {
 	recorder := &callback.Recorder{}
+	// Responses 协议才支持服务端工具（联网搜索等），聊天补全协议使用同名 function 工具替代。
+	serverTools := r.client != nil && r.client.SupportsResponsesServerTools()
+	description := "管理端 AI 助手，负责会话问答、内部工具调用和联网搜索。"
 	runner := adk.NewRunner(adk.Config{
 		Model:       r.client.AgenticModel,
 		Name:        "admin_ai",
-		Description: "管理端 AI 助手，负责会话问答、内部工具调用和联网搜索。",
+		Description: description,
+		ServerTools: serverTools,
 	})
 	result, err := runner.Run(ctx, adk.Request{
 		Messages:  append([]*einoMessage.AgenticMessage(nil), messages...),
@@ -650,9 +655,20 @@ func selectToolInfos(input RuntimeInput, infos []*tool.Info) []*tool.Info {
 		return result
 	}
 	if !isHistoryToolFollowUp(input) {
-		return nil
+		// 内部工具均不匹配时保底暴露联网搜索工具，避免模型无法处理公开实时信息类问题。
+		return selectFallbackToolInfos(infos)
 	}
 	return selectHistoryToolInfos(input, infos)
+}
+
+// selectFallbackToolInfos 内部工具不匹配时保底返回联网搜索工具。
+func selectFallbackToolInfos(infos []*tool.Info) []*tool.Info {
+	for _, info := range infos {
+		if info != nil && info.Name == aiWebSearchToolName {
+			return []*tool.Info{info}
+		}
+	}
+	return nil
 }
 
 // selectScoredToolInfos 按关键词从完整工具池中挑选本轮可暴露的工具。

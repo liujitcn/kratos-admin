@@ -38,7 +38,7 @@
       <el-button class="notification-more" text @click="openInbox">{{ t("system.notification.action.view_all") }}</el-button>
     </div>
   </el-popover>
-  <ProDialog v-model="detailVisible" :title="detail?.title" width="720px" destroy-on-close :show-footer="false">
+  <ProDialog ref="detailDialogRef" v-model="detailVisible" :title="detail?.title" width="720px" destroy-on-close :show-footer="false">
     <div v-if="detail" class="notification-detail">
       <div class="notification-detail-meta">
         <span class="notification-detail-category" :style="{ color: detail.category_color || undefined }">
@@ -82,6 +82,7 @@ import {
 
 const router = useRouter();
 const popoverVisible = ref(false);
+const detailDialogRef = ref<InstanceType<typeof ProDialog>>();
 const unreadTotal = ref(0);
 const latestDeliveryID = ref(0);
 const notifications = ref<Notification[]>([]);
@@ -154,12 +155,18 @@ async function markAllRead() {
 async function openNotification(row: Notification) {
   popoverVisible.value = false;
   const wasUnread = !row.read_at;
-  const [notification] = await Promise.all([
-    defNotificationService.GetNotification({ id: row.id }),
-    wasUnread ? defNotificationService.MarkNotificationRead({ ids: [row.id] }) : Promise.resolve()
-  ]);
-  detail.value = notification;
-  detailVisible.value = true;
+  await detailDialogRef.value?.open({
+    load: async () => {
+      const [notification] = await Promise.all([
+        defNotificationService.GetNotification({ id: row.id }),
+        wasUnread ? defNotificationService.MarkNotificationRead({ ids: [row.id] }) : Promise.resolve()
+      ]);
+      return notification;
+    },
+    commit: notification => {
+      detail.value = notification;
+    }
+  });
   notifications.value = notifications.value.filter(item => item.id !== row.id);
   if (wasUnread) unreadTotal.value = Math.max(0, unreadTotal.value - 1);
 }

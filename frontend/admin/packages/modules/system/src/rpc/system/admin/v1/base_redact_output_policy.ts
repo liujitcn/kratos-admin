@@ -143,7 +143,6 @@ export interface BaseRedactOutputPolicy {
 
 /** 查询可出库脱敏字段请求。 */
 export interface GetBaseRedactOutputFieldDocRequest {
-  /** 接口ID */
   api_id: number;
 }
 

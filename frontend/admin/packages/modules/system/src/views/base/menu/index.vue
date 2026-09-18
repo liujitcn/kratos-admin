@@ -1053,8 +1053,10 @@ function buildSubmitPayload(): BaseMenuForm {
 /** 加载菜单树选项和 API 列表，确保弹窗打开时相关数据已可用。 */
 async function loadDialogResources() {
   const [menuData, apiData] = await Promise.all([defBaseMenuService.TreeBaseMenu({}), defBaseApiService.OptionBaseApi({})]);
-  menuOptions.value = buildMenuOptions(menuData.base_menus ?? []);
-  apiList.value = apiData.base_apis ?? [];
+  return {
+    menuOptions: buildMenuOptions(menuData.base_menus ?? []),
+    apiList: apiData.base_apis ?? []
+  };
 }
 
 /** 根据关键字递归过滤菜单树，保留匹配节点及其父级。 */
@@ -1108,24 +1110,29 @@ function refreshTable() {
  * parentMenu 为新增时的固定父节点，menuId 为编辑时的菜单 ID。
  */
 async function handleOpenDialog(parentMenu?: BaseMenu, menuId?: number) {
-  await loadEnabledBaseLanguages();
-  await loadDialogResources();
-  dialog.parentLocked = Boolean(parentMenu || menuId);
-  dialog.editing = Boolean(menuId);
-  dialog.parentType = parentMenu?.type ?? BaseMenuType.BASE_MENU_TYPE_UNSPECIFIED;
-  resetForm(menuId ? undefined : { parent_id: parentMenu?.id });
-  dialog.visible = true;
-
-  if (menuId) {
-    const data = await defBaseMenuService.GetBaseMenu({ id: menuId });
-    resetForm(data);
-    return;
-  }
+  await formDialogRef.value?.open({
+    load: async () => {
+      await loadEnabledBaseLanguages();
+      const [resources, data] = await Promise.all([
+        loadDialogResources(),
+        menuId ? defBaseMenuService.GetBaseMenu({ id: menuId }) : Promise.resolve(undefined)
+      ]);
+      return { resources, data };
+    },
+    commit: ({ resources, data }) => {
+      menuOptions.value = resources.menuOptions;
+      apiList.value = resources.apiList;
+      dialog.parentLocked = Boolean(parentMenu || menuId);
+      dialog.editing = Boolean(menuId);
+      dialog.parentType = parentMenu?.type ?? BaseMenuType.BASE_MENU_TYPE_UNSPECIFIED;
+      resetForm(data ?? (menuId ? undefined : { parent_id: parentMenu?.id }));
+    }
+  });
 }
 
 /** 关闭菜单弹窗并显式重置表单与校验状态。 */
 function handleCloseDialog() {
-  dialog.visible = false;
+  formDialogRef.value?.close();
   dialog.parentType = BaseMenuType.BASE_MENU_TYPE_UNSPECIFIED;
   dialog.parentLocked = true;
   resetForm();

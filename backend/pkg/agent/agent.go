@@ -10,13 +10,13 @@ import (
 // Tool 是 Eino 可执行工具接口。
 type Tool = tool.InvokableTool
 
-// ResponsesClient 是 Responses API 模型客户端。
-type ResponsesClient = model.ResponsesClient
+// AssistantClient 是 AI 助手模型客户端，按配置选择 Chat Completions 或 Responses 协议。
+type AssistantClient = model.AssistantClient
 
 // RuntimeConfig 是公开 Runtime 的初始化配置。
 type RuntimeConfig struct {
-	// Client 是 Responses API 模型客户端。
-	Client *ResponsesClient
+	// Client 是 AI 助手模型客户端。
+	Client *AssistantClient
 	// Checker 是可选的工具权限检查器；为 nil 时全部注册工具默认启用。
 	Checker ToolAccessChecker
 	// AdminTools 是管理端工具集合。
@@ -31,13 +31,13 @@ func NewRuntime(config RuntimeConfig) *Runtime {
 }
 
 // NewRuntimeWithTools 创建只使用管理端工具集合的 Runtime。
-func NewRuntimeWithTools(client *ResponsesClient, tools ...Tool) *Runtime {
+func NewRuntimeWithTools(client *AssistantClient, tools ...Tool) *Runtime {
 	return NewRuntime(RuntimeConfig{Client: client, AdminTools: tools})
 }
 
-// NewResponsesClient 根据 Backend AI 模型配置创建 Responses 客户端。
-func NewResponsesClient(modelConfig *configv1.AI_Model) *ResponsesClient {
-	return model.NewResponsesClient(modelConfig)
+// NewAssistantClient 根据 Backend AI 模型配置创建 AI 助手模型客户端。
+func NewAssistantClient(modelConfig *configv1.AI_Model) *AssistantClient {
+	return model.NewAssistantClient(modelConfig)
 }
 
 // InferTool 根据输入结构自动生成 Eino 工具 schema 和执行器。

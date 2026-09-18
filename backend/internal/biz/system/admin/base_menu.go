@@ -322,16 +322,15 @@ func (c *BaseMenuCase) allocateBaseMenuID(ctx context.Context, parentID int64, m
 		return 0, err
 	}
 
-	opts = make([]repository.QueryOption, 0, 2)
+	opts = make([]repository.QueryOption, 0, 1)
 	opts = append(opts, repository.Unscoped())
-	opts = append(opts, repository.Where(query.ParentID.Eq(parentID)))
-	children, err := c.List(ctx, opts...)
+	menus, err := c.List(ctx, opts...)
 	if err != nil {
 		return 0, err
 	}
-	usedIDs := make(map[int64]struct{}, len(children))
-	for _, child := range children {
-		usedIDs[child.ID] = struct{}{}
+	usedIDs := make(map[int64]struct{}, len(menus))
+	for _, menu := range menus {
+		usedIDs[menu.ID] = struct{}{}
 	}
 	parentLevel := baseMenuIDLevel(parentID)
 	for sequence := int64(1); sequence <= baseMenuChildSequenceMax; sequence++ {

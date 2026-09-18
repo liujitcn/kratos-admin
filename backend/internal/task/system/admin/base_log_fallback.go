@@ -15,6 +15,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/go-kratos/kratos/v3/log"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/runtimeconfig"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	logmiddleware "github.com/liujitcn/kratos-admin/backend/internal/server/middleware/log"
@@ -175,7 +176,15 @@ func replayBaseLogFallbackFile(ctx context.Context, path, integrityKey string, r
 		var payload []byte
 		eventID, payload, err = decodeBaseLogFallbackRecord(line, integrityKey)
 		if err != nil {
-			return replayed, fmt.Errorf("解析日志入库回退记录失败，偏移 %d: %w", currentOffset, err)
+			if readErr == io.EOF {
+				return replayed, fmt.Errorf("解析日志入库回退记录失败，偏移 %d: %w", currentOffset, err)
+			}
+			log.Warn("跳过损坏的日志入库回退记录", "path", path, "offset", currentOffset, "error", err)
+			currentOffset = nextOffset
+			if err = writeBaseLogFallbackOffset(path, currentOffset); err != nil {
+				return replayed, err
+			}
+			continue
 		}
 		if err = replay(ctx, eventID, payload); err != nil {
 			return replayed, fmt.Errorf("重新写入日志入库回退记录失败，偏移 %d: %w", currentOffset, err)

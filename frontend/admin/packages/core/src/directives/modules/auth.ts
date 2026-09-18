@@ -7,18 +7,27 @@ import type { Directive, DirectiveBinding } from "vue";
 
 const GLOBAL_AUTH_BUTTON_KEY = "__global__";
 
+const originalDisplayMap = new WeakMap<HTMLElement, string>();
+
+/** 根据当前按钮权限更新元素可见性。 */
+function updateAuthElement(el: HTMLElement, binding: DirectiveBinding) {
+  const { value } = binding;
+  const authStore = useAuthStore();
+  const currentPageRoles =
+    authStore.authButtonListGet[authStore.routeName] ?? authStore.authButtonListGet[GLOBAL_AUTH_BUTTON_KEY] ?? [];
+  const hasPermission =
+    value instanceof Array && value.length
+      ? value.every(item => currentPageRoles.includes(item))
+      : currentPageRoles.includes(value);
+  if (!originalDisplayMap.has(el)) originalDisplayMap.set(el, el.style.display);
+  el.style.display = hasPermission ? (originalDisplayMap.get(el) ?? "") : "none";
+}
+
 const auth: Directive = {
-  mounted(el: HTMLElement, binding: DirectiveBinding) {
-    const { value } = binding;
-    const authStore = useAuthStore();
-    const currentPageRoles =
-      authStore.authButtonListGet[authStore.routeName] ?? authStore.authButtonListGet[GLOBAL_AUTH_BUTTON_KEY] ?? [];
-    if (value instanceof Array && value.length) {
-      const hasPermission = value.every(item => currentPageRoles.includes(item));
-      if (!hasPermission) el.remove();
-    } else {
-      if (!currentPageRoles.includes(value)) el.remove();
-    }
+  mounted: updateAuthElement,
+  updated: updateAuthElement,
+  unmounted(el: HTMLElement) {
+    originalDisplayMap.delete(el);
   }
 };
 

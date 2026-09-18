@@ -1,6 +1,7 @@
 package admin
 
 import (
+	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
 	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/agent/tool"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/oauthsecret"
@@ -9,6 +10,7 @@ import (
 	"github.com/liujitcn/kratos-admin/backend/internal/server/middleware/oauth"
 	"github.com/liujitcn/kratos-admin/backend/internal/server/middleware/passwordpolicy"
 	"github.com/liujitcn/kratos-admin/backend/internal/server/middleware/sessionpolicy"
+	base "github.com/liujitcn/kratos-admin/backend/internal/service/base/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/service/system/admin/v1"
 	coreBiz "github.com/liujitcn/kratos-core/biz"
 
@@ -84,6 +86,7 @@ type Services struct {
 	BaseRedactOutputPolicy  *admin.BaseRedactOutputPolicyService
 	BaseRedactRule          *admin.BaseRedactRuleService
 	BaseRedactStoragePolicy *admin.BaseRedactStoragePolicyService
+	AiSearch                *base.AiSearchService
 }
 
 // RegisterGRPC 注册 system.admin.v1 的 gRPC 服务。
@@ -341,6 +344,9 @@ func (s Services) AgentTools() ([]tool.Invokable, error) {
 		},
 		func() ([]tool.Invokable, error) {
 			return adminv1.NewCacheServiceAgentTools(s.Cache)
+		},
+		func() ([]tool.Invokable, error) {
+			return basev1.NewAiSearchServiceAgentTools(s.AiSearch)
 		},
 	}
 	tools := make([]tool.Invokable, 0)

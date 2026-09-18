@@ -213,14 +213,14 @@ const headerActions = computed<HeaderActionProps[]>(() => [
 
 /** 请求国际化自定义翻译分页列表。 */
 async function requestBaseI18nCustomTable(params: PageBaseI18nCustomRequest) {
-  await loadLanguages();
+  enabledLanguages.value = await loadLanguages();
   const data = await defBaseI18nCustomService.PageBaseI18nCustom(buildPageRequest(params));
   return { data: { list: data.items ?? [], total: data.total } };
 }
 
 /** 加载启用语言选项。 */
 async function loadLanguages() {
-  enabledLanguages.value = await loadEnabledBaseLanguages();
+  return loadEnabledBaseLanguages();
 }
 
 /** 返回语言显示名称。 */
@@ -231,17 +231,23 @@ function getLanguageLabel(locale: string) {
 
 /** 打开国际化自定义翻译编辑弹窗。 */
 async function handleOpenDialog(id?: number) {
-  await loadLanguages();
   resetForm();
   dialog.editing = Boolean(id);
-  dialog.visible = true;
-  if (!id) return;
-  Object.assign(formData, await defBaseI18nCustomService.GetBaseI18nCustom({ id }));
+  await formDialogRef.value?.open({
+    load: async () => ({
+      languages: await loadLanguages(),
+      data: id ? await defBaseI18nCustomService.GetBaseI18nCustom({ id }) : undefined
+    }),
+    commit: ({ languages, data }) => {
+      enabledLanguages.value = languages;
+      if (data) Object.assign(formData, data);
+    }
+  });
 }
 
 /** 关闭编辑弹窗并重置表单。 */
 function handleCloseDialog() {
-  dialog.visible = false;
+  formDialogRef.value?.close();
   resetForm();
 }
 

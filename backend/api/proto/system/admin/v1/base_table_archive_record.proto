@@ -2,6 +2,7 @@ syntax = "proto3";
 
 package system.admin.v1;
 
+import "buf/validate/validate.proto";
 import "google/api/annotations.proto";
 import "gnostic/openapi/v3/annotations.proto";
 import "system/admin/v1/base_table_archive.proto";
@@ -60,7 +61,9 @@ message BaseTableArchiveRecord {
 }
 
 // PageBaseTableArchiveRecordRequest 表归档记录分页请求。
-message PageBaseTableArchiveRecordRequest { int64 archive_id = 1 [(gnostic.openapi.v3.property) = {description: "归档配置ID"}]; string table_name = 2 [(gnostic.openapi.v3.property) = {description: "数据表名称"}]; optional BaseTableArchiveRecordStatus status = 3 [(gnostic.openapi.v3.property) = {description: "归档状态"}]; string source_name = 4 [(gnostic.openapi.v3.property) = {description: "数据源名称"}]; int64 page_num = 101 [(gnostic.openapi.v3.property) = {description: "当前页码", default: {number: 1}}]; int64 page_size = 102 [(gnostic.openapi.v3.property) = {description: "每页行数", default: {number: 10}}]; } // 表归档记录分页请求
+message PageBaseTableArchiveRecordRequest { int64 archive_id = 1 [(gnostic.openapi.v3.property) = {description: "归档配置ID"}]; string table_name = 2 [(gnostic.openapi.v3.property) = {description: "数据表名称"}]; optional BaseTableArchiveRecordStatus status = 3 [(gnostic.openapi.v3.property) = {description: "归档状态"}]; string source_name = 4 [(gnostic.openapi.v3.property) = {description: "数据源名称"}]; int64 page_num = 101 [(gnostic.openapi.v3.property) = {description: "当前页码", default: {number: 1}},
+    (buf.validate.field).int64 = {gte: 1, lte: 1000000}]; int64 page_size = 102 [(gnostic.openapi.v3.property) = {description: "每页行数", default: {number: 10}},
+    (buf.validate.field).int64 = {gte: 1, lte: 100}]; } // 表归档记录分页请求
 
 // PageBaseTableArchiveRecordResponse 表归档记录分页响应。
 message PageBaseTableArchiveRecordResponse { repeated BaseTableArchiveRecord base_table_archive_records = 1 [(gnostic.openapi.v3.property) = {description: "归档记录列表"}]; int32 total = 2 [(gnostic.openapi.v3.property) = {description: "总数"}]; } // 表归档记录分页响应

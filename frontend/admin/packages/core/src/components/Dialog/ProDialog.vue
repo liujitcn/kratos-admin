@@ -34,7 +34,9 @@
 </template>
 
 <script setup lang="ts" name="ProDialog">
+import { watch } from "vue";
 import { useLocaleStore } from "@/locales";
+import { createDialogRequestController, type DialogOpenOptions } from "./interface";
 
 const { t } = useLocaleStore();
 
@@ -54,7 +56,7 @@ interface ProDialogProps {
   showFooter?: boolean;
 }
 
-withDefaults(defineProps<ProDialogProps>(), {
+const props = withDefaults(defineProps<ProDialogProps>(), {
   title: "",
   width: "500px",
   top: "8vh",
@@ -75,8 +77,31 @@ const emit = defineEmits<{
   closed: [];
 }>();
 
+const dialogRequestController = createDialogRequestController();
+
+watch(
+  () => props.modelValue,
+  value => {
+    if (!value) dialogRequestController.invalidate();
+  }
+);
+
+/** 异步加载弹窗数据，并只提交最新一次打开请求。 */
+async function open<T>(options: DialogOpenOptions<T>) {
+  const opened = await dialogRequestController.open(options);
+  if (opened) emit("update:modelValue", true);
+  return opened;
+}
+
+/** 关闭弹窗并使未完成的打开请求失效。 */
+function close() {
+  dialogRequestController.invalidate();
+  emit("update:modelValue", false);
+}
+
 /** 同步弹窗显示状态到外部。 */
 function handleVisibleChange(value: boolean) {
+  if (!value) dialogRequestController.invalidate();
   emit("update:modelValue", value);
 }
 
@@ -87,12 +112,13 @@ function handleConfirm() {
 
 /** 处理点击取消按钮后的回调，并主动关闭弹窗。 */
 function handleCancel() {
-  emit("update:modelValue", false);
+  close();
   emit("cancel");
 }
 
 /** 处理弹窗关闭时的回调。 */
 function handleClose() {
+  dialogRequestController.invalidate();
   emit("close");
 }
 
@@ -100,4 +126,6 @@ function handleClose() {
 function handleClosed() {
   emit("closed");
 }
+
+defineExpose({ open, close });
 </script>

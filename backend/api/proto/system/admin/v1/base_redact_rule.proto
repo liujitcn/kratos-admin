@@ -35,8 +35,10 @@ message PageBaseRedactRuleRequest {
   string name = 2 [(gnostic.openapi.v3.property) = {description: "规则名称"}]; // 规则名称
   string rule_type = 3 [(gnostic.openapi.v3.property) = {description: "规则类型"}]; // 规则类型
   optional .common.v1.Status status = 100 [(gnostic.openapi.v3.property) = {description: "状态"}]; // 状态
-  int64 page_num = 101 [(gnostic.openapi.v3.property) = {description: "当前页码", default: {number: 1}}]; // 当前页码
-  int64 page_size = 102 [(gnostic.openapi.v3.property) = {description: "每页数量", default: {number: 10}}]; // 每页数量
+  int64 page_num = 101 [(gnostic.openapi.v3.property) = {description: "当前页码", default: {number: 1}},
+    (buf.validate.field).int64 = {gte: 1, lte: 1000000}]; // 当前页码
+  int64 page_size = 102 [(gnostic.openapi.v3.property) = {description: "每页数量", default: {number: 10}},
+    (buf.validate.field).int64 = {gte: 1, lte: 100}]; // 每页数量
 }
 // 脱敏规则分页响应。
 message PageBaseRedactRuleResponse {

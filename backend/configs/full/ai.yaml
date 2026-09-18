@@ -14,6 +14,9 @@ ai:
     timeout_seconds: 60
     # 请求失败后的最大重试次数。
     max_retries: 2
+    # 模型 API 协议类型；可选值为 CHAT_COMPLETIONS（/v1/chat/completions 聊天补全）和
+    # RESPONSES（/v1/responses Responses 协议）；未配置时默认 CHAT_COMPLETIONS。
+    api_type: CHAT_COMPLETIONS
 
     cloud:
       # 云端模型 API 基础地址，通常填写到 /v1 层级。

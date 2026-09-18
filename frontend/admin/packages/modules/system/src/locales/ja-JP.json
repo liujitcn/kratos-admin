@@ -398,6 +398,8 @@
   "system.base.log.field.os": "オペレーティング システム",
   "system.base.log.field.path": "パス",
   "system.base.log.field.project": "プロジェクト",
+  "system.base.log.field.role_code": "ロールコード",
+  "system.base.log.field.role_id": "ロール ID",
   "system.base.log.field.reason": "理由",
   "system.base.log.field.reason_code": "理由コード",
   "system.base.log.field.referer": "ソース ページ",

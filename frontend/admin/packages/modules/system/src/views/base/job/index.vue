@@ -368,22 +368,26 @@ function refreshTable() {
  * 打开定时任务弹窗。
  */
 async function handleOpenDialog(jobId?: number) {
-  await loadEnabledBaseLanguages();
   resetForm();
   dialog.editing = Boolean(jobId);
-  dialog.visible = true;
-  if (!jobId) return;
-
-  const data = await defBaseJobService.GetBaseJob({ id: jobId });
-  Object.assign(formData, data);
-  i18nValues.value = normalizeDynamicI18ns(data.i18ns as DynamicI18nRecord[]);
+  await formDialogRef.value?.open({
+    load: async () => ({
+      data: jobId ? await defBaseJobService.GetBaseJob({ id: jobId }) : undefined,
+      languages: await loadEnabledBaseLanguages()
+    }),
+    commit: ({ data }) => {
+      if (!data) return;
+      Object.assign(formData, data);
+      i18nValues.value = normalizeDynamicI18ns(data.i18ns as DynamicI18nRecord[]);
+    }
+  });
 }
 
 /**
  * 关闭定时任务弹窗并恢复默认表单值。
  */
 function handleCloseDialog() {
-  dialog.visible = false;
+  formDialogRef.value?.close();
   resetForm();
 }
 

@@ -1,0 +1,39 @@
+syntax = "proto3";
+
+package base.v1;
+
+import "buf/validate/validate.proto";
+import "gnostic/openapi/v3/annotations.proto";
+import "google/api/annotations.proto";
+
+// Base AI 助手联网搜索服务
+service AiSearchService {
+  // 联网搜索公开信息并返回结果摘要
+  rpc SearchAiWeb(SearchAiWebRequest) returns (SearchAiWebResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/base/ai/search"
+      body: "*"
+    };
+  }
+}
+
+// AI 助手联网搜索请求
+message SearchAiWebRequest {
+  string query = 1 [(gnostic.openapi.v3.property) = {description: "搜索关键词"}, (buf.validate.field).cel = {id: "base.ai.search.query.required" message: "搜索关键词不合法" expression: "this.size() > 0 && this.size() <= 500"}]; // 搜索关键词
+
+  int32 limit = 2 [(gnostic.openapi.v3.property) = {description: "返回结果数量：0 表示默认5条，最大10条"}, (buf.validate.field).cel = {id: "base.ai.search.limit.range" message: "结果数量不合法" expression: "this >= 0 && this <= 10"}]; // 返回结果数量：0 表示默认5条，最大10条
+}
+
+// AI 助手联网搜索响应
+message SearchAiWebResponse {
+  repeated SearchAiWebItem items = 1 [(gnostic.openapi.v3.property) = {description: "搜索结果列表"}]; // 搜索结果列表
+}
+
+// AI 助手联网搜索结果
+message SearchAiWebItem {
+  string title = 1 [(gnostic.openapi.v3.property) = {description: "结果标题"}]; // 结果标题
+
+  string url = 2 [(gnostic.openapi.v3.property) = {description: "结果链接"}]; // 结果链接
+
+  string snippet = 3 [(gnostic.openapi.v3.property) = {description: "结果摘要"}]; // 结果摘要
+}

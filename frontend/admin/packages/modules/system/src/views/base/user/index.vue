@@ -649,23 +649,30 @@ function refreshTable() {
  * 加载用户表单依赖的角色和部门选项。
  */
 async function loadFormOptions() {
-  // 默认租户必须先选择目标租户，避免角色和部门选项跨租户混用。
-  if (isDefaultTenant.value && !formData.tenant_id) {
-    baseRoleOptions.value = [];
-    basePostOptions.value = [];
-    basedDeptOptions.value = [];
-    return;
-  }
-  const tenantId = toRequestTenantId(formData.tenant_id);
-  const [optionBaseRoleResponse, optionBaseDeptResponse, optionBasePostResponse] = await Promise.all([
-    defBaseRoleService.OptionBaseRole({ tenant_id: tenantId }),
-    defBaseDeptService.OptionBaseDept({ tenant_id: tenantId }),
-    defBasePostService.OptionBasePost({ tenant_id: tenantId })
-  ]);
-  baseRoleOptions.value = optionBaseRoleResponse.list || [];
+  const options = await requestFormOptions();
+  baseRoleOptions.value = options.roleOptions;
   updateUndeletableRoleIds(baseRoleOptions.value);
-  basePostOptions.value = optionBasePostResponse.list || [];
-  basedDeptOptions.value = optionBaseDeptResponse.list || [];
+  basePostOptions.value = options.postOptions;
+  basedDeptOptions.value = options.deptOptions;
+}
+
+/** 请求用户表单依赖的角色和部门选项。 */
+async function requestFormOptions(tenantId = formData.tenant_id) {
+  // 默认租户必须先选择目标租户，避免角色和部门选项跨租户混用。
+  if (isDefaultTenant.value && !tenantId) {
+    return { roleOptions: [], postOptions: [], deptOptions: [] };
+  }
+  const requestTenantId = toRequestTenantId(tenantId);
+  const [optionBaseRoleResponse, optionBaseDeptResponse, optionBasePostResponse] = await Promise.all([
+    defBaseRoleService.OptionBaseRole({ tenant_id: requestTenantId }),
+    defBaseDeptService.OptionBaseDept({ tenant_id: requestTenantId }),
+    defBasePostService.OptionBasePost({ tenant_id: requestTenantId })
+  ]);
+  return {
+    roleOptions: optionBaseRoleResponse.list || [],
+    postOptions: optionBasePostResponse.list || [],
+    deptOptions: optionBaseDeptResponse.list || []
+  };
 }
 
 /**
@@ -682,18 +689,22 @@ async function handleFormTenantChange() {
  * 打开用户弹窗，并加载角色和部门下拉选项。
  */
 async function handleOpenDialog(id?: number) {
-  resetForm();
-  await loadTenantOptions();
-  dialog.editing = Boolean(id);
-  dialog.visible = true;
-  if (!id) {
-    await loadFormOptions();
-    return;
-  }
-
-  defBaseUserService.GetBaseUser({ id }).then(async data => {
-    Object.assign(formData, data);
-    await loadFormOptions();
+  await formDialogRef.value?.open({
+    load: async () => {
+      await loadTenantOptions();
+      const data = id ? await defBaseUserService.GetBaseUser({ id }) : undefined;
+      const options = await requestFormOptions(data?.tenant_id);
+      return { data, options };
+    },
+    commit: ({ data, options }) => {
+      resetForm();
+      dialog.editing = Boolean(id);
+      if (data) Object.assign(formData, data);
+      baseRoleOptions.value = options.roleOptions;
+      updateUndeletableRoleIds(baseRoleOptions.value);
+      basePostOptions.value = options.postOptions;
+      basedDeptOptions.value = options.deptOptions;
+    }
   });
 }
 
@@ -701,7 +712,7 @@ async function handleOpenDialog(id?: number) {
  * 关闭用户弹窗并恢复默认表单值。
  */
 function handleCloseDialog() {
-  dialog.visible = false;
+  formDialogRef.value?.close();
   resetForm();
 }
 

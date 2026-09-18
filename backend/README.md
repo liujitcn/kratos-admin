@@ -80,7 +80,7 @@ make run-full
 
 会话生命周期和上传安全扫描使用 `authn.session`、`oss.upload_security` 启动配置；审计日志保留在“系统管理 → 数据备份 → 数据归档”按表维护，数据库备份在“系统管理 → 数据备份 → 数据备份”按数据源维护。日志入库回退配置使用表单类型配置 `baseLogFallback`；备份完整性密钥和加密密钥在具体任务执行时分别按 `kratos-admin:backup/integrity`、`kratos-admin:backup/encryption` 从运行时密钥服务派生。普通系统配置仍由“系统配置”页面维护。HTTP 普通请求只使用 `server.http.timeout` 和 `server.http.max_body_bytes`，`/events`、`/mcp` 及 AI 消息流自动跳过普通请求超时。
 
-本地文件存储的磁盘根目录只由 `configs/oss.yaml` 的 `oss.root_directory` 配置，Core 将该目录映射到 `/data/`。上传对象按 `业务类型/文件分类/年/月/日/文件名` 分层，数据库保存 OSS 对象路径；`backend/data` 只保留三端 H5 产物和上传对象，日志、备份及代码生成还原快照分别位于 `backend/logs`、`backend/backups` 和 `backend/codegen/restore`。
+本地文件存储的磁盘根目录只由 `configs/oss.yaml` 的 `oss.root_directory` 配置，Core 将该目录映射到 `/data/`。上传对象按 `租户/业务类型/文件分类/年/月/日/文件名` 分层，数据库保存 OSS 对象路径；`/data/` 只允许精确文件访问，不返回目录索引；`backend/data` 只保留三端 H5 产物和上传对象，日志、备份及代码生成还原快照分别位于 `backend/logs`、`backend/backups` 和 `backend/codegen/restore`。
 
 多因素认证方式由系统配置 `securityMfaMethod` 选择，当前支持 `totp` 和 `webauthn`。运行时 MFA 参数通过 `mfa.yaml` 的 `mfa` 节点加载；`mfa.encryption_key` 有显式值时优先使用，留空时在 TOTP 密钥真正加解密时按 `kratos-kit:mfa/encryption` 从运行时密钥服务派生。管理端和应用端禁用 TOTP 需要当前密码和动态口令或恢复码，禁用 WebAuthn 需要当前密码和一次 Passkey 或恢复码验证。生产环境不要把真实密钥写入仓库或数据库。完整字段以 `kratos-kit/api/proto/config/v1/mfa.proto` 为准。
 
@@ -91,6 +91,8 @@ make run-only RUN_ARGS='--help'
 ```
 
 例如 `make run-only APP_ENV=prod` 会在 `configs` 中额外加载 `*.prod.yaml`；不传 `APP_ENV` 时只加载基础 YAML 文件。
+
+云模型密钥不写入仓库中的基础配置。启用本地云模型联调时，将 `ai.yaml` 的模型配置复制到被 Git 忽略的 `configs/ai.local.yaml`，只在该文件填写 `api_key`，然后执行 `make run-only APP_ENV=local`；生产环境应使用 `ENC[...]` 或运行时密钥服务提供凭据。
 
 本地需要通过 HTTPS 启动 HTTP 服务时，先在仓库根目录生成前端与后端共用的开发证书，再使用 `https` 运行环境：
 

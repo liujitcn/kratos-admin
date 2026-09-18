@@ -94,9 +94,11 @@ message PageBaseApiRequest {
 
   optional string openapi_service_code = 11 [(gnostic.openapi.v3.property) = {description: "OpenAPI文档key"}]; // OpenAPI文档key
 
-  int64 page_num = 101 [(gnostic.openapi.v3.property) = {description: "页码"}]; // 页码
+  int64 page_num = 101 [(gnostic.openapi.v3.property) = {description: "页码"},
+    (buf.validate.field).int64 = {gte: 1, lte: 1000000}]; // 页码
 
-  int64 page_size = 102 [(gnostic.openapi.v3.property) = {description: "每页数量"}]; // 每页数量
+  int64 page_size = 102 [(gnostic.openapi.v3.property) = {description: "每页数量"},
+    (buf.validate.field).int64 = {gte: 1, lte: 100}]; // 每页数量
 }
 
 // API分页查询响应

@@ -398,6 +398,8 @@
   "system.base.log.field.os": "操作系统",
   "system.base.log.field.path": "请求路径",
   "system.base.log.field.project": "项目范围",
+  "system.base.log.field.role_code": "角色编码",
+  "system.base.log.field.role_id": "角色 ID",
   "system.base.log.field.reason": "原因说明",
   "system.base.log.field.reason_code": "原因编码",
   "system.base.log.field.referer": "来源页",

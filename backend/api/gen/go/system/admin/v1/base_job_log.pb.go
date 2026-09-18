@@ -11,6 +11,7 @@ import (
 	sync "sync"
 	unsafe "unsafe"
 
+	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	_ "github.com/google/gnostic/openapiv3"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
@@ -357,13 +358,13 @@ var File_system_admin_v1_base_job_log_proto protoreflect.FileDescriptor
 
 const file_system_admin_v1_base_job_log_proto_rawDesc = "" +
 	"\n" +
-	"\"system/admin/v1/base_job_log.proto\x12\x0fsystem.admin.v1\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\"\xcc\x02\n" +
+	"\"system/admin/v1/base_job_log.proto\x12\x0fsystem.admin.v1\x1a\x1bbuf/validate/validate.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\"\xe0\x02\n" +
 	"\x15PageBaseJobLogRequest\x12%\n" +
 	"\x06job_id\x18\x02 \x01(\x03B\x0e\xbaG\v\x92\x02\b任务IDR\x05jobId\x12L\n" +
 	"\x06status\x18\x06 \x01(\x0e2!.system.admin.v1.BaseJobLogStatusB\f\xbaG\t\x92\x02\x06状态H\x00R\x06status\x88\x01\x01\x125\n" +
-	"\fexecute_time\x18\b \x03(\tB\x12\xbaG\x0f\x92\x02\f执行时间R\vexecuteTime\x129\n" +
-	"\bpage_num\x18e \x01(\x03B\x1e\xbaG\x1b\x8a\x02\t\t\x00\x00\x00\x00\x00\x00\xf0?\x92\x02\f当前页码R\apageNum\x12A\n" +
-	"\tpage_size\x18f \x01(\x03B$\xbaG!\x8a\x02\t\t\x00\x00\x00\x00\x00\x00$@\x92\x02\x12每一页的行数R\bpageSizeB\t\n" +
+	"\fexecute_time\x18\b \x03(\tB\x12\xbaG\x0f\x92\x02\f执行时间R\vexecuteTime\x12D\n" +
+	"\bpage_num\x18e \x01(\x03B)\xbaG\x1b\x8a\x02\t\t\x00\x00\x00\x00\x00\x00\xf0?\x92\x02\f当前页码\xbaH\b\"\x06\x18\xc0\x84=(\x01R\apageNum\x12J\n" +
+	"\tpage_size\x18f \x01(\x03B-\xbaG!\x8a\x02\t\t\x00\x00\x00\x00\x00\x00$@\x92\x02\x12每一页的行数\xbaH\x06\"\x04\x18d(\x01R\bpageSizeB\t\n" +
 	"\a_status\"\x91\x01\n" +
 	"\x16PageBaseJobLogResponse\x12S\n" +
 	"\rbase_job_logs\x18\x01 \x03(\v2\x1b.system.admin.v1.BaseJobLogB\x12\xbaG\x0f\x92\x02\f分页数据R\vbaseJobLogs\x12\"\n" +

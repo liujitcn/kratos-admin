@@ -992,13 +992,13 @@ var File_system_admin_v1_base_login_policy_proto protoreflect.FileDescriptor
 
 const file_system_admin_v1_base_login_policy_proto_rawDesc = "" +
 	"\n" +
-	"'system/admin/v1/base_login_policy.proto\x12\x0fsystem.admin.v1\x1a\x1bbuf/validate/validate.proto\x1a\x15common/v1/types.proto\x1a\x14common/v1/enum.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\xd8\x02\n" +
+	"'system/admin/v1/base_login_policy.proto\x12\x0fsystem.admin.v1\x1a\x1bbuf/validate/validate.proto\x1a\x15common/v1/types.proto\x1a\x14common/v1/enum.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\xec\x02\n" +
 	"\x1aPageBaseLoginPolicyRequest\x12d\n" +
 	"\n" +
 	"scope_type\x18\x01 \x01(\x0e2).system.admin.v1.BaseLoginPolicyScopeTypeB\x15\xbaG\x12\x92\x02\x0f作用域类型H\x00R\tscopeType\x88\x01\x01\x12<\n" +
-	"\x06status\x18\x02 \x01(\x0e2\x11.common.v1.StatusB\f\xbaG\t\x92\x02\x06状态H\x01R\x06status\x88\x01\x01\x129\n" +
-	"\bpage_num\x18e \x01(\x03B\x1e\xbaG\x1b\x8a\x02\t\t\x00\x00\x00\x00\x00\x00\xf0?\x92\x02\f当前页码R\apageNum\x12A\n" +
-	"\tpage_size\x18f \x01(\x03B$\xbaG!\x8a\x02\t\t\x00\x00\x00\x00\x00\x00$@\x92\x02\x12每一页的行数R\bpageSizeB\r\n" +
+	"\x06status\x18\x02 \x01(\x0e2\x11.common.v1.StatusB\f\xbaG\t\x92\x02\x06状态H\x01R\x06status\x88\x01\x01\x12D\n" +
+	"\bpage_num\x18e \x01(\x03B)\xbaG\x1b\x8a\x02\t\t\x00\x00\x00\x00\x00\x00\xf0?\x92\x02\f当前页码\xbaH\b\"\x06\x18\xc0\x84=(\x01R\apageNum\x12J\n" +
+	"\tpage_size\x18f \x01(\x03B-\xbaG!\x8a\x02\t\t\x00\x00\x00\x00\x00\x00$@\x92\x02\x12每一页的行数\xbaH\x06\"\x04\x18d(\x01R\bpageSizeB\r\n" +
 	"\v_scope_typeB\t\n" +
 	"\a_status\"\xad\x01\n" +
 	"\x1bPageBaseLoginPolicyResponse\x12j\n" +

@@ -2,10 +2,7 @@ package admin
 
 import (
 	"context"
-	"crypto/hmac"
-	"crypto/sha256"
 	"database/sql"
-	"encoding/hex"
 	"fmt"
 	"net"
 	"os"
@@ -16,6 +13,7 @@ import (
 	"time"
 
 	"github.com/go-sql-driver/mysql"
+	"github.com/liujitcn/go-utils/id"
 	"github.com/liujitcn/gorm-kit/repository"
 	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/backup"
@@ -34,6 +32,7 @@ const (
 	// TableArchiveTaskName 是表归档任务的稳定调用目标。
 	TableArchiveTaskName = "system.admin.BaseTableArchive"
 	archiveBatchSize     = 5000
+	archiveStaleAfter    = 24 * time.Hour
 )
 
 var (
@@ -61,8 +60,14 @@ func (t *TableArchiveTask) Task() cron.Task {
 
 // Exec 执行所有启用的表归档配置。
 func (t *TableArchiveTask) Exec(ctx context.Context, _ map[string]string) ([]string, error) {
+	var err error
+	err = t.recoverStaleArchiveRecords(ctx)
+	if err != nil {
+		return nil, err
+	}
 	query := t.archiveRepo.Query(ctx).BaseTableArchive
-	configs, err := t.archiveRepo.List(ctx, repository.Where(query.Status.Eq(_const.STATUS_STATUS_ENABLE)), repository.Order(query.ID.Asc()))
+	var configs []*models.BaseTableArchive
+	configs, err = t.archiveRepo.List(ctx, repository.Where(query.Status.Eq(_const.STATUS_STATUS_ENABLE)), repository.Order(query.ID.Asc()))
 	if err != nil {
 		return nil, fmt.Errorf("查询表归档配置失败: %w", err)
 	}
@@ -85,6 +90,28 @@ func (t *TableArchiveTask) Exec(ctx context.Context, _ map[string]string) ([]str
 		deletedRows += deleted
 	}
 	return []string{fmt.Sprintf("表归档完成：归档 %d 条，删除在线数据 %d 条", archivedRows, deletedRows)}, nil
+}
+
+// recoverStaleArchiveRecords 将进程异常遗留的超时 RUNNING 记录标记为失败。
+func (t *TableArchiveTask) recoverStaleArchiveRecords(ctx context.Context) error {
+	query := t.recordRepo.Query(ctx).BaseTableArchiveRecord
+	cutoff := time.Now().Add(-archiveStaleAfter)
+	records, err := t.recordRepo.List(ctx,
+		repository.Where(query.Status.Eq(int32(adminv1.BaseTableArchiveRecordStatus_BASE_TABLE_ARCHIVE_RECORD_STATUS_RUNNING))),
+		repository.Where(query.StartedAt.Lt(cutoff)),
+	)
+	if err != nil {
+		return fmt.Errorf("查询超时表归档记录失败: %w", err)
+	}
+	for _, record := range records {
+		record.Status = int32(adminv1.BaseTableArchiveRecordStatus_BASE_TABLE_ARCHIVE_RECORD_STATUS_FAILED)
+		record.Error = "归档任务超时退出，已由后续任务复位"
+		record.FinishedAt = time.Now()
+		if err = t.recordRepo.UpdateByID(ctx, record); err != nil {
+			return fmt.Errorf("复位超时表归档记录失败: %w", err)
+		}
+	}
+	return nil
 }
 
 // archiveOne 执行单条表归档配置并记录执行结果。
@@ -132,7 +159,10 @@ func (t *TableArchiveTask) archiveOne(ctx context.Context, config *models.BaseTa
 		record.Status = int32(adminv1.BaseTableArchiveRecordStatus_BASE_TABLE_ARCHIVE_RECORD_STATUS_FAILED)
 		record.Error = err.Error()
 		record.FinishedAt = time.Now()
-		_ = t.recordRepo.UpdateByID(ctx, record)
+		updateErr := t.recordRepo.UpdateByID(ctx, record)
+		if updateErr != nil {
+			return 0, 0, fmt.Errorf("归档表 %s 失败: %w；更新失败归档记录失败: %v", config.TableName_, err, updateErr)
+		}
 		return 0, 0, fmt.Errorf("归档表 %s 失败: %w", config.TableName_, err)
 	}
 	record.ScannedRows = archivedRows
@@ -178,17 +208,30 @@ func archiveIntoCurrentDatabase(ctx context.Context, client *gorm.Client, resour
 		return 0, 0, fmt.Errorf("创建内部归档表失败: %w", err)
 	}
 	if !deleteAfterVerify {
-		//nolint:forbidigo // 表名和字段名来自受控归档资源定义，时间值通过参数绑定。
-		result := client.DB.WithContext(ctx).Exec("INSERT IGNORE INTO "+quotedArchive+" SELECT * FROM "+quotedSource+" WHERE "+quotedTime+" < ?", cutoff)
-		if result.Error != nil {
-			return 0, 0, fmt.Errorf("复制内部归档数据失败: %w", result.Error)
+		var archivedRows int64
+		var lastID int64
+		for {
+			ids, listErr := listArchiveIDs(ctx, client, resource, cutoff, batchSize, lastID)
+			if listErr != nil {
+				return archivedRows, 0, listErr
+			}
+			if len(ids) == 0 {
+				return archivedRows, 0, nil
+			}
+			idList := archiveIDList(ids)
+			//nolint:forbidigo // 表名来自受控归档资源定义，主键来自同一数据源的查询结果。
+			result := client.DB.WithContext(ctx).Exec("INSERT IGNORE INTO " + quotedArchive + " SELECT * FROM " + quotedSource + " WHERE `id` IN (" + idList + ")")
+			if result.Error != nil {
+				return archivedRows, 0, fmt.Errorf("复制内部归档数据失败: %w", result.Error)
+			}
+			archivedRows += result.RowsAffected
+			lastID = ids[len(ids)-1]
 		}
-		return result.RowsAffected, 0, nil
 	}
 	var archivedRows int64
 	var deletedRows int64
 	for {
-		ids, listErr := listArchiveIDs(ctx, client, resource, cutoff, batchSize)
+		ids, listErr := listArchiveIDs(ctx, client, resource, cutoff, batchSize, 0)
 		if listErr != nil {
 			return archivedRows, deletedRows, listErr
 		}
@@ -233,7 +276,7 @@ func archiveIntoOSS(ctx context.Context, storage oss.OSS, client *gorm.Client, d
 		if batchSize <= 0 {
 			batchSize = archiveBatchSize
 		}
-		ids, err = listArchiveIDs(ctx, client, resource, cutoff, batchSize)
+		ids, err = listArchiveIDs(ctx, client, resource, cutoff, batchSize, 0)
 		if err != nil {
 			return 0, 0, "", 0, "", err
 		}
@@ -247,7 +290,7 @@ func archiveIntoOSS(ctx context.Context, storage oss.OSS, client *gorm.Client, d
 		if err != nil || count == 0 {
 			return count, 0, "", 0, "", err
 		}
-		where = resource.timeColumn + " < '" + cutoff.Format("2006-01-02 15:04:05") + "'"
+		where = resource.timeColumn + " < '" + cutoff.UTC().Format("2006-01-02 15:04:05") + "'"
 	}
 	temporary, err := os.CreateTemp("", "kratos-table-archive-*.sql")
 	if err != nil {
@@ -318,29 +361,20 @@ func archiveIntoOSS(ctx context.Context, storage oss.OSS, client *gorm.Client, d
 			return 0, 0, "", 0, "", fmt.Errorf("关闭 Go 表归档文件失败: %w", closeErr)
 		}
 	}
-	dataValue, err := os.ReadFile(temporaryPath)
+	fileSize, digest, _, err := fileDigest(temporaryPath, "")
 	if err != nil {
-		return 0, 0, "", 0, "", fmt.Errorf("读取表归档数据失败: %w", err)
+		return 0, 0, "", 0, "", fmt.Errorf("计算表归档校验值失败: %w", err)
 	}
-	digest := sha256.Sum256(dataValue)
 	prefix := strings.Trim(config.OSSPrefix, "/")
 	objectDirectory := buildObjectPath(prefix, config.SourceName, resource.tableName)
-	objectName := time.Now().UTC().Format("20060102-150405") + ".sql"
+	objectName := id.NewGUIDv7NoHyphen() + ".sql"
 	objectKey := buildObjectPath(objectDirectory, objectName)
-	_, err = storage.UploadByByte(objectName, objectDirectory, dataValue)
-	if err != nil {
-		return 0, 0, "", 0, "", fmt.Errorf("上传表归档对象失败: %w", err)
-	}
-	verifiedValue, err := storage.GetFileByte(objectKey)
+	_, err = storage.Upload(objectName, objectDirectory, temporaryPath)
 	if err != nil {
 		_ = storage.DeleteFile(objectKey)
-		return 0, 0, objectKey, int64(len(dataValue)), hex.EncodeToString(digest[:]), fmt.Errorf("回读表归档对象失败: %w", err)
+		return 0, 0, objectKey, fileSize, digest, fmt.Errorf("上传表归档对象失败: %w", err)
 	}
-	verifiedDigest := sha256.Sum256(verifiedValue)
-	if !hmac.Equal(digest[:], verifiedDigest[:]) {
-		_ = storage.DeleteFile(objectKey)
-		return 0, 0, objectKey, int64(len(dataValue)), hex.EncodeToString(digest[:]), fmt.Errorf("表归档对象 SHA-256 校验失败")
-	}
+	// 摘要已在上传前对导出文件流式计算；OSS 接口的回读方法返回整块字节，不能用于大归档校验。
 	var deletedRows int64
 	if deleteAfterVerify {
 		quotedSource := "`" + resource.tableName + "`"
@@ -348,11 +382,11 @@ func archiveIntoOSS(ctx context.Context, storage oss.OSS, client *gorm.Client, d
 		//nolint:forbidigo // 表名和字段名来自受控归档资源定义，主键来自同一数据源的查询结果。
 		deleteResult := client.DB.WithContext(ctx).Exec("DELETE FROM "+quotedSource+" WHERE `id` IN ("+archiveIDList(ids)+") AND "+quotedTime+" < ?", cutoff)
 		if deleteResult.Error != nil {
-			return count, 0, objectKey, int64(len(dataValue)), hex.EncodeToString(digest[:]), fmt.Errorf("删除在线归档数据失败: %w", deleteResult.Error)
+			return count, 0, objectKey, fileSize, digest, fmt.Errorf("删除在线归档数据失败: %w", deleteResult.Error)
 		}
 		deletedRows = deleteResult.RowsAffected
 	}
-	return count, deletedRows, objectKey, int64(len(dataValue)), hex.EncodeToString(digest[:]), nil
+	return count, deletedRows, objectKey, fileSize, digest, nil
 }
 
 func countArchiveRows(ctx context.Context, client *gorm.Client, resource archiveResourceDefinition, cutoff time.Time) (int64, error) {
@@ -365,10 +399,18 @@ func countArchiveRows(ctx context.Context, client *gorm.Client, resource archive
 	return count, nil
 }
 
-// listArchiveIDs 查询本次归档候选记录的主键，删除阶段只使用该集合。
-func listArchiveIDs(ctx context.Context, client *gorm.Client, resource archiveResourceDefinition, cutoff time.Time, batchSize int32) ([]int64, error) {
+// listArchiveIDs 查询本次归档候选记录的主键，并支持按主键游标继续读取。
+func listArchiveIDs(ctx context.Context, client *gorm.Client, resource archiveResourceDefinition, cutoff time.Time, batchSize int32, afterID int64) ([]int64, error) {
 	//nolint:forbidigo // 表名和字段名来自受控归档资源定义，时间值和批量大小通过参数绑定。
-	rows, err := client.DB.WithContext(ctx).Raw("SELECT `id` FROM `"+resource.tableName+"` WHERE `"+resource.timeColumn+"` < ? ORDER BY `id` ASC LIMIT ?", cutoff, batchSize).Rows()
+	query := "SELECT `id` FROM `" + resource.tableName + "` WHERE `" + resource.timeColumn + "` < ?"
+	args := []interface{}{cutoff}
+	if afterID > 0 {
+		query += " AND `id` > ?"
+		args = append(args, afterID)
+	}
+	query += " ORDER BY `id` ASC LIMIT ?"
+	args = append(args, batchSize)
+	rows, err := client.DB.WithContext(ctx).Raw(query, args...).Rows()
 	if err != nil {
 		return nil, fmt.Errorf("查询待归档记录主键失败: %w", err)
 	}

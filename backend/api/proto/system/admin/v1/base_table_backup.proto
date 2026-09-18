@@ -62,7 +62,9 @@ message BaseTableBackupForm {
 }
 
 // PageBaseTableBackupRequest 数据库备份配置分页请求。
-message PageBaseTableBackupRequest { string source_name = 2 [(gnostic.openapi.v3.property) = {description: "数据源名称"}]; optional .common.v1.Status status = 100 [(gnostic.openapi.v3.property) = {description: "状态"}]; int64 page_num = 101 [(gnostic.openapi.v3.property) = {description: "当前页码", default: {number: 1}}]; int64 page_size = 102 [(gnostic.openapi.v3.property) = {description: "每页行数", default: {number: 10}}]; } // 数据库备份配置分页请求
+message PageBaseTableBackupRequest { string source_name = 2 [(gnostic.openapi.v3.property) = {description: "数据源名称"}]; optional .common.v1.Status status = 100 [(gnostic.openapi.v3.property) = {description: "状态"}]; int64 page_num = 101 [(gnostic.openapi.v3.property) = {description: "当前页码", default: {number: 1}},
+    (buf.validate.field).int64 = {gte: 1, lte: 1000000}]; int64 page_size = 102 [(gnostic.openapi.v3.property) = {description: "每页行数", default: {number: 10}},
+    (buf.validate.field).int64 = {gte: 1, lte: 100}]; } // 数据库备份配置分页请求
 
 // PageBaseTableBackupResponse 数据库备份配置分页响应。
 message PageBaseTableBackupResponse { repeated BaseTableBackupForm base_table_backups = 1 [(gnostic.openapi.v3.property) = {description: "备份配置列表"}]; int32 total = 2 [(gnostic.openapi.v3.property) = {description: "总数"}]; } // 数据库备份配置分页响应

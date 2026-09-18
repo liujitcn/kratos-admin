@@ -11,6 +11,7 @@ import (
 	sync "sync"
 	unsafe "unsafe"
 
+	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	_ "github.com/google/gnostic/openapiv3"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
@@ -469,18 +470,18 @@ var File_system_admin_v1_base_session_proto protoreflect.FileDescriptor
 
 const file_system_admin_v1_base_session_proto_rawDesc = "" +
 	"\n" +
-	"\"system/admin/v1/base_session.proto\x12\x0fsystem.admin.v1\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\" \n" +
+	"\"system/admin/v1/base_session.proto\x12\x0fsystem.admin.v1\x1a\x1bbuf/validate/validate.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\" \n" +
 	"\x1eListCurrentBaseSessionsRequest\"{\n" +
 	"\x1fListCurrentBaseSessionsResponse\x12X\n" +
 	"\bsessions\x18\x01 \x03(\v2\x1c.system.admin.v1.BaseSessionB\x1e\xbaG\x1b\x92\x02\x18本人有效会话列表R\bsessions\"\x1e\n" +
 	"\x1cGetCurrentBaseSessionRequest\"\x1e\n" +
-	"\x1cRevokeAllBaseSessionsRequest\"\x94\x02\n" +
+	"\x1cRevokeAllBaseSessionsRequest\"\xa8\x02\n" +
 	"\x1dPageOnlineBaseSessionsRequest\x12F\n" +
 	"\akeyword\x18\x01 \x01(\tB,\xbaG)\x92\x02&账号、租户、IP或设备关键字R\akeyword\x123\n" +
 	"\vtenant_code\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f租户编码R\n" +
-	"tenantCode\x129\n" +
-	"\bpage_num\x18e \x01(\x03B\x1e\xbaG\x1b\x8a\x02\t\t\x00\x00\x00\x00\x00\x00\xf0?\x92\x02\f当前页码R\apageNum\x12;\n" +
-	"\tpage_size\x18f \x01(\x03B\x1e\xbaG\x1b\x8a\x02\t\t\x00\x00\x00\x00\x00\x00$@\x92\x02\f每页行数R\bpageSize\"\x98\x01\n" +
+	"tenantCode\x12D\n" +
+	"\bpage_num\x18e \x01(\x03B)\xbaG\x1b\x8a\x02\t\t\x00\x00\x00\x00\x00\x00\xf0?\x92\x02\f当前页码\xbaH\b\"\x06\x18\xc0\x84=(\x01R\apageNum\x12D\n" +
+	"\tpage_size\x18f \x01(\x03B'\xbaG\x1b\x8a\x02\t\t\x00\x00\x00\x00\x00\x00$@\x92\x02\f每页行数\xbaH\x06\"\x04\x18d(\x01R\bpageSize\"\x98\x01\n" +
 	"\x1ePageOnlineBaseSessionsResponse\x12R\n" +
 	"\bsessions\x18\x01 \x03(\v2\x1c.system.admin.v1.BaseSessionB\x18\xbaG\x15\x92\x02\x12在线会话列表R\bsessions\x12\"\n" +
 	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\"I\n" +

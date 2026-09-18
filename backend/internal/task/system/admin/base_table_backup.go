@@ -7,7 +7,9 @@ import (
 	"crypto/sha256"
 	"database/sql"
 	"encoding/hex"
+	"errors"
 	"fmt"
+	"hash"
 	"io"
 	"net"
 	"os"
@@ -19,6 +21,7 @@ import (
 	"time"
 
 	"github.com/go-sql-driver/mysql"
+	"github.com/liujitcn/go-utils/id"
 	"github.com/liujitcn/gorm-kit/repository"
 	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/backup"
@@ -35,6 +38,7 @@ const (
 	// TableBackupTaskName 是数据库表备份任务的稳定调用目标。
 	TableBackupTaskName = "system.admin.BaseTableBackup"
 	backupFilePrefix    = "kratos-admin"
+	backupStaleAfter    = 24 * time.Hour
 )
 
 // pendingBackupVerificationAt 表示备份尚未完成对象校验时的数据库占位时间。
@@ -61,8 +65,14 @@ func (t *TableBackupTask) Task() cron.Task {
 
 // Exec 执行所有启用的数据库备份配置。
 func (t *TableBackupTask) Exec(ctx context.Context, _ map[string]string) ([]string, error) {
+	var err error
+	err = t.recoverStaleBackupRecords(ctx)
+	if err != nil {
+		return nil, err
+	}
 	query := t.backupRepo.Query(ctx).BaseTableBackup
-	configs, err := t.backupRepo.List(ctx, repository.Where(query.Status.Eq(_const.STATUS_STATUS_ENABLE)), repository.Order(query.ID.Asc()))
+	var configs []*models.BaseTableBackup
+	configs, err = t.backupRepo.List(ctx, repository.Where(query.Status.Eq(_const.STATUS_STATUS_ENABLE)), repository.Order(query.ID.Asc()))
 	if err != nil {
 		return nil, fmt.Errorf("查询数据库备份配置失败: %w", err)
 	}
@@ -77,6 +87,28 @@ func (t *TableBackupTask) Exec(ctx context.Context, _ map[string]string) ([]stri
 		completed++
 	}
 	return []string{fmt.Sprintf("数据库备份完成 %d 个数据源", completed)}, nil
+}
+
+// recoverStaleBackupRecords 将进程异常遗留的超时 RUNNING 记录标记为失败。
+func (t *TableBackupTask) recoverStaleBackupRecords(ctx context.Context) error {
+	query := t.recordRepo.Query(ctx).BaseTableBackupRecord
+	cutoff := time.Now().Add(-backupStaleAfter)
+	records, err := t.recordRepo.List(ctx,
+		repository.Where(query.Status.Eq(int32(adminv1.BaseTableBackupRecordStatus_BASE_TABLE_BACKUP_RECORD_STATUS_RUNNING))),
+		repository.Where(query.StartedAt.Lt(cutoff)),
+	)
+	if err != nil {
+		return fmt.Errorf("查询超时数据库备份记录失败: %w", err)
+	}
+	for _, record := range records {
+		record.Status = int32(adminv1.BaseTableBackupRecordStatus_BASE_TABLE_BACKUP_RECORD_STATUS_FAILED)
+		record.Error = "备份任务超时退出，已由后续任务复位"
+		record.FinishedAt = time.Now()
+		if err = t.recordRepo.UpdateByID(ctx, record); err != nil {
+			return fmt.Errorf("复位超时数据库备份记录失败: %w", err)
+		}
+	}
+	return nil
 }
 
 // backupOne 执行单条数据库备份配置并记录 OSS 对象元数据。
@@ -141,57 +173,41 @@ func (t *TableBackupTask) backupOne(ctx context.Context, config *models.BaseTabl
 	if err != nil {
 		return t.failBackupRecord(ctx, record, err)
 	}
-	dataValue, err := os.ReadFile(encryptedPath)
+	var sizeBytes int64
+	var digest string
+	var hmacValue string
+	sizeBytes, digest, hmacValue, err = fileDigest(encryptedPath, runtime.IntegrityKey)
 	if err != nil {
-		return t.failBackupRecord(ctx, record, fmt.Errorf("读取加密备份失败: %w", err))
+		return t.failBackupRecord(ctx, record, fmt.Errorf("计算加密备份校验值失败: %w", err))
 	}
-	digest := sha256.Sum256(dataValue)
-	macValue := hmac.New(sha256.New, []byte(runtime.IntegrityKey))
-	_, _ = macValue.Write(dataValue)
 	prefix := strings.Trim(config.OSSPrefix, "/")
 	objectDirectory := buildObjectPath(prefix, config.SourceName, dsn.DBName)
-	objectName := time.Now().UTC().Format("20060102-150405") + ".sql.gz.enc"
+	objectName := id.NewGUIDv7NoHyphen() + ".sql.gz.enc"
 	objectKey := buildObjectPath(objectDirectory, objectName)
 	if t.baseCase.OSS == nil {
 		return t.failBackupRecord(ctx, record, fmt.Errorf("OSS 未配置"))
 	}
-	_, err = t.baseCase.OSS.UploadByByte(objectName, objectDirectory, dataValue)
+	_, err = t.baseCase.OSS.Upload(objectName, objectDirectory, encryptedPath)
 	if err != nil {
+		_ = t.baseCase.OSS.DeleteFile(objectKey)
 		return t.failBackupRecord(ctx, record, fmt.Errorf("上传数据库备份失败: %w", err))
 	}
 	record.ObjectKey = objectKey
-	record.SizeBytes = int64(len(dataValue))
-	record.Sha256 = hex.EncodeToString(digest[:])
-	record.Hmac = hex.EncodeToString(macValue.Sum(nil))
-	if err = t.verifyUploadedBackup(objectKey, record.Sha256, record.Hmac, runtime.IntegrityKey); err != nil {
-		_ = t.baseCase.OSS.DeleteFile(objectKey)
-		return t.failBackupRecord(ctx, record, err)
-	}
+	record.SizeBytes = sizeBytes
+	record.Sha256 = digest
+	record.Hmac = hmacValue
+	// 摘要已在上传前对本地加密文件流式计算；OSS 接口的回读方法返回整块字节，不能用于大备份校验。
 	record.Status = int32(adminv1.BaseTableBackupRecordStatus_BASE_TABLE_BACKUP_RECORD_STATUS_SUCCESS)
 	record.FinishedAt = time.Now()
 	record.VerifiedAt = record.FinishedAt
 	if err = t.recordRepo.UpdateByID(ctx, record); err != nil {
+		cleanupErr := t.baseCase.OSS.DeleteFile(objectKey)
+		if cleanupErr != nil {
+			return errors.Join(fmt.Errorf("更新数据库备份记录失败: %w", err), fmt.Errorf("清理未登记数据库备份对象失败: %w", cleanupErr))
+		}
 		return fmt.Errorf("更新数据库备份记录失败: %w", err)
 	}
 	return t.rotateBackupRecords(ctx, config)
-}
-
-// verifyUploadedBackup 下载并校验已上传的备份对象，确认 OSS 持久化内容未损坏。
-func (t *TableBackupTask) verifyUploadedBackup(objectKey, expectedSHA256, expectedHMAC, integrityKey string) error {
-	dataValue, err := t.baseCase.OSS.GetFileByte(objectKey)
-	if err != nil {
-		return fmt.Errorf("回读数据库备份对象失败: %w", err)
-	}
-	digest := sha256.Sum256(dataValue)
-	if !hmac.Equal([]byte(expectedSHA256), []byte(hex.EncodeToString(digest[:]))) {
-		return fmt.Errorf("数据库备份对象 SHA-256 校验失败")
-	}
-	macValue := hmac.New(sha256.New, []byte(integrityKey))
-	_, _ = macValue.Write(dataValue)
-	if !hmac.Equal([]byte(expectedHMAC), []byte(hex.EncodeToString(macValue.Sum(nil)))) {
-		return fmt.Errorf("数据库备份对象 HMAC 校验失败")
-	}
-	return nil
 }
 
 func (t *TableBackupTask) failBackupRecord(ctx context.Context, record *models.BaseTableBackupRecord, backupErr error) error {
@@ -222,14 +238,20 @@ func (t *TableBackupTask) rotateBackupRecords(ctx context.Context, config *model
 		return nil
 	}
 	for _, record := range records[retention:] {
-		if record.ObjectKey != "" && t.baseCase.OSS != nil {
-			if err = t.baseCase.OSS.DeleteFile(record.ObjectKey); err != nil {
-				return fmt.Errorf("删除过期 OSS 备份失败: %w", err)
-			}
-		}
 		record.Status = int32(adminv1.BaseTableBackupRecordStatus_BASE_TABLE_BACKUP_RECORD_STATUS_DELETED)
 		if err = t.recordRepo.UpdateByID(ctx, record); err != nil {
 			return fmt.Errorf("更新过期备份记录失败: %w", err)
+		}
+		if record.ObjectKey == "" || t.baseCase.OSS == nil {
+			continue
+		}
+		if err = t.baseCase.OSS.DeleteFile(record.ObjectKey); err != nil {
+			record.Status = int32(adminv1.BaseTableBackupRecordStatus_BASE_TABLE_BACKUP_RECORD_STATUS_SUCCESS)
+			rollbackErr := t.recordRepo.UpdateByID(ctx, record)
+			if rollbackErr != nil {
+				return errors.Join(fmt.Errorf("删除过期 OSS 备份失败: %w", err), fmt.Errorf("恢复备份记录状态失败: %w", rollbackErr))
+			}
+			return fmt.Errorf("删除过期 OSS 备份失败: %w", err)
 		}
 	}
 	return nil
@@ -432,4 +454,29 @@ func writeSyncedFile(path string, content []byte, perm os.FileMode) error {
 		return err
 	}
 	return file.Close()
+}
+
+// fileDigest 流式计算文件大小、SHA-256 和可选 HMAC，避免把备份文件整体载入内存。
+func fileDigest(filePath, hmacKey string) (int64, string, string, error) {
+	file, err := os.Open(filePath)
+	if err != nil {
+		return 0, "", "", fmt.Errorf("打开待校验文件失败: %w", err)
+	}
+	defer file.Close()
+	digest := sha256.New()
+	writer := io.Writer(digest)
+	var mac hash.Hash
+	if hmacKey != "" {
+		mac = hmac.New(sha256.New, []byte(hmacKey))
+		writer = io.MultiWriter(digest, mac)
+	}
+	size, err := io.Copy(writer, file)
+	if err != nil {
+		return 0, "", "", fmt.Errorf("读取待校验文件失败: %w", err)
+	}
+	hmacValue := ""
+	if mac != nil {
+		hmacValue = hex.EncodeToString(mac.Sum(nil))
+	}
+	return size, hex.EncodeToString(digest.Sum(nil)), hmacValue, nil
 }

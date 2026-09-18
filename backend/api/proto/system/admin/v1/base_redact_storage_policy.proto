@@ -33,8 +33,10 @@ message PageBaseRedactStoragePolicyRequest {
   optional int64 rule_id = 3 [(gnostic.openapi.v3.property) = {description: "规则ID"}]; // 规则ID
   string source_name = 4 [(gnostic.openapi.v3.property) = {description: "数据源名称"}]; // 数据源名称
   optional .common.v1.Status status = 100 [(gnostic.openapi.v3.property) = {description: "状态"}]; // 状态
-  int64 page_num = 101 [(gnostic.openapi.v3.property) = {description: "当前页码", default: {number: 1}}]; // 当前页码
-  int64 page_size = 102 [(gnostic.openapi.v3.property) = {description: "每页数量", default: {number: 10}}]; // 每页数量
+  int64 page_num = 101 [(gnostic.openapi.v3.property) = {description: "当前页码", default: {number: 1}},
+    (buf.validate.field).int64 = {gte: 1, lte: 1000000}]; // 当前页码
+  int64 page_size = 102 [(gnostic.openapi.v3.property) = {description: "每页数量", default: {number: 10}},
+    (buf.validate.field).int64 = {gte: 1, lte: 100}]; // 每页数量
 }
 
 // 入库脱敏策略分页响应。

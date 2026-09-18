@@ -1,7 +1,7 @@
 <template>
   <div class="table-box">
     <ProTable ref="proTable" row-key="id" :columns="columns" :header-actions="headerActions" :request-api="requestTable" />
-    <ProDialog v-model="detailVisible" :title="detail?.title" width="720px" destroy-on-close :show-footer="false">
+    <ProDialog ref="detailDialogRef" v-model="detailVisible" :title="detail?.title" width="720px" destroy-on-close :show-footer="false">
       <div v-if="detail" class="message-detail">
         <div class="message-meta">
           <span class="message-category" :style="{ color: detail.category_color || undefined }">
@@ -56,6 +56,7 @@ defineOptions({ name: "NotificationInbox", inheritAttrs: false });
 
 const proTable = ref<ProTableInstance>();
 const router = useRouter();
+const detailDialogRef = ref<InstanceType<typeof ProDialog>>();
 const detailVisible = ref(false);
 const detail = ref<Notification>();
 const categoryOptions = ref<NotificationCategory[]>([]);
@@ -177,8 +178,12 @@ async function loadCategoryOptions() {
 
 /** 打开消息详情并标记已读。 */
 async function openDetail(row: Notification) {
-  detail.value = await defNotificationService.GetNotification({ id: row.id });
-  detailVisible.value = true;
+  await detailDialogRef.value?.open({
+    load: () => defNotificationService.GetNotification({ id: row.id }),
+    commit: data => {
+      detail.value = data;
+    }
+  });
   if (!row.read_at) {
     await defNotificationService.MarkNotificationRead({ ids: [row.id] });
     proTable.value?.getTableList();

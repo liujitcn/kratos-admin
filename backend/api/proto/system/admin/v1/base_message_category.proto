@@ -37,8 +37,10 @@ message PageBaseMessageCategoryRequest {
   optional string name = 1 [(gnostic.openapi.v3.property) = {description: "分类名称"}]; // 分类名称
   optional string code = 2 [(gnostic.openapi.v3.property) = {description: "分类编码"}]; // 分类编码
   optional .common.v1.Status status = 3 [(gnostic.openapi.v3.property) = {description: "状态"}, (buf.validate.field).enum = {defined_only: true}]; // 状态
-  int64 page_num = 101 [(gnostic.openapi.v3.property) = {description: "当前页码", default: {number: 1}}]; // 当前页码
-  int64 page_size = 102 [(gnostic.openapi.v3.property) = {description: "每页数量", default: {number: 10}}]; // 每页数量
+  int64 page_num = 101 [(gnostic.openapi.v3.property) = {description: "当前页码", default: {number: 1}},
+    (buf.validate.field).int64 = {gte: 1, lte: 1000000}]; // 当前页码
+  int64 page_size = 102 [(gnostic.openapi.v3.property) = {description: "每页数量", default: {number: 10}},
+    (buf.validate.field).int64 = {gte: 1, lte: 100}]; // 每页数量
 }
 
 // 消息分类分页响应。

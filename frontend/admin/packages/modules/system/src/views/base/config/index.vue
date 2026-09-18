@@ -10,6 +10,7 @@
     />
 
     <ProDialog
+      ref="dialogRef"
       v-model="dialog.visible"
       class="system-config-dialog"
       :title="t(dialog.titleKey, { resource: t('system.base.config.resource') })"
@@ -162,6 +163,7 @@ defineOptions({
 
 const { BUTTONS } = useAuthButtons();
 const proTable = ref<ProTableInstance>();
+const dialogRef = ref<InstanceType<typeof ProDialog>>();
 const basicFormRef = ref<ProFormInstance>();
 const activeTab = ref("basic");
 
@@ -637,27 +639,46 @@ function refreshTable() {
  * 打开系统配置弹窗。
  */
 async function handleOpenDialog(configId?: number) {
-  await loadEnabledBaseLanguages();
   resetForm();
   dialog.titleKey = configId ? "common.action.edit_resource" : "common.action.create_resource";
-  if (configId) {
-    Object.assign(formData, await defBaseConfigService.GetBaseConfig({ id: configId }));
-    if (formData.type === BaseConfigType.BASE_CONFIG_TYPE_FORM) {
-      loadFormValue(formData.value);
+  await dialogRef.value?.open({
+    load: async () => ({
+      data: configId ? await defBaseConfigService.GetBaseConfig({ id: configId }) : undefined,
+      languages: await loadEnabledBaseLanguages()
+    }),
+    commit: ({ data }) => {
+      if (data) {
+        Object.assign(formData, data);
+        if (formData.type === BaseConfigType.BASE_CONFIG_TYPE_FORM) loadFormValue(formData.value);
+      }
+      activeTab.value = configId && formData.type === BaseConfigType.BASE_CONFIG_TYPE_FORM ? "form" : "basic";
     }
-  }
-  activeTab.value = configId && formData.type === BaseConfigType.BASE_CONFIG_TYPE_FORM ? "form" : "basic";
-  dialog.visible = true;
+  });
 }
 
 /** 按注册定义创建独立模型，并用已保存的配置值覆盖默认值。 */
 function loadFormValue(value?: string) {
   const definition = formDefinition.value;
+  const parsed = value ? parseJSONValue(value) : {};
   formValue.value =
-    formData.type === BaseConfigType.BASE_CONFIG_TYPE_FORM && definition
-      ? Object.assign(definition.createModel(), value ? JSON.parse(value) : {})
-      : {};
+    formData.type === BaseConfigType.BASE_CONFIG_TYPE_FORM && definition && isJSONObject(parsed)
+      ? Object.assign(definition.createModel(), parsed)
+      : definition?.createModel() ?? {};
   valueFormRef.value?.clearValidate();
+}
+
+/** 安全解析运行配置 JSON，脏数据回退到表单默认模型。 */
+function parseJSONValue(value: string): unknown {
+  try {
+    return JSON.parse(value);
+  } catch {
+    return undefined;
+  }
+}
+
+/** 判断运行配置 JSON 是否为可合并对象。 */
+function isJSONObject(value: unknown): value is Record<string, unknown> {
+  return Boolean(value && typeof value === "object" && !Array.isArray(value));
 }
 
 /** 按字段声明恢复运行配置提交值的 JSON 类型。 */
@@ -671,7 +692,8 @@ function normalizeRuntimeConfigValue() {
     } else if (field.valueType === "boolean" && typeof value === "string") {
       setRuntimeConfigFieldValue(field.prop, value === "true");
     } else if (field.valueType === "json" && typeof value === "string" && value !== "") {
-      setRuntimeConfigFieldValue(field.prop, JSON.parse(value));
+      const parsed = parseJSONValue(value);
+      if (parsed !== undefined) setRuntimeConfigFieldValue(field.prop, parsed);
     }
   }
 }
@@ -692,7 +714,7 @@ function setRuntimeConfigFieldValue(prop: string, value: unknown) {
  * 关闭系统配置弹窗并恢复默认表单值。
  */
 function handleCloseDialog() {
-  dialog.visible = false;
+  dialogRef.value?.close();
   resetForm();
 }
 

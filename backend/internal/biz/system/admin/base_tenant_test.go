@@ -1,12 +1,27 @@
 package biz
 
 import (
+	"sync"
 	"testing"
 
 	"github.com/liujitcn/go-utils/crypto"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/loginpolicy"
 	passwordPolicy "github.com/liujitcn/kratos-admin/backend/internal/biz/base/password"
+	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
+	"gorm.io/gorm/schema"
 )
+
+// TestBaseTenantIDUsesDatabaseAutoIncrement 验证租户 ID 由数据库自增且不依赖租户编号。
+func TestBaseTenantIDUsesDatabaseAutoIncrement(t *testing.T) {
+	modelSchema, err := schema.Parse(&models.BaseTenant{}, &sync.Map{}, schema.NamingStrategy{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	idField, ok := modelSchema.FieldsByDBName["id"]
+	if !ok || !idField.PrimaryKey || !idField.AutoIncrement {
+		t.Fatalf("tenant ID field metadata = %+v, want primary key with auto increment", idField)
+	}
+}
 
 // TestBuildTenantAdminCredentialsUsesGlobalPassword 验证已配置初始化密码时直接复用密码哈希。
 func TestBuildTenantAdminCredentialsUsesGlobalPassword(t *testing.T) {

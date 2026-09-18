@@ -4,6 +4,7 @@ import { bootstrapKratosTaroApp } from '@liujitcn/kratos-taro-app-core'
 import {
   pauseNotificationPolling,
   resumeNotificationPolling,
+  startNotificationPolling,
 } from '@liujitcn/kratos-taro-app-system'
 import { moduleManifest } from './module-manifest'
 import './app.scss'
@@ -12,6 +13,7 @@ import './app.scss'
 export default function App({ children }: PropsWithChildren) {
   useLaunch(() => {
     bootstrapKratosTaroApp({ modules: moduleManifest })
+    startNotificationPolling()
   })
   useDidShow(() => resumeNotificationPolling())
   useDidHide(() => pauseNotificationPolling())

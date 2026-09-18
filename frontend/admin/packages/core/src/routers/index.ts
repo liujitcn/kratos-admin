@@ -18,6 +18,12 @@ const routerMode = {
   history: () => createWebHistory()
 };
 
+/** 校验登录回跳地址只能是站内路径。 */
+function resolveSafeRedirect(path: string) {
+  if (!path || path === LOGIN_URL || path.startsWith("//") || /^[a-z][a-z\d+.-]*:/i.test(path)) return HOME_URL;
+  return path.startsWith("/") ? path : HOME_URL;
+}
+
 /**
  * @description 📚 路由参数配置简介
  * @param path ==> 路由菜单访问路径
@@ -63,8 +69,7 @@ router.beforeEach(async to => {
     }
     if (hasAccessToken) {
       // 登录态访问登录页时优先回到显式 redirect，避免 from 为根路径时触发重复重定向。
-      const targetPath = redirectQuery && redirectQuery !== LOGIN_URL ? redirectQuery : HOME_URL;
-      return targetPath;
+      return resolveSafeRedirect(redirectQuery);
     }
     resetRouter();
     return true;

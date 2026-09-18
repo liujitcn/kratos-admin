@@ -83,13 +83,21 @@ function refresh() { proTable.value?.getTableList(); }
 function defaultForm(): BaseTableArchiveForm { return { id: 0, source_name: "", table_name: "", archive_mode: BaseTableArchiveMode.BASE_TABLE_ARCHIVE_MODE_INTERNAL_DATABASE, online_retention_days: 180, archive_retention_days: 3650, batch_size: 5000, delete_after_verify: false, oss_prefix: "archive", status: Status.STATUS_ENABLE }; }
 function resetForm() { dialog.visible = false; formDialogRef.value?.resetFields(); Object.assign(formData, defaultForm()); }
 async function openDialog(id?: number) {
-  await loadSourceOptions();
-  Object.assign(formData, defaultForm());
-  dialog.editing = Boolean(id);
-  if (id) Object.assign(formData, await defBaseTableArchiveService.GetBaseTableArchive({ id }));
-  if (!formData.source_name) formData.source_name = String(sourceOptions.value[0]?.value ?? "");
-  await loadTableOptions(formData.source_name);
-  dialog.visible = true;
+  await formDialogRef.value?.open({
+    load: async () => {
+      await loadSourceOptions();
+      const data = id ? await defBaseTableArchiveService.GetBaseTableArchive({ id }) : undefined;
+      const form = { ...defaultForm(), ...(data ?? {}) };
+      if (!form.source_name) form.source_name = String(sourceOptions.value[0]?.value ?? "");
+      const loadedTableOptions = form.source_name ? await requestTableOptions(form.source_name) : [];
+      return { form, loadedTableOptions };
+    },
+    commit: ({ form, loadedTableOptions }) => {
+      Object.assign(formData, form);
+      dialog.editing = Boolean(id);
+      tableOptions.value = loadedTableOptions;
+    }
+  });
 }
 async function loadSourceOptions() {
   if (sourceOptions.value.length || loadingSources.value) return;
@@ -107,12 +115,16 @@ async function handleSourceChange(value: string | number | boolean | undefined) 
   await loadTableOptions(formData.source_name);
 }
 async function loadTableOptions(sourceName: string) {
-  tableOptions.value = [];
-  if (!sourceName) return;
+  tableOptions.value = await requestTableOptions(sourceName);
+}
+
+/** 请求指定数据源下的数据表选项。 */
+async function requestTableOptions(sourceName: string) {
+  if (!sourceName) return [];
   loadingTables.value = true;
   try {
     const data = await defBaseTableSourceService.OptionBaseTable({ source_name: sourceName });
-    tableOptions.value = (data.value ?? []).map(value => ({ label: value, value }));
+    return (data.value ?? []).map(value => ({ label: value, value }));
   } finally {
     loadingTables.value = false;
   }

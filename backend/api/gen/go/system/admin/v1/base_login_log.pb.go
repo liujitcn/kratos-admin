@@ -517,7 +517,7 @@ const file_system_admin_v1_base_login_log_proto_rawDesc = "" +
 	"\bpage_num\x18e \x01(\x03B\x8f\x01\xbaG\x1b\x8a\x02\t\t\x00\x00\x00\x00\x00\x00\xf0?\x92\x02\f当前页码\xbaHn\xba\x01k\n" +
 	"%current_user_login_log.page_num.range\x12$页码必须在 1 到 1000000 之间\x1a\x1cthis >= 1 && this <= 1000000R\apageNum\x12\xac\x01\n" +
 	"\tpage_size\x18f \x01(\x03B\x8e\x01\xbaG\x1b\x8a\x02\t\t\x00\x00\x00\x00\x00\x00$@\x92\x02\f每页行数\xbaHm\xba\x01j\n" +
-	"&current_user_login_log.page_size.range\x12&每页行数必须在 1 到 100 之间\x1a\x18this >= 1 && this <= 100R\bpageSize\"\xa7\x04\n" +
+	"&current_user_login_log.page_size.range\x12&每页行数必须在 1 到 100 之间\x1a\x18this >= 1 && this <= 100R\bpageSize\"\xbb\x04\n" +
 	"\x17PageBaseLoginLogRequest\x120\n" +
 	"\ttenant_id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDH\x00R\btenantId\x88\x01\x01\x12,\n" +
 	"\auser_id\x18\x02 \x01(\x03B\x0e\xbaG\v\x92\x02\b用户IDH\x01R\x06userId\x88\x01\x01\x12Y\n" +
@@ -526,9 +526,9 @@ const file_system_admin_v1_base_login_log_proto_rawDesc = "" +
 	"\x06result\x18\x04 \x01(\x0e2\x1e.system.admin.v1.BaseLogResultB\f\xbaG\t\x92\x02\x06结果H\x03R\x06result\x88\x01\x01\x123\n" +
 	"\voccurred_at\x18\x05 \x03(\tB\x12\xbaG\x0f\x92\x02\f事件时间R\n" +
 	"occurredAt\x12=\n" +
-	"\akeyword\x18\x06 \x01(\tB#\xbaG \x92\x02\x1d账号、租户或IP关键字R\akeyword\x12-\n" +
-	"\bpage_num\x18e \x01(\x03B\x12\xbaG\x0f\x92\x02\f当前页码R\apageNum\x12/\n" +
-	"\tpage_size\x18f \x01(\x03B\x12\xbaG\x0f\x92\x02\f每页行数R\bpageSizeB\f\n" +
+	"\akeyword\x18\x06 \x01(\tB#\xbaG \x92\x02\x1d账号、租户或IP关键字R\akeyword\x128\n" +
+	"\bpage_num\x18e \x01(\x03B\x1d\xbaG\x0f\x92\x02\f当前页码\xbaH\b\"\x06\x18\xc0\x84=(\x01R\apageNum\x128\n" +
+	"\tpage_size\x18f \x01(\x03B\x1b\xbaG\x0f\x92\x02\f每页行数\xbaH\x06\"\x04\x18d(\x01R\bpageSizeB\f\n" +
 	"\n" +
 	"_tenant_idB\n" +
 	"\n" +

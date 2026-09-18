@@ -349,16 +349,22 @@ function resolveTenantProjectSlotContext(scope: Record<string, any>) {
 
 /** 打开项目编辑弹窗。 */
 async function handleOpenDialog(id?: number) {
-  resetForm();
-  await loadTenantOptions();
-  dialog.titleKey = id ? "common.action.edit_resource" : "common.action.create_resource";
-  dialog.visible = true;
-  if (id) Object.assign(formData, await defBaseTenantProjectService.GetBaseTenantProject({ id }));
+  await formDialogRef.value?.open({
+    load: async () => {
+      await loadTenantOptions();
+      return id ? defBaseTenantProjectService.GetBaseTenantProject({ id }) : undefined;
+    },
+    commit: data => {
+      resetForm();
+      dialog.titleKey = id ? "common.action.edit_resource" : "common.action.create_resource";
+      if (data) Object.assign(formData, data);
+    }
+  });
 }
 
 /** 关闭项目弹窗并清理表单。 */
 function handleCloseDialog() {
-  dialog.visible = false;
+  formDialogRef.value?.close();
   resetForm();
 }
 

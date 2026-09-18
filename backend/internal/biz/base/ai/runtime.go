@@ -15,7 +15,7 @@ type Runtime struct {
 
 // NewRuntime 创建 Admin AI 运行时。
 func NewRuntime(
-	client *model.ResponsesClient,
+	client *model.AssistantClient,
 	checker ToolAccessChecker,
 	adminTools AdminTools,
 	appTools AppTools,

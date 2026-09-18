@@ -1,5 +1,6 @@
 <template>
   <FormDialog
+    ref="formDialogRef"
     v-model="visible"
     :title="t('system.base.tenant_project.grant')"
     :model="form"
@@ -26,6 +27,7 @@ import type {
 import type { SelectOptionResponse_Option } from "@liujitcn/kratos-admin-system/rpc/common/v1/common";
 
 const visible = ref(false);
+const formDialogRef = ref<InstanceType<typeof FormDialog>>();
 const loading = ref(false);
 const projectOptions = ref<SelectOptionResponse_Option[]>([]);
 const form = reactive({ tenant_id: 0, all: false, project_id: [] as number[] });
@@ -42,13 +44,26 @@ const fields = computed<ProFormField[]>(() => [
 
 /** 打开指定主体的授权表单，目标租户切换后重新加载直接授权。 */
 async function open(type: BaseTenantProjectGrantSubjectType, id: number, tenantId: number) {
-  reset();
-  subjectType = type;
-  subjectId = id;
-  await loadTenantOptions(true);
-  form.tenant_id = tenantId;
-  visible.value = true;
-  await load();
+  await formDialogRef.value?.open({
+    load: async () => {
+      await loadTenantOptions(true);
+      const request = { tenant_id: tenantId, subject_type: type, subject_id: id };
+      const [options, grant] = await Promise.all([
+        defBaseTenantProjectService.OptionBaseTenantProject({ tenant_id: request.tenant_id }),
+        defBaseTenantProjectGrantService.GetBaseTenantProjectGrant(request)
+      ]);
+      return { request, projects: options.list ?? [], grant };
+    },
+    commit: ({ request, projects, grant }) => {
+      reset();
+      subjectType = request.subject_type;
+      subjectId = request.subject_id;
+      form.tenant_id = request.tenant_id;
+      projectOptions.value = projects;
+      form.all = grant.project_id.length === 1 && grant.project_id[0] === 0;
+      form.project_id = form.all ? [] : grant.project_id;
+    }
+  });
 }
 
 /** 加载目标租户项目和当前主体的直接授权，避免快速切换时旧响应覆盖新结果。 */

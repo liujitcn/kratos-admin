@@ -56,7 +56,7 @@ message BaseTableArchiveForm {
   int64 id = 1 [(gnostic.openapi.v3.property) = {description: "归档配置ID"}]; // 归档配置ID
   string table_name = 3 [(gnostic.openapi.v3.property) = {description: "数据表名称"}, (buf.validate.field).cel = {id: "system.admin.base.table_archive.table_name.required" message: "数据表名称不能为空" expression: "this.size() > 0 && this.size() <= 128"}]; // 数据表名称
   BaseTableArchiveMode archive_mode = 4 [(gnostic.openapi.v3.property) = {description: "归档模式"}, (buf.validate.field).enum = {defined_only: true}]; // 归档模式
-  int32 online_retention_days = 5 [(gnostic.openapi.v3.property) = {description: "在线保留天数"}, (buf.validate.field).cel = {id: "system.admin.base.table_archive.online_retention_days.non_negative" message: "在线保留天数不能小于零" expression: "this >= 0"}]; // 在线保留天数
+  int32 online_retention_days = 5 [(gnostic.openapi.v3.property) = {description: "在线保留天数"}, (buf.validate.field).cel = {id: "system.admin.base.table_archive.online_retention_days.positive" message: "在线保留天数必须大于零" expression: "this > 0"}]; // 在线保留天数
   int32 archive_retention_days = 6 [(gnostic.openapi.v3.property) = {description: "归档保留天数"}, (buf.validate.field).cel = {id: "system.admin.base.table_archive.archive_retention_days.non_negative" message: "归档保留天数不能小于零" expression: "this >= 0"}]; // 归档保留天数
   int32 batch_size = 7 [(gnostic.openapi.v3.property) = {description: "批处理数量"}, (buf.validate.field).cel = {id: "system.admin.base.table_archive.batch_size.positive" message: "批处理数量必须大于零" expression: "this > 0"}]; // 批处理数量
   bool delete_after_verify = 8 [(gnostic.openapi.v3.property) = {description: "校验后删除在线数据"}]; // 校验后删除在线数据
@@ -70,8 +70,10 @@ message PageBaseTableArchiveRequest {
   string table_name = 2 [(gnostic.openapi.v3.property) = {description: "数据表名称"}]; // 数据表名称
   string source_name = 3 [(gnostic.openapi.v3.property) = {description: "数据源名称"}]; // 数据源名称
   optional .common.v1.Status status = 100 [(gnostic.openapi.v3.property) = {description: "状态"}]; // 状态
-  int64 page_num = 101 [(gnostic.openapi.v3.property) = {description: "当前页码", default: {number: 1}}]; // 当前页码
-  int64 page_size = 102 [(gnostic.openapi.v3.property) = {description: "每页行数", default: {number: 10}}]; // 每页行数
+  int64 page_num = 101 [(gnostic.openapi.v3.property) = {description: "当前页码", default: {number: 1}},
+    (buf.validate.field).int64 = {gte: 1, lte: 1000000}]; // 当前页码
+  int64 page_size = 102 [(gnostic.openapi.v3.property) = {description: "每页行数", default: {number: 10}},
+    (buf.validate.field).int64 = {gte: 1, lte: 100}]; // 每页行数
 }
 
 // PageBaseTableArchiveResponse 表归档配置分页响应。

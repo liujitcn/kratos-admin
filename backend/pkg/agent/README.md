@@ -26,7 +26,7 @@ if err != nil {
 创建 Runtime 时传入工具，或在运行时追加：
 
 ```go
-client := agent.NewResponsesClient(modelConfig)
+client := agent.NewAssistantClient(modelConfig)
 runtime := agent.NewRuntime(agent.RuntimeConfig{
 	Client:     client,
 	AdminTools: []agent.Tool{searchTool},

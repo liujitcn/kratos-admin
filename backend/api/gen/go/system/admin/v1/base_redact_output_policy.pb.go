@@ -794,7 +794,7 @@ var File_system_admin_v1_base_redact_output_policy_proto protoreflect.FileDescri
 
 const file_system_admin_v1_base_redact_output_policy_proto_rawDesc = "" +
 	"\n" +
-	"/system/admin/v1/base_redact_output_policy.proto\x12\x0fsystem.admin.v1\x1a\x14common/v1/enum.proto\x1a\x1bbuf/validate/validate.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1esystem/admin/v1/base_api.proto\"\xa6\x04\n" +
+	"/system/admin/v1/base_redact_output_policy.proto\x12\x0fsystem.admin.v1\x1a\x14common/v1/enum.proto\x1a\x1bbuf/validate/validate.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1esystem/admin/v1/base_api.proto\"\xba\x04\n" +
 	"!PageBaseRedactOutputPolicyRequest\x120\n" +
 	"\toperation\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f接口操作R\toperation\x12>\n" +
 	"\vmessage_ref\x18\x02 \x01(\tB\x1d\xbaG\x1a\x92\x02\x17Proto消息完整名称R\n" +
@@ -803,9 +803,9 @@ const file_system_admin_v1_base_redact_output_policy_proto_rawDesc = "" +
 	"field_path\x18\x03 \x01(\tB\x18\xbaG\x15\x92\x02\x12返回字段路径R\tfieldPath\x122\n" +
 	"\fservice_name\x18\x04 \x01(\tB\x0f\xbaG\f\x92\x02\t服务名R\vserviceName\x12X\n" +
 	"\x04mode\x18d \x01(\x0e2+.system.admin.v1.BaseRedactOutputPolicyModeB\x12\xbaG\x0f\x92\x02\f处理模式H\x00R\x04mode\x88\x01\x01\x12<\n" +
-	"\x06status\x18e \x01(\x0e2\x11.common.v1.StatusB\f\xbaG\t\x92\x02\x06状态H\x01R\x06status\x88\x01\x01\x129\n" +
-	"\bpage_num\x18f \x01(\x03B\x1e\xbaG\x1b\x8a\x02\t\t\x00\x00\x00\x00\x00\x00\xf0?\x92\x02\f当前页码R\apageNum\x12;\n" +
-	"\tpage_size\x18g \x01(\x03B\x1e\xbaG\x1b\x8a\x02\t\t\x00\x00\x00\x00\x00\x00$@\x92\x02\f每页数量R\bpageSizeB\a\n" +
+	"\x06status\x18e \x01(\x0e2\x11.common.v1.StatusB\f\xbaG\t\x92\x02\x06状态H\x01R\x06status\x88\x01\x01\x12D\n" +
+	"\bpage_num\x18f \x01(\x03B)\xbaG\x1b\x8a\x02\t\t\x00\x00\x00\x00\x00\x00\xf0?\x92\x02\f当前页码\xbaH\b\"\x06\x18\xc0\x84=(\x01R\apageNum\x12D\n" +
+	"\tpage_size\x18g \x01(\x03B'\xbaG\x1b\x8a\x02\t\t\x00\x00\x00\x00\x00\x00$@\x92\x02\f每页数量\xbaH\x06\"\x04\x18d(\x01R\bpageSizeB\a\n" +
 	"\x05_modeB\t\n" +
 	"\a_status\"\xd1\x01\n" +
 	"\"PageBaseRedactOutputPolicyResponse\x12\x86\x01\n" +

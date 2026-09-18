@@ -26,6 +26,7 @@ type Runner struct {
 	model       model.AgenticModel
 	name        string
 	description string
+	serverTools bool
 }
 
 // Config 表示 ADK Runner 初始化配置。
@@ -36,6 +37,8 @@ type Config struct {
 	Name string
 	// Description Agent 能力描述。
 	Description string
+	// ServerTools 是否注入 Responses 服务端工具（联网搜索等），仅 Responses 协议支持。
+	ServerTools bool
 }
 
 // Request 表示单轮 ADK 执行输入。
@@ -68,6 +71,7 @@ func NewRunner(config Config) *Runner {
 		model:       config.Model,
 		name:        config.Name,
 		description: config.Description,
+		serverTools: config.ServerTools,
 	}
 }
 
@@ -115,9 +119,12 @@ func (r *Runner) Run(ctx context.Context, request Request) (*Result, error) {
 func (r *Runner) newAgent(ctx context.Context, request Request) (*adk.TypedChatModelAgent[*schema.AgenticMessage], error) {
 	handlers := []adk.TypedChatModelAgentMiddleware[*schema.AgenticMessage]{
 		middleware.NewToolFilterHandler(request.ToolInfos),
-		middleware.NewResponsesServerToolHandler(),
-		middleware.NewToolMetricsHandler(toolTitleResolver(request.ToolInfos)),
 	}
+	// 服务端工具只在 Responses 协议下注入，聊天补全协议没有对应能力。
+	if r.serverTools {
+		handlers = append(handlers, middleware.NewResponsesServerToolHandler())
+	}
+	handlers = append(handlers, middleware.NewToolMetricsHandler(toolTitleResolver(request.ToolInfos)))
 	return adk.NewTypedChatModelAgent(ctx, &adk.TypedChatModelAgentConfig[*schema.AgenticMessage]{
 		Name:        r.name,
 		Description: r.description,
