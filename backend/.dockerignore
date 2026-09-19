@@ -5,6 +5,8 @@
 bin/
 configs/*.dev.yaml
 data/*
+!web
+!web/**
 !data/admin
 !data/admin/**
 !data/uni-app

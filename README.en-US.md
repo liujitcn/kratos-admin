@@ -108,7 +108,7 @@ cd ../taro-app && pnpm dev:h5
 | uni-app H5 | `http://localhost:5004` |
 | Taro H5 | `http://localhost:5002` |
 
-Taro development output is located at `frontend/taro-app/apps/taro-app/dist/dev/<platform>`, WeChat Mini Program production output is located at `dist/build/mp-weixin`, and H5 production output remains in `backend/data/taro-app`. WeChat DevTools uses the development directory by default; import the production directory for releases.
+Taro development output is located at `frontend/taro-app/apps/taro-app/dist/dev/<platform>`, WeChat Mini Program production output is located at `dist/build/mp-weixin`, and H5 production output remains in `backend/web/taro-app`. WeChat DevTools uses the development directory by default; import the production directory for releases.
 
 uni-app and Taro H5 default to ports `5004` and `5002` respectively and can run at the same time. For LAN access to uni-app, replace `localhost` with the development machine's LAN IP.
 

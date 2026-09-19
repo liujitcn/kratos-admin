@@ -108,7 +108,7 @@ cd ../taro-app && pnpm dev:h5
 | uni-app H5 | `http://localhost:5004` |
 | Taro H5 | `http://localhost:5002` |
 
-Taro 開發產物位於 `frontend/taro-app/apps/taro-app/dist/dev/<平台>`，微信小程式生產產物位於 `dist/build/mp-weixin`；H5 生產產物仍輸出到 `backend/data/taro-app`。微信開發者工具預設使用開發目錄，發佈時匯入生產目錄。
+Taro 開發產物位於 `frontend/taro-app/apps/taro-app/dist/dev/<平台>`，微信小程式生產產物位於 `dist/build/mp-weixin`；H5 生產產物仍輸出到 `backend/web/taro-app`。微信開發者工具預設使用開發目錄，發佈時匯入生產目錄。
 
 uni-app 與 Taro H5 預設分別使用 `5004` 與 `5002`，可以同時啟動。區域網路裝置存取 uni-app 時，將 `localhost` 替換為開發機區域網路 IP。
 

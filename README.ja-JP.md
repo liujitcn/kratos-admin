@@ -108,7 +108,7 @@ cd ../taro-app && pnpm dev:h5
 | uni-app H5 | `http://localhost:5004` |
 | Taro H5 | `http://localhost:5002` |
 
-Taro の開発成果物は `frontend/taro-app/apps/taro-app/dist/dev/<platform>`、WeChat ミニプログラムの本番成果物は `dist/build/mp-weixin` にあります。H5 の本番成果物は引き続き `backend/data/taro-app` に出力されます。WeChat 開発者ツールはデフォルトで開発ディレクトリを使用し、リリース時は本番ディレクトリをインポートしてください。
+Taro の開発成果物は `frontend/taro-app/apps/taro-app/dist/dev/<platform>`、WeChat ミニプログラムの本番成果物は `dist/build/mp-weixin` にあります。H5 の本番成果物は引き続き `backend/web/taro-app` に出力されます。WeChat 開発者ツールはデフォルトで開発ディレクトリを使用し、リリース時は本番ディレクトリをインポートしてください。
 
 uni-app と Taro H5 のデフォルトポートはそれぞれ `5004` と `5002` で、同時に起動できます。LAN から uni-app にアクセスする場合は `localhost` を開発マシンの LAN IP に置き換えてください。
 

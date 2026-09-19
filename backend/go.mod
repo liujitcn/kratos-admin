@@ -2,8 +2,6 @@ module github.com/liujitcn/kratos-admin/backend
 
 go 1.27.0
 
-replace github.com/liujitcn/kratos-admin/backend/api => ./api
-
 require (
 	buf.build/go/protovalidate v1.4.0
 	github.com/cloudwego/eino v0.9.15
@@ -17,11 +15,11 @@ require (
 	github.com/liujitcn/go-utils/crypto v0.0.17
 	github.com/liujitcn/go-utils/http v0.0.7
 	github.com/liujitcn/gorm-kit v0.0.34
-	github.com/liujitcn/kratos-admin/backend/api v0.0.14
-	github.com/liujitcn/kratos-core v0.0.33
+	github.com/liujitcn/kratos-admin/backend/api v0.0.15
+	github.com/liujitcn/kratos-core v0.0.34
 	github.com/liujitcn/kratos-core/api v0.0.4
 	github.com/liujitcn/kratos-kit v0.0.85
-	github.com/liujitcn/kratos-kit/api v0.0.37
+	github.com/liujitcn/kratos-kit/api v0.0.39
 	github.com/liujitcn/kratos-kit/auth v0.0.29
 	github.com/liujitcn/kratos-kit/auth/authn v0.0.24
 	github.com/liujitcn/kratos-kit/auth/authz v0.0.23

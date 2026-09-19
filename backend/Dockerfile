@@ -26,7 +26,7 @@ FROM alpine:3.22
 RUN apk add --no-cache ca-certificates gzip mysql-client openssl tzdata \
     && addgroup -S kratos \
     && adduser -S -G kratos -h /app kratos \
-    && mkdir -p /app/data /app/logs /app/backups /opt/kratos-admin \
+    && mkdir -p /app/data /app/web /app/logs /app/backups /opt/kratos-admin \
     && chown -R kratos:kratos /app /opt/kratos-admin
 
 WORKDIR /app
@@ -35,9 +35,7 @@ COPY --from=backend-builder --chown=kratos:kratos /out/server ./server
 COPY --chown=kratos:kratos configs ./configs
 COPY --chown=kratos:kratos configs /opt/kratos-admin/configs
 COPY --chown=kratos:kratos migration/assets ./migration/assets
-COPY --chown=kratos:kratos data/admin /opt/kratos-admin/static/admin
-COPY --chown=kratos:kratos data/uni-app /opt/kratos-admin/static/uni-app
-COPY --chown=kratos:kratos data/taro-app /opt/kratos-admin/static/taro-app
+COPY --chown=kratos:kratos web /opt/kratos-admin/static
 COPY --chown=kratos:kratos scripts/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
