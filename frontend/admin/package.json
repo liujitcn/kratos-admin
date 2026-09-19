@@ -17,7 +17,7 @@
   },
   "devDependencies": {
     "@commitlint/cli": "^18.4.3",
-    "@commitlint/config-conventional": "^18.4.3",
+    "@commitlint/config-conventional": "^21.2.2",
     "@types/md5": "^2.3.5",
     "@types/node": "^25.9.1",
     "@types/nprogress": "^0.2.3",
