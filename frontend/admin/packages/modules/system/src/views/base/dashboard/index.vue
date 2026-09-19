@@ -8,28 +8,42 @@
           :key="metric.key"
           :class="['metric-card', `metric-card--${metric.tone}`, 'admin-page-card']"
         >
-          <div class="metric-content">
-            <span class="metric-label">{{ metric.label }}</span>
-            <strong class="metric-value">{{ metric.value }}</strong>
+          <div class="metric-top">
+            <span class="metric-label">{{ metric.label }}</span
+            ><span class="metric-icon"
+              ><el-icon><component :is="metric.icon" /></el-icon
+            ></span>
           </div>
-          <div class="metric-icon" aria-hidden="true">
-            <el-icon><component :is="metric.icon" /></el-icon>
-          </div>
+          <strong class="metric-value">{{ metric.value }}</strong>
         </el-card>
       </section>
-
       <section class="chart-grid">
         <el-card class="chart-card chart-card-wide admin-page-card">
-          <template #header>{{ t("system.dashboard.login_trend") }}</template>
-          <div class="chart-wrap"><ECharts :option="loginTrendOption" height="320" /></div>
+          <template #header
+            ><div class="chart-heading">
+              <span>{{ t("system.dashboard.login_trend") }}</span
+              ><small>近 7 天</small>
+            </div></template
+          >
+          <div class="chart-wrap"><ECharts :option="loginTrendOption" height="285" /></div>
         </el-card>
         <el-card class="chart-card admin-page-card">
-          <template #header>{{ t("system.dashboard.login_distribution") }}</template>
-          <div class="chart-wrap"><ECharts :option="loginDistributionOption" height="320" /></div>
+          <template #header
+            ><div class="chart-heading">
+              <span>{{ t("system.dashboard.login_distribution") }}</span
+              ><small>总计 {{ loginDistributionTotal }}</small>
+            </div></template
+          >
+          <div class="chart-wrap"><ECharts :option="loginDistributionOption" height="265" /></div>
         </el-card>
         <el-card class="chart-card admin-page-card">
-          <template #header>{{ t("system.dashboard.operation_distribution") }}</template>
-          <div class="chart-wrap"><ECharts :option="operationDistributionOption" height="320" /></div>
+          <template #header
+            ><div class="chart-heading">
+              <span>{{ t("system.dashboard.operation_distribution") }}</span
+              ><small>总计 {{ operationDistributionTotal }}</small>
+            </div></template
+          >
+          <div class="chart-wrap"><ECharts :option="operationDistributionOption" height="265" /></div>
         </el-card>
       </section>
     </template>
@@ -37,7 +51,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from "vue";
+import { computed, onBeforeUnmount, onMounted, ref } from "vue";
 import ECharts from "@liujitcn/kratos-admin-core/components/ECharts/index.vue";
 import { defBaseDashboardService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/base_dashboard";
 import type {
@@ -52,25 +66,84 @@ const overview = ref<BaseDashboardOverview>();
 const trend = ref<BaseDashboardTrendPoint[]>([]);
 const loginDistribution = ref<BaseDashboardDistributionItem[]>([]);
 const operationDistribution = ref<BaseDashboardDistributionItem[]>([]);
-
+const chartTheme = ref({
+  primary: "#409eff",
+  success: "#67c23a",
+  warning: "#e6a23c",
+  info: "#909399",
+  danger: "#f56c6c",
+  text: "#606266",
+  divider: "#e4e7ed",
+  background: "#ffffff"
+});
 const metrics = computed(() => [
   { key: "users", label: t("system.dashboard.users"), value: overview.value?.user_count ?? 0, icon: User, tone: "primary" },
   { key: "roles", label: t("system.dashboard.roles"), value: overview.value?.role_count ?? 0, icon: UserFilled, tone: "success" },
-  { key: "logins", label: t("system.dashboard.today_logins"), value: overview.value?.today_login_count ?? 0, icon: Timer, tone: "warning" },
-  { key: "operations", label: t("system.dashboard.today_operations"), value: overview.value?.today_operation_count ?? 0, icon: Operation, tone: "danger" }
+  {
+    key: "logins",
+    label: t("system.dashboard.today_logins"),
+    value: overview.value?.today_login_count ?? 0,
+    icon: Timer,
+    tone: "warning"
+  },
+  {
+    key: "operations",
+    label: t("system.dashboard.today_operations"),
+    value: overview.value?.today_operation_count ?? 0,
+    icon: Operation,
+    tone: "danger"
+  }
 ]);
+const loginDistributionTotal = computed(() => loginDistribution.value.reduce((total, item) => total + item.count, 0));
+const operationDistributionTotal = computed(() => operationDistribution.value.reduce((total, item) => total + item.count, 0));
 
+function readThemeColor(name: string, fallback: string) {
+  return getComputedStyle(document.documentElement).getPropertyValue(name).trim() || fallback;
+}
+function refreshChartTheme() {
+  chartTheme.value = {
+    primary: readThemeColor("--el-color-primary", "#409eff"),
+    success: readThemeColor("--el-color-success", "#67c23a"),
+    warning: readThemeColor("--el-color-warning", "#e6a23c"),
+    info: readThemeColor("--el-color-info", "#909399"),
+    danger: readThemeColor("--el-color-danger", "#f56c6c"),
+    text: readThemeColor("--el-text-color-secondary", "#606266"),
+    divider: readThemeColor("--el-border-color-lighter", "#e4e7ed"),
+    background: readThemeColor("--el-bg-color", "#ffffff")
+  };
+}
 const loginTrendOption = computed(() => ({
+  color: [chartTheme.value.primary],
   tooltip: { trigger: "axis" as const },
-  grid: { left: 40, right: 20, top: 24, bottom: 32 },
-  xAxis: { type: "category" as const, boundaryGap: false, data: trend.value.map((item) => item.date) },
-  yAxis: { type: "value" as const, minInterval: 1 },
-  series: [{ type: "line" as const, smooth: true, data: trend.value.map((item) => item.count), areaStyle: {} }]
+  grid: { left: 42, right: 20, top: 20, bottom: 28 },
+  xAxis: {
+    type: "category" as const,
+    boundaryGap: false,
+    data: trend.value.map(item => item.date),
+    axisLine: { lineStyle: { color: chartTheme.value.divider } },
+    axisLabel: { color: chartTheme.value.text }
+  },
+  yAxis: {
+    type: "value" as const,
+    minInterval: 1,
+    splitLine: { lineStyle: { color: chartTheme.value.divider } },
+    axisLabel: { color: chartTheme.value.text }
+  },
+  series: [
+    {
+      type: "line" as const,
+      smooth: true,
+      data: trend.value.map(item => item.count),
+      symbol: "circle",
+      symbolSize: 7,
+      lineStyle: { width: 3, color: chartTheme.value.primary },
+      itemStyle: { color: chartTheme.value.primary, borderWidth: 2, borderColor: chartTheme.value.background },
+      areaStyle: { color: chartTheme.value.primary, opacity: 0.12 }
+    }
+  ]
 }));
-
 const loginDistributionOption = computed(() => distributionOption(loginDistribution.value));
 const operationDistributionOption = computed(() => distributionOption(operationDistribution.value));
-
 async function loadDashboard() {
   loading.value = true;
   try {
@@ -85,12 +158,11 @@ async function loadDashboard() {
     loginDistribution.value = loginResponse.items ?? [];
     operationDistribution.value = operationResponse.items ?? [];
   } catch {
-    // 请求层已展示具体错误（包括强制改密跳转），页面不再重复弹出笼统提示。
+    /* 请求层已展示具体错误。 */
   } finally {
     loading.value = false;
   }
 }
-
 /** 将审计技术枚举名转换为当前语言的展示文案。 */
 function distributionItemLabel(label: string) {
   const mappings = [
@@ -102,67 +174,109 @@ function distributionItemLabel(label: string) {
   const value = label.slice(mapping[0].length).toLowerCase();
   return value === "unspecified" ? t("common.message.unknown") : t(`${mapping[1]}${value}`);
 }
-
 /** 创建使用本地化图例的分布图配置。 */
 function distributionOption(items: BaseDashboardDistributionItem[]) {
   return {
+    color: [
+      chartTheme.value.primary,
+      chartTheme.value.success,
+      chartTheme.value.info,
+      chartTheme.value.warning,
+      chartTheme.value.danger
+    ],
     tooltip: { trigger: "item" as const },
-    legend: { bottom: 0, type: "scroll" as const },
-    series: [{ type: "pie" as const, radius: ["38%", "68%"] as [string, string], center: ["50%", "45%"] as [string, string], data: items.map((item) => ({ name: distributionItemLabel(item.label), value: item.count })) }]
+    legend: { bottom: 0, type: "scroll" as const, textStyle: { color: chartTheme.value.text } },
+    series: [
+      {
+        type: "pie" as const,
+        radius: ["55%", "76%"] as [string, string],
+        center: ["50%", "43%"] as [string, string],
+        label: { color: chartTheme.value.text },
+        itemStyle: { borderColor: chartTheme.value.background, borderWidth: 3 },
+        data: items.map(item => ({ name: distributionItemLabel(item.label), value: item.count }))
+      }
+    ]
   };
 }
-
-onMounted(loadDashboard);
+onMounted(() => {
+  refreshChartTheme();
+  loadDashboard();
+  window.addEventListener("theme-change", refreshChartTheme);
+});
+onBeforeUnmount(() => window.removeEventListener("theme-change", refreshChartTheme));
 </script>
 
 <style scoped>
 .dashboard-page {
   min-width: 0;
 }
+.dashboard-heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-bottom: 22px;
+}
+.dashboard-eyebrow {
+  display: block;
+  color: var(--admin-page-text-placeholder);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+}
+.dashboard-heading h1 {
+  margin: 6px 0 0;
+  color: var(--admin-page-text-primary);
+  font-size: 26px;
+  line-height: 1.2;
+}
+.dashboard-updated {
+  color: var(--admin-page-text-placeholder);
+  font-size: 12px;
+}
 .metric-grid,
 .chart-grid {
   display: grid;
-  gap: 10px;
+  gap: 16px;
 }
 .metric-grid {
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  margin-bottom: 10px;
+  margin-bottom: 16px;
+}
+.metric-card {
+  position: relative;
+  overflow: hidden;
 }
 .metric-card :deep(.el-card__body) {
+  min-height: 124px;
+  padding: 18px 20px 16px;
+}
+.metric-top {
   display: flex;
-  gap: 16px;
   align-items: center;
   justify-content: space-between;
-  min-height: 92px;
-}
-.metric-content {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  min-width: 0;
 }
 .metric-label {
+  color: var(--admin-page-text-secondary);
   font-size: 13px;
-  color: var(--el-text-color-secondary);
 }
 .metric-value {
-  font-size: 28px;
+  display: block;
+  margin-top: 18px;
+  color: var(--admin-page-text-primary);
+  font-size: 32px;
   line-height: 1;
-  color: var(--el-text-color-primary);
+  font-variant-numeric: tabular-nums;
 }
 .metric-icon {
-  display: flex;
-  flex: 0 0 48px;
-  align-items: center;
-  justify-content: center;
-  width: 48px;
-  height: 48px;
+  display: grid;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+  border-radius: 10px;
   color: var(--metric-color);
   background: var(--metric-bg);
-  border-radius: var(--admin-page-radius);
 }
 .metric-icon .el-icon {
-  font-size: 24px;
+  font-size: 17px;
 }
 .metric-card--primary {
   --metric-color: var(--el-color-primary);
@@ -186,11 +300,45 @@ onMounted(loadDashboard);
 .chart-card-wide {
   grid-column: 1 / -1;
 }
-.chart-wrap {
-  height: 320px;
+.chart-card :deep(.el-card__header) {
+  padding: 17px 22px 14px;
+  border-bottom-color: var(--admin-page-divider);
 }
-
+.chart-card :deep(.el-card__body) {
+  padding: 0 20px 16px;
+}
+.chart-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.chart-heading span {
+  color: var(--admin-page-text-primary);
+  font-size: 16px;
+  font-weight: 600;
+}
+.chart-heading small {
+  color: var(--admin-page-text-placeholder);
+  font-size: 12px;
+  font-weight: 400;
+}
+.chart-wrap {
+  height: 285px;
+}
+.chart-card:not(.chart-card-wide) .chart-wrap {
+  height: 265px;
+}
 @media (width <= 960px) {
+  .metric-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (width <= 640px) {
+  .dashboard-heading {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 8px;
+  }
   .metric-grid,
   .chart-grid {
     grid-template-columns: 1fr;
