@@ -4,7 +4,7 @@ go 1.27.0
 
 require (
 	buf.build/go/protovalidate v1.4.0
-	github.com/cloudwego/eino v0.9.15
+	github.com/cloudwego/eino v0.9.19
 	github.com/cloudwego/eino-ext/components/model/agenticopenai v0.2.2
 	github.com/go-kratos/kratos/v3 v3.0.0
 	github.com/go-sql-driver/mysql v1.10.1
