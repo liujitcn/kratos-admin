@@ -16,7 +16,7 @@
     "module:create": "pnpm --filter @liujitcn/kratos-admin-cli build && node packages/cli/dist/index.js create"
   },
   "devDependencies": {
-    "@commitlint/cli": "^18.4.3",
+    "@commitlint/cli": "^21.2.2",
     "@commitlint/config-conventional": "^18.4.3",
     "@types/md5": "^2.3.5",
     "@types/node": "^25.9.1",
