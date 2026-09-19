@@ -51,7 +51,7 @@ require (
 	github.com/openai/openai-go/v3 v3.35.0
 	github.com/pquerna/otp v1.4.0
 	github.com/redis/go-redis/v9 v9.22.0
-	github.com/shirou/gopsutil/v4 v4.26.7
+	github.com/shirou/gopsutil/v4 v4.26.8
 	github.com/tjfoc/gmsm v1.4.1
 	golang.org/x/sys v0.47.0
 	golang.org/x/text v0.41.0
