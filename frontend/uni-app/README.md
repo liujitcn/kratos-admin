@@ -149,7 +149,7 @@ pnpm build:h5
 pnpm build:mp-weixin
 ```
 
-- H5 产物写入 `backend/data/uni-app`，后端通过 `/uni-app/` 挂载。
+- H5 产物写入 `backend/web/uni-app`，后端通过 `/uni-app/` 挂载。
 - 微信小程序产物写入 `apps/uni-app/dist/build/mp-weixin`，使用微信开发者工具导入。
 
 ## RPC 生成

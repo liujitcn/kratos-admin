@@ -49,10 +49,6 @@ export interface BaseFile {
   id: number;
   /** 租户ID */
   tenant_id: number;
-  /** 存储供应商 */
-  provider: number;
-  /** 存储桶名称 */
-  bucket_name: string;
   /** 文件目录 */
   file_directory: string;
   /** 文件唯一标识 */
@@ -75,6 +71,8 @@ export interface BaseFile {
   created_by: number;
   /** 创建时间 */
   created_at: string;
+  /** 文件访问方式：1公开，2需要访问令牌 */
+  access_mode: number;
 }
 
 /** Admin文件资产管理服务。 */

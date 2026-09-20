@@ -29,8 +29,6 @@ func newBaseFile(db *gorm.DB, opts ...gen.DOOption) baseFile {
 	_baseFile.ALL = field.NewAsterisk(tableName)
 	_baseFile.ID = field.NewInt64(tableName, "id")
 	_baseFile.TenantID = field.NewInt64(tableName, "tenant_id")
-	_baseFile.Provider = field.NewInt32(tableName, "provider")
-	_baseFile.BucketName = field.NewString(tableName, "bucket_name")
 	_baseFile.FileDirectory = field.NewString(tableName, "file_directory")
 	_baseFile.FileGUID = field.NewString(tableName, "file_guid")
 	_baseFile.SaveFileName = field.NewString(tableName, "save_file_name")
@@ -39,10 +37,10 @@ func newBaseFile(db *gorm.DB, opts ...gen.DOOption) baseFile {
 	_baseFile.MimeType = field.NewString(tableName, "mime_type")
 	_baseFile.Size = field.NewInt64(tableName, "size")
 	_baseFile.LinkURL = field.NewString(tableName, "link_url")
+	_baseFile.AccessMode = field.NewInt32(tableName, "access_mode")
 	_baseFile.ContentHash = field.NewString(tableName, "content_hash")
 	_baseFile.CreatedBy = field.NewInt64(tableName, "created_by")
 	_baseFile.UpdatedBy = field.NewInt64(tableName, "updated_by")
-	_baseFile.DeletedBy = field.NewInt64(tableName, "deleted_by")
 	_baseFile.CreatedAt = field.NewTime(tableName, "created_at")
 	_baseFile.UpdatedAt = field.NewTime(tableName, "updated_at")
 	_baseFile.DeletedAt = field.NewField(tableName, "deleted_at")
@@ -59,8 +57,6 @@ type baseFile struct {
 	ALL           field.Asterisk
 	ID            field.Int64  // 文件ID
 	TenantID      field.Int64  // 租户ID
-	Provider      field.Int32  // 存储供应商
-	BucketName    field.String // 存储桶名称
 	FileDirectory field.String // 文件目录
 	FileGUID      field.String // 文件唯一标识
 	SaveFileName  field.String // 实际存储文件名
@@ -69,10 +65,10 @@ type baseFile struct {
 	MimeType      field.String // 文件MIME类型
 	Size          field.Int64  // 文件大小（字节）
 	LinkURL       field.String // 文件访问地址
+	AccessMode    field.Int32  // 访问方式：枚举【BaseFileAccessMode】
 	ContentHash   field.String // 文件内容SHA-256哈希
 	CreatedBy     field.Int64  // 创建者ID
 	UpdatedBy     field.Int64  // 更新者ID
-	DeletedBy     field.Int64  // 删除者ID
 	CreatedAt     field.Time   // 创建时间
 	UpdatedAt     field.Time   // 更新时间
 	DeletedAt     field.Field  // 删除时间
@@ -94,8 +90,6 @@ func (b *baseFile) updateTableName(table string) *baseFile {
 	b.ALL = field.NewAsterisk(table)
 	b.ID = field.NewInt64(table, "id")
 	b.TenantID = field.NewInt64(table, "tenant_id")
-	b.Provider = field.NewInt32(table, "provider")
-	b.BucketName = field.NewString(table, "bucket_name")
 	b.FileDirectory = field.NewString(table, "file_directory")
 	b.FileGUID = field.NewString(table, "file_guid")
 	b.SaveFileName = field.NewString(table, "save_file_name")
@@ -104,10 +98,10 @@ func (b *baseFile) updateTableName(table string) *baseFile {
 	b.MimeType = field.NewString(table, "mime_type")
 	b.Size = field.NewInt64(table, "size")
 	b.LinkURL = field.NewString(table, "link_url")
+	b.AccessMode = field.NewInt32(table, "access_mode")
 	b.ContentHash = field.NewString(table, "content_hash")
 	b.CreatedBy = field.NewInt64(table, "created_by")
 	b.UpdatedBy = field.NewInt64(table, "updated_by")
-	b.DeletedBy = field.NewInt64(table, "deleted_by")
 	b.CreatedAt = field.NewTime(table, "created_at")
 	b.UpdatedAt = field.NewTime(table, "updated_at")
 	b.DeletedAt = field.NewField(table, "deleted_at")
@@ -135,11 +129,9 @@ func (b *baseFile) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (b *baseFile) fillFieldMap() {
-	b.fieldMap = make(map[string]field.Expr, 19)
+	b.fieldMap = make(map[string]field.Expr, 17)
 	b.fieldMap["id"] = b.ID
 	b.fieldMap["tenant_id"] = b.TenantID
-	b.fieldMap["provider"] = b.Provider
-	b.fieldMap["bucket_name"] = b.BucketName
 	b.fieldMap["file_directory"] = b.FileDirectory
 	b.fieldMap["file_guid"] = b.FileGUID
 	b.fieldMap["save_file_name"] = b.SaveFileName
@@ -148,10 +140,10 @@ func (b *baseFile) fillFieldMap() {
 	b.fieldMap["mime_type"] = b.MimeType
 	b.fieldMap["size"] = b.Size
 	b.fieldMap["link_url"] = b.LinkURL
+	b.fieldMap["access_mode"] = b.AccessMode
 	b.fieldMap["content_hash"] = b.ContentHash
 	b.fieldMap["created_by"] = b.CreatedBy
 	b.fieldMap["updated_by"] = b.UpdatedBy
-	b.fieldMap["deleted_by"] = b.DeletedBy
 	b.fieldMap["created_at"] = b.CreatedAt
 	b.fieldMap["updated_at"] = b.UpdatedAt
 	b.fieldMap["deleted_at"] = b.DeletedAt

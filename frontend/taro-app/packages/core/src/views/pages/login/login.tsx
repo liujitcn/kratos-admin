@@ -7,6 +7,7 @@ import { defMfaService } from '../../../api/base/v1/mfa'
 import { navigateAppRoute } from '../../../navigation'
 import { LoginStatus, type LoginRequest, type LoginResponse } from '../../../rpc/base/v1/login'
 import { useSettingStore, useUserStore } from '../../../stores'
+import { formatSrc } from '../../../utils'
 import { restoreLoginRedirect } from '../../../utils/navigation'
 import { encryptPassword, PASSWORD_CRYPTO_SCENE } from '../../../utils/passwordCrypto'
 import { createWebAuthnCredential, getWebAuthnAssertion } from '../../../utils/webauthn'
@@ -124,7 +125,9 @@ export default function LoginPage() {
     languageOptions.find((item) => item.language_code === locale)?.native_name || locale
   const mainTitle = settings?.get('mainTitle') || t('core.home.main_title')
   const subTitle = settings?.get('subTitle') || t('core.login.default_sub_title')
-  const appLogo = settings?.get('appLogo') || defaultLogo
+  const configuredAppLogo = settings?.get('appLogo')
+  const configuredLogoUrl = configuredAppLogo ? formatSrc(configuredAppLogo) : defaultLogo
+  const [appLogo, setAppLogo] = useState(configuredLogoUrl)
   const showTenantCode = settings?.get('showTenantCode') !== 'false'
   const configuredCaptchaType = settings?.get('captchaType') || ''
   const isBehaviorCaptcha = behaviorCaptchaTypes.has(captchaType)
@@ -168,6 +171,10 @@ export default function LoginPage() {
     captchaType,
     t,
   ]) as unknown as Record<string, string | number | boolean>
+
+  useEffect(() => {
+    setAppLogo(configuredLogoUrl)
+  }, [configuredLogoUrl])
 
   useEffect(() => {
     void Taro.setNavigationBarTitle({ title: t('common.action.login') })
@@ -601,7 +608,7 @@ export default function LoginPage() {
       </Picker>
       <View className='login-hero'>
         <View className='login-logo-shell'>
-          <Image className='login-logo' src={appLogo} />
+          <Image className='login-logo' src={appLogo} onError={() => setAppLogo(defaultLogo)} />
         </View>
         <View className='login-hero-copy'>
           <Text className='login-title'>{mainTitle}</Text>
@@ -754,7 +761,9 @@ export default function LoginPage() {
                   <Checkbox
                     value='remember'
                     checked={rememberMfaDevice}
-                    onChange={(event) => setRememberMfaDevice(event.detail.value.includes('remember'))}
+                    onChange={(event) =>
+                      setRememberMfaDevice(event.detail.value.includes('remember'))
+                    }
                   />
                   <Text>{t('core.login.mfa_remember_device', { days: mfaRememberDays })}</Text>
                 </View>

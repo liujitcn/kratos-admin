@@ -8474,6 +8474,14 @@ components:
                     type: string
                     description: ' 二进制内容将通过 base64 编码传输'
                     format: bytes
+                access_mode:
+                    enum:
+                        - BASE_FILE_ACCESS_MODE_UNSPECIFIED
+                        - BASE_FILE_ACCESS_MODE_PUBLIC
+                        - BASE_FILE_ACCESS_MODE_AUTHORIZED
+                    type: string
+                    description: 文件访问方式，未指定时默认需要访问令牌
+                    format: enum
             description: 上传文件信息
         base.v1.UploadFileRequest:
             type: object
@@ -9344,13 +9352,6 @@ components:
                 tenant_id:
                     type: string
                     description: 租户ID
-                provider:
-                    type: integer
-                    description: 存储供应商
-                    format: int32
-                bucket_name:
-                    type: string
-                    description: 存储桶名称
                 file_directory:
                     type: string
                     description: 文件目录
@@ -9384,6 +9385,10 @@ components:
                 created_at:
                     type: string
                     description: 创建时间
+                access_mode:
+                    type: integer
+                    description: 文件访问方式：1公开，2需要访问令牌
+                    format: int32
             description: 文件资产元数据。
         system.admin.v1.BaseI18n:
             type: object

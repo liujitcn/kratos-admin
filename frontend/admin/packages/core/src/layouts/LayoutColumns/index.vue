@@ -3,7 +3,12 @@
   <el-container class="layout">
     <div class="aside-split">
       <div class="logo flx-center">
-        <img class="logo-img" :src="logoUrl" :alt="t('core.layout.logo_alt')" />
+        <img
+          class="logo-img"
+          :src="logoUrl"
+          :alt="t('core.layout.logo_alt')"
+          @error="handleLogoError"
+        />
       </div>
       <el-scrollbar>
         <div class="split-list">
@@ -61,6 +66,7 @@ import ToolBarLeft from "@/layouts/components/Header/ToolBarLeft.vue";
 import ToolBarRight from "@/layouts/components/Header/ToolBarRight.vue";
 import SubMenu from "@/layouts/components/Menu/SubMenu.vue";
 import { useLocaleStore } from "@/locales";
+import { useLogoUrl } from "@/hooks/useLogoUrl";
 
 const route = useRoute();
 const router = useRouter();
@@ -74,7 +80,8 @@ const menuList = computed(() => authStore.showMenuListGet.filter(item => Boolean
 const activeMenu = computed(() => route.path as string);
 const title = computed(() => configStore.display.sysName || import.meta.env.VITE_GLOB_APP_TITLE);
 const collapseTitle = computed(() => title.value.slice(0, 1).toUpperCase() || "S");
-const logoUrl = computed(() => configStore.display.adminLogo);
+const configuredLogoUrl = computed(() => configStore.display.adminLogo);
+const { logoUrl, handleLogoError } = useLogoUrl(configuredLogoUrl);
 
 const subMenuList = ref<RouteItem[]>([]);
 const splitActive = ref("");

@@ -8474,6 +8474,14 @@ components:
                     type: string
                     description:  二進位制內容將透過 base64 編碼傳輸
                     format: bytes
+                access_mode:
+                    enum:
+                        - BASE_FILE_ACCESS_MODE_UNSPECIFIED
+                        - BASE_FILE_ACCESS_MODE_PUBLIC
+                        - BASE_FILE_ACCESS_MODE_AUTHORIZED
+                    type: string
+                    description: 檔案訪問方式，未指定時預設需要訪問令牌
+                    format: enum
             description: 上傳檔案資訊
         base.v1.UploadFileRequest:
             type: object
@@ -9384,6 +9392,10 @@ components:
                 created_at:
                     type: string
                     description: 建立時間
+                access_mode:
+                    type: integer
+                    description: 檔案訪問方式：1公開，2需要訪問令牌
+                    format: int32
             description: 檔案資產後設資料。
         system.admin.v1.BaseI18n:
             type: object

@@ -156,6 +156,11 @@ export default defineConfig<'webpack5'>(async (merge) => {
             changeOrigin: true,
             ...apiProxyOptions,
           },
+          '/data': {
+            target: apiTargetUrl || 'http://localhost:7001',
+            changeOrigin: true,
+            ...apiProxyOptions,
+          },
         },
       },
       output: {

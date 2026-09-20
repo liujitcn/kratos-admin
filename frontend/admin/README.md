@@ -98,7 +98,7 @@ make -C .. build-admin
 make -C .. package-admin
 ```
 
-默认宿主地址为 `http://localhost:8848`。环境变量位于 `apps/admin/.env*`，开发模式的 API 代理和生产构建输出目录由宿主 Vite 配置统一管理；当前生产构建写入 `backend/data/admin`。
+默认宿主地址为 `http://localhost:8848`。环境变量位于 `apps/admin/.env*`，开发模式的 API 代理和生产构建输出目录由宿主 Vite 配置统一管理；当前生产构建写入 `backend/web/admin`。
 
 管理端登录密码在安全上下文中通过 Web Crypto 加密；通过局域网 HTTP 地址访问且浏览器没有 Web Crypto 时，会回退到纯 JavaScript 实现并保持后端密码密文协议不变。该回退只解决运行兼容性，HTTP 仍可能暴露 Token 或遭受主动篡改，生产环境请使用 HTTPS。
 

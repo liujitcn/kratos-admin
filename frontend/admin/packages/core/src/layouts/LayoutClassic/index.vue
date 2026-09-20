@@ -4,7 +4,12 @@
     <el-header>
       <div class="header-lf mask-image">
         <div class="logo flx-center">
-          <img class="logo-img" :src="logoUrl" :alt="t('core.layout.logo_alt')" />
+          <img
+            class="logo-img"
+            :src="logoUrl"
+            :alt="t('core.layout.logo_alt')"
+            @error="handleLogoError"
+          />
           <span class="logo-text">{{ title }}</span>
         </div>
         <ToolBarLeft />
@@ -47,6 +52,7 @@ import SubMenu from "@/layouts/components/Menu/SubMenu.vue";
 import ToolBarLeft from "@/layouts/components/Header/ToolBarLeft.vue";
 import ToolBarRight from "@/layouts/components/Header/ToolBarRight.vue";
 import { useLocaleStore } from "@/locales";
+import { useLogoUrl } from "@/hooks/useLogoUrl";
 
 const route = useRoute();
 const authStore = useAuthStore();
@@ -58,7 +64,8 @@ const isCollapse = computed(() => globalStore.isCollapse);
 const menuList = computed(() => authStore.showMenuListGet);
 const activeMenu = computed(() => route.path as string);
 const title = computed(() => configStore.display.sysName || import.meta.env.VITE_GLOB_APP_TITLE);
-const logoUrl = computed(() => configStore.display.adminLogo);
+const configuredLogoUrl = computed(() => configStore.display.adminLogo);
+const { logoUrl, handleLogoError } = useLogoUrl(configuredLogoUrl);
 </script>
 
 <style scoped lang="scss">

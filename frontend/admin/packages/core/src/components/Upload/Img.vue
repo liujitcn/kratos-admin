@@ -54,7 +54,7 @@ import { formatSrc } from "@/utils/utils";
 import { defFileService } from "@/api/base/v1/file";
 import { ElNotification, formContextKey, formItemContextKey } from "element-plus";
 import type { UploadProps, UploadRequestOptions } from "element-plus";
-import type { FileInfo } from "@/rpc/base/v1/file";
+import { BaseFileAccessMode, type FileInfo } from "@/rpc/base/v1/file";
 import { useLocaleStore } from "@/locales";
 
 const { t } = useLocaleStore();
@@ -63,7 +63,8 @@ const { t } = useLocaleStore();
 interface UploadFileProps {
   imageUrl: string; // 图片地址 ==> 必传
   api?: (file: File) => Promise<FileInfo>; // 上传图片的 api 方法，默认使用当前文件服务 ==> 非必传
-  uploadType?: string; // 上传文件业务类型 ==> 非必传（默认为 image）
+  uploadType?: string;
+  accessMode?: BaseFileAccessMode; // 文件访问方式，默认需要访问令牌。
   drag?: boolean; // 是否支持拖拽上传 ==> 非必传（默认为 true）
   disabled?: boolean; // 是否禁用上传组件 ==> 非必传（默认为 false）
   fileSize?: number; // 图片大小限制 ==> 非必传（默认为 5M）
@@ -77,6 +78,7 @@ interface UploadFileProps {
 const props = withDefaults(defineProps<UploadFileProps>(), {
   imageUrl: "",
   uploadType: "image",
+  accessMode: BaseFileAccessMode.BASE_FILE_ACCESS_MODE_AUTHORIZED,
   drag: true,
   disabled: false,
   fileSize: 5,
@@ -112,7 +114,7 @@ const emit = defineEmits<{
 const handleHttpUpload = async (options: UploadRequestOptions) => {
   try {
     // 优先使用页面显式传入的业务上传类型，避免不同业务图片都落到同一个 image 分类。
-    const api = props.api ?? (file => defFileService.UploadFile(file, props.uploadType));
+    const api = props.api ?? (file => defFileService.UploadFile(file, props.uploadType, props.accessMode));
     const data = await api(options.file);
     emit("update:imageUrl", data.url);
     // 调用 el-form 内部的校验方法（可自动校验）

@@ -51,7 +51,7 @@ manifest 顺序就是模块注册顺序，只影响显式 `staticViews` 替换�
 - `.env`：应用标题、端口和开发工具开关。
 - `.env.development`：`/api`、`/events` 开发代理和路由模式。
 - `.env.production`：`/admin/` 公共路径、PWA 和压缩设置。
-- 生产构建输出：`backend/data/admin`，由内部 Vite 配置统一指定。
+- 生产构建输出：`backend/web/admin`，由内部 Vite 配置统一指定。
 
 ## 命令
 

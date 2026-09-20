@@ -160,7 +160,7 @@ test('runner 按模式和平台隔离产物目录，并保留自定义目录', (
         assert.equal(JSON.parse(readFileSync(fixture.snapshotFile, 'utf8')).outputRoot, expected)
       }
     }
-    const outputRoot = '../../../../backend/data/taro-app'
+    const outputRoot = '../../../../backend/web/taro-app'
     assert.equal(runFixture(fixture, { outputRoot }).status, 0)
     assert.equal(JSON.parse(readFileSync(fixture.snapshotFile, 'utf8')).outputRoot, outputRoot)
   } finally {

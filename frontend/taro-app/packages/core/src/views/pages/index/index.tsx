@@ -1,7 +1,9 @@
 import { Image, Text, View } from '@tarojs/components'
 import { useLoad } from '@tarojs/taro'
+import { useEffect, useState } from 'react'
 import defaultLogo from '@liujitcn/kratos-taro-app-core/static/images/logo_icon.png'
 import { useSettingStore } from '../../../stores'
+import { formatSrc } from '../../../utils'
 import './index.scss'
 import { useI18n } from '../../../locales'
 
@@ -12,7 +14,14 @@ export default function HomePage() {
   const loadData = useSettingStore((state) => state.loadData)
   const mainTitle = settings?.get('mainTitle') || t('core.home.main_title')
   const subTitle = settings?.get('subTitle') || t('core.home.sub_title')
-  const appLogo = settings?.get('appLogo') || defaultLogo
+  const configuredAppLogo = settings?.get('appLogo')
+  const configuredLogoUrl = configuredAppLogo ? formatSrc(configuredAppLogo) : defaultLogo
+  const [appLogo, setAppLogo] = useState(configuredLogoUrl)
+
+  useEffect(() => {
+    setAppLogo(configuredLogoUrl)
+  }, [configuredLogoUrl])
+
   useLoad(() => {
     void loadData().catch(() => undefined)
   })
@@ -36,6 +45,7 @@ export default function HomePage() {
           className='home-logo'
           src={appLogo}
           mode='aspectFit'
+          onError={() => setAppLogo(defaultLogo)}
         />
         <View className='home-hero__copy'>
           <Text className='home-title'>{mainTitle}</Text>

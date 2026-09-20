@@ -138,6 +138,8 @@ func (x *UploadFileInfo) Redact() {
 	// Safe field: Path
 
 	// Safe field: Content
+
+	// Safe field: AccessMode
 }
 
 // Ensure DownloadFileRequest implements the Redactor interface at compile time.

@@ -72,8 +72,8 @@ type HttpRequestOptions = UniApp.RequestOptions & {
 // 添加拦截器
 const httpInterceptor = {
   // 拦截前触发
-  invoke(options: UniApp.RequestOptions) {
-    const authMode = resolveAuthMode(options as HttpRequestOptions, options.url)
+  invoke(options: HttpRequestOptions) {
+    const authMode = resolveAuthMode(options, options.url)
     // 1. 相对接口地址只拼接一次基础路径，兼容 HMR 等场景下拦截器重复注册。
     if (
       !options.url.startsWith('http') &&

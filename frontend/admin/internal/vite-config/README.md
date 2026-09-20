@@ -24,6 +24,6 @@ internal/vite-config
 
 - `modulePackages`：Vite 需要扫描的业务模块包。
 - `optimizeDependencies`：业务模块需要预构建的依赖。
-- `outputDirectory`：生产构建写入 `backend/data/admin`，供后端静态资源挂载。
+- `outputDirectory`：生产构建写入 `backend/web/admin`，供后端静态资源挂载。
 
 前两项都来自宿主模块 manifest，不在本包维护第二份模块名单。新增宿主时创建独立配置函数和导出子路径，不把宿主特有模块或输出目录写回 core 的通用 Vite Interface。

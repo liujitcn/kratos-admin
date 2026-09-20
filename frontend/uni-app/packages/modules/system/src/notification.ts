@@ -1,5 +1,6 @@
 import { ref } from 'vue'
 import { setAppMenuBadge } from '@liujitcn/kratos-uni-app-core/navigation'
+import { hasValidToken } from '@liujitcn/kratos-uni-app-core/utils/auth'
 import { getRequestAccessToken, requestBaseURL } from '@liujitcn/kratos-uni-app-core/utils/http'
 import { defNotificationService } from './api/base/v1/notification'
 
@@ -24,6 +25,7 @@ export async function refreshNotificationSummary(): Promise<void> {
 /** 启动应用端站内信定时回源。 */
 export function startNotificationPolling(): void {
   stopNotificationPolling()
+  if (!hasValidToken()) return
   notificationPaused = false
   void refreshNotificationSummary()
   notificationTimer = setInterval(() => void refreshNotificationSummary(), 30_000)
@@ -47,8 +49,7 @@ export function pauseNotificationPolling(): void {
 
 /** 恢复前台通知资源并立即对账。 */
 export function resumeNotificationPolling(): void {
-  if (!notificationPaused) return
-  notificationPaused = false
+  if (!notificationPaused || !hasValidToken()) return
   startNotificationPolling()
 }
 

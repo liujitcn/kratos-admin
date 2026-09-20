@@ -1,15 +1,35 @@
 <script setup lang="ts">
 import { onLoad } from '@dcloudio/uni-app'
-import { computed } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useSettingStore } from '../../../stores'
 import defaultLogo from '../../../static/images/logo_icon.png'
+import { formatSrc } from '../../../utils'
 import { useI18n } from '../../../locales'
 
 const settingStore = useSettingStore()
 const { t } = useI18n()
 const mainTitle = computed(() => settingStore.getData('mainTitle') || t('core.home.main_title'))
 const subTitle = computed(() => settingStore.getData('subTitle') || t('core.home.sub_title'))
-const appLogo = computed(() => settingStore.getData('appLogo') || defaultLogo)
+const configuredAppLogo = computed(() => {
+  const configuredLogo = settingStore.getData('appLogo')
+  return configuredLogo ? formatSrc(configuredLogo) : defaultLogo
+})
+const appLogo = ref(defaultLogo)
+
+watch(
+  configuredAppLogo,
+  (value) => {
+    appLogo.value = value
+  },
+  { immediate: true },
+)
+
+/** Logo 加载失败时回退到本地默认图片。 */
+const handleLogoError = () => {
+  if (appLogo.value !== defaultLogo) {
+    appLogo.value = defaultLogo
+  }
+}
 
 onLoad(() => {
   void settingStore.loadData().catch(() => undefined)
@@ -19,7 +39,7 @@ onLoad(() => {
 <template>
   <view class="page">
     <view class="hero">
-      <image class="logo" :src="appLogo" mode="aspectFit" />
+      <image class="logo" :src="appLogo" mode="aspectFit" @error="handleLogoError" />
       <view class="hero-copy">
         <text class="title">{{ mainTitle }}</text>
         <text class="subtitle">{{ subTitle }}</text>

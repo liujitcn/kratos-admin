@@ -79,28 +79,30 @@ func (c *FileCase) MultiUploadFile(ctx context.Context, req *basev1.MultiUploadF
 		return nil, errorsx.InvalidArgument("单次上传文件数量不能超过 20 个")
 	}
 	for _, item := range uploadFiles {
-		var objectPath string
-		objectPath, err = objectFilePath(item.GetPath())
+		var objectDirectory string
+		objectDirectory, err = objectFilePath(item.GetPath())
 		if err != nil {
 			return nil, err
 		}
-		if err = validateFileContent(item.GetName(), item.GetContent()); err != nil {
+		validationFileName := uploadValidationFileName(item.GetName(), item.GetExtname())
+		if err = validateFileContent(validationFileName, item.GetContent()); err != nil {
 			return nil, err
 		}
 		if err = scanFileContent(ctx, c.GetConfig().GetOss().GetUploadSecurity(), item.GetName(), item.GetContent()); err != nil {
 			return nil, err
 		}
-		var url string
-		url, err = c.OSS.UploadByByte(item.GetName(), objectPath, item.GetContent())
+		storedFileName := generateStoredFileName(item.GetName(), item.GetExtname())
+		_, err = c.OSS.UploadByByte(storedFileName, objectDirectory, item.GetContent())
 		if err != nil {
 			return nil, errorsx.Internal("文件上传失败").WithCause(err)
 		}
-		if err = c.recordUploadedFile(ctx, authInfo.TenantId, authInfo.UserId, item.GetName(), item.GetExtname(), item.GetContent(), url); err != nil {
-			_ = c.OSS.DeleteFile(url)
+		objectPath := path.Join(objectDirectory, storedFileName)
+		if err = c.recordUploadedFile(ctx, authInfo.TenantId, item.GetName(), item.GetExtname(), item.GetContent(), objectPath, item.GetAccessMode()); err != nil {
+			_ = c.OSS.DeleteFile(objectPath)
 			return nil, err
 		}
 		files = append(files, &basev1.FileInfo{
-			Url:     publicFileURL(url),
+			Url:     publicFileURL(objectPath),
 			Name:    item.GetName(),
 			Extname: item.GetExtname(),
 		})
@@ -115,48 +117,77 @@ func (c *FileCase) UploadFile(ctx context.Context, req *basev1.UploadFileRequest
 		return nil, err
 	}
 	file := req.GetFile()
-	var objectPath string
-	objectPath, err = objectFilePath(file.GetPath())
+	var objectDirectory string
+	objectDirectory, err = objectFilePath(file.GetPath())
 	if err != nil {
 		return nil, err
 	}
-	if err = validateFileContent(file.GetName(), file.GetContent()); err != nil {
+	validationFileName := uploadValidationFileName(file.GetName(), file.GetExtname())
+	if err = validateFileContent(validationFileName, file.GetContent()); err != nil {
 		return nil, err
 	}
 	if err = scanFileContent(ctx, c.GetConfig().GetOss().GetUploadSecurity(), file.GetName(), file.GetContent()); err != nil {
 		return nil, err
 	}
-	var url string
-	url, err = c.OSS.UploadByByte(file.GetName(), objectPath, file.GetContent())
+	storedFileName := generateStoredFileName(file.GetName(), file.GetExtname())
+	_, err = c.OSS.UploadByByte(storedFileName, objectDirectory, file.GetContent())
 	if err != nil {
 		return nil, errorsx.Internal("文件上传失败").WithCause(err)
 	}
-	if err = c.recordUploadedFile(ctx, authInfo.TenantId, authInfo.UserId, file.GetName(), file.GetExtname(), file.GetContent(), url); err != nil {
-		_ = c.OSS.DeleteFile(url)
+	objectPath := path.Join(objectDirectory, storedFileName)
+	if err = c.recordUploadedFile(ctx, authInfo.TenantId, file.GetName(), file.GetExtname(), file.GetContent(), objectPath, file.GetAccessMode()); err != nil {
+		_ = c.OSS.DeleteFile(objectPath)
 		return nil, err
 	}
 	return &basev1.FileInfo{
-		Url:     publicFileURL(url),
+		Url:     publicFileURL(objectPath),
 		Name:    file.GetName(),
 		Extname: file.GetExtname(),
 	}, nil
 }
 
+// uploadValidationFileName 为校验补齐适配层推断出的文件扩展名。
+func uploadValidationFileName(fileName, extension string) string {
+	if filepath.Ext(fileName) != "" || extension == "" {
+		return fileName
+	}
+	return fileName + "." + strings.TrimPrefix(strings.ToLower(extension), ".")
+}
+
+// generateStoredFileName 生成仅用于对象存储的安全文件名。
+func generateStoredFileName(fileName, extension string) string {
+	extname := filepath.Ext(fileName)
+	if extname == "" && extension != "" {
+		extname = "." + strings.TrimPrefix(strings.ToLower(extension), ".")
+	}
+	return fmt.Sprintf("%d%s", id.GenSnowflakeID(), extname)
+}
+
 // recordUploadedFile 保存上传成功后的文件元数据。
-func (c *FileCase) recordUploadedFile(ctx context.Context, tenantID, userID int64, fileName, extension string, content []byte, objectPath string) error {
+func (c *FileCase) recordUploadedFile(ctx context.Context, tenantID int64, fileName, extension string, content []byte, objectPath string, requestedAccessMode basev1.BaseFileAccessMode) error {
 	if c.baseFileRepo == nil {
 		return errorsx.Internal("文件元数据仓储未配置")
 	}
-	cleanPath := strings.TrimPrefix(objectPath, "/")
+	var err error
+	objectPath, err = objectFilePath(objectPath)
+	if err != nil {
+		return err
+	}
+	cleanPath := objectPath
 	directory := path.Dir(cleanPath)
 	if directory == "." {
 		directory = ""
 	}
 	hash := sha256.Sum256(content)
-	now := time.Now()
+	accessMode := requestedAccessMode
+	if accessMode == basev1.BaseFileAccessMode_BASE_FILE_ACCESS_MODE_UNSPECIFIED {
+		accessMode = basev1.BaseFileAccessMode_BASE_FILE_ACCESS_MODE_AUTHORIZED
+	}
+	if accessMode != basev1.BaseFileAccessMode_BASE_FILE_ACCESS_MODE_PUBLIC && accessMode != basev1.BaseFileAccessMode_BASE_FILE_ACCESS_MODE_AUTHORIZED {
+		return errorsx.InvalidArgument("文件访问方式不合法")
+	}
 	entity := &models.BaseFile{
 		TenantID:      tenantID,
-		Provider:      0,
 		FileDirectory: directory,
 		FileGUID:      id.NewGUIDv7NoHyphen(),
 		SaveFileName:  path.Base(cleanPath),
@@ -165,13 +196,9 @@ func (c *FileCase) recordUploadedFile(ctx context.Context, tenantID, userID int6
 		MimeType:      http.DetectContentType(content),
 		Size:          int64(len(content)),
 		LinkURL:       objectPath,
+		AccessMode:    int32(accessMode),
 		ContentHash:   hex.EncodeToString(hash[:]),
-		CreatedBy:     userID,
-		UpdatedBy:     userID,
-		CreatedAt:     now,
-		UpdatedAt:     now,
 	}
-	var err error
 	err = c.baseFileRepo.Create(ctx, entity)
 	if err != nil {
 		return errorsx.Internal("保存文件元数据失败").WithCause(err)

@@ -44,7 +44,11 @@
               />
             </template>
             <template #imageValue>
-              <UploadImg v-model:image-url="formData.value" upload-type="config" />
+              <UploadImg
+                v-model:image-url="formData.value"
+                upload-type="config"
+                :access-mode="configImageAccessMode"
+              />
             </template>
             <template #richTextValue>
               <WangEditor v-model:value="formData.value" upload-type="config" />
@@ -135,6 +139,7 @@ import type {
 } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_config";
 import type { BaseI18n } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_i18n";
 import { BaseConfigSite } from "@liujitcn/kratos-admin-system/rpc/base/v1/config";
+import { BaseFileAccessMode } from "@liujitcn/kratos-admin-core/rpc/base/v1/file";
 import { Status } from "@liujitcn/kratos-admin-system/rpc/common/v1/enum";
 import { BaseConfigType } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_config";
 import { I18nTargetType } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_i18n";
@@ -363,6 +368,14 @@ const BASE_CONFIG_DICT_CODE_MAP: Record<string, string> = {
 
 /** 当前字典类配置对应的字典编码，未配置映射时允许退回手动输入。 */
 const dictValueCode = computed(() => BASE_CONFIG_DICT_CODE_MAP[formData.key] ?? "");
+
+/** 需要匿名访问的系统图片配置键，其他图片配置继续按默认授权模式上传。 */
+const PUBLIC_IMAGE_CONFIG_KEYS = new Set(["adminLogo", "appLogo", "background"]);
+const configImageAccessMode = computed(() =>
+  PUBLIC_IMAGE_CONFIG_KEYS.has(formData.key)
+    ? BaseFileAccessMode.BASE_FILE_ACCESS_MODE_PUBLIC
+    : BaseFileAccessMode.BASE_FILE_ACCESS_MODE_AUTHORIZED
+);
 
 /** 系统配置表单字段配置。 */
 const formFields = computed<ProFormField[]>(() => [

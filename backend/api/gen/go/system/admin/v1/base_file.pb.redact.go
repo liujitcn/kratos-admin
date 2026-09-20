@@ -157,10 +157,6 @@ func (x *BaseFile) Redact() {
 
 	// Safe field: TenantId
 
-	// Safe field: Provider
-
-	// Safe field: BucketName
-
 	// Safe field: FileDirectory
 
 	// Safe field: FileGuid
@@ -182,4 +178,6 @@ func (x *BaseFile) Redact() {
 	// Safe field: CreatedBy
 
 	// Safe field: CreatedAt
+
+	// Safe field: AccessMode
 }

@@ -758,8 +758,8 @@ github.com/liujitcn/kratos-kit/logger/zap v0.0.19 h1:viIz5G14fJtZaFylIPy+8HHCMw2
 github.com/liujitcn/kratos-kit/logger/zap v0.0.19/go.mod h1:hVH26+XhnEs2Rn8D8IOULThuef4rJhWYflzWCd76P48=
 github.com/liujitcn/kratos-kit/oauth v0.0.12 h1:Rhg9VeaxyOdzYNTNFTJLG33sM1ZSI7tqMrz53A+xMJk=
 github.com/liujitcn/kratos-kit/oauth v0.0.12/go.mod h1:zsxoUZeaV12AH/DJQQoY+mffoA84sPoG6W9a4Dfowhc=
-github.com/liujitcn/kratos-kit/oss v0.0.19 h1:hWnxA22Fd1D28c7WjCBm7lBOdSsQH4WfHG4Bgu3DA1k=
-github.com/liujitcn/kratos-kit/oss v0.0.19/go.mod h1:MdraQGOcPGRmCSha+xQNLTCHg5eqfTJLKRGgEe5S/CM=
+github.com/liujitcn/kratos-kit/oss v0.0.20 h1:0uVZMNMM8hfnDB/SmkCOSGIRxbvCIz3MgJgFp2AHH9g=
+github.com/liujitcn/kratos-kit/oss v0.0.20/go.mod h1:MdraQGOcPGRmCSha+xQNLTCHg5eqfTJLKRGgEe5S/CM=
 github.com/liujitcn/kratos-kit/oss/s3 v0.0.4 h1:mtLfY4PHI4TfK60slk10YeNYNQyMBuJx1BGwyg2ys4I=
 github.com/liujitcn/kratos-kit/oss/s3 v0.0.4/go.mod h1:BSYRHJ29dQy7Tx0CxEEYw8At3gtBT3H/X9UnKp3uGqg=
 github.com/liujitcn/kratos-kit/pprof v0.0.16 h1:l+ilfTRaHQ6hSbCcIDJ+MrXYP5+GgNFCp6LKNDG+Tlo=

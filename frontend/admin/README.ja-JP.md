@@ -75,7 +75,7 @@ make -C .. build-admin
 make -C .. package-admin
 ```
 
-既定ホストは `http://localhost:8848` です。環境変数は `apps/admin/.env*` にあり、開発 API プロキシと本番ビルド出力はホストの Vite 設定が管理します。本番ビルドは `backend/data/admin` に出力します。
+既定ホストは `http://localhost:8848` です。環境変数は `apps/admin/.env*` にあり、開発 API プロキシと本番ビルド出力はホストの Vite 設定が管理します。本番ビルドは `backend/web/admin` に出力します。
 
 管理端末のログインパスワードは安全なコンテキストでは Web Crypto で暗号化します。LAN の HTTP アドレスでアクセスし、ブラウザに Web Crypto がない場合は純粋な JavaScript 実装へフォールバックし、バックエンドのパスワード暗号文プロトコルは維持します。このフォールバックは実行互換性だけを解決し、HTTP では Token の漏えいや能動的改ざんが起こり得るため、本番では HTTPS を使用してください。
 

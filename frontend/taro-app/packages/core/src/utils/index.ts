@@ -1,4 +1,12 @@
-const configuredStaticUrl = process.env.VITE_APP_STATIC_URL || ''
+const configuredStaticUrl =
+  process.env.VITE_APP_STATIC_URL || process.env.VITE_APP_API_URL || ''
+
+/** 将后端数据文件地址切换到当前构建配置的静态资源域名。 */
+function rewriteDataFileOrigin(src: string, staticOrigin: string): string {
+  if (!staticOrigin) return src
+  const match = src.match(/^https?:\/\/[^/]+(\/data(?:\/|$).*)$/)
+  return match ? `${staticOrigin}${match[1]}` : src
+}
 
 /** 日期格式化函数。 */
 export function formatDate(date: Date, format = 'YYYY-MM-DD HH:mm:ss'): string {
@@ -24,10 +32,11 @@ export function formatPrice(price: number): string {
 
 /** 格式化后端静态资源地址。 */
 export function formatSrc(src: string): string {
-  if (!src || /^https?:\/\//.test(src)) return src
   const browserOrigin =
     typeof window !== 'undefined' && window.location?.origin ? window.location.origin : ''
   const staticOrigin = browserOrigin || configuredStaticUrl.replace(/\/$/, '')
+  if (!src) return src
+  if (/^https?:\/\//.test(src)) return rewriteDataFileOrigin(src, staticOrigin)
   if (!staticOrigin) return src
   return src.startsWith('/')
     ? `${staticOrigin}${src}`

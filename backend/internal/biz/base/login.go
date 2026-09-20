@@ -195,7 +195,10 @@ func (c *LoginCase) RefreshToken(ctx context.Context, req *basev1.RefreshTokenRe
 	var record sessionregistry.Record
 	record, err = sessionregistry.FindByRefreshToken(c.Cache, c.userToken, authInfo.UserId, refreshToken)
 	if err != nil {
-		return nil, errorsx.Unauthenticated("当前会话已失效").WithCause(err)
+		if errors.Is(err, redis.Nil) {
+			return nil, errorsx.Unauthenticated("当前会话已失效").WithCause(err)
+		}
+		return nil, errorsx.Internal("读取登录会话失败").WithCause(err)
 	}
 	if requiresServerSession(authInfo.RoleCode) {
 		_, err = sessionstate.Validate(c.Cache, record.SessionID, time.Now())
@@ -696,8 +699,14 @@ func (c *LoginCase) setRefreshTokenAuth(refreshToken string, authInfo *authData.
 
 // getAuthInfoByRefreshToken 根据刷新令牌读取认证信息。
 func (c *LoginCase) getAuthInfoByRefreshToken(refreshToken string) (*authData.UserTokenPayload, error) {
+	if refreshToken == "" {
+		return nil, errorsx.Unauthenticated("刷新认证令牌失败")
+	}
 	payload, err := c.Cache.GetDel(refreshTokenAuthKey(refreshToken))
 	if err != nil {
+		if !isLoginCacheMiss(err) {
+			return nil, errorsx.Internal("读取刷新认证信息失败").WithCause(err)
+		}
 		return nil, errorsx.Unauthenticated("刷新认证令牌失败").WithCause(err)
 	}
 

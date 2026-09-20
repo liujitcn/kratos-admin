@@ -18,7 +18,6 @@ import (
 
 	"github.com/go-kratos/kratos/v3/log"
 	"github.com/go-kratos/kratos/v3/transport/http"
-	"github.com/liujitcn/go-utils/id"
 	"google.golang.org/protobuf/types/known/wrapperspb"
 )
 
@@ -64,6 +63,11 @@ func _FileService_MultiUploadFile0_HTTP_Handler(srv FileServiceHTTPServer) func(
 				return errorsx.InvalidArgument("上传文件格式错误").WithCause(err)
 			}
 		}
+		var accessMode basev1.BaseFileAccessMode
+		accessMode, err = parseUploadAccessMode(r.FormValue("accessMode"))
+		if err != nil {
+			return err
+		}
 		if r.MultipartForm != nil && r.MultipartForm.File != nil {
 			for _, headers := range r.MultipartForm.File {
 				for _, header := range headers {
@@ -78,6 +82,7 @@ func _FileService_MultiUploadFile0_HTTP_Handler(srv FileServiceHTTPServer) func(
 					if err != nil {
 						return errorsx.InvalidArgument("上传文件解析失败").WithCause(err)
 					}
+					uploadFileInfo.AccessMode = accessMode
 					in.Files = append(in.Files, uploadFileInfo)
 				}
 			}
@@ -107,11 +112,17 @@ func _FileService_UploadFile0_HTTP_Handler(srv FileServiceHTTPServer) func(ctx h
 			return errorsx.InvalidArgument("未上传文件").WithCause(err)
 		}
 		contentType := header.Header.Get("Content-Type")
+		var accessMode basev1.BaseFileAccessMode
+		accessMode, err = parseUploadAccessMode(r.FormValue("accessMode"))
+		if err != nil {
+			return err
+		}
 		var uploadFileInfo *basev1.UploadFileInfo
 		uploadFileInfo, err = convertUploadFileInfo(formFile, r.FormValue("fileType"), contentType, header.Filename)
 		if err != nil {
 			return errorsx.InvalidArgument("上传文件解析失败").WithCause(err)
 		}
+		uploadFileInfo.AccessMode = accessMode
 		in.File = uploadFileInfo
 		h := ctx.Middleware(func(requestCtx context.Context, req interface{}) (interface{}, error) {
 			return srv.UploadFile(requestCtx, req.(*basev1.UploadFileRequest))
@@ -187,7 +198,8 @@ func convertUploadFileInfo(multipartFile multipart.File, fileType, contentType, 
 	if err != nil {
 		return nil, err
 	}
-	extname := strings.TrimPrefix(strings.ToLower(filepath.Ext(fileName)), ".")
+	originalFileName := path.Base(strings.ReplaceAll(fileName, `\`, "/"))
+	extname := strings.TrimPrefix(strings.ToLower(filepath.Ext(originalFileName)), ".")
 	contentTypes := strings.Split(contentType, "/")
 	fileCategory := "files"
 	if len(contentTypes) != 2 {
@@ -210,7 +222,7 @@ func convertUploadFileInfo(multipartFile multipart.File, fileType, contentType, 
 
 	datePath := time.Now().Format("2006/01/02")
 	return &basev1.UploadFileInfo{
-		Name:    fmt.Sprintf("%d.%s", id.GenSnowflakeID(), extname),
+		Name:    originalFileName,
 		Extname: extname,
 		Path:    path.Join(businessType, fileCategory, datePath),
 		Content: content,
@@ -226,4 +238,18 @@ func normalizeUploadBusinessType(fileType string) (string, error) {
 		return "", errorsx.InvalidArgument("文件业务类型不合法")
 	}
 	return fileType, nil
+}
+
+// parseUploadAccessMode 解析 multipart 上传请求中的文件访问方式。
+func parseUploadAccessMode(value string) (basev1.BaseFileAccessMode, error) {
+	switch strings.ToUpper(value) {
+	case "", "0", "BASE_FILE_ACCESS_MODE_UNSPECIFIED":
+		return basev1.BaseFileAccessMode_BASE_FILE_ACCESS_MODE_UNSPECIFIED, nil
+	case "1", "PUBLIC", "BASE_FILE_ACCESS_MODE_PUBLIC":
+		return basev1.BaseFileAccessMode_BASE_FILE_ACCESS_MODE_PUBLIC, nil
+	case "2", "AUTHORIZED", "BASE_FILE_ACCESS_MODE_AUTHORIZED":
+		return basev1.BaseFileAccessMode_BASE_FILE_ACCESS_MODE_AUTHORIZED, nil
+	default:
+		return basev1.BaseFileAccessMode_BASE_FILE_ACCESS_MODE_UNSPECIFIED, errorsx.InvalidArgument("文件访问方式不合法")
+	}
 }

@@ -4,11 +4,23 @@
       <SwitchDark class="dark" />
       <LocaleSwitch v-if="languageOptions.length > 1" class="locale" />
       <div class="login-left">
-        <img class="login-left-img" :src="backgroundUrl" :alt="t('core.login.background_alt')" />
+        <img
+          class="login-left-img"
+          :src="backgroundUrl"
+          :alt="t('core.login.background_alt')"
+          @error="handleBackgroundError"
+        />
       </div>
       <div ref="loginFormRef" class="login-form">
         <div ref="loginLogoRef" class="login-logo">
-          <img v-show="showLogoIcon" ref="logoIconRef" class="login-icon" :src="logoUrl" alt="" />
+          <img
+            v-show="showLogoIcon"
+            ref="logoIconRef"
+            class="login-icon"
+            :src="logoUrl"
+            alt=""
+            @error="handleLogoError"
+          />
           <h2 ref="logoTextRef" class="logo-text" :style="{ fontSize: `${logoFontSize}px` }">{{ projectName }}</h2>
         </div>
         <LoginForm :dialog-anchor="loginFormRef" />
@@ -24,12 +36,20 @@ import SwitchDark from "@/components/SwitchDark/index.vue";
 import LocaleSwitch from "@/components/LocaleSwitch/index.vue";
 import { useConfigStore } from "@/stores/modules/config";
 import { useLocaleStore } from "@/locales";
+import defaultBackgroundUrl from "@/assets/images/login_left.png";
+import { useLogoUrl } from "@/hooks/useLogoUrl";
+import { useImageUrl } from "@/hooks/useImageUrl";
 
 const configStore = useConfigStore();
 const { t, languageOptions } = useLocaleStore();
 const projectName = computed(() => configStore.display.sysName || import.meta.env.VITE_GLOB_APP_TITLE);
-const logoUrl = computed(() => configStore.display.adminLogo);
-const backgroundUrl = computed(() => configStore.display.background);
+const configuredLogoUrl = computed(() => configStore.display.adminLogo);
+const { logoUrl, handleLogoError } = useLogoUrl(configuredLogoUrl);
+const configuredBackgroundUrl = computed(() => configStore.display.background);
+const { imageUrl: backgroundUrl, handleImageError: handleBackgroundError } = useImageUrl(
+  configuredBackgroundUrl,
+  defaultBackgroundUrl
+);
 
 const MAX_LOGO_FONT_SIZE = 42;
 const PREFERRED_MIN_LOGO_FONT_SIZE = 30;

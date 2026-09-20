@@ -10,6 +10,7 @@
             class="logo-img"
             :src="logoUrl"
             :alt="t('core.layout.logo_alt')"
+            @error="handleLogoError"
           />
           <span
             v-show="!isCollapse"
@@ -53,6 +54,7 @@ import ToolBarLeft from "@/layouts/components/Header/ToolBarLeft.vue";
 import ToolBarRight from "@/layouts/components/Header/ToolBarRight.vue";
 import SubMenu from "@/layouts/components/Menu/SubMenu.vue";
 import { useLocaleStore } from "@/locales";
+import { useLogoUrl } from "@/hooks/useLogoUrl";
 
 const route = useRoute();
 const authStore = useAuthStore();
@@ -64,7 +66,8 @@ const isCollapse = computed(() => globalStore.isCollapse);
 const menuList = computed(() => authStore.showMenuListGet);
 const activeMenu = computed(() => route.path as string);
 const title = computed(() => configStore.display.sysName || import.meta.env.VITE_GLOB_APP_TITLE);
-const logoUrl = computed(() => configStore.display.adminLogo);
+const configuredLogoUrl = computed(() => configStore.display.adminLogo);
+const { logoUrl, handleLogoError } = useLogoUrl(configuredLogoUrl);
 const logoWrapperRef = ref<HTMLElement>();
 const logoIconRef = ref<HTMLImageElement>();
 const logoTextRef = ref<HTMLElement>();

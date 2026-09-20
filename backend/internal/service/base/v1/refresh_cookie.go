@@ -12,12 +12,37 @@ import (
 )
 
 const (
+	accessTokenCookieName       = "kratos_access_token"
 	refreshTokenCookieName      = "kratos_refresh_token"
 	refreshExpiryCookieName     = "kratos_refresh_exp"
 	refreshTokenCookiePath      = "/api/v1/base/token"
 	refreshTokenTransportHeader = "X-Refresh-Token-Transport"
 	refreshTokenTransportCookie = "cookie"
 )
+
+// setAccessTokenCookie 写入供原生 src 静态资源请求使用的访问令牌 HttpOnly Cookie。
+func setAccessTokenCookie(ctx context.Context, token string, expiresIn int64) {
+	if token == "" || expiresIn <= 0 {
+		return
+	}
+	secure := requestUsesTLS(ctx)
+	httpTransport.SetCookie(ctx, &http.Cookie{
+		Name:     accessTokenCookieName,
+		Value:    token,
+		Path:     "/",
+		MaxAge:   int(expiresIn),
+		Expires:  time.Now().Add(time.Duration(expiresIn) * time.Second),
+		HttpOnly: true,
+		Secure:   secure,
+		SameSite: http.SameSiteLaxMode,
+	})
+}
+
+// setAuthTokenCookies 同步写入访问令牌和刷新令牌 Cookie。
+func setAuthTokenCookies(ctx context.Context, accessToken string, accessExpiresIn int64, refreshToken string, refreshExpiresIn int64) {
+	setAccessTokenCookie(ctx, accessToken, accessExpiresIn)
+	setRefreshTokenCookie(ctx, refreshToken, refreshExpiresIn)
+}
 
 // setRefreshTokenCookie 写入刷新令牌 HttpOnly Cookie 和非敏感过期时间提示 Cookie。
 func setRefreshTokenCookie(ctx context.Context, token string, expiresIn int64) {
@@ -59,9 +84,10 @@ func hideRefreshTokenFromResponse(ctx context.Context) bool {
 	return strings.EqualFold(httpServerTransport.Request().Header.Get(refreshTokenTransportHeader), refreshTokenTransportCookie)
 }
 
-// clearRefreshTokenCookie 清除刷新令牌 Cookie。
-func clearRefreshTokenCookie(ctx context.Context) {
+// clearAuthTokenCookies 清除访问令牌、刷新令牌和过期提示 Cookie。
+func clearAuthTokenCookies(ctx context.Context) {
 	secure := requestUsesTLS(ctx)
+	httpTransport.SetCookie(ctx, &http.Cookie{Name: accessTokenCookieName, Value: "", Path: "/", MaxAge: -1, Expires: time.Unix(1, 0), HttpOnly: true, Secure: secure, SameSite: http.SameSiteLaxMode})
 	httpTransport.SetCookie(ctx, &http.Cookie{Name: refreshTokenCookieName, Value: "", Path: refreshTokenCookiePath, MaxAge: -1, Expires: time.Unix(1, 0), HttpOnly: true, Secure: secure, SameSite: http.SameSiteLaxMode})
 	httpTransport.SetCookie(ctx, &http.Cookie{Name: refreshExpiryCookieName, Value: "", Path: "/", MaxAge: -1, Expires: time.Unix(1, 0), Secure: secure, SameSite: http.SameSiteLaxMode})
 }

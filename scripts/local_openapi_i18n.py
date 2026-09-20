@@ -6,6 +6,8 @@ import re
 
 
 EN_EXACT = {
+    "文件访问方式，未指定时默认需要访问令牌": "File access mode; access token required by default when unspecified",
+    "文件访问方式：1公开，2需要访问令牌": "File access mode: 1 public, 2 access token required",
     "租户管理员账号": "Tenant administrator username",
     "租户管理员初始密码，仅在随机生成时返回": "Tenant administrator initial password, returned only when generated randomly",
     "创建租户响应参数": "Create tenant response parameters",
@@ -226,6 +228,8 @@ EN_EXACT = {
 
 
 JA_EXACT = {
+    "文件访问方式，未指定时默认需要访问令牌": "ファイルアクセス方式。未指定の場合はアクセストークンが必要です",
+    "文件访问方式：1公开，2需要访问令牌": "ファイルアクセス方式：1 公開、2 アクセストークン必須",
     "租户管理员账号": "テナント管理者アカウント",
     "租户管理员初始密码，仅在随机生成时返回": "テナント管理者の初期パスワード。ランダム生成時のみ返却",
     "创建租户响应参数": "テナント作成レスポンスパラメータ",

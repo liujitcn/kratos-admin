@@ -8474,6 +8474,14 @@ components:
                     type: string
                     description:  binary content will be transmitted through base64 encoding transmission
                     format: bytes
+                access_mode:
+                    enum:
+                        - BASE_FILE_ACCESS_MODE_UNSPECIFIED
+                        - BASE_FILE_ACCESS_MODE_PUBLIC
+                        - BASE_FILE_ACCESS_MODE_AUTHORIZED
+                    type: string
+                    description: File access mode; access token required by default when unspecified
+                    format: enum
             description: uploaded file information
         base.v1.UploadFileRequest:
             type: object
@@ -9384,6 +9392,10 @@ components:
                 created_at:
                     type: string
                     description: Create time
+                access_mode:
+                    type: integer
+                    description: "File access mode: 1 public, 2 access token required"
+                    format: int32
             description: File asset metadata.
         system.admin.v1.BaseI18n:
             type: object

@@ -1,8 +1,9 @@
 import { http } from '../../../utils/http'
-import type {
-  DownloadFileRequest,
-  MultiUploadFileResponse,
-  FileInfo,
+import {
+  BaseFileAccessMode,
+  type DownloadFileRequest,
+  type MultiUploadFileResponse,
+  type FileInfo,
 } from '../../../rpc/base/v1/file'
 
 const FILE_URL = '/v1/base/file'
@@ -10,12 +11,17 @@ const FILE_URL = '/v1/base/file'
 /** 文件服务 */
 export class FileServiceImpl {
   /** 多个文件上传 */
-  MultiUploadFile(files: File[], fileType: string): Promise<MultiUploadFileResponse> {
+  MultiUploadFile(
+    files: File[],
+    fileType: string,
+    accessMode = BaseFileAccessMode.BASE_FILE_ACCESS_MODE_AUTHORIZED,
+  ): Promise<MultiUploadFileResponse> {
     const formData = new FormData()
     files.map((file) => {
       formData.append(file.name, file)
     })
     formData.append('fileType', fileType)
+    formData.append('accessMode', String(accessMode))
     return http<MultiUploadFileResponse>({
       url: `${FILE_URL}/multi`,
       method: 'POST',
@@ -27,10 +33,15 @@ export class FileServiceImpl {
     })
   }
   /** 单个文件上传 */
-  UploadFile(file: File, fileType: string): Promise<FileInfo> {
+  UploadFile(
+    file: File,
+    fileType: string,
+    accessMode = BaseFileAccessMode.BASE_FILE_ACCESS_MODE_AUTHORIZED,
+  ): Promise<FileInfo> {
     const formData = new FormData()
     formData.append('file', file)
     formData.append('fileType', fileType)
+    formData.append('accessMode', String(accessMode))
     return http<FileInfo>({
       url: `${FILE_URL}`,
       method: 'POST',

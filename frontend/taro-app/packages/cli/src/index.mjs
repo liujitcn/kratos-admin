@@ -117,7 +117,7 @@ pnpm build:mp-weixin
 pnpm tsc
 \`\`\`
 
-开发产物位于 apps/taro-app/dist/dev/<平台>，生产产物位于 apps/taro-app/dist/build/<平台>（平台为 h5 或 mp-weixin）；Kratos 配套项目的 H5 生产产物输出到 backend/data/taro-app。微信开发者工具默认使用 dist/dev/mp-weixin，发布时导入 dist/build/mp-weixin。
+开发产物位于 apps/taro-app/dist/dev/<平台>，生产产物位于 apps/taro-app/dist/build/<平台>（平台为 h5 或 mp-weixin）；Kratos 配套项目的 H5 生产产物输出到 backend/web/taro-app。微信开发者工具默认使用 dist/dev/mp-weixin，发布时导入 dist/build/mp-weixin。
 
 模块装配入口是 \`apps/taro-app/src/module-manifest.ts\`。模块顺序决定静态视图覆盖优先级；新增页面时同步维护模块自己的 \`src/pages.ts\` 和视图映射。
 
@@ -171,7 +171,7 @@ function writeHost(target, projectName, modules, packages, options) {
         'dev:mp-weixin':
           'cross-env NODE_ENV=development node scripts/run-taro.mjs --type weapp --watch --mode development',
         'build:h5':
-          `cross-env KRATOS_TARO_OUTPUT_ROOT=${options.kratosProject ? '../../../../backend/data/taro-app' : 'dist/build/h5'} node scripts/run-taro.mjs --type h5 --mode production`,
+          `cross-env KRATOS_TARO_OUTPUT_ROOT=${options.kratosProject ? '../../../../backend/web/taro-app' : 'dist/build/h5'} node scripts/run-taro.mjs --type h5 --mode production`,
         'build:mp-weixin':
           'cross-env KRATOS_TARO_OUTPUT_ROOT=dist/build/mp-weixin node scripts/run-taro.mjs --type weapp --mode production',
         tsc: 'tsc --noEmit -p tsconfig.json',
@@ -211,7 +211,7 @@ function writeHost(target, projectName, modules, packages, options) {
 
 \`apps/taro-app\` 是 \`${projectName}\` 的私有 Taro React 宿主，负责装配模块并提供 H5、微信小程序构建入口，不承载可复用业务实现。
 
-开发产物位于 apps/taro-app/dist/dev/<平台>，生产产物位于 apps/taro-app/dist/build/<平台>（平台为 h5 或 mp-weixin）；Kratos 配套项目的 H5 生产产物输出到 backend/data/taro-app。微信开发者工具默认使用 dist/dev/mp-weixin，发布时导入 dist/build/mp-weixin。
+开发产物位于 apps/taro-app/dist/dev/<平台>，生产产物位于 apps/taro-app/dist/build/<平台>（平台为 h5 或 mp-weixin）；Kratos 配套项目的 H5 生产产物输出到 backend/web/taro-app。微信开发者工具默认使用 dist/dev/mp-weixin，发布时导入 dist/build/mp-weixin。
 
 固定启动页位于 \`src/pages/bootstrap\`。其他模块页面由 core runner 在构建期间临时生成包装器、页面配置与静态资源，构建结束后会自动恢复宿主目录。
 

@@ -64,7 +64,7 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
     server: {
       host: '0.0.0.0',
       open: true,
-      port: Number(env.VITE_APP_PORT || 5002),
+      port: Number(env.VITE_APP_PORT || 5004),
       https: httpsOptions,
       proxy: {
         [env.VITE_APP_BASE_API || '/api']: {
@@ -73,6 +73,11 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
           ...(devEnv.VITE_APP_API_URL?.startsWith('https://') ? { secure: false } : {}),
         },
         '/events': {
+          changeOrigin: true,
+          target: devEnv.VITE_APP_API_URL,
+          ...(devEnv.VITE_APP_API_URL?.startsWith('https://') ? { secure: false } : {}),
+        },
+        '/data': {
           changeOrigin: true,
           target: devEnv.VITE_APP_API_URL,
           ...(devEnv.VITE_APP_API_URL?.startsWith('https://') ? { secure: false } : {}),

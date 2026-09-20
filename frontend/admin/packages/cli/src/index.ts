@@ -102,7 +102,7 @@ export async function createBusinessWorkspace(options: CreateWorkspaceOptions): 
     __FRONTEND_MODULE__: primaryModuleName,
     __MODULES_SPACE__: moduleNames.join(" "),
     __HOST_BUILD_CACHE__: String(!options.kratosProject),
-    __H5_OUTPUT__: options.kratosProject ? ',\n  outputDirectory: "../../../../backend/data/admin"' : "",
+    __H5_OUTPUT__: options.kratosProject ? ',\n  outputDirectory: "../../../../backend/web/admin"' : "",
     __APP_PACKAGE__: `@${primaryModuleName}/admin-app`,
     __APP_DEPENDENCIES__: formatJsonValue(appDependencies, "  "),
     __MODULE_FILTERS__: modulePackages.map(packageName => `--filter=${packageName}`).join(" "),

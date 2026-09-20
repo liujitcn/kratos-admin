@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/go-kratos/kratos/v3/errors"
 	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
 	biz "github.com/liujitcn/kratos-admin/backend/internal/biz/base"
 	"github.com/liujitcn/kratos-core/errorsx"
@@ -61,8 +62,8 @@ func (s *LoginService) PasswordPublicKey(ctx context.Context, req *basev1.Passwo
 
 // Logout 登出
 func (s *LoginService) Logout(ctx context.Context, req *basev1.LogoutRequest) (*emptypb.Empty, error) {
-	// 无论访问令牌是否仍然有效，都先清理浏览器中的刷新令牌，避免退出后刷新页面恢复登录态。
-	clearRefreshTokenCookie(ctx)
+	// 无论访问令牌是否仍然有效，都先清理浏览器中的认证 Cookie，避免退出后刷新页面恢复登录态或继续读取私有文件。
+	clearAuthTokenCookies(ctx)
 	err := s.loginCase.Logout(ctx, req)
 	if err != nil {
 		log.Error(fmt.Sprintf("Logout %v", err))
@@ -79,10 +80,14 @@ func (s *LoginService) RefreshToken(ctx context.Context, req *basev1.RefreshToke
 	}
 	res, err := s.loginCase.RefreshToken(ctx, req)
 	if err != nil {
+		if errors.IsUnauthorized(err) && (hideRefreshTokenFromResponse(ctx) || refreshTokenFromCookie(ctx) != "") {
+			// 刷新令牌已失效或 Redis 中不存在时，清理浏览器残留认证 Cookie，避免启动时反复刷新失败。
+			clearAuthTokenCookies(ctx)
+		}
 		log.Error(fmt.Sprintf("RefreshToken %v", err))
 		return nil, errorsx.WrapInternal(err, "刷新认证令牌失败")
 	}
-	setRefreshTokenCookie(ctx, res.GetRefreshToken(), s.loginCase.RefreshTokenExpiresIn())
+	setAuthTokenCookies(ctx, res.GetAccessToken(), res.GetExpiresIn(), res.GetRefreshToken(), s.loginCase.RefreshTokenExpiresIn())
 	if hideRefreshTokenFromResponse(ctx) {
 		res.RefreshToken = ""
 	}
@@ -96,7 +101,7 @@ func (s *LoginService) Login(ctx context.Context, req *basev1.LoginRequest) (*ba
 		log.Error(fmt.Sprintf("Login %v", err))
 		return nil, errorsx.WrapInternal(err, "登录失败")
 	}
-	setRefreshTokenCookie(ctx, res.GetRefreshToken(), s.loginCase.RefreshTokenExpiresIn())
+	setAuthTokenCookies(ctx, res.GetAccessToken(), res.GetExpiresIn(), res.GetRefreshToken(), s.loginCase.RefreshTokenExpiresIn())
 	if hideRefreshTokenFromResponse(ctx) {
 		res.RefreshToken = ""
 	}

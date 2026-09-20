@@ -72,8 +72,21 @@ test('登录页失效请求不重复弹窗，公共接口不携带旧令牌，�
       },
     }
     const runtime = await import(pathToFileURL(output).href)
+    storage.clear()
+    await runtime.http({ url: '/v1/app/base/menu', method: 'GET', authMode: 'optional' })
+    assert.equal(modals.length, 0, '游客启动时可选鉴权请求不得触发重新登录弹窗')
+    assert.equal(
+      requests.at(-1).header.Authorization,
+      undefined,
+      '游客可选鉴权请求不得携带访问令牌',
+    )
+    storage.set('access_token', 'Bearer stale')
     await runtime.http({ url: '/v1/base/config', method: 'GET' })
-    assert.equal(requests[0].header.Authorization, undefined, '公共请求不得被拦截器重新附加旧令牌')
+    assert.equal(
+      requests.at(-1).header.Authorization,
+      undefined,
+      '公共请求不得被拦截器重新附加旧令牌',
+    )
     storage.clear()
     for (let index = 0; index < 3; index++) {
       await assert.rejects(runtime.getRequestAccessToken('required'))

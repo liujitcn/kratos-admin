@@ -31,7 +31,7 @@ func (s *MfaService) VerifyMfa(ctx context.Context, req *basev1.VerifyMfaRequest
 		log.Error(fmt.Sprintf("VerifyMfa %v", err))
 		return nil, errorsx.WrapInternal(err, "校验多因素认证失败")
 	}
-	setRefreshTokenCookie(ctx, res.GetRefreshToken(), s.loginCase.RefreshTokenExpiresIn())
+	setAuthTokenCookies(ctx, res.GetAccessToken(), res.GetExpiresIn(), res.GetRefreshToken(), s.loginCase.RefreshTokenExpiresIn())
 	if hideRefreshTokenFromResponse(ctx) {
 		res.RefreshToken = ""
 	}

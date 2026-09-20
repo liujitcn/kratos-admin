@@ -28,6 +28,9 @@ func TestPublicFileURL(t *testing.T) {
 	if path := publicFileURL("image/images/2026/01/01/a.png"); path != "/data/image/images/2026/01/01/a.png" {
 		t.Fatalf("unexpected public file path %q", path)
 	}
+	if path := publicFileURL("/image/images/2026/01/01/a.png"); path != "/data/image/images/2026/01/01/a.png" {
+		t.Fatalf("unexpected leading-slash public file path %q", path)
+	}
 	if path := publicFileURL("https://cdn.example.com/a.png"); path != "https://cdn.example.com/a.png" {
 		t.Fatalf("unexpected external file URL %q", path)
 	}

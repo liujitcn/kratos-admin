@@ -112,7 +112,13 @@ func (m *Module) RegisterHTTP(server *http.Server) {
 		m.adminServices.OauthClientRepository,
 		m.adminServices.Authenticator,
 		m.adminServices.OauthCredentialProtector,
-	)(blockStaticDirectoryListing(server.Server.Handler)))
+	)(protectStaticFileAccess(
+		blockStaticDirectoryListing(server.Server.Handler),
+		m.adminServices.BaseFileRepository,
+		m.adminServices.BaseCase.OSS,
+		m.adminServices.Authenticator,
+		m.adminServices.UserToken,
+	)))
 }
 
 // blockStaticDirectoryListing 阻止本地 OSS 静态路由返回目录索引，同时保留精确文件访问。

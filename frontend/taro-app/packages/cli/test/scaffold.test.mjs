@@ -203,7 +203,7 @@ test('CLI 独立生成 system 多模块、完整语言入口与项目构建配�
       assert.ok(JSON.parse(readFileSync(resolve(moduleRoot, 'package.json'))).scripts.build)
     }
     const host = JSON.parse(readFileSync(resolve(target, 'apps/taro-app/package.json')))
-    assert.match(host.scripts['build:h5'], /backend\/data\/taro-app/)
+    assert.match(host.scripts['build:h5'], /backend\/web\/taro-app/)
     assert.ok(existsSync(resolve(target, 'apps/taro-app/tsconfig.json')))
     assert.ok(existsSync(resolve(target, 'scripts/check-package-exports.mjs')))
     const checked = spawnSync(process.execPath, ['scripts/sync-locales.mjs'], { cwd: target, encoding: 'utf8' })

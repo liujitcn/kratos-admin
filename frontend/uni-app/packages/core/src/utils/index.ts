@@ -1,4 +1,11 @@
-const baseURL = import.meta.env.VITE_APP_STATIC_URL
+const baseURL = import.meta.env.VITE_APP_STATIC_URL || import.meta.env.VITE_APP_API_URL
+
+/** 将后端数据文件地址切换到当前构建配置的静态资源域名。 */
+const rewriteDataFileOrigin = (src: string, staticOrigin: string) => {
+  if (!staticOrigin) return src
+  const match = src.match(/^https?:\/\/[^/]+(\/data(?:\/|$).*)$/)
+  return match ? `${staticOrigin.replace(/\/$/, '')}${match[1]}` : src
+}
 
 /**
  * 解析静态资源访问前缀
@@ -60,12 +67,11 @@ export const formatSrc = (src: string) => {
   if (!src) {
     return src
   }
-  // 已经是绝对地址时直接返回，避免重复拼接。
-  if (/^https?:\/\//.test(src)) {
-    return src
-  }
-
   const staticOrigin = resolveStaticOrigin()
+  // 后端数据文件即使保存了旧的绝对域名，也统一使用当前静态资源域名。
+  if (/^https?:\/\//.test(src)) {
+    return rewriteDataFileOrigin(src, staticOrigin)
+  }
   if (!staticOrigin) {
     return src
   }

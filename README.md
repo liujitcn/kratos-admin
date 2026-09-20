@@ -10,6 +10,7 @@
 - TOTP 多因素认证、一次性恢复码和 `disabled`、`optional`、`all_required` 全局策略。
 - 开放授权客户端管理：客户端按租户绑定，凭据换取 Bearer Token，并由 operation 拦截器和 HTTP 加解密 Filter 校验租户、状态、IP 白名单、JSON API 白名单及协议密文。
 - 用户、角色、部门、岗位、菜单、字典、配置、任务、文件资产、日志、地区、API 和迁移记录管理。
+- 上传文件默认需要登录访问；文件地址仍使用 `/data/...`，浏览器原生 `src` 请求通过 HttpOnly 访问令牌 Cookie 鉴权，显式公开的文件可匿名访问。
 - 后台工作台提供用户/角色概览、登录趋势、登录结果和操作动作分布统计。
 - 消息分类、租户内定向/全员站内信、收件箱已读/归档、Redis 投递恢复和 Admin/uni-app/Taro 消息中心。
 - Proto 驱动的 HTTP、gRPC、OpenAPI、Agent Tool、MCP Tool 和 TypeScript RPC 生成。
@@ -92,6 +93,8 @@ make -C backend run-minimal
 make -C frontend run
 ```
 
+前端 `run` 启动前会自动清理旧的宿主构建产物；如需手动清理，可执行 `make -C frontend clean`。
+
 也可以按端启动（每个常驻命令都应在独立终端运行）：
 
 ```bash
@@ -133,7 +136,7 @@ make build
 make -C backend fmt
 ```
 
-`make gen` 按 Backend、Frontend、语言包和 OpenAPI 的顺序生成全仓产物；`make check` 按 Backend、三个前端 workspace 和国际化的顺序执行检查。根目录 `make build` 构建后端二进制及三个前端 H5 宿主；只构建全部前端（H5 + 微信小程序）可使用 `make -C frontend build`，仅构建 H5 使用 `make -C frontend build-h5`，生成全部 npm 发布包使用 `make -C frontend package`。
+`make gen` 按 Backend、Frontend、语言包和 OpenAPI 的顺序生成全仓产物；`make check` 按 Backend、三个前端 workspace 和国际化的顺序执行检查。根目录 `make build` 构建后端二进制及三个前端 H5 宿主；只构建全部前端（H5 + 微信小程序）可使用 `make -C frontend build`，仅构建 H5 使用 `make -C frontend build-h5`，生成全部 npm 发布包使用 `make -C frontend package`。前端各 `build` 目标开始前会自动清理旧的宿主构建产物，也可单独执行 `make -C frontend clean`。
 
 `make -C backend cli` 会安装 `kratos-kit/cmd/normalize-go-imports`，`make -C backend fmt` 再运行该命令并使用 `goimports` 格式化 Backend 全部 Go 文件。代码生成任务通过 `FMT_FILE_LIST` 传入文件清单（每行一个 Backend 相对路径），仅格式化本次改写文件。`make -C backend api` 在生成结束时统一规范化协议产物的 Go import 别名，避免全量生成与按文件格式化之间反复产生无关差异。
 

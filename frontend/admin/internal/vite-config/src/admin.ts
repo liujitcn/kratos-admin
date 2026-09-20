@@ -11,6 +11,6 @@ export type AdminAppViteConfigOptions = Pick<AdminViteConfigOptions, "modulePack
 export function defineAdminAppViteConfig(options: AdminAppViteConfigOptions) {
   return defineAdminViteConfig({
     ...options,
-    outputDirectory: resolve(currentDirectory, "../../../../../backend/data/admin")
+    outputDirectory: resolve(currentDirectory, "../../../../../backend/web/admin")
   });
 }

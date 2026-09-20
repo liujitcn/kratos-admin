@@ -182,7 +182,7 @@ test("CLI 直接生成本地 system 并保留内置源码扫描与语言资源",
     }
     await execFileAsync(process.execPath, [join(target, "scripts/sync-locales.mjs")]);
     assert.match(await readFile(join(root, "Makefile"), "utf8"), /BUSINESS_MODULES := system report/);
-    assert.match(await readFile(join(target, "apps/admin/vite.config.ts"), "utf8"), /backend\/data\/admin/);
+    assert.match(await readFile(join(target, "apps/admin/vite.config.ts"), "utf8"), /backend\/web\/admin/);
   } finally {
     await rm(root, { recursive: true, force: true });
   }

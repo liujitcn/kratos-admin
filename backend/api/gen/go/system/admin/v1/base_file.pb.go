@@ -251,8 +251,6 @@ type BaseFile struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                           // 文件ID
 	TenantId      int64                  `protobuf:"varint,2,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`               // 租户ID
-	Provider      int32                  `protobuf:"varint,3,opt,name=provider,proto3" json:"provider,omitempty"`                               // 存储供应商
-	BucketName    string                 `protobuf:"bytes,4,opt,name=bucket_name,json=bucketName,proto3" json:"bucket_name,omitempty"`          // 存储桶名称
 	FileDirectory string                 `protobuf:"bytes,5,opt,name=file_directory,json=fileDirectory,proto3" json:"file_directory,omitempty"` // 文件目录
 	FileGuid      string                 `protobuf:"bytes,6,opt,name=file_guid,json=fileGuid,proto3" json:"file_guid,omitempty"`                // 文件唯一标识
 	SaveFileName  string                 `protobuf:"bytes,7,opt,name=save_file_name,json=saveFileName,proto3" json:"save_file_name,omitempty"`  // 实际存储文件名
@@ -264,6 +262,7 @@ type BaseFile struct {
 	ContentHash   string                 `protobuf:"bytes,13,opt,name=content_hash,json=contentHash,proto3" json:"content_hash,omitempty"`      // 文件内容SHA-256哈希
 	CreatedBy     int64                  `protobuf:"varint,14,opt,name=created_by,json=createdBy,proto3" json:"created_by,omitempty"`           // 创建者ID
 	CreatedAt     string                 `protobuf:"bytes,15,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`            // 创建时间
+	AccessMode    int32                  `protobuf:"varint,16,opt,name=access_mode,json=accessMode,proto3" json:"access_mode,omitempty"`        // 文件访问方式：1公开，2需要访问令牌
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -310,20 +309,6 @@ func (x *BaseFile) GetTenantId() int64 {
 		return x.TenantId
 	}
 	return 0
-}
-
-func (x *BaseFile) GetProvider() int32 {
-	if x != nil {
-		return x.Provider
-	}
-	return 0
-}
-
-func (x *BaseFile) GetBucketName() string {
-	if x != nil {
-		return x.BucketName
-	}
-	return ""
 }
 
 func (x *BaseFile) GetFileDirectory() string {
@@ -403,6 +388,13 @@ func (x *BaseFile) GetCreatedAt() string {
 	return ""
 }
 
+func (x *BaseFile) GetAccessMode() int32 {
+	if x != nil {
+		return x.AccessMode
+	}
+	return 0
+}
+
 var File_system_admin_v1_base_file_proto protoreflect.FileDescriptor
 
 const file_system_admin_v1_base_file_proto_rawDesc = "" +
@@ -427,13 +419,10 @@ const file_system_admin_v1_base_file_proto_rawDesc = "" +
 	"&system.admin.base.file.get.id.positive\x12\x15文件ID必须大于0\x1a\bthis > 0R\x02id\"\x89\x01\n" +
 	"\x15DeleteBaseFileRequest\x12p\n" +
 	"\x02id\x18\x01 \x01(\x03B`\xbaG\v\x92\x02\b文件ID\xbaHO\xba\x01L\n" +
-	")system.admin.base.file.delete.id.positive\x12\x15文件ID必须大于0\x1a\bthis > 0R\x02id\"\xaa\x06\n" +
+	")system.admin.base.file.delete.id.positive\x12\x15文件ID必须大于0\x1a\bthis > 0R\x02id\"\x9a\x06\n" +
 	"\bBaseFile\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b文件IDR\x02id\x12+\n" +
-	"\ttenant_id\x18\x02 \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDR\btenantId\x121\n" +
-	"\bprovider\x18\x03 \x01(\x05B\x15\xbaG\x12\x92\x02\x0f存储供应商R\bprovider\x126\n" +
-	"\vbucket_name\x18\x04 \x01(\tB\x15\xbaG\x12\x92\x02\x0f存储桶名称R\n" +
-	"bucketName\x129\n" +
+	"\ttenant_id\x18\x02 \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDR\btenantId\x129\n" +
 	"\x0efile_directory\x18\x05 \x01(\tB\x12\xbaG\x0f\x92\x02\f文件目录R\rfileDirectory\x125\n" +
 	"\tfile_guid\x18\x06 \x01(\tB\x18\xbaG\x15\x92\x02\x12文件唯一标识R\bfileGuid\x12A\n" +
 	"\x0esave_file_name\x18\a \x01(\tB\x1b\xbaG\x18\x92\x02\x15实际存储文件名R\fsaveFileName\x122\n" +
@@ -447,7 +436,9 @@ const file_system_admin_v1_base_file_proto_rawDesc = "" +
 	"\n" +
 	"created_by\x18\x0e \x01(\x03B\x11\xbaG\x0e\x92\x02\v创建者IDR\tcreatedBy\x121\n" +
 	"\n" +
-	"created_at\x18\x0f \x01(\tB\x12\xbaG\x0f\x92\x02\f创建时间R\tcreatedAt2\xfc\x02\n" +
+	"created_at\x18\x0f \x01(\tB\x12\xbaG\x0f\x92\x02\f创建时间R\tcreatedAt\x12Y\n" +
+	"\vaccess_mode\x18\x10 \x01(\x05B8\xbaG5\x92\x022文件访问方式：1公开，2需要访问令牌R\n" +
+	"accessMode2\xfc\x02\n" +
 	"\x0fBaseFileService\x12|\n" +
 	"\fPageBaseFile\x12$.system.admin.v1.PageBaseFileRequest\x1a%.system.admin.v1.PageBaseFileResponse\"\x1f\x82\xd3\xe4\x93\x02\x19\x12\x17/api/v1/admin/base/file\x12s\n" +
 	"\vGetBaseFile\x12#.system.admin.v1.GetBaseFileRequest\x1a\x19.system.admin.v1.BaseFile\"$\x82\xd3\xe4\x93\x02\x1e\x12\x1c/api/v1/admin/base/file/{id}\x12v\n" +

@@ -8474,6 +8474,14 @@ components:
                     type: string
                     description: バイナリ内容は base64 エンコードで送信されます
                     format: bytes
+                access_mode:
+                    enum:
+                        - BASE_FILE_ACCESS_MODE_UNSPECIFIED
+                        - BASE_FILE_ACCESS_MODE_PUBLIC
+                        - BASE_FILE_ACCESS_MODE_AUTHORIZED
+                    type: string
+                    description: ファイルアクセス方式。未指定の場合はアクセストークンが必要です
+                    format: enum
             description: 上传ファイル情報
         base.v1.UploadFileRequest:
             type: object
@@ -9384,6 +9392,10 @@ components:
                 created_at:
                     type: string
                     description: 作成時刻
+                access_mode:
+                    type: integer
+                    description: ファイルアクセス方式：1 公開、2 アクセストークン必須
+                    format: int32
             description: ファイル資産メタデータ。
         system.admin.v1.BaseI18n:
             type: object

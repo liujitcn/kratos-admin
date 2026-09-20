@@ -107,7 +107,7 @@ test('CLI 独立生成 system 多模块、完整语言入口与项目构建配�
       assert.ok(JSON.parse(readFileSync(resolve(moduleRoot, 'package.json'))).scripts.build)
     }
     const host = JSON.parse(readFileSync(resolve(target, 'apps/uni-app/package.json')))
-    assert.match(host.scripts['build:h5'], /backend\/data\/uni-app/)
+    assert.match(host.scripts['build:h5'], /backend\/web\/uni-app/)
     assert.ok(existsSync(resolve(target, 'apps/uni-app/tsconfig.json')))
     assert.ok(existsSync(resolve(target, 'scripts/check-package-exports.mjs')))
     const imported = spawnSync(

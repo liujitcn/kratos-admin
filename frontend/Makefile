@@ -12,9 +12,10 @@
 	ts types-admin ts-admin ts-uni-app ts-taro-app \
 	run run-all run-h5 run-mp-weixin run-admin run-uni-app run-uni-app-h5 run-uni-app-mp-weixin run-taro-app run-taro-app-h5 run-taro-app-mp-weixin \
 	check check-admin check-uni-app check-taro-app \
-	build build-all build-h5 build-mp-weixin build-admin build-uni-app build-uni-app-h5 build-uni-app-mp-weixin build-taro-app build-taro-app-h5 build-taro-app-mp-weixin build-package \
+	build build-h5 build-mp-weixin build-admin build-uni-app build-uni-app-h5 build-uni-app-mp-weixin build-taro-app build-taro-app-h5 build-taro-app-mp-weixin build-package \
 	package package-admin package-uni-app package-taro-app \
-	publish publish-only publish-admin publish-uni-app publish-taro-app
+	publish publish-only publish-admin publish-uni-app publish-taro-app \
+	clean clean-before
 
 # 统一递归 Make 输出，避免显示目录进入提示和终端控制符。
 MAKEFLAGS += --no-print-directory
@@ -33,6 +34,16 @@ PNPM_INSTALL = $(PNPM_ENV) $(PNPM) --silent install
 PNPM_PACK = $(PNPM_ENV) $(PNPM) --silent pack
 GO_BIN_DIR ?= $(or $(shell go env GOBIN),$(shell go env GOPATH)/bin)
 API_DIR ?= ../backend/api
+SKIP_FRONTEND_CLEAN ?= 0
+
+# 只清理前端宿主生成的构建结果，不删除源码、依赖和 npm 包 dist。
+FRONTEND_BUILD_OUTPUTS := \
+	../backend/web/admin \
+	../backend/web/uni-app \
+	../backend/web/taro-app \
+	admin/apps/admin/dist \
+	uni-app/apps/uni-app/dist \
+	taro-app/apps/taro-app/dist
 
 TS_PROTO_BIN ?= $(or \
 	$(shell command -v protoc-gen-ts_proto 2>/dev/null), \
@@ -128,32 +139,32 @@ ts-taro-app:
 # ===== 本地运行 =====
 
 # 并行启动管理后台、uni-app 和 Taro 的 H5/微信小程序开发环境
-run:
-	@$(MAKE) run-all
+run: clean-before
+	@$(MAKE) SKIP_FRONTEND_CLEAN=1 run-all
 
 # 并行启动全部前端开发环境；按 Ctrl-C 会同时停止所有子进程
-run-all:
+run-all: clean-before
 	@set -e; \
 	pids=""; \
 	cleanup() { trap - INT TERM EXIT; test -z "$$pids" || kill $$pids 2>/dev/null || true; test -z "$$pids" || wait $$pids 2>/dev/null || true; }; \
 	trap cleanup INT TERM EXIT; \
-	$(MAKE) run-admin & pids="$$pids $$!"; \
-	$(MAKE) run-uni-app-h5 & pids="$$pids $$!"; \
-	$(MAKE) run-uni-app-mp-weixin & pids="$$pids $$!"; \
-	$(MAKE) run-taro-app-h5 & pids="$$pids $$!"; \
-	$(MAKE) run-taro-app-mp-weixin & pids="$$pids $$!"; \
+	$(MAKE) SKIP_FRONTEND_CLEAN=1 run-admin & pids="$$pids $$!"; \
+	$(MAKE) SKIP_FRONTEND_CLEAN=1 run-uni-app-h5 & pids="$$pids $$!"; \
+	$(MAKE) SKIP_FRONTEND_CLEAN=1 run-uni-app-mp-weixin & pids="$$pids $$!"; \
+	$(MAKE) SKIP_FRONTEND_CLEAN=1 run-taro-app-h5 & pids="$$pids $$!"; \
+	$(MAKE) SKIP_FRONTEND_CLEAN=1 run-taro-app-mp-weixin & pids="$$pids $$!"; \
 	wait
 
 # 并行启动全部 H5 开发环境
-run-h5:
-	@$(MAKE) --jobs=3 run-admin run-uni-app-h5 run-taro-app-h5
+run-h5: clean-before
+	@$(MAKE) --jobs=3 SKIP_FRONTEND_CLEAN=1 run-admin run-uni-app-h5 run-taro-app-h5
 
 # 并行启动全部微信小程序开发环境
-run-mp-weixin:
-	@$(MAKE) --jobs=2 run-uni-app-mp-weixin run-taro-app-mp-weixin
+run-mp-weixin: clean-before
+	@$(MAKE) --jobs=2 SKIP_FRONTEND_CLEAN=1 run-uni-app-mp-weixin run-taro-app-mp-weixin
 
 # 启动管理后台开发服务
-run-admin:
+run-admin: clean-before
 	@cd admin && $(PNPM_RUN) dev
 
 # 启动 uni-app 微信小程序开发服务
@@ -161,11 +172,11 @@ run-uni-app:
 	@$(MAKE) run-uni-app-mp-weixin
 
 # 启动 uni-app H5 开发服务
-run-uni-app-h5:
+run-uni-app-h5: clean-before
 	@cd uni-app && $(PNPM_RUN) dev:h5
 
 # 启动 uni-app 微信小程序开发服务
-run-uni-app-mp-weixin:
+run-uni-app-mp-weixin: clean-before
 	@cd uni-app && $(PNPM_RUN) dev:mp-weixin
 
 # 启动 Taro 微信小程序开发服务
@@ -173,11 +184,11 @@ run-taro-app:
 	@$(MAKE) run-taro-app-mp-weixin
 
 # 启动 Taro H5 开发服务
-run-taro-app-h5:
+run-taro-app-h5: clean-before
 	@cd taro-app && $(PNPM_RUN) dev:h5
 
 # 启动 Taro 微信小程序开发服务
-run-taro-app-mp-weixin:
+run-taro-app-mp-weixin: clean-before
 	@cd taro-app && $(PNPM_RUN) dev:mp-weixin
 
 # ===== 代码检查 =====
@@ -221,11 +232,13 @@ check:
 # ===== 应用与模块构建 =====
 
 # 构建全部前端 H5 和微信小程序产物
-build:
-	@$(MAKE) build-all
+build: clean-before
+	@$(MAKE) SKIP_FRONTEND_CLEAN=1 build-h5
+	@$(MAKE) SKIP_FRONTEND_CLEAN=1 build-mp-weixin
+	@echo "==> 全部前端宿主构建完成"
 
 # 构建管理后台静态资源
-build-admin:
+build-admin: clean-before
 	@echo "==> 开始构建：管理后台 · Web"
 	@cd admin && $(PNPM_RUN) build
 	@echo "==> 构建完成：管理后台 · Web"
@@ -235,13 +248,13 @@ build-uni-app:
 	@$(MAKE) build-uni-app-h5
 
 # 构建 uni-app H5 静态资源
-build-uni-app-h5:
+build-uni-app-h5: clean-before
 	@echo "==> 开始构建：uni-app · H5"
 	@cd uni-app && $(PNPM_RUN) build:h5
 	@echo "==> 构建完成：uni-app · H5"
 
 # 构建 uni-app 微信小程序产物
-build-uni-app-mp-weixin:
+build-uni-app-mp-weixin: clean-before
 	@echo "==> 开始构建：uni-app · 微信小程序"
 	@cd uni-app && $(PNPM_RUN) build:mp-weixin
 	@echo "==> 构建完成：uni-app · 微信小程序"
@@ -251,31 +264,25 @@ build-taro-app:
 	@$(MAKE) build-taro-app-h5
 
 # 构建 Taro H5 静态资源
-build-taro-app-h5:
+build-taro-app-h5: clean-before
 	@echo "==> 开始构建：Taro · H5"
 	@cd taro-app && $(PNPM_RUN) build:h5
 	@echo "==> 构建完成：Taro · H5"
 
 # 构建 Taro 微信小程序产物
-build-taro-app-mp-weixin:
+build-taro-app-mp-weixin: clean-before
 	@echo "==> 开始构建：Taro · 微信小程序"
 	@cd taro-app && $(PNPM_RUN) build:mp-weixin
 	@echo "==> 构建完成：Taro · 微信小程序"
 
 # 构建管理后台、uni-app 和 Taro 的全部 H5 产物
-build-h5:
-	@$(MAKE) --jobs=3 build-admin build-uni-app-h5 build-taro-app-h5
+build-h5: clean-before
+	@$(MAKE) --jobs=3 SKIP_FRONTEND_CLEAN=1 build-admin build-uni-app-h5 build-taro-app-h5
 
 # 构建 uni-app 和 Taro 的全部微信小程序产物
-build-mp-weixin:
-	@$(MAKE) build-uni-app-mp-weixin
-	@$(MAKE) build-taro-app-mp-weixin
-
-# 构建管理后台、uni-app 和 Taro 的 H5/微信小程序全部宿主
-build-all:
-	@$(MAKE) build-h5
-	@$(MAKE) build-mp-weixin
-	@echo "==> 全部前端宿主构建完成"
+build-mp-weixin: clean-before
+	@$(MAKE) SKIP_FRONTEND_CLEAN=1 build-uni-app-mp-weixin
+	@$(MAKE) SKIP_FRONTEND_CLEAN=1 build-taro-app-mp-weixin
 
 # 构建可供业务后台组合使用的管理端模块包
 build-package:
@@ -344,12 +351,25 @@ publish:
 
 # ===== 帮助 =====
 
+# 清理全部前端宿主构建产物。
+clean:
+	@echo "==> 清理前端旧构建产物"
+	@rm -rf -- $(FRONTEND_BUILD_OUTPUTS)
+	@echo "==> 前端旧构建产物清理完成"
+
+# 在直接执行或聚合执行 build/run 目标前清理一次旧产物。
+clean-before:
+ifeq ($(SKIP_FRONTEND_CLEAN),0)
+	@$(MAKE) clean
+endif
+
 # 查看常用流程、全部目标及可覆盖参数
 help:
 	@echo ""
 	@echo "常用流程:"
 	@echo "  make init                         安装三个 workspace 的依赖"
 	@echo "  make run                          启动全部前端开发环境（H5 + 微信小程序）"
+	@echo "  make clean                        清理全部前端宿主构建产物"
 	@echo "  make check                        检查三个 workspace"
 	@echo "  make ts                            生成三个前端的 TypeScript RPC"
 	@echo "  make build                        构建管理端、uni-app、Taro 的 H5 + 微信小程序"

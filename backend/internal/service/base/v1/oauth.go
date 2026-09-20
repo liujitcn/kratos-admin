@@ -73,7 +73,7 @@ func (s *OauthService) CreateOauthSession(ctx context.Context, req *basev1.Creat
 		log.Error(fmt.Sprintf("CreateOauthSession %v", err))
 		return nil, errorsx.WrapInternal(err, "创建三方登录会话失败")
 	}
-	setRefreshTokenCookie(ctx, res.GetRefreshToken(), s.oauthCase.RefreshTokenExpiresIn())
+	setAuthTokenCookies(ctx, res.GetAccessToken(), res.GetExpiresIn(), res.GetRefreshToken(), s.oauthCase.RefreshTokenExpiresIn())
 	if hideRefreshTokenFromResponse(ctx) {
 		res.RefreshToken = ""
 	}
@@ -87,7 +87,7 @@ func (s *OauthService) BindOauthSession(ctx context.Context, req *basev1.BindOau
 		log.Error(fmt.Sprintf("BindOauthSession %v", err))
 		return nil, errorsx.WrapInternal(err, "绑定三方账号失败")
 	}
-	setRefreshTokenCookie(ctx, res.GetRefreshToken(), s.oauthCase.RefreshTokenExpiresIn())
+	setAuthTokenCookies(ctx, res.GetAccessToken(), res.GetExpiresIn(), res.GetRefreshToken(), s.oauthCase.RefreshTokenExpiresIn())
 	if hideRefreshTokenFromResponse(ctx) {
 		res.RefreshToken = ""
 	}
@@ -114,7 +114,7 @@ func (s *OauthService) ExchangeOauthTicket(ctx context.Context, req *basev1.Exch
 		log.Error(fmt.Sprintf("ExchangeOauthTicket %v", err))
 		return nil, errorsx.WrapInternal(err, "兑换三方登录票据失败")
 	}
-	setRefreshTokenCookie(ctx, res.GetRefreshToken(), s.oauthCase.RefreshTokenExpiresIn())
+	setAuthTokenCookies(ctx, res.GetAccessToken(), res.GetExpiresIn(), res.GetRefreshToken(), s.oauthCase.RefreshTokenExpiresIn())
 	if hideRefreshTokenFromResponse(ctx) {
 		res.RefreshToken = ""
 	}

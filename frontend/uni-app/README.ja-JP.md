@@ -62,7 +62,7 @@ pnpm build:h5
 pnpm build:mp-weixin
 ```
 
-H5 の既定アドレスは `http://localhost:5004` です。LAN HTTPS ではルートで `bash scripts/generate-dev-cert.sh 192.168.1.100` を実行し、`.env.development-h5.local` に `VITE_APP_HTTPS=true` を設定します。Backend が `APP_ENV=https` の場合は API URL を `https://localhost:7001` に変更します。H5 の生成物は `backend/data/uni-app`、WeChat 生成物は `apps/uni-app/dist/build/mp-weixin` に出力します。
+H5 の既定アドレスは `http://localhost:5004` です。LAN HTTPS ではルートで `bash scripts/generate-dev-cert.sh 192.168.1.100` を実行し、`.env.development-h5.local` に `VITE_APP_HTTPS=true` を設定します。Backend が `APP_ENV=https` の場合は API URL を `https://localhost:7001` に変更します。H5 の生成物は `backend/web/uni-app`、WeChat 生成物は `apps/uni-app/dist/build/mp-weixin` に出力します。
 
 ## RPC 生成
 

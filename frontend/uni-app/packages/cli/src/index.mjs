@@ -109,7 +109,7 @@ H5 通过局域网 IP 访问时，先在仓库根目录运行 bash scripts/gener
           'node -e "import(\'@liujitcn/kratos-uni-app-core/vite\').then(({ recoverStalePageTransaction }) => recoverStalePageTransaction())"',
         'dev:h5': 'pnpm run recover:pages && uni --mode development-h5',
         'dev:mp-weixin': 'pnpm run recover:pages && uni -p mp-weixin --mode development',
-        'build:h5': `pnpm run recover:pages && UNI_OUTPUT_DIR=${options.kratosProject ? '../../../../backend/data/uni-app' : 'dist/build/h5'} uni build --mode production-h5`,
+        'build:h5': `pnpm run recover:pages && UNI_OUTPUT_DIR=${options.kratosProject ? '../../../../backend/web/uni-app' : 'dist/build/h5'} uni build --mode production-h5`,
         'build:mp-weixin': 'pnpm run recover:pages && uni build -p mp-weixin --mode production',
         tsc: 'vue-tsc --noEmit -p tsconfig.json',
       },

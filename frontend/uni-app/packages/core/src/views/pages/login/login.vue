@@ -7,6 +7,7 @@ import { computed, defineAsyncComponent, nextTick, reactive, ref, watch } from '
 import { defLoginService } from '../../../api/base/v1/login'
 import { defMfaService } from '../../../api/base/v1/mfa'
 import defaultLogo from '../../../static/images/logo_icon.png'
+import { formatSrc } from '../../../utils'
 import { homeTabPage } from '../../../utils/navigation'
 import { PASSWORD_CRYPTO_SCENE, encryptPassword } from '../../../utils/passwordCrypto'
 import { createWebAuthnCredential, getWebAuthnAssertion } from '../../../utils/webauthn'
@@ -41,8 +42,27 @@ const configuredMainTitle = computed(
 const configuredSubTitle = computed(
   () => settingStore.getData('subTitle') || t('core.login.default_sub_title'),
 )
-const configuredAppLogo = computed(() => settingStore.getData('appLogo') || defaultLogo)
+const configuredAppLogo = computed(() => {
+  const configuredLogo = settingStore.getData('appLogo')
+  return configuredLogo ? formatSrc(configuredLogo) : defaultLogo
+})
+const appLogo = ref(defaultLogo)
 const showTenantCode = computed(() => settingStore.getData('showTenantCode') !== 'false')
+
+watch(
+  configuredAppLogo,
+  (value) => {
+    appLogo.value = value
+  },
+  { immediate: true },
+)
+
+/** Logo 加载失败时回退到本地默认图片。 */
+const handleLogoError = () => {
+  if (appLogo.value !== defaultLogo) {
+    appLogo.value = defaultLogo
+  }
+}
 
 // 是否同意协议
 const isAgreePrivacy = ref(false)
@@ -867,7 +887,7 @@ onLoad(() => {
     </picker>
     <view class="login-hero">
       <view class="login-logo-shell">
-        <image :src="configuredAppLogo" />
+        <image :src="appLogo" @error="handleLogoError" />
       </view>
       <view class="login-hero-copy">
         <text class="login-title">{{ configuredMainTitle }}</text>

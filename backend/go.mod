@@ -33,7 +33,7 @@ require (
 	github.com/liujitcn/kratos-kit/database/gorm/migration v0.0.16
 	github.com/liujitcn/kratos-kit/logger/zap v0.0.19
 	github.com/liujitcn/kratos-kit/oauth v0.0.12
-	github.com/liujitcn/kratos-kit/oss v0.0.19
+	github.com/liujitcn/kratos-kit/oss v0.0.20
 	github.com/liujitcn/kratos-kit/pprof v0.0.16
 	github.com/liujitcn/kratos-kit/queue v0.0.29
 	github.com/liujitcn/kratos-kit/redact v0.0.8
