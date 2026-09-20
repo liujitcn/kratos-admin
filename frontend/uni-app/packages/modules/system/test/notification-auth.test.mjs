@@ -6,14 +6,14 @@ import { pathToFileURL } from 'node:url'
 import test from 'node:test'
 import { build } from 'esbuild'
 
-test('游客或过期登录态恢复前台时不启动通知请求', async () => {
+test('游客或过期登录态恢复前台时不启动通知请求，运行中失效时静默停止', async () => {
   const root = mkdtempSync(resolve(tmpdir(), 'kratos-uni-notification-'))
   const originalWindow = globalThis.window
   const originalFetch = globalThis.fetch
   const originalSetInterval = globalThis.setInterval
   let validToken = false
-  let summaryRequests = 0
   let intervals = 0
+  let intervalHandler
   try {
     const output = resolve(root, 'notification.mjs')
     await build({
@@ -39,10 +39,6 @@ test('游客或过期登录态恢复前台时不启动通知请求', async () =>
               path: 'http',
               namespace: 'stub',
             }))
-            builder.onResolve({ filter: /^\.\/api\/base\/v1\/notification$/ }, () => ({
-              path: 'notification-api',
-              namespace: 'stub',
-            }))
             builder.onLoad({ filter: /.*/, namespace: 'stub' }, ({ path }) => {
               if (path === 'vue') return { contents: 'export const ref = (value) => ({ value })' }
               if (path === 'navigation')
@@ -53,12 +49,8 @@ test('游客或过期登录态恢复前台时不启动通知请求', async () =>
               if (path === 'http') {
                 return {
                   contents:
-                    "export const requestBaseURL = '/api'; export const getRequestAccessToken = async () => 'Bearer valid'",
+                    "export const requestBaseURL = '/api'; export const getRequestAccessToken = async (mode = 'required') => { globalThis.__authModes.push(`stream:${mode}`); if (!globalThis.__validToken) { if (mode === 'required') globalThis.__reloginPrompts += 1; throw new Error('expired'); } return 'Bearer valid'; }; export const http = async (options) => { globalThis.__authModes.push(`request:${options.authMode}`); if (!globalThis.__validToken) { if (options.authMode === 'required') globalThis.__reloginPrompts += 1; throw new Error('expired'); } return { unread_total: 0 }; }",
                 }
-              }
-              return {
-                contents:
-                  'export const defNotificationService = { GetNotificationSummary: async () => { globalThis.__summaryRequests += 1; return { unread_total: 0 } } }',
               }
             })
           },
@@ -66,11 +58,13 @@ test('游客或过期登录态恢复前台时不启动通知请求', async () =>
       ],
     })
     globalThis.__validToken = validToken
-    globalThis.__summaryRequests = summaryRequests
+    globalThis.__authModes = []
+    globalThis.__reloginPrompts = 0
     globalThis.window = undefined
     globalThis.fetch = undefined
-    globalThis.setInterval = () => {
+    globalThis.setInterval = (handler) => {
       intervals += 1
+      intervalHandler = handler
       return 1
     }
     const runtime = await import(pathToFileURL(output).href)
@@ -78,21 +72,37 @@ test('游客或过期登录态恢复前台时不启动通知请求', async () =>
     runtime.pauseNotificationPolling()
     runtime.resumeNotificationPolling()
     await Promise.resolve()
-    assert.equal(globalThis.__summaryRequests, 0)
+    assert.deepEqual(globalThis.__authModes, [])
     assert.equal(intervals, 0)
 
     validToken = true
     globalThis.__validToken = validToken
     runtime.resumeNotificationPolling()
     await Promise.resolve()
-    assert.equal(globalThis.__summaryRequests, 1)
+    assert.deepEqual(globalThis.__authModes, ['request:optional'])
     assert.equal(intervals, 1)
+
+    runtime.stopNotificationPolling()
+    globalThis.__authModes = []
+    globalThis.window = { location: { origin: 'http://localhost:5004' } }
+    globalThis.fetch = () => new Promise(() => {})
+    runtime.startNotificationPolling()
+    await Promise.resolve()
+    assert.deepEqual(globalThis.__authModes, ['request:optional', 'stream:optional'])
+
+    validToken = false
+    globalThis.__validToken = validToken
+    intervalHandler()
+    await Promise.resolve()
+    assert.equal(globalThis.__reloginPrompts, 0, '后台轮询不得弹出重新登录对话框')
+    assert.equal(globalThis.__authModes.at(-1), 'request:optional')
   } finally {
     globalThis.window = originalWindow
     globalThis.fetch = originalFetch
     globalThis.setInterval = originalSetInterval
     delete globalThis.__validToken
-    delete globalThis.__summaryRequests
+    delete globalThis.__authModes
+    delete globalThis.__reloginPrompts
     rmSync(root, { recursive: true, force: true })
   }
 })

@@ -67,7 +67,7 @@ export class NotificationServiceImpl implements NotificationService {
     const response = await http<Partial<NotificationSummary>>({
       url: `${NOTIFICATION_URL}/summary`,
       method: 'GET',
-      authMode: 'required',
+      authMode: 'optional',
       data: request,
     })
     return {

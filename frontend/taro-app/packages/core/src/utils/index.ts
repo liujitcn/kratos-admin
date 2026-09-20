@@ -33,7 +33,9 @@ export function formatPrice(price: number): string {
 /** 格式化后端静态资源地址。 */
 export function formatSrc(src: string): string {
   const browserOrigin =
-    typeof window !== 'undefined' && window.location?.origin ? window.location.origin : ''
+    process.env.TARO_ENV === 'h5' && typeof window !== 'undefined' && window.location?.origin
+      ? window.location.origin
+      : ''
   const staticOrigin = browserOrigin || configuredStaticUrl.replace(/\/$/, '')
   if (!src) return src
   if (/^https?:\/\//.test(src)) return rewriteDataFileOrigin(src, staticOrigin)

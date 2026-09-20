@@ -68,7 +68,7 @@ function startNotificationSse(): () => void {
     let retryDelay = 1_000
     while (!controller.signal.aborted) {
       try {
-        const token = await getRequestAccessToken()
+        const token = await getRequestAccessToken('optional')
         if (!token || controller.signal.aborted) return
         const sseBaseURL = requestBaseURL.replace(/\/api\/?$/, '') || window.location.origin
         const response = await fetch(`${sseBaseURL}/events/base.notification`, {
