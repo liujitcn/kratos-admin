@@ -9352,13 +9352,6 @@ components:
                 tenant_id:
                     type: string
                     description: 租戶ID
-                provider:
-                    type: integer
-                    description: 儲存供應商
-                    format: int32
-                bucket_name:
-                    type: string
-                    description: 儲存桶名稱
                 file_directory:
                     type: string
                     description: 檔案目錄

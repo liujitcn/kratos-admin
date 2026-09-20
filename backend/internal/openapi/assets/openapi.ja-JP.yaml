@@ -9352,13 +9352,6 @@ components:
                 tenant_id:
                     type: string
                     description: テナント ID
-                provider:
-                    type: integer
-                    description: ストレージプロバイダー
-                    format: int32
-                bucket_name:
-                    type: string
-                    description: バケット名
                 file_directory:
                     type: string
                     description: ファイルディレクトリ
