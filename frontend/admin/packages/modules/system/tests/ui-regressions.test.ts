@@ -276,6 +276,13 @@ test("项目授权列表沿用统一租户列展示规则", async () => {
   assert.doesNotMatch(tenantColumn, /isSetting:\s*false/);
 });
 
+test("文件管理列表使用统一租户列展示规则", async () => {
+  const source = await readSource("src/views/base/file/index.vue");
+
+  assert.match(source, /tenantColumns\(\{ label: t\("common\.field\.tenant"\), minWidth: 100 \}\)/);
+  assert.doesNotMatch(source, /system\.base\.file\.field\.tenant/);
+});
+
 test("项目授权列表不展示主体编码列且不保留无用翻译", async () => {
   const source = await readSource("src/views/base/tenant-project-grant/index.vue");
   assert.doesNotMatch(source, /prop: "subject_code"[\s\S]*?field\.subject_code/);

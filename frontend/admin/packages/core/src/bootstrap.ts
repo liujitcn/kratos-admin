@@ -30,6 +30,9 @@ import { useUserStore } from "@/stores/modules/user";
 import { getRouteMetaTitle } from "@/utils";
 import { defLanguageService } from "./api/base/v1/language";
 import { setAdminDocumentTitle } from "./documentTitle";
+import defaultLogoUrl from "@/assets/images/logo.svg";
+import defaultLoginBackgroundUrl from "@/assets/images/login_bg.svg";
+import defaultLoginIllustrationUrl from "@/assets/images/login_left.png";
 
 /**
  * 管理端启动参数。
@@ -49,6 +52,15 @@ export async function bootstrapAdminApp(options: AdminBootstrapOptions = {}) {
   registerAdminModules(modules);
   registerLocaleMessages(modules);
   initializeLocale();
+
+  // 登录页图片与启动接口并行加载，并在首次挂载前完成解码，避免页面先于图片绘制。
+  const loginImagePreloads = [defaultLogoUrl, defaultLoginBackgroundUrl, defaultLoginIllustrationUrl].map(
+    imageUrl => {
+      const image = new Image();
+      image.src = imageUrl;
+      return image.decode();
+    }
+  );
   try {
     applyLanguageConfig(await defLanguageService.OptionLanguage({}));
   } catch {
@@ -82,6 +94,7 @@ export async function bootstrapAdminApp(options: AdminBootstrapOptions = {}) {
   }
   updateDocumentTitle();
 
+  await Promise.allSettled(loginImagePreloads);
   app.mount(options.mount ?? "#app");
   return app;
 }

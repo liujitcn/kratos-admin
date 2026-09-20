@@ -118,7 +118,7 @@ const columns = computed<ColumnProps[]>(() => [
   { prop: "mime_type", label: t("system.base.file.field.mime"), minWidth: 180 },
   { prop: "size", label: t("system.base.file.field.size"), width: 120, align: "right", render: scope => formatFileSize((scope.row as BaseFile).size) },
   { prop: "content_hash", label: t("system.base.file.field.hash"), minWidth: 220 },
-  ...tenantColumns({ label: t("system.base.file.field.tenant"), minWidth: 100 }),
+  ...tenantColumns({ label: t("common.field.tenant"), minWidth: 100 }),
   { prop: "created_at", align: "center", label: t("common.field.created_at"), minWidth: 180 },
   {
     prop: "operation",

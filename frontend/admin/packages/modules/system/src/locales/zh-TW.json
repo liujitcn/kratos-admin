@@ -262,7 +262,6 @@
   "system.base.file.field.name": "原始檔名",
   "system.base.file.field.path": "儲存路徑",
   "system.base.file.field.size": "檔案大小",
-  "system.base.file.field.tenant": "租戶ID",
   "system.base.file.field.url": "存取網址",
   "system.base.file.message.preview_download_hint": "請下載檔案後查看內容",
   "system.base.file.message.preview_failed": "檔案內容載入失敗",

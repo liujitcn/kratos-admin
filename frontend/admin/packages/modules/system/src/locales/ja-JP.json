@@ -262,7 +262,6 @@
   "system.base.file.field.name": "元のファイル名",
   "system.base.file.field.path": "保存パス",
   "system.base.file.field.size": "ファイルサイズ",
-  "system.base.file.field.tenant": "テナントID",
   "system.base.file.field.url": "アクセスURL",
   "system.base.file.message.preview_download_hint": "ファイルをダウンロードして内容を確認してください",
   "system.base.file.message.preview_failed": "ファイル内容の読み込みに失敗しました",

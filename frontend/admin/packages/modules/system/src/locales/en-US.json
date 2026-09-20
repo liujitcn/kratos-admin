@@ -262,7 +262,6 @@
   "system.base.file.field.name": "Original file name",
   "system.base.file.field.path": "Storage path",
   "system.base.file.field.size": "File size",
-  "system.base.file.field.tenant": "Tenant ID",
   "system.base.file.field.url": "Access URL",
   "system.base.file.message.preview_download_hint": "Download the file to view its contents",
   "system.base.file.message.preview_failed": "Failed to load file contents",

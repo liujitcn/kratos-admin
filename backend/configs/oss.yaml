@@ -2,14 +2,14 @@ oss:
   type: s3
   root_directory: ./data
   minio:
-    endpoint: 127.0.0.1:9000
+    endpoint: 192.168.60.52:9000
     access_key: minioadmin
     secret_key: "11223388"
     token: ''
     bucket_name: kratos-admin
     use_ssl: false
   s3:
-    endpoint: http://127.0.0.1:9000
+    endpoint: http://192.168.60.52:9000
     region: us-east-1
     access_key: minioadmin
     secret_key: "11223388"

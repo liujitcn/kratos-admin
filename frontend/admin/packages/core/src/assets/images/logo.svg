@@ -1,7 +1,13 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Admin logo">
-  <rect width="64" height="64" rx="16" fill="#2563eb"/>
-  <path fill="#fff" d="M17 18.5A4.5 4.5 0 0 1 21.5 14h21a4.5 4.5 0 0 1 4.5 4.5v25a4.5 4.5 0 0 1-4.5 4.5h-21a4.5 4.5 0 0 1-4.5-4.5v-25Zm5 1.5v21h20V20.5H22Zm0 25h20v-1H22v1Z"/>
-  <circle cx="23" cy="17.5" r="1.5" fill="#93c5fd"/>
-  <circle cx="28" cy="17.5" r="1.5" fill="#93c5fd"/>
-  <path fill="#93c5fd" d="M25 26h3v10h-3V26Zm5-3h3v13h-3V23Zm5 6h3v7h-3v-7Z"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 56" role="img" aria-label="Admin logo">
+  <rect x="3" y="8" width="54" height="43" rx="7" fill="#eef6ff" stroke="#244987" stroke-width="4"/>
+  <rect x="11" y="17" width="22" height="24" rx="4" fill="#fff"/>
+  <path d="M17 22a5 5 0 1 0 5 5" fill="none" stroke="#ffd15c" stroke-width="4"/>
+  <path d="M22 22a5 5 0 0 1 5 5" fill="none" stroke="#ffbd00" stroke-width="4"/>
+  <rect x="17" y="34" width="3" height="4" rx="1" fill="#8679e8"/>
+  <rect x="22" y="31" width="3" height="7" rx="1" fill="#6f5bd9"/>
+  <rect x="27" y="28" width="3" height="10" rx="1" fill="#5540cf"/>
+  <path d="M39 23h10M39 29h10M39 35h7" fill="none" stroke="#8a7dea" stroke-width="3" stroke-linecap="round"/>
+  <circle cx="52" cy="10" r="10" fill="#c9f8e4"/>
+  <circle cx="52" cy="10" r="7" fill="#56dba0"/>
+  <path d="m48.5 10 2.5 2.5 4.5-5" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>
