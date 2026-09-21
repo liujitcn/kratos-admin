@@ -14894,7 +14894,7 @@ tags:
     - name: BaseTableSourceService
       description: Admin数据源元数据服务，提供数据备份、数据归档和代码生成共用的数据源信息。
     - name: BaseTenantProjectGrantService
-      description: BaseTenantProjectGrantService 管理岗位、角色、部门和用户在目标租户下的项目授权。
+      description: Admin项目授权服务
     - name: BaseTenantProjectService
       description: Admin项目管理服务
     - name: BaseTenantService

@@ -348,6 +348,10 @@ paths:
                   in: query
                   schema:
                     type: boolean
+                - name: tenant_response
+                  in: query
+                  schema:
+                    type: boolean
             responses:
                 "200":
                     description: OK
@@ -8753,6 +8757,9 @@ components:
                 openapi_service_name:
                     type: string
                     description: OpenAPI文件名稱，執行時根據請求路徑和方法派生
+                tenant_response:
+                    type: boolean
+                    description: 響應是否包含租戶欄位
             description: API
         system.admin.v1.BaseApiDoc:
             type: object
@@ -14887,7 +14894,7 @@ tags:
     - name: BaseTableSourceService
       description: Admin資料來源後設資料服務，提供資料備份、資料歸檔和程式碼生成共用的資料來源資訊。
     - name: BaseTenantProjectGrantService
-      description: BaseTenantProjectGrantService 管理崗位、角色、部門和使用者在目標租戶下的專案授權。
+      description: Admin專案授權服務
     - name: BaseTenantProjectService
       description: Admin專案管理服務
     - name: BaseTenantService

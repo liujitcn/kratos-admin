@@ -348,6 +348,10 @@ paths:
                   in: query
                   schema:
                     type: boolean
+                - name: tenant_response
+                  in: query
+                  schema:
+                    type: boolean
             responses:
                 "200":
                     description: OK
@@ -3789,7 +3793,7 @@ paths:
         get:
             tags:
                 - BaseRedactStoragePolicyService
-            description: 検索包含テナント IDフィールドのデータ表一覧。
+            description: テナント ID フィールドを含むデータテーブルを一覧表示します。
             operationId: BaseRedactStoragePolicyService_ListBaseRedactStorageTable
             parameters:
                 - name: source_name
@@ -6420,7 +6424,7 @@ paths:
         get:
             tags:
                 - ConfigService
-            description: 取得現在のテナントの自定义国际化覆盖項目
+            description: 現在のテナントのカスタム国際化上書きを取得します
             operationId: ConfigService_GetI18nCustom
             parameters:
                 - name: site
@@ -7932,7 +7936,7 @@ components:
                     items:
                         $ref: '#/components/schemas/base.v1.I18nCustomItem'
                     description: 全言語のカスタム国際化上書き
-            description: 現在のテナント自定义国际化覆盖項目検索結果。
+            description: 現在のテナントのカスタム国際化上書きの検索結果。
         base.v1.HandleMcpRequest:
             type: object
             properties:
@@ -8753,6 +8757,9 @@ components:
                 openapi_service_name:
                     type: string
                     description: OpenAPI ドキュメント名。実行時にリクエストパスとメソッドから生成されます
+                tenant_response:
+                    type: boolean
+                    description: レスポンスにテナントフィールドを含めるかどうか
             description: API
         system.admin.v1.BaseApiDoc:
             type: object
@@ -11229,8 +11236,8 @@ components:
                     description: データベーステーブル名
                 comment:
                     type: string
-                    description: データ表コメント
-            description: 可能な保存マスキングデータ表。
+                    description: データテーブルのコメント
+            description: 保存時マスキング対象のデータテーブル。
         system.admin.v1.BaseRole:
             type: object
             properties:
@@ -12716,8 +12723,8 @@ components:
                     type: array
                     items:
                         $ref: '#/components/schemas/system.admin.v1.BaseRedactStorageTable'
-                    description: 包含テナント IDフィールドのデータ表一覧
-            description: 可能な保存マスキングデータ表一覧レスポンス。
+                    description: テナント ID フィールドを含むデータテーブル一覧
+            description: 保存時マスキング対象データテーブル一覧のレスポンス。
         system.admin.v1.ListBaseUserResponse:
             type: object
             properties:
@@ -14887,7 +14894,7 @@ tags:
     - name: BaseTableSourceService
       description: Adminデータソースメタデータサービス。データベースバックアップ、データアーカイブ、コード生成で共有するデータソース情報を提供します。
     - name: BaseTenantProjectGrantService
-      description: BaseTenantProjectGrantService は対象テナントの職位、ロール、部署、ユーザーのプロジェクト権限を管理します。
+      description: Adminプロジェクト認可サービス
     - name: BaseTenantProjectService
       description: 管理用プロジェクトサービス
     - name: BaseTenantService

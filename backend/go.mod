@@ -15,10 +15,10 @@ require (
 	github.com/liujitcn/go-utils/crypto v0.0.17
 	github.com/liujitcn/go-utils/http v0.0.7
 	github.com/liujitcn/gorm-kit v0.0.34
-	github.com/liujitcn/kratos-admin/backend/api v0.0.15
-	github.com/liujitcn/kratos-core v0.0.34
+	github.com/liujitcn/kratos-admin/backend/api v0.0.16
+	github.com/liujitcn/kratos-core v0.0.35
 	github.com/liujitcn/kratos-core/api v0.0.4
-	github.com/liujitcn/kratos-kit v0.0.85
+	github.com/liujitcn/kratos-kit v0.0.87
 	github.com/liujitcn/kratos-kit/api v0.0.39
 	github.com/liujitcn/kratos-kit/auth v0.0.29
 	github.com/liujitcn/kratos-kit/auth/authn v0.0.24
@@ -31,13 +31,13 @@ require (
 	github.com/liujitcn/kratos-kit/database/gorm v0.0.48
 	github.com/liujitcn/kratos-kit/database/gorm/driver/mysql v0.0.20
 	github.com/liujitcn/kratos-kit/database/gorm/migration v0.0.16
-	github.com/liujitcn/kratos-kit/locker v0.0.18
+	github.com/liujitcn/kratos-kit/locker v0.0.19
 	github.com/liujitcn/kratos-kit/logger/zap v0.0.19
 	github.com/liujitcn/kratos-kit/oauth v0.0.12
 	github.com/liujitcn/kratos-kit/oss v0.0.20
 	github.com/liujitcn/kratos-kit/pprof v0.0.16
 	github.com/liujitcn/kratos-kit/queue v0.0.29
-	github.com/liujitcn/kratos-kit/redact v0.0.8
+	github.com/liujitcn/kratos-kit/redact v0.0.10
 	github.com/liujitcn/kratos-kit/registry/consul v0.0.7
 	github.com/liujitcn/kratos-kit/translator v0.0.7
 	github.com/liujitcn/kratos-kit/transport/cron v0.0.18
@@ -359,14 +359,3 @@ require (
 	sigs.k8s.io/structured-merge-diff/v6 v6.3.2 // indirect
 	sigs.k8s.io/yaml v1.6.0 // indirect
 )
-
-replace github.com/liujitcn/kratos-core => /Users/liujun/workspace/github/liujitcn/kratos-core
-
-replace github.com/liujitcn/kratos-kit => /Users/liujun/workspace/github/liujitcn/kratos-kit
-
-replace github.com/liujitcn/kratos-kit/locker => /Users/liujun/workspace/github/liujitcn/kratos-kit/locker
-
-replace github.com/liujitcn/kratos-kit/redact => /Users/liujun/workspace/github/liujitcn/kratos-kit/redact
-
-
-replace github.com/liujitcn/kratos-admin/backend/api => ./api

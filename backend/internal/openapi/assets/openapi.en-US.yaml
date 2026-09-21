@@ -348,6 +348,10 @@ paths:
                   in: query
                   schema:
                     type: boolean
+                - name: tenant_response
+                  in: query
+                  schema:
+                    type: boolean
             responses:
                 "200":
                     description: OK
@@ -3789,7 +3793,7 @@ paths:
         get:
             tags:
                 - BaseRedactStoragePolicyService
-            description: Query 包含tenant IDfield data table list.
+            description: List data tables containing a tenant ID field.
             operationId: BaseRedactStoragePolicyService_ListBaseRedactStorageTable
             parameters:
                 - name: source_name
@@ -6420,7 +6424,7 @@ paths:
         get:
             tags:
                 - ConfigService
-            description: Get currenttenantof 自定义国际化覆盖item
+            description: Get custom internationalization overrides for the current tenant.
             operationId: ConfigService_GetI18nCustom
             parameters:
                 - name: site
@@ -7932,7 +7936,7 @@ components:
                     items:
                         $ref: '#/components/schemas/base.v1.I18nCustomItem'
                     description: Custom internationalization overrides for all locales
-            description: current tenant自定义国际化覆盖item query result.
+            description: Custom internationalization override query result for the current tenant.
         base.v1.HandleMcpRequest:
             type: object
             properties:
@@ -8753,6 +8757,9 @@ components:
                 openapi_service_name:
                     type: string
                     description: OpenAPI document name, derived from the request path and method at runtime
+                tenant_response:
+                    type: boolean
+                    description: Whether the response includes tenant fields
             description: API
         system.admin.v1.BaseApiDoc:
             type: object
@@ -11229,8 +11236,8 @@ components:
                     description: database table name
                 comment:
                     type: string
-                    description: count据table comment
-            description: available inbound redaction count据table.
+                    description: Data table comment
+            description: Inbound redaction data table.
         system.admin.v1.BaseRole:
             type: object
             properties:
@@ -12716,8 +12723,8 @@ components:
                     type: array
                     items:
                         $ref: '#/components/schemas/system.admin.v1.BaseRedactStorageTable'
-                    description: 包含tenant IDfield data table list
-            description: available inbound redaction count据table list response.
+                    description: Data table list containing a tenant ID field
+            description: Inbound redaction data table list response.
         system.admin.v1.ListBaseUserResponse:
             type: object
             properties:
@@ -14887,7 +14894,7 @@ tags:
     - name: BaseTableSourceService
       description: Admin data-source metadata service for database backup, data archiving, and code generation.
     - name: BaseTenantProjectGrantService
-      description: BaseTenantProjectGrantService manages project grants for positions, roles, departments and users in a target tenant.
+      description: admin item item authorization service
     - name: BaseTenantProjectService
       description: Admin project management service
     - name: BaseTenantService
