@@ -32,7 +32,7 @@ func (c *BaseUserCase) findByPhone(ctx context.Context, phone string) (*models.B
 	}
 	query := c.Query(ctx).BaseUser
 	opts := make([]repository.QueryOption, 0, 3)
-	opts = append(opts, repository.Select(query.ID))
+	opts = append(opts, repository.Select(query.ID, query.TenantID))
 	opts = append(opts, repository.Where(query.TenantID.Eq(authInfo.TenantId)), repository.Where(query.Phone.Eq(phone)))
 	return c.Find(ctx, opts...)
 }

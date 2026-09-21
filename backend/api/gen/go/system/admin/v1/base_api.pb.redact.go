@@ -153,6 +153,8 @@ func (x *OptionBaseApiRequest) Redact() {
 	}
 
 	// Safe field: IncludePublic
+
+	// Safe field: TenantResponse
 }
 
 // Ensure OptionBaseApiResponse implements the Redactor interface at compile time.
@@ -263,6 +265,8 @@ func (x *BaseApi) Redact() {
 	// Safe field: OpenapiServiceCode
 
 	// Safe field: OpenapiServiceName
+
+	// Safe field: TenantResponse
 }
 
 // Ensure GetBaseApiDocRequest implements the Redactor interface at compile time.

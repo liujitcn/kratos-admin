@@ -4,7 +4,11 @@ import type { ColumnProps, EnumProps, RenderScope, SearchType } from "@/componen
 import { defBaseTenantService } from "@/api/system/admin/v1/base_tenant";
 import type { SelectOptionResponse_Option } from "@/rpc/common/v1/common";
 import { useUserStore } from "@/stores/runtime";
-import { DEFAULT_TENANT_CODE, requestTenantOptions as requestTenantOptionData } from "./utils/tenant";
+import {
+  DEFAULT_TENANT_CODE,
+  loadSharedTenantOptions,
+  requestTenantOptions as requestTenantOptionData
+} from "./utils/tenant";
 
 export * from "./utils/tenant";
 
@@ -89,8 +93,7 @@ export function useTenantScope(): TenantScope {
   async function loadTenantOptions(includeCurrentTenant = false) {
     if (!includeCurrentTenant && !isDefaultTenant.value) return;
     if (tenantOptions.value.length) return;
-    const response = await defBaseTenantService.OptionBaseTenant({ keyword: "" });
-    tenantOptions.value = response.list ?? [];
+    tenantOptions.value = await loadSharedTenantOptions();
   }
 
   function toRequestTenantId(value: unknown) {
@@ -129,7 +132,12 @@ export function useTenantScope(): TenantScope {
         search:
           options.searchable === false
             ? undefined
-            : { el: options.searchEl ?? "tenant-select", key: options.searchKey ?? prop, props: { filterable: true }, order: options.order },
+            : {
+                el: options.searchEl ?? "tenant-select",
+                key: options.searchKey ?? prop,
+                props: { filterable: true },
+                order: options.order ?? 1
+              },
         enum: options.enum ?? requestTenantOptionData,
         render: options.render ?? (scope => resolveTenantLabel(scope.row, prop))
       }

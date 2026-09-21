@@ -98,7 +98,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, defineComponent, h, reactive, ref } from "vue";
+import { computed, defineComponent, h, onMounted, reactive, ref } from "vue";
 import type { FormRules } from "element-plus";
 import type { ColumnProps, EnumProps, HeaderActionProps, ProTableInstance } from "@liujitcn/kratos-admin-core/components/ProTable/interface";
 import ProTable from "@liujitcn/kratos-admin-core/components/ProTable";
@@ -106,6 +106,7 @@ import FormDialog from "@liujitcn/kratos-admin-core/components/Dialog/FormDialog
 import type { ProFormField, ProFormOption } from "@liujitcn/kratos-admin-core/components/ProForm/interface";
 import { useAuthButtons } from "@liujitcn/kratos-admin-core/auth";
 import { buildPageRequest, normalizeSelectedIds } from "@liujitcn/kratos-admin-core/table";
+import { useTenantScope } from "@liujitcn/kratos-admin-core/tenant";
 import { t } from "@liujitcn/kratos-admin-core";
 import { defBaseApiService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/base_api";
 import { defBaseRedactRuleService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/base_redact_rule";
@@ -156,8 +157,10 @@ interface OutputFieldRow extends ProFormOption {
   rule_params: string;
 }
 
-/** 出库脱敏表单状态。 */
-interface OutputFormState extends BaseRedactOutputPolicyForm {
+/** 出库脱敏表单状态，新增时租户保持未选择。 */
+interface OutputFormState extends Omit<BaseRedactOutputPolicyForm, "tenant_id"> {
+  /** 租户ID。 */
+  tenant_id?: number;
   /** 当前选择的 API ID。 */
   api_id?: number;
   /** API 返回字段表格。 */
@@ -200,9 +203,14 @@ const ParameterNumber = defineComponent({
 
 defineOptions({ name: "BaseRedactOutputPolicy", inheritAttrs: false });
 const { BUTTONS } = useAuthButtons();
+const { isDefaultTenant, tenantColumns, tenantFormField, toRequestTenantId, loadTenantOptions } = useTenantScope();
+onMounted(() => {
+  void loadTenantOptions();
+});
 const table = ref<ProTableInstance>();
 const dialogRef = ref<InstanceType<typeof FormDialog>>();
 const apiCatalog = ref<BaseApi[]>([]);
+let apiCatalogRequest: Promise<BaseApi[]> | undefined;
 const ruleOptions = ref<ProFormOption[]>([]);
 const ruleCatalog = ref<BaseRedactRule[]>([]);
 const dialog = reactive({ visible: false, titleKey: "common.action.create_resource" });
@@ -227,6 +235,7 @@ const modeOptions = computed<ProFormOption[]>(() => [
 ]);
 const configuredFieldCount = computed(() => form.field_rows.filter(isConfiguredRow).length);
 const fields = computed<ProFormField[]>(() => [
+  tenantFormField({ label: t("common.field.tenant"), disabledOnEdit: true }),
   { prop: "service_name", label: t("system.base.redact_output_policy.field.service_name"), component: "select", options: serviceOptions.value, props: { filterable: true, clearable: true, placeholder: t("system.base.redact_output_policy.placeholder.service"), onChange: handleServiceChange } },
   { prop: "api_id", label: t("system.base.redact_output_policy.field.api"), component: "select", options: interfaceOptions.value.map(api => ({ label: apiLabel(api), value: api.id })), props: { filterable: true, clearable: true, disabled: !form.service_name, placeholder: t("system.base.redact_output_policy.placeholder.api"), onChange: handleApiChange } },
   { prop: "field_rows", label: t("system.base.redact_output_policy.field.response_field"), component: "slot", slotName: "field_rows", colSpan: 24, visible: () => form.api_id !== undefined },
@@ -234,6 +243,7 @@ const fields = computed<ProFormField[]>(() => [
   { prop: "remark", label: t("common.field.remark"), component: "textarea" }
 ]);
 const rules = computed<FormRules>(() => ({
+  tenant_id: [{ required: isDefaultTenant.value, message: t("common.validation.required_select", { field: t("common.field.tenant") }), trigger: "change" }],
   service_name: [{ required: true, message: t("system.base.redact_output_policy.validation.service_name"), trigger: "change" }],
   api_id: [{ required: true, message: t("system.base.redact_output_policy.validation.api"), trigger: "change" }],
   field_rows: [{ validator: (_rule, value: OutputFieldRow[], callback) => isConfiguredRowList(value) ? callback() : callback(new Error(t("system.base.redact_output_policy.validation.configured_fields"))), trigger: "change" }]
@@ -241,6 +251,7 @@ const rules = computed<FormRules>(() => ({
 const modeEnums = computed<EnumProps[]>(() => modeOptions.value);
 const columns = computed<ColumnProps[]>(() => [
   { type: "selection", width: 55 },
+  ...tenantColumns({ label: t("common.field.tenant"), order: 1 }),
   { prop: "service_name", label: t("system.base.redact_output_policy.field.service_name"), minWidth: 220, search: { el: "input" }, render: scope => serviceLabels.value.get(scope.row.service_name) ?? scope.row.service_name },
   { prop: "operation", label: t("system.base.redact_output_policy.field.api"), minWidth: 260, search: { el: "input" }, render: scope => operationLabels.value.get(scope.row.operation) ?? scope.row.operation },
   { prop: "message_ref", label: t("system.base.redact_output_policy.field.message_ref"), minWidth: 220 },
@@ -253,11 +264,21 @@ const columns = computed<ColumnProps[]>(() => [
 const headerActions = computed<HeaderActionProps[]>(() => [{ label: t("common.action.create"), type: "success", icon: CirclePlus, hidden: () => !BUTTONS.value["base:redact-output-policy:create"], onClick: () => openDialog() }, { label: t("common.action.delete"), type: "danger", icon: Delete, hidden: () => !BUTTONS.value["base:redact-output-policy:delete"], disabled: scope => !scope.selectedList.length, onClick: scope => deleteItems(scope.selectedList as BaseRedactOutputPolicy[]) }]);
 
 /** 请求出库脱敏策略分页列表。 */
-async function requestTable(params: PageBaseRedactOutputPolicyRequest) { const data = await defBaseRedactOutputPolicyService.PageBaseRedactOutputPolicy(buildPageRequest(params)); return { data: { list: data.base_redact_output_policies ?? [], total: data.total } }; }
+async function requestTable(params: PageBaseRedactOutputPolicyRequest) { const data = await defBaseRedactOutputPolicyService.PageBaseRedactOutputPolicy({ ...buildPageRequest(params), tenant_id: toRequestTenantId(params.tenant_id) }); return { data: { list: data.base_redact_output_policies ?? [], total: data.total } }; }
 /** 加载 API 选项。 */
 async function loadApis() { apiCatalog.value = await requestApis(); }
-/** 请求 API 选项。 */
-async function requestApis() { const data = await defBaseApiService.OptionBaseApi({ include_public: true }); return data.base_apis ?? []; }
+/** 请求具备租户响应字段的 GET API 选项。 */
+async function requestApis() {
+  if (!apiCatalogRequest) {
+    apiCatalogRequest = defBaseApiService.OptionBaseApi({ include_public: true, tenant_response: true })
+      .then(data => (data.base_apis ?? []).filter(isGetApi))
+      .catch(error => {
+        apiCatalogRequest = undefined;
+        throw error;
+      });
+  }
+  return apiCatalogRequest;
+}
 /** 加载脱敏规则选项。 */
 async function loadRules() { const rules = await requestRules(); ruleCatalog.value = rules.catalog; ruleOptions.value = rules.options; }
 /** 请求脱敏规则选项。 */
@@ -275,13 +296,13 @@ function collectFields(schema: BaseApiDocSchema, parentRef: string, parentPath: 
 /** 规范化 OpenAPI 引用名称。 */
 function normalizeRef(ref?: string) { const parts = (ref ?? "").split("/"); return parts[parts.length - 1] || ""; }
 /** 打开新增或编辑弹窗。 */
-async function openDialog(id?: number) { await dialogRef.value?.open({ load: async () => { const [apis, rules, data] = await Promise.all([requestApis(), requestRules(), id !== undefined ? defBaseRedactOutputPolicyService.GetBaseRedactOutputPolicy({ id }) : Promise.resolve(undefined)]); const api = data ? apis.find(item => item.operation === data.operation) : undefined; const rows = api ? await requestResponseFields(api.id) : []; return { apis, rules, data, rows }; }, commit: ({ apis, rules, data, rows }) => { resetForm(); apiCatalog.value = apis; ruleCatalog.value = rules.catalog; ruleOptions.value = rules.options; if (data) { Object.assign(form, data); const api = apis.find(item => item.operation === data.operation); if (api) { form.service_name = api.service_name; form.api_id = api.id; form.field_rows = rows; const row = form.field_rows.find(item => item.message_ref === data.message_ref && item.field_path === data.field_path); if (row) applyPolicy(row, data); } } dialog.titleKey = id !== undefined ? "common.action.edit_resource" : "common.action.create_resource"; } }); }
+async function openDialog(id?: number) { await dialogRef.value?.open({ load: async () => { await loadTenantOptions(); const [apis, rules, data] = await Promise.all([requestApis(), requestRules(), id !== undefined ? defBaseRedactOutputPolicyService.GetBaseRedactOutputPolicy({ id }) : Promise.resolve(undefined)]); const api = data ? apis.find(item => item.operation === data.operation) : undefined; const rows = api ? await requestResponseFields(api.id) : []; return { apis, rules, data, rows }; }, commit: ({ apis, rules, data, rows }) => { resetForm(); apiCatalog.value = apis; ruleCatalog.value = rules.catalog; ruleOptions.value = rules.options; if (data) { Object.assign(form, data); const api = apis.find(item => item.operation === data.operation); if (api) { form.service_name = api.service_name; form.api_id = api.id; form.field_rows = rows; const row = form.field_rows.find(item => item.message_ref === data.message_ref && item.field_path === data.field_path); if (row) applyPolicy(row, data); } } dialog.titleKey = id !== undefined ? "common.action.edit_resource" : "common.action.create_resource"; } }); }
 /** 重置弹窗表单。 */
 function resetForm() { dialog.visible = false; dialogRef.value?.resetFields(); Object.assign(form, defaultForm()); }
 /** 保存表格中已配置的全部字段。 */
 async function submit() { const valid = await dialogRef.value?.validate(); if (!valid || !isConfiguredRowList(form.field_rows)) return; const rows = form.field_rows.filter(isConfiguredRow); const createPolicies = rows.filter(row => !row.id).map(buildPayload); const updatePolicies = rows.filter(row => Boolean(row.id)).map(buildPayload); const requests: Promise<unknown>[] = []; if (createPolicies.length) requests.push(defBaseRedactOutputPolicyService.CreateBaseRedactOutputPolicy({ base_redact_output_policy: createPolicies })); if (updatePolicies.length) requests.push(defBaseRedactOutputPolicyService.UpdateBaseRedactOutputPolicy({ base_redact_output_policy: updatePolicies })); await Promise.all(requests); ElMessage.success(t("system.base.redact_output_policy.message.batch_save_success", { count: rows.length })); resetForm(); table.value?.getTableList(); }
 /** 将表格行转换为出库策略请求。 */
-function buildPayload(row: OutputFieldRow): BaseRedactOutputPolicyForm { syncRowParams(row); return { id: row.id, operation: form.operation, service_name: form.service_name, message_ref: row.message_ref, field_path: row.field_path, mode: row.mode, rule_id: row.mode === BaseRedactOutputPolicyMode.BASE_REDACT_OUTPUT_POLICY_MODE_RULE ? row.rule_id ?? 0 : 0, rule_params: row.mode === BaseRedactOutputPolicyMode.BASE_REDACT_OUTPUT_POLICY_MODE_RULE ? row.rule_params : "{}", status: form.status, remark: form.remark }; }
+function buildPayload(row: OutputFieldRow): BaseRedactOutputPolicyForm { syncRowParams(row); return { id: row.id, tenant_id: form.tenant_id ?? 0, operation: form.operation, service_name: form.service_name, message_ref: row.message_ref, field_path: row.field_path, mode: row.mode, rule_id: row.mode === BaseRedactOutputPolicyMode.BASE_REDACT_OUTPUT_POLICY_MODE_RULE ? row.rule_id ?? 0 : 0, rule_params: row.mode === BaseRedactOutputPolicyMode.BASE_REDACT_OUTPUT_POLICY_MODE_RULE ? row.rule_params : "{}", status: form.status, remark: form.remark }; }
 /** 将已保存的策略回填到对应字段行。 */
 function applyPolicy(row: OutputFieldRow, data: BaseRedactOutputPolicyForm) { row.id = data.id; row.mode = data.mode || BaseRedactOutputPolicyMode.BASE_REDACT_OUTPUT_POLICY_MODE_FULL; row.rule_id = data.rule_id || undefined; row.rule_params = data.rule_params; if (row.rule_id) { const rule = ruleCatalog.value.find(item => item.id === row.rule_id); row.rule_type = rule?.rule_type ?? ""; row.params = rule ? parseParams(row.rule_type, row.rule_params, rule.rule) : {}; } }
 /** 处理行模式变更。 */
@@ -319,7 +340,7 @@ function parseParams(ruleType: string, raw: string, fallbackRaw = ""): RuleParam
 /** 创建空的出库字段行。 */
 function createFieldRow(option: Pick<OutputFieldRow, "label" | "value" | "message_ref" | "field_path"> & { description?: string }): OutputFieldRow { return { ...option, id: 0, mode: BaseRedactOutputPolicyMode.BASE_REDACT_OUTPUT_POLICY_MODE_FULL, rule_id: undefined, rule_type: "", params: {}, rule_params: "{}" }; }
 /** 创建默认出库表单。 */
-function defaultForm(): OutputFormState { return { id: 0, api_id: undefined, field_rows: [], service_name: "", operation: "", message_ref: "", field_path: "", mode: BaseRedactOutputPolicyMode.BASE_REDACT_OUTPUT_POLICY_MODE_FULL, rule_id: 0, rule_params: "{}", status: Status.STATUS_ENABLE, remark: "" }; }
+function defaultForm(): OutputFormState { return { id: 0, tenant_id: undefined, api_id: undefined, field_rows: [], service_name: "", operation: "", message_ref: "", field_path: "", mode: BaseRedactOutputPolicyMode.BASE_REDACT_OUTPUT_POLICY_MODE_FULL, rule_id: 0, rule_params: "{}", status: Status.STATUS_ENABLE, remark: "" }; }
 /** 修改出库策略状态。 */
 async function changeStatus(row: BaseRedactOutputPolicy) { const next = row.status === Status.STATUS_ENABLE ? Status.STATUS_DISABLE : Status.STATUS_ENABLE; try { await ElMessageBox.confirm(t("common.dialog.status_change", { action: t(next === Status.STATUS_ENABLE ? "common.status.enabled" : "common.status.disabled"), resource: t("system.base.redact_output_policy.title"), field: t("system.base.redact_output_policy.field.field_path"), value: row.field_path }), t("common.title.warning"), { type: "warning" }); await defBaseRedactOutputPolicyService.SetBaseRedactOutputPolicyStatus({ id: row.id, status: next }); table.value?.getTableList(); return true; } catch { return false; } }
 /** 删除选中的出库策略。 */

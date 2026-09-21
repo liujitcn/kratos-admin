@@ -24,10 +24,10 @@ func NewBaseThirdAccountService(baseThirdAccountCase *biz.BaseThirdAccountCase) 
 
 // GetBaseThirdAccountIdentifier 查询用户三方账号标识。
 func (s *BaseThirdAccountService) GetBaseThirdAccountIdentifier(ctx context.Context, req *adminv1.GetBaseThirdAccountIdentifierRequest) (*adminv1.GetBaseThirdAccountIdentifierResponse, error) {
-	account, err := s.baseThirdAccountCase.FindByUserProvider(ctx, req.GetUserId(), req.GetProvider())
+	account, err := s.baseThirdAccountCase.FindAuthorizedUserProvider(ctx, req.GetUserId(), req.GetProvider())
 	if err != nil {
 		log.Error(fmt.Sprintf("GetBaseThirdAccountIdentifier %v", err))
 		return nil, errorsx.WrapInternal(err, "查询用户三方账号标识失败")
 	}
-	return &adminv1.GetBaseThirdAccountIdentifierResponse{Identifier: account.Identifier}, nil
+	return &adminv1.GetBaseThirdAccountIdentifierResponse{Identifier: account.Identifier, TenantId: account.TenantID}, nil
 }

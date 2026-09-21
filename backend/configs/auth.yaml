@@ -1,12 +1,10 @@
 authn:
   jwt:
     access_token_expires: 3600s
+    refresh_token_expires: 2592000s
     optional_auth:
       match:
-        - /base.v1.SseService/SubscribeSse
         - /system.app.v1.BaseMenuService/ListBaseMenu
-        - /base.v1.LoginService/Logout
-    refresh_token_expires: 2592000s
     white_list:
       match:
         - /base.v1.ConfigService/GetConfig

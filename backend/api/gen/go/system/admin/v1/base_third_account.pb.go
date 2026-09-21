@@ -80,7 +80,8 @@ func (x *GetBaseThirdAccountIdentifierRequest) GetProvider() string {
 // 用户三方账号标识响应
 type GetBaseThirdAccountIdentifierResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Identifier    string                 `protobuf:"bytes,1,opt,name=identifier,proto3" json:"identifier,omitempty"` // 三方账号唯一标识
+	Identifier    string                 `protobuf:"bytes,1,opt,name=identifier,proto3" json:"identifier,omitempty"`              // 三方账号唯一标识
+	TenantId      int64                  `protobuf:"varint,2,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"` // 租户ID
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -122,6 +123,13 @@ func (x *GetBaseThirdAccountIdentifierResponse) GetIdentifier() string {
 	return ""
 }
 
+func (x *GetBaseThirdAccountIdentifierResponse) GetTenantId() int64 {
+	if x != nil {
+		return x.TenantId
+	}
+	return 0
+}
+
 var File_system_admin_v1_base_third_account_proto protoreflect.FileDescriptor
 
 const file_system_admin_v1_base_third_account_proto_rawDesc = "" +
@@ -131,11 +139,12 @@ const file_system_admin_v1_base_third_account_proto_rawDesc = "" +
 	"\auser_id\x18\x01 \x01(\x03Bu\xbaG\v\x92\x02\b用户ID\xbaHd\xba\x01a\n" +
 	"?system.admin.base.third.account.get_identifier.user_id.required\x12\x14用户ID不能为空\x1a\bthis > 0R\x06userId\x12\xae\x01\n" +
 	"\bprovider\x18\x02 \x01(\tB\x91\x01\xbaG\x15\x92\x02\x12登录方式标识\xbaHv\xba\x01s\n" +
-	"@system.admin.base.third.account.get_identifier.provider.required\x12\x1e登录方式标识不能为空\x1a\x0fthis.size() > 0R\bprovider\"g\n" +
+	"@system.admin.base.third.account.get_identifier.provider.required\x12\x1e登录方式标识不能为空\x1a\x0fthis.size() > 0R\bprovider\"\x94\x01\n" +
 	"%GetBaseThirdAccountIdentifierResponse\x12>\n" +
 	"\n" +
 	"identifier\x18\x01 \x01(\tB\x1e\xbaG\x1b\x92\x02\x18三方账号唯一标识R\n" +
-	"identifier2\xaa\x01\n" +
+	"identifier\x12+\n" +
+	"\ttenant_id\x18\x02 \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDR\btenantId2\xaa\x01\n" +
 	"\x17BaseThirdAccountService\x12\x8e\x01\n" +
 	"\x1dGetBaseThirdAccountIdentifier\x125.system.admin.v1.GetBaseThirdAccountIdentifierRequest\x1a6.system.admin.v1.GetBaseThirdAccountIdentifierResponseB\xd7\x01\n" +
 	"\x13com.system.admin.v1B\x15BaseThirdAccountProtoP\x01ZKgithub.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1;adminv1\xa2\x02\x03SAX\xaa\x02\x0fSystem.Admin.V1\xca\x02\x0fSystem\\Admin\\V1\xe2\x02\x1bSystem\\Admin\\V1\\GPBMetadata\xea\x02\x11System::Admin::V1b\x06proto3"

@@ -62,7 +62,8 @@ func (c *AiMessageCase) ListAiMessage(ctx context.Context, req *basev1.ListAiMes
 	}
 
 	query := c.aiMessageRepo.Query(ctx).AiMessage
-	opts := make([]repository.QueryOption, 0, 2)
+	opts := make([]repository.QueryOption, 0, 3)
+	opts = append(opts, repository.Where(query.TenantID.Eq(session.TenantID)))
 	opts = append(opts, repository.Where(query.SessionID.Eq(session.ID)))
 	opts = append(opts, repository.Order(query.CreatedAt.Asc(), query.ID.Asc()))
 	var list []*models.AiMessage
@@ -88,7 +89,7 @@ func (c *AiMessageCase) UpdateAiMessage(ctx context.Context, req *basev1.UpdateA
 	if err != nil {
 		return nil, err
 	}
-	err = c.ensureLastAiMessage(ctx, session.ID, message.ID)
+	err = c.ensureLastAiMessage(ctx, session.TenantID, session.ID, message.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -105,7 +106,8 @@ func (c *AiMessageCase) DeleteAiMessage(ctx context.Context, req *basev1.DeleteA
 		return err
 	}
 	query := c.aiMessageRepo.Query(ctx).AiMessage
-	opts := make([]repository.QueryOption, 0, 1)
+	opts := make([]repository.QueryOption, 0, 2)
+	opts = append(opts, repository.Where(query.TenantID.Eq(message.TenantID)))
 	opts = append(opts, repository.Where(query.ID.Eq(message.ID)))
 	return c.aiMessageRepo.Delete(ctx, opts...)
 }
@@ -268,13 +270,14 @@ func (c *AiMessageCase) prepareNewAiMessage(ctx context.Context, req *basev1.Sen
 		return nil, nil, "", nil, nil, nil, "", err
 	}
 	var history []ai.Message
-	history, err = c.buildHistory(ctx, session.ID, aiHistorySize)
+	history, err = c.buildHistory(ctx, session.TenantID, session.ID, aiHistorySize)
 	if err != nil {
 		return nil, nil, "", nil, nil, nil, "", err
 	}
 
 	now := time.Now()
 	message := &models.AiMessage{
+		TenantID:      session.TenantID,
 		SessionID:     session.ID,
 		UserID:        session.UserID,
 		InputContent:  ai.MarshalInputContent(content, attachments),
@@ -302,9 +305,10 @@ func (c *AiMessageCase) prepareNewAiMessage(ctx context.Context, req *basev1.Sen
 }
 
 // buildHistory 构造问答历史上下文。
-func (c *AiMessageCase) buildHistory(ctx context.Context, sessionID int64, historySize int) ([]ai.Message, error) {
+func (c *AiMessageCase) buildHistory(ctx context.Context, tenantID int64, sessionID int64, historySize int) ([]ai.Message, error) {
 	query := c.aiMessageRepo.Query(ctx).AiMessage
-	opts := make([]repository.QueryOption, 0, 4)
+	opts := make([]repository.QueryOption, 0, 5)
+	opts = append(opts, repository.Where(query.TenantID.Eq(tenantID)))
 	opts = append(opts, repository.Where(query.SessionID.Eq(sessionID)))
 	opts = append(opts, repository.Where(query.Status.Eq(int32(basev1.AiMessageStatus_AI_MESSAGE_STATUS_SUCCESS))))
 	opts = append(opts, repository.Order(query.CreatedAt.Desc(), query.ID.Desc()))
@@ -339,7 +343,7 @@ func (c *AiMessageCase) regenerateAiMessageWithContent(ctx context.Context, sess
 		return nil, err
 	}
 	var history []ai.Message
-	history, err = c.buildHistoryBeforeMessage(ctx, session.ID, message, aiHistorySize)
+	history, err = c.buildHistoryBeforeMessage(ctx, session.TenantID, session.ID, message, aiHistorySize)
 	if err != nil {
 		return nil, err
 	}
@@ -420,9 +424,10 @@ func (c *AiMessageCase) buildAiAttachments(attachments []*basev1.AiAttachment) (
 }
 
 // buildHistoryBeforeMessage 构造指定消息之前的上下文。
-func (c *AiMessageCase) buildHistoryBeforeMessage(ctx context.Context, sessionID int64, message *models.AiMessage, historySize int) ([]ai.Message, error) {
+func (c *AiMessageCase) buildHistoryBeforeMessage(ctx context.Context, tenantID int64, sessionID int64, message *models.AiMessage, historySize int) ([]ai.Message, error) {
 	query := c.aiMessageRepo.Query(ctx).AiMessage
-	opts := make([]repository.QueryOption, 0, 6)
+	opts := make([]repository.QueryOption, 0, 7)
+	opts = append(opts, repository.Where(query.TenantID.Eq(tenantID)))
 	opts = append(opts, repository.Where(query.SessionID.Eq(sessionID)))
 	opts = append(opts, repository.Where(query.Status.Eq(int32(basev1.AiMessageStatus_AI_MESSAGE_STATUS_SUCCESS))))
 	opts = append(opts, repository.Where(query.CreatedAt.Lt(message.CreatedAt)))
@@ -557,7 +562,7 @@ func (c *AiMessageCase) finishAiMessage(
 	err := c.tx.Transaction(ctx, func(txCtx context.Context) error {
 		query := c.aiMessageRepo.Query(txCtx).AiMessage
 		_, updateErr := query.WithContext(txCtx).
-			Where(query.ID.Eq(message.ID)).
+			Where(query.TenantID.Eq(message.TenantID), query.ID.Eq(message.ID)).
 			UpdateSimple(
 				query.OutputContent.Value(outputContent),
 				query.Tools.Value(tools),
@@ -604,7 +609,7 @@ func (c *AiMessageCase) ensureAiActionCurrent(ctx context.Context, session *mode
 		return aiExpiredActionError(action.GetSourceMessageId(), strconv.FormatInt(sourceMessageID, 10))
 	}
 	var message *models.AiMessage
-	message, err = c.findLatestAiMessage(ctx, session.ID, session.UserID)
+	message, err = c.findLatestAiMessage(ctx, session.TenantID, session.ID, session.UserID)
 	if err != nil {
 		return err
 	}
@@ -622,9 +627,10 @@ func (c *AiMessageCase) ensureAiActionCurrent(ctx context.Context, session *mode
 }
 
 // findLatestAiMessage 查询会话中最后一轮消息。
-func (c *AiMessageCase) findLatestAiMessage(ctx context.Context, sessionID int64, userID int64) (*models.AiMessage, error) {
+func (c *AiMessageCase) findLatestAiMessage(ctx context.Context, tenantID int64, sessionID int64, userID int64) (*models.AiMessage, error) {
 	query := c.aiMessageRepo.Query(ctx).AiMessage
-	opts := make([]repository.QueryOption, 0, 4)
+	opts := make([]repository.QueryOption, 0, 5)
+	opts = append(opts, repository.Where(query.TenantID.Eq(tenantID)))
 	opts = append(opts, repository.Where(query.SessionID.Eq(sessionID)))
 	opts = append(opts, repository.Where(query.UserID.Eq(userID)))
 	opts = append(opts, repository.Order(query.CreatedAt.Desc(), query.ID.Desc()))
@@ -644,7 +650,7 @@ func (c *AiMessageCase) markAiMessageGenerating(ctx context.Context, message *mo
 	inputContent := ai.MarshalInputContent(content, attachments)
 	query := c.aiMessageRepo.Query(ctx).AiMessage
 	_, err := query.WithContext(ctx).
-		Where(query.ID.Eq(message.ID)).
+		Where(query.TenantID.Eq(message.TenantID), query.ID.Eq(message.ID)).
 		UpdateSimple(
 			query.InputContent.Value(inputContent),
 			query.OutputContent.Value(ai.MarshalEmptyOutputContent()),
@@ -682,8 +688,9 @@ func (c *AiMessageCase) findCurrentUserMessage(ctx context.Context, rawSessionID
 	}
 
 	query := c.aiMessageRepo.Query(ctx).AiMessage
-	opts := make([]repository.QueryOption, 0, 4)
+	opts := make([]repository.QueryOption, 0, 5)
 	opts = append(opts, repository.Where(query.ID.Eq(messageID)))
+	opts = append(opts, repository.Where(query.TenantID.Eq(session.TenantID)))
 	opts = append(opts, repository.Where(query.SessionID.Eq(session.ID)))
 	opts = append(opts, repository.Where(query.UserID.Eq(session.UserID)))
 	var message *models.AiMessage
@@ -698,9 +705,10 @@ func (c *AiMessageCase) findCurrentUserMessage(ctx context.Context, rawSessionID
 }
 
 // ensureLastAiMessage 确认当前消息是会话最后一轮消息。
-func (c *AiMessageCase) ensureLastAiMessage(ctx context.Context, sessionID int64, messageID int64) error {
+func (c *AiMessageCase) ensureLastAiMessage(ctx context.Context, tenantID int64, sessionID int64, messageID int64) error {
 	query := c.aiMessageRepo.Query(ctx).AiMessage
-	opts := make([]repository.QueryOption, 0, 3)
+	opts := make([]repository.QueryOption, 0, 4)
+	opts = append(opts, repository.Where(query.TenantID.Eq(tenantID)))
 	opts = append(opts, repository.Where(query.SessionID.Eq(sessionID)))
 	opts = append(opts, repository.Order(query.CreatedAt.Desc(), query.ID.Desc()))
 	opts = append(opts, repository.Limit(1))
@@ -727,6 +735,7 @@ func toAiMessageDTO(model *models.AiMessage) *basev1.AiMessage {
 	token := ai.ParseTokenUsage(model.Token)
 	return &basev1.AiMessage{
 		Id:            strconv.FormatInt(model.ID, 10),
+		TenantId:      model.TenantID,
 		InputContent:  toAiInputContent(inputContent),
 		OutputContent: toAiOutputContent(outputContent),
 		Attachments:   ai.ParseAttachments(model.Attachments),

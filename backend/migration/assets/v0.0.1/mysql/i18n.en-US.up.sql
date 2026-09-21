@@ -93,7 +93,7 @@ INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VA
 INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (4, 10003, 'en-US', 'Failure');
 INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (4, 11001, 'en-US', 'Built-in');
 INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (4, 11002, 'en-US', 'Admin Console');
-INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (4, 11003, 'en-US', 'Application');
+INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (4, 11003, 'en-US', 'Mobile');
 INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (4, 11501, 'en-US', 'Text');
 INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (4, 11502, 'en-US', 'Image');
 INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (4, 11503, 'en-US', 'Rich Text');
@@ -462,7 +462,7 @@ INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VA
 INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (5, 99010100, 'en-US', 'Login');
 INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (5, 99010101, 'en-US', 'Terms');
 INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (5, 99010200, 'en-US', 'Web Page');
-INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (5, 99040000, 'en-US', 'Message Center');
+INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (5, 99040000, 'en-US', 'Messages');
 INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (5, 99040100, 'en-US', 'Message Details');
 INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (5, 99090000, 'en-US', 'My Account');
 INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (5, 99090100, 'en-US', 'Profile');

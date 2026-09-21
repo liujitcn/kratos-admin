@@ -36,6 +36,7 @@ func newBaseAPI(db *gorm.DB, opts ...gen.DOOption) baseAPI {
 	_baseAPI.Operation = field.NewString(tableName, "operation")
 	_baseAPI.Method = field.NewString(tableName, "method")
 	_baseAPI.Path = field.NewString(tableName, "path")
+	_baseAPI.TenantResponse = field.NewBool(tableName, "tenant_response")
 	_baseAPI.McpStatus = field.NewInt32(tableName, "mcp_status")
 	_baseAPI.AgentStatus = field.NewInt32(tableName, "agent_status")
 	_baseAPI.DeletedAt = field.NewField(tableName, "deleted_at")
@@ -49,19 +50,20 @@ func newBaseAPI(db *gorm.DB, opts ...gen.DOOption) baseAPI {
 type baseAPI struct {
 	baseAPIDo baseAPIDo
 
-	ALL         field.Asterisk
-	ID          field.Int64  // API ID
-	ToolName    field.String // 工具名
-	ToolPrompts field.String // 工具提示词
-	ServiceName field.String // 服务名
-	ServiceDesc field.String // 服务描述
-	Desc        field.String // 描述
-	Operation   field.String // 操作方法
-	Method      field.String // 请求方式
-	Path        field.String // 请求地址
-	McpStatus   field.Int32  // MCP工具状态：枚举【Status】
-	AgentStatus field.Int32  // Agent工具状态：枚举【Status】
-	DeletedAt   field.Field  // 删除时间
+	ALL            field.Asterisk
+	ID             field.Int64  // API ID
+	ToolName       field.String // 工具名
+	ToolPrompts    field.String // 工具提示词
+	ServiceName    field.String // 服务名
+	ServiceDesc    field.String // 服务描述
+	Desc           field.String // 描述
+	Operation      field.String // 操作方法
+	Method         field.String // 请求方式
+	Path           field.String // 请求地址
+	TenantResponse field.Bool   // 响应是否包含租户字段
+	McpStatus      field.Int32  // MCP工具状态：枚举【Status】
+	AgentStatus    field.Int32  // Agent工具状态：枚举【Status】
+	DeletedAt      field.Field  // 删除时间
 
 	fieldMap map[string]field.Expr
 }
@@ -87,6 +89,7 @@ func (b *baseAPI) updateTableName(table string) *baseAPI {
 	b.Operation = field.NewString(table, "operation")
 	b.Method = field.NewString(table, "method")
 	b.Path = field.NewString(table, "path")
+	b.TenantResponse = field.NewBool(table, "tenant_response")
 	b.McpStatus = field.NewInt32(table, "mcp_status")
 	b.AgentStatus = field.NewInt32(table, "agent_status")
 	b.DeletedAt = field.NewField(table, "deleted_at")
@@ -114,7 +117,7 @@ func (b *baseAPI) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (b *baseAPI) fillFieldMap() {
-	b.fieldMap = make(map[string]field.Expr, 12)
+	b.fieldMap = make(map[string]field.Expr, 13)
 	b.fieldMap["id"] = b.ID
 	b.fieldMap["tool_name"] = b.ToolName
 	b.fieldMap["tool_prompts"] = b.ToolPrompts
@@ -124,6 +127,7 @@ func (b *baseAPI) fillFieldMap() {
 	b.fieldMap["operation"] = b.Operation
 	b.fieldMap["method"] = b.Method
 	b.fieldMap["path"] = b.Path
+	b.fieldMap["tenant_response"] = b.TenantResponse
 	b.fieldMap["mcp_status"] = b.McpStatus
 	b.fieldMap["agent_status"] = b.AgentStatus
 	b.fieldMap["deleted_at"] = b.DeletedAt

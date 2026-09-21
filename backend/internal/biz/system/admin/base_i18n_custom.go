@@ -14,6 +14,7 @@ import (
 	"github.com/liujitcn/go-utils/mapper"
 	_string "github.com/liujitcn/go-utils/string"
 	"github.com/liujitcn/gorm-kit/repository"
+	kitgorm "github.com/liujitcn/kratos-kit/database/gorm"
 )
 
 // BaseI18nCustomCase 管理前端国际化自定义翻译信息。
@@ -40,9 +41,16 @@ func NewBaseI18nCustomCase(baseCase *biz.BaseCase, tx data.Transaction, repo *da
 
 // PageBaseI18nCustom 分页查询国际化自定义翻译信息。
 func (c *BaseI18nCustomCase) PageBaseI18nCustom(ctx context.Context, req *adminv1.PageBaseI18nCustomRequest) (*adminv1.PageBaseI18nCustomResponse, error) {
+	tenantID, err := c.queryTenantID(ctx, req.GetTenantId())
+	if err != nil {
+		return nil, err
+	}
 	query := c.Query(ctx).BaseI18NCustom
-	opts := make([]repository.QueryOption, 0, 6)
+	opts := make([]repository.QueryOption, 0, 7)
 	opts = append(opts, repository.Order(query.CreatedAt.Desc()), repository.Order(query.ID.Desc()))
+	if tenantID > 0 {
+		opts = append(opts, repository.Where(query.TenantID.Eq(tenantID)))
+	}
 	if req.Site != nil {
 		opts = append(opts, repository.Where(query.Site.Eq(int32(req.GetSite()))))
 	}
@@ -55,7 +63,9 @@ func (c *BaseI18nCustomCase) PageBaseI18nCustom(ctx context.Context, req *adminv
 	if req.Status != nil {
 		opts = append(opts, repository.Where(query.Status.Eq(int32(req.GetStatus()))))
 	}
-	list, total, err := c.Page(ctx, req.GetPageNum(), req.GetPageSize(), opts...)
+	var list []*models.BaseI18NCustom
+	var total int64
+	list, total, err = c.Page(ctx, req.GetPageNum(), req.GetPageSize(), opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -72,6 +82,9 @@ func (c *BaseI18nCustomCase) GetBaseI18nCustom(ctx context.Context, id int64) (*
 	if err != nil {
 		return nil, err
 	}
+	if err = c.validateTenantAccess(ctx, item.TenantID); err != nil {
+		return nil, err
+	}
 	return c.formMapper.ToDTO(item), nil
 }
 
@@ -79,6 +92,9 @@ func (c *BaseI18nCustomCase) GetBaseI18nCustom(ctx context.Context, id int64) (*
 func (c *BaseI18nCustomCase) CreateBaseI18nCustom(ctx context.Context, req *adminv1.BaseI18nCustomForm) error {
 	authInfo, err := c.GetAuthInfo(ctx)
 	if err != nil {
+		return err
+	}
+	if err = c.validateTenantAccess(ctx, req.GetTenantId()); err != nil {
 		return err
 	}
 	if err = c.validateLocale(ctx, req.GetLocale()); err != nil {
@@ -113,11 +129,15 @@ func (c *BaseI18nCustomCase) UpdateBaseI18nCustom(ctx context.Context, req *admi
 	if err != nil {
 		return err
 	}
+	if err = c.validateTenantAccess(ctx, current.TenantID); err != nil {
+		return err
+	}
 	if err = c.validateLocale(ctx, req.GetLocale()); err != nil {
 		return err
 	}
 	item := c.formMapper.ToEntity(req)
 	item.ID = current.ID
+	item.TenantID = current.TenantID
 	item.Key = current.Key
 	item.Locale = current.Locale
 	if item.Status == 0 {
@@ -142,6 +162,16 @@ func (c *BaseI18nCustomCase) DeleteBaseI18nCustom(ctx context.Context, ids strin
 	if len(idList) == 0 {
 		return nil
 	}
+	query := c.Query(ctx).BaseI18NCustom
+	items, err := c.List(ctx, repository.Where(query.ID.In(idList...)))
+	if err != nil {
+		return err
+	}
+	for _, item := range items {
+		if err = c.validateTenantAccess(ctx, item.TenantID); err != nil {
+			return err
+		}
+	}
 	return c.tx.Transaction(ctx, func(ctx context.Context) error {
 		return c.DeleteByIDs(ctx, idList)
 	})
@@ -156,11 +186,42 @@ func (c *BaseI18nCustomCase) SetBaseI18nCustomStatus(ctx context.Context, req *a
 	if err != nil {
 		return err
 	}
-	_, err = c.FindByID(ctx, req.GetId())
+	var item *models.BaseI18NCustom
+	item, err = c.FindByID(ctx, req.GetId())
 	if err != nil {
 		return err
 	}
-	return c.UpdateByID(ctx, &models.BaseI18NCustom{ID: req.GetId(), Status: int32(req.GetStatus()), UpdatedBy: authInfo.UserId, UpdatedAt: time.Now()})
+	if err = c.validateTenantAccess(ctx, item.TenantID); err != nil {
+		return err
+	}
+	item.Status = int32(req.GetStatus())
+	item.UpdatedBy = authInfo.UserId
+	item.UpdatedAt = time.Now()
+	return c.UpdateByID(ctx, item)
+}
+
+// queryTenantID 返回当前身份允许查询的租户编号，零表示平台管理员查询全部租户。
+func (c *BaseI18nCustomCase) queryTenantID(ctx context.Context, requestedTenantID int64) (int64, error) {
+	authInfo, err := c.GetAuthInfo(ctx)
+	if err != nil {
+		return 0, err
+	}
+	if authInfo.TenantCode != kitgorm.DefaultTenantCode {
+		return authInfo.TenantId, nil
+	}
+	return requestedTenantID, nil
+}
+
+// validateTenantAccess 校验当前身份能否管理目标租户的自定义翻译。
+func (c *BaseI18nCustomCase) validateTenantAccess(ctx context.Context, tenantID int64) error {
+	authInfo, err := c.GetAuthInfo(ctx)
+	if err != nil {
+		return err
+	}
+	if authInfo.TenantCode != kitgorm.DefaultTenantCode && tenantID != authInfo.TenantId {
+		return errorsx.PermissionDenied("无权管理其他租户的自定义翻译")
+	}
+	return nil
 }
 
 // validateLocale 校验自定义翻译语言是否为当前启用语言。

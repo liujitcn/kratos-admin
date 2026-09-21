@@ -85,6 +85,8 @@ export const coreModule = defineKratosAppModule({
   icons: {
     HOME_DEFAULT: 'static/tabs/home_default.png',
     HOME_SELECTED: 'static/tabs/home_selected.png',
+    MESSAGE_DEFAULT: 'static/tabs/message_default.png',
+    MESSAGE_SELECTED: 'static/tabs/message_selected.png',
     USER_DEFAULT: 'static/tabs/user_default.png',
     USER_SELECTED: 'static/tabs/user_selected.png',
   },

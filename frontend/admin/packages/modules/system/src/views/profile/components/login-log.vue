@@ -69,7 +69,6 @@ const columns = computed<ColumnProps[]>(() => [
     prop: "device_id",
     label: t("system.profile.login_log.field.device_id"),
     minWidth: 160,
-    align: "left",
     render: scope => (scope.row as BaseLoginLog).device_id || (scope.row as BaseLoginLog).user_agent || "--"
   },
   { prop: "reason", label: t("system.profile.login_log.field.reason"), minWidth: 180 }

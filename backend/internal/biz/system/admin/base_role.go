@@ -252,10 +252,8 @@ func (c *BaseRoleCase) SetBaseRoleStatus(ctx context.Context, req *adminv1.SetBa
 	if err != nil {
 		return err
 	}
-	return c.UpdateByID(ctx, &models.BaseRole{
-		ID:     req.GetId(),
-		Status: req.GetStatus(),
-	})
+	baseRole.Status = req.GetStatus()
+	return c.UpdateByID(ctx, baseRole)
 }
 
 // SetBaseRoleMenu 设置角色菜单
@@ -344,7 +342,7 @@ func (c *BaseRoleCase) validateAssignableMenus(ctx context.Context, targetTenant
 	if authInfo.TenantCode == gorm.DefaultTenantCode && targetTenantID > 0 && targetTenantID != authInfo.TenantId {
 		query := c.Query(ctx).BaseRole
 		opts := make([]repository.QueryOption, 0, 2)
-		opts = append(opts, repository.Select(query.Menus, query.Status))
+		opts = append(opts, repository.Select(query.TenantID, query.Menus, query.Status))
 		opts = append(opts, repository.Where(query.Code.Eq(_const.BASE_ROLE_CODE_TENANT)))
 		allowedBaseRole, err = c.Find(ctx, opts...)
 		if err != nil {
@@ -357,7 +355,7 @@ func (c *BaseRoleCase) validateAssignableMenus(ctx context.Context, targetTenant
 		}
 		query := c.Query(ctx).BaseRole
 		allowedBaseRole, err = c.Find(ctx,
-			repository.Select(query.Menus, query.Status),
+			repository.Select(query.TenantID, query.Menus, query.Status),
 			repository.Where(query.ID.Eq(authInfo.RoleId)),
 		)
 		if err != nil {

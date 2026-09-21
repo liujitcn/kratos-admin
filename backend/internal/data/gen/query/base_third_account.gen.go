@@ -28,6 +28,7 @@ func newBaseThirdAccount(db *gorm.DB, opts ...gen.DOOption) baseThirdAccount {
 	tableName := _baseThirdAccount.baseThirdAccountDo.TableName()
 	_baseThirdAccount.ALL = field.NewAsterisk(tableName)
 	_baseThirdAccount.ID = field.NewInt64(tableName, "id")
+	_baseThirdAccount.TenantID = field.NewInt64(tableName, "tenant_id")
 	_baseThirdAccount.UserID = field.NewInt64(tableName, "user_id")
 	_baseThirdAccount.Provider = field.NewString(tableName, "provider")
 	_baseThirdAccount.Identifier = field.NewString(tableName, "identifier")
@@ -46,6 +47,7 @@ type baseThirdAccount struct {
 
 	ALL        field.Asterisk
 	ID         field.Int64  // 三方账号ID
+	TenantID   field.Int64  // 租户ID
 	UserID     field.Int64  // 用户ID
 	Provider   field.String // 三方登录提供商
 	Identifier field.String // 三方唯一标识
@@ -69,6 +71,7 @@ func (b baseThirdAccount) As(alias string) *baseThirdAccount {
 func (b *baseThirdAccount) updateTableName(table string) *baseThirdAccount {
 	b.ALL = field.NewAsterisk(table)
 	b.ID = field.NewInt64(table, "id")
+	b.TenantID = field.NewInt64(table, "tenant_id")
 	b.UserID = field.NewInt64(table, "user_id")
 	b.Provider = field.NewString(table, "provider")
 	b.Identifier = field.NewString(table, "identifier")
@@ -103,8 +106,9 @@ func (b *baseThirdAccount) GetFieldByName(fieldName string) (field.OrderExpr, bo
 }
 
 func (b *baseThirdAccount) fillFieldMap() {
-	b.fieldMap = make(map[string]field.Expr, 7)
+	b.fieldMap = make(map[string]field.Expr, 8)
 	b.fieldMap["id"] = b.ID
+	b.fieldMap["tenant_id"] = b.TenantID
 	b.fieldMap["user_id"] = b.UserID
 	b.fieldMap["provider"] = b.Provider
 	b.fieldMap["identifier"] = b.Identifier

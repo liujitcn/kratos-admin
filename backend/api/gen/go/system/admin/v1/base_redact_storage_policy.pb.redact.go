@@ -66,6 +66,28 @@ func (s *redactedBaseRedactStoragePolicyServiceServer) PageBaseRedactStoragePoli
 	return res, err
 }
 
+// ListBaseRedactStorageTable is the redacted wrapper for the actual BaseRedactStoragePolicyServiceServer.ListBaseRedactStorageTable method
+// Unary RPC
+func (s *redactedBaseRedactStoragePolicyServiceServer) ListBaseRedactStorageTable(ctx context.Context, in *ListBaseRedactStorageTableRequest) (*ListBaseRedactStorageTableResponse, error) {
+	res, err := s.srv.ListBaseRedactStorageTable(ctx, in)
+	if !s.bypass.CheckInternal(ctx) {
+		// Apply redaction to the response
+		redact.ApplyWith(redact.WithDirection(redact.WithOperation(ctx, "/system.admin.v1.BaseRedactStoragePolicyService/ListBaseRedactStorageTable"), redact.DirectionResponse), nil, res)
+	}
+	return res, err
+}
+
+// ListBaseRedactStorageColumn is the redacted wrapper for the actual BaseRedactStoragePolicyServiceServer.ListBaseRedactStorageColumn method
+// Unary RPC
+func (s *redactedBaseRedactStoragePolicyServiceServer) ListBaseRedactStorageColumn(ctx context.Context, in *ListBaseRedactStorageColumnRequest) (*ListBaseRedactStorageColumnResponse, error) {
+	res, err := s.srv.ListBaseRedactStorageColumn(ctx, in)
+	if !s.bypass.CheckInternal(ctx) {
+		// Apply redaction to the response
+		redact.ApplyWith(redact.WithDirection(redact.WithOperation(ctx, "/system.admin.v1.BaseRedactStoragePolicyService/ListBaseRedactStorageColumn"), redact.DirectionResponse), nil, res)
+	}
+	return res, err
+}
+
 // GetBaseRedactStoragePolicy is the redacted wrapper for the actual BaseRedactStoragePolicyServiceServer.GetBaseRedactStoragePolicy method
 // Unary RPC
 func (s *redactedBaseRedactStoragePolicyServiceServer) GetBaseRedactStoragePolicy(ctx context.Context, in *GetBaseRedactStoragePolicyRequest) (*BaseRedactStoragePolicyForm, error) {
@@ -121,17 +143,6 @@ func (s *redactedBaseRedactStoragePolicyServiceServer) SetBaseRedactStoragePolic
 	return res, err
 }
 
-// ListBaseRedactStorageColumn is the redacted wrapper for the actual BaseRedactStoragePolicyServiceServer.ListBaseRedactStorageColumn method
-// Unary RPC
-func (s *redactedBaseRedactStoragePolicyServiceServer) ListBaseRedactStorageColumn(ctx context.Context, in *ListBaseRedactStorageColumnRequest) (*ListBaseRedactStorageColumnResponse, error) {
-	res, err := s.srv.ListBaseRedactStorageColumn(ctx, in)
-	if !s.bypass.CheckInternal(ctx) {
-		// Apply redaction to the response
-		redact.ApplyWith(redact.WithDirection(redact.WithOperation(ctx, "/system.admin.v1.BaseRedactStoragePolicyService/ListBaseRedactStorageColumn"), redact.DirectionResponse), nil, res)
-	}
-	return res, err
-}
-
 // Ensure PageBaseRedactStoragePolicyRequest implements the Redactor interface at compile time.
 var _ redact.Redactor = (*PageBaseRedactStoragePolicyRequest)(nil)
 
@@ -148,6 +159,8 @@ func (x *PageBaseRedactStoragePolicyRequest) Redact() {
 	// Safe field: RuleId
 
 	// Safe field: SourceName
+
+	// Safe field: TenantId
 
 	// Safe field: Status
 
@@ -202,6 +215,8 @@ func (x *BaseRedactStoragePolicyForm) Redact() {
 	// Safe field: RuleParams
 
 	// Safe field: SourceName
+
+	// Safe field: TenantId
 
 	// Safe field: Status
 
@@ -285,6 +300,8 @@ func (x *BaseRedactStoragePolicy) Redact() {
 
 	// Safe field: SourceName
 
+	// Safe field: TenantId
+
 	// Safe field: Status
 
 	// Safe field: Remark
@@ -292,6 +309,44 @@ func (x *BaseRedactStoragePolicy) Redact() {
 	// Safe field: CreatedAt
 
 	// Safe field: UpdatedAt
+}
+
+// Ensure ListBaseRedactStorageTableRequest implements the Redactor interface at compile time.
+var _ redact.Redactor = (*ListBaseRedactStorageTableRequest)(nil)
+
+// Redact method implementation for ListBaseRedactStorageTableRequest
+func (x *ListBaseRedactStorageTableRequest) Redact() {
+	if x == nil {
+		return
+	}
+
+	// Safe field: SourceName
+}
+
+// Ensure BaseRedactStorageTable implements the Redactor interface at compile time.
+var _ redact.Redactor = (*BaseRedactStorageTable)(nil)
+
+// Redact method implementation for BaseRedactStorageTable
+func (x *BaseRedactStorageTable) Redact() {
+	if x == nil {
+		return
+	}
+
+	// Safe field: Name
+
+	// Safe field: Comment
+}
+
+// Ensure ListBaseRedactStorageTableResponse implements the Redactor interface at compile time.
+var _ redact.Redactor = (*ListBaseRedactStorageTableResponse)(nil)
+
+// Redact method implementation for ListBaseRedactStorageTableResponse
+func (x *ListBaseRedactStorageTableResponse) Redact() {
+	if x == nil {
+		return
+	}
+
+	// Safe field: Tables
 }
 
 // Ensure ListBaseRedactStorageColumnRequest implements the Redactor interface at compile time.

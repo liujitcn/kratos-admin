@@ -975,7 +975,6 @@ func (c *renderer) renderFrontendColumns(table *Table, columns []*CodeGenColumn,
 %s        prop: "tenant_id",
         label: t(localeKeyPrefix + ".field.tenant_id"),
         minWidth: 140,
-        align: "left",
         showOverflowTooltip: true,
 %s        enum: requestTenantOptions
       }] satisfies ColumnProps[])
@@ -1636,7 +1635,7 @@ func renderFrontendDateImport(columns []*CodeGenColumn) string {
 func renderFrontendColumn(localePrefix string, permissionPrefix string, entityName string, column *CodeGenColumn, statusMethod *Proto, statusColumnCount int, align string) string {
 	alignConfig := ""
 	label := fmt.Sprintf("t(%q)", localePrefix+".field."+stringcase.ToSnakeCase(column.Name))
-	if align != "" {
+	if align != "" && align != "left" {
 		alignConfig = fmt.Sprintf(`, align: %q`, align)
 	}
 	if column.IsStatusField == 1 && (column.StatusTableColumn == 1 || column.StatusSearch == 1) {

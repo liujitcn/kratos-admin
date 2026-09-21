@@ -74,7 +74,7 @@ make run-only
 make run-full
 ```
 
-`run-full` 使用 `configs/full`，该目录按当前 `kratos-kit/api` 版本保留完整配置字段。最小配置只保留服务启动和本地开发所需字段；完整配置中的注册中心、远程配置、通知、AI、OAuth、MFA、日志等组件按需填写后启用。MySQL、Redis 和本地根密钥分别配置在 `configs/data.yaml`、`configs/oss.yaml`、`configs/key.yaml`；完整配置对应文件位于 `configs/full`。启动前需保证已启用的中间件可访问、Vault 已解封，并在终端或 IDE 中提供具有根密钥读取权限的 `VAULT_TOKEN`。同一应用的各节点应使用一致的根密钥引用和 `scope`；密钥服务不可用、未解封、密钥不存在或 token 无效时，启动失败，不回退本地文件。中间件的部署、初始化和凭据维护由运行环境负责，不与项目启动联动。
+`run-full` 使用 `configs/full`，该目录按当前 `kratos-kit/api` 版本保留完整配置字段。最小配置只保留服务启动和本地开发所需字段；完整配置中的注册中心、远程配置、通知、AI、OAuth、MFA、日志等组件按需填写后启用。MySQL、本地对象存储和本地根密钥分别配置在 `configs/data.yaml`、`configs/oss.yaml`、`configs/key.yaml`；Redis 与队列配置可选，省略时缓存、队列和任务锁使用进程内实现，完整配置示例位于 `configs/full`。启动前需保证已启用的中间件可访问、Vault 已解封，并在终端或 IDE 中提供具有根密钥读取权限的 `VAULT_TOKEN`。同一应用的各节点应使用一致的根密钥引用和 `scope`；密钥服务不可用、未解封、密钥不存在或 token 无效时，启动失败，不回退本地文件。中间件的部署、初始化和凭据维护由运行环境负责，不与项目启动联动。
 
 默认配置目录为 `./configs`，默认不加载环境覆盖文件。基础配置使用 `<name>.yaml`；需要环境覆盖时显式传入 `APP_ENV`，加载同一目录下的 `<name>.<env>.yaml`。完整配置目录是独立的 `./configs/full`，不会与最小配置目录合并。可以覆盖配置目录、运行环境或追加启动参数：
 
@@ -105,7 +105,7 @@ make -C backend run-only APP_ENV=https
 
 独立入口注入 `kratoscore.ProviderSet` 与内部模块 ProviderSet；Core 负责统一创建和管理 HTTP、gRPC、MCP、SSE、队列与定时任务运行时。Admin 注册六张完整审计日志模型并负责自动迁移；Core 异步写入 API/策略日志，Admin 异步写入登录、操作、数据访问和权限日志。
 
-定时任务每次执行前按任务编号取得 Redis 分布式锁，定时触发在锁被其他实例持有时跳过，手工执行则返回锁竞争错误。Redis 锁初始化失败时会记录警告并降级为进程内内存锁；该模式只适用于单实例运行，多实例部署必须确保各实例连接同一 Redis 并处于 Redis 锁模式。
+定时任务每次执行前按任务编号取得执行锁，定时触发在锁被其他实例持有时跳过，手工执行则返回锁竞争错误。未配置 Redis 时使用进程内内存锁，适用于单实例运行；多实例部署必须确保各实例连接同一 Redis 并处于 Redis 锁模式。
 
 ## 修改后执行
 

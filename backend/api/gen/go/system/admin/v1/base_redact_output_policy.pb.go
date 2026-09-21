@@ -91,6 +91,7 @@ type PageBaseRedactOutputPolicyRequest struct {
 	MessageRef    string                      `protobuf:"bytes,2,opt,name=message_ref,json=messageRef,proto3" json:"message_ref,omitempty"`                            // Proto消息完整名称
 	FieldPath     string                      `protobuf:"bytes,3,opt,name=field_path,json=fieldPath,proto3" json:"field_path,omitempty"`                               // 返回字段路径
 	ServiceName   string                      `protobuf:"bytes,4,opt,name=service_name,json=serviceName,proto3" json:"service_name,omitempty"`                         // 服务名
+	TenantId      *int64                      `protobuf:"varint,5,opt,name=tenant_id,json=tenantId,proto3,oneof" json:"tenant_id,omitempty"`                           // 租户ID
 	Mode          *BaseRedactOutputPolicyMode `protobuf:"varint,100,opt,name=mode,proto3,enum=system.admin.v1.BaseRedactOutputPolicyMode,oneof" json:"mode,omitempty"` // 处理模式
 	Status        *commonv1.Status            `protobuf:"varint,101,opt,name=status,proto3,enum=common.v1.Status,oneof" json:"status,omitempty"`                       // 状态
 	PageNum       int64                       `protobuf:"varint,102,opt,name=page_num,json=pageNum,proto3" json:"page_num,omitempty"`                                  // 当前页码
@@ -155,6 +156,13 @@ func (x *PageBaseRedactOutputPolicyRequest) GetServiceName() string {
 		return x.ServiceName
 	}
 	return ""
+}
+
+func (x *PageBaseRedactOutputPolicyRequest) GetTenantId() int64 {
+	if x != nil && x.TenantId != nil {
+		return *x.TenantId
+	}
+	return 0
 }
 
 func (x *PageBaseRedactOutputPolicyRequest) GetMode() BaseRedactOutputPolicyMode {
@@ -291,6 +299,7 @@ type BaseRedactOutputPolicyForm struct {
 	MessageRef    string                     `protobuf:"bytes,3,opt,name=message_ref,json=messageRef,proto3" json:"message_ref,omitempty"`                      // Proto消息完整名称
 	FieldPath     string                     `protobuf:"bytes,4,opt,name=field_path,json=fieldPath,proto3" json:"field_path,omitempty"`                         // 返回字段路径
 	ServiceName   string                     `protobuf:"bytes,5,opt,name=service_name,json=serviceName,proto3" json:"service_name,omitempty"`                   // 服务名
+	TenantId      int64                      `protobuf:"varint,6,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`                           // 租户ID
 	Mode          BaseRedactOutputPolicyMode `protobuf:"varint,100,opt,name=mode,proto3,enum=system.admin.v1.BaseRedactOutputPolicyMode" json:"mode,omitempty"` // 处理模式
 	RuleId        int64                      `protobuf:"varint,101,opt,name=rule_id,json=ruleId,proto3" json:"rule_id,omitempty"`                               // 规则ID
 	RuleParams    string                     `protobuf:"bytes,102,opt,name=rule_params,json=ruleParams,proto3" json:"rule_params,omitempty"`                    // 规则参数
@@ -363,6 +372,13 @@ func (x *BaseRedactOutputPolicyForm) GetServiceName() string {
 		return x.ServiceName
 	}
 	return ""
+}
+
+func (x *BaseRedactOutputPolicyForm) GetTenantId() int64 {
+	if x != nil {
+		return x.TenantId
+	}
+	return 0
 }
 
 func (x *BaseRedactOutputPolicyForm) GetMode() BaseRedactOutputPolicyMode {
@@ -595,6 +611,7 @@ type BaseRedactOutputPolicy struct {
 	Operation     string                     `protobuf:"bytes,2,opt,name=operation,proto3" json:"operation,omitempty"`                                          // 接口操作
 	MessageRef    string                     `protobuf:"bytes,3,opt,name=message_ref,json=messageRef,proto3" json:"message_ref,omitempty"`                      // Proto消息完整名称
 	FieldPath     string                     `protobuf:"bytes,4,opt,name=field_path,json=fieldPath,proto3" json:"field_path,omitempty"`                         // 返回字段路径
+	TenantId      int64                      `protobuf:"varint,5,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`                           // 租户ID
 	Mode          BaseRedactOutputPolicyMode `protobuf:"varint,100,opt,name=mode,proto3,enum=system.admin.v1.BaseRedactOutputPolicyMode" json:"mode,omitempty"` // 处理模式
 	RuleId        int64                      `protobuf:"varint,101,opt,name=rule_id,json=ruleId,proto3" json:"rule_id,omitempty"`                               // 规则ID
 	RuleCode      string                     `protobuf:"bytes,102,opt,name=rule_code,json=ruleCode,proto3" json:"rule_code,omitempty"`                          // 规则编码
@@ -666,6 +683,13 @@ func (x *BaseRedactOutputPolicy) GetFieldPath() string {
 		return x.FieldPath
 	}
 	return ""
+}
+
+func (x *BaseRedactOutputPolicy) GetTenantId() int64 {
+	if x != nil {
+		return x.TenantId
+	}
+	return 0
 }
 
 func (x *BaseRedactOutputPolicy) GetMode() BaseRedactOutputPolicyMode {
@@ -794,18 +818,21 @@ var File_system_admin_v1_base_redact_output_policy_proto protoreflect.FileDescri
 
 const file_system_admin_v1_base_redact_output_policy_proto_rawDesc = "" +
 	"\n" +
-	"/system/admin/v1/base_redact_output_policy.proto\x12\x0fsystem.admin.v1\x1a\x14common/v1/enum.proto\x1a\x1bbuf/validate/validate.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1esystem/admin/v1/base_api.proto\"\xba\x04\n" +
+	"/system/admin/v1/base_redact_output_policy.proto\x12\x0fsystem.admin.v1\x1a\x14common/v1/enum.proto\x1a\x1bbuf/validate/validate.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1esystem/admin/v1/base_api.proto\"\xfa\x04\n" +
 	"!PageBaseRedactOutputPolicyRequest\x120\n" +
 	"\toperation\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f接口操作R\toperation\x12>\n" +
 	"\vmessage_ref\x18\x02 \x01(\tB\x1d\xbaG\x1a\x92\x02\x17Proto消息完整名称R\n" +
 	"messageRef\x127\n" +
 	"\n" +
 	"field_path\x18\x03 \x01(\tB\x18\xbaG\x15\x92\x02\x12返回字段路径R\tfieldPath\x122\n" +
-	"\fservice_name\x18\x04 \x01(\tB\x0f\xbaG\f\x92\x02\t服务名R\vserviceName\x12X\n" +
-	"\x04mode\x18d \x01(\x0e2+.system.admin.v1.BaseRedactOutputPolicyModeB\x12\xbaG\x0f\x92\x02\f处理模式H\x00R\x04mode\x88\x01\x01\x12<\n" +
-	"\x06status\x18e \x01(\x0e2\x11.common.v1.StatusB\f\xbaG\t\x92\x02\x06状态H\x01R\x06status\x88\x01\x01\x12D\n" +
+	"\fservice_name\x18\x04 \x01(\tB\x0f\xbaG\f\x92\x02\t服务名R\vserviceName\x120\n" +
+	"\ttenant_id\x18\x05 \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDH\x00R\btenantId\x88\x01\x01\x12X\n" +
+	"\x04mode\x18d \x01(\x0e2+.system.admin.v1.BaseRedactOutputPolicyModeB\x12\xbaG\x0f\x92\x02\f处理模式H\x01R\x04mode\x88\x01\x01\x12<\n" +
+	"\x06status\x18e \x01(\x0e2\x11.common.v1.StatusB\f\xbaG\t\x92\x02\x06状态H\x02R\x06status\x88\x01\x01\x12D\n" +
 	"\bpage_num\x18f \x01(\x03B)\xbaG\x1b\x8a\x02\t\t\x00\x00\x00\x00\x00\x00\xf0?\x92\x02\f当前页码\xbaH\b\"\x06\x18\xc0\x84=(\x01R\apageNum\x12D\n" +
-	"\tpage_size\x18g \x01(\x03B'\xbaG\x1b\x8a\x02\t\t\x00\x00\x00\x00\x00\x00$@\x92\x02\f每页数量\xbaH\x06\"\x04\x18d(\x01R\bpageSizeB\a\n" +
+	"\tpage_size\x18g \x01(\x03B'\xbaG\x1b\x8a\x02\t\t\x00\x00\x00\x00\x00\x00$@\x92\x02\f每页数量\xbaH\x06\"\x04\x18d(\x01R\bpageSizeB\f\n" +
+	"\n" +
+	"_tenant_idB\a\n" +
 	"\x05_modeB\t\n" +
 	"\a_status\"\xd1\x01\n" +
 	"\"PageBaseRedactOutputPolicyResponse\x12\x86\x01\n" +
@@ -813,11 +840,11 @@ const file_system_admin_v1_base_redact_output_policy_proto_rawDesc = "" +
 	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\"\xad\x01\n" +
 	" GetBaseRedactOutputPolicyRequest\x12\x88\x01\n" +
 	"\x02id\x18\x01 \x01(\x03Bx\xbaG\x11\x92\x02\x0e出库策略ID\xbaHa\xba\x01^\n" +
-	"6system.admin.base.redact.output_policy.get.id.required\x12\x1a出库策略ID不能为空\x1a\bthis > 0R\x02id\"\xb1\v\n" +
+	"6system.admin.base.redact.output_policy.get.id.required\x12\x1a出库策略ID不能为空\x1a\bthis > 0R\x02id\"\xbb\f\n" +
 	"\x1aBaseRedactOutputPolicyForm\x12$\n" +
 	"\x02id\x18\x01 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e出库策略IDR\x02id\x12\xcd\x01\n" +
 	"\toperation\x18\x02 \x01(\tB\xae\x01\xbaG\x0f\x92\x02\f接口操作\xbaH\x98\x01\xba\x01\x94\x01\n" +
-	"9system.admin.base.redact.output_policy.operation.required\x120接口操作不能为空且不超过255个字符\x1a%this.size() > 0 && this.size() <= 255R\toperation\x12\xe8\x01\n" +
+	"9system.admin.base.redact.output_policy.operation.required\x120接口操作不能为空且不超过250个字符\x1a%this.size() > 0 && this.size() <= 250R\toperation\x12\xe8\x01\n" +
 	"\vmessage_ref\x18\x03 \x01(\tB\xc6\x01\xbaG\x1a\x92\x02\x17Proto消息完整名称\xbaH\xa5\x01\xba\x01\xa1\x01\n" +
 	";system.admin.base.redact.output_policy.message_ref.required\x12;Proto消息完整名称不能为空且不超过255个字符\x1a%this.size() > 0 && this.size() <= 255R\n" +
 	"messageRef\x12\xdb\x01\n" +
@@ -825,7 +852,9 @@ const file_system_admin_v1_base_redact_output_policy_proto_rawDesc = "" +
 	"field_path\x18\x04 \x01(\tB\xbb\x01\xbaG\x15\x92\x02\x12返回字段路径\xbaH\x9f\x01\xba\x01\x9b\x01\n" +
 	":system.admin.base.redact.output_policy.field_path.required\x126返回字段路径不能为空且不超过255个字符\x1a%this.size() > 0 && this.size() <= 255R\tfieldPath\x12\xd0\x01\n" +
 	"\fservice_name\x18\x05 \x01(\tB\xac\x01\xbaG\f\x92\x02\t服务名\xbaH\x99\x01\xba\x01\x95\x01\n" +
-	"<system.admin.base.redact.output_policy.service_name.required\x12/服务名不能为空且不能超过50个字符\x1a$this.size() > 0 && this.size() <= 50R\vserviceName\x12[\n" +
+	"<system.admin.base.redact.output_policy.service_name.required\x12/服务名不能为空且不能超过50个字符\x1a$this.size() > 0 && this.size() <= 50R\vserviceName\x12\x87\x01\n" +
+	"\ttenant_id\x18\x06 \x01(\x03Bj\xbaG\v\x92\x02\b租户ID\xbaHY\xba\x01V\n" +
+	"9system.admin.base.redact.output_policy.tenant_id.required\x12\x0f请选择租户\x1a\bthis > 0R\btenantId\x12[\n" +
 	"\x04mode\x18d \x01(\x0e2+.system.admin.v1.BaseRedactOutputPolicyModeB\x1a\xbaG\x0f\x92\x02\f处理模式\xbaH\x05\x82\x01\x02\x10\x01R\x04mode\x12'\n" +
 	"\arule_id\x18e \x01(\x03B\x0e\xbaG\v\x92\x02\b规则IDR\x06ruleId\x12\xa2\x01\n" +
 	"\vrule_params\x18f \x01(\tB\x80\x01\xbaG\x0f\x92\x02\f规则参数\xbaHk\xba\x01h\n" +
@@ -846,14 +875,15 @@ const file_system_admin_v1_base_redact_output_policy_proto_rawDesc = "" +
 	"&SetBaseRedactOutputPolicyStatusRequest\x12\x8b\x01\n" +
 	"\x02id\x18\x01 \x01(\x03B{\xbaG\x11\x92\x02\x0e出库策略ID\xbaHd\xba\x01a\n" +
 	"9system.admin.base.redact.output_policy.status.id.required\x12\x1a出库策略ID不能为空\x1a\bthis > 0R\x02id\x12?\n" +
-	"\x06status\x18\x02 \x01(\x0e2\x11.common.v1.StatusB\x14\xbaG\t\x92\x02\x06状态\xbaH\x05\x82\x01\x02\x10\x01R\x06status\"\xaa\x06\n" +
+	"\x06status\x18\x02 \x01(\x0e2\x11.common.v1.StatusB\x14\xbaG\t\x92\x02\x06状态\xbaH\x05\x82\x01\x02\x10\x01R\x06status\"\xd7\x06\n" +
 	"\x16BaseRedactOutputPolicy\x12$\n" +
 	"\x02id\x18\x01 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e出库策略IDR\x02id\x120\n" +
 	"\toperation\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f接口操作R\toperation\x12>\n" +
 	"\vmessage_ref\x18\x03 \x01(\tB\x1d\xbaG\x1a\x92\x02\x17Proto消息完整名称R\n" +
 	"messageRef\x127\n" +
 	"\n" +
-	"field_path\x18\x04 \x01(\tB\x18\xbaG\x15\x92\x02\x12返回字段路径R\tfieldPath\x12S\n" +
+	"field_path\x18\x04 \x01(\tB\x18\xbaG\x15\x92\x02\x12返回字段路径R\tfieldPath\x12+\n" +
+	"\ttenant_id\x18\x05 \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDR\btenantId\x12S\n" +
 	"\x04mode\x18d \x01(\x0e2+.system.admin.v1.BaseRedactOutputPolicyModeB\x12\xbaG\x0f\x92\x02\f处理模式R\x04mode\x12'\n" +
 	"\arule_id\x18e \x01(\x03B\x0e\xbaG\v\x92\x02\b规则IDR\x06ruleId\x12/\n" +
 	"\trule_code\x18f \x01(\tB\x12\xbaG\x0f\x92\x02\f规则编码R\bruleCode\x12/\n" +

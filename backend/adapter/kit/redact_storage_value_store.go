@@ -30,12 +30,13 @@ func NewStorageValueStore(databases map[string]*kitgorm.Client) (*StorageValueSt
 }
 
 // Find 查询指定入库策略和业务记录的旁表敏感值。
-func (s *StorageValueStore) Find(ctx context.Context, storagePolicyID, recordID int64) (*redact.StorageValue, error) {
+func (s *StorageValueStore) Find(ctx context.Context, tenantID, storagePolicyID, recordID int64) (*redact.StorageValue, error) {
 	if s == nil || s.repository == nil {
 		return nil, errors.New("敏感字段旁表仓储未初始化")
 	}
 	query := s.repository.Query(ctx).BaseRedactStorageValue
 	value, err := s.repository.Find(ctx,
+		repository.Where(query.TenantID.Eq(tenantID)),
 		repository.Where(query.StoragePolicyID.Eq(storagePolicyID)),
 		repository.Where(query.RecordID.Eq(recordID)),
 	)
@@ -49,7 +50,7 @@ func (s *StorageValueStore) Find(ctx context.Context, storagePolicyID, recordID 
 }
 
 // ListByRecords 批量查询指定入库策略和业务记录的旁表敏感值。
-func (s *StorageValueStore) ListByRecords(ctx context.Context, storagePolicyID int64, recordIDs []int64) ([]*redact.StorageValue, error) {
+func (s *StorageValueStore) ListByRecords(ctx context.Context, tenantID, storagePolicyID int64, recordIDs []int64) ([]*redact.StorageValue, error) {
 	if s == nil || s.repository == nil {
 		return nil, errors.New("敏感字段旁表仓储未初始化")
 	}
@@ -58,6 +59,7 @@ func (s *StorageValueStore) ListByRecords(ctx context.Context, storagePolicyID i
 	}
 	query := s.repository.Query(ctx).BaseRedactStorageValue
 	values, err := s.repository.List(ctx,
+		repository.Where(query.TenantID.Eq(tenantID)),
 		repository.Where(query.StoragePolicyID.Eq(storagePolicyID)),
 		repository.Where(query.RecordID.In(recordIDs...)),
 	)
@@ -68,12 +70,13 @@ func (s *StorageValueStore) ListByRecords(ctx context.Context, storagePolicyID i
 }
 
 // ListByDigest 按入库策略和查询摘要查找业务记录。
-func (s *StorageValueStore) ListByDigest(ctx context.Context, storagePolicyID int64, digest []byte) ([]*redact.StorageValue, error) {
+func (s *StorageValueStore) ListByDigest(ctx context.Context, tenantID, storagePolicyID int64, digest []byte) ([]*redact.StorageValue, error) {
 	if s == nil || s.repository == nil {
 		return nil, errors.New("敏感字段旁表仓储未初始化")
 	}
 	query := s.repository.Query(ctx).BaseRedactStorageValue
 	values, err := s.repository.List(ctx,
+		repository.Where(query.TenantID.Eq(tenantID)),
 		repository.Where(query.StoragePolicyID.Eq(storagePolicyID)),
 		repository.Where(query.Digest.Eq(digest)),
 	)
@@ -93,6 +96,7 @@ func (s *StorageValueStore) Save(ctx context.Context, value *redact.StorageValue
 	}
 	query := s.repository.Query(ctx).BaseRedactStorageValue
 	existing, err := s.repository.Find(ctx,
+		repository.Where(query.TenantID.Eq(value.TenantID)),
 		repository.Where(query.StoragePolicyID.Eq(value.StoragePolicyID)),
 		repository.Where(query.RecordID.Eq(value.RecordID)),
 	)
@@ -132,6 +136,7 @@ func (s *StorageValueStore) SaveWithDB(ctx context.Context, db *gorm.DB, value *
 	}
 	base := queryForDB(db).BaseRedactStorageValue
 	existing, err := base.WithContext(ctx).Where(
+		base.TenantID.Eq(value.TenantID),
 		base.StoragePolicyID.Eq(value.StoragePolicyID),
 		base.RecordID.Eq(value.RecordID),
 	).First()
@@ -147,15 +152,16 @@ func (s *StorageValueStore) SaveWithDB(ctx context.Context, db *gorm.DB, value *
 }
 
 // DeleteWithDB 使用当前 GORM 事务物理删除旁表敏感值。
-func (s *StorageValueStore) DeleteWithDB(ctx context.Context, db *gorm.DB, storagePolicyID, recordID int64) error {
+func (s *StorageValueStore) DeleteWithDB(ctx context.Context, db *gorm.DB, tenantID, storagePolicyID, recordID int64) error {
 	if s == nil || s.repository == nil {
 		return errors.New("敏感字段旁表仓储未初始化")
 	}
-	if db == nil || storagePolicyID <= 0 || recordID <= 0 {
+	if db == nil || tenantID <= 0 || storagePolicyID <= 0 || recordID <= 0 {
 		return nil
 	}
 	base := queryForDB(db).BaseRedactStorageValue
 	value, err := base.WithContext(ctx).Where(
+		base.TenantID.Eq(tenantID),
 		base.StoragePolicyID.Eq(storagePolicyID),
 		base.RecordID.Eq(recordID),
 	).First()
@@ -192,6 +198,7 @@ func toStorageValue(value *models.BaseRedactStorageValue) *redact.StorageValue {
 	}
 	return &redact.StorageValue{
 		ID:              value.ID,
+		TenantID:        value.TenantID,
 		StoragePolicyID: value.StoragePolicyID,
 		RecordID:        value.RecordID,
 		Ciphertext:      value.Ciphertext,
@@ -206,6 +213,7 @@ func toStorageValueModel(value *redact.StorageValue) *models.BaseRedactStorageVa
 	}
 	return &models.BaseRedactStorageValue{
 		ID:              value.ID,
+		TenantID:        value.TenantID,
 		StoragePolicyID: value.StoragePolicyID,
 		RecordID:        value.RecordID,
 		Ciphertext:      value.Ciphertext,

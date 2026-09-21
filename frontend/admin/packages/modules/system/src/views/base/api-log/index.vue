@@ -8,6 +8,7 @@ import type { ColumnProps } from "@liujitcn/kratos-admin-core/components/ProTabl
 import { t } from "@liujitcn/kratos-admin-core";
 import { formatLogDateTime } from "@liujitcn/kratos-admin-system/components/log/log";
 import { buildPageRequest } from "@liujitcn/kratos-admin-core/table";
+import { useTenantScope } from "@liujitcn/kratos-admin-core/tenant";
 import LogTable, { type LogTableConfig } from "@liujitcn/kratos-admin-system/components/log/LogTable.vue";
 import {
   createLogEnumOptions,
@@ -26,6 +27,7 @@ import type { BaseApiLog, PageBaseApiLogRequest } from "@liujitcn/kratos-admin-s
 defineOptions({ name: "BaseApiLog", inheritAttrs: false });
 
 const page = ref<InstanceType<typeof LogTable>>();
+const { tenantColumns } = useTenantScope();
 const resultOptions = computed(() =>
   createLogEnumOptions([
     [BaseLogResult.BASE_LOG_RESULT_UNSPECIFIED, t("system.base.log.result.unspecified")],
@@ -35,6 +37,7 @@ const resultOptions = computed(() =>
   ])
 );
 const columns = computed<ColumnProps[]>(() => [
+  ...tenantColumns({ label: t("common.field.tenant") }),
   { prop: "operation", label: t("system.base.log.field.operation"), minWidth: 320, search: { el: "input", key: "keyword" } },
   { prop: "method", label: t("system.base.log.field.method"), minWidth: 90 },
   { prop: "status_code", label: t("system.base.log.field.status_code"), minWidth: 100, align: "right" },

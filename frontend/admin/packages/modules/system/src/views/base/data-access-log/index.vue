@@ -8,6 +8,7 @@ import type { ColumnProps } from "@liujitcn/kratos-admin-core/components/ProTabl
 import { t } from "@liujitcn/kratos-admin-core";
 import { formatLogDateTime } from "@liujitcn/kratos-admin-system/components/log/log";
 import { buildPageRequest } from "@liujitcn/kratos-admin-core/table";
+import { useTenantScope } from "@liujitcn/kratos-admin-core/tenant";
 import LogTable, { type LogTableConfig } from "@liujitcn/kratos-admin-system/components/log/LogTable.vue";
 import {
   createLogEnumOptions,
@@ -26,6 +27,7 @@ import type { BaseDataAccessLog, PageBaseDataAccessLogRequest } from "@liujitcn/
 defineOptions({ name: "BaseDataAccessLog", inheritAttrs: false });
 
 const page = ref<InstanceType<typeof LogTable>>();
+const { tenantColumns } = useTenantScope();
 const resultOptions = computed(() => createLogEnumOptions([
   [BaseLogResult.BASE_LOG_RESULT_UNSPECIFIED, t("system.base.log.result.unspecified")],
   [BaseLogResult.BASE_LOG_RESULT_SUCCESS, t("system.base.log.result.success")],
@@ -42,6 +44,7 @@ const accessTypeOptions = computed(() => createLogEnumOptions([
   [BaseDataAccessType.BASE_DATA_ACCESS_TYPE_IMPORT, t("system.base.log.access_type.import")]
 ]));
 const columns = computed<ColumnProps[]>(() => [
+  ...tenantColumns({ label: t("common.field.tenant") }),
   { prop: "resource_type", label: t("system.base.log.field.resource_type"), minWidth: 150, search: { el: "input" } },
   { prop: "table_name", label: t("system.base.log.field.table_name"), minWidth: 150 },
   { prop: "access_type", label: t("system.base.log.field.access_type"), minWidth: 120, search: { el: "select", enum: accessTypeOptions.value }, render: scope => logEnumLabel(accessTypeOptions.value, (scope.row as BaseDataAccessLog).access_type) },
@@ -64,7 +67,7 @@ const config = computed<LogTableConfig>(() => ({
     { key: "user_id", label: t("system.base.log.field.user_id") },
     { key: "user_name", label: t("system.base.log.field.user_name") },
     { key: "resource_type", label: t("system.base.log.field.resource_type") },
-    { key: "resource_id", label: t("system.base.log.field.resource_id"), align: "left" },
+    { key: "resource_id", label: t("system.base.log.field.resource_id") },
     { key: "access_type", label: t("system.base.log.field.access_type"), enum: accessTypeOptions.value },
     { key: "data_source", label: t("system.base.log.field.data_source") },
     { key: "table_name", label: t("system.base.log.field.table_name") },

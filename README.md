@@ -20,7 +20,7 @@
 - 登录来源策略（全局及租户/用户定向规则）、密码复杂度策略、按策略启用多设备登录、独立会话超时与撤销、本人登录记录、平台在线会话管理、审计日志异步落库与保留清理、受控 MySQL 备份恢复任务。
 - 可挂载的 Go Core 模块；后端实现 `module.Module`，通过 `Resources` 提供静态资源，并由启动入口交给 Core 统一注册协议服务。
 - 管理端、uni-app、Taro 和后端错误目录的语言集合由语言包自动发现；动态菜单、字典和代码生成同步支持所有已注册语言。
-- 管理端支持在“系统管理 / 基础管理 / 国际化自定义翻译”中按位置、语言和语言键覆盖固定界面文案，默认语言包作为未配置时的回退。
+- 管理端支持在“系统管理 / 基础管理 / 国际化自定义翻译”中按租户、位置、语言和语言键覆盖固定界面文案，登录后加载当前租户数据，默认语言包作为未配置时的回退。
 
 仓库不包含商城、订单、支付或推荐等业务模块。
 
@@ -41,7 +41,7 @@
 - Go `1.27.0`。
 - Node.js `^20.19.0` 或 `>=22.12.0`。
 - pnpm 版本以各 workspace 的 `packageManager` 为准：管理端 `10.33.4`，uni-app 与 Taro 应用端 `10.13.1`。
-- MySQL、Redis、Consul 和 Vault；用途与最小/完整配置入口见下方说明。
+- MySQL、Consul 和 Vault；Redis 与队列按需启用，未配置时单实例使用进程内实现。用途与最小/完整配置入口见下方说明。
 - Docker 部署需要可用的 Docker CLI 与 Docker daemon。
 - 启用 TOTP 绑定时，`mfa.encryption_key` 有显式值则使用该值，留空时在实际保护 TOTP 密钥时按 `kratos-kit:mfa/encryption` 从运行时密钥服务派生；启用 WebAuthn 时还要配置 `mfa.webauthn.rp_id` 与 `mfa.webauthn.rp_origins`。配置文件中的敏感值应使用 `ENC[...]` 保存。
 - Buf、protoc 插件、Wire 和 gorm-gen 只在重新生成代码时需要，可通过 `make -C backend init` 安装。
@@ -53,7 +53,7 @@
 | 中间件 | 用途 | 配置入口 |
 | --- | --- | --- |
 | MySQL | 业务数据持久化与数据库迁移。 | `backend/configs/data.yaml`、`backend/configs/full/data.yaml` |
-| Redis | 缓存、分布式锁、队列和消息投递。 | `backend/configs/data.yaml`、`backend/configs/full/data.yaml` |
+| Redis（可选） | 缓存、分布式锁、队列和消息投递；未配置时单实例使用进程内实现。 | `backend/configs/data.yaml`、`backend/configs/full/data.yaml` |
 | Consul | 服务注册与发现。 | `backend/configs/full/registry.yaml` |
 | Vault | 应用根密钥管理、配置解密及业务密钥派生。 | `backend/configs/key.yaml`、`backend/configs/full/key.yaml` |
 
@@ -176,7 +176,7 @@ Admin 的公开 `backend/adapter/core` 和 `backend/adapter/kit` 构造函数只
 | 管理端、uni-app、Taro 的固定界面文案 | 各端 core 与业务模块的 `src/locales/*.json` |
 | 后端错误提示、代码生成模板文案 | `backend/internal/i18n/assets/*.json` |
 | 菜单、字典、配置、任务等动态资源译文 | `backend/migration/assets/v0.0.1/mysql/i18n.*.up.sql`，运行时存储于 `base_i18n` |
-| 管理端固定界面文案的部署级覆盖 | `base_i18n_custom`，运行时由公共配置接口加载 |
+| 管理端固定界面文案的租户级覆盖 | `base_i18n_custom`，登录后由认证配置接口加载当前租户数据 |
 | API 文档标题、说明和字段描述 | Proto 中文说明及 `scripts/local_openapi_i18n.py` 本地术语映射 |
 | 已提供多语言版本的迁移说明和项目文档 | 相应的 `README.<locale>.md` 等文档 |
 

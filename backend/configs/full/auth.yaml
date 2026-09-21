@@ -9,21 +9,19 @@ authn:
     access_token_expires: 3600s
 
     # 可选认证规则：匹配到的接口允许匿名访问，但携带令牌时仍会尝试解析用户。
+    refresh_token_expires: 2592000s
+
     optional_auth:
       match:
         # 使用框架 operation 名称匹配，格式为 /{protobuf service}/{method}。
-        - /base.v1.SseService/SubscribeSse
         - /system.app.v1.BaseMenuService/ListBaseMenu
-        - /base.v1.LoginService/Logout
       # 按完整 HTTP/gRPC 路径匹配；当前未使用。
       path: []
       # 按路径前缀匹配；当前未使用。
       prefix: []
       # 按正则表达式匹配；当前未使用。
       regex: []
-
     # 刷新令牌有效期；2592000s 表示 30 天。
-    refresh_token_expires: 2592000s
 
     # 强制免认证白名单；匹配到的接口不会要求有效 JWT。
     white_list:

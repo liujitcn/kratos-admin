@@ -27,6 +27,7 @@ func newBaseRedactOutputPolicy(db *gorm.DB, opts ...gen.DOOption) baseRedactOutp
 
 	tableName := _baseRedactOutputPolicy.baseRedactOutputPolicyDo.TableName()
 	_baseRedactOutputPolicy.ALL = field.NewAsterisk(tableName)
+	_baseRedactOutputPolicy.TenantID = field.NewInt64(tableName, "tenant_id")
 	_baseRedactOutputPolicy.ID = field.NewInt64(tableName, "id")
 	_baseRedactOutputPolicy.Operation = field.NewString(tableName, "operation")
 	_baseRedactOutputPolicy.ServiceName = field.NewString(tableName, "service_name")
@@ -53,6 +54,7 @@ type baseRedactOutputPolicy struct {
 	baseRedactOutputPolicyDo baseRedactOutputPolicyDo
 
 	ALL         field.Asterisk
+	TenantID    field.Int64  // 租户ID
 	ID          field.Int64  // 出库策略ID
 	Operation   field.String // RPC完整操作名
 	ServiceName field.String // 服务名
@@ -84,6 +86,7 @@ func (b baseRedactOutputPolicy) As(alias string) *baseRedactOutputPolicy {
 
 func (b *baseRedactOutputPolicy) updateTableName(table string) *baseRedactOutputPolicy {
 	b.ALL = field.NewAsterisk(table)
+	b.TenantID = field.NewInt64(table, "tenant_id")
 	b.ID = field.NewInt64(table, "id")
 	b.Operation = field.NewString(table, "operation")
 	b.ServiceName = field.NewString(table, "service_name")
@@ -127,7 +130,8 @@ func (b *baseRedactOutputPolicy) GetFieldByName(fieldName string) (field.OrderEx
 }
 
 func (b *baseRedactOutputPolicy) fillFieldMap() {
-	b.fieldMap = make(map[string]field.Expr, 15)
+	b.fieldMap = make(map[string]field.Expr, 16)
+	b.fieldMap["tenant_id"] = b.TenantID
 	b.fieldMap["id"] = b.ID
 	b.fieldMap["operation"] = b.Operation
 	b.fieldMap["service_name"] = b.ServiceName

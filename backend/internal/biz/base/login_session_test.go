@@ -18,6 +18,7 @@ import (
 	authdata "github.com/liujitcn/kratos-kit/auth/data"
 	"github.com/liujitcn/kratos-kit/cache/memory"
 	kitgorm "github.com/liujitcn/kratos-kit/database/gorm"
+	"github.com/liujitcn/kratos-kit/locker"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
@@ -77,7 +78,7 @@ func TestSingleSessionLoginRejectsOverlappingIssuance(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer cleanup()
-	var manager *sessionregistry.LoginLocker
+	var manager locker.Locker
 	var closeLocker func()
 	manager, closeLocker, err = sessionregistry.NewLoginLocker(&configv1.Bootstrap{})
 	if err != nil {

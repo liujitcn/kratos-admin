@@ -78,7 +78,8 @@ func NewApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	apiStoreAdapter, err := core.NewAPIStoreAdapter(v2)
+	openapiOpenAPI := openapi.NewOpenAPI(registry)
+	apiStoreAdapter, err := core.NewAPIStoreAdapter(v2, openapiOpenAPI)
 	if err != nil {
 		cleanup()
 		return nil, nil, err
@@ -246,10 +247,20 @@ func NewApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	executionLocker := job.NewExecutionLocker(data_Redis)
+	executionLocker, err := job.NewExecutionLocker(data_Redis)
+	if err != nil {
+		cleanup8()
+		cleanup7()
+		cleanup6()
+		cleanup5()
+		cleanup4()
+		cleanup3()
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
 	scheduler := job.NewSchedulerWithLocker(jobStoreAdapter, jobRegistry, executionLocker)
 	jobJob := job.NewJob(scheduler)
-	openapiOpenAPI := openapi.NewOpenAPI(registry)
 	redactPolicyResolver, err := kit.NewRedactPolicyResolver(v2)
 	if err != nil {
 		cleanup8()

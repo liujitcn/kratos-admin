@@ -40,8 +40,18 @@ export interface GetConfigResponse {
   configs: ConfigItem[];
   /** AI 助手是否可用 */
   ai_enabled: boolean;
+}
+
+/** 当前租户自定义国际化覆盖项查询条件。 */
+export interface GetI18nCustomRequest {
+  /** 位置：枚举【BaseConfigSite】 */
+  site: BaseConfigSite;
+}
+
+/** 当前租户自定义国际化覆盖项查询结果。 */
+export interface GetI18nCustomResponse {
   /** 全部语言的自定义国际化覆盖项 */
-  i18n_customs: I18nCustomItem[];
+  items: I18nCustomItem[];
 }
 
 /** 全部语言的自定义国际化覆盖项。 */
@@ -58,4 +68,6 @@ export interface I18nCustomItem {
 export interface ConfigService {
   /** 获取系统配置 */
   GetConfig(request: GetConfigRequest): Promise<GetConfigResponse>;
+  /** 获取当前租户的自定义国际化覆盖项 */
+  GetI18nCustom(request: GetI18nCustomRequest): Promise<GetI18nCustomResponse>;
 }

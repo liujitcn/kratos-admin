@@ -3,6 +3,7 @@
   <div class="table-box">
     <ProTable
       ref="proTable"
+      :key="isDefaultTenant ? 'default-tenant' : 'normal-tenant'"
       row-key="id"
       :columns="columns"
       :header-actions="headerActions"
@@ -24,7 +25,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, reactive, ref } from "vue";
+import { computed, onMounted, reactive, ref } from "vue";
 import { ElMessage, ElMessageBox } from "element-plus";
 import { CirclePlus, Delete, EditPen } from "@element-plus/icons-vue";
 import type { ColumnProps, HeaderActionProps, ProTableInstance } from "@liujitcn/kratos-admin-core/components/ProTable/interface";
@@ -33,6 +34,7 @@ import FormDialog from "@liujitcn/kratos-admin-core/components/Dialog/FormDialog
 import type { ProFormField, ProFormOption } from "@liujitcn/kratos-admin-core/components/ProForm/interface";
 import { useAuthButtons } from "@liujitcn/kratos-admin-core/auth";
 import { buildPageRequest, normalizeSelectedIds } from "@liujitcn/kratos-admin-core/table";
+import { useTenantScope } from "@liujitcn/kratos-admin-core/tenant";
 import {
   getCurrentLocale,
   getDefaultLocaleText,
@@ -52,13 +54,20 @@ import { Status } from "@liujitcn/kratos-admin-system/rpc/common/v1/enum";
 
 defineOptions({ name: "BaseI18nCustom", inheritAttrs: false });
 
+/** 自定义翻译表单状态，平台管理员新增时选择目标租户。 */
+type BaseI18nCustomFormState = Omit<BaseI18nCustomForm, "tenant_id"> & {
+  /** 租户ID。 */
+  tenant_id?: number;
+};
+
 const { BUTTONS } = useAuthButtons();
 const proTable = ref<ProTableInstance>();
 const formDialogRef = ref<InstanceType<typeof FormDialog>>();
 const enabledLanguages = ref<Array<{ language_code: string; native_name?: string; language_name?: string }>>([]);
 const dialog = reactive({ editing: false, visible: false });
-const formData = reactive<BaseI18nCustomForm>({
+const formData = reactive<BaseI18nCustomFormState>({
   id: 0,
+  tenant_id: undefined,
   site: BaseConfigSite.BASE_CONFIG_SITE_ADMIN,
   key: "",
   locale: getCurrentLocale(),
@@ -86,13 +95,26 @@ const statusOptions = computed<ProFormOption[]>(() => [
 ]);
 
 const rules = computed(() => ({
+  tenant_id: [
+    {
+      required: true,
+      message: t("common.validation.required_select", { field: t("common.field.tenant") }),
+      trigger: "change"
+    }
+  ],
   site: [{ required: true, message: t("system.base.i18n_custom.placeholder.site"), trigger: "change" }],
   key: [{ required: true, message: t("system.base.i18n_custom.placeholder.key"), trigger: "blur" }],
   locale: [{ required: true, message: t("system.base.i18n_custom.placeholder.locale"), trigger: "change" }],
   value: [{ required: true, message: t("system.base.i18n_custom.placeholder.value"), trigger: "blur" }]
 }));
 
+const { isDefaultTenant, tenantColumns, tenantFormField, toRequestTenantId, loadTenantOptions } = useTenantScope();
+onMounted(() => {
+  if (isDefaultTenant.value) void loadTenantOptions();
+});
+
 const formFields = computed<ProFormField[]>(() => [
+  tenantFormField({ label: t("common.field.tenant"), disabledOnEdit: true }),
   {
     prop: "site",
     label: t("system.base.i18n_custom.field.site"),
@@ -130,6 +152,7 @@ const formFields = computed<ProFormField[]>(() => [
 
 const columns = computed<ColumnProps[]>(() => [
   { type: "selection", width: 55 },
+  ...tenantColumns({ label: t("common.field.tenant"), order: 1 }),
   { prop: "key", label: t("system.base.i18n_custom.field.key"), minWidth: 250, search: { el: "input" } },
   {
     prop: "site",
@@ -214,7 +237,10 @@ const headerActions = computed<HeaderActionProps[]>(() => [
 /** 请求国际化自定义翻译分页列表。 */
 async function requestBaseI18nCustomTable(params: PageBaseI18nCustomRequest) {
   enabledLanguages.value = await loadLanguages();
-  const data = await defBaseI18nCustomService.PageBaseI18nCustom(buildPageRequest(params));
+  const data = await defBaseI18nCustomService.PageBaseI18nCustom({
+    ...buildPageRequest(params),
+    tenant_id: toRequestTenantId(params.tenant_id)
+  });
   return { data: { list: data.items ?? [], total: data.total } };
 }
 
@@ -236,7 +262,8 @@ async function handleOpenDialog(id?: number) {
   await formDialogRef.value?.open({
     load: async () => ({
       languages: await loadLanguages(),
-      data: id ? await defBaseI18nCustomService.GetBaseI18nCustom({ id }) : undefined
+      data: id ? await defBaseI18nCustomService.GetBaseI18nCustom({ id }) : undefined,
+      tenants: await loadTenantOptions()
     }),
     commit: ({ languages, data }) => {
       enabledLanguages.value = languages;
@@ -257,6 +284,7 @@ function resetForm() {
   formDialogRef.value?.clearValidate();
   Object.assign(formData, {
     id: 0,
+    tenant_id: undefined,
     site: BaseConfigSite.BASE_CONFIG_SITE_ADMIN,
     key: "",
     locale: getCurrentLocale(),

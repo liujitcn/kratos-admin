@@ -132,6 +132,8 @@ func (x *PageBaseI18nCustomRequest) Redact() {
 		return
 	}
 
+	// Safe field: TenantId
+
 	// Safe field: Site
 
 	// Safe field: Key
@@ -181,6 +183,8 @@ func (x *BaseI18nCustomForm) Redact() {
 	}
 
 	// Safe field: Id
+
+	// Safe field: TenantId
 
 	// Safe field: Site
 
@@ -255,6 +259,8 @@ func (x *BaseI18nCustom) Redact() {
 	}
 
 	// Safe field: Id
+
+	// Safe field: TenantId
 
 	// Safe field: Site
 

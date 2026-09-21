@@ -149,6 +149,8 @@ func (x *PageBaseRedactOutputPolicyRequest) Redact() {
 
 	// Safe field: ServiceName
 
+	// Safe field: TenantId
+
 	// Safe field: Mode
 
 	// Safe field: Status
@@ -202,6 +204,8 @@ func (x *BaseRedactOutputPolicyForm) Redact() {
 	// Safe field: FieldPath
 
 	// Safe field: ServiceName
+
+	// Safe field: TenantId
 
 	// Safe field: Mode
 
@@ -280,6 +284,8 @@ func (x *BaseRedactOutputPolicy) Redact() {
 	// Safe field: MessageRef
 
 	// Safe field: FieldPath
+
+	// Safe field: TenantId
 
 	// Safe field: Mode
 

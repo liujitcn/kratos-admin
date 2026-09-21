@@ -143,6 +143,8 @@ export interface OauthClient {
 export interface OauthClientCredentials {
   /** 客户端标识 */
   client_id: string;
+  /** 绑定租户ID */
+  tenant_id: number;
   /** 客户端密钥 */
   client_secret: string;
   /** 协议加密类型 */

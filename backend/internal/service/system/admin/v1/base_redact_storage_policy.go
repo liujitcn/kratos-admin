@@ -83,6 +83,16 @@ func (s *BaseRedactStoragePolicyService) SetBaseRedactStoragePolicyStatus(ctx co
 	return new(emptypb.Empty), nil
 }
 
+// ListBaseRedactStorageTable 查询包含租户ID字段的数据表列表。
+func (s *BaseRedactStoragePolicyService) ListBaseRedactStorageTable(ctx context.Context, req *adminv1.ListBaseRedactStorageTableRequest) (*adminv1.ListBaseRedactStorageTableResponse, error) {
+	result, err := s.baseRedactStoragePolicyCase.ListBaseRedactStorageTable(ctx, req)
+	if err != nil {
+		log.Error(fmt.Sprintf("ListBaseRedactStorageTable %v", err))
+		return nil, errorsx.WrapInternal(err, "查询可入库脱敏数据表失败")
+	}
+	return result, nil
+}
+
 // ListBaseRedactStorageColumn 查询可入库脱敏的字符串字段列表。
 func (s *BaseRedactStoragePolicyService) ListBaseRedactStorageColumn(ctx context.Context, req *adminv1.ListBaseRedactStorageColumnRequest) (*adminv1.ListBaseRedactStorageColumnResponse, error) {
 	result, err := s.baseRedactStoragePolicyCase.ListBaseRedactStorageColumn(ctx, req)

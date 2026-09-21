@@ -22,12 +22,13 @@ const _ = grpc.SupportPackageIsVersion9
 
 const (
 	BaseRedactStoragePolicyService_PageBaseRedactStoragePolicy_FullMethodName      = "/system.admin.v1.BaseRedactStoragePolicyService/PageBaseRedactStoragePolicy"
+	BaseRedactStoragePolicyService_ListBaseRedactStorageTable_FullMethodName       = "/system.admin.v1.BaseRedactStoragePolicyService/ListBaseRedactStorageTable"
+	BaseRedactStoragePolicyService_ListBaseRedactStorageColumn_FullMethodName      = "/system.admin.v1.BaseRedactStoragePolicyService/ListBaseRedactStorageColumn"
 	BaseRedactStoragePolicyService_GetBaseRedactStoragePolicy_FullMethodName       = "/system.admin.v1.BaseRedactStoragePolicyService/GetBaseRedactStoragePolicy"
 	BaseRedactStoragePolicyService_CreateBaseRedactStoragePolicy_FullMethodName    = "/system.admin.v1.BaseRedactStoragePolicyService/CreateBaseRedactStoragePolicy"
 	BaseRedactStoragePolicyService_UpdateBaseRedactStoragePolicy_FullMethodName    = "/system.admin.v1.BaseRedactStoragePolicyService/UpdateBaseRedactStoragePolicy"
 	BaseRedactStoragePolicyService_DeleteBaseRedactStoragePolicy_FullMethodName    = "/system.admin.v1.BaseRedactStoragePolicyService/DeleteBaseRedactStoragePolicy"
 	BaseRedactStoragePolicyService_SetBaseRedactStoragePolicyStatus_FullMethodName = "/system.admin.v1.BaseRedactStoragePolicyService/SetBaseRedactStoragePolicyStatus"
-	BaseRedactStoragePolicyService_ListBaseRedactStorageColumn_FullMethodName      = "/system.admin.v1.BaseRedactStoragePolicyService/ListBaseRedactStorageColumn"
 )
 
 // BaseRedactStoragePolicyServiceClient is the client API for BaseRedactStoragePolicyService service.
@@ -38,6 +39,10 @@ const (
 type BaseRedactStoragePolicyServiceClient interface {
 	// 查询入库脱敏策略分页列表。
 	PageBaseRedactStoragePolicy(ctx context.Context, in *PageBaseRedactStoragePolicyRequest, opts ...grpc.CallOption) (*PageBaseRedactStoragePolicyResponse, error)
+	// 查询包含租户ID字段的数据表列表。
+	ListBaseRedactStorageTable(ctx context.Context, in *ListBaseRedactStorageTableRequest, opts ...grpc.CallOption) (*ListBaseRedactStorageTableResponse, error)
+	// 查询可入库脱敏的字符串字段列表。
+	ListBaseRedactStorageColumn(ctx context.Context, in *ListBaseRedactStorageColumnRequest, opts ...grpc.CallOption) (*ListBaseRedactStorageColumnResponse, error)
 	// 查询入库脱敏策略详情。
 	GetBaseRedactStoragePolicy(ctx context.Context, in *GetBaseRedactStoragePolicyRequest, opts ...grpc.CallOption) (*BaseRedactStoragePolicyForm, error)
 	// 批量创建入库脱敏策略。
@@ -48,8 +53,6 @@ type BaseRedactStoragePolicyServiceClient interface {
 	DeleteBaseRedactStoragePolicy(ctx context.Context, in *DeleteBaseRedactStoragePolicyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// 设置入库脱敏策略状态。
 	SetBaseRedactStoragePolicyStatus(ctx context.Context, in *SetBaseRedactStoragePolicyStatusRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	// 查询可入库脱敏的字符串字段列表。
-	ListBaseRedactStorageColumn(ctx context.Context, in *ListBaseRedactStorageColumnRequest, opts ...grpc.CallOption) (*ListBaseRedactStorageColumnResponse, error)
 }
 
 type baseRedactStoragePolicyServiceClient struct {
@@ -64,6 +67,26 @@ func (c *baseRedactStoragePolicyServiceClient) PageBaseRedactStoragePolicy(ctx c
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(PageBaseRedactStoragePolicyResponse)
 	err := c.cc.Invoke(ctx, BaseRedactStoragePolicyService_PageBaseRedactStoragePolicy_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *baseRedactStoragePolicyServiceClient) ListBaseRedactStorageTable(ctx context.Context, in *ListBaseRedactStorageTableRequest, opts ...grpc.CallOption) (*ListBaseRedactStorageTableResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListBaseRedactStorageTableResponse)
+	err := c.cc.Invoke(ctx, BaseRedactStoragePolicyService_ListBaseRedactStorageTable_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *baseRedactStoragePolicyServiceClient) ListBaseRedactStorageColumn(ctx context.Context, in *ListBaseRedactStorageColumnRequest, opts ...grpc.CallOption) (*ListBaseRedactStorageColumnResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListBaseRedactStorageColumnResponse)
+	err := c.cc.Invoke(ctx, BaseRedactStoragePolicyService_ListBaseRedactStorageColumn_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -120,16 +143,6 @@ func (c *baseRedactStoragePolicyServiceClient) SetBaseRedactStoragePolicyStatus(
 	return out, nil
 }
 
-func (c *baseRedactStoragePolicyServiceClient) ListBaseRedactStorageColumn(ctx context.Context, in *ListBaseRedactStorageColumnRequest, opts ...grpc.CallOption) (*ListBaseRedactStorageColumnResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(ListBaseRedactStorageColumnResponse)
-	err := c.cc.Invoke(ctx, BaseRedactStoragePolicyService_ListBaseRedactStorageColumn_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 // BaseRedactStoragePolicyServiceServer is the server API for BaseRedactStoragePolicyService service.
 // All implementations must embed UnimplementedBaseRedactStoragePolicyServiceServer
 // for forward compatibility.
@@ -138,6 +151,10 @@ func (c *baseRedactStoragePolicyServiceClient) ListBaseRedactStorageColumn(ctx c
 type BaseRedactStoragePolicyServiceServer interface {
 	// 查询入库脱敏策略分页列表。
 	PageBaseRedactStoragePolicy(context.Context, *PageBaseRedactStoragePolicyRequest) (*PageBaseRedactStoragePolicyResponse, error)
+	// 查询包含租户ID字段的数据表列表。
+	ListBaseRedactStorageTable(context.Context, *ListBaseRedactStorageTableRequest) (*ListBaseRedactStorageTableResponse, error)
+	// 查询可入库脱敏的字符串字段列表。
+	ListBaseRedactStorageColumn(context.Context, *ListBaseRedactStorageColumnRequest) (*ListBaseRedactStorageColumnResponse, error)
 	// 查询入库脱敏策略详情。
 	GetBaseRedactStoragePolicy(context.Context, *GetBaseRedactStoragePolicyRequest) (*BaseRedactStoragePolicyForm, error)
 	// 批量创建入库脱敏策略。
@@ -148,8 +165,6 @@ type BaseRedactStoragePolicyServiceServer interface {
 	DeleteBaseRedactStoragePolicy(context.Context, *DeleteBaseRedactStoragePolicyRequest) (*emptypb.Empty, error)
 	// 设置入库脱敏策略状态。
 	SetBaseRedactStoragePolicyStatus(context.Context, *SetBaseRedactStoragePolicyStatusRequest) (*emptypb.Empty, error)
-	// 查询可入库脱敏的字符串字段列表。
-	ListBaseRedactStorageColumn(context.Context, *ListBaseRedactStorageColumnRequest) (*ListBaseRedactStorageColumnResponse, error)
 	mustEmbedUnimplementedBaseRedactStoragePolicyServiceServer()
 }
 
@@ -162,6 +177,12 @@ type UnimplementedBaseRedactStoragePolicyServiceServer struct{}
 
 func (UnimplementedBaseRedactStoragePolicyServiceServer) PageBaseRedactStoragePolicy(context.Context, *PageBaseRedactStoragePolicyRequest) (*PageBaseRedactStoragePolicyResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method PageBaseRedactStoragePolicy not implemented")
+}
+func (UnimplementedBaseRedactStoragePolicyServiceServer) ListBaseRedactStorageTable(context.Context, *ListBaseRedactStorageTableRequest) (*ListBaseRedactStorageTableResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListBaseRedactStorageTable not implemented")
+}
+func (UnimplementedBaseRedactStoragePolicyServiceServer) ListBaseRedactStorageColumn(context.Context, *ListBaseRedactStorageColumnRequest) (*ListBaseRedactStorageColumnResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListBaseRedactStorageColumn not implemented")
 }
 func (UnimplementedBaseRedactStoragePolicyServiceServer) GetBaseRedactStoragePolicy(context.Context, *GetBaseRedactStoragePolicyRequest) (*BaseRedactStoragePolicyForm, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetBaseRedactStoragePolicy not implemented")
@@ -177,9 +198,6 @@ func (UnimplementedBaseRedactStoragePolicyServiceServer) DeleteBaseRedactStorage
 }
 func (UnimplementedBaseRedactStoragePolicyServiceServer) SetBaseRedactStoragePolicyStatus(context.Context, *SetBaseRedactStoragePolicyStatusRequest) (*emptypb.Empty, error) {
 	return nil, status.Error(codes.Unimplemented, "method SetBaseRedactStoragePolicyStatus not implemented")
-}
-func (UnimplementedBaseRedactStoragePolicyServiceServer) ListBaseRedactStorageColumn(context.Context, *ListBaseRedactStorageColumnRequest) (*ListBaseRedactStorageColumnResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method ListBaseRedactStorageColumn not implemented")
 }
 func (UnimplementedBaseRedactStoragePolicyServiceServer) mustEmbedUnimplementedBaseRedactStoragePolicyServiceServer() {
 }
@@ -217,6 +235,42 @@ func _BaseRedactStoragePolicyService_PageBaseRedactStoragePolicy_Handler(srv int
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(BaseRedactStoragePolicyServiceServer).PageBaseRedactStoragePolicy(ctx, req.(*PageBaseRedactStoragePolicyRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _BaseRedactStoragePolicyService_ListBaseRedactStorageTable_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListBaseRedactStorageTableRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BaseRedactStoragePolicyServiceServer).ListBaseRedactStorageTable(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: BaseRedactStoragePolicyService_ListBaseRedactStorageTable_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BaseRedactStoragePolicyServiceServer).ListBaseRedactStorageTable(ctx, req.(*ListBaseRedactStorageTableRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _BaseRedactStoragePolicyService_ListBaseRedactStorageColumn_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListBaseRedactStorageColumnRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BaseRedactStoragePolicyServiceServer).ListBaseRedactStorageColumn(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: BaseRedactStoragePolicyService_ListBaseRedactStorageColumn_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BaseRedactStoragePolicyServiceServer).ListBaseRedactStorageColumn(ctx, req.(*ListBaseRedactStorageColumnRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -311,24 +365,6 @@ func _BaseRedactStoragePolicyService_SetBaseRedactStoragePolicyStatus_Handler(sr
 	return interceptor(ctx, in, info, handler)
 }
 
-func _BaseRedactStoragePolicyService_ListBaseRedactStorageColumn_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ListBaseRedactStorageColumnRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(BaseRedactStoragePolicyServiceServer).ListBaseRedactStorageColumn(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: BaseRedactStoragePolicyService_ListBaseRedactStorageColumn_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BaseRedactStoragePolicyServiceServer).ListBaseRedactStorageColumn(ctx, req.(*ListBaseRedactStorageColumnRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 // BaseRedactStoragePolicyService_ServiceDesc is the grpc.ServiceDesc for BaseRedactStoragePolicyService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -339,6 +375,14 @@ var BaseRedactStoragePolicyService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "PageBaseRedactStoragePolicy",
 			Handler:    _BaseRedactStoragePolicyService_PageBaseRedactStoragePolicy_Handler,
+		},
+		{
+			MethodName: "ListBaseRedactStorageTable",
+			Handler:    _BaseRedactStoragePolicyService_ListBaseRedactStorageTable_Handler,
+		},
+		{
+			MethodName: "ListBaseRedactStorageColumn",
+			Handler:    _BaseRedactStoragePolicyService_ListBaseRedactStorageColumn_Handler,
 		},
 		{
 			MethodName: "GetBaseRedactStoragePolicy",
@@ -359,10 +403,6 @@ var BaseRedactStoragePolicyService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "SetBaseRedactStoragePolicyStatus",
 			Handler:    _BaseRedactStoragePolicyService_SetBaseRedactStoragePolicyStatus_Handler,
-		},
-		{
-			MethodName: "ListBaseRedactStorageColumn",
-			Handler:    _BaseRedactStoragePolicyService_ListBaseRedactStorageColumn_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

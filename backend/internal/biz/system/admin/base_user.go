@@ -86,7 +86,7 @@ func (c *BaseUserCase) OptionBaseUser(ctx context.Context, req *adminv1.OptionBa
 
 	query := c.Query(ctx).BaseUser
 	opts := make([]repository.QueryOption, 0, 8)
-	opts = append(opts, repository.Select(query.ID, query.NickName))
+	opts = append(opts, repository.Select(query.ID, query.TenantID, query.NickName))
 	opts = append(opts, repository.Order(query.CreatedAt.Desc()))
 	if keyword != "" {
 		opts = append(opts, repository.Where(query.NickName.Like("%"+keyword+"%")))
@@ -557,7 +557,7 @@ func (c *BaseUserCase) DeleteBaseUser(ctx context.Context, id string) error {
 	ids := _string.ConvertStringToInt64Array(id)
 	query := c.Query(ctx).BaseUser
 	baseUserList, err := c.List(ctx,
-		repository.Select(query.ID, query.RoleID),
+		repository.Select(query.ID, query.TenantID, query.RoleID),
 		repository.Where(query.ID.In(ids...)),
 	)
 	if err != nil {
@@ -599,7 +599,7 @@ func (c *BaseUserCase) DeleteBaseUser(ctx context.Context, id string) error {
 func (c *BaseUserCase) SetBaseUserStatus(ctx context.Context, req *adminv1.SetBaseUserStatusRequest) error {
 	query := c.Query(ctx).BaseUser
 	baseUser, err := c.Find(ctx,
-		repository.Select(query.ID, query.RoleID),
+		repository.Select(query.ID, query.TenantID, query.RoleID),
 		repository.Where(query.ID.Eq(req.GetId())),
 	)
 	if err != nil {
@@ -676,6 +676,7 @@ func (c *BaseUserCase) ResetBaseUserPassword(ctx context.Context, req *adminv1.R
 	}
 	err = c.UpdateByID(ctx, &models.BaseUser{
 		ID:                 req.GetId(),
+		TenantID:           baseUser.TenantID,
 		Password:           password,
 		PasswordChangedAt:  time.Now(),
 		PasswordHistory:    history,
@@ -700,7 +701,7 @@ func (c *BaseUserCase) SetBaseUserAppRole(ctx context.Context, userID int64, rol
 	if err = c.revokeUserToken(userID); err != nil {
 		return err
 	}
-	err = c.UpdateByID(ctx, &models.BaseUser{ID: userID, RoleID: role.ID})
+	err = c.UpdateByID(ctx, &models.BaseUser{ID: userID, TenantID: role.TenantID, RoleID: role.ID})
 	if err != nil {
 		return err
 	}

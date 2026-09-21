@@ -15,12 +15,13 @@ const TableNameBaseThirdAccount = "base_third_account"
 // BaseThirdAccount 用户三方登录账号信息
 type BaseThirdAccount struct {
 	ID         int64                 `gorm:"column:id;type:bigint;primaryKey;autoIncrement:true;comment:三方账号ID" json:"id"`                                                                                                                           // 三方账号ID
-	UserID     int64                 `gorm:"column:user_id;type:bigint;not null;uniqueIndex:unique_base_third_account_user,priority:1;index:idx_base_third_account_user_id,priority:1;comment:用户ID" json:"user_id"`                                  // 用户ID
-	Provider   string                `gorm:"column:provider;type:varchar(50);not null;uniqueIndex:unique_base_third_account,priority:1;uniqueIndex:unique_base_third_account_user,priority:2;comment:三方登录提供商" json:"provider"`                       // 三方登录提供商
+	TenantID   int64                 `gorm:"column:tenant_id;type:bigint;not null;uniqueIndex:unique_base_third_account_user,priority:1;index:idx_base_third_account_tenant_id_user_id,priority:1;comment:租户ID" json:"tenant_id"`                    // 租户ID
+	UserID     int64                 `gorm:"column:user_id;type:bigint;not null;uniqueIndex:unique_base_third_account_user,priority:2;index:idx_base_third_account_tenant_id_user_id,priority:2;comment:用户ID" json:"user_id"`                        // 用户ID
+	Provider   string                `gorm:"column:provider;type:varchar(50);not null;uniqueIndex:unique_base_third_account,priority:1;uniqueIndex:unique_base_third_account_user,priority:3;comment:三方登录提供商" json:"provider"`                       // 三方登录提供商
 	Identifier string                `gorm:"column:identifier;type:varchar(128);not null;uniqueIndex:unique_base_third_account,priority:2;comment:三方唯一标识" json:"identifier"`                                                                         // 三方唯一标识
 	CreatedAt  time.Time             `gorm:"column:created_at;type:datetime;not null;comment:创建时间" json:"created_at"`                                                                                                                                // 创建时间
 	UpdatedAt  time.Time             `gorm:"column:updated_at;type:datetime;not null;comment:更新时间" json:"updated_at"`                                                                                                                                // 更新时间
-	DeletedAt  soft_delete.DeletedAt `gorm:"column:deleted_at;type:bigint unsigned;not null;uniqueIndex:unique_base_third_account,priority:3;uniqueIndex:unique_base_third_account_user,priority:3;comment:删除时间;softDelete:milli" json:"deleted_at"` // 删除时间
+	DeletedAt  soft_delete.DeletedAt `gorm:"column:deleted_at;type:bigint unsigned;not null;uniqueIndex:unique_base_third_account,priority:3;uniqueIndex:unique_base_third_account_user,priority:4;comment:删除时间;softDelete:milli" json:"deleted_at"` // 删除时间
 }
 
 // TableName BaseThirdAccount's table name

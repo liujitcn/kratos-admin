@@ -89,7 +89,7 @@ func (c *AuthCase) TreeUserMenu(ctx context.Context) (*adminv1.TreeRouteResponse
 	roleQuery := c.baseRoleCase.Query(ctx).BaseRole
 	var baseRole *models.BaseRole
 	baseRole, err = c.baseRoleCase.Find(ctx,
-		repository.Select(roleQuery.Code, roleQuery.Menus, roleQuery.Status),
+		repository.Select(roleQuery.TenantID, roleQuery.Code, roleQuery.Menus, roleQuery.Status),
 		repository.Where(roleQuery.ID.Eq(authInfo.RoleId)),
 	)
 	if err != nil {
@@ -151,7 +151,7 @@ func (c *AuthCase) ListUserButton(ctx context.Context) (*commonv1.StringValues, 
 
 	userQuery := c.baseUserCase.Query(ctx).BaseUser
 	userOpts := []repository.QueryOption{
-		repository.Select(userQuery.RoleID, userQuery.Status),
+		repository.Select(userQuery.TenantID, userQuery.RoleID, userQuery.Status),
 		repository.Where(userQuery.ID.Eq(authInfo.UserId)),
 	}
 	var baseUser *models.BaseUser
@@ -168,7 +168,7 @@ func (c *AuthCase) ListUserButton(ctx context.Context) (*commonv1.StringValues, 
 	roleQuery := c.baseRoleCase.Query(ctx).BaseRole
 	var baseRole *models.BaseRole
 	baseRole, err = c.baseRoleCase.Find(ctx,
-		repository.Select(roleQuery.Code, roleQuery.Menus),
+		repository.Select(roleQuery.TenantID, roleQuery.Code, roleQuery.Menus),
 		repository.Where(roleQuery.ID.Eq(baseUser.RoleID)),
 	)
 	if err != nil {
@@ -245,7 +245,7 @@ func (c *AuthCase) GetUserInfo(ctx context.Context) (*adminv1.UserInfoForm, erro
 	roleQuery := c.baseRoleCase.Query(ctx).BaseRole
 	var baseRole *models.BaseRole
 	baseRole, err = c.baseRoleCase.Find(ctx,
-		repository.Select(roleQuery.Code, roleQuery.Name),
+		repository.Select(roleQuery.TenantID, roleQuery.Code, roleQuery.Name),
 		repository.Where(roleQuery.ID.Eq(baseUser.RoleID)),
 	)
 	if err != nil {
@@ -256,7 +256,7 @@ func (c *AuthCase) GetUserInfo(ctx context.Context) (*adminv1.UserInfoForm, erro
 	deptQuery := c.baseDeptCase.Query(ctx).BaseDept
 	var baseDept *models.BaseDept
 	baseDept, err = c.baseDeptCase.Find(ctx,
-		repository.Select(deptQuery.Name),
+		repository.Select(deptQuery.TenantID, deptQuery.Name),
 		repository.Where(deptQuery.ID.Eq(baseUser.DeptID)),
 	)
 	if err != nil {
@@ -294,6 +294,7 @@ func (c *AuthCase) GetUserProfile(ctx context.Context) (*adminv1.UserProfileForm
 	userOpts := []repository.QueryOption{
 		repository.Select(
 			userQuery.ID,
+			userQuery.TenantID,
 			userQuery.UserName,
 			userQuery.NickName,
 			userQuery.Avatar,
@@ -322,7 +323,7 @@ func (c *AuthCase) GetUserProfile(ctx context.Context) (*adminv1.UserProfileForm
 	roleQuery := c.baseRoleCase.Query(ctx).BaseRole
 	var baseRole *models.BaseRole
 	baseRole, err = c.baseRoleCase.Find(ctx,
-		repository.Select(roleQuery.Name),
+		repository.Select(roleQuery.TenantID, roleQuery.Name),
 		repository.Where(roleQuery.ID.Eq(baseUser.RoleID)),
 	)
 	if err != nil {
@@ -332,7 +333,7 @@ func (c *AuthCase) GetUserProfile(ctx context.Context) (*adminv1.UserProfileForm
 	deptQuery := c.baseDeptCase.Query(ctx).BaseDept
 	var baseDept *models.BaseDept
 	baseDept, err = c.baseDeptCase.Find(ctx,
-		repository.Select(deptQuery.Name),
+		repository.Select(deptQuery.TenantID, deptQuery.Name),
 		repository.Where(deptQuery.ID.Eq(baseUser.DeptID)),
 	)
 	if err != nil {
@@ -456,8 +457,9 @@ func (c *AuthCase) UpdateUserPhone(ctx context.Context, req *adminv1.UserPhoneFo
 	}
 
 	err = c.baseUserCase.UpdateByID(ctx, &models.BaseUser{
-		ID:    authInfo.UserId,
-		Phone: req.GetPhone(),
+		ID:       authInfo.UserId,
+		TenantID: authInfo.TenantId,
+		Phone:    req.GetPhone(),
 	})
 	if err != nil {
 		return errorsx.Internal("修改手机号失败").WithCause(err)
@@ -480,7 +482,7 @@ func (c *AuthCase) UpdateUserProfile(ctx context.Context, req *adminv1.UserProfi
 
 	userQuery := c.baseUserCase.Query(ctx).BaseUser
 	userOpts := []repository.QueryOption{
-		repository.Select(userQuery.Avatar),
+		repository.Select(userQuery.TenantID, userQuery.Avatar),
 		repository.Where(userQuery.ID.Eq(authInfo.UserId)),
 	}
 	var oldBaseUser *models.BaseUser
@@ -490,6 +492,7 @@ func (c *AuthCase) UpdateUserProfile(ctx context.Context, req *adminv1.UserProfi
 	}
 	baseUser := models.BaseUser{
 		ID:       authInfo.UserId,
+		TenantID: oldBaseUser.TenantID,
 		UserName: req.GetUserName(),
 		NickName: req.GetNickName(),
 		Avatar:   req.GetAvatar(),
@@ -543,7 +546,7 @@ func (c *AuthCase) SendPhoneCode(ctx context.Context, req *adminv1.SendPhoneCode
 func (c *AuthCase) findUserIDByPhone(ctx context.Context, phone string) (int64, error) {
 	query := c.baseUserCase.Query(ctx).BaseUser
 	opts := make([]repository.QueryOption, 0, 2)
-	opts = append(opts, repository.Select(query.ID))
+	opts = append(opts, repository.Select(query.ID, query.TenantID))
 	opts = append(opts, repository.Where(query.Phone.Eq(phone)))
 	baseUser, err := c.baseUserCase.Find(ctx, opts...)
 	if err != nil {

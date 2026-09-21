@@ -144,8 +144,9 @@ test("脱敏列表和下拉使用中文名称并保持简洁选择器", async ()
     readSource("src/views/base/redact-storage-policy/index.vue"),
     readSource("src/views/base/redact-output-policy/index.vue")
   ]);
+  const requestApisBlock = outputSource.match(/async function requestApis\(\) \{[\s\S]*?\n\}/)?.[0];
 
-  assert.match(storageSource, /defCodeGenTableService\.ListCodeGenDatabaseTable/);
+  assert.match(storageSource, /defBaseRedactStoragePolicyService\.ListBaseRedactStorageTable/);
   assert.match(storageSource, /item\.comment/);
   assert.match(storageSource, /tableCommentMap/);
   assert.match(outputSource, /item\.service_desc/);
@@ -153,6 +154,9 @@ test("脱敏列表和下拉使用中文名称并保持简洁选择器", async ()
   assert.match(outputSource, /apiLabel/);
   assert.match(outputSource, /isGetApi/);
   assert.match(outputSource, /api\.method\.toUpperCase\(\) === "GET"/);
+  assert.match(outputSource, /OptionBaseApi\(\{ include_public: true, tenant_response: true \}\)/);
+  assert.ok(requestApisBlock, "缺少 API 选项请求方法");
+  assert.doesNotMatch(requestApisBlock, /requestResponseFields\(api\.id\)/);
   assert.match(outputSource, /mode: BaseRedactOutputPolicyMode\.BASE_REDACT_OUTPUT_POLICY_MODE_FULL/);
   assert.doesNotMatch(outputSource, /apiOptionTooltip|<el-tooltip/);
 });
@@ -281,6 +285,37 @@ test("文件管理列表使用统一租户列展示规则", async () => {
 
   assert.match(source, /tenantColumns\(\{ label: t\("common\.field\.tenant"\), minWidth: 100 \}\)/);
   assert.doesNotMatch(source, /system\.base\.file\.field\.tenant/);
+});
+
+test("携带租户查询的列表统一将租户作为第一业务列和第一个查询字段", async () => {
+  const pages = [
+    "api-log/index.vue",
+    "data-access-log/index.vue",
+    "dept/index.vue",
+    "file/index.vue",
+    "login-log/index.vue",
+    "message/index.vue",
+    "oauth-client/index.vue",
+    "online-session/index.vue",
+    "operation-log/index.vue",
+    "permission-log/index.vue",
+    "policy-evaluation-log/index.vue",
+    "post/index.vue",
+    "role/index.vue",
+    "tenant-project-grant/index.vue",
+    "user/index.vue"
+  ];
+
+  for (const page of pages) {
+    const source = await readSource(`src/views/base/${page}`);
+    const columns = source.match(/const columns = computed<ColumnProps\[\]>\(\(\) => \[([\s\S]*?)\n\]\);/)?.[1];
+    assert.ok(columns, `${page} 缺少标准列配置`);
+    assert.ok(columns.indexOf("tenantColumns(") >= 0, `${page} 缺少统一租户列`);
+    assert.ok(columns.indexOf("tenantColumns(") < columns.indexOf('{ prop: "'), `${page} 的租户列不是第一业务列`);
+  }
+
+  const tenantSource = await readSource("../../core/src/tenant.ts");
+  assert.match(tenantSource, /order: options\.order \?\? 1/);
 });
 
 test("项目授权列表不展示主体编码列且不保留无用翻译", async () => {

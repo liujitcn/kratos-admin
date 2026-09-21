@@ -59,11 +59,13 @@ service BaseI18nCustomService {
 
 // 国际化自定义翻译分页查询条件。
 message PageBaseI18nCustomRequest {
-  optional .base.v1.BaseConfigSite site = 1 [(gnostic.openapi.v3.property) = {description: "位置：枚举【BaseConfigSite】"}]; // 位置：枚举【BaseConfigSite】
+  optional int64 tenant_id = 1 [(gnostic.openapi.v3.property) = {description: "租户ID"}]; // 租户ID
 
-  string key = 2 [(gnostic.openapi.v3.property) = {description: "国际化语言键"}]; // 国际化语言键
+  optional .base.v1.BaseConfigSite site = 2 [(gnostic.openapi.v3.property) = {description: "位置：枚举【BaseConfigSite】"}]; // 位置：枚举【BaseConfigSite】
 
-  string locale = 3 [(gnostic.openapi.v3.property) = {description: "语言区域"}]; // 语言区域
+  string key = 3 [(gnostic.openapi.v3.property) = {description: "国际化语言键"}]; // 国际化语言键
+
+  string locale = 4 [(gnostic.openapi.v3.property) = {description: "语言区域"}]; // 语言区域
 
   optional .common.v1.Status status = 100 [(gnostic.openapi.v3.property) = {description: "状态：枚举【Status】"}]; // 状态：枚举【Status】
 
@@ -93,23 +95,25 @@ message GetBaseI18nCustomRequest {
 message BaseI18nCustomForm {
   int64 id = 1 [(gnostic.openapi.v3.property) = {description: "国际化自定义翻译ID"}]; // 国际化自定义翻译ID
 
-  .base.v1.BaseConfigSite site = 2 [
+  int64 tenant_id = 2 [(gnostic.openapi.v3.property) = {description: "租户ID"}, (buf.validate.field).cel = {id: "system.admin.base.i18n_custom.entity.tenant_id.required" message: "请选择所属租户" expression: "this > 0"}]; // 租户ID
+
+  .base.v1.BaseConfigSite site = 3 [
     (gnostic.openapi.v3.property) = {description: "位置：枚举【BaseConfigSite】"},
     (buf.validate.field).enum = {defined_only: true},
     (buf.validate.field).cel = {id: "system.admin.base.i18n_custom.entity.site.required" message: "请选择位置" expression: "this != 0"}
   ]; // 位置：枚举【BaseConfigSite】
 
-  string key = 3 [
+  string key = 4 [
     (gnostic.openapi.v3.property) = {description: "国际化语言键"},
     (buf.validate.field).cel = {id: "system.admin.base.i18n_custom.entity.key.length" message: "语言键不能为空且不超过 255 个字符" expression: "this.size() > 0 && this.size() <= 255"}
   ]; // 国际化语言键
 
-  string locale = 4 [
+  string locale = 5 [
     (gnostic.openapi.v3.property) = {description: "语言区域"},
     (buf.validate.field).cel = {id: "system.admin.base.i18n_custom.entity.locale.length" message: "语言区域不能为空且不超过 16 个字符" expression: "this.size() > 0 && this.size() <= 16"}
   ]; // 语言区域
 
-  string value = 5 [
+  string value = 6 [
     (gnostic.openapi.v3.property) = {description: "自定义翻译内容"},
     (buf.validate.field).cel = {id: "system.admin.base.i18n_custom.entity.value.required" message: "自定义翻译内容不能为空" expression: "this.size() > 0"}
   ]; // 自定义翻译内容
@@ -151,13 +155,15 @@ message SetBaseI18nCustomStatusRequest {
 message BaseI18nCustom {
   int64 id = 1 [(gnostic.openapi.v3.property) = {description: "国际化自定义翻译ID"}]; // 国际化自定义翻译ID
 
-  .base.v1.BaseConfigSite site = 2 [(gnostic.openapi.v3.property) = {description: "位置：枚举【BaseConfigSite】"}]; // 位置：枚举【BaseConfigSite】
+  int64 tenant_id = 2 [(gnostic.openapi.v3.property) = {description: "租户ID"}]; // 租户ID
 
-  string key = 3 [(gnostic.openapi.v3.property) = {description: "国际化语言键"}]; // 国际化语言键
+  .base.v1.BaseConfigSite site = 3 [(gnostic.openapi.v3.property) = {description: "位置：枚举【BaseConfigSite】"}]; // 位置：枚举【BaseConfigSite】
 
-  string locale = 4 [(gnostic.openapi.v3.property) = {description: "语言区域"}]; // 语言区域
+  string key = 4 [(gnostic.openapi.v3.property) = {description: "国际化语言键"}]; // 国际化语言键
 
-  string value = 5 [(gnostic.openapi.v3.property) = {description: "自定义翻译内容"}]; // 自定义翻译内容
+  string locale = 5 [(gnostic.openapi.v3.property) = {description: "语言区域"}]; // 语言区域
+
+  string value = 6 [(gnostic.openapi.v3.property) = {description: "自定义翻译内容"}]; // 自定义翻译内容
 
   .common.v1.Status status = 100 [(gnostic.openapi.v3.property) = {description: "状态：枚举【Status】"}]; // 状态
 

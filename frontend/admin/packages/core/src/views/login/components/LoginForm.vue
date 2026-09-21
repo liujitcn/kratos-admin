@@ -629,6 +629,11 @@ const handleLoginResponse = async (result: LoginResponse) => {
     clearPasswordChangeRequired();
   }
   userStore.updateTokenAuth(result.access_token, result.token_type ?? "", result.expires_in);
+  try {
+    await configStore.loadI18nCustom();
+  } catch {
+    configStore.resetI18nCustom();
+  }
   await finishLogin(mustChangePassword);
 };
 

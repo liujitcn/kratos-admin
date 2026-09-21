@@ -44,6 +44,7 @@ export function resolveTimestamp(timestamp?: { seconds?: number; nanos?: number 
 export function normalizeSession(session?: Partial<AiSession> | null): AiSession {
   return {
     id: String(session?.id ?? ""),
+    tenant_id: Number(session?.tenant_id ?? 0),
     title: resolveSessionText(session?.title, true),
     summary: resolveSessionText(session?.summary, false),
     updated_at: session?.updated_at,
@@ -210,6 +211,7 @@ export function createLocalUserMessage(payload: { text: string; attachments: AiA
   const message = mapMessageItem(
     {
       id: `${LOCAL_USER_MESSAGE_ID_PREFIX}-${now.getTime()}`,
+      tenant_id: 0,
       input_content: {
         kind: "text",
         content: payload.text
@@ -244,6 +246,7 @@ export function createThinkingMessage(options?: { sessionID?: string; messageID?
   const message = mapMessageItem(
     {
       id: streamKey || `${THINKING_MESSAGE_ID_PREFIX}-${now.getTime()}`,
+      tenant_id: 0,
       input_content: undefined,
       output_content: {
         kind: "text",

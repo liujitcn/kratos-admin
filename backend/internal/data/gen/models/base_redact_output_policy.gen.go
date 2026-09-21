@@ -14,11 +14,12 @@ const TableNameBaseRedactOutputPolicy = "base_redact_output_policy"
 
 // BaseRedactOutputPolicy Proto字段出库策略
 type BaseRedactOutputPolicy struct {
+	TenantID    int64                 `gorm:"column:tenant_id;type:bigint;not null;uniqueIndex:unique_base_redact_output_policy,priority:1;index:idx_base_redact_output_policy_tenant_id,priority:1;comment:租户ID" json:"tenant_id"`           // 租户ID
 	ID          int64                 `gorm:"column:id;type:bigint;primaryKey;autoIncrement:true;comment:出库策略ID" json:"id"`                                                                                                                   // 出库策略ID
-	Operation   string                `gorm:"column:operation;type:varchar(255);not null;uniqueIndex:unique_base_redact_output_policy,priority:1;index:idx_base_redact_output_policy_operation,priority:1;comment:RPC完整操作名" json:"operation"` // RPC完整操作名
+	Operation   string                `gorm:"column:operation;type:varchar(250);not null;uniqueIndex:unique_base_redact_output_policy,priority:2;index:idx_base_redact_output_policy_operation,priority:1;comment:RPC完整操作名" json:"operation"` // RPC完整操作名
 	ServiceName string                `gorm:"column:service_name;type:varchar(50);not null;index:idx_base_redact_output_policy_service_name,priority:1;comment:服务名" json:"service_name"`                                                      // 服务名
-	MessageRef  string                `gorm:"column:message_ref;type:varchar(255);not null;uniqueIndex:unique_base_redact_output_policy,priority:2;comment:Proto消息完整名称" json:"message_ref"`                                                   // Proto消息完整名称
-	FieldPath   string                `gorm:"column:field_path;type:varchar(255);not null;uniqueIndex:unique_base_redact_output_policy,priority:3;comment:Proto字段路径" json:"field_path"`                                                       // Proto字段路径
+	MessageRef  string                `gorm:"column:message_ref;type:varchar(255);not null;uniqueIndex:unique_base_redact_output_policy,priority:3;comment:Proto消息完整名称" json:"message_ref"`                                                   // Proto消息完整名称
+	FieldPath   string                `gorm:"column:field_path;type:varchar(255);not null;uniqueIndex:unique_base_redact_output_policy,priority:4;comment:Proto字段路径" json:"field_path"`                                                       // Proto字段路径
 	Mode        int32                 `gorm:"column:mode;type:tinyint;not null;comment:处理模式：枚举【BaseRedactOutputPolicyMode】" json:"mode"`                                                                                                      // 处理模式：枚举【BaseRedactOutputPolicyMode】
 	RuleID      int64                 `gorm:"column:rule_id;type:bigint;not null;index:idx_base_redact_output_policy_rule_id,priority:1;comment:规则模板ID，非规则模式为0" json:"rule_id"`                                                               // 规则模板ID，非规则模式为0
 	RuleParams  string                `gorm:"column:rule_params;type:json;not null;comment:策略规则参数" json:"rule_params"`                                                                                                                        // 策略规则参数
@@ -28,7 +29,7 @@ type BaseRedactOutputPolicy struct {
 	UpdatedBy   int64                 `gorm:"column:updated_by;type:bigint;not null;comment:更新者ID" json:"updated_by"`                                                                                                                         // 更新者ID
 	CreatedAt   time.Time             `gorm:"column:created_at;type:datetime;not null;comment:创建时间" json:"created_at"`                                                                                                                        // 创建时间
 	UpdatedAt   time.Time             `gorm:"column:updated_at;type:datetime;not null;comment:更新时间" json:"updated_at"`                                                                                                                        // 更新时间
-	DeletedAt   soft_delete.DeletedAt `gorm:"column:deleted_at;type:bigint unsigned;not null;uniqueIndex:unique_base_redact_output_policy,priority:4;comment:删除时间;softDelete:milli" json:"deleted_at"`                                        // 删除时间
+	DeletedAt   soft_delete.DeletedAt `gorm:"column:deleted_at;type:bigint unsigned;not null;uniqueIndex:unique_base_redact_output_policy,priority:5;comment:删除时间;softDelete:milli" json:"deleted_at"`                                        // 删除时间
 }
 
 // TableName BaseRedactOutputPolicy's table name

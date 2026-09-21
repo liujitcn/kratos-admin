@@ -19,6 +19,8 @@ import (
 
 	_string "github.com/liujitcn/go-utils/string"
 	"github.com/liujitcn/gorm-kit/repository"
+	"google.golang.org/protobuf/reflect/protoreflect"
+	"google.golang.org/protobuf/reflect/protoregistry"
 )
 
 // BaseRedactOutputPolicyCase 提供出库脱敏策略管理能力。
@@ -46,6 +48,9 @@ func (c *BaseRedactOutputPolicyCase) PageBaseRedactOutputPolicy(ctx context.Cont
 	query := c.Query(ctx).BaseRedactOutputPolicy
 	opts := make([]repository.QueryOption, 0, 6)
 	opts = append(opts, repository.Order(query.ID.Asc()))
+	if req.TenantId != nil {
+		opts = append(opts, repository.Where(query.TenantID.Eq(req.GetTenantId())))
+	}
 	if req.GetOperation() != "" {
 		opts = append(opts, repository.Where(query.Operation.Like("%"+req.GetOperation()+"%")))
 	}
@@ -93,7 +98,7 @@ func (c *BaseRedactOutputPolicyCase) GetBaseRedactOutputPolicy(ctx context.Conte
 	if err != nil {
 		return nil, err
 	}
-	return &adminv1.BaseRedactOutputPolicyForm{Id: item.ID, Operation: item.Operation, ServiceName: item.ServiceName, MessageRef: item.MessageRef, FieldPath: item.FieldPath, Mode: adminv1.BaseRedactOutputPolicyMode(item.Mode), RuleId: item.RuleID, RuleParams: item.RuleParams, Status: commonv1.Status(item.Status), Remark: item.Remark}, nil
+	return &adminv1.BaseRedactOutputPolicyForm{Id: item.ID, TenantId: item.TenantID, Operation: item.Operation, ServiceName: item.ServiceName, MessageRef: item.MessageRef, FieldPath: item.FieldPath, Mode: adminv1.BaseRedactOutputPolicyMode(item.Mode), RuleId: item.RuleID, RuleParams: item.RuleParams, Status: commonv1.Status(item.Status), Remark: item.Remark}, nil
 }
 
 // CreateBaseRedactOutputPolicy 批量创建出库脱敏策略。
@@ -121,7 +126,7 @@ func (c *BaseRedactOutputPolicyCase) CreateBaseRedactOutputPolicy(ctx context.Co
 		if err != nil {
 			return err
 		}
-		item := &models.BaseRedactOutputPolicy{Operation: input.GetOperation(), ServiceName: input.GetServiceName(), MessageRef: input.GetMessageRef(), FieldPath: input.GetFieldPath(), Mode: int32(input.GetMode()), RuleParams: input.GetRuleParams(), Status: int32(input.GetStatus()), Remark: input.GetRemark(), CreatedBy: authInfo.UserId, UpdatedBy: authInfo.UserId, CreatedAt: now, UpdatedAt: now}
+		item := &models.BaseRedactOutputPolicy{TenantID: input.GetTenantId(), Operation: input.GetOperation(), ServiceName: input.GetServiceName(), MessageRef: input.GetMessageRef(), FieldPath: input.GetFieldPath(), Mode: int32(input.GetMode()), RuleParams: input.GetRuleParams(), Status: int32(input.GetStatus()), Remark: input.GetRemark(), CreatedBy: authInfo.UserId, UpdatedBy: authInfo.UserId, CreatedAt: now, UpdatedAt: now}
 		if rule == nil {
 			item.RuleID = 0
 			item.RuleParams = "{}"
@@ -179,7 +184,10 @@ func (c *BaseRedactOutputPolicyCase) UpdateBaseRedactOutputPolicy(ctx context.Co
 		if err != nil {
 			return err
 		}
-		item := &models.BaseRedactOutputPolicy{ID: oldItem.ID, Operation: input.GetOperation(), ServiceName: input.GetServiceName(), MessageRef: input.GetMessageRef(), FieldPath: input.GetFieldPath(), Mode: int32(input.GetMode()), RuleParams: input.GetRuleParams(), Status: int32(input.GetStatus()), Remark: input.GetRemark(), CreatedBy: oldItem.CreatedBy, UpdatedBy: authInfo.UserId, CreatedAt: oldItem.CreatedAt, UpdatedAt: now}
+		if input.GetTenantId() != oldItem.TenantID {
+			return errorsx.ProtectedResourceConflict("响应脱敏策略创建后不允许修改租户", "base_redact_output_policy")
+		}
+		item := &models.BaseRedactOutputPolicy{ID: oldItem.ID, TenantID: oldItem.TenantID, Operation: input.GetOperation(), ServiceName: input.GetServiceName(), MessageRef: input.GetMessageRef(), FieldPath: input.GetFieldPath(), Mode: int32(input.GetMode()), RuleParams: input.GetRuleParams(), Status: int32(input.GetStatus()), Remark: input.GetRemark(), CreatedBy: oldItem.CreatedBy, UpdatedBy: authInfo.UserId, CreatedAt: oldItem.CreatedAt, UpdatedAt: now}
 		if rule == nil {
 			item.RuleID = 0
 			item.RuleParams = "{}"
@@ -251,7 +259,8 @@ func (c *BaseRedactOutputPolicyCase) SetBaseRedactOutputPolicyStatus(ctx context
 	if item.Status == int32(req.GetStatus()) {
 		return nil
 	}
-	err = c.UpdateByID(ctx, &models.BaseRedactOutputPolicy{ID: item.ID, Status: int32(req.GetStatus())})
+	item.Status = int32(req.GetStatus())
+	err = c.UpdateByID(ctx, item)
 	if err != nil {
 		return err
 	}
@@ -274,6 +283,9 @@ func (c *BaseRedactOutputPolicyCase) GetBaseRedactOutputFieldDoc(ctx context.Con
 
 // validateOutputForm 校验出库策略接口、模式和规则参数。
 func (c *BaseRedactOutputPolicyCase) validateOutputForm(ctx context.Context, input *adminv1.BaseRedactOutputPolicyForm) (*models.BaseRedactRule, error) {
+	if input.GetTenantId() <= 0 {
+		return nil, errorsx.InvalidArgument("请选择租户")
+	}
 	query := c.baseAPIRepo.Query(ctx).BaseAPI
 	var api *models.BaseAPI
 	var err error
@@ -286,6 +298,10 @@ func (c *BaseRedactOutputPolicyCase) validateOutputForm(ctx context.Context, inp
 	}
 	if !strings.EqualFold(api.Method, http.MethodGet) {
 		return nil, errorsx.InvalidArgument("出库脱敏只支持 GET 接口")
+	}
+	err = validateTenantResponseType(input.GetMessageRef())
+	if err != nil {
+		return nil, err
 	}
 	mode := input.GetMode()
 	if mode != adminv1.BaseRedactOutputPolicyMode_BASE_REDACT_OUTPUT_POLICY_MODE_RULE && mode != adminv1.BaseRedactOutputPolicyMode_BASE_REDACT_OUTPUT_POLICY_MODE_HIDE && mode != adminv1.BaseRedactOutputPolicyMode_BASE_REDACT_OUTPUT_POLICY_MODE_FULL {
@@ -313,9 +329,22 @@ func (c *BaseRedactOutputPolicyCase) validateOutputForm(ctx context.Context, inp
 	return rule, nil
 }
 
+// validateTenantResponseType 校验响应数据类型显式包含租户字段。
+func validateTenantResponseType(messageRef string) error {
+	messageType, err := protoregistry.GlobalTypes.FindMessageByName(protoreflect.FullName(messageRef))
+	if err != nil {
+		return errorsx.InvalidArgument("响应数据类型不存在").WithCause(err)
+	}
+	tenantField := messageType.Descriptor().Fields().ByName("tenant_id")
+	if tenantField == nil || tenantField.Kind() != protoreflect.Int64Kind {
+		return errorsx.InvalidArgument("只能选择包含租户ID的响应数据")
+	}
+	return nil
+}
+
 // toBaseRedactOutputPolicy 转换出库脱敏策略列表项。
 func (c *BaseRedactOutputPolicyCase) toBaseRedactOutputPolicy(ctx context.Context, item *models.BaseRedactOutputPolicy) (*adminv1.BaseRedactOutputPolicy, error) {
-	result := &adminv1.BaseRedactOutputPolicy{Id: item.ID, Operation: item.Operation, ServiceName: item.ServiceName, MessageRef: item.MessageRef, FieldPath: item.FieldPath, Mode: adminv1.BaseRedactOutputPolicyMode(item.Mode), RuleId: item.RuleID, RuleParams: item.RuleParams, Status: commonv1.Status(item.Status), Remark: item.Remark, CreatedAt: item.CreatedAt.Format("2006-01-02 15:04:05"), UpdatedAt: item.UpdatedAt.Format("2006-01-02 15:04:05")}
+	result := &adminv1.BaseRedactOutputPolicy{Id: item.ID, TenantId: item.TenantID, Operation: item.Operation, ServiceName: item.ServiceName, MessageRef: item.MessageRef, FieldPath: item.FieldPath, Mode: adminv1.BaseRedactOutputPolicyMode(item.Mode), RuleId: item.RuleID, RuleParams: item.RuleParams, Status: commonv1.Status(item.Status), Remark: item.Remark, CreatedAt: item.CreatedAt.Format("2006-01-02 15:04:05"), UpdatedAt: item.UpdatedAt.Format("2006-01-02 15:04:05")}
 	if item.RuleID == 0 {
 		return result, nil
 	}

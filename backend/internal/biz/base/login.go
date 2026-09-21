@@ -17,7 +17,6 @@ import (
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-core/biz"
 	"github.com/liujitcn/kratos-core/errorsx"
-	"github.com/liujitcn/kratos-core/job"
 
 	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/loginaudit"
@@ -38,6 +37,7 @@ import (
 	authData "github.com/liujitcn/kratos-kit/auth/data"
 	"github.com/liujitcn/kratos-kit/captcha"
 	databaseGorm "github.com/liujitcn/kratos-kit/database/gorm"
+	"github.com/liujitcn/kratos-kit/locker"
 	"github.com/redis/go-redis/v9"
 	"gorm.io/gorm"
 )
@@ -73,7 +73,7 @@ type LoginCase struct {
 	mfaCase          *MfaCase
 	userToken        *authData.UserToken
 	loginPolicyMu    sync.Mutex
-	loginLocker      *sessionregistry.LoginLocker
+	loginLocker      locker.Locker
 }
 
 // NewLoginCase 创建登录业务实例。
@@ -87,7 +87,7 @@ func NewLoginCase(
 	baseDictItemRepo *data.BaseDictItemRepository,
 	mfaCase *MfaCase,
 	userToken *authData.UserToken,
-	loginLocker *sessionregistry.LoginLocker,
+	loginLocker locker.Locker,
 ) *LoginCase {
 	return &LoginCase{
 		BaseCase:         baseCase,
@@ -499,8 +499,8 @@ func (c *LoginCase) FindUserByPassword(ctx context.Context, tenantCode string, u
 
 // IssueUserToken 校验用户关联状态并签发后台访问令牌。
 func (c *LoginCase) IssueUserToken(ctx context.Context, user *models.BaseUser) (response *basev1.LoginResponse, err error) {
-	var lease *job.ExecutionLease
-	lease, err = c.loginLocker.Acquire(ctx, fmt.Sprintf("security:login-lock:%d", user.ID))
+	var lease locker.Lease
+	lease, err = c.loginLocker.Acquire(ctx, fmt.Sprintf("security:login-lock:%d", user.ID), 5*time.Minute)
 	if err != nil {
 		return nil, errorsx.Conflict("账号正在登录，请稍后重试").WithCause(err)
 	}
@@ -616,7 +616,7 @@ func (c *LoginCase) buildAuthInfo(ctx context.Context, user *models.BaseUser) (*
 	// 查询角色信息
 	roleQuery := c.baseRoleCase.Query(ctx).BaseRole
 	roleOpts := []repository.QueryOption{
-		repository.Select(roleQuery.Code, roleQuery.Name, roleQuery.DataScope, roleQuery.Status),
+		repository.Select(roleQuery.TenantID, roleQuery.Code, roleQuery.Name, roleQuery.DataScope, roleQuery.Status),
 		repository.Where(roleQuery.ID.Eq(user.RoleID)),
 	}
 	var role *models.BaseRole
@@ -632,7 +632,7 @@ func (c *LoginCase) buildAuthInfo(ctx context.Context, user *models.BaseUser) (*
 	// 查询部门信息
 	deptQuery := c.baseDeptCase.Query(ctx).BaseDept
 	deptOpts := []repository.QueryOption{
-		repository.Select(deptQuery.Name, deptQuery.Status),
+		repository.Select(deptQuery.TenantID, deptQuery.Name, deptQuery.Status),
 		repository.Where(deptQuery.ID.Eq(user.DeptID)),
 	}
 	var dept *models.BaseDept

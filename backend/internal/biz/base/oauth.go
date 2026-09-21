@@ -95,7 +95,7 @@ func (c *OauthCase) ListOauthBinding(ctx context.Context, req *basev1.ListOauthB
 	}
 
 	var thirdAccounts []*models.BaseThirdAccount
-	thirdAccounts, err = c.baseThirdAccountCase.ListByUserID(ctx, authInfo.UserId)
+	thirdAccounts, err = c.baseThirdAccountCase.ListByUserID(ctx, authInfo.TenantId, authInfo.UserId)
 	if err != nil {
 		return nil, errorsx.Internal("查询三方账号绑定失败").WithCause(err)
 	}
@@ -188,7 +188,8 @@ func (c *OauthCase) CreateOauthBindingAuthorization(ctx context.Context, req *ba
 		Scene:       oauthSceneAdminBind,
 		RedirectURL: safeRedirectURL,
 		Extra: map[string]string{
-			"user_id": strconv.FormatInt(authInfo.UserId, 10),
+			"tenant_id": strconv.FormatInt(authInfo.TenantId, 10),
+			"user_id":   strconv.FormatInt(authInfo.UserId, 10),
 		},
 	}, 0)
 	if err != nil {
@@ -296,14 +297,14 @@ func (c *OauthCase) BindOauthSession(ctx context.Context, req *basev1.BindOauthS
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, errorsx.Internal("微信登录失败").WithCause(err)
 	}
-	if err == nil && boundAccount.UserID != user.ID {
+	if err == nil && (boundAccount.TenantID != user.TenantID || boundAccount.UserID != user.ID) {
 		return nil, errorsx.Conflict("微信账号已绑定")
 	}
 
 	var loginRes *basev1.LoginResponse
 	err = c.tx.Transaction(ctx, func(txCtx context.Context) error {
 		if boundAccount == nil {
-			err = c.baseThirdAccountCase.CreateBinding(txCtx, user.ID, string(oauth.WechatMini), openID)
+			err = c.baseThirdAccountCase.CreateBinding(txCtx, user.TenantID, user.ID, string(oauth.WechatMini), openID)
 			if err != nil {
 				return err
 			}
@@ -364,6 +365,7 @@ func (c *OauthCase) HandleOauthCallback(ctx context.Context, req *basev1.HandleO
 	user, err = c.baseUserCase.Find(ctx,
 		repository.Select(query.ID, query.TenantID, query.UserName, query.UserCode, query.NickName, query.RoleID, query.DeptID, query.PasswordChangedAt, query.MustChangePassword, query.Status),
 		repository.Where(query.ID.Eq(thirdAccount.UserID)),
+		repository.Where(query.TenantID.Eq(thirdAccount.TenantID)),
 	)
 	if err != nil {
 		return nil, c.oauthRedirectPayload(payload, "", "三方账号登录失败")
@@ -427,14 +429,14 @@ func (c *OauthCase) UnbindOauthAccount(ctx context.Context, req *basev1.UnbindOa
 	if err != nil {
 		return err
 	}
-	_, err = c.baseThirdAccountCase.FindByUserProvider(ctx, authInfo.UserId, req.GetProvider())
+	_, err = c.baseThirdAccountCase.FindByUserProvider(ctx, authInfo.TenantId, authInfo.UserId, req.GetProvider())
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return errorsx.ResourceNotFound("三方账号未绑定")
 		}
 		return errorsx.Internal("解绑三方账号失败").WithCause(err)
 	}
-	err = c.baseThirdAccountCase.DeleteByUserProvider(ctx, authInfo.UserId, req.GetProvider())
+	err = c.baseThirdAccountCase.DeleteByUserProvider(ctx, authInfo.TenantId, authInfo.UserId, req.GetProvider())
 	if err != nil {
 		return errorsx.Internal("解绑三方账号失败").WithCause(err)
 	}
@@ -457,6 +459,7 @@ func (c *OauthCase) findWechatMiniUserByOpenID(ctx context.Context, openID strin
 	user, err = c.baseUserCase.Find(ctx,
 		repository.Select(query.ID, query.TenantID, query.UserName, query.UserCode, query.NickName, query.RoleID, query.DeptID, query.PasswordChangedAt, query.MustChangePassword, query.Status),
 		repository.Where(query.ID.Eq(thirdAccount.UserID)),
+		repository.Where(query.TenantID.Eq(thirdAccount.TenantID)),
 	)
 	if err != nil {
 		return nil, errorsx.Internal("微信登录失败").WithCause(err)
@@ -504,7 +507,7 @@ func (c *OauthCase) createWechatMiniUser(ctx context.Context, openID string) (*m
 		if err != nil {
 			return errorsx.Internal("微信登录失败").WithCause(err)
 		}
-		err = c.baseThirdAccountCase.CreateBinding(txCtx, user.ID, string(oauth.WechatMini), openID)
+		err = c.baseThirdAccountCase.CreateBinding(txCtx, user.TenantID, user.ID, string(oauth.WechatMini), openID)
 		if err != nil {
 			return errorsx.Internal("微信登录失败").WithCause(err)
 		}
@@ -561,6 +564,11 @@ func (c *OauthCase) handleOauthBindingCallback(ctx context.Context, payload *oau
 	if err != nil || userID <= 0 {
 		return c.oauthBindingRedirectPayload(payload, providerName, "三方账号绑定状态无效")
 	}
+	var tenantID int64
+	tenantID, err = strconv.ParseInt(payload.Extra["tenant_id"], 10, 64)
+	if err != nil || tenantID <= 0 {
+		return c.oauthBindingRedirectPayload(payload, providerName, "三方账号绑定状态无效")
+	}
 
 	var identifier string
 	identifier, err = c.fetchOauthIdentifier(ctx, oauthType, code, payload.PKCE)
@@ -572,7 +580,7 @@ func (c *OauthCase) handleOauthBindingCallback(ctx context.Context, payload *oau
 	boundAccount, err = c.baseThirdAccountCase.FindByProviderIdentifier(ctx, providerName, identifier)
 	if err == nil {
 		// 已经绑定到当前用户时，直接视为成功，避免重复回调造成误报。
-		if boundAccount.UserID == userID {
+		if boundAccount.TenantID == tenantID && boundAccount.UserID == userID {
 			return c.oauthBindingRedirectPayload(payload, providerName, "")
 		}
 		return c.oauthBindingRedirectPayload(payload, providerName, "三方账号已被其他用户绑定")
@@ -582,7 +590,7 @@ func (c *OauthCase) handleOauthBindingCallback(ctx context.Context, payload *oau
 	}
 
 	var userProviderAccount *models.BaseThirdAccount
-	userProviderAccount, err = c.baseThirdAccountCase.FindByUserProvider(ctx, userID, providerName)
+	userProviderAccount, err = c.baseThirdAccountCase.FindByUserProvider(ctx, tenantID, userID, providerName)
 	if err == nil {
 		// 同一用户同一 provider 只保留一条绑定，避免登录入口出现歧义。
 		if userProviderAccount.Identifier == identifier {
@@ -594,7 +602,7 @@ func (c *OauthCase) handleOauthBindingCallback(ctx context.Context, payload *oau
 		return c.oauthBindingRedirectPayload(payload, providerName, "三方账号绑定失败")
 	}
 
-	err = c.baseThirdAccountCase.CreateBinding(ctx, userID, providerName, identifier)
+	err = c.baseThirdAccountCase.CreateBinding(ctx, tenantID, userID, providerName, identifier)
 	if err != nil {
 		return c.oauthBindingRedirectPayload(payload, providerName, kratosErrors.FromError(err).Message)
 	}

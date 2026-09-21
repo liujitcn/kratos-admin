@@ -5,7 +5,7 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
 import type { ColumnProps } from "@liujitcn/kratos-admin-core/components/ProTable/interface";
-import { requestTenantCodeOptions, useTenantScope } from "@liujitcn/kratos-admin-core/tenant";
+import { useTenantScope } from "@liujitcn/kratos-admin-core/tenant";
 import { t } from "@liujitcn/kratos-admin-core";
 import { formatLogDateTime } from "@liujitcn/kratos-admin-system/components/log/log";
 import { buildPageRequest } from "@liujitcn/kratos-admin-core/table";
@@ -40,15 +40,8 @@ const loginTypeOptions = computed(() =>
 );
 
 const columns = computed<ColumnProps[]>(() => [
+  ...tenantColumns({ label: t("common.field.tenant"), minWidth: 140 }),
   { prop: "user_name", label: t("system.base.log.field.user_name"), minWidth: 130 },
-  ...tenantColumns({
-    prop: "tenant_code",
-    label: t("system.base.log.field.tenant_code"),
-    minWidth: 120,
-    searchEl: "select",
-    enum: requestTenantCodeOptions,
-    render: scope => String((scope.row as BaseLoginLog).tenant_code ?? "")
-  }),
   {
     prop: "login_type",
     label: t("system.base.log.field.login_type"),

@@ -7,7 +7,7 @@ import "gnostic/openapi/v3/annotations.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/empty.proto";
 
-// BaseTenantProjectGrantService 管理岗位、角色、部门和用户在目标租户下的项目授权。
+// Admin项目授权服务
 service BaseTenantProjectGrantService {
   // 查询项目授权分页列表。
   rpc PageBaseTenantProjectGrant(PageBaseTenantProjectGrantRequest) returns (PageBaseTenantProjectGrantResponse) {

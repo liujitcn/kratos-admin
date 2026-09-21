@@ -14,6 +14,13 @@ service ConfigService {
       get: "/api/v1/base/config"
     };
   }
+
+  // 获取当前租户的自定义国际化覆盖项
+  rpc GetI18nCustom(GetI18nCustomRequest) returns (GetI18nCustomResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/base/config/i18n-custom"
+    };
+  }
 }
 
 // 系统配置位置。
@@ -47,8 +54,16 @@ message GetConfigResponse {
   repeated ConfigItem configs = 1 [(gnostic.openapi.v3.property) = {description: "系统配置列表"}]; // 系统配置列表
 
   bool ai_enabled = 2 [(gnostic.openapi.v3.property) = {description: "AI assistant availability"}]; // AI 助手是否可用
+}
 
-  repeated I18nCustomItem i18n_customs = 3 [(gnostic.openapi.v3.property) = {description: "全部语言的自定义国际化覆盖项"}]; // 全部语言的自定义国际化覆盖项
+// 当前租户自定义国际化覆盖项查询条件。
+message GetI18nCustomRequest {
+  BaseConfigSite site = 1 [(gnostic.openapi.v3.property) = {description: "位置：枚举【BaseConfigSite】"}, (buf.validate.field).enum = {defined_only: true}, (buf.validate.field).cel = {id: "base.config.get_i18n_custom.site.required" message: "位置不能为空" expression: "this != 0"}]; // 位置：枚举【BaseConfigSite】
+}
+
+// 当前租户自定义国际化覆盖项查询结果。
+message GetI18nCustomResponse {
+  repeated I18nCustomItem items = 1 [(gnostic.openapi.v3.property) = {description: "全部语言的自定义国际化覆盖项"}]; // 全部语言的自定义国际化覆盖项
 }
 
 // 全部语言的自定义国际化覆盖项。

@@ -54,8 +54,11 @@ func NewBaseAPICase(
 // OptionBaseAPI 查询菜单分配接口选项列表
 func (c *BaseAPICase) OptionBaseAPI(ctx context.Context, req *adminv1.OptionBaseApiRequest) (*adminv1.OptionBaseApiResponse, error) {
 	query := c.Query(ctx).BaseAPI
-	opts := make([]repository.QueryOption, 0, 1)
+	opts := make([]repository.QueryOption, 0, 2)
 	opts = append(opts, repository.Order(query.ServiceName.Asc(), query.Operation.Asc()))
+	if req.TenantResponse != nil {
+		opts = append(opts, repository.Where(query.TenantResponse.Is(req.GetTenantResponse())))
+	}
 	list, err := c.List(ctx, opts...)
 	if err != nil {
 		return nil, err

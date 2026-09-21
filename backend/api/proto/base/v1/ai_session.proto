@@ -142,6 +142,8 @@ message DeleteAiSessionResponse {}
 message AiSession {
   string id = 1 [(gnostic.openapi.v3.property) = {description: "会话ID"}]; // 会话ID
 
+  int64 tenant_id = 7 [(gnostic.openapi.v3.property) = {description: "租户ID"}]; // 租户ID
+
   string title = 2 [(gnostic.openapi.v3.property) = {description: "会话标题"}]; // 会话标题
 
   string summary = 3 [(gnostic.openapi.v3.property) = {description: "会话摘要"}]; // 会话摘要
@@ -154,6 +156,8 @@ message AiSession {
 // AI 助手消息
 message AiMessage {
   string id = 1 [(gnostic.openapi.v3.property) = {description: "消息ID"}]; // 消息ID
+
+  int64 tenant_id = 11 [(gnostic.openapi.v3.property) = {description: "租户ID"}]; // 租户ID
 
   AiInputContent input_content = 2 [(gnostic.openapi.v3.property) = {description: "输入内容"}]; // 输入内容
 

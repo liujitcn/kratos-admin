@@ -19,6 +19,8 @@
 - 登入來源策略（全域及租戶/使用者定向規則）、密碼複雜度策略、按策略啟用多裝置登入、獨立工作階段逾時與撤銷、本人登入記錄、平台線上工作階段管理、稽核日誌非同步落庫與保留清理，以及受控 MySQL 備份還原工作。
 - 可掛載的 Go Core 模組；後端實作 `module.Module`，透過 `Resources` 提供靜態資源，並由啟動入口交給 Core 統一註冊協定服務。
 - 管理端、uni-app、Taro 與後端錯誤目錄的語言集合由語言包自動發現；動態選單、字典與程式碼產生同步支援所有已註冊語言。
+- 上傳檔案預設需要登入；檔案地址仍使用 `/data/...`，瀏覽器原生 `src` 請求透過 HttpOnly 存取權杖 Cookie 鑑權，明確公開的檔案可匿名存取。
+- 管理端支援在「系統管理 / 基礎管理 / 國際化自訂翻譯」中按租戶、位置、語言與語言鍵覆蓋固定介面文案，登入後載入目前租戶資料，預設語言包作為未配置時的回退。
 
 儲存庫不包含商城、訂單、支付或推薦等業務模組。
 
@@ -32,14 +34,14 @@
 | `frontend/taro-app` | React/Taro workspace，包含預設宿主、core、UI、system 與 CLI。 | [frontend/taro-app/README.md](frontend/taro-app/README.md) |
 | `docs` | 目前架構、操作流程與專題說明。 | [docs/README.md](docs/README.md) |
 
-開放授權協定的介面範圍、攔截器邊界與加密擴充點，請參閱 [docs/開放授權協定設計.md](docs/開放授權協定設計.md)。
+開放授權協定的介面範圍、攔截器邊界與加密擴充點，請參閱 [docs/開放授權協定設計.md](docs/开放授权协议设计.md)。
 
 ## 環境
 
 - Go `1.27.0`。
 - Node.js `^20.19.0` 或 `>=22.12.0`。
 - pnpm 版本依各 workspace 的 `packageManager` 為準：管理後台 `10.33.4`，uni-app 與 Taro 應用端 `10.13.1`。
-- MySQL、Redis、Consul 與 Vault；用途與設定入口見下方說明。
+- MySQL、Consul 與 Vault；Redis 與佇列可按需啟用，未配置時單一實例使用進程內實作。用途與設定入口見下方說明。
 - Docker 部署需要可用的 Docker CLI 與 Docker daemon。
 - 啟用 TOTP 綁定時，`mfa.encryption_key` 有明確值則使用該值，留空時在實際保護 TOTP 金鑰時按 `kratos-kit:mfa/encryption` 從執行時金鑰服務派生；啟用 WebAuthn 時還需設定 `mfa.webauthn.rp_id` 與 `mfa.webauthn.rp_origins`。設定檔中的敏感值應使用 `ENC[...]` 儲存。
 - Buf、protoc 插件、Wire 與 gorm-gen 僅在重新產生程式碼時需要，可透過 `make -C backend init` 安裝。
@@ -51,7 +53,7 @@
 | 中介軟體 | 用途 | 設定入口 |
 | --- | --- | --- |
 | MySQL | 業務資料持久化與資料庫遷移。 | `backend/configs/data.yaml` |
-| Redis | 快取、分散式鎖、佇列與訊息投遞。 | `backend/configs/data.yaml` |
+| Redis（可選） | 快取、分散式鎖、佇列與訊息投遞；未配置時單一實例使用進程內實作。 | `backend/configs/data.yaml` |
 | Consul | 服務註冊與發現。 | `backend/configs/full/registry.yaml` |
 | Vault | 應用根金鑰管理、設定解密與業務金鑰派生。 | `backend/configs/key.yaml` |
 
@@ -172,16 +174,17 @@ Admin 公開的 `backend/adapter/core` 與 `backend/adapter/kit` 建構函式只
 | 管理端、uni-app、Taro 的固定介面文案 | 各端 core 與業務模組的 `src/locales/*.json` |
 | 後端錯誤提示、程式碼產生範本文案 | `backend/internal/i18n/assets/*.json` |
 | 選單、字典、設定、工作等動態資源譯文 | `backend/migration/assets/v0.0.1/mysql/i18n.*.up.sql`，執行時儲存於 `base_i18n` |
+| 管理端固定介面文案的租戶級覆蓋 | `base_i18n_custom`，登入後由認證配置介面載入目前租戶資料 |
 | API 文件標題、說明與欄位描述 | Proto 中文說明及 `scripts/local_openapi_i18n.py` 本地術語對映 |
 | 已提供多語言版本的遷移說明與專案文件 | 對應的 `README.<locale>.md` 等文件 |
 
 修改固定文案時須補齊該模組各語言的相同 key 與佔位符。`make i18n` 不會自動補齊缺少的介面譯文；同步發現缺失會直接失敗。`src/locales/generated.ts` 等語言註冊檔案和 `openapi.<locale>.yaml` 是產生產物，不手動維護。初始化 SQL 的變化不會自動覆蓋已執行遷移的資料庫譯文。
 
-完整說明請參閱 [國際化語言擴充指南](docs/國際化語言擴展指南.md)。
+完整說明請參閱 [國際化語言擴充指南](docs/国际化语言扩展指南.md)。
 
 語言包定義系統能夠呈現的語言集合，`base_language` 表只負責執行時啟用狀態、名稱、排序與主語言設定。管理端語言偏好儲存為 `kratos-admin:locale`，uni-app 與 Taro 儲存為 `kratos-app:locale`；所有 HTTP、更新權杖、fetch、SSE、uni.request 與 Taro.request 請求都會傳送規範化的 `Accept-Language`。固定文案由各 workspace 的 core/System JSON 語言包維護，動態選單與字典由後端翻譯表按請求語言解析，缺少目前語言譯文時回退主語言。
 
-新增語言不需要修改 Go、TypeScript 或模組註冊程式碼：在 `backend/internal/i18n/assets` 與三個 workspace 的六個前端語言包目錄中增加同名 JSON，然後執行 `make i18n`。腳本會校驗語言集合、語言鍵與佔位符，並產生六個前端註冊檔案、Element Plus 與 Day.js 對映。語言名稱、排序、啟用狀態與主語言由 `base_language` 資料庫記錄提供；`common.language.*` 用於編譯期離線顯示與產生語言遷移的初始名稱。新增語言的完整檔案清單與遷移流程請參閱 [國際化語言擴充指南](docs/國際化語言擴展指南.md)。需要把語言加入新部署資料庫時，直接更新唯一的 `v0.0.1` 初始化遷移；已有資料庫的啟用狀態不會被遷移覆蓋。
+新增語言不需要修改 Go、TypeScript 或模組註冊程式碼：在 `backend/internal/i18n/assets` 與三個 workspace 的六個前端語言包目錄中增加同名 JSON，然後執行 `make i18n`。腳本會校驗語言集合、語言鍵與佔位符，並產生六個前端註冊檔案、Element Plus 與 Day.js 對映。語言名稱、排序、啟用狀態與主語言由 `base_language` 資料庫記錄提供；`common.language.*` 用於編譯期離線顯示與產生語言遷移的初始名稱。新增語言的完整檔案清單與遷移流程請參閱 [國際化語言擴充指南](docs/国际化语言扩展指南.md)。需要把語言加入新部署資料庫時，直接更新唯一的 `v0.0.1` 初始化遷移；已有資料庫的啟用狀態不會被遷移覆蓋。
 
 動態資源的主語言由 `base_language.is_primary` 設定。建立或更新選單、字典、字典項目與系統設定時，後端按請求 `Accept-Language` 將輸入文字轉換為主語言寫入主表；請求語言不是主語言時，原文寫入對應翻譯表，其他已啟用非主語言也只儲存在翻譯表。系統設定名稱、選單標題、字典名稱與字典項目標籤支援在管理端點擊名稱開啟翻譯彈窗，文字/富文字設定值支援執行時翻譯回退。
 
@@ -219,17 +222,18 @@ make -C frontend publish
 
 | 主題 | 文件 |
 | --- | --- |
-| 整體架構 | [docs/系統總體設計.md](docs/系統總體設計.md) |
-| 新能力接入 | [docs/服務接入指南.md](docs/服務接入指南.md) |
-| 資料庫遷移 | [docs/資料庫與初始化資料設計.md](docs/資料庫與初始化資料設計.md) |
-| 參數驗證 | [docs/介面參數校驗設計.md](docs/介面參數校驗設計.md) |
-| 登入與密碼 | [docs/登入與密碼加密流程.md](docs/登入與密碼加密流程.md) |
-| AI 助手 | [docs/AI助手設計.md](docs/AI助手設計.md) |
-| 站內信 | [docs/站內信設計.md](docs/站內信設計.md) |
-| 管理端元件 | [docs/前端元件清單.md](docs/前端元件清單.md) |
-| 國際化設計 | [docs/國際化最終方案.md](docs/國際化最終方案.md) |
-| 安全策略與維運工作 | [docs/安全策略與運維任務.md](docs/安全策略與運維任務.md) |
-| 新增語言 | [docs/國際化語言擴展指南.md](docs/國際化語言擴展指南.md) |
+| 整體架構 | [docs/系統總體設計.md](docs/系统总体设计.md) |
+| 新能力接入 | [docs/服務接入指南.md](docs/服务接入指南.md) |
+| 資料庫遷移 | [docs/資料庫與初始化資料設計.md](docs/数据库与初始化数据设计.md) |
+| 參數驗證 | [docs/介面參數校驗設計.md](docs/接口参数校验设计.md) |
+| 登入與密碼 | [docs/登入與密碼加密流程.md](docs/登录与密码加密流程.md) |
+| AI 助手 | [docs/AI助手設計.md](docs/AI助手设计.md) |
+| 站內信 | [docs/站內信設計.md](docs/站内信设计.md) |
+| 管理端元件 | [docs/前端元件清單.md](docs/前端组件清单.md) |
+| 國際化設計 | [docs/國際化最終方案.md](docs/国际化最终方案.md) |
+| 安全策略與維運工作 | [docs/安全策略與運維任務.md](docs/安全策略与运维任务.md) |
+| 新增語言 | [docs/國際化語言擴展指南.md](docs/国际化语言扩展指南.md) |
+| 租戶專案授權 | [docs/租戶專案授權.md](docs/租户项目授权.md) |
 
 建立外部專案時，三端 `packages/cli` 獨立產生完整前端，包含語言註冊、宿主生命週期與檢查建置工具。
 Go 腳手架只呼叫 npm CLI；`--kratos-project` 適配後端靜態輸出，管理端 CLI 產生共用前端 Makefile 與腳本。
@@ -239,7 +243,11 @@ Backend 的 `NewModules` 與 `NewStreams` 共用宿主注入的 `*backend.CodeGe
 
 系統管理的基礎管理統一使用「系統設定」入口維護普通設定與表單設定；表單類型按設定 key 載入模組註冊的表單，重用統一查詢與更新介面。
 
-資料庫遷移檔案內建於後端二進位檔；Docker 與後端壓縮包仍包含該目錄用於發佈歸檔。資料庫只儲存遷移檔案引用及校驗值，歷史檔案需要保留；既有正文記錄需在升級前備份轉換。詳見 [後端遷移檔案與記錄](backend/README.md#遷移檔案與記錄)。
+資料庫遷移檔案內建於後端二進位檔；Docker 與後端壓縮包仍包含該目錄用於發佈歸檔。資料庫只儲存遷移檔案引用及校驗值，歷史檔案需要保留；既有正文記錄需在升級前備份轉換。詳見 [後端遷移檔案與記錄](backend/README.md#迁移文件与记录)。
+
+## 租戶專案授權
+
+公共租戶專案，以及職位、角色、直属部門、使用者四維授權的模型與模組職責，請參閱[租戶專案授權](docs/租户项目授权.md)。
 
 前端統一建置使用分階段、按任務分組的普通文字日誌，關閉終端機顏色。管理端自動匯入宣告透過 `make -C frontend types-admin` 明確產生，普通建置不再修改原始碼目錄中的元件宣告。
 

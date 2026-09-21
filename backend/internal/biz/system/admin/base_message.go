@@ -1433,7 +1433,7 @@ func (c *BaseMessageCase) toBaseMessage(entity *models.BaseMessage, categoryName
 // toBaseMessageDispatch 转换消息投递任务。
 func (c *BaseMessageCase) toBaseMessageDispatch(entity *models.BaseMessageDispatch) *adminv1.BaseMessageDispatch {
 	return &adminv1.BaseMessageDispatch{
-		Id: entity.ID, AudienceType: basev1.MessageAudienceType(entity.AudienceType), AudienceId: entity.AudienceID,
+		Id: entity.ID, TenantId: entity.TenantID, AudienceType: basev1.MessageAudienceType(entity.AudienceType), AudienceId: entity.AudienceID,
 		IncludeChildren: entity.IncludeChildren, Status: basev1.MessageDispatchStatus(entity.Status), MatchedTotal: entity.MatchedTotal,
 		InsertedTotal: entity.InsertedTotal, AttemptCount: entity.AttemptCount, LastError: entity.LastError,
 	}
@@ -1444,7 +1444,7 @@ func (c *BaseMessageCase) listDispatchUsers(ctx context.Context, dispatch *model
 	query := c.baseUserRepo.Query(ctx).BaseUser
 	opts := make([]repository.QueryOption, 0, 7)
 	opts = append(opts,
-		repository.Select(query.ID),
+		repository.Select(query.ID, query.TenantID),
 		repository.Where(query.Status.Eq(coreconst.STATUS_STATUS_ENABLE)),
 		repository.Where(query.ID.Gt(dispatch.CursorUserID)),
 		repository.Order(query.ID.Asc()),

@@ -23,6 +23,12 @@ func NewConfigServiceAgentTools(configServiceServer ConfigServiceServer) ([]tool
 		return nil, err
 	}
 	ts = append(ts, getConfigTool)
+	var getI18nCustomTool tool.InvokableTool
+	getI18nCustomTool, err = NewConfigServiceGetI18nCustomAgentTool(configServiceServer)
+	if err != nil {
+		return nil, err
+	}
+	ts = append(ts, getI18nCustomTool)
 	return ts, nil
 }
 
@@ -36,6 +42,20 @@ func NewConfigServiceGetConfigAgentTool(configServiceServer ConfigServiceServer)
 				req = &GetConfigRequest{}
 			}
 			return configServiceServer.GetConfig(ctx, req)
+		},
+	)
+}
+
+// NewConfigServiceGetI18nCustomAgentTool 创建获取当前租户的自定义国际化覆盖项的 Agent Tool。
+func NewConfigServiceGetI18nCustomAgentTool(configServiceServer ConfigServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*GetI18nCustomRequest, *GetI18nCustomResponse](
+		"base_v1_config_service_get_i18_n_custom",
+		"获取当前租户的自定义国际化覆盖项",
+		func(ctx context.Context, req *GetI18nCustomRequest) (*GetI18nCustomResponse, error) {
+			if req == nil {
+				req = &GetI18nCustomRequest{}
+			}
+			return configServiceServer.GetI18nCustom(ctx, req)
 		},
 	)
 }

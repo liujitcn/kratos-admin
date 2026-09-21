@@ -93,7 +93,7 @@ INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VA
 INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (4, 10003, 'ja-JP', '失敗しました');
 INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (4, 11001, 'ja-JP', '内蔵システム');
 INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (4, 11002, 'ja-JP', '運営側');
-INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (4, 11003, 'ja-JP', 'アプリケーション側');
+INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (4, 11003, 'ja-JP', 'モバイル');
 INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (4, 11501, 'ja-JP', 'テキスト');
 INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (4, 11502, 'ja-JP', '画像');
 INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (4, 11503, 'ja-JP', 'リッチテキスト');
@@ -462,7 +462,7 @@ INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VA
 INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (5, 99010100, 'ja-JP', 'ログイン');
 INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (5, 99010101, 'ja-JP', '契約の詳細');
 INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (5, 99010200, 'ja-JP', '');
-INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (5, 99040000, 'ja-JP', 'メッセージ センター');
+INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (5, 99040000, 'ja-JP', 'メッセージ');
 INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (5, 99040100, 'ja-JP', 'メッセージの詳細');
 INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (5, 99090000, 'ja-JP', '私のもの');
 INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (5, 99090100, 'ja-JP', '個人情報');

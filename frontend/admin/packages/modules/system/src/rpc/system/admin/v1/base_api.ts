@@ -11,7 +11,11 @@ import type { Empty } from "../../../google/protobuf/empty";
 /** API选项查询条件 */
 export interface OptionBaseApiRequest {
   /** 是否包含免鉴权和可选鉴权接口 */
-  include_public?: boolean | undefined;
+  include_public?:
+    | boolean
+    | undefined;
+  /** 响应是否包含租户字段 */
+  tenant_response?: boolean | undefined;
 }
 
 /** API选项响应 */
@@ -114,6 +118,8 @@ export interface BaseApi {
   openapi_service_code: string;
   /** OpenAPI文档名称 */
   openapi_service_name: string;
+  /** 响应是否包含租户字段 */
+  tenant_response: boolean;
 }
 
 /** API文档查询条件 */

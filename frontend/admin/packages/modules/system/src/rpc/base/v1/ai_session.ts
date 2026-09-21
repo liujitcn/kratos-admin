@@ -108,6 +108,8 @@ export interface DeleteAiSessionResponse {
 export interface AiSession {
   /** 会话ID */
   id: string;
+  /** 租户ID */
+  tenant_id: number;
   /** 会话标题 */
   title: string;
   /** 会话摘要 */
@@ -124,6 +126,8 @@ export interface AiSession {
 export interface AiMessage {
   /** 消息ID */
   id: string;
+  /** 租户ID */
+  tenant_id: number;
   /** 输入内容 */
   input_content:
     | AiInputContent

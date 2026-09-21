@@ -7,6 +7,8 @@ import type {
   GetBaseRedactStoragePolicyRequest,
   ListBaseRedactStorageColumnRequest,
   ListBaseRedactStorageColumnResponse,
+  ListBaseRedactStorageTableRequest,
+  ListBaseRedactStorageTableResponse,
   PageBaseRedactStoragePolicyRequest,
   PageBaseRedactStoragePolicyResponse,
   SetBaseRedactStoragePolicyStatusRequest,
@@ -46,6 +48,11 @@ export class BaseRedactStoragePolicyServiceImpl implements BaseRedactStoragePoli
   /** 设置入库脱敏策略状态。 */
   SetBaseRedactStoragePolicyStatus(request: SetBaseRedactStoragePolicyStatusRequest): Promise<Empty> {
     return service<SetBaseRedactStoragePolicyStatusRequest, Empty>({ url: `${BASE_REDACT_STORAGE_POLICY_URL}/${request.id}/status`, method: "put", data: request });
+  }
+
+  /** 查询包含租户ID字段的数据表列表。 */
+  ListBaseRedactStorageTable(request: ListBaseRedactStorageTableRequest): Promise<ListBaseRedactStorageTableResponse> {
+    return service<ListBaseRedactStorageTableRequest, ListBaseRedactStorageTableResponse>({ url: `${BASE_REDACT_STORAGE_POLICY_URL}/tables`, method: "get", params: request });
   }
 
   /** 查询可入库脱敏的字符串字段列表。 */

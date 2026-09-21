@@ -28,6 +28,7 @@ func newBaseI18NCustom(db *gorm.DB, opts ...gen.DOOption) baseI18NCustom {
 	tableName := _baseI18NCustom.baseI18NCustomDo.TableName()
 	_baseI18NCustom.ALL = field.NewAsterisk(tableName)
 	_baseI18NCustom.ID = field.NewInt64(tableName, "id")
+	_baseI18NCustom.TenantID = field.NewInt64(tableName, "tenant_id")
 	_baseI18NCustom.Site = field.NewInt32(tableName, "site")
 	_baseI18NCustom.Key = field.NewString(tableName, "key")
 	_baseI18NCustom.Locale = field.NewString(tableName, "locale")
@@ -51,6 +52,7 @@ type baseI18NCustom struct {
 
 	ALL       field.Asterisk
 	ID        field.Int64  // 主键ID
+	TenantID  field.Int64  // 租户ID
 	Site      field.Int32  // 位置：枚举【BaseConfigSite】
 	Key       field.String // 国际化语言键
 	Locale    field.String // 语言区域
@@ -79,6 +81,7 @@ func (b baseI18NCustom) As(alias string) *baseI18NCustom {
 func (b *baseI18NCustom) updateTableName(table string) *baseI18NCustom {
 	b.ALL = field.NewAsterisk(table)
 	b.ID = field.NewInt64(table, "id")
+	b.TenantID = field.NewInt64(table, "tenant_id")
 	b.Site = field.NewInt32(table, "site")
 	b.Key = field.NewString(table, "key")
 	b.Locale = field.NewString(table, "locale")
@@ -118,8 +121,9 @@ func (b *baseI18NCustom) GetFieldByName(fieldName string) (field.OrderExpr, bool
 }
 
 func (b *baseI18NCustom) fillFieldMap() {
-	b.fieldMap = make(map[string]field.Expr, 12)
+	b.fieldMap = make(map[string]field.Expr, 13)
 	b.fieldMap["id"] = b.ID
+	b.fieldMap["tenant_id"] = b.TenantID
 	b.fieldMap["site"] = b.Site
 	b.fieldMap["key"] = b.Key
 	b.fieldMap["locale"] = b.Locale

@@ -20,6 +20,7 @@ import {
   setTokenExpiresIn,
   hasValidToken,
 } from '../../utils/auth'
+import { useSettingStore } from './setting'
 
 const AUTH_SILENT_LOGOUT_EVENT = 'auth:silent-logout'
 let silentLogoutEventHandler: (() => void) | undefined
@@ -74,6 +75,12 @@ export const useUserStore = defineStore(
       setToken(token_type + ' ' + access_token)
       setRefreshToken(refresh_token)
       setTokenExpiresIn(expires_in)
+      const settingStore = useSettingStore()
+      try {
+        await settingStore.loadI18nCustom()
+      } catch {
+        settingStore.resetI18nCustom()
+      }
       await runUserStoreExtensions('onLogin')
     }
 
@@ -223,6 +230,7 @@ export const useUserStore = defineStore(
     async function clearUserData() {
       clearToken()
       userInfo.value = undefined
+      useSettingStore().resetI18nCustom()
       await runUserStoreExtensions('onLogout')
     }
 
@@ -230,6 +238,7 @@ export const useUserStore = defineStore(
     function silentLogout() {
       clearToken()
       userInfo.value = undefined
+      useSettingStore().resetI18nCustom()
       uni.removeStorageSync('user')
       void runUserStoreExtensions('onSilentLogout')
     }
@@ -248,6 +257,7 @@ export const useUserStore = defineStore(
     }
     silentLogoutEventHandler = () => {
       userInfo.value = undefined
+      useSettingStore().resetI18nCustom()
       void runUserStoreExtensions('onSilentLogout')
     }
     uni.$on(AUTH_SILENT_LOGOUT_EVENT, silentLogoutEventHandler)

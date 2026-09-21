@@ -20,7 +20,8 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	ConfigService_GetConfig_FullMethodName = "/base.v1.ConfigService/GetConfig"
+	ConfigService_GetConfig_FullMethodName     = "/base.v1.ConfigService/GetConfig"
+	ConfigService_GetI18nCustom_FullMethodName = "/base.v1.ConfigService/GetI18nCustom"
 )
 
 // ConfigServiceClient is the client API for ConfigService service.
@@ -31,6 +32,8 @@ const (
 type ConfigServiceClient interface {
 	// 获取系统配置
 	GetConfig(ctx context.Context, in *GetConfigRequest, opts ...grpc.CallOption) (*GetConfigResponse, error)
+	// 获取当前租户的自定义国际化覆盖项
+	GetI18nCustom(ctx context.Context, in *GetI18nCustomRequest, opts ...grpc.CallOption) (*GetI18nCustomResponse, error)
 }
 
 type configServiceClient struct {
@@ -51,6 +54,16 @@ func (c *configServiceClient) GetConfig(ctx context.Context, in *GetConfigReques
 	return out, nil
 }
 
+func (c *configServiceClient) GetI18nCustom(ctx context.Context, in *GetI18nCustomRequest, opts ...grpc.CallOption) (*GetI18nCustomResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetI18nCustomResponse)
+	err := c.cc.Invoke(ctx, ConfigService_GetI18nCustom_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ConfigServiceServer is the server API for ConfigService service.
 // All implementations must embed UnimplementedConfigServiceServer
 // for forward compatibility.
@@ -59,6 +72,8 @@ func (c *configServiceClient) GetConfig(ctx context.Context, in *GetConfigReques
 type ConfigServiceServer interface {
 	// 获取系统配置
 	GetConfig(context.Context, *GetConfigRequest) (*GetConfigResponse, error)
+	// 获取当前租户的自定义国际化覆盖项
+	GetI18nCustom(context.Context, *GetI18nCustomRequest) (*GetI18nCustomResponse, error)
 	mustEmbedUnimplementedConfigServiceServer()
 }
 
@@ -71,6 +86,9 @@ type UnimplementedConfigServiceServer struct{}
 
 func (UnimplementedConfigServiceServer) GetConfig(context.Context, *GetConfigRequest) (*GetConfigResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetConfig not implemented")
+}
+func (UnimplementedConfigServiceServer) GetI18nCustom(context.Context, *GetI18nCustomRequest) (*GetI18nCustomResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetI18nCustom not implemented")
 }
 func (UnimplementedConfigServiceServer) mustEmbedUnimplementedConfigServiceServer() {}
 func (UnimplementedConfigServiceServer) testEmbeddedByValue()                       {}
@@ -111,6 +129,24 @@ func _ConfigService_GetConfig_Handler(srv interface{}, ctx context.Context, dec 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ConfigService_GetI18nCustom_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetI18nCustomRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ConfigServiceServer).GetI18nCustom(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ConfigService_GetI18nCustom_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ConfigServiceServer).GetI18nCustom(ctx, req.(*GetI18nCustomRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ConfigService_ServiceDesc is the grpc.ServiceDesc for ConfigService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -121,6 +157,10 @@ var ConfigService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetConfig",
 			Handler:    _ConfigService_GetConfig_Handler,
+		},
+		{
+			MethodName: "GetI18nCustom",
+			Handler:    _ConfigService_GetI18nCustom_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

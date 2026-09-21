@@ -19,6 +19,8 @@
 - Login-source policies (global and tenant/user-targeted rules), password complexity policies, policy-controlled multi-device login, independent session timeout and revocation, personal login records, platform online-session management, asynchronous audit-log persistence and retention cleanup, and controlled MySQL backup and restore jobs.
 - Mountable Go Core modules; the backend implements `module.Module`, provides static assets through `Resources`, and lets the startup entry register protocol services through Core.
 - Language sets for the administration console, uni-app, Taro, and backend error catalog are discovered automatically from language packages; dynamic menus, dictionaries, and code generation support all registered languages.
+- Uploaded files require authentication by default; file URLs continue to use `/data/...`, browser-native `src` requests authenticate through an HttpOnly access-token cookie, and explicitly public files can be accessed anonymously.
+- The administration console supports tenant-scoped overrides for fixed UI text under “System Management / Basic Management / Custom Internationalization,” loaded for the current tenant after login and falling back to the default language package when no override exists.
 
 The repository does not include commerce, order, payment, or recommendation modules.
 
@@ -39,7 +41,7 @@ See [docs/开放授权协议设计.md](docs/开放授权协议设计.md) for the
 - Go `1.27.0`.
 - Node.js `^20.19.0` or `>=22.12.0`.
 - The pnpm version follows each workspace's `packageManager`: `10.33.4` for the administration console, and `10.13.1` for uni-app and Taro.
-- MySQL, Redis, Consul, and Vault; see the sections below for their purposes and configuration entry points.
+- MySQL, Consul, and Vault; Redis and queue support are optional, with in-process implementations for single-instance deployments when omitted. See the sections below for their purposes and configuration entry points.
 - Docker deployment requires an available Docker CLI and Docker daemon.
 - When enabling TOTP enrollment, an explicit `mfa.encryption_key` takes precedence; when empty, the key is derived from the runtime key service using `kratos-kit:mfa/encryption` when protecting the TOTP secret. Enabling WebAuthn also requires `mfa.webauthn.rp_id` and `mfa.webauthn.rp_origins`. Sensitive configuration values should be stored using `ENC[...]`.
 - Buf, protoc plugins, Wire, and gorm-gen are only required when regenerating code and can be installed with `make -C backend init`.
@@ -51,7 +53,7 @@ Run `make` or `make help` to view repository-level commands. Run `make -C backen
 | Middleware | Purpose | Configuration |
 | --- | --- | --- |
 | MySQL | Business-data persistence and database migrations. | `backend/configs/data.yaml` |
-| Redis | Caching, distributed locks, queues, and message delivery. | `backend/configs/data.yaml` |
+| Redis (optional) | Caching, distributed locks, queues, and message delivery; single-instance deployments use in-process implementations when omitted. | `backend/configs/data.yaml` |
 | Consul | Service registration and discovery. | `backend/configs/full/registry.yaml` |
 | Vault | Application root-key management, configuration decryption, and business-key derivation. | `backend/configs/key.yaml` |
 
@@ -172,6 +174,7 @@ For daily work, run `make i18n` (sync, generate, and validate). For commits or C
 | Fixed UI text for the administration console, uni-app, and Taro | `src/locales/*.json` in each core and business module |
 | Backend error messages and code-generation template text | `backend/internal/i18n/assets/*.json` |
 | Dynamic translations for menus, dictionaries, configurations, and jobs | `backend/migration/assets/v0.0.1/mysql/i18n.*.up.sql`, stored in `base_i18n` at runtime |
+| Tenant-scoped overrides for fixed administration UI text | `base_i18n_custom`, loaded for the current tenant through the authenticated configuration API |
 | API documentation titles, descriptions, and field descriptions | Proto Chinese descriptions and local terminology mappings in `scripts/local_openapi_i18n.py` |
 | Migration notes and project documentation with available translations | Corresponding `README.<locale>.md` and other documents |
 
@@ -230,6 +233,7 @@ The publishing script skips package versions already present in the registry and
 | Internationalization design | [docs/国际化最终方案.md](docs/国际化最终方案.md) |
 | Security policies and operations jobs | [docs/安全策略与运维任务.md](docs/安全策略与运维任务.md) |
 | Adding languages | [docs/国际化语言扩展指南.md](docs/国际化语言扩展指南.md) |
+| Tenant project authorization | [docs/租户项目授权.md](docs/租户项目授权.md) |
 
 When creating external projects, the `packages/cli` packages for all three clients independently generate complete frontends, including language registration, host lifecycle, and check/build tools.
 The Go scaffolding only calls the npm CLI; `--kratos-project` adapts backend static output, while the administration CLI generates the shared frontend Makefile and scripts.
@@ -240,6 +244,10 @@ Backend's `NewModules` and `NewStreams` share the `*backend.CodeGenManager` inje
 System administration's foundational management is unified under the “System Configuration” entry, which maintains ordinary and form configurations. Form types load module-registered forms by configuration key and reuse the unified query and update interfaces.
 
 Migration files are embedded in the backend binary; Docker and backend archives still include the directory for release packaging. The database stores only migration-file references and checksums, so historical files must be retained; existing body records should be backed up and converted before upgrades. See [Backend Migration Files and Records](backend/README.md#迁移文件与记录).
+
+## Tenant Project Authorization
+
+The shared tenant-project model and four-dimensional authorization across positions, roles, direct departments, and users are documented in [Tenant Project Authorization](docs/租户项目授权.md).
 
 Frontend builds use staged, task-grouped plain-text logs with terminal colors disabled. Administration auto-import declarations are generated explicitly with `make -C frontend types-admin`; ordinary builds no longer modify component declarations in the source directory.
 

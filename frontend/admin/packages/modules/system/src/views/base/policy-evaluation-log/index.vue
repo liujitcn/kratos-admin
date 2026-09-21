@@ -8,6 +8,7 @@ import type { ColumnProps } from "@liujitcn/kratos-admin-core/components/ProTabl
 import { t } from "@liujitcn/kratos-admin-core";
 import { formatLogDateTime } from "@liujitcn/kratos-admin-system/components/log/log";
 import { buildPageRequest } from "@liujitcn/kratos-admin-core/table";
+import { useTenantScope } from "@liujitcn/kratos-admin-core/tenant";
 import LogTable, { type LogTableConfig } from "@liujitcn/kratos-admin-system/components/log/LogTable.vue";
 import {
   createLogEnumOptions,
@@ -25,6 +26,7 @@ import type { BasePolicyEvaluationLog, PageBasePolicyEvaluationLogRequest } from
 defineOptions({ name: "BasePolicyEvaluationLog", inheritAttrs: false });
 
 const page = ref<InstanceType<typeof LogTable>>();
+const { tenantColumns } = useTenantScope();
 const decisionOptions = computed(() => createLogEnumOptions([
   [BasePolicyDecision.BASE_POLICY_DECISION_UNSPECIFIED, t("system.base.log.policy_decision.unspecified")],
   [BasePolicyDecision.BASE_POLICY_DECISION_ALLOW, t("system.base.log.policy_decision.allow")],
@@ -38,6 +40,7 @@ const evaluationTypeOptions = computed(() => createLogEnumOptions([
   [BasePolicyEvaluationType.BASE_POLICY_EVALUATION_TYPE_FILTER_PROJECTS, t("system.base.log.evaluation_type.filter_projects")]
 ]));
 const columns = computed<ColumnProps[]>(() => [
+  ...tenantColumns({ label: t("common.field.tenant") }),
   { prop: "resource", label: t("system.base.log.field.resource"), minWidth: 320, search: { el: "input" } },
   { prop: "action", label: t("system.base.log.field.action"), minWidth: 100 },
   { prop: "engine", label: t("system.base.log.field.engine"), minWidth: 100 },

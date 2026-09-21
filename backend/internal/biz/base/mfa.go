@@ -839,7 +839,7 @@ func (c *MfaCase) confirmWebAuthnSetup(ctx context.Context, ticketKey string, pa
 	var user *models.BaseUser
 	query := c.baseUserCase.Query(ctx).BaseUser
 	user, err = c.baseUserCase.Find(ctx,
-		repository.Select(query.ID, query.UserName, query.NickName),
+		repository.Select(query.ID, query.TenantID, query.UserName, query.NickName),
 		repository.Where(query.ID.Eq(payload.UserID)),
 	)
 	if err != nil {
@@ -1126,7 +1126,10 @@ func (c *MfaCase) DisableMfa(ctx context.Context, req *basev1.DisableMfaRequest)
 			return errorsx.InvalidArgument("多因素认证验证码错误")
 		}
 	}
-	err = c.baseUserMFARepo.UpdateByID(ctx, &models.BaseUserMFA{ID: mfa.ID, Status: mfaStatusDisabled, UpdatedBy: authInfo.UserId, UpdatedAt: time.Now()})
+	mfa.Status = mfaStatusDisabled
+	mfa.UpdatedBy = authInfo.UserId
+	mfa.UpdatedAt = time.Now()
+	err = c.baseUserMFARepo.UpdateByID(ctx, mfa)
 	if err != nil {
 		return errorsx.Internal("禁用多因素认证失败").WithCause(err)
 	}

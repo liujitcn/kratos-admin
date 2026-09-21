@@ -47,7 +47,7 @@ GET /api/v1/app/base/menu
 
 uni-app の対応言語は core と System の JSON パックから自動検出し、モジュール登録時にキーとプレースホルダーを検証します。ログイン、ホーム、状態ページ、WebView、個人センター、設定、プロフィール、AI は `t(key)` を使用します。言語設定は `kratos-app:locale` に保存し、安定ルートと業務フィールドは変更しません。
 
-すべての `uni.request`、ファイルアップロード、SSE は `Accept-Language` を送信します。動的メニューはバックエンドのタイトルを使用し、訳がない場合は主言語へフォールバックします。言語追加時はバックエンドと 3 workspace の言語パックを同期し、ルートで `make i18n-sync` を実行します。
+すべての `uni.request`、ファイルアップロード、SSE は `Accept-Language` を送信します。動的メニューはバックエンドのタイトルを使用し、訳がない場合は主言語へフォールバックします。言語追加時はバックエンドと 3 workspace の言語パックを同期し、ルートで `make i18n` を実行します。
 
 ページ wrapper は自作 `KratosTabBar` を統一的に取り付けます。ホームとマイページは非表示のネイティブ tab として登録し、`switchTab` で WeChat の体験を維持します。通常ページは `navigateTo` を優先し、下位ページは親 tab を強調します。
 

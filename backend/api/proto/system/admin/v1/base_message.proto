@@ -141,6 +141,7 @@ message BaseMessage {
 // 消息投递任务。
 message BaseMessageDispatch {
   int64 id = 1 [(gnostic.openapi.v3.property) = {description: "投递任务ID"}]; // 投递任务ID
+  int64 tenant_id = 10 [(gnostic.openapi.v3.property) = {description: "租户ID"}]; // 租户ID
   .base.v1.MessageAudienceType audience_type = 2 [(gnostic.openapi.v3.property) = {description: "受众类型"}]; // 受众类型
   int64 audience_id = 3 [(gnostic.openapi.v3.property) = {description: "受众ID"}]; // 受众ID
   bool include_children = 4 [(gnostic.openapi.v3.property) = {description: "是否包含子部门"}]; // 是否包含子部门

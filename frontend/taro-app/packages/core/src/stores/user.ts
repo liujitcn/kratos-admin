@@ -21,6 +21,7 @@ import {
   setTokenExpiresIn,
 } from '../utils/auth'
 import { AUTH_SILENT_LOGOUT_EVENT } from '../utils/http'
+import { useSettingStore } from './setting'
 
 const USER_STORAGE_KEY = 'user'
 
@@ -94,6 +95,12 @@ export const useUserStore = create<UserStoreState>((set, get) => ({
     setToken(`${data.token_type} ${data.access_token}`)
     setRefreshToken(data.refresh_token)
     setTokenExpiresIn(data.expires_in)
+    const settingStore = useSettingStore.getState()
+    try {
+      await settingStore.loadI18nCustom()
+    } catch {
+      settingStore.resetI18nCustom()
+    }
     await runUserStoreExtensions('onLogin')
   },
   async login(request) {
@@ -137,12 +144,14 @@ export const useUserStore = create<UserStoreState>((set, get) => ({
     clearToken()
     persistUserInfo()
     set({ userInfo: undefined })
+    useSettingStore.getState().resetI18nCustom()
     await runUserStoreExtensions('onLogout')
   },
   silentLogout() {
     clearToken()
     persistUserInfo()
     set({ userInfo: undefined })
+    useSettingStore.getState().resetI18nCustom()
     void runUserStoreExtensions('onSilentLogout')
   },
   ensureAuthenticated() {
@@ -159,6 +168,7 @@ export function startUserStoreEventBridge(): void {
   Taro.eventCenter.on(AUTH_SILENT_LOGOUT_EVENT, () => {
     persistUserInfo()
     useUserStore.setState({ userInfo: undefined })
+    useSettingStore.getState().resetI18nCustom()
     void runUserStoreExtensions('onSilentLogout')
   })
 }

@@ -148,6 +148,7 @@ func (c *OauthClientCase) GetOauthClientCredentials(ctx context.Context, idValue
 	}
 	return &adminv1.OauthClientCredentials{
 		ClientId:   item.ClientID,
+		TenantId:   item.TenantID,
 		CryptoType: oauthClientCryptoTypeFromString(item.CryptoType),
 	}, nil
 }
@@ -188,7 +189,7 @@ func (c *OauthClientCase) RotateOauthClientCredentials(ctx context.Context, idVa
 		return nil, errorsx.Internal("保护客户端加密密钥失败").WithCause(err)
 	}
 	query := c.Query(ctx).OauthClient
-	updated := &models.OauthClient{ID: item.ID, ClientSecret: protectedSecret, CryptoKey: protectedCryptoKey, UpdatedBy: authInfo.UserId, UpdatedAt: time.Now()}
+	updated := &models.OauthClient{ID: item.ID, TenantID: item.TenantID, ClientSecret: protectedSecret, CryptoKey: protectedCryptoKey, UpdatedBy: authInfo.UserId, UpdatedAt: time.Now()}
 	if err = c.Update(ctx, updated, repository.Where(query.ID.Eq(item.ID)), repository.Select(query.ClientSecret, query.CryptoKey, query.UpdatedBy, query.UpdatedAt)); err != nil {
 		return nil, errorsx.Internal("轮换客户端凭据失败").WithCause(err)
 	}
@@ -197,7 +198,7 @@ func (c *OauthClientCase) RotateOauthClientCredentials(ctx context.Context, idVa
 			return nil, errorsx.Internal("撤销旧客户端令牌失败").WithCause(err)
 		}
 	}
-	return &adminv1.OauthClientCredentials{ClientId: item.ClientID, ClientSecret: secret, CryptoType: oauthClientCryptoTypeFromString(item.CryptoType), CryptoKey: cryptoKey}, nil
+	return &adminv1.OauthClientCredentials{ClientId: item.ClientID, TenantId: item.TenantID, ClientSecret: secret, CryptoType: oauthClientCryptoTypeFromString(item.CryptoType), CryptoKey: cryptoKey}, nil
 }
 
 // CreateOauthClient 创建开放授权客户端并同步授权策略。
@@ -402,7 +403,9 @@ func (c *OauthClientCase) SetOauthClientStatus(ctx context.Context, req *adminv1
 		}
 		return errorsx.Internal("查询开放授权客户端失败").WithCause(err)
 	}
-	err = c.UpdateByID(ctx, &models.OauthClient{ID: item.ID, Status: int32(req.GetStatus()), UpdatedAt: time.Now()})
+	item.Status = int32(req.GetStatus())
+	item.UpdatedAt = time.Now()
+	err = c.UpdateByID(ctx, item)
 	if err != nil {
 		return err
 	}

@@ -292,7 +292,8 @@ func (c *BaseTenantProjectCase) SetBaseTenantProjectStatus(ctx context.Context, 
 	}
 	apply := func(ctx context.Context) error {
 		return c.tx.Transaction(ctx, func(ctx context.Context) error {
-			return c.UpdateByID(ctx, &models.BaseTenantProject{ID: req.GetId(), Status: req.GetStatus()})
+			baseTenantProject.Status = req.GetStatus()
+			return c.UpdateByID(ctx, baseTenantProject)
 		})
 	}
 	if req.GetStatus() == _const.STATUS_STATUS_DISABLE {

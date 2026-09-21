@@ -45,6 +45,7 @@ message PageBaseRedactOutputPolicyRequest {
   string message_ref = 2 [(gnostic.openapi.v3.property) = {description: "Proto消息完整名称"}]; // Proto消息完整名称
   string field_path = 3 [(gnostic.openapi.v3.property) = {description: "返回字段路径"}]; // 返回字段路径
   string service_name = 4 [(gnostic.openapi.v3.property) = {description: "服务名"}]; // 服务名
+  optional int64 tenant_id = 5 [(gnostic.openapi.v3.property) = {description: "租户ID"}]; // 租户ID
   optional BaseRedactOutputPolicyMode mode = 100 [(gnostic.openapi.v3.property) = {description: "处理模式"}]; // 处理模式
   optional .common.v1.Status status = 101 [(gnostic.openapi.v3.property) = {description: "状态"}]; // 状态
   int64 page_num = 102 [(gnostic.openapi.v3.property) = {description: "当前页码", default: {number: 1}},
@@ -65,10 +66,11 @@ message GetBaseRedactOutputPolicyRequest { int64 id = 1 [(gnostic.openapi.v3.pro
 // 出库脱敏策略表单。
 message BaseRedactOutputPolicyForm {
   int64 id = 1 [(gnostic.openapi.v3.property) = {description: "出库策略ID"}]; // 出库策略ID
-  string operation = 2 [(gnostic.openapi.v3.property) = {description: "接口操作"}, (buf.validate.field).cel = {id: "system.admin.base.redact.output_policy.operation.required" message: "接口操作不能为空且不超过255个字符" expression: "this.size() > 0 && this.size() <= 255"}]; // 接口操作
+  string operation = 2 [(gnostic.openapi.v3.property) = {description: "接口操作"}, (buf.validate.field).cel = {id: "system.admin.base.redact.output_policy.operation.required" message: "接口操作不能为空且不超过250个字符" expression: "this.size() > 0 && this.size() <= 250"}]; // 接口操作
   string message_ref = 3 [(gnostic.openapi.v3.property) = {description: "Proto消息完整名称"}, (buf.validate.field).cel = {id: "system.admin.base.redact.output_policy.message_ref.required" message: "Proto消息完整名称不能为空且不超过255个字符" expression: "this.size() > 0 && this.size() <= 255"}]; // Proto消息完整名称
   string field_path = 4 [(gnostic.openapi.v3.property) = {description: "返回字段路径"}, (buf.validate.field).cel = {id: "system.admin.base.redact.output_policy.field_path.required" message: "返回字段路径不能为空且不超过255个字符" expression: "this.size() > 0 && this.size() <= 255"}]; // 返回字段路径
   string service_name = 5 [(gnostic.openapi.v3.property) = {description: "服务名"}, (buf.validate.field).cel = {id: "system.admin.base.redact.output_policy.service_name.required" message: "服务名不能为空且不能超过50个字符" expression: "this.size() > 0 && this.size() <= 50"}]; // 服务名
+  int64 tenant_id = 6 [(gnostic.openapi.v3.property) = {description: "租户ID"}, (buf.validate.field).cel = {id: "system.admin.base.redact.output_policy.tenant_id.required" message: "请选择租户" expression: "this > 0"}]; // 租户ID
   BaseRedactOutputPolicyMode mode = 100 [(gnostic.openapi.v3.property) = {description: "处理模式"}, (buf.validate.field).enum = {defined_only: true}]; // 处理模式
   int64 rule_id = 101 [(gnostic.openapi.v3.property) = {description: "规则ID"}]; // 规则ID
   string rule_params = 102 [(gnostic.openapi.v3.property) = {description: "规则参数"}, (buf.validate.field).cel = {id: "system.admin.base.redact.output_policy.rule_params.required" message: "规则参数不能为空" expression: "this.size() > 0"}]; // 规则参数
@@ -104,6 +106,7 @@ message BaseRedactOutputPolicy {
   string operation = 2 [(gnostic.openapi.v3.property) = {description: "接口操作"}]; // 接口操作
   string message_ref = 3 [(gnostic.openapi.v3.property) = {description: "Proto消息完整名称"}]; // Proto消息完整名称
   string field_path = 4 [(gnostic.openapi.v3.property) = {description: "返回字段路径"}]; // 返回字段路径
+  int64 tenant_id = 5 [(gnostic.openapi.v3.property) = {description: "租户ID"}]; // 租户ID
   BaseRedactOutputPolicyMode mode = 100 [(gnostic.openapi.v3.property) = {description: "处理模式"}]; // 处理模式
   int64 rule_id = 101 [(gnostic.openapi.v3.property) = {description: "规则ID"}]; // 规则ID
   string rule_code = 102 [(gnostic.openapi.v3.property) = {description: "规则编码"}]; // 规则编码

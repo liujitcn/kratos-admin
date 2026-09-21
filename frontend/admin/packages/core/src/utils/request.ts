@@ -152,6 +152,12 @@ function shouldSkipErrorMessage(config?: InternalAxiosRequestConfig) {
   return requestUrl === SESSION_URL && requestMethod === "delete";
 }
 
+/** 判断当前是否处于退出或认证失效过渡状态。 */
+function isAuthTransitioning() {
+  const userStore = getUserStore();
+  return userStore.isLoggingOut || userStore.authInvalidated;
+}
+
 /** 判断响应是否要求用户先修改密码。 */
 function isPasswordChangeRequired(data?: ErrorResponseData) {
   return data?.metadata?.[PASSWORD_CHANGE_REQUIRED_METADATA_KEY] === "true";
@@ -262,7 +268,6 @@ export async function ensureAccessToken() {
     await handleTokenRefresh(false);
     return hasValidAccessToken();
   } catch {
-    userStore.clearAuthData();
     return false;
   }
 }
@@ -304,7 +309,14 @@ export function handleAuthExpired() {
 // 请求拦截器
 service.interceptors.request.use(
   async (config: InternalAxiosRequestConfig) => {
+    const requestUrl = config.url ?? "";
+    const requestMethod = String(config.method ?? "").toLowerCase();
     const skipAuth = shouldSkipAuth(config);
+    const isLogoutRequest = requestUrl === SESSION_URL && requestMethod === "delete";
+    if (isAuthTransitioning() && !skipAuth && !isLogoutRequest) {
+      throw new axios.CanceledError();
+    }
+
     const accessToken = skipAuth ? "" : await getRequestAccessToken();
     Object.assign(config.headers, getLocaleRequestHeaders());
     config.headers[REFRESH_TOKEN_TRANSPORT_HEADER] = REFRESH_TOKEN_TRANSPORT_COOKIE;
@@ -341,14 +353,24 @@ service.interceptors.response.use(
     return Promise.reject(new Error(message || t("common.message.system_error")));
   },
   async (error: AxiosError) => {
+    if (axios.isCancel(error)) {
+      return Promise.reject(error);
+    }
+
     const status = error.response?.status;
     const data = error.response?.data as ErrorResponseData | undefined;
     const code = data?.code;
     const message = data?.message;
     const requestConfig = error.config as RetryableRequestConfig | undefined;
 
-    // 业务请求仅在 401 时尝试刷新并重放，403 直接展示后端权限错误。
-    if ((status === 401 || code === 401) && !shouldSkipAuthExpiredPrompt(requestConfig)) {
+    // 退出或认证失效后，页面中的在途请求返回 401 属于预期结果，不再重复刷新令牌、弹窗或提示错误。
+    if (isAuthTransitioning()) {
+      return Promise.reject(error);
+    }
+
+    // 业务请求仅在 401 时尝试刷新并重放，公共认证接口的 401 继续展示后端业务错误。
+    const isUnauthorized = status === 401 || code === 401;
+    if (isUnauthorized && !shouldSkipAuthExpiredPrompt(requestConfig)) {
       const userStore = getUserStore();
       if (requestConfig && !requestConfig._authRetried && !userStore.isLoggingOut && !userStore.authInvalidated && hasRefreshCookieHint()) {
         requestConfig._authRetried = true;
@@ -374,7 +396,7 @@ service.interceptors.response.use(
     } else if (!shouldSkipErrorMessage(requestConfig)) {
       showRequestError(error.message || t("common.message.system_error"));
     }
-    return Promise.reject(error.message);
+    return Promise.reject(error);
   }
 );
 
@@ -389,12 +411,25 @@ export default request;
 let isRefreshing = false;
 let refreshPromise: Promise<void> | null = null;
 
+/** 判断刷新令牌是否已被服务端判定为失效。 */
+function isRefreshTokenUnauthorized(error: unknown) {
+  if (!axios.isAxiosError<ErrorResponseData>(error)) return false;
+
+  const status = error.response?.status;
+  const code = error.response?.data?.code;
+  return status === 401 || code === 401;
+}
+
 /** 刷新 Token 处理 */
 async function handleTokenRefresh(promptOnFailure = true) {
   if (!isRefreshing) {
     isRefreshing = true;
     refreshPromise = refreshAccessToken()
       .catch(error => {
+        if (isRefreshTokenUnauthorized(error)) {
+          // 刷新令牌失效后立即终止后续自动刷新，避免旧 Cookie 被反复提交。
+          getUserStore().clearAuthData();
+        }
         if (promptOnFailure) {
           console.log("token 刷新失败", error);
           handleAuthExpired();

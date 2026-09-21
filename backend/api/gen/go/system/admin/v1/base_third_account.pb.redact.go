@@ -86,4 +86,6 @@ func (x *GetBaseThirdAccountIdentifierResponse) Redact() {
 	}
 
 	// Safe field: Identifier
+
+	// Safe field: TenantId
 }

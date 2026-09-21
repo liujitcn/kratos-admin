@@ -45,6 +45,9 @@ func (c *BaseRedactStoragePolicyCase) PageBaseRedactStoragePolicy(ctx context.Co
 	query := c.Query(ctx).BaseRedactStoragePolicy
 	opts := make([]repository.QueryOption, 0, 6)
 	opts = append(opts, repository.Order(query.ID.Asc()))
+	if req.TenantId != nil {
+		opts = append(opts, repository.Where(query.TenantID.Eq(req.GetTenantId())))
+	}
 	if req.GetTableName() != "" {
 		opts = append(opts, repository.Where(query.TableName_.Like("%"+req.GetTableName()+"%")))
 	}
@@ -89,7 +92,7 @@ func (c *BaseRedactStoragePolicyCase) GetBaseRedactStoragePolicy(ctx context.Con
 	if err != nil {
 		return nil, err
 	}
-	return &adminv1.BaseRedactStoragePolicyForm{Id: item.ID, TableName: item.TableName_, ColumnName: item.ColumnName, RuleId: item.RuleID, RuleParams: item.RuleParams, SourceName: item.SourceName, Status: commonv1.Status(item.Status), Remark: item.Remark}, nil
+	return &adminv1.BaseRedactStoragePolicyForm{Id: item.ID, TenantId: item.TenantID, TableName: item.TableName_, ColumnName: item.ColumnName, RuleId: item.RuleID, RuleParams: item.RuleParams, SourceName: item.SourceName, Status: commonv1.Status(item.Status), Remark: item.Remark}, nil
 }
 
 // CreateBaseRedactStoragePolicy 批量创建入库脱敏策略。
@@ -117,7 +120,7 @@ func (c *BaseRedactStoragePolicyCase) CreateBaseRedactStoragePolicy(ctx context.
 		if err != nil {
 			return err
 		}
-		item := &models.BaseRedactStoragePolicy{SourceName: input.GetSourceName(), TableName_: input.GetTableName(), ColumnName: input.GetColumnName(), RuleID: rule.ID, RuleParams: input.GetRuleParams(), Status: int32(input.GetStatus()), Remark: input.GetRemark(), CreatedBy: authInfo.UserId, UpdatedBy: authInfo.UserId, CreatedAt: now, UpdatedAt: now}
+		item := &models.BaseRedactStoragePolicy{TenantID: input.GetTenantId(), SourceName: input.GetSourceName(), TableName_: input.GetTableName(), ColumnName: input.GetColumnName(), RuleID: rule.ID, RuleParams: input.GetRuleParams(), Status: int32(input.GetStatus()), Remark: input.GetRemark(), CreatedBy: authInfo.UserId, UpdatedBy: authInfo.UserId, CreatedAt: now, UpdatedAt: now}
 		if item.Status == 0 {
 			item.Status = _const.STATUS_STATUS_ENABLE
 		}
@@ -164,15 +167,15 @@ func (c *BaseRedactStoragePolicyCase) UpdateBaseRedactStoragePolicy(ctx context.
 		if err != nil {
 			return err
 		}
-		if input.GetSourceName() != oldItem.SourceName || input.GetTableName() != oldItem.TableName_ || input.GetColumnName() != oldItem.ColumnName {
-			return errorsx.ProtectedResourceConflict("入库脱敏策略创建后不允许修改数据源、数据表或字段", "base_redact_storage_policy")
+		if input.GetTenantId() != oldItem.TenantID || input.GetSourceName() != oldItem.SourceName || input.GetTableName() != oldItem.TableName_ || input.GetColumnName() != oldItem.ColumnName {
+			return errorsx.ProtectedResourceConflict("入库脱敏策略创建后不允许修改租户、数据源、数据表或字段", "base_redact_storage_policy")
 		}
 		var rule *models.BaseRedactRule
 		rule, err = c.validateStorageForm(ctx, input)
 		if err != nil {
 			return err
 		}
-		item := &models.BaseRedactStoragePolicy{ID: oldItem.ID, SourceName: input.GetSourceName(), TableName_: input.GetTableName(), ColumnName: input.GetColumnName(), RuleID: rule.ID, RuleParams: input.GetRuleParams(), Status: int32(input.GetStatus()), Remark: input.GetRemark(), CreatedBy: oldItem.CreatedBy, UpdatedBy: authInfo.UserId, CreatedAt: oldItem.CreatedAt, UpdatedAt: now}
+		item := &models.BaseRedactStoragePolicy{ID: oldItem.ID, TenantID: oldItem.TenantID, SourceName: input.GetSourceName(), TableName_: input.GetTableName(), ColumnName: input.GetColumnName(), RuleID: rule.ID, RuleParams: input.GetRuleParams(), Status: int32(input.GetStatus()), Remark: input.GetRemark(), CreatedBy: oldItem.CreatedBy, UpdatedBy: authInfo.UserId, CreatedAt: oldItem.CreatedAt, UpdatedAt: now}
 		if item.Status == 0 {
 			item.Status = oldItem.Status
 		}
@@ -256,11 +259,49 @@ func (c *BaseRedactStoragePolicyCase) SetBaseRedactStoragePolicyStatus(ctx conte
 			return err
 		}
 	}
-	err = c.UpdateByID(ctx, &models.BaseRedactStoragePolicy{ID: item.ID, Status: int32(req.GetStatus())})
+	item.Status = int32(req.GetStatus())
+	err = c.UpdateByID(ctx, item)
 	if err != nil {
 		return err
 	}
 	return redact.RefreshRedactRuntime(ctx, c.resolver)
+}
+
+// ListBaseRedactStorageTable 查询包含租户ID字段的数据表列表。
+func (c *BaseRedactStoragePolicyCase) ListBaseRedactStorageTable(ctx context.Context, req *adminv1.ListBaseRedactStorageTableRequest) (*adminv1.ListBaseRedactStorageTableResponse, error) {
+	err := redact.EnsureRedactPlatformOperator(ctx, c.BaseCase)
+	if err != nil {
+		return nil, err
+	}
+	client, err := GormClientBySourceName(c.BaseCase, req.GetSourceName())
+	if err != nil {
+		return nil, errorsx.InvalidArgument("请选择已初始化的数据源").WithCause(err)
+	}
+	type tenantTable struct {
+		Name    string `gorm:"column:name"`
+		Comment string `gorm:"column:comment"`
+	}
+	var rows []tenantTable
+	err = client.DB.WithContext(ctx).
+		Table("information_schema.tables AS tables").
+		Select("tables.table_name AS name, tables.table_comment AS comment").
+		Joins("JOIN information_schema.columns AS columns ON columns.table_schema = tables.table_schema AND columns.table_name = tables.table_name AND columns.column_name = ?", "tenant_id").
+		Where("tables.table_schema = DATABASE()").
+		Where("tables.table_type = ?", "BASE TABLE").
+		Order("tables.table_name").
+		Find(&rows).Error
+	if err != nil {
+		return nil, errorsx.Internal("查询包含租户ID的数据表失败").WithCause(err)
+	}
+	tables := make([]*adminv1.BaseRedactStorageTable, 0, len(rows))
+	for _, row := range rows {
+		comment := row.Comment
+		if comment == "" {
+			comment = row.Name
+		}
+		tables = append(tables, &adminv1.BaseRedactStorageTable{Name: row.Name, Comment: comment})
+	}
+	return &adminv1.ListBaseRedactStorageTableResponse{Tables: tables}, nil
 }
 
 // ListBaseRedactStorageColumn 查询可入库脱敏的字符串字段列表。
@@ -275,6 +316,9 @@ func (c *BaseRedactStoragePolicyCase) ListBaseRedactStorageColumn(ctx context.Co
 	}
 	if !client.Migrator().HasTable(req.GetTableName()) {
 		return nil, errorsx.ResourceNotFound("数据库表不存在")
+	}
+	if !client.Migrator().HasColumn(req.GetTableName(), "tenant_id") {
+		return nil, errorsx.InvalidArgument("只能选择包含租户ID的数据表")
 	}
 	var columnTypes []gorm.ColumnType
 	columnTypes, err = client.Migrator().ColumnTypes(req.GetTableName())
@@ -327,6 +371,9 @@ func (c *BaseRedactStoragePolicyCase) ensureNoStoredValues(ctx context.Context, 
 
 // validateStorageForm 校验入库策略的目标字段和规则参数。
 func (c *BaseRedactStoragePolicyCase) validateStorageForm(ctx context.Context, input *adminv1.BaseRedactStoragePolicyForm) (*models.BaseRedactRule, error) {
+	if input.GetTenantId() <= 0 {
+		return nil, errorsx.InvalidArgument("请选择租户")
+	}
 	client, err := GormClientBySourceName(c.BaseCase, input.GetSourceName())
 	if err != nil {
 		return nil, errorsx.InvalidArgument("请选择已初始化的数据源").WithCause(err)
@@ -336,6 +383,9 @@ func (c *BaseRedactStoragePolicyCase) validateStorageForm(ctx context.Context, i
 	}
 	if !client.Migrator().HasColumn(input.GetTableName(), input.GetColumnName()) {
 		return nil, errorsx.ResourceNotFound("数据库字段不存在")
+	}
+	if !client.Migrator().HasColumn(input.GetTableName(), "tenant_id") {
+		return nil, errorsx.InvalidArgument("只能选择包含租户ID的数据表")
 	}
 	var columnTypes []gorm.ColumnType
 	columnTypes, err = client.Migrator().ColumnTypes(input.GetTableName())
@@ -380,5 +430,5 @@ func (c *BaseRedactStoragePolicyCase) toBaseRedactStoragePolicy(ctx context.Cont
 	if err != nil {
 		return nil, err
 	}
-	return &adminv1.BaseRedactStoragePolicy{Id: item.ID, SourceName: item.SourceName, TableName: item.TableName_, ColumnName: item.ColumnName, RuleId: item.RuleID, RuleCode: rule.Code, RuleName: rule.Name, RuleType: rule.RuleType, RuleParams: item.RuleParams, Status: commonv1.Status(item.Status), Remark: item.Remark, CreatedAt: item.CreatedAt.Format("2006-01-02 15:04:05"), UpdatedAt: item.UpdatedAt.Format("2006-01-02 15:04:05")}, nil
+	return &adminv1.BaseRedactStoragePolicy{Id: item.ID, TenantId: item.TenantID, SourceName: item.SourceName, TableName: item.TableName_, ColumnName: item.ColumnName, RuleId: item.RuleID, RuleCode: rule.Code, RuleName: rule.Name, RuleType: rule.RuleType, RuleParams: item.RuleParams, Status: commonv1.Status(item.Status), Remark: item.Remark, CreatedAt: item.CreatedAt.Format("2006-01-02 15:04:05"), UpdatedAt: item.UpdatedAt.Format("2006-01-02 15:04:05")}, nil
 }

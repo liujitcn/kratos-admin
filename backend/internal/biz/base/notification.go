@@ -388,7 +388,7 @@ func (c *NotificationCase) buildNotifications(ctx context.Context, deliveries []
 			content = message.Content
 		}
 		result = append(result, &basev1.Notification{
-			Id: delivery.ID, MessageId: message.ID, CategoryId: category.ID,
+			Id: delivery.ID, TenantId: delivery.TenantID, MessageId: message.ID, CategoryId: category.ID,
 			CategoryName: category.Name, CategoryIcon: category.Icon, CategoryColor: category.Color,
 			Priority: basev1.MessagePriority(message.Priority), Title: message.Title, Content: content,
 			ContentFormat: basev1.MessageContentFormat(message.ContentFormat), ActionType: basev1.MessageActionType(message.ActionType),

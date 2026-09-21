@@ -66,6 +66,32 @@ func TestStorageFieldSelected(t *testing.T) {
 	}
 }
 
+// TestMaterializeStorageResponseAllowsSelectWithoutProtectedFields 验证未查询受保护字段时不要求结果携带租户ID。
+func TestMaterializeStorageResponseAllowsSelectWithoutProtectedFields(t *testing.T) {
+	entitySchema, err := schema.Parse(&storageCallbackTestEntity{}, &sync.Map{}, schema.NamingStrategy{SingularTable: true})
+	if err != nil {
+		t.Fatal(err)
+	}
+	runtime := &storageRuntime{resolver: &RedactPolicyResolver{
+		storagePolicies: map[string][]redact.StorageFieldPolicy{
+			storagePolicyKey(1, "default", "storage_callback_test"): {{ID: 1, TenantID: 1, TableName: "storage_callback_test", ColumnName: "phone"}},
+		},
+	}}
+	db := &gorm.DB{Config: &gorm.Config{}, Statement: &gorm.Statement{
+		Context: context.Background(),
+		Dest:    &storageCallbackTestEntity{ID: 42, Status: 1},
+		Schema:  entitySchema,
+		Table:   "storage_callback_test",
+		Selects: []string{"status"},
+	}}
+
+	runtime.materializeStorageResponse(db)
+
+	if db.Error != nil {
+		t.Fatalf("未查询受保护字段不应触发脱敏恢复: %v", db.Error)
+	}
+}
+
 // TestSelectedStoragePolicies 验证查询回调只恢复实际选中的敏感字段。
 func TestSelectedStoragePolicies(t *testing.T) {
 	policies := []redact.StorageFieldPolicy{
@@ -208,6 +234,7 @@ func TestRecordIDsFromWhere(t *testing.T) {
 // storageCallbackTestEntity 提供更新字段选择测试实体。
 type storageCallbackTestEntity struct {
 	ID       int64
+	TenantID int64  `gorm:"column:tenant_id"`
 	UserCode string `gorm:"column:user_code;uniqueIndex:unique_storage_callback_user_code"`
 	Phone    string
 	Remark   string

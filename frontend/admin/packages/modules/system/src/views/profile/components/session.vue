@@ -13,20 +13,21 @@
       </div>
     </template>
 
-    <ProTable ref="proTable" row-key="session_id" :columns="columns" :request-api="requestSessionTable" :pagination="false" />
-    <div class="session-actions">
-      <el-button type="danger" plain :disabled="!hasSessions" @click="revokeAll">
-        <el-icon><SwitchButton /></el-icon>
-        {{ t("system.profile.session.action.revoke_all") }}
-      </el-button>
-    </div>
+    <ProTable
+      ref="proTable"
+      row-key="session_id"
+      :columns="columns"
+      :header-actions="headerActions"
+      :request-api="requestSessionTable"
+      :pagination="false"
+    />
   </el-card>
 </template>
 
 <script setup lang="ts">
 import { computed, ref } from "vue";
 import ProTable from "@liujitcn/kratos-admin-core/components/ProTable";
-import type { ColumnProps, ProTableInstance } from "@liujitcn/kratos-admin-core/components/ProTable/interface";
+import type { ColumnProps, HeaderActionProps, ProTableInstance } from "@liujitcn/kratos-admin-core/components/ProTable/interface";
 import { useRouter } from "vue-router";
 import { t } from "@liujitcn/kratos-admin-core";
 import { LOGIN_URL } from "@liujitcn/kratos-admin-core/config";
@@ -38,6 +39,15 @@ import type { BaseSession } from "@liujitcn/kratos-admin-system/rpc/system/admin
 const loading = ref(false);
 const proTable = ref<ProTableInstance>();
 const hasSessions = ref(false);
+const headerActions = computed<HeaderActionProps[]>(() => [
+  {
+    label: t("system.profile.session.action.revoke_all"),
+    type: "danger",
+    icon: SwitchButton,
+    disabled: () => !hasSessions.value,
+    onClick: () => revokeAll()
+  }
+]);
 const columns = computed<ColumnProps[]>(() => [
   {
     prop: "current",
@@ -139,10 +149,6 @@ function formatExpires(seconds: number) {
   margin: 6px 0 0;
   color: var(--el-text-color-secondary);
   font-size: 13px;
-}
-.session-actions {
-  justify-content: flex-end;
-  margin-top: 20px;
 }
 @media screen and (width <= 640px) {
   .session-header {

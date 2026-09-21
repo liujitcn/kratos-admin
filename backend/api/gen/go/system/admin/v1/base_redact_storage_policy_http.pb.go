@@ -23,6 +23,7 @@ const OperationBaseRedactStoragePolicyServiceCreateBaseRedactStoragePolicy = "/s
 const OperationBaseRedactStoragePolicyServiceDeleteBaseRedactStoragePolicy = "/system.admin.v1.BaseRedactStoragePolicyService/DeleteBaseRedactStoragePolicy"
 const OperationBaseRedactStoragePolicyServiceGetBaseRedactStoragePolicy = "/system.admin.v1.BaseRedactStoragePolicyService/GetBaseRedactStoragePolicy"
 const OperationBaseRedactStoragePolicyServiceListBaseRedactStorageColumn = "/system.admin.v1.BaseRedactStoragePolicyService/ListBaseRedactStorageColumn"
+const OperationBaseRedactStoragePolicyServiceListBaseRedactStorageTable = "/system.admin.v1.BaseRedactStoragePolicyService/ListBaseRedactStorageTable"
 const OperationBaseRedactStoragePolicyServicePageBaseRedactStoragePolicy = "/system.admin.v1.BaseRedactStoragePolicyService/PageBaseRedactStoragePolicy"
 const OperationBaseRedactStoragePolicyServiceSetBaseRedactStoragePolicyStatus = "/system.admin.v1.BaseRedactStoragePolicyService/SetBaseRedactStoragePolicyStatus"
 const OperationBaseRedactStoragePolicyServiceUpdateBaseRedactStoragePolicy = "/system.admin.v1.BaseRedactStoragePolicyService/UpdateBaseRedactStoragePolicy"
@@ -36,6 +37,8 @@ type BaseRedactStoragePolicyServiceHTTPServer interface {
 	GetBaseRedactStoragePolicy(context.Context, *GetBaseRedactStoragePolicyRequest) (*BaseRedactStoragePolicyForm, error)
 	// ListBaseRedactStorageColumn 查询可入库脱敏的字符串字段列表。
 	ListBaseRedactStorageColumn(context.Context, *ListBaseRedactStorageColumnRequest) (*ListBaseRedactStorageColumnResponse, error)
+	// ListBaseRedactStorageTable 查询包含租户ID字段的数据表列表。
+	ListBaseRedactStorageTable(context.Context, *ListBaseRedactStorageTableRequest) (*ListBaseRedactStorageTableResponse, error)
 	// PageBaseRedactStoragePolicy 查询入库脱敏策略分页列表。
 	PageBaseRedactStoragePolicy(context.Context, *PageBaseRedactStoragePolicyRequest) (*PageBaseRedactStoragePolicyResponse, error)
 	// SetBaseRedactStoragePolicyStatus 设置入库脱敏策略状态。
@@ -47,12 +50,13 @@ type BaseRedactStoragePolicyServiceHTTPServer interface {
 func RegisterBaseRedactStoragePolicyServiceHTTPServer(s *http.Server, srv BaseRedactStoragePolicyServiceHTTPServer) {
 	r := s.Route("/")
 	r.Handle("GET", "/api/v1/admin/base/redact-storage-policy", _BaseRedactStoragePolicyService_PageBaseRedactStoragePolicy0_HTTP_Handler(srv))
+	r.Handle("GET", "/api/v1/admin/base/redact-storage-policy/tables", _BaseRedactStoragePolicyService_ListBaseRedactStorageTable0_HTTP_Handler(srv))
+	r.Handle("GET", "/api/v1/admin/base/redact-storage-policy/columns", _BaseRedactStoragePolicyService_ListBaseRedactStorageColumn0_HTTP_Handler(srv))
 	r.Handle("GET", "/api/v1/admin/base/redact-storage-policy/{id}", _BaseRedactStoragePolicyService_GetBaseRedactStoragePolicy0_HTTP_Handler(srv))
 	r.Handle("POST", "/api/v1/admin/base/redact-storage-policy", _BaseRedactStoragePolicyService_CreateBaseRedactStoragePolicy0_HTTP_Handler(srv))
 	r.Handle("PUT", "/api/v1/admin/base/redact-storage-policy", _BaseRedactStoragePolicyService_UpdateBaseRedactStoragePolicy0_HTTP_Handler(srv))
 	r.Handle("DELETE", "/api/v1/admin/base/redact-storage-policy/{id}", _BaseRedactStoragePolicyService_DeleteBaseRedactStoragePolicy0_HTTP_Handler(srv))
 	r.Handle("PUT", "/api/v1/admin/base/redact-storage-policy/{id}/status", _BaseRedactStoragePolicyService_SetBaseRedactStoragePolicyStatus0_HTTP_Handler(srv))
-	r.Handle("GET", "/api/v1/admin/base/redact-storage-policy/columns", _BaseRedactStoragePolicyService_ListBaseRedactStorageColumn0_HTTP_Handler(srv))
 }
 
 func _BaseRedactStoragePolicyService_PageBaseRedactStoragePolicy0_HTTP_Handler(srv BaseRedactStoragePolicyServiceHTTPServer) func(ctx http.Context) error {
@@ -70,6 +74,44 @@ func _BaseRedactStoragePolicyService_PageBaseRedactStoragePolicy0_HTTP_Handler(s
 			return err
 		}
 		reply := out.(*PageBaseRedactStoragePolicyResponse)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _BaseRedactStoragePolicyService_ListBaseRedactStorageTable0_HTTP_Handler(srv BaseRedactStoragePolicyServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in ListBaseRedactStorageTableRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationBaseRedactStoragePolicyServiceListBaseRedactStorageTable)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.ListBaseRedactStorageTable(ctx, req.(*ListBaseRedactStorageTableRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*ListBaseRedactStorageTableResponse)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _BaseRedactStoragePolicyService_ListBaseRedactStorageColumn0_HTTP_Handler(srv BaseRedactStoragePolicyServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in ListBaseRedactStorageColumnRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationBaseRedactStoragePolicyServiceListBaseRedactStorageColumn)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.ListBaseRedactStorageColumn(ctx, req.(*ListBaseRedactStorageColumnRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*ListBaseRedactStorageColumnResponse)
 		return ctx.Result(200, reply)
 	}
 }
@@ -178,25 +220,6 @@ func _BaseRedactStoragePolicyService_SetBaseRedactStoragePolicyStatus0_HTTP_Hand
 	}
 }
 
-func _BaseRedactStoragePolicyService_ListBaseRedactStorageColumn0_HTTP_Handler(srv BaseRedactStoragePolicyServiceHTTPServer) func(ctx http.Context) error {
-	return func(ctx http.Context) error {
-		var in ListBaseRedactStorageColumnRequest
-		if err := ctx.BindQuery(&in); err != nil {
-			return err
-		}
-		http.SetOperation(ctx, OperationBaseRedactStoragePolicyServiceListBaseRedactStorageColumn)
-		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.ListBaseRedactStorageColumn(ctx, req.(*ListBaseRedactStorageColumnRequest))
-		})
-		out, err := h(ctx, &in)
-		if err != nil {
-			return err
-		}
-		reply := out.(*ListBaseRedactStorageColumnResponse)
-		return ctx.Result(200, reply)
-	}
-}
-
 type BaseRedactStoragePolicyServiceHTTPClient interface {
 	// CreateBaseRedactStoragePolicy 批量创建入库脱敏策略。
 	CreateBaseRedactStoragePolicy(ctx context.Context, req *CreateBaseRedactStoragePolicyRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
@@ -206,6 +229,8 @@ type BaseRedactStoragePolicyServiceHTTPClient interface {
 	GetBaseRedactStoragePolicy(ctx context.Context, req *GetBaseRedactStoragePolicyRequest, opts ...http.CallOption) (rsp *BaseRedactStoragePolicyForm, err error)
 	// ListBaseRedactStorageColumn 查询可入库脱敏的字符串字段列表。
 	ListBaseRedactStorageColumn(ctx context.Context, req *ListBaseRedactStorageColumnRequest, opts ...http.CallOption) (rsp *ListBaseRedactStorageColumnResponse, err error)
+	// ListBaseRedactStorageTable 查询包含租户ID字段的数据表列表。
+	ListBaseRedactStorageTable(ctx context.Context, req *ListBaseRedactStorageTableRequest, opts ...http.CallOption) (rsp *ListBaseRedactStorageTableResponse, err error)
 	// PageBaseRedactStoragePolicy 查询入库脱敏策略分页列表。
 	PageBaseRedactStoragePolicy(ctx context.Context, req *PageBaseRedactStoragePolicyRequest, opts ...http.CallOption) (rsp *PageBaseRedactStoragePolicyResponse, err error)
 	// SetBaseRedactStoragePolicyStatus 设置入库脱敏策略状态。
@@ -282,6 +307,23 @@ func (c *BaseRedactStoragePolicyServiceHTTPClientImpl) ListBaseRedactStorageColu
 	opts = append([]http.CallOption{
 		http.Accept("application/protojson"),
 		http.Operation(OperationBaseRedactStoragePolicyServiceListBaseRedactStorageColumn),
+		http.PathTemplate(pattern),
+	}, opts...)
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+// ListBaseRedactStorageTable 查询包含租户ID字段的数据表列表。
+func (c *BaseRedactStoragePolicyServiceHTTPClientImpl) ListBaseRedactStorageTable(ctx context.Context, in *ListBaseRedactStorageTableRequest, opts ...http.CallOption) (*ListBaseRedactStorageTableResponse, error) {
+	var out ListBaseRedactStorageTableResponse
+	pattern := "/api/v1/admin/base/redact-storage-policy/tables"
+	path := http.BuildPath(pattern, in, http.WithQueryParams())
+	opts = append([]http.CallOption{
+		http.Accept("application/protojson"),
+		http.Operation(OperationBaseRedactStoragePolicyServiceListBaseRedactStorageTable),
 		http.PathTemplate(pattern),
 	}, opts...)
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)

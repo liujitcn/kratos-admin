@@ -403,6 +403,8 @@ func (x *BaseMessageDispatch) Redact() {
 
 	// Safe field: Id
 
+	// Safe field: TenantId
+
 	// Safe field: AudienceType
 
 	// Safe field: AudienceId

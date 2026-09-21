@@ -30,26 +30,26 @@ func TestBaseUserOutputPolicies(t *testing.T) {
 		"/system.admin.v1.BaseUserService/ListBaseUser",
 		"/system.admin.v1.BaseUserService/PageBaseUser",
 	} {
-		resolver.outputPolicies[outputPolicyKey(operation, "system.admin.v1.BaseUser.phone")] = phonePolicy
-		resolver.outputPolicies[outputPolicyKey(operation, "system.admin.v1.BaseUser.email")] = emailPolicy
-		resolver.outputPolicies[outputPolicyKey(operation, "system.admin.v1.BaseUser.id_code")] = idCodePolicy
+		resolver.outputPolicies[outputPolicyKey(1, operation, "system.admin.v1.BaseUser.phone")] = phonePolicy
+		resolver.outputPolicies[outputPolicyKey(1, operation, "system.admin.v1.BaseUser.email")] = emailPolicy
+		resolver.outputPolicies[outputPolicyKey(1, operation, "system.admin.v1.BaseUser.id_code")] = idCodePolicy
 	}
 	detailOperation := "/system.admin.v1.BaseUserService/GetBaseUser"
-	resolver.outputPolicies[outputPolicyKey(detailOperation, "system.admin.v1.BaseUserForm.phone")] = phonePolicy
-	resolver.outputPolicies[outputPolicyKey(detailOperation, "system.admin.v1.BaseUserForm.email")] = emailPolicy
-	resolver.outputPolicies[outputPolicyKey(detailOperation, "system.admin.v1.BaseUserForm.id_code")] = idCodePolicy
+	resolver.outputPolicies[outputPolicyKey(1, detailOperation, "system.admin.v1.BaseUserForm.phone")] = phonePolicy
+	resolver.outputPolicies[outputPolicyKey(1, detailOperation, "system.admin.v1.BaseUserForm.email")] = emailPolicy
+	resolver.outputPolicies[outputPolicyKey(1, detailOperation, "system.admin.v1.BaseUserForm.id_code")] = idCodePolicy
 
-	listUser := &adminv1.BaseUser{Phone: "13800138000", Email: "alice@example.com", IdCode: "411381199401282014"}
+	listUser := &adminv1.BaseUser{TenantId: 1, Phone: "13800138000", Email: "alice@example.com", IdCode: "411381199401282014"}
 	listResponse := &adminv1.ListBaseUserResponse{BaseUsers: []*adminv1.BaseUser{listUser}}
 	applyOutputPolicy(resolver, "/system.admin.v1.BaseUserService/ListBaseUser", listResponse)
 	assertBaseUserRedacted(t, listUser.Phone, listUser.Email, listUser.IdCode)
 
-	pageUser := &adminv1.BaseUser{Phone: "13800138000", Email: "alice@example.com", IdCode: "411381199401282014"}
+	pageUser := &adminv1.BaseUser{TenantId: 1, Phone: "13800138000", Email: "alice@example.com", IdCode: "411381199401282014"}
 	pageResponse := &adminv1.PageBaseUserResponse{BaseUsers: []*adminv1.BaseUser{pageUser}}
 	applyOutputPolicy(resolver, "/system.admin.v1.BaseUserService/PageBaseUser", pageResponse)
 	assertBaseUserRedacted(t, pageUser.Phone, pageUser.Email, pageUser.IdCode)
 
-	detail := &adminv1.BaseUserForm{Phone: "13800138000", Email: "alice@example.com", IdCode: "411381199401282014"}
+	detail := &adminv1.BaseUserForm{TenantId: 1, Phone: "13800138000", Email: "alice@example.com", IdCode: "411381199401282014"}
 	applyOutputPolicy(resolver, detailOperation, detail)
 	assertBaseUserRedacted(t, detail.Phone, detail.Email, detail.IdCode)
 }
@@ -61,6 +61,32 @@ func TestUnconfiguredBaseUserOperationKeepsOriginalValue(t *testing.T) {
 	applyOutputPolicy(resolver, "/system.admin.v1.BaseUserService/OptionBaseUser", user)
 	if user.Phone != "13800138000" || user.Email != "alice@example.com" || user.IdCode != "411381199401282014" {
 		t.Fatalf("未配置接口不应脱敏: %+v", user)
+	}
+}
+
+// TestBaseUserOutputPoliciesIsolateTenants 验证同一响应列表中的数据按各自租户选择策略。
+func TestBaseUserOutputPoliciesIsolateTenants(t *testing.T) {
+	operation := "/system.admin.v1.BaseUserService/ListBaseUser"
+	maskPolicy, err := redact.NewFieldPolicy(redact.PolicyModeApplyRule, "MASK", `{"mask":{"keep_first":3,"keep_last":4,"mask_char":"*"}}`)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var fixedPolicy redact.FieldPolicy
+	fixedPolicy, err = redact.NewFieldPolicy(redact.PolicyModeApplyRule, "FIXED_LENGTH", `{"fixed_length":{"char":"X"}}`)
+	if err != nil {
+		t.Fatal(err)
+	}
+	resolver := &RedactPolicyResolver{loadedAt: time.Now(), outputPolicies: map[string]redact.FieldPolicy{
+		outputPolicyKey(1, operation, "system.admin.v1.BaseUser.phone"): maskPolicy,
+		outputPolicyKey(2, operation, "system.admin.v1.BaseUser.phone"): fixedPolicy,
+	}}
+	response := &adminv1.ListBaseUserResponse{BaseUsers: []*adminv1.BaseUser{
+		{TenantId: 1, Phone: "13800138000"},
+		{TenantId: 2, Phone: "13900139000"},
+	}}
+	applyOutputPolicy(resolver, operation, response)
+	if response.BaseUsers[0].Phone != "138****8000" || response.BaseUsers[1].Phone != "XXXXXXXXXXX" {
+		t.Fatalf("租户响应策略串用: %+v", response.BaseUsers)
 	}
 }
 

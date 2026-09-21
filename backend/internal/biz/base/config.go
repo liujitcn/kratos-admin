@@ -55,12 +55,7 @@ func (c *ConfigCase) GetConfig(ctx context.Context, req *basev1.GetConfigRequest
 			if err != nil {
 				return nil, err
 			}
-			var customItems []*basev1.I18nCustomItem
-			customItems, err = c.loadI18nCustomItems(ctx, site)
-			if err != nil {
-				return nil, err
-			}
-			return &basev1.GetConfigResponse{Configs: appendI18nRuntimeConfig(localized, c.Translator != nil), I18nCustoms: customItems}, nil
+			return &basev1.GetConfigResponse{Configs: appendI18nRuntimeConfig(localized, c.Translator != nil)}, nil
 		}
 	}
 
@@ -88,14 +83,8 @@ func (c *ConfigCase) GetConfig(ctx context.Context, req *basev1.GetConfigRequest
 	if err != nil {
 		return nil, err
 	}
-	var customItems []*basev1.I18nCustomItem
-	customItems, err = c.loadI18nCustomItems(ctx, site)
-	if err != nil {
-		return nil, err
-	}
 	response := &basev1.GetConfigResponse{
-		Configs:     appendI18nRuntimeConfig(localized, c.Translator != nil),
-		I18nCustoms: customItems,
+		Configs: appendI18nRuntimeConfig(localized, c.Translator != nil),
 	}
 	var payload []byte
 	payload, err = json.Marshal(configs)
@@ -110,14 +99,20 @@ func (c *ConfigCase) GetConfig(ctx context.Context, req *basev1.GetConfigRequest
 	return response, nil
 }
 
-// loadI18nCustomItems 查询当前站点全部语言的启用国际化覆盖项。
-func (c *ConfigCase) loadI18nCustomItems(ctx context.Context, site int32) ([]*basev1.I18nCustomItem, error) {
+// GetI18nCustom 查询当前租户指定站点全部语言的启用国际化覆盖项。
+func (c *ConfigCase) GetI18nCustom(ctx context.Context, req *basev1.GetI18nCustomRequest) (*basev1.GetI18nCustomResponse, error) {
+	authInfo, err := c.GetAuthInfo(ctx)
+	if err != nil {
+		return nil, err
+	}
 	query := c.i18nCustomRepo.Query(ctx).BaseI18NCustom
-	opts := make([]repository.QueryOption, 0, 4)
-	opts = append(opts, repository.Where(query.Site.Eq(site)))
+	opts := make([]repository.QueryOption, 0, 5)
+	opts = append(opts, repository.Where(query.TenantID.Eq(authInfo.TenantId)))
+	opts = append(opts, repository.Where(query.Site.Eq(int32(req.GetSite()))))
 	opts = append(opts, repository.Where(query.Status.Eq(coreconst.STATUS_STATUS_ENABLE)))
 	opts = append(opts, repository.Order(query.Locale.Asc()), repository.Order(query.ID.Asc()))
-	rows, err := c.i18nCustomRepo.List(ctx, opts...)
+	var rows []*models.BaseI18NCustom
+	rows, err = c.i18nCustomRepo.List(ctx, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -125,7 +120,7 @@ func (c *ConfigCase) loadI18nCustomItems(ctx context.Context, site int32) ([]*ba
 	for _, row := range rows {
 		items = append(items, &basev1.I18nCustomItem{Locale: row.Locale, Key: row.Key, Value: row.Value})
 	}
-	return items, nil
+	return &basev1.GetI18nCustomResponse{Items: items}, nil
 }
 
 // localizeRuntimeConfigValues 将当前语言已有的文本配置值覆盖到运行时结果。

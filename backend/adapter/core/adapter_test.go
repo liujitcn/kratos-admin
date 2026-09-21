@@ -30,7 +30,7 @@ func TestAdaptersShareTransactionContext(t *testing.T) {
 	}
 	databases := map[string]*kitgorm.Client{kitgorm.DefaultClientName: {DB: db}}
 	var api *APIStoreAdapter
-	api, err = NewAPIStoreAdapter(databases)
+	api, err = NewAPIStoreAdapter(databases, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -89,7 +89,7 @@ func TestAdaptersRejectInvalidDatabases(t *testing.T) {
 		"missing-db":      {kitgorm.DefaultClientName: {}},
 	} {
 		t.Run(name, func(t *testing.T) {
-			api, err := NewAPIStoreAdapter(databases)
+			api, err := NewAPIStoreAdapter(databases, nil)
 			if err == nil || api != nil {
 				t.Fatal("API 适配器应拒绝无效数据源")
 			}

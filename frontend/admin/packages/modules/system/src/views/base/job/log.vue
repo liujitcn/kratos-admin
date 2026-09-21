@@ -97,7 +97,6 @@ const columns = computed<ColumnProps[]>(() => [
     prop: "job_id",
     label: t("system.base.job.field.name"),
     minWidth: 180,
-    align: "left",
     search: {
       el: "select",
       defaultValue: initialJobID > 0 ? initialJobID : undefined,

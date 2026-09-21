@@ -199,7 +199,8 @@ func (c *BasePostCase) SetBasePostStatus(ctx context.Context, req *adminv1.SetBa
 	if basePost.Status == req.GetStatus() {
 		return nil
 	}
-	return c.UpdateByID(ctx, &models.BasePost{ID: req.GetId(), Status: req.GetStatus()})
+	basePost.Status = req.GetStatus()
+	return c.UpdateByID(ctx, basePost)
 }
 
 // resolveTenantID 解析岗位创建时的所属租户并校验租户范围。

@@ -32,6 +32,7 @@ func TestFilterBaseAPIDocResponseFields(t *testing.T) {
 			Body: &adminv1.BaseApiDocSchema{
 				Name: "body",
 				Type: "object",
+				Ref:  "system.admin.v1.BaseUser",
 				Children: []*adminv1.BaseApiDocSchema{
 					{Name: "id", Type: "integer"},
 					{Name: "name", Type: "string"},
@@ -53,5 +54,26 @@ func TestFilterBaseAPIDocResponseFields(t *testing.T) {
 	profileChildren := children[1].Children
 	if len(profileChildren) != 1 || profileChildren[0].Name != "nickname" {
 		t.Fatalf("unexpected filtered nested fields: %+v", profileChildren)
+	}
+}
+
+func TestFilterBaseAPIDocResponseFieldsWithoutTenant(t *testing.T) {
+	document := &adminv1.BaseApiDoc{
+		Responses: []*adminv1.BaseApiDocResponse{{
+			Body: &adminv1.BaseApiDocSchema{
+				Name: "body",
+				Type: "object",
+				Ref:  "system.admin.v1.BaseArea",
+				Children: []*adminv1.BaseApiDocSchema{
+					{Name: "name", Type: "string"},
+				},
+			},
+		}},
+	}
+
+	FilterBaseAPIDocResponseFields(document)
+
+	if document.Responses[0].Body != nil {
+		t.Fatalf("非租户响应不应返回可脱敏字段: %+v", document.Responses[0].Body)
 	}
 }

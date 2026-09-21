@@ -284,6 +284,8 @@ func (x *AiSession) Redact() {
 
 	// Safe field: Id
 
+	// Safe field: TenantId
+
 	// Safe field: Title
 
 	// Safe field: Summary
@@ -303,6 +305,8 @@ func (x *AiMessage) Redact() {
 	}
 
 	// Safe field: Id
+
+	// Safe field: TenantId
 
 	// Safe field: InputContent
 

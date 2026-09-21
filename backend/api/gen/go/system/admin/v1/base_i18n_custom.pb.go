@@ -31,9 +31,10 @@ const (
 // 国际化自定义翻译分页查询条件。
 type PageBaseI18nCustomRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Site          *basev1.BaseConfigSite `protobuf:"varint,1,opt,name=site,proto3,enum=base.v1.BaseConfigSite,oneof" json:"site,omitempty"` // 位置：枚举【BaseConfigSite】
-	Key           string                 `protobuf:"bytes,2,opt,name=key,proto3" json:"key,omitempty"`                                      // 国际化语言键
-	Locale        string                 `protobuf:"bytes,3,opt,name=locale,proto3" json:"locale,omitempty"`                                // 语言区域
+	TenantId      *int64                 `protobuf:"varint,1,opt,name=tenant_id,json=tenantId,proto3,oneof" json:"tenant_id,omitempty"`     // 租户ID
+	Site          *basev1.BaseConfigSite `protobuf:"varint,2,opt,name=site,proto3,enum=base.v1.BaseConfigSite,oneof" json:"site,omitempty"` // 位置：枚举【BaseConfigSite】
+	Key           string                 `protobuf:"bytes,3,opt,name=key,proto3" json:"key,omitempty"`                                      // 国际化语言键
+	Locale        string                 `protobuf:"bytes,4,opt,name=locale,proto3" json:"locale,omitempty"`                                // 语言区域
 	Status        *commonv1.Status       `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status,oneof" json:"status,omitempty"` // 状态：枚举【Status】
 	PageNum       int64                  `protobuf:"varint,101,opt,name=page_num,json=pageNum,proto3" json:"page_num,omitempty"`            // 当前页码
 	PageSize      int64                  `protobuf:"varint,102,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`         // 每页数量
@@ -69,6 +70,13 @@ func (x *PageBaseI18nCustomRequest) ProtoReflect() protoreflect.Message {
 // Deprecated: Use PageBaseI18nCustomRequest.ProtoReflect.Descriptor instead.
 func (*PageBaseI18nCustomRequest) Descriptor() ([]byte, []int) {
 	return file_system_admin_v1_base_i18n_custom_proto_rawDescGZIP(), []int{0}
+}
+
+func (x *PageBaseI18nCustomRequest) GetTenantId() int64 {
+	if x != nil && x.TenantId != nil {
+		return *x.TenantId
+	}
+	return 0
 }
 
 func (x *PageBaseI18nCustomRequest) GetSite() basev1.BaseConfigSite {
@@ -215,10 +223,11 @@ func (x *GetBaseI18nCustomRequest) GetId() int64 {
 type BaseI18nCustomForm struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                 // 国际化自定义翻译ID
-	Site          basev1.BaseConfigSite  `protobuf:"varint,2,opt,name=site,proto3,enum=base.v1.BaseConfigSite" json:"site,omitempty"` // 位置：枚举【BaseConfigSite】
-	Key           string                 `protobuf:"bytes,3,opt,name=key,proto3" json:"key,omitempty"`                                // 国际化语言键
-	Locale        string                 `protobuf:"bytes,4,opt,name=locale,proto3" json:"locale,omitempty"`                          // 语言区域
-	Value         string                 `protobuf:"bytes,5,opt,name=value,proto3" json:"value,omitempty"`                            // 自定义翻译内容
+	TenantId      int64                  `protobuf:"varint,2,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`     // 租户ID
+	Site          basev1.BaseConfigSite  `protobuf:"varint,3,opt,name=site,proto3,enum=base.v1.BaseConfigSite" json:"site,omitempty"` // 位置：枚举【BaseConfigSite】
+	Key           string                 `protobuf:"bytes,4,opt,name=key,proto3" json:"key,omitempty"`                                // 国际化语言键
+	Locale        string                 `protobuf:"bytes,5,opt,name=locale,proto3" json:"locale,omitempty"`                          // 语言区域
+	Value         string                 `protobuf:"bytes,6,opt,name=value,proto3" json:"value,omitempty"`                            // 自定义翻译内容
 	Status        commonv1.Status        `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"` // 状态
 	Remark        string                 `protobuf:"bytes,101,opt,name=remark,proto3" json:"remark,omitempty"`                        // 备注
 	unknownFields protoimpl.UnknownFields
@@ -258,6 +267,13 @@ func (*BaseI18nCustomForm) Descriptor() ([]byte, []int) {
 func (x *BaseI18nCustomForm) GetId() int64 {
 	if x != nil {
 		return x.Id
+	}
+	return 0
+}
+
+func (x *BaseI18nCustomForm) GetTenantId() int64 {
+	if x != nil {
+		return x.TenantId
 	}
 	return 0
 }
@@ -496,10 +512,11 @@ func (x *SetBaseI18nCustomStatusRequest) GetStatus() commonv1.Status {
 type BaseI18nCustom struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                 // 国际化自定义翻译ID
-	Site          basev1.BaseConfigSite  `protobuf:"varint,2,opt,name=site,proto3,enum=base.v1.BaseConfigSite" json:"site,omitempty"` // 位置：枚举【BaseConfigSite】
-	Key           string                 `protobuf:"bytes,3,opt,name=key,proto3" json:"key,omitempty"`                                // 国际化语言键
-	Locale        string                 `protobuf:"bytes,4,opt,name=locale,proto3" json:"locale,omitempty"`                          // 语言区域
-	Value         string                 `protobuf:"bytes,5,opt,name=value,proto3" json:"value,omitempty"`                            // 自定义翻译内容
+	TenantId      int64                  `protobuf:"varint,2,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`     // 租户ID
+	Site          basev1.BaseConfigSite  `protobuf:"varint,3,opt,name=site,proto3,enum=base.v1.BaseConfigSite" json:"site,omitempty"` // 位置：枚举【BaseConfigSite】
+	Key           string                 `protobuf:"bytes,4,opt,name=key,proto3" json:"key,omitempty"`                                // 国际化语言键
+	Locale        string                 `protobuf:"bytes,5,opt,name=locale,proto3" json:"locale,omitempty"`                          // 语言区域
+	Value         string                 `protobuf:"bytes,6,opt,name=value,proto3" json:"value,omitempty"`                            // 自定义翻译内容
 	Status        commonv1.Status        `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"` // 状态
 	Remark        string                 `protobuf:"bytes,101,opt,name=remark,proto3" json:"remark,omitempty"`                        // 备注
 	CreatedAt     string                 `protobuf:"bytes,200,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"` // 创建时间
@@ -541,6 +558,13 @@ func (*BaseI18nCustom) Descriptor() ([]byte, []int) {
 func (x *BaseI18nCustom) GetId() int64 {
 	if x != nil {
 		return x.Id
+	}
+	return 0
+}
+
+func (x *BaseI18nCustom) GetTenantId() int64 {
+	if x != nil {
+		return x.TenantId
 	}
 	return 0
 }
@@ -605,14 +629,17 @@ var File_system_admin_v1_base_i18n_custom_proto protoreflect.FileDescriptor
 
 const file_system_admin_v1_base_i18n_custom_proto_rawDesc = "" +
 	"\n" +
-	"&system/admin/v1/base_i18n_custom.proto\x12\x0fsystem.admin.v1\x1a\x14base/v1/config.proto\x1a\x14common/v1/enum.proto\x1a\x1bbuf/validate/validate.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\xc3\x03\n" +
-	"\x19PageBaseI18nCustomRequest\x12[\n" +
-	"\x04site\x18\x01 \x01(\x0e2\x17.base.v1.BaseConfigSiteB)\xbaG&\x92\x02#位置：枚举【BaseConfigSite】H\x00R\x04site\x88\x01\x01\x12*\n" +
-	"\x03key\x18\x02 \x01(\tB\x18\xbaG\x15\x92\x02\x12国际化语言键R\x03key\x12*\n" +
-	"\x06locale\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f语言区域R\x06locale\x12Q\n" +
-	"\x06status\x18d \x01(\x0e2\x11.common.v1.StatusB!\xbaG\x1e\x92\x02\x1b状态：枚举【Status】H\x01R\x06status\x88\x01\x01\x12D\n" +
+	"&system/admin/v1/base_i18n_custom.proto\x12\x0fsystem.admin.v1\x1a\x14base/v1/config.proto\x1a\x14common/v1/enum.proto\x1a\x1bbuf/validate/validate.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\x83\x04\n" +
+	"\x19PageBaseI18nCustomRequest\x120\n" +
+	"\ttenant_id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDH\x00R\btenantId\x88\x01\x01\x12[\n" +
+	"\x04site\x18\x02 \x01(\x0e2\x17.base.v1.BaseConfigSiteB)\xbaG&\x92\x02#位置：枚举【BaseConfigSite】H\x01R\x04site\x88\x01\x01\x12*\n" +
+	"\x03key\x18\x03 \x01(\tB\x18\xbaG\x15\x92\x02\x12国际化语言键R\x03key\x12*\n" +
+	"\x06locale\x18\x04 \x01(\tB\x12\xbaG\x0f\x92\x02\f语言区域R\x06locale\x12Q\n" +
+	"\x06status\x18d \x01(\x0e2\x11.common.v1.StatusB!\xbaG\x1e\x92\x02\x1b状态：枚举【Status】H\x02R\x06status\x88\x01\x01\x12D\n" +
 	"\bpage_num\x18e \x01(\x03B)\xbaG\x1b\x8a\x02\t\t\x00\x00\x00\x00\x00\x00\xf0?\x92\x02\f当前页码\xbaH\b\"\x06\x18\xc0\x84=(\x01R\apageNum\x12D\n" +
-	"\tpage_size\x18f \x01(\x03B'\xbaG\x1b\x8a\x02\t\t\x00\x00\x00\x00\x00\x00$@\x92\x02\f每页数量\xbaH\x06\"\x04\x18d(\x01R\bpageSizeB\a\n" +
+	"\tpage_size\x18f \x01(\x03B'\xbaG\x1b\x8a\x02\t\t\x00\x00\x00\x00\x00\x00$@\x92\x02\f每页数量\xbaH\x06\"\x04\x18d(\x01R\bpageSizeB\f\n" +
+	"\n" +
+	"_tenant_idB\a\n" +
 	"\x05_siteB\t\n" +
 	"\a_status\"\x9d\x01\n" +
 	"\x1aPageBaseI18nCustomResponse\x12[\n" +
@@ -620,16 +647,18 @@ const file_system_admin_v1_base_i18n_custom_proto_rawDesc = "" +
 	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\"\xb5\x01\n" +
 	"\x18GetBaseI18nCustomRequest\x12\x98\x01\n" +
 	"\x02id\x18\x01 \x01(\x03B\x87\x01\xbaG\x1d\x92\x02\x1a国际化自定义翻译ID\xbaHd\xba\x01a\n" +
-	"-system.admin.base.i18n_custom.get.id.required\x12&国际化自定义翻译ID不能为空\x1a\bthis > 0R\x02id\"\x88\a\n" +
+	"-system.admin.base.i18n_custom.get.id.required\x12&国际化自定义翻译ID不能为空\x1a\bthis > 0R\x02id\"\x96\b\n" +
 	"\x12BaseI18nCustomForm\x120\n" +
-	"\x02id\x18\x01 \x01(\x03B \xbaG\x1d\x92\x02\x1a国际化自定义翻译IDR\x02id\x12\xb2\x01\n" +
-	"\x04site\x18\x02 \x01(\x0e2\x17.base.v1.BaseConfigSiteB\x84\x01\xbaG&\x92\x02#位置：枚举【BaseConfigSite】\xbaHX\xba\x01P\n" +
+	"\x02id\x18\x01 \x01(\x03B \xbaG\x1d\x92\x02\x1a国际化自定义翻译IDR\x02id\x12\x8b\x01\n" +
+	"\ttenant_id\x18\x02 \x01(\x03Bn\xbaG\v\x92\x02\b租户ID\xbaH]\xba\x01Z\n" +
+	"7system.admin.base.i18n_custom.entity.tenant_id.required\x12\x15请选择所属租户\x1a\bthis > 0R\btenantId\x12\xb2\x01\n" +
+	"\x04site\x18\x03 \x01(\x0e2\x17.base.v1.BaseConfigSiteB\x84\x01\xbaG&\x92\x02#位置：枚举【BaseConfigSite】\xbaHX\xba\x01P\n" +
 	"2system.admin.base.i18n_custom.entity.site.required\x12\x0f请选择位置\x1a\tthis != 0\x82\x01\x02\x10\x01R\x04site\x12\xbc\x01\n" +
-	"\x03key\x18\x03 \x01(\tB\xa9\x01\xbaG\x15\x92\x02\x12国际化语言键\xbaH\x8d\x01\xba\x01\x89\x01\n" +
+	"\x03key\x18\x04 \x01(\tB\xa9\x01\xbaG\x15\x92\x02\x12国际化语言键\xbaH\x8d\x01\xba\x01\x89\x01\n" +
 	"/system.admin.base.i18n_custom.entity.key.length\x12/语言键不能为空且不超过 255 个字符\x1a%this.size() > 0 && this.size() <= 255R\x03key\x12\xc0\x01\n" +
-	"\x06locale\x18\x04 \x01(\tB\xa7\x01\xbaG\x0f\x92\x02\f语言区域\xbaH\x91\x01\xba\x01\x8d\x01\n" +
+	"\x06locale\x18\x05 \x01(\tB\xa7\x01\xbaG\x0f\x92\x02\f语言区域\xbaH\x91\x01\xba\x01\x8d\x01\n" +
 	"2system.admin.base.i18n_custom.entity.locale.length\x121语言区域不能为空且不超过 16 个字符\x1a$this.size() > 0 && this.size() <= 16R\x06locale\x12\xa1\x01\n" +
-	"\x05value\x18\x05 \x01(\tB\x8a\x01\xbaG\x18\x92\x02\x15自定义翻译内容\xbaHl\xba\x01i\n" +
+	"\x05value\x18\x06 \x01(\tB\x8a\x01\xbaG\x18\x92\x02\x15自定义翻译内容\xbaHl\xba\x01i\n" +
 	"3system.admin.base.i18n_custom.entity.value.required\x12!自定义翻译内容不能为空\x1a\x0fthis.size() > 0R\x05value\x12?\n" +
 	"\x06status\x18d \x01(\x0e2\x11.common.v1.StatusB\x14\xbaG\t\x92\x02\x06状态\xbaH\x05\x82\x01\x02\x10\x01R\x06status\x12$\n" +
 	"\x06remark\x18e \x01(\tB\f\xbaG\t\x92\x02\x06备注R\x06remark\"\x8f\x01\n" +
@@ -645,13 +674,14 @@ const file_system_admin_v1_base_i18n_custom_proto_rawDesc = "" +
 	"\x1eSetBaseI18nCustomStatusRequest\x12\x9f\x01\n" +
 	"\x02id\x18\x01 \x01(\x03B\x8e\x01\xbaG\x1d\x92\x02\x1a国际化自定义翻译ID\xbaHk\xba\x01h\n" +
 	"4system.admin.base.i18n_custom.set_status.id.required\x12&国际化自定义翻译ID不能为空\x1a\bthis > 0R\x02id\x12?\n" +
-	"\x06status\x18\x02 \x01(\x0e2\x11.common.v1.StatusB\x14\xbaG\t\x92\x02\x06状态\xbaH\x05\x82\x01\x02\x10\x01R\x06status\"\x81\x04\n" +
+	"\x06status\x18\x02 \x01(\x0e2\x11.common.v1.StatusB\x14\xbaG\t\x92\x02\x06状态\xbaH\x05\x82\x01\x02\x10\x01R\x06status\"\xae\x04\n" +
 	"\x0eBaseI18nCustom\x120\n" +
-	"\x02id\x18\x01 \x01(\x03B \xbaG\x1d\x92\x02\x1a国际化自定义翻译IDR\x02id\x12V\n" +
-	"\x04site\x18\x02 \x01(\x0e2\x17.base.v1.BaseConfigSiteB)\xbaG&\x92\x02#位置：枚举【BaseConfigSite】R\x04site\x12*\n" +
-	"\x03key\x18\x03 \x01(\tB\x18\xbaG\x15\x92\x02\x12国际化语言键R\x03key\x12*\n" +
-	"\x06locale\x18\x04 \x01(\tB\x12\xbaG\x0f\x92\x02\f语言区域R\x06locale\x121\n" +
-	"\x05value\x18\x05 \x01(\tB\x1b\xbaG\x18\x92\x02\x15自定义翻译内容R\x05value\x12L\n" +
+	"\x02id\x18\x01 \x01(\x03B \xbaG\x1d\x92\x02\x1a国际化自定义翻译IDR\x02id\x12+\n" +
+	"\ttenant_id\x18\x02 \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDR\btenantId\x12V\n" +
+	"\x04site\x18\x03 \x01(\x0e2\x17.base.v1.BaseConfigSiteB)\xbaG&\x92\x02#位置：枚举【BaseConfigSite】R\x04site\x12*\n" +
+	"\x03key\x18\x04 \x01(\tB\x18\xbaG\x15\x92\x02\x12国际化语言键R\x03key\x12*\n" +
+	"\x06locale\x18\x05 \x01(\tB\x12\xbaG\x0f\x92\x02\f语言区域R\x06locale\x121\n" +
+	"\x05value\x18\x06 \x01(\tB\x1b\xbaG\x18\x92\x02\x15自定义翻译内容R\x05value\x12L\n" +
 	"\x06status\x18d \x01(\x0e2\x11.common.v1.StatusB!\xbaG\x1e\x92\x02\x1b状态：枚举【Status】R\x06status\x12$\n" +
 	"\x06remark\x18e \x01(\tB\f\xbaG\t\x92\x02\x06备注R\x06remark\x122\n" +
 	"\n" +

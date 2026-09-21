@@ -181,6 +181,8 @@ export interface BaseMessage {
 export interface BaseMessageDispatch {
   /** 投递任务ID */
   id: number;
+  /** 租户ID */
+  tenant_id: number;
   /** 受众类型 */
   audience_type: MessageAudienceType;
   /** 受众ID */

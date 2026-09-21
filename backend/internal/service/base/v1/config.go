@@ -43,3 +43,13 @@ func (s *ConfigService) GetConfig(ctx context.Context, req *basev1.GetConfigRequ
 
 	return resp, nil
 }
+
+// GetI18nCustom 获取当前租户的自定义国际化覆盖项。
+func (s *ConfigService) GetI18nCustom(ctx context.Context, req *basev1.GetI18nCustomRequest) (*basev1.GetI18nCustomResponse, error) {
+	resp, err := s.configCase.GetI18nCustom(ctx, req)
+	if err != nil {
+		log.Error(fmt.Sprintf("GetI18nCustom %v", err))
+		return nil, errorsx.WrapInternal(err, "获取自定义国际化翻译失败")
+	}
+	return resp, nil
+}

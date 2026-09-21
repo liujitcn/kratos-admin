@@ -185,6 +185,8 @@ message OauthClient {
 message OauthClientCredentials {
   string client_id = 1 [(gnostic.openapi.v3.property) = {description: "客户端标识"}]; // 客户端标识
 
+  int64 tenant_id = 5 [(gnostic.openapi.v3.property) = {description: "绑定租户ID"}]; // 绑定租户ID
+
   string client_secret = 2 [(gnostic.openapi.v3.property) = {description: "客户端密钥"}]; // 客户端密钥
 
   OauthClientCryptoType crypto_type = 3 [(gnostic.openapi.v3.property) = {description: "协议加密类型"}]; // 协议加密类型

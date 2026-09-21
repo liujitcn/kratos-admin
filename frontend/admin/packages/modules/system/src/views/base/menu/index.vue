@@ -313,7 +313,6 @@ const columns = computed<ColumnProps[]>(() => [
     prop: "meta.title",
     label: t("system.base.menu.field.name"),
     minWidth: 220,
-    align: "right",
     search: { el: "input", key: "title" },
     showOverflowTooltip: false,
     render: scope => renderMenuTitleCell(scope as unknown as RenderScope<BaseMenu>)

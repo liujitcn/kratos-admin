@@ -28,6 +28,7 @@ func newAiSession(db *gorm.DB, opts ...gen.DOOption) aiSession {
 	tableName := _aiSession.aiSessionDo.TableName()
 	_aiSession.ALL = field.NewAsterisk(tableName)
 	_aiSession.ID = field.NewInt64(tableName, "id")
+	_aiSession.TenantID = field.NewInt64(tableName, "tenant_id")
 	_aiSession.UserID = field.NewInt64(tableName, "user_id")
 	_aiSession.Terminal = field.NewInt32(tableName, "terminal")
 	_aiSession.Title = field.NewString(tableName, "title")
@@ -47,6 +48,7 @@ type aiSession struct {
 
 	ALL       field.Asterisk
 	ID        field.Int64  // 会话ID
+	TenantID  field.Int64  // 租户ID
 	UserID    field.Int64  // 所属用户ID
 	Terminal  field.Int32  // 终端类型：枚举【Terminal】
 	Title     field.String // 会话标题
@@ -71,6 +73,7 @@ func (a aiSession) As(alias string) *aiSession {
 func (a *aiSession) updateTableName(table string) *aiSession {
 	a.ALL = field.NewAsterisk(table)
 	a.ID = field.NewInt64(table, "id")
+	a.TenantID = field.NewInt64(table, "tenant_id")
 	a.UserID = field.NewInt64(table, "user_id")
 	a.Terminal = field.NewInt32(table, "terminal")
 	a.Title = field.NewString(table, "title")
@@ -104,8 +107,9 @@ func (a *aiSession) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (a *aiSession) fillFieldMap() {
-	a.fieldMap = make(map[string]field.Expr, 8)
+	a.fieldMap = make(map[string]field.Expr, 9)
 	a.fieldMap["id"] = a.ID
+	a.fieldMap["tenant_id"] = a.TenantID
 	a.fieldMap["user_id"] = a.UserID
 	a.fieldMap["terminal"] = a.Terminal
 	a.fieldMap["title"] = a.Title

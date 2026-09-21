@@ -15,6 +15,8 @@ export interface SettingStoreState {
   aiEnabled: boolean
   getData: (key: string) => string | undefined
   loadData: () => Promise<void>
+  loadI18nCustom: () => Promise<void>
+  resetI18nCustom: () => void
 }
 
 let loading: Promise<void> | undefined
@@ -36,7 +38,6 @@ export const useSettingStore = create<SettingStoreState>((set, get) => ({
         set({ aiEnabled: false })
         return
       }
-      applyCustomLocaleMessages(response.i18n_customs ?? [])
       const nextData = new Map(response.configs.map((item) => [item.key, item.value]))
       const missing = REQUIRED_APP_CONFIGS.filter(({ key }) => !nextData.get(key))
       if (missing.length) {
@@ -53,5 +54,12 @@ export const useSettingStore = create<SettingStoreState>((set, get) => ({
     } finally {
       loading = undefined
     }
+  },
+  async loadI18nCustom() {
+    const response = await defConfigService.GetI18nCustom({ site: BaseConfigSite.BASE_CONFIG_SITE_APP })
+    applyCustomLocaleMessages(response.items ?? [])
+  },
+  resetI18nCustom() {
+    applyCustomLocaleMessages([])
   },
 }))

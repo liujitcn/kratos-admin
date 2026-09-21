@@ -180,8 +180,11 @@ func (c *BaseDeptCase) DeleteBaseDept(ctx context.Context, id string) error {
 
 // SetBaseDeptStatus 设置部门状态
 func (c *BaseDeptCase) SetBaseDeptStatus(ctx context.Context, req *adminv1.SetBaseDeptStatusRequest) error {
+	baseDept, err := c.FindByID(ctx, req.GetId())
+	if err != nil {
+		return err
+	}
 	query := c.Query(ctx).BaseDept
-
 	opts := make([]repository.QueryOption, 0, 1)
 	opts = append(opts, repository.Where(query.ParentID.Eq(req.GetId())))
 	count, err := c.Count(ctx, opts...)
@@ -193,10 +196,8 @@ func (c *BaseDeptCase) SetBaseDeptStatus(ctx context.Context, req *adminv1.SetBa
 		return errorsx.HasChildrenConflict("设置状态失败，下面有部门", "base_dept", "base_dept")
 	}
 
-	return c.UpdateByID(ctx, &models.BaseDept{
-		ID:     req.GetId(),
-		Status: req.GetStatus(),
-	})
+	baseDept.Status = req.GetStatus()
+	return c.UpdateByID(ctx, baseDept)
 }
 
 // buildBaseDeptTree 构建部门树

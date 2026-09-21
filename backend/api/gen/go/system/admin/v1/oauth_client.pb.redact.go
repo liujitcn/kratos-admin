@@ -357,6 +357,8 @@ func (x *OauthClientCredentials) Redact() {
 
 	// Safe field: ClientId
 
+	// Safe field: TenantId
+
 	// Safe field: ClientSecret
 
 	// Safe field: CryptoType

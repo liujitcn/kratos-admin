@@ -118,18 +118,33 @@ export const useConfigStore = defineStore("admin-config", {
       });
       const configMap = buildConfigMap(configResponse.configs ?? []);
 
-      applyCustomLocaleMessages(configResponse.i18n_customs ?? []);
       this.setDisplayConfig(normalizeSiteDisplayConfig(configMap));
       this.setLoginCaptchaConfig(normalizeLoginCaptchaConfig(configMap));
       this.showTenantCode = !["false", "0"].includes((configMap[SHOW_TENANT_CODE_KEY] ?? "true").toLowerCase());
       this.i18nDraftEnabled = configMap[I18N_DRAFT_ENABLED_KEY] === "true";
       this.aiEnabled = configResponse.ai_enabled === true;
       return this.display;
+    },
+    /**
+     * 登录成功后加载当前租户的自定义国际化覆盖项。
+     */
+    async loadI18nCustom() {
+      const response = await defConfigService.GetI18nCustom({
+        site: BaseConfigSite.BASE_CONFIG_SITE_ADMIN
+      });
+      applyCustomLocaleMessages(response.items ?? []);
+    },
+    /**
+     * 清空租户自定义翻译并恢复本地默认文案。
+     */
+    resetI18nCustom() {
+      applyCustomLocaleMessages([]);
     }
   }
 });
 
 /** 刷新当前管理端语言和站点运行配置。 */
 export async function refreshAdminRuntimeConfig(): Promise<void> {
-  await useConfigStore().loadDisplayConfig();
+  const configStore = useConfigStore();
+  await Promise.all([configStore.loadDisplayConfig(), configStore.loadI18nCustom()]);
 }

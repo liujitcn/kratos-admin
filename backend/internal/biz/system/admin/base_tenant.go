@@ -313,7 +313,7 @@ func (c *BaseTenantCase) revokeTenantUserTokens(ctx context.Context, tenantID in
 	}
 	query := c.baseUserRepo.Query(ctx).BaseUser
 	users, err := c.baseUserRepo.List(ctx,
-		repository.Select(query.ID),
+		repository.Select(query.ID, query.TenantID),
 		repository.Where(query.TenantID.Eq(tenantID)),
 	)
 	if err != nil {
@@ -459,7 +459,7 @@ func (c *BaseTenantCase) deleteTenantData(ctx context.Context, tenantIDs []int64
 
 	userQuery := c.baseUserRepo.Query(ctx).BaseUser
 	userOpts := make([]repository.QueryOption, 0, 2)
-	userOpts = append(userOpts, repository.Select(userQuery.ID))
+	userOpts = append(userOpts, repository.Select(userQuery.ID, userQuery.TenantID))
 	userOpts = append(userOpts, repository.Where(userQuery.TenantID.In(tenantIDs...)))
 	var users []*models.BaseUser
 	users, err = c.baseUserRepo.List(ctx, userOpts...)

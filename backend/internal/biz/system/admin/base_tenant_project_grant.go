@@ -457,7 +457,7 @@ func (c *BaseTenantProjectGrantCase) mapGrantPage(ctx context.Context, rows []*m
 	}
 	if ids := subjectIDs[4]; len(ids) > 0 {
 		users, err := query.BaseUser.WithContext(ctx).
-			Select(query.BaseUser.ID, query.BaseUser.UserName, query.BaseUser.UserCode, query.BaseUser.NickName).
+			Select(query.BaseUser.ID, query.BaseUser.TenantID, query.BaseUser.UserName, query.BaseUser.UserCode, query.BaseUser.NickName).
 			Where(query.BaseUser.ID.In(ids...)).Find()
 		if err != nil {
 			return nil, err

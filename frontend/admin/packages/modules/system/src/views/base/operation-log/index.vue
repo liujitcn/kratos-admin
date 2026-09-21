@@ -8,6 +8,7 @@ import type { ColumnProps } from "@liujitcn/kratos-admin-core/components/ProTabl
 import { t } from "@liujitcn/kratos-admin-core";
 import { formatLogDateTime } from "@liujitcn/kratos-admin-system/components/log/log";
 import { buildPageRequest } from "@liujitcn/kratos-admin-core/table";
+import { useTenantScope } from "@liujitcn/kratos-admin-core/tenant";
 import LogTable, { type LogTableConfig } from "@liujitcn/kratos-admin-system/components/log/LogTable.vue";
 import { logDateSearch, logDetailColumn, logEnumLabel, createLogEnumOptions, requestLogTrace } from "@liujitcn/kratos-admin-system/components/log/log";
 import { defBaseOperationLogService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/base_operation_log";
@@ -18,6 +19,7 @@ import type { BaseOperationLog, PageBaseOperationLogRequest } from "@liujitcn/kr
 defineOptions({ name: "BaseOperationLog", inheritAttrs: false });
 
 const page = ref<InstanceType<typeof LogTable>>();
+const { tenantColumns } = useTenantScope();
 const resultOptions = computed(() => createLogEnumOptions([
   [BaseLogResult.BASE_LOG_RESULT_UNSPECIFIED, t("system.base.log.result.unspecified")],
   [BaseLogResult.BASE_LOG_RESULT_SUCCESS, t("system.base.log.result.success")],
@@ -36,8 +38,9 @@ const actionOptions = computed(() => createLogEnumOptions([
   [BaseOperationAction.BASE_OPERATION_ACTION_OTHER, t("system.base.log.operation_action.other")]
 ]));
 const columns = computed<ColumnProps[]>(() => [
+  ...tenantColumns({ label: t("common.field.tenant") }),
   { prop: "resource_type", label: t("system.base.log.field.resource_type"), minWidth: 150, search: { el: "input" } },
-  { prop: "resource_id", label: t("system.base.log.field.resource_id"), minWidth: 120, align: "left" },
+  { prop: "resource_id", label: t("system.base.log.field.resource_id"), minWidth: 120 },
   { prop: "resource_name", label: t("system.base.log.field.resource_name"), minWidth: 160 },
   { prop: "action", label: t("system.base.log.field.action"), minWidth: 110, search: { el: "select", enum: actionOptions.value }, render: scope => logEnumLabel(actionOptions.value, (scope.row as BaseOperationLog).action) },
   { prop: "result", label: t("system.base.log.field.result"), minWidth: 110, search: { el: "select", enum: resultOptions.value }, render: scope => logEnumLabel(resultOptions.value, (scope.row as BaseOperationLog).result) },
@@ -58,7 +61,7 @@ const config = computed<LogTableConfig>(() => ({
     { key: "user_id", label: t("system.base.log.field.user_id") },
     { key: "user_name", label: t("system.base.log.field.user_name") },
     { key: "resource_type", label: t("system.base.log.field.resource_type") },
-    { key: "resource_id", label: t("system.base.log.field.resource_id"), align: "left" },
+    { key: "resource_id", label: t("system.base.log.field.resource_id") },
     { key: "resource_name", label: t("system.base.log.field.resource_name") },
     { key: "action", label: t("system.base.log.field.action"), enum: actionOptions.value },
     { key: "result", label: t("system.base.log.field.result"), enum: resultOptions.value },

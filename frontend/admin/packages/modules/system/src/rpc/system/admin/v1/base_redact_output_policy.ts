@@ -31,6 +31,10 @@ export interface PageBaseRedactOutputPolicyRequest {
   field_path: string;
   /** 服务名 */
   service_name: string;
+  /** 租户ID */
+  tenant_id?:
+    | number
+    | undefined;
   /** 处理模式 */
   mode?:
     | BaseRedactOutputPolicyMode
@@ -70,6 +74,8 @@ export interface BaseRedactOutputPolicyForm {
   field_path: string;
   /** 服务名 */
   service_name: string;
+  /** 租户ID */
+  tenant_id: number;
   /** 处理模式 */
   mode: BaseRedactOutputPolicyMode;
   /** 规则ID */
@@ -117,6 +123,8 @@ export interface BaseRedactOutputPolicy {
   message_ref: string;
   /** 返回字段路径 */
   field_path: string;
+  /** 租户ID */
+  tenant_id: number;
   /** 处理模式 */
   mode: BaseRedactOutputPolicyMode;
   /** 规则ID */

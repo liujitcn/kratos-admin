@@ -667,6 +667,7 @@ func (*DeleteAiSessionResponse) Descriptor() ([]byte, []int) {
 type AiSession struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`                                    // 会话ID
+	TenantId      int64                  `protobuf:"varint,7,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`       // 租户ID
 	Title         string                 `protobuf:"bytes,2,opt,name=title,proto3" json:"title,omitempty"`                              // 会话标题
 	Summary       string                 `protobuf:"bytes,3,opt,name=summary,proto3" json:"summary,omitempty"`                          // 会话摘要
 	UpdatedAt     *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`     // 更新时间
@@ -712,6 +713,13 @@ func (x *AiSession) GetId() string {
 	return ""
 }
 
+func (x *AiSession) GetTenantId() int64 {
+	if x != nil {
+		return x.TenantId
+	}
+	return 0
+}
+
 func (x *AiSession) GetTitle() string {
 	if x != nil {
 		return x.Title
@@ -744,6 +752,7 @@ func (x *AiSession) GetTerminal() Terminal {
 type AiMessage struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`                                            // 消息ID
+	TenantId      int64                  `protobuf:"varint,11,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`              // 租户ID
 	InputContent  *AiInputContent        `protobuf:"bytes,2,opt,name=input_content,json=inputContent,proto3" json:"input_content,omitempty"`    // 输入内容
 	OutputContent *AiOutputContent       `protobuf:"bytes,3,opt,name=output_content,json=outputContent,proto3" json:"output_content,omitempty"` // 输出内容
 	Attachments   []*AiAttachment        `protobuf:"bytes,4,rep,name=attachments,proto3" json:"attachments,omitempty"`                          // 附件列表
@@ -792,6 +801,13 @@ func (x *AiMessage) GetId() string {
 		return x.Id
 	}
 	return ""
+}
+
+func (x *AiMessage) GetTenantId() int64 {
+	if x != nil {
+		return x.TenantId
+	}
+	return 0
 }
 
 func (x *AiMessage) GetInputContent() *AiInputContent {
@@ -1206,16 +1222,18 @@ const file_base_v1_ai_session_proto_rawDesc = "" +
 	"\x16DeleteAiSessionRequest\x12~\n" +
 	"\x02id\x18\x01 \x01(\tBn\xbaG\v\x92\x02\b会话ID\xbaH]\xba\x01Z\n" +
 	"\"base.ai.session.delete.id.positive\x12\x15会话编号不合法\x1a\x1dthis.matches('^[1-9][0-9]*$')R\x02id\"\x19\n" +
-	"\x17DeleteAiSessionResponse\"\xac\x02\n" +
+	"\x17DeleteAiSessionResponse\"\xd9\x02\n" +
 	"\tAiSession\x12\x1e\n" +
-	"\x02id\x18\x01 \x01(\tB\x0e\xbaG\v\x92\x02\b会话IDR\x02id\x12(\n" +
+	"\x02id\x18\x01 \x01(\tB\x0e\xbaG\v\x92\x02\b会话IDR\x02id\x12+\n" +
+	"\ttenant_id\x18\a \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDR\btenantId\x12(\n" +
 	"\x05title\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f会话标题R\x05title\x12,\n" +
 	"\asummary\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f会话摘要R\asummary\x12M\n" +
 	"\n" +
 	"updated_at\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampB\x12\xbaG\x0f\x92\x02\f更新时间R\tupdatedAt\x12X\n" +
-	"\bterminal\x18\x06 \x01(\x0e2\x11.base.v1.TerminalB)\xbaG&\x92\x02#终端类型：枚举【Terminal】R\bterminal\"\xea\x05\n" +
+	"\bterminal\x18\x06 \x01(\x0e2\x11.base.v1.TerminalB)\xbaG&\x92\x02#终端类型：枚举【Terminal】R\bterminal\"\x97\x06\n" +
 	"\tAiMessage\x12\x1e\n" +
-	"\x02id\x18\x01 \x01(\tB\x0e\xbaG\v\x92\x02\b消息IDR\x02id\x12P\n" +
+	"\x02id\x18\x01 \x01(\tB\x0e\xbaG\v\x92\x02\b消息IDR\x02id\x12+\n" +
+	"\ttenant_id\x18\v \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDR\btenantId\x12P\n" +
 	"\rinput_content\x18\x02 \x01(\v2\x17.base.v1.AiInputContentB\x12\xbaG\x0f\x92\x02\f输入内容R\finputContent\x12S\n" +
 	"\x0eoutput_content\x18\x03 \x01(\v2\x18.base.v1.AiOutputContentB\x12\xbaG\x0f\x92\x02\f输出内容R\routputContent\x12K\n" +
 	"\vattachments\x18\x04 \x03(\v2\x15.base.v1.AiAttachmentB\x12\xbaG\x0f\x92\x02\f附件列表R\vattachments\x12M\n" +

@@ -18,6 +18,8 @@ export interface GetBaseThirdAccountIdentifierRequest {
 export interface GetBaseThirdAccountIdentifierResponse {
   /** 三方账号唯一标识 */
   identifier: string;
+  /** 租户ID */
+  tenant_id: number;
 }
 
 /** Admin用户三方账号服务 */

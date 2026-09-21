@@ -1411,6 +1411,10 @@ paths:
             description: カスタム翻訳をページ単位で取得します。
             operationId: BaseI18nCustomService_PageBaseI18nCustom
             parameters:
+                - name: tenant_id
+                  in: query
+                  schema:
+                    type: string
                 - name: site
                   in: query
                   schema:
@@ -3381,6 +3385,10 @@ paths:
                   in: query
                   schema:
                     type: string
+                - name: tenant_id
+                  in: query
+                  schema:
+                    type: string
                 - name: mode
                   in: query
                   schema:
@@ -3697,6 +3705,10 @@ paths:
                   in: query
                   schema:
                     type: string
+                - name: tenant_id
+                  in: query
+                  schema:
+                    type: string
                 - name: status
                   in: query
                   schema:
@@ -3773,6 +3785,24 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/system.admin.v1.ListBaseRedactStorageColumnResponse'
+    /api/v1/admin/base/redact-storage-policy/tables:
+        get:
+            tags:
+                - BaseRedactStoragePolicyService
+            description: 検索包含テナント IDフィールドのデータ表一覧。
+            operationId: BaseRedactStoragePolicyService_ListBaseRedactStorageTable
+            parameters:
+                - name: source_name
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.ListBaseRedactStorageTableResponse'
     /api/v1/admin/base/redact-storage-policy/{id}:
         get:
             tags:
@@ -6386,6 +6416,30 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/base.v1.GetConfigResponse'
+    /api/v1/base/config/i18n-custom:
+        get:
+            tags:
+                - ConfigService
+            description: 取得現在のテナントの自定义国际化覆盖項目
+            operationId: ConfigService_GetI18nCustom
+            parameters:
+                - name: site
+                  in: query
+                  schema:
+                    enum:
+                        - BASE_CONFIG_SITE_UNSPECIFIED
+                        - BASE_CONFIG_SITE_SYSTEM
+                        - BASE_CONFIG_SITE_ADMIN
+                        - BASE_CONFIG_SITE_APP
+                    type: string
+                    format: enum
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.GetI18nCustomResponse'
     /api/v1/base/file:
         get:
             tags:
@@ -7257,6 +7311,9 @@ components:
                 id:
                     type: string
                     description: メッセージ ID
+                tenant_id:
+                    type: string
+                    description: テナント ID
                 input_content:
                     $ref: '#/components/schemas/base.v1.AiInputContent'
                 output_content:
@@ -7332,6 +7389,9 @@ components:
                 id:
                     type: string
                     description: セッション ID
+                tenant_id:
+                    type: string
+                    description: テナント ID
                 title:
                     type: string
                     description: セッションタイトル
@@ -7863,12 +7923,16 @@ components:
                 ai_enabled:
                     type: boolean
                     description: AI assistant availability
-                i18n_customs:
+            description: システム設定検索結果
+        base.v1.GetI18nCustomResponse:
+            type: object
+            properties:
+                items:
                     type: array
                     items:
                         $ref: '#/components/schemas/base.v1.I18nCustomItem'
                     description: 全言語のカスタム国際化上書き
-            description: システム設定検索結果
+            description: 現在のテナント自定义国际化覆盖項目検索結果。
         base.v1.HandleMcpRequest:
             type: object
             properties:
@@ -8115,6 +8179,9 @@ components:
                 id:
                     type: string
                     description: 配信 ID
+                tenant_id:
+                    type: string
+                    description: テナント ID
                 message_id:
                     type: string
                     description: メッセージ ID
@@ -9425,6 +9492,9 @@ components:
                 id:
                     type: string
                     description: カスタム翻訳ID
+                tenant_id:
+                    type: string
+                    description: テナント ID
                 site:
                     enum:
                         - BASE_CONFIG_SITE_UNSPECIFIED
@@ -9467,6 +9537,9 @@ components:
                 id:
                     type: string
                     description: カスタム翻訳ID
+                tenant_id:
+                    type: string
+                    description: テナント ID
                 site:
                     enum:
                         - BASE_CONFIG_SITE_UNSPECIFIED
@@ -10387,6 +10460,9 @@ components:
                 id:
                     type: string
                     description: 配信タスクID
+                tenant_id:
+                    type: string
+                    description: テナント ID
                 audience_type:
                     enum:
                         - MESSAGE_AUDIENCE_TYPE_UNSPECIFIED
@@ -10880,6 +10956,9 @@ components:
                 field_path:
                     type: string
                     description: 返却フィールドパス
+                tenant_id:
+                    type: string
+                    description: テナント ID
                 mode:
                     enum:
                         - BASE_REDACT_OUTPUT_POLICY_MODE_UNSPECIFIED
@@ -10943,6 +11022,9 @@ components:
                 service_name:
                     type: string
                     description: サービス名
+                tenant_id:
+                    type: string
+                    description: テナント ID
                 mode:
                     enum:
                         - BASE_REDACT_OUTPUT_POLICY_MODE_UNSPECIFIED
@@ -11082,6 +11164,9 @@ components:
                 source_name:
                     type: string
                     description: データソース名称
+                tenant_id:
+                    type: string
+                    description: テナント ID
                 status:
                     enum:
                         - STATUS_UNSPECIFIED
@@ -11121,6 +11206,9 @@ components:
                 source_name:
                     type: string
                     description: データソース名称
+                tenant_id:
+                    type: string
+                    description: テナント ID
                 status:
                     enum:
                         - STATUS_UNSPECIFIED
@@ -11133,6 +11221,16 @@ components:
                     type: string
                     description: 備考
             description: 保存マスキングポリシーフォーム。
+        system.admin.v1.BaseRedactStorageTable:
+            type: object
+            properties:
+                name:
+                    type: string
+                    description: データベーステーブル名
+                comment:
+                    type: string
+                    description: データ表コメント
+            description: 可能な保存マスキングデータ表。
         system.admin.v1.BaseRole:
             type: object
             properties:
@@ -12611,6 +12709,15 @@ components:
                         $ref: '#/components/schemas/system.admin.v1.BaseRedactStorageColumn'
                     description: 可能なマスキングフィールド一覧
             description: 可能な保存マスキングフィールド一覧レスポンス。
+        system.admin.v1.ListBaseRedactStorageTableResponse:
+            type: object
+            properties:
+                tables:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.BaseRedactStorageTable'
+                    description: 包含テナント IDフィールドのデータ表一覧
+            description: 可能な保存マスキングデータ表一覧レスポンス。
         system.admin.v1.ListBaseUserResponse:
             type: object
             properties:
@@ -12720,6 +12827,9 @@ components:
                 client_id:
                     type: string
                     description: クライアント識別子
+                tenant_id:
+                    type: string
+                    description: バインドテナント ID
                 client_secret:
                     type: string
                     description: クライアントキー

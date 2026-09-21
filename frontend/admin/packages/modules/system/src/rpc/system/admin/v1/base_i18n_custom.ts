@@ -11,6 +11,10 @@ import type { Empty } from "../../../google/protobuf/empty";
 
 /** 国际化自定义翻译分页查询条件。 */
 export interface PageBaseI18nCustomRequest {
+  /** 租户ID */
+  tenant_id?:
+    | number
+    | undefined;
   /** 位置：枚举【BaseConfigSite】 */
   site?:
     | BaseConfigSite
@@ -47,6 +51,8 @@ export interface GetBaseI18nCustomRequest {
 export interface BaseI18nCustomForm {
   /** 国际化自定义翻译ID */
   id: number;
+  /** 租户ID */
+  tenant_id: number;
   /** 位置：枚举【BaseConfigSite】 */
   site: BaseConfigSite;
   /** 国际化语言键 */
@@ -91,6 +97,8 @@ export interface SetBaseI18nCustomStatusRequest {
 export interface BaseI18nCustom {
   /** 国际化自定义翻译ID */
   id: number;
+  /** 租户ID */
+  tenant_id: number;
   /** 位置：枚举【BaseConfigSite】 */
   site: BaseConfigSite;
   /** 国际化语言键 */

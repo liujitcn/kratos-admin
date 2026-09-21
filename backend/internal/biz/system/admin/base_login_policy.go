@@ -295,7 +295,8 @@ func (c *BaseLoginPolicyCase) SetBaseLoginPolicyStatus(ctx context.Context, req 
 	if entity.Status == status {
 		return new(emptypb.Empty), nil
 	}
-	err = c.baseLoginPolicyRepo.UpdateByID(ctx, &models.BaseLoginPolicy{ID: entity.ID, Status: status})
+	entity.Status = status
+	err = c.baseLoginPolicyRepo.UpdateByID(ctx, entity)
 	if err != nil {
 		return nil, err
 	}
@@ -450,7 +451,7 @@ func (c *BaseLoginPolicyCase) toBaseLoginPolicy(ctx context.Context, entity *mod
 		var user *models.BaseUser
 		query := c.baseUserRepo.Query(ctx).BaseUser
 		user, err = c.baseUserRepo.Find(ctx,
-			repository.Select(query.ID, query.UserName),
+			repository.Select(query.ID, query.TenantID, query.UserName),
 			repository.Where(query.ID.Eq(result.UserId)),
 		)
 		if err != nil {

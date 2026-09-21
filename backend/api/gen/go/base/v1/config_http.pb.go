@@ -19,15 +19,19 @@ var _ = new(context.Context)
 const _ = http.SupportPackageIsVersion3
 
 const OperationConfigServiceGetConfig = "/base.v1.ConfigService/GetConfig"
+const OperationConfigServiceGetI18nCustom = "/base.v1.ConfigService/GetI18nCustom"
 
 type ConfigServiceHTTPServer interface {
 	// GetConfig 获取系统配置
 	GetConfig(context.Context, *GetConfigRequest) (*GetConfigResponse, error)
+	// GetI18nCustom 获取当前租户的自定义国际化覆盖项
+	GetI18nCustom(context.Context, *GetI18nCustomRequest) (*GetI18nCustomResponse, error)
 }
 
 func RegisterConfigServiceHTTPServer(s *http.Server, srv ConfigServiceHTTPServer) {
 	r := s.Route("/")
 	r.Handle("GET", "/api/v1/base/config", _ConfigService_GetConfig0_HTTP_Handler(srv))
+	r.Handle("GET", "/api/v1/base/config/i18n-custom", _ConfigService_GetI18nCustom0_HTTP_Handler(srv))
 }
 
 func _ConfigService_GetConfig0_HTTP_Handler(srv ConfigServiceHTTPServer) func(ctx http.Context) error {
@@ -49,9 +53,30 @@ func _ConfigService_GetConfig0_HTTP_Handler(srv ConfigServiceHTTPServer) func(ct
 	}
 }
 
+func _ConfigService_GetI18nCustom0_HTTP_Handler(srv ConfigServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in GetI18nCustomRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationConfigServiceGetI18nCustom)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.GetI18nCustom(ctx, req.(*GetI18nCustomRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*GetI18nCustomResponse)
+		return ctx.Result(200, reply)
+	}
+}
+
 type ConfigServiceHTTPClient interface {
 	// GetConfig 获取系统配置
 	GetConfig(ctx context.Context, req *GetConfigRequest, opts ...http.CallOption) (rsp *GetConfigResponse, err error)
+	// GetI18nCustom 获取当前租户的自定义国际化覆盖项
+	GetI18nCustom(ctx context.Context, req *GetI18nCustomRequest, opts ...http.CallOption) (rsp *GetI18nCustomResponse, err error)
 }
 
 type ConfigServiceHTTPClientImpl struct {
@@ -70,6 +95,23 @@ func (c *ConfigServiceHTTPClientImpl) GetConfig(ctx context.Context, in *GetConf
 	opts = append([]http.CallOption{
 		http.Accept("application/protojson"),
 		http.Operation(OperationConfigServiceGetConfig),
+		http.PathTemplate(pattern),
+	}, opts...)
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+// GetI18nCustom 获取当前租户的自定义国际化覆盖项
+func (c *ConfigServiceHTTPClientImpl) GetI18nCustom(ctx context.Context, in *GetI18nCustomRequest, opts ...http.CallOption) (*GetI18nCustomResponse, error) {
+	var out GetI18nCustomResponse
+	pattern := "/api/v1/base/config/i18n-custom"
+	path := http.BuildPath(pattern, in, http.WithQueryParams())
+	opts = append([]http.CallOption{
+		http.Accept("application/protojson"),
+		http.Operation(OperationConfigServiceGetI18nCustom),
 		http.PathTemplate(pattern),
 	}, opts...)
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)

@@ -105,7 +105,7 @@ async function refreshLocalizedRuntimeData() {
   const authStore = useAuthStore(pinia);
   const dictStore = useDictStore(pinia);
   const configStore = useConfigStore(pinia);
-  await Promise.allSettled([configStore.loadDisplayConfig()]);
+  await Promise.allSettled([configStore.loadDisplayConfig(), ...(userStore.token ? [configStore.loadI18nCustom()] : [])]);
   if (userStore.token) {
     await Promise.allSettled([authStore.getAuthMenuList(), dictStore.updateDictionaryCache()]);
     syncLocalizedRouteState();

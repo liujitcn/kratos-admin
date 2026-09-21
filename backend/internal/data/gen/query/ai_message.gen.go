@@ -28,6 +28,7 @@ func newAiMessage(db *gorm.DB, opts ...gen.DOOption) aiMessage {
 	tableName := _aiMessage.aiMessageDo.TableName()
 	_aiMessage.ALL = field.NewAsterisk(tableName)
 	_aiMessage.ID = field.NewInt64(tableName, "id")
+	_aiMessage.TenantID = field.NewInt64(tableName, "tenant_id")
 	_aiMessage.SessionID = field.NewInt64(tableName, "session_id")
 	_aiMessage.UserID = field.NewInt64(tableName, "user_id")
 	_aiMessage.InputContent = field.NewString(tableName, "input_content")
@@ -53,6 +54,7 @@ type aiMessage struct {
 
 	ALL           field.Asterisk
 	ID            field.Int64  // 消息ID
+	TenantID      field.Int64  // 租户ID
 	SessionID     field.Int64  // 会话ID
 	UserID        field.Int64  // 所属用户ID
 	InputContent  field.String // 输入内容JSON
@@ -83,6 +85,7 @@ func (a aiMessage) As(alias string) *aiMessage {
 func (a *aiMessage) updateTableName(table string) *aiMessage {
 	a.ALL = field.NewAsterisk(table)
 	a.ID = field.NewInt64(table, "id")
+	a.TenantID = field.NewInt64(table, "tenant_id")
 	a.SessionID = field.NewInt64(table, "session_id")
 	a.UserID = field.NewInt64(table, "user_id")
 	a.InputContent = field.NewString(table, "input_content")
@@ -122,8 +125,9 @@ func (a *aiMessage) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (a *aiMessage) fillFieldMap() {
-	a.fieldMap = make(map[string]field.Expr, 14)
+	a.fieldMap = make(map[string]field.Expr, 15)
 	a.fieldMap["id"] = a.ID
+	a.fieldMap["tenant_id"] = a.TenantID
 	a.fieldMap["session_id"] = a.SessionID
 	a.fieldMap["user_id"] = a.UserID
 	a.fieldMap["input_content"] = a.InputContent

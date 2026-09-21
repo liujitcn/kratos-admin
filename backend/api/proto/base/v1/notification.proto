@@ -271,6 +271,7 @@ message DeleteNotificationRequest {
 // 当前用户消息。
 message Notification {
   int64 id = 1 [(gnostic.openapi.v3.property) = {description: "投递ID"}]; // 投递ID
+  int64 tenant_id = 21 [(gnostic.openapi.v3.property) = {description: "租户ID"}]; // 租户ID
   int64 message_id = 2 [(gnostic.openapi.v3.property) = {description: "消息ID"}]; // 消息ID
   int64 category_id = 3 [(gnostic.openapi.v3.property) = {description: "分类ID"}]; // 分类ID
   string category_name = 4 [(gnostic.openapi.v3.property) = {description: "分类名称"}]; // 分类名称

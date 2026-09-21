@@ -941,6 +941,7 @@ func (x *BaseMessage) GetUpdatedAt() string {
 type BaseMessageDispatch struct {
 	state           protoimpl.MessageState       `protogen:"open.v1"`
 	Id              int64                        `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                                                          // 投递任务ID
+	TenantId        int64                        `protobuf:"varint,10,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`                                             // 租户ID
 	AudienceType    basev1.MessageAudienceType   `protobuf:"varint,2,opt,name=audience_type,json=audienceType,proto3,enum=base.v1.MessageAudienceType" json:"audience_type,omitempty"` // 受众类型
 	AudienceId      int64                        `protobuf:"varint,3,opt,name=audience_id,json=audienceId,proto3" json:"audience_id,omitempty"`                                        // 受众ID
 	IncludeChildren bool                         `protobuf:"varint,4,opt,name=include_children,json=includeChildren,proto3" json:"include_children,omitempty"`                         // 是否包含子部门
@@ -986,6 +987,13 @@ func (*BaseMessageDispatch) Descriptor() ([]byte, []int) {
 func (x *BaseMessageDispatch) GetId() int64 {
 	if x != nil {
 		return x.Id
+	}
+	return 0
+}
+
+func (x *BaseMessageDispatch) GetTenantId() int64 {
+	if x != nil {
+		return x.TenantId
 	}
 	return 0
 }
@@ -1200,9 +1208,11 @@ const file_system_admin_v1_base_message_proto_rawDesc = "" +
 	"\n" +
 	"created_at\x18d \x01(\tB\x12\xbaG\x0f\x92\x02\f创建时间R\tcreatedAt\x121\n" +
 	"\n" +
-	"updated_at\x18e \x01(\tB\x12\xbaG\x0f\x92\x02\f更新时间R\tupdatedAt\"\xbd\x04\n" +
+	"updated_at\x18e \x01(\tB\x12\xbaG\x0f\x92\x02\f更新时间R\tupdatedAt\"\xea\x04\n" +
 	"\x13BaseMessageDispatch\x12$\n" +
-	"\x02id\x18\x01 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e投递任务IDR\x02id\x12U\n" +
+	"\x02id\x18\x01 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e投递任务IDR\x02id\x12+\n" +
+	"\ttenant_id\x18\n" +
+	" \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDR\btenantId\x12U\n" +
 	"\raudience_type\x18\x02 \x01(\x0e2\x1c.base.v1.MessageAudienceTypeB\x12\xbaG\x0f\x92\x02\f受众类型R\faudienceType\x12/\n" +
 	"\vaudience_id\x18\x03 \x01(\x03B\x0e\xbaG\v\x92\x02\b受众IDR\n" +
 	"audienceId\x12F\n" +

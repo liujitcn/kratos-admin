@@ -11,7 +11,7 @@ This directory contains the MySQL initialization resources for `v0.0.1`. The scr
 | `i18n.en-US.up.sql` | `en-US` `base_i18n` translations. |
 | `i18n.ja-JP.up.sql` | `ja-JP` `base_i18n` translations. |
 | `i18n.zh-TW.up.sql` | `zh-TW` `base_i18n` translations. |
-| `i18n_custom.up.sql` | Four-language `base_i18n_custom` overrides for Admin project-management text. |
+| `i18n_custom.up.sql` | Four-language `base_i18n_custom` overrides for the default tenant's Admin project-management text. |
 | `README.<locale>.md` | Localized description files; the framework stores file references in the shared translation table and reads content on demand. |
 
 ## Execution and Idempotency
@@ -44,7 +44,7 @@ A database that has already recorded `v0.0.1` will not replay the migration beca
 
 The three `i18n.{locale}.up.sql` files contain the `base_i18n` records for their locale. They cover system-configuration values and names, dictionary names, dictionary-item labels, menu titles, and scheduled-job names. The `target_type` convention is `1` configuration value, `2` configuration name, `3` dictionary name, `4` dictionary item, `5` menu, and `6` scheduled job. Every translation is inserted separately, and the primary-data filename sorts before the locale files so referenced records exist first.
 
-`i18n_custom.up.sql` adds the `zh-CN`, `zh-TW`, `en-US`, and `ja-JP` `site=2` overrides for fixed Admin project-management text, including the public project name, tenant-project fields, project-grant fields, and project-grant guidance.
+`i18n_custom.up.sql` adds the `zh-CN`, `zh-TW`, `en-US`, and `ja-JP` overrides for the default tenant (`tenant_id=1`) and Admin site (`site=2`), including the public project name, tenant-project fields, project-grant fields, and project-grant guidance.
 
 When adding or changing configuration, dictionaries, menus, or jobs, update all three locale scripts and the matching `README.<locale>.md` files so `target_id`, locale codes, and primary data remain aligned.
 

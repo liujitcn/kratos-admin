@@ -63,6 +63,8 @@ service BaseApiService {
 // API选项查询条件
 message OptionBaseApiRequest {
   optional bool include_public = 1 [(gnostic.openapi.v3.property) = {description: "是否包含免鉴权和可选鉴权接口"}]; // 是否包含免鉴权和可选鉴权接口
+
+  optional bool tenant_response = 2 [(gnostic.openapi.v3.property) = {description: "响应是否包含租户字段"}]; // 响应是否包含租户字段
 }
 
 // API选项响应
@@ -140,6 +142,8 @@ message BaseApi {
   string openapi_service_code = 12 [(gnostic.openapi.v3.property) = {description: "OpenAPI文档key，运行时根据请求路径和方法派生"}]; // OpenAPI文档key
 
   string openapi_service_name = 13 [(gnostic.openapi.v3.property) = {description: "OpenAPI文档名称，运行时根据请求路径和方法派生"}]; // OpenAPI文档名称
+
+  bool tenant_response = 14 [(gnostic.openapi.v3.property) = {description: "响应是否包含租户字段"}]; // 响应是否包含租户字段
 }
 
 // API文档查询条件

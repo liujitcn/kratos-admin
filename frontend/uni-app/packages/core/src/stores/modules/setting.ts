@@ -36,7 +36,6 @@ export const useSettingStore = defineStore('setting', () => {
         aiEnabled.value = false
         return
       }
-      applyCustomLocaleMessages(res.i18n_customs ?? [])
       const nextData = new Map<string, string>()
       res.configs.forEach((item) => {
         nextData.set(item.key, item.value)
@@ -63,9 +62,24 @@ export const useSettingStore = defineStore('setting', () => {
     }
   }
 
+  /** 登录成功后加载当前租户的自定义国际化覆盖项。 */
+  const loadI18nCustom = async () => {
+    const response = await defConfigService.GetI18nCustom({
+      site: BaseConfigSite.BASE_CONFIG_SITE_APP,
+    })
+    applyCustomLocaleMessages(response.items ?? [])
+  }
+
+  /** 清空租户自定义翻译并恢复静态语言包。 */
+  const resetI18nCustom = () => {
+    applyCustomLocaleMessages([])
+  }
+
   return {
     getData,
     aiEnabled,
     loadData,
+    loadI18nCustom,
+    resetI18nCustom,
   }
 })

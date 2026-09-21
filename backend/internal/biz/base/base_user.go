@@ -30,7 +30,7 @@ func NewBaseUserCase(baseCase *biz.BaseCase, baseUserRepo *data.BaseUserReposito
 func (c *BaseUserCase) FindUserNameByID(ctx context.Context, userID int64) (string, error) {
 	query := c.Query(ctx).BaseUser
 	user, err := c.Find(ctx,
-		repository.Select(query.ID, query.UserName, query.NickName),
+		repository.Select(query.ID, query.TenantID, query.UserName, query.NickName),
 		repository.Where(query.ID.Eq(userID)),
 	)
 	if err != nil {

@@ -20,6 +20,17 @@ type tenantProjectGrantRouteStub struct {
 	pageCalled bool
 }
 
+type redactStoragePolicyRouteStub struct {
+	adminv1.BaseRedactStoragePolicyServiceHTTPServer
+	columnsCalled bool
+}
+
+// ListBaseRedactStorageColumn 返回空字段列表并记录路由命中。
+func (s *redactStoragePolicyRouteStub) ListBaseRedactStorageColumn(context.Context, *adminv1.ListBaseRedactStorageColumnRequest) (*adminv1.ListBaseRedactStorageColumnResponse, error) {
+	s.columnsCalled = true
+	return &adminv1.ListBaseRedactStorageColumnResponse{}, nil
+}
+
 // PageBaseTenantProjectGrant 返回空分页结果并记录路由命中。
 func (s *tenantProjectGrantRouteStub) PageBaseTenantProjectGrant(context.Context, *adminv1.PageBaseTenantProjectGrantRequest) (*adminv1.PageBaseTenantProjectGrantResponse, error) {
 	s.pageCalled = true
@@ -41,5 +52,23 @@ func TestRegisterTenantProjectHTTP(t *testing.T) {
 	}
 	if !grant.pageCalled {
 		t.Fatal("项目授权分页路由未命中授权服务")
+	}
+}
+
+// TestRegisterBaseRedactStoragePolicyHTTP 防止字段列表静态路径被策略详情动态路径抢先匹配。
+func TestRegisterBaseRedactStoragePolicyHTTP(t *testing.T) {
+	server := httptransport.NewServer()
+	storagePolicy := &redactStoragePolicyRouteStub{}
+	adminv1.RegisterBaseRedactStoragePolicyServiceHTTPServer(server, storagePolicy)
+
+	request := httptest.NewRequest(http.MethodGet, "/api/v1/admin/base/redact-storage-policy/columns?source_name=default&table_name=base_user", nil)
+	response := httptest.NewRecorder()
+	server.ServeHTTP(response, request)
+
+	if response.Code != http.StatusOK {
+		t.Fatalf("入库脱敏字段列表路由返回状态码 %d，响应：%s", response.Code, strings.TrimSpace(response.Body.String()))
+	}
+	if !storagePolicy.columnsCalled {
+		t.Fatal("入库脱敏字段列表路由未命中字段查询方法")
 	}
 }

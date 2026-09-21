@@ -24,6 +24,18 @@ func NewBaseRedactStoragePolicyServiceAgentTools(baseRedactStoragePolicyServiceS
 		return nil, err
 	}
 	ts = append(ts, pageBaseRedactStoragePolicyTool)
+	var listBaseRedactStorageTableTool tool.InvokableTool
+	listBaseRedactStorageTableTool, err = NewBaseRedactStoragePolicyServiceListBaseRedactStorageTableAgentTool(baseRedactStoragePolicyServiceServer)
+	if err != nil {
+		return nil, err
+	}
+	ts = append(ts, listBaseRedactStorageTableTool)
+	var listBaseRedactStorageColumnTool tool.InvokableTool
+	listBaseRedactStorageColumnTool, err = NewBaseRedactStoragePolicyServiceListBaseRedactStorageColumnAgentTool(baseRedactStoragePolicyServiceServer)
+	if err != nil {
+		return nil, err
+	}
+	ts = append(ts, listBaseRedactStorageColumnTool)
 	var getBaseRedactStoragePolicyTool tool.InvokableTool
 	getBaseRedactStoragePolicyTool, err = NewBaseRedactStoragePolicyServiceGetBaseRedactStoragePolicyAgentTool(baseRedactStoragePolicyServiceServer)
 	if err != nil {
@@ -54,12 +66,6 @@ func NewBaseRedactStoragePolicyServiceAgentTools(baseRedactStoragePolicyServiceS
 		return nil, err
 	}
 	ts = append(ts, setBaseRedactStoragePolicyStatusTool)
-	var listBaseRedactStorageColumnTool tool.InvokableTool
-	listBaseRedactStorageColumnTool, err = NewBaseRedactStoragePolicyServiceListBaseRedactStorageColumnAgentTool(baseRedactStoragePolicyServiceServer)
-	if err != nil {
-		return nil, err
-	}
-	ts = append(ts, listBaseRedactStorageColumnTool)
 	return ts, nil
 }
 
@@ -73,6 +79,34 @@ func NewBaseRedactStoragePolicyServicePageBaseRedactStoragePolicyAgentTool(baseR
 				req = &PageBaseRedactStoragePolicyRequest{}
 			}
 			return baseRedactStoragePolicyServiceServer.PageBaseRedactStoragePolicy(ctx, req)
+		},
+	)
+}
+
+// NewBaseRedactStoragePolicyServiceListBaseRedactStorageTableAgentTool 创建查询包含租户ID字段的数据表列表的 Agent Tool。
+func NewBaseRedactStoragePolicyServiceListBaseRedactStorageTableAgentTool(baseRedactStoragePolicyServiceServer BaseRedactStoragePolicyServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*ListBaseRedactStorageTableRequest, *ListBaseRedactStorageTableResponse](
+		"system_admin_v1_base_redact_storage_policy_service_list_base_redact_storage_table",
+		"查询包含租户ID字段的数据表列表。",
+		func(ctx context.Context, req *ListBaseRedactStorageTableRequest) (*ListBaseRedactStorageTableResponse, error) {
+			if req == nil {
+				req = &ListBaseRedactStorageTableRequest{}
+			}
+			return baseRedactStoragePolicyServiceServer.ListBaseRedactStorageTable(ctx, req)
+		},
+	)
+}
+
+// NewBaseRedactStoragePolicyServiceListBaseRedactStorageColumnAgentTool 创建查询可入库脱敏的字符串字段列表的 Agent Tool。
+func NewBaseRedactStoragePolicyServiceListBaseRedactStorageColumnAgentTool(baseRedactStoragePolicyServiceServer BaseRedactStoragePolicyServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*ListBaseRedactStorageColumnRequest, *ListBaseRedactStorageColumnResponse](
+		"system_admin_v1_base_redact_storage_policy_service_list_base_redact_storage_column",
+		"查询可入库脱敏的字符串字段列表。",
+		func(ctx context.Context, req *ListBaseRedactStorageColumnRequest) (*ListBaseRedactStorageColumnResponse, error) {
+			if req == nil {
+				req = &ListBaseRedactStorageColumnRequest{}
+			}
+			return baseRedactStoragePolicyServiceServer.ListBaseRedactStorageColumn(ctx, req)
 		},
 	)
 }
@@ -143,20 +177,6 @@ func NewBaseRedactStoragePolicyServiceSetBaseRedactStoragePolicyStatusAgentTool(
 				req = &SetBaseRedactStoragePolicyStatusRequest{}
 			}
 			return baseRedactStoragePolicyServiceServer.SetBaseRedactStoragePolicyStatus(ctx, req)
-		},
-	)
-}
-
-// NewBaseRedactStoragePolicyServiceListBaseRedactStorageColumnAgentTool 创建查询可入库脱敏的字符串字段列表的 Agent Tool。
-func NewBaseRedactStoragePolicyServiceListBaseRedactStorageColumnAgentTool(baseRedactStoragePolicyServiceServer BaseRedactStoragePolicyServiceServer) (tool.InvokableTool, error) {
-	return utils.InferTool[*ListBaseRedactStorageColumnRequest, *ListBaseRedactStorageColumnResponse](
-		"system_admin_v1_base_redact_storage_policy_service_list_base_redact_storage_column",
-		"查询可入库脱敏的字符串字段列表。",
-		func(ctx context.Context, req *ListBaseRedactStorageColumnRequest) (*ListBaseRedactStorageColumnResponse, error) {
-			if req == nil {
-				req = &ListBaseRedactStorageColumnRequest{}
-			}
-			return baseRedactStoragePolicyServiceServer.ListBaseRedactStorageColumn(ctx, req)
 		},
 	)
 }

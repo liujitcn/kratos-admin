@@ -143,7 +143,7 @@ const formFields = computed<ProFormField[]>(() => [
 /** 行政区域表格列配置。 */
 const columns = computed<ColumnProps[]>(() => [
   { type: "selection", width: 55 },
-  { prop: "name", label: t("system.base.area.field.name"), align: "left", search: { el: "input" } },
+  { prop: "name", label: t("system.base.area.field.name"), search: { el: "input" } },
   {
     prop: "operation",
     label: t("common.field.operation"),
@@ -192,7 +192,11 @@ const headerActions = computed<HeaderActionProps[]>(() => [
  * 请求行政区域列表，并适配 ProTable 固定列表字段。
  */
 async function requestBaseAreaTable(params: TreeBaseAreaRequest) {
-  const data = await defBaseAreaService.TreeBaseArea({ ...params, parent_id: params.parent_id ?? 0 });
+  const data = await defBaseAreaService.TreeBaseArea({
+    ...params,
+    parent_id: params.parent_id ?? 0,
+    lazy: true
+  });
   return { data: data.base_areas ?? [] };
 }
 

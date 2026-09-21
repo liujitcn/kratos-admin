@@ -1411,6 +1411,10 @@ paths:
             description: 查詢國際化自定義翻譯分頁列表。
             operationId: BaseI18nCustomService_PageBaseI18nCustom
             parameters:
+                - name: tenant_id
+                  in: query
+                  schema:
+                    type: string
                 - name: site
                   in: query
                   schema:
@@ -3381,6 +3385,10 @@ paths:
                   in: query
                   schema:
                     type: string
+                - name: tenant_id
+                  in: query
+                  schema:
+                    type: string
                 - name: mode
                   in: query
                   schema:
@@ -3697,6 +3705,10 @@ paths:
                   in: query
                   schema:
                     type: string
+                - name: tenant_id
+                  in: query
+                  schema:
+                    type: string
                 - name: status
                   in: query
                   schema:
@@ -3773,6 +3785,24 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/system.admin.v1.ListBaseRedactStorageColumnResponse'
+    /api/v1/admin/base/redact-storage-policy/tables:
+        get:
+            tags:
+                - BaseRedactStoragePolicyService
+            description: 查詢包含租戶ID欄位的資料表列表。
+            operationId: BaseRedactStoragePolicyService_ListBaseRedactStorageTable
+            parameters:
+                - name: source_name
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.ListBaseRedactStorageTableResponse'
     /api/v1/admin/base/redact-storage-policy/{id}:
         get:
             tags:
@@ -6386,6 +6416,30 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/base.v1.GetConfigResponse'
+    /api/v1/base/config/i18n-custom:
+        get:
+            tags:
+                - ConfigService
+            description: 獲取當前租戶的自定義國際化覆蓋項
+            operationId: ConfigService_GetI18nCustom
+            parameters:
+                - name: site
+                  in: query
+                  schema:
+                    enum:
+                        - BASE_CONFIG_SITE_UNSPECIFIED
+                        - BASE_CONFIG_SITE_SYSTEM
+                        - BASE_CONFIG_SITE_ADMIN
+                        - BASE_CONFIG_SITE_APP
+                    type: string
+                    format: enum
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.GetI18nCustomResponse'
     /api/v1/base/file:
         get:
             tags:
@@ -7257,6 +7311,9 @@ components:
                 id:
                     type: string
                     description: 訊息ID
+                tenant_id:
+                    type: string
+                    description: 租戶ID
                 input_content:
                     $ref: '#/components/schemas/base.v1.AiInputContent'
                 output_content:
@@ -7332,6 +7389,9 @@ components:
                 id:
                     type: string
                     description: 會話ID
+                tenant_id:
+                    type: string
+                    description: 租戶ID
                 title:
                     type: string
                     description: 會話標題
@@ -7863,12 +7923,16 @@ components:
                 ai_enabled:
                     type: boolean
                     description: AI assistant availability
-                i18n_customs:
+            description: 系統配置查詢結果
+        base.v1.GetI18nCustomResponse:
+            type: object
+            properties:
+                items:
                     type: array
                     items:
                         $ref: '#/components/schemas/base.v1.I18nCustomItem'
                     description: 全部語言的自定義國際化覆蓋項
-            description: 系統配置查詢結果
+            description: 當前租戶自定義國際化覆蓋項查詢結果。
         base.v1.HandleMcpRequest:
             type: object
             properties:
@@ -8115,6 +8179,9 @@ components:
                 id:
                     type: string
                     description: 投遞ID
+                tenant_id:
+                    type: string
+                    description: 租戶ID
                 message_id:
                     type: string
                     description: 訊息ID
@@ -9425,6 +9492,9 @@ components:
                 id:
                     type: string
                     description: 國際化自定義翻譯ID
+                tenant_id:
+                    type: string
+                    description: 租戶ID
                 site:
                     enum:
                         - BASE_CONFIG_SITE_UNSPECIFIED
@@ -9467,6 +9537,9 @@ components:
                 id:
                     type: string
                     description: 國際化自定義翻譯ID
+                tenant_id:
+                    type: string
+                    description: 租戶ID
                 site:
                     enum:
                         - BASE_CONFIG_SITE_UNSPECIFIED
@@ -10387,6 +10460,9 @@ components:
                 id:
                     type: string
                     description: 投遞任務ID
+                tenant_id:
+                    type: string
+                    description: 租戶ID
                 audience_type:
                     enum:
                         - MESSAGE_AUDIENCE_TYPE_UNSPECIFIED
@@ -10880,6 +10956,9 @@ components:
                 field_path:
                     type: string
                     description: 返回欄位路徑
+                tenant_id:
+                    type: string
+                    description: 租戶ID
                 mode:
                     enum:
                         - BASE_REDACT_OUTPUT_POLICY_MODE_UNSPECIFIED
@@ -10943,6 +11022,9 @@ components:
                 service_name:
                     type: string
                     description: 服務名
+                tenant_id:
+                    type: string
+                    description: 租戶ID
                 mode:
                     enum:
                         - BASE_REDACT_OUTPUT_POLICY_MODE_UNSPECIFIED
@@ -11082,6 +11164,9 @@ components:
                 source_name:
                     type: string
                     description: 資料來源名稱
+                tenant_id:
+                    type: string
+                    description: 租戶ID
                 status:
                     enum:
                         - STATUS_UNSPECIFIED
@@ -11121,6 +11206,9 @@ components:
                 source_name:
                     type: string
                     description: 資料來源名稱
+                tenant_id:
+                    type: string
+                    description: 租戶ID
                 status:
                     enum:
                         - STATUS_UNSPECIFIED
@@ -11133,6 +11221,16 @@ components:
                     type: string
                     description: 備註
             description: 入庫脫敏策略表單。
+        system.admin.v1.BaseRedactStorageTable:
+            type: object
+            properties:
+                name:
+                    type: string
+                    description: 資料庫表名
+                comment:
+                    type: string
+                    description: 資料表註釋
+            description: 可入庫脫敏資料表。
         system.admin.v1.BaseRole:
             type: object
             properties:
@@ -12611,6 +12709,15 @@ components:
                         $ref: '#/components/schemas/system.admin.v1.BaseRedactStorageColumn'
                     description: 可脫敏欄位列表
             description: 可入庫脫敏欄位列表響應。
+        system.admin.v1.ListBaseRedactStorageTableResponse:
+            type: object
+            properties:
+                tables:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.BaseRedactStorageTable'
+                    description: 包含租戶ID欄位的資料表列表
+            description: 可入庫脫敏資料表列表響應。
         system.admin.v1.ListBaseUserResponse:
             type: object
             properties:
@@ -12720,6 +12827,9 @@ components:
                 client_id:
                     type: string
                     description: 客戶端標識
+                tenant_id:
+                    type: string
+                    description: 繫結租戶ID
                 client_secret:
                     type: string
                     description: 客戶端金鑰

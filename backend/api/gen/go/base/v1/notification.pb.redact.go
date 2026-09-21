@@ -382,6 +382,8 @@ func (x *Notification) Redact() {
 
 	// Safe field: Id
 
+	// Safe field: TenantId
+
 	// Safe field: MessageId
 
 	// Safe field: CategoryId

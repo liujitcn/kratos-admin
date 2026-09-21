@@ -34,6 +34,7 @@ type PageBaseRedactStoragePolicyRequest struct {
 	ColumnName    string                 `protobuf:"bytes,2,opt,name=column_name,json=columnName,proto3" json:"column_name,omitempty"`      // 数据库字段名
 	RuleId        *int64                 `protobuf:"varint,3,opt,name=rule_id,json=ruleId,proto3,oneof" json:"rule_id,omitempty"`           // 规则ID
 	SourceName    string                 `protobuf:"bytes,4,opt,name=source_name,json=sourceName,proto3" json:"source_name,omitempty"`      // 数据源名称
+	TenantId      *int64                 `protobuf:"varint,5,opt,name=tenant_id,json=tenantId,proto3,oneof" json:"tenant_id,omitempty"`     // 租户ID
 	Status        *commonv1.Status       `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status,oneof" json:"status,omitempty"` // 状态
 	PageNum       int64                  `protobuf:"varint,101,opt,name=page_num,json=pageNum,proto3" json:"page_num,omitempty"`            // 当前页码
 	PageSize      int64                  `protobuf:"varint,102,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`         // 每页数量
@@ -97,6 +98,13 @@ func (x *PageBaseRedactStoragePolicyRequest) GetSourceName() string {
 		return x.SourceName
 	}
 	return ""
+}
+
+func (x *PageBaseRedactStoragePolicyRequest) GetTenantId() int64 {
+	if x != nil && x.TenantId != nil {
+		return *x.TenantId
+	}
+	return 0
 }
 
 func (x *PageBaseRedactStoragePolicyRequest) GetStatus() commonv1.Status {
@@ -227,6 +235,7 @@ type BaseRedactStoragePolicyForm struct {
 	RuleId        int64                  `protobuf:"varint,4,opt,name=rule_id,json=ruleId,proto3" json:"rule_id,omitempty"`            // 规则ID
 	RuleParams    string                 `protobuf:"bytes,5,opt,name=rule_params,json=ruleParams,proto3" json:"rule_params,omitempty"` // 规则参数
 	SourceName    string                 `protobuf:"bytes,6,opt,name=source_name,json=sourceName,proto3" json:"source_name,omitempty"` // 数据源名称
+	TenantId      int64                  `protobuf:"varint,7,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`      // 租户ID
 	Status        commonv1.Status        `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"`  // 状态
 	Remark        string                 `protobuf:"bytes,101,opt,name=remark,proto3" json:"remark,omitempty"`                         // 备注
 	unknownFields protoimpl.UnknownFields
@@ -303,6 +312,13 @@ func (x *BaseRedactStoragePolicyForm) GetSourceName() string {
 		return x.SourceName
 	}
 	return ""
+}
+
+func (x *BaseRedactStoragePolicyForm) GetTenantId() int64 {
+	if x != nil {
+		return x.TenantId
+	}
+	return 0
 }
 
 func (x *BaseRedactStoragePolicyForm) GetStatus() commonv1.Status {
@@ -519,6 +535,7 @@ type BaseRedactStoragePolicy struct {
 	RuleType      string                 `protobuf:"bytes,7,opt,name=rule_type,json=ruleType,proto3" json:"rule_type,omitempty"`       // 规则类型
 	RuleParams    string                 `protobuf:"bytes,8,opt,name=rule_params,json=ruleParams,proto3" json:"rule_params,omitempty"` // 规则参数
 	SourceName    string                 `protobuf:"bytes,9,opt,name=source_name,json=sourceName,proto3" json:"source_name,omitempty"` // 数据源名称
+	TenantId      int64                  `protobuf:"varint,10,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`     // 租户ID
 	Status        commonv1.Status        `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"`  // 状态
 	Remark        string                 `protobuf:"bytes,101,opt,name=remark,proto3" json:"remark,omitempty"`                         // 备注
 	CreatedAt     string                 `protobuf:"bytes,200,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`  // 创建时间
@@ -620,6 +637,13 @@ func (x *BaseRedactStoragePolicy) GetSourceName() string {
 	return ""
 }
 
+func (x *BaseRedactStoragePolicy) GetTenantId() int64 {
+	if x != nil {
+		return x.TenantId
+	}
+	return 0
+}
+
 func (x *BaseRedactStoragePolicy) GetStatus() commonv1.Status {
 	if x != nil {
 		return x.Status
@@ -648,6 +672,149 @@ func (x *BaseRedactStoragePolicy) GetUpdatedAt() string {
 	return ""
 }
 
+// 可入库脱敏数据表查询条件。
+type ListBaseRedactStorageTableRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	SourceName    string                 `protobuf:"bytes,1,opt,name=source_name,json=sourceName,proto3" json:"source_name,omitempty"` // 数据源名称
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListBaseRedactStorageTableRequest) Reset() {
+	*x = ListBaseRedactStorageTableRequest{}
+	mi := &file_system_admin_v1_base_redact_storage_policy_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListBaseRedactStorageTableRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListBaseRedactStorageTableRequest) ProtoMessage() {}
+
+func (x *ListBaseRedactStorageTableRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_system_admin_v1_base_redact_storage_policy_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListBaseRedactStorageTableRequest.ProtoReflect.Descriptor instead.
+func (*ListBaseRedactStorageTableRequest) Descriptor() ([]byte, []int) {
+	return file_system_admin_v1_base_redact_storage_policy_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *ListBaseRedactStorageTableRequest) GetSourceName() string {
+	if x != nil {
+		return x.SourceName
+	}
+	return ""
+}
+
+// 可入库脱敏数据表。
+type BaseRedactStorageTable struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`       // 数据库表名
+	Comment       string                 `protobuf:"bytes,2,opt,name=comment,proto3" json:"comment,omitempty"` // 数据表注释
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *BaseRedactStorageTable) Reset() {
+	*x = BaseRedactStorageTable{}
+	mi := &file_system_admin_v1_base_redact_storage_policy_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *BaseRedactStorageTable) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*BaseRedactStorageTable) ProtoMessage() {}
+
+func (x *BaseRedactStorageTable) ProtoReflect() protoreflect.Message {
+	mi := &file_system_admin_v1_base_redact_storage_policy_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use BaseRedactStorageTable.ProtoReflect.Descriptor instead.
+func (*BaseRedactStorageTable) Descriptor() ([]byte, []int) {
+	return file_system_admin_v1_base_redact_storage_policy_proto_rawDescGZIP(), []int{10}
+}
+
+func (x *BaseRedactStorageTable) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *BaseRedactStorageTable) GetComment() string {
+	if x != nil {
+		return x.Comment
+	}
+	return ""
+}
+
+// 可入库脱敏数据表列表响应。
+type ListBaseRedactStorageTableResponse struct {
+	state         protoimpl.MessageState    `protogen:"open.v1"`
+	Tables        []*BaseRedactStorageTable `protobuf:"bytes,1,rep,name=tables,proto3" json:"tables,omitempty"` // 包含租户ID字段的数据表列表
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListBaseRedactStorageTableResponse) Reset() {
+	*x = ListBaseRedactStorageTableResponse{}
+	mi := &file_system_admin_v1_base_redact_storage_policy_proto_msgTypes[11]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListBaseRedactStorageTableResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListBaseRedactStorageTableResponse) ProtoMessage() {}
+
+func (x *ListBaseRedactStorageTableResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_system_admin_v1_base_redact_storage_policy_proto_msgTypes[11]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListBaseRedactStorageTableResponse.ProtoReflect.Descriptor instead.
+func (*ListBaseRedactStorageTableResponse) Descriptor() ([]byte, []int) {
+	return file_system_admin_v1_base_redact_storage_policy_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *ListBaseRedactStorageTableResponse) GetTables() []*BaseRedactStorageTable {
+	if x != nil {
+		return x.Tables
+	}
+	return nil
+}
+
 // 查询可入库脱敏字段请求。
 type ListBaseRedactStorageColumnRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -659,7 +826,7 @@ type ListBaseRedactStorageColumnRequest struct {
 
 func (x *ListBaseRedactStorageColumnRequest) Reset() {
 	*x = ListBaseRedactStorageColumnRequest{}
-	mi := &file_system_admin_v1_base_redact_storage_policy_proto_msgTypes[9]
+	mi := &file_system_admin_v1_base_redact_storage_policy_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -671,7 +838,7 @@ func (x *ListBaseRedactStorageColumnRequest) String() string {
 func (*ListBaseRedactStorageColumnRequest) ProtoMessage() {}
 
 func (x *ListBaseRedactStorageColumnRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_base_redact_storage_policy_proto_msgTypes[9]
+	mi := &file_system_admin_v1_base_redact_storage_policy_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -684,7 +851,7 @@ func (x *ListBaseRedactStorageColumnRequest) ProtoReflect() protoreflect.Message
 
 // Deprecated: Use ListBaseRedactStorageColumnRequest.ProtoReflect.Descriptor instead.
 func (*ListBaseRedactStorageColumnRequest) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_base_redact_storage_policy_proto_rawDescGZIP(), []int{9}
+	return file_system_admin_v1_base_redact_storage_policy_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *ListBaseRedactStorageColumnRequest) GetSourceName() string {
@@ -714,7 +881,7 @@ type BaseRedactStorageColumn struct {
 
 func (x *BaseRedactStorageColumn) Reset() {
 	*x = BaseRedactStorageColumn{}
-	mi := &file_system_admin_v1_base_redact_storage_policy_proto_msgTypes[10]
+	mi := &file_system_admin_v1_base_redact_storage_policy_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -726,7 +893,7 @@ func (x *BaseRedactStorageColumn) String() string {
 func (*BaseRedactStorageColumn) ProtoMessage() {}
 
 func (x *BaseRedactStorageColumn) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_base_redact_storage_policy_proto_msgTypes[10]
+	mi := &file_system_admin_v1_base_redact_storage_policy_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -739,7 +906,7 @@ func (x *BaseRedactStorageColumn) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BaseRedactStorageColumn.ProtoReflect.Descriptor instead.
 func (*BaseRedactStorageColumn) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_base_redact_storage_policy_proto_rawDescGZIP(), []int{10}
+	return file_system_admin_v1_base_redact_storage_policy_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *BaseRedactStorageColumn) GetName() string {
@@ -780,7 +947,7 @@ type ListBaseRedactStorageColumnResponse struct {
 
 func (x *ListBaseRedactStorageColumnResponse) Reset() {
 	*x = ListBaseRedactStorageColumnResponse{}
-	mi := &file_system_admin_v1_base_redact_storage_policy_proto_msgTypes[11]
+	mi := &file_system_admin_v1_base_redact_storage_policy_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -792,7 +959,7 @@ func (x *ListBaseRedactStorageColumnResponse) String() string {
 func (*ListBaseRedactStorageColumnResponse) ProtoMessage() {}
 
 func (x *ListBaseRedactStorageColumnResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_base_redact_storage_policy_proto_msgTypes[11]
+	mi := &file_system_admin_v1_base_redact_storage_policy_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -805,7 +972,7 @@ func (x *ListBaseRedactStorageColumnResponse) ProtoReflect() protoreflect.Messag
 
 // Deprecated: Use ListBaseRedactStorageColumnResponse.ProtoReflect.Descriptor instead.
 func (*ListBaseRedactStorageColumnResponse) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_base_redact_storage_policy_proto_rawDescGZIP(), []int{11}
+	return file_system_admin_v1_base_redact_storage_policy_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *ListBaseRedactStorageColumnResponse) GetColumns() []*BaseRedactStorageColumn {
@@ -819,7 +986,7 @@ var File_system_admin_v1_base_redact_storage_policy_proto protoreflect.FileDescr
 
 const file_system_admin_v1_base_redact_storage_policy_proto_rawDesc = "" +
 	"\n" +
-	"0system/admin/v1/base_redact_storage_policy.proto\x12\x0fsystem.admin.v1\x1a\x14common/v1/enum.proto\x1a\x1bbuf/validate/validate.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\xdc\x03\n" +
+	"0system/admin/v1/base_redact_storage_policy.proto\x12\x0fsystem.admin.v1\x1a\x14common/v1/enum.proto\x1a\x1bbuf/validate/validate.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\x9c\x04\n" +
 	"\"PageBaseRedactStoragePolicyRequest\x124\n" +
 	"\n" +
 	"table_name\x18\x01 \x01(\tB\x15\xbaG\x12\x92\x02\x0f数据库表名R\ttableName\x129\n" +
@@ -827,20 +994,22 @@ const file_system_admin_v1_base_redact_storage_policy_proto_rawDesc = "" +
 	"columnName\x12,\n" +
 	"\arule_id\x18\x03 \x01(\x03B\x0e\xbaG\v\x92\x02\b规则IDH\x00R\x06ruleId\x88\x01\x01\x126\n" +
 	"\vsource_name\x18\x04 \x01(\tB\x15\xbaG\x12\x92\x02\x0f数据源名称R\n" +
-	"sourceName\x12<\n" +
-	"\x06status\x18d \x01(\x0e2\x11.common.v1.StatusB\f\xbaG\t\x92\x02\x06状态H\x01R\x06status\x88\x01\x01\x12D\n" +
+	"sourceName\x120\n" +
+	"\ttenant_id\x18\x05 \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDH\x01R\btenantId\x88\x01\x01\x12<\n" +
+	"\x06status\x18d \x01(\x0e2\x11.common.v1.StatusB\f\xbaG\t\x92\x02\x06状态H\x02R\x06status\x88\x01\x01\x12D\n" +
 	"\bpage_num\x18e \x01(\x03B)\xbaG\x1b\x8a\x02\t\t\x00\x00\x00\x00\x00\x00\xf0?\x92\x02\f当前页码\xbaH\b\"\x06\x18\xc0\x84=(\x01R\apageNum\x12D\n" +
 	"\tpage_size\x18f \x01(\x03B'\xbaG\x1b\x8a\x02\t\t\x00\x00\x00\x00\x00\x00$@\x92\x02\f每页数量\xbaH\x06\"\x04\x18d(\x01R\bpageSizeB\n" +
 	"\n" +
-	"\b_rule_idB\t\n" +
+	"\b_rule_idB\f\n" +
+	"\n" +
+	"_tenant_idB\t\n" +
 	"\a_status\"\xd5\x01\n" +
 	"#PageBaseRedactStoragePolicyResponse\x12\x89\x01\n" +
 	"\x1cbase_redact_storage_policies\x18\x01 \x03(\v2(.system.admin.v1.BaseRedactStoragePolicyB\x1e\xbaG\x1b\x92\x02\x18入库脱敏策略列表R\x19baseRedactStoragePolicies\x12\"\n" +
 	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\"\xaf\x01\n" +
 	"!GetBaseRedactStoragePolicyRequest\x12\x89\x01\n" +
 	"\x02id\x18\x01 \x01(\x03By\xbaG\x11\x92\x02\x0e入库策略ID\xbaHb\xba\x01_\n" +
-	"7system.admin.base.redact.storage_policy.get.id.required\x12\x1a入库策略ID不能为空\x1a\bthis > 0R\x02id\"\xa3\n" +
-	"\n" +
+	"7system.admin.base.redact.storage_policy.get.id.required\x12\x1a入库策略ID不能为空\x1a\bthis > 0R\x02id\"\xae\v\n" +
 	"\x1bBaseRedactStoragePolicyForm\x12$\n" +
 	"\x02id\x18\x01 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e入库策略IDR\x02id\x12\xf5\x01\n" +
 	"\n" +
@@ -856,7 +1025,9 @@ const file_system_admin_v1_base_redact_storage_policy_proto_rawDesc = "" +
 	"ruleParams\x12\xda\x01\n" +
 	"\vsource_name\x18\x06 \x01(\tB\xb8\x01\xbaG\x12\x92\x02\x0f数据源名称\xbaH\x9f\x01\xba\x01\x9b\x01\n" +
 	"<system.admin.base.redact.storage_policy.source_name.required\x125数据源名称不能为空且不能超过64个字符\x1a$this.size() > 0 && this.size() <= 64R\n" +
-	"sourceName\x12?\n" +
+	"sourceName\x12\x88\x01\n" +
+	"\ttenant_id\x18\a \x01(\x03Bk\xbaG\v\x92\x02\b租户ID\xbaHZ\xba\x01W\n" +
+	":system.admin.base.redact.storage_policy.tenant_id.required\x12\x0f请选择租户\x1a\bthis > 0R\btenantId\x12?\n" +
 	"\x06status\x18d \x01(\x0e2\x11.common.v1.StatusB\x14\xbaG\t\x92\x02\x06状态\xbaH\x05\x82\x01\x02\x10\x01R\x06status\x12\x95\x01\n" +
 	"\x06remark\x18e \x01(\tB}\xbaG\t\x92\x02\x06备注\xbaHn\xba\x01k\n" +
 	"5system.admin.base.redact.storage_policy.remark.length\x12\x1e备注不能超过500个字符\x1a\x12this.size() <= 500R\x06remark\"\xae\x02\n" +
@@ -872,7 +1043,7 @@ const file_system_admin_v1_base_redact_storage_policy_proto_rawDesc = "" +
 	"'SetBaseRedactStoragePolicyStatusRequest\x12\x8c\x01\n" +
 	"\x02id\x18\x01 \x01(\x03B|\xbaG\x11\x92\x02\x0e入库策略ID\xbaHe\xba\x01b\n" +
 	":system.admin.base.redact.storage_policy.status.id.required\x12\x1a入库策略ID不能为空\x1a\bthis > 0R\x02id\x12?\n" +
-	"\x06status\x18\x02 \x01(\x0e2\x11.common.v1.StatusB\x14\xbaG\t\x92\x02\x06状态\xbaH\x05\x82\x01\x02\x10\x01R\x06status\"\xa0\x05\n" +
+	"\x06status\x18\x02 \x01(\x0e2\x11.common.v1.StatusB\x14\xbaG\t\x92\x02\x06状态\xbaH\x05\x82\x01\x02\x10\x01R\x06status\"\xcd\x05\n" +
 	"\x17BaseRedactStoragePolicy\x12$\n" +
 	"\x02id\x18\x01 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e入库策略IDR\x02id\x124\n" +
 	"\n" +
@@ -886,13 +1057,24 @@ const file_system_admin_v1_base_redact_storage_policy_proto_rawDesc = "" +
 	"\vrule_params\x18\b \x01(\tB\x12\xbaG\x0f\x92\x02\f规则参数R\n" +
 	"ruleParams\x126\n" +
 	"\vsource_name\x18\t \x01(\tB\x15\xbaG\x12\x92\x02\x0f数据源名称R\n" +
-	"sourceName\x127\n" +
+	"sourceName\x12+\n" +
+	"\ttenant_id\x18\n" +
+	" \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDR\btenantId\x127\n" +
 	"\x06status\x18d \x01(\x0e2\x11.common.v1.StatusB\f\xbaG\t\x92\x02\x06状态R\x06status\x12$\n" +
 	"\x06remark\x18e \x01(\tB\f\xbaG\t\x92\x02\x06备注R\x06remark\x122\n" +
 	"\n" +
 	"created_at\x18\xc8\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f创建时间R\tcreatedAt\x122\n" +
 	"\n" +
-	"updated_at\x18\xc9\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f更新时间R\tupdatedAt\"\x91\x04\n" +
+	"updated_at\x18\xc9\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f更新时间R\tupdatedAt\"\x8b\x02\n" +
+	"!ListBaseRedactStorageTableRequest\x12\xe5\x01\n" +
+	"\vsource_name\x18\x01 \x01(\tB\xc3\x01\xbaG\x12\x92\x02\x0f数据源名称\xbaH\xaa\x01\xba\x01\xa6\x01\n" +
+	"Gsystem.admin.base.redact.storage_policy.table_list.source_name.required\x125数据源名称不能为空且不能超过64个字符\x1a$this.size() > 0 && this.size() <= 64R\n" +
+	"sourceName\"t\n" +
+	"\x16BaseRedactStorageTable\x12)\n" +
+	"\x04name\x18\x01 \x01(\tB\x15\xbaG\x12\x92\x02\x0f数据库表名R\x04name\x12/\n" +
+	"\acomment\x18\x02 \x01(\tB\x15\xbaG\x12\x92\x02\x0f数据表注释R\acomment\"\x93\x01\n" +
+	"\"ListBaseRedactStorageTableResponse\x12m\n" +
+	"\x06tables\x18\x01 \x03(\v2'.system.admin.v1.BaseRedactStorageTableB,\xbaG)\x92\x02&包含租户ID字段的数据表列表R\x06tables\"\x91\x04\n" +
 	"\"ListBaseRedactStorageColumnRequest\x12\xe6\x01\n" +
 	"\vsource_name\x18\x01 \x01(\tB\xc4\x01\xbaG\x12\x92\x02\x0f数据源名称\xbaH\xab\x01\xba\x01\xa7\x01\n" +
 	"Hsystem.admin.base.redact.storage_policy.column_list.source_name.required\x125数据源名称不能为空且不能超过64个字符\x1a$this.size() > 0 && this.size() <= 64R\n" +
@@ -907,16 +1089,16 @@ const file_system_admin_v1_base_redact_storage_policy_proto_rawDesc = "" +
 	"\vcolumn_type\x18\x04 \x01(\tB\x1b\xbaG\x18\x92\x02\x15数据库完整类型R\n" +
 	"columnType\"\x86\x01\n" +
 	"#ListBaseRedactStorageColumnResponse\x12_\n" +
-	"\acolumns\x18\x01 \x03(\v2(.system.admin.v1.BaseRedactStorageColumnB\x1b\xbaG\x18\x92\x02\x15可脱敏字段列表R\acolumns2\x86\n" +
-	"\n" +
+	"\acolumns\x18\x01 \x03(\v2(.system.admin.v1.BaseRedactStorageColumnB\x1b\xbaG\x18\x92\x02\x15可脱敏字段列表R\acolumns2\xc7\v\n" +
 	"\x1eBaseRedactStoragePolicyService\x12\xba\x01\n" +
-	"\x1bPageBaseRedactStoragePolicy\x123.system.admin.v1.PageBaseRedactStoragePolicyRequest\x1a4.system.admin.v1.PageBaseRedactStoragePolicyResponse\"0\x82\xd3\xe4\x93\x02*\x12(/api/v1/admin/base/redact-storage-policy\x12\xb5\x01\n" +
+	"\x1bPageBaseRedactStoragePolicy\x123.system.admin.v1.PageBaseRedactStoragePolicyRequest\x1a4.system.admin.v1.PageBaseRedactStoragePolicyResponse\"0\x82\xd3\xe4\x93\x02*\x12(/api/v1/admin/base/redact-storage-policy\x12\xbe\x01\n" +
+	"\x1aListBaseRedactStorageTable\x122.system.admin.v1.ListBaseRedactStorageTableRequest\x1a3.system.admin.v1.ListBaseRedactStorageTableResponse\"7\x82\xd3\xe4\x93\x021\x12//api/v1/admin/base/redact-storage-policy/tables\x12\xc2\x01\n" +
+	"\x1bListBaseRedactStorageColumn\x123.system.admin.v1.ListBaseRedactStorageColumnRequest\x1a4.system.admin.v1.ListBaseRedactStorageColumnResponse\"8\x82\xd3\xe4\x93\x022\x120/api/v1/admin/base/redact-storage-policy/columns\x12\xb5\x01\n" +
 	"\x1aGetBaseRedactStoragePolicy\x122.system.admin.v1.GetBaseRedactStoragePolicyRequest\x1a,.system.admin.v1.BaseRedactStoragePolicyForm\"5\x82\xd3\xe4\x93\x02/\x12-/api/v1/admin/base/redact-storage-policy/{id}\x12\xa3\x01\n" +
 	"\x1dCreateBaseRedactStoragePolicy\x125.system.admin.v1.CreateBaseRedactStoragePolicyRequest\x1a\x16.google.protobuf.Empty\"3\x82\xd3\xe4\x93\x02-:\x01*\"(/api/v1/admin/base/redact-storage-policy\x12\xa3\x01\n" +
 	"\x1dUpdateBaseRedactStoragePolicy\x125.system.admin.v1.UpdateBaseRedactStoragePolicyRequest\x1a\x16.google.protobuf.Empty\"3\x82\xd3\xe4\x93\x02-:\x01*\x1a(/api/v1/admin/base/redact-storage-policy\x12\xa5\x01\n" +
 	"\x1dDeleteBaseRedactStoragePolicy\x125.system.admin.v1.DeleteBaseRedactStoragePolicyRequest\x1a\x16.google.protobuf.Empty\"5\x82\xd3\xe4\x93\x02/*-/api/v1/admin/base/redact-storage-policy/{id}\x12\xb5\x01\n" +
-	" SetBaseRedactStoragePolicyStatus\x128.system.admin.v1.SetBaseRedactStoragePolicyStatusRequest\x1a\x16.google.protobuf.Empty\"?\x82\xd3\xe4\x93\x029:\x01*\x1a4/api/v1/admin/base/redact-storage-policy/{id}/status\x12\xc2\x01\n" +
-	"\x1bListBaseRedactStorageColumn\x123.system.admin.v1.ListBaseRedactStorageColumnRequest\x1a4.system.admin.v1.ListBaseRedactStorageColumnResponse\"8\x82\xd3\xe4\x93\x022\x120/api/v1/admin/base/redact-storage-policy/columnsB\xde\x01\n" +
+	" SetBaseRedactStoragePolicyStatus\x128.system.admin.v1.SetBaseRedactStoragePolicyStatusRequest\x1a\x16.google.protobuf.Empty\"?\x82\xd3\xe4\x93\x029:\x01*\x1a4/api/v1/admin/base/redact-storage-policy/{id}/statusB\xde\x01\n" +
 	"\x13com.system.admin.v1B\x1cBaseRedactStoragePolicyProtoP\x01ZKgithub.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1;adminv1\xa2\x02\x03SAX\xaa\x02\x0fSystem.Admin.V1\xca\x02\x0fSystem\\Admin\\V1\xe2\x02\x1bSystem\\Admin\\V1\\GPBMetadata\xea\x02\x11System::Admin::V1b\x06proto3"
 
 var (
@@ -931,7 +1113,7 @@ func file_system_admin_v1_base_redact_storage_policy_proto_rawDescGZIP() []byte 
 	return file_system_admin_v1_base_redact_storage_policy_proto_rawDescData
 }
 
-var file_system_admin_v1_base_redact_storage_policy_proto_msgTypes = make([]protoimpl.MessageInfo, 12)
+var file_system_admin_v1_base_redact_storage_policy_proto_msgTypes = make([]protoimpl.MessageInfo, 15)
 var file_system_admin_v1_base_redact_storage_policy_proto_goTypes = []any{
 	(*PageBaseRedactStoragePolicyRequest)(nil),      // 0: system.admin.v1.PageBaseRedactStoragePolicyRequest
 	(*PageBaseRedactStoragePolicyResponse)(nil),     // 1: system.admin.v1.PageBaseRedactStoragePolicyResponse
@@ -942,40 +1124,46 @@ var file_system_admin_v1_base_redact_storage_policy_proto_goTypes = []any{
 	(*DeleteBaseRedactStoragePolicyRequest)(nil),    // 6: system.admin.v1.DeleteBaseRedactStoragePolicyRequest
 	(*SetBaseRedactStoragePolicyStatusRequest)(nil), // 7: system.admin.v1.SetBaseRedactStoragePolicyStatusRequest
 	(*BaseRedactStoragePolicy)(nil),                 // 8: system.admin.v1.BaseRedactStoragePolicy
-	(*ListBaseRedactStorageColumnRequest)(nil),      // 9: system.admin.v1.ListBaseRedactStorageColumnRequest
-	(*BaseRedactStorageColumn)(nil),                 // 10: system.admin.v1.BaseRedactStorageColumn
-	(*ListBaseRedactStorageColumnResponse)(nil),     // 11: system.admin.v1.ListBaseRedactStorageColumnResponse
-	(commonv1.Status)(0),                            // 12: common.v1.Status
-	(*emptypb.Empty)(nil),                           // 13: google.protobuf.Empty
+	(*ListBaseRedactStorageTableRequest)(nil),       // 9: system.admin.v1.ListBaseRedactStorageTableRequest
+	(*BaseRedactStorageTable)(nil),                  // 10: system.admin.v1.BaseRedactStorageTable
+	(*ListBaseRedactStorageTableResponse)(nil),      // 11: system.admin.v1.ListBaseRedactStorageTableResponse
+	(*ListBaseRedactStorageColumnRequest)(nil),      // 12: system.admin.v1.ListBaseRedactStorageColumnRequest
+	(*BaseRedactStorageColumn)(nil),                 // 13: system.admin.v1.BaseRedactStorageColumn
+	(*ListBaseRedactStorageColumnResponse)(nil),     // 14: system.admin.v1.ListBaseRedactStorageColumnResponse
+	(commonv1.Status)(0),                            // 15: common.v1.Status
+	(*emptypb.Empty)(nil),                           // 16: google.protobuf.Empty
 }
 var file_system_admin_v1_base_redact_storage_policy_proto_depIdxs = []int32{
-	12, // 0: system.admin.v1.PageBaseRedactStoragePolicyRequest.status:type_name -> common.v1.Status
+	15, // 0: system.admin.v1.PageBaseRedactStoragePolicyRequest.status:type_name -> common.v1.Status
 	8,  // 1: system.admin.v1.PageBaseRedactStoragePolicyResponse.base_redact_storage_policies:type_name -> system.admin.v1.BaseRedactStoragePolicy
-	12, // 2: system.admin.v1.BaseRedactStoragePolicyForm.status:type_name -> common.v1.Status
+	15, // 2: system.admin.v1.BaseRedactStoragePolicyForm.status:type_name -> common.v1.Status
 	3,  // 3: system.admin.v1.CreateBaseRedactStoragePolicyRequest.base_redact_storage_policy:type_name -> system.admin.v1.BaseRedactStoragePolicyForm
 	3,  // 4: system.admin.v1.UpdateBaseRedactStoragePolicyRequest.base_redact_storage_policy:type_name -> system.admin.v1.BaseRedactStoragePolicyForm
-	12, // 5: system.admin.v1.SetBaseRedactStoragePolicyStatusRequest.status:type_name -> common.v1.Status
-	12, // 6: system.admin.v1.BaseRedactStoragePolicy.status:type_name -> common.v1.Status
-	10, // 7: system.admin.v1.ListBaseRedactStorageColumnResponse.columns:type_name -> system.admin.v1.BaseRedactStorageColumn
-	0,  // 8: system.admin.v1.BaseRedactStoragePolicyService.PageBaseRedactStoragePolicy:input_type -> system.admin.v1.PageBaseRedactStoragePolicyRequest
-	2,  // 9: system.admin.v1.BaseRedactStoragePolicyService.GetBaseRedactStoragePolicy:input_type -> system.admin.v1.GetBaseRedactStoragePolicyRequest
-	4,  // 10: system.admin.v1.BaseRedactStoragePolicyService.CreateBaseRedactStoragePolicy:input_type -> system.admin.v1.CreateBaseRedactStoragePolicyRequest
-	5,  // 11: system.admin.v1.BaseRedactStoragePolicyService.UpdateBaseRedactStoragePolicy:input_type -> system.admin.v1.UpdateBaseRedactStoragePolicyRequest
-	6,  // 12: system.admin.v1.BaseRedactStoragePolicyService.DeleteBaseRedactStoragePolicy:input_type -> system.admin.v1.DeleteBaseRedactStoragePolicyRequest
-	7,  // 13: system.admin.v1.BaseRedactStoragePolicyService.SetBaseRedactStoragePolicyStatus:input_type -> system.admin.v1.SetBaseRedactStoragePolicyStatusRequest
-	9,  // 14: system.admin.v1.BaseRedactStoragePolicyService.ListBaseRedactStorageColumn:input_type -> system.admin.v1.ListBaseRedactStorageColumnRequest
-	1,  // 15: system.admin.v1.BaseRedactStoragePolicyService.PageBaseRedactStoragePolicy:output_type -> system.admin.v1.PageBaseRedactStoragePolicyResponse
-	3,  // 16: system.admin.v1.BaseRedactStoragePolicyService.GetBaseRedactStoragePolicy:output_type -> system.admin.v1.BaseRedactStoragePolicyForm
-	13, // 17: system.admin.v1.BaseRedactStoragePolicyService.CreateBaseRedactStoragePolicy:output_type -> google.protobuf.Empty
-	13, // 18: system.admin.v1.BaseRedactStoragePolicyService.UpdateBaseRedactStoragePolicy:output_type -> google.protobuf.Empty
-	13, // 19: system.admin.v1.BaseRedactStoragePolicyService.DeleteBaseRedactStoragePolicy:output_type -> google.protobuf.Empty
-	13, // 20: system.admin.v1.BaseRedactStoragePolicyService.SetBaseRedactStoragePolicyStatus:output_type -> google.protobuf.Empty
-	11, // 21: system.admin.v1.BaseRedactStoragePolicyService.ListBaseRedactStorageColumn:output_type -> system.admin.v1.ListBaseRedactStorageColumnResponse
-	15, // [15:22] is the sub-list for method output_type
-	8,  // [8:15] is the sub-list for method input_type
-	8,  // [8:8] is the sub-list for extension type_name
-	8,  // [8:8] is the sub-list for extension extendee
-	0,  // [0:8] is the sub-list for field type_name
+	15, // 5: system.admin.v1.SetBaseRedactStoragePolicyStatusRequest.status:type_name -> common.v1.Status
+	15, // 6: system.admin.v1.BaseRedactStoragePolicy.status:type_name -> common.v1.Status
+	10, // 7: system.admin.v1.ListBaseRedactStorageTableResponse.tables:type_name -> system.admin.v1.BaseRedactStorageTable
+	13, // 8: system.admin.v1.ListBaseRedactStorageColumnResponse.columns:type_name -> system.admin.v1.BaseRedactStorageColumn
+	0,  // 9: system.admin.v1.BaseRedactStoragePolicyService.PageBaseRedactStoragePolicy:input_type -> system.admin.v1.PageBaseRedactStoragePolicyRequest
+	9,  // 10: system.admin.v1.BaseRedactStoragePolicyService.ListBaseRedactStorageTable:input_type -> system.admin.v1.ListBaseRedactStorageTableRequest
+	12, // 11: system.admin.v1.BaseRedactStoragePolicyService.ListBaseRedactStorageColumn:input_type -> system.admin.v1.ListBaseRedactStorageColumnRequest
+	2,  // 12: system.admin.v1.BaseRedactStoragePolicyService.GetBaseRedactStoragePolicy:input_type -> system.admin.v1.GetBaseRedactStoragePolicyRequest
+	4,  // 13: system.admin.v1.BaseRedactStoragePolicyService.CreateBaseRedactStoragePolicy:input_type -> system.admin.v1.CreateBaseRedactStoragePolicyRequest
+	5,  // 14: system.admin.v1.BaseRedactStoragePolicyService.UpdateBaseRedactStoragePolicy:input_type -> system.admin.v1.UpdateBaseRedactStoragePolicyRequest
+	6,  // 15: system.admin.v1.BaseRedactStoragePolicyService.DeleteBaseRedactStoragePolicy:input_type -> system.admin.v1.DeleteBaseRedactStoragePolicyRequest
+	7,  // 16: system.admin.v1.BaseRedactStoragePolicyService.SetBaseRedactStoragePolicyStatus:input_type -> system.admin.v1.SetBaseRedactStoragePolicyStatusRequest
+	1,  // 17: system.admin.v1.BaseRedactStoragePolicyService.PageBaseRedactStoragePolicy:output_type -> system.admin.v1.PageBaseRedactStoragePolicyResponse
+	11, // 18: system.admin.v1.BaseRedactStoragePolicyService.ListBaseRedactStorageTable:output_type -> system.admin.v1.ListBaseRedactStorageTableResponse
+	14, // 19: system.admin.v1.BaseRedactStoragePolicyService.ListBaseRedactStorageColumn:output_type -> system.admin.v1.ListBaseRedactStorageColumnResponse
+	3,  // 20: system.admin.v1.BaseRedactStoragePolicyService.GetBaseRedactStoragePolicy:output_type -> system.admin.v1.BaseRedactStoragePolicyForm
+	16, // 21: system.admin.v1.BaseRedactStoragePolicyService.CreateBaseRedactStoragePolicy:output_type -> google.protobuf.Empty
+	16, // 22: system.admin.v1.BaseRedactStoragePolicyService.UpdateBaseRedactStoragePolicy:output_type -> google.protobuf.Empty
+	16, // 23: system.admin.v1.BaseRedactStoragePolicyService.DeleteBaseRedactStoragePolicy:output_type -> google.protobuf.Empty
+	16, // 24: system.admin.v1.BaseRedactStoragePolicyService.SetBaseRedactStoragePolicyStatus:output_type -> google.protobuf.Empty
+	17, // [17:25] is the sub-list for method output_type
+	9,  // [9:17] is the sub-list for method input_type
+	9,  // [9:9] is the sub-list for extension type_name
+	9,  // [9:9] is the sub-list for extension extendee
+	0,  // [0:9] is the sub-list for field type_name
 }
 
 func init() { file_system_admin_v1_base_redact_storage_policy_proto_init() }
@@ -990,7 +1178,7 @@ func file_system_admin_v1_base_redact_storage_policy_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_system_admin_v1_base_redact_storage_policy_proto_rawDesc), len(file_system_admin_v1_base_redact_storage_policy_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   12,
+			NumMessages:   15,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

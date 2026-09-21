@@ -29,10 +29,11 @@ const (
 
 // API选项查询条件
 type OptionBaseApiRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	IncludePublic *bool                  `protobuf:"varint,1,opt,name=include_public,json=includePublic,proto3,oneof" json:"include_public,omitempty"` // 是否包含免鉴权和可选鉴权接口
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	IncludePublic  *bool                  `protobuf:"varint,1,opt,name=include_public,json=includePublic,proto3,oneof" json:"include_public,omitempty"`    // 是否包含免鉴权和可选鉴权接口
+	TenantResponse *bool                  `protobuf:"varint,2,opt,name=tenant_response,json=tenantResponse,proto3,oneof" json:"tenant_response,omitempty"` // 响应是否包含租户字段
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
 }
 
 func (x *OptionBaseApiRequest) Reset() {
@@ -68,6 +69,13 @@ func (*OptionBaseApiRequest) Descriptor() ([]byte, []int) {
 func (x *OptionBaseApiRequest) GetIncludePublic() bool {
 	if x != nil && x.IncludePublic != nil {
 		return *x.IncludePublic
+	}
+	return false
+}
+
+func (x *OptionBaseApiRequest) GetTenantResponse() bool {
+	if x != nil && x.TenantResponse != nil {
+		return *x.TenantResponse
 	}
 	return false
 }
@@ -372,6 +380,7 @@ type BaseApi struct {
 	AgentStatus        commonv1.Status        `protobuf:"varint,11,opt,name=agent_status,json=agentStatus,proto3,enum=common.v1.Status" json:"agent_status,omitempty"` // Agent工具状态：枚举【Status】
 	OpenapiServiceCode string                 `protobuf:"bytes,12,opt,name=openapi_service_code,json=openapiServiceCode,proto3" json:"openapi_service_code,omitempty"` // OpenAPI文档key
 	OpenapiServiceName string                 `protobuf:"bytes,13,opt,name=openapi_service_name,json=openapiServiceName,proto3" json:"openapi_service_name,omitempty"` // OpenAPI文档名称
+	TenantResponse     bool                   `protobuf:"varint,14,opt,name=tenant_response,json=tenantResponse,proto3" json:"tenant_response,omitempty"`              // 响应是否包含租户字段
 	unknownFields      protoimpl.UnknownFields
 	sizeCache          protoimpl.SizeCache
 }
@@ -495,6 +504,13 @@ func (x *BaseApi) GetOpenapiServiceName() string {
 		return x.OpenapiServiceName
 	}
 	return ""
+}
+
+func (x *BaseApi) GetTenantResponse() bool {
+	if x != nil {
+		return x.TenantResponse
+	}
+	return false
 }
 
 // API文档查询条件
@@ -1188,10 +1204,12 @@ var File_system_admin_v1_base_api_proto protoreflect.FileDescriptor
 
 const file_system_admin_v1_base_api_proto_rawDesc = "" +
 	"\n" +
-	"\x1esystem/admin/v1/base_api.proto\x12\x0fsystem.admin.v1\x1a\x1bbuf/validate/validate.proto\x1a\x14common/v1/enum.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\x87\x01\n" +
+	"\x1esystem/admin/v1/base_api.proto\x12\x0fsystem.admin.v1\x1a\x1bbuf/validate/validate.proto\x1a\x14common/v1/enum.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\xef\x01\n" +
 	"\x14OptionBaseApiRequest\x12\\\n" +
-	"\x0einclude_public\x18\x01 \x01(\bB0\xbaG-\x92\x02*是否包含免鉴权和可选鉴权接口H\x00R\rincludePublic\x88\x01\x01B\x11\n" +
-	"\x0f_include_public\"_\n" +
+	"\x0einclude_public\x18\x01 \x01(\bB0\xbaG-\x92\x02*是否包含免鉴权和可选鉴权接口H\x00R\rincludePublic\x88\x01\x01\x12R\n" +
+	"\x0ftenant_response\x18\x02 \x01(\bB$\xbaG!\x92\x02\x1e响应是否包含租户字段H\x01R\x0etenantResponse\x88\x01\x01B\x11\n" +
+	"\x0f_include_publicB\x12\n" +
+	"\x10_tenant_response\"_\n" +
 	"\x15OptionBaseApiResponse\x12F\n" +
 	"\tbase_apis\x18\x01 \x03(\v2\x18.system.admin.v1.BaseApiB\x0f\xbaG\f\x92\x02\tAPI列表R\bbaseApis\"\xfa\a\n" +
 	"\x12PageBaseApiRequest\x121\n" +
@@ -1229,7 +1247,7 @@ const file_system_admin_v1_base_api_proto_rawDesc = "" +
 	"\tbase_apis\x18\x01 \x03(\v2\x18.system.admin.v1.BaseApiB\x0f\xbaG\f\x92\x02\tAPI列表R\bbaseApis\x12\"\n" +
 	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\"1\n" +
 	"\x11GetBaseApiRequest\x12\x1c\n" +
-	"\x02id\x18\x01 \x01(\x03B\f\xbaG\t\x92\x02\x06API IDR\x02id\"\x9e\a\n" +
+	"\x02id\x18\x01 \x01(\x03B\f\xbaG\t\x92\x02\x06API IDR\x02id\"\xed\a\n" +
 	"\aBaseApi\x12\x1c\n" +
 	"\x02id\x18\x01 \x01(\x03B\f\xbaG\t\x92\x02\x06API IDR\x02id\x12,\n" +
 	"\ttool_name\x18\x02 \x01(\tB\x0f\xbaG\f\x92\x02\t工具名R\btoolName\x12\x80\x01\n" +
@@ -1245,7 +1263,8 @@ const file_system_admin_v1_base_api_proto_rawDesc = "" +
 	" \x01(\x0e2\x11.common.v1.StatusB*\xbaG'\x92\x02$MCP工具状态：枚举【Status】R\tmcpStatus\x12b\n" +
 	"\fagent_status\x18\v \x01(\x0e2\x11.common.v1.StatusB,\xbaG)\x92\x02&Agent工具状态：枚举【Status】R\vagentStatus\x12u\n" +
 	"\x14openapi_service_code\x18\f \x01(\tBC\xbaG@\x92\x02=OpenAPI文档key，运行时根据请求路径和方法派生R\x12openapiServiceCode\x12x\n" +
-	"\x14openapi_service_name\x18\r \x01(\tBF\xbaGC\x92\x02@OpenAPI文档名称，运行时根据请求路径和方法派生R\x12openapiServiceName\"4\n" +
+	"\x14openapi_service_name\x18\r \x01(\tBF\xbaGC\x92\x02@OpenAPI文档名称，运行时根据请求路径和方法派生R\x12openapiServiceName\x12M\n" +
+	"\x0ftenant_response\x18\x0e \x01(\bB$\xbaG!\x92\x02\x1e响应是否包含租户字段R\x0etenantResponse\"4\n" +
 	"\x14GetBaseApiDocRequest\x12\x1c\n" +
 	"\x02id\x18\x01 \x01(\x03B\f\xbaG\t\x92\x02\x06API IDR\x02id\"\x84\x03\n" +
 	"\n" +

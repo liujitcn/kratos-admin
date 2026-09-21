@@ -10,6 +10,7 @@ import piniaPersistConfig from "@/stores/helper/persist";
 import { useDictStoreHook } from "@/stores/modules/dict";
 import { useLockScreenStore } from "@/stores/modules/lockScreen";
 import { useAuthStore } from "@/stores/modules/auth";
+import { useConfigStore } from "@/stores/modules/config";
 
 const defaultUserInfo: UserInfoForm = {
   user_name: "",
@@ -100,6 +101,7 @@ export const useUserStore = defineStore("admin-user", {
       useDictStoreHook().clearDictionaryCache();
       useLockScreenStore().clearLock();
       useAuthStore().$reset();
+      useConfigStore().resetI18nCustom();
       this.authVersion += 1;
       this.authInvalidated = true;
       this.setToken("");

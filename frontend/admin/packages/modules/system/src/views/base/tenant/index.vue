@@ -105,6 +105,7 @@ import type {
 import { Status } from "@liujitcn/kratos-admin-system/rpc/common/v1/enum";
 import { buildPageRequest, normalizeSelectedIds } from "@liujitcn/kratos-admin-core/table";
 import { copyText } from "@liujitcn/kratos-admin-core/security";
+import { invalidateTenantOptions } from "@liujitcn/kratos-admin-core/tenant";
 import { t } from "@liujitcn/kratos-admin-core";
 
 defineOptions({
@@ -370,9 +371,11 @@ async function handleSubmit() {
   const submitData = JSON.parse(JSON.stringify(formData)) as BaseTenantForm;
   if (submitData.id) {
     await defBaseTenantService.UpdateBaseTenant({ base_tenant: submitData });
+    invalidateTenantOptions();
     ElMessage.success(t("common.message.update_success", { resource: t("common.field.tenant") }));
   } else {
     const response = await defBaseTenantService.CreateBaseTenant({ base_tenant: submitData });
+    invalidateTenantOptions();
     ElMessage.success(t("common.message.create_success", { resource: t("common.field.tenant") }));
     handleCloseDialog();
     refreshTable();
@@ -436,6 +439,7 @@ async function handleBeforeSetStatus(row: BaseTenant) {
       }
     );
     await defBaseTenantService.SetBaseTenantStatus({ id: row.id, status: nextStatus });
+    invalidateTenantOptions();
     ElMessage.success(t("common.message.status_success", { action: text }));
     refreshTable();
     return true;
@@ -481,6 +485,7 @@ function handleDelete(selected?: number | string | Array<number | string> | Base
   }).then(
     () => {
       defBaseTenantService.DeleteBaseTenant({ id: tenantIds }).then(() => {
+        invalidateTenantOptions();
         ElMessage.success(t("common.message.delete_success", { resource: t("common.field.tenant") }));
         refreshTable();
       });

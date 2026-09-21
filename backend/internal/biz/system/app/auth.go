@@ -66,7 +66,7 @@ func (c *AuthCase) GetUserProfile(ctx context.Context) (*appv1.UserProfileForm, 
 	var user *models.BaseUser
 	query := c.baseUserCase.Query(ctx).BaseUser
 	user, err = c.baseUserCase.Find(ctx,
-		repository.Select(query.ID, query.UserName, query.NickName, query.Gender, query.Phone, query.Email, query.IDType, query.IDCode, query.Avatar, query.Status),
+		repository.Select(query.ID, query.TenantID, query.UserName, query.NickName, query.Gender, query.Phone, query.Email, query.IDType, query.IDCode, query.Avatar, query.Status),
 		repository.Where(query.ID.Eq(authInfo.UserId)),
 	)
 	if err != nil {
@@ -92,7 +92,7 @@ func (c *AuthCase) UpdateUserProfile(ctx context.Context, req *appv1.UserProfile
 	var oldBaseUser *models.BaseUser
 	query := c.baseUserCase.Query(ctx).BaseUser
 	oldBaseUser, err = c.baseUserCase.Find(ctx,
-		repository.Select(query.ID, query.Avatar),
+		repository.Select(query.ID, query.TenantID, query.Avatar),
 		repository.Where(query.ID.Eq(authInfo.UserId)),
 	)
 	if err != nil {
@@ -102,6 +102,7 @@ func (c *AuthCase) UpdateUserProfile(ctx context.Context, req *appv1.UserProfile
 
 	baseUser := &models.BaseUser{
 		ID:       authInfo.UserId,
+		TenantID: oldBaseUser.TenantID,
 		NickName: req.GetNickName(),
 		Gender:   req.GetGender(),
 		Avatar:   req.GetAvatar(),
@@ -198,8 +199,9 @@ func (c *AuthCase) BindUserPhone(ctx context.Context, req *appv1.BindUserPhoneRe
 	}
 
 	user := &models.BaseUser{
-		ID:    authInfo.UserId,
-		Phone: phone.PhoneInfo.PhoneNumber,
+		ID:       authInfo.UserId,
+		TenantID: authInfo.TenantId,
+		Phone:    phone.PhoneInfo.PhoneNumber,
 	}
 	// 绑定手机号写库失败时，直接返回业务错误。
 	if err = c.baseUserCase.UpdateByID(ctx, user); err != nil {

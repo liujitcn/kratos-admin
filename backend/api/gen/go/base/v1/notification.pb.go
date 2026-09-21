@@ -1359,6 +1359,7 @@ func (x *DeleteNotificationRequest) GetId() int64 {
 type Notification struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                                                               // 投递ID
+	TenantId      int64                  `protobuf:"varint,21,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`                                                  // 租户ID
 	MessageId     int64                  `protobuf:"varint,2,opt,name=message_id,json=messageId,proto3" json:"message_id,omitempty"`                                                // 消息ID
 	CategoryId    int64                  `protobuf:"varint,3,opt,name=category_id,json=categoryId,proto3" json:"category_id,omitempty"`                                             // 分类ID
 	CategoryName  string                 `protobuf:"bytes,4,opt,name=category_name,json=categoryName,proto3" json:"category_name,omitempty"`                                        // 分类名称
@@ -1415,6 +1416,13 @@ func (*Notification) Descriptor() ([]byte, []int) {
 func (x *Notification) GetId() int64 {
 	if x != nil {
 		return x.Id
+	}
+	return 0
+}
+
+func (x *Notification) GetTenantId() int64 {
+	if x != nil {
+		return x.TenantId
 	}
 	return 0
 }
@@ -1613,9 +1621,10 @@ const file_base_v1_notification_proto_rawDesc = "" +
 	"$base.notification.action.id.required\x12\x14消息ID不能为空\x1a\bthis > 0R\x02id\"\x87\x01\n" +
 	"\x19DeleteNotificationRequest\x12j\n" +
 	"\x02id\x18\x01 \x01(\x03BZ\xbaG\v\x92\x02\b投递ID\xbaHI\xba\x01F\n" +
-	"$base.notification.action.id.required\x12\x14消息ID不能为空\x1a\bthis > 0R\x02id\"\x94\t\n" +
+	"$base.notification.action.id.required\x12\x14消息ID不能为空\x1a\bthis > 0R\x02id\"\xc1\t\n" +
 	"\fNotification\x12\x1e\n" +
-	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b投递IDR\x02id\x12-\n" +
+	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b投递IDR\x02id\x12+\n" +
+	"\ttenant_id\x18\x15 \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDR\btenantId\x12-\n" +
 	"\n" +
 	"message_id\x18\x02 \x01(\x03B\x0e\xbaG\v\x92\x02\b消息IDR\tmessageId\x12/\n" +
 	"\vcategory_id\x18\x03 \x01(\x03B\x0e\xbaG\v\x92\x02\b分类IDR\n" +

@@ -176,7 +176,7 @@ openapi:
 	@echo "==> 生成 OpenAPI v3 文档"
 	@cd api && \
 		PATH="$(GO_BIN_DIR):$$PATH" buf generate --template buf.openapi.gen.yaml
-	@find internal/openapi/assets -type f -name '*.yaml' -exec perl -pi -e 's/BaseI18N/BaseI18n/g; s/baseI18N/baseI18n/g' {} +
+	@find internal/openapi/assets -type f -name '*.yaml' -exec perl -pi -e 's/BaseI18N/BaseI18n/g; s/baseI18N/baseI18n/g; s/ConfigService_GetI18NCustom/ConfigService_GetI18nCustom/g' {} +
 	@echo "==> OpenAPI v3 源文档生成完成"
 
 # 生成 Backend 公共入口使用的内部 Wire 依赖注入代码。

@@ -11,7 +11,7 @@
 | `i18n.en-US.up.sql` | `en-US` 的 `base_i18n` 翻譯資料。 |
 | `i18n.ja-JP.up.sql` | `ja-JP` 的 `base_i18n` 翻譯資料。 |
 | `i18n.zh-TW.up.sql` | `zh-TW` 的 `base_i18n` 翻譯資料。 |
-| `i18n_custom.up.sql` | 管理端專案管理固定文案的四語言 `base_i18n_custom` 覆蓋資料。 |
+| `i18n_custom.up.sql` | 預設租戶管理端專案管理固定文案的四語言 `base_i18n_custom` 覆蓋資料。 |
 | `README.<locale>.md` | 遷移說明的各語言版本，框架僅將檔案引用同步至共用翻譯表，內容按需讀取。 |
 
 ## 執行與冪等
@@ -44,7 +44,7 @@
 
 三個 `i18n.{locale}.up.sql` 檔案各自包含對應語言的 `base_i18n` 記錄，涵蓋系統設定值與名稱、字典名稱、字典項標籤、選單標題及排程任務名稱。`target_type` 約定為：`1` 設定值、`2` 設定名稱、`3` 字典名稱、`4` 字典項目、`5` 選單、`6` 排程任務。每筆翻譯獨立寫入，檔名順序確保主要資料先於語言資料執行。
 
-`i18n_custom.up.sql` 寫入管理端（`site=2`）專案管理固定文案的 `zh-CN`、`zh-TW`、`en-US` 和 `ja-JP` 覆蓋項，包含公共專案名稱、租戶專案欄位、專案授權欄位及授權說明。
+`i18n_custom.up.sql` 寫入預設租戶（`tenant_id=1`）管理端（`site=2`）專案管理固定文案的 `zh-CN`、`zh-TW`、`en-US` 和 `ja-JP` 覆蓋項，包含公共專案名稱、租戶專案欄位、專案授權欄位及授權說明。
 
 新增或調整設定、字典、選單、任務時，應同步檢查三個語言 SQL 和對應的 `README.<locale>.md`，保持 `target_id`、語言代碼和主要資料一致。
 
