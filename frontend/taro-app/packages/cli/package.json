@@ -7,7 +7,7 @@
     "type": "git",
     "url": "git@github.com:liujitcn/kratos-admin.git"
   },
-  "version": "0.0.58",
+  "version": "0.0.59",
   "type": "module",
   "bin": {
     "kratos-taro-app": "./bin/kratos-taro-app.mjs"
