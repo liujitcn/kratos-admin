@@ -5,19 +5,20 @@ FROM --platform=$BUILDPLATFORM golang:1.27-alpine AS backend-builder
 ARG TARGETOS
 ARG TARGETARCH
 ARG BUILD_FLAGS
+ARG GOPROXY=https://proxy.golang.org,direct
 
 WORKDIR /src
 
 COPY go.mod go.sum ./
 
-RUN --mount=type=cache,target=/go/pkg/mod,sharing=locked \
-    --mount=type=cache,target=/root/.cache/go-build,sharing=locked \
+RUN --mount=type=cache,id=kratos-admin-go-mod,target=/go/pkg/mod,sharing=locked \
+    --mount=type=cache,id=kratos-admin-go-build,target=/root/.cache/go-build,sharing=locked \
     go mod download
 
 COPY . .
 
-RUN --mount=type=cache,target=/go/pkg/mod,sharing=locked \
-    --mount=type=cache,target=/root/.cache/go-build,sharing=locked \
+RUN --mount=type=cache,id=kratos-admin-go-mod,target=/go/pkg/mod,sharing=locked \
+    --mount=type=cache,id=kratos-admin-go-build,target=/root/.cache/go-build,sharing=locked \
     CGO_ENABLED=0 GOOS="$TARGETOS" GOARCH="$TARGETARCH" \
     go build $BUILD_FLAGS -o /out/server ./internal/cmd/server
 

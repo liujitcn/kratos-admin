@@ -146,12 +146,12 @@ Docker 映像檔透過儲存庫根目錄命令建置：
 
 ```bash
 make docker-build IMAGE=kratos-admin TAG=latest
-make docker-build-multiarch IMAGE=registry.example.com/kratos-admin TAG=latest
+make docker-push IMAGE=kratos-admin TAG=latest
 make docker-run IMAGE=kratos-admin TAG=latest
 make docker-stop IMAGE=kratos-admin TAG=latest
 ```
 
-`docker-build` 使用 Docker Buildx 建置 `DOCKER_PLATFORM` 指定的單一平台，並透過 `--load` 載入本機 Docker 映像檔庫，預設為 `linux/amd64`；可直接使用 `docker run` 或 `docker image ls` 檢查。`docker-build-multiarch` 使用 Docker Buildx 同時建置 `linux/amd64` 與 `linux/arm64`，預設使用 Docker media types 並停用 provenance 附件後推送到映像檔倉庫，以相容 SWR 基礎版；可使用 `DOCKER_PLATFORMS` 與 `DOCKER_OUTPUT` 覆蓋平台及輸出方式。傳統本機映像檔庫無法一次載入多平台映像檔；如需將單一平台載入本機，可執行 `make docker-build-multiarch DOCKER_PLATFORMS=linux/amd64 DOCKER_OUTPUT=--load`。建置命令先檢查 Docker，再重新建置管理後台、uni-app H5、Taro H5，後端程式由 Docker 多階段建置按目標架構編譯。三個 H5 建置會並行執行；Dockerfile 會重用 Go 模組與編譯快取。執行命令發佈主機 `7001/6001` 埠，將 `backend/data`、`backend/logs`、`backend/backups` 與 `backend/configs` 分別對映到容器的 `/app/data`、`/app/logs`、`/app/backups` 與 `/app/configs`。映像檔內包含預設 `configs` 與三端靜態資源；容器啟動時僅將映像檔中的缺少設定補充到主機的 `backend/configs`，不會覆蓋主機已修改的設定，再使用該目錄啟動服務。靜態站點啟動時補充到 `backend/data`，既有上傳檔案不會被清除；Core 根據 `oss.root_directory` 將本機物件統一對映到 `/data/`。如需離線歸檔，請按單一平台使用 `--output type=docker,dest=kratos-admin-amd64.tar` 輸出 Docker tar；多平台映像檔無法輸出成單一 Docker tar。完整建置參數與執行範例見本節。
+`docker-build` 預設使用 Docker Buildx 同時建置 `linux/amd64` 與 `linux/arm64`，採用 Docker media types、停用 provenance 附件，並將多平台映像寫入本機容器映像儲存區。可使用 `DOCKER_PLATFORMS` 與 `DOCKER_LOCAL_OUTPUT` 覆蓋平台及輸出方式。`docker-push` 會使用相同的 `TAG` 將本機映像標記為 `DOCKER_PUSH_IMAGE` 並推送，預設目標為 `swr.cn-north-4.myhuaweicloud.com/newcapec/$(IMAGE)`。Docker 內的 Go 模組下載預設繼承主機的 `go env GOPROXY`，主機沒有 Go 時回退到官方代理，也可透過 `DOCKER_GOPROXY` 明確覆蓋。建置命令先檢查 Docker，再重新建置管理後台、uni-app H5、Taro H5，後端程式由 Docker 多階段建置按各目標架構編譯。三個 H5 建置會並行執行；Dockerfile 會重用專案獨立的 Go 模組與編譯快取。執行命令發佈主機 `7001/6001` 埠，將 `backend/data`、`backend/logs`、`backend/backups` 與 `backend/configs` 分別對映到容器的 `/app/data`、`/app/logs`、`/app/backups` 與 `/app/configs`。映像檔內包含預設 `configs` 與三端靜態資源；容器啟動時僅將映像檔中的缺少設定補充到主機的 `backend/configs`，不會覆蓋主機已修改的設定，再使用該目錄啟動服務。靜態站點啟動時補充到 `backend/data`，既有上傳檔案不會被清除；Core 根據 `oss.root_directory` 將本機物件統一對映到 `/data/`。完整建置參數與執行範例見本節。
 
 `I18N_LOCALES` 使用逗號分隔的 BCP 47 語言代碼清單（預設從後端語言包自動發現，排除主語言），控制 OpenAPI 的目標語言。`make i18n` 產生 OpenAPI 多語言 YAML。離線產生使用 `I18N_OFFLINE=1 make i18n`。
 
