@@ -4677,7 +4677,7 @@ paths:
         get:
             tags:
                 - BaseTableSourceService
-            description: Query specified data sourceindatabase table name.
+            description: Query specified data sourceindatabase table option.
             operationId: BaseTableSourceService_OptionBaseTable
             parameters:
                 - name: source_name
@@ -4690,7 +4690,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/common.v1.StringValues'
+                                $ref: '#/components/schemas/system.admin.v1.OptionBaseTableResponse'
     /api/v1/admin/base/tenant:
         get:
             tags:
@@ -11686,6 +11686,16 @@ components:
                     type: string
                     description: completion time
             description: Base Table Backup Restore database backup restore record.
+        system.admin.v1.BaseTableOption:
+            type: object
+            properties:
+                name:
+                    type: string
+                    description: database table name
+                comment:
+                    type: string
+                    description: Data table comment
+            description: database table option.
         system.admin.v1.BaseTenant:
             type: object
             properties:
@@ -13330,6 +13340,15 @@ components:
                         $ref: '#/components/schemas/system.admin.v1.BaseLanguage'
                     description: language option
             description: language option response
+        system.admin.v1.OptionBaseTableResponse:
+            type: object
+            properties:
+                tables:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.BaseTableOption'
+                    description: database table option list
+            description: database table option response.
         system.admin.v1.OptionOauthClientApiResponse:
             type: object
             properties:

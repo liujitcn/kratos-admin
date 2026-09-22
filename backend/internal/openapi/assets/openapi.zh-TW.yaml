@@ -4677,7 +4677,7 @@ paths:
         get:
             tags:
                 - BaseTableSourceService
-            description: 查詢指定資料來源中的資料庫表名稱。
+            description: 查詢指定資料來源中的資料庫表選項。
             operationId: BaseTableSourceService_OptionBaseTable
             parameters:
                 - name: source_name
@@ -4690,7 +4690,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/common.v1.StringValues'
+                                $ref: '#/components/schemas/system.admin.v1.OptionBaseTableResponse'
     /api/v1/admin/base/tenant:
         get:
             tags:
@@ -11686,6 +11686,16 @@ components:
                     type: string
                     description: 完成時間
             description: BaseTableBackupRestore 資料庫備份恢復記錄。
+        system.admin.v1.BaseTableOption:
+            type: object
+            properties:
+                name:
+                    type: string
+                    description: 資料庫表名
+                comment:
+                    type: string
+                    description: 資料表註釋
+            description: 資料庫表選項。
         system.admin.v1.BaseTenant:
             type: object
             properties:
@@ -13330,6 +13340,15 @@ components:
                         $ref: '#/components/schemas/system.admin.v1.BaseLanguage'
                     description: 語言選項
             description: 語言選項響應
+        system.admin.v1.OptionBaseTableResponse:
+            type: object
+            properties:
+                tables:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.BaseTableOption'
+                    description: 資料庫表選項列表
+            description: 資料庫表選項響應。
         system.admin.v1.OptionOauthClientApiResponse:
             type: object
             properties:

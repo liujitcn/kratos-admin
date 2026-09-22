@@ -4677,7 +4677,7 @@ paths:
         get:
             tags:
                 - BaseTableSourceService
-            description: 検索指定データソース中のデータベーステーブル名称。
+            description: 検索指定データソース中のデータベーステーブルオプション。
             operationId: BaseTableSourceService_OptionBaseTable
             parameters:
                 - name: source_name
@@ -4690,7 +4690,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/common.v1.StringValues'
+                                $ref: '#/components/schemas/system.admin.v1.OptionBaseTableResponse'
     /api/v1/admin/base/tenant:
         get:
             tags:
@@ -11686,6 +11686,16 @@ components:
                     type: string
                     description: 完成時刻
             description: BaseTableBackupRestore データベースバックアップ復元記録。
+        system.admin.v1.BaseTableOption:
+            type: object
+            properties:
+                name:
+                    type: string
+                    description: データベーステーブル名
+                comment:
+                    type: string
+                    description: データテーブルのコメント
+            description: データベーステーブルオプション。
         system.admin.v1.BaseTenant:
             type: object
             properties:
@@ -13330,6 +13340,15 @@ components:
                         $ref: '#/components/schemas/system.admin.v1.BaseLanguage'
                     description: 言語オプション
             description: 言語オプションレスポンス
+        system.admin.v1.OptionBaseTableResponse:
+            type: object
+            properties:
+                tables:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.BaseTableOption'
+                    description: データベーステーブルオプション一覧
+            description: データベーステーブルオプションレスポンス。
         system.admin.v1.OptionOauthClientApiResponse:
             type: object
             properties:
