@@ -354,6 +354,112 @@ func (*GetUserProfileRequest) Descriptor() ([]byte, []int) {
 	return file_system_admin_v1_auth_proto_rawDescGZIP(), []int{5}
 }
 
+// 获取当前用户密码策略请求参数
+type GetCurrentPasswordPolicyRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetCurrentPasswordPolicyRequest) Reset() {
+	*x = GetCurrentPasswordPolicyRequest{}
+	mi := &file_system_admin_v1_auth_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetCurrentPasswordPolicyRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetCurrentPasswordPolicyRequest) ProtoMessage() {}
+
+func (x *GetCurrentPasswordPolicyRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_system_admin_v1_auth_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetCurrentPasswordPolicyRequest.ProtoReflect.Descriptor instead.
+func (*GetCurrentPasswordPolicyRequest) Descriptor() ([]byte, []int) {
+	return file_system_admin_v1_auth_proto_rawDescGZIP(), []int{6}
+}
+
+// 当前用户生效的密码策略
+type CurrentPasswordPolicy struct {
+	state                protoimpl.MessageState `protogen:"open.v1"`
+	MinLength            int32                  `protobuf:"varint,1,opt,name=min_length,json=minLength,proto3" json:"min_length,omitempty"`                                    // 密码最小长度
+	MinComplexityClasses int32                  `protobuf:"varint,2,opt,name=min_complexity_classes,json=minComplexityClasses,proto3" json:"min_complexity_classes,omitempty"` // 密码至少满足的字符类别数量
+	HistoryCount         int32                  `protobuf:"varint,3,opt,name=history_count,json=historyCount,proto3" json:"history_count,omitempty"`                           // 禁止重复使用的历史密码数量，零表示不启用
+	MaxAgeDays           int32                  `protobuf:"varint,4,opt,name=max_age_days,json=maxAgeDays,proto3" json:"max_age_days,omitempty"`                               // 密码有效期天数，零表示长期有效
+	unknownFields        protoimpl.UnknownFields
+	sizeCache            protoimpl.SizeCache
+}
+
+func (x *CurrentPasswordPolicy) Reset() {
+	*x = CurrentPasswordPolicy{}
+	mi := &file_system_admin_v1_auth_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CurrentPasswordPolicy) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CurrentPasswordPolicy) ProtoMessage() {}
+
+func (x *CurrentPasswordPolicy) ProtoReflect() protoreflect.Message {
+	mi := &file_system_admin_v1_auth_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CurrentPasswordPolicy.ProtoReflect.Descriptor instead.
+func (*CurrentPasswordPolicy) Descriptor() ([]byte, []int) {
+	return file_system_admin_v1_auth_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *CurrentPasswordPolicy) GetMinLength() int32 {
+	if x != nil {
+		return x.MinLength
+	}
+	return 0
+}
+
+func (x *CurrentPasswordPolicy) GetMinComplexityClasses() int32 {
+	if x != nil {
+		return x.MinComplexityClasses
+	}
+	return 0
+}
+
+func (x *CurrentPasswordPolicy) GetHistoryCount() int32 {
+	if x != nil {
+		return x.HistoryCount
+	}
+	return 0
+}
+
+func (x *CurrentPasswordPolicy) GetMaxAgeDays() int32 {
+	if x != nil {
+		return x.MaxAgeDays
+	}
+	return 0
+}
+
 // 用户资料表单
 type UserProfileForm struct {
 	state         protoimpl.MessageState  `protogen:"open.v1"`
@@ -374,7 +480,7 @@ type UserProfileForm struct {
 
 func (x *UserProfileForm) Reset() {
 	*x = UserProfileForm{}
-	mi := &file_system_admin_v1_auth_proto_msgTypes[6]
+	mi := &file_system_admin_v1_auth_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -386,7 +492,7 @@ func (x *UserProfileForm) String() string {
 func (*UserProfileForm) ProtoMessage() {}
 
 func (x *UserProfileForm) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_auth_proto_msgTypes[6]
+	mi := &file_system_admin_v1_auth_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -399,7 +505,7 @@ func (x *UserProfileForm) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UserProfileForm.ProtoReflect.Descriptor instead.
 func (*UserProfileForm) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_auth_proto_rawDescGZIP(), []int{6}
+	return file_system_admin_v1_auth_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *UserProfileForm) GetUserName() string {
@@ -489,7 +595,7 @@ type UpdateUserPasswordRequest struct {
 
 func (x *UpdateUserPasswordRequest) Reset() {
 	*x = UpdateUserPasswordRequest{}
-	mi := &file_system_admin_v1_auth_proto_msgTypes[7]
+	mi := &file_system_admin_v1_auth_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -501,7 +607,7 @@ func (x *UpdateUserPasswordRequest) String() string {
 func (*UpdateUserPasswordRequest) ProtoMessage() {}
 
 func (x *UpdateUserPasswordRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_auth_proto_msgTypes[7]
+	mi := &file_system_admin_v1_auth_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -514,7 +620,7 @@ func (x *UpdateUserPasswordRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateUserPasswordRequest.ProtoReflect.Descriptor instead.
 func (*UpdateUserPasswordRequest) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_auth_proto_rawDescGZIP(), []int{7}
+	return file_system_admin_v1_auth_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *UpdateUserPasswordRequest) GetUserPassword() *UserPasswordForm {
@@ -534,7 +640,7 @@ type UpdateUserPhoneRequest struct {
 
 func (x *UpdateUserPhoneRequest) Reset() {
 	*x = UpdateUserPhoneRequest{}
-	mi := &file_system_admin_v1_auth_proto_msgTypes[8]
+	mi := &file_system_admin_v1_auth_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -546,7 +652,7 @@ func (x *UpdateUserPhoneRequest) String() string {
 func (*UpdateUserPhoneRequest) ProtoMessage() {}
 
 func (x *UpdateUserPhoneRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_auth_proto_msgTypes[8]
+	mi := &file_system_admin_v1_auth_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -559,7 +665,7 @@ func (x *UpdateUserPhoneRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateUserPhoneRequest.ProtoReflect.Descriptor instead.
 func (*UpdateUserPhoneRequest) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_auth_proto_rawDescGZIP(), []int{8}
+	return file_system_admin_v1_auth_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *UpdateUserPhoneRequest) GetUserPhone() *UserPhoneForm {
@@ -579,7 +685,7 @@ type UpdateUserProfileRequest struct {
 
 func (x *UpdateUserProfileRequest) Reset() {
 	*x = UpdateUserProfileRequest{}
-	mi := &file_system_admin_v1_auth_proto_msgTypes[9]
+	mi := &file_system_admin_v1_auth_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -591,7 +697,7 @@ func (x *UpdateUserProfileRequest) String() string {
 func (*UpdateUserProfileRequest) ProtoMessage() {}
 
 func (x *UpdateUserProfileRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_auth_proto_msgTypes[9]
+	mi := &file_system_admin_v1_auth_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -604,7 +710,7 @@ func (x *UpdateUserProfileRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateUserProfileRequest.ProtoReflect.Descriptor instead.
 func (*UpdateUserProfileRequest) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_auth_proto_rawDescGZIP(), []int{9}
+	return file_system_admin_v1_auth_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *UpdateUserProfileRequest) GetUserProfile() *UserProfileForm {
@@ -624,7 +730,7 @@ type SendPhoneCodeRequest struct {
 
 func (x *SendPhoneCodeRequest) Reset() {
 	*x = SendPhoneCodeRequest{}
-	mi := &file_system_admin_v1_auth_proto_msgTypes[10]
+	mi := &file_system_admin_v1_auth_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -636,7 +742,7 @@ func (x *SendPhoneCodeRequest) String() string {
 func (*SendPhoneCodeRequest) ProtoMessage() {}
 
 func (x *SendPhoneCodeRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_auth_proto_msgTypes[10]
+	mi := &file_system_admin_v1_auth_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -649,7 +755,7 @@ func (x *SendPhoneCodeRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SendPhoneCodeRequest.ProtoReflect.Descriptor instead.
 func (*SendPhoneCodeRequest) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_auth_proto_rawDescGZIP(), []int{10}
+	return file_system_admin_v1_auth_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *SendPhoneCodeRequest) GetPhone() string {
@@ -675,7 +781,7 @@ type RouteItem struct {
 
 func (x *RouteItem) Reset() {
 	*x = RouteItem{}
-	mi := &file_system_admin_v1_auth_proto_msgTypes[11]
+	mi := &file_system_admin_v1_auth_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -687,7 +793,7 @@ func (x *RouteItem) String() string {
 func (*RouteItem) ProtoMessage() {}
 
 func (x *RouteItem) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_auth_proto_msgTypes[11]
+	mi := &file_system_admin_v1_auth_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -700,7 +806,7 @@ func (x *RouteItem) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RouteItem.ProtoReflect.Descriptor instead.
 func (*RouteItem) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_auth_proto_rawDescGZIP(), []int{11}
+	return file_system_admin_v1_auth_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *RouteItem) GetPath() string {
@@ -769,7 +875,7 @@ type RouteMeta struct {
 
 func (x *RouteMeta) Reset() {
 	*x = RouteMeta{}
-	mi := &file_system_admin_v1_auth_proto_msgTypes[12]
+	mi := &file_system_admin_v1_auth_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -781,7 +887,7 @@ func (x *RouteMeta) String() string {
 func (*RouteMeta) ProtoMessage() {}
 
 func (x *RouteMeta) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_auth_proto_msgTypes[12]
+	mi := &file_system_admin_v1_auth_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -794,7 +900,7 @@ func (x *RouteMeta) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RouteMeta.ProtoReflect.Descriptor instead.
 func (*RouteMeta) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_auth_proto_rawDescGZIP(), []int{12}
+	return file_system_admin_v1_auth_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *RouteMeta) GetTitle() string {
@@ -864,7 +970,7 @@ type RouteParams struct {
 
 func (x *RouteParams) Reset() {
 	*x = RouteParams{}
-	mi := &file_system_admin_v1_auth_proto_msgTypes[13]
+	mi := &file_system_admin_v1_auth_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -876,7 +982,7 @@ func (x *RouteParams) String() string {
 func (*RouteParams) ProtoMessage() {}
 
 func (x *RouteParams) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_auth_proto_msgTypes[13]
+	mi := &file_system_admin_v1_auth_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -889,7 +995,7 @@ func (x *RouteParams) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RouteParams.ProtoReflect.Descriptor instead.
 func (*RouteParams) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_auth_proto_rawDescGZIP(), []int{13}
+	return file_system_admin_v1_auth_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *RouteParams) GetKey() string {
@@ -917,7 +1023,7 @@ type UserPasswordForm struct {
 
 func (x *UserPasswordForm) Reset() {
 	*x = UserPasswordForm{}
-	mi := &file_system_admin_v1_auth_proto_msgTypes[14]
+	mi := &file_system_admin_v1_auth_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -929,7 +1035,7 @@ func (x *UserPasswordForm) String() string {
 func (*UserPasswordForm) ProtoMessage() {}
 
 func (x *UserPasswordForm) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_auth_proto_msgTypes[14]
+	mi := &file_system_admin_v1_auth_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -942,7 +1048,7 @@ func (x *UserPasswordForm) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UserPasswordForm.ProtoReflect.Descriptor instead.
 func (*UserPasswordForm) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_auth_proto_rawDescGZIP(), []int{14}
+	return file_system_admin_v1_auth_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *UserPasswordForm) GetOldPwd() *v11.PasswordCrypto {
@@ -970,7 +1076,7 @@ type UserPhoneForm struct {
 
 func (x *UserPhoneForm) Reset() {
 	*x = UserPhoneForm{}
-	mi := &file_system_admin_v1_auth_proto_msgTypes[15]
+	mi := &file_system_admin_v1_auth_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -982,7 +1088,7 @@ func (x *UserPhoneForm) String() string {
 func (*UserPhoneForm) ProtoMessage() {}
 
 func (x *UserPhoneForm) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_auth_proto_msgTypes[15]
+	mi := &file_system_admin_v1_auth_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -995,7 +1101,7 @@ func (x *UserPhoneForm) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UserPhoneForm.ProtoReflect.Descriptor instead.
 func (*UserPhoneForm) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_auth_proto_rawDescGZIP(), []int{15}
+	return file_system_admin_v1_auth_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *UserPhoneForm) GetPhone() string {
@@ -1039,7 +1145,15 @@ const file_system_admin_v1_auth_proto_rawDesc = "" +
 	"tenantCode\x123\n" +
 	"\vtenant_name\x18i \x01(\tB\x12\xbaG\x0f\x92\x02\f租户名称R\n" +
 	"tenantName\"\x17\n" +
-	"\x15GetUserProfileRequest\"\xb8\x06\n" +
+	"\x15GetUserProfileRequest\"!\n" +
+	"\x1fGetCurrentPasswordPolicyRequest\"\xf5\x02\n" +
+	"\x15CurrentPasswordPolicy\x127\n" +
+	"\n" +
+	"min_length\x18\x01 \x01(\x05B\x18\xbaG\x15\x92\x02\x12密码最小长度R\tminLength\x12c\n" +
+	"\x16min_complexity_classes\x18\x02 \x01(\x05B-\xbaG*\x92\x02'密码至少满足的字符类别数量R\x14minComplexityClasses\x12g\n" +
+	"\rhistory_count\x18\x03 \x01(\x05BB\xbaG?\x92\x02<禁止重复使用的历史密码数量，零表示不启用R\fhistoryCount\x12U\n" +
+	"\fmax_age_days\x18\x04 \x01(\x05B3\xbaG0\x92\x02-密码有效期天数，零表示长期有效R\n" +
+	"maxAgeDays\"\xb8\x06\n" +
 	"\x0fUserProfileForm\x12,\n" +
 	"\tuser_name\x18\x01 \x01(\tB\x0f\xbaG\f\x92\x02\t用户名R\buserName\x12)\n" +
 	"\tnick_name\x18\x02 \x01(\tB\f\xbaG\t\x92\x02\x06昵称R\bnickName\x12'\n" +
@@ -1115,12 +1229,13 @@ const file_system_admin_v1_auth_proto_rawDesc = "" +
 	"+system.admin.auth.user_phone.phone.required\x12\x12请输入手机号\x1a\x0fthis.size() > 0\xba\x01k\n" +
 	")system.admin.auth.user_phone.phone.format\x12\x1e请输入正确的手机号码\x1a\x1ethis.matches('^1[3-9]\\\\d{9}$')R\x05phone\x12z\n" +
 	"\x04code\x18\x02 \x01(\tBf\xbaG\f\x92\x02\t验证码\xbaHT\xba\x01Q\n" +
-	"*system.admin.auth.user_phone.code.required\x12\x12请输入验证码\x1a\x0fthis.size() > 0R\x04code2\x8f\b\n" +
+	"*system.admin.auth.user_phone.code.required\x12\x12请输入验证码\x1a\x0fthis.size() > 0R\x04code2\xb2\t\n" +
 	"\vAuthService\x12~\n" +
 	"\fTreeUserMenu\x12$.system.admin.v1.TreeUserMenuRequest\x1a\".system.admin.v1.TreeRouteResponse\"$\x82\xd3\xe4\x93\x02\x1e\x12\x1c/api/v1/admin/auth/menu/tree\x12u\n" +
 	"\x0eListUserButton\x12&.system.admin.v1.ListUserButtonRequest\x1a\x17.common.v1.StringValues\"\"\x82\xd3\xe4\x93\x02\x1c\x12\x1a/api/v1/admin/auth/buttons\x12r\n" +
 	"\vGetUserInfo\x12#.system.admin.v1.GetUserInfoRequest\x1a\x1d.system.admin.v1.UserInfoForm\"\x1f\x82\xd3\xe4\x93\x02\x19\x12\x17/api/v1/admin/auth/user\x12~\n" +
-	"\x0eGetUserProfile\x12&.system.admin.v1.GetUserProfileRequest\x1a .system.admin.v1.UserProfileForm\"\"\x82\xd3\xe4\x93\x02\x1c\x12\x1a/api/v1/admin/auth/profile\x12\x8c\x01\n" +
+	"\x0eGetUserProfile\x12&.system.admin.v1.GetUserProfileRequest\x1a .system.admin.v1.UserProfileForm\"\"\x82\xd3\xe4\x93\x02\x1c\x12\x1a/api/v1/admin/auth/profile\x12\xa0\x01\n" +
+	"\x18GetCurrentPasswordPolicy\x120.system.admin.v1.GetCurrentPasswordPolicyRequest\x1a&.system.admin.v1.CurrentPasswordPolicy\"*\x82\xd3\xe4\x93\x02$\x12\"/api/v1/admin/auth/password-policy\x12\x8c\x01\n" +
 	"\x12UpdateUserPassword\x12*.system.admin.v1.UpdateUserPasswordRequest\x1a\x16.google.protobuf.Empty\"2\x82\xd3\xe4\x93\x02,:\ruser_password\x1a\x1b/api/v1/admin/auth/password\x12\x80\x01\n" +
 	"\x0fUpdateUserPhone\x12'.system.admin.v1.UpdateUserPhoneRequest\x1a\x16.google.protobuf.Empty\",\x82\xd3\xe4\x93\x02&:\n" +
 	"user_phone\x1a\x18/api/v1/admin/auth/phone\x12\x88\x01\n" +
@@ -1140,61 +1255,65 @@ func file_system_admin_v1_auth_proto_rawDescGZIP() []byte {
 	return file_system_admin_v1_auth_proto_rawDescData
 }
 
-var file_system_admin_v1_auth_proto_msgTypes = make([]protoimpl.MessageInfo, 16)
+var file_system_admin_v1_auth_proto_msgTypes = make([]protoimpl.MessageInfo, 18)
 var file_system_admin_v1_auth_proto_goTypes = []any{
-	(*TreeUserMenuRequest)(nil),       // 0: system.admin.v1.TreeUserMenuRequest
-	(*TreeRouteResponse)(nil),         // 1: system.admin.v1.TreeRouteResponse
-	(*ListUserButtonRequest)(nil),     // 2: system.admin.v1.ListUserButtonRequest
-	(*GetUserInfoRequest)(nil),        // 3: system.admin.v1.GetUserInfoRequest
-	(*UserInfoForm)(nil),              // 4: system.admin.v1.UserInfoForm
-	(*GetUserProfileRequest)(nil),     // 5: system.admin.v1.GetUserProfileRequest
-	(*UserProfileForm)(nil),           // 6: system.admin.v1.UserProfileForm
-	(*UpdateUserPasswordRequest)(nil), // 7: system.admin.v1.UpdateUserPasswordRequest
-	(*UpdateUserPhoneRequest)(nil),    // 8: system.admin.v1.UpdateUserPhoneRequest
-	(*UpdateUserProfileRequest)(nil),  // 9: system.admin.v1.UpdateUserProfileRequest
-	(*SendPhoneCodeRequest)(nil),      // 10: system.admin.v1.SendPhoneCodeRequest
-	(*RouteItem)(nil),                 // 11: system.admin.v1.RouteItem
-	(*RouteMeta)(nil),                 // 12: system.admin.v1.RouteMeta
-	(*RouteParams)(nil),               // 13: system.admin.v1.RouteParams
-	(*UserPasswordForm)(nil),          // 14: system.admin.v1.UserPasswordForm
-	(*UserPhoneForm)(nil),             // 15: system.admin.v1.UserPhoneForm
-	(commonv1.BaseUserIDType)(0),      // 16: system.common.v1.BaseUserIDType
-	(BaseMenuType)(0),                 // 17: system.admin.v1.BaseMenuType
-	(*v11.PasswordCrypto)(nil),        // 18: common.v1.PasswordCrypto
-	(*v11.StringValues)(nil),          // 19: common.v1.StringValues
-	(*emptypb.Empty)(nil),             // 20: google.protobuf.Empty
+	(*TreeUserMenuRequest)(nil),             // 0: system.admin.v1.TreeUserMenuRequest
+	(*TreeRouteResponse)(nil),               // 1: system.admin.v1.TreeRouteResponse
+	(*ListUserButtonRequest)(nil),           // 2: system.admin.v1.ListUserButtonRequest
+	(*GetUserInfoRequest)(nil),              // 3: system.admin.v1.GetUserInfoRequest
+	(*UserInfoForm)(nil),                    // 4: system.admin.v1.UserInfoForm
+	(*GetUserProfileRequest)(nil),           // 5: system.admin.v1.GetUserProfileRequest
+	(*GetCurrentPasswordPolicyRequest)(nil), // 6: system.admin.v1.GetCurrentPasswordPolicyRequest
+	(*CurrentPasswordPolicy)(nil),           // 7: system.admin.v1.CurrentPasswordPolicy
+	(*UserProfileForm)(nil),                 // 8: system.admin.v1.UserProfileForm
+	(*UpdateUserPasswordRequest)(nil),       // 9: system.admin.v1.UpdateUserPasswordRequest
+	(*UpdateUserPhoneRequest)(nil),          // 10: system.admin.v1.UpdateUserPhoneRequest
+	(*UpdateUserProfileRequest)(nil),        // 11: system.admin.v1.UpdateUserProfileRequest
+	(*SendPhoneCodeRequest)(nil),            // 12: system.admin.v1.SendPhoneCodeRequest
+	(*RouteItem)(nil),                       // 13: system.admin.v1.RouteItem
+	(*RouteMeta)(nil),                       // 14: system.admin.v1.RouteMeta
+	(*RouteParams)(nil),                     // 15: system.admin.v1.RouteParams
+	(*UserPasswordForm)(nil),                // 16: system.admin.v1.UserPasswordForm
+	(*UserPhoneForm)(nil),                   // 17: system.admin.v1.UserPhoneForm
+	(commonv1.BaseUserIDType)(0),            // 18: system.common.v1.BaseUserIDType
+	(BaseMenuType)(0),                       // 19: system.admin.v1.BaseMenuType
+	(*v11.PasswordCrypto)(nil),              // 20: common.v1.PasswordCrypto
+	(*v11.StringValues)(nil),                // 21: common.v1.StringValues
+	(*emptypb.Empty)(nil),                   // 22: google.protobuf.Empty
 }
 var file_system_admin_v1_auth_proto_depIdxs = []int32{
-	11, // 0: system.admin.v1.TreeRouteResponse.routes:type_name -> system.admin.v1.RouteItem
-	16, // 1: system.admin.v1.UserInfoForm.id_type:type_name -> system.common.v1.BaseUserIDType
-	16, // 2: system.admin.v1.UserProfileForm.id_type:type_name -> system.common.v1.BaseUserIDType
-	14, // 3: system.admin.v1.UpdateUserPasswordRequest.user_password:type_name -> system.admin.v1.UserPasswordForm
-	15, // 4: system.admin.v1.UpdateUserPhoneRequest.user_phone:type_name -> system.admin.v1.UserPhoneForm
-	6,  // 5: system.admin.v1.UpdateUserProfileRequest.user_profile:type_name -> system.admin.v1.UserProfileForm
-	12, // 6: system.admin.v1.RouteItem.meta:type_name -> system.admin.v1.RouteMeta
-	17, // 7: system.admin.v1.RouteItem.type:type_name -> system.admin.v1.BaseMenuType
-	11, // 8: system.admin.v1.RouteItem.children:type_name -> system.admin.v1.RouteItem
-	13, // 9: system.admin.v1.RouteMeta.params:type_name -> system.admin.v1.RouteParams
-	18, // 10: system.admin.v1.UserPasswordForm.old_pwd:type_name -> common.v1.PasswordCrypto
-	18, // 11: system.admin.v1.UserPasswordForm.new_pwd:type_name -> common.v1.PasswordCrypto
+	13, // 0: system.admin.v1.TreeRouteResponse.routes:type_name -> system.admin.v1.RouteItem
+	18, // 1: system.admin.v1.UserInfoForm.id_type:type_name -> system.common.v1.BaseUserIDType
+	18, // 2: system.admin.v1.UserProfileForm.id_type:type_name -> system.common.v1.BaseUserIDType
+	16, // 3: system.admin.v1.UpdateUserPasswordRequest.user_password:type_name -> system.admin.v1.UserPasswordForm
+	17, // 4: system.admin.v1.UpdateUserPhoneRequest.user_phone:type_name -> system.admin.v1.UserPhoneForm
+	8,  // 5: system.admin.v1.UpdateUserProfileRequest.user_profile:type_name -> system.admin.v1.UserProfileForm
+	14, // 6: system.admin.v1.RouteItem.meta:type_name -> system.admin.v1.RouteMeta
+	19, // 7: system.admin.v1.RouteItem.type:type_name -> system.admin.v1.BaseMenuType
+	13, // 8: system.admin.v1.RouteItem.children:type_name -> system.admin.v1.RouteItem
+	15, // 9: system.admin.v1.RouteMeta.params:type_name -> system.admin.v1.RouteParams
+	20, // 10: system.admin.v1.UserPasswordForm.old_pwd:type_name -> common.v1.PasswordCrypto
+	20, // 11: system.admin.v1.UserPasswordForm.new_pwd:type_name -> common.v1.PasswordCrypto
 	0,  // 12: system.admin.v1.AuthService.TreeUserMenu:input_type -> system.admin.v1.TreeUserMenuRequest
 	2,  // 13: system.admin.v1.AuthService.ListUserButton:input_type -> system.admin.v1.ListUserButtonRequest
 	3,  // 14: system.admin.v1.AuthService.GetUserInfo:input_type -> system.admin.v1.GetUserInfoRequest
 	5,  // 15: system.admin.v1.AuthService.GetUserProfile:input_type -> system.admin.v1.GetUserProfileRequest
-	7,  // 16: system.admin.v1.AuthService.UpdateUserPassword:input_type -> system.admin.v1.UpdateUserPasswordRequest
-	8,  // 17: system.admin.v1.AuthService.UpdateUserPhone:input_type -> system.admin.v1.UpdateUserPhoneRequest
-	9,  // 18: system.admin.v1.AuthService.UpdateUserProfile:input_type -> system.admin.v1.UpdateUserProfileRequest
-	10, // 19: system.admin.v1.AuthService.SendPhoneCode:input_type -> system.admin.v1.SendPhoneCodeRequest
-	1,  // 20: system.admin.v1.AuthService.TreeUserMenu:output_type -> system.admin.v1.TreeRouteResponse
-	19, // 21: system.admin.v1.AuthService.ListUserButton:output_type -> common.v1.StringValues
-	4,  // 22: system.admin.v1.AuthService.GetUserInfo:output_type -> system.admin.v1.UserInfoForm
-	6,  // 23: system.admin.v1.AuthService.GetUserProfile:output_type -> system.admin.v1.UserProfileForm
-	20, // 24: system.admin.v1.AuthService.UpdateUserPassword:output_type -> google.protobuf.Empty
-	20, // 25: system.admin.v1.AuthService.UpdateUserPhone:output_type -> google.protobuf.Empty
-	20, // 26: system.admin.v1.AuthService.UpdateUserProfile:output_type -> google.protobuf.Empty
-	20, // 27: system.admin.v1.AuthService.SendPhoneCode:output_type -> google.protobuf.Empty
-	20, // [20:28] is the sub-list for method output_type
-	12, // [12:20] is the sub-list for method input_type
+	6,  // 16: system.admin.v1.AuthService.GetCurrentPasswordPolicy:input_type -> system.admin.v1.GetCurrentPasswordPolicyRequest
+	9,  // 17: system.admin.v1.AuthService.UpdateUserPassword:input_type -> system.admin.v1.UpdateUserPasswordRequest
+	10, // 18: system.admin.v1.AuthService.UpdateUserPhone:input_type -> system.admin.v1.UpdateUserPhoneRequest
+	11, // 19: system.admin.v1.AuthService.UpdateUserProfile:input_type -> system.admin.v1.UpdateUserProfileRequest
+	12, // 20: system.admin.v1.AuthService.SendPhoneCode:input_type -> system.admin.v1.SendPhoneCodeRequest
+	1,  // 21: system.admin.v1.AuthService.TreeUserMenu:output_type -> system.admin.v1.TreeRouteResponse
+	21, // 22: system.admin.v1.AuthService.ListUserButton:output_type -> common.v1.StringValues
+	4,  // 23: system.admin.v1.AuthService.GetUserInfo:output_type -> system.admin.v1.UserInfoForm
+	8,  // 24: system.admin.v1.AuthService.GetUserProfile:output_type -> system.admin.v1.UserProfileForm
+	7,  // 25: system.admin.v1.AuthService.GetCurrentPasswordPolicy:output_type -> system.admin.v1.CurrentPasswordPolicy
+	22, // 26: system.admin.v1.AuthService.UpdateUserPassword:output_type -> google.protobuf.Empty
+	22, // 27: system.admin.v1.AuthService.UpdateUserPhone:output_type -> google.protobuf.Empty
+	22, // 28: system.admin.v1.AuthService.UpdateUserProfile:output_type -> google.protobuf.Empty
+	22, // 29: system.admin.v1.AuthService.SendPhoneCode:output_type -> google.protobuf.Empty
+	21, // [21:30] is the sub-list for method output_type
+	12, // [12:21] is the sub-list for method input_type
 	12, // [12:12] is the sub-list for extension type_name
 	12, // [12:12] is the sub-list for extension extendee
 	0,  // [0:12] is the sub-list for field type_name
@@ -1206,16 +1325,16 @@ func file_system_admin_v1_auth_proto_init() {
 		return
 	}
 	file_system_admin_v1_common_proto_init()
-	file_system_admin_v1_auth_proto_msgTypes[11].OneofWrappers = []any{}
-	file_system_admin_v1_auth_proto_msgTypes[12].OneofWrappers = []any{}
 	file_system_admin_v1_auth_proto_msgTypes[13].OneofWrappers = []any{}
+	file_system_admin_v1_auth_proto_msgTypes[14].OneofWrappers = []any{}
+	file_system_admin_v1_auth_proto_msgTypes[15].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_system_admin_v1_auth_proto_rawDesc), len(file_system_admin_v1_auth_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   16,
+			NumMessages:   18,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

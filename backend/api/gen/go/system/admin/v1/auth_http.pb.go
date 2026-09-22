@@ -20,6 +20,7 @@ var _ = new(context.Context)
 
 const _ = http.SupportPackageIsVersion3
 
+const OperationAuthServiceGetCurrentPasswordPolicy = "/system.admin.v1.AuthService/GetCurrentPasswordPolicy"
 const OperationAuthServiceGetUserInfo = "/system.admin.v1.AuthService/GetUserInfo"
 const OperationAuthServiceGetUserProfile = "/system.admin.v1.AuthService/GetUserProfile"
 const OperationAuthServiceListUserButton = "/system.admin.v1.AuthService/ListUserButton"
@@ -30,6 +31,8 @@ const OperationAuthServiceUpdateUserPhone = "/system.admin.v1.AuthService/Update
 const OperationAuthServiceUpdateUserProfile = "/system.admin.v1.AuthService/UpdateUserProfile"
 
 type AuthServiceHTTPServer interface {
+	// GetCurrentPasswordPolicy 获取当前用户生效的密码策略
+	GetCurrentPasswordPolicy(context.Context, *GetCurrentPasswordPolicyRequest) (*CurrentPasswordPolicy, error)
 	// GetUserInfo 获取已经登录的用户的数据
 	GetUserInfo(context.Context, *GetUserInfoRequest) (*UserInfoForm, error)
 	// GetUserProfile 获取个人中心用户信息
@@ -54,6 +57,7 @@ func RegisterAuthServiceHTTPServer(s *http.Server, srv AuthServiceHTTPServer) {
 	r.Handle("GET", "/api/v1/admin/auth/buttons", _AuthService_ListUserButton0_HTTP_Handler(srv))
 	r.Handle("GET", "/api/v1/admin/auth/user", _AuthService_GetUserInfo0_HTTP_Handler(srv))
 	r.Handle("GET", "/api/v1/admin/auth/profile", _AuthService_GetUserProfile0_HTTP_Handler(srv))
+	r.Handle("GET", "/api/v1/admin/auth/password-policy", _AuthService_GetCurrentPasswordPolicy0_HTTP_Handler(srv))
 	r.Handle("PUT", "/api/v1/admin/auth/password", _AuthService_UpdateUserPassword0_HTTP_Handler(srv))
 	r.Handle("PUT", "/api/v1/admin/auth/phone", _AuthService_UpdateUserPhone0_HTTP_Handler(srv))
 	r.Handle("PUT", "/api/v1/admin/auth/profile", _AuthService_UpdateUserProfile0_HTTP_Handler(srv))
@@ -132,6 +136,25 @@ func _AuthService_GetUserProfile0_HTTP_Handler(srv AuthServiceHTTPServer) func(c
 			return err
 		}
 		reply := out.(*UserProfileForm)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _AuthService_GetCurrentPasswordPolicy0_HTTP_Handler(srv AuthServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in GetCurrentPasswordPolicyRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationAuthServiceGetCurrentPasswordPolicy)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.GetCurrentPasswordPolicy(ctx, req.(*GetCurrentPasswordPolicyRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*CurrentPasswordPolicy)
 		return ctx.Result(200, reply)
 	}
 }
@@ -222,6 +245,8 @@ func _AuthService_SendPhoneCode0_HTTP_Handler(srv AuthServiceHTTPServer) func(ct
 }
 
 type AuthServiceHTTPClient interface {
+	// GetCurrentPasswordPolicy 获取当前用户生效的密码策略
+	GetCurrentPasswordPolicy(ctx context.Context, req *GetCurrentPasswordPolicyRequest, opts ...http.CallOption) (rsp *CurrentPasswordPolicy, err error)
 	// GetUserInfo 获取已经登录的用户的数据
 	GetUserInfo(ctx context.Context, req *GetUserInfoRequest, opts ...http.CallOption) (rsp *UserInfoForm, err error)
 	// GetUserProfile 获取个人中心用户信息
@@ -246,6 +271,23 @@ type AuthServiceHTTPClientImpl struct {
 
 func NewAuthServiceHTTPClient(client *http.Client) AuthServiceHTTPClient {
 	return &AuthServiceHTTPClientImpl{client}
+}
+
+// GetCurrentPasswordPolicy 获取当前用户生效的密码策略
+func (c *AuthServiceHTTPClientImpl) GetCurrentPasswordPolicy(ctx context.Context, in *GetCurrentPasswordPolicyRequest, opts ...http.CallOption) (*CurrentPasswordPolicy, error) {
+	var out CurrentPasswordPolicy
+	pattern := "/api/v1/admin/auth/password-policy"
+	path := http.BuildPath(pattern, in, http.WithQueryParams())
+	opts = append([]http.CallOption{
+		http.Accept("application/protojson"),
+		http.Operation(OperationAuthServiceGetCurrentPasswordPolicy),
+		http.PathTemplate(pattern),
+	}, opts...)
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
 }
 
 // GetUserInfo 获取已经登录的用户的数据

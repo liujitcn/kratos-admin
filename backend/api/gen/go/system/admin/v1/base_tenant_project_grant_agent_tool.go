@@ -14,7 +14,7 @@ import (
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
-// NewBaseTenantProjectGrantServiceAgentTools 创建BaseTenantProjectGrantService 管理岗位、角色、部门和用户在目标租户下的项目授权的 Agent Tool。
+// NewBaseTenantProjectGrantServiceAgentTools 创建Admin项目授权服务的 Agent Tool。
 func NewBaseTenantProjectGrantServiceAgentTools(baseTenantProjectGrantServiceServer BaseTenantProjectGrantServiceServer) ([]tool.InvokableTool, error) {
 	var ts []tool.InvokableTool
 	var err error

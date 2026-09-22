@@ -40,6 +40,13 @@ service AuthService {
     };
   }
 
+  // 获取当前用户生效的密码策略
+  rpc GetCurrentPasswordPolicy(GetCurrentPasswordPolicyRequest) returns (CurrentPasswordPolicy) {
+    option (google.api.http) = {
+      get: "/api/v1/admin/auth/password-policy"
+    };
+  }
+
   // 修改个人中心密码
   rpc UpdateUserPassword(UpdateUserPasswordRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
@@ -117,6 +124,20 @@ message UserInfoForm {
 
 // 获取个人中心用户信息请求参数
 message GetUserProfileRequest {}
+
+// 获取当前用户密码策略请求参数
+message GetCurrentPasswordPolicyRequest {}
+
+// 当前用户生效的密码策略
+message CurrentPasswordPolicy {
+  int32 min_length = 1 [(gnostic.openapi.v3.property) = {description: "密码最小长度"}]; // 密码最小长度
+
+  int32 min_complexity_classes = 2 [(gnostic.openapi.v3.property) = {description: "密码至少满足的字符类别数量"}]; // 密码至少满足的字符类别数量
+
+  int32 history_count = 3 [(gnostic.openapi.v3.property) = {description: "禁止重复使用的历史密码数量，零表示不启用"}]; // 禁止重复使用的历史密码数量，零表示不启用
+
+  int32 max_age_days = 4 [(gnostic.openapi.v3.property) = {description: "密码有效期天数，零表示长期有效"}]; // 密码有效期天数，零表示长期有效
+}
 
 // 用户资料表单
 message UserProfileForm {

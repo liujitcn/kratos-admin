@@ -20,6 +20,7 @@ func RegisterAuthServiceMCPTools(mcpServer *mcp.Server, authServiceServer AuthSe
 	RegisterAuthServiceListUserButtonMCPTool(mcpServer, authServiceServer)
 	RegisterAuthServiceGetUserInfoMCPTool(mcpServer, authServiceServer)
 	RegisterAuthServiceGetUserProfileMCPTool(mcpServer, authServiceServer)
+	RegisterAuthServiceGetCurrentPasswordPolicyMCPTool(mcpServer, authServiceServer)
 	RegisterAuthServiceUpdateUserPasswordMCPTool(mcpServer, authServiceServer)
 	RegisterAuthServiceUpdateUserPhoneMCPTool(mcpServer, authServiceServer)
 	RegisterAuthServiceUpdateUserProfileMCPTool(mcpServer, authServiceServer)
@@ -102,6 +103,27 @@ func RegisterAuthServiceGetUserProfileMCPTool(mcpServer *mcp.Server, authService
 				input = &GetUserProfileRequest{}
 			}
 			reply, err := authServiceServer.GetUserProfile(ctx, input)
+			if err != nil {
+				return nil, nil, err
+			}
+			return nil, reply, nil
+		},
+	)
+}
+
+// RegisterAuthServiceGetCurrentPasswordPolicyMCPTool 注册获取当前用户生效的密码策略的 MCP Tool。
+func RegisterAuthServiceGetCurrentPasswordPolicyMCPTool(mcpServer *mcp.Server, authServiceServer AuthServiceServer) {
+	mcp.AddTool[*GetCurrentPasswordPolicyRequest, *CurrentPasswordPolicy](
+		mcpServer,
+		&mcp.Tool{
+			Name:        "system_admin_v1_auth_service_get_current_password_policy",
+			Description: "获取当前用户生效的密码策略",
+		},
+		func(ctx context.Context, request *mcp.CallToolRequest, input *GetCurrentPasswordPolicyRequest) (*mcp.CallToolResult, *CurrentPasswordPolicy, error) {
+			if input == nil {
+				input = &GetCurrentPasswordPolicyRequest{}
+			}
+			reply, err := authServiceServer.GetCurrentPasswordPolicy(ctx, input)
 			if err != nil {
 				return nil, nil, err
 			}

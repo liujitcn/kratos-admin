@@ -22,14 +22,15 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	AuthService_TreeUserMenu_FullMethodName       = "/system.admin.v1.AuthService/TreeUserMenu"
-	AuthService_ListUserButton_FullMethodName     = "/system.admin.v1.AuthService/ListUserButton"
-	AuthService_GetUserInfo_FullMethodName        = "/system.admin.v1.AuthService/GetUserInfo"
-	AuthService_GetUserProfile_FullMethodName     = "/system.admin.v1.AuthService/GetUserProfile"
-	AuthService_UpdateUserPassword_FullMethodName = "/system.admin.v1.AuthService/UpdateUserPassword"
-	AuthService_UpdateUserPhone_FullMethodName    = "/system.admin.v1.AuthService/UpdateUserPhone"
-	AuthService_UpdateUserProfile_FullMethodName  = "/system.admin.v1.AuthService/UpdateUserProfile"
-	AuthService_SendPhoneCode_FullMethodName      = "/system.admin.v1.AuthService/SendPhoneCode"
+	AuthService_TreeUserMenu_FullMethodName             = "/system.admin.v1.AuthService/TreeUserMenu"
+	AuthService_ListUserButton_FullMethodName           = "/system.admin.v1.AuthService/ListUserButton"
+	AuthService_GetUserInfo_FullMethodName              = "/system.admin.v1.AuthService/GetUserInfo"
+	AuthService_GetUserProfile_FullMethodName           = "/system.admin.v1.AuthService/GetUserProfile"
+	AuthService_GetCurrentPasswordPolicy_FullMethodName = "/system.admin.v1.AuthService/GetCurrentPasswordPolicy"
+	AuthService_UpdateUserPassword_FullMethodName       = "/system.admin.v1.AuthService/UpdateUserPassword"
+	AuthService_UpdateUserPhone_FullMethodName          = "/system.admin.v1.AuthService/UpdateUserPhone"
+	AuthService_UpdateUserProfile_FullMethodName        = "/system.admin.v1.AuthService/UpdateUserProfile"
+	AuthService_SendPhoneCode_FullMethodName            = "/system.admin.v1.AuthService/SendPhoneCode"
 )
 
 // AuthServiceClient is the client API for AuthService service.
@@ -46,6 +47,8 @@ type AuthServiceClient interface {
 	GetUserInfo(ctx context.Context, in *GetUserInfoRequest, opts ...grpc.CallOption) (*UserInfoForm, error)
 	// 获取个人中心用户信息
 	GetUserProfile(ctx context.Context, in *GetUserProfileRequest, opts ...grpc.CallOption) (*UserProfileForm, error)
+	// 获取当前用户生效的密码策略
+	GetCurrentPasswordPolicy(ctx context.Context, in *GetCurrentPasswordPolicyRequest, opts ...grpc.CallOption) (*CurrentPasswordPolicy, error)
 	// 修改个人中心密码
 	UpdateUserPassword(ctx context.Context, in *UpdateUserPasswordRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// 修改个人中心手机号
@@ -98,6 +101,16 @@ func (c *authServiceClient) GetUserProfile(ctx context.Context, in *GetUserProfi
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(UserProfileForm)
 	err := c.cc.Invoke(ctx, AuthService_GetUserProfile_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *authServiceClient) GetCurrentPasswordPolicy(ctx context.Context, in *GetCurrentPasswordPolicyRequest, opts ...grpc.CallOption) (*CurrentPasswordPolicy, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CurrentPasswordPolicy)
+	err := c.cc.Invoke(ctx, AuthService_GetCurrentPasswordPolicy_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -158,6 +171,8 @@ type AuthServiceServer interface {
 	GetUserInfo(context.Context, *GetUserInfoRequest) (*UserInfoForm, error)
 	// 获取个人中心用户信息
 	GetUserProfile(context.Context, *GetUserProfileRequest) (*UserProfileForm, error)
+	// 获取当前用户生效的密码策略
+	GetCurrentPasswordPolicy(context.Context, *GetCurrentPasswordPolicyRequest) (*CurrentPasswordPolicy, error)
 	// 修改个人中心密码
 	UpdateUserPassword(context.Context, *UpdateUserPasswordRequest) (*emptypb.Empty, error)
 	// 修改个人中心手机号
@@ -187,6 +202,9 @@ func (UnimplementedAuthServiceServer) GetUserInfo(context.Context, *GetUserInfoR
 }
 func (UnimplementedAuthServiceServer) GetUserProfile(context.Context, *GetUserProfileRequest) (*UserProfileForm, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetUserProfile not implemented")
+}
+func (UnimplementedAuthServiceServer) GetCurrentPasswordPolicy(context.Context, *GetCurrentPasswordPolicyRequest) (*CurrentPasswordPolicy, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetCurrentPasswordPolicy not implemented")
 }
 func (UnimplementedAuthServiceServer) UpdateUserPassword(context.Context, *UpdateUserPasswordRequest) (*emptypb.Empty, error) {
 	return nil, status.Error(codes.Unimplemented, "method UpdateUserPassword not implemented")
@@ -293,6 +311,24 @@ func _AuthService_GetUserProfile_Handler(srv interface{}, ctx context.Context, d
 	return interceptor(ctx, in, info, handler)
 }
 
+func _AuthService_GetCurrentPasswordPolicy_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetCurrentPasswordPolicyRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AuthServiceServer).GetCurrentPasswordPolicy(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AuthService_GetCurrentPasswordPolicy_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AuthServiceServer).GetCurrentPasswordPolicy(ctx, req.(*GetCurrentPasswordPolicyRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _AuthService_UpdateUserPassword_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(UpdateUserPasswordRequest)
 	if err := dec(in); err != nil {
@@ -387,6 +423,10 @@ var AuthService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetUserProfile",
 			Handler:    _AuthService_GetUserProfile_Handler,
+		},
+		{
+			MethodName: "GetCurrentPasswordPolicy",
+			Handler:    _AuthService_GetCurrentPasswordPolicy_Handler,
 		},
 		{
 			MethodName: "UpdateUserPassword",

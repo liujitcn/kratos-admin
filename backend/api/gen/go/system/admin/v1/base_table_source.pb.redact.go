@@ -66,7 +66,7 @@ func (s *redactedBaseTableSourceServiceServer) OptionBaseTableSource(ctx context
 
 // OptionBaseTable is the redacted wrapper for the actual BaseTableSourceServiceServer.OptionBaseTable method
 // Unary RPC
-func (s *redactedBaseTableSourceServiceServer) OptionBaseTable(ctx context.Context, in *OptionBaseTableRequest) (*commonv1.StringValues, error) {
+func (s *redactedBaseTableSourceServiceServer) OptionBaseTable(ctx context.Context, in *OptionBaseTableRequest) (*OptionBaseTableResponse, error) {
 	res, err := s.srv.OptionBaseTable(ctx, in)
 	if !s.bypass.CheckInternal(ctx) {
 		// Apply redaction to the response
@@ -95,4 +95,30 @@ func (x *OptionBaseTableRequest) Redact() {
 	}
 
 	// Safe field: SourceName
+}
+
+// Ensure BaseTableOption implements the Redactor interface at compile time.
+var _ redact.Redactor = (*BaseTableOption)(nil)
+
+// Redact method implementation for BaseTableOption
+func (x *BaseTableOption) Redact() {
+	if x == nil {
+		return
+	}
+
+	// Safe field: Name
+
+	// Safe field: Comment
+}
+
+// Ensure OptionBaseTableResponse implements the Redactor interface at compile time.
+var _ redact.Redactor = (*OptionBaseTableResponse)(nil)
+
+// Redact method implementation for OptionBaseTableResponse
+func (x *OptionBaseTableResponse) Redact() {
+	if x == nil {
+		return
+	}
+
+	// Safe field: Tables
 }

@@ -14,8 +14,8 @@ service BaseTableSourceService {
     option (google.api.http) = {get: "/api/v1/admin/base/table-source/option"};
   }
 
-  // 查询指定数据源中的数据库表名称。
-  rpc OptionBaseTable(OptionBaseTableRequest) returns (.common.v1.StringValues) {
+  // 查询指定数据源中的数据库表选项。
+  rpc OptionBaseTable(OptionBaseTableRequest) returns (OptionBaseTableResponse) {
     option (google.api.http) = {get: "/api/v1/admin/base/table-source/table/option"};
   }
 }
@@ -33,4 +33,15 @@ message OptionBaseTableRequest {
       expression: "this.size() > 0"
     }
   ]; // 数据源名称
+}
+
+// 数据库表选项。
+message BaseTableOption {
+  string name = 1 [(gnostic.openapi.v3.property) = {description: "数据库表名"}]; // 数据库表名
+  string comment = 2 [(gnostic.openapi.v3.property) = {description: "数据表注释"}]; // 数据表注释
+}
+
+// 数据库表选项响应。
+message OptionBaseTableResponse {
+  repeated BaseTableOption tables = 1 [(gnostic.openapi.v3.property) = {description: "数据库表选项列表"}]; // 数据库表选项列表
 }

@@ -32,7 +32,7 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 //
-// BaseTenantProjectGrantService 管理岗位、角色、部门和用户在目标租户下的项目授权。
+// Admin项目授权服务
 type BaseTenantProjectGrantServiceClient interface {
 	// 查询项目授权分页列表。
 	PageBaseTenantProjectGrant(ctx context.Context, in *PageBaseTenantProjectGrantRequest, opts ...grpc.CallOption) (*PageBaseTenantProjectGrantResponse, error)
@@ -108,7 +108,7 @@ func (c *baseTenantProjectGrantServiceClient) DeleteBaseTenantProjectGrant(ctx c
 // All implementations must embed UnimplementedBaseTenantProjectGrantServiceServer
 // for forward compatibility.
 //
-// BaseTenantProjectGrantService 管理岗位、角色、部门和用户在目标租户下的项目授权。
+// Admin项目授权服务
 type BaseTenantProjectGrantServiceServer interface {
 	// 查询项目授权分页列表。
 	PageBaseTenantProjectGrant(context.Context, *PageBaseTenantProjectGrantRequest) (*PageBaseTenantProjectGrantResponse, error)

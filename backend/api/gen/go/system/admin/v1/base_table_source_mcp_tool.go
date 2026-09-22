@@ -40,15 +40,15 @@ func RegisterBaseTableSourceServiceOptionBaseTableSourceMCPTool(mcpServer *mcp.S
 	)
 }
 
-// RegisterBaseTableSourceServiceOptionBaseTableMCPTool 注册查询指定数据源中的数据库表名称的 MCP Tool。
+// RegisterBaseTableSourceServiceOptionBaseTableMCPTool 注册查询指定数据源中的数据库表选项的 MCP Tool。
 func RegisterBaseTableSourceServiceOptionBaseTableMCPTool(mcpServer *mcp.Server, baseTableSourceServiceServer BaseTableSourceServiceServer) {
-	mcp.AddTool[*OptionBaseTableRequest, *commonv1.StringValues](
+	mcp.AddTool[*OptionBaseTableRequest, *OptionBaseTableResponse](
 		mcpServer,
 		&mcp.Tool{
 			Name:        "system_admin_v1_base_table_source_service_option_base_table",
-			Description: "查询指定数据源中的数据库表名称。",
+			Description: "查询指定数据源中的数据库表选项。",
 		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *OptionBaseTableRequest) (*mcp.CallToolResult, *commonv1.StringValues, error) {
+		func(ctx context.Context, request *mcp.CallToolRequest, input *OptionBaseTableRequest) (*mcp.CallToolResult, *OptionBaseTableResponse, error) {
 			if input == nil {
 				input = &OptionBaseTableRequest{}
 			}

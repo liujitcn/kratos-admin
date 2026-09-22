@@ -47,12 +47,12 @@ func NewBaseTableSourceServiceOptionBaseTableSourceAgentTool(baseTableSourceServ
 	)
 }
 
-// NewBaseTableSourceServiceOptionBaseTableAgentTool 创建查询指定数据源中的数据库表名称的 Agent Tool。
+// NewBaseTableSourceServiceOptionBaseTableAgentTool 创建查询指定数据源中的数据库表选项的 Agent Tool。
 func NewBaseTableSourceServiceOptionBaseTableAgentTool(baseTableSourceServiceServer BaseTableSourceServiceServer) (tool.InvokableTool, error) {
-	return utils.InferTool[*OptionBaseTableRequest, *commonv1.StringValues](
+	return utils.InferTool[*OptionBaseTableRequest, *OptionBaseTableResponse](
 		"system_admin_v1_base_table_source_service_option_base_table",
-		"查询指定数据源中的数据库表名称。",
-		func(ctx context.Context, req *OptionBaseTableRequest) (*commonv1.StringValues, error) {
+		"查询指定数据源中的数据库表选项。",
+		func(ctx context.Context, req *OptionBaseTableRequest) (*OptionBaseTableResponse, error) {
 			if req == nil {
 				req = &OptionBaseTableRequest{}
 			}

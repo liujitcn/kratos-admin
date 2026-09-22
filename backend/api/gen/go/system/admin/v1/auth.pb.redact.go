@@ -101,6 +101,17 @@ func (s *redactedAuthServiceServer) GetUserProfile(ctx context.Context, in *GetU
 	return res, err
 }
 
+// GetCurrentPasswordPolicy is the redacted wrapper for the actual AuthServiceServer.GetCurrentPasswordPolicy method
+// Unary RPC
+func (s *redactedAuthServiceServer) GetCurrentPasswordPolicy(ctx context.Context, in *GetCurrentPasswordPolicyRequest) (*CurrentPasswordPolicy, error) {
+	res, err := s.srv.GetCurrentPasswordPolicy(ctx, in)
+	if !s.bypass.CheckInternal(ctx) {
+		// Apply redaction to the response
+		redact.ApplyWith(redact.WithDirection(redact.WithOperation(ctx, "/system.admin.v1.AuthService/GetCurrentPasswordPolicy"), redact.DirectionResponse), nil, res)
+	}
+	return res, err
+}
+
 // UpdateUserPassword is the redacted wrapper for the actual AuthServiceServer.UpdateUserPassword method
 // Unary RPC
 func (s *redactedAuthServiceServer) UpdateUserPassword(ctx context.Context, in *UpdateUserPasswordRequest) (*emptypb.Empty, error) {
@@ -229,6 +240,34 @@ func (x *GetUserProfileRequest) Redact() {
 	if x == nil {
 		return
 	}
+}
+
+// Ensure GetCurrentPasswordPolicyRequest implements the Redactor interface at compile time.
+var _ redact.Redactor = (*GetCurrentPasswordPolicyRequest)(nil)
+
+// Redact method implementation for GetCurrentPasswordPolicyRequest
+func (x *GetCurrentPasswordPolicyRequest) Redact() {
+	if x == nil {
+		return
+	}
+}
+
+// Ensure CurrentPasswordPolicy implements the Redactor interface at compile time.
+var _ redact.Redactor = (*CurrentPasswordPolicy)(nil)
+
+// Redact method implementation for CurrentPasswordPolicy
+func (x *CurrentPasswordPolicy) Redact() {
+	if x == nil {
+		return
+	}
+
+	// Safe field: MinLength
+
+	// Safe field: MinComplexityClasses
+
+	// Safe field: HistoryCount
+
+	// Safe field: MaxAgeDays
 }
 
 // Ensure UserProfileForm implements the Redactor interface at compile time.

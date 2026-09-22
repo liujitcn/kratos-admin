@@ -33,8 +33,8 @@ const (
 type BaseTableSourceServiceClient interface {
 	// 查询已初始化的数据源名称。
 	OptionBaseTableSource(ctx context.Context, in *OptionBaseTableSourceRequest, opts ...grpc.CallOption) (*commonv1.StringValues, error)
-	// 查询指定数据源中的数据库表名称。
-	OptionBaseTable(ctx context.Context, in *OptionBaseTableRequest, opts ...grpc.CallOption) (*commonv1.StringValues, error)
+	// 查询指定数据源中的数据库表选项。
+	OptionBaseTable(ctx context.Context, in *OptionBaseTableRequest, opts ...grpc.CallOption) (*OptionBaseTableResponse, error)
 }
 
 type baseTableSourceServiceClient struct {
@@ -55,9 +55,9 @@ func (c *baseTableSourceServiceClient) OptionBaseTableSource(ctx context.Context
 	return out, nil
 }
 
-func (c *baseTableSourceServiceClient) OptionBaseTable(ctx context.Context, in *OptionBaseTableRequest, opts ...grpc.CallOption) (*commonv1.StringValues, error) {
+func (c *baseTableSourceServiceClient) OptionBaseTable(ctx context.Context, in *OptionBaseTableRequest, opts ...grpc.CallOption) (*OptionBaseTableResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(commonv1.StringValues)
+	out := new(OptionBaseTableResponse)
 	err := c.cc.Invoke(ctx, BaseTableSourceService_OptionBaseTable_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -73,8 +73,8 @@ func (c *baseTableSourceServiceClient) OptionBaseTable(ctx context.Context, in *
 type BaseTableSourceServiceServer interface {
 	// 查询已初始化的数据源名称。
 	OptionBaseTableSource(context.Context, *OptionBaseTableSourceRequest) (*commonv1.StringValues, error)
-	// 查询指定数据源中的数据库表名称。
-	OptionBaseTable(context.Context, *OptionBaseTableRequest) (*commonv1.StringValues, error)
+	// 查询指定数据源中的数据库表选项。
+	OptionBaseTable(context.Context, *OptionBaseTableRequest) (*OptionBaseTableResponse, error)
 	mustEmbedUnimplementedBaseTableSourceServiceServer()
 }
 
@@ -88,7 +88,7 @@ type UnimplementedBaseTableSourceServiceServer struct{}
 func (UnimplementedBaseTableSourceServiceServer) OptionBaseTableSource(context.Context, *OptionBaseTableSourceRequest) (*commonv1.StringValues, error) {
 	return nil, status.Error(codes.Unimplemented, "method OptionBaseTableSource not implemented")
 }
-func (UnimplementedBaseTableSourceServiceServer) OptionBaseTable(context.Context, *OptionBaseTableRequest) (*commonv1.StringValues, error) {
+func (UnimplementedBaseTableSourceServiceServer) OptionBaseTable(context.Context, *OptionBaseTableRequest) (*OptionBaseTableResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method OptionBaseTable not implemented")
 }
 func (UnimplementedBaseTableSourceServiceServer) mustEmbedUnimplementedBaseTableSourceServiceServer() {

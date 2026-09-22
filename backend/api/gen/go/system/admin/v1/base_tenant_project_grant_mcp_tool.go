@@ -13,7 +13,7 @@ import (
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
-// RegisterBaseTenantProjectGrantServiceMCPTools 注册BaseTenantProjectGrantService 管理岗位、角色、部门和用户在目标租户下的项目授权的 MCP Tool。
+// RegisterBaseTenantProjectGrantServiceMCPTools 注册Admin项目授权服务的 MCP Tool。
 func RegisterBaseTenantProjectGrantServiceMCPTools(mcpServer *mcp.Server, baseTenantProjectGrantServiceServer BaseTenantProjectGrantServiceServer) {
 	RegisterBaseTenantProjectGrantServicePageBaseTenantProjectGrantMCPTool(mcpServer, baseTenantProjectGrantServiceServer)
 	RegisterBaseTenantProjectGrantServiceGetBaseTenantProjectGrantMCPTool(mcpServer, baseTenantProjectGrantServiceServer)

@@ -43,6 +43,12 @@ func NewAuthServiceAgentTools(authServiceServer AuthServiceServer) ([]tool.Invok
 		return nil, err
 	}
 	ts = append(ts, getUserProfileTool)
+	var getCurrentPasswordPolicyTool tool.InvokableTool
+	getCurrentPasswordPolicyTool, err = NewAuthServiceGetCurrentPasswordPolicyAgentTool(authServiceServer)
+	if err != nil {
+		return nil, err
+	}
+	ts = append(ts, getCurrentPasswordPolicyTool)
 	var updateUserPasswordTool tool.InvokableTool
 	updateUserPasswordTool, err = NewAuthServiceUpdateUserPasswordAgentTool(authServiceServer)
 	if err != nil {
@@ -126,6 +132,20 @@ func NewAuthServiceGetUserProfileAgentTool(authServiceServer AuthServiceServer) 
 				req = &GetUserProfileRequest{}
 			}
 			return authServiceServer.GetUserProfile(ctx, req)
+		},
+	)
+}
+
+// NewAuthServiceGetCurrentPasswordPolicyAgentTool 创建获取当前用户生效的密码策略的 Agent Tool。
+func NewAuthServiceGetCurrentPasswordPolicyAgentTool(authServiceServer AuthServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*GetCurrentPasswordPolicyRequest, *CurrentPasswordPolicy](
+		"system_admin_v1_auth_service_get_current_password_policy",
+		"获取当前用户生效的密码策略",
+		func(ctx context.Context, req *GetCurrentPasswordPolicyRequest) (*CurrentPasswordPolicy, error) {
+			if req == nil {
+				req = &GetCurrentPasswordPolicyRequest{}
+			}
+			return authServiceServer.GetCurrentPasswordPolicy(ctx, req)
 		},
 	)
 }

@@ -23,8 +23,8 @@ const OperationBaseTableSourceServiceOptionBaseTable = "/system.admin.v1.BaseTab
 const OperationBaseTableSourceServiceOptionBaseTableSource = "/system.admin.v1.BaseTableSourceService/OptionBaseTableSource"
 
 type BaseTableSourceServiceHTTPServer interface {
-	// OptionBaseTable 查询指定数据源中的数据库表名称。
-	OptionBaseTable(context.Context, *OptionBaseTableRequest) (*commonv1.StringValues, error)
+	// OptionBaseTable 查询指定数据源中的数据库表选项。
+	OptionBaseTable(context.Context, *OptionBaseTableRequest) (*OptionBaseTableResponse, error)
 	// OptionBaseTableSource 查询已初始化的数据源名称。
 	OptionBaseTableSource(context.Context, *OptionBaseTableSourceRequest) (*commonv1.StringValues, error)
 }
@@ -68,14 +68,14 @@ func _BaseTableSourceService_OptionBaseTable0_HTTP_Handler(srv BaseTableSourceSe
 		if err != nil {
 			return err
 		}
-		reply := out.(*commonv1.StringValues)
+		reply := out.(*OptionBaseTableResponse)
 		return ctx.Result(200, reply)
 	}
 }
 
 type BaseTableSourceServiceHTTPClient interface {
-	// OptionBaseTable 查询指定数据源中的数据库表名称。
-	OptionBaseTable(ctx context.Context, req *OptionBaseTableRequest, opts ...http.CallOption) (rsp *commonv1.StringValues, err error)
+	// OptionBaseTable 查询指定数据源中的数据库表选项。
+	OptionBaseTable(ctx context.Context, req *OptionBaseTableRequest, opts ...http.CallOption) (rsp *OptionBaseTableResponse, err error)
 	// OptionBaseTableSource 查询已初始化的数据源名称。
 	OptionBaseTableSource(ctx context.Context, req *OptionBaseTableSourceRequest, opts ...http.CallOption) (rsp *commonv1.StringValues, err error)
 }
@@ -88,9 +88,9 @@ func NewBaseTableSourceServiceHTTPClient(client *http.Client) BaseTableSourceSer
 	return &BaseTableSourceServiceHTTPClientImpl{client}
 }
 
-// OptionBaseTable 查询指定数据源中的数据库表名称。
-func (c *BaseTableSourceServiceHTTPClientImpl) OptionBaseTable(ctx context.Context, in *OptionBaseTableRequest, opts ...http.CallOption) (*commonv1.StringValues, error) {
-	var out commonv1.StringValues
+// OptionBaseTable 查询指定数据源中的数据库表选项。
+func (c *BaseTableSourceServiceHTTPClientImpl) OptionBaseTable(ctx context.Context, in *OptionBaseTableRequest, opts ...http.CallOption) (*OptionBaseTableResponse, error) {
+	var out OptionBaseTableResponse
 	pattern := "/api/v1/admin/base/table-source/table/option"
 	path := http.BuildPath(pattern, in, http.WithQueryParams())
 	opts = append([]http.CallOption{
