@@ -272,10 +272,10 @@ function handleTokenRefresh(authMode: AuthMode) {
   isRefreshing = true
   refreshTokenPromise = refreshAccessToken()
     .catch(async (error) => {
+      // 刷新失败后立即撤销本地认证，避免弹窗等待期间后台请求反复提交旧刷新令牌。
+      silentClearAuthData()
       if (authMode === 'required') {
         await promptRelogin()
-      } else {
-        silentClearAuthData()
       }
       throw error
     })

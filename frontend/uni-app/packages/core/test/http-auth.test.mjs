@@ -17,6 +17,7 @@ test('登录页失效请求不重复弹窗，公共接口不携带旧令牌，�
   let page = 'pages/login/login'
   let responseStatus = 200
   let requestInterceptor
+  let pendingModalResolve
   try {
     const output = resolve(root, 'http.mjs')
     await build({
@@ -64,7 +65,12 @@ test('登录页失效请求不重复弹窗，公共接口不携带旧令牌，�
       },
       async showModal(options) {
         modals.push(options)
-        return { confirm: true }
+        if (!pendingModalResolve) {
+          return { confirm: true }
+        }
+        return new Promise((resolve) => {
+          pendingModalResolve = resolve
+        })
       },
       async showToast() {},
       reLaunch(options) {
@@ -117,8 +123,17 @@ test('登录页失效请求不重复弹窗，公共接口不携带旧令牌，�
     assert.equal(storage.has('access_token'), false, '首页后台请求失效时应清理过期登录态')
 
     page = 'pages/profile/index'
-    await assert.rejects(runtime.getRequestAccessToken('required'))
+    storage.set('access_token', 'Bearer expired')
+    storage.set('refresh_token', 'expired-refresh')
+    storage.set('expiresIn', String(Date.now() - 1000))
+    pendingModalResolve = true
+    const refreshAttempt = runtime.getRequestAccessToken('required')
+    await new Promise((resolve) => setTimeout(resolve, 0))
     assert.equal(modals.length, 1, '业务页的必要鉴权失败仍应提示用户')
+    assert.equal(storage.has('access_token'), false, '刷新失败后应在弹窗确认前清理访问令牌')
+    assert.equal(storage.has('refresh_token'), false, '刷新失败后应在弹窗确认前清理刷新令牌')
+    pendingModalResolve({ confirm: true })
+    await assert.rejects(refreshAttempt)
     assert.equal(launches.length, 1)
   } finally {
     globalThis.uni = originalUni
