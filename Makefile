@@ -60,7 +60,9 @@ DOCKER_PLATFORMS ?= linux/amd64,linux/arm64
 # SWR 基础版使用 Docker media types，不使用 OCI index/manifest。
 DOCKER_OUTPUT ?= --output type=registry,oci-mediatypes=false
 IMAGE ?= kratos-admin
-TAG ?= 0.0.1
+PROJECT_VERSION_FILE ?= $(BACKEND_DIR)/internal/const/project.go
+PROJECT_VERSION := $(shell sed -n 's/^[[:space:]]*Version[[:space:]]*=[[:space:]]*"\([^"]*\)".*/\1/p' "$(PROJECT_VERSION_FILE)")
+TAG ?= $(PROJECT_VERSION)
 DOCKER_BUILD_ARGS ?=
 CONTAINER_NAME ?= kratos-admin
 DOCKER_NETWORK ?= bridge
@@ -205,6 +207,7 @@ docker-config:
 # 构建三端静态资源并将当前平台的 Docker 镜像加载到本机。
 docker-build: docker-buildx-check
 	@test -f "$(DOCKERFILE)" || (echo "未找到 Dockerfile: $(DOCKERFILE)，请通过 DOCKERFILE 指定有效文件" && exit 1)
+	@test -n "$(TAG)" || (echo "无法从 $(PROJECT_VERSION_FILE) 读取 Docker 镜像版本，请检查 Version 定义或显式指定 TAG" && exit 1)
 	@$(MAKE) build-frontend
 	@BUILDKIT_PROGRESS=plain "$(DOCKER)" buildx build $(DOCKER_BUILD_ARGS) \
 		--build-arg BUILD_FLAGS="$(BUILD_FLAGS)" \
@@ -216,6 +219,7 @@ docker-build: docker-buildx-check
 # 构建并输出 Linux AMD64、ARM64 多架构 Docker 镜像。
 docker-build-multiarch: docker-buildx-check
 	@test -f "$(DOCKERFILE)" || (echo "未找到 Dockerfile: $(DOCKERFILE)，请通过 DOCKERFILE 指定有效文件" && exit 1)
+	@test -n "$(TAG)" || (echo "无法从 $(PROJECT_VERSION_FILE) 读取 Docker 镜像版本，请检查 Version 定义或显式指定 TAG" && exit 1)
 	@$(MAKE) build-frontend
 	@BUILDKIT_PROGRESS=plain "$(DOCKER)" buildx build $(DOCKER_BUILD_ARGS) \
 		--build-arg BUILD_FLAGS="$(BUILD_FLAGS)" \
@@ -226,6 +230,7 @@ docker-build-multiarch: docker-buildx-check
 
 # 使用宿主机数据和配置目录启动容器。
 docker-run: docker-check docker-config
+	@test -n "$(TAG)" || (echo "无法从 $(PROJECT_VERSION_FILE) 读取 Docker 镜像版本，请检查 Version 定义或显式指定 TAG" && exit 1)
 	@"$(DOCKER)" image inspect "$(IMAGE):$(TAG)" >/dev/null 2>&1 || (echo "未找到 Docker 镜像: $(IMAGE):$(TAG)，请先执行 make docker-build" && exit 1)
 	@test -d "$(DOCKER_CONFIG_DIR)" || (echo "未找到宿主机配置目录: $(DOCKER_CONFIG_DIR)" && exit 1)
 	@mkdir -p "$(DOCKER_DATA_DIR)"
@@ -316,7 +321,7 @@ help:
 	@printf "  %-24s %s\n" "I18N_SOURCE_LOCALE" "源语言，当前: $(I18N_SOURCE_LOCALE)"
 	@printf "  %-24s %s\n" "I18N_OFFLINE" "设为 1 时离线生成"
 	@printf "  %-24s %s\n" "I18N_AUTO_LOCALIZE" "OpenAPI 是否自动翻译，当前: $(I18N_AUTO_LOCALIZE)"
-	@printf "  %-24s %s\n" "IMAGE / TAG" "Docker 镜像，当前: $(IMAGE):$(TAG)"
+	@printf "  %-24s %s\n" "IMAGE / TAG" "Docker 镜像；TAG 默认读取服务版本，当前: $(IMAGE):$(TAG)"
 	@printf "  %-24s %s\n" "DOCKER_CONTEXT" "Docker 构建上下文，当前: $(DOCKER_CONTEXT)"
 	@printf "  %-24s %s\n" "DOCKERFILE" "Dockerfile 路径，当前: $(DOCKERFILE)"
 	@printf "  %-24s %s\n" "DOCKER_PLATFORM" "单平台 Docker 构建平台，当前: $(DOCKER_PLATFORM)"

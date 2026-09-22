@@ -147,13 +147,13 @@ make -C backend fmt
 Docker 镜像通过仓库根目录命令构建：
 
 ```bash
-make docker-build IMAGE=kratos-admin TAG=latest
-make docker-build-multiarch IMAGE=registry.example.com/kratos-admin TAG=latest
-make docker-run IMAGE=kratos-admin TAG=latest
-make docker-stop IMAGE=kratos-admin TAG=latest
+make docker-build IMAGE=kratos-admin
+make docker-build-multiarch IMAGE=registry.example.com/kratos-admin
+make docker-run IMAGE=kratos-admin
+make docker-stop IMAGE=kratos-admin
 ```
 
-`docker-build` 使用 Docker Buildx 构建 `DOCKER_PLATFORM` 指定的单平台镜像并通过 `--load` 加载到本机 Docker 镜像库，默认是 `linux/amd64`；可直接使用 `docker run` 或 `docker image ls` 检查。`docker-build-multiarch` 使用 Docker Buildx 同时构建 `linux/amd64` 和 `linux/arm64`，默认使用 Docker media types 并关闭 provenance 附件后推送到镜像仓库，以兼容 SWR 基础版；可用 `DOCKER_PLATFORMS` 和 `DOCKER_OUTPUT` 覆盖平台及输出方式。经典本机镜像库不能一次加载多架构镜像，如需将单个平台加载到本机，可执行 `make docker-build-multiarch DOCKER_PLATFORMS=linux/amd64 DOCKER_OUTPUT=--load`。构建命令先检查 Docker，再重新构建管理后台、uni-app H5、Taro H5，后端程序由 Docker 多阶段构建按目标架构编译。三个 H5 构建会并行执行；Dockerfile 会复用 Go 模块和编译缓存。运行命令发布宿主机 `7001/6001` 端口，将 `backend/data`、`backend/logs`、`backend/backups` 和 `backend/configs` 分别映射到容器的 `/app/data`、`/app/logs`、`/app/backups` 和 `/app/configs`。镜像内包含默认 `configs` 和三端静态资源；容器启动时仅将镜像中的缺失配置补充到宿主机的 `backend/configs`，不会覆盖宿主机已修改的配置，再使用该目录启动服务。静态站点启动时补充到 `backend/data`，已有上传文件不会被清空；Core 根据 `oss.root_directory` 将本地对象统一映射到 `/data/`。如需离线归档，请按单架构使用 `--output type=docker,dest=kratos-admin-amd64.tar` 导出 Docker tar；多架构不能导出为单个 Docker tar。完整构建参数和运行示例见本节。
+Docker 镜像 `TAG` 默认读取 `backend/internal/const/project.go` 中的服务版本，也可以通过命令行显式覆盖。`docker-build` 使用 Docker Buildx 构建 `DOCKER_PLATFORM` 指定的单平台镜像并通过 `--load` 加载到本机 Docker 镜像库，默认是 `linux/amd64`；可直接使用 `docker run` 或 `docker image ls` 检查。`docker-build-multiarch` 使用 Docker Buildx 同时构建 `linux/amd64` 和 `linux/arm64`，默认使用 Docker media types 并关闭 provenance 附件后推送到镜像仓库，以兼容 SWR 基础版；可用 `DOCKER_PLATFORMS` 和 `DOCKER_OUTPUT` 覆盖平台及输出方式。经典本机镜像库不能一次加载多架构镜像，如需将单个平台加载到本机，可执行 `make docker-build-multiarch DOCKER_PLATFORMS=linux/amd64 DOCKER_OUTPUT=--load`。构建命令先检查 Docker，再重新构建管理后台、uni-app H5、Taro H5，后端程序由 Docker 多阶段构建按目标架构编译。三个 H5 构建会并行执行；Dockerfile 会复用 Go 模块和编译缓存。运行命令发布宿主机 `7001/6001` 端口，将 `backend/data`、`backend/logs`、`backend/backups` 和 `backend/configs` 分别映射到容器的 `/app/data`、`/app/logs`、`/app/backups` 和 `/app/configs`。镜像内包含默认 `configs` 和三端静态资源；容器启动时仅将镜像中的缺失配置补充到宿主机的 `backend/configs`，不会覆盖宿主机已修改的配置，再使用该目录启动服务。静态站点启动时补充到 `backend/data`，已有上传文件不会被清空；Core 根据 `oss.root_directory` 将本地对象统一映射到 `/data/`。如需离线归档，请按单架构使用 `--output type=docker,dest=kratos-admin-amd64.tar` 导出 Docker tar；多架构不能导出为单个 Docker tar。完整构建参数和运行示例见本节。
 
 `I18N_LOCALES` 使用逗号分隔的 BCP 47 语言代码列表（默认从后端语言包自动发现，排除主语言），控制 OpenAPI 的目标语言。`make i18n` 生成 OpenAPI 多语言 YAML。离线生成使用 `I18N_OFFLINE=1 make i18n`。
 
@@ -209,7 +209,7 @@ Admin 的公开 `backend/adapter/core` 和 `backend/adapter/kit` 构造函数只
 make tag VERSION=0.0.30
 ```
 
-`make tag` 会先执行只读的 `make i18n-check`，检查语言包、SQL 翻译脚本、OpenAPI 多语言文档；生成物未同步时会直接拒绝发布，不会在发布过程中自动翻译或改写文件。随后发布脚本要求当前分支为远程默认分支且与 `origin` 同步，执行后端测试和前端打包，然后推送 `vX.Y.Z`、`backend/vX.Y.Z`、`npm/vX.Y.Z`。`npm/vX.Y.Z` 触发 `.github/workflows/publish-npm.yml`，通过 npm Trusted Publishing 发布以上 10 个包；三个默认宿主均为私有包，不参与发布。本机需要可用的 `git`、`gh` 和 GitHub 登录态。
+`make tag` 会先执行只读的 `make i18n-check`，检查语言包、SQL 翻译脚本、OpenAPI 多语言文档；生成物未同步时会直接拒绝发布，不会在发布过程中自动翻译或改写文件。随后发布脚本要求当前分支为远程默认分支且与 `origin` 同步，把后端服务版本和全部前端 npm 包版本更新为不带 `v` 的 `X.Y.Z`，执行后端测试和前端打包，然后推送 `vX.Y.Z`、`backend/vX.Y.Z`、`npm/vX.Y.Z`。后续 Docker 构建默认使用同一个后端服务版本作为镜像 tag，无需再次指定 `TAG`。`npm/vX.Y.Z` 触发 `.github/workflows/publish-npm.yml`，通过 npm Trusted Publishing 发布以上 10 个包；三个默认宿主均为私有包，不参与发布。本机需要可用的 `git`、`gh` 和 GitHub 登录态。
 
 只做本地 npm 发布时：
 

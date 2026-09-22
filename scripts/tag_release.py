@@ -13,6 +13,7 @@ import time
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+PROJECT_VERSION_FILE = ROOT / "backend/internal/const/project.go"
 PACKAGE_FILES = (
     ROOT / "frontend/admin/packages/core/package.json",
     ROOT / "frontend/admin/packages/modules/system/package.json",
@@ -26,6 +27,7 @@ PACKAGE_FILES = (
     ROOT / "frontend/taro-app/packages/cli/package.json",
 )
 TAG_RE = re.compile(r"^v(\d+)\.(\d+)\.(\d+)$")
+PROJECT_VERSION_RE = re.compile(r'(?m)^(\s*Version\s*=\s*")[^"]+("\s*)$')
 NPM_WORKFLOW = "publish-npm.yml"
 
 
@@ -232,6 +234,22 @@ def update_package_versions(version: tuple[int, int, int]) -> list[Path]:
     return changed
 
 
+def update_project_version(version: tuple[int, int, int]) -> bool:
+    """将后端服务版本更新为不带 v 前缀的发布版本。"""
+    target = version_text(version)
+    try:
+        content = PROJECT_VERSION_FILE.read_text(encoding="utf-8")
+    except OSError as err:
+        raise RuntimeError(f"无法读取后端版本文件: {PROJECT_VERSION_FILE}: {err}") from err
+    updated, count = PROJECT_VERSION_RE.subn(rf"\g<1>{target}\g<2>", content)
+    if count != 1:
+        raise RuntimeError(f"后端版本文件中应有且只有一个 Version 定义: {PROJECT_VERSION_FILE}")
+    if updated == content:
+        return False
+    PROJECT_VERSION_FILE.write_text(updated, encoding="utf-8")
+    return True
+
+
 def commit_all_changes(version: tuple[int, int, int]) -> None:
     """提交版本更新以及工作区中的全部本地改动。"""
     status = run(["git", "status", "--porcelain"])
@@ -399,6 +417,7 @@ def main() -> int:
 
         ensure_github_cli()
 
+        update_project_version(version)
         update_package_versions(version)
         run_backend_tests()
         commit_all_changes(version)
