@@ -253,6 +253,22 @@ func (c *BaseRedactStoragePolicyCase) SetBaseRedactStoragePolicyStatus(ctx conte
 	if item.Status == int32(req.GetStatus()) {
 		return nil
 	}
+	if req.GetStatus() == commonv1.Status_STATUS_ENABLE {
+		_, err = c.validateStorageForm(ctx, &adminv1.BaseRedactStoragePolicyForm{
+			Id:         item.ID,
+			TenantId:   item.TenantID,
+			SourceName: item.SourceName,
+			TableName:  item.TableName_,
+			ColumnName: item.ColumnName,
+			RuleId:     item.RuleID,
+			RuleParams: item.RuleParams,
+			Status:     req.GetStatus(),
+			Remark:     item.Remark,
+		})
+		if err != nil {
+			return err
+		}
+	}
 	if req.GetStatus() == commonv1.Status_STATUS_DISABLE {
 		err = c.ensureNoStoredValues(ctx, []int64{item.ID})
 		if err != nil {
@@ -325,6 +341,11 @@ func (c *BaseRedactStoragePolicyCase) ListBaseRedactStorageColumn(ctx context.Co
 	if err != nil {
 		return nil, errorsx.Internal("查询数据库字段失败").WithCause(err)
 	}
+	var indexes []gorm.Index
+	indexes, err = client.Migrator().GetIndexes(req.GetTableName())
+	if err != nil {
+		return nil, errorsx.Internal("查询数据库索引失败").WithCause(err)
+	}
 	columns := make([]*adminv1.BaseRedactStorageColumn, 0, len(columnTypes))
 	for _, columnType := range columnTypes {
 		if !redact.IsRedactStringDatabaseType(columnType.DatabaseTypeName()) {
@@ -334,6 +355,9 @@ func (c *BaseRedactStoragePolicyCase) ListBaseRedactStorageColumn(ctx context.Co
 			continue
 		}
 		if unique, ok := columnType.Unique(); ok && unique {
+			continue
+		}
+		if isUniqueStorageIndexColumn(columnType.Name(), indexes) {
 			continue
 		}
 		comment, _ := columnType.Comment()
@@ -392,6 +416,11 @@ func (c *BaseRedactStoragePolicyCase) validateStorageForm(ctx context.Context, i
 	if err != nil {
 		return nil, errorsx.Internal("查询数据库字段约束失败").WithCause(err)
 	}
+	var indexes []gorm.Index
+	indexes, err = client.Migrator().GetIndexes(input.GetTableName())
+	if err != nil {
+		return nil, errorsx.Internal("查询数据库索引约束失败").WithCause(err)
+	}
 	for _, columnType := range columnTypes {
 		if !strings.EqualFold(columnType.Name(), input.GetColumnName()) {
 			continue
@@ -401,6 +430,9 @@ func (c *BaseRedactStoragePolicyCase) validateStorageForm(ctx context.Context, i
 		}
 		unique, ok := columnType.Unique()
 		if ok && unique {
+			return nil, errorsx.InvalidArgument("唯一索引字段不支持入库脱敏")
+		}
+		if isUniqueStorageIndexColumn(columnType.Name(), indexes) {
 			return nil, errorsx.InvalidArgument("唯一索引字段不支持入库脱敏")
 		}
 		break
@@ -422,6 +454,22 @@ func (c *BaseRedactStoragePolicyCase) validateStorageForm(ctx context.Context, i
 		return nil, errorsx.InvalidArgument("入库脱敏策略状态无效")
 	}
 	return rule, nil
+}
+
+// isUniqueStorageIndexColumn 判断字段是否属于单列或复合唯一索引。
+func isUniqueStorageIndexColumn(columnName string, indexes []gorm.Index) bool {
+	for _, index := range indexes {
+		unique, ok := index.Unique()
+		if !ok || !unique {
+			continue
+		}
+		for _, indexedColumn := range index.Columns() {
+			if strings.EqualFold(indexedColumn, columnName) {
+				return true
+			}
+		}
+	}
+	return false
 }
 
 // toBaseRedactStoragePolicy 转换入库脱敏策略列表项。

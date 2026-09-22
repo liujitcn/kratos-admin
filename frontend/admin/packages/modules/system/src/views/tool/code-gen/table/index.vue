@@ -56,7 +56,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, h, onBeforeUnmount, nextTick, reactive, ref } from "vue";
+import { computed, h, onBeforeUnmount, reactive, ref } from "vue";
 import { useRouter } from "vue-router";
 import {
   CirclePlus,
@@ -789,6 +789,7 @@ function refreshTable() {
 
 /** 打开新增或编辑弹窗，并加载当前表单所需选项。 */
 async function handleOpenDialog(tableId?: number) {
+  resetForm();
   await formDialogRef.value?.open({
     load: async () => {
       await loadSourceOptions();
@@ -831,7 +832,6 @@ async function handleOpenDialog(tableId?: number) {
       };
     },
     commit: ({ form, tables, menuOptions, businessModuleItems: items, columns, leftTreeColumns }) => {
-      resetForm();
       Object.assign(formData, form);
       databaseTables.value = tables;
       parentMenuOptions.value = menuOptions;
@@ -863,14 +863,12 @@ function handleCloseDialog() {
 
 /** 重置弹窗表单和字段选项。 */
 function resetForm() {
+  formDialogRef.value?.resetFields();
+  formDialogRef.value?.clearValidate();
   Object.assign(formData, { ...createDefaultCodeGenTableForm(), parent_menu_id: undefined });
   dialog.editing = false;
   databaseColumns.value = [];
   leftTreeDatabaseColumns.value = [];
-  void nextTick(() => {
-    formDialogRef.value?.resetFields();
-    formDialogRef.value?.clearValidate();
-  });
 }
 
 /** 选择业务表后同步数据库注释、默认命名、字段选项和树字段默认值。 */

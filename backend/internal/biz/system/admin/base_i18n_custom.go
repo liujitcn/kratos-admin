@@ -14,7 +14,7 @@ import (
 	"github.com/liujitcn/go-utils/mapper"
 	_string "github.com/liujitcn/go-utils/string"
 	"github.com/liujitcn/gorm-kit/repository"
-	kitgorm "github.com/liujitcn/kratos-kit/database/gorm"
+	"github.com/liujitcn/kratos-kit/database/gorm"
 )
 
 // BaseI18nCustomCase 管理前端国际化自定义翻译信息。
@@ -206,7 +206,7 @@ func (c *BaseI18nCustomCase) queryTenantID(ctx context.Context, requestedTenantI
 	if err != nil {
 		return 0, err
 	}
-	if authInfo.TenantCode != kitgorm.DefaultTenantCode {
+	if authInfo.TenantCode != gorm.DefaultTenantCode {
 		return authInfo.TenantId, nil
 	}
 	return requestedTenantID, nil
@@ -218,7 +218,7 @@ func (c *BaseI18nCustomCase) validateTenantAccess(ctx context.Context, tenantID 
 	if err != nil {
 		return err
 	}
-	if authInfo.TenantCode != kitgorm.DefaultTenantCode && tenantID != authInfo.TenantId {
+	if authInfo.TenantCode != gorm.DefaultTenantCode && tenantID != authInfo.TenantId {
 		return errorsx.PermissionDenied("无权管理其他租户的自定义翻译")
 	}
 	return nil

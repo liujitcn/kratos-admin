@@ -295,7 +295,9 @@ const columns = computed<ColumnProps[]>(() => [
       activeValue: true,
       inactiveValue: false,
       activeText: t("common.status.enabled"),
-      inactiveText: t("common.status.disabled")
+      inactiveText: t("common.status.disabled"),
+      disabled: () => !BUTTONS.value["base:login-policy:update"],
+      beforeChange: scope => handleSetConcurrentLogin(scope.row as BaseLoginPolicy)
     }
   },
   { prop: "password_min_length", label: t("system.base.login_policy.field.password_min_length"), width: 110, align: "right" },
@@ -494,18 +496,75 @@ async function handleSubmit() {
 
 /** 删除登录策略。 */
 async function handleDelete(value: BaseLoginPolicy | BaseLoginPolicy[] | number | number[]) {
-  const ids = normalizeSelectedIds(value as Parameters<typeof normalizeSelectedIds>[0]);
+  const ids = Array.isArray(value)
+    ? value.map(item => (typeof item === "object" ? item.id : item))
+    : typeof value === "object"
+      ? [value.id]
+      : normalizeSelectedIds(value);
+  if (!ids.length) {
+    ElMessage.warning(t("common.message.select_delete_item"));
+    return;
+  }
   await ElMessageBox.confirm(t("common.confirm.delete"), t("common.title.warning"), { type: "warning" });
   await defBaseLoginPolicyService.DeleteBaseLoginPolicy({ id: ids.join(",") });
   ElMessage.success(t("common.message.operation_success"));
   proTable.value?.getTableList();
 }
 
+/** 设置登录策略是否允许同一账号同时登录。 */
+async function handleSetConcurrentLogin(row: BaseLoginPolicy) {
+  const allowConcurrentLogin = !row.allow_concurrent_login;
+  const action = t(allowConcurrentLogin ? "common.status.enabled" : "common.status.disabled");
+  try {
+    await ElMessageBox.confirm(
+      t("common.dialog.status_change", {
+        action,
+        resource: t("system.base.login_policy.field.allow_concurrent_login"),
+        field: t("system.base.login_policy.field.target"),
+        value: targetLabel(row)
+      }),
+      t("common.title.notice"),
+      {
+        confirmButtonText: t("common.action.confirm"),
+        cancelButtonText: t("common.action.cancel"),
+        type: "warning"
+      }
+    );
+    const policy = await defBaseLoginPolicyService.GetBaseLoginPolicy({ id: row.id });
+    policy.allow_concurrent_login = allowConcurrentLogin;
+    await defBaseLoginPolicyService.UpdateBaseLoginPolicy({ base_login_policy: policy });
+    ElMessage.success(t("common.message.status_success", { action }));
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 /** 设置登录策略状态。 */
 async function handleSetStatus(row: BaseLoginPolicy) {
   const status = row.status === Status.STATUS_ENABLE ? Status.STATUS_DISABLE : Status.STATUS_ENABLE;
-  await defBaseLoginPolicyService.SetBaseLoginPolicyStatus({ id: row.id, status });
-  return true;
+  const action = t(status === Status.STATUS_ENABLE ? "common.status.enabled" : "common.status.disabled");
+  try {
+    await ElMessageBox.confirm(
+      t("common.dialog.status_change", {
+        action,
+        resource: t("system.base.login_policy.title"),
+        field: t("system.base.login_policy.field.target"),
+        value: targetLabel(row)
+      }),
+      t("common.title.notice"),
+      {
+        confirmButtonText: t("common.action.confirm"),
+        cancelButtonText: t("common.action.cancel"),
+        type: "warning"
+      }
+    );
+    await defBaseLoginPolicyService.SetBaseLoginPolicyStatus({ id: row.id, status });
+    ElMessage.success(t("common.message.status_success", { action }));
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 /** 关闭登录策略表单。 */

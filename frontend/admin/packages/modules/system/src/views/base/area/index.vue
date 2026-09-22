@@ -150,6 +150,14 @@ const columns = computed<ColumnProps[]>(() => [
     cellType: "actions",
     actions: [
       {
+        label: t("common.action.create"),
+        type: "primary",
+        link: true,
+        icon: CirclePlus,
+        hidden: () => !BUTTONS.value["base:area:create"],
+        onClick: scope => handleOpenDialog(undefined, scope.row as BaseArea)
+      },
+      {
         label: t("common.action.edit"),
         type: "primary",
         link: true,
@@ -220,32 +228,44 @@ function refreshTable() {
   proTable.value?.getTableList();
 }
 /** 加载表单选择项。 */
-async function loadFormOptions() {
+async function loadFormOptions(selectedParent?: BaseArea) {
   const parentIdFormResponse = await defBaseAreaService.OptionBaseArea({ parent_id: 0, lazy: true } as Parameters<
     typeof defBaseAreaService.OptionBaseArea
   >[0]);
+  const options = normalizeLazyTreeOptions((parentIdFormResponse.list ?? []) as GeneratedTreeOption[]).filter(
+    option => Number(option.value) !== 0
+  );
+  if (selectedParent && !options.some(option => Number(option.value) === selectedParent.id)) {
+    options.push({
+      label: selectedParent.name,
+      value: selectedParent.id,
+      isLeaf: !selectedParent.has_children
+    });
+  }
   return [
     { label: t("system.base.area.value.root"), value: 0 },
-    ...normalizeLazyTreeOptions((parentIdFormResponse.list ?? []) as GeneratedTreeOption[]).filter(
-      option => Number(option.value) !== 0
-    )
+    ...options
   ];
 }
 
 /**
  * 打开行政区域弹窗。
  */
-async function handleOpenDialog(id?: number) {
+async function handleOpenDialog(id?: number, selectedParent?: BaseArea) {
   resetForm();
   dialog.titleKey = id ? "system.base.area.action.edit" : "system.base.area.action.create";
   await formDialogRef.value?.open({
     load: async () => ({
-      options: await loadFormOptions(),
+      options: await loadFormOptions(selectedParent),
       data: id ? await defBaseAreaService.GetBaseArea({ id }) : undefined
     }),
     commit: ({ options, data }) => {
       parentIdFormOptions.value = options;
-      if (data) Object.assign(formData, data);
+      if (data) {
+        Object.assign(formData, data);
+      } else {
+        formData.parent_id = selectedParent?.id ?? 0;
+      }
     }
   });
 }

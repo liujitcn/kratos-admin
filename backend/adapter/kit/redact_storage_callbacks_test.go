@@ -92,6 +92,31 @@ func TestMaterializeStorageResponseAllowsSelectWithoutProtectedFields(t *testing
 	}
 }
 
+// TestMaterializeStorageResponseAllowsGlobalRecord 验证零租户全局记录不会误触发租户入库策略。
+func TestMaterializeStorageResponseAllowsGlobalRecord(t *testing.T) {
+	entitySchema, err := schema.Parse(&storageCallbackTestEntity{}, &sync.Map{}, schema.NamingStrategy{SingularTable: true})
+	if err != nil {
+		t.Fatal(err)
+	}
+	runtime := &storageRuntime{resolver: &RedactPolicyResolver{
+		storagePolicies: map[string][]redact.StorageFieldPolicy{
+			storagePolicyKey(1, "default", "storage_callback_test"): {{ID: 1, TenantID: 1, TableName: "storage_callback_test", ColumnName: "phone"}},
+		},
+	}}
+	db := &gorm.DB{Config: &gorm.Config{}, Statement: &gorm.Statement{
+		Context: context.Background(),
+		Dest:    &storageCallbackTestEntity{ID: 42, TenantID: 0, Phone: "127.0.0.1"},
+		Schema:  entitySchema,
+		Table:   "storage_callback_test",
+	}}
+
+	runtime.materializeStorageResponse(db)
+
+	if db.Error != nil {
+		t.Fatalf("零租户全局记录不应触发租户入库策略: %v", db.Error)
+	}
+}
+
 // TestSelectedStoragePolicies 验证查询回调只恢复实际选中的敏感字段。
 func TestSelectedStoragePolicies(t *testing.T) {
 	policies := []redact.StorageFieldPolicy{

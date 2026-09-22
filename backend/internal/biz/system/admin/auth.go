@@ -346,6 +346,36 @@ func (c *AuthCase) GetUserProfile(ctx context.Context) (*adminv1.UserProfileForm
 	return res, nil
 }
 
+// GetCurrentPasswordPolicy 获取当前用户生效的密码策略。
+func (c *AuthCase) GetCurrentPasswordPolicy(ctx context.Context) (*adminv1.CurrentPasswordPolicy, error) {
+	authInfo, err := c.GetAuthInfo(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	userQuery := c.baseUserCase.Query(ctx).BaseUser
+	var baseUser *models.BaseUser
+	baseUser, err = c.baseUserCase.Find(ctx,
+		repository.Select(userQuery.ID, userQuery.TenantID),
+		repository.Where(userQuery.ID.Eq(authInfo.UserId)),
+	)
+	if err != nil {
+		return nil, errorsx.ResourceNotFound("用户不存在").WithCause(err)
+	}
+
+	var config loginpolicy.PasswordConfig
+	config, err = loginpolicy.LoadPasswordConfig(c.Cache, baseUser.TenantID, baseUser.ID)
+	if err != nil {
+		return nil, errorsx.Internal("读取密码策略失败").WithCause(err)
+	}
+	return &adminv1.CurrentPasswordPolicy{
+		MinLength:            config.MinLength,
+		MinComplexityClasses: config.MinComplexityClasses,
+		HistoryCount:         config.HistoryCount,
+		MaxAgeDays:           config.MaxAgeDays,
+	}, nil
+}
+
 // UpdateUserPassword 更新用户密码
 func (c *AuthCase) UpdateUserPassword(ctx context.Context, req *adminv1.UserPasswordForm) error {
 	authInfo, err := c.GetAuthInfo(ctx)

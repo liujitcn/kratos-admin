@@ -4,6 +4,9 @@
     <FormDialog
       ref="formDialogRef"
       v-model="dialog.visible"
+      width="min(900px, calc(100vw - 32px))"
+      label-width="140px"
+      :col-span="12"
       :title="t(dialog.editing ? 'common.action.edit_resource' : 'common.action.create_resource', { resource: t('system.backup.archive.config') })"
       :model="formData"
       :fields="formFields"
@@ -124,7 +127,7 @@ async function requestTableOptions(sourceName: string) {
   loadingTables.value = true;
   try {
     const data = await defBaseTableSourceService.OptionBaseTable({ source_name: sourceName });
-    return (data.value ?? []).map(value => ({ label: value, value }));
+    return (data.tables ?? []).map(item => ({ label: tableOptionLabel(item.name, item.comment), value: item.name }));
   } finally {
     loadingTables.value = false;
   }
@@ -151,8 +154,8 @@ async function setStatus(row: BaseTableArchiveForm) {
       }
     );
     await defBaseTableArchiveService.SetBaseTableArchiveStatus({ id: row.id, status });
+    row.status = status;
     ElMessage.success(t("common.message.status_success", { action }));
-    await proTable.value?.getTableList();
     return true;
   } catch {
     return false;
@@ -160,4 +163,6 @@ async function setStatus(row: BaseTableArchiveForm) {
 }
 async function remove(selected: number | number[] | BaseTableArchiveForm) { let ids: number[]; if (Array.isArray(selected)) ids = selected.map(Number); else if (typeof selected === "object") ids = [selected.id]; else ids = normalizeSelectedIds(selected).map(Number); if (!ids.length) return; await ElMessageBox.confirm(t("common.dialog.delete_selected", { resource: t("system.backup.archive.config") }), t("common.title.warning"), { type: "warning" }); await defBaseTableArchiveService.DeleteBaseTableArchive({ id: ids.join(",") }); ElMessage.success(t("common.message.delete_success", { resource: t("system.backup.archive.config") })); refresh(); }
 function modeLabel(value: BaseTableArchiveMode) { return modeOptions.value.find(item => item.value === value)?.label ?? String(value); }
+/** 格式化数据表选项，优先显示中文注释并保留物理表名。 */
+function tableOptionLabel(name: string, comment: string) { return comment && comment !== name ? `${comment}（${name}）` : name; }
 </script>

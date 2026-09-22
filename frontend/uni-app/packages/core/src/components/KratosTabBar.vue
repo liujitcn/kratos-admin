@@ -54,6 +54,9 @@ const messageBadge = useAppMenuBadge('MESSAGE_INBOX')
 
 <style scoped>
 .kratos-tab-bar {
+  --kratos-tab-bar-color: #333;
+  --kratos-tab-bar-active-color: #27ba9b;
+
   position: fixed;
   right: 0;
   bottom: 0;
@@ -74,7 +77,7 @@ const messageBadge = useAppMenuBadge('MESSAGE_INBOX')
   justify-content: center;
   flex-direction: column;
   transform: translateY(clamp(1px, env(safe-area-inset-bottom), 7px));
-  color: #333;
+  color: var(--kratos-tab-bar-color);
   font-size: 10px;
   line-height: 12px;
 }
@@ -88,7 +91,7 @@ const messageBadge = useAppMenuBadge('MESSAGE_INBOX')
   width: 22px;
   height: 18px;
   margin-bottom: 6px;
-  border: 2px solid #9aa4b2;
+  border: 2px solid var(--kratos-tab-bar-color);
   border-radius: 6px;
   box-sizing: border-box;
 }
@@ -99,10 +102,10 @@ const messageBadge = useAppMenuBadge('MESSAGE_INBOX')
   width: 3px;
   height: 3px;
   border-radius: 50%;
-  background: #9aa4b2;
+  background: var(--kratos-tab-bar-color);
   box-shadow:
-    5px 0 #9aa4b2,
-    10px 0 #9aa4b2;
+    5px 0 var(--kratos-tab-bar-color),
+    10px 0 var(--kratos-tab-bar-color);
   content: '';
 }
 .kratos-tab-bar__message-icon::after {
@@ -111,26 +114,26 @@ const messageBadge = useAppMenuBadge('MESSAGE_INBOX')
   left: 3px;
   width: 7px;
   height: 7px;
-  border-right: 2px solid #9aa4b2;
-  border-bottom: 2px solid #9aa4b2;
+  border-right: 2px solid var(--kratos-tab-bar-color);
+  border-bottom: 2px solid var(--kratos-tab-bar-color);
   background: #fff;
   content: '';
   transform: rotate(45deg);
 }
 .kratos-tab-bar__message-icon--active {
-  border-color: #27ba9b;
+  border-color: var(--kratos-tab-bar-active-color);
 }
 .kratos-tab-bar__message-icon--active::before {
-  background: #27ba9b;
+  background: var(--kratos-tab-bar-active-color);
   box-shadow:
-    5px 0 #27ba9b,
-    10px 0 #27ba9b;
+    5px 0 var(--kratos-tab-bar-active-color),
+    10px 0 var(--kratos-tab-bar-active-color);
 }
 .kratos-tab-bar__message-icon--active::after {
-  border-color: #27ba9b;
+  border-color: var(--kratos-tab-bar-active-color);
 }
 .kratos-tab-bar__text--active {
-  color: #27ba9b;
+  color: var(--kratos-tab-bar-active-color);
 }
 .kratos-tab-bar__badge {
   position: absolute;

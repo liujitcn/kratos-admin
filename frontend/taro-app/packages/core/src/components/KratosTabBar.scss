@@ -1,4 +1,7 @@
 .kratos-tab-bar {
+  --kratos-tab-bar-color: #333;
+  --kratos-tab-bar-active-color: #27ba9b;
+
   position: fixed;
   right: 0;
   bottom: 0;
@@ -20,7 +23,7 @@
   justify-content: center;
   flex-direction: column;
   transform: translateY(clamp(1PX, env(safe-area-inset-bottom), 7PX));
-  color: #333;
+  color: var(--kratos-tab-bar-color);
   font-size: 10PX;
   line-height: 12PX;
 }
@@ -36,7 +39,7 @@
   width: 22PX;
   height: 18PX;
   margin-bottom: 6PX;
-  border: 2PX solid #9aa4b2;
+  border: 2PX solid var(--kratos-tab-bar-color);
   border-radius: 6PX;
   box-sizing: border-box;
 }
@@ -47,10 +50,10 @@
   width: 3PX;
   height: 3PX;
   border-radius: 50%;
-  background: #9aa4b2;
+  background: var(--kratos-tab-bar-color);
   box-shadow:
-    5PX 0 #9aa4b2,
-    10PX 0 #9aa4b2;
+    5PX 0 var(--kratos-tab-bar-color),
+    10PX 0 var(--kratos-tab-bar-color);
   content: '';
 }
 
@@ -60,30 +63,30 @@
   left: 3PX;
   width: 7PX;
   height: 7PX;
-  border-right: 2PX solid #9aa4b2;
-  border-bottom: 2PX solid #9aa4b2;
+  border-right: 2PX solid var(--kratos-tab-bar-color);
+  border-bottom: 2PX solid var(--kratos-tab-bar-color);
   background: #fff;
   content: '';
   transform: rotate(45deg);
 }
 
 .kratos-tab-bar__message-icon--active {
-  border-color: #27ba9b;
+  border-color: var(--kratos-tab-bar-active-color);
 }
 
 .kratos-tab-bar__message-icon--active::before {
-  background: #27ba9b;
+  background: var(--kratos-tab-bar-active-color);
   box-shadow:
-    5PX 0 #27ba9b,
-    10PX 0 #27ba9b;
+    5PX 0 var(--kratos-tab-bar-active-color),
+    10PX 0 var(--kratos-tab-bar-active-color);
 }
 
 .kratos-tab-bar__message-icon--active::after {
-  border-color: #27ba9b;
+  border-color: var(--kratos-tab-bar-active-color);
 }
 
 .kratos-tab-bar__text--active {
-  color: #27ba9b;
+  color: var(--kratos-tab-bar-active-color);
 }
 
 .kratos-tab-bar__badge {

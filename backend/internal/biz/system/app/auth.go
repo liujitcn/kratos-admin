@@ -18,7 +18,6 @@ import (
 
 	"github.com/go-kratos/kratos/v3/log"
 	"github.com/liujitcn/go-utils/mapper"
-	_string "github.com/liujitcn/go-utils/string"
 	"github.com/liujitcn/gorm-kit/repository"
 	"github.com/liujitcn/kratos-kit/oauth"
 	"github.com/liujitcn/kratos-kit/oauth/provider"
@@ -78,7 +77,6 @@ func (c *AuthCase) GetUserProfile(ctx context.Context) (*appv1.UserProfileForm, 
 	}
 
 	res := c.profileMapper.ToDTO(user)
-	res.Phone = _string.DesensitizePhone(user.Phone)
 	return res, nil
 }
 
@@ -208,6 +206,6 @@ func (c *AuthCase) BindUserPhone(ctx context.Context, req *appv1.BindUserPhoneRe
 		return nil, errorsx.Internal("手机号授权失败").WithCause(err)
 	}
 	return &appv1.BindUserPhoneResponse{
-		Phone: _string.DesensitizePhone(user.Phone),
+		Phone: user.Phone,
 	}, nil
 }

@@ -17,6 +17,16 @@ test("菜单搜索使用 ProDialog 并保留主题样式", async () => {
   assert.doesNotMatch(source, /:global\(\.search-dialog\)[\s\S]*\.el-dialog__header\s*\{/);
 });
 
+test("菜单管理按节点懒加载并在搜索时查询完整树", async () => {
+  const source = await readSource("src/views/base/menu/index.vue");
+
+  assert.match(source, /:lazy="true"/);
+  assert.match(source, /:load="loadMenuChildren"/);
+  assert.match(source, /const request: TreeBaseMenuRequest = hasKeyword \? \{\} : \{ parent_id: 0, lazy: true \};/);
+  assert.match(source, /TreeBaseMenu\(\{ parent_id: row\.id, lazy: true \}\)/);
+  assert.match(source, /hasKeyword \? filterMenuTree\(data\.base_menus \?\? \[\], keywordMap\) : \(data\.base_menus \?\? \[\]\)/);
+});
+
 test("登录策略提交前执行表单校验", async () => {
   const source = await readSource("src/views/base/login-policy/index.vue");
   const submitBlock = source.match(/async function handleSubmit\(\) \{[\s\S]*?\n\}/)?.[0];
@@ -113,7 +123,18 @@ test("状态切换先确认再调用接口", async () => {
     assert.match(statusBlock, /ElMessageBox\.confirm/);
     assert.match(statusBlock, /await defBase.*Status\(/);
     assert.ok(statusBlock.indexOf("ElMessageBox.confirm") < statusBlock.indexOf("await defBase"));
+    if (source.includes("BaseMessageCategory")) assert.doesNotMatch(statusBlock, /getTableList\(/);
   }
+});
+
+test("归档配置显示数据表中文名并即时同步状态", async () => {
+  const source = await readSource("src/views/base/backup-management/archive-config/index.vue");
+
+  assert.match(source, /width="min\(900px, calc\(100vw - 32px\)\)"/);
+  assert.match(source, /:col-span="12"/);
+  assert.match(source, /data\.tables \?\? \[\]/);
+  assert.match(source, /tableOptionLabel\(item\.name, item\.comment\)/);
+  assert.match(source, /row\.status = status/);
 });
 
 test("通知组件显式接管并透传顶部工具属性", async () => {
@@ -261,6 +282,13 @@ test("定时任务操作列使用统一操作按钮配置", async () => {
   assert.doesNotMatch(source, /renderOperationCell|job-operation|job-action/);
 });
 
+test("定时任务编辑弹窗使用大尺寸响应式布局", async () => {
+  const source = await readSource("src/views/base/job/index.vue");
+
+  assert.match(source, /width="min\(1200px, calc\(100vw - 32px\)\)"/);
+  assert.match(source, /top="4vh"/);
+});
+
 test("项目授权范围提供开关含义说明", async () => {
   const source = await readSource("src/views/base/tenant-project-grant/index.vue");
   assert.match(source, /labelTooltip: t\("system\.base\.tenant_project_grant\.tooltip\.scope"\)/);
@@ -318,6 +346,21 @@ test("携带租户查询的列表统一将租户作为第一业务列和第一�
   assert.match(tenantSource, /order: options\.order \?\? 1/);
 });
 
+test("日志审计页面统一加载并显示租户名称", async () => {
+  const pages = ["api-log", "data-access-log", "login-log", "operation-log", "permission-log", "policy-evaluation-log"];
+
+  for (const page of pages) {
+    const source = await readSource(`src/views/base/${page}/index.vue`);
+    assert.match(source, /const \{ tenantColumns, loadTenantOptions, resolveTenantLabel \} = useTenantScope\(\);/);
+    assert.match(source, /onMounted\(\(\) => void loadTenantOptions\(true\)\);/);
+    assert.match(
+      source,
+      /\{ key: "tenant_id", label: t\("common\.field\.tenant"\), format: value => resolveTenantLabel\(\{ tenant_id: value \}\) \}/
+    );
+    assert.doesNotMatch(source, /\{ key: "tenant_id", label: t\("system\.base\.log\.field\.tenant_id"\) \}/);
+  }
+});
+
 test("项目授权列表不展示主体编码列且不保留无用翻译", async () => {
   const source = await readSource("src/views/base/tenant-project-grant/index.vue");
   assert.doesNotMatch(source, /prop: "subject_code"[\s\S]*?field\.subject_code/);
@@ -361,6 +404,19 @@ test("基础管理编辑弹窗统一使用通用异步打开控制器", async ()
     assert.match(source, /\.value\?\.open\(/);
     assert.match(source, /\.value\?\.close\(/);
   }
+});
+
+test("代码生成表弹窗在打开前同步重置且回填后不再清空", async () => {
+  const source = await readSource("src/views/tool/code-gen/table/index.vue");
+  const openBlock = source.match(/async function handleOpenDialog\(tableId\?: number\) \{[\s\S]*?\n\}/)?.[0];
+  const resetBlock = source.match(/function resetForm\(\) \{[\s\S]*?\n\}/)?.[0];
+
+  assert.ok(openBlock, "缺少代码生成表弹窗打开方法");
+  assert.ok(resetBlock, "缺少代码生成表弹窗重置方法");
+  assert.ok(openBlock.indexOf("resetForm();") < openBlock.indexOf("formDialogRef.value?.open("));
+  assert.doesNotMatch(openBlock, /commit:[\s\S]*?resetForm\(\)/);
+  assert.doesNotMatch(resetBlock, /nextTick/);
+  assert.ok(resetBlock.indexOf("resetFields()") < resetBlock.indexOf("Object.assign(formData"));
 });
 
 test("租户项目列表按默认租户展示租户字段并支持扩展列定位", async () => {

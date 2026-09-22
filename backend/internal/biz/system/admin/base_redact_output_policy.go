@@ -179,13 +179,12 @@ func (c *BaseRedactOutputPolicyCase) UpdateBaseRedactOutputPolicy(ctx context.Co
 		if err != nil {
 			return err
 		}
+		validationInput := *input
+		validationInput.TenantId = oldItem.TenantID
 		var rule *models.BaseRedactRule
-		rule, err = c.validateOutputForm(ctx, input)
+		rule, err = c.validateOutputForm(ctx, &validationInput)
 		if err != nil {
 			return err
-		}
-		if input.GetTenantId() != oldItem.TenantID {
-			return errorsx.ProtectedResourceConflict("响应脱敏策略创建后不允许修改租户", "base_redact_output_policy")
 		}
 		item := &models.BaseRedactOutputPolicy{ID: oldItem.ID, TenantID: oldItem.TenantID, Operation: input.GetOperation(), ServiceName: input.GetServiceName(), MessageRef: input.GetMessageRef(), FieldPath: input.GetFieldPath(), Mode: int32(input.GetMode()), RuleParams: input.GetRuleParams(), Status: int32(input.GetStatus()), Remark: input.GetRemark(), CreatedBy: oldItem.CreatedBy, UpdatedBy: authInfo.UserId, CreatedAt: oldItem.CreatedAt, UpdatedAt: now}
 		if rule == nil {

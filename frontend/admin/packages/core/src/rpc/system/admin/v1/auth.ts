@@ -60,6 +60,22 @@ export interface UserInfoForm {
 export interface GetUserProfileRequest {
 }
 
+/** 获取当前用户密码策略请求参数 */
+export interface GetCurrentPasswordPolicyRequest {
+}
+
+/** 当前用户生效的密码策略 */
+export interface CurrentPasswordPolicy {
+  /** 密码最小长度 */
+  min_length: number;
+  /** 密码至少满足的字符类别数量 */
+  min_complexity_classes: number;
+  /** 禁止重复使用的历史密码数量，零表示不启用 */
+  history_count: number;
+  /** 密码有效期天数，零表示长期有效 */
+  max_age_days: number;
+}
+
 /** 用户资料表单 */
 export interface UserProfileForm {
   /** 用户名 */
@@ -210,6 +226,8 @@ export interface AuthService {
   GetUserInfo(request: GetUserInfoRequest): Promise<UserInfoForm>;
   /** 获取个人中心用户信息 */
   GetUserProfile(request: GetUserProfileRequest): Promise<UserProfileForm>;
+  /** 获取当前用户生效的密码策略 */
+  GetCurrentPasswordPolicy(request: GetCurrentPasswordPolicyRequest): Promise<CurrentPasswordPolicy>;
   /** 修改个人中心密码 */
   UpdateUserPassword(request: UpdateUserPasswordRequest): Promise<Empty>;
   /** 修改个人中心手机号 */

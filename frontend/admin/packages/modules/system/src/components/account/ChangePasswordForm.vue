@@ -6,7 +6,7 @@
       :fields="passwordFormFields"
       :rules="passwordFormRules"
     />
-    <PasswordStrength :password="passwordForm.new_pwd" class="change-password-form__strength" />
+    <PasswordStrength :password="passwordForm.new_pwd" load-current-policy class="change-password-form__strength" />
     <div class="change-password-form__footer">
       <el-button @click="resetPasswordForm">{{ t("common.action.reset") }}</el-button>
       <el-button type="primary" :loading="submitLoading" @click="handleSubmitPassword">

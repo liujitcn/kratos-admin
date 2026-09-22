@@ -131,19 +131,16 @@ func (c *BaseLanguageCase) UpdateBaseLanguage(ctx context.Context, req *adminv1.
 		if err != nil {
 			return err
 		}
-		if _, err = language.Parse(req.GetLanguageCode()); err != nil {
+		if _, err = language.Parse(current.LanguageCode); err != nil {
 			return errorsx.InvalidArgument("语言代码必须是有效的语言代码").WithCause(err)
-		}
-		if current.IsPrimary && req.GetStatus() == commonv1.Status_STATUS_DISABLE {
-			return errorsx.ProtectedResourceConflict("主语言不能禁用", "base_language")
-		}
-		if current.IsPrimary && req.GetLanguageCode() != current.LanguageCode {
-			return errorsx.ProtectedResourceConflict("主语言代码不允许修改", "base_language")
 		}
 		item := c.formMapper.ToEntity(req)
 		item.ID = current.ID
 		item.LanguageCode = current.LanguageCode
 		item.IsPrimary = current.IsPrimary
+		if current.IsPrimary {
+			item.Status = current.Status
+		}
 		if err = c.UpdateByID(ctx, item); err != nil {
 			if errorsx.IsDuplicateKey(err) {
 				return errorsx.UniqueConflict("语言代码重复", "base_language", "language_code", "unique_base_language").WithCause(err)

@@ -6,6 +6,7 @@ import (
 	"sort"
 
 	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
+	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/dto"
 	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
 	"github.com/liujitcn/kratos-core/biz"
 	"github.com/liujitcn/kratos-core/errorsx"
@@ -35,19 +36,37 @@ func (c *BaseTableSourceCase) OptionBaseTableSource(context.Context) (*commonv1.
 	return &commonv1.StringValues{Value: names}, nil
 }
 
-// OptionBaseTable 查询指定数据源中的数据库表名称。
-func (c *BaseTableSourceCase) OptionBaseTable(ctx context.Context, req *adminv1.OptionBaseTableRequest) (*commonv1.StringValues, error) {
+// OptionBaseTable 查询指定数据源中的数据库表选项。
+func (c *BaseTableSourceCase) OptionBaseTable(ctx context.Context, req *adminv1.OptionBaseTableRequest) (*adminv1.OptionBaseTableResponse, error) {
 	client, err := GormClientBySourceName(c.BaseCase, req.GetSourceName())
 	if err != nil {
 		return nil, errorsx.InvalidArgument("请选择已初始化的数据源").WithCause(err)
 	}
-	var tables []string
-	tables, err = client.Migrator().GetTables()
+	var tables []dto.CodeGenDatabaseTable
+	tables, err = listDatabaseTableMetadata(ctx, client, nil)
 	if err != nil {
 		return nil, fmt.Errorf("查询数据源 %s 的数据库表失败: %w", req.GetSourceName(), err)
 	}
-	sort.Strings(tables)
-	return &commonv1.StringValues{Value: tables}, nil
+	options := make([]*adminv1.BaseTableOption, 0, len(tables))
+	for _, table := range tables {
+		options = append(options, &adminv1.BaseTableOption{Name: table.TableName, Comment: table.TableComment})
+	}
+	return &adminv1.OptionBaseTableResponse{Tables: options}, nil
+}
+
+// listDatabaseTableMetadata 查询指定客户端的数据表名和表描述。
+func listDatabaseTableMetadata(ctx context.Context, database *gorm.Client, tableNames []string) ([]dto.CodeGenDatabaseTable, error) {
+	query := database.DB.WithContext(ctx).
+		Table("information_schema.tables").
+		Select("table_name, table_comment").
+		Where("table_schema = DATABASE()").
+		Where("table_type = ?", "BASE TABLE")
+	if len(tableNames) > 0 {
+		query = query.Where("table_name IN ?", tableNames)
+	}
+	var tableInfos []dto.CodeGenDatabaseTable
+	err := query.Order("table_name").Find(&tableInfos).Error
+	return tableInfos, err
 }
 
 // GormClientBySourceName 按数据源名称获取已初始化的 GORM 客户端。

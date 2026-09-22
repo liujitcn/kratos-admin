@@ -17,12 +17,14 @@
         }"
       />
     </div>
-    <p class="password-strength__tip">{{ tip || t("core.password.tip") }}</p>
+    <p class="password-strength__tip">{{ displayedTip }}</p>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, onMounted, ref } from "vue";
+import { defAuthService } from "@/api/system/admin/v1/auth";
+import type { CurrentPasswordPolicy } from "@/rpc/system/admin/v1/auth";
 import { getPasswordStrength } from "@/utils/passwordStrength";
 import { useLocaleStore } from "@/locales";
 
@@ -34,18 +36,57 @@ interface PasswordStrengthProps {
   password?: string;
   /** 底部提示文案。 */
   tip?: string;
+  /** 已知的密码策略；传入后直接用于摘要展示。 */
+  policy?: CurrentPasswordPolicy;
+  /** 是否加载当前登录用户生效的密码策略。 */
+  loadCurrentPolicy?: boolean;
 }
 
 const props = withDefaults(defineProps<PasswordStrengthProps>(), {
   password: "",
-  tip: ""
+  tip: "",
+  policy: undefined,
+  loadCurrentPolicy: false
 });
+
+const currentPolicy = ref<CurrentPasswordPolicy>();
 
 /** 强度条固定为三段，保持所有页面一致。 */
 const segments = [1, 2, 3];
 
 /** 根据输入密码实时输出强度结果。 */
 const strength = computed(() => getPasswordStrength(props.password));
+
+/** 将生效策略压缩为用户可直接理解的一句话。 */
+const displayedTip = computed(() => {
+  if (props.tip) return props.tip;
+  const policy = props.policy ?? currentPolicy.value;
+  if (!policy) return t("core.password.tip");
+
+  const requirements = [
+    t("core.password.policy.min_length", { count: policy.min_length }),
+    t("core.password.policy.complexity", { count: policy.min_complexity_classes })
+  ];
+  if (policy.history_count > 0) {
+    requirements.push(t("core.password.policy.history", { count: policy.history_count }));
+  }
+  requirements.push(
+    policy.max_age_days > 0
+      ? t("core.password.policy.max_age", { count: policy.max_age_days })
+      : t("core.password.policy.no_expiry")
+  );
+  return requirements.join(t("core.password.policy.separator"));
+});
+
+/** 按需加载当前登录用户实际生效的密码策略。 */
+onMounted(async () => {
+  if (!props.loadCurrentPolicy || props.policy) return;
+  try {
+    currentPolicy.value = await defAuthService.GetCurrentPasswordPolicy({});
+  } catch (_error) {
+    currentPolicy.value = undefined;
+  }
+});
 </script>
 
 <style scoped lang="scss">

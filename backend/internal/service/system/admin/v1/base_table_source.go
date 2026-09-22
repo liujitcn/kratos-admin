@@ -32,8 +32,8 @@ func (s *BaseTableSourceService) OptionBaseTableSource(ctx context.Context, req 
 	return result, nil
 }
 
-// OptionBaseTable 查询指定数据源中的数据库表名称。
-func (s *BaseTableSourceService) OptionBaseTable(ctx context.Context, req *adminv1.OptionBaseTableRequest) (*commonv1.StringValues, error) {
+// OptionBaseTable 查询指定数据源中的数据库表选项。
+func (s *BaseTableSourceService) OptionBaseTable(ctx context.Context, req *adminv1.OptionBaseTableRequest) (*adminv1.OptionBaseTableResponse, error) {
 	result, err := s.baseTableSourceCase.OptionBaseTable(ctx, req)
 	if err != nil {
 		log.Error(fmt.Sprintf("OptionBaseTable %v", err))

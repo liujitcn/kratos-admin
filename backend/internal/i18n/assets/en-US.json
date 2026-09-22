@@ -1,4 +1,19 @@
 {
+  "当前用户生效的密码策略": {
+    "other": "Password policy effective for the current user"
+  },
+  "获取当前用户生效的密码策略": {
+    "other": "Get the password policy effective for the current user"
+  },
+  "密码至少满足的字符类别数量": {
+    "other": "Minimum number of password character classes"
+  },
+  "禁止重复使用的历史密码数量，零表示不启用": {
+    "other": "Number of recent passwords that cannot be reused; zero disables password history"
+  },
+  "密码有效期天数，零表示长期有效": {
+    "other": "Password validity period in days; zero means the password does not expire"
+  },
   "system.admin.auth.entity.user.password.new_pwd.required": {
     "other": "Please enter new password"
   },
@@ -1141,6 +1156,12 @@
   },
   "system.admin.runtime_config.invalid_json": {
     "other": "The system configuration is invalid"
+  },
+  "system.admin.base.redact_rule.disable.output_policy_in_use": {
+    "other": "This rule is referenced by enabled output redaction policies. Disable those policies first"
+  },
+  "system.admin.base.redact_rule.disable.storage_policy_in_use": {
+    "other": "This rule is referenced by enabled storage redaction policies. Disable those policies first"
   },
   "system.admin.runtime.base_log_fallback.file_path.required": {
     "other": "The log ingestion fallback directory path cannot be empty"

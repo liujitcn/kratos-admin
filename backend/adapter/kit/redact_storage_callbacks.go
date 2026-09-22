@@ -644,18 +644,18 @@ func entityPrimaryID(ctx context.Context, db *gorm.DB, entity any) (int64, error
 	return integerValue(value, entitySchema.PrioritizedPrimaryField.DBName)
 }
 
-// entityTenantID 从实体读取必需的正租户ID。
+// entityTenantID 从实体读取租户ID，零值表示不应用租户入库策略的全局记录。
 func entityTenantID(ctx context.Context, entity any) (int64, error) {
 	value, zero, err := (gormEntityFieldAccessor{}).ValueOf(ctx, entity, "tenant_id")
 	if err != nil {
 		return 0, fmt.Errorf("脱敏数据必须包含租户ID: %w", err)
 	}
 	if zero || value == nil {
-		return 0, errors.New("脱敏数据租户ID不能为空")
+		return 0, nil
 	}
 	tenantID, err := integerValue(value, "tenant_id")
-	if err != nil || tenantID <= 0 {
-		return 0, errors.New("脱敏数据租户ID必须大于零")
+	if err != nil || tenantID < 0 {
+		return 0, errors.New("脱敏数据租户ID不能小于零")
 	}
 	return tenantID, nil
 }

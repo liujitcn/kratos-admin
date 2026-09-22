@@ -48,6 +48,19 @@ paths:
                 "200":
                     description: OK
                     content: {}
+    /api/v1/admin/auth/password-policy:
+        get:
+            tags:
+                - AuthService
+            description: 取得目前使用者生效的密碼策略
+            operationId: AuthService_GetCurrentPasswordPolicy
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.CurrentPasswordPolicy'
     /api/v1/admin/auth/phone:
         put:
             tags:
@@ -12662,6 +12675,26 @@ components:
                     type: string
                     description: 租戶管理員初始密碼，僅在隨機產生時返回
             description: 建立租戶回應參數
+        system.admin.v1.CurrentPasswordPolicy:
+            type: object
+            properties:
+                min_length:
+                    type: integer
+                    description: 密碼最小長度
+                    format: int32
+                min_complexity_classes:
+                    type: integer
+                    description: 密碼至少符合的字元類別數量
+                    format: int32
+                history_count:
+                    type: integer
+                    description: 禁止重複使用的歷史密碼數量，零表示不啟用
+                    format: int32
+                max_age_days:
+                    type: integer
+                    description: 密碼有效期天數，零表示長期有效
+                    format: int32
+            description: 目前使用者生效的密碼策略
         system.admin.v1.DraftBaseI18nItem:
             type: object
             properties:

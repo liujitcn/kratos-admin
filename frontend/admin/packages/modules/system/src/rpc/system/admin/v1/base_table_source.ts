@@ -17,10 +17,24 @@ export interface OptionBaseTableRequest {
   source_name: string;
 }
 
+/** 数据库表选项。 */
+export interface BaseTableOption {
+  /** 数据库表名 */
+  name: string;
+  /** 数据表注释 */
+  comment: string;
+}
+
+/** 数据库表选项响应。 */
+export interface OptionBaseTableResponse {
+  /** 数据库表选项列表 */
+  tables: BaseTableOption[];
+}
+
 /** Admin数据源元数据服务，提供数据备份、数据归档和代码生成共用的数据源信息。 */
 export interface BaseTableSourceService {
   /** 查询已初始化的数据源名称。 */
   OptionBaseTableSource(request: OptionBaseTableSourceRequest): Promise<StringValues>;
-  /** 查询指定数据源中的数据库表名称。 */
-  OptionBaseTable(request: OptionBaseTableRequest): Promise<StringValues>;
+  /** 查询指定数据源中的数据库表选项。 */
+  OptionBaseTable(request: OptionBaseTableRequest): Promise<OptionBaseTableResponse>;
 }

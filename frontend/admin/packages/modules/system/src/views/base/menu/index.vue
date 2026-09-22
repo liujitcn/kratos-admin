@@ -10,6 +10,8 @@
       :request-api="requestMenuTable"
       :pagination="false"
       :default-expand-all="false"
+      :lazy="true"
+      :load="loadMenuChildren"
       :tree-props="{ children: 'children', hasChildren: 'hasChildren' }"
     />
 
@@ -72,7 +74,8 @@ import type {
   BaseMenu,
   BaseMenuAppMeta,
   BaseMenuForm,
-  BaseMenuMeta
+  BaseMenuMeta,
+  TreeBaseMenuRequest
 } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_menu";
 import { Status } from "@liujitcn/kratos-admin-system/rpc/common/v1/enum";
 import { BaseMenuType } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/common";
@@ -1087,16 +1090,29 @@ function filterMenuTree(menuList: BaseMenu[], keywordMap: Record<string, string>
 /** 请求菜单表格数据，并按搜索条件过滤树形结构。 */
 async function requestMenuTable(params: Record<string, string>) {
   await loadEnabledBaseLanguages();
-  const data = await defBaseMenuService.TreeBaseMenu({});
   const keywordMap = {
     title: params.title ?? "",
     name: params.name ?? "",
     path: params.path ?? ""
   };
+  const hasKeyword = Object.values(keywordMap).some(keyword => keyword.trim() !== "");
+  const request: TreeBaseMenuRequest = hasKeyword ? {} : { parent_id: 0, lazy: true };
+  const data = await defBaseMenuService.TreeBaseMenu(request);
 
   return {
-    data: filterMenuTree(data.base_menus ?? [], keywordMap)
+    data: hasKeyword ? filterMenuTree(data.base_menus ?? [], keywordMap) : (data.base_menus ?? [])
   };
+}
+
+/** 懒加载菜单表格的直属子节点。 */
+async function loadMenuChildren(row: BaseMenu, _treeNode: unknown, resolve: (data: BaseMenu[]) => void) {
+  try {
+    const data = await defBaseMenuService.TreeBaseMenu({ parent_id: row.id, lazy: true });
+    resolve(data.base_menus ?? []);
+  } catch {
+    ElMessage.error(t("common.message.load_children_failed", { resource: t("system.base.menu.title.list") }));
+    resolve([]);
+  }
 }
 
 /** 刷新菜单表格。 */

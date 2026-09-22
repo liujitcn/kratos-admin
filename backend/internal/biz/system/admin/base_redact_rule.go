@@ -298,7 +298,11 @@ func (c *BaseRedactRuleCase) ensureRuleCanDisable(ctx context.Context, ruleID in
 		return err
 	}
 	if storageCount > 0 {
-		return errorsx.ProtectedResourceConflict("已有启用的入库脱敏策略引用该规则，不能停用", "base_redact_rule")
+		return errorsx.WithMessageKey(
+			errorsx.ProtectedResourceConflict("已有启用的入库脱敏策略引用该规则，请先停用引用策略", "base_redact_rule"),
+			"system.admin.base.redact_rule.disable.storage_policy_in_use",
+			nil,
+		)
 	}
 	outputQuery := c.outputPolicyRepo.Query(ctx).BaseRedactOutputPolicy
 	var outputCount int64
@@ -310,7 +314,11 @@ func (c *BaseRedactRuleCase) ensureRuleCanDisable(ctx context.Context, ruleID in
 		return err
 	}
 	if outputCount > 0 {
-		return errorsx.ProtectedResourceConflict("已有启用的出库脱敏策略引用该规则，不能停用", "base_redact_rule")
+		return errorsx.WithMessageKey(
+			errorsx.ProtectedResourceConflict("已有启用的出库脱敏策略引用该规则，请先停用引用策略", "base_redact_rule"),
+			"system.admin.base.redact_rule.disable.output_policy_in_use",
+			nil,
+		)
 	}
 	return nil
 }

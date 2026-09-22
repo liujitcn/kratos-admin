@@ -364,7 +364,6 @@ async function handleSetStatus(row: BaseMessageCategory) {
     );
     await defBaseMessageCategoryService.SetBaseMessageCategoryStatus({ id: row.id, status });
     ElMessage.success(t("common.message.status_success", { action }));
-    await proTable.value?.getTableList();
     return true;
   } catch {
     return false;

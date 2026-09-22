@@ -1,5 +1,7 @@
 import service from "@/utils/request";
 import type {
+  CurrentPasswordPolicy,
+  GetCurrentPasswordPolicyRequest,
   GetUserInfoRequest,
   ListUserButtonRequest,
   TreeRouteResponse,
@@ -12,6 +14,15 @@ const AUTH_URL = "/v1/admin/auth";
 
 /** AuthServiceImpl 管理端运行壳认证服务。 */
 export class AuthServiceImpl {
+  /** 获取当前用户生效的密码策略。 */
+  GetCurrentPasswordPolicy(request: GetCurrentPasswordPolicyRequest): Promise<CurrentPasswordPolicy> {
+    return service<GetCurrentPasswordPolicyRequest, CurrentPasswordPolicy>({
+      url: `${AUTH_URL}/password-policy`,
+      method: "get",
+      params: request
+    });
+  }
+
   /** 获取当前登录用户。 */
   GetUserInfo(request: GetUserInfoRequest): Promise<UserInfoForm> {
     return service<GetUserInfoRequest, UserInfoForm>({

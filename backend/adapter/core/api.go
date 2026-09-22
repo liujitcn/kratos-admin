@@ -7,7 +7,7 @@ import (
 	"github.com/liujitcn/gorm-kit/repository"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
-	coreconst "github.com/liujitcn/kratos-core/const"
+	_const "github.com/liujitcn/kratos-core/const"
 	coredata "github.com/liujitcn/kratos-core/data"
 	"github.com/liujitcn/kratos-core/resource/openapi"
 	"github.com/liujitcn/kratos-core/resource/openapi/dto"
@@ -97,8 +97,8 @@ func (s *APIStoreAdapter) ReplaceAll(ctx context.Context, items []*coredata.APIR
 			Operation:   sseOperation,
 			Method:      "GET",
 			Path:        "/events/{stream}",
-			McpStatus:   int32(coreconst.STATUS_STATUS_ENABLE),
-			AgentStatus: int32(coreconst.STATUS_STATUS_ENABLE),
+			McpStatus:   int32(_const.STATUS_STATUS_ENABLE),
+			AgentStatus: int32(_const.STATUS_STATUS_ENABLE),
 		}
 		if previous := existingByOperation[sseOperation]; previous != nil {
 			sseRecord.ID = previous.ID

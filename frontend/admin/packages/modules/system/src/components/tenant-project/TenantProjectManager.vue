@@ -425,7 +425,6 @@ async function handleBeforeSetStatus(row: BaseTenantProject) {
     );
     await defBaseTenantProjectService.SetBaseTenantProjectStatus({ id: row.id, status: nextStatus });
     ElMessage.success(t("common.message.status_success", { action: text }));
-    await refreshTable();
     return true;
   } catch {
     return false;

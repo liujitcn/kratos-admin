@@ -1,4 +1,19 @@
 {
+  "当前用户生效的密码策略": {
+    "other": "目前使用者生效的密碼策略"
+  },
+  "获取当前用户生效的密码策略": {
+    "other": "取得目前使用者生效的密碼策略"
+  },
+  "密码至少满足的字符类别数量": {
+    "other": "密碼至少符合的字元類別數量"
+  },
+  "禁止重复使用的历史密码数量，零表示不启用": {
+    "other": "禁止重複使用的歷史密碼數量，零表示不啟用"
+  },
+  "密码有效期天数，零表示长期有效": {
+    "other": "密碼有效期天數，零表示長期有效"
+  },
   "system.admin.auth.entity.user.password.new_pwd.required": {
     "other": "請輸入新密碼"
   },
@@ -1141,6 +1156,12 @@
   },
   "system.admin.runtime_config.invalid_json": {
     "other": "系統配置內容無效"
+  },
+  "system.admin.base.redact_rule.disable.output_policy_in_use": {
+    "other": "已有啟用的出庫脫敏策略引用此規則，請先停用引用策略"
+  },
+  "system.admin.base.redact_rule.disable.storage_policy_in_use": {
+    "other": "已有啟用的入庫脫敏策略引用此規則，請先停用引用策略"
   },
   "system.admin.runtime.base_log_fallback.file_path.required": {
     "other": "稽核日誌入庫回退目錄路徑不得為空"

@@ -48,6 +48,19 @@ paths:
                 "200":
                     description: OK
                     content: {}
+    /api/v1/admin/auth/password-policy:
+        get:
+            tags:
+                - AuthService
+            description: 获取当前用户生效的密码策略
+            operationId: AuthService_GetCurrentPasswordPolicy
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.CurrentPasswordPolicy'
     /api/v1/admin/auth/phone:
         put:
             tags:
@@ -4664,7 +4677,7 @@ paths:
         get:
             tags:
                 - BaseTableSourceService
-            description: 查询指定数据源中的数据库表名称。
+            description: 查询指定数据源中的数据库表选项。
             operationId: BaseTableSourceService_OptionBaseTable
             parameters:
                 - name: source_name
@@ -4677,7 +4690,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/common.v1.StringValues'
+                                $ref: '#/components/schemas/system.admin.v1.OptionBaseTableResponse'
     /api/v1/admin/base/tenant:
         get:
             tags:
@@ -11673,6 +11686,16 @@ components:
                     type: string
                     description: 完成时间
             description: BaseTableBackupRestore 数据库备份恢复记录。
+        system.admin.v1.BaseTableOption:
+            type: object
+            properties:
+                name:
+                    type: string
+                    description: 数据库表名
+                comment:
+                    type: string
+                    description: 数据表注释
+            description: 数据库表选项。
         system.admin.v1.BaseTenant:
             type: object
             properties:
@@ -12662,6 +12685,26 @@ components:
                     type: string
                     description: 租户管理员初始密码，仅在随机生成时返回
             description: 创建租户响应参数
+        system.admin.v1.CurrentPasswordPolicy:
+            type: object
+            properties:
+                min_length:
+                    type: integer
+                    description: 密码最小长度
+                    format: int32
+                min_complexity_classes:
+                    type: integer
+                    description: 密码至少满足的字符类别数量
+                    format: int32
+                history_count:
+                    type: integer
+                    description: 禁止重复使用的历史密码数量，零表示不启用
+                    format: int32
+                max_age_days:
+                    type: integer
+                    description: 密码有效期天数，零表示长期有效
+                    format: int32
+            description: 当前用户生效的密码策略
         system.admin.v1.DraftBaseI18nItem:
             type: object
             properties:
@@ -13297,6 +13340,15 @@ components:
                         $ref: '#/components/schemas/system.admin.v1.BaseLanguage'
                     description: 语言选项
             description: 语言选项响应
+        system.admin.v1.OptionBaseTableResponse:
+            type: object
+            properties:
+                tables:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.BaseTableOption'
+                    description: 数据库表选项列表
+            description: 数据库表选项响应。
         system.admin.v1.OptionOauthClientApiResponse:
             type: object
             properties:

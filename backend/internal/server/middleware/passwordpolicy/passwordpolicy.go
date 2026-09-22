@@ -85,6 +85,7 @@ func passwordChangeOperation(operation string) bool {
 		"/system.admin.v1.AuthService/ListUserButton",
 		"/system.admin.v1.AuthService/GetUserInfo",
 		"/system.admin.v1.AuthService/GetUserProfile",
+		"/system.admin.v1.AuthService/GetCurrentPasswordPolicy",
 		"/system.admin.v1.AuthService/UpdateUserPassword":
 		return true
 	case "/base.v1.LoginService/Logout":

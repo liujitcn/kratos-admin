@@ -16,7 +16,6 @@ import (
 	"github.com/liujitcn/go-utils/mapper"
 	_string "github.com/liujitcn/go-utils/string"
 	"github.com/liujitcn/gorm-kit/repository"
-	"github.com/liujitcn/kratos-kit/database/gorm"
 )
 
 var codeGenBusinessModulePattern = regexp.MustCompile(`^[a-z][a-z0-9_]*$`)
@@ -259,21 +258,6 @@ func (c *CodeGenTableCase) listDatabaseTables(ctx context.Context, sourceName st
 		return nil, err
 	}
 	return listDatabaseTableMetadata(ctx, database, tableNames)
-}
-
-// listDatabaseTableMetadata 查询指定客户端的数据表名和表描述。
-func listDatabaseTableMetadata(ctx context.Context, database *gorm.Client, tableNames []string) ([]dto.CodeGenDatabaseTable, error) {
-	query := database.DB.WithContext(ctx).
-		Table("information_schema.tables").
-		Select("table_name, table_comment").
-		Where("table_schema = DATABASE()").
-		Where("table_type = ?", "BASE TABLE")
-	if len(tableNames) > 0 {
-		query = query.Where("table_name IN ?", tableNames)
-	}
-	var tableInfos []dto.CodeGenDatabaseTable
-	err := query.Order("table_name").Find(&tableInfos).Error
-	return tableInfos, err
 }
 
 // codeGenTableFormToModel 转换代码生成表配置保存模型，并校验生成所需的关联配置。

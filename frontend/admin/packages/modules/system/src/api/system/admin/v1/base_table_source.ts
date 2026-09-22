@@ -3,6 +3,7 @@ import type { StringValues } from "@liujitcn/kratos-admin-system/rpc/common/v1/t
 import type {
   BaseTableSourceService,
   OptionBaseTableRequest,
+  OptionBaseTableResponse,
   OptionBaseTableSourceRequest
 } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_table_source";
 
@@ -19,9 +20,9 @@ export class BaseTableSourceServiceImpl implements BaseTableSourceService {
     });
   }
 
-  /** 查询指定数据源中的数据库表名称。 */
-  OptionBaseTable(request: OptionBaseTableRequest): Promise<StringValues> {
-    return service<OptionBaseTableRequest, StringValues>({
+  /** 查询指定数据源中的数据库表选项。 */
+  OptionBaseTable(request: OptionBaseTableRequest): Promise<OptionBaseTableResponse> {
+    return service<OptionBaseTableRequest, OptionBaseTableResponse>({
       url: `${BASE_TABLE_SOURCE_URL}/table/option`,
       method: "get",
       params: request

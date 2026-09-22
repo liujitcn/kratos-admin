@@ -48,6 +48,19 @@ paths:
                 "200":
                     description: OK
                     content: {}
+    /api/v1/admin/auth/password-policy:
+        get:
+            tags:
+                - AuthService
+            description: 取得現在のユーザー生效のパスワードポリシー
+            operationId: AuthService_GetCurrentPasswordPolicy
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.CurrentPasswordPolicy'
     /api/v1/admin/auth/phone:
         put:
             tags:
@@ -12662,6 +12675,26 @@ components:
                     type: string
                     description: テナント管理者の初期パスワード。ランダム生成時のみ返却
             description: テナント作成レスポンスパラメータ
+        system.admin.v1.CurrentPasswordPolicy:
+            type: object
+            properties:
+                min_length:
+                    type: integer
+                    description: パスワード最小長
+                    format: int32
+                min_complexity_classes:
+                    type: integer
+                    description: パスワード至少满足の文字種別件数
+                    format: int32
+                history_count:
+                    type: integer
+                    description: 禁止重复使用量の過去のパスワード件数，零表示不有効
+                    format: int32
+                max_age_days:
+                    type: integer
+                    description: パスワード有効期間日数，零表示长期有效
+                    format: int32
+            description: 現在のユーザー生效のパスワードポリシー
         system.admin.v1.DraftBaseI18nItem:
             type: object
             properties:

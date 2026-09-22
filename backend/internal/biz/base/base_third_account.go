@@ -9,7 +9,7 @@ import (
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 	"github.com/liujitcn/kratos-core/biz"
 	"github.com/liujitcn/kratos-core/errorsx"
-	kitgorm "github.com/liujitcn/kratos-kit/database/gorm"
+	"github.com/liujitcn/kratos-kit/database/gorm"
 
 	"github.com/go-sql-driver/mysql"
 	"github.com/liujitcn/gorm-kit/repository"
@@ -103,7 +103,7 @@ func (c *BaseThirdAccountCase) FindAuthorizedUserProvider(ctx context.Context, u
 	if err != nil {
 		return nil, err
 	}
-	if authInfo.TenantCode != kitgorm.DefaultTenantCode {
+	if authInfo.TenantCode != gorm.DefaultTenantCode {
 		return c.FindByUserProvider(ctx, authInfo.TenantId, userID, provider)
 	}
 	query := c.Query(ctx).BaseThirdAccount

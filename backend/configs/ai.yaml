@@ -1,7 +1,7 @@
 ai:
   model:
     type: CLOUD_MODEL
-    model_name: deepseek-v4-flash-vision-exp
+    model_name: gpt-5.6
     # 模型 API 协议类型：当前网关只实现了聊天补全协议。
     api_type: CHAT_COMPLETIONS
     cloud:

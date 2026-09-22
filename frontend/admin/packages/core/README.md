@@ -86,7 +86,7 @@ packages/core
 | `src/components/Grid/`                 | 响应式表单网格及类型。                                                         |
 | `src/components/ImportExcel/`          | Excel 导入交互。                                                               |
 | `src/components/Loading/`              | 局部和全屏加载状态。                                                           |
-| `src/components/PasswordStrength/`     | 密码强度提示。                                                                 |
+| `src/components/PasswordStrength/`     | 密码强度与当前用户生效策略摘要。                                               |
 | `src/components/ProForm/`              | 配置驱动表单、动态列表、键值列表和类型。                                       |
 | `src/components/ProTable/`             | 配置驱动表格、分页、列设置和类型。                                             |
 | `src/components/RichTextPreview/`      | 经过清洗的富文本预览。                                                         |

@@ -113,7 +113,7 @@ export interface DeleteBaseTenantProjectGrantRequest {
   subject_id: number;
 }
 
-/** BaseTenantProjectGrantService 管理岗位、角色、部门和用户在目标租户下的项目授权。 */
+/** Admin项目授权服务 */
 export interface BaseTenantProjectGrantService {
   /** 查询项目授权分页列表。 */
   PageBaseTenantProjectGrant(request: PageBaseTenantProjectGrantRequest): Promise<PageBaseTenantProjectGrantResponse>;
