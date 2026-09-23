@@ -8,5 +8,5 @@ var (
 	// Name 是 Admin 服务的展示名称。
 	Name = "基础功能服务"
 	// Version 是 Admin 服务版本。
-	Version = "0.0.60"
+	Version = "0.0.61"
 )
