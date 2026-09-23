@@ -197,30 +197,27 @@ func (c *BaseJobCase) UpdateBaseJob(ctx context.Context, req *adminv1.BaseJobFor
 	}
 
 	baseJob := c.formMapper.ToEntity(req)
+	baseJob.ID = req.GetId()
 	baseJob.Args = _string.ConvertAnyToJsonString(req.GetArgs())
 	if wasRunning {
 		baseJob.EntryID = 0
 	}
-	err = c.UpdateByID(ctx, baseJob)
+	// 主记录与翻译写入同一事务，调度恢复仍在事务外处理。
+	err = c.tx.Transaction(ctx, func(txCtx context.Context) error {
+		if err := c.UpdateByID(txCtx, baseJob); err != nil {
+			// 命中调用目标唯一索引冲突时，返回稳定的业务冲突错误。
+			if errorsx.IsDuplicateKey(err) {
+				return errorsx.UniqueConflict("调用目标重复", "base_job", "invoke_target", "unique_base_job").WithCause(err)
+			}
+			return err
+		}
+		return c.saveBaseI18n(txCtx, req, baseJob)
+	})
 	if err != nil {
 		if wasRunning {
 			restoreErr := c.restoreBaseJob(ctx, previousJob)
 			if restoreErr != nil {
 				return errorsx.WrapInternal(restoreErr, "恢复定时任务调度失败")
-			}
-		}
-		// 命中调用目标唯一索引冲突时，返回稳定的业务冲突错误。
-		if errorsx.IsDuplicateKey(err) {
-			return errorsx.UniqueConflict("调用目标重复", "base_job", "invoke_target", "unique_base_job").WithCause(err)
-		}
-		return err
-	}
-	err = c.saveBaseI18n(ctx, req, baseJob)
-	if err != nil {
-		if wasRunning {
-			restoreErr := c.restoreBaseJob(ctx, previousJob)
-			if restoreErr != nil {
-				return errorsx.WrapInternal(restoreErr, "恢复定时任务配置失败")
 			}
 		}
 		return err
@@ -288,7 +285,12 @@ func (c *BaseJobCase) DeleteBaseJob(ctx context.Context, id string) error {
 		stoppedJobIDs[baseJob.ID] = struct{}{}
 		stoppedJobs = append(stoppedJobs, baseJob)
 	}
-	err = c.DeleteByIDs(ctx, ids)
+	err = c.tx.Transaction(ctx, func(txCtx context.Context) error {
+		if err = c.DeleteByIDs(txCtx, ids); err != nil {
+			return err
+		}
+		return c.baseI18nCase.DeleteBaseI18n(txCtx, adminv1.I18nTargetType_I18N_TARGET_TYPE_BASE_JOB_NAME, ids)
+	})
 	if err != nil {
 		restoreErr := c.restoreBaseJobs(ctx, stoppedJobs)
 		if restoreErr != nil {
@@ -296,7 +298,6 @@ func (c *BaseJobCase) DeleteBaseJob(ctx context.Context, id string) error {
 		}
 		return err
 	}
-	err = c.baseI18nCase.DeleteBaseI18n(ctx, adminv1.I18nTargetType_I18N_TARGET_TYPE_BASE_JOB_NAME, ids)
 	return err
 }
 

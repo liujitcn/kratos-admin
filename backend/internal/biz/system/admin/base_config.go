@@ -190,6 +190,7 @@ func (c *BaseConfigCase) UpdateBaseConfig(ctx context.Context, req *adminv1.Base
 	}
 
 	entity := c.formMapper.ToEntity(req)
+	entity.ID = req.GetId()
 	if err := validateFormConfig(entity, oldConfig); err != nil {
 		return err
 	}

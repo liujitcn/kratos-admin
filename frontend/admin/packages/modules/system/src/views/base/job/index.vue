@@ -9,6 +9,7 @@
       :title="t(dialog.editing ? 'system.base.job.action.edit' : 'system.base.job.action.create')"
       width="min(1200px, calc(100vw - 32px))"
       top="4vh"
+      label-width="150px"
       :model="formData"
       :fields="formFields"
       :rules="rules"

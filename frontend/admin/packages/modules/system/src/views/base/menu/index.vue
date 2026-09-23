@@ -12,7 +12,7 @@
       :default-expand-all="false"
       :lazy="true"
       :load="loadMenuChildren"
-      :tree-props="{ children: 'children', hasChildren: 'hasChildren' }"
+      :tree-props="{ children: 'children', hasChildren: 'has_children' }"
     />
 
     <FormDialog

@@ -111,29 +111,36 @@ func (c *BaseDictItemCase) GetBaseDictItem(ctx context.Context, id int64) (*admi
 // CreateBaseDictItem 创建字典项
 func (c *BaseDictItemCase) CreateBaseDictItem(ctx context.Context, req *adminv1.BaseDictItemForm) error {
 	baseDictItem := c.formMapper.ToEntity(req)
-	err := c.Create(ctx, baseDictItem)
-	if err != nil {
-		// 命中字典项属性值唯一索引冲突时，返回稳定的业务冲突错误。
-		if errorsx.IsDuplicateKey(err) {
-			return errorsx.UniqueConflict("同一字典的属性值重复", "base_dict_item", "", "unique_base_dict").WithCause(err)
+	// 主记录与翻译写入同一事务，失败时不产生半成品。
+	err := c.tx.Transaction(ctx, func(txCtx context.Context) error {
+		if err := c.Create(txCtx, baseDictItem); err != nil {
+			// 命中字典项属性值唯一索引冲突时，返回稳定的业务冲突错误。
+			if errorsx.IsDuplicateKey(err) {
+				return errorsx.UniqueConflict("同一字典的属性值重复", "base_dict_item", "", "unique_base_dict").WithCause(err)
+			}
+			return err
 		}
-		return err
-	}
-	return c.saveBaseI18n(ctx, req, baseDictItem)
+		return c.saveBaseI18n(txCtx, req, baseDictItem)
+	})
+	return err
 }
 
 // UpdateBaseDictItem 更新字典项
 func (c *BaseDictItemCase) UpdateBaseDictItem(ctx context.Context, req *adminv1.BaseDictItemForm) error {
 	baseDictItem := c.formMapper.ToEntity(req)
-	err := c.UpdateByID(ctx, baseDictItem)
-	if err != nil {
-		// 命中字典项属性值唯一索引冲突时，返回稳定的业务冲突错误。
-		if errorsx.IsDuplicateKey(err) {
-			return errorsx.UniqueConflict("同一字典的属性值重复", "base_dict_item", "", "unique_base_dict").WithCause(err)
+	baseDictItem.ID = req.GetId()
+	// 主记录与翻译写入同一事务，失败时不产生半成品。
+	err := c.tx.Transaction(ctx, func(txCtx context.Context) error {
+		if err := c.UpdateByID(txCtx, baseDictItem); err != nil {
+			// 命中字典项属性值唯一索引冲突时，返回稳定的业务冲突错误。
+			if errorsx.IsDuplicateKey(err) {
+				return errorsx.UniqueConflict("同一字典的属性值重复", "base_dict_item", "", "unique_base_dict").WithCause(err)
+			}
+			return err
 		}
-		return err
-	}
-	return c.saveBaseI18n(ctx, req, baseDictItem)
+		return c.saveBaseI18n(txCtx, req, baseDictItem)
+	})
+	return err
 }
 
 // DeleteBaseDictItem 删除字典项

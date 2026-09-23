@@ -87,7 +87,7 @@ func BuildModules(migrations *migration.Migration, config2 *configv1.Bootstrap, 
 	baseI18NRepository := data2.NewBaseI18NRepository(dataData)
 	baseLanguageRepository := data2.NewBaseLanguageRepository(dataData)
 	baseLanguageCase := biz3.NewBaseLanguageCase(baseCase, transaction, baseLanguageRepository)
-	baseI18nCase := biz3.NewBaseI18nCase(baseCase, transaction, baseI18NRepository, baseLanguageCase)
+	baseI18nCase := biz3.NewBaseI18nCase(baseCase, baseI18NRepository, baseLanguageCase)
 	baseMenuCase := biz3.NewBaseMenuCase(baseCase, transaction, baseMenuRepository, baseRoleRepository, casbinRuleCase, baseI18nCase)
 	bizBaseRoleCase := biz2.NewBaseRoleCase(baseCase, baseRoleRepository)
 	bizBaseUserCase := biz3.NewBaseUserCase(baseCase, transaction, baseUserRepository, baseDeptRepository, basePostRepository, baseRoleCase, baseDeptCase, baseMenuCase, bizBaseRoleCase, userToken)
@@ -476,11 +476,11 @@ func BuildTasks(databases map[string]*gorm.Client, baseCase *biz.BaseCase, sseRu
 	if err != nil {
 		return nil, nil, err
 	}
-	transaction := data2.NewTransaction(dataData)
 	baseI18NRepository := data2.NewBaseI18NRepository(dataData)
+	transaction := data2.NewTransaction(dataData)
 	baseLanguageRepository := data2.NewBaseLanguageRepository(dataData)
 	baseLanguageCase := biz3.NewBaseLanguageCase(baseCase, transaction, baseLanguageRepository)
-	baseI18nCase := biz3.NewBaseI18nCase(baseCase, transaction, baseI18NRepository, baseLanguageCase)
+	baseI18nCase := biz3.NewBaseI18nCase(baseCase, baseI18NRepository, baseLanguageCase)
 	baseMenuRepository := data2.NewBaseMenuRepository(dataData)
 	baseDictRepository := data2.NewBaseDictRepository(dataData)
 	baseDictItemRepository := data2.NewBaseDictItemRepository(dataData)

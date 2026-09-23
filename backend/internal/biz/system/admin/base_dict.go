@@ -205,6 +205,7 @@ func (c *BaseDictCase) CreateBaseDict(ctx context.Context, req *adminv1.BaseDict
 // UpdateBaseDict 更新字典
 func (c *BaseDictCase) UpdateBaseDict(ctx context.Context, req *adminv1.BaseDictForm) error {
 	baseDict := c.formMapper.ToEntity(req)
+	baseDict.ID = req.GetId()
 	// 主记录与翻译写入同一事务，失败时不产生半成品。
 	err := c.tx.Transaction(ctx, func(txCtx context.Context) error {
 		if err := c.UpdateByID(txCtx, baseDict); err != nil {
