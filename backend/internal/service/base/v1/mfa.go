@@ -6,6 +6,7 @@ import (
 
 	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
 	biz "github.com/liujitcn/kratos-admin/backend/internal/biz/base"
+	"github.com/liujitcn/kratos-admin/backend/internal/service/base/v1/authcookie"
 	"github.com/liujitcn/kratos-core/errorsx"
 
 	"github.com/go-kratos/kratos/v3/log"
@@ -31,8 +32,8 @@ func (s *MfaService) VerifyMfa(ctx context.Context, req *basev1.VerifyMfaRequest
 		log.Error(fmt.Sprintf("VerifyMfa %v", err))
 		return nil, errorsx.WrapInternal(err, "校验多因素认证失败")
 	}
-	setAuthTokenCookies(ctx, res.GetAccessToken(), res.GetExpiresIn(), res.GetRefreshToken(), s.loginCase.RefreshTokenExpiresIn())
-	if hideRefreshTokenFromResponse(ctx) {
+	authcookie.Set(ctx, res.GetAccessToken(), res.GetExpiresIn(), res.GetRefreshToken(), s.loginCase.RefreshTokenExpiresIn())
+	if authcookie.HideRefreshTokenFromResponse(ctx) {
 		res.RefreshToken = ""
 	}
 	return res, nil

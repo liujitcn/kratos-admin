@@ -126,8 +126,7 @@ func (c *BaseI18nCase) UpdateBaseI18n(ctx context.Context, req *adminv1.UpdateBa
 			if !state.IsEditable(row.Locale) {
 				return errorsx.InvalidArgument("翻译语言必须是已启用的非主语言")
 			}
-			row.Name = req.GetName()
-			return c.UpdateByID(ctx, row)
+			return c.updateBaseI18nName(ctx, row.ID, req.GetName())
 		}
 		if !errors.Is(err, gorm.ErrRecordNotFound) {
 			return err
@@ -144,8 +143,7 @@ func (c *BaseI18nCase) UpdateBaseI18n(ctx context.Context, req *adminv1.UpdateBa
 	opts = append(opts, repository.Where(query.Locale.Eq(req.GetLocale())))
 	row, err = c.Find(ctx, opts...)
 	if err == nil {
-		row.Name = req.GetName()
-		return c.UpdateByID(ctx, row)
+		return c.updateBaseI18nName(ctx, row.ID, req.GetName())
 	}
 	if !errors.Is(err, gorm.ErrRecordNotFound) {
 		return err
@@ -156,6 +154,13 @@ func (c *BaseI18nCase) UpdateBaseI18n(ctx context.Context, req *adminv1.UpdateBa
 		Locale:     req.GetLocale(),
 		Name:       req.GetName(),
 	})
+}
+
+// updateBaseI18nName 显式更新翻译文本，空值也能写入，避免 Updates 跳过零值导致无法清空译文。
+func (c *BaseI18nCase) updateBaseI18nName(ctx context.Context, id int64, name string) error {
+	query := c.Query(ctx).BaseI18N
+	_, err := query.WithContext(ctx).Where(query.ID.Eq(id)).UpdateSimple(query.Name.Value(name))
+	return err
 }
 
 // GetTargetIdsByName 根据当前语言和名称关键字获取资源 ID。
@@ -293,8 +298,7 @@ func (c *BaseI18nCase) SaveBaseI18n(ctx context.Context, targetType adminv1.I18n
 			row := existing[localeValue]
 			if text == "" {
 				if row != nil && row.Name != "" {
-					row.Name = ""
-					if err = c.UpdateByID(txCtx, row); err != nil {
+					if err = c.updateBaseI18nName(txCtx, row.ID, ""); err != nil {
 						return err
 					}
 				}

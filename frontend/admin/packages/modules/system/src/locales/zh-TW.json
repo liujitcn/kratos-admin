@@ -1575,5 +1575,7 @@
   "system.base.i18n_custom.placeholder.value": "請輸入自訂文案",
   "system.base.i18n_custom.placeholder.remark": "請輸入備註",
   "system.base.i18n_custom.message.confirm_status": "確定要將「{name}」{action}嗎？",
-  "system.base.i18n_custom.message.confirm_delete": "確定要刪除自訂翻譯「{name}」嗎？"
+  "system.base.i18n_custom.message.confirm_delete": "確定要刪除自訂翻譯「{name}」嗎？",
+  "system.dashboard.last_7_days": "近 7 天",
+  "system.dashboard.total": "總計 {count}"
 }

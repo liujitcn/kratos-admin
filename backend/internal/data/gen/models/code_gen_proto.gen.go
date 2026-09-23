@@ -18,6 +18,9 @@ type CodeGenProto struct {
 	TableID             int64                 `gorm:"column:table_id;type:bigint;not null;index:idx_code_gen_proto_table_id,priority:1;comment:生成对象ID" json:"table_id"`                  // 生成对象ID
 	TriggerType         string                `gorm:"column:trigger_type;type:varchar(32);not null;comment:触发来源：crud page_tree left_tree field_option field_status" json:"trigger_type"` // 触发来源：crud page_tree left_tree field_option field_status
 	APIKind             string                `gorm:"column:api_kind;type:varchar(32);not null;comment:接口类型：crud list option tree status" json:"api_kind"`                               // 接口类型：crud list option tree status
+	ProtoFilePath       string                `gorm:"column:proto_file_path;type:varchar(255);not null;comment:Proto文件路径" json:"proto_file_path"`                                        // Proto文件路径
+	TargetEntityName    string                `gorm:"column:target_entity_name;type:varchar(128);not null;comment:目标实体名" json:"target_entity_name"`                                      // 目标实体名
+	MethodName          string                `gorm:"column:method_name;type:varchar(128);not null;comment:方法名" json:"method_name"`                                                      // 方法名
 	GenerateWhenMissing int32                 `gorm:"column:generate_when_missing;type:tinyint;not null;comment:缺失时是否生成" json:"generate_when_missing"`                                   // 缺失时是否生成
 	Config              string                `gorm:"column:config;type:json;not null;comment:接口类型配置JSON" json:"config"`                                                                 // 接口类型配置JSON
 	Sort                int32                 `gorm:"column:sort;type:int;not null;comment:排序" json:"sort"`                                                                              // 排序

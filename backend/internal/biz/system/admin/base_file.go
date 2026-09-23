@@ -82,11 +82,12 @@ func (c *BaseFileCase) DeleteBaseFile(ctx context.Context, id int64) error {
 		return err
 	}
 	objectPath := path.Join(item.FileDirectory, item.SaveFileName)
-	if err = c.OSS.DeleteFile(objectPath); err != nil {
-		return errorsx.Internal("删除文件对象失败").WithCause(err)
-	}
+	// 先删元数据再删对象：元数据删除失败时对象仍可重试；对象删除失败只泄漏对象，不会留下指向不存在文件的元数据。
 	if err = c.baseFileRepo.DeleteByIDs(ctx, []int64{id}); err != nil {
 		return err
+	}
+	if err = c.OSS.DeleteFile(objectPath); err != nil {
+		return errorsx.Internal("删除文件对象失败").WithCause(err)
 	}
 	return nil
 }

@@ -3,7 +3,7 @@ import { defAuthService } from '@liujitcn/kratos-uni-app-core/api/system/app/v1/
 import { useUserStore } from '@liujitcn/kratos-uni-app-core/stores'
 import type { UserProfileForm } from '@liujitcn/kratos-uni-app-core/rpc/system/app/v1/auth'
 import { onLoad } from '@dcloudio/uni-app'
-import { computed, ref } from 'vue'
+import { computed, onBeforeUnmount, ref } from 'vue'
 import type { BaseDictForm_DictItem } from '@liujitcn/kratos-uni-app-core/rpc/system/app/v1/base_dict'
 import { BaseUserIDType } from '@liujitcn/kratos-uni-app-core/rpc/system/common/v1/common'
 import { defBaseDictService } from '@liujitcn/kratos-uni-app-core/api/system/app/v1/base_dict'
@@ -21,6 +21,13 @@ const { t } = useI18n()
 const { safeAreaInsets } = uni.getSystemInfoSync()
 
 const imgMaxSize = ref(1024 * 1024)
+const submitting = ref(false)
+let navigateBackTimer: ReturnType<typeof setTimeout> | undefined
+
+onBeforeUnmount(() => {
+  if (navigateBackTimer) clearTimeout(navigateBackTimer)
+  navigateBackTimer = undefined
+})
 
 // 获取个人信息，修改个人信息需提供初始值
 const userInfo = ref({} as UserProfileForm)
@@ -196,6 +203,7 @@ const onGetPhoneNumber: UniHelper.ButtonOnGetphonenumber = async (e) => {
 
 // 点击保存提交表单
 const onSubmit = async () => {
+  if (submitting.value) return
   if (!userStore.ensureAuthenticated()) {
     navigateToLogin()
     return
@@ -210,25 +218,32 @@ const onSubmit = async () => {
     return
   }
 
-  const { nick_name, gender, email, id_type, id_code } = userInfo.value
-  await defAuthService.UpdateUserProfile({
-    user_profile: {
-      nick_name: nick_name,
-      gender: gender,
-      avatar: userInfo.value.avatar,
-      phone: userInfo.value.phone,
-      user_name: userInfo.value.user_name,
-      email,
-      id_type,
-      id_code,
-    },
-  })
-  // 更新Store昵称
-  syncUserStoreProfile(userInfo.value)
-  await uni.showToast({ icon: 'success', title: t('system.profile.save_success') })
-  setTimeout(() => {
-    uni.navigateBack()
-  }, 400)
+  submitting.value = true
+  try {
+    const { nick_name, gender, email, id_type, id_code } = userInfo.value
+    await defAuthService.UpdateUserProfile({
+      user_profile: {
+        nick_name: nick_name,
+        gender: gender,
+        avatar: userInfo.value.avatar,
+        phone: userInfo.value.phone,
+        user_name: userInfo.value.user_name,
+        email,
+        id_type,
+        id_code,
+      },
+    })
+    // 更新Store昵称
+    syncUserStoreProfile(userInfo.value)
+    await uni.showToast({ icon: 'success', title: t('system.profile.save_success') })
+    if (navigateBackTimer) clearTimeout(navigateBackTimer)
+    navigateBackTimer = setTimeout(() => {
+      navigateBackTimer = undefined
+      uni.navigateBack()
+    }, 400)
+  } finally {
+    submitting.value = false
+  }
 }
 </script>
 

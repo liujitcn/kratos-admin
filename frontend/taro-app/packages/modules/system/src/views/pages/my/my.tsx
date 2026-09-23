@@ -23,7 +23,7 @@ export default function MyPage() {
 
   useEffect(() => {
     void Taro.setNavigationBarTitle({ title: t('core.navigation.my') })
-  }, [locale, t])
+  }, [locale])
 
   const openAuthenticatedPage = (route: string) => {
     if (!ensureAuthenticated()) {

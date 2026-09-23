@@ -312,6 +312,9 @@ const configDialogLoading = computed(() => {
   return !!tableName && loadingTargetColumns.has(tableName);
 });
 
+/** Proto 配置加载序号，用于丢弃旧表晚到的响应。 */
+let protoQueryRequestId = 0;
+
 // 路由生成对象变化时重新加载 Proto 配置。
 watch(tableId, () => {
   void handleQuery();
@@ -321,6 +324,7 @@ watch(tableId, () => {
  * 查询生成对象字段与 Proto 配置。
  */
 async function handleQuery() {
+  const requestId = ++protoQueryRequestId;
   loading.value = true;
   try {
     Object.assign(formData, createDefaultCodeGenTableForm());
@@ -329,15 +333,19 @@ async function handleQuery() {
     Object.keys(targetColumnOptions).forEach(key => delete targetColumnOptions[key]);
     if (!tableId.value) return;
     const table = await defCodeGenTableService.GetCodeGenTable({ id: tableId.value });
+    if (requestId !== protoQueryRequestId) return;
     const tableResponse = await defCodeGenTableService.ListCodeGenDatabaseTable({ source_name: table.source_name });
+    if (requestId !== protoQueryRequestId) return;
     Object.assign(formData, table);
     databaseTables.value = tableResponse.tables ?? [];
     const columnResponse = await defCodeGenColumnService.ListCodeGenDatabaseColumn({ source_name: formData.source_name, table_name: formData.name });
+    if (requestId !== protoQueryRequestId) return;
     targetColumnOptions[formData.name] = createColumnOptions(columnResponse.columns ?? []);
-    await loadProtoChecks();
+    await loadProtoChecks(requestId);
+    if (requestId !== protoQueryRequestId) return;
     syncWorkspaceTitle();
   } finally {
-    loading.value = false;
+    if (requestId === protoQueryRequestId) loading.value = false;
   }
 }
 
@@ -356,9 +364,10 @@ function syncWorkspaceTitle() {
 /**
  * 自动检查当前生成对象需要的 Proto 能力。
  */
-async function loadProtoChecks() {
+async function loadProtoChecks(requestId: number) {
   if (!formData.id) return;
   const data = await defCodeGenProtoService.ListCodeGenProto({ table_id: formData.id });
+  if (requestId !== protoQueryRequestId) return;
   protoChecks.value = (data.code_gen_protos ?? []).map(item => ({
     ...item,
     config: normalizeCodeGenProtoConfig(item.config)

@@ -1575,5 +1575,7 @@
   "system.base.i18n_custom.placeholder.value": "カスタム文言を入力してください",
   "system.base.i18n_custom.placeholder.remark": "備考を入力してください",
   "system.base.i18n_custom.message.confirm_status": "「{name}」を{action}しますか？",
-  "system.base.i18n_custom.message.confirm_delete": "カスタム翻訳「{name}」を削除しますか？"
+  "system.base.i18n_custom.message.confirm_delete": "カスタム翻訳「{name}」を削除しますか？",
+  "system.dashboard.last_7_days": "直近7日間",
+  "system.dashboard.total": "合計 {count}"
 }

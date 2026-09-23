@@ -243,6 +243,19 @@ watch(
   }
 );
 
+/** 校验受众列表：至少包含一条有效受众（租户全员天然有效，其余类型需填写有效 ID）。 */
+function validateAudiences(_rule: unknown, value: unknown, callback: (error?: Error) => void) {
+  const audiences = Array.isArray(value) ? (value as BaseMessageAudienceForm[]) : [];
+  const hasValidAudience = audiences.some(
+    audience => audience.type === MessageAudienceType.MESSAGE_AUDIENCE_TYPE_TENANT || Number(audience.id) > 0
+  );
+  if (hasValidAudience) {
+    callback();
+    return;
+  }
+  callback(new Error(t("system.base.message.validation.audience_id")));
+}
+
 const rules = computed(() => ({
   tenant_id: isDefaultTenant.value
     ? [
@@ -274,7 +287,7 @@ const rules = computed(() => ({
       trigger: "blur"
     }
   ],
-  audiences: [{ required: true, message: t("system.base.message.validation.audience_id"), trigger: "change" }]
+  audiences: [{ validator: validateAudiences, trigger: "change" }]
 }));
 
 const formFields = computed<ProFormField[]>(() => [
@@ -328,7 +341,7 @@ const formFields = computed<ProFormField[]>(() => [
     component: "slot",
     slotName: "audiences",
     colSpan: 24,
-    rules: [{ required: true, message: t("system.base.message.validation.audience_id"), trigger: "change" }]
+    rules: [{ validator: validateAudiences, trigger: "change" }]
   },
   {
     prop: "action_type",

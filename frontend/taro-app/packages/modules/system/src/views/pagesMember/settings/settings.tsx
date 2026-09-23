@@ -36,7 +36,7 @@ export default function SettingsPage() {
 
   useEffect(() => {
     void Taro.setNavigationBarTitle({ title: t('system.settings.title') })
-  }, [locale, t])
+  }, [locale])
 
   const loadMfaStatus = async (force = false) => {
     if (!useUserStore.getState().isAuthenticated() || (mfaStatusLoading && !force)) return
@@ -109,6 +109,15 @@ export default function SettingsPage() {
     void loadMfaStatus()
   })
 
+  /** 登录态失效时请求层已弹窗引导重新登录，页面侧不再叠加失败提示。 */
+  const isAuthExpiredError = (error: unknown) => {
+    if (error && typeof error === 'object') {
+      const statusCode = (error as { statusCode?: number }).statusCode
+      if (statusCode === 401 || statusCode === 403) return true
+    }
+    return error instanceof Error && /auth (required|expired)/.test(error.message)
+  }
+
   const onLogout = async () => {
     if (logoutLoading) return
     const result = await Taro.showModal({
@@ -120,8 +129,10 @@ export default function SettingsPage() {
     try {
       await logout()
       await Taro.navigateBack()
-    } catch {
-      await Taro.showToast({ icon: 'none', title: t('system.settings.logout_failed') })
+    } catch (error) {
+      if (!isAuthExpiredError(error)) {
+        await Taro.showToast({ icon: 'none', title: t('system.settings.logout_failed') })
+      }
     } finally {
       setLogoutLoading(false)
     }

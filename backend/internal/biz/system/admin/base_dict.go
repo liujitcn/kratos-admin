@@ -188,29 +188,35 @@ func (c *BaseDictCase) GetBaseDict(ctx context.Context, id int64) (*adminv1.Base
 // CreateBaseDict 创建字典
 func (c *BaseDictCase) CreateBaseDict(ctx context.Context, req *adminv1.BaseDictForm) error {
 	baseDict := c.formMapper.ToEntity(req)
-	err := c.Create(ctx, baseDict)
-	if err != nil {
-		// 命中字典编码唯一索引冲突时，返回稳定的业务冲突错误。
-		if errorsx.IsDuplicateKey(err) {
-			return errorsx.UniqueConflict("字典编码重复", "base_dict", "code", "unique_base_dict").WithCause(err)
+	// 主记录与翻译写入同一事务，失败时不产生半成品。
+	err := c.tx.Transaction(ctx, func(txCtx context.Context) error {
+		if err := c.Create(txCtx, baseDict); err != nil {
+			// 命中字典编码唯一索引冲突时，返回稳定的业务冲突错误。
+			if errorsx.IsDuplicateKey(err) {
+				return errorsx.UniqueConflict("字典编码重复", "base_dict", "code", "unique_base_dict").WithCause(err)
+			}
+			return err
 		}
-		return err
-	}
-	return c.saveBaseI18n(ctx, req, baseDict)
+		return c.saveBaseI18n(txCtx, req, baseDict)
+	})
+	return err
 }
 
 // UpdateBaseDict 更新字典
 func (c *BaseDictCase) UpdateBaseDict(ctx context.Context, req *adminv1.BaseDictForm) error {
 	baseDict := c.formMapper.ToEntity(req)
-	err := c.UpdateByID(ctx, baseDict)
-	if err != nil {
-		// 命中字典编码唯一索引冲突时，返回稳定的业务冲突错误。
-		if errorsx.IsDuplicateKey(err) {
-			return errorsx.UniqueConflict("字典编码重复", "base_dict", "code", "unique_base_dict").WithCause(err)
+	// 主记录与翻译写入同一事务，失败时不产生半成品。
+	err := c.tx.Transaction(ctx, func(txCtx context.Context) error {
+		if err := c.UpdateByID(txCtx, baseDict); err != nil {
+			// 命中字典编码唯一索引冲突时，返回稳定的业务冲突错误。
+			if errorsx.IsDuplicateKey(err) {
+				return errorsx.UniqueConflict("字典编码重复", "base_dict", "code", "unique_base_dict").WithCause(err)
+			}
+			return err
 		}
-		return err
-	}
-	return c.saveBaseI18n(ctx, req, baseDict)
+		return c.saveBaseI18n(txCtx, req, baseDict)
+	})
+	return err
 }
 
 // DeleteBaseDict 删除字典
@@ -240,6 +246,9 @@ func (c *BaseDictCase) DeleteBaseDict(ctx context.Context, id string) error {
 
 // SetBaseDictStatus 设置字典状态
 func (c *BaseDictCase) SetBaseDictStatus(ctx context.Context, req *adminv1.SetBaseDictStatusRequest) error {
+	if _, err := c.FindByID(ctx, req.GetId()); err != nil {
+		return errorsx.ResourceNotFound("字典不存在").WithCause(err)
+	}
 	return c.UpdateByID(ctx, &models.BaseDict{
 		ID:     req.GetId(),
 		Status: req.GetStatus(),

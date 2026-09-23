@@ -14,7 +14,10 @@ import (
 	"github.com/liujitcn/kratos-kit/cache"
 )
 
-const cacheQueryDefaultPageSize int64 = 20
+const (
+	cacheQueryDefaultPageSize int64 = 20
+	cacheQueryMaxPageSize     int64 = 200
+)
 
 // CacheCase 提供当前进程运行时缓存的只读查询能力。
 type CacheCase struct {
@@ -47,6 +50,10 @@ func (c *CacheCase) PageCache(_ context.Context, req *adminv1.PageCacheRequest) 
 	pageSize := req.GetPageSize()
 	if pageSize < 1 {
 		pageSize = cacheQueryDefaultPageSize
+	}
+	// 限制单页上限，避免超大分页一次性载入过多条目。
+	if pageSize > cacheQueryMaxPageSize {
+		pageSize = cacheQueryMaxPageSize
 	}
 	total := int64(len(filtered))
 	start := (pageNum - 1) * pageSize

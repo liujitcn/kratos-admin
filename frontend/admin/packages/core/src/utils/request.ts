@@ -340,8 +340,9 @@ service.interceptors.response.use(
     }
 
     const responseData = response.data as ErrorResponseData;
-    const { code, message, reason, metadata } = responseData;
-    if (code === undefined || message === undefined || reason === undefined || metadata === undefined) {
+    const { code, message } = responseData;
+    // 成功响应不携带错误码；只要存在 code 即视为结构化错误响应。
+    if (code === undefined) {
       return response.data;
     }
 

@@ -121,6 +121,9 @@ func (c *BaseTableArchiveCase) SetBaseTableArchiveStatus(ctx context.Context, re
 	if req.GetStatus() != _const.STATUS_STATUS_ENABLE && req.GetStatus() != _const.STATUS_STATUS_DISABLE {
 		return errorsx.InvalidArgument("归档配置状态无效")
 	}
+	if _, err := c.FindByID(ctx, req.GetId()); err != nil {
+		return errorsx.ResourceNotFound("归档配置不存在").WithCause(err)
+	}
 	return c.UpdateByID(ctx, &models.BaseTableArchive{ID: req.GetId(), Status: req.GetStatus()})
 }
 

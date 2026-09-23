@@ -15,6 +15,7 @@ const finished = ref(false)
 const selectedView = ref(NotificationView.NOTIFICATION_VIEW_INBOX)
 const categoryId = ref<number>()
 const categoryOptions = ref<NotificationCategory[]>([])
+let requestSeq = 0
 const viewOptions = [
   { value: NotificationView.NOTIFICATION_VIEW_INBOX, key: 'system.notification.view.inbox' },
   { value: NotificationView.NOTIFICATION_VIEW_UNREAD, key: 'system.notification.view.unread' },
@@ -35,9 +36,12 @@ async function loadCategories() {
 
 /** 刷新站内信列表。 */
 async function refresh() {
+  requestSeq++
   cursorId.value = 0
   finished.value = false
   items.value = []
+  // 先重置 loading，再发起新请求，避免清空列表后 loadMore 因旧 loading 直接返回。
+  loading.value = false
   await loadMore()
 }
 
@@ -81,6 +85,7 @@ async function deleteItem(item: Notification) {
 /** 加载下一页站内信。 */
 async function loadMore() {
   if (loading.value || finished.value) return
+  const seq = requestSeq
   loading.value = true
   try {
     const result = await defNotificationService.PageNotification({
@@ -91,11 +96,12 @@ async function loadMore() {
       page_num: 1,
       page_size: 20,
     })
+    if (seq !== requestSeq) return
     items.value.push(...result.notifications)
     finished.value = !result.has_more
     cursorId.value = result.next_cursor_id
   } finally {
-    loading.value = false
+    if (seq === requestSeq) loading.value = false
   }
 }
 

@@ -6,8 +6,10 @@ This directory contains the MySQL initialization resources for `v0.0.1`. The scr
 
 | File | Contents |
 | --- | --- |
-| `default_data.up.sql` | Default languages, configuration, departments, dictionaries, dictionary items, jobs, tenant, message categories, menus, roles, redaction rules, redaction fields, redaction policies, and development accounts. |
+| `default_data.up.sql` | Default languages, configuration, departments, posts, dictionaries, dictionary items, jobs, tenant, message categories, menus, roles, redaction rules, table archiving, table backup, login policy, and development accounts. |
 | `base_area.up.sql` | Administrative-division data in a separate script that participates in the default data-source migration. |
+| `base_redact_rule.up.sql` | Redaction rule type examples, plus inbound/outbound redaction policies in `base_redact_storage_policy` and `base_redact_output_policy`. |
+| `language.up.sql` | Language initialization data, aligned with `base_language` in `default_data.up.sql` and idempotent via `INSERT IGNORE`. |
 | `i18n.en-US.up.sql` | `en-US` `base_i18n` translations. |
 | `i18n.ja-JP.up.sql` | `ja-JP` `base_i18n` translations. |
 | `i18n.zh-TW.up.sql` | `zh-TW` `base_i18n` translations. |
@@ -16,7 +18,7 @@ This directory contains the MySQL initialization resources for `v0.0.1`. The scr
 
 ## Execution and Idempotency
 
-Startup performs automatic table creation, SQL migrations, migration-description synchronization, and then OpenAPI, `base_api`, tenant-menu, and Casbin-policy synchronization. `default_data.up.sql` and `base_area.up.sql` temporarily disable foreign-key checks and restore the original value when they finish.
+Startup performs automatic table creation, SQL migrations, migration-description synchronization, and then OpenAPI, `base_api`, tenant-menu, and Casbin-policy synchronization. `default_data.up.sql`, `base_area.up.sql`, and `base_redact_rule.up.sql` temporarily disable foreign-key checks and restore the original value when they finish.
 
 Every initialization record is written with an individual `INSERT IGNORE`: an existing unique-key record is skipped and business data is not overwritten. The scripts contain no batch `INSERT`, `UPDATE`, `DELETE`, or `TRUNCATE`. Records for each table in `default_data.up.sql` are maintained in ascending `id` order; new default rows should be placed beside the matching ID range.
 
@@ -26,7 +28,7 @@ A database that has already recorded `v0.0.1` will not replay the migration beca
 
 `default_data.up.sql` currently writes the following default-data tables:
 
-`base_language`, `base_config`, `base_dept`, `base_dict`, `base_dict_item`, `base_job`, `base_tenant`, `base_message_category`, `base_menu`, `base_role`, `base_user`, `base_redact_rule`, `base_redact_storage_policy`, and `base_redact_output_policy`.
+`base_language`, `base_config`, `base_dept`, `base_post`, `base_dict`, `base_dict_item`, `base_job`, `base_tenant`, `base_message_category`, `base_menu`, `base_role`, `base_user`, `base_redact_rule`, `base_table_archive`, `base_table_backup`, and `base_login_policy`.
 
 - Languages: `zh-CN`, `zh-TW`, `en-US`, and `ja-JP` are provided; `zh-CN` is the primary language.
 - Login tenant code: Admin (`site=2`) and app (`site=3`) both initialize the boolean setting `showTenantCode=true`, displaying the tenant-code input by default. The setting name includes English, Traditional Chinese, and Japanese translations.

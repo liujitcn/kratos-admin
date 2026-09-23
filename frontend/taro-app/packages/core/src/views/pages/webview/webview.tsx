@@ -4,6 +4,17 @@ import { useEffect, useState } from 'react'
 import './webview.scss'
 import { useI18n } from '../../../locales'
 
+/** 只放行 http(s) 外链，其它协议按非法地址处理。 */
+const isAllowedUrl = (value: string) => /^https?:\/\//i.test(value)
+
+const safeDecodeURIComponent = (value: string) => {
+  try {
+    return decodeURIComponent(value)
+  } catch {
+    return value
+  }
+}
+
 /** 统一外链承载页。 */
 export default function WebViewPage() {
   const { t } = useI18n()
@@ -13,9 +24,9 @@ export default function WebViewPage() {
   const isH5 = process.env.TARO_ENV === 'h5'
 
   useLoad((query) => {
-    const nextUrl = decodeURIComponent(query?.url || '')
-    const title = decodeURIComponent(query?.title || '')
-    setUrl(nextUrl)
+    const nextUrl = safeDecodeURIComponent(query?.url || '')
+    setUrl(isAllowedUrl(nextUrl) ? nextUrl : '')
+    const title = safeDecodeURIComponent(query?.title || '')
     if (title) void Taro.setNavigationBarTitle({ title })
   })
 
@@ -35,11 +46,7 @@ export default function WebViewPage() {
   return (
     <View className='webview-container'>
       {url ? (
-        <WebView
-          src={url}
-          onLoad={() => setIframeLoaded(true)}
-          onMessage={(event) => console.log('收到H5消息:', event.detail)}
-        />
+        <WebView src={url} onLoad={() => setIframeLoaded(true)} />
       ) : null}
       {showFallback ? (
         <View className='webview-empty'>

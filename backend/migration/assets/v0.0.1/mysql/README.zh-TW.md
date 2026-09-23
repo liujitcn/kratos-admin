@@ -6,8 +6,10 @@
 
 | 檔案 | 內容 |
 | --- | --- |
-| `default_data.up.sql` | 預設語言、設定、部門、字典、字典項目、任務、租戶、訊息分類、選單、角色、脫敏規則、脫敏欄位、資料脫敏和開發帳號。 |
+| `default_data.up.sql` | 預設語言、設定、部門、崗位、字典、字典項目、任務、租戶、訊息分類、選單、角色、脫敏規則、資料表歸檔、資料表備份、登入策略和開發帳號。 |
 | `base_area.up.sql` | 行政區劃基礎資料，作為獨立腳本參與預設資料源遷移。 |
+| `base_redact_rule.up.sql` | 脫敏規則類型範例，以及 `base_redact_storage_policy`、`base_redact_output_policy` 的入庫／出庫脫敏策略。 |
+| `language.up.sql` | 語言初始化資料，與 `default_data.up.sql` 的 `base_language` 對齊，`INSERT IGNORE` 冪等。 |
 | `i18n.en-US.up.sql` | `en-US` 的 `base_i18n` 翻譯資料。 |
 | `i18n.ja-JP.up.sql` | `ja-JP` 的 `base_i18n` 翻譯資料。 |
 | `i18n.zh-TW.up.sql` | `zh-TW` 的 `base_i18n` 翻譯資料。 |
@@ -16,7 +18,7 @@
 
 ## 執行與冪等
 
-啟動時依序執行自動建表、SQL 遷移、遷移說明同步，接著同步 OpenAPI、`base_api`、租戶選單和 Casbin 原則。`default_data.up.sql` 與 `base_area.up.sql` 會暫時停用外鍵檢查，結束時恢復原值。
+啟動時依序執行自動建表、SQL 遷移、遷移說明同步，接著同步 OpenAPI、`base_api`、租戶選單和 Casbin 原則。`default_data.up.sql`、`base_area.up.sql` 與 `base_redact_rule.up.sql` 會暫時停用外鍵檢查，結束時恢復原值。
 
 所有初始化記錄均使用單筆 `INSERT IGNORE`：已有唯一鍵的記錄會略過，不覆蓋業務資料。腳本不使用批量 `INSERT`、`UPDATE`、`DELETE` 或 `TRUNCATE`。`default_data.up.sql` 中同一資料表的記錄依 `id` 遞增維護，新增預設資料應放在對應編號區段的位置。
 
@@ -26,7 +28,7 @@
 
 `default_data.up.sql` 目前寫入以下預設資料表：
 
-`base_language`、`base_config`、`base_dept`、`base_dict`、`base_dict_item`、`base_job`、`base_tenant`、`base_message_category`、`base_menu`、`base_role`、`base_user`、`base_redact_rule`、`base_redact_storage_policy`、`base_redact_output_policy`。
+`base_language`、`base_config`、`base_dept`、`base_post`、`base_dict`、`base_dict_item`、`base_job`、`base_tenant`、`base_message_category`、`base_menu`、`base_role`、`base_user`、`base_redact_rule`、`base_table_archive`、`base_table_backup`、`base_login_policy`。
 
 - 語言：預設 `zh-CN`、`zh-TW`、`en-US`、`ja-JP`，其中 `zh-CN` 為主要語言。
 - 登入租戶編號：管理端（`site=2`）與應用端（`site=3`）均預設布林設定 `showTenantCode=true`，預設顯示租戶編號輸入框；設定名稱包含英文、繁體中文和日文翻譯。

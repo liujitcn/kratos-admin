@@ -3,6 +3,7 @@ import {
   handleAuthExpired,
   http,
   requestBaseURL,
+  sourceClient,
 } from '@liujitcn/kratos-taro-app-core/utils/http'
 import { getLocaleRequestHeaders, t } from '@liujitcn/kratos-taro-app-core'
 import Taro from '@tarojs/taro'
@@ -76,7 +77,7 @@ export async function SendAiMessageStream(
   const headers: Record<string, string> = {
     Accept: 'text/event-stream',
     'Content-Type': 'application/json;charset=utf-8',
-    'source-client': 'miniapp',
+    'source-client': sourceClient,
     ...getLocaleRequestHeaders(),
   }
   if (accessToken) {
@@ -130,7 +131,7 @@ export function StreamAiMessageByChunkedRequest(
         header: {
           Accept: 'text/event-stream',
           'Content-Type': 'application/json;charset=utf-8',
-          'source-client': 'miniapp',
+          'source-client': sourceClient,
           ...getLocaleRequestHeaders(),
           ...(accessToken ? { Authorization: accessToken } : {}),
         },

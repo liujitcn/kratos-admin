@@ -64,8 +64,8 @@ func (c *renderer) newPatchedPreviewFile(path string, createContent string, patc
 	}
 	patched := patch(string(content))
 	if patched == string(content) {
-		// 内容相同必须标记为 skip，避免生成任务无意义地更新文件时间。
-		return &adminv1.CodeGenPreviewFile{Path: path, Action: "skip", Content: string(content), Exists: true, Message: Message(c.localeState, "preview.backend_unchanged", nil)}
+		// 内容相同必须标记为 skip，避免生成任务无意义地更新文件时间；不回传现有文件内容，避免预览越权读取同目录其它实体源码。
+		return &adminv1.CodeGenPreviewFile{Path: path, Action: "skip", Content: "", Exists: true, Message: Message(c.localeState, "preview.backend_unchanged", nil)}
 	}
 	return &adminv1.CodeGenPreviewFile{Path: path, Action: "update", Content: patched, Exists: true, Message: Message(c.localeState, "preview.backend_update", nil)}
 }

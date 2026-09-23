@@ -470,7 +470,11 @@ onActivated(() => {
   }
 });
 
-onDeactivated(stopRuntimeSubscription);
+onDeactivated(() => {
+  // 使隐藏前仍在途的实时控制台请求失效，避免其在组件失活后重建无人清理的订阅。
+  activeRequestId += 1;
+  stopRuntimeSubscription();
+});
 
 onBeforeUnmount(() => {
   if (filterTimer) clearTimeout(filterTimer);

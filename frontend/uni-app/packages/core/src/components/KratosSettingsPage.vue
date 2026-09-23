@@ -15,6 +15,15 @@ defineSlots<{
 
 const userStore = useUserStore()
 const { locale, setLocale, t } = useI18n()
+/** 登录态失效时请求层已弹窗引导重新登录，页面侧不再叠加失败提示。 */
+const isAuthExpiredError = (error: unknown) => {
+  if (error && typeof error === 'object') {
+    const statusCode = (error as { statusCode?: number }).statusCode
+    if (statusCode === 401 || statusCode === 403) return true
+  }
+  return error instanceof Error && /auth (required|expired)/.test(error.message)
+}
+
 const logoutLoading = ref(false)
 const mfaDialogVisible = ref(false)
 const mfaDialogMode = ref<'setup' | 'disable'>('setup')
@@ -136,10 +145,12 @@ const onLogout = () => {
         await userStore.logout()
         uni.navigateBack()
       } catch (error) {
-        await uni.showToast({
-          icon: 'none',
-          title: t('core.settings.logout_failed'),
-        })
+        if (!isAuthExpiredError(error)) {
+          await uni.showToast({
+            icon: 'none',
+            title: t('core.settings.logout_failed'),
+          })
+        }
       } finally {
         logoutLoading.value = false
       }

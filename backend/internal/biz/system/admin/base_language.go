@@ -301,19 +301,9 @@ func (c *BaseLanguageCase) findBaseLanguageForUpdate(ctx context.Context, id int
 
 // clearPrimaryLanguage 在事务中清除其他语言的主语言标记。
 func (c *BaseLanguageCase) clearPrimaryLanguage(ctx context.Context, keepID int64) error {
-	opts := []repository.QueryOption{repository.Clauses(clause.Locking{Strength: "UPDATE"})}
-	list, err := c.List(ctx, opts...)
-	if err != nil {
-		return err
-	}
-	for _, item := range list {
-		if item.ID == keepID || !item.IsPrimary {
-			continue
-		}
-		item.IsPrimary = false
-		if err = c.UpdateByID(ctx, item); err != nil {
-			return err
-		}
-	}
-	return nil
+	query := c.Query(ctx).BaseLanguage
+	_, err := query.WithContext(ctx).
+		Where(query.ID.Neq(keepID), query.IsPrimary.Is(true)).
+		UpdateSimple(query.IsPrimary.Value(false))
+	return err
 }

@@ -105,6 +105,9 @@ func (c *BaseTableBackupCase) SetBaseTableBackupStatus(ctx context.Context, req 
 	if req.GetStatus() != _const.STATUS_STATUS_ENABLE && req.GetStatus() != _const.STATUS_STATUS_DISABLE {
 		return errorsx.InvalidArgument("备份配置状态无效")
 	}
+	if _, err := c.FindByID(ctx, req.GetId()); err != nil {
+		return errorsx.ResourceNotFound("备份配置不存在").WithCause(err)
+	}
 	return c.UpdateByID(ctx, &models.BaseTableBackup{ID: req.GetId(), Status: req.GetStatus()})
 }
 

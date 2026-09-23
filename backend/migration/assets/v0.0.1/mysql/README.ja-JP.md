@@ -6,8 +6,10 @@
 
 | ファイル | 内容 |
 | --- | --- |
-| `default_data.up.sql` | 言語、設定、部門、辞書、辞書項目、ジョブ、テナント、メッセージカテゴリ、メニュー、ロール、マスキングルール、マスキングフィールド、マスキングポリシー、開発用アカウントの既定データ。 |
+| `default_data.up.sql` | 言語、設定、部門、役職、辞書、辞書項目、ジョブ、テナント、メッセージカテゴリ、メニュー、ロール、マスキングルール、テーブルアーカイブ、テーブルバックアップ、ログインポリシー、開発用アカウントの既定データ。 |
 | `base_area.up.sql` | 独立したスクリプトで既定データソースの移行に含まれる行政区画データ。 |
+| `base_redact_rule.up.sql` | マスキングルール種別の例と、`base_redact_storage_policy`、`base_redact_output_policy` の保存／出力マスキングポリシー。 |
+| `language.up.sql` | 言語の初期データ。`default_data.up.sql` の `base_language` と一致し、`INSERT IGNORE` で冪等。 |
 | `i18n.en-US.up.sql` | `en-US` の `base_i18n` 翻訳データ。 |
 | `i18n.ja-JP.up.sql` | `ja-JP` の `base_i18n` 翻訳データ。 |
 | `i18n.zh-TW.up.sql` | `zh-TW` の `base_i18n` 翻訳データ。 |
@@ -16,7 +18,7 @@
 
 ## 実行と冪等性
 
-起動時は、自動テーブル作成、SQL 移行、移行説明の同期に続けて、OpenAPI、`base_api`、テナントメニュー、Casbin ポリシーを同期します。`default_data.up.sql` と `base_area.up.sql` は外部キー検査を一時的に無効化し、終了時に元の値へ戻します。
+起動時は、自動テーブル作成、SQL 移行、移行説明の同期に続けて、OpenAPI、`base_api`、テナントメニュー、Casbin ポリシーを同期します。`default_data.up.sql`、`base_area.up.sql`、`base_redact_rule.up.sql` は外部キー検査を一時的に無効化し、終了時に元の値へ戻します。
 
 初期データはすべて 1 行ずつ `INSERT IGNORE` で登録します。既存の一意キーはスキップされ、業務データを上書きしません。バッチ `INSERT`、`UPDATE`、`DELETE`、`TRUNCATE` は使用しません。`default_data.up.sql` の各テーブルのレコードは `id` の昇順で管理し、新しい既定データは該当する番号帯の位置に追加してください。
 
@@ -26,7 +28,7 @@
 
 `default_data.up.sql` は現在、次の既定データテーブルへ書き込みます。
 
-`base_language`、`base_config`、`base_dept`、`base_dict`、`base_dict_item`、`base_job`、`base_tenant`、`base_message_category`、`base_menu`、`base_role`、`base_user`、`base_redact_rule`、`base_redact_storage_policy`、`base_redact_output_policy`。
+`base_language`、`base_config`、`base_dept`、`base_post`、`base_dict`、`base_dict_item`、`base_job`、`base_tenant`、`base_message_category`、`base_menu`、`base_role`、`base_user`、`base_redact_rule`、`base_table_archive`、`base_table_backup`、`base_login_policy`。
 
 - 言語: `zh-CN`、`zh-TW`、`en-US`、`ja-JP` を用意し、`zh-CN` を主言語にします。
 - ログイン時のテナント番号: Admin（`site=2`）とアプリ（`site=3`）の両方でブール設定 `showTenantCode=true` を初期登録し、テナント番号の入力欄を既定で表示します。設定名には英語、繁体字中国語、日本語の翻訳を用意します。

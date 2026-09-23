@@ -73,6 +73,13 @@ export const useTable = (
         // Element Plus 要求分页总数为非负数字，兼容接口未返回总数的情况。
         const total = Number(data.total ?? 0);
         state.pageable.total = Number.isFinite(total) && total >= 0 ? total : 0;
+        // 删除末页最后一条后，当前页码可能超过总页数，回退到有效末页并重新查询，避免卡在空页。
+        const pageSize = state.pageable.page_size > 0 ? state.pageable.page_size : 1;
+        const maxPage = Math.max(1, Math.ceil(state.pageable.total / pageSize));
+        if (state.pageable.page_num > maxPage) {
+          state.pageable.page_num = maxPage;
+          return getTableList();
+        }
       }
     } catch (error) {
       if (currentRequestSerial !== requestSerial) return;

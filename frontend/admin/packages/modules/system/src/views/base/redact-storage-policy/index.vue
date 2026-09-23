@@ -208,7 +208,12 @@ const rules = computed<FormRules>(() => ({
   tenant_id: [{ required: isDefaultTenant.value, message: t("common.validation.required_select", { field: t("common.field.tenant") }), trigger: "change" }],
   source_name: [{ required: true, message: t("system.base.redact_storage_policy.validation.source_name"), trigger: "change" }],
   table_name: [{ required: true, message: t("system.base.redact_storage_policy.validation.table_name"), trigger: "change" }],
-  column_rows: [{ validator: (_rule, value: StorageColumnRow[], callback) => value?.some(row => Boolean(row.rule_id)) ? callback() : callback(new Error(t("system.base.redact_storage_policy.validation.configured_fields"))), trigger: "change" }]
+  column_rows: [{ validator: (_rule, value: StorageColumnRow[], callback) => {
+    const hasRule = value?.some(row => Boolean(row.rule_id));
+    // 编辑态下清空规则（存在 id 但 rule_id 为空）需放行，交由提交逻辑删除旧策略。
+    const hasRemoval = value?.some(row => row.id > 0 && !row.rule_id);
+    hasRule || hasRemoval ? callback() : callback(new Error(t("system.base.redact_storage_policy.validation.configured_fields")));
+  }, trigger: "change" }]
 }));
 const columns = computed<ColumnProps[]>(() => [
   { type: "selection", width: 55 },

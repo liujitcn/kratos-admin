@@ -186,7 +186,9 @@ function openAction() {
 
 /** 解析收件箱分类图标，未知图标使用默认图标。 */
 function resolveNotificationIcon(icon: string) {
-  return notificationIcons[icon as keyof typeof notificationIcons] ?? CollectionTag;
+  // 使用自有属性判定，避免原型链上的属性（如 constructor）被误判为合法图标键。
+  if (!Object.hasOwn(notificationIcons, icon)) return CollectionTag;
+  return notificationIcons[icon as keyof typeof notificationIcons];
 }
 </script>
 

@@ -284,6 +284,9 @@ func (c *BaseMenuCase) DeleteBaseMenu(ctx context.Context, id string) error {
 
 // SetBaseMenuStatus 设置菜单状态
 func (c *BaseMenuCase) SetBaseMenuStatus(ctx context.Context, req *adminv1.SetBaseMenuStatusRequest) error {
+	if _, err := c.FindByID(ctx, req.GetId()); err != nil {
+		return errorsx.ResourceNotFound("菜单不存在").WithCause(err)
+	}
 	return c.UpdateByID(ctx, &models.BaseMenu{
 		ID:     req.GetId(),
 		Status: req.GetStatus(),

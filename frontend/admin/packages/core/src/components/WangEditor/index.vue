@@ -61,7 +61,8 @@ const props = withDefaults(defineProps<RichEditorProps>(), {
   disabled: false,
   uploadType: "content"
 });
-const editorMenuConfig = props.editorConfig.MENU_CONF ?? {};
+// 拷贝出独立的菜单配置，避免后续覆盖 uploadImage/uploadVideo 时直接修改父组件的 props.editorConfig.MENU_CONF。
+const editorMenuConfig = { ...(props.editorConfig.MENU_CONF ?? {}) };
 const resolvedEditorConfig = computed(() => ({
   ...props.editorConfig,
   placeholder: props.editorConfig.placeholder || t("common.placeholder.input_content"),
@@ -78,7 +79,7 @@ const self_disabled = computed(() => {
 });
 
 // 判断当前富文本编辑器是否禁用
-if (self_disabled.value) nextTick(() => editorRef.value.disable());
+if (self_disabled.value) nextTick(() => editorRef.value?.disable());
 
 // 富文本的内容监听，触发父组件改变，实现双向数据绑定
 const emit = defineEmits<{
@@ -96,11 +97,57 @@ const valueHtml = computed({
   }
 });
 
-/**
- * @description 图片自定义上传
- * @param file 上传的文件
- * @param insertFn 上传成功后的回调函数（插入到富文本编辑器中）
- * */
+/** 富文本图片上传允许的 MIME 类型。 */
+const IMAGE_MIME_TYPES = ["image/jpeg", "image/png", "image/gif"];
+/** 富文本图片上传大小上限（MB）。 */
+const IMAGE_MAX_SIZE = 5;
+/** 富文本视频上传允许的 MIME 类型。 */
+const VIDEO_MIME_TYPES = ["video/mp4"];
+/** 富文本视频上传大小上限（MB）。 */
+const VIDEO_MAX_SIZE = 20;
+
+// 图片上传前判断
+const uploadImgValidate = (file: File): boolean => {
+  const sizeValid = file.size / 1024 / 1024 < IMAGE_MAX_SIZE;
+  const typeValid = IMAGE_MIME_TYPES.includes(file.type);
+  if (!typeValid) {
+    ElNotification({
+      title: t("common.title.warning"),
+      message: t("core.upload.image_format_invalid"),
+      type: "warning"
+    });
+  }
+  if (!sizeValid) {
+    ElNotification({
+      title: t("common.title.warning"),
+      message: t("core.upload.image_size_exceeded", { size: IMAGE_MAX_SIZE }),
+      type: "warning"
+    });
+  }
+  return typeValid && sizeValid;
+};
+
+// 视频上传前判断
+const uploadVideoValidate = (file: File): boolean => {
+  const sizeValid = file.size / 1024 / 1024 < VIDEO_MAX_SIZE;
+  const typeValid = VIDEO_MIME_TYPES.includes(file.type);
+  if (!typeValid) {
+    ElNotification({
+      title: t("common.title.warning"),
+      message: t("core.upload.file_format_invalid"),
+      type: "warning"
+    });
+  }
+  if (!sizeValid) {
+    ElNotification({
+      title: t("common.title.warning"),
+      message: t("core.upload.file_size_exceeded", { size: VIDEO_MAX_SIZE }),
+      type: "warning"
+    });
+  }
+  return typeValid && sizeValid;
+};
+
 type InsertFnTypeImg = (url: string, alt?: string, href?: string) => void;
 editorMenuConfig["uploadImage"] = {
   async customUpload(file: File, insertFn: InsertFnTypeImg) {
@@ -112,12 +159,6 @@ editorMenuConfig["uploadImage"] = {
       console.log(error);
     }
   }
-};
-
-// 图片上传前判断
-const uploadImgValidate = (file: File): boolean => {
-  console.log(file);
-  return true;
 };
 
 /**
@@ -136,12 +177,6 @@ editorMenuConfig["uploadVideo"] = {
       console.log(error);
     }
   }
-};
-
-// 视频上传前判断
-const uploadVideoValidate = (file: File): boolean => {
-  console.log(file);
-  return true;
 };
 
 // 编辑框失去焦点时触发

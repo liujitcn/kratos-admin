@@ -116,7 +116,15 @@ func (c *BaseDashboardCase) GetBaseDashboardLoginTrend(ctx context.Context, req 
 // GetBaseDashboardOperationDistribution 查询操作动作分布。
 func (c *BaseDashboardCase) GetBaseDashboardOperationDistribution(ctx context.Context) (*adminv1.BaseDashboardDistributionResponse, error) {
 	query := c.operationLogRepo.Query(ctx).BaseOperationLog
-	opts := []repository.QueryOption{repository.Select(query.Action)}
+	// 与登录趋势保持一致，仅统计近 7 天，避免整表载入内存。
+	now := time.Now()
+	start := dashboardStartOfDay(now).AddDate(0, 0, -6)
+	end := dashboardStartOfDay(now).AddDate(0, 0, 1)
+	opts := []repository.QueryOption{
+		repository.Where(query.OccurredAt.Gte(start)),
+		repository.Where(query.OccurredAt.Lt(end)),
+		repository.Select(query.Action),
+	}
 	var err error
 	var rows []*models.BaseOperationLog
 	rows, err = c.operationLogRepo.List(ctx, opts...)
@@ -140,7 +148,15 @@ func (c *BaseDashboardCase) GetBaseDashboardOperationDistribution(ctx context.Co
 // GetBaseDashboardLoginDistribution 查询登录结果分布。
 func (c *BaseDashboardCase) GetBaseDashboardLoginDistribution(ctx context.Context) (*adminv1.BaseDashboardDistributionResponse, error) {
 	query := c.loginLogRepo.Query(ctx).BaseLoginLog
-	opts := []repository.QueryOption{repository.Select(query.Result)}
+	// 与登录趋势保持一致，仅统计近 7 天，避免整表载入内存。
+	now := time.Now()
+	start := dashboardStartOfDay(now).AddDate(0, 0, -6)
+	end := dashboardStartOfDay(now).AddDate(0, 0, 1)
+	opts := []repository.QueryOption{
+		repository.Where(query.OccurredAt.Gte(start)),
+		repository.Where(query.OccurredAt.Lt(end)),
+		repository.Select(query.Result),
+	}
 	var err error
 	var rows []*models.BaseLoginLog
 	rows, err = c.loginLogRepo.List(ctx, opts...)

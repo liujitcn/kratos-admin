@@ -1,6 +1,6 @@
 import { useDidShow } from '@tarojs/taro'
 import { Button, ScrollView, Text, View } from '@tarojs/components'
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { navigateAppView, t } from '@liujitcn/kratos-taro-app-core'
 import { UniIcon } from '@liujitcn/kratos-taro-app-ui'
 import { defNotificationService } from '../../../api/base/v1/notification'
@@ -22,6 +22,9 @@ export default function MessageInboxPage() {
   const [categoryOptions, setCategoryOptions] = useState<
     NotificationCategory[]
   >([])
+  const requestSeqRef = useRef(0)
+  const loadingRef = useRef(false)
+  const finishedRef = useRef(false)
   const viewOptions = [
     { value: NotificationView.NOTIFICATION_VIEW_INBOX, key: 'system.notification.view.inbox' },
     { value: NotificationView.NOTIFICATION_VIEW_UNREAD, key: 'system.notification.view.unread' },
@@ -47,6 +50,9 @@ export default function MessageInboxPage() {
 
   /** 刷新站内信列表。 */
   async function refresh(view = selectedView, category = categoryId) {
+    const seq = ++requestSeqRef.current
+    loadingRef.current = true
+    finishedRef.current = false
     setItems([])
     setCursorId(0)
     setFinished(false)
@@ -60,17 +66,24 @@ export default function MessageInboxPage() {
         page_num: 1,
         page_size: 20,
       })
+      if (seq !== requestSeqRef.current) return
       setItems(result.notifications)
       setCursorId(result.next_cursor_id)
+      finishedRef.current = !result.has_more
       setFinished(!result.has_more)
     } finally {
-      setLoading(false)
+      if (seq === requestSeqRef.current) {
+        loadingRef.current = false
+        setLoading(false)
+      }
     }
   }
 
   /** 加载下一页。 */
   async function loadMore() {
-    if (loading || finished) return
+    if (loadingRef.current || finishedRef.current) return
+    const seq = requestSeqRef.current
+    loadingRef.current = true
     setLoading(true)
     try {
       const result = await defNotificationService.PageNotification({
@@ -81,12 +94,16 @@ export default function MessageInboxPage() {
         page_num: 1,
         page_size: 20,
       })
-      const next = [...items, ...result.notifications]
-      setItems(next)
+      if (seq !== requestSeqRef.current) return
+      setItems((current) => [...current, ...result.notifications])
       setCursorId(result.next_cursor_id)
+      finishedRef.current = !result.has_more
       setFinished(!result.has_more)
     } finally {
-      setLoading(false)
+      if (seq === requestSeqRef.current) {
+        loadingRef.current = false
+        setLoading(false)
+      }
     }
   }
 

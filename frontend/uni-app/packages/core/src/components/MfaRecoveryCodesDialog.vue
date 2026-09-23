@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, ref } from 'vue'
+import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import { useI18n } from '../locales'
 import { copyText } from '../utils/clipboard'
 
@@ -23,6 +23,7 @@ const emit = defineEmits<{
 
 const { t } = useI18n()
 const codesText = computed(() => props.codes.join('\n'))
+const confirming = ref(false)
 const copyState = ref<'idle' | 'copied' | 'failed'>('idle')
 const copyTextLabel = computed(() => {
   if (copyState.value === 'copied') return t('core.login.mfa_recovery_codes_copied')
@@ -48,9 +49,19 @@ async function copyRecoveryCodes() {
 
 /** 关闭弹窗并通知调用方继续完成绑定流程。 */
 function handleConfirm() {
+  if (confirming.value) return
+  confirming.value = true
   emit('update:modelValue', false)
   emit('confirm')
 }
+
+// 每次重新打开弹窗时重置一次性确认锁。
+watch(
+  () => props.modelValue,
+  (open) => {
+    if (open) confirming.value = false
+  },
+)
 
 onBeforeUnmount(() => {
   if (resetCopyStateTimer) clearTimeout(resetCopyStateTimer)

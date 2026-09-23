@@ -5,7 +5,7 @@ import {
 } from '../rpc/base/v1/file'
 import { formatSrc } from './index'
 import { getLocaleRequestHeaders, t } from '../locales'
-import { getRequestAccessToken } from './http'
+import { getRequestAccessToken, sourceClient } from './http'
 
 // 文件上传-兼容小程序端、H5端、App端
 export const uploadFile = async (
@@ -24,7 +24,7 @@ export const uploadFile = async (
     },
     header: {
       ...getLocaleRequestHeaders(),
-      'source-client': 'miniapp',
+      'source-client': sourceClient,
       ...(token ? { Authorization: token } : {}),
     },
   })
@@ -65,7 +65,7 @@ export const multiUploadFile = async (
     },
     header: {
       ...getLocaleRequestHeaders(),
-      'source-client': 'miniapp',
+      'source-client': sourceClient,
       ...(token ? { Authorization: token } : {}),
     },
   })

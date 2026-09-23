@@ -150,6 +150,9 @@ func (c *BaseDictItemCase) DeleteBaseDictItem(ctx context.Context, id string) er
 
 // SetBaseDictItemStatus 设置字典项状态
 func (c *BaseDictItemCase) SetBaseDictItemStatus(ctx context.Context, req *adminv1.SetBaseDictItemStatusRequest) error {
+	if _, err := c.FindByID(ctx, req.GetId()); err != nil {
+		return errorsx.ResourceNotFound("字典项不存在").WithCause(err)
+	}
 	return c.UpdateByID(ctx, &models.BaseDictItem{
 		ID:     req.GetId(),
 		Status: req.GetStatus(),

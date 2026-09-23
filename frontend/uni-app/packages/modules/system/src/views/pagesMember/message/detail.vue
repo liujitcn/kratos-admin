@@ -74,7 +74,7 @@ function openAction() {
       {{ t('common.action.view') }}
     </button>
   </view>
-  <view v-else class="empty">{{ t('common.status.loading') }}</view>
+  <view v-else class="empty">{{ t('core.status.loading') }}</view>
 </template>
 
 <style scoped lang="scss">

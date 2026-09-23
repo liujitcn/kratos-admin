@@ -41,6 +41,17 @@ const isIframeLoaded = ref(false)
 const isIframeTimedOut = ref(false)
 const { t } = useI18n()
 
+/** 只放行 http(s) 外链，其它协议按非法地址处理。 */
+const isAllowedUrl = (value: string) => /^https?:\/\//i.test(value)
+
+const safeDecodeURIComponent = (value: string) => {
+  try {
+    return decodeURIComponent(value)
+  } catch {
+    return value
+  }
+}
+
 const showFallback = computed(
   () => !url.value || (isH5.value && isIframeTimedOut.value && !isIframeLoaded.value),
 )
@@ -52,8 +63,9 @@ const emptyDesc = computed(() => {
 })
 
 onLoad((query) => {
-  url.value = decodeURIComponent(query?.url || '')
-  const title = decodeURIComponent(query?.title || '')
+  const nextUrl = safeDecodeURIComponent(query?.url || '')
+  url.value = isAllowedUrl(nextUrl) ? nextUrl : ''
+  const title = safeDecodeURIComponent(query?.title || '')
   // 调用方传入标题时同步更新原生导航栏，避免继续显示页面注册时的空标题。
   if (title) {
     void uni.setNavigationBarTitle({ title })
@@ -81,10 +93,8 @@ const openInBrowser = () => {
   // #endif
 }
 
-// 小程序接收消息
-const handleMessage = (e: any) => {
-  console.log('收到H5消息:', e.detail)
-}
+// 小程序接收消息（第三方消息不落日志，避免敏感信息泄漏）。
+const handleMessage = () => {}
 </script>
 
 <style scoped>

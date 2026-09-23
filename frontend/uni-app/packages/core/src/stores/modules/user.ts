@@ -4,7 +4,7 @@ import type {
   CreateOauthSessionRequest,
   CreateOauthSessionResponse,
 } from '../../rpc/base/v1/oauth'
-import type { LoginRequest, LoginResponse } from '../../rpc/base/v1/login'
+import { LoginStatus, type LoginRequest, type LoginResponse } from '../../rpc/base/v1/login'
 import type { VerifyMfaRequest } from '../../rpc/base/v1/mfa'
 import { defMfaService } from '../../api/base/v1/mfa'
 import { defAuthService } from '../../api/system/app/v1/auth'
@@ -69,6 +69,15 @@ export const useUserStore = defineStore(
       return Boolean(userInfo.value && hasValidToken())
     }
 
+    /** 仅当登录阶段已签发非空令牌时，才允许写入本地登录态。 */
+    function shouldApplyLoginToken(data: LoginResponse | CreateOauthSessionResponse) {
+      return (
+        (data.status === LoginStatus.LOGIN_STATUS_AUTHENTICATED ||
+          data.status === LoginStatus.LOGIN_STATUS_PASSWORD_CHANGE_REQUIRED) &&
+        Boolean(data.access_token && data.refresh_token)
+      )
+    }
+
     /** 保存登录接口返回的认证令牌，并通知已注册的业务扩展。 */
     async function applyLoginToken(data: LoginResponse | CreateOauthSessionResponse) {
       const { token_type, access_token, refresh_token, expires_in } = data
@@ -95,8 +104,7 @@ export const useUserStore = defineStore(
         defLoginService
           .Login(request)
           .then(async (data) => {
-            if (data.status === 1 || data.status === 0 || data.status === 4)
-              await applyLoginToken(data)
+            if (shouldApplyLoginToken(data)) await applyLoginToken(data)
             resolve(data)
           })
           .catch((error) => {
@@ -111,7 +119,7 @@ export const useUserStore = defineStore(
         defMfaService
           .VerifyMfa(request)
           .then(async (data) => {
-            await applyLoginToken(data)
+            if (shouldApplyLoginToken(data)) await applyLoginToken(data)
             resolve(data)
           })
           .catch((error) => reject(error))
@@ -133,8 +141,7 @@ export const useUserStore = defineStore(
               resolve(data)
               return
             }
-            if (data.status === 1 || data.status === 0 || data.status === 4)
-              await applyLoginToken(data)
+            if (shouldApplyLoginToken(data)) await applyLoginToken(data)
             resolve(data)
           })
           .catch((error) => {
@@ -149,8 +156,7 @@ export const useUserStore = defineStore(
         defOauthService
           .BindOauthSession(request)
           .then(async (data) => {
-            if (data.status === 1 || data.status === 0 || data.status === 4)
-              await applyLoginToken(data)
+            if (shouldApplyLoginToken(data)) await applyLoginToken(data)
             resolve(data)
           })
           .catch((error) => {
@@ -183,19 +189,13 @@ export const useUserStore = defineStore(
     /**
      * 登出
      */
-    function logout() {
-      return new Promise<void>((resolve, reject) => {
-        defLoginService
-          .Logout({})
-          .then(() => {
-            clearUserData().then(() => {
-              resolve()
-            })
-          })
-          .catch((error) => {
-            reject(error)
-          })
-      })
+    async function logout() {
+      try {
+        await defLoginService.Logout({})
+      } finally {
+        // 登出接口失败时仍清理本地登录态，避免残留有效 token 造成“假登录”。
+        await clearUserData()
+      }
     }
 
     /**

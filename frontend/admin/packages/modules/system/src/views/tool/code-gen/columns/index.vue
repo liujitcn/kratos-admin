@@ -694,6 +694,9 @@ const dictionaryItemsForEditor = computed(
 /** 当前选项编辑器中的静态数据。 */
 const staticOptionsForEditor = computed(() => staticOptions.get(optionDialog.cacheKey) ?? []);
 
+/** 字段配置加载序号，用于丢弃旧表晚到的响应，避免覆盖成旧表配置。 */
+let columnQueryRequestId = 0;
+
 // 路由生成对象变化时重新加载字段配置。
 watch(tableId, () => {
   void handleQuery();
@@ -706,6 +709,7 @@ watch(canEdit, () => {
 
 /** 查询生成对象字段配置。 */
 async function handleQuery() {
+  const requestId = ++columnQueryRequestId;
   loading.value = true;
   try {
     destroyColumnSortable();
@@ -717,14 +721,16 @@ async function handleQuery() {
       defCodeGenTableService.GetCodeGenTable({ id: tableId.value }),
       defCodeGenColumnService.ListCodeGenColumn({ table_id: tableId.value })
     ]);
+    if (requestId !== columnQueryRequestId) return;
     Object.assign(formData, table);
     // 字段配置和预览都保留数据库完整字段快照，由用户决定是否调整默认配置。
     columns.value = (response.code_gen_columns ?? []).map(normalizeColumn);
     syncWorkspaceTitle();
     await nextTick();
+    if (requestId !== columnQueryRequestId) return;
     initColumnSortable();
   } finally {
-    loading.value = false;
+    if (requestId === columnQueryRequestId) loading.value = false;
   }
 }
 

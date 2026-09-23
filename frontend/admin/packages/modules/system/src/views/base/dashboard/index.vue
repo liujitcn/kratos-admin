@@ -22,7 +22,7 @@
           <template #header
             ><div class="chart-heading">
               <span>{{ t("system.dashboard.login_trend") }}</span
-              ><small>近 7 天</small>
+              ><small>{{ t("system.dashboard.last_7_days") }}</small>
             </div></template
           >
           <div class="chart-wrap"><ECharts :option="loginTrendOption" height="285" /></div>
@@ -31,7 +31,7 @@
           <template #header
             ><div class="chart-heading">
               <span>{{ t("system.dashboard.login_distribution") }}</span
-              ><small>总计 {{ loginDistributionTotal }}</small>
+              ><small>{{ t("system.dashboard.total", { count: loginDistributionTotal }) }}</small>
             </div></template
           >
           <div class="chart-wrap"><ECharts :option="loginDistributionOption" height="265" /></div>
@@ -40,7 +40,7 @@
           <template #header
             ><div class="chart-heading">
               <span>{{ t("system.dashboard.operation_distribution") }}</span
-              ><small>总计 {{ operationDistributionTotal }}</small>
+              ><small>{{ t("system.dashboard.total", { count: operationDistributionTotal }) }}</small>
             </div></template
           >
           <div class="chart-wrap"><ECharts :option="operationDistributionOption" height="265" /></div>

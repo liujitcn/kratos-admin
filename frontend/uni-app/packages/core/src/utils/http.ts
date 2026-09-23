@@ -22,7 +22,7 @@ const apiBasePath = import.meta.env.VITE_APP_BASE_API || '/api'
 const apiTargetUrl = import.meta.env.VITE_APP_API_URL || ''
 const normalizedApiBasePath = apiBasePath.startsWith('/') ? apiBasePath : `/${apiBasePath}`
 
-let sourceClient = 'uni-h5'
+export let sourceClient = 'uni-h5'
 // #ifdef MP-WEIXIN
 sourceClient = 'uni-weapp'
 // #endif
@@ -37,6 +37,11 @@ const requestOrigin =
     : apiTargetUrl.replace(/\/$/, '')
 const baseURL = `${requestOrigin}${normalizedApiBasePath}`
 export const requestBaseURL = baseURL
+/** 站点根地址（不含 API 基础路径），供事件流等非 API 端点复用。 */
+export const siteBaseURL =
+  typeof window !== 'undefined' && window.location?.protocol?.startsWith('http')
+    ? window.location.origin
+    : apiTargetUrl.replace(/\/$/, '')
 const SESSION_URL = '/v1/base/session'
 const REFRESH_TOKEN_URL = '/v1/base/token'
 const CAPTCHA_URL = '/v1/base/captcha'
@@ -265,18 +270,15 @@ export function handleAuthExpired(authMode: AuthMode = 'required') {
 }
 
 // 刷新 Token 处理
-function handleTokenRefresh(authMode: AuthMode) {
+function handleTokenRefresh() {
   if (refreshTokenPromise) {
     return refreshTokenPromise
   }
   isRefreshing = true
   refreshTokenPromise = refreshAccessToken()
-    .catch(async (error) => {
+    .catch((error) => {
       // 刷新失败后立即撤销本地认证，避免弹窗等待期间后台请求反复提交旧刷新令牌。
       silentClearAuthData()
-      if (authMode === 'required') {
-        await promptRelogin()
-      }
       throw error
     })
     .finally(() => {
@@ -300,7 +302,11 @@ async function getAccessTokenByMode(authMode: AuthMode) {
   }
 
   if (shouldRefreshToken()) {
-    await handleTokenRefresh(authMode)
+    try {
+      await handleTokenRefresh()
+    } catch {
+      // 刷新失败已撤销本地认证，交由下方 hasValidToken 分支按当前调用方 authMode 处理。
+    }
   }
 
   if (hasValidToken()) {

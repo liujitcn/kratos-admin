@@ -18,7 +18,14 @@ const normalizedApiBasePath = apiBasePath.startsWith('/') ? apiBasePath : `/${ap
 const requestOrigin = process.env.TARO_ENV === 'h5' ? '' : apiTargetUrl.replace(/\/$/, '')
 /** 请求基础地址。 */
 export const requestBaseURL = `${requestOrigin}${normalizedApiBasePath}`
-const sourceClient = process.env.TARO_ENV === 'weapp' ? 'taro-weapp' : 'taro-h5'
+/** 站点根地址（不含 API 基础路径），供事件流等非 API 端点复用。 */
+export const siteBaseURL =
+  process.env.TARO_ENV === 'h5'
+    ? typeof window !== 'undefined'
+      ? window.location.origin
+      : ''
+    : apiTargetUrl.replace(/\/$/, '')
+export const sourceClient = process.env.TARO_ENV === 'weapp' ? 'taro-weapp' : 'taro-h5'
 
 const SESSION_URL = '/v1/base/session'
 const REFRESH_TOKEN_URL = '/v1/base/token'
@@ -176,7 +183,13 @@ async function getAccessTokenByMode(authMode: AuthMode): Promise<string> {
     }
     return ''
   }
-  if (shouldRefreshToken()) await handleTokenRefresh(authMode)
+  if (shouldRefreshToken()) {
+    try {
+      await handleTokenRefresh()
+    } catch {
+      // 刷新失败已撤销本地认证，交由下方 hasValidToken 分支按当前调用方 authMode 处理。
+    }
+  }
   if (hasValidToken()) return getToken()
   if (authMode === 'required') {
     await promptRelogin()
@@ -186,13 +199,12 @@ async function getAccessTokenByMode(authMode: AuthMode): Promise<string> {
   return ''
 }
 
-function handleTokenRefresh(authMode: AuthMode): Promise<void> {
+function handleTokenRefresh(): Promise<void> {
   if (refreshTokenPromise) return refreshTokenPromise
   refreshTokenPromise = refreshAccessToken()
-    .catch(async (error) => {
+    .catch((error) => {
       // 刷新失败后立即撤销本地认证，避免弹窗等待期间后台请求反复提交旧刷新令牌。
       silentClearAuthData()
-      if (authMode === 'required') await promptRelogin()
       throw error
     })
     .finally(() => {
@@ -244,8 +256,7 @@ async function promptRelogin(): Promise<void> {
     })
     if (!modal.confirm) return
     await new Promise((resolve) => setTimeout(resolve, 80))
-    clearToken()
-    Taro.removeStorageSync('user')
+    silentClearAuthData()
     saveCurrentRoute()
     await Taro.reLaunch({ url: '/pages/login/login' })
   } finally {

@@ -266,7 +266,8 @@ func (c *OauthClientCase) CreateOauthClient(ctx context.Context, req *adminv1.Oa
 	if err != nil {
 		return err
 	}
-	return nil
+	// 事务提交成功后再刷新内存策略，避免回滚后内存存在幽灵规则。
+	return c.casbinRuleCase.RebuildPolicyRule(ctx)
 }
 
 // UpdateOauthClient 更新开放授权客户端并同步授权策略。
@@ -359,7 +360,8 @@ func (c *OauthClientCase) UpdateOauthClient(ctx context.Context, req *adminv1.Oa
 	if err != nil {
 		return err
 	}
-	return nil
+	// 事务提交成功后再刷新内存策略，避免回滚后内存存在幽灵规则。
+	return c.casbinRuleCase.RebuildPolicyRule(ctx)
 }
 
 // DeleteOauthClient 删除开放授权客户端并清理授权策略。
@@ -389,9 +391,13 @@ func (c *OauthClientCase) DeleteOauthClient(ctx context.Context, ids string) err
 				return err
 			}
 		}
-		return c.casbinRuleCase.RebuildPolicyRule(ctx)
+		return nil
 	})
-	return err
+	if err != nil {
+		return err
+	}
+	// 事务提交成功后再刷新内存策略，避免回滚后内存存在幽灵规则。
+	return c.casbinRuleCase.RebuildPolicyRule(ctx)
 }
 
 // SetOauthClientStatus 设置开放授权客户端状态。
@@ -517,7 +523,7 @@ func (c *OauthClientCase) replaceClientPolicies(ctx context.Context, item *model
 			return err
 		}
 	}
-	return c.casbinRuleCase.RebuildPolicyRule(ctx)
+	return nil
 }
 
 // toOauthClient 转换客户端列表响应。

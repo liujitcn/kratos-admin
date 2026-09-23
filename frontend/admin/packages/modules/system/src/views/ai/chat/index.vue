@@ -105,6 +105,8 @@ const starterShortcuts = ref<AiShortcut[]>([]);
 const messages = ref<Record<string, ChatMessageItem[]>>({});
 const pendingDeltaMap = new Map<string, AiStreamPayload>();
 const runningStreamTaskMap = new Map<string, AiStreamTask>();
+/** 每个会话最近一次消息列表请求的序号，用于丢弃晚到的旧列表响应。 */
+const loadMessagesSeq = new Map<string, number>();
 let pendingDeltaFrame = 0;
 let speakingMessageID = "";
 let createSessionPromise: Promise<string | undefined> | undefined;
@@ -192,6 +194,8 @@ async function sendAiPayload(payload: SubmitPayload) {
   // 同一个会话内仍然串行发送，避免历史上下文和消息顺序被并发请求打乱。
   if (isSessionSending(sessionID)) return false;
 
+  // 使该会话仍在途的消息列表请求失效，避免其晚到后整体覆盖刚发送的本地气泡。
+  invalidateLoadMessages(sessionID);
   const localUserMessage = createLocalUserMessage(payload);
   const thinkingMessage = createThinkingMessage({ sessionID });
   messages.value[sessionID] = sortMessages([...(messages.value[sessionID] ?? []), localUserMessage, thinkingMessage]);
@@ -650,22 +654,29 @@ async function loadAiShortcuts() {
   }
 }
 
+/** 使指定会话仍在途的消息列表请求失效。 */
+function invalidateLoadMessages(sessionID: string) {
+  loadMessagesSeq.set(sessionID, (loadMessagesSeq.get(sessionID) ?? 0) + 1);
+}
+
 /** 加载指定会话的消息记录。 */
 async function loadMessages(sessionID: string, options?: { force?: boolean }) {
   if (!sessionID) return;
   if (!options?.force && isSessionSending(sessionID) && messages.value[sessionID]?.length) return;
 
+  const requestId = (loadMessagesSeq.get(sessionID) ?? 0) + 1;
+  loadMessagesSeq.set(sessionID, requestId);
   loadingSessionID.value = sessionID;
   try {
     const response = await defAiMessageService.ListAiMessage({ session_id: sessionID });
-    if (loadingSessionID.value !== sessionID) return;
+    if (loadMessagesSeq.get(sessionID) !== requestId) return;
     messages.value[sessionID] = normalizeMessageList(response?.messages);
   } catch {
-    if (loadingSessionID.value === sessionID) {
+    if (loadMessagesSeq.get(sessionID) === requestId) {
       messages.value[sessionID] = [];
     }
   } finally {
-    if (loadingSessionID.value === sessionID) {
+    if (loadMessagesSeq.get(sessionID) === requestId && loadingSessionID.value === sessionID) {
       loadingSessionID.value = "";
     }
   }

@@ -2,7 +2,7 @@ import Taro from '@tarojs/taro'
 import { BaseFileAccessMode, type FileInfo, type MultiUploadFileResponse } from '../rpc/base/v1/file'
 import { getLocaleRequestHeaders, t } from '../locales'
 import { formatSrc } from './index'
-import { getRequestAccessToken, requestBaseURL } from './http'
+import { getRequestAccessToken, requestBaseURL, sourceClient } from './http'
 
 /** 上传单个文件。 */
 export async function uploadFile(
@@ -18,7 +18,7 @@ export async function uploadFile(
     formData: { fileType, accessMode: String(accessMode) },
     header: {
       ...getLocaleRequestHeaders(),
-      'source-client': 'miniapp',
+      'source-client': sourceClient,
       ...(token ? { Authorization: token } : {}),
     },
   })

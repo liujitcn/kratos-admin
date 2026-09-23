@@ -112,6 +112,13 @@ func (c *AuthCase) UpdateUserProfile(ctx context.Context, req *appv1.UserProfile
 	if err = c.baseUserCase.UpdateByID(ctx, baseUser); err != nil {
 		return errorsx.Internal("修改个人中心用户信息失败").WithCause(err)
 	}
+	// 头像被显式清空时，UpdateByID 会跳过零值，需单独显式写空，避免数据库仍指向已删除的旧文件。
+	if req.GetAvatar() == "" && originalAvatar != "" {
+		userQuery := c.baseUserCase.Query(ctx).BaseUser
+		if _, err = userQuery.WithContext(ctx).Where(userQuery.ID.Eq(authInfo.UserId)).UpdateSimple(userQuery.Avatar.Value("")); err != nil {
+			return errorsx.Internal("修改个人中心用户信息失败").WithCause(err)
+		}
+	}
 	// 删除被替换的旧头像文件
 	oss := c.OSS
 	// OSS 可用时，尝试清理被替换掉的历史头像文件。

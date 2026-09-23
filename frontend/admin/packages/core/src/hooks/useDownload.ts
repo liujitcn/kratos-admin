@@ -1,4 +1,4 @@
-import { ElNotification } from "element-plus";
+import { ElMessage, ElNotification } from "element-plus";
 import { t } from "@/locales";
 
 /**
@@ -26,7 +26,7 @@ export const useDownload = async (
   }
   try {
     const res = await api(params);
-    const blob = new Blob([res]);
+    const blob = new Blob([res], { type: resolveBlobMimeType(fileType) });
     // 兼容 edge 不支持 createObjectURL 方法
     if ("msSaveOrOpenBlob" in navigator) return window.navigator.msSaveOrOpenBlob(blob, tempName + fileType);
     const blobUrl = window.URL.createObjectURL(blob);
@@ -39,7 +39,19 @@ export const useDownload = async (
     // 去除下载对 url 的影响
     document.body.removeChild(exportFile);
     window.URL.revokeObjectURL(blobUrl);
-  } catch (error) {
-    console.log(error);
+  } catch {
+    ElMessage.error(t("common.message.request_error"));
   }
 };
+
+/** 根据导出文件后缀返回对应的 Blob MIME 类型。 */
+function resolveBlobMimeType(fileType: string) {
+  const mimeByExtension: Record<string, string> = {
+    ".xlsx": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    ".xls": "application/vnd.ms-excel",
+    ".csv": "text/csv;charset=utf-8",
+    ".pdf": "application/pdf",
+    ".zip": "application/zip"
+  };
+  return mimeByExtension[fileType.toLowerCase()] ?? "application/octet-stream";
+}

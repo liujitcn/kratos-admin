@@ -175,6 +175,9 @@ func (c *CodeGenProtoCase) SaveCodeGenProto(ctx context.Context, req *adminv1.Sa
 		}
 		item := c.mapper.ToEntity(proto)
 		item.ID = 0
+		item.ProtoFilePath = check.GetProtoFilePath()
+		item.TargetEntityName = check.GetTargetEntityName()
+		item.MethodName = check.GetMethodName()
 		protos = append(protos, item)
 	}
 	return c.tx.Transaction(ctx, func(ctx context.Context) error {
@@ -191,11 +194,16 @@ func (c *CodeGenProtoCase) SaveCodeGenProto(ctx context.Context, req *adminv1.Sa
 		for _, proto := range protos {
 			var saved *models.CodeGenProto
 			for _, candidate := range savedProtos {
-				if _, used := usedIDs[candidate.ID]; used || candidate.Sort != proto.Sort {
+				if _, used := usedIDs[candidate.ID]; used {
 					continue
 				}
-				saved = candidate
-				break
+				// 按稳定键（Proto路径+目标实体+方法名）关联，Sort 仅作展示排序。
+				if candidate.ProtoFilePath == proto.ProtoFilePath &&
+					candidate.TargetEntityName == proto.TargetEntityName &&
+					candidate.MethodName == proto.MethodName {
+					saved = candidate
+					break
+				}
 			}
 			if saved == nil {
 				if err = c.Create(ctx, proto); err != nil {
@@ -687,7 +695,9 @@ func codeGenProtoTargetTableName(table *models.CodeGenTable, targetEntity string
 
 // savedCodeGenProtoMatches 判断已保存配置是否对应当前检查项。
 func savedCodeGenProtoMatches(saved *models.CodeGenProto, check *adminv1.CodeGenProtoCheck) bool {
-	return saved.Sort == check.GetSort()
+	return saved.ProtoFilePath == check.GetProtoFilePath() &&
+		saved.TargetEntityName == check.GetTargetEntityName() &&
+		saved.MethodName == check.GetMethodName()
 }
 
 // codeGenProtoKey 返回 Proto 接口配置稳定键。

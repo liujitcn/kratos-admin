@@ -1,4 +1,4 @@
-package base
+package authcookie
 
 import (
 	"context"
@@ -9,6 +9,7 @@ import (
 
 	"github.com/go-kratos/kratos/v3/transport"
 	httpTransport "github.com/go-kratos/kratos/v3/transport/http"
+	"github.com/liujitcn/kratos-admin/backend/internal/utils"
 )
 
 const (
@@ -20,8 +21,14 @@ const (
 	refreshTokenTransportCookie = "cookie"
 )
 
-// setAccessTokenCookie 写入供原生 src 静态资源请求使用的访问令牌 HttpOnly Cookie。
-func setAccessTokenCookie(ctx context.Context, token string, expiresIn int64) {
+// Set 同步写入访问令牌和刷新令牌 Cookie。
+func Set(ctx context.Context, accessToken string, accessExpiresIn int64, refreshToken string, refreshExpiresIn int64) {
+	setAccessToken(ctx, accessToken, accessExpiresIn)
+	setRefreshToken(ctx, refreshToken, refreshExpiresIn)
+}
+
+// setAccessToken 写入供原生 src 静态资源请求使用的访问令牌 HttpOnly Cookie。
+func setAccessToken(ctx context.Context, token string, expiresIn int64) {
 	if token == "" || expiresIn <= 0 {
 		return
 	}
@@ -38,14 +45,8 @@ func setAccessTokenCookie(ctx context.Context, token string, expiresIn int64) {
 	})
 }
 
-// setAuthTokenCookies 同步写入访问令牌和刷新令牌 Cookie。
-func setAuthTokenCookies(ctx context.Context, accessToken string, accessExpiresIn int64, refreshToken string, refreshExpiresIn int64) {
-	setAccessTokenCookie(ctx, accessToken, accessExpiresIn)
-	setRefreshTokenCookie(ctx, refreshToken, refreshExpiresIn)
-}
-
-// setRefreshTokenCookie 写入刷新令牌 HttpOnly Cookie 和非敏感过期时间提示 Cookie。
-func setRefreshTokenCookie(ctx context.Context, token string, expiresIn int64) {
+// setRefreshToken 写入刷新令牌 HttpOnly Cookie 和非敏感过期时间提示 Cookie。
+func setRefreshToken(ctx context.Context, token string, expiresIn int64) {
 	if token == "" || expiresIn <= 0 {
 		return
 	}
@@ -71,54 +72,50 @@ func setRefreshTokenCookie(ctx context.Context, token string, expiresIn int64) {
 	})
 }
 
-// hideRefreshTokenFromResponse 判断当前管理端浏览器是否只允许通过 HttpOnly Cookie 接收刷新令牌。
-func hideRefreshTokenFromResponse(ctx context.Context) bool {
-	serverTransport, ok := transport.FromServerContext(ctx)
-	if !ok {
+// HideRefreshTokenFromResponse 判断当前管理端浏览器是否只允许通过 HttpOnly Cookie 接收刷新令牌。
+func HideRefreshTokenFromResponse(ctx context.Context) bool {
+	request := requestFromContext(ctx)
+	if request == nil {
 		return false
 	}
-	httpServerTransport, ok := serverTransport.(*httpTransport.Transport)
-	if !ok || httpServerTransport.Request() == nil {
-		return false
-	}
-	return strings.EqualFold(httpServerTransport.Request().Header.Get(refreshTokenTransportHeader), refreshTokenTransportCookie)
+	return strings.EqualFold(request.Header.Get(refreshTokenTransportHeader), refreshTokenTransportCookie)
 }
 
-// clearAuthTokenCookies 清除访问令牌、刷新令牌和过期提示 Cookie。
-func clearAuthTokenCookies(ctx context.Context) {
+// Clear 清除访问令牌、刷新令牌和过期提示 Cookie。
+func Clear(ctx context.Context) {
 	secure := requestUsesTLS(ctx)
 	httpTransport.SetCookie(ctx, &http.Cookie{Name: accessTokenCookieName, Value: "", Path: "/", MaxAge: -1, Expires: time.Unix(1, 0), HttpOnly: true, Secure: secure, SameSite: http.SameSiteLaxMode})
 	httpTransport.SetCookie(ctx, &http.Cookie{Name: refreshTokenCookieName, Value: "", Path: refreshTokenCookiePath, MaxAge: -1, Expires: time.Unix(1, 0), HttpOnly: true, Secure: secure, SameSite: http.SameSiteLaxMode})
 	httpTransport.SetCookie(ctx, &http.Cookie{Name: refreshExpiryCookieName, Value: "", Path: "/", MaxAge: -1, Expires: time.Unix(1, 0), Secure: secure, SameSite: http.SameSiteLaxMode})
 }
 
-// refreshTokenFromCookie 从当前 HTTP 请求提取刷新令牌。
-func refreshTokenFromCookie(ctx context.Context) string {
-	serverTransport, ok := transport.FromServerContext(ctx)
-	if !ok {
+// RefreshToken 从当前 HTTP 请求提取刷新令牌。
+func RefreshToken(ctx context.Context) string {
+	request := requestFromContext(ctx)
+	if request == nil {
 		return ""
 	}
-	httpServerTransport, ok := serverTransport.(*httpTransport.Transport)
-	if !ok || httpServerTransport.Request() == nil {
-		return ""
-	}
-	cookie, err := httpServerTransport.Request().Cookie(refreshTokenCookieName)
+	cookie, err := request.Cookie(refreshTokenCookieName)
 	if err != nil {
 		return ""
 	}
 	return cookie.Value
 }
 
-// requestUsesTLS 判断当前请求是否直接使用 HTTPS。
+// requestUsesTLS 判断当前请求是否应视为 HTTPS。
 func requestUsesTLS(ctx context.Context) bool {
+	return utils.IsSecureRequest(requestFromContext(ctx))
+}
+
+// requestFromContext 从 Kratos 服务上下文提取 HTTP 请求。
+func requestFromContext(ctx context.Context) *http.Request {
 	serverTransport, ok := transport.FromServerContext(ctx)
 	if !ok {
-		return false
+		return nil
 	}
 	httpServerTransport, ok := serverTransport.(*httpTransport.Transport)
-	if !ok || httpServerTransport.Request() == nil {
-		return false
+	if !ok {
+		return nil
 	}
-	request := httpServerTransport.Request()
-	return request.TLS != nil
+	return httpServerTransport.Request()
 }

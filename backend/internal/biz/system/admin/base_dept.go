@@ -3,6 +3,7 @@ package biz
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
@@ -20,6 +21,7 @@ import (
 type BaseDeptCase struct {
 	*biz.BaseCase
 	*data.BaseDeptRepository
+	tx         data.Transaction
 	formMapper *mapper.CopierMapper[adminv1.BaseDeptForm, models.BaseDept]
 	mapper     *mapper.CopierMapper[adminv1.BaseDept, models.BaseDept]
 }
@@ -27,11 +29,13 @@ type BaseDeptCase struct {
 // NewBaseDeptCase 创建部门业务实例
 func NewBaseDeptCase(
 	baseCase *biz.BaseCase,
+	tx data.Transaction,
 	baseDeptRepo *data.BaseDeptRepository,
 ) *BaseDeptCase {
 	return &BaseDeptCase{
 		BaseCase:           baseCase,
 		BaseDeptRepository: baseDeptRepo,
+		tx:                 tx,
 		formMapper:         mapper.NewCopierMapper[adminv1.BaseDeptForm, models.BaseDept](),
 		mapper:             mapper.NewCopierMapper[adminv1.BaseDept, models.BaseDept](),
 	}
@@ -123,16 +127,18 @@ func (c *BaseDeptCase) CreateBaseDept(ctx context.Context, req *adminv1.BaseDept
 		parentPath = parentDept.Path
 	}
 
-	err = c.Create(ctx, baseDept)
-	if err != nil {
-		return err
-	}
-	if parentPath != "" {
-		baseDept.Path = fmt.Sprintf("%s/%d", parentPath, baseDept.ID)
-	} else {
-		baseDept.Path = fmt.Sprintf("/0/%d", baseDept.ID)
-	}
-	return c.UpdateByID(ctx, baseDept)
+	err = c.tx.Transaction(ctx, func(txCtx context.Context) error {
+		if err = c.Create(txCtx, baseDept); err != nil {
+			return err
+		}
+		if parentPath != "" {
+			baseDept.Path = fmt.Sprintf("%s/%d", parentPath, baseDept.ID)
+		} else {
+			baseDept.Path = fmt.Sprintf("/0/%d", baseDept.ID)
+		}
+		return c.UpdateByID(txCtx, baseDept)
+	})
+	return err
 }
 
 // UpdateBaseDept 更新部门
@@ -143,8 +149,11 @@ func (c *BaseDeptCase) UpdateBaseDept(ctx context.Context, req *adminv1.BaseDept
 	}
 	baseDept := c.formMapper.ToEntity(req)
 	baseDept.TenantID = oldBaseDept.TenantID
-	baseDept.Path = oldBaseDept.Path
 	parentID := req.GetParentId()
+	if parentID == req.GetId() {
+		return errorsx.InvalidArgument("上级部门不能是自身")
+	}
+	parentPath := ""
 	if parentID != 0 {
 		var parentDept *models.BaseDept
 		parentDept, err = c.FindByID(ctx, parentID)
@@ -154,8 +163,44 @@ func (c *BaseDeptCase) UpdateBaseDept(ctx context.Context, req *adminv1.BaseDept
 		if parentDept.TenantID != oldBaseDept.TenantID {
 			return errorsx.InvalidArgument("上级部门与所属租户不一致")
 		}
+		// 新父级的 path 以当前部门 path 为前缀，说明新父级是自身或其子孙，会形成环。
+		if parentDept.Path == oldBaseDept.Path || strings.HasPrefix(parentDept.Path, oldBaseDept.Path+"/") {
+			return errorsx.InvalidArgument("上级部门不能是自身或其下级部门")
+		}
+		parentPath = parentDept.Path
 	}
-	return c.UpdateByID(ctx, baseDept)
+
+	// 父级未变化时沿用原路径；变化时重算自身与全部子孙路径。
+	if parentID == oldBaseDept.ParentID {
+		baseDept.Path = oldBaseDept.Path
+		return c.UpdateByID(ctx, baseDept)
+	}
+	newPath := fmt.Sprintf("/0/%d", req.GetId())
+	if parentPath != "" {
+		newPath = fmt.Sprintf("%s/%d", parentPath, req.GetId())
+	}
+	baseDept.Path = newPath
+	if err = c.UpdateByID(ctx, baseDept); err != nil {
+		return err
+	}
+	return c.repathBaseDeptDescendants(ctx, oldBaseDept.Path, newPath)
+}
+
+// repathBaseDeptDescendants 在部门父级变更后重算所有子孙部门的路径。
+func (c *BaseDeptCase) repathBaseDeptDescendants(ctx context.Context, oldPath, newPath string) error {
+	query := c.Query(ctx).BaseDept
+	descendants, err := c.List(ctx, repository.Where(query.Path.Like(oldPath+"/%")))
+	if err != nil {
+		return err
+	}
+	for _, item := range descendants {
+		updated := newPath + strings.TrimPrefix(item.Path, oldPath)
+		itemQuery := c.Query(ctx).BaseDept
+		if _, err = itemQuery.WithContext(ctx).Where(itemQuery.ID.Eq(item.ID)).UpdateSimple(itemQuery.Path.Value(updated)); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 // DeleteBaseDept 删除部门

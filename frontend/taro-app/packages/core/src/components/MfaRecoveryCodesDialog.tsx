@@ -1,5 +1,6 @@
 import { Button, Text, View } from '@tarojs/components'
 import Taro from '@tarojs/taro'
+import { useEffect, useRef } from 'react'
 import { useI18n } from '../locales'
 import './MfaRecoveryCodesDialog.scss'
 
@@ -20,6 +21,10 @@ export default function MfaRecoveryCodesDialog({
   onConfirm,
 }: MfaRecoveryCodesDialogProps) {
   const { t } = useI18n()
+  const confirmingRef = useRef(false)
+  useEffect(() => {
+    if (open) confirmingRef.current = false
+  }, [open])
   if (!open) return null
 
   const codesText = codes.join('\n')
@@ -29,6 +34,13 @@ export default function MfaRecoveryCodesDialog({
     if (!codesText) return
     await Taro.setClipboardData({ data: codesText })
     await Taro.showToast({ icon: 'none', title: t('core.login.mfa_recovery_codes_copied') })
+  }
+
+  /** 一次性消费确认动作，防止重复点击重复触发绑定流程。 */
+  const handleConfirm = () => {
+    if (confirmingRef.current) return
+    confirmingRef.current = true
+    void onConfirm()
   }
 
   return (
@@ -51,7 +63,7 @@ export default function MfaRecoveryCodesDialog({
           </Text>
         </View>
         <View className='mfa-recovery-dialog__footer'>
-          <Button className='mfa-recovery-dialog__confirm' onClick={() => void onConfirm()}>
+          <Button className='mfa-recovery-dialog__confirm' onClick={handleConfirm}>
             {t('core.login.mfa_recovery_codes_confirm')}
           </Button>
         </View>

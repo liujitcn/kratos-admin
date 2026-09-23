@@ -567,7 +567,8 @@ func (c *LoginCase) IssueUserToken(ctx context.Context, user *models.BaseUser) (
 		var policySet loginpolicy.PolicySet
 		policySet, err = loginpolicy.LoadFromCacheStrict(c.Cache)
 		if err != nil {
-			return nil, errorsx.Internal("读取密码策略失败").WithCause(err)
+			cleanupErr := sessionregistry.Remove(c.Cache, c.userToken, record)
+			return nil, errorsx.Internal("读取密码策略失败").WithCause(errors.Join(err, cleanupErr))
 		}
 		passwordExpired = passwordPolicy.IsExpiredAtWithMaxAge(user.PasswordChangedAt, time.Now(), policySet.PasswordMaxAgeDaysFor(user.TenantID, user.ID))
 	}

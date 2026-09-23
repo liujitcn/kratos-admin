@@ -195,6 +195,10 @@ func (c *BaseLoginPolicyCase) UpdateBaseLoginPolicy(ctx context.Context, req *ad
 	if input.GetInitialPassword() == nil {
 		policy.InitialPasswordHash = oldEntity.InitialPasswordHash
 	}
+	// 未显式指定状态时保留原状态，避免静默重新启用已停用的策略。
+	if input.GetStatus() == 0 {
+		policy.Status = oldEntity.Status
+	}
 	entity := c.policyMapper.ToEntity(&policy)
 	entity.ID = oldEntity.ID
 	oldRules, err := c.listRules(ctx, oldEntity.ID)

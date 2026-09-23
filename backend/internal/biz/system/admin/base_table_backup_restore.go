@@ -79,6 +79,19 @@ func (c *BaseTableBackupRestoreCase) ExecuteBaseTableBackupRestore(ctx context.C
 	if err != nil {
 		return err
 	}
+	// 同一备份记录不允许并发恢复，避免重复恢复导致数据重复或冲突。
+	restoreQuery := c.Query(ctx).BaseTableBackupRestore
+	var runningCount int64
+	runningCount, err = c.Count(ctx,
+		repository.Where(restoreQuery.BackupRecordID.Eq(req.GetBackupRecordId())),
+		repository.Where(restoreQuery.Status.Eq(int32(adminv1.BaseTableBackupRestoreStatus_BASE_TABLE_BACKUP_RESTORE_STATUS_RUNNING))),
+	)
+	if err != nil {
+		return err
+	}
+	if runningCount > 0 {
+		return errorsx.Conflict("该备份记录正在恢复中，请稍后重试")
+	}
 	now := time.Now()
 	entity := &models.BaseTableBackupRestore{BackupRecordID: req.GetBackupRecordId(), SourceName: backupRecord.SourceName, TargetSourceName: req.GetTargetSourceName(), TargetDatabase: req.GetTargetDatabase(), RestoreMode: int32(req.GetRestoreMode()), OperatorID: authInfo.UserId, Status: int32(adminv1.BaseTableBackupRestoreStatus_BASE_TABLE_BACKUP_RESTORE_STATUS_RUNNING), Error: "", StartedAt: now, FinishedAt: now}
 	if err = c.Create(ctx, entity); err != nil {

@@ -2,7 +2,7 @@
 import { useSettingStore, useUserStore } from '../../../stores'
 import type { LoginRequest } from '../../../rpc/base/v1/login'
 import { LoginStatus, type LoginResponse } from '../../../rpc/base/v1/login'
-import { onLoad } from '@dcloudio/uni-app'
+import { onLoad, onUnload } from '@dcloudio/uni-app'
 import { computed, defineAsyncComponent, nextTick, reactive, ref, watch } from 'vue'
 import { defLoginService } from '../../../api/base/v1/login'
 import { defMfaService } from '../../../api/base/v1/mfa'
@@ -102,10 +102,15 @@ const toggleAgreePrivacy = () => {
   isAgreePrivacy.value = !isAgreePrivacy.value
 }
 
+let agreePrivacyShakeTimer: ReturnType<typeof setTimeout> | undefined
+let loginSuccessTimer: ReturnType<typeof setTimeout> | undefined
+
 const triggerAgreePrivacyShake = () => {
   isAgreePrivacyShakeY.value = true
-  setTimeout(() => {
+  if (agreePrivacyShakeTimer) clearTimeout(agreePrivacyShakeTimer)
+  agreePrivacyShakeTimer = setTimeout(() => {
     isAgreePrivacyShakeY.value = false
+    agreePrivacyShakeTimer = undefined
   }, 500)
 }
 
@@ -203,17 +208,8 @@ const refreshMiniCaptcha = async () => {
 /** 仅将后端明确返回的未绑定错误转为账号绑定流程。 */
 const isWechatUnboundError = (error: unknown) => {
   if (!error || typeof error !== 'object') return false
-  const response = error as {
-    statusCode?: number
-    data?: {
-      reason?: string | number
-      message?: string
-      binding_required?: boolean
-      error?: { reason?: string | number; message?: string }
-    }
-  }
-  const reason = response.data?.reason ?? response.data?.error?.reason
-  return response.data?.binding_required === true || String(reason || '') === 'UNAUTHENTICATED'
+  const response = error as { data?: { binding_required?: boolean } }
+  return response.data?.binding_required === true
 }
 
 // 微信授权失败时保留请求层提示，避免异步登录异常冒泡到小程序调试器。
@@ -781,7 +777,9 @@ const loginSuccess = async () => {
   await userStore.getUserProfile()
   // 成功提示
   await uni.showToast({ icon: 'success', title: t('core.login.login_success') })
-  setTimeout(() => {
+  if (loginSuccessTimer) clearTimeout(loginSuccessTimer)
+  loginSuccessTimer = setTimeout(() => {
+    loginSuccessTimer = undefined
     const lastRoute = uni.getStorageSync('lastRoute') || homeTabPage
     if (lastRoute.startsWith(homeTabPage)) {
       uni.setStorageSync('SwitchTabIndex', true)
@@ -872,6 +870,13 @@ const ensureLoginSettings = () => loadLoginSettings()
 // 获取 code 登录凭证
 onLoad(() => {
   void loadLoginSettings()
+})
+
+onUnload(() => {
+  if (agreePrivacyShakeTimer) clearTimeout(agreePrivacyShakeTimer)
+  agreePrivacyShakeTimer = undefined
+  if (loginSuccessTimer) clearTimeout(loginSuccessTimer)
+  loginSuccessTimer = undefined
 })
 </script>
 

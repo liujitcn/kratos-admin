@@ -190,6 +190,13 @@ export default function AiPage() {
 
   const isSessionSending = (sessionID: string) => Boolean(sessionID && sendingSessionMapRef.current[sessionID])
 
+  /** 等待指定会话的历史加载完成，避免发送消息与加载竞态。 */
+  const waitForMessagesLoaded = async (sessionID: string) => {
+    while (loadingSessionIDRef.current === sessionID) {
+      await new Promise((resolve) => setTimeout(resolve, 16))
+    }
+  }
+
   const scrollChatToBottom = () => {
     setChatBottomAnchor('')
     if (scrollTimer.current) clearTimeout(scrollTimer.current)
@@ -292,8 +299,12 @@ export default function AiPage() {
   const ensureActiveSession = async () => {
     if (activeSessionIDRef.current) return activeSessionIDRef.current
     if (sessionsRef.current.length > 0) {
-      setActiveSessionID(sessionsRef.current[0].id)
-      return sessionsRef.current[0].id
+      const sessionID = sessionsRef.current[0].id
+      setActiveSessionID(sessionID)
+      if (!messagesRef.current[sessionID]?.length) {
+        await loadMessages(sessionID)
+      }
+      return sessionID
     }
     const sessionID = await createRemoteSession()
     if (sessionID) {
@@ -309,10 +320,13 @@ export default function AiPage() {
     try {
       const response = await defAiSessionService.ListAiMessage({ session_id: sessionID })
       if (loadingSessionIDRef.current !== sessionID) return
-      updateSessionMessages(sessionID, normalizeMessageList(response.messages))
+      const loaded = normalizeMessageList(response.messages)
+      updateSessionMessages(sessionID, (current) => mergeWithLocalOnlyStreaming(current, loaded))
       if (activeSessionIDRef.current === sessionID) scrollChatToBottom()
     } catch (error) {
-      if (loadingSessionIDRef.current === sessionID) updateSessionMessages(sessionID, [])
+      if (loadingSessionIDRef.current === sessionID) {
+        updateSessionMessages(sessionID, (current) => mergeWithLocalOnlyStreaming(current, []))
+      }
       showError(error, t('system.ai.load_messages_failed'))
     } finally {
       if (loadingSessionIDRef.current === sessionID) setLoadingSessionID('')
@@ -325,8 +339,7 @@ export default function AiPage() {
     try {
       const response = await defAiSessionService.ListAiSession({ terminal: AI_TERMINAL })
       setSessions(normalizeSessionList(response.sessions))
-      const sessionID = await ensureActiveSession()
-      if (sessionID) await loadMessages(sessionID)
+      await ensureActiveSession()
     } catch (error) {
       showError(error, t('system.ai.load_sessions_failed'))
     } finally {
@@ -426,6 +439,8 @@ export default function AiPage() {
   const sendAiPayload = async (payload: { text: string; attachments: AiAttachment[] }) => {
     const sessionID = await ensureActiveSession()
     if (!sessionID || isSessionSending(sessionID)) return false
+    // 发送前等待进行中的历史加载结束，避免本地消息与历史加载竞态。
+    await waitForMessagesLoaded(sessionID)
     updateSessionMessages(sessionID, (current) =>
       sortMessages([...current, createLocalUserMessage(payload), createThinkingMessage({ sessionID })]),
     )
@@ -770,6 +785,18 @@ function normalizeStarterShortcuts(list?: AiShortcut[] | null) {
 function normalizeMessageList(list?: AiMessage[] | null) {
   if (!Array.isArray(list)) return []
   return sortMessages(list.filter(Boolean).flatMap((item) => [mapMessageItem(item, 'user'), mapMessageItem(item, 'ai')]))
+}
+
+/** 合并历史加载结果与仍在流式中的本地消息，避免加载覆盖进行中的对话。 */
+function mergeWithLocalOnlyStreaming(current: ChatMessageItem[], loaded: ChatMessageItem[]) {
+  const localStreaming = current.filter(
+    (item) => item.localOnly && item.status === AiMessageStatus.AI_MESSAGE_STATUS_GENERATING,
+  )
+  if (!localStreaming.length) return loaded
+  const messageMap = new Map<string, ChatMessageItem>()
+  for (const item of loaded) messageMap.set(item.key, item)
+  for (const item of localStreaming) messageMap.set(item.key, item)
+  return sortMessages(Array.from(messageMap.values()))
 }
 
 function hasSuccessfulAiMessages(list: ChatMessageItem[]) {

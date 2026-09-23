@@ -37,16 +37,8 @@ const emptyLoginForm = (): LoginRequest => ({
 
 function isWechatUnboundError(error: unknown): boolean {
   if (!error || typeof error !== 'object') return false
-  const response = error as {
-    data?: {
-      reason?: string | number
-      message?: string
-      binding_required?: boolean
-      error?: { reason?: string | number; message?: string }
-    }
-  }
-  const reason = response.data?.reason ?? response.data?.error?.reason
-  return response.data?.binding_required === true || String(reason || '') === 'UNAUTHENTICATED'
+  const response = error as { data?: { binding_required?: boolean } }
+  return response.data?.binding_required === true
 }
 
 /** 提取小程序请求失败时后端返回的可展示消息。 */
@@ -120,6 +112,7 @@ export default function LoginPage() {
   const [mfaSetupWebAuthnOptionsJson, setMfaSetupWebAuthnOptionsJson] = useState('')
   const [mfaRecoveryCodesVisible, setMfaRecoveryCodesVisible] = useState(false)
   const [mfaRecoveryCodes, setMfaRecoveryCodes] = useState<string[]>([])
+  const shakeTimerRef = useRef<ReturnType<typeof setTimeout>>()
 
   const currentLanguageName =
     languageOptions.find((item) => item.language_code === locale)?.native_name || locale
@@ -178,7 +171,13 @@ export default function LoginPage() {
 
   useEffect(() => {
     void Taro.setNavigationBarTitle({ title: t('common.action.login') })
-  }, [locale, t])
+  }, [locale])
+
+  useEffect(() => {
+    return () => {
+      if (shakeTimerRef.current) clearTimeout(shakeTimerRef.current)
+    }
+  }, [])
 
   const updateForm = (key: keyof LoginRequest, value: string) => {
     setForm((current) => ({ ...current, [key]: value }))
@@ -279,7 +278,11 @@ export default function LoginPage() {
     }
     if (agreed) return true
     setShake(true)
-    setTimeout(() => setShake(false), 500)
+    if (shakeTimerRef.current) clearTimeout(shakeTimerRef.current)
+    shakeTimerRef.current = setTimeout(() => {
+      shakeTimerRef.current = undefined
+      setShake(false)
+    }, 500)
     const result = await Taro.showModal({
       title: t('common.title.notice'),
       content: t('core.login.protocol_prompt'),

@@ -123,5 +123,6 @@
   "common.value.top_level": "トップレベル",
   "common.resource.default": "{resource}",
   "common.action.delete_resource": "{resource}を削除",
-  "common.action.set_field_status": "{field}を設定"
+  "common.action.set_field_status": "{field}を設定",
+  "common.action.load_more": "さらに読み込む"
 }

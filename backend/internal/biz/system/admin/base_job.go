@@ -22,6 +22,7 @@ import (
 type BaseJobCase struct {
 	*biz.BaseCase
 	*data.BaseJobRepository
+	tx             data.Transaction
 	baseJobLogCase *BaseJobLogCase
 	baseI18nCase   *BaseI18nCase
 	job            *corejob.Job
@@ -30,7 +31,7 @@ type BaseJobCase struct {
 }
 
 // NewBaseJobCase 创建定时任务业务实例
-func NewBaseJobCase(baseCase *biz.BaseCase, job *corejob.Job, baseJobRepo *data.BaseJobRepository, baseJobLogCase *BaseJobLogCase, baseI18nCase *BaseI18nCase) *BaseJobCase {
+func NewBaseJobCase(baseCase *biz.BaseCase, tx data.Transaction, job *corejob.Job, baseJobRepo *data.BaseJobRepository, baseJobLogCase *BaseJobLogCase, baseI18nCase *BaseI18nCase) *BaseJobCase {
 	formMapper := _mapper.NewCopierMapper[adminv1.BaseJobForm, models.BaseJob]()
 	formMapper.AppendConverters(_mapper.NewJSONTypeConverter[[]*adminv1.BaseJobArgs]().NewConverterPair())
 	mapper := _mapper.NewCopierMapper[adminv1.BaseJob, models.BaseJob]()
@@ -39,6 +40,7 @@ func NewBaseJobCase(baseCase *biz.BaseCase, job *corejob.Job, baseJobRepo *data.
 	return &BaseJobCase{
 		BaseCase:          baseCase,
 		BaseJobRepository: baseJobRepo,
+		tx:                tx,
 		baseJobLogCase:    baseJobLogCase,
 		baseI18nCase:      baseI18nCase,
 		job:               job,
@@ -161,19 +163,18 @@ func (c *BaseJobCase) CreateBaseJob(ctx context.Context, req *adminv1.BaseJobFor
 	}
 	baseJob := c.formMapper.ToEntity(req)
 	baseJob.Args = _string.ConvertAnyToJsonString(req.GetArgs())
-	err = c.Create(ctx, baseJob)
-	if err != nil {
-		// 命中调用目标唯一索引冲突时，返回稳定的业务冲突错误。
-		if errorsx.IsDuplicateKey(err) {
-			return errorsx.UniqueConflict("调用目标重复", "base_job", "invoke_target", "unique_base_job").WithCause(err)
+	// 主记录与翻译写入同一事务，失败时不产生半成品。
+	err = c.tx.Transaction(ctx, func(txCtx context.Context) error {
+		if err := c.Create(txCtx, baseJob); err != nil {
+			// 命中调用目标唯一索引冲突时，返回稳定的业务冲突错误。
+			if errorsx.IsDuplicateKey(err) {
+				return errorsx.UniqueConflict("调用目标重复", "base_job", "invoke_target", "unique_base_job").WithCause(err)
+			}
+			return err
 		}
-		return err
-	}
-	err = c.saveBaseI18n(ctx, req, baseJob)
-	if err != nil {
-		return err
-	}
-	return nil
+		return c.saveBaseI18n(txCtx, req, baseJob)
+	})
+	return err
 }
 
 // UpdateBaseJob 更新定时任务

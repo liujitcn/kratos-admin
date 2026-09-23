@@ -27,6 +27,10 @@ test('游客或过期登录态恢复前台时不启动通知请求，运行中�
           name: 'runtime-stubs',
           setup(builder) {
             builder.onResolve({ filter: /^vue$/ }, () => ({ path: 'vue', namespace: 'stub' }))
+            builder.onResolve({ filter: /^@liujitcn\/kratos-uni-app-core$/ }, () => ({
+              path: 'core',
+              namespace: 'stub',
+            }))
             builder.onResolve({ filter: /kratos-uni-app-core\/navigation$/ }, () => ({
               path: 'navigation',
               namespace: 'stub',
@@ -41,6 +45,9 @@ test('游客或过期登录态恢复前台时不启动通知请求，运行中�
             }))
             builder.onLoad({ filter: /.*/, namespace: 'stub' }, ({ path }) => {
               if (path === 'vue') return { contents: 'export const ref = (value) => ({ value })' }
+              if (path === 'core') {
+                return { contents: 'export const getLocaleRequestHeaders = () => ({})' }
+              }
               if (path === 'navigation')
                 return { contents: 'export const setAppMenuBadge = () => {}' }
               if (path === 'auth') {
@@ -49,7 +56,7 @@ test('游客或过期登录态恢复前台时不启动通知请求，运行中�
               if (path === 'http') {
                 return {
                   contents:
-                    "export const requestBaseURL = '/api'; export const getRequestAccessToken = async (mode = 'required') => { globalThis.__authModes.push(`stream:${mode}`); if (!globalThis.__validToken) { if (mode === 'required') globalThis.__reloginPrompts += 1; throw new Error('expired'); } return 'Bearer valid'; }; export const http = async (options) => { globalThis.__authModes.push(`request:${options.authMode}`); if (!globalThis.__validToken) { if (options.authMode === 'required') globalThis.__reloginPrompts += 1; throw new Error('expired'); } return { unread_total: 0 }; }",
+                    "export const siteBaseURL = 'http://localhost:5004'; export const sourceClient = 'uni-h5'; export const getRequestAccessToken = async (mode = 'required') => { globalThis.__authModes.push(`stream:${mode}`); if (!globalThis.__validToken) { if (mode === 'required') globalThis.__reloginPrompts += 1; throw new Error('expired'); } return 'Bearer valid'; }; export const http = async (options) => { globalThis.__authModes.push(`request:${options.authMode}`); if (!globalThis.__validToken) { if (options.authMode === 'required') globalThis.__reloginPrompts += 1; throw new Error('expired'); } return { unread_total: 0 }; }",
                 }
               }
             })

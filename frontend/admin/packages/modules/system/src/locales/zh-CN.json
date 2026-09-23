@@ -1575,5 +1575,7 @@
   "system.base.i18n_custom.placeholder.value": "请输入自定义文案",
   "system.base.i18n_custom.placeholder.remark": "请输入备注",
   "system.base.i18n_custom.message.confirm_status": "确定将“{name}”{action}吗？",
-  "system.base.i18n_custom.message.confirm_delete": "确定删除自定义翻译“{name}”吗？"
+  "system.base.i18n_custom.message.confirm_delete": "确定删除自定义翻译“{name}”吗？",
+  "system.dashboard.last_7_days": "近 7 天",
+  "system.dashboard.total": "总计 {count}"
 }

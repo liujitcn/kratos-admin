@@ -2,7 +2,9 @@ package biz
 
 import (
 	"context"
+	"fmt"
 
+	"github.com/go-kratos/kratos/v3/log"
 	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
 	_const "github.com/liujitcn/kratos-admin/backend/internal/const"
 	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
@@ -120,6 +122,14 @@ func (c *BaseAreaCase) CreateBaseArea(ctx context.Context, req *adminv1.BaseArea
 
 // UpdateBaseArea 更新行政区域。
 func (c *BaseAreaCase) UpdateBaseArea(ctx context.Context, id int64, req *adminv1.BaseAreaForm) error {
+	if req.GetParentId() == id {
+		return errorsx.InvalidArgument("上级行政区域不能是自身")
+	}
+	if req.GetParentId() != 0 {
+		if err := c.ensureBaseAreaNotSelfOrDescendant(ctx, id, req.GetParentId()); err != nil {
+			return err
+		}
+	}
 	baseArea := c.formMapper.ToEntity(req)
 	baseArea.ID = id
 	err := c.UpdateByID(ctx, baseArea)
@@ -127,6 +137,22 @@ func (c *BaseAreaCase) UpdateBaseArea(ctx context.Context, id int64, req *adminv
 		return err
 	}
 	return c.invalidateBaseAreaCache()
+}
+
+// ensureBaseAreaNotSelfOrDescendant 校验新父级不是当前区域自身或其子孙，避免形成环。
+func (c *BaseAreaCase) ensureBaseAreaNotSelfOrDescendant(ctx context.Context, id, parentID int64) error {
+	current := parentID
+	for depth := 0; current != 0 && depth < 10000; depth++ {
+		if current == id {
+			return errorsx.InvalidArgument("上级行政区域不能是自身或其下级")
+		}
+		area, err := c.FindByID(ctx, current)
+		if err != nil {
+			return err
+		}
+		current = area.ParentID
+	}
+	return nil
 }
 
 // DeleteBaseArea 删除行政区域。
@@ -159,7 +185,11 @@ func (c *BaseAreaCase) invalidateBaseAreaCache() error {
 	if c.Cache == nil {
 		return nil
 	}
-	return c.Cache.Del(_const.BASE_AREA_CACHE_KEY)
+	// 缓存失效失败只记录日志，不影响已成功的主数据变更，避免误报操作失败。
+	if err := c.Cache.Del(_const.BASE_AREA_CACHE_KEY); err != nil {
+		log.Error(fmt.Sprintf("invalidate base area cache failed: %v", err))
+	}
+	return nil
 }
 
 // buildOptionBaseAreaOption 构建行政区域树形选择。

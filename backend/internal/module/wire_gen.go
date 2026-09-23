@@ -83,7 +83,7 @@ func BuildModules(migrations *migration.Migration, config2 *configv1.Bootstrap, 
 		return nil, nil, err
 	}
 	baseRoleCase := biz3.NewBaseRoleCase(baseCase, transaction, baseRoleRepository, baseTenantRepository, casbinRuleCase)
-	baseDeptCase := biz3.NewBaseDeptCase(baseCase, baseDeptRepository)
+	baseDeptCase := biz3.NewBaseDeptCase(baseCase, transaction, baseDeptRepository)
 	baseI18NRepository := data2.NewBaseI18NRepository(dataData)
 	baseLanguageRepository := data2.NewBaseLanguageRepository(dataData)
 	baseLanguageCase := biz3.NewBaseLanguageCase(baseCase, transaction, baseLanguageRepository)
@@ -129,7 +129,7 @@ func BuildModules(migrations *migration.Migration, config2 *configv1.Bootstrap, 
 	baseJobRepository := data2.NewBaseJobRepository(dataData)
 	baseJobLogRepository := data2.NewBaseJobLogRepository(dataData)
 	baseJobLogCase := biz3.NewBaseJobLogCase(baseCase, baseJobLogRepository)
-	baseJobCase := biz3.NewBaseJobCase(baseCase, jobRuntime, baseJobRepository, baseJobLogCase, baseI18nCase)
+	baseJobCase := biz3.NewBaseJobCase(baseCase, transaction, jobRuntime, baseJobRepository, baseJobLogCase, baseI18nCase)
 	baseJobService := admin.NewBaseJobService(baseJobCase)
 	baseJobLogService := admin.NewBaseJobLogService(baseJobLogCase)
 	baseLanguageService := admin.NewBaseLanguageService(baseLanguageCase)
@@ -354,12 +354,12 @@ func BuildModules(migrations *migration.Migration, config2 *configv1.Bootstrap, 
 	bizBaseDeptCase := biz2.NewBaseDeptCase(baseCase, baseDeptRepository)
 	mfa := config.ParseMfaConfig(config2)
 	mfaCase := biz2.NewMfaCase(baseCase, transaction, baseUserMFARepository, baseUserMFARecoveryRepository, baseUserMFATotpRepository, baseUserMFAWebauthnRepository, baseUserCase, configCase, userToken, mfa)
-	loginLocker, cleanup2, err := sessionregistry.NewLoginLocker(config2)
+	v, cleanup2, err := sessionregistry.NewLoginLocker(config2)
 	if err != nil {
 		cleanup()
 		return nil, nil, err
 	}
-	loginCase := biz2.NewLoginCase(baseCase, bizBaseDeptCase, bizBaseRoleCase, baseUserCase, baseTenantRepository, baseDictRepository, baseDictItemRepository, mfaCase, userToken, loginLocker)
+	loginCase := biz2.NewLoginCase(baseCase, bizBaseDeptCase, bizBaseRoleCase, baseUserCase, baseTenantRepository, baseDictRepository, baseDictItemRepository, mfaCase, userToken, v)
 	loginService := base.NewLoginService(loginCase)
 	mfaService := base.NewMfaService(loginCase, mfaCase)
 	oauthCase := biz2.NewOauthCase(baseCase, transaction, baseThirdAccountCase, baseUserCase, bizBaseRoleCase, bizBaseDeptCase, loginCase, configCase, manager)

@@ -20,20 +20,30 @@ async function loadNotificationRuntime(state) {
       {
         name: 'taro-notification-test-runtime',
         setup(buildApi) {
-          buildApi.onResolve(
-            { filter: /^@liujitcn\/kratos-taro-app-core\/navigation$/ },
-            () => ({ path: 'navigation-test-runtime', namespace: 'test' }),
-          )
-          buildApi.onResolve(
-            { filter: /^@liujitcn\/kratos-taro-app-core\/utils\/auth$/ },
-            () => ({ path: 'auth-test-runtime', namespace: 'test' }),
-          )
-          buildApi.onResolve(
-            { filter: /^@liujitcn\/kratos-taro-app-core\/utils\/http$/ },
-            () => ({ path: 'http-test-runtime', namespace: 'test' }),
-          )
+          buildApi.onResolve({ filter: /^@liujitcn\/kratos-taro-app-core$/ }, () => ({
+            path: 'core-test-runtime',
+            namespace: 'test',
+          }))
+          buildApi.onResolve({ filter: /^@liujitcn\/kratos-taro-app-core\/navigation$/ }, () => ({
+            path: 'navigation-test-runtime',
+            namespace: 'test',
+          }))
+          buildApi.onResolve({ filter: /^@liujitcn\/kratos-taro-app-core\/utils\/auth$/ }, () => ({
+            path: 'auth-test-runtime',
+            namespace: 'test',
+          }))
+          buildApi.onResolve({ filter: /^@liujitcn\/kratos-taro-app-core\/utils\/http$/ }, () => ({
+            path: 'http-test-runtime',
+            namespace: 'test',
+          }))
           buildApi.onLoad({ filter: /.*/, namespace: 'test' }, (args) => {
             const stateExpression = 'process.__KRATOS_TARO_NOTIFICATION_TEST_STATE__'
+            if (args.path === 'core-test-runtime') {
+              return {
+                loader: 'js',
+                contents: 'export function getLocaleRequestHeaders() { return {} }',
+              }
+            }
             if (args.path === 'navigation-test-runtime') {
               return {
                 loader: 'js',
@@ -58,7 +68,8 @@ async function loadNotificationRuntime(state) {
               loader: 'js',
               contents: `
                 const state = ${stateExpression}
-                export const requestBaseURL = 'http://localhost/api'
+                export const siteBaseURL = 'http://localhost'
+                export const sourceClient = 'taro-h5'
                 export function getRequestAccessToken() { return Promise.resolve(state.token) }
                 export function http() {
                   state.summaryCalls += 1

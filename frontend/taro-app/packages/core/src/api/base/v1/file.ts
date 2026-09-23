@@ -7,7 +7,7 @@ import {
 } from '../../../rpc/base/v1/file'
 import { uploadFile, uploadFileList } from '../../../utils/file'
 import { getLocaleRequestHeaders, t } from '../../../locales'
-import { getRequestAccessToken, requestBaseURL } from '../../../utils/http'
+import { getRequestAccessToken, requestBaseURL, sourceClient } from '../../../utils/http'
 
 const FILE_URL = '/v1/base/file'
 
@@ -51,7 +51,7 @@ export class FileServiceImpl {
       header: {
         ...getLocaleRequestHeaders(),
         Authorization: token,
-        'source-client': 'miniapp',
+        'source-client': sourceClient,
       },
     })
     if (response.statusCode !== 200) throw new Error(t('core.file.download_failed'))

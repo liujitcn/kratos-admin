@@ -162,28 +162,24 @@ func (c *BaseConfigCase) GetBaseConfig(ctx context.Context, id int64) (*adminv1.
 // CreateBaseConfig 创建配置并校验表单类型的结构和值域。
 func (c *BaseConfigCase) CreateBaseConfig(ctx context.Context, req *adminv1.BaseConfigForm) error {
 	entity := c.formMapper.ToEntity(req)
-	var err error
-	err = validateFormConfig(entity, nil)
-	if err != nil {
+	if err := validateFormConfig(entity, nil); err != nil {
 		return err
 	}
-	err = c.Create(ctx, entity)
-	if err != nil {
-		// 命中配置键唯一索引冲突时，返回稳定的业务冲突错误。
-		if errorsx.IsDuplicateKey(err) {
-			return errorsx.UniqueConflict("同一位置的配置键重复", "base_config", "", "unique_base_config").WithCause(err)
+	// 主记录与翻译写入同一事务，失败时不产生半成品；缓存刷新在事务提交后执行。
+	err := c.tx.Transaction(ctx, func(txCtx context.Context) error {
+		if err := c.Create(txCtx, entity); err != nil {
+			// 命中配置键唯一索引冲突时，返回稳定的业务冲突错误。
+			if errorsx.IsDuplicateKey(err) {
+				return errorsx.UniqueConflict("同一位置的配置键重复", "base_config", "", "unique_base_config").WithCause(err)
+			}
+			return err
 		}
-		return err
-	}
-	err = c.saveBaseI18n(ctx, req, entity)
+		return c.saveBaseI18n(txCtx, req, entity)
+	})
 	if err != nil {
 		return err
 	}
-	err = c.refreshBaseConfigSite(ctx, entity.Site)
-	if err != nil {
-		return err
-	}
-	return nil
+	return c.refreshBaseConfigSite(ctx, entity.Site)
 }
 
 // UpdateBaseConfig 更新配置，合并表单敏感值并刷新运行缓存。
@@ -194,29 +190,28 @@ func (c *BaseConfigCase) UpdateBaseConfig(ctx context.Context, req *adminv1.Base
 	}
 
 	entity := c.formMapper.ToEntity(req)
-	err = validateFormConfig(entity, oldConfig)
-	if err != nil {
+	if err := validateFormConfig(entity, oldConfig); err != nil {
 		return err
 	}
-	err = c.UpdateByID(ctx, entity)
-	if err != nil {
-		// 命中配置键唯一索引冲突时，返回稳定的业务冲突错误。
-		if errorsx.IsDuplicateKey(err) {
-			return errorsx.UniqueConflict("同一位置的配置键重复", "base_config", "", "unique_base_config").WithCause(err)
+	// 主记录与翻译写入同一事务，失败时不产生半成品；缓存刷新在事务提交后执行。
+	err = c.tx.Transaction(ctx, func(txCtx context.Context) error {
+		if err := c.UpdateByID(txCtx, entity); err != nil {
+			// 命中配置键唯一索引冲突时，返回稳定的业务冲突错误。
+			if errorsx.IsDuplicateKey(err) {
+				return errorsx.UniqueConflict("同一位置的配置键重复", "base_config", "", "unique_base_config").WithCause(err)
+			}
+			return err
 		}
-		return err
-	}
-	err = c.saveBaseI18n(ctx, req, entity)
+		return c.saveBaseI18n(txCtx, req, entity)
+	})
 	if err != nil {
 		return err
 	}
-	err = c.refreshBaseConfigSite(ctx, oldConfig.Site)
-	if err != nil {
+	if err := c.refreshBaseConfigSite(ctx, oldConfig.Site); err != nil {
 		return err
 	}
 	if oldConfig.Site != entity.Site {
-		err = c.refreshBaseConfigSite(ctx, entity.Site)
-		if err != nil {
+		if err := c.refreshBaseConfigSite(ctx, entity.Site); err != nil {
 			return err
 		}
 	}

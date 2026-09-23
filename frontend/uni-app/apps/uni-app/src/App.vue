@@ -3,9 +3,10 @@ import { onHide, onLaunch, onShow } from '@dcloudio/uni-app'
 import {
   pauseNotificationPolling,
   resumeNotificationPolling,
+  startNotificationPolling,
 } from '@liujitcn/kratos-uni-app-system'
 
-onLaunch(() => console.log('App Launch'))
+onLaunch(() => startNotificationPolling())
 onShow(() => resumeNotificationPolling())
 onHide(() => pauseNotificationPolling())
 </script>

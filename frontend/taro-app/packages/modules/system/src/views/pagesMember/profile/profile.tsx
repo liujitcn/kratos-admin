@@ -10,7 +10,7 @@ import {
   View,
 } from '@tarojs/components'
 import Taro, { useLoad } from '@tarojs/taro'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import defaultAvatar from '@liujitcn/kratos-taro-app-core/static/images/avatar.png'
 import navigatorBackground from '@liujitcn/kratos-taro-app-core/static/images/navigator_bg.png'
 import { defAuthService } from '@liujitcn/kratos-taro-app-core/api/system/app/v1/auth'
@@ -45,6 +45,8 @@ export default function ProfilePage() {
     avatar: '',
   })
   const [genderList, setGenderList] = useState<BaseDictForm_DictItem[]>([])
+  const submittingRef = useRef(false)
+  const navigateBackTimerRef = useRef<ReturnType<typeof setTimeout>>()
   const ensureAuthenticated = useUserStore((state) => state.ensureAuthenticated)
   const safeTop = Taro.getWindowInfo().safeArea?.top || 0
   const idTypeOptions = [
@@ -63,7 +65,13 @@ export default function ProfilePage() {
 
   useEffect(() => {
     void Taro.setNavigationBarTitle({ title: t('system.profile.title') })
-  }, [locale, t])
+  }, [locale])
+
+  useEffect(() => {
+    return () => {
+      if (navigateBackTimerRef.current) clearTimeout(navigateBackTimerRef.current)
+    }
+  }, [])
 
   const requireAuth = () => {
     if (ensureAuthenticated()) return true
@@ -122,6 +130,7 @@ export default function ProfilePage() {
   }
 
   const onSubmit = async () => {
+    if (submittingRef.current) return
     if (!requireAuth()) return
     if (userInfo.email && !EMAIL_PATTERN.test(userInfo.email)) {
       await Taro.showToast({ icon: 'none', title: t('system.profile.email_invalid') })
@@ -131,10 +140,16 @@ export default function ProfilePage() {
       await Taro.showToast({ icon: 'none', title: t('system.profile.id_code_invalid') })
       return
     }
-    await defAuthService.UpdateUserProfile({ user_profile: userInfo })
-    await useUserStore.getState().getUserProfile()
-    await Taro.showToast({ icon: 'success', title: t('system.profile.save_success') })
-    setTimeout(() => void Taro.navigateBack(), 400)
+    submittingRef.current = true
+    try {
+      await defAuthService.UpdateUserProfile({ user_profile: userInfo })
+      await useUserStore.getState().getUserProfile()
+      await Taro.showToast({ icon: 'success', title: t('system.profile.save_success') })
+      if (navigateBackTimerRef.current) clearTimeout(navigateBackTimerRef.current)
+      navigateBackTimerRef.current = setTimeout(() => void Taro.navigateBack(), 400)
+    } finally {
+      submittingRef.current = false
+    }
   }
 
   return (

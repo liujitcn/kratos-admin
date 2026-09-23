@@ -388,14 +388,20 @@ watch(
   }
 );
 
+/** 用户选项请求序号，用于丢弃快速切换租户时晚到的旧列表。 */
+let userOptionsRequestId = 0;
+
 watch(
   () => formData.tenant_id,
   async tenantId => {
     if (formData.scope_type !== BaseLoginPolicyScopeType.BASE_LOGIN_POLICY_SCOPE_TYPE_USER || !tenantId) {
+      userOptionsRequestId += 1;
       userOptions.value = [];
       return;
     }
+    const requestId = ++userOptionsRequestId;
     const response = await defBaseUserService.OptionBaseUser({ keyword: "", tenant_id: tenantId });
+    if (requestId !== userOptionsRequestId || formData.tenant_id !== tenantId) return;
     userOptions.value = response.list ?? [];
   }
 );

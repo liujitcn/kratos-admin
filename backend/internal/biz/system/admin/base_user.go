@@ -532,9 +532,6 @@ func (c *BaseUserCase) UpdateBaseUser(ctx context.Context, req *adminv1.BaseUser
 	baseUser.TenantID = oldBaseUser.TenantID
 	baseUser.UserName = oldBaseUser.UserName
 	baseUser.UserCode = oldBaseUser.UserCode
-	if err = c.revokeUserToken(baseUser.ID); err != nil {
-		return err
-	}
 	err = c.tx.Transaction(ctx, func(ctx context.Context) error {
 		err = c.UpdateByID(ctx, baseUser)
 		if err != nil {
@@ -549,7 +546,8 @@ func (c *BaseUserCase) UpdateBaseUser(ctx context.Context, req *adminv1.BaseUser
 	if err != nil {
 		return err
 	}
-	return nil
+	// 事务提交成功后再吊销令牌，避免回滚后令牌已失效而数据未变更。
+	return c.revokeUserToken(baseUser.ID)
 }
 
 // DeleteBaseUser 删除用户
@@ -666,9 +664,6 @@ func (c *BaseUserCase) ResetBaseUserPassword(ctx context.Context, req *adminv1.R
 	if err != nil {
 		return err
 	}
-	if err = c.revokeUserToken(baseUser.ID); err != nil {
-		return err
-	}
 	var history string
 	history, err = passwordPolicy.AppendHistoryJSON(baseUser.PasswordHistory, baseUser.Password, passwordConfig.HistoryCount)
 	if err != nil {
@@ -685,7 +680,8 @@ func (c *BaseUserCase) ResetBaseUserPassword(ctx context.Context, req *adminv1.R
 	if err != nil {
 		return err
 	}
-	return nil
+	// 密码更新成功后再吊销令牌，避免更新失败时令牌已失效而密码未变更。
+	return c.revokeUserToken(baseUser.ID)
 }
 
 // SetBaseUserAppRole 将基础用户切换到允许的应用端内置角色。

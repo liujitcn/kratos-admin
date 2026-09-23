@@ -80,6 +80,9 @@ const tableId = computed(() => {
 /** 当前代码预览页标题。 */
 const pageTitle = computed(() => table.value?.comment || table.value?.name || t("system.code.gen.preview.title.code"));
 
+/** 代码预览加载序号，用于丢弃旧表晚到的响应。 */
+let codePreviewRequestId = 0;
+
 // 路由生成对象变化时重新载入对应代码预览。
 watch(
   tableId,
@@ -91,6 +94,7 @@ watch(
 
 /** 加载当前表配置与固定项目路径下的代码预览。 */
 async function loadCodePreview() {
+  const requestId = ++codePreviewRequestId;
   table.value = undefined;
   files.value = [];
   previewError.value = "";
@@ -99,9 +103,11 @@ async function loadCodePreview() {
   loading.value = true;
   try {
     const currentTable = await defCodeGenTableService.GetCodeGenTable({ id: tableId.value });
+    if (requestId !== codePreviewRequestId) return;
     table.value = currentTable;
     try {
       const preview = await defCodeGenService.PreviewCodeGen({ table_id: tableId.value, output_paths: undefined });
+      if (requestId !== codePreviewRequestId) return;
       files.value = preview.files ?? [];
       missingI18ns.value = preview.missing_i18ns ?? [];
       if (missingI18ns.value.length) {
@@ -111,12 +117,14 @@ async function loadCodePreview() {
       }
       if (!files.value.length && !previewError.value) previewError.value = t("system.code.gen.preview.message.no_preview_files");
     } catch {
+      if (requestId !== codePreviewRequestId) return;
       // 预览错误在页面内转成可操作提示，避免全局错误弹窗只显示“系统出错”。
       previewError.value = t("system.code.gen.preview.message.load_failed");
     }
+    if (requestId !== codePreviewRequestId) return;
     syncWorkspaceTitle();
   } finally {
-    loading.value = false;
+    if (requestId === codePreviewRequestId) loading.value = false;
   }
 }
 

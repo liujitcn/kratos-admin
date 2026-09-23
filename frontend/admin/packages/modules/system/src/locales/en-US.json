@@ -1575,5 +1575,7 @@
   "system.base.i18n_custom.placeholder.value": "Enter custom text",
   "system.base.i18n_custom.placeholder.remark": "Enter a remark",
   "system.base.i18n_custom.message.confirm_status": "Are you sure you want to {action} \"{name}\"?",
-  "system.base.i18n_custom.message.confirm_delete": "Are you sure you want to delete custom translation \"{name}\"?"
+  "system.base.i18n_custom.message.confirm_delete": "Are you sure you want to delete custom translation \"{name}\"?",
+  "system.dashboard.last_7_days": "Last 7 days",
+  "system.dashboard.total": "Total {count}"
 }

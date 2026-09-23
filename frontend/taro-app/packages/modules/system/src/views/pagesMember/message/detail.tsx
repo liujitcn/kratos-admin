@@ -46,7 +46,7 @@ export default function MessageDetailPage() {
     navigateAppView(detail.action_target, params)
   }
 
-  if (!detail) return <View className='empty'>{t('common.status.loading')}</View>
+  if (!detail) return <View className='empty'>{t('core.status.loading')}</View>
   return (
     <View className='detail-page'>
       <Text className='detail-title'>{detail.title}</Text>

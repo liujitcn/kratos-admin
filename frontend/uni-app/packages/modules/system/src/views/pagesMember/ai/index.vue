@@ -484,6 +484,8 @@ async function sendAiPayload(payload: { text: string; attachments: AiAttachment[
   if (!sessionID || isSessionSending(sessionID)) {
     return false
   }
+  // 发送前等待进行中的历史加载结束，避免本地消息与历史加载竞态。
+  await waitForMessagesLoaded(sessionID)
 
   const localUserMessage = createLocalUserMessage(payload)
   const thinkingMessage = createThinkingMessage({ sessionID })
@@ -798,10 +800,7 @@ async function ensureSessionsLoaded() {
       terminal: AI_TERMINAL,
     })
     sessions.value = normalizeSessionList(response.sessions)
-    const sessionID = await ensureActiveSession()
-    if (sessionID) {
-      await loadMessages(sessionID)
-    }
+    await ensureActiveSession()
   } catch (error) {
     showError(error, t('system.ai.load_sessions_failed'))
   } finally {
@@ -814,8 +813,12 @@ async function ensureActiveSession() {
     return activeSessionID.value
   }
   if (sessions.value.length > 0) {
-    activeSessionID.value = sessions.value[0].id
-    return activeSessionID.value
+    const sessionID = sessions.value[0].id
+    activeSessionID.value = sessionID
+    if (!messages.value[sessionID]?.length) {
+      await loadMessages(sessionID)
+    }
+    return sessionID
   }
   const sessionID = await createRemoteSession()
   if (sessionID) {
@@ -849,19 +852,45 @@ async function loadMessages(sessionID: string) {
     if (loadingSessionID.value !== sessionID) {
       return
     }
-    messages.value[sessionID] = normalizeMessageList(response.messages)
+    const loaded = normalizeMessageList(response.messages)
+    messages.value[sessionID] = mergeWithLocalOnlyStreaming(messages.value[sessionID] ?? [], loaded)
     if (activeSessionID.value === sessionID) {
       scrollChatToBottom()
     }
   } catch (error) {
     if (loadingSessionID.value === sessionID) {
-      messages.value[sessionID] = []
+      messages.value[sessionID] = mergeWithLocalOnlyStreaming(messages.value[sessionID] ?? [], [])
     }
     showError(error, t('system.ai.load_messages_failed'))
   } finally {
     if (loadingSessionID.value === sessionID) {
       loadingSessionID.value = ''
     }
+  }
+}
+
+/** 合并历史加载结果与仍在流式中的本地消息，避免加载覆盖进行中的对话。 */
+function mergeWithLocalOnlyStreaming(current: ChatMessageItem[], loaded: ChatMessageItem[]) {
+  const localStreaming = current.filter(
+    (item) => item.localOnly && item.status === AiMessageStatus.AI_MESSAGE_STATUS_GENERATING,
+  )
+  if (!localStreaming.length) {
+    return loaded
+  }
+  const messageMap = new Map<string, ChatMessageItem>()
+  for (const item of loaded) {
+    messageMap.set(item.key, item)
+  }
+  for (const item of localStreaming) {
+    messageMap.set(item.key, item)
+  }
+  return sortMessages(Array.from(messageMap.values()))
+}
+
+/** 等待指定会话的历史加载完成，避免发送消息与加载竞态。 */
+async function waitForMessagesLoaded(sessionID: string) {
+  while (loadingSessionID.value === sessionID) {
+    await new Promise((resolve) => setTimeout(resolve, 16))
   }
 }
 

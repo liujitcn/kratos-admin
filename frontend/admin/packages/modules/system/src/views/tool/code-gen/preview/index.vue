@@ -344,6 +344,9 @@ const treeParentOptions = computed<ProFormOption[]>(() => {
   return [{ label: t("system.code.gen.preview.value.top_level"), value: 0 }, ...mapPreviewRowsToOptions(treeRows)];
 });
 
+/** 页面预览加载序号，用于丢弃旧表晚到的响应。 */
+let previewRequestId = 0;
+
 // 路由生成对象变化时重新载入对应预览。
 watch(tableId, () => {
   void loadPreview();
@@ -397,8 +400,8 @@ async function requestPreviewTable(params: Record<string, any>) {
   if (pageType.value === "tree" && snapshot.value?.table.parent_column) {
     return { data: buildCodeGenPreviewTree(rows, primaryColumn.value, snapshot.value.table.parent_column) };
   }
-  const pageNum = Number(params.pageNum ?? 1);
-  const pageSize = Number(params.pageSize ?? 10);
+  const pageNum = Number(params.page_num ?? 1);
+  const pageSize = Number(params.page_size ?? 10);
   const start = (pageNum - 1) * pageSize;
   return { data: { list: rows.slice(start, start + pageSize), total: rows.length } };
 }
@@ -421,6 +424,7 @@ function refreshTable() {
 
 /** 加载当前表、字段和 Proto 配置并创建页面预览。 */
 async function loadPreview() {
+  const requestId = ++previewRequestId;
   loading.value = true;
   try {
     snapshot.value = null;
@@ -429,12 +433,14 @@ async function loadPreview() {
     databaseTables.value = [];
     if (!tableId.value) return;
     const table = await defCodeGenTableService.GetCodeGenTable({ id: tableId.value });
+    if (requestId !== previewRequestId) return;
     const [columnResponse, protoResponse, dictionaryResponse, databaseTableResponse] = await Promise.all([
       defCodeGenColumnService.ListCodeGenColumn({ table_id: tableId.value }),
       defCodeGenProtoService.ListCodeGenProto({ table_id: tableId.value }),
       defBaseDictService.OptionBaseDict({}),
       defCodeGenTableService.ListCodeGenDatabaseTable({ source_name: table.source_name })
     ]);
+    if (requestId !== previewRequestId) return;
     snapshot.value = { table, columns: columnResponse.code_gen_columns ?? [] };
     protoChecks.value = protoResponse.code_gen_protos ?? [];
     dictionaries.value = dictionaryResponse.base_dicts ?? [];
@@ -442,7 +448,7 @@ async function loadPreview() {
     createMockRows();
     syncWorkspaceTitle();
   } finally {
-    loading.value = false;
+    if (requestId === previewRequestId) loading.value = false;
   }
 }
 
