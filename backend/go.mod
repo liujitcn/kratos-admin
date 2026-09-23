@@ -16,7 +16,7 @@ require (
 	github.com/liujitcn/go-utils/http v0.0.7
 	github.com/liujitcn/gorm-kit v0.0.34
 	github.com/liujitcn/kratos-admin/backend/api v0.0.17
-	github.com/liujitcn/kratos-core v0.0.35
+	github.com/liujitcn/kratos-core v0.0.36
 	github.com/liujitcn/kratos-core/api v0.0.4
 	github.com/liujitcn/kratos-kit v0.0.87
 	github.com/liujitcn/kratos-kit/api v0.0.39
@@ -36,7 +36,7 @@ require (
 	github.com/liujitcn/kratos-kit/oauth v0.0.12
 	github.com/liujitcn/kratos-kit/oss v0.0.20
 	github.com/liujitcn/kratos-kit/pprof v0.0.16
-	github.com/liujitcn/kratos-kit/queue v0.0.29
+	github.com/liujitcn/kratos-kit/queue v0.0.30
 	github.com/liujitcn/kratos-kit/redact v0.0.10
 	github.com/liujitcn/kratos-kit/registry/consul v0.0.7
 	github.com/liujitcn/kratos-kit/translator v0.0.7
@@ -174,6 +174,7 @@ require (
 	github.com/googleapis/enterprise-certificate-proxy v0.3.14 // indirect
 	github.com/googleapis/gax-go/v2 v2.20.0 // indirect
 	github.com/goph/emperror v0.17.2 // indirect
+	github.com/gorhill/cronexpr v0.0.0-20180427100037-88b0669f7d75 // indirect
 	github.com/gorilla/css v1.0.1 // indirect
 	github.com/gorilla/handlers v1.5.2 // indirect
 	github.com/gorilla/mux v1.8.1 // indirect
@@ -237,6 +238,7 @@ require (
 	github.com/liujitcn/kratos-kit/tracer v0.0.17 // indirect
 	github.com/liujitcn/kratos-kit/tracing v0.0.12 // indirect
 	github.com/liujitcn/kratos-kit/transport v0.0.24 // indirect
+	github.com/liujitcn/kratos-kit/transport/hptimer v0.0.7 // indirect
 	github.com/liujitcn/kratos-kit/transport/keepalive v0.0.13 // indirect
 	github.com/lufia/plan9stats v0.0.0-20211012122336-39d0f177ccd0 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect

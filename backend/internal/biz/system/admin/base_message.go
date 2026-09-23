@@ -37,6 +37,7 @@ import (
 )
 
 const messageDispatchStream = "base.message.dispatch"
+const messageScheduleStream = "base.message.schedule"
 const messageNotificationStream = "base.notification"
 const messageNotificationEvent = "inbox.changed"
 const messageDispatchBatchSize = 500
@@ -577,8 +578,11 @@ func (c *BaseMessageCase) PublishBaseMessage(ctx context.Context, id int64) erro
 		}
 		return nil
 	})
-	if err != nil || status == basev1.MessageStatus_MESSAGE_STATUS_SCHEDULED {
+	if err != nil {
 		return err
+	}
+	if status == basev1.MessageStatus_MESSAGE_STATUS_SCHEDULED {
+		return c.scheduleBaseMessage(ctx, entity)
 	}
 	for _, dispatch := range dispatches {
 		if err = c.EnqueueDispatch(ctx, dispatch.ID, dispatch.TenantID); err != nil {
@@ -615,7 +619,117 @@ func (c *BaseMessageCase) CancelBaseMessageSchedule(ctx context.Context, id int6
 	if result.RowsAffected == 0 {
 		return errorsx.Conflict("消息状态已变化，请刷新后重试")
 	}
+	delayed, ok := c.Queue.(interface {
+		Cancel(string, string) error
+	})
+	if !ok {
+		return errorsx.Internal("消息队列不支持延迟任务")
+	}
+	return delayed.Cancel(messageScheduleStream, scheduledMessageID(entity.ID))
+}
+
+// scheduleBaseMessage 将定时消息写入通用延迟队列。
+func (c *BaseMessageCase) scheduleBaseMessage(ctx context.Context, entity *models.BaseMessage) error {
+	payload, err := json.Marshal(&dto.ScheduledMessageTask{MessageID: entity.ID, ExpectedVersion: entity.Version})
+	if err != nil {
+		return err
+	}
+	if c.Queue == nil {
+		return errorsx.Internal("消息队列未初始化")
+	}
+	delayed, ok := c.Queue.(interface {
+		Schedule(string, queueData.Message, time.Time) error
+	})
+	if !ok {
+		return errorsx.Internal("消息队列不支持延迟任务")
+	}
+	select {
+	case <-ctx.Done():
+		return ctx.Err()
+	default:
+	}
+	return delayed.Schedule(messageScheduleStream, queueData.Message{
+		ID:     scheduledMessageID(entity.ID),
+		Values: map[string]interface{}{"data": string(payload)},
+	}, time.UnixMilli(entity.ScheduledAt))
+}
+
+// HandleScheduledMessage 处理延迟队列触发的定时消息。
+func (c *BaseMessageCase) HandleScheduledMessage(message queueData.Message) error {
+	task, err := queue.Decode[dto.ScheduledMessageTask](message)
+	if err != nil {
+		return err
+	}
+	return c.ProcessScheduledMessage(context.Background(), task)
+}
+
+// ProcessScheduledMessage 校验消息版本并将到期消息转换为正常投递任务。
+func (c *BaseMessageCase) ProcessScheduledMessage(ctx context.Context, task *dto.ScheduledMessageTask) error {
+	entity, err := c.FindByID(ctx, task.MessageID)
+	if err != nil {
+		return err
+	}
+	if entity.Status != int32(basev1.MessageStatus_MESSAGE_STATUS_SCHEDULED) || entity.Version != task.ExpectedVersion {
+		return nil
+	}
+	now := time.Now()
+	if entity.ScheduledAt > now.UnixMilli() {
+		return c.scheduleBaseMessage(ctx, entity)
+	}
+	dispatchQuery := c.dispatchRepo.Query(ctx).BaseMessageDispatch
+	dispatches, err := c.dispatchRepo.List(ctx, repository.Where(dispatchQuery.MessageID.Eq(entity.ID)))
+	if err != nil {
+		return err
+	}
+	err = c.tx.Transaction(ctx, func(txCtx context.Context) error {
+		messageQuery := c.Query(txCtx).BaseMessage
+		var result gen.ResultInfo
+		result, err = messageQuery.WithContext(txCtx).
+			Where(
+				messageQuery.ID.Eq(entity.ID),
+				messageQuery.Status.Eq(int32(basev1.MessageStatus_MESSAGE_STATUS_SCHEDULED)),
+				messageQuery.Version.Eq(task.ExpectedVersion),
+				messageQuery.ScheduledAt.Lte(now.UnixMilli()),
+			).
+			UpdateSimple(
+				messageQuery.Status.Value(int32(basev1.MessageStatus_MESSAGE_STATUS_PUBLISHING)),
+				messageQuery.Version.Value(task.ExpectedVersion+1),
+				messageQuery.UpdatedAt.Value(now),
+			)
+		if err != nil || result.RowsAffected == 0 {
+			return err
+		}
+		dispatchQuery = c.dispatchRepo.Query(txCtx).BaseMessageDispatch
+		_, err = dispatchQuery.WithContext(txCtx).
+			Where(
+				dispatchQuery.MessageID.Eq(entity.ID),
+				dispatchQuery.Status.Eq(int32(basev1.MessageDispatchStatus_MESSAGE_DISPATCH_STATUS_WAITING)),
+			).
+			UpdateSimple(
+				dispatchQuery.Status.Value(int32(basev1.MessageDispatchStatus_MESSAGE_DISPATCH_STATUS_PENDING)),
+				dispatchQuery.QueuedAt.Value(now.UnixMilli()),
+				dispatchQuery.Version.Add(1),
+				dispatchQuery.UpdatedAt.Value(now),
+			)
+		return err
+	})
+	if err != nil {
+		return err
+	}
+	for _, dispatch := range dispatches {
+		if dispatch.Status != int32(basev1.MessageDispatchStatus_MESSAGE_DISPATCH_STATUS_WAITING) {
+			continue
+		}
+		if err = c.EnqueueDispatch(ctx, dispatch.ID, dispatch.TenantID); err != nil {
+			return err
+		}
+	}
 	return nil
+}
+
+// scheduledMessageID 生成定时消息在延迟队列中的稳定编号。
+func scheduledMessageID(messageID int64) string {
+	return fmt.Sprintf("message:%d", messageID)
 }
 
 // RevokeBaseMessage 撤回已发布或发布中的消息。

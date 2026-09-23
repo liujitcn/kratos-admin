@@ -73,6 +73,7 @@ func NewModules(
 // NewQueueConsumers 提供 Admin 自身投递事件的队列消费者集合。
 func NewQueueConsumers(baseMessageCase *biz.BaseMessageCase, logConsumer data.ConsumerFunc) queue.Consumers {
 	return queue.Consumers{
+		{Stream: "base.message.schedule", Handler: baseMessageCase.HandleScheduledMessage},
 		{Stream: "base.message.dispatch", Handler: baseMessageCase.HandleDispatchMessage},
 		{Stream: logmiddleware.AdminEventStream(), Handler: logConsumer},
 	}
