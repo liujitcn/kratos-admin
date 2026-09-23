@@ -13,31 +13,31 @@ require (
 	github.com/google/wire v0.7.0
 	github.com/liujitcn/go-utils v0.0.41
 	github.com/liujitcn/go-utils/crypto v0.0.17
-	github.com/liujitcn/go-utils/http v0.0.7
-	github.com/liujitcn/gorm-kit v0.0.34
+	github.com/liujitcn/go-utils/http v0.0.8
+	github.com/liujitcn/gorm-kit v0.0.35
 	github.com/liujitcn/kratos-admin/backend/api v0.0.17
-	github.com/liujitcn/kratos-core v0.0.36
+	github.com/liujitcn/kratos-core v0.0.39
 	github.com/liujitcn/kratos-core/api v0.0.4
-	github.com/liujitcn/kratos-kit v0.0.87
+	github.com/liujitcn/kratos-kit v0.0.88
 	github.com/liujitcn/kratos-kit/api v0.0.39
-	github.com/liujitcn/kratos-kit/auth v0.0.29
+	github.com/liujitcn/kratos-kit/auth v0.0.30
 	github.com/liujitcn/kratos-kit/auth/authn v0.0.24
 	github.com/liujitcn/kratos-kit/auth/authz v0.0.23
 	github.com/liujitcn/kratos-kit/auth/authz/engine/casbin v0.0.22
-	github.com/liujitcn/kratos-kit/bootstrap v0.0.29
+	github.com/liujitcn/kratos-kit/bootstrap v0.0.31
 	github.com/liujitcn/kratos-kit/cache v0.0.22
 	github.com/liujitcn/kratos-kit/captcha v0.0.23
-	github.com/liujitcn/kratos-kit/config v0.0.32
-	github.com/liujitcn/kratos-kit/database/gorm v0.0.48
-	github.com/liujitcn/kratos-kit/database/gorm/driver/mysql v0.0.20
+	github.com/liujitcn/kratos-kit/config v0.0.34
+	github.com/liujitcn/kratos-kit/database/gorm v0.0.49
+	github.com/liujitcn/kratos-kit/database/gorm/driver/mysql v0.0.22
 	github.com/liujitcn/kratos-kit/database/gorm/migration v0.0.16
 	github.com/liujitcn/kratos-kit/locker v0.0.19
 	github.com/liujitcn/kratos-kit/logger/zap v0.0.19
 	github.com/liujitcn/kratos-kit/oauth v0.0.12
-	github.com/liujitcn/kratos-kit/oss v0.0.20
+	github.com/liujitcn/kratos-kit/oss v0.0.21
 	github.com/liujitcn/kratos-kit/pprof v0.0.16
-	github.com/liujitcn/kratos-kit/queue v0.0.30
-	github.com/liujitcn/kratos-kit/redact v0.0.10
+	github.com/liujitcn/kratos-kit/queue v0.0.31
+	github.com/liujitcn/kratos-kit/redact v0.0.11
 	github.com/liujitcn/kratos-kit/registry/consul v0.0.7
 	github.com/liujitcn/kratos-kit/translator v0.0.7
 	github.com/liujitcn/kratos-kit/transport/cron v0.0.18
@@ -223,23 +223,23 @@ require (
 	github.com/liujitcn/kratos-kit/auth/authn/engine/jwt v0.0.20 // indirect
 	github.com/liujitcn/kratos-kit/auth/authn/middleware v0.0.21 // indirect
 	github.com/liujitcn/kratos-kit/auth/authz/middleware v0.0.20 // indirect
-	github.com/liujitcn/kratos-kit/broker v0.0.11 // indirect
+	github.com/liujitcn/kratos-kit/broker v0.0.12 // indirect
 	github.com/liujitcn/kratos-kit/database/gorm/driver v0.0.19 // indirect
-	github.com/liujitcn/kratos-kit/key v0.0.4 // indirect
-	github.com/liujitcn/kratos-kit/logger v0.0.32 // indirect
+	github.com/liujitcn/kratos-kit/key v0.0.6 // indirect
+	github.com/liujitcn/kratos-kit/logger v0.0.33 // indirect
 	github.com/liujitcn/kratos-kit/oss/s3 v0.0.4 // indirect
 	github.com/liujitcn/kratos-kit/queue/redisqueue v0.0.16 // indirect
-	github.com/liujitcn/kratos-kit/registry v0.0.23 // indirect
-	github.com/liujitcn/kratos-kit/server/grpc v0.0.5 // indirect
+	github.com/liujitcn/kratos-kit/registry v0.0.24 // indirect
+	github.com/liujitcn/kratos-kit/server/grpc v0.0.7 // indirect
 	github.com/liujitcn/kratos-kit/server/http v0.0.6 // indirect
 	github.com/liujitcn/kratos-kit/server/mcp v0.0.4 // indirect
 	github.com/liujitcn/kratos-kit/server/sse v0.0.4 // indirect
 	github.com/liujitcn/kratos-kit/swagger-ui v0.0.15 // indirect
-	github.com/liujitcn/kratos-kit/tracer v0.0.17 // indirect
+	github.com/liujitcn/kratos-kit/tracer v0.0.18 // indirect
 	github.com/liujitcn/kratos-kit/tracing v0.0.12 // indirect
-	github.com/liujitcn/kratos-kit/transport v0.0.24 // indirect
+	github.com/liujitcn/kratos-kit/transport v0.0.25 // indirect
 	github.com/liujitcn/kratos-kit/transport/hptimer v0.0.7 // indirect
-	github.com/liujitcn/kratos-kit/transport/keepalive v0.0.13 // indirect
+	github.com/liujitcn/kratos-kit/transport/keepalive v0.0.14 // indirect
 	github.com/lufia/plan9stats v0.0.0-20211012122336-39d0f177ccd0 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
 	github.com/mattn/go-colorable v0.1.14 // indirect
