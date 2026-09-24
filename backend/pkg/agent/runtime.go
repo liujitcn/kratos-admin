@@ -7,7 +7,9 @@ import (
 	"sort"
 	"strings"
 	"sync"
+	"time"
 	"unicode"
+	"unicode/utf8"
 
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/agent/adk"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/agent/callback"
@@ -19,6 +21,7 @@ import (
 const (
 	maxModelToolsPerRequest    = 6
 	minToolMatchScore          = 4
+	maxShortFollowUpLength     = 8
 	maxToolQueryAttachmentText = 800
 	maxHistoryToolText         = 2000
 	agentToolCatalogName       = "internal_agent_tool_catalog"
@@ -30,12 +33,14 @@ const aiInstruction = `你是一个通用 AI 助手，可以自然、友好、�
 1. 优先直接回答当前问题，不因为问题不属于当前系统而拒绝。
 2. 可以处理通用知识、日常问答、写作润色、代码说明、方案整理、思路分析等请求。
 3. 如果用户提供了附件、历史上下文或系统上下文，可以按需参考。
-4. 涉及用户、字典、配置、报表等系统内私有数据时，优先调用当前终端可用的内部工具获取真实数据。
-5. 内部工具不匹配、工具无结果、或用户问题属于公开实时信息时，可以继续使用联网搜索工具。
-6. 不要编造当前上下文和工具结果没有提供的私有系统数据、精确数值或操作结果。
-7. 工具返回的分页游标、内部ID、base64、图片数据或调试字段不要直接展示给用户；如需说明，只用自然语言提示还有下一页或可继续查询。
-8. 如果历史上下文标记某个内部工具已禁用或不可用，而用户要求继续相关查询，必须明确提示错误原因：工具已禁用或不可用，不能继续调用。
-9. 用中文回复，保持清晰自然，适合直接展示在聊天窗口。`
+4. 涉及当前项目中的用户、字典、配置、报表等私有数据时，优先调用当前终端可用的内部工具获取真实数据。
+5. 本轮已匹配到内部工具时，只使用内部工具回答，不要再调用联网搜索；内部工具未匹配时，公开实时信息才使用联网搜索。
+6. 调用工具时遵循该工具的描述和参数默认值，不要擅自添加或删除查询条件；用户原意不明确时先询问。
+7. 用户在工具查询后明确补充某个条件时，沿用最近相关查询的工具和其他条件，只修改用户补充的条件；无法确定对象或条件时先询问，不要猜测。
+8. 不要编造当前上下文和工具结果没有提供的私有系统数据、精确数值或操作结果。
+9. 工具返回的分页游标、内部ID、base64、图片数据或调试字段不要直接展示给用户；如需说明，只用自然语言提示还有下一页或可继续查询。
+10. 如果历史上下文标记某个内部工具已禁用或不可用，而用户要求继续相关查询，必须明确提示错误原因：工具已禁用或不可用，不能继续调用。
+11. 用中文回复，保持清晰自然，适合直接展示在聊天窗口。`
 
 // Runtime 封装流式 AI 助手运行时。
 //
@@ -155,14 +160,14 @@ func (r *Runtime) RunStream(ctx context.Context, input RuntimeInput, onDelta fun
 		return nil, fmt.Errorf("ai ai client is not configured")
 	}
 	messages := r.buildMessages(ctx, input)
-	toolInfos := r.toolInfos(ctx, input)
+	toolInfos, internalToolMatched := r.toolInfos(ctx, input)
 	if disabledCall := r.disabledToolCall(ctx, input, toolInfos); disabledCall != nil {
 		if onDelta != nil {
 			onDelta(disabledCall.Content)
 		}
 		return r.buildResponse(einoMessage.AIText(disabledCall.Content), TokenUsage{}, []ToolUsage{disabledCall.Usage}), nil
 	}
-	result, recorder, err := r.runADK(ctx, input, messages, toolInfos, true, onDelta)
+	result, recorder, err := r.runADK(ctx, input, messages, toolInfos, internalToolMatched, true, onDelta)
 	if err != nil {
 		return nil, err
 	}
@@ -187,11 +192,11 @@ type disabledToolCall struct {
 
 // runGenerate 执行非流式模型调用，并在需要时继续执行工具回填。
 func (r *Runtime) runGenerate(ctx context.Context, input RuntimeInput, messages []*einoMessage.AgenticMessage) (*einoMessage.AgenticMessage, TokenUsage, []ToolUsage, error) {
-	toolInfos := r.toolInfos(ctx, input)
+	toolInfos, internalToolMatched := r.toolInfos(ctx, input)
 	if disabledCall := r.disabledToolCall(ctx, input, toolInfos); disabledCall != nil {
 		return einoMessage.AIText(disabledCall.Content), TokenUsage{}, []ToolUsage{disabledCall.Usage}, nil
 	}
-	result, recorder, err := r.runADK(ctx, input, messages, toolInfos, false, nil)
+	result, recorder, err := r.runADK(ctx, input, messages, toolInfos, internalToolMatched, false, nil)
 	if err != nil {
 		return nil, TokenUsage{}, nil, err
 	}
@@ -243,12 +248,13 @@ func (r *Runtime) runADK(
 	input RuntimeInput,
 	messages []*einoMessage.AgenticMessage,
 	toolInfos []*tool.Info,
+	internalToolMatched bool,
 	stream bool,
 	onDelta func(string),
 ) (*adk.Result, *callback.Recorder, error) {
 	recorder := &callback.Recorder{}
 	// Responses 协议才支持服务端工具（联网搜索等），聊天补全协议使用同名 function 工具替代。
-	serverTools := r.client != nil && r.client.SupportsResponsesServerTools()
+	serverTools := r.client != nil && r.client.SupportsResponsesServerTools() && !internalToolMatched
 	description := "管理端 AI 助手，负责会话问答、内部工具调用和联网搜索。"
 	runner := adk.NewRunner(adk.Config{
 		Model:       r.client.AgenticModel,
@@ -281,7 +287,7 @@ func (r *Runtime) runnerTools(ctx context.Context, input RuntimeInput) []tool.Ba
 }
 
 // toolInfos 收集可传给模型的工具定义。
-func (r *Runtime) toolInfos(ctx context.Context, input RuntimeInput) []*tool.Info {
+func (r *Runtime) toolInfos(ctx context.Context, input RuntimeInput) ([]*tool.Info, bool) {
 	registeredInfos := r.allToolInfos(ctx, input)
 	infos := r.enabledToolInfos(ctx, input, registeredInfos)
 	catalogTool := newAgentToolCatalogTool(input.Terminal, registeredInfos, infos, maxModelToolsPerRequest)
@@ -457,6 +463,7 @@ func (r *Runtime) terminalTools(terminal string) []tool.Invokable {
 
 // resolvePrompt 渲染 AI 助手提示词。
 func (r *Runtime) resolvePrompt(input RuntimeInput) string {
+	now := time.Now().In(time.Local)
 	lines := []string{
 		aiInstruction,
 		"",
@@ -465,6 +472,8 @@ func (r *Runtime) resolvePrompt(input RuntimeInput) string {
 		fmt.Sprintf("- 用户：%s", input.UserName),
 		fmt.Sprintf("- 标题：%s", input.SessionTitle),
 		fmt.Sprintf("- 摘要：%s", input.Summary),
+		fmt.Sprintf("- 当前业务日期：%s", now.Format("2006-01-02")),
+		fmt.Sprintf("- 业务时区：%s（UTC%s）", now.Location(), now.Format("-07:00")),
 	}
 	if len(input.Attachments) > 0 {
 		lines = append(lines, "", "用户本轮提供了附件，附件内容会出现在消息中，回答时按需参考。")
@@ -599,6 +608,18 @@ func hasHistoryToolUsage(history []Message) bool {
 
 // hasFollowUpReference 判断文本是否包含泛化的续查引用。
 func hasFollowUpReference(text string) bool {
+	text = strings.TrimSpace(text)
+	if text == "" {
+		return false
+	}
+	if hasFollowUpCue(text) {
+		return true
+	}
+	return len([]rune(text)) <= maxShortFollowUpLength
+}
+
+// hasFollowUpCue 判断文本是否包含明确的续查表达。
+func hasFollowUpCue(text string) bool {
 	lowerText := strings.ToLower(text)
 	for _, cue := range []string{"继续", "更多", "还有", "再", "下一", "上一", "刷新", "换一批", "next", "more"} {
 		if strings.Contains(lowerText, cue) {
@@ -645,20 +666,56 @@ func toolPromptsDescription(prompts []string) string {
 }
 
 // selectToolInfos 从当前终端完整工具池中挑选本轮请求相关工具。
-func selectToolInfos(input RuntimeInput, infos []*tool.Info) []*tool.Info {
-	if len(infos) <= maxModelToolsPerRequest {
-		return infos
-	}
+func selectToolInfos(input RuntimeInput, infos []*tool.Info) ([]*tool.Info, bool) {
 	terms := toolQueryTerms(input)
+	internalInfos := make([]*tool.Info, 0, len(infos))
+	for _, info := range infos {
+		if info == nil || info.Name == aiWebSearchToolName || info.Name == agentToolCatalogName {
+			continue
+		}
+		internalInfos = append(internalInfos, info)
+	}
+	if result := selectScoredToolInfos(internalInfos, terms); len(result) > 0 {
+		return result, true
+	}
+	if isHistoryToolFollowUp(input) {
+		historyInfos := selectHistoryToolInfos(input, internalInfos)
+		if len(historyInfos) > 0 {
+			queryMatchedHistoryTool := hasToolQueryTermMatch(historyInfos, terms)
+			if hasFollowUpCue(input.Content) || hasPaginationReference(input.Content) || queryMatchedHistoryTool {
+				return historyInfos, true
+			}
+			return selectHistoryToolInfosWithSearch(historyInfos, infos), false
+		}
+	}
+	if len(infos) <= maxModelToolsPerRequest {
+		return infos, false
+	}
 	result := selectScoredToolInfos(infos, terms)
 	if len(result) > 0 {
-		return result
+		return result, false
 	}
 	if !isHistoryToolFollowUp(input) {
 		// 内部工具均不匹配时保底暴露联网搜索工具，避免模型无法处理公开实时信息类问题。
-		return selectFallbackToolInfos(infos)
+		return selectFallbackToolInfos(infos), false
 	}
-	return selectHistoryToolInfos(input, infos)
+	return selectHistoryToolInfosWithSearch(selectHistoryToolInfos(input, internalInfos), infos), false
+}
+
+// hasToolQueryTermMatch 判断短追问是否命中历史工具描述中的任意有效词项。
+func hasToolQueryTermMatch(infos []*tool.Info, terms []string) bool {
+	for _, info := range infos {
+		if info == nil {
+			continue
+		}
+		text := strings.ToLower(info.Name + " " + info.Desc)
+		for _, term := range terms {
+			if len([]rune(term)) >= 2 && strings.Contains(text, term) {
+				return true
+			}
+		}
+	}
+	return false
 }
 
 // selectFallbackToolInfos 内部工具不匹配时保底返回联网搜索工具。
@@ -748,6 +805,18 @@ func selectHistoryToolInfos(input RuntimeInput, infos []*tool.Info) []*tool.Info
 		}
 	}
 	return result
+}
+
+// selectHistoryToolInfosWithSearch 为无法仅凭短追问确定意图的历史工具保留联网搜索候选。
+func selectHistoryToolInfosWithSearch(historyInfos, infos []*tool.Info) []*tool.Info {
+	searchInfos := selectFallbackToolInfos(infos)
+	if len(searchInfos) == 0 {
+		return historyInfos
+	}
+	if len(historyInfos) >= maxModelToolsPerRequest {
+		historyInfos = historyInfos[:maxModelToolsPerRequest-1]
+	}
+	return append(historyInfos, searchInfos...)
 }
 
 type scoredToolInfo struct {
@@ -883,7 +952,15 @@ func scoreToolInfo(info *tool.Info, terms []string) int {
 			continue
 		}
 		if termScore == 2 {
-			shortPositions = append(shortPositions, strings.Index(text, term))
+			for start := 0; start < len(text); {
+				position := strings.Index(text[start:], term)
+				if position < 0 {
+					break
+				}
+				position += start
+				shortPositions = append(shortPositions, utf8.RuneCountInString(text[:position]))
+				start = position + len(term)
+			}
 		}
 	}
 	if specificScore == 0 && !hasNearbyShortToolTerms(shortPositions) {

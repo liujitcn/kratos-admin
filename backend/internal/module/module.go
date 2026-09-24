@@ -11,6 +11,7 @@ import (
 	kratosGRPC "github.com/go-kratos/kratos/v3/transport/grpc"
 	"github.com/go-kratos/kratos/v3/transport/http"
 	"github.com/liujitcn/kratos-admin/backend/adapter/kit"
+	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/ai"
 	biz "github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/logstream"
 	"github.com/liujitcn/kratos-admin/backend/internal/server/base/v1"
@@ -22,6 +23,7 @@ import (
 	"github.com/liujitcn/kratos-admin/backend/internal/server/middleware/sessionpolicy"
 	"github.com/liujitcn/kratos-admin/backend/internal/server/system/admin/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/server/system/app/v1"
+	"github.com/liujitcn/kratos-admin/backend/pkg/agent"
 	"github.com/liujitcn/kratos-core/module"
 	"github.com/liujitcn/kratos-core/queue"
 	"github.com/liujitcn/kratos-kit/queue/data"
@@ -34,6 +36,7 @@ type Module struct {
 	baseServices  *base.Services
 	adminServices *admin.Services
 	appServices   *app.Services
+	aiRuntime     *ai.Runtime
 }
 
 var _ module.Module = (*Module)(nil)
@@ -43,6 +46,7 @@ func NewModules(
 	baseServices *base.Services,
 	adminServices *admin.Services,
 	appServices *app.Services,
+	aiRuntime *ai.Runtime,
 	baseConfigCase *biz.BaseConfigCase,
 	baseLoginPolicyCase *biz.BaseLoginPolicyCase,
 	baseOauthProviderCase *biz.BaseOauthProviderCase,
@@ -71,8 +75,14 @@ func NewModules(
 			baseServices:  baseServices,
 			adminServices: adminServices,
 			appServices:   appServices,
+			aiRuntime:     aiRuntime,
 		},
 	}, nil
+}
+
+// RegisterAgentTools 将宿主业务工具注册到 Admin AI 运行时。
+func (m *Module) RegisterAgentTools(terminal string, tools ...agent.Tool) error {
+	return m.aiRuntime.RegisterTools(terminal, tools...)
 }
 
 // NewQueueConsumers 提供 Admin 自身投递事件的队列消费者集合。

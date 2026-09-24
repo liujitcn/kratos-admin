@@ -215,7 +215,7 @@ Kit 的策略解析器同样由 Wire 创建并注入 Core 协议入口和 Admin 
 
 管理端浏览器使用 Cookie-only 刷新令牌模式：刷新令牌只保存在 Path 收窄的 HttpOnly Cookie，访问令牌只保存在页面内存；uni-app 和 Taro 不发送该模式标识，继续使用各自现有的令牌传输方式。
 
-外部模块接入 AI 时使用 `pkg/agent.NewRuntime` 创建运行时，通过 `RuntimeConfig.AdminTools/AppTools` 或 `Runtime.RegisterTool` 注册 Eino `InvokableTool`；简单结构化工具优先使用 `pkg/agent.InferTool` 自动生成参数 schema。评论审核、内容提取等固定流程可以组合 `NewChatClient`、`NewStructuredRunner`、`SchemaFor` 和多模态 Part 构造函数，不需要引用 `internal` 包。需要权限控制时实现 `ToolAccessChecker`，不接入权限系统则保持 `Checker` 为 `nil`。
+外部模块接入 AI 时使用 `pkg/agent.NewRuntime` 创建运行时，通过 `RuntimeConfig.AdminTools/AppTools` 或 `Runtime.RegisterTool` 注册 Eino `InvokableTool`；复用 Admin 宿主时，也可通过 `AdminModules.RegisterAgentTools` 将宿主工具追加到指定终端。简单结构化工具优先使用 `pkg/agent.InferTool` 自动生成参数 schema。评论审核、内容提取等固定流程可以组合 `NewChatClient`、`NewStructuredRunner`、`SchemaFor` 和多模态 Part 构造函数，不需要引用 `internal` 包。需要权限控制时实现 `ToolAccessChecker`，不接入权限系统则保持 `Checker` 为 `nil`。
 
 外部模块接入运行配置时，在自己的 Proto 中定义配置消息并通过 `pkg/runtimeconfig.Register` 注册 key、默认值和敏感字段；Admin 启动时会统一初始化 `base_config` 表单类型配置并刷新 Redis。配置 JSON 使用 ProtoJSON 编解码和 Protovalidate 校验，校验规则 ID 可直接作为国际化消息键。通用启动配置优先复用 `kratos-kit/api` 的 `config.v1.Bootstrap`，例如 `authn.session`、`oss.upload_security`、`logger` 和 `data`。
 

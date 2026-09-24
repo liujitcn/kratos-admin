@@ -463,7 +463,7 @@ func BuildModules(migrations *migration.Migration, config2 *configv1.Bootstrap, 
 		BaseMenu: appBaseMenuService,
 		AiSearch: aiSearchService,
 	}
-	modules, err := NewModules(baseServices, adminServices, services2, baseConfigCase, baseLoginPolicyCase, baseOauthProviderCase, redactResolver)
+	modules, err := NewModules(baseServices, adminServices, services2, runtime, baseConfigCase, baseLoginPolicyCase, baseOauthProviderCase, redactResolver)
 	if err != nil {
 		cleanup2()
 		cleanup()

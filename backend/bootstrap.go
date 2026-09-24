@@ -2,9 +2,11 @@ package backend
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"os"
 
+	"github.com/liujitcn/kratos-admin/backend/pkg/agent"
 	"github.com/liujitcn/kratos-admin/backend/pkg/projectaccess"
 
 	"github.com/google/wire"
@@ -36,6 +38,20 @@ type AdminResources module.Resources
 
 // AdminModules 表示 Admin 提供的协议模块集合。
 type AdminModules module.Modules
+
+// RegisterAgentTools 将宿主业务工具注册到 Admin AI 运行时。
+func (modules AdminModules) RegisterAgentTools(terminal string, tools ...agent.Tool) error {
+	for _, item := range modules {
+		registrar, ok := item.(interface {
+			RegisterAgentTools(string, ...agent.Tool) error
+		})
+		if !ok {
+			continue
+		}
+		return registrar.RegisterAgentTools(terminal, tools...)
+	}
+	return errors.New("Admin AI 运行时模块未注册")
+}
 
 // AdminTasks 表示 Admin 提供的定时任务集合。
 type AdminTasks job.Tasks
