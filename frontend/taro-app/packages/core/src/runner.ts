@@ -15,6 +15,7 @@ import { pathToFileURL } from 'node:url'
 import { spawn } from 'node:child_process'
 import ts from 'typescript'
 import type { KratosTaroBuildModule } from './build'
+import { runnerMessage } from './runner-messages.js'
 
 type PageEntry = {
   route: string
@@ -158,7 +159,7 @@ function parseArguments(args: string[]): CliOptions {
     const argument = args[index]
     if (argument === '--type') {
       const value = args[++index]
-      if (value !== 'h5' && value !== 'weapp') throw new Error(`不支持的 Taro 类型：${value}`)
+      if (value !== 'h5' && value !== 'weapp') throw new Error(runnerMessage('unsupported_type', { value }))
       type = value
     } else if (argument === '--mode') {
       mode = args[++index] || mode
@@ -169,10 +170,10 @@ function parseArguments(args: string[]): CliOptions {
     } else if (argument === '--cleanup-only') {
       cleanupOnly = true
     } else {
-      throw new Error(`未知参数：${argument}`)
+      throw new Error(runnerMessage('unknown_argument', { argument }))
     }
   }
-  if (!type) throw new Error('缺少 --type h5|weapp')
+  if (!type) throw new Error(runnerMessage('type_required'))
   return { type, mode, watch, prepareOnly, cleanupOnly }
 }
 
@@ -217,18 +218,18 @@ async function loadBuildModules(
       }
     })
   })
-  if (!moduleNames.length) throw new Error(`模块清单未导出 moduleManifest：${manifestFile}`)
+  if (!moduleNames.length) throw new Error(runnerMessage('manifest_missing', { file: manifestFile }))
 
   const hostRequire = createRequire(resolve(hostRoot, 'package.json'))
   return Promise.all(
     moduleNames.map(async (name) => {
       const packageName = imports.get(name)
-      if (!packageName) throw new Error(`模块 ${name} 缺少静态 import`)
+      if (!packageName) throw new Error(runnerMessage('static_import_missing', { name }))
       const buildEntry = hostRequire.resolve(`${packageName}/build`)
       const loaded = (await import(pathToFileURL(buildEntry).href)) as {
         buildModule?: KratosTaroBuildModule
       }
-      if (!loaded.buildModule) throw new Error(`${packageName}/build 未导出 buildModule`)
+      if (!loaded.buildModule) throw new Error(runnerMessage('build_export_missing', { packageName }))
       return loaded.buildModule
     }),
   )
@@ -342,7 +343,7 @@ function readBuildTransaction(
   if (!existsSync(transactionFile)) return
   const transaction = JSON.parse(readFileSync(transactionFile, 'utf8')) as BuildTransaction
   if (transaction.inputDir !== inputDir || transaction.appConfigFile !== appConfigFile) {
-    throw new Error(`Taro 构建事务目录不匹配：${transactionFile}`)
+    throw new Error(runnerMessage('transaction_mismatch', { file: transactionFile }))
   }
   return transaction
 }
@@ -455,7 +456,7 @@ function acquirePageAssemblyLock(lockFile: string): void {
         unlinkSync(lockFile)
         continue
       }
-      if (Date.now() >= deadline) throw new Error(`等待 Taro 页面装配锁超时：${lockFile}`)
+      if (Date.now() >= deadline) throw new Error(runnerMessage('assembly_timeout', { file: lockFile }))
       waitForPageAssembly(PAGE_ASSEMBLY_POLL_INTERVAL_MS)
     }
   }

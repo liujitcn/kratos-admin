@@ -1769,9 +1769,6 @@
   "legacy.error.2d98325ea8ebe8a4": {
     "other": "會話不存在"
   },
-  "legacy.error.3772108e1c6666ab": {
-    "other": "會話已逾時，請重新登入"
-  },
   "legacy.error.e8cf0f814577dae5": {
     "other": "會話編號不合法"
   },
@@ -2194,9 +2191,6 @@
   },
   "legacy.error.c465c61d1876cee8": {
     "other": "多因素認證方式設定無效"
-  },
-  "legacy.error.59c1df3bee807b31": {
-    "other": "多因素認證策略要求重新登入"
   },
   "legacy.error.f353032a783801a1": {
     "other": "多因素認證策略設定無效"
@@ -3128,9 +3122,6 @@
   "legacy.error.4acac868b13d25a3": {
     "other": "產生驗證碼失敗"
   },
-  "legacy.error.a9a6a83a7d22e27e": {
-    "other": "使用者名稱或密碼錯誤"
-  },
   "legacy.error.5c9ce1a293619574": {
     "other": "使用者崗位與所屬租戶不一致"
   },
@@ -3152,9 +3143,6 @@
   "legacy.error.e4343921c928a856": {
     "other": "登入失敗"
   },
-  "legacy.error.c8fa8bc4e8f159d9": {
-    "other": "登入失敗次數過多，請稍後再試"
-  },
   "legacy.error.72301b9a742c94cf": {
     "other": "登入租約已失效"
   },
@@ -3172,9 +3160,6 @@
   },
   "legacy.error.0116b79ff127ff49": {
     "other": "租戶和授權主體ID必須為正數"
-  },
-  "legacy.error.b3ca26ba26ec1779": {
-    "other": "租戶已被停用"
   },
   "legacy.error.806829f515c0df9b": {
     "other": "租戶管理員角色已被停用"
@@ -3280,9 +3265,6 @@
   },
   "legacy.error.cd0c70274456a9b1": {
     "other": "角色已停用"
-  },
-  "legacy.error.7d3ed30c1446829d": {
-    "other": "角色已被停用"
   },
   "legacy.error.3d1cdfa989d8a5e4": {
     "other": "解析 WebAuthn 傳輸方式失敗"
@@ -3479,12 +3461,6 @@
   "legacy.error.8b7757274fb40557": {
     "other": "讀取聯網搜尋回應失敗"
   },
-  "legacy.error.64ed6f0e51042ae0": {
-    "other": "帳號已被停用"
-  },
-  "legacy.error.422037e5e28245cb": {
-    "other": "帳號正在登入，請稍後重試"
-  },
   "legacy.error.44670a4145535bf4": {
     "other": "轉換左樹設定失敗"
   },
@@ -3499,9 +3475,6 @@
   },
   "legacy.error.db4781157e05e955": {
     "other": "部門已停用"
-  },
-  "legacy.error.426f060db1fe9b28": {
-    "other": "部門已被停用"
   },
   "legacy.error.6ff2055c334133ae": {
     "other": "釋放登入鎖失敗"
@@ -3880,5 +3853,11 @@
   ,"legacy.error.195095b8cbabfd1f": { "other": "只能重試失敗的訊息" }
   ,"legacy.error.f729b50ce3ce3983": { "other": "只能編輯最後一條訊息" }
   ,"legacy.error.7bdaeb66d03d3063": { "other": "該步驟已過期，請從最新訊息繼續操作" }
-  ,"legacy.error.feca044b124b4405": { "other": "查詢三方登入方式翻譯失敗" }
+  ,"legacy.error.feca044b124b4405": { "other": "查詢三方登入方式翻譯失敗" },
+  "system.code.gen.error.route_duplicate": { "other": "產生介面{{.Method}} {{.HTTPMethod}} {{.Path}}與 base_api 中的{{.Operation}}重複" },
+  "system.code.gen.error.option_table_missing": { "other": "選項介面{{.Method}}的目標資料表{{.Table}}不存在，無法驗證欄位型別" },
+  "system.code.gen.error.status_default_invalid": { "other": "欄位{{.Field}}的狀態預設值{{.Default}}不屬於啟用值{{.Enabled}}或停用值{{.Disabled}}" },
+  "system.code.gen.error.option_column_missing": { "other": "選項介面{{.Method}}的{{.Label}}{{.Column}}不存在" },
+  "system.code.gen.error.option_column_integer": { "other": "選項介面{{.Method}}的{{.Label}}{{.Column}}必須是整數型別欄位" },
+  "system.code.gen.error.path_duplicate": { "other": "{{.Current}}不能與{{.Previous}}使用相同路徑" }
 }

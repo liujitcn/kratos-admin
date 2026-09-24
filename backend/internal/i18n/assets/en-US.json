@@ -1769,9 +1769,6 @@
   "legacy.error.2d98325ea8ebe8a4": {
     "other": "Session does not exist"
   },
-  "legacy.error.3772108e1c6666ab": {
-    "other": "Session has timed out, please log in again"
-  },
   "legacy.error.e8cf0f814577dae5": {
     "other": "Session ID is invalid"
   },
@@ -2194,9 +2191,6 @@
   },
   "legacy.error.c465c61d1876cee8": {
     "other": "MFA method configuration is invalid"
-  },
-  "legacy.error.59c1df3bee807b31": {
-    "other": "MFA policy requires re-login"
   },
   "legacy.error.f353032a783801a1": {
     "other": "MFA policy configuration is invalid"
@@ -3128,9 +3122,6 @@
   "legacy.error.4acac868b13d25a3": {
     "other": "Failed to generate verification code"
   },
-  "legacy.error.a9a6a83a7d22e27e": {
-    "other": "Incorrect username or password"
-  },
   "legacy.error.5c9ce1a293619574": {
     "other": "User post does not match the tenant"
   },
@@ -3152,9 +3143,6 @@
   "legacy.error.e4343921c928a856": {
     "other": "Login failed"
   },
-  "legacy.error.c8fa8bc4e8f159d9": {
-    "other": "Too many login failures, please try again later"
-  },
   "legacy.error.72301b9a742c94cf": {
     "other": "Login lease has expired"
   },
@@ -3172,9 +3160,6 @@
   },
   "legacy.error.0116b79ff127ff49": {
     "other": "Tenant and grant subject IDs must be positive"
-  },
-  "legacy.error.b3ca26ba26ec1779": {
-    "other": "Tenant is disabled"
   },
   "legacy.error.806829f515c0df9b": {
     "other": "Tenant admin role is disabled"
@@ -3279,9 +3264,6 @@
     "other": "Rule code cannot be modified"
   },
   "legacy.error.cd0c70274456a9b1": {
-    "other": "Role is disabled"
-  },
-  "legacy.error.7d3ed30c1446829d": {
     "other": "Role is disabled"
   },
   "legacy.error.3d1cdfa989d8a5e4": {
@@ -3479,12 +3461,6 @@
   "legacy.error.8b7757274fb40557": {
     "other": "Failed to read web search response"
   },
-  "legacy.error.64ed6f0e51042ae0": {
-    "other": "Account is disabled"
-  },
-  "legacy.error.422037e5e28245cb": {
-    "other": "Account is logging in, please retry later"
-  },
   "legacy.error.44670a4145535bf4": {
     "other": "Failed to convert left-tree configuration"
   },
@@ -3498,9 +3474,6 @@
     "other": "Failed to log out"
   },
   "legacy.error.db4781157e05e955": {
-    "other": "Department is disabled"
-  },
-  "legacy.error.426f060db1fe9b28": {
     "other": "Department is disabled"
   },
   "legacy.error.6ff2055c334133ae": {
@@ -3880,5 +3853,11 @@
   ,"legacy.error.195095b8cbabfd1f": { "other": "Only failed messages can be retried" }
   ,"legacy.error.f729b50ce3ce3983": { "other": "Only the last message can be edited" }
   ,"legacy.error.7bdaeb66d03d3063": { "other": "This step has expired. Continue from the latest message" }
-  ,"legacy.error.feca044b124b4405": { "other": "Failed to query third-party login provider translations" }
+  ,"legacy.error.feca044b124b4405": { "other": "Failed to query third-party login provider translations" },
+  "system.code.gen.error.route_duplicate": { "other": "Generated route {{.Method}} {{.HTTPMethod}} {{.Path}} duplicates {{.Operation}} in base_api" },
+  "system.code.gen.error.option_table_missing": { "other": "The target table {{.Table}} for option API {{.Method}} does not exist, so field types cannot be validated" },
+  "system.code.gen.error.status_default_invalid": { "other": "The status default {{.Default}} for field {{.Field}} is neither the enabled value {{.Enabled}} nor the disabled value {{.Disabled}}" },
+  "system.code.gen.error.option_column_missing": { "other": "The {{.Label}}{{.Column}} field for option API {{.Method}} does not exist" },
+  "system.code.gen.error.option_column_integer": { "other": "The {{.Label}}{{.Column}} field for option API {{.Method}} must be an integer field" },
+  "system.code.gen.error.path_duplicate": { "other": "{{.Current}} cannot use the same path as {{.Previous}}" }
 }

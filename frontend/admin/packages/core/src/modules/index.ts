@@ -1,6 +1,7 @@
 import type { Component } from "vue";
 import type { RouteLocationNormalizedLoaded } from "vue-router";
 import type { LocaleMessages, SupportedLocale } from "@/locales";
+import { runtimeMessage } from "../runtime-messages";
 
 /**
  * 管理端视图加载器。
@@ -228,7 +229,7 @@ function assertUniqueAdminModuleKeys(modules: AdminModule[], label: string, getK
     getKeys(module).forEach(key => {
       const owner = owners.get(key);
       if (owner) {
-        throw new Error(`管理端${label}名称重复: ${key}（模块 ${owner} 与 ${module.name}）`);
+        throw new Error(runtimeMessage("module_duplicate", { label, key, owner, module: module.name }));
       }
       owners.set(key, module.name);
     });

@@ -168,6 +168,43 @@ func TestDefaultTenantCanQueryAllProjects(t *testing.T) {
 	}
 }
 
+// TestDefaultTenantProjectTreeUsesTenantName 验证租户项目树显示租户名称而不是租户编号。
+func TestDefaultTenantProjectTreeUsesTenantName(t *testing.T) {
+	grantService, db, _ := newGrantTestCase(t)
+	var err error
+	err = db.Create(&models.BaseTenant{ID: 2, Code: "tenant-two", Name: "租户二", Status: 1}).Error
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = db.Create(&models.BaseTenantProject{ID: 201, TenantID: 2, Code: "project-two", Name: "租户二项目", Status: 1}).Error
+	if err != nil {
+		t.Fatal(err)
+	}
+	var store *data.Data
+	store, err = data.NewData(map[string]*kitgorm.Client{kitgorm.DefaultClientName: {DB: db}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	projectService := NewBaseTenantProjectCase(projectaccess.NewLifecycle(), &biz.BaseCase{}, grantService, data.NewTransaction(store), data.NewBaseTenantProjectRepository(store))
+	identity := &authdata.UserTokenPayload{TenantId: 99, TenantCode: kitgorm.DefaultTenantCode, UserId: 200, RoleId: 90, RoleCode: "tenant", DeptId: 90, DataScope: 1}
+	ctx := engine.ContextWithAuthClaims(context.Background(), identity.MakeAuthClaims())
+	var result *adminv1.TreeBaseTenantProjectResponse
+	result, err = projectService.TreeBaseTenantProject(ctx, &adminv1.TreeBaseTenantProjectRequest{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	var tenantOption *adminv1.TreeBaseTenantProjectResponse_Option
+	for _, option := range result.List {
+		if option.GetTenantId() == 2 {
+			tenantOption = option
+			break
+		}
+	}
+	if tenantOption == nil || tenantOption.GetLabel() != "租户二" {
+		t.Fatalf("租户节点应显示租户名称，实际为: %+v", tenantOption)
+	}
+}
+
 // TestProjectCatalogManagement 验证默认租户可选择目标租户创建项目，普通租户只能查看项目。
 func TestProjectCatalogManagement(t *testing.T) {
 	grantService, db, normalCtx := newGrantTestCase(t)

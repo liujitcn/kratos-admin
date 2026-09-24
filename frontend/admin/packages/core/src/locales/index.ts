@@ -13,6 +13,7 @@ import {
   SUPPORTED_LOCALES as GENERATED_SUPPORTED_LOCALES,
   type GeneratedLocale
 } from "./generated";
+import { runtimeMessage } from "../runtime-messages";
 
 /** 管理端已打包的语言区域；运行时可切换列表由 base_language 接口决定。 */
 export const SUPPORTED_LOCALES = GENERATED_SUPPORTED_LOCALES;
@@ -92,7 +93,7 @@ export function registerLocaleMessages(modules: AdminModule[]): void {
         let message = targetMessages[key] ?? defaultMessages[key];
         assertLocaleKeyNamespace(module.name, key);
         if (Object.prototype.hasOwnProperty.call(target, key)) {
-          throw new Error(`${locale} 语言键重复: ${key}`);
+          throw new Error(runtimeMessage("locale_duplicate", { locale, key }));
         }
         if (!hasMatchingLocalePlaceholders(module.name, key, message, defaultMessages[key] ?? "")) {
           message = defaultMessages[key] ?? "";
@@ -239,7 +240,7 @@ function applyLocale(locale: SupportedLocale): void {
 function assertLocaleKeyNamespace(moduleName: string, key: string): void {
   const valid =
     moduleName === "kratos-admin" ? key.startsWith("common.") || key.startsWith("core.") : key.startsWith(`${moduleName}.`);
-  if (!valid) throw new Error(`${moduleName} 的语言键命名空间无效: ${key}`);
+  if (!valid) throw new Error(runtimeMessage("locale_namespace_invalid", { module: moduleName, key }));
 }
 
 function requiredLocaleKeys(messages: LocaleMessages): string[] {

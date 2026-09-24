@@ -17,7 +17,7 @@
             <pre class="code-block">{{ formatJson(detail.input) }}</pre>
           </el-descriptions-item>
           <el-descriptions-item :label="t('system.base.job.log.field.output')">
-            <pre class="code-block">{{ formatJson(detail.output) }}</pre>
+            <pre class="code-block">{{ formatJson(resolvePersistedTaskOutput(detail.output)) }}</pre>
           </el-descriptions-item>
         </el-descriptions>
 
@@ -25,7 +25,7 @@
           v-if="detail.status === BaseJobLogStatus.BASE_JOB_LOG_STATUS_FAIL"
           :title="t('system.base.job.log.field.error')"
           type="error"
-          :description="detail.error"
+          :description="resolvePersistedMessage(detail.error)"
           class="mt-4"
           show-icon
         />
@@ -52,6 +52,7 @@ import { formatDateTime, formatJson } from "@liujitcn/kratos-admin-core/format";
 import type { BaseJobLog, PageBaseJobLogRequest } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_job_log";
 import { BaseJobLogStatus } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_job_log";
 import { t } from "@liujitcn/kratos-admin-core";
+import { resolvePersistedMessage, resolvePersistedTaskOutput } from "../../../utils/persisted-message";
 
 defineOptions({
   name: "BaseJobLog",

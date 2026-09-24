@@ -4,6 +4,7 @@ import { execFileSync } from "node:child_process";
 import { mkdir, readFile, readdir, rm, stat, writeFile } from "node:fs/promises";
 import { basename, dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
+import { cliMessage } from "./messages.js";
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const templateRoot = resolve(packageRoot, "templates/business-workspace");
@@ -37,7 +38,7 @@ export async function createBusinessWorkspace(options: CreateWorkspaceOptions): 
   const additionalModules = normalizeAdditionalModules(options.additionalModules ?? [], moduleNames);
 
   validateName(projectName, "项目名称");
-  if (await pathExists(target)) throw new Error(`目标目录已存在，拒绝覆盖: ${target}`);
+  if (await pathExists(target)) throw new Error(cliMessage("target_exists", { target }));
 
   const packageVersion = await readCliPackageVersion();
   const primaryModuleTokens = createModuleTokens(primaryModuleName, packageVersion);
@@ -141,13 +142,13 @@ export async function runCli(args = process.argv.slice(2)): Promise<void> {
     printHelp();
     return;
   }
-  if (args[0] !== "create") throw new Error(`不支持的命令: ${args[0]}`);
+  if (args[0] !== "create") throw new Error(cliMessage("unsupported_command", { command: args[0] }));
 
   const projectName = args[1];
   const moduleNames = [...readOptions(args, "--module"), ...readOptions(args, "--modules")];
   const withModules = readOptions(args, "--with");
   if (!projectName || moduleNames.length === 0) {
-    throw new Error("用法: kratos-admin create <project> --module <module[,module...]>");
+    throw new Error(cliMessage("usage"));
   }
 
   const target = await createBusinessWorkspace({
@@ -156,7 +157,7 @@ export async function runCli(args = process.argv.slice(2)): Promise<void> {
     additionalModules: withModules,
     kratosProject: args.includes("--kratos-project")
   });
-  process.stdout.write(`已创建业务 workspace: ${target}\n`);
+  process.stdout.write(`${cliMessage("workspace_created", { target })}\n`);
 }
 
 /** 渲染模板目录中的路径和文本占位符。 */
@@ -180,7 +181,7 @@ async function renderDirectory(source: string, target: string, tokens: Record<st
 /** 读取当前 CLI 版本，作为生成项目默认的公开包版本。 */
 async function readCliPackageVersion(): Promise<string> {
   const packageJson = JSON.parse(await readFile(resolve(packageRoot, "package.json"), "utf8")) as { version?: unknown };
-  if (typeof packageJson.version !== "string" || !packageJson.version) throw new Error("CLI package.json 缺少有效版本");
+  if (typeof packageJson.version !== "string" || !packageJson.version) throw new Error(cliMessage("package_version_missing"));
   return packageJson.version;
 }
 
@@ -189,7 +190,7 @@ function readOptions(args: string[], option: string): string[] {
   return args.flatMap((argument, index) => {
     if (argument !== option) return [];
     const value = args[index + 1];
-    if (!value || value.startsWith("--")) throw new Error(`选项 ${option} 缺少值`);
+    if (!value || value.startsWith("--")) throw new Error(cliMessage("option_missing_value", { option }));
     return value
       .split(",")
       .map(item => item.trim())
@@ -199,17 +200,17 @@ function readOptions(args: string[], option: string): string[] {
 
 /** 校验项目与模块名称。 */
 function validateName(value: string, label: string): void {
-  if (!kebabNamePattern.test(value)) throw new Error(`${label}必须使用 kebab-case: ${value}`);
+  if (!kebabNamePattern.test(value)) throw new Error(cliMessage("kebab_required", { label, value }));
 }
 
 /** 规范化自有模块列表并校验保留名称。 */
 function normalizeModuleNames(moduleNames: string[]): [string, ...string[]] {
   const normalized = [...new Set(moduleNames.map(name => name.trim()).filter(Boolean))];
   const primaryModuleName = normalized[0];
-  if (!primaryModuleName) throw new Error("至少需要一个业务模块名称");
+  if (!primaryModuleName) throw new Error(cliMessage("module_required"));
   normalized.forEach(name => validateName(name, "模块名称"));
   const reservedName = normalized.find(name => name === "kratos-admin");
-  if (reservedName) throw new Error(`自有模块名称不能使用保留名称: ${reservedName}`);
+  if (reservedName) throw new Error(cliMessage("reserved_module", { name: reservedName }));
   return [primaryModuleName, ...normalized.slice(1)];
 }
 

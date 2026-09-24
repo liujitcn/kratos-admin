@@ -2,9 +2,10 @@ package admin
 
 import (
 	"context"
-	"fmt"
+	"strconv"
 
 	biz "github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin"
+	"github.com/liujitcn/kratos-admin/backend/internal/i18n"
 
 	"github.com/liujitcn/kratos-kit/transport/cron"
 )
@@ -30,12 +31,14 @@ func NewMessageDispatchTask(baseMessageCase *biz.BaseMessageCase) *MessageDispat
 func (t *MessageDispatchTask) Exec(ctx context.Context, _ map[string]string) ([]string, error) {
 	count, err := t.baseMessageCase.RecoverPendingDispatches(ctx)
 	if err != nil {
-		return nil, err
+		return nil, i18n.WrapMessageError("system.base.job.error.message_dispatch_failed", err)
 	}
 	var cleaned int
 	cleaned, err = t.baseMessageCase.CleanupExpiredDeliveries(ctx)
 	if err != nil {
-		return nil, err
+		return nil, i18n.WrapMessageError("system.base.job.error.message_dispatch_failed", err)
 	}
-	return []string{fmt.Sprintf("恢复消息投递任务 %d 条，清理过期收件 %d 条", count, cleaned)}, nil
+	return []string{i18n.EncodeMessage("system.base.job.result.message_dispatch_recovered", map[string]string{
+		"Count": strconv.Itoa(count), "Cleaned": strconv.Itoa(cleaned),
+	})}, nil
 }

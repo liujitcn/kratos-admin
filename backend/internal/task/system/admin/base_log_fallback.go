@@ -18,6 +18,7 @@ import (
 	"github.com/go-kratos/kratos/v3/log"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/runtimeconfig"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
+	"github.com/liujitcn/kratos-admin/backend/internal/i18n"
 	logmiddleware "github.com/liujitcn/kratos-admin/backend/internal/server/middleware/log"
 	"github.com/liujitcn/kratos-core/biz"
 	"github.com/liujitcn/kratos-kit/cache"
@@ -68,14 +69,14 @@ func (t *BaseLogFallbackTask) Exec(ctx context.Context, _ map[string]string) ([]
 	config := runtimeconfig.DefaultBaseLogFallbackConfig()
 	err := runtimeconfig.LoadJSON(t.configCache, runtimeconfig.BaseLogFallbackKey, &config)
 	if err != nil {
-		return nil, fmt.Errorf("读取日志入库回退配置失败: %w", err)
+		return nil, i18n.WrapMessageError("system.base.job.error.log_fallback_failed", fmt.Errorf("读取日志入库回退配置失败: %w", err))
 	}
 	var replayed int
 	replayed, err = t.replayBaseLogFallback(ctx, config.FilePath)
 	if err != nil {
-		return nil, err
+		return nil, i18n.WrapMessageError("system.base.job.error.log_fallback_failed", err)
 	}
-	return []string{fmt.Sprintf("日志入库回退 %d 条", replayed)}, nil
+	return []string{i18n.EncodeMessage("system.base.job.result.log_fallback_replayed", map[string]string{"Count": strconv.Itoa(replayed)})}, nil
 }
 
 type baseLogFallbackRecord struct {

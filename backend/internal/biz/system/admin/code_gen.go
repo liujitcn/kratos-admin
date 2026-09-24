@@ -666,7 +666,9 @@ func (c *CodeGenCase) validateGeneratedBaseAPIs(ctx context.Context, generation 
 			if baseAPI.Operation == expectedOperation || method.GenerateWhenMissing != 1 {
 				continue
 			}
-			return errorsx.Conflict(fmt.Sprintf("生成接口%s %s %s与base_api中的%s重复", method.MethodName, httpMethod, path, baseAPI.Operation))
+			return errorsx.WithMessageKey(errorsx.Conflict("生成接口与已有 API 重复"), "system.code.gen.error.route_duplicate", map[string]string{
+				"Method": method.MethodName, "HTTPMethod": httpMethod, "Path": path, "Operation": baseAPI.Operation,
+			})
 		}
 	}
 	return nil
@@ -1069,7 +1071,9 @@ func (c *CodeGenCase) optionTargetColumns(ctx context.Context, table *codegen.Ta
 		return nil, err
 	}
 	if len(databaseColumns) == 0 {
-		return nil, errorsx.InvalidArgument(fmt.Sprintf("选项接口%s的目标表%s不存在，无法校验字段类型", method.MethodName, tableName))
+		return nil, errorsx.WithMessageKey(errorsx.InvalidArgument("选项接口目标表不存在"), "system.code.gen.error.option_table_missing", map[string]string{
+			"Method": method.MethodName, "Table": tableName,
+		})
 	}
 	columns := codeGenColumnsToSnapshots(nil, databaseColumns)
 	cache[target] = columns
@@ -1411,7 +1415,9 @@ func validateCodeGenStatusDefaults(columns []*codegen.CodeGenColumn) error {
 		if column.StatusDefaultValue == column.StatusEnabledValue || column.StatusDefaultValue == column.StatusDisabledValue {
 			continue
 		}
-		return errorsx.InvalidArgument(fmt.Sprintf("字段%s的状态默认值%s不属于启用值%s或禁用值%s", column.Name, column.StatusDefaultValue, column.StatusEnabledValue, column.StatusDisabledValue))
+		return errorsx.WithMessageKey(errorsx.InvalidArgument("状态字段默认值无效"), "system.code.gen.error.status_default_invalid", map[string]string{
+			"Field": column.Name, "Default": column.StatusDefaultValue, "Enabled": column.StatusEnabledValue, "Disabled": column.StatusDisabledValue,
+		})
 	}
 	return nil
 }
@@ -1464,7 +1470,9 @@ func codeGenProtosToSnapshots(items []*adminv1.CodeGenProtoCheck, tableComment s
 // validateOptionLabelColumn 校验选项响应的显示字段存在。
 func validateOptionLabelColumn(method *codegen.Proto, columns []*codegen.CodeGenColumn, columnName string, fieldLabel string) error {
 	if codegen.FindColumnByName(columns, columnName) == nil {
-		return errorsx.InvalidArgument(fmt.Sprintf("选项接口%s的%s%s不存在", method.MethodName, fieldLabel, columnName))
+		return errorsx.WithMessageKey(errorsx.InvalidArgument("选项接口字段不存在"), "system.code.gen.error.option_column_missing", map[string]string{
+			"Method": method.MethodName, "Label": fieldLabel, "Column": columnName,
+		})
 	}
 	return nil
 }
@@ -1473,11 +1481,15 @@ func validateOptionLabelColumn(method *codegen.Proto, columns []*codegen.CodeGen
 func validateOptionIntegerColumn(method *codegen.Proto, columns []*codegen.CodeGenColumn, columnName string, fieldLabel string) error {
 	column := codegen.FindColumnByName(columns, columnName)
 	if column == nil {
-		return errorsx.InvalidArgument(fmt.Sprintf("选项接口%s的%s%s不存在", method.MethodName, fieldLabel, columnName))
+		return errorsx.WithMessageKey(errorsx.InvalidArgument("选项接口字段不存在"), "system.code.gen.error.option_column_missing", map[string]string{
+			"Method": method.MethodName, "Label": fieldLabel, "Column": columnName,
+		})
 	}
 	goType := codegen.DefaultString(column.GoType, codegen.InferGoType(column.DbType))
 	if goType != "int64" && goType != "int32" {
-		return errorsx.InvalidArgument(fmt.Sprintf("选项接口%s的%s%s必须是整数类型字段", method.MethodName, fieldLabel, columnName))
+		return errorsx.WithMessageKey(errorsx.InvalidArgument("选项接口字段必须是整数类型"), "system.code.gen.error.option_column_integer", map[string]string{
+			"Method": method.MethodName, "Label": fieldLabel, "Column": columnName,
+		})
 	}
 	return nil
 }

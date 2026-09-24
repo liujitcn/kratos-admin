@@ -20,6 +20,7 @@ import (
 	biz "github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
+	"github.com/liujitcn/kratos-admin/backend/internal/i18n"
 	coreBiz "github.com/liujitcn/kratos-core/biz"
 	_const "github.com/liujitcn/kratos-core/const"
 	configv1 "github.com/liujitcn/kratos-kit/api/gen/go/config/v1"
@@ -63,16 +64,16 @@ func (t *TableArchiveTask) Exec(ctx context.Context, _ map[string]string) ([]str
 	var err error
 	err = t.recoverStaleArchiveRecords(ctx)
 	if err != nil {
-		return nil, err
+		return nil, i18n.WrapMessageError("system.backup.error.archive_task_failed", err)
 	}
 	query := t.archiveRepo.Query(ctx).BaseTableArchive
 	var configs []*models.BaseTableArchive
 	configs, err = t.archiveRepo.List(ctx, repository.Where(query.Status.Eq(_const.STATUS_STATUS_ENABLE)), repository.Order(query.ID.Asc()))
 	if err != nil {
-		return nil, fmt.Errorf("查询表归档配置失败: %w", err)
+		return nil, i18n.WrapMessageError("system.backup.error.archive_task_failed", fmt.Errorf("查询表归档配置失败: %w", err))
 	}
 	if len(configs) == 0 {
-		return []string{"没有启用的表归档配置"}, nil
+		return []string{i18n.EncodeMessage("system.backup.result.archive_none_enabled", nil)}, nil
 	}
 	var archivedRows int64
 	var deletedRows int64
@@ -81,15 +82,17 @@ func (t *TableArchiveTask) Exec(ctx context.Context, _ map[string]string) ([]str
 		var deleted int64
 		archived, deleted, err = t.archiveOne(ctx, config)
 		if err != nil {
-			return nil, err
+			return nil, i18n.WrapMessageError("system.backup.error.archive_task_failed", err)
 		}
 		if err = t.cleanupArchiveRetention(ctx, config); err != nil {
-			return nil, err
+			return nil, i18n.WrapMessageError("system.backup.error.archive_task_failed", err)
 		}
 		archivedRows += archived
 		deletedRows += deleted
 	}
-	return []string{fmt.Sprintf("表归档完成：归档 %d 条，删除在线数据 %d 条", archivedRows, deletedRows)}, nil
+	return []string{i18n.EncodeMessage("system.backup.result.archive_completed", map[string]string{
+		"Archived": strconv.FormatInt(archivedRows, 10), "Deleted": strconv.FormatInt(deletedRows, 10),
+	})}, nil
 }
 
 // recoverStaleArchiveRecords 将进程异常遗留的超时 RUNNING 记录标记为失败。
@@ -105,7 +108,7 @@ func (t *TableArchiveTask) recoverStaleArchiveRecords(ctx context.Context) error
 	}
 	for _, record := range records {
 		record.Status = int32(adminv1.BaseTableArchiveRecordStatus_BASE_TABLE_ARCHIVE_RECORD_STATUS_FAILED)
-		record.Error = "归档任务超时退出，已由后续任务复位"
+		record.Error = i18n.EncodeMessage("system.backup.error.archive_task_reset", nil)
 		record.FinishedAt = time.Now()
 		if err = t.recordRepo.UpdateByID(ctx, record); err != nil {
 			return fmt.Errorf("复位超时表归档记录失败: %w", err)
@@ -157,7 +160,7 @@ func (t *TableArchiveTask) archiveOne(ctx context.Context, config *models.BaseTa
 	}
 	if err != nil {
 		record.Status = int32(adminv1.BaseTableArchiveRecordStatus_BASE_TABLE_ARCHIVE_RECORD_STATUS_FAILED)
-		record.Error = err.Error()
+		record.Error = i18n.EncodeMessage("system.backup.error.archive_task_failed", nil)
 		record.FinishedAt = time.Now()
 		updateErr := t.recordRepo.UpdateByID(ctx, record)
 		if updateErr != nil {

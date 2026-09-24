@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"strconv"
 	"sync"
 
 	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
@@ -12,6 +13,7 @@ import (
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/dto"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
+	"github.com/liujitcn/kratos-admin/backend/internal/i18n"
 
 	kratosErrors "github.com/go-kratos/kratos/v3/errors"
 	"github.com/go-kratos/kratos/v3/log"
@@ -86,20 +88,20 @@ func (t *BaseI18nTask) Exec(ctx context.Context, _ map[string]string) ([]string,
 	t.mu.Lock()
 	defer t.mu.Unlock()
 	if t.i18nCase.Translator == nil {
-		return []string{"机器翻译功能未启用"}, nil
+		return []string{i18n.EncodeMessage("system.base.job.result.i18n_translator_disabled", nil)}, nil
 	}
 	state, err := t.i18nCase.LocaleState(ctx)
 	if err != nil {
-		return nil, err
+		return nil, i18n.WrapMessageError("system.base.job.error.i18n_task_failed", err)
 	}
 	locales := state.EditableLocales()
 	if len(locales) == 0 {
-		return []string{"没有启用的目标语言"}, nil
+		return []string{i18n.EncodeMessage("system.base.job.result.i18n_no_target_locales", nil)}, nil
 	}
 	var i18ns i18nIndex
 	i18ns, err = t.loadI18nIndex(ctx)
 	if err != nil {
-		return nil, err
+		return nil, i18n.WrapMessageError("system.base.job.error.i18n_task_failed", err)
 	}
 
 	translatedCount := 0
@@ -109,7 +111,7 @@ func (t *BaseI18nTask) Exec(ctx context.Context, _ map[string]string) ([]string,
 	var menus []*models.BaseMenu
 	menus, err = t.menuRepo.List(ctx, repository.Order(menuQuery.ID.Asc()))
 	if err != nil {
-		return nil, err
+		return nil, i18n.WrapMessageError("system.base.job.error.i18n_task_failed", err)
 	}
 	menuIDs := make([]int64, 0, len(menus))
 	for _, menu := range menus {
@@ -121,7 +123,7 @@ func (t *BaseI18nTask) Exec(ctx context.Context, _ map[string]string) ([]string,
 	var dicts []*models.BaseDict
 	dicts, err = t.dictRepo.List(ctx, repository.Order(dictQuery.ID.Asc()))
 	if err != nil {
-		return nil, err
+		return nil, i18n.WrapMessageError("system.base.job.error.i18n_task_failed", err)
 	}
 	dictIDs := make([]int64, 0, len(dicts))
 	for _, dict := range dicts {
@@ -133,7 +135,7 @@ func (t *BaseI18nTask) Exec(ctx context.Context, _ map[string]string) ([]string,
 	var dictItems []*models.BaseDictItem
 	dictItems, err = t.dictItemRepo.List(ctx, repository.Order(dictItemQuery.ID.Asc()))
 	if err != nil {
-		return nil, err
+		return nil, i18n.WrapMessageError("system.base.job.error.i18n_task_failed", err)
 	}
 	dictItemIDs := make([]int64, 0, len(dictItems))
 	for _, item := range dictItems {
@@ -145,7 +147,7 @@ func (t *BaseI18nTask) Exec(ctx context.Context, _ map[string]string) ([]string,
 	var configs []*models.BaseConfig
 	configs, err = t.configRepo.List(ctx, repository.Order(configQuery.ID.Asc()))
 	if err != nil {
-		return nil, err
+		return nil, i18n.WrapMessageError("system.base.job.error.i18n_task_failed", err)
 	}
 	configNameIDs := make([]int64, 0, len(configs))
 	configValueIDs := make([]int64, 0, len(configs))
@@ -162,7 +164,7 @@ func (t *BaseI18nTask) Exec(ctx context.Context, _ map[string]string) ([]string,
 	var jobs []*models.BaseJob
 	jobs, err = t.jobRepo.List(ctx, repository.Order(jobQuery.ID.Asc()))
 	if err != nil {
-		return nil, err
+		return nil, i18n.WrapMessageError("system.base.job.error.i18n_task_failed", err)
 	}
 	jobIDs := make([]int64, 0, len(jobs))
 	for _, job := range jobs {
@@ -170,9 +172,9 @@ func (t *BaseI18nTask) Exec(ctx context.Context, _ map[string]string) ([]string,
 	}
 	t.translateIDs(ctx, state, i18ns, adminv1.I18nTargetType_I18N_TARGET_TYPE_BASE_JOB_NAME, jobIDs, locales, "定时任务", &translatedCount, &failedCount, &firstErr)
 
-	output := []string{fmt.Sprintf("生成机器译文 %d 条", translatedCount)}
+	output := []string{i18n.EncodeMessage("system.base.job.result.i18n_translated_count", map[string]string{"Count": strconv.Itoa(translatedCount)})}
 	if failedCount > 0 {
-		return output, fmt.Errorf("机器翻译失败 %d 条: %w", failedCount, firstErr)
+		return output, i18n.WrapMessageError("system.base.job.error.i18n_task_failed", fmt.Errorf("机器翻译失败 %d 条: %w", failedCount, firstErr))
 	}
 	return output, nil
 }

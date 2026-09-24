@@ -17,6 +17,7 @@ import (
 	"path"
 	"path/filepath"
 	"sort"
+	"strconv"
 	"strings"
 	"time"
 
@@ -27,6 +28,7 @@ import (
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/backup"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
+	"github.com/liujitcn/kratos-admin/backend/internal/i18n"
 	"github.com/liujitcn/kratos-core/biz"
 	_const "github.com/liujitcn/kratos-core/const"
 	configv1 "github.com/liujitcn/kratos-kit/api/gen/go/config/v1"
@@ -68,25 +70,25 @@ func (t *TableBackupTask) Exec(ctx context.Context, _ map[string]string) ([]stri
 	var err error
 	err = t.recoverStaleBackupRecords(ctx)
 	if err != nil {
-		return nil, err
+		return nil, i18n.WrapMessageError("system.backup.error.backup_task_failed", err)
 	}
 	query := t.backupRepo.Query(ctx).BaseTableBackup
 	var configs []*models.BaseTableBackup
 	configs, err = t.backupRepo.List(ctx, repository.Where(query.Status.Eq(_const.STATUS_STATUS_ENABLE)), repository.Order(query.ID.Asc()))
 	if err != nil {
-		return nil, fmt.Errorf("查询数据库备份配置失败: %w", err)
+		return nil, i18n.WrapMessageError("system.backup.error.backup_task_failed", fmt.Errorf("查询数据库备份配置失败: %w", err))
 	}
 	if len(configs) == 0 {
-		return []string{"没有启用的数据库备份配置"}, nil
+		return []string{i18n.EncodeMessage("system.backup.result.backup_none_enabled", nil)}, nil
 	}
 	completed := 0
 	for _, config := range configs {
 		if err = t.backupOne(ctx, config); err != nil {
-			return nil, err
+			return nil, i18n.WrapMessageError("system.backup.error.backup_task_failed", err)
 		}
 		completed++
 	}
-	return []string{fmt.Sprintf("数据库备份完成 %d 个数据源", completed)}, nil
+	return []string{i18n.EncodeMessage("system.backup.result.backup_completed", map[string]string{"Count": strconv.Itoa(completed)})}, nil
 }
 
 // recoverStaleBackupRecords 将进程异常遗留的超时 RUNNING 记录标记为失败。
@@ -102,7 +104,7 @@ func (t *TableBackupTask) recoverStaleBackupRecords(ctx context.Context) error {
 	}
 	for _, record := range records {
 		record.Status = int32(adminv1.BaseTableBackupRecordStatus_BASE_TABLE_BACKUP_RECORD_STATUS_FAILED)
-		record.Error = "备份任务超时退出，已由后续任务复位"
+		record.Error = i18n.EncodeMessage("system.backup.error.backup_task_reset", nil)
 		record.FinishedAt = time.Now()
 		if err = t.recordRepo.UpdateByID(ctx, record); err != nil {
 			return fmt.Errorf("复位超时数据库备份记录失败: %w", err)
@@ -212,7 +214,7 @@ func (t *TableBackupTask) backupOne(ctx context.Context, config *models.BaseTabl
 
 func (t *TableBackupTask) failBackupRecord(ctx context.Context, record *models.BaseTableBackupRecord, backupErr error) error {
 	record.Status = int32(adminv1.BaseTableBackupRecordStatus_BASE_TABLE_BACKUP_RECORD_STATUS_FAILED)
-	record.Error = backupErr.Error()
+	record.Error = i18n.EncodeMessage("system.backup.error.backup_task_failed", nil)
 	record.FinishedAt = time.Now()
 	if err := t.recordRepo.UpdateByID(ctx, record); err != nil {
 		return fmt.Errorf("%w；更新失败备份记录失败: %v", backupErr, err)

@@ -15,6 +15,16 @@ const viteLogger = createLogger();
 const ignoredBuildWarningMatchers = ["[lightningcss minify] 'deep' is not recognized as a valid pseudo-class"];
 const ignoredRolldownWarningSources = ["node_modules/.pnpm/@vueuse+core@"];
 
+/** 渲染管理端构建器错误文案。 */
+function buildErrorMessage(key: string, params: Record<string, string>): string {
+  const locale = (process.env.KRATOS_ADMIN_LOCALE ?? process.env.LC_ALL ?? process.env.LANG ?? "").toLowerCase();
+  const english = locale.startsWith("zh") ? undefined : {
+    missing_source_entry: "The admin module is missing a source entry: {root}"
+  };
+  const template = english?.[key as "missing_source_entry"] ?? "管理端模块缺少源码入口：{root}";
+  return template.replace(/\{([A-Za-z0-9_]+)\}/g, (_, name: string) => params[name] ?? `{${name}}`);
+}
+
 /** 管理端源码包的名称和目录信息。 */
 interface AdminSourcePackage {
   packageName: string;
@@ -225,7 +235,7 @@ function resolveSourceRoot(packageRoot: string): string {
 
   const publishedSourceRoot = resolve(packageRoot, "dist/package/src");
   if (existsSync(resolve(publishedSourceRoot, "index.ts"))) return publishedSourceRoot;
-  throw new Error(`管理端模块缺少源码入口: ${packageRoot}`);
+  throw new Error(buildErrorMessage("missing_source_entry", { root: packageRoot }));
 }
 
 /** 根据 package.json exports 创建源码别名。 */

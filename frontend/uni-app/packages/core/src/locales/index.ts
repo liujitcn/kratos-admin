@@ -108,18 +108,18 @@ export function registerLocaleMessages(modules: KratosAppModule[]): void {
     const expectedKeys = requiredLocaleKeys(module.messages?.[DEFAULT_LOCALE] || {})
     SUPPORTED_LOCALES.forEach((locale) => {
       const messages = module.messages?.[locale]
-      if (!messages) throw new Error(`${module.name} 缺少 ${locale} 语言包`)
+      if (!messages) throw new Error(localeRuntimeMessage('missing_bundle', { module: module.name, locale }))
       const keys = requiredLocaleKeys(messages)
       if (keys.join('\u0000') !== expectedKeys.join('\u0000')) {
-        throw new Error(`${module.name} 的 ${locale} 语言包键集合不一致`)
+        throw new Error(localeRuntimeMessage('key_set_mismatch', { module: module.name, locale }))
       }
       const target = defaultLocaleMessages.get(locale) as LocaleMessages
       Object.keys(messages).forEach((key) => {
         if (!isAllowedLocaleKey(module.name, key)) {
-          throw new Error(`${module.name} 的语言键命名空间无效: ${key}`)
+          throw new Error(localeRuntimeMessage('namespace_invalid', { module: module.name, key }))
         }
         if (Object.prototype.hasOwnProperty.call(target, key)) {
-          throw new Error(`${locale} 语言键重复: ${key}`)
+          throw new Error(localeRuntimeMessage('duplicate_key', { locale, key }))
         }
         assertLocalePlaceholders(
           module.name,
@@ -211,8 +211,17 @@ function assertLocalePlaceholders(
   const placeholders = (value: string) =>
     [...value.matchAll(/\{([A-Za-z0-9_]+)\}/g)].map((match) => match[1]).sort()
   if (placeholders(message).join('\u0000') !== placeholders(sourceMessage).join('\u0000')) {
-    throw new Error(`${moduleName} 的 ${key} 占位符集合不一致`)
+    throw new Error(localeRuntimeMessage('placeholder_mismatch', { module: moduleName, key }))
   }
+}
+
+function localeRuntimeMessage(key: string, params: Record<string, string>): string {
+  const locale = getCurrentLocale().toLowerCase().startsWith('zh') ? 'zh-CN' : 'en-US'
+  const templates: Record<string, Record<string, string>> = {
+    'zh-CN': { missing_bundle: '{module} 缺少 {locale} 语言包', key_set_mismatch: '{module} 的 {locale} 语言包键集合不一致', namespace_invalid: '{module} 的语言键命名空间无效: {key}', duplicate_key: '{locale} 语言键重复: {key}', placeholder_mismatch: '{module} 的 {key} 占位符集合不一致' },
+    'en-US': { missing_bundle: '{module} is missing the {locale} locale bundle', key_set_mismatch: '{module} has inconsistent keys in the {locale} locale bundle', namespace_invalid: 'Invalid locale key namespace for {module}: {key}', duplicate_key: 'Duplicate locale key in {locale}: {key}', placeholder_mismatch: 'Placeholder set mismatch for {module}: {key}' },
+  }
+  return (templates[locale][key] ?? key).replace(/\{([A-Za-z0-9_]+)\}/g, (_, name: string) => params[name] ?? `{${name}}`)
 }
 
 function requiredLocaleKeys(messages: LocaleMessages): string[] {

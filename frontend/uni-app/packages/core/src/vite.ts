@@ -15,6 +15,7 @@ import uniPlugin from '@dcloudio/vite-plugin-uni'
 import { defineConfig, loadEnv } from 'vite'
 import type { Plugin, UserConfig } from 'vite'
 import type { KratosAppModule, KratosAppPageConfig } from './module'
+import { viteMessage } from './vite-messages.js'
 
 export { defineConfig, loadEnv }
 export type { ConfigEnv, UserConfig } from 'vite'
@@ -343,7 +344,7 @@ function readBuildTransaction(
   if (!existsSync(transactionFile)) return
   const transaction = JSON.parse(readFileSync(transactionFile, 'utf8')) as BuildTransaction
   if (transaction.inputDir !== inputDir || transaction.pagesFile !== pagesFile) {
-    throw new Error(`uni-app 构建事务目录不匹配：${transactionFile}`)
+    throw new Error(viteMessage('transaction_mismatch', { file: transactionFile }))
   }
   return transaction
 }
@@ -459,7 +460,7 @@ function acquirePageAssemblyLock(lockFile: string): void {
         continue
       }
       if (Date.now() >= deadline) {
-        throw new Error(`等待 uni-app 页面装配锁超时：${lockFile}`)
+        throw new Error(viteMessage('assembly_timeout', { file: lockFile }))
       }
       waitForPageAssembly(PAGE_ASSEMBLY_POLL_INTERVAL_MS)
     }
@@ -637,7 +638,7 @@ function resolveSourceFile(target: string): string {
   ]
   const resolved =
     candidates.find((candidate) => existsSync(candidate) && statSync(candidate).isFile()) ?? target
-  if (!isAbsolute(resolved)) throw new Error(`模块源码路径不是绝对路径：${resolved}`)
+  if (!isAbsolute(resolved)) throw new Error(viteMessage('source_path_not_absolute', { path: resolved }))
   return resolved
 }
 

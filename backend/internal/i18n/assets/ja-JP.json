@@ -1769,9 +1769,6 @@
   "legacy.error.2d98325ea8ebe8a4": {
     "other": "セッションが存在しません"
   },
-  "legacy.error.3772108e1c6666ab": {
-    "other": "セッションがタイムアウトしました。再度ログインしてください"
-  },
   "legacy.error.e8cf0f814577dae5": {
     "other": "セッション番号が不正です"
   },
@@ -2194,9 +2191,6 @@
   },
   "legacy.error.c465c61d1876cee8": {
     "other": "MFA方式の設定が無効です"
-  },
-  "legacy.error.59c1df3bee807b31": {
-    "other": "MFAポリシーにより再ログインが必要です"
   },
   "legacy.error.f353032a783801a1": {
     "other": "MFAポリシー設定が無効です"
@@ -3128,9 +3122,6 @@
   "legacy.error.4acac868b13d25a3": {
     "other": "認証コードの生成に失敗しました"
   },
-  "legacy.error.a9a6a83a7d22e27e": {
-    "other": "ユーザー名またはパスワードが正しくありません"
-  },
   "legacy.error.5c9ce1a293619574": {
     "other": "ユーザーの役職が所属テナントと一致しません"
   },
@@ -3152,9 +3143,6 @@
   "legacy.error.e4343921c928a856": {
     "other": "ログインに失敗しました"
   },
-  "legacy.error.c8fa8bc4e8f159d9": {
-    "other": "ログイン失敗回数が多すぎます。しばらくしてから再試行してください"
-  },
   "legacy.error.72301b9a742c94cf": {
     "other": "ログインリースが失効しました"
   },
@@ -3172,9 +3160,6 @@
   },
   "legacy.error.0116b79ff127ff49": {
     "other": "テナントIDと付与主体IDは正の数である必要があります"
-  },
-  "legacy.error.b3ca26ba26ec1779": {
-    "other": "テナントは無効化されています"
   },
   "legacy.error.806829f515c0df9b": {
     "other": "テナント管理者ロールが無効化されています"
@@ -3279,9 +3264,6 @@
     "other": "ルールコードは変更できません"
   },
   "legacy.error.cd0c70274456a9b1": {
-    "other": "ロールは無効化されています"
-  },
-  "legacy.error.7d3ed30c1446829d": {
     "other": "ロールは無効化されています"
   },
   "legacy.error.3d1cdfa989d8a5e4": {
@@ -3479,12 +3461,6 @@
   "legacy.error.8b7757274fb40557": {
     "other": "ウェブ検索レスポンスの読み取りに失敗しました"
   },
-  "legacy.error.64ed6f0e51042ae0": {
-    "other": "アカウントは無効化されています"
-  },
-  "legacy.error.422037e5e28245cb": {
-    "other": "アカウントがログイン中です。後で再試行してください"
-  },
   "legacy.error.44670a4145535bf4": {
     "other": "左ツリー設定の変換に失敗しました"
   },
@@ -3498,9 +3474,6 @@
     "other": "ログアウトに失敗しました"
   },
   "legacy.error.db4781157e05e955": {
-    "other": "部門は無効化されています"
-  },
-  "legacy.error.426f060db1fe9b28": {
     "other": "部門は無効化されています"
   },
   "legacy.error.6ff2055c334133ae": {
@@ -3880,5 +3853,11 @@
   ,"legacy.error.195095b8cbabfd1f": { "other": "失敗したメッセージのみ再試行できます" }
   ,"legacy.error.f729b50ce3ce3983": { "other": "最後のメッセージのみ編集できます" }
   ,"legacy.error.7bdaeb66d03d3063": { "other": "このステップは期限切れです。最新のメッセージから操作を続けてください" }
-  ,"legacy.error.feca044b124b4405": { "other": "サードパーティログイン方式の翻訳の照会に失敗しました" }
+  ,"legacy.error.feca044b124b4405": { "other": "サードパーティログイン方式の翻訳の照会に失敗しました" },
+  "system.code.gen.error.route_duplicate": { "other": "生成されたルート{{.Method}} {{.HTTPMethod}} {{.Path}}はbase_apiの{{.Operation}}と重複しています" },
+  "system.code.gen.error.option_table_missing": { "other": "オプションAPI {{.Method}}の対象テーブル{{.Table}}が存在しないため、フィールドタイプを検証できません" },
+  "system.code.gen.error.status_default_invalid": { "other": "フィールド{{.Field}}のステータスデフォルト値{{.Default}}は、有効値{{.Enabled}}または無効値{{.Disabled}}ではありません" },
+  "system.code.gen.error.option_column_missing": { "other": "オプションAPI {{.Method}}の{{.Label}}{{.Column}}フィールドが存在しません" },
+  "system.code.gen.error.option_column_integer": { "other": "オプションAPI {{.Method}}の{{.Label}}{{.Column}}フィールドは整数型である必要があります" },
+  "system.code.gen.error.path_duplicate": { "other": "{{.Current}}は{{.Previous}}と同じパスを使用できません" }
 }

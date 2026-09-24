@@ -84,7 +84,8 @@ func (c *BaseTenantProjectCase) TreeBaseTenantProject(ctx context.Context, req *
 		return nil, err
 	}
 	query := c.Query(ctx).BaseTenantProject
-	opts, err := c.projectOptions(ctx)
+	var opts []repository.QueryOption
+	opts, err = c.projectOptions(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -92,12 +93,36 @@ func (c *BaseTenantProjectCase) TreeBaseTenantProject(ctx context.Context, req *
 	if req.GetKeyword() != "" {
 		opts = append(opts, repository.Where(field.Or(query.Code.Like("%"+req.GetKeyword()+"%"), query.Name.Like("%"+req.GetKeyword()+"%"))))
 	}
-	rows, err := c.List(ctx, opts...)
+	var rows []*models.BaseTenantProject
+	rows, err = c.List(ctx, opts...)
 	if err != nil {
 		return nil, err
 	}
 	result := &adminv1.TreeBaseTenantProjectResponse{List: make([]*adminv1.TreeBaseTenantProjectResponse_Option, 0, len(rows))}
 	tenants := make(map[int64]*adminv1.TreeBaseTenantProjectResponse_Option)
+	tenantNames := make(map[int64]string)
+	if authInfo.TenantCode == gorm.DefaultTenantCode {
+		tenantIDs := make([]int64, 0, len(rows))
+		tenantsSeen := make(map[int64]struct{}, len(rows))
+		for _, row := range rows {
+			if _, exists := tenantsSeen[row.TenantID]; exists {
+				continue
+			}
+			tenantsSeen[row.TenantID] = struct{}{}
+			tenantIDs = append(tenantIDs, row.TenantID)
+		}
+		if len(tenantIDs) > 0 {
+			tenantQuery := c.Query(ctx).BaseTenant
+			var tenantRows []*models.BaseTenant
+			tenantRows, err = tenantQuery.WithContext(ctx).Where(tenantQuery.ID.In(tenantIDs...)).Find()
+			if err != nil {
+				return nil, err
+			}
+			for _, tenant := range tenantRows {
+				tenantNames[tenant.ID] = tenant.Name
+			}
+		}
+	}
 	for _, row := range rows {
 		option := &adminv1.TreeBaseTenantProjectResponse_Option{Value: fmt.Sprintf("project:%d:%d", row.TenantID, row.ID), Label: row.Name, Type: "project", TenantId: row.TenantID, ProjectId: row.ID}
 		if authInfo.TenantCode != gorm.DefaultTenantCode {
@@ -106,7 +131,11 @@ func (c *BaseTenantProjectCase) TreeBaseTenantProject(ctx context.Context, req *
 		}
 		tenant, exists := tenants[row.TenantID]
 		if !exists {
-			tenant = &adminv1.TreeBaseTenantProjectResponse_Option{Value: fmt.Sprintf("tenant:%d", row.TenantID), Label: fmt.Sprintf("租户 %d", row.TenantID), Type: "tenant", TenantId: row.TenantID, Children: make([]*adminv1.TreeBaseTenantProjectResponse_Option, 0)}
+			tenantName, exists := tenantNames[row.TenantID]
+			if !exists || tenantName == "" {
+				tenantName = fmt.Sprintf("租户 %d", row.TenantID)
+			}
+			tenant = &adminv1.TreeBaseTenantProjectResponse_Option{Value: fmt.Sprintf("tenant:%d", row.TenantID), Label: tenantName, Type: "tenant", TenantId: row.TenantID, Children: make([]*adminv1.TreeBaseTenantProjectResponse_Option, 0)}
 			tenants[row.TenantID] = tenant
 			result.List = append(result.List, tenant)
 		}

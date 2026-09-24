@@ -2,7 +2,6 @@ package codegen
 
 import (
 	"encoding/json"
-	"fmt"
 	"path/filepath"
 	"strings"
 
@@ -203,20 +202,22 @@ func (c *renderer) resolveCodeGenOutputPaths(table *Table, requested *adminv1.Co
 	}
 	seen := make(map[string]string, len(targets))
 	// 只校验本轮启用的目标；未启用模块的路径允许暂时为空或保留旧配置。
-	for _, target := range targets {
-		*target.path = filepath.ToSlash(filepath.Clean(*target.path))
-		if !target.enabled {
+	for _, t := range targets {
+		*t.path = filepath.ToSlash(filepath.Clean(*t.path))
+		if !t.enabled {
 			continue
 		}
 		var pathErr error
-		_, pathErr = SafeRepoFilePath(*target.path)
+		_, pathErr = SafeRepoFilePath(*t.path)
 		if pathErr != nil {
-			return nil, errorsx.InvalidArgument(target.label + "无效").WithCause(pathErr)
+			return nil, errorsx.InvalidArgument(t.label + "无效").WithCause(pathErr)
 		}
-		if previousLabel, ok := seen[*target.path]; ok {
-			return nil, errorsx.InvalidArgument(fmt.Sprintf("%s不能与%s使用相同路径", target.label, previousLabel))
+		if previousLabel, ok := seen[*t.path]; ok {
+			return nil, errorsx.WithMessageKey(errorsx.InvalidArgument("生成路径不能重复"), "system.code.gen.error.path_duplicate", map[string]string{
+				"Current": t.label, "Previous": previousLabel,
+			})
 		}
-		seen[*target.path] = target.label
+		seen[*t.path] = t.label
 	}
 	// 模块边界校验用于阻止 Proto、Go 和 Vue 文件落入错误目录。
 	layoutErr := validateCodeGenOutputPathLayout(target, paths)

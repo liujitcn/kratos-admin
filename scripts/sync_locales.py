@@ -51,6 +51,20 @@ MIGRATION_VERSION_PATTERN = re.compile(r"^v\d+\.\d+\.\d+$")
 LOCALE_CODE_PATTERN = re.compile(r"^[A-Za-z]{2,3}(?:-[A-Za-z0-9]{2,8})*$")
 
 
+class DuplicateJSONKeyError(ValueError):
+    """表示 JSON 对象包含重复键。"""
+
+
+def reject_duplicate_json_keys(pairs: list[tuple[str, object]]) -> dict[str, object]:
+    """解析 JSON 对象时拒绝重复键，避免后定义静默覆盖前定义。"""
+    messages: dict[str, object] = {}
+    for key, value in pairs:
+        if key in messages:
+            raise DuplicateJSONKeyError(f"重复 JSON 键: {key}")
+        messages[key] = value
+    return messages
+
+
 def locale_files(directory: Path) -> dict[str, Path]:
     files = {
         path.stem: path
@@ -62,8 +76,8 @@ def locale_files(directory: Path) -> dict[str, Path]:
         if not LOCALE_CODE_PATTERN.fullmatch(locale):
             raise ValueError(f"语言文件名不是 BCP 47 代码: {path}")
         try:
-            json.loads(path.read_text(encoding="utf-8"))
-        except json.JSONDecodeError as error:
+            json.loads(path.read_text(encoding="utf-8"), object_pairs_hook=reject_duplicate_json_keys)
+        except (json.JSONDecodeError, DuplicateJSONKeyError) as error:
             raise ValueError(f"解析语言包失败: {path}: {error}") from error
     if DEFAULT_LOCALE not in files:
         raise ValueError(f"语言目录缺少默认语言 {DEFAULT_LOCALE}: {directory}")
