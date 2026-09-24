@@ -45,6 +45,7 @@ func NewModules(
 	appServices *app.Services,
 	baseConfigCase *biz.BaseConfigCase,
 	baseLoginPolicyCase *biz.BaseLoginPolicyCase,
+	baseOauthProviderCase *biz.BaseOauthProviderCase,
 	_ *kit.RedactPolicyResolver,
 ) (module.Modules, error) {
 	// 迁移可能新增系统配置，模块启动前刷新缓存，避免认证策略沿用旧快照。
@@ -54,6 +55,10 @@ func NewModules(
 		return nil, err
 	}
 	err = baseLoginPolicyCase.RefreshBaseLoginPolicy(context.Background())
+	if err != nil {
+		return nil, err
+	}
+	err = baseOauthProviderCase.RefreshBaseOauthProvider(context.Background())
 	if err != nil {
 		return nil, err
 	}

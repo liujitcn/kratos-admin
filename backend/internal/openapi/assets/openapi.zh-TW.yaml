@@ -2960,6 +2960,138 @@ paths:
                 "200":
                     description: OK
                     content: {}
+    /api/v1/admin/base/oauth-provider:
+        get:
+            tags:
+                - BaseOauthProviderService
+            description: 分頁查詢OAuth登入方式。
+            operationId: BaseOauthProviderService_PageBaseOauthProvider
+            parameters:
+                - name: provider
+                  in: query
+                  schema:
+                    type: string
+                - name: name
+                  in: query
+                  schema:
+                    type: string
+                - name: status
+                  in: query
+                  schema:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    format: enum
+                - name: page_num
+                  in: query
+                  schema:
+                    type: string
+                - name: page_size
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.PageBaseOauthProviderResponse'
+        post:
+            tags:
+                - BaseOauthProviderService
+            description: 建立OAuth登入方式。
+            operationId: BaseOauthProviderService_CreateBaseOauthProvider
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.BaseOauthProviderForm'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/oauth-provider/{base_oauth_provider.id}:
+        put:
+            tags:
+                - BaseOauthProviderService
+            description: 更新OAuth登入方式。
+            operationId: BaseOauthProviderService_UpdateBaseOauthProvider
+            parameters:
+                - name: base_oauth_provider.id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.BaseOauthProviderForm'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/oauth-provider/{id}:
+        get:
+            tags:
+                - BaseOauthProviderService
+            description: 查詢OAuth登入方式詳情。
+            operationId: BaseOauthProviderService_GetBaseOauthProvider
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.BaseOauthProviderForm'
+        delete:
+            tags:
+                - BaseOauthProviderService
+            description: 刪除OAuth登入方式。
+            operationId: BaseOauthProviderService_DeleteBaseOauthProvider
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/oauth-provider/{id}/status:
+        put:
+            tags:
+                - BaseOauthProviderService
+            description: 設定OAuth登入方式狀態。
+            operationId: BaseOauthProviderService_SetBaseOauthProviderStatus
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.SetBaseOauthProviderStatusRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
     /api/v1/admin/base/operation-log:
         get:
             tags:
@@ -8327,9 +8459,21 @@ components:
                 provider:
                     type: string
                     description: 登入方式標識
+                name:
+                    type: string
+                    description: 登入方式名稱
+                description:
+                    type: string
+                    description: 登入方式提示語
                 bound:
                     type: boolean
                     description: 是否已繫結
+                icon:
+                    type: string
+                    description: 圖示鍵或圖片地址
+                config:
+                    type: object
+                    description: Provider個性化配置JSON物件
             description: 個人中心三方賬號繫結資訊
         base.v1.OauthProvider:
             type: object
@@ -8337,6 +8481,18 @@ components:
                 provider:
                     type: string
                     description: 登入方式標識
+                name:
+                    type: string
+                    description: 登入方式名稱
+                description:
+                    type: string
+                    description: 登入方式提示語
+                icon:
+                    type: string
+                    description: 圖示鍵或圖片地址
+                config:
+                    type: object
+                    description: Provider個性化配置JSON物件
             description: 三方登入方式資訊
         base.v1.OptionLanguageResponse:
             type: object
@@ -9493,6 +9649,8 @@ components:
                         - I18N_TARGET_TYPE_BASE_MENU_META_TITLE
                         - I18N_TARGET_TYPE_BASE_JOB_NAME
                         - I18N_TARGET_TYPE_BASE_MIGRATION_DESCRIPTION
+                        - I18N_TARGET_TYPE_BASE_OAUTH_PROVIDER_NAME
+                        - I18N_TARGET_TYPE_BASE_OAUTH_PROVIDER_DESCRIPTION
                     type: string
                     description: 目標型別：列舉【I18nTargetType】
                     format: enum
@@ -10643,6 +10801,121 @@ components:
                     type: string
                     description: 建立時間
             description: 資料庫遷移記錄列表項
+        system.admin.v1.BaseOauthProvider:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: OAuth登入方式ID
+                provider:
+                    type: string
+                    description: Provider穩定標識
+                name:
+                    type: string
+                    description: 登入方式名稱
+                description:
+                    type: string
+                    description: 登入方式提示語
+                icon:
+                    type: string
+                    description: 圖示鍵或圖片地址
+                client_id:
+                    type: string
+                    description: 第三方應用標識
+                redirect_uri:
+                    type: string
+                    description: OAuth回撥地址
+                scopes:
+                    type: array
+                    items:
+                        type: string
+                    description: OAuth Scope列表
+                config:
+                    type: object
+                    description: Provider個性化配置JSON物件
+                sort:
+                    type: integer
+                    description: 排序
+                    format: int32
+                status:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    description: 狀態
+                    format: enum
+                secret_configured:
+                    type: boolean
+                    description: 是否已配置第三方應用金鑰
+                created_at:
+                    type: string
+                    description: 建立時間
+                updated_at:
+                    type: string
+                    description: 更新時間
+            description: OAuth登入方式。
+        system.admin.v1.BaseOauthProviderForm:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: OAuth登入方式ID
+                provider:
+                    type: string
+                    description: Provider穩定標識
+                name:
+                    type: string
+                    description: 登入方式名稱
+                description:
+                    type: string
+                    description: 登入方式提示語
+                icon:
+                    type: string
+                    description: 圖示鍵或圖片地址
+                client_id:
+                    type: string
+                    description: 第三方應用標識
+                client_secret:
+                    type: string
+                    description: 第三方應用金鑰，更新時留空表示不修改
+                secret_configured:
+                    type: boolean
+                    description: 是否已配置第三方應用金鑰
+                redirect_uri:
+                    type: string
+                    description: OAuth回撥地址
+                scopes:
+                    type: array
+                    items:
+                        type: string
+                    description: OAuth Scope列表
+                config:
+                    type: object
+                    description: Provider個性化配置JSON物件
+                sort:
+                    type: integer
+                    description: 排序
+                    format: int32
+                status:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    description: 狀態
+                    format: enum
+                name_i18ns:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.BaseI18n'
+                    description: 登入方式名稱多語言翻譯
+                description_i18ns:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.BaseI18n'
+                    description: 登入方式提示語多語言翻譯
+            description: OAuth登入方式表單。
         system.admin.v1.BaseOperationLog:
             type: object
             properties:
@@ -13574,6 +13847,19 @@ components:
                     description: 總數
                     format: int32
             description: 資料庫遷移記錄分頁響應
+        system.admin.v1.PageBaseOauthProviderResponse:
+            type: object
+            properties:
+                base_oauth_providers:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.BaseOauthProvider'
+                    description: OAuth登入方式列表
+                total:
+                    type: integer
+                    description: 總數
+                    format: int32
+            description: OAuth登入方式分頁響應。
         system.admin.v1.PageBaseOperationLogResponse:
             type: object
             properties:
@@ -14264,6 +14550,21 @@ components:
                     description: 狀態
                     format: enum
             description: 設定訊息分類狀態請求。
+        system.admin.v1.SetBaseOauthProviderStatusRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: OAuth登入方式ID
+                status:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    description: 狀態
+                    format: enum
+            description: 設定OAuth登入方式狀態請求。
         system.admin.v1.SetBasePostStatusRequest:
             type: object
             properties:
@@ -14564,6 +14865,8 @@ components:
                         - I18N_TARGET_TYPE_BASE_MENU_META_TITLE
                         - I18N_TARGET_TYPE_BASE_JOB_NAME
                         - I18N_TARGET_TYPE_BASE_MIGRATION_DESCRIPTION
+                        - I18N_TARGET_TYPE_BASE_OAUTH_PROVIDER_NAME
+                        - I18N_TARGET_TYPE_BASE_OAUTH_PROVIDER_DESCRIPTION
                     type: string
                     description: 翻譯目標型別，ID為零時用於查詢或新增
                     format: enum
@@ -14913,6 +15216,8 @@ tags:
       description: Admin站內信管理服務。
     - name: BaseMigrationService
       description: Admin資料庫遷移服務。
+    - name: BaseOauthProviderService
+      description: Admin OAuth第三方登入方式管理服務。
     - name: BaseOperationLogService
       description: Admin業務操作日誌服務。
     - name: BasePermissionLogService

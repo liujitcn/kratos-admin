@@ -72,6 +72,9 @@
                   <template v-else-if="row.rule_type === 'FIXED_LENGTH'">
                     <ParameterText v-model="row.params.char" :label="t('system.base.redact_rule.parameter.char')" />
                   </template>
+                  <template v-else-if="row.rule_type === 'ENCRYPT'">
+                    <div class="parameter-item"><span>{{ t("system.base.redact_rule.parameter.algo") }}</span><el-select v-model="row.params.algorithm" class="parameter-control" size="small"><el-option label="AES-GCM" value="AES_GCM" /><el-option label="SM4-GCM" value="SM4_GCM" /></el-select></div>
+                  </template>
                 </div>
                 <span v-else class="empty-value">--</span>
               </template>
@@ -117,6 +120,7 @@ interface RuleParams {
   keep_octets?: number;
   mask_query?: boolean;
   char?: string;
+  algorithm?: string;
 }
 
 /** 入库字段表格行。 */

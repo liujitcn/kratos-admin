@@ -18,3 +18,11 @@ func TestValidateRedactRuleAllowsCustomCode(t *testing.T) {
 		t.Fatal("unknown rule type should be rejected")
 	}
 }
+
+// TestValidateRedactRuleAllowsDirectEncryption 验证直接字段加密规则能够进入运行时策略。
+func TestValidateRedactRuleAllowsDirectEncryption(t *testing.T) {
+	err := ValidateRedactRule("encrypt", "ENCRYPT", `{"encrypt":{"algorithm":"AES_GCM"}}`)
+	if err != nil {
+		t.Fatal(err)
+	}
+}

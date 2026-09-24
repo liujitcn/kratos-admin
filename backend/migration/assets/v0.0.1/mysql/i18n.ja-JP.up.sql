@@ -215,6 +215,8 @@ INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VA
 INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (4, 13105, 'ja-JP', 'メニュータイトル');
 INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (4, 13106, 'ja-JP', 'スケジュールされたタスク名');
 INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (4, 13107, 'ja-JP', 'データベース移行手順');
+INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (4, 13108, 'ja-JP', 'OAuthログイン設定名');
+INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (4, 13109, 'ja-JP', 'OAuthログイン設定のヒント');
 INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (4, 13201, 'ja-JP', '表示キーへジャンプ');
 INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (4, 13301, 'ja-JP', '指定されたユーザー');
 INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (4, 13302, 'ja-JP', 'ロールを指定してください');
@@ -361,8 +363,13 @@ INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VA
 INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (5, 91030102, 'ja-JP', 'ログインポリシーの編集');
 INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (5, 91030103, 'ja-JP', 'ログインポリシーを削除');
 INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (5, 91030104, 'ja-JP', 'ログインポリシーのステータスを変更');
-INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (5, 91030200, 'ja-JP', 'オンラインセッション');
-INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (5, 91030201, 'ja-JP', 'オンラインセッションを取り消す');
+INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (5, 91030200, 'ja-JP', 'OAuthログイン設定');
+INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (5, 91030201, 'ja-JP', 'OAuthログイン設定を追加');
+INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (5, 91030202, 'ja-JP', 'OAuthログイン設定を編集');
+INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (5, 91030203, 'ja-JP', 'OAuthログイン設定を削除');
+INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (5, 91030204, 'ja-JP', 'OAuthログイン設定のステータスを変更');
+INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (5, 91030300, 'ja-JP', 'オンラインセッション');
+INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (5, 91030301, 'ja-JP', 'オンラインセッションを取り消す');
 INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (5, 91040000, 'ja-JP', '通知');
 INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (5, 91040100, 'ja-JP', 'メッセージ分類');
 INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (5, 91040101, 'ja-JP', '新しいメッセージ カテゴリを追加');
@@ -476,3 +483,25 @@ INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VA
 INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (6, 1002, 'ja-JP', 'データテーブルアーカイブタスク');
 INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (6, 1003, 'ja-JP', 'データテーブルバックアップタスク');
 INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (6, 1004, 'ja-JP', 'ログ ウェアハウスのロールバック タスク');
+
+-- OAuth 登录方式名称翻译。
+INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (8, 1, 'ja-JP', 'DingTalk');
+INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (8, 2, 'ja-JP', 'Feishu');
+INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (8, 3, 'ja-JP', 'Gitee');
+INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (8, 4, 'ja-JP', 'GitHub');
+INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (8, 5, 'ja-JP', 'Google');
+INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (8, 6, 'ja-JP', 'WeChat Open Platform');
+INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (8, 7, 'ja-JP', 'WeChatミニプログラム');
+INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (8, 8, 'ja-JP', 'WeChat公式アカウント');
+INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (8, 9, 'ja-JP', 'WeCom');
+
+-- OAuth 登录方式提示语翻译。
+INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (9, 1, 'ja-JP', 'DingTalkアカウントでログイン');
+INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (9, 2, 'ja-JP', 'Feishuアカウントでログイン');
+INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (9, 3, 'ja-JP', 'Giteeアカウントでログイン');
+INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (9, 4, 'ja-JP', 'GitHubアカウントでログイン');
+INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (9, 5, 'ja-JP', 'Googleアカウントでログイン');
+INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (9, 6, 'ja-JP', 'WeChat Open Platformアカウントでログイン');
+INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (9, 7, 'ja-JP', 'WeChatミニプログラムでログイン');
+INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (9, 8, 'ja-JP', 'WeChat公式アカウントでログイン');
+INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (9, 9, 'ja-JP', 'WeComアカウントでログイン');

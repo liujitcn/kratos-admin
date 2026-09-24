@@ -13,6 +13,7 @@ import (
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
+	structpb "google.golang.org/protobuf/types/known/structpb"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -24,6 +25,7 @@ var (
 	_ status.Status
 	_ validate.Rule
 	_ emptypb.Empty
+	_ structpb.Struct
 	_ commonv1.DoubleValues
 )
 
@@ -459,6 +461,14 @@ func (x *OauthProvider) Redact() {
 	}
 
 	// Safe field: Provider
+
+	// Safe field: Name
+
+	// Safe field: Description
+
+	// Safe field: Icon
+
+	// Safe field: Config
 }
 
 // Ensure OauthBinding implements the Redactor interface at compile time.
@@ -472,5 +482,13 @@ func (x *OauthBinding) Redact() {
 
 	// Safe field: Provider
 
+	// Safe field: Name
+
+	// Safe field: Description
+
 	// Safe field: Bound
+
+	// Safe field: Icon
+
+	// Safe field: Config
 }

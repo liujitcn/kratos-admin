@@ -22,6 +22,10 @@ export interface OauthProviderDisplay {
 export interface OauthProviderSource {
   /** 登录方式标识。 */
   provider: string;
+  /** 接口返回的动态名称。 */
+  name?: string;
+  /** 接口返回的动态图标键或图片地址。 */
+  icon?: string;
 }
 
 const oauthProviderDisplayMap: Record<string, Omit<OauthProviderDisplay, "name">> = {
@@ -72,13 +76,17 @@ function createOauthFallbackIcon(provider: OauthProviderSource & OauthProviderDi
 
 /** 获取三方登录真实品牌图标组件。 */
 export function getOauthProviderIcon(provider: OauthProviderSource & OauthProviderDisplay): Component {
+  if (/^(https?:\/\/|\/)/.test(provider.icon)) return createOauthImageIcon(provider.icon, provider.provider);
   return oauthIconMap[provider.icon] || oauthIconMap[provider.provider] || createOauthFallbackIcon(provider);
 }
 
 /** 为接口返回的三方登录数据补齐前端展示信息。 */
 export function withOauthProviderDisplay<T extends OauthProviderSource>(item: T): T & OauthProviderDisplay {
+  const fallback = getOauthProviderDisplay(item.provider);
   return {
     ...item,
-    ...getOauthProviderDisplay(item.provider)
+    name: item.name || fallback.name,
+    nameKey: fallback.nameKey,
+    icon: item.icon || fallback.icon
   };
 }

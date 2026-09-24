@@ -13,6 +13,7 @@ import (
 	"time"
 
 	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
+	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/dto"
 	_const "github.com/liujitcn/kratos-admin/backend/internal/const"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
@@ -27,6 +28,7 @@ import (
 	"github.com/liujitcn/gorm-kit/repository"
 	"github.com/liujitcn/kratos-kit/oauth"
 	"github.com/liujitcn/kratos-kit/oauth/provider"
+	"google.golang.org/protobuf/types/known/structpb"
 	"gorm.io/gorm"
 )
 
@@ -38,14 +40,16 @@ const oauthLoginTicketExpire = 2 * time.Minute
 // OauthCase 处理三方登录授权业务。
 type OauthCase struct {
 	*biz.BaseCase
-	tx                   data.Transaction
-	baseThirdAccountCase *BaseThirdAccountCase
-	baseUserCase         *BaseUserCase
-	baseRoleCase         *BaseRoleCase
-	baseDeptCase         *BaseDeptCase
-	loginCase            *LoginCase
-	configCase           *ConfigCase
-	oauthManager         *oauth.Manager
+	tx                    data.Transaction
+	baseThirdAccountCase  *BaseThirdAccountCase
+	baseUserCase          *BaseUserCase
+	baseRoleCase          *BaseRoleCase
+	baseDeptCase          *BaseDeptCase
+	loginCase             *LoginCase
+	configCase            *ConfigCase
+	baseOauthProviderRepo *data.BaseOauthProviderRepository
+	baseI18nRepo          *data.BaseI18NRepository
+	oauthManager          *oauth.Manager
 }
 
 // NewOauthCase 创建三方登录授权业务实例。
@@ -58,18 +62,22 @@ func NewOauthCase(
 	baseDeptCase *BaseDeptCase,
 	loginCase *LoginCase,
 	configCase *ConfigCase,
+	baseOauthProviderRepo *data.BaseOauthProviderRepository,
+	baseI18nRepo *data.BaseI18NRepository,
 	oauthManager *oauth.Manager,
 ) *OauthCase {
 	return &OauthCase{
-		BaseCase:             baseCase,
-		tx:                   tx,
-		baseThirdAccountCase: baseThirdAccountCase,
-		baseUserCase:         baseUserCase,
-		baseRoleCase:         baseRoleCase,
-		baseDeptCase:         baseDeptCase,
-		loginCase:            loginCase,
-		configCase:           configCase,
-		oauthManager:         oauthManager,
+		BaseCase:              baseCase,
+		tx:                    tx,
+		baseThirdAccountCase:  baseThirdAccountCase,
+		baseUserCase:          baseUserCase,
+		baseRoleCase:          baseRoleCase,
+		baseDeptCase:          baseDeptCase,
+		loginCase:             loginCase,
+		configCase:            configCase,
+		baseOauthProviderRepo: baseOauthProviderRepo,
+		baseI18nRepo:          baseI18nRepo,
+		oauthManager:          oauthManager,
 	}
 }
 
@@ -108,8 +116,12 @@ func (c *OauthCase) ListOauthBinding(ctx context.Context, req *basev1.ListOauthB
 	for _, item := range providerRes.GetProviders() {
 		_, bound := boundProviderSet[item.GetProvider()]
 		bindings = append(bindings, &basev1.OauthBinding{
-			Provider: item.GetProvider(),
-			Bound:    bound,
+			Provider:    item.GetProvider(),
+			Name:        item.GetName(),
+			Description: item.GetDescription(),
+			Bound:       bound,
+			Icon:        item.GetIcon(),
+			Config:      item.GetConfig(),
 		})
 	}
 	return &basev1.ListOauthBindingResponse{Bindings: bindings}, nil
@@ -118,13 +130,69 @@ func (c *OauthCase) ListOauthBinding(ctx context.Context, req *basev1.ListOauthB
 // ListOauthProvider 查询可用于管理端展示的三方登录方式。
 func (c *OauthCase) ListOauthProvider(ctx context.Context, req *basev1.ListOauthProviderRequest) (*basev1.ListOauthProviderResponse, error) {
 	providerNames := c.oauthManager.Providers()
-	providers := make([]*basev1.OauthProvider, 0, len(providerNames))
+	if len(providerNames) == 0 {
+		return &basev1.ListOauthProviderResponse{Providers: []*basev1.OauthProvider{}}, nil
+	}
+	names := make([]string, 0, len(providerNames))
 	for _, providerName := range providerNames {
-		providers = append(providers, &basev1.OauthProvider{
-			Provider: string(providerName),
-		})
+		names = append(names, string(providerName))
+	}
+	query := c.baseOauthProviderRepo.Query(ctx).BaseOauthProvider
+	list, err := c.baseOauthProviderRepo.List(ctx, repository.Where(query.Provider.In(names...)), repository.Where(query.Status.Eq(coreconst.STATUS_STATUS_ENABLE)), repository.Order(query.Sort.Asc()), repository.Order(query.ID.Asc()))
+	if err != nil {
+		return nil, errorsx.Internal("查询三方登录方式失败").WithCause(err)
+	}
+	targetIDs := make([]int64, 0, len(list))
+	for _, item := range list {
+		targetIDs = append(targetIDs, item.ID)
+	}
+	nameMap, err := c.oauthProviderI18nMap(ctx, int32(adminv1.I18nTargetType_I18N_TARGET_TYPE_BASE_OAUTH_PROVIDER_NAME), targetIDs)
+	if err != nil {
+		return nil, err
+	}
+	descriptionMap, err := c.oauthProviderI18nMap(ctx, int32(adminv1.I18nTargetType_I18N_TARGET_TYPE_BASE_OAUTH_PROVIDER_DESCRIPTION), targetIDs)
+	if err != nil {
+		return nil, err
+	}
+	providers := make([]*basev1.OauthProvider, 0, len(list))
+	for _, item := range list {
+		values := make(map[string]any)
+		if err = json.Unmarshal([]byte(item.Config), &values); err != nil {
+			return nil, errorsx.Internal("解析Provider个性化配置失败").WithCause(err)
+		}
+		config, configErr := structpb.NewStruct(values)
+		if configErr != nil {
+			return nil, errorsx.Internal("转换Provider个性化配置失败").WithCause(configErr)
+		}
+		name := item.Name
+		if localized := nameMap[item.ID]; localized != "" {
+			name = localized
+		}
+		description := item.Description
+		if localized := descriptionMap[item.ID]; localized != "" {
+			description = localized
+		}
+		providers = append(providers, &basev1.OauthProvider{Provider: item.Provider, Name: name, Description: description, Icon: item.Icon, Config: config})
 	}
 	return &basev1.ListOauthProviderResponse{Providers: providers}, nil
+}
+
+// oauthProviderI18nMap 查询当前请求语言的 OAuth 登录方式翻译。
+func (c *OauthCase) oauthProviderI18nMap(ctx context.Context, targetType int32, targetIDs []int64) (map[int64]string, error) {
+	result := make(map[int64]string, len(targetIDs))
+	if len(targetIDs) == 0 {
+		return result, nil
+	}
+	locale := biz.LocaleFromContext(ctx)
+	query := c.baseI18nRepo.Query(ctx).BaseI18N
+	list, err := c.baseI18nRepo.List(ctx, repository.Where(query.TargetType.Eq(targetType)), repository.Where(query.TargetID.In(targetIDs...)), repository.Where(query.Locale.Eq(locale)))
+	if err != nil {
+		return nil, errorsx.Internal("查询三方登录方式翻译失败").WithCause(err)
+	}
+	for _, item := range list {
+		result[item.TargetID] = item.Name
+	}
+	return result, nil
 }
 
 // CreateOauthAuthorization 创建三方登录授权地址。

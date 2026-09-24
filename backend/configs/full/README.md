@@ -19,7 +19,6 @@
 | `authz.yaml` | Casbin 授权 |
 | `pprof.yaml` | Pyroscope 性能分析 |
 | `ai.yaml` | 云端或本地大模型 |
-| `oauth.yaml` | OAuth 第三方登录 |
 | `translator.yaml` | 机器翻译 |
 | `mfa.yaml` | MFA、TOTP、WebAuthn |
 | `key.yaml` | 根密钥 Provider |
@@ -116,12 +115,6 @@
 - `translator.type`：`google`、`baidu`、`alibaba`、`volc`。
 - `translator.google.version`：`v1`、`v2`、`v3`。
 - `mfa.totp.algorithm`：`SHA1`、`SHA256`、`SHA512`。
-
-## OAuth
-
-`oauth.providers` 是 map，key 为第三方平台名称。当前项目使用或兼容的常见 key 为 `github`、`gitee`、`google`、`wechat`、`wechatmp`、`wechatmini`、`wechatwork`、`dingtalk`、`feishu`。每个 Provider 都需要保留 `client_id`、`client_secret`、`redirect_uri`、`scopes` 四个字段。
-
-常见 Scope 示例：GitHub 使用 `user:email`，Gitee 使用 `user_info` 或 `emails`，Google 使用 `openid`、`profile`、`email`，微信开放平台使用 `snsapi_login`，微信公众号使用 `snsapi_userinfo`；微信小程序通常不需要填写 Scope。
 
 ## 使用方式
 

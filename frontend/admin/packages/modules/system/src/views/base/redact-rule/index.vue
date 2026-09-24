@@ -103,6 +103,15 @@
               <el-input v-model="form.params.char" maxlength="8" />
             </div>
           </div>
+          <div v-else-if="form.rule_type === 'ENCRYPT'" class="parameter-grid parameter-grid--single">
+            <div class="parameter-item parameter-item--wide">
+              <span>{{ t("system.base.redact_rule.parameter.algo") }}</span>
+              <el-select v-model="form.params.algorithm" class="parameter-control">
+                <el-option label="AES-GCM" value="AES_GCM" />
+                <el-option label="SM4-GCM" value="SM4_GCM" />
+              </el-select>
+            </div>
+          </div>
           <div v-else class="rule-empty">{{ t("system.base.redact_rule.message.no_parameters") }}</div>
         </div>
       </template>
@@ -141,6 +150,7 @@ interface RuleParams {
   keep_octets?: number;
   mask_query?: boolean;
   char?: string;
+  algorithm?: string;
 }
 
 interface RuleFormState extends BaseRedactRuleForm {
@@ -159,7 +169,7 @@ const statusOptions = computed(() => [
   { label: t("common.status.disabled"), value: Status.STATUS_DISABLE }
 ]);
 /** 运行时支持的规则类型选项。 */
-const ruleTypeOptions = ["MASK", "EMAIL", "REGEX", "TRUNCATE", "HASH", "UUID", "IP", "URL", "FIXED_LENGTH"].map(value => ({ label: value, value }));
+const ruleTypeOptions = ["MASK", "EMAIL", "REGEX", "TRUNCATE", "HASH", "UUID", "IP", "URL", "FIXED_LENGTH", "ENCRYPT"].map(value => ({ label: value, value }));
 const fields = computed<ProFormField[]>(() => [
   { prop: "code", label: t("system.base.redact_rule.field.code"), component: "input", props: { disabled: Boolean(form.id) } },
   { prop: "name", label: t("system.base.redact_rule.field.name"), component: "input", props: { disabled: Boolean(form.id) } },
@@ -302,7 +312,7 @@ function syncRule() {
 /** 切换规则类型时重置参数。 */
 function handleRuleTypeChange(ruleType?: string) {
   form.rule_type = ruleType ?? "";
-  form.params = {};
+  form.params = ruleType === "ENCRYPT" ? { algorithm: "AES_GCM" } : {};
 }
 
 /** 解析数据库规则 JSON 中当前类型的参数。 */

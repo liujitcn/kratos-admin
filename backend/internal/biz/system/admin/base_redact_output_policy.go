@@ -321,6 +321,9 @@ func (c *BaseRedactOutputPolicyCase) validateOutputForm(ctx context.Context, inp
 	if rule.Status != _const.STATUS_STATUS_ENABLE {
 		return nil, errorsx.InvalidArgument("脱敏规则已停用")
 	}
+	if strings.EqualFold(rule.RuleType, "ENCRYPT") {
+		return nil, errorsx.InvalidArgument("字段加密规则仅支持入库策略")
+	}
 	err = kit.ValidateRedactRule(rule.Code, rule.RuleType, input.GetRuleParams())
 	if err != nil {
 		return nil, errorsx.InvalidArgument("出库脱敏规则参数无效").WithCause(err)

@@ -282,7 +282,7 @@ async function requestApis() {
 /** 加载脱敏规则选项。 */
 async function loadRules() { const rules = await requestRules(); ruleCatalog.value = rules.catalog; ruleOptions.value = rules.options; }
 /** 请求脱敏规则选项。 */
-async function requestRules() { const data = await defBaseRedactRuleService.PageBaseRedactRule({ code: "", name: "", rule_type: "", page_num: 1, page_size: 100 }); const catalog = data.base_redact_rules ?? []; return { catalog, options: catalog.map(item => ({ label: `${item.name} (${item.code})`, value: item.id, disabled: item.status !== Status.STATUS_ENABLE })) }; }
+async function requestRules() { const data = await defBaseRedactRuleService.PageBaseRedactRule({ code: "", name: "", rule_type: "", page_num: 1, page_size: 100 }); const catalog = (data.base_redact_rules ?? []).filter(item => item.rule_type !== "ENCRYPT"); return { catalog, options: catalog.map(item => ({ label: `${item.name} (${item.code})`, value: item.id, disabled: item.status !== Status.STATUS_ENABLE })) }; }
 /** 服务变更后清空接口和返回字段。 */
 function handleServiceChange(serviceName?: string) { responseFieldsRequestRevision += 1; form.service_name = serviceName ?? ""; form.api_id = undefined; form.operation = ""; form.message_ref = ""; form.field_path = ""; form.field_rows = []; }
 /** API 变更后重新加载返回字段。 */

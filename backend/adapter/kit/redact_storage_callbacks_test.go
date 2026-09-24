@@ -4,9 +4,11 @@ import (
 	"context"
 	"database/sql"
 	"reflect"
+	"strings"
 	"sync"
 	"testing"
 
+	"github.com/liujitcn/kratos-admin/backend/internal/config"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 	"github.com/liujitcn/kratos-kit/redact"
 	mysql "gorm.io/driver/mysql"
@@ -14,6 +16,34 @@ import (
 	"gorm.io/gorm/clause"
 	"gorm.io/gorm/schema"
 )
+
+// TestDirectEncryptionPolicyStoresPayloadAndRestoresPlaintext 验证AES和SM4直接加密不写旁表且能够恢复原文。
+func TestDirectEncryptionPolicyStoresPayloadAndRestoresPlaintext(t *testing.T) {
+	cipher, err := config.NewFieldCipher([]byte("12345678901234567890123456789012"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, algorithm := range []string{"AES_GCM", "SM4_GCM"} {
+		t.Run(algorithm, func(t *testing.T) {
+			runtime := &storageRuntime{fieldCipher: cipher}
+			entity := &storageCallbackTestEntity{ID: 42, Phone: "client-secret"}
+			policy := redact.StorageFieldPolicy{ID: 11, TenantID: 1, TableName: "storage_callback_test", ColumnName: "phone", Rule: redact.FieldPolicy{Mode: redact.PolicyModeApplyRule, RuleType: directEncryptionRuleType, EncryptAlgorithm: algorithm, Transform: func(value any) any { return value }}}
+			prepared, testErr := runtime.prepareStorageEntity(context.Background(), []redact.StorageFieldPolicy{policy}, entity, &gorm.DB{Statement: &gorm.Statement{}}, true)
+			if testErr != nil {
+				t.Fatal(testErr)
+			}
+			if entity.Phone == "client-secret" || strings.HasPrefix(entity.Phone, "ENC[") || len(prepared.values) != 0 {
+				t.Fatalf("直接加密结果无效: value=%q prepared=%d", entity.Phone, len(prepared.values))
+			}
+			if testErr = runtime.decryptDirectEntity(context.Background(), entity, policy); testErr != nil {
+				t.Fatal(testErr)
+			}
+			if entity.Phone != "client-secret" {
+				t.Fatalf("直接加密未恢复原文: %q", entity.Phone)
+			}
+		})
+	}
+}
 
 type storageQueryTestResolver struct {
 	recordIDs map[string][]int64

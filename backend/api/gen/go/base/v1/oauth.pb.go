@@ -18,6 +18,7 @@ import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
+	structpb "google.golang.org/protobuf/types/known/structpb"
 )
 
 const (
@@ -1112,7 +1113,11 @@ func (x *UnbindOauthAccountRequest) GetProvider() string {
 // 三方登录方式信息
 type OauthProvider struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Provider      string                 `protobuf:"bytes,1,opt,name=provider,proto3" json:"provider,omitempty"` // 登录方式标识
+	Provider      string                 `protobuf:"bytes,1,opt,name=provider,proto3" json:"provider,omitempty"`       // 登录方式标识
+	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`               // 登录方式名称
+	Description   string                 `protobuf:"bytes,3,opt,name=description,proto3" json:"description,omitempty"` // 登录方式提示语
+	Icon          string                 `protobuf:"bytes,4,opt,name=icon,proto3" json:"icon,omitempty"`               // 图标键或图片地址
+	Config        *structpb.Struct       `protobuf:"bytes,5,opt,name=config,proto3" json:"config,omitempty"`           // Provider个性化配置JSON对象
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1154,11 +1159,43 @@ func (x *OauthProvider) GetProvider() string {
 	return ""
 }
 
+func (x *OauthProvider) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *OauthProvider) GetDescription() string {
+	if x != nil {
+		return x.Description
+	}
+	return ""
+}
+
+func (x *OauthProvider) GetIcon() string {
+	if x != nil {
+		return x.Icon
+	}
+	return ""
+}
+
+func (x *OauthProvider) GetConfig() *structpb.Struct {
+	if x != nil {
+		return x.Config
+	}
+	return nil
+}
+
 // 个人中心三方账号绑定信息
 type OauthBinding struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Provider      string                 `protobuf:"bytes,1,opt,name=provider,proto3" json:"provider,omitempty"` // 登录方式标识
-	Bound         bool                   `protobuf:"varint,4,opt,name=bound,proto3" json:"bound,omitempty"`      // 是否已绑定
+	Provider      string                 `protobuf:"bytes,1,opt,name=provider,proto3" json:"provider,omitempty"`       // 登录方式标识
+	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`               // 登录方式名称
+	Description   string                 `protobuf:"bytes,3,opt,name=description,proto3" json:"description,omitempty"` // 登录方式提示语
+	Bound         bool                   `protobuf:"varint,4,opt,name=bound,proto3" json:"bound,omitempty"`            // 是否已绑定
+	Icon          string                 `protobuf:"bytes,5,opt,name=icon,proto3" json:"icon,omitempty"`               // 图标键或图片地址
+	Config        *structpb.Struct       `protobuf:"bytes,6,opt,name=config,proto3" json:"config,omitempty"`           // Provider个性化配置JSON对象
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1200,6 +1237,20 @@ func (x *OauthBinding) GetProvider() string {
 	return ""
 }
 
+func (x *OauthBinding) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *OauthBinding) GetDescription() string {
+	if x != nil {
+		return x.Description
+	}
+	return ""
+}
+
 func (x *OauthBinding) GetBound() bool {
 	if x != nil {
 		return x.Bound
@@ -1207,11 +1258,25 @@ func (x *OauthBinding) GetBound() bool {
 	return false
 }
 
+func (x *OauthBinding) GetIcon() string {
+	if x != nil {
+		return x.Icon
+	}
+	return ""
+}
+
+func (x *OauthBinding) GetConfig() *structpb.Struct {
+	if x != nil {
+		return x.Config
+	}
+	return nil
+}
+
 var File_base_v1_oauth_proto protoreflect.FileDescriptor
 
 const file_base_v1_oauth_proto_rawDesc = "" +
 	"\n" +
-	"\x13base/v1/oauth.proto\x12\abase.v1\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x15common/v1/types.proto\x1a\x13base/v1/login.proto\"\x19\n" +
+	"\x13base/v1/oauth.proto\x12\abase.v1\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x15common/v1/types.proto\x1a\x13base/v1/login.proto\"\x19\n" +
 	"\x17ListOauthBindingRequest\"m\n" +
 	"\x18ListOauthBindingResponse\x12Q\n" +
 	"\bbindings\x18\x01 \x03(\v2\x15.base.v1.OauthBindingB\x1e\xbaG\x1b\x92\x02\x18三方账号绑定列表R\bbindings\"\x1a\n" +
@@ -1312,12 +1377,20 @@ const file_base_v1_oauth_proto_rawDesc = "" +
 	"\"HandleOauthBindingCallbackResponse\"\xb6\x01\n" +
 	"\x19UnbindOauthAccountRequest\x12\x98\x01\n" +
 	"\bprovider\x18\x01 \x01(\tB|\xbaG\x15\x92\x02\x12登录方式标识\xbaHa\xba\x01^\n" +
-	"+base.oauth.unbind_account.provider.required\x12\x1e登录方式标识不能为空\x1a\x0fthis.size() > 0R\bprovider\"E\n" +
+	"+base.oauth.unbind_account.provider.required\x12\x1e登录方式标识不能为空\x1a\x0fthis.size() > 0R\bprovider\"\xc0\x02\n" +
 	"\rOauthProvider\x124\n" +
-	"\bprovider\x18\x01 \x01(\tB\x18\xbaG\x15\x92\x02\x12登录方式标识R\bprovider\"q\n" +
+	"\bprovider\x18\x01 \x01(\tB\x18\xbaG\x15\x92\x02\x12登录方式标识R\bprovider\x12,\n" +
+	"\x04name\x18\x02 \x01(\tB\x18\xbaG\x15\x92\x02\x12登录方式名称R\x04name\x12=\n" +
+	"\vdescription\x18\x03 \x01(\tB\x1b\xbaG\x18\x92\x02\x15登录方式提示语R\vdescription\x122\n" +
+	"\x04icon\x18\x04 \x01(\tB\x1e\xbaG\x1b\x92\x02\x18图标键或图片地址R\x04icon\x12X\n" +
+	"\x06config\x18\x05 \x01(\v2\x17.google.protobuf.StructB'\xbaG$\x92\x02!Provider个性化配置JSON对象R\x06config\"\xec\x02\n" +
 	"\fOauthBinding\x124\n" +
-	"\bprovider\x18\x01 \x01(\tB\x18\xbaG\x15\x92\x02\x12登录方式标识R\bprovider\x12+\n" +
-	"\x05bound\x18\x04 \x01(\bB\x15\xbaG\x12\x92\x02\x0f是否已绑定R\x05bound2\xc6\v\n" +
+	"\bprovider\x18\x01 \x01(\tB\x18\xbaG\x15\x92\x02\x12登录方式标识R\bprovider\x12,\n" +
+	"\x04name\x18\x02 \x01(\tB\x18\xbaG\x15\x92\x02\x12登录方式名称R\x04name\x12=\n" +
+	"\vdescription\x18\x03 \x01(\tB\x1b\xbaG\x18\x92\x02\x15登录方式提示语R\vdescription\x12+\n" +
+	"\x05bound\x18\x04 \x01(\bB\x15\xbaG\x12\x92\x02\x0f是否已绑定R\x05bound\x122\n" +
+	"\x04icon\x18\x05 \x01(\tB\x1e\xbaG\x1b\x92\x02\x18图标键或图片地址R\x04icon\x12X\n" +
+	"\x06config\x18\x06 \x01(\v2\x17.google.protobuf.StructB'\xbaG$\x92\x02!Provider个性化配置JSON对象R\x06config2\xc6\v\n" +
 	"\fOauthService\x12{\n" +
 	"\x10ListOauthBinding\x12 .base.v1.ListOauthBindingRequest\x1a!.base.v1.ListOauthBindingResponse\"\"\x82\xd3\xe4\x93\x02\x1c\x12\x1a/api/v1/base/oauth/binding\x12\x7f\n" +
 	"\x11ListOauthProvider\x12!.base.v1.ListOauthProviderRequest\x1a\".base.v1.ListOauthProviderResponse\"#\x82\xd3\xe4\x93\x02\x1d\x12\x1b/api/v1/base/oauth/provider\x12\x9c\x01\n" +
@@ -1368,7 +1441,8 @@ var file_base_v1_oauth_proto_goTypes = []any{
 	(*OauthBinding)(nil),                            // 19: base.v1.OauthBinding
 	(*commonv1.PasswordCrypto)(nil),                 // 20: common.v1.PasswordCrypto
 	(LoginStatus)(0),                                // 21: base.v1.LoginStatus
-	(*emptypb.Empty)(nil),                           // 22: google.protobuf.Empty
+	(*structpb.Struct)(nil),                         // 22: google.protobuf.Struct
+	(*emptypb.Empty)(nil),                           // 23: google.protobuf.Empty
 }
 var file_base_v1_oauth_proto_depIdxs = []int32{
 	19, // 0: base.v1.ListOauthBindingResponse.bindings:type_name -> base.v1.OauthBinding
@@ -1376,31 +1450,33 @@ var file_base_v1_oauth_proto_depIdxs = []int32{
 	20, // 2: base.v1.BindOauthSessionRequest.password:type_name -> common.v1.PasswordCrypto
 	21, // 3: base.v1.CreateOauthSessionResponse.status:type_name -> base.v1.LoginStatus
 	21, // 4: base.v1.ExchangeOauthTicketResponse.status:type_name -> base.v1.LoginStatus
-	0,  // 5: base.v1.OauthService.ListOauthBinding:input_type -> base.v1.ListOauthBindingRequest
-	2,  // 6: base.v1.OauthService.ListOauthProvider:input_type -> base.v1.ListOauthProviderRequest
-	4,  // 7: base.v1.OauthService.CreateOauthAuthorization:input_type -> base.v1.CreateOauthAuthorizationRequest
-	6,  // 8: base.v1.OauthService.CreateOauthBindingAuthorization:input_type -> base.v1.CreateOauthBindingAuthorizationRequest
-	8,  // 9: base.v1.OauthService.CreateOauthSession:input_type -> base.v1.CreateOauthSessionRequest
-	9,  // 10: base.v1.OauthService.BindOauthSession:input_type -> base.v1.BindOauthSessionRequest
-	11, // 11: base.v1.OauthService.HandleOauthCallback:input_type -> base.v1.HandleOauthCallbackRequest
-	13, // 12: base.v1.OauthService.ExchangeOauthTicket:input_type -> base.v1.ExchangeOauthTicketRequest
-	15, // 13: base.v1.OauthService.HandleOauthBindingCallback:input_type -> base.v1.HandleOauthBindingCallbackRequest
-	17, // 14: base.v1.OauthService.UnbindOauthAccount:input_type -> base.v1.UnbindOauthAccountRequest
-	1,  // 15: base.v1.OauthService.ListOauthBinding:output_type -> base.v1.ListOauthBindingResponse
-	3,  // 16: base.v1.OauthService.ListOauthProvider:output_type -> base.v1.ListOauthProviderResponse
-	5,  // 17: base.v1.OauthService.CreateOauthAuthorization:output_type -> base.v1.CreateOauthAuthorizationResponse
-	7,  // 18: base.v1.OauthService.CreateOauthBindingAuthorization:output_type -> base.v1.CreateOauthBindingAuthorizationResponse
-	10, // 19: base.v1.OauthService.CreateOauthSession:output_type -> base.v1.CreateOauthSessionResponse
-	10, // 20: base.v1.OauthService.BindOauthSession:output_type -> base.v1.CreateOauthSessionResponse
-	12, // 21: base.v1.OauthService.HandleOauthCallback:output_type -> base.v1.HandleOauthCallbackResponse
-	14, // 22: base.v1.OauthService.ExchangeOauthTicket:output_type -> base.v1.ExchangeOauthTicketResponse
-	16, // 23: base.v1.OauthService.HandleOauthBindingCallback:output_type -> base.v1.HandleOauthBindingCallbackResponse
-	22, // 24: base.v1.OauthService.UnbindOauthAccount:output_type -> google.protobuf.Empty
-	15, // [15:25] is the sub-list for method output_type
-	5,  // [5:15] is the sub-list for method input_type
-	5,  // [5:5] is the sub-list for extension type_name
-	5,  // [5:5] is the sub-list for extension extendee
-	0,  // [0:5] is the sub-list for field type_name
+	22, // 5: base.v1.OauthProvider.config:type_name -> google.protobuf.Struct
+	22, // 6: base.v1.OauthBinding.config:type_name -> google.protobuf.Struct
+	0,  // 7: base.v1.OauthService.ListOauthBinding:input_type -> base.v1.ListOauthBindingRequest
+	2,  // 8: base.v1.OauthService.ListOauthProvider:input_type -> base.v1.ListOauthProviderRequest
+	4,  // 9: base.v1.OauthService.CreateOauthAuthorization:input_type -> base.v1.CreateOauthAuthorizationRequest
+	6,  // 10: base.v1.OauthService.CreateOauthBindingAuthorization:input_type -> base.v1.CreateOauthBindingAuthorizationRequest
+	8,  // 11: base.v1.OauthService.CreateOauthSession:input_type -> base.v1.CreateOauthSessionRequest
+	9,  // 12: base.v1.OauthService.BindOauthSession:input_type -> base.v1.BindOauthSessionRequest
+	11, // 13: base.v1.OauthService.HandleOauthCallback:input_type -> base.v1.HandleOauthCallbackRequest
+	13, // 14: base.v1.OauthService.ExchangeOauthTicket:input_type -> base.v1.ExchangeOauthTicketRequest
+	15, // 15: base.v1.OauthService.HandleOauthBindingCallback:input_type -> base.v1.HandleOauthBindingCallbackRequest
+	17, // 16: base.v1.OauthService.UnbindOauthAccount:input_type -> base.v1.UnbindOauthAccountRequest
+	1,  // 17: base.v1.OauthService.ListOauthBinding:output_type -> base.v1.ListOauthBindingResponse
+	3,  // 18: base.v1.OauthService.ListOauthProvider:output_type -> base.v1.ListOauthProviderResponse
+	5,  // 19: base.v1.OauthService.CreateOauthAuthorization:output_type -> base.v1.CreateOauthAuthorizationResponse
+	7,  // 20: base.v1.OauthService.CreateOauthBindingAuthorization:output_type -> base.v1.CreateOauthBindingAuthorizationResponse
+	10, // 21: base.v1.OauthService.CreateOauthSession:output_type -> base.v1.CreateOauthSessionResponse
+	10, // 22: base.v1.OauthService.BindOauthSession:output_type -> base.v1.CreateOauthSessionResponse
+	12, // 23: base.v1.OauthService.HandleOauthCallback:output_type -> base.v1.HandleOauthCallbackResponse
+	14, // 24: base.v1.OauthService.ExchangeOauthTicket:output_type -> base.v1.ExchangeOauthTicketResponse
+	16, // 25: base.v1.OauthService.HandleOauthBindingCallback:output_type -> base.v1.HandleOauthBindingCallbackResponse
+	23, // 26: base.v1.OauthService.UnbindOauthAccount:output_type -> google.protobuf.Empty
+	17, // [17:27] is the sub-list for method output_type
+	7,  // [7:17] is the sub-list for method input_type
+	7,  // [7:7] is the sub-list for extension type_name
+	7,  // [7:7] is the sub-list for extension extendee
+	0,  // [0:7] is the sub-list for field type_name
 }
 
 func init() { file_base_v1_oauth_proto_init() }

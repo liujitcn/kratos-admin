@@ -6,6 +6,7 @@ import "gnostic/openapi/v3/annotations.proto";
 import "buf/validate/validate.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/empty.proto";
+import "google/protobuf/struct.proto";
 import "common/v1/types.proto";
 import "base/v1/login.proto";
 
@@ -272,11 +273,18 @@ message UnbindOauthAccountRequest {
 // 三方登录方式信息
 message OauthProvider {
   string provider = 1 [(gnostic.openapi.v3.property) = {description: "登录方式标识"}]; // 登录方式标识
+  string name = 2 [(gnostic.openapi.v3.property) = {description: "登录方式名称"}]; // 登录方式名称
+  string description = 3 [(gnostic.openapi.v3.property) = {description: "登录方式提示语"}]; // 登录方式提示语
+  string icon = 4 [(gnostic.openapi.v3.property) = {description: "图标键或图片地址"}]; // 图标键或图片地址
+  google.protobuf.Struct config = 5 [(gnostic.openapi.v3.property) = {description: "Provider个性化配置JSON对象"}]; // Provider个性化配置JSON对象
 }
 
 // 个人中心三方账号绑定信息
 message OauthBinding {
   string provider = 1 [(gnostic.openapi.v3.property) = {description: "登录方式标识"}]; // 登录方式标识
-
+  string name = 2 [(gnostic.openapi.v3.property) = {description: "登录方式名称"}]; // 登录方式名称
+  string description = 3 [(gnostic.openapi.v3.property) = {description: "登录方式提示语"}]; // 登录方式提示语
   bool bound = 4 [(gnostic.openapi.v3.property) = {description: "是否已绑定"}]; // 是否已绑定
+  string icon = 5 [(gnostic.openapi.v3.property) = {description: "图标键或图片地址"}]; // 图标键或图片地址
+  google.protobuf.Struct config = 6 [(gnostic.openapi.v3.property) = {description: "Provider个性化配置JSON对象"}]; // Provider个性化配置JSON对象
 }

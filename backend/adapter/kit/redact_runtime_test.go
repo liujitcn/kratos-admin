@@ -140,7 +140,7 @@ func TestRedactInitializeRetriesAndIsIdempotent(t *testing.T) {
 	previousKey := sdk.Runtime.GetKey()
 	t.Cleanup(func() { sdk.Runtime.SetKey(previousKey) })
 	keyFailure := errors.New("测试密钥失败")
-	key := &redactTestKey{secret: "test-storage-key", err: keyFailure}
+	key := &redactTestKey{secret: strings.Repeat("k", 32), err: keyFailure}
 	sdk.Runtime.SetKey(key)
 	db := newRedactTestDB(t)
 	queryFailure := errors.New("测试查询失败")
@@ -219,7 +219,7 @@ func TestStorageCallbacksIsolateDatabases(t *testing.T) {
 	var resolvers []*RedactPolicyResolver
 	var protectors []*redact.StorageProtector
 	var err error
-	for _, secret := range []string{"first-instance-key", "second-instance-key"} {
+	for _, secret := range []string{strings.Repeat("a", 32), strings.Repeat("b", 32)} {
 		sdk.Runtime.SetKey(&redactTestKey{secret: secret})
 		var resolver *RedactPolicyResolver
 		resolver, err = NewRedactPolicyResolver(map[string]*kitgorm.Client{kitgorm.DefaultClientName: {DB: newRedactTestDB(t)}})
@@ -319,7 +319,7 @@ func TestStorageCallbackErrorsPrecedeCommit(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			runtime := newStorageRuntime(resolver.store, resolver, nil)
+			runtime := newStorageRuntime(resolver.store, resolver, nil, nil)
 			err = runtime.registerCallbacks(db)
 			if err != nil {
 				t.Fatal(err)

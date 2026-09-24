@@ -135,6 +135,11 @@ func (*BaseMigration) TableComment() string {
 }
 
 // TableComment 返回表注释。
+func (*BaseOauthProvider) TableComment() string {
+	return "OAuth第三方登录方式"
+}
+
+// TableComment 返回表注释。
 func (*BaseOperationLog) TableComment() string {
 	return "业务操作日志"
 }

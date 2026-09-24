@@ -2,6 +2,8 @@ package biz
 
 import (
 	"context"
+	"encoding/json"
+	"errors"
 	"strings"
 	"time"
 
@@ -142,6 +144,23 @@ func (c *BaseRedactStoragePolicyCase) CreateBaseRedactStoragePolicy(ctx context.
 	return redact.RefreshRedactRuntime(ctx, c.resolver)
 }
 
+// storageEncryptionAlgorithm 解析 ENCRYPT 规则选择的字段加密算法。
+func storageEncryptionAlgorithm(raw string) (string, error) {
+	var values struct {
+		Encrypt struct {
+			Algorithm string `json:"algorithm"`
+		} `json:"encrypt"`
+	}
+	err := json.Unmarshal([]byte(raw), &values)
+	if err != nil {
+		return "", err
+	}
+	if values.Encrypt.Algorithm != "AES_GCM" && values.Encrypt.Algorithm != "SM4_GCM" {
+		return "", errors.New("不支持的字段加密算法")
+	}
+	return values.Encrypt.Algorithm, nil
+}
+
 // UpdateBaseRedactStoragePolicy 批量更新入库脱敏策略。
 func (c *BaseRedactStoragePolicyCase) UpdateBaseRedactStoragePolicy(ctx context.Context, inputs []*adminv1.BaseRedactStoragePolicyForm) error {
 	err := redact.EnsureRedactPlatformOperator(ctx, c.BaseCase)
@@ -174,6 +193,26 @@ func (c *BaseRedactStoragePolicyCase) UpdateBaseRedactStoragePolicy(ctx context.
 		rule, err = c.validateStorageForm(ctx, input)
 		if err != nil {
 			return err
+		}
+		var oldRule *models.BaseRedactRule
+		oldRule, err = c.ruleRepo.FindByID(ctx, oldItem.RuleID)
+		if err != nil {
+			return err
+		}
+		if strings.EqualFold(oldRule.RuleType, "ENCRYPT") {
+			var oldAlgorithm string
+			oldAlgorithm, err = storageEncryptionAlgorithm(oldItem.RuleParams)
+			if err != nil {
+				return errorsx.Internal("解析原字段加密算法失败").WithCause(err)
+			}
+			var newAlgorithm string
+			newAlgorithm, err = storageEncryptionAlgorithm(input.GetRuleParams())
+			if err != nil {
+				return errorsx.InvalidArgument("字段加密算法无效").WithCause(err)
+			}
+			if !strings.EqualFold(rule.RuleType, "ENCRYPT") || oldAlgorithm != newAlgorithm {
+				return errorsx.ProtectedResourceConflict("已有密文的字段加密算法不允许直接修改", "base_redact_storage_policy")
+			}
 		}
 		item := &models.BaseRedactStoragePolicy{ID: oldItem.ID, TenantID: oldItem.TenantID, SourceName: input.GetSourceName(), TableName_: input.GetTableName(), ColumnName: input.GetColumnName(), RuleID: rule.ID, RuleParams: input.GetRuleParams(), Status: int32(input.GetStatus()), Remark: input.GetRemark(), CreatedBy: oldItem.CreatedBy, UpdatedBy: authInfo.UserId, CreatedAt: oldItem.CreatedAt, UpdatedAt: now}
 		if item.Status == 0 {
@@ -408,7 +447,15 @@ func (c *BaseRedactStoragePolicyCase) validateStorageForm(ctx context.Context, i
 	if !client.Migrator().HasColumn(input.GetTableName(), input.GetColumnName()) {
 		return nil, errorsx.ResourceNotFound("数据库字段不存在")
 	}
-	if !client.Migrator().HasColumn(input.GetTableName(), "tenant_id") {
+	var rule *models.BaseRedactRule
+	rule, err = c.ruleRepo.FindByID(ctx, input.GetRuleId())
+	if err != nil {
+		return nil, errorsx.ResourceNotFound("脱敏规则不存在").WithCause(err)
+	}
+	if rule.Status != _const.STATUS_STATUS_ENABLE {
+		return nil, errorsx.InvalidArgument("脱敏规则已停用")
+	}
+	if !client.Migrator().HasColumn(input.GetTableName(), "tenant_id") && !strings.EqualFold(rule.RuleType, "ENCRYPT") {
 		return nil, errorsx.InvalidArgument("只能选择包含租户ID的数据表")
 	}
 	var columnTypes []gorm.ColumnType
@@ -436,14 +483,6 @@ func (c *BaseRedactStoragePolicyCase) validateStorageForm(ctx context.Context, i
 			return nil, errorsx.InvalidArgument("唯一索引字段不支持入库脱敏")
 		}
 		break
-	}
-	var rule *models.BaseRedactRule
-	rule, err = c.ruleRepo.FindByID(ctx, input.GetRuleId())
-	if err != nil {
-		return nil, errorsx.ResourceNotFound("脱敏规则不存在").WithCause(err)
-	}
-	if rule.Status != _const.STATUS_STATUS_ENABLE {
-		return nil, errorsx.InvalidArgument("脱敏规则已停用")
 	}
 	err = kit.ValidateRedactRule(rule.Code, rule.RuleType, input.GetRuleParams())
 	if err != nil {

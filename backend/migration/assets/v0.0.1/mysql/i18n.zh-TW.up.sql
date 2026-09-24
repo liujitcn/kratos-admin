@@ -215,6 +215,8 @@ INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VA
 INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (4, 13105, 'zh-TW', '選單標題');
 INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (4, 13106, 'zh-TW', '定時任務名稱');
 INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (4, 13107, 'zh-TW', '資料庫遷移說明');
+INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (4, 13108, 'zh-TW', 'OAuth登入配置名稱');
+INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (4, 13109, 'zh-TW', 'OAuth登入配置提示語');
 INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (4, 13201, 'zh-TW', '跳轉到檢視鍵');
 INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (4, 13301, 'zh-TW', '指定使用者');
 INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (4, 13302, 'zh-TW', '指定角色');
@@ -361,8 +363,13 @@ INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VA
 INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (5, 91030102, 'zh-TW', '編輯登入策略');
 INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (5, 91030103, 'zh-TW', '刪除登入策略');
 INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (5, 91030104, 'zh-TW', '修改登入策略狀態');
-INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (5, 91030200, 'zh-TW', '線上工作階段');
-INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (5, 91030201, 'zh-TW', '撤銷線上工作階段');
+INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (5, 91030200, 'zh-TW', 'OAuth登入配置');
+INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (5, 91030201, 'zh-TW', '新增OAuth登入配置');
+INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (5, 91030202, 'zh-TW', '編輯OAuth登入配置');
+INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (5, 91030203, 'zh-TW', '刪除OAuth登入配置');
+INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (5, 91030204, 'zh-TW', '修改OAuth登入配置狀態');
+INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (5, 91030300, 'zh-TW', '線上工作階段');
+INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (5, 91030301, 'zh-TW', '撤銷線上工作階段');
 INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (5, 91040000, 'zh-TW', '訊息通知');
 INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (5, 91040100, 'zh-TW', '訊息分類');
 INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (5, 91040101, 'zh-TW', '新增訊息分類');
@@ -476,3 +483,25 @@ INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VA
 INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (6, 1002, 'zh-TW', '資料表歸檔任務');
 INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (6, 1003, 'zh-TW', '資料表備份任務');
 INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (6, 1004, 'zh-TW', '日誌入庫回退任務');
+
+-- OAuth 登录方式名称翻译。
+INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (8, 1, 'zh-TW', '釘釘');
+INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (8, 2, 'zh-TW', '飛書');
+INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (8, 3, 'zh-TW', 'Gitee');
+INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (8, 4, 'zh-TW', 'GitHub');
+INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (8, 5, 'zh-TW', 'Google');
+INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (8, 6, 'zh-TW', '微信開放平台');
+INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (8, 7, 'zh-TW', '微信小程式');
+INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (8, 8, 'zh-TW', '微信公眾號');
+INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (8, 9, 'zh-TW', '企業微信');
+
+-- OAuth 登录方式提示语翻译。
+INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (9, 1, 'zh-TW', '使用釘釘帳號登入');
+INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (9, 2, 'zh-TW', '使用飛書帳號登入');
+INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (9, 3, 'zh-TW', '使用 Gitee 帳號登入');
+INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (9, 4, 'zh-TW', '使用 GitHub 帳號登入');
+INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (9, 5, 'zh-TW', '使用 Google 帳號登入');
+INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (9, 6, 'zh-TW', '使用微信開放平台帳號登入');
+INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (9, 7, 'zh-TW', '使用微信小程式帳號登入');
+INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (9, 8, 'zh-TW', '使用微信公眾號帳號登入');
+INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (9, 9, 'zh-TW', '使用企業微信帳號登入');

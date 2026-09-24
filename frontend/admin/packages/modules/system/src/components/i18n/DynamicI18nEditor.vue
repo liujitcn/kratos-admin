@@ -3,13 +3,14 @@
     <slot name="trigger" :open="openDialog">
       <el-tooltip :content="t('system.base.i18n.field.i18ns')" placement="top" :show-after="250">
         <el-button
-          :icon="Languages"
           :disabled="disabled"
           :aria-label="t('system.base.i18n.field.i18ns')"
           aria-haspopup="dialog"
           :aria-expanded="visible"
           @click="openDialog"
-        />
+        >
+          <el-icon><Languages /></el-icon>
+        </el-button>
       </el-tooltip>
     </slot>
     <ProDialog
@@ -76,6 +77,7 @@ import { Languages } from "@lucide/vue";
 import { t } from "@liujitcn/kratos-admin-core";
 import ProDialog from "@liujitcn/kratos-admin-core/components/Dialog/ProDialog.vue";
 import { defBaseI18nService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/base_i18n";
+import { useEnabledBaseLanguages } from "@liujitcn/kratos-admin-system/api/system/admin/v1/base_language";
 import { getEditableLanguageOptions, getLanguageLabel, type DynamicI18nValue } from "./dynamicI18n";
 
 /** 字段旁国际化入口及本地草稿编辑弹窗。 */
@@ -95,7 +97,8 @@ const props = withDefaults(defineProps<DynamicI18nEditorProps>(), {
   readonly: false
 });
 const emit = defineEmits<{ "update:modelValue": [value: DynamicI18nValue[]] }>();
-const enabled = computed(() => getEditableLanguageOptions().length > 0);
+const { languages } = useEnabledBaseLanguages();
+const enabled = computed(() => languages.value.some(item => !item.is_primary && item.status === 1));
 const inputId = useId();
 const visible = ref(false);
 const draftValues = ref<DynamicI18nValue[]>([]);

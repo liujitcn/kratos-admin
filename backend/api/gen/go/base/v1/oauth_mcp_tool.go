@@ -29,13 +29,13 @@ func RegisterOauthServiceMCPTools(mcpServer *mcp.Server, oauthServiceServer Oaut
 
 // RegisterOauthServiceListOauthBindingMCPTool 注册查询个人中心三方账号绑定列表的 MCP Tool。
 func RegisterOauthServiceListOauthBindingMCPTool(mcpServer *mcp.Server, oauthServiceServer OauthServiceServer) {
-	mcp.AddTool[*ListOauthBindingRequest, *ListOauthBindingResponse](
+	mcp.AddTool[*ListOauthBindingRequest, any](
 		mcpServer,
 		&mcp.Tool{
 			Name:        "base_v1_oauth_service_list_oauth_binding",
 			Description: "查询个人中心三方账号绑定列表",
 		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *ListOauthBindingRequest) (*mcp.CallToolResult, *ListOauthBindingResponse, error) {
+		func(ctx context.Context, request *mcp.CallToolRequest, input *ListOauthBindingRequest) (*mcp.CallToolResult, any, error) {
 			if input == nil {
 				input = &ListOauthBindingRequest{}
 			}
@@ -50,13 +50,13 @@ func RegisterOauthServiceListOauthBindingMCPTool(mcpServer *mcp.Server, oauthSer
 
 // RegisterOauthServiceListOauthProviderMCPTool 注册查询三方登录方式的 MCP Tool。
 func RegisterOauthServiceListOauthProviderMCPTool(mcpServer *mcp.Server, oauthServiceServer OauthServiceServer) {
-	mcp.AddTool[*ListOauthProviderRequest, *ListOauthProviderResponse](
+	mcp.AddTool[*ListOauthProviderRequest, any](
 		mcpServer,
 		&mcp.Tool{
 			Name:        "base_v1_oauth_service_list_oauth_provider",
 			Description: "查询三方登录方式",
 		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *ListOauthProviderRequest) (*mcp.CallToolResult, *ListOauthProviderResponse, error) {
+		func(ctx context.Context, request *mcp.CallToolRequest, input *ListOauthProviderRequest) (*mcp.CallToolResult, any, error) {
 			if input == nil {
 				input = &ListOauthProviderRequest{}
 			}

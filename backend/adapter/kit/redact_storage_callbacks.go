@@ -13,8 +13,9 @@ import (
 )
 
 const (
-	storagePreparedStateKey = "kratos-admin:redact/storage-prepared"
-	storageDeleteStateKey   = "kratos-admin:redact/storage-delete"
+	directEncryptionRuleType = "ENCRYPT"
+	storagePreparedStateKey  = "kratos-admin:redact/storage-prepared"
+	storageDeleteStateKey    = "kratos-admin:redact/storage-delete"
 )
 
 type storageDigestResolver interface {
@@ -106,7 +107,7 @@ func (r *storageRuntime) prepareStorageEntities(db *gorm.DB, creating bool) {
 	var err error
 	for _, entity := range entities {
 		var tenantID int64
-		tenantID, err = entityTenantID(db.Statement.Context, entity)
+		tenantID, err = r.storageTenantID(db.Statement.Context, entity, db.Statement.Table)
 		if err != nil {
 			db.AddError(err)
 			return
@@ -188,6 +189,17 @@ func (r *storageRuntime) prepareStorageEntity(ctx context.Context, policies []re
 		}
 		if _, ok := value.(string); !ok {
 			return preparedEntity{}, fmt.Errorf("实体 %s 字段 %s 不是字符串", policy.TableName, policy.ColumnName)
+		}
+		if isDirectEncryptionPolicy(policy) {
+			var encrypted string
+			encrypted, err = r.encryptDirect(policy, value.(string))
+			if err != nil {
+				return preparedEntity{}, err
+			}
+			if err = accessor.Set(ctx, entity, policy.ColumnName, encrypted); err != nil {
+				return preparedEntity{}, err
+			}
+			continue
 		}
 		selectedPolicies = append(selectedPolicies, policy)
 	}
@@ -340,13 +352,21 @@ func (r *storageRuntime) materializeStorageResponse(db *gorm.DB) {
 	var err error
 	for _, entity := range entities {
 		var tenantID int64
-		tenantID, err = entityTenantID(db.Statement.Context, entity)
+		tenantID, err = r.storageTenantID(db.Statement.Context, entity, db.Statement.Table)
 		if err != nil {
 			db.AddError(err)
 			return
 		}
 		policies := selectedStoragePolicies(db, r.resolver.ListStoragePolicies(db.Statement.Context, tenantID, db.Statement.Table))
 		for _, policy := range policies {
+			if isDirectEncryptionPolicy(policy) {
+				err = r.decryptDirectEntity(db.Statement.Context, entity, policy)
+				if err != nil {
+					db.AddError(err)
+					return
+				}
+				continue
+			}
 			policyByID[policy.ID] = policy
 		}
 		var recordID int64
@@ -367,6 +387,68 @@ func (r *storageRuntime) materializeStorageResponse(db *gorm.DB) {
 	if err != nil {
 		db.AddError(err)
 	}
+}
+
+// storageTenantID 返回实体租户；平台表没有租户字段时使用该表唯一策略租户。
+func (r *storageRuntime) storageTenantID(ctx context.Context, entity any, tableName string) (int64, error) {
+	tenantID, err := entityTenantID(ctx, entity)
+	if err == nil && tenantID > 0 {
+		return tenantID, nil
+	}
+	policies := r.resolver.ListStoragePoliciesByTable(tableName)
+	for _, policy := range policies {
+		if tenantID == 0 {
+			tenantID = policy.TenantID
+			continue
+		}
+		if tenantID != policy.TenantID {
+			return 0, fmt.Errorf("平台表 %s 存在多个存储策略租户", tableName)
+		}
+	}
+	if tenantID <= 0 {
+		return 0, err
+	}
+	return tenantID, nil
+}
+
+// encryptDirect 使用策略指定的算法直接加密主表字段。
+func (r *storageRuntime) encryptDirect(policy redact.StorageFieldPolicy, value string) (string, error) {
+	if value == "" {
+		return value, nil
+	}
+	if r.fieldCipher == nil {
+		return "", errors.New("直接字段加密器未初始化")
+	}
+	if _, err := r.fieldCipher.Decrypt(policy.Rule.EncryptAlgorithm, value); err == nil {
+		return value, nil
+	}
+	return r.fieldCipher.Encrypt(policy.Rule.EncryptAlgorithm, value)
+}
+
+// decryptDirectEntity 使用策略指定的算法解密主表字段密文载荷。
+func (r *storageRuntime) decryptDirectEntity(ctx context.Context, entity any, policy redact.StorageFieldPolicy) error {
+	if r.fieldCipher == nil {
+		return errors.New("直接字段加密器未初始化")
+	}
+	accessor := gormEntityFieldAccessor{}
+	value, zero, err := accessor.ValueOf(ctx, entity, policy.ColumnName)
+	if err != nil || zero || value == nil || value == "" {
+		return err
+	}
+	text, ok := value.(string)
+	if !ok {
+		return fmt.Errorf("实体 %s 字段 %s 不是字符串", policy.TableName, policy.ColumnName)
+	}
+	plaintext, err := r.fieldCipher.Decrypt(policy.Rule.EncryptAlgorithm, text)
+	if err != nil {
+		return err
+	}
+	return accessor.Set(ctx, entity, policy.ColumnName, plaintext)
+}
+
+// isDirectEncryptionPolicy 判断策略是否直接加密主表字段。
+func isDirectEncryptionPolicy(policy redact.StorageFieldPolicy) bool {
+	return policy.Rule.RuleType == directEncryptionRuleType
 }
 
 // rewriteStorageExpression 递归改写 GORM 条件树中的敏感字段等值条件。

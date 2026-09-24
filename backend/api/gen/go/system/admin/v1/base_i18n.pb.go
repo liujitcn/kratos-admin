@@ -46,6 +46,10 @@ const (
 	I18nTargetType_I18N_TARGET_TYPE_BASE_JOB_NAME I18nTargetType = 6
 	// 数据库迁移说明。
 	I18nTargetType_I18N_TARGET_TYPE_BASE_MIGRATION_DESCRIPTION I18nTargetType = 7
+	// OAuth登录方式名称。
+	I18nTargetType_I18N_TARGET_TYPE_BASE_OAUTH_PROVIDER_NAME I18nTargetType = 8
+	// OAuth登录方式提示语。
+	I18nTargetType_I18N_TARGET_TYPE_BASE_OAUTH_PROVIDER_DESCRIPTION I18nTargetType = 9
 )
 
 // Enum value maps for I18nTargetType.
@@ -59,16 +63,20 @@ var (
 		5: "I18N_TARGET_TYPE_BASE_MENU_META_TITLE",
 		6: "I18N_TARGET_TYPE_BASE_JOB_NAME",
 		7: "I18N_TARGET_TYPE_BASE_MIGRATION_DESCRIPTION",
+		8: "I18N_TARGET_TYPE_BASE_OAUTH_PROVIDER_NAME",
+		9: "I18N_TARGET_TYPE_BASE_OAUTH_PROVIDER_DESCRIPTION",
 	}
 	I18nTargetType_value = map[string]int32{
-		"I18N_TARGET_TYPE_UNSPECIFIED":                0,
-		"I18N_TARGET_TYPE_BASE_CONFIG_VALUE":          1,
-		"I18N_TARGET_TYPE_BASE_CONFIG_NAME":           2,
-		"I18N_TARGET_TYPE_BASE_DICT_NAME":             3,
-		"I18N_TARGET_TYPE_BASE_DICT_ITEM_LABEL":       4,
-		"I18N_TARGET_TYPE_BASE_MENU_META_TITLE":       5,
-		"I18N_TARGET_TYPE_BASE_JOB_NAME":              6,
-		"I18N_TARGET_TYPE_BASE_MIGRATION_DESCRIPTION": 7,
+		"I18N_TARGET_TYPE_UNSPECIFIED":                     0,
+		"I18N_TARGET_TYPE_BASE_CONFIG_VALUE":               1,
+		"I18N_TARGET_TYPE_BASE_CONFIG_NAME":                2,
+		"I18N_TARGET_TYPE_BASE_DICT_NAME":                  3,
+		"I18N_TARGET_TYPE_BASE_DICT_ITEM_LABEL":            4,
+		"I18N_TARGET_TYPE_BASE_MENU_META_TITLE":            5,
+		"I18N_TARGET_TYPE_BASE_JOB_NAME":                   6,
+		"I18N_TARGET_TYPE_BASE_MIGRATION_DESCRIPTION":      7,
+		"I18N_TARGET_TYPE_BASE_OAUTH_PROVIDER_NAME":        8,
+		"I18N_TARGET_TYPE_BASE_OAUTH_PROVIDER_DESCRIPTION": 9,
 	}
 )
 
@@ -489,7 +497,7 @@ const file_system_admin_v1_base_i18n_proto_rawDesc = "" +
 	"\x04name\x18\x05 \x01(\tB\x12\xbaG\x0f\x92\x02\f翻译文本R\x04name\"\x8c\x01\n" +
 	"\x13CodeGenLocaleConfig\x125\n" +
 	"\acomment\x18\x01 \x01(\tB\x1b\xbaG\x18\x92\x02\x15业务或字段描述R\acomment\x12>\n" +
-	"\x11left_tree_comment\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f左树描述R\x0fleftTreeComment*\xd1\x02\n" +
+	"\x11left_tree_comment\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f左树描述R\x0fleftTreeComment*\xb6\x03\n" +
 	"\x0eI18nTargetType\x12 \n" +
 	"\x1cI18N_TARGET_TYPE_UNSPECIFIED\x10\x00\x12&\n" +
 	"\"I18N_TARGET_TYPE_BASE_CONFIG_VALUE\x10\x01\x12%\n" +
@@ -498,7 +506,9 @@ const file_system_admin_v1_base_i18n_proto_rawDesc = "" +
 	"%I18N_TARGET_TYPE_BASE_DICT_ITEM_LABEL\x10\x04\x12)\n" +
 	"%I18N_TARGET_TYPE_BASE_MENU_META_TITLE\x10\x05\x12\"\n" +
 	"\x1eI18N_TARGET_TYPE_BASE_JOB_NAME\x10\x06\x12/\n" +
-	"+I18N_TARGET_TYPE_BASE_MIGRATION_DESCRIPTION\x10\a2\x92\x02\n" +
+	"+I18N_TARGET_TYPE_BASE_MIGRATION_DESCRIPTION\x10\a\x12-\n" +
+	")I18N_TARGET_TYPE_BASE_OAUTH_PROVIDER_NAME\x10\b\x124\n" +
+	"0I18N_TARGET_TYPE_BASE_OAUTH_PROVIDER_DESCRIPTION\x10\t2\x92\x02\n" +
 	"\x0fBaseI18nService\x12\x88\x01\n" +
 	"\rDraftBaseI18n\x12%.system.admin.v1.DraftBaseI18nRequest\x1a&.system.admin.v1.DraftBaseI18nResponse\"(\x82\xd3\xe4\x93\x02\":\x01*\"\x1d/api/v1/admin/base/i18n/draft\x12t\n" +
 	"\x0eUpdateBaseI18n\x12&.system.admin.v1.UpdateBaseI18nRequest\x1a\x16.google.protobuf.Empty\"\"\x82\xd3\xe4\x93\x02\x1c:\x01*\x1a\x17/api/v1/admin/base/i18nB\xcf\x01\n" +

@@ -2960,6 +2960,138 @@ paths:
                 "200":
                     description: OK
                     content: {}
+    /api/v1/admin/base/oauth-provider:
+        get:
+            tags:
+                - BaseOauthProviderService
+            description: Paginated query for oauth login method.
+            operationId: BaseOauthProviderService_PageBaseOauthProvider
+            parameters:
+                - name: provider
+                  in: query
+                  schema:
+                    type: string
+                - name: name
+                  in: query
+                  schema:
+                    type: string
+                - name: status
+                  in: query
+                  schema:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    format: enum
+                - name: page_num
+                  in: query
+                  schema:
+                    type: string
+                - name: page_size
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.PageBaseOauthProviderResponse'
+        post:
+            tags:
+                - BaseOauthProviderService
+            description: Create oauth login method.
+            operationId: BaseOauthProviderService_CreateBaseOauthProvider
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.BaseOauthProviderForm'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/oauth-provider/{base_oauth_provider.id}:
+        put:
+            tags:
+                - BaseOauthProviderService
+            description: Update oauth login method.
+            operationId: BaseOauthProviderService_UpdateBaseOauthProvider
+            parameters:
+                - name: base_oauth_provider.id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.BaseOauthProviderForm'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/oauth-provider/{id}:
+        get:
+            tags:
+                - BaseOauthProviderService
+            description: Query oauth login method details.
+            operationId: BaseOauthProviderService_GetBaseOauthProvider
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.BaseOauthProviderForm'
+        delete:
+            tags:
+                - BaseOauthProviderService
+            description: Delete oauth login method.
+            operationId: BaseOauthProviderService_DeleteBaseOauthProvider
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/oauth-provider/{id}/status:
+        put:
+            tags:
+                - BaseOauthProviderService
+            description: Set oauth login method status.
+            operationId: BaseOauthProviderService_SetBaseOauthProviderStatus
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.SetBaseOauthProviderStatusRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
     /api/v1/admin/base/operation-log:
         get:
             tags:
@@ -8327,9 +8459,21 @@ components:
                 provider:
                     type: string
                     description: login method identifier
+                name:
+                    type: string
+                    description: login method name
+                description:
+                    type: string
+                    description: Login method hint
                 bound:
                     type: boolean
                     description: whether bound
+                icon:
+                    type: string
+                    description: iconkeyorimageaddress
+                config:
+                    type: object
+                    description: Provider custom configuration JSON object
             description: profile third-party account binding information
         base.v1.OauthProvider:
             type: object
@@ -8337,6 +8481,18 @@ components:
                 provider:
                     type: string
                     description: login method identifier
+                name:
+                    type: string
+                    description: login method name
+                description:
+                    type: string
+                    description: Login method hint
+                icon:
+                    type: string
+                    description: iconkeyorimageaddress
+                config:
+                    type: object
+                    description: Provider custom configuration JSON object
             description: third-party login method information
         base.v1.OptionLanguageResponse:
             type: object
@@ -9493,6 +9649,8 @@ components:
                         - I18N_TARGET_TYPE_BASE_MENU_META_TITLE
                         - I18N_TARGET_TYPE_BASE_JOB_NAME
                         - I18N_TARGET_TYPE_BASE_MIGRATION_DESCRIPTION
+                        - I18N_TARGET_TYPE_BASE_OAUTH_PROVIDER_NAME
+                        - I18N_TARGET_TYPE_BASE_OAUTH_PROVIDER_DESCRIPTION
                     type: string
                     description: "target type: enum【I18n Target Type】"
                     format: enum
@@ -10643,6 +10801,121 @@ components:
                     type: string
                     description: Create time
             description: database migration record list item
+        system.admin.v1.BaseOauthProvider:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: oauth login method ID
+                provider:
+                    type: string
+                    description: Stable provider identifier
+                name:
+                    type: string
+                    description: login method name
+                description:
+                    type: string
+                    description: Login method hint
+                icon:
+                    type: string
+                    description: iconkeyorimageaddress
+                client_id:
+                    type: string
+                    description: Third-party application identifier
+                redirect_uri:
+                    type: string
+                    description: oauth callback address
+                scopes:
+                    type: array
+                    items:
+                        type: string
+                    description: OAuth scope list
+                config:
+                    type: object
+                    description: Provider custom configuration JSON object
+                sort:
+                    type: integer
+                    description: sort
+                    format: int32
+                status:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    description: status
+                    format: enum
+                secret_configured:
+                    type: boolean
+                    description: Whether the third-party application secret is configured
+                created_at:
+                    type: string
+                    description: Create time
+                updated_at:
+                    type: string
+                    description: Update time
+            description: oauth login method.
+        system.admin.v1.BaseOauthProviderForm:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: oauth login method ID
+                provider:
+                    type: string
+                    description: Stable provider identifier
+                name:
+                    type: string
+                    description: login method name
+                description:
+                    type: string
+                    description: Login method hint
+                icon:
+                    type: string
+                    description: iconkeyorimageaddress
+                client_id:
+                    type: string
+                    description: Third-party application identifier
+                client_secret:
+                    type: string
+                    description: Third-party application secret; leave blank when updating to keep the existing value
+                secret_configured:
+                    type: boolean
+                    description: Whether the third-party application secret is configured
+                redirect_uri:
+                    type: string
+                    description: oauth callback address
+                scopes:
+                    type: array
+                    items:
+                        type: string
+                    description: OAuth scope list
+                config:
+                    type: object
+                    description: Provider custom configuration JSON object
+                sort:
+                    type: integer
+                    description: sort
+                    format: int32
+                status:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    description: status
+                    format: enum
+                name_i18ns:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.BaseI18n'
+                    description: Login method name translations
+                description_i18ns:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.BaseI18n'
+                    description: Login method hint translations
+            description: oauth login method form.
         system.admin.v1.BaseOperationLog:
             type: object
             properties:
@@ -13574,6 +13847,19 @@ components:
                     description: total count
                     format: int32
             description: database migration record paginated response
+        system.admin.v1.PageBaseOauthProviderResponse:
+            type: object
+            properties:
+                base_oauth_providers:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.BaseOauthProvider'
+                    description: oauth login method list
+                total:
+                    type: integer
+                    description: total count
+                    format: int32
+            description: oauth login method paginated response.
         system.admin.v1.PageBaseOperationLogResponse:
             type: object
             properties:
@@ -14264,6 +14550,21 @@ components:
                     description: status
                     format: enum
             description: Set message category status request.
+        system.admin.v1.SetBaseOauthProviderStatusRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: oauth login method ID
+                status:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    description: status
+                    format: enum
+            description: Set oauth login method status request.
         system.admin.v1.SetBasePostStatusRequest:
             type: object
             properties:
@@ -14564,6 +14865,8 @@ components:
                         - I18N_TARGET_TYPE_BASE_MENU_META_TITLE
                         - I18N_TARGET_TYPE_BASE_JOB_NAME
                         - I18N_TARGET_TYPE_BASE_MIGRATION_DESCRIPTION
+                        - I18N_TARGET_TYPE_BASE_OAUTH_PROVIDER_NAME
+                        - I18N_TARGET_TYPE_BASE_OAUTH_PROVIDER_DESCRIPTION
                     type: string
                     description: translation target type; when the ID is zero, used for querying or creating
                     format: enum
@@ -14913,6 +15216,8 @@ tags:
       description: Admin in-app messaging management service.
     - name: BaseMigrationService
       description: Admin database migration service.
+    - name: BaseOauthProviderService
+      description: Admin OAuth third-party login provider management service.
     - name: BaseOperationLogService
       description: Admin business operation log service.
     - name: BasePermissionLogService

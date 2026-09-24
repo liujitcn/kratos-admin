@@ -44,6 +44,7 @@ func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 		BaseMessageDelivery:     newBaseMessageDelivery(db, opts...),
 		BaseMessageDispatch:     newBaseMessageDispatch(db, opts...),
 		BaseMigration:           newBaseMigration(db, opts...),
+		BaseOauthProvider:       newBaseOauthProvider(db, opts...),
 		BaseOperationLog:        newBaseOperationLog(db, opts...),
 		BasePermissionLog:       newBasePermissionLog(db, opts...),
 		BasePolicyEvaluationLog: newBasePolicyEvaluationLog(db, opts...),
@@ -104,6 +105,7 @@ type Query struct {
 	BaseMessageDelivery     baseMessageDelivery
 	BaseMessageDispatch     baseMessageDispatch
 	BaseMigration           baseMigration
+	BaseOauthProvider       baseOauthProvider
 	BaseOperationLog        baseOperationLog
 	BasePermissionLog       basePermissionLog
 	BasePolicyEvaluationLog basePolicyEvaluationLog
@@ -166,6 +168,7 @@ func (q *Query) clone(db *gorm.DB) *Query {
 		BaseMessageDelivery:     q.BaseMessageDelivery.clone(db),
 		BaseMessageDispatch:     q.BaseMessageDispatch.clone(db),
 		BaseMigration:           q.BaseMigration.clone(db),
+		BaseOauthProvider:       q.BaseOauthProvider.clone(db),
 		BaseOperationLog:        q.BaseOperationLog.clone(db),
 		BasePermissionLog:       q.BasePermissionLog.clone(db),
 		BasePolicyEvaluationLog: q.BasePolicyEvaluationLog.clone(db),
@@ -235,6 +238,7 @@ func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 		BaseMessageDelivery:     q.BaseMessageDelivery.replaceDB(db),
 		BaseMessageDispatch:     q.BaseMessageDispatch.replaceDB(db),
 		BaseMigration:           q.BaseMigration.replaceDB(db),
+		BaseOauthProvider:       q.BaseOauthProvider.replaceDB(db),
 		BaseOperationLog:        q.BaseOperationLog.replaceDB(db),
 		BasePermissionLog:       q.BasePermissionLog.replaceDB(db),
 		BasePolicyEvaluationLog: q.BasePolicyEvaluationLog.replaceDB(db),
@@ -294,6 +298,7 @@ type queryCtx struct {
 	BaseMessageDelivery     *baseMessageDeliveryDo
 	BaseMessageDispatch     *baseMessageDispatchDo
 	BaseMigration           *baseMigrationDo
+	BaseOauthProvider       *baseOauthProviderDo
 	BaseOperationLog        *baseOperationLogDo
 	BasePermissionLog       *basePermissionLogDo
 	BasePolicyEvaluationLog *basePolicyEvaluationLogDo
@@ -353,6 +358,7 @@ func (q *Query) WithContext(ctx context.Context) *queryCtx {
 		BaseMessageDelivery:     q.BaseMessageDelivery.WithContext(ctx),
 		BaseMessageDispatch:     q.BaseMessageDispatch.WithContext(ctx),
 		BaseMigration:           q.BaseMigration.WithContext(ctx),
+		BaseOauthProvider:       q.BaseOauthProvider.WithContext(ctx),
 		BaseOperationLog:        q.BaseOperationLog.WithContext(ctx),
 		BasePermissionLog:       q.BasePermissionLog.WithContext(ctx),
 		BasePolicyEvaluationLog: q.BasePolicyEvaluationLog.WithContext(ctx),

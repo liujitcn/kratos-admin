@@ -9,6 +9,6 @@ import (
 var ProviderSet = wire.NewSet(
 	ParseAIModel,
 	ParseMfaConfig,
-	ParseOAuthManager,
+	NewOAuthManager,
 	oauthsecret.NewProtector,
 )

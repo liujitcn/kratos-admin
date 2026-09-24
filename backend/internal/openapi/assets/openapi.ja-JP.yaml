@@ -2960,6 +2960,138 @@ paths:
                 "200":
                     description: OK
                     content: {}
+    /api/v1/admin/base/oauth-provider:
+        get:
+            tags:
+                - BaseOauthProviderService
+            description: ページネーション検索OAuthログイン方式。
+            operationId: BaseOauthProviderService_PageBaseOauthProvider
+            parameters:
+                - name: provider
+                  in: query
+                  schema:
+                    type: string
+                - name: name
+                  in: query
+                  schema:
+                    type: string
+                - name: status
+                  in: query
+                  schema:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    format: enum
+                - name: page_num
+                  in: query
+                  schema:
+                    type: string
+                - name: page_size
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.PageBaseOauthProviderResponse'
+        post:
+            tags:
+                - BaseOauthProviderService
+            description: 作成OAuthログイン方式。
+            operationId: BaseOauthProviderService_CreateBaseOauthProvider
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.BaseOauthProviderForm'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/oauth-provider/{base_oauth_provider.id}:
+        put:
+            tags:
+                - BaseOauthProviderService
+            description: 更新OAuthログイン方式。
+            operationId: BaseOauthProviderService_UpdateBaseOauthProvider
+            parameters:
+                - name: base_oauth_provider.id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.BaseOauthProviderForm'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/oauth-provider/{id}:
+        get:
+            tags:
+                - BaseOauthProviderService
+            description: 検索OAuthログイン方式詳細。
+            operationId: BaseOauthProviderService_GetBaseOauthProvider
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.BaseOauthProviderForm'
+        delete:
+            tags:
+                - BaseOauthProviderService
+            description: 削除OAuthログイン方式。
+            operationId: BaseOauthProviderService_DeleteBaseOauthProvider
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/oauth-provider/{id}/status:
+        put:
+            tags:
+                - BaseOauthProviderService
+            description: 設定OAuthログイン方式ステータス。
+            operationId: BaseOauthProviderService_SetBaseOauthProviderStatus
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.SetBaseOauthProviderStatusRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
     /api/v1/admin/base/operation-log:
         get:
             tags:
@@ -8327,9 +8459,21 @@ components:
                 provider:
                     type: string
                     description: ログイン方式識別子
+                name:
+                    type: string
+                    description: ログイン方式名称
+                description:
+                    type: string
+                    description: ログイン方式提示语
                 bound:
                     type: boolean
                     description: バインド済みかどうか
+                icon:
+                    type: string
+                    description: 图标键または画像アドレス
+                config:
+                    type: object
+                    description: Providerカスタム設定JSONオブジェクト
             description: プロフィールサードパーティーアカウントバインド情報
         base.v1.OauthProvider:
             type: object
@@ -8337,6 +8481,18 @@ components:
                 provider:
                     type: string
                     description: ログイン方式識別子
+                name:
+                    type: string
+                    description: ログイン方式名称
+                description:
+                    type: string
+                    description: ログイン方式提示语
+                icon:
+                    type: string
+                    description: 图标键または画像アドレス
+                config:
+                    type: object
+                    description: Providerカスタム設定JSONオブジェクト
             description: サードパーティーログイン方式情報
         base.v1.OptionLanguageResponse:
             type: object
@@ -9493,6 +9649,8 @@ components:
                         - I18N_TARGET_TYPE_BASE_MENU_META_TITLE
                         - I18N_TARGET_TYPE_BASE_JOB_NAME
                         - I18N_TARGET_TYPE_BASE_MIGRATION_DESCRIPTION
+                        - I18N_TARGET_TYPE_BASE_OAUTH_PROVIDER_NAME
+                        - I18N_TARGET_TYPE_BASE_OAUTH_PROVIDER_DESCRIPTION
                     type: string
                     description: 対象種類：enum【I18nTargetType】
                     format: enum
@@ -10643,6 +10801,121 @@ components:
                     type: string
                     description: 作成時刻
             description: データベースマイグレーション記録一覧項目
+        system.admin.v1.BaseOauthProvider:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: OAuthログイン方式ID
+                provider:
+                    type: string
+                    description: Provider稳定識別子
+                name:
+                    type: string
+                    description: ログイン方式名称
+                description:
+                    type: string
+                    description: ログイン方式提示语
+                icon:
+                    type: string
+                    description: 图标键または画像アドレス
+                client_id:
+                    type: string
+                    description: 第サードパーティーアプリ識別子
+                redirect_uri:
+                    type: string
+                    description: OAuthコールバックアドレス
+                scopes:
+                    type: array
+                    items:
+                        type: string
+                    description: OAuth Scope一覧
+                config:
+                    type: object
+                    description: Providerカスタム設定JSONオブジェクト
+                sort:
+                    type: integer
+                    description: 並び順
+                    format: int32
+                status:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    description: ステータス
+                    format: enum
+                secret_configured:
+                    type: boolean
+                    description: 〜かどうか已設定第サードパーティーアプリキー
+                created_at:
+                    type: string
+                    description: 作成時刻
+                updated_at:
+                    type: string
+                    description: 更新時刻
+            description: OAuthログイン方式。
+        system.admin.v1.BaseOauthProviderForm:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: OAuthログイン方式ID
+                provider:
+                    type: string
+                    description: Provider稳定識別子
+                name:
+                    type: string
+                    description: ログイン方式名称
+                description:
+                    type: string
+                    description: ログイン方式提示语
+                icon:
+                    type: string
+                    description: 图标键または画像アドレス
+                client_id:
+                    type: string
+                    description: 第サードパーティーアプリ識別子
+                client_secret:
+                    type: string
+                    description: 第サードパーティーアプリキー，更新时留空表示不更新
+                secret_configured:
+                    type: boolean
+                    description: 〜かどうか已設定第サードパーティーアプリキー
+                redirect_uri:
+                    type: string
+                    description: OAuthコールバックアドレス
+                scopes:
+                    type: array
+                    items:
+                        type: string
+                    description: OAuth Scope一覧
+                config:
+                    type: object
+                    description: Providerカスタム設定JSONオブジェクト
+                sort:
+                    type: integer
+                    description: 並び順
+                    format: int32
+                status:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    description: ステータス
+                    format: enum
+                name_i18ns:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.BaseI18n'
+                    description: ログイン方式名称多言語翻訳
+                description_i18ns:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.BaseI18n'
+                    description: ログイン方式提示语多言語翻訳
+            description: OAuthログイン方式フォーム。
         system.admin.v1.BaseOperationLog:
             type: object
             properties:
@@ -13574,6 +13847,19 @@ components:
                     description: 合計件数
                     format: int32
             description: データベースマイグレーション記録ページネーションレスポンス
+        system.admin.v1.PageBaseOauthProviderResponse:
+            type: object
+            properties:
+                base_oauth_providers:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.BaseOauthProvider'
+                    description: OAuthログイン方式一覧
+                total:
+                    type: integer
+                    description: 合計件数
+                    format: int32
+            description: OAuthログイン方式ページネーションレスポンス。
         system.admin.v1.PageBaseOperationLogResponse:
             type: object
             properties:
@@ -14264,6 +14550,21 @@ components:
                     description: ステータス
                     format: enum
             description: 設定メッセージカテゴリステータスリクエスト。
+        system.admin.v1.SetBaseOauthProviderStatusRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: OAuthログイン方式ID
+                status:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    description: ステータス
+                    format: enum
+            description: 設定OAuthログイン方式ステータスリクエスト。
         system.admin.v1.SetBasePostStatusRequest:
             type: object
             properties:
@@ -14564,6 +14865,8 @@ components:
                         - I18N_TARGET_TYPE_BASE_MENU_META_TITLE
                         - I18N_TARGET_TYPE_BASE_JOB_NAME
                         - I18N_TARGET_TYPE_BASE_MIGRATION_DESCRIPTION
+                        - I18N_TARGET_TYPE_BASE_OAUTH_PROVIDER_NAME
+                        - I18N_TARGET_TYPE_BASE_OAUTH_PROVIDER_DESCRIPTION
                     type: string
                     description: 翻訳対象種類，IDとして零时用于検索または追加
                     format: enum
@@ -14913,6 +15216,8 @@ tags:
       description: Adminアプリ内メッセージ管理サービス。
     - name: BaseMigrationService
       description: Adminデータベース移行サービス。
+    - name: BaseOauthProviderService
+      description: Admin OAuth第サードパーティーログイン方式管理サービス。
     - name: BaseOperationLogService
       description: Admin業務操作ログサービス。
     - name: BasePermissionLogService

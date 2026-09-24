@@ -83,28 +83,36 @@ func NewOauthServiceAgentTools(oauthServiceServer OauthServiceServer) ([]tool.In
 
 // NewOauthServiceListOauthBindingAgentTool 创建查询个人中心三方账号绑定列表的 Agent Tool。
 func NewOauthServiceListOauthBindingAgentTool(oauthServiceServer OauthServiceServer) (tool.InvokableTool, error) {
-	return utils.InferTool[*ListOauthBindingRequest, *ListOauthBindingResponse](
+	return utils.InferTool[*ListOauthBindingRequest, any](
 		"base_v1_oauth_service_list_oauth_binding",
 		"查询个人中心三方账号绑定列表",
-		func(ctx context.Context, req *ListOauthBindingRequest) (*ListOauthBindingResponse, error) {
+		func(ctx context.Context, req *ListOauthBindingRequest) (any, error) {
 			if req == nil {
 				req = &ListOauthBindingRequest{}
 			}
-			return oauthServiceServer.ListOauthBinding(ctx, req)
+			reply, err := oauthServiceServer.ListOauthBinding(ctx, req)
+			if err != nil {
+				return nil, err
+			}
+			return reply, nil
 		},
 	)
 }
 
 // NewOauthServiceListOauthProviderAgentTool 创建查询三方登录方式的 Agent Tool。
 func NewOauthServiceListOauthProviderAgentTool(oauthServiceServer OauthServiceServer) (tool.InvokableTool, error) {
-	return utils.InferTool[*ListOauthProviderRequest, *ListOauthProviderResponse](
+	return utils.InferTool[*ListOauthProviderRequest, any](
 		"base_v1_oauth_service_list_oauth_provider",
 		"查询三方登录方式",
-		func(ctx context.Context, req *ListOauthProviderRequest) (*ListOauthProviderResponse, error) {
+		func(ctx context.Context, req *ListOauthProviderRequest) (any, error) {
 			if req == nil {
 				req = &ListOauthProviderRequest{}
 			}
-			return oauthServiceServer.ListOauthProvider(ctx, req)
+			reply, err := oauthServiceServer.ListOauthProvider(ctx, req)
+			if err != nil {
+				return nil, err
+			}
+			return reply, nil
 		},
 	)
 }
