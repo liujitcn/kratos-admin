@@ -1649,14 +1649,8 @@
   "legacy.error.f90d26546dedbee7": {
     "other": "MCP認可エンジンが初期化されていません"
   },
-  "legacy.error.80628f11b01cfebd": {
-    "other": "MFAデバイスの信頼日数は0〜90の間である必要があります"
-  },
   "legacy.error.f47f76334f3d0c38": {
     "other": "OAuth資格情報プロテクターが初期化されていません"
-  },
-  "legacy.error.5a31e2a9d1da4296": {
-    "other": "OSSアーカイブは選択的復元をまだサポートしていません"
   },
   "legacy.error.b7bfb71c8b2262fc": {
     "other": "Protoインターフェース"
@@ -1697,20 +1691,11 @@
   "legacy.error.3a85915d8b224d60": {
     "other": "WebAuthn認証に失敗しました"
   },
-  "legacy.error.d5321efaf2f34345": {
-    "other": "第1階層のディレクトリにはディレクトリ・メニュー・外部リンクのみ作成できます"
-  },
   "legacy.error.e99cd8d50d6e7bac": {
     "other": "サードパーティ認可に失敗しました"
   },
-  "legacy.error.556b8b82f553a15e": {
-    "other": "サードパーティログイン状態が失効しました"
-  },
   "legacy.error.7457032f6280eb65": {
     "other": "サードパーティログインチケットの作成に失敗しました"
-  },
-  "legacy.error.7a38fa171e5f03d7": {
-    "other": "サードパーティログインチケットが失効しました"
   },
   "legacy.error.b2fbb90f787f4e6e": {
     "other": "サードパーティログインチケットが無効です"
@@ -1718,14 +1703,8 @@
   "legacy.error.c269746cd8542461": {
     "other": "サードパーティアカウントの一意IDが空です"
   },
-  "legacy.error.29ebf2e88f812e63": {
-    "other": "サードパーティアカウントが未連携です"
-  },
   "legacy.error.5d89767ea6b48d21": {
     "other": "サードパーティアカウントの連携状態が失効しました"
-  },
-  "legacy.error.8230fa46bc8ffca4": {
-    "other": "第3階層のディレクトリにはメニューまたは外部リンクのみ作成できます"
   },
   "legacy.error.6b34220bae88cee7": {
     "other": "アップロードファイルのオープンに失敗しました"
@@ -1739,24 +1718,6 @@
   "legacy.error.b46e0203f7e4e7f0": {
     "other": "アップロードファイルの解析に失敗しました"
   },
-  "legacy.error.83e43a4951d784c2": {
-    "other": "親行政区を自身にすることはできません"
-  },
-  "legacy.error.3de4efbfbc877881": {
-    "other": "親行政区を自身またはその子孫にすることはできません"
-  },
-  "legacy.error.06c4f81359c8cccd": {
-    "other": "親部門を自身にすることはできません"
-  },
-  "legacy.error.3e4d41f931f5dcbb": {
-    "other": "親部門を自身またはその子部門にすることはできません"
-  },
-  "legacy.error.1db7bf52e1db8bbc": {
-    "other": "親部門が所属テナントと一致しません"
-  },
-  "legacy.error.f1faed3a397b2a51": {
-    "other": "オンラインユーザーのログアウトに失敗しました"
-  },
   "legacy.error.eb0a5c7ed1c8c6e5": {
     "other": "履歴ログファイルのダウンロードに失敗しました"
   },
@@ -1769,20 +1730,8 @@
   "legacy.error.08e000306823ca52": {
     "other": "アプリ側ユーザーロールの設定は許可されていません"
   },
-  "legacy.error.e4df44b91477dccf": {
-    "other": "他テナントのオンラインユーザーをログアウトできません"
-  },
   "legacy.error.9bdd7318cefbaaad": {
     "other": "他テナントのプロジェクトを作成できません"
-  },
-  "legacy.error.da944023c8b373ac": {
-    "other": "他テナントの役職を操作できません"
-  },
-  "legacy.error.fecd62f5e52284d2": {
-    "other": "他テナントのOAuthクライアントを操作できません"
-  },
-  "legacy.error.466a0a37bbbafd1d": {
-    "other": "他テナントのメッセージを操作できません"
   },
   "legacy.error.39fef6385cd1e4ce": {
     "other": "他テナントのプロジェクト付与を照会できません"
@@ -1798,9 +1747,6 @@
   },
   "legacy.error.a4c906a269af199d": {
     "other": "ビジネステーブル名は小文字・数字・アンダースコアのみを含み、文字で始まる必要があります"
-  },
-  "legacy.error.b74cf37538de3767": {
-    "other": "第2階層のディレクトリにはディレクトリ・メニュー・外部リンクのみ作成できます"
   },
   "legacy.error.af8be8010133e43a": {
     "other": "コード生成タスクIDを空にすることはできません"
@@ -1822,9 +1768,6 @@
   },
   "legacy.error.2d98325ea8ebe8a4": {
     "other": "セッションが存在しません"
-  },
-  "legacy.error.b6b95db507adde81": {
-    "other": "セッショントークンマネージャーが未設定です"
   },
   "legacy.error.3772108e1c6666ab": {
     "other": "セッションがタイムアウトしました。再度ログインしてください"
@@ -1889,15 +1832,6 @@
   "legacy.error.ed46b31acab91f0e": {
     "other": "プロフィールの電話番号の更新に失敗しました"
   },
-  "legacy.error.7670c73785f1d333": {
-    "other": "プロフィール情報の更新に失敗しました"
-  },
-  "legacy.error.75a3d64e90b89404": {
-    "other": "パスワードの変更に失敗しました"
-  },
-  "legacy.error.72aaa4285bec9431": {
-    "other": "電話番号の変更に失敗しました"
-  },
   "legacy.error.d420a6a3d117c876": {
     "other": "翻訳情報の更新に失敗しました"
   },
@@ -1906,27 +1840,6 @@
   },
   "legacy.error.8d437acfb12d3c22": {
     "other": "サードパーティログインチケットの交換に失敗しました"
-  },
-  "legacy.error.c1927bc6a20fa3ca": {
-    "other": "ストレージポリシーIDを空にすることはできません"
-  },
-  "legacy.error.9f2257503116e08f": {
-    "other": "ストレージリダクションポリシーが存在しません"
-  },
-  "legacy.error.b57fd83489726ea9": {
-    "other": "ストレージリダクションポリシーを空にすることはできません"
-  },
-  "legacy.error.3fad14b659e4d7e0": {
-    "other": "ストレージリダクションポリシーリストを空にすることはできません"
-  },
-  "legacy.error.951405540e9a38f3": {
-    "other": "ストレージリダクションポリシーのステータスが無効です"
-  },
-  "legacy.error.c6e568027ccfef14": {
-    "other": "ストレージリダクションルールパラメータが無効です"
-  },
-  "legacy.error.3c832fb81c6829ba": {
-    "other": "グローバルポリシーにテナントやユーザーを設定することはできません"
   },
   "legacy.error.1681f52b573f0af5": {
     "other": "すべて既読にする操作に失敗しました"
@@ -1940,29 +1853,8 @@
   "legacy.error.b6d869235b2177c7": {
     "other": "ファイルスキャン一時ファイルの書き込みに失敗しました"
   },
-  "legacy.error.fa4c8538024c9929": {
-    "other": "出力ポリシーIDを空にすることはできません"
-  },
-  "legacy.error.3d7953d9d4128c4d": {
-    "other": "出力リダクションはGETインターフェースのみ対応しています"
-  },
-  "legacy.error.7d7461a525e0e56e": {
-    "other": "出力リダクションの処理モードが無効です"
-  },
-  "legacy.error.2242abaaa50d1dc3": {
-    "other": "出力リダクションポリシーが存在しません"
-  },
-  "legacy.error.38575468bd5f4185": {
-    "other": "出力リダクションポリシーを空にすることはできません"
-  },
-  "legacy.error.9405199c2964f7ab": {
-    "other": "出力リダクションポリシーリストを空にすることはできません"
-  },
   "legacy.error.3469afe93c5e18c4": {
     "other": "出力リダクションポリシーのステータスが無効です"
-  },
-  "legacy.error.7e4f51942b429272": {
-    "other": "出力リダクションルールパラメータが無効です"
   },
   "legacy.error.6c754072edfff142": {
     "other": "分岐メッセージが存在しません"
@@ -2102,26 +1994,8 @@
   "legacy.error.eb7376c11e576e01": {
     "other": "部門の作成に失敗しました"
   },
-  "legacy.error.eca1d6ff1327a5f3": {
-    "other": "部門の作成に失敗しました（パス更新エラー）"
-  },
   "legacy.error.bd71a5a12e6c406b": {
     "other": "プロジェクトの作成に失敗しました"
-  },
-  "legacy.error.eff193fd9177f59e": {
-    "other": "初期パスワードの長さまたは複雑度がセキュリティポリシーを満たしません"
-  },
-  "legacy.error.6de8ebe104908a91": {
-    "other": "テナント管理者ロールの初期化に失敗しました"
-  },
-  "legacy.error.2cc71589d0ab72d8": {
-    "other": "テナント管理者ロール権限の初期化に失敗しました"
-  },
-  "legacy.error.b3729212cf4d6ce7": {
-    "other": "テナント管理者アカウントの初期化に失敗しました"
-  },
-  "legacy.error.3adfff798e9b6a1e": {
-    "other": "テナント既定部門の初期化に失敗しました"
   },
   "legacy.error.5cec15fc1c4a7b5f": {
     "other": "AIアシスタントセッションの削除に失敗しました"
@@ -2144,9 +2018,6 @@
   "legacy.error.54942b049dcbe2eb": {
     "other": "バックアップ設定の削除に失敗しました"
   },
-  "legacy.error.cc009e22bbd2e9c2": {
-    "other": "辞書の削除に失敗しました"
-  },
   "legacy.error.f4e3c1c7f6c7d220": {
     "other": "辞書項目の削除に失敗しました"
   },
@@ -2155,9 +2026,6 @@
   },
   "legacy.error.ab10b5713ba93cbd": {
     "other": "役職の削除に失敗しました"
-  },
-  "legacy.error.b04e457c7c50beec": {
-    "other": "役職の削除に失敗しました（役職が存在しません）"
   },
   "legacy.error.ee59cd68625e3898": {
     "other": "OAuthクライアントの削除に失敗しました"
@@ -2174,9 +2042,6 @@
   "legacy.error.6f5d60641a53ef2d": {
     "other": "メッセージカテゴリの削除に失敗しました"
   },
-  "legacy.error.35899c9b41798f9c": {
-    "other": "メッセージカテゴリの削除に失敗しました（カテゴリが存在しません）"
-  },
   "legacy.error.7a155b68e77f7b3e": {
     "other": "メッセージの削除に失敗しました"
   },
@@ -2185,9 +2050,6 @@
   },
   "legacy.error.7cf04bd0de1d3628": {
     "other": "ユーザーの削除に失敗しました"
-  },
-  "legacy.error.66264e9083823b01": {
-    "other": "ユーザーの削除に失敗しました（ユーザーが存在しません）"
   },
   "legacy.error.798a355cd970d9df": {
     "other": "ログインポリシーの削除に失敗しました"
@@ -2209,9 +2071,6 @@
   },
   "legacy.error.5a46008137ae3c3f": {
     "other": "行政区の削除に失敗しました"
-  },
-  "legacy.error.f2c0e88cba67443f": {
-    "other": "ロールの削除に失敗しました"
   },
   "legacy.error.f94fb6c1649757d9": {
     "other": "言語の削除に失敗しました"
@@ -2240,17 +2099,8 @@
   "legacy.error.e2f289e3e36cf455": {
     "other": "ワンタイムパスワードを空にすることはできません"
   },
-  "legacy.error.e6babb76c2c0e896": {
-    "other": "ワンタイムパスワードまたはリカバリーコードを空にすることはできません"
-  },
   "legacy.error.25b7adee9f82ecfb": {
     "other": "単一ファイルのアップロードに失敗しました"
-  },
-  "legacy.error.7d0886ba3ea2f5b4": {
-    "other": "一度にアップロードできるファイルは20個までです"
-  },
-  "legacy.error.4281e3a054efe6fa": {
-    "other": "現在のパスワードが正しくありません"
   },
   "legacy.error.7b83afed07e54434": {
     "other": "メッセージの公開に失敗しました"
@@ -2261,9 +2111,6 @@
   "legacy.error.7f22e0bfb634eb2f": {
     "other": "電話番号の認証コード送信に失敗しました"
   },
-  "legacy.error.0a7b29f34faeda2d": {
-    "other": "認証コードの送信に失敗しました"
-  },
   "legacy.error.693715fa45adbec1": {
     "other": "メッセージの定期公開のキャンセルに失敗しました"
   },
@@ -2272,9 +2119,6 @@
   },
   "legacy.error.db6e5929a5531d2c": {
     "other": "失敗した配信タスクのみ再試行できます"
-  },
-  "legacy.error.f7565b983d27de0f": {
-    "other": "文字列フィールドのみストレージリダクションに対応しています"
   },
   "legacy.error.63722cd0da2f0322": {
     "other": "プラットフォーム管理者のみリダクションポリシーを管理できます"
@@ -2288,29 +2132,11 @@
   "legacy.error.a5555b58b889cd09": {
     "other": "下書きメッセージのみ公開できます"
   },
-  "legacy.error.3329506452b21001": {
-    "other": "下書きメッセージのみ編集できます"
-  },
   "legacy.error.53f8867d5b4a61c7": {
     "other": "既定テナントのみプロジェクトディレクトリを保守できます"
   },
-  "legacy.error.f00b7bfc546756ae": {
-    "other": "正常にアーカイブされたレコードのみ復元できます"
-  },
-  "legacy.error.04d0137c5a8903e6": {
-    "other": "開発認可インターフェースのみ認可できます"
-  },
   "legacy.error.823c3d4bc9a94573": {
     "other": "テナントIDを含む応答データのみ選択できます"
-  },
-  "legacy.error.45f4c29f6502180e": {
-    "other": "テナントIDを含むテーブルのみ選択できます"
-  },
-  "legacy.error.768924fa8f2215c3": {
-    "other": "有効なロケールのみ設定できます"
-  },
-  "legacy.error.fa1ec60338bc9604": {
-    "other": "同一リソースの言語を重複させることはできません"
   },
   "legacy.error.751a689594738cbb": {
     "other": "バックエンドBizファイルは選択したProtoディレクトリに対応するサービスディレクトリにあり、.go拡張子である必要があります"
@@ -2324,26 +2150,11 @@
   "legacy.error.4adc578dcde7d694": {
     "other": "タスクの開始に失敗しました"
   },
-  "legacy.error.d217a967bfd0bacd": {
-    "other": "応答データ型が存在しません"
-  },
   "legacy.error.815660c688153283": {
     "other": "一意インデックスフィールドはストレージリダクションに対応していません"
   },
-  "legacy.error.f745efeb0f7e0223": {
-    "other": "リダイレクトURLを空にすることはできません"
-  },
-  "legacy.error.28595f163dfa7306": {
-    "other": "リダイレクトURLが無効です"
-  },
-  "legacy.error.cd11548a9db9cf6c": {
-    "other": "i18nカスタム翻訳のステータスが無効です"
-  },
   "legacy.error.3c2c77928163020e": {
     "other": "画像・辞書・ブール設定値は翻訳に対応していません"
-  },
-  "legacy.error.0766ac7a491df596": {
-    "other": "オンラインセッションが存在しません"
   },
   "legacy.error.8e917549a59ceb6f": {
     "other": "オンライン保持日数は0より大きい必要があります"
@@ -2372,20 +2183,11 @@
   "legacy.error.25975f21342bc053": {
     "other": "複数ファイルのアップロードに失敗しました"
   },
-  "legacy.error.858a0795c30a4a9b": {
-    "other": "多要素認証に失敗しました"
-  },
   "legacy.error.690a6b7f9c24cefa": {
     "other": "多要素認証の失敗回数が多すぎます"
   },
-  "legacy.error.25c7a487d591e043": {
-    "other": "多要素認証は既に有効です"
-  },
   "legacy.error.59891e4d57598bea": {
     "other": "MFAリカバリーコードが正しくありません"
-  },
-  "legacy.error.3645acb13cba03bc": {
-    "other": "MFAチャレンジが失効しました"
   },
   "legacy.error.f33b1f004e9311e1": {
     "other": "MFA方式が失効しました"
@@ -2393,26 +2195,11 @@
   "legacy.error.c465c61d1876cee8": {
     "other": "MFA方式の設定が無効です"
   },
-  "legacy.error.58d18dab90870673": {
-    "other": "多要素認証が有効になっていません"
-  },
   "legacy.error.59c1df3bee807b31": {
     "other": "MFAポリシーにより再ログインが必要です"
   },
   "legacy.error.f353032a783801a1": {
     "other": "MFAポリシー設定が無効です"
-  },
-  "legacy.error.0761a956d76e9f97": {
-    "other": "MFA連携チケットが失効しました"
-  },
-  "legacy.error.4ba5f7c3bc47c876": {
-    "other": "MFA認証コードが正しくありません"
-  },
-  "legacy.error.91d8e5677d731bc9": {
-    "other": "辞書が存在しません"
-  },
-  "legacy.error.bf136ecb202be363": {
-    "other": "辞書項目が存在しません"
   },
   "legacy.error.49ecd0e342d6d23b": {
     "other": "フィールド"
@@ -2431,9 +2218,6 @@
   },
   "legacy.error.2ec2a0c6920bee1e": {
     "other": "リアルタイムコンソールチャンネルを空にすることはできません"
-  },
-  "legacy.error.e290b0c149b371b4": {
-    "other": "リアルタイムログサービスが初期化されていません"
   },
   "legacy.error.788dcfa4a8975496": {
     "other": "クライアントが現在のテナントに属していません"
@@ -2456,9 +2240,6 @@
   "legacy.error.c5eae1dd2dfe44e7": {
     "other": "クライアントの送信元IPは認可されていません"
   },
-  "legacy.error.71f8f37efebd4148": {
-    "other": "クライアントが連携するテナントが存在しません"
-  },
   "legacy.error.f12b6fa61a61b0c7": {
     "other": "クライアントが連携するテナントが無効化されています"
   },
@@ -2476,9 +2257,6 @@
   },
   "legacy.error.c8948a07ea2e2694": {
     "other": "パスワード暗号化アルゴリズムはサポートされていません"
-  },
-  "legacy.error.71bb10fe5b515e43": {
-    "other": "パスワード複雑度の文字カテゴリ数は0より大きい必要があります"
   },
   "legacy.error.81675d6621af09a5": {
     "other": "パスワード暗号文を空にすることはできません"
@@ -2504,14 +2282,8 @@
   "legacy.error.524d45335891b7b9": {
     "other": "パスワードの有効期限が切れました。先に変更してください"
   },
-  "legacy.error.415c70ceebc9339a": {
-    "other": "パスワードの最小長は0より大きい必要があります"
-  },
   "legacy.error.3874b295110dd6d7": {
     "other": "パスワードの復号に失敗しました"
-  },
-  "legacy.error.fb227e789a8cd772": {
-    "other": "パスワードの長さまたは複雑度がセキュリティポリシーを満たしません"
   },
   "legacy.error.70fe022d705a9f4f": {
     "other": "パスワード乱数値が無効です"
@@ -2522,17 +2294,11 @@
   "legacy.error.29fe5b349e7c8101": {
     "other": "役職は無効化されているため選択できません"
   },
-  "legacy.error.3e79341b7f9d573e": {
-    "other": "役職のステータスが無効です"
-  },
   "legacy.error.ad53bc40c159c03e": {
     "other": "左ツリー設定の形式が正しくありません"
   },
   "legacy.error.741e976fc2db03d1": {
     "other": "取り消したメッセージは再配信できません"
-  },
-  "legacy.error.1f050b534f743477": {
-    "other": "既存の空でない翻訳は機械翻訳で上書きできません"
   },
   "legacy.error.5422f80650ed6780": {
     "other": "冪等キーに対応するメッセージ内容が一致しません"
@@ -2546,17 +2312,8 @@
   "legacy.error.d2a00e4240f15d1a": {
     "other": "MFA連携の開始に失敗しました"
   },
-  "legacy.error.70010c1c5aff2874": {
-    "other": "OAuthクライアントが存在しません"
-  },
-  "legacy.error.7527f51870e5be88": {
-    "other": "アーカイブ復元モードが無効です"
-  },
   "legacy.error.2b0341c1d9e4dcbc": {
     "other": "通知のアーカイブに失敗しました"
-  },
-  "legacy.error.d07181150520a6b4": {
-    "other": "アーカイブレコードを空にすることはできません"
   },
   "legacy.error.3c17a593ba4eedf5": {
     "other": "アーカイブ設定が存在しません"
@@ -2567,17 +2324,11 @@
   "legacy.error.6549d96b5b6ca2c1": {
     "other": "現在はフルバックアップのみ対応しています"
   },
-  "legacy.error.ef6146fd1b40b481": {
-    "other": "現在のセッションが失効しました"
-  },
   "legacy.error.a6abeab21b9c197c": {
     "other": "現在のクライアントはWebAuthnに対応していません。Passkey対応クライアントを使用してください"
   },
   "legacy.error.9df84549ee5d2e6d": {
     "other": "現在のクライアントはWebAuthnに対応していません。Passkey対応クライアントで連携を完了してください"
-  },
-  "legacy.error.e0f0aae6d9a6db79": {
-    "other": "現在のパスワードが正しくありません"
   },
   "legacy.error.9300a2b1b4bb1064": {
     "other": "現在の認証方式はワンタイムパスワードに対応していません"
@@ -2588,17 +2339,8 @@
   "legacy.error.b9a452b87cde115a": {
     "other": "現在の認証方式はリカバリーコードの再生成に対応していません"
   },
-  "legacy.error.5aee1db2ece6deb0": {
-    "other": "翻訳対象の原文を空にすることはできません"
-  },
-  "legacy.error.822aec8a7670de02": {
-    "other": "翻訳対象のリソースが存在しません"
-  },
   "legacy.error.15de1844824e8acf": {
     "other": "WeChatログイン資格情報が無効です"
-  },
-  "legacy.error.be218e64a69d8f28": {
-    "other": "WeChatログインに失敗しました"
   },
   "legacy.error.76ca2c845a375eed": {
     "other": "WeChatログイン設定情報が正しくありません"
@@ -2608,18 +2350,6 @@
   },
   "legacy.error.7aa4134b2642fb28": {
     "other": "WeChatログインの既定部門設定が正しくありません"
-  },
-  "legacy.error.b4c97d6f7b00a52e": {
-    "other": "WeChatアカウントは既に連携されています"
-  },
-  "legacy.error.7afa7362b45cbfcb": {
-    "other": "WeChatアカウントが未連携です。既存アカウントを先に連携してください"
-  },
-  "legacy.error.8d4c7687edb51962": {
-    "other": "セキュリティポリシーを満たす新しいパスワードを設定する必要があります"
-  },
-  "legacy.error.a04b8d472d73b23b": {
-    "other": "連携するテナントを選択する必要があります"
   },
   "legacy.error.71d53fbd97d85609": {
     "other": "スケジュールタスクのスケジューリング復元に失敗しました"
@@ -2635,9 +2365,6 @@
   },
   "legacy.error.d3419333a455885b": {
     "other": "選択したデータソースにそのテーブルが存在しません"
-  },
-  "legacy.error.1120563ed5b635f4": {
-    "other": "電話番号は既に使用されています"
   },
   "legacy.error.9ea435e01919898d": {
     "other": "電話番号の認可に失敗しました"
@@ -2666,17 +2393,8 @@
   "legacy.error.b1c8a7126056d454": {
     "other": "指定したプロジェクトが存在しないか対象テナントに属していません"
   },
-  "legacy.error.a14efca145af09f5": {
-    "other": "ボタンまたは外部リンクを親メニューにすることはできません"
-  },
-  "legacy.error.5d830192c40a3c28": {
-    "other": "認可API operationを空にすることはできません"
-  },
   "legacy.error.e561912c85a4455e": {
     "other": "認可API operationに存在しないインターフェースが含まれています"
-  },
-  "legacy.error.bc52216171131e30": {
-    "other": "認可APIを重複させることはできません"
   },
   "legacy.error.59cd5fcd2d88a55d": {
     "other": "付与主体タイプが無効です"
@@ -2696,9 +2414,6 @@
   "legacy.error.11b537afb943c74f": {
     "other": "メッセージの取り消しに失敗しました"
   },
-  "legacy.error.5efc308bfda54903": {
-    "other": "全セッションの失効に失敗しました"
-  },
   "legacy.error.a6000e305f5d2fef": {
     "other": "古いクライアントトークンの失効に失敗しました"
   },
@@ -2707,12 +2422,6 @@
   },
   "legacy.error.10c1ec9fad526657": {
     "other": "ユーザーログイントークンの失効に失敗しました"
-  },
-  "legacy.error.778da14d7ba916df": {
-    "other": "テナントOAuthトークンの失効に失敗しました"
-  },
-  "legacy.error.4dfa744b4c9598b5": {
-    "other": "テナントユーザーログイントークンの失効に失敗しました"
   },
   "legacy.error.4564d972dbc3661e": {
     "other": "期限切れセッションの失効に失敗しました"
@@ -2735,35 +2444,11 @@
   "legacy.error.4ce7df2fe808ac6b": {
     "other": "データテーブル名が不正です"
   },
-  "legacy.error.f1b27684eaf68325": {
-    "other": "ファイルのアップロードに失敗しました"
-  },
-  "legacy.error.7255193529b2fdb8": {
-    "other": "ファイルのダウンロードに失敗しました"
-  },
-  "legacy.error.d2f86764ccfc9b4d": {
-    "other": "ファイルが存在しないかアクセス権がありません"
-  },
-  "legacy.error.164338015340bdfe": {
-    "other": "ファイルのビジネスタイプが不正です"
-  },
   "legacy.error.1572896dd8ea2149": {
     "other": "ファイルメタデータリポジトリが未設定です"
   },
-  "legacy.error.9e70775a28707b73": {
-    "other": "ファイル内容は20MBを超えることはできません"
-  },
-  "legacy.error.f57e0c4792169965": {
-    "other": "ファイル名が不正です"
-  },
   "legacy.error.df83b569b1e6c106": {
     "other": "ファイルのセキュリティスキャンコマンドが未設定です"
-  },
-  "legacy.error.b0f28c5f3181d572": {
-    "other": "ファイル拡張子が実際のコンテンツタイプと一致しません"
-  },
-  "legacy.error.54bd36732e0bbdcf": {
-    "other": "ファイルのアクセス方法が不正です"
   },
   "legacy.error.2e0ad0ebc1dfeb09": {
     "other": "ファイルパスを空にすることはできません"
@@ -2780,15 +2465,6 @@
   "legacy.error.ff323940e8cc2930": {
     "other": "プロジェクト付与の追加に失敗しました"
   },
-  "legacy.error.a51c8475a6465475": {
-    "other": "新しいパスワードを現在のパスワードと同じにすることはできません"
-  },
-  "legacy.error.f7f32edb067ea609": {
-    "other": "新しいパスワードは最近の履歴パスワードを再利用できません"
-  },
-  "legacy.error.d6d84bf72bbdfccc": {
-    "other": "他テナントのカスタム翻訳を管理する権限がありません"
-  },
   "legacy.error.edab4fc1b3ec25ef": {
     "other": "コード生成タスクを購読する権限がありません"
   },
@@ -2803,24 +2479,6 @@
   },
   "legacy.error.e6158a3f73ff2546": {
     "other": "ログIDの形式が無効です"
-  },
-  "legacy.error.560e0de6b066f0c3": {
-    "other": "ログ圧縮ファイルが破損しています"
-  },
-  "legacy.error.a38f393c01bf6ebe": {
-    "other": "ログファイルが存在しません"
-  },
-  "legacy.error.a60171d1f23c81de": {
-    "other": "ログファイル識別子が無効です"
-  },
-  "legacy.error.5d8920ab585ca9c7": {
-    "other": "このログファイルタイプへのアクセスは許可されていません"
-  },
-  "legacy.error.ef92f0344e85c0cc": {
-    "other": "ログレベルのフィルタが無効です"
-  },
-  "legacy.error.e0bda1894488f015": {
-    "other": "ログのページングカーソルが無効です"
   },
   "legacy.error.a72174780cc3a36d": {
     "other": "通常テナントの付与主体は他テナントのプロジェクト権限を取得できません"
@@ -2879,9 +2537,6 @@
   "legacy.error.47bf6383bace0dfd": {
     "other": "ユーザーの更新に失敗しました"
   },
-  "legacy.error.54b0c1b5af37b3c1": {
-    "other": "ユーザーの更新に失敗しました（ユーザー情報が存在しません）"
-  },
   "legacy.error.df5a442da0b21158": {
     "other": "ログインセッションの更新に失敗しました"
   },
@@ -2918,17 +2573,8 @@
   "legacy.error.a72693a4296e35e5": {
     "other": "プロジェクト付与の更新に失敗しました"
   },
-  "legacy.error.f8596651bfcefeee": {
-    "other": "ファイルがアップロードされていません"
-  },
   "legacy.error.1b343f2ebe4bc6d7": {
     "other": "初期パスワードが未設定です。ユーザーパスワードを明示的に設定してください"
-  },
-  "legacy.error.30ad043dc6db15c7": {
-    "other": "履歴ログディレクトリが未設定です"
-  },
-  "legacy.error.9d294ba12846efdc": {
-    "other": "機械翻訳機能が有効になっていません"
   },
   "legacy.error.2468b2acc984ef68": {
     "other": "機械翻訳の下書き機能が有効になっていません"
@@ -3032,9 +2678,6 @@
   "legacy.error.7cc414bb70b3d733": {
     "other": "i18nカスタム翻訳の照会に失敗しました"
   },
-  "legacy.error.757bdbb9cf9523eb": {
-    "other": "オンラインユーザーの照会に失敗しました"
-  },
   "legacy.error.cccdd8c196015a7f": {
     "other": "バックアップ復元レコードの照会に失敗しました"
   },
@@ -3113,9 +2756,6 @@
   "legacy.error.742329cca1cf3d2e": {
     "other": "現在のセッションの照会に失敗しました"
   },
-  "legacy.error.c2ac70e77504f296": {
-    "other": "現在のロール権限の照会に失敗しました"
-  },
   "legacy.error.e55b46ad2684e3b4": {
     "other": "操作アクション分布の照会に失敗しました"
   },
@@ -3157,9 +2797,6 @@
   },
   "legacy.error.ca4de5b792e75311": {
     "other": "ファイル資産詳細の照会に失敗しました"
-  },
-  "legacy.error.f6153db7a9372802": {
-    "other": "自身のセッション照会に失敗しました"
   },
   "legacy.error.0fa4059634f6e2f2": {
     "other": "自身のログイン履歴の照会に失敗しました"
@@ -3235,12 +2872,6 @@
   },
   "legacy.error.310e339befb47347": {
     "other": "テナントの照会に失敗しました"
-  },
-  "legacy.error.c4210020b04cca27": {
-    "other": "テナントの最大権限の照会に失敗しました"
-  },
-  "legacy.error.1d5eca3ba22a1f89": {
-    "other": "テナントユーザーの照会に失敗しました"
   },
   "legacy.error.85cb3cd02dd32c7d": {
     "other": "モバイルメニューの照会に失敗しました"
@@ -3353,17 +2984,11 @@
   "legacy.error.d7533f8aa46eaf5a": {
     "other": "MFAの検証に失敗しました"
   },
-  "legacy.error.70be9f472ac29679": {
-    "other": "自身のセッション検証に失敗しました"
-  },
   "legacy.error.0d1e6b7b28fcc1de": {
     "other": "ユーザーロールの検証に失敗しました"
   },
   "legacy.error.a2bfb226f0e00e12": {
     "other": "ユーザー登録データの集計に失敗しました"
-  },
-  "legacy.error.7ddf413a97a025d8": {
-    "other": "有効なキャプチャタイプがありません"
   },
   "legacy.error.d6139243cdbfb13f": {
     "other": "AIアシスタントメッセージのストリーミング送信に失敗しました"
@@ -3374,29 +2999,8 @@
   "legacy.error.d22fd55ed8b53e3d": {
     "other": "メッセージが定期公開状態ではありません"
   },
-  "legacy.error.323a9f3dfd9436cc": {
-    "other": "メッセージが存在しません"
-  },
-  "legacy.error.bf404eeabc26c357": {
-    "other": "メッセージの優先度が無効です"
-  },
   "legacy.error.1fd3ef87c9e73376": {
     "other": "メッセージ内容を空にすることはできません"
-  },
-  "legacy.error.9a9f979ec18c14f2": {
-    "other": "メッセージカテゴリは利用できません"
-  },
-  "legacy.error.edca5ceb27102b0d": {
-    "other": "メッセージカテゴリが存在しません"
-  },
-  "legacy.error.6c6a75417d9b96f4": {
-    "other": "メッセージカテゴリのステータスが無効です"
-  },
-  "legacy.error.0a7477f2362aa7e9": {
-    "other": "メッセージカテゴリコードは変更できません"
-  },
-  "legacy.error.5b3002b9ecc91eb8": {
-    "other": "メッセージカテゴリコードを空にすることはできません"
   },
   "legacy.error.617ff09dc5740ca9": {
     "other": "メッセージアクションパラメータは16KBを超えることはできません"
@@ -3425,12 +3029,6 @@
   "legacy.error.796a07cbf608a7c4": {
     "other": "メッセージアクションターゲットの検証が初期化されていません"
   },
-  "legacy.error.b2e4129625950cdc": {
-    "other": "メッセージアクションタイプが無効です"
-  },
-  "legacy.error.41829d15cdc4821c": {
-    "other": "メッセージの受信者を空にすることはできません"
-  },
   "legacy.error.be74ce92a610e199": {
     "other": "メッセージの受信者を重複させることはできません"
   },
@@ -3439,9 +3037,6 @@
   },
   "legacy.error.2c76ea46653246f8": {
     "other": "メッセージの役職受信者が無効です"
-  },
-  "legacy.error.0d38b9f361e60e0e": {
-    "other": "メッセージは他者によって変更されました。更新して再試行してください"
   },
   "legacy.error.0fb52070815f6693": {
     "other": "メッセージ配信状態が変更されました。更新して再試行してください"
@@ -3455,23 +3050,14 @@
   "legacy.error.1c06df3a3ddbe8d9": {
     "other": "メッセージ本文を空にしたり20000文字を超えたりすることはできません"
   },
-  "legacy.error.6b0a676728c4bb15": {
-    "other": "メッセージ本文の形式が無効です"
-  },
   "legacy.error.174453c31c654750": {
     "other": "メッセージ本文はサニタイズ後に空にすることはできません"
-  },
-  "legacy.error.4629c57027065a98": {
-    "other": "メッセージバージョンが無効です"
   },
   "legacy.error.ded15f67c86763a2": {
     "other": "メッセージ状態が変更されました。更新して再試行してください"
   },
   "legacy.error.2706270b2b7ce9f7": {
     "other": "メッセージのユーザー受信者が無効です"
-  },
-  "legacy.error.d1700e2d9ad8a545": {
-    "other": "メッセージのテナントを空にすることはできません"
   },
   "legacy.error.c64f9c3cf819c81c": {
     "other": "メッセージ番号が不正です"
@@ -3509,14 +3095,8 @@
   "legacy.error.46d8a095016f1ba5": {
     "other": "ログイン失敗状態のクリアに失敗しました"
   },
-  "legacy.error.8eddbf04b3ddc598": {
-    "other": "ソース言語とターゲット言語は異なる有効な言語である必要があります"
-  },
   "legacy.error.25deb89aa8542274": {
     "other": "親メニューIDがメニュー番号の階層規則に適合しません"
-  },
-  "legacy.error.3ed995e4f73d690d": {
-    "other": "親メニューが存在しません"
   },
   "legacy.error.ff9d10f00b5b1c93": {
     "other": "親メニューの種類が階層と一致しません"
@@ -3548,26 +3128,14 @@
   "legacy.error.4acac868b13d25a3": {
     "other": "認証コードの生成に失敗しました"
   },
-  "legacy.error.a82de572ccd7ebf0": {
-    "other": "ユーザーが存在しません"
-  },
-  "legacy.error.c7b529559300a291": {
-    "other": "ユーザーがテナントと一致しません"
-  },
   "legacy.error.a9a6a83a7d22e27e": {
     "other": "ユーザー名またはパスワードが正しくありません"
-  },
-  "legacy.error.ea95a44ecebf2fb5": {
-    "other": "ユーザーの役職が存在しません"
   },
   "legacy.error.5c9ce1a293619574": {
     "other": "ユーザーの役職が所属テナントと一致しません"
   },
   "legacy.error.60a9831242fc0128": {
     "other": "ユーザーは無効化されています"
-  },
-  "legacy.error.177dbb50efddb30b": {
-    "other": "ユーザーポリシーターゲットが無効です"
   },
   "legacy.error.77fc0ea919e34629": {
     "other": "ユーザーの組織関係が所属テナントと一致しません"
@@ -3578,12 +3146,6 @@
   "legacy.error.259f2c53cf4ef48a": {
     "other": "ユーザーロールが部門のテナントと一致しません"
   },
-  "legacy.error.2125bd1384350cf7": {
-    "other": "ユーザー認証に失敗しました"
-  },
-  "legacy.error.bb1c9703d51a4ead": {
-    "other": "ユーザーの部門が存在しません"
-  },
   "legacy.error.ad41477a76b25935": {
     "other": "ユーザーの部門が所属テナントと一致しません"
   },
@@ -3593,35 +3155,8 @@
   "legacy.error.c8fa8bc4e8f159d9": {
     "other": "ログイン失敗回数が多すぎます。しばらくしてから再試行してください"
   },
-  "legacy.error.3cb197d1a5a2c3ad": {
-    "other": "ログイン方式はサポートされていません"
-  },
-  "legacy.error.22a4511c87287de1": {
-    "other": "ログイン方式はリダイレクト認可に対応していません"
-  },
   "legacy.error.72301b9a742c94cf": {
     "other": "ログインリースが失効しました"
-  },
-  "legacy.error.ebe9b8ff030be0c3": {
-    "other": "ログインポリシーIDを空にすることはできません"
-  },
-  "legacy.error.0ad5ac1b6de56f07": {
-    "other": "ログインポリシーが存在しません"
-  },
-  "legacy.error.90b019d1c34bcf63": {
-    "other": "ログインポリシーのスコープタイプが無効です"
-  },
-  "legacy.error.d03847577dddb4e6": {
-    "other": "ログインポリシーの形式が無効です"
-  },
-  "legacy.error.48aa6dc021aefeea": {
-    "other": "ログインポリシーのステータスが無効です"
-  },
-  "legacy.error.2267986a1e381ebd": {
-    "other": "ログインページURLが無効です"
-  },
-  "legacy.error.da535200fe38b6f5": {
-    "other": "対象リソースIDを空にすることはできません"
   },
   "legacy.error.49e95fc46747e658": {
     "other": "強制MFA連携の確認に失敗しました"
@@ -3629,14 +3164,8 @@
   "legacy.error.6ac0f1b7aaec664d": {
     "other": "MFA連携の確認に失敗しました"
   },
-  "legacy.error.6ef5fe69750c2b48": {
-    "other": "ログディレクトリ外のファイルへのアクセスは禁止されています"
-  },
   "legacy.error.80fb55ec83653bc4": {
     "other": "MFAの無効化に失敗しました"
-  },
-  "legacy.error.5b06b0cb71573ea6": {
-    "other": "テナントが存在しません"
   },
   "legacy.error.8dd022efbbe706d2": {
     "other": "テナント全体の受信者IDは0である必要があります"
@@ -3646,9 +3175,6 @@
   },
   "legacy.error.b3ca26ba26ec1779": {
     "other": "テナントは無効化されています"
-  },
-  "legacy.error.b82f21bb47217337": {
-    "other": "テナントポリシーターゲットが無効です"
   },
   "legacy.error.806829f515c0df9b": {
     "other": "テナント管理者ロールが無効化されています"
@@ -3667,12 +3193,6 @@
   },
   "legacy.error.2964607aae8c25ca": {
     "other": "サードパーティアカウントの連携に失敗しました"
-  },
-  "legacy.error.907ce95f5cb163dc": {
-    "other": "連携するテナントが存在しません"
-  },
-  "legacy.error.a11ae9f3169fdd9b": {
-    "other": "連携するテナントが無効化されています"
   },
   "legacy.error.6b607e7dfe8ccdd3": {
     "other": "統計の開始時刻は終了時刻より前である必要があります"
@@ -3698,9 +3218,6 @@
   "legacy.error.a0aaf66e02dd7724": {
     "other": "WebAuthn無効化オプションのエンコードに失敗しました"
   },
-  "legacy.error.fdbfb4336c489f42": {
-    "other": "翻訳対象タイプが無効です"
-  },
   "legacy.error.fe0e97995caf8950": {
     "other": "翻訳言語は有効な非プライマリ言語である必要があります"
   },
@@ -3713,15 +3230,6 @@
   "legacy.error.141f07d40c870162": {
     "other": "ウェブ検索リクエストに失敗しました"
   },
-  "legacy.error.dba508e1212691b7": {
-    "other": "システム設定のリダクションに失敗しました"
-  },
-  "legacy.error.8c257c42779cdc12": {
-    "other": "リダクションルールが存在しません"
-  },
-  "legacy.error.8a740b167d5544c1": {
-    "other": "リダクションルールは無効化されています"
-  },
   "legacy.error.dc8885ca6a1d1de4": {
     "other": "リダクションルールテンプレートパラメータが無効です"
   },
@@ -3730,9 +3238,6 @@
   },
   "legacy.error.f375179df851031a": {
     "other": "サードパーティユーザーの取得に失敗しました"
-  },
-  "legacy.error.eef3f6effdfa7140": {
-    "other": "プロフィールの取得に失敗しました"
   },
   "legacy.error.2e3650e27dc3c56c": {
     "other": "パスワード一時公開鍵の取得に失敗しました"
@@ -3743,17 +3248,8 @@
   "legacy.error.76c33822e7bdcea2": {
     "other": "WeChatユーザーの取得に失敗しました"
   },
-  "legacy.error.2339340aba3669da": {
-    "other": "ユーザー情報の取得に失敗しました"
-  },
   "legacy.error.f8614d3cb9ee9e92": {
     "other": "ユーザーのボタン権限の取得に失敗しました"
-  },
-  "legacy.error.f8ca6cf9340e1318": {
-    "other": "ユーザーメニューの取得に失敗しました"
-  },
-  "legacy.error.4c491cc49d883c6c": {
-    "other": "ユーザーメニュー翻訳の取得に失敗しました"
   },
   "legacy.error.07e6a94883fdf087": {
     "other": "システム設定の取得に失敗しました"
@@ -3764,12 +3260,6 @@
   "legacy.error.9d9734f9d60d7a19": {
     "other": "認証コードの取得に失敗しました"
   },
-  "legacy.error.5e7ff218eaaae90c": {
-    "other": "メニューが存在しません"
-  },
-  "legacy.error.c2f84acfaddb8deb": {
-    "other": "メニューの種類が無効です"
-  },
   "legacy.error.8f09ccc849c9e2b7": {
     "other": "メニュー番号が変更されました。再生成してください"
   },
@@ -3779,14 +3269,8 @@
   "legacy.error.4d2311ea76ac1eff": {
     "other": "テーブルレベルのi18n設定形式が正しくありません"
   },
-  "legacy.error.6ef13ae0492d38bc": {
-    "other": "ルールIDを空にすることはできません"
-  },
   "legacy.error.f73c86935008d65a": {
     "other": "ルールパラメータが無効です"
-  },
-  "legacy.error.0b8c6c4bfc046e48": {
-    "other": "ルールのステータスが無効です"
   },
   "legacy.error.e8487c03570fcf89": {
     "other": "ルールタイプは変更できません"
@@ -3802,9 +3286,6 @@
   },
   "legacy.error.3d1cdfa989d8a5e4": {
     "other": "WebAuthnトランスポートの解析に失敗しました"
-  },
-  "legacy.error.63e1da5da11bd9e0": {
-    "other": "テナントコードの解析に失敗しました"
   },
   "legacy.error.c59404a173ecf4a6": {
     "other": "サードパーティアカウントの連携解除に失敗しました"
@@ -3869,9 +3350,6 @@
   "legacy.error.0e3c33d45f94d08a": {
     "other": "ステータスの設定に失敗しました"
   },
-  "legacy.error.7cefb6d70bcfbf66": {
-    "other": "ステータスの設定に失敗しました（ユーザー情報が存在しません）"
-  },
   "legacy.error.a88b76417346c4f3": {
     "other": "ログインポリシーのステータス設定に失敗しました"
   },
@@ -3880,9 +3358,6 @@
   },
   "legacy.error.236ab0e56b3722d9": {
     "other": "ロールのメニュー権限設定に失敗しました"
-  },
-  "legacy.error.2bcdb4bb0f0550e6": {
-    "other": "ロールのメニュー権限設定に失敗しました（上限を超えるメニュー権限は割り当てられません）"
   },
   "legacy.error.85ee2e715106f90f": {
     "other": "言語のステータス設定に失敗しました"
@@ -3893,20 +3368,8 @@
   "legacy.error.38c29cd72f9c1d82": {
     "other": "アクセストークンサービスが初期化されていません"
   },
-  "legacy.error.6a57e7bb1fda230a": {
-    "other": "このカテゴリのメッセージは削除できません"
-  },
-  "legacy.error.04bd3c7b7eb403bc": {
-    "other": "このカテゴリのメッセージはアーカイブできません"
-  },
   "legacy.error.10b9257f2ecab2c3": {
     "other": "このバックアップレコードは復元中です。後で再試行してください"
-  },
-  "legacy.error.573f1ce3483d6b67": {
-    "other": "このアーカイブレコードは復元中です。後で再試行してください"
-  },
-  "legacy.error.4f98589ed2ce7172": {
-    "other": "言語コードは有効な言語コードである必要があります"
   },
   "legacy.error.48144f96c1503b52": {
     "other": "先にログインしてください"
@@ -3989,23 +3452,14 @@
   "legacy.error.3427b405d5c80338": {
     "other": "OAuthクライアント設定の読み取りに失敗しました"
   },
-  "legacy.error.c1dd8a704d2b3c59": {
-    "other": "翻訳対象リソースの読み取りに失敗しました"
-  },
   "legacy.error.1b8c5c49d6878d19": {
     "other": "WeChatログイン設定の読み取りに失敗しました"
   },
   "legacy.error.fe97a3a85174448e": {
     "other": "ログファイル情報の読み取りに失敗しました"
   },
-  "legacy.error.0204682cb5b014d1": {
-    "other": "ログファイルの読み取りに失敗しました"
-  },
   "legacy.error.76e780b7e84d7a14": {
     "other": "ログディレクトリの読み取りに失敗しました"
-  },
-  "legacy.error.011c5a8aab1dd022": {
-    "other": "自身のセッション読み取りに失敗しました"
   },
   "legacy.error.543d0dbad6466e6c": {
     "other": "ログインセッションの読み取りに失敗しました"
@@ -4033,9 +3487,6 @@
   },
   "legacy.error.44670a4145535bf4": {
     "other": "左ツリー設定の変換に失敗しました"
-  },
-  "legacy.error.4b4740ead55343e1": {
-    "other": "クライアント資格情報のローテーションに失敗しました"
   },
   "legacy.error.787e231c5b5f70b0": {
     "other": "OAuthクライアント資格情報のローテーションに失敗しました"
@@ -4076,9 +3527,6 @@
   "legacy.error.54b320b55f65f47b": {
     "other": "認可エンジンはポリシー書き込みをサポートしていません"
   },
-  "legacy.error.771c738a3c8356ae": {
-    "other": "ページメニューにはボタンのみ作成できます"
-  },
   "legacy.error.42696b9669ce2389": {
     "other": "プロジェクトIDは正の数である必要があります"
   },
@@ -4102,9 +3550,6 @@
   },
   "legacy.error.175e2e193a614cee": {
     "other": "キャプチャトークンの消費に失敗しました"
-  },
-  "legacy.error.d06655e996ae7326": {
-    "other": "認証コードの有効期限が切れました"
   },
   "legacy.error.11bc2823ec42b680": {
     "other": "認証コードの検証に失敗しました"
@@ -4343,4 +3788,97 @@
   ,"legacy.error.d217a967bfd0bacd": { "other": "応答データタイプが存在しません" }
   ,"legacy.error.241051568bef8e2e": { "other": "フィールド暗号化アルゴリズムが無効です" }
   ,"legacy.error.767282ee3a85c273": { "other": "フィールド暗号化ルールはインバウンドポリシーのみサポートします" }
+  ,"legacy.error.bcda2ee361a79c60": { "other": "電話番号認可の資格情報が無効です" }
+  ,"legacy.error.3c1bfebde774c1d3": { "other": "クライアント識別子が重複しています" }
+  ,"legacy.error.513deff78da44959": { "other": "同じ位置の設定キーが重複しています" }
+  ,"legacy.error.5a52838633580d82": { "other": "テナント番号が重複しています" }
+  ,"legacy.error.8b87a6c6d658c05b": { "other": "テナント操作に失敗しました。デフォルトテナントは操作できません" }
+  ,"legacy.error.44885987e1e7fc05": { "other": "テナント番号は使い切りました" }
+  ,"legacy.error.81e65e451284e06e": { "other": "同じテナントにロールコードが重複しています" }
+  ,"legacy.error.bec78afeac7c5d9d": { "other": "同じテナントにユーザーアカウントまたはユーザー番号が重複しています" }
+  ,"legacy.error.4cec098a0f3c399f": { "other": "同じ位置・言語・言語キーのカスタム翻訳が重複しています" }
+  ,"legacy.error.0196b093ca02959f": { "other": "ロールの更新に失敗しました。組み込みロールのコードは変更できません" }
+  ,"legacy.error.776d13ccebdb1fb7": { "other": "ロールの更新に失敗しました。組み込みロールのコードは使用できません" }
+  ,"legacy.error.19803e49d77d7763": { "other": "ロールの更新に失敗しました。デフォルトロールの状態は変更できません" }
+  ,"legacy.error.172798ff29ffcc90": { "other": "ロールの削除に失敗しました。デフォルトロールは削除できません" }
+  ,"legacy.error.45a39797c58eacad": { "other": "ロール操作に失敗しました。デフォルトロールの状態は変更できません" }
+  ,"legacy.error.6e8101abf3b661f5": { "other": "ロール操作に失敗しました。組み込みロールは操作できません" }
+  ,"legacy.error.5538e198baabd079": { "other": "ロール操作に失敗しました。テナント組み込みロールは操作できません" }
+  ,"legacy.error.9798ae7fa191abd0": { "other": "ロールの作成に失敗しました。組み込みロールのコードは使用できません" }
+  ,"legacy.error.3ab4f06af6e20fd2": { "other": "コード生成タスクが既に実行中です" }
+  ,"legacy.error.f0a28dfa4409966b": { "other": "無効化されたコード生成テーブル設定は生成できません" }
+  ,"legacy.error.3beba2ac85c68598": { "other": "生成済みメニューの親は変更できません。元のメニューを削除してから再生成してください" }
+  ,"legacy.error.eface50a9bd64600": { "other": "ビジネスモジュールは空にできず、形式も正しい必要があります" }
+  ,"legacy.error.8ca5b7bd020f0d44": { "other": "生成ファイルが変更されているため、安全に復元できません" }
+  ,"legacy.error.2d128b1c7ce1bcac": { "other": "一括生成された共有ファイルはバッチ全体で復元する必要があります" }
+  ,"legacy.error.c4377d203f605a8b": { "other": "コード生成の復元スナップショットが存在しません。再生成してください" }
+  ,"legacy.error.d355679fc4c3684d": { "other": "コード生成の復元スナップショットは無効です。再生成してください" }
+  ,"legacy.error.738ffa9d13b38867": { "other": "同じテナントに役職番号が重複しています" }
+  ,"legacy.error.b7fdba770862e9ff": { "other": "役職の削除に失敗しました。この役職を使用しているユーザーがまだいます" }
+  ,"legacy.error.fb6e60ccc57170bd": { "other": "同じAPIレスポンスフィールドの出力マスキングポリシーが既に存在します" }
+  ,"legacy.error.ce0667f6a9bd7e2e": { "other": "同じ辞書に項目値が重複しています" }
+  ,"legacy.error.9cd44a5bdb014fb1": { "other": "そのテーブルは既にコード生成テーブル設定に選択されています" }
+  ,"legacy.error.416d50c2034a7d60": { "other": "ユーザーの作成に失敗しました。組み込みロールは選択できません" }
+  ,"legacy.error.3ca5c922b74b54fa": { "other": "ユーザーの更新に失敗しました。ユーザーアカウントは変更できません" }
+  ,"legacy.error.7d9df526e40f29cf": { "other": "ユーザーの更新に失敗しました。ユーザー番号は変更できません" }
+  ,"legacy.error.f9cf7294d51dc2ec": { "other": "ユーザーの更新に失敗しました。組み込みロールは選択できません" }
+  ,"legacy.error.2f92c31da328aeba": { "other": "ユーザーの削除に失敗しました。組み込み管理者アカウントは削除できません" }
+  ,"legacy.error.88866be60ba8716d": { "other": "ユーザー操作に失敗しました。組み込み管理者アカウントは個人センターでのみ変更できます" }
+  ,"legacy.error.a728edbdc343958e": { "other": "その認可主体には既にプロジェクト認可が存在します" }
+  ,"legacy.error.69a762d521761a3c": { "other": "同じスコープのログインポリシーが既に存在します" }
+  ,"legacy.error.76370b3803a9f50e": { "other": "ログインポリシーの制限ルールが重複しています" }
+  ,"legacy.error.3e934f35c0b5ceab": { "other": "マスキングルールのコードが重複しています" }
+  ,"legacy.error.6a2d2bbcff20daf0": { "other": "保存時マスキングポリシーがこのルールを参照しているため、削除できません" }
+  ,"legacy.error.3e26555b667f0ece": { "other": "出力マスキングポリシーがこのルールを参照しているため、削除できません" }
+  ,"legacy.error.2a1913450ed9f8d0": { "other": "辞書コードが重複しています" }
+  ,"legacy.error.fc25e0d9642770e1": { "other": "辞書の削除に失敗しました。配下に項目が存在します" }
+  ,"legacy.error.35323e14c1481ad4": { "other": "OAuthログイン方式の設定の読み込みに失敗しました" }
+  ,"legacy.error.b8895d5db253e184": { "other": "サードパーティアプリのシークレットは空にできません" }
+  ,"legacy.error.d2ec820d108540bb": { "other": "プロバイダー識別子が重複しています" }
+  ,"legacy.error.777fae8400c4d746": { "other": "プロバイダー識別子は変更できません" }
+  ,"legacy.error.2ced09b643b6806d": { "other": "OAuthログイン方式が存在しません" }
+  ,"legacy.error.cbbc7c20d1379b21": { "other": "OAuthログイン方式の状態が無効です" }
+  ,"legacy.error.453122ec31407492": { "other": "OAuthスコープの設定が無効です" }
+  ,"legacy.error.12d4e553e5368399": { "other": "プロバイダーのカスタム設定が無効です" }
+  ,"legacy.error.f2853426124dd65e": { "other": "OAuthスコープの解析に失敗しました" }
+  ,"legacy.error.9265669d517e320e": { "other": "プロバイダーのカスタム設定の解析に失敗しました" }
+  ,"legacy.error.47fcdd027d998032": { "other": "プロバイダーのカスタム設定の変換に失敗しました" }
+  ,"legacy.error.31b4abb95ec6dd56": { "other": "アーカイブモードが無効です" }
+  ,"legacy.error.17434b38df46cdaf": { "other": "部門の削除に失敗しました。配下に部門が存在します" }
+  ,"legacy.error.e2fd9e73043ee853": { "other": "状態の設定に失敗しました。配下に部門が存在します" }
+  ,"legacy.error.d9afda138e42954e": { "other": "ログダウンロードファイルの読み取りに失敗しました" }
+  ,"legacy.error.de76cad0d8e2aa95": { "other": "ログファイルを開けませんでした" }
+  ,"legacy.error.2fcfa7178b5ff2ab": { "other": "ログファイルを閉じられませんでした" }
+  ,"legacy.error.192d1d94040adba1": { "other": "行政区域の削除に失敗しました。配下に行政区域が存在します" }
+  ,"legacy.error.38d7034d51ee2eea": { "other": "同じテナントにプロジェクト番号が重複しています" }
+  ,"legacy.error.77472bb2a160d55d": { "other": "同じテーブルフィールドの保存時マスキングポリシーが既に存在します" }
+  ,"legacy.error.ce12956616b6dbc9": { "other": "保存時マスキングポリシー作成後は、テナント・データソース・テーブル・フィールドを変更できません" }
+  ,"legacy.error.f9b9133ecf174317": { "other": "元フィールド暗号化アルゴリズムの解析に失敗しました" }
+  ,"legacy.error.5e9ba4ae7562922c": { "other": "既に暗号文が存在する場合、フィールド暗号化アルゴリズムは直接変更できません" }
+  ,"legacy.error.8dcfb2899db4e48a": { "other": "既存データがこの保存時マスキングポリシーを使用しているため、無効化または削除できません" }
+  ,"legacy.error.3333e1755cbd096d": { "other": "データベースフィールドが存在しません" }
+  ,"legacy.error.56ab596a800279d6": { "other": "言語コードが重複しています" }
+  ,"legacy.error.096862c5edb1fdf1": { "other": "主言語は削除できません" }
+  ,"legacy.error.d294046fc1790f27": { "other": "主言語は無効化できません" }
+  ,"legacy.error.950e67e8fd397802": { "other": "無効な言語を主言語に設定できません" }
+  ,"legacy.error.5d8c35d0a36d9516": { "other": "メッセージキューは遅延タスクをサポートしていません" }
+  ,"legacy.error.795df5cbb3b6cb66": { "other": "第1階層メニューの親とタイプは変更できません" }
+  ,"legacy.error.1a09a09d2d75fb94": { "other": "メニュー作成後の親変更は許可されていません" }
+  ,"legacy.error.2b5d4a3158530cb3": { "other": "第1階層メニューは削除できません" }
+  ,"legacy.error.5161f2dbae92bdea": { "other": "メニューの削除に失敗しました。配下にメニューが存在します" }
+  ,"legacy.error.08ad5a560e3184d5": { "other": "現在の親メニューの子番号01-99は使い切りました" }
+  ,"legacy.error.3a64745b27f68327": { "other": "メニューパスの検証に失敗しました" }
+  ,"legacy.error.31280f278d823685": { "other": "メニューパスが既に存在します" }
+  ,"legacy.error.1c4cb88e436974df": { "other": "メニュールート名の検証に失敗しました" }
+  ,"legacy.error.0a52c52e665e302e": { "other": "メニュールート名が既に存在します" }
+  ,"legacy.error.89150fa5235640aa": { "other": "呼び出しターゲットが重複しています" }
+  ,"legacy.error.fef61f43d32b6478": { "other": "メッセージカテゴリコードが重複しています" }
+  ,"legacy.error.e60e45a7d017b031": { "other": "メッセージカテゴリの削除に失敗しました。このカテゴリを使用しているメッセージがまだあります" }
+  ,"legacy.error.d932668b9da9984f": { "other": "フロントエンドページファイルは選択したビジネスモジュールディレクトリ内にあり、ファイル名はindex.vueである必要があります" }
+  ,"legacy.error.2128a7376d079312": { "other": "絶対パスは使用できません" }
+  ,"legacy.error.fb8499e034556fe9": { "other": "アシスタントの返信はまだ生成中です" }
+  ,"legacy.error.195095b8cbabfd1f": { "other": "失敗したメッセージのみ再試行できます" }
+  ,"legacy.error.f729b50ce3ce3983": { "other": "最後のメッセージのみ編集できます" }
+  ,"legacy.error.7bdaeb66d03d3063": { "other": "このステップは期限切れです。最新のメッセージから操作を続けてください" }
+  ,"legacy.error.feca044b124b4405": { "other": "サードパーティログイン方式の翻訳の照会に失敗しました" }
 }

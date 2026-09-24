@@ -234,6 +234,17 @@ EN_EXACT = {
         "Number of recent log entries returned initially; 0 uses the default, with a maximum of 500",
     "统计周期值：按周统计时1至7依次表示星期一至星期日，按月统计时表示日期1至31，按年统计时表示月份1至12":
         "Aggregation period value: for weekly aggregation, 1 through 7 represent Monday through Sunday; for monthly aggregation, 1 through 31 represent the day of the month; for yearly aggregation, 1 through 12 represent the month",
+    "Admin OAuth第三方登录方式管理服务。": "Admin service for OAuth third-party login providers.",
+    "Provider个性化配置JSON对象": "Provider custom configuration JSON object",
+    "Provider稳定标识": "Stable provider identifier",
+    "是否已配置第三方应用密钥": "Whether the third-party application secret is configured",
+    "登录方式名称多语言翻译": "multilingual translation of the login provider name",
+    "登录方式提示语": "Login provider prompt message",
+    "登录方式提示语多语言翻译": "multilingual translation of the login provider prompt message",
+    "第三方应用密钥，更新时留空表示不修改":
+        "Third-party application secret; leave empty on update to keep unchanged",
+    "第三方应用标识": "Third-party application identifier",
+    "图标键或图片地址": "icon key or image URL",
 }
 
 
@@ -468,6 +479,17 @@ JA_EXACT = {
         "初回に返す最新ログ件数。0 はデフォルト値を使用し、最大 500 件です",
     "统计周期值：按周统计时1至7依次表示星期一至星期日，按月统计时表示日期1至31，按年统计时表示月份1至12":
         "集計期間の値。週次集計では 1〜7 が月曜〜日曜、月次集計では 1〜31 が日、年次集計では 1〜12 が月を表します",
+    "Admin OAuth第三方登录方式管理服务。": "Admin OAuth サードパーティーログイン方式管理サービス。",
+    "Provider个性化配置JSON对象": "プロバイダーのカスタム設定 JSON オブジェクト",
+    "Provider稳定标识": "プロバイダーの不変識別子",
+    "是否已配置第三方应用密钥": "サードパーティアプリのシークレットが設定済みかどうか",
+    "登录方式名称多语言翻译": "ログイン方式名の多言語翻訳",
+    "登录方式提示语": "ログイン方式の表示文言",
+    "登录方式提示语多语言翻译": "ログイン方式の表示文言の多言語翻訳",
+    "第三方应用密钥，更新时留空表示不修改":
+        "サードパーティアプリのシークレット。更新時に空欄の場合は変更なし",
+    "第三方应用标识": "サードパーティアプリ識別子",
+    "图标键或图片地址": "アイコンキーまたは画像 URL",
 }
 
 

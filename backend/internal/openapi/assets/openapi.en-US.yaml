@@ -8464,13 +8464,13 @@ components:
                     description: login method name
                 description:
                     type: string
-                    description: Login method hint
+                    description: Login provider prompt message
                 bound:
                     type: boolean
                     description: whether bound
                 icon:
                     type: string
-                    description: iconkeyorimageaddress
+                    description: icon key or image URL
                 config:
                     type: object
                     description: Provider custom configuration JSON object
@@ -8486,10 +8486,10 @@ components:
                     description: login method name
                 description:
                     type: string
-                    description: Login method hint
+                    description: Login provider prompt message
                 icon:
                     type: string
-                    description: iconkeyorimageaddress
+                    description: icon key or image URL
                 config:
                     type: object
                     description: Provider custom configuration JSON object
@@ -10815,10 +10815,10 @@ components:
                     description: login method name
                 description:
                     type: string
-                    description: Login method hint
+                    description: Login provider prompt message
                 icon:
                     type: string
-                    description: iconkeyorimageaddress
+                    description: icon key or image URL
                 client_id:
                     type: string
                     description: Third-party application identifier
@@ -10869,16 +10869,16 @@ components:
                     description: login method name
                 description:
                     type: string
-                    description: Login method hint
+                    description: Login provider prompt message
                 icon:
                     type: string
-                    description: iconkeyorimageaddress
+                    description: icon key or image URL
                 client_id:
                     type: string
                     description: Third-party application identifier
                 client_secret:
                     type: string
-                    description: Third-party application secret; leave blank when updating to keep the existing value
+                    description: Third-party application secret; leave empty on update to keep unchanged
                 secret_configured:
                     type: boolean
                     description: Whether the third-party application secret is configured
@@ -10909,12 +10909,12 @@ components:
                     type: array
                     items:
                         $ref: '#/components/schemas/system.admin.v1.BaseI18n'
-                    description: Login method name translations
+                    description: multilingual translation of the login provider name
                 description_i18ns:
                     type: array
                     items:
                         $ref: '#/components/schemas/system.admin.v1.BaseI18n'
-                    description: Login method hint translations
+                    description: multilingual translation of the login provider prompt message
             description: oauth login method form.
         system.admin.v1.BaseOperationLog:
             type: object
@@ -15217,7 +15217,7 @@ tags:
     - name: BaseMigrationService
       description: Admin database migration service.
     - name: BaseOauthProviderService
-      description: Admin OAuth third-party login provider management service.
+      description: Admin service for OAuth third-party login providers.
     - name: BaseOperationLogService
       description: Admin business operation log service.
     - name: BasePermissionLogService

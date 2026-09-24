@@ -1649,14 +1649,8 @@
   "legacy.error.f90d26546dedbee7": {
     "other": "MCP鉴权引擎未初始化"
   },
-  "legacy.error.80628f11b01cfebd": {
-    "other": "MFA设备免验证天数必须在零到90之间"
-  },
   "legacy.error.f47f76334f3d0c38": {
     "other": "OAuth 凭据保护器未初始化"
-  },
-  "legacy.error.5a31e2a9d1da4296": {
-    "other": "OSS 归档暂不支持选择性恢复"
   },
   "legacy.error.b7bfb71c8b2262fc": {
     "other": "Proto接口"
@@ -1697,20 +1691,11 @@
   "legacy.error.3a85915d8b224d60": {
     "other": "WebAuthn认证失败"
   },
-  "legacy.error.d5321efaf2f34345": {
-    "other": "一级目录下只能创建目录、菜单或外链"
-  },
   "legacy.error.e99cd8d50d6e7bac": {
     "other": "三方授权失败"
   },
-  "legacy.error.556b8b82f553a15e": {
-    "other": "三方登录状态已失效"
-  },
   "legacy.error.7457032f6280eb65": {
     "other": "三方登录票据创建失败"
-  },
-  "legacy.error.7a38fa171e5f03d7": {
-    "other": "三方登录票据已失效"
   },
   "legacy.error.b2fbb90f787f4e6e": {
     "other": "三方登录票据无效"
@@ -1718,14 +1703,8 @@
   "legacy.error.c269746cd8542461": {
     "other": "三方账号唯一标识为空"
   },
-  "legacy.error.29ebf2e88f812e63": {
-    "other": "三方账号未绑定"
-  },
   "legacy.error.5d89767ea6b48d21": {
     "other": "三方账号绑定状态已失效"
-  },
-  "legacy.error.8230fa46bc8ffca4": {
-    "other": "三级目录下只能创建菜单或外链"
   },
   "legacy.error.6b34220bae88cee7": {
     "other": "上传文件打开失败"
@@ -1739,24 +1718,6 @@
   "legacy.error.b46e0203f7e4e7f0": {
     "other": "上传文件解析失败"
   },
-  "legacy.error.83e43a4951d784c2": {
-    "other": "上级行政区域不能是自身"
-  },
-  "legacy.error.3de4efbfbc877881": {
-    "other": "上级行政区域不能是自身或其下级"
-  },
-  "legacy.error.06c4f81359c8cccd": {
-    "other": "上级部门不能是自身"
-  },
-  "legacy.error.3e4d41f931f5dcbb": {
-    "other": "上级部门不能是自身或其下级部门"
-  },
-  "legacy.error.1db7bf52e1db8bbc": {
-    "other": "上级部门与所属租户不一致"
-  },
-  "legacy.error.f1faed3a397b2a51": {
-    "other": "下线在线用户失败"
-  },
   "legacy.error.eb0a5c7ed1c8c6e5": {
     "other": "下载历史日志文件失败"
   },
@@ -1769,20 +1730,8 @@
   "legacy.error.08e000306823ca52": {
     "other": "不允许设置应用端用户角色"
   },
-  "legacy.error.e4df44b91477dccf": {
-    "other": "不能下线其他租户的在线用户"
-  },
   "legacy.error.9bdd7318cefbaaad": {
     "other": "不能创建其他租户的项目"
-  },
-  "legacy.error.da944023c8b373ac": {
-    "other": "不能操作其他租户的岗位"
-  },
-  "legacy.error.fecd62f5e52284d2": {
-    "other": "不能操作其他租户的开放授权客户端"
-  },
-  "legacy.error.466a0a37bbbafd1d": {
-    "other": "不能操作其他租户的消息"
   },
   "legacy.error.39fef6385cd1e4ce": {
     "other": "不能查询其他租户的项目授权"
@@ -1798,9 +1747,6 @@
   },
   "legacy.error.a4c906a269af199d": {
     "other": "业务表名只能包含小写字母、数字和下划线，且必须以字母开头"
-  },
-  "legacy.error.b74cf37538de3767": {
-    "other": "二级目录下只能创建目录、菜单或外链"
   },
   "legacy.error.af8be8010133e43a": {
     "other": "代码生成任务ID不能为空"
@@ -1822,9 +1768,6 @@
   },
   "legacy.error.2d98325ea8ebe8a4": {
     "other": "会话不存在"
-  },
-  "legacy.error.b6b95db507adde81": {
-    "other": "会话令牌管理器未配置"
   },
   "legacy.error.3772108e1c6666ab": {
     "other": "会话已超时，请重新登录"
@@ -1889,15 +1832,6 @@
   "legacy.error.ed46b31acab91f0e": {
     "other": "修改个人中心手机号失败"
   },
-  "legacy.error.7670c73785f1d333": {
-    "other": "修改个人中心用户信息失败"
-  },
-  "legacy.error.75a3d64e90b89404": {
-    "other": "修改密码失败"
-  },
-  "legacy.error.72aaa4285bec9431": {
-    "other": "修改手机号失败"
-  },
   "legacy.error.d420a6a3d117c876": {
     "other": "修改翻译信息失败"
   },
@@ -1906,27 +1840,6 @@
   },
   "legacy.error.8d437acfb12d3c22": {
     "other": "兑换三方登录票据失败"
-  },
-  "legacy.error.c1927bc6a20fa3ca": {
-    "other": "入库策略ID不能为空"
-  },
-  "legacy.error.9f2257503116e08f": {
-    "other": "入库脱敏策略不存在"
-  },
-  "legacy.error.b57fd83489726ea9": {
-    "other": "入库脱敏策略不能为空"
-  },
-  "legacy.error.3fad14b659e4d7e0": {
-    "other": "入库脱敏策略列表不能为空"
-  },
-  "legacy.error.951405540e9a38f3": {
-    "other": "入库脱敏策略状态无效"
-  },
-  "legacy.error.c6e568027ccfef14": {
-    "other": "入库脱敏规则参数无效"
-  },
-  "legacy.error.3c832fb81c6829ba": {
-    "other": "全局策略不能设置租户或用户"
   },
   "legacy.error.1681f52b573f0af5": {
     "other": "全部标记已读失败"
@@ -1940,29 +1853,8 @@
   "legacy.error.b6d869235b2177c7": {
     "other": "写入文件扫描临时文件失败"
   },
-  "legacy.error.fa4c8538024c9929": {
-    "other": "出库策略ID不能为空"
-  },
-  "legacy.error.3d7953d9d4128c4d": {
-    "other": "出库脱敏只支持 GET 接口"
-  },
-  "legacy.error.7d7461a525e0e56e": {
-    "other": "出库脱敏处理模式无效"
-  },
-  "legacy.error.2242abaaa50d1dc3": {
-    "other": "出库脱敏策略不存在"
-  },
-  "legacy.error.38575468bd5f4185": {
-    "other": "出库脱敏策略不能为空"
-  },
-  "legacy.error.9405199c2964f7ab": {
-    "other": "出库脱敏策略列表不能为空"
-  },
   "legacy.error.3469afe93c5e18c4": {
     "other": "出库脱敏策略状态无效"
-  },
-  "legacy.error.7e4f51942b429272": {
-    "other": "出库脱敏规则参数无效"
   },
   "legacy.error.6c754072edfff142": {
     "other": "分支消息不存在"
@@ -2102,26 +1994,8 @@
   "legacy.error.eb7376c11e576e01": {
     "other": "创建部门失败"
   },
-  "legacy.error.eca1d6ff1327a5f3": {
-    "other": "创建部门失败，更新路径错误"
-  },
   "legacy.error.bd71a5a12e6c406b": {
     "other": "创建项目失败"
-  },
-  "legacy.error.eff193fd9177f59e": {
-    "other": "初始化密码长度或复杂度不符合安全策略"
-  },
-  "legacy.error.6de8ebe104908a91": {
-    "other": "初始化租户管理员角色失败"
-  },
-  "legacy.error.2cc71589d0ab72d8": {
-    "other": "初始化租户管理员角色权限失败"
-  },
-  "legacy.error.b3729212cf4d6ce7": {
-    "other": "初始化租户管理员账号失败"
-  },
-  "legacy.error.3adfff798e9b6a1e": {
-    "other": "初始化租户默认部门失败"
   },
   "legacy.error.5cec15fc1c4a7b5f": {
     "other": "删除AI助手会话失败"
@@ -2144,9 +2018,6 @@
   "legacy.error.54942b049dcbe2eb": {
     "other": "删除备份配置失败"
   },
-  "legacy.error.cc009e22bbd2e9c2": {
-    "other": "删除字典失败"
-  },
   "legacy.error.f4e3c1c7f6c7d220": {
     "other": "删除字典属性失败"
   },
@@ -2155,9 +2026,6 @@
   },
   "legacy.error.ab10b5713ba93cbd": {
     "other": "删除岗位失败"
-  },
-  "legacy.error.b04e457c7c50beec": {
-    "other": "删除岗位失败，岗位不存在"
   },
   "legacy.error.ee59cd68625e3898": {
     "other": "删除开放授权客户端失败"
@@ -2174,9 +2042,6 @@
   "legacy.error.6f5d60641a53ef2d": {
     "other": "删除消息分类失败"
   },
-  "legacy.error.35899c9b41798f9c": {
-    "other": "删除消息分类失败，分类不存在"
-  },
   "legacy.error.7a155b68e77f7b3e": {
     "other": "删除消息失败"
   },
@@ -2185,9 +2050,6 @@
   },
   "legacy.error.7cf04bd0de1d3628": {
     "other": "删除用户失败"
-  },
-  "legacy.error.66264e9083823b01": {
-    "other": "删除用户失败，用户不存在"
   },
   "legacy.error.798a355cd970d9df": {
     "other": "删除登录策略失败"
@@ -2209,9 +2071,6 @@
   },
   "legacy.error.5a46008137ae3c3f": {
     "other": "删除行政区域失败"
-  },
-  "legacy.error.f2c0e88cba67443f": {
-    "other": "删除角色失败"
   },
   "legacy.error.f94fb6c1649757d9": {
     "other": "删除语言失败"
@@ -2240,17 +2099,8 @@
   "legacy.error.e2f289e3e36cf455": {
     "other": "动态口令不能为空"
   },
-  "legacy.error.e6babb76c2c0e896": {
-    "other": "动态口令或恢复码不能为空"
-  },
   "legacy.error.25b7adee9f82ecfb": {
     "other": "单个文件上传失败"
-  },
-  "legacy.error.7d0886ba3ea2f5b4": {
-    "other": "单次上传文件数量不能超过 20 个"
-  },
-  "legacy.error.4281e3a054efe6fa": {
-    "other": "原密码错误"
   },
   "legacy.error.7b83afed07e54434": {
     "other": "发布消息失败"
@@ -2261,9 +2111,6 @@
   "legacy.error.7f22e0bfb634eb2f": {
     "other": "发送手机号验证码失败"
   },
-  "legacy.error.0a7b29f34faeda2d": {
-    "other": "发送验证码失败"
-  },
   "legacy.error.693715fa45adbec1": {
     "other": "取消消息定时发布失败"
   },
@@ -2272,9 +2119,6 @@
   },
   "legacy.error.db6e5929a5531d2c": {
     "other": "只有失败的投递任务可以重试"
-  },
-  "legacy.error.f7565b983d27de0f": {
-    "other": "只有字符串字段支持入库脱敏"
   },
   "legacy.error.63722cd0da2f0322": {
     "other": "只有平台管理员可以管理脱敏策略"
@@ -2288,29 +2132,11 @@
   "legacy.error.a5555b58b889cd09": {
     "other": "只有草稿消息可以发布"
   },
-  "legacy.error.3329506452b21001": {
-    "other": "只有草稿消息可以编辑"
-  },
   "legacy.error.53f8867d5b4a61c7": {
     "other": "只有默认租户可以维护项目目录"
   },
-  "legacy.error.f00b7bfc546756ae": {
-    "other": "只能恢复已成功归档的记录"
-  },
-  "legacy.error.04d0137c5a8903e6": {
-    "other": "只能授权开发授权接口"
-  },
   "legacy.error.823c3d4bc9a94573": {
     "other": "只能选择包含租户ID的响应数据"
-  },
-  "legacy.error.45f4c29f6502180e": {
-    "other": "只能选择包含租户ID的数据表"
-  },
-  "legacy.error.768924fa8f2215c3": {
-    "other": "只能配置已启用的语言区域"
-  },
-  "legacy.error.fa1ec60338bc9604": {
-    "other": "同一资源语言不能重复"
   },
   "legacy.error.751a689594738cbb": {
     "other": "后端Biz文件必须位于所选Proto目录对应的服务目录且使用.go扩展名"
@@ -2324,26 +2150,11 @@
   "legacy.error.4adc578dcde7d694": {
     "other": "启动任务失败"
   },
-  "legacy.error.d217a967bfd0bacd": {
-    "other": "响应数据类型不存在"
-  },
   "legacy.error.815660c688153283": {
     "other": "唯一索引字段不支持入库脱敏"
   },
-  "legacy.error.f745efeb0f7e0223": {
-    "other": "回跳地址不能为空"
-  },
-  "legacy.error.28595f163dfa7306": {
-    "other": "回跳地址无效"
-  },
-  "legacy.error.cd11548a9db9cf6c": {
-    "other": "国际化自定义翻译状态无效"
-  },
   "legacy.error.3c2c77928163020e": {
     "other": "图片、字典和布尔配置值不支持翻译"
-  },
-  "legacy.error.0766ac7a491df596": {
-    "other": "在线会话不存在"
   },
   "legacy.error.8e917549a59ceb6f": {
     "other": "在线保留天数必须大于零"
@@ -2372,20 +2183,11 @@
   "legacy.error.25975f21342bc053": {
     "other": "多个文件上传失败"
   },
-  "legacy.error.858a0795c30a4a9b": {
-    "other": "多因素认证失败"
-  },
   "legacy.error.690a6b7f9c24cefa": {
     "other": "多因素认证失败次数过多"
   },
-  "legacy.error.25c7a487d591e043": {
-    "other": "多因素认证已启用"
-  },
   "legacy.error.59891e4d57598bea": {
     "other": "多因素认证恢复码错误"
-  },
-  "legacy.error.3645acb13cba03bc": {
-    "other": "多因素认证挑战已失效"
   },
   "legacy.error.f33b1f004e9311e1": {
     "other": "多因素认证方式已失效"
@@ -2393,26 +2195,11 @@
   "legacy.error.c465c61d1876cee8": {
     "other": "多因素认证方式配置无效"
   },
-  "legacy.error.58d18dab90870673": {
-    "other": "多因素认证未启用"
-  },
   "legacy.error.59c1df3bee807b31": {
     "other": "多因素认证策略要求重新登录"
   },
   "legacy.error.f353032a783801a1": {
     "other": "多因素认证策略配置无效"
-  },
-  "legacy.error.0761a956d76e9f97": {
-    "other": "多因素认证绑定票据已失效"
-  },
-  "legacy.error.4ba5f7c3bc47c876": {
-    "other": "多因素认证验证码错误"
-  },
-  "legacy.error.91d8e5677d731bc9": {
-    "other": "字典不存在"
-  },
-  "legacy.error.bf136ecb202be363": {
-    "other": "字典项不存在"
   },
   "legacy.error.49ecd0e342d6d23b": {
     "other": "字段"
@@ -2431,9 +2218,6 @@
   },
   "legacy.error.2ec2a0c6920bee1e": {
     "other": "实时控制台频道不能为空"
-  },
-  "legacy.error.e290b0c149b371b4": {
-    "other": "实时日志服务未初始化"
   },
   "legacy.error.788dcfa4a8975496": {
     "other": "客户端不属于当前租户"
@@ -2456,9 +2240,6 @@
   "legacy.error.c5eae1dd2dfe44e7": {
     "other": "客户端来源 IP 未授权"
   },
-  "legacy.error.71f8f37efebd4148": {
-    "other": "客户端绑定租户不存在"
-  },
   "legacy.error.f12b6fa61a61b0c7": {
     "other": "客户端绑定租户已停用"
   },
@@ -2476,9 +2257,6 @@
   },
   "legacy.error.c8948a07ea2e2694": {
     "other": "密码加密算法不支持"
-  },
-  "legacy.error.71bb10fe5b515e43": {
-    "other": "密码复杂度字符类别数量必须大于零"
   },
   "legacy.error.81675d6621af09a5": {
     "other": "密码密文不能为空"
@@ -2504,14 +2282,8 @@
   "legacy.error.524d45335891b7b9": {
     "other": "密码已过期，请先修改密码"
   },
-  "legacy.error.415c70ceebc9339a": {
-    "other": "密码最小长度必须大于零"
-  },
   "legacy.error.3874b295110dd6d7": {
     "other": "密码解密失败"
-  },
-  "legacy.error.fb227e789a8cd772": {
-    "other": "密码长度或复杂度不符合安全策略"
   },
   "legacy.error.70fe022d705a9f4f": {
     "other": "密码随机值无效"
@@ -2522,17 +2294,11 @@
   "legacy.error.29fe5b349e7c8101": {
     "other": "岗位已被禁用，不能选择"
   },
-  "legacy.error.3e79341b7f9d573e": {
-    "other": "岗位状态无效"
-  },
   "legacy.error.ad53bc40c159c03e": {
     "other": "左树配置格式错误"
   },
   "legacy.error.741e976fc2db03d1": {
     "other": "已撤回消息不能重试投递"
-  },
-  "legacy.error.1f050b534f743477": {
-    "other": "已有非空译文，不允许被机器翻译覆盖"
   },
   "legacy.error.5422f80650ed6780": {
     "other": "幂等键对应的消息内容不一致"
@@ -2546,17 +2312,8 @@
   "legacy.error.d2a00e4240f15d1a": {
     "other": "开始绑定多因素认证失败"
   },
-  "legacy.error.70010c1c5aff2874": {
-    "other": "开放授权客户端不存在"
-  },
-  "legacy.error.7527f51870e5be88": {
-    "other": "归档恢复模式无效"
-  },
   "legacy.error.2b0341c1d9e4dcbc": {
     "other": "归档站内信失败"
-  },
-  "legacy.error.d07181150520a6b4": {
-    "other": "归档记录不能为空"
   },
   "legacy.error.3c17a593ba4eedf5": {
     "other": "归档配置不存在"
@@ -2567,17 +2324,11 @@
   "legacy.error.6549d96b5b6ca2c1": {
     "other": "当前仅支持全量备份"
   },
-  "legacy.error.ef6146fd1b40b481": {
-    "other": "当前会话已失效"
-  },
   "legacy.error.a6abeab21b9c197c": {
     "other": "当前客户端不支持 WebAuthn，请使用支持 Passkey 的客户端"
   },
   "legacy.error.9df84549ee5d2e6d": {
     "other": "当前客户端不支持 WebAuthn，请使用支持 Passkey 的客户端完成绑定"
-  },
-  "legacy.error.e0f0aae6d9a6db79": {
-    "other": "当前密码错误"
   },
   "legacy.error.9300a2b1b4bb1064": {
     "other": "当前认证方式不支持动态口令"
@@ -2588,17 +2339,8 @@
   "legacy.error.b9a452b87cde115a": {
     "other": "当前认证方式暂不支持重新生成恢复码"
   },
-  "legacy.error.5aee1db2ece6deb0": {
-    "other": "待翻译源文不能为空"
-  },
-  "legacy.error.822aec8a7670de02": {
-    "other": "待翻译资源不存在"
-  },
   "legacy.error.15de1844824e8acf": {
     "other": "微信登录凭据无效"
-  },
-  "legacy.error.be218e64a69d8f28": {
-    "other": "微信登录失败"
   },
   "legacy.error.76ca2c845a375eed": {
     "other": "微信登录配置信息错误"
@@ -2608,18 +2350,6 @@
   },
   "legacy.error.7aa4134b2642fb28": {
     "other": "微信登录默认部门配置错误"
-  },
-  "legacy.error.b4c97d6f7b00a52e": {
-    "other": "微信账号已绑定"
-  },
-  "legacy.error.7afa7362b45cbfcb": {
-    "other": "微信账号未绑定，请先绑定已有账号"
-  },
-  "legacy.error.8d4c7687edb51962": {
-    "other": "必须设置符合安全策略的新密码"
-  },
-  "legacy.error.a04b8d472d73b23b": {
-    "other": "必须选择绑定租户"
   },
   "legacy.error.71d53fbd97d85609": {
     "other": "恢复定时任务调度失败"
@@ -2635,9 +2365,6 @@
   },
   "legacy.error.d3419333a455885b": {
     "other": "所选数据源中不存在该数据表"
-  },
-  "legacy.error.1120563ed5b635f4": {
-    "other": "手机号已被占用"
   },
   "legacy.error.9ea435e01919898d": {
     "other": "手机号授权失败"
@@ -2666,17 +2393,8 @@
   "legacy.error.b1c8a7126056d454": {
     "other": "指定项目不存在或不属于目标租户"
   },
-  "legacy.error.a14efca145af09f5": {
-    "other": "按钮或外链不能作为父级菜单"
-  },
-  "legacy.error.5d830192c40a3c28": {
-    "other": "授权 API operation 不能为空"
-  },
   "legacy.error.e561912c85a4455e": {
     "other": "授权 API operation 中存在不存在的接口"
-  },
-  "legacy.error.bc52216171131e30": {
-    "other": "授权 API 不能重复"
   },
   "legacy.error.59cd5fcd2d88a55d": {
     "other": "授权主体类型无效"
@@ -2696,9 +2414,6 @@
   "legacy.error.11b537afb943c74f": {
     "other": "撤回消息失败"
   },
-  "legacy.error.5efc308bfda54903": {
-    "other": "撤销全部会话失败"
-  },
   "legacy.error.a6000e305f5d2fef": {
     "other": "撤销旧客户端令牌失败"
   },
@@ -2707,12 +2422,6 @@
   },
   "legacy.error.10c1ec9fad526657": {
     "other": "撤销用户登录令牌失败"
-  },
-  "legacy.error.778da14d7ba916df": {
-    "other": "撤销租户开放授权令牌失败"
-  },
-  "legacy.error.4dfa744b4c9598b5": {
-    "other": "撤销租户用户登录令牌失败"
   },
   "legacy.error.4564d972dbc3661e": {
     "other": "撤销过期会话失败"
@@ -2735,35 +2444,11 @@
   "legacy.error.4ce7df2fe808ac6b": {
     "other": "数据表名称不合法"
   },
-  "legacy.error.f1b27684eaf68325": {
-    "other": "文件上传失败"
-  },
-  "legacy.error.7255193529b2fdb8": {
-    "other": "文件下载失败"
-  },
-  "legacy.error.d2f86764ccfc9b4d": {
-    "other": "文件不存在或无权访问"
-  },
-  "legacy.error.164338015340bdfe": {
-    "other": "文件业务类型不合法"
-  },
   "legacy.error.1572896dd8ea2149": {
     "other": "文件元数据仓储未配置"
   },
-  "legacy.error.9e70775a28707b73": {
-    "other": "文件内容不能超过 20 MB"
-  },
-  "legacy.error.f57e0c4792169965": {
-    "other": "文件名不合法"
-  },
   "legacy.error.df83b569b1e6c106": {
     "other": "文件安全扫描命令未配置"
-  },
-  "legacy.error.b0f28c5f3181d572": {
-    "other": "文件扩展名与实际内容类型不匹配"
-  },
-  "legacy.error.54bd36732e0bbdcf": {
-    "other": "文件访问方式不合法"
   },
   "legacy.error.2e0ad0ebc1dfeb09": {
     "other": "文件路径不允许为空"
@@ -2780,15 +2465,6 @@
   "legacy.error.ff323940e8cc2930": {
     "other": "新增项目授权失败"
   },
-  "legacy.error.a51c8475a6465475": {
-    "other": "新密码不能与当前密码相同"
-  },
-  "legacy.error.f7f32edb067ea609": {
-    "other": "新密码不能重复使用近期历史密码"
-  },
-  "legacy.error.d6d84bf72bbdfccc": {
-    "other": "无权管理其他租户的自定义翻译"
-  },
   "legacy.error.edab4fc1b3ec25ef": {
     "other": "无权订阅代码生成任务"
   },
@@ -2803,24 +2479,6 @@
   },
   "legacy.error.e6158a3f73ff2546": {
     "other": "日志ID格式无效"
-  },
-  "legacy.error.560e0de6b066f0c3": {
-    "other": "日志压缩文件损坏"
-  },
-  "legacy.error.a38f393c01bf6ebe": {
-    "other": "日志文件不存在"
-  },
-  "legacy.error.a60171d1f23c81de": {
-    "other": "日志文件标识无效"
-  },
-  "legacy.error.5d8920ab585ca9c7": {
-    "other": "日志文件类型不允许访问"
-  },
-  "legacy.error.ef92f0344e85c0cc": {
-    "other": "日志级别筛选无效"
-  },
-  "legacy.error.e0bda1894488f015": {
-    "other": "日志翻页游标无效"
   },
   "legacy.error.a72174780cc3a36d": {
     "other": "普通租户的授权主体不能获得其他租户项目权限"
@@ -2879,9 +2537,6 @@
   "legacy.error.47bf6383bace0dfd": {
     "other": "更新用户失败"
   },
-  "legacy.error.54b0c1b5af37b3c1": {
-    "other": "更新用户失败，用户信息不存在"
-  },
   "legacy.error.df5a442da0b21158": {
     "other": "更新登录会话失败"
   },
@@ -2918,17 +2573,8 @@
   "legacy.error.a72693a4296e35e5": {
     "other": "更新项目授权失败"
   },
-  "legacy.error.f8596651bfcefeee": {
-    "other": "未上传文件"
-  },
   "legacy.error.1b343f2ebe4bc6d7": {
     "other": "未配置初始化密码，请显式设置用户密码"
-  },
-  "legacy.error.30ad043dc6db15c7": {
-    "other": "未配置历史日志目录"
-  },
-  "legacy.error.9d294ba12846efdc": {
-    "other": "机器翻译功能未启用"
   },
   "legacy.error.2468b2acc984ef68": {
     "other": "机器翻译草稿功能未启用"
@@ -3032,9 +2678,6 @@
   "legacy.error.7cc414bb70b3d733": {
     "other": "查询国际化自定义翻译失败"
   },
-  "legacy.error.757bdbb9cf9523eb": {
-    "other": "查询在线用户失败"
-  },
   "legacy.error.cccdd8c196015a7f": {
     "other": "查询备份恢复记录失败"
   },
@@ -3113,9 +2756,6 @@
   "legacy.error.742329cca1cf3d2e": {
     "other": "查询当前会话失败"
   },
-  "legacy.error.c2ac70e77504f296": {
-    "other": "查询当前角色权限失败"
-  },
   "legacy.error.e55b46ad2684e3b4": {
     "other": "查询操作动作分布失败"
   },
@@ -3157,9 +2797,6 @@
   },
   "legacy.error.ca4de5b792e75311": {
     "other": "查询文件资产详情失败"
-  },
-  "legacy.error.f6153db7a9372802": {
-    "other": "查询本人会话失败"
   },
   "legacy.error.0fa4059634f6e2f2": {
     "other": "查询本人登录记录失败"
@@ -3235,12 +2872,6 @@
   },
   "legacy.error.310e339befb47347": {
     "other": "查询租户失败"
-  },
-  "legacy.error.c4210020b04cca27": {
-    "other": "查询租户最大权限失败"
-  },
-  "legacy.error.1d5eca3ba22a1f89": {
-    "other": "查询租户用户失败"
   },
   "legacy.error.85cb3cd02dd32c7d": {
     "other": "查询移动端菜单失败"
@@ -3353,17 +2984,11 @@
   "legacy.error.d7533f8aa46eaf5a": {
     "other": "校验多因素认证失败"
   },
-  "legacy.error.70be9f472ac29679": {
-    "other": "校验本人会话失败"
-  },
   "legacy.error.0d1e6b7b28fcc1de": {
     "other": "校验用户角色失败"
   },
   "legacy.error.a2bfb226f0e00e12": {
     "other": "汇总用户注册数据失败"
-  },
-  "legacy.error.7ddf413a97a025d8": {
-    "other": "没有启用的验证码类型"
   },
   "legacy.error.d6139243cdbfb13f": {
     "other": "流式发送AI助手消息失败"
@@ -3374,29 +2999,8 @@
   "legacy.error.d22fd55ed8b53e3d": {
     "other": "消息不在定时发布状态"
   },
-  "legacy.error.323a9f3dfd9436cc": {
-    "other": "消息不存在"
-  },
-  "legacy.error.bf404eeabc26c357": {
-    "other": "消息优先级无效"
-  },
   "legacy.error.1fd3ef87c9e73376": {
     "other": "消息内容不能为空"
-  },
-  "legacy.error.9a9f979ec18c14f2": {
-    "other": "消息分类不可用"
-  },
-  "legacy.error.edca5ceb27102b0d": {
-    "other": "消息分类不存在"
-  },
-  "legacy.error.6c6a75417d9b96f4": {
-    "other": "消息分类状态无效"
-  },
-  "legacy.error.0a7477f2362aa7e9": {
-    "other": "消息分类编码不可修改"
-  },
-  "legacy.error.5b3002b9ecc91eb8": {
-    "other": "消息分类编码不能为空"
   },
   "legacy.error.617ff09dc5740ca9": {
     "other": "消息动作参数不能超过16KB"
@@ -3425,12 +3029,6 @@
   "legacy.error.796a07cbf608a7c4": {
     "other": "消息动作目标校验未初始化"
   },
-  "legacy.error.b2e4129625950cdc": {
-    "other": "消息动作类型无效"
-  },
-  "legacy.error.41829d15cdc4821c": {
-    "other": "消息受众不能为空"
-  },
   "legacy.error.be74ce92a610e199": {
     "other": "消息受众不能重复"
   },
@@ -3439,9 +3037,6 @@
   },
   "legacy.error.2c76ea46653246f8": {
     "other": "消息岗位受众无效"
-  },
-  "legacy.error.0d38b9f361e60e0e": {
-    "other": "消息已被其他人修改，请刷新后重试"
   },
   "legacy.error.0fb52070815f6693": {
     "other": "消息投递状态已变化，请刷新后重试"
@@ -3455,23 +3050,14 @@
   "legacy.error.1c06df3a3ddbe8d9": {
     "other": "消息正文不能为空且不能超过20000个字符"
   },
-  "legacy.error.6b0a676728c4bb15": {
-    "other": "消息正文格式无效"
-  },
   "legacy.error.174453c31c654750": {
     "other": "消息正文清洗后不能为空"
-  },
-  "legacy.error.4629c57027065a98": {
-    "other": "消息版本无效"
   },
   "legacy.error.ded15f67c86763a2": {
     "other": "消息状态已变化，请刷新后重试"
   },
   "legacy.error.2706270b2b7ce9f7": {
     "other": "消息用户受众无效"
-  },
-  "legacy.error.d1700e2d9ad8a545": {
-    "other": "消息租户不能为空"
   },
   "legacy.error.c64f9c3cf819c81c": {
     "other": "消息编号不合法"
@@ -3509,14 +3095,8 @@
   "legacy.error.46d8a095016f1ba5": {
     "other": "清理登录失败状态失败"
   },
-  "legacy.error.8eddbf04b3ddc598": {
-    "other": "源语言和目标语言必须是不同的已启用语言"
-  },
   "legacy.error.25deb89aa8542274": {
     "other": "父级菜单ID不符合菜单编号层级规则"
-  },
-  "legacy.error.3ed995e4f73d690d": {
-    "other": "父级菜单不存在"
   },
   "legacy.error.ff9d10f00b5b1c93": {
     "other": "父级菜单类型与层级不匹配"
@@ -3548,26 +3128,14 @@
   "legacy.error.4acac868b13d25a3": {
     "other": "生成验证码失败"
   },
-  "legacy.error.a82de572ccd7ebf0": {
-    "other": "用户不存在"
-  },
-  "legacy.error.c7b529559300a291": {
-    "other": "用户与租户不匹配"
-  },
   "legacy.error.a9a6a83a7d22e27e": {
     "other": "用户名或密码错误"
-  },
-  "legacy.error.ea95a44ecebf2fb5": {
-    "other": "用户岗位不存在"
   },
   "legacy.error.5c9ce1a293619574": {
     "other": "用户岗位与所属租户不一致"
   },
   "legacy.error.60a9831242fc0128": {
     "other": "用户已停用"
-  },
-  "legacy.error.177dbb50efddb30b": {
-    "other": "用户策略目标无效"
   },
   "legacy.error.77fc0ea919e34629": {
     "other": "用户组织关系与所属租户不一致"
@@ -3578,12 +3146,6 @@
   "legacy.error.259f2c53cf4ef48a": {
     "other": "用户角色与部门所属租户不一致"
   },
-  "legacy.error.2125bd1384350cf7": {
-    "other": "用户认证失败"
-  },
-  "legacy.error.bb1c9703d51a4ead": {
-    "other": "用户部门不存在"
-  },
   "legacy.error.ad41477a76b25935": {
     "other": "用户部门与所属租户不一致"
   },
@@ -3593,35 +3155,8 @@
   "legacy.error.c8fa8bc4e8f159d9": {
     "other": "登录失败次数过多，请稍后再试"
   },
-  "legacy.error.3cb197d1a5a2c3ad": {
-    "other": "登录方式不支持"
-  },
-  "legacy.error.22a4511c87287de1": {
-    "other": "登录方式不支持跳转授权"
-  },
   "legacy.error.72301b9a742c94cf": {
     "other": "登录租约已失效"
-  },
-  "legacy.error.ebe9b8ff030be0c3": {
-    "other": "登录策略ID不能为空"
-  },
-  "legacy.error.0ad5ac1b6de56f07": {
-    "other": "登录策略不存在"
-  },
-  "legacy.error.90b019d1c34bcf63": {
-    "other": "登录策略作用域类型无效"
-  },
-  "legacy.error.d03847577dddb4e6": {
-    "other": "登录策略格式无效"
-  },
-  "legacy.error.48aa6dc021aefeea": {
-    "other": "登录策略状态无效"
-  },
-  "legacy.error.2267986a1e381ebd": {
-    "other": "登录页地址无效"
-  },
-  "legacy.error.da535200fe38b6f5": {
-    "other": "目标资源ID不能为空"
   },
   "legacy.error.49e95fc46747e658": {
     "other": "确认强制绑定多因素认证失败"
@@ -3629,14 +3164,8 @@
   "legacy.error.6ac0f1b7aaec664d": {
     "other": "确认绑定多因素认证失败"
   },
-  "legacy.error.6ef5fe69750c2b48": {
-    "other": "禁止访问日志目录外文件"
-  },
   "legacy.error.80fb55ec83653bc4": {
     "other": "禁用多因素认证失败"
-  },
-  "legacy.error.5b06b0cb71573ea6": {
-    "other": "租户不存在"
   },
   "legacy.error.8dd022efbbe706d2": {
     "other": "租户全员受众ID必须为0"
@@ -3646,9 +3175,6 @@
   },
   "legacy.error.b3ca26ba26ec1779": {
     "other": "租户已被禁用"
-  },
-  "legacy.error.b82f21bb47217337": {
-    "other": "租户策略目标无效"
   },
   "legacy.error.806829f515c0df9b": {
     "other": "租户管理员角色已被禁用"
@@ -3667,12 +3193,6 @@
   },
   "legacy.error.2964607aae8c25ca": {
     "other": "绑定三方账号失败"
-  },
-  "legacy.error.907ce95f5cb163dc": {
-    "other": "绑定租户不存在"
-  },
-  "legacy.error.a11ae9f3169fdd9b": {
-    "other": "绑定租户已停用"
   },
   "legacy.error.6b607e7dfe8ccdd3": {
     "other": "统计开始时间必须早于结束时间"
@@ -3698,9 +3218,6 @@
   "legacy.error.a0aaf66e02dd7724": {
     "other": "编码 WebAuthn 禁用选项失败"
   },
-  "legacy.error.fdbfb4336c489f42": {
-    "other": "翻译目标类型无效"
-  },
   "legacy.error.fe0e97995caf8950": {
     "other": "翻译语言必须是已启用的非主语言"
   },
@@ -3713,15 +3230,6 @@
   "legacy.error.141f07d40c870162": {
     "other": "联网搜索请求失败"
   },
-  "legacy.error.dba508e1212691b7": {
-    "other": "脱敏系统配置失败"
-  },
-  "legacy.error.8c257c42779cdc12": {
-    "other": "脱敏规则不存在"
-  },
-  "legacy.error.8a740b167d5544c1": {
-    "other": "脱敏规则已停用"
-  },
   "legacy.error.dc8885ca6a1d1de4": {
     "other": "脱敏规则模板参数无效"
   },
@@ -3730,9 +3238,6 @@
   },
   "legacy.error.f375179df851031a": {
     "other": "获取三方用户失败"
-  },
-  "legacy.error.eef3f6effdfa7140": {
-    "other": "获取个人资料失败"
   },
   "legacy.error.2e3650e27dc3c56c": {
     "other": "获取密码临时公钥失败"
@@ -3743,17 +3248,8 @@
   "legacy.error.76c33822e7bdcea2": {
     "other": "获取微信用户失败"
   },
-  "legacy.error.2339340aba3669da": {
-    "other": "获取用户信息失败"
-  },
   "legacy.error.f8614d3cb9ee9e92": {
     "other": "获取用户按钮权限失败"
-  },
-  "legacy.error.f8ca6cf9340e1318": {
-    "other": "获取用户菜单失败"
-  },
-  "legacy.error.4c491cc49d883c6c": {
-    "other": "获取用户菜单翻译失败"
   },
   "legacy.error.07e6a94883fdf087": {
     "other": "获取系统配置失败"
@@ -3764,12 +3260,6 @@
   "legacy.error.9d9734f9d60d7a19": {
     "other": "获取验证码失败"
   },
-  "legacy.error.5e7ff218eaaae90c": {
-    "other": "菜单不存在"
-  },
-  "legacy.error.c2f84acfaddb8deb": {
-    "other": "菜单类型无效"
-  },
   "legacy.error.8f09ccc849c9e2b7": {
     "other": "菜单编号已变化，请重新生成"
   },
@@ -3779,14 +3269,8 @@
   "legacy.error.4d2311ea76ac1eff": {
     "other": "表级国际化配置格式错误"
   },
-  "legacy.error.6ef13ae0492d38bc": {
-    "other": "规则ID不能为空"
-  },
   "legacy.error.f73c86935008d65a": {
     "other": "规则参数无效"
-  },
-  "legacy.error.0b8c6c4bfc046e48": {
-    "other": "规则状态无效"
   },
   "legacy.error.e8487c03570fcf89": {
     "other": "规则类型不允许修改"
@@ -3802,9 +3286,6 @@
   },
   "legacy.error.3d1cdfa989d8a5e4": {
     "other": "解析 WebAuthn 传输方式失败"
-  },
-  "legacy.error.63e1da5da11bd9e0": {
-    "other": "解析租户编号失败"
   },
   "legacy.error.c59404a173ecf4a6": {
     "other": "解绑三方账号失败"
@@ -3869,9 +3350,6 @@
   "legacy.error.0e3c33d45f94d08a": {
     "other": "设置状态失败"
   },
-  "legacy.error.7cefb6d70bcfbf66": {
-    "other": "设置状态失败，用户信息不存在"
-  },
   "legacy.error.a88b76417346c4f3": {
     "other": "设置登录策略状态失败"
   },
@@ -3880,9 +3358,6 @@
   },
   "legacy.error.236ab0e56b3722d9": {
     "other": "设置角色菜单权限失败"
-  },
-  "legacy.error.2bcdb4bb0f0550e6": {
-    "other": "设置角色菜单权限失败，不能分配超出权限上限的菜单权限"
   },
   "legacy.error.85ee2e715106f90f": {
     "other": "设置语言状态失败"
@@ -3893,20 +3368,8 @@
   "legacy.error.38c29cd72f9c1d82": {
     "other": "访问令牌服务未初始化"
   },
-  "legacy.error.6a57e7bb1fda230a": {
-    "other": "该分类消息不允许删除"
-  },
-  "legacy.error.04bd3c7b7eb403bc": {
-    "other": "该分类消息不允许归档"
-  },
   "legacy.error.10b9257f2ecab2c3": {
     "other": "该备份记录正在恢复中，请稍后重试"
-  },
-  "legacy.error.573f1ce3483d6b67": {
-    "other": "该归档记录正在恢复中，请稍后重试"
-  },
-  "legacy.error.4f98589ed2ce7172": {
-    "other": "语言代码必须是有效的语言代码"
   },
   "legacy.error.48144f96c1503b52": {
     "other": "请先登录"
@@ -3989,23 +3452,14 @@
   "legacy.error.3427b405d5c80338": {
     "other": "读取开放授权客户端配置失败"
   },
-  "legacy.error.c1dd8a704d2b3c59": {
-    "other": "读取待翻译资源失败"
-  },
   "legacy.error.1b8c5c49d6878d19": {
     "other": "读取微信登录配置失败"
   },
   "legacy.error.fe97a3a85174448e": {
     "other": "读取日志文件信息失败"
   },
-  "legacy.error.0204682cb5b014d1": {
-    "other": "读取日志文件失败"
-  },
   "legacy.error.76e780b7e84d7a14": {
     "other": "读取日志目录失败"
-  },
-  "legacy.error.011c5a8aab1dd022": {
-    "other": "读取本人会话失败"
   },
   "legacy.error.543d0dbad6466e6c": {
     "other": "读取登录会话失败"
@@ -4033,9 +3487,6 @@
   },
   "legacy.error.44670a4145535bf4": {
     "other": "转换左树配置失败"
-  },
-  "legacy.error.4b4740ead55343e1": {
-    "other": "轮换客户端凭据失败"
   },
   "legacy.error.787e231c5b5f70b0": {
     "other": "轮换开放授权客户端凭据失败"
@@ -4076,9 +3527,6 @@
   "legacy.error.54b320b55f65f47b": {
     "other": "鉴权引擎不支持策略写入"
   },
-  "legacy.error.771c738a3c8356ae": {
-    "other": "页面菜单下只能创建按钮"
-  },
   "legacy.error.42696b9669ce2389": {
     "other": "项目ID必须为正数"
   },
@@ -4102,9 +3550,6 @@
   },
   "legacy.error.175e2e193a614cee": {
     "other": "验证码令牌消费失败"
-  },
-  "legacy.error.d06655e996ae7326": {
-    "other": "验证码已过期"
   },
   "legacy.error.11bc2823ec42b680": {
     "other": "验证码校验失败"
@@ -4343,4 +3788,97 @@
   ,"legacy.error.d217a967bfd0bacd": { "other": "响应数据类型不存在" }
   ,"legacy.error.241051568bef8e2e": { "other": "字段加密算法无效" }
   ,"legacy.error.767282ee3a85c273": { "other": "字段加密规则仅支持入库策略" }
+  ,"legacy.error.bcda2ee361a79c60": { "other": "手机号授权凭据无效" }
+  ,"legacy.error.3c1bfebde774c1d3": { "other": "客户端标识重复" }
+  ,"legacy.error.513deff78da44959": { "other": "同一位置的配置键重复" }
+  ,"legacy.error.5a52838633580d82": { "other": "租户编号重复" }
+  ,"legacy.error.8b87a6c6d658c05b": { "other": "操作租户失败，默认租户不能操作" }
+  ,"legacy.error.44885987e1e7fc05": { "other": "租户编号已用完" }
+  ,"legacy.error.81e65e451284e06e": { "other": "同一租户的角色编码重复" }
+  ,"legacy.error.bec78afeac7c5d9d": { "other": "同一租户的用户账号或用户编号重复" }
+  ,"legacy.error.4cec098a0f3c399f": { "other": "同一位置、语言和语言键的自定义翻译重复" }
+  ,"legacy.error.0196b093ca02959f": { "other": "更新角色失败，不能修改内置角色编码" }
+  ,"legacy.error.776d13ccebdb1fb7": { "other": "更新角色失败，不能使用内置角色编码" }
+  ,"legacy.error.19803e49d77d7763": { "other": "更新角色失败，不能修改默认角色状态" }
+  ,"legacy.error.172798ff29ffcc90": { "other": "删除角色失败，不能删除默认角色" }
+  ,"legacy.error.45a39797c58eacad": { "other": "操作角色失败，不能修改默认角色状态" }
+  ,"legacy.error.6e8101abf3b661f5": { "other": "操作角色失败，不能操作内置角色" }
+  ,"legacy.error.5538e198baabd079": { "other": "操作角色失败，不能操作租户内置角色" }
+  ,"legacy.error.9798ae7fa191abd0": { "other": "创建角色失败，不能使用内置角色编码" }
+  ,"legacy.error.3ab4f06af6e20fd2": { "other": "已有代码生成任务正在执行" }
+  ,"legacy.error.f0a28dfa4409966b": { "other": "停用的代码生成表配置不能生成" }
+  ,"legacy.error.3beba2ac85c68598": { "other": "已生成菜单不能更换父级，请先删除原菜单后重新生成" }
+  ,"legacy.error.eface50a9bd64600": { "other": "业务模块不能为空或格式不正确" }
+  ,"legacy.error.8ca5b7bd020f0d44": { "other": "生成文件已被修改，无法安全还原" }
+  ,"legacy.error.2d128b1c7ce1bcac": { "other": "批量生成的共享文件必须整批还原" }
+  ,"legacy.error.c4377d203f605a8b": { "other": "代码生成还原快照不存在，请重新生成" }
+  ,"legacy.error.d355679fc4c3684d": { "other": "代码生成还原快照已失效，请重新生成" }
+  ,"legacy.error.738ffa9d13b38867": { "other": "同一租户的岗位编号重复" }
+  ,"legacy.error.b7fdba770862e9ff": { "other": "删除岗位失败，仍有用户使用该岗位" }
+  ,"legacy.error.fb6e60ccc57170bd": { "other": "同一接口返回字段的出库脱敏策略已存在" }
+  ,"legacy.error.ce0667f6a9bd7e2e": { "other": "同一字典的属性值重复" }
+  ,"legacy.error.9cd44a5bdb014fb1": { "other": "业务表已被代码生成表配置选择" }
+  ,"legacy.error.416d50c2034a7d60": { "other": "创建用户失败，不能选择内置角色" }
+  ,"legacy.error.3ca5c922b74b54fa": { "other": "更新用户失败，用户账号不能修改" }
+  ,"legacy.error.7d9df526e40f29cf": { "other": "更新用户失败，用户编号不能修改" }
+  ,"legacy.error.f9cf7294d51dc2ec": { "other": "更新用户失败，不能选择内置角色" }
+  ,"legacy.error.2f92c31da328aeba": { "other": "删除用户失败，不能删除内置管理员账号" }
+  ,"legacy.error.88866be60ba8716d": { "other": "操作用户失败，内置管理员账号只能通过个人中心修改" }
+  ,"legacy.error.a728edbdc343958e": { "other": "该授权主体已存在项目授权" }
+  ,"legacy.error.69a762d521761a3c": { "other": "同一作用域的登录策略已存在" }
+  ,"legacy.error.76370b3803a9f50e": { "other": "登录策略限制规则重复" }
+  ,"legacy.error.3e934f35c0b5ceab": { "other": "脱敏规则编码重复" }
+  ,"legacy.error.6a2d2bbcff20daf0": { "other": "已有入库脱敏策略引用该规则，不能删除" }
+  ,"legacy.error.3e26555b667f0ece": { "other": "已有出库脱敏策略引用该规则，不能删除" }
+  ,"legacy.error.2a1913450ed9f8d0": { "other": "字典编码重复" }
+  ,"legacy.error.fc25e0d9642770e1": { "other": "删除字典失败，下面有属性" }
+  ,"legacy.error.35323e14c1481ad4": { "other": "加载OAuth登录方式配置失败" }
+  ,"legacy.error.b8895d5db253e184": { "other": "第三方应用密钥不能为空" }
+  ,"legacy.error.d2ec820d108540bb": { "other": "Provider标识重复" }
+  ,"legacy.error.777fae8400c4d746": { "other": "Provider标识不可修改" }
+  ,"legacy.error.2ced09b643b6806d": { "other": "OAuth登录方式不存在" }
+  ,"legacy.error.cbbc7c20d1379b21": { "other": "OAuth登录方式状态无效" }
+  ,"legacy.error.453122ec31407492": { "other": "OAuth Scope配置无效" }
+  ,"legacy.error.12d4e553e5368399": { "other": "Provider个性化配置无效" }
+  ,"legacy.error.f2853426124dd65e": { "other": "解析OAuth Scope失败" }
+  ,"legacy.error.9265669d517e320e": { "other": "解析Provider个性化配置失败" }
+  ,"legacy.error.47fcdd027d998032": { "other": "转换Provider个性化配置失败" }
+  ,"legacy.error.31b4abb95ec6dd56": { "other": "归档模式无效" }
+  ,"legacy.error.17434b38df46cdaf": { "other": "删除部门失败，下面有部门" }
+  ,"legacy.error.e2fd9e73043ee853": { "other": "设置状态失败，下面有部门" }
+  ,"legacy.error.d9afda138e42954e": { "other": "读取日志下载文件失败" }
+  ,"legacy.error.de76cad0d8e2aa95": { "other": "打开日志文件失败" }
+  ,"legacy.error.2fcfa7178b5ff2ab": { "other": "关闭日志文件失败" }
+  ,"legacy.error.192d1d94040adba1": { "other": "删除行政区域失败，下面有行政区域" }
+  ,"legacy.error.38d7034d51ee2eea": { "other": "同一租户的项目编号重复" }
+  ,"legacy.error.77472bb2a160d55d": { "other": "同一数据表字段的入库脱敏策略已存在" }
+  ,"legacy.error.ce12956616b6dbc9": { "other": "入库脱敏策略创建后不允许修改租户、数据源、数据表或字段" }
+  ,"legacy.error.f9b9133ecf174317": { "other": "解析原字段加密算法失败" }
+  ,"legacy.error.5e9ba4ae7562922c": { "other": "已有密文的字段加密算法不允许直接修改" }
+  ,"legacy.error.8dcfb2899db4e48a": { "other": "已有数据使用该入库脱敏策略，不能停用或删除" }
+  ,"legacy.error.3333e1755cbd096d": { "other": "数据库字段不存在" }
+  ,"legacy.error.56ab596a800279d6": { "other": "语言代码重复" }
+  ,"legacy.error.096862c5edb1fdf1": { "other": "主语言不允许删除" }
+  ,"legacy.error.d294046fc1790f27": { "other": "主语言不允许禁用" }
+  ,"legacy.error.950e67e8fd397802": { "other": "禁用语言不能设为主语言" }
+  ,"legacy.error.5d8c35d0a36d9516": { "other": "消息队列不支持延迟任务" }
+  ,"legacy.error.795df5cbb3b6cb66": { "other": "一级菜单的父级和类型不允许修改" }
+  ,"legacy.error.1a09a09d2d75fb94": { "other": "菜单创建后不允许更换父级" }
+  ,"legacy.error.2b5d4a3158530cb3": { "other": "一级菜单不允许删除" }
+  ,"legacy.error.5161f2dbae92bdea": { "other": "删除菜单失败，下面有菜单" }
+  ,"legacy.error.08ad5a560e3184d5": { "other": "当前父级菜单的子编号01-99已用完" }
+  ,"legacy.error.3a64745b27f68327": { "other": "校验菜单路径失败" }
+  ,"legacy.error.31280f278d823685": { "other": "菜单路径已存在" }
+  ,"legacy.error.1c4cb88e436974df": { "other": "校验菜单路由名称失败" }
+  ,"legacy.error.0a52c52e665e302e": { "other": "菜单路由名称已存在" }
+  ,"legacy.error.89150fa5235640aa": { "other": "调用目标重复" }
+  ,"legacy.error.fef61f43d32b6478": { "other": "消息分类编码重复" }
+  ,"legacy.error.e60e45a7d017b031": { "other": "删除消息分类失败，仍有消息使用该分类" }
+  ,"legacy.error.d932668b9da9984f": { "other": "前端页面文件必须位于所选业务模块目录且文件名为index.vue" }
+  ,"legacy.error.2128a7376d079312": { "other": "文件路径不允许使用绝对路径" }
+  ,"legacy.error.fb8499e034556fe9": { "other": "助手回复仍在生成中" }
+  ,"legacy.error.195095b8cbabfd1f": { "other": "只能重试失败的消息" }
+  ,"legacy.error.f729b50ce3ce3983": { "other": "只能编辑最后一条消息" }
+  ,"legacy.error.7bdaeb66d03d3063": { "other": "该步骤已过期，请从最新消息继续操作" }
+  ,"legacy.error.feca044b124b4405": { "other": "查询三方登录方式翻译失败" }
 }

@@ -8464,16 +8464,16 @@ components:
                     description: ログイン方式名称
                 description:
                     type: string
-                    description: ログイン方式提示语
+                    description: ログイン方式の表示文言
                 bound:
                     type: boolean
                     description: バインド済みかどうか
                 icon:
                     type: string
-                    description: 图标键または画像アドレス
+                    description: アイコンキーまたは画像 URL
                 config:
                     type: object
-                    description: Providerカスタム設定JSONオブジェクト
+                    description: プロバイダーのカスタム設定 JSON オブジェクト
             description: プロフィールサードパーティーアカウントバインド情報
         base.v1.OauthProvider:
             type: object
@@ -8486,13 +8486,13 @@ components:
                     description: ログイン方式名称
                 description:
                     type: string
-                    description: ログイン方式提示语
+                    description: ログイン方式の表示文言
                 icon:
                     type: string
-                    description: 图标键または画像アドレス
+                    description: アイコンキーまたは画像 URL
                 config:
                     type: object
-                    description: Providerカスタム設定JSONオブジェクト
+                    description: プロバイダーのカスタム設定 JSON オブジェクト
             description: サードパーティーログイン方式情報
         base.v1.OptionLanguageResponse:
             type: object
@@ -10809,19 +10809,19 @@ components:
                     description: OAuthログイン方式ID
                 provider:
                     type: string
-                    description: Provider稳定識別子
+                    description: プロバイダーの不変識別子
                 name:
                     type: string
                     description: ログイン方式名称
                 description:
                     type: string
-                    description: ログイン方式提示语
+                    description: ログイン方式の表示文言
                 icon:
                     type: string
-                    description: 图标键または画像アドレス
+                    description: アイコンキーまたは画像 URL
                 client_id:
                     type: string
-                    description: 第サードパーティーアプリ識別子
+                    description: サードパーティアプリ識別子
                 redirect_uri:
                     type: string
                     description: OAuthコールバックアドレス
@@ -10832,7 +10832,7 @@ components:
                     description: OAuth Scope一覧
                 config:
                     type: object
-                    description: Providerカスタム設定JSONオブジェクト
+                    description: プロバイダーのカスタム設定 JSON オブジェクト
                 sort:
                     type: integer
                     description: 並び順
@@ -10847,7 +10847,7 @@ components:
                     format: enum
                 secret_configured:
                     type: boolean
-                    description: 〜かどうか已設定第サードパーティーアプリキー
+                    description: サードパーティアプリのシークレットが設定済みかどうか
                 created_at:
                     type: string
                     description: 作成時刻
@@ -10863,25 +10863,25 @@ components:
                     description: OAuthログイン方式ID
                 provider:
                     type: string
-                    description: Provider稳定識別子
+                    description: プロバイダーの不変識別子
                 name:
                     type: string
                     description: ログイン方式名称
                 description:
                     type: string
-                    description: ログイン方式提示语
+                    description: ログイン方式の表示文言
                 icon:
                     type: string
-                    description: 图标键または画像アドレス
+                    description: アイコンキーまたは画像 URL
                 client_id:
                     type: string
-                    description: 第サードパーティーアプリ識別子
+                    description: サードパーティアプリ識別子
                 client_secret:
                     type: string
-                    description: 第サードパーティーアプリキー，更新时留空表示不更新
+                    description: サードパーティアプリのシークレット。更新時に空欄の場合は変更なし
                 secret_configured:
                     type: boolean
-                    description: 〜かどうか已設定第サードパーティーアプリキー
+                    description: サードパーティアプリのシークレットが設定済みかどうか
                 redirect_uri:
                     type: string
                     description: OAuthコールバックアドレス
@@ -10892,7 +10892,7 @@ components:
                     description: OAuth Scope一覧
                 config:
                     type: object
-                    description: Providerカスタム設定JSONオブジェクト
+                    description: プロバイダーのカスタム設定 JSON オブジェクト
                 sort:
                     type: integer
                     description: 並び順
@@ -10909,12 +10909,12 @@ components:
                     type: array
                     items:
                         $ref: '#/components/schemas/system.admin.v1.BaseI18n'
-                    description: ログイン方式名称多言語翻訳
+                    description: ログイン方式名の多言語翻訳
                 description_i18ns:
                     type: array
                     items:
                         $ref: '#/components/schemas/system.admin.v1.BaseI18n'
-                    description: ログイン方式提示语多言語翻訳
+                    description: ログイン方式の表示文言の多言語翻訳
             description: OAuthログイン方式フォーム。
         system.admin.v1.BaseOperationLog:
             type: object
@@ -15217,7 +15217,7 @@ tags:
     - name: BaseMigrationService
       description: Adminデータベース移行サービス。
     - name: BaseOauthProviderService
-      description: Admin OAuth第サードパーティーログイン方式管理サービス。
+      description: Admin OAuth サードパーティーログイン方式管理サービス。
     - name: BaseOperationLogService
       description: Admin業務操作ログサービス。
     - name: BasePermissionLogService

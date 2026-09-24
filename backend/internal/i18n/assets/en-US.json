@@ -1649,14 +1649,8 @@
   "legacy.error.f90d26546dedbee7": {
     "other": "MCP authorization engine is not initialized"
   },
-  "legacy.error.80628f11b01cfebd": {
-    "other": "MFA device trust days must be between 0 and 90"
-  },
   "legacy.error.f47f76334f3d0c38": {
     "other": "OAuth credential protector is not initialized"
-  },
-  "legacy.error.5a31e2a9d1da4296": {
-    "other": "OSS archive does not support selective restore"
   },
   "legacy.error.b7bfb71c8b2262fc": {
     "other": "Proto interface"
@@ -1697,20 +1691,11 @@
   "legacy.error.3a85915d8b224d60": {
     "other": "WebAuthn authentication failed"
   },
-  "legacy.error.d5321efaf2f34345": {
-    "other": "Only directories, menus or external links can be created under a first-level directory"
-  },
   "legacy.error.e99cd8d50d6e7bac": {
     "other": "Third-party authorization failed"
   },
-  "legacy.error.556b8b82f553a15e": {
-    "other": "Third-party login state has expired"
-  },
   "legacy.error.7457032f6280eb65": {
     "other": "Failed to create third-party login ticket"
-  },
-  "legacy.error.7a38fa171e5f03d7": {
-    "other": "Third-party login ticket has expired"
   },
   "legacy.error.b2fbb90f787f4e6e": {
     "other": "Third-party login ticket is invalid"
@@ -1718,14 +1703,8 @@
   "legacy.error.c269746cd8542461": {
     "other": "Third-party account unique identifier is empty"
   },
-  "legacy.error.29ebf2e88f812e63": {
-    "other": "Third-party account is not bound"
-  },
   "legacy.error.5d89767ea6b48d21": {
     "other": "Third-party account binding state has expired"
-  },
-  "legacy.error.8230fa46bc8ffca4": {
-    "other": "Only menus or external links can be created under a third-level directory"
   },
   "legacy.error.6b34220bae88cee7": {
     "other": "Failed to open uploaded file"
@@ -1739,24 +1718,6 @@
   "legacy.error.b46e0203f7e4e7f0": {
     "other": "Failed to parse uploaded file"
   },
-  "legacy.error.83e43a4951d784c2": {
-    "other": "Parent administrative area cannot be itself"
-  },
-  "legacy.error.3de4efbfbc877881": {
-    "other": "Parent administrative area cannot be itself or its descendant"
-  },
-  "legacy.error.06c4f81359c8cccd": {
-    "other": "Parent department cannot be itself"
-  },
-  "legacy.error.3e4d41f931f5dcbb": {
-    "other": "Parent department cannot be itself or its child department"
-  },
-  "legacy.error.1db7bf52e1db8bbc": {
-    "other": "Parent department does not match the tenant"
-  },
-  "legacy.error.f1faed3a397b2a51": {
-    "other": "Failed to log out online user"
-  },
   "legacy.error.eb0a5c7ed1c8c6e5": {
     "other": "Failed to download historical log file"
   },
@@ -1769,20 +1730,8 @@
   "legacy.error.08e000306823ca52": {
     "other": "Setting app-side user role is not allowed"
   },
-  "legacy.error.e4df44b91477dccf": {
-    "other": "Cannot log out online users of other tenants"
-  },
   "legacy.error.9bdd7318cefbaaad": {
     "other": "Cannot create projects for other tenants"
-  },
-  "legacy.error.da944023c8b373ac": {
-    "other": "Cannot operate posts of other tenants"
-  },
-  "legacy.error.fecd62f5e52284d2": {
-    "other": "Cannot operate OAuth clients of other tenants"
-  },
-  "legacy.error.466a0a37bbbafd1d": {
-    "other": "Cannot operate messages of other tenants"
   },
   "legacy.error.39fef6385cd1e4ce": {
     "other": "Cannot query project grants of other tenants"
@@ -1798,9 +1747,6 @@
   },
   "legacy.error.a4c906a269af199d": {
     "other": "Business table name can only contain lowercase letters, numbers and underscores, and must start with a letter"
-  },
-  "legacy.error.b74cf37538de3767": {
-    "other": "Only directories, menus or external links can be created under a second-level directory"
   },
   "legacy.error.af8be8010133e43a": {
     "other": "Code generation task ID cannot be empty"
@@ -1822,9 +1768,6 @@
   },
   "legacy.error.2d98325ea8ebe8a4": {
     "other": "Session does not exist"
-  },
-  "legacy.error.b6b95db507adde81": {
-    "other": "Session token manager is not configured"
   },
   "legacy.error.3772108e1c6666ab": {
     "other": "Session has timed out, please log in again"
@@ -1889,15 +1832,6 @@
   "legacy.error.ed46b31acab91f0e": {
     "other": "Failed to update profile phone number"
   },
-  "legacy.error.7670c73785f1d333": {
-    "other": "Failed to update profile user info"
-  },
-  "legacy.error.75a3d64e90b89404": {
-    "other": "Failed to change password"
-  },
-  "legacy.error.72aaa4285bec9431": {
-    "other": "Failed to change phone number"
-  },
   "legacy.error.d420a6a3d117c876": {
     "other": "Failed to update translation info"
   },
@@ -1906,27 +1840,6 @@
   },
   "legacy.error.8d437acfb12d3c22": {
     "other": "Failed to redeem third-party login ticket"
-  },
-  "legacy.error.c1927bc6a20fa3ca": {
-    "other": "Storage policy ID cannot be empty"
-  },
-  "legacy.error.9f2257503116e08f": {
-    "other": "Storage redaction policy does not exist"
-  },
-  "legacy.error.b57fd83489726ea9": {
-    "other": "Storage redaction policy cannot be empty"
-  },
-  "legacy.error.3fad14b659e4d7e0": {
-    "other": "Storage redaction policy list cannot be empty"
-  },
-  "legacy.error.951405540e9a38f3": {
-    "other": "Storage redaction policy status is invalid"
-  },
-  "legacy.error.c6e568027ccfef14": {
-    "other": "Storage redaction rule parameter is invalid"
-  },
-  "legacy.error.3c832fb81c6829ba": {
-    "other": "Global policy cannot set tenant or user"
   },
   "legacy.error.1681f52b573f0af5": {
     "other": "Failed to mark all as read"
@@ -1940,29 +1853,8 @@
   "legacy.error.b6d869235b2177c7": {
     "other": "Failed to write file scan temp file"
   },
-  "legacy.error.fa4c8538024c9929": {
-    "other": "Output policy ID cannot be empty"
-  },
-  "legacy.error.3d7953d9d4128c4d": {
-    "other": "Output redaction only supports GET interfaces"
-  },
-  "legacy.error.7d7461a525e0e56e": {
-    "other": "Output redaction processing mode is invalid"
-  },
-  "legacy.error.2242abaaa50d1dc3": {
-    "other": "Output redaction policy does not exist"
-  },
-  "legacy.error.38575468bd5f4185": {
-    "other": "Output redaction policy cannot be empty"
-  },
-  "legacy.error.9405199c2964f7ab": {
-    "other": "Output redaction policy list cannot be empty"
-  },
   "legacy.error.3469afe93c5e18c4": {
     "other": "Output redaction policy status is invalid"
-  },
-  "legacy.error.7e4f51942b429272": {
-    "other": "Output redaction rule parameter is invalid"
   },
   "legacy.error.6c754072edfff142": {
     "other": "Branch message does not exist"
@@ -2102,26 +1994,8 @@
   "legacy.error.eb7376c11e576e01": {
     "other": "Failed to create department"
   },
-  "legacy.error.eca1d6ff1327a5f3": {
-    "other": "Failed to create department: path update error"
-  },
   "legacy.error.bd71a5a12e6c406b": {
     "other": "Failed to create project"
-  },
-  "legacy.error.eff193fd9177f59e": {
-    "other": "Initial password length or complexity does not meet the security policy"
-  },
-  "legacy.error.6de8ebe104908a91": {
-    "other": "Failed to initialize tenant admin role"
-  },
-  "legacy.error.2cc71589d0ab72d8": {
-    "other": "Failed to initialize tenant admin role permissions"
-  },
-  "legacy.error.b3729212cf4d6ce7": {
-    "other": "Failed to initialize tenant admin account"
-  },
-  "legacy.error.3adfff798e9b6a1e": {
-    "other": "Failed to initialize tenant default department"
   },
   "legacy.error.5cec15fc1c4a7b5f": {
     "other": "Failed to delete AI assistant session"
@@ -2144,9 +2018,6 @@
   "legacy.error.54942b049dcbe2eb": {
     "other": "Failed to delete backup config"
   },
-  "legacy.error.cc009e22bbd2e9c2": {
-    "other": "Failed to delete dictionary"
-  },
   "legacy.error.f4e3c1c7f6c7d220": {
     "other": "Failed to delete dictionary item"
   },
@@ -2155,9 +2026,6 @@
   },
   "legacy.error.ab10b5713ba93cbd": {
     "other": "Failed to delete post"
-  },
-  "legacy.error.b04e457c7c50beec": {
-    "other": "Failed to delete post: post does not exist"
   },
   "legacy.error.ee59cd68625e3898": {
     "other": "Failed to delete OAuth client"
@@ -2174,9 +2042,6 @@
   "legacy.error.6f5d60641a53ef2d": {
     "other": "Failed to delete message category"
   },
-  "legacy.error.35899c9b41798f9c": {
-    "other": "Failed to delete message category: category does not exist"
-  },
   "legacy.error.7a155b68e77f7b3e": {
     "other": "Failed to delete message"
   },
@@ -2185,9 +2050,6 @@
   },
   "legacy.error.7cf04bd0de1d3628": {
     "other": "Failed to delete user"
-  },
-  "legacy.error.66264e9083823b01": {
-    "other": "Failed to delete user: user does not exist"
   },
   "legacy.error.798a355cd970d9df": {
     "other": "Failed to delete login policy"
@@ -2209,9 +2071,6 @@
   },
   "legacy.error.5a46008137ae3c3f": {
     "other": "Failed to delete administrative area"
-  },
-  "legacy.error.f2c0e88cba67443f": {
-    "other": "Failed to delete role"
   },
   "legacy.error.f94fb6c1649757d9": {
     "other": "Failed to delete language"
@@ -2240,17 +2099,8 @@
   "legacy.error.e2f289e3e36cf455": {
     "other": "One-time password cannot be empty"
   },
-  "legacy.error.e6babb76c2c0e896": {
-    "other": "One-time password or recovery code cannot be empty"
-  },
   "legacy.error.25b7adee9f82ecfb": {
     "other": "Single file upload failed"
-  },
-  "legacy.error.7d0886ba3ea2f5b4": {
-    "other": "Cannot upload more than 20 files at a time"
-  },
-  "legacy.error.4281e3a054efe6fa": {
-    "other": "Current password is incorrect"
   },
   "legacy.error.7b83afed07e54434": {
     "other": "Failed to publish message"
@@ -2261,9 +2111,6 @@
   "legacy.error.7f22e0bfb634eb2f": {
     "other": "Failed to send phone verification code"
   },
-  "legacy.error.0a7b29f34faeda2d": {
-    "other": "Failed to send verification code"
-  },
   "legacy.error.693715fa45adbec1": {
     "other": "Failed to cancel scheduled message publishing"
   },
@@ -2272,9 +2119,6 @@
   },
   "legacy.error.db6e5929a5531d2c": {
     "other": "Only failed delivery tasks can be retried"
-  },
-  "legacy.error.f7565b983d27de0f": {
-    "other": "Only string fields support storage redaction"
   },
   "legacy.error.63722cd0da2f0322": {
     "other": "Only platform administrators can manage redaction policies"
@@ -2288,29 +2132,11 @@
   "legacy.error.a5555b58b889cd09": {
     "other": "Only draft messages can be published"
   },
-  "legacy.error.3329506452b21001": {
-    "other": "Only draft messages can be edited"
-  },
   "legacy.error.53f8867d5b4a61c7": {
     "other": "Only the default tenant can maintain project directories"
   },
-  "legacy.error.f00b7bfc546756ae": {
-    "other": "Only successfully archived records can be restored"
-  },
-  "legacy.error.04d0137c5a8903e6": {
-    "other": "Only development authorization interfaces can be authorized"
-  },
   "legacy.error.823c3d4bc9a94573": {
     "other": "Only response data containing tenant ID can be selected"
-  },
-  "legacy.error.45f4c29f6502180e": {
-    "other": "Only tables containing tenant ID can be selected"
-  },
-  "legacy.error.768924fa8f2215c3": {
-    "other": "Only enabled locales can be configured"
-  },
-  "legacy.error.fa1ec60338bc9604": {
-    "other": "Same resource language cannot be duplicated"
   },
   "legacy.error.751a689594738cbb": {
     "other": "Backend Biz file must be in the service directory of the selected Proto directory and use the .go extension"
@@ -2324,26 +2150,11 @@
   "legacy.error.4adc578dcde7d694": {
     "other": "Failed to start task"
   },
-  "legacy.error.d217a967bfd0bacd": {
-    "other": "Response data type does not exist"
-  },
   "legacy.error.815660c688153283": {
     "other": "Unique index fields do not support storage redaction"
   },
-  "legacy.error.f745efeb0f7e0223": {
-    "other": "Redirect URL cannot be empty"
-  },
-  "legacy.error.28595f163dfa7306": {
-    "other": "Redirect URL is invalid"
-  },
-  "legacy.error.cd11548a9db9cf6c": {
-    "other": "i18n custom translation status is invalid"
-  },
   "legacy.error.3c2c77928163020e": {
     "other": "Image, dictionary and boolean config values do not support translation"
-  },
-  "legacy.error.0766ac7a491df596": {
-    "other": "Online session does not exist"
   },
   "legacy.error.8e917549a59ceb6f": {
     "other": "Online retention days must be greater than zero"
@@ -2372,20 +2183,11 @@
   "legacy.error.25975f21342bc053": {
     "other": "Multiple file upload failed"
   },
-  "legacy.error.858a0795c30a4a9b": {
-    "other": "Multi-factor authentication failed"
-  },
   "legacy.error.690a6b7f9c24cefa": {
     "other": "Too many MFA failures"
   },
-  "legacy.error.25c7a487d591e043": {
-    "other": "Multi-factor authentication is already enabled"
-  },
   "legacy.error.59891e4d57598bea": {
     "other": "MFA recovery code is incorrect"
-  },
-  "legacy.error.3645acb13cba03bc": {
-    "other": "MFA challenge has expired"
   },
   "legacy.error.f33b1f004e9311e1": {
     "other": "MFA method has expired"
@@ -2393,26 +2195,11 @@
   "legacy.error.c465c61d1876cee8": {
     "other": "MFA method configuration is invalid"
   },
-  "legacy.error.58d18dab90870673": {
-    "other": "Multi-factor authentication is not enabled"
-  },
   "legacy.error.59c1df3bee807b31": {
     "other": "MFA policy requires re-login"
   },
   "legacy.error.f353032a783801a1": {
     "other": "MFA policy configuration is invalid"
-  },
-  "legacy.error.0761a956d76e9f97": {
-    "other": "MFA binding ticket has expired"
-  },
-  "legacy.error.4ba5f7c3bc47c876": {
-    "other": "MFA verification code is incorrect"
-  },
-  "legacy.error.91d8e5677d731bc9": {
-    "other": "Dictionary does not exist"
-  },
-  "legacy.error.bf136ecb202be363": {
-    "other": "Dictionary item does not exist"
   },
   "legacy.error.49ecd0e342d6d23b": {
     "other": "field"
@@ -2431,9 +2218,6 @@
   },
   "legacy.error.2ec2a0c6920bee1e": {
     "other": "Realtime console channel cannot be empty"
-  },
-  "legacy.error.e290b0c149b371b4": {
-    "other": "Realtime log service is not initialized"
   },
   "legacy.error.788dcfa4a8975496": {
     "other": "Client does not belong to the current tenant"
@@ -2456,9 +2240,6 @@
   "legacy.error.c5eae1dd2dfe44e7": {
     "other": "Client source IP is not authorized"
   },
-  "legacy.error.71f8f37efebd4148": {
-    "other": "Client bound tenant does not exist"
-  },
   "legacy.error.f12b6fa61a61b0c7": {
     "other": "Client bound tenant is disabled"
   },
@@ -2476,9 +2257,6 @@
   },
   "legacy.error.c8948a07ea2e2694": {
     "other": "Password encryption algorithm is not supported"
-  },
-  "legacy.error.71bb10fe5b515e43": {
-    "other": "Password complexity character category count must be greater than zero"
   },
   "legacy.error.81675d6621af09a5": {
     "other": "Password ciphertext cannot be empty"
@@ -2504,14 +2282,8 @@
   "legacy.error.524d45335891b7b9": {
     "other": "Password has expired, please change it first"
   },
-  "legacy.error.415c70ceebc9339a": {
-    "other": "Minimum password length must be greater than zero"
-  },
   "legacy.error.3874b295110dd6d7": {
     "other": "Failed to decrypt password"
-  },
-  "legacy.error.fb227e789a8cd772": {
-    "other": "Password length or complexity does not meet the security policy"
   },
   "legacy.error.70fe022d705a9f4f": {
     "other": "Password random value is invalid"
@@ -2522,17 +2294,11 @@
   "legacy.error.29fe5b349e7c8101": {
     "other": "Post is disabled and cannot be selected"
   },
-  "legacy.error.3e79341b7f9d573e": {
-    "other": "Post status is invalid"
-  },
   "legacy.error.ad53bc40c159c03e": {
     "other": "Left-tree configuration format is invalid"
   },
   "legacy.error.741e976fc2db03d1": {
     "other": "Recalled messages cannot be re-delivered"
-  },
-  "legacy.error.1f050b534f743477": {
-    "other": "Existing non-empty translation cannot be overwritten by machine translation"
   },
   "legacy.error.5422f80650ed6780": {
     "other": "Message content does not match the idempotency key"
@@ -2546,17 +2312,8 @@
   "legacy.error.d2a00e4240f15d1a": {
     "other": "Failed to start MFA binding"
   },
-  "legacy.error.70010c1c5aff2874": {
-    "other": "OAuth client does not exist"
-  },
-  "legacy.error.7527f51870e5be88": {
-    "other": "Archive restore mode is invalid"
-  },
   "legacy.error.2b0341c1d9e4dcbc": {
     "other": "Failed to archive notification"
-  },
-  "legacy.error.d07181150520a6b4": {
-    "other": "Archive record cannot be empty"
   },
   "legacy.error.3c17a593ba4eedf5": {
     "other": "Archive config does not exist"
@@ -2567,17 +2324,11 @@
   "legacy.error.6549d96b5b6ca2c1": {
     "other": "Only full backup is currently supported"
   },
-  "legacy.error.ef6146fd1b40b481": {
-    "other": "Current session has expired"
-  },
   "legacy.error.a6abeab21b9c197c": {
     "other": "Current client does not support WebAuthn, please use a Passkey-capable client"
   },
   "legacy.error.9df84549ee5d2e6d": {
     "other": "Current client does not support WebAuthn, please use a Passkey-capable client to complete binding"
-  },
-  "legacy.error.e0f0aae6d9a6db79": {
-    "other": "Current password is incorrect"
   },
   "legacy.error.9300a2b1b4bb1064": {
     "other": "Current authentication method does not support one-time password"
@@ -2588,17 +2339,8 @@
   "legacy.error.b9a452b87cde115a": {
     "other": "Current authentication method does not support regenerating recovery codes"
   },
-  "legacy.error.5aee1db2ece6deb0": {
-    "other": "Source text to translate cannot be empty"
-  },
-  "legacy.error.822aec8a7670de02": {
-    "other": "Resource to translate does not exist"
-  },
   "legacy.error.15de1844824e8acf": {
     "other": "WeChat login credentials are invalid"
-  },
-  "legacy.error.be218e64a69d8f28": {
-    "other": "WeChat login failed"
   },
   "legacy.error.76ca2c845a375eed": {
     "other": "WeChat login configuration is incorrect"
@@ -2608,18 +2350,6 @@
   },
   "legacy.error.7aa4134b2642fb28": {
     "other": "WeChat login default department configuration is incorrect"
-  },
-  "legacy.error.b4c97d6f7b00a52e": {
-    "other": "WeChat account is already bound"
-  },
-  "legacy.error.7afa7362b45cbfcb": {
-    "other": "WeChat account is not bound, please bind an existing account first"
-  },
-  "legacy.error.8d4c7687edb51962": {
-    "other": "A new password meeting the security policy must be set"
-  },
-  "legacy.error.a04b8d472d73b23b": {
-    "other": "A bound tenant must be selected"
   },
   "legacy.error.71d53fbd97d85609": {
     "other": "Failed to restore scheduled task scheduling"
@@ -2635,9 +2365,6 @@
   },
   "legacy.error.d3419333a455885b": {
     "other": "Table does not exist in the selected data source"
-  },
-  "legacy.error.1120563ed5b635f4": {
-    "other": "Phone number is already in use"
   },
   "legacy.error.9ea435e01919898d": {
     "other": "Phone number authorization failed"
@@ -2666,17 +2393,8 @@
   "legacy.error.b1c8a7126056d454": {
     "other": "Specified project does not exist or does not belong to the target tenant"
   },
-  "legacy.error.a14efca145af09f5": {
-    "other": "Button or external link cannot be a parent menu"
-  },
-  "legacy.error.5d830192c40a3c28": {
-    "other": "Authorized API operation cannot be empty"
-  },
   "legacy.error.e561912c85a4455e": {
     "other": "Authorized API operations contain a non-existent interface"
-  },
-  "legacy.error.bc52216171131e30": {
-    "other": "Authorized APIs cannot be duplicated"
   },
   "legacy.error.59cd5fcd2d88a55d": {
     "other": "Grant subject type is invalid"
@@ -2696,9 +2414,6 @@
   "legacy.error.11b537afb943c74f": {
     "other": "Failed to recall message"
   },
-  "legacy.error.5efc308bfda54903": {
-    "other": "Failed to revoke all sessions"
-  },
   "legacy.error.a6000e305f5d2fef": {
     "other": "Failed to revoke old client token"
   },
@@ -2707,12 +2422,6 @@
   },
   "legacy.error.10c1ec9fad526657": {
     "other": "Failed to revoke user login token"
-  },
-  "legacy.error.778da14d7ba916df": {
-    "other": "Failed to revoke tenant OAuth token"
-  },
-  "legacy.error.4dfa744b4c9598b5": {
-    "other": "Failed to revoke tenant user login token"
   },
   "legacy.error.4564d972dbc3661e": {
     "other": "Failed to revoke expired sessions"
@@ -2735,35 +2444,11 @@
   "legacy.error.4ce7df2fe808ac6b": {
     "other": "Data table name is invalid"
   },
-  "legacy.error.f1b27684eaf68325": {
-    "other": "File upload failed"
-  },
-  "legacy.error.7255193529b2fdb8": {
-    "other": "File download failed"
-  },
-  "legacy.error.d2f86764ccfc9b4d": {
-    "other": "File does not exist or is not accessible"
-  },
-  "legacy.error.164338015340bdfe": {
-    "other": "File business type is invalid"
-  },
   "legacy.error.1572896dd8ea2149": {
     "other": "File metadata repository is not configured"
   },
-  "legacy.error.9e70775a28707b73": {
-    "other": "File content cannot exceed 20 MB"
-  },
-  "legacy.error.f57e0c4792169965": {
-    "other": "File name is invalid"
-  },
   "legacy.error.df83b569b1e6c106": {
     "other": "File security scan command is not configured"
-  },
-  "legacy.error.b0f28c5f3181d572": {
-    "other": "File extension does not match the actual content type"
-  },
-  "legacy.error.54bd36732e0bbdcf": {
-    "other": "File access mode is invalid"
   },
   "legacy.error.2e0ad0ebc1dfeb09": {
     "other": "File path cannot be empty"
@@ -2780,15 +2465,6 @@
   "legacy.error.ff323940e8cc2930": {
     "other": "Failed to add project grant"
   },
-  "legacy.error.a51c8475a6465475": {
-    "other": "New password cannot be the same as the current password"
-  },
-  "legacy.error.f7f32edb067ea609": {
-    "other": "New password cannot reuse a recent historical password"
-  },
-  "legacy.error.d6d84bf72bbdfccc": {
-    "other": "No permission to manage custom translations of other tenants"
-  },
   "legacy.error.edab4fc1b3ec25ef": {
     "other": "No permission to subscribe to code generation tasks"
   },
@@ -2803,24 +2479,6 @@
   },
   "legacy.error.e6158a3f73ff2546": {
     "other": "Log ID format is invalid"
-  },
-  "legacy.error.560e0de6b066f0c3": {
-    "other": "Log compressed file is corrupted"
-  },
-  "legacy.error.a38f393c01bf6ebe": {
-    "other": "Log file does not exist"
-  },
-  "legacy.error.a60171d1f23c81de": {
-    "other": "Log file identifier is invalid"
-  },
-  "legacy.error.5d8920ab585ca9c7": {
-    "other": "Log file type is not allowed to access"
-  },
-  "legacy.error.ef92f0344e85c0cc": {
-    "other": "Log level filter is invalid"
-  },
-  "legacy.error.e0bda1894488f015": {
-    "other": "Log pagination cursor is invalid"
   },
   "legacy.error.a72174780cc3a36d": {
     "other": "Grant subject of a normal tenant cannot obtain project permissions of other tenants"
@@ -2879,9 +2537,6 @@
   "legacy.error.47bf6383bace0dfd": {
     "other": "Failed to update user"
   },
-  "legacy.error.54b0c1b5af37b3c1": {
-    "other": "Failed to update user: user info does not exist"
-  },
   "legacy.error.df5a442da0b21158": {
     "other": "Failed to update login session"
   },
@@ -2918,17 +2573,8 @@
   "legacy.error.a72693a4296e35e5": {
     "other": "Failed to update project grant"
   },
-  "legacy.error.f8596651bfcefeee": {
-    "other": "No file uploaded"
-  },
   "legacy.error.1b343f2ebe4bc6d7": {
     "other": "Initial password is not configured, please set the user password explicitly"
-  },
-  "legacy.error.30ad043dc6db15c7": {
-    "other": "Historical log directory is not configured"
-  },
-  "legacy.error.9d294ba12846efdc": {
-    "other": "Machine translation feature is not enabled"
   },
   "legacy.error.2468b2acc984ef68": {
     "other": "Machine translation draft feature is not enabled"
@@ -3032,9 +2678,6 @@
   "legacy.error.7cc414bb70b3d733": {
     "other": "Failed to query i18n custom translation"
   },
-  "legacy.error.757bdbb9cf9523eb": {
-    "other": "Failed to query online users"
-  },
   "legacy.error.cccdd8c196015a7f": {
     "other": "Failed to query backup restore records"
   },
@@ -3113,9 +2756,6 @@
   "legacy.error.742329cca1cf3d2e": {
     "other": "Failed to query current session"
   },
-  "legacy.error.c2ac70e77504f296": {
-    "other": "Failed to query current role permissions"
-  },
   "legacy.error.e55b46ad2684e3b4": {
     "other": "Failed to query operation action distribution"
   },
@@ -3157,9 +2797,6 @@
   },
   "legacy.error.ca4de5b792e75311": {
     "other": "Failed to query file asset detail"
-  },
-  "legacy.error.f6153db7a9372802": {
-    "other": "Failed to query own session"
   },
   "legacy.error.0fa4059634f6e2f2": {
     "other": "Failed to query own login records"
@@ -3235,12 +2872,6 @@
   },
   "legacy.error.310e339befb47347": {
     "other": "Failed to query tenant"
-  },
-  "legacy.error.c4210020b04cca27": {
-    "other": "Failed to query tenant maximum permissions"
-  },
-  "legacy.error.1d5eca3ba22a1f89": {
-    "other": "Failed to query tenant users"
   },
   "legacy.error.85cb3cd02dd32c7d": {
     "other": "Failed to query mobile menu"
@@ -3353,17 +2984,11 @@
   "legacy.error.d7533f8aa46eaf5a": {
     "other": "Failed to verify MFA"
   },
-  "legacy.error.70be9f472ac29679": {
-    "other": "Failed to verify own session"
-  },
   "legacy.error.0d1e6b7b28fcc1de": {
     "other": "Failed to verify user role"
   },
   "legacy.error.a2bfb226f0e00e12": {
     "other": "Failed to aggregate user registration data"
-  },
-  "legacy.error.7ddf413a97a025d8": {
-    "other": "No enabled captcha type"
   },
   "legacy.error.d6139243cdbfb13f": {
     "other": "Failed to stream AI assistant message"
@@ -3374,29 +2999,8 @@
   "legacy.error.d22fd55ed8b53e3d": {
     "other": "Message is not in scheduled publishing state"
   },
-  "legacy.error.323a9f3dfd9436cc": {
-    "other": "Message does not exist"
-  },
-  "legacy.error.bf404eeabc26c357": {
-    "other": "Message priority is invalid"
-  },
   "legacy.error.1fd3ef87c9e73376": {
     "other": "Message content cannot be empty"
-  },
-  "legacy.error.9a9f979ec18c14f2": {
-    "other": "Message category is unavailable"
-  },
-  "legacy.error.edca5ceb27102b0d": {
-    "other": "Message category does not exist"
-  },
-  "legacy.error.6c6a75417d9b96f4": {
-    "other": "Message category status is invalid"
-  },
-  "legacy.error.0a7477f2362aa7e9": {
-    "other": "Message category code cannot be modified"
-  },
-  "legacy.error.5b3002b9ecc91eb8": {
-    "other": "Message category code cannot be empty"
   },
   "legacy.error.617ff09dc5740ca9": {
     "other": "Message action parameter cannot exceed 16KB"
@@ -3425,12 +3029,6 @@
   "legacy.error.796a07cbf608a7c4": {
     "other": "Message action target validation is not initialized"
   },
-  "legacy.error.b2e4129625950cdc": {
-    "other": "Message action type is invalid"
-  },
-  "legacy.error.41829d15cdc4821c": {
-    "other": "Message audience cannot be empty"
-  },
   "legacy.error.be74ce92a610e199": {
     "other": "Message audience cannot be duplicated"
   },
@@ -3439,9 +3037,6 @@
   },
   "legacy.error.2c76ea46653246f8": {
     "other": "Message post audience is invalid"
-  },
-  "legacy.error.0d38b9f361e60e0e": {
-    "other": "Message has been modified by someone else, please refresh and retry"
   },
   "legacy.error.0fb52070815f6693": {
     "other": "Message delivery status has changed, please refresh and retry"
@@ -3455,23 +3050,14 @@
   "legacy.error.1c06df3a3ddbe8d9": {
     "other": "Message body cannot be empty and must not exceed 20000 characters"
   },
-  "legacy.error.6b0a676728c4bb15": {
-    "other": "Message body format is invalid"
-  },
   "legacy.error.174453c31c654750": {
     "other": "Message body cannot be empty after sanitization"
-  },
-  "legacy.error.4629c57027065a98": {
-    "other": "Message version is invalid"
   },
   "legacy.error.ded15f67c86763a2": {
     "other": "Message status has changed, please refresh and retry"
   },
   "legacy.error.2706270b2b7ce9f7": {
     "other": "Message user audience is invalid"
-  },
-  "legacy.error.d1700e2d9ad8a545": {
-    "other": "Message tenant cannot be empty"
   },
   "legacy.error.c64f9c3cf819c81c": {
     "other": "Message ID is invalid"
@@ -3509,14 +3095,8 @@
   "legacy.error.46d8a095016f1ba5": {
     "other": "Failed to clear login failure state"
   },
-  "legacy.error.8eddbf04b3ddc598": {
-    "other": "Source and target languages must be different enabled languages"
-  },
   "legacy.error.25deb89aa8542274": {
     "other": "Parent menu ID does not conform to menu numbering hierarchy rules"
-  },
-  "legacy.error.3ed995e4f73d690d": {
-    "other": "Parent menu does not exist"
   },
   "legacy.error.ff9d10f00b5b1c93": {
     "other": "Parent menu type does not match the hierarchy"
@@ -3548,26 +3128,14 @@
   "legacy.error.4acac868b13d25a3": {
     "other": "Failed to generate verification code"
   },
-  "legacy.error.a82de572ccd7ebf0": {
-    "other": "User does not exist"
-  },
-  "legacy.error.c7b529559300a291": {
-    "other": "User does not match the tenant"
-  },
   "legacy.error.a9a6a83a7d22e27e": {
     "other": "Incorrect username or password"
-  },
-  "legacy.error.ea95a44ecebf2fb5": {
-    "other": "User post does not exist"
   },
   "legacy.error.5c9ce1a293619574": {
     "other": "User post does not match the tenant"
   },
   "legacy.error.60a9831242fc0128": {
     "other": "User is disabled"
-  },
-  "legacy.error.177dbb50efddb30b": {
-    "other": "User policy target is invalid"
   },
   "legacy.error.77fc0ea919e34629": {
     "other": "User organization does not match the tenant"
@@ -3578,12 +3146,6 @@
   "legacy.error.259f2c53cf4ef48a": {
     "other": "User role does not match the department tenant"
   },
-  "legacy.error.2125bd1384350cf7": {
-    "other": "User authentication failed"
-  },
-  "legacy.error.bb1c9703d51a4ead": {
-    "other": "User department does not exist"
-  },
   "legacy.error.ad41477a76b25935": {
     "other": "User department does not match the tenant"
   },
@@ -3593,35 +3155,8 @@
   "legacy.error.c8fa8bc4e8f159d9": {
     "other": "Too many login failures, please try again later"
   },
-  "legacy.error.3cb197d1a5a2c3ad": {
-    "other": "Login method is not supported"
-  },
-  "legacy.error.22a4511c87287de1": {
-    "other": "Login method does not support redirect authorization"
-  },
   "legacy.error.72301b9a742c94cf": {
     "other": "Login lease has expired"
-  },
-  "legacy.error.ebe9b8ff030be0c3": {
-    "other": "Login policy ID cannot be empty"
-  },
-  "legacy.error.0ad5ac1b6de56f07": {
-    "other": "Login policy does not exist"
-  },
-  "legacy.error.90b019d1c34bcf63": {
-    "other": "Login policy scope type is invalid"
-  },
-  "legacy.error.d03847577dddb4e6": {
-    "other": "Login policy format is invalid"
-  },
-  "legacy.error.48aa6dc021aefeea": {
-    "other": "Login policy status is invalid"
-  },
-  "legacy.error.2267986a1e381ebd": {
-    "other": "Login page URL is invalid"
-  },
-  "legacy.error.da535200fe38b6f5": {
-    "other": "Target resource ID cannot be empty"
   },
   "legacy.error.49e95fc46747e658": {
     "other": "Failed to confirm forced MFA binding"
@@ -3629,14 +3164,8 @@
   "legacy.error.6ac0f1b7aaec664d": {
     "other": "Failed to confirm MFA binding"
   },
-  "legacy.error.6ef5fe69750c2b48": {
-    "other": "Accessing files outside the log directory is forbidden"
-  },
   "legacy.error.80fb55ec83653bc4": {
     "other": "Failed to disable MFA"
-  },
-  "legacy.error.5b06b0cb71573ea6": {
-    "other": "Tenant does not exist"
   },
   "legacy.error.8dd022efbbe706d2": {
     "other": "Tenant-wide audience ID must be 0"
@@ -3646,9 +3175,6 @@
   },
   "legacy.error.b3ca26ba26ec1779": {
     "other": "Tenant is disabled"
-  },
-  "legacy.error.b82f21bb47217337": {
-    "other": "Tenant policy target is invalid"
   },
   "legacy.error.806829f515c0df9b": {
     "other": "Tenant admin role is disabled"
@@ -3667,12 +3193,6 @@
   },
   "legacy.error.2964607aae8c25ca": {
     "other": "Failed to bind third-party account"
-  },
-  "legacy.error.907ce95f5cb163dc": {
-    "other": "Bound tenant does not exist"
-  },
-  "legacy.error.a11ae9f3169fdd9b": {
-    "other": "Bound tenant is disabled"
   },
   "legacy.error.6b607e7dfe8ccdd3": {
     "other": "Statistics start time must be earlier than the end time"
@@ -3698,9 +3218,6 @@
   "legacy.error.a0aaf66e02dd7724": {
     "other": "Failed to encode WebAuthn disable options"
   },
-  "legacy.error.fdbfb4336c489f42": {
-    "other": "Translation target type is invalid"
-  },
   "legacy.error.fe0e97995caf8950": {
     "other": "Translation language must be an enabled non-primary language"
   },
@@ -3713,15 +3230,6 @@
   "legacy.error.141f07d40c870162": {
     "other": "Web search request failed"
   },
-  "legacy.error.dba508e1212691b7": {
-    "other": "Failed to redact system config"
-  },
-  "legacy.error.8c257c42779cdc12": {
-    "other": "Redaction rule does not exist"
-  },
-  "legacy.error.8a740b167d5544c1": {
-    "other": "Redaction rule is disabled"
-  },
   "legacy.error.dc8885ca6a1d1de4": {
     "other": "Redaction rule template parameter is invalid"
   },
@@ -3730,9 +3238,6 @@
   },
   "legacy.error.f375179df851031a": {
     "other": "Failed to get third-party user"
-  },
-  "legacy.error.eef3f6effdfa7140": {
-    "other": "Failed to get profile"
   },
   "legacy.error.2e3650e27dc3c56c": {
     "other": "Failed to get password temporary public key"
@@ -3743,17 +3248,8 @@
   "legacy.error.76c33822e7bdcea2": {
     "other": "Failed to get WeChat user"
   },
-  "legacy.error.2339340aba3669da": {
-    "other": "Failed to get user info"
-  },
   "legacy.error.f8614d3cb9ee9e92": {
     "other": "Failed to get user button permissions"
-  },
-  "legacy.error.f8ca6cf9340e1318": {
-    "other": "Failed to get user menu"
-  },
-  "legacy.error.4c491cc49d883c6c": {
-    "other": "Failed to get user menu translation"
   },
   "legacy.error.07e6a94883fdf087": {
     "other": "Failed to get system config"
@@ -3764,12 +3260,6 @@
   "legacy.error.9d9734f9d60d7a19": {
     "other": "Failed to get verification code"
   },
-  "legacy.error.5e7ff218eaaae90c": {
-    "other": "Menu does not exist"
-  },
-  "legacy.error.c2f84acfaddb8deb": {
-    "other": "Menu type is invalid"
-  },
   "legacy.error.8f09ccc849c9e2b7": {
     "other": "Menu numbering has changed, please regenerate"
   },
@@ -3779,14 +3269,8 @@
   "legacy.error.4d2311ea76ac1eff": {
     "other": "Table-level i18n configuration format is invalid"
   },
-  "legacy.error.6ef13ae0492d38bc": {
-    "other": "Rule ID cannot be empty"
-  },
   "legacy.error.f73c86935008d65a": {
     "other": "Rule parameter is invalid"
-  },
-  "legacy.error.0b8c6c4bfc046e48": {
-    "other": "Rule status is invalid"
   },
   "legacy.error.e8487c03570fcf89": {
     "other": "Rule type cannot be modified"
@@ -3802,9 +3286,6 @@
   },
   "legacy.error.3d1cdfa989d8a5e4": {
     "other": "Failed to parse WebAuthn transport"
-  },
-  "legacy.error.63e1da5da11bd9e0": {
-    "other": "Failed to parse tenant code"
   },
   "legacy.error.c59404a173ecf4a6": {
     "other": "Failed to unbind third-party account"
@@ -3869,9 +3350,6 @@
   "legacy.error.0e3c33d45f94d08a": {
     "other": "Failed to set status"
   },
-  "legacy.error.7cefb6d70bcfbf66": {
-    "other": "Failed to set status: user info does not exist"
-  },
   "legacy.error.a88b76417346c4f3": {
     "other": "Failed to set login policy status"
   },
@@ -3880,9 +3358,6 @@
   },
   "legacy.error.236ab0e56b3722d9": {
     "other": "Failed to set role menu permissions"
-  },
-  "legacy.error.2bcdb4bb0f0550e6": {
-    "other": "Failed to set role menu permissions: cannot assign menu permissions beyond the limit"
   },
   "legacy.error.85ee2e715106f90f": {
     "other": "Failed to set language status"
@@ -3893,20 +3368,8 @@
   "legacy.error.38c29cd72f9c1d82": {
     "other": "Access token service is not initialized"
   },
-  "legacy.error.6a57e7bb1fda230a": {
-    "other": "Messages of this category cannot be deleted"
-  },
-  "legacy.error.04bd3c7b7eb403bc": {
-    "other": "Messages of this category cannot be archived"
-  },
   "legacy.error.10b9257f2ecab2c3": {
     "other": "This backup record is being restored, please retry later"
-  },
-  "legacy.error.573f1ce3483d6b67": {
-    "other": "This archive record is being restored, please retry later"
-  },
-  "legacy.error.4f98589ed2ce7172": {
-    "other": "Language code must be a valid language code"
   },
   "legacy.error.48144f96c1503b52": {
     "other": "Please log in first"
@@ -3989,23 +3452,14 @@
   "legacy.error.3427b405d5c80338": {
     "other": "Failed to read OAuth client configuration"
   },
-  "legacy.error.c1dd8a704d2b3c59": {
-    "other": "Failed to read resource to translate"
-  },
   "legacy.error.1b8c5c49d6878d19": {
     "other": "Failed to read WeChat login configuration"
   },
   "legacy.error.fe97a3a85174448e": {
     "other": "Failed to read log file info"
   },
-  "legacy.error.0204682cb5b014d1": {
-    "other": "Failed to read log file"
-  },
   "legacy.error.76e780b7e84d7a14": {
     "other": "Failed to read log directory"
-  },
-  "legacy.error.011c5a8aab1dd022": {
-    "other": "Failed to read own session"
   },
   "legacy.error.543d0dbad6466e6c": {
     "other": "Failed to read login session"
@@ -4033,9 +3487,6 @@
   },
   "legacy.error.44670a4145535bf4": {
     "other": "Failed to convert left-tree configuration"
-  },
-  "legacy.error.4b4740ead55343e1": {
-    "other": "Failed to rotate client credentials"
   },
   "legacy.error.787e231c5b5f70b0": {
     "other": "Failed to rotate OAuth client credentials"
@@ -4076,9 +3527,6 @@
   "legacy.error.54b320b55f65f47b": {
     "other": "Authorization engine does not support policy writing"
   },
-  "legacy.error.771c738a3c8356ae": {
-    "other": "Only buttons can be created under a page menu"
-  },
   "legacy.error.42696b9669ce2389": {
     "other": "Project ID must be positive"
   },
@@ -4102,9 +3550,6 @@
   },
   "legacy.error.175e2e193a614cee": {
     "other": "Failed to consume captcha token"
-  },
-  "legacy.error.d06655e996ae7326": {
-    "other": "Verification code has expired"
   },
   "legacy.error.11bc2823ec42b680": {
     "other": "Verification code verification failed"
@@ -4343,4 +3788,97 @@
   ,"legacy.error.d217a967bfd0bacd": { "other": "The response data type does not exist" }
   ,"legacy.error.241051568bef8e2e": { "other": "The field encryption algorithm is invalid" }
   ,"legacy.error.767282ee3a85c273": { "other": "Field encryption rules only support inbound policies" }
+  ,"legacy.error.bcda2ee361a79c60": { "other": "Invalid phone authorization credential" }
+  ,"legacy.error.3c1bfebde774c1d3": { "other": "The client identifier already exists" }
+  ,"legacy.error.513deff78da44959": { "other": "The configuration key already exists in the same location" }
+  ,"legacy.error.5a52838633580d82": { "other": "The tenant number already exists" }
+  ,"legacy.error.8b87a6c6d658c05b": { "other": "Tenant operation failed: the default tenant cannot be operated" }
+  ,"legacy.error.44885987e1e7fc05": { "other": "Tenant numbers are exhausted" }
+  ,"legacy.error.81e65e451284e06e": { "other": "The role code already exists in the same tenant" }
+  ,"legacy.error.bec78afeac7c5d9d": { "other": "The user account or user number already exists in the same tenant" }
+  ,"legacy.error.4cec098a0f3c399f": { "other": "A custom translation with the same location, language and key already exists" }
+  ,"legacy.error.0196b093ca02959f": { "other": "Failed to update the role: built-in role codes cannot be modified" }
+  ,"legacy.error.776d13ccebdb1fb7": { "other": "Failed to update the role: built-in role codes cannot be used" }
+  ,"legacy.error.19803e49d77d7763": { "other": "Failed to update the role: the default role status cannot be modified" }
+  ,"legacy.error.172798ff29ffcc90": { "other": "Failed to delete the role: the default role cannot be deleted" }
+  ,"legacy.error.45a39797c58eacad": { "other": "Role operation failed: the default role status cannot be modified" }
+  ,"legacy.error.6e8101abf3b661f5": { "other": "Role operation failed: built-in roles cannot be operated" }
+  ,"legacy.error.5538e198baabd079": { "other": "Role operation failed: tenant built-in roles cannot be operated" }
+  ,"legacy.error.9798ae7fa191abd0": { "other": "Failed to create the role: built-in role codes cannot be used" }
+  ,"legacy.error.3ab4f06af6e20fd2": { "other": "A code generation task is already running" }
+  ,"legacy.error.f0a28dfa4409966b": { "other": "Disabled code generation table configurations cannot generate" }
+  ,"legacy.error.3beba2ac85c68598": { "other": "The generated menu cannot change its parent. Delete the original menu and generate again" }
+  ,"legacy.error.eface50a9bd64600": { "other": "The business module cannot be empty or malformed" }
+  ,"legacy.error.8ca5b7bd020f0d44": { "other": "The generated file has been modified and cannot be restored safely" }
+  ,"legacy.error.2d128b1c7ce1bcac": { "other": "Shared files generated in a batch must be restored with the whole batch" }
+  ,"legacy.error.c4377d203f605a8b": { "other": "The code generation restore snapshot does not exist. Generate again" }
+  ,"legacy.error.d355679fc4c3684d": { "other": "The code generation restore snapshot has expired. Generate again" }
+  ,"legacy.error.738ffa9d13b38867": { "other": "The post number already exists in the same tenant" }
+  ,"legacy.error.b7fdba770862e9ff": { "other": "Failed to delete the post: users are still assigned to it" }
+  ,"legacy.error.fb6e60ccc57170bd": { "other": "An output redaction policy already exists for the same API response field" }
+  ,"legacy.error.ce0667f6a9bd7e2e": { "other": "The dictionary item value already exists in the same dictionary" }
+  ,"legacy.error.9cd44a5bdb014fb1": { "other": "The table is already selected by a code generation table configuration" }
+  ,"legacy.error.416d50c2034a7d60": { "other": "Failed to create the user: built-in roles cannot be selected" }
+  ,"legacy.error.3ca5c922b74b54fa": { "other": "Failed to update the user: the user account cannot be modified" }
+  ,"legacy.error.7d9df526e40f29cf": { "other": "Failed to update the user: the user number cannot be modified" }
+  ,"legacy.error.f9cf7294d51dc2ec": { "other": "Failed to update the user: built-in roles cannot be selected" }
+  ,"legacy.error.2f92c31da328aeba": { "other": "Failed to delete the user: the built-in administrator account cannot be deleted" }
+  ,"legacy.error.88866be60ba8716d": { "other": "User operation failed: the built-in administrator account can only be modified in the personal center" }
+  ,"legacy.error.a728edbdc343958e": { "other": "The grant subject already has a project grant" }
+  ,"legacy.error.69a762d521761a3c": { "other": "A login policy already exists for the same scope" }
+  ,"legacy.error.76370b3803a9f50e": { "other": "The login policy restriction rule already exists" }
+  ,"legacy.error.3e934f35c0b5ceab": { "other": "The redaction rule code already exists" }
+  ,"legacy.error.6a2d2bbcff20daf0": { "other": "The rule is referenced by storage redaction policies and cannot be deleted" }
+  ,"legacy.error.3e26555b667f0ece": { "other": "The rule is referenced by output redaction policies and cannot be deleted" }
+  ,"legacy.error.2a1913450ed9f8d0": { "other": "The dictionary code already exists" }
+  ,"legacy.error.fc25e0d9642770e1": { "other": "Failed to delete the dictionary: dictionary items exist" }
+  ,"legacy.error.35323e14c1481ad4": { "other": "Failed to load the OAuth login provider configuration" }
+  ,"legacy.error.b8895d5db253e184": { "other": "The third-party application secret cannot be empty" }
+  ,"legacy.error.d2ec820d108540bb": { "other": "The provider identifier already exists" }
+  ,"legacy.error.777fae8400c4d746": { "other": "The provider identifier cannot be modified" }
+  ,"legacy.error.2ced09b643b6806d": { "other": "The OAuth login provider does not exist" }
+  ,"legacy.error.cbbc7c20d1379b21": { "other": "The OAuth login provider status is invalid" }
+  ,"legacy.error.453122ec31407492": { "other": "The OAuth scope configuration is invalid" }
+  ,"legacy.error.12d4e553e5368399": { "other": "The provider custom configuration is invalid" }
+  ,"legacy.error.f2853426124dd65e": { "other": "Failed to parse the OAuth scope" }
+  ,"legacy.error.9265669d517e320e": { "other": "Failed to parse the provider custom configuration" }
+  ,"legacy.error.47fcdd027d998032": { "other": "Failed to convert the provider custom configuration" }
+  ,"legacy.error.31b4abb95ec6dd56": { "other": "The archive mode is invalid" }
+  ,"legacy.error.17434b38df46cdaf": { "other": "Failed to delete the department: sub-departments exist" }
+  ,"legacy.error.e2fd9e73043ee853": { "other": "Failed to set the status: sub-departments exist" }
+  ,"legacy.error.d9afda138e42954e": { "other": "Failed to read the log download file" }
+  ,"legacy.error.de76cad0d8e2aa95": { "other": "Failed to open the log file" }
+  ,"legacy.error.2fcfa7178b5ff2ab": { "other": "Failed to close the log file" }
+  ,"legacy.error.192d1d94040adba1": { "other": "Failed to delete the administrative area: child areas exist" }
+  ,"legacy.error.38d7034d51ee2eea": { "other": "The project number already exists in the same tenant" }
+  ,"legacy.error.77472bb2a160d55d": { "other": "A storage redaction policy already exists for the same table field" }
+  ,"legacy.error.ce12956616b6dbc9": { "other": "The tenant, data source, table and field cannot be modified after a storage redaction policy is created" }
+  ,"legacy.error.f9b9133ecf174317": { "other": "Failed to parse the original field encryption algorithm" }
+  ,"legacy.error.5e9ba4ae7562922c": { "other": "The field encryption algorithm cannot be modified directly when ciphertext already exists" }
+  ,"legacy.error.8dcfb2899db4e48a": { "other": "The storage redaction policy is in use by existing data and cannot be disabled or deleted" }
+  ,"legacy.error.3333e1755cbd096d": { "other": "The database field does not exist" }
+  ,"legacy.error.56ab596a800279d6": { "other": "The language code already exists" }
+  ,"legacy.error.096862c5edb1fdf1": { "other": "The primary language cannot be deleted" }
+  ,"legacy.error.d294046fc1790f27": { "other": "The primary language cannot be disabled" }
+  ,"legacy.error.950e67e8fd397802": { "other": "A disabled language cannot be set as the primary language" }
+  ,"legacy.error.5d8c35d0a36d9516": { "other": "The message queue does not support delayed tasks" }
+  ,"legacy.error.795df5cbb3b6cb66": { "other": "The parent and type of a top-level menu cannot be modified" }
+  ,"legacy.error.1a09a09d2d75fb94": { "other": "The parent menu cannot be changed after creation" }
+  ,"legacy.error.2b5d4a3158530cb3": { "other": "Top-level menus cannot be deleted" }
+  ,"legacy.error.5161f2dbae92bdea": { "other": "Failed to delete the menu: submenus exist" }
+  ,"legacy.error.08ad5a560e3184d5": { "other": "Child numbers 01-99 under the current parent menu are exhausted" }
+  ,"legacy.error.3a64745b27f68327": { "other": "Failed to validate the menu path" }
+  ,"legacy.error.31280f278d823685": { "other": "The menu path already exists" }
+  ,"legacy.error.1c4cb88e436974df": { "other": "Failed to validate the menu route name" }
+  ,"legacy.error.0a52c52e665e302e": { "other": "The menu route name already exists" }
+  ,"legacy.error.89150fa5235640aa": { "other": "The invoke target already exists" }
+  ,"legacy.error.fef61f43d32b6478": { "other": "The message category code already exists" }
+  ,"legacy.error.e60e45a7d017b031": { "other": "Failed to delete the message category: messages still use it" }
+  ,"legacy.error.d932668b9da9984f": { "other": "The frontend page file must be inside the selected business module directory and named index.vue" }
+  ,"legacy.error.2128a7376d079312": { "other": "Absolute file paths are not allowed" }
+  ,"legacy.error.fb8499e034556fe9": { "other": "The assistant reply is still being generated" }
+  ,"legacy.error.195095b8cbabfd1f": { "other": "Only failed messages can be retried" }
+  ,"legacy.error.f729b50ce3ce3983": { "other": "Only the last message can be edited" }
+  ,"legacy.error.7bdaeb66d03d3063": { "other": "This step has expired. Continue from the latest message" }
+  ,"legacy.error.feca044b124b4405": { "other": "Failed to query third-party login provider translations" }
 }
