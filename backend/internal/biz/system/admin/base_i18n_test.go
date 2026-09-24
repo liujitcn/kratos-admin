@@ -10,7 +10,7 @@ import (
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
-	corebiz "github.com/liujitcn/kratos-core/biz"
+	"github.com/liujitcn/kratos-core/biz"
 	"github.com/liujitcn/kratos-kit/cache/memory"
 	kitgorm "github.com/liujitcn/kratos-kit/database/gorm"
 	"gorm.io/driver/sqlite"
@@ -51,7 +51,7 @@ func TestSaveBaseI18nReusesCallerTransaction(t *testing.T) {
 		t.Fatal(err)
 	}
 	tx := data.NewTransaction(store)
-	baseCase := &corebiz.BaseCase{}
+	baseCase := &biz.BaseCase{}
 	languageCase := NewBaseLanguageCase(baseCase, tx, data.NewBaseLanguageRepository(store))
 	i18nCase := NewBaseI18nCase(baseCase, data.NewBaseI18NRepository(store), languageCase)
 	dictCase := NewBaseDictCase(baseCase, tx, data.NewBaseDictRepository(store), nil, i18nCase)
@@ -118,7 +118,7 @@ func TestCreateBaseConfigSavesI18n(t *testing.T) {
 		t.Fatal(err)
 	}
 	tx := data.NewTransaction(store)
-	baseCase := &corebiz.BaseCase{Cache: cacheStore}
+	baseCase := &biz.BaseCase{Cache: cacheStore}
 	languageCase := NewBaseLanguageCase(baseCase, tx, data.NewBaseLanguageRepository(store))
 	i18nCase := NewBaseI18nCase(baseCase, data.NewBaseI18NRepository(store), languageCase)
 	configCase := NewBaseConfigCase(baseCase, tx, data.NewBaseConfigRepository(store), i18nCase)

@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"io"
 
-	utilscrypto "github.com/liujitcn/go-utils/crypto"
+	"github.com/liujitcn/go-utils/crypto"
 )
 
 const fieldCipherNonceSize = 12
@@ -38,9 +38,9 @@ func (c *FieldCipher) Encrypt(algorithm, value string) (string, error) {
 	var err error
 	switch algorithm {
 	case "AES_GCM":
-		ciphertext, err = utilscrypto.AesGCMEncryptWithAAD([]byte(value), c.key, nonce, []byte(configSecretKeyName))
+		ciphertext, err = crypto.AesGCMEncryptWithAAD([]byte(value), c.key, nonce, []byte(configSecretKeyName))
 	case "SM4_GCM":
-		ciphertext, err = utilscrypto.Sm4GCMEncrypt([]byte(value), c.key[:16], nonce)
+		ciphertext, err = crypto.Sm4GCMEncrypt([]byte(value), c.key[:16], nonce)
 	default:
 		return "", fmt.Errorf("不支持的字段加密算法: %s", algorithm)
 	}
@@ -68,9 +68,9 @@ func (c *FieldCipher) Decrypt(algorithm, value string) (string, error) {
 	var plaintext []byte
 	switch algorithm {
 	case "AES_GCM":
-		plaintext, err = utilscrypto.AesGCMDecryptWithAAD(ciphertext, c.key, nonce, []byte(configSecretKeyName))
+		plaintext, err = crypto.AesGCMDecryptWithAAD(ciphertext, c.key, nonce, []byte(configSecretKeyName))
 	case "SM4_GCM":
-		plaintext, err = utilscrypto.Sm4GCMDecrypt(ciphertext, c.key[:16], nonce)
+		plaintext, err = crypto.Sm4GCMDecrypt(ciphertext, c.key[:16], nonce)
 	default:
 		return "", fmt.Errorf("不支持的字段加密算法: %s", algorithm)
 	}
