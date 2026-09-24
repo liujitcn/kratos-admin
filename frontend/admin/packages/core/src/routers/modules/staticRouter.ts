@@ -1,12 +1,13 @@
 import { RouteRecordRaw } from "vue-router";
 import { HOME_URL, LOGIN_URL } from "@/config";
 import { ADMIN_STATIC_VIEWS, getAdminViewRegistry } from "@/modules";
+import { t } from "@/locales";
 
 /** 创建通过视图注册表解析的静态页面加载器。 */
 function createAdminStaticViewLoader(viewPath: string) {
   return () => {
     const viewLoader = getAdminViewRegistry().resolve(viewPath);
-    if (!viewLoader) throw new Error(`未注册管理端静态页面：${viewPath}`);
+    if (!viewLoader) throw new Error(t("core.router.pending_view_unregistered", { view: viewPath }));
     return viewLoader();
   };
 }

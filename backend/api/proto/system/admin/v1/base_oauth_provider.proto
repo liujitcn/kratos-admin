@@ -1,0 +1,105 @@
+syntax = "proto3";
+
+package system.admin.v1;
+
+import "buf/validate/validate.proto";
+import "common/v1/enum.proto";
+import "gnostic/openapi/v3/annotations.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/struct.proto";
+import "system/admin/v1/base_i18n.proto";
+
+// Admin OAuth第三方登录方式管理服务。
+service BaseOauthProviderService {
+  // 分页查询OAuth登录方式。
+  rpc PageBaseOauthProvider(PageBaseOauthProviderRequest) returns (PageBaseOauthProviderResponse) { option (google.api.http) = {get: "/api/v1/admin/base/oauth-provider"}; }
+  // 查询OAuth登录方式详情。
+  rpc GetBaseOauthProvider(GetBaseOauthProviderRequest) returns (BaseOauthProviderForm) { option (google.api.http) = {get: "/api/v1/admin/base/oauth-provider/{id}"}; }
+  // 创建OAuth登录方式。
+  rpc CreateBaseOauthProvider(CreateBaseOauthProviderRequest) returns (google.protobuf.Empty) { option (google.api.http) = {post: "/api/v1/admin/base/oauth-provider" body: "base_oauth_provider"}; }
+  // 更新OAuth登录方式。
+  rpc UpdateBaseOauthProvider(UpdateBaseOauthProviderRequest) returns (google.protobuf.Empty) { option (google.api.http) = {put: "/api/v1/admin/base/oauth-provider/{base_oauth_provider.id}" body: "base_oauth_provider"}; }
+  // 删除OAuth登录方式。
+  rpc DeleteBaseOauthProvider(DeleteBaseOauthProviderRequest) returns (google.protobuf.Empty) { option (google.api.http) = {delete: "/api/v1/admin/base/oauth-provider/{id}"}; }
+  // 设置OAuth登录方式状态。
+  rpc SetBaseOauthProviderStatus(SetBaseOauthProviderStatusRequest) returns (google.protobuf.Empty) { option (google.api.http) = {put: "/api/v1/admin/base/oauth-provider/{id}/status" body: "*"}; }
+}
+
+// OAuth登录方式分页查询条件。
+message PageBaseOauthProviderRequest {
+  optional string provider = 1 [(gnostic.openapi.v3.property) = {description: "Provider标识"}]; // Provider标识
+  optional string name = 2 [(gnostic.openapi.v3.property) = {description: "登录方式名称"}]; // 登录方式名称
+  optional .common.v1.Status status = 3 [(gnostic.openapi.v3.property) = {description: "状态"}, (buf.validate.field).enum = {defined_only: true}]; // 状态
+  int64 page_num = 101 [(gnostic.openapi.v3.property) = {description: "当前页码", default: {number: 1}}, (buf.validate.field).int64 = {gte: 1, lte: 1000000}]; // 当前页码
+  int64 page_size = 102 [(gnostic.openapi.v3.property) = {description: "每页数量", default: {number: 10}}, (buf.validate.field).int64 = {gte: 1, lte: 100}]; // 每页数量
+}
+
+// OAuth登录方式分页响应。
+message PageBaseOauthProviderResponse {
+  repeated BaseOauthProvider base_oauth_providers = 1 [(gnostic.openapi.v3.property) = {description: "OAuth登录方式列表"}]; // OAuth登录方式列表
+  int32 total = 2 [(gnostic.openapi.v3.property) = {description: "总数"}]; // 总数
+}
+
+// OAuth登录方式详情查询条件。
+message GetBaseOauthProviderRequest {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "OAuth登录方式ID"}, (buf.validate.field).cel = {id: "system.admin.base.oauth_provider.get.id.required" message: "OAuth登录方式ID不能为空" expression: "this > 0"}]; // OAuth登录方式ID
+}
+
+// 创建OAuth登录方式请求。
+message CreateBaseOauthProviderRequest {
+  BaseOauthProviderForm base_oauth_provider = 1 [(gnostic.openapi.v3.property) = {description: "OAuth登录方式表单"}, (buf.validate.field).required = true]; // OAuth登录方式表单
+}
+
+// 更新OAuth登录方式请求。
+message UpdateBaseOauthProviderRequest {
+  BaseOauthProviderForm base_oauth_provider = 1 [(gnostic.openapi.v3.property) = {description: "OAuth登录方式表单"}, (buf.validate.field).required = true]; // OAuth登录方式表单
+}
+
+// 删除OAuth登录方式请求。
+message DeleteBaseOauthProviderRequest {
+  string id = 1 [(gnostic.openapi.v3.property) = {description: "OAuth登录方式ID列表"}, (buf.validate.field).cel = {id: "system.admin.base.oauth_provider.delete.id.required" message: "OAuth登录方式ID列表不能为空" expression: "this.size() > 0"}]; // OAuth登录方式ID列表
+}
+
+// 设置OAuth登录方式状态请求。
+message SetBaseOauthProviderStatusRequest {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "OAuth登录方式ID"}, (buf.validate.field).cel = {id: "system.admin.base.oauth_provider.set_status.id.required" message: "OAuth登录方式ID不能为空" expression: "this > 0"}]; // OAuth登录方式ID
+  .common.v1.Status status = 2 [(gnostic.openapi.v3.property) = {description: "状态"}, (buf.validate.field).enum = {defined_only: true}]; // 状态
+}
+
+// OAuth登录方式表单。
+message BaseOauthProviderForm {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "OAuth登录方式ID"}]; // OAuth登录方式ID
+  string provider = 2 [(gnostic.openapi.v3.property) = {description: "Provider稳定标识"}, (buf.validate.field).cel = {id: "system.admin.base.oauth_provider.form.provider.required" message: "Provider标识格式无效" expression: "this.size() > 0 && this.size() <= 32 && this.matches('^[a-z][a-z0-9_-]*$')"}]; // Provider稳定标识
+  string name = 3 [(gnostic.openapi.v3.property) = {description: "登录方式名称"}, (buf.validate.field).cel = {id: "system.admin.base.oauth_provider.form.name.required" message: "登录方式名称不能为空且不能超过50个字符" expression: "this.size() > 0 && this.size() <= 50"}]; // 登录方式名称
+  string description = 4 [(gnostic.openapi.v3.property) = {description: "登录方式提示语"}, (buf.validate.field).cel = {id: "system.admin.base.oauth_provider.form.description.length" message: "登录方式提示语不能超过255个字符" expression: "this.size() <= 255"}]; // 登录方式提示语
+  string icon = 5 [(gnostic.openapi.v3.property) = {description: "图标键或图片地址"}, (buf.validate.field).cel = {id: "system.admin.base.oauth_provider.form.icon.required" message: "图标不能为空且不能超过255个字符" expression: "this.size() > 0 && this.size() <= 255"}]; // 图标键或图片地址
+  string client_id = 6 [(gnostic.openapi.v3.property) = {description: "第三方应用标识"}, (buf.validate.field).cel = {id: "system.admin.base.oauth_provider.form.client_id.required" message: "第三方应用标识不能为空且不能超过255个字符" expression: "this.size() > 0 && this.size() <= 255"}]; // 第三方应用标识
+  string client_secret = 7 [(gnostic.openapi.v3.property) = {description: "第三方应用密钥，更新时留空表示不修改"}, (buf.validate.field).cel = {id: "system.admin.base.oauth_provider.form.client_secret.length" message: "第三方应用密钥不能超过512个字符" expression: "this.size() <= 512"}]; // 第三方应用密钥，更新时留空表示不修改
+  bool secret_configured = 8 [(gnostic.openapi.v3.property) = {description: "是否已配置第三方应用密钥"}]; // 是否已配置第三方应用密钥
+  string redirect_uri = 9 [(gnostic.openapi.v3.property) = {description: "OAuth回调地址"}, (buf.validate.field).cel = {id: "system.admin.base.oauth_provider.form.redirect_uri.length" message: "OAuth回调地址不能超过512个字符" expression: "this.size() <= 512"}]; // OAuth回调地址
+  repeated string scopes = 10 [(gnostic.openapi.v3.property) = {description: "OAuth Scope列表"}, (buf.validate.field).cel = {id: "system.admin.base.oauth_provider.form.scopes.unique" message: "OAuth Scope不能重复" expression: "this.unique()"}]; // OAuth Scope列表
+  google.protobuf.Struct config = 11 [(gnostic.openapi.v3.property) = {description: "Provider个性化配置JSON对象"}]; // Provider个性化配置JSON对象
+  int32 sort = 12 [(gnostic.openapi.v3.property) = {description: "排序"}]; // 排序
+  .common.v1.Status status = 13 [(gnostic.openapi.v3.property) = {description: "状态"}, (buf.validate.field).enum = {defined_only: true}]; // 状态
+  repeated BaseI18n name_i18ns = 14 [(gnostic.openapi.v3.property) = {description: "登录方式名称多语言翻译"}]; // 登录方式名称多语言翻译
+  repeated BaseI18n description_i18ns = 15 [(gnostic.openapi.v3.property) = {description: "登录方式提示语多语言翻译"}]; // 登录方式提示语多语言翻译
+}
+
+// OAuth登录方式。
+message BaseOauthProvider {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "OAuth登录方式ID"}]; // OAuth登录方式ID
+  string provider = 2 [(gnostic.openapi.v3.property) = {description: "Provider稳定标识"}]; // Provider稳定标识
+  string name = 3 [(gnostic.openapi.v3.property) = {description: "登录方式名称"}]; // 登录方式名称
+  string description = 4 [(gnostic.openapi.v3.property) = {description: "登录方式提示语"}]; // 登录方式提示语
+  string icon = 5 [(gnostic.openapi.v3.property) = {description: "图标键或图片地址"}]; // 图标键或图片地址
+  string client_id = 6 [(gnostic.openapi.v3.property) = {description: "第三方应用标识"}]; // 第三方应用标识
+  string redirect_uri = 7 [(gnostic.openapi.v3.property) = {description: "OAuth回调地址"}]; // OAuth回调地址
+  repeated string scopes = 8 [(gnostic.openapi.v3.property) = {description: "OAuth Scope列表"}]; // OAuth Scope列表
+  google.protobuf.Struct config = 9 [(gnostic.openapi.v3.property) = {description: "Provider个性化配置JSON对象"}]; // Provider个性化配置JSON对象
+  int32 sort = 10 [(gnostic.openapi.v3.property) = {description: "排序"}]; // 排序
+  .common.v1.Status status = 11 [(gnostic.openapi.v3.property) = {description: "状态"}]; // 状态
+  bool secret_configured = 12 [(gnostic.openapi.v3.property) = {description: "是否已配置第三方应用密钥"}]; // 是否已配置第三方应用密钥
+  string created_at = 100 [(gnostic.openapi.v3.property) = {description: "创建时间"}]; // 创建时间
+  string updated_at = 101 [(gnostic.openapi.v3.property) = {description: "更新时间"}]; // 更新时间
+}

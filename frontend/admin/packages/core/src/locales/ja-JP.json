@@ -371,5 +371,6 @@
   "common.action.delete_resource": "{resource}を削除",
   "common.action.set_field_status": "{field}を設定",
   "core.home.demo_scope": "機能概要",
-  "core.home.main_title": "管理アプリケーション"
+  "core.home.main_title": "管理アプリケーション",
+  "core.router.pending_view_unregistered": "管理画面の静的ページが登録されていません: {view}"
 }

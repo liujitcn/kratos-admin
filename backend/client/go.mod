@@ -6,7 +6,7 @@ require (
 	github.com/go-kratos/kratos/v3 v3.0.0
 	github.com/liujitcn/kratos-admin/backend/api v0.0.17
 	github.com/liujitcn/kratos-core/client v0.0.10
-	github.com/liujitcn/kratos-kit/api v0.0.39
+	github.com/liujitcn/kratos-kit/api v0.0.40
 )
 
 require (
@@ -129,16 +129,16 @@ require (
 	github.com/liujitcn/kratos-kit/database/gorm v0.0.49 // indirect
 	github.com/liujitcn/kratos-kit/database/gorm/driver v0.0.19 // indirect
 	github.com/liujitcn/kratos-kit/key v0.0.6 // indirect
-	github.com/liujitcn/kratos-kit/locker v0.0.19 // indirect
+	github.com/liujitcn/kratos-kit/locker v0.0.20 // indirect
 	github.com/liujitcn/kratos-kit/metrics v0.0.3 // indirect
 	github.com/liujitcn/kratos-kit/metrics/prometheus v0.0.5 // indirect
 	github.com/liujitcn/kratos-kit/oss v0.0.21 // indirect
 	github.com/liujitcn/kratos-kit/oss/s3 v0.0.4 // indirect
-	github.com/liujitcn/kratos-kit/queue v0.0.31 // indirect
+	github.com/liujitcn/kratos-kit/queue v0.0.32 // indirect
 	github.com/liujitcn/kratos-kit/queue/redisqueue v0.0.16 // indirect
 	github.com/liujitcn/kratos-kit/ratelimit v0.0.2 // indirect
 	github.com/liujitcn/kratos-kit/ratelimit/tokenbucket v0.0.3 // indirect
-	github.com/liujitcn/kratos-kit/redact v0.0.11 // indirect
+	github.com/liujitcn/kratos-kit/redact v0.0.12 // indirect
 	github.com/liujitcn/kratos-kit/retry v0.0.3 // indirect
 	github.com/liujitcn/kratos-kit/tracing v0.0.12 // indirect
 	github.com/liujitcn/kratos-kit/transport v0.0.25 // indirect

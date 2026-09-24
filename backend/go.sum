@@ -708,8 +708,8 @@ github.com/liujitcn/go-utils/translator/volc v0.0.4 h1:2HOmyC67bKRcGXNXHCi3vco/L
 github.com/liujitcn/go-utils/translator/volc v0.0.4/go.mod h1:drNm2jfUCXfFB089DthBcR727wTHAKbxi7sF/cwOnd0=
 github.com/liujitcn/gorm-kit v0.0.35 h1:sM8hBg7zLcZJ9qF7aW3eA0GiFXKk6i2q4BLb3FTc5ls=
 github.com/liujitcn/gorm-kit v0.0.35/go.mod h1:9ZJbYSydcprWdTG7wf+kW8qqxdF0Aw6fAC2tY2Ogdcs=
-github.com/liujitcn/kratos-core v0.0.39 h1:LBYnSL42zsYCm0gejegS1dey51gSqzLwvpDMmgfFMHY=
-github.com/liujitcn/kratos-core v0.0.39/go.mod h1:NlwX5MPEnfljjCnnq/QzS6M+QkLhwo/oRKVPNw2cxco=
+github.com/liujitcn/kratos-core v0.0.40 h1:rzCTPb/xWxfMOKMA1F2ZjmDt9i/sOVG4/OtFyUy1x9M=
+github.com/liujitcn/kratos-core v0.0.40/go.mod h1:INHcQ8M+1U0vIHQQ20OO60/gp+1AhBnzTso+GAFF6A0=
 github.com/liujitcn/kratos-core/api v0.0.4 h1:Tw1+FSk8/anqr+vr6yZb+Bv1Kpf/c5/oEJg6V1BQSgM=
 github.com/liujitcn/kratos-core/api v0.0.4/go.mod h1:VqXAXmqT6uPL1nvzgl0Exh458iDrYO0mr3VGH1Kg1lQ=
 github.com/liujitcn/kratos-kit v0.0.88 h1:wzLg7BDDiq930ayMG5mb6bJKPl65ENCwNYKAhg6WXgA=
@@ -738,8 +738,8 @@ github.com/liujitcn/kratos-kit/cache v0.0.22 h1:bhqC9s7FQ8MLDM+/97xTfJyx6mAB4ejc
 github.com/liujitcn/kratos-kit/cache v0.0.22/go.mod h1:2kXaQantBLp8NIgrtz74gCqYUP34wJOPpIIB1yYyRZ0=
 github.com/liujitcn/kratos-kit/captcha v0.0.23 h1:FSUeR1nR5dN+NJge2HrY39TAxhnUAhSU6CScMl/GBYs=
 github.com/liujitcn/kratos-kit/captcha v0.0.23/go.mod h1:KRZOL/meEtpn2adDYIAtPsOLctpXxRbm9Be/0+KG6ZE=
-github.com/liujitcn/kratos-kit/config v0.0.34 h1:P8bnkgZETvTYE6QTiMnNBhSz2yBBpbN2/Hb8diiMmTc=
-github.com/liujitcn/kratos-kit/config v0.0.34/go.mod h1:BZVaprSB8XoHbJbPsk219DjTPuKrVWQ4w8CF0+wK+EU=
+github.com/liujitcn/kratos-kit/config v0.0.35 h1:S/ivengaoXv0hyAzzWTAxpgVujE51y4pHjBp0s2kt+4=
+github.com/liujitcn/kratos-kit/config v0.0.35/go.mod h1:XBQLh/XZGfs15lZeTOdNaNCjrxPXfvlxtTW1PfuhPW0=
 github.com/liujitcn/kratos-kit/database/gorm v0.0.49 h1:Yz3Ga8wO9IlDlobYWxNJah4DtxPM/PwMHmL0cvC+sds=
 github.com/liujitcn/kratos-kit/database/gorm v0.0.49/go.mod h1:3t25QMGkNp1v2aMnRTbECtJ5S5fFphqog+lVoalHxXs=
 github.com/liujitcn/kratos-kit/database/gorm/driver v0.0.19 h1:XS2yM+ymXSvvtOx22jaWAMSvURga1YZWYLp/VDTqjBw=

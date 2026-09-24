@@ -2,7 +2,6 @@ package biz
 
 import (
 	"context"
-	"fmt"
 	"html"
 	"io"
 	"net/http"
@@ -91,7 +90,11 @@ func (c *AiSearchCase) fetchBingPage(ctx context.Context, query string, limit in
 	}
 	defer response.Body.Close()
 	if response.StatusCode != http.StatusOK {
-		return "", errorsx.Internal(fmt.Sprintf("联网搜索服务返回异常状态: %d", response.StatusCode))
+		return "", errorsx.WithMessageKey(
+			errorsx.Internal("联网搜索服务返回异常状态"),
+			"base.ai.search.http_status",
+			map[string]string{"Status": strconv.Itoa(response.StatusCode)},
+		)
 	}
 	body, err := io.ReadAll(io.LimitReader(response.Body, aiSearchMaxBodyBytes))
 	if err != nil {

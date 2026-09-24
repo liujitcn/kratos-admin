@@ -371,5 +371,6 @@
   "common.action.delete_resource": "删除{resource}",
   "common.action.set_field_status": "设置{field}",
   "core.home.demo_scope": "功能概览",
-  "core.home.main_title": "管理应用"
+  "core.home.main_title": "管理应用",
+  "core.router.pending_view_unregistered": "未注册管理端静态页面：{view}"
 }

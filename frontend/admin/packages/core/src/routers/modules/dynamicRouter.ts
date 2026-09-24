@@ -89,7 +89,7 @@ function resolveRouteComponent(component?: string) {
   if (viewLoader) return viewLoader;
 
   const pendingViewLoader = viewRegistry.resolve(ADMIN_STATIC_VIEWS.PENDING);
-  if (!pendingViewLoader) throw new Error(`未注册管理端静态页面：${ADMIN_STATIC_VIEWS.PENDING}`);
+  if (!pendingViewLoader) throw new Error(t("core.router.pending_view_unregistered", { view: ADMIN_STATIC_VIEWS.PENDING }));
   return pendingViewLoader;
 }
 

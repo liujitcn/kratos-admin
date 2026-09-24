@@ -1422,8 +1422,8 @@ func newMfaRuntimeConfig(config *configv1.Mfa) mfaRuntimeConfig {
 		totpAlgorithm:        otp.AlgorithmSHA1,
 		webauthnRPID:         "localhost",
 		webauthnOrigins: []string{
-			"http://localhost:3000", "http://localhost:5173", "http://localhost:5002", "http://localhost:5004",
-			"http://127.0.0.1:3000", "http://127.0.0.1:5173", "http://127.0.0.1:5002", "http://127.0.0.1:5004",
+			"http://localhost:7001", "http://localhost:8848", "http://localhost:5002", "http://localhost:5004",
+			"http://127.0.0.1:7001", "http://127.0.0.1:8848", "http://127.0.0.1:5002", "http://127.0.0.1:5004",
 		},
 	}
 	if config == nil {
