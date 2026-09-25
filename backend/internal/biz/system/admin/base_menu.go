@@ -115,7 +115,7 @@ func (c *BaseMenuCase) localizedMenuTitles(ctx context.Context, list []*models.B
 	for _, item := range list {
 		targetIDs = append(targetIDs, item.ID)
 	}
-	return c.baseI18nCase.GetBaseI18nNameMapByLocale(ctx, adminv1.I18nTargetType_I18N_TARGET_TYPE_BASE_MENU_META_TITLE, biz.LocaleFromContext(ctx), targetIDs)
+	return c.baseI18nCase.GetBaseI18nNameMapByLocale(ctx, _const.I18N_TARGET_KEY_BASE_MENU_META_TITLE, biz.LocaleFromContext(ctx), targetIDs)
 }
 
 // TreeBaseMenu 查询菜单树
@@ -158,7 +158,7 @@ func (c *BaseMenuCase) TreeBaseMenu(ctx context.Context, req *adminv1.TreeBaseMe
 		targetIds = append(targetIds, item.ID)
 	}
 	var i18ns map[int64][]*adminv1.BaseI18n
-	i18ns, err = c.baseI18nCase.GetBaseI18nMapByTargetType(ctx, adminv1.I18nTargetType_I18N_TARGET_TYPE_BASE_MENU_META_TITLE, targetIds)
+	i18ns, err = c.baseI18nCase.GetBaseI18nMapByTargetKey(ctx, _const.I18N_TARGET_KEY_BASE_MENU_META_TITLE, targetIds)
 	if err != nil {
 		return nil, err
 	}
@@ -178,7 +178,7 @@ func (c *BaseMenuCase) GetBaseMenu(ctx context.Context, id int64) (*adminv1.Base
 	}
 	form := c.formMapper.ToDTO(baseMenu)
 	var i18ns map[int64][]*adminv1.BaseI18n
-	i18ns, err = c.baseI18nCase.GetBaseI18nMapByTargetType(ctx, adminv1.I18nTargetType_I18N_TARGET_TYPE_BASE_MENU_META_TITLE, []int64{id})
+	i18ns, err = c.baseI18nCase.GetBaseI18nMapByTargetKey(ctx, _const.I18N_TARGET_KEY_BASE_MENU_META_TITLE, []int64{id})
 	if err != nil {
 		return nil, err
 	}
@@ -275,7 +275,7 @@ func (c *BaseMenuCase) DeleteBaseMenu(ctx context.Context, id string) error {
 		if err = c.DeleteByIDs(ctx, ids); err != nil {
 			return err
 		}
-		if err = c.baseI18nCase.DeleteBaseI18n(ctx, adminv1.I18nTargetType_I18N_TARGET_TYPE_BASE_MENU_META_TITLE, ids); err != nil {
+		if err = c.baseI18nCase.DeleteBaseI18n(ctx, _const.I18N_TARGET_KEY_BASE_MENU_META_TITLE, ids); err != nil {
 			return err
 		}
 		return c.casbinRuleCase.DeleteCasbinRuleByMenuIDs(ctx, ids)
@@ -295,7 +295,7 @@ func (c *BaseMenuCase) SetBaseMenuStatus(ctx context.Context, req *adminv1.SetBa
 
 // SaveGeneratedMenuI18ns 保存代码生成器提供的菜单译文，不覆盖已有非空内容。
 func (c *BaseMenuCase) SaveGeneratedMenuI18ns(ctx context.Context, menuID int64, _ string, i18ns map[string]string) error {
-	return c.baseI18nCase.SaveGeneratedI18ns(ctx, adminv1.I18nTargetType_I18N_TARGET_TYPE_BASE_MENU_META_TITLE, menuID, i18ns)
+	return c.baseI18nCase.SaveGeneratedI18ns(ctx, _const.I18N_TARGET_KEY_BASE_MENU_META_TITLE, menuID, i18ns)
 }
 
 // createBaseMenu 校验父级并按层级编号规则创建菜单。
@@ -487,7 +487,7 @@ func (c *BaseMenuCase) listSubtreeIDs(ctx context.Context, rootID int64) ([]int6
 // saveBaseI18n 保存菜单标题翻译并同步菜单元信息中的主标题。
 func (c *BaseMenuCase) saveBaseI18n(ctx context.Context, req *adminv1.BaseMenuForm, entity *models.BaseMenu) error {
 	sourceTitle := req.GetMeta().GetTitle()
-	return c.baseI18nCase.SaveBaseI18n(ctx, adminv1.I18nTargetType_I18N_TARGET_TYPE_BASE_MENU_META_TITLE, entity.ID, sourceTitle, req.GetI18ns(), func(ctx context.Context, title string) error {
+	return c.baseI18nCase.SaveBaseI18n(ctx, _const.I18N_TARGET_KEY_BASE_MENU_META_TITLE, entity.ID, sourceTitle, req.GetI18ns(), func(ctx context.Context, title string) error {
 		var metadata map[string]any
 		err := json.Unmarshal([]byte(entity.Meta), &metadata)
 		if err != nil {

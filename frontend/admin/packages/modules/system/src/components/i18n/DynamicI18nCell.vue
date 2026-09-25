@@ -1,10 +1,10 @@
 <template>
   <DynamicI18nEditor
     v-if="enabled"
-    :key="`${targetType}:${targetId}`"
+    :key="`${targetKey}:${targetId}`"
     :model-value="values"
     :source="source"
-    :readonly="!editable || !targetType || !targetId || saving"
+    :readonly="!editable || !targetKey || !targetId || saving"
     :maxlength="10000"
     @update:model-value="saveValues"
   >
@@ -21,14 +21,14 @@
 import { computed, ref, watch } from "vue";
 import { t, useLocaleStore } from "@liujitcn/kratos-admin-core";
 import { defBaseI18nService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/base_i18n";
-import type { BaseI18n, I18nTargetType } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_i18n";
+import type { BaseI18n } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_i18n";
 import DynamicI18nEditor from "./DynamicI18nEditor.vue";
 import { getEditableLanguageOptions, type DynamicI18nValue } from "./dynamicI18n";
 
 /** 列表国际化字段入口，未启用非主语言时退回普通文本。 */
 interface DynamicI18nCellProps {
   source: string;
-  targetType?: I18nTargetType;
+  targetKey?: string;
   targetId?: number;
   i18ns?: BaseI18n[];
   editable?: boolean;
@@ -49,9 +49,9 @@ const displaySource = computed(() => values.value.find(item => item.locale === l
 
 /** 仅在确认后保存发生变化的译文，打开窗口不会自动翻译或写库。 */
 async function saveValues(next: DynamicI18nValue[]) {
-  const targetType = props.targetType;
+  const targetKey = props.targetKey;
   const targetId = props.targetId;
-  if (!props.editable || !targetType || !targetId || saving.value) return;
+  if (!props.editable || !targetKey || !targetId || saving.value) return;
   const changed = next.filter(item => item.text !== values.value.find(value => value.locale === item.locale)?.text);
   if (!changed.length) return;
   const version = resourceVersion;
@@ -61,7 +61,7 @@ async function saveValues(next: DynamicI18nValue[]) {
       changed.map(async item => {
         await defBaseI18nService.UpdateBaseI18n({
           id: item.id,
-          target_type: targetType,
+          target_key: targetKey,
           target_id: targetId,
           locale: item.locale,
           name: item.text
@@ -81,7 +81,7 @@ async function saveValues(next: DynamicI18nValue[]) {
 }
 
 watch(
-  () => [props.targetType, props.targetId],
+  () => [props.targetKey, props.targetId],
   () => {
     resourceVersion++;
     overrides.value.clear();

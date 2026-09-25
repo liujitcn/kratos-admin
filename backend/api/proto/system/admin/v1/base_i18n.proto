@@ -26,30 +26,6 @@ service BaseI18nService {
   }
 }
 
-// 统一翻译表目标类型，和 base_i18n.target_type 的值一一对应。
-enum I18nTargetType {
-  // 未指定统一翻译表目标类型。
-  I18N_TARGET_TYPE_UNSPECIFIED = 0;
-  // 系统配置值。
-  I18N_TARGET_TYPE_BASE_CONFIG_VALUE = 1;
-  // 系统配置名称。
-  I18N_TARGET_TYPE_BASE_CONFIG_NAME = 2;
-  // 字典名称。
-  I18N_TARGET_TYPE_BASE_DICT_NAME = 3;
-  // 字典项标签。
-  I18N_TARGET_TYPE_BASE_DICT_ITEM_LABEL = 4;
-  // 菜单标题。
-  I18N_TARGET_TYPE_BASE_MENU_META_TITLE = 5;
-  // 定时任务名称。
-  I18N_TARGET_TYPE_BASE_JOB_NAME = 6;
-  // 数据库迁移说明。
-  I18N_TARGET_TYPE_BASE_MIGRATION_DESCRIPTION = 7;
-  // OAuth登录方式名称。
-  I18N_TARGET_TYPE_BASE_OAUTH_PROVIDER_NAME = 8;
-  // OAuth登录方式提示语。
-  I18N_TARGET_TYPE_BASE_OAUTH_PROVIDER_DESCRIPTION = 9;
-}
-
 // 翻译单个文本请求。
 message DraftBaseI18nRequest {
   string source = 1 [
@@ -77,12 +53,12 @@ message UpdateBaseI18nRequest {
   option (buf.validate.message).cel = {
     id: "system.admin.base.i18n.update.target.required"
     message: "ID为零时必须提供完整目标信息"
-    expression: "this.id >= 0 && (this.id > 0 || (this.target_type != 0 && this.target_id > 0 && this.locale.size() > 0))"
+    expression: "this.id >= 0 && (this.id > 0 || (this.target_key.size() > 0 && this.target_key.size() <= 128 && this.target_key.split('.').size() >= 2 && this.target_key.split('.').all(segment, segment.matches('^[a-z][a-z0-9_]*$')) && this.target_id > 0 && this.locale.size() > 0))"
   };
 
   int64 id = 1 [(gnostic.openapi.v3.property) = {description: "翻译记录ID，大于零时优先按ID更新；ID不存在时根据目标信息更新或新增"}]; // 翻译记录ID，大于零时优先按ID更新；ID不存在时根据目标信息更新或新增
 
-  I18nTargetType target_type = 2 [(gnostic.openapi.v3.property) = {description: "翻译目标类型，ID为零时用于查询或新增"}, (buf.validate.field).enum = {defined_only: true}]; // 翻译目标类型，ID为零时用于查询或新增
+  string target_key = 2 [(gnostic.openapi.v3.property) = {description: "翻译目标键"}]; // 翻译目标键，格式为表名.字段名
 
   int64 target_id = 3 [(gnostic.openapi.v3.property) = {description: "目标资源ID，ID为零时用于查询或新增"}]; // 目标资源ID，ID为零时用于查询或新增
 
@@ -95,7 +71,7 @@ message UpdateBaseI18nRequest {
 // 国际化翻译信息
 message BaseI18n {
   int64 id = 1 [(gnostic.openapi.v3.property) = {description: "主键ID"}]; // 翻译记录ID
-  I18nTargetType target_type = 2 [(gnostic.openapi.v3.property) = {description: "目标类型：枚举【I18nTargetType】"}]; // 翻译目标类型
+  string target_key = 2 [(gnostic.openapi.v3.property) = {description: "翻译目标键"}]; // 翻译目标键，格式为表名.字段名
   int64 target_id = 3 [(gnostic.openapi.v3.property) = {description: "目标ID"}]; // 目标资源ID
   string locale = 4 [(gnostic.openapi.v3.property) = {description: "语言区域"}]; // 语言区域
   string name = 5 [(gnostic.openapi.v3.property) = {description: "翻译文本"}]; // 翻译文本

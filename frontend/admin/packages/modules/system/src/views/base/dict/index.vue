@@ -46,7 +46,6 @@ import { loadEnabledBaseLanguages } from "@liujitcn/kratos-admin-system/api/syst
 import type { BaseDict, BaseDictForm, PageBaseDictRequest } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_dict";
 import router, { navigateTo } from "@liujitcn/kratos-admin-core/navigation";
 import { Status } from "@liujitcn/kratos-admin-system/rpc/common/v1/enum";
-import { I18nTargetType } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_i18n";
 import { buildPageRequest, normalizeSelectedIds } from "@liujitcn/kratos-admin-core/table";
 import { t } from "@liujitcn/kratos-admin-core";
 import DynamicI18nEditor from "@liujitcn/kratos-admin-system/components/i18n/DynamicI18nEditor.vue";
@@ -139,7 +138,7 @@ function renderDictNameCell(scope: RenderScope<BaseDict>) {
   const row = scope.row;
   return h(DynamicI18nCell, {
     source: row.name,
-    targetType: I18nTargetType.I18N_TARGET_TYPE_BASE_DICT_NAME,
+    targetKey: "base_dict.name",
     targetId: row.id,
     i18ns: row.i18ns
   });
@@ -294,7 +293,7 @@ function handleSubmit() {
     const submitData = JSON.parse(JSON.stringify(formData)) as BaseDictForm;
     submitData.i18ns = serializeDynamicI18ns(
       i18nValues.value,
-      I18nTargetType.I18N_TARGET_TYPE_BASE_DICT_NAME,
+      "base_dict.name",
       submitData.id,
       submitData.name
     );

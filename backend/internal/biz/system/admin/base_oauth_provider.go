@@ -6,6 +6,7 @@ import (
 	"time"
 
 	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
+	_const "github.com/liujitcn/kratos-admin/backend/internal/const"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
@@ -63,7 +64,7 @@ func (c *BaseOauthProviderCase) PageBaseOauthProvider(ctx context.Context, req *
 	if req.GetName() != "" {
 		var translatedIDs []int64
 		var err error
-		translatedIDs, err = c.baseI18nCase.GetTargetIdsByName(ctx, adminv1.I18nTargetType_I18N_TARGET_TYPE_BASE_OAUTH_PROVIDER_NAME, req.GetName())
+		translatedIDs, err = c.baseI18nCase.GetTargetIdsByName(ctx, _const.I18N_TARGET_KEY_BASE_OAUTH_PROVIDER_NAME, req.GetName())
 		if err != nil {
 			return nil, err
 		}
@@ -103,11 +104,11 @@ func (c *BaseOauthProviderCase) GetBaseOauthProvider(ctx context.Context, idValu
 	if err != nil {
 		return nil, err
 	}
-	nameI18ns, err := c.baseI18nCase.GetBaseI18nMapByTargetType(ctx, adminv1.I18nTargetType_I18N_TARGET_TYPE_BASE_OAUTH_PROVIDER_NAME, []int64{idValue})
+	nameI18ns, err := c.baseI18nCase.GetBaseI18nMapByTargetKey(ctx, _const.I18N_TARGET_KEY_BASE_OAUTH_PROVIDER_NAME, []int64{idValue})
 	if err != nil {
 		return nil, err
 	}
-	descriptionI18ns, err := c.baseI18nCase.GetBaseI18nMapByTargetType(ctx, adminv1.I18nTargetType_I18N_TARGET_TYPE_BASE_OAUTH_PROVIDER_DESCRIPTION, []int64{idValue})
+	descriptionI18ns, err := c.baseI18nCase.GetBaseI18nMapByTargetKey(ctx, _const.I18N_TARGET_KEY_BASE_OAUTH_PROVIDER_DESCRIPTION, []int64{idValue})
 	if err != nil {
 		return nil, err
 	}
@@ -189,10 +190,10 @@ func (c *BaseOauthProviderCase) DeleteBaseOauthProvider(ctx context.Context, ids
 		if err = c.DeleteByIDs(txCtx, idValues); err != nil {
 			return err
 		}
-		if err = c.baseI18nCase.DeleteBaseI18n(txCtx, adminv1.I18nTargetType_I18N_TARGET_TYPE_BASE_OAUTH_PROVIDER_NAME, idValues); err != nil {
+		if err = c.baseI18nCase.DeleteBaseI18n(txCtx, _const.I18N_TARGET_KEY_BASE_OAUTH_PROVIDER_NAME, idValues); err != nil {
 			return err
 		}
-		return c.baseI18nCase.DeleteBaseI18n(txCtx, adminv1.I18nTargetType_I18N_TARGET_TYPE_BASE_OAUTH_PROVIDER_DESCRIPTION, idValues)
+		return c.baseI18nCase.DeleteBaseI18n(txCtx, _const.I18N_TARGET_KEY_BASE_OAUTH_PROVIDER_DESCRIPTION, idValues)
 	})
 	if err != nil {
 		return err
@@ -260,11 +261,11 @@ func (c *BaseOauthProviderCase) toDTO(item *models.BaseOauthProvider) (*adminv1.
 // saveI18ns 保存 OAuth 登录方式名称和提示语翻译。
 func (c *BaseOauthProviderCase) saveI18ns(ctx context.Context, req *adminv1.BaseOauthProviderForm, item *models.BaseOauthProvider) error {
 	var err error
-	err = c.baseI18nCase.SaveBaseI18n(ctx, adminv1.I18nTargetType_I18N_TARGET_TYPE_BASE_OAUTH_PROVIDER_NAME, item.ID, item.Name, req.GetNameI18ns(), nil)
+	err = c.baseI18nCase.SaveBaseI18n(ctx, _const.I18N_TARGET_KEY_BASE_OAUTH_PROVIDER_NAME, item.ID, item.Name, req.GetNameI18ns(), nil)
 	if err != nil {
 		return err
 	}
-	return c.baseI18nCase.SaveBaseI18n(ctx, adminv1.I18nTargetType_I18N_TARGET_TYPE_BASE_OAUTH_PROVIDER_DESCRIPTION, item.ID, item.Description, req.GetDescriptionI18ns(), nil)
+	return c.baseI18nCase.SaveBaseI18n(ctx, _const.I18N_TARGET_KEY_BASE_OAUTH_PROVIDER_DESCRIPTION, item.ID, item.Description, req.GetDescriptionI18ns(), nil)
 }
 
 // decodeOauthProviderJSON 解析 OAuth Scope 数组和个性化配置对象。

@@ -11,6 +11,7 @@ import (
 	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
 	biz "github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/dto"
+	_const "github.com/liujitcn/kratos-admin/backend/internal/const"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 	"github.com/liujitcn/kratos-admin/backend/internal/i18n"
@@ -42,18 +43,17 @@ type BaseI18nTask struct {
 	mu           sync.Mutex
 }
 
-type i18nIndex map[adminv1.I18nTargetType]map[dto.I18nKey]*models.BaseI18N
+type i18nIndex map[string]map[dto.I18nKey]*models.BaseI18N
 
-func (i i18nIndex) get(targetType adminv1.I18nTargetType, targetID int64, locale string) *models.BaseI18N {
-	return i[targetType][dto.I18nKey{TargetID: targetID, Locale: locale}]
+func (i i18nIndex) get(targetKey string, targetID int64, locale string) *models.BaseI18N {
+	return i[targetKey][dto.I18nKey{TargetID: targetID, Locale: locale}]
 }
 
 func (i i18nIndex) set(row *models.BaseI18N) {
-	targetType := adminv1.I18nTargetType(row.TargetType)
-	rows := i[targetType]
+	rows := i[row.TargetKey]
 	if rows == nil {
 		rows = make(map[dto.I18nKey]*models.BaseI18N)
-		i[targetType] = rows
+		i[row.TargetKey] = rows
 	}
 	rows[dto.I18nKey{TargetID: row.TargetID, Locale: row.Locale}] = row
 }
@@ -117,7 +117,7 @@ func (t *BaseI18nTask) Exec(ctx context.Context, _ map[string]string) ([]string,
 	for _, menu := range menus {
 		menuIDs = append(menuIDs, menu.ID)
 	}
-	t.translateIDs(ctx, state, i18ns, adminv1.I18nTargetType_I18N_TARGET_TYPE_BASE_MENU_META_TITLE, menuIDs, locales, "菜单", &translatedCount, &failedCount, &firstErr)
+	t.translateIDs(ctx, state, i18ns, _const.I18N_TARGET_KEY_BASE_MENU_META_TITLE, menuIDs, locales, "菜单", &translatedCount, &failedCount, &firstErr)
 
 	dictQuery := t.dictRepo.Query(ctx).BaseDict
 	var dicts []*models.BaseDict
@@ -129,7 +129,7 @@ func (t *BaseI18nTask) Exec(ctx context.Context, _ map[string]string) ([]string,
 	for _, dict := range dicts {
 		dictIDs = append(dictIDs, dict.ID)
 	}
-	t.translateIDs(ctx, state, i18ns, adminv1.I18nTargetType_I18N_TARGET_TYPE_BASE_DICT_NAME, dictIDs, locales, "字典", &translatedCount, &failedCount, &firstErr)
+	t.translateIDs(ctx, state, i18ns, _const.I18N_TARGET_KEY_BASE_DICT_NAME, dictIDs, locales, "字典", &translatedCount, &failedCount, &firstErr)
 
 	dictItemQuery := t.dictItemRepo.Query(ctx).BaseDictItem
 	var dictItems []*models.BaseDictItem
@@ -141,7 +141,7 @@ func (t *BaseI18nTask) Exec(ctx context.Context, _ map[string]string) ([]string,
 	for _, item := range dictItems {
 		dictItemIDs = append(dictItemIDs, item.ID)
 	}
-	t.translateIDs(ctx, state, i18ns, adminv1.I18nTargetType_I18N_TARGET_TYPE_BASE_DICT_ITEM_LABEL, dictItemIDs, locales, "字典项", &translatedCount, &failedCount, &firstErr)
+	t.translateIDs(ctx, state, i18ns, _const.I18N_TARGET_KEY_BASE_DICT_ITEM_LABEL, dictItemIDs, locales, "字典项", &translatedCount, &failedCount, &firstErr)
 
 	configQuery := t.configRepo.Query(ctx).BaseConfig
 	var configs []*models.BaseConfig
@@ -157,8 +157,8 @@ func (t *BaseI18nTask) Exec(ctx context.Context, _ map[string]string) ([]string,
 			configValueIDs = append(configValueIDs, config.ID)
 		}
 	}
-	t.translateIDs(ctx, state, i18ns, adminv1.I18nTargetType_I18N_TARGET_TYPE_BASE_CONFIG_NAME, configNameIDs, locales, "系统配置名称", &translatedCount, &failedCount, &firstErr)
-	t.translateIDs(ctx, state, i18ns, adminv1.I18nTargetType_I18N_TARGET_TYPE_BASE_CONFIG_VALUE, configValueIDs, locales, "系统配置值", &translatedCount, &failedCount, &firstErr)
+	t.translateIDs(ctx, state, i18ns, _const.I18N_TARGET_KEY_BASE_CONFIG_NAME, configNameIDs, locales, "系统配置名称", &translatedCount, &failedCount, &firstErr)
+	t.translateIDs(ctx, state, i18ns, _const.I18N_TARGET_KEY_BASE_CONFIG_VALUE, configValueIDs, locales, "系统配置值", &translatedCount, &failedCount, &firstErr)
 
 	jobQuery := t.jobRepo.Query(ctx).BaseJob
 	var jobs []*models.BaseJob
@@ -170,7 +170,7 @@ func (t *BaseI18nTask) Exec(ctx context.Context, _ map[string]string) ([]string,
 	for _, job := range jobs {
 		jobIDs = append(jobIDs, job.ID)
 	}
-	t.translateIDs(ctx, state, i18ns, adminv1.I18nTargetType_I18N_TARGET_TYPE_BASE_JOB_NAME, jobIDs, locales, "定时任务", &translatedCount, &failedCount, &firstErr)
+	t.translateIDs(ctx, state, i18ns, _const.I18N_TARGET_KEY_BASE_JOB_NAME, jobIDs, locales, "定时任务", &translatedCount, &failedCount, &firstErr)
 
 	output := []string{i18n.EncodeMessage("system.base.job.result.i18n_translated_count", map[string]string{"Count": strconv.Itoa(translatedCount)})}
 	if failedCount > 0 {
@@ -193,7 +193,7 @@ func (t *BaseI18nTask) loadI18nIndex(ctx context.Context) (i18nIndex, error) {
 }
 
 // translateOneWithState 使用已读取的语言状态生成单个资源译文。
-func (t *BaseI18nTask) translateOneWithState(ctx context.Context, state *dto.LocaleState, i18ns i18nIndex, targetType adminv1.I18nTargetType, targetID int64, sourceLocale string, targetLocale string, sourceText string) error {
+func (t *BaseI18nTask) translateOneWithState(ctx context.Context, state *dto.LocaleState, i18ns i18nIndex, targetKey string, targetID int64, sourceLocale string, targetLocale string, sourceText string) error {
 	if t.i18nCase.Translator == nil {
 		return errorsx.PermissionDenied("机器翻译功能未启用")
 	}
@@ -211,7 +211,7 @@ func (t *BaseI18nTask) translateOneWithState(ctx context.Context, state *dto.Loc
 	if i18ns == nil {
 		query := t.i18nCase.Query(ctx).BaseI18N
 		row, err = t.i18nCase.Find(ctx,
-			repository.Where(query.TargetType.Eq(int32(targetType))),
+			repository.Where(query.TargetKey.Eq(targetKey)),
 			repository.Where(query.TargetID.Eq(targetID)),
 			repository.Where(query.Locale.Eq(targetLocale)),
 		)
@@ -219,14 +219,14 @@ func (t *BaseI18nTask) translateOneWithState(ctx context.Context, state *dto.Loc
 			return err
 		}
 	} else {
-		row = i18ns.get(targetType, targetID, targetLocale)
+		row = i18ns.get(targetKey, targetID, targetLocale)
 	}
 	if row != nil && row.Name != "" {
 		return errorsx.Conflict("已有非空译文，不允许被机器翻译覆盖")
 	}
 	if sourceText == "" {
 		var source *dto.I18nDraftSource
-		source, err = t.i18nSource(ctx, targetType, targetID)
+		source, err = t.i18nSource(ctx, targetKey, targetID)
 		if err != nil {
 			return err
 		}
@@ -241,7 +241,7 @@ func (t *BaseI18nTask) translateOneWithState(ctx context.Context, state *dto.Loc
 		return errorsx.Internal("生成翻译失败").WithCause(err)
 	}
 	if row == nil {
-		row = &models.BaseI18N{TargetType: int32(targetType), TargetID: targetID, Locale: targetLocale, Name: translated}
+		row = &models.BaseI18N{TargetKey: targetKey, TargetID: targetID, Locale: targetLocale, Name: translated}
 		if err = t.i18nCase.Create(ctx, row); err != nil {
 			return err
 		}
@@ -255,11 +255,11 @@ func (t *BaseI18nTask) translateOneWithState(ctx context.Context, state *dto.Loc
 }
 
 // translateIDs 批量调用统一翻译入口并统计结果。
-func (t *BaseI18nTask) translateIDs(ctx context.Context, state *dto.LocaleState, i18ns i18nIndex, targetType adminv1.I18nTargetType, targetIDs []int64, locales []string, resourceName string, translatedCount, failedCount *int, firstErr *error) {
+func (t *BaseI18nTask) translateIDs(ctx context.Context, state *dto.LocaleState, i18ns i18nIndex, targetKey string, targetIDs []int64, locales []string, resourceName string, translatedCount, failedCount *int, firstErr *error) {
 	var err error
 	for _, targetID := range targetIDs {
 		for _, localeValue := range locales {
-			err = t.translateOneWithState(ctx, state, i18ns, targetType, targetID, state.Primary, localeValue, "")
+			err = t.translateOneWithState(ctx, state, i18ns, targetKey, targetID, state.Primary, localeValue, "")
 			if err == nil {
 				*translatedCount = *translatedCount + 1
 				continue
@@ -277,11 +277,11 @@ func (t *BaseI18nTask) translateIDs(ctx context.Context, state *dto.LocaleState,
 }
 
 // i18nSource 读取允许外发的资源源文。
-func (t *BaseI18nTask) i18nSource(ctx context.Context, targetType adminv1.I18nTargetType, targetID int64) (*dto.I18nDraftSource, error) {
-	source := &dto.I18nDraftSource{TargetType: targetType, TargetID: targetID}
+func (t *BaseI18nTask) i18nSource(ctx context.Context, targetKey string, targetID int64) (*dto.I18nDraftSource, error) {
+	source := &dto.I18nDraftSource{TargetKey: targetKey, TargetID: targetID}
 	var err error
-	switch targetType {
-	case adminv1.I18nTargetType_I18N_TARGET_TYPE_BASE_MENU_META_TITLE:
+	switch targetKey {
+	case _const.I18N_TARGET_KEY_BASE_MENU_META_TITLE:
 		var menu *models.BaseMenu
 		menu, err = t.menuRepo.FindByID(ctx, targetID)
 		if err == nil {
@@ -291,33 +291,33 @@ func (t *BaseI18nTask) i18nSource(ctx context.Context, targetType adminv1.I18nTa
 				source.Text = metadata.Title
 			}
 		}
-	case adminv1.I18nTargetType_I18N_TARGET_TYPE_BASE_DICT_NAME:
+	case _const.I18N_TARGET_KEY_BASE_DICT_NAME:
 		var dict *models.BaseDict
 		dict, err = t.dictRepo.FindByID(ctx, targetID)
 		if err == nil {
 			source.Text = dict.Name
 		}
-	case adminv1.I18nTargetType_I18N_TARGET_TYPE_BASE_DICT_ITEM_LABEL:
+	case _const.I18N_TARGET_KEY_BASE_DICT_ITEM_LABEL:
 		var item *models.BaseDictItem
 		item, err = t.dictItemRepo.FindByID(ctx, targetID)
 		if err == nil {
 			source.Text = item.Label
 		}
-	case adminv1.I18nTargetType_I18N_TARGET_TYPE_BASE_JOB_NAME:
+	case _const.I18N_TARGET_KEY_BASE_JOB_NAME:
 		var job *models.BaseJob
 		job, err = t.jobRepo.FindByID(ctx, targetID)
 		if err == nil {
 			source.Text = job.Name
 		}
-	case adminv1.I18nTargetType_I18N_TARGET_TYPE_BASE_CONFIG_NAME,
-		adminv1.I18nTargetType_I18N_TARGET_TYPE_BASE_CONFIG_VALUE:
+	case _const.I18N_TARGET_KEY_BASE_CONFIG_NAME,
+		_const.I18N_TARGET_KEY_BASE_CONFIG_VALUE:
 		var config *models.BaseConfig
 		config, err = t.configRepo.FindByID(ctx, targetID)
 		if err == nil {
-			if targetType == adminv1.I18nTargetType_I18N_TARGET_TYPE_BASE_CONFIG_VALUE && !isTranslatableConfigType(config.Type) {
+			if targetKey == _const.I18N_TARGET_KEY_BASE_CONFIG_VALUE && !isTranslatableConfigType(config.Type) {
 				return nil, errorsx.InvalidArgument("图片、字典和布尔配置值不支持翻译")
 			}
-			if targetType == adminv1.I18nTargetType_I18N_TARGET_TYPE_BASE_CONFIG_NAME {
+			if targetKey == _const.I18N_TARGET_KEY_BASE_CONFIG_NAME {
 				source.Text = config.Name
 			} else {
 				source.Text = config.Value

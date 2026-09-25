@@ -47,7 +47,6 @@ import type {
 } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_job";
 import router, { navigateTo } from "@liujitcn/kratos-admin-core/navigation";
 import { Status } from "@liujitcn/kratos-admin-system/rpc/common/v1/enum";
-import { I18nTargetType } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_i18n";
 import { buildPageRequest, normalizeSelectedIds } from "@liujitcn/kratos-admin-core/table";
 import { t } from "@liujitcn/kratos-admin-core";
 import DynamicI18nCell from "@liujitcn/kratos-admin-system/components/i18n/DynamicI18nCell.vue";
@@ -168,7 +167,7 @@ function renderJobNameCell(scope: RenderScope<BaseJob>) {
   const row = scope.row;
   return h(DynamicI18nCell, {
     source: row.name,
-    targetType: I18nTargetType.I18N_TARGET_TYPE_BASE_JOB_NAME,
+    targetKey: "base_job.name",
     targetId: row.id,
     i18ns: row.i18ns
   });
@@ -419,7 +418,7 @@ function handleSubmit() {
     const submitData = JSON.parse(JSON.stringify(formData)) as BaseJobForm;
     submitData.i18ns = serializeDynamicI18ns(
       i18nValues.value,
-      I18nTargetType.I18N_TARGET_TYPE_BASE_JOB_NAME,
+      "base_job.name",
       submitData.id,
       submitData.name
     );

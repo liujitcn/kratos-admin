@@ -47,7 +47,6 @@ import type {
   PageBaseOauthProviderRequest
 } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_oauth_provider";
 import { Status } from "@liujitcn/kratos-admin-system/rpc/common/v1/enum";
-import { I18nTargetType } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_i18n";
 import DynamicI18nEditor from "@liujitcn/kratos-admin-system/components/i18n/DynamicI18nEditor.vue";
 import {
   normalizeDynamicI18ns,
@@ -187,8 +186,8 @@ async function handleSubmit() {
   delete payload.config_items;
   payload.config = config;
   payload.scopes = [...new Set(formData.scopes.map(value => value.trim()).filter(Boolean))];
-  payload.name_i18ns = serializeDynamicI18ns(nameI18nValues.value, I18nTargetType.I18N_TARGET_TYPE_BASE_OAUTH_PROVIDER_NAME, payload.id, payload.name);
-  payload.description_i18ns = serializeDynamicI18ns(descriptionI18nValues.value, I18nTargetType.I18N_TARGET_TYPE_BASE_OAUTH_PROVIDER_DESCRIPTION, payload.id, payload.description);
+  payload.name_i18ns = serializeDynamicI18ns(nameI18nValues.value, "base_oauth_provider.name", payload.id, payload.name);
+  payload.description_i18ns = serializeDynamicI18ns(descriptionI18nValues.value, "base_oauth_provider.description", payload.id, payload.description);
   if (payload.id) await defBaseOauthProviderService.UpdateBaseOauthProvider({ base_oauth_provider: payload });
   else await defBaseOauthProviderService.CreateBaseOauthProvider({ base_oauth_provider: payload });
   ElMessage.success(t("common.message.operation_success"));

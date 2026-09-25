@@ -7,30 +7,6 @@
 /* eslint-disable */
 import type { Empty } from "../../../google/protobuf/empty";
 
-/** 统一翻译表目标类型，和 base_i18n.target_type 的值一一对应。 */
-export enum I18nTargetType {
-  /** I18N_TARGET_TYPE_UNSPECIFIED - 未指定统一翻译表目标类型。 */
-  I18N_TARGET_TYPE_UNSPECIFIED = 0,
-  /** I18N_TARGET_TYPE_BASE_CONFIG_VALUE - 系统配置值。 */
-  I18N_TARGET_TYPE_BASE_CONFIG_VALUE = 1,
-  /** I18N_TARGET_TYPE_BASE_CONFIG_NAME - 系统配置名称。 */
-  I18N_TARGET_TYPE_BASE_CONFIG_NAME = 2,
-  /** I18N_TARGET_TYPE_BASE_DICT_NAME - 字典名称。 */
-  I18N_TARGET_TYPE_BASE_DICT_NAME = 3,
-  /** I18N_TARGET_TYPE_BASE_DICT_ITEM_LABEL - 字典项标签。 */
-  I18N_TARGET_TYPE_BASE_DICT_ITEM_LABEL = 4,
-  /** I18N_TARGET_TYPE_BASE_MENU_META_TITLE - 菜单标题。 */
-  I18N_TARGET_TYPE_BASE_MENU_META_TITLE = 5,
-  /** I18N_TARGET_TYPE_BASE_JOB_NAME - 定时任务名称。 */
-  I18N_TARGET_TYPE_BASE_JOB_NAME = 6,
-  /** I18N_TARGET_TYPE_BASE_MIGRATION_DESCRIPTION - 数据库迁移说明。 */
-  I18N_TARGET_TYPE_BASE_MIGRATION_DESCRIPTION = 7,
-  /** I18N_TARGET_TYPE_BASE_OAUTH_PROVIDER_NAME - OAuth登录方式名称。 */
-  I18N_TARGET_TYPE_BASE_OAUTH_PROVIDER_NAME = 8,
-  /** I18N_TARGET_TYPE_BASE_OAUTH_PROVIDER_DESCRIPTION - OAuth登录方式提示语。 */
-  I18N_TARGET_TYPE_BASE_OAUTH_PROVIDER_DESCRIPTION = 9,
-}
-
 /** 翻译单个文本请求。 */
 export interface DraftBaseI18nRequest {
   /** 待翻译文本 */
@@ -57,8 +33,8 @@ export interface DraftBaseI18nItem {
 export interface UpdateBaseI18nRequest {
   /** 翻译记录ID，大于零时优先按ID更新；ID不存在时根据目标信息更新或新增 */
   id: number;
-  /** 翻译目标类型，ID为零时用于查询或新增 */
-  target_type: I18nTargetType;
+  /** 翻译目标键，格式为表名.字段名 */
+  target_key: string;
   /** 目标资源ID，ID为零时用于查询或新增 */
   target_id: number;
   /** 目标语言区域，ID为零时用于查询或新增 */
@@ -71,8 +47,8 @@ export interface UpdateBaseI18nRequest {
 export interface BaseI18n {
   /** 翻译记录ID */
   id: number;
-  /** 翻译目标类型 */
-  target_type: I18nTargetType;
+  /** 翻译目标键，格式为表名.字段名 */
+  target_key: string;
   /** 目标资源ID */
   target_id: number;
   /** 语言区域 */

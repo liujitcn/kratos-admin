@@ -9639,21 +9639,9 @@ components:
                 id:
                     type: string
                     description: 主鍵ID
-                target_type:
-                    enum:
-                        - I18N_TARGET_TYPE_UNSPECIFIED
-                        - I18N_TARGET_TYPE_BASE_CONFIG_VALUE
-                        - I18N_TARGET_TYPE_BASE_CONFIG_NAME
-                        - I18N_TARGET_TYPE_BASE_DICT_NAME
-                        - I18N_TARGET_TYPE_BASE_DICT_ITEM_LABEL
-                        - I18N_TARGET_TYPE_BASE_MENU_META_TITLE
-                        - I18N_TARGET_TYPE_BASE_JOB_NAME
-                        - I18N_TARGET_TYPE_BASE_MIGRATION_DESCRIPTION
-                        - I18N_TARGET_TYPE_BASE_OAUTH_PROVIDER_NAME
-                        - I18N_TARGET_TYPE_BASE_OAUTH_PROVIDER_DESCRIPTION
+                target_key:
                     type: string
-                    description: 目標型別：列舉【I18nTargetType】
-                    format: enum
+                    description: 翻譯目標鍵
                 target_id:
                     type: string
                     description: 目標ID
@@ -14855,21 +14843,9 @@ components:
                 id:
                     type: string
                     description: 翻譯記錄ID，大於零時優先按ID更新；ID不存在時根據目標資訊更新或新增
-                target_type:
-                    enum:
-                        - I18N_TARGET_TYPE_UNSPECIFIED
-                        - I18N_TARGET_TYPE_BASE_CONFIG_VALUE
-                        - I18N_TARGET_TYPE_BASE_CONFIG_NAME
-                        - I18N_TARGET_TYPE_BASE_DICT_NAME
-                        - I18N_TARGET_TYPE_BASE_DICT_ITEM_LABEL
-                        - I18N_TARGET_TYPE_BASE_MENU_META_TITLE
-                        - I18N_TARGET_TYPE_BASE_JOB_NAME
-                        - I18N_TARGET_TYPE_BASE_MIGRATION_DESCRIPTION
-                        - I18N_TARGET_TYPE_BASE_OAUTH_PROVIDER_NAME
-                        - I18N_TARGET_TYPE_BASE_OAUTH_PROVIDER_DESCRIPTION
+                target_key:
                     type: string
-                    description: 翻譯目標型別，ID為零時用於查詢或新增
-                    format: enum
+                    description: 翻譯目標鍵
                 target_id:
                     type: string
                     description: 目標資源ID，ID為零時用於查詢或新增

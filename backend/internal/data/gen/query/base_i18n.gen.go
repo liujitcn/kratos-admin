@@ -28,7 +28,7 @@ func newBaseI18N(db *gorm.DB, opts ...gen.DOOption) baseI18N {
 	tableName := _baseI18N.baseI18NDo.TableName()
 	_baseI18N.ALL = field.NewAsterisk(tableName)
 	_baseI18N.ID = field.NewInt64(tableName, "id")
-	_baseI18N.TargetType = field.NewInt32(tableName, "target_type")
+	_baseI18N.TargetKey = field.NewString(tableName, "target_key")
 	_baseI18N.TargetID = field.NewInt64(tableName, "target_id")
 	_baseI18N.Locale = field.NewString(tableName, "locale")
 	_baseI18N.Name = field.NewString(tableName, "name")
@@ -42,12 +42,12 @@ func newBaseI18N(db *gorm.DB, opts ...gen.DOOption) baseI18N {
 type baseI18N struct {
 	baseI18NDo baseI18NDo
 
-	ALL        field.Asterisk
-	ID         field.Int64  // 主键ID
-	TargetType field.Int32  // 目标类型：枚举【I18nTargetType】
-	TargetID   field.Int64  // 目标ID
-	Locale     field.String // 语言区域
-	Name       field.String // 翻译文本
+	ALL       field.Asterisk
+	ID        field.Int64  // 主键ID
+	TargetKey field.String // 翻译目标键：表名.字段名
+	TargetID  field.Int64  // 目标ID
+	Locale    field.String // 语言区域
+	Name      field.String // 翻译文本
 
 	fieldMap map[string]field.Expr
 }
@@ -65,7 +65,7 @@ func (b baseI18N) As(alias string) *baseI18N {
 func (b *baseI18N) updateTableName(table string) *baseI18N {
 	b.ALL = field.NewAsterisk(table)
 	b.ID = field.NewInt64(table, "id")
-	b.TargetType = field.NewInt32(table, "target_type")
+	b.TargetKey = field.NewString(table, "target_key")
 	b.TargetID = field.NewInt64(table, "target_id")
 	b.Locale = field.NewString(table, "locale")
 	b.Name = field.NewString(table, "name")
@@ -95,7 +95,7 @@ func (b *baseI18N) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 func (b *baseI18N) fillFieldMap() {
 	b.fieldMap = make(map[string]field.Expr, 5)
 	b.fieldMap["id"] = b.ID
-	b.fieldMap["target_type"] = b.TargetType
+	b.fieldMap["target_key"] = b.TargetKey
 	b.fieldMap["target_id"] = b.TargetID
 	b.fieldMap["locale"] = b.Locale
 	b.fieldMap["name"] = b.Name

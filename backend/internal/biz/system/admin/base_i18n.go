@@ -135,7 +135,7 @@ func (c *BaseI18nCase) UpdateBaseI18n(ctx context.Context, req *adminv1.UpdateBa
 
 	query := c.Query(ctx).BaseI18N
 	opts := make([]repository.QueryOption, 0, 3)
-	opts = append(opts, repository.Where(query.TargetType.Eq(int32(req.GetTargetType()))))
+	opts = append(opts, repository.Where(query.TargetKey.Eq(req.GetTargetKey())))
 	opts = append(opts, repository.Where(query.TargetID.Eq(req.GetTargetId())))
 	opts = append(opts, repository.Where(query.Locale.Eq(req.GetLocale())))
 	row, err = c.Find(ctx, opts...)
@@ -146,10 +146,10 @@ func (c *BaseI18nCase) UpdateBaseI18n(ctx context.Context, req *adminv1.UpdateBa
 		return err
 	}
 	return c.Create(ctx, &models.BaseI18N{
-		TargetType: int32(req.GetTargetType()),
-		TargetID:   req.GetTargetId(),
-		Locale:     req.GetLocale(),
-		Name:       req.GetName(),
+		TargetKey: req.GetTargetKey(),
+		TargetID:  req.GetTargetId(),
+		Locale:    req.GetLocale(),
+		Name:      req.GetName(),
 	})
 }
 
@@ -161,7 +161,7 @@ func (c *BaseI18nCase) updateBaseI18nName(ctx context.Context, id int64, name st
 }
 
 // GetTargetIdsByName 根据当前语言和名称关键字获取资源 ID。
-func (c *BaseI18nCase) GetTargetIdsByName(ctx context.Context, targetType adminv1.I18nTargetType, name string) ([]int64, error) {
+func (c *BaseI18nCase) GetTargetIdsByName(ctx context.Context, targetKey string, name string) ([]int64, error) {
 	if name == "" {
 		return nil, nil
 	}
@@ -178,7 +178,7 @@ func (c *BaseI18nCase) GetTargetIdsByName(ctx context.Context, targetType adminv
 	query := c.Query(ctx).BaseI18N
 	var rows []*models.BaseI18N
 	rows, err = c.List(ctx,
-		repository.Where(query.TargetType.Eq(int32(targetType))),
+		repository.Where(query.TargetKey.Eq(targetKey)),
 		repository.Where(query.Locale.Eq(localeValue)),
 		repository.Where(query.Name.Like("%"+name+"%")),
 	)
@@ -192,15 +192,15 @@ func (c *BaseI18nCase) GetTargetIdsByName(ctx context.Context, targetType adminv
 	return result, nil
 }
 
-// GetBaseI18nMapByTargetType 根据类型查询翻译信息。
-func (c *BaseI18nCase) GetBaseI18nMapByTargetType(ctx context.Context, targetType adminv1.I18nTargetType, targetIds []int64) (map[int64][]*adminv1.BaseI18n, error) {
+// GetBaseI18nMapByTargetKey 根据目标键查询翻译信息。
+func (c *BaseI18nCase) GetBaseI18nMapByTargetKey(ctx context.Context, targetKey string, targetIds []int64) (map[int64][]*adminv1.BaseI18n, error) {
 	result := make(map[int64][]*adminv1.BaseI18n, len(targetIds))
 	if len(targetIds) == 0 {
 		return result, nil
 	}
 	query := c.Query(ctx).BaseI18N
 	opts := make([]repository.QueryOption, 0, 2)
-	opts = append(opts, repository.Where(query.TargetType.Eq(int32(targetType))))
+	opts = append(opts, repository.Where(query.TargetKey.Eq(targetKey)))
 	opts = append(opts, repository.Where(query.TargetID.In(targetIds...)))
 
 	list, err := c.List(ctx, opts...)
@@ -209,18 +209,18 @@ func (c *BaseI18nCase) GetBaseI18nMapByTargetType(ctx context.Context, targetTyp
 	}
 	for _, item := range list {
 		result[item.TargetID] = append(result[item.TargetID], &adminv1.BaseI18n{
-			Id:         item.ID,
-			TargetType: adminv1.I18nTargetType(item.TargetType),
-			TargetId:   item.TargetID,
-			Locale:     item.Locale,
-			Name:       item.Name,
+			Id:        item.ID,
+			TargetKey: item.TargetKey,
+			TargetId:  item.TargetID,
+			Locale:    item.Locale,
+			Name:      item.Name,
 		})
 	}
 	return result, nil
 }
 
 // GetBaseI18nNameMapByLocale 根据语言返回资源名称译文。
-func (c *BaseI18nCase) GetBaseI18nNameMapByLocale(ctx context.Context, targetType adminv1.I18nTargetType, locale string, targetIds []int64) (map[int64]string, error) {
+func (c *BaseI18nCase) GetBaseI18nNameMapByLocale(ctx context.Context, targetKey string, locale string, targetIds []int64) (map[int64]string, error) {
 	result := make(map[int64]string, len(targetIds))
 	if len(targetIds) == 0 {
 		return result, nil
@@ -234,7 +234,7 @@ func (c *BaseI18nCase) GetBaseI18nNameMapByLocale(ctx context.Context, targetTyp
 	}
 	query := c.Query(ctx).BaseI18N
 	opts := make([]repository.QueryOption, 0, 3)
-	opts = append(opts, repository.Where(query.TargetType.Eq(int32(targetType))))
+	opts = append(opts, repository.Where(query.TargetKey.Eq(targetKey)))
 	opts = append(opts, repository.Where(query.Locale.Eq(locale)))
 	opts = append(opts, repository.Where(query.TargetID.In(targetIds...)))
 
@@ -252,12 +252,12 @@ func (c *BaseI18nCase) GetBaseI18nNameMapByLocale(ctx context.Context, targetTyp
 }
 
 // SaveBaseI18n 在调用方事务中保存主语言源文及翻译信息。
-func (c *BaseI18nCase) SaveBaseI18n(ctx context.Context, targetType adminv1.I18nTargetType, targetId int64, primaryText string, i18ns []*adminv1.BaseI18n, updateMain func(context.Context, string) error) error {
-	return c.saveBaseI18n(ctx, targetType, targetId, primaryText, i18ns, updateMain)
+func (c *BaseI18nCase) SaveBaseI18n(ctx context.Context, targetKey string, targetId int64, primaryText string, i18ns []*adminv1.BaseI18n, updateMain func(context.Context, string) error) error {
+	return c.saveBaseI18n(ctx, targetKey, targetId, primaryText, i18ns, updateMain)
 }
 
 // saveBaseI18n 保存翻译明细并同步主表字段。
-func (c *BaseI18nCase) saveBaseI18n(ctx context.Context, targetType adminv1.I18nTargetType, targetId int64, primaryText string, i18ns []*adminv1.BaseI18n, updateMain func(context.Context, string) error) error {
+func (c *BaseI18nCase) saveBaseI18n(ctx context.Context, targetKey string, targetId int64, primaryText string, i18ns []*adminv1.BaseI18n, updateMain func(context.Context, string) error) error {
 	var err error
 	var state *dto.LocaleState
 	state, err = c.LocaleState(ctx)
@@ -267,7 +267,7 @@ func (c *BaseI18nCase) saveBaseI18n(ctx context.Context, targetType adminv1.I18n
 
 	query := c.Query(ctx).BaseI18N
 	opts := make([]repository.QueryOption, 0, 2)
-	opts = append(opts, repository.Where(query.TargetType.Eq(int32(targetType))))
+	opts = append(opts, repository.Where(query.TargetKey.Eq(targetKey)))
 	opts = append(opts, repository.Where(query.TargetID.Eq(targetId)))
 	var list []*models.BaseI18N
 	list, err = c.List(ctx, opts...)
@@ -282,8 +282,8 @@ func (c *BaseI18nCase) saveBaseI18n(ctx context.Context, targetType adminv1.I18n
 	values := make(map[string]string, len(i18ns))
 	seen := make(map[string]struct{}, len(i18ns))
 	for _, i18n := range i18ns {
-		if i18n.GetTargetType() != targetType {
-			return errorsx.InvalidArgument("翻译目标类型无效")
+		if i18n.GetTargetKey() != targetKey {
+			return errorsx.InvalidArgument("翻译目标键不匹配")
 		}
 		localeValue := i18n.GetLocale()
 		if !state.IsEditable(localeValue) {
@@ -306,7 +306,7 @@ func (c *BaseI18nCase) saveBaseI18n(ctx context.Context, targetType adminv1.I18n
 			continue
 		}
 		if row == nil {
-			if err = c.Create(ctx, &models.BaseI18N{TargetType: int32(targetType), TargetID: targetId, Locale: localeValue, Name: text}); err != nil {
+			if err = c.Create(ctx, &models.BaseI18N{TargetKey: targetKey, TargetID: targetId, Locale: localeValue, Name: text}); err != nil {
 				return err
 			}
 			continue
@@ -328,7 +328,7 @@ func (c *BaseI18nCase) saveBaseI18n(ctx context.Context, targetType adminv1.I18n
 }
 
 // SaveGeneratedI18ns 保存代码生成器提供的非主语言译文，不覆盖已有非空内容。
-func (c *BaseI18nCase) SaveGeneratedI18ns(ctx context.Context, targetType adminv1.I18nTargetType, targetID int64, i18ns map[string]string) error {
+func (c *BaseI18nCase) SaveGeneratedI18ns(ctx context.Context, targetKey string, targetID int64, i18ns map[string]string) error {
 	if targetID <= 0 || len(i18ns) == 0 {
 		return nil
 	}
@@ -339,7 +339,7 @@ func (c *BaseI18nCase) SaveGeneratedI18ns(ctx context.Context, targetType adminv
 	query := c.Query(ctx).BaseI18N
 	var rows []*models.BaseI18N
 	rows, err = c.List(ctx,
-		repository.Where(query.TargetType.Eq(int32(targetType))),
+		repository.Where(query.TargetKey.Eq(targetKey)),
 		repository.Where(query.TargetID.Eq(targetID)),
 	)
 	if err != nil {
@@ -358,7 +358,7 @@ func (c *BaseI18nCase) SaveGeneratedI18ns(ctx context.Context, targetType adminv
 			continue
 		}
 		if row == nil {
-			if err = c.Create(ctx, &models.BaseI18N{TargetType: int32(targetType), TargetID: targetID, Locale: locale, Name: text}); err != nil {
+			if err = c.Create(ctx, &models.BaseI18N{TargetKey: targetKey, TargetID: targetID, Locale: locale, Name: text}); err != nil {
 				return err
 			}
 			continue
@@ -372,13 +372,13 @@ func (c *BaseI18nCase) SaveGeneratedI18ns(ctx context.Context, targetType adminv
 }
 
 // DeleteBaseI18n 删除翻译信息。
-func (c *BaseI18nCase) DeleteBaseI18n(ctx context.Context, targetType adminv1.I18nTargetType, targetId []int64) error {
+func (c *BaseI18nCase) DeleteBaseI18n(ctx context.Context, targetKey string, targetId []int64) error {
 	if len(targetId) == 0 {
 		return nil
 	}
 	query := c.Query(ctx).BaseI18N
 	opts := make([]repository.QueryOption, 0, 2)
-	opts = append(opts, repository.Where(query.TargetType.Eq(int32(targetType))))
+	opts = append(opts, repository.Where(query.TargetKey.Eq(targetKey)))
 	opts = append(opts, repository.Where(query.TargetID.In(targetId...)))
 	return c.Delete(ctx, opts...)
 }

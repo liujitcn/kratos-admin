@@ -5,6 +5,7 @@ import (
 
 	"github.com/liujitcn/go-utils/mapper"
 	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
+	_const "github.com/liujitcn/kratos-admin/backend/internal/const"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 	"github.com/liujitcn/kratos-core/biz"
@@ -89,7 +90,7 @@ func (c *BaseMigrationCase) GetBaseMigration(ctx context.Context, id int64) (*ad
 	var descriptions map[int64]string
 	descriptions, err = c.baseI18nCase.GetBaseI18nNameMapByLocale(
 		ctx,
-		adminv1.I18nTargetType_I18N_TARGET_TYPE_BASE_MIGRATION_DESCRIPTION,
+		_const.I18N_TARGET_KEY_BASE_MIGRATION_DESCRIPTION,
 		biz.LocaleFromContext(ctx),
 		[]int64{id},
 	)

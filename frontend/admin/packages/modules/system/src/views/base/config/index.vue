@@ -142,7 +142,6 @@ import { BaseConfigSite } from "@liujitcn/kratos-admin-system/rpc/base/v1/config
 import { BaseFileAccessMode } from "@liujitcn/kratos-admin-core/rpc/base/v1/file";
 import { Status } from "@liujitcn/kratos-admin-system/rpc/common/v1/enum";
 import { BaseConfigType } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_config";
-import { I18nTargetType } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_i18n";
 import { buildPageRequest, normalizeSelectedIds } from "@liujitcn/kratos-admin-core/table";
 import { t } from "@liujitcn/kratos-admin-core";
 import DynamicI18nEditor from "@liujitcn/kratos-admin-system/components/i18n/DynamicI18nEditor.vue";
@@ -257,8 +256,8 @@ watch(
 );
 
 /** 将配置值翻译记录转换为编辑器值，缺少记录时保留可编辑的空行。 */
-function normalizeConfigI18ns(targetType: I18nTargetType): DynamicI18nValue[] {
-  const records = targetType === I18nTargetType.I18N_TARGET_TYPE_BASE_CONFIG_NAME ? formData.name_i18ns : formData.value_i18ns;
+function normalizeConfigI18ns(targetKey: string): DynamicI18nValue[] {
+  const records = targetKey === "base_config.name" ? formData.name_i18ns : formData.value_i18ns;
   return getEditableLanguageOptions()
     .map(item => item.value)
     .map(locale => {
@@ -272,17 +271,17 @@ function normalizeConfigI18ns(targetType: I18nTargetType): DynamicI18nValue[] {
 }
 
 /** 保存指定目标类型的编辑器值，并保留其他字段的翻译。 */
-function updateConfigI18ns(targetType: I18nTargetType, values: DynamicI18nValue[]) {
+function updateConfigI18ns(targetKey: string, values: DynamicI18nValue[]) {
   const next = values.map(
     item =>
       ({
         ...item,
-        target_type: targetType,
+        target_key: targetKey,
         target_id: formData.id,
         name: item.text
       }) as BaseI18n
   );
-  if (targetType === I18nTargetType.I18N_TARGET_TYPE_BASE_CONFIG_NAME) {
+  if (targetKey === "base_config.name") {
     formData.name_i18ns = next;
   } else {
     formData.value_i18ns = next;
@@ -290,13 +289,13 @@ function updateConfigI18ns(targetType: I18nTargetType, values: DynamicI18nValue[
 }
 
 const nameI18nValues = computed<DynamicI18nValue[]>({
-  get: () => normalizeConfigI18ns(I18nTargetType.I18N_TARGET_TYPE_BASE_CONFIG_NAME),
-  set: values => updateConfigI18ns(I18nTargetType.I18N_TARGET_TYPE_BASE_CONFIG_NAME, values)
+  get: () => normalizeConfigI18ns("base_config.name"),
+  set: values => updateConfigI18ns("base_config.name", values)
 });
 
 const valueI18nValues = computed<DynamicI18nValue[]>({
-  get: () => normalizeConfigI18ns(I18nTargetType.I18N_TARGET_TYPE_BASE_CONFIG_VALUE),
-  set: values => updateConfigI18ns(I18nTargetType.I18N_TARGET_TYPE_BASE_CONFIG_VALUE, values)
+  get: () => normalizeConfigI18ns("base_config.value"),
+  set: values => updateConfigI18ns("base_config.value", values)
 });
 
 const rules = computed(() => ({
@@ -539,7 +538,7 @@ const columns = computed<ColumnProps[]>(() => [
 function renderConfigNameCell(row: BaseConfig) {
   return h(DynamicI18nCell, {
     source: row.name,
-    targetType: I18nTargetType.I18N_TARGET_TYPE_BASE_CONFIG_NAME,
+    targetKey: "base_config.name",
     targetId: row.id,
     i18ns: row.i18ns,
     editable: !!BUTTONS.value["base:config:update"]
@@ -777,7 +776,7 @@ async function handleSubmit() {
     const submitData = JSON.parse(JSON.stringify(formData)) as BaseConfigForm;
     submitData.name_i18ns = serializeDynamicI18ns(
       nameI18nValues.value,
-      I18nTargetType.I18N_TARGET_TYPE_BASE_CONFIG_NAME,
+      "base_config.name",
       submitData.id,
       submitData.name
     );
@@ -785,7 +784,7 @@ async function handleSubmit() {
       submitData.type === BaseConfigType.BASE_CONFIG_TYPE_TEXT || submitData.type === BaseConfigType.BASE_CONFIG_TYPE_RICH_TEXT
         ? serializeDynamicI18ns(
             valueI18nValues.value,
-            I18nTargetType.I18N_TARGET_TYPE_BASE_CONFIG_VALUE,
+            "base_config.value",
             submitData.id,
             submitData.value
           )

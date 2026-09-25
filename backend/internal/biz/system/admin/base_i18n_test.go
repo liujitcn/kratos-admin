@@ -7,6 +7,7 @@ import (
 	"time"
 
 	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
+	_const "github.com/liujitcn/kratos-admin/backend/internal/const"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
@@ -133,14 +134,14 @@ func TestCreateBaseConfigSavesI18n(t *testing.T) {
 		Value:  "测试站点",
 		Status: commonv1.Status_STATUS_ENABLE,
 		NameI18ns: []*adminv1.BaseI18n{{
-			TargetType: adminv1.I18nTargetType_I18N_TARGET_TYPE_BASE_CONFIG_NAME,
-			Locale:     "en-US",
-			Name:       "Site name",
+			TargetKey: _const.I18N_TARGET_KEY_BASE_CONFIG_NAME,
+			Locale:    "en-US",
+			Name:      "Site name",
 		}},
 		ValueI18ns: []*adminv1.BaseI18n{{
-			TargetType: adminv1.I18nTargetType_I18N_TARGET_TYPE_BASE_CONFIG_VALUE,
-			Locale:     "en-US",
-			Name:       "Test site",
+			TargetKey: _const.I18N_TARGET_KEY_BASE_CONFIG_VALUE,
+			Locale:    "en-US",
+			Name:      "Test site",
 		}},
 	})
 	if err != nil {

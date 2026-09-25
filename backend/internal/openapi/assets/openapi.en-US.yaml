@@ -9639,21 +9639,9 @@ components:
                 id:
                     type: string
                     description: primary-key ID
-                target_type:
-                    enum:
-                        - I18N_TARGET_TYPE_UNSPECIFIED
-                        - I18N_TARGET_TYPE_BASE_CONFIG_VALUE
-                        - I18N_TARGET_TYPE_BASE_CONFIG_NAME
-                        - I18N_TARGET_TYPE_BASE_DICT_NAME
-                        - I18N_TARGET_TYPE_BASE_DICT_ITEM_LABEL
-                        - I18N_TARGET_TYPE_BASE_MENU_META_TITLE
-                        - I18N_TARGET_TYPE_BASE_JOB_NAME
-                        - I18N_TARGET_TYPE_BASE_MIGRATION_DESCRIPTION
-                        - I18N_TARGET_TYPE_BASE_OAUTH_PROVIDER_NAME
-                        - I18N_TARGET_TYPE_BASE_OAUTH_PROVIDER_DESCRIPTION
+                target_key:
                     type: string
-                    description: "target type: enum【I18n Target Type】"
-                    format: enum
+                    description: translation target key
                 target_id:
                     type: string
                     description: target ID
@@ -14855,21 +14843,9 @@ components:
                 id:
                     type: string
                     description: translation record ID; when greater than zero, update by ID first; when the ID does not exist, update or create based on the target information
-                target_type:
-                    enum:
-                        - I18N_TARGET_TYPE_UNSPECIFIED
-                        - I18N_TARGET_TYPE_BASE_CONFIG_VALUE
-                        - I18N_TARGET_TYPE_BASE_CONFIG_NAME
-                        - I18N_TARGET_TYPE_BASE_DICT_NAME
-                        - I18N_TARGET_TYPE_BASE_DICT_ITEM_LABEL
-                        - I18N_TARGET_TYPE_BASE_MENU_META_TITLE
-                        - I18N_TARGET_TYPE_BASE_JOB_NAME
-                        - I18N_TARGET_TYPE_BASE_MIGRATION_DESCRIPTION
-                        - I18N_TARGET_TYPE_BASE_OAUTH_PROVIDER_NAME
-                        - I18N_TARGET_TYPE_BASE_OAUTH_PROVIDER_DESCRIPTION
+                target_key:
                     type: string
-                    description: translation target type; when the ID is zero, used for querying or creating
-                    format: enum
+                    description: translation target key
                 target_id:
                     type: string
                     description: target resource ID; when the ID is zero, used for querying or creating

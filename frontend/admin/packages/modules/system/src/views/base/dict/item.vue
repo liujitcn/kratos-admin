@@ -65,7 +65,6 @@ import type {
   PageBaseDictItemRequest
 } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_dict_item";
 import { Status } from "@liujitcn/kratos-admin-system/rpc/common/v1/enum";
-import { I18nTargetType } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_i18n";
 import { buildPageRequest, normalizeSelectedIds } from "@liujitcn/kratos-admin-core/table";
 import { t } from "@liujitcn/kratos-admin-core";
 import DynamicI18nEditor from "@liujitcn/kratos-admin-system/components/i18n/DynamicI18nEditor.vue";
@@ -194,7 +193,7 @@ function renderDictItemLabelCell(scope: RenderScope<BaseDictItem>) {
   const row = scope.row;
   return h(DynamicI18nCell, {
     source: row.label,
-    targetType: I18nTargetType.I18N_TARGET_TYPE_BASE_DICT_ITEM_LABEL,
+    targetKey: "base_dict_item.label",
     targetId: row.id,
     i18ns: row.i18ns
   });
@@ -361,7 +360,7 @@ function handleSubmit() {
     const submitData = JSON.parse(JSON.stringify(formData)) as BaseDictItemForm;
     submitData.i18ns = serializeDynamicI18ns(
       i18nValues.value,
-      I18nTargetType.I18N_TARGET_TYPE_BASE_DICT_ITEM_LABEL,
+      "base_dict_item.label",
       submitData.id,
       submitData.label
     );

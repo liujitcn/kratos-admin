@@ -4,6 +4,7 @@ import (
 	"context"
 
 	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
+	_const "github.com/liujitcn/kratos-admin/backend/internal/const"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 	"github.com/liujitcn/kratos-core/biz"
@@ -56,7 +57,7 @@ func (c *BaseDictItemCase) PageBaseDictItem(ctx context.Context, req *adminv1.Pa
 	// 传入标签关键字时，按标签模糊匹配字典项。
 	if req.GetLabel() != "" {
 		var translatedIDs []int64
-		translatedIDs, err = c.baseI18nCase.GetTargetIdsByName(ctx, adminv1.I18nTargetType_I18N_TARGET_TYPE_BASE_DICT_ITEM_LABEL, req.GetLabel())
+		translatedIDs, err = c.baseI18nCase.GetTargetIdsByName(ctx, _const.I18N_TARGET_KEY_BASE_DICT_ITEM_LABEL, req.GetLabel())
 		if err != nil {
 			return nil, err
 		}
@@ -80,7 +81,7 @@ func (c *BaseDictItemCase) PageBaseDictItem(ctx context.Context, req *adminv1.Pa
 		targetIds = append(targetIds, item.ID)
 	}
 	var i18ns map[int64][]*adminv1.BaseI18n
-	i18ns, err = c.baseI18nCase.GetBaseI18nMapByTargetType(ctx, adminv1.I18nTargetType_I18N_TARGET_TYPE_BASE_DICT_ITEM_LABEL, targetIds)
+	i18ns, err = c.baseI18nCase.GetBaseI18nMapByTargetKey(ctx, _const.I18N_TARGET_KEY_BASE_DICT_ITEM_LABEL, targetIds)
 	if err != nil {
 		return nil, err
 	}
@@ -100,7 +101,7 @@ func (c *BaseDictItemCase) GetBaseDictItem(ctx context.Context, id int64) (*admi
 	}
 	res := c.formMapper.ToDTO(baseDictItem)
 	var i18ns map[int64][]*adminv1.BaseI18n
-	i18ns, err = c.baseI18nCase.GetBaseI18nMapByTargetType(ctx, adminv1.I18nTargetType_I18N_TARGET_TYPE_BASE_DICT_ITEM_LABEL, []int64{id})
+	i18ns, err = c.baseI18nCase.GetBaseI18nMapByTargetKey(ctx, _const.I18N_TARGET_KEY_BASE_DICT_ITEM_LABEL, []int64{id})
 	if err != nil {
 		return nil, err
 	}
@@ -151,7 +152,7 @@ func (c *BaseDictItemCase) DeleteBaseDictItem(ctx context.Context, id string) er
 		if err != nil {
 			return err
 		}
-		return c.baseI18nCase.DeleteBaseI18n(ctx, adminv1.I18nTargetType_I18N_TARGET_TYPE_BASE_DICT_ITEM_LABEL, ids)
+		return c.baseI18nCase.DeleteBaseI18n(ctx, _const.I18N_TARGET_KEY_BASE_DICT_ITEM_LABEL, ids)
 	})
 }
 
@@ -168,7 +169,7 @@ func (c *BaseDictItemCase) SetBaseDictItemStatus(ctx context.Context, req *admin
 
 // saveBaseI18n 保存字典项标签翻译并同步主表标签。
 func (c *BaseDictItemCase) saveBaseI18n(ctx context.Context, req *adminv1.BaseDictItemForm, entity *models.BaseDictItem) error {
-	return c.baseI18nCase.SaveBaseI18n(ctx, adminv1.I18nTargetType_I18N_TARGET_TYPE_BASE_DICT_ITEM_LABEL, entity.ID, entity.Label, req.GetI18ns(), func(ctx context.Context, label string) error {
+	return c.baseI18nCase.SaveBaseI18n(ctx, _const.I18N_TARGET_KEY_BASE_DICT_ITEM_LABEL, entity.ID, entity.Label, req.GetI18ns(), func(ctx context.Context, label string) error {
 		return c.UpdateByID(ctx, &models.BaseDictItem{ID: entity.ID, Label: label})
 	})
 }

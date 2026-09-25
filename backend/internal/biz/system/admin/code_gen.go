@@ -399,7 +399,7 @@ func (c *CodeGenCase) runCodeGenTask(
 		beforeMenusByTable[tableID] = cloneBaseMenus(menus)
 		if len(menus) > 0 {
 			query := c.baseMenuCase.baseI18nCase.Query(ctx).BaseI18N
-			opts := []repository.QueryOption{repository.Where(query.TargetType.Eq(int32(adminv1.I18nTargetType_I18N_TARGET_TYPE_BASE_MENU_META_TITLE))), repository.Where(query.TargetID.In(baseMenuIDs(menus)...))}
+			opts := []repository.QueryOption{repository.Where(query.TargetKey.Eq(_const.I18N_TARGET_KEY_BASE_MENU_META_TITLE)), repository.Where(query.TargetID.In(baseMenuIDs(menus)...))}
 			beforeMenuI18nsByTable[tableID], err = c.baseMenuCase.baseI18nCase.List(ctx, opts...)
 			if err != nil {
 				c.failCodeGenTask(ctx, taskID, tableIDs, localeState, err)
@@ -1988,7 +1988,7 @@ func (c *CodeGenCase) restoreGeneratedMenus(ctx context.Context, manifest *codeG
 		}
 	}
 	if manifest.Version >= 3 {
-		if err = c.baseMenuCase.baseI18nCase.DeleteBaseI18n(ctx, adminv1.I18nTargetType_I18N_TARGET_TYPE_BASE_MENU_META_TITLE, manifest.GeneratedMenuIDs); err != nil {
+		if err = c.baseMenuCase.baseI18nCase.DeleteBaseI18n(ctx, _const.I18N_TARGET_KEY_BASE_MENU_META_TITLE, manifest.GeneratedMenuIDs); err != nil {
 			return err
 		}
 		for _, translation := range manifest.MenuI18ns {

@@ -79,7 +79,6 @@ import type {
 } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_menu";
 import { Status } from "@liujitcn/kratos-admin-system/rpc/common/v1/enum";
 import { BaseMenuType } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/common";
-import { I18nTargetType } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_i18n";
 import { normalizeSelectedIds } from "@liujitcn/kratos-admin-core/table";
 import { t } from "@liujitcn/kratos-admin-core";
 import DynamicI18nEditor from "@liujitcn/kratos-admin-system/components/i18n/DynamicI18nEditor.vue";
@@ -296,7 +295,7 @@ function renderMenuTitleCell(scope: RenderScope<BaseMenu>) {
   const row = scope.row;
   return h(DynamicI18nCell, {
     source: row.meta?.title ?? "",
-    targetType: I18nTargetType.I18N_TARGET_TYPE_BASE_MENU_META_TITLE,
+    targetKey: "base_menu.meta.title",
     targetId: row.id,
     i18ns: row.i18ns
   });
@@ -993,7 +992,7 @@ function buildSubmitPayload(): BaseMenuForm {
   const payload = normalizeMenuForm(formData);
   payload.i18ns = serializeDynamicI18ns(
     i18nValues.value,
-    I18nTargetType.I18N_TARGET_TYPE_BASE_MENU_META_TITLE,
+    "base_menu.meta.title",
     payload.id,
     payload.meta?.title ?? ""
   );

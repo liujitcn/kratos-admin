@@ -35,7 +35,7 @@ func RenderGeneratedMenuSQL(table *Table, columns []*CodeGenColumn, methods []*P
 		fmt.Fprintf(&builder, "INSERT INTO `base_menu` (`id`, `parent_id`, `type`, `path`, `name`, `component`, `redirect`, `meta`, `api`, `sort`, `status`, `created_by`, `updated_by`, `created_at`, `updated_at`, `deleted_at`)\nVALUES (%d, %d, %d, %s, %s, %s, %s, %s, %s, %d, %d, 0, 0, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 0)\nON DUPLICATE KEY UPDATE `parent_id` = VALUES(`parent_id`), `type` = VALUES(`type`), `path` = VALUES(`path`), `name` = VALUES(`name`), `component` = VALUES(`component`), `redirect` = VALUES(`redirect`), `meta` = VALUES(`meta`), `api` = VALUES(`api`), `sort` = VALUES(`sort`), `status` = VALUES(`status`);\n", menu.ID, menu.ParentID, menu.Type, sqlString(menu.Path), sqlString(menu.Name), sqlString(menu.Component), sqlString(menu.Redirect), sqlString(menu.Meta), sqlString(menu.API), menu.Sort, menu.Status)
 		for _, locale := range RequiredI18nLocales(localeState) {
 			if title := spec.I18ns[locale]; title != "" {
-				fmt.Fprintf(&builder, "INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (%d, %d, %s, %s);\n", _const.I18N_TARGET_TYPE_BASE_MENU_META_TITLE, menu.ID, sqlString(locale), sqlString(title))
+				fmt.Fprintf(&builder, "INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES (%s, %d, %s, %s);\n", sqlString(_const.I18N_TARGET_KEY_BASE_MENU_META_TITLE), menu.ID, sqlString(locale), sqlString(title))
 			}
 		}
 	}

@@ -126,7 +126,7 @@ func (x *UpdateBaseI18nRequest) Redact() {
 
 	// Safe field: Id
 
-	// Safe field: TargetType
+	// Safe field: TargetKey
 
 	// Safe field: TargetId
 
@@ -146,7 +146,7 @@ func (x *BaseI18n) Redact() {
 
 	// Safe field: Id
 
-	// Safe field: TargetType
+	// Safe field: TargetKey
 
 	// Safe field: TargetId
 

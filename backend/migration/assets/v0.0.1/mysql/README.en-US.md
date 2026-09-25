@@ -44,7 +44,7 @@ A database that has already recorded `v0.0.1` will not replay the migration beca
 
 ## Localized Data
 
-The three `i18n.{locale}.up.sql` files contain the `base_i18n` records for their locale. They cover system-configuration values and names, dictionary names, dictionary-item labels, menu titles, and scheduled-job names. The `target_type` convention is `1` configuration value, `2` configuration name, `3` dictionary name, `4` dictionary item, `5` menu, and `6` scheduled job. Every translation is inserted separately, and the primary-data filename sorts before the locale files so referenced records exist first.
+The three `i18n.{locale}.up.sql` files contain the `base_i18n` records for their locale. They cover system-configuration values and names, dictionary names, dictionary-item labels, menu titles, scheduled-job names, and OAuth provider names and descriptions. `target_key` uses the `table.field` format to identify the translated field, such as `base_config.name`, `base_menu.meta.title`, and `base_oauth_provider.description`. Every translation is inserted separately, and the primary-data filename sorts before the locale files so referenced records exist first.
 
 `i18n_custom.up.sql` adds the `zh-CN`, `zh-TW`, `en-US`, and `ja-JP` overrides for the default tenant (`tenant_id=1`) and Admin site (`site=2`), including the public project name, tenant-project fields, project-grant fields, and project-grant guidance.
 

@@ -895,21 +895,21 @@ def parse_sql_values(line: str) -> list[str | None] | None:
     return values
 
 
-def i18n_record(line: str) -> tuple[int, int, str, str] | None:
-    """读取统一翻译表 INSERT，返回目标类型、资源编号、语言和文本。"""
+def i18n_record(line: str) -> tuple[str, int, str, str] | None:
+    """读取统一翻译表 INSERT，返回目标键、资源编号、语言和文本。"""
     table_match = re.search(r"INSERT IGNORE INTO `([^`]+)`", line)
     values = parse_sql_values(line)
     if not table_match or table_match.group(1) != "base_i18n" or not values or len(values) < 4:
         return None
     try:
-        return int(values[0] or 0), int(values[1] or 0), str(values[2] or ""), str(values[3] or "")
+        return str(values[0] or ""), int(values[1] or 0), str(values[2] or ""), str(values[3] or "")
     except (TypeError, ValueError):
         return None
 
 
-def parse_primary_i18n_sources(default_data: Path) -> dict[tuple[int, int], str]:
-    """从主数据 SQL 提取统一翻译表各目标类型对应的简体中文源文。"""
-    sources: dict[tuple[int, int], str] = {}
+def parse_primary_i18n_sources(default_data: Path) -> dict[tuple[str, int], str]:
+    """从主数据 SQL 提取统一翻译表各目标键对应的简体中文源文。"""
+    sources: dict[tuple[str, int], str] = {}
     for line in default_data.read_text(encoding="utf-8").splitlines():
         table_match = re.search(r"INSERT IGNORE INTO `([^`]+)`", line)
         values = parse_sql_values(line)
@@ -921,21 +921,24 @@ def parse_primary_i18n_sources(default_data: Path) -> dict[tuple[int, int], str]
         except (TypeError, ValueError):
             continue
         if table == "base_config" and len(values) > 5:
-            sources[(1, resource_id)] = str(values[5] or "")
-            sources[(2, resource_id)] = str(values[2] or "")
+            sources[("base_config.value", resource_id)] = str(values[5] or "")
+            sources[("base_config.name", resource_id)] = str(values[2] or "")
         elif table == "base_dict" and len(values) > 2:
-            sources[(3, resource_id)] = str(values[2] or "")
+            sources[("base_dict.name", resource_id)] = str(values[2] or "")
         elif table == "base_dict_item" and len(values) > 3:
-            sources[(4, resource_id)] = str(values[3] or "")
+            sources[("base_dict_item.label", resource_id)] = str(values[3] or "")
         elif table == "base_menu" and len(values) > 7:
             try:
                 metadata = json.loads(str(values[7] or ""))
             except json.JSONDecodeError:
                 continue
             if isinstance(metadata, dict) and isinstance(metadata.get("title"), str):
-                sources[(5, resource_id)] = metadata["title"]
+                sources[("base_menu.meta.title", resource_id)] = metadata["title"]
         elif table == "base_job" and len(values) > 1:
-            sources[(6, resource_id)] = str(values[1] or "")
+            sources[("base_job.name", resource_id)] = str(values[1] or "")
+        elif table == "base_oauth_provider" and len(values) > 3:
+            sources[("base_oauth_provider.name", resource_id)] = str(values[2] or "")
+            sources[("base_oauth_provider.description", resource_id)] = str(values[3] or "")
     return sources
 
 
@@ -950,19 +953,19 @@ def replace_i18n(line: str, locale: str, translated: str) -> str:
     record = i18n_record(line)
     if not record:
         return line
-    target_type, target_id, _, _ = record
+    target_key, target_id, _, _ = record
     escaped = translated.replace("\\", "\\\\").replace("'", "\\'")
     return (
-        "INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) "
-        f"VALUES ({target_type}, {target_id}, '{locale}', '{escaped}');"
+        "INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) "
+        f"VALUES ('{target_key}', {target_id}, '{locale}', '{escaped}');"
     )
 
 
-def load_existing_i18n(path: Path) -> dict[tuple[int, int], str]:
+def load_existing_i18n(path: Path) -> dict[tuple[str, int], str]:
     """读取已有语言 SQL，供增量生成时保留人工译文。"""
     if not path.exists():
         return {}
-    records: dict[tuple[int, int], str] = {}
+    records: dict[tuple[str, int], str] = {}
     for line in path.read_text(encoding="utf-8").splitlines():
         record = i18n_record(line)
         if record and record[3].strip():

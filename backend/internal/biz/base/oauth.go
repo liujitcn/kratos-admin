@@ -13,7 +13,6 @@ import (
 	"time"
 
 	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
-	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/dto"
 	_const "github.com/liujitcn/kratos-admin/backend/internal/const"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
@@ -150,11 +149,11 @@ func (c *OauthCase) ListOauthProvider(ctx context.Context, req *basev1.ListOauth
 	for _, item := range list {
 		targetIDs = append(targetIDs, item.ID)
 	}
-	nameMap, err := c.oauthProviderI18nMap(ctx, int32(adminv1.I18nTargetType_I18N_TARGET_TYPE_BASE_OAUTH_PROVIDER_NAME), targetIDs)
+	nameMap, err := c.oauthProviderI18nMap(ctx, _const.I18N_TARGET_KEY_BASE_OAUTH_PROVIDER_NAME, targetIDs)
 	if err != nil {
 		return nil, err
 	}
-	descriptionMap, err := c.oauthProviderI18nMap(ctx, int32(adminv1.I18nTargetType_I18N_TARGET_TYPE_BASE_OAUTH_PROVIDER_DESCRIPTION), targetIDs)
+	descriptionMap, err := c.oauthProviderI18nMap(ctx, _const.I18N_TARGET_KEY_BASE_OAUTH_PROVIDER_DESCRIPTION, targetIDs)
 	if err != nil {
 		return nil, err
 	}
@@ -182,14 +181,14 @@ func (c *OauthCase) ListOauthProvider(ctx context.Context, req *basev1.ListOauth
 }
 
 // oauthProviderI18nMap 查询当前请求语言的 OAuth 登录方式翻译。
-func (c *OauthCase) oauthProviderI18nMap(ctx context.Context, targetType int32, targetIDs []int64) (map[int64]string, error) {
+func (c *OauthCase) oauthProviderI18nMap(ctx context.Context, targetKey string, targetIDs []int64) (map[int64]string, error) {
 	result := make(map[int64]string, len(targetIDs))
 	if len(targetIDs) == 0 {
 		return result, nil
 	}
 	locale := biz.LocaleFromContext(ctx)
 	query := c.baseI18nRepo.Query(ctx).BaseI18N
-	list, err := c.baseI18nRepo.List(ctx, repository.Where(query.TargetType.Eq(targetType)), repository.Where(query.TargetID.In(targetIDs...)), repository.Where(query.Locale.Eq(locale)))
+	list, err := c.baseI18nRepo.List(ctx, repository.Where(query.TargetKey.Eq(targetKey)), repository.Where(query.TargetID.In(targetIDs...)), repository.Where(query.Locale.Eq(locale)))
 	if err != nil {
 		return nil, errorsx.Internal("查询三方登录方式翻译失败").WithCause(err)
 	}

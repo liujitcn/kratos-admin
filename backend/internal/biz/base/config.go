@@ -148,7 +148,7 @@ func (c *ConfigCase) localizeRuntimeConfigValues(ctx context.Context, configs []
 		return configs, nil
 	}
 	query := c.i18nRepo.Query(ctx).BaseI18N
-	rows, err := c.i18nRepo.List(ctx, repository.Where(query.TargetType.Eq(_const.I18N_TARGET_TYPE_BASE_CONFIG_VALUE)), repository.Where(query.TargetID.In(configIDs...)), repository.Where(query.Locale.Eq(localeValue)))
+	rows, err := c.i18nRepo.List(ctx, repository.Where(query.TargetKey.Eq(_const.I18N_TARGET_KEY_BASE_CONFIG_VALUE)), repository.Where(query.TargetID.In(configIDs...)), repository.Where(query.Locale.Eq(localeValue)))
 	if err != nil {
 		return nil, err
 	}

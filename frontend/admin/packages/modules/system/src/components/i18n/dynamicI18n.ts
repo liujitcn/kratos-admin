@@ -1,5 +1,4 @@
 import { getEnabledBaseLanguages } from "@liujitcn/kratos-admin-system/api/system/admin/v1/base_language";
-import type { I18nTargetType } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_i18n";
 
 /** DynamicI18nValue 动态资源单语言翻译编辑状态。 */
 export interface DynamicI18nValue {
@@ -11,7 +10,7 @@ export interface DynamicI18nValue {
 
 /** DynamicI18nRecord 描述三类动态资源翻译共有字段。 */
 export interface DynamicI18nRecord extends Omit<DynamicI18nValue, "text"> {
-  target_type: I18nTargetType;
+  target_key: string;
   target_id: number;
   name: string;
 }
@@ -55,12 +54,12 @@ export function normalizeDynamicI18ns(
 /** serializeDynamicI18ns 按启用语言序列化译文，未填写时保存原值。 */
 export function serializeDynamicI18ns(
   values: DynamicI18nValue[],
-  targetType: I18nTargetType,
+  targetKey: string,
   targetId: number,
   source: string
-): Array<{ id: number; target_type: I18nTargetType; target_id: number; locale: string; name: string }> {
+): Array<{ id: number; target_key: string; target_id: number; locale: string; name: string }> {
   return getEditableLanguageOptions().map(({ value: locale }) => {
     const item = values.find(value => value.locale === locale);
-    return { id: item?.id ?? 0, target_type: targetType, target_id: targetId, locale, name: item?.text || source };
+    return { id: item?.id ?? 0, target_key: targetKey, target_id: targetId, locale, name: item?.text || source };
   });
 }

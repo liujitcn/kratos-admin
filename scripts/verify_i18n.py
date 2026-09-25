@@ -25,6 +25,7 @@ from sync_locales import (  # noqa: E402
 
 
 LOCALE_PATTERN = re.compile(r"^[A-Za-z]{2,3}(?:-[A-Za-z0-9]{2,8})*$")
+TARGET_KEY_PATTERN = re.compile(r"^[a-z][a-z0-9_]*(?:\.[a-z][a-z0-9_]*)+$")
 SQL_FILE_PATTERN = re.compile(r"^i18n\.(?P<locale>[^.]+)\.up\.sql$")
 SQL_INSERT_PREFIX = "INSERT IGNORE INTO `base_i18n`"
 OPENAPI_LOCALIZED_FIELD_PATTERN = re.compile(
@@ -102,9 +103,9 @@ def parse_sql_values(line: str) -> list[str | None] | None:
     return values
 
 
-def parse_sql_records(path: Path) -> list[tuple[int, int, str, str]]:
+def parse_sql_records(path: Path) -> list[tuple[str, int, str, str]]:
     """读取一个 i18n SQL 文件中的翻译记录。"""
-    records: list[tuple[int, int, str, str]] = []
+    records: list[tuple[str, int, str, str]] = []
     for line_number, line in enumerate(path.read_text(encoding="utf-8").splitlines(), start=1):
         if SQL_INSERT_PREFIX not in line:
             continue
@@ -112,15 +113,17 @@ def parse_sql_records(path: Path) -> list[tuple[int, int, str, str]]:
         if values is None or len(values) != 4:
             raise VerificationError(f"{path}:{line_number} 的 base_i18n INSERT 格式无效")
         try:
-            target_type = int(values[0] or "")
+            target_key = str(values[0] or "")
             target_id = int(values[1] or "")
         except ValueError as error:
             raise VerificationError(f"{path}:{line_number} 的翻译目标编号无效") from error
+        if not TARGET_KEY_PATTERN.fullmatch(target_key):
+            raise VerificationError(f"{path}:{line_number} 的翻译目标键格式无效")
         locale = str(values[2] or "")
         name = str(values[3] or "")
         if not locale:
             raise VerificationError(f"{path}:{line_number} 的翻译语言为空")
-        records.append((target_type, target_id, locale, name))
+        records.append((target_key, target_id, locale, name))
     if not records:
         raise VerificationError(f"SQL 文件没有 base_i18n 翻译记录: {path}")
     return records
@@ -152,7 +155,7 @@ def verify_sql(locales: list[str], source_locale: str) -> None:
         raise VerificationError(f"未找到国际化 SQL 文件: {migration_root}")
 
     covered_locales: set[str] = set()
-    covered_keys: set[tuple[int, int]] = set()
+    covered_keys: set[tuple[str, int]] = set()
     for directory, files in sorted(groups.items(), key=lambda item: str(item[0])):
         actual_locales = set(files)
         extra = sorted(actual_locales - expected_locales)
@@ -186,18 +189,28 @@ def verify_sql(locales: list[str], source_locale: str) -> None:
     if missing_locales:
         raise VerificationError(f"迁移目录缺少当前语言的 SQL 翻译: {', '.join(missing_locales)}")
 
-    default_translatable_keys: set[tuple[int, int]] = set()
+    default_translatable_keys: set[tuple[str, int]] = set()
     for default_data in migration_root.glob("*/mysql/default_data.up.sql"):
         default_translatable_keys.update(
-            (target_type, target_id)
-            for (target_type, target_id), value in parse_primary_i18n_sources(default_data).items()
-            if target_type in {2, 3, 4, 5, 6} and value
+            (target_key, target_id)
+            for (target_key, target_id), value in parse_primary_i18n_sources(default_data).items()
+            if target_key
+            in {
+                "base_config.name",
+                "base_dict.name",
+                "base_dict_item.label",
+                "base_menu.meta.title",
+                "base_job.name",
+                "base_oauth_provider.name",
+                "base_oauth_provider.description",
+            }
+            and value
         )
     missing_translations = sorted(default_translatable_keys - covered_keys)
     if missing_translations:
         raise VerificationError(
             "默认数据缺少国际化 SQL 翻译: "
-            + ", ".join(f"({target_type}, {target_id})" for target_type, target_id in missing_translations)
+            + ", ".join(f"({target_key}, {target_id})" for target_key, target_id in missing_translations)
         )
 
 

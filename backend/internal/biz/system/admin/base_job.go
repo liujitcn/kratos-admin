@@ -4,6 +4,7 @@ import (
 	"context"
 
 	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
+	adminconst "github.com/liujitcn/kratos-admin/backend/internal/const"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
@@ -66,7 +67,7 @@ func (c *BaseJobCase) OptionBaseJob(ctx context.Context, _ *adminv1.OptionBaseJo
 	var localizedNames map[int64]string
 	localizedNames, err = c.baseI18nCase.GetBaseI18nNameMapByLocale(
 		ctx,
-		adminv1.I18nTargetType_I18N_TARGET_TYPE_BASE_JOB_NAME,
+		adminconst.I18N_TARGET_KEY_BASE_JOB_NAME,
 		biz.LocaleFromContext(ctx),
 		targetIDs,
 	)
@@ -95,7 +96,7 @@ func (c *BaseJobCase) PageBaseJob(ctx context.Context, req *adminv1.PageBaseJobR
 	// 传入任务名称时，按名称模糊匹配定时任务。
 	if req.GetName() != "" {
 		var translatedIDs []int64
-		translatedIDs, err = c.baseI18nCase.GetTargetIdsByName(ctx, adminv1.I18nTargetType_I18N_TARGET_TYPE_BASE_JOB_NAME, req.GetName())
+		translatedIDs, err = c.baseI18nCase.GetTargetIdsByName(ctx, adminconst.I18N_TARGET_KEY_BASE_JOB_NAME, req.GetName())
 		if err != nil {
 			return nil, err
 		}
@@ -127,7 +128,7 @@ func (c *BaseJobCase) PageBaseJob(ctx context.Context, req *adminv1.PageBaseJobR
 		targetIds = append(targetIds, item.ID)
 	}
 	var i18ns map[int64][]*adminv1.BaseI18n
-	i18ns, err = c.baseI18nCase.GetBaseI18nMapByTargetType(ctx, adminv1.I18nTargetType_I18N_TARGET_TYPE_BASE_JOB_NAME, targetIds)
+	i18ns, err = c.baseI18nCase.GetBaseI18nMapByTargetKey(ctx, adminconst.I18N_TARGET_KEY_BASE_JOB_NAME, targetIds)
 	if err != nil {
 		return nil, err
 	}
@@ -147,7 +148,7 @@ func (c *BaseJobCase) GetBaseJob(ctx context.Context, id int64) (*adminv1.BaseJo
 	}
 	res := c.formMapper.ToDTO(baseJob)
 	var i18ns map[int64][]*adminv1.BaseI18n
-	i18ns, err = c.baseI18nCase.GetBaseI18nMapByTargetType(ctx, adminv1.I18nTargetType_I18N_TARGET_TYPE_BASE_JOB_NAME, []int64{id})
+	i18ns, err = c.baseI18nCase.GetBaseI18nMapByTargetKey(ctx, adminconst.I18N_TARGET_KEY_BASE_JOB_NAME, []int64{id})
 	if err != nil {
 		return nil, err
 	}
@@ -289,7 +290,7 @@ func (c *BaseJobCase) DeleteBaseJob(ctx context.Context, id string) error {
 		if err = c.DeleteByIDs(txCtx, ids); err != nil {
 			return err
 		}
-		return c.baseI18nCase.DeleteBaseI18n(txCtx, adminv1.I18nTargetType_I18N_TARGET_TYPE_BASE_JOB_NAME, ids)
+		return c.baseI18nCase.DeleteBaseI18n(txCtx, adminconst.I18N_TARGET_KEY_BASE_JOB_NAME, ids)
 	})
 	if err != nil {
 		restoreErr := c.restoreBaseJobs(ctx, stoppedJobs)
@@ -303,7 +304,7 @@ func (c *BaseJobCase) DeleteBaseJob(ctx context.Context, id string) error {
 
 // saveBaseI18n 保存定时任务名称翻译。
 func (c *BaseJobCase) saveBaseI18n(ctx context.Context, req *adminv1.BaseJobForm, entity *models.BaseJob) error {
-	return c.baseI18nCase.SaveBaseI18n(ctx, adminv1.I18nTargetType_I18N_TARGET_TYPE_BASE_JOB_NAME, entity.ID, entity.Name, req.GetI18ns(), nil)
+	return c.baseI18nCase.SaveBaseI18n(ctx, adminconst.I18N_TARGET_KEY_BASE_JOB_NAME, entity.ID, entity.Name, req.GetI18ns(), nil)
 }
 
 // SetBaseJobStatus 设置定时任务状态

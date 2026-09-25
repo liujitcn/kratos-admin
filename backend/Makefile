@@ -152,7 +152,6 @@ gorm-gen:
 	@test -x "$(GORM_GEN_BIN)" || (echo "未找到 gorm-gen，请先执行 make cli" && exit 1)
 	@$(GORM_GEN_BIN) -base_path=internal/data/gen -config='$(GORM_GEN_CONFIG)' $(if $(strip $(GORM_GEN_DATABASE)),-database='$(GORM_GEN_DATABASE)') $(if $(strip $(GORM_TABLE)),-table='$(GORM_TABLE)')
 	@PATH="$(GO_BIN_DIR):$$PATH" find internal/data/gen -type f -name '*.go' -exec goimports -w {} +
-	@find internal/data/gen -type f -name '*.go' -exec perl -pi -e 's/\x54\x72\x61\x6e\x73\x6c\x61\x74\x69\x6f\x6eTargetType/I18nTargetType/g' {} +
 	@find internal/data/gen -type f -name '*.go' -exec perl -pi -e 's/;default:[^;"`]+//gi' {} +
 	@echo "==> GORM 代码生成完成"
 
@@ -162,7 +161,7 @@ api:
 	@cd api && \
 		PATH="$(GO_BIN_DIR):$$PATH" buf generate --template buf.gen.yaml
 	@PATH="$(GO_BIN_DIR):$$PATH" find api/gen/go -type f -name '*.go' -exec goimports -w {} +
-	@find api/gen/go -type f -name '*.go' -exec perl -pi -e 's/BaseI18N/BaseI18n/g; s/baseI18N/baseI18n/g; s/I18NCustom/I18nCustom/g; s/I18NTargetType/I18nTargetType/g; s/I18Ns/I18ns/g; s/\bI18N\b/I18n/g' {} +
+	@find api/gen/go -type f -name '*.go' -exec perl -pi -e 's/BaseI18N/BaseI18n/g; s/baseI18N/baseI18n/g; s/I18NCustom/I18nCustom/g; s/I18Ns/I18ns/g; s/\bI18N\b/I18n/g' {} +
 	@find api/gen/go -type f -name '*.go' | { \
 		set --; \
 		while IFS= read -r file; do set -- "$$@" -file "$$file"; done; \
