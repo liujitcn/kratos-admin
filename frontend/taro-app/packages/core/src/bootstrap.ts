@@ -11,6 +11,7 @@ import {
 } from './stores'
 import {
   applyLanguageConfig,
+  getCurrentLocale,
   initializeLocale,
   registerLocaleChangeHandler,
   registerLocaleMessages,
@@ -33,6 +34,7 @@ function syncH5DocumentTitle(): void {
   const titleElement = document.querySelector('title')
   const appTitle = titleElement?.dataset.appTitle || t('core.home.main_title')
   const applyTitle = () => {
+    document.documentElement.lang = getCurrentLocale()
     if (document.title !== appTitle) document.title = appTitle
   }
   applyTitle()
@@ -50,6 +52,7 @@ export function bootstrapKratosTaroApp(options: KratosTaroBootstrapOptions): voi
     .OptionLanguage({})
     .then((response) => {
       applyLanguageConfig(response)
+      syncH5DocumentTitle()
     })
     .catch(() => {
       // 语言公共接口失败时继续使用静态语言包和系统语言。

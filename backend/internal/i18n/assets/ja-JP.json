@@ -176,6 +176,17 @@
   "system.admin.base.menu.entity.type.required": {
     "other": "メニュー タイプを空にすることはできません"
   },
+  "system.admin.base.oauth_provider.get.id.required": { "other": "OAuthログイン方式IDを指定してください" },
+  "system.admin.base.oauth_provider.delete.id.required": { "other": "OAuthログイン方式IDを1件以上指定してください" },
+  "system.admin.base.oauth_provider.set_status.id.required": { "other": "OAuthログイン方式IDを指定してください" },
+  "system.admin.base.oauth_provider.form.provider.required": { "other": "Provider識別子の形式が無効です" },
+  "system.admin.base.oauth_provider.form.name.required": { "other": "ログイン方式名を入力してください（50文字以内）" },
+  "system.admin.base.oauth_provider.form.description.length": { "other": "ログイン方式のヒントは255文字以内で入力してください" },
+  "system.admin.base.oauth_provider.form.icon.required": { "other": "アイコンを入力してください（255文字以内）" },
+  "system.admin.base.oauth_provider.form.client_id.required": { "other": "サードパーティアプリケーションIDを入力してください（255文字以内）" },
+  "system.admin.base.oauth_provider.form.client_secret.length": { "other": "サードパーティアプリケーションのシークレットは512文字以内で入力してください" },
+  "system.admin.base.oauth_provider.form.redirect_uri.length": { "other": "OAuthリダイレクトURIは512文字以内で入力してください" },
+  "system.admin.base.oauth_provider.form.scopes.unique": { "other": "OAuth Scopeに重複がないようにしてください" },
   "system.admin.base.post.entity.code.max_length": {
     "other": "位置番号は 20 文字を超えることはできません"
   },
@@ -863,8 +874,20 @@
   "system.admin.ops_monitoring.connection_healthy": {
     "other": "接続正常"
   },
+  "system.admin.ops_monitoring.connection_check_failed": {
+    "other": "接続を確認できません。接続先と認証情報を確認してください。"
+  },
+  "system.admin.ops_monitoring.connection_close_failed": {
+    "other": "接続を閉じられませんでした。サービスログを確認してください。"
+  },
+  "system.admin.ops_monitoring.connection_pool_unavailable": {
+    "other": "データベース接続プールを利用できません。サービスログを確認してください。"
+  },
   "system.admin.ops_monitoring.redis_unconfigured": {
     "other": "Redis 未設定"
+  },
+  "system.admin.ops_monitoring.redis_configuration_invalid": {
+    "other": "Redis の設定が無効です。サービスログを確認してください。"
   },
   "system.admin.ops_monitoring.pool": {
     "other": "接続プール"
@@ -886,6 +909,9 @@
   },
   "system.admin.ops_monitoring.dispatch_unconfigured": {
     "other": "メッセージ配信リポジトリが未設定です"
+  },
+  "system.admin.ops_monitoring.dispatch_status_unavailable": {
+    "other": "メッセージ配信状態を取得できません。サービスログを確認してください。"
   },
   "system.admin.ops_monitoring.address_count": {
     "other": "アドレス数"
@@ -1004,6 +1030,9 @@
   "system.code.gen.message.proto.file_missing": {
     "other": "Protoファイルが存在しません"
   },
+  "system.code.gen.message.proto.route_unavailable": {
+    "other": "APIルートを特定できません"
+  },
   "system.code.gen.message.proto.missing_select_generate": {
     "other": "不足しています。生成対象として選択できます"
   },
@@ -1085,6 +1114,24 @@
   "system.code.gen.message.preview.menu_sql_update": {
     "other": "{path} のメニューおよびボタン権限 SQL を更新します"
   },
+  "system.code.gen.message.preview.invalid_path": {
+    "other": "生成パス {path} は許可されたリポジトリ内にありません"
+  },
+  "system.code.gen.message.preview.file_read_failed": {
+    "other": "プレビュー ファイル {path} を読み取れませんでした"
+  },
+  "system.code.gen.message.preview.locale_render_failed": {
+    "other": "言語ファイル {path} のプレビューを生成できませんでした"
+  },
+  "system.code.gen.message.preview.locale_merge_failed": {
+    "other": "言語ファイル {path} をマージできませんでした"
+  },
+  "system.code.gen.message.preview.menu_sql_path_unavailable": {
+    "other": "メニュー権限 SQL ファイルの有効なパスを特定できませんでした"
+  },
+  "system.code.gen.message.preview.menu_sql_merge_failed": {
+    "other": "生成したメニュー権限 SQL を {path} にマージできませんでした"
+  },
   "system.code.gen.message.progress.pending_execute": {
     "other": "実行待ち"
   },
@@ -1142,6 +1189,9 @@
   "system.code.gen.message.progress.execute_complete": {
     "other": "実行完了"
   },
+  "system.code.gen.message.progress.no_go_files_to_format": {
+    "other": "今回整形が必要な Go ファイルはありません"
+  },
   "system.code.gen.message.progress.model_generation_failed": {
     "other": "モデル生成に失敗しました"
   },
@@ -1150,6 +1200,12 @@
   },
   "system.code.gen.message.progress.command_failed": {
     "other": "コード生成に失敗しました（make {target}）: {detail}"
+  },
+  "system.code.gen.message.progress.file_write_failed": {
+    "other": "生成ファイル {path} を書き込めませんでした"
+  },
+  "system.code.gen.message.progress.failure_details_unavailable": {
+    "other": "処理に失敗しました。診断出力またはサービスログを確認してください。"
   },
   "system.code.gen.password_strength": {
     "other": "強度のヒント"
@@ -3854,10 +3910,104 @@
   ,"legacy.error.f729b50ce3ce3983": { "other": "最後のメッセージのみ編集できます" }
   ,"legacy.error.7bdaeb66d03d3063": { "other": "このステップは期限切れです。最新のメッセージから操作を続けてください" }
   ,"legacy.error.feca044b124b4405": { "other": "サードパーティログイン方式の翻訳の照会に失敗しました" },
+  "system.code.gen.message.path_label.proto_file": { "other": "Protoファイルパス" },
+  "system.code.gen.message.path_label.backend_biz": { "other": "バックエンドBizファイルパス" },
+  "system.code.gen.message.path_label.backend_service": { "other": "バックエンドServiceファイルパス" },
+  "system.code.gen.message.path_label.frontend_api": { "other": "フロントエンドAPIファイルパス" },
+  "system.code.gen.message.path_label.frontend_page": { "other": "フロントエンドページファイルパス" },
+  "system.code.gen.error.output_path_invalid": { "other": "{{.Field}}が無効です" },
   "system.code.gen.error.route_duplicate": { "other": "生成されたルート{{.Method}} {{.HTTPMethod}} {{.Path}}はbase_apiの{{.Operation}}と重複しています" },
   "system.code.gen.error.option_table_missing": { "other": "オプションAPI {{.Method}}の対象テーブル{{.Table}}が存在しないため、フィールドタイプを検証できません" },
   "system.code.gen.error.status_default_invalid": { "other": "フィールド{{.Field}}のステータスデフォルト値{{.Default}}は、有効値{{.Enabled}}または無効値{{.Disabled}}ではありません" },
   "system.code.gen.error.option_column_missing": { "other": "オプションAPI {{.Method}}の{{.Label}}{{.Column}}フィールドが存在しません" },
   "system.code.gen.error.option_column_integer": { "other": "オプションAPI {{.Method}}の{{.Label}}{{.Column}}フィールドは整数型である必要があります" },
-  "system.code.gen.error.path_duplicate": { "other": "{{.Current}}は{{.Previous}}と同じパスを使用できません" }
+  "system.code.gen.error.path_duplicate": { "other": "{{.Current}}は{{.Previous}}と同じパスを使用できません" },
+  "system.code.gen.error.batch.empty": { "other": "一括生成するテーブルを1つ以上選択してください" },
+  "system.code.gen.error.batch.table_missing": { "other": "一括生成項目{{.Index}}にテーブル設定がありません" },
+  "system.code.gen.error.batch.table_id_required": { "other": "コード生成テーブルIDは0より大きい値にしてください" },
+  "system.code.gen.error.batch.table_id_duplicate": { "other": "コード生成テーブル{{.TableID}}がバッチ内で重複しています" },
+  "system.code.gen.error.batch.invalid_path": { "other": "生成パス{{.Path}}は許可されたリポジトリ内にありません" },
+  "system.code.gen.error.batch.page_unmergeable": { "other": "テーブル{{.Table}}のフロントエンドページ{{.Path}}を安全にマージできないため、バッチを適用しませんでした" },
+  "system.code.gen.error.batch.route_duplicate": { "other": "Protoファイル{{.ProtoFile}}のHTTPルート{{.HTTPMethod}} {{.Path}}が別のRPCと競合しています" },
+  "system.code.gen.error.batch.definition_conflict": { "other": "テーブル{{.Previous}}と{{.Current}}の{{.Key}}定義が一致しません" },
+  "system.code.gen.error.has_children": { "other": "{{.Parent}}を削除できません。配下に{{.Child}}が残っています。" },
+  "base.third_account.error.binding_exists": { "other": "サードパーティアカウントの連携はすでに存在します" },
+  "base.third_account.error.current_user_provider_bound": { "other": "現在のユーザーはこのログイン方法をすでに連携しています" },
+  "base.third_account.error.account_bound_to_other_user": { "other": "このサードパーティアカウントは別のユーザーに連携されています" },
+  "base.oauth.callback.state_invalid": { "other": "サードパーティログインの状態が無効です" },
+  "base.oauth.callback.authorization_failed": { "other": "サードパーティ認証に失敗しました" },
+  "base.oauth.callback.account_unbound": { "other": "このサードパーティアカウントは未連携です。ユーザー名とパスワードでログインしてから、プロフィールで連携してください。" },
+  "base.oauth.callback.login_failed": { "other": "サードパーティアカウントでログインできませんでした" },
+  "base.oauth.callback.redirect_url_missing": { "other": "サードパーティログインのリダイレクト先が設定されていません" },
+  "base.oauth.binding_callback.state_invalid": { "other": "サードパーティアカウント連携の状態が無効です" },
+  "base.oauth.binding_callback.authorization_code_required": { "other": "サードパーティの認証コードが必要です" },
+  "base.oauth.binding_callback.account_bound_to_other_user": { "other": "このサードパーティアカウントは別のユーザーに連携されています" },
+  "base.oauth.binding_callback.current_user_provider_bound": { "other": "現在のユーザーはこのログイン方法をすでに連携しています" },
+  "base.oauth.binding_callback.failed": { "other": "サードパーティアカウントを連携できませんでした" },
+  "base.oauth.binding_callback.redirect_url_missing": { "other": "サードパーティアカウント連携のリダイレクト先が設定されていません" },
+  "base.ai.tool.disabled": { "other": "Agent ツール {{.Name}} は無効のため呼び出しを続行できません。" },
+  "system.ai.chat.error.tool_failed": { "other": "ツール {{.Name}} の実行に失敗しました。サービスログを確認してください。" },
+  "system.ai.chat.error.tool_unavailable": { "other": "ツール {{.Name}} は現在利用できません。" },
+  "system.mcp.tool_not_registered": { "other": "MCPツール {{.Name}} は登録されていません。" },
+  "system.mcp.tool_check_failed": { "other": "MCPツールへのアクセスを確認できません。サービスログを確認してください。" },
+  "base.ai.prompt.instruction": { "other": "あなたは汎用AIアシスタントです。ユーザーのさまざまな質問に自然に、親切かつ正確に回答してください。\n回答ガイドライン:\n1. 現在の質問に直接回答し、現在のシステムの範囲外という理由だけで拒否しないでください。\n2. 一般知識、日常の質問、文章の推敲、コードの説明、計画の整理、分析などに対応してください。\n3. 添付ファイル、会話履歴、システムコンテキストが提供されている場合は、必要に応じて参照してください。\n4. ユーザー、辞書、設定、レポートなどのシステム内の非公開データについては、利用可能な内部ツールを優先して実データを取得してください。\n5. 内部ツールが適合しない、結果がない、または公開リアルタイム情報を求められた場合は、ウェブ検索を利用できます。\n6. コンテキストやツール結果にない非公開システムデータ、正確な数値、操作結果を捏造しないでください。\n7. ツール結果のページングカーソル、内部ID、base64、画像データ、デバッグ項目をユーザーに直接表示しないでください。必要な場合は、次のページがあることや検索を続けられることを自然な言葉で伝えてください。\n8. 履歴で内部ツールが無効または利用不可と示されており、関連する検索の継続を求められた場合は、ツールを呼び出せないことを明確に説明してください。\n9. 現在のリクエスト言語で回答し、判別できない場合は中国語を使用してください。チャット画面に適した明瞭で自然な回答にしてください。" },
+  "base.ai.prompt.tool_routing_rules": { "other": "現在のプロジェクト内のユーザー、辞書、設定、レポートなどの非公開データには、利用可能な内部ツールを優先してください。このターンで内部ツールが一致した場合は内部ツールだけで回答し、ウェブ検索を使用しないでください。一致しない場合、ウェブ検索は公開リアルタイム情報に限って使用してください。ツールの説明と既定のパラメーターに従い、指示がない条件を追加・削除しないでください。ユーザーが検索後に条件を明確にした場合は、直近の関連ツールと他の条件を引き継ぎ、明確にされた条件だけを変更してください。対象や条件が曖昧な場合は質問してください。" },
+  "base.ai.prompt.business_date": { "other": "- 現在の業務日付: {{.Value}}" },
+  "base.ai.prompt.business_timezone": { "other": "- 業務タイムゾーン: {{.Location}} (UTC{{.Offset}})" },
+  "base.ai.prompt.current_session": { "other": "現在のセッション:" },
+  "base.ai.prompt.terminal": { "other": "- 端末: {{.Value}}" },
+  "base.ai.prompt.user": { "other": "- ユーザー: {{.Value}}" },
+  "base.ai.prompt.title": { "other": "- タイトル: {{.Value}}" },
+  "base.ai.prompt.summary": { "other": "- 要約: {{.Value}}" },
+  "base.ai.prompt.attachment_notice": { "other": "ユーザーは今回のメッセージに添付ファイルを追加しています。内容はメッセージに含まれているため、必要に応じて参照してください。" },
+  "base.ai.prompt.image_attachment": { "other": "画像添付ファイル{{.Name}}は視覚入力としてモデルに提供されています。" },
+  "base.ai.prompt.text_attachment": { "other": "添付ファイル{{.Name}}の内容:\n{{.Content}}" },
+  "base.ai.prompt.attachment_message_intro": { "other": "今回のメッセージには次の添付ファイルが含まれています。必要に応じて回答に利用してください:" },
+  "base.ai.prompt.attachment_name": { "other": "添付ファイル{{.Name}}" },
+  "base.ai.prompt.attachment_type": { "other": "種類: {{.Value}}" },
+  "base.ai.prompt.attachment_size": { "other": "サイズ: {{.Value}}バイト" },
+  "base.ai.prompt.attachment_url": { "other": "URL: {{.Value}}" },
+  "base.ai.prompt.assistant_description": { "other": "管理画面のAIアシスタントです。会話、内部ツールの呼び出し、ウェブ検索を行います。" },
+  "base.ai.prompt.catalog_tool_description": { "other": "現在の端末に登録されている内部Agent Toolの一覧、件数、名前、説明を照会します。利用可能なツールやAPIについて質問された場合に使用してください。" },
+  "base.ai.prompt.attachment_unnamed": { "other": "名前のない添付ファイル" },
+  "base.ai.prompt.history_tool_context": { "other": "前回の内部ツール呼び出し情報は、ユーザーの追加質問や続きの検索を理解するためだけに使用し、直接表示しないでください:" },
+  "base.ai.prompt.history_tool_name": { "other": "- ツール名: {{.Name}}" },
+  "base.ai.prompt.history_tool_title": { "other": "  ツールのタイトル: {{.Title}}" },
+  "base.ai.prompt.history_tool_input": { "other": "  入力: {{.Input}}" },
+  "base.ai.prompt.history_tool_output": { "other": "  出力: {{.Output}}" },
+  "system.base.user.error.duplicate_identity": { "other": "このテナントではユーザー名またはユーザー番号が既に使用されています" },
+  "system.base.user.error.duplicate_user_name": { "other": "このテナントではユーザー名が既に使用されています" },
+  "system.base.user.error.duplicate_user_code": { "other": "このテナントではユーザー番号が既に使用されています" },
+  "system.ai.chat.error.fallback_reply.content": { "other": "質問：{{.Content}} を受け取りましたが、AIアシスタントは現在利用できず、完全な回答を生成できません。しばらくしてからもう一度お試しください。" },
+  "system.ai.chat.error.fallback_reply.attachments": { "other": "質問と添付ファイル{{.Count}}件を受け取りましたが、AIアシスタントは現在利用できず、完全な回答を生成できません。しばらくしてからもう一度お試しください。" },
+  "legacy.error.0cf67600c5317be5": { "other": "タスクは別のインスタンスで実行中です" },
+  "legacy.error.d6dad83238ab7270": { "other": "ログインIPがブラックリストに登録されています" },
+  "legacy.error.baabf07429595997": { "other": "ログインMACアドレスがブラックリストに登録されています" },
+  "legacy.error.27c12cba0463a64f": { "other": "ログイン地域がブラックリストに登録されています" },
+  "legacy.error.020eaa6e9305844c": { "other": "現在の時刻はログインできません" },
+  "legacy.error.36f18cb8cc1347dc": { "other": "ログイン端末がブラックリストに登録されています" },
+  "legacy.error.1efa62aa3b12f109": { "other": "ログイン元がブラックリストに登録されています" },
+  "legacy.error.48fb2e3cbfc3df7b": { "other": "ログインIPがホワイトリストにありません" },
+  "legacy.error.6ce9e8310f7d0a6f": { "other": "ログインMACアドレスがホワイトリストにありません" },
+  "legacy.error.136942b0f292b207": { "other": "ログイン地域がホワイトリストにありません" },
+  "legacy.error.14d64ced023b18bb": { "other": "現在の時刻は許可された時間帯ではありません" },
+  "legacy.error.4575220a10a47a02": { "other": "ログイン端末がホワイトリストにありません" },
+  "legacy.error.8a1e11040b992b1f": { "other": "ログイン元がホワイトリストにありません" },
+  "base.ai.message.attachment_prompt": { "other": "添付された内容に基づいて分析を続けてください" },
+  "base.ai.session.default_summary": { "other": "新しい会話" },
+  "base.ai.session.attachment_summary": { "other": "添付ファイル{{.Count}}件" },
+  "base.ai.session.default_title": { "other": "新しい会話" },
+  "base.ai.session.branch_title": { "other": "分岐会話" },
+  "system.base.tenant.default_department_name": { "other": "デフォルト部門" },
+  "system.base.tenant.default_department_remark": { "other": "テナントのデフォルト部門" },
+  "system.base.tenant.default_admin_nickname": { "other": "管理者" },
+  "system.base.tenant.default_admin_remark": { "other": "テナントのデフォルト管理者です。初期パスワードは全体のログインポリシーに従います。" },
+  "system.base.tenant.value.missing_name": { "other": "テナントが見つかりません（ID: {{.ID}}）" },
+  "legacy.error.c1eb17bd5887ac52": { "other": "テナント管理者" },
+  "legacy.error.bd9cb10928c622d0": { "other": "テナント管理者の既定権限テンプレート。既定テナントで管理できます。" },
+  "system.oauth.crypto.error.client_token_invalid": { "other": "クライアントアクセストークンが無効です" },
+  "system.oauth.crypto.error.config_invalid": { "other": "クライアントの暗号化設定が無効です" },
+  "system.oauth.crypto.error.request_decrypt_failed": { "other": "リクエストデータの復号に失敗しました" },
+  "system.oauth.crypto.error.response_too_large": { "other": "レスポンスサイズが上限を超えています" },
+  "system.oauth.crypto.error.response_encrypt_failed": { "other": "レスポンスの暗号化に失敗しました" }
 }

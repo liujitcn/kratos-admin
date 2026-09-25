@@ -1,6 +1,8 @@
 package agent
 
 import (
+	"context"
+
 	"github.com/cloudwego/eino/components/tool"
 	"github.com/cloudwego/eino/components/tool/utils"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/agent/model"
@@ -13,6 +15,9 @@ type Tool = tool.InvokableTool
 // AssistantClient 是 AI 助手模型客户端，按配置选择 Chat Completions 或 Responses 协议。
 type AssistantClient = model.AssistantClient
 
+// MessageLocalizer 按请求语言渲染 Agent 面向用户的消息。
+type MessageLocalizer func(ctx context.Context, key string, args map[string]any, fallback string) string
+
 // RuntimeConfig 是公开 Runtime 的初始化配置。
 type RuntimeConfig struct {
 	// Client 是 AI 助手模型客户端。
@@ -23,11 +28,13 @@ type RuntimeConfig struct {
 	AdminTools []Tool
 	// AppTools 是应用端工具集合。
 	AppTools []Tool
+	// LocalizeMessage 是可选消息本地化器；未提供时使用消息的英文兜底文案。
+	LocalizeMessage MessageLocalizer
 }
 
 // NewRuntime 创建可被外部模块复用的 AI Runtime。
 func NewRuntime(config RuntimeConfig) *Runtime {
-	return newRuntime(config.Client, config.Checker, config.AdminTools, config.AppTools)
+	return newRuntime(config.Client, config.Checker, config.AdminTools, config.AppTools, config.LocalizeMessage)
 }
 
 // NewRuntimeWithTools 创建只使用管理端工具集合的 Runtime。

@@ -348,18 +348,9 @@ func serverToolsFromMessage(value *message.AgenticMessage) []ServerTool {
 	for _, item := range serverTools {
 		tools = append(tools, ServerTool{
 			Name:   item.Name,
-			Title:  serverToolTitle(item.Name),
+			Title:  item.Name,
 			Status: "success",
 		})
 	}
 	return tools
-}
-
-// serverToolTitle 返回服务端工具的前端展示标题。
-func serverToolTitle(name string) string {
-	// OpenAI Responses 的 web_search 工具在前端展示为中文名称，便于用户理解来源。
-	if name == "web_search" {
-		return "联网搜索"
-	}
-	return name
 }

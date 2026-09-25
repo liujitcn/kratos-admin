@@ -39,7 +39,7 @@ type OutputContentPayload struct {
 }
 
 // BuildUserContent 生成用户消息落库正文。
-func BuildUserContent(content string, attachments []*basev1.AiAttachment) string {
+func BuildUserContent(content string, attachments []*basev1.AiAttachment, attachmentFallback string) string {
 	// 有用户文本时保留文本作为主问题，附件内容通过附件字段独立保存。
 	if content != "" {
 		return content
@@ -48,7 +48,7 @@ func BuildUserContent(content string, attachments []*basev1.AiAttachment) string
 	if len(attachments) == 0 {
 		return ""
 	}
-	return "请结合附件内容继续分析"
+	return attachmentFallback
 }
 
 // MarshalInputContentPayload 序列化 AI 助手输入内容。
@@ -81,10 +81,10 @@ func ParseInputContent(raw string) InputContentPayload {
 }
 
 // MarshalInputContent 序列化用户输入内容。
-func MarshalInputContent(content string, attachments []*basev1.AiAttachment) string {
+func MarshalInputContent(content string, attachments []*basev1.AiAttachment, attachmentFallback string) string {
 	return MarshalInputContentPayload(InputContentPayload{
 		Kind:    KindText,
-		Content: BuildUserContent(content, attachments),
+		Content: BuildUserContent(content, attachments, attachmentFallback),
 	})
 }
 
@@ -117,30 +117,34 @@ func ParseOutputContent(raw string) OutputContentPayload {
 	return payload
 }
 
-// BuildFallbackReply 生成模型不可用时的本地降级回复。
-func BuildFallbackReply(content string, attachments []*basev1.AiAttachment) string {
+// BuildFallbackReply 生成模型不可用时按当前请求语言返回的降级回复。
+func BuildFallbackReply(content string, attachments []*basev1.AiAttachment, localize func(string, map[string]any, string) string) string {
 	// 附件场景不回显文件名，避免降级文案过长或暴露不必要的文件路径。
 	if len(attachments) > 0 {
-		return fmt.Sprintf("已收到你的问题和 %d 个附件，但当前大模型暂时不可用，无法生成完整回复，请稍后再试。", len(attachments))
+		fallback := fmt.Sprintf("Your question and %d attachment(s) were received, but the AI assistant is temporarily unavailable. Please try again later.", len(attachments))
+		if localize == nil {
+			return fallback
+		}
+		return localize("system.ai.chat.error.fallback_reply.attachments", map[string]any{"Count": len(attachments)}, fallback)
 	}
-	return fmt.Sprintf("已收到你的问题：%s。但当前大模型暂时不可用，无法生成完整回复，请稍后再试。", NormalizePreview(content))
-}
-
-// BuildDefaultSummary 生成新会话默认摘要。
-func BuildDefaultSummary() string {
-	return "新对话"
+	preview := NormalizePreview(content)
+	fallback := fmt.Sprintf("Your question was received: %s. The AI assistant is temporarily unavailable and cannot generate a complete reply. Please try again later.", preview)
+	if localize == nil {
+		return fallback
+	}
+	return localize("system.ai.chat.error.fallback_reply.content", map[string]any{"Content": preview}, fallback)
 }
 
 // BuildDynamicSummary 根据本轮用户文本或附件数量生成会话摘要。
-func BuildDynamicSummary(content string, attachments []*basev1.AiAttachment) string {
+func BuildDynamicSummary(content string, attachments []*basev1.AiAttachment, defaultSummary, attachmentSummary string) string {
 	preview := NormalizePreview(content)
 	// 只有附件没有文本时，用附件数量表达本轮会话主题。
 	if preview == "" && len(attachments) > 0 {
-		preview = fmt.Sprintf("%d 个附件", len(attachments))
+		return attachmentSummary
 	}
 	// 兜底默认摘要，避免会话列表出现空白标题区域。
 	if preview == "" {
-		return BuildDefaultSummary()
+		return defaultSummary
 	}
 	return preview
 }

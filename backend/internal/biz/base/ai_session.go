@@ -12,6 +12,7 @@ import (
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 	"github.com/liujitcn/kratos-core/biz"
 	"github.com/liujitcn/kratos-core/errorsx"
+	"github.com/liujitcn/kratos-core/resource/i18n"
 
 	"github.com/liujitcn/go-utils/mapper"
 	"github.com/liujitcn/gorm-kit/repository"
@@ -26,6 +27,7 @@ type AiSessionCase struct {
 	*data.AiSessionRepository
 	tx            data.Transaction
 	aiMessageRepo *data.AiMessageRepository
+	catalog       *i18n.I18n
 	mapper        *mapper.CopierMapper[basev1.AiSession, models.AiSession]
 }
 
@@ -35,12 +37,14 @@ func NewAiSessionCase(
 	tx data.Transaction,
 	aiSessionRepo *data.AiSessionRepository,
 	aiMessageRepo *data.AiMessageRepository,
+	catalog *i18n.I18n,
 ) *AiSessionCase {
 	return &AiSessionCase{
 		BaseCase:            baseCase,
 		AiSessionRepository: aiSessionRepo,
 		tx:                  tx,
 		aiMessageRepo:       aiMessageRepo,
+		catalog:             catalog,
 		mapper:              mapper.NewCopierMapper[basev1.AiSession, models.AiSession](),
 	}
 }
@@ -81,15 +85,16 @@ func (c *AiSessionCase) CreateAiSession(ctx context.Context, req *basev1.CreateA
 
 	title := req.GetTitle()
 	if title == "" {
-		title = "新对话"
+		title = localizedAiSessionText(c.catalog, biz.LocaleFromContext(ctx), "base.ai.session.default_title", "New conversation")
 	}
+	summary := localizedAiSessionText(c.catalog, biz.LocaleFromContext(ctx), "base.ai.session.default_summary", "New conversation")
 	now := time.Now()
 	model := &models.AiSession{
 		TenantID:  authInfo.TenantId,
 		UserID:    authInfo.UserId,
 		Terminal:  ai.NormalizeTerminal(req.GetTerminal()),
 		Title:     title,
-		Summary:   ai.BuildDefaultSummary(),
+		Summary:   summary,
 		CreatedAt: now,
 		UpdatedAt: now,
 	}
@@ -145,7 +150,7 @@ func (c *AiSessionCase) CreateAiSessionBranch(ctx context.Context, req *basev1.C
 	now := time.Now()
 	title := req.GetTitle()
 	if title == "" {
-		title = "分支会话"
+		title = localizedAiSessionText(c.catalog, biz.LocaleFromContext(ctx), "base.ai.session.branch_title", "Branch conversation")
 	}
 	branchSession := &models.AiSession{
 		TenantID:  sourceSession.TenantID,
@@ -307,4 +312,9 @@ func (c *AiSessionCase) ToDTO(model *models.AiSession) *basev1.AiSession {
 	session.UpdatedAt = timestamppb.New(model.UpdatedAt)
 	session.Terminal = ai.NormalizeTerminalEnum(model.Terminal)
 	return session
+}
+
+// localizedAiSessionText 根据当前请求语言读取会话默认文案。
+func localizedAiSessionText(catalog *i18n.I18n, locale, key, fallback string) string {
+	return catalog.Localize(locale, "zh-CN", key, nil, fallback)
 }

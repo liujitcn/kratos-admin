@@ -9,8 +9,10 @@ import (
 	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
+	"github.com/liujitcn/kratos-admin/backend/internal/i18n"
 	"github.com/liujitcn/kratos-admin/backend/pkg/projectaccess"
 	"github.com/liujitcn/kratos-core/biz"
+	corei18n "github.com/liujitcn/kratos-core/resource/i18n"
 	"github.com/liujitcn/kratos-kit/auth/authn/engine"
 	authdata "github.com/liujitcn/kratos-kit/auth/data"
 	kitgorm "github.com/liujitcn/kratos-kit/database/gorm"
@@ -156,7 +158,7 @@ func TestDefaultTenantCanQueryAllProjects(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	projectService := NewBaseTenantProjectCase(projectaccess.NewLifecycle(), &biz.BaseCase{}, grantService, data.NewTransaction(store), data.NewBaseTenantProjectRepository(store))
+	projectService := NewBaseTenantProjectCase(projectaccess.NewLifecycle(), &biz.BaseCase{}, grantService, data.NewTransaction(store), data.NewBaseTenantProjectRepository(store), nil)
 	identity := &authdata.UserTokenPayload{TenantId: 99, TenantCode: kitgorm.DefaultTenantCode, UserId: 200, RoleId: 90, RoleCode: "tenant", DeptId: 90, DataScope: 1}
 	ctx := engine.ContextWithAuthClaims(context.Background(), identity.MakeAuthClaims())
 	result, err := projectService.PageBaseTenantProject(ctx, &adminv1.PageBaseTenantProjectRequest{PageNum: 1, PageSize: 10})
@@ -185,7 +187,7 @@ func TestDefaultTenantProjectTreeUsesTenantName(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	projectService := NewBaseTenantProjectCase(projectaccess.NewLifecycle(), &biz.BaseCase{}, grantService, data.NewTransaction(store), data.NewBaseTenantProjectRepository(store))
+	projectService := NewBaseTenantProjectCase(projectaccess.NewLifecycle(), &biz.BaseCase{}, grantService, data.NewTransaction(store), data.NewBaseTenantProjectRepository(store), nil)
 	identity := &authdata.UserTokenPayload{TenantId: 99, TenantCode: kitgorm.DefaultTenantCode, UserId: 200, RoleId: 90, RoleCode: "tenant", DeptId: 90, DataScope: 1}
 	ctx := engine.ContextWithAuthClaims(context.Background(), identity.MakeAuthClaims())
 	var result *adminv1.TreeBaseTenantProjectResponse
@@ -212,7 +214,7 @@ func TestProjectCatalogManagement(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	projectService := NewBaseTenantProjectCase(projectaccess.NewLifecycle(), &biz.BaseCase{}, grantService, data.NewTransaction(store), data.NewBaseTenantProjectRepository(store))
+	projectService := NewBaseTenantProjectCase(projectaccess.NewLifecycle(), &biz.BaseCase{}, grantService, data.NewTransaction(store), data.NewBaseTenantProjectRepository(store), nil)
 	options, err := projectService.OptionBaseTenantProject(normalCtx, &adminv1.OptionBaseTenantProjectRequest{})
 	if err != nil || len(options.List) != 5 {
 		t.Fatalf("普通租户项目目录错误: len=%d err=%v", len(options.List), err)
@@ -248,5 +250,27 @@ func TestPageProjectGrant(t *testing.T) {
 	}
 	if result.Grants[0].GrantKey == "" || result.Grants[0].SubjectName == "" || len(result.Grants[0].ProjectNames) != 1 {
 		t.Fatalf("列表展示字段未补齐: %+v", result.Grants[0])
+	}
+}
+
+// TestLocalizedTenantFallbackNameUsesEverySupportedLocale 验证失效租户占位名称按当前语言显示编号。
+func TestLocalizedTenantFallbackNameUsesEverySupportedLocale(t *testing.T) {
+	catalog, err := corei18n.NewI18n("tenant-fallback-name-test", i18n.Assets())
+	if err != nil {
+		t.Fatal(err)
+	}
+	tests := []struct {
+		locale string
+		want   string
+	}{
+		{locale: "zh-CN", want: "租户（记录缺失，ID：42）"},
+		{locale: "en-US", want: "Missing tenant (ID: 42)"},
+		{locale: "zh-TW", want: "租戶（記錄不存在，ID：42）"},
+		{locale: "ja-JP", want: "テナントが見つかりません（ID: 42）"},
+	}
+	for _, test := range tests {
+		if got := localizedTenantFallbackName(catalog, test.locale, 42); got != test.want {
+			t.Errorf("locale %s tenant fallback = %q, want %q", test.locale, got, test.want)
+		}
 	}
 }

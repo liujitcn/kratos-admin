@@ -263,7 +263,7 @@ func (c *CodeGenCase) StartCodeGenTask(ctx context.Context, req *adminv1.StartCo
 	if !created {
 		return nil, errorsx.StateConflict("已有代码生成任务正在执行", "code_gen_task", "running", "completed")
 	}
-	go c.runCodeGenTask(context.WithoutCancel(ctx), task.GetTaskId(), req.GetTableIds())
+	go c.runCodeGenTask(context.WithoutCancel(ctx), task.GetTaskId(), req.GetTableIds(), batch.localeState)
 	return &adminv1.StartCodeGenTaskResponse{TaskId: task.GetTaskId()}, nil
 }
 
@@ -350,10 +350,11 @@ func (c *CodeGenCase) runCodeGenTask(
 	ctx context.Context,
 	taskID string,
 	tableIDs []int64,
+	localeState codegen.LocaleState,
 ) {
 	defer func() {
 		if recovered := recover(); recovered != nil {
-			c.failCodeGenTask(ctx, taskID, tableIDs, fmt.Errorf("代码生成任务异常退出: %v", recovered))
+			c.failCodeGenTask(ctx, taskID, tableIDs, localeState, fmt.Errorf("代码生成任务异常退出: %v", recovered))
 		}
 	}()
 	// 文件、生成产物和格式化都会改写共享工作树，整批任务必须串行执行。
@@ -363,13 +364,14 @@ func (c *CodeGenCase) runCodeGenTask(
 
 	batch, err := c.prepareCodeGenBatch(ctx, tableIDs)
 	if err != nil {
-		c.failCodeGenTask(ctx, taskID, tableIDs, err)
+		c.failCodeGenTask(ctx, taskID, tableIDs, localeState, err)
 		return
 	}
+	localeState = batch.localeState
 	var beforeSnapshot map[string]codeGenRestoreWorkspaceFile
 	beforeSnapshot, err = captureCodeGenWorkspaceSnapshot(batch.plan.Files)
 	if err != nil {
-		c.failCodeGenTask(ctx, taskID, tableIDs, err)
+		c.failCodeGenTask(ctx, taskID, tableIDs, localeState, err)
 		return
 	}
 	tableIDs = slices.Clone(tableIDs)
@@ -391,7 +393,7 @@ func (c *CodeGenCase) runCodeGenTask(
 			batch.localeState,
 		)
 		if err != nil {
-			c.failCodeGenTask(ctx, taskID, tableIDs, err)
+			c.failCodeGenTask(ctx, taskID, tableIDs, localeState, err)
 			return
 		}
 		beforeMenusByTable[tableID] = cloneBaseMenus(menus)
@@ -400,7 +402,7 @@ func (c *CodeGenCase) runCodeGenTask(
 			opts := []repository.QueryOption{repository.Where(query.TargetType.Eq(int32(adminv1.I18nTargetType_I18N_TARGET_TYPE_BASE_MENU_META_TITLE))), repository.Where(query.TargetID.In(baseMenuIDs(menus)...))}
 			beforeMenuI18nsByTable[tableID], err = c.baseMenuCase.baseI18nCase.List(ctx, opts...)
 			if err != nil {
-				c.failCodeGenTask(ctx, taskID, tableIDs, err)
+				c.failCodeGenTask(ctx, taskID, tableIDs, localeState, err)
 				return
 			}
 		}
@@ -409,7 +411,7 @@ func (c *CodeGenCase) runCodeGenTask(
 	for _, tableID := range tableIDs {
 		generation := batch.plan.GenerationForTable(tableID)
 		if generation == nil || generation.Table == nil {
-			c.failCodeGenTask(ctx, taskID, tableIDs, errorsx.Internal("批量生成计划缺少表配置"))
+			c.failCodeGenTask(ctx, taskID, tableIDs, localeState, errorsx.Internal("批量生成计划缺少表配置"))
 			return
 		}
 		reporter := &codeGenProgressReporter{manager: c.progressManager, taskID: taskID, tableID: tableID}
@@ -461,7 +463,7 @@ func (c *CodeGenCase) runCodeGenTask(
 		if rollbackErr != nil {
 			err = errors.Join(err, fmt.Errorf("还原生成内容失败: %w", rollbackErr))
 		}
-		c.failCodeGenTask(ctx, taskID, tableIDs, err)
+		c.failCodeGenTask(ctx, taskID, tableIDs, localeState, err)
 		return
 	}
 	fileTransaction.commit()
@@ -480,7 +482,7 @@ func (c *CodeGenCase) runCodeGenTask(
 		err = c.markCodeGenTableGenerated(workflowCtx, tableID)
 		if err != nil {
 			failedCount++
-			c.progressManager.MarkTableCompleted(ctx, taskID, tableID, adminv1.CodeGenTaskStatus_CODE_GEN_TASK_STATUS_FAILED, codegen.Message(batch.localeState, "progress.generation_state_update_failed", map[string]string{"error": codegen.FailureRemark(err)}))
+			c.progressManager.MarkTableCompleted(ctx, taskID, tableID, adminv1.CodeGenTaskStatus_CODE_GEN_TASK_STATUS_FAILED, codegen.Message(batch.localeState, "progress.generation_state_update_failed", map[string]string{"error": codegen.FailureRemark(batch.localeState, err)}))
 			continue
 		}
 		c.progressManager.MarkTableCompleted(ctx, taskID, tableID, adminv1.CodeGenTaskStatus_CODE_GEN_TASK_STATUS_SUCCEEDED, codegen.Message(batch.localeState, "progress.generation_complete", nil))
@@ -498,7 +500,7 @@ func (c *CodeGenCase) runCodeGenTask(
 			err = c.markCodeGenTableGenerated(workflowCtx, target.tableID)
 			if err != nil {
 				failedCount++
-				c.progressManager.MarkTableCompleted(ctx, taskID, target.tableID, adminv1.CodeGenTaskStatus_CODE_GEN_TASK_STATUS_FAILED, codegen.Message(batch.localeState, "progress.generation_state_update_failed", map[string]string{"error": codegen.FailureRemark(err)}))
+				c.progressManager.MarkTableCompleted(ctx, taskID, target.tableID, adminv1.CodeGenTaskStatus_CODE_GEN_TASK_STATUS_FAILED, codegen.Message(batch.localeState, "progress.generation_state_update_failed", map[string]string{"error": codegen.FailureRemark(batch.localeState, err)}))
 				continue
 			}
 			c.progressManager.MarkTableCompleted(ctx, taskID, target.tableID, adminv1.CodeGenTaskStatus_CODE_GEN_TASK_STATUS_SUCCEEDED, codegen.Message(batch.localeState, "progress.generation_complete", nil))
@@ -507,7 +509,7 @@ func (c *CodeGenCase) runCodeGenTask(
 	var manifests map[int64]*codeGenRestoreManifest
 	manifests, err = buildCodeGenRestoreManifests(taskID, tableIDs, batch.plan, beforeSnapshot, beforeMenusByTable, generatedMenuIDsByTable)
 	if err != nil {
-		c.failCodeGenTask(ctx, taskID, tableIDs, err)
+		c.failCodeGenTask(ctx, taskID, tableIDs, batch.localeState, err)
 		return
 	}
 	for tableID, manifest := range manifests {
@@ -515,7 +517,7 @@ func (c *CodeGenCase) runCodeGenTask(
 		manifest.MenuI18ns = beforeMenuI18nsByTable[tableID]
 	}
 	if err = SaveCodeGenRestoreManifests(manifests); err != nil {
-		c.failCodeGenTask(ctx, taskID, tableIDs, err)
+		c.failCodeGenTask(ctx, taskID, tableIDs, batch.localeState, err)
 		return
 	}
 	if failedCount > 0 {
@@ -590,7 +592,7 @@ func (c *CodeGenCase) prepareCodeGenBatch(ctx context.Context, tableIDs []int64)
 	var plan *codegen.BatchGeneration
 	plan, err = codegen.PrepareBatchGeneration(inputs)
 	if err != nil {
-		return nil, errorsx.InvalidArgument(codegen.FailureRemark(err)).WithCause(err)
+		return nil, err
 	}
 	for _, generation := range plan.Generations {
 		if err = c.validateGeneratedBaseAPIs(ctx, generation); err != nil {
@@ -603,8 +605,9 @@ func (c *CodeGenCase) prepareCodeGenBatch(ctx context.Context, tableIDs []int64)
 			return nil, err
 		}
 		for _, file := range generation.Files {
-			if strings.Contains(file.GetMessage(), "文件路径不允许") {
-				return nil, errorsx.InvalidArgument(file.GetMessage())
+			_, err = codegen.SafeRepoFilePath(file.GetPath())
+			if err != nil {
+				return nil, errorsx.WithMessageKey(errorsx.InvalidArgument("生成输出路径无效"), "system.code.gen.error.batch.invalid_path", map[string]string{"Path": file.GetPath()})
 			}
 		}
 	}
@@ -696,7 +699,7 @@ func (c *CodeGenCase) writeCodeGenBatchFiles(ctx context.Context, plan *codegen.
 				continue
 			}
 			if err != nil {
-				reporter.updateStep(ctx, codegen.FileStepID(ref.FileIndex), adminv1.CodeGenTaskStepStatus_CODE_GEN_TASK_STEP_STATUS_FAILED, err.Error(), "")
+				reporter.updateStep(ctx, codegen.FileStepID(ref.FileIndex), adminv1.CodeGenTaskStepStatus_CODE_GEN_TASK_STEP_STATUS_FAILED, codegen.Message(localeState, "progress.file_write_failed", map[string]string{"path": file.Path}), "")
 			}
 		}
 		if err != nil {
@@ -724,8 +727,8 @@ func (c *CodeGenCase) completeCodeGenBatchSteps(ctx context.Context, plan *codeg
 }
 
 // failCodeGenTask 将整批预检或写入失败同步到任务和每个表的进度状态。
-func (c *CodeGenCase) failCodeGenTask(ctx context.Context, taskID string, tableIDs []int64, err error) {
-	message := codegen.FailureRemark(err)
+func (c *CodeGenCase) failCodeGenTask(ctx context.Context, taskID string, tableIDs []int64, localeState codegen.LocaleState, err error) {
+	message := codegen.FailureRemark(localeState, err)
 	for _, tableID := range tableIDs {
 		c.progressManager.MarkTableCompleted(ctx, taskID, tableID, adminv1.CodeGenTaskStatus_CODE_GEN_TASK_STATUS_FAILED, message)
 	}
@@ -758,7 +761,7 @@ func (c *CodeGenCase) runCodeGenCommands(ctx context.Context, targets []codeGenC
 		var cleanupConfig func()
 		configPath, cleanupConfig, err = codeGenGormConfigFile(c.BaseCase, target.sourceName)
 		if err != nil {
-			failureMessage := codegen.CommandFailureMessage(localeState, "gorm-gen", "", err)
+			failureMessage := codegen.CommandFailureMessage(localeState, "gorm-gen", err)
 			state.failureMessages = append(state.failureMessages, failureMessage)
 			state.err = err
 			target.progress.updateStep(ctx, stepID, adminv1.CodeGenTaskStepStatus_CODE_GEN_TASK_STEP_STATUS_FAILED, failureMessage, "")
@@ -771,7 +774,7 @@ func (c *CodeGenCase) runCodeGenCommands(ctx context.Context, targets []codeGenC
 		output, err = codegen.RunCommand(ctx, backendDir, "gorm-gen", "GORM_TABLE="+target.tableName, "GORM_GEN_CONFIG="+configPath, "GORM_GEN_DATABASE=default")
 		cleanupConfig()
 		if err != nil {
-			failureMessage := codegen.CommandFailureMessage(localeState, "gorm-gen", output, err)
+			failureMessage := codegen.CommandFailureMessage(localeState, "gorm-gen", err)
 			state.failureMessages = append(state.failureMessages, failureMessage)
 			state.err = err
 			target.progress.updateStep(ctx, stepID, adminv1.CodeGenTaskStepStatus_CODE_GEN_TASK_STEP_STATUS_FAILED, failureMessage, output)
@@ -795,7 +798,7 @@ func (c *CodeGenCase) runCodeGenCommands(ctx context.Context, targets []codeGenC
 		var output string
 		output, err = codegen.RunCommand(ctx, backendDir, commandTarget)
 		if err != nil {
-			failureMessage := codegen.CommandFailureMessage(localeState, commandTarget, output, err)
+			failureMessage := codegen.CommandFailureMessage(localeState, commandTarget, err)
 			for _, target := range eligibleTargets {
 				state := states[target.tableID]
 				state.failureMessages = append(state.failureMessages, failureMessage)
@@ -818,11 +821,11 @@ func (c *CodeGenCase) runCodeGenCommands(ctx context.Context, targets []codeGenC
 	for _, target := range targets {
 		target.progress.updateStep(formatCtx, formatStepID, adminv1.CodeGenTaskStepStatus_CODE_GEN_TASK_STEP_STATUS_RUNNING, codegen.Message(localeState, "progress.running_execute", nil), "")
 	}
-	fmtOutput, fmtErr := formatCodeGenChanges(formatCtx, backendDir, before)
+	fmtOutput, fmtErr := formatCodeGenChanges(formatCtx, backendDir, before, localeState)
 	for _, target := range targets {
 		state := states[target.tableID]
 		if fmtErr != nil {
-			failureMessage := codegen.CommandFailureMessage(localeState, "fmt", fmtOutput, fmtErr)
+			failureMessage := codegen.CommandFailureMessage(localeState, "fmt", fmtErr)
 			state.failureMessages = append(state.failureMessages, failureMessage)
 			target.progress.updateStep(formatCtx, formatStepID, adminv1.CodeGenTaskStepStatus_CODE_GEN_TASK_STEP_STATUS_FAILED, failureMessage, fmtOutput)
 			if state.err == nil {
@@ -2315,7 +2318,7 @@ func appendUniqueInt64(values []int64, value int64) []int64 {
 }
 
 // formatCodeGenChanges 通过项目 make fmt 仅格式化本次生成实际新增或改写的 Go 文件。
-func formatCodeGenChanges(ctx context.Context, backendDir string, before map[string]codeGenRestoreWorkspaceFile) (output string, err error) {
+func formatCodeGenChanges(ctx context.Context, backendDir string, before map[string]codeGenRestoreWorkspaceFile, localeState codegen.LocaleState) (output string, err error) {
 	var after map[string]codeGenRestoreWorkspaceFile
 	after, err = captureCodeGenWorkspaceSnapshot(nil)
 	if err != nil {
@@ -2332,7 +2335,7 @@ func formatCodeGenChanges(ctx context.Context, backendDir string, before map[str
 		paths = append(paths, strings.TrimPrefix(path, "backend/"))
 	}
 	if len(paths) == 0 {
-		return "本次生成没有需要格式化的 Go 文件", nil
+		return codegen.Message(localeState, "progress.no_go_files_to_format", nil), nil
 	}
 	slices.Sort(paths)
 	var directory string

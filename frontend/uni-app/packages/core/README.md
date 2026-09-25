@@ -45,7 +45,7 @@ packages/core
 
 - `@liujitcn/kratos-uni-app-core`：运行时、导航、store 和组件。
 - `@liujitcn/kratos-uni-app-core/module`：模块协议和 core 模块。
-- `@liujitcn/kratos-uni-app-core/vite`：Vite 配置与页面装配插件。
+- `@liujitcn/kratos-uni-app-core/vite`：Vite 配置、页面装配插件和构建错误文案格式化器。
 - `@liujitcn/kratos-uni-app-core/api/*`、`components/*.vue`、`utils/*`、`views/*`：白名单子路径。
 
 ## 公共设置页

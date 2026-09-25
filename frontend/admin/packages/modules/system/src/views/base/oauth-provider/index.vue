@@ -210,7 +210,16 @@ async function handleDelete(value: BaseOauthProvider | number | number[]) {
 async function handleSetStatus(row: BaseOauthProvider) {
   const status = row.status === Status.STATUS_ENABLE ? Status.STATUS_DISABLE : Status.STATUS_ENABLE;
   try {
-    await ElMessageBox.confirm(t("common.confirm.status"), t("common.title.notice"), { type: "warning" });
+    await ElMessageBox.confirm(
+      t("common.dialog.status_change", {
+        action: t(status === Status.STATUS_ENABLE ? "common.status.enabled" : "common.status.disabled"),
+        resource: t("system.base.oauth_provider.resource"),
+        field: t("system.base.oauth_provider.field.name"),
+        value: row.name
+      }),
+      t("common.title.notice"),
+      { type: "warning" }
+    );
     await defBaseOauthProviderService.SetBaseOauthProviderStatus({ id: row.id, status });
     return true;
   } catch {

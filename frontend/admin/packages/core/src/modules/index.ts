@@ -1,7 +1,7 @@
 import type { Component } from "vue";
 import type { RouteLocationNormalizedLoaded } from "vue-router";
 import type { LocaleMessages, SupportedLocale } from "@/locales";
-import { runtimeMessage } from "../runtime-messages";
+import { runtimeMessage } from "../runtime-messages.js";
 
 /**
  * 管理端视图加载器。
@@ -101,10 +101,10 @@ export function registerAdminModule(module: AdminModule): void {
  */
 export function registerAdminModules(modules: AdminModule[]): void {
   const nextModules = [...registeredModules.values(), ...modules];
-  assertUniqueAdminModuleKeys(nextModules, "模块", module => [module.name]);
-  assertUniqueAdminModuleKeys(nextModules, "顶部工具", module => module.headerTools?.map(tool => tool.name) ?? []);
-  assertUniqueAdminModuleKeys(nextModules, "用户菜单", module => module.userMenuActions?.map(action => action.name) ?? []);
-  assertUniqueAdminModuleKeys(nextModules, "路由配置", module => Object.keys(module.routeOptions ?? {}));
+  assertUniqueAdminModuleKeys(nextModules, runtimeMessage("label.module"), module => [module.name]);
+  assertUniqueAdminModuleKeys(nextModules, runtimeMessage("label.header_tool"), module => module.headerTools?.map(tool => tool.name) ?? []);
+  assertUniqueAdminModuleKeys(nextModules, runtimeMessage("label.user_menu"), module => module.userMenuActions?.map(action => action.name) ?? []);
+  assertUniqueAdminModuleKeys(nextModules, runtimeMessage("label.route_option"), module => Object.keys(module.routeOptions ?? {}));
   modules.forEach(module => registeredModules.set(module.name, module));
 }
 

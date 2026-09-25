@@ -20,7 +20,7 @@
 
 - `@liujitcn/kratos-taro-app-core`：启动、模块、导航、状态和常用工具，包含动态路径使用的 `resolveBundledAsset()`。
 - `@liujitcn/kratos-taro-app-core/static/*`：页面图片等可由 Webpack 静态分析的打包资源。
-- `@liujitcn/kratos-taro-app-core/build`：构建期模块描述。
+- `@liujitcn/kratos-taro-app-core/build`：构建期模块描述和双语构建错误文案格式化器。
 - `@liujitcn/kratos-taro-app-core/runner`：Taro 构建装配入口。
 - `api/*`、`components/*`、`rpc/*`、`styles/*`、`utils/*`、`views/*`：白名单子路径。
 

@@ -1,6 +1,7 @@
 import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { workspaceMessage } from './locale-messages.mjs'
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const modulesRoot = resolve(root, 'packages/modules')
@@ -15,21 +16,23 @@ for (const entry of existsSync(modulesRoot)
     .filter((file) => file.endsWith('.json'))
     .map((file) => file.slice(0, -5))
     .sort((a, b) => (a === 'zh-CN' ? -1 : b === 'zh-CN' ? 1 : a.localeCompare(b)))
-  if (!locales.includes('zh-CN')) throw new Error(`${entry.name} 缺少 zh-CN 语言包`)
+  if (!locales.includes('zh-CN')) {
+    throw new Error(workspaceMessage('missing_default_locale', { module: entry.name }))
+  }
   if (expectedLocales && locales.join(',') !== expectedLocales)
-    throw new Error(`${entry.name} 语言集合不一致`)
+    throw new Error(workspaceMessage('locale_set_mismatch', { module: entry.name }))
   expectedLocales = locales.join(',')
   const messages = Object.fromEntries(
     locales.map((locale) => {
       if (!/^[A-Za-z]{2,3}(?:-[A-Za-z0-9]{2,8})*$/.test(locale))
-        throw new Error(`语言代码无效：${locale}`)
+        throw new Error(workspaceMessage('locale_code_invalid', { locale }))
       return [locale, JSON.parse(readFileSync(resolve(directory, `${locale}.json`), 'utf8'))]
     }),
   )
   const keys = Object.keys(messages['zh-CN']).sort().join('\0')
   for (const locale of locales) {
     if (Object.keys(messages[locale]).sort().join('\0') !== keys)
-      throw new Error(`${entry.name}/${locale} 语言键集合不一致`)
+      throw new Error(workspaceMessage('key_set_mismatch', { module: entry.name, locale }))
   }
   // 模块在 Vite 配置阶段由 Node 直接加载，使用无需 TS/JSON loader 的原生 ESM。
   const content = [
@@ -42,5 +45,5 @@ for (const entry of existsSync(modulesRoot)
   const file = resolve(directory, 'generated.mjs')
   if (write) writeFileSync(file, content)
   else if (!existsSync(file) || readFileSync(file, 'utf8') !== content)
-    throw new Error(`语言注册产物过期：${file}，请执行 pnpm i18n:sync`)
+    throw new Error(workspaceMessage('bundle_outdated', { file }))
 }

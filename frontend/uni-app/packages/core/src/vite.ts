@@ -17,7 +17,7 @@ import type { Plugin, UserConfig } from 'vite'
 import type { KratosAppModule, KratosAppPageConfig } from './module'
 import { viteMessage } from './vite-messages.js'
 
-export { defineConfig, loadEnv }
+export { defineConfig, loadEnv, viteMessage }
 export type { ConfigEnv, UserConfig } from 'vite'
 
 type PageEntry = { path: string; style?: Record<string, unknown> }
@@ -638,7 +638,8 @@ function resolveSourceFile(target: string): string {
   ]
   const resolved =
     candidates.find((candidate) => existsSync(candidate) && statSync(candidate).isFile()) ?? target
-  if (!isAbsolute(resolved)) throw new Error(viteMessage('source_path_not_absolute', { path: resolved }))
+  if (!isAbsolute(resolved))
+    throw new Error(viteMessage('source_path_not_absolute', { path: resolved }))
   return resolved
 }
 

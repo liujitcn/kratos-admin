@@ -1,11 +1,36 @@
 package agent
 
 import (
+	"context"
 	"strings"
 	"testing"
 
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/agent/tool"
 )
+
+// TestResolvePromptUsesRequestLocalizer 验证系统指令及会话元数据均经过本地化器。
+func TestResolvePromptUsesRequestLocalizer(t *testing.T) {
+	localize := func(_ context.Context, key string, _ map[string]any, _ string) string {
+		return "localized:" + key
+	}
+	runtime := newRuntime(nil, nil, nil, nil, localize)
+	prompt := runtime.resolvePrompt(context.Background(), RuntimeInput{Terminal: "admin", UserName: "User"})
+	for _, key := range []string{
+		"base.ai.prompt.instruction",
+		"base.ai.prompt.tool_routing_rules",
+		"base.ai.prompt.current_session",
+		"base.ai.prompt.terminal",
+		"base.ai.prompt.user",
+		"base.ai.prompt.title",
+		"base.ai.prompt.summary",
+		"base.ai.prompt.business_date",
+		"base.ai.prompt.business_timezone",
+	} {
+		if !strings.Contains(prompt, "localized:"+key) {
+			t.Errorf("prompt does not contain localized key %s", key)
+		}
+	}
+}
 
 // TestSelectFallbackToolInfos 验证内部工具不匹配时保底暴露联网搜索工具。
 func TestSelectFallbackToolInfos(t *testing.T) {
@@ -193,8 +218,8 @@ func TestSelectToolInfosKeepsSearchForPublicTemporalQuestion(t *testing.T) {
 
 // TestResolvePromptKeepsDateRulesGeneric 验证系统提示词提供运行时日期且不固化业务日期映射。
 func TestResolvePromptKeepsDateRulesGeneric(t *testing.T) {
-	prompt := (&Runtime{}).resolvePrompt(RuntimeInput{})
-	for _, expected := range []string{"当前业务日期：", "业务时区：", "遵循该工具的描述和参数默认值", "只修改用户补充的条件"} {
+	prompt := (&Runtime{}).resolvePrompt(context.Background(), RuntimeInput{})
+	for _, expected := range []string{"Business date:", "Business time zone:", "Follow tool descriptions and parameter defaults", "changing only the clarified condition"} {
 		if !strings.Contains(prompt, expected) {
 			t.Fatalf("系统提示词缺少 %q", expected)
 		}

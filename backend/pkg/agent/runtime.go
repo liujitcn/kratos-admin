@@ -28,30 +28,19 @@ const (
 	aiWebSearchToolName        = "base_v1_ai_search_service_search_ai_web"
 )
 
-const aiInstruction = `你是一个通用 AI 助手，可以自然、友好、准确地回答用户提出的各种问题。
-回复要求：
-1. 优先直接回答当前问题，不因为问题不属于当前系统而拒绝。
-2. 可以处理通用知识、日常问答、写作润色、代码说明、方案整理、思路分析等请求。
-3. 如果用户提供了附件、历史上下文或系统上下文，可以按需参考。
-4. 涉及当前项目中的用户、字典、配置、报表等私有数据时，优先调用当前终端可用的内部工具获取真实数据。
-5. 本轮已匹配到内部工具时，只使用内部工具回答，不要再调用联网搜索；内部工具未匹配时，公开实时信息才使用联网搜索。
-6. 调用工具时遵循该工具的描述和参数默认值，不要擅自添加或删除查询条件；用户原意不明确时先询问。
-7. 用户在工具查询后明确补充某个条件时，沿用最近相关查询的工具和其他条件，只修改用户补充的条件；无法确定对象或条件时先询问，不要猜测。
-8. 不要编造当前上下文和工具结果没有提供的私有系统数据、精确数值或操作结果。
-9. 工具返回的分页游标、内部ID、base64、图片数据或调试字段不要直接展示给用户；如需说明，只用自然语言提示还有下一页或可继续查询。
-10. 如果历史上下文标记某个内部工具已禁用或不可用，而用户要求继续相关查询，必须明确提示错误原因：工具已禁用或不可用，不能继续调用。
-11. 用中文回复，保持清晰自然，适合直接展示在聊天窗口。`
+const fallbackAIInstruction = "You are a general-purpose AI assistant. Answer naturally, helpfully, and accurately. Use internal tools for private system data, do not fabricate results, and reply in the user's current language."
 
 // Runtime 封装流式 AI 助手运行时。
 //
 // Runtime 只负责把业务层准备好的输入组装为 Eino 消息并交给模型执行，不直接处理数据库、
 // OSS、鉴权或前端协议。这样 AI 助手链路可以把“业务准备”和“模型运行”分开维护。
 type Runtime struct {
-	toolsMu    sync.RWMutex
-	client     *model.AssistantClient
-	adminTools []tool.Invokable
-	appTools   []tool.Invokable
-	toolGate   ToolAccessChecker
+	toolsMu         sync.RWMutex
+	client          *model.AssistantClient
+	adminTools      []tool.Invokable
+	appTools        []tool.Invokable
+	toolGate        ToolAccessChecker
+	localizeMessage MessageLocalizer
 }
 
 // newRuntime 创建 AI 助手运行时。
@@ -60,12 +49,14 @@ func newRuntime(
 	checker ToolAccessChecker,
 	adminTools []Tool,
 	appTools []Tool,
+	localizeMessage MessageLocalizer,
 ) *Runtime {
 	return &Runtime{
-		client:     client,
-		adminTools: append([]tool.Invokable(nil), adminTools...),
-		appTools:   append([]tool.Invokable(nil), appTools...),
-		toolGate:   checker,
+		client:          client,
+		adminTools:      append([]tool.Invokable(nil), adminTools...),
+		appTools:        append([]tool.Invokable(nil), appTools...),
+		toolGate:        checker,
+		localizeMessage: localizeMessage,
 	}
 }
 
@@ -77,10 +68,10 @@ func (r *Runtime) RegisterTool(terminal string, value Tool) error {
 // RegisterTools 将工具追加到指定终端，支持运行时扩展工具集合。
 func (r *Runtime) RegisterTools(terminal string, values ...Tool) error {
 	if r == nil {
-		return errors.New("AI助手运行时未初始化")
+		return errors.New("AI assistant runtime is not initialized")
 	}
 	if terminal != "" && terminal != "admin" && terminal != "app" {
-		return fmt.Errorf("不支持的 AI 终端: %s", terminal)
+		return fmt.Errorf("unsupported AI terminal: %s", terminal)
 	}
 	if len(values) == 0 {
 		return nil
@@ -98,7 +89,7 @@ func (r *Runtime) RegisterTools(terminal string, values ...Tool) error {
 // InvokeTool 按工具名直接调用当前终端已启用的 Agent 工具。
 func (r *Runtime) InvokeTool(ctx context.Context, terminal string, name string, arguments string) (*ToolInvokeResult, error) {
 	if r == nil {
-		return nil, errors.New("AI助手运行时未初始化")
+		return nil, errors.New("AI assistant runtime is not initialized")
 	}
 	input := RuntimeInput{Terminal: terminal, Content: name}
 	infos := r.enabledToolInfos(ctx, input, r.allToolInfos(ctx, input))
@@ -106,7 +97,7 @@ func (r *Runtime) InvokeTool(ctx context.Context, terminal string, name string, 
 		ID:        "direct_" + name,
 		Name:      name,
 		Arguments: arguments,
-	}, tool.WithCatalogName(agentToolCatalogName))
+	}, tool.WithCatalogName(agentToolCatalogName), tool.WithMessageLocalizer(r.localizeMessage))
 	usage := toolUsageFromCallResult(result)
 	if usage.Status != "success" {
 		return &ToolInvokeResult{Output: result.Content, Usage: usage}, errors.New(result.Content)
@@ -222,14 +213,14 @@ func (r *Runtime) disabledToolCall(ctx context.Context, input RuntimeInput, enab
 		return nil
 	}
 	if info := selectExplicitToolInfo(input, disabledInfos); info != nil {
-		return newDisabledToolCall(info)
+		return r.newDisabledToolCall(ctx, info)
 	}
 
 	terms := toolQueryTerms(input)
 	disabledMatches := scoredToolInfos(disabledInfos, terms)
 	enabledMatches := scoredToolInfos(enabledCandidates, terms)
 	if len(disabledMatches) > 0 && shouldReturnDisabledToolCall(disabledMatches[0], enabledMatches) {
-		return newDisabledToolCall(disabledMatches[0].info)
+		return r.newDisabledToolCall(ctx, disabledMatches[0].info)
 	}
 
 	if len(disabledMatches) > 0 || len(enabledMatches) > 0 || !isHistoryToolFollowUp(input) {
@@ -239,7 +230,7 @@ func (r *Runtime) disabledToolCall(ctx context.Context, input RuntimeInput, enab
 	if len(matchedInfos) == 0 {
 		return nil
 	}
-	return newDisabledToolCall(matchedInfos[0])
+	return r.newDisabledToolCall(ctx, matchedInfos[0])
 }
 
 // runADK 通过 Eino ADK ChatModelAgent / Runner 执行模型和工具循环。
@@ -255,7 +246,7 @@ func (r *Runtime) runADK(
 	recorder := &callback.Recorder{}
 	// Responses 协议才支持服务端工具（联网搜索等），聊天补全协议使用同名 function 工具替代。
 	serverTools := r.client != nil && r.client.SupportsResponsesServerTools() && !internalToolMatched
-	description := "管理端 AI 助手，负责会话问答、内部工具调用和联网搜索。"
+	description := r.localizePrompt(ctx, "base.ai.prompt.assistant_description", nil, "Admin AI assistant for conversation, internal tools, and web search.")
 	runner := adk.NewRunner(adk.Config{
 		Model:       r.client.AgenticModel,
 		Name:        "admin_ai",
@@ -263,12 +254,13 @@ func (r *Runtime) runADK(
 		ServerTools: serverTools,
 	})
 	result, err := runner.Run(ctx, adk.Request{
-		Messages:  append([]*einoMessage.AgenticMessage(nil), messages...),
-		Tools:     r.runnerTools(ctx, input),
-		ToolInfos: toolInfos,
-		Recorder:  recorder,
-		Stream:    stream,
-		OnDelta:   onDelta,
+		Messages:        append([]*einoMessage.AgenticMessage(nil), messages...),
+		Tools:           r.runnerTools(ctx, input),
+		ToolInfos:       toolInfos,
+		Recorder:        recorder,
+		LocalizeMessage: r.localizeMessage,
+		Stream:          stream,
+		OnDelta:         onDelta,
 	})
 	return result, recorder, err
 }
@@ -290,7 +282,7 @@ func (r *Runtime) runnerTools(ctx context.Context, input RuntimeInput) []tool.Ba
 func (r *Runtime) toolInfos(ctx context.Context, input RuntimeInput) ([]*tool.Info, bool) {
 	registeredInfos := r.allToolInfos(ctx, input)
 	infos := r.enabledToolInfos(ctx, input, registeredInfos)
-	catalogTool := newAgentToolCatalogTool(input.Terminal, registeredInfos, infos, maxModelToolsPerRequest)
+	catalogTool := r.newAgentToolCatalogTool(ctx, input.Terminal, registeredInfos, infos, maxModelToolsPerRequest)
 	catalogInfo, err := catalogTool.Info(ctx)
 	if err == nil && catalogInfo != nil {
 		infos = append(infos, catalogInfo)
@@ -326,7 +318,7 @@ func (r *Runtime) toolMap(ctx context.Context, input RuntimeInput) map[string]to
 		}
 		result[info.Name] = item
 	}
-	catalogTool := newAgentToolCatalogTool(input.Terminal, registeredInfos, enabledInfos, maxModelToolsPerRequest)
+	catalogTool := r.newAgentToolCatalogTool(ctx, input.Terminal, registeredInfos, enabledInfos, maxModelToolsPerRequest)
 	var catalogInfo *tool.Info
 	catalogInfo, err = catalogTool.Info(ctx)
 	if err == nil && catalogInfo != nil && catalogInfo.Name != "" {
@@ -337,7 +329,7 @@ func (r *Runtime) toolMap(ctx context.Context, input RuntimeInput) map[string]to
 
 // buildMessages 构建当前轮次发送给 Eino 模型的消息列表。
 func (r *Runtime) buildMessages(ctx context.Context, input RuntimeInput) []*einoMessage.AgenticMessage {
-	messages := []*einoMessage.AgenticMessage{einoMessage.SystemText(r.resolvePrompt(input))}
+	messages := []*einoMessage.AgenticMessage{einoMessage.SystemText(r.resolvePrompt(ctx, input))}
 	enabledNames := tool.NameSet(r.enabledToolInfos(ctx, input, r.allToolInfos(ctx, input)))
 	for _, item := range input.History {
 		if item.Content == "" {
@@ -348,12 +340,12 @@ func (r *Runtime) buildMessages(ctx context.Context, input RuntimeInput) []*eino
 			continue
 		}
 		messages = append(messages, historyMessage)
-		toolContext := buildHistoryToolContext(item.Tools, enabledNames)
+		toolContext := r.buildHistoryToolContext(ctx, item.Tools, enabledNames)
 		if toolContext != "" {
 			messages = append(messages, einoMessage.SystemText(toolContext))
 		}
 	}
-	messages = append(messages, r.buildUserMessage(input))
+	messages = append(messages, r.buildUserMessage(ctx, input))
 	return messages
 }
 
@@ -462,34 +454,50 @@ func (r *Runtime) terminalTools(terminal string) []tool.Invokable {
 }
 
 // resolvePrompt 渲染 AI 助手提示词。
-func (r *Runtime) resolvePrompt(input RuntimeInput) string {
+func (r *Runtime) resolvePrompt(ctx context.Context, input RuntimeInput) string {
 	now := time.Now().In(time.Local)
 	lines := []string{
-		aiInstruction,
+		r.localizePrompt(ctx, "base.ai.prompt.instruction", nil, fallbackAIInstruction),
+		r.localizePrompt(ctx, "base.ai.prompt.tool_routing_rules", nil,
+			"Use internal tools for private project data. When an internal tool matches this request, answer only with internal tools and do not use web search. Follow tool descriptions and parameter defaults; do not add or remove query conditions without instruction. For a clarified follow-up, reuse the latest relevant tool and preserve other conditions, changing only the clarified condition. Ask if the target or condition is ambiguous."),
 		"",
-		"当前会话：",
-		fmt.Sprintf("- 终端：%s", input.Terminal),
-		fmt.Sprintf("- 用户：%s", input.UserName),
-		fmt.Sprintf("- 标题：%s", input.SessionTitle),
-		fmt.Sprintf("- 摘要：%s", input.Summary),
-		fmt.Sprintf("- 当前业务日期：%s", now.Format("2006-01-02")),
-		fmt.Sprintf("- 业务时区：%s（UTC%s）", now.Location(), now.Format("-07:00")),
+		r.localizePrompt(ctx, "base.ai.prompt.current_session", nil, "Current session:"),
+		r.localizePrompt(ctx, "base.ai.prompt.terminal", map[string]any{"Value": input.Terminal}, "- Terminal: {{.Value}}"),
+		r.localizePrompt(ctx, "base.ai.prompt.user", map[string]any{"Value": input.UserName}, "- User: {{.Value}}"),
+		r.localizePrompt(ctx, "base.ai.prompt.title", map[string]any{"Value": input.SessionTitle}, "- Title: {{.Value}}"),
+		r.localizePrompt(ctx, "base.ai.prompt.summary", map[string]any{"Value": input.Summary}, "- Summary: {{.Value}}"),
+		r.localizePrompt(ctx, "base.ai.prompt.business_date", map[string]any{"Value": now.Format("2006-01-02")}, "- Business date: {{.Value}}"),
+		r.localizePrompt(ctx, "base.ai.prompt.business_timezone", map[string]any{"Location": now.Location(), "Offset": now.Format("-07:00")}, "- Business time zone: {{.Location}} (UTC{{.Offset}})"),
 	}
 	if len(input.Attachments) > 0 {
-		lines = append(lines, "", "用户本轮提供了附件，附件内容会出现在消息中，回答时按需参考。")
+		lines = append(lines, "", r.localizePrompt(ctx, "base.ai.prompt.attachment_notice", nil, "Attachments are included in the user message; refer to them when relevant."))
 	}
 	return strings.Join(lines, "\n")
 }
 
+// localizePrompt 按请求语言渲染 Agent 系统提示词片段。
+func (r *Runtime) localizePrompt(ctx context.Context, key string, args map[string]any, fallback string) string {
+	if r.localizeMessage != nil {
+		return r.localizeMessage(ctx, key, args, fallback)
+	}
+	for name, value := range args {
+		fallback = strings.ReplaceAll(fallback, "{{."+name+"}}", fmt.Sprint(value))
+	}
+	return fallback
+}
+
 // buildUserMessage 构建当前轮次发送给模型的用户消息。
-func (r *Runtime) buildUserMessage(input RuntimeInput) *einoMessage.AgenticMessage {
+func (r *Runtime) buildUserMessage(ctx context.Context, input RuntimeInput) *einoMessage.AgenticMessage {
 	content := input.Content
 	attachmentLines := make([]string, 0, len(input.Attachments)*2)
 	images := make([]einoMessage.ImageData, 0, len(input.Attachments))
 
 	for _, item := range input.Attachments {
 		attachmentContent := item.Content
-		name := normalizeAttachmentName(item.Name)
+		name := item.Name
+		if name == "" {
+			name = r.localizePrompt(ctx, "base.ai.prompt.attachment_unnamed", nil, "Unnamed attachment")
+		}
 		cleanMIMEType := normalizeRuntimeMIMEType(item)
 
 		// 图片附件走多模态输入，避免把本地 admin 地址误当成公网图片 URL。
@@ -498,25 +506,40 @@ func (r *Runtime) buildUserMessage(input RuntimeInput) *einoMessage.AgenticMessa
 			if len(item.Bytes) == 0 {
 				continue
 			}
-			attachmentLines = append(attachmentLines, fmt.Sprintf("图片附件《%s》已作为视觉输入提供给模型。", name))
+			attachmentLines = append(attachmentLines, r.localizePrompt(ctx, "base.ai.prompt.image_attachment", map[string]any{"Name": name}, "Image attachment {{.Name}} is provided as visual input."))
 			images = append(images, einoMessage.ImageData{Bytes: item.Bytes, MIMEType: cleanMIMEType})
 			continue
 		}
 
 		// 文本类附件优先拼入正文，保证模型能直接读取附件内容。
 		if attachmentContent != "" {
-			attachmentLines = append(attachmentLines, fmt.Sprintf("附件《%s》内容：\n%s", name, attachmentContent))
+			attachmentLines = append(attachmentLines, r.localizePrompt(ctx, "base.ai.prompt.text_attachment", map[string]any{"Name": name, "Content": attachmentContent}, "Attachment {{.Name}} content:\n{{.Content}}"))
 			continue
 		}
 
 		// 没有可读内容的附件仍保留文件元信息，模型至少能知道用户提供了什么文件。
-		attachmentLines = append(attachmentLines, buildAttachmentDetailLine(name, item))
+		attachmentLines = append(attachmentLines, r.buildAttachmentDetailLine(ctx, name, item))
 	}
 
 	if len(attachmentLines) == 0 && len(images) == 0 {
 		return einoMessage.UserText(content)
 	}
-	return buildUserMessageParts(content, attachmentLines, images)
+	return buildUserMessageParts(content, attachmentLines, images, r.localizePrompt(ctx, "base.ai.prompt.attachment_message_intro", nil, "The current message includes the following attachments. Refer to them when relevant:"))
+}
+
+// buildAttachmentDetailLine 构造模型无法直接读取附件内容时的本地化元信息说明。
+func (r *Runtime) buildAttachmentDetailLine(ctx context.Context, name string, item Attachment) string {
+	details := []string{r.localizePrompt(ctx, "base.ai.prompt.attachment_name", map[string]any{"Name": name}, "Attachment {{.Name}}")}
+	if item.MIMEType != "" {
+		details = append(details, r.localizePrompt(ctx, "base.ai.prompt.attachment_type", map[string]any{"Value": item.MIMEType}, "Type: {{.Value}}"))
+	}
+	if item.Size > 0 {
+		details = append(details, r.localizePrompt(ctx, "base.ai.prompt.attachment_size", map[string]any{"Value": item.Size}, "Size: {{.Value}} bytes"))
+	}
+	if item.URL != "" {
+		details = append(details, r.localizePrompt(ctx, "base.ai.prompt.attachment_url", map[string]any{"Value": item.URL}, "URL: {{.Value}}"))
+	}
+	return strings.Join(details, ", ")
 }
 
 // buildResponse 将 Eino 消息收敛为业务层统一回复结构。
@@ -533,10 +556,11 @@ func (r *Runtime) buildResponse(message *einoMessage.AgenticMessage, token Token
 }
 
 // newAgentToolCatalogTool 创建工具目录查询工具。
-func newAgentToolCatalogTool(terminal string, infos []*tool.Info, enabledInfos []*tool.Info, modelToolsPerTurn int) tool.Invokable {
+func (r *Runtime) newAgentToolCatalogTool(ctx context.Context, terminal string, infos []*tool.Info, enabledInfos []*tool.Info, modelToolsPerTurn int) tool.Invokable {
 	return tool.NewCatalogTool(tool.CatalogOptions{
-		Name:              agentToolCatalogName,
-		Description:       "查询当前终端完整注册的内部 Agent Tool 工具目录、工具数量、工具真实名称和功能说明。用户询问有哪些工具、工具列表、工具清单、工具名称、工具数量、加载了多少工具、可用 API、available tools、tool list、tool catalog 时使用。",
+		Name: agentToolCatalogName,
+		Description: r.localizePrompt(ctx, "base.ai.prompt.catalog_tool_description", nil,
+			"Query the complete internal Agent Tool catalog for the current terminal, including tool counts, names, and descriptions. Use when the user asks which tools or APIs are available."),
 		Terminal:          terminal,
 		Infos:             infos,
 		EnabledInfos:      enabledInfos,
@@ -545,8 +569,8 @@ func newAgentToolCatalogTool(terminal string, infos []*tool.Info, enabledInfos [
 }
 
 // newDisabledToolCall 构造禁用工具对应的错误回复与工具卡。
-func newDisabledToolCall(info *tool.Info) *disabledToolCall {
-	content := tool.DisabledMessage(info.Name)
+func (r *Runtime) newDisabledToolCall(ctx context.Context, info *tool.Info) *disabledToolCall {
+	content := tool.DisabledMessage(ctx, info.Name, r.localizeMessage)
 	return &disabledToolCall{
 		Content: content,
 		Usage: ToolUsage{
@@ -992,25 +1016,26 @@ func hasNearbyShortToolTerms(positions []int) bool {
 }
 
 // buildHistoryToolContext 构造当前仍启用工具的历史调用上下文。
-func buildHistoryToolContext(tools []ToolUsage, enabledNames map[string]bool) string {
+func (r *Runtime) buildHistoryToolContext(ctx context.Context, tools []ToolUsage, enabledNames map[string]bool) string {
 	if len(tools) == 0 {
 		return ""
 	}
 	lines := make([]string, 0, len(tools)*5+1)
-	lines = append(lines, "上一轮内部工具调用上下文，仅用于理解用户追问和续查请求，不要直接展示给用户：")
+	lines = append(lines, r.localizePrompt(ctx, "base.ai.prompt.history_tool_context", nil,
+		"Previous internal tool context is for understanding follow-up questions only. Never show it directly to the user:"))
 	for _, item := range tools {
 		if item.Name == "" || !enabledNames[item.Name] {
 			continue
 		}
-		lines = append(lines, "- 工具名称："+item.Name)
+		lines = append(lines, r.localizePrompt(ctx, "base.ai.prompt.history_tool_name", map[string]any{"Name": item.Name}, "- Tool name: {{.Name}}"))
 		if item.Title != "" {
-			lines = append(lines, "  工具标题："+item.Title)
+			lines = append(lines, r.localizePrompt(ctx, "base.ai.prompt.history_tool_title", map[string]any{"Title": item.Title}, "  Tool title: {{.Title}}"))
 		}
 		if item.Input != "" {
-			lines = append(lines, "  入参："+limitHistoryToolText(item.Input))
+			lines = append(lines, r.localizePrompt(ctx, "base.ai.prompt.history_tool_input", map[string]any{"Input": limitHistoryToolText(item.Input)}, "  Input: {{.Input}}"))
 		}
 		if item.Output != "" {
-			lines = append(lines, "  出参："+limitHistoryToolText(item.Output))
+			lines = append(lines, r.localizePrompt(ctx, "base.ai.prompt.history_tool_output", map[string]any{"Output": limitHistoryToolText(item.Output)}, "  Output: {{.Output}}"))
 		}
 	}
 	if len(lines) == 1 {
@@ -1025,17 +1050,7 @@ func limitHistoryToolText(content string) string {
 	if len(runes) <= maxHistoryToolText {
 		return content
 	}
-	return string(runes[:maxHistoryToolText]) + "...（已截断）"
-}
-
-// normalizeAttachmentName 规范化模型提示词中展示的附件名称。
-func normalizeAttachmentName(name string) string {
-	trimmed := name
-	// 模型提示词里避免出现空附件名，便于用户和模型对齐附件引用。
-	if trimmed == "" {
-		return "未命名附件"
-	}
-	return trimmed
+	return string(runes[:maxHistoryToolText]) + "..."
 }
 
 // normalizeRuntimeMIMEType 规范化运行时 MIME 类型。
@@ -1076,27 +1091,12 @@ func isRuntimeImageMIME(mimeType string) bool {
 }
 
 // buildAttachmentDetailLine 构造模型无法直接读取附件内容时的元信息说明。
-func buildAttachmentDetailLine(name string, item Attachment) string {
-	details := []string{fmt.Sprintf("附件《%s》", name)}
-	// 类型、大小、地址都是给模型的弱提示，缺失时不强行补默认值。
-	if item.MIMEType != "" {
-		details = append(details, fmt.Sprintf("类型：%s", item.MIMEType))
-	}
-	if item.Size > 0 {
-		details = append(details, fmt.Sprintf("大小：%d 字节", item.Size))
-	}
-	if item.URL != "" {
-		details = append(details, fmt.Sprintf("地址：%s", item.URL))
-	}
-	return strings.Join(details, "，")
-}
-
 // buildUserMessageParts 合并文本提示和图片输入，形成 Eino 用户消息。
-func buildUserMessageParts(content string, attachmentLines []string, images []einoMessage.ImageData) *einoMessage.AgenticMessage {
+func buildUserMessageParts(content string, attachmentLines []string, images []einoMessage.ImageData, attachmentIntro string) *einoMessage.AgenticMessage {
 	textSections := make([]string, 0, 2)
 	// 附件说明统一追加到用户正文后，避免模型误以为附件内容来自系统指令。
 	if len(attachmentLines) > 0 {
-		textSections = append(textSections, "本轮消息附带以下附件内容，请在回答时按需参考：", strings.Join(attachmentLines, "\n\n"))
+		textSections = append(textSections, attachmentIntro, strings.Join(attachmentLines, "\n\n"))
 	}
 	return einoMessage.UserTextWithImages(content, textSections, images)
 }

@@ -41,6 +41,8 @@ func TestExternalHostWire(t *testing.T) {
 	// 临时宿主通过工作区复用 backend 模块的本地替换，不能再解析一份相对替换路径。
 	hostModule = strings.Replace(hostModule, "\nreplace github.com/liujitcn/kratos-core => ../../kratos-core\n", "\n", 1)
 	hostModule = strings.Replace(hostModule, "\nreplace github.com/liujitcn/kratos-kit/api => ../../kratos-kit/api\n", "\n", 1)
+	hostModule = strings.Replace(hostModule, "\nreplace github.com/liujitcn/kratos-kit/oauth => ../../kratos-kit/oauth\n", "\n", 1)
+	hostModule = strings.Replace(hostModule, "\nreplace github.com/liujitcn/kratos-kit/redact => ../../kratos-kit/redact\n", "\n", 1)
 	hostModule = strings.Replace(hostModule, "\nreplace github.com/liujitcn/kratos-admin/backend/api => ./api\n", "\n", 1)
 	hostModule += "\nrequire github.com/liujitcn/kratos-admin/backend v0.0.40\n"
 	err = os.WriteFile(filepath.Join(hostDir, "go.mod"), []byte(hostModule), 0600)

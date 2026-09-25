@@ -165,7 +165,7 @@ func (c *BaseLoginPolicyCase) CreateBaseLoginPolicy(ctx context.Context, req *ad
 			err = c.baseLoginPolicyRuleRepo.Create(txCtx, ruleEntity)
 			if err != nil {
 				if errorsx.IsDuplicateKey(err) {
-					return errorsx.UniqueConflict("登录策略限制规则重复", "base_login_policy_rule", "", "unique_base_login_policy_rule").WithCause(err)
+					return errorsx.UniqueConflict("登录策略限制规则重复", "base_login_policy_rule", "policy_id,restriction_type,restriction_method,restriction_value", "unique_base_login_policy_rule").WithCause(err)
 				}
 				return err
 			}
@@ -230,7 +230,7 @@ func (c *BaseLoginPolicyCase) UpdateBaseLoginPolicy(ctx context.Context, req *ad
 			err = c.baseLoginPolicyRuleRepo.Create(txCtx, ruleEntity)
 			if err != nil {
 				if errorsx.IsDuplicateKey(err) {
-					return errorsx.UniqueConflict("登录策略限制规则重复", "base_login_policy_rule", "", "unique_base_login_policy_rule").WithCause(err)
+					return errorsx.UniqueConflict("登录策略限制规则重复", "base_login_policy_rule", "policy_id,restriction_type,restriction_method,restriction_value", "unique_base_login_policy_rule").WithCause(err)
 				}
 				return err
 			}

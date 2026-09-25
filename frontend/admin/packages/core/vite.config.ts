@@ -9,21 +9,12 @@ import { wrapperEnv } from "./build/getEnv";
 import { createProxy } from "./build/proxy";
 import { createVitePlugins } from "./build/plugins";
 import { createSourcePatterns } from "./build/source-patterns";
+import { runtimeMessage } from "./src/runtime-messages";
 
 const coreRoot = dirname(fileURLToPath(import.meta.url));
 const viteLogger = createLogger();
 const ignoredBuildWarningMatchers = ["[lightningcss minify] 'deep' is not recognized as a valid pseudo-class"];
 const ignoredRolldownWarningSources = ["node_modules/.pnpm/@vueuse+core@"];
-
-/** 渲染管理端构建器错误文案。 */
-function buildErrorMessage(key: string, params: Record<string, string>): string {
-  const locale = (process.env.KRATOS_ADMIN_LOCALE ?? process.env.LC_ALL ?? process.env.LANG ?? "").toLowerCase();
-  const english = locale.startsWith("zh") ? undefined : {
-    missing_source_entry: "The admin module is missing a source entry: {root}"
-  };
-  const template = english?.[key as "missing_source_entry"] ?? "管理端模块缺少源码入口：{root}";
-  return template.replace(/\{([A-Za-z0-9_]+)\}/g, (_, name: string) => params[name] ?? `{${name}}`);
-}
 
 /** 管理端源码包的名称和目录信息。 */
 interface AdminSourcePackage {
@@ -209,9 +200,7 @@ function resolveHttpsOptions(viteEnv: ViteEnv, root: string): ServerOptions | un
   const keyPath = resolve(root, viteEnv.VITE_HTTPS_KEY || "../../../../certs/dev-key.pem");
   const certPath = resolve(root, viteEnv.VITE_HTTPS_CERT || "../../../../certs/dev-cert.pem");
   if (!existsSync(keyPath) || !existsSync(certPath)) {
-    throw new Error(
-      `VITE_HTTPS 已开启，但未找到证书文件，请先在仓库根目录运行 scripts/generate-dev-cert.sh；期望路径：${keyPath} 和 ${certPath}`
-    );
+    throw new Error(runtimeMessage("https_certificate_missing", { keyPath, certPath }));
   }
 
   return {
@@ -235,7 +224,7 @@ function resolveSourceRoot(packageRoot: string): string {
 
   const publishedSourceRoot = resolve(packageRoot, "dist/package/src");
   if (existsSync(resolve(publishedSourceRoot, "index.ts"))) return publishedSourceRoot;
-  throw new Error(buildErrorMessage("missing_source_entry", { root: packageRoot }));
+  throw new Error(runtimeMessage("missing_source_entry", { root: packageRoot }));
 }
 
 /** 根据 package.json exports 创建源码别名。 */

@@ -6,6 +6,7 @@ import {
   defineConfig,
   kratosApp,
   loadEnv,
+  viteMessage,
   type ConfigEnv,
   type UserConfig,
 } from '@liujitcn/kratos-uni-app-core/vite'
@@ -18,9 +19,7 @@ function resolveHttpsOptions(env: Record<string, string>, root: string) {
   const keyPath = resolve(root, env.VITE_APP_HTTPS_KEY || '../../certs/dev-key.pem')
   const certPath = resolve(root, env.VITE_APP_HTTPS_CERT || '../../certs/dev-cert.pem')
   if (!existsSync(keyPath) || !existsSync(certPath)) {
-    throw new Error(
-      `VITE_APP_HTTPS 已开启，但未找到证书文件，请先在仓库根目录运行 scripts/generate-dev-cert.sh；期望路径：${keyPath} 和 ${certPath}`,
-    )
+    throw new Error(viteMessage('https_certificate_missing', { keyPath, certPath }))
   }
   return { key: readFileSync(keyPath), cert: readFileSync(certPath) }
 }

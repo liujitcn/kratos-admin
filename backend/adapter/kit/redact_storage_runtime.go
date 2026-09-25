@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/liujitcn/kratos-admin/backend/internal/config"
 	"github.com/liujitcn/kratos-kit/redact"
 	"gorm.io/gorm"
 )
@@ -14,11 +13,11 @@ type storageRuntime struct {
 	storage     *redact.RedactStorage
 	resolver    *RedactPolicyResolver
 	store       *StorageValueStore
-	fieldCipher *config.FieldCipher
+	fieldCipher *fieldCipher
 }
 
 // newStorageRuntime 构造仅属于当前解析器的敏感字段存储运行时。
-func newStorageRuntime(store *StorageValueStore, resolver *RedactPolicyResolver, protector *redact.StorageProtector, fieldCipher *config.FieldCipher) *storageRuntime {
+func newStorageRuntime(store *StorageValueStore, resolver *RedactPolicyResolver, protector *redact.StorageProtector, fieldCipher *fieldCipher) *storageRuntime {
 	return &storageRuntime{
 		storage:     redact.NewRedactStorage(store, resolver, protector, gormEntityFieldAccessor{}),
 		resolver:    resolver,

@@ -188,7 +188,7 @@ func (c *CodeGenTableCase) CreateCodeGenTable(ctx context.Context, req *adminv1.
 	err = c.Create(ctx, item)
 	if err != nil {
 		if errorsx.IsDuplicateKey(err) {
-			return errorsx.UniqueConflict("业务表已被代码生成表配置选择", "code_gen_table", "", "unique_code_gen_table").WithCause(err)
+			return errorsx.UniqueConflict("业务表已被代码生成表配置选择", "code_gen_table", "source_name,name", "unique_code_gen_table").WithCause(err)
 		}
 		return err
 	}
@@ -225,7 +225,7 @@ func (c *CodeGenTableCase) UpdateCodeGenTable(ctx context.Context, id int64, req
 	err = c.Update(ctx, item, opts...)
 	if err != nil {
 		if errorsx.IsDuplicateKey(err) {
-			return errorsx.UniqueConflict("业务表已被代码生成表配置选择", "code_gen_table", "", "unique_code_gen_table").WithCause(err)
+			return errorsx.UniqueConflict("业务表已被代码生成表配置选择", "code_gen_table", "source_name,name", "unique_code_gen_table").WithCause(err)
 		}
 		return err
 	}

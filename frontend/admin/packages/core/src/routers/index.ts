@@ -140,7 +140,7 @@ function getFirstAccessibleRoutePath() {
  * */
 router.onError(error => {
   NProgress.done();
-  console.warn("路由错误", error.message);
+  console.warn("Navigation failed:", error.message);
 });
 
 /**

@@ -17,6 +17,7 @@ import (
 	admindata "github.com/liujitcn/kratos-admin/backend/internal/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
+	"github.com/liujitcn/kratos-admin/backend/internal/i18n"
 	"github.com/liujitcn/kratos-admin/backend/pkg/notification"
 	"github.com/liujitcn/kratos-core/biz"
 	coreconst "github.com/liujitcn/kratos-core/const"
@@ -277,7 +278,7 @@ func (c *BaseMessageCase) Publish(ctx context.Context, request notification.Mess
 		}
 	}
 	if request.SenderName == "" {
-		request.SenderName = "系统"
+		request.SenderName = i18n.EncodeMessage("system.notification.sender.system", nil)
 	}
 	if request.IdempotencyKey == "" {
 		request.IdempotencyKey = id.NewGUIDv4NoHyphen()
@@ -1603,9 +1604,10 @@ func (c *BaseMessageCase) listDispatchUsers(ctx context.Context, dispatch *model
 	return c.baseUserRepo.List(ctx, opts...)
 }
 
-// failDispatch 记录投递失败状态和脱敏错误。
+// failDispatch 记录本地化投递失败原因，并将底层异常保留在服务日志。
 func (c *BaseMessageCase) failDispatch(ctx context.Context, dispatch *models.BaseMessageDispatch, cause error, failedCount int64) error {
-	lastError := cause.Error()
+	log.Error(fmt.Sprintf("Message dispatch failed dispatch_id=%d err=%v", dispatch.ID, cause))
+	lastError := i18n.EncodeMessage("system.base.message.error.dispatch_failed", nil)
 	if len(lastError) > 500 {
 		lastError = lastError[:500]
 	}

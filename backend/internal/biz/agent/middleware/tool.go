@@ -2,11 +2,13 @@ package middleware
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/cloudwego/eino/adk"
 	"github.com/cloudwego/eino/components/tool"
 	"github.com/cloudwego/eino/schema"
+	"github.com/go-kratos/kratos/v3/log"
 
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/agent/callback"
 )
@@ -38,11 +40,12 @@ func NewToolFilterHandler(toolInfos []*schema.ToolInfo) *ToolFilterHandler {
 	}
 }
 
-// NewToolMetricsHandler 创建工具统计中间件。
-func NewToolMetricsHandler(titleResolver ToolTitleResolver) *ToolMetricsHandler {
+// NewToolMetricsHandler 创建带标题和错误本地化的工具统计中间件。
+func NewToolMetricsHandler(titleResolver ToolTitleResolver, localizeMessage func(context.Context, string, map[string]any, string) string) *ToolMetricsHandler {
 	return &ToolMetricsHandler{
 		TypedBaseChatModelAgentMiddleware: &adk.TypedBaseChatModelAgentMiddleware[*schema.AgenticMessage]{},
 		titleResolver:                     titleResolver,
+		localizeMessage:                   localizeMessage,
 	}
 }
 
@@ -96,7 +99,8 @@ func (h *ToolFilterHandler) BeforeAgent(
 // ToolMetricsHandler 统一记录函数工具调用、耗时、入参、出参和错误 JSON。
 type ToolMetricsHandler struct {
 	*adk.TypedBaseChatModelAgentMiddleware[*schema.AgenticMessage]
-	titleResolver ToolTitleResolver
+	titleResolver   ToolTitleResolver
+	localizeMessage func(context.Context, string, map[string]any, string) string
 }
 
 func (h *ToolFilterHandler) filter(infos []*schema.ToolInfo) []*schema.ToolInfo {
@@ -140,8 +144,9 @@ func (h *ToolMetricsHandler) WrapInvokableToolCall(
 		// 工具调用失败时，把错误转成稳定 JSON 返回给模型，而不是让 ADK 中断整轮对话。
 		if err != nil {
 			call.Status = "error"
-			call.Error = err.Error()
-			call.Output = MarshalToolError(err.Error())
+			log.Error(fmt.Sprintf("Agent tool execution failed name=%s err=%v", name, err))
+			call.Error = toolFailureMessage(ctx, name, h.localizeMessage)
+			call.Output = MarshalToolError(call.Error)
 			recordToolCall(ctx, call)
 			return call.Output, nil
 		}
@@ -170,6 +175,15 @@ func recordToolCall(ctx context.Context, call callback.ToolCall) {
 		return
 	}
 	recorder.RecordTool(call)
+}
+
+// toolFailureMessage 按请求语言生成工具执行失败提示。
+func toolFailureMessage(ctx context.Context, name string, localize func(context.Context, string, map[string]any, string) string) string {
+	fallback := fmt.Sprintf("Tool %s failed. Check the service logs.", name)
+	if localize == nil {
+		return fallback
+	}
+	return localize(ctx, "system.ai.chat.error.tool_failed", map[string]any{"Name": name}, fallback)
 }
 
 // toolContextName 读取 ADK 工具上下文中的工具名。

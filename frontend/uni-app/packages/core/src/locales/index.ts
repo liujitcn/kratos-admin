@@ -108,7 +108,8 @@ export function registerLocaleMessages(modules: KratosAppModule[]): void {
     const expectedKeys = requiredLocaleKeys(module.messages?.[DEFAULT_LOCALE] || {})
     SUPPORTED_LOCALES.forEach((locale) => {
       const messages = module.messages?.[locale]
-      if (!messages) throw new Error(localeRuntimeMessage('missing_bundle', { module: module.name, locale }))
+      if (!messages)
+        throw new Error(localeRuntimeMessage('missing_bundle', { module: module.name, locale }))
       const keys = requiredLocaleKeys(messages)
       if (keys.join('\u0000') !== expectedKeys.join('\u0000')) {
         throw new Error(localeRuntimeMessage('key_set_mismatch', { module: module.name, locale }))
@@ -218,10 +219,25 @@ function assertLocalePlaceholders(
 function localeRuntimeMessage(key: string, params: Record<string, string>): string {
   const locale = getCurrentLocale().toLowerCase().startsWith('zh') ? 'zh-CN' : 'en-US'
   const templates: Record<string, Record<string, string>> = {
-    'zh-CN': { missing_bundle: '{module} 缺少 {locale} 语言包', key_set_mismatch: '{module} 的 {locale} 语言包键集合不一致', namespace_invalid: '{module} 的语言键命名空间无效: {key}', duplicate_key: '{locale} 语言键重复: {key}', placeholder_mismatch: '{module} 的 {key} 占位符集合不一致' },
-    'en-US': { missing_bundle: '{module} is missing the {locale} locale bundle', key_set_mismatch: '{module} has inconsistent keys in the {locale} locale bundle', namespace_invalid: 'Invalid locale key namespace for {module}: {key}', duplicate_key: 'Duplicate locale key in {locale}: {key}', placeholder_mismatch: 'Placeholder set mismatch for {module}: {key}' },
+    'zh-CN': {
+      missing_bundle: '{module} 缺少 {locale} 语言包',
+      key_set_mismatch: '{module} 的 {locale} 语言包键集合不一致',
+      namespace_invalid: '{module} 的语言键命名空间无效: {key}',
+      duplicate_key: '{locale} 语言键重复: {key}',
+      placeholder_mismatch: '{module} 的 {key} 占位符集合不一致',
+    },
+    'en-US': {
+      missing_bundle: '{module} is missing the {locale} locale bundle',
+      key_set_mismatch: '{module} has inconsistent keys in the {locale} locale bundle',
+      namespace_invalid: 'Invalid locale key namespace for {module}: {key}',
+      duplicate_key: 'Duplicate locale key in {locale}: {key}',
+      placeholder_mismatch: 'Placeholder set mismatch for {module}: {key}',
+    },
   }
-  return (templates[locale][key] ?? key).replace(/\{([A-Za-z0-9_]+)\}/g, (_, name: string) => params[name] ?? `{${name}}`)
+  return (templates[locale][key] ?? key).replace(
+    /\{([A-Za-z0-9_]+)\}/g,
+    (_, name: string) => params[name] ?? `{${name}}`,
+  )
 }
 
 function requiredLocaleKeys(messages: LocaleMessages): string[] {

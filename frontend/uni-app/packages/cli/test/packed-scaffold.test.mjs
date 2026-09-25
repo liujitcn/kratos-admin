@@ -19,7 +19,7 @@ test('打包后的 CLI 可生成业务模块并复制 favicon', () => {
     const created = spawnSync(
       process.execPath,
       [resolve(root, 'package/bin/kratos-uni-app.mjs'), 'create', target, '--module', 'app'],
-      { cwd: root, encoding: 'utf8' },
+      { cwd: root, encoding: 'utf8', env: { ...process.env, KRATOS_ADMIN_LOCALE: 'en-US' } },
     )
     assert.equal(created.status, 0, created.stderr)
     assert.deepEqual(
@@ -32,6 +32,10 @@ test('打包后的 CLI 可生成业务模块并复制 favicon', () => {
     )
     assert.ok(existsSync(resolve(target, 'apps/uni-app/package.json')))
     assert.ok(existsSync(resolve(target, 'packages/modules/app/src/index.mjs')))
+    assert.match(
+      readFileSync(resolve(target, 'README.md'), 'utf8'),
+      /is an independent pnpm workspace/,
+    )
   } finally {
     rmSync(root, { recursive: true, force: true })
   }

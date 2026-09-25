@@ -8,6 +8,7 @@ import (
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 	"github.com/liujitcn/kratos-core/biz"
+	"github.com/liujitcn/kratos-core/resource/i18n"
 	"gorm.io/gen/field"
 )
 
@@ -15,11 +16,12 @@ import (
 type BasePolicyEvaluationLogCase struct {
 	*biz.BaseCase
 	*data.BasePolicyEvaluationLogRepository
+	catalog *i18n.I18n
 }
 
 // NewBasePolicyEvaluationLogCase 创建策略评估日志查询业务实例。
-func NewBasePolicyEvaluationLogCase(baseCase *biz.BaseCase, basePolicyEvaluationLogRepo *data.BasePolicyEvaluationLogRepository) *BasePolicyEvaluationLogCase {
-	return &BasePolicyEvaluationLogCase{BaseCase: baseCase, BasePolicyEvaluationLogRepository: basePolicyEvaluationLogRepo}
+func NewBasePolicyEvaluationLogCase(baseCase *biz.BaseCase, basePolicyEvaluationLogRepo *data.BasePolicyEvaluationLogRepository, catalog *i18n.I18n) *BasePolicyEvaluationLogCase {
+	return &BasePolicyEvaluationLogCase{BaseCase: baseCase, BasePolicyEvaluationLogRepository: basePolicyEvaluationLogRepo, catalog: catalog}
 }
 
 // PageBasePolicyEvaluationLog 分页查询策略评估日志。
@@ -56,7 +58,7 @@ func (c *BasePolicyEvaluationLogCase) PageBasePolicyEvaluationLog(ctx context.Co
 	}
 	items := make([]*adminv1.BasePolicyEvaluationLog, 0, len(list))
 	for _, item := range list {
-		items = append(items, toBasePolicyEvaluationLog(item))
+		items = append(items, toBasePolicyEvaluationLog(item, c.catalog, biz.LocaleFromContext(ctx)))
 	}
 	return &adminv1.PageBasePolicyEvaluationLogResponse{BasePolicyEvaluationLogs: items, Total: int32(total)}, nil
 }
@@ -74,7 +76,7 @@ func (c *BasePolicyEvaluationLogCase) GetBasePolicyEvaluationLog(ctx context.Con
 	if err != nil {
 		return nil, err
 	}
-	return toBasePolicyEvaluationLog(item), nil
+	return toBasePolicyEvaluationLog(item, c.catalog, biz.LocaleFromContext(ctx)), nil
 }
 
 // listLogTrace 查询策略评估日志关联的审计记录。
@@ -86,6 +88,6 @@ func (c *BasePolicyEvaluationLogCase) listLogTrace(ctx context.Context, requestI
 }
 
 // toBasePolicyEvaluationLog 转换策略评估日志响应。
-func toBasePolicyEvaluationLog(item *models.BasePolicyEvaluationLog) *adminv1.BasePolicyEvaluationLog {
-	return &adminv1.BasePolicyEvaluationLog{Id: formatLogRecordID(item.ID), TenantId: item.TenantID, TenantCode: item.TenantCode, UserId: item.UserID, UserName: item.UserName, RoleId: item.RoleID, RoleCode: item.RoleCode, RequestId: item.RequestID, TraceId: item.TraceID, ClientIp: item.ClientIP, Engine: item.Engine, EvaluationType: adminv1.BasePolicyEvaluationType(item.EvaluationType), Resource: item.Resource, Action: item.Action, Project: item.Project, Decision: adminv1.BasePolicyDecision(item.Decision), ReasonCode: item.ReasonCode, Reason: item.Reason, DurationMs: item.DurationMs, CandidateCount: item.CandidateCount, MatchedCount: item.MatchedCount, InputHash: item.InputHash, OccurredAt: formatLogTime(item.OccurredAt), CreatedAt: formatLogTime(item.CreatedAt)}
+func toBasePolicyEvaluationLog(item *models.BasePolicyEvaluationLog, catalog *i18n.I18n, locale string) *adminv1.BasePolicyEvaluationLog {
+	return &adminv1.BasePolicyEvaluationLog{Id: formatLogRecordID(item.ID), TenantId: item.TenantID, TenantCode: item.TenantCode, UserId: item.UserID, UserName: item.UserName, RoleId: item.RoleID, RoleCode: item.RoleCode, RequestId: item.RequestID, TraceId: item.TraceID, ClientIp: item.ClientIP, Engine: item.Engine, EvaluationType: adminv1.BasePolicyEvaluationType(item.EvaluationType), Resource: item.Resource, Action: item.Action, Project: item.Project, Decision: adminv1.BasePolicyDecision(item.Decision), ReasonCode: item.ReasonCode, Reason: localizeLogReason(catalog, locale, item.ReasonCode, item.Reason), DurationMs: item.DurationMs, CandidateCount: item.CandidateCount, MatchedCount: item.MatchedCount, InputHash: item.InputHash, OccurredAt: formatLogTime(item.OccurredAt), CreatedAt: formatLogTime(item.CreatedAt)}
 }

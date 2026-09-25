@@ -51,6 +51,8 @@ type Request struct {
 	ToolInfos []*schema.ToolInfo
 	// Recorder 调用记录器。
 	Recorder *callback.Recorder
+	// LocalizeMessage 按请求语言生成用户可见的错误文案。
+	LocalizeMessage func(context.Context, string, map[string]any, string) string
 	// Stream 是否启用模型流式输出。
 	Stream bool
 	// OnDelta 用户可见文本增量回调。
@@ -124,11 +126,10 @@ func (r *Runner) newAgent(ctx context.Context, request Request) (*adk.TypedChatM
 	if r.serverTools {
 		handlers = append(handlers, middleware.NewResponsesServerToolHandler())
 	}
-	handlers = append(handlers, middleware.NewToolMetricsHandler(toolTitleResolver(request.ToolInfos)))
+	handlers = append(handlers, middleware.NewToolMetricsHandler(toolTitleResolver(request.ToolInfos), request.LocalizeMessage))
 	return adk.NewTypedChatModelAgent(ctx, &adk.TypedChatModelAgentConfig[*schema.AgenticMessage]{
 		Name:        r.name,
 		Description: r.description,
-		Instruction: "请使用中文回答，并优先调用已提供的内部工具获取真实数据。",
 		Model:       r.model,
 		ToolsConfig: adk.ToolsConfig{
 			ToolsNodeConfig: compose.ToolsNodeConfig{

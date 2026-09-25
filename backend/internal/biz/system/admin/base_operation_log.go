@@ -8,6 +8,7 @@ import (
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 	"github.com/liujitcn/kratos-core/biz"
+	"github.com/liujitcn/kratos-core/resource/i18n"
 	"gorm.io/gen/field"
 )
 
@@ -15,11 +16,12 @@ import (
 type BaseOperationLogCase struct {
 	*biz.BaseCase
 	*data.BaseOperationLogRepository
+	catalog *i18n.I18n
 }
 
 // NewBaseOperationLogCase 创建业务操作日志查询业务实例。
-func NewBaseOperationLogCase(baseCase *biz.BaseCase, baseOperationLogRepo *data.BaseOperationLogRepository) *BaseOperationLogCase {
-	return &BaseOperationLogCase{BaseCase: baseCase, BaseOperationLogRepository: baseOperationLogRepo}
+func NewBaseOperationLogCase(baseCase *biz.BaseCase, baseOperationLogRepo *data.BaseOperationLogRepository, catalog *i18n.I18n) *BaseOperationLogCase {
+	return &BaseOperationLogCase{BaseCase: baseCase, BaseOperationLogRepository: baseOperationLogRepo, catalog: catalog}
 }
 
 // PageBaseOperationLog 分页查询业务操作日志。
@@ -56,7 +58,7 @@ func (c *BaseOperationLogCase) PageBaseOperationLog(ctx context.Context, req *ad
 	}
 	items := make([]*adminv1.BaseOperationLog, 0, len(list))
 	for _, item := range list {
-		items = append(items, toBaseOperationLog(item))
+		items = append(items, toBaseOperationLog(item, c.catalog, biz.LocaleFromContext(ctx)))
 	}
 	return &adminv1.PageBaseOperationLogResponse{BaseOperationLogs: items, Total: int32(total)}, nil
 }
@@ -74,7 +76,7 @@ func (c *BaseOperationLogCase) GetBaseOperationLog(ctx context.Context, idText s
 	if err != nil {
 		return nil, err
 	}
-	return toBaseOperationLog(item), nil
+	return toBaseOperationLog(item, c.catalog, biz.LocaleFromContext(ctx)), nil
 }
 
 // listLogTrace 查询业务操作日志关联的审计记录。
@@ -86,6 +88,6 @@ func (c *BaseOperationLogCase) listLogTrace(ctx context.Context, requestID, trac
 }
 
 // toBaseOperationLog 转换业务操作日志响应。
-func toBaseOperationLog(item *models.BaseOperationLog) *adminv1.BaseOperationLog {
-	return &adminv1.BaseOperationLog{Id: formatLogRecordID(item.ID), TenantId: item.TenantID, TenantCode: item.TenantCode, UserId: item.UserID, UserName: item.UserName, RequestId: item.RequestID, TraceId: item.TraceID, ResourceType: item.ResourceType, ResourceId: item.ResourceID, ResourceName: item.ResourceName, Action: adminv1.BaseOperationAction(item.Action), ChangedFields: item.ChangedFields, BeforeData: item.BeforeData, AfterData: item.AfterData, Result: adminv1.BaseLogResult(item.Result), ReasonCode: item.ReasonCode, Reason: item.Reason, OccurredAt: formatLogTime(item.OccurredAt), CreatedAt: formatLogTime(item.CreatedAt)}
+func toBaseOperationLog(item *models.BaseOperationLog, catalog *i18n.I18n, locale string) *adminv1.BaseOperationLog {
+	return &adminv1.BaseOperationLog{Id: formatLogRecordID(item.ID), TenantId: item.TenantID, TenantCode: item.TenantCode, UserId: item.UserID, UserName: item.UserName, RequestId: item.RequestID, TraceId: item.TraceID, ResourceType: item.ResourceType, ResourceId: item.ResourceID, ResourceName: item.ResourceName, Action: adminv1.BaseOperationAction(item.Action), ChangedFields: item.ChangedFields, BeforeData: item.BeforeData, AfterData: item.AfterData, Result: adminv1.BaseLogResult(item.Result), ReasonCode: item.ReasonCode, Reason: localizeLogReason(catalog, locale, item.ReasonCode, item.Reason), OccurredAt: formatLogTime(item.OccurredAt), CreatedAt: formatLogTime(item.CreatedAt)}
 }

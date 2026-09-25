@@ -176,6 +176,17 @@
   "system.admin.base.menu.entity.type.required": {
     "other": "選單型別不能為空"
   },
+  "system.admin.base.oauth_provider.get.id.required": { "other": "OAuth登入方式ID不可為空" },
+  "system.admin.base.oauth_provider.delete.id.required": { "other": "OAuth登入方式ID清單不可為空" },
+  "system.admin.base.oauth_provider.set_status.id.required": { "other": "OAuth登入方式ID不可為空" },
+  "system.admin.base.oauth_provider.form.provider.required": { "other": "Provider識別格式無效" },
+  "system.admin.base.oauth_provider.form.name.required": { "other": "登入方式名稱不可為空且不得超過50個字元" },
+  "system.admin.base.oauth_provider.form.description.length": { "other": "登入方式提示語不得超過255個字元" },
+  "system.admin.base.oauth_provider.form.icon.required": { "other": "圖示不可為空且不得超過255個字元" },
+  "system.admin.base.oauth_provider.form.client_id.required": { "other": "第三方應用程式識別不可為空且不得超過255個字元" },
+  "system.admin.base.oauth_provider.form.client_secret.length": { "other": "第三方應用程式密鑰不得超過512個字元" },
+  "system.admin.base.oauth_provider.form.redirect_uri.length": { "other": "OAuth回呼網址不得超過512個字元" },
+  "system.admin.base.oauth_provider.form.scopes.unique": { "other": "OAuth Scope不可重複" },
   "system.admin.base.post.entity.code.max_length": {
     "other": "崗位編號不能超過 20 個字元"
   },
@@ -863,8 +874,20 @@
   "system.admin.ops_monitoring.connection_healthy": {
     "other": "連線正常"
   },
+  "system.admin.ops_monitoring.connection_check_failed": {
+    "other": "連線檢查失敗，請檢查服務連線與憑據"
+  },
+  "system.admin.ops_monitoring.connection_close_failed": {
+    "other": "關閉服務連線失敗，請查看服務日誌"
+  },
+  "system.admin.ops_monitoring.connection_pool_unavailable": {
+    "other": "資料庫連線池無法使用，請查看服務日誌"
+  },
   "system.admin.ops_monitoring.redis_unconfigured": {
     "other": "未配置 Redis"
+  },
+  "system.admin.ops_monitoring.redis_configuration_invalid": {
+    "other": "Redis 設定無效，請查看服務日誌"
   },
   "system.admin.ops_monitoring.pool": {
     "other": "連線池"
@@ -886,6 +909,9 @@
   },
   "system.admin.ops_monitoring.dispatch_unconfigured": {
     "other": "站內信投遞儲存庫未設定"
+  },
+  "system.admin.ops_monitoring.dispatch_status_unavailable": {
+    "other": "無法讀取站內訊息投遞狀態，請查看服務日誌"
   },
   "system.admin.ops_monitoring.address_count": {
     "other": "地址數"
@@ -1004,6 +1030,9 @@
   "system.code.gen.message.proto.file_missing": {
     "other": "Proto檔案不存在"
   },
+  "system.code.gen.message.proto.route_unavailable": {
+    "other": "無法推導介面路由"
+  },
   "system.code.gen.message.proto.missing_select_generate": {
     "other": "缺少，可選擇生成"
   },
@@ -1085,6 +1114,24 @@
   "system.code.gen.message.preview.menu_sql_update": {
     "other": "將更新 {path} 中的選單和按鈕權限 SQL"
   },
+  "system.code.gen.message.preview.invalid_path": {
+    "other": "生成路徑 {path} 不在允許的儲存庫目錄內"
+  },
+  "system.code.gen.message.preview.file_read_failed": {
+    "other": "無法讀取預覽檔案 {path}"
+  },
+  "system.code.gen.message.preview.locale_render_failed": {
+    "other": "無法產生語言檔案 {path} 的預覽"
+  },
+  "system.code.gen.message.preview.locale_merge_failed": {
+    "other": "無法合併語言檔案 {path}"
+  },
+  "system.code.gen.message.preview.menu_sql_path_unavailable": {
+    "other": "無法判定選單權限初始化 SQL 的有效路徑"
+  },
+  "system.code.gen.message.preview.menu_sql_merge_failed": {
+    "other": "無法將生成的選單權限 SQL 合併至 {path}"
+  },
   "system.code.gen.message.progress.pending_execute": {
     "other": "等待執行"
   },
@@ -1142,6 +1189,9 @@
   "system.code.gen.message.progress.execute_complete": {
     "other": "執行完成"
   },
+  "system.code.gen.message.progress.no_go_files_to_format": {
+    "other": "本次沒有需要格式化的 Go 檔案"
+  },
   "system.code.gen.message.progress.model_generation_failed": {
     "other": "模型生成失敗"
   },
@@ -1150,6 +1200,12 @@
   },
   "system.code.gen.message.progress.command_failed": {
     "other": "程式碼生成失敗（make {target}）：{detail}"
+  },
+  "system.code.gen.message.progress.file_write_failed": {
+    "other": "寫入生成檔案 {path} 失敗"
+  },
+  "system.code.gen.message.progress.failure_details_unavailable": {
+    "other": "操作失敗，請查看診斷輸出或服務日誌"
   },
   "system.code.gen.password_strength": {
     "other": "強度提示"
@@ -3854,10 +3910,104 @@
   ,"legacy.error.f729b50ce3ce3983": { "other": "只能編輯最後一條訊息" }
   ,"legacy.error.7bdaeb66d03d3063": { "other": "該步驟已過期，請從最新訊息繼續操作" }
   ,"legacy.error.feca044b124b4405": { "other": "查詢三方登入方式翻譯失敗" },
+  "system.code.gen.message.path_label.proto_file": { "other": "Proto 檔案路徑" },
+  "system.code.gen.message.path_label.backend_biz": { "other": "後端Biz檔案路徑" },
+  "system.code.gen.message.path_label.backend_service": { "other": "後端Service檔案路徑" },
+  "system.code.gen.message.path_label.frontend_api": { "other": "前端API檔案路徑" },
+  "system.code.gen.message.path_label.frontend_page": { "other": "前端頁面檔案路徑" },
+  "system.code.gen.error.output_path_invalid": { "other": "{{.Field}}無效" },
   "system.code.gen.error.route_duplicate": { "other": "產生介面{{.Method}} {{.HTTPMethod}} {{.Path}}與 base_api 中的{{.Operation}}重複" },
   "system.code.gen.error.option_table_missing": { "other": "選項介面{{.Method}}的目標資料表{{.Table}}不存在，無法驗證欄位型別" },
   "system.code.gen.error.status_default_invalid": { "other": "欄位{{.Field}}的狀態預設值{{.Default}}不屬於啟用值{{.Enabled}}或停用值{{.Disabled}}" },
   "system.code.gen.error.option_column_missing": { "other": "選項介面{{.Method}}的{{.Label}}{{.Column}}不存在" },
   "system.code.gen.error.option_column_integer": { "other": "選項介面{{.Method}}的{{.Label}}{{.Column}}必須是整數型別欄位" },
-  "system.code.gen.error.path_duplicate": { "other": "{{.Current}}不能與{{.Previous}}使用相同路徑" }
+  "system.code.gen.error.path_duplicate": { "other": "{{.Current}}不能與{{.Previous}}使用相同路徑" },
+  "system.code.gen.error.batch.empty": { "other": "批次生成至少需要選擇一張資料表" },
+  "system.code.gen.error.batch.table_missing": { "other": "第{{.Index}}個批次生成項目缺少資料表配置" },
+  "system.code.gen.error.batch.table_id_required": { "other": "程式碼生成資料表配置ID必須大於0" },
+  "system.code.gen.error.batch.table_id_duplicate": { "other": "程式碼生成資料表配置{{.TableID}}在批次中重複" },
+  "system.code.gen.error.batch.invalid_path": { "other": "生成輸出路徑{{.Path}}不在允許的儲存庫目錄內" },
+  "system.code.gen.error.batch.page_unmergeable": { "other": "資料表{{.Table}}的前端頁面{{.Path}}無法安全合併，整個批次未執行" },
+  "system.code.gen.error.batch.route_duplicate": { "other": "Proto檔案{{.ProtoFile}}中的HTTP路由{{.HTTPMethod}} {{.Path}}與其他RPC衝突" },
+  "system.code.gen.error.batch.definition_conflict": { "other": "資料表{{.Previous}}與資料表{{.Current}}在{{.Key}}中的生成定義不一致" },
+  "system.code.gen.error.has_children": { "other": "刪除{{.Parent}}失敗，其下仍有{{.Child}}。" },
+  "base.third_account.error.binding_exists": { "other": "第三方帳號綁定關係已存在" },
+  "base.third_account.error.current_user_provider_bound": { "other": "目前使用者已綁定此登入方式" },
+  "base.third_account.error.account_bound_to_other_user": { "other": "此第三方帳號已被其他使用者綁定" },
+  "base.oauth.callback.state_invalid": { "other": "第三方登入狀態無效" },
+  "base.oauth.callback.authorization_failed": { "other": "第三方授權失敗" },
+  "base.oauth.callback.account_unbound": { "other": "第三方帳號尚未綁定，請先使用帳號密碼登入，再至個人中心綁定" },
+  "base.oauth.callback.login_failed": { "other": "第三方帳號登入失敗" },
+  "base.oauth.callback.redirect_url_missing": { "other": "未設定第三方登入回跳網址" },
+  "base.oauth.binding_callback.state_invalid": { "other": "第三方帳號綁定狀態無效" },
+  "base.oauth.binding_callback.authorization_code_required": { "other": "第三方授權碼不能為空" },
+  "base.oauth.binding_callback.account_bound_to_other_user": { "other": "此第三方帳號已被其他使用者綁定" },
+  "base.oauth.binding_callback.current_user_provider_bound": { "other": "目前使用者已綁定此登入方式" },
+  "base.oauth.binding_callback.failed": { "other": "第三方帳號綁定失敗" },
+  "base.oauth.binding_callback.redirect_url_missing": { "other": "未設定第三方帳號綁定回跳網址" },
+  "base.ai.tool.disabled": { "other": "Agent 工具 {{.Name}} 已停用，無法繼續呼叫。" },
+  "system.ai.chat.error.tool_failed": { "other": "工具 {{.Name}} 執行失敗，請查看服務日誌。" },
+  "system.ai.chat.error.tool_unavailable": { "other": "工具 {{.Name}} 目前無法使用。" },
+  "system.mcp.tool_not_registered": { "other": "MCP工具{{.Name}}未註冊" },
+  "system.mcp.tool_check_failed": { "other": "無法檢查MCP工具狀態，請查看服務日誌" },
+  "base.ai.prompt.instruction": { "other": "你是一個通用 AI 助理，可以自然、友善、準確地回答使用者提出的各種問題。\n回覆要求：\n1. 優先直接回答目前問題，不因問題不屬於目前系統而拒絕。\n2. 可以處理一般知識、日常問答、文字潤飾、程式碼說明、方案整理、思路分析等請求。\n3. 如果使用者提供附件、歷史上下文或系統上下文，可以視需要參考。\n4. 涉及使用者、字典、設定、報表等系統內私有資料時，優先使用目前終端可用的內部工具取得真實資料。\n5. 內部工具不符合需求、沒有結果，或使用者詢問公開即時資訊時，可以使用網路搜尋。\n6. 不要捏造目前上下文和工具結果未提供的私有系統資料、精確數值或操作結果。\n7. 不要直接展示工具回傳的分頁游標、內部 ID、base64、圖片資料或除錯欄位；如需說明，請以自然語言提示尚有下一頁或可繼續查詢。\n8. 如果歷史上下文指出某個內部工具已停用或無法使用，而使用者要求繼續相關查詢，必須明確說明工具已停用或無法使用，不能繼續呼叫。\n9. 使用目前請求語言回覆；無法判斷使用者語言時使用中文，保持清晰自然，適合直接顯示於聊天視窗。" },
+  "base.ai.prompt.tool_routing_rules": { "other": "涉及目前專案中的使用者、字典、設定、報表等私有資料時，優先使用目前終端可用的內部工具。本輪匹配到內部工具時，只使用內部工具回答，不呼叫網路搜尋；未匹配時，僅在使用者詢問公開即時資訊時使用網路搜尋。遵循工具說明和參數預設值，不要擅自新增或刪除查詢條件。使用者補充查詢條件時，沿用最近相關查詢的工具和其他條件，只修改補充的條件；對象或條件不明確時先詢問。" },
+  "base.ai.prompt.business_date": { "other": "- 目前業務日期：{{.Value}}" },
+  "base.ai.prompt.business_timezone": { "other": "- 業務時區：{{.Location}}（UTC{{.Offset}}）" },
+  "base.ai.prompt.current_session": { "other": "目前工作階段：" },
+  "base.ai.prompt.terminal": { "other": "- 終端：{{.Value}}" },
+  "base.ai.prompt.user": { "other": "- 使用者：{{.Value}}" },
+  "base.ai.prompt.title": { "other": "- 標題：{{.Value}}" },
+  "base.ai.prompt.summary": { "other": "- 摘要：{{.Value}}" },
+  "base.ai.prompt.attachment_notice": { "other": "使用者本輪提供了附件，附件內容會出現在訊息中，回答時視需要參考。" },
+  "base.ai.prompt.image_attachment": { "other": "圖片附件 {{.Name}} 已作為視覺輸入提供給模型。" },
+  "base.ai.prompt.text_attachment": { "other": "附件 {{.Name}} 內容：\n{{.Content}}" },
+  "base.ai.prompt.attachment_message_intro": { "other": "本輪訊息附帶以下附件內容，請在回答時視需要參考：" },
+  "base.ai.prompt.attachment_name": { "other": "附件 {{.Name}}" },
+  "base.ai.prompt.attachment_type": { "other": "類型：{{.Value}}" },
+  "base.ai.prompt.attachment_size": { "other": "大小：{{.Value}} 位元組" },
+  "base.ai.prompt.attachment_url": { "other": "位址：{{.Value}}" },
+  "base.ai.prompt.assistant_description": { "other": "管理端 AI 助理，負責會話問答、內部工具呼叫和網路搜尋。" },
+  "base.ai.prompt.catalog_tool_description": { "other": "查詢目前終端完整註冊的內部 Agent Tool 工具目錄、工具數量、工具實際名稱和功能說明。使用者詢問有哪些工具、工具清單、工具名稱、工具數量、已載入多少工具、可用 API、available tools、tool list 或 tool catalog 時使用。" },
+  "base.ai.prompt.attachment_unnamed": { "other": "未命名附件" },
+  "base.ai.prompt.history_tool_context": { "other": "上一輪內部工具呼叫上下文僅供理解使用者追問和續查請求，不要直接展示給使用者：" },
+  "base.ai.prompt.history_tool_name": { "other": "- 工具名稱：{{.Name}}" },
+  "base.ai.prompt.history_tool_title": { "other": "  工具標題：{{.Title}}" },
+  "base.ai.prompt.history_tool_input": { "other": "  輸入：{{.Input}}" },
+  "base.ai.prompt.history_tool_output": { "other": "  輸出：{{.Output}}" },
+  "system.base.user.error.duplicate_identity": { "other": "同一租戶下使用者帳號或使用者編號已存在" },
+  "system.base.user.error.duplicate_user_name": { "other": "同一租戶下使用者帳號已存在" },
+  "system.base.user.error.duplicate_user_code": { "other": "同一租戶下使用者編號已存在" },
+  "system.ai.chat.error.fallback_reply.content": { "other": "已收到您的問題：{{.Content}}。但目前 AI 助理暫時無法使用，無法產生完整回覆，請稍後再試。" },
+  "system.ai.chat.error.fallback_reply.attachments": { "other": "已收到您的問題和 {{.Count}} 個附件，但目前 AI 助理暫時無法使用，無法產生完整回覆，請稍後再試。" },
+  "legacy.error.0cf67600c5317be5": { "other": "任務正在其他執行個體執行" },
+  "legacy.error.d6dad83238ab7270": { "other": "登入 IP 命中黑名單" },
+  "legacy.error.baabf07429595997": { "other": "登入 MAC 命中黑名單" },
+  "legacy.error.27c12cba0463a64f": { "other": "登入地區命中黑名單" },
+  "legacy.error.020eaa6e9305844c": { "other": "目前時間不允許登入" },
+  "legacy.error.36f18cb8cc1347dc": { "other": "登入裝置命中黑名單" },
+  "legacy.error.1efa62aa3b12f109": { "other": "登入來源命中黑名單" },
+  "legacy.error.48fb2e3cbfc3df7b": { "other": "登入 IP 不在白名單" },
+  "legacy.error.6ce9e8310f7d0a6f": { "other": "登入 MAC 不在白名單" },
+  "legacy.error.136942b0f292b207": { "other": "登入地區不在白名單" },
+  "legacy.error.14d64ced023b18bb": { "other": "目前時間不在允許時段" },
+  "legacy.error.4575220a10a47a02": { "other": "登入裝置不在白名單" },
+  "legacy.error.8a1e11040b992b1f": { "other": "登入來源不在白名單" },
+  "base.ai.message.attachment_prompt": { "other": "請結合附件內容繼續分析" },
+  "base.ai.session.default_summary": { "other": "新對話" },
+  "base.ai.session.attachment_summary": { "other": "{{.Count}} 個附件" },
+  "base.ai.session.default_title": { "other": "新對話" },
+  "base.ai.session.branch_title": { "other": "分支對話" },
+  "system.base.tenant.default_department_name": { "other": "預設部門" },
+  "system.base.tenant.default_department_remark": { "other": "租戶預設部門" },
+  "system.base.tenant.default_admin_nickname": { "other": "管理員" },
+  "system.base.tenant.default_admin_remark": { "other": "租戶預設管理員，初始密碼遵循全域登入政策" },
+  "system.base.tenant.value.missing_name": { "other": "租戶（記錄不存在，ID：{{.ID}}）" },
+  "legacy.error.c1eb17bd5887ac52": { "other": "租戶管理員" },
+  "legacy.error.bd9cb10928c622d0": { "other": "預設租戶管理員權限範本，可由預設租戶維護" },
+  "system.oauth.crypto.error.client_token_invalid": { "other": "客戶端存取權杖無效" },
+  "system.oauth.crypto.error.config_invalid": { "other": "客戶端加密設定無效" },
+  "system.oauth.crypto.error.request_decrypt_failed": { "other": "請求資料解密失敗" },
+  "system.oauth.crypto.error.response_too_large": { "other": "回應資料超過大小限制" },
+  "system.oauth.crypto.error.response_encrypt_failed": { "other": "回應資料加密失敗" }
 }

@@ -25,6 +25,7 @@
   "files": [
     "dist/index.d.ts",
     "dist/index.js",
+    "dist/messages.js",
     "templates",
     "README.md"
   ],

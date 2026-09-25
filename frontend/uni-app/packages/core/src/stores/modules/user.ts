@@ -216,7 +216,7 @@ export const useUserStore = defineStore(
             resolve()
           })
           .catch((error) => {
-            console.log(' refreshToken  刷新失败', error)
+            console.log('Token refresh failed:', error)
             reject(error)
           })
       })

@@ -1,7 +1,7 @@
 <!-- prettier-ignore -->
 # __APP_PACKAGE__
 
-`__PROJECT_NAME__` 的管理端宿主。该包私有且不实现业务，默认先组合 `@liujitcn/kratos-admin-system`，再组合自有 module **MODULE_PACKAGES** 和所选的其他业务 module。
+`__PROJECT_NAME__` 的管理端宿主。该包私有且不实现业务，默认先组合 `@liujitcn/kratos-admin-system`，再组合自有 module __MODULE_PACKAGES__ 和所选的其他业务 module。
 
 ## 目录与文件
 

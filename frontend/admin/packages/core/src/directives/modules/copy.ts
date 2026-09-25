@@ -33,7 +33,8 @@ async function handleClick(this: any) {
       message: t("core.clipboard.success")
     });
   } catch (err) {
-    console.error("复制操作不被支持或失败: ", err);
+    console.error("Clipboard write failed:", err);
+    ElMessage.error(t("core.markdown.message.copy_failed"));
   }
 }
 

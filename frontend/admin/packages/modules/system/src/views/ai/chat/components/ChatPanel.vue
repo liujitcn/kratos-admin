@@ -138,7 +138,7 @@
                   <div class="agent-message-error__content">{{ resolveAIErrorMessage(item) }}</div>
                   <el-collapse v-if="item.fallback_reason" class="agent-message-error__detail" accordion>
                     <el-collapse-item :title="t('system.ai.chat.title.error_detail')" :name="String(item.id)">
-                      <pre>{{ item.fallback_reason }}</pre>
+                      <pre>{{ resolvePersistedMessage(item.fallback_reason) }}</pre>
                     </el-collapse-item>
                   </el-collapse>
                 </div>
@@ -147,7 +147,7 @@
                   <slot name="flow-blocks" :message="item" :active-flow-message-id="activeFlowMessageID" />
                   <el-collapse v-if="item.fallback_reason" class="agent-message-error__detail" accordion>
                     <el-collapse-item :title="t('system.ai.chat.title.error_detail')" :name="String(item.id)">
-                      <pre>{{ item.fallback_reason }}</pre>
+                      <pre>{{ resolvePersistedMessage(item.fallback_reason) }}</pre>
                     </el-collapse-item>
                   </el-collapse>
                 </template>
@@ -339,6 +339,7 @@ import type { AiAction } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_mess
 import { type AiAttachment, type AiSession } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_session";
 import type { AiShortcut, AiToolCall } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_tool";
 import { AiMessageStatus } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_session";
+import { resolvePersistedMessage } from "../../../../utils/persisted-message";
 import XSender from "./XSender.vue";
 
 // AI Markdown 渲染器依赖较重，仅在真正出现助手消息时再加载。
@@ -792,6 +793,7 @@ function resolveVisibleTools(item: ChatMessageItem) {
 
 /** 生成工具展示名称。 */
 function resolveToolTitle(tool: AiToolCall) {
+  if (tool.name === "web_search") return t("system.ai.chat.value.web_search");
   return tool.title || tool.name || t("system.ai.chat.value.tool");
 }
 

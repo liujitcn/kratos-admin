@@ -8,6 +8,7 @@ import (
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 	"github.com/liujitcn/kratos-core/biz"
+	"github.com/liujitcn/kratos-core/resource/i18n"
 	"gorm.io/gen/field"
 )
 
@@ -15,11 +16,12 @@ import (
 type BasePermissionLogCase struct {
 	*biz.BaseCase
 	*data.BasePermissionLogRepository
+	catalog *i18n.I18n
 }
 
 // NewBasePermissionLogCase 创建权限日志查询业务实例。
-func NewBasePermissionLogCase(baseCase *biz.BaseCase, basePermissionLogRepo *data.BasePermissionLogRepository) *BasePermissionLogCase {
-	return &BasePermissionLogCase{BaseCase: baseCase, BasePermissionLogRepository: basePermissionLogRepo}
+func NewBasePermissionLogCase(baseCase *biz.BaseCase, basePermissionLogRepo *data.BasePermissionLogRepository, catalog *i18n.I18n) *BasePermissionLogCase {
+	return &BasePermissionLogCase{BaseCase: baseCase, BasePermissionLogRepository: basePermissionLogRepo, catalog: catalog}
 }
 
 // PageBasePermissionLog 分页查询权限日志。
@@ -56,7 +58,7 @@ func (c *BasePermissionLogCase) PageBasePermissionLog(ctx context.Context, req *
 	}
 	items := make([]*adminv1.BasePermissionLog, 0, len(list))
 	for _, item := range list {
-		items = append(items, toBasePermissionLog(item))
+		items = append(items, toBasePermissionLog(item, c.catalog, biz.LocaleFromContext(ctx)))
 	}
 	return &adminv1.PageBasePermissionLogResponse{BasePermissionLogs: items, Total: int32(total)}, nil
 }
@@ -74,7 +76,7 @@ func (c *BasePermissionLogCase) GetBasePermissionLog(ctx context.Context, idText
 	if err != nil {
 		return nil, err
 	}
-	return toBasePermissionLog(item), nil
+	return toBasePermissionLog(item, c.catalog, biz.LocaleFromContext(ctx)), nil
 }
 
 // listLogTrace 查询权限日志关联的审计记录。
@@ -86,6 +88,6 @@ func (c *BasePermissionLogCase) listLogTrace(ctx context.Context, requestID, tra
 }
 
 // toBasePermissionLog 转换权限日志响应。
-func toBasePermissionLog(item *models.BasePermissionLog) *adminv1.BasePermissionLog {
-	return &adminv1.BasePermissionLog{Id: formatLogRecordID(item.ID), TenantId: item.TenantID, TenantCode: item.TenantCode, UserId: item.UserID, UserName: item.UserName, RequestId: item.RequestID, TraceId: item.TraceID, TargetType: adminv1.BasePermissionTargetType(item.TargetType), TargetId: item.TargetID, TargetName: item.TargetName, Action: adminv1.BasePermissionAction(item.Action), OldValue: item.OldValue, NewValue: item.NewValue, Result: adminv1.BaseLogResult(item.Result), ReasonCode: item.ReasonCode, Reason: item.Reason, OccurredAt: formatLogTime(item.OccurredAt), CreatedAt: formatLogTime(item.CreatedAt)}
+func toBasePermissionLog(item *models.BasePermissionLog, catalog *i18n.I18n, locale string) *adminv1.BasePermissionLog {
+	return &adminv1.BasePermissionLog{Id: formatLogRecordID(item.ID), TenantId: item.TenantID, TenantCode: item.TenantCode, UserId: item.UserID, UserName: item.UserName, RequestId: item.RequestID, TraceId: item.TraceID, TargetType: adminv1.BasePermissionTargetType(item.TargetType), TargetId: item.TargetID, TargetName: item.TargetName, Action: adminv1.BasePermissionAction(item.Action), OldValue: item.OldValue, NewValue: item.NewValue, Result: adminv1.BaseLogResult(item.Result), ReasonCode: item.ReasonCode, Reason: localizeLogReason(catalog, locale, item.ReasonCode, item.Reason), OccurredAt: formatLogTime(item.OccurredAt), CreatedAt: formatLogTime(item.CreatedAt)}
 }

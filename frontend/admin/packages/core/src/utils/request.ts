@@ -6,6 +6,7 @@ import { LOGIN_URL } from "@/config";
 import pinia from "@/stores";
 import { useUserStore } from "@/stores/modules/user";
 import { getLocaleRequestHeaders, t } from "@/locales";
+import { formatConflictMessage } from "./conflict-message";
 
 const apiBasePath = import.meta.env.VITE_APP_BASE_API || "";
 const apiTargetUrl = import.meta.env.VITE_API_URL || import.meta.env.VITE_APP_API_URL || "";
@@ -340,7 +341,8 @@ service.interceptors.response.use(
     }
 
     const responseData = response.data as ErrorResponseData;
-    const { code, message } = responseData;
+    const { code } = responseData;
+    const message = formatConflictMessage(responseData.message ?? "", responseData, t);
     // 成功响应不携带错误码；只要存在 code 即视为结构化错误响应。
     if (code === undefined) {
       return response.data;
@@ -361,7 +363,7 @@ service.interceptors.response.use(
     const status = error.response?.status;
     const data = error.response?.data as ErrorResponseData | undefined;
     const code = data?.code;
-    const message = data?.message;
+    const message = data ? formatConflictMessage(data.message ?? "", data, t) : undefined;
     const requestConfig = error.config as RetryableRequestConfig | undefined;
 
     // 退出或认证失效后，页面中的在途请求返回 401 属于预期结果，不再重复刷新令牌、弹窗或提示错误。
@@ -380,7 +382,7 @@ service.interceptors.response.use(
           requestConfig.headers.Authorization = getUserStore().token.trim();
           return service(requestConfig);
         } catch (refreshError) {
-          console.log("token 刷新失败", refreshError);
+          console.log("Token refresh failed:", refreshError);
         }
       }
       handleAuthExpired();
@@ -432,7 +434,7 @@ async function handleTokenRefresh(promptOnFailure = true) {
           getUserStore().clearAuthData();
         }
         if (promptOnFailure) {
-          console.log("token 刷新失败", error);
+          console.log("Token refresh failed:", error);
           handleAuthExpired();
         }
         throw error;

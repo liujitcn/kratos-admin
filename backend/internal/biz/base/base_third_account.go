@@ -48,20 +48,7 @@ func (c *BaseThirdAccountCase) CreateBinding(ctx context.Context, tenantID int64
 	})
 	if err != nil {
 		if errorsx.IsDuplicateKey(err) {
-			message := "三方账号绑定关系已存在"
-			constraint := ""
-			if mysqlErr, ok := errors.AsType[*mysql.MySQLError](err); ok {
-				// 根据数据库实际命中的唯一索引返回对应的绑定关系描述。
-				switch {
-				case strings.Contains(mysqlErr.Message, "unique_base_third_account_user"):
-					message = "当前用户已绑定该登录方式"
-					constraint = "unique_base_third_account_user"
-				case strings.Contains(mysqlErr.Message, "unique_base_third_account"):
-					message = "三方账号已被其他用户绑定"
-					constraint = "unique_base_third_account"
-				}
-			}
-			return errorsx.UniqueConflict(message, "base_third_account", "", constraint).WithCause(err)
+			return thirdAccountUniqueConflict(err)
 		}
 		return err
 	}
@@ -111,4 +98,27 @@ func (c *BaseThirdAccountCase) FindAuthorizedUserProvider(ctx context.Context, u
 	opts = append(opts, repository.Where(query.UserID.Eq(userID)))
 	opts = append(opts, repository.Where(query.Provider.Eq(provider)))
 	return c.Find(ctx, opts...)
+}
+
+// thirdAccountUniqueConflict 根据命中的唯一索引构造带稳定翻译键的绑定冲突错误。
+func thirdAccountUniqueConflict(err error) error {
+	message := "三方账号绑定关系已存在"
+	messageKey := "base.third_account.error.binding_exists"
+	constraint := ""
+	field := "provider,identifier"
+	if mysqlErr, ok := errors.AsType[*mysql.MySQLError](err); ok {
+		// 根据数据库实际命中的唯一索引返回对应的绑定关系描述。
+		switch {
+		case strings.Contains(mysqlErr.Message, "unique_base_third_account_user"):
+			message = "当前用户已绑定该登录方式"
+			messageKey = "base.third_account.error.current_user_provider_bound"
+			constraint = "unique_base_third_account_user"
+			field = "tenant_id,user_id,provider"
+		case strings.Contains(mysqlErr.Message, "unique_base_third_account"):
+			message = "三方账号已被其他用户绑定"
+			messageKey = "base.third_account.error.account_bound_to_other_user"
+			constraint = "unique_base_third_account"
+		}
+	}
+	return errorsx.WithMessageKey(errorsx.UniqueConflict(message, "base_third_account", field, constraint), messageKey, nil).WithCause(err)
 }

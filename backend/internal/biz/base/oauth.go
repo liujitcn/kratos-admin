@@ -21,6 +21,7 @@ import (
 	"github.com/liujitcn/kratos-core/biz"
 	coreconst "github.com/liujitcn/kratos-core/const"
 	"github.com/liujitcn/kratos-core/errorsx"
+	"github.com/liujitcn/kratos-core/resource/i18n"
 
 	kratosErrors "github.com/go-kratos/kratos/v3/errors"
 	kratosHTTP "github.com/go-kratos/kratos/v3/transport/http"
@@ -49,10 +50,11 @@ type OauthCase struct {
 	configCase            *ConfigCase
 	baseOauthProviderRepo *data.BaseOauthProviderRepository
 	baseI18nRepo          *data.BaseI18NRepository
+	catalog               *i18n.I18n
 	oauthManager          *oauth.Manager
 }
 
-// NewOauthCase 创建三方登录授权业务实例。
+// NewOauthCase 创建三方登录授权业务实例并注入错误本地化目录。
 func NewOauthCase(
 	baseCase *biz.BaseCase,
 	tx data.Transaction,
@@ -64,6 +66,7 @@ func NewOauthCase(
 	configCase *ConfigCase,
 	baseOauthProviderRepo *data.BaseOauthProviderRepository,
 	baseI18nRepo *data.BaseI18NRepository,
+	catalog *i18n.I18n,
 	oauthManager *oauth.Manager,
 ) *OauthCase {
 	return &OauthCase{
@@ -77,6 +80,7 @@ func NewOauthCase(
 		configCase:            configCase,
 		baseOauthProviderRepo: baseOauthProviderRepo,
 		baseI18nRepo:          baseI18nRepo,
+		catalog:               catalog,
 		oauthManager:          oauthManager,
 	}
 }
@@ -403,29 +407,32 @@ func (c *OauthCase) HandleOauthCallback(ctx context.Context, req *basev1.HandleO
 		return nil, c.handleOauthBindingCallback(ctx, payload, req.GetProvider(), req.GetCode(), req.GetError())
 	}
 	if payload.Scene != oauthSceneAdminLogin {
-		return nil, c.oauthRedirectPayload(payload, "", "三方登录状态无效")
+		return nil, c.oauthRedirectPayload(ctx, payload, "", newOauthCallbackError("base.oauth.callback.state_invalid", "三方登录状态无效"))
 	}
 
 	oauthType := oauth.Type(req.GetProvider())
 	if payload.Provider != oauthType {
-		return nil, c.oauthRedirectPayload(payload, "", "三方登录状态无效")
+		return nil, c.oauthRedirectPayload(ctx, payload, "", newOauthCallbackError("base.oauth.callback.state_invalid", "三方登录状态无效"))
 	}
 	if req.GetError() != "" {
-		return nil, c.oauthRedirectPayload(payload, "", "三方授权失败")
+		return nil, c.oauthRedirectPayload(ctx, payload, "", newOauthCallbackError("base.oauth.callback.authorization_failed", "三方授权失败"))
 	}
 	var identifier string
 	identifier, err = c.fetchOauthIdentifier(ctx, oauthType, req.GetCode(), payload.PKCE)
 	if err != nil {
-		return nil, c.oauthRedirectPayload(payload, "", kratosErrors.FromError(err).Message)
+		return nil, c.oauthRedirectPayload(ctx, payload, "", err)
 	}
 
 	var thirdAccount *models.BaseThirdAccount
 	thirdAccount, err = c.baseThirdAccountCase.FindByProviderIdentifier(ctx, req.GetProvider(), identifier)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, c.oauthRedirectPayload(payload, "", "三方账号未绑定，请先使用账号密码登录后到个人中心绑定")
+			return nil, c.oauthRedirectPayload(ctx, payload, "", newOauthCallbackError(
+				"base.oauth.callback.account_unbound",
+				"三方账号未绑定，请先使用账号密码登录后到个人中心绑定",
+			))
 		}
-		return nil, c.oauthRedirectPayload(payload, "", "三方账号登录失败")
+		return nil, c.oauthRedirectPayload(ctx, payload, "", newOauthCallbackError("base.oauth.callback.login_failed", "三方账号登录失败"))
 	}
 
 	var user *models.BaseUser
@@ -436,23 +443,23 @@ func (c *OauthCase) HandleOauthCallback(ctx context.Context, req *basev1.HandleO
 		repository.Where(query.TenantID.Eq(thirdAccount.TenantID)),
 	)
 	if err != nil {
-		return nil, c.oauthRedirectPayload(payload, "", "三方账号登录失败")
+		return nil, c.oauthRedirectPayload(ctx, payload, "", newOauthCallbackError("base.oauth.callback.login_failed", "三方账号登录失败"))
 	}
 	if err = c.loginCase.ValidateExternalLogin(ctx, user); err != nil {
-		return nil, c.oauthRedirectPayload(payload, "", kratosErrors.FromError(err).Message)
+		return nil, c.oauthRedirectPayload(ctx, payload, "", err)
 	}
 	var loginRes *basev1.LoginResponse
 	loginRes, err = c.loginCase.IssueUserLogin(ctx, user)
 	if err != nil {
-		return nil, c.oauthRedirectPayload(payload, "", kratosErrors.FromError(err).Message)
+		return nil, c.oauthRedirectPayload(ctx, payload, "", err)
 	}
 
 	var ticket string
 	ticket, err = c.createOauthLoginTicket(loginRes)
 	if err != nil {
-		return nil, c.oauthRedirectPayload(payload, "", "三方账号登录失败")
+		return nil, c.oauthRedirectPayload(ctx, payload, "", newOauthCallbackError("base.oauth.callback.login_failed", "三方账号登录失败"))
 	}
-	return nil, c.oauthRedirectPayload(payload, ticket, "")
+	return nil, c.oauthRedirectPayload(ctx, payload, ticket, nil)
 }
 
 // HandleOauthBindingCallback 处理个人中心三方账号绑定回调。
@@ -614,34 +621,34 @@ func (c *OauthCase) getWechatMiniOpenID(ctx context.Context, code string) (strin
 // handleOauthBindingCallback 校验三方账号并写入当前用户绑定关系。
 func (c *OauthCase) handleOauthBindingCallback(ctx context.Context, payload *oauth.StatePayload, providerName string, code string, providerError string) error {
 	if payload.Scene != oauthSceneAdminBind {
-		return c.oauthBindingRedirectPayload(payload, providerName, "三方账号绑定状态无效")
+		return c.oauthBindingRedirectPayload(ctx, payload, providerName, newOauthCallbackError("base.oauth.binding_callback.state_invalid", "三方账号绑定状态无效"))
 	}
 
 	oauthType := oauth.Type(providerName)
 	if payload.Provider != oauthType {
-		return c.oauthBindingRedirectPayload(payload, providerName, "三方账号绑定状态无效")
+		return c.oauthBindingRedirectPayload(ctx, payload, providerName, newOauthCallbackError("base.oauth.binding_callback.state_invalid", "三方账号绑定状态无效"))
 	}
 	if providerError != "" {
-		return c.oauthBindingRedirectPayload(payload, providerName, "三方授权失败")
+		return c.oauthBindingRedirectPayload(ctx, payload, providerName, newOauthCallbackError("base.oauth.callback.authorization_failed", "三方授权失败"))
 	}
 	if code == "" {
-		return c.oauthBindingRedirectPayload(payload, providerName, "三方授权码不能为空")
+		return c.oauthBindingRedirectPayload(ctx, payload, providerName, newOauthCallbackError("base.oauth.binding_callback.authorization_code_required", "三方授权码不能为空"))
 	}
 
 	userID, err := strconv.ParseInt(payload.Extra["user_id"], 10, 64)
 	if err != nil || userID <= 0 {
-		return c.oauthBindingRedirectPayload(payload, providerName, "三方账号绑定状态无效")
+		return c.oauthBindingRedirectPayload(ctx, payload, providerName, newOauthCallbackError("base.oauth.binding_callback.state_invalid", "三方账号绑定状态无效"))
 	}
 	var tenantID int64
 	tenantID, err = strconv.ParseInt(payload.Extra["tenant_id"], 10, 64)
 	if err != nil || tenantID <= 0 {
-		return c.oauthBindingRedirectPayload(payload, providerName, "三方账号绑定状态无效")
+		return c.oauthBindingRedirectPayload(ctx, payload, providerName, newOauthCallbackError("base.oauth.binding_callback.state_invalid", "三方账号绑定状态无效"))
 	}
 
 	var identifier string
 	identifier, err = c.fetchOauthIdentifier(ctx, oauthType, code, payload.PKCE)
 	if err != nil {
-		return c.oauthBindingRedirectPayload(payload, providerName, kratosErrors.FromError(err).Message)
+		return c.oauthBindingRedirectPayload(ctx, payload, providerName, err)
 	}
 
 	var boundAccount *models.BaseThirdAccount
@@ -649,12 +656,12 @@ func (c *OauthCase) handleOauthBindingCallback(ctx context.Context, payload *oau
 	if err == nil {
 		// 已经绑定到当前用户时，直接视为成功，避免重复回调造成误报。
 		if boundAccount.TenantID == tenantID && boundAccount.UserID == userID {
-			return c.oauthBindingRedirectPayload(payload, providerName, "")
+			return c.oauthBindingRedirectPayload(ctx, payload, providerName, nil)
 		}
-		return c.oauthBindingRedirectPayload(payload, providerName, "三方账号已被其他用户绑定")
+		return c.oauthBindingRedirectPayload(ctx, payload, providerName, newOauthCallbackError("base.oauth.binding_callback.account_bound_to_other_user", "三方账号已被其他用户绑定"))
 	}
 	if !errors.Is(err, gorm.ErrRecordNotFound) {
-		return c.oauthBindingRedirectPayload(payload, providerName, "三方账号绑定失败")
+		return c.oauthBindingRedirectPayload(ctx, payload, providerName, newOauthCallbackError("base.oauth.binding_callback.failed", "三方账号绑定失败"))
 	}
 
 	var userProviderAccount *models.BaseThirdAccount
@@ -662,19 +669,19 @@ func (c *OauthCase) handleOauthBindingCallback(ctx context.Context, payload *oau
 	if err == nil {
 		// 同一用户同一 provider 只保留一条绑定，避免登录入口出现歧义。
 		if userProviderAccount.Identifier == identifier {
-			return c.oauthBindingRedirectPayload(payload, providerName, "")
+			return c.oauthBindingRedirectPayload(ctx, payload, providerName, nil)
 		}
-		return c.oauthBindingRedirectPayload(payload, providerName, "当前用户已绑定该登录方式")
+		return c.oauthBindingRedirectPayload(ctx, payload, providerName, newOauthCallbackError("base.oauth.binding_callback.current_user_provider_bound", "当前用户已绑定该登录方式"))
 	}
 	if !errors.Is(err, gorm.ErrRecordNotFound) {
-		return c.oauthBindingRedirectPayload(payload, providerName, "三方账号绑定失败")
+		return c.oauthBindingRedirectPayload(ctx, payload, providerName, newOauthCallbackError("base.oauth.binding_callback.failed", "三方账号绑定失败"))
 	}
 
 	err = c.baseThirdAccountCase.CreateBinding(ctx, tenantID, userID, providerName, identifier)
 	if err != nil {
-		return c.oauthBindingRedirectPayload(payload, providerName, kratosErrors.FromError(err).Message)
+		return c.oauthBindingRedirectPayload(ctx, payload, providerName, err)
 	}
-	return c.oauthBindingRedirectPayload(payload, providerName, "")
+	return c.oauthBindingRedirectPayload(ctx, payload, providerName, nil)
 }
 
 // fetchOauthIdentifier 通过授权码读取三方账号唯一标识。
@@ -738,21 +745,34 @@ func (c *OauthCase) consumeOauthLoginTicket(ticket string) (string, error) {
 }
 
 // oauthRedirectPayload 构造回跳管理端登录页的重定向响应。
-func (c *OauthCase) oauthRedirectPayload(payload *oauth.StatePayload, ticket string, errorMessage string) error {
+func (c *OauthCase) oauthRedirectPayload(ctx context.Context, payload *oauth.StatePayload, ticket string, redirectErr error) error {
 	if payload.RedirectURL == "" {
-		return errorsx.InvalidArgument(errorMessage)
+		return newOauthCallbackError("base.oauth.callback.redirect_url_missing", "三方登录回跳地址未配置")
 	}
-
+	errorMessage := c.localizedOAuthRedirectError(ctx, redirectErr)
 	redirectURL := appendOauthRedirectQuery(payload.RedirectURL, ticket, errorMessage)
 	return kratosHTTP.NewRedirect(redirectURL, http.StatusFound)
 }
 
-// oauthBindingRedirectPayload 构造回跳个人中心的三方账号绑定响应。
-func (c *OauthCase) oauthBindingRedirectPayload(payload *oauth.StatePayload, providerName string, errorMessage string) error {
-	if payload.RedirectURL == "" {
-		return errorsx.InvalidArgument(errorMessage)
+// localizedOAuthRedirectError 按当前请求语言本地化 OAuth 回调错误。
+func (c *OauthCase) localizedOAuthRedirectError(ctx context.Context, redirectErr error) string {
+	if redirectErr == nil {
+		return ""
 	}
+	fallbackLocale, err := c.Cache.Get(coreconst.I18nDefaultLanguage)
+	if err != nil || fallbackLocale == "" {
+		// 默认语言缓存不可用时使用编译期主语言，避免重定向错误失去可读文案。
+		fallbackLocale = "zh-CN"
+	}
+	return localizeOAuthRedirectErrorMessage(c.catalog, biz.LocaleFromContext(ctx), fallbackLocale, redirectErr)
+}
 
+// oauthBindingRedirectPayload 构造回跳个人中心的三方账号绑定响应。
+func (c *OauthCase) oauthBindingRedirectPayload(ctx context.Context, payload *oauth.StatePayload, providerName string, redirectErr error) error {
+	if payload.RedirectURL == "" {
+		return newOauthCallbackError("base.oauth.binding_callback.redirect_url_missing", "三方账号绑定回跳地址未配置")
+	}
+	errorMessage := c.localizedOAuthRedirectError(ctx, redirectErr)
 	redirectURL := appendOauthBindingRedirectQuery(payload.RedirectURL, providerName, errorMessage)
 	return kratosHTTP.NewRedirect(redirectURL, http.StatusFound)
 }
@@ -936,4 +956,25 @@ func isLoopbackHost(host string) bool {
 	}
 	ip := net.ParseIP(host)
 	return ip != nil && ip.IsLoopback()
+}
+
+// newOauthCallbackError 构造携带稳定翻译键的 OAuth 回调错误。
+func newOauthCallbackError(messageKey string, message string) error {
+	return errorsx.WithMessageKey(errorsx.InvalidArgument(message), messageKey, nil)
+}
+
+// localizeOAuthRedirectErrorMessage 本地化结构化 OAuth 错误，并保留内部错误原有文案。
+func localizeOAuthRedirectErrorMessage(catalog *i18n.I18n, localeValue string, fallbackLocale string, err error) string {
+	structured := kratosErrors.FromError(err)
+	if structured == nil || structured.Message == "" {
+		return ""
+	}
+	if structured.Reason == errorsx.ReasonInternalError || structured.Reason == "" && structured.Code >= 500 {
+		return structured.Message
+	}
+	if structured.Reason == errorsx.ReasonConflict && structured.Metadata[errorsx.METADATA_KEY_MESSAGE_KEY] == "" {
+		err = errorsx.WithMessageKey(structured, errorsx.MessageKey(structured.Message), nil).WithCause(err)
+	}
+	err = i18n.LocalizeError(catalog, localeValue, fallbackLocale, err)
+	return kratosErrors.FromError(err).Message
 }

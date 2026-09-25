@@ -12,6 +12,7 @@ import (
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 	"github.com/liujitcn/kratos-core/biz"
 	"github.com/liujitcn/kratos-core/errorsx"
+	"github.com/liujitcn/kratos-core/resource/i18n"
 	"gorm.io/gen/field"
 )
 
@@ -24,6 +25,7 @@ type BaseLogCase struct {
 	baseDataAccessLogCase       *BaseDataAccessLogCase
 	basePermissionLogCase       *BasePermissionLogCase
 	basePolicyEvaluationLogCase *BasePolicyEvaluationLogCase
+	catalog                     *i18n.I18n
 }
 
 // NewBaseLogCase 创建公共审计时间线查询业务实例。
@@ -35,6 +37,7 @@ func NewBaseLogCase(
 	baseDataAccessLogCase *BaseDataAccessLogCase,
 	basePermissionLogCase *BasePermissionLogCase,
 	basePolicyEvaluationLogCase *BasePolicyEvaluationLogCase,
+	catalog *i18n.I18n,
 ) *BaseLogCase {
 	return &BaseLogCase{
 		BaseCase:                    baseCase,
@@ -44,12 +47,14 @@ func NewBaseLogCase(
 		baseDataAccessLogCase:       baseDataAccessLogCase,
 		basePermissionLogCase:       basePermissionLogCase,
 		basePolicyEvaluationLogCase: basePolicyEvaluationLogCase,
+		catalog:                     catalog,
 	}
 }
 
 // GetBaseLogTrace 查询同一请求或链路关联的六类审计记录。
 func (c *BaseLogCase) GetBaseLogTrace(ctx context.Context, req *adminv1.GetBaseLogTraceRequest) (*adminv1.GetBaseLogTraceResponse, error) {
 	items := make([]*adminv1.BaseLogTraceItem, 0)
+	locale := biz.LocaleFromContext(ctx)
 	var err error
 
 	var loginLogs []*models.BaseLoginLog
@@ -62,7 +67,7 @@ func (c *BaseLogCase) GetBaseLogTrace(ctx context.Context, req *adminv1.GetBaseL
 			LogType: adminv1.BaseLogType_BASE_LOG_TYPE_LOGIN, Id: item.ID,
 			TenantId: item.TenantID, UserId: item.UserID, UserName: item.UserName,
 			RequestId: item.RequestID, TraceId: item.TraceID, Resource: item.UserName,
-			Result: adminv1.BaseLogResult(item.Result), Reason: item.Reason,
+			Result: adminv1.BaseLogResult(item.Result), Reason: localizeLogReason(c.catalog, locale, item.ReasonCode, item.Reason),
 			OccurredAt: formatLogTime(item.OccurredAt), CreatedAt: formatLogTime(item.CreatedAt),
 		})
 	}
@@ -77,7 +82,7 @@ func (c *BaseLogCase) GetBaseLogTrace(ctx context.Context, req *adminv1.GetBaseL
 			LogType: adminv1.BaseLogType_BASE_LOG_TYPE_API, Id: item.ID,
 			TenantId: item.TenantID, UserId: item.UserID, UserName: item.UserName,
 			RequestId: item.RequestID, TraceId: item.TraceID, Resource: item.Method + " " + item.Operation,
-			Result: adminv1.BaseLogResult(item.Result), Reason: item.Reason, DurationMs: item.LatencyMs,
+			Result: adminv1.BaseLogResult(item.Result), Reason: localizeLogReason(c.catalog, locale, item.ReasonCode, item.Reason), DurationMs: item.LatencyMs,
 			OccurredAt: formatLogTime(item.OccurredAt), CreatedAt: formatLogTime(item.CreatedAt),
 		})
 	}
@@ -96,7 +101,7 @@ func (c *BaseLogCase) GetBaseLogTrace(ctx context.Context, req *adminv1.GetBaseL
 			LogType: adminv1.BaseLogType_BASE_LOG_TYPE_OPERATION, Id: item.ID,
 			TenantId: item.TenantID, UserId: item.UserID, UserName: item.UserName,
 			RequestId: item.RequestID, TraceId: item.TraceID, Resource: resource,
-			Result: adminv1.BaseLogResult(item.Result), Reason: item.Reason,
+			Result: adminv1.BaseLogResult(item.Result), Reason: localizeLogReason(c.catalog, locale, item.ReasonCode, item.Reason),
 			OccurredAt: formatLogTime(item.OccurredAt), CreatedAt: formatLogTime(item.CreatedAt),
 		})
 	}
@@ -134,7 +139,7 @@ func (c *BaseLogCase) GetBaseLogTrace(ctx context.Context, req *adminv1.GetBaseL
 			LogType: adminv1.BaseLogType_BASE_LOG_TYPE_PERMISSION, Id: item.ID,
 			TenantId: item.TenantID, UserId: item.UserID, UserName: item.UserName,
 			RequestId: item.RequestID, TraceId: item.TraceID, Resource: resource,
-			Result: adminv1.BaseLogResult(item.Result), Reason: item.Reason,
+			Result: adminv1.BaseLogResult(item.Result), Reason: localizeLogReason(c.catalog, locale, item.ReasonCode, item.Reason),
 			OccurredAt: formatLogTime(item.OccurredAt), CreatedAt: formatLogTime(item.CreatedAt),
 		})
 	}
@@ -155,7 +160,7 @@ func (c *BaseLogCase) GetBaseLogTrace(ctx context.Context, req *adminv1.GetBaseL
 			LogType: adminv1.BaseLogType_BASE_LOG_TYPE_POLICY_EVALUATION, Id: item.ID,
 			TenantId: item.TenantID, UserId: item.UserID, UserName: item.UserName,
 			RequestId: item.RequestID, TraceId: item.TraceID, Resource: item.Action + " " + item.Resource,
-			Result: result, Reason: item.Reason, DurationMs: item.DurationMs,
+			Result: result, Reason: localizeLogReason(c.catalog, locale, item.ReasonCode, item.Reason), DurationMs: item.DurationMs,
 			OccurredAt: formatLogTime(item.OccurredAt), CreatedAt: formatLogTime(item.CreatedAt),
 		})
 	}

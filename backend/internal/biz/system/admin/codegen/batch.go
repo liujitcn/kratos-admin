@@ -6,6 +6,8 @@ import (
 	"regexp"
 	"slices"
 	"strings"
+
+	"github.com/liujitcn/kratos-core/errorsx"
 )
 
 // BatchGenerationInput 描述批量生成中单个表的只读生成快照。
@@ -55,11 +57,11 @@ type BatchGeneration struct {
 // PrepareBatchGeneration 在内存中预检并合并一批生成内容，不会写入工作区。
 func PrepareBatchGeneration(inputs []BatchGenerationInput) (*BatchGeneration, error) {
 	if len(inputs) == 0 {
-		return nil, fmt.Errorf("批量生成对象不能为空")
+		return nil, errorsx.WithMessageKey(errorsx.InvalidArgument("批量生成不能为空"), "system.code.gen.error.batch.empty", nil)
 	}
 	for index, input := range inputs {
 		if input.Table == nil {
-			return nil, fmt.Errorf("第%d个生成对象为空", index+1)
+			return nil, errorsx.WithMessageKey(errorsx.InvalidArgument("批量生成表配置缺失"), "system.code.gen.error.batch.table_missing", map[string]string{"Index": fmt.Sprint(index + 1)})
 		}
 	}
 	orderedInputs := slices.Clone(inputs)
@@ -170,7 +172,7 @@ func validateBatchMergeableFrontendPages(generations []*Generation, localeState 
 			if file.GetPath() != pagePath || file.GetMessage() != Message(localeState, "preview.frontend_page_unmergeable", nil) {
 				continue
 			}
-			return fmt.Errorf("表%s的前端页面%s无法安全解析，已取消整个模块生成，避免部分覆盖", generation.Table.TableName_, pagePath)
+			return errorsx.WithMessageKey(errorsx.Conflict("前端页面无法安全合并"), "system.code.gen.error.batch.page_unmergeable", map[string]string{"Table": generation.Table.TableName_, "Path": pagePath})
 		}
 	}
 	return nil
@@ -220,7 +222,7 @@ func (c *renderer) validateGeneratedProtoHTTPRoutes(table *Table, methods []*Pro
 		for _, existingRoute := range protoHTTPRoutePattern.FindAllStringSubmatch(string(content), -1) {
 			// 同一 HTTP 方法与路径只能属于一个 RPC，阻止产生不可访问的新接口。
 			if len(existingRoute) == 3 && existingRoute[1] == route[1] && existingRoute[2] == route[2] {
-				return fmt.Errorf("Proto文件%s中的HTTP路由%s %s已被其他RPC使用", method.ProtoFilePath, route[1], route[2])
+				return errorsx.WithMessageKey(errorsx.Conflict("生成的 HTTP 路由已被其他 RPC 使用"), "system.code.gen.error.batch.route_duplicate", map[string]string{"ProtoFile": method.ProtoFilePath, "HTTPMethod": route[1], "Path": route[2]})
 			}
 		}
 	}
@@ -283,10 +285,10 @@ func validateBatchTableIDs(inputs []BatchGenerationInput) error {
 	seen := make(map[int64]struct{}, len(inputs))
 	for _, input := range inputs {
 		if input.Table.ID <= 0 {
-			return fmt.Errorf("代码生成表配置ID不能为空")
+			return errorsx.WithMessageKey(errorsx.InvalidArgument("代码生成表配置 ID 无效"), "system.code.gen.error.batch.table_id_required", nil)
 		}
 		if _, exists := seen[input.Table.ID]; exists {
-			return fmt.Errorf("代码生成表配置ID不能重复")
+			return errorsx.WithMessageKey(errorsx.InvalidArgument("代码生成表配置 ID 重复"), "system.code.gen.error.batch.table_id_duplicate", map[string]string{"TableID": fmt.Sprint(input.Table.ID)})
 		}
 		seen[input.Table.ID] = struct{}{}
 	}
@@ -310,7 +312,7 @@ func validateBatchMethodConflicts(inputs []BatchGenerationInput, generations []*
 			fingerprint := renderer.batchProtoMethodFingerprint(generation.Table, input.Columns, method)
 			definition := batchDefinition{tableName: generation.Table.TableName_, fingerprint: fingerprint}
 			methodKey := method.ProtoFilePath + ":" + targetEntity + "Service:" + method.MethodName
-			if err := compareBatchDefinition(methods, methodKey, definition, "方法"); err != nil {
+			if err := compareBatchDefinition(methods, methodKey, definition); err != nil {
 				return err
 			}
 			for _, messageName := range renderer.protoMessageNamesForMethod(generation.Table, method) {
@@ -319,7 +321,7 @@ func validateBatchMethodConflicts(inputs []BatchGenerationInput, generations []*
 					tableName:   generation.Table.TableName_,
 					fingerprint: normalizeBatchProtoDefinition(renderer.renderProtoMessageByName(generation.Table, input.Columns, method, messageName)),
 				}
-				if err := compareBatchDefinition(messages, messageKey, messageDefinition, "消息"); err != nil {
+				if err := compareBatchDefinition(messages, messageKey, messageDefinition); err != nil {
 					return err
 				}
 			}
@@ -328,7 +330,7 @@ func validateBatchMethodConflicts(inputs []BatchGenerationInput, generations []*
 					continue
 				}
 				routeKey := method.ProtoFilePath + ":" + match[1] + ":" + match[2]
-				if err := compareBatchDefinition(routes, routeKey, definition, "HTTP路由"); err != nil {
+				if err := compareBatchDefinition(routes, routeKey, definition); err != nil {
 					return err
 				}
 			}
@@ -346,7 +348,7 @@ func validateBatchFileConflicts(inputs []BatchGenerationInput, generations []*Ge
 				continue
 			}
 			definition := batchDefinition{tableName: inputs[index].Table.TableName_, fingerprint: file.GetContent()}
-			if err := compareBatchDefinition(files, file.GetPath(), definition, "不可合并文件"); err != nil {
+			if err := compareBatchDefinition(files, file.GetPath(), definition); err != nil {
 				return err
 			}
 		}
@@ -355,7 +357,7 @@ func validateBatchFileConflicts(inputs []BatchGenerationInput, generations []*Ge
 }
 
 // compareBatchDefinition 去重完全相同的定义，并返回不同定义之间的冲突信息。
-func compareBatchDefinition(definitions map[string]batchDefinition, key string, current batchDefinition, kind string) error {
+func compareBatchDefinition(definitions map[string]batchDefinition, key string, current batchDefinition) error {
 	previous, exists := definitions[key]
 	if !exists {
 		definitions[key] = current
@@ -364,7 +366,11 @@ func compareBatchDefinition(definitions map[string]batchDefinition, key string, 
 	if previous.fingerprint == current.fingerprint {
 		return nil
 	}
-	return fmt.Errorf("批量生成冲突：表%s与表%s在%s中定义了不同的%s", previous.tableName, current.tableName, key, kind)
+	return errorsx.WithMessageKey(errorsx.Conflict("批量生成定义冲突"), "system.code.gen.error.batch.definition_conflict", map[string]string{
+		"Previous": previous.tableName,
+		"Current":  current.tableName,
+		"Key":      key,
+	})
 }
 
 // normalizeBatchProtoDefinition 移除不影响接口语义的独立 Proto 注释行。

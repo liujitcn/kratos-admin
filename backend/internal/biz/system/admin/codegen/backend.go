@@ -275,12 +275,16 @@ func (c *%sCase) Delete%s(ctx context.Context, ids string) error {
 			return err
 		}
 		if count > 0 {
-			return errorsx.HasChildrenConflict("删除%s失败，下面有%s", "%s", "%s")
+			return errorsx.WithMessageKey(
+				errorsx.HasChildrenConflict("删除{{.Parent}}失败，下面有{{.Child}}", "%s", "%s"),
+				"system.code.gen.error.has_children",
+				map[string]string{"Parent": "%s", "Child": "%s"},
+			)
 		}
 	}
 	return c.DeleteByIDs(ctx, idList)
 }
-`, entity, table.BusinessName, entity, entity, entity, modelFieldName(parentColumn), parentID, table.BusinessName, table.BusinessName, table.TableName_, table.TableName_)
+`, entity, table.BusinessName, entity, entity, entity, modelFieldName(parentColumn), parentID, table.TableName_, table.TableName_, table.BusinessName, table.BusinessName)
 }
 
 // replaceGeneratedDeleteMethod 替换标准业务方法中的删除方法。

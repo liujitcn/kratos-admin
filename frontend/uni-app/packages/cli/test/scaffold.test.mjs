@@ -5,6 +5,8 @@ import { tmpdir } from 'node:os'
 import { resolve } from 'node:path'
 import test from 'node:test'
 import { scaffoldKratosApp } from '../src/index.mjs'
+import { cliMessage } from '../src/messages.mjs'
+import { workspaceMessage } from '../templates/workspace/scripts/locale-messages.mjs'
 
 test('生成默认 system、本地模块和发布模块', () => {
   const root = mkdtempSync(resolve(tmpdir(), 'kratos-uni-app-cli-'))
@@ -33,6 +35,7 @@ test('生成默认 system、本地模块和发布模块', () => {
   assert.match(main, /bootstrapKratosApp\(\{\s*app: App,\s*createSSRApp,/)
   assert.match(viteConfig, /server: \{[\s\S]+port: Number\(env\.VITE_APP_PORT \|\| 5004\)/)
   assert.match(viteConfig, /resolveHttpsOptions/)
+  assert.match(viteConfig, /viteMessage\('https_certificate_missing'/)
   assert.match(viteConfig, /https: httpsOptions/)
   assert.match(viteConfig, /apiProxyOptions/)
   assert.match(viteConfig, /\.\.\/\.\.\/certs\/dev-key\.pem/)
@@ -81,8 +84,67 @@ test('生成默认 system、本地模块和发布模块', () => {
     `${workspaceReadme}${hostReadme}${moduleReadme}`,
     /__PROJECT_NAME__|__MODULE_NAME__/,
   )
-  assert.throws(() => scaffoldKratosApp(target), /已存在/)
+  assert.throws(() => scaffoldKratosApp(target), /already exists|目标目录已存在/)
   rmSync(root, { recursive: true, force: true })
+})
+
+test('CLI diagnostics follow KRATOS_ADMIN_LOCALE', () => {
+  const previousLocale = process.env.KRATOS_ADMIN_LOCALE
+  try {
+    process.env.KRATOS_ADMIN_LOCALE = 'en-US'
+    assert.equal(
+      cliMessage('unknown_argument', { argument: '--invalid' }),
+      'Unknown argument: --invalid',
+    )
+    assert.equal(
+      workspaceMessage('export_target_missing', { name: 'sample', target: './missing.js' }),
+      'sample export target does not exist: ./missing.js',
+    )
+    process.env.KRATOS_ADMIN_LOCALE = 'zh-CN'
+    assert.equal(cliMessage('unknown_argument', { argument: '--invalid' }), '未知参数：--invalid')
+    assert.equal(
+      workspaceMessage('export_target_missing', { name: 'sample', target: './missing.js' }),
+      'sample 导出目标不存在：./missing.js',
+    )
+  } finally {
+    if (previousLocale === undefined) delete process.env.KRATOS_ADMIN_LOCALE
+    else process.env.KRATOS_ADMIN_LOCALE = previousLocale
+  }
+})
+
+test('generated README and environment hint follow the selected locale', () => {
+  const root = mkdtempSync(resolve(tmpdir(), 'kratos-uni-app-readme-locale-'))
+  const previousLocale = process.env.KRATOS_ADMIN_LOCALE
+  try {
+    process.env.KRATOS_ADMIN_LOCALE = 'en-US'
+    const english = resolve(root, 'english-app')
+    scaffoldKratosApp(english, { modules: ['orders'] })
+    const englishDocs = [
+      readFileSync(resolve(english, 'README.md'), 'utf8'),
+      readFileSync(resolve(english, 'apps/uni-app/README.md'), 'utf8'),
+      readFileSync(resolve(english, 'packages/modules/orders/README.md'), 'utf8'),
+      readFileSync(resolve(english, '.env.development-h5'), 'utf8'),
+    ].join('\n')
+    assert.match(englishDocs, /is an independent pnpm workspace/)
+    assert.match(englishDocs, /When the backend uses HTTPS/)
+    assert.doesNotMatch(englishDocs, /是由|私有 uni-app 宿主|开发约束/)
+
+    process.env.KRATOS_ADMIN_LOCALE = 'zh-CN'
+    const chinese = resolve(root, 'chinese-app')
+    scaffoldKratosApp(chinese, { modules: ['orders'] })
+    const chineseDocs = [
+      readFileSync(resolve(chinese, 'README.md'), 'utf8'),
+      readFileSync(resolve(chinese, 'apps/uni-app/README.md'), 'utf8'),
+      readFileSync(resolve(chinese, 'packages/modules/orders/README.md'), 'utf8'),
+      readFileSync(resolve(chinese, '.env.development-h5'), 'utf8'),
+    ].join('\n')
+    assert.match(chineseDocs, /是由 `@liujitcn\/kratos-uni-app-cli` 创建/)
+    assert.match(chineseDocs, /后端使用 HTTPS 时/)
+  } finally {
+    if (previousLocale === undefined) delete process.env.KRATOS_ADMIN_LOCALE
+    else process.env.KRATOS_ADMIN_LOCALE = previousLocale
+    rmSync(root, { recursive: true, force: true })
+  }
 })
 
 test('CLI 独立生成 system 多模块、完整语言入口与项目构建配置', () => {
@@ -125,6 +187,11 @@ test('CLI 独立生成 system 多模块、完整语言入口与项目构建配�
       encoding: 'utf8',
     })
     assert.equal(checked.status, 0, checked.stderr)
+    assert.ok(existsSync(resolve(target, 'scripts/locale-messages.mjs')))
+    assert.match(
+      readFileSync(resolve(target, 'scripts/check-package-exports.mjs'), 'utf8'),
+      /workspaceMessage\('exports_check_passed'/,
+    )
   } finally {
     rmSync(root, { recursive: true, force: true })
   }

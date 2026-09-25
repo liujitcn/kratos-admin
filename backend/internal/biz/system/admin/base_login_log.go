@@ -9,6 +9,7 @@ import (
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 	"github.com/liujitcn/kratos-core/biz"
 	"github.com/liujitcn/kratos-core/errorsx"
+	"github.com/liujitcn/kratos-core/resource/i18n"
 	"gorm.io/gen/field"
 )
 
@@ -16,11 +17,12 @@ import (
 type BaseLoginLogCase struct {
 	*biz.BaseCase
 	*data.BaseLoginLogRepository
+	catalog *i18n.I18n
 }
 
 // NewBaseLoginLogCase 创建登录日志查询业务实例。
-func NewBaseLoginLogCase(baseCase *biz.BaseCase, baseLoginLogRepo *data.BaseLoginLogRepository) *BaseLoginLogCase {
-	return &BaseLoginLogCase{BaseCase: baseCase, BaseLoginLogRepository: baseLoginLogRepo}
+func NewBaseLoginLogCase(baseCase *biz.BaseCase, baseLoginLogRepo *data.BaseLoginLogRepository, catalog *i18n.I18n) *BaseLoginLogCase {
+	return &BaseLoginLogCase{BaseCase: baseCase, BaseLoginLogRepository: baseLoginLogRepo, catalog: catalog}
 }
 
 // PageCurrentUserLoginLog 按认证身份限定用户和租户，查询本人登录记录。
@@ -66,7 +68,7 @@ func (c *BaseLoginLogCase) PageBaseLoginLog(ctx context.Context, req *adminv1.Pa
 	}
 	items := make([]*adminv1.BaseLoginLog, 0, len(list))
 	for _, item := range list {
-		items = append(items, toBaseLoginLog(item))
+		items = append(items, toBaseLoginLog(item, c.catalog, biz.LocaleFromContext(ctx)))
 	}
 	return &adminv1.PageBaseLoginLogResponse{BaseLoginLogs: items, Total: int32(total)}, nil
 }
@@ -84,7 +86,7 @@ func (c *BaseLoginLogCase) GetBaseLoginLog(ctx context.Context, idText string) (
 	if err != nil {
 		return nil, err
 	}
-	return toBaseLoginLog(item), nil
+	return toBaseLoginLog(item, c.catalog, biz.LocaleFromContext(ctx)), nil
 }
 
 // listLogTrace 查询登录日志关联的审计记录。
@@ -96,6 +98,6 @@ func (c *BaseLoginLogCase) listLogTrace(ctx context.Context, requestID, traceID 
 }
 
 // toBaseLoginLog 转换登录日志响应。
-func toBaseLoginLog(item *models.BaseLoginLog) *adminv1.BaseLoginLog {
-	return &adminv1.BaseLoginLog{Id: formatLogRecordID(item.ID), TenantId: item.TenantID, TenantCode: item.TenantCode, UserId: item.UserID, UserName: item.UserName, LoginType: adminv1.BaseLoginLogType(item.LoginType), Result: adminv1.BaseLogResult(item.Result), ReasonCode: item.ReasonCode, Reason: item.Reason, ClientIp: item.ClientIP, UserAgent: item.UserAgent, DeviceId: item.DeviceID, RequestId: item.RequestID, TraceId: item.TraceID, OccurredAt: formatLogTime(item.OccurredAt), CreatedAt: formatLogTime(item.CreatedAt)}
+func toBaseLoginLog(item *models.BaseLoginLog, catalog *i18n.I18n, locale string) *adminv1.BaseLoginLog {
+	return &adminv1.BaseLoginLog{Id: formatLogRecordID(item.ID), TenantId: item.TenantID, TenantCode: item.TenantCode, UserId: item.UserID, UserName: item.UserName, LoginType: adminv1.BaseLoginLogType(item.LoginType), Result: adminv1.BaseLogResult(item.Result), ReasonCode: item.ReasonCode, Reason: localizeLogReason(catalog, locale, item.ReasonCode, item.Reason), ClientIp: item.ClientIP, UserAgent: item.UserAgent, DeviceId: item.DeviceID, RequestId: item.RequestID, TraceId: item.TraceID, OccurredAt: formatLogTime(item.OccurredAt), CreatedAt: formatLogTime(item.CreatedAt)}
 }

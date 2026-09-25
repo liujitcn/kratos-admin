@@ -3,9 +3,11 @@ import type { App, Component } from 'vue'
 import { registerKratosAppModules, type KratosAppModule } from './module'
 import {
   applyLanguageConfig,
+  getCurrentLocale,
   initializeLocale,
   registerLocaleChangeHandler,
   registerLocaleMessages,
+  t,
 } from './locales'
 import { initializeAppNavigation } from './navigation'
 import { useSettingStore } from './stores'
@@ -23,15 +25,25 @@ export interface KratosAppBootstrapOptions {
   modules: KratosAppModule[]
 }
 
+function syncH5DocumentTitle(): void {
+  // #ifdef H5
+  if (typeof document === 'undefined') return
+  document.documentElement.lang = getCurrentLocale()
+  document.title = t('core.home.main_title')
+  // #endif
+}
+
 /** 创建 uni-app 实例并注册模块。 */
 export function bootstrapKratosApp(options: KratosAppBootstrapOptions) {
   registerKratosAppModules(options.modules)
   registerLocaleMessages(options.modules)
   initializeLocale()
+  syncH5DocumentTitle()
   void defLanguageService
     .OptionLanguage({})
     .then((response) => {
       applyLanguageConfig(response)
+      syncH5DocumentTitle()
     })
     .catch(() => {
       // 语言公共接口失败时继续使用静态语言包和系统语言。

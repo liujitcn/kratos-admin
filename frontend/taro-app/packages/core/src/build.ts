@@ -22,3 +22,5 @@ export const buildModule = defineKratosTaroBuildModule({
   root: packageRoot,
   pages: corePages,
 })
+
+export { runnerMessage } from './runner-messages.js'

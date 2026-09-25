@@ -170,7 +170,7 @@ func (c *BaseConfigCase) CreateBaseConfig(ctx context.Context, req *adminv1.Base
 		if err := c.Create(txCtx, entity); err != nil {
 			// 命中配置键唯一索引冲突时，返回稳定的业务冲突错误。
 			if errorsx.IsDuplicateKey(err) {
-				return errorsx.UniqueConflict("同一位置的配置键重复", "base_config", "", "unique_base_config").WithCause(err)
+				return errorsx.UniqueConflict("同一位置的配置键重复", "base_config", "site,key", "unique_base_config").WithCause(err)
 			}
 			return err
 		}
@@ -199,7 +199,7 @@ func (c *BaseConfigCase) UpdateBaseConfig(ctx context.Context, req *adminv1.Base
 		if err := c.UpdateByID(txCtx, entity); err != nil {
 			// 命中配置键唯一索引冲突时，返回稳定的业务冲突错误。
 			if errorsx.IsDuplicateKey(err) {
-				return errorsx.UniqueConflict("同一位置的配置键重复", "base_config", "", "unique_base_config").WithCause(err)
+				return errorsx.UniqueConflict("同一位置的配置键重复", "base_config", "site,key", "unique_base_config").WithCause(err)
 			}
 			return err
 		}

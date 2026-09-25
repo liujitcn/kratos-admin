@@ -8,17 +8,18 @@ import {
   writeFileSync,
 } from 'node:fs'
 import { basename, resolve } from 'node:path'
+import { cliMessage, resolveCliLocale } from './messages.mjs'
 
 const cliPackage = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8'))
 const publicPackageVersion = cliPackage.version
 if (typeof publicPackageVersion !== 'string' || !publicPackageVersion) {
-  throw new Error('CLI package.json 缺少有效版本')
+  throw new Error(cliMessage('package_version_missing'))
 }
 
 /** 创建独立 Kratos uni-app workspace。 */
 export function scaffoldKratosApp(targetPath, options = {}) {
   const target = resolve(targetPath)
-  if (existsSync(target)) throw new Error(`目标目录已存在：${target}`)
+  if (existsSync(target)) throw new Error(cliMessage('target_exists', { target }))
   const projectName = basename(target)
   const modules = [...new Set(options.modules ?? [])]
   const packages = [...new Set(options.packages ?? [])]
@@ -41,39 +42,7 @@ export function scaffoldKratosApp(targetPath, options = {}) {
   write(
     target,
     'README.md',
-    `# ${projectName}
-
-\`${projectName}\` 是由 \`@liujitcn/kratos-uni-app-cli\` 创建的独立 pnpm workspace，支持 H5 和微信小程序。
-
-## 目录结构
-
-\`\`\`text
-${projectName}
-├── apps/uni-app                 # 私有 uni-app 宿主
-├── packages/modules        # workspace 内本地业务模块
-├── package.json            # 公共命令和开发依赖
-├── pnpm-workspace.yaml     # workspace 包范围
-└── tsconfig.json           # 共享 TypeScript 配置
-\`\`\`
-
-宿主只负责入口、manifest、模块清单和启动；底座能力由 \`@liujitcn/kratos-uni-app-core\` 提供，默认业务页面由 \`@liujitcn/kratos-uni-app-system\` 提供。本地模块通过各自公开入口接入，不跨包相对引用源码。
-
-## 开发
-
-\`\`\`bash
-pnpm install
-pnpm dev:h5
-pnpm dev:mp-weixin
-pnpm build:h5
-pnpm build:mp-weixin
-\`\`\`
-
-H5 通过局域网 IP 访问时，先在仓库根目录运行 bash scripts/generate-dev-cert.sh 192.168.1.100 生成证书，再在 .env.development-h5.local 中设置 VITE_APP_HTTPS=true；后端使用 HTTPS 时同时设置 VITE_APP_API_URL=https://localhost:7001。
-
-模块装配入口是 \`apps/uni-app/src/module-manifest.ts\`。新增、删除或调整模块时同步维护该清单，并在模块自己的 README 中记录页面和接口职责。
-
-生产构建前请在 \`.env.production\` 中填写实际 API 和静态资源地址；该文件默认留空，不应使用本机地址。
-`,
+    renderLocalizedReadme('workspace.md', { __PROJECT_NAME__: projectName }),
   )
   const dependencies = {
     '@liujitcn/kratos-uni-app-core': `^${publicPackageVersion}`,
@@ -119,41 +88,7 @@ H5 通过局域网 IP 访问时，先在仓库根目录运行 bash scripts/gener
   write(
     target,
     'apps/uni-app/README.md',
-    `# @liujitcn/kratos-uni-app
-
-\`apps/uni-app\` 是 \`${projectName}\` 的私有 uni-app 宿主，负责组合模块并提供 H5、微信小程序的构建入口，不承载可复用业务实现。
-
-## 目录结构
-
-\`\`\`text
-apps/uni-app
-├── src
-│   ├── pages/bootstrap      # 固定启动页面
-│   ├── App.vue              # 应用根组件和全局样式入口
-│   ├── main.ts              # Vue 与 Kratos uni-app 启动入口
-│   ├── manifest.json        # uni-app 平台配置
-│   ├── module-manifest.ts   # 唯一模块清单
-│   └── pages.json           # 固定 bootstrap 路由
-├── index.html               # H5 HTML 入口
-├── package.json             # 宿主命令和运行依赖
-└── vite.config.ts           # 模块页面装配与 uni-app 插件
-\`\`\`
-
-## 模块装配
-
-\`src/module-manifest.ts\` 默认注册 core 和 system，并按声明顺序加载本地模块与已发布模块。业务页面、API 和状态应放在所属模块，宿主仅维护组合关系和平台配置。
-
-## 命令
-
-在 workspace 根目录执行：
-
-\`\`\`bash
-pnpm dev:h5
-pnpm dev:mp-weixin
-pnpm build:h5
-pnpm build:mp-weixin
-\`\`\`
-`,
+    renderLocalizedReadme('host.md', { __PROJECT_NAME__: projectName }),
   )
   const imports = [
     "import { coreModule } from '@liujitcn/kratos-uni-app-core/module'",
@@ -232,6 +167,7 @@ import {
   defineConfig,
   kratosApp,
   loadEnv,
+  viteMessage,
   type ConfigEnv,
   type UserConfig,
 } from '@liujitcn/kratos-uni-app-core/vite'
@@ -245,7 +181,7 @@ function resolveHttpsOptions(env, root) {
   const keyPath = resolve(root, env.VITE_APP_HTTPS_KEY || '../../certs/dev-key.pem')
   const certPath = resolve(root, env.VITE_APP_HTTPS_CERT || '../../certs/dev-cert.pem')
   if (!existsSync(keyPath) || !existsSync(certPath)) {
-    throw new Error('VITE_APP_HTTPS 已开启，但未找到证书文件，请先在仓库根目录运行 scripts/generate-dev-cert.sh；期望路径：' + keyPath + ' 和 ' + certPath)
+    throw new Error(viteMessage('https_certificate_missing', { keyPath, certPath }))
   }
   return { key: readFileSync(keyPath), cert: readFileSync(certPath) }
 }
@@ -340,29 +276,10 @@ export default defineConfig(({ mode }) => {
     write(
       target,
       `packages/modules/${name}/README.md`,
-      `# @local/${name}
-
-\`@local/${name}\` 是 \`${projectName}\` workspace 内的本地业务模块，通过 \`@liujitcn/kratos-uni-app-core\` 的公开接口接入宿主。
-
-## 目录结构
-
-\`\`\`text
-packages/modules/${name}
-├── src
-│   ├── views               # 模块页面；页面私有组件放在就近 components
-│   ├── index.d.mts         # 模块入口类型
-│   └── index.mjs           # 页面、视图键和图标注册入口
-├── package.json            # 模块名称、依赖和 exports
-└── README.md               # 模块职责与维护说明
-\`\`\`
-
-## 开发约束
-
-- 页面放在 \`src/views\`，并在 \`src/index.mjs\` 的模块定义中登记页面和稳定视图键。
-- 请求、认证、导航和状态能力只通过 \`@liujitcn/kratos-uni-app-core\` 的公开 exports 使用。
-- 页面替换使用稳定视图键，接口不能直接下发任意组件路径。
-- 修改模块后从 workspace 根目录运行对应 H5 或微信小程序命令验证装配结果。
-`,
+      renderLocalizedReadme('module.md', {
+        __PROJECT_NAME__: projectName,
+        __MODULE_NAME__: name,
+      }),
     )
     write(
       target,
@@ -398,7 +315,7 @@ function writeEnvironmentFiles(target) {
   write(
     target,
     '.env.development-h5',
-    'VITE_APP_PORT=5004\nVITE_APP_HTTPS=false\n# VITE_APP_HTTPS_KEY=../../certs/dev-key.pem\n# VITE_APP_HTTPS_CERT=../../certs/dev-cert.pem\n# 后端使用 HTTPS 时，在 .env.development-h5.local 覆盖 VITE_APP_API_URL=https://localhost:7001\nVITE_APP_BASE_PATH=/\nVITE_APP_BASE_API=/api\nVITE_APP_API_URL=http://localhost:7001\nVITE_APP_STATIC_API=\nVITE_APP_STATIC_URL=http://localhost:7001\n',
+    `VITE_APP_PORT=5004\nVITE_APP_HTTPS=false\n# VITE_APP_HTTPS_KEY=../../certs/dev-key.pem\n# VITE_APP_HTTPS_CERT=../../certs/dev-cert.pem\n# ${cliMessage('https_environment_hint')}\nVITE_APP_BASE_PATH=/\nVITE_APP_BASE_API=/api\nVITE_APP_API_URL=http://localhost:7001\nVITE_APP_STATIC_API=\nVITE_APP_STATIC_URL=http://localhost:7001\n`,
   )
   write(
     target,
@@ -414,11 +331,12 @@ function writeEnvironmentFiles(target) {
 
 /** 校验本地业务模块名称。 */
 function validateModuleName(name) {
-  if (!/^[a-z][a-z0-9-]*$/.test(name)) throw new Error(`模块名无效：${name}`)
+  if (!/^[a-z][a-z0-9-]*$/.test(name)) throw new Error(cliMessage('module_name_invalid', { name }))
 }
 
 function validatePackageName(name) {
-  if (!/^(?:@[a-z0-9-]+\/)?[a-z0-9-]+$/.test(name)) throw new Error(`包名无效：${name}`)
+  if (!/^(?:@[a-z0-9-]+\/)?[a-z0-9-]+$/.test(name))
+    throw new Error(cliMessage('package_name_invalid', { name }))
 }
 
 function write(root, file, content) {
@@ -447,6 +365,18 @@ function renderWorkspaceTemplates(source, target, tokens) {
       writeFileSync(output, content)
     }
   }
+}
+
+/** 按 CLI 语言加载并替换 workspace README 模板。 */
+function renderLocalizedReadme(name, tokens) {
+  const template = readFileSync(
+    new URL(`../templates/readmes/${resolveCliLocale()}/${name}`, import.meta.url),
+    'utf8',
+  )
+  return Object.entries(tokens).reduce(
+    (content, [key, value]) => content.replaceAll(key, () => value),
+    template,
+  )
 }
 
 /** 创建业务模块语言源文件及 API、RPC、测试目录，注册产物由同步命令生成。 */

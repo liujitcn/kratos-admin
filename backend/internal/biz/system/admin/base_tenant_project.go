@@ -15,6 +15,7 @@ import (
 	"github.com/liujitcn/kratos-core/biz"
 	_const "github.com/liujitcn/kratos-core/const"
 	"github.com/liujitcn/kratos-core/errorsx"
+	"github.com/liujitcn/kratos-core/resource/i18n"
 
 	"github.com/liujitcn/go-utils/mapper"
 	_string "github.com/liujitcn/go-utils/string"
@@ -29,6 +30,7 @@ type BaseTenantProjectCase struct {
 	*biz.BaseCase
 	tx data.Transaction
 	*data.BaseTenantProjectRepository
+	catalog    *i18n.I18n
 	formMapper *mapper.CopierMapper[adminv1.BaseTenantProjectForm, models.BaseTenantProject]
 	mapper     *mapper.CopierMapper[adminv1.BaseTenantProject, models.BaseTenantProject]
 }
@@ -40,6 +42,7 @@ func NewBaseTenantProjectCase(
 	grants *BaseTenantProjectGrantCase,
 	tx data.Transaction,
 	baseTenantProjectRepo *data.BaseTenantProjectRepository,
+	catalog *i18n.I18n,
 ) *BaseTenantProjectCase {
 	return &BaseTenantProjectCase{
 		lifecycle:                   lifecycle,
@@ -47,6 +50,7 @@ func NewBaseTenantProjectCase(
 		BaseCase:                    baseCase,
 		tx:                          tx,
 		BaseTenantProjectRepository: baseTenantProjectRepo,
+		catalog:                     catalog,
 		formMapper:                  mapper.NewCopierMapper[adminv1.BaseTenantProjectForm, models.BaseTenantProject](),
 		mapper:                      mapper.NewCopierMapper[adminv1.BaseTenantProject, models.BaseTenantProject](),
 	}
@@ -133,7 +137,7 @@ func (c *BaseTenantProjectCase) TreeBaseTenantProject(ctx context.Context, req *
 		if !exists {
 			tenantName, exists := tenantNames[row.TenantID]
 			if !exists || tenantName == "" {
-				tenantName = fmt.Sprintf("租户 %d", row.TenantID)
+				tenantName = localizedTenantFallbackName(c.catalog, biz.LocaleFromContext(ctx), row.TenantID)
 			}
 			tenant = &adminv1.TreeBaseTenantProjectResponse_Option{Value: fmt.Sprintf("tenant:%d", row.TenantID), Label: tenantName, Type: "tenant", TenantId: row.TenantID, Children: make([]*adminv1.TreeBaseTenantProjectResponse_Option, 0)}
 			tenants[row.TenantID] = tenant
@@ -395,4 +399,13 @@ func (c *BaseTenantProjectCase) projectOptions(ctx context.Context) ([]repositor
 		return []repository.QueryOption{repository.Where(table.ID.Eq(0))}, nil
 	}
 	return []repository.QueryOption{repository.Where(field.Or(predicates...))}, nil
+}
+
+// localizedTenantFallbackName 为失效租户记录生成带编号的本地化标签。
+func localizedTenantFallbackName(catalog *i18n.I18n, locale string, tenantID int64) string {
+	fallback := fmt.Sprintf("Tenant %d", tenantID)
+	if catalog == nil {
+		return fallback
+	}
+	return catalog.Localize(locale, "zh-CN", "system.base.tenant.value.missing_name", map[string]any{"ID": tenantID}, fallback)
 }

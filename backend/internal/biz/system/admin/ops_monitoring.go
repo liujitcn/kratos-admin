@@ -220,19 +220,19 @@ func (c *OpsMonitoringCase) dispatchStatus(ctx context.Context, locale string) *
 	pending, err = c.dispatchRepository.Count(ctx, repository.Where(query.Status.Eq(int32(basev1.MessageDispatchStatus_MESSAGE_DISPATCH_STATUS_PENDING))))
 	if err != nil {
 		service.Status = monitoringText(c.catalog, locale, "error")
-		service.Message = err.Error()
+		service.Message = monitoringText(c.catalog, locale, "dispatch_status_unavailable")
 		return service
 	}
 	running, err = c.dispatchRepository.Count(ctx, repository.Where(query.Status.Eq(int32(basev1.MessageDispatchStatus_MESSAGE_DISPATCH_STATUS_RUNNING))))
 	if err != nil {
 		service.Status = monitoringText(c.catalog, locale, "error")
-		service.Message = err.Error()
+		service.Message = monitoringText(c.catalog, locale, "dispatch_status_unavailable")
 		return service
 	}
 	failed, err = c.dispatchRepository.Count(ctx, repository.Where(query.Status.Eq(int32(basev1.MessageDispatchStatus_MESSAGE_DISPATCH_STATUS_FAILED))))
 	if err != nil {
 		service.Status = monitoringText(c.catalog, locale, "error")
-		service.Message = err.Error()
+		service.Message = monitoringText(c.catalog, locale, "dispatch_status_unavailable")
 		return service
 	}
 	service.Status = monitoringText(c.catalog, locale, "normal")
@@ -248,7 +248,7 @@ func (c *OpsMonitoringCase) dispatchStatus(ctx context.Context, locale string) *
 	)
 	if err != nil {
 		service.Status = monitoringText(c.catalog, locale, "error")
-		service.Message = err.Error()
+		service.Message = monitoringText(c.catalog, locale, "dispatch_status_unavailable")
 		return service
 	}
 	if len(oldest) > 0 && oldest[0].QueuedAt > 0 {
@@ -281,7 +281,7 @@ func (c *OpsMonitoringCase) databaseStatus(ctx context.Context) (*adminv1.OpsSer
 	}
 	sqlDB, err := database.DB.DB()
 	if err != nil {
-		service.Message = err.Error()
+		service.Message = monitoringText(c.catalog, locale, "connection_pool_unavailable")
 		storage.Metrics = []*adminv1.OpsMetric{{Label: monitoringText(c.catalog, locale, "pool"), Value: monitoringText(c.catalog, locale, "unavailable")}}
 		return service, storage
 	}
@@ -307,7 +307,7 @@ func (c *OpsMonitoringCase) databaseStatus(ctx context.Context) (*adminv1.OpsSer
 		service.Message = monitoringText(c.catalog, locale, "connection_healthy")
 		storage.Status = monitoringText(c.catalog, locale, "normal")
 	} else {
-		service.Message = pingErr.Error()
+		service.Message = monitoringText(c.catalog, locale, "connection_check_failed")
 	}
 	return service, storage
 }
@@ -336,7 +336,7 @@ func (c *OpsMonitoringCase) redisStatus(ctx context.Context) (*adminv1.OpsServic
 	}
 	options, err := utils.GetUniversalOptions(config)
 	if err != nil {
-		service.Message = err.Error()
+		service.Message = monitoringText(c.catalog, locale, "redis_configuration_invalid")
 		return service, storage
 	}
 	client := redis.NewUniversalClient(options)
@@ -367,9 +367,9 @@ func (c *OpsMonitoringCase) redisStatus(ctx context.Context) (*adminv1.OpsServic
 		return service, storage
 	}
 	if pingErr != nil {
-		service.Message = pingErr.Error()
+		service.Message = monitoringText(c.catalog, locale, "connection_check_failed")
 	} else {
-		service.Message = closeErr.Error()
+		service.Message = monitoringText(c.catalog, locale, "connection_close_failed")
 	}
 	return service, storage
 }

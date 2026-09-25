@@ -145,21 +145,21 @@ func ExecuteCall(ctx context.Context, toolMap map[string]Invokable, infos []*Inf
 	// 除内置目录工具外，直接调用也必须受本轮已启用工具定义约束。
 	if call.Name != config.catalogName && !HasInfo(infos, call.Name) {
 		result.Status = "error"
-		result.Output = MarshalError(DisabledMessage(call.Name))
+		result.Output = MarshalError(DisabledMessage(ctx, call.Name, config.localize))
 		return result.withContent(result.Output)
 	}
 	item := toolMap[call.Name]
 	// 工具定义存在但执行器缺失时返回稳定错误 JSON，便于调用方展示工具卡。
 	if item == nil {
 		result.Status = "error"
-		result.Output = MarshalError(fmt.Sprintf("tool %s is not available", call.Name))
+		result.Output = MarshalError(localizeToolMessage(ctx, "system.ai.chat.error.tool_unavailable", call.Name, fmt.Sprintf("Tool %s is not available.", call.Name), config.localize))
 		return result.withContent(result.Output)
 	}
 	output, err := item.InvokableRun(ctx, call.Arguments)
 	// 工具内部错误也转成 JSON 文本返回，保持直接调用与 ADK 调用协议一致。
 	if err != nil {
 		result.Status = "error"
-		result.Output = MarshalError(err.Error())
+		result.Output = MarshalError(localizeToolMessage(ctx, "system.ai.chat.error.tool_failed", call.Name, fmt.Sprintf("Tool %s failed. Check the service logs.", call.Name), config.localize))
 		return result.withContent(result.Output)
 	}
 	// 空输出统一表示为成功空对象，避免调用方难以区分“无数据”和“未执行”。
@@ -187,11 +187,23 @@ type CallOption func(*callConfig)
 
 type callConfig struct {
 	catalogName string
+	localize    func(context.Context, string, map[string]any, string) string
 }
 
-// DisabledMessage 返回 Agent 工具禁用提示。
-func DisabledMessage(name string) string {
-	return middleware.DisabledToolMessage(name)
+// WithMessageLocalizer 设置 Agent 工具用户消息的本地化回调。
+func WithMessageLocalizer(localize func(context.Context, string, map[string]any, string) string) CallOption {
+	return func(config *callConfig) {
+		config.localize = localize
+	}
+}
+
+// DisabledMessage 返回按请求语言本地化的 Agent 工具禁用提示。
+func DisabledMessage(ctx context.Context, name string, localize func(context.Context, string, map[string]any, string) string) string {
+	fallback := "The requested agent tool is disabled and cannot be called."
+	if localize == nil {
+		return fallback
+	}
+	return localize(ctx, "base.ai.tool.disabled", map[string]any{"Name": name}, fallback)
 }
 
 // Info 返回工具目录查询工具定义。
@@ -228,7 +240,7 @@ func (t *catalogTool) InvokableRun(context.Context, string, ...Option) (string, 
 		"enabled_tool_count":       enabledCount,
 		"model_tools_per_request":  t.modelToolsPerTurn,
 		"catalog_tool_name":        t.name,
-		"catalog_tool_description": "当前结果是完整注册工具目录；enabled=false 的工具已禁用，不会作为候选工具，也不能被 Agent 调用。",
+		"catalog_tool_description": t.description,
 		"tools":                    items,
 	}
 	raw, err := json.MarshalIndent(payload, "", "  ")
@@ -266,4 +278,12 @@ func newCallResult(infos []*Info, call Call) CallResult {
 		Status: "success",
 		Input:  call.Arguments,
 	}
+}
+
+// localizeToolMessage 按当前请求语言生成工具调用错误文案。
+func localizeToolMessage(ctx context.Context, key, name, fallback string, localize func(context.Context, string, map[string]any, string) string) string {
+	if localize == nil {
+		return fallback
+	}
+	return localize(ctx, key, map[string]any{"Name": name}, fallback)
 }

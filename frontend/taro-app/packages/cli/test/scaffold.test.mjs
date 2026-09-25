@@ -8,6 +8,8 @@ import ts from 'typescript'
 import { spawnSync } from 'node:child_process'
 import test from 'node:test'
 import { scaffoldKratosTaroApp } from '../src/index.mjs'
+import { cliMessage } from '../src/messages.mjs'
+import { workspaceMessage } from '../templates/workspace/scripts/locale-messages.mjs'
 
 const require = createRequire(import.meta.url)
 
@@ -57,6 +59,7 @@ test('生成可扩展的 Taro workspace、本地模块和发布模块清单', ()
     assert.match(manifest, /import packageModule0 from '@acme\/customer-module'/)
     assert.match(config, /hostRequire\.resolve\(`\$\{name\}\/package\.json`\)/)
     assert.match(config, /sourceRoots\.forEach/)
+    assert.match(config, /runnerMessage\('https_certificate_missing'/)
     assert.match(config, /prebundle: \{ enable: false \}/)
     assert.match(config, /resolveHttpsOptions/)
     assert.match(config, /https: httpsOptions/)
@@ -96,7 +99,7 @@ test('生成可扩展的 Taro workspace、本地模块和发布模块清单', ()
     ].join('\n')
     assert.match(documentation, /customer-app/)
     assert.doesNotMatch(documentation, /__PROJECT_NAME__|__MODULE_NAME__/)
-    assert.throws(() => scaffoldKratosTaroApp(target), /已存在/)
+    assert.throws(() => scaffoldKratosTaroApp(target), /already exists|已存在/)
   } finally {
     rmSync(root, { recursive: true, force: true })
   }
@@ -110,18 +113,19 @@ test('CLI 解析重复选项并拒绝未知参数', () => {
     const created = spawnSync(
       process.execPath,
       [bin, 'create', target, '--module', 'shop,order', '--with', '@acme/pay'],
-      { encoding: 'utf8' },
+      { encoding: 'utf8', env: { ...process.env, KRATOS_ADMIN_LOCALE: 'zh-CN' } },
     )
     assert.equal(created.status, 0, created.stderr)
-    assert.match(created.stdout, /已创建 Taro workspace/)
+    assert.match(created.stdout, /Taro workspace created|已创建 Taro workspace/)
     assert.ok(existsSync(resolve(target, 'packages/modules/shop/src/index.ts')))
     assert.ok(existsSync(resolve(target, 'packages/modules/order/src/index.ts')))
 
     const invalid = spawnSync(process.execPath, [bin, 'create', resolve(root, 'bad'), '--wat'], {
       encoding: 'utf8',
+      env: { ...process.env, KRATOS_ADMIN_LOCALE: 'en-US' },
     })
     assert.equal(invalid.status, 1)
-    assert.match(invalid.stderr, /未知参数/)
+    assert.match(invalid.stderr, /Unknown argument/)
   } finally {
     rmSync(root, { recursive: true, force: true })
   }
@@ -148,16 +152,17 @@ test('打包后的 CLI 创建项目并完整复制静态资源', () => {
     const created = spawnSync(
       process.execPath,
       [resolve(root, 'package/bin/kratos-taro-app.mjs'), 'create', target, '--module', 'app'],
-      { cwd: root, encoding: 'utf8', timeout: 30000 },
+      { cwd: root, encoding: 'utf8', timeout: 30000, env: { ...process.env, KRATOS_ADMIN_LOCALE: 'en-US' } },
     )
     assert.equal(created.status, 0, created.error?.message ?? created.stderr)
-    assert.match(created.stdout, /已创建 Taro workspace/)
+    assert.match(created.stdout, /Taro workspace created|已创建 Taro workspace/)
     assert.deepEqual(
       readFileSync(resolve(target, 'apps/taro-app/src/static/favicon.ico')),
       readFileSync(resolve(import.meta.dirname, '../assets/favicon.ico')),
     )
     assert.ok(existsSync(resolve(target, 'apps/taro-app/src/static/h5-root-font.js')))
     assert.ok(existsSync(resolve(target, 'packages/modules/app/src/index.ts')))
+    assert.match(readFileSync(resolve(target, 'README.md'), 'utf8'), /is an independent pnpm workspace/)
   } finally {
     rmSync(root, { recursive: true, force: true })
   }
@@ -169,13 +174,63 @@ test('脚手架校验项目、模块和包名', () => {
     assert.throws(() => scaffoldKratosTaroApp(resolve(root, 'BadName')), /kebab-case/)
     assert.throws(
       () => scaffoldKratosTaroApp(resolve(root, 'valid-name'), { modules: ['../system'] }),
-      /模块名无效/,
+      /Invalid module name|模块名无效/,
     )
     assert.throws(
       () => scaffoldKratosTaroApp(resolve(root, 'valid-name'), { packages: ['Bad Package'] }),
-      /包名无效/,
+      /Invalid package name|包名无效/,
     )
   } finally {
+    rmSync(root, { recursive: true, force: true })
+  }
+})
+
+test('CLI diagnostics follow KRATOS_ADMIN_LOCALE', () => {
+  const previousLocale = process.env.KRATOS_ADMIN_LOCALE
+  try {
+    process.env.KRATOS_ADMIN_LOCALE = 'en-US'
+    assert.equal(cliMessage('unknown_argument', { argument: '--invalid' }), 'Unknown argument: --invalid')
+    assert.equal(workspaceMessage('export_target_missing', { name: 'sample', target: './missing.js' }), 'sample export target does not exist: ./missing.js')
+    process.env.KRATOS_ADMIN_LOCALE = 'zh-CN'
+    assert.equal(cliMessage('unknown_argument', { argument: '--invalid' }), '未知参数：--invalid')
+    assert.equal(workspaceMessage('export_target_missing', { name: 'sample', target: './missing.js' }), 'sample 导出目标不存在：./missing.js')
+  } finally {
+    if (previousLocale === undefined) delete process.env.KRATOS_ADMIN_LOCALE
+    else process.env.KRATOS_ADMIN_LOCALE = previousLocale
+  }
+})
+
+test('generated README and environment hint follow the selected locale', () => {
+  const root = mkdtempSync(resolve(tmpdir(), 'kratos-taro-app-readme-locale-'))
+  const previousLocale = process.env.KRATOS_ADMIN_LOCALE
+  try {
+    process.env.KRATOS_ADMIN_LOCALE = 'en-US'
+    const english = resolve(root, 'english-app')
+    scaffoldKratosTaroApp(english, { modules: ['shop'] })
+    const englishDocs = [
+      readFileSync(resolve(english, 'README.md'), 'utf8'),
+      readFileSync(resolve(english, 'apps/taro-app/README.md'), 'utf8'),
+      readFileSync(resolve(english, 'packages/modules/shop/README.md'), 'utf8'),
+      readFileSync(resolve(english, '.env.development-h5'), 'utf8'),
+    ].join('\n')
+    assert.match(englishDocs, /is an independent pnpm workspace/)
+    assert.match(englishDocs, /When the backend uses HTTPS/)
+    assert.doesNotMatch(englishDocs, /是由|私有 Taro React 宿主|本地 Taro 业务模块/)
+
+    process.env.KRATOS_ADMIN_LOCALE = 'zh-CN'
+    const chinese = resolve(root, 'chinese-app')
+    scaffoldKratosTaroApp(chinese, { modules: ['shop'] })
+    const chineseDocs = [
+      readFileSync(resolve(chinese, 'README.md'), 'utf8'),
+      readFileSync(resolve(chinese, 'apps/taro-app/README.md'), 'utf8'),
+      readFileSync(resolve(chinese, 'packages/modules/shop/README.md'), 'utf8'),
+      readFileSync(resolve(chinese, '.env.development-h5'), 'utf8'),
+    ].join('\n')
+    assert.match(chineseDocs, /是由 `@liujitcn\/kratos-taro-app-cli` 创建/)
+    assert.match(chineseDocs, /后端使用 HTTPS 时/)
+  } finally {
+    if (previousLocale === undefined) delete process.env.KRATOS_ADMIN_LOCALE
+    else process.env.KRATOS_ADMIN_LOCALE = previousLocale
     rmSync(root, { recursive: true, force: true })
   }
 })
@@ -208,6 +263,8 @@ test('CLI 独立生成 system 多模块、完整语言入口与项目构建配�
     assert.ok(existsSync(resolve(target, 'scripts/check-package-exports.mjs')))
     const checked = spawnSync(process.execPath, ['scripts/sync-locales.mjs'], { cwd: target, encoding: 'utf8' })
     assert.equal(checked.status, 0, checked.stderr)
+    assert.ok(existsSync(resolve(target, 'scripts/locale-messages.mjs')))
+    assert.match(readFileSync(resolve(target, 'scripts/check-package-exports.mjs'), 'utf8'), /workspaceMessage\('exports_check_passed'/)
   } finally {
     rmSync(root, { recursive: true, force: true })
   }

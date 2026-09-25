@@ -55,7 +55,7 @@
                 <strong>{{ history.version }}</strong>
               </div>
               <div class="migration-list-item__data-source">
-                {{ history.module || t("system.base.migration.value.default_module") }} · {{ history.data_source || "default" }}
+                {{ history.module || t("system.base.migration.value.default_module") }} · {{ history.data_source || t("system.base.migration.value.default_source") }}
               </div>
               <time :datetime="history.created_at">{{ formatDateTime(history.created_at) }}</time>
             </button>

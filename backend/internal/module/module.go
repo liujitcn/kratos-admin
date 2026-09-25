@@ -15,6 +15,7 @@ import (
 	biz "github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/logstream"
 	"github.com/liujitcn/kratos-admin/backend/internal/server/base/v1"
+	"github.com/liujitcn/kratos-admin/backend/internal/server/middleware/conflictmessage"
 	logmiddleware "github.com/liujitcn/kratos-admin/backend/internal/server/middleware/log"
 	serverlogstream "github.com/liujitcn/kratos-admin/backend/internal/server/middleware/logstream"
 	"github.com/liujitcn/kratos-admin/backend/internal/server/middleware/oauth"
@@ -26,6 +27,7 @@ import (
 	"github.com/liujitcn/kratos-admin/backend/pkg/agent"
 	"github.com/liujitcn/kratos-core/module"
 	"github.com/liujitcn/kratos-core/queue"
+	"github.com/liujitcn/kratos-core/resource/i18n"
 	"github.com/liujitcn/kratos-kit/queue/data"
 	"github.com/liujitcn/kratos-kit/transport/mcp"
 	"google.golang.org/grpc"
@@ -37,6 +39,7 @@ type Module struct {
 	adminServices *admin.Services
 	appServices   *app.Services
 	aiRuntime     *ai.Runtime
+	catalog       *i18n.I18n
 }
 
 var _ module.Module = (*Module)(nil)
@@ -47,6 +50,7 @@ func NewModules(
 	adminServices *admin.Services,
 	appServices *app.Services,
 	aiRuntime *ai.Runtime,
+	catalog *i18n.I18n,
 	baseConfigCase *biz.BaseConfigCase,
 	baseLoginPolicyCase *biz.BaseLoginPolicyCase,
 	baseOauthProviderCase *biz.BaseOauthProviderCase,
@@ -76,6 +80,7 @@ func NewModules(
 			adminServices: adminServices,
 			appServices:   appServices,
 			aiRuntime:     aiRuntime,
+			catalog:       catalog,
 		},
 	}, nil
 }
@@ -99,8 +104,9 @@ func (m *Module) RegisterGRPC(registrar grpc.ServiceRegistrar) {
 	if server, ok := registrar.(*kratosGRPC.Server); ok {
 		policyMiddleware := passwordpolicy.NewMiddleware(m.adminServices.BaseUserRepository, m.adminServices.BaseCase.Cache)
 		sessionMiddleware := sessionpolicy.NewMiddleware(m.adminServices.BaseCase, m.adminServices.UserToken)
-		server.Use("/*", middleware.Chain(m.adminServices.LogMiddleware, sessionMiddleware, policyMiddleware))
-		server.Use("/system.admin.v1.RuntimeLogService/*", middleware.Chain(m.adminServices.LogMiddleware, sessionMiddleware, policyMiddleware, serverlogstream.RuntimeAccessMiddleware()))
+		// Core 默认按错误原因选择通用文案，先补充冲突错误的原始消息键和接口位置。
+		server.Use("/*", middleware.Chain(m.adminServices.LogMiddleware, sessionMiddleware, policyMiddleware, conflictmessage.NewConflictMessageKeyMiddleware()))
+		server.Use("/system.admin.v1.RuntimeLogService/*", middleware.Chain(m.adminServices.LogMiddleware, sessionMiddleware, policyMiddleware, serverlogstream.RuntimeAccessMiddleware(), conflictmessage.NewConflictMessageKeyMiddleware()))
 	}
 	m.baseServices.RegisterGRPC(registrar)
 	m.adminServices.RegisterGRPC(registrar)
@@ -121,6 +127,7 @@ func (m *Module) RegisterHTTP(server *http.Server) {
 		sessionMiddleware,
 		policyMiddleware,
 		serverlogstream.RuntimeAccessMiddleware(),
+		conflictmessage.NewConflictMessageKeyMiddleware(),
 	))
 	// 外部开放授权接口需要在 Proto HTTP 绑定前解密请求体，并在响应写出前加密数据。
 	// 模块路由已全部注册，包裹底层 Handler 可以覆盖所有动态生成的 HTTP 路由。
@@ -128,6 +135,7 @@ func (m *Module) RegisterHTTP(server *http.Server) {
 		m.adminServices.OauthClientRepository,
 		m.adminServices.Authenticator,
 		m.adminServices.OauthCredentialProtector,
+		m.catalog,
 	)(protectStaticFileAccess(
 		blockStaticDirectoryListing(server.Server.Handler),
 		m.adminServices.BaseFileRepository,

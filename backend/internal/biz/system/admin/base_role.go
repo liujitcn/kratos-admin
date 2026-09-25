@@ -148,7 +148,7 @@ func (c *BaseRoleCase) CreateBaseRole(ctx context.Context, req *adminv1.BaseRole
 		if err != nil {
 			// 命中角色编码唯一索引冲突时，返回稳定的业务冲突错误。
 			if errorsx.IsDuplicateKey(err) {
-				return errorsx.UniqueConflict("同一租户的角色编码重复", "base_role", "", "unique_base_role").WithCause(err)
+				return errorsx.UniqueConflict("同一租户的角色编码重复", "base_role", "tenant_id,code", "unique_base_role").WithCause(err)
 			}
 			return err
 		}
@@ -193,7 +193,7 @@ func (c *BaseRoleCase) UpdateBaseRole(ctx context.Context, req *adminv1.BaseRole
 		if err != nil {
 			// 命中角色编码唯一索引冲突时，返回稳定的业务冲突错误。
 			if errorsx.IsDuplicateKey(err) {
-				return errorsx.UniqueConflict("同一租户的角色编码重复", "base_role", "", "unique_base_role").WithCause(err)
+				return errorsx.UniqueConflict("同一租户的角色编码重复", "base_role", "tenant_id,code", "unique_base_role").WithCause(err)
 			}
 			return err
 		}

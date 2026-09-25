@@ -8,6 +8,7 @@ import (
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 	"github.com/liujitcn/kratos-core/biz"
+	"github.com/liujitcn/kratos-core/resource/i18n"
 	"gorm.io/gen/field"
 )
 
@@ -15,11 +16,12 @@ import (
 type BaseAPILogCase struct {
 	*biz.BaseCase
 	*data.BaseAPILogRepository
+	catalog *i18n.I18n
 }
 
 // NewBaseAPILogCase 创建 API 访问日志查询业务实例。
-func NewBaseAPILogCase(baseCase *biz.BaseCase, baseAPILogRepo *data.BaseAPILogRepository) *BaseAPILogCase {
-	return &BaseAPILogCase{BaseCase: baseCase, BaseAPILogRepository: baseAPILogRepo}
+func NewBaseAPILogCase(baseCase *biz.BaseCase, baseAPILogRepo *data.BaseAPILogRepository, catalog *i18n.I18n) *BaseAPILogCase {
+	return &BaseAPILogCase{BaseCase: baseCase, BaseAPILogRepository: baseAPILogRepo, catalog: catalog}
 }
 
 // PageBaseApiLog 分页查询 API 访问日志。
@@ -50,7 +52,7 @@ func (c *BaseAPILogCase) PageBaseApiLog(ctx context.Context, req *adminv1.PageBa
 	}
 	items := make([]*adminv1.BaseApiLog, 0, len(list))
 	for _, item := range list {
-		items = append(items, toBaseApiLog(item))
+		items = append(items, toBaseApiLog(item, c.catalog, biz.LocaleFromContext(ctx)))
 	}
 	return &adminv1.PageBaseApiLogResponse{BaseApiLogs: items, Total: int32(total)}, nil
 }
@@ -68,7 +70,7 @@ func (c *BaseAPILogCase) GetBaseApiLog(ctx context.Context, idText string) (*adm
 	if err != nil {
 		return nil, err
 	}
-	return toBaseApiLog(item), nil
+	return toBaseApiLog(item, c.catalog, biz.LocaleFromContext(ctx)), nil
 }
 
 // listLogTrace 查询 API 访问日志关联的审计记录。
@@ -80,6 +82,6 @@ func (c *BaseAPILogCase) listLogTrace(ctx context.Context, requestID, traceID st
 }
 
 // toBaseApiLog 转换 API 访问日志响应。
-func toBaseApiLog(item *models.BaseAPILog) *adminv1.BaseApiLog {
-	return &adminv1.BaseApiLog{Id: formatLogRecordID(item.ID), TenantId: item.TenantID, TenantCode: item.TenantCode, UserId: item.UserID, UserName: item.UserName, RequestId: item.RequestID, TraceId: item.TraceID, ServiceName: item.ServiceName, Operation: item.Operation, Method: item.Method, Path: item.Path, StatusCode: item.StatusCode, Result: adminv1.BaseLogResult(item.Result), ReasonCode: item.ReasonCode, Reason: item.Reason, LatencyMs: item.LatencyMs, RequestSize: item.RequestSize, ResponseSize: item.ResponseSize, ClientIp: item.ClientIP, UserAgent: item.UserAgent, OccurredAt: formatLogTime(item.OccurredAt), CreatedAt: formatLogTime(item.CreatedAt)}
+func toBaseApiLog(item *models.BaseAPILog, catalog *i18n.I18n, locale string) *adminv1.BaseApiLog {
+	return &adminv1.BaseApiLog{Id: formatLogRecordID(item.ID), TenantId: item.TenantID, TenantCode: item.TenantCode, UserId: item.UserID, UserName: item.UserName, RequestId: item.RequestID, TraceId: item.TraceID, ServiceName: item.ServiceName, Operation: item.Operation, Method: item.Method, Path: item.Path, StatusCode: item.StatusCode, Result: adminv1.BaseLogResult(item.Result), ReasonCode: item.ReasonCode, Reason: localizeLogReason(catalog, locale, item.ReasonCode, item.Reason), LatencyMs: item.LatencyMs, RequestSize: item.RequestSize, ResponseSize: item.ResponseSize, ClientIp: item.ClientIP, UserAgent: item.UserAgent, OccurredAt: formatLogTime(item.OccurredAt), CreatedAt: formatLogTime(item.CreatedAt)}
 }

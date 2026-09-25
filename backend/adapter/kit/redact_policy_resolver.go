@@ -81,12 +81,12 @@ func (r *RedactPolicyResolver) Initialize(ctx context.Context) error {
 	if err != nil {
 		return fmt.Errorf("创建脱敏存储保护器失败: %w", err)
 	}
-	var fieldCipher *config.FieldCipher
-	fieldCipher, err = config.NewRuntimeFieldCipher()
+	var directCipher *fieldCipher
+	directCipher, err = newRuntimeFieldCipher()
 	if err != nil {
 		return fmt.Errorf("创建直接字段加密器失败: %w", err)
 	}
-	runtime := newStorageRuntime(r.store, r, protector, fieldCipher)
+	runtime := newStorageRuntime(r.store, r, protector, directCipher)
 	err = runtime.registerCallbacks(r.defaultDB)
 	if err != nil {
 		return err

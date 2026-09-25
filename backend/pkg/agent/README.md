@@ -34,6 +34,8 @@ runtime := agent.NewRuntime(agent.RuntimeConfig{
 runtime.RegisterTool("admin", anotherTool)
 ```
 
+宿主可通过 `RuntimeConfig.LocalizeMessage` 注入基于请求语言的消息本地化器，用于渲染工具禁用等面向用户的提示；未配置时使用英文兜底文案。
+
 不接入权限系统时 `Checker` 保持 `nil`；需要按终端控制工具时实现
 `agent.ToolAccessChecker`。
 

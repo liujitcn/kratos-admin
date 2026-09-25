@@ -2,6 +2,8 @@ type RunnerLocale = 'zh-CN' | 'en-US'
 
 const messages: Record<RunnerLocale, Record<string, string>> = {
   'zh-CN': {
+    https_certificate_missing: 'VITE_APP_HTTPS 已开启，但未找到证书文件，请先在仓库根目录运行 scripts/generate-dev-cert.sh；期望路径：{keyPath} 和 {certPath}',
+    project_name: '通用应用',
     unsupported_type: '不支持的 Taro 类型：{value}',
     unknown_argument: '未知参数：{argument}',
     type_required: '缺少 --type h5|weapp',
@@ -12,6 +14,8 @@ const messages: Record<RunnerLocale, Record<string, string>> = {
     assembly_timeout: '等待 Taro 页面装配锁超时：{file}',
   },
   'en-US': {
+    https_certificate_missing: 'VITE_APP_HTTPS is enabled, but certificate files were not found. Run scripts/generate-dev-cert.sh from the repository root; expected paths: {keyPath} and {certPath}',
+    project_name: 'Generic app',
     unsupported_type: 'Unsupported Taro type: {value}',
     unknown_argument: 'Unknown argument: {argument}',
     type_required: 'Missing --type h5|weapp',

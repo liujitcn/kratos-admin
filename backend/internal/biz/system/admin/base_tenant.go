@@ -24,13 +24,12 @@ import (
 	"github.com/liujitcn/kratos-core/biz"
 	coreconst "github.com/liujitcn/kratos-core/const"
 	"github.com/liujitcn/kratos-core/errorsx"
+	"github.com/liujitcn/kratos-core/resource/i18n"
 	authData "github.com/liujitcn/kratos-kit/auth/data"
 )
 
 const (
 	baseTenantAdminUserName   = "admin"
-	baseTenantAdminNickName   = "管理员"
-	baseTenantDefaultDeptName = "默认部门"
 	baseTenantDefaultDeptPath = "/0/%d"
 	baseTenantDefaultDeptSort = int32(0)
 	baseTenantInitialCode     = int64(1000)
@@ -59,6 +58,7 @@ type BaseTenantCase struct {
 	userToken               *authData.UserToken
 	casbinRuleRepo          *data.CasbinRuleRepository
 	casbinRuleCase          *CasbinRuleCase
+	catalog                 *i18n.I18n
 	formMapper              *mapper.CopierMapper[adminv1.BaseTenantForm, models.BaseTenant]
 	mapper                  *mapper.CopierMapper[adminv1.BaseTenant, models.BaseTenant]
 }
@@ -84,6 +84,7 @@ func NewBaseTenantCase(
 	userToken *authData.UserToken,
 	casbinRuleRepo *data.CasbinRuleRepository,
 	casbinRuleCase *CasbinRuleCase,
+	catalog *i18n.I18n,
 ) *BaseTenantCase {
 	return &BaseTenantCase{
 		BaseCase:                baseCase,
@@ -105,6 +106,7 @@ func NewBaseTenantCase(
 		userToken:               userToken,
 		casbinRuleRepo:          casbinRuleRepo,
 		casbinRuleCase:          casbinRuleCase,
+		catalog:                 catalog,
 		formMapper:              mapper.NewCopierMapper[adminv1.BaseTenantForm, models.BaseTenant](),
 		mapper:                  mapper.NewCopierMapper[adminv1.BaseTenant, models.BaseTenant](),
 	}
@@ -358,13 +360,14 @@ func (c *BaseTenantCase) getNextBaseTenantCode(ctx context.Context) (string, err
 
 // initTenantDefaults 初始化租户默认组织、角色和管理员账号。
 func (c *BaseTenantCase) initTenantDefaults(ctx context.Context, baseTenant *models.BaseTenant) (*adminv1.CreateBaseTenantResponse, error) {
+	locale := biz.LocaleFromContext(ctx)
 	baseDept := &models.BaseDept{
 		TenantID: baseTenant.ID,
 		ParentID: 0,
-		Name:     baseTenantDefaultDeptName,
+		Name:     c.localizeTenantDefault(locale, "system.base.tenant.default_department_name", "Default department"),
 		Sort:     baseTenantDefaultDeptSort,
 		Status:   coreconst.STATUS_STATUS_ENABLE,
-		Remark:   "租户默认部门",
+		Remark:   c.localizeTenantDefault(locale, "system.base.tenant.default_department_remark", "Default department for this tenant"),
 	}
 	err := c.baseDeptRepo.Create(ctx, baseDept)
 	if err != nil {
@@ -388,18 +391,18 @@ func (c *BaseTenantCase) initTenantDefaults(ctx context.Context, baseTenant *mod
 
 	baseRole := &models.BaseRole{
 		TenantID:  baseTenant.ID,
-		Name:      defaultRole.Name,
+		Name:      c.localizeTenantTemplate(locale, defaultRole.Name),
 		Code:      defaultRole.Code,
 		DataScope: defaultRole.DataScope,
 		Menus:     defaultRole.Menus,
 		Status:    defaultRole.Status,
-		Remark:    defaultRole.Remark,
+		Remark:    c.localizeTenantTemplate(locale, defaultRole.Remark),
 	}
 	err = c.baseRoleRepo.Create(ctx, baseRole)
 	if err != nil {
 		// 命中角色编码唯一索引冲突时，返回稳定的业务冲突错误。
 		if errorsx.IsDuplicateKey(err) {
-			return nil, errorsx.UniqueConflict("同一租户的角色编码重复", "base_role", "", "unique_base_role").WithCause(err)
+			return nil, errorsx.UniqueConflict("同一租户的角色编码重复", "base_role", "tenant_id,code", "unique_base_role").WithCause(err)
 		}
 		return nil, errorsx.Internal("初始化租户管理员角色失败").WithCause(err)
 	}
@@ -416,14 +419,14 @@ func (c *BaseTenantCase) initTenantDefaults(ctx context.Context, baseTenant *mod
 		TenantID:           baseTenant.ID,
 		UserName:           baseTenantAdminUserName,
 		UserCode:           baseTenantAdminUserName,
-		NickName:           baseTenantAdminNickName,
+		NickName:           c.localizeTenantDefault(locale, "system.base.tenant.default_admin_nickname", "Administrator"),
 		RoleID:             baseRole.ID,
 		DeptID:             baseDept.ID,
 		Phone:              baseTenant.ContactPhone,
 		Password:           password,
 		Gender:             _const.BASE_USER_GENDER_SECRET,
 		Status:             coreconst.STATUS_STATUS_ENABLE,
-		Remark:             "租户默认管理员，初始密码遵循全局登录策略",
+		Remark:             c.localizeTenantDefault(locale, "system.base.tenant.default_admin_remark", "Default tenant administrator. The initial password follows the global password policy."),
 		PasswordChangedAt:  time.Now(),
 		PasswordHistory:    "[]",
 		MustChangePassword: _const.BASE_USER_PASSWORD_CHANGE_STATUS_REQUIRED,
@@ -432,7 +435,7 @@ func (c *BaseTenantCase) initTenantDefaults(ctx context.Context, baseTenant *mod
 	if err != nil {
 		// 命中用户账号或用户编号唯一索引冲突时，返回稳定的业务冲突错误。
 		if errorsx.IsDuplicateKey(err) {
-			return nil, errorsx.UniqueConflict("同一租户的用户账号或用户编号重复", "base_user", "", "unique_base_user").WithCause(err)
+			return nil, baseUserUniqueConflict(err)
 		}
 		return nil, errorsx.Internal("初始化租户管理员账号失败").WithCause(err)
 	}
@@ -445,6 +448,20 @@ func (c *BaseTenantCase) initTenantDefaults(ctx context.Context, baseTenant *mod
 		InitialPassword: initialPassword,
 		TenantCode:      baseTenant.Code,
 	}, nil
+}
+
+// localizeTenantDefault 按创建请求语言翻译系统生成的租户默认值。
+func (c *BaseTenantCase) localizeTenantDefault(locale, key, fallback string) string {
+	return c.catalog.Localize(locale, "zh-CN", key, nil, fallback)
+}
+
+// localizeTenantTemplate 翻译默认角色模板中已登记的固定文案，保留自定义名称。
+func (c *BaseTenantCase) localizeTenantTemplate(locale, value string) string {
+	key, ok := c.catalog.KeyForSource(value)
+	if !ok {
+		return value
+	}
+	return c.catalog.Localize(locale, "zh-CN", key, nil, value)
 }
 
 // deleteTenantData 清理租户下全部用户、角色、部门和权限规则。

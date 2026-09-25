@@ -87,7 +87,9 @@
             optionLabel(statusOptions, detail.data.base_message?.status)
           }}</el-descriptions-item>
           <el-descriptions-item :label="t('system.base.message.field.sender')">{{
-            detail.data.base_message?.sender_name
+            detail.data.base_message?.sender_name === "系统"
+              ? t("system.notification.sender.system")
+              : resolvePersistedMessage(detail.data.base_message?.sender_name)
           }}</el-descriptions-item>
           <el-descriptions-item :label="t('system.base.message.field.delivered_total')">{{
             detail.data.base_message?.delivered_total
@@ -125,7 +127,9 @@
             :label="t('system.base.message.field.last_error')"
             min-width="220"
             show-overflow-tooltip
-          />
+          >
+            <template #default="scope">{{ resolvePersistedMessage(scope.row.last_error) }}</template>
+          </el-table-column>
           <el-table-column :label="t('common.field.operation')">
             <template #default="scope">
               <el-button
@@ -156,6 +160,7 @@ import { useAuthButtons } from "@liujitcn/kratos-admin-core/auth";
 import { buildPageRequest, normalizeSelectedIds } from "@liujitcn/kratos-admin-core/table";
 import { useTenantScope } from "@liujitcn/kratos-admin-core/tenant";
 import { t } from "@liujitcn/kratos-admin-core";
+import { resolvePersistedMessage } from "../../../utils/persisted-message";
 import { defBaseMessageService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/base_message";
 import { defBaseMessageCategoryService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/base_message_category";
 import type {

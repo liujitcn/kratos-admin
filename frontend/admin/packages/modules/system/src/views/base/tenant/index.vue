@@ -404,9 +404,9 @@ function handleCloseCredentialsDialog() {
 /** 复制租户编号、管理员账号和初始密码。 */
 async function handleCopyCredentials() {
   const content = [
-    `${t("system.base.tenant.field.code")}：${credentialsDialog.tenant_code}`,
-    `${t("system.base.user.field.user_name")}：${credentialsDialog.admin_user_name}`,
-    `${t("system.base.user.field.password")}：${credentialsDialog.initial_password}`
+    `${t("system.base.tenant.field.code")}: ${credentialsDialog.tenant_code}`,
+    `${t("system.base.user.field.user_name")}: ${credentialsDialog.admin_user_name}`,
+    `${t("system.base.user.field.password")}: ${credentialsDialog.initial_password}`
   ].join("\n");
   await copyText(content);
   ElMessage.success(t("core.clipboard.success"));

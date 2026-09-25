@@ -3,6 +3,7 @@ import { resolve } from 'node:path'
 import { defineConfig, type UserConfigExport } from '@tarojs/cli'
 import { dotenvParse } from '@tarojs/helper'
 import TsconfigPathsPlugin from 'tsconfig-paths-webpack-plugin'
+import { runnerMessage } from '@liujitcn/kratos-taro-app-core/build'
 import devConfig from './dev'
 import prodConfig from './prod'
 
@@ -13,9 +14,7 @@ function resolveHttpsOptions(env: Record<string, string>, root: string) {
   const keyPath = resolve(root, env.VITE_APP_HTTPS_KEY || '../../certs/dev-key.pem')
   const certPath = resolve(root, env.VITE_APP_HTTPS_CERT || '../../certs/dev-cert.pem')
   if (!existsSync(keyPath) || !existsSync(certPath)) {
-    throw new Error(
-      `VITE_APP_HTTPS 已开启，但未找到证书文件，请先在仓库根目录运行 scripts/generate-dev-cert.sh；期望路径：${keyPath} 和 ${certPath}`,
-    )
+    throw new Error(runnerMessage('https_certificate_missing', { keyPath, certPath }))
   }
   return { key: readFileSync(keyPath), cert: readFileSync(certPath) }
 }
@@ -67,7 +66,7 @@ export default defineConfig<'webpack5'>(async (merge) => {
     resolve(__dirname, '../../../packages/modules/system/src'),
   ]
   const baseConfig: UserConfigExport<'webpack5'> = {
-    projectName: '通用应用',
+    projectName: runnerMessage('project_name'),
     date: '2026-07-31',
     designWidth: 750,
     deviceRatio: {

@@ -122,6 +122,7 @@ test("发布目录中的 CLI 不依赖仓库兄弟 core 包", async () => {
   try {
     await mkdir(join(installedRoot, "dist"), { recursive: true });
     await copyFile(join(packageRoot, "dist/index.js"), join(installedRoot, "dist/index.js"));
+    await copyFile(join(packageRoot, "dist/messages.js"), join(installedRoot, "dist/messages.js"));
     await copyFile(join(packageRoot, "package.json"), join(installedRoot, "package.json"));
     await cp(join(packageRoot, "templates"), join(installedRoot, "templates"), { recursive: true });
     const installedCli = (await import(
@@ -142,10 +143,38 @@ test("发布目录中的 CLI 不依赖仓库兄弟 core 包", async () => {
 
 test("拒绝覆盖已存在的目标目录", async () => {
   const root = await mkdtemp(join(tmpdir(), "kratos-admin-cli-"));
+  const previousLocale = process.env.KRATOS_ADMIN_LOCALE;
+  process.env.KRATOS_ADMIN_LOCALE = "zh-CN";
   try {
     await createBusinessWorkspace({ cwd: root, projectName: "business-admin", moduleNames: ["business"] });
     await assert.rejects(createBusinessWorkspace({ cwd: root, projectName: "business-admin", moduleNames: ["business"] }), /拒绝覆盖/);
   } finally {
+    if (previousLocale === undefined) delete process.env.KRATOS_ADMIN_LOCALE;
+    else process.env.KRATOS_ADMIN_LOCALE = previousLocale;
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
+test("英文 CLI 校验错误使用本地化名称标签", async () => {
+  const root = await mkdtemp(join(tmpdir(), "kratos-admin-cli-locale-"));
+  const previousLocale = process.env.KRATOS_ADMIN_LOCALE;
+  process.env.KRATOS_ADMIN_LOCALE = "en-US";
+  try {
+    await assert.rejects(
+      createBusinessWorkspace({ cwd: root, projectName: "invalid name", moduleNames: ["business"] }),
+      /Project name must use kebab-case: invalid name/
+    );
+    await assert.rejects(
+      createBusinessWorkspace({ cwd: root, projectName: "valid-name", moduleNames: ["invalid_name"] }),
+      /Module name must use kebab-case: invalid_name/
+    );
+    await assert.rejects(
+      createBusinessWorkspace({ cwd: root, projectName: "valid-name", moduleNames: ["business"], additionalModules: ["invalid_name"] }),
+      /Additional module name must use kebab-case: invalid_name/
+    );
+  } finally {
+    if (previousLocale === undefined) delete process.env.KRATOS_ADMIN_LOCALE;
+    else process.env.KRATOS_ADMIN_LOCALE = previousLocale;
     await rm(root, { recursive: true, force: true });
   }
 });
@@ -184,6 +213,68 @@ test("CLI 直接生成本地 system 并保留内置源码扫描与语言资源",
     assert.match(await readFile(join(root, "Makefile"), "utf8"), /BUSINESS_MODULES := system report/);
     assert.match(await readFile(join(target, "apps/admin/vite.config.ts"), "utf8"), /backend\/web\/admin/);
   } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
+test("CLI 按所选语言生成 workspace 文档并替换动态模块说明", async () => {
+  const root = await mkdtemp(join(tmpdir(), "kratos-admin-cli-readme-locale-"));
+  const previousLocale = process.env.KRATOS_ADMIN_LOCALE;
+  try {
+    process.env.KRATOS_ADMIN_LOCALE = "en-US";
+    const englishTarget = await createBusinessWorkspace({
+      cwd: root,
+      projectName: "english-admin",
+      moduleNames: ["business", "report"]
+    });
+    const englishWorkspaceReadme = await readFile(join(englishTarget, "README.md"), "utf8");
+    assert.match(englishWorkspaceReadme, /custom modules \(business, report\)/);
+    assert.match(englishWorkspaceReadme, /independently publishable/i);
+    assert.doesNotMatch(englishWorkspaceReadme, /自有 module|可独立发布|MODULE_TABLE_ROWS/);
+    assert.match(await readFile(join(englishTarget, "apps/admin/README.md"), "utf8"), /The admin host/);
+    assert.match(await readFile(join(englishTarget, "packages/modules/business/README.md"), "utf8"), /business module for the admin app/);
+    assert.match(await readFile(join(englishTarget, "packages/modules/business/src/rpc/README.md"), "utf8"), /TypeScript generated/);
+
+    process.env.KRATOS_ADMIN_LOCALE = "zh-CN";
+    const chineseTarget = await createBusinessWorkspace({
+      cwd: root,
+      projectName: "chinese-admin",
+      moduleNames: ["business", "report"]
+    });
+    const chineseWorkspaceReadme = await readFile(join(chineseTarget, "README.md"), "utf8");
+    assert.match(chineseWorkspaceReadme, /业务管理端 workspace/);
+    assert.match(chineseWorkspaceReadme, /自有 module（business、report）/);
+    assert.match(chineseWorkspaceReadme, /可独立发布为/);
+    assert.doesNotMatch(chineseWorkspaceReadme, /__MODULE_NAMES__|__MODULE_TABLE_ROWS__/);
+  } finally {
+    if (previousLocale === undefined) delete process.env.KRATOS_ADMIN_LOCALE;
+    else process.env.KRATOS_ADMIN_LOCALE = previousLocale;
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
+test("生成工作区的 package 构建消息按 CLI 语言本地化", async () => {
+  const root = await mkdtemp(join(tmpdir(), "kratos-admin-cli-build-message-"));
+  const previousLocale = process.env.KRATOS_ADMIN_LOCALE;
+  try {
+    const target = await createBusinessWorkspace({
+      cwd: root,
+      projectName: "message-workspace",
+      moduleNames: ["business"]
+    });
+    const buildScript = await readFile(join(target, "scripts/build-package.mjs"), "utf8");
+    assert.match(buildScript, /workspaceMessage\("package_built"/);
+
+    const generatedMessages = await import(pathToFileURL(join(target, "scripts/locale-messages.mjs")).href);
+    process.env.KRATOS_ADMIN_LOCALE = "en-US";
+    assert.equal(generatedMessages.workspaceMessage("package_built", { name: "@business/admin-module" }), "Built package artifacts for @business/admin-module");
+    assert.equal(generatedMessages.workspaceMessage("locale_missing_default", { module: "sample" }), "sample is missing the zh-CN locale bundle");
+    process.env.KRATOS_ADMIN_LOCALE = "zh-CN";
+    assert.equal(generatedMessages.workspaceMessage("package_built", { name: "@business/admin-module" }), "已生成 @business/admin-module 发布文件");
+    assert.equal(generatedMessages.workspaceMessage("locale_missing_default", { module: "sample" }), "sample 缺少 zh-CN 语言包");
+  } finally {
+    if (previousLocale === undefined) delete process.env.KRATOS_ADMIN_LOCALE;
+    else process.env.KRATOS_ADMIN_LOCALE = previousLocale;
     await rm(root, { recursive: true, force: true });
   }
 });

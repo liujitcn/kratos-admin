@@ -176,6 +176,17 @@
   "system.admin.base.menu.entity.type.required": {
     "other": "Menu type cannot be empty"
   },
+  "system.admin.base.oauth_provider.get.id.required": { "other": "OAuth provider ID is required" },
+  "system.admin.base.oauth_provider.delete.id.required": { "other": "At least one OAuth provider ID is required" },
+  "system.admin.base.oauth_provider.set_status.id.required": { "other": "OAuth provider ID is required" },
+  "system.admin.base.oauth_provider.form.provider.required": { "other": "The Provider identifier is invalid" },
+  "system.admin.base.oauth_provider.form.name.required": { "other": "The sign-in method name is required and must not exceed 50 characters" },
+  "system.admin.base.oauth_provider.form.description.length": { "other": "The sign-in method hint must not exceed 255 characters" },
+  "system.admin.base.oauth_provider.form.icon.required": { "other": "The icon is required and must not exceed 255 characters" },
+  "system.admin.base.oauth_provider.form.client_id.required": { "other": "The third-party application ID is required and must not exceed 255 characters" },
+  "system.admin.base.oauth_provider.form.client_secret.length": { "other": "The third-party application secret must not exceed 512 characters" },
+  "system.admin.base.oauth_provider.form.redirect_uri.length": { "other": "The OAuth redirect URI must not exceed 512 characters" },
+  "system.admin.base.oauth_provider.form.scopes.unique": { "other": "OAuth scopes must not contain duplicates" },
   "system.admin.base.post.entity.code.max_length": {
     "other": "Position number cannot exceed 20 characters"
   },
@@ -863,8 +874,20 @@
   "system.admin.ops_monitoring.connection_healthy": {
     "other": "Connection healthy"
   },
+  "system.admin.ops_monitoring.connection_check_failed": {
+    "other": "The connection check failed. Check the service connection and credentials."
+  },
+  "system.admin.ops_monitoring.connection_close_failed": {
+    "other": "Could not close the service connection. Check the service logs."
+  },
+  "system.admin.ops_monitoring.connection_pool_unavailable": {
+    "other": "The database connection pool is unavailable. Check the service logs."
+  },
   "system.admin.ops_monitoring.redis_unconfigured": {
     "other": "Redis is not configured"
+  },
+  "system.admin.ops_monitoring.redis_configuration_invalid": {
+    "other": "The Redis configuration is invalid. Check the service logs."
   },
   "system.admin.ops_monitoring.pool": {
     "other": "Connection pool"
@@ -886,6 +909,9 @@
   },
   "system.admin.ops_monitoring.dispatch_unconfigured": {
     "other": "Message dispatch repository is not configured"
+  },
+  "system.admin.ops_monitoring.dispatch_status_unavailable": {
+    "other": "Could not read message dispatch status. Check the service logs."
   },
   "system.admin.ops_monitoring.address_count": {
     "other": "Address count"
@@ -1004,6 +1030,9 @@
   "system.code.gen.message.proto.file_missing": {
     "other": "Proto file does not exist"
   },
+  "system.code.gen.message.proto.route_unavailable": {
+    "other": "The API route cannot be determined"
+  },
   "system.code.gen.message.proto.missing_select_generate": {
     "other": "Missing; select to generate"
   },
@@ -1085,6 +1114,24 @@
   "system.code.gen.message.preview.menu_sql_update": {
     "other": "Menu and button permission SQL in {path} will be updated"
   },
+  "system.code.gen.message.preview.invalid_path": {
+    "other": "Generated path {path} is outside the allowed workspace"
+  },
+  "system.code.gen.message.preview.file_read_failed": {
+    "other": "Could not read preview file {path}"
+  },
+  "system.code.gen.message.preview.locale_render_failed": {
+    "other": "Could not render locale file {path} for preview"
+  },
+  "system.code.gen.message.preview.locale_merge_failed": {
+    "other": "Could not merge locale messages in {path}"
+  },
+  "system.code.gen.message.preview.menu_sql_path_unavailable": {
+    "other": "Could not determine a valid path for the menu permission SQL file"
+  },
+  "system.code.gen.message.preview.menu_sql_merge_failed": {
+    "other": "Could not merge generated menu permission SQL into {path}"
+  },
   "system.code.gen.message.progress.pending_execute": {
     "other": "Waiting to run"
   },
@@ -1142,6 +1189,9 @@
   "system.code.gen.message.progress.execute_complete": {
     "other": "Execution complete"
   },
+  "system.code.gen.message.progress.no_go_files_to_format": {
+    "other": "No changed Go files need formatting"
+  },
   "system.code.gen.message.progress.model_generation_failed": {
     "other": "Model generation failed"
   },
@@ -1150,6 +1200,12 @@
   },
   "system.code.gen.message.progress.command_failed": {
     "other": "Code generation failed (make {target}): {detail}"
+  },
+  "system.code.gen.message.progress.file_write_failed": {
+    "other": "Could not write generated file {path}"
+  },
+  "system.code.gen.message.progress.failure_details_unavailable": {
+    "other": "The operation failed. Review diagnostic output or service logs for details."
   },
   "system.code.gen.password_strength": {
     "other": "Password strength"
@@ -3854,10 +3910,104 @@
   ,"legacy.error.f729b50ce3ce3983": { "other": "Only the last message can be edited" }
   ,"legacy.error.7bdaeb66d03d3063": { "other": "This step has expired. Continue from the latest message" }
   ,"legacy.error.feca044b124b4405": { "other": "Failed to query third-party login provider translations" },
+  "system.code.gen.message.path_label.proto_file": { "other": "Proto file path" },
+  "system.code.gen.message.path_label.backend_biz": { "other": "Backend Biz file path" },
+  "system.code.gen.message.path_label.backend_service": { "other": "Backend service file path" },
+  "system.code.gen.message.path_label.frontend_api": { "other": "Frontend API file path" },
+  "system.code.gen.message.path_label.frontend_page": { "other": "Frontend page file path" },
+  "system.code.gen.error.output_path_invalid": { "other": "The {{.Field}} is invalid" },
   "system.code.gen.error.route_duplicate": { "other": "Generated route {{.Method}} {{.HTTPMethod}} {{.Path}} duplicates {{.Operation}} in base_api" },
   "system.code.gen.error.option_table_missing": { "other": "The target table {{.Table}} for option API {{.Method}} does not exist, so field types cannot be validated" },
   "system.code.gen.error.status_default_invalid": { "other": "The status default {{.Default}} for field {{.Field}} is neither the enabled value {{.Enabled}} nor the disabled value {{.Disabled}}" },
   "system.code.gen.error.option_column_missing": { "other": "The {{.Label}}{{.Column}} field for option API {{.Method}} does not exist" },
   "system.code.gen.error.option_column_integer": { "other": "The {{.Label}}{{.Column}} field for option API {{.Method}} must be an integer field" },
-  "system.code.gen.error.path_duplicate": { "other": "{{.Current}} cannot use the same path as {{.Previous}}" }
+  "system.code.gen.error.path_duplicate": { "other": "{{.Current}} cannot use the same path as {{.Previous}}" },
+  "system.code.gen.error.batch.empty": { "other": "Select at least one table for batch generation" },
+  "system.code.gen.error.batch.table_missing": { "other": "Generation item {{.Index}} is missing its table configuration" },
+  "system.code.gen.error.batch.table_id_required": { "other": "The code generation table ID must be greater than zero" },
+  "system.code.gen.error.batch.table_id_duplicate": { "other": "Code generation table {{.TableID}} appears more than once in the batch" },
+  "system.code.gen.error.batch.invalid_path": { "other": "Generated output path {{.Path}} is outside the allowed workspace" },
+  "system.code.gen.error.batch.page_unmergeable": { "other": "The frontend page for table {{.Table}} at {{.Path}} cannot be merged safely; the batch was not applied" },
+  "system.code.gen.error.batch.route_duplicate": { "other": "HTTP route {{.HTTPMethod}} {{.Path}} in Proto file {{.ProtoFile}} conflicts with another RPC" },
+  "system.code.gen.error.batch.definition_conflict": { "other": "Tables {{.Previous}} and {{.Current}} define different content for {{.Key}}" },
+  "system.code.gen.error.has_children": { "other": "Cannot delete {{.Parent}} because it still contains {{.Child}} records." },
+  "base.third_account.error.binding_exists": { "other": "This third-party account binding already exists" },
+  "base.third_account.error.current_user_provider_bound": { "other": "The current user has already linked this sign-in method" },
+  "base.third_account.error.account_bound_to_other_user": { "other": "This third-party account is already linked to another user" },
+  "base.oauth.callback.state_invalid": { "other": "The third-party login state is invalid" },
+  "base.oauth.callback.authorization_failed": { "other": "Third-party authorization failed" },
+  "base.oauth.callback.account_unbound": { "other": "This third-party account is not linked. Sign in with your account and password, then link it from your profile." },
+  "base.oauth.callback.login_failed": { "other": "Third-party sign-in failed" },
+  "base.oauth.callback.redirect_url_missing": { "other": "The third-party sign-in redirect URL is not configured" },
+  "base.oauth.binding_callback.state_invalid": { "other": "The third-party account binding state is invalid" },
+  "base.oauth.binding_callback.authorization_code_required": { "other": "A third-party authorization code is required" },
+  "base.oauth.binding_callback.account_bound_to_other_user": { "other": "This third-party account is already linked to another user" },
+  "base.oauth.binding_callback.current_user_provider_bound": { "other": "The current user has already linked this sign-in method" },
+  "base.oauth.binding_callback.failed": { "other": "Third-party account linking failed" },
+  "base.oauth.binding_callback.redirect_url_missing": { "other": "The third-party account binding redirect URL is not configured" },
+  "base.ai.tool.disabled": { "other": "Agent tool {{.Name}} is disabled and cannot be called." },
+  "system.ai.chat.error.tool_failed": { "other": "Tool {{.Name}} failed. Check the service logs." },
+  "system.ai.chat.error.tool_unavailable": { "other": "Tool {{.Name}} is unavailable." },
+  "system.mcp.tool_not_registered": { "other": "MCP tool {{.Name}} is not registered." },
+  "system.mcp.tool_check_failed": { "other": "Could not verify MCP tool access. Check the service logs." },
+  "base.ai.prompt.instruction": { "other": "You are a general-purpose AI assistant. Answer user requests naturally, helpfully, and accurately.\nGuidelines:\n1. Answer the current question directly; do not refuse just because it is outside this system.\n2. Help with general knowledge, everyday questions, writing, code explanations, planning, and analysis.\n3. Refer to attachments and conversation or system context when useful.\n4. For private system data such as users, dictionaries, settings, and reports, prefer available internal tools to obtain real data.\n5. If internal tools do not fit the request, return no result, or the user asks about public real-time information, you may use web search.\n6. Never invent private system data, exact values, or action results that are not present in the context or tool results.\n7. Do not expose pagination cursors, internal IDs, base64, image data, or debugging fields from tool results. If relevant, explain in natural language that another page is available or that the user can continue querying.\n8. If the history says an internal tool is disabled or unavailable and the user asks to continue a related query, clearly explain that the tool is disabled or unavailable and cannot be called.\n9. Reply in the current request language; if it cannot be determined, use Chinese. Keep responses clear and natural for display in the chat window." },
+  "base.ai.prompt.tool_routing_rules": { "other": "For private data in the current project, such as users, dictionaries, settings, or reports, prefer the available internal tools. If an internal tool matches this turn, answer only with internal tools and do not use web search; if none matches, use web search only for public real-time information. Follow tool descriptions and parameter defaults; do not add or remove query conditions without instruction. When the user clarifies a condition after a query, reuse the latest relevant tool and preserve the other conditions, changing only the clarified condition. Ask if the target or condition is ambiguous." },
+  "base.ai.prompt.business_date": { "other": "- Current business date: {{.Value}}" },
+  "base.ai.prompt.business_timezone": { "other": "- Business time zone: {{.Location}} (UTC{{.Offset}})" },
+  "base.ai.prompt.current_session": { "other": "Current session:" },
+  "base.ai.prompt.terminal": { "other": "- Terminal: {{.Value}}" },
+  "base.ai.prompt.user": { "other": "- User: {{.Value}}" },
+  "base.ai.prompt.title": { "other": "- Title: {{.Value}}" },
+  "base.ai.prompt.summary": { "other": "- Summary: {{.Value}}" },
+  "base.ai.prompt.attachment_notice": { "other": "The user provided attachments in this turn. Their contents are included in the message; refer to them when relevant." },
+  "base.ai.prompt.image_attachment": { "other": "Image attachment {{.Name}} is provided as visual input to the model." },
+  "base.ai.prompt.text_attachment": { "other": "Attachment {{.Name}} content:\n{{.Content}}" },
+  "base.ai.prompt.attachment_message_intro": { "other": "The current message includes the following attachments. Refer to them when relevant:" },
+  "base.ai.prompt.attachment_name": { "other": "Attachment {{.Name}}" },
+  "base.ai.prompt.attachment_type": { "other": "Type: {{.Value}}" },
+  "base.ai.prompt.attachment_size": { "other": "Size: {{.Value}} bytes" },
+  "base.ai.prompt.attachment_url": { "other": "URL: {{.Value}}" },
+  "base.ai.prompt.assistant_description": { "other": "Admin AI assistant for conversation, internal tools, and web search." },
+  "base.ai.prompt.catalog_tool_description": { "other": "Query the complete internal Agent Tool catalog for the current terminal, including tool counts, names, and descriptions. Use when the user asks which tools or APIs are available." },
+  "base.ai.prompt.attachment_unnamed": { "other": "Unnamed attachment" },
+  "base.ai.prompt.history_tool_context": { "other": "Previous internal tool context is for understanding follow-up questions only. Never show it directly to the user:" },
+  "base.ai.prompt.history_tool_name": { "other": "- Tool name: {{.Name}}" },
+  "base.ai.prompt.history_tool_title": { "other": "  Tool title: {{.Title}}" },
+  "base.ai.prompt.history_tool_input": { "other": "  Input: {{.Input}}" },
+  "base.ai.prompt.history_tool_output": { "other": "  Output: {{.Output}}" },
+  "system.base.user.error.duplicate_identity": { "other": "This username or user code is already in use in the tenant" },
+  "system.base.user.error.duplicate_user_name": { "other": "This username is already in use in the tenant" },
+  "system.base.user.error.duplicate_user_code": { "other": "This user code is already in use in the tenant" },
+  "system.ai.chat.error.fallback_reply.content": { "other": "Your question was received: {{.Content}}. However, the AI assistant is currently unavailable and cannot generate a complete reply. Please try again later." },
+  "system.ai.chat.error.fallback_reply.attachments": { "other": "Your question was received with {{.Count}} attachment(s), but the AI assistant is currently unavailable and cannot generate a complete reply. Please try again later." },
+  "legacy.error.0cf67600c5317be5": { "other": "The task is already running on another instance" },
+  "legacy.error.d6dad83238ab7270": { "other": "The login IP address is on the denylist" },
+  "legacy.error.baabf07429595997": { "other": "The login MAC address is on the denylist" },
+  "legacy.error.27c12cba0463a64f": { "other": "The login region is on the denylist" },
+  "legacy.error.020eaa6e9305844c": { "other": "Login is not allowed at this time" },
+  "legacy.error.36f18cb8cc1347dc": { "other": "The login device is on the denylist" },
+  "legacy.error.1efa62aa3b12f109": { "other": "The login source is on the denylist" },
+  "legacy.error.48fb2e3cbfc3df7b": { "other": "The login IP address is not on the allowlist" },
+  "legacy.error.6ce9e8310f7d0a6f": { "other": "The login MAC address is not on the allowlist" },
+  "legacy.error.136942b0f292b207": { "other": "The login region is not on the allowlist" },
+  "legacy.error.14d64ced023b18bb": { "other": "The current time is outside the allowed window" },
+  "legacy.error.4575220a10a47a02": { "other": "The login device is not on the allowlist" },
+  "legacy.error.8a1e11040b992b1f": { "other": "The login source is not on the allowlist" },
+  "base.ai.message.attachment_prompt": { "other": "Please continue analyzing the attached content" },
+  "base.ai.session.default_summary": { "other": "New conversation" },
+  "base.ai.session.attachment_summary": { "other": "{{.Count}} attachment(s)" },
+  "base.ai.session.default_title": { "other": "New conversation" },
+  "base.ai.session.branch_title": { "other": "Branch conversation" },
+  "system.base.tenant.default_department_name": { "other": "Default department" },
+  "system.base.tenant.default_department_remark": { "other": "Default department for this tenant" },
+  "system.base.tenant.default_admin_nickname": { "other": "Administrator" },
+  "system.base.tenant.default_admin_remark": { "other": "Default tenant administrator. The initial password follows the global password policy." },
+  "system.base.tenant.value.missing_name": { "other": "Missing tenant (ID: {{.ID}})" },
+  "legacy.error.c1eb17bd5887ac52": { "other": "Tenant administrator" },
+  "legacy.error.bd9cb10928c622d0": { "other": "Default permissions for tenant administrators, managed by the default tenant" },
+  "system.oauth.crypto.error.client_token_invalid": { "other": "The client access token is invalid" },
+  "system.oauth.crypto.error.config_invalid": { "other": "The client encryption configuration is invalid" },
+  "system.oauth.crypto.error.request_decrypt_failed": { "other": "Failed to decrypt the request data" },
+  "system.oauth.crypto.error.response_too_large": { "other": "The response exceeds the size limit" },
+  "system.oauth.crypto.error.response_encrypt_failed": { "other": "Failed to encrypt the response" }
 }

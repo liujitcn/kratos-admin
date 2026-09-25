@@ -103,17 +103,17 @@ func (s *MenuSQLState) resolveMenu(menu *models.BaseMenu) error {
 func (c *renderer) newGeneratedMenuSQLPreviewFile(table *Table, content string) *adminv1.CodeGenPreviewFile {
 	path, err := nextGeneratedMenuSQLPath(c.migrationVersion)
 	if err != nil {
-		return &adminv1.CodeGenPreviewFile{Action: "skip", Content: content, Message: err.Error()}
+		return &adminv1.CodeGenPreviewFile{Action: "skip", Content: content, Message: Message(c.localeState, "preview.menu_sql_path_unavailable", nil)}
 	}
 	_, err = SafeRepoFilePath(path)
 	if err != nil {
-		return &adminv1.CodeGenPreviewFile{Path: path, Action: "skip", Content: content, Message: err.Error()}
+		return &adminv1.CodeGenPreviewFile{Path: path, Action: "skip", Content: content, Message: Message(c.localeState, "preview.invalid_path", map[string]string{"path": path})}
 	}
 	var current []byte
 	current, err = c.readRepoFile(path)
 	if err != nil {
 		if !os.IsNotExist(err) {
-			return &adminv1.CodeGenPreviewFile{Path: path, Action: "skip", Content: content, Message: err.Error()}
+			return &adminv1.CodeGenPreviewFile{Path: path, Action: "skip", Content: content, Message: Message(c.localeState, "preview.file_read_failed", map[string]string{"path": path})}
 		}
 		return &adminv1.CodeGenPreviewFile{
 			Path:    path,
@@ -130,7 +130,7 @@ func (c *renderer) newGeneratedMenuSQLPreviewFile(table *Table, content string) 
 			Action:  "skip",
 			Content: string(current),
 			Exists:  true,
-			Message: err.Error(),
+			Message: Message(c.localeState, "preview.menu_sql_merge_failed", map[string]string{"path": path}),
 		}
 	}
 	if string(current) == merged {

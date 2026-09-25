@@ -1,11 +1,12 @@
 import { execFileSync } from 'node:child_process'
 import { copyFileSync, existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { basename, resolve } from 'node:path'
+import { cliMessage, resolveCliLocale } from './messages.mjs'
 
 const cliPackage = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8'))
 const publicPackageVersion = cliPackage.version
 if (typeof publicPackageVersion !== 'string' || !publicPackageVersion) {
-  throw new Error('CLI package.json 缺少有效版本')
+  throw new Error(cliMessage('package_version_missing'))
 }
 
 const taroVersion = '4.2.1'
@@ -16,7 +17,7 @@ const h5RootFontSource =
 /** 创建独立 Kratos Taro React workspace。 */
 export function scaffoldKratosTaroApp(targetPath, options = {}) {
   const target = resolve(targetPath)
-  if (existsSync(target)) throw new Error(`目标目录已存在：${target}`)
+  if (existsSync(target)) throw new Error(cliMessage('target_exists', { target }))
   const projectName = basename(target)
   validateProjectName(projectName)
   const modules = [...new Set(options.modules ?? [])]
@@ -74,58 +75,19 @@ export async function run(args = process.argv.slice(2)) {
     printHelp()
     return
   }
-  if (args[0] !== 'create') throw new Error(`不支持的命令：${args[0]}`)
+  if (args[0] !== 'create') throw new Error(cliMessage('unsupported_command', { command: args[0] }))
   const targetPath = args[1]
   if (!targetPath || targetPath.startsWith('--')) {
-    throw new Error('用法: kratos-taro-app create <目录> [--module <名称>] [--with <包名>]')
+    throw new Error(cliMessage('usage'))
   }
   const modules = readOptions(args.slice(2), '--module')
   const packages = readOptions(args.slice(2), '--with')
   const target = scaffoldKratosTaroApp(targetPath, { modules, packages, kratosProject: args.includes('--kratos-project') })
-  process.stdout.write(`已创建 Taro workspace：${target}\n`)
+  process.stdout.write(`${cliMessage('workspace_created', { target })}\n`)
 }
 
 function writeWorkspaceReadme(target, projectName) {
-  write(
-    target,
-    'README.md',
-    `# ${projectName}
-
-\`${projectName}\` 是由 \`@liujitcn/kratos-taro-app-cli\` 创建的独立 pnpm workspace，使用 Taro、React 和 TypeScript，支持 H5 与微信小程序。
-
-## 目录结构
-
-\`\`\`text
-${projectName}
-├── apps/taro-app             # 私有 Taro 宿主
-├── packages/modules          # workspace 内本地业务模块
-├── package.json              # 公共命令和开发依赖
-├── pnpm-workspace.yaml       # workspace 包范围
-└── tsconfig.json             # 共享 TypeScript 配置
-\`\`\`
-
-宿主只负责入口、模块清单和平台构建配置。运行时底座、UI 主题和默认业务页分别由 \`@liujitcn/kratos-taro-app-core\`、\`@liujitcn/kratos-taro-app-ui\` 与 \`@liujitcn/kratos-taro-app-system\` 提供。
-
-## 开发
-
-\`\`\`bash
-pnpm install
-pnpm dev:h5
-pnpm dev:mp-weixin
-pnpm build:h5
-pnpm build:mp-weixin
-pnpm tsc
-\`\`\`
-
-开发产物位于 apps/taro-app/dist/dev/<平台>，生产产物位于 apps/taro-app/dist/build/<平台>（平台为 h5 或 mp-weixin）；Kratos 配套项目的 H5 生产产物输出到 backend/web/taro-app。微信开发者工具默认使用 dist/dev/mp-weixin，发布时导入 dist/build/mp-weixin。
-
-模块装配入口是 \`apps/taro-app/src/module-manifest.ts\`。模块顺序决定静态视图覆盖优先级；新增页面时同步维护模块自己的 \`src/pages.ts\` 和视图映射。
-
-环境文件位于 workspace 根目录，变量名与 uni-app 保持一致：\`VITE_APP_PORT\`、\`VITE_APP_BASE_PATH\`、\`VITE_APP_BASE_API\`、\`VITE_APP_API_URL\`、\`VITE_APP_STATIC_API\`、\`VITE_APP_STATIC_URL\`。H5 会在基础模式文件上叠加对应的 \`*-h5\` 文件。
-
-H5 通过局域网 IP 访问时，先在仓库根目录运行 \`bash scripts/generate-dev-cert.sh 192.168.1.100\` 生成证书，再在 \`.env.development-h5.local\` 中设置 \`VITE_APP_HTTPS=true\`；后端使用 HTTPS 时同时设置 \`VITE_APP_API_URL=https://localhost:7001\`。
-`,
-  )
+  write(target, 'README.md', renderLocalizedReadme('workspace.md', { __PROJECT_NAME__: projectName }))
 }
 
 function writeEnvironmentFiles(target) {
@@ -137,7 +99,7 @@ function writeEnvironmentFiles(target) {
   write(
     target,
     '.env.development-h5',
-    'VITE_APP_PORT=5002\nVITE_APP_HTTPS=false\n# VITE_APP_HTTPS_KEY=../../certs/dev-key.pem\n# VITE_APP_HTTPS_CERT=../../certs/dev-cert.pem\n# 后端使用 HTTPS 时，在 .env.development-h5.local 覆盖 VITE_APP_API_URL=https://localhost:7001\nVITE_APP_BASE_PATH=/\nVITE_APP_BASE_API=/api\nVITE_APP_API_URL=http://localhost:7001\nVITE_APP_STATIC_API=\nVITE_APP_STATIC_URL=http://localhost:7001\n',
+    `VITE_APP_PORT=5002\nVITE_APP_HTTPS=false\n# VITE_APP_HTTPS_KEY=../../certs/dev-key.pem\n# VITE_APP_HTTPS_CERT=../../certs/dev-cert.pem\n# ${cliMessage('https_environment_hint')}\nVITE_APP_BASE_PATH=/\nVITE_APP_BASE_API=/api\nVITE_APP_API_URL=http://localhost:7001\nVITE_APP_STATIC_API=\nVITE_APP_STATIC_URL=http://localhost:7001\n`,
   )
   write(
     target,
@@ -207,16 +169,7 @@ function writeHost(target, projectName, modules, packages, options) {
   write(
     target,
     'apps/taro-app/README.md',
-    `# @local/kratos-taro-app
-
-\`apps/taro-app\` 是 \`${projectName}\` 的私有 Taro React 宿主，负责装配模块并提供 H5、微信小程序构建入口，不承载可复用业务实现。
-
-开发产物位于 apps/taro-app/dist/dev/<平台>，生产产物位于 apps/taro-app/dist/build/<平台>（平台为 h5 或 mp-weixin）；Kratos 配套项目的 H5 生产产物输出到 backend/web/taro-app。微信开发者工具默认使用 dist/dev/mp-weixin，发布时导入 dist/build/mp-weixin。
-
-固定启动页位于 \`src/pages/bootstrap\`。其他模块页面由 core runner 在构建期间临时生成包装器、页面配置与静态资源，构建结束后会自动恢复宿主目录。
-
-通过局域网 IP 访问 H5 时，可复用仓库根 certs 下的共享证书，并在 .env.development-h5.local 中设置 VITE_APP_HTTPS=true；后端使用 HTTPS 时同步设置 VITE_APP_API_URL=https://localhost:7001。
-`,
+    renderLocalizedReadme('host.md', { __PROJECT_NAME__: projectName }),
   )
   write(
     target,
@@ -377,15 +330,10 @@ function writeLocalModule(target, projectName, name) {
   write(
     target,
     `packages/modules/${name}/README.md`,
-    `# @local/${name}
-
-\`@local/${name}\` 是 \`${projectName}\` workspace 内的本地 Taro 业务模块，通过 core 的公开接口接入宿主。
-
-- 页面放在 \`src/views\`，页面配置登记在 \`src/pages.ts\`。
-- 稳定视图键登记在 \`src/index.ts\`，后注册模块具有更高覆盖优先级。
-- 请求、认证、导航和状态能力只能通过公开包入口使用。
-- \`src/build.ts\` 是 runner 使用的构建期描述，不承载运行时逻辑。
-`,
+    renderLocalizedReadme('module.md', {
+      __PROJECT_NAME__: projectName,
+      __MODULE_NAME__: name,
+    }),
   )
   write(
     target,
@@ -457,6 +405,7 @@ import { dirname, resolve } from 'node:path'
 import { defineConfig, type UserConfigExport } from '@tarojs/cli'
 import { dotenvParse } from '@tarojs/helper'
 import TsconfigPathsPlugin from 'tsconfig-paths-webpack-plugin'
+import { runnerMessage } from '@liujitcn/kratos-taro-app-core/build'
 import devConfig from './dev'
 import prodConfig from './prod'
 
@@ -469,7 +418,7 @@ function resolveHttpsOptions(env: Record<string, string>, root: string) {
   const keyPath = resolve(root, env.VITE_APP_HTTPS_KEY || '../../certs/dev-key.pem')
   const certPath = resolve(root, env.VITE_APP_HTTPS_CERT || '../../certs/dev-cert.pem')
   if (!existsSync(keyPath) || !existsSync(certPath)) {
-    throw new Error('VITE_APP_HTTPS 已开启，但未找到证书文件，请先在仓库根目录运行 scripts/generate-dev-cert.sh；期望路径：' + keyPath + ' 和 ' + certPath)
+    throw new Error(runnerMessage('https_certificate_missing', { keyPath, certPath }))
   }
   return { key: readFileSync(keyPath), cert: readFileSync(certPath) }
 }
@@ -619,10 +568,10 @@ function readOptions(args, option) {
     const argument = args[index]
     if (argument === '--kratos-project') continue
     if (argument !== '--module' && argument !== '--with') {
-      throw new Error(`未知参数：${argument}`)
+      throw new Error(cliMessage('unknown_argument', { argument }))
     }
     const value = args[++index]
-    if (!value || value.startsWith('--')) throw new Error(`选项 ${argument} 缺少值`)
+    if (!value || value.startsWith('--')) throw new Error(cliMessage('option_missing_value', { option: argument }))
     if (argument === option) {
       values.push(
         ...value
@@ -636,16 +585,16 @@ function readOptions(args, option) {
 }
 
 function validateProjectName(name) {
-  if (!/^[a-z][a-z0-9-]*$/.test(name)) throw new Error(`项目名必须使用 kebab-case：${name}`)
+  if (!/^[a-z][a-z0-9-]*$/.test(name)) throw new Error(cliMessage('project_name_invalid', { name }))
 }
 
 /** 校验本地业务模块名称。 */
 function validateModuleName(name) {
-  if (!/^[a-z][a-z0-9-]*$/.test(name)) throw new Error(`模块名无效：${name}`)
+  if (!/^[a-z][a-z0-9-]*$/.test(name)) throw new Error(cliMessage('module_name_invalid', { name }))
 }
 
 function validatePackageName(name) {
-  if (!/^(?:@[a-z0-9-]+\/)?[a-z0-9-]+$/.test(name)) throw new Error(`包名无效：${name}`)
+  if (!/^(?:@[a-z0-9-]+\/)?[a-z0-9-]+$/.test(name)) throw new Error(cliMessage('package_name_invalid', { name }))
 }
 
 function toCamelCase(value) {
@@ -665,12 +614,12 @@ function json(value) {
 function printHelp() {
   process.stdout.write(
     [
-      'kratos-taro-app create <目录> [--module <名称[,名称...]>] [--with <包名>]',
+      cliMessage('usage'),
       '',
-      '示例:',
-      '  kratos-taro-app create customer-app',
-      '  kratos-taro-app create business-app --module business,report',
-      '  kratos-taro-app create customer-app --with @acme/customer-module',
+      cliMessage('examples_heading'),
+      cliMessage('example_create'),
+      cliMessage('example_modules'),
+      cliMessage('example_package'),
       '',
     ].join('\n'),
   )
@@ -689,6 +638,18 @@ function renderWorkspaceTemplates(source, target, tokens) {
       writeFileSync(output, content)
     }
   }
+}
+
+/** 按 CLI 语言加载并替换 workspace README 模板。 */
+function renderLocalizedReadme(name, tokens) {
+  const template = readFileSync(
+    new URL(`../templates/readmes/${resolveCliLocale()}/${name}`, import.meta.url),
+    'utf8',
+  )
+  return Object.entries(tokens).reduce(
+    (content, [key, value]) => content.replaceAll(key, () => value),
+    template,
+  )
 }
 
 /** 创建业务模块语言源文件及 API、RPC、测试目录，注册产物由同步命令生成。 */

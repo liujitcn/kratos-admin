@@ -65,7 +65,7 @@ export class FileServiceImpl {
       document.body.removeChild(a);
       window.URL.revokeObjectURL(url);
     } catch (error) {
-      console.error("下载错误:", error);
+      console.error("File download failed:", error);
     }
   }
 }

@@ -112,7 +112,7 @@ func (c *BaseI18nCustomCase) CreateBaseI18nCustom(ctx context.Context, req *admi
 	err = c.Create(ctx, item)
 	if err != nil {
 		if errorsx.IsDuplicateKey(err) {
-			return errorsx.UniqueConflict("同一位置、语言和语言键的自定义翻译重复", "base_i18n_custom", "", "unique_base_i18n_custom").WithCause(err)
+			return errorsx.UniqueConflict("同一位置、语言和语言键的自定义翻译重复", "base_i18n_custom", "tenant_id,site,key,locale", "unique_base_i18n_custom").WithCause(err)
 		}
 		return err
 	}
@@ -149,7 +149,7 @@ func (c *BaseI18nCustomCase) UpdateBaseI18nCustom(ctx context.Context, req *admi
 	err = c.UpdateByID(ctx, item)
 	if err != nil {
 		if errorsx.IsDuplicateKey(err) {
-			return errorsx.UniqueConflict("同一位置、语言和语言键的自定义翻译重复", "base_i18n_custom", "", "unique_base_i18n_custom").WithCause(err)
+			return errorsx.UniqueConflict("同一位置、语言和语言键的自定义翻译重复", "base_i18n_custom", "tenant_id,site,key,locale", "unique_base_i18n_custom").WithCause(err)
 		}
 		return err
 	}

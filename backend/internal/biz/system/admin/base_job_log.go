@@ -2,11 +2,14 @@ package biz
 
 import (
 	"context"
+	"encoding/json"
 	"strconv"
+	"strings"
 
 	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
+	"github.com/liujitcn/kratos-admin/backend/internal/i18n"
 	"github.com/liujitcn/kratos-core/biz"
 
 	"github.com/liujitcn/go-utils/mapper"
@@ -79,9 +82,36 @@ func (c *BaseJobLogCase) GetBaseJobLog(ctx context.Context, id int64) (*adminv1.
 	return c.toBaseJobLog(baseJobLog), nil
 }
 
-// toBaseJobLog 转换任务日志响应
+// toBaseJobLog 转换任务日志响应并规范化调度器错误。
 func (c *BaseJobLogCase) toBaseJobLog(item *models.BaseJobLog) *adminv1.BaseJobLog {
 	baseJobLog := c.mapper.ToDTO(item)
 	baseJobLog.ProcessTime = strconv.FormatInt(int64(item.ProcessTime), 10)
+	baseJobLog.Error = normalizeJobLogError(item.Input, item.Error)
 	return baseJobLog
+}
+
+// normalizeJobLogError 将 Core 调度器未编码的固定错误转换为持久化国际化消息。
+func normalizeJobLogError(input, message string) string {
+	if message == "" || strings.HasPrefix(message, "__I18N__:") {
+		return message
+	}
+	switch {
+	case strings.HasPrefix(message, "调用目标不存在"):
+		return i18n.EncodeMessage("system.base.job.log.error.target_missing", nil)
+	case strings.HasPrefix(message, "任务正在其他实例执行"):
+		return i18n.EncodeMessage("system.base.job.log.error.running_elsewhere", nil)
+	case strings.HasPrefix(message, "任务执行异常:"):
+		return i18n.EncodeMessage("system.base.job.log.error.execution_panic", nil)
+	}
+	if input != "" {
+		var args []*struct {
+			Key   string `json:"key"`
+			Value string `json:"value"`
+		}
+		err := json.Unmarshal([]byte(input), &args)
+		if err != nil {
+			return i18n.EncodeMessage("system.base.job.log.error.arguments_invalid", nil)
+		}
+	}
+	return message
 }

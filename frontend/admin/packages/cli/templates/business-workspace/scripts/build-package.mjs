@@ -1,6 +1,7 @@
 import { cp, mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { execFileSync } from "node:child_process";
 import { resolve } from "node:path";
+import { workspaceMessage } from "./locale-messages.mjs";
 
 const packageRoot = resolve(process.cwd(), process.argv[2] ?? ".");
 const declarationRoot = resolve(packageRoot, "dist/declarations");
@@ -18,4 +19,4 @@ await cp(resolve(packageRoot, "src"), resolve(outputRoot, "src"), { recursive: t
 await cp(declarationRoot, resolve(outputRoot, "declarations"), { recursive: true });
 await writeFile(resolve(outputRoot, "declarations/index.d.ts"), 'export * from "./src/index";\n');
 await rm(declarationRoot, { recursive: true, force: true });
-console.log(`已生成 ${packageJson.name} 发布文件`);
+console.log(workspaceMessage("package_built", { name: packageJson.name }));

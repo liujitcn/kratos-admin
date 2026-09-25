@@ -5,6 +5,8 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
+
+	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/codegen"
 )
 
 // TestFormatCodeGenChangesScope 验证 make fmt 收到的清单只包含本次改写文件，且支持空格路径。
@@ -44,7 +46,7 @@ func TestFormatCodeGenChangesScope(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	_, err = formatCodeGenChanges(context.Background(), backend, before)
+	_, err = formatCodeGenChanges(context.Background(), backend, before, codegen.LocaleState{Current: "zh-CN", Primary: "zh-CN"})
 	if err != nil {
 		t.Fatal(err)
 	}

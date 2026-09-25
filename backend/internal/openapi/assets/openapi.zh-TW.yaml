@@ -12579,7 +12579,7 @@ components:
             properties:
                 proto_file_path:
                     type: string
-                    description: Proto檔案路徑
+                    description: Proto 檔案路徑
                 backend_biz_file_path:
                     type: string
                     description: 後端Biz檔案路徑
@@ -12657,7 +12657,7 @@ components:
                     description: 方法名
                 proto_file_path:
                     type: string
-                    description: Proto檔案路徑
+                    description: Proto 檔案路徑
                 exists:
                     type: boolean
                     description: 介面是否已存在

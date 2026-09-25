@@ -1184,7 +1184,9 @@ function formatAttachmentMeta(attachment: AiAttachment) {
 
 function formatTools(tools: AiToolCall[]) {
   return tools
-    .map((item) => item.title || item.name)
+    .map((item) =>
+      item.name === 'web_search' ? t('system.ai.web_search') : item.title || item.name,
+    )
     .filter(Boolean)
     .join(' · ')
 }

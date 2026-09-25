@@ -4,7 +4,9 @@ import { execFileSync } from "node:child_process";
 import { mkdir, readFile, readdir, rm, stat, writeFile } from "node:fs/promises";
 import { basename, dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
-import { cliMessage } from "./messages.js";
+import { cliMessage, resolveLocale } from "./messages.js";
+
+type CliLocale = ReturnType<typeof resolveLocale>;
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const templateRoot = resolve(packageRoot, "templates/business-workspace");
@@ -34,10 +36,11 @@ export async function createBusinessWorkspace(options: CreateWorkspaceOptions): 
   const target = resolve(cwd, options.projectName);
   const projectName = basename(target);
   const moduleNames = normalizeModuleNames(options.moduleNames);
+  const locale = resolveLocale();
   const primaryModuleName = moduleNames[0];
   const additionalModules = normalizeAdditionalModules(options.additionalModules ?? [], moduleNames);
 
-  validateName(projectName, "项目名称");
+  validateName(projectName, "project_name_label");
   if (await pathExists(target)) throw new Error(cliMessage("target_exists", { target }));
 
   const packageVersion = await readCliPackageVersion();
@@ -108,8 +111,8 @@ export async function createBusinessWorkspace(options: CreateWorkspaceOptions): 
     __APP_DEPENDENCIES__: formatJsonValue(appDependencies, "  "),
     __MODULE_FILTERS__: modulePackages.map(packageName => `--filter=${packageName}`).join(" "),
     __MODULE_MANIFEST__: moduleManifest,
-    __MODULE_NAMES__: moduleNames.join("、"),
-    __MODULE_PACKAGES__: modulePackages.map(packageName => `\`${packageName}\``).join("、"),
+    __MODULE_NAMES__: moduleNames.join(cliMessage("list_separator")),
+    __MODULE_PACKAGES__: modulePackages.map(packageName => `\`${packageName}\``).join(cliMessage("list_separator")),
     __MODULE_PATHS__: formatJsonValue(modulePaths, "    "),
     __MODULE_TREE__: createModuleTree(moduleNames),
     __MODULE_TABLE_ROWS__: createModuleTableRows(moduleNames)
@@ -117,17 +120,17 @@ export async function createBusinessWorkspace(options: CreateWorkspaceOptions): 
 
   await mkdir(target, { recursive: false });
   try {
-    await renderDirectory(templateRoot, target, tokens);
+    await renderDirectory(templateRoot, target, tokens, locale);
     const moduleTemplateRoot = resolve(templateRoot, "packages/modules/__MODULE_NAME__");
     for (const moduleName of moduleNames.slice(1)) {
       await renderDirectory(moduleTemplateRoot, resolve(target, "packages/modules", moduleName), {
         ...createModuleTokens(moduleName, packageVersion),
         __PROJECT_NAME__: projectName
-      });
+      }, locale);
     }
     execFileSync(process.execPath, [resolve(target, "scripts/sync-locales.mjs"), "--write"], { stdio: "inherit" });
     if (options.kratosProject) {
-      await renderDirectory(resolve(packageRoot, "templates/project-frontend"), dirname(target), tokens);
+      await renderDirectory(resolve(packageRoot, "templates/project-frontend"), dirname(target), tokens, locale);
     }
   } catch (error) {
     await rm(target, { recursive: true, force: true });
@@ -161,16 +164,21 @@ export async function runCli(args = process.argv.slice(2)): Promise<void> {
 }
 
 /** 渲染模板目录中的路径和文本占位符。 */
-async function renderDirectory(source: string, target: string, tokens: Record<string, string>): Promise<void> {
+async function renderDirectory(source: string, target: string, tokens: Record<string, string>, locale: CliLocale): Promise<void> {
   await mkdir(target, { recursive: true });
   const entries = await readdir(source, { withFileTypes: true });
+  const localizedReadme = `README.${locale}.md`;
+  const hasLocalizedReadme = entries.some(entry => entry.name === localizedReadme);
   for (const entry of entries) {
-    const renderedName = entry.name === gitignoreTemplateName ? ".gitignore" : replaceTokens(entry.name, tokens).replace(/\.tmpl$/, "");
+    if (entry.name === "README.md" && hasLocalizedReadme) continue;
+    if (/^README\.(zh-CN|en-US)\.md$/.test(entry.name) && entry.name !== localizedReadme) continue;
+    const sourceName = entry.name === localizedReadme ? "README.md" : entry.name;
+    const renderedName = entry.name === gitignoreTemplateName ? ".gitignore" : replaceTokens(sourceName, tokens).replace(/\.tmpl$/, "");
     const sourcePath = join(source, entry.name);
     const targetPath = join(target, renderedName);
     if (entry.isDirectory()) {
       await mkdir(targetPath, { recursive: true });
-      await renderDirectory(sourcePath, targetPath, tokens);
+      await renderDirectory(sourcePath, targetPath, tokens, locale);
       continue;
     }
     const content = await readFile(sourcePath, "utf8");
@@ -199,7 +207,8 @@ function readOptions(args: string[], option: string): string[] {
 }
 
 /** 校验项目与模块名称。 */
-function validateName(value: string, label: string): void {
+function validateName(value: string, labelKey: string): void {
+  const label = cliMessage(labelKey);
   if (!kebabNamePattern.test(value)) throw new Error(cliMessage("kebab_required", { label, value }));
 }
 
@@ -208,7 +217,7 @@ function normalizeModuleNames(moduleNames: string[]): [string, ...string[]] {
   const normalized = [...new Set(moduleNames.map(name => name.trim()).filter(Boolean))];
   const primaryModuleName = normalized[0];
   if (!primaryModuleName) throw new Error(cliMessage("module_required"));
-  normalized.forEach(name => validateName(name, "模块名称"));
+  normalized.forEach(name => validateName(name, "module_name_label"));
   const reservedName = normalized.find(name => name === "kratos-admin");
   if (reservedName) throw new Error(cliMessage("reserved_module", { name: reservedName }));
   return [primaryModuleName, ...normalized.slice(1)];
@@ -217,7 +226,7 @@ function normalizeModuleNames(moduleNames: string[]): [string, ...string[]] {
 /** 规范化额外模块列表并去重。 */
 function normalizeAdditionalModules(moduleNames: string[], currentModules: string[]): string[] {
   const normalized = [...new Set(moduleNames.map(name => name.trim()).filter(Boolean))];
-  normalized.forEach(name => validateName(name, "额外模块名称"));
+  normalized.forEach(name => validateName(name, "additional_module_name_label"));
   return normalized.filter(name => name !== "system" && !currentModules.includes(name));
 }
 
@@ -260,9 +269,7 @@ function createModuleTree(moduleNames: string[]): string {
 
 /** 创建 README 中的业务模块目录说明。 */
 function createModuleTableRows(moduleNames: string[]): string {
-  return moduleNames
-    .map(name => `| \`packages/modules/${name}/\` | 可独立发布的 \`@${name}/admin-module\` 业务 module。 |`)
-    .join("\n");
+  return moduleNames.map(name => cliMessage("module_table_row", { name })).join("\n");
 }
 
 /** 将 kebab-case 转换为 camelCase。 */
@@ -297,7 +304,7 @@ function printHelp(): void {
     [
       "kratos-admin create <project> --module <module[,module...]> [--module <module>] [--with other] [--kratos-project]",
       "",
-      "示例:",
+      cliMessage("examples_heading"),
       "  kratos-admin create business-admin --module business",
       "  kratos-admin create business-admin --module business,report",
       "  kratos-admin create business-admin --module business --module report",

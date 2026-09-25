@@ -57,7 +57,7 @@ func BuildModules(migrations *migration.Migration, config2 *configv1.Bootstrap, 
 	transaction := data2.NewTransaction(dataData)
 	aiSessionRepository := data2.NewAiSessionRepository(dataData)
 	aiMessageRepository := data2.NewAiMessageRepository(dataData)
-	aiSessionCase := biz2.NewAiSessionCase(baseCase, transaction, aiSessionRepository, aiMessageRepository)
+	aiSessionCase := biz2.NewAiSessionCase(baseCase, transaction, aiSessionRepository, aiMessageRepository, catalog)
 	baseUserRepository := data2.NewBaseUserRepository(dataData)
 	baseUserCase := biz2.NewBaseUserCase(baseCase, baseUserRepository)
 	ai_Model, err := config.ParseAIModel(config2)
@@ -66,7 +66,7 @@ func BuildModules(migrations *migration.Migration, config2 *configv1.Bootstrap, 
 	}
 	assistantClient := model.NewAssistantClient(ai_Model)
 	baseAPIRepository := data2.NewBaseAPIRepository(dataData)
-	mcpCase, err := biz2.NewMcpCase(baseCase, baseAPIRepository, authorizer)
+	mcpCase, err := biz2.NewMcpCase(baseCase, baseAPIRepository, authorizer, catalog)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -101,7 +101,7 @@ func BuildModules(migrations *migration.Migration, config2 *configv1.Bootstrap, 
 	baseUserMFATotpRepository := data2.NewBaseUserMFATotpRepository(dataData)
 	baseUserMFARecoveryRepository := data2.NewBaseUserMFARecoveryRepository(dataData)
 	baseUserMFAWebauthnRepository := data2.NewBaseUserMFAWebauthnRepository(dataData)
-	baseTenantCase := biz3.NewBaseTenantCase(baseCase, transaction, baseTenantRepository, baseDeptRepository, baseRoleRepository, baseUserRepository, baseMessageRepository, baseMessageDispatchRepository, baseMessageDeliveryRepository, oauthClientRepository, baseFileRepository, baseThirdAccountRepository, baseUserMFARepository, baseUserMFATotpRepository, baseUserMFARecoveryRepository, baseUserMFAWebauthnRepository, userToken, casbinRuleRepository, casbinRuleCase)
+	baseTenantCase := biz3.NewBaseTenantCase(baseCase, transaction, baseTenantRepository, baseDeptRepository, baseRoleRepository, baseUserRepository, baseMessageRepository, baseMessageDispatchRepository, baseMessageDeliveryRepository, oauthClientRepository, baseFileRepository, baseThirdAccountRepository, baseUserMFARepository, baseUserMFATotpRepository, baseUserMFARecoveryRepository, baseUserMFAWebauthnRepository, userToken, casbinRuleRepository, casbinRuleCase, catalog)
 	fileCase := biz2.NewFileCase(baseCase, baseFileRepository)
 	authCase := biz3.NewAuthCase(baseCase, bizBaseUserCase, baseRoleCase, baseDeptCase, baseTenantCase, baseMenuCase, fileCase)
 	authService := admin.NewAuthService(authCase)
@@ -134,18 +134,18 @@ func BuildModules(migrations *migration.Migration, config2 *configv1.Bootstrap, 
 	baseJobLogService := admin.NewBaseJobLogService(baseJobLogCase)
 	baseLanguageService := admin.NewBaseLanguageService(baseLanguageCase)
 	baseLoginLogRepository := data2.NewBaseLoginLogRepository(dataData)
-	baseLoginLogCase := biz3.NewBaseLoginLogCase(baseCase, baseLoginLogRepository)
+	baseLoginLogCase := biz3.NewBaseLoginLogCase(baseCase, baseLoginLogRepository, catalog)
 	baseAPILogRepository := data2.NewBaseAPILogRepository(dataData)
-	baseAPILogCase := biz3.NewBaseAPILogCase(baseCase, baseAPILogRepository)
+	baseAPILogCase := biz3.NewBaseAPILogCase(baseCase, baseAPILogRepository, catalog)
 	baseOperationLogRepository := data2.NewBaseOperationLogRepository(dataData)
-	baseOperationLogCase := biz3.NewBaseOperationLogCase(baseCase, baseOperationLogRepository)
+	baseOperationLogCase := biz3.NewBaseOperationLogCase(baseCase, baseOperationLogRepository, catalog)
 	baseDataAccessLogRepository := data2.NewBaseDataAccessLogRepository(dataData)
 	baseDataAccessLogCase := biz3.NewBaseDataAccessLogCase(baseCase, baseDataAccessLogRepository)
 	basePermissionLogRepository := data2.NewBasePermissionLogRepository(dataData)
-	basePermissionLogCase := biz3.NewBasePermissionLogCase(baseCase, basePermissionLogRepository)
+	basePermissionLogCase := biz3.NewBasePermissionLogCase(baseCase, basePermissionLogRepository, catalog)
 	basePolicyEvaluationLogRepository := data2.NewBasePolicyEvaluationLogRepository(dataData)
-	basePolicyEvaluationLogCase := biz3.NewBasePolicyEvaluationLogCase(baseCase, basePolicyEvaluationLogRepository)
-	baseLogCase := biz3.NewBaseLogCase(baseCase, baseLoginLogCase, baseAPILogCase, baseOperationLogCase, baseDataAccessLogCase, basePermissionLogCase, basePolicyEvaluationLogCase)
+	basePolicyEvaluationLogCase := biz3.NewBasePolicyEvaluationLogCase(baseCase, basePolicyEvaluationLogRepository, catalog)
+	baseLogCase := biz3.NewBaseLogCase(baseCase, baseLoginLogCase, baseAPILogCase, baseOperationLogCase, baseDataAccessLogCase, basePermissionLogCase, basePolicyEvaluationLogCase, catalog)
 	baseLogService := admin.NewBaseLogService(baseLogCase)
 	baseLoginLogService := admin.NewBaseLoginLogService(baseLoginLogCase)
 	baseApiLogService := admin.NewBaseApiLogService(baseAPILogCase)
@@ -177,7 +177,7 @@ func BuildModules(migrations *migration.Migration, config2 *configv1.Bootstrap, 
 	baseTenantProjectGrantRepository := data2.NewBaseTenantProjectGrantRepository(dataData)
 	baseTenantProjectGrantCase := biz3.NewBaseTenantProjectGrantCase(baseCase, transaction, baseTenantProjectGrantRepository)
 	baseTenantProjectRepository := data2.NewBaseTenantProjectRepository(dataData)
-	baseTenantProjectCase := biz3.NewBaseTenantProjectCase(lifecycle, baseCase, baseTenantProjectGrantCase, transaction, baseTenantProjectRepository)
+	baseTenantProjectCase := biz3.NewBaseTenantProjectCase(lifecycle, baseCase, baseTenantProjectGrantCase, transaction, baseTenantProjectRepository, catalog)
 	baseTenantProjectService := admin.NewBaseTenantProjectService(baseTenantProjectCase)
 	baseTenantProjectGrantService := admin.NewBaseTenantProjectGrantService(baseTenantProjectGrantCase)
 	baseRoleService := admin.NewBaseRoleService(baseRoleCase)
@@ -344,7 +344,7 @@ func BuildModules(migrations *migration.Migration, config2 *configv1.Bootstrap, 
 		cleanup()
 		return nil, nil, err
 	}
-	runtime := ai.NewRuntime(assistantClient, mcpCase, adminTools, appTools)
+	runtime := ai.NewRuntime(assistantClient, mcpCase, adminTools, appTools, catalog)
 	aiMessageCase := biz2.NewAiMessageCase(baseCase, transaction, aiMessageRepository, aiSessionCase, baseUserCase, runtime)
 	aiSessionService := base.NewAiSessionService(aiSessionCase, aiMessageCase)
 	aiToolCase := biz2.NewAiToolCase(baseCase, runtime)
@@ -366,7 +366,7 @@ func BuildModules(migrations *migration.Migration, config2 *configv1.Bootstrap, 
 	loginCase := biz2.NewLoginCase(baseCase, bizBaseDeptCase, bizBaseRoleCase, baseUserCase, baseTenantRepository, baseDictRepository, baseDictItemRepository, mfaCase, userToken, v)
 	loginService := base.NewLoginService(loginCase)
 	mfaService := base.NewMfaService(loginCase, mfaCase)
-	oauthCase := biz2.NewOauthCase(baseCase, transaction, baseThirdAccountCase, baseUserCase, bizBaseRoleCase, bizBaseDeptCase, loginCase, configCase, baseOauthProviderRepository, baseI18NRepository, manager)
+	oauthCase := biz2.NewOauthCase(baseCase, transaction, baseThirdAccountCase, baseUserCase, bizBaseRoleCase, bizBaseDeptCase, loginCase, configCase, baseOauthProviderRepository, baseI18NRepository, catalog, manager)
 	oauthService := base.NewOauthService(oauthCase)
 	oauthClientTokenCase := biz2.NewOauthClientTokenCase(baseCase, oauthClientRepository, baseTenantRepository, userToken, protector)
 	baseOauthClientService := base.NewOauthClientService(oauthClientTokenCase)
@@ -463,7 +463,7 @@ func BuildModules(migrations *migration.Migration, config2 *configv1.Bootstrap, 
 		BaseMenu: appBaseMenuService,
 		AiSearch: aiSearchService,
 	}
-	modules, err := NewModules(baseServices, adminServices, services2, runtime, baseConfigCase, baseLoginPolicyCase, baseOauthProviderCase, redactResolver)
+	modules, err := NewModules(baseServices, adminServices, services2, runtime, catalog, baseConfigCase, baseLoginPolicyCase, baseOauthProviderCase, redactResolver)
 	if err != nil {
 		cleanup2()
 		cleanup()

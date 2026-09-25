@@ -176,6 +176,17 @@
   "system.admin.base.menu.entity.type.required": {
     "other": "菜单类型不能为空"
   },
+  "system.admin.base.oauth_provider.get.id.required": { "other": "OAuth登录方式ID不能为空" },
+  "system.admin.base.oauth_provider.delete.id.required": { "other": "OAuth登录方式ID列表不能为空" },
+  "system.admin.base.oauth_provider.set_status.id.required": { "other": "OAuth登录方式ID不能为空" },
+  "system.admin.base.oauth_provider.form.provider.required": { "other": "Provider标识格式无效" },
+  "system.admin.base.oauth_provider.form.name.required": { "other": "登录方式名称不能为空且不能超过50个字符" },
+  "system.admin.base.oauth_provider.form.description.length": { "other": "登录方式提示语不能超过255个字符" },
+  "system.admin.base.oauth_provider.form.icon.required": { "other": "图标不能为空且不能超过255个字符" },
+  "system.admin.base.oauth_provider.form.client_id.required": { "other": "第三方应用标识不能为空且不能超过255个字符" },
+  "system.admin.base.oauth_provider.form.client_secret.length": { "other": "第三方应用密钥不能超过512个字符" },
+  "system.admin.base.oauth_provider.form.redirect_uri.length": { "other": "OAuth回调地址不能超过512个字符" },
+  "system.admin.base.oauth_provider.form.scopes.unique": { "other": "OAuth Scope不能重复" },
   "system.admin.base.post.entity.code.max_length": {
     "other": "岗位编号不能超过 20 个字符"
   },
@@ -863,6 +874,15 @@
   "system.admin.ops_monitoring.connection_healthy": {
     "other": "连接正常"
   },
+  "system.admin.ops_monitoring.connection_check_failed": {
+    "other": "连接检查失败，请检查服务连接和凭据"
+  },
+  "system.admin.ops_monitoring.connection_close_failed": {
+    "other": "关闭服务连接失败，请查看服务日志"
+  },
+  "system.admin.ops_monitoring.connection_pool_unavailable": {
+    "other": "数据库连接池不可用，请查看服务日志"
+  },
   "system.admin.ops_monitoring.current_instance": {
     "other": "当前实例"
   },
@@ -871,6 +891,9 @@
   },
   "system.admin.ops_monitoring.dispatch_unconfigured": {
     "other": "站内信投递仓储未配置"
+  },
+  "system.admin.ops_monitoring.dispatch_status_unavailable": {
+    "other": "无法读取站内信投递状态，请查看服务日志"
   },
   "system.admin.ops_monitoring.disk": {
     "other": "硬盘"
@@ -901,6 +924,9 @@
   },
   "system.admin.ops_monitoring.redis_unconfigured": {
     "other": "未配置 Redis"
+  },
+  "system.admin.ops_monitoring.redis_configuration_invalid": {
+    "other": "Redis 配置无效，请查看服务日志"
   },
   "system.admin.ops_monitoring.request_failed": {
     "other": "接口请求失败"
@@ -1004,6 +1030,9 @@
   "system.code.gen.message.proto.file_missing": {
     "other": "Proto文件不存在"
   },
+  "system.code.gen.message.proto.route_unavailable": {
+    "other": "无法推导接口路由"
+  },
   "system.code.gen.message.proto.missing_select_generate": {
     "other": "缺少，可选择生成"
   },
@@ -1085,6 +1114,24 @@
   "system.code.gen.message.preview.menu_sql_update": {
     "other": "将更新 {path} 中的菜单和按钮权限 SQL"
   },
+  "system.code.gen.message.preview.invalid_path": {
+    "other": "生成路径 {path} 不在允许的仓库目录内"
+  },
+  "system.code.gen.message.preview.file_read_failed": {
+    "other": "无法读取预览文件 {path}"
+  },
+  "system.code.gen.message.preview.locale_render_failed": {
+    "other": "无法生成语言文件 {path} 的预览"
+  },
+  "system.code.gen.message.preview.locale_merge_failed": {
+    "other": "无法合并语言文件 {path}"
+  },
+  "system.code.gen.message.preview.menu_sql_path_unavailable": {
+    "other": "无法确定菜单权限初始化 SQL 的有效路径"
+  },
+  "system.code.gen.message.preview.menu_sql_merge_failed": {
+    "other": "无法将生成的菜单权限 SQL 合并到 {path}"
+  },
   "system.code.gen.message.progress.pending_execute": {
     "other": "等待执行"
   },
@@ -1142,6 +1189,9 @@
   "system.code.gen.message.progress.execute_complete": {
     "other": "执行完成"
   },
+  "system.code.gen.message.progress.no_go_files_to_format": {
+    "other": "本次没有需要格式化的 Go 文件"
+  },
   "system.code.gen.message.progress.model_generation_failed": {
     "other": "模型生成失败"
   },
@@ -1150,6 +1200,12 @@
   },
   "system.code.gen.message.progress.command_failed": {
     "other": "代码生成失败（make {target}）：{detail}"
+  },
+  "system.code.gen.message.progress.file_write_failed": {
+    "other": "写入生成文件 {path} 失败"
+  },
+  "system.code.gen.message.progress.failure_details_unavailable": {
+    "other": "操作失败，请查看诊断输出或服务日志"
   },
   "system.code.gen.password_strength": {
     "other": "强度提示"
@@ -3854,10 +3910,104 @@
   ,"legacy.error.f729b50ce3ce3983": { "other": "只能编辑最后一条消息" }
   ,"legacy.error.7bdaeb66d03d3063": { "other": "该步骤已过期，请从最新消息继续操作" }
   ,"legacy.error.feca044b124b4405": { "other": "查询三方登录方式翻译失败" },
+  "system.code.gen.message.path_label.proto_file": { "other": "Proto文件路径" },
+  "system.code.gen.message.path_label.backend_biz": { "other": "后端Biz文件路径" },
+  "system.code.gen.message.path_label.backend_service": { "other": "后端Service文件路径" },
+  "system.code.gen.message.path_label.frontend_api": { "other": "前端API文件路径" },
+  "system.code.gen.message.path_label.frontend_page": { "other": "前端页面文件路径" },
+  "system.code.gen.error.output_path_invalid": { "other": "{{.Field}}无效" },
   "system.code.gen.error.route_duplicate": { "other": "生成接口{{.Method}} {{.HTTPMethod}} {{.Path}}与 base_api 中的{{.Operation}}重复" },
   "system.code.gen.error.option_table_missing": { "other": "选项接口{{.Method}}的目标表{{.Table}}不存在，无法校验字段类型" },
   "system.code.gen.error.status_default_invalid": { "other": "字段{{.Field}}的状态默认值{{.Default}}不属于启用值{{.Enabled}}或禁用值{{.Disabled}}" },
   "system.code.gen.error.option_column_missing": { "other": "选项接口{{.Method}}的{{.Label}}{{.Column}}不存在" },
   "system.code.gen.error.option_column_integer": { "other": "选项接口{{.Method}}的{{.Label}}{{.Column}}必须是整数类型字段" },
-  "system.code.gen.error.path_duplicate": { "other": "{{.Current}}不能与{{.Previous}}使用相同路径" }
+  "system.code.gen.error.path_duplicate": { "other": "{{.Current}}不能与{{.Previous}}使用相同路径" },
+  "system.code.gen.error.batch.empty": { "other": "批量生成至少需要选择一张表" },
+  "system.code.gen.error.batch.table_missing": { "other": "第{{.Index}}个批量生成项缺少表配置" },
+  "system.code.gen.error.batch.table_id_required": { "other": "代码生成表配置ID必须大于0" },
+  "system.code.gen.error.batch.table_id_duplicate": { "other": "代码生成表配置{{.TableID}}在批次中重复" },
+  "system.code.gen.error.batch.invalid_path": { "other": "生成输出路径{{.Path}}不在允许的仓库目录内" },
+  "system.code.gen.error.batch.page_unmergeable": { "other": "表{{.Table}}的前端页面{{.Path}}无法安全合并，整个批次未执行" },
+  "system.code.gen.error.batch.route_duplicate": { "other": "Proto文件{{.ProtoFile}}中的HTTP路由{{.HTTPMethod}} {{.Path}}与其他RPC冲突" },
+  "system.code.gen.error.batch.definition_conflict": { "other": "表{{.Previous}}与表{{.Current}}在{{.Key}}中的生成定义不一致" },
+  "system.code.gen.error.has_children": { "other": "删除{{.Parent}}失败，下面有{{.Child}}" },
+  "base.third_account.error.binding_exists": { "other": "三方账号绑定关系已存在" },
+  "base.third_account.error.current_user_provider_bound": { "other": "当前用户已绑定该登录方式" },
+  "base.third_account.error.account_bound_to_other_user": { "other": "三方账号已被其他用户绑定" },
+  "base.oauth.callback.state_invalid": { "other": "三方登录状态无效" },
+  "base.oauth.callback.authorization_failed": { "other": "三方授权失败" },
+  "base.oauth.callback.account_unbound": { "other": "三方账号未绑定，请先使用账号密码登录后到个人中心绑定" },
+  "base.oauth.callback.login_failed": { "other": "三方账号登录失败" },
+  "base.oauth.callback.redirect_url_missing": { "other": "三方登录回跳地址未配置" },
+  "base.oauth.binding_callback.state_invalid": { "other": "三方账号绑定状态无效" },
+  "base.oauth.binding_callback.authorization_code_required": { "other": "三方授权码不能为空" },
+  "base.oauth.binding_callback.account_bound_to_other_user": { "other": "三方账号已被其他用户绑定" },
+  "base.oauth.binding_callback.current_user_provider_bound": { "other": "当前用户已绑定该登录方式" },
+  "base.oauth.binding_callback.failed": { "other": "三方账号绑定失败" },
+  "base.oauth.binding_callback.redirect_url_missing": { "other": "三方账号绑定回跳地址未配置" },
+  "base.ai.tool.disabled": { "other": "Agent 工具 {{.Name}} 已被禁用，无法继续调用。" },
+  "system.ai.chat.error.tool_failed": { "other": "工具 {{.Name}} 执行失败，请查看服务日志。" },
+  "system.ai.chat.error.tool_unavailable": { "other": "工具 {{.Name}} 当前不可用。" },
+  "system.mcp.tool_not_registered": { "other": "MCP工具{{.Name}}未注册" },
+  "system.mcp.tool_check_failed": { "other": "无法检查MCP工具状态，请查看服务日志" },
+  "base.ai.prompt.instruction": { "other": "你是一个通用 AI 助手，可以自然、友好、准确地回答用户提出的各种问题。\n回复要求：\n1. 优先直接回答当前问题，不因为问题不属于当前系统而拒绝。\n2. 可以处理通用知识、日常问答、写作润色、代码说明、方案整理、思路分析等请求。\n3. 如果用户提供了附件、历史上下文或系统上下文，可以按需参考。\n4. 涉及用户、字典、配置、报表等系统内私有数据时，优先调用当前终端可用的内部工具获取真实数据。\n5. 内部工具不匹配、工具无结果、或用户问题属于公开实时信息时，可以继续使用联网搜索工具。\n6. 不要编造当前上下文和工具结果没有提供的私有系统数据、精确数值或操作结果。\n7. 工具返回的分页游标、内部ID、base64、图片数据或调试字段不要直接展示给用户；如需说明，只用自然语言提示还有下一页或可继续查询。\n8. 如果历史上下文标记某个内部工具已禁用或不可用，而用户要求继续相关查询，必须明确提示错误原因：工具已禁用或不可用，不能继续调用。\n9. 使用当前请求语言回复；无法判断用户语言时使用中文，保持清晰自然，适合直接展示在聊天窗口。" },
+  "base.ai.prompt.tool_routing_rules": { "other": "涉及当前项目的用户、字典、配置、报表等私有数据时，优先调用当前终端可用的内部工具。本轮匹配到内部工具时，只使用内部工具回答，不调用联网搜索；未匹配时，仅在用户询问公开实时信息时使用联网搜索。遵循工具描述和参数默认值，不要擅自增删查询条件。用户补充查询条件时，沿用最近相关查询的工具和其他条件，只修改补充的条件；对象或条件不明确时先询问。" },
+  "base.ai.prompt.business_date": { "other": "- 当前业务日期：{{.Value}}" },
+  "base.ai.prompt.business_timezone": { "other": "- 业务时区：{{.Location}}（UTC{{.Offset}}）" },
+  "base.ai.prompt.current_session": { "other": "当前会话：" },
+  "base.ai.prompt.terminal": { "other": "- 终端：{{.Value}}" },
+  "base.ai.prompt.user": { "other": "- 用户：{{.Value}}" },
+  "base.ai.prompt.title": { "other": "- 标题：{{.Value}}" },
+  "base.ai.prompt.summary": { "other": "- 摘要：{{.Value}}" },
+  "base.ai.prompt.attachment_notice": { "other": "用户本轮提供了附件，附件内容会出现在消息中，回答时按需参考。" },
+  "base.ai.prompt.image_attachment": { "other": "图片附件《{{.Name}}》已作为视觉输入提供给模型。" },
+  "base.ai.prompt.text_attachment": { "other": "附件《{{.Name}}》内容：\n{{.Content}}" },
+  "base.ai.prompt.attachment_message_intro": { "other": "本轮消息附带以下附件内容，请在回答时按需参考：" },
+  "base.ai.prompt.attachment_name": { "other": "附件《{{.Name}}》" },
+  "base.ai.prompt.attachment_type": { "other": "类型：{{.Value}}" },
+  "base.ai.prompt.attachment_size": { "other": "大小：{{.Value}} 字节" },
+  "base.ai.prompt.attachment_url": { "other": "地址：{{.Value}}" },
+  "base.ai.prompt.assistant_description": { "other": "管理端 AI 助手，负责会话问答、内部工具调用和联网搜索。" },
+  "base.ai.prompt.catalog_tool_description": { "other": "查询当前终端完整注册的内部 Agent Tool 工具目录、工具数量、工具真实名称和功能说明。用户询问有哪些工具、工具列表、工具清单、工具名称、工具数量、加载了多少工具、可用 API、available tools、tool list、tool catalog 时使用。" },
+  "base.ai.prompt.attachment_unnamed": { "other": "未命名附件" },
+  "base.ai.prompt.history_tool_context": { "other": "上一轮内部工具调用上下文，仅用于理解用户追问和续查请求，不要直接展示给用户：" },
+  "base.ai.prompt.history_tool_name": { "other": "- 工具名称：{{.Name}}" },
+  "base.ai.prompt.history_tool_title": { "other": "  工具标题：{{.Title}}" },
+  "base.ai.prompt.history_tool_input": { "other": "  入参：{{.Input}}" },
+  "base.ai.prompt.history_tool_output": { "other": "  出参：{{.Output}}" },
+  "system.base.user.error.duplicate_identity": { "other": "同一租户下用户账号或用户编号已存在" },
+  "system.base.user.error.duplicate_user_name": { "other": "同一租户下用户账号已存在" },
+  "system.base.user.error.duplicate_user_code": { "other": "同一租户下用户编号已存在" },
+  "system.ai.chat.error.fallback_reply.content": { "other": "已收到你的问题：{{.Content}}。但当前 AI 助手暂时不可用，无法生成完整回复，请稍后再试。" },
+  "system.ai.chat.error.fallback_reply.attachments": { "other": "已收到你的问题和 {{.Count}} 个附件，但当前 AI 助手暂时不可用，无法生成完整回复，请稍后再试。" },
+  "legacy.error.0cf67600c5317be5": { "other": "任务正在其他实例执行" },
+  "legacy.error.d6dad83238ab7270": { "other": "登录 IP 命中黑名单" },
+  "legacy.error.baabf07429595997": { "other": "登录 MAC 命中黑名单" },
+  "legacy.error.27c12cba0463a64f": { "other": "登录地区命中黑名单" },
+  "legacy.error.020eaa6e9305844c": { "other": "当前时间不允许登录" },
+  "legacy.error.36f18cb8cc1347dc": { "other": "登录设备命中黑名单" },
+  "legacy.error.1efa62aa3b12f109": { "other": "登录来源命中黑名单" },
+  "legacy.error.48fb2e3cbfc3df7b": { "other": "登录 IP 不在白名单" },
+  "legacy.error.6ce9e8310f7d0a6f": { "other": "登录 MAC 不在白名单" },
+  "legacy.error.136942b0f292b207": { "other": "登录地区不在白名单" },
+  "legacy.error.14d64ced023b18bb": { "other": "当前时间不在允许窗口" },
+  "legacy.error.4575220a10a47a02": { "other": "登录设备不在白名单" },
+  "legacy.error.8a1e11040b992b1f": { "other": "登录来源不在白名单" },
+  "base.ai.message.attachment_prompt": { "other": "请结合附件内容继续分析" },
+  "base.ai.session.default_summary": { "other": "新对话" },
+  "base.ai.session.attachment_summary": { "other": "{{.Count}} 个附件" },
+  "base.ai.session.default_title": { "other": "新对话" },
+  "base.ai.session.branch_title": { "other": "分支会话" },
+  "system.base.tenant.default_department_name": { "other": "默认部门" },
+  "system.base.tenant.default_department_remark": { "other": "租户默认部门" },
+  "system.base.tenant.default_admin_nickname": { "other": "管理员" },
+  "system.base.tenant.default_admin_remark": { "other": "租户默认管理员，初始密码遵循全局登录策略" },
+  "system.base.tenant.value.missing_name": { "other": "租户（记录缺失，ID：{{.ID}}）" },
+  "legacy.error.c1eb17bd5887ac52": { "other": "租户管理员" },
+  "legacy.error.bd9cb10928c622d0": { "other": "默认租户管理员权限模板，可由默认租户维护" },
+  "system.oauth.crypto.error.client_token_invalid": { "other": "客户端访问令牌无效" },
+  "system.oauth.crypto.error.config_invalid": { "other": "客户端加密配置无效" },
+  "system.oauth.crypto.error.request_decrypt_failed": { "other": "请求数据解密失败" },
+  "system.oauth.crypto.error.response_too_large": { "other": "响应数据超过大小限制" },
+  "system.oauth.crypto.error.response_encrypt_failed": { "other": "响应数据加密失败" }
 }

@@ -4,6 +4,7 @@ const PERSISTED_MESSAGE_PREFIX = "__I18N__:";
 
 /** 将持久化的国际化消息标记按当前语言渲染，兼容历史纯文本记录。 */
 export function resolvePersistedMessage(value?: string): string {
+  if (value === "系统") return t("system.notification.sender.system");
   if (!value?.startsWith(PERSISTED_MESSAGE_PREFIX)) return value ?? "";
   const marker = value.split(/\r?\n/, 1)[0].slice(PERSISTED_MESSAGE_PREFIX.length);
   const separator = marker.indexOf("?");

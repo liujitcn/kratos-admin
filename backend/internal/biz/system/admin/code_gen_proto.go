@@ -707,6 +707,7 @@ func codeGenProtoKey(protoPath string, targetEntity string, methodName string) s
 
 // codeGenProtoExists 根据 base_api 中的 path 与 operation 检查接口是否已存在。
 func (c *CodeGenProtoCase) codeGenProtoExists(ctx context.Context, table *codegen.Table, check *adminv1.CodeGenProtoCheck) (bool, string, error) {
+	localeState := codegen.LocaleState{Current: biz.LocaleFromContext(ctx), Primary: "zh-CN"}
 	method := &codegen.Proto{
 		TriggerType:      check.GetTriggerType(),
 		APIKind:          check.GetApiKind(),
@@ -715,7 +716,7 @@ func (c *CodeGenProtoCase) codeGenProtoExists(ctx context.Context, table *codege
 	}
 	_, path, ok := codegen.GeneratedHTTPRoute(table, method)
 	if !ok {
-		return false, "无法推导接口路由", nil
+		return false, codegen.Message(localeState, "proto.route_unavailable", nil), nil
 	}
 	operation := codegen.GeneratedRPCPath(table, method)
 	query := c.baseAPIRepo.Query(ctx).BaseAPI
@@ -727,9 +728,9 @@ func (c *CodeGenProtoCase) codeGenProtoExists(ctx context.Context, table *codege
 		return false, "", err
 	}
 	if len(apis) > 0 {
-		return true, "已存在", nil
+		return true, codegen.Message(localeState, "common.exists", nil), nil
 	}
-	return false, "缺少，可选择生成", nil
+	return false, codegen.Message(localeState, "proto.missing_select_generate", nil), nil
 }
 
 // codeGenProtoServiceMetadata 返回 Proto 检查项对应的服务名与服务描述。

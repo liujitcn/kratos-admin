@@ -17,6 +17,98 @@ test("菜单搜索使用 ProDialog 并保留主题样式", async () => {
   assert.doesNotMatch(source, /:global\(\.search-dialog\)[\s\S]*\.el-dialog__header\s*\{/);
 });
 
+test("AI chat welcome copy and composer placeholder use the registered system locale bundle", async () => {
+  const [chatPanel, sender, moduleSource, generatedLocales, hostManifest, bootstrapSource] = await Promise.all([
+    readSource("src/views/ai/chat/components/ChatPanel.vue"),
+    readSource("src/views/ai/chat/components/XSender.vue"),
+    readSource("src/module.ts"),
+    readSource("src/locales/generated.ts"),
+    readSource("../../../apps/admin/src/module-manifest.ts"),
+    readSource("../../core/src/bootstrap.ts")
+  ]);
+
+  assert.match(chatPanel, /\{\{ t\("system\.ai\.chat\.welcome_description"\) \}\}/);
+  assert.match(sender, /:placeholder="t\('system\.ai\.chat\.placeholder\.input'\)"/);
+  assert.match(moduleSource, /messages: LOCALE_MESSAGES/);
+  assert.match(generatedLocales, /from ['"]\.\/zh-CN\.json['"]/);
+  assert.match(hostManifest, /systemAdminModule/);
+  assert.match(bootstrapSource, /registerLocaleMessages\(modules\)/);
+
+  for (const locale of ["zh-CN", "en-US", "ja-JP", "zh-TW"]) {
+    const messages = JSON.parse(await readSource(`src/locales/${locale}.json`)) as Record<string, string>;
+    assert.ok(messages["system.ai.chat.welcome_description"], `missing welcome text in ${locale}`);
+    assert.ok(messages["system.ai.chat.placeholder.input"], `missing input placeholder in ${locale}`);
+  }
+});
+
+test("scheduled job failure markers resolve through every registered system locale", async () => {
+  const [logPage, persistedMessages] = await Promise.all([
+    readSource("src/views/base/job/log.vue"),
+    readSource("src/utils/persisted-message.ts")
+  ]);
+
+  assert.match(logPage, /resolvePersistedMessage\(detail\.error\)/);
+  assert.match(persistedMessages, /PERSISTED_MESSAGE_PREFIX/);
+  const keys = [
+    "system.base.job.log.error.arguments_invalid",
+    "system.base.job.log.error.execution_panic",
+    "system.base.job.log.error.running_elsewhere",
+    "system.base.job.log.error.target_missing"
+  ];
+  for (const locale of ["zh-CN", "en-US", "ja-JP", "zh-TW"]) {
+    const messages = JSON.parse(await readSource(`src/locales/${locale}.json`)) as Record<string, string>;
+    for (const key of keys) assert.ok(messages[key], `missing ${key} in ${locale}`);
+  }
+});
+
+test("web search tool titles use localized labels across all chat clients", async () => {
+  const [adminChat, uniChat, taroChat] = await Promise.all([
+    readSource("src/views/ai/chat/components/ChatPanel.vue"),
+    readSource("../../../../uni-app/packages/modules/system/src/views/pagesMember/ai/index.vue"),
+    readSource("../../../../taro-app/packages/modules/system/src/views/pagesMember/ai/index.tsx")
+  ]);
+
+  assert.match(adminChat, /tool\.name === "web_search"[\s\S]*?system\.ai\.chat\.value\.web_search/);
+  assert.match(uniChat, /item\.name === 'web_search'[\s\S]*?system\.ai\.web_search/);
+  assert.match(taroChat, /item\.name === 'web_search'[\s\S]*?system\.ai\.web_search/);
+  for (const locale of ["zh-CN", "en-US", "ja-JP", "zh-TW"]) {
+    const [adminMessages, uniMessages, taroMessages] = await Promise.all([
+      readSource(`src/locales/${locale}.json`),
+      readSource(`../../../../uni-app/packages/modules/system/src/locales/${locale}.json`),
+      readSource(`../../../../taro-app/packages/modules/system/src/locales/${locale}.json`)
+    ]);
+    assert.ok(JSON.parse(adminMessages)["system.ai.chat.value.web_search"], `missing admin web search label in ${locale}`);
+    assert.ok(JSON.parse(uniMessages)["system.ai.web_search"], `missing uni-app web search label in ${locale}`);
+    assert.ok(JSON.parse(taroMessages)["system.ai.web_search"], `missing Taro web search label in ${locale}`);
+  }
+});
+
+test("system notification sender uses its localized value in every client", async () => {
+  const [publisher, adminPage, resolver, uniPage, taroPage] = await Promise.all([
+    readSource("../../../../../backend/internal/biz/system/admin/base_message.go"),
+    readSource("src/views/base/message/index.vue"),
+    readSource("src/utils/persisted-message.ts"),
+    readSource("../../../../uni-app/packages/modules/system/src/views/pagesMember/message/detail.vue"),
+    readSource("../../../../taro-app/packages/modules/system/src/views/pagesMember/message/detail.tsx")
+  ]);
+
+  assert.match(publisher, /EncodeMessage\("system\.notification\.sender\.system"/);
+  assert.match(adminPage, /resolvePersistedMessage\(detail\.data\.base_message\?\.sender_name\)/);
+  assert.match(resolver, /system\.notification\.sender\.system/);
+  assert.match(uniPage, /resolveSenderName\(detail\.sender_name\)/);
+  assert.match(taroPage, /resolveSenderName\(detail\.sender_name\)/);
+  for (const locale of ["zh-CN", "en-US", "ja-JP", "zh-TW"]) {
+    const [adminMessages, uniMessages, taroMessages] = await Promise.all([
+      readSource(`src/locales/${locale}.json`),
+      readSource(`../../../../uni-app/packages/modules/system/src/locales/${locale}.json`),
+      readSource(`../../../../taro-app/packages/modules/system/src/locales/${locale}.json`)
+    ]);
+    assert.ok(JSON.parse(adminMessages)["system.notification.sender.system"], `missing admin system sender in ${locale}`);
+    assert.ok(JSON.parse(uniMessages)["system.notification.sender.system"], `missing uni-app system sender in ${locale}`);
+    assert.ok(JSON.parse(taroMessages)["system.notification.sender.system"], `missing Taro system sender in ${locale}`);
+  }
+});
+
 test("菜单管理按节点懒加载并在搜索时查询完整树", async () => {
   const source = await readSource("src/views/base/menu/index.vue");
 
@@ -422,6 +514,7 @@ test("代码生成表弹窗在打开前同步重置且回填后不再清空", as
 test("租户项目列表按默认租户展示租户字段并支持扩展列定位", async () => {
   const source = await readSource("src/components/tenant-project/TenantProjectManager.vue");
 
+  assert.match(source, /<FormDialog[\s\S]*?width="min\(640px, calc\(100vw - 32px\)\)"[\s\S]*?label-width="auto"/);
   assert.match(source, /tenantColumns\(\{ label: t\("common\.field\.tenant"\), order: 1 \}\)/);
   assert.match(source, /tenantFormField\(\{ label: t\("common\.field\.tenant"\), disabledOnEdit: true \}\)/);
   assert.match(source, /tenant_id: toRequestTenantId\(params\.tenant_id\)/);

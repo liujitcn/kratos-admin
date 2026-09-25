@@ -25,6 +25,13 @@ export default function MessageDetailPage() {
     if (!value.read_at) await defNotificationService.MarkNotificationRead({ ids: [id] })
   }
 
+  function resolveSenderName(value?: string) {
+    if (value === '系统' || value === '__I18N__:system.notification.sender.system') {
+      return t('system.notification.sender.system')
+    }
+    return value || ''
+  }
+
   /** 执行通知携带的稳定 viewKey 动作。 */
   function openAction() {
     if (!detail || detail.action_type !== MessageActionType.MESSAGE_ACTION_TYPE_VIEW_KEY) return
@@ -60,7 +67,7 @@ export default function MessageDetailPage() {
           />
           <Text>{detail.category_name}</Text>
         </View>
-        <Text>{detail.sender_name}</Text>
+        <Text>{resolveSenderName(detail.sender_name)}</Text>
         <Text>{detail.received_at}</Text>
       </View>
       {detail.content_format === MessageContentFormat.MESSAGE_CONTENT_FORMAT_RICH_TEXT ? (

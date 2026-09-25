@@ -355,10 +355,10 @@ function handleDelete(selected?: number | string | Array<number | string> | Oaut
     return;
   }
   const resource = rowList.length
-    ? `${t("system.base.oauth_client.resource")}：${rowList
+    ? `${t("system.base.oauth_client.resource")}: ${rowList
         .map(item => item.client_name)
         .filter(Boolean)
-        .join("、")}`
+        .join(", ")}`
     : t("system.base.oauth_client.resource");
   ElMessageBox.confirm(t("common.dialog.delete_selected", { resource }), t("common.title.warning"), {
     type: "warning",
@@ -382,10 +382,10 @@ async function handleCopyCredentials(row: OauthClient) {
   );
   const credentials = await defOauthClientService.RotateOauthClientCredentials({ id: row.id });
   const content = [
-    `${t("system.base.oauth_client.field.client_id")}：${credentials.client_id}`,
-    `${t("system.base.oauth_client.field.client_secret")}：${credentials.client_secret}`,
-    `${t("system.base.oauth_client.field.crypto_type")}：${formatCrypto(credentials.crypto_type)}`,
-    `${t("system.base.oauth_client.field.crypto_key")}：${credentials.crypto_key}`
+    `${t("system.base.oauth_client.field.client_id")}: ${credentials.client_id}`,
+    `${t("system.base.oauth_client.field.client_secret")}: ${credentials.client_secret}`,
+    `${t("system.base.oauth_client.field.crypto_type")}: ${formatCrypto(credentials.crypto_type)}`,
+    `${t("system.base.oauth_client.field.crypto_key")}: ${credentials.crypto_key}`
   ].join("\n");
   await copyText(content);
   ElMessage.success(t("core.clipboard.success"));

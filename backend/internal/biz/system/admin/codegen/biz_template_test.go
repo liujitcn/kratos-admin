@@ -4,6 +4,7 @@ import (
 	"go/parser"
 	"go/token"
 	"strconv"
+	"strings"
 	"testing"
 )
 
@@ -31,6 +32,22 @@ func TestBizTemplateBaseCaseImport(t *testing.T) {
 		}
 		if !found {
 			t.Errorf("%s 未使用 Core BaseCase", name)
+		}
+	}
+}
+
+// TestRenderDeleteBizMethodLocalizesChildrenConflict 验证生成的删除校验携带稳定翻译键和资源名称参数。
+func TestRenderDeleteBizMethodLocalizesChildrenConflict(t *testing.T) {
+	table := &Table{EntityName: "Category", BusinessName: "分类", TableName_: "base_category", ParentColumn: "parent_id"}
+	content := (&renderer{}).renderDeleteBizMethod(table, nil, true)
+	for _, expected := range []string{
+		`errorsx.WithMessageKey(`,
+		`errorsx.HasChildrenConflict("删除{{.Parent}}失败，下面有{{.Child}}", "base_category", "base_category")`,
+		`"system.code.gen.error.has_children"`,
+		`map[string]string{"Parent": "分类", "Child": "分类"}`,
+	} {
+		if !strings.Contains(content, expected) {
+			t.Errorf("生成的删除方法缺少 %q", expected)
 		}
 	}
 }

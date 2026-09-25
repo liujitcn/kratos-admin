@@ -1,7 +1,7 @@
 <!-- prettier-ignore -->
 # __PROJECT_NAME__
 
-基于 kratos-admin 的独立业务管理端 workspace。默认包含一个薄宿主、System module 和自有 module（**MODULE_NAMES**）；依赖方向为 `apps/admin -> business module -> @liujitcn/kratos-admin-core`。
+基于 kratos-admin 的独立业务管理端 workspace。默认包含一个薄宿主、System module 和自有 module（__MODULE_NAMES__）；依赖方向为 `apps/admin -> business module -> @liujitcn/kratos-admin-core`。
 
 ## 目录与文件
 
@@ -26,7 +26,7 @@ __MODULE_TREE__
 | ------------- | --------------------------------------------------- |
 | `apps/admin/` | 可运行的薄宿主，只负责启动和选择启用的业务 module。 |
 
-**MODULE_TABLE_ROWS**
+__MODULE_TABLE_ROWS__
 | `scripts/build-package.mjs` | 生成自有 module 的发布源码和 TypeScript 声明。 |
 | `.gitignore` | 忽略依赖、缓存和构建产物。 |
 | `package.json` | 声明 workspace 公共命令、工具依赖和运行时版本。 |

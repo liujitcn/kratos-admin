@@ -15,9 +15,11 @@ import (
 	"github.com/liujitcn/kratos-core/biz"
 	_const "github.com/liujitcn/kratos-core/const"
 	"github.com/liujitcn/kratos-core/errorsx"
+	"github.com/liujitcn/kratos-core/resource/i18n"
 	"github.com/liujitcn/kratos-kit/auth"
 	"github.com/liujitcn/kratos-kit/auth/authz/engine"
 
+	kratosErrors "github.com/go-kratos/kratos/v3/errors"
 	"github.com/go-kratos/kratos/v3/log"
 	kratosHTTP "github.com/go-kratos/kratos/v3/transport/http"
 	"github.com/liujitcn/gorm-kit/repository"
@@ -42,15 +44,17 @@ type McpCase struct {
 
 	baseAPIRepo *data.BaseAPIRepository
 	authorizer  engine.Engine
+	catalog     *i18n.I18n
 	handlerPath string
 }
 
 // NewMcpCase 创建 MCP 业务实例。
-func NewMcpCase(baseCase *biz.BaseCase, baseAPIRepo *data.BaseAPIRepository, authorizer engine.Engine) (*McpCase, error) {
+func NewMcpCase(baseCase *biz.BaseCase, baseAPIRepo *data.BaseAPIRepository, authorizer engine.Engine, catalog *i18n.I18n) (*McpCase, error) {
 	h := &McpCase{
 		BaseCase:    baseCase,
 		baseAPIRepo: baseAPIRepo,
 		authorizer:  authorizer,
+		catalog:     catalog,
 	}
 	cfg := baseCase.GetConfig()
 	// 未启用 HTTP 服务时，不创建 MCP HTTP 处理器。
@@ -243,15 +247,37 @@ func (h *McpCase) filterToolCall(ctx context.Context, req mcp.Request, next mcp.
 	baseAPI, err := h.findEnabledBaseAPI(ctx, req, callReq.Params.Name)
 	if err != nil {
 		log.Error(fmt.Sprintf("查询 MCP 工具状态失败 err=%v", err))
-		return newMcpToolResultError(fmt.Errorf("查询 MCP 工具状态失败: %w", err).Error()), nil
+		return newMcpToolResultError(h.localizeMcpError(ctx, err)), nil
 	}
 	if baseAPI == nil {
-		return newMcpToolResultError(fmt.Sprintf("MCP 工具 %s 未注册", callReq.Params.Name)), nil
+		message := h.localizeMcpMessage(ctx, "system.mcp.tool_not_registered", map[string]any{"Name": callReq.Params.Name}, "MCP tool {{.Name}} is not registered.")
+		return newMcpToolResultError(message), nil
 	}
 	if err = h.authorizeToolCall(ctx, baseAPI); err != nil {
-		return newMcpToolResultError(err.Error()), nil
+		return newMcpToolResultError(h.localizeMcpError(ctx, err)), nil
 	}
 	return next(ctx, mcpMethodCallTool, req)
+}
+
+// localizeMcpError 将 MCP 工具鉴权和状态错误按当前请求语言本地化。
+func (h *McpCase) localizeMcpError(ctx context.Context, err error) string {
+	if h.catalog == nil || h.catalog.Empty() {
+		return "MCP tool execution failed. Check the service logs."
+	}
+	localized := i18n.LocalizeError(h.catalog, biz.LocaleFromContext(ctx), "zh-CN", err)
+	structured := kratosErrors.FromError(localized)
+	if structured == nil || structured.Message == "" {
+		return h.localizeMcpMessage(ctx, "system.mcp.tool_check_failed", nil, "Could not verify MCP tool access. Check the service logs.")
+	}
+	return structured.Message
+}
+
+// localizeMcpMessage 从统一国际化目录读取 MCP 工具提示。
+func (h *McpCase) localizeMcpMessage(ctx context.Context, key string, args map[string]any, fallback string) string {
+	if h.catalog == nil || h.catalog.Empty() {
+		return fallback
+	}
+	return h.catalog.Localize(biz.LocaleFromContext(ctx), "zh-CN", key, args, fallback)
 }
 
 // authorizeToolCall 按当前登录主体重新校验 MCP 工具对应的 API 权限。

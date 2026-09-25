@@ -17,8 +17,10 @@ import (
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 	oauthcrypto "github.com/liujitcn/kratos-admin/backend/internal/server/middleware/oauth/crypto"
 	_const "github.com/liujitcn/kratos-core/const"
+	"github.com/liujitcn/kratos-core/resource/i18n"
 	"github.com/liujitcn/kratos-kit/auth/authn/engine"
 	authData "github.com/liujitcn/kratos-kit/auth/data"
+	"golang.org/x/text/language"
 	"gorm.io/gorm"
 )
 
@@ -28,7 +30,7 @@ const maxOAuthCryptoBodyBytes = 10 << 20
 //
 // Filter 必须包裹整个 Kratos HTTP 路由树，原因是 Proto HTTP 适配器会先绑定请求体，
 // 只有在绑定前解密才能让业务收到正常 JSON。普通用户令牌、非开放授权路径和错误响应均不处理。
-func NewCryptoFilter(clientRepo *data.OauthClientRepository, authenticator engine.TokenAuthenticator, protector *oauthsecret.Protector) func(http.Handler) http.Handler {
+func NewCryptoFilter(clientRepo *data.OauthClientRepository, authenticator engine.TokenAuthenticator, protector *oauthsecret.Protector, catalog *i18n.I18n) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
 			if !isOauthDevelopmentAPI(request.URL.Path) {
@@ -38,7 +40,7 @@ func NewCryptoFilter(clientRepo *data.OauthClientRepository, authenticator engin
 
 			client, ok, err := oauthCryptoClient(request.Context(), clientRepo, authenticator, protector, request)
 			if err != nil {
-				writeOauthCryptoError(writer, http.StatusUnauthorized, "客户端访问令牌无效")
+				writeOauthCryptoError(writer, request, http.StatusUnauthorized, catalog, "system.oauth.crypto.error.client_token_invalid", "The client access token is invalid")
 				return
 			}
 			if !ok {
@@ -49,24 +51,24 @@ func NewCryptoFilter(clientRepo *data.OauthClientRepository, authenticator engin
 			var crypto oauthcrypto.Crypto
 			crypto, err = oauthcrypto.New(client.CryptoType, client.CryptoKey)
 			if err != nil {
-				writeOauthCryptoError(writer, http.StatusUnauthorized, "客户端加密配置无效")
+				writeOauthCryptoError(writer, request, http.StatusUnauthorized, catalog, "system.oauth.crypto.error.config_invalid", "The client encryption configuration is invalid")
 				return
 			}
 			if err = decryptOauthRequest(request, crypto); err != nil {
-				writeOauthCryptoError(writer, http.StatusBadRequest, "请求数据解密失败")
+				writeOauthCryptoError(writer, request, http.StatusBadRequest, catalog, "system.oauth.crypto.error.request_decrypt_failed", "Failed to decrypt the request data")
 				return
 			}
 
 			buffered := newOauthCryptoResponseWriter(writer)
 			next.ServeHTTP(buffered, request)
 			if buffered.overflow {
-				writeOauthCryptoError(writer, http.StatusRequestEntityTooLarge, "响应数据超过大小限制")
+				writeOauthCryptoError(writer, request, http.StatusRequestEntityTooLarge, catalog, "system.oauth.crypto.error.response_too_large", "The response exceeds the size limit")
 				return
 			}
 			var responseBody []byte
 			responseBody, err = encryptOauthResponse(buffered.body.Bytes(), buffered.status, crypto)
 			if err != nil {
-				writeOauthCryptoError(writer, http.StatusInternalServerError, "响应数据加密失败")
+				writeOauthCryptoError(writer, request, http.StatusInternalServerError, catalog, "system.oauth.crypto.error.response_encrypt_failed", "Failed to encrypt the response")
 				return
 			}
 			writer.Header().Del("Content-Length")
@@ -217,8 +219,16 @@ func (w *oauthCryptoResponseWriter) Write(value []byte) (int, error) {
 	return w.body.Write(value)
 }
 
-// writeOauthCryptoError 返回未加密错误，便于客户端定位协议或权限问题。
-func writeOauthCryptoError(writer http.ResponseWriter, status int, message string) {
+// writeOauthCryptoError 按请求语言返回未加密错误，便于客户端定位协议或权限问题。
+func writeOauthCryptoError(writer http.ResponseWriter, request *http.Request, status int, catalog *i18n.I18n, messageKey string, fallback string) {
+	message := fallback
+	if catalog != nil {
+		locale := request.Header.Get("Accept-Language")
+		if tags, _, err := language.ParseAcceptLanguage(locale); err == nil && len(tags) > 0 {
+			locale = tags[0].String()
+		}
+		message = catalog.Localize(locale, "zh-CN", messageKey, nil, fallback)
+	}
 	writer.Header().Set("Content-Type", "application/json; charset=utf-8")
 	writer.WriteHeader(status)
 	if _, err := writer.Write([]byte(`{"code":` + strconv.Itoa(status) + `,"msg":` + strconv.Quote(message) + `}`)); err != nil {

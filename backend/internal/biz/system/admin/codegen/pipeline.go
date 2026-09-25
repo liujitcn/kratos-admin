@@ -190,15 +190,16 @@ func (c *renderer) resolveCodeGenOutputPaths(table *Table, requested *adminv1.Co
 	}
 
 	targets := []struct {
-		label   string
-		path    *string
-		enabled bool
+		labelKey string
+		fallback string
+		path     *string
+		enabled  bool
 	}{
-		{label: "Proto文件路径", path: &paths.ProtoFilePath, enabled: table.GenBackend == 1},
-		{label: "后端Biz文件路径", path: &paths.BackendBizFilePath, enabled: table.GenBackend == 1},
-		{label: "后端Service文件路径", path: &paths.BackendServiceFilePath, enabled: table.GenBackend == 1},
-		{label: "前端API文件路径", path: &paths.FrontendApiFilePath, enabled: table.GenFrontend == 1},
-		{label: "前端页面文件路径", path: &paths.FrontendPageFilePath, enabled: table.GenFrontend == 1},
+		{labelKey: "message.path_label.proto_file", fallback: "Proto文件路径", path: &paths.ProtoFilePath, enabled: table.GenBackend == 1},
+		{labelKey: "message.path_label.backend_biz", fallback: "后端Biz文件路径", path: &paths.BackendBizFilePath, enabled: table.GenBackend == 1},
+		{labelKey: "message.path_label.backend_service", fallback: "后端Service文件路径", path: &paths.BackendServiceFilePath, enabled: table.GenBackend == 1},
+		{labelKey: "message.path_label.frontend_api", fallback: "前端API文件路径", path: &paths.FrontendApiFilePath, enabled: table.GenFrontend == 1},
+		{labelKey: "message.path_label.frontend_page", fallback: "前端页面文件路径", path: &paths.FrontendPageFilePath, enabled: table.GenFrontend == 1},
 	}
 	seen := make(map[string]string, len(targets))
 	// 只校验本轮启用的目标；未启用模块的路径允许暂时为空或保留旧配置。
@@ -207,17 +208,22 @@ func (c *renderer) resolveCodeGenOutputPaths(table *Table, requested *adminv1.Co
 		if !t.enabled {
 			continue
 		}
+		label := localizeCodegen(c.localeState.Current, c.localeState.Primary, t.labelKey, nil, t.fallback)
 		var pathErr error
 		_, pathErr = SafeRepoFilePath(*t.path)
 		if pathErr != nil {
-			return nil, errorsx.InvalidArgument(t.label + "无效").WithCause(pathErr)
+			return nil, errorsx.WithMessageKey(
+				errorsx.InvalidArgument("生成输出路径无效"),
+				"system.code.gen.error.output_path_invalid",
+				map[string]string{"Field": label},
+			).WithCause(pathErr)
 		}
 		if previousLabel, ok := seen[*t.path]; ok {
 			return nil, errorsx.WithMessageKey(errorsx.InvalidArgument("生成路径不能重复"), "system.code.gen.error.path_duplicate", map[string]string{
-				"Current": t.label, "Previous": previousLabel,
+				"Current": label, "Previous": previousLabel,
 			})
 		}
-		seen[*t.path] = t.label
+		seen[*t.path] = label
 	}
 	// 模块边界校验用于阻止 Proto、Go 和 Vue 文件落入错误目录。
 	layoutErr := validateCodeGenOutputPathLayout(target, paths)

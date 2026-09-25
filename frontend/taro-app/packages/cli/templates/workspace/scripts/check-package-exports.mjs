@@ -2,6 +2,7 @@ import { readdir, readFile, stat } from 'node:fs/promises'
 import { dirname, extname, relative, resolve, sep } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import ts from 'typescript'
+import { workspaceMessage } from './locale-messages.mjs'
 
 const workspaceRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const coreRoot = resolve(workspaceRoot, 'packages/core')
@@ -30,7 +31,7 @@ for (const packageFile of packageFiles) {
       const prefix = target.includes('*') ? target.slice(0, target.indexOf('*')) : target
       const checkPath = resolve(packageRoot, prefix)
       if (!(await pathExists(checkPath))) {
-        throw new Error(`${metadata.name} 导出目标不存在：${target}`)
+        throw new Error(workspaceMessage('export_target_missing', { name: metadata.name, target }))
       }
     }
   }
@@ -40,8 +41,8 @@ const distinctPublicVersions = new Set(publicPackageVersions.values())
 if (distinctPublicVersions.size > 1 || [...distinctPublicVersions].some((version) => !version)) {
   const versions = [...publicPackageVersions]
     .map(([name, version]) => `${name}@${version}`)
-    .join('、')
-  throw new Error(`Taro 公开包版本必须保持一致：${versions}`)
+    .join(workspaceMessage('list_separator'))
+  throw new Error(workspaceMessage('public_version_mismatch', { versions }))
 }
 
 for (const sourceFile of allFiles.filter((file) => sourceExtensions.has(extname(file)))) {
@@ -51,22 +52,18 @@ for (const sourceFile of allFiles.filter((file) => sourceExtensions.has(extname(
     const specifier = imported.fileName
     const line = source.slice(0, imported.pos).split('\n').length
     if ((specifier === '@' || specifier.startsWith('@/')) && !isWithin(sourceFile, coreRoot)) {
-      violations.push(
-        `${format(sourceFile, line)}: 非 core 代码不得使用 core 私有别名 ${specifier}`,
-      )
+      violations.push(workspaceMessage('core_alias_forbidden', { location: format(sourceFile, line), specifier }))
       continue
     }
     if (specifier.startsWith('@system/') && !isWithin(sourceFile, systemRoot)) {
-      violations.push(
-        `${format(sourceFile, line)}: 非 system 代码不得使用 system 私有别名 ${specifier}`,
-      )
+      violations.push(workspaceMessage('system_alias_forbidden', { location: format(sourceFile, line), specifier }))
       continue
     }
     if (specifier.startsWith('.')) {
       const sourcePackage = findPackageByPath(sourceFile)
       const targetPackage = findPackageByPath(resolve(dirname(sourceFile), specifier))
       if (sourcePackage && targetPackage && sourcePackage !== targetPackage) {
-        violations.push(`${format(sourceFile, line)}: 禁止通过相对路径跨包引用 ${specifier}`)
+        violations.push(workspaceMessage('cross_package_relative_forbidden', { location: format(sourceFile, line), specifier }))
       }
       continue
     }
@@ -79,32 +76,28 @@ for (const sourceFile of allFiles.filter((file) => sourceExtensions.has(extname(
       .get(packageName)
       .exportEntries.some(([pattern]) => matchExportPattern(pattern, subpath))
     if (!exported) {
-      violations.push(
-        `${format(sourceFile, line)}: ${specifier} 未在 ${packageName} exports 中公开`,
-      )
+      violations.push(workspaceMessage('export_not_public', { location: format(sourceFile, line), specifier, packageName }))
     }
   }
 }
 
 for (const [packageName, { packageRoot }] of packages) {
   if (packageName === '@liujitcn/kratos-taro-app-core' && packageRoot !== coreRoot) {
-    violations.push(`${packageName}: core 包目录异常`)
+    violations.push(workspaceMessage('core_dir_unexpected', { packageName }))
   }
   if (packageName === '@liujitcn/kratos-taro-app-ui' && packageRoot !== uiRoot) {
-    violations.push(`${packageName}: UI 包目录异常`)
+    violations.push(workspaceMessage('ui_dir_unexpected', { packageName }))
   }
   if (packageName === '@liujitcn/kratos-taro-app-system' && packageRoot !== systemRoot) {
-    violations.push(`${packageName}: system 包目录异常`)
+    violations.push(workspaceMessage('system_dir_unexpected', { packageName }))
   }
 }
 
 if (violations.length) {
-  console.error(
-    `Taro package exports 检查失败：\n${violations.map((item) => `  ${item}`).join('\n')}`,
-  )
+  console.error(workspaceMessage('exports_check_failed', { violations: violations.map((item) => `  ${item}`).join('\n') }))
   process.exit(1)
 }
-console.log(`Taro package exports 检查通过（${[...packages.keys()].join('、')}）`)
+console.log(workspaceMessage('exports_check_passed', { packages: [...packages.keys()].join(workspaceMessage('list_separator')) }))
 
 async function collectFiles(directory) {
   const files = []

@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import test from "node:test";
+import { before, test } from "node:test";
 import type { Component } from "vue";
 import {
   ADMIN_STATIC_VIEWS,
@@ -11,8 +11,32 @@ import {
   type AdminModule,
   type AdminViewLoader
 } from "../src/modules/index.js";
+import { runtimeMessage } from "../src/runtime-messages.js";
 
 const component = {} as Component;
+
+before(() => {
+  process.env.KRATOS_ADMIN_LOCALE = "zh-CN";
+});
+
+test("英文注册冲突错误使用英文资源标签", () => {
+  const previousLocale = process.env.KRATOS_ADMIN_LOCALE;
+  process.env.KRATOS_ADMIN_LOCALE = "en-US";
+  try {
+    assert.equal(runtimeMessage("label.module"), "module");
+    assert.equal(runtimeMessage("label.header_tool"), "header tool");
+    assert.equal(runtimeMessage("label.user_menu"), "user menu");
+    assert.equal(runtimeMessage("label.route_option"), "route configuration");
+    registerAdminModule({ name: "test-english-duplicate-module" });
+    assert.throws(
+      () => registerAdminModule({ name: "test-english-duplicate-module" }),
+      /Duplicate admin module name/
+    );
+  } finally {
+    if (previousLocale === undefined) delete process.env.KRATOS_ADMIN_LOCALE;
+    else process.env.KRATOS_ADMIN_LOCALE = previousLocale;
+  }
+});
 
 test("普通页面必须使用模块前缀且跨模块同名页面互不冲突", () => {
   const businessLoader = createViewLoader();
