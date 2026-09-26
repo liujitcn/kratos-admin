@@ -1,17 +1,5 @@
 module github.com/liujitcn/kratos-admin/backend
 
-replace github.com/liujitcn/kratos-kit/oauth => ../../kratos-kit/oauth
-
-replace github.com/liujitcn/kratos-kit/redact => ../../kratos-kit/redact
-
-replace github.com/liujitcn/kratos-core => ../../kratos-core
-
-replace github.com/liujitcn/kratos-kit/cache => ../../kratos-kit/cache
-
-replace github.com/liujitcn/kratos-kit/api => ../../kratos-kit/api
-
-replace github.com/liujitcn/kratos-admin/backend/api => ./api
-
 go 1.27.0
 
 require (
@@ -27,8 +15,8 @@ require (
 	github.com/liujitcn/go-utils/crypto v0.0.17
 	github.com/liujitcn/go-utils/http v0.0.8
 	github.com/liujitcn/gorm-kit v0.0.35
-	github.com/liujitcn/kratos-admin/backend/api v0.0.17
-	github.com/liujitcn/kratos-core v0.0.40
+	github.com/liujitcn/kratos-admin/backend/api v0.0.18
+	github.com/liujitcn/kratos-core v0.0.41
 	github.com/liujitcn/kratos-core/api v0.0.4
 	github.com/liujitcn/kratos-kit v0.0.88
 	github.com/liujitcn/kratos-kit/api v0.0.40
@@ -37,7 +25,7 @@ require (
 	github.com/liujitcn/kratos-kit/auth/authz v0.0.23
 	github.com/liujitcn/kratos-kit/auth/authz/engine/casbin v0.0.22
 	github.com/liujitcn/kratos-kit/bootstrap v0.0.31
-	github.com/liujitcn/kratos-kit/cache v0.0.22
+	github.com/liujitcn/kratos-kit/cache v0.0.23
 	github.com/liujitcn/kratos-kit/captcha v0.0.23
 	github.com/liujitcn/kratos-kit/config v0.0.35
 	github.com/liujitcn/kratos-kit/database/gorm v0.0.49

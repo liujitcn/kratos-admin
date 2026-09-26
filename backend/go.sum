@@ -708,8 +708,10 @@ github.com/liujitcn/go-utils/translator/volc v0.0.4 h1:2HOmyC67bKRcGXNXHCi3vco/L
 github.com/liujitcn/go-utils/translator/volc v0.0.4/go.mod h1:drNm2jfUCXfFB089DthBcR727wTHAKbxi7sF/cwOnd0=
 github.com/liujitcn/gorm-kit v0.0.35 h1:sM8hBg7zLcZJ9qF7aW3eA0GiFXKk6i2q4BLb3FTc5ls=
 github.com/liujitcn/gorm-kit v0.0.35/go.mod h1:9ZJbYSydcprWdTG7wf+kW8qqxdF0Aw6fAC2tY2Ogdcs=
-github.com/liujitcn/kratos-core v0.0.40 h1:rzCTPb/xWxfMOKMA1F2ZjmDt9i/sOVG4/OtFyUy1x9M=
-github.com/liujitcn/kratos-core v0.0.40/go.mod h1:INHcQ8M+1U0vIHQQ20OO60/gp+1AhBnzTso+GAFF6A0=
+github.com/liujitcn/kratos-admin/backend/api v0.0.18 h1:zEC+eeag+wJjhErCYGecyN9l7Me6gUpftwwm7/ZLp5s=
+github.com/liujitcn/kratos-admin/backend/api v0.0.18/go.mod h1:LNUpCCzYvLnqb87Y2SudbHG5ZpWMPjfdzQkJ8O5Ybow=
+github.com/liujitcn/kratos-core v0.0.41 h1:GdS3y1+ca4xEDFIQ18zOTRVEIe37SXPXzoUolBV8MXA=
+github.com/liujitcn/kratos-core v0.0.41/go.mod h1:Pa44+dlK+QpU94dkAhfqRB+PE2+CnKmT8l7PoG9xEZg=
 github.com/liujitcn/kratos-core/api v0.0.4 h1:Tw1+FSk8/anqr+vr6yZb+Bv1Kpf/c5/oEJg6V1BQSgM=
 github.com/liujitcn/kratos-core/api v0.0.4/go.mod h1:VqXAXmqT6uPL1nvzgl0Exh458iDrYO0mr3VGH1Kg1lQ=
 github.com/liujitcn/kratos-kit v0.0.88 h1:wzLg7BDDiq930ayMG5mb6bJKPl65ENCwNYKAhg6WXgA=
@@ -734,8 +736,8 @@ github.com/liujitcn/kratos-kit/bootstrap v0.0.31 h1:NhUe/DE5inSjSgvVZF4CVEbCIYCi
 github.com/liujitcn/kratos-kit/bootstrap v0.0.31/go.mod h1:tpPusKRKJ7/pzDHOEFAR5zrRdoT0cCRYpJ6WuiS7ePY=
 github.com/liujitcn/kratos-kit/broker v0.0.12 h1:ElBnTmfxJmEB+9iV1aYtl9bPAjhAb4fmjHBjhy1rZmc=
 github.com/liujitcn/kratos-kit/broker v0.0.12/go.mod h1:2VI9f+hIJNHwCaTxsTM5SoOYMaTkADRRhaIhW9BmQcc=
-github.com/liujitcn/kratos-kit/cache v0.0.22 h1:bhqC9s7FQ8MLDM+/97xTfJyx6mAB4ejcQfi3jfvWCwU=
-github.com/liujitcn/kratos-kit/cache v0.0.22/go.mod h1:2kXaQantBLp8NIgrtz74gCqYUP34wJOPpIIB1yYyRZ0=
+github.com/liujitcn/kratos-kit/cache v0.0.23 h1:1jZkzjK4QyFzu8YmWelPCaJpVS8fCjiP/b0ANxSjnTY=
+github.com/liujitcn/kratos-kit/cache v0.0.23/go.mod h1:2kXaQantBLp8NIgrtz74gCqYUP34wJOPpIIB1yYyRZ0=
 github.com/liujitcn/kratos-kit/captcha v0.0.23 h1:FSUeR1nR5dN+NJge2HrY39TAxhnUAhSU6CScMl/GBYs=
 github.com/liujitcn/kratos-kit/captcha v0.0.23/go.mod h1:KRZOL/meEtpn2adDYIAtPsOLctpXxRbm9Be/0+KG6ZE=
 github.com/liujitcn/kratos-kit/config v0.0.35 h1:S/ivengaoXv0hyAzzWTAxpgVujE51y4pHjBp0s2kt+4=
@@ -756,6 +758,8 @@ github.com/liujitcn/kratos-kit/logger v0.0.33 h1:oV4vBqIY19waEFBdXR2VeU5Dhw4MqJn
 github.com/liujitcn/kratos-kit/logger v0.0.33/go.mod h1:TnBF+9gD6RKFaSM/2dWoMFLzVKyJAanqpQls+X7fSRE=
 github.com/liujitcn/kratos-kit/logger/zap v0.0.19 h1:viIz5G14fJtZaFylIPy+8HHCMw2L6o0JGzZ0mr2H1E8=
 github.com/liujitcn/kratos-kit/logger/zap v0.0.19/go.mod h1:hVH26+XhnEs2Rn8D8IOULThuef4rJhWYflzWCd76P48=
+github.com/liujitcn/kratos-kit/oauth v0.0.13 h1:8TqJ3Q5gXgIkLZY1H8MyF48K5S5OxUUtGe9SlfqGTo0=
+github.com/liujitcn/kratos-kit/oauth v0.0.13/go.mod h1:ZJMG8OmwSU5Xx8IsoWW6JAhQr0v3VaYnJwqy57M/UlU=
 github.com/liujitcn/kratos-kit/oss v0.0.21 h1:OnmK6Lb+BPPlc7R39NLQ30H1yBMysq1rWLRydtG4stY=
 github.com/liujitcn/kratos-kit/oss v0.0.21/go.mod h1:MdraQGOcPGRmCSha+xQNLTCHg5eqfTJLKRGgEe5S/CM=
 github.com/liujitcn/kratos-kit/oss/s3 v0.0.4 h1:mtLfY4PHI4TfK60slk10YeNYNQyMBuJx1BGwyg2ys4I=
@@ -766,6 +770,8 @@ github.com/liujitcn/kratos-kit/queue v0.0.32 h1:Yv14OteSQxswL9vbP4xsTnU1gdNnzRj+
 github.com/liujitcn/kratos-kit/queue v0.0.32/go.mod h1:LmHv+FTgmOekIc/VfMI2Get3TFAV5V7vq0meinyV+A8=
 github.com/liujitcn/kratos-kit/queue/redisqueue v0.0.16 h1:bedifEZn+0HUHfKQ4p7QXMlEBoDu4786r39M1UZwuPU=
 github.com/liujitcn/kratos-kit/queue/redisqueue v0.0.16/go.mod h1:iz4f5nO2ZyLqc+jVCHSHQvK1o/Ex1UsJvagqB5KTE74=
+github.com/liujitcn/kratos-kit/redact v0.0.12 h1:8QFovj7qVnpmehpypA42JB2sde9nkriRPxNyzEt/mZk=
+github.com/liujitcn/kratos-kit/redact v0.0.12/go.mod h1:FnSLS81bA/4zWRq08JNsblrVyo7Bpcd1bS3Lvrqx8Co=
 github.com/liujitcn/kratos-kit/registry v0.0.24 h1:px7iqSFmnpTWxr7NtAl+9d85NSY3EQnzLy84fr1QglY=
 github.com/liujitcn/kratos-kit/registry v0.0.24/go.mod h1:oIKZLEnJ1RH3hDMpsKErQ4kKShlqDgK0i5gtvBMF8kQ=
 github.com/liujitcn/kratos-kit/registry/consul v0.0.7 h1:OrdczmVF2lWd6ZfmL7DgPT4+rQanvWVahuT4aB7muP4=
