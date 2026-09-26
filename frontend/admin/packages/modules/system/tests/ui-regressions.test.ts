@@ -548,3 +548,29 @@ test("普通租户管理员在用户列表中不可删除但仍可重置密码",
   assert.match(source, /updateUndeletableRoleIds\(options\)/);
   assert.match(source, /option\.disabled/);
 });
+
+test("限流规则和接口策略列表提供批量选择复选框", async () => {
+  const [rulePage, policyPage] = await Promise.all([
+    readSource("src/views/base/rate-limit-rule/index.vue"),
+    readSource("src/views/base/api-rate-limit-policy/index.vue")
+  ]);
+
+  assert.match(rulePage, /const columns = computed<ColumnProps\[]>\(\(\) => \[\s*\{ type: "selection", width: 55 \}/);
+  assert.match(policyPage, /const columns = computed<ColumnProps\[]>\(\(\) => \[\s*\{ type: "selection", width: 55 \}/);
+});
+
+test("限流新增参数默认留空且接口选择弹窗展示完整选项", async () => {
+  const [rulePage, policyPage] = await Promise.all([
+    readSource("src/views/base/rate-limit-rule/index.vue"),
+    readSource("src/views/base/api-rate-limit-policy/index.vue")
+  ]);
+
+  assert.match(rulePage, /params: \{ tokens_per_second: undefined, burst: undefined \}/);
+  assert.match(rulePage, /typeof form\.params\.tokens_per_second !== "number"/);
+  assert.match(policyPage, /width="min\(1280px, calc\(100vw - 32px\)\)"/);
+  assert.match(policyPage, /label-position="left"/);
+  assert.match(policyPage, /\.policy-api-transfer :deep\(\.el-transfer-panel\)\s*\{\s*width: min\(520px, calc\(\(100% - 112px\) \/ 2\)\)/);
+  assert.match(policyPage, /\.parameter-grid\s*\{[\s\S]*?width: 100%/);
+  assert.match(policyPage, /\.parameter-item :deep\(\.el-input-number\)\s*\{\s*flex: 1;\s*width: 0;/);
+  assert.match(policyPage, /el-transfer-panel__item \.el-checkbox__label[\s\S]*?white-space: normal/);
+});

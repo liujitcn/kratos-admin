@@ -1,0 +1,118 @@
+syntax = "proto3";
+
+package system.admin.v1;
+
+import "common/v1/enum.proto";
+import "buf/validate/validate.proto";
+import "gnostic/openapi/v3/annotations.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+
+// 接口限流维度。
+enum BaseApiRateLimitDimension {
+  // 未指定维度。
+  BASE_API_RATE_LIMIT_DIMENSION_UNSPECIFIED = 0;
+  // 全接口共享限额。
+  BASE_API_RATE_LIMIT_DIMENSION_GLOBAL = 1;
+  // 按来源IP分别限额。
+  BASE_API_RATE_LIMIT_DIMENSION_IP = 2;
+  // 按租户分别限额。
+  BASE_API_RATE_LIMIT_DIMENSION_TENANT = 3;
+  // 按用户分别限额。
+  BASE_API_RATE_LIMIT_DIMENSION_USER = 4;
+  // 按OAuth客户端分别限额。
+  BASE_API_RATE_LIMIT_DIMENSION_OAUTH_CLIENT = 5;
+}
+
+// Admin接口限流策略服务。
+service BaseApiRateLimitPolicyService {
+  // 查询接口限流策略分页列表。
+  rpc PageBaseApiRateLimitPolicy(PageBaseApiRateLimitPolicyRequest) returns (PageBaseApiRateLimitPolicyResponse) { option (google.api.http) = {get: "/api/v1/admin/base/api-rate-limit-policy"}; }
+  // 查询接口限流策略详情。
+  rpc GetBaseApiRateLimitPolicy(GetBaseApiRateLimitPolicyRequest) returns (BaseApiRateLimitPolicyForm) { option (google.api.http) = {get: "/api/v1/admin/base/api-rate-limit-policy/{id}"}; }
+  // 创建接口限流策略。
+  rpc CreateBaseApiRateLimitPolicy(CreateBaseApiRateLimitPolicyRequest) returns (google.protobuf.Empty) { option (google.api.http) = {post: "/api/v1/admin/base/api-rate-limit-policy", body: "base_api_rate_limit_policy"}; }
+  // 更新接口限流策略。
+  rpc UpdateBaseApiRateLimitPolicy(UpdateBaseApiRateLimitPolicyRequest) returns (google.protobuf.Empty) { option (google.api.http) = {put: "/api/v1/admin/base/api-rate-limit-policy/{base_api_rate_limit_policy.id}", body: "base_api_rate_limit_policy"}; }
+  // 删除接口限流策略。
+  rpc DeleteBaseApiRateLimitPolicy(DeleteBaseApiRateLimitPolicyRequest) returns (google.protobuf.Empty) { option (google.api.http) = {delete: "/api/v1/admin/base/api-rate-limit-policy/{id}"}; }
+  // 设置接口限流策略状态。
+  rpc SetBaseApiRateLimitPolicyStatus(SetBaseApiRateLimitPolicyStatusRequest) returns (google.protobuf.Empty) { option (google.api.http) = {put: "/api/v1/admin/base/api-rate-limit-policy/{id}/status", body: "*"}; }
+}
+
+// 接口限流策略分页查询条件。
+message PageBaseApiRateLimitPolicyRequest {
+  string operation = 1 [(gnostic.openapi.v3.property) = {description: "接口操作"}]; // 接口操作
+  optional BaseApiRateLimitDimension dimension = 2 [(gnostic.openapi.v3.property) = {description: "限流维度"}]; // 限流维度
+  optional .common.v1.Status status = 100 [(gnostic.openapi.v3.property) = {description: "状态"}]; // 状态
+  int64 page_num = 101 [(gnostic.openapi.v3.property) = {description: "当前页码", default: {number: 1}}, (buf.validate.field).int64 = {gte: 1, lte: 1000000}]; // 当前页码
+  int64 page_size = 102 [(gnostic.openapi.v3.property) = {description: "每页数量", default: {number: 10}}, (buf.validate.field).int64 = {gte: 1, lte: 100}]; // 每页数量
+}
+
+// 接口限流策略分页响应。
+message PageBaseApiRateLimitPolicyResponse {
+  repeated BaseApiRateLimitPolicy base_api_rate_limit_policies = 1 [(gnostic.openapi.v3.property) = {description: "接口限流策略列表"}]; // 接口限流策略列表
+  int32 total = 2 [(gnostic.openapi.v3.property) = {description: "总数"}]; // 总数
+}
+
+// 接口限流策略详情查询条件。
+message GetBaseApiRateLimitPolicyRequest {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "策略ID"}, (buf.validate.field).cel = {id: "system.admin.base.api_rate_limit_policy.get.id.required" message: "策略ID不能为空" expression: "this > 0"}]; // 策略ID
+}
+
+// 接口限流策略表单。
+message BaseApiRateLimitPolicyForm {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "策略ID"}]; // 策略ID
+  repeated string operations = 2 [(gnostic.openapi.v3.property) = {description: "接口操作列表"}, (buf.validate.field).repeated = {min_items: 1, max_items: 500, unique: true}, (buf.validate.field).cel = {id: "system.admin.base.api_rate_limit_policy.operations.valid" message: "请选择接口，最多500个且不能重复" expression: "this.all(item, item.size() > 0 && item.size() <= 250)"}]; // 接口操作列表
+  BaseApiRateLimitDimension dimension = 3 [(gnostic.openapi.v3.property) = {description: "限流维度"}, (buf.validate.field).enum = {defined_only: true}]; // 限流维度
+  int64 rule_id = 4 [(gnostic.openapi.v3.property) = {description: "限流规则ID"}, (buf.validate.field).cel = {id: "system.admin.base.api_rate_limit_policy.rule_id.required" message: "请选择限流规则" expression: "this > 0"}]; // 限流规则ID
+  string rule_params = 5 [(gnostic.openapi.v3.property) = {description: "策略规则参数JSON"}, (buf.validate.field).cel = {id: "system.admin.base.api_rate_limit_policy.rule_params.required" message: "策略规则参数不能为空" expression: "this.size() > 0"}]; // 策略规则参数JSON
+  .common.v1.Status status = 100 [(gnostic.openapi.v3.property) = {description: "状态"}, (buf.validate.field).enum = {defined_only: true}]; // 状态
+  string remark = 101 [(gnostic.openapi.v3.property) = {description: "备注"}, (buf.validate.field).cel = {id: "system.admin.base.api_rate_limit_policy.remark.length" message: "备注不能超过500个字符" expression: "this.size() <= 500"}]; // 备注
+}
+
+// 创建接口限流策略请求参数。
+message CreateBaseApiRateLimitPolicyRequest {
+  BaseApiRateLimitPolicyForm base_api_rate_limit_policy = 1 [(gnostic.openapi.v3.property) = {description: "接口限流策略表单"}, (buf.validate.field).required = true]; // 接口限流策略表单
+}
+
+// 更新接口限流策略请求参数。
+message UpdateBaseApiRateLimitPolicyRequest {
+  BaseApiRateLimitPolicyForm base_api_rate_limit_policy = 1 [(gnostic.openapi.v3.property) = {description: "接口限流策略表单"}, (buf.validate.field).required = true]; // 接口限流策略表单
+}
+
+// 删除接口限流策略请求参数。
+message DeleteBaseApiRateLimitPolicyRequest {
+  string id = 1 [(gnostic.openapi.v3.property) = {description: "策略ID列表"}, (buf.validate.field).cel = {id: "system.admin.base.api_rate_limit_policy.delete.id.required" message: "策略ID列表不能为空" expression: "this.size() > 0"}]; // 策略ID列表
+}
+
+// 设置接口限流策略状态请求参数。
+message SetBaseApiRateLimitPolicyStatusRequest {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "策略ID"}, (buf.validate.field).cel = {id: "system.admin.base.api_rate_limit_policy.status.id.required" message: "策略ID不能为空" expression: "this > 0"}]; // 策略ID
+  .common.v1.Status status = 2 [(gnostic.openapi.v3.property) = {description: "状态"}, (buf.validate.field).enum = {defined_only: true}]; // 状态
+}
+
+// 接口限流策略详情。
+message BaseApiRateLimitPolicy {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "策略ID"}]; // 策略ID
+  repeated BaseApiRateLimitPolicyAPI apis = 2 [(gnostic.openapi.v3.property) = {description: "限流接口列表"}]; // 限流接口列表
+  reserved 3 to 6;
+  BaseApiRateLimitDimension dimension = 7 [(gnostic.openapi.v3.property) = {description: "限流维度"}]; // 限流维度
+  int64 rule_id = 8 [(gnostic.openapi.v3.property) = {description: "限流规则ID"}]; // 限流规则ID
+  string rule_code = 9 [(gnostic.openapi.v3.property) = {description: "限流规则编码"}]; // 限流规则编码
+  string rule_name = 10 [(gnostic.openapi.v3.property) = {description: "限流规则名称"}]; // 限流规则名称
+  string rule_params = 11 [(gnostic.openapi.v3.property) = {description: "策略规则参数JSON"}]; // 策略规则参数JSON
+  .common.v1.Status status = 100 [(gnostic.openapi.v3.property) = {description: "状态"}]; // 状态
+  string remark = 101 [(gnostic.openapi.v3.property) = {description: "备注"}]; // 备注
+  string created_at = 200 [(gnostic.openapi.v3.property) = {description: "创建时间"}]; // 创建时间
+  string updated_at = 201 [(gnostic.openapi.v3.property) = {description: "更新时间"}]; // 更新时间
+}
+
+// 接口限流策略关联的接口摘要。
+message BaseApiRateLimitPolicyAPI {
+  string operation = 1 [(gnostic.openapi.v3.property) = {description: "接口操作"}]; // 接口操作
+  string service_name = 2 [(gnostic.openapi.v3.property) = {description: "服务名称"}]; // 服务名称
+  string service_desc = 3 [(gnostic.openapi.v3.property) = {description: "服务描述"}]; // 服务描述
+  string method = 4 [(gnostic.openapi.v3.property) = {description: "请求方法"}]; // 请求方法
+  string path = 5 [(gnostic.openapi.v3.property) = {description: "请求地址"}]; // 请求地址
+}

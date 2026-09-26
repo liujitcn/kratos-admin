@@ -6,6 +6,7 @@ import "github.com/google/wire"
 var ProviderSet = wire.NewSet(
 	NewAuthCase,
 	NewBaseAPICase,
+	NewBaseApiRateLimitPolicyCase,
 	NewBaseAreaCase,
 	NewBaseConfigCase,
 	NewBaseDeptCase,
@@ -55,6 +56,7 @@ var ProviderSet = wire.NewSet(
 	NewBaseRedactOutputPolicyCase,
 	NewBaseRedactRuleCase,
 	NewBaseRedactStoragePolicyCase,
+	NewBaseRateLimitRuleCase,
 )
 
 // MessageProviderSet 汇总站内信管理和投递业务依赖。

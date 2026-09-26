@@ -139,7 +139,13 @@ func NewApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	httpMiddlewares := server.NewHTTPMiddleware(ctx, authenticator, engine, userToken, authentication_Jwt, cacheCache, i18nI18n)
+	rateLimitPolicyResolver, err := kit.NewRateLimitPolicyResolver(v2)
+	if err != nil {
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
+	httpMiddlewares := server.NewHTTPMiddleware(ctx, authenticator, engine, userToken, authentication_Jwt, cacheCache, i18nI18n, rateLimitPolicyResolver)
 	configv1Pprof, err := config.ParsePprof(configv1Bootstrap)
 	if err != nil {
 		cleanup2()
@@ -274,7 +280,7 @@ func NewApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 		return nil, nil, err
 	}
 	lifecycle := projectaccess.NewLifecycle()
-	adminModules, cleanup9, err := backend.NewModules(migrationMigration, configv1Bootstrap, v2, baseCase, engine, authenticator, userToken, jobJob, sseSSE, i18nI18n, openapiOpenAPI, redactPolicyResolver, v3, lifecycle)
+	adminModules, cleanup9, err := backend.NewModules(migrationMigration, configv1Bootstrap, v2, baseCase, engine, authenticator, userToken, jobJob, sseSSE, i18nI18n, openapiOpenAPI, redactPolicyResolver, rateLimitPolicyResolver, v3, lifecycle)
 	if err != nil {
 		cleanup8()
 		cleanup7()
@@ -314,7 +320,7 @@ func NewApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	grpcMiddlewares := server.NewGRPCMiddleware(ctx, authenticator, engine, userToken, authentication_Jwt, cacheCache, i18nI18n)
+	grpcMiddlewares := server.NewGRPCMiddleware(ctx, authenticator, engine, userToken, authentication_Jwt, cacheCache, i18nI18n, rateLimitPolicyResolver)
 	grpcServer, err := server.NewGRPCServer(ctx, grpcMiddlewares, modules, redactPolicyResolver)
 	if err != nil {
 		cleanup10()

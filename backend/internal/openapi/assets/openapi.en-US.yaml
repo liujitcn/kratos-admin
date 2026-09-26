@@ -332,6 +332,146 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/system.admin.v1.BaseApiLog'
+    /api/v1/admin/base/api-rate-limit-policy:
+        get:
+            tags:
+                - BaseApiRateLimitPolicyService
+            description: Query api rate limiting policy pagination list.
+            operationId: BaseApiRateLimitPolicyService_PageBaseApiRateLimitPolicy
+            parameters:
+                - name: operation
+                  in: query
+                  schema:
+                    type: string
+                - name: dimension
+                  in: query
+                  schema:
+                    enum:
+                        - BASE_API_RATE_LIMIT_DIMENSION_UNSPECIFIED
+                        - BASE_API_RATE_LIMIT_DIMENSION_GLOBAL
+                        - BASE_API_RATE_LIMIT_DIMENSION_IP
+                        - BASE_API_RATE_LIMIT_DIMENSION_TENANT
+                        - BASE_API_RATE_LIMIT_DIMENSION_USER
+                        - BASE_API_RATE_LIMIT_DIMENSION_OAUTH_CLIENT
+                    type: string
+                    format: enum
+                - name: status
+                  in: query
+                  schema:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    format: enum
+                - name: page_num
+                  in: query
+                  schema:
+                    type: string
+                - name: page_size
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.PageBaseApiRateLimitPolicyResponse'
+        post:
+            tags:
+                - BaseApiRateLimitPolicyService
+            description: Create api rate limiting policy.
+            operationId: BaseApiRateLimitPolicyService_CreateBaseApiRateLimitPolicy
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.BaseApiRateLimitPolicyForm'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/api-rate-limit-policy/{base_api_rate_limit_policy.id}:
+        put:
+            tags:
+                - BaseApiRateLimitPolicyService
+            description: Update api rate limiting policy.
+            operationId: BaseApiRateLimitPolicyService_UpdateBaseApiRateLimitPolicy
+            parameters:
+                - name: base_api_rate_limit_policy.id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.BaseApiRateLimitPolicyForm'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/api-rate-limit-policy/{id}:
+        get:
+            tags:
+                - BaseApiRateLimitPolicyService
+            description: Query api rate limiting policy details.
+            operationId: BaseApiRateLimitPolicyService_GetBaseApiRateLimitPolicy
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.BaseApiRateLimitPolicyForm'
+        delete:
+            tags:
+                - BaseApiRateLimitPolicyService
+            description: Delete api rate limiting policy.
+            operationId: BaseApiRateLimitPolicyService_DeleteBaseApiRateLimitPolicy
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/api-rate-limit-policy/{id}/status:
+        put:
+            tags:
+                - BaseApiRateLimitPolicyService
+            description: Set api rate limiting policy status.
+            operationId: BaseApiRateLimitPolicyService_SetBaseApiRateLimitPolicyStatus
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.SetBaseApiRateLimitPolicyStatusRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
     /api/v1/admin/base/api/openapi-service/option:
         get:
             tags:
@@ -3506,6 +3646,156 @@ paths:
                     application/json:
                         schema:
                             $ref: '#/components/schemas/system.admin.v1.SetBasePostStatusRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/rate-limit-rule:
+        get:
+            tags:
+                - BaseRateLimitRuleService
+            description: Query rate limiting rule pagination list.
+            operationId: BaseRateLimitRuleService_PageBaseRateLimitRule
+            parameters:
+                - name: code
+                  in: query
+                  schema:
+                    type: string
+                - name: name
+                  in: query
+                  schema:
+                    type: string
+                - name: status
+                  in: query
+                  schema:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    format: enum
+                - name: page_num
+                  in: query
+                  schema:
+                    type: string
+                - name: page_size
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.PageBaseRateLimitRuleResponse'
+        post:
+            tags:
+                - BaseRateLimitRuleService
+            description: Create rate limiting rule.
+            operationId: BaseRateLimitRuleService_CreateBaseRateLimitRule
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.BaseRateLimitRuleForm'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/rate-limit-rule/option:
+        get:
+            tags:
+                - BaseRateLimitRuleService
+            description: Query rate limiting rule option.
+            operationId: BaseRateLimitRuleService_OptionBaseRateLimitRule
+            parameters:
+                - name: keyword
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.OptionBaseRateLimitRuleResponse'
+    /api/v1/admin/base/rate-limit-rule/{base_rate_limit_rule.id}:
+        put:
+            tags:
+                - BaseRateLimitRuleService
+            description: Update rate limiting rule.
+            operationId: BaseRateLimitRuleService_UpdateBaseRateLimitRule
+            parameters:
+                - name: base_rate_limit_rule.id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.BaseRateLimitRuleForm'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/rate-limit-rule/{id}:
+        get:
+            tags:
+                - BaseRateLimitRuleService
+            description: Query rate limiting rule details.
+            operationId: BaseRateLimitRuleService_GetBaseRateLimitRule
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.BaseRateLimitRuleForm'
+        delete:
+            tags:
+                - BaseRateLimitRuleService
+            description: Delete rate limiting rule.
+            operationId: BaseRateLimitRuleService_DeleteBaseRateLimitRule
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/rate-limit-rule/{id}/status:
+        put:
+            tags:
+                - BaseRateLimitRuleService
+            description: Set rate limiting rule status.
+            operationId: BaseRateLimitRuleService_SetBaseRateLimitRuleStatus
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.SetBaseRateLimitRuleStatusRequest'
                 required: true
             responses:
                 "200":
@@ -9085,6 +9375,117 @@ components:
                     type: string
                     description: log persistence time
             description: API access log.
+        system.admin.v1.BaseApiRateLimitPolicy:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: policy ID
+                apis:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.BaseApiRateLimitPolicyAPI'
+                    description: rate limiting api list
+                dimension:
+                    enum:
+                        - BASE_API_RATE_LIMIT_DIMENSION_UNSPECIFIED
+                        - BASE_API_RATE_LIMIT_DIMENSION_GLOBAL
+                        - BASE_API_RATE_LIMIT_DIMENSION_IP
+                        - BASE_API_RATE_LIMIT_DIMENSION_TENANT
+                        - BASE_API_RATE_LIMIT_DIMENSION_USER
+                        - BASE_API_RATE_LIMIT_DIMENSION_OAUTH_CLIENT
+                    type: string
+                    description: rate limiting dimension
+                    format: enum
+                rule_id:
+                    type: string
+                    description: rate limiting rule ID
+                rule_code:
+                    type: string
+                    description: rate limiting rule code
+                rule_name:
+                    type: string
+                    description: rate limiting rule name
+                rule_params:
+                    type: string
+                    description: policy rule parameters JSON
+                status:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    description: status
+                    format: enum
+                remark:
+                    type: string
+                    description: Remarks
+                created_at:
+                    type: string
+                    description: Create time
+                updated_at:
+                    type: string
+                    description: Update time
+            description: api rate limiting policy details.
+        system.admin.v1.BaseApiRateLimitPolicyAPI:
+            type: object
+            properties:
+                operation:
+                    type: string
+                    description: API operation
+                service_name:
+                    type: string
+                    description: service name
+                service_desc:
+                    type: string
+                    description: Service description
+                method:
+                    type: string
+                    description: request method
+                path:
+                    type: string
+                    description: request URL
+            description: api rate limitingpolicyassociatedof api summary.
+        system.admin.v1.BaseApiRateLimitPolicyForm:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: policy ID
+                operations:
+                    type: array
+                    items:
+                        type: string
+                    description: API operation list
+                dimension:
+                    enum:
+                        - BASE_API_RATE_LIMIT_DIMENSION_UNSPECIFIED
+                        - BASE_API_RATE_LIMIT_DIMENSION_GLOBAL
+                        - BASE_API_RATE_LIMIT_DIMENSION_IP
+                        - BASE_API_RATE_LIMIT_DIMENSION_TENANT
+                        - BASE_API_RATE_LIMIT_DIMENSION_USER
+                        - BASE_API_RATE_LIMIT_DIMENSION_OAUTH_CLIENT
+                    type: string
+                    description: rate limiting dimension
+                    format: enum
+                rule_id:
+                    type: string
+                    description: rate limiting rule ID
+                rule_params:
+                    type: string
+                    description: policy rule parameters JSON
+                status:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    description: status
+                    format: enum
+                remark:
+                    type: string
+                    description: Remarks
+            description: api rate limiting policy form.
         system.admin.v1.BaseArea:
             type: object
             properties:
@@ -11222,6 +11623,94 @@ components:
                     type: string
                     description: Remarks
             description: position form
+        system.admin.v1.BaseRateLimitRule:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: rule ID
+                code:
+                    type: string
+                    description: rule code
+                name:
+                    type: string
+                    description: rule name
+                rule_type:
+                    type: string
+                    description: rate limiting algorithm type
+                default_params:
+                    type: string
+                    description: default rule parameters JSON
+                status:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    description: status
+                    format: enum
+                remark:
+                    type: string
+                    description: Remarks
+                created_at:
+                    type: string
+                    description: Create time
+                updated_at:
+                    type: string
+                    description: Update time
+            description: rate limiting rule template.
+        system.admin.v1.BaseRateLimitRuleForm:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: rule ID
+                code:
+                    type: string
+                    description: rule code
+                name:
+                    type: string
+                    description: rule name
+                rule_type:
+                    type: string
+                    description: rate limiting algorithm type
+                default_params:
+                    type: string
+                    description: default rule parameters JSON
+                status:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    description: status
+                    format: enum
+                remark:
+                    type: string
+                    description: Remarks
+            description: rate limiting rule form.
+        system.admin.v1.BaseRateLimitRuleOption:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: rule ID
+                label:
+                    type: string
+                    description: rule name
+                code:
+                    type: string
+                    description: rule code
+                rule_type:
+                    type: string
+                    description: rate limiting algorithm type
+                default_params:
+                    type: string
+                    description: default rule parameters
+                disabled:
+                    type: boolean
+                    description: whether disabled
+            description: rate limiting rule option.
         system.admin.v1.BaseRedactOutputPolicy:
             type: object
             properties:
@@ -13601,6 +14090,15 @@ components:
                         $ref: '#/components/schemas/system.admin.v1.BaseLanguage'
                     description: language option
             description: language option response
+        system.admin.v1.OptionBaseRateLimitRuleResponse:
+            type: object
+            properties:
+                list:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.BaseRateLimitRuleOption'
+                    description: rule option
+            description: rate limiting rule option response.
         system.admin.v1.OptionBaseTableResponse:
             type: object
             properties:
@@ -13641,6 +14139,19 @@ components:
                     description: total count
                     format: int32
             description: API access log paginated response.
+        system.admin.v1.PageBaseApiRateLimitPolicyResponse:
+            type: object
+            properties:
+                base_api_rate_limit_policies:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.BaseApiRateLimitPolicy'
+                    description: api rate limiting policy list
+                total:
+                    type: integer
+                    description: total count
+                    format: int32
+            description: api rate limiting policy paginated response.
         system.admin.v1.PageBaseApiResponse:
             type: object
             properties:
@@ -13900,6 +14411,19 @@ components:
                     description: total count
                     format: int32
             description: position paginated response
+        system.admin.v1.PageBaseRateLimitRuleResponse:
+            type: object
+            properties:
+                base_rate_limit_rules:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.BaseRateLimitRule'
+                    description: rule list
+                total:
+                    type: integer
+                    description: total count
+                    format: int32
+            description: rate limiting rule paginated response.
         system.admin.v1.PageBaseRedactOutputPolicyResponse:
             type: object
             properties:
@@ -14405,6 +14929,21 @@ components:
                     description: "MCP tool status: enum [Status]"
                     format: enum
             description: API MCP tool status Set condition
+        system.admin.v1.SetBaseApiRateLimitPolicyStatusRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: policy ID
+                status:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    description: status
+                    format: enum
+            description: Set api rate limiting policy status request parameters.
         system.admin.v1.SetBaseConfigStatusRequest:
             type: object
             properties:
@@ -14564,6 +15103,21 @@ components:
                     description: status
                     format: int32
             description: Set position status request parameters
+        system.admin.v1.SetBaseRateLimitRuleStatusRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: rule ID
+                status:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    description: status
+                    format: enum
+            description: Set rate limiting rule status request parameters.
         system.admin.v1.SetBaseRedactOutputPolicyStatusRequest:
             type: object
             properties:
@@ -15144,6 +15698,8 @@ tags:
       description: app user authentication service
     - name: BaseApiLogService
       description: Admin API access log service.
+    - name: BaseApiRateLimitPolicyService
+      description: Admin api rate limiting policy service.
     - name: BaseApiService
       description: Admin api service
     - name: BaseAreaService
@@ -15202,6 +15758,8 @@ tags:
       description: Admin policy evaluation log service.
     - name: BasePostService
       description: admin position management service
+    - name: BaseRateLimitRuleService
+      description: admin rate limiting rule template service.
     - name: BaseRedactOutputPolicyService
       description: Admin outbound redaction policy service.
     - name: BaseRedactRuleService

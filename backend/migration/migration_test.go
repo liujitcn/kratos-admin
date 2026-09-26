@@ -25,7 +25,7 @@ func TestTenantRoleIncludesRoleAndProjectManagement(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	for _, id := range []int64{30000000, 30030000, 30030100, 30030200, 30030300, 30030400, 30030500, 20040100, 20040200, 20040201, 20040202, 20040203} {
+	for _, id := range []int64{30000000, 30050000, 30050100, 30050500, 30051000, 30051500, 30052000, 20050100, 20050500, 20050501, 20050502, 20050503} {
 		if !slices.Contains(menus, id) {
 			t.Errorf("租户管理员缺少菜单权限 %d", id)
 		}
@@ -47,12 +47,12 @@ func TestSecurityDefaultsMatchMigrationDocumentation(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	for _, id := range []int64{91030100, 91030101, 91030102, 91030103, 91030104} {
+	for _, id := range []int64{91100100, 91100101, 91100102, 91100103, 91100104} {
 		if slices.Contains(adminMenus, id) {
 			t.Errorf("平台管理员不应拥有登录策略菜单权限 %d", id)
 		}
 	}
-	for _, id := range []int64{91030200, 91030201} {
+	for _, id := range []int64{91101000, 91101001} {
 		if !slices.Contains(adminMenus, id) {
 			t.Errorf("平台管理员缺少在线会话菜单权限 %d", id)
 		}

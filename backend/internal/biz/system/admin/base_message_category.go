@@ -5,6 +5,7 @@ import (
 
 	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
 	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
+	adminconst "github.com/liujitcn/kratos-admin/backend/internal/const"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
@@ -117,7 +118,7 @@ func (c *BaseMessageCategoryCase) CreateBaseMessageCategory(ctx context.Context,
 	if entity.Status == 0 {
 		entity.Status = _const.STATUS_STATUS_ENABLE
 	}
-	return c.tx.Transaction(ctx, func(txCtx context.Context) error {
+	err = c.tx.Transaction(ctx, func(txCtx context.Context) error {
 		err = c.Create(txCtx, entity)
 		if err != nil {
 			if errorsx.IsDuplicateKey(err) {
@@ -127,6 +128,11 @@ func (c *BaseMessageCategoryCase) CreateBaseMessageCategory(ctx context.Context,
 		}
 		return nil
 	})
+	if err != nil {
+		return err
+	}
+	incrementCacheRevision(c.Cache, adminconst.NOTIFICATION_CATEGORY_CACHE_REVISION_KEY)
+	return nil
 }
 
 // UpdateBaseMessageCategory 更新消息分类。
@@ -145,7 +151,7 @@ func (c *BaseMessageCategoryCase) UpdateBaseMessageCategory(ctx context.Context,
 	if entity.Status == 0 {
 		entity.Status = oldEntity.Status
 	}
-	return c.tx.Transaction(ctx, func(txCtx context.Context) error {
+	err = c.tx.Transaction(ctx, func(txCtx context.Context) error {
 		err = c.UpdateByID(txCtx, entity)
 		if err != nil {
 			if errorsx.IsDuplicateKey(err) {
@@ -155,6 +161,11 @@ func (c *BaseMessageCategoryCase) UpdateBaseMessageCategory(ctx context.Context,
 		}
 		return nil
 	})
+	if err != nil {
+		return err
+	}
+	incrementCacheRevision(c.Cache, adminconst.NOTIFICATION_CATEGORY_CACHE_REVISION_KEY)
+	return nil
 }
 
 // DeleteBaseMessageCategory 删除未被消息引用的分类。
@@ -178,13 +189,18 @@ func (c *BaseMessageCategoryCase) DeleteBaseMessageCategory(ctx context.Context,
 	if count > 0 {
 		return errorsx.HasChildrenConflict("删除消息分类失败，仍有消息使用该分类", "base_message_category", "base_message")
 	}
-	return c.tx.Transaction(ctx, func(txCtx context.Context) error {
+	err = c.tx.Transaction(ctx, func(txCtx context.Context) error {
 		err = c.DeleteByIDs(txCtx, ids)
 		if err != nil {
 			return err
 		}
 		return nil
 	})
+	if err != nil {
+		return err
+	}
+	incrementCacheRevision(c.Cache, adminconst.NOTIFICATION_CATEGORY_CACHE_REVISION_KEY)
+	return nil
 }
 
 // SetBaseMessageCategoryStatus 设置消息分类状态。
@@ -201,5 +217,10 @@ func (c *BaseMessageCategoryCase) SetBaseMessageCategoryStatus(ctx context.Conte
 	if entity.Status == int32(req.GetStatus()) {
 		return nil
 	}
-	return c.UpdateByID(ctx, &models.BaseMessageCategory{ID: entity.ID, Status: int32(req.GetStatus())})
+	err = c.UpdateByID(ctx, &models.BaseMessageCategory{ID: entity.ID, Status: int32(req.GetStatus())})
+	if err != nil {
+		return err
+	}
+	incrementCacheRevision(c.Cache, adminconst.NOTIFICATION_CATEGORY_CACHE_REVISION_KEY)
+	return nil
 }

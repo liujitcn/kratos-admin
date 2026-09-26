@@ -4009,5 +4009,20 @@
   "system.oauth.crypto.error.config_invalid": { "other": "クライアントの暗号化設定が無効です" },
   "system.oauth.crypto.error.request_decrypt_failed": { "other": "リクエストデータの復号に失敗しました" },
   "system.oauth.crypto.error.response_too_large": { "other": "レスポンスサイズが上限を超えています" },
-  "system.oauth.crypto.error.response_encrypt_failed": { "other": "レスポンスの暗号化に失敗しました" }
+  "system.oauth.crypto.error.response_encrypt_failed": { "other": "レスポンスの暗号化に失敗しました" },
+  "system.admin.base.rate_limit_rule.get.id.required": { "other": "レート制限ルールIDを入力してください" },
+  "system.admin.base.rate_limit_rule.code.required": { "other": "ルールコードは必須で、64文字以内で入力してください" },
+  "system.admin.base.rate_limit_rule.name.required": { "other": "ルール名は必須で、100文字以内で入力してください" },
+  "system.admin.base.rate_limit_rule.rule_type.required": { "other": "レート制限アルゴリズムは必須で、32文字以内で入力してください" },
+  "system.admin.base.rate_limit_rule.default_params.required": { "other": "既定のレート制限パラメーターを入力してください" },
+  "system.admin.base.rate_limit_rule.remark.length": { "other": "備考は500文字以内で入力してください" },
+  "system.admin.base.rate_limit_rule.delete.id.required": { "other": "レート制限ルールIDを指定してください" },
+  "system.admin.base.rate_limit_rule.status.id.required": { "other": "レート制限ルールIDを入力してください" },
+  "system.admin.base.api_rate_limit_policy.get.id.required": { "other": "APIレート制限ポリシーIDを入力してください" },
+  "system.admin.base.api_rate_limit_policy.operations.valid": { "other": "1～500件の API を選択し、各操作名は250文字以内で重複しないようにしてください" },
+  "system.admin.base.api_rate_limit_policy.rule_id.required": { "other": "レート制限ルールIDは0より大きい値が必要です" },
+  "system.admin.base.api_rate_limit_policy.rule_params.required": { "other": "APIレート制限パラメーターを入力してください" },
+  "system.admin.base.api_rate_limit_policy.remark.length": { "other": "備考は500文字以内で入力してください" },
+  "system.admin.base.api_rate_limit_policy.delete.id.required": { "other": "APIレート制限ポリシーIDを指定してください" },
+  "system.admin.base.api_rate_limit_policy.status.id.required": { "other": "APIレート制限ポリシーIDを入力してください" }
 }

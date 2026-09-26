@@ -332,6 +332,146 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/system.admin.v1.BaseApiLog'
+    /api/v1/admin/base/api-rate-limit-policy:
+        get:
+            tags:
+                - BaseApiRateLimitPolicyService
+            description: 検索APIレート制限ポリシーページネーション一覧。
+            operationId: BaseApiRateLimitPolicyService_PageBaseApiRateLimitPolicy
+            parameters:
+                - name: operation
+                  in: query
+                  schema:
+                    type: string
+                - name: dimension
+                  in: query
+                  schema:
+                    enum:
+                        - BASE_API_RATE_LIMIT_DIMENSION_UNSPECIFIED
+                        - BASE_API_RATE_LIMIT_DIMENSION_GLOBAL
+                        - BASE_API_RATE_LIMIT_DIMENSION_IP
+                        - BASE_API_RATE_LIMIT_DIMENSION_TENANT
+                        - BASE_API_RATE_LIMIT_DIMENSION_USER
+                        - BASE_API_RATE_LIMIT_DIMENSION_OAUTH_CLIENT
+                    type: string
+                    format: enum
+                - name: status
+                  in: query
+                  schema:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    format: enum
+                - name: page_num
+                  in: query
+                  schema:
+                    type: string
+                - name: page_size
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.PageBaseApiRateLimitPolicyResponse'
+        post:
+            tags:
+                - BaseApiRateLimitPolicyService
+            description: 作成APIレート制限ポリシー。
+            operationId: BaseApiRateLimitPolicyService_CreateBaseApiRateLimitPolicy
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.BaseApiRateLimitPolicyForm'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/api-rate-limit-policy/{base_api_rate_limit_policy.id}:
+        put:
+            tags:
+                - BaseApiRateLimitPolicyService
+            description: 更新APIレート制限ポリシー。
+            operationId: BaseApiRateLimitPolicyService_UpdateBaseApiRateLimitPolicy
+            parameters:
+                - name: base_api_rate_limit_policy.id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.BaseApiRateLimitPolicyForm'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/api-rate-limit-policy/{id}:
+        get:
+            tags:
+                - BaseApiRateLimitPolicyService
+            description: 検索APIレート制限ポリシー詳細。
+            operationId: BaseApiRateLimitPolicyService_GetBaseApiRateLimitPolicy
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.BaseApiRateLimitPolicyForm'
+        delete:
+            tags:
+                - BaseApiRateLimitPolicyService
+            description: 削除APIレート制限ポリシー。
+            operationId: BaseApiRateLimitPolicyService_DeleteBaseApiRateLimitPolicy
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/api-rate-limit-policy/{id}/status:
+        put:
+            tags:
+                - BaseApiRateLimitPolicyService
+            description: 設定APIレート制限ポリシーステータス。
+            operationId: BaseApiRateLimitPolicyService_SetBaseApiRateLimitPolicyStatus
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.SetBaseApiRateLimitPolicyStatusRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
     /api/v1/admin/base/api/openapi-service/option:
         get:
             tags:
@@ -3506,6 +3646,156 @@ paths:
                     application/json:
                         schema:
                             $ref: '#/components/schemas/system.admin.v1.SetBasePostStatusRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/rate-limit-rule:
+        get:
+            tags:
+                - BaseRateLimitRuleService
+            description: 検索レート制限ルールページネーション一覧。
+            operationId: BaseRateLimitRuleService_PageBaseRateLimitRule
+            parameters:
+                - name: code
+                  in: query
+                  schema:
+                    type: string
+                - name: name
+                  in: query
+                  schema:
+                    type: string
+                - name: status
+                  in: query
+                  schema:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    format: enum
+                - name: page_num
+                  in: query
+                  schema:
+                    type: string
+                - name: page_size
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.PageBaseRateLimitRuleResponse'
+        post:
+            tags:
+                - BaseRateLimitRuleService
+            description: 作成レート制限ルール。
+            operationId: BaseRateLimitRuleService_CreateBaseRateLimitRule
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.BaseRateLimitRuleForm'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/rate-limit-rule/option:
+        get:
+            tags:
+                - BaseRateLimitRuleService
+            description: 検索レート制限ルールオプション。
+            operationId: BaseRateLimitRuleService_OptionBaseRateLimitRule
+            parameters:
+                - name: keyword
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.OptionBaseRateLimitRuleResponse'
+    /api/v1/admin/base/rate-limit-rule/{base_rate_limit_rule.id}:
+        put:
+            tags:
+                - BaseRateLimitRuleService
+            description: 更新レート制限ルール。
+            operationId: BaseRateLimitRuleService_UpdateBaseRateLimitRule
+            parameters:
+                - name: base_rate_limit_rule.id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.BaseRateLimitRuleForm'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/rate-limit-rule/{id}:
+        get:
+            tags:
+                - BaseRateLimitRuleService
+            description: 検索レート制限ルール詳細。
+            operationId: BaseRateLimitRuleService_GetBaseRateLimitRule
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.BaseRateLimitRuleForm'
+        delete:
+            tags:
+                - BaseRateLimitRuleService
+            description: 削除レート制限ルール。
+            operationId: BaseRateLimitRuleService_DeleteBaseRateLimitRule
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/rate-limit-rule/{id}/status:
+        put:
+            tags:
+                - BaseRateLimitRuleService
+            description: 設定レート制限ルールステータス。
+            operationId: BaseRateLimitRuleService_SetBaseRateLimitRuleStatus
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.SetBaseRateLimitRuleStatusRequest'
                 required: true
             responses:
                 "200":
@@ -9085,6 +9375,117 @@ components:
                     type: string
                     description: ログ保存時刻
             description: API アクセスログ。
+        system.admin.v1.BaseApiRateLimitPolicy:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: ポリシーID
+                apis:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.BaseApiRateLimitPolicyAPI'
+                    description: レート制限API一覧
+                dimension:
+                    enum:
+                        - BASE_API_RATE_LIMIT_DIMENSION_UNSPECIFIED
+                        - BASE_API_RATE_LIMIT_DIMENSION_GLOBAL
+                        - BASE_API_RATE_LIMIT_DIMENSION_IP
+                        - BASE_API_RATE_LIMIT_DIMENSION_TENANT
+                        - BASE_API_RATE_LIMIT_DIMENSION_USER
+                        - BASE_API_RATE_LIMIT_DIMENSION_OAUTH_CLIENT
+                    type: string
+                    description: レート制限ディメンション
+                    format: enum
+                rule_id:
+                    type: string
+                    description: レート制限ルールID
+                rule_code:
+                    type: string
+                    description: レート制限ルールコード
+                rule_name:
+                    type: string
+                    description: レート制限ルール名
+                rule_params:
+                    type: string
+                    description: ポリシールールパラメータJSON
+                status:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    description: ステータス
+                    format: enum
+                remark:
+                    type: string
+                    description: 備考
+                created_at:
+                    type: string
+                    description: 作成時刻
+                updated_at:
+                    type: string
+                    description: 更新時刻
+            description: APIレート制限ポリシー詳細。
+        system.admin.v1.BaseApiRateLimitPolicyAPI:
+            type: object
+            properties:
+                operation:
+                    type: string
+                    description: API 操作
+                service_name:
+                    type: string
+                    description: サービス名
+                service_desc:
+                    type: string
+                    description: サービスの説明
+                method:
+                    type: string
+                    description: リクエストメソッド
+                path:
+                    type: string
+                    description: リクエスト URL
+            description: APIレート制限ポリシー关联のAPI概要。
+        system.admin.v1.BaseApiRateLimitPolicyForm:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: ポリシーID
+                operations:
+                    type: array
+                    items:
+                        type: string
+                    description: API 操作一覧
+                dimension:
+                    enum:
+                        - BASE_API_RATE_LIMIT_DIMENSION_UNSPECIFIED
+                        - BASE_API_RATE_LIMIT_DIMENSION_GLOBAL
+                        - BASE_API_RATE_LIMIT_DIMENSION_IP
+                        - BASE_API_RATE_LIMIT_DIMENSION_TENANT
+                        - BASE_API_RATE_LIMIT_DIMENSION_USER
+                        - BASE_API_RATE_LIMIT_DIMENSION_OAUTH_CLIENT
+                    type: string
+                    description: レート制限ディメンション
+                    format: enum
+                rule_id:
+                    type: string
+                    description: レート制限ルールID
+                rule_params:
+                    type: string
+                    description: ポリシールールパラメータJSON
+                status:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    description: ステータス
+                    format: enum
+                remark:
+                    type: string
+                    description: 備考
+            description: APIレート制限ポリシーフォーム。
         system.admin.v1.BaseArea:
             type: object
             properties:
@@ -11222,6 +11623,94 @@ components:
                     type: string
                     description: 備考
             description: 役職フォーム
+        system.admin.v1.BaseRateLimitRule:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: ルールID
+                code:
+                    type: string
+                    description: ルールコード
+                name:
+                    type: string
+                    description: ルール名
+                rule_type:
+                    type: string
+                    description: レート制限アルゴリズム種類
+                default_params:
+                    type: string
+                    description: デフォルトルールパラメータJSON
+                status:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    description: ステータス
+                    format: enum
+                remark:
+                    type: string
+                    description: 備考
+                created_at:
+                    type: string
+                    description: 作成時刻
+                updated_at:
+                    type: string
+                    description: 更新時刻
+            description: レート制限ルールテンプレート。
+        system.admin.v1.BaseRateLimitRuleForm:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: ルールID
+                code:
+                    type: string
+                    description: ルールコード
+                name:
+                    type: string
+                    description: ルール名
+                rule_type:
+                    type: string
+                    description: レート制限アルゴリズム種類
+                default_params:
+                    type: string
+                    description: デフォルトルールパラメータJSON
+                status:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    description: ステータス
+                    format: enum
+                remark:
+                    type: string
+                    description: 備考
+            description: レート制限ルールフォーム。
+        system.admin.v1.BaseRateLimitRuleOption:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: ルールID
+                label:
+                    type: string
+                    description: ルール名
+                code:
+                    type: string
+                    description: ルールコード
+                rule_type:
+                    type: string
+                    description: レート制限アルゴリズム種類
+                default_params:
+                    type: string
+                    description: デフォルトルールパラメータ
+                disabled:
+                    type: boolean
+                    description: 無効化するかどうか
+            description: レート制限ルールオプション。
         system.admin.v1.BaseRedactOutputPolicy:
             type: object
             properties:
@@ -13601,6 +14090,15 @@ components:
                         $ref: '#/components/schemas/system.admin.v1.BaseLanguage'
                     description: 言語オプション
             description: 言語オプションレスポンス
+        system.admin.v1.OptionBaseRateLimitRuleResponse:
+            type: object
+            properties:
+                list:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.BaseRateLimitRuleOption'
+                    description: ルールオプション
+            description: レート制限ルールオプションレスポンス。
         system.admin.v1.OptionBaseTableResponse:
             type: object
             properties:
@@ -13641,6 +14139,19 @@ components:
                     description: 合計件数
                     format: int32
             description: API アクセスログページネーションレスポンス。
+        system.admin.v1.PageBaseApiRateLimitPolicyResponse:
+            type: object
+            properties:
+                base_api_rate_limit_policies:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.BaseApiRateLimitPolicy'
+                    description: APIレート制限ポリシー一覧
+                total:
+                    type: integer
+                    description: 合計件数
+                    format: int32
+            description: APIレート制限ポリシーページネーションレスポンス。
         system.admin.v1.PageBaseApiResponse:
             type: object
             properties:
@@ -13900,6 +14411,19 @@ components:
                     description: 合計件数
                     format: int32
             description: 役職ページネーションレスポンス
+        system.admin.v1.PageBaseRateLimitRuleResponse:
+            type: object
+            properties:
+                base_rate_limit_rules:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.BaseRateLimitRule'
+                    description: ルール一覧
+                total:
+                    type: integer
+                    description: 合計件数
+                    format: int32
+            description: レート制限ルールページネーションレスポンス。
         system.admin.v1.PageBaseRedactOutputPolicyResponse:
             type: object
             properties:
@@ -14405,6 +14929,21 @@ components:
                     description: MCP ツールステータス：enum【Status】
                     format: enum
             description: API MCP ツールステータス設定条件
+        system.admin.v1.SetBaseApiRateLimitPolicyStatusRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: ポリシーID
+                status:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    description: ステータス
+                    format: enum
+            description: 設定APIレート制限ポリシーステータスリクエストパラメータ。
         system.admin.v1.SetBaseConfigStatusRequest:
             type: object
             properties:
@@ -14564,6 +15103,21 @@ components:
                     description: ステータス
                     format: int32
             description: 設定役職ステータスリクエストパラメータ
+        system.admin.v1.SetBaseRateLimitRuleStatusRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: ルールID
+                status:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    description: ステータス
+                    format: enum
+            description: 設定レート制限ルールステータスリクエストパラメータ。
         system.admin.v1.SetBaseRedactOutputPolicyStatusRequest:
             type: object
             properties:
@@ -15144,6 +15698,8 @@ tags:
       description: Appユーザー認証サービス
     - name: BaseApiLogService
       description: Admin APIアクセスログサービス。
+    - name: BaseApiRateLimitPolicyService
+      description: AdminAPIレート制限ポリシーサービス。
     - name: BaseApiService
       description: AdminAPIサービス
     - name: BaseAreaService
@@ -15202,6 +15758,8 @@ tags:
       description: Adminポリシー評価ログサービス。
     - name: BasePostService
       description: Admin役職管理サービス
+    - name: BaseRateLimitRuleService
+      description: Adminレート制限ルールテンプレートサービス。
     - name: BaseRedactOutputPolicyService
       description: Admin出力マスキングポリシーサービス。
     - name: BaseRedactRuleService

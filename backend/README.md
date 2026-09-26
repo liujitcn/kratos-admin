@@ -6,6 +6,10 @@
 
 Backend 同时提供消息分类、站内信管理、用户收件箱、Redis 投递恢复、后台工作台统计、文件资产元数据、登录来源策略、会话撤销、审计事件异步落库、日志保留清理和受控数据库备份任务。安全、消息和开放授权默认数据统一由 `v0.0.1` 初始化迁移提供。
 
+HTTP 与 gRPC 支持按接口配置令牌桶限流；平台超级管理员可维护规则模板，并为接口和限流维度创建策略。新建策略时复制规则默认参数，之后可独立调整；初始化只提供每秒 10 个令牌、突发 20 个请求的模板，不预置启用中的接口策略。
+
+多节点部署复用 `data.redis` 配置的 Cache：所有实例必须连接同一 Redis 或 Redis Cluster，并使用相同逻辑库与键空间，令牌桶才能共享并原子扣减。未配置 Redis 时 Cache 会退回进程内存，只适用于单节点；不要在多节点环境启用接口限流后使用内存缓存。
+
 `backend` 保留 API 契约、Go 生成接口、Service 实现、Biz 业务层，以及任务调度、HTTP/gRPC/MCP/AI 注册和必要的数据访问闭包；进程入口位于 `internal/cmd/server`。根包通过 `ProviderSet`、`NewModuleResources`、`NewModules`、`NewTasks`、`NewStreams` 和 `NewQueueConsumers` 提供可被外部 Core 宿主复用的公共边界，`adapter/core` 负责将 Admin 生成的数据库访问能力适配为 `kratos-core/data` 的 Store/Writer 契约，`internal/module` 仅承载模块实现。AI Runtime 实现在 `internal/biz`，对外复用入口为 `pkg/agent`；业务模块通过 `pkg/notification.Publish` 发布站内信，由内部事务和 Dispatch 恢复链路负责最终投递。开放授权客户端使用单表 JSON operation 白名单并绑定租户，公开端点签发客户端 Bearer Token；HTTP middleware 分别校验租户、状态、IP 白名单和 API 范围，HTTP 加解密 Filter 在请求绑定前解密客户端数据并在成功响应后加密。登录认证支持 TOTP 多因素认证、一次性恢复码，以及全局和租户/用户定向登录来源策略。
 
 ## 目录
@@ -18,7 +22,7 @@ backend
 │   └── gen/go                        # Buf 生成的 Go 接口、HTTP、gRPC 和工具代码
 ├── internal/biz                      # 业务 Case、DTO、代码生成和辅助领域代码
 ├── adapter/core                      # 公开的 Core 存储与事务适配器，内部创建仓储
-├── adapter/kit                       # 公开的 Kit 脱敏适配器，实例级策略和存储回调
+├── adapter/kit                       # 公开的 Kit 适配器，脱敏及限流运行时策略
 ├── bootstrap.go                      # 对外 ProviderSet 和模块/任务/SSE/队列/资源入口
 ├── internal/module                   # Admin 到 kratos-core 的内部模块适配和资源实现
 │   ├── module.go                     # Core Module 协议注册
@@ -205,7 +209,7 @@ func NewApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 
 `adapter/core` 和 `adapter/kit` 与 `internal` 平级，构造函数统一接收 `databases map[string]*gorm.Client`，在内部创建并保存所需 Data、Repository，不把内部仓储类型放入公开签名。Core 适配器通过公共存储与事务接口参与 Wire，事务查询通过生成数据包的上下文传递，数据库客户端仍由 Core 创建和清理。
 
-Kit 的策略解析器同样由 Wire 创建并注入 Core 协议入口和 Admin 模块，不使用进程级默认解析器或存储运行时。解析器构造时不查表；`NewModules` 在迁移就绪后初始化策略并绑定默认数据库的实例级 GORM 回调，HTTP、gRPC 和 MCP 请求通过自身上下文携带解析器。
+Kit 脱敏和限流策略解析器由 Wire 创建并注入 Core 协议入口和 Admin 模块，不使用进程级默认解析器或存储运行时。解析器构造时不查表；`NewModules` 在迁移就绪后初始化限流策略快照并绑定默认数据库的实例级脱敏回调，HTTP、gRPC 和 MCP 请求通过自身上下文携带相应解析器。限流策略运行时定期刷新，管理端变更后会立即刷新；缓存扣减对同一请求涉及的多个令牌桶原子执行。
 
 外部项目保持自己的 Go module 和普通服务入口，不需要将 module 改为 Admin 路径，也不需要额外的宿主 `go.mod` 或 `go.work`。本地联调可以临时替换依赖，正式使用须按 Kit redact 和 server/grpc、Core、Backend 的顺序发布修复版本并重新运行宿主 Wire。
 

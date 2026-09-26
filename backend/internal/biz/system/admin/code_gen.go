@@ -332,6 +332,7 @@ func (c *CodeGenCase) RestoreCodeGen(ctx context.Context, tableIDs []int64) erro
 		}
 		return err
 	}
+	incrementCacheRevision(c.Cache, _const.APP_MENU_CACHE_REVISION_KEY)
 	fileTransaction.commit()
 	return nil
 }
@@ -466,6 +467,7 @@ func (c *CodeGenCase) runCodeGenTask(
 		c.failCodeGenTask(ctx, taskID, tableIDs, localeState, err)
 		return
 	}
+	incrementCacheRevision(c.Cache, _const.APP_MENU_CACHE_REVISION_KEY)
 	fileTransaction.commit()
 	c.completeCodeGenBatchSteps(workflowCtx, batch.plan, reporters, batch.localeState)
 

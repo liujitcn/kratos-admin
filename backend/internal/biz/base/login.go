@@ -42,14 +42,13 @@ import (
 	"gorm.io/gorm"
 )
 
-const loginCaptchaKeyPrefix = "login_captcha"
-const loginCaptchaTokenKeyPrefix = "login_captcha_token"
-const loginCaptchaTypeKeyPrefix = "login_captcha_type"
-const refreshTokenAuthKeyPrefix = "refresh_token_auth"
+const loginCaptchaKeyPrefix = "shared:auth:login:captcha"
+const loginCaptchaTokenKeyPrefix = "shared:auth:login:captcha:verify"
+const loginCaptchaTypeKeyPrefix = "shared:auth:login:captcha:type"
 const loginCaptchaTokenExpire = 2 * time.Minute
 const loginCaptchaRandomType = "random"
 const loginCaptchaTypeDictCode = "captcha_type"
-const loginFailureKeyPrefix = "login_failure_v2"
+const loginFailureKeyPrefix = "shared:auth:login:failure:v2"
 
 var supportedCaptchaDriverTypes = [...]captcha.DriverType{
 	captcha.DriverDigit,
@@ -500,7 +499,7 @@ func (c *LoginCase) FindUserByPassword(ctx context.Context, tenantCode string, u
 // IssueUserToken 校验用户关联状态并签发后台访问令牌。
 func (c *LoginCase) IssueUserToken(ctx context.Context, user *models.BaseUser) (response *basev1.LoginResponse, err error) {
 	var lease locker.Lease
-	lease, err = c.loginLocker.Acquire(ctx, fmt.Sprintf("security:login-lock:%d", user.ID), 5*time.Minute)
+	lease, err = c.loginLocker.Acquire(ctx, fmt.Sprintf("shared:auth:login:lock:%d", user.ID), 5*time.Minute)
 	if err != nil {
 		return nil, errorsx.Conflict("账号正在登录，请稍后重试").WithCause(err)
 	}
@@ -1029,15 +1028,17 @@ func (c *LoginCase) randomCaptchaDriverType(ctx context.Context) (captcha.Driver
 
 // loginCaptchaTokenKey 生成验证码预校验令牌缓存键。
 func loginCaptchaTokenKey(captchaID, token string) string {
-	return fmt.Sprintf("%s:%s:%s", loginCaptchaTokenKeyPrefix, captchaID, token)
+	digest := sha256.Sum256([]byte(captchaID + "\x00" + token))
+	return fmt.Sprintf("%s:%x", loginCaptchaTokenKeyPrefix, digest[:])
 }
 
 // loginCaptchaTypeKey 生成验证码类型缓存键。
 func loginCaptchaTypeKey(captchaID string) string {
-	return fmt.Sprintf("%s:%s", loginCaptchaTypeKeyPrefix, captchaID)
+	digest := sha256.Sum256([]byte(captchaID))
+	return fmt.Sprintf("%s:%x", loginCaptchaTypeKeyPrefix, digest[:])
 }
 
 // refreshTokenAuthKey 生成刷新令牌认证信息缓存键。
 func refreshTokenAuthKey(refreshToken string) string {
-	return fmt.Sprintf("%s:%s", refreshTokenAuthKeyPrefix, refreshToken)
+	return sessionregistry.RefreshTokenAuthKey(refreshToken)
 }

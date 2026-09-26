@@ -46,6 +46,7 @@ func BuildModules(
 	catalog *i18n.I18n,
 	openAPIRuntime *openapi.OpenAPI,
 	redactResolver *kit.RedactPolicyResolver,
+	rateLimitResolver *kit.RateLimitPolicyResolver,
 	progressManager *codegen.Manager,
 	lifecycle *projectaccess.Lifecycle,
 ) (module.Modules, func(), error) {

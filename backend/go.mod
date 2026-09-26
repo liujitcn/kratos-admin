@@ -4,6 +4,12 @@ replace github.com/liujitcn/kratos-kit/oauth => ../../kratos-kit/oauth
 
 replace github.com/liujitcn/kratos-kit/redact => ../../kratos-kit/redact
 
+replace github.com/liujitcn/kratos-core => ../../kratos-core
+
+replace github.com/liujitcn/kratos-kit/cache => ../../kratos-kit/cache
+
+replace github.com/liujitcn/kratos-kit/api => ../../kratos-kit/api
+
 replace github.com/liujitcn/kratos-admin/backend/api => ./api
 
 go 1.27.0

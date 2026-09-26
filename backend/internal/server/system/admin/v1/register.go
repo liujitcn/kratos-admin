@@ -89,6 +89,8 @@ type Services struct {
 	BaseRedactOutputPolicy  *admin.BaseRedactOutputPolicyService
 	BaseRedactRule          *admin.BaseRedactRuleService
 	BaseRedactStoragePolicy *admin.BaseRedactStoragePolicyService
+	BaseRateLimitRule       *admin.BaseRateLimitRuleService
+	BaseApiRateLimitPolicy  *admin.BaseApiRateLimitPolicyService
 	AiSearch                *base.AiSearchService
 }
 
@@ -148,6 +150,8 @@ func (s Services) RegisterGRPC(srv grpc.ServiceRegistrar) {
 	adminv1.RegisterBaseRedactOutputPolicyServiceServer(srv, adminv1.RedactedBaseRedactOutputPolicyServiceServer(s.BaseRedactOutputPolicy))
 	adminv1.RegisterBaseRedactRuleServiceServer(srv, adminv1.RedactedBaseRedactRuleServiceServer(s.BaseRedactRule))
 	adminv1.RegisterBaseRedactStoragePolicyServiceServer(srv, adminv1.RedactedBaseRedactStoragePolicyServiceServer(s.BaseRedactStoragePolicy))
+	adminv1.RegisterBaseRateLimitRuleServiceServer(srv, adminv1.RedactedBaseRateLimitRuleServiceServer(s.BaseRateLimitRule))
+	adminv1.RegisterBaseApiRateLimitPolicyServiceServer(srv, adminv1.RedactedBaseApiRateLimitPolicyServiceServer(s.BaseApiRateLimitPolicy))
 }
 
 // RegisterHTTP 注册 system.admin.v1 的 HTTP 服务。
@@ -211,6 +215,8 @@ func (s Services) RegisterHTTP(srv *http.Server) {
 	adminv1.RegisterBaseRedactOutputPolicyServiceHTTPServer(srv, adminv1.RedactedBaseRedactOutputPolicyServiceServer(s.BaseRedactOutputPolicy))
 	adminv1.RegisterBaseRedactRuleServiceHTTPServer(srv, adminv1.RedactedBaseRedactRuleServiceServer(s.BaseRedactRule))
 	adminv1.RegisterBaseRedactStoragePolicyServiceHTTPServer(srv, adminv1.RedactedBaseRedactStoragePolicyServiceServer(s.BaseRedactStoragePolicy))
+	adminv1.RegisterBaseRateLimitRuleServiceHTTPServer(srv, adminv1.RedactedBaseRateLimitRuleServiceServer(s.BaseRateLimitRule))
+	adminv1.RegisterBaseApiRateLimitPolicyServiceHTTPServer(srv, adminv1.RedactedBaseApiRateLimitPolicyServiceServer(s.BaseApiRateLimitPolicy))
 }
 
 // RegisterMCP 注册 system.admin.v1 的 MCP 工具。

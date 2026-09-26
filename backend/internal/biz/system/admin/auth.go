@@ -2,6 +2,7 @@ package biz
 
 import (
 	"context"
+	"crypto/sha256"
 	"errors"
 	"fmt"
 	"math/rand/v2"
@@ -29,7 +30,7 @@ import (
 )
 
 // UPDATE_PHONE_CODE_CACHE_PREFIX 表示修改手机号验证码缓存前缀。
-const UPDATE_PHONE_CODE_CACHE_PREFIX = "admin:update:phone:code:"
+const UPDATE_PHONE_CODE_CACHE_PREFIX = "admin:auth:phone:update:code:"
 
 // AuthCase 认证业务实例
 type AuthCase struct {
@@ -587,5 +588,6 @@ func (c *AuthCase) findUserIDByPhone(ctx context.Context, phone string) (int64, 
 
 // makeUpdatePhoneCodeCacheKey 生成更新手机号验证码缓存键
 func (c *AuthCase) makeUpdatePhoneCodeCacheKey(userID int64, phone string) string {
-	return fmt.Sprintf("%s%d:%s", UPDATE_PHONE_CODE_CACHE_PREFIX, userID, phone)
+	digest := sha256.Sum256([]byte(phone))
+	return fmt.Sprintf("%s%d:%x", UPDATE_PHONE_CODE_CACHE_PREFIX, userID, digest[:])
 }

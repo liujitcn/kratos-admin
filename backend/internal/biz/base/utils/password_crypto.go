@@ -16,7 +16,7 @@ import (
 
 const (
 	passwordCryptoAlgorithm = "RSA-OAEP-256+A256GCM"
-	passwordCryptoKeyPrefix = "password_crypto:"
+	passwordCryptoKeyPrefix = "shared:auth:password:crypto:"
 	passwordCryptoTTL       = 5 * time.Minute
 )
 

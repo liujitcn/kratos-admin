@@ -2,12 +2,16 @@ package biz
 
 import (
 	"context"
+	"encoding/json"
 	"sort"
 
+	"github.com/go-kratos/kratos/v3/log"
+	adminconst "github.com/liujitcn/kratos-admin/backend/internal/const"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 	"github.com/liujitcn/kratos-core/biz"
 	_const "github.com/liujitcn/kratos-core/const"
+	"github.com/liujitcn/kratos-kit/cache"
 
 	appv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/app/v1"
 
@@ -37,12 +41,27 @@ func NewBaseDictCase(baseCase *biz.BaseCase, baseDictRepo *data.BaseDictReposito
 
 // GetBaseDict 查询字典
 func (c *BaseDictCase) GetBaseDict(ctx context.Context, code string) (*appv1.BaseDictForm, error) {
+	revision, cacheEnabled := cache.ReadRevision(c.Cache, adminconst.APP_DICT_CACHE_REVISION_KEY)
+	if cacheEnabled {
+		var cached string
+		var err error
+		cached, err = c.Cache.Get(adminconst.AppDictCacheKey(revision, code))
+		if err == nil {
+			response := &appv1.BaseDictForm{}
+			err = json.Unmarshal([]byte(cached), response)
+			if err == nil {
+				return response, nil
+			}
+		}
+	}
+	var err error
 	query := c.Query(ctx).BaseDict
 	opts := make([]repository.QueryOption, 0, 3)
 	opts = append(opts, repository.Order(query.CreatedAt.Desc()))
 	opts = append(opts, repository.Where(query.Code.Eq(code)))
 	opts = append(opts, repository.Where(query.Status.Eq(_const.STATUS_STATUS_ENABLE)))
-	baseDict, err := c.Find(ctx, opts...)
+	var baseDict *models.BaseDict
+	baseDict, err = c.Find(ctx, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -72,5 +91,17 @@ func (c *BaseDictCase) GetBaseDict(ctx context.Context, code string) (*appv1.Bas
 
 	res := c.dictMapper.ToDTO(baseDict)
 	res.Items = items
+	if cacheEnabled {
+		var payload []byte
+		payload, err = json.Marshal(res)
+		if err != nil {
+			log.Error("MarshalAppBaseDictCache", "error", err)
+		} else {
+			err = c.Cache.Set(adminconst.AppDictCacheKey(revision, code), string(payload), adminconst.APP_DATA_CACHE_EXPIRE)
+			if err != nil {
+				log.Error("SetAppBaseDictCache", "error", err)
+			}
+		}
+	}
 	return res, nil
 }

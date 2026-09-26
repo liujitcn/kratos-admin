@@ -2,11 +2,14 @@ package biz
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"sort"
 	"time"
 
+	"github.com/go-kratos/kratos/v3/log"
 	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
+	adminconst "github.com/liujitcn/kratos-admin/backend/internal/const"
 	admindata "github.com/liujitcn/kratos-admin/backend/internal/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
@@ -14,6 +17,7 @@ import (
 	_const "github.com/liujitcn/kratos-core/const"
 	"github.com/liujitcn/kratos-core/errorsx"
 	"github.com/liujitcn/kratos-core/sse"
+	"github.com/liujitcn/kratos-kit/cache"
 
 	_time "github.com/liujitcn/go-utils/time"
 	"github.com/liujitcn/gorm-kit/repository"
@@ -115,6 +119,18 @@ func (c *NotificationCase) ListNotificationCategories(ctx context.Context, _ *ba
 	if err != nil {
 		return nil, err
 	}
+	revision, cacheEnabled := cache.ReadRevision(c.Cache, adminconst.NOTIFICATION_CATEGORY_CACHE_REVISION_KEY)
+	if cacheEnabled {
+		var cached string
+		cached, err = c.Cache.Get(adminconst.NotificationCategoryCacheKey(revision))
+		if err == nil {
+			response := &basev1.ListNotificationCategoriesResponse{}
+			err = json.Unmarshal([]byte(cached), response)
+			if err == nil {
+				return response, nil
+			}
+		}
+	}
 	query := c.Query(ctx).BaseMessageCategory
 	opts := []repository.QueryOption{
 		repository.Where(query.Status.Eq(_const.STATUS_STATUS_ENABLE)),
@@ -133,7 +149,20 @@ func (c *NotificationCase) ListNotificationCategories(ctx context.Context, _ *ba
 			Icon: category.Icon, Color: category.Color, Sort: category.Sort,
 		})
 	}
-	return &basev1.ListNotificationCategoriesResponse{Categories: result}, nil
+	response := &basev1.ListNotificationCategoriesResponse{Categories: result}
+	if cacheEnabled {
+		var payload []byte
+		payload, err = json.Marshal(response)
+		if err != nil {
+			log.Error("MarshalNotificationCategoryCache", "error", err)
+		} else {
+			err = c.Cache.Set(adminconst.NotificationCategoryCacheKey(revision), string(payload), adminconst.APP_DATA_CACHE_EXPIRE)
+			if err != nil {
+				log.Error("SetNotificationCategoryCache", "error", err)
+			}
+		}
+	}
+	return response, nil
 }
 
 // GetNotification 查询当前用户消息详情。

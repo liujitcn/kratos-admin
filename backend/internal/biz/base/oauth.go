@@ -2,6 +2,7 @@ package biz
 
 import (
 	"context"
+	"crypto/sha256"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -34,7 +35,7 @@ import (
 
 const oauthSceneAdminLogin = "admin_login"
 const oauthSceneAdminBind = "admin_bind"
-const oauthLoginTicketKeyPrefix = "oauth_login_ticket"
+const oauthLoginTicketKeyPrefix = "admin:oauth:login:ticket"
 const oauthLoginTicketExpire = 2 * time.Minute
 
 // OauthCase 处理三方登录授权业务。
@@ -830,7 +831,8 @@ func appendOauthQueryToURL(targetURL string, apply func(url.Values)) string {
 
 // oauthLoginTicketKey 生成三方登录一次性票据缓存键。
 func oauthLoginTicketKey(ticket string) string {
-	return fmt.Sprintf("%s:%s", oauthLoginTicketKeyPrefix, ticket)
+	digest := sha256.Sum256([]byte(ticket))
+	return fmt.Sprintf("%s:%x", oauthLoginTicketKeyPrefix, digest[:])
 }
 
 // normalizeOauthLoginURL 校验并规范化 OAuth 登录页回跳地址，避免票据被重定向到外部站点。

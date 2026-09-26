@@ -14,7 +14,7 @@ import (
 )
 
 // CacheKey 是登录策略缓存键。
-const CacheKey = "security:login-policy"
+const CacheKey = "shared:auth:login:policy"
 
 const (
 	// DefaultMaxFailedAttempts 是兼容环境变量和新建策略表单的初始值。

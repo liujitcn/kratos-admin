@@ -123,7 +123,11 @@ func (c *BaseDictItemCase) CreateBaseDictItem(ctx context.Context, req *adminv1.
 		}
 		return c.saveBaseI18n(txCtx, req, baseDictItem)
 	})
-	return err
+	if err != nil {
+		return err
+	}
+	incrementCacheRevision(c.Cache, _const.APP_DICT_CACHE_REVISION_KEY)
+	return nil
 }
 
 // UpdateBaseDictItem 更新字典项
@@ -141,19 +145,28 @@ func (c *BaseDictItemCase) UpdateBaseDictItem(ctx context.Context, req *adminv1.
 		}
 		return c.saveBaseI18n(txCtx, req, baseDictItem)
 	})
-	return err
+	if err != nil {
+		return err
+	}
+	incrementCacheRevision(c.Cache, _const.APP_DICT_CACHE_REVISION_KEY)
+	return nil
 }
 
 // DeleteBaseDictItem 删除字典项
 func (c *BaseDictItemCase) DeleteBaseDictItem(ctx context.Context, id string) error {
 	ids := _string.ConvertStringToInt64Array(id)
-	return c.tx.Transaction(ctx, func(ctx context.Context) error {
+	err := c.tx.Transaction(ctx, func(ctx context.Context) error {
 		err := c.DeleteByIDs(ctx, ids)
 		if err != nil {
 			return err
 		}
 		return c.baseI18nCase.DeleteBaseI18n(ctx, _const.I18N_TARGET_KEY_BASE_DICT_ITEM_LABEL, ids)
 	})
+	if err != nil {
+		return err
+	}
+	incrementCacheRevision(c.Cache, _const.APP_DICT_CACHE_REVISION_KEY)
+	return nil
 }
 
 // SetBaseDictItemStatus 设置字典项状态
@@ -161,10 +174,15 @@ func (c *BaseDictItemCase) SetBaseDictItemStatus(ctx context.Context, req *admin
 	if _, err := c.FindByID(ctx, req.GetId()); err != nil {
 		return errorsx.ResourceNotFound("字典项不存在").WithCause(err)
 	}
-	return c.UpdateByID(ctx, &models.BaseDictItem{
+	err := c.UpdateByID(ctx, &models.BaseDictItem{
 		ID:     req.GetId(),
 		Status: req.GetStatus(),
 	})
+	if err != nil {
+		return err
+	}
+	incrementCacheRevision(c.Cache, _const.APP_DICT_CACHE_REVISION_KEY)
+	return nil
 }
 
 // saveBaseI18n 保存字典项标签翻译并同步主表标签。

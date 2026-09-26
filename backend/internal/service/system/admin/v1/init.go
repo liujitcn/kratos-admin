@@ -7,6 +7,7 @@ var ProviderSet = wire.NewSet(
 	NewBaseAreaService,
 	NewAuthService,
 	NewBaseApiService,
+	NewBaseApiRateLimitPolicyService,
 	NewBaseConfigService,
 	NewBaseDeptService,
 	NewBaseDictService,
@@ -57,4 +58,5 @@ var ProviderSet = wire.NewSet(
 	NewBaseRedactOutputPolicyService,
 	NewBaseRedactRuleService,
 	NewBaseRedactStoragePolicyService,
+	NewBaseRateLimitRuleService,
 )

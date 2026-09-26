@@ -49,7 +49,7 @@ import (
 // Injectors from wire.go:
 
 // BuildModules 使用宿主共享的任务管理器装配 Admin 协议服务。
-func BuildModules(migrations *migration.Migration, config2 *configv1.Bootstrap, databases map[string]*gorm.Client, baseCase *biz.BaseCase, authorizer engine.Engine, authenticator engine2.Authenticator, userToken *data.UserToken, jobRuntime *job.Job, sseRuntime *sse.SSE, catalog *i18n.I18n, openAPIRuntime *openapi.OpenAPI, redactResolver *kit.RedactPolicyResolver, progressManager *codegen.Manager, lifecycle *projectaccess.Lifecycle) (module.Modules, func(), error) {
+func BuildModules(migrations *migration.Migration, config2 *configv1.Bootstrap, databases map[string]*gorm.Client, baseCase *biz.BaseCase, authorizer engine.Engine, authenticator engine2.Authenticator, userToken *data.UserToken, jobRuntime *job.Job, sseRuntime *sse.SSE, catalog *i18n.I18n, openAPIRuntime *openapi.OpenAPI, redactResolver *kit.RedactPolicyResolver, rateLimitResolver *kit.RateLimitPolicyResolver, progressManager *codegen.Manager, lifecycle *projectaccess.Lifecycle) (module.Modules, func(), error) {
 	dataData, err := data2.NewData(databases)
 	if err != nil {
 		return nil, nil, err
@@ -250,6 +250,12 @@ func BuildModules(migrations *migration.Migration, config2 *configv1.Bootstrap, 
 	baseRedactStorageValueRepository := data2.NewBaseRedactStorageValueRepository(dataData)
 	baseRedactStoragePolicyCase := biz3.NewBaseRedactStoragePolicyCase(baseCase, transaction, baseRedactStoragePolicyRepository, baseRedactStorageValueRepository, baseRedactRuleRepository, redactResolver)
 	baseRedactStoragePolicyService := admin.NewBaseRedactStoragePolicyService(baseRedactStoragePolicyCase)
+	baseRateLimitRuleRepository := data2.NewBaseRateLimitRuleRepository(dataData)
+	baseAPIRateLimitPolicyRepository := data2.NewBaseAPIRateLimitPolicyRepository(dataData)
+	baseRateLimitRuleCase := biz3.NewBaseRateLimitRuleCase(baseCase, baseRateLimitRuleRepository, baseAPIRateLimitPolicyRepository)
+	baseRateLimitRuleService := admin.NewBaseRateLimitRuleService(baseRateLimitRuleCase)
+	baseApiRateLimitPolicyCase := biz3.NewBaseApiRateLimitPolicyCase(baseCase, baseAPIRateLimitPolicyRepository, baseAPIRepository, baseRateLimitRuleRepository, rateLimitResolver)
+	baseApiRateLimitPolicyService := admin.NewBaseApiRateLimitPolicyService(baseApiRateLimitPolicyCase)
 	aiSearchCase := biz2.NewAiSearchCase(baseCase)
 	aiSearchService := base.NewAiSearchService(aiSearchCase)
 	services := admin2.Services{
@@ -315,6 +321,8 @@ func BuildModules(migrations *migration.Migration, config2 *configv1.Bootstrap, 
 		BaseRedactOutputPolicy:   baseRedactOutputPolicyService,
 		BaseRedactRule:           baseRedactRuleService,
 		BaseRedactStoragePolicy:  baseRedactStoragePolicyService,
+		BaseRateLimitRule:        baseRateLimitRuleService,
+		BaseApiRateLimitPolicy:   baseApiRateLimitPolicyService,
 		AiSearch:                 aiSearchService,
 	}
 	adminTools, err := ParseAdminAgentTools(services)
@@ -454,6 +462,8 @@ func BuildModules(migrations *migration.Migration, config2 *configv1.Bootstrap, 
 		BaseRedactOutputPolicy:   baseRedactOutputPolicyService,
 		BaseRedactRule:           baseRedactRuleService,
 		BaseRedactStoragePolicy:  baseRedactStoragePolicyService,
+		BaseRateLimitRule:        baseRateLimitRuleService,
+		BaseApiRateLimitPolicy:   baseApiRateLimitPolicyService,
 		AiSearch:                 aiSearchService,
 	}
 	services2 := &app2.Services{
@@ -463,7 +473,7 @@ func BuildModules(migrations *migration.Migration, config2 *configv1.Bootstrap, 
 		BaseMenu: appBaseMenuService,
 		AiSearch: aiSearchService,
 	}
-	modules, err := NewModules(baseServices, adminServices, services2, runtime, catalog, baseConfigCase, baseLoginPolicyCase, baseOauthProviderCase, redactResolver)
+	modules, err := NewModules(baseServices, adminServices, services2, runtime, catalog, baseConfigCase, baseLoginPolicyCase, baseOauthProviderCase, redactResolver, rateLimitResolver)
 	if err != nil {
 		cleanup2()
 		cleanup()

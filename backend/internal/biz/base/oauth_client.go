@@ -31,7 +31,7 @@ import (
 const oauthClientGrantType = "client_credentials"
 
 const (
-	oauthClientFailurePrefix  = "oauth_client_failure:"
+	oauthClientFailurePrefix  = "shared:oauth:client:failure:"
 	oauthClientFailureWindow  = 5 * time.Minute
 	oauthClientFailureMaximum = 10
 )

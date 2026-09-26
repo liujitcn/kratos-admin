@@ -69,6 +69,8 @@ packages/modules/system
 | `src/api/base/v1/sse.ts`                     | SSE 服务请求。                            |
 | `src/api/system/admin/v1/auth.ts`            | 个人中心认证服务请求。                    |
 | `src/api/system/admin/v1/base_*.ts`          | System 基础服务请求。                     |
+| `src/api/system/admin/v1/base_rate_limit_rule.ts` | 限流规则模板服务请求。                 |
+| `src/api/system/admin/v1/base_api_rate_limit_policy.ts` | 接口限流策略服务请求，策略接口以数组维护。 |
 | `src/api/system/admin/v1/base_i18n_custom.ts` | 管理端固定文案自定义翻译请求。             |
 | `src/api/system/admin/v1/code_gen*.ts`       | 代码生成服务请求。                        |
 | `src/api/system/admin/v1/oauth_client.ts`    | 开放授权客户端服务请求。                  |
@@ -85,6 +87,8 @@ packages/modules/system
 | -------------------------------------------------------------- | ---------------------------------- |
 | `src/views/ai/chat/`                                           | AI 会话、消息和附件页面。          |
 | `src/views/base/api/index.vue`                                 | API 资源管理页。                   |
+| `src/views/base/rate-limit-rule/index.vue`                     | 限流规则模板管理页。               |
+| `src/views/base/api-rate-limit-policy/index.vue`               | 接口限流策略页；同一接口多策略按 ID 升序首条生效。 |
 | `src/views/base/area/index.vue`                                | 行政区域管理页。                   |
 | `src/views/base/config/index.vue`                              | 系统配置管理页。                   |
 | `src/views/base/i18n-custom/index.vue`                         | 国际化自定义翻译管理页。           |

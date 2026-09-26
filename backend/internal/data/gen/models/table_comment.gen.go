@@ -30,6 +30,11 @@ func (*BaseAPILog) TableComment() string {
 }
 
 // TableComment 返回表注释。
+func (*BaseAPIRateLimitPolicy) TableComment() string {
+	return "接口限流策略"
+}
+
+// TableComment 返回表注释。
 func (*BaseArea) TableComment() string {
 	return "行政区域信息"
 }
@@ -157,6 +162,11 @@ func (*BasePolicyEvaluationLog) TableComment() string {
 // TableComment 返回表注释。
 func (*BasePost) TableComment() string {
 	return "岗位信息"
+}
+
+// TableComment 返回表注释。
+func (*BaseRateLimitRule) TableComment() string {
+	return "限流规则模板"
 }
 
 // TableComment 返回表注释。

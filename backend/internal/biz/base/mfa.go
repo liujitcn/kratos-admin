@@ -51,8 +51,8 @@ const (
 	mfaPolicyDisabled              = "disabled"
 	mfaPolicyOptional              = "optional"
 	mfaPolicyAllRequired           = "all_required"
-	mfaLoginChallengePrefix        = "mfa:login:"
-	mfaSetupTicketPrefix           = "mfa:setup:"
+	mfaLoginChallengePrefix        = "shared:auth:mfa:login:"
+	mfaSetupTicketPrefix           = "shared:auth:mfa:setup:"
 	defaultMfaLoginChallengeExpire = 5 * time.Minute
 	defaultMfaSetupTicketExpire    = 10 * time.Minute
 	defaultMfaLoginMaxAttempts     = 5
@@ -63,8 +63,8 @@ const (
 	defaultMfaTotpSkew             = 1
 	defaultMfaTotpSecretSize       = 20
 	mfaEncryptionKeyName           = "kratos-kit:mfa/encryption"
-	mfaDisableChallengePrefix      = "mfa:disable:"
-	mfaTrustedDevicePrefix         = "mfa:trusted-device:"
+	mfaDisableChallengePrefix      = "shared:auth:mfa:disable:"
+	mfaTrustedDevicePrefix         = "shared:auth:mfa:trusted-device:"
 )
 
 var mfaRecoveryAlphabet = []byte("ABCDEFGHJKLMNPQRSTUVWXYZ23456789")
@@ -1637,7 +1637,7 @@ func normalizeRecoveryCode(value string) string {
 
 // mfaLoginChallengeKey 生成登录挑战缓存键。
 func mfaLoginChallengeKey(id string) string {
-	return mfaLoginChallengePrefix + id
+	return mfaOpaqueTicketKey(mfaLoginChallengePrefix, id)
 }
 
 // mfaLoginChallengeAttemptsKeyFromKey 生成登录挑战失败计数缓存键。
@@ -1658,12 +1658,18 @@ func mfaTrustedDeviceKey(userID int64, device string) string {
 
 // mfaDisableChallengeKey 生成禁用挑战缓存键。
 func mfaDisableChallengeKey(id string) string {
-	return mfaDisableChallengePrefix + id
+	return mfaOpaqueTicketKey(mfaDisableChallengePrefix, id)
 }
 
 // mfaSetupTicketKey 生成 MFA 绑定票据缓存键。
 func mfaSetupTicketKey(id string) string {
-	return mfaSetupTicketPrefix + id
+	return mfaOpaqueTicketKey(mfaSetupTicketPrefix, id)
+}
+
+// mfaOpaqueTicketKey 对一次性认证票据摘要后生成缓存键。
+func mfaOpaqueTicketKey(prefix, ticket string) string {
+	digest := sha256.Sum256([]byte(ticket))
+	return fmt.Sprintf("%s%x", prefix, digest[:])
 }
 
 // isRecordNotFound 判断仓储查询是否未找到记录。

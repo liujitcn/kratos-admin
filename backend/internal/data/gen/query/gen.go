@@ -23,6 +23,7 @@ func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 		BaseAPI:                 newBaseAPI(db, opts...),
 		BaseAPII18N:             newBaseAPII18N(db, opts...),
 		BaseAPILog:              newBaseAPILog(db, opts...),
+		BaseAPIRateLimitPolicy:  newBaseAPIRateLimitPolicy(db, opts...),
 		BaseArea:                newBaseArea(db, opts...),
 		BaseConfig:              newBaseConfig(db, opts...),
 		BaseDataAccessLog:       newBaseDataAccessLog(db, opts...),
@@ -49,6 +50,7 @@ func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 		BasePermissionLog:       newBasePermissionLog(db, opts...),
 		BasePolicyEvaluationLog: newBasePolicyEvaluationLog(db, opts...),
 		BasePost:                newBasePost(db, opts...),
+		BaseRateLimitRule:       newBaseRateLimitRule(db, opts...),
 		BaseRedactOutputPolicy:  newBaseRedactOutputPolicy(db, opts...),
 		BaseRedactRule:          newBaseRedactRule(db, opts...),
 		BaseRedactStoragePolicy: newBaseRedactStoragePolicy(db, opts...),
@@ -84,6 +86,7 @@ type Query struct {
 	BaseAPI                 baseAPI
 	BaseAPII18N             baseAPII18N
 	BaseAPILog              baseAPILog
+	BaseAPIRateLimitPolicy  baseAPIRateLimitPolicy
 	BaseArea                baseArea
 	BaseConfig              baseConfig
 	BaseDataAccessLog       baseDataAccessLog
@@ -110,6 +113,7 @@ type Query struct {
 	BasePermissionLog       basePermissionLog
 	BasePolicyEvaluationLog basePolicyEvaluationLog
 	BasePost                basePost
+	BaseRateLimitRule       baseRateLimitRule
 	BaseRedactOutputPolicy  baseRedactOutputPolicy
 	BaseRedactRule          baseRedactRule
 	BaseRedactStoragePolicy baseRedactStoragePolicy
@@ -147,6 +151,7 @@ func (q *Query) clone(db *gorm.DB) *Query {
 		BaseAPI:                 q.BaseAPI.clone(db),
 		BaseAPII18N:             q.BaseAPII18N.clone(db),
 		BaseAPILog:              q.BaseAPILog.clone(db),
+		BaseAPIRateLimitPolicy:  q.BaseAPIRateLimitPolicy.clone(db),
 		BaseArea:                q.BaseArea.clone(db),
 		BaseConfig:              q.BaseConfig.clone(db),
 		BaseDataAccessLog:       q.BaseDataAccessLog.clone(db),
@@ -173,6 +178,7 @@ func (q *Query) clone(db *gorm.DB) *Query {
 		BasePermissionLog:       q.BasePermissionLog.clone(db),
 		BasePolicyEvaluationLog: q.BasePolicyEvaluationLog.clone(db),
 		BasePost:                q.BasePost.clone(db),
+		BaseRateLimitRule:       q.BaseRateLimitRule.clone(db),
 		BaseRedactOutputPolicy:  q.BaseRedactOutputPolicy.clone(db),
 		BaseRedactRule:          q.BaseRedactRule.clone(db),
 		BaseRedactStoragePolicy: q.BaseRedactStoragePolicy.clone(db),
@@ -217,6 +223,7 @@ func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 		BaseAPI:                 q.BaseAPI.replaceDB(db),
 		BaseAPII18N:             q.BaseAPII18N.replaceDB(db),
 		BaseAPILog:              q.BaseAPILog.replaceDB(db),
+		BaseAPIRateLimitPolicy:  q.BaseAPIRateLimitPolicy.replaceDB(db),
 		BaseArea:                q.BaseArea.replaceDB(db),
 		BaseConfig:              q.BaseConfig.replaceDB(db),
 		BaseDataAccessLog:       q.BaseDataAccessLog.replaceDB(db),
@@ -243,6 +250,7 @@ func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 		BasePermissionLog:       q.BasePermissionLog.replaceDB(db),
 		BasePolicyEvaluationLog: q.BasePolicyEvaluationLog.replaceDB(db),
 		BasePost:                q.BasePost.replaceDB(db),
+		BaseRateLimitRule:       q.BaseRateLimitRule.replaceDB(db),
 		BaseRedactOutputPolicy:  q.BaseRedactOutputPolicy.replaceDB(db),
 		BaseRedactRule:          q.BaseRedactRule.replaceDB(db),
 		BaseRedactStoragePolicy: q.BaseRedactStoragePolicy.replaceDB(db),
@@ -277,6 +285,7 @@ type queryCtx struct {
 	BaseAPI                 *baseAPIDo
 	BaseAPII18N             *baseAPII18NDo
 	BaseAPILog              *baseAPILogDo
+	BaseAPIRateLimitPolicy  *baseAPIRateLimitPolicyDo
 	BaseArea                *baseAreaDo
 	BaseConfig              *baseConfigDo
 	BaseDataAccessLog       *baseDataAccessLogDo
@@ -303,6 +312,7 @@ type queryCtx struct {
 	BasePermissionLog       *basePermissionLogDo
 	BasePolicyEvaluationLog *basePolicyEvaluationLogDo
 	BasePost                *basePostDo
+	BaseRateLimitRule       *baseRateLimitRuleDo
 	BaseRedactOutputPolicy  *baseRedactOutputPolicyDo
 	BaseRedactRule          *baseRedactRuleDo
 	BaseRedactStoragePolicy *baseRedactStoragePolicyDo
@@ -337,6 +347,7 @@ func (q *Query) WithContext(ctx context.Context) *queryCtx {
 		BaseAPI:                 q.BaseAPI.WithContext(ctx),
 		BaseAPII18N:             q.BaseAPII18N.WithContext(ctx),
 		BaseAPILog:              q.BaseAPILog.WithContext(ctx),
+		BaseAPIRateLimitPolicy:  q.BaseAPIRateLimitPolicy.WithContext(ctx),
 		BaseArea:                q.BaseArea.WithContext(ctx),
 		BaseConfig:              q.BaseConfig.WithContext(ctx),
 		BaseDataAccessLog:       q.BaseDataAccessLog.WithContext(ctx),
@@ -363,6 +374,7 @@ func (q *Query) WithContext(ctx context.Context) *queryCtx {
 		BasePermissionLog:       q.BasePermissionLog.WithContext(ctx),
 		BasePolicyEvaluationLog: q.BasePolicyEvaluationLog.WithContext(ctx),
 		BasePost:                q.BasePost.WithContext(ctx),
+		BaseRateLimitRule:       q.BaseRateLimitRule.WithContext(ctx),
 		BaseRedactOutputPolicy:  q.BaseRedactOutputPolicy.WithContext(ctx),
 		BaseRedactRule:          q.BaseRedactRule.WithContext(ctx),
 		BaseRedactStoragePolicy: q.BaseRedactStoragePolicy.WithContext(ctx),

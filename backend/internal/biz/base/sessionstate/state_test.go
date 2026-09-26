@@ -10,6 +10,13 @@ import (
 	"google.golang.org/protobuf/types/known/durationpb"
 )
 
+// TestSessionStateKeyUsesSharedAuthNamespace 验证跨终端会话状态使用共享认证命名空间。
+func TestSessionStateKeyUsesSharedAuthNamespace(t *testing.T) {
+	if got := key("session-id"); got != "shared:auth:session:state:session-id" {
+		t.Fatalf("session state cache key = %q; want shared auth namespace", got)
+	}
+}
+
 // TestEvaluate 验证空闲超时与绝对生命周期边界。
 func TestEvaluate(t *testing.T) {
 	startedAt := time.Date(2026, 8, 31, 10, 0, 0, 0, time.UTC)

@@ -332,6 +332,146 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/system.admin.v1.BaseApiLog'
+    /api/v1/admin/base/api-rate-limit-policy:
+        get:
+            tags:
+                - BaseApiRateLimitPolicyService
+            description: 查询接口限流策略分页列表。
+            operationId: BaseApiRateLimitPolicyService_PageBaseApiRateLimitPolicy
+            parameters:
+                - name: operation
+                  in: query
+                  schema:
+                    type: string
+                - name: dimension
+                  in: query
+                  schema:
+                    enum:
+                        - BASE_API_RATE_LIMIT_DIMENSION_UNSPECIFIED
+                        - BASE_API_RATE_LIMIT_DIMENSION_GLOBAL
+                        - BASE_API_RATE_LIMIT_DIMENSION_IP
+                        - BASE_API_RATE_LIMIT_DIMENSION_TENANT
+                        - BASE_API_RATE_LIMIT_DIMENSION_USER
+                        - BASE_API_RATE_LIMIT_DIMENSION_OAUTH_CLIENT
+                    type: string
+                    format: enum
+                - name: status
+                  in: query
+                  schema:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    format: enum
+                - name: page_num
+                  in: query
+                  schema:
+                    type: string
+                - name: page_size
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.PageBaseApiRateLimitPolicyResponse'
+        post:
+            tags:
+                - BaseApiRateLimitPolicyService
+            description: 创建接口限流策略。
+            operationId: BaseApiRateLimitPolicyService_CreateBaseApiRateLimitPolicy
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.BaseApiRateLimitPolicyForm'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/api-rate-limit-policy/{base_api_rate_limit_policy.id}:
+        put:
+            tags:
+                - BaseApiRateLimitPolicyService
+            description: 更新接口限流策略。
+            operationId: BaseApiRateLimitPolicyService_UpdateBaseApiRateLimitPolicy
+            parameters:
+                - name: base_api_rate_limit_policy.id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.BaseApiRateLimitPolicyForm'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/api-rate-limit-policy/{id}:
+        get:
+            tags:
+                - BaseApiRateLimitPolicyService
+            description: 查询接口限流策略详情。
+            operationId: BaseApiRateLimitPolicyService_GetBaseApiRateLimitPolicy
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.BaseApiRateLimitPolicyForm'
+        delete:
+            tags:
+                - BaseApiRateLimitPolicyService
+            description: 删除接口限流策略。
+            operationId: BaseApiRateLimitPolicyService_DeleteBaseApiRateLimitPolicy
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/api-rate-limit-policy/{id}/status:
+        put:
+            tags:
+                - BaseApiRateLimitPolicyService
+            description: 设置接口限流策略状态。
+            operationId: BaseApiRateLimitPolicyService_SetBaseApiRateLimitPolicyStatus
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.SetBaseApiRateLimitPolicyStatusRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
     /api/v1/admin/base/api/openapi-service/option:
         get:
             tags:
@@ -3506,6 +3646,156 @@ paths:
                     application/json:
                         schema:
                             $ref: '#/components/schemas/system.admin.v1.SetBasePostStatusRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/rate-limit-rule:
+        get:
+            tags:
+                - BaseRateLimitRuleService
+            description: 查询限流规则分页列表。
+            operationId: BaseRateLimitRuleService_PageBaseRateLimitRule
+            parameters:
+                - name: code
+                  in: query
+                  schema:
+                    type: string
+                - name: name
+                  in: query
+                  schema:
+                    type: string
+                - name: status
+                  in: query
+                  schema:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    format: enum
+                - name: page_num
+                  in: query
+                  schema:
+                    type: string
+                - name: page_size
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.PageBaseRateLimitRuleResponse'
+        post:
+            tags:
+                - BaseRateLimitRuleService
+            description: 创建限流规则。
+            operationId: BaseRateLimitRuleService_CreateBaseRateLimitRule
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.BaseRateLimitRuleForm'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/rate-limit-rule/option:
+        get:
+            tags:
+                - BaseRateLimitRuleService
+            description: 查询限流规则选项。
+            operationId: BaseRateLimitRuleService_OptionBaseRateLimitRule
+            parameters:
+                - name: keyword
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.OptionBaseRateLimitRuleResponse'
+    /api/v1/admin/base/rate-limit-rule/{base_rate_limit_rule.id}:
+        put:
+            tags:
+                - BaseRateLimitRuleService
+            description: 更新限流规则。
+            operationId: BaseRateLimitRuleService_UpdateBaseRateLimitRule
+            parameters:
+                - name: base_rate_limit_rule.id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.BaseRateLimitRuleForm'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/rate-limit-rule/{id}:
+        get:
+            tags:
+                - BaseRateLimitRuleService
+            description: 查询限流规则详情。
+            operationId: BaseRateLimitRuleService_GetBaseRateLimitRule
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.BaseRateLimitRuleForm'
+        delete:
+            tags:
+                - BaseRateLimitRuleService
+            description: 删除限流规则。
+            operationId: BaseRateLimitRuleService_DeleteBaseRateLimitRule
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/rate-limit-rule/{id}/status:
+        put:
+            tags:
+                - BaseRateLimitRuleService
+            description: 设置限流规则状态。
+            operationId: BaseRateLimitRuleService_SetBaseRateLimitRuleStatus
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.SetBaseRateLimitRuleStatusRequest'
                 required: true
             responses:
                 "200":
@@ -9085,6 +9375,117 @@ components:
                     type: string
                     description: 日志落库时间
             description: API 访问日志。
+        system.admin.v1.BaseApiRateLimitPolicy:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 策略ID
+                apis:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.BaseApiRateLimitPolicyAPI'
+                    description: 限流接口列表
+                dimension:
+                    enum:
+                        - BASE_API_RATE_LIMIT_DIMENSION_UNSPECIFIED
+                        - BASE_API_RATE_LIMIT_DIMENSION_GLOBAL
+                        - BASE_API_RATE_LIMIT_DIMENSION_IP
+                        - BASE_API_RATE_LIMIT_DIMENSION_TENANT
+                        - BASE_API_RATE_LIMIT_DIMENSION_USER
+                        - BASE_API_RATE_LIMIT_DIMENSION_OAUTH_CLIENT
+                    type: string
+                    description: 限流维度
+                    format: enum
+                rule_id:
+                    type: string
+                    description: 限流规则ID
+                rule_code:
+                    type: string
+                    description: 限流规则编码
+                rule_name:
+                    type: string
+                    description: 限流规则名称
+                rule_params:
+                    type: string
+                    description: 策略规则参数JSON
+                status:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    description: 状态
+                    format: enum
+                remark:
+                    type: string
+                    description: 备注
+                created_at:
+                    type: string
+                    description: 创建时间
+                updated_at:
+                    type: string
+                    description: 更新时间
+            description: 接口限流策略详情。
+        system.admin.v1.BaseApiRateLimitPolicyAPI:
+            type: object
+            properties:
+                operation:
+                    type: string
+                    description: 接口操作
+                service_name:
+                    type: string
+                    description: 服务名称
+                service_desc:
+                    type: string
+                    description: 服务描述
+                method:
+                    type: string
+                    description: 请求方法
+                path:
+                    type: string
+                    description: 请求地址
+            description: 接口限流策略关联的接口摘要。
+        system.admin.v1.BaseApiRateLimitPolicyForm:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 策略ID
+                operations:
+                    type: array
+                    items:
+                        type: string
+                    description: 接口操作列表
+                dimension:
+                    enum:
+                        - BASE_API_RATE_LIMIT_DIMENSION_UNSPECIFIED
+                        - BASE_API_RATE_LIMIT_DIMENSION_GLOBAL
+                        - BASE_API_RATE_LIMIT_DIMENSION_IP
+                        - BASE_API_RATE_LIMIT_DIMENSION_TENANT
+                        - BASE_API_RATE_LIMIT_DIMENSION_USER
+                        - BASE_API_RATE_LIMIT_DIMENSION_OAUTH_CLIENT
+                    type: string
+                    description: 限流维度
+                    format: enum
+                rule_id:
+                    type: string
+                    description: 限流规则ID
+                rule_params:
+                    type: string
+                    description: 策略规则参数JSON
+                status:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    description: 状态
+                    format: enum
+                remark:
+                    type: string
+                    description: 备注
+            description: 接口限流策略表单。
         system.admin.v1.BaseArea:
             type: object
             properties:
@@ -11222,6 +11623,94 @@ components:
                     type: string
                     description: 备注
             description: 岗位表单
+        system.admin.v1.BaseRateLimitRule:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 规则ID
+                code:
+                    type: string
+                    description: 规则编码
+                name:
+                    type: string
+                    description: 规则名称
+                rule_type:
+                    type: string
+                    description: 限流算法类型
+                default_params:
+                    type: string
+                    description: 默认规则参数JSON
+                status:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    description: 状态
+                    format: enum
+                remark:
+                    type: string
+                    description: 备注
+                created_at:
+                    type: string
+                    description: 创建时间
+                updated_at:
+                    type: string
+                    description: 更新时间
+            description: 限流规则模板。
+        system.admin.v1.BaseRateLimitRuleForm:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 规则ID
+                code:
+                    type: string
+                    description: 规则编码
+                name:
+                    type: string
+                    description: 规则名称
+                rule_type:
+                    type: string
+                    description: 限流算法类型
+                default_params:
+                    type: string
+                    description: 默认规则参数JSON
+                status:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    description: 状态
+                    format: enum
+                remark:
+                    type: string
+                    description: 备注
+            description: 限流规则表单。
+        system.admin.v1.BaseRateLimitRuleOption:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 规则ID
+                label:
+                    type: string
+                    description: 规则名称
+                code:
+                    type: string
+                    description: 规则编码
+                rule_type:
+                    type: string
+                    description: 限流算法类型
+                default_params:
+                    type: string
+                    description: 默认规则参数
+                disabled:
+                    type: boolean
+                    description: 是否禁用
+            description: 限流规则选项。
         system.admin.v1.BaseRedactOutputPolicy:
             type: object
             properties:
@@ -13601,6 +14090,15 @@ components:
                         $ref: '#/components/schemas/system.admin.v1.BaseLanguage'
                     description: 语言选项
             description: 语言选项响应
+        system.admin.v1.OptionBaseRateLimitRuleResponse:
+            type: object
+            properties:
+                list:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.BaseRateLimitRuleOption'
+                    description: 规则选项
+            description: 限流规则选项响应。
         system.admin.v1.OptionBaseTableResponse:
             type: object
             properties:
@@ -13641,6 +14139,19 @@ components:
                     description: 总数
                     format: int32
             description: API 访问日志分页响应。
+        system.admin.v1.PageBaseApiRateLimitPolicyResponse:
+            type: object
+            properties:
+                base_api_rate_limit_policies:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.BaseApiRateLimitPolicy'
+                    description: 接口限流策略列表
+                total:
+                    type: integer
+                    description: 总数
+                    format: int32
+            description: 接口限流策略分页响应。
         system.admin.v1.PageBaseApiResponse:
             type: object
             properties:
@@ -13900,6 +14411,19 @@ components:
                     description: 总数
                     format: int32
             description: 岗位分页响应
+        system.admin.v1.PageBaseRateLimitRuleResponse:
+            type: object
+            properties:
+                base_rate_limit_rules:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.BaseRateLimitRule'
+                    description: 规则列表
+                total:
+                    type: integer
+                    description: 总数
+                    format: int32
+            description: 限流规则分页响应。
         system.admin.v1.PageBaseRedactOutputPolicyResponse:
             type: object
             properties:
@@ -14405,6 +14929,21 @@ components:
                     description: MCP工具状态：枚举【Status】
                     format: enum
             description: API MCP工具状态设置条件
+        system.admin.v1.SetBaseApiRateLimitPolicyStatusRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 策略ID
+                status:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    description: 状态
+                    format: enum
+            description: 设置接口限流策略状态请求参数。
         system.admin.v1.SetBaseConfigStatusRequest:
             type: object
             properties:
@@ -14564,6 +15103,21 @@ components:
                     description: 状态
                     format: int32
             description: 设置岗位状态请求参数
+        system.admin.v1.SetBaseRateLimitRuleStatusRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 规则ID
+                status:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    description: 状态
+                    format: enum
+            description: 设置限流规则状态请求参数。
         system.admin.v1.SetBaseRedactOutputPolicyStatusRequest:
             type: object
             properties:
@@ -15144,6 +15698,8 @@ tags:
       description: App用户认证服务
     - name: BaseApiLogService
       description: Admin API访问日志服务。
+    - name: BaseApiRateLimitPolicyService
+      description: Admin接口限流策略服务。
     - name: BaseApiService
       description: AdminAPI服务
     - name: BaseAreaService
@@ -15202,6 +15758,8 @@ tags:
       description: Admin策略评估日志服务。
     - name: BasePostService
       description: Admin岗位管理服务
+    - name: BaseRateLimitRuleService
+      description: Admin限流规则模板服务。
     - name: BaseRedactOutputPolicyService
       description: Admin出库脱敏策略服务。
     - name: BaseRedactRuleService

@@ -240,10 +240,10 @@ func isCacheMiss(err error) bool {
 
 // historyKey 返回用户口令历史的缓存键。
 func historyKey(userID int64) string {
-	return fmt.Sprintf("password_history:%d", userID)
+	return fmt.Sprintf("shared:auth:password:history:%d", userID)
 }
 
 // changedAtKey 返回用户口令修改时间的缓存键。
 func changedAtKey(userID int64) string {
-	return fmt.Sprintf("password_changed_at:%d", userID)
+	return fmt.Sprintf("shared:auth:password:changed-at:%d", userID)
 }

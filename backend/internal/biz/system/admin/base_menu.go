@@ -197,7 +197,11 @@ func (c *BaseMenuCase) CreateBaseMenu(ctx context.Context, req *adminv1.BaseMenu
 		}
 		return c.saveBaseI18n(ctx, req, baseMenu)
 	})
-	return err
+	if err != nil {
+		return err
+	}
+	incrementCacheRevision(c.Cache, _const.APP_MENU_CACHE_REVISION_KEY)
+	return nil
 }
 
 // UpdateBaseMenu 更新菜单
@@ -242,7 +246,11 @@ func (c *BaseMenuCase) UpdateBaseMenu(ctx context.Context, req *adminv1.BaseMenu
 		}
 		return c.casbinRuleCase.RebuildCasbinRuleByMenuID(ctx, baseMenu.ID)
 	})
-	return err
+	if err != nil {
+		return err
+	}
+	incrementCacheRevision(c.Cache, _const.APP_MENU_CACHE_REVISION_KEY)
+	return nil
 }
 
 // DeleteBaseMenu 删除菜单
@@ -271,7 +279,7 @@ func (c *BaseMenuCase) DeleteBaseMenu(ctx context.Context, id string) error {
 			return errorsx.HasChildrenConflict("删除菜单失败，下面有菜单", "base_menu", "base_menu")
 		}
 	}
-	return c.tx.Transaction(ctx, func(ctx context.Context) error {
+	err = c.tx.Transaction(ctx, func(ctx context.Context) error {
 		if err = c.DeleteByIDs(ctx, ids); err != nil {
 			return err
 		}
@@ -280,6 +288,11 @@ func (c *BaseMenuCase) DeleteBaseMenu(ctx context.Context, id string) error {
 		}
 		return c.casbinRuleCase.DeleteCasbinRuleByMenuIDs(ctx, ids)
 	})
+	if err != nil {
+		return err
+	}
+	incrementCacheRevision(c.Cache, _const.APP_MENU_CACHE_REVISION_KEY)
+	return nil
 }
 
 // SetBaseMenuStatus 设置菜单状态
@@ -287,10 +300,15 @@ func (c *BaseMenuCase) SetBaseMenuStatus(ctx context.Context, req *adminv1.SetBa
 	if _, err := c.FindByID(ctx, req.GetId()); err != nil {
 		return errorsx.ResourceNotFound("菜单不存在").WithCause(err)
 	}
-	return c.UpdateByID(ctx, &models.BaseMenu{
+	err := c.UpdateByID(ctx, &models.BaseMenu{
 		ID:     req.GetId(),
 		Status: req.GetStatus(),
 	})
+	if err != nil {
+		return err
+	}
+	incrementCacheRevision(c.Cache, _const.APP_MENU_CACHE_REVISION_KEY)
+	return nil
 }
 
 // SaveGeneratedMenuI18ns 保存代码生成器提供的菜单译文，不覆盖已有非空内容。

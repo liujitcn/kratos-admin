@@ -42,7 +42,7 @@ func TestPageCachePaginatesAndReturnsMetadata(t *testing.T) {
 // TestSanitizeCacheValueMasksRuntimeConfigSecrets 验证缓存查询不会泄露运行配置凭据。
 func TestSanitizeCacheValueMasksRuntimeConfigSecrets(t *testing.T) {
 	value := `{"file_path":"./logs/base-log-fallback","password":"hmac"}`
-	sanitized := sanitizeCacheValue("base-config:hidden:baseLogFallback", value)
+	sanitized := sanitizeCacheValue("admin:config:hidden:baseLogFallback", value)
 	if strings.Contains(sanitized, "secret") || strings.Contains(sanitized, "hmac") {
 		t.Fatalf("runtime config secret leaked: %s", sanitized)
 	}

@@ -55,6 +55,7 @@ func NewModules(
 	baseLoginPolicyCase *biz.BaseLoginPolicyCase,
 	baseOauthProviderCase *biz.BaseOauthProviderCase,
 	_ *kit.RedactPolicyResolver,
+	rateLimitResolver *kit.RateLimitPolicyResolver,
 ) (module.Modules, error) {
 	// 迁移可能新增系统配置，模块启动前刷新缓存，避免认证策略沿用旧快照。
 	var err error
@@ -67,6 +68,10 @@ func NewModules(
 		return nil, err
 	}
 	err = baseOauthProviderCase.RefreshBaseOauthProvider(context.Background())
+	if err != nil {
+		return nil, err
+	}
+	err = rateLimitResolver.Initialize(context.Background())
 	if err != nil {
 		return nil, err
 	}

@@ -163,7 +163,7 @@ func save(store cache.Cache, sessionID string, state State, policy Policy) error
 
 // key 返回指定登录会话的状态缓存键。
 func key(sessionID string) string {
-	return fmt.Sprintf("admin_session_state:%s", sessionID)
+	return fmt.Sprintf("shared:auth:session:state:%s", sessionID)
 }
 
 // isCacheMiss 判断缓存键不存在，而不是缓存服务故障。

@@ -2,6 +2,7 @@ package sessionregistry
 
 import (
 	"context"
+	"crypto/sha256"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -21,8 +22,8 @@ import (
 )
 
 const (
-	indexKey        = "security:login-session:ids"
-	recordKeyPrefix = "security:login-session:"
+	indexKey        = "shared:auth:session:index"
+	recordKeyPrefix = "shared:auth:session:record:"
 	recordTTL       = 365 * 24 * time.Hour
 )
 
@@ -179,7 +180,8 @@ func RemoveAll(store cache.Cache, userToken *data.UserToken, userID int64) error
 
 // RefreshTokenAuthKey 返回刷新令牌认证信息缓存键。
 func RefreshTokenAuthKey(refreshToken string) string {
-	return "refresh_token_auth:" + refreshToken
+	digest := sha256.Sum256([]byte(refreshToken))
+	return fmt.Sprintf("shared:auth:refresh-token:auth:%x", digest[:])
 }
 
 // saveRecord 持久化单个会话展示记录。

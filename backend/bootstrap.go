@@ -90,7 +90,7 @@ func NewModuleResources() AdminResources {
 // NewModules 使用宿主共享任务管理器创建 Backend 注册到 Core 的协议模块集合。
 //
 // Core 提供迁移就绪对象、数据库客户端、BaseCase、Job、SSE、国际化和 OpenAPI 运行时，
-// Admin 提供脱敏策略解析器，并在迁移完成后初始化。Admin 业务依赖
+// Admin 提供脱敏与限流策略解析器，并在迁移完成后初始化。Admin 业务依赖
 // 在 Backend 内部完成装配，避免外部项目的生成代码引用 backend/internal 包。
 func NewModules(
 	migrations *migration.Migration,
@@ -105,6 +105,7 @@ func NewModules(
 	catalog *i18n.I18n,
 	openAPIRuntime *openapi.OpenAPI,
 	redactResolver *kit.RedactPolicyResolver,
+	rateLimitResolver *kit.RateLimitPolicyResolver,
 	progressManager *CodeGenManager,
 	lifecycle *projectaccess.Lifecycle,
 ) (AdminModules, func(), error) {
@@ -120,7 +121,7 @@ func NewModules(
 	}
 	var modules module.Modules
 	var cleanup func()
-	modules, cleanup, err = adminModule.BuildModules(migrations, config, databases, baseCase, authorizer, authenticator, userToken, jobRuntime, sseRuntime, catalog, openAPIRuntime, redactResolver, progressManager, lifecycle)
+	modules, cleanup, err = adminModule.BuildModules(migrations, config, databases, baseCase, authorizer, authenticator, userToken, jobRuntime, sseRuntime, catalog, openAPIRuntime, redactResolver, rateLimitResolver, progressManager, lifecycle)
 	return AdminModules(modules), cleanup, err
 }
 

@@ -276,7 +276,7 @@ func (r *Registry) MergeSensitiveJSON(key, current, incoming string) (string, er
 
 // CacheKey 返回运行配置缓存键。
 func CacheKey(key string) string {
-	return "base-config:hidden:" + key
+	return "admin:config:hidden:" + key
 }
 
 // DefaultJSON 返回配置键对应的默认 ProtoJSON。

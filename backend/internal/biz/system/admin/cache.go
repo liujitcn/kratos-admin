@@ -102,14 +102,15 @@ func ttlSeconds(ttl time.Duration) int64 {
 
 // sanitizeCacheValue 脱敏隐藏运行配置缓存中的凭据字段。
 func sanitizeCacheValue(key, value string) string {
-	if !strings.HasPrefix(key, "base-config:hidden:") {
+	const prefix = "admin:config:hidden:"
+	if !strings.HasPrefix(key, prefix) {
 		return value
 	}
 	var payload map[string]any
 	if err := json.Unmarshal([]byte(value), &payload); err != nil {
 		return value
 	}
-	configKey := strings.TrimPrefix(key, "base-config:hidden:")
+	configKey := strings.TrimPrefix(key, prefix)
 	fields := runtimeconfig.SensitiveFields(configKey)
 	if len(fields) == 0 {
 		fields = []string{"password", "integrity_key", "encryption_key"}

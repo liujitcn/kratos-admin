@@ -197,7 +197,7 @@ func (c *ConfigCase) primaryLocale(ctx context.Context) (string, error) {
 	return "", nil
 }
 
-// runtimeConfigIDsPresent 判断缓存是否包含配置主键，旧缓存不满足时回源刷新。
+// runtimeConfigIDsPresent 判断缓存是否包含配置主键，不完整时回源刷新。
 func runtimeConfigIDsPresent(configs []*basev1.ConfigItem) bool {
 	for _, item := range configs {
 		if item.GetId() == 0 {
