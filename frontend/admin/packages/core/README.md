@@ -96,6 +96,7 @@ packages/core
 | `src/components/SvgIcon/`              | SVG 图标渲染。                                                                 |
 | `src/components/SwitchDark/`           | 明暗主题切换。                                                                 |
 | `src/components/TreeFilter/`           | 树形筛选器。                                                                   |
+| `src/components/YamlEditor/`           | YAML 语法高亮编辑器，支持行号、缩进、折叠及自定义状态栏文案。                 |
 | `src/components/TenantSelect/`         | 默认租户租户选择器，普通租户自动隐藏。                                         |
 | `src/components/TenantText/`           | 租户名称展示组件，支持名称选项和租户 ID 兜底。                                  |
 | `src/components/Upload/`               | 单/多文件和单/多图片上传组件。                                                 |
@@ -167,6 +168,7 @@ core 通过 `ADMIN_STATIC_VIEWS` 注册全部默认静态页面，后注册业�
 | ProTable Adapter | `@liujitcn/kratos-admin-core/components/ProTable`           |
 | ProTable 类型    | `@liujitcn/kratos-admin-core/components/ProTable/interface` |
 | SearchForm       | `@liujitcn/kratos-admin-core/components/SearchForm/index.vue` |
+| YamlEditor       | `@liujitcn/kratos-admin-core/components/YamlEditor/index.vue` |
 
 其他 Vue 组件以 `package.json#exports` 中的明确白名单为准。禁止使用 `components/ProTable/index.vue`、`utils/*`、`hooks/*`、`stores/modules/*` 等实现路径。发布构建会把内部 `@/` 别名转换成包内相对路径，内部实现不占用公共子路径。
 
