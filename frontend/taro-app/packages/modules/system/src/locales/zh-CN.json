@@ -131,5 +131,8 @@
   "system.notification.action.delete": "删除",
   "system.ai.model.provider_placeholder": "选择供应商",
   "system.ai.model.model_placeholder": "选择模型",
-  "system.ai.model.load_failed": "加载供应商和模型失败"
+  "system.ai.model.load_failed": "加载供应商和模型失败",
+  "system.ai.model.title": "选择模型",
+  "system.ai.model.provider_model_count": "{providers} 个供应商 · {models} 个模型",
+  "system.ai.model.empty": "暂无可选模型"
 }

@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import re
 import sys
@@ -28,6 +29,8 @@ LOCALE_PATTERN = re.compile(r"^[A-Za-z]{2,3}(?:-[A-Za-z0-9]{2,8})*$")
 TARGET_KEY_PATTERN = re.compile(r"^[a-z][a-z0-9_]*(?:\.[a-z][a-z0-9_]*)+$")
 SQL_FILE_PATTERN = re.compile(r"^i18n\.(?P<locale>[^.]+)\.up\.sql$")
 SQL_INSERT_PREFIX = "INSERT IGNORE INTO `base_i18n`"
+GO_ERROR_MESSAGE_PATTERN = re.compile(r'errorsx\.\w+\("([^"]*[\u4e00-\u9fff][^"]*)"')
+GO_ERROR_KEY_PREFIX = "legacy.error."
 OPENAPI_LOCALIZED_FIELD_PATTERN = re.compile(
     r"^(?P<indent>\s*)(?P<field>description|summary|title):(?:\s.*)?$"
 )
@@ -203,6 +206,8 @@ def verify_sql(locales: list[str], source_locale: str) -> None:
                 "base_job.name",
                 "base_oauth_provider.name",
                 "base_oauth_provider.description",
+                "base_message_provider.name",
+                "base_message_provider.description",
             }
             and value
         )
@@ -268,6 +273,28 @@ def verify_openapi(target_locales: list[str]) -> None:
                 )
 
 
+def verify_go_error_messages() -> None:
+    """校验后端 Go 源码中的 errorsx 错误消息在四个语言包都有翻译词条。"""
+    go_root = ROOT / "backend"
+    bundle: dict[str, dict[str, object]] = {}
+    for locale in ("zh-CN", "zh-TW", "en-US", "ja-JP"):
+        bundle_path = go_root / "internal/i18n/assets" / f"{locale}.json"
+        with bundle_path.open(encoding="utf-8") as file:
+            bundle[locale] = json.load(file)
+    missing: list[str] = []
+    for path in go_root.rglob("*.go"):
+        if "_test.go" in path.name or "/gen/" in str(path) or "/migration/" in str(path):
+            continue
+        for message in GO_ERROR_MESSAGE_PATTERN.findall(path.read_text(encoding="utf-8")):
+            key = GO_ERROR_KEY_PREFIX + hashlib.sha256(message.encode()).hexdigest()[:16]
+            if any(key not in entries for entries in bundle.values()):
+                missing.append(f"{path.relative_to(ROOT)}: {message}")
+    if missing:
+        raise VerificationError(
+            "Go 错误消息缺少语言包翻译词条: " + "；".join(missing[:5])
+        )
+
+
 def main() -> int:
     """执行全部国际化发布前校验。"""
     parser = argparse.ArgumentParser(description=__doc__)
@@ -301,6 +328,11 @@ def main() -> int:
         verify_openapi(target_locales)
     except (OSError, json.JSONDecodeError, VerificationError, ValueError) as error:
         errors.append(f"OpenAPI: {error}")
+
+    try:
+        verify_go_error_messages()
+    except (OSError, json.JSONDecodeError, VerificationError, ValueError) as error:
+        errors.append(f"Go错误消息: {error}")
 
     if errors:
         print("国际化发布校验失败:", file=sys.stderr)

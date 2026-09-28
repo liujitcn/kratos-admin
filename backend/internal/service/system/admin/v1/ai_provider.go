@@ -63,6 +63,16 @@ func (s *AiProviderService) UpdateAiProvider(ctx context.Context, req *adminv1.U
 	return new(emptypb.Empty), nil
 }
 
+// TestAiProviderModels 测试供应商表单中的全部模型。
+func (s *AiProviderService) TestAiProviderModels(ctx context.Context, req *adminv1.TestAiProviderModelsRequest) (*adminv1.TestAiProviderModelsResponse, error) {
+	result, err := s.aiProviderCase.TestAiProviderModels(ctx, req)
+	if err != nil {
+		log.Error(fmt.Sprintf("TestAiProviderModels %v", err))
+		return nil, errorsx.WrapInternal(err, "测试AI模型失败")
+	}
+	return result, nil
+}
+
 // DeleteAiProvider 删除AI供应商。
 func (s *AiProviderService) DeleteAiProvider(ctx context.Context, req *adminv1.DeleteAiProviderRequest) (*emptypb.Empty, error) {
 	err := s.aiProviderCase.DeleteAiProvider(ctx, req.GetId())

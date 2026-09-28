@@ -108,6 +108,8 @@ export const useConfigStore = defineStore("admin-config", {
       this.display = { ...DEFAULT_SITE_DISPLAY_CONFIG };
       this.captcha = { ...DEFAULT_LOGIN_CAPTCHA_CONFIG };
       this.i18nDraftEnabled = false;
+      // 避免登出或切换租户后沿用上一租户的 AI 菜单显隐状态。
+      this.aiEnabled = false;
     },
     /**
      * 加载管理端站点配置，并以服务端返回值覆盖本地默认值。

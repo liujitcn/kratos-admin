@@ -21,7 +21,7 @@
                 <el-icon class="parameter-help" tabindex="0"><QuestionFilled /></el-icon>
               </el-tooltip>
             </span>
-            <el-input-number v-model="form.params.tokens_per_second" :min="0" :max="1000000" :precision="3" :step="1" controls-position="right" />
+            <el-input-number v-model="form.params.tokens_per_second" :min="0.001" :max="1000000" :precision="3" :step="1" controls-position="right" />
           </div>
           <div class="parameter-item">
             <span class="parameter-label">
@@ -30,7 +30,7 @@
                 <el-icon class="parameter-help" tabindex="0"><QuestionFilled /></el-icon>
               </el-tooltip>
             </span>
-            <el-input-number v-model="form.params.burst" :min="0" :max="1000000" :precision="0" controls-position="right" />
+            <el-input-number v-model="form.params.burst" :min="1" :max="1000000" :precision="0" controls-position="right" />
           </div>
         </div>
         <div v-else-if="windowedAlgorithms.includes(form.rule_type)" class="parameter-grid">
@@ -125,10 +125,15 @@ const statusOptions = computed<ProFormOption[]>(() => [
   { label: t("common.status.enabled"), value: Status.STATUS_ENABLE },
   { label: t("common.status.disabled"), value: Status.STATUS_DISABLE }
 ]);
+/** 当前算法说明提示，未选择算法时为空避免渲染空 tooltip。 */
+const ruleTypeTooltip = computed(() => {
+  const key = rateLimitAlgorithmTooltipKey(form.rule_type);
+  return key ? t(key) : undefined;
+});
 const fields = computed<ProFormField[]>(() => [
   { prop: "code", label: t("system.base.rate_limit_rule.field.code"), component: "input", props: { disabled: Boolean(form.id) } },
   { prop: "name", label: t("system.base.rate_limit_rule.field.name"), component: "input" },
-  { prop: "rule_type", label: t("system.base.rate_limit_rule.field.rule_type"), labelTooltip: t(rateLimitAlgorithmTooltipKey(form.rule_type)), component: "select", options: algorithmOptions.value, props: { disabled: Boolean(form.id), onChange: handleAlgorithmChange } },
+  { prop: "rule_type", label: t("system.base.rate_limit_rule.field.rule_type"), labelTooltip: ruleTypeTooltip.value, component: "select", options: algorithmOptions.value, props: { disabled: Boolean(form.id), onChange: handleAlgorithmChange } },
   { prop: "parameters", label: t("system.base.rate_limit_rule.field.parameters"), labelTooltip: t("system.base.rate_limit_rule.tooltip.parameters"), component: "slot", slotName: "parameters", colSpan: 24 },
   { prop: "status", label: t("common.field.status"), component: "radio-group", options: statusOptions.value },
   { prop: "remark", label: t("common.field.remark"), component: "textarea" }

@@ -521,3 +521,18 @@ INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VAL
 INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_oauth_provider.description', 7, 'zh-TW', '使用微信小程式帳號登入');
 INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_oauth_provider.description', 8, 'zh-TW', '使用微信公眾號帳號登入');
 INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_oauth_provider.description', 9, 'zh-TW', '使用企業微信帳號登入');
+
+INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_message_provider.name', 1, 'zh-TW', '電子郵件');
+INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_message_provider.description', 1, 'zh-TW', 'SMTP 郵件通知');
+INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_message_provider.name', 2, 'zh-TW', '簡訊');
+INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_message_provider.description', 2, 'zh-TW', '簡訊通知');
+INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_message_provider.name', 3, 'zh-TW', '釘釘');
+INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_message_provider.description', 3, 'zh-TW', '釘釘通知');
+INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_message_provider.name', 4, 'zh-TW', '飛書');
+INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_message_provider.description', 4, 'zh-TW', '飛書通知');
+INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_message_provider.name', 5, 'zh-TW', '微信公眾號');
+INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_message_provider.description', 5, 'zh-TW', '微信公眾號通知');
+INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_message_provider.name', 6, 'zh-TW', '企業微信');
+INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_message_provider.description', 6, 'zh-TW', '企業微信通知');
+INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_message_provider.name', 7, 'zh-TW', 'Webhook');
+INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_message_provider.description', 7, 'zh-TW', '通用 Webhook 通知');

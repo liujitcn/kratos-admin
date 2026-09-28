@@ -4030,5 +4030,374 @@
   "system.admin.base.ai.provider.models_json.required": { "other": "Configure at least one model" },
   "system.admin.base.ai.provider.name.required": { "other": "Enter a provider name" },
   "system.admin.base.ai.provider.provider.required": { "other": "Select a supported model provider" },
-  "system.admin.base.ai.provider.update.id.required": { "other": "The provider ID is required" }
+  "system.admin.base.ai.provider.update.id.required": { "other": "The provider ID is required" },
+  "legacy.error.2ffd8c27873e2d27": {
+    "other": "Invalid AI provider identifier"
+  },
+  "legacy.error.a02d1bad8ef6fd46": {
+    "other": "Duplicate AI provider name"
+  },
+  "legacy.error.91c0093168823546": {
+    "other": "Invalid AI provider or model selection"
+  },
+  "legacy.error.184b6b785948953f": {
+    "other": "Invalid AI provider status"
+  },
+  "legacy.error.10925dcbbfb6cab2": {
+    "other": "Invalid AI model JSON format"
+  },
+  "legacy.error.31d2b7d8c6338edd": {
+    "other": "Provider extension config must be a JSON object: %w"
+  },
+  "legacy.error.8ba6ac320e77ea3e": {
+    "other": "Provider identifier cannot be modified"
+  },
+  "legacy.error.42eb4ecc9e9cff6d": {
+    "other": "Invalid provider custom config JSON format"
+  },
+  "legacy.error.99412861ce1126ab": {
+    "other": "Provider custom config must be a JSON object: %w"
+  },
+  "legacy.error.082f8954f62749dc": {
+    "other": "burst must be between 1 and %d"
+  },
+  "legacy.error.82166f10832cd9cd": {
+    "other": "capacity must be between 1 and %d"
+  },
+  "legacy.error.8a7bad13f468ff29": {
+    "other": "config.organization must be a string"
+  },
+  "legacy.error.4104675314a2eb39": {
+    "other": "Failed to decode message template config: %w"
+  },
+  "legacy.error.74ff8b52b91f31f4": {
+    "other": "leak_rate_per_second must be between %g and %g"
+  },
+  "legacy.error.152a0d8516f025d6": {
+    "other": "limit must be between 1 and %d"
+  },
+  "legacy.error.8dad2a060865729e": {
+    "other": "Failed to parse message template: %w"
+  },
+  "legacy.error.e3d224984836347a": {
+    "other": "Failed to render message template: %w"
+  },
+  "legacy.error.43c2f70a29b0150b": {
+    "other": "tokens_per_second must be between %g and %g"
+  },
+  "legacy.error.4abcd33acfc279f4": {
+    "other": "Unsupported message provider %q"
+  },
+  "legacy.error.578f778acd3d1fb7": {
+    "other": "window_seconds must be between 1 and %d"
+  },
+  "legacy.error.6f20eeb9421c058f": {
+    "other": "Third-party account binding not found"
+  },
+  "legacy.error.b51de7ac39752753": {
+    "other": "Unsupported AI provider"
+  },
+  "legacy.error.db83d206f27c94ae": {
+    "other": "Unsupported message provider: %s"
+  },
+  "legacy.error.9376c1aa6cc99070": {
+    "other": "Provider name cannot be empty and cannot exceed 100 characters"
+  },
+  "legacy.error.5afe27140c31f0d6": {
+    "other": "Provider sort order cannot be less than 0"
+  },
+  "legacy.error.5fe54f1b13aabace": {
+    "other": "The category has pending provider deliveries; the provider cannot be removed"
+  },
+  "legacy.error.98607017b11fd268": {
+    "other": "An API key must be configured before enabling an OpenAI-compatible provider"
+  },
+  "legacy.error.05f4b86ff1dd487d": {
+    "other": "The rule referenced by API rate limit policy %d does not exist or is disabled"
+  },
+  "legacy.error.ae777b70383bc1a5": {
+    "other": "Failed to build model config for AI provider %d: %w"
+  },
+  "legacy.error.435d2092fabb1d0c": {
+    "other": "Failed to build message provider %d(%s): %w"
+  },
+  "legacy.error.69b7d98843e43ccd": {
+    "other": "Failed to query API rate limit rules: %w"
+  },
+  "legacy.error.2c024b0c19528860": {
+    "other": "api_type of model %s must be CHAT_COMPLETIONS or RESPONSES"
+  },
+  "legacy.error.687c31528f9d0424": {
+    "other": "Request parameters of model %s are out of range"
+  },
+  "legacy.error.74a002544bf9f689": {
+    "other": "Model API base URL must be a full HTTP or HTTPS URL"
+  },
+  "legacy.error.445952e3853b9d9d": {
+    "other": "Model API base URL must be a complete URL"
+  },
+  "legacy.error.97138843fc30f3ad": {
+    "other": "Model name cannot be empty and cannot exceed 100 characters"
+  },
+  "legacy.error.78340dfcaefb707d": {
+    "other": "Duplicate model name: %s"
+  },
+  "legacy.error.5c7fba0bf2cc08d5": {
+    "other": "Model config JSON must contain exactly one array"
+  },
+  "legacy.error.3b07ca8b36d1da22": {
+    "other": "Model config must be a JSON array: %w"
+  },
+  "legacy.error.4bd4912eb5dfd55d": {
+    "other": "Invalid message provider ID"
+  },
+  "legacy.error.5cf09c3c3d782b38": {
+    "other": "Message provider not found"
+  },
+  "legacy.error.1dd06fb271176c5e": {
+    "other": "Duplicate message provider"
+  },
+  "legacy.error.74b418ac4240d405": {
+    "other": "The message provider is already bound to a message category"
+  },
+  "legacy.error.ae506e54c847f000": {
+    "other": "The message provider is already used by a message template"
+  },
+  "legacy.error.8ea96ca8a9ae19d6": {
+    "other": "Invalid message provider extension config"
+  },
+  "legacy.error.bf63668c07aa83ee": {
+    "other": "The message provider is not bound to this message category"
+  },
+  "legacy.error.2fd73fe9be409dce": {
+    "other": "Duplicate message provider identifier"
+  },
+  "legacy.error.8c54cb0c3d38941a": {
+    "other": "Invalid message provider status"
+  },
+  "legacy.error.69bed2184c56ff41": {
+    "other": "Invalid message provider config"
+  },
+  "legacy.error.3d3e1cb1f3b8819b": {
+    "other": "Message provider ID cannot be empty"
+  },
+  "legacy.error.80a8b99c046b746f": {
+    "other": "Message category provider template not found"
+  },
+  "legacy.error.9edbe5909b367474": {
+    "other": "A template for this message category and provider already exists"
+  },
+  "legacy.error.e54f076ca472029b": {
+    "other": "The message category delivery targets were modified by someone else; please refresh and retry"
+  },
+  "legacy.error.6a9d6064de67fa66": {
+    "other": "The message category has no enabled delivery targets"
+  },
+  "legacy.error.08268772f18ceccb": {
+    "other": "The provider bound to the message category does not exist"
+  },
+  "legacy.error.12faa3a7695bb75b": {
+    "other": "Message category ID cannot be empty"
+  },
+  "legacy.error.1ef959db9503eb93": {
+    "other": "Invalid message template extension config"
+  },
+  "legacy.error.710dd04852eca77e": {
+    "other": "Message template ID cannot be empty"
+  },
+  "legacy.error.5d9a5d1183cd4553": {
+    "other": "Messages are being dispatched or waiting for retry; the category delivery targets cannot be modified"
+  },
+  "legacy.error.ae5dda772496d1bc": {
+    "other": "Sliding window log limit cannot exceed %d"
+  },
+  "legacy.error.bc8f5402442ac495": {
+    "other": "Invalid inbox message status"
+  },
+  "legacy.error.20fd1c2a6b8d3574": {
+    "other": "At least one model must be configured"
+  },
+  "legacy.error.1464dd4a73b2a25b": {
+    "other": "Failed to parse AI provider custom config"
+  },
+  "legacy.error.6cfe5d7ba8f783d2": {
+    "other": "Failed to parse model config of AI provider %d: %w"
+  },
+  "legacy.error.1f52b62ea4c51d36": {
+    "other": "Failed to parse message provider ID"
+  },
+  "legacy.error.b6aa14aecfe74975": {
+    "other": "Failed to parse message provider config"
+  },
+  "legacy.error.8406ca5e075b061b": {
+    "other": "Failed to parse message template config"
+  },
+  "legacy.error.f9956342537bf6a2": {
+    "other": "Failed to read AI provider model config"
+  },
+  "legacy.error.ec26152876002eb0": {
+    "other": "Invalid rate limit algorithm"
+  },
+  "legacy.error.9a0d6d773d5f97b2": {
+    "other": "Rate limit algorithm unspecified or invalid"
+  },
+  "legacy.error.800ad5e277d8f771": {
+    "other": "Rate limit rule parameters are not valid JSON: %w"
+  },
+  "legacy.error.edcd01eaa0471076": {
+    "other": "Rate limit rule parameters contain multiple JSON values"
+  },
+  "legacy.error.14cc21c1630be880": {
+    "other": "Invalid code generation table config ID"
+  },
+  "legacy.error.c81dce0cccf9278a": {
+    "other": "Duplicate code generation table config ID"
+  },
+  "legacy.error.45fafc5d3db685c1": {
+    "other": "Failed to delete {{.Parent}}: it still contains {{.Child}}"
+  },
+  "legacy.error.ddc0ea85e48cd84b": {
+    "other": "Frontend pages cannot be safely merged"
+  },
+  "legacy.error.ae1ce98c46ef1438": {
+    "other": "Incorrect one-time code"
+  },
+  "legacy.error.da446018d499c44c": {
+    "other": "Only platform administrators can manage rate limit policies"
+  },
+  "legacy.error.9d78d544cac16795": {
+    "other": "An enabled storage redaction policy references this rule; disable the referencing policy first"
+  },
+  "legacy.error.29c2f394b38444b3": {
+    "other": "An enabled output redaction policy references this rule; disable the referencing policy first"
+  },
+  "legacy.error.fea3865e9acd0f4d": {
+    "other": "An enabled API rate limit policy references this rule; disable the referencing policy first"
+  },
+  "legacy.error.c712ad086eefa8bf": {
+    "other": "An API rate limit policy references this rule; it cannot be deleted"
+  },
+  "legacy.error.02f1a3ae0f4c961f": {
+    "other": "The selected API already has a policy with the same rate limit dimension"
+  },
+  "legacy.error.445c287ca2aeeb10": {
+    "other": "Batch generation cannot be empty"
+  },
+  "legacy.error.424b444c31bcfe1f": {
+    "other": "Batch generation definition conflict"
+  },
+  "legacy.error.5f947483457341be": {
+    "other": "Batch generation table config missing"
+  },
+  "legacy.error.97670ce8001ca7ba": {
+    "other": "API operations cannot be duplicated"
+  },
+  "legacy.error.53392f5183414d58": {
+    "other": "Invalid API operation"
+  },
+  "legacy.error.f8d1041eb74a0324": {
+    "other": "Invalid API rate limit parameters"
+  },
+  "legacy.error.a7df0cf102c5afb8": {
+    "other": "API rate limit policy ID cannot be empty"
+  },
+  "legacy.error.74f05fe9917a174f": {
+    "other": "API rate limit policy not found"
+  },
+  "legacy.error.0a22a1d04ad1f909": {
+    "other": "Invalid API rate limit policy operation data"
+  },
+  "legacy.error.b7526ba370efdf28": {
+    "other": "Invalid API rate limit policy status"
+  },
+  "legacy.error.af5a0d2f0417df45": {
+    "other": "API rate limit policy requires at least one API"
+  },
+  "legacy.error.a7d4f80f6c04c5cc": {
+    "other": "Invalid default value for the status field"
+  },
+  "legacy.error.b090926a1b808c30": {
+    "other": "Generated API conflicts with an existing API"
+  },
+  "legacy.error.a8c8e869d09e04d9": {
+    "other": "The generated HTTP route is already used by another RPC"
+  },
+  "legacy.error.a1d298a4c9c01761": {
+    "other": "Generation paths cannot be duplicated"
+  },
+  "legacy.error.2cc95eec1189f93d": {
+    "other": "Invalid generation output path"
+  },
+  "legacy.error.7491b8fddb896715": {
+    "other": "Translation target key mismatch"
+  },
+  "legacy.error.09ca476dad7eaf93": {
+    "other": "The web search service returned an unexpected status"
+  },
+  "legacy.error.d59dd72abed0a69e": {
+    "other": "Please select between 1 and 500 APIs"
+  },
+  "legacy.error.8edf13ac398ac3e4": {
+    "other": "The option API field does not exist"
+  },
+  "legacy.error.94a06a28e9681057": {
+    "other": "The option API field must be an integer"
+  },
+  "legacy.error.e6bcba8f8bfbffa8": {
+    "other": "The option API target table does not exist"
+  },
+  "legacy.error.888f5179fe310cd6": {
+    "other": "Invalid rate limit dimension"
+  },
+  "legacy.error.26743666f680a06d": {
+    "other": "Rate limit rule ID cannot be empty"
+  },
+  "legacy.error.b89055c6f7498238": {
+    "other": "Rate limit rule not found"
+  },
+  "legacy.error.4ee0e7ff3bfe30c9": {
+    "other": "Invalid rate limit rule parameters"
+  },
+  "legacy.error.06d043cf0c992b56": {
+    "other": "The rate limit rule is disabled and cannot be used in an API policy"
+  },
+  "legacy.error.8e2a0e49a558c17a": {
+    "other": "Invalid rate limit rule status"
+  },
+  "legacy.error.c67d0141c0b9fad9": {
+    "other": "Rate limit rule code and algorithm type cannot be modified"
+  },
+  "legacy.error.f0b35412f5d36e1e": {
+    "other": "Duplicate rate limit rule code"
+  },
+  "legacy.error.04d0cca843621bab": {
+    "other": "Please configure the model API key before testing"
+  },
+  "legacy.error.330dd2d11fcdadbb": {
+    "other": "Failed to test AI models"
+  },
+  "openapi.ai_provider.test_models.summary": {
+    "other": "Test all models in the AI provider form."
+  },
+  "openapi.ai_provider.test_models.model_name": {
+    "other": "Model name"
+  },
+  "openapi.ai_provider.test_models.success": {
+    "other": "Test succeeded"
+  },
+  "openapi.ai_provider.test_models.duration": {
+    "other": "Test duration in milliseconds"
+  },
+  "openapi.ai_provider.test_models.message": {
+    "other": "Failure reason; empty on success"
+  },
+  "openapi.ai_provider.test_models.result": {
+    "other": "Result of testing a single AI model connection."
+  },
+  "openapi.ai_provider.test_models.results": {
+    "other": "Model test results in configuration order"
+  },
+  "openapi.ai_provider.test_models.response": {
+    "other": "Response containing test results for all AI provider models."
+  }
 }

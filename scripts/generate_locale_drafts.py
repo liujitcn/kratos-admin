@@ -939,6 +939,9 @@ def parse_primary_i18n_sources(default_data: Path) -> dict[tuple[str, int], str]
         elif table == "base_oauth_provider" and len(values) > 3:
             sources[("base_oauth_provider.name", resource_id)] = str(values[2] or "")
             sources[("base_oauth_provider.description", resource_id)] = str(values[3] or "")
+        elif table == "base_message_provider" and len(values) > 3:
+            sources[("base_message_provider.name", resource_id)] = str(values[2] or "")
+            sources[("base_message_provider.description", resource_id)] = str(values[3] or "")
     return sources
 
 

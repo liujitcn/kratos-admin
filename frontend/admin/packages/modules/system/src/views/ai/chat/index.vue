@@ -85,6 +85,7 @@ import {
   sortMessages
 } from "./message";
 import { readAiEventStream } from "./stream";
+import { loadStoredModelSelection, saveModelSelection } from "./modelSelection";
 import type {
   AiStreamEvent,
   AiStreamPayload,
@@ -662,11 +663,7 @@ async function loadAiShortcuts() {
     ]);
     starterShortcuts.value = normalizeStarterShortcuts(response.shortcuts);
     modelProviders.value = providerResponse.providers ?? [];
-    if (!modelProviders.value.some(item => item.provider_id === selectedProviderId.value && item.models.includes(selectedModelName.value))) {
-      const firstProvider = modelProviders.value[0];
-      selectedProviderId.value = firstProvider?.provider_id ?? 0;
-      selectedModelName.value = firstProvider?.models[0] ?? "";
-    }
+    applyModelSelection();
   } catch {
     starterShortcuts.value = [];
     modelProviders.value = [];
@@ -677,10 +674,31 @@ async function loadAiShortcuts() {
   }
 }
 
-/** 更新当前聊天使用的供应商与模型。 */
+/** 优先恢复本地缓存的模型选择，缓存失效时回退到首个可用模型。 */
+function applyModelSelection() {
+  const stored = loadStoredModelSelection();
+  const provider = stored
+    ? modelProviders.value.find(
+        item =>
+          item.provider_id === stored.provider_id &&
+          item.models.some(model => model.model_name === stored.model_name)
+      )
+    : undefined;
+  if (provider && stored) {
+    selectedProviderId.value = provider.provider_id;
+    selectedModelName.value = stored.model_name;
+    return;
+  }
+  const firstProvider = modelProviders.value[0];
+  selectedProviderId.value = firstProvider?.provider_id ?? 0;
+  selectedModelName.value = firstProvider?.models[0]?.model_name ?? "";
+}
+
+/** 更新当前聊天使用的供应商与模型并持久化到本地缓存。 */
 function handleModelChange(providerId: number, modelName: string) {
   selectedProviderId.value = providerId;
   selectedModelName.value = modelName;
+  saveModelSelection({ provider_id: providerId, model_name: modelName });
 }
 
 /** 使指定会话仍在途的消息列表请求失效。 */

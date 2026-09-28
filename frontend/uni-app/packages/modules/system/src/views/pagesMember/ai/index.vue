@@ -16,6 +16,7 @@ import { AiMessageStatus } from '../../../rpc/base/v1/ai_session'
 import { Terminal } from '../../../rpc/base/v1/ai_tool'
 import { uploadFile } from '@liujitcn/kratos-uni-app-core/utils/file'
 import { formatSrc } from '@liujitcn/kratos-uni-app-core/utils/index'
+import { isAuthExpiredError } from '@liujitcn/kratos-uni-app-core/utils/http'
 import Composer from './components/Composer.vue'
 import SessionDrawer from './components/SessionDrawer.vue'
 import WelcomePanel from './components/WelcomePanel.vue'
@@ -27,6 +28,8 @@ import {
   parseAiEventStreamText,
   readAiEventStream,
 } from './stream'
+import { resolveModelDisplayName } from './modelDisplay'
+import { loadStoredModelSelection, saveModelSelection } from './modelSelection'
 
 type ChatRole = 'user' | 'ai'
 
@@ -474,17 +477,7 @@ async function loadAiShortcuts() {
       defAiModelService.ListAiProviderModelOptions({}),
     ])
     modelProviders.value = providerResponse.providers ?? []
-    if (
-      !modelProviders.value.some(
-        (item) =>
-          item.provider_id === selectedProviderId.value &&
-          item.models.includes(selectedModelName.value),
-      )
-    ) {
-      const firstProvider = modelProviders.value[0]
-      selectedProviderId.value = firstProvider?.provider_id ?? 0
-      selectedModelName.value = firstProvider?.models[0] ?? ''
-    }
+    applyModelSelection()
     const shortcuts = normalizeStarterShortcuts(response.shortcuts).filter((item) => !item.action)
     if (shortcuts.length) {
       starterShortcuts.value = shortcuts
@@ -500,10 +493,31 @@ async function loadAiShortcuts() {
   }
 }
 
-/** 更新当前聊天使用的供应商和模型。 */
+/** 优先恢复本地缓存的模型选择，缓存失效时回退到首个可用模型。 */
+function applyModelSelection() {
+  const stored = loadStoredModelSelection()
+  const provider = stored
+    ? modelProviders.value.find(
+        (item) =>
+          item.provider_id === stored.provider_id &&
+          item.models.some((model) => model.model_name === stored.model_name),
+      )
+    : undefined
+  if (provider && stored) {
+    selectedProviderId.value = provider.provider_id
+    selectedModelName.value = stored.model_name
+    return
+  }
+  const firstProvider = modelProviders.value[0]
+  selectedProviderId.value = firstProvider?.provider_id ?? 0
+  selectedModelName.value = firstProvider?.models[0]?.model_name ?? ''
+}
+
+/** 更新当前聊天使用的供应商和模型并持久化到本地缓存。 */
 function handleModelChange(providerId: number, modelName: string) {
   selectedProviderId.value = providerId
   selectedModelName.value = modelName
+  saveModelSelection({ provider_id: providerId, model_name: modelName })
 }
 
 async function sendAiPayload(payload: { text: string; attachments: AiAttachment[] }) {
@@ -1224,6 +1238,8 @@ function formatTools(tools: AiToolCall[]) {
 }
 
 function showError(error: unknown, fallback: string) {
+  // 登录态失效时请求层已弹窗引导重新登录，不再叠加失败提示。
+  if (isAuthExpiredError(error)) return
   const message = error instanceof Error ? error.message : fallback
   uni.showToast({ icon: 'none', title: message || fallback })
 }
@@ -1277,7 +1293,7 @@ function showError(error: unknown, fallback: string) {
           >
             <view v-if="item.role === 'ai' && item.model" class="reply-meta">
               <text class="reply-tag">{{ t('system.ai.model_reply') }}</text>
-              <text class="reply-model">{{ item.model }}</text>
+              <text class="reply-model">{{ resolveModelDisplayName(modelProviders, item.model) }}</text>
             </view>
             <view class="bubble-content">{{ item.content }}</view>
             <view v-if="item.attachments.length" class="attachment-list">
@@ -1316,7 +1332,6 @@ function showError(error: unknown, fallback: string) {
       :model-providers="modelProviders"
       :provider-id="selectedProviderId"
       :model-name="selectedModelName"
-      :provider-placeholder="t('system.ai.model.provider_placeholder')"
       :model-placeholder="t('system.ai.model.model_placeholder')"
       :placeholder="composerPlaceholder"
       :bottom="composerBottom"

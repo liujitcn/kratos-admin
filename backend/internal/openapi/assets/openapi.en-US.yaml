@@ -237,6 +237,25 @@ paths:
                 "200":
                     description: OK
                     content: {}
+    /api/v1/admin/base/ai-provider/test-models:
+        post:
+            tags:
+                - AiProviderService
+            description: Test all models in the AI provider form.
+            operationId: AiProviderService_TestAiProviderModels
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.AiProviderForm'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.TestAiProviderModelsResponse'
     /api/v1/admin/base/ai-provider/{ai_provider.id}:
         put:
             tags:
@@ -8219,6 +8238,16 @@ components:
                     type: string
                     description: structured mobile content JSON
             description: AI assistant output content
+        base.v1.AiProviderModel:
+            type: object
+            properties:
+                model_name:
+                    type: string
+                    description: model name
+                display_name:
+                    type: string
+                    description: Display name; the frontend derives one from the model name when empty
+            description: A single model option under an AI provider.
         base.v1.AiProviderModelOption:
             type: object
             properties:
@@ -8231,8 +8260,8 @@ components:
                 models:
                     type: array
                     items:
-                        type: string
-                    description: Model names
+                        $ref: '#/components/schemas/base.v1.AiProviderModel'
+                    description: Model options
             description: An enabled AI provider and its model options.
         base.v1.AiSession:
             type: object
@@ -9671,6 +9700,23 @@ components:
                     description: status
                     format: enum
             description: AI provider configuration form.
+        system.admin.v1.AiProviderModelTestResult:
+            type: object
+            properties:
+                model_name:
+                    type: string
+                    description: model name
+                success:
+                    type: boolean
+                    description: Test succeeded
+                duration_ms:
+                    type: integer
+                    description: Test duration in milliseconds
+                    format: int32
+                message:
+                    type: string
+                    description: failure reason；successwhenbe null
+            description: Result of testing a single AI model connection.
         system.admin.v1.BaseApi:
             type: object
             properties:
@@ -16093,6 +16139,15 @@ components:
                         $ref: '#/components/schemas/system.admin.v1.BaseUserSummaryItem'
                     description: user registration time dimension summary
             description: user registration summary response
+        system.admin.v1.TestAiProviderModelsResponse:
+            type: object
+            properties:
+                results:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.AiProviderModelTestResult'
+                    description: Model test results in configuration order
+            description: Response containing test results for all AI provider models.
         system.admin.v1.TreeBaseAreaResponse:
             type: object
             properties:

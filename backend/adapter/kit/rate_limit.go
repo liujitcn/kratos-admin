@@ -184,45 +184,38 @@ func (r *RateLimitPolicyResolver) refreshLocked(ctx context.Context) error {
 	for _, row := range rows {
 		rule := ruleByID[row.RuleID]
 		if rule == nil || rule.Status != _const.STATUS_STATUS_ENABLE {
-			err = fmt.Errorf("接口限流策略 %d 引用的规则不存在或未启用", row.ID)
-			r.recordRefreshError(err)
-			return err
+			log.Warn("接口限流策略引用的规则不存在或未启用，跳过该策略", "policy_id", row.ID, "rule_id", row.RuleID)
+			continue
 		}
 		var params RateLimitParams
 		params, err = ParseRateLimitParams(rule.RuleType, row.RuleParams)
 		if err != nil {
-			err = fmt.Errorf("接口限流策略 %d 参数无效: %w", row.ID, err)
-			r.recordRefreshError(err)
-			return err
+			log.Warn("接口限流策略参数无效，跳过该策略", "policy_id", row.ID, "error", err)
+			continue
 		}
 		if !validRateLimitDimension(row.Dimension) {
-			err = fmt.Errorf("接口限流策略 %d 维度无效", row.ID)
-			r.recordRefreshError(err)
-			return err
+			log.Warn("接口限流策略维度无效，跳过该策略", "policy_id", row.ID)
+			continue
 		}
 		var operations []string
 		err = json.Unmarshal([]byte(row.Operations), &operations)
 		if err != nil {
-			err = fmt.Errorf("接口限流策略 %d 接口列表无效: %w", row.ID, err)
-			r.recordRefreshError(err)
-			return err
+			log.Warn("接口限流策略接口列表无效，跳过该策略", "policy_id", row.ID, "error", err)
+			continue
 		}
 		if len(operations) == 0 {
-			err = fmt.Errorf("接口限流策略 %d 未配置接口", row.ID)
-			r.recordRefreshError(err)
-			return err
+			log.Warn("接口限流策略未配置接口，跳过该策略", "policy_id", row.ID)
+			continue
 		}
 		seenOperations := make(map[string]struct{}, len(operations))
 		for _, operation := range operations {
 			if operation == "" {
-				err = fmt.Errorf("接口限流策略 %d 包含空接口操作", row.ID)
-				r.recordRefreshError(err)
-				return err
+				log.Warn("接口限流策略包含空接口操作，跳过该操作", "policy_id", row.ID)
+				continue
 			}
 			if _, exists := seenOperations[operation]; exists {
-				err = fmt.Errorf("接口限流策略 %d 包含重复接口操作", row.ID)
-				r.recordRefreshError(err)
-				return err
+				log.Warn("接口限流策略包含重复接口操作，跳过该操作", "policy_id", row.ID, "operation", operation)
+				continue
 			}
 			seenOperations[operation] = struct{}{}
 			policies[operation] = append(policies[operation], ratelimit.Policy{

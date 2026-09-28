@@ -1,7 +1,10 @@
-import { Button, Picker, Text, Textarea, View } from '@tarojs/components'
+import { Button, Text, Textarea, View } from '@tarojs/components'
+import { useMemo, useState } from 'react'
 import { UniIcon } from '@liujitcn/kratos-taro-app-ui'
 import type { AiAttachment } from '../../../../rpc/base/v1/ai_session'
 import type { AiProviderModelOption } from '../../../../rpc/base/v1/ai_provider'
+import { fallbackModelDisplayName } from '../modelDisplay'
+import ModelPicker from './ModelPicker'
 import './composer.scss'
 
 /** AI 助手输入框与模型选择器参数。 */
@@ -14,7 +17,6 @@ type ComposerProps = {
   providerId: number
   modelName: string
   /** 选择器未配置时显示的本地化占位文字。 */
-  providerPlaceholder: string
   modelPlaceholder: string
   placeholder: string
   bottom: string
@@ -31,35 +33,37 @@ type ComposerProps = {
 
 /** AI 助手消息输入器。 */
 export default function Composer(props: ComposerProps) {
-  const selectedProvider = props.modelProviders.find((provider) => provider.provider_id === props.providerId)
-  const modelNames = selectedProvider?.models ?? []
-  const providerIndex = Math.max(props.modelProviders.findIndex((provider) => provider.provider_id === props.providerId), 0)
-  const modelIndex = Math.max(modelNames.indexOf(props.modelName), 0)
+  const [showModelPicker, setShowModelPicker] = useState(false)
+
+  const selectedModelDisplayName = useMemo(() => {
+    const provider = props.modelProviders.find((item) => item.provider_id === props.providerId)
+    const matched = provider?.models.find((model) => model.model_name === props.modelName)
+    return matched?.display_name || fallbackModelDisplayName(props.modelName)
+  }, [props.modelProviders, props.providerId, props.modelName])
+
+  const openModelPicker = () => {
+    if (props.sending || !props.modelProviders.length) {
+      return
+    }
+    setShowModelPicker(true)
+  }
+
+  const handleModelSelect = (providerId: number, modelName: string) => {
+    setShowModelPicker(false)
+    props.onModelChange(providerId, modelName)
+  }
 
   return (
     <View className='composer' style={{ paddingBottom: props.bottom }}>
-      <View className='composer-model-selectors'>
-        <Picker
-          mode='selector'
-          range={props.modelProviders.map((provider) => provider.name)}
-          value={providerIndex}
-          disabled={props.sending || !props.modelProviders.length}
-          onChange={(event) => {
-            const provider = props.modelProviders[Number(event.detail.value)]
-            props.onModelChange(provider?.provider_id ?? 0, provider?.models[0] ?? '')
-          }}
-        >
-          <View className='composer-model-select'><Text>{selectedProvider?.name || props.providerPlaceholder}</Text></View>
-        </Picker>
-        <Picker
-          mode='selector'
-          range={modelNames}
-          value={modelIndex}
-          disabled={props.sending || !modelNames.length}
-          onChange={(event) => props.onModelChange(props.providerId, modelNames[Number(event.detail.value)] ?? '')}
-        >
-          <View className='composer-model-select'><Text>{props.modelName || props.modelPlaceholder}</Text></View>
-        </Picker>
+      <View
+        className={`composer-model-chip${props.sending || !props.modelProviders.length ? ' is-disabled' : ''}`}
+        onClick={openModelPicker}
+      >
+        <Text className='composer-model-chip__spark'>✦</Text>
+        <Text className='composer-model-chip__label'>
+          {selectedModelDisplayName || props.modelPlaceholder}
+        </Text>
+        <Text className='composer-model-chip__chevron'>▾</Text>
       </View>
       <View className='composer-main'>
         <Button className='attach-button' hoverClass='none' onClick={props.onAttach}>
@@ -105,6 +109,16 @@ export default function Composer(props: ComposerProps) {
           <UniIcon type='paperplane' size={28} color={props.disabled ? '#111' : '#00a96b'} />
         </Button>
       </View>
+
+      {showModelPicker ? (
+        <ModelPicker
+          providers={props.modelProviders}
+          providerId={props.providerId}
+          modelName={props.modelName}
+          onSelect={handleModelSelect}
+          onClose={() => setShowModelPicker(false)}
+        />
+      ) : null}
     </View>
   )
 }

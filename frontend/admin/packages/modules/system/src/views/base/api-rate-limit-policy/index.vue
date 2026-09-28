@@ -30,7 +30,7 @@
                 <el-icon class="parameter-help" tabindex="0"><QuestionFilled /></el-icon>
               </el-tooltip>
             </span>
-            <el-input-number v-model="form.params.tokens_per_second" :min="0" :max="1000000" :precision="3" :step="1" controls-position="right" />
+            <el-input-number v-model="form.params.tokens_per_second" :min="0.001" :max="1000000" :precision="3" :step="1" controls-position="right" />
           </div>
           <div class="parameter-item">
             <span class="parameter-label">
@@ -39,7 +39,7 @@
                 <el-icon class="parameter-help" tabindex="0"><QuestionFilled /></el-icon>
               </el-tooltip>
             </span>
-            <el-input-number v-model="form.params.burst" :min="0" :max="1000000" :precision="0" controls-position="right" />
+            <el-input-number v-model="form.params.burst" :min="1" :max="1000000" :precision="0" controls-position="right" />
           </div>
         </div>
         <div v-else-if="windowedAlgorithms.includes(form.rule_type)" class="parameter-grid">
@@ -262,7 +262,8 @@ function resetForm() {
 /** 根据所选模板加载默认参数。 */
 function handleRuleChange(ruleId?: number) {
   const selected = ruleCatalog.value.find(rule => rule.id === Number(ruleId));
-  form.rule_type = selected?.rule_type ?? BaseRateLimitAlgorithm.BASE_RATE_LIMIT_ALGORITHM_UNSPECIFIED;
+  // 模板缺失时保留当前算法类型，避免编辑态参数区空白导致无法保存。
+  if (selected) form.rule_type = selected.rule_type;
   form.params = selected ? parseRateLimitParams(form.rule_type, selected.default_params) : defaultRateLimitParams(form.rule_type);
 }
 

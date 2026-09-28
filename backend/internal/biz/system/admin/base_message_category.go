@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"time"
 
+	"github.com/go-kratos/kratos/v3/log"
 	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
 	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
 	adminconst "github.com/liujitcn/kratos-admin/backend/internal/const"
@@ -284,6 +285,8 @@ func (c *BaseMessageCategoryCase) validateRouteChange(ctx context.Context, categ
 			messageQuery.Status.Eq(int32(basev1.MessageStatus_MESSAGE_STATUS_PUBLISHED)),
 			messageQuery.Status.Eq(int32(basev1.MessageStatus_MESSAGE_STATUS_REVOKED)),
 		)),
+		// 固定主键排序，保证分页扫描不漏页。
+		repository.Order(messageQuery.ID.Asc()),
 	}
 	for pageNum := int64(1); ; pageNum++ {
 		var messages []*models.BaseMessage
@@ -327,6 +330,9 @@ func (c *BaseMessageCategoryCase) validateRouteChange(ctx context.Context, categ
 func (c *BaseMessageCategoryCase) DeleteBaseMessageCategory(ctx context.Context, id string) error {
 	var err error
 	ids := _string.ConvertStringToInt64Array(id)
+	if len(ids) == 0 {
+		return errorsx.InvalidArgument("消息分类ID不能为空")
+	}
 	var list []*models.BaseMessageCategory
 	list, err = c.ListByIDs(ctx, ids)
 	if err != nil {
@@ -458,6 +464,9 @@ func (c *BaseMessageCategoryCase) toDTO(entity *models.BaseMessageCategory) *adm
 	providerIDs, err := decodeMessageProviderIDs(entity.ProviderID)
 	if err == nil {
 		result.ProviderId = providerIDs
+	} else {
+		// 单条脏数据不应阻断列表接口，记录日志便于定位修复。
+		log.Error("解析消息分类绑定的 Provider ID 失败", "category_id", entity.ID, "error", err)
 	}
 	result.InboxEnabled = adminv1.BaseMessageCategoryInboxEnabled(entity.InboxEnabled)
 	return result

@@ -24,12 +24,18 @@ function normalizeRoutePath(path?: string, parentPath = "") {
 function normalizeRouteTree(menuList: RouteItem[], parentPath = "", aiEnabled = false): RouteItem[] {
   return menuList.map(item => {
     const currentPath = normalizeRoutePath(item.path, parentPath);
+    const meta =
+      item.name === "AiChat"
+        ? {
+            ...item.meta,
+            params: item.meta?.params ?? [],
+            // 后端已显式隐藏时不因本地 AI 开关被重新打开。
+            hidden: item.meta?.hidden === true ? true : !aiEnabled
+          }
+        : item.meta;
     return {
       ...item,
-      meta:
-        item.name === "AiChat"
-          ? { ...item.meta, params: item.meta?.params ?? [], hidden: !aiEnabled }
-          : item.meta,
+      meta,
       path: currentPath,
       children: normalizeRouteTree(item.children ?? [], currentPath, aiEnabled)
     };

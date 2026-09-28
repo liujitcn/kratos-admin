@@ -1,4 +1,5 @@
 import {
+  AuthPromptError,
   getRequestAccessToken,
   handleAuthExpired,
   http,
@@ -94,7 +95,7 @@ export async function SendAiMessageStream(
   // direct stream 不经过 uni.request 拦截器，需要在这里补齐登录失效处理。
   if (response.status === 401 || response.status === 403) {
     handleAuthExpired('required')
-    throw new Error(t('core.auth.session_expired'))
+    throw new AuthPromptError()
   }
   if (!response.ok) {
     throw new Error(await resolveStreamErrorMessage(response))
@@ -142,7 +143,7 @@ export function StreamAiMessageByChunkedRequest(
           }
           if (res.statusCode === 401 || res.statusCode === 403) {
             handleAuthExpired('required')
-            reject(new Error(t('core.auth.session_expired')))
+            reject(new AuthPromptError())
             return
           }
           if (res.statusCode < 200 || res.statusCode >= 300) {

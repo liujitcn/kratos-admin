@@ -59,8 +59,8 @@ const statusOptions = computed<ProFormOption[]>(() => [
 ]);
 
 const rules = computed(() => ({
-  provider: [{ required: true, message: t("system.base.message_provider.placeholder.provider"), trigger: "blur" }],
-  name: [{ required: true, message: t("system.base.message_provider.placeholder.name"), trigger: "blur" }]
+  provider: [{ required: true, message: t("system.base.message_provider.validation.provider"), trigger: "blur" }],
+  name: [{ required: true, message: t("system.base.message_provider.validation.name"), trigger: "blur" }]
 }));
 
 const formFields = computed<ProFormField[]>(() => [
@@ -131,7 +131,11 @@ async function handleSubmit() {
 async function handleDelete(value: BaseMessageProvider | number | number[]) {
   const ids = (Array.isArray(value) ? value : typeof value === "object" ? [value.id] : normalizeSelectedIds(value)).join(",");
   if (!ids) return;
-  await ElMessageBox.confirm(t("common.confirm.delete"), t("common.title.warning"), { type: "warning" });
+  try {
+    await ElMessageBox.confirm(t("common.confirm.delete"), t("common.title.warning"), { type: "warning" });
+  } catch {
+    return;
+  }
   await defBaseMessageProviderService.DeleteBaseMessageProvider({ id: ids });
   await proTable.value?.getTableList();
   ElMessage.success(t("common.message.operation_success"));

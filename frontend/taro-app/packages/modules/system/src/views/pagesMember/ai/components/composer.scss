@@ -19,27 +19,49 @@
   box-sizing: border-box;
 }
 
-.composer-model-selectors {
-  display: flex;
-  justify-content: flex-end;
-  gap: 12px;
-  min-width: 0;
+.composer-model-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  max-width: 100%;
+  height: 56px;
+  padding: 0 24px;
   margin: 0 8px 12px;
-}
-
-.composer-model-select {
-  max-width: 300px;
-  min-width: 120px;
-  padding: 8px 16px;
-  overflow: hidden;
-  color: #46515b;
-  font-size: 22px;
-  line-height: 32px;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  color: #1f2937;
   background: #fff;
   border: 2px solid #d6dae2;
-  border-radius: 8px;
+  border-radius: 28px;
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);
+  box-sizing: border-box;
+}
+
+.composer-model-chip.is-disabled {
+  opacity: 0.55;
+}
+
+.composer-model-chip__spark {
+  flex-shrink: 0;
+  color: #00a96b;
+  font-size: 26px;
+  line-height: 26px;
+}
+
+.composer-model-chip__label {
+  max-width: 320px;
+  overflow: hidden;
+  color: inherit;
+  font-size: 24px;
+  font-weight: 500;
+  line-height: 34px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.composer-model-chip__chevron {
+  flex-shrink: 0;
+  color: #8a8f99;
+  font-size: 22px;
+  line-height: 22px;
 }
 
 .composer-main {

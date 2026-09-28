@@ -237,6 +237,25 @@ paths:
                 "200":
                     description: OK
                     content: {}
+    /api/v1/admin/base/ai-provider/test-models:
+        post:
+            tags:
+                - AiProviderService
+            description: 测试AI供应商表单中的全部模型。
+            operationId: AiProviderService_TestAiProviderModels
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.AiProviderForm'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.TestAiProviderModelsResponse'
     /api/v1/admin/base/ai-provider/{ai_provider.id}:
         put:
             tags:
@@ -8219,6 +8238,16 @@ components:
                     type: string
                     description: 移动端结构化内容JSON
             description: AI 助手输出内容
+        base.v1.AiProviderModel:
+            type: object
+            properties:
+                model_name:
+                    type: string
+                    description: 模型名称
+                display_name:
+                    type: string
+                    description: 展示名称，为空时由前端按模型名映射
+            description: AI Provider下的单个模型选项。
         base.v1.AiProviderModelOption:
             type: object
             properties:
@@ -8231,8 +8260,8 @@ components:
                 models:
                     type: array
                     items:
-                        type: string
-                    description: 模型名称列表
+                        $ref: '#/components/schemas/base.v1.AiProviderModel'
+                    description: 模型选项列表
             description: 已启用的AI Provider及其模型选项。
         base.v1.AiSession:
             type: object
@@ -9671,6 +9700,23 @@ components:
                     description: 状态
                     format: enum
             description: AI供应商维护表单。
+        system.admin.v1.AiProviderModelTestResult:
+            type: object
+            properties:
+                model_name:
+                    type: string
+                    description: 模型名称
+                success:
+                    type: boolean
+                    description: 测试是否成功
+                duration_ms:
+                    type: integer
+                    description: 测试耗时毫秒
+                    format: int32
+                message:
+                    type: string
+                    description: 失败原因；成功时为空
+            description: 单个AI模型连通性测试结果。
         system.admin.v1.BaseApi:
             type: object
             properties:
@@ -16093,6 +16139,15 @@ components:
                         $ref: '#/components/schemas/system.admin.v1.BaseUserSummaryItem'
                     description: 用户注册时间维度汇总
             description: 用户注册汇总响应
+        system.admin.v1.TestAiProviderModelsResponse:
+            type: object
+            properties:
+                results:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.AiProviderModelTestResult'
+                    description: 按配置顺序返回的模型测试结果
+            description: 测试AI供应商全部模型响应。
         system.admin.v1.TreeBaseAreaResponse:
             type: object
             properties:

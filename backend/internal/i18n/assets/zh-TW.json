@@ -4030,5 +4030,374 @@
   "system.admin.base.ai.provider.models_json.required": { "other": "請至少設定一個模型" },
   "system.admin.base.ai.provider.name.required": { "other": "請輸入供應商名稱" },
   "system.admin.base.ai.provider.provider.required": { "other": "請選擇支援的模型Provider" },
-  "system.admin.base.ai.provider.update.id.required": { "other": "供應商 ID 不能為空" }
+  "system.admin.base.ai.provider.update.id.required": { "other": "供應商 ID 不能為空" },
+  "legacy.error.2ffd8c27873e2d27": {
+    "other": "AI Provider 標識無效"
+  },
+  "legacy.error.a02d1bad8ef6fd46": {
+    "other": "AI 供應商名稱重複"
+  },
+  "legacy.error.91c0093168823546": {
+    "other": "AI 供應商或模型選擇無效"
+  },
+  "legacy.error.184b6b785948953f": {
+    "other": "AI 供應商狀態無效"
+  },
+  "legacy.error.10925dcbbfb6cab2": {
+    "other": "AI 模型 JSON 格式無效"
+  },
+  "legacy.error.31d2b7d8c6338edd": {
+    "other": "Provider 擴展配置必須是 JSON 物件: %w"
+  },
+  "legacy.error.8ba6ac320e77ea3e": {
+    "other": "Provider 標識不可修改"
+  },
+  "legacy.error.42eb4ecc9e9cff6d": {
+    "other": "Provider 個性化配置 JSON 格式無效"
+  },
+  "legacy.error.99412861ce1126ab": {
+    "other": "Provider 個性化配置必須是 JSON 物件: %w"
+  },
+  "legacy.error.082f8954f62749dc": {
+    "other": "burst 必須在 1 到 %d 之間"
+  },
+  "legacy.error.82166f10832cd9cd": {
+    "other": "capacity 必須在 1 到 %d 之間"
+  },
+  "legacy.error.8a7bad13f468ff29": {
+    "other": "config.organization 必須是字串"
+  },
+  "legacy.error.4104675314a2eb39": {
+    "other": "解碼訊息範本配置失敗: %w"
+  },
+  "legacy.error.74ff8b52b91f31f4": {
+    "other": "leak_rate_per_second 必須在 %g 到 %g 之間"
+  },
+  "legacy.error.152a0d8516f025d6": {
+    "other": "limit 必須在 1 到 %d 之間"
+  },
+  "legacy.error.8dad2a060865729e": {
+    "other": "解析訊息範本失敗: %w"
+  },
+  "legacy.error.e3d224984836347a": {
+    "other": "渲染訊息範本失敗: %w"
+  },
+  "legacy.error.43c2f70a29b0150b": {
+    "other": "tokens_per_second 必須在 %g 到 %g 之間"
+  },
+  "legacy.error.4abcd33acfc279f4": {
+    "other": "不支援的訊息 Provider %q"
+  },
+  "legacy.error.578f778acd3d1fb7": {
+    "other": "window_seconds 必須在 1 到 %d 之間"
+  },
+  "legacy.error.6f20eeb9421c058f": {
+    "other": "三方帳號綁定不存在"
+  },
+  "legacy.error.b51de7ac39752753": {
+    "other": "不支援的 AI Provider"
+  },
+  "legacy.error.db83d206f27c94ae": {
+    "other": "不支援的訊息 Provider: %s"
+  },
+  "legacy.error.9376c1aa6cc99070": {
+    "other": "供應商名稱不能為空且不能超過 100 個字元"
+  },
+  "legacy.error.5afe27140c31f0d6": {
+    "other": "供應商排序不能小於 0"
+  },
+  "legacy.error.5fe54f1b13aabace": {
+    "other": "分類存在尚未完成的 Provider 投遞，不能移除該 Provider"
+  },
+  "legacy.error.98607017b11fd268": {
+    "other": "啟用 OpenAI 相容 Provider 前必須配置 API 金鑰"
+  },
+  "legacy.error.05f4b86ff1dd487d": {
+    "other": "介面限流策略 %d 引用的規則不存在或未啟用"
+  },
+  "legacy.error.ae777b70383bc1a5": {
+    "other": "構造 AI 供應商 %d 的模型配置失敗: %w"
+  },
+  "legacy.error.435d2092fabb1d0c": {
+    "other": "構造訊息 Provider %d(%s) 失敗: %w"
+  },
+  "legacy.error.69b7d98843e43ccd": {
+    "other": "查詢介面限流規則失敗: %w"
+  },
+  "legacy.error.2c024b0c19528860": {
+    "other": "模型 %s 的 api_type 必須是 CHAT_COMPLETIONS 或 RESPONSES"
+  },
+  "legacy.error.687c31528f9d0424": {
+    "other": "模型 %s 的請求參數超出範圍"
+  },
+  "legacy.error.74a002544bf9f689": {
+    "other": "模型 API 基礎地址必須是完整 HTTP 或 HTTPS URL"
+  },
+  "legacy.error.445952e3853b9d9d": {
+    "other": "模型 API 基礎地址必須是完整 URL"
+  },
+  "legacy.error.97138843fc30f3ad": {
+    "other": "模型名稱不能為空且不能超過 100 個字元"
+  },
+  "legacy.error.78340dfcaefb707d": {
+    "other": "模型名稱重複: %s"
+  },
+  "legacy.error.5c7fba0bf2cc08d5": {
+    "other": "模型配置 JSON 只能包含一個陣列"
+  },
+  "legacy.error.3b07ca8b36d1da22": {
+    "other": "模型配置必須是 JSON 陣列: %w"
+  },
+  "legacy.error.4bd4912eb5dfd55d": {
+    "other": "訊息 Provider ID 無效"
+  },
+  "legacy.error.5cf09c3c3d782b38": {
+    "other": "訊息 Provider 不存在"
+  },
+  "legacy.error.1dd06fb271176c5e": {
+    "other": "訊息 Provider 不能重複"
+  },
+  "legacy.error.74b418ac4240d405": {
+    "other": "訊息 Provider 已被訊息分類綁定"
+  },
+  "legacy.error.ae506e54c847f000": {
+    "other": "訊息 Provider 已被訊息範本使用"
+  },
+  "legacy.error.8ea96ca8a9ae19d6": {
+    "other": "訊息 Provider 擴展配置無效"
+  },
+  "legacy.error.bf63668c07aa83ee": {
+    "other": "訊息 Provider 未綁定到該訊息分類"
+  },
+  "legacy.error.2fd73fe9be409dce": {
+    "other": "訊息 Provider 標識重複"
+  },
+  "legacy.error.8c54cb0c3d38941a": {
+    "other": "訊息 Provider 狀態無效"
+  },
+  "legacy.error.69bed2184c56ff41": {
+    "other": "訊息 Provider 配置無效"
+  },
+  "legacy.error.3d3e1cb1f3b8819b": {
+    "other": "訊息 Provider ID 不能為空"
+  },
+  "legacy.error.80a8b99c046b746f": {
+    "other": "訊息分類 Provider 範本不存在"
+  },
+  "legacy.error.9edbe5909b367474": {
+    "other": "訊息分類與 Provider 範本已存在"
+  },
+  "legacy.error.e54f076ca472029b": {
+    "other": "訊息分類投遞目標已被其他人修改，請重新整理後重試"
+  },
+  "legacy.error.6a9d6064de67fa66": {
+    "other": "訊息分類沒有啟用的投遞目標"
+  },
+  "legacy.error.08268772f18ceccb": {
+    "other": "訊息分類綁定的 Provider 不存在"
+  },
+  "legacy.error.12faa3a7695bb75b": {
+    "other": "訊息分類 ID 不能為空"
+  },
+  "legacy.error.1ef959db9503eb93": {
+    "other": "訊息範本擴展配置無效"
+  },
+  "legacy.error.710dd04852eca77e": {
+    "other": "訊息範本 ID 不能為空"
+  },
+  "legacy.error.5d9a5d1183cd4553": {
+    "other": "訊息正在派發或等待重試，不能修改分類投遞目標"
+  },
+  "legacy.error.ae5dda772496d1bc": {
+    "other": "滑動視窗日誌 limit 不能超過 %d"
+  },
+  "legacy.error.bc8f5402442ac495": {
+    "other": "站內信狀態無效"
+  },
+  "legacy.error.20fd1c2a6b8d3574": {
+    "other": "至少需要配置一個模型"
+  },
+  "legacy.error.1464dd4a73b2a25b": {
+    "other": "解析 AI Provider 個性化配置失敗"
+  },
+  "legacy.error.6cfe5d7ba8f783d2": {
+    "other": "解析 AI 供應商 %d 的模型配置失敗: %w"
+  },
+  "legacy.error.1f52b62ea4c51d36": {
+    "other": "解析訊息 Provider ID 失敗"
+  },
+  "legacy.error.b6aa14aecfe74975": {
+    "other": "解析訊息 Provider 配置失敗"
+  },
+  "legacy.error.8406ca5e075b061b": {
+    "other": "解析訊息範本配置失敗"
+  },
+  "legacy.error.f9956342537bf6a2": {
+    "other": "讀取 AI 供應商模型配置失敗"
+  },
+  "legacy.error.ec26152876002eb0": {
+    "other": "限流演算法無效"
+  },
+  "legacy.error.9a0d6d773d5f97b2": {
+    "other": "限流演算法未指定或無效"
+  },
+  "legacy.error.800ad5e277d8f771": {
+    "other": "限流規則參數不是有效 JSON: %w"
+  },
+  "legacy.error.edcd01eaa0471076": {
+    "other": "限流規則參數包含多個 JSON 值"
+  },
+  "legacy.error.14cc21c1630be880": {
+    "other": "代碼生成表配置 ID 無效"
+  },
+  "legacy.error.c81dce0cccf9278a": {
+    "other": "代碼生成表配置 ID 重複"
+  },
+  "legacy.error.45fafc5d3db685c1": {
+    "other": "刪除{{.Parent}}失敗，下面有{{.Child}}"
+  },
+  "legacy.error.ddc0ea85e48cd84b": {
+    "other": "前端頁面無法安全合併"
+  },
+  "legacy.error.ae1ce98c46ef1438": {
+    "other": "動態口令錯誤"
+  },
+  "legacy.error.da446018d499c44c": {
+    "other": "只有平台管理員可以管理限流策略"
+  },
+  "legacy.error.9d78d544cac16795": {
+    "other": "已有啟用的入庫脫敏策略引用該規則，請先停用引用策略"
+  },
+  "legacy.error.29c2f394b38444b3": {
+    "other": "已有啟用的出庫脫敏策略引用該規則，請先停用引用策略"
+  },
+  "legacy.error.fea3865e9acd0f4d": {
+    "other": "已有啟用的介面限流策略引用該規則，請先停用引用策略"
+  },
+  "legacy.error.c712ad086eefa8bf": {
+    "other": "已有介面限流策略引用該規則，不能刪除"
+  },
+  "legacy.error.02f1a3ae0f4c961f": {
+    "other": "所選介面與已有策略存在相同限流維度"
+  },
+  "legacy.error.445c287ca2aeeb10": {
+    "other": "批量生成不能為空"
+  },
+  "legacy.error.424b444c31bcfe1f": {
+    "other": "批量生成定義衝突"
+  },
+  "legacy.error.5f947483457341be": {
+    "other": "批量生成表配置缺失"
+  },
+  "legacy.error.97670ce8001ca7ba": {
+    "other": "介面操作不能重複"
+  },
+  "legacy.error.53392f5183414d58": {
+    "other": "介面操作無效"
+  },
+  "legacy.error.f8d1041eb74a0324": {
+    "other": "介面限流參數無效"
+  },
+  "legacy.error.a7df0cf102c5afb8": {
+    "other": "介面限流策略 ID 不能為空"
+  },
+  "legacy.error.74f05fe9917a174f": {
+    "other": "介面限流策略不存在"
+  },
+  "legacy.error.0a22a1d04ad1f909": {
+    "other": "介面限流策略介面資料無效"
+  },
+  "legacy.error.b7526ba370efdf28": {
+    "other": "介面限流策略狀態無效"
+  },
+  "legacy.error.af5a0d2f0417df45": {
+    "other": "介面限流策略至少需要配置一個介面"
+  },
+  "legacy.error.a7d4f80f6c04c5cc": {
+    "other": "狀態欄位預設值無效"
+  },
+  "legacy.error.b090926a1b808c30": {
+    "other": "生成介面與已有 API 重複"
+  },
+  "legacy.error.a8c8e869d09e04d9": {
+    "other": "生成的 HTTP 路由已被其他 RPC 使用"
+  },
+  "legacy.error.a1d298a4c9c01761": {
+    "other": "生成路徑不能重複"
+  },
+  "legacy.error.2cc95eec1189f93d": {
+    "other": "生成輸出路徑無效"
+  },
+  "legacy.error.7491b8fddb896715": {
+    "other": "翻譯目標鍵不匹配"
+  },
+  "legacy.error.09ca476dad7eaf93": {
+    "other": "聯網搜尋服務返回異常狀態"
+  },
+  "legacy.error.d59dd72abed0a69e": {
+    "other": "請選擇 1 到 500 個介面"
+  },
+  "legacy.error.8edf13ac398ac3e4": {
+    "other": "選項介面欄位不存在"
+  },
+  "legacy.error.94a06a28e9681057": {
+    "other": "選項介面欄位必須是整數類型"
+  },
+  "legacy.error.e6bcba8f8bfbffa8": {
+    "other": "選項介面目標表不存在"
+  },
+  "legacy.error.888f5179fe310cd6": {
+    "other": "限流維度無效"
+  },
+  "legacy.error.26743666f680a06d": {
+    "other": "限流規則 ID 不能為空"
+  },
+  "legacy.error.b89055c6f7498238": {
+    "other": "限流規則不存在"
+  },
+  "legacy.error.4ee0e7ff3bfe30c9": {
+    "other": "限流規則參數無效"
+  },
+  "legacy.error.06d043cf0c992b56": {
+    "other": "限流規則已停用，不能用於介面策略"
+  },
+  "legacy.error.8e2a0e49a558c17a": {
+    "other": "限流規則狀態無效"
+  },
+  "legacy.error.c67d0141c0b9fad9": {
+    "other": "限流規則編碼和演算法類型不允許修改"
+  },
+  "legacy.error.f0b35412f5d36e1e": {
+    "other": "限流規則編碼重複"
+  },
+  "legacy.error.04d0cca843621bab": {
+    "other": "請配置模型 API 金鑰後再測試"
+  },
+  "legacy.error.330dd2d11fcdadbb": {
+    "other": "測試 AI 模型失敗"
+  },
+  "openapi.ai_provider.test_models.summary": {
+    "other": "測試 AI 供應商表單中的全部模型。"
+  },
+  "openapi.ai_provider.test_models.model_name": {
+    "other": "模型名稱"
+  },
+  "openapi.ai_provider.test_models.success": {
+    "other": "測試是否成功"
+  },
+  "openapi.ai_provider.test_models.duration": {
+    "other": "測試耗時毫秒"
+  },
+  "openapi.ai_provider.test_models.message": {
+    "other": "失敗原因；成功時為空"
+  },
+  "openapi.ai_provider.test_models.result": {
+    "other": "單個 AI 模型連線測試結果。"
+  },
+  "openapi.ai_provider.test_models.results": {
+    "other": "依設定順序返回的模型測試結果"
+  },
+  "openapi.ai_provider.test_models.response": {
+    "other": "測試 AI 供應商全部模型回應。"
+  }
 }

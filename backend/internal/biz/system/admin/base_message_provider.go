@@ -166,6 +166,9 @@ func (c *BaseMessageProviderCase) UpdateBaseMessageProvider(ctx context.Context,
 // DeleteBaseMessageProvider 删除未被消息分类或模板使用的 Provider。
 func (c *BaseMessageProviderCase) DeleteBaseMessageProvider(ctx context.Context, ids string) error {
 	idValues := _string.ConvertStringToInt64Array(ids)
+	if len(idValues) == 0 {
+		return errorsx.InvalidArgument("消息 Provider ID不能为空")
+	}
 	list, err := c.ListByIDs(ctx, idValues)
 	if err != nil {
 		return err

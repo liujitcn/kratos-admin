@@ -74,6 +74,23 @@ type HttpRequestOptions = UniApp.RequestOptions & {
   authMode?: AuthMode
 }
 
+/** 认证缺失或失效错误：抛出前请求层已弹窗引导重新登录，页面侧无需重复提示。 */
+export class AuthPromptError extends Error {
+  constructor() {
+    super(t('core.auth.session_expired'))
+    this.name = 'AuthPromptError'
+  }
+}
+
+/** 判断错误是否为登录态失效（请求层已弹窗提示，或响应为 401/403）。 */
+export function isAuthExpiredError(error: unknown): boolean {
+  if (error && typeof error === 'object') {
+    const statusCode = (error as { statusCode?: number }).statusCode
+    if (statusCode === 401 || statusCode === 403) return true
+  }
+  return error instanceof AuthPromptError
+}
+
 // 添加拦截器
 const httpInterceptor = {
   // 拦截前触发
@@ -296,7 +313,7 @@ async function getAccessTokenByMode(authMode: AuthMode) {
   if (!getToken()) {
     if (authMode === 'required') {
       await promptRelogin()
-      throw new Error('auth required')
+      throw new AuthPromptError()
     }
     return ''
   }
@@ -315,7 +332,7 @@ async function getAccessTokenByMode(authMode: AuthMode) {
 
   if (authMode === 'required') {
     await promptRelogin()
-    throw new Error('auth expired')
+    throw new AuthPromptError()
   }
 
   silentClearAuthData()

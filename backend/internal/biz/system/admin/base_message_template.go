@@ -161,8 +161,12 @@ func (c *BaseMessageTemplateCase) UpdateBaseMessageTemplate(ctx context.Context,
 
 // DeleteBaseMessageTemplate 删除消息 Provider 模板。
 func (c *BaseMessageTemplateCase) DeleteBaseMessageTemplate(ctx context.Context, ids string) error {
+	idValues := _string.ConvertStringToInt64Array(ids)
+	if len(idValues) == 0 {
+		return errorsx.InvalidArgument("消息模板 ID不能为空")
+	}
 	return c.tx.Transaction(ctx, func(txCtx context.Context) error {
-		return c.DeleteByIDs(txCtx, _string.ConvertStringToInt64Array(ids))
+		return c.DeleteByIDs(txCtx, idValues)
 	})
 }
 

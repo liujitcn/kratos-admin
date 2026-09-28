@@ -53,22 +53,79 @@
 
       <template #action-list>
         <div class="agent-sender-actions">
-          <div class="agent-model-selector" :class="{ 'is-disabled': sending || !modelOptions.length }">
-            <el-cascader
-              :model-value="selectedModelPath"
-              :options="modelOptions"
-              :props="{ expandTrigger: 'click' }"
-              :placeholder="t('system.ai.model.model_placeholder')"
-              :disabled="sending || !modelOptions.length"
-              :show-all-levels="true"
-              separator="/"
-              :clearable="true"
-              :teleported="true"
-              popper-class="agent-model-cascader-popper"
-              size="small"
-              @change="handleModelPathChange"
-            />
-          </div>
+          <el-popover
+            ref="modelPopoverRef"
+            placement="top-start"
+            :width="324"
+            trigger="click"
+            :show-arrow="false"
+            :persistent="false"
+            popper-class="agent-model-popper"
+          >
+            <template #reference>
+              <button
+                class="agent-model-selector"
+                :class="{ 'is-disabled': sending || !modelOptions.length }"
+                type="button"
+                :disabled="sending || !modelOptions.length"
+                :aria-label="t('system.ai.model.title')"
+              >
+                <el-icon class="agent-model-selector__spark"><MagicStick /></el-icon>
+                <span class="agent-model-selector__label">{{
+                  selectedModelDisplayName || t("system.ai.model.model_placeholder")
+                }}</span>
+                <el-icon class="agent-model-selector__arrow"><ArrowDown /></el-icon>
+              </button>
+            </template>
+            <div v-if="modelOptions.length" class="agent-model-panel">
+              <div class="agent-model-panel__head">
+                <span class="agent-model-panel__title">{{ t("system.ai.model.title") }}</span>
+                <span class="agent-model-panel__meta">{{
+                  t("system.ai.model.provider_model_count", {
+                    providers: modelOptions.length,
+                    models: modelOptionCount
+                  })
+                }}</span>
+              </div>
+              <div class="agent-model-panel__list">
+                <template v-for="provider in modelOptions" :key="provider.providerId">
+                  <div class="agent-model-panel__group">{{ provider.label }}</div>
+                  <button
+                    v-for="model in provider.models"
+                    :key="model.name"
+                    class="agent-model-row"
+                    :class="{ 'is-selected': isModelSelected(provider.providerId, model.name) }"
+                    type="button"
+                    @click="handleModelSelect(provider.providerId, model.name)"
+                  >
+                    <span class="agent-model-row__name">{{ model.displayName }}</span>
+                    <span v-if="model.displayName !== model.name" class="agent-model-row__raw">{{
+                      model.name
+                    }}</span>
+                    <el-icon
+                      v-if="isModelSelected(provider.providerId, model.name)"
+                      class="agent-model-row__check"
+                    >
+                      <Check />
+                    </el-icon>
+                  </button>
+                </template>
+              </div>
+              <button
+                v-if="aiProviderRoute"
+                class="agent-model-panel__manage"
+                type="button"
+                @click="openModelManage"
+              >
+                <el-icon><Setting /></el-icon>
+                <span>{{ t("system.ai.model.manage") }}</span>
+                <el-icon class="agent-model-panel__manage-arrow"><ArrowRight /></el-icon>
+              </button>
+            </div>
+            <div v-else class="agent-model-panel agent-model-panel--empty">
+              {{ t("system.ai.model.empty") }}
+            </div>
+          </el-popover>
           <el-tooltip
             :content="recording ? t('system.ai.chat.action.stop_voice_input') : t('system.ai.chat.action.voice_input')"
             placement="top"
@@ -117,17 +174,30 @@
 
 <script setup lang="ts" name="XSender">
 import { computed, ref } from "vue";
+import { useRouter } from "vue-router";
 import { Attachments, XSender as BaseXSender } from "vue-element-plus-x";
 import type { FilesCardProps } from "vue-element-plus-x/types/FilesCard";
-import { Loading, Microphone, Paperclip, Promotion } from "@element-plus/icons-vue";
-import { ElMessage } from "element-plus";
-import type { CascaderValue } from "element-plus";
+import {
+  ArrowDown,
+  ArrowRight,
+  Check,
+  Loading,
+  MagicStick,
+  Microphone,
+  Paperclip,
+  Promotion,
+  Setting
+} from "@element-plus/icons-vue";
+import { ElMessage, ElPopover } from "element-plus";
 import { t } from "@liujitcn/kratos-admin-core";
+import { navigateTo } from "@liujitcn/kratos-admin-core/navigation";
+import { useAuthStore } from "@liujitcn/kratos-admin-core/stores/runtime";
 import { defFileService } from "@liujitcn/kratos-admin-core/api/base/v1/file";
 import type { AiAttachment } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_session";
 import type { AiProviderModelOption } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_provider";
 import type { SubmitPayload } from "../types";
 import { buildAIAttachmentFileCard } from "../attachment";
+import { fallbackModelDisplayName } from "../modelDisplay";
 import { useSpeechRecognition } from "./speech-recognition";
 import type { SpeechRecognitionError } from "./speech-recognition";
 
@@ -151,17 +221,34 @@ const emit = defineEmits<{
 
 const senderRef = ref<InstanceType<typeof BaseXSender>>();
 const fileInputRef = ref<HTMLInputElement>();
+const modelPopoverRef = ref<InstanceType<typeof ElPopover>>();
+const router = useRouter();
+const authStore = useAuthStore();
 const inputText = ref("");
 const selectedAttachments = ref<AiAttachment[]>([]);
 const modelOptions = computed(() =>
   props.modelProviders.map(provider => ({
-    value: provider.provider_id,
+    providerId: provider.provider_id,
     label: provider.name,
-    disabled: provider.models.length === 0,
-    children: provider.models.map(model => ({ value: model, label: model }))
+    models: provider.models.map(model => ({
+      name: model.model_name,
+      displayName: model.display_name || fallbackModelDisplayName(model.model_name)
+    }))
   }))
 );
-const selectedModelPath = computed(() => (props.providerId && props.modelName ? [props.providerId, props.modelName] : []));
+const modelOptionCount = computed(() =>
+  modelOptions.value.reduce((total, provider) => total + provider.models.length, 0)
+);
+const selectedModelDisplayName = computed(() => {
+  const provider = modelOptions.value.find(item => item.providerId === props.providerId);
+  return (
+    provider?.models.find(model => model.name === props.modelName)?.displayName ??
+    fallbackModelDisplayName(props.modelName)
+  );
+});
+const aiProviderRoute = computed(() =>
+  authStore.flatMenuListGet.find(item => item.name === "AiProvider" && item.path)
+);
 const uploading = ref(false);
 const maxAttachmentCount = 6;
 const maxAttachmentSizeMB = 20;
@@ -218,10 +305,22 @@ const isSubmitDisabled = computed(() => {
   return uploading.value || (!inputText.value.trim() && selectedAttachments.value.length === 0);
 });
 
-/** 更新当前选中的供应商和模型路径。 */
-function handleModelPathChange(value: CascaderValue | null | undefined) {
-  const path = Array.isArray(value) ? value : [];
-  emit("model-change", Number(path[0]) || 0, typeof path[1] === "string" ? path[1] : "");
+/** 判断指定供应商与模型是否为当前选择。 */
+function isModelSelected(providerId: number, modelName: string) {
+  return props.providerId === providerId && props.modelName === modelName;
+}
+
+/** 选中模型并关闭选择面板。 */
+function handleModelSelect(providerId: number, modelName: string) {
+  emit("model-change", providerId, modelName);
+  modelPopoverRef.value?.hide();
+}
+
+/** 跳转到 AI 供应商配置页。 */
+async function openModelManage() {
+  if (!aiProviderRoute.value?.path) return;
+  modelPopoverRef.value?.hide();
+  await navigateTo(router, aiProviderRoute.value.path);
 }
 
 /** 读取输入内容并发送给父组件。 */
@@ -464,11 +563,15 @@ function resetFileInput() {
   min-height: 36px;
 }
 .agent-model-selector {
-  display: flex;
+  display: inline-flex;
   flex: 0 1 auto;
-  width: clamp(180px, 18vw, 200px);
+  align-items: center;
+  gap: 6px;
+  width: clamp(180px, 18vw, 220px);
   min-width: 0;
   height: 34px;
+  padding: 0 10px;
+  overflow: hidden;
   box-sizing: border-box;
   color: var(--admin-page-text-secondary);
   cursor: pointer;
@@ -479,48 +582,34 @@ function resetFileInput() {
     color 0.2s ease,
     border-color 0.2s ease,
     background-color 0.2s ease;
-}
-.agent-model-selector:hover {
-  color: var(--el-color-primary);
-  background: var(--el-color-primary-light-9);
-  border-color: var(--el-color-primary-light-5);
-}
-.agent-model-selector:focus-within {
-  border-color: var(--el-color-primary-light-5);
-}
-.agent-model-selector.is-disabled {
-  color: var(--el-disabled-text-color);
-  cursor: not-allowed;
-  background: var(--el-disabled-bg-color);
-  border-color: var(--el-disabled-border-color);
-}
-.agent-model-selector :deep(.el-cascader) {
-  width: 100%;
-  height: 100%;
-  min-width: 0;
-}
-.agent-model-selector :deep(.el-input) {
-  height: 100%;
-}
-.agent-model-selector :deep(.el-input__wrapper) {
-  height: 100%;
-  padding: 0 9px;
-  background: transparent;
-  box-shadow: none;
-  border-radius: inherit;
-}
-.agent-model-selector :deep(.el-input__wrapper.is-focus) {
-  box-shadow: none;
-}
-.agent-model-selector :deep(.el-input__inner) {
-  font-size: 14px;
-  font-weight: 500;
-  line-height: 20px;
-  color: currentColor;
-}
-.agent-model-selector :deep(.el-input__suffix .el-icon) {
-  font-size: 14px;
-  color: currentColor;
+  &:hover {
+    color: var(--el-color-primary);
+    background: var(--el-color-primary-light-9);
+    border-color: var(--el-color-primary-light-5);
+  }
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
+  }
+  &__spark {
+    flex-shrink: 0;
+    font-size: 15px;
+  }
+  &__label {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 20px;
+    text-align: left;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  &__arrow {
+    flex-shrink: 0;
+    font-size: 14px;
+  }
 }
 .agent-sender-actions {
   display: inline-flex;
@@ -611,6 +700,112 @@ function resetFileInput() {
 }
 :global(.agent-sender-popover.el-popover) {
   box-shadow: 0 14px 36px rgb(15 23 42 / 10%);
+}
+:global(.agent-model-popper.el-popover) {
+  padding: 0 !important;
+  border-radius: var(--admin-page-radius) !important;
+  box-shadow: 0 14px 36px rgb(15 23 42 / 16%) !important;
+}
+.agent-model-panel {
+  padding: 10px;
+  &__list {
+    max-height: min(52vh, 420px);
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--el-border-color-darker) transparent;
+  }
+  &__head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    padding: 4px 6px 10px;
+  }
+  &__title {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--admin-page-text-primary);
+  }
+  &__meta {
+    font-size: 11px;
+    color: var(--el-text-color-placeholder);
+  }
+  &__group {
+    padding: 8px 6px 6px;
+    font-size: 12px;
+    color: var(--admin-page-text-secondary);
+  }
+  &__manage {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    width: 100%;
+    height: 36px;
+    margin-top: 6px;
+    padding: 0 6px;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--el-color-primary);
+    cursor: pointer;
+    background: transparent;
+    border: 0;
+    border-top: 1px solid var(--el-border-color-lighter);
+    border-radius: 0;
+    &:hover {
+      color: var(--el-color-primary-light-3);
+    }
+  }
+  &__manage-arrow {
+    margin-left: auto;
+  }
+  &--empty {
+    padding: 20px 10px;
+    font-size: 13px;
+    color: var(--admin-page-text-secondary);
+    text-align: center;
+  }
+}
+.agent-model-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  height: 42px;
+  margin-bottom: 2px;
+  padding: 0 10px;
+  font-size: 13.5px;
+  color: var(--admin-page-text-primary);
+  text-align: left;
+  cursor: pointer;
+  background: transparent;
+  border: 0;
+  border-radius: var(--admin-page-radius);
+  &:hover {
+    background: var(--el-fill-color-light);
+  }
+  &.is-selected {
+    font-weight: 600;
+    color: var(--el-color-primary);
+    background: var(--el-color-primary-light-9);
+  }
+  &__name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  &__raw {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    font-size: 12px;
+    font-weight: 400;
+    color: var(--el-text-color-placeholder);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  &__check {
+    flex-shrink: 0;
+    font-size: 15px;
+  }
 }
 
 @media screen and (width <= 768px) {

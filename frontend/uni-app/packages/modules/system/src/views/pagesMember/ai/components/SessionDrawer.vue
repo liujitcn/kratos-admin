@@ -140,7 +140,8 @@ function formatSessionTime(session: AiSession) {
   right: 0;
   bottom: 0;
   left: 560rpx;
-  z-index: 20;
+  /* 高于 KratosTabBar 的 z-index:999,避免抽屉被底部导航遮挡 */
+  z-index: 1000;
   background-color: rgba(0, 0, 0, 0.18);
 }
 
@@ -151,7 +152,7 @@ function formatSessionTime(session: AiSession) {
   top: 0;
   left: 0;
   bottom: 0;
-  z-index: 21;
+  z-index: 1001;
   width: 560rpx;
   padding: 0 24rpx 36rpx;
   background-color: #fff;

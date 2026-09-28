@@ -3,6 +3,7 @@ import { computed, onMounted, ref, watch } from 'vue'
 import { useUserStore } from '../stores'
 import { navigateToLogin } from '../utils/navigation'
 import { getLanguageOptions, useI18n, type SupportedLocale } from '../locales'
+import { isAuthExpiredError } from '../utils/http'
 import { defMfaService } from '../api/base/v1/mfa'
 import MfaManageDialog from './MfaManageDialog.vue'
 
@@ -15,14 +16,6 @@ defineSlots<{
 
 const userStore = useUserStore()
 const { locale, setLocale, t } = useI18n()
-/** 登录态失效时请求层已弹窗引导重新登录，页面侧不再叠加失败提示。 */
-const isAuthExpiredError = (error: unknown) => {
-  if (error && typeof error === 'object') {
-    const statusCode = (error as { statusCode?: number }).statusCode
-    if (statusCode === 401 || statusCode === 403) return true
-  }
-  return error instanceof Error && /auth (required|expired)/.test(error.message)
-}
 
 const logoutLoading = ref(false)
 const mfaDialogVisible = ref(false)

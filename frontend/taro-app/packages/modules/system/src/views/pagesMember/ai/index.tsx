@@ -10,6 +10,7 @@ import {
   useI18n,
 } from '@liujitcn/kratos-taro-app-core'
 import { UniIcon } from '@liujitcn/kratos-taro-app-ui'
+import { isAuthExpiredError } from '@liujitcn/kratos-taro-app-core/utils/http'
 import { defAiMessageService, StreamAiMessageByChunkedRequest } from '../../../api/base/v1/ai_message'
 import { defAiSessionService } from '../../../api/base/v1/ai_session'
 import { defAiToolService } from '../../../api/base/v1/ai_tool'
@@ -22,6 +23,8 @@ import { Terminal } from '../../../rpc/base/v1/ai_tool'
 import Composer from './components/Composer'
 import SessionDrawer from './components/SessionDrawer'
 import WelcomePanel from './components/WelcomePanel'
+import { resolveModelDisplayName } from './modelDisplay'
+import { loadStoredModelSelection, saveModelSelection } from './modelSelection'
 import {
   type AiStreamEvent,
   type AiStreamPayload,
@@ -363,11 +366,7 @@ export default function AiPage() {
       const shortcuts = normalizeStarterShortcuts(response.shortcuts).filter((item) => !item.action)
       const providers = providerResponse.providers ?? []
       setModelProviders(providers)
-      if (!providers.some((item) => item.provider_id === selectedProviderId && item.models.includes(selectedModelName))) {
-        const firstProvider = providers[0]
-        setSelectedProviderId(firstProvider?.provider_id ?? 0)
-        setSelectedModelName(firstProvider?.models[0] ?? '')
-      }
+      applyModelSelection(providers)
       if (shortcuts.length) {
         setStarterShortcuts(shortcuts)
         setStarterPromptGroupIndex(0)
@@ -385,6 +384,27 @@ export default function AiPage() {
   const handleModelChange = (providerId: number, modelName: string) => {
     setSelectedProviderId(providerId)
     setSelectedModelName(modelName)
+    saveModelSelection({ provider_id: providerId, model_name: modelName })
+  }
+
+  /** 优先恢复本地缓存的模型选择，缓存失效时回退到首个可用模型。 */
+  const applyModelSelection = (providers: AiProviderModelOption[]) => {
+    const stored = loadStoredModelSelection()
+    const provider = stored
+      ? providers.find(
+          (item) =>
+            item.provider_id === stored.provider_id &&
+            item.models.some((model) => model.model_name === stored.model_name),
+        )
+      : undefined
+    if (provider && stored) {
+      setSelectedProviderId(provider.provider_id)
+      setSelectedModelName(stored.model_name)
+      return
+    }
+    const firstProvider = providers[0]
+    setSelectedProviderId(firstProvider?.provider_id ?? 0)
+    setSelectedModelName(firstProvider?.models[0]?.model_name ?? '')
   }
 
   const runAiTask = async (
@@ -717,7 +737,7 @@ export default function AiPage() {
                   onLongPress={() => void handleMessageAction(item)}
                 >
                   {item.role === 'ai' && item.model ? (
-                    <View className='reply-meta'><Text className='reply-tag'>{t('system.ai.model_reply')}</Text><Text className='reply-model'>{item.model}</Text></View>
+                    <View className='reply-meta'><Text className='reply-tag'>{t('system.ai.model_reply')}</Text><Text className='reply-model'>{resolveModelDisplayName(modelProviders, item.model)}</Text></View>
                   ) : null}
                   <View className='bubble-content'>{item.content}</View>
                   {item.attachments.length ? (
@@ -752,7 +772,6 @@ export default function AiPage() {
         modelProviders={modelProviders}
         providerId={selectedProviderId}
         modelName={selectedModelName}
-        providerPlaceholder={t('system.ai.model.provider_placeholder')}
         modelPlaceholder={t('system.ai.model.model_placeholder')}
         placeholder={composerPlaceholder}
         bottom={composerBottom}
@@ -1040,6 +1059,8 @@ function formatTools(tools: AiToolCall[]) {
 }
 
 function showError(error: unknown, fallback: string) {
+  // 登录态失效时请求层已弹窗引导重新登录，不再叠加失败提示。
+  if (isAuthExpiredError(error)) return
   const message = error instanceof Error ? error.message : fallback
   void Taro.showToast({ icon: 'none', title: message || fallback })
 }

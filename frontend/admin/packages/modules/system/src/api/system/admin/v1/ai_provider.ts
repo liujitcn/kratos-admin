@@ -8,6 +8,8 @@ import type {
   PageAiProviderRequest,
   PageAiProviderResponse,
   SetAiProviderStatusRequest,
+  TestAiProviderModelsRequest,
+  TestAiProviderModelsResponse,
   UpdateAiProviderRequest
 } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/ai_provider";
 import type { Empty } from "@liujitcn/kratos-admin-system/rpc/google/protobuf/empty";
@@ -34,6 +36,11 @@ export class AiProviderServiceImpl implements AiProviderService {
   /** 更新AI供应商。 */
   UpdateAiProvider(request: UpdateAiProviderRequest): Promise<Empty> {
     return service({ url: `${AI_PROVIDER_URL}/${request.ai_provider?.id ?? ""}`, method: "put", data: request.ai_provider });
+  }
+
+  /** 测试供应商表单中的全部模型。 */
+  TestAiProviderModels(request: TestAiProviderModelsRequest): Promise<TestAiProviderModelsResponse> {
+    return service({ url: `${AI_PROVIDER_URL}/test-models`, method: "post", data: request.ai_provider });
   }
 
   /** 删除AI供应商。 */

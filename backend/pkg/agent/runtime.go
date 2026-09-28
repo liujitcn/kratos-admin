@@ -1123,7 +1123,6 @@ func isRuntimeImageMIME(mimeType string) bool {
 	}
 }
 
-// buildAttachmentDetailLine 构造模型无法直接读取附件内容时的元信息说明。
 // buildUserMessageParts 合并文本提示和图片输入，形成 Eino 用户消息。
 func buildUserMessageParts(content string, attachmentLines []string, images []einoMessage.ImageData, attachmentIntro string) *einoMessage.AgenticMessage {
 	textSections := make([]string, 0, 2)

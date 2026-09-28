@@ -8,6 +8,7 @@ import (
 
 	"github.com/cloudwego/eino-ext/components/model/agenticopenai"
 	"github.com/cloudwego/eino/components/model"
+	"github.com/cloudwego/eino/schema"
 	modelconfig "github.com/liujitcn/kratos-kit/ai/model"
 )
 
@@ -163,7 +164,8 @@ func newChatModel(ctx context.Context, cfg *modelconfig.ModelConfig, mutate func
 	}
 	if cfg.MaxTokens > 0 {
 		value := int(cfg.MaxTokens)
-		config.MaxCompletionTokens = &value
+		// 当前模型配置使用 max_tokens，而 SDK 配置项只有 max_completion_tokens。
+		config.ExtraFields = map[string]any{"max_tokens": value}
 	}
 	if mutate != nil {
 		mutate(config)
@@ -201,4 +203,23 @@ func newResponsesModel(ctx context.Context, cfg *modelconfig.ModelConfig) (model
 		config.MaxTokens = &value
 	}
 	return agenticopenai.NewResponsesModel(ctx, config)
+}
+
+// TestConnection 使用固定短提示验证模型接口是否可用。
+func TestConnection(ctx context.Context, cfg *modelconfig.ModelConfig) error {
+	if cfg == nil {
+		return errors.New("ai model config is nil")
+	}
+	var client model.AgenticModel
+	var err error
+	if cfg.APIType == modelconfig.APITypeResponses {
+		client, err = newResponsesModel(ctx, cfg)
+	} else {
+		client, err = newChatModel(ctx, cfg, nil)
+	}
+	if err != nil {
+		return err
+	}
+	_, err = client.Generate(ctx, []*schema.AgenticMessage{schema.UserAgenticMessage("Reply with OK.")})
+	return err
 }

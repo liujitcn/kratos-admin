@@ -319,6 +319,7 @@ func (c *BaseMessageCase) Publish(ctx context.Context, request notification.Mess
 	inTransaction := c.BaseMessageRepository != nil && c.Query(ctx) != c.Query(context.Background())
 	var existing []*models.BaseMessage
 	existing, err = c.List(ctx,
+		repository.Where(messageQuery.TenantID.Eq(request.TenantID)),
 		repository.Where(messageQuery.Source.Eq(request.Source)),
 		repository.Where(messageQuery.IdempotencyKey.Eq(request.IdempotencyKey)),
 	)
@@ -393,6 +394,7 @@ func (c *BaseMessageCase) Publish(ctx context.Context, request notification.Mess
 		if errorsx.IsDuplicateKey(err) {
 			var concurrentExisting []*models.BaseMessage
 			concurrentExisting, err = c.List(ctx,
+				repository.Where(messageQuery.TenantID.Eq(request.TenantID)),
 				repository.Where(messageQuery.Source.Eq(request.Source)),
 				repository.Where(messageQuery.IdempotencyKey.Eq(request.IdempotencyKey)),
 			)
@@ -1819,6 +1821,8 @@ func (c *BaseMessageCase) finishMessageIfCompleted(ctx context.Context, message 
 		providerOpts := []repository.QueryOption{
 			repository.Where(deliveryQuery.MessageID.Eq(message.ID)),
 			repository.Where(deliveryQuery.DeliveryType.Eq(_const.MessageDeliveryTypeProvider)),
+			// 跳过未真正发送的记录，避免高估接收人数。
+			repository.Where(deliveryQuery.Status.Neq(_const.MessageDeliveryStatusSkipped)),
 		}
 		var providerTotal int64
 		providerTotal, err = c.deliveryRepo.Count(txCtx, providerOpts...)

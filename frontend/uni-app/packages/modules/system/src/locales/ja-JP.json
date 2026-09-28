@@ -113,5 +113,8 @@
   "system.notification.action.delete": "削除",
   "system.ai.model.provider_placeholder": "プロバイダーを選択",
   "system.ai.model.model_placeholder": "モデルを選択",
-  "system.ai.model.load_failed": "プロバイダーとモデルを読み込めませんでした"
+  "system.ai.model.load_failed": "プロバイダーとモデルを読み込めませんでした",
+  "system.ai.model.title": "モデルを選択",
+  "system.ai.model.provider_model_count": "{providers} プロバイダー · {models} モデル",
+  "system.ai.model.empty": "選択可能なモデルがありません"
 }

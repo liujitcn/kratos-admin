@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"runtime/debug"
 
 	"github.com/go-kratos/kratos/v3/log"
 
@@ -52,6 +53,8 @@ func main() {
 			_, _ = fmt.Fprintf(os.Stderr, "恢复启动日志输出失败: %v\n", stopErr)
 		}
 		if recovered != nil {
+			// re-panic 后运行时只会打印本 defer 位置的堆栈，先输出原始 panic 堆栈便于排查。
+			_, _ = fmt.Fprintf(os.Stderr, "panic: %v\n%s", recovered, debug.Stack())
 			panic(recovered)
 		}
 	}()

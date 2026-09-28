@@ -146,6 +146,17 @@ func TestLogSnapshotRedactsRuntimeConfigValue(t *testing.T) {
 	}
 }
 
+// TestLogSnapshotRedactsProviderAPIKey 验证 Provider 密钥不会进入操作审计快照。
+func TestLogSnapshotRedactsProviderAPIKey(t *testing.T) {
+	snapshot, _ := logSnapshot(map[string]interface{}{"ai_provider": map[string]interface{}{"api_key": "secret-key", "api_key_configured": true}})
+	if strings.Contains(snapshot, "secret-key") || !strings.Contains(snapshot, `"api_key":"[REDACTED]"`) {
+		t.Fatalf("Provider API key was not redacted: %s", snapshot)
+	}
+	if !strings.Contains(snapshot, `"api_key_configured":true`) {
+		t.Fatalf("API key configuration state should remain visible: %s", snapshot)
+	}
+}
+
 // Append 记录测试期间投递的队列消息。
 func (q *testQueue) Append(stream string, message data.Message) error {
 	q.stream = stream

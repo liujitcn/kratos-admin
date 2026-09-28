@@ -1,7 +1,9 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import type { AiAttachment } from '../../../../rpc/base/v1/ai_session'
 import type { AiProviderModelOption } from '../../../../rpc/base/v1/ai_provider'
+import { fallbackModelDisplayName } from '../modelDisplay'
+import ModelPicker from './ModelPicker.vue'
 
 type InputEventValue = {
   detail: {
@@ -17,7 +19,6 @@ const props = defineProps<{
   /** 当前选中的供应商编号和模型名称。 */
   providerId: number
   modelName: string
-  providerPlaceholder: string
   modelPlaceholder: string
   placeholder: string
   bottom: string
@@ -35,56 +36,41 @@ const emit = defineEmits<{
   'model-change': [providerId: number, modelName: string]
 }>()
 
-const providerNames = computed(() => props.modelProviders.map((provider) => provider.name))
-const selectedProvider = computed(() =>
-  props.modelProviders.find((provider) => provider.provider_id === props.providerId),
-)
-const modelNames = computed(() => selectedProvider.value?.models ?? [])
-const providerIndex = computed(() =>
-  Math.max(
-    props.modelProviders.findIndex((provider) => provider.provider_id === props.providerId),
-    0,
-  ),
-)
-const modelIndex = computed(() => Math.max(modelNames.value.indexOf(props.modelName), 0))
+const showModelPicker = ref(false)
+
+const selectedModelDisplayName = computed(() => {
+  const provider = props.modelProviders.find((item) => item.provider_id === props.providerId)
+  const matched = provider?.models.find((model) => model.model_name === props.modelName)
+  return matched?.display_name || fallbackModelDisplayName(props.modelName)
+})
 
 function handleInput(event: Event) {
   emit('update:modelValue', ((event as unknown as InputEventValue).detail?.value || '').toString())
 }
 
-function handleProviderChange(event: { detail: { value: number | string } }) {
-  const provider = props.modelProviders[Number(event.detail.value)]
-  emit('model-change', provider?.provider_id ?? 0, provider?.models[0] ?? '')
+function openModelPicker() {
+  if (props.sending || !props.modelProviders.length) {
+    return
+  }
+  showModelPicker.value = true
 }
 
-function handleModelChange(event: { detail: { value: number | string } }) {
-  emit('model-change', props.providerId, modelNames.value[Number(event.detail.value)] ?? '')
+function handleModelSelect(providerId: number, modelName: string) {
+  showModelPicker.value = false
+  emit('model-change', providerId, modelName)
 }
 </script>
 
 <template>
   <view class="composer" :style="{ paddingBottom: bottom }">
-    <view class="composer-model-selectors">
-      <picker
-        mode="selector"
-        :range="providerNames"
-        :value="providerIndex"
-        :disabled="sending || !modelProviders.length"
-        @change="handleProviderChange"
-      >
-        <view class="composer-model-select">{{
-          selectedProvider?.name || providerPlaceholder
-        }}</view>
-      </picker>
-      <picker
-        mode="selector"
-        :range="modelNames"
-        :value="modelIndex"
-        :disabled="sending || !modelNames.length"
-        @change="handleModelChange"
-      >
-        <view class="composer-model-select">{{ modelName || modelPlaceholder }}</view>
-      </picker>
+    <view
+      class="composer-model-chip"
+      :class="{ 'is-disabled': sending || !modelProviders.length }"
+      @tap="openModelPicker"
+    >
+      <text class="composer-model-chip__spark">✦</text>
+      <text class="composer-model-chip__label">{{ selectedModelDisplayName || modelPlaceholder }}</text>
+      <uni-icons type="down" size="12" color="#8a8f99" />
     </view>
     <view class="composer-main">
       <button class="attach-button" hover-class="none" @tap="emit('attach')">
@@ -129,6 +115,15 @@ function handleModelChange(event: { detail: { value: number | string } }) {
         <uni-icons type="paperplane" size="28" :color="disabled ? '#111' : '#00a96b'" />
       </button>
     </view>
+
+    <ModelPicker
+      v-if="showModelPicker"
+      :providers="modelProviders"
+      :provider-id="providerId"
+      :model-name="modelName"
+      @select="handleModelSelect"
+      @close="showModelPicker = false"
+    />
   </view>
 </template>
 
@@ -168,27 +163,42 @@ function handleModelChange(event: { detail: { value: number | string } }) {
   box-sizing: border-box;
 }
 
-.composer-model-selectors {
-  display: flex;
-  justify-content: flex-end;
-  gap: 12rpx;
-  min-width: 0;
+.composer-model-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 10rpx;
+  max-width: 100%;
+  height: 56rpx;
+  padding: 0 24rpx;
   margin: 0 8rpx 12rpx;
-}
-
-.composer-model-select {
-  max-width: 300rpx;
-  min-width: 120rpx;
-  padding: 8rpx 16rpx;
-  overflow: hidden;
-  color: #46515b;
-  font-size: 22rpx;
-  line-height: 32rpx;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  color: #1f2937;
   background: #fff;
   border: 2rpx solid #d6dae2;
-  border-radius: 8rpx;
+  border-radius: 28rpx;
+  box-shadow: 0 4rpx 16rpx rgba(15, 23, 42, 0.04);
+  box-sizing: border-box;
+}
+
+.composer-model-chip.is-disabled {
+  opacity: 0.55;
+}
+
+.composer-model-chip__spark {
+  flex-shrink: 0;
+  color: #00a96b;
+  font-size: 26rpx;
+  line-height: 26rpx;
+}
+
+.composer-model-chip__label {
+  max-width: 320rpx;
+  overflow: hidden;
+  color: inherit;
+  font-size: 24rpx;
+  font-weight: 500;
+  line-height: 34rpx;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .attach-button {

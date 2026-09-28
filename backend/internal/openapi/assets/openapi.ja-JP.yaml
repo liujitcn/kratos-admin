@@ -237,6 +237,25 @@ paths:
                 "200":
                     description: OK
                     content: {}
+    /api/v1/admin/base/ai-provider/test-models:
+        post:
+            tags:
+                - AiProviderService
+            description: 测试AI供应商フォーム中のすべて模型。
+            operationId: AiProviderService_TestAiProviderModels
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.AiProviderForm'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.TestAiProviderModelsResponse'
     /api/v1/admin/base/ai-provider/{ai_provider.id}:
         put:
             tags:
@@ -8219,6 +8238,16 @@ components:
                     type: string
                     description: モバイル構造化内容JSON
             description: AI アシスタント出力内容
+        base.v1.AiProviderModel:
+            type: object
+            properties:
+                model_name:
+                    type: string
+                    description: モデル名
+                display_name:
+                    type: string
+                    description: 表示名。空の場合はフロントエンドがモデル名から自動生成します
+            description: AIプロバイダー配下の単一モデルオプション。
         base.v1.AiProviderModelOption:
             type: object
             properties:
@@ -8231,8 +8260,8 @@ components:
                 models:
                     type: array
                     items:
-                        type: string
-                    description: モデル名一覧
+                        $ref: '#/components/schemas/base.v1.AiProviderModel'
+                    description: モデルオプション一覧
             description: 有効なAI Providerとそのモデル選択肢。
         base.v1.AiSession:
             type: object
@@ -9671,6 +9700,23 @@ components:
                     description: ステータス
                     format: enum
             description: AIプロバイダー設定フォーム。
+        system.admin.v1.AiProviderModelTestResult:
+            type: object
+            properties:
+                model_name:
+                    type: string
+                    description: モデル名
+                success:
+                    type: boolean
+                    description: 测试〜かどうか成功
+                duration_ms:
+                    type: integer
+                    description: 测试所要時間ミリ秒
+                    format: int32
+                message:
+                    type: string
+                    description: 失敗理由；成功时NULL 可
+            description: 单个AI模型连通性测试結果。
         system.admin.v1.BaseApi:
             type: object
             properties:
@@ -16093,6 +16139,15 @@ components:
                         $ref: '#/components/schemas/system.admin.v1.BaseUserSummaryItem'
                     description: ユーザー登録時刻ディメンション汇合計
             description: ユーザー登録汇合計レスポンス
+        system.admin.v1.TestAiProviderModelsResponse:
+            type: object
+            properties:
+                results:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.AiProviderModelTestResult'
+                    description: 按設定顺序返却の模型测试結果
+            description: 测试AI供应商すべて模型レスポンス。
         system.admin.v1.TreeBaseAreaResponse:
             type: object
             properties:

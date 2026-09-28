@@ -4,6 +4,8 @@ package dto
 type AiProviderModelConfig struct {
 	// ModelName 是供应商提供的模型名称。
 	ModelName string `json:"model_name"`
+	// DisplayName 是模型在聊天前端的展示名称，为空时由前端按模型名映射。
+	DisplayName string `json:"display_name"`
 	// APIType 是模型接口协议。
 	APIType string `json:"api_type"`
 	// Temperature 是生成温度。

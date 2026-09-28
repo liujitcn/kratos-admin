@@ -10,6 +10,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/go-kratos/kratos/v3/log"
 	"github.com/liujitcn/gorm-kit/repository"
 	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/agent/model"
@@ -43,6 +44,7 @@ func NewAiProviderCase(baseCase *biz.BaseCase, tx data.Transaction, repo *data.A
 }
 
 // RefreshAiProvider 从数据库重建已启用AI模型客户端快照。
+// 单条脏数据只记录日志并跳过该供应商，避免整批刷新失败或阻断服务启动。
 func (c *AiProviderCase) RefreshAiProvider(ctx context.Context) error {
 	query := c.Query(ctx).AiProvider
 	providers, err := c.List(ctx,
@@ -58,15 +60,17 @@ func (c *AiProviderCase) RefreshAiProvider(ctx context.Context) error {
 		var modelItems []dto.AiProviderModelConfig
 		modelItems, err = parseAiProviderModels(provider.Models)
 		if err != nil {
-			return fmt.Errorf("解析AI供应商 %d 的模型配置失败: %w", provider.ID, err)
+			log.Error("解析AI供应商模型配置失败，本次刷新跳过该供应商", "provider_id", provider.ID, "provider_name", provider.Name, "error", err)
+			continue
 		}
 		for _, item := range modelItems {
 			var modelConfig *modelconfig.ModelConfig
 			modelConfig, err = providerModelConfig(provider, item)
 			if err != nil {
-				return fmt.Errorf("构造AI供应商 %d 的模型配置失败: %w", provider.ID, err)
+				log.Error("构造AI供应商模型配置失败，本次刷新跳过该模型", "provider_id", provider.ID, "model_name", item.ModelName, "error", err)
+				continue
 			}
-			values = append(values, model.ProviderModel{ProviderID: provider.ID, ProviderName: provider.Name, Config: modelConfig})
+			values = append(values, model.ProviderModel{ProviderID: provider.ID, ProviderName: provider.Name, DisplayName: item.DisplayName, Config: modelConfig})
 		}
 	}
 	c.modelRegistry.Replace(values)
@@ -92,7 +96,9 @@ func (c *AiProviderCase) PageAiProvider(ctx context.Context, req *adminv1.PageAi
 		var modelItems []dto.AiProviderModelConfig
 		modelItems, err = parseAiProviderModels(provider.Models)
 		if err != nil {
-			return nil, errorsx.Internal("读取AI供应商模型配置失败").WithCause(err)
+			// 单条脏数据不应让整个列表接口失败，记录日志后以空模型列表展示。
+			log.Error("读取AI供应商模型配置失败，列表跳过该记录", "provider_id", provider.ID, "provider_name", provider.Name, "error", err)
+			modelItems = nil
 		}
 		modelNames := make([]string, 0, len(modelItems))
 		for _, item := range modelItems {
@@ -121,6 +127,48 @@ func (c *AiProviderCase) GetAiProvider(ctx context.Context, id int64) (*adminv1.
 		return nil, err
 	}
 	return toAiProviderForm(provider)
+}
+
+// TestAiProviderModels 使用当前表单草稿依次测试全部模型，不保存任何配置。
+func (c *AiProviderCase) TestAiProviderModels(ctx context.Context, req *adminv1.TestAiProviderModelsRequest) (*adminv1.TestAiProviderModelsResponse, error) {
+	providerForm := req.GetAiProvider()
+	var oldProvider *models.AiProvider
+	var err error
+	if providerForm.GetId() > 0 {
+		oldProvider, err = c.FindByID(ctx, providerForm.GetId())
+		if err != nil {
+			return nil, err
+		}
+		if providerForm.GetProvider() != oldProvider.Provider {
+			return nil, errorsx.Conflict("Provider标识不可修改")
+		}
+	}
+	var entity *models.AiProvider
+	entity, err = aiProviderEntity(providerForm, oldProvider)
+	if err != nil {
+		return nil, err
+	}
+	if err = validateAiProvider(entity); err != nil {
+		return nil, err
+	}
+	if entity.Provider == aiProviderOpenAICompatible && entity.APIKey == "" {
+		return nil, errorsx.InvalidArgument("请配置模型API密钥后再测试")
+	}
+	var modelItems []dto.AiProviderModelConfig
+	modelItems, err = parseAiProviderModels(entity.Models)
+	if err != nil {
+		return nil, errorsx.InvalidArgument("AI模型JSON格式无效").WithCause(err)
+	}
+	configs := make([]*modelconfig.ModelConfig, 0, len(modelItems))
+	for _, item := range modelItems {
+		var modelConfig *modelconfig.ModelConfig
+		modelConfig, err = providerModelConfig(entity, item)
+		if err != nil {
+			return nil, err
+		}
+		configs = append(configs, modelConfig)
+	}
+	return &adminv1.TestAiProviderModelsResponse{Results: testAiProviderModels(ctx, configs)}, nil
 }
 
 // CreateAiProvider 创建AI供应商并刷新可用模型快照。
@@ -303,6 +351,9 @@ func parseAiProviderModels(raw string) ([]dto.AiProviderModelConfig, error) {
 		if value.ModelName == "" || len(value.ModelName) > 100 {
 			return nil, errors.New("模型名称不能为空且不能超过100个字符")
 		}
+		if len(value.DisplayName) > 100 {
+			return nil, fmt.Errorf("模型 %s 的显示名称不能超过100个字符", value.ModelName)
+		}
 		if _, exists := seen[value.ModelName]; exists {
 			return nil, fmt.Errorf("模型名称重复: %s", value.ModelName)
 		}
@@ -377,4 +428,45 @@ func providerModelConfig(provider *models.AiProvider, item dto.AiProviderModelCo
 		BaseURL: provider.BaseURL, Organization: organization, Temperature: item.Temperature, MaxTokens: item.MaxTokens,
 		TimeoutSeconds: item.TimeoutSeconds, MaxRetries: item.MaxRetries, APIType: apiType,
 	}, nil
+}
+
+// testAiProviderModels 按配置顺序运行单模型测试，并隔离每次请求的时限和输出长度。
+func testAiProviderModels(ctx context.Context, configs []*modelconfig.ModelConfig) []*adminv1.AiProviderModelTestResult {
+	results := make([]*adminv1.AiProviderModelTestResult, 0, len(configs))
+	for _, config := range configs {
+		testConfig := *config
+		if testConfig.MaxTokens == 0 || testConfig.MaxTokens > 16 {
+			testConfig.MaxTokens = 16
+		}
+		testConfig.MaxRetries = 0
+		if testConfig.TimeoutSeconds <= 0 || testConfig.TimeoutSeconds > 30 {
+			testConfig.TimeoutSeconds = 30
+		}
+		modelCtx, cancel := context.WithTimeout(ctx, time.Duration(testConfig.TimeoutSeconds)*time.Second)
+		startAt := time.Now()
+		err := model.TestConnection(modelCtx, &testConfig)
+		cancel()
+		result := &adminv1.AiProviderModelTestResult{
+			ModelName:  testConfig.ModelName,
+			Success:    err == nil,
+			DurationMs: int32(time.Since(startAt).Milliseconds()),
+		}
+		if err != nil {
+			result.Message = aiProviderTestError(err, testConfig.APIKey)
+		}
+		results = append(results, result)
+	}
+	return results
+}
+
+// aiProviderTestError 清理并截断模型接口错误，避免把密钥等敏感信息回传给调用方。
+func aiProviderTestError(err error, apiKey string) string {
+	message := err.Error()
+	if apiKey != "" {
+		message = strings.ReplaceAll(message, apiKey, "[REDACTED]")
+	}
+	if runes := []rune(message); len(runes) > 512 {
+		return string(runes[:512]) + "..."
+	}
+	return message
 }

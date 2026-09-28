@@ -131,5 +131,8 @@
   "system.notification.action.delete": "Delete",
   "system.ai.model.provider_placeholder": "Select a provider",
   "system.ai.model.model_placeholder": "Select a model",
-  "system.ai.model.load_failed": "Failed to load providers and models"
+  "system.ai.model.load_failed": "Failed to load providers and models",
+  "system.ai.model.title": "Select Model",
+  "system.ai.model.provider_model_count": "{providers} providers · {models} models",
+  "system.ai.model.empty": "No models available"
 }

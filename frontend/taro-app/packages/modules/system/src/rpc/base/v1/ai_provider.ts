@@ -10,20 +10,28 @@
 export interface ListAiProviderModelOptionsRequest {
 }
 
+/** AI Provider模型选项查询响应。 */
+export interface ListAiProviderModelOptionsResponse {
+  /** Provider及其模型列表 */
+  providers: AiProviderModelOption[];
+}
+
 /** 已启用的AI Provider及其模型选项。 */
 export interface AiProviderModelOption {
   /** Provider ID */
   provider_id: number;
   /** Provider名称 */
   name: string;
-  /** 模型名称列表 */
-  models: string[];
+  /** 模型选项列表 */
+  models: AiProviderModel[];
 }
 
-/** AI Provider模型选项查询响应。 */
-export interface ListAiProviderModelOptionsResponse {
-  /** Provider及其模型列表 */
-  providers: AiProviderModelOption[];
+/** AI Provider下的单个模型选项。 */
+export interface AiProviderModel {
+  /** 模型名称 */
+  model_name: string;
+  /** 展示名称 */
+  display_name: string;
 }
 
 /** AI Provider 可选模型查询服务。 */

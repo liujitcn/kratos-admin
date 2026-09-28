@@ -13,6 +13,8 @@ type ProviderModel struct {
 	ProviderID int64
 	// ProviderName 是供应商展示名称。
 	ProviderName string
+	// DisplayName 是模型在聊天前端的展示名称，为空时由前端按模型名映射。
+	DisplayName string
 	// Config 是当前模型的运行参数。
 	Config *model.ModelConfig
 }
@@ -25,6 +27,8 @@ type ModelOption struct {
 	ProviderName string
 	// ModelName 是供应商支持的模型名称。
 	ModelName string
+	// DisplayName 是模型在聊天前端的展示名称，为空时由前端按模型名映射。
+	DisplayName string
 }
 
 type registeredModel struct {
@@ -67,6 +71,7 @@ func (r *Registry) Replace(values []ProviderModel) {
 				ProviderID:   value.ProviderID,
 				ProviderName: value.ProviderName,
 				ModelName:    value.Config.ModelName,
+				DisplayName:  value.DisplayName,
 			},
 			client: client,
 		})

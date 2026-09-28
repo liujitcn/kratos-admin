@@ -1,0 +1,147 @@
+.model-picker {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 100;
+}
+
+.model-picker__mask {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background-color: rgba(15, 23, 42, 0.45);
+}
+
+.model-picker__sheet {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  display: flex;
+  flex-direction: column;
+  max-height: 68vh;
+  overflow: hidden;
+  background-color: #fff;
+  border-radius: 32px 32px 0 0;
+  box-shadow: 0 -24px 80px rgba(15, 23, 42, 0.16);
+  box-sizing: border-box;
+}
+
+.model-picker__handle {
+  flex-shrink: 0;
+  width: 72px;
+  height: 8px;
+  margin: 16px auto 8px;
+  background-color: #e2e5ea;
+  border-radius: 4px;
+}
+
+.model-picker__head {
+  position: relative;
+  flex-shrink: 0;
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 12px;
+  padding: 0 96px 16px;
+}
+
+.model-picker__title {
+  color: #111;
+  font-size: 32px;
+  font-weight: 600;
+}
+
+.model-picker__count {
+  color: #8a8f99;
+  font-size: 20px;
+}
+
+.model-picker__close {
+  position: absolute;
+  top: -6px;
+  right: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  color: #8a8f99;
+  font-size: 28px;
+}
+
+.model-picker__body {
+  flex: 1;
+  min-height: 0;
+  max-height: calc(68vh - 130px - env(safe-area-inset-bottom));
+  padding: 0 32px;
+  box-sizing: border-box;
+}
+
+.model-picker__group {
+  padding: 24px 8px 12px;
+  color: #8a8f99;
+  font-size: 22px;
+  line-height: 32px;
+}
+
+.model-picker__row {
+  display: flex;
+  align-items: center;
+  min-height: 88px;
+  padding: 16px 28px;
+  margin-bottom: 12px;
+  border: 2px solid #eef0f4;
+  border-radius: 24px;
+  box-sizing: border-box;
+}
+
+.model-picker__row.is-selected {
+  color: #0f7a62;
+  font-weight: 500;
+  background-color: #e8f8f4;
+  border-color: #d5efe7;
+}
+
+.model-picker__row-main {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.model-picker__row-name {
+  color: inherit;
+  font-size: 28px;
+  line-height: 40px;
+}
+
+.model-picker__row-raw {
+  color: #a7acb5;
+  font-size: 22px;
+  font-weight: 400;
+  line-height: 30px;
+}
+
+.model-picker__row-check {
+  margin-left: auto;
+  color: #00a96b;
+  font-size: 32px;
+}
+
+.model-picker__empty {
+  padding: 64px 0;
+  color: #8a8f99;
+  font-size: 26px;
+  text-align: center;
+}
+
+.model-picker__safe {
+  flex-shrink: 0;
+  height: calc(18px + constant(safe-area-inset-bottom));
+  height: calc(18px + env(safe-area-inset-bottom));
+}

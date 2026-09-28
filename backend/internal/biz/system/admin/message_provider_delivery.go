@@ -223,17 +223,22 @@ func (c *BaseMessageCase) claimProviderDelivery(ctx context.Context, delivery *m
 		field.And(query.Status.Eq(_const.MessageDeliveryStatusPending), retryReady),
 		field.And(query.Status.Eq(_const.MessageDeliveryStatusRunning), query.LockedUntil.Lte(now.UnixMilli())),
 	)
+	conditions := []gen.Condition{
+		query.TenantID.Eq(delivery.TenantID),
+		query.MessageID.Eq(delivery.MessageID),
+		query.DeliveryType.Eq(_const.MessageDeliveryTypeProvider),
+		query.ProviderID.Eq(delivery.ProviderID),
+		query.UserID.Eq(delivery.UserID),
+		claimable,
+		query.AttemptCount.Lt(messageDispatchMaxAttempts),
+	}
+	// 有主键时精确按主键定位，避免同元组脏数据被一并更新。
+	if delivery.ID > 0 {
+		conditions = append(conditions, query.ID.Eq(delivery.ID))
+	}
 	token := id.NewGUIDv4NoHyphen()
 	result, err := query.WithContext(ctx).
-		Where(
-			query.TenantID.Eq(delivery.TenantID),
-			query.MessageID.Eq(delivery.MessageID),
-			query.DeliveryType.Eq(_const.MessageDeliveryTypeProvider),
-			query.ProviderID.Eq(delivery.ProviderID),
-			query.UserID.Eq(delivery.UserID),
-			claimable,
-			query.AttemptCount.Lt(messageDispatchMaxAttempts),
-		).
+		Where(conditions...).
 		UpdateSimple(
 			query.Status.Value(_const.MessageDeliveryStatusRunning),
 			query.AttemptCount.Add(1),
@@ -266,17 +271,22 @@ func (c *BaseMessageCase) finishProviderDelivery(ctx context.Context, delivery *
 			return err
 		}
 		query := c.deliveryRepo.Query(txCtx).BaseMessageDelivery
+		conditions := []gen.Condition{
+			query.TenantID.Eq(delivery.TenantID),
+			query.MessageID.Eq(delivery.MessageID),
+			query.DeliveryType.Eq(_const.MessageDeliveryTypeProvider),
+			query.ProviderID.Eq(delivery.ProviderID),
+			query.UserID.Eq(delivery.UserID),
+			query.Status.Eq(_const.MessageDeliveryStatusRunning),
+			query.LockToken.Eq(delivery.LockToken),
+		}
+		// 有主键时精确按主键定位，避免同元组脏数据被一并更新。
+		if delivery.ID > 0 {
+			conditions = append(conditions, query.ID.Eq(delivery.ID))
+		}
 		var result gen.ResultInfo
 		result, err = query.WithContext(txCtx).
-			Where(
-				query.TenantID.Eq(delivery.TenantID),
-				query.MessageID.Eq(delivery.MessageID),
-				query.DeliveryType.Eq(_const.MessageDeliveryTypeProvider),
-				query.ProviderID.Eq(delivery.ProviderID),
-				query.UserID.Eq(delivery.UserID),
-				query.Status.Eq(_const.MessageDeliveryStatusRunning),
-				query.LockToken.Eq(delivery.LockToken),
-			).
+			Where(conditions...).
 			UpdateSimple(
 				query.Status.Value(status),
 				query.NextRetryAt.Value(nextRetryAt),
@@ -333,6 +343,9 @@ func (c *BaseMessageCase) messageProviderRecipient(ctx context.Context, provider
 		recipient := notify.Recipient{}
 		switch strings.ToLower(provider.Provider) {
 		case "wechat":
+			if account.Identifier == "" {
+				return notify.Recipient{}, false, nil
+			}
 			recipient.OpenID = account.Identifier
 		case "dingtalk":
 			if account.UnionID == "" {
@@ -340,6 +353,9 @@ func (c *BaseMessageCase) messageProviderRecipient(ctx context.Context, provider
 			}
 			recipient.UnionID = account.UnionID
 		case "wechatwork":
+			if account.Identifier == "" {
+				return notify.Recipient{}, false, nil
+			}
 			recipient.UserID = account.Identifier
 		case "feishu":
 			config, configErr := decodeMessageJSON(provider.Config)
@@ -361,6 +377,9 @@ func (c *BaseMessageCase) messageProviderRecipient(ctx context.Context, provider
 					return notify.Recipient{}, false, nil
 				}
 			default:
+				if account.Identifier == "" {
+					return notify.Recipient{}, false, nil
+				}
 				recipient.OpenID = account.Identifier
 			}
 		}

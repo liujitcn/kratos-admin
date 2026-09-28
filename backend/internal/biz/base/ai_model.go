@@ -33,7 +33,10 @@ func (c *AiModelCase) ListAiProviderModelOptions(context.Context) (*basev1.ListA
 			providerIndexes[option.ProviderID] = index
 			providers = append(providers, &basev1.AiProviderModelOption{ProviderId: option.ProviderID, Name: option.ProviderName})
 		}
-		providers[index].Models = append(providers[index].Models, option.ModelName)
+		providers[index].Models = append(providers[index].Models, &basev1.AiProviderModel{
+			ModelName:   option.ModelName,
+			DisplayName: option.DisplayName,
+		})
 	}
 	return &basev1.ListAiProviderModelOptionsResponse{Providers: providers}, nil
 }

@@ -10,6 +10,9 @@
       :model="form"
       :fields="fields"
       :rules="rules"
+      :form-props="{ disabled: testingModels }"
+      :close-on-click-modal="!testingModels"
+      :close-on-press-escape="!testingModels"
       @confirm="submit"
       @close="resetForm"
     >
@@ -23,7 +26,24 @@
               <div class="provider-models__content">
                 <div class="provider-models__heading">
                   <strong>{{ model.model_name }}</strong>
+                  <span v-if="model.display_name" class="provider-models__alias">✦ {{ model.display_name }}</span>
                   <el-tag size="small" effect="plain">{{ apiTypeLabel(model.api_type) }}</el-tag>
+                  <el-tooltip
+                    v-if="modelTestResults[model.model_name]"
+                    :content="modelTestResults[model.model_name]?.message"
+                    :disabled="!modelTestResults[model.model_name]?.message"
+                    placement="top"
+                  >
+                    <el-tag
+                    size="small"
+                    effect="plain"
+                    :type="modelTestResults[model.model_name]?.success ? 'success' : 'danger'"
+                    >
+                      {{ t(modelTestResults[model.model_name]?.success
+                        ? "system.base.ai_provider.model.test_success"
+                        : "system.base.ai_provider.model.test_failed") }} · {{ modelTestResults[model.model_name]?.duration_ms }} ms
+                    </el-tag>
+                  </el-tooltip>
                 </div>
                 <div class="provider-models__details">
                   <span>{{ t("system.base.ai_provider.field.temperature") }}: {{ model.temperature }}</span>
@@ -34,16 +54,29 @@
               </div>
               <div class="provider-models__actions">
                 <el-tooltip :content="t('common.action.edit')" placement="top">
-                  <el-button text circle :icon="EditPen" :aria-label="t('common.action.edit')" @click="openModelDialog(index)" />
+                  <el-button text circle :disabled="testingModels" :icon="EditPen" :aria-label="t('common.action.edit')" @click="openModelDialog(index)" />
                 </el-tooltip>
                 <el-tooltip :content="t('common.action.delete')" placement="top">
-                  <el-button text circle :icon="Delete" :aria-label="t('common.action.delete')" @click="removeModel(index)" />
+                  <el-button text circle :disabled="testingModels" :icon="Delete" :aria-label="t('common.action.delete')" @click="removeModel(index)" />
                 </el-tooltip>
               </div>
             </div>
           </div>
-          <el-button type="primary" plain :icon="CirclePlus" @click="openModelDialog()">
+          <el-button type="primary" plain :icon="CirclePlus" :disabled="testingModels" @click="openModelDialog()">
             {{ t("system.base.ai_provider.model.add") }}
+          </el-button>
+        </div>
+      </template>
+      <template #footer>
+        <div class="dialog-footer">
+          <el-button :disabled="testingModels" @click="dialog.visible = false">
+            {{ t("common.action.cancel") }}
+          </el-button>
+          <el-button type="primary" plain :icon="Connection" :loading="testingModels" :disabled="!form.models.length" @click="testProviderModels">
+            {{ t("system.base.ai_provider.model.test") }}
+          </el-button>
+          <el-button type="primary" :disabled="testingModels" @click="submit">
+            {{ t("common.action.confirm") }}
           </el-button>
         </div>
       </template>
@@ -66,10 +99,10 @@
 </template>
 
 <script setup lang="ts">
-import { computed, reactive, ref } from "vue";
+import { computed, reactive, ref, watch } from "vue";
 import { ElMessage, ElMessageBox } from "element-plus";
 import type { FormRules } from "element-plus";
-import { CirclePlus, Delete, EditPen } from "@element-plus/icons-vue";
+import { CirclePlus, Connection, Delete, EditPen } from "@element-plus/icons-vue";
 import ProTable from "@liujitcn/kratos-admin-core/components/ProTable";
 import FormDialog from "@liujitcn/kratos-admin-core/components/Dialog/FormDialog.vue";
 import type { ColumnProps, HeaderActionProps, ProTableInstance } from "@liujitcn/kratos-admin-core/components/ProTable/interface";
@@ -82,6 +115,7 @@ import { defAiProviderService } from "@liujitcn/kratos-admin-system/api/system/a
 import type {
   AiProvider,
   AiProviderForm,
+  AiProviderModelTestResult,
   PageAiProviderRequest
 } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/ai_provider";
 import { Status } from "@liujitcn/kratos-admin-system/rpc/common/v1/enum";
@@ -101,6 +135,8 @@ type ModelApiType = "CHAT_COMPLETIONS" | "RESPONSES";
 interface AiModelConfig {
   /** 服务商侧的模型名称。 */
   model_name: string;
+  /** 模型在聊天前端的展示名称，留空时由前端按模型名自动映射。 */
+  display_name: string;
   /** 模型请求接口类型。 */
   api_type: ModelApiType;
   /** 文本生成温度。 */
@@ -128,6 +164,15 @@ const dialog = reactive({ visible: false, editing: false });
 const modelDialog = reactive({ visible: false, editing: false, index: -1 });
 const form = reactive<FormState>(defaultForm());
 const modelForm = reactive<AiModelConfig>(defaultModelConfig());
+const testingModels = ref(false);
+const modelTestResults = ref<Record<string, AiProviderModelTestResult>>({});
+
+watch(
+  () => [form.provider, form.base_url, form.api_key, JSON.stringify(form.config_items), JSON.stringify(form.models)],
+  () => {
+    modelTestResults.value = {};
+  }
+);
 
 const statusOptions = computed<ProFormOption[]>(() => [
   { label: t("common.status.enabled"), value: Status.STATUS_ENABLE },
@@ -157,6 +202,7 @@ const fields = computed<ProFormField[]>(() => [
 
 const modelFields = computed<ProFormField[]>(() => [
   { prop: "model_name", label: t("system.base.ai_provider.field.model_name"), component: "input", colSpan: 12, props: { maxlength: 100 } },
+  { prop: "display_name", label: t("system.base.ai_provider.field.display_name"), component: "input", colSpan: 12, props: { maxlength: 100, placeholder: t("system.base.ai_provider.model.placeholder.display_name") } },
   { prop: "api_type", label: t("system.base.ai_provider.field.api_type"), component: "select", colSpan: 12, options: modelApiTypeOptions.value },
   { prop: "temperature", label: t("system.base.ai_provider.field.temperature"), component: "input-number", colSpan: 12, props: { min: 0, max: 2, precision: 2, step: 0.1, controlsPosition: "right" } },
   { prop: "max_tokens", label: t("system.base.ai_provider.field.max_tokens"), component: "input-number", colSpan: 12, props: { min: 0, max: 200000, precision: 0, controlsPosition: "right" } },
@@ -189,6 +235,7 @@ const modelRules = computed<FormRules>(() => ({
     { required: true, message: t("system.base.ai_provider.validation.model_name"), trigger: "blur" },
     { max: 100, message: t("system.base.ai_provider.validation.model_name_length"), trigger: "blur" }
   ],
+  display_name: [{ max: 100, message: t("system.base.ai_provider.model.validation.display_name"), trigger: "blur" }],
   api_type: [{ required: true, message: t("system.base.ai_provider.validation.api_type"), trigger: "change" }],
   temperature: [{ type: "number", required: true, min: 0, max: 2, message: t("system.base.ai_provider.model.validation.range"), trigger: "change" }],
   max_tokens: [{ type: "number", required: true, min: 0, max: 200000, message: t("system.base.ai_provider.model.validation.range"), trigger: "change" }],
@@ -281,9 +328,39 @@ async function openDialog(id?: number) {
 async function submit() {
   const valid = await dialogRef.value?.validate();
   if (!valid) return;
+  const payload = buildAiProviderPayload();
+  if (!payload) return;
+  if (dialog.editing) await defAiProviderService.UpdateAiProvider({ ai_provider: payload });
+  else await defAiProviderService.CreateAiProvider({ ai_provider: payload });
+  ElMessage.success(t(dialog.editing ? "system.base.ai_provider.message.update_success" : "system.base.ai_provider.message.create_success"));
+  dialog.visible = false;
+  resetForm();
+  table.value?.getTableList();
+}
+
+/** 测试当前草稿中的全部模型并展示逐项结果。 */
+async function testProviderModels() {
+  const valid = await dialogRef.value?.validate();
+  if (!valid) return;
+  const payload = buildAiProviderPayload();
+  if (!payload) return;
+
+  testingModels.value = true;
+  modelTestResults.value = {};
+  let response: Awaited<ReturnType<typeof defAiProviderService.TestAiProviderModels>>;
+  try {
+    response = await defAiProviderService.TestAiProviderModels({ ai_provider: payload });
+  } finally {
+    testingModels.value = false;
+  }
+  modelTestResults.value = Object.fromEntries(response.results.map(result => [result.model_name, result]));
+}
+
+/** 构造AI Provider保存或测试请求参数。 */
+function buildAiProviderPayload(): AiProviderForm | undefined {
   const config = configItemsToMap(form.config_items);
-  if (!config) return;
-  const payload: AiProviderForm = {
+  if (!config) return undefined;
+  return {
     id: form.id,
     provider: form.provider,
     name: form.name,
@@ -295,12 +372,6 @@ async function submit() {
     sort: form.sort,
     status: form.status
   };
-  if (dialog.editing) await defAiProviderService.UpdateAiProvider({ ai_provider: payload });
-  else await defAiProviderService.CreateAiProvider({ ai_provider: payload });
-  ElMessage.success(t(dialog.editing ? "system.base.ai_provider.message.update_success" : "system.base.ai_provider.message.create_success"));
-  dialog.visible = false;
-  resetForm();
-  table.value?.getTableList();
 }
 
 /** 重置供应商表单。 */
@@ -365,6 +436,7 @@ function parseModelConfigs(raw: string): AiModelConfig[] {
   const values = JSON.parse(raw) as Partial<AiModelConfig>[];
   return values.map(value => ({
     model_name: value.model_name ?? "",
+    display_name: value.display_name ?? "",
     api_type: value.api_type === "RESPONSES" ? "RESPONSES" : "CHAT_COMPLETIONS",
     temperature: value.temperature ?? 0,
     max_tokens: value.max_tokens ?? 0,
@@ -375,7 +447,7 @@ function parseModelConfigs(raw: string): AiModelConfig[] {
 
 /** 创建单个模型的默认配置。 */
 function defaultModelConfig(): AiModelConfig {
-  return { model_name: "", api_type: "CHAT_COMPLETIONS", temperature: 0.2, max_tokens: 1024, timeout_seconds: 60, max_retries: 2 };
+  return { model_name: "", display_name: "", api_type: "CHAT_COMPLETIONS", temperature: 0.2, max_tokens: 1024, timeout_seconds: 60, max_retries: 2 };
 }
 
 /** 将Provider配置对象转换为键值表单项。 */
@@ -411,7 +483,11 @@ async function handleDelete(target: AiProvider | number | Array<number>) {
   const row = typeof target === "object" && !Array.isArray(target) ? target : undefined;
   const ids = (row ? [row.id] : normalizeSelectedIds(target as number | number[])).map(Number);
   if (!ids.length) return;
-  await ElMessageBox.confirm(t("system.base.ai_provider.message.confirm_delete", { name: row?.name ?? ids.join(", ") }), t("common.action.delete"), { type: "warning" });
+  try {
+    await ElMessageBox.confirm(t("system.base.ai_provider.message.confirm_delete", { name: row?.name ?? ids.join(", ") }), t("common.action.delete"), { type: "warning" });
+  } catch {
+    return;
+  }
   for (const id of ids) await defAiProviderService.DeleteAiProvider({ id });
   ElMessage.success(t("system.base.ai_provider.message.delete_success"));
   table.value?.getTableList();
@@ -419,13 +495,25 @@ async function handleDelete(target: AiProvider | number | Array<number>) {
 
 /** 更新AI供应商状态。 */
 async function handleSetStatus(row: AiProvider) {
-  await defAiProviderService.SetAiProviderStatus({
-    id: row.id,
-    status: row.status === Status.STATUS_ENABLE ? Status.STATUS_DISABLE : Status.STATUS_ENABLE
-  });
-  ElMessage.success(t("system.base.ai_provider.message.status_success"));
-  table.value?.getTableList();
-  return true;
+  const status = row.status === Status.STATUS_ENABLE ? Status.STATUS_DISABLE : Status.STATUS_ENABLE;
+  try {
+    await ElMessageBox.confirm(
+      t("common.dialog.status_change", {
+        action: t(status === Status.STATUS_ENABLE ? "common.status.enabled" : "common.status.disabled"),
+        resource: t("system.base.ai_provider.resource"),
+        field: t("system.base.ai_provider.field.name"),
+        value: row.name
+      }),
+      t("common.title.notice"),
+      { type: "warning" }
+    );
+    await defAiProviderService.SetAiProviderStatus({ id: row.id, status });
+    ElMessage.success(t("system.base.ai_provider.message.status_success"));
+    table.value?.getTableList();
+    return true;
+  } catch {
+    return false;
+  }
 }
 </script>
 
@@ -489,6 +577,19 @@ async function handleSetStatus(row: AiProvider) {
 
 .provider-models__heading strong {
   overflow-wrap: anywhere;
+}
+
+.provider-models__alias {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 1px 8px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--el-color-primary);
+  background: var(--el-color-primary-light-9);
+  border-radius: 999px;
+  white-space: nowrap;
 }
 
 .provider-models__details {

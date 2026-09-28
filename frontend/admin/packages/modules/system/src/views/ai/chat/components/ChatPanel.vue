@@ -78,7 +78,9 @@
                 >
                   {{ item.replySourceTag.text }}
                 </span>
-                <span v-if="item.model" class="agent-message-meta__model">{{ item.model }}</span>
+                <span v-if="item.model" class="agent-message-meta__model">{{
+                  resolveModelDisplayName(modelProviders, item.model)
+                }}</span>
                 <span v-if="resolveMessageReplyTime(item)" class="agent-message-meta__time">{{
                   resolveMessageReplyTime(item)
                 }}</span>
@@ -357,6 +359,7 @@ import type { AiProviderModelOption } from "@liujitcn/kratos-admin-system/rpc/ba
 import type { AiShortcut, AiToolCall } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_tool";
 import { AiMessageStatus } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_session";
 import { resolvePersistedMessage } from "../../../../utils/persisted-message";
+import { resolveModelDisplayName } from "../modelDisplay";
 import XSender from "./XSender.vue";
 
 // AI Markdown 渲染器依赖较重，仅在真正出现助手消息时再加载。

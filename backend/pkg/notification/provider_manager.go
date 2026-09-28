@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
@@ -26,6 +27,9 @@ import (
 // ProviderManager 管理从数据库加载的消息 Provider 发送器。
 type ProviderManager struct {
 	cache cache.Cache
+	// senders 按 Provider 配置版本缓存发送器，避免每次发送重复创建客户端。
+	// 键为 "providerID@updatedAtUnixMilli"，配置更新后自然失效。
+	senders sync.Map
 }
 
 // NewProviderManager 创建消息 Provider 运行时管理器。
@@ -35,7 +39,7 @@ func NewProviderManager(baseCase *biz.BaseCase) *ProviderManager {
 
 // Send 按数据库 Provider ID 发送一条外部通知。
 func (m *ProviderManager) Send(ctx context.Context, provider *models.BaseMessageProvider, message notify.Message) (*notify.Receipt, error) {
-	sender, err := newProviderSender(provider, m.cache)
+	sender, err := m.sender(provider)
 	if err != nil {
 		return nil, fmt.Errorf("构造消息 Provider %d(%s) 失败: %w", provider.ID, provider.Provider, err)
 	}
@@ -47,6 +51,20 @@ func (m *ProviderManager) Send(ctx context.Context, provider *models.BaseMessage
 		return nil, err
 	}
 	return manager.Send(ctx, strconv.FormatInt(provider.ID, 10), message)
+}
+
+// sender 返回 Provider 当前配置对应的发送器，命中缓存时直接复用。
+func (m *ProviderManager) sender(provider *models.BaseMessageProvider) (notify.Sender, error) {
+	key := fmt.Sprintf("%d@%d", provider.ID, provider.UpdatedAt.UnixMilli())
+	if cached, ok := m.senders.Load(key); ok {
+		return cached.(notify.Sender), nil
+	}
+	sender, err := newProviderSender(provider, m.cache)
+	if err != nil {
+		return nil, err
+	}
+	actual, _ := m.senders.LoadOrStore(key, sender)
+	return actual.(notify.Sender), nil
 }
 
 // ValidateProviderConfig 校验消息 Provider 配置是否可以创建发送器。

@@ -74,6 +74,30 @@ export interface UpdateAiProviderRequest {
   ai_provider: AiProviderForm | undefined;
 }
 
+/** 测试AI供应商全部模型请求。 */
+export interface TestAiProviderModelsRequest {
+  /** 待测试的AI供应商草稿 */
+  ai_provider: AiProviderForm | undefined;
+}
+
+/** 单个AI模型连通性测试结果。 */
+export interface AiProviderModelTestResult {
+  /** 模型名称 */
+  model_name: string;
+  /** 测试是否成功 */
+  success: boolean;
+  /** 测试耗时毫秒 */
+  duration_ms: number;
+  /** 失败原因；成功时为空 */
+  message: string;
+}
+
+/** 测试AI供应商全部模型响应。 */
+export interface TestAiProviderModelsResponse {
+  /** 模型测试结果 */
+  results: AiProviderModelTestResult[];
+}
+
 /** 删除AI供应商请求。 */
 export interface DeleteAiProviderRequest {
   /** 供应商ID */
@@ -122,6 +146,8 @@ export interface AiProviderService {
   CreateAiProvider(request: CreateAiProviderRequest): Promise<Empty>;
   /** 更新AI供应商。 */
   UpdateAiProvider(request: UpdateAiProviderRequest): Promise<Empty>;
+  /** 测试AI供应商表单中的全部模型。 */
+  TestAiProviderModels(request: TestAiProviderModelsRequest): Promise<TestAiProviderModelsResponse>;
   /** 删除AI供应商。 */
   DeleteAiProvider(request: DeleteAiProviderRequest): Promise<Empty>;
   /** 设置AI供应商状态。 */

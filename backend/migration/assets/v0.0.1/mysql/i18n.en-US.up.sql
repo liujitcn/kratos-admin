@@ -521,3 +521,18 @@ INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VAL
 INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_oauth_provider.description', 7, 'en-US', 'Sign in with WeChat Mini Program');
 INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_oauth_provider.description', 8, 'en-US', 'Sign in with WeChat Official Account');
 INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_oauth_provider.description', 9, 'en-US', 'Sign in with WeCom');
+
+INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_message_provider.name', 1, 'en-US', 'E-mail');
+INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_message_provider.description', 1, 'en-US', 'SMTP email notifications');
+INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_message_provider.name', 2, 'en-US', 'SMS');
+INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_message_provider.description', 2, 'en-US', 'SMS notifications');
+INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_message_provider.name', 3, 'en-US', 'DingTalk');
+INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_message_provider.description', 3, 'en-US', 'DingTalk notifications');
+INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_message_provider.name', 4, 'en-US', 'Feishu');
+INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_message_provider.description', 4, 'en-US', 'Feishu notifications');
+INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_message_provider.name', 5, 'en-US', 'WeChat Official Account');
+INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_message_provider.description', 5, 'en-US', 'WeChat Official Account notifications');
+INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_message_provider.name', 6, 'en-US', 'WeCom');
+INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_message_provider.description', 6, 'en-US', 'WeCom notifications');
+INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_message_provider.name', 7, 'en-US', 'Webhook');
+INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_message_provider.description', 7, 'en-US', 'Generic webhook notifications');
