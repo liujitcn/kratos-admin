@@ -55,15 +55,22 @@ test("AI聊天模型选择器位于输入框操作区，空态和会话态共用
     sender,
     /<template #action-list>[\s\S]*?class="agent-model-selector"[\s\S]*?system\.ai\.chat\.action\.voice_input/
   );
-  assert.match(sender, /<el-cascader[\s\S]*?:show-all-levels="true"[\s\S]*?separator="\/"/);
+  assert.match(sender, /<el-popover[\s\S]*?ref="modelPopoverRef"[\s\S]*?popper-class="agent-model-popper"/);
+  assert.match(
+    sender,
+    /class="agent-model-selector"[\s\S]*?selectedModelDisplayName \|\| t\("system\.ai\.model\.model_placeholder"\)/
+  );
   assert.match(sender, /:clearable="true"/);
-  assert.match(sender, /children: provider\.models\.map\(model => \(\{ value: model, label: model \}\)\)/);
+  assert.match(sender, /displayName: model\.display_name \|\| fallbackModelDisplayName\(model\.model_name\)/);
+  assert.match(sender, /@click="handleModelSelect\(provider\.providerId, model\.name\)"/);
+  assert.match(sender, /v-else class="agent-model-panel agent-model-panel--empty"/);
+  assert.match(sender, /emit\("model-change", providerId, modelName\);[\s\S]*?modelPopoverRef\.value\?\.hide\(\)/);
+  assert.match(sender, /@click="openModelManage"/);
   assert.match(sender, /\.agent-model-selector\s*\{[\s\S]*?height: 34px;[\s\S]*?border: 1px solid var\(--el-border-color\)/);
-  assert.match(sender, /\.agent-model-selector\s*\{[\s\S]*?width: clamp\(180px, 18vw, 200px\)/);
+  assert.match(sender, /\.agent-model-selector\s*\{[\s\S]*?width: clamp\(180px, 18vw, 220px\)/);
   assert.match(sender, /\.agent-model-selector\s*\{[\s\S]*?width: clamp\(128px, calc\(100vw - 220px\), 180px\)/);
-  assert.match(sender, /\.agent-model-selector :deep\(\.el-input__inner\)[\s\S]*?font-size: 14px;[\s\S]*?font-weight: 500;/);
-  assert.match(sender, /function handleModelPathChange\(value: CascaderValue \| null \| undefined\)/);
-  assert.match(sender, /const path = Array\.isArray\(value\) \? value : \[\]/);
+  assert.match(sender, /&__label\s*\{[\s\S]*?font-size: 14px;[\s\S]*?font-weight: 500;/);
+  assert.match(sender, /function handleModelSelect\(providerId: number, modelName: string\)/);
   assert.match(sender, /"model-change": \[providerId: number, modelName: string\]/);
 });
 
