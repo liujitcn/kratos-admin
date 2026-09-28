@@ -61,19 +61,64 @@ func (*ListAiProviderModelOptionsRequest) Descriptor() ([]byte, []int) {
 	return file_base_v1_ai_provider_proto_rawDescGZIP(), []int{0}
 }
 
+// AI Provider模型选项查询响应。
+type ListAiProviderModelOptionsResponse struct {
+	state         protoimpl.MessageState   `protogen:"open.v1"`
+	Providers     []*AiProviderModelOption `protobuf:"bytes,1,rep,name=providers,proto3" json:"providers,omitempty"` // Provider及其模型列表
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListAiProviderModelOptionsResponse) Reset() {
+	*x = ListAiProviderModelOptionsResponse{}
+	mi := &file_base_v1_ai_provider_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListAiProviderModelOptionsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListAiProviderModelOptionsResponse) ProtoMessage() {}
+
+func (x *ListAiProviderModelOptionsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_base_v1_ai_provider_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListAiProviderModelOptionsResponse.ProtoReflect.Descriptor instead.
+func (*ListAiProviderModelOptionsResponse) Descriptor() ([]byte, []int) {
+	return file_base_v1_ai_provider_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *ListAiProviderModelOptionsResponse) GetProviders() []*AiProviderModelOption {
+	if x != nil {
+		return x.Providers
+	}
+	return nil
+}
+
 // 已启用的AI Provider及其模型选项。
 type AiProviderModelOption struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	ProviderId    int64                  `protobuf:"varint,1,opt,name=provider_id,json=providerId,proto3" json:"provider_id,omitempty"` // Provider ID
 	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`                                // Provider名称
-	Models        []string               `protobuf:"bytes,3,rep,name=models,proto3" json:"models,omitempty"`                            // 模型名称列表
+	Models        []*AiProviderModel     `protobuf:"bytes,3,rep,name=models,proto3" json:"models,omitempty"`                            // 模型选项列表
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *AiProviderModelOption) Reset() {
 	*x = AiProviderModelOption{}
-	mi := &file_base_v1_ai_provider_proto_msgTypes[1]
+	mi := &file_base_v1_ai_provider_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -85,7 +130,7 @@ func (x *AiProviderModelOption) String() string {
 func (*AiProviderModelOption) ProtoMessage() {}
 
 func (x *AiProviderModelOption) ProtoReflect() protoreflect.Message {
-	mi := &file_base_v1_ai_provider_proto_msgTypes[1]
+	mi := &file_base_v1_ai_provider_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -98,7 +143,7 @@ func (x *AiProviderModelOption) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AiProviderModelOption.ProtoReflect.Descriptor instead.
 func (*AiProviderModelOption) Descriptor() ([]byte, []int) {
-	return file_base_v1_ai_provider_proto_rawDescGZIP(), []int{1}
+	return file_base_v1_ai_provider_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *AiProviderModelOption) GetProviderId() int64 {
@@ -115,36 +160,37 @@ func (x *AiProviderModelOption) GetName() string {
 	return ""
 }
 
-func (x *AiProviderModelOption) GetModels() []string {
+func (x *AiProviderModelOption) GetModels() []*AiProviderModel {
 	if x != nil {
 		return x.Models
 	}
 	return nil
 }
 
-// AI Provider模型选项查询响应。
-type ListAiProviderModelOptionsResponse struct {
-	state         protoimpl.MessageState   `protogen:"open.v1"`
-	Providers     []*AiProviderModelOption `protobuf:"bytes,1,rep,name=providers,proto3" json:"providers,omitempty"` // Provider及其模型列表
+// AI Provider下的单个模型选项。
+type AiProviderModel struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ModelName     string                 `protobuf:"bytes,1,opt,name=model_name,json=modelName,proto3" json:"model_name,omitempty"`       // 模型名称
+	DisplayName   string                 `protobuf:"bytes,2,opt,name=display_name,json=displayName,proto3" json:"display_name,omitempty"` // 展示名称
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *ListAiProviderModelOptionsResponse) Reset() {
-	*x = ListAiProviderModelOptionsResponse{}
-	mi := &file_base_v1_ai_provider_proto_msgTypes[2]
+func (x *AiProviderModel) Reset() {
+	*x = AiProviderModel{}
+	mi := &file_base_v1_ai_provider_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ListAiProviderModelOptionsResponse) String() string {
+func (x *AiProviderModel) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ListAiProviderModelOptionsResponse) ProtoMessage() {}
+func (*AiProviderModel) ProtoMessage() {}
 
-func (x *ListAiProviderModelOptionsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_base_v1_ai_provider_proto_msgTypes[2]
+func (x *AiProviderModel) ProtoReflect() protoreflect.Message {
+	mi := &file_base_v1_ai_provider_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -155,16 +201,23 @@ func (x *ListAiProviderModelOptionsResponse) ProtoReflect() protoreflect.Message
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ListAiProviderModelOptionsResponse.ProtoReflect.Descriptor instead.
-func (*ListAiProviderModelOptionsResponse) Descriptor() ([]byte, []int) {
-	return file_base_v1_ai_provider_proto_rawDescGZIP(), []int{2}
+// Deprecated: Use AiProviderModel.ProtoReflect.Descriptor instead.
+func (*AiProviderModel) Descriptor() ([]byte, []int) {
+	return file_base_v1_ai_provider_proto_rawDescGZIP(), []int{3}
 }
 
-func (x *ListAiProviderModelOptionsResponse) GetProviders() []*AiProviderModelOption {
+func (x *AiProviderModel) GetModelName() string {
 	if x != nil {
-		return x.Providers
+		return x.ModelName
 	}
-	return nil
+	return ""
+}
+
+func (x *AiProviderModel) GetDisplayName() string {
+	if x != nil {
+		return x.DisplayName
+	}
+	return ""
 }
 
 var File_base_v1_ai_provider_proto protoreflect.FileDescriptor
@@ -172,14 +225,18 @@ var File_base_v1_ai_provider_proto protoreflect.FileDescriptor
 const file_base_v1_ai_provider_proto_rawDesc = "" +
 	"\n" +
 	"\x19base/v1/ai_provider.proto\x12\abase.v1\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\"#\n" +
-	"!ListAiProviderModelOptionsRequest\"\xa7\x01\n" +
+	"!ListAiProviderModelOptionsRequest\"\x84\x01\n" +
+	"\"ListAiProviderModelOptionsResponse\x12^\n" +
+	"\tproviders\x18\x01 \x03(\v2\x1e.base.v1.AiProviderModelOptionB \xbaG\x1d\x92\x02\x1aProvider及其模型列表R\tproviders\"\xc1\x01\n" +
 	"\x15AiProviderModelOption\x122\n" +
 	"\vprovider_id\x18\x01 \x01(\x03B\x11\xbaG\x0e\x92\x02\vProvider IDR\n" +
 	"providerId\x12(\n" +
-	"\x04name\x18\x02 \x01(\tB\x14\xbaG\x11\x92\x02\x0eProvider名称R\x04name\x120\n" +
-	"\x06models\x18\x03 \x03(\tB\x18\xbaG\x15\x92\x02\x12模型名称列表R\x06models\"\x84\x01\n" +
-	"\"ListAiProviderModelOptionsResponse\x12^\n" +
-	"\tproviders\x18\x01 \x03(\v2\x1e.base.v1.AiProviderModelOptionB \xbaG\x1d\x92\x02\x1aProvider及其模型列表R\tproviders2\xb1\x01\n" +
+	"\x04name\x18\x02 \x01(\tB\x14\xbaG\x11\x92\x02\x0eProvider名称R\x04name\x12J\n" +
+	"\x06models\x18\x03 \x03(\v2\x18.base.v1.AiProviderModelB\x18\xbaG\x15\x92\x02\x12模型选项列表R\x06models\"\xa2\x01\n" +
+	"\x0fAiProviderModel\x121\n" +
+	"\n" +
+	"model_name\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f模型名称R\tmodelName\x12\\\n" +
+	"\fdisplay_name\x18\x02 \x01(\tB9\xbaG6\x92\x023展示名称，为空时由前端按模型名映射R\vdisplayName2\xb1\x01\n" +
 	"\x0eAiModelService\x12\x9e\x01\n" +
 	"\x1aListAiProviderModelOptions\x12*.base.v1.ListAiProviderModelOptionsRequest\x1a+.base.v1.ListAiProviderModelOptionsResponse\"'\x82\xd3\xe4\x93\x02!\x12\x1f/api/v1/base/ai/provider-modelsB\x9f\x01\n" +
 	"\vcom.base.v1B\x0fAiProviderProtoP\x01ZBgithub.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1;basev1\xa2\x02\x03BXX\xaa\x02\aBase.V1\xca\x02\aBase\\V1\xe2\x02\x13Base\\V1\\GPBMetadata\xea\x02\bBase::V1b\x06proto3"
@@ -196,21 +253,23 @@ func file_base_v1_ai_provider_proto_rawDescGZIP() []byte {
 	return file_base_v1_ai_provider_proto_rawDescData
 }
 
-var file_base_v1_ai_provider_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
+var file_base_v1_ai_provider_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
 var file_base_v1_ai_provider_proto_goTypes = []any{
 	(*ListAiProviderModelOptionsRequest)(nil),  // 0: base.v1.ListAiProviderModelOptionsRequest
-	(*AiProviderModelOption)(nil),              // 1: base.v1.AiProviderModelOption
-	(*ListAiProviderModelOptionsResponse)(nil), // 2: base.v1.ListAiProviderModelOptionsResponse
+	(*ListAiProviderModelOptionsResponse)(nil), // 1: base.v1.ListAiProviderModelOptionsResponse
+	(*AiProviderModelOption)(nil),              // 2: base.v1.AiProviderModelOption
+	(*AiProviderModel)(nil),                    // 3: base.v1.AiProviderModel
 }
 var file_base_v1_ai_provider_proto_depIdxs = []int32{
-	1, // 0: base.v1.ListAiProviderModelOptionsResponse.providers:type_name -> base.v1.AiProviderModelOption
-	0, // 1: base.v1.AiModelService.ListAiProviderModelOptions:input_type -> base.v1.ListAiProviderModelOptionsRequest
-	2, // 2: base.v1.AiModelService.ListAiProviderModelOptions:output_type -> base.v1.ListAiProviderModelOptionsResponse
-	2, // [2:3] is the sub-list for method output_type
-	1, // [1:2] is the sub-list for method input_type
-	1, // [1:1] is the sub-list for extension type_name
-	1, // [1:1] is the sub-list for extension extendee
-	0, // [0:1] is the sub-list for field type_name
+	2, // 0: base.v1.ListAiProviderModelOptionsResponse.providers:type_name -> base.v1.AiProviderModelOption
+	3, // 1: base.v1.AiProviderModelOption.models:type_name -> base.v1.AiProviderModel
+	0, // 2: base.v1.AiModelService.ListAiProviderModelOptions:input_type -> base.v1.ListAiProviderModelOptionsRequest
+	1, // 3: base.v1.AiModelService.ListAiProviderModelOptions:output_type -> base.v1.ListAiProviderModelOptionsResponse
+	3, // [3:4] is the sub-list for method output_type
+	2, // [2:3] is the sub-list for method input_type
+	2, // [2:2] is the sub-list for extension type_name
+	2, // [2:2] is the sub-list for extension extendee
+	0, // [0:2] is the sub-list for field type_name
 }
 
 func init() { file_base_v1_ai_provider_proto_init() }
@@ -224,7 +283,7 @@ func file_base_v1_ai_provider_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_base_v1_ai_provider_proto_rawDesc), len(file_base_v1_ai_provider_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   3,
+			NumMessages:   4,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

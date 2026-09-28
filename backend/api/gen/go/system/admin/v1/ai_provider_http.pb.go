@@ -24,6 +24,7 @@ const OperationAiProviderServiceDeleteAiProvider = "/system.admin.v1.AiProviderS
 const OperationAiProviderServiceGetAiProvider = "/system.admin.v1.AiProviderService/GetAiProvider"
 const OperationAiProviderServicePageAiProvider = "/system.admin.v1.AiProviderService/PageAiProvider"
 const OperationAiProviderServiceSetAiProviderStatus = "/system.admin.v1.AiProviderService/SetAiProviderStatus"
+const OperationAiProviderServiceTestAiProviderModels = "/system.admin.v1.AiProviderService/TestAiProviderModels"
 const OperationAiProviderServiceUpdateAiProvider = "/system.admin.v1.AiProviderService/UpdateAiProvider"
 
 type AiProviderServiceHTTPServer interface {
@@ -37,6 +38,8 @@ type AiProviderServiceHTTPServer interface {
 	PageAiProvider(context.Context, *PageAiProviderRequest) (*PageAiProviderResponse, error)
 	// SetAiProviderStatus 设置AI供应商状态。
 	SetAiProviderStatus(context.Context, *SetAiProviderStatusRequest) (*emptypb.Empty, error)
+	// TestAiProviderModels 测试AI供应商表单中的全部模型。
+	TestAiProviderModels(context.Context, *TestAiProviderModelsRequest) (*TestAiProviderModelsResponse, error)
 	// UpdateAiProvider 更新AI供应商。
 	UpdateAiProvider(context.Context, *UpdateAiProviderRequest) (*emptypb.Empty, error)
 }
@@ -47,6 +50,7 @@ func RegisterAiProviderServiceHTTPServer(s *http.Server, srv AiProviderServiceHT
 	r.Handle("GET", "/api/v1/admin/base/ai-provider/{id}", _AiProviderService_GetAiProvider0_HTTP_Handler(srv))
 	r.Handle("POST", "/api/v1/admin/base/ai-provider", _AiProviderService_CreateAiProvider0_HTTP_Handler(srv))
 	r.Handle("PUT", "/api/v1/admin/base/ai-provider/{ai_provider.id}", _AiProviderService_UpdateAiProvider0_HTTP_Handler(srv))
+	r.Handle("POST", "/api/v1/admin/base/ai-provider/test-models", _AiProviderService_TestAiProviderModels0_HTTP_Handler(srv))
 	r.Handle("DELETE", "/api/v1/admin/base/ai-provider/{id}", _AiProviderService_DeleteAiProvider0_HTTP_Handler(srv))
 	r.Handle("PUT", "/api/v1/admin/base/ai-provider/{id}/status", _AiProviderService_SetAiProviderStatus0_HTTP_Handler(srv))
 }
@@ -139,6 +143,28 @@ func _AiProviderService_UpdateAiProvider0_HTTP_Handler(srv AiProviderServiceHTTP
 	}
 }
 
+func _AiProviderService_TestAiProviderModels0_HTTP_Handler(srv AiProviderServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in TestAiProviderModelsRequest
+		if err := ctx.Bind(&in.AiProvider); err != nil {
+			return err
+		}
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationAiProviderServiceTestAiProviderModels)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.TestAiProviderModels(ctx, req.(*TestAiProviderModelsRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*TestAiProviderModelsResponse)
+		return ctx.Result(200, reply)
+	}
+}
+
 func _AiProviderService_DeleteAiProvider0_HTTP_Handler(srv AiProviderServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in DeleteAiProviderRequest
@@ -194,6 +220,8 @@ type AiProviderServiceHTTPClient interface {
 	PageAiProvider(ctx context.Context, req *PageAiProviderRequest, opts ...http.CallOption) (rsp *PageAiProviderResponse, err error)
 	// SetAiProviderStatus 设置AI供应商状态。
 	SetAiProviderStatus(ctx context.Context, req *SetAiProviderStatusRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
+	// TestAiProviderModels 测试AI供应商表单中的全部模型。
+	TestAiProviderModels(ctx context.Context, req *TestAiProviderModelsRequest, opts ...http.CallOption) (rsp *TestAiProviderModelsResponse, err error)
 	// UpdateAiProvider 更新AI供应商。
 	UpdateAiProvider(ctx context.Context, req *UpdateAiProviderRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 }
@@ -287,6 +315,24 @@ func (c *AiProviderServiceHTTPClientImpl) SetAiProviderStatus(ctx context.Contex
 		http.PathTemplate(pattern),
 	}, opts...)
 	err := c.cc.Invoke(ctx, "PUT", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+// TestAiProviderModels 测试AI供应商表单中的全部模型。
+func (c *AiProviderServiceHTTPClientImpl) TestAiProviderModels(ctx context.Context, in *TestAiProviderModelsRequest, opts ...http.CallOption) (*TestAiProviderModelsResponse, error) {
+	var out TestAiProviderModelsResponse
+	pattern := "/api/v1/admin/base/ai-provider/test-models"
+	path := http.BuildPath(pattern, in, http.WithQueryParams(), http.WithOmitFields("aiProvider"))
+	opts = append([]http.CallOption{
+		http.Accept("application/protojson"),
+		http.ContentType("application/protojson"),
+		http.Operation(OperationAiProviderServiceTestAiProviderModels),
+		http.PathTemplate(pattern),
+	}, opts...)
+	err := c.cc.Invoke(ctx, "POST", path, in.AiProvider, &out, opts...)
 	if err != nil {
 		return nil, err
 	}

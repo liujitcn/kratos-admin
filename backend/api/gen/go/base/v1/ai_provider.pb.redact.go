@@ -70,6 +70,18 @@ func (x *ListAiProviderModelOptionsRequest) Redact() {
 	}
 }
 
+// Ensure ListAiProviderModelOptionsResponse implements the Redactor interface at compile time.
+var _ redact.Redactor = (*ListAiProviderModelOptionsResponse)(nil)
+
+// Redact method implementation for ListAiProviderModelOptionsResponse
+func (x *ListAiProviderModelOptionsResponse) Redact() {
+	if x == nil {
+		return
+	}
+
+	// Safe field: Providers
+}
+
 // Ensure AiProviderModelOption implements the Redactor interface at compile time.
 var _ redact.Redactor = (*AiProviderModelOption)(nil)
 
@@ -86,14 +98,16 @@ func (x *AiProviderModelOption) Redact() {
 	// Safe field: Models
 }
 
-// Ensure ListAiProviderModelOptionsResponse implements the Redactor interface at compile time.
-var _ redact.Redactor = (*ListAiProviderModelOptionsResponse)(nil)
+// Ensure AiProviderModel implements the Redactor interface at compile time.
+var _ redact.Redactor = (*AiProviderModel)(nil)
 
-// Redact method implementation for ListAiProviderModelOptionsResponse
-func (x *ListAiProviderModelOptionsResponse) Redact() {
+// Redact method implementation for AiProviderModel
+func (x *AiProviderModel) Redact() {
 	if x == nil {
 		return
 	}
 
-	// Safe field: Providers
+	// Safe field: ModelName
+
+	// Safe field: DisplayName
 }

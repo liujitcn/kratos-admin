@@ -27,6 +27,10 @@ service AiProviderService {
   rpc UpdateAiProvider(UpdateAiProviderRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {put: "/api/v1/admin/base/ai-provider/{ai_provider.id}" body: "ai_provider"};
   }
+  // 测试AI供应商表单中的全部模型。
+  rpc TestAiProviderModels(TestAiProviderModelsRequest) returns (TestAiProviderModelsResponse) {
+    option (google.api.http) = {post: "/api/v1/admin/base/ai-provider/test-models" body: "ai_provider"};
+  }
   // 删除AI供应商。
   rpc DeleteAiProvider(DeleteAiProviderRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {delete: "/api/v1/admin/base/ai-provider/{id}"};
@@ -83,6 +87,24 @@ message CreateAiProviderRequest {
 message UpdateAiProviderRequest {
   option (buf.validate.message).cel = {id: "system.admin.base.ai.provider.update.id.required" message: "供应商ID不能为空" expression: "this.ai_provider.id > 0"};
   AiProviderForm ai_provider = 1 [(gnostic.openapi.v3.property) = {description: "AI供应商表单"}, (buf.validate.field).required = true]; // AI供应商表单
+}
+
+// 测试AI供应商全部模型请求。
+message TestAiProviderModelsRequest {
+  AiProviderForm ai_provider = 1 [(gnostic.openapi.v3.property) = {description: "待测试的AI供应商草稿"}, (buf.validate.field).required = true]; // 待测试的AI供应商草稿
+}
+
+// 单个AI模型连通性测试结果。
+message AiProviderModelTestResult {
+  string model_name = 1 [(gnostic.openapi.v3.property) = {description: "模型名称"}]; // 模型名称
+  bool success = 2 [(gnostic.openapi.v3.property) = {description: "测试是否成功"}]; // 测试是否成功
+  int32 duration_ms = 3 [(gnostic.openapi.v3.property) = {description: "测试耗时毫秒"}, (buf.validate.field).int32 = {gte: 0}]; // 测试耗时毫秒
+  string message = 4 [(gnostic.openapi.v3.property) = {description: "失败原因；成功时为空"}]; // 失败原因；成功时为空
+}
+
+// 测试AI供应商全部模型响应。
+message TestAiProviderModelsResponse {
+  repeated AiProviderModelTestResult results = 1 [(gnostic.openapi.v3.property) = {description: "按配置顺序返回的模型测试结果"}]; // 模型测试结果
 }
 
 // 删除AI供应商请求。

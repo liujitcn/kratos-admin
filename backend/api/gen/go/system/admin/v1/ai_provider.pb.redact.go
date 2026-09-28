@@ -101,6 +101,17 @@ func (s *redactedAiProviderServiceServer) UpdateAiProvider(ctx context.Context, 
 	return res, err
 }
 
+// TestAiProviderModels is the redacted wrapper for the actual AiProviderServiceServer.TestAiProviderModels method
+// Unary RPC
+func (s *redactedAiProviderServiceServer) TestAiProviderModels(ctx context.Context, in *TestAiProviderModelsRequest) (*TestAiProviderModelsResponse, error) {
+	res, err := s.srv.TestAiProviderModels(ctx, in)
+	if !s.bypass.CheckInternal(ctx) {
+		// Apply redaction to the response
+		redact.ApplyWith(redact.WithDirection(redact.WithOperation(ctx, "/system.admin.v1.AiProviderService/TestAiProviderModels"), redact.DirectionResponse), nil, res)
+	}
+	return res, err
+}
+
 // DeleteAiProvider is the redacted wrapper for the actual AiProviderServiceServer.DeleteAiProvider method
 // Unary RPC
 func (s *redactedAiProviderServiceServer) DeleteAiProvider(ctx context.Context, in *DeleteAiProviderRequest) (*emptypb.Empty, error) {
@@ -219,6 +230,48 @@ func (x *UpdateAiProviderRequest) Redact() {
 	}
 
 	// Safe field: AiProvider
+}
+
+// Ensure TestAiProviderModelsRequest implements the Redactor interface at compile time.
+var _ redact.Redactor = (*TestAiProviderModelsRequest)(nil)
+
+// Redact method implementation for TestAiProviderModelsRequest
+func (x *TestAiProviderModelsRequest) Redact() {
+	if x == nil {
+		return
+	}
+
+	// Safe field: AiProvider
+}
+
+// Ensure AiProviderModelTestResult implements the Redactor interface at compile time.
+var _ redact.Redactor = (*AiProviderModelTestResult)(nil)
+
+// Redact method implementation for AiProviderModelTestResult
+func (x *AiProviderModelTestResult) Redact() {
+	if x == nil {
+		return
+	}
+
+	// Safe field: ModelName
+
+	// Safe field: Success
+
+	// Safe field: DurationMs
+
+	// Safe field: Message
+}
+
+// Ensure TestAiProviderModelsResponse implements the Redactor interface at compile time.
+var _ redact.Redactor = (*TestAiProviderModelsResponse)(nil)
+
+// Redact method implementation for TestAiProviderModelsResponse
+func (x *TestAiProviderModelsResponse) Redact() {
+	if x == nil {
+		return
+	}
+
+	// Safe field: Results
 }
 
 // Ensure DeleteAiProviderRequest implements the Redactor interface at compile time.

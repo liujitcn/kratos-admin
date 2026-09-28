@@ -402,6 +402,165 @@ func (x *UpdateAiProviderRequest) GetAiProvider() *AiProviderForm {
 	return nil
 }
 
+// 测试AI供应商全部模型请求。
+type TestAiProviderModelsRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	AiProvider    *AiProviderForm        `protobuf:"bytes,1,opt,name=ai_provider,json=aiProvider,proto3" json:"ai_provider,omitempty"` // 待测试的AI供应商草稿
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *TestAiProviderModelsRequest) Reset() {
+	*x = TestAiProviderModelsRequest{}
+	mi := &file_system_admin_v1_ai_provider_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *TestAiProviderModelsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*TestAiProviderModelsRequest) ProtoMessage() {}
+
+func (x *TestAiProviderModelsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_system_admin_v1_ai_provider_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use TestAiProviderModelsRequest.ProtoReflect.Descriptor instead.
+func (*TestAiProviderModelsRequest) Descriptor() ([]byte, []int) {
+	return file_system_admin_v1_ai_provider_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *TestAiProviderModelsRequest) GetAiProvider() *AiProviderForm {
+	if x != nil {
+		return x.AiProvider
+	}
+	return nil
+}
+
+// 单个AI模型连通性测试结果。
+type AiProviderModelTestResult struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ModelName     string                 `protobuf:"bytes,1,opt,name=model_name,json=modelName,proto3" json:"model_name,omitempty"`     // 模型名称
+	Success       bool                   `protobuf:"varint,2,opt,name=success,proto3" json:"success,omitempty"`                         // 测试是否成功
+	DurationMs    int32                  `protobuf:"varint,3,opt,name=duration_ms,json=durationMs,proto3" json:"duration_ms,omitempty"` // 测试耗时毫秒
+	Message       string                 `protobuf:"bytes,4,opt,name=message,proto3" json:"message,omitempty"`                          // 失败原因；成功时为空
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AiProviderModelTestResult) Reset() {
+	*x = AiProviderModelTestResult{}
+	mi := &file_system_admin_v1_ai_provider_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AiProviderModelTestResult) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AiProviderModelTestResult) ProtoMessage() {}
+
+func (x *AiProviderModelTestResult) ProtoReflect() protoreflect.Message {
+	mi := &file_system_admin_v1_ai_provider_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AiProviderModelTestResult.ProtoReflect.Descriptor instead.
+func (*AiProviderModelTestResult) Descriptor() ([]byte, []int) {
+	return file_system_admin_v1_ai_provider_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *AiProviderModelTestResult) GetModelName() string {
+	if x != nil {
+		return x.ModelName
+	}
+	return ""
+}
+
+func (x *AiProviderModelTestResult) GetSuccess() bool {
+	if x != nil {
+		return x.Success
+	}
+	return false
+}
+
+func (x *AiProviderModelTestResult) GetDurationMs() int32 {
+	if x != nil {
+		return x.DurationMs
+	}
+	return 0
+}
+
+func (x *AiProviderModelTestResult) GetMessage() string {
+	if x != nil {
+		return x.Message
+	}
+	return ""
+}
+
+// 测试AI供应商全部模型响应。
+type TestAiProviderModelsResponse struct {
+	state         protoimpl.MessageState       `protogen:"open.v1"`
+	Results       []*AiProviderModelTestResult `protobuf:"bytes,1,rep,name=results,proto3" json:"results,omitempty"` // 模型测试结果
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *TestAiProviderModelsResponse) Reset() {
+	*x = TestAiProviderModelsResponse{}
+	mi := &file_system_admin_v1_ai_provider_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *TestAiProviderModelsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*TestAiProviderModelsResponse) ProtoMessage() {}
+
+func (x *TestAiProviderModelsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_system_admin_v1_ai_provider_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use TestAiProviderModelsResponse.ProtoReflect.Descriptor instead.
+func (*TestAiProviderModelsResponse) Descriptor() ([]byte, []int) {
+	return file_system_admin_v1_ai_provider_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *TestAiProviderModelsResponse) GetResults() []*AiProviderModelTestResult {
+	if x != nil {
+		return x.Results
+	}
+	return nil
+}
+
 // 删除AI供应商请求。
 type DeleteAiProviderRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -412,7 +571,7 @@ type DeleteAiProviderRequest struct {
 
 func (x *DeleteAiProviderRequest) Reset() {
 	*x = DeleteAiProviderRequest{}
-	mi := &file_system_admin_v1_ai_provider_proto_msgTypes[6]
+	mi := &file_system_admin_v1_ai_provider_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -424,7 +583,7 @@ func (x *DeleteAiProviderRequest) String() string {
 func (*DeleteAiProviderRequest) ProtoMessage() {}
 
 func (x *DeleteAiProviderRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_ai_provider_proto_msgTypes[6]
+	mi := &file_system_admin_v1_ai_provider_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -437,7 +596,7 @@ func (x *DeleteAiProviderRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteAiProviderRequest.ProtoReflect.Descriptor instead.
 func (*DeleteAiProviderRequest) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_ai_provider_proto_rawDescGZIP(), []int{6}
+	return file_system_admin_v1_ai_provider_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *DeleteAiProviderRequest) GetId() int64 {
@@ -458,7 +617,7 @@ type SetAiProviderStatusRequest struct {
 
 func (x *SetAiProviderStatusRequest) Reset() {
 	*x = SetAiProviderStatusRequest{}
-	mi := &file_system_admin_v1_ai_provider_proto_msgTypes[7]
+	mi := &file_system_admin_v1_ai_provider_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -470,7 +629,7 @@ func (x *SetAiProviderStatusRequest) String() string {
 func (*SetAiProviderStatusRequest) ProtoMessage() {}
 
 func (x *SetAiProviderStatusRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_ai_provider_proto_msgTypes[7]
+	mi := &file_system_admin_v1_ai_provider_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -483,7 +642,7 @@ func (x *SetAiProviderStatusRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SetAiProviderStatusRequest.ProtoReflect.Descriptor instead.
 func (*SetAiProviderStatusRequest) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_ai_provider_proto_rawDescGZIP(), []int{7}
+	return file_system_admin_v1_ai_provider_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *SetAiProviderStatusRequest) GetId() int64 {
@@ -519,7 +678,7 @@ type AiProvider struct {
 
 func (x *AiProvider) Reset() {
 	*x = AiProvider{}
-	mi := &file_system_admin_v1_ai_provider_proto_msgTypes[8]
+	mi := &file_system_admin_v1_ai_provider_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -531,7 +690,7 @@ func (x *AiProvider) String() string {
 func (*AiProvider) ProtoMessage() {}
 
 func (x *AiProvider) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_ai_provider_proto_msgTypes[8]
+	mi := &file_system_admin_v1_ai_provider_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -544,7 +703,7 @@ func (x *AiProvider) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AiProvider.ProtoReflect.Descriptor instead.
 func (*AiProvider) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_ai_provider_proto_rawDescGZIP(), []int{8}
+	return file_system_admin_v1_ai_provider_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *AiProvider) GetId() int64 {
@@ -660,7 +819,19 @@ const file_system_admin_v1_ai_provider_proto_rawDesc = "" +
 	"\x17UpdateAiProviderRequest\x12_\n" +
 	"\vai_provider\x18\x01 \x01(\v2\x1f.system.admin.v1.AiProviderFormB\x1d\xbaG\x14\x92\x02\x11AI供应商表单\xbaH\x03\xc8\x01\x01R\n" +
 	"aiProvider:i\xbaHf\x1ad\n" +
-	"0system.admin.base.ai.provider.update.id.required\x12\x17供应商ID不能为空\x1a\x17this.ai_provider.id > 0\"C\n" +
+	"0system.admin.base.ai.provider.update.id.required\x12\x17供应商ID不能为空\x1a\x17this.ai_provider.id > 0\"\x8a\x01\n" +
+	"\x1bTestAiProviderModelsRequest\x12k\n" +
+	"\vai_provider\x18\x01 \x01(\v2\x1f.system.admin.v1.AiProviderFormB)\xbaG \x92\x02\x1d待测试的AI供应商草稿\xbaH\x03\xc8\x01\x01R\n" +
+	"aiProvider\"\x84\x02\n" +
+	"\x19AiProviderModelTestResult\x121\n" +
+	"\n" +
+	"model_name\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f模型名称R\tmodelName\x122\n" +
+	"\asuccess\x18\x02 \x01(\bB\x18\xbaG\x15\x92\x02\x12测试是否成功R\asuccess\x12@\n" +
+	"\vduration_ms\x18\x03 \x01(\x05B\x1f\xbaG\x15\x92\x02\x12测试耗时毫秒\xbaH\x04\x1a\x02(\x00R\n" +
+	"durationMs\x12>\n" +
+	"\amessage\x18\x04 \x01(\tB$\xbaG!\x92\x02\x1e失败原因；成功时为空R\amessage\"\x96\x01\n" +
+	"\x1cTestAiProviderModelsResponse\x12v\n" +
+	"\aresults\x18\x01 \x03(\v2*.system.admin.v1.AiProviderModelTestResultB0\xbaG-\x92\x02*按配置顺序返回的模型测试结果R\aresults\"C\n" +
 	"\x17DeleteAiProviderRequest\x12(\n" +
 	"\x02id\x18\x01 \x01(\x03B\x18\xbaG\x0e\x92\x02\v供应商ID\xbaH\x04\"\x02 \x00R\x02id\"\x87\x01\n" +
 	"\x1aSetAiProviderStatusRequest\x12(\n" +
@@ -682,12 +853,13 @@ const file_system_admin_v1_ai_provider_proto_rawDesc = "" +
 	"\n" +
 	"updated_at\x18\xc9\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f更新时间R\tupdatedAtJ\x04\b\x03\x10\x04J\x04\b\t\x10\n" +
 	"J\x04\b\n" +
-	"\x10\vR\x04typeR\vdescriptionR\x04icon2\xe7\x06\n" +
+	"\x10\vR\x04typeR\vdescriptionR\x04icon2\x9e\b\n" +
 	"\x11AiProviderService\x12\x89\x01\n" +
 	"\x0ePageAiProvider\x12&.system.admin.v1.PageAiProviderRequest\x1a'.system.admin.v1.PageAiProviderResponse\"&\x82\xd3\xe4\x93\x02 \x12\x1e/api/v1/admin/base/ai-provider\x12\x84\x01\n" +
 	"\rGetAiProvider\x12%.system.admin.v1.GetAiProviderRequest\x1a\x1f.system.admin.v1.AiProviderForm\"+\x82\xd3\xe4\x93\x02%\x12#/api/v1/admin/base/ai-provider/{id}\x12\x89\x01\n" +
 	"\x10CreateAiProvider\x12(.system.admin.v1.CreateAiProviderRequest\x1a\x16.google.protobuf.Empty\"3\x82\xd3\xe4\x93\x02-:\vai_provider\"\x1e/api/v1/admin/base/ai-provider\x12\x9a\x01\n" +
-	"\x10UpdateAiProvider\x12(.system.admin.v1.UpdateAiProviderRequest\x1a\x16.google.protobuf.Empty\"D\x82\xd3\xe4\x93\x02>:\vai_provider\x1a//api/v1/admin/base/ai-provider/{ai_provider.id}\x12\x81\x01\n" +
+	"\x10UpdateAiProvider\x12(.system.admin.v1.UpdateAiProviderRequest\x1a\x16.google.protobuf.Empty\"D\x82\xd3\xe4\x93\x02>:\vai_provider\x1a//api/v1/admin/base/ai-provider/{ai_provider.id}\x12\xb4\x01\n" +
+	"\x14TestAiProviderModels\x12,.system.admin.v1.TestAiProviderModelsRequest\x1a-.system.admin.v1.TestAiProviderModelsResponse\"?\x82\xd3\xe4\x93\x029:\vai_provider\"*/api/v1/admin/base/ai-provider/test-models\x12\x81\x01\n" +
 	"\x10DeleteAiProvider\x12(.system.admin.v1.DeleteAiProviderRequest\x1a\x16.google.protobuf.Empty\"+\x82\xd3\xe4\x93\x02%*#/api/v1/admin/base/ai-provider/{id}\x12\x91\x01\n" +
 	"\x13SetAiProviderStatus\x12+.system.admin.v1.SetAiProviderStatusRequest\x1a\x16.google.protobuf.Empty\"5\x82\xd3\xe4\x93\x02/:\x01*\x1a*/api/v1/admin/base/ai-provider/{id}/statusB\xd1\x01\n" +
 	"\x13com.system.admin.v1B\x0fAiProviderProtoP\x01ZKgithub.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1;adminv1\xa2\x02\x03SAX\xaa\x02\x0fSystem.Admin.V1\xca\x02\x0fSystem\\Admin\\V1\xe2\x02\x1bSystem\\Admin\\V1\\GPBMetadata\xea\x02\x11System::Admin::V1b\x06proto3"
@@ -704,47 +876,54 @@ func file_system_admin_v1_ai_provider_proto_rawDescGZIP() []byte {
 	return file_system_admin_v1_ai_provider_proto_rawDescData
 }
 
-var file_system_admin_v1_ai_provider_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
+var file_system_admin_v1_ai_provider_proto_msgTypes = make([]protoimpl.MessageInfo, 12)
 var file_system_admin_v1_ai_provider_proto_goTypes = []any{
-	(*PageAiProviderRequest)(nil),      // 0: system.admin.v1.PageAiProviderRequest
-	(*PageAiProviderResponse)(nil),     // 1: system.admin.v1.PageAiProviderResponse
-	(*GetAiProviderRequest)(nil),       // 2: system.admin.v1.GetAiProviderRequest
-	(*AiProviderForm)(nil),             // 3: system.admin.v1.AiProviderForm
-	(*CreateAiProviderRequest)(nil),    // 4: system.admin.v1.CreateAiProviderRequest
-	(*UpdateAiProviderRequest)(nil),    // 5: system.admin.v1.UpdateAiProviderRequest
-	(*DeleteAiProviderRequest)(nil),    // 6: system.admin.v1.DeleteAiProviderRequest
-	(*SetAiProviderStatusRequest)(nil), // 7: system.admin.v1.SetAiProviderStatusRequest
-	(*AiProvider)(nil),                 // 8: system.admin.v1.AiProvider
-	(commonv1.Status)(0),               // 9: common.v1.Status
-	(*structpb.Struct)(nil),            // 10: google.protobuf.Struct
-	(*emptypb.Empty)(nil),              // 11: google.protobuf.Empty
+	(*PageAiProviderRequest)(nil),        // 0: system.admin.v1.PageAiProviderRequest
+	(*PageAiProviderResponse)(nil),       // 1: system.admin.v1.PageAiProviderResponse
+	(*GetAiProviderRequest)(nil),         // 2: system.admin.v1.GetAiProviderRequest
+	(*AiProviderForm)(nil),               // 3: system.admin.v1.AiProviderForm
+	(*CreateAiProviderRequest)(nil),      // 4: system.admin.v1.CreateAiProviderRequest
+	(*UpdateAiProviderRequest)(nil),      // 5: system.admin.v1.UpdateAiProviderRequest
+	(*TestAiProviderModelsRequest)(nil),  // 6: system.admin.v1.TestAiProviderModelsRequest
+	(*AiProviderModelTestResult)(nil),    // 7: system.admin.v1.AiProviderModelTestResult
+	(*TestAiProviderModelsResponse)(nil), // 8: system.admin.v1.TestAiProviderModelsResponse
+	(*DeleteAiProviderRequest)(nil),      // 9: system.admin.v1.DeleteAiProviderRequest
+	(*SetAiProviderStatusRequest)(nil),   // 10: system.admin.v1.SetAiProviderStatusRequest
+	(*AiProvider)(nil),                   // 11: system.admin.v1.AiProvider
+	(commonv1.Status)(0),                 // 12: common.v1.Status
+	(*structpb.Struct)(nil),              // 13: google.protobuf.Struct
+	(*emptypb.Empty)(nil),                // 14: google.protobuf.Empty
 }
 var file_system_admin_v1_ai_provider_proto_depIdxs = []int32{
-	9,  // 0: system.admin.v1.PageAiProviderRequest.status:type_name -> common.v1.Status
-	8,  // 1: system.admin.v1.PageAiProviderResponse.providers:type_name -> system.admin.v1.AiProvider
-	10, // 2: system.admin.v1.AiProviderForm.config:type_name -> google.protobuf.Struct
-	9,  // 3: system.admin.v1.AiProviderForm.status:type_name -> common.v1.Status
+	12, // 0: system.admin.v1.PageAiProviderRequest.status:type_name -> common.v1.Status
+	11, // 1: system.admin.v1.PageAiProviderResponse.providers:type_name -> system.admin.v1.AiProvider
+	13, // 2: system.admin.v1.AiProviderForm.config:type_name -> google.protobuf.Struct
+	12, // 3: system.admin.v1.AiProviderForm.status:type_name -> common.v1.Status
 	3,  // 4: system.admin.v1.CreateAiProviderRequest.ai_provider:type_name -> system.admin.v1.AiProviderForm
 	3,  // 5: system.admin.v1.UpdateAiProviderRequest.ai_provider:type_name -> system.admin.v1.AiProviderForm
-	9,  // 6: system.admin.v1.SetAiProviderStatusRequest.status:type_name -> common.v1.Status
-	9,  // 7: system.admin.v1.AiProvider.status:type_name -> common.v1.Status
-	0,  // 8: system.admin.v1.AiProviderService.PageAiProvider:input_type -> system.admin.v1.PageAiProviderRequest
-	2,  // 9: system.admin.v1.AiProviderService.GetAiProvider:input_type -> system.admin.v1.GetAiProviderRequest
-	4,  // 10: system.admin.v1.AiProviderService.CreateAiProvider:input_type -> system.admin.v1.CreateAiProviderRequest
-	5,  // 11: system.admin.v1.AiProviderService.UpdateAiProvider:input_type -> system.admin.v1.UpdateAiProviderRequest
-	6,  // 12: system.admin.v1.AiProviderService.DeleteAiProvider:input_type -> system.admin.v1.DeleteAiProviderRequest
-	7,  // 13: system.admin.v1.AiProviderService.SetAiProviderStatus:input_type -> system.admin.v1.SetAiProviderStatusRequest
-	1,  // 14: system.admin.v1.AiProviderService.PageAiProvider:output_type -> system.admin.v1.PageAiProviderResponse
-	3,  // 15: system.admin.v1.AiProviderService.GetAiProvider:output_type -> system.admin.v1.AiProviderForm
-	11, // 16: system.admin.v1.AiProviderService.CreateAiProvider:output_type -> google.protobuf.Empty
-	11, // 17: system.admin.v1.AiProviderService.UpdateAiProvider:output_type -> google.protobuf.Empty
-	11, // 18: system.admin.v1.AiProviderService.DeleteAiProvider:output_type -> google.protobuf.Empty
-	11, // 19: system.admin.v1.AiProviderService.SetAiProviderStatus:output_type -> google.protobuf.Empty
-	14, // [14:20] is the sub-list for method output_type
-	8,  // [8:14] is the sub-list for method input_type
-	8,  // [8:8] is the sub-list for extension type_name
-	8,  // [8:8] is the sub-list for extension extendee
-	0,  // [0:8] is the sub-list for field type_name
+	3,  // 6: system.admin.v1.TestAiProviderModelsRequest.ai_provider:type_name -> system.admin.v1.AiProviderForm
+	7,  // 7: system.admin.v1.TestAiProviderModelsResponse.results:type_name -> system.admin.v1.AiProviderModelTestResult
+	12, // 8: system.admin.v1.SetAiProviderStatusRequest.status:type_name -> common.v1.Status
+	12, // 9: system.admin.v1.AiProvider.status:type_name -> common.v1.Status
+	0,  // 10: system.admin.v1.AiProviderService.PageAiProvider:input_type -> system.admin.v1.PageAiProviderRequest
+	2,  // 11: system.admin.v1.AiProviderService.GetAiProvider:input_type -> system.admin.v1.GetAiProviderRequest
+	4,  // 12: system.admin.v1.AiProviderService.CreateAiProvider:input_type -> system.admin.v1.CreateAiProviderRequest
+	5,  // 13: system.admin.v1.AiProviderService.UpdateAiProvider:input_type -> system.admin.v1.UpdateAiProviderRequest
+	6,  // 14: system.admin.v1.AiProviderService.TestAiProviderModels:input_type -> system.admin.v1.TestAiProviderModelsRequest
+	9,  // 15: system.admin.v1.AiProviderService.DeleteAiProvider:input_type -> system.admin.v1.DeleteAiProviderRequest
+	10, // 16: system.admin.v1.AiProviderService.SetAiProviderStatus:input_type -> system.admin.v1.SetAiProviderStatusRequest
+	1,  // 17: system.admin.v1.AiProviderService.PageAiProvider:output_type -> system.admin.v1.PageAiProviderResponse
+	3,  // 18: system.admin.v1.AiProviderService.GetAiProvider:output_type -> system.admin.v1.AiProviderForm
+	14, // 19: system.admin.v1.AiProviderService.CreateAiProvider:output_type -> google.protobuf.Empty
+	14, // 20: system.admin.v1.AiProviderService.UpdateAiProvider:output_type -> google.protobuf.Empty
+	8,  // 21: system.admin.v1.AiProviderService.TestAiProviderModels:output_type -> system.admin.v1.TestAiProviderModelsResponse
+	14, // 22: system.admin.v1.AiProviderService.DeleteAiProvider:output_type -> google.protobuf.Empty
+	14, // 23: system.admin.v1.AiProviderService.SetAiProviderStatus:output_type -> google.protobuf.Empty
+	17, // [17:24] is the sub-list for method output_type
+	10, // [10:17] is the sub-list for method input_type
+	10, // [10:10] is the sub-list for extension type_name
+	10, // [10:10] is the sub-list for extension extendee
+	0,  // [0:10] is the sub-list for field type_name
 }
 
 func init() { file_system_admin_v1_ai_provider_proto_init() }
@@ -759,7 +938,7 @@ func file_system_admin_v1_ai_provider_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_system_admin_v1_ai_provider_proto_rawDesc), len(file_system_admin_v1_ai_provider_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   9,
+			NumMessages:   12,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

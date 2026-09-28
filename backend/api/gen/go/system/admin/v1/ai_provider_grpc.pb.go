@@ -21,12 +21,13 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	AiProviderService_PageAiProvider_FullMethodName      = "/system.admin.v1.AiProviderService/PageAiProvider"
-	AiProviderService_GetAiProvider_FullMethodName       = "/system.admin.v1.AiProviderService/GetAiProvider"
-	AiProviderService_CreateAiProvider_FullMethodName    = "/system.admin.v1.AiProviderService/CreateAiProvider"
-	AiProviderService_UpdateAiProvider_FullMethodName    = "/system.admin.v1.AiProviderService/UpdateAiProvider"
-	AiProviderService_DeleteAiProvider_FullMethodName    = "/system.admin.v1.AiProviderService/DeleteAiProvider"
-	AiProviderService_SetAiProviderStatus_FullMethodName = "/system.admin.v1.AiProviderService/SetAiProviderStatus"
+	AiProviderService_PageAiProvider_FullMethodName       = "/system.admin.v1.AiProviderService/PageAiProvider"
+	AiProviderService_GetAiProvider_FullMethodName        = "/system.admin.v1.AiProviderService/GetAiProvider"
+	AiProviderService_CreateAiProvider_FullMethodName     = "/system.admin.v1.AiProviderService/CreateAiProvider"
+	AiProviderService_UpdateAiProvider_FullMethodName     = "/system.admin.v1.AiProviderService/UpdateAiProvider"
+	AiProviderService_TestAiProviderModels_FullMethodName = "/system.admin.v1.AiProviderService/TestAiProviderModels"
+	AiProviderService_DeleteAiProvider_FullMethodName     = "/system.admin.v1.AiProviderService/DeleteAiProvider"
+	AiProviderService_SetAiProviderStatus_FullMethodName  = "/system.admin.v1.AiProviderService/SetAiProviderStatus"
 )
 
 // AiProviderServiceClient is the client API for AiProviderService service.
@@ -43,6 +44,8 @@ type AiProviderServiceClient interface {
 	CreateAiProvider(ctx context.Context, in *CreateAiProviderRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// 更新AI供应商。
 	UpdateAiProvider(ctx context.Context, in *UpdateAiProviderRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	// 测试AI供应商表单中的全部模型。
+	TestAiProviderModels(ctx context.Context, in *TestAiProviderModelsRequest, opts ...grpc.CallOption) (*TestAiProviderModelsResponse, error)
 	// 删除AI供应商。
 	DeleteAiProvider(ctx context.Context, in *DeleteAiProviderRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// 设置AI供应商状态。
@@ -97,6 +100,16 @@ func (c *aiProviderServiceClient) UpdateAiProvider(ctx context.Context, in *Upda
 	return out, nil
 }
 
+func (c *aiProviderServiceClient) TestAiProviderModels(ctx context.Context, in *TestAiProviderModelsRequest, opts ...grpc.CallOption) (*TestAiProviderModelsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(TestAiProviderModelsResponse)
+	err := c.cc.Invoke(ctx, AiProviderService_TestAiProviderModels_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *aiProviderServiceClient) DeleteAiProvider(ctx context.Context, in *DeleteAiProviderRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(emptypb.Empty)
@@ -131,6 +144,8 @@ type AiProviderServiceServer interface {
 	CreateAiProvider(context.Context, *CreateAiProviderRequest) (*emptypb.Empty, error)
 	// 更新AI供应商。
 	UpdateAiProvider(context.Context, *UpdateAiProviderRequest) (*emptypb.Empty, error)
+	// 测试AI供应商表单中的全部模型。
+	TestAiProviderModels(context.Context, *TestAiProviderModelsRequest) (*TestAiProviderModelsResponse, error)
 	// 删除AI供应商。
 	DeleteAiProvider(context.Context, *DeleteAiProviderRequest) (*emptypb.Empty, error)
 	// 设置AI供应商状态。
@@ -156,6 +171,9 @@ func (UnimplementedAiProviderServiceServer) CreateAiProvider(context.Context, *C
 }
 func (UnimplementedAiProviderServiceServer) UpdateAiProvider(context.Context, *UpdateAiProviderRequest) (*emptypb.Empty, error) {
 	return nil, status.Error(codes.Unimplemented, "method UpdateAiProvider not implemented")
+}
+func (UnimplementedAiProviderServiceServer) TestAiProviderModels(context.Context, *TestAiProviderModelsRequest) (*TestAiProviderModelsResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method TestAiProviderModels not implemented")
 }
 func (UnimplementedAiProviderServiceServer) DeleteAiProvider(context.Context, *DeleteAiProviderRequest) (*emptypb.Empty, error) {
 	return nil, status.Error(codes.Unimplemented, "method DeleteAiProvider not implemented")
@@ -256,6 +274,24 @@ func _AiProviderService_UpdateAiProvider_Handler(srv interface{}, ctx context.Co
 	return interceptor(ctx, in, info, handler)
 }
 
+func _AiProviderService_TestAiProviderModels_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(TestAiProviderModelsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AiProviderServiceServer).TestAiProviderModels(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AiProviderService_TestAiProviderModels_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AiProviderServiceServer).TestAiProviderModels(ctx, req.(*TestAiProviderModelsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _AiProviderService_DeleteAiProvider_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(DeleteAiProviderRequest)
 	if err := dec(in); err != nil {
@@ -314,6 +350,10 @@ var AiProviderService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "UpdateAiProvider",
 			Handler:    _AiProviderService_UpdateAiProvider_Handler,
+		},
+		{
+			MethodName: "TestAiProviderModels",
+			Handler:    _AiProviderService_TestAiProviderModels_Handler,
 		},
 		{
 			MethodName: "DeleteAiProvider",

@@ -20,6 +20,7 @@ func RegisterAiProviderServiceMCPTools(mcpServer *mcp.Server, aiProviderServiceS
 	RegisterAiProviderServiceGetAiProviderMCPTool(mcpServer, aiProviderServiceServer)
 	RegisterAiProviderServiceCreateAiProviderMCPTool(mcpServer, aiProviderServiceServer)
 	RegisterAiProviderServiceUpdateAiProviderMCPTool(mcpServer, aiProviderServiceServer)
+	RegisterAiProviderServiceTestAiProviderModelsMCPTool(mcpServer, aiProviderServiceServer)
 	RegisterAiProviderServiceDeleteAiProviderMCPTool(mcpServer, aiProviderServiceServer)
 	RegisterAiProviderServiceSetAiProviderStatusMCPTool(mcpServer, aiProviderServiceServer)
 }
@@ -114,6 +115,34 @@ func RegisterAiProviderServiceUpdateAiProviderMCPTool(mcpServer *mcp.Server, aiP
 				}
 			}
 			reply, err := aiProviderServiceServer.UpdateAiProvider(ctx, req)
+			if err != nil {
+				return nil, nil, err
+			}
+			return nil, reply, nil
+		},
+	)
+}
+
+// RegisterAiProviderServiceTestAiProviderModelsMCPTool 注册测试AI供应商表单中的全部模型的 MCP Tool。
+func RegisterAiProviderServiceTestAiProviderModelsMCPTool(mcpServer *mcp.Server, aiProviderServiceServer AiProviderServiceServer) {
+	mcp.AddTool[any, *TestAiProviderModelsResponse](
+		mcpServer,
+		&mcp.Tool{
+			Name:        "system_admin_v1_ai_provider_service_test_ai_provider_models",
+			Description: "测试AI供应商表单中的全部模型。",
+		},
+		func(ctx context.Context, request *mcp.CallToolRequest, input any) (*mcp.CallToolResult, *TestAiProviderModelsResponse, error) {
+			req := &TestAiProviderModelsRequest{}
+			if input != nil {
+				inputBytes, err := json.Marshal(input)
+				if err != nil {
+					return nil, nil, err
+				}
+				if err = json.Unmarshal(inputBytes, req); err != nil {
+					return nil, nil, err
+				}
+			}
+			reply, err := aiProviderServiceServer.TestAiProviderModels(ctx, req)
 			if err != nil {
 				return nil, nil, err
 			}

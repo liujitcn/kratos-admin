@@ -43,6 +43,12 @@ func NewAiProviderServiceAgentTools(aiProviderServiceServer AiProviderServiceSer
 		return nil, err
 	}
 	ts = append(ts, updateAiProviderTool)
+	var testAiProviderModelsTool tool.InvokableTool
+	testAiProviderModelsTool, err = NewAiProviderServiceTestAiProviderModelsAgentTool(aiProviderServiceServer)
+	if err != nil {
+		return nil, err
+	}
+	ts = append(ts, testAiProviderModelsTool)
 	var deleteAiProviderTool tool.InvokableTool
 	deleteAiProviderTool, err = NewAiProviderServiceDeleteAiProviderAgentTool(aiProviderServiceServer)
 	if err != nil {
@@ -128,6 +134,27 @@ func NewAiProviderServiceUpdateAiProviderAgentTool(aiProviderServiceServer AiPro
 				}
 			}
 			return aiProviderServiceServer.UpdateAiProvider(ctx, realReq)
+		},
+	)
+}
+
+// NewAiProviderServiceTestAiProviderModelsAgentTool 创建测试AI供应商表单中的全部模型的 Agent Tool。
+func NewAiProviderServiceTestAiProviderModelsAgentTool(aiProviderServiceServer AiProviderServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[map[string]any, *TestAiProviderModelsResponse](
+		"system_admin_v1_ai_provider_service_test_ai_provider_models",
+		"测试AI供应商表单中的全部模型。",
+		func(ctx context.Context, req map[string]any) (*TestAiProviderModelsResponse, error) {
+			realReq := &TestAiProviderModelsRequest{}
+			if req != nil {
+				reqBytes, err := json.Marshal(req)
+				if err != nil {
+					return nil, err
+				}
+				if err = json.Unmarshal(reqBytes, realReq); err != nil {
+					return nil, err
+				}
+			}
+			return aiProviderServiceServer.TestAiProviderModels(ctx, realReq)
 		},
 	)
 }
