@@ -60,11 +60,7 @@ func BuildModules(migrations *migration.Migration, config2 *configv1.Bootstrap, 
 	aiSessionCase := biz2.NewAiSessionCase(baseCase, transaction, aiSessionRepository, aiMessageRepository, catalog)
 	baseUserRepository := data2.NewBaseUserRepository(dataData)
 	baseUserCase := biz2.NewBaseUserCase(baseCase, baseUserRepository)
-	ai_Model, err := config.ParseAIModel(config2)
-	if err != nil {
-		return nil, nil, err
-	}
-	assistantClient := model.NewAssistantClient(ai_Model)
+	registry := model.NewRegistry()
 	baseAPIRepository := data2.NewBaseAPIRepository(dataData)
 	mcpCase, err := biz2.NewMcpCase(baseCase, baseAPIRepository, authorizer, catalog)
 	if err != nil {
@@ -106,6 +102,9 @@ func BuildModules(migrations *migration.Migration, config2 *configv1.Bootstrap, 
 	authCase := biz3.NewAuthCase(baseCase, bizBaseUserCase, baseRoleCase, baseDeptCase, baseTenantCase, baseMenuCase, fileCase)
 	authService := admin.NewAuthService(authCase)
 	baseApiService := admin.NewBaseApiService(baseAPICase)
+	aiProviderRepository := data2.NewAiProviderRepository(dataData)
+	aiProviderCase := biz3.NewAiProviderCase(baseCase, transaction, aiProviderRepository, registry)
+	aiProviderService := admin.NewAiProviderService(aiProviderCase)
 	protector, err := oauthsecret.NewProtector(config2)
 	if err != nil {
 		return nil, nil, err
@@ -160,10 +159,16 @@ func BuildModules(migrations *migration.Migration, config2 *configv1.Bootstrap, 
 	baseMenuService := admin.NewBaseMenuService(baseMenuCase)
 	messageDeliveryWriter := data3.NewMessageDeliveryWriter(dataData)
 	baseMessageCategoryRepository := data2.NewBaseMessageCategoryRepository(dataData)
-	baseMessageCategoryCase := biz3.NewBaseMessageCategoryCase(baseCase, transaction, baseMessageCategoryRepository, baseMessageRepository)
-	baseMessageCase := biz3.NewBaseMessageCase(baseCase, transaction, baseMessageRepository, baseMessageDispatchRepository, baseMessageDeliveryRepository, messageDeliveryWriter, baseMessageCategoryCase, baseUserRepository, baseRoleRepository, baseDeptRepository, basePostRepository, baseMenuRepository, sseRuntime)
+	baseMessageProviderRepository := data2.NewBaseMessageProviderRepository(dataData)
+	baseMessageTemplateRepository := data2.NewBaseMessageTemplateRepository(dataData)
+	baseMessageCategoryCase := biz3.NewBaseMessageCategoryCase(baseCase, transaction, baseMessageCategoryRepository, baseMessageRepository, baseMessageDeliveryRepository, baseMessageProviderRepository, baseMessageTemplateRepository)
+	baseMessageCase := biz3.NewBaseMessageCase(baseCase, transaction, baseMessageRepository, baseMessageDispatchRepository, baseMessageDeliveryRepository, messageDeliveryWriter, baseMessageCategoryCase, baseUserRepository, baseThirdAccountRepository, baseRoleRepository, baseDeptRepository, basePostRepository, baseMenuRepository, sseRuntime)
 	baseMessageService := admin.NewBaseMessageService(baseMessageCase)
 	baseMessageCategoryService := admin.NewBaseMessageCategoryService(baseMessageCategoryCase)
+	baseMessageProviderCase := biz3.NewBaseMessageProviderCase(baseCase, transaction, baseMessageProviderRepository, baseMessageCategoryRepository, baseMessageTemplateRepository)
+	baseMessageProviderService := admin.NewBaseMessageProviderService(baseMessageProviderCase)
+	baseMessageTemplateCase := biz3.NewBaseMessageTemplateCase(baseCase, transaction, baseMessageTemplateRepository, baseMessageCategoryRepository, baseMessageProviderRepository)
+	baseMessageTemplateService := admin.NewBaseMessageTemplateService(baseMessageTemplateCase)
 	baseOauthProviderRepository := data2.NewBaseOauthProviderRepository(dataData)
 	manager, err := config.NewOAuthManager()
 	if err != nil {
@@ -261,6 +266,7 @@ func BuildModules(migrations *migration.Migration, config2 *configv1.Bootstrap, 
 	services := admin2.Services{
 		Auth:                     authService,
 		BaseAPI:                  baseApiService,
+		AiProvider:               aiProviderService,
 		OauthClient:              oauthClientService,
 		BaseAPICase:              baseAPICase,
 		BaseFileRepository:       baseFileRepository,
@@ -291,6 +297,8 @@ func BuildModules(migrations *migration.Migration, config2 *configv1.Bootstrap, 
 		BaseMenu:                 baseMenuService,
 		BaseMessage:              baseMessageService,
 		BaseMessageCategory:      baseMessageCategoryService,
+		BaseMessageProvider:      baseMessageProviderService,
+		BaseMessageTemplate:      baseMessageTemplateService,
 		BaseOauthProvider:        baseOauthProviderService,
 		BasePost:                 basePostService,
 		BaseTenantProject:        baseTenantProjectService,
@@ -352,14 +360,16 @@ func BuildModules(migrations *migration.Migration, config2 *configv1.Bootstrap, 
 		cleanup()
 		return nil, nil, err
 	}
-	runtime := ai.NewRuntime(assistantClient, mcpCase, adminTools, appTools, catalog)
+	runtime := ai.NewRuntime(registry, mcpCase, adminTools, appTools, catalog)
 	aiMessageCase := biz2.NewAiMessageCase(baseCase, transaction, aiMessageRepository, aiSessionCase, baseUserCase, runtime)
 	aiSessionService := base.NewAiSessionService(aiSessionCase, aiMessageCase)
+	aiModelCase := biz2.NewAiModelCase(baseCase, runtime)
+	aiModelService := base.NewAiModelService(aiModelCase)
 	aiToolCase := biz2.NewAiToolCase(baseCase, runtime)
 	aiToolService := base.NewAiToolService(aiToolCase)
 	aiMessageService := base.NewAiMessageService(aiMessageCase)
 	configCase := biz2.NewConfigCase(baseCase, baseConfigRepository, baseI18NRepository, baseI18NCustomRepository, baseLanguageRepository)
-	configService := base.NewConfigService(configCase, assistantClient)
+	configService := base.NewConfigService(configCase, registry)
 	languageCase := biz2.NewLanguageCase(baseCase, baseLanguageRepository)
 	languageService := base.NewLanguageService(languageCase)
 	fileService := base.NewFileService(fileCase)
@@ -385,6 +395,7 @@ func BuildModules(migrations *migration.Migration, config2 *configv1.Bootstrap, 
 	sseService := base.NewSseService(sseCase)
 	baseServices := &base2.Services{
 		AiSession:    aiSessionService,
+		AiModel:      aiModelService,
 		AiTool:       aiToolService,
 		AiMessage:    aiMessageService,
 		AiSearch:     aiSearchService,
@@ -402,6 +413,7 @@ func BuildModules(migrations *migration.Migration, config2 *configv1.Bootstrap, 
 	adminServices := &admin2.Services{
 		Auth:                     authService,
 		BaseAPI:                  baseApiService,
+		AiProvider:               aiProviderService,
 		OauthClient:              oauthClientService,
 		BaseAPICase:              baseAPICase,
 		BaseFileRepository:       baseFileRepository,
@@ -432,6 +444,8 @@ func BuildModules(migrations *migration.Migration, config2 *configv1.Bootstrap, 
 		BaseMenu:                 baseMenuService,
 		BaseMessage:              baseMessageService,
 		BaseMessageCategory:      baseMessageCategoryService,
+		BaseMessageProvider:      baseMessageProviderService,
+		BaseMessageTemplate:      baseMessageTemplateService,
 		BaseOauthProvider:        baseOauthProviderService,
 		BasePost:                 basePostService,
 		BaseTenantProject:        baseTenantProjectService,
@@ -473,7 +487,7 @@ func BuildModules(migrations *migration.Migration, config2 *configv1.Bootstrap, 
 		BaseMenu: appBaseMenuService,
 		AiSearch: aiSearchService,
 	}
-	modules, err := NewModules(baseServices, adminServices, services2, runtime, catalog, baseConfigCase, baseLoginPolicyCase, baseOauthProviderCase, redactResolver, rateLimitResolver)
+	modules, err := NewModules(baseServices, adminServices, services2, runtime, catalog, baseConfigCase, aiProviderCase, baseLoginPolicyCase, baseOauthProviderCase, redactResolver, rateLimitResolver)
 	if err != nil {
 		cleanup2()
 		cleanup()
@@ -507,12 +521,15 @@ func BuildTasks(databases map[string]*gorm.Client, baseCase *biz.BaseCase, sseRu
 	baseMessageDeliveryRepository := data2.NewBaseMessageDeliveryRepository(dataData)
 	messageDeliveryWriter := data3.NewMessageDeliveryWriter(dataData)
 	baseMessageCategoryRepository := data2.NewBaseMessageCategoryRepository(dataData)
-	baseMessageCategoryCase := biz3.NewBaseMessageCategoryCase(baseCase, transaction, baseMessageCategoryRepository, baseMessageRepository)
+	baseMessageProviderRepository := data2.NewBaseMessageProviderRepository(dataData)
+	baseMessageTemplateRepository := data2.NewBaseMessageTemplateRepository(dataData)
+	baseMessageCategoryCase := biz3.NewBaseMessageCategoryCase(baseCase, transaction, baseMessageCategoryRepository, baseMessageRepository, baseMessageDeliveryRepository, baseMessageProviderRepository, baseMessageTemplateRepository)
 	baseUserRepository := data2.NewBaseUserRepository(dataData)
+	baseThirdAccountRepository := data2.NewBaseThirdAccountRepository(dataData)
 	baseRoleRepository := data2.NewBaseRoleRepository(dataData)
 	baseDeptRepository := data2.NewBaseDeptRepository(dataData)
 	basePostRepository := data2.NewBasePostRepository(dataData)
-	baseMessageCase := biz3.NewBaseMessageCase(baseCase, transaction, baseMessageRepository, baseMessageDispatchRepository, baseMessageDeliveryRepository, messageDeliveryWriter, baseMessageCategoryCase, baseUserRepository, baseRoleRepository, baseDeptRepository, basePostRepository, baseMenuRepository, sseRuntime)
+	baseMessageCase := biz3.NewBaseMessageCase(baseCase, transaction, baseMessageRepository, baseMessageDispatchRepository, baseMessageDeliveryRepository, messageDeliveryWriter, baseMessageCategoryCase, baseUserRepository, baseThirdAccountRepository, baseRoleRepository, baseDeptRepository, basePostRepository, baseMenuRepository, sseRuntime)
 	messageDispatchTask := admin3.NewMessageDispatchTask(baseMessageCase)
 	baseTableArchiveRepository := data2.NewBaseTableArchiveRepository(dataData)
 	baseTableArchiveRecordRepository := data2.NewBaseTableArchiveRecordRepository(dataData)
@@ -562,13 +579,16 @@ func BuildQueueConsumers(databases map[string]*gorm.Client, baseCase *biz.BaseCa
 	baseMessageDeliveryRepository := data2.NewBaseMessageDeliveryRepository(dataData)
 	messageDeliveryWriter := data3.NewMessageDeliveryWriter(dataData)
 	baseMessageCategoryRepository := data2.NewBaseMessageCategoryRepository(dataData)
-	baseMessageCategoryCase := biz3.NewBaseMessageCategoryCase(baseCase, transaction, baseMessageCategoryRepository, baseMessageRepository)
+	baseMessageProviderRepository := data2.NewBaseMessageProviderRepository(dataData)
+	baseMessageTemplateRepository := data2.NewBaseMessageTemplateRepository(dataData)
+	baseMessageCategoryCase := biz3.NewBaseMessageCategoryCase(baseCase, transaction, baseMessageCategoryRepository, baseMessageRepository, baseMessageDeliveryRepository, baseMessageProviderRepository, baseMessageTemplateRepository)
 	baseUserRepository := data2.NewBaseUserRepository(dataData)
+	baseThirdAccountRepository := data2.NewBaseThirdAccountRepository(dataData)
 	baseRoleRepository := data2.NewBaseRoleRepository(dataData)
 	baseDeptRepository := data2.NewBaseDeptRepository(dataData)
 	basePostRepository := data2.NewBasePostRepository(dataData)
 	baseMenuRepository := data2.NewBaseMenuRepository(dataData)
-	baseMessageCase := biz3.NewBaseMessageCase(baseCase, transaction, baseMessageRepository, baseMessageDispatchRepository, baseMessageDeliveryRepository, messageDeliveryWriter, baseMessageCategoryCase, baseUserRepository, baseRoleRepository, baseDeptRepository, basePostRepository, baseMenuRepository, sseRuntime)
+	baseMessageCase := biz3.NewBaseMessageCase(baseCase, transaction, baseMessageRepository, baseMessageDispatchRepository, baseMessageDeliveryRepository, messageDeliveryWriter, baseMessageCategoryCase, baseUserRepository, baseThirdAccountRepository, baseRoleRepository, baseDeptRepository, basePostRepository, baseMenuRepository, sseRuntime)
 	baseLoginLogRepository := data2.NewBaseLoginLogRepository(dataData)
 	baseOperationLogRepository := data2.NewBaseOperationLogRepository(dataData)
 	baseDataAccessLogRepository := data2.NewBaseDataAccessLogRepository(dataData)

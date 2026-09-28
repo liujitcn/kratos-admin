@@ -6,7 +6,7 @@ import (
 	"github.com/cloudwego/eino/components/tool"
 	"github.com/cloudwego/eino/components/tool/utils"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/agent/model"
-	configv1 "github.com/liujitcn/kratos-kit/api/gen/go/config/v1"
+	modelconfig "github.com/liujitcn/kratos-kit/ai/model"
 )
 
 // Tool 是 Eino 可执行工具接口。
@@ -22,6 +22,8 @@ type MessageLocalizer func(ctx context.Context, key string, args map[string]any,
 type RuntimeConfig struct {
 	// Client 是 AI 助手模型客户端。
 	Client *AssistantClient
+	// ClientResolver 根据请求选择数据库配置的模型客户端。
+	ClientResolver model.AssistantClientResolver
 	// Checker 是可选的工具权限检查器；为 nil 时全部注册工具默认启用。
 	Checker ToolAccessChecker
 	// AdminTools 是管理端工具集合。
@@ -34,7 +36,7 @@ type RuntimeConfig struct {
 
 // NewRuntime 创建可被外部模块复用的 AI Runtime。
 func NewRuntime(config RuntimeConfig) *Runtime {
-	return newRuntime(config.Client, config.Checker, config.AdminTools, config.AppTools, config.LocalizeMessage)
+	return newRuntime(config.Client, config.ClientResolver, config.Checker, config.AdminTools, config.AppTools, config.LocalizeMessage)
 }
 
 // NewRuntimeWithTools 创建只使用管理端工具集合的 Runtime。
@@ -42,8 +44,8 @@ func NewRuntimeWithTools(client *AssistantClient, tools ...Tool) *Runtime {
 	return NewRuntime(RuntimeConfig{Client: client, AdminTools: tools})
 }
 
-// NewAssistantClient 根据 Backend AI 模型配置创建 AI 助手模型客户端。
-func NewAssistantClient(modelConfig *configv1.AI_Model) *AssistantClient {
+// NewAssistantClient 根据运行时模型参数创建 AI 助手模型客户端。
+func NewAssistantClient(modelConfig *modelconfig.ModelConfig) *AssistantClient {
 	return model.NewAssistantClient(modelConfig)
 }
 

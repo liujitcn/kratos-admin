@@ -163,6 +163,7 @@ import { t } from "@liujitcn/kratos-admin-core";
 import { resolvePersistedMessage } from "../../../utils/persisted-message";
 import { defBaseMessageService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/base_message";
 import { defBaseMessageCategoryService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/base_message_category";
+import { BaseMessageCategoryInboxEnabled } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_message_category";
 import type {
   BaseMessage,
   BaseMessageDetail,
@@ -575,7 +576,7 @@ async function loadCategoryOptions() {
 
 /** 请求消息分类选项。 */
 async function requestCategoryOptions() {
-  const result = await defBaseMessageCategoryService.OptionBaseMessageCategory({});
+  const result = await defBaseMessageCategoryService.OptionBaseMessageCategory({ inbox_enabled: BaseMessageCategoryInboxEnabled.BASE_MESSAGE_CATEGORY_INBOX_ENABLED_ENABLE });
   return result.list.map(item => ({ label: item.label, value: item.value, disabled: item.disabled }));
 }
 

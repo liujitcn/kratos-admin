@@ -90,9 +90,9 @@ type baseMessage struct {
 	PublishedAt    field.Int64  // 发布时间戳，毫秒
 	RevokedAt      field.Int64  // 撤回时间戳，毫秒
 	ExpiresAt      field.Int64  // 过期时间戳，毫秒
-	RecipientTotal field.Int64  // 目标人数
-	DeliveredTotal field.Int64  // 已投递人数
-	FailedTotal    field.Int64  // 失败人数
+	RecipientTotal field.Int64  // 投递目标数
+	DeliveredTotal field.Int64  // 成功投递数
+	FailedTotal    field.Int64  // 失败投递数
 	Version        field.Int64  // 乐观锁版本
 	Status         field.Int32  // 消息状态：枚举【MessageStatus】
 	CreatedBy      field.Int64  // 创建者ID

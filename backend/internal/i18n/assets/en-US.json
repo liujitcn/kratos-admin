@@ -4024,5 +4024,11 @@
   "system.admin.base.api_rate_limit_policy.rule_params.required": { "other": "API rate limit parameters are required" },
   "system.admin.base.api_rate_limit_policy.remark.length": { "other": "Remark must not exceed 500 characters" },
   "system.admin.base.api_rate_limit_policy.delete.id.required": { "other": "API rate limit policy IDs are required" },
-  "system.admin.base.api_rate_limit_policy.status.id.required": { "other": "API rate limit policy ID is required" }
+  "system.admin.base.api_rate_limit_policy.status.id.required": { "other": "API rate limit policy ID is required" },
+  "system.admin.base.ai.provider.api_key.max_length": { "other": "The model API key must not exceed 1024 characters" },
+  "system.admin.base.ai.provider.base_url.max_length": { "other": "The API URL must not exceed 512 characters" },
+  "system.admin.base.ai.provider.models_json.required": { "other": "Configure at least one model" },
+  "system.admin.base.ai.provider.name.required": { "other": "Enter a provider name" },
+  "system.admin.base.ai.provider.provider.required": { "other": "Select a supported model provider" },
+  "system.admin.base.ai.provider.update.id.required": { "other": "The provider ID is required" }
 }

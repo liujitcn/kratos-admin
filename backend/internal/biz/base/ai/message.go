@@ -14,6 +14,12 @@ type InputContentPayload struct {
 	Kind string `json:"kind"`
 	// Content 输入正文。
 	Content string `json:"content"`
+	// ProviderID 本轮选择的供应商编号。
+	ProviderID int64 `json:"provider_id,omitempty"`
+	// ProviderName 本轮选择的供应商名称。
+	ProviderName string `json:"provider_name,omitempty"`
+	// ModelName 本轮选择的模型名称。
+	ModelName string `json:"model_name,omitempty"`
 }
 
 // OutputContentPayload 表示 AI 助手输出内容 JSON 结构。

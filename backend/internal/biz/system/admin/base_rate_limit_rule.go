@@ -2,7 +2,6 @@ package biz
 
 import (
 	"context"
-	"strings"
 	"time"
 
 	_string "github.com/liujitcn/go-utils/string"
@@ -19,8 +18,6 @@ import (
 	authData "github.com/liujitcn/kratos-kit/auth/data"
 	"gorm.io/gen/field"
 )
-
-const rateLimitRuleType = "TOKEN_BUCKET"
 
 // BaseRateLimitRuleCase 提供限流规则模板管理能力。
 type BaseRateLimitRuleCase struct {
@@ -58,7 +55,7 @@ func (c *BaseRateLimitRuleCase) OptionBaseRateLimitRule(ctx context.Context, req
 			Id:            item.ID,
 			Label:         item.Name,
 			Code:          item.Code,
-			RuleType:      item.RuleType,
+			RuleType:      kit.RateLimitAlgorithmToProto(item.RuleType),
 			DefaultParams: item.DefaultParams,
 			Disabled:      item.Status != _const.STATUS_STATUS_ENABLE,
 		})
@@ -117,7 +114,10 @@ func (c *BaseRateLimitRuleCase) CreateBaseRateLimitRule(ctx context.Context, inp
 	if err != nil {
 		return err
 	}
-	ruleType := strings.ToUpper(strings.TrimSpace(input.GetRuleType()))
+	ruleType, err := kit.RateLimitAlgorithmFromProto(input.GetRuleType())
+	if err != nil {
+		return errorsx.InvalidArgument("限流算法无效").WithCause(err)
+	}
 	_, err = kit.ParseRateLimitParams(ruleType, input.GetDefaultParams())
 	if err != nil {
 		return errorsx.InvalidArgument("限流规则参数无效").WithCause(err)
@@ -168,7 +168,11 @@ func (c *BaseRateLimitRuleCase) UpdateBaseRateLimitRule(ctx context.Context, inp
 	if err != nil {
 		return errorsx.ResourceNotFound("限流规则不存在").WithCause(err)
 	}
-	if input.GetCode() != oldItem.Code || strings.ToUpper(strings.TrimSpace(input.GetRuleType())) != oldItem.RuleType {
+	ruleType, err := kit.RateLimitAlgorithmFromProto(input.GetRuleType())
+	if err != nil {
+		return errorsx.InvalidArgument("限流算法无效").WithCause(err)
+	}
+	if input.GetCode() != oldItem.Code || ruleType != oldItem.RuleType {
 		return errorsx.InvalidArgument("限流规则编码和算法类型不允许修改")
 	}
 	_, err = kit.ParseRateLimitParams(oldItem.RuleType, input.GetDefaultParams())
@@ -286,10 +290,10 @@ func (c *BaseRateLimitRuleCase) ensureRuleCanDisable(ctx context.Context, ruleID
 
 // toBaseRateLimitRule 转换限流规则列表项。
 func toBaseRateLimitRule(item *models.BaseRateLimitRule) *adminv1.BaseRateLimitRule {
-	return &adminv1.BaseRateLimitRule{Id: item.ID, Code: item.Code, Name: item.Name, RuleType: item.RuleType, DefaultParams: item.DefaultParams, Status: commonv1.Status(item.Status), Remark: item.Remark, CreatedAt: item.CreatedAt.Format("2006-01-02 15:04:05"), UpdatedAt: item.UpdatedAt.Format("2006-01-02 15:04:05")}
+	return &adminv1.BaseRateLimitRule{Id: item.ID, Code: item.Code, Name: item.Name, RuleType: kit.RateLimitAlgorithmToProto(item.RuleType), DefaultParams: item.DefaultParams, Status: commonv1.Status(item.Status), Remark: item.Remark, CreatedAt: item.CreatedAt.Format("2006-01-02 15:04:05"), UpdatedAt: item.UpdatedAt.Format("2006-01-02 15:04:05")}
 }
 
 // toBaseRateLimitRuleForm 转换限流规则编辑表单。
 func toBaseRateLimitRuleForm(item *models.BaseRateLimitRule) *adminv1.BaseRateLimitRuleForm {
-	return &adminv1.BaseRateLimitRuleForm{Id: item.ID, Code: item.Code, Name: item.Name, RuleType: item.RuleType, DefaultParams: item.DefaultParams, Status: commonv1.Status(item.Status), Remark: item.Remark}
+	return &adminv1.BaseRateLimitRuleForm{Id: item.ID, Code: item.Code, Name: item.Name, RuleType: kit.RateLimitAlgorithmToProto(item.RuleType), DefaultParams: item.DefaultParams, Status: commonv1.Status(item.Status), Remark: item.Remark}
 }

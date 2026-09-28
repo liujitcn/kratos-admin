@@ -278,6 +278,8 @@ export interface DeleteNotificationRequest {
 export interface Notification {
   /** 投递ID */
   id: number;
+  /** 租户ID */
+  tenant_id: number;
   /** 消息ID */
   message_id: number;
   /** 分类ID */

@@ -37,6 +37,8 @@ func newBaseMessageCategory(db *gorm.DB, opts ...gen.DOOption) baseMessageCatego
 	_baseMessageCategory.RetentionDays = field.NewInt32(tableName, "retention_days")
 	_baseMessageCategory.AllowArchive = field.NewBool(tableName, "allow_archive")
 	_baseMessageCategory.AllowDelete = field.NewBool(tableName, "allow_delete")
+	_baseMessageCategory.InboxEnabled = field.NewInt32(tableName, "inbox_enabled")
+	_baseMessageCategory.ProviderID = field.NewString(tableName, "provider_id")
 	_baseMessageCategory.Status = field.NewInt32(tableName, "status")
 	_baseMessageCategory.CreatedBy = field.NewInt64(tableName, "created_by")
 	_baseMessageCategory.UpdatedBy = field.NewInt64(tableName, "updated_by")
@@ -64,6 +66,8 @@ type baseMessageCategory struct {
 	RetentionDays   field.Int32  // 保留天数，0表示使用系统默认值
 	AllowArchive    field.Bool   // 是否允许用户归档
 	AllowDelete     field.Bool   // 是否允许用户删除
+	InboxEnabled    field.Int32  // 是否启用站内信：枚举【BaseMessageCategoryInboxEnabled】
+	ProviderID      field.String // 消息发送 Provider ID JSON数组
 	Status          field.Int32  // 状态：枚举【Status】
 	CreatedBy       field.Int64  // 创建者ID
 	UpdatedBy       field.Int64  // 更新者ID
@@ -96,6 +100,8 @@ func (b *baseMessageCategory) updateTableName(table string) *baseMessageCategory
 	b.RetentionDays = field.NewInt32(table, "retention_days")
 	b.AllowArchive = field.NewBool(table, "allow_archive")
 	b.AllowDelete = field.NewBool(table, "allow_delete")
+	b.InboxEnabled = field.NewInt32(table, "inbox_enabled")
+	b.ProviderID = field.NewString(table, "provider_id")
 	b.Status = field.NewInt32(table, "status")
 	b.CreatedBy = field.NewInt64(table, "created_by")
 	b.UpdatedBy = field.NewInt64(table, "updated_by")
@@ -130,7 +136,7 @@ func (b *baseMessageCategory) GetFieldByName(fieldName string) (field.OrderExpr,
 }
 
 func (b *baseMessageCategory) fillFieldMap() {
-	b.fieldMap = make(map[string]field.Expr, 16)
+	b.fieldMap = make(map[string]field.Expr, 18)
 	b.fieldMap["id"] = b.ID
 	b.fieldMap["code"] = b.Code
 	b.fieldMap["name"] = b.Name
@@ -141,6 +147,8 @@ func (b *baseMessageCategory) fillFieldMap() {
 	b.fieldMap["retention_days"] = b.RetentionDays
 	b.fieldMap["allow_archive"] = b.AllowArchive
 	b.fieldMap["allow_delete"] = b.AllowDelete
+	b.fieldMap["inbox_enabled"] = b.InboxEnabled
+	b.fieldMap["provider_id"] = b.ProviderID
 	b.fieldMap["status"] = b.Status
 	b.fieldMap["created_by"] = b.CreatedBy
 	b.fieldMap["updated_by"] = b.UpdatedBy

@@ -18,7 +18,7 @@ type Audience struct {
 	IncludeChildren bool
 }
 
-// Message 描述业务模块发布站内信所需的消息内容。
+// Message 描述业务模块发布消息所需的内容和受众。
 type Message struct {
 	// TenantID 是消息所属租户编号。
 	TenantID int64
@@ -50,7 +50,7 @@ type Message struct {
 	ExpiresAt int64
 }
 
-// Publisher 定义业务模块发布站内信的能力。
+// Publisher 定义业务模块发布消息的能力。
 type Publisher interface {
 	Publish(context.Context, Message) (int64, error)
 }
@@ -63,7 +63,7 @@ func (f PublisherFunc) Publish(ctx context.Context, message Message) (int64, err
 	return f(ctx, message)
 }
 
-// Publish 调用当前进程注册的站内信发布方。
+// Publish 调用当前进程注册的消息发布方。
 func Publish(ctx context.Context, message Message) (int64, error) {
 	value := defaultPublisher.Load()
 	if value == nil || value.publisher == nil {

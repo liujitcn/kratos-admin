@@ -4024,5 +4024,11 @@
   "system.admin.base.api_rate_limit_policy.rule_params.required": { "other": "介面限流參數不能為空" },
   "system.admin.base.api_rate_limit_policy.remark.length": { "other": "備註不得超過500個字元" },
   "system.admin.base.api_rate_limit_policy.delete.id.required": { "other": "介面限流策略 ID 清單不能為空" },
-  "system.admin.base.api_rate_limit_policy.status.id.required": { "other": "介面限流策略 ID 不能為空" }
+  "system.admin.base.api_rate_limit_policy.status.id.required": { "other": "介面限流策略 ID 不能為空" },
+  "system.admin.base.ai.provider.api_key.max_length": { "other": "模型金鑰不得超過1024個字元" },
+  "system.admin.base.ai.provider.base_url.max_length": { "other": "介面地址不得超過512個字元" },
+  "system.admin.base.ai.provider.models_json.required": { "other": "請至少設定一個模型" },
+  "system.admin.base.ai.provider.name.required": { "other": "請輸入供應商名稱" },
+  "system.admin.base.ai.provider.provider.required": { "other": "請選擇支援的模型Provider" },
+  "system.admin.base.ai.provider.update.id.required": { "other": "供應商 ID 不能為空" }
 }

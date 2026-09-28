@@ -7,8 +7,10 @@ import {
 } from '../../../api/base/v1/ai_message'
 import { defAiSessionService } from '../../../api/base/v1/ai_session'
 import { defAiToolService } from '../../../api/base/v1/ai_tool'
+import { defAiModelService } from '../../../api/base/v1/ai_provider'
 import type { AiMessage } from '../../../rpc/base/v1/ai_session'
 import type { AiAttachment, AiSession } from '../../../rpc/base/v1/ai_session'
+import type { AiProviderModelOption } from '../../../rpc/base/v1/ai_provider'
 import type { AiShortcut, AiToolCall } from '../../../rpc/base/v1/ai_tool'
 import { AiMessageStatus } from '../../../rpc/base/v1/ai_session'
 import { Terminal } from '../../../rpc/base/v1/ai_tool'
@@ -92,6 +94,9 @@ const chatBottomAnchor = ref('')
 const sessions = ref<AiSession[]>([])
 const messages = ref<Record<string, ChatMessageItem[]>>({})
 const selectedAttachments = ref<AiAttachment[]>([])
+const modelProviders = ref<AiProviderModelOption[]>([])
+const selectedProviderId = ref(0)
+const selectedModelName = ref('')
 const runningStreamTaskMap = new Map<string, StreamTask>()
 const pendingDeltaMap = new Map<string, AiStreamPayload>()
 let pendingDeltaTimer = 0
@@ -464,19 +469,41 @@ async function loadAiShortcuts() {
   }
   loadingShortcuts.value = true
   try {
-    const response = await defAiToolService.ListAiShortcut({
-      terminal: AI_TERMINAL,
-    })
+    const [response, providerResponse] = await Promise.all([
+      defAiToolService.ListAiShortcut({ terminal: AI_TERMINAL }),
+      defAiModelService.ListAiProviderModelOptions({}),
+    ])
+    modelProviders.value = providerResponse.providers ?? []
+    if (
+      !modelProviders.value.some(
+        (item) =>
+          item.provider_id === selectedProviderId.value &&
+          item.models.includes(selectedModelName.value),
+      )
+    ) {
+      const firstProvider = modelProviders.value[0]
+      selectedProviderId.value = firstProvider?.provider_id ?? 0
+      selectedModelName.value = firstProvider?.models[0] ?? ''
+    }
     const shortcuts = normalizeStarterShortcuts(response.shortcuts).filter((item) => !item.action)
     if (shortcuts.length) {
       starterShortcuts.value = shortcuts
       starterPromptGroupIndex.value = 0
     }
   } catch (error) {
+    modelProviders.value = []
+    selectedProviderId.value = 0
+    selectedModelName.value = ''
     showError(error, t('system.ai.load_shortcuts_failed'))
   } finally {
     loadingShortcuts.value = false
   }
+}
+
+/** 更新当前聊天使用的供应商和模型。 */
+function handleModelChange(providerId: number, modelName: string) {
+  selectedProviderId.value = providerId
+  selectedModelName.value = modelName
 }
 
 async function sendAiPayload(payload: { text: string; attachments: AiAttachment[] }) {
@@ -507,6 +534,8 @@ async function runAiTask(
   const request = {
     session_id: sessionID,
     content: payload.text,
+    provider_id: selectedProviderId.value,
+    model_name: selectedModelName.value,
     attachments: payload.attachments,
     action: undefined,
   }
@@ -897,6 +926,7 @@ async function waitForMessagesLoaded(sessionID: string) {
 function normalizeSession(session?: Partial<AiSession> | null): AiSession {
   return {
     id: String(session?.id ?? ''),
+    tenant_id: Number(session?.tenant_id ?? 0),
     title: String(session?.title ?? t('system.ai.new_session')),
     summary: String(session?.summary ?? ''),
     updated_at: session?.updated_at,
@@ -989,6 +1019,7 @@ function createLocalUserMessage(payload: { text: string; attachments: AiAttachme
   const message = mapMessageItem(
     {
       id: `${LOCAL_USER_MESSAGE_PREFIX}-${now}`,
+      tenant_id: 0,
       input_content: { kind: 'text', content: payload.text },
       output_content: undefined,
       attachments: payload.attachments,
@@ -1017,6 +1048,7 @@ function createThinkingMessage(options?: { sessionID?: string; messageID?: strin
   const message = mapMessageItem(
     {
       id: streamKey || `ai-thinking-${now}`,
+      tenant_id: 0,
       input_content: undefined,
       output_content: {
         kind: 'text',
@@ -1281,6 +1313,11 @@ function showError(error: unknown, fallback: string) {
     <Composer
       v-model="inputText"
       :attachments="selectedAttachments"
+      :model-providers="modelProviders"
+      :provider-id="selectedProviderId"
+      :model-name="selectedModelName"
+      :provider-placeholder="t('system.ai.model.provider_placeholder')"
+      :model-placeholder="t('system.ai.model.model_placeholder')"
       :placeholder="composerPlaceholder"
       :bottom="composerBottom"
       :recording="isRecording"
@@ -1289,6 +1326,7 @@ function showError(error: unknown, fallback: string) {
       @attach="handleAttachment"
       @record="handleToggleRecord"
       @send="handleSend"
+      @model-change="handleModelChange"
       @remove-attachment="removeSelectedAttachment"
     />
 

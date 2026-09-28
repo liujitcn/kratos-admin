@@ -5,7 +5,7 @@
       v-model="dialog.visible"
       ref="dialogRef"
       :title="t(dialog.titleKey)"
-      width="min(1280px, calc(100vw - 32px))"
+      width="min(1600px, calc(100vw - 32px))"
       label-position="left"
       :model="form"
       :fields="fields"
@@ -13,15 +13,73 @@
       @confirm="submit"
       @close="resetForm"
     >
+      <template #apiTransfer>
+        <ApiTransfer
+          v-model="form.operations"
+          :options="apiOptions"
+          :titles="[t('system.base.menu.value.available_api'), t('system.base.menu.value.selected_api')]"
+          :panel-height="420"
+        />
+      </template>
       <template #parameters>
-        <div class="parameter-grid">
+        <div v-if="form.rule_type === BaseRateLimitAlgorithm.BASE_RATE_LIMIT_ALGORITHM_TOKEN_BUCKET" class="parameter-grid">
           <div class="parameter-item">
-            <span>{{ t("system.base.rate_limit_rule.field.tokens_per_second") }}</span>
+            <span class="parameter-label">
+              <span>{{ t("system.base.rate_limit_rule.field.tokens_per_second") }}</span>
+              <el-tooltip :content="t('system.base.rate_limit_rule.tooltip.tokens_per_second')" placement="top" effect="light">
+                <el-icon class="parameter-help" tabindex="0"><QuestionFilled /></el-icon>
+              </el-tooltip>
+            </span>
             <el-input-number v-model="form.params.tokens_per_second" :min="0" :max="1000000" :precision="3" :step="1" controls-position="right" />
           </div>
           <div class="parameter-item">
-            <span>{{ t("system.base.rate_limit_rule.field.burst") }}</span>
+            <span class="parameter-label">
+              <span>{{ t("system.base.rate_limit_rule.field.burst") }}</span>
+              <el-tooltip :content="t('system.base.rate_limit_rule.tooltip.burst')" placement="top" effect="light">
+                <el-icon class="parameter-help" tabindex="0"><QuestionFilled /></el-icon>
+              </el-tooltip>
+            </span>
             <el-input-number v-model="form.params.burst" :min="0" :max="1000000" :precision="0" controls-position="right" />
+          </div>
+        </div>
+        <div v-else-if="windowedAlgorithms.includes(form.rule_type)" class="parameter-grid">
+          <div class="parameter-item">
+            <span class="parameter-label">
+              <span>{{ t("system.base.rate_limit_rule.field.limit") }}</span>
+              <el-tooltip :content="t('system.base.rate_limit_rule.tooltip.limit')" placement="top" effect="light">
+                <el-icon class="parameter-help" tabindex="0"><QuestionFilled /></el-icon>
+              </el-tooltip>
+            </span>
+            <el-input-number v-model="form.params.limit" :min="1" :max="form.rule_type === BaseRateLimitAlgorithm.BASE_RATE_LIMIT_ALGORITHM_SLIDING_WINDOW_LOG ? 10000 : 1000000" :precision="0" controls-position="right" />
+          </div>
+          <div class="parameter-item">
+            <span class="parameter-label">
+              <span>{{ t("system.base.rate_limit_rule.field.window_seconds") }}</span>
+              <el-tooltip :content="t('system.base.rate_limit_rule.tooltip.window_seconds')" placement="top" effect="light">
+                <el-icon class="parameter-help" tabindex="0"><QuestionFilled /></el-icon>
+              </el-tooltip>
+            </span>
+            <el-input-number v-model="form.params.window_seconds" :min="1" :max="86400" :precision="0" controls-position="right" />
+          </div>
+        </div>
+        <div v-else-if="form.rule_type === BaseRateLimitAlgorithm.BASE_RATE_LIMIT_ALGORITHM_LEAKY_BUCKET" class="parameter-grid">
+          <div class="parameter-item">
+            <span class="parameter-label">
+              <span>{{ t("system.base.rate_limit_rule.field.leak_rate_per_second") }}</span>
+              <el-tooltip :content="t('system.base.rate_limit_rule.tooltip.leak_rate_per_second')" placement="top" effect="light">
+                <el-icon class="parameter-help" tabindex="0"><QuestionFilled /></el-icon>
+              </el-tooltip>
+            </span>
+            <el-input-number v-model="form.params.leak_rate_per_second" :min="0.001" :max="1000000" :precision="3" :step="1" controls-position="right" />
+          </div>
+          <div class="parameter-item">
+            <span class="parameter-label">
+              <span>{{ t("system.base.rate_limit_rule.field.capacity") }}</span>
+              <el-tooltip :content="t('system.base.rate_limit_rule.tooltip.capacity')" placement="top" effect="light">
+                <el-icon class="parameter-help" tabindex="0"><QuestionFilled /></el-icon>
+              </el-tooltip>
+            </span>
+            <el-input-number v-model="form.params.capacity" :min="1" :max="1000000" :precision="0" controls-position="right" />
           </div>
         </div>
       </template>
@@ -30,21 +88,23 @@
 </template>
 
 <script setup lang="ts">
-import { computed, reactive, ref } from "vue";
+import { computed, h, reactive, ref } from "vue";
 import { ElMessage, ElMessageBox } from "element-plus";
 import type { FormRules } from "element-plus";
-import { CirclePlus, Delete, EditPen } from "@element-plus/icons-vue";
+import { CirclePlus, Delete, EditPen, QuestionFilled } from "@element-plus/icons-vue";
 import type { ColumnProps, HeaderActionProps, ProTableInstance } from "@liujitcn/kratos-admin-core/components/ProTable/interface";
 import ProTable from "@liujitcn/kratos-admin-core/components/ProTable";
 import FormDialog from "@liujitcn/kratos-admin-core/components/Dialog/FormDialog.vue";
 import type { ProFormField, ProFormOption } from "@liujitcn/kratos-admin-core/components/ProForm/interface";
+import ApiTransfer from "@liujitcn/kratos-admin-system/components/api/ApiTransfer.vue";
+import { loadApiTransferCatalog, type ApiTransferOption } from "@liujitcn/kratos-admin-system/components/api/apiTransfer";
 import { useAuthButtons } from "@liujitcn/kratos-admin-core/auth";
 import { buildPageRequest, normalizeSelectedIds } from "@liujitcn/kratos-admin-core/table";
 import { t } from "@liujitcn/kratos-admin-core";
-import { defBaseApiService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/base_api";
 import { defBaseApiRateLimitPolicyService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/base_api_rate_limit_policy";
 import { defBaseRateLimitRuleService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/base_rate_limit_rule";
 import type { BaseApi } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_api";
+import { BaseRateLimitAlgorithm } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_rate_limit_rule";
 import type {
   BaseApiRateLimitPolicy,
   BaseApiRateLimitPolicyForm,
@@ -53,18 +113,14 @@ import type {
 import { BaseApiRateLimitDimension } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_api_rate_limit_policy";
 import type { BaseRateLimitRuleOption } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_rate_limit_rule";
 import { Status } from "@liujitcn/kratos-admin-system/rpc/common/v1/enum";
-
-/** 令牌桶参数快照。 */
-interface RateLimitParams {
-  /** 每秒生成的令牌数。 */
-  tokens_per_second: number | undefined;
-  /** 令牌桶容量。 */
-  burst: number | undefined;
-}
+import { defaultRateLimitParams, parseRateLimitParams, rateLimitAlgorithmLabelKey, rateLimitSummaryKey, rateLimitSummaryParams, serializeRateLimitParams, type RateLimitParams } from "../../../utils/rateLimit";
 
 /** 接口限流策略表单状态。 */
-interface PolicyFormState extends BaseApiRateLimitPolicyForm {
-  /** 当前编辑的限流参数。 */
+interface PolicyFormState extends Omit<BaseApiRateLimitPolicyForm, "rule_id"> {
+  /** 当前选择的限流规则 ID。 */
+  rule_id: number | undefined;
+  /** 当前选择算法及其参数快照。 */
+  rule_type: BaseRateLimitAlgorithm;
   params: RateLimitParams;
 }
 
@@ -73,12 +129,16 @@ defineOptions({ name: "BaseApiRateLimitPolicy", inheritAttrs: false });
 const { BUTTONS } = useAuthButtons();
 const table = ref<ProTableInstance>();
 const dialogRef = ref<InstanceType<typeof FormDialog>>();
-const apiCatalog = ref<BaseApi[]>([]);
 const ruleCatalog = ref<BaseRateLimitRuleOption[]>([]);
-const apiOptions = ref<ProFormOption[]>([]);
+const apiOptions = ref<ApiTransferOption[]>([]);
 const ruleOptions = ref<ProFormOption[]>([]);
 const dialog = reactive({ visible: false, titleKey: "common.action.create_resource" });
 const form = reactive<PolicyFormState>(defaultForm());
+const windowedAlgorithms = [
+  BaseRateLimitAlgorithm.BASE_RATE_LIMIT_ALGORITHM_FIXED_WINDOW,
+  BaseRateLimitAlgorithm.BASE_RATE_LIMIT_ALGORITHM_SLIDING_WINDOW_COUNTER,
+  BaseRateLimitAlgorithm.BASE_RATE_LIMIT_ALGORITHM_SLIDING_WINDOW_LOG
+];
 const statusOptions = computed<ProFormOption[]>(() => [
   { label: t("common.status.enabled"), value: Status.STATUS_ENABLE },
   { label: t("common.status.disabled"), value: Status.STATUS_DISABLE }
@@ -91,24 +151,17 @@ const dimensionOptions = computed<ProFormOption[]>(() => [
   { label: t("system.base.api_rate_limit_policy.dimension.oauth_client"), value: BaseApiRateLimitDimension.BASE_API_RATE_LIMIT_DIMENSION_OAUTH_CLIENT }
 ]);
 const fields = computed<ProFormField[]>(() => [
+  { prop: "dimension", label: t("system.base.api_rate_limit_policy.field.dimension"), labelTooltip: t("system.base.api_rate_limit_policy.tooltip.dimension"), component: "select", options: dimensionOptions.value },
+  { prop: "rule_id", label: t("system.base.api_rate_limit_policy.field.rule"), labelTooltip: t("system.base.api_rate_limit_policy.tooltip.rule"), component: "select", options: ruleOptions.value, props: { filterable: true, placeholder: t("common.placeholder.select"), onChange: handleRuleChange } },
+  { prop: "parameters", label: t("system.base.rate_limit_rule.field.parameters"), labelTooltip: t("system.base.api_rate_limit_policy.tooltip.parameters"), component: "slot", slotName: "parameters", colSpan: 24 },
   {
     prop: "operations",
     label: t("system.base.api_rate_limit_policy.field.api"),
-    component: "transfer",
-    options: apiOptions.value,
-    props: {
-      class: "policy-api-transfer",
-      style: {
-        width: "100%"
-      },
-      filterable: true,
-      titles: [t("system.base.menu.value.available_api"), t("system.base.menu.value.selected_api")]
-    },
+    labelTooltip: t("system.base.api_rate_limit_policy.tooltip.apis"),
+    component: "slot",
+    slotName: "apiTransfer",
     colSpan: 24
   },
-  { prop: "dimension", label: t("system.base.api_rate_limit_policy.field.dimension"), component: "select", options: dimensionOptions.value },
-  { prop: "rule_id", label: t("system.base.api_rate_limit_policy.field.rule"), component: "select", options: ruleOptions.value, props: { filterable: true, onChange: handleRuleChange } },
-  { prop: "parameters", label: t("system.base.rate_limit_rule.field.parameters"), component: "slot", slotName: "parameters", colSpan: 24 },
   { prop: "status", label: t("common.field.status"), component: "radio-group", options: statusOptions.value },
   { prop: "remark", label: t("common.field.remark"), component: "textarea" }
 ]);
@@ -119,15 +172,23 @@ const rules = computed<FormRules>(() => ({
 }));
 const columns = computed<ColumnProps[]>(() => [
   { type: "selection", width: 55 },
+  { prop: "dimension", label: t("system.base.api_rate_limit_policy.field.dimension"), width: 150, render: scope => dimensionLabel((scope.row as BaseApiRateLimitPolicy).dimension) },
+  { prop: "rule_name", label: t("system.base.api_rate_limit_policy.field.rule"), minWidth: 160 },
+  { prop: "rule_type", label: t("system.base.rate_limit_rule.field.rule_type"), width: 190, render: scope => algorithmLabel((scope.row as BaseApiRateLimitPolicy).rule_type) },
+  { prop: "rule_params", label: t("system.base.rate_limit_rule.field.parameters"), minWidth: 230, render: scope => paramsSummary((scope.row as BaseApiRateLimitPolicy).rule_type, (scope.row as BaseApiRateLimitPolicy).rule_params) },
   {
     prop: "apis",
     label: t("system.base.api_rate_limit_policy.field.api"),
     minWidth: 360,
-    render: scope => (scope.row as BaseApiRateLimitPolicy).apis.map(api => `${api.service_desc || api.service_name} · ${api.method} ${api.path} · ${api.operation}`).join("\n")
+    showOverflowTooltip: { popperClass: "api-rate-limit-api-tooltip" },
+    tooltipFormatter: ({ row }) =>
+      h(
+        "div",
+        { class: "api-rate-limit-api-tooltip__content" },
+        (row as BaseApiRateLimitPolicy).apis.map(api => h("div", { class: "api-rate-limit-api-tooltip__item" }, formatApiLabel(api)))
+      ),
+    render: scope => (scope.row as BaseApiRateLimitPolicy).apis.map(formatApiLabel).join(" · ")
   },
-  { prop: "dimension", label: t("system.base.api_rate_limit_policy.field.dimension"), width: 150, render: scope => dimensionLabel((scope.row as BaseApiRateLimitPolicy).dimension) },
-  { prop: "rule_name", label: t("system.base.api_rate_limit_policy.field.rule"), minWidth: 160 },
-  { prop: "rule_params", label: t("system.base.rate_limit_rule.field.parameters"), minWidth: 230, render: scope => paramsSummary((scope.row as BaseApiRateLimitPolicy).rule_params) },
   {
     prop: "status",
     label: t("common.field.status"),
@@ -170,7 +231,11 @@ async function openDialog(id?: number) {
     load: () => (id !== undefined ? defBaseApiRateLimitPolicyService.GetBaseApiRateLimitPolicy({ id }) : undefined),
     commit: data => {
       resetForm();
-      if (data) Object.assign(form, data, { params: parseParams(data.rule_params) });
+      if (data) {
+        Object.assign(form, data);
+        handleRuleChange(data.rule_id);
+        form.params = parseRateLimitParams(form.rule_type, data.rule_params);
+      }
       dialog.titleKey = id !== undefined ? "common.action.edit_resource" : "common.action.create_resource";
     }
   });
@@ -178,17 +243,13 @@ async function openDialog(id?: number) {
 
 /** 加载可配置接口和限流规则。 */
 async function loadOptions() {
-  const [apis, rules] = await Promise.all([
-    defBaseApiService.OptionBaseApi({ include_public: true }),
+  const [apiCatalog, rules] = await Promise.all([
+    loadApiTransferCatalog({ include_public: true }),
     defBaseRateLimitRuleService.OptionBaseRateLimitRule({ keyword: "" })
   ]);
-  apiCatalog.value = apis.base_apis ?? [];
-  apiOptions.value = apiCatalog.value.map(api => ({
-    label: `${api.service_desc || api.service_name}/${api.desc || `${api.method} ${api.path}`}`,
-    value: api.operation
-  }));
+  apiOptions.value = apiCatalog.options;
   ruleCatalog.value = rules.list ?? [];
-  ruleOptions.value = ruleCatalog.value.map(rule => ({ label: `${rule.label} (${rule.code})`, value: rule.id, disabled: rule.disabled }));
+  ruleOptions.value = ruleCatalog.value.map(rule => ({ label: `${rule.label} (${rule.code}) · ${algorithmLabel(rule.rule_type)}`, value: rule.id, disabled: rule.disabled }));
 }
 
 /** 重置接口限流策略表单。 */
@@ -201,23 +262,21 @@ function resetForm() {
 /** 根据所选模板加载默认参数。 */
 function handleRuleChange(ruleId?: number) {
   const selected = ruleCatalog.value.find(rule => rule.id === Number(ruleId));
-  form.params = selected ? parseParams(selected.default_params) : { tokens_per_second: undefined, burst: undefined };
+  form.rule_type = selected?.rule_type ?? BaseRateLimitAlgorithm.BASE_RATE_LIMIT_ALGORITHM_UNSPECIFIED;
+  form.params = selected ? parseRateLimitParams(form.rule_type, selected.default_params) : defaultRateLimitParams(form.rule_type);
 }
 
 /** 校验并保存接口策略参数快照。 */
 async function submit() {
-  if (
-    typeof form.params.tokens_per_second !== "number" ||
-    form.params.tokens_per_second < 0.001 ||
-    typeof form.params.burst !== "number" ||
-    form.params.burst < 1
-  ) {
+  const valid = await dialogRef.value?.validate();
+  if (!valid || form.rule_id === undefined) return;
+
+  const params = serializeRateLimitParams(form.rule_type, form.params);
+  if (!params) {
     ElMessage.warning(t("system.base.rate_limit_rule.validation.parameters"));
     return;
   }
-  form.rule_params = JSON.stringify(form.params);
-  const valid = await dialogRef.value?.validate();
-  if (!valid) return;
+  form.rule_params = JSON.stringify(params);
   const payload: BaseApiRateLimitPolicyForm = {
     id: form.id,
     operations: form.operations,
@@ -274,26 +333,13 @@ async function deleteItems(selected?: BaseApiRateLimitPolicy | BaseApiRateLimitP
   }
 }
 
-/** 解析令牌桶参数 JSON。 */
-function parseParams(raw: string): RateLimitParams {
-  try {
-    const value = JSON.parse(raw) as Partial<RateLimitParams>;
-    const tokensPerSecond = Number(value.tokens_per_second);
-    const burst = Number(value.burst);
-    return {
-      tokens_per_second: Number.isFinite(tokensPerSecond) ? tokensPerSecond : 0,
-      burst: Number.isFinite(burst) ? burst : 0
-    };
-  } catch {
-    return { tokens_per_second: 0, burst: 0 };
-  }
+/** 格式化策略参数摘要。 */
+function paramsSummary(algorithm: BaseRateLimitAlgorithm, raw: string) {
+  return t(rateLimitSummaryKey(algorithm), rateLimitSummaryParams(algorithm, raw));
 }
 
-/** 格式化策略参数摘要。 */
-function paramsSummary(raw: string) {
-  const params = parseParams(raw);
-  return t("system.base.rate_limit_rule.message.parameters_summary", { rate: params.tokens_per_second ?? 0, burst: params.burst ?? 0 });
-}
+/** 返回限流算法显示名称。 */
+function algorithmLabel(algorithm: BaseRateLimitAlgorithm) { return t(rateLimitAlgorithmLabelKey(algorithm)); }
 
 /** 返回限流维度的显示名称。 */
 function dimensionLabel(dimension: BaseApiRateLimitDimension) {
@@ -301,20 +347,44 @@ function dimensionLabel(dimension: BaseApiRateLimitDimension) {
   return option?.label ?? String(dimension);
 }
 
+/** 格式化限流策略表格中的接口信息。 */
+function formatApiLabel(api: Pick<BaseApi, "service_desc" | "service_name" | "method" | "path" | "operation">) {
+  return `${api.service_desc || api.service_name} · ${api.method} ${api.path} · ${api.operation}`;
+}
+
 /** 返回接口策略表单初始值。 */
 function defaultForm(): PolicyFormState {
+  const rule_type = BaseRateLimitAlgorithm.BASE_RATE_LIMIT_ALGORITHM_UNSPECIFIED;
   return {
     id: 0,
     operations: [],
     dimension: BaseApiRateLimitDimension.BASE_API_RATE_LIMIT_DIMENSION_GLOBAL,
-    rule_id: 0,
+    rule_id: undefined,
     rule_params: "{}",
+    rule_type,
     status: Status.STATUS_ENABLE,
     remark: "",
-    params: { tokens_per_second: undefined, burst: undefined }
+    params: defaultRateLimitParams(rule_type)
   };
 }
 </script>
+
+<style lang="scss">
+.api-rate-limit-api-tooltip {
+  max-width: min(960px, calc(100vw - 48px));
+}
+.api-rate-limit-api-tooltip__content {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: min(420px, calc(100vh - 32px));
+  overflow-y: auto;
+}
+.api-rate-limit-api-tooltip__item {
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+</style>
 
 <style scoped>
 .parameter-grid {
@@ -331,10 +401,18 @@ function defaultForm(): PolicyFormState {
   min-width: 0;
 }
 
-.parameter-item > span {
+.parameter-label {
+  display: inline-flex;
   flex: none;
+  align-items: center;
+  gap: 4px;
   color: var(--el-text-color-regular);
   font-size: 12px;
+}
+
+.parameter-help {
+  color: var(--el-text-color-placeholder);
+  cursor: help;
 }
 
 .parameter-item :deep(.el-input-number) {
@@ -342,57 +420,9 @@ function defaultForm(): PolicyFormState {
   width: 0;
   min-width: 0;
 }
-
-.policy-api-transfer {
-  width: 100%;
-}
-
-.policy-api-transfer :deep(.el-transfer-panel) {
-  width: min(520px, calc((100% - 112px) / 2));
-  min-width: 0;
-}
-
-.policy-api-transfer :deep(.el-transfer__buttons) {
-  padding: 0 16px;
-}
-
-.policy-api-transfer :deep(.el-transfer-panel__body),
-.policy-api-transfer :deep(.el-transfer-panel__list) {
-  height: min(420px, 50vh);
-}
-
-.policy-api-transfer :deep(.el-transfer-panel__item) {
-  height: auto;
-  min-height: 30px;
-  line-height: 1.4;
-  padding-top: 6px;
-  padding-bottom: 6px;
-}
-
-.policy-api-transfer :deep(.el-transfer-panel__item .el-checkbox__label) {
-  height: auto;
-  line-height: 1.4;
-  white-space: normal;
-  overflow: visible;
-  text-overflow: clip;
-  overflow-wrap: anywhere;
-}
-
-@media (max-width: 760px) {
+@media (width <= 900px) {
   .parameter-grid {
     grid-template-columns: minmax(0, 1fr);
-  }
-
-  .policy-api-transfer {
-    width: 100%;
-  }
-
-  .policy-api-transfer :deep(.el-transfer-panel) {
-    width: calc((100% - 80px) / 2);
-  }
-
-  .policy-api-transfer :deep(.el-transfer__buttons) {
-    padding: 0 6px;
   }
 }
 </style>

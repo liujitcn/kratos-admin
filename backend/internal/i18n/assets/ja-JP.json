@@ -4024,5 +4024,11 @@
   "system.admin.base.api_rate_limit_policy.rule_params.required": { "other": "APIレート制限パラメーターを入力してください" },
   "system.admin.base.api_rate_limit_policy.remark.length": { "other": "備考は500文字以内で入力してください" },
   "system.admin.base.api_rate_limit_policy.delete.id.required": { "other": "APIレート制限ポリシーIDを指定してください" },
-  "system.admin.base.api_rate_limit_policy.status.id.required": { "other": "APIレート制限ポリシーIDを入力してください" }
+  "system.admin.base.api_rate_limit_policy.status.id.required": { "other": "APIレート制限ポリシーIDを入力してください" },
+  "system.admin.base.ai.provider.api_key.max_length": { "other": "モデルAPIキーは1024文字以内で入力してください" },
+  "system.admin.base.ai.provider.base_url.max_length": { "other": "API URLは512文字以内で入力してください" },
+  "system.admin.base.ai.provider.models_json.required": { "other": "少なくとも1つのモデルを設定してください" },
+  "system.admin.base.ai.provider.name.required": { "other": "プロバイダー名を入力してください" },
+  "system.admin.base.ai.provider.provider.required": { "other": "対応するモデルProviderを選択してください" },
+  "system.admin.base.ai.provider.update.id.required": { "other": "プロバイダーIDが必要です" }
 }

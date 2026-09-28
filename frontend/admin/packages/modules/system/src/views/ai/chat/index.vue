@@ -27,7 +27,11 @@
       :sending="currentSessionSending"
       :shortcuts="starterShortcuts"
       :loading-shortcuts="loadingShortcuts"
+      :model-providers="modelProviders"
+      :provider-id="selectedProviderId"
+      :model-name="selectedModelName"
       @submit="handleSubmit"
+      @model-change="handleModelChange"
       @message-action="handleMessageAction"
       @message-edit="handleEditMessage"
     >
@@ -54,8 +58,10 @@ import { getAdminAiExtension } from "@liujitcn/kratos-admin-system";
 import { defAiMessageService } from "@liujitcn/kratos-admin-system/api/base/v1/ai_message";
 import { defAiSessionService } from "@liujitcn/kratos-admin-system/api/base/v1/ai_session";
 import { defAiToolService } from "@liujitcn/kratos-admin-system/api/base/v1/ai_tool";
+import { defAiModelService } from "@liujitcn/kratos-admin-system/api/base/v1/ai_provider";
 import type { AiAction } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_message";
 import type { AiSession } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_session";
+import type { AiProviderModelOption } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_provider";
 import type { AiShortcut } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_tool";
 import { AiMessageStatus } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_session";
 import { Terminal } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_tool";
@@ -102,6 +108,9 @@ const loadingSessionID = ref("");
 const loadingShortcuts = ref(false);
 const sessions = ref<AiSession[]>([]);
 const starterShortcuts = ref<AiShortcut[]>([]);
+const modelProviders = ref<AiProviderModelOption[]>([]);
+const selectedProviderId = ref(0);
+const selectedModelName = ref("");
 const messages = ref<Record<string, ChatMessageItem[]>>({});
 const pendingDeltaMap = new Map<string, AiStreamPayload>();
 const runningStreamTaskMap = new Map<string, AiStreamTask>();
@@ -217,6 +226,8 @@ async function runAiStreamTask(sessionID: string, payload: SubmitPayload) {
       {
         session_id: sessionID,
         content: payload.text,
+        provider_id: selectedProviderId.value,
+        model_name: selectedModelName.value,
         attachments: payload.attachments.map(item => ({
           id: item.id,
           name: item.name,
@@ -645,13 +656,31 @@ async function loadAiShortcuts() {
   if (loadingShortcuts.value) return;
   loadingShortcuts.value = true;
   try {
-    const response = await defAiToolService.ListAiShortcut({ terminal: Terminal.TERMINAL_ADMIN });
+    const [response, providerResponse] = await Promise.all([
+      defAiToolService.ListAiShortcut({ terminal: Terminal.TERMINAL_ADMIN }),
+      defAiModelService.ListAiProviderModelOptions({})
+    ]);
     starterShortcuts.value = normalizeStarterShortcuts(response.shortcuts);
+    modelProviders.value = providerResponse.providers ?? [];
+    if (!modelProviders.value.some(item => item.provider_id === selectedProviderId.value && item.models.includes(selectedModelName.value))) {
+      const firstProvider = modelProviders.value[0];
+      selectedProviderId.value = firstProvider?.provider_id ?? 0;
+      selectedModelName.value = firstProvider?.models[0] ?? "";
+    }
   } catch {
     starterShortcuts.value = [];
+    modelProviders.value = [];
+    selectedProviderId.value = 0;
+    selectedModelName.value = "";
   } finally {
     loadingShortcuts.value = false;
   }
+}
+
+/** 更新当前聊天使用的供应商与模型。 */
+function handleModelChange(providerId: number, modelName: string) {
+  selectedProviderId.value = providerId;
+  selectedModelName.value = modelName;
 }
 
 /** 使指定会话仍在途的消息列表请求失效。 */

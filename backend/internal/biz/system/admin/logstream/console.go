@@ -2,6 +2,7 @@ package logstream
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"os"
 	"strings"
@@ -28,6 +29,9 @@ type consoleLineFramer struct {
 var (
 	consoleCaptureMu      sync.Mutex
 	consoleCaptureStarted bool
+	consoleStdoutCapture  *consoleCapture
+	consoleStderrCapture  *consoleCapture
+	consoleCaptureWG      sync.WaitGroup
 )
 
 // StartConsoleCapture 接管当前进程标准输出和标准错误，并在原样回写控制台的同时发布实时日志。
@@ -47,13 +51,65 @@ func StartConsoleCapture(hub *Hub) error {
 	var stderrCapture *consoleCapture
 	stderrCapture, err = redirectConsoleOutput(os.Stderr, "stderr")
 	if err != nil {
-		restoreConsoleOutput(os.Stdout, stdoutCapture)
-		return fmt.Errorf("接管标准错误失败: %w", err)
+		startErr := fmt.Errorf("接管标准错误失败: %w", err)
+		restoreErr := restoreConsoleOutput(os.Stdout, stdoutCapture)
+		if restoreErr != nil {
+			startErr = errors.Join(startErr, fmt.Errorf("恢复标准输出失败: %w", restoreErr))
+		}
+		closeErr := closeConsoleCapture(stdoutCapture)
+		if closeErr != nil {
+			startErr = errors.Join(startErr, fmt.Errorf("关闭标准输出采集失败: %w", closeErr))
+		}
+		return startErr
 	}
 	consoleCaptureStarted = true
-	go relayConsoleOutput(stdoutCapture, hub)
-	go relayConsoleOutput(stderrCapture, hub)
+	consoleStdoutCapture = stdoutCapture
+	consoleStderrCapture = stderrCapture
+	consoleCaptureWG.Add(2)
+	go func() {
+		defer consoleCaptureWG.Done()
+		relayConsoleOutput(stdoutCapture, hub)
+	}()
+	go func() {
+		defer consoleCaptureWG.Done()
+		relayConsoleOutput(stderrCapture, hub)
+	}()
 	return nil
+}
+
+// StopConsoleCapture 恢复标准输出和标准错误，并等待已捕获内容排空。
+func StopConsoleCapture() error {
+	consoleCaptureMu.Lock()
+	defer consoleCaptureMu.Unlock()
+	if !consoleCaptureStarted {
+		return nil
+	}
+	stdoutCapture := consoleStdoutCapture
+	stderrCapture := consoleStderrCapture
+	var restoreErr error
+	err := restoreConsoleOutput(os.Stdout, stdoutCapture)
+	if err != nil {
+		restoreErr = errors.Join(restoreErr, fmt.Errorf("恢复标准输出失败: %w", err))
+		if closeErr := os.Stdout.Close(); closeErr != nil {
+			restoreErr = errors.Join(restoreErr, fmt.Errorf("关闭标准输出失败: %w", closeErr))
+		}
+	}
+	err = restoreConsoleOutput(os.Stderr, stderrCapture)
+	if err != nil {
+		restoreErr = errors.Join(restoreErr, fmt.Errorf("恢复标准错误失败: %w", err))
+		if closeErr := os.Stderr.Close(); closeErr != nil {
+			restoreErr = errors.Join(restoreErr, fmt.Errorf("关闭标准错误失败: %w", closeErr))
+		}
+	}
+	consoleCaptureStarted = false
+	consoleStdoutCapture = nil
+	consoleStderrCapture = nil
+	consoleCaptureWG.Wait()
+	closeErr := errors.Join(closeConsoleCapture(stdoutCapture), closeConsoleCapture(stderrCapture))
+	if closeErr != nil {
+		restoreErr = errors.Join(restoreErr, fmt.Errorf("关闭控制台采集资源失败: %w", closeErr))
+	}
+	return restoreErr
 }
 
 // redirectConsoleOutput 将目标文件描述符重定向到管道，并保留原输出用于回写。
@@ -85,14 +141,20 @@ func redirectConsoleOutput(target *os.File, source string) (*consoleCapture, err
 	return &consoleCapture{reader: reader, original: original, source: source}, nil
 }
 
-// restoreConsoleOutput 恢复接管失败前的控制台输出。
-func restoreConsoleOutput(target *os.File, capture *consoleCapture) {
+// restoreConsoleOutput 恢复被接管的控制台输出。
+func restoreConsoleOutput(target *os.File, capture *consoleCapture) error {
 	if capture == nil {
-		return
+		return nil
 	}
-	_ = unix.Dup2(int(capture.original.Fd()), int(target.Fd()))
-	_ = capture.reader.Close()
-	_ = capture.original.Close()
+	return unix.Dup2(int(capture.original.Fd()), int(target.Fd()))
+}
+
+// closeConsoleCapture 关闭控制台采集的管道和原始输出副本。
+func closeConsoleCapture(capture *consoleCapture) error {
+	if capture == nil {
+		return nil
+	}
+	return errors.Join(capture.reader.Close(), capture.original.Close())
 }
 
 // relayConsoleOutput 持续转发控制台字节，并将完整行写入运行日志中心。

@@ -2,9 +2,12 @@ package main
 
 import (
 	"context"
+	"fmt"
+	"os"
 
 	"github.com/go-kratos/kratos/v3/log"
 
+	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/logstream"
 	_const "github.com/liujitcn/kratos-admin/backend/internal/const"
 	configv1 "github.com/liujitcn/kratos-kit/api/gen/go/config/v1"
 
@@ -42,6 +45,16 @@ import (
 
 // main 启动 Admin 宿主应用。
 func main() {
+	defer func() {
+		recovered := recover()
+		stopErr := logstream.StopConsoleCapture()
+		if stopErr != nil {
+			_, _ = fmt.Fprintf(os.Stderr, "恢复启动日志输出失败: %v\n", stopErr)
+		}
+		if recovered != nil {
+			panic(recovered)
+		}
+	}()
 	ctx := bootstrap.NewContext(
 		context.Background(),
 		&configv1.AppInfo{
@@ -52,6 +65,10 @@ func main() {
 		},
 	)
 	if err := bootstrap.RunApp(ctx, NewApp); err != nil {
+		stopErr := logstream.StopConsoleCapture()
+		if stopErr != nil {
+			_, _ = fmt.Fprintf(os.Stderr, "恢复启动日志输出失败: %v\n", stopErr)
+		}
 		// 显式记录启动失败原因，保证端口占用等错误在控制台和日志文件中可见。
 		log.Error("服务启动失败", "error", err)
 		panic(err)

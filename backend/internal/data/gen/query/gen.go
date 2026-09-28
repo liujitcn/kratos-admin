@@ -19,6 +19,7 @@ func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 	return &Query{
 		db:                      db,
 		AiMessage:               newAiMessage(db, opts...),
+		AiProvider:              newAiProvider(db, opts...),
 		AiSession:               newAiSession(db, opts...),
 		BaseAPI:                 newBaseAPI(db, opts...),
 		BaseAPII18N:             newBaseAPII18N(db, opts...),
@@ -44,6 +45,8 @@ func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 		BaseMessageCategory:     newBaseMessageCategory(db, opts...),
 		BaseMessageDelivery:     newBaseMessageDelivery(db, opts...),
 		BaseMessageDispatch:     newBaseMessageDispatch(db, opts...),
+		BaseMessageProvider:     newBaseMessageProvider(db, opts...),
+		BaseMessageTemplate:     newBaseMessageTemplate(db, opts...),
 		BaseMigration:           newBaseMigration(db, opts...),
 		BaseOauthProvider:       newBaseOauthProvider(db, opts...),
 		BaseOperationLog:        newBaseOperationLog(db, opts...),
@@ -82,6 +85,7 @@ func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 type Query struct {
 	db                      *gorm.DB
 	AiMessage               aiMessage
+	AiProvider              aiProvider
 	AiSession               aiSession
 	BaseAPI                 baseAPI
 	BaseAPII18N             baseAPII18N
@@ -107,6 +111,8 @@ type Query struct {
 	BaseMessageCategory     baseMessageCategory
 	BaseMessageDelivery     baseMessageDelivery
 	BaseMessageDispatch     baseMessageDispatch
+	BaseMessageProvider     baseMessageProvider
+	BaseMessageTemplate     baseMessageTemplate
 	BaseMigration           baseMigration
 	BaseOauthProvider       baseOauthProvider
 	BaseOperationLog        baseOperationLog
@@ -147,6 +153,7 @@ func (q *Query) clone(db *gorm.DB) *Query {
 	return &Query{
 		db:                      db,
 		AiMessage:               q.AiMessage.clone(db),
+		AiProvider:              q.AiProvider.clone(db),
 		AiSession:               q.AiSession.clone(db),
 		BaseAPI:                 q.BaseAPI.clone(db),
 		BaseAPII18N:             q.BaseAPII18N.clone(db),
@@ -172,6 +179,8 @@ func (q *Query) clone(db *gorm.DB) *Query {
 		BaseMessageCategory:     q.BaseMessageCategory.clone(db),
 		BaseMessageDelivery:     q.BaseMessageDelivery.clone(db),
 		BaseMessageDispatch:     q.BaseMessageDispatch.clone(db),
+		BaseMessageProvider:     q.BaseMessageProvider.clone(db),
+		BaseMessageTemplate:     q.BaseMessageTemplate.clone(db),
 		BaseMigration:           q.BaseMigration.clone(db),
 		BaseOauthProvider:       q.BaseOauthProvider.clone(db),
 		BaseOperationLog:        q.BaseOperationLog.clone(db),
@@ -219,6 +228,7 @@ func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 	return &Query{
 		db:                      db,
 		AiMessage:               q.AiMessage.replaceDB(db),
+		AiProvider:              q.AiProvider.replaceDB(db),
 		AiSession:               q.AiSession.replaceDB(db),
 		BaseAPI:                 q.BaseAPI.replaceDB(db),
 		BaseAPII18N:             q.BaseAPII18N.replaceDB(db),
@@ -244,6 +254,8 @@ func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 		BaseMessageCategory:     q.BaseMessageCategory.replaceDB(db),
 		BaseMessageDelivery:     q.BaseMessageDelivery.replaceDB(db),
 		BaseMessageDispatch:     q.BaseMessageDispatch.replaceDB(db),
+		BaseMessageProvider:     q.BaseMessageProvider.replaceDB(db),
+		BaseMessageTemplate:     q.BaseMessageTemplate.replaceDB(db),
 		BaseMigration:           q.BaseMigration.replaceDB(db),
 		BaseOauthProvider:       q.BaseOauthProvider.replaceDB(db),
 		BaseOperationLog:        q.BaseOperationLog.replaceDB(db),
@@ -281,6 +293,7 @@ func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 
 type queryCtx struct {
 	AiMessage               *aiMessageDo
+	AiProvider              *aiProviderDo
 	AiSession               *aiSessionDo
 	BaseAPI                 *baseAPIDo
 	BaseAPII18N             *baseAPII18NDo
@@ -306,6 +319,8 @@ type queryCtx struct {
 	BaseMessageCategory     *baseMessageCategoryDo
 	BaseMessageDelivery     *baseMessageDeliveryDo
 	BaseMessageDispatch     *baseMessageDispatchDo
+	BaseMessageProvider     *baseMessageProviderDo
+	BaseMessageTemplate     *baseMessageTemplateDo
 	BaseMigration           *baseMigrationDo
 	BaseOauthProvider       *baseOauthProviderDo
 	BaseOperationLog        *baseOperationLogDo
@@ -343,6 +358,7 @@ type queryCtx struct {
 func (q *Query) WithContext(ctx context.Context) *queryCtx {
 	return &queryCtx{
 		AiMessage:               q.AiMessage.WithContext(ctx),
+		AiProvider:              q.AiProvider.WithContext(ctx),
 		AiSession:               q.AiSession.WithContext(ctx),
 		BaseAPI:                 q.BaseAPI.WithContext(ctx),
 		BaseAPII18N:             q.BaseAPII18N.WithContext(ctx),
@@ -368,6 +384,8 @@ func (q *Query) WithContext(ctx context.Context) *queryCtx {
 		BaseMessageCategory:     q.BaseMessageCategory.WithContext(ctx),
 		BaseMessageDelivery:     q.BaseMessageDelivery.WithContext(ctx),
 		BaseMessageDispatch:     q.BaseMessageDispatch.WithContext(ctx),
+		BaseMessageProvider:     q.BaseMessageProvider.WithContext(ctx),
+		BaseMessageTemplate:     q.BaseMessageTemplate.WithContext(ctx),
 		BaseMigration:           q.BaseMigration.WithContext(ctx),
 		BaseOauthProvider:       q.BaseOauthProvider.WithContext(ctx),
 		BaseOperationLog:        q.BaseOperationLog.WithContext(ctx),

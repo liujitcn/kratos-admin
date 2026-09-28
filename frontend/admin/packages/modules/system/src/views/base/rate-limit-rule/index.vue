@@ -13,14 +13,64 @@
       @close="resetForm"
     >
       <template #parameters>
-        <div class="parameter-grid">
+        <div v-if="form.rule_type === BaseRateLimitAlgorithm.BASE_RATE_LIMIT_ALGORITHM_TOKEN_BUCKET" class="parameter-grid">
           <div class="parameter-item">
-            <span>{{ t("system.base.rate_limit_rule.field.tokens_per_second") }}</span>
+            <span class="parameter-label">
+              <span>{{ t("system.base.rate_limit_rule.field.tokens_per_second") }}</span>
+              <el-tooltip :content="t('system.base.rate_limit_rule.tooltip.tokens_per_second')" placement="top" effect="light">
+                <el-icon class="parameter-help" tabindex="0"><QuestionFilled /></el-icon>
+              </el-tooltip>
+            </span>
             <el-input-number v-model="form.params.tokens_per_second" :min="0" :max="1000000" :precision="3" :step="1" controls-position="right" />
           </div>
           <div class="parameter-item">
-            <span>{{ t("system.base.rate_limit_rule.field.burst") }}</span>
+            <span class="parameter-label">
+              <span>{{ t("system.base.rate_limit_rule.field.burst") }}</span>
+              <el-tooltip :content="t('system.base.rate_limit_rule.tooltip.burst')" placement="top" effect="light">
+                <el-icon class="parameter-help" tabindex="0"><QuestionFilled /></el-icon>
+              </el-tooltip>
+            </span>
             <el-input-number v-model="form.params.burst" :min="0" :max="1000000" :precision="0" controls-position="right" />
+          </div>
+        </div>
+        <div v-else-if="windowedAlgorithms.includes(form.rule_type)" class="parameter-grid">
+          <div class="parameter-item">
+            <span class="parameter-label">
+              <span>{{ t("system.base.rate_limit_rule.field.limit") }}</span>
+              <el-tooltip :content="t('system.base.rate_limit_rule.tooltip.limit')" placement="top" effect="light">
+                <el-icon class="parameter-help" tabindex="0"><QuestionFilled /></el-icon>
+              </el-tooltip>
+            </span>
+            <el-input-number v-model="form.params.limit" :min="1" :max="form.rule_type === BaseRateLimitAlgorithm.BASE_RATE_LIMIT_ALGORITHM_SLIDING_WINDOW_LOG ? 10000 : 1000000" :precision="0" controls-position="right" />
+          </div>
+          <div class="parameter-item">
+            <span class="parameter-label">
+              <span>{{ t("system.base.rate_limit_rule.field.window_seconds") }}</span>
+              <el-tooltip :content="t('system.base.rate_limit_rule.tooltip.window_seconds')" placement="top" effect="light">
+                <el-icon class="parameter-help" tabindex="0"><QuestionFilled /></el-icon>
+              </el-tooltip>
+            </span>
+            <el-input-number v-model="form.params.window_seconds" :min="1" :max="86400" :precision="0" controls-position="right" />
+          </div>
+        </div>
+        <div v-else-if="form.rule_type === BaseRateLimitAlgorithm.BASE_RATE_LIMIT_ALGORITHM_LEAKY_BUCKET" class="parameter-grid">
+          <div class="parameter-item">
+            <span class="parameter-label">
+              <span>{{ t("system.base.rate_limit_rule.field.leak_rate_per_second") }}</span>
+              <el-tooltip :content="t('system.base.rate_limit_rule.tooltip.leak_rate_per_second')" placement="top" effect="light">
+                <el-icon class="parameter-help" tabindex="0"><QuestionFilled /></el-icon>
+              </el-tooltip>
+            </span>
+            <el-input-number v-model="form.params.leak_rate_per_second" :min="0.001" :max="1000000" :precision="3" :step="1" controls-position="right" />
+          </div>
+          <div class="parameter-item">
+            <span class="parameter-label">
+              <span>{{ t("system.base.rate_limit_rule.field.capacity") }}</span>
+              <el-tooltip :content="t('system.base.rate_limit_rule.tooltip.capacity')" placement="top" effect="light">
+                <el-icon class="parameter-help" tabindex="0"><QuestionFilled /></el-icon>
+              </el-tooltip>
+            </span>
+            <el-input-number v-model="form.params.capacity" :min="1" :max="1000000" :precision="0" controls-position="right" />
           </div>
         </div>
       </template>
@@ -32,7 +82,7 @@
 import { computed, reactive, ref } from "vue";
 import { ElMessage, ElMessageBox } from "element-plus";
 import type { FormRules } from "element-plus";
-import { CirclePlus, Delete, EditPen } from "@element-plus/icons-vue";
+import { CirclePlus, Delete, EditPen, QuestionFilled } from "@element-plus/icons-vue";
 import type { ColumnProps, HeaderActionProps, ProTableInstance } from "@liujitcn/kratos-admin-core/components/ProTable/interface";
 import ProTable from "@liujitcn/kratos-admin-core/components/ProTable";
 import FormDialog from "@liujitcn/kratos-admin-core/components/Dialog/FormDialog.vue";
@@ -41,20 +91,14 @@ import { useAuthButtons } from "@liujitcn/kratos-admin-core/auth";
 import { buildPageRequest, normalizeSelectedIds } from "@liujitcn/kratos-admin-core/table";
 import { t } from "@liujitcn/kratos-admin-core";
 import { defBaseRateLimitRuleService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/base_rate_limit_rule";
+import { BaseRateLimitAlgorithm } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_rate_limit_rule";
 import type { BaseRateLimitRule, BaseRateLimitRuleForm, PageBaseRateLimitRuleRequest } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_rate_limit_rule";
 import { Status } from "@liujitcn/kratos-admin-system/rpc/common/v1/enum";
-
-/** 令牌桶规则参数。 */
-interface RateLimitParams {
-  /** 每秒生成的令牌数。 */
-  tokens_per_second: number | undefined;
-  /** 令牌桶容量。 */
-  burst: number | undefined;
-}
+import { defaultRateLimitParams, parseRateLimitParams, rateLimitAlgorithmLabelKey, rateLimitAlgorithmTooltipKey, rateLimitSummaryKey, rateLimitSummaryParams, serializeRateLimitParams, type RateLimitParams } from "../../../utils/rateLimit";
 
 /** 限流规则表单状态。 */
 interface RuleFormState extends BaseRateLimitRuleForm {
-  /** 可编辑的令牌桶参数。 */
+  /** 当前算法对应的可编辑参数。 */
   params: RateLimitParams;
 }
 
@@ -65,6 +109,18 @@ const table = ref<ProTableInstance>();
 const dialogRef = ref<InstanceType<typeof FormDialog>>();
 const dialog = reactive({ visible: false, titleKey: "common.action.create_resource" });
 const form = reactive<RuleFormState>(defaultForm());
+const windowedAlgorithms = [
+  BaseRateLimitAlgorithm.BASE_RATE_LIMIT_ALGORITHM_FIXED_WINDOW,
+  BaseRateLimitAlgorithm.BASE_RATE_LIMIT_ALGORITHM_SLIDING_WINDOW_COUNTER,
+  BaseRateLimitAlgorithm.BASE_RATE_LIMIT_ALGORITHM_SLIDING_WINDOW_LOG
+];
+const algorithmOptions = computed<ProFormOption[]>(() => [
+  BaseRateLimitAlgorithm.BASE_RATE_LIMIT_ALGORITHM_TOKEN_BUCKET,
+  BaseRateLimitAlgorithm.BASE_RATE_LIMIT_ALGORITHM_FIXED_WINDOW,
+  BaseRateLimitAlgorithm.BASE_RATE_LIMIT_ALGORITHM_SLIDING_WINDOW_COUNTER,
+  BaseRateLimitAlgorithm.BASE_RATE_LIMIT_ALGORITHM_SLIDING_WINDOW_LOG,
+  BaseRateLimitAlgorithm.BASE_RATE_LIMIT_ALGORITHM_LEAKY_BUCKET
+].map(value => ({ label: t(rateLimitAlgorithmLabelKey(value)), value })));
 const statusOptions = computed<ProFormOption[]>(() => [
   { label: t("common.status.enabled"), value: Status.STATUS_ENABLE },
   { label: t("common.status.disabled"), value: Status.STATUS_DISABLE }
@@ -72,8 +128,8 @@ const statusOptions = computed<ProFormOption[]>(() => [
 const fields = computed<ProFormField[]>(() => [
   { prop: "code", label: t("system.base.rate_limit_rule.field.code"), component: "input", props: { disabled: Boolean(form.id) } },
   { prop: "name", label: t("system.base.rate_limit_rule.field.name"), component: "input" },
-  { prop: "rule_type", label: t("system.base.rate_limit_rule.field.rule_type"), component: "input", props: { disabled: true } },
-  { prop: "parameters", label: t("system.base.rate_limit_rule.field.parameters"), component: "slot", slotName: "parameters", colSpan: 24 },
+  { prop: "rule_type", label: t("system.base.rate_limit_rule.field.rule_type"), labelTooltip: t(rateLimitAlgorithmTooltipKey(form.rule_type)), component: "select", options: algorithmOptions.value, props: { disabled: Boolean(form.id), onChange: handleAlgorithmChange } },
+  { prop: "parameters", label: t("system.base.rate_limit_rule.field.parameters"), labelTooltip: t("system.base.rate_limit_rule.tooltip.parameters"), component: "slot", slotName: "parameters", colSpan: 24 },
   { prop: "status", label: t("common.field.status"), component: "radio-group", options: statusOptions.value },
   { prop: "remark", label: t("common.field.remark"), component: "textarea" }
 ]);
@@ -85,8 +141,8 @@ const columns = computed<ColumnProps[]>(() => [
   { type: "selection", width: 55 },
   { prop: "code", label: t("system.base.rate_limit_rule.field.code"), minWidth: 190, search: { el: "input" } },
   { prop: "name", label: t("system.base.rate_limit_rule.field.name"), minWidth: 190, search: { el: "input" } },
-  { prop: "rule_type", label: t("system.base.rate_limit_rule.field.rule_type"), width: 150 },
-  { prop: "default_params", label: t("system.base.rate_limit_rule.field.parameters"), minWidth: 260, render: scope => paramsSummary((scope.row as BaseRateLimitRule).default_params) },
+  { prop: "rule_type", label: t("system.base.rate_limit_rule.field.rule_type"), width: 190, render: scope => algorithmLabel((scope.row as BaseRateLimitRule).rule_type) },
+  { prop: "default_params", label: t("system.base.rate_limit_rule.field.parameters"), minWidth: 260, render: scope => paramsSummary((scope.row as BaseRateLimitRule).rule_type, (scope.row as BaseRateLimitRule).default_params) },
   {
     prop: "status",
     label: t("common.field.status"),
@@ -128,7 +184,7 @@ async function openDialog(id?: number) {
     load: () => (id !== undefined ? defBaseRateLimitRuleService.GetBaseRateLimitRule({ id }) : undefined),
     commit: data => {
       resetForm();
-      if (data) Object.assign(form, data, { params: parseParams(data.default_params) });
+      if (data) Object.assign(form, data, { params: parseRateLimitParams(data.rule_type, data.default_params) });
       dialog.titleKey = id !== undefined ? "common.action.edit_resource" : "common.action.create_resource";
     }
   });
@@ -143,23 +199,19 @@ function resetForm() {
 
 /** 校验并保存限流规则模板。 */
 async function submit() {
-  if (
-    typeof form.params.tokens_per_second !== "number" ||
-    form.params.tokens_per_second < 0.001 ||
-    typeof form.params.burst !== "number" ||
-    form.params.burst < 1
-  ) {
+  const params = serializeRateLimitParams(form.rule_type, form.params);
+  if (!params) {
     ElMessage.warning(t("system.base.rate_limit_rule.validation.parameters"));
     return;
   }
-  form.default_params = JSON.stringify(form.params);
+  form.default_params = JSON.stringify(params);
   const valid = await dialogRef.value?.validate();
   if (!valid) return;
   const payload: BaseRateLimitRuleForm = {
     id: form.id,
     code: form.code,
     name: form.name,
-    rule_type: "TOKEN_BUCKET",
+    rule_type: form.rule_type,
     default_params: form.default_params,
     status: form.status,
     remark: form.remark
@@ -211,30 +263,21 @@ async function deleteItems(selected?: BaseRateLimitRule | BaseRateLimitRule[] | 
   }
 }
 
-/** 解析令牌桶参数 JSON。 */
-function parseParams(raw: string): RateLimitParams {
-  try {
-    const value = JSON.parse(raw) as Partial<RateLimitParams>;
-    const tokensPerSecond = Number(value.tokens_per_second);
-    const burst = Number(value.burst);
-    return {
-      tokens_per_second: Number.isFinite(tokensPerSecond) ? tokensPerSecond : 0,
-      burst: Number.isFinite(burst) ? burst : 0
-    };
-  } catch {
-    return { tokens_per_second: 0, burst: 0 };
-  }
+/** 格式化规则参数摘要。 */
+function paramsSummary(algorithm: BaseRateLimitAlgorithm, raw: string) {
+  return t(rateLimitSummaryKey(algorithm), rateLimitSummaryParams(algorithm, raw));
 }
 
-/** 格式化规则参数摘要。 */
-function paramsSummary(raw: string) {
-  const params = parseParams(raw);
-  return t("system.base.rate_limit_rule.message.parameters_summary", { rate: params.tokens_per_second ?? 0, burst: params.burst ?? 0 });
-}
+/** 返回限流算法显示名称。 */
+function algorithmLabel(algorithm: BaseRateLimitAlgorithm) { return t(rateLimitAlgorithmLabelKey(algorithm)); }
+
+/** 切换算法时清空其他算法的参数。 */
+function handleAlgorithmChange(algorithm: BaseRateLimitAlgorithm) { form.params = defaultRateLimitParams(algorithm); }
 
 /** 返回限流规则表单初始值。 */
 function defaultForm(): RuleFormState {
-  return { id: 0, code: "", name: "", rule_type: "TOKEN_BUCKET", default_params: "", status: Status.STATUS_ENABLE, remark: "", params: { tokens_per_second: undefined, burst: undefined } };
+  const rule_type = BaseRateLimitAlgorithm.BASE_RATE_LIMIT_ALGORITHM_TOKEN_BUCKET;
+  return { id: 0, code: "", name: "", rule_type, default_params: "", status: Status.STATUS_ENABLE, remark: "", params: defaultRateLimitParams(rule_type) };
 }
 </script>
 
@@ -252,10 +295,18 @@ function defaultForm(): RuleFormState {
   min-width: 0;
 }
 
-.parameter-item > span {
+.parameter-label {
+  display: inline-flex;
   flex: none;
+  align-items: center;
+  gap: 4px;
   color: var(--el-text-color-regular);
   font-size: 12px;
+}
+
+.parameter-help {
+  color: var(--el-text-color-placeholder);
+  cursor: help;
 }
 
 .parameter-item :deep(.el-input-number) {

@@ -271,10 +271,10 @@ func (x *GetBaseApiRateLimitPolicyRequest) GetId() int64 {
 type BaseApiRateLimitPolicyForm struct {
 	state         protoimpl.MessageState    `protogen:"open.v1"`
 	Id            int64                     `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                                              // 策略ID
-	Operations    []string                  `protobuf:"bytes,2,rep,name=operations,proto3" json:"operations,omitempty"`                                               // 接口操作列表
-	Dimension     BaseApiRateLimitDimension `protobuf:"varint,3,opt,name=dimension,proto3,enum=system.admin.v1.BaseApiRateLimitDimension" json:"dimension,omitempty"` // 限流维度
-	RuleId        int64                     `protobuf:"varint,4,opt,name=rule_id,json=ruleId,proto3" json:"rule_id,omitempty"`                                        // 限流规则ID
-	RuleParams    string                    `protobuf:"bytes,5,opt,name=rule_params,json=ruleParams,proto3" json:"rule_params,omitempty"`                             // 策略规则参数JSON
+	Dimension     BaseApiRateLimitDimension `protobuf:"varint,2,opt,name=dimension,proto3,enum=system.admin.v1.BaseApiRateLimitDimension" json:"dimension,omitempty"` // 限流维度
+	RuleId        int64                     `protobuf:"varint,3,opt,name=rule_id,json=ruleId,proto3" json:"rule_id,omitempty"`                                        // 限流规则ID
+	RuleParams    string                    `protobuf:"bytes,4,opt,name=rule_params,json=ruleParams,proto3" json:"rule_params,omitempty"`                             // 策略规则参数JSON
+	Operations    []string                  `protobuf:"bytes,5,rep,name=operations,proto3" json:"operations,omitempty"`                                               // 接口操作列表
 	Status        commonv1.Status           `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"`                              // 状态
 	Remark        string                    `protobuf:"bytes,101,opt,name=remark,proto3" json:"remark,omitempty"`                                                     // 备注
 	unknownFields protoimpl.UnknownFields
@@ -318,13 +318,6 @@ func (x *BaseApiRateLimitPolicyForm) GetId() int64 {
 	return 0
 }
 
-func (x *BaseApiRateLimitPolicyForm) GetOperations() []string {
-	if x != nil {
-		return x.Operations
-	}
-	return nil
-}
-
 func (x *BaseApiRateLimitPolicyForm) GetDimension() BaseApiRateLimitDimension {
 	if x != nil {
 		return x.Dimension
@@ -344,6 +337,13 @@ func (x *BaseApiRateLimitPolicyForm) GetRuleParams() string {
 		return x.RuleParams
 	}
 	return ""
+}
+
+func (x *BaseApiRateLimitPolicyForm) GetOperations() []string {
+	if x != nil {
+		return x.Operations
+	}
+	return nil
 }
 
 func (x *BaseApiRateLimitPolicyForm) GetStatus() commonv1.Status {
@@ -779,17 +779,17 @@ const file_system_admin_v1_base_api_rate_limit_policy_proto_rawDesc = "" +
 	"\x02id\x18\x01 \x01(\x03Bm\xbaG\v\x92\x02\b策略ID\xbaH\\\xba\x01Y\n" +
 	"7system.admin.base.api_rate_limit_policy.get.id.required\x12\x14策略ID不能为空\x1a\bthis > 0R\x02id\"\xb0\a\n" +
 	"\x1aBaseApiRateLimitPolicyForm\x12\x1e\n" +
-	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b策略IDR\x02id\x12\xeb\x01\n" +
-	"\n" +
-	"operations\x18\x02 \x03(\tB\xca\x01\xbaG\x15\x92\x02\x12接口操作列表\xbaH\xae\x01\xba\x01\xa0\x01\n" +
-	"8system.admin.base.api_rate_limit_policy.operations.valid\x12-请选择接口，最多500个且不能重复\x1a5this.all(item, item.size() > 0 && item.size() <= 250)\x92\x01\a\b\x01\x10\xf4\x03\x18\x01R\n" +
-	"operations\x12d\n" +
-	"\tdimension\x18\x03 \x01(\x0e2*.system.admin.v1.BaseApiRateLimitDimensionB\x1a\xbaG\x0f\x92\x02\f限流维度\xbaH\x05\x82\x01\x02\x10\x01R\tdimension\x12\x8e\x01\n" +
-	"\arule_id\x18\x04 \x01(\x03Bu\xbaG\x11\x92\x02\x0e限流规则ID\xbaH^\xba\x01[\n" +
+	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b策略IDR\x02id\x12d\n" +
+	"\tdimension\x18\x02 \x01(\x0e2*.system.admin.v1.BaseApiRateLimitDimensionB\x1a\xbaG\x0f\x92\x02\f限流维度\xbaH\x05\x82\x01\x02\x10\x01R\tdimension\x12\x8e\x01\n" +
+	"\arule_id\x18\x03 \x01(\x03Bu\xbaG\x11\x92\x02\x0e限流规则ID\xbaH^\xba\x01[\n" +
 	"8system.admin.base.api_rate_limit_policy.rule_id.required\x12\x15请选择限流规则\x1a\bthis > 0R\x06ruleId\x12\xb3\x01\n" +
-	"\vrule_params\x18\x05 \x01(\tB\x91\x01\xbaG\x19\x92\x02\x16策略规则参数JSON\xbaHr\xba\x01o\n" +
+	"\vrule_params\x18\x04 \x01(\tB\x91\x01\xbaG\x19\x92\x02\x16策略规则参数JSON\xbaHr\xba\x01o\n" +
 	"<system.admin.base.api_rate_limit_policy.rule_params.required\x12\x1e策略规则参数不能为空\x1a\x0fthis.size() > 0R\n" +
-	"ruleParams\x12?\n" +
+	"ruleParams\x12\xeb\x01\n" +
+	"\n" +
+	"operations\x18\x05 \x03(\tB\xca\x01\xbaG\x15\x92\x02\x12接口操作列表\xbaH\xae\x01\xba\x01\xa0\x01\n" +
+	"8system.admin.base.api_rate_limit_policy.operations.valid\x12-请选择接口，最多500个且不能重复\x1a5this.all(item, item.size() > 0 && item.size() <= 250)\x92\x01\a\b\x01\x10\xf4\x03\x18\x01R\n" +
+	"operations\x12?\n" +
 	"\x06status\x18d \x01(\x0e2\x11.common.v1.StatusB\x14\xbaG\t\x92\x02\x06状态\xbaH\x05\x82\x01\x02\x10\x01R\x06status\x12\x95\x01\n" +
 	"\x06remark\x18e \x01(\tB}\xbaG\t\x92\x02\x06备注\xbaHn\xba\x01k\n" +
 	"5system.admin.base.api_rate_limit_policy.remark.length\x12\x1e备注不能超过500个字符\x1a\x12this.size() <= 500R\x06remark\"\xb5\x01\n" +

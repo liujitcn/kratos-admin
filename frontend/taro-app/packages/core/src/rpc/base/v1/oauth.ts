@@ -191,14 +191,30 @@ export interface UnbindOauthAccountRequest {
 export interface OauthProvider {
   /** 登录方式标识 */
   provider: string;
+  /** 登录方式名称 */
+  name: string;
+  /** 登录方式提示语 */
+  description: string;
+  /** 图标键或图片地址 */
+  icon: string;
+  /** Provider个性化配置JSON对象 */
+  config: { [key: string]: any } | undefined;
 }
 
 /** 个人中心三方账号绑定信息 */
 export interface OauthBinding {
   /** 登录方式标识 */
   provider: string;
+  /** 登录方式名称 */
+  name: string;
+  /** 登录方式提示语 */
+  description: string;
   /** 是否已绑定 */
   bound: boolean;
+  /** 图标键或图片地址 */
+  icon: string;
+  /** Provider个性化配置JSON对象 */
+  config: { [key: string]: any } | undefined;
 }
 
 /** Base三方登录公共服务 */

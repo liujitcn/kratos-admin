@@ -44,3 +44,33 @@ func TestRateLimitPolicyResolverResolveReturnsNoPolicy(t *testing.T) {
 		t.Fatalf("Resolve() policies = %#v, want no policy", policies)
 	}
 }
+
+// TestParseRateLimitParamsValidatesAlgorithmSpecificShapes 验证各算法只接受对应参数结构。
+func TestParseRateLimitParamsValidatesAlgorithmSpecificShapes(t *testing.T) {
+	tests := []struct {
+		name      string
+		algorithm string
+		params    string
+		valid     bool
+	}{
+		{name: "令牌桶", algorithm: "TOKEN_BUCKET", params: `{"tokens_per_second":10,"burst":20}`, valid: true},
+		{name: "固定窗口", algorithm: "FIXED_WINDOW", params: `{"limit":100,"window_seconds":60}`, valid: true},
+		{name: "滑动窗口计数", algorithm: "SLIDING_WINDOW_COUNTER", params: `{"limit":100,"window_seconds":60}`, valid: true},
+		{name: "滑动窗口日志", algorithm: "SLIDING_WINDOW_LOG", params: `{"limit":100,"window_seconds":60}`, valid: true},
+		{name: "漏桶", algorithm: "LEAKY_BUCKET", params: `{"leak_rate_per_second":10,"capacity":20}`, valid: true},
+		{name: "算法参数不匹配", algorithm: "FIXED_WINDOW", params: `{"tokens_per_second":10,"burst":20}`, valid: false},
+		{name: "未知参数", algorithm: "LEAKY_BUCKET", params: `{"leak_rate_per_second":10,"capacity":20,"burst":5}`, valid: false},
+		{name: "滑动窗口日志上限", algorithm: "SLIDING_WINDOW_LOG", params: `{"limit":10001,"window_seconds":60}`, valid: false},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			params, err := ParseRateLimitParams(test.algorithm, test.params)
+			if test.valid && err != nil {
+				t.Fatalf("ParseRateLimitParams() error = %v", err)
+			}
+			if !test.valid && err == nil {
+				t.Fatalf("ParseRateLimitParams() params = %#v, want validation error", params)
+			}
+		})
+	}
+}

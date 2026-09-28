@@ -7,7 +7,7 @@
 ```text
 packages/modules/system
 ├── src
-│   ├── api/base/v1            # AI 消息、会话和工具接口
+│   ├── api/base/v1            # AI 消息、会话、快捷入口和Provider模型选项接口
 │   ├── rpc                    # system 相关 Buf 生成类型
 │   ├── views
 │   │   ├── pages/my           # 个人中心主页

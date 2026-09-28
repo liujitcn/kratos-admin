@@ -38,15 +38,23 @@
         <DynamicI18nEditor v-model="i18nValues" :source="formData.meta.title" :maxlength="100" />
       </template>
 
-      <template #apiTransferItem="slotScope">
-        <el-popover effect="light" trigger="hover" placement="top" width="auto">
-          <template #default>
-            <div>{{ t("system.base.api.field.operation") }}：{{ slotScope.option.operation }}</div>
-            <div>{{ t("system.base.api.field.method") }}：{{ slotScope.option.method }}</div>
-            <div>{{ t("system.base.api.field.path") }}：{{ slotScope.option.path }}</div>
+      <template #apiTransfer>
+        <ApiTransfer
+          v-model="formData.api"
+          :options="apiOptions"
+          :titles="[t('system.base.menu.value.available_api'), t('system.base.menu.value.selected_api')]"
+        >
+          <template #default="{ option }">
+            <el-popover effect="light" trigger="hover" placement="top" width="auto">
+              <template #default>
+                <div>{{ t("system.base.api.field.operation") }}：{{ option.operation }}</div>
+                <div>{{ t("system.base.api.field.method") }}：{{ option.method }}</div>
+                <div>{{ t("system.base.api.field.path") }}：{{ option.path }}</div>
+              </template>
+              <template #reference>{{ option.label }}</template>
+            </el-popover>
           </template>
-          <template #reference>{{ slotScope.option.label }}</template>
-        </el-popover>
+        </ApiTransfer>
       </template>
     </FormDialog>
   </div>
@@ -65,9 +73,10 @@ import type {
 } from "@liujitcn/kratos-admin-core/components/ProTable/interface";
 import type { ProFormField, ProFormOption } from "@liujitcn/kratos-admin-core/components/ProForm/interface";
 import SelectIcon from "@liujitcn/kratos-admin-core/components/SelectIcon/index.vue";
+import ApiTransfer from "@liujitcn/kratos-admin-system/components/api/ApiTransfer.vue";
+import { loadApiTransferCatalog, type ApiTransferOption } from "@liujitcn/kratos-admin-system/components/api/apiTransfer";
 import { defBaseMenuService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/base_menu";
 import { loadEnabledBaseLanguages } from "@liujitcn/kratos-admin-system/api/system/admin/v1/base_language";
-import { defBaseApiService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/base_api";
 import { useAuthButtons } from "@liujitcn/kratos-admin-core/auth";
 import type { BaseApi } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_api";
 import type {
@@ -112,6 +121,7 @@ const menuOptions = ref<ProFormOption[]>([]);
 const parentMenuTypeMap = ref(new Map<number, BaseMenuType>());
 const appMenuIds = ref(new Set<number>([APP_MENU_ROOT_ID]));
 const apiList = ref<BaseApi[]>([]);
+const apiOptions = ref<ApiTransferOption[]>([]);
 const i18nValues = ref<DynamicI18nValue[]>(normalizeDynamicI18ns(undefined));
 
 const dialog = reactive({
@@ -410,15 +420,6 @@ const headerActions = computed<HeaderActionProps[]>(() => [
   }
 ]);
 
-/** API 穿梭框可选数据。 */
-const transferData = computed<ProFormOption[]>(() => {
-  return apiList.value.map(item => ({
-    ...item,
-    value: item.operation,
-    label: `${item.service_desc}/${item.desc}`
-  }));
-});
-
 /** 菜单表单字段配置。 */
 const formFields = computed<ProFormField[]>(() => [
   {
@@ -652,14 +653,8 @@ const formFields = computed<ProFormField[]>(() => [
   {
     prop: "api",
     label: t("system.base.menu.field.api_list"),
-    component: "transfer",
-    slotName: "apiTransferItem",
-    options: transferData.value,
-    props: {
-      class: "menu-api-transfer",
-      filterable: true,
-      titles: [t("system.base.menu.value.available_api"), t("system.base.menu.value.selected_api")]
-    },
+    component: "slot",
+    slotName: "apiTransfer",
     visible: model =>
       model.id === APP_MENU_ROOT_ID ||
       model.type === BaseMenuType.BASE_MENU_TYPE_MENU ||
@@ -1053,10 +1048,11 @@ function buildSubmitPayload(): BaseMenuForm {
 
 /** 加载菜单树选项和 API 列表，确保弹窗打开时相关数据已可用。 */
 async function loadDialogResources() {
-  const [menuData, apiData] = await Promise.all([defBaseMenuService.TreeBaseMenu({}), defBaseApiService.OptionBaseApi({})]);
+  const [menuData, apiCatalog] = await Promise.all([defBaseMenuService.TreeBaseMenu({}), loadApiTransferCatalog()]);
   return {
     menuOptions: buildMenuOptions(menuData.base_menus ?? []),
-    apiList: apiData.base_apis ?? []
+    apiList: apiCatalog.apis,
+    apiOptions: apiCatalog.options
   };
 }
 
@@ -1136,6 +1132,7 @@ async function handleOpenDialog(parentMenu?: BaseMenu, menuId?: number) {
     commit: ({ resources, data }) => {
       menuOptions.value = resources.menuOptions;
       apiList.value = resources.apiList;
+      apiOptions.value = resources.apiOptions;
       dialog.parentLocked = Boolean(parentMenu || menuId);
       dialog.editing = Boolean(menuId);
       dialog.parentType = parentMenu?.type ?? BaseMenuType.BASE_MENU_TYPE_UNSPECIFIED;
@@ -1263,51 +1260,6 @@ function handleDeleteMenu(selected?: number | string | Array<number | string> | 
 </style>
 
 <style lang="scss">
-.menu-form-dialog {
-  .menu-api-transfer {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
-    align-items: center;
-    gap: 16px;
-    width: 100%;
-    .el-transfer-panel {
-      width: 100%;
-      min-width: 0;
-    }
-    .el-transfer__buttons {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      padding: 0;
-      .el-button {
-        margin: 0;
-      }
-    }
-    .el-transfer-panel__body {
-      height: 360px;
-    }
-    .el-transfer-panel__list.is-filterable {
-      height: 300px;
-    }
-    .el-transfer-panel__item.el-checkbox {
-      align-items: flex-start;
-      height: auto;
-      min-height: 36px;
-      padding-top: 8px;
-      padding-bottom: 8px;
-      .el-checkbox__input {
-        top: 3px;
-      }
-      .el-checkbox__label {
-        display: block;
-        white-space: normal;
-        overflow-wrap: anywhere;
-        line-height: 20px;
-      }
-    }
-  }
-}
-
 @media (max-width: 767px) {
   .menu-form-dialog {
     .el-col {
@@ -1320,13 +1272,6 @@ function handleDeleteMenu(selected?: number | string | Array<number | string> | 
     .el-form-item__label {
       justify-content: flex-start;
       width: auto !important;
-    }
-    .menu-api-transfer {
-      grid-template-columns: minmax(0, 1fr);
-      .el-transfer__buttons {
-        flex-direction: row;
-        justify-content: center;
-      }
     }
   }
 }

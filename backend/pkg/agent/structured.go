@@ -4,7 +4,7 @@ import (
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/agent/message"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/agent/model"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/agent/structured"
-	configv1 "github.com/liujitcn/kratos-kit/api/gen/go/config/v1"
+	modelconfig "github.com/liujitcn/kratos-kit/ai/model"
 )
 
 // ChatClient 是结构化任务使用的聊天模型客户端。
@@ -19,8 +19,8 @@ type Part = structured.Part
 // Schema 是结构化输出使用的 JSON Schema。
 type Schema = structured.Schema
 
-// NewChatClient 根据 Backend AI 模型配置创建聊天模型客户端。
-func NewChatClient(modelConfig *configv1.AI_Model) *ChatClient {
+// NewChatClient 根据运行时模型参数创建聊天模型客户端。
+func NewChatClient(modelConfig *modelconfig.ModelConfig) *ChatClient {
 	return model.NewChatClient(modelConfig)
 }
 

@@ -1,5 +1,6 @@
 import { defineStore } from "pinia";
 import { defAuthService } from "@/api/system/admin/v1/auth";
+import { useConfigStore } from "@/stores/modules/config";
 import { AuthState } from "@/stores/interface";
 import { getFlatMenuList, getShowMenuList, getAllBreadcrumbList, isExternalPath } from "@/utils";
 import type { RouteItem } from "@/rpc/system/admin/v1/auth";
@@ -19,14 +20,18 @@ function normalizeRoutePath(path?: string, parentPath = "") {
   return `/${pathSegments.join("/")}`;
 }
 
-/** 递归规范化菜单树，避免菜单点击时发生相对路径拼接。 */
-function normalizeRouteTree(menuList: RouteItem[], parentPath = ""): RouteItem[] {
+/** 递归规范化菜单树，并根据 AI 模型可用状态控制会话菜单显隐。 */
+function normalizeRouteTree(menuList: RouteItem[], parentPath = "", aiEnabled = false): RouteItem[] {
   return menuList.map(item => {
     const currentPath = normalizeRoutePath(item.path, parentPath);
     return {
       ...item,
+      meta:
+        item.name === "AiChat"
+          ? { ...item.meta, params: item.meta?.params ?? [], hidden: !aiEnabled }
+          : item.meta,
       path: currentPath,
-      children: normalizeRouteTree(item.children ?? [], currentPath)
+      children: normalizeRouteTree(item.children ?? [], currentPath, aiEnabled)
     };
   });
 }
@@ -63,7 +68,7 @@ export const useAuthStore = defineStore("admin-auth", {
     /** 获取菜单权限列表 */
     async getAuthMenuList() {
       const data = await defAuthService.TreeUserMenu({});
-      this.authMenuList = normalizeRouteTree(data.routes ?? []);
+      this.authMenuList = normalizeRouteTree(data.routes ?? [], "", useConfigStore().aiEnabled);
     },
     /** 设置当前路由名称 */
     async setRouteName(name: string) {

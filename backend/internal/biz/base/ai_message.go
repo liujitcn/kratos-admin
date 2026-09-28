@@ -9,6 +9,7 @@ import (
 	"time"
 
 	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
+	agentmodel "github.com/liujitcn/kratos-admin/backend/internal/biz/agent/model"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/ai"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/dto"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
@@ -121,14 +122,15 @@ func (c *AiMessageCase) SendAiMessage(ctx context.Context, req *basev1.SendAiMes
 	}
 
 	startAt := time.Now()
+	input := ai.ParseInputContent(message.InputContent)
 	var reply *ai.Response
-	reply, err = c.generateAiReply(ctx, session, userName, content, req.GetAction(), attachments, aiAttachments, history, nil)
+	reply, err = c.generateAiReply(ctx, session, userName, content, input.ProviderID, input.ProviderName, input.ModelName, req.GetAction(), attachments, aiAttachments, history, nil)
 	finishAt := time.Now()
 	durationMs := durationMilliseconds(startAt, finishAt)
 	firstTokenMs := durationMs
 	if err != nil {
 		log.Error(fmt.Sprintf("AI message generation failed: %v", err))
-		failedReply := c.buildAiFailedReply(ctx, reply, err)
+		failedReply := c.buildAiFailedReply(ctx, reply, err, input.ProviderName, input.ModelName)
 		err = c.finishAiMessage(ctx, session, message, failedReply, finishAt, firstTokenMs, durationMs, int32(basev1.AiMessageStatus_AI_MESSAGE_STATUS_FAILED))
 		if err != nil {
 			return nil, err
@@ -160,8 +162,9 @@ func (c *AiMessageCase) StreamAiMessage(ctx context.Context, req *basev1.SendAiM
 
 	messageID := strconv.FormatInt(message.ID, 10)
 	startAt := time.Now()
+	input := ai.ParseInputContent(message.InputContent)
 	var firstTokenMs int32
-	reply, runErr := c.generateAiReply(ctx, session, userName, content, req.GetAction(), attachments, aiAttachments, history, func(delta string) {
+	reply, runErr := c.generateAiReply(ctx, session, userName, content, input.ProviderID, input.ProviderName, input.ModelName, req.GetAction(), attachments, aiAttachments, history, func(delta string) {
 		if delta == "" {
 			return
 		}
@@ -186,7 +189,7 @@ func (c *AiMessageCase) StreamAiMessage(ctx context.Context, req *basev1.SendAiM
 	status := int32(basev1.AiMessageStatus_AI_MESSAGE_STATUS_SUCCESS)
 	if runErr != nil {
 		log.Error(fmt.Sprintf("StreamAiMessage RunStream %v", runErr))
-		reply = c.buildAiFailedReply(ctx, reply, runErr)
+		reply = c.buildAiFailedReply(ctx, reply, runErr, input.ProviderName, input.ModelName)
 		status = int32(basev1.AiMessageStatus_AI_MESSAGE_STATUS_FAILED)
 	}
 
@@ -276,13 +279,29 @@ func (c *AiMessageCase) prepareNewAiMessage(ctx context.Context, req *basev1.Sen
 	if err != nil {
 		return nil, nil, "", nil, nil, nil, "", err
 	}
+	selection := agentmodel.ModelOption{}
+	if c.aiRuntime != nil {
+		selection, err = c.aiRuntime.SelectModel(req.GetProviderId(), req.GetModelName())
+		if err != nil {
+			return nil, nil, "", nil, nil, nil, "", errorsx.InvalidArgument("AI供应商或模型选择无效").WithCause(err)
+		}
+	} else if req.GetProviderId() != 0 || req.GetModelName() != "" {
+		return nil, nil, "", nil, nil, nil, "", errorsx.InvalidArgument("AI供应商或模型选择无效")
+	}
 
 	now := time.Now()
+	inputContent := ai.InputContentPayload{
+		Kind:         ai.KindText,
+		Content:      ai.BuildUserContent(content, attachments, c.localizedAttachmentPrompt(ctx)),
+		ProviderID:   selection.ProviderID,
+		ProviderName: selection.ProviderName,
+		ModelName:    selection.ModelName,
+	}
 	message := &models.AiMessage{
 		TenantID:      session.TenantID,
 		SessionID:     session.ID,
 		UserID:        session.UserID,
-		InputContent:  ai.MarshalInputContent(content, attachments, c.localizedAttachmentPrompt(ctx)),
+		InputContent:  ai.MarshalInputContentPayload(inputContent),
 		OutputContent: ai.MarshalEmptyOutputContent(),
 		Attachments:   ai.MarshalAttachments(attachments),
 		Tools:         "[]",
@@ -334,6 +353,7 @@ func (c *AiMessageCase) regenerateAiMessage(ctx context.Context, session *models
 // regenerateAiMessageWithContent 使用指定输入内容重新生成当前轮次输出。
 func (c *AiMessageCase) regenerateAiMessageWithContent(ctx context.Context, session *models.AiSession, message *models.AiMessage, content string) (*basev1.SendAiMessageResponse, error) {
 	attachments := ai.ParseAttachments(message.Attachments)
+	input := ai.ParseInputContent(message.InputContent)
 
 	var err error
 	var aiAttachments []ai.Attachment
@@ -353,18 +373,19 @@ func (c *AiMessageCase) regenerateAiMessageWithContent(ctx context.Context, sess
 	}
 
 	now := time.Now()
-	if err = c.markAiMessageGenerating(ctx, message, content, attachments, now); err != nil {
+	input.Content = ai.BuildUserContent(content, attachments, c.localizedAttachmentPrompt(ctx))
+	if err = c.markAiMessageGenerating(ctx, message, input, now); err != nil {
 		return nil, err
 	}
 	startAt := time.Now()
 	var reply *ai.Response
-	reply, err = c.generateAiReply(ctx, session, userName, content, nil, attachments, aiAttachments, history, nil)
+	reply, err = c.generateAiReply(ctx, session, userName, content, input.ProviderID, input.ProviderName, input.ModelName, nil, attachments, aiAttachments, history, nil)
 	finishAt := time.Now()
 	durationMs := durationMilliseconds(startAt, finishAt)
 	firstTokenMs := durationMs
 	status := int32(basev1.AiMessageStatus_AI_MESSAGE_STATUS_SUCCESS)
 	if err != nil {
-		reply = c.buildAiFailedReply(ctx, reply, err)
+		reply = c.buildAiFailedReply(ctx, reply, err, input.ProviderName, input.ModelName)
 		status = int32(basev1.AiMessageStatus_AI_MESSAGE_STATUS_FAILED)
 	}
 	err = c.finishAiMessage(ctx, session, message, reply, finishAt, firstTokenMs, durationMs, status)
@@ -450,6 +471,9 @@ func (c *AiMessageCase) generateAiReply(
 	session *models.AiSession,
 	userName string,
 	content string,
+	providerID int64,
+	providerName string,
+	modelName string,
 	action *basev1.AiAction,
 	attachments []*basev1.AiAttachment,
 	aiAttachments []ai.Attachment,
@@ -475,6 +499,8 @@ func (c *AiMessageCase) generateAiReply(
 			UserName:     userName,
 			SessionTitle: session.Title,
 			SessionID:    strconv.FormatInt(session.ID, 10),
+			ProviderID:   providerID,
+			ModelName:    modelName,
 			Summary:      session.Summary,
 			Content:      content,
 			History:      history,
@@ -486,24 +512,24 @@ func (c *AiMessageCase) generateAiReply(
 			if err == nil {
 				return response, nil
 			}
-			return c.buildAiFallbackResponse(ctx, content, attachments, err), err
+			return c.buildAiFallbackResponse(ctx, content, attachments, err, providerName, modelName), err
 		}
 		response, err = c.aiRuntime.Run(ctx, input)
 		if err == nil {
 			return response, nil
 		}
 		log.Error(fmt.Sprintf("AI reply generation failed: %v", err))
-		return c.buildAiFallbackResponse(ctx, content, attachments, err), nil
+		return c.buildAiFallbackResponse(ctx, content, attachments, err, providerName, modelName), nil
 	}
 	err = errorsx.Internal("AI助手运行时未初始化")
-	return c.buildAiFallbackResponse(ctx, content, attachments, err), err
+	return c.buildAiFallbackResponse(ctx, content, attachments, err, providerName, modelName), err
 }
 
 // buildAiFailedReply 构造可展示和可排障的助手异常回复。
-func (c *AiMessageCase) buildAiFailedReply(ctx context.Context, reply *ai.Response, cause error) *ai.Response {
+func (c *AiMessageCase) buildAiFailedReply(ctx context.Context, reply *ai.Response, cause error, providerName string, modelName string) *ai.Response {
 	failedReply := reply
 	if failedReply == nil {
-		failedReply = c.buildAiFallbackResponse(ctx, "", nil, cause)
+		failedReply = c.buildAiFallbackResponse(ctx, "", nil, cause, providerName, modelName)
 	}
 	reason := failedReply.FallbackReason
 	if cause != nil || reason != "" {
@@ -526,14 +552,19 @@ func (c *AiMessageCase) buildAiFallbackResponse(
 	content string,
 	attachments []*basev1.AiAttachment,
 	err error,
+	providerName string,
+	modelName string,
 ) *ai.Response {
 	fallbackReason := ""
 	if err != nil {
 		fallbackReason = i18n.EncodeMessage("system.ai.chat.error.details_unavailable", nil)
 	}
-	model := ""
+	modelLabel := ""
 	if c != nil && c.aiRuntime != nil {
-		model = c.aiRuntime.Model()
+		modelLabel = c.aiRuntime.SelectedModelName(0, "")
+	}
+	if providerName != "" && modelName != "" {
+		modelLabel = providerName + " / " + modelName
 	}
 	return &ai.Response{
 		Content: ai.BuildFallbackReply(content, attachments, func(key string, args map[string]any, fallback string) string {
@@ -545,7 +576,7 @@ func (c *AiMessageCase) buildAiFallbackResponse(
 		Token:          ai.TokenUsage{},
 		Tools:          []ai.ToolUsage{},
 		Source:         "fallback",
-		Model:          model,
+		Model:          modelLabel,
 		Fallback:       true,
 		FallbackReason: fallbackReason,
 	}
@@ -657,8 +688,8 @@ func (c *AiMessageCase) findLatestAiMessage(ctx context.Context, tenantID int64,
 }
 
 // markAiMessageGenerating 标记消息进入生成中。
-func (c *AiMessageCase) markAiMessageGenerating(ctx context.Context, message *models.AiMessage, content string, attachments []*basev1.AiAttachment, now time.Time) error {
-	inputContent := ai.MarshalInputContent(content, attachments, c.localizedAttachmentPrompt(ctx))
+func (c *AiMessageCase) markAiMessageGenerating(ctx context.Context, message *models.AiMessage, input ai.InputContentPayload, now time.Time) error {
+	inputContent := ai.MarshalInputContentPayload(input)
 	query := c.aiMessageRepo.Query(ctx).AiMessage
 	_, err := query.WithContext(ctx).
 		Where(query.TenantID.Eq(message.TenantID), query.ID.Eq(message.ID)).

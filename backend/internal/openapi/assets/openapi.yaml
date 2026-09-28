@@ -187,6 +187,134 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/system.admin.v1.BaseMigration'
+    /api/v1/admin/base/ai-provider:
+        get:
+            tags:
+                - AiProviderService
+            description: 分页查询AI供应商。
+            operationId: AiProviderService_PageAiProvider
+            parameters:
+                - name: name
+                  in: query
+                  schema:
+                    type: string
+                - name: status
+                  in: query
+                  schema:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    format: enum
+                - name: page_num
+                  in: query
+                  schema:
+                    type: string
+                - name: page_size
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.PageAiProviderResponse'
+        post:
+            tags:
+                - AiProviderService
+            description: 创建AI供应商。
+            operationId: AiProviderService_CreateAiProvider
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.AiProviderForm'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/ai-provider/{ai_provider.id}:
+        put:
+            tags:
+                - AiProviderService
+            description: 更新AI供应商。
+            operationId: AiProviderService_UpdateAiProvider
+            parameters:
+                - name: ai_provider.id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.AiProviderForm'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/ai-provider/{id}:
+        get:
+            tags:
+                - AiProviderService
+            description: 查询AI供应商表单。
+            operationId: AiProviderService_GetAiProvider
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.AiProviderForm'
+        delete:
+            tags:
+                - AiProviderService
+            description: 删除AI供应商。
+            operationId: AiProviderService_DeleteAiProvider
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/ai-provider/{id}/status:
+        put:
+            tags:
+                - AiProviderService
+            description: 设置AI供应商状态。
+            operationId: AiProviderService_SetAiProviderStatus
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.SetAiProviderStatusRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
     /api/v1/admin/base/api:
         get:
             tags:
@@ -2688,6 +2816,16 @@ paths:
                 - BaseMessageCategoryService
             description: 查询消息分类选项。
             operationId: BaseMessageCategoryService_OptionBaseMessageCategory
+            parameters:
+                - name: inbox_enabled
+                  in: query
+                  schema:
+                    enum:
+                        - BASE_MESSAGE_CATEGORY_INBOX_ENABLED_UNSPECIFIED
+                        - BASE_MESSAGE_CATEGORY_INBOX_ENABLED_ENABLE
+                        - BASE_MESSAGE_CATEGORY_INBOX_ENABLED_DISABLE
+                    type: string
+                    format: enum
             responses:
                 "200":
                     description: OK
@@ -2769,6 +2907,252 @@ paths:
                         schema:
                             $ref: '#/components/schemas/system.admin.v1.SetBaseMessageCategoryStatusRequest'
                 required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/message-provider:
+        get:
+            tags:
+                - BaseMessageProviderService
+            description: 分页查询消息发送 Provider。
+            operationId: BaseMessageProviderService_PageBaseMessageProvider
+            parameters:
+                - name: provider
+                  in: query
+                  schema:
+                    type: string
+                - name: name
+                  in: query
+                  schema:
+                    type: string
+                - name: status
+                  in: query
+                  schema:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    format: enum
+                - name: page_num
+                  in: query
+                  schema:
+                    type: string
+                - name: page_size
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.PageBaseMessageProviderResponse'
+        post:
+            tags:
+                - BaseMessageProviderService
+            description: 创建消息发送 Provider。
+            operationId: BaseMessageProviderService_CreateBaseMessageProvider
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.BaseMessageProviderForm'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/message-provider/option:
+        get:
+            tags:
+                - BaseMessageProviderService
+            description: 查询消息发送 Provider 选项。
+            operationId: BaseMessageProviderService_OptionBaseMessageProvider
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/common.v1.SelectOptionResponse'
+    /api/v1/admin/base/message-provider/{base_message_provider.id}:
+        put:
+            tags:
+                - BaseMessageProviderService
+            description: 更新消息发送 Provider。
+            operationId: BaseMessageProviderService_UpdateBaseMessageProvider
+            parameters:
+                - name: base_message_provider.id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.BaseMessageProviderForm'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/message-provider/{id}:
+        get:
+            tags:
+                - BaseMessageProviderService
+            description: 查询消息发送 Provider 详情。
+            operationId: BaseMessageProviderService_GetBaseMessageProvider
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.BaseMessageProviderForm'
+        delete:
+            tags:
+                - BaseMessageProviderService
+            description: 删除消息发送 Provider。
+            operationId: BaseMessageProviderService_DeleteBaseMessageProvider
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/message-provider/{id}/status:
+        put:
+            tags:
+                - BaseMessageProviderService
+            description: 设置消息发送 Provider 状态。
+            operationId: BaseMessageProviderService_SetBaseMessageProviderStatus
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.SetBaseMessageProviderStatusRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/message-template:
+        get:
+            tags:
+                - BaseMessageTemplateService
+            description: 分页查询消息 Provider 模板。
+            operationId: BaseMessageTemplateService_PageBaseMessageTemplate
+            parameters:
+                - name: category_id
+                  in: query
+                  schema:
+                    type: string
+                - name: provider_id
+                  in: query
+                  schema:
+                    type: string
+                - name: page_num
+                  in: query
+                  schema:
+                    type: string
+                - name: page_size
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.PageBaseMessageTemplateResponse'
+        post:
+            tags:
+                - BaseMessageTemplateService
+            description: 创建消息 Provider 模板。
+            operationId: BaseMessageTemplateService_CreateBaseMessageTemplate
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.BaseMessageTemplateForm'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/message-template/{base_message_template.id}:
+        put:
+            tags:
+                - BaseMessageTemplateService
+            description: 更新消息 Provider 模板。
+            operationId: BaseMessageTemplateService_UpdateBaseMessageTemplate
+            parameters:
+                - name: base_message_template.id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.BaseMessageTemplateForm'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/message-template/{id}:
+        get:
+            tags:
+                - BaseMessageTemplateService
+            description: 查询消息 Provider 模板详情。
+            operationId: BaseMessageTemplateService_GetBaseMessageTemplate
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.BaseMessageTemplateForm'
+        delete:
+            tags:
+                - BaseMessageTemplateService
+            description: 删除消息 Provider 模板。
+            operationId: BaseMessageTemplateService_DeleteBaseMessageTemplate
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
             responses:
                 "200":
                     description: OK
@@ -6487,6 +6871,19 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/system.app.v1.ListBaseMenuResponse'
+    /api/v1/base/ai/provider-models:
+        get:
+            tags:
+                - AiModelService
+            description: 查询已启用的AI Provider及其可用模型。
+            operationId: AiModelService_ListAiProviderModelOptions
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.ListAiProviderModelOptionsResponse'
     /api/v1/base/ai/search:
         post:
             tags:
@@ -7822,6 +8219,21 @@ components:
                     type: string
                     description: 移动端结构化内容JSON
             description: AI 助手输出内容
+        base.v1.AiProviderModelOption:
+            type: object
+            properties:
+                provider_id:
+                    type: string
+                    description: Provider ID
+                name:
+                    type: string
+                    description: Provider名称
+                models:
+                    type: array
+                    items:
+                        type: string
+                    description: 模型名称列表
+            description: 已启用的AI Provider及其模型选项。
         base.v1.AiSession:
             type: object
             properties:
@@ -8447,6 +8859,15 @@ components:
                         $ref: '#/components/schemas/base.v1.AiMessage'
                     description: 消息列表
             description: AI 助手消息列表响应
+        base.v1.ListAiProviderModelOptionsResponse:
+            type: object
+            properties:
+                providers:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/base.v1.AiProviderModelOption'
+                    description: Provider及其模型列表
+            description: AI Provider模型选项查询响应。
         base.v1.ListAiSessionResponse:
             type: object
             properties:
@@ -8947,6 +9368,12 @@ components:
                     description: 附件列表
                 action:
                     $ref: '#/components/schemas/base.v1.AiAction'
+                provider_id:
+                    type: string
+                    description: 所选供应商ID；留空时使用首个可用模型
+                model_name:
+                    type: string
+                    description: 所选模型名称
             description: AI 助手消息发送请求
         base.v1.SendAiMessageResponse:
             type: object
@@ -9162,6 +9589,88 @@ components:
                         $ref: '#/components/schemas/common.v1.TreeOptionResponse_Option'
                     description: 子节点树
             description: 树形选项
+        system.admin.v1.AiProvider:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 供应商ID
+                name:
+                    type: string
+                    description: 供应商名称
+                base_url:
+                    type: string
+                    description: 模型API基础地址
+                api_key_configured:
+                    type: boolean
+                    description: 是否已保存模型密钥
+                model_names:
+                    type: array
+                    items:
+                        type: string
+                    description: 模型名称列表
+                sort:
+                    type: integer
+                    description: 排序值
+                    format: int32
+                provider:
+                    type: string
+                    description: Provider稳定标识
+                status:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    description: 状态
+                    format: enum
+                created_at:
+                    type: string
+                    description: 创建时间
+                updated_at:
+                    type: string
+                    description: 更新时间
+            description: AI供应商分页记录。
+        system.admin.v1.AiProviderForm:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 供应商ID
+                name:
+                    type: string
+                    description: 供应商名称
+                base_url:
+                    type: string
+                    description: 模型API基础地址
+                api_key:
+                    type: string
+                    description: 模型API密钥；更新时留空表示保留现有密钥
+                api_key_configured:
+                    type: boolean
+                    description: 是否已保存模型密钥
+                models_json:
+                    type: string
+                    description: 多模型JSON数组，每项含model_name、api_type、temperature、max_tokens、timeout_seconds和max_retries
+                sort:
+                    type: integer
+                    description: 排序值
+                    format: int32
+                provider:
+                    type: string
+                    description: Provider稳定标识：openai_compatible或ollama
+                config:
+                    type: object
+                    description: Provider个性化配置JSON对象
+                status:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    description: 状态
+                    format: enum
+            description: AI供应商维护表单。
         system.admin.v1.BaseApi:
             type: object
             properties:
@@ -9409,6 +9918,17 @@ components:
                 rule_params:
                     type: string
                     description: 策略规则参数JSON
+                rule_type:
+                    enum:
+                        - BASE_RATE_LIMIT_ALGORITHM_UNSPECIFIED
+                        - BASE_RATE_LIMIT_ALGORITHM_TOKEN_BUCKET
+                        - BASE_RATE_LIMIT_ALGORITHM_FIXED_WINDOW
+                        - BASE_RATE_LIMIT_ALGORITHM_SLIDING_WINDOW_COUNTER
+                        - BASE_RATE_LIMIT_ALGORITHM_SLIDING_WINDOW_LOG
+                        - BASE_RATE_LIMIT_ALGORITHM_LEAKY_BUCKET
+                    type: string
+                    description: 限流算法
+                    format: enum
                 status:
                     enum:
                         - STATUS_UNSPECIFIED
@@ -9452,11 +9972,6 @@ components:
                 id:
                     type: string
                     description: 策略ID
-                operations:
-                    type: array
-                    items:
-                        type: string
-                    description: 接口操作列表
                 dimension:
                     enum:
                         - BASE_API_RATE_LIMIT_DIMENSION_UNSPECIFIED
@@ -9474,6 +9989,11 @@ components:
                 rule_params:
                     type: string
                     description: 策略规则参数JSON
+                operations:
+                    type: array
+                    items:
+                        type: string
+                    description: 接口操作列表
                 status:
                     enum:
                         - STATUS_UNSPECIFIED
@@ -10861,13 +11381,13 @@ components:
                     description: 发送者名称
                 recipient_total:
                     type: string
-                    description: 目标人数
+                    description: 投递目标数
                 delivered_total:
                     type: string
-                    description: 已投递人数
+                    description: 成功投递数
                 failed_total:
                     type: string
-                    description: 失败人数
+                    description: 失败投递数
                 scheduled_at:
                     type: string
                     description: 计划发布时间
@@ -10951,6 +11471,19 @@ components:
                     type: string
                     description: 状态
                     format: enum
+                provider_id:
+                    type: array
+                    items:
+                        type: string
+                    description: 消息 Provider ID JSON数组
+                inbox_enabled:
+                    enum:
+                        - BASE_MESSAGE_CATEGORY_INBOX_ENABLED_UNSPECIFIED
+                        - BASE_MESSAGE_CATEGORY_INBOX_ENABLED_ENABLE
+                        - BASE_MESSAGE_CATEGORY_INBOX_ENABLED_DISABLE
+                    type: string
+                    description: 是否启用站内信
+                    format: enum
                 created_at:
                     type: string
                     description: 创建时间
@@ -11006,6 +11539,19 @@ components:
                         - STATUS_DISABLE
                     type: string
                     description: 状态
+                    format: enum
+                provider_id:
+                    type: array
+                    items:
+                        type: string
+                    description: 消息 Provider ID JSON数组
+                inbox_enabled:
+                    enum:
+                        - BASE_MESSAGE_CATEGORY_INBOX_ENABLED_UNSPECIFIED
+                        - BASE_MESSAGE_CATEGORY_INBOX_ENABLED_ENABLE
+                        - BASE_MESSAGE_CATEGORY_INBOX_ENABLED_DISABLE
+                    type: string
+                    description: 是否启用站内信
                     format: enum
             description: 消息分类表单。
         system.admin.v1.BaseMessageDetail:
@@ -11064,7 +11610,7 @@ components:
                     description: 匹配人数
                 inserted_total:
                     type: string
-                    description: 新增投递人数
+                    description: 新增投递记录数
                 attempt_count:
                     type: integer
                     description: 尝试次数
@@ -11137,6 +11683,169 @@ components:
                     type: string
                     description: 乐观锁版本
             description: 消息表单。
+        system.admin.v1.BaseMessageProvider:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 消息 Provider ID
+                provider:
+                    type: string
+                    description: Provider稳定标识
+                name:
+                    type: string
+                    description: Provider名称
+                description:
+                    type: string
+                    description: Provider说明
+                icon:
+                    type: string
+                    description: 图标键或图片地址
+                client_id:
+                    type: string
+                    description: 通用凭证标识
+                config:
+                    type: object
+                    description: Provider扩展配置JSON对象
+                sort:
+                    type: integer
+                    description: 排序
+                    format: int32
+                status:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    description: 状态
+                    format: enum
+                secret_configured:
+                    type: boolean
+                    description: 是否已配置通用凭证密钥
+                created_at:
+                    type: string
+                    description: 创建时间
+                updated_at:
+                    type: string
+                    description: 更新时间
+            description: 消息发送 Provider。
+        system.admin.v1.BaseMessageProviderForm:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 消息 Provider ID
+                provider:
+                    type: string
+                    description: Provider稳定标识
+                name:
+                    type: string
+                    description: Provider名称
+                description:
+                    type: string
+                    description: Provider说明
+                icon:
+                    type: string
+                    description: 图标键或图片地址
+                client_id:
+                    type: string
+                    description: 通用凭证标识
+                client_secret:
+                    type: string
+                    description: 通用凭证密钥，更新时留空表示不修改
+                secret_configured:
+                    type: boolean
+                    description: 是否已配置通用凭证密钥
+                config:
+                    type: object
+                    description: Provider扩展配置JSON对象
+                sort:
+                    type: integer
+                    description: 排序
+                    format: int32
+                status:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    description: 状态
+                    format: enum
+            description: 消息发送 Provider 表单。
+        system.admin.v1.BaseMessageTemplate:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 消息模板ID
+                category_id:
+                    type: string
+                    description: 消息分类ID
+                category_name:
+                    type: string
+                    description: 消息分类名称
+                provider_id:
+                    type: string
+                    description: 消息 Provider ID
+                provider_name:
+                    type: string
+                    description: 消息 Provider 名称
+                title:
+                    type: string
+                    description: 模板标题
+                content:
+                    type: string
+                    description: 模板正文
+                content_format:
+                    enum:
+                        - MESSAGE_CONTENT_FORMAT_UNSPECIFIED
+                        - MESSAGE_CONTENT_FORMAT_PLAIN_TEXT
+                        - MESSAGE_CONTENT_FORMAT_SAFE_MARKDOWN
+                        - MESSAGE_CONTENT_FORMAT_RICH_TEXT
+                    type: string
+                    description: 正文格式
+                    format: enum
+                config:
+                    type: object
+                    description: Provider模板扩展配置JSON对象
+                created_at:
+                    type: string
+                    description: 创建时间
+                updated_at:
+                    type: string
+                    description: 更新时间
+            description: 消息 Provider 模板。
+        system.admin.v1.BaseMessageTemplateForm:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 消息模板ID
+                category_id:
+                    type: string
+                    description: 消息分类ID
+                provider_id:
+                    type: string
+                    description: 消息 Provider ID
+                title:
+                    type: string
+                    description: 模板标题
+                content:
+                    type: string
+                    description: 模板正文
+                content_format:
+                    enum:
+                        - MESSAGE_CONTENT_FORMAT_UNSPECIFIED
+                        - MESSAGE_CONTENT_FORMAT_PLAIN_TEXT
+                        - MESSAGE_CONTENT_FORMAT_SAFE_MARKDOWN
+                        - MESSAGE_CONTENT_FORMAT_RICH_TEXT
+                    type: string
+                    description: 正文格式
+                    format: enum
+                config:
+                    type: object
+                    description: Provider模板扩展配置JSON对象
+            description: 消息 Provider 模板表单。
         system.admin.v1.BaseMigration:
             type: object
             properties:
@@ -11636,8 +12345,16 @@ components:
                     type: string
                     description: 规则名称
                 rule_type:
+                    enum:
+                        - BASE_RATE_LIMIT_ALGORITHM_UNSPECIFIED
+                        - BASE_RATE_LIMIT_ALGORITHM_TOKEN_BUCKET
+                        - BASE_RATE_LIMIT_ALGORITHM_FIXED_WINDOW
+                        - BASE_RATE_LIMIT_ALGORITHM_SLIDING_WINDOW_COUNTER
+                        - BASE_RATE_LIMIT_ALGORITHM_SLIDING_WINDOW_LOG
+                        - BASE_RATE_LIMIT_ALGORITHM_LEAKY_BUCKET
                     type: string
-                    description: 限流算法类型
+                    description: 限流算法
+                    format: enum
                 default_params:
                     type: string
                     description: 默认规则参数JSON
@@ -11672,8 +12389,16 @@ components:
                     type: string
                     description: 规则名称
                 rule_type:
+                    enum:
+                        - BASE_RATE_LIMIT_ALGORITHM_UNSPECIFIED
+                        - BASE_RATE_LIMIT_ALGORITHM_TOKEN_BUCKET
+                        - BASE_RATE_LIMIT_ALGORITHM_FIXED_WINDOW
+                        - BASE_RATE_LIMIT_ALGORITHM_SLIDING_WINDOW_COUNTER
+                        - BASE_RATE_LIMIT_ALGORITHM_SLIDING_WINDOW_LOG
+                        - BASE_RATE_LIMIT_ALGORITHM_LEAKY_BUCKET
                     type: string
-                    description: 限流算法类型
+                    description: 限流算法
+                    format: enum
                 default_params:
                     type: string
                     description: 默认规则参数JSON
@@ -11702,8 +12427,16 @@ components:
                     type: string
                     description: 规则编码
                 rule_type:
+                    enum:
+                        - BASE_RATE_LIMIT_ALGORITHM_UNSPECIFIED
+                        - BASE_RATE_LIMIT_ALGORITHM_TOKEN_BUCKET
+                        - BASE_RATE_LIMIT_ALGORITHM_FIXED_WINDOW
+                        - BASE_RATE_LIMIT_ALGORITHM_SLIDING_WINDOW_COUNTER
+                        - BASE_RATE_LIMIT_ALGORITHM_SLIDING_WINDOW_LOG
+                        - BASE_RATE_LIMIT_ALGORITHM_LEAKY_BUCKET
                     type: string
-                    description: 限流算法类型
+                    description: 限流算法
+                    format: enum
                 default_params:
                     type: string
                     description: 默认规则参数
@@ -14126,6 +14859,19 @@ components:
                         $ref: '#/components/schemas/system.admin.v1.OpenApiServiceOption'
                     description: OpenAPI文档列表
             description: OpenAPI业务服务选项响应
+        system.admin.v1.PageAiProviderResponse:
+            type: object
+            properties:
+                providers:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.AiProvider'
+                    description: 供应商列表
+                total:
+                    type: integer
+                    description: 总数
+                    format: int32
+            description: AI供应商分页响应。
         system.admin.v1.PageBaseApiLogResponse:
             type: object
             properties:
@@ -14320,6 +15066,19 @@ components:
                     description: 总数
                     format: int32
             description: 消息分类分页响应。
+        system.admin.v1.PageBaseMessageProviderResponse:
+            type: object
+            properties:
+                base_message_providers:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.BaseMessageProvider'
+                    description: 消息发送 Provider 列表
+                total:
+                    type: integer
+                    description: 总数
+                    format: int32
+            description: 消息发送 Provider 分页响应。
         system.admin.v1.PageBaseMessageResponse:
             type: object
             properties:
@@ -14333,6 +15092,19 @@ components:
                     description: 总数
                     format: int32
             description: 消息分页响应。
+        system.admin.v1.PageBaseMessageTemplateResponse:
+            type: object
+            properties:
+                base_message_templates:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.BaseMessageTemplate'
+                    description: 消息 Provider 模板列表
+                total:
+                    type: integer
+                    description: 总数
+                    format: int32
+            description: 消息 Provider 模板分页响应。
         system.admin.v1.PageBaseMigrationResponse:
             type: object
             properties:
@@ -14899,6 +15671,21 @@ components:
                     type: string
                     description: 手机号
             description: 发送手机号验证码请求参数
+        system.admin.v1.SetAiProviderStatusRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 供应商ID
+                status:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    description: 状态
+                    format: enum
+            description: 设置AI供应商状态请求。
         system.admin.v1.SetBaseApiAgentStatusRequest:
             type: object
             properties:
@@ -15077,6 +15864,21 @@ components:
                     description: 状态
                     format: enum
             description: 设置消息分类状态请求。
+        system.admin.v1.SetBaseMessageProviderStatusRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 消息 Provider ID
+                status:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    description: 状态
+                    format: enum
+            description: 设置消息发送 Provider 状态请求。
         system.admin.v1.SetBaseOauthProviderStatusRequest:
             type: object
             properties:
@@ -15686,6 +16488,10 @@ components:
 tags:
     - name: AiMessageService
       description: Base AI 助手消息服务
+    - name: AiModelService
+      description: AI Provider 可选模型查询服务。
+    - name: AiProviderService
+      description: AI供应商管理服务。
     - name: AiSearchService
       description: Base AI 助手联网搜索服务
     - name: AiSessionService
@@ -15693,9 +16499,9 @@ tags:
     - name: AiToolService
       description: Base AI 助手工具服务
     - name: AuthService
-      description: Admin用户登录认证服务
-    - name: AuthService
       description: App用户认证服务
+    - name: AuthService
+      description: Admin用户登录认证服务
     - name: BaseApiLogService
       description: Admin API访问日志服务。
     - name: BaseApiRateLimitPolicyService
@@ -15717,9 +16523,9 @@ tags:
     - name: BaseDictItemService
       description: Admin字典项服务
     - name: BaseDictService
-      description: App字典服务
-    - name: BaseDictService
       description: Admin字典服务
+    - name: BaseDictService
+      description: App字典服务
     - name: BaseFileService
       description: Admin文件资产管理服务。
     - name: BaseI18nCustomService
@@ -15744,8 +16550,12 @@ tags:
       description: Admin菜单管理服务
     - name: BaseMessageCategoryService
       description: Admin消息分类管理服务。
+    - name: BaseMessageProviderService
+      description: Admin消息发送 Provider 管理服务。
     - name: BaseMessageService
       description: Admin站内信管理服务。
+    - name: BaseMessageTemplateService
+      description: Admin消息 Provider 模板管理服务。
     - name: BaseMigrationService
       description: Admin数据库迁移服务。
     - name: BaseOauthProviderService
@@ -15817,9 +16627,9 @@ tags:
     - name: NotificationService
       description: Base站内信通知服务，提供当前用户的收件箱能力。
     - name: OauthClientService
-      description: Admin开放授权客户端管理服务。
-    - name: OauthClientService
       description: Base开放授权客户端令牌服务。
+    - name: OauthClientService
+      description: Admin开放授权客户端管理服务。
     - name: OauthService
       description: Base三方登录公共服务
     - name: OpsMonitoringService

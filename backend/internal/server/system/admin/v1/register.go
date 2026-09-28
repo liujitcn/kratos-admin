@@ -27,6 +27,7 @@ import (
 type Services struct {
 	Auth        *admin.AuthService
 	BaseAPI     *admin.BaseApiService
+	AiProvider  *admin.AiProviderService
 	OauthClient *admin.OauthClientService
 
 	BaseAPICase              *biz.BaseAPICase
@@ -59,6 +60,8 @@ type Services struct {
 	BaseMenu                *admin.BaseMenuService
 	BaseMessage             *admin.BaseMessageService
 	BaseMessageCategory     *admin.BaseMessageCategoryService
+	BaseMessageProvider     *admin.BaseMessageProviderService
+	BaseMessageTemplate     *admin.BaseMessageTemplateService
 	BaseOauthProvider       *admin.BaseOauthProviderService
 	BasePost                *admin.BasePostService
 	BaseTenantProject       *admin.BaseTenantProjectService
@@ -98,6 +101,7 @@ type Services struct {
 func (s Services) RegisterGRPC(srv grpc.ServiceRegistrar) {
 	adminv1.RegisterAuthServiceServer(srv, adminv1.RedactedAuthServiceServer(s.Auth))
 	adminv1.RegisterBaseApiServiceServer(srv, adminv1.RedactedBaseApiServiceServer(s.BaseAPI))
+	adminv1.RegisterAiProviderServiceServer(srv, adminv1.RedactedAiProviderServiceServer(s.AiProvider))
 	adminv1.RegisterOauthClientServiceServer(srv, adminv1.RedactedOauthClientServiceServer(s.OauthClient))
 
 	adminv1.RegisterBaseAreaServiceServer(srv, adminv1.RedactedBaseAreaServiceServer(s.BaseArea))
@@ -120,6 +124,8 @@ func (s Services) RegisterGRPC(srv grpc.ServiceRegistrar) {
 	adminv1.RegisterBaseMenuServiceServer(srv, adminv1.RedactedBaseMenuServiceServer(s.BaseMenu))
 	adminv1.RegisterBaseMessageServiceServer(srv, adminv1.RedactedBaseMessageServiceServer(s.BaseMessage))
 	adminv1.RegisterBaseMessageCategoryServiceServer(srv, adminv1.RedactedBaseMessageCategoryServiceServer(s.BaseMessageCategory))
+	adminv1.RegisterBaseMessageProviderServiceServer(srv, adminv1.RedactedBaseMessageProviderServiceServer(s.BaseMessageProvider))
+	adminv1.RegisterBaseMessageTemplateServiceServer(srv, adminv1.RedactedBaseMessageTemplateServiceServer(s.BaseMessageTemplate))
 	adminv1.RegisterBaseOauthProviderServiceServer(srv, adminv1.RedactedBaseOauthProviderServiceServer(s.BaseOauthProvider))
 	adminv1.RegisterBasePostServiceServer(srv, adminv1.RedactedBasePostServiceServer(s.BasePost))
 	adminv1.RegisterBaseTenantProjectServiceServer(srv, adminv1.RedactedBaseTenantProjectServiceServer(s.BaseTenantProject))
@@ -161,6 +167,7 @@ func (s Services) RegisterHTTP(srv *http.Server) {
 	srv.Use("/*", oauth.NewIPMiddleware(s.OauthClientRepository), oauth.NewClientMiddleware(s.OauthClientRepository, s.BaseAPICase), s.LogMiddleware, sessionMiddleware, policyMiddleware, conflictmessage.NewConflictMessageKeyMiddleware())
 	adminv1.RegisterAuthServiceHTTPServer(srv, adminv1.RedactedAuthServiceServer(s.Auth))
 	adminv1.RegisterBaseApiServiceHTTPServer(srv, adminv1.RedactedBaseApiServiceServer(s.BaseAPI))
+	adminv1.RegisterAiProviderServiceHTTPServer(srv, adminv1.RedactedAiProviderServiceServer(s.AiProvider))
 	adminv1.RegisterOauthClientServiceHTTPServer(srv, adminv1.RedactedOauthClientServiceServer(s.OauthClient))
 
 	adminv1.RegisterBaseAreaServiceHTTPServer(srv, adminv1.RedactedBaseAreaServiceServer(s.BaseArea))
@@ -183,6 +190,8 @@ func (s Services) RegisterHTTP(srv *http.Server) {
 	adminv1.RegisterBaseMenuServiceHTTPServer(srv, adminv1.RedactedBaseMenuServiceServer(s.BaseMenu))
 	adminv1.RegisterBaseMessageServiceHTTPServer(srv, adminv1.RedactedBaseMessageServiceServer(s.BaseMessage))
 	adminv1.RegisterBaseMessageCategoryServiceHTTPServer(srv, adminv1.RedactedBaseMessageCategoryServiceServer(s.BaseMessageCategory))
+	adminv1.RegisterBaseMessageProviderServiceHTTPServer(srv, adminv1.RedactedBaseMessageProviderServiceServer(s.BaseMessageProvider))
+	adminv1.RegisterBaseMessageTemplateServiceHTTPServer(srv, adminv1.RedactedBaseMessageTemplateServiceServer(s.BaseMessageTemplate))
 	adminv1.RegisterBaseOauthProviderServiceHTTPServer(srv, adminv1.RedactedBaseOauthProviderServiceServer(s.BaseOauthProvider))
 	adminv1.RegisterBasePostServiceHTTPServer(srv, adminv1.RedactedBasePostServiceServer(s.BasePost))
 	registerTenantProjectHTTP(
@@ -224,6 +233,7 @@ func (s Services) RegisterMCP(server *mcp.Server) {
 	mcpSrv := server.MCPServer()
 	adminv1.RegisterAuthServiceMCPTools(mcpSrv, s.Auth)
 	adminv1.RegisterBaseApiServiceMCPTools(mcpSrv, s.BaseAPI)
+	adminv1.RegisterAiProviderServiceMCPTools(mcpSrv, s.AiProvider)
 
 	adminv1.RegisterBaseAreaServiceMCPTools(mcpSrv, s.BaseArea)
 	adminv1.RegisterBaseConfigServiceMCPTools(mcpSrv, s.BaseConfig)
@@ -261,6 +271,8 @@ func (s Services) RegisterMCP(server *mcp.Server) {
 	adminv1.RegisterBaseLoginPolicyServiceMCPTools(mcpSrv, s.BaseLoginPolicy)
 	adminv1.RegisterBaseDashboardServiceMCPTools(mcpSrv, s.BaseDashboard)
 	adminv1.RegisterBaseFileServiceMCPTools(mcpSrv, s.BaseFile)
+	adminv1.RegisterBaseMessageProviderServiceMCPTools(mcpSrv, s.BaseMessageProvider)
+	adminv1.RegisterBaseMessageTemplateServiceMCPTools(mcpSrv, s.BaseMessageTemplate)
 	adminv1.RegisterBaseTableSourceServiceMCPTools(mcpSrv, s.BaseTableSource)
 }
 
@@ -345,6 +357,12 @@ func (s Services) AgentTools() ([]tool.Invokable, error) {
 		},
 		func() ([]tool.Invokable, error) {
 			return adminv1.NewBaseFileServiceAgentTools(s.BaseFile)
+		},
+		func() ([]tool.Invokable, error) {
+			return adminv1.NewBaseMessageProviderServiceAgentTools(s.BaseMessageProvider)
+		},
+		func() ([]tool.Invokable, error) {
+			return adminv1.NewBaseMessageTemplateServiceAgentTools(s.BaseMessageTemplate)
 		},
 		func() ([]tool.Invokable, error) {
 			return adminv1.NewBaseTableSourceServiceAgentTools(s.BaseTableSource)

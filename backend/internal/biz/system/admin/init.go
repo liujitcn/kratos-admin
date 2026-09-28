@@ -1,12 +1,16 @@
 package biz
 
-import "github.com/google/wire"
+import (
+	"github.com/google/wire"
+	"github.com/liujitcn/kratos-admin/backend/pkg/notification"
+)
 
 // ProviderSet 汇总 system.admin 业务依赖注入提供者。
 var ProviderSet = wire.NewSet(
 	NewAuthCase,
 	NewBaseAPICase,
 	NewBaseApiRateLimitPolicyCase,
+	NewAiProviderCase,
 	NewBaseAreaCase,
 	NewBaseConfigCase,
 	NewBaseDeptCase,
@@ -61,6 +65,9 @@ var ProviderSet = wire.NewSet(
 
 // MessageProviderSet 汇总站内信管理和投递业务依赖。
 var MessageProviderSet = wire.NewSet(
+	notification.NewProviderManager,
 	NewBaseMessageCategoryCase,
+	NewBaseMessageProviderCase,
+	NewBaseMessageTemplateCase,
 	NewBaseMessageCase,
 )

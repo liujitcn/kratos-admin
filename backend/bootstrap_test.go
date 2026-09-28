@@ -38,6 +38,15 @@ func TestExternalHostWire(t *testing.T) {
 		t.Fatal(err)
 	}
 	hostModule := strings.Replace(string(moduleFile), "module github.com/liujitcn/kratos-admin/backend", "module example.com/admin-host", 1)
+	// 临时宿主由 go.work 共享本地模块，移除复制来的相对 kratos-kit replace 块。
+	replaceStart := strings.Index(hostModule, "\nreplace (\n")
+	if replaceStart >= 0 {
+		replaceEnd := strings.Index(hostModule[replaceStart:], "\n)\n")
+		if replaceEnd < 0 {
+			t.Fatal("Admin go.mod 中的 replace 块格式无效")
+		}
+		hostModule = hostModule[:replaceStart] + hostModule[replaceStart+replaceEnd+len("\n)\n"):]
+	}
 	// 临时宿主通过工作区复用 backend 模块的本地替换，不能再解析一份相对替换路径。
 	hostModule = strings.Replace(hostModule, "\nreplace github.com/liujitcn/kratos-core => ../../kratos-core\n", "\n", 1)
 	hostModule = strings.Replace(hostModule, "\nreplace github.com/liujitcn/kratos-kit/api => ../../kratos-kit/api\n", "\n", 1)
@@ -51,7 +60,47 @@ func TestExternalHostWire(t *testing.T) {
 		t.Fatal(err)
 	}
 	workspacePath := filepath.Join(hostDir, "go.work")
-	workspace := fmt.Sprintf("go 1.27.0\n\nuse (\n%q\n%q\n%q\n%q\n)\n", backendDir, filepath.Join(backendDir, "api"), filepath.Join(backendDir, "client"), hostDir)
+	coreDir := filepath.Clean(filepath.Join(backendDir, "../../kratos-core"))
+	kitDir := filepath.Clean(filepath.Join(backendDir, "../../kratos-kit"))
+	workspaceModules := []string{backendDir, filepath.Join(backendDir, "api"), filepath.Join(backendDir, "client"), hostDir, coreDir}
+	kitWorkspace, err := os.ReadFile(filepath.Join(kitDir, "go.work"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	inKitUseBlock := false
+	for _, line := range strings.Split(string(kitWorkspace), "\n") {
+		line = strings.TrimSpace(line)
+		if line == "use (" {
+			inKitUseBlock = true
+			continue
+		}
+		if !inKitUseBlock || line == "" {
+			continue
+		}
+		if line == ")" {
+			break
+		}
+		modulePath := strings.Trim(line, "\"")
+		if modulePath == "." {
+			modulePath = kitDir
+		} else {
+			modulePath = filepath.Join(kitDir, modulePath)
+		}
+		if _, err = os.Stat(filepath.Join(modulePath, "go.mod")); err != nil {
+			t.Fatalf("Kit workspace 模块不存在 %s: %v", modulePath, err)
+		}
+		workspaceModules = append(workspaceModules, modulePath)
+	}
+	var workspaceBuilder strings.Builder
+	workspaceBuilder.WriteString("go 1.27.0\n\nuse (\n")
+	for _, modulePath := range workspaceModules {
+		_, err = fmt.Fprintf(&workspaceBuilder, "%q\n", modulePath)
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+	workspaceBuilder.WriteString(")\n")
+	workspace := workspaceBuilder.String()
 	err = os.WriteFile(workspacePath, []byte(workspace), 0600)
 	if err != nil {
 		t.Fatal(err)

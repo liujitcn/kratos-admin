@@ -17,6 +17,7 @@ AI 助手是管理端、uni-app 和 Taro 应用端共用的会话能力。三个
 | 能力 | Proto | HTTP 前缀 |
 | --- | --- | --- |
 | 快捷入口 | `backend/api/proto/base/v1/ai_tool.proto` | `/api/v1/base/ai/shortcut` |
+| Provider 模型选项 | `backend/api/proto/base/v1/ai_provider.proto` | `/api/v1/base/ai/provider-models` |
 | 会话 | `ai_session.proto` | `/api/v1/base/ai/session` |
 | 消息 | `ai_message.proto` | `/api/v1/base/ai/session/{session_id}/message` |
 
@@ -61,6 +62,6 @@ uni-app 位于 `frontend/uni-app/packages/modules/system/src/views/pagesMember/a
 
 ## 配置与验证
 
-模型基础配置位于 `backend/configs/ai.yaml`，开发环境差异位于 `backend/configs/ai.dev.yaml`。未提供完整模型配置时服务仍可启动，但 AI 运行时处于关闭状态。
+AI Provider 及其多个模型配置保存在 `ai_provider` 表，由管理端“系统管理 → 基础管理 → AI供应商”维护。模型 API Key 单独存储并通过 `base_redact_storage_policy` 加密；对话端通过 `AiModelService.ListAiProviderModelOptions` 独立读取名称和模型列表，快捷入口仍由 `AiToolService.ListAiShortcut` 提供。发送消息时选择 Provider 与模型，凭据始终保留在服务端。未配置可用模型时 AI 运行时处于关闭状态。
 
 修改协议或运行时后执行后端生成与测试；修改管理端执行 `pnpm lint:oxlint`、`pnpm type:check`；修改 uni-app 或 Taro 执行对应 workspace 的 `pnpm lint`、`pnpm tsc`，涉及模块协议或 runner 时再执行 `pnpm test`、`pnpm check:exports`。前端至少检查空会话、历史会话、发送中、失败、附件和过期流程动作状态。

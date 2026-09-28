@@ -17,6 +17,7 @@ import (
 func Models() []interface{} {
 	return []interface{}{
 		new(models.AiMessage),
+		new(models.AiProvider),
 		new(models.AiSession),
 		new(models.BaseAPI),
 		new(models.BaseAPII18N),
@@ -42,6 +43,8 @@ func Models() []interface{} {
 		new(models.BaseMessageCategory),
 		new(models.BaseMessageDelivery),
 		new(models.BaseMessageDispatch),
+		new(models.BaseMessageProvider),
+		new(models.BaseMessageTemplate),
 		new(models.BaseMigration),
 		new(models.BaseOauthProvider),
 		new(models.BaseOperationLog),

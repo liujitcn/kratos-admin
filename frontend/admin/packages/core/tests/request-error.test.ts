@@ -3,6 +3,37 @@ import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import test from "node:test";
 import { formatConflictMessage } from "../src/utils/conflict-message.js";
+import { hasStructuredErrorCode, resolveStructuredErrorMessage } from "../src/utils/request-response.js";
+
+test("成功业务响应的字符串 code 不会被识别为结构化错误码", () => {
+  assert.equal(hasStructuredErrorCode({ code: "SYSTEM", name: "系统消息" }), false);
+  assert.equal(hasStructuredErrorCode({ code: 500, reason: "INTERNAL_ERROR", message: "请求失败" }), true);
+  assert.equal(hasStructuredErrorCode({ message: "请求成功" }), false);
+});
+
+test("成功响应拦截器使用结构化错误码识别器", async () => {
+  const source = await readFile(join(process.cwd(), "src/utils/request.ts"), "utf8");
+  const responseInterceptor = source.match(/service\.interceptors\.response\.use\([\s\S]*?\n\);/)?.[0];
+
+  assert.ok(responseInterceptor, "缺少响应拦截器");
+  assert.match(responseInterceptor, /if \(!hasStructuredErrorCode\(responseData\)\)/);
+});
+
+test("限流响应优先展示后端提示，缺少提示时使用本地化回退", () => {
+  const translate = (key: string) => (key === "common.error.rate_limited" ? "请求过于频繁，请稍后重试" : key);
+  assert.equal(resolveStructuredErrorMessage({ reason: "RATE_LIMITED" }, translate), "请求过于频繁，请稍后重试");
+  assert.equal(
+    resolveStructuredErrorMessage({ reason: "RATE_LIMITED", message: "请求过于频繁，请稍后重试" }, translate),
+    "请求过于频繁，请稍后重试"
+  );
+  assert.equal(resolveStructuredErrorMessage({ reason: "INTERNAL_ERROR" }, translate), "");
+});
+
+test("HTTP 和结构化响应拦截器都使用限流提示回退", async () => {
+  const source = await readFile(join(process.cwd(), "src/utils/request.ts"), "utf8");
+  assert.match(source, /resolveStructuredErrorMessage\(responseData, key => t\(key\)\)/);
+  assert.match(source, /resolveStructuredErrorMessage\(data, key => t\(key\)\)/);
+});
 
 test("公共认证接口返回 401 时展示后端业务错误", async () => {
   const source = await readFile(join(process.cwd(), "src/utils/request.ts"), "utf8");

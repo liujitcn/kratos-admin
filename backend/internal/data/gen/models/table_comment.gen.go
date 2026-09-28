@@ -10,6 +10,11 @@ func (*AiMessage) TableComment() string {
 }
 
 // TableComment 返回表注释。
+func (*AiProvider) TableComment() string {
+	return "AI供应商配置"
+}
+
+// TableComment 返回表注释。
 func (*AiSession) TableComment() string {
 	return "AI助手会话"
 }
@@ -126,12 +131,22 @@ func (*BaseMessageCategory) TableComment() string {
 
 // TableComment 返回表注释。
 func (*BaseMessageDelivery) TableComment() string {
-	return "用户消息投递"
+	return "消息投递记录"
 }
 
 // TableComment 返回表注释。
 func (*BaseMessageDispatch) TableComment() string {
 	return "消息投递任务"
+}
+
+// TableComment 返回表注释。
+func (*BaseMessageProvider) TableComment() string {
+	return "消息发送 Provider"
+}
+
+// TableComment 返回表注释。
+func (*BaseMessageTemplate) TableComment() string {
+	return "消息 Provider 模板"
 }
 
 // TableComment 返回表注释。

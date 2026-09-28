@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"strings"
+	"time"
 
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
@@ -38,19 +39,39 @@ func (c *BaseThirdAccountCase) ListByUserID(ctx context.Context, tenantID int64,
 	return c.List(ctx, opts...)
 }
 
-// CreateBinding 创建三方账号绑定关系。
-func (c *BaseThirdAccountCase) CreateBinding(ctx context.Context, tenantID int64, userID int64, provider string, identifier string) error {
+// CreateBinding 创建三方账号绑定关系及 Provider 收件标识。
+func (c *BaseThirdAccountCase) CreateBinding(ctx context.Context, tenantID int64, userID int64, provider string, identifier string, unionIDs ...string) error {
+	var unionID string
+	if len(unionIDs) > 0 {
+		unionID = unionIDs[0]
+	}
 	err := c.Create(ctx, &models.BaseThirdAccount{
 		TenantID:   tenantID,
 		UserID:     userID,
 		Provider:   provider,
 		Identifier: identifier,
+		UnionID:    unionID,
 	})
 	if err != nil {
 		if errorsx.IsDuplicateKey(err) {
 			return thirdAccountUniqueConflict(err)
 		}
 		return err
+	}
+	return nil
+}
+
+// UpdateUnionID 补全已有三方绑定的跨应用 Provider 收件标识。
+func (c *BaseThirdAccountCase) UpdateUnionID(ctx context.Context, tenantID, userID int64, provider, unionID string) error {
+	query := c.Query(ctx).BaseThirdAccount
+	result, err := query.WithContext(ctx).
+		Where(query.TenantID.Eq(tenantID), query.UserID.Eq(userID), query.Provider.Eq(provider)).
+		UpdateSimple(query.UnionID.Value(unionID), query.UpdatedAt.Value(time.Now()))
+	if err != nil {
+		return err
+	}
+	if result.RowsAffected == 0 {
+		return errorsx.ResourceNotFound("三方账号绑定不存在")
 	}
 	return nil
 }

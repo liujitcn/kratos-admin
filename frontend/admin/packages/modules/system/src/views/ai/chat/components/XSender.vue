@@ -47,13 +47,28 @@
               </button>
             </div>
           </el-popover>
-
           <span class="agent-action-text">{{ actionHintText }}</span>
         </div>
       </template>
 
       <template #action-list>
         <div class="agent-sender-actions">
+          <div class="agent-model-selector" :class="{ 'is-disabled': sending || !modelOptions.length }">
+            <el-cascader
+              :model-value="selectedModelPath"
+              :options="modelOptions"
+              :props="{ expandTrigger: 'click' }"
+              :placeholder="t('system.ai.model.model_placeholder')"
+              :disabled="sending || !modelOptions.length"
+              :show-all-levels="true"
+              separator="/"
+              :clearable="true"
+              :teleported="true"
+              popper-class="agent-model-cascader-popper"
+              size="small"
+              @change="handleModelPathChange"
+            />
+          </div>
           <el-tooltip
             :content="recording ? t('system.ai.chat.action.stop_voice_input') : t('system.ai.chat.action.voice_input')"
             placement="top"
@@ -106,9 +121,11 @@ import { Attachments, XSender as BaseXSender } from "vue-element-plus-x";
 import type { FilesCardProps } from "vue-element-plus-x/types/FilesCard";
 import { Loading, Microphone, Paperclip, Promotion } from "@element-plus/icons-vue";
 import { ElMessage } from "element-plus";
+import type { CascaderValue } from "element-plus";
 import { t } from "@liujitcn/kratos-admin-core";
 import { defFileService } from "@liujitcn/kratos-admin-core/api/base/v1/file";
 import type { AiAttachment } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_session";
+import type { AiProviderModelOption } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_provider";
 import type { SubmitPayload } from "../types";
 import { buildAIAttachmentFileCard } from "../attachment";
 import { useSpeechRecognition } from "./speech-recognition";
@@ -117,17 +134,34 @@ import type { SpeechRecognitionError } from "./speech-recognition";
 const props = defineProps<{
   /** 消息发送加载状态。 */
   sending: boolean;
+  /** 当前可供选择的供应商与模型。 */
+  modelProviders: AiProviderModelOption[];
+  /** 当前选择的供应商编号。 */
+  providerId: number;
+  /** 当前选择的模型名称。 */
+  modelName: string;
 }>();
 
 const emit = defineEmits<{
   /** 提交输入器内容。 */
   submit: [payload: SubmitPayload];
+  /** 更新当前选择的供应商和模型。 */
+  "model-change": [providerId: number, modelName: string];
 }>();
 
 const senderRef = ref<InstanceType<typeof BaseXSender>>();
 const fileInputRef = ref<HTMLInputElement>();
 const inputText = ref("");
 const selectedAttachments = ref<AiAttachment[]>([]);
+const modelOptions = computed(() =>
+  props.modelProviders.map(provider => ({
+    value: provider.provider_id,
+    label: provider.name,
+    disabled: provider.models.length === 0,
+    children: provider.models.map(model => ({ value: model, label: model }))
+  }))
+);
+const selectedModelPath = computed(() => (props.providerId && props.modelName ? [props.providerId, props.modelName] : []));
 const uploading = ref(false);
 const maxAttachmentCount = 6;
 const maxAttachmentSizeMB = 20;
@@ -183,6 +217,12 @@ const attachmentItems = computed<FilesCardProps[]>(() =>
 const isSubmitDisabled = computed(() => {
   return uploading.value || (!inputText.value.trim() && selectedAttachments.value.length === 0);
 });
+
+/** 更新当前选中的供应商和模型路径。 */
+function handleModelPathChange(value: CascaderValue | null | undefined) {
+  const path = Array.isArray(value) ? value : [];
+  emit("model-change", Number(path[0]) || 0, typeof path[1] === "string" ? path[1] : "");
+}
 
 /** 读取输入内容并发送给父组件。 */
 function handleSubmit() {
@@ -392,6 +432,13 @@ function resetFileInput() {
     align-items: center;
     justify-content: space-between;
   }
+  :deep(.elx-x-sender__updown-action-list .elx-x-sender__prefix) {
+    flex: 1 1 auto;
+    width: 100%;
+    min-width: 0;
+    height: auto;
+    padding-left: 0;
+  }
   :deep(.elx-x-sender__action-list) {
     height: auto;
   }
@@ -410,9 +457,70 @@ function resetFileInput() {
 }
 .agent-prefix-actions {
   display: flex;
+  flex-wrap: wrap;
   gap: 10px;
   align-items: center;
+  width: 100%;
   min-height: 36px;
+}
+.agent-model-selector {
+  display: flex;
+  flex: 0 1 auto;
+  width: clamp(180px, 18vw, 200px);
+  min-width: 0;
+  height: 34px;
+  box-sizing: border-box;
+  color: var(--admin-page-text-secondary);
+  cursor: pointer;
+  background: var(--admin-page-card-bg);
+  border: 1px solid var(--el-border-color);
+  border-radius: var(--admin-page-radius);
+  transition:
+    color 0.2s ease,
+    border-color 0.2s ease,
+    background-color 0.2s ease;
+}
+.agent-model-selector:hover {
+  color: var(--el-color-primary);
+  background: var(--el-color-primary-light-9);
+  border-color: var(--el-color-primary-light-5);
+}
+.agent-model-selector:focus-within {
+  border-color: var(--el-color-primary-light-5);
+}
+.agent-model-selector.is-disabled {
+  color: var(--el-disabled-text-color);
+  cursor: not-allowed;
+  background: var(--el-disabled-bg-color);
+  border-color: var(--el-disabled-border-color);
+}
+.agent-model-selector :deep(.el-cascader) {
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+}
+.agent-model-selector :deep(.el-input) {
+  height: 100%;
+}
+.agent-model-selector :deep(.el-input__wrapper) {
+  height: 100%;
+  padding: 0 9px;
+  background: transparent;
+  box-shadow: none;
+  border-radius: inherit;
+}
+.agent-model-selector :deep(.el-input__wrapper.is-focus) {
+  box-shadow: none;
+}
+.agent-model-selector :deep(.el-input__inner) {
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 20px;
+  color: currentColor;
+}
+.agent-model-selector :deep(.el-input__suffix .el-icon) {
+  font-size: 14px;
+  color: currentColor;
 }
 .agent-sender-actions {
   display: inline-flex;
@@ -508,6 +616,9 @@ function resetFileInput() {
 @media screen and (width <= 768px) {
   .agent-prefix-actions {
     gap: 8px;
+  }
+  .agent-model-selector {
+    width: clamp(128px, calc(100vw - 220px), 180px);
   }
   .agent-action-text {
     display: none;

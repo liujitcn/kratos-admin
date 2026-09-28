@@ -187,6 +187,134 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/system.admin.v1.BaseMigration'
+    /api/v1/admin/base/ai-provider:
+        get:
+            tags:
+                - AiProviderService
+            description: List AI providers with pagination.
+            operationId: AiProviderService_PageAiProvider
+            parameters:
+                - name: name
+                  in: query
+                  schema:
+                    type: string
+                - name: status
+                  in: query
+                  schema:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    format: enum
+                - name: page_num
+                  in: query
+                  schema:
+                    type: string
+                - name: page_size
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.PageAiProviderResponse'
+        post:
+            tags:
+                - AiProviderService
+            description: Create an AI provider.
+            operationId: AiProviderService_CreateAiProvider
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.AiProviderForm'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/ai-provider/{ai_provider.id}:
+        put:
+            tags:
+                - AiProviderService
+            description: Update an AI provider.
+            operationId: AiProviderService_UpdateAiProvider
+            parameters:
+                - name: ai_provider.id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.AiProviderForm'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/ai-provider/{id}:
+        get:
+            tags:
+                - AiProviderService
+            description: Get an AI provider form.
+            operationId: AiProviderService_GetAiProvider
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.AiProviderForm'
+        delete:
+            tags:
+                - AiProviderService
+            description: Delete an AI provider.
+            operationId: AiProviderService_DeleteAiProvider
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/ai-provider/{id}/status:
+        put:
+            tags:
+                - AiProviderService
+            description: Set AI provider status.
+            operationId: AiProviderService_SetAiProviderStatus
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.SetAiProviderStatusRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
     /api/v1/admin/base/api:
         get:
             tags:
@@ -2688,6 +2816,16 @@ paths:
                 - BaseMessageCategoryService
             description: Query message category option.
             operationId: BaseMessageCategoryService_OptionBaseMessageCategory
+            parameters:
+                - name: inbox_enabled
+                  in: query
+                  schema:
+                    enum:
+                        - BASE_MESSAGE_CATEGORY_INBOX_ENABLED_UNSPECIFIED
+                        - BASE_MESSAGE_CATEGORY_INBOX_ENABLED_ENABLE
+                        - BASE_MESSAGE_CATEGORY_INBOX_ENABLED_DISABLE
+                    type: string
+                    format: enum
             responses:
                 "200":
                     description: OK
@@ -2769,6 +2907,252 @@ paths:
                         schema:
                             $ref: '#/components/schemas/system.admin.v1.SetBaseMessageCategoryStatusRequest'
                 required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/message-provider:
+        get:
+            tags:
+                - BaseMessageProviderService
+            description: Paginated query for message Send  Provider.
+            operationId: BaseMessageProviderService_PageBaseMessageProvider
+            parameters:
+                - name: provider
+                  in: query
+                  schema:
+                    type: string
+                - name: name
+                  in: query
+                  schema:
+                    type: string
+                - name: status
+                  in: query
+                  schema:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    format: enum
+                - name: page_num
+                  in: query
+                  schema:
+                    type: string
+                - name: page_size
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.PageBaseMessageProviderResponse'
+        post:
+            tags:
+                - BaseMessageProviderService
+            description: Create message Send  Provider.
+            operationId: BaseMessageProviderService_CreateBaseMessageProvider
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.BaseMessageProviderForm'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/message-provider/option:
+        get:
+            tags:
+                - BaseMessageProviderService
+            description: Query message Send  Provider option.
+            operationId: BaseMessageProviderService_OptionBaseMessageProvider
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/common.v1.SelectOptionResponse'
+    /api/v1/admin/base/message-provider/{base_message_provider.id}:
+        put:
+            tags:
+                - BaseMessageProviderService
+            description: Update message Send  Provider.
+            operationId: BaseMessageProviderService_UpdateBaseMessageProvider
+            parameters:
+                - name: base_message_provider.id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.BaseMessageProviderForm'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/message-provider/{id}:
+        get:
+            tags:
+                - BaseMessageProviderService
+            description: Query message Send  Provider details.
+            operationId: BaseMessageProviderService_GetBaseMessageProvider
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.BaseMessageProviderForm'
+        delete:
+            tags:
+                - BaseMessageProviderService
+            description: Delete message Send  Provider.
+            operationId: BaseMessageProviderService_DeleteBaseMessageProvider
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/message-provider/{id}/status:
+        put:
+            tags:
+                - BaseMessageProviderService
+            description: Set message Send  Provider status.
+            operationId: BaseMessageProviderService_SetBaseMessageProviderStatus
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.SetBaseMessageProviderStatusRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/message-template:
+        get:
+            tags:
+                - BaseMessageTemplateService
+            description: Paginated query for message Provider template.
+            operationId: BaseMessageTemplateService_PageBaseMessageTemplate
+            parameters:
+                - name: category_id
+                  in: query
+                  schema:
+                    type: string
+                - name: provider_id
+                  in: query
+                  schema:
+                    type: string
+                - name: page_num
+                  in: query
+                  schema:
+                    type: string
+                - name: page_size
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.PageBaseMessageTemplateResponse'
+        post:
+            tags:
+                - BaseMessageTemplateService
+            description: Create message Provider template.
+            operationId: BaseMessageTemplateService_CreateBaseMessageTemplate
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.BaseMessageTemplateForm'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/message-template/{base_message_template.id}:
+        put:
+            tags:
+                - BaseMessageTemplateService
+            description: Update message Provider template.
+            operationId: BaseMessageTemplateService_UpdateBaseMessageTemplate
+            parameters:
+                - name: base_message_template.id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.BaseMessageTemplateForm'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/message-template/{id}:
+        get:
+            tags:
+                - BaseMessageTemplateService
+            description: Query message Provider template details.
+            operationId: BaseMessageTemplateService_GetBaseMessageTemplate
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.BaseMessageTemplateForm'
+        delete:
+            tags:
+                - BaseMessageTemplateService
+            description: Delete message Provider template.
+            operationId: BaseMessageTemplateService_DeleteBaseMessageTemplate
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
             responses:
                 "200":
                     description: OK
@@ -6487,6 +6871,19 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/system.app.v1.ListBaseMenuResponse'
+    /api/v1/base/ai/provider-models:
+        get:
+            tags:
+                - AiModelService
+            description: List enabled AI providers and their available models.
+            operationId: AiModelService_ListAiProviderModelOptions
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.ListAiProviderModelOptionsResponse'
     /api/v1/base/ai/search:
         post:
             tags:
@@ -7822,6 +8219,21 @@ components:
                     type: string
                     description: structured mobile content JSON
             description: AI assistant output content
+        base.v1.AiProviderModelOption:
+            type: object
+            properties:
+                provider_id:
+                    type: string
+                    description: Provider ID
+                name:
+                    type: string
+                    description: Provider name
+                models:
+                    type: array
+                    items:
+                        type: string
+                    description: Model names
+            description: An enabled AI provider and its model options.
         base.v1.AiSession:
             type: object
             properties:
@@ -8447,6 +8859,15 @@ components:
                         $ref: '#/components/schemas/base.v1.AiMessage'
                     description: message list
             description: AI assistant message list response
+        base.v1.ListAiProviderModelOptionsResponse:
+            type: object
+            properties:
+                providers:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/base.v1.AiProviderModelOption'
+                    description: Providers and their models
+            description: AI provider model options response.
         base.v1.ListAiSessionResponse:
             type: object
             properties:
@@ -8763,7 +9184,7 @@ components:
                     description: icon key or image URL
                 config:
                     type: object
-                    description: Provider custom configuration JSON object
+                    description: Provider-specific configuration JSON object
             description: profile third-party account binding information
         base.v1.OauthProvider:
             type: object
@@ -8782,7 +9203,7 @@ components:
                     description: icon key or image URL
                 config:
                     type: object
-                    description: Provider custom configuration JSON object
+                    description: Provider-specific configuration JSON object
             description: third-party login method information
         base.v1.OptionLanguageResponse:
             type: object
@@ -8947,6 +9368,12 @@ components:
                     description: attachment list
                 action:
                     $ref: '#/components/schemas/base.v1.AiAction'
+                provider_id:
+                    type: string
+                    description: Selected provider ID; uses the first available model when omitted
+                model_name:
+                    type: string
+                    description: Selected model name
             description: AI assistant message Send request
         base.v1.SendAiMessageResponse:
             type: object
@@ -9162,6 +9589,88 @@ components:
                         $ref: '#/components/schemas/common.v1.TreeOptionResponse_Option'
                     description: child node tree
             description: tree option
+        system.admin.v1.AiProvider:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: Provider ID
+                name:
+                    type: string
+                    description: Provider name
+                base_url:
+                    type: string
+                    description: Model API base URL
+                api_key_configured:
+                    type: boolean
+                    description: Whether the model API key is saved
+                model_names:
+                    type: array
+                    items:
+                        type: string
+                    description: Model names
+                sort:
+                    type: integer
+                    description: sort value
+                    format: int32
+                provider:
+                    type: string
+                    description: Stable provider identifier
+                status:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    description: status
+                    format: enum
+                created_at:
+                    type: string
+                    description: Create time
+                updated_at:
+                    type: string
+                    description: Update time
+            description: Paginated AI provider record.
+        system.admin.v1.AiProviderForm:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: Provider ID
+                name:
+                    type: string
+                    description: Provider name
+                base_url:
+                    type: string
+                    description: Model API base URL
+                api_key:
+                    type: string
+                    description: Model API key; leave blank on update to keep the existing key
+                api_key_configured:
+                    type: boolean
+                    description: Whether the model API key is saved
+                models_json:
+                    type: string
+                    description: JSON array of models; each item includes model_name, api_type, temperature, max_tokens, timeout_seconds, and max_retries
+                sort:
+                    type: integer
+                    description: sort value
+                    format: int32
+                provider:
+                    type: string
+                    description: "Stable provider identifier: openai_compatible or ollama"
+                config:
+                    type: object
+                    description: Provider-specific configuration JSON object
+                status:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    description: status
+                    format: enum
+            description: AI provider configuration form.
         system.admin.v1.BaseApi:
             type: object
             properties:
@@ -9409,6 +9918,17 @@ components:
                 rule_params:
                     type: string
                     description: policy rule parameters JSON
+                rule_type:
+                    enum:
+                        - BASE_RATE_LIMIT_ALGORITHM_UNSPECIFIED
+                        - BASE_RATE_LIMIT_ALGORITHM_TOKEN_BUCKET
+                        - BASE_RATE_LIMIT_ALGORITHM_FIXED_WINDOW
+                        - BASE_RATE_LIMIT_ALGORITHM_SLIDING_WINDOW_COUNTER
+                        - BASE_RATE_LIMIT_ALGORITHM_SLIDING_WINDOW_LOG
+                        - BASE_RATE_LIMIT_ALGORITHM_LEAKY_BUCKET
+                    type: string
+                    description: rate limiting algorithm
+                    format: enum
                 status:
                     enum:
                         - STATUS_UNSPECIFIED
@@ -9452,11 +9972,6 @@ components:
                 id:
                     type: string
                     description: policy ID
-                operations:
-                    type: array
-                    items:
-                        type: string
-                    description: API operation list
                 dimension:
                     enum:
                         - BASE_API_RATE_LIMIT_DIMENSION_UNSPECIFIED
@@ -9474,6 +9989,11 @@ components:
                 rule_params:
                     type: string
                     description: policy rule parameters JSON
+                operations:
+                    type: array
+                    items:
+                        type: string
+                    description: API operation list
                 status:
                     enum:
                         - STATUS_UNSPECIFIED
@@ -10861,13 +11381,13 @@ components:
                     description: Send sender name
                 recipient_total:
                     type: string
-                    description: target number of people
+                    description: delivery target count
                 delivered_total:
                     type: string
-                    description: already delivery number of people
+                    description: success delivery count
                 failed_total:
                     type: string
-                    description: failure number of people
+                    description: failure delivery count
                 scheduled_at:
                     type: string
                     description: scheduled publish time
@@ -10951,6 +11471,19 @@ components:
                     type: string
                     description: status
                     format: enum
+                provider_id:
+                    type: array
+                    items:
+                        type: string
+                    description: JSON array of message provider IDs
+                inbox_enabled:
+                    enum:
+                        - BASE_MESSAGE_CATEGORY_INBOX_ENABLED_UNSPECIFIED
+                        - BASE_MESSAGE_CATEGORY_INBOX_ENABLED_ENABLE
+                        - BASE_MESSAGE_CATEGORY_INBOX_ENABLED_DISABLE
+                    type: string
+                    description: Whether enabled inbox
+                    format: enum
                 created_at:
                     type: string
                     description: Create time
@@ -11006,6 +11539,19 @@ components:
                         - STATUS_DISABLE
                     type: string
                     description: status
+                    format: enum
+                provider_id:
+                    type: array
+                    items:
+                        type: string
+                    description: JSON array of message provider IDs
+                inbox_enabled:
+                    enum:
+                        - BASE_MESSAGE_CATEGORY_INBOX_ENABLED_UNSPECIFIED
+                        - BASE_MESSAGE_CATEGORY_INBOX_ENABLED_ENABLE
+                        - BASE_MESSAGE_CATEGORY_INBOX_ENABLED_DISABLE
+                    type: string
+                    description: Whether enabled inbox
                     format: enum
             description: message category form.
         system.admin.v1.BaseMessageDetail:
@@ -11064,7 +11610,7 @@ components:
                     description: matched users
                 inserted_total:
                     type: string
-                    description: new deliveries
+                    description: new delivery record count
                 attempt_count:
                     type: integer
                     description: attempt count
@@ -11137,6 +11683,169 @@ components:
                     type: string
                     description: optimistic lock version
             description: message form.
+        system.admin.v1.BaseMessageProvider:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: Message provider ID
+                provider:
+                    type: string
+                    description: Stable provider identifier
+                name:
+                    type: string
+                    description: Provider name
+                description:
+                    type: string
+                    description: Provider description
+                icon:
+                    type: string
+                    description: icon key or image URL
+                client_id:
+                    type: string
+                    description: Generic credential identifier
+                config:
+                    type: object
+                    description: Provider extension configuration JSON object
+                sort:
+                    type: integer
+                    description: sort
+                    format: int32
+                status:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    description: status
+                    format: enum
+                secret_configured:
+                    type: boolean
+                    description: Whether the generic credential secret is configured
+                created_at:
+                    type: string
+                    description: Create time
+                updated_at:
+                    type: string
+                    description: Update time
+            description: message Send  Provider.
+        system.admin.v1.BaseMessageProviderForm:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: Message provider ID
+                provider:
+                    type: string
+                    description: Stable provider identifier
+                name:
+                    type: string
+                    description: Provider name
+                description:
+                    type: string
+                    description: Provider description
+                icon:
+                    type: string
+                    description: icon key or image URL
+                client_id:
+                    type: string
+                    description: Generic credential identifier
+                client_secret:
+                    type: string
+                    description: Generic credential secret; leave blank on update to keep unchanged
+                secret_configured:
+                    type: boolean
+                    description: Whether the generic credential secret is configured
+                config:
+                    type: object
+                    description: Provider extension configuration JSON object
+                sort:
+                    type: integer
+                    description: sort
+                    format: int32
+                status:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    description: status
+                    format: enum
+            description: message Send  Provider form.
+        system.admin.v1.BaseMessageTemplate:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: message template ID
+                category_id:
+                    type: string
+                    description: message category ID
+                category_name:
+                    type: string
+                    description: message category name
+                provider_id:
+                    type: string
+                    description: Message provider ID
+                provider_name:
+                    type: string
+                    description: message Provider name
+                title:
+                    type: string
+                    description: template title
+                content:
+                    type: string
+                    description: template body
+                content_format:
+                    enum:
+                        - MESSAGE_CONTENT_FORMAT_UNSPECIFIED
+                        - MESSAGE_CONTENT_FORMAT_PLAIN_TEXT
+                        - MESSAGE_CONTENT_FORMAT_SAFE_MARKDOWN
+                        - MESSAGE_CONTENT_FORMAT_RICH_TEXT
+                    type: string
+                    description: body format
+                    format: enum
+                config:
+                    type: object
+                    description: JSON object for provider-template extensions
+                created_at:
+                    type: string
+                    description: Create time
+                updated_at:
+                    type: string
+                    description: Update time
+            description: message Provider template.
+        system.admin.v1.BaseMessageTemplateForm:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: message template ID
+                category_id:
+                    type: string
+                    description: message category ID
+                provider_id:
+                    type: string
+                    description: Message provider ID
+                title:
+                    type: string
+                    description: template title
+                content:
+                    type: string
+                    description: template body
+                content_format:
+                    enum:
+                        - MESSAGE_CONTENT_FORMAT_UNSPECIFIED
+                        - MESSAGE_CONTENT_FORMAT_PLAIN_TEXT
+                        - MESSAGE_CONTENT_FORMAT_SAFE_MARKDOWN
+                        - MESSAGE_CONTENT_FORMAT_RICH_TEXT
+                    type: string
+                    description: body format
+                    format: enum
+                config:
+                    type: object
+                    description: JSON object for provider-template extensions
+            description: Message provider template form.
         system.admin.v1.BaseMigration:
             type: object
             properties:
@@ -11221,7 +11930,7 @@ components:
                     description: OAuth scope list
                 config:
                     type: object
-                    description: Provider custom configuration JSON object
+                    description: Provider-specific configuration JSON object
                 sort:
                     type: integer
                     description: sort
@@ -11281,7 +11990,7 @@ components:
                     description: OAuth scope list
                 config:
                     type: object
-                    description: Provider custom configuration JSON object
+                    description: Provider-specific configuration JSON object
                 sort:
                     type: integer
                     description: sort
@@ -11636,8 +12345,16 @@ components:
                     type: string
                     description: rule name
                 rule_type:
+                    enum:
+                        - BASE_RATE_LIMIT_ALGORITHM_UNSPECIFIED
+                        - BASE_RATE_LIMIT_ALGORITHM_TOKEN_BUCKET
+                        - BASE_RATE_LIMIT_ALGORITHM_FIXED_WINDOW
+                        - BASE_RATE_LIMIT_ALGORITHM_SLIDING_WINDOW_COUNTER
+                        - BASE_RATE_LIMIT_ALGORITHM_SLIDING_WINDOW_LOG
+                        - BASE_RATE_LIMIT_ALGORITHM_LEAKY_BUCKET
                     type: string
-                    description: rate limiting algorithm type
+                    description: rate limiting algorithm
+                    format: enum
                 default_params:
                     type: string
                     description: default rule parameters JSON
@@ -11672,8 +12389,16 @@ components:
                     type: string
                     description: rule name
                 rule_type:
+                    enum:
+                        - BASE_RATE_LIMIT_ALGORITHM_UNSPECIFIED
+                        - BASE_RATE_LIMIT_ALGORITHM_TOKEN_BUCKET
+                        - BASE_RATE_LIMIT_ALGORITHM_FIXED_WINDOW
+                        - BASE_RATE_LIMIT_ALGORITHM_SLIDING_WINDOW_COUNTER
+                        - BASE_RATE_LIMIT_ALGORITHM_SLIDING_WINDOW_LOG
+                        - BASE_RATE_LIMIT_ALGORITHM_LEAKY_BUCKET
                     type: string
-                    description: rate limiting algorithm type
+                    description: rate limiting algorithm
+                    format: enum
                 default_params:
                     type: string
                     description: default rule parameters JSON
@@ -11702,8 +12427,16 @@ components:
                     type: string
                     description: rule code
                 rule_type:
+                    enum:
+                        - BASE_RATE_LIMIT_ALGORITHM_UNSPECIFIED
+                        - BASE_RATE_LIMIT_ALGORITHM_TOKEN_BUCKET
+                        - BASE_RATE_LIMIT_ALGORITHM_FIXED_WINDOW
+                        - BASE_RATE_LIMIT_ALGORITHM_SLIDING_WINDOW_COUNTER
+                        - BASE_RATE_LIMIT_ALGORITHM_SLIDING_WINDOW_LOG
+                        - BASE_RATE_LIMIT_ALGORITHM_LEAKY_BUCKET
                     type: string
-                    description: rate limiting algorithm type
+                    description: rate limiting algorithm
+                    format: enum
                 default_params:
                     type: string
                     description: default rule parameters
@@ -14126,6 +14859,19 @@ components:
                         $ref: '#/components/schemas/system.admin.v1.OpenApiServiceOption'
                     description: Open API document list
             description: Open api business service option response
+        system.admin.v1.PageAiProviderResponse:
+            type: object
+            properties:
+                providers:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.AiProvider'
+                    description: Provider list
+                total:
+                    type: integer
+                    description: total count
+                    format: int32
+            description: Paginated AI provider response.
         system.admin.v1.PageBaseApiLogResponse:
             type: object
             properties:
@@ -14320,6 +15066,19 @@ components:
                     description: total count
                     format: int32
             description: message category paginated response.
+        system.admin.v1.PageBaseMessageProviderResponse:
+            type: object
+            properties:
+                base_message_providers:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.BaseMessageProvider'
+                    description: message Send  Provider list
+                total:
+                    type: integer
+                    description: total count
+                    format: int32
+            description: message Send  Provider paginated response.
         system.admin.v1.PageBaseMessageResponse:
             type: object
             properties:
@@ -14333,6 +15092,19 @@ components:
                     description: total count
                     format: int32
             description: message paginated response.
+        system.admin.v1.PageBaseMessageTemplateResponse:
+            type: object
+            properties:
+                base_message_templates:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.BaseMessageTemplate'
+                    description: message Provider template list
+                total:
+                    type: integer
+                    description: total count
+                    format: int32
+            description: message Provider template paginated response.
         system.admin.v1.PageBaseMigrationResponse:
             type: object
             properties:
@@ -14899,6 +15671,21 @@ components:
                     type: string
                     description: phone number
             description: Send phone number captcha request parameters
+        system.admin.v1.SetAiProviderStatusRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: Provider ID
+                status:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    description: status
+                    format: enum
+            description: Set AI provider status request.
         system.admin.v1.SetBaseApiAgentStatusRequest:
             type: object
             properties:
@@ -15077,6 +15864,21 @@ components:
                     description: status
                     format: enum
             description: Set message category status request.
+        system.admin.v1.SetBaseMessageProviderStatusRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: Message provider ID
+                status:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    description: status
+                    format: enum
+            description: Set message Send  Provider status request.
         system.admin.v1.SetBaseOauthProviderStatusRequest:
             type: object
             properties:
@@ -15686,6 +16488,10 @@ components:
 tags:
     - name: AiMessageService
       description: Base AI assistant message service
+    - name: AiModelService
+      description: AI provider model options service.
+    - name: AiProviderService
+      description: AI provider management service.
     - name: AiSearchService
       description: Base AI assistant web search service
     - name: AiSessionService
@@ -15693,9 +16499,9 @@ tags:
     - name: AiToolService
       description: Base AI assistant tool service
     - name: AuthService
-      description: admin user login authentication service
-    - name: AuthService
       description: app user authentication service
+    - name: AuthService
+      description: admin user login authentication service
     - name: BaseApiLogService
       description: Admin API access log service.
     - name: BaseApiRateLimitPolicyService
@@ -15717,9 +16523,9 @@ tags:
     - name: BaseDictItemService
       description: admin dictionary item service
     - name: BaseDictService
-      description: app dictionary service
-    - name: BaseDictService
       description: admin dictionary service
+    - name: BaseDictService
+      description: app dictionary service
     - name: BaseFileService
       description: admin file asset management service.
     - name: BaseI18nCustomService
@@ -15744,8 +16550,12 @@ tags:
       description: admin menu management service
     - name: BaseMessageCategoryService
       description: Admin message category management service.
+    - name: BaseMessageProviderService
+      description: admin message Send  Provider management service.
     - name: BaseMessageService
       description: Admin in-app messaging management service.
+    - name: BaseMessageTemplateService
+      description: admin message Provider template management service.
     - name: BaseMigrationService
       description: Admin database migration service.
     - name: BaseOauthProviderService
@@ -15817,9 +16627,9 @@ tags:
     - name: NotificationService
       description: Base notification service for the current user's inbox.
     - name: OauthClientService
-      description: Admin OAuth client management service.
-    - name: OauthClientService
       description: Base OAuth client token service.
+    - name: OauthClientService
+      description: Admin OAuth client management service.
     - name: OauthService
       description: base third-party login shared service
     - name: OpsMonitoringService

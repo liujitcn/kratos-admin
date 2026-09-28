@@ -43,17 +43,26 @@ func TestBaseThirdAccountTenantIsolation(t *testing.T) {
 		t.Fatal(err)
 	}
 	accountCase := NewBaseThirdAccountCase(&biz.BaseCase{}, data.NewBaseThirdAccountRepository(store))
-	if err = accountCase.CreateBinding(context.Background(), 2, 20, "wechat", "tenant-two"); err != nil {
+	if err = accountCase.CreateBinding(context.Background(), 2, 20, "wechat", "tenant-two", "union-two"); err != nil {
 		t.Fatal(err)
 	}
 	var saved models.BaseThirdAccount
 	if err = db.First(&saved).Error; err != nil {
 		t.Fatal(err)
 	}
-	if saved.TenantID != 2 || saved.UserID != 20 {
+	if saved.TenantID != 2 || saved.UserID != 20 || saved.UnionID != "union-two" {
 		t.Fatalf("三方账号归属 = (%d, %d)，期望 (2, 20)", saved.TenantID, saved.UserID)
 	}
-	if err = accountCase.CreateBinding(context.Background(), 3, 30, "wechat", "tenant-two"); err == nil {
+	if err = accountCase.UpdateUnionID(context.Background(), saved.TenantID, saved.UserID, saved.Provider, "union-updated"); err != nil {
+		t.Fatal(err)
+	}
+	if err = db.First(&saved).Error; err != nil {
+		t.Fatal(err)
+	}
+	if saved.UnionID != "union-updated" {
+		t.Fatalf("三方 Union ID = %q，期望 union-updated", saved.UnionID)
+	}
+	if err = accountCase.CreateBinding(context.Background(), 3, 30, "wechat", "tenant-two", "union-two"); err == nil {
 		t.Fatal("同一三方账号不应绑定到其他租户")
 	}
 	var accounts []models.BaseThirdAccount

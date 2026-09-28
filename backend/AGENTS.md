@@ -40,7 +40,7 @@
 - 确有数据库特性无法用 gorm/gen 表达时，先说明原因、影响范围和参数安全策略，封装到极小范围并加 `//nolint:forbidigo` 说明。
 
 ## 错误处理
-- 顶层 `reason` 只用冻结集合：`INVALID_ARGUMENT / UNAUTHENTICATED / PERMISSION_DENIED / RESOURCE_NOT_FOUND / CONFLICT / INTERNAL_ERROR`，未经确认禁止新增。
+- 顶层 `reason` 只用冻结集合：`INVALID_ARGUMENT / UNAUTHENTICATED / PERMISSION_DENIED / RESOURCE_NOT_FOUND / CONFLICT / RATE_LIMITED / INTERNAL_ERROR`；新增原因须经用户确认，并同步 Core Proto、errorsx、国际化资源和测试。
 - 对外业务错误用 `github.com/liujitcn/kratos-core/errorsx` 构造；repo 层返回原始错误，biz 层负责分类与 `message/metadata/cause`，service 层记录方法错误并以 `errorsx.WrapInternal(err, "xxx失败")` 兜底。场景映射、errorsx 方法和 metadata 键见 [服务接入指南](../docs/服务接入指南.md)。
 
 ## 数据库与 Proto 命名

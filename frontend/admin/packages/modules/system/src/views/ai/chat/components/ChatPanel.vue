@@ -47,7 +47,15 @@
           </div>
         </section>
         <div class="agent-chat-empty__sender">
-          <XSender :key="senderKey" :sending="sending" @submit="handleSubmit" />
+          <XSender
+            :key="senderKey"
+            :sending="sending"
+            :model-providers="modelProviders"
+            :provider-id="providerId"
+            :model-name="modelName"
+            @submit="handleSubmit"
+            @model-change="handleModelChange"
+          />
         </div>
       </div>
     </template>
@@ -320,7 +328,15 @@
             </button>
           </div>
         </section>
-        <XSender :key="senderKey" :sending="sending" @submit="handleSubmit" />
+        <XSender
+          :key="senderKey"
+          :sending="sending"
+          :model-providers="modelProviders"
+          :provider-id="providerId"
+          :model-name="modelName"
+          @submit="handleSubmit"
+          @model-change="handleModelChange"
+        />
       </div>
     </template>
   </main>
@@ -337,6 +353,7 @@ import { getCurrentLocale, t } from "@liujitcn/kratos-admin-core";
 import { formatDateTime } from "@liujitcn/kratos-admin-core/format";
 import type { AiAction } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_message";
 import { type AiAttachment, type AiSession } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_session";
+import type { AiProviderModelOption } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_provider";
 import type { AiShortcut, AiToolCall } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_tool";
 import { AiMessageStatus } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_session";
 import { resolvePersistedMessage } from "../../../../utils/persisted-message";
@@ -475,11 +492,19 @@ const props = defineProps<{
   loadingShortcuts?: boolean;
   /** 当前终端可用快捷入口。 */
   shortcuts?: AiShortcut[];
+  /** 当前启用的供应商和模型。 */
+  modelProviders: AiProviderModelOption[];
+  /** 当前选择的供应商编号。 */
+  providerId: number;
+  /** 当前选择的模型名称。 */
+  modelName: string;
 }>();
 
 const emit = defineEmits<{
   /** 提交输入框内容。 */
   submit: [payload: SubmitPayload];
+  /** 更新当前选择的供应商和模型。 */
+  modelChange: [providerId: number, modelName: string];
   /** 触发消息级操作。 */
   messageAction: [payload: { action: ChatMessageAction; item: ChatMessageItem }];
   /** 提交当前用户消息的文本编辑。 */
@@ -613,6 +638,11 @@ const vMessageFooterWidth: ObjectDirective<HTMLElement> = {
 /** 读取输入框内容并提交给父组件。 */
 function handleSubmit(payload: SubmitPayload) {
   emit("submit", payload);
+}
+
+/** 转发输入器发出的供应商和模型变更。 */
+function handleModelChange(providerId: number, modelName: string) {
+  emit("modelChange", providerId, modelName);
 }
 
 /** 点击快捷入口时提交对应入口动作。 */

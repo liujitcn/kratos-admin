@@ -28,10 +28,10 @@ func newBaseAPIRateLimitPolicy(db *gorm.DB, opts ...gen.DOOption) baseAPIRateLim
 	tableName := _baseAPIRateLimitPolicy.baseAPIRateLimitPolicyDo.TableName()
 	_baseAPIRateLimitPolicy.ALL = field.NewAsterisk(tableName)
 	_baseAPIRateLimitPolicy.ID = field.NewInt64(tableName, "id")
-	_baseAPIRateLimitPolicy.Operations = field.NewString(tableName, "operations")
 	_baseAPIRateLimitPolicy.Dimension = field.NewString(tableName, "dimension")
 	_baseAPIRateLimitPolicy.RuleID = field.NewInt64(tableName, "rule_id")
 	_baseAPIRateLimitPolicy.RuleParams = field.NewString(tableName, "rule_params")
+	_baseAPIRateLimitPolicy.Operations = field.NewString(tableName, "operations")
 	_baseAPIRateLimitPolicy.Status = field.NewInt32(tableName, "status")
 	_baseAPIRateLimitPolicy.Remark = field.NewString(tableName, "remark")
 	_baseAPIRateLimitPolicy.CreatedBy = field.NewInt64(tableName, "created_by")
@@ -51,10 +51,10 @@ type baseAPIRateLimitPolicy struct {
 
 	ALL        field.Asterisk
 	ID         field.Int64  // 接口限流策略ID
-	Operations field.String // RPC完整操作名列表
 	Dimension  field.String // 限流维度
 	RuleID     field.Int64  // 限流规则模板ID
 	RuleParams field.String // 策略规则参数快照
+	Operations field.String // RPC完整操作名列表
 	Status     field.Int32  // 状态
 	Remark     field.String // 备注
 	CreatedBy  field.Int64  // 创建者ID
@@ -79,10 +79,10 @@ func (b baseAPIRateLimitPolicy) As(alias string) *baseAPIRateLimitPolicy {
 func (b *baseAPIRateLimitPolicy) updateTableName(table string) *baseAPIRateLimitPolicy {
 	b.ALL = field.NewAsterisk(table)
 	b.ID = field.NewInt64(table, "id")
-	b.Operations = field.NewString(table, "operations")
 	b.Dimension = field.NewString(table, "dimension")
 	b.RuleID = field.NewInt64(table, "rule_id")
 	b.RuleParams = field.NewString(table, "rule_params")
+	b.Operations = field.NewString(table, "operations")
 	b.Status = field.NewInt32(table, "status")
 	b.Remark = field.NewString(table, "remark")
 	b.CreatedBy = field.NewInt64(table, "created_by")
@@ -120,10 +120,10 @@ func (b *baseAPIRateLimitPolicy) GetFieldByName(fieldName string) (field.OrderEx
 func (b *baseAPIRateLimitPolicy) fillFieldMap() {
 	b.fieldMap = make(map[string]field.Expr, 12)
 	b.fieldMap["id"] = b.ID
-	b.fieldMap["operations"] = b.Operations
 	b.fieldMap["dimension"] = b.Dimension
 	b.fieldMap["rule_id"] = b.RuleID
 	b.fieldMap["rule_params"] = b.RuleParams
+	b.fieldMap["operations"] = b.Operations
 	b.fieldMap["status"] = b.Status
 	b.fieldMap["remark"] = b.Remark
 	b.fieldMap["created_by"] = b.CreatedBy

@@ -29,7 +29,7 @@ const aiRoute = computed(() => {
   return authStore.flatMenuListGet.find(item => item.name === "AiChat" && item.path);
 });
 
-/** 打开隐藏的 AI 助手页面。 */
+/** 从顶部入口打开 AI 助手会话页。 */
 async function openAi() {
   if (!aiRoute.value?.path) return;
   await navigateTo(router, aiRoute.value.path);

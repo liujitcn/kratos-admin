@@ -122,6 +122,12 @@ func NewModules(
 	var modules module.Modules
 	var cleanup func()
 	modules, cleanup, err = adminModule.BuildModules(migrations, config, databases, baseCase, authorizer, authenticator, userToken, jobRuntime, sseRuntime, catalog, openAPIRuntime, redactResolver, rateLimitResolver, progressManager, lifecycle)
+	if err != nil {
+		stopErr := logstream.StopConsoleCapture()
+		if stopErr != nil {
+			err = errors.Join(err, fmt.Errorf("恢复启动日志输出失败: %w", stopErr))
+		}
+	}
 	return AdminModules(modules), cleanup, err
 }
 

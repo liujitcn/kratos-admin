@@ -128,5 +128,8 @@
   "system.notification.mark_all_read": "全部已讀",
   "system.notification.action.archive": "歸檔",
   "system.notification.action.restore": "恢復",
-  "system.notification.action.delete": "刪除"
+  "system.notification.action.delete": "刪除",
+  "system.ai.model.provider_placeholder": "選擇供應商",
+  "system.ai.model.model_placeholder": "選擇模型",
+  "system.ai.model.load_failed": "載入供應商與模型失敗"
 }

@@ -32,6 +32,7 @@ func newBaseThirdAccount(db *gorm.DB, opts ...gen.DOOption) baseThirdAccount {
 	_baseThirdAccount.UserID = field.NewInt64(tableName, "user_id")
 	_baseThirdAccount.Provider = field.NewString(tableName, "provider")
 	_baseThirdAccount.Identifier = field.NewString(tableName, "identifier")
+	_baseThirdAccount.UnionID = field.NewString(tableName, "union_id")
 	_baseThirdAccount.CreatedAt = field.NewTime(tableName, "created_at")
 	_baseThirdAccount.UpdatedAt = field.NewTime(tableName, "updated_at")
 	_baseThirdAccount.DeletedAt = field.NewField(tableName, "deleted_at")
@@ -51,6 +52,7 @@ type baseThirdAccount struct {
 	UserID     field.Int64  // 用户ID
 	Provider   field.String // 三方登录提供商
 	Identifier field.String // 三方唯一标识
+	UnionID    field.String // 三方 Union ID
 	CreatedAt  field.Time   // 创建时间
 	UpdatedAt  field.Time   // 更新时间
 	DeletedAt  field.Field  // 删除时间
@@ -75,6 +77,7 @@ func (b *baseThirdAccount) updateTableName(table string) *baseThirdAccount {
 	b.UserID = field.NewInt64(table, "user_id")
 	b.Provider = field.NewString(table, "provider")
 	b.Identifier = field.NewString(table, "identifier")
+	b.UnionID = field.NewString(table, "union_id")
 	b.CreatedAt = field.NewTime(table, "created_at")
 	b.UpdatedAt = field.NewTime(table, "updated_at")
 	b.DeletedAt = field.NewField(table, "deleted_at")
@@ -106,12 +109,13 @@ func (b *baseThirdAccount) GetFieldByName(fieldName string) (field.OrderExpr, bo
 }
 
 func (b *baseThirdAccount) fillFieldMap() {
-	b.fieldMap = make(map[string]field.Expr, 8)
+	b.fieldMap = make(map[string]field.Expr, 9)
 	b.fieldMap["id"] = b.ID
 	b.fieldMap["tenant_id"] = b.TenantID
 	b.fieldMap["user_id"] = b.UserID
 	b.fieldMap["provider"] = b.Provider
 	b.fieldMap["identifier"] = b.Identifier
+	b.fieldMap["union_id"] = b.UnionID
 	b.fieldMap["created_at"] = b.CreatedAt
 	b.fieldMap["updated_at"] = b.UpdatedAt
 	b.fieldMap["deleted_at"] = b.DeletedAt

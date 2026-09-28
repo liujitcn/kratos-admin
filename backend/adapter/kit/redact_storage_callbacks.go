@@ -628,10 +628,11 @@ func storageFieldSelected(ctx context.Context, db *gorm.DB, entity any, policy r
 
 // sameStorageFieldName 比较 GORM 字段名和数据库字段名。
 func sameStorageFieldName(left, right string) bool {
-	left = strings.Trim(left, "`")
+	left = strings.TrimSpace(left)
 	if index := strings.LastIndex(left, "."); index >= 0 {
 		left = left[index+1:]
 	}
+	left = strings.Trim(left, "`\"")
 	return strings.EqualFold(left, right)
 }
 

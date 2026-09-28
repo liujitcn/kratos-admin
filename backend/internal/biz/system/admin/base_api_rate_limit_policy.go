@@ -418,6 +418,7 @@ func toBaseApiRateLimitPolicy(item *models.BaseAPIRateLimitPolicy, operations []
 	if rule != nil {
 		result.RuleCode = rule.Code
 		result.RuleName = rule.Name
+		result.RuleType = kit.RateLimitAlgorithmToProto(rule.RuleType)
 	}
 	return result
 }

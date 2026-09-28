@@ -52,14 +52,23 @@ func NewModules(
 	aiRuntime *ai.Runtime,
 	catalog *i18n.I18n,
 	baseConfigCase *biz.BaseConfigCase,
+	aiProviderCase *biz.AiProviderCase,
 	baseLoginPolicyCase *biz.BaseLoginPolicyCase,
 	baseOauthProviderCase *biz.BaseOauthProviderCase,
-	_ *kit.RedactPolicyResolver,
+	redactResolver *kit.RedactPolicyResolver,
 	rateLimitResolver *kit.RateLimitPolicyResolver,
 ) (module.Modules, error) {
 	// 迁移可能新增系统配置，模块启动前刷新缓存，避免认证策略沿用旧快照。
 	var err error
+	err = redactResolver.Initialize(context.Background())
+	if err != nil {
+		return nil, err
+	}
 	err = baseConfigCase.RefreshBaseConfig(context.Background())
+	if err != nil {
+		return nil, err
+	}
+	err = aiProviderCase.RefreshAiProvider(context.Background())
 	if err != nil {
 		return nil, err
 	}

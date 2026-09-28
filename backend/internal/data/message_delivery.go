@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	_const "github.com/liujitcn/kratos-admin/backend/internal/const"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 
@@ -11,7 +12,7 @@ import (
 	"gorm.io/gorm/clause"
 )
 
-// MessageDeliveryWriter 封装消息投递需要的幂等批量写入和可空时间更新。
+// MessageDeliveryWriter 封装统一投递明细的幂等写入和站内信状态更新。
 type MessageDeliveryWriter struct {
 	queryProvider data.QueryProvider
 }
@@ -21,7 +22,7 @@ func NewMessageDeliveryWriter(queryProvider data.QueryProvider) *MessageDelivery
 	return &MessageDeliveryWriter{queryProvider: queryProvider}
 }
 
-// CreateIgnore 幂等批量创建用户投递记录并返回实际新增数量。
+// CreateIgnore 幂等批量创建投递记录并返回实际新增数量。
 func (w *MessageDeliveryWriter) CreateIgnore(ctx context.Context, list []*models.BaseMessageDelivery, batchSize int) (int64, error) {
 	if len(list) == 0 {
 		return 0, nil
@@ -40,6 +41,7 @@ func (w *MessageDeliveryWriter) CreateIgnore(ctx context.Context, list []*models
 func (w *MessageDeliveryWriter) SetReadAt(ctx context.Context, userID int64, ids []int64, readAt *time.Time) error {
 	query := w.queryProvider.Query(ctx).BaseMessageDelivery
 	dao := query.WithContext(ctx).Where(
+		query.DeliveryType.Eq(_const.MessageDeliveryTypeInbox),
 		query.UserID.Eq(userID), query.ID.In(ids...), query.RevokedAt.Eq(0),
 		field.Or(query.ExpiresAt.Eq(0), query.ExpiresAt.Gt(time.Now().UnixMilli())),
 	)
@@ -57,7 +59,7 @@ func (w *MessageDeliveryWriter) SetReadAt(ctx context.Context, userID int64, ids
 func (w *MessageDeliveryWriter) SetAllReadAt(ctx context.Context, userID, beforeDeliveryID int64, readAt time.Time) error {
 	query := w.queryProvider.Query(ctx).BaseMessageDelivery
 	_, err := query.WithContext(ctx).
-		Where(query.UserID.Eq(userID), query.ID.Lte(beforeDeliveryID), query.ReadAt.Eq(0), query.RevokedAt.Eq(0), field.Or(query.ExpiresAt.Eq(0), query.ExpiresAt.Gt(time.Now().UnixMilli()))).
+		Where(query.DeliveryType.Eq(_const.MessageDeliveryTypeInbox), query.UserID.Eq(userID), query.ID.Lte(beforeDeliveryID), query.ReadAt.Eq(0), query.RevokedAt.Eq(0), field.Or(query.ExpiresAt.Eq(0), query.ExpiresAt.Gt(time.Now().UnixMilli()))).
 		UpdateSimple(query.ReadAt.Value(readAt.UnixMilli()), query.UpdatedAt.Value(readAt))
 	return err
 }
@@ -66,6 +68,7 @@ func (w *MessageDeliveryWriter) SetAllReadAt(ctx context.Context, userID, before
 func (w *MessageDeliveryWriter) SetArchivedAt(ctx context.Context, userID, id int64, archivedAt *time.Time) error {
 	query := w.queryProvider.Query(ctx).BaseMessageDelivery
 	dao := query.WithContext(ctx).Where(
+		query.DeliveryType.Eq(_const.MessageDeliveryTypeInbox),
 		query.UserID.Eq(userID), query.ID.Eq(id), query.RevokedAt.Eq(0),
 		field.Or(query.ExpiresAt.Eq(0), query.ExpiresAt.Gt(time.Now().UnixMilli())),
 	)
@@ -83,7 +86,7 @@ func (w *MessageDeliveryWriter) SetArchivedAt(ctx context.Context, userID, id in
 func (w *MessageDeliveryWriter) RevokeMessage(ctx context.Context, messageID int64, revokedAt time.Time) error {
 	query := w.queryProvider.Query(ctx).BaseMessageDelivery
 	_, err := query.WithContext(ctx).
-		Where(query.MessageID.Eq(messageID), query.RevokedAt.Eq(0)).
+		Where(query.DeliveryType.Eq(_const.MessageDeliveryTypeInbox), query.MessageID.Eq(messageID), query.RevokedAt.Eq(0)).
 		UpdateSimple(query.RevokedAt.Value(revokedAt.UnixMilli()), query.UpdatedAt.Value(revokedAt))
 	return err
 }

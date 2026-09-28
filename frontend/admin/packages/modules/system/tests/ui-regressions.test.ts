@@ -41,6 +41,32 @@ test("AI chat welcome copy and composer placeholder use the registered system lo
   }
 });
 
+test("AI聊天模型选择器位于输入框操作区，空态和会话态共用", async () => {
+  const [chatPanel, sender] = await Promise.all([
+    readSource("src/views/ai/chat/components/ChatPanel.vue"),
+    readSource("src/views/ai/chat/components/XSender.vue")
+  ]);
+
+  assert.equal((chatPanel.match(/:model-providers="modelProviders"/g) ?? []).length, 2);
+  assert.doesNotMatch(chatPanel, /<div class="agent-model-selector">/);
+  const prefix = sender.match(/<template #prefix>([\s\S]*?)<\/template>/)?.[1] ?? "";
+  assert.doesNotMatch(prefix, /agent-model-selector/);
+  assert.match(
+    sender,
+    /<template #action-list>[\s\S]*?class="agent-model-selector"[\s\S]*?system\.ai\.chat\.action\.voice_input/
+  );
+  assert.match(sender, /<el-cascader[\s\S]*?:show-all-levels="true"[\s\S]*?separator="\/"/);
+  assert.match(sender, /:clearable="true"/);
+  assert.match(sender, /children: provider\.models\.map\(model => \(\{ value: model, label: model \}\)\)/);
+  assert.match(sender, /\.agent-model-selector\s*\{[\s\S]*?height: 34px;[\s\S]*?border: 1px solid var\(--el-border-color\)/);
+  assert.match(sender, /\.agent-model-selector\s*\{[\s\S]*?width: clamp\(180px, 18vw, 200px\)/);
+  assert.match(sender, /\.agent-model-selector\s*\{[\s\S]*?width: clamp\(128px, calc\(100vw - 220px\), 180px\)/);
+  assert.match(sender, /\.agent-model-selector :deep\(\.el-input__inner\)[\s\S]*?font-size: 14px;[\s\S]*?font-weight: 500;/);
+  assert.match(sender, /function handleModelPathChange\(value: CascaderValue \| null \| undefined\)/);
+  assert.match(sender, /const path = Array\.isArray\(value\) \? value : \[\]/);
+  assert.match(sender, /"model-change": \[providerId: number, modelName: string\]/);
+});
+
 test("scheduled job failure markers resolve through every registered system locale", async () => {
   const [logPage, persistedMessages] = await Promise.all([
     readSource("src/views/base/job/log.vue"),
@@ -117,6 +143,35 @@ test("菜单管理按节点懒加载并在搜索时查询完整树", async () =>
   assert.match(source, /const request: TreeBaseMenuRequest = hasKeyword \? \{\} : \{ parent_id: 0, lazy: true \};/);
   assert.match(source, /TreeBaseMenu\(\{ parent_id: row\.id, lazy: true \}\)/);
   assert.match(source, /hasKeyword \? filterMenuTree\(data\.base_menus \?\? \[\], keywordMap\) : \(data\.base_menus \?\? \[\]\)/);
+});
+
+test("菜单和限流策略共用 API 目录与同行换行的穿梭框", async () => {
+  const [menuPage, policyPage, apiTransfer, apiCatalog] = await Promise.all([
+    readSource("src/views/base/menu/index.vue"),
+    readSource("src/views/base/api-rate-limit-policy/index.vue"),
+    readSource("src/components/api/ApiTransfer.vue"),
+    readSource("src/components/api/apiTransfer.ts")
+  ]);
+
+  assert.match(menuPage, /<ApiTransfer[\s\S]*?v-model="formData\.api"/);
+  assert.match(menuPage, /loadApiTransferCatalog\(\)/);
+  assert.match(menuPage, /apiOptions\.value = resources\.apiOptions/);
+  assert.match(policyPage, /<ApiTransfer[\s\S]*?v-model="form\.operations"/);
+  assert.match(policyPage, /loadApiTransferCatalog\(\{ include_public: true \}\)/);
+  assert.match(apiTransfer, /display: flex !important/);
+  assert.match(apiTransfer, /\.el-checkbox__input[\s\S]*?position: relative/);
+  assert.match(apiTransfer, /\.el-checkbox__label[\s\S]*?white-space: normal/);
+  assert.match(apiCatalog, /defBaseApiService\.OptionBaseApi\(request\)/);
+  assert.match(apiCatalog, /api\.service_desc \|\| api\.service_name/);
+  assert.match(apiCatalog, /\$\{api\.method\} \$\{api\.path\}/);
+
+  const fields = policyPage.slice(policyPage.indexOf("const fields ="), policyPage.indexOf("const rules ="));
+  assert.ok(fields.indexOf('prop: "parameters"') < fields.indexOf('prop: "operations"'));
+  assert.ok(fields.indexOf('prop: "operations"') < fields.indexOf('prop: "status"'));
+
+  const columns = policyPage.slice(policyPage.indexOf("const columns ="), policyPage.indexOf("const headerActions"));
+  assert.ok(columns.indexOf('prop: "rule_params"') < columns.indexOf('prop: "apis"'));
+  assert.ok(columns.indexOf('prop: "apis"') < columns.indexOf('prop: "status"'));
 });
 
 test("登录策略提交前执行表单校验", async () => {
@@ -559,18 +614,82 @@ test("限流规则和接口策略列表提供批量选择复选框", async () =>
   assert.match(policyPage, /const columns = computed<ColumnProps\[]>\(\(\) => \[\s*\{ type: "selection", width: 55 \}/);
 });
 
-test("限流新增参数默认留空且接口选择弹窗展示完整选项", async () => {
-  const [rulePage, policyPage] = await Promise.all([
+test("限流算法按类型切换参数并沿用规则默认快照", async () => {
+  const [rulePage, policyPage, parameterModel] = await Promise.all([
     readSource("src/views/base/rate-limit-rule/index.vue"),
-    readSource("src/views/base/api-rate-limit-policy/index.vue")
+    readSource("src/views/base/api-rate-limit-policy/index.vue"),
+    readSource("src/utils/rateLimit.ts")
   ]);
 
-  assert.match(rulePage, /params: \{ tokens_per_second: undefined, burst: undefined \}/);
-  assert.match(rulePage, /typeof form\.params\.tokens_per_second !== "number"/);
-  assert.match(policyPage, /width="min\(1280px, calc\(100vw - 32px\)\)"/);
+  assert.match(rulePage, /component: "select", options: algorithmOptions\.value/);
+  assert.match(rulePage, /BASE_RATE_LIMIT_ALGORITHM_FIXED_WINDOW/);
+  assert.match(rulePage, /BASE_RATE_LIMIT_ALGORITHM_SLIDING_WINDOW_COUNTER/);
+  assert.match(rulePage, /BASE_RATE_LIMIT_ALGORITHM_SLIDING_WINDOW_LOG/);
+  assert.match(rulePage, /BASE_RATE_LIMIT_ALGORITHM_LEAKY_BUCKET/);
+  assert.match(parameterModel, /serializeRateLimitParams/);
+  assert.match(policyPage, /parseRateLimitParams\(form\.rule_type, selected\.default_params\)/);
+  assert.match(policyPage, /form\.rule_params = JSON\.stringify\(params\)/);
+  assert.match(policyPage, /async function submit\(\) \{\s*const valid = await dialogRef\.value\?\.validate\(\);[\s\S]*?if \(!valid \|\| form\.rule_id === undefined\) return;[\s\S]*?const params = serializeRateLimitParams/);
+  assert.match(policyPage, /width="min\(1600px, calc\(100vw - 32px\)\)"/);
   assert.match(policyPage, /label-position="left"/);
-  assert.match(policyPage, /\.policy-api-transfer :deep\(\.el-transfer-panel\)\s*\{\s*width: min\(520px, calc\(\(100% - 112px\) \/ 2\)\)/);
+  assert.match(policyPage, /tooltipFormatter: \(\{ row \}\) =>[\s\S]*?apis\.map\(api => h\("div", \{ class: "api-rate-limit-api-tooltip__item" \}/);
+  assert.match(policyPage, /api-rate-limit-api-tooltip__content\s*\{[\s\S]*?flex-direction: column/);
+  assert.match(policyPage, /rule_id: undefined/);
+  assert.match(policyPage, /placeholder: t\("common\.placeholder\.select"\)/);
   assert.match(policyPage, /\.parameter-grid\s*\{[\s\S]*?width: 100%/);
   assert.match(policyPage, /\.parameter-item :deep\(\.el-input-number\)\s*\{\s*flex: 1;\s*width: 0;/);
-  assert.match(policyPage, /el-transfer-panel__item \.el-checkbox__label[\s\S]*?white-space: normal/);
+});
+
+test("五种限流算法名称和参数摘要在所有系统语言中均已注册", async () => {
+  const locales = await Promise.all(
+    ["zh-CN", "zh-TW", "en-US", "ja-JP"].map(async locale => JSON.parse(await readSource(`src/locales/${locale}.json`)) as Record<string, string>)
+  );
+  const keys = [
+    "system.base.rate_limit_rule.algorithm.token_bucket",
+    "system.base.rate_limit_rule.algorithm.fixed_window",
+    "system.base.rate_limit_rule.algorithm.sliding_window_counter",
+    "system.base.rate_limit_rule.algorithm.sliding_window_log",
+    "system.base.rate_limit_rule.algorithm.leaky_bucket",
+    "system.base.rate_limit_rule.summary.token_bucket",
+    "system.base.rate_limit_rule.summary.fixed_window",
+    "system.base.rate_limit_rule.summary.sliding_window_counter",
+    "system.base.rate_limit_rule.summary.sliding_window_log",
+    "system.base.rate_limit_rule.summary.leaky_bucket"
+  ];
+  for (const locale of locales) {
+    for (const key of keys) assert.ok(locale[key], `missing locale key ${key}`);
+  }
+});
+
+test("AI供应商模型通过结构化表单维护并序列化为现有接口格式", async () => {
+  const [page, ...locales] = await Promise.all([
+    readSource("src/views/base/ai-provider/index.vue"),
+    ...["zh-CN", "zh-TW", "en-US", "ja-JP"].map(async locale =>
+      JSON.parse(await readSource(`src/locales/${locale}.json`)) as Record<string, string>
+    )
+  ]);
+
+  assert.match(page, /prop: "models", label:[\s\S]*?component: "slot"/);
+  assert.match(page, /modelFields = computed<ProFormField\[]>/);
+  assert.match(page, /width="min\(640px, calc\(100vw - 32px\)\)"\s+label-width="9em"\s+label-position="left"/);
+  assert.match(page, /models_json: JSON\.stringify\(form\.models\)/);
+  assert.match(page, /parseModelConfigs\(models_json\)/);
+  assert.doesNotMatch(page, /prop: "models_json"[^\n]*component: "textarea"/);
+
+  const requiredKeys = [
+    "system.base.ai_provider.model.add",
+    "system.base.ai_provider.model.edit",
+    "system.base.ai_provider.field.model_name",
+    "system.base.ai_provider.field.api_type",
+    "system.base.ai_provider.field.temperature",
+    "system.base.ai_provider.field.max_tokens",
+    "system.base.ai_provider.field.timeout_seconds",
+    "system.base.ai_provider.field.max_retries"
+  ];
+  for (const locale of locales) {
+    for (const key of requiredKeys) assert.ok(locale[key], `missing locale key ${key}`);
+  }
+  assert.equal(locales[0]["system.base.ai_provider.field.config"], "服务商个性化配置");
+  assert.equal(locales[1]["system.base.ai_provider.field.config"], "服務商個人化設定");
+  assert.equal(locales[3]["system.base.ai_provider.field.config"], "サービス提供元の個別設定");
 });

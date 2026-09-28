@@ -30,7 +30,16 @@ func newBaseMessageDelivery(db *gorm.DB, opts ...gen.DOOption) baseMessageDelive
 	_baseMessageDelivery.ID = field.NewInt64(tableName, "id")
 	_baseMessageDelivery.TenantID = field.NewInt64(tableName, "tenant_id")
 	_baseMessageDelivery.MessageID = field.NewInt64(tableName, "message_id")
+	_baseMessageDelivery.DeliveryType = field.NewInt32(tableName, "delivery_type")
+	_baseMessageDelivery.ProviderID = field.NewInt64(tableName, "provider_id")
 	_baseMessageDelivery.UserID = field.NewInt64(tableName, "user_id")
+	_baseMessageDelivery.Status = field.NewInt32(tableName, "status")
+	_baseMessageDelivery.AttemptCount = field.NewInt32(tableName, "attempt_count")
+	_baseMessageDelivery.NextRetryAt = field.NewInt64(tableName, "next_retry_at")
+	_baseMessageDelivery.ReceiptID = field.NewString(tableName, "receipt_id")
+	_baseMessageDelivery.LastError = field.NewString(tableName, "last_error")
+	_baseMessageDelivery.LockToken = field.NewString(tableName, "lock_token")
+	_baseMessageDelivery.LockedUntil = field.NewInt64(tableName, "locked_until")
 	_baseMessageDelivery.ReceivedAt = field.NewTime(tableName, "received_at")
 	_baseMessageDelivery.ExpiresAt = field.NewInt64(tableName, "expires_at")
 	_baseMessageDelivery.ReadAt = field.NewInt64(tableName, "read_at")
@@ -45,23 +54,32 @@ func newBaseMessageDelivery(db *gorm.DB, opts ...gen.DOOption) baseMessageDelive
 	return _baseMessageDelivery
 }
 
-// baseMessageDelivery 用户消息投递
+// baseMessageDelivery 消息投递记录
 type baseMessageDelivery struct {
 	baseMessageDeliveryDo baseMessageDeliveryDo
 
-	ALL        field.Asterisk
-	ID         field.Int64 // 消息投递ID
-	TenantID   field.Int64 // 租户ID
-	MessageID  field.Int64 // 消息ID
-	UserID     field.Int64 // 接收用户ID
-	ReceivedAt field.Time  // 接收时间
-	ExpiresAt  field.Int64 // 过期时间戳，毫秒
-	ReadAt     field.Int64 // 已读时间戳，毫秒
-	ArchivedAt field.Int64 // 归档时间戳，毫秒
-	RevokedAt  field.Int64 // 撤回时间戳，毫秒
-	CreatedAt  field.Time  // 创建时间
-	UpdatedAt  field.Time  // 更新时间
-	DeletedAt  field.Field // 删除时间
+	ALL          field.Asterisk
+	ID           field.Int64  // 消息投递ID
+	TenantID     field.Int64  // 租户ID
+	MessageID    field.Int64  // 消息ID
+	DeliveryType field.Int32  // 投递类型：1站内信，2 Provider
+	ProviderID   field.Int64  // Provider配置ID，站内信为0
+	UserID       field.Int64  // 接收用户ID
+	Status       field.Int32  // 投递状态：待处理、处理中、成功、失败、跳过
+	AttemptCount field.Int32  // 发送尝试次数
+	NextRetryAt  field.Int64  // 下次重试时间戳，毫秒
+	ReceiptID    field.String // Provider受理凭证
+	LastError    field.String // 最近一次错误摘要
+	LockToken    field.String // 执行租约标识
+	LockedUntil  field.Int64  // 租约到期时间戳，毫秒
+	ReceivedAt   field.Time   // 接收时间
+	ExpiresAt    field.Int64  // 过期时间戳，毫秒
+	ReadAt       field.Int64  // 已读时间戳，毫秒
+	ArchivedAt   field.Int64  // 归档时间戳，毫秒
+	RevokedAt    field.Int64  // 撤回时间戳，毫秒
+	CreatedAt    field.Time   // 创建时间
+	UpdatedAt    field.Time   // 更新时间
+	DeletedAt    field.Field  // 删除时间
 
 	fieldMap map[string]field.Expr
 }
@@ -81,7 +99,16 @@ func (b *baseMessageDelivery) updateTableName(table string) *baseMessageDelivery
 	b.ID = field.NewInt64(table, "id")
 	b.TenantID = field.NewInt64(table, "tenant_id")
 	b.MessageID = field.NewInt64(table, "message_id")
+	b.DeliveryType = field.NewInt32(table, "delivery_type")
+	b.ProviderID = field.NewInt64(table, "provider_id")
 	b.UserID = field.NewInt64(table, "user_id")
+	b.Status = field.NewInt32(table, "status")
+	b.AttemptCount = field.NewInt32(table, "attempt_count")
+	b.NextRetryAt = field.NewInt64(table, "next_retry_at")
+	b.ReceiptID = field.NewString(table, "receipt_id")
+	b.LastError = field.NewString(table, "last_error")
+	b.LockToken = field.NewString(table, "lock_token")
+	b.LockedUntil = field.NewInt64(table, "locked_until")
 	b.ReceivedAt = field.NewTime(table, "received_at")
 	b.ExpiresAt = field.NewInt64(table, "expires_at")
 	b.ReadAt = field.NewInt64(table, "read_at")
@@ -118,11 +145,20 @@ func (b *baseMessageDelivery) GetFieldByName(fieldName string) (field.OrderExpr,
 }
 
 func (b *baseMessageDelivery) fillFieldMap() {
-	b.fieldMap = make(map[string]field.Expr, 12)
+	b.fieldMap = make(map[string]field.Expr, 21)
 	b.fieldMap["id"] = b.ID
 	b.fieldMap["tenant_id"] = b.TenantID
 	b.fieldMap["message_id"] = b.MessageID
+	b.fieldMap["delivery_type"] = b.DeliveryType
+	b.fieldMap["provider_id"] = b.ProviderID
 	b.fieldMap["user_id"] = b.UserID
+	b.fieldMap["status"] = b.Status
+	b.fieldMap["attempt_count"] = b.AttemptCount
+	b.fieldMap["next_retry_at"] = b.NextRetryAt
+	b.fieldMap["receipt_id"] = b.ReceiptID
+	b.fieldMap["last_error"] = b.LastError
+	b.fieldMap["lock_token"] = b.LockToken
+	b.fieldMap["locked_until"] = b.LockedUntil
 	b.fieldMap["received_at"] = b.ReceivedAt
 	b.fieldMap["expires_at"] = b.ExpiresAt
 	b.fieldMap["read_at"] = b.ReadAt

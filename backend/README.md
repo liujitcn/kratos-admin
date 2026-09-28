@@ -4,13 +4,13 @@
 
 账号密码、OAuth 票据兑换和微信登录统一返回 `mfa_remember_days`，表示当前登录策略允许的 MFA 设备免验证天数；为 `0` 时不提供记住设备选项。 OAuth 一次性票据在缓存与兑换时保留该字段。
 
-Backend 同时提供消息分类、站内信管理、用户收件箱、Redis 投递恢复、后台工作台统计、文件资产元数据、登录来源策略、会话撤销、审计事件异步落库、日志保留清理和受控数据库备份任务。安全、消息和开放授权默认数据统一由 `v0.0.1` 初始化迁移提供。
+Backend 同时提供消息分类、站内信管理、用户收件箱、按分类路由的外部消息 Provider、可恢复的统一投递记录、Redis 投递恢复、后台工作台统计、文件资产元数据、登录来源策略、会话撤销、审计事件异步落库、日志保留清理和受控数据库备份任务。安全、消息和开放授权默认数据统一由 `v0.0.1` 初始化迁移提供。
 
-HTTP 与 gRPC 支持按接口配置令牌桶限流；平台超级管理员可维护规则模板，并为接口和限流维度创建策略。新建策略时复制规则默认参数，之后可独立调整；初始化只提供每秒 10 个令牌、突发 20 个请求的模板，不预置启用中的接口策略。
+HTTP 与 gRPC 支持按接口配置令牌桶、固定窗口、滑动窗口计数、滑动窗口日志和漏桶限流；平台超级管理员可维护规则模板，并为接口和限流维度创建策略。规则的 `default_params` JSON 按算法分别校验；新建策略时复制所选规则的参数快照，之后可独立调整。初始化不预置限流规则或启用中的接口策略。
 
-多节点部署复用 `data.redis` 配置的 Cache：所有实例必须连接同一 Redis 或 Redis Cluster，并使用相同逻辑库与键空间，令牌桶才能共享并原子扣减。未配置 Redis 时 Cache 会退回进程内存，只适用于单节点；不要在多节点环境启用接口限流后使用内存缓存。
+多节点部署复用 `data.redis` 配置的 Cache：所有实例必须连接同一 Redis 或 Redis Cluster，并使用相同逻辑库与键空间，各算法状态才能共享并原子检查更新。未配置 Redis 时 Cache 会退回进程内存，只适用于单节点；不要在多节点环境启用接口限流后使用内存缓存。
 
-`backend` 保留 API 契约、Go 生成接口、Service 实现、Biz 业务层，以及任务调度、HTTP/gRPC/MCP/AI 注册和必要的数据访问闭包；进程入口位于 `internal/cmd/server`。根包通过 `ProviderSet`、`NewModuleResources`、`NewModules`、`NewTasks`、`NewStreams` 和 `NewQueueConsumers` 提供可被外部 Core 宿主复用的公共边界，`adapter/core` 负责将 Admin 生成的数据库访问能力适配为 `kratos-core/data` 的 Store/Writer 契约，`internal/module` 仅承载模块实现。AI Runtime 实现在 `internal/biz`，对外复用入口为 `pkg/agent`；业务模块通过 `pkg/notification.Publish` 发布站内信，由内部事务和 Dispatch 恢复链路负责最终投递。开放授权客户端使用单表 JSON operation 白名单并绑定租户，公开端点签发客户端 Bearer Token；HTTP middleware 分别校验租户、状态、IP 白名单和 API 范围，HTTP 加解密 Filter 在请求绑定前解密客户端数据并在成功响应后加密。登录认证支持 TOTP 多因素认证、一次性恢复码，以及全局和租户/用户定向登录来源策略。
+`backend` 保留 API 契约、Go 生成接口、Service 实现、Biz 业务层，以及任务调度、HTTP/gRPC/MCP/AI 注册和必要的数据访问闭包；进程入口位于 `internal/cmd/server`。根包通过 `ProviderSet`、`NewModuleResources`、`NewModules`、`NewTasks`、`NewStreams` 和 `NewQueueConsumers` 提供可被外部 Core 宿主复用的公共边界，`adapter/core` 负责将 Admin 生成的数据库访问能力适配为 `kratos-core/data` 的 Store/Writer 契约，`internal/module` 仅承载模块实现。AI Runtime 实现在 `internal/biz`，对外复用入口为 `pkg/agent`；业务模块通过 `pkg/notification.Publish` 发布消息，由内部 Dispatch 按分类路由站内信和外部 Provider，所有投递结果写入 `base_message_delivery`，Provider 失败由恢复任务重试。开放授权客户端使用单表 JSON operation 白名单并绑定租户，公开端点签发客户端 Bearer Token；HTTP middleware 分别校验租户、状态、IP 白名单和 API 范围，HTTP 加解密 Filter 在请求绑定前解密客户端数据并在成功响应后加密。登录认证支持 TOTP 多因素认证、一次性恢复码，以及全局和租户/用户定向登录来源策略。
 
 ## 目录
 
@@ -78,7 +78,7 @@ make run-only
 make run-full
 ```
 
-`run-full` 使用 `configs/full`，该目录按当前 `kratos-kit/api` 版本保留完整配置字段。最小配置只保留服务启动和本地开发所需字段；完整配置中的注册中心、远程配置、通知、AI、MFA、日志等组件按需填写后启用。OAuth 第三方登录方式由“系统管理 → 登录管理 → OAuth登录配置”动态维护，不再使用启动配置文件。MySQL、本地对象存储和本地根密钥分别配置在 `configs/data.yaml`、`configs/oss.yaml`、`configs/key.yaml`；Redis 与队列配置可选，省略时缓存、队列和任务锁使用进程内实现，完整配置示例位于 `configs/full`。启动前需保证已启用的中间件可访问、Vault 已解封，并在终端或 IDE 中提供具有根密钥读取权限的 `VAULT_TOKEN`。同一应用的各节点应使用一致的根密钥引用和 `scope`；密钥服务不可用、未解封、密钥不存在或 token 无效时，启动失败，不回退本地文件。中间件的部署、初始化和凭据维护由运行环境负责，不与项目启动联动。
+`run-full` 使用 `configs/full`，该目录按当前 `kratos-kit/api` 版本保留完整配置字段。最小配置只保留服务启动和本地开发所需字段；完整配置中的注册中心、远程配置、通知、MFA、日志等组件按需填写后启用。OAuth 第三方登录方式由“系统管理 → 登录管理 → OAuth登录配置”动态维护，不再使用启动配置文件。MySQL、本地对象存储和本地根密钥分别配置在 `configs/data.yaml`、`configs/oss.yaml`、`configs/key.yaml`；Redis 与队列配置可选，省略时缓存、队列和任务锁使用进程内实现，完整配置示例位于 `configs/full`。启动前需保证已启用的中间件可访问、Vault 已解封，并在终端或 IDE 中提供具有根密钥读取权限的 `VAULT_TOKEN`。同一应用的各节点应使用一致的根密钥引用和 `scope`；密钥服务不可用、未解封、密钥不存在或 token 无效时，启动失败，不回退本地文件。中间件的部署、初始化和凭据维护由运行环境负责，不与项目启动联动。
 
 默认配置目录为 `./configs`，默认不加载环境覆盖文件。基础配置使用 `<name>.yaml`；需要环境覆盖时显式传入 `APP_ENV`，加载同一目录下的 `<name>.<env>.yaml`。完整配置目录是独立的 `./configs/full`，不会与最小配置目录合并。可以覆盖配置目录、运行环境或追加启动参数：
 
@@ -96,7 +96,7 @@ make run-only RUN_ARGS='--help'
 
 例如 `make run-only APP_ENV=prod` 会在 `configs` 中额外加载 `*.prod.yaml`；不传 `APP_ENV` 时只加载基础 YAML 文件。
 
-云模型密钥不写入仓库中的基础配置。启用本地云模型联调时，将 `ai.yaml` 的模型配置复制到被 Git 忽略的 `configs/ai.local.yaml`，只在该文件填写 `api_key`，然后执行 `make run-only APP_ENV=local`；生产环境应使用 `ENC[...]` 或运行时密钥服务提供凭据。
+AI供应商与多个模型在管理端“AI助手 → AI供应商”中维护。模型密钥通过入库脱敏策略加密保存，接口不会返回密钥原文。
 
 本地需要通过 HTTPS 启动 HTTP 服务时，先在仓库根目录生成前端与后端共用的开发证书，再使用 `https` 运行环境：
 
@@ -209,7 +209,7 @@ func NewApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 
 `adapter/core` 和 `adapter/kit` 与 `internal` 平级，构造函数统一接收 `databases map[string]*gorm.Client`，在内部创建并保存所需 Data、Repository，不把内部仓储类型放入公开签名。Core 适配器通过公共存储与事务接口参与 Wire，事务查询通过生成数据包的上下文传递，数据库客户端仍由 Core 创建和清理。
 
-Kit 脱敏和限流策略解析器由 Wire 创建并注入 Core 协议入口和 Admin 模块，不使用进程级默认解析器或存储运行时。解析器构造时不查表；`NewModules` 在迁移就绪后初始化限流策略快照并绑定默认数据库的实例级脱敏回调，HTTP、gRPC 和 MCP 请求通过自身上下文携带相应解析器。限流策略运行时定期刷新，管理端变更后会立即刷新；缓存扣减对同一请求涉及的多个令牌桶原子执行。
+Kit 脱敏和限流策略解析器由 Wire 创建并注入 Core 协议入口和 Admin 模块，不使用进程级默认解析器或存储运行时。解析器构造时不查表；`NewModules` 在迁移就绪后初始化限流策略快照并绑定默认数据库的实例级脱敏回调，HTTP、gRPC 和 MCP 请求通过自身上下文携带相应解析器。限流策略运行时定期刷新，管理端变更后会立即刷新；缓存对同一请求涉及的多条策略原子检查更新，Redis Cluster 状态键按接口操作使用相同 hash slot。
 
 外部项目保持自己的 Go module 和普通服务入口，不需要将 module 改为 Admin 路径，也不需要额外的宿主 `go.mod` 或 `go.work`。本地联调可以临时替换依赖，正式使用须按 Kit redact 和 server/grpc、Core、Backend 的顺序发布修复版本并重新运行宿主 Wire。
 

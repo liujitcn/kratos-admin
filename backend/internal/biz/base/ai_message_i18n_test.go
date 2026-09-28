@@ -19,7 +19,7 @@ func TestAiFallbackReasonDoesNotExposeProviderError(t *testing.T) {
 	aiCase := &AiMessageCase{}
 	want := i18n.EncodeMessage("system.ai.chat.error.details_unavailable", nil)
 
-	response := aiCase.buildAiFallbackResponse(context.Background(), "", nil, cause)
+	response := aiCase.buildAiFallbackResponse(context.Background(), "", nil, cause, "", "")
 	if response.FallbackReason != want {
 		t.Fatalf("fallback reason = %q, want %q", response.FallbackReason, want)
 	}
@@ -27,7 +27,7 @@ func TestAiFallbackReasonDoesNotExposeProviderError(t *testing.T) {
 		t.Fatal("fallback reason must not include provider error details")
 	}
 
-	failedReply := aiCase.buildAiFailedReply(context.Background(), response, cause)
+	failedReply := aiCase.buildAiFailedReply(context.Background(), response, cause, "", "")
 	if failedReply.FallbackReason != want {
 		t.Fatalf("failed reply reason = %q, want %q", failedReply.FallbackReason, want)
 	}
@@ -74,11 +74,11 @@ func TestAiFallbackReplyUsesRequestLocale(t *testing.T) {
 	for _, test := range tests {
 		ctx := biz.WithLocale(context.Background(), test.locale)
 		aiCase := &AiMessageCase{aiRuntime: runtime}
-		textReply := aiCase.buildAiFallbackResponse(ctx, test.prompt, nil, errors.New("provider error"))
+		textReply := aiCase.buildAiFallbackResponse(ctx, test.prompt, nil, errors.New("provider error"), "", "")
 		if textReply.Content != test.content {
 			t.Errorf("locale %s text fallback = %q, want %q", test.locale, textReply.Content, test.content)
 		}
-		attachmentReply := aiCase.buildAiFallbackResponse(ctx, "", make([]*basev1.AiAttachment, 2), errors.New("provider error"))
+		attachmentReply := aiCase.buildAiFallbackResponse(ctx, "", make([]*basev1.AiAttachment, 2), errors.New("provider error"), "", "")
 		if attachmentReply.Content != test.attachments {
 			t.Errorf("locale %s attachment fallback = %q, want %q", test.locale, attachmentReply.Content, test.attachments)
 		}

@@ -110,5 +110,8 @@
   "system.notification.mark_all_read": "Mark all read",
   "system.notification.action.archive": "Archive",
   "system.notification.action.restore": "Restore",
-  "system.notification.action.delete": "Delete"
+  "system.notification.action.delete": "Delete",
+  "system.ai.model.provider_placeholder": "Select a provider",
+  "system.ai.model.model_placeholder": "Select a model",
+  "system.ai.model.load_failed": "Failed to load providers and models"
 }

@@ -57,26 +57,28 @@ const defaultMessageActionParams = "{}"
 var messageRichTextPolicy = bluemonday.UGCPolicy()
 var messageMarkdownPolicy = bluemonday.StrictPolicy()
 
-// BaseMessageCase 站内信管理和异步投递业务实例。
+// BaseMessageCase 消息管理和异步投递业务实例。
 type BaseMessageCase struct {
 	*biz.BaseCase
 	tx data.Transaction
 	*data.BaseMessageRepository
-	dispatchRepo   *data.BaseMessageDispatchRepository
-	deliveryRepo   *data.BaseMessageDeliveryRepository
-	deliveryWriter *admindata.MessageDeliveryWriter
-	categoryCase   *BaseMessageCategoryCase
-	baseUserRepo   *data.BaseUserRepository
-	baseRoleRepo   *data.BaseRoleRepository
-	baseDeptRepo   *data.BaseDeptRepository
-	basePostRepo   *data.BasePostRepository
-	baseMenuRepo   *data.BaseMenuRepository
-	sse            *sse.SSE
+	dispatchRepo     *data.BaseMessageDispatchRepository
+	deliveryRepo     *data.BaseMessageDeliveryRepository
+	deliveryWriter   *admindata.MessageDeliveryWriter
+	categoryCase     *BaseMessageCategoryCase
+	providerManager  *notification.ProviderManager
+	baseUserRepo     *data.BaseUserRepository
+	thirdAccountRepo *data.BaseThirdAccountRepository
+	baseRoleRepo     *data.BaseRoleRepository
+	baseDeptRepo     *data.BaseDeptRepository
+	basePostRepo     *data.BasePostRepository
+	baseMenuRepo     *data.BaseMenuRepository
+	sse              *sse.SSE
 }
 
 var _ notification.Publisher = (*BaseMessageCase)(nil)
 
-// NewBaseMessageCase 创建站内信业务实例。
+// NewBaseMessageCase 创建消息管理和投递业务实例。
 func NewBaseMessageCase(
 	baseCase *biz.BaseCase,
 	tx data.Transaction,
@@ -86,6 +88,7 @@ func NewBaseMessageCase(
 	deliveryWriter *admindata.MessageDeliveryWriter,
 	categoryCase *BaseMessageCategoryCase,
 	baseUserRepo *data.BaseUserRepository,
+	thirdAccountRepo *data.BaseThirdAccountRepository,
 	baseRoleRepo *data.BaseRoleRepository,
 	baseDeptRepo *data.BaseDeptRepository,
 	basePostRepo *data.BasePostRepository,
@@ -101,11 +104,13 @@ func NewBaseMessageCase(
 		deliveryWriter:        deliveryWriter,
 		categoryCase:          categoryCase,
 		baseUserRepo:          baseUserRepo,
+		thirdAccountRepo:      thirdAccountRepo,
 		baseRoleRepo:          baseRoleRepo,
 		baseDeptRepo:          baseDeptRepo,
 		basePostRepo:          basePostRepo,
 		baseMenuRepo:          baseMenuRepo,
 		sse:                   sseRuntime,
+		providerManager:       notification.NewProviderManager(baseCase),
 	}
 	notification.SetDefaultPublisher(caseValue)
 	return caseValue
@@ -155,9 +160,9 @@ func (c *BaseMessageCase) PageBaseMessage(ctx context.Context, req *adminv1.Page
 	if req.Status != nil {
 		opts = append(opts, repository.Where(query.Status.Eq(int32(req.GetStatus()))))
 	}
+	var err error
 	var list []*models.BaseMessage
 	var total int64
-	var err error
 	list, total, err = c.Page(ctx, req.GetPageNum(), req.GetPageSize(), opts...)
 	if err != nil {
 		return nil, err
@@ -246,7 +251,7 @@ func (c *BaseMessageCase) CreateBaseMessage(ctx context.Context, req *adminv1.Ba
 	return entity.ID, nil
 }
 
-// Publish 发布业务站内信并返回消息ID，数据库提交成功后由恢复任务保证最终投递。
+// Publish 发布业务消息并返回消息ID，数据库提交成功后由恢复任务保证最终投递。
 func (c *BaseMessageCase) Publish(ctx context.Context, request notification.Message) (int64, error) {
 	var err error
 	if request.TenantID <= 0 {
@@ -264,6 +269,15 @@ func (c *BaseMessageCase) Publish(ctx context.Context, request notification.Mess
 	)
 	if err != nil {
 		return 0, errorsx.ResourceNotFound("消息分类不存在").WithCause(err)
+	}
+	if category.InboxEnabled != int32(adminv1.BaseMessageCategoryInboxEnabled_BASE_MESSAGE_CATEGORY_INBOX_ENABLED_ENABLE) {
+		providerIDs, decodeErr := decodeMessageProviderIDs(category.ProviderID)
+		if decodeErr != nil {
+			return 0, decodeErr
+		}
+		if len(providerIDs) == 0 {
+			return 0, errorsx.InvalidArgument("消息分类没有启用的投递目标")
+		}
 	}
 	if request.Source == "" {
 		request.Source = "business"
@@ -347,6 +361,24 @@ func (c *BaseMessageCase) Publish(ctx context.Context, request notification.Mess
 	}
 	entity.PayloadHash = payloadHash
 	persist := func(txCtx context.Context) error {
+		categoryQuery := c.categoryCase.Query(txCtx).BaseMessageCategory
+		category, err = c.categoryCase.Find(txCtx,
+			repository.Where(categoryQuery.ID.Eq(form.GetCategoryId())),
+			repository.Clauses(clause.Locking{Strength: "UPDATE"}),
+		)
+		if err != nil {
+			return errorsx.ResourceNotFound("消息分类不存在").WithCause(err)
+		}
+		if category.Status != coreconst.STATUS_STATUS_ENABLE {
+			return errorsx.InvalidArgument("消息分类不可用")
+		}
+		providerIDs, decodeErr := decodeMessageProviderIDs(category.ProviderID)
+		if decodeErr != nil {
+			return decodeErr
+		}
+		if category.InboxEnabled != int32(adminv1.BaseMessageCategoryInboxEnabled_BASE_MESSAGE_CATEGORY_INBOX_ENABLED_ENABLE) && len(providerIDs) == 0 {
+			return errorsx.InvalidArgument("消息分类没有启用的投递目标")
+		}
 		if err = c.Create(txCtx, entity); err != nil {
 			return err
 		}
@@ -516,6 +548,15 @@ func (c *BaseMessageCase) PublishBaseMessage(ctx context.Context, id int64) erro
 	if category.Status != coreconst.STATUS_STATUS_ENABLE {
 		return errorsx.InvalidArgument("消息分类不可用")
 	}
+	if category.InboxEnabled != int32(adminv1.BaseMessageCategoryInboxEnabled_BASE_MESSAGE_CATEGORY_INBOX_ENABLED_ENABLE) {
+		providerIDs, decodeErr := decodeMessageProviderIDs(category.ProviderID)
+		if decodeErr != nil {
+			return decodeErr
+		}
+		if len(providerIDs) == 0 {
+			return errorsx.InvalidArgument("消息分类没有启用的投递目标")
+		}
+	}
 	now := time.Now()
 	if entity.ExpiresAt > 0 && entity.ExpiresAt <= now.UnixMilli() {
 		return errorsx.InvalidArgument("消息过期时间必须晚于当前时间")
@@ -534,6 +575,24 @@ func (c *BaseMessageCase) PublishBaseMessage(ctx context.Context, id int64) erro
 		dispatchStatus = basev1.MessageDispatchStatus_MESSAGE_DISPATCH_STATUS_WAITING
 	}
 	err = c.tx.Transaction(ctx, func(txCtx context.Context) error {
+		categoryQuery := c.categoryCase.Query(txCtx).BaseMessageCategory
+		category, err = c.categoryCase.Find(txCtx,
+			repository.Where(categoryQuery.ID.Eq(entity.CategoryID)),
+			repository.Clauses(clause.Locking{Strength: "UPDATE"}),
+		)
+		if err != nil {
+			return errorsx.ResourceNotFound("消息分类不存在").WithCause(err)
+		}
+		if category.Status != coreconst.STATUS_STATUS_ENABLE {
+			return errorsx.InvalidArgument("消息分类不可用")
+		}
+		providerIDs, decodeErr := decodeMessageProviderIDs(category.ProviderID)
+		if decodeErr != nil {
+			return decodeErr
+		}
+		if category.InboxEnabled != int32(adminv1.BaseMessageCategoryInboxEnabled_BASE_MESSAGE_CATEGORY_INBOX_ENABLED_ENABLE) && len(providerIDs) == 0 {
+			return errorsx.InvalidArgument("消息分类没有启用的投递目标")
+		}
 		messageQuery := c.Query(txCtx).BaseMessage
 		var result gen.ResultInfo
 		result, err = messageQuery.WithContext(txCtx).
@@ -683,6 +742,25 @@ func (c *BaseMessageCase) ProcessScheduledMessage(ctx context.Context, task *dto
 		return err
 	}
 	err = c.tx.Transaction(ctx, func(txCtx context.Context) error {
+		categoryQuery := c.categoryCase.Query(txCtx).BaseMessageCategory
+		var category *models.BaseMessageCategory
+		category, err = c.categoryCase.Find(txCtx,
+			repository.Where(categoryQuery.ID.Eq(entity.CategoryID)),
+			repository.Clauses(clause.Locking{Strength: "UPDATE"}),
+		)
+		if err != nil {
+			return errorsx.ResourceNotFound("消息分类不存在").WithCause(err)
+		}
+		if category.Status != coreconst.STATUS_STATUS_ENABLE {
+			return errorsx.InvalidArgument("消息分类不可用")
+		}
+		providerIDs, decodeErr := decodeMessageProviderIDs(category.ProviderID)
+		if decodeErr != nil {
+			return decodeErr
+		}
+		if category.InboxEnabled != int32(adminv1.BaseMessageCategoryInboxEnabled_BASE_MESSAGE_CATEGORY_INBOX_ENABLED_ENABLE) && len(providerIDs) == 0 {
+			return errorsx.InvalidArgument("消息分类没有启用的投递目标")
+		}
 		messageQuery := c.Query(txCtx).BaseMessage
 		var result gen.ResultInfo
 		result, err = messageQuery.WithContext(txCtx).
@@ -913,6 +991,7 @@ func (c *BaseMessageCase) ProcessDispatch(ctx context.Context, task *dto.Message
 	var completed bool
 	var updated bool
 	var revoked bool
+	var inboxEnabled bool
 	err = c.tx.Transaction(ctx, func(txCtx context.Context) error {
 		// 撤回事务也先锁定消息行，确保撤回与收件写入按同一顺序串行化。
 		messageQuery := c.Query(txCtx).BaseMessage
@@ -927,17 +1006,50 @@ func (c *BaseMessageCase) ProcessDispatch(ctx context.Context, task *dto.Message
 			revoked = true
 			return nil
 		}
-		deliveries := make([]*models.BaseMessageDelivery, 0, len(users))
-		for _, user := range users {
-			deliveries = append(deliveries, &models.BaseMessageDelivery{
-				TenantID: dispatch.TenantID, MessageID: dispatch.MessageID, UserID: user.ID,
-				ReceivedAt: now, ExpiresAt: message.ExpiresAt, CreatedAt: now, UpdatedAt: now,
-			})
+		var category *models.BaseMessageCategory
+		category, err = c.categoryCase.FindByID(txCtx, message.CategoryID)
+		if err != nil {
+			return errorsx.ResourceNotFound("消息分类不存在").WithCause(err)
 		}
-		insertedTotal, err = c.deliveryWriter.CreateIgnore(txCtx, deliveries, int(dispatch.BatchSize))
+		if category.Status != coreconst.STATUS_STATUS_ENABLE {
+			return errorsx.InvalidArgument("消息分类不可用")
+		}
+		var providerIDs []int64
+		providerIDs, err = decodeMessageProviderIDs(category.ProviderID)
 		if err != nil {
 			return err
 		}
+		inboxEnabled = category.InboxEnabled == int32(adminv1.BaseMessageCategoryInboxEnabled_BASE_MESSAGE_CATEGORY_INBOX_ENABLED_ENABLE)
+		if !inboxEnabled && len(providerIDs) == 0 {
+			return errorsx.InvalidArgument("消息分类没有启用的投递目标")
+		}
+		var insertedInbox int64
+		if inboxEnabled {
+			inboxDeliveries := make([]*models.BaseMessageDelivery, 0, len(users))
+			for _, user := range users {
+				inboxDeliveries = append(inboxDeliveries, &models.BaseMessageDelivery{
+					TenantID: dispatch.TenantID, MessageID: dispatch.MessageID,
+					DeliveryType: _const.MessageDeliveryTypeInbox, UserID: user.ID,
+					Status:     _const.MessageDeliveryStatusSucceeded,
+					ReceivedAt: now, ExpiresAt: message.ExpiresAt, CreatedAt: now, UpdatedAt: now,
+				})
+			}
+			insertedInbox, err = c.deliveryWriter.CreateIgnore(txCtx, inboxDeliveries, int(dispatch.BatchSize))
+			if err != nil {
+				return err
+			}
+		}
+		var providerDeliveries []*models.BaseMessageDelivery
+		providerDeliveries, err = c.createProviderDeliveryRecords(txCtx, dispatch, message, providerIDs, users)
+		if err != nil {
+			return err
+		}
+		var insertedProviders int64
+		insertedProviders, err = c.deliveryWriter.CreateIgnore(txCtx, providerDeliveries, int(dispatch.BatchSize))
+		if err != nil {
+			return err
+		}
+		insertedTotal = insertedInbox + insertedProviders
 		if len(users) > 0 {
 			dispatch.CursorUserID = users[len(users)-1].ID
 		}
@@ -973,8 +1085,13 @@ func (c *BaseMessageCase) ProcessDispatch(ctx context.Context, task *dto.Message
 	if revoked || !updated {
 		return nil
 	}
-	for _, user := range users {
-		c.publishNotificationChanged(ctx, dispatch.TenantID, user.ID, message.ID)
+	if inboxEnabled {
+		for _, user := range users {
+			c.publishNotificationChanged(ctx, dispatch.TenantID, user.ID, message.ID)
+		}
+	}
+	if _, err = c.processPendingProviderDeliveries(ctx, message.ID); err != nil {
+		log.Error(fmt.Sprintf("处理消息 Provider 投递失败: message=%d: %v", message.ID, err))
 	}
 	if !completed {
 		return c.EnqueueDispatch(ctx, dispatch.ID, dispatch.TenantID)
@@ -1147,6 +1264,10 @@ func (c *BaseMessageCase) RecoverPendingDispatches(ctx context.Context) (int, er
 		}
 		count++
 	}
+	_, err = c.processPendingProviderDeliveries(ctx, 0)
+	if err != nil {
+		return count, err
+	}
 	return count, nil
 }
 
@@ -1155,6 +1276,7 @@ func (c *BaseMessageCase) CleanupExpiredDeliveries(ctx context.Context) (int, er
 	now := time.Now().UnixMilli()
 	query := c.deliveryRepo.Query(ctx).BaseMessageDelivery
 	list, err := c.deliveryRepo.List(ctx,
+		repository.Where(query.DeliveryType.Eq(_const.MessageDeliveryTypeInbox)),
 		repository.Where(query.ExpiresAt.Gt(0)),
 		repository.Where(query.ExpiresAt.Lte(now)),
 		repository.Order(query.ID.Asc()),
@@ -1673,12 +1795,6 @@ func (c *BaseMessageCase) finishMessageIfCompleted(ctx context.Context, message 
 		if err != nil || remaining > 0 {
 			return err
 		}
-		deliveryQuery := c.deliveryRepo.Query(txCtx).BaseMessageDelivery
-		var delivered int64
-		delivered, err = c.deliveryRepo.Count(txCtx, repository.Where(deliveryQuery.MessageID.Eq(message.ID)))
-		if err != nil {
-			return err
-		}
 		messageQuery := c.Query(txCtx).BaseMessage
 		var current *models.BaseMessage
 		current, err = c.Find(txCtx,
@@ -1691,11 +1807,44 @@ func (c *BaseMessageCase) finishMessageIfCompleted(ctx context.Context, message 
 		if current.Status != int32(basev1.MessageStatus_MESSAGE_STATUS_PUBLISHING) {
 			return nil
 		}
+		deliveryQuery := c.deliveryRepo.Query(txCtx).BaseMessageDelivery
+		var inboxTotal int64
+		inboxTotal, err = c.deliveryRepo.Count(txCtx,
+			repository.Where(deliveryQuery.MessageID.Eq(message.ID)),
+			repository.Where(deliveryQuery.DeliveryType.Eq(_const.MessageDeliveryTypeInbox)),
+		)
+		if err != nil {
+			return err
+		}
+		providerOpts := []repository.QueryOption{
+			repository.Where(deliveryQuery.MessageID.Eq(message.ID)),
+			repository.Where(deliveryQuery.DeliveryType.Eq(_const.MessageDeliveryTypeProvider)),
+		}
+		var providerTotal int64
+		providerTotal, err = c.deliveryRepo.Count(txCtx, providerOpts...)
+		if err != nil {
+			return err
+		}
+		providerDeliveredOpts := append([]repository.QueryOption{}, providerOpts...)
+		providerDeliveredOpts = append(providerDeliveredOpts, repository.Where(deliveryQuery.Status.Eq(_const.MessageDeliveryStatusSucceeded)))
+		var providerDelivered int64
+		providerDelivered, err = c.deliveryRepo.Count(txCtx, providerDeliveredOpts...)
+		if err != nil {
+			return err
+		}
+		providerFailedOpts := append([]repository.QueryOption{}, providerOpts...)
+		providerFailedOpts = append(providerFailedOpts, repository.Where(deliveryQuery.Status.Eq(_const.MessageDeliveryStatusFailed)))
+		var providerFailed int64
+		providerFailed, err = c.deliveryRepo.Count(txCtx, providerFailedOpts...)
+		if err != nil {
+			return err
+		}
 		now := time.Now()
 		current.Status = int32(basev1.MessageStatus_MESSAGE_STATUS_PUBLISHED)
 		current.PublishedAt = now.UnixMilli()
-		current.RecipientTotal = delivered
-		current.DeliveredTotal = delivered
+		current.RecipientTotal = inboxTotal + providerTotal + current.FailedTotal
+		current.DeliveredTotal = inboxTotal + providerDelivered
+		current.FailedTotal += providerFailed
 		current.Version++
 		current.UpdatedAt = now
 		return c.UpdateByID(txCtx, current)

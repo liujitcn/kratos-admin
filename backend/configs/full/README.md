@@ -14,11 +14,9 @@
 | `registry.yaml` | 服务注册与发现 |
 | `config.yaml` | 远程配置中心 |
 | `oss.yaml` | 对象存储 |
-| `notify.yaml` | 通知与短信 |
 | `auth.yaml` | JWT 与会话认证 |
 | `authz.yaml` | Casbin 授权 |
 | `pprof.yaml` | Pyroscope 性能分析 |
-| `ai.yaml` | 云端或本地大模型 |
 | `translator.yaml` | 机器翻译 |
 | `mfa.yaml` | MFA、TOTP、WebAuthn |
 | `key.yaml` | 根密钥 Provider |
@@ -33,14 +31,6 @@
 - `bytes` 字段使用字符串填写 PEM 文本或其他字节内容；`tls.config` 下的证书字段对应 `cert_pem`、`key_pem`、`ca_pem`。
 
 ## 固定值
-
-### AI
-
-`ai.model.type`：
-
-- `MODEL_TYPE_UNSPECIFIED`：未指定。
-- `CLOUD_MODEL`：云端模型，使用 `cloud` 配置。
-- `LOCAL_MODEL`：本地 Ollama 模型，使用 `local` 配置。
 
 ### 认证与客户端
 
@@ -109,7 +99,6 @@
 
 ### 其他组件
 
-- `notify.type`：`sms`；留空表示不启用通知发送器。
 - `pprof.type`：`pyroscope`。
 - `trace.exporter`：`otlp-grpc`、`otlp-http`、`zipkin`、`stdout`。
 - `translator.type`：`google`、`baidu`、`alibaba`、`volc`。

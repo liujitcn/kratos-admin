@@ -7,6 +7,7 @@ import pinia from "@/stores";
 import { useUserStore } from "@/stores/modules/user";
 import { getLocaleRequestHeaders, t } from "@/locales";
 import { formatConflictMessage } from "./conflict-message";
+import { hasStructuredErrorCode, resolveStructuredErrorMessage } from "./request-response";
 
 const apiBasePath = import.meta.env.VITE_APP_BASE_API || "";
 const apiTargetUrl = import.meta.env.VITE_API_URL || import.meta.env.VITE_APP_API_URL || "";
@@ -341,12 +342,11 @@ service.interceptors.response.use(
     }
 
     const responseData = response.data as ErrorResponseData;
-    const { code } = responseData;
-    const message = formatConflictMessage(responseData.message ?? "", responseData, t);
-    // 成功响应不携带错误码；只要存在 code 即视为结构化错误响应。
-    if (code === undefined) {
+    if (!hasStructuredErrorCode(responseData)) {
       return response.data;
     }
+
+    const message = formatConflictMessage(resolveStructuredErrorMessage(responseData, key => t(key)), responseData, t);
 
     if (isPasswordChangeRequired(responseData)) {
       handlePasswordChangeRequired(message || t("common.message.system_error"));
@@ -363,7 +363,9 @@ service.interceptors.response.use(
     const status = error.response?.status;
     const data = error.response?.data as ErrorResponseData | undefined;
     const code = data?.code;
-    const message = data ? formatConflictMessage(data.message ?? "", data, t) : undefined;
+    const message = data
+      ? formatConflictMessage(resolveStructuredErrorMessage(data, key => t(key)), data, t)
+      : undefined;
     const requestConfig = error.config as RetryableRequestConfig | undefined;
 
     // 退出或认证失效后，页面中的在途请求返回 401 属于预期结果，不再重复刷新令牌、弹窗或提示错误。

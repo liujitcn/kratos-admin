@@ -128,5 +128,8 @@
   "system.notification.mark_all_read": "すべて既読",
   "system.notification.action.archive": "アーカイブ",
   "system.notification.action.restore": "復元",
-  "system.notification.action.delete": "削除"
+  "system.notification.action.delete": "削除",
+  "system.ai.model.provider_placeholder": "プロバイダーを選択",
+  "system.ai.model.model_placeholder": "モデルを選択",
+  "system.ai.model.load_failed": "プロバイダーとモデルを読み込めませんでした"
 }

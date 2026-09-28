@@ -344,6 +344,7 @@ func (c *NotificationCase) visibleOptions(ctx context.Context, userID int64) []r
 	query := c.Query(ctx).BaseMessageDelivery
 	expiresCondition := field.Or(query.ExpiresAt.Eq(0), query.ExpiresAt.Gt(time.Now().UnixMilli()))
 	return []repository.QueryOption{
+		repository.Where(query.DeliveryType.Eq(adminconst.MessageDeliveryTypeInbox)),
 		repository.Where(query.UserID.Eq(userID)),
 		repository.Where(query.RevokedAt.Eq(0)),
 		repository.Where(expiresCondition),
@@ -442,6 +443,7 @@ func (c *NotificationCase) findOwnedDelivery(ctx context.Context, userID, id int
 func (c *NotificationCase) ensureOwnedDeliveries(ctx context.Context, userID int64, ids []int64) error {
 	query := c.Query(ctx).BaseMessageDelivery
 	count, err := c.Count(ctx,
+		repository.Where(query.DeliveryType.Eq(adminconst.MessageDeliveryTypeInbox)),
 		repository.Where(query.UserID.Eq(userID)),
 		repository.Where(query.ID.In(ids...)),
 		repository.Where(query.RevokedAt.Eq(0)),

@@ -417,11 +417,12 @@ func (c *OauthCase) HandleOauthCallback(ctx context.Context, req *basev1.HandleO
 	if req.GetError() != "" {
 		return nil, c.oauthRedirectPayload(ctx, payload, "", newOauthCallbackError("base.oauth.callback.authorization_failed", "三方授权失败"))
 	}
-	var identifier string
-	identifier, err = c.fetchOauthIdentifier(ctx, oauthType, req.GetCode(), payload.PKCE)
+	var oauthUser *provider.User
+	oauthUser, err = c.fetchOauthUser(ctx, oauthType, req.GetCode(), payload.PKCE)
 	if err != nil {
 		return nil, c.oauthRedirectPayload(ctx, payload, "", err)
 	}
+	identifier := oauthUser.OpenID
 
 	var thirdAccount *models.BaseThirdAccount
 	thirdAccount, err = c.baseThirdAccountCase.FindByProviderIdentifier(ctx, req.GetProvider(), identifier)
@@ -433,6 +434,13 @@ func (c *OauthCase) HandleOauthCallback(ctx context.Context, req *basev1.HandleO
 			))
 		}
 		return nil, c.oauthRedirectPayload(ctx, payload, "", newOauthCallbackError("base.oauth.callback.login_failed", "三方账号登录失败"))
+	}
+	if oauthUser.UnionID != "" && thirdAccount.UnionID != oauthUser.UnionID {
+		err = c.baseThirdAccountCase.UpdateUnionID(ctx, thirdAccount.TenantID, thirdAccount.UserID, thirdAccount.Provider, oauthUser.UnionID)
+		if err != nil {
+			return nil, c.oauthRedirectPayload(ctx, payload, "", err)
+		}
+		thirdAccount.UnionID = oauthUser.UnionID
 	}
 
 	var user *models.BaseUser
@@ -645,17 +653,24 @@ func (c *OauthCase) handleOauthBindingCallback(ctx context.Context, payload *oau
 		return c.oauthBindingRedirectPayload(ctx, payload, providerName, newOauthCallbackError("base.oauth.binding_callback.state_invalid", "三方账号绑定状态无效"))
 	}
 
-	var identifier string
-	identifier, err = c.fetchOauthIdentifier(ctx, oauthType, code, payload.PKCE)
+	var oauthUser *provider.User
+	oauthUser, err = c.fetchOauthUser(ctx, oauthType, code, payload.PKCE)
 	if err != nil {
 		return c.oauthBindingRedirectPayload(ctx, payload, providerName, err)
 	}
+	identifier := oauthUser.OpenID
 
 	var boundAccount *models.BaseThirdAccount
 	boundAccount, err = c.baseThirdAccountCase.FindByProviderIdentifier(ctx, providerName, identifier)
 	if err == nil {
 		// 已经绑定到当前用户时，直接视为成功，避免重复回调造成误报。
 		if boundAccount.TenantID == tenantID && boundAccount.UserID == userID {
+			if oauthUser.UnionID != "" && boundAccount.UnionID != oauthUser.UnionID {
+				err = c.baseThirdAccountCase.UpdateUnionID(ctx, boundAccount.TenantID, boundAccount.UserID, boundAccount.Provider, oauthUser.UnionID)
+				if err != nil {
+					return c.oauthBindingRedirectPayload(ctx, payload, providerName, err)
+				}
+			}
 			return c.oauthBindingRedirectPayload(ctx, payload, providerName, nil)
 		}
 		return c.oauthBindingRedirectPayload(ctx, payload, providerName, newOauthCallbackError("base.oauth.binding_callback.account_bound_to_other_user", "三方账号已被其他用户绑定"))
@@ -669,6 +684,12 @@ func (c *OauthCase) handleOauthBindingCallback(ctx context.Context, payload *oau
 	if err == nil {
 		// 同一用户同一 provider 只保留一条绑定，避免登录入口出现歧义。
 		if userProviderAccount.Identifier == identifier {
+			if oauthUser.UnionID != "" && userProviderAccount.UnionID != oauthUser.UnionID {
+				err = c.baseThirdAccountCase.UpdateUnionID(ctx, userProviderAccount.TenantID, userProviderAccount.UserID, userProviderAccount.Provider, oauthUser.UnionID)
+				if err != nil {
+					return c.oauthBindingRedirectPayload(ctx, payload, providerName, err)
+				}
+			}
 			return c.oauthBindingRedirectPayload(ctx, payload, providerName, nil)
 		}
 		return c.oauthBindingRedirectPayload(ctx, payload, providerName, newOauthCallbackError("base.oauth.binding_callback.current_user_provider_bound", "当前用户已绑定该登录方式"))
@@ -677,35 +698,35 @@ func (c *OauthCase) handleOauthBindingCallback(ctx context.Context, payload *oau
 		return c.oauthBindingRedirectPayload(ctx, payload, providerName, newOauthCallbackError("base.oauth.binding_callback.failed", "三方账号绑定失败"))
 	}
 
-	err = c.baseThirdAccountCase.CreateBinding(ctx, tenantID, userID, providerName, identifier)
+	err = c.baseThirdAccountCase.CreateBinding(ctx, tenantID, userID, providerName, identifier, oauthUser.UnionID)
 	if err != nil {
 		return c.oauthBindingRedirectPayload(ctx, payload, providerName, err)
 	}
 	return c.oauthBindingRedirectPayload(ctx, payload, providerName, nil)
 }
 
-// fetchOauthIdentifier 通过授权码读取三方账号唯一标识。
-func (c *OauthCase) fetchOauthIdentifier(ctx context.Context, oauthType oauth.Type, code string, pkce provider.PKCEChallenge) (string, error) {
+// fetchOauthUser 通过授权码读取三方账号唯一标识和 Provider 收件标识。
+func (c *OauthCase) fetchOauthUser(ctx context.Context, oauthType oauth.Type, code string, pkce provider.PKCEChallenge) (*provider.User, error) {
 	var err error
 	var oauthProvider provider.OAuth
 	oauthProvider, err = c.oauthManager.Get(oauthType)
 	if err != nil {
-		return "", errorsx.InvalidArgument("登录方式不支持").WithCause(err)
+		return nil, errorsx.InvalidArgument("登录方式不支持").WithCause(err)
 	}
 	var oauthToken *provider.Token
 	oauthToken, err = oauthProvider.GetToken(ctx, code, provider.WithGrantType(provider.GrantTypeAuthorizationCode), provider.WithPKCE(pkce))
 	if err != nil {
-		return "", errorsx.InvalidArgument("三方授权失败").WithCause(err)
+		return nil, errorsx.InvalidArgument("三方授权失败").WithCause(err)
 	}
 	var oauthUser *provider.User
 	oauthUser, err = oauthProvider.GetUser(ctx, oauthToken)
 	if err != nil {
-		return "", errorsx.InvalidArgument("获取三方用户失败").WithCause(err)
+		return nil, errorsx.InvalidArgument("获取三方用户失败").WithCause(err)
 	}
 	if oauthUser.OpenID == "" {
-		return "", errorsx.InvalidArgument("三方账号唯一标识为空")
+		return nil, errorsx.InvalidArgument("三方账号唯一标识为空")
 	}
-	return oauthUser.OpenID, nil
+	return oauthUser, nil
 }
 
 // createOauthLoginTicket 缓存三方登录结果并返回一次性票据。

@@ -11,6 +11,7 @@ import (
 var ProviderSet = wire.NewSet(
 	sessionregistry.NewLoginLocker,
 	NewAiSessionCase,
+	NewAiModelCase,
 	NewAiMessageCase,
 	NewAiToolCase,
 	NewAiSearchCase,

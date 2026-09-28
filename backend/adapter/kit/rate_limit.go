@@ -1,9 +1,11 @@
 package kit
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"math"
 	"sync"
 	"time"
@@ -21,22 +23,44 @@ import (
 const rateLimitPolicyCacheTTL = 30 * time.Second
 
 const (
-	minRateLimitRate  = 0.001
-	maxRateLimitRate  = 1000000.0
-	maxRateLimitBurst = 1000000
+	minRateLimitRate          = 0.001
+	maxRateLimitRate          = 1000000.0
+	maxRateLimitBurst         = 1000000
+	maxRateLimitLimit         = 1000000
+	maxRateLimitWindowSeconds = 86400
+	maxRateLimitLogLimit      = 10000
 )
 
-// RateLimitParams 描述令牌桶规则的默认参数和接口策略参数。
+const (
+	rateLimitAlgorithmTokenBucket          = string(ratelimit.AlgorithmTokenBucket)
+	rateLimitAlgorithmFixedWindow          = string(ratelimit.AlgorithmFixedWindow)
+	rateLimitAlgorithmSlidingWindowCounter = string(ratelimit.AlgorithmSlidingWindowCounter)
+	rateLimitAlgorithmSlidingWindowLog     = string(ratelimit.AlgorithmSlidingWindowLog)
+	rateLimitAlgorithmLeakyBucket          = string(ratelimit.AlgorithmLeakyBucket)
+)
+
+// RateLimitParams 描述所选限流算法对应的规则默认参数或策略参数快照。
 type RateLimitParams struct {
-	// TokensPerSecond 是令牌生成速率。
-	TokensPerSecond float64 `json:"tokens_per_second"`
+	// Algorithm 是数据库中保存的算法编码。
+	Algorithm string
+	// TokensPerSecond 是令牌桶每秒生成的令牌数。
+	TokensPerSecond float64
 	// Burst 是令牌桶容量。
-	Burst int `json:"burst"`
+	Burst int
+	// Limit 是单个时间窗口允许的请求数。
+	Limit int
+	// WindowSeconds 是滑动或固定窗口的秒数。
+	WindowSeconds int
+	// LeakRatePerSecond 是漏桶每秒漏出的水量。
+	LeakRatePerSecond float64
+	// Capacity 是漏桶容量。
+	Capacity int
 }
 
 // RateLimitPolicyResolver 将数据库中的接口限流策略转换为 Core 运行时策略。
 type RateLimitPolicyResolver struct {
 	policyRepository *data.BaseAPIRateLimitPolicyRepository
+	ruleRepository   *data.BaseRateLimitRuleRepository
 	refreshMu        sync.Mutex
 	mu               sync.RWMutex
 	policies         map[string][]ratelimit.Policy
@@ -55,6 +79,7 @@ func NewRateLimitPolicyResolver(databases map[string]*gorm.Client) (*RateLimitPo
 	}
 	return &RateLimitPolicyResolver{
 		policyRepository: data.NewBaseAPIRateLimitPolicyRepository(d),
+		ruleRepository:   data.NewBaseRateLimitRuleRepository(d),
 		policies:         make(map[string][]ratelimit.Policy),
 	}, nil
 }
@@ -134,10 +159,37 @@ func (r *RateLimitPolicyResolver) refreshLocked(ctx context.Context) error {
 		r.recordRefreshError(err)
 		return err
 	}
+	ruleIDs := make([]int64, 0, len(rows))
+	ruleIDSet := make(map[int64]struct{}, len(rows))
+	for _, row := range rows {
+		if _, exists := ruleIDSet[row.RuleID]; !exists {
+			ruleIDs = append(ruleIDs, row.RuleID)
+			ruleIDSet[row.RuleID] = struct{}{}
+		}
+	}
+	var rules []*models.BaseRateLimitRule
+	if len(ruleIDs) > 0 {
+		rules, err = r.ruleRepository.ListByIDs(ctx, ruleIDs)
+		if err != nil {
+			err = fmt.Errorf("查询接口限流规则失败: %w", err)
+			r.recordRefreshError(err)
+			return err
+		}
+	}
+	ruleByID := make(map[int64]*models.BaseRateLimitRule, len(rules))
+	for _, rule := range rules {
+		ruleByID[rule.ID] = rule
+	}
 	policies := make(map[string][]ratelimit.Policy)
 	for _, row := range rows {
+		rule := ruleByID[row.RuleID]
+		if rule == nil || rule.Status != _const.STATUS_STATUS_ENABLE {
+			err = fmt.Errorf("接口限流策略 %d 引用的规则不存在或未启用", row.ID)
+			r.recordRefreshError(err)
+			return err
+		}
 		var params RateLimitParams
-		params, err = ParseRateLimitParams("TOKEN_BUCKET", row.RuleParams)
+		params, err = ParseRateLimitParams(rule.RuleType, row.RuleParams)
 		if err != nil {
 			err = fmt.Errorf("接口限流策略 %d 参数无效: %w", row.ID, err)
 			r.recordRefreshError(err)
@@ -174,9 +226,14 @@ func (r *RateLimitPolicyResolver) refreshLocked(ctx context.Context) error {
 			}
 			seenOperations[operation] = struct{}{}
 			policies[operation] = append(policies[operation], ratelimit.Policy{
-				Dimension:       ratelimit.Dimension(row.Dimension),
-				TokensPerSecond: params.TokensPerSecond,
-				Burst:           params.Burst,
+				Algorithm:         ratelimit.Algorithm(rule.RuleType),
+				Dimension:         ratelimit.Dimension(row.Dimension),
+				TokensPerSecond:   params.TokensPerSecond,
+				Burst:             params.Burst,
+				Limit:             params.Limit,
+				Window:            time.Duration(params.WindowSeconds) * time.Second,
+				LeakRatePerSecond: params.LeakRatePerSecond,
+				Capacity:          params.Capacity,
 			})
 		}
 	}
@@ -196,23 +253,123 @@ func (r *RateLimitPolicyResolver) recordRefreshError(err error) {
 	log.Error("刷新接口限流策略失败", "error", err)
 }
 
-// ParseRateLimitParams 校验并解析令牌桶参数。
+// ParseRateLimitParams 按限流算法严格校验并解析对应参数。
 func ParseRateLimitParams(ruleType, raw string) (RateLimitParams, error) {
-	if ruleType != "TOKEN_BUCKET" {
+	params := RateLimitParams{Algorithm: ruleType}
+	var err error
+	switch ruleType {
+	case rateLimitAlgorithmTokenBucket:
+		var value struct {
+			TokensPerSecond float64 `json:"tokens_per_second"`
+			Burst           int     `json:"burst"`
+		}
+		err = decodeRateLimitParams(raw, &value)
+		if err != nil {
+			return RateLimitParams{}, err
+		}
+		if math.IsNaN(value.TokensPerSecond) || math.IsInf(value.TokensPerSecond, 0) || value.TokensPerSecond < minRateLimitRate || value.TokensPerSecond > maxRateLimitRate {
+			return RateLimitParams{}, fmt.Errorf("tokens_per_second 必须在 %g 到 %g 之间", minRateLimitRate, maxRateLimitRate)
+		}
+		if value.Burst < 1 || value.Burst > maxRateLimitBurst {
+			return RateLimitParams{}, fmt.Errorf("burst 必须在 1 到 %d 之间", maxRateLimitBurst)
+		}
+		params.TokensPerSecond = value.TokensPerSecond
+		params.Burst = value.Burst
+	case rateLimitAlgorithmFixedWindow, rateLimitAlgorithmSlidingWindowCounter, rateLimitAlgorithmSlidingWindowLog:
+		var value struct {
+			Limit         int `json:"limit"`
+			WindowSeconds int `json:"window_seconds"`
+		}
+		err = decodeRateLimitParams(raw, &value)
+		if err != nil {
+			return RateLimitParams{}, err
+		}
+		if value.Limit < 1 || value.Limit > maxRateLimitLimit {
+			return RateLimitParams{}, fmt.Errorf("limit 必须在 1 到 %d 之间", maxRateLimitLimit)
+		}
+		if ruleType == rateLimitAlgorithmSlidingWindowLog && value.Limit > maxRateLimitLogLimit {
+			return RateLimitParams{}, fmt.Errorf("滑动窗口日志 limit 不能超过 %d", maxRateLimitLogLimit)
+		}
+		if value.WindowSeconds < 1 || value.WindowSeconds > maxRateLimitWindowSeconds {
+			return RateLimitParams{}, fmt.Errorf("window_seconds 必须在 1 到 %d 之间", maxRateLimitWindowSeconds)
+		}
+		params.Limit = value.Limit
+		params.WindowSeconds = value.WindowSeconds
+	case rateLimitAlgorithmLeakyBucket:
+		var value struct {
+			LeakRatePerSecond float64 `json:"leak_rate_per_second"`
+			Capacity          int     `json:"capacity"`
+		}
+		err = decodeRateLimitParams(raw, &value)
+		if err != nil {
+			return RateLimitParams{}, err
+		}
+		if math.IsNaN(value.LeakRatePerSecond) || math.IsInf(value.LeakRatePerSecond, 0) || value.LeakRatePerSecond < minRateLimitRate || value.LeakRatePerSecond > maxRateLimitRate {
+			return RateLimitParams{}, fmt.Errorf("leak_rate_per_second 必须在 %g 到 %g 之间", minRateLimitRate, maxRateLimitRate)
+		}
+		if value.Capacity < 1 || value.Capacity > maxRateLimitBurst {
+			return RateLimitParams{}, fmt.Errorf("capacity 必须在 1 到 %d 之间", maxRateLimitBurst)
+		}
+		params.LeakRatePerSecond = value.LeakRatePerSecond
+		params.Capacity = value.Capacity
+	default:
 		return RateLimitParams{}, fmt.Errorf("不支持的限流算法类型 %q", ruleType)
 	}
-	params := RateLimitParams{}
-	err := json.Unmarshal([]byte(raw), &params)
-	if err != nil {
-		return RateLimitParams{}, fmt.Errorf("限流规则参数不是有效JSON: %w", err)
-	}
-	if math.IsNaN(params.TokensPerSecond) || math.IsInf(params.TokensPerSecond, 0) || params.TokensPerSecond < minRateLimitRate || params.TokensPerSecond > maxRateLimitRate {
-		return RateLimitParams{}, fmt.Errorf("tokens_per_second 必须在 %g 到 %g 之间", minRateLimitRate, maxRateLimitRate)
-	}
-	if params.Burst < 1 || params.Burst > maxRateLimitBurst {
-		return RateLimitParams{}, fmt.Errorf("burst 必须在 1 到 %d 之间", maxRateLimitBurst)
-	}
 	return params, nil
+}
+
+func decodeRateLimitParams(raw string, target any) error {
+	decoder := json.NewDecoder(bytes.NewBufferString(raw))
+	decoder.DisallowUnknownFields()
+	err := decoder.Decode(target)
+	if err != nil {
+		return fmt.Errorf("限流规则参数不是有效JSON: %w", err)
+	}
+	var extra json.RawMessage
+	err = decoder.Decode(&extra)
+	if err != io.EOF {
+		if err == nil {
+			err = fmt.Errorf("限流规则参数包含多个JSON值")
+		}
+		return fmt.Errorf("限流规则参数不是有效JSON: %w", err)
+	}
+	return nil
+}
+
+// RateLimitAlgorithmFromProto 将限流算法枚举转换为数据库编码。
+func RateLimitAlgorithmFromProto(algorithm adminv1.BaseRateLimitAlgorithm) (string, error) {
+	switch algorithm {
+	case adminv1.BaseRateLimitAlgorithm_BASE_RATE_LIMIT_ALGORITHM_TOKEN_BUCKET:
+		return rateLimitAlgorithmTokenBucket, nil
+	case adminv1.BaseRateLimitAlgorithm_BASE_RATE_LIMIT_ALGORITHM_FIXED_WINDOW:
+		return rateLimitAlgorithmFixedWindow, nil
+	case adminv1.BaseRateLimitAlgorithm_BASE_RATE_LIMIT_ALGORITHM_SLIDING_WINDOW_COUNTER:
+		return rateLimitAlgorithmSlidingWindowCounter, nil
+	case adminv1.BaseRateLimitAlgorithm_BASE_RATE_LIMIT_ALGORITHM_SLIDING_WINDOW_LOG:
+		return rateLimitAlgorithmSlidingWindowLog, nil
+	case adminv1.BaseRateLimitAlgorithm_BASE_RATE_LIMIT_ALGORITHM_LEAKY_BUCKET:
+		return rateLimitAlgorithmLeakyBucket, nil
+	default:
+		return "", fmt.Errorf("限流算法未指定或无效")
+	}
+}
+
+// RateLimitAlgorithmToProto 将数据库算法编码转换为限流算法枚举。
+func RateLimitAlgorithmToProto(algorithm string) adminv1.BaseRateLimitAlgorithm {
+	switch algorithm {
+	case rateLimitAlgorithmTokenBucket:
+		return adminv1.BaseRateLimitAlgorithm_BASE_RATE_LIMIT_ALGORITHM_TOKEN_BUCKET
+	case rateLimitAlgorithmFixedWindow:
+		return adminv1.BaseRateLimitAlgorithm_BASE_RATE_LIMIT_ALGORITHM_FIXED_WINDOW
+	case rateLimitAlgorithmSlidingWindowCounter:
+		return adminv1.BaseRateLimitAlgorithm_BASE_RATE_LIMIT_ALGORITHM_SLIDING_WINDOW_COUNTER
+	case rateLimitAlgorithmSlidingWindowLog:
+		return adminv1.BaseRateLimitAlgorithm_BASE_RATE_LIMIT_ALGORITHM_SLIDING_WINDOW_LOG
+	case rateLimitAlgorithmLeakyBucket:
+		return adminv1.BaseRateLimitAlgorithm_BASE_RATE_LIMIT_ALGORITHM_LEAKY_BUCKET
+	default:
+		return adminv1.BaseRateLimitAlgorithm_BASE_RATE_LIMIT_ALGORITHM_UNSPECIFIED
+	}
 }
 
 // validRateLimitDimension 检查限流维度是否在公开协议范围内。

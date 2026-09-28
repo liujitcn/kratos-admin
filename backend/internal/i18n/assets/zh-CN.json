@@ -4024,5 +4024,11 @@
   "system.admin.base.api_rate_limit_policy.rule_params.required": { "other": "接口限流参数不能为空" },
   "system.admin.base.api_rate_limit_policy.remark.length": { "other": "备注不能超过500个字符" },
   "system.admin.base.api_rate_limit_policy.delete.id.required": { "other": "接口限流策略ID列表不能为空" },
-  "system.admin.base.api_rate_limit_policy.status.id.required": { "other": "接口限流策略ID不能为空" }
+  "system.admin.base.api_rate_limit_policy.status.id.required": { "other": "接口限流策略ID不能为空" },
+  "system.admin.base.ai.provider.api_key.max_length": { "other": "模型密钥不能超过1024个字符" },
+  "system.admin.base.ai.provider.base_url.max_length": { "other": "接口地址不能超过512个字符" },
+  "system.admin.base.ai.provider.models_json.required": { "other": "请至少配置一个模型" },
+  "system.admin.base.ai.provider.name.required": { "other": "请输入供应商名称" },
+  "system.admin.base.ai.provider.provider.required": { "other": "请选择模型Provider" },
+  "system.admin.base.ai.provider.update.id.required": { "other": "供应商ID不能为空" }
 }

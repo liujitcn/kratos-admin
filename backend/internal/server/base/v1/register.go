@@ -12,6 +12,7 @@ import (
 // Services 汇总 base.v1 的服务实现。
 type Services struct {
 	AiSession    *base.AiSessionService
+	AiModel      *base.AiModelService
 	AiTool       *base.AiToolService
 	AiMessage    *base.AiMessageService
 	AiSearch     *base.AiSearchService
@@ -30,6 +31,7 @@ type Services struct {
 // RegisterGRPC 注册 base.v1 的 gRPC 服务。
 func (s Services) RegisterGRPC(srv grpc.ServiceRegistrar) {
 	basev1.RegisterAiSessionServiceServer(srv, basev1.RedactedAiSessionServiceServer(s.AiSession))
+	basev1.RegisterAiModelServiceServer(srv, basev1.RedactedAiModelServiceServer(s.AiModel))
 	basev1.RegisterAiToolServiceServer(srv, basev1.RedactedAiToolServiceServer(s.AiTool))
 	basev1.RegisterAiMessageServiceServer(srv, basev1.RedactedAiMessageServiceServer(s.AiMessage))
 	basev1.RegisterAiSearchServiceServer(srv, basev1.RedactedAiSearchServiceServer(s.AiSearch))
@@ -48,6 +50,7 @@ func (s Services) RegisterGRPC(srv grpc.ServiceRegistrar) {
 // RegisterHTTP 注册 base.v1 的 HTTP 服务。
 func (s Services) RegisterHTTP(srv *http.Server) {
 	basev1.RegisterAiSessionServiceHTTPServer(srv, basev1.RedactedAiSessionServiceServer(s.AiSession))
+	basev1.RegisterAiModelServiceHTTPServer(srv, basev1.RedactedAiModelServiceServer(s.AiModel))
 	basev1.RegisterAiToolServiceHTTPServer(srv, basev1.RedactedAiToolServiceServer(s.AiTool))
 	// AI 助手消息发送使用直连 SSE，避免占用工作台共用 /events 流。
 	base.RegisterAiMessageServiceHTTPServer(srv, s.AiMessage)
@@ -71,6 +74,7 @@ func (s Services) RegisterHTTP(srv *http.Server) {
 func (s Services) RegisterMCP(server *mcp.Server) {
 	mcpSrv := server.MCPServer()
 	basev1.RegisterAiSessionServiceMCPTools(mcpSrv, s.AiSession)
+	basev1.RegisterAiModelServiceMCPTools(mcpSrv, s.AiModel)
 	basev1.RegisterAiToolServiceMCPTools(mcpSrv, s.AiTool)
 	basev1.RegisterAiMessageServiceMCPTools(mcpSrv, s.AiMessage)
 	basev1.RegisterAiSearchServiceMCPTools(mcpSrv, s.AiSearch)

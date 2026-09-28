@@ -36,6 +36,8 @@ packages/modules/system
 | `src/index.ts`          | npm 主入口，导出 System 模块、AI 扩展契约和租户项目管理组件。 |
 | `src/module.ts`         | 注册 System 页面、AI 顶部入口、个人中心菜单和路由行为。 |
 | `src/ai.ts`             | 定义 AI 流程卡片扩展名称、类型和读取入口。              |
+| `src/components/api/ApiTransfer.vue` | 菜单与限流策略共用的 API 穿梭选择器。 |
+| `src/components/api/apiTransfer.ts` | 加载 API 目录并生成统一的穿梭框选项。 |
 | `src/components/ai/Ai.vue` | System 提供的 AI 顶部工具入口。 |
 | `src/components/account/ChangePasswordForm.vue` | 个人中心与强制改密弹窗共用的修改密码表单。 |
 | `src/components/account/ForcedPasswordDialog.vue` | 登录成功后在当前业务页面展示的强制改密弹窗。 |
@@ -64,12 +66,14 @@ packages/modules/system
 | `src/api/base/v1/ai_message.ts`              | AI 消息服务请求。                         |
 | `src/api/base/v1/ai_session.ts`              | AI 会话服务请求。                         |
 | `src/api/base/v1/ai_tool.ts`                 | AI 工具服务请求。                         |
+| `src/api/base/v1/ai_provider.ts`             | AI Provider 模型选项服务请求。            |
 | `src/api/base/v1/notification.ts`             | 站内信服务请求。                          |
 | `src/api/base/v1/oauth.ts`                   | 个人中心三方账号绑定服务请求。            |
 | `src/api/base/v1/sse.ts`                     | SSE 服务请求。                            |
 | `src/api/system/admin/v1/auth.ts`            | 个人中心认证服务请求。                    |
 | `src/api/system/admin/v1/base_*.ts`          | System 基础服务请求。                     |
 | `src/api/system/admin/v1/base_rate_limit_rule.ts` | 限流规则模板服务请求。                 |
+| `src/api/system/admin/v1/ai_provider.ts`            | AI供应商及多模型配置服务请求。          |
 | `src/api/system/admin/v1/base_api_rate_limit_policy.ts` | 接口限流策略服务请求，策略接口以数组维护。 |
 | `src/api/system/admin/v1/base_i18n_custom.ts` | 管理端固定文案自定义翻译请求。             |
 | `src/api/system/admin/v1/code_gen*.ts`       | 代码生成服务请求。                        |
@@ -81,6 +85,10 @@ packages/modules/system
 
 `src/config` 维护运行配置定义，`src/utils` 维护 SSE 订阅、响应归一化和代码生成序列化等内部辅助；这些文件不属于 Proto 服务 API。
 
+限流算法参数辅助位于 `src/utils/rateLimit.ts`，负责按算法解析默认参数、校验参数快照和格式化算法名称。
+
+限流规则支持令牌桶、固定窗口、滑动窗口计数、滑动窗口日志和漏桶。规则默认参数与策略参数快照均按算法专属 JSON 字段解析；策略编辑时选择规则会载入该规则的默认参数，提交后可独立调整快照。
+
 ## 页面文件组
 
 | 路径                                                           | 作用                               |
@@ -89,6 +97,7 @@ packages/modules/system
 | `src/views/base/api/index.vue`                                 | API 资源管理页。                   |
 | `src/views/base/rate-limit-rule/index.vue`                     | 限流规则模板管理页。               |
 | `src/views/base/api-rate-limit-policy/index.vue`               | 接口限流策略页；同一接口多策略按 ID 升序首条生效。 |
+| `src/views/base/ai-provider/index.vue`                         | AI供应商和多模型配置维护页。              |
 | `src/views/base/area/index.vue`                                | 行政区域管理页。                   |
 | `src/views/base/config/index.vue`                              | 系统配置管理页。                   |
 | `src/views/base/i18n-custom/index.vue`                         | 国际化自定义翻译管理页。           |
@@ -150,7 +159,7 @@ export const adminModules = [systemAdminModule];
 | -------- | ------------------------------- |
 | 用户管理 | `system/base/user/index`        |
 | 个人中心 | `system/profile/index`          |
-| AI 助手  | `system/ai/chat/index`          |
+| AI助手 → AI助手 | `system/ai/chat/index` |
 | API 文档 | `system/tool/api-doc/index`     |
 
 不再兼容 `base/user/index`、`profile/index` 等无模块前缀路径。不同业务模块可以拥有同名 `views`，core 会按 `<module>/<view>` 解析，不发生覆盖。
@@ -192,6 +201,8 @@ System 的 API 与 RPC 都按 Proto 完整层级维护，API 文件名与对应 
 - `system/base/i18n-custom/index`：按位置、语言和语言键维护管理端固定文案覆盖。
 
 ## AI 扩展
+
+AI Provider 在“AI助手 → AI供应商”维护；AI 对话页位于“AI助手 → AI助手”，顶部入口可直接打开该页面。单个供应商的 `models` JSON 结构保持不变。管理端、uni-app 和 Taro 对话页通过独立模型选项接口选择 Provider 与模型，快捷入口仍由独立快捷入口接口提供。模型 API Key 使用存储脱敏策略加密，管理接口只返回是否已配置状态。
 
 System 导出 `ADMIN_AI_EXTENSION`、`AdminAiExtension` 和 `getAdminAiExtension()`。其他业务模块可以在 `AdminModule.extensions` 中使用该扩展名提供 `flowBlocks` 组件，AI 会话页会读取并渲染它。
 

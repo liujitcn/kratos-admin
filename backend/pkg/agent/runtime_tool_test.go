@@ -13,7 +13,7 @@ func TestResolvePromptUsesRequestLocalizer(t *testing.T) {
 	localize := func(_ context.Context, key string, _ map[string]any, _ string) string {
 		return "localized:" + key
 	}
-	runtime := newRuntime(nil, nil, nil, nil, localize)
+	runtime := newRuntime(nil, nil, nil, nil, nil, localize)
 	prompt := runtime.resolvePrompt(context.Background(), RuntimeInput{Terminal: "admin", UserName: "User"})
 	for _, key := range []string{
 		"base.ai.prompt.instruction",

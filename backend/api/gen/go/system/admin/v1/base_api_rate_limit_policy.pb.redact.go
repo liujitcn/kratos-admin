@@ -178,13 +178,13 @@ func (x *BaseApiRateLimitPolicyForm) Redact() {
 
 	// Safe field: Id
 
-	// Safe field: Operations
-
 	// Safe field: Dimension
 
 	// Safe field: RuleId
 
 	// Safe field: RuleParams
+
+	// Safe field: Operations
 
 	// Safe field: Status
 

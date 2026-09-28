@@ -46,7 +46,13 @@ export interface SendAiMessageRequest {
   /** 附件列表 */
   attachments: AiAttachment[];
   /** 助手动作 */
-  action: AiAction | undefined;
+  action:
+    | AiAction
+    | undefined;
+  /** 所选供应商ID；留空时使用首个可用模型 */
+  provider_id: number;
+  /** 所选模型名称 */
+  model_name: string;
 }
 
 /** AI 助手失败消息重试请求 */

@@ -13,14 +13,6 @@ import (
 
 const redactStorageKeyName = "kratos-admin:redact/storage"
 
-// ParseAIModel 提取本地 AI 模型配置。
-func ParseAIModel(cfg *configv1.Bootstrap) (*configv1.AI_Model, error) {
-	if cfg == nil || cfg.GetAi() == nil {
-		return nil, nil
-	}
-	return cfg.GetAi().GetModel(), nil
-}
-
 // NewOAuthManager 创建由数据库动态维护的 OAuth 管理器。
 func NewOAuthManager() (*oauth.Manager, error) {
 	return oauth.NewManager(nil)

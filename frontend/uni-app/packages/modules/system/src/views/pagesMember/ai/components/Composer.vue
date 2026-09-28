@@ -1,5 +1,7 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import type { AiAttachment } from '../../../../rpc/base/v1/ai_session'
+import type { AiProviderModelOption } from '../../../../rpc/base/v1/ai_provider'
 
 type InputEventValue = {
   detail: {
@@ -7,9 +9,16 @@ type InputEventValue = {
   }
 }
 
-defineProps<{
+const props = defineProps<{
   modelValue: string
   attachments: AiAttachment[]
+  /** 当前可供选择的供应商与模型。 */
+  modelProviders: AiProviderModelOption[]
+  /** 当前选中的供应商编号和模型名称。 */
+  providerId: number
+  modelName: string
+  providerPlaceholder: string
+  modelPlaceholder: string
   placeholder: string
   bottom: string
   recording: boolean
@@ -23,15 +32,60 @@ const emit = defineEmits<{
   record: []
   send: []
   'remove-attachment': [attachment: AiAttachment]
+  'model-change': [providerId: number, modelName: string]
 }>()
+
+const providerNames = computed(() => props.modelProviders.map((provider) => provider.name))
+const selectedProvider = computed(() =>
+  props.modelProviders.find((provider) => provider.provider_id === props.providerId),
+)
+const modelNames = computed(() => selectedProvider.value?.models ?? [])
+const providerIndex = computed(() =>
+  Math.max(
+    props.modelProviders.findIndex((provider) => provider.provider_id === props.providerId),
+    0,
+  ),
+)
+const modelIndex = computed(() => Math.max(modelNames.value.indexOf(props.modelName), 0))
 
 function handleInput(event: Event) {
   emit('update:modelValue', ((event as unknown as InputEventValue).detail?.value || '').toString())
+}
+
+function handleProviderChange(event: { detail: { value: number | string } }) {
+  const provider = props.modelProviders[Number(event.detail.value)]
+  emit('model-change', provider?.provider_id ?? 0, provider?.models[0] ?? '')
+}
+
+function handleModelChange(event: { detail: { value: number | string } }) {
+  emit('model-change', props.providerId, modelNames.value[Number(event.detail.value)] ?? '')
 }
 </script>
 
 <template>
   <view class="composer" :style="{ paddingBottom: bottom }">
+    <view class="composer-model-selectors">
+      <picker
+        mode="selector"
+        :range="providerNames"
+        :value="providerIndex"
+        :disabled="sending || !modelProviders.length"
+        @change="handleProviderChange"
+      >
+        <view class="composer-model-select">{{
+          selectedProvider?.name || providerPlaceholder
+        }}</view>
+      </picker>
+      <picker
+        mode="selector"
+        :range="modelNames"
+        :value="modelIndex"
+        :disabled="sending || !modelNames.length"
+        @change="handleModelChange"
+      >
+        <view class="composer-model-select">{{ modelName || modelPlaceholder }}</view>
+      </picker>
+    </view>
     <view class="composer-main">
       <button class="attach-button" hover-class="none" @tap="emit('attach')">
         <uni-icons type="plusempty" size="30" color="#111" />
@@ -112,6 +166,29 @@ function handleInput(event: Event) {
   background-color: #fff;
   box-shadow: 0 12rpx 34rpx rgba(15, 23, 42, 0.08);
   box-sizing: border-box;
+}
+
+.composer-model-selectors {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12rpx;
+  min-width: 0;
+  margin: 0 8rpx 12rpx;
+}
+
+.composer-model-select {
+  max-width: 300rpx;
+  min-width: 120rpx;
+  padding: 8rpx 16rpx;
+  overflow: hidden;
+  color: #46515b;
+  font-size: 22rpx;
+  line-height: 32rpx;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  background: #fff;
+  border: 2rpx solid #d6dae2;
+  border-radius: 8rpx;
 }
 
 .attach-button {

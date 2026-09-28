@@ -126,6 +126,10 @@ type RuntimeInput struct {
 	SessionTitle string
 	// SessionID 当前会话编号，预留给后续追踪、工具调用或日志串联。
 	SessionID string
+	// ProviderID 当前选择的AI供应商编号。
+	ProviderID int64
+	// ModelName 当前选择的模型名称。
+	ModelName string
 	// Summary 当前会话摘要，会注入到系统提示词作为压缩后的长期上下文。
 	Summary string
 	// Content 本轮用户文本内容。

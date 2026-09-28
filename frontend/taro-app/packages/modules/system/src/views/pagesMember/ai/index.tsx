@@ -13,7 +13,9 @@ import { UniIcon } from '@liujitcn/kratos-taro-app-ui'
 import { defAiMessageService, StreamAiMessageByChunkedRequest } from '../../../api/base/v1/ai_message'
 import { defAiSessionService } from '../../../api/base/v1/ai_session'
 import { defAiToolService } from '../../../api/base/v1/ai_tool'
+import { defAiModelService } from '../../../api/base/v1/ai_provider'
 import type { AiAttachment, AiMessage, AiSession } from '../../../rpc/base/v1/ai_session'
+import type { AiProviderModelOption } from '../../../rpc/base/v1/ai_provider'
 import type { AiShortcut, AiToolCall } from '../../../rpc/base/v1/ai_tool'
 import { AiMessageStatus } from '../../../rpc/base/v1/ai_session'
 import { Terminal } from '../../../rpc/base/v1/ai_tool'
@@ -92,6 +94,9 @@ export default function AiPage() {
   const [sessions, setSessionsState] = useState<AiSession[]>([])
   const [messages, setMessagesState] = useState<MessageMap>({})
   const [selectedAttachments, setSelectedAttachments] = useState<AiAttachment[]>([])
+  const [modelProviders, setModelProviders] = useState<AiProviderModelOption[]>([])
+  const [selectedProviderId, setSelectedProviderId] = useState(0)
+  const [selectedModelName, setSelectedModelName] = useState('')
   const [starterShortcuts, setStarterShortcuts] = useState<AiShortcut[]>(createDefaultShortcuts)
 
   const activeSessionIDRef = useRef('')
@@ -351,17 +356,35 @@ export default function AiPage() {
     if (loadingShortcutsRef.current) return
     setLoadingShortcuts(true)
     try {
-      const response = await defAiToolService.ListAiShortcut({ terminal: AI_TERMINAL })
+      const [response, providerResponse] = await Promise.all([
+        defAiToolService.ListAiShortcut({ terminal: AI_TERMINAL }),
+        defAiModelService.ListAiProviderModelOptions({}),
+      ])
       const shortcuts = normalizeStarterShortcuts(response.shortcuts).filter((item) => !item.action)
+      const providers = providerResponse.providers ?? []
+      setModelProviders(providers)
+      if (!providers.some((item) => item.provider_id === selectedProviderId && item.models.includes(selectedModelName))) {
+        const firstProvider = providers[0]
+        setSelectedProviderId(firstProvider?.provider_id ?? 0)
+        setSelectedModelName(firstProvider?.models[0] ?? '')
+      }
       if (shortcuts.length) {
         setStarterShortcuts(shortcuts)
         setStarterPromptGroupIndex(0)
       }
     } catch (error) {
+      setModelProviders([])
+      setSelectedProviderId(0)
+      setSelectedModelName('')
       showError(error, t('system.ai.load_shortcuts_failed'))
     } finally {
       setLoadingShortcuts(false)
     }
+  }
+
+  const handleModelChange = (providerId: number, modelName: string) => {
+    setSelectedProviderId(providerId)
+    setSelectedModelName(modelName)
   }
 
   const runAiTask = async (
@@ -369,7 +392,14 @@ export default function AiPage() {
     payload: { text: string; attachments: AiAttachment[] },
   ) => {
     let task: StreamTask | undefined
-    const request = { session_id: sessionID, content: payload.text, attachments: payload.attachments, action: undefined }
+    const request = {
+      session_id: sessionID,
+      content: payload.text,
+      provider_id: selectedProviderId,
+      model_name: selectedModelName,
+      attachments: payload.attachments,
+      action: undefined,
+    }
     try {
       let handledByStream = false
       if (process.env.TARO_ENV === 'weapp') {
@@ -719,6 +749,11 @@ export default function AiPage() {
       <Composer
         value={inputText}
         attachments={selectedAttachments}
+        modelProviders={modelProviders}
+        providerId={selectedProviderId}
+        modelName={selectedModelName}
+        providerPlaceholder={t('system.ai.model.provider_placeholder')}
+        modelPlaceholder={t('system.ai.model.model_placeholder')}
         placeholder={composerPlaceholder}
         bottom={composerBottom}
         recording={isRecording}
@@ -736,6 +771,7 @@ export default function AiPage() {
           })
         }}
         onSend={() => void handleSend()}
+        onModelChange={handleModelChange}
         onRemoveAttachment={(attachment) => setSelectedAttachments((current) => current.filter((item) => item !== attachment))}
       />
       <SessionDrawer
@@ -758,6 +794,7 @@ export default function AiPage() {
 function normalizeSession(session?: Partial<AiSession> | null): AiSession {
   return {
     id: String(session?.id ?? ''),
+    tenant_id: Number(session?.tenant_id ?? 0),
     title: String(session?.title ?? t('system.ai.new_session')),
     summary: String(session?.summary ?? ''),
     updated_at: session?.updated_at,
@@ -848,6 +885,7 @@ function createLocalUserMessage(payload: { text: string; attachments: AiAttachme
   const now = Date.now()
   const message = mapMessageItem({
     id: `${LOCAL_USER_MESSAGE_PREFIX}-${now}`,
+    tenant_id: 0,
     input_content: { kind: 'text', content: payload.text },
     output_content: undefined,
     attachments: payload.attachments,
@@ -869,8 +907,9 @@ function createThinkingMessage(options?: { sessionID?: string; messageID?: strin
     ? buildStreamMessageKey(options.sessionID, options.messageID || PENDING_MESSAGE_ID)
     : undefined
   const message = mapMessageItem({
-    id: streamKey || `ai-thinking-${now}`,
-    input_content: undefined,
+      id: streamKey || `ai-thinking-${now}`,
+      tenant_id: 0,
+      input_content: undefined,
     output_content: {
       kind: 'text', content: t('system.ai.thinking'), reply_source: '', model: '', fallback: false,
       fallback_reason: '', flow: '', step: '', blocks_json: '',

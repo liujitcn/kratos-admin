@@ -16,7 +16,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, h, reactive, ref, type Component } from "vue";
+import { computed, h, onMounted, reactive, ref, type Component } from "vue";
 import ProTable from "@liujitcn/kratos-admin-core/components/ProTable";
 import FormDialog from "@liujitcn/kratos-admin-core/components/Dialog/FormDialog.vue";
 import type { ColumnProps, HeaderActionProps, ProTableInstance } from "@liujitcn/kratos-admin-core/components/ProTable/interface";
@@ -26,11 +26,13 @@ import { buildPageRequest, normalizeSelectedIds } from "@liujitcn/kratos-admin-c
 import { useTenantScope } from "@liujitcn/kratos-admin-core/tenant";
 import { t } from "@liujitcn/kratos-admin-core";
 import { defBaseMessageCategoryService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/base_message_category";
+import { defBaseMessageProviderService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/base_message_provider";
 import type {
   BaseMessageCategory,
   BaseMessageCategoryForm,
   PageBaseMessageCategoryRequest
 } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_message_category";
+import { BaseMessageCategoryInboxEnabled } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_message_category";
 import { MessagePriority } from "@liujitcn/kratos-admin-system/rpc/base/v1/notification";
 import { Status } from "@liujitcn/kratos-admin-system/rpc/common/v1/enum";
 
@@ -43,10 +45,15 @@ const proTable = ref<ProTableInstance>();
 const formDialogRef = ref<InstanceType<typeof FormDialog>>();
 const dialog = reactive({ visible: false, titleKey: "common.action.create" });
 const formData = reactive<BaseMessageCategoryForm>(defaultForm());
+const providerOptions = ref<ProFormOption[]>([]);
 
 const statusOptions = computed<ProFormOption[]>(() => [
   { label: t("common.status.enabled"), value: Status.STATUS_ENABLE },
   { label: t("common.status.disabled"), value: Status.STATUS_DISABLE }
+]);
+const inboxEnabledOptions = computed<ProFormOption[]>(() => [
+  { label: t("common.status.enabled"), value: BaseMessageCategoryInboxEnabled.BASE_MESSAGE_CATEGORY_INBOX_ENABLED_ENABLE },
+  { label: t("common.status.disabled"), value: BaseMessageCategoryInboxEnabled.BASE_MESSAGE_CATEGORY_INBOX_ENABLED_DISABLE }
 ]);
 const priorityOptions = computed<ProFormOption[]>(() => [
   { label: t("system.base.message.priority.normal"), value: MessagePriority.MESSAGE_PRIORITY_NORMAL },
@@ -175,6 +182,20 @@ const formFields = computed<ProFormField[]>(() => [
     labelTooltip: t("system.base.message_category.tooltip.allow_delete"),
     component: "switch"
   },
+  {
+    prop: "inbox_enabled",
+    label: t("system.base.message_category.field.inbox"),
+    labelTooltip: t("system.base.message_category.tooltip.inbox"),
+    component: "radio-group",
+    options: inboxEnabledOptions.value
+  },
+  {
+    prop: "provider_id",
+    label: t("system.base.message_category.field.provider"),
+    labelTooltip: t("system.base.message_category.tooltip.provider"),
+    component: "checkbox-group",
+    options: providerOptions.value
+  },
   { prop: "status", label: t("common.field.status"), component: "radio-group", options: statusOptions.value }
 ]);
 
@@ -288,8 +309,18 @@ function defaultForm(): BaseMessageCategoryForm {
     retention_days: 180,
     allow_archive: true,
     allow_delete: true,
-    status: Status.STATUS_ENABLE
+    status: Status.STATUS_ENABLE,
+    provider_id: [],
+    inbox_enabled: BaseMessageCategoryInboxEnabled.BASE_MESSAGE_CATEGORY_INBOX_ENABLED_ENABLE
   };
+}
+
+onMounted(loadProviderOptions);
+
+/** 加载消息 Provider 复选项。 */
+async function loadProviderOptions() {
+  const data = await defBaseMessageProviderService.OptionBaseMessageProvider({});
+  providerOptions.value = (data.list ?? []).map(item => ({ label: item.label, value: Number(item.value), disabled: item.disabled }));
 }
 
 /** 请求消息分类表格数据。 */
@@ -316,7 +347,7 @@ async function openDialog(id?: number) {
 async function handleSubmit() {
   const valid = await formDialogRef.value?.validate();
   if (!valid) return;
-  const payload = formData as BaseMessageCategoryForm;
+  const payload = JSON.parse(JSON.stringify(formData)) as BaseMessageCategoryForm;
   if (payload.id) await defBaseMessageCategoryService.UpdateBaseMessageCategory({ base_message_category: payload });
   else await defBaseMessageCategoryService.CreateBaseMessageCategory({ base_message_category: payload });
   ElMessage.success(t("common.message.operation_success"));

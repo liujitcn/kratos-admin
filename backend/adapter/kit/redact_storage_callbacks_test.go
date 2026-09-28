@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
+	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/query"
 	"github.com/liujitcn/kratos-kit/redact"
 	mysql "gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -92,6 +93,25 @@ func TestStorageFieldSelected(t *testing.T) {
 	}
 	if selected {
 		t.Fatal("被忽略的敏感字段不应被处理")
+	}
+}
+
+// TestStorageFieldSelectedRecognizesGeneratedQualifiedSelect 验证字段保护回调能识别 gorm/gen 生成的带表名引用字段。
+func TestStorageFieldSelectedRecognizesGeneratedQualifiedSelect(t *testing.T) {
+	providerQuery := query.Use(newRedactTestDB(t)).AiProvider
+	db := providerQuery.WithContext(context.Background()).Select(
+		providerQuery.APIKey,
+		providerQuery.Name,
+	).UnderlyingDB()
+	selected, err := storageFieldSelected(
+		context.Background(), db, &models.AiProvider{APIKey: "test-secret"},
+		redact.StorageFieldPolicy{ColumnName: "api_key"},
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !selected {
+		t.Fatalf("gorm/gen 生成的敏感字段选择未被识别: %#v", db.Statement.Selects)
 	}
 }
 

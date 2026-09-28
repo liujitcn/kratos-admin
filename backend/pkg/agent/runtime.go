@@ -37,6 +37,7 @@ const fallbackAIInstruction = "You are a general-purpose AI assistant. Answer na
 type Runtime struct {
 	toolsMu         sync.RWMutex
 	client          *model.AssistantClient
+	clientResolver  model.AssistantClientResolver
 	adminTools      []tool.Invokable
 	appTools        []tool.Invokable
 	toolGate        ToolAccessChecker
@@ -46,6 +47,7 @@ type Runtime struct {
 // newRuntime 创建 AI 助手运行时。
 func newRuntime(
 	client *model.AssistantClient,
+	clientResolver model.AssistantClientResolver,
 	checker ToolAccessChecker,
 	adminTools []Tool,
 	appTools []Tool,
@@ -53,6 +55,7 @@ func newRuntime(
 ) *Runtime {
 	return &Runtime{
 		client:          client,
+		clientResolver:  clientResolver,
 		adminTools:      append([]tool.Invokable(nil), adminTools...),
 		appTools:        append([]tool.Invokable(nil), appTools...),
 		toolGate:        checker,
@@ -107,15 +110,28 @@ func (r *Runtime) InvokeTool(ctx context.Context, terminal string, name string, 
 
 // Enabled 判断 AI 助手运行时是否可用。
 func (r *Runtime) Enabled() bool {
-	return r != nil && r.client != nil && r.client.AgenticModel != nil
+	if r == nil {
+		return false
+	}
+	if r.clientResolver != nil {
+		return r.clientResolver.HasEnabledAssistantClient()
+	}
+	return r.client != nil && r.client.Enabled()
 }
 
 // Model 返回 AI 助手当前使用的模型名称。
 func (r *Runtime) Model() string {
-	if !r.Enabled() {
+	if r == nil {
 		return ""
 	}
-	return r.client.Name()
+	client := r.client
+	if r.clientResolver != nil {
+		client = r.clientResolver.DefaultAssistantClient()
+	}
+	if client == nil {
+		return ""
+	}
+	return client.Name()
 }
 
 // EnabledToolNames 返回当前终端实际启用的 Agent 工具名集合。
@@ -132,14 +148,15 @@ func (r *Runtime) EnabledToolNames(ctx context.Context, terminal string) map[str
 // 该方法用于普通 RPC 或非流式调用：先构建带历史上下文的 Eino 消息列表，
 // 再等待模型完整回复。
 func (r *Runtime) Run(ctx context.Context, input RuntimeInput) (*Response, error) {
-	if !r.Enabled() {
-		return nil, fmt.Errorf("ai ai client is not configured")
-	}
-	output, token, tools, err := r.runGenerate(ctx, input, r.buildMessages(ctx, input))
+	client, err := r.resolveAssistantClient(input)
 	if err != nil {
 		return nil, err
 	}
-	return r.buildResponse(output, token, tools), nil
+	output, token, tools, err := r.runGenerate(ctx, input, client, r.buildMessages(ctx, input))
+	if err != nil {
+		return nil, err
+	}
+	return r.buildResponse(output, token, tools, client.Name()), nil
 }
 
 // RunStream 使用流式模式运行助手。
@@ -147,8 +164,9 @@ func (r *Runtime) Run(ctx context.Context, input RuntimeInput) (*Response, error
 // 该方法用于管理端 direct SSE：模型返回文本片段时会透传给 onDelta，
 // 最终仍返回完整回复供业务层落库。
 func (r *Runtime) RunStream(ctx context.Context, input RuntimeInput, onDelta func(string)) (*Response, error) {
-	if !r.Enabled() {
-		return nil, fmt.Errorf("ai ai client is not configured")
+	client, err := r.resolveAssistantClient(input)
+	if err != nil {
+		return nil, err
 	}
 	messages := r.buildMessages(ctx, input)
 	toolInfos, internalToolMatched := r.toolInfos(ctx, input)
@@ -156,13 +174,13 @@ func (r *Runtime) RunStream(ctx context.Context, input RuntimeInput, onDelta fun
 		if onDelta != nil {
 			onDelta(disabledCall.Content)
 		}
-		return r.buildResponse(einoMessage.AIText(disabledCall.Content), TokenUsage{}, []ToolUsage{disabledCall.Usage}), nil
+		return r.buildResponse(einoMessage.AIText(disabledCall.Content), TokenUsage{}, []ToolUsage{disabledCall.Usage}, client.Name()), nil
 	}
-	result, recorder, err := r.runADK(ctx, input, messages, toolInfos, internalToolMatched, true, onDelta)
+	result, recorder, err := r.runADK(ctx, input, client, messages, toolInfos, internalToolMatched, true, onDelta)
 	if err != nil {
 		return nil, err
 	}
-	return r.buildResponse(result.Message, tokenFromCallback(result.Token), toolsFromRecorder(recorder)), nil
+	return r.buildResponse(result.Message, tokenFromCallback(result.Token), toolsFromRecorder(recorder), client.Name()), nil
 }
 
 // ToolInvokeResult 表示直接调用 Agent 工具后的结果。
@@ -182,12 +200,12 @@ type disabledToolCall struct {
 }
 
 // runGenerate 执行非流式模型调用，并在需要时继续执行工具回填。
-func (r *Runtime) runGenerate(ctx context.Context, input RuntimeInput, messages []*einoMessage.AgenticMessage) (*einoMessage.AgenticMessage, TokenUsage, []ToolUsage, error) {
+func (r *Runtime) runGenerate(ctx context.Context, input RuntimeInput, client *model.AssistantClient, messages []*einoMessage.AgenticMessage) (*einoMessage.AgenticMessage, TokenUsage, []ToolUsage, error) {
 	toolInfos, internalToolMatched := r.toolInfos(ctx, input)
 	if disabledCall := r.disabledToolCall(ctx, input, toolInfos); disabledCall != nil {
 		return einoMessage.AIText(disabledCall.Content), TokenUsage{}, []ToolUsage{disabledCall.Usage}, nil
 	}
-	result, recorder, err := r.runADK(ctx, input, messages, toolInfos, internalToolMatched, false, nil)
+	result, recorder, err := r.runADK(ctx, input, client, messages, toolInfos, internalToolMatched, false, nil)
 	if err != nil {
 		return nil, TokenUsage{}, nil, err
 	}
@@ -237,6 +255,7 @@ func (r *Runtime) disabledToolCall(ctx context.Context, input RuntimeInput, enab
 func (r *Runtime) runADK(
 	ctx context.Context,
 	input RuntimeInput,
+	client *model.AssistantClient,
 	messages []*einoMessage.AgenticMessage,
 	toolInfos []*tool.Info,
 	internalToolMatched bool,
@@ -245,10 +264,10 @@ func (r *Runtime) runADK(
 ) (*adk.Result, *callback.Recorder, error) {
 	recorder := &callback.Recorder{}
 	// Responses 协议才支持服务端工具（联网搜索等），聊天补全协议使用同名 function 工具替代。
-	serverTools := r.client != nil && r.client.SupportsResponsesServerTools() && !internalToolMatched
+	serverTools := client.SupportsResponsesServerTools() && !internalToolMatched
 	description := r.localizePrompt(ctx, "base.ai.prompt.assistant_description", nil, "Admin AI assistant for conversation, internal tools, and web search.")
 	runner := adk.NewRunner(adk.Config{
-		Model:       r.client.AgenticModel,
+		Model:       client.AgenticModel,
 		Name:        "admin_ai",
 		Description: description,
 		ServerTools: serverTools,
@@ -543,16 +562,30 @@ func (r *Runtime) buildAttachmentDetailLine(ctx context.Context, name string, it
 }
 
 // buildResponse 将 Eino 消息收敛为业务层统一回复结构。
-func (r *Runtime) buildResponse(message *einoMessage.AgenticMessage, token TokenUsage, tools []ToolUsage) *Response {
+func (r *Runtime) buildResponse(message *einoMessage.AgenticMessage, token TokenUsage, tools []ToolUsage, modelName string) *Response {
 	return &Response{
 		Content:        einoMessage.Text(message),
 		Token:          token,
 		Tools:          normalizeToolUsages(tools),
 		Source:         "llm",
-		Model:          r.Model(),
+		Model:          modelName,
 		Fallback:       false,
 		FallbackReason: "",
 	}
+}
+
+// resolveAssistantClient 按当前请求选择模型客户端，旧调用方使用静态客户端。
+func (r *Runtime) resolveAssistantClient(input RuntimeInput) (*model.AssistantClient, error) {
+	if r == nil {
+		return nil, errors.New("AI助手运行时未初始化")
+	}
+	if r.clientResolver != nil {
+		return r.clientResolver.ResolveAssistantClient(input.ProviderID, input.ModelName)
+	}
+	if r.client == nil || !r.client.Enabled() {
+		return nil, errors.New("AI助手没有已启用的模型")
+	}
+	return r.client, nil
 }
 
 // newAgentToolCatalogTool 创建工具目录查询工具。
