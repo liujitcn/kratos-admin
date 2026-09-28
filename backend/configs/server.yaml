@@ -1,6 +1,6 @@
 server:
   http:
-    addr: :7001
+    addr: :17001
     max_body_bytes: 67108864
     enable_swagger: true
     middleware:
@@ -9,7 +9,7 @@ server:
       enable_validate: true
       enable_metadata: true
   grpc:
-    addr: 0.0.0.0:6001
+    addr: 0.0.0.0:16001
     timeout: 10s
     middleware:
       enable_recovery: true
