@@ -76,3 +76,4 @@ service_tmp/
 /docs/superpowers/
 /.audit/
 /gui-test-screenshots/
+/backend/migration/assets/v0.0.1/mysql/base_ai.up.sql
