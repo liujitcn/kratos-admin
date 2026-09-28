@@ -129,9 +129,9 @@ message BaseMessage {
   .base.v1.MessagePriority priority = 6 [(gnostic.openapi.v3.property) = {description: "消息优先级"}]; // 消息优先级
   .base.v1.MessageStatus status = 7 [(gnostic.openapi.v3.property) = {description: "消息状态"}]; // 消息状态
   string sender_name = 8 [(gnostic.openapi.v3.property) = {description: "发送者名称"}]; // 发送者名称
-  int64 recipient_total = 9 [(gnostic.openapi.v3.property) = {description: "目标人数"}]; // 目标人数
-  int64 delivered_total = 10 [(gnostic.openapi.v3.property) = {description: "已投递人数"}]; // 已投递人数
-  int64 failed_total = 11 [(gnostic.openapi.v3.property) = {description: "失败人数"}]; // 失败人数
+  int64 recipient_total = 9 [(gnostic.openapi.v3.property) = {description: "投递目标数"}]; // 投递目标数
+  int64 delivered_total = 10 [(gnostic.openapi.v3.property) = {description: "成功投递数"}]; // 成功投递数
+  int64 failed_total = 11 [(gnostic.openapi.v3.property) = {description: "失败投递数"}]; // 失败投递数
   string scheduled_at = 12 [(gnostic.openapi.v3.property) = {description: "计划发布时间"}]; // 计划发布时间
   string published_at = 13 [(gnostic.openapi.v3.property) = {description: "发布时间"}]; // 发布时间
   string created_at = 100 [(gnostic.openapi.v3.property) = {description: "创建时间"}]; // 创建时间
@@ -147,7 +147,7 @@ message BaseMessageDispatch {
   bool include_children = 4 [(gnostic.openapi.v3.property) = {description: "是否包含子部门"}]; // 是否包含子部门
   .base.v1.MessageDispatchStatus status = 5 [(gnostic.openapi.v3.property) = {description: "投递状态"}]; // 投递状态
   int64 matched_total = 6 [(gnostic.openapi.v3.property) = {description: "匹配人数"}]; // 匹配人数
-  int64 inserted_total = 7 [(gnostic.openapi.v3.property) = {description: "新增投递人数"}]; // 新增投递人数
+  int64 inserted_total = 7 [(gnostic.openapi.v3.property) = {description: "新增投递记录数"}]; // 新增投递记录数
   int32 attempt_count = 8 [(gnostic.openapi.v3.property) = {description: "尝试次数"}]; // 尝试次数
   string last_error = 9 [(gnostic.openapi.v3.property) = {description: "最近错误"}]; // 最近错误
 }

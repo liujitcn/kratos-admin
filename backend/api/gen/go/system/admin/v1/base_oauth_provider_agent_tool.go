@@ -96,10 +96,10 @@ func NewBaseOauthProviderServiceGetBaseOauthProviderAgentTool(baseOauthProviderS
 
 // NewBaseOauthProviderServiceCreateBaseOauthProviderAgentTool 创建创建OAuth登录方式的 Agent Tool。
 func NewBaseOauthProviderServiceCreateBaseOauthProviderAgentTool(baseOauthProviderServiceServer BaseOauthProviderServiceServer) (tool.InvokableTool, error) {
-	return utils.InferTool[any, *emptypb.Empty](
+	return utils.InferTool[map[string]any, *emptypb.Empty](
 		"system_admin_v1_base_oauth_provider_service_create_base_oauth_provider",
 		"创建OAuth登录方式。",
-		func(ctx context.Context, req any) (*emptypb.Empty, error) {
+		func(ctx context.Context, req map[string]any) (*emptypb.Empty, error) {
 			realReq := &CreateBaseOauthProviderRequest{}
 			if req != nil {
 				reqBytes, err := json.Marshal(req)
@@ -117,10 +117,10 @@ func NewBaseOauthProviderServiceCreateBaseOauthProviderAgentTool(baseOauthProvid
 
 // NewBaseOauthProviderServiceUpdateBaseOauthProviderAgentTool 创建更新OAuth登录方式的 Agent Tool。
 func NewBaseOauthProviderServiceUpdateBaseOauthProviderAgentTool(baseOauthProviderServiceServer BaseOauthProviderServiceServer) (tool.InvokableTool, error) {
-	return utils.InferTool[any, *emptypb.Empty](
+	return utils.InferTool[map[string]any, *emptypb.Empty](
 		"system_admin_v1_base_oauth_provider_service_update_base_oauth_provider",
 		"更新OAuth登录方式。",
-		func(ctx context.Context, req any) (*emptypb.Empty, error) {
+		func(ctx context.Context, req map[string]any) (*emptypb.Empty, error) {
 			realReq := &UpdateBaseOauthProviderRequest{}
 			if req != nil {
 				reqBytes, err := json.Marshal(req)

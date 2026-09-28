@@ -84,6 +84,10 @@ message SendAiMessageRequest {
   repeated AiAttachment attachments = 3 [(gnostic.openapi.v3.property) = {description: "附件列表"}]; // 附件列表
 
   AiAction action = 4 [(gnostic.openapi.v3.property) = {description: "助手动作"}]; // 助手动作
+
+  int64 provider_id = 5 [(gnostic.openapi.v3.property) = {description: "所选供应商ID；留空时使用首个可用模型"}, (buf.validate.field).int64 = {gte: 0}]; // 所选供应商ID；留空时使用首个可用模型
+
+  string model_name = 6 [(gnostic.openapi.v3.property) = {description: "所选模型名称"}]; // 所选模型名称
 }
 
 // AI 助手失败消息重试请求

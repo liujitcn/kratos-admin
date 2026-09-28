@@ -27,6 +27,71 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// BaseRateLimitAlgorithm 定义接口限流算法。
+type BaseRateLimitAlgorithm int32
+
+const (
+	// 未指定算法。
+	BaseRateLimitAlgorithm_BASE_RATE_LIMIT_ALGORITHM_UNSPECIFIED BaseRateLimitAlgorithm = 0
+	// 允许在平均速率内吸收突发流量。
+	BaseRateLimitAlgorithm_BASE_RATE_LIMIT_ALGORITHM_TOKEN_BUCKET BaseRateLimitAlgorithm = 1
+	// 在固定时间窗口内限制请求总数。
+	BaseRateLimitAlgorithm_BASE_RATE_LIMIT_ALGORITHM_FIXED_WINDOW BaseRateLimitAlgorithm = 2
+	// 对当前和前一时间窗口计数并按时间加权。
+	BaseRateLimitAlgorithm_BASE_RATE_LIMIT_ALGORITHM_SLIDING_WINDOW_COUNTER BaseRateLimitAlgorithm = 3
+	// 记录请求时间并精确限制滚动窗口内的请求数。
+	BaseRateLimitAlgorithm_BASE_RATE_LIMIT_ALGORITHM_SLIDING_WINDOW_LOG BaseRateLimitAlgorithm = 4
+	// 按漏出速率消化请求量，容量耗尽时拒绝请求。
+	BaseRateLimitAlgorithm_BASE_RATE_LIMIT_ALGORITHM_LEAKY_BUCKET BaseRateLimitAlgorithm = 5
+)
+
+// Enum value maps for BaseRateLimitAlgorithm.
+var (
+	BaseRateLimitAlgorithm_name = map[int32]string{
+		0: "BASE_RATE_LIMIT_ALGORITHM_UNSPECIFIED",
+		1: "BASE_RATE_LIMIT_ALGORITHM_TOKEN_BUCKET",
+		2: "BASE_RATE_LIMIT_ALGORITHM_FIXED_WINDOW",
+		3: "BASE_RATE_LIMIT_ALGORITHM_SLIDING_WINDOW_COUNTER",
+		4: "BASE_RATE_LIMIT_ALGORITHM_SLIDING_WINDOW_LOG",
+		5: "BASE_RATE_LIMIT_ALGORITHM_LEAKY_BUCKET",
+	}
+	BaseRateLimitAlgorithm_value = map[string]int32{
+		"BASE_RATE_LIMIT_ALGORITHM_UNSPECIFIED":            0,
+		"BASE_RATE_LIMIT_ALGORITHM_TOKEN_BUCKET":           1,
+		"BASE_RATE_LIMIT_ALGORITHM_FIXED_WINDOW":           2,
+		"BASE_RATE_LIMIT_ALGORITHM_SLIDING_WINDOW_COUNTER": 3,
+		"BASE_RATE_LIMIT_ALGORITHM_SLIDING_WINDOW_LOG":     4,
+		"BASE_RATE_LIMIT_ALGORITHM_LEAKY_BUCKET":           5,
+	}
+)
+
+func (x BaseRateLimitAlgorithm) Enum() *BaseRateLimitAlgorithm {
+	p := new(BaseRateLimitAlgorithm)
+	*p = x
+	return p
+}
+
+func (x BaseRateLimitAlgorithm) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (BaseRateLimitAlgorithm) Descriptor() protoreflect.EnumDescriptor {
+	return file_system_admin_v1_base_rate_limit_rule_proto_enumTypes[0].Descriptor()
+}
+
+func (BaseRateLimitAlgorithm) Type() protoreflect.EnumType {
+	return &file_system_admin_v1_base_rate_limit_rule_proto_enumTypes[0]
+}
+
+func (x BaseRateLimitAlgorithm) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use BaseRateLimitAlgorithm.Descriptor instead.
+func (BaseRateLimitAlgorithm) EnumDescriptor() ([]byte, []int) {
+	return file_system_admin_v1_base_rate_limit_rule_proto_rawDescGZIP(), []int{0}
+}
+
 // 限流规则选项查询条件。
 type OptionBaseRateLimitRuleRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -120,12 +185,12 @@ func (x *OptionBaseRateLimitRuleResponse) GetList() []*BaseRateLimitRuleOption {
 // 限流规则选项。
 type BaseRateLimitRuleOption struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                           // 规则ID
-	Label         string                 `protobuf:"bytes,2,opt,name=label,proto3" json:"label,omitempty"`                                      // 规则名称
-	Code          string                 `protobuf:"bytes,3,opt,name=code,proto3" json:"code,omitempty"`                                        // 规则编码
-	RuleType      string                 `protobuf:"bytes,4,opt,name=rule_type,json=ruleType,proto3" json:"rule_type,omitempty"`                // 限流算法类型
-	DefaultParams string                 `protobuf:"bytes,5,opt,name=default_params,json=defaultParams,proto3" json:"default_params,omitempty"` // 默认规则参数
-	Disabled      bool                   `protobuf:"varint,6,opt,name=disabled,proto3" json:"disabled,omitempty"`                               // 是否禁用
+	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                                                         // 规则ID
+	Label         string                 `protobuf:"bytes,2,opt,name=label,proto3" json:"label,omitempty"`                                                                    // 规则名称
+	Code          string                 `protobuf:"bytes,3,opt,name=code,proto3" json:"code,omitempty"`                                                                      // 规则编码
+	RuleType      BaseRateLimitAlgorithm `protobuf:"varint,4,opt,name=rule_type,json=ruleType,proto3,enum=system.admin.v1.BaseRateLimitAlgorithm" json:"rule_type,omitempty"` // 限流算法
+	DefaultParams string                 `protobuf:"bytes,5,opt,name=default_params,json=defaultParams,proto3" json:"default_params,omitempty"`                               // 默认规则参数
+	Disabled      bool                   `protobuf:"varint,6,opt,name=disabled,proto3" json:"disabled,omitempty"`                                                             // 是否禁用
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -181,11 +246,11 @@ func (x *BaseRateLimitRuleOption) GetCode() string {
 	return ""
 }
 
-func (x *BaseRateLimitRuleOption) GetRuleType() string {
+func (x *BaseRateLimitRuleOption) GetRuleType() BaseRateLimitAlgorithm {
 	if x != nil {
 		return x.RuleType
 	}
-	return ""
+	return BaseRateLimitAlgorithm_BASE_RATE_LIMIT_ALGORITHM_UNSPECIFIED
 }
 
 func (x *BaseRateLimitRuleOption) GetDefaultParams() string {
@@ -380,13 +445,13 @@ func (x *GetBaseRateLimitRuleRequest) GetId() int64 {
 // 限流规则表单。
 type BaseRateLimitRuleForm struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                           // 规则ID
-	Code          string                 `protobuf:"bytes,2,opt,name=code,proto3" json:"code,omitempty"`                                        // 规则编码
-	Name          string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`                                        // 规则名称
-	RuleType      string                 `protobuf:"bytes,4,opt,name=rule_type,json=ruleType,proto3" json:"rule_type,omitempty"`                // 限流算法类型
-	DefaultParams string                 `protobuf:"bytes,5,opt,name=default_params,json=defaultParams,proto3" json:"default_params,omitempty"` // 默认规则参数JSON
-	Status        commonv1.Status        `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"`           // 状态
-	Remark        string                 `protobuf:"bytes,102,opt,name=remark,proto3" json:"remark,omitempty"`                                  // 备注
+	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                                                         // 规则ID
+	Code          string                 `protobuf:"bytes,2,opt,name=code,proto3" json:"code,omitempty"`                                                                      // 规则编码
+	Name          string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`                                                                      // 规则名称
+	RuleType      BaseRateLimitAlgorithm `protobuf:"varint,4,opt,name=rule_type,json=ruleType,proto3,enum=system.admin.v1.BaseRateLimitAlgorithm" json:"rule_type,omitempty"` // 限流算法
+	DefaultParams string                 `protobuf:"bytes,5,opt,name=default_params,json=defaultParams,proto3" json:"default_params,omitempty"`                               // 默认规则参数JSON
+	Status        commonv1.Status        `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"`                                         // 状态
+	Remark        string                 `protobuf:"bytes,102,opt,name=remark,proto3" json:"remark,omitempty"`                                                                // 备注
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -442,11 +507,11 @@ func (x *BaseRateLimitRuleForm) GetName() string {
 	return ""
 }
 
-func (x *BaseRateLimitRuleForm) GetRuleType() string {
+func (x *BaseRateLimitRuleForm) GetRuleType() BaseRateLimitAlgorithm {
 	if x != nil {
 		return x.RuleType
 	}
-	return ""
+	return BaseRateLimitAlgorithm_BASE_RATE_LIMIT_ALGORITHM_UNSPECIFIED
 }
 
 func (x *BaseRateLimitRuleForm) GetDefaultParams() string {
@@ -661,15 +726,15 @@ func (x *SetBaseRateLimitRuleStatusRequest) GetStatus() commonv1.Status {
 // 限流规则模板。
 type BaseRateLimitRule struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                           // 规则ID
-	Code          string                 `protobuf:"bytes,2,opt,name=code,proto3" json:"code,omitempty"`                                        // 规则编码
-	Name          string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`                                        // 规则名称
-	RuleType      string                 `protobuf:"bytes,4,opt,name=rule_type,json=ruleType,proto3" json:"rule_type,omitempty"`                // 限流算法类型
-	DefaultParams string                 `protobuf:"bytes,5,opt,name=default_params,json=defaultParams,proto3" json:"default_params,omitempty"` // 默认规则参数JSON
-	Status        commonv1.Status        `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"`           // 状态
-	Remark        string                 `protobuf:"bytes,102,opt,name=remark,proto3" json:"remark,omitempty"`                                  // 备注
-	CreatedAt     string                 `protobuf:"bytes,200,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`           // 创建时间
-	UpdatedAt     string                 `protobuf:"bytes,201,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`           // 更新时间
+	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                                                         // 规则ID
+	Code          string                 `protobuf:"bytes,2,opt,name=code,proto3" json:"code,omitempty"`                                                                      // 规则编码
+	Name          string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`                                                                      // 规则名称
+	RuleType      BaseRateLimitAlgorithm `protobuf:"varint,4,opt,name=rule_type,json=ruleType,proto3,enum=system.admin.v1.BaseRateLimitAlgorithm" json:"rule_type,omitempty"` // 限流算法
+	DefaultParams string                 `protobuf:"bytes,5,opt,name=default_params,json=defaultParams,proto3" json:"default_params,omitempty"`                               // 默认规则参数JSON
+	Status        commonv1.Status        `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"`                                         // 状态
+	Remark        string                 `protobuf:"bytes,102,opt,name=remark,proto3" json:"remark,omitempty"`                                                                // 备注
+	CreatedAt     string                 `protobuf:"bytes,200,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`                                         // 创建时间
+	UpdatedAt     string                 `protobuf:"bytes,201,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`                                         // 更新时间
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -725,11 +790,11 @@ func (x *BaseRateLimitRule) GetName() string {
 	return ""
 }
 
-func (x *BaseRateLimitRule) GetRuleType() string {
+func (x *BaseRateLimitRule) GetRuleType() BaseRateLimitAlgorithm {
 	if x != nil {
 		return x.RuleType
 	}
-	return ""
+	return BaseRateLimitAlgorithm_BASE_RATE_LIMIT_ALGORITHM_UNSPECIFIED
 }
 
 func (x *BaseRateLimitRule) GetDefaultParams() string {
@@ -775,12 +840,12 @@ const file_system_admin_v1_base_rate_limit_rule_proto_rawDesc = "" +
 	"\x1eOptionBaseRateLimitRuleRequest\x12/\n" +
 	"\akeyword\x18\x01 \x01(\tB\x15\xbaG\x12\x92\x02\x0f规则关键字R\akeyword\"s\n" +
 	"\x1fOptionBaseRateLimitRuleResponse\x12P\n" +
-	"\x04list\x18\x01 \x03(\v2(.system.admin.v1.BaseRateLimitRuleOptionB\x12\xbaG\x0f\x92\x02\f规则选项R\x04list\"\xb3\x02\n" +
+	"\x04list\x18\x01 \x03(\v2(.system.admin.v1.BaseRateLimitRuleOptionB\x12\xbaG\x0f\x92\x02\f规则选项R\x04list\"\xd6\x02\n" +
 	"\x17BaseRateLimitRuleOption\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b规则IDR\x02id\x12(\n" +
 	"\x05label\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f规则名称R\x05label\x12&\n" +
-	"\x04code\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f规则编码R\x04code\x125\n" +
-	"\trule_type\x18\x04 \x01(\tB\x18\xbaG\x15\x92\x02\x12限流算法类型R\bruleType\x12?\n" +
+	"\x04code\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f规则编码R\x04code\x12X\n" +
+	"\trule_type\x18\x04 \x01(\x0e2'.system.admin.v1.BaseRateLimitAlgorithmB\x12\xbaG\x0f\x92\x02\f限流算法R\bruleType\x12?\n" +
 	"\x0edefault_params\x18\x05 \x01(\tB\x18\xbaG\x15\x92\x02\x12默认规则参数R\rdefaultParams\x12.\n" +
 	"\bdisabled\x18\x06 \x01(\bB\x12\xbaG\x0f\x92\x02\f是否禁用R\bdisabled\"\xc3\x02\n" +
 	"\x1cPageBaseRateLimitRuleRequest\x12&\n" +
@@ -795,15 +860,14 @@ const file_system_admin_v1_base_rate_limit_rule_proto_rawDesc = "" +
 	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\"\x96\x01\n" +
 	"\x1bGetBaseRateLimitRuleRequest\x12w\n" +
 	"\x02id\x18\x01 \x01(\x03Bg\xbaG\v\x92\x02\b规则ID\xbaHV\xba\x01S\n" +
-	"1system.admin.base.rate_limit_rule.get.id.required\x12\x14规则ID不能为空\x1a\bthis > 0R\x02id\"\x8d\b\n" +
+	"1system.admin.base.rate_limit_rule.get.id.required\x12\x14规则ID不能为空\x1a\bthis > 0R\x02id\"\x9d\a\n" +
 	"\x15BaseRateLimitRuleForm\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b规则IDR\x02id\x12\xb7\x01\n" +
 	"\x04code\x18\x02 \x01(\tB\xa2\x01\xbaG\x0f\x92\x02\f规则编码\xbaH\x8c\x01\xba\x01\x88\x01\n" +
 	"/system.admin.base.rate_limit_rule.code.required\x12/规则编码不能为空且不超过64个字符\x1a$this.size() > 0 && this.size() <= 64R\x04code\x12\xb9\x01\n" +
 	"\x04name\x18\x03 \x01(\tB\xa4\x01\xbaG\x0f\x92\x02\f规则名称\xbaH\x8e\x01\xba\x01\x8a\x01\n" +
-	"/system.admin.base.rate_limit_rule.name.required\x120规则名称不能为空且不超过100个字符\x1a%this.size() > 0 && this.size() <= 100R\x04name\x12\xd1\x01\n" +
-	"\trule_type\x18\x04 \x01(\tB\xb3\x01\xbaG\x15\x92\x02\x12限流算法类型\xbaH\x97\x01\xba\x01\x93\x01\n" +
-	"4system.admin.base.rate_limit_rule.rule_type.required\x125限流算法类型不能为空且不超过32个字符\x1a$this.size() > 0 && this.size() <= 32R\bruleType\x12\xb6\x01\n" +
+	"/system.admin.base.rate_limit_rule.name.required\x120规则名称不能为空且不超过100个字符\x1a%this.size() > 0 && this.size() <= 100R\x04name\x12b\n" +
+	"\trule_type\x18\x04 \x01(\x0e2'.system.admin.v1.BaseRateLimitAlgorithmB\x1c\xbaG\x0f\x92\x02\f限流算法\xbaH\a\x82\x01\x04\x10\x01 \x00R\bruleType\x12\xb6\x01\n" +
 	"\x0edefault_params\x18\x05 \x01(\tB\x8e\x01\xbaG\x19\x92\x02\x16默认规则参数JSON\xbaHo\xba\x01l\n" +
 	"9system.admin.base.rate_limit_rule.default_params.required\x12\x1e默认规则参数不能为空\x1a\x0fthis.size() > 0R\rdefaultParams\x12?\n" +
 	"\x06status\x18d \x01(\x0e2\x11.common.v1.StatusB\x14\xbaG\t\x92\x02\x06状态\xbaH\x05\x82\x01\x02\x10\x01R\x06status\x12\x8f\x01\n" +
@@ -819,19 +883,26 @@ const file_system_admin_v1_base_rate_limit_rule_proto_rawDesc = "" +
 	"!SetBaseRateLimitRuleStatusRequest\x12z\n" +
 	"\x02id\x18\x01 \x01(\x03Bj\xbaG\v\x92\x02\b规则ID\xbaHY\xba\x01V\n" +
 	"4system.admin.base.rate_limit_rule.status.id.required\x12\x14规则ID不能为空\x1a\bthis > 0R\x02id\x12?\n" +
-	"\x06status\x18\x02 \x01(\x0e2\x11.common.v1.StatusB\x14\xbaG\t\x92\x02\x06状态\xbaH\x05\x82\x01\x02\x10\x01R\x06status\"\xc6\x03\n" +
+	"\x06status\x18\x02 \x01(\x0e2\x11.common.v1.StatusB\x14\xbaG\t\x92\x02\x06状态\xbaH\x05\x82\x01\x02\x10\x01R\x06status\"\xe9\x03\n" +
 	"\x11BaseRateLimitRule\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b规则IDR\x02id\x12&\n" +
 	"\x04code\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f规则编码R\x04code\x12&\n" +
-	"\x04name\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f规则名称R\x04name\x125\n" +
-	"\trule_type\x18\x04 \x01(\tB\x18\xbaG\x15\x92\x02\x12限流算法类型R\bruleType\x12C\n" +
+	"\x04name\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f规则名称R\x04name\x12X\n" +
+	"\trule_type\x18\x04 \x01(\x0e2'.system.admin.v1.BaseRateLimitAlgorithmB\x12\xbaG\x0f\x92\x02\f限流算法R\bruleType\x12C\n" +
 	"\x0edefault_params\x18\x05 \x01(\tB\x1c\xbaG\x19\x92\x02\x16默认规则参数JSONR\rdefaultParams\x127\n" +
 	"\x06status\x18d \x01(\x0e2\x11.common.v1.StatusB\f\xbaG\t\x92\x02\x06状态R\x06status\x12$\n" +
 	"\x06remark\x18f \x01(\tB\f\xbaG\t\x92\x02\x06备注R\x06remark\x122\n" +
 	"\n" +
 	"created_at\x18\xc8\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f创建时间R\tcreatedAt\x122\n" +
 	"\n" +
-	"updated_at\x18\xc9\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f更新时间R\tupdatedAt2\xb5\t\n" +
+	"updated_at\x18\xc9\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f更新时间R\tupdatedAt*\xaf\x02\n" +
+	"\x16BaseRateLimitAlgorithm\x12)\n" +
+	"%BASE_RATE_LIMIT_ALGORITHM_UNSPECIFIED\x10\x00\x12*\n" +
+	"&BASE_RATE_LIMIT_ALGORITHM_TOKEN_BUCKET\x10\x01\x12*\n" +
+	"&BASE_RATE_LIMIT_ALGORITHM_FIXED_WINDOW\x10\x02\x124\n" +
+	"0BASE_RATE_LIMIT_ALGORITHM_SLIDING_WINDOW_COUNTER\x10\x03\x120\n" +
+	",BASE_RATE_LIMIT_ALGORITHM_SLIDING_WINDOW_LOG\x10\x04\x12*\n" +
+	"&BASE_RATE_LIMIT_ALGORITHM_LEAKY_BUCKET\x10\x052\xb5\t\n" +
 	"\x18BaseRateLimitRuleService\x12\xaf\x01\n" +
 	"\x17OptionBaseRateLimitRule\x12/.system.admin.v1.OptionBaseRateLimitRuleRequest\x1a0.system.admin.v1.OptionBaseRateLimitRuleResponse\"1\x82\xd3\xe4\x93\x02+\x12)/api/v1/admin/base/rate-limit-rule/option\x12\xa2\x01\n" +
 	"\x15PageBaseRateLimitRule\x12-.system.admin.v1.PageBaseRateLimitRuleRequest\x1a..system.admin.v1.PageBaseRateLimitRuleResponse\"*\x82\xd3\xe4\x93\x02$\x12\"/api/v1/admin/base/rate-limit-rule\x12\x9d\x01\n" +
@@ -854,51 +925,56 @@ func file_system_admin_v1_base_rate_limit_rule_proto_rawDescGZIP() []byte {
 	return file_system_admin_v1_base_rate_limit_rule_proto_rawDescData
 }
 
+var file_system_admin_v1_base_rate_limit_rule_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
 var file_system_admin_v1_base_rate_limit_rule_proto_msgTypes = make([]protoimpl.MessageInfo, 12)
 var file_system_admin_v1_base_rate_limit_rule_proto_goTypes = []any{
-	(*OptionBaseRateLimitRuleRequest)(nil),    // 0: system.admin.v1.OptionBaseRateLimitRuleRequest
-	(*OptionBaseRateLimitRuleResponse)(nil),   // 1: system.admin.v1.OptionBaseRateLimitRuleResponse
-	(*BaseRateLimitRuleOption)(nil),           // 2: system.admin.v1.BaseRateLimitRuleOption
-	(*PageBaseRateLimitRuleRequest)(nil),      // 3: system.admin.v1.PageBaseRateLimitRuleRequest
-	(*PageBaseRateLimitRuleResponse)(nil),     // 4: system.admin.v1.PageBaseRateLimitRuleResponse
-	(*GetBaseRateLimitRuleRequest)(nil),       // 5: system.admin.v1.GetBaseRateLimitRuleRequest
-	(*BaseRateLimitRuleForm)(nil),             // 6: system.admin.v1.BaseRateLimitRuleForm
-	(*CreateBaseRateLimitRuleRequest)(nil),    // 7: system.admin.v1.CreateBaseRateLimitRuleRequest
-	(*UpdateBaseRateLimitRuleRequest)(nil),    // 8: system.admin.v1.UpdateBaseRateLimitRuleRequest
-	(*DeleteBaseRateLimitRuleRequest)(nil),    // 9: system.admin.v1.DeleteBaseRateLimitRuleRequest
-	(*SetBaseRateLimitRuleStatusRequest)(nil), // 10: system.admin.v1.SetBaseRateLimitRuleStatusRequest
-	(*BaseRateLimitRule)(nil),                 // 11: system.admin.v1.BaseRateLimitRule
-	(commonv1.Status)(0),                      // 12: common.v1.Status
-	(*emptypb.Empty)(nil),                     // 13: google.protobuf.Empty
+	(BaseRateLimitAlgorithm)(0),               // 0: system.admin.v1.BaseRateLimitAlgorithm
+	(*OptionBaseRateLimitRuleRequest)(nil),    // 1: system.admin.v1.OptionBaseRateLimitRuleRequest
+	(*OptionBaseRateLimitRuleResponse)(nil),   // 2: system.admin.v1.OptionBaseRateLimitRuleResponse
+	(*BaseRateLimitRuleOption)(nil),           // 3: system.admin.v1.BaseRateLimitRuleOption
+	(*PageBaseRateLimitRuleRequest)(nil),      // 4: system.admin.v1.PageBaseRateLimitRuleRequest
+	(*PageBaseRateLimitRuleResponse)(nil),     // 5: system.admin.v1.PageBaseRateLimitRuleResponse
+	(*GetBaseRateLimitRuleRequest)(nil),       // 6: system.admin.v1.GetBaseRateLimitRuleRequest
+	(*BaseRateLimitRuleForm)(nil),             // 7: system.admin.v1.BaseRateLimitRuleForm
+	(*CreateBaseRateLimitRuleRequest)(nil),    // 8: system.admin.v1.CreateBaseRateLimitRuleRequest
+	(*UpdateBaseRateLimitRuleRequest)(nil),    // 9: system.admin.v1.UpdateBaseRateLimitRuleRequest
+	(*DeleteBaseRateLimitRuleRequest)(nil),    // 10: system.admin.v1.DeleteBaseRateLimitRuleRequest
+	(*SetBaseRateLimitRuleStatusRequest)(nil), // 11: system.admin.v1.SetBaseRateLimitRuleStatusRequest
+	(*BaseRateLimitRule)(nil),                 // 12: system.admin.v1.BaseRateLimitRule
+	(commonv1.Status)(0),                      // 13: common.v1.Status
+	(*emptypb.Empty)(nil),                     // 14: google.protobuf.Empty
 }
 var file_system_admin_v1_base_rate_limit_rule_proto_depIdxs = []int32{
-	2,  // 0: system.admin.v1.OptionBaseRateLimitRuleResponse.list:type_name -> system.admin.v1.BaseRateLimitRuleOption
-	12, // 1: system.admin.v1.PageBaseRateLimitRuleRequest.status:type_name -> common.v1.Status
-	11, // 2: system.admin.v1.PageBaseRateLimitRuleResponse.base_rate_limit_rules:type_name -> system.admin.v1.BaseRateLimitRule
-	12, // 3: system.admin.v1.BaseRateLimitRuleForm.status:type_name -> common.v1.Status
-	6,  // 4: system.admin.v1.CreateBaseRateLimitRuleRequest.base_rate_limit_rule:type_name -> system.admin.v1.BaseRateLimitRuleForm
-	6,  // 5: system.admin.v1.UpdateBaseRateLimitRuleRequest.base_rate_limit_rule:type_name -> system.admin.v1.BaseRateLimitRuleForm
-	12, // 6: system.admin.v1.SetBaseRateLimitRuleStatusRequest.status:type_name -> common.v1.Status
-	12, // 7: system.admin.v1.BaseRateLimitRule.status:type_name -> common.v1.Status
-	0,  // 8: system.admin.v1.BaseRateLimitRuleService.OptionBaseRateLimitRule:input_type -> system.admin.v1.OptionBaseRateLimitRuleRequest
-	3,  // 9: system.admin.v1.BaseRateLimitRuleService.PageBaseRateLimitRule:input_type -> system.admin.v1.PageBaseRateLimitRuleRequest
-	5,  // 10: system.admin.v1.BaseRateLimitRuleService.GetBaseRateLimitRule:input_type -> system.admin.v1.GetBaseRateLimitRuleRequest
-	7,  // 11: system.admin.v1.BaseRateLimitRuleService.CreateBaseRateLimitRule:input_type -> system.admin.v1.CreateBaseRateLimitRuleRequest
-	8,  // 12: system.admin.v1.BaseRateLimitRuleService.UpdateBaseRateLimitRule:input_type -> system.admin.v1.UpdateBaseRateLimitRuleRequest
-	9,  // 13: system.admin.v1.BaseRateLimitRuleService.DeleteBaseRateLimitRule:input_type -> system.admin.v1.DeleteBaseRateLimitRuleRequest
-	10, // 14: system.admin.v1.BaseRateLimitRuleService.SetBaseRateLimitRuleStatus:input_type -> system.admin.v1.SetBaseRateLimitRuleStatusRequest
-	1,  // 15: system.admin.v1.BaseRateLimitRuleService.OptionBaseRateLimitRule:output_type -> system.admin.v1.OptionBaseRateLimitRuleResponse
-	4,  // 16: system.admin.v1.BaseRateLimitRuleService.PageBaseRateLimitRule:output_type -> system.admin.v1.PageBaseRateLimitRuleResponse
-	6,  // 17: system.admin.v1.BaseRateLimitRuleService.GetBaseRateLimitRule:output_type -> system.admin.v1.BaseRateLimitRuleForm
-	13, // 18: system.admin.v1.BaseRateLimitRuleService.CreateBaseRateLimitRule:output_type -> google.protobuf.Empty
-	13, // 19: system.admin.v1.BaseRateLimitRuleService.UpdateBaseRateLimitRule:output_type -> google.protobuf.Empty
-	13, // 20: system.admin.v1.BaseRateLimitRuleService.DeleteBaseRateLimitRule:output_type -> google.protobuf.Empty
-	13, // 21: system.admin.v1.BaseRateLimitRuleService.SetBaseRateLimitRuleStatus:output_type -> google.protobuf.Empty
-	15, // [15:22] is the sub-list for method output_type
-	8,  // [8:15] is the sub-list for method input_type
-	8,  // [8:8] is the sub-list for extension type_name
-	8,  // [8:8] is the sub-list for extension extendee
-	0,  // [0:8] is the sub-list for field type_name
+	3,  // 0: system.admin.v1.OptionBaseRateLimitRuleResponse.list:type_name -> system.admin.v1.BaseRateLimitRuleOption
+	0,  // 1: system.admin.v1.BaseRateLimitRuleOption.rule_type:type_name -> system.admin.v1.BaseRateLimitAlgorithm
+	13, // 2: system.admin.v1.PageBaseRateLimitRuleRequest.status:type_name -> common.v1.Status
+	12, // 3: system.admin.v1.PageBaseRateLimitRuleResponse.base_rate_limit_rules:type_name -> system.admin.v1.BaseRateLimitRule
+	0,  // 4: system.admin.v1.BaseRateLimitRuleForm.rule_type:type_name -> system.admin.v1.BaseRateLimitAlgorithm
+	13, // 5: system.admin.v1.BaseRateLimitRuleForm.status:type_name -> common.v1.Status
+	7,  // 6: system.admin.v1.CreateBaseRateLimitRuleRequest.base_rate_limit_rule:type_name -> system.admin.v1.BaseRateLimitRuleForm
+	7,  // 7: system.admin.v1.UpdateBaseRateLimitRuleRequest.base_rate_limit_rule:type_name -> system.admin.v1.BaseRateLimitRuleForm
+	13, // 8: system.admin.v1.SetBaseRateLimitRuleStatusRequest.status:type_name -> common.v1.Status
+	0,  // 9: system.admin.v1.BaseRateLimitRule.rule_type:type_name -> system.admin.v1.BaseRateLimitAlgorithm
+	13, // 10: system.admin.v1.BaseRateLimitRule.status:type_name -> common.v1.Status
+	1,  // 11: system.admin.v1.BaseRateLimitRuleService.OptionBaseRateLimitRule:input_type -> system.admin.v1.OptionBaseRateLimitRuleRequest
+	4,  // 12: system.admin.v1.BaseRateLimitRuleService.PageBaseRateLimitRule:input_type -> system.admin.v1.PageBaseRateLimitRuleRequest
+	6,  // 13: system.admin.v1.BaseRateLimitRuleService.GetBaseRateLimitRule:input_type -> system.admin.v1.GetBaseRateLimitRuleRequest
+	8,  // 14: system.admin.v1.BaseRateLimitRuleService.CreateBaseRateLimitRule:input_type -> system.admin.v1.CreateBaseRateLimitRuleRequest
+	9,  // 15: system.admin.v1.BaseRateLimitRuleService.UpdateBaseRateLimitRule:input_type -> system.admin.v1.UpdateBaseRateLimitRuleRequest
+	10, // 16: system.admin.v1.BaseRateLimitRuleService.DeleteBaseRateLimitRule:input_type -> system.admin.v1.DeleteBaseRateLimitRuleRequest
+	11, // 17: system.admin.v1.BaseRateLimitRuleService.SetBaseRateLimitRuleStatus:input_type -> system.admin.v1.SetBaseRateLimitRuleStatusRequest
+	2,  // 18: system.admin.v1.BaseRateLimitRuleService.OptionBaseRateLimitRule:output_type -> system.admin.v1.OptionBaseRateLimitRuleResponse
+	5,  // 19: system.admin.v1.BaseRateLimitRuleService.PageBaseRateLimitRule:output_type -> system.admin.v1.PageBaseRateLimitRuleResponse
+	7,  // 20: system.admin.v1.BaseRateLimitRuleService.GetBaseRateLimitRule:output_type -> system.admin.v1.BaseRateLimitRuleForm
+	14, // 21: system.admin.v1.BaseRateLimitRuleService.CreateBaseRateLimitRule:output_type -> google.protobuf.Empty
+	14, // 22: system.admin.v1.BaseRateLimitRuleService.UpdateBaseRateLimitRule:output_type -> google.protobuf.Empty
+	14, // 23: system.admin.v1.BaseRateLimitRuleService.DeleteBaseRateLimitRule:output_type -> google.protobuf.Empty
+	14, // 24: system.admin.v1.BaseRateLimitRuleService.SetBaseRateLimitRuleStatus:output_type -> google.protobuf.Empty
+	18, // [18:25] is the sub-list for method output_type
+	11, // [11:18] is the sub-list for method input_type
+	11, // [11:11] is the sub-list for extension type_name
+	11, // [11:11] is the sub-list for extension extendee
+	0,  // [0:11] is the sub-list for field type_name
 }
 
 func init() { file_system_admin_v1_base_rate_limit_rule_proto_init() }
@@ -912,13 +988,14 @@ func file_system_admin_v1_base_rate_limit_rule_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_system_admin_v1_base_rate_limit_rule_proto_rawDesc), len(file_system_admin_v1_base_rate_limit_rule_proto_rawDesc)),
-			NumEnums:      0,
+			NumEnums:      1,
 			NumMessages:   12,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
 		GoTypes:           file_system_admin_v1_base_rate_limit_rule_proto_goTypes,
 		DependencyIndexes: file_system_admin_v1_base_rate_limit_rule_proto_depIdxs,
+		EnumInfos:         file_system_admin_v1_base_rate_limit_rule_proto_enumTypes,
 		MessageInfos:      file_system_admin_v1_base_rate_limit_rule_proto_msgTypes,
 	}.Build()
 	File_system_admin_v1_base_rate_limit_rule_proto = out.File

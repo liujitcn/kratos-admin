@@ -143,6 +143,8 @@ func (x *OptionBaseMessageCategoryRequest) Redact() {
 	if x == nil {
 		return
 	}
+
+	// Safe field: InboxEnabled
 }
 
 // Ensure PageBaseMessageCategoryRequest implements the Redactor interface at compile time.
@@ -271,6 +273,10 @@ func (x *BaseMessageCategoryForm) Redact() {
 	// Safe field: AllowDelete
 
 	// Safe field: Status
+
+	// Safe field: ProviderId
+
+	// Safe field: InboxEnabled
 }
 
 // Ensure BaseMessageCategory implements the Redactor interface at compile time.
@@ -303,6 +309,10 @@ func (x *BaseMessageCategory) Redact() {
 	// Safe field: AllowDelete
 
 	// Safe field: Status
+
+	// Safe field: ProviderId
+
+	// Safe field: InboxEnabled
 
 	// Safe field: CreatedAt
 

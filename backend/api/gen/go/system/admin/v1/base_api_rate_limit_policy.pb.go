@@ -551,17 +551,18 @@ func (x *SetBaseApiRateLimitPolicyStatusRequest) GetStatus() commonv1.Status {
 // 接口限流策略详情。
 type BaseApiRateLimitPolicy struct {
 	state         protoimpl.MessageState       `protogen:"open.v1"`
-	Id            int64                        `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                                              // 策略ID
-	Apis          []*BaseApiRateLimitPolicyAPI `protobuf:"bytes,2,rep,name=apis,proto3" json:"apis,omitempty"`                                                           // 限流接口列表
-	Dimension     BaseApiRateLimitDimension    `protobuf:"varint,7,opt,name=dimension,proto3,enum=system.admin.v1.BaseApiRateLimitDimension" json:"dimension,omitempty"` // 限流维度
-	RuleId        int64                        `protobuf:"varint,8,opt,name=rule_id,json=ruleId,proto3" json:"rule_id,omitempty"`                                        // 限流规则ID
-	RuleCode      string                       `protobuf:"bytes,9,opt,name=rule_code,json=ruleCode,proto3" json:"rule_code,omitempty"`                                   // 限流规则编码
-	RuleName      string                       `protobuf:"bytes,10,opt,name=rule_name,json=ruleName,proto3" json:"rule_name,omitempty"`                                  // 限流规则名称
-	RuleParams    string                       `protobuf:"bytes,11,opt,name=rule_params,json=ruleParams,proto3" json:"rule_params,omitempty"`                            // 策略规则参数JSON
-	Status        commonv1.Status              `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"`                              // 状态
-	Remark        string                       `protobuf:"bytes,101,opt,name=remark,proto3" json:"remark,omitempty"`                                                     // 备注
-	CreatedAt     string                       `protobuf:"bytes,200,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`                              // 创建时间
-	UpdatedAt     string                       `protobuf:"bytes,201,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`                              // 更新时间
+	Id            int64                        `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                                                          // 策略ID
+	Apis          []*BaseApiRateLimitPolicyAPI `protobuf:"bytes,2,rep,name=apis,proto3" json:"apis,omitempty"`                                                                       // 限流接口列表
+	Dimension     BaseApiRateLimitDimension    `protobuf:"varint,7,opt,name=dimension,proto3,enum=system.admin.v1.BaseApiRateLimitDimension" json:"dimension,omitempty"`             // 限流维度
+	RuleId        int64                        `protobuf:"varint,8,opt,name=rule_id,json=ruleId,proto3" json:"rule_id,omitempty"`                                                    // 限流规则ID
+	RuleCode      string                       `protobuf:"bytes,9,opt,name=rule_code,json=ruleCode,proto3" json:"rule_code,omitempty"`                                               // 限流规则编码
+	RuleName      string                       `protobuf:"bytes,10,opt,name=rule_name,json=ruleName,proto3" json:"rule_name,omitempty"`                                              // 限流规则名称
+	RuleParams    string                       `protobuf:"bytes,11,opt,name=rule_params,json=ruleParams,proto3" json:"rule_params,omitempty"`                                        // 策略规则参数JSON
+	RuleType      BaseRateLimitAlgorithm       `protobuf:"varint,12,opt,name=rule_type,json=ruleType,proto3,enum=system.admin.v1.BaseRateLimitAlgorithm" json:"rule_type,omitempty"` // 限流算法
+	Status        commonv1.Status              `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"`                                          // 状态
+	Remark        string                       `protobuf:"bytes,101,opt,name=remark,proto3" json:"remark,omitempty"`                                                                 // 备注
+	CreatedAt     string                       `protobuf:"bytes,200,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`                                          // 创建时间
+	UpdatedAt     string                       `protobuf:"bytes,201,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`                                          // 更新时间
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -643,6 +644,13 @@ func (x *BaseApiRateLimitPolicy) GetRuleParams() string {
 		return x.RuleParams
 	}
 	return ""
+}
+
+func (x *BaseApiRateLimitPolicy) GetRuleType() BaseRateLimitAlgorithm {
+	if x != nil {
+		return x.RuleType
+	}
+	return BaseRateLimitAlgorithm_BASE_RATE_LIMIT_ALGORITHM_UNSPECIFIED
 }
 
 func (x *BaseApiRateLimitPolicy) GetStatus() commonv1.Status {
@@ -754,7 +762,7 @@ var File_system_admin_v1_base_api_rate_limit_policy_proto protoreflect.FileDescr
 
 const file_system_admin_v1_base_api_rate_limit_policy_proto_rawDesc = "" +
 	"\n" +
-	"0system/admin/v1/base_api_rate_limit_policy.proto\x12\x0fsystem.admin.v1\x1a\x14common/v1/enum.proto\x1a\x1bbuf/validate/validate.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\x9b\x03\n" +
+	"0system/admin/v1/base_api_rate_limit_policy.proto\x12\x0fsystem.admin.v1\x1a\x14common/v1/enum.proto\x1a\x1bbuf/validate/validate.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a*system/admin/v1/base_rate_limit_rule.proto\"\x9b\x03\n" +
 	"!PageBaseApiRateLimitPolicyRequest\x120\n" +
 	"\toperation\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f接口操作R\toperation\x12a\n" +
 	"\tdimension\x18\x02 \x01(\x0e2*.system.admin.v1.BaseApiRateLimitDimensionB\x12\xbaG\x0f\x92\x02\f限流维度H\x00R\tdimension\x88\x01\x01\x12<\n" +
@@ -795,7 +803,7 @@ const file_system_admin_v1_base_api_rate_limit_policy_proto_rawDesc = "" +
 	"&SetBaseApiRateLimitPolicyStatusRequest\x12\x80\x01\n" +
 	"\x02id\x18\x01 \x01(\x03Bp\xbaG\v\x92\x02\b策略ID\xbaH_\xba\x01\\\n" +
 	":system.admin.base.api_rate_limit_policy.status.id.required\x12\x14策略ID不能为空\x1a\bthis > 0R\x02id\x12?\n" +
-	"\x06status\x18\x02 \x01(\x0e2\x11.common.v1.StatusB\x14\xbaG\t\x92\x02\x06状态\xbaH\x05\x82\x01\x02\x10\x01R\x06status\"\x99\x05\n" +
+	"\x06status\x18\x02 \x01(\x0e2\x11.common.v1.StatusB\x14\xbaG\t\x92\x02\x06状态\xbaH\x05\x82\x01\x02\x10\x01R\x06status\"\xf3\x05\n" +
 	"\x16BaseApiRateLimitPolicy\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b策略IDR\x02id\x12X\n" +
 	"\x04apis\x18\x02 \x03(\v2*.system.admin.v1.BaseApiRateLimitPolicyAPIB\x18\xbaG\x15\x92\x02\x12限流接口列表R\x04apis\x12\\\n" +
@@ -805,7 +813,8 @@ const file_system_admin_v1_base_api_rate_limit_policy_proto_rawDesc = "" +
 	"\trule_name\x18\n" +
 	" \x01(\tB\x18\xbaG\x15\x92\x02\x12限流规则名称R\bruleName\x12=\n" +
 	"\vrule_params\x18\v \x01(\tB\x1c\xbaG\x19\x92\x02\x16策略规则参数JSONR\n" +
-	"ruleParams\x127\n" +
+	"ruleParams\x12X\n" +
+	"\trule_type\x18\f \x01(\x0e2'.system.admin.v1.BaseRateLimitAlgorithmB\x12\xbaG\x0f\x92\x02\f限流算法R\bruleType\x127\n" +
 	"\x06status\x18d \x01(\x0e2\x11.common.v1.StatusB\f\xbaG\t\x92\x02\x06状态R\x06status\x12$\n" +
 	"\x06remark\x18e \x01(\tB\f\xbaG\t\x92\x02\x06备注R\x06remark\x122\n" +
 	"\n" +
@@ -861,7 +870,8 @@ var file_system_admin_v1_base_api_rate_limit_policy_proto_goTypes = []any{
 	(*BaseApiRateLimitPolicy)(nil),                 // 9: system.admin.v1.BaseApiRateLimitPolicy
 	(*BaseApiRateLimitPolicyAPI)(nil),              // 10: system.admin.v1.BaseApiRateLimitPolicyAPI
 	(commonv1.Status)(0),                           // 11: common.v1.Status
-	(*emptypb.Empty)(nil),                          // 12: google.protobuf.Empty
+	(BaseRateLimitAlgorithm)(0),                    // 12: system.admin.v1.BaseRateLimitAlgorithm
+	(*emptypb.Empty)(nil),                          // 13: google.protobuf.Empty
 }
 var file_system_admin_v1_base_api_rate_limit_policy_proto_depIdxs = []int32{
 	0,  // 0: system.admin.v1.PageBaseApiRateLimitPolicyRequest.dimension:type_name -> system.admin.v1.BaseApiRateLimitDimension
@@ -874,24 +884,25 @@ var file_system_admin_v1_base_api_rate_limit_policy_proto_depIdxs = []int32{
 	11, // 7: system.admin.v1.SetBaseApiRateLimitPolicyStatusRequest.status:type_name -> common.v1.Status
 	10, // 8: system.admin.v1.BaseApiRateLimitPolicy.apis:type_name -> system.admin.v1.BaseApiRateLimitPolicyAPI
 	0,  // 9: system.admin.v1.BaseApiRateLimitPolicy.dimension:type_name -> system.admin.v1.BaseApiRateLimitDimension
-	11, // 10: system.admin.v1.BaseApiRateLimitPolicy.status:type_name -> common.v1.Status
-	1,  // 11: system.admin.v1.BaseApiRateLimitPolicyService.PageBaseApiRateLimitPolicy:input_type -> system.admin.v1.PageBaseApiRateLimitPolicyRequest
-	3,  // 12: system.admin.v1.BaseApiRateLimitPolicyService.GetBaseApiRateLimitPolicy:input_type -> system.admin.v1.GetBaseApiRateLimitPolicyRequest
-	5,  // 13: system.admin.v1.BaseApiRateLimitPolicyService.CreateBaseApiRateLimitPolicy:input_type -> system.admin.v1.CreateBaseApiRateLimitPolicyRequest
-	6,  // 14: system.admin.v1.BaseApiRateLimitPolicyService.UpdateBaseApiRateLimitPolicy:input_type -> system.admin.v1.UpdateBaseApiRateLimitPolicyRequest
-	7,  // 15: system.admin.v1.BaseApiRateLimitPolicyService.DeleteBaseApiRateLimitPolicy:input_type -> system.admin.v1.DeleteBaseApiRateLimitPolicyRequest
-	8,  // 16: system.admin.v1.BaseApiRateLimitPolicyService.SetBaseApiRateLimitPolicyStatus:input_type -> system.admin.v1.SetBaseApiRateLimitPolicyStatusRequest
-	2,  // 17: system.admin.v1.BaseApiRateLimitPolicyService.PageBaseApiRateLimitPolicy:output_type -> system.admin.v1.PageBaseApiRateLimitPolicyResponse
-	4,  // 18: system.admin.v1.BaseApiRateLimitPolicyService.GetBaseApiRateLimitPolicy:output_type -> system.admin.v1.BaseApiRateLimitPolicyForm
-	12, // 19: system.admin.v1.BaseApiRateLimitPolicyService.CreateBaseApiRateLimitPolicy:output_type -> google.protobuf.Empty
-	12, // 20: system.admin.v1.BaseApiRateLimitPolicyService.UpdateBaseApiRateLimitPolicy:output_type -> google.protobuf.Empty
-	12, // 21: system.admin.v1.BaseApiRateLimitPolicyService.DeleteBaseApiRateLimitPolicy:output_type -> google.protobuf.Empty
-	12, // 22: system.admin.v1.BaseApiRateLimitPolicyService.SetBaseApiRateLimitPolicyStatus:output_type -> google.protobuf.Empty
-	17, // [17:23] is the sub-list for method output_type
-	11, // [11:17] is the sub-list for method input_type
-	11, // [11:11] is the sub-list for extension type_name
-	11, // [11:11] is the sub-list for extension extendee
-	0,  // [0:11] is the sub-list for field type_name
+	12, // 10: system.admin.v1.BaseApiRateLimitPolicy.rule_type:type_name -> system.admin.v1.BaseRateLimitAlgorithm
+	11, // 11: system.admin.v1.BaseApiRateLimitPolicy.status:type_name -> common.v1.Status
+	1,  // 12: system.admin.v1.BaseApiRateLimitPolicyService.PageBaseApiRateLimitPolicy:input_type -> system.admin.v1.PageBaseApiRateLimitPolicyRequest
+	3,  // 13: system.admin.v1.BaseApiRateLimitPolicyService.GetBaseApiRateLimitPolicy:input_type -> system.admin.v1.GetBaseApiRateLimitPolicyRequest
+	5,  // 14: system.admin.v1.BaseApiRateLimitPolicyService.CreateBaseApiRateLimitPolicy:input_type -> system.admin.v1.CreateBaseApiRateLimitPolicyRequest
+	6,  // 15: system.admin.v1.BaseApiRateLimitPolicyService.UpdateBaseApiRateLimitPolicy:input_type -> system.admin.v1.UpdateBaseApiRateLimitPolicyRequest
+	7,  // 16: system.admin.v1.BaseApiRateLimitPolicyService.DeleteBaseApiRateLimitPolicy:input_type -> system.admin.v1.DeleteBaseApiRateLimitPolicyRequest
+	8,  // 17: system.admin.v1.BaseApiRateLimitPolicyService.SetBaseApiRateLimitPolicyStatus:input_type -> system.admin.v1.SetBaseApiRateLimitPolicyStatusRequest
+	2,  // 18: system.admin.v1.BaseApiRateLimitPolicyService.PageBaseApiRateLimitPolicy:output_type -> system.admin.v1.PageBaseApiRateLimitPolicyResponse
+	4,  // 19: system.admin.v1.BaseApiRateLimitPolicyService.GetBaseApiRateLimitPolicy:output_type -> system.admin.v1.BaseApiRateLimitPolicyForm
+	13, // 20: system.admin.v1.BaseApiRateLimitPolicyService.CreateBaseApiRateLimitPolicy:output_type -> google.protobuf.Empty
+	13, // 21: system.admin.v1.BaseApiRateLimitPolicyService.UpdateBaseApiRateLimitPolicy:output_type -> google.protobuf.Empty
+	13, // 22: system.admin.v1.BaseApiRateLimitPolicyService.DeleteBaseApiRateLimitPolicy:output_type -> google.protobuf.Empty
+	13, // 23: system.admin.v1.BaseApiRateLimitPolicyService.SetBaseApiRateLimitPolicyStatus:output_type -> google.protobuf.Empty
+	18, // [18:24] is the sub-list for method output_type
+	12, // [12:18] is the sub-list for method input_type
+	12, // [12:12] is the sub-list for extension type_name
+	12, // [12:12] is the sub-list for extension extendee
+	0,  // [0:12] is the sub-list for field type_name
 }
 
 func init() { file_system_admin_v1_base_api_rate_limit_policy_proto_init() }
@@ -899,6 +910,7 @@ func file_system_admin_v1_base_api_rate_limit_policy_proto_init() {
 	if File_system_admin_v1_base_api_rate_limit_policy_proto != nil {
 		return
 	}
+	file_system_admin_v1_base_rate_limit_rule_proto_init()
 	file_system_admin_v1_base_api_rate_limit_policy_proto_msgTypes[0].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{

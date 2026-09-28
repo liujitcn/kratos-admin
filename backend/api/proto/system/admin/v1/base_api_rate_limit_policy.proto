@@ -7,6 +7,7 @@ import "buf/validate/validate.proto";
 import "gnostic/openapi/v3/annotations.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/empty.proto";
+import "system/admin/v1/base_rate_limit_rule.proto";
 
 // 接口限流维度。
 enum BaseApiRateLimitDimension {
@@ -102,6 +103,7 @@ message BaseApiRateLimitPolicy {
   string rule_code = 9 [(gnostic.openapi.v3.property) = {description: "限流规则编码"}]; // 限流规则编码
   string rule_name = 10 [(gnostic.openapi.v3.property) = {description: "限流规则名称"}]; // 限流规则名称
   string rule_params = 11 [(gnostic.openapi.v3.property) = {description: "策略规则参数JSON"}]; // 策略规则参数JSON
+  BaseRateLimitAlgorithm rule_type = 12 [(gnostic.openapi.v3.property) = {description: "限流算法"}]; // 限流算法
   .common.v1.Status status = 100 [(gnostic.openapi.v3.property) = {description: "状态"}]; // 状态
   string remark = 101 [(gnostic.openapi.v3.property) = {description: "备注"}]; // 备注
   string created_at = 200 [(gnostic.openapi.v3.property) = {description: "创建时间"}]; // 创建时间

@@ -420,9 +420,9 @@ const file_base_v1_ai_tool_proto_rawDesc = "" +
 	"\n" +
 	"\x15base/v1/ai_tool.proto\x12\abase.v1\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\"q\n" +
 	"\x15ListAiShortcutRequest\x12X\n" +
-	"\bterminal\x18\x01 \x01(\x0e2\x11.base.v1.TerminalB)\xbaG&\x92\x02#终端类型：枚举【Terminal】R\bterminal\"e\n" +
+	"\bterminal\x18\x01 \x01(\x0e2\x11.base.v1.TerminalB)\xbaG&\x92\x02#终端类型：枚举【Terminal】R\bterminal\"k\n" +
 	"\x16ListAiShortcutResponse\x12K\n" +
-	"\tshortcuts\x18\x01 \x03(\v2\x13.base.v1.AiShortcutB\x18\xbaG\x15\x92\x02\x12快捷入口列表R\tshortcuts\"\xfa\x02\n" +
+	"\tshortcuts\x18\x01 \x03(\v2\x13.base.v1.AiShortcutB\x18\xbaG\x15\x92\x02\x12快捷入口列表R\tshortcutsJ\x04\b\x02\x10\x03\"\xfa\x02\n" +
 	"\n" +
 	"AiShortcut\x12*\n" +
 	"\x03key\x18\x01 \x01(\tB\x18\xbaG\x15\x92\x02\x12快捷入口标识R\x03key\x12(\n" +

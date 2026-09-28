@@ -28,9 +28,63 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// 消息分类站内信启用状态。
+type BaseMessageCategoryInboxEnabled int32
+
+const (
+	// 未指定站内信状态。
+	BaseMessageCategoryInboxEnabled_BASE_MESSAGE_CATEGORY_INBOX_ENABLED_UNSPECIFIED BaseMessageCategoryInboxEnabled = 0
+	// 启用站内信。
+	BaseMessageCategoryInboxEnabled_BASE_MESSAGE_CATEGORY_INBOX_ENABLED_ENABLE BaseMessageCategoryInboxEnabled = 1
+	// 禁用站内信。
+	BaseMessageCategoryInboxEnabled_BASE_MESSAGE_CATEGORY_INBOX_ENABLED_DISABLE BaseMessageCategoryInboxEnabled = 2
+)
+
+// Enum value maps for BaseMessageCategoryInboxEnabled.
+var (
+	BaseMessageCategoryInboxEnabled_name = map[int32]string{
+		0: "BASE_MESSAGE_CATEGORY_INBOX_ENABLED_UNSPECIFIED",
+		1: "BASE_MESSAGE_CATEGORY_INBOX_ENABLED_ENABLE",
+		2: "BASE_MESSAGE_CATEGORY_INBOX_ENABLED_DISABLE",
+	}
+	BaseMessageCategoryInboxEnabled_value = map[string]int32{
+		"BASE_MESSAGE_CATEGORY_INBOX_ENABLED_UNSPECIFIED": 0,
+		"BASE_MESSAGE_CATEGORY_INBOX_ENABLED_ENABLE":      1,
+		"BASE_MESSAGE_CATEGORY_INBOX_ENABLED_DISABLE":     2,
+	}
+)
+
+func (x BaseMessageCategoryInboxEnabled) Enum() *BaseMessageCategoryInboxEnabled {
+	p := new(BaseMessageCategoryInboxEnabled)
+	*p = x
+	return p
+}
+
+func (x BaseMessageCategoryInboxEnabled) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (BaseMessageCategoryInboxEnabled) Descriptor() protoreflect.EnumDescriptor {
+	return file_system_admin_v1_base_message_category_proto_enumTypes[0].Descriptor()
+}
+
+func (BaseMessageCategoryInboxEnabled) Type() protoreflect.EnumType {
+	return &file_system_admin_v1_base_message_category_proto_enumTypes[0]
+}
+
+func (x BaseMessageCategoryInboxEnabled) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use BaseMessageCategoryInboxEnabled.Descriptor instead.
+func (BaseMessageCategoryInboxEnabled) EnumDescriptor() ([]byte, []int) {
+	return file_system_admin_v1_base_message_category_proto_rawDescGZIP(), []int{0}
+}
+
 // 消息分类选项查询条件。
 type OptionBaseMessageCategoryRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
+	state         protoimpl.MessageState           `protogen:"open.v1"`
+	InboxEnabled  *BaseMessageCategoryInboxEnabled `protobuf:"varint,1,opt,name=inbox_enabled,json=inboxEnabled,proto3,enum=system.admin.v1.BaseMessageCategoryInboxEnabled,oneof" json:"inbox_enabled,omitempty"` // 按站内信启用状态筛选
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -63,6 +117,13 @@ func (x *OptionBaseMessageCategoryRequest) ProtoReflect() protoreflect.Message {
 // Deprecated: Use OptionBaseMessageCategoryRequest.ProtoReflect.Descriptor instead.
 func (*OptionBaseMessageCategoryRequest) Descriptor() ([]byte, []int) {
 	return file_system_admin_v1_base_message_category_proto_rawDescGZIP(), []int{0}
+}
+
+func (x *OptionBaseMessageCategoryRequest) GetInboxEnabled() BaseMessageCategoryInboxEnabled {
+	if x != nil && x.InboxEnabled != nil {
+		return *x.InboxEnabled
+	}
+	return BaseMessageCategoryInboxEnabled_BASE_MESSAGE_CATEGORY_INBOX_ENABLED_UNSPECIFIED
 }
 
 // 消息分类分页查询条件。
@@ -430,18 +491,20 @@ func (x *SetBaseMessageCategoryStatusRequest) GetStatus() commonv1.Status {
 
 // 消息分类表单。
 type BaseMessageCategoryForm struct {
-	state           protoimpl.MessageState `protogen:"open.v1"`
-	Id              int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                                                               // 消息分类ID
-	Code            string                 `protobuf:"bytes,2,opt,name=code,proto3" json:"code,omitempty"`                                                                            // 分类编码
-	Name            string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`                                                                            // 分类名称
-	Icon            string                 `protobuf:"bytes,4,opt,name=icon,proto3" json:"icon,omitempty"`                                                                            // 分类图标
-	Color           string                 `protobuf:"bytes,5,opt,name=color,proto3" json:"color,omitempty"`                                                                          // 分类颜色
-	Sort            int32                  `protobuf:"varint,6,opt,name=sort,proto3" json:"sort,omitempty"`                                                                           // 排序
-	DefaultPriority basev1.MessagePriority `protobuf:"varint,7,opt,name=default_priority,json=defaultPriority,proto3,enum=base.v1.MessagePriority" json:"default_priority,omitempty"` // 默认优先级
-	RetentionDays   int32                  `protobuf:"varint,8,opt,name=retention_days,json=retentionDays,proto3" json:"retention_days,omitempty"`                                    // 保留天数
-	AllowArchive    bool                   `protobuf:"varint,9,opt,name=allow_archive,json=allowArchive,proto3" json:"allow_archive,omitempty"`                                       // 是否允许归档
-	AllowDelete     bool                   `protobuf:"varint,10,opt,name=allow_delete,json=allowDelete,proto3" json:"allow_delete,omitempty"`                                         // 是否允许删除
-	Status          commonv1.Status        `protobuf:"varint,11,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"`                                                // 状态
+	state           protoimpl.MessageState          `protogen:"open.v1"`
+	Id              int64                           `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                                                                               // 消息分类ID
+	Code            string                          `protobuf:"bytes,2,opt,name=code,proto3" json:"code,omitempty"`                                                                                            // 分类编码
+	Name            string                          `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`                                                                                            // 分类名称
+	Icon            string                          `protobuf:"bytes,4,opt,name=icon,proto3" json:"icon,omitempty"`                                                                                            // 分类图标
+	Color           string                          `protobuf:"bytes,5,opt,name=color,proto3" json:"color,omitempty"`                                                                                          // 分类颜色
+	Sort            int32                           `protobuf:"varint,6,opt,name=sort,proto3" json:"sort,omitempty"`                                                                                           // 排序
+	DefaultPriority basev1.MessagePriority          `protobuf:"varint,7,opt,name=default_priority,json=defaultPriority,proto3,enum=base.v1.MessagePriority" json:"default_priority,omitempty"`                 // 默认优先级
+	RetentionDays   int32                           `protobuf:"varint,8,opt,name=retention_days,json=retentionDays,proto3" json:"retention_days,omitempty"`                                                    // 保留天数
+	AllowArchive    bool                            `protobuf:"varint,9,opt,name=allow_archive,json=allowArchive,proto3" json:"allow_archive,omitempty"`                                                       // 是否允许归档
+	AllowDelete     bool                            `protobuf:"varint,10,opt,name=allow_delete,json=allowDelete,proto3" json:"allow_delete,omitempty"`                                                         // 是否允许删除
+	Status          commonv1.Status                 `protobuf:"varint,11,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"`                                                                // 状态
+	ProviderId      []int64                         `protobuf:"varint,12,rep,packed,name=provider_id,json=providerId,proto3" json:"provider_id,omitempty"`                                                     // 消息 Provider ID JSON数组
+	InboxEnabled    BaseMessageCategoryInboxEnabled `protobuf:"varint,13,opt,name=inbox_enabled,json=inboxEnabled,proto3,enum=system.admin.v1.BaseMessageCategoryInboxEnabled" json:"inbox_enabled,omitempty"` // 是否启用站内信
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache
 }
@@ -553,22 +616,38 @@ func (x *BaseMessageCategoryForm) GetStatus() commonv1.Status {
 	return commonv1.Status(0)
 }
 
+func (x *BaseMessageCategoryForm) GetProviderId() []int64 {
+	if x != nil {
+		return x.ProviderId
+	}
+	return nil
+}
+
+func (x *BaseMessageCategoryForm) GetInboxEnabled() BaseMessageCategoryInboxEnabled {
+	if x != nil {
+		return x.InboxEnabled
+	}
+	return BaseMessageCategoryInboxEnabled_BASE_MESSAGE_CATEGORY_INBOX_ENABLED_UNSPECIFIED
+}
+
 // 消息分类。
 type BaseMessageCategory struct {
-	state           protoimpl.MessageState `protogen:"open.v1"`
-	Id              int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                                                               // 消息分类ID
-	Code            string                 `protobuf:"bytes,2,opt,name=code,proto3" json:"code,omitempty"`                                                                            // 分类编码
-	Name            string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`                                                                            // 分类名称
-	Icon            string                 `protobuf:"bytes,4,opt,name=icon,proto3" json:"icon,omitempty"`                                                                            // 分类图标
-	Color           string                 `protobuf:"bytes,5,opt,name=color,proto3" json:"color,omitempty"`                                                                          // 分类颜色
-	Sort            int32                  `protobuf:"varint,6,opt,name=sort,proto3" json:"sort,omitempty"`                                                                           // 排序
-	DefaultPriority basev1.MessagePriority `protobuf:"varint,7,opt,name=default_priority,json=defaultPriority,proto3,enum=base.v1.MessagePriority" json:"default_priority,omitempty"` // 默认优先级
-	RetentionDays   int32                  `protobuf:"varint,8,opt,name=retention_days,json=retentionDays,proto3" json:"retention_days,omitempty"`                                    // 保留天数
-	AllowArchive    bool                   `protobuf:"varint,9,opt,name=allow_archive,json=allowArchive,proto3" json:"allow_archive,omitempty"`                                       // 是否允许归档
-	AllowDelete     bool                   `protobuf:"varint,10,opt,name=allow_delete,json=allowDelete,proto3" json:"allow_delete,omitempty"`                                         // 是否允许删除
-	Status          commonv1.Status        `protobuf:"varint,11,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"`                                                // 状态
-	CreatedAt       string                 `protobuf:"bytes,100,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`                                               // 创建时间
-	UpdatedAt       string                 `protobuf:"bytes,101,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`                                               // 更新时间
+	state           protoimpl.MessageState          `protogen:"open.v1"`
+	Id              int64                           `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                                                                               // 消息分类ID
+	Code            string                          `protobuf:"bytes,2,opt,name=code,proto3" json:"code,omitempty"`                                                                                            // 分类编码
+	Name            string                          `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`                                                                                            // 分类名称
+	Icon            string                          `protobuf:"bytes,4,opt,name=icon,proto3" json:"icon,omitempty"`                                                                                            // 分类图标
+	Color           string                          `protobuf:"bytes,5,opt,name=color,proto3" json:"color,omitempty"`                                                                                          // 分类颜色
+	Sort            int32                           `protobuf:"varint,6,opt,name=sort,proto3" json:"sort,omitempty"`                                                                                           // 排序
+	DefaultPriority basev1.MessagePriority          `protobuf:"varint,7,opt,name=default_priority,json=defaultPriority,proto3,enum=base.v1.MessagePriority" json:"default_priority,omitempty"`                 // 默认优先级
+	RetentionDays   int32                           `protobuf:"varint,8,opt,name=retention_days,json=retentionDays,proto3" json:"retention_days,omitempty"`                                                    // 保留天数
+	AllowArchive    bool                            `protobuf:"varint,9,opt,name=allow_archive,json=allowArchive,proto3" json:"allow_archive,omitempty"`                                                       // 是否允许归档
+	AllowDelete     bool                            `protobuf:"varint,10,opt,name=allow_delete,json=allowDelete,proto3" json:"allow_delete,omitempty"`                                                         // 是否允许删除
+	Status          commonv1.Status                 `protobuf:"varint,11,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"`                                                                // 状态
+	ProviderId      []int64                         `protobuf:"varint,12,rep,packed,name=provider_id,json=providerId,proto3" json:"provider_id,omitempty"`                                                     // 消息 Provider ID JSON数组
+	InboxEnabled    BaseMessageCategoryInboxEnabled `protobuf:"varint,13,opt,name=inbox_enabled,json=inboxEnabled,proto3,enum=system.admin.v1.BaseMessageCategoryInboxEnabled" json:"inbox_enabled,omitempty"` // 是否启用站内信
+	CreatedAt       string                          `protobuf:"bytes,100,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`                                                               // 创建时间
+	UpdatedAt       string                          `protobuf:"bytes,101,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`                                                               // 更新时间
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache
 }
@@ -680,6 +759,20 @@ func (x *BaseMessageCategory) GetStatus() commonv1.Status {
 	return commonv1.Status(0)
 }
 
+func (x *BaseMessageCategory) GetProviderId() []int64 {
+	if x != nil {
+		return x.ProviderId
+	}
+	return nil
+}
+
+func (x *BaseMessageCategory) GetInboxEnabled() BaseMessageCategoryInboxEnabled {
+	if x != nil {
+		return x.InboxEnabled
+	}
+	return BaseMessageCategoryInboxEnabled_BASE_MESSAGE_CATEGORY_INBOX_ENABLED_UNSPECIFIED
+}
+
 func (x *BaseMessageCategory) GetCreatedAt() string {
 	if x != nil {
 		return x.CreatedAt
@@ -698,8 +791,10 @@ var File_system_admin_v1_base_message_category_proto protoreflect.FileDescriptor
 
 const file_system_admin_v1_base_message_category_proto_rawDesc = "" +
 	"\n" +
-	"+system/admin/v1/base_message_category.proto\x12\x0fsystem.admin.v1\x1a\x1abase/v1/notification.proto\x1a\x1bbuf/validate/validate.proto\x1a\x14common/v1/enum.proto\x1a\x16common/v1/common.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\"\n" +
-	" OptionBaseMessageCategoryRequest\"\xe9\x02\n" +
+	"+system/admin/v1/base_message_category.proto\x12\x0fsystem.admin.v1\x1a\x1abase/v1/notification.proto\x1a\x1bbuf/validate/validate.proto\x1a\x14common/v1/enum.proto\x1a\x16common/v1/common.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\xbf\x01\n" +
+	" OptionBaseMessageCategoryRequest\x12\x88\x01\n" +
+	"\rinbox_enabled\x18\x01 \x01(\x0e20.system.admin.v1.BaseMessageCategoryInboxEnabledB,\xbaG!\x92\x02\x1e按站内信启用状态筛选\xbaH\x05\x82\x01\x02\x10\x01H\x00R\finboxEnabled\x88\x01\x01B\x10\n" +
+	"\x0e_inbox_enabled\"\xe9\x02\n" +
 	"\x1ePageBaseMessageCategoryRequest\x12+\n" +
 	"\x04name\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f分类名称H\x00R\x04name\x88\x01\x01\x12+\n" +
 	"\x04code\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f分类编码H\x01R\x04code\x88\x01\x01\x12D\n" +
@@ -725,7 +820,8 @@ const file_system_admin_v1_base_message_category_proto_rawDesc = "" +
 	"#SetBaseMessageCategoryStatusRequest\x12\x8b\x01\n" +
 	"\x02id\x18\x01 \x01(\x03B{\xbaG\x11\x92\x02\x0e消息分类ID\xbaHd\xba\x01a\n" +
 	"9system.admin.base_message_category.set_status.id.required\x12\x1a消息分类ID不能为空\x1a\bthis > 0R\x02id\x12?\n" +
-	"\x06status\x18\x02 \x01(\x0e2\x11.common.v1.StatusB\x14\xbaG\t\x92\x02\x06状态\xbaH\x05\x82\x01\x02\x10\x01R\x06status\"\x91\a\n" +
+	"\x06status\x18\x02 \x01(\x0e2\x11.common.v1.StatusB\x14\xbaG\t\x92\x02\x06状态\xbaH\x05\x82\x01\x02\x10\x01R\x06status\"\xb1\n" +
+	"\n" +
 	"\x17BaseMessageCategoryForm\x12$\n" +
 	"\x02id\x18\x01 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e消息分类IDR\x02id\x12\xbe\x01\n" +
 	"\x04code\x18\x02 \x01(\tB\xa9\x01\xbaG\x0f\x92\x02\f分类编码\xbaH\x93\x01\xba\x01\x8f\x01\n" +
@@ -740,7 +836,12 @@ const file_system_admin_v1_base_message_category_proto_rawDesc = "" +
 	"\rallow_archive\x18\t \x01(\bB\x18\xbaG\x15\x92\x02\x12是否允许归档R\fallowArchive\x12;\n" +
 	"\fallow_delete\x18\n" +
 	" \x01(\bB\x18\xbaG\x15\x92\x02\x12是否允许删除R\vallowDelete\x12?\n" +
-	"\x06status\x18\v \x01(\x0e2\x11.common.v1.StatusB\x14\xbaG\t\x92\x02\x06状态\xbaH\x05\x82\x01\x02\x10\x01R\x06status\"\xb1\x05\n" +
+	"\x06status\x18\v \x01(\x0e2\x11.common.v1.StatusB\x14\xbaG\t\x92\x02\x06状态\xbaH\x05\x82\x01\x02\x10\x01R\x06status\x12\xb4\x01\n" +
+	"\vprovider_id\x18\f \x03(\x03B\x92\x01\xbaG \x92\x02\x1d消息 Provider ID JSON数组\xbaHl\xba\x01i\n" +
+	":system.admin.base_message_category.form.provider_id.unique\x12\x1c消息 Provider 不能重复\x1a\rthis.unique()R\n" +
+	"providerId\x12\xe6\x01\n" +
+	"\rinbox_enabled\x18\r \x01(\x0e20.system.admin.v1.BaseMessageCategoryInboxEnabledB\x8e\x01\xbaG\x18\x92\x02\x15是否启用站内信\xbaHp\xba\x01h\n" +
+	">system.admin.base_message_category.form.inbox_enabled.required\x12\x1b站内信状态不能为空\x1a\tthis != 0\x82\x01\x02\x10\x01R\finboxEnabled\"\xeb\x06\n" +
 	"\x13BaseMessageCategory\x12$\n" +
 	"\x02id\x18\x01 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e消息分类IDR\x02id\x12&\n" +
 	"\x04code\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f分类编码R\x04code\x12&\n" +
@@ -753,11 +854,18 @@ const file_system_admin_v1_base_message_category_proto_rawDesc = "" +
 	"\rallow_archive\x18\t \x01(\bB\x18\xbaG\x15\x92\x02\x12是否允许归档R\fallowArchive\x12;\n" +
 	"\fallow_delete\x18\n" +
 	" \x01(\bB\x18\xbaG\x15\x92\x02\x12是否允许删除R\vallowDelete\x127\n" +
-	"\x06status\x18\v \x01(\x0e2\x11.common.v1.StatusB\f\xbaG\t\x92\x02\x06状态R\x06status\x121\n" +
+	"\x06status\x18\v \x01(\x0e2\x11.common.v1.StatusB\f\xbaG\t\x92\x02\x06状态R\x06status\x12D\n" +
+	"\vprovider_id\x18\f \x03(\x03B#\xbaG \x92\x02\x1d消息 Provider ID JSON数组R\n" +
+	"providerId\x12r\n" +
+	"\rinbox_enabled\x18\r \x01(\x0e20.system.admin.v1.BaseMessageCategoryInboxEnabledB\x1b\xbaG\x18\x92\x02\x15是否启用站内信R\finboxEnabled\x121\n" +
 	"\n" +
 	"created_at\x18d \x01(\tB\x12\xbaG\x0f\x92\x02\f创建时间R\tcreatedAt\x121\n" +
 	"\n" +
-	"updated_at\x18e \x01(\tB\x12\xbaG\x0f\x92\x02\f更新时间R\tupdatedAt2\xd0\t\n" +
+	"updated_at\x18e \x01(\tB\x12\xbaG\x0f\x92\x02\f更新时间R\tupdatedAt*\xb7\x01\n" +
+	"\x1fBaseMessageCategoryInboxEnabled\x123\n" +
+	"/BASE_MESSAGE_CATEGORY_INBOX_ENABLED_UNSPECIFIED\x10\x00\x12.\n" +
+	"*BASE_MESSAGE_CATEGORY_INBOX_ENABLED_ENABLE\x10\x01\x12/\n" +
+	"+BASE_MESSAGE_CATEGORY_INBOX_ENABLED_DISABLE\x10\x022\xd0\t\n" +
 	"\x1aBaseMessageCategoryService\x12\xa3\x01\n" +
 	"\x19OptionBaseMessageCategory\x121.system.admin.v1.OptionBaseMessageCategoryRequest\x1a\x1f.common.v1.SelectOptionResponse\"2\x82\xd3\xe4\x93\x02,\x12*/api/v1/admin/base/message-category/option\x12\xa9\x01\n" +
 	"\x17PageBaseMessageCategory\x12/.system.admin.v1.PageBaseMessageCategoryRequest\x1a0.system.admin.v1.PageBaseMessageCategoryResponse\"+\x82\xd3\xe4\x93\x02%\x12#/api/v1/admin/base/message-category\x12\xa4\x01\n" +
@@ -780,52 +888,57 @@ func file_system_admin_v1_base_message_category_proto_rawDescGZIP() []byte {
 	return file_system_admin_v1_base_message_category_proto_rawDescData
 }
 
+var file_system_admin_v1_base_message_category_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
 var file_system_admin_v1_base_message_category_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
 var file_system_admin_v1_base_message_category_proto_goTypes = []any{
-	(*OptionBaseMessageCategoryRequest)(nil),    // 0: system.admin.v1.OptionBaseMessageCategoryRequest
-	(*PageBaseMessageCategoryRequest)(nil),      // 1: system.admin.v1.PageBaseMessageCategoryRequest
-	(*PageBaseMessageCategoryResponse)(nil),     // 2: system.admin.v1.PageBaseMessageCategoryResponse
-	(*GetBaseMessageCategoryRequest)(nil),       // 3: system.admin.v1.GetBaseMessageCategoryRequest
-	(*CreateBaseMessageCategoryRequest)(nil),    // 4: system.admin.v1.CreateBaseMessageCategoryRequest
-	(*UpdateBaseMessageCategoryRequest)(nil),    // 5: system.admin.v1.UpdateBaseMessageCategoryRequest
-	(*DeleteBaseMessageCategoryRequest)(nil),    // 6: system.admin.v1.DeleteBaseMessageCategoryRequest
-	(*SetBaseMessageCategoryStatusRequest)(nil), // 7: system.admin.v1.SetBaseMessageCategoryStatusRequest
-	(*BaseMessageCategoryForm)(nil),             // 8: system.admin.v1.BaseMessageCategoryForm
-	(*BaseMessageCategory)(nil),                 // 9: system.admin.v1.BaseMessageCategory
-	(commonv1.Status)(0),                        // 10: common.v1.Status
-	(basev1.MessagePriority)(0),                 // 11: base.v1.MessagePriority
-	(*commonv1.SelectOptionResponse)(nil),       // 12: common.v1.SelectOptionResponse
-	(*emptypb.Empty)(nil),                       // 13: google.protobuf.Empty
+	(BaseMessageCategoryInboxEnabled)(0),        // 0: system.admin.v1.BaseMessageCategoryInboxEnabled
+	(*OptionBaseMessageCategoryRequest)(nil),    // 1: system.admin.v1.OptionBaseMessageCategoryRequest
+	(*PageBaseMessageCategoryRequest)(nil),      // 2: system.admin.v1.PageBaseMessageCategoryRequest
+	(*PageBaseMessageCategoryResponse)(nil),     // 3: system.admin.v1.PageBaseMessageCategoryResponse
+	(*GetBaseMessageCategoryRequest)(nil),       // 4: system.admin.v1.GetBaseMessageCategoryRequest
+	(*CreateBaseMessageCategoryRequest)(nil),    // 5: system.admin.v1.CreateBaseMessageCategoryRequest
+	(*UpdateBaseMessageCategoryRequest)(nil),    // 6: system.admin.v1.UpdateBaseMessageCategoryRequest
+	(*DeleteBaseMessageCategoryRequest)(nil),    // 7: system.admin.v1.DeleteBaseMessageCategoryRequest
+	(*SetBaseMessageCategoryStatusRequest)(nil), // 8: system.admin.v1.SetBaseMessageCategoryStatusRequest
+	(*BaseMessageCategoryForm)(nil),             // 9: system.admin.v1.BaseMessageCategoryForm
+	(*BaseMessageCategory)(nil),                 // 10: system.admin.v1.BaseMessageCategory
+	(commonv1.Status)(0),                        // 11: common.v1.Status
+	(basev1.MessagePriority)(0),                 // 12: base.v1.MessagePriority
+	(*commonv1.SelectOptionResponse)(nil),       // 13: common.v1.SelectOptionResponse
+	(*emptypb.Empty)(nil),                       // 14: google.protobuf.Empty
 }
 var file_system_admin_v1_base_message_category_proto_depIdxs = []int32{
-	10, // 0: system.admin.v1.PageBaseMessageCategoryRequest.status:type_name -> common.v1.Status
-	9,  // 1: system.admin.v1.PageBaseMessageCategoryResponse.base_message_categories:type_name -> system.admin.v1.BaseMessageCategory
-	8,  // 2: system.admin.v1.CreateBaseMessageCategoryRequest.base_message_category:type_name -> system.admin.v1.BaseMessageCategoryForm
-	8,  // 3: system.admin.v1.UpdateBaseMessageCategoryRequest.base_message_category:type_name -> system.admin.v1.BaseMessageCategoryForm
-	10, // 4: system.admin.v1.SetBaseMessageCategoryStatusRequest.status:type_name -> common.v1.Status
-	11, // 5: system.admin.v1.BaseMessageCategoryForm.default_priority:type_name -> base.v1.MessagePriority
-	10, // 6: system.admin.v1.BaseMessageCategoryForm.status:type_name -> common.v1.Status
-	11, // 7: system.admin.v1.BaseMessageCategory.default_priority:type_name -> base.v1.MessagePriority
-	10, // 8: system.admin.v1.BaseMessageCategory.status:type_name -> common.v1.Status
-	0,  // 9: system.admin.v1.BaseMessageCategoryService.OptionBaseMessageCategory:input_type -> system.admin.v1.OptionBaseMessageCategoryRequest
-	1,  // 10: system.admin.v1.BaseMessageCategoryService.PageBaseMessageCategory:input_type -> system.admin.v1.PageBaseMessageCategoryRequest
-	3,  // 11: system.admin.v1.BaseMessageCategoryService.GetBaseMessageCategory:input_type -> system.admin.v1.GetBaseMessageCategoryRequest
-	4,  // 12: system.admin.v1.BaseMessageCategoryService.CreateBaseMessageCategory:input_type -> system.admin.v1.CreateBaseMessageCategoryRequest
-	5,  // 13: system.admin.v1.BaseMessageCategoryService.UpdateBaseMessageCategory:input_type -> system.admin.v1.UpdateBaseMessageCategoryRequest
-	6,  // 14: system.admin.v1.BaseMessageCategoryService.DeleteBaseMessageCategory:input_type -> system.admin.v1.DeleteBaseMessageCategoryRequest
-	7,  // 15: system.admin.v1.BaseMessageCategoryService.SetBaseMessageCategoryStatus:input_type -> system.admin.v1.SetBaseMessageCategoryStatusRequest
-	12, // 16: system.admin.v1.BaseMessageCategoryService.OptionBaseMessageCategory:output_type -> common.v1.SelectOptionResponse
-	2,  // 17: system.admin.v1.BaseMessageCategoryService.PageBaseMessageCategory:output_type -> system.admin.v1.PageBaseMessageCategoryResponse
-	8,  // 18: system.admin.v1.BaseMessageCategoryService.GetBaseMessageCategory:output_type -> system.admin.v1.BaseMessageCategoryForm
-	13, // 19: system.admin.v1.BaseMessageCategoryService.CreateBaseMessageCategory:output_type -> google.protobuf.Empty
-	13, // 20: system.admin.v1.BaseMessageCategoryService.UpdateBaseMessageCategory:output_type -> google.protobuf.Empty
-	13, // 21: system.admin.v1.BaseMessageCategoryService.DeleteBaseMessageCategory:output_type -> google.protobuf.Empty
-	13, // 22: system.admin.v1.BaseMessageCategoryService.SetBaseMessageCategoryStatus:output_type -> google.protobuf.Empty
-	16, // [16:23] is the sub-list for method output_type
-	9,  // [9:16] is the sub-list for method input_type
-	9,  // [9:9] is the sub-list for extension type_name
-	9,  // [9:9] is the sub-list for extension extendee
-	0,  // [0:9] is the sub-list for field type_name
+	0,  // 0: system.admin.v1.OptionBaseMessageCategoryRequest.inbox_enabled:type_name -> system.admin.v1.BaseMessageCategoryInboxEnabled
+	11, // 1: system.admin.v1.PageBaseMessageCategoryRequest.status:type_name -> common.v1.Status
+	10, // 2: system.admin.v1.PageBaseMessageCategoryResponse.base_message_categories:type_name -> system.admin.v1.BaseMessageCategory
+	9,  // 3: system.admin.v1.CreateBaseMessageCategoryRequest.base_message_category:type_name -> system.admin.v1.BaseMessageCategoryForm
+	9,  // 4: system.admin.v1.UpdateBaseMessageCategoryRequest.base_message_category:type_name -> system.admin.v1.BaseMessageCategoryForm
+	11, // 5: system.admin.v1.SetBaseMessageCategoryStatusRequest.status:type_name -> common.v1.Status
+	12, // 6: system.admin.v1.BaseMessageCategoryForm.default_priority:type_name -> base.v1.MessagePriority
+	11, // 7: system.admin.v1.BaseMessageCategoryForm.status:type_name -> common.v1.Status
+	0,  // 8: system.admin.v1.BaseMessageCategoryForm.inbox_enabled:type_name -> system.admin.v1.BaseMessageCategoryInboxEnabled
+	12, // 9: system.admin.v1.BaseMessageCategory.default_priority:type_name -> base.v1.MessagePriority
+	11, // 10: system.admin.v1.BaseMessageCategory.status:type_name -> common.v1.Status
+	0,  // 11: system.admin.v1.BaseMessageCategory.inbox_enabled:type_name -> system.admin.v1.BaseMessageCategoryInboxEnabled
+	1,  // 12: system.admin.v1.BaseMessageCategoryService.OptionBaseMessageCategory:input_type -> system.admin.v1.OptionBaseMessageCategoryRequest
+	2,  // 13: system.admin.v1.BaseMessageCategoryService.PageBaseMessageCategory:input_type -> system.admin.v1.PageBaseMessageCategoryRequest
+	4,  // 14: system.admin.v1.BaseMessageCategoryService.GetBaseMessageCategory:input_type -> system.admin.v1.GetBaseMessageCategoryRequest
+	5,  // 15: system.admin.v1.BaseMessageCategoryService.CreateBaseMessageCategory:input_type -> system.admin.v1.CreateBaseMessageCategoryRequest
+	6,  // 16: system.admin.v1.BaseMessageCategoryService.UpdateBaseMessageCategory:input_type -> system.admin.v1.UpdateBaseMessageCategoryRequest
+	7,  // 17: system.admin.v1.BaseMessageCategoryService.DeleteBaseMessageCategory:input_type -> system.admin.v1.DeleteBaseMessageCategoryRequest
+	8,  // 18: system.admin.v1.BaseMessageCategoryService.SetBaseMessageCategoryStatus:input_type -> system.admin.v1.SetBaseMessageCategoryStatusRequest
+	13, // 19: system.admin.v1.BaseMessageCategoryService.OptionBaseMessageCategory:output_type -> common.v1.SelectOptionResponse
+	3,  // 20: system.admin.v1.BaseMessageCategoryService.PageBaseMessageCategory:output_type -> system.admin.v1.PageBaseMessageCategoryResponse
+	9,  // 21: system.admin.v1.BaseMessageCategoryService.GetBaseMessageCategory:output_type -> system.admin.v1.BaseMessageCategoryForm
+	14, // 22: system.admin.v1.BaseMessageCategoryService.CreateBaseMessageCategory:output_type -> google.protobuf.Empty
+	14, // 23: system.admin.v1.BaseMessageCategoryService.UpdateBaseMessageCategory:output_type -> google.protobuf.Empty
+	14, // 24: system.admin.v1.BaseMessageCategoryService.DeleteBaseMessageCategory:output_type -> google.protobuf.Empty
+	14, // 25: system.admin.v1.BaseMessageCategoryService.SetBaseMessageCategoryStatus:output_type -> google.protobuf.Empty
+	19, // [19:26] is the sub-list for method output_type
+	12, // [12:19] is the sub-list for method input_type
+	12, // [12:12] is the sub-list for extension type_name
+	12, // [12:12] is the sub-list for extension extendee
+	0,  // [0:12] is the sub-list for field type_name
 }
 
 func init() { file_system_admin_v1_base_message_category_proto_init() }
@@ -833,19 +946,21 @@ func file_system_admin_v1_base_message_category_proto_init() {
 	if File_system_admin_v1_base_message_category_proto != nil {
 		return
 	}
+	file_system_admin_v1_base_message_category_proto_msgTypes[0].OneofWrappers = []any{}
 	file_system_admin_v1_base_message_category_proto_msgTypes[1].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_system_admin_v1_base_message_category_proto_rawDesc), len(file_system_admin_v1_base_message_category_proto_rawDesc)),
-			NumEnums:      0,
+			NumEnums:      1,
 			NumMessages:   10,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
 		GoTypes:           file_system_admin_v1_base_message_category_proto_goTypes,
 		DependencyIndexes: file_system_admin_v1_base_message_category_proto_depIdxs,
+		EnumInfos:         file_system_admin_v1_base_message_category_proto_enumTypes,
 		MessageInfos:      file_system_admin_v1_base_message_category_proto_msgTypes,
 	}.Build()
 	File_system_admin_v1_base_message_category_proto = out.File

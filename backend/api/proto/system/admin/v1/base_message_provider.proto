@@ -1,0 +1,105 @@
+syntax = "proto3";
+
+package system.admin.v1;
+
+import "buf/validate/validate.proto";
+import "common/v1/common.proto";
+import "common/v1/enum.proto";
+import "gnostic/openapi/v3/annotations.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/struct.proto";
+
+// Admin消息发送 Provider 管理服务。
+service BaseMessageProviderService {
+  // 查询消息发送 Provider 选项。
+  rpc OptionBaseMessageProvider(OptionBaseMessageProviderRequest) returns (.common.v1.SelectOptionResponse) { option (google.api.http) = {get: "/api/v1/admin/base/message-provider/option"}; }
+  // 分页查询消息发送 Provider。
+  rpc PageBaseMessageProvider(PageBaseMessageProviderRequest) returns (PageBaseMessageProviderResponse) { option (google.api.http) = {get: "/api/v1/admin/base/message-provider"}; }
+  // 查询消息发送 Provider 详情。
+  rpc GetBaseMessageProvider(GetBaseMessageProviderRequest) returns (BaseMessageProviderForm) { option (google.api.http) = {get: "/api/v1/admin/base/message-provider/{id}"}; }
+  // 创建消息发送 Provider。
+  rpc CreateBaseMessageProvider(CreateBaseMessageProviderRequest) returns (google.protobuf.Empty) { option (google.api.http) = {post: "/api/v1/admin/base/message-provider" body: "base_message_provider"}; }
+  // 更新消息发送 Provider。
+  rpc UpdateBaseMessageProvider(UpdateBaseMessageProviderRequest) returns (google.protobuf.Empty) { option (google.api.http) = {put: "/api/v1/admin/base/message-provider/{base_message_provider.id}" body: "base_message_provider"}; }
+  // 删除消息发送 Provider。
+  rpc DeleteBaseMessageProvider(DeleteBaseMessageProviderRequest) returns (google.protobuf.Empty) { option (google.api.http) = {delete: "/api/v1/admin/base/message-provider/{id}"}; }
+  // 设置消息发送 Provider 状态。
+  rpc SetBaseMessageProviderStatus(SetBaseMessageProviderStatusRequest) returns (google.protobuf.Empty) { option (google.api.http) = {put: "/api/v1/admin/base/message-provider/{id}/status" body: "*"}; }
+}
+
+// 消息发送 Provider 选项查询条件。
+message OptionBaseMessageProviderRequest {
+}
+
+// 消息发送 Provider 分页查询条件。
+message PageBaseMessageProviderRequest {
+  optional string provider = 1 [(gnostic.openapi.v3.property) = {description: "Provider标识"}]; // Provider标识
+  optional string name = 2 [(gnostic.openapi.v3.property) = {description: "Provider名称"}]; // Provider名称
+  optional .common.v1.Status status = 3 [(gnostic.openapi.v3.property) = {description: "状态"}, (buf.validate.field).enum = {defined_only: true}]; // 状态
+  int64 page_num = 101 [(gnostic.openapi.v3.property) = {description: "当前页码", default: {number: 1}}, (buf.validate.field).int64 = {gte: 1, lte: 1000000}]; // 当前页码
+  int64 page_size = 102 [(gnostic.openapi.v3.property) = {description: "每页数量", default: {number: 10}}, (buf.validate.field).int64 = {gte: 1, lte: 100}]; // 每页数量
+}
+
+// 消息发送 Provider 分页响应。
+message PageBaseMessageProviderResponse {
+  repeated BaseMessageProvider base_message_providers = 1 [(gnostic.openapi.v3.property) = {description: "消息发送 Provider 列表"}]; // 消息发送 Provider 列表
+  int32 total = 2 [(gnostic.openapi.v3.property) = {description: "总数"}]; // 总数
+}
+
+// 消息发送 Provider 详情查询条件。
+message GetBaseMessageProviderRequest {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "消息 Provider ID"}, (buf.validate.field).cel = {id: "system.admin.base_message_provider.get.id.required" message: "消息 Provider ID不能为空" expression: "this > 0"}]; // 消息 Provider ID
+}
+
+// 创建消息发送 Provider 请求。
+message CreateBaseMessageProviderRequest {
+  BaseMessageProviderForm base_message_provider = 1 [(gnostic.openapi.v3.property) = {description: "消息发送 Provider 表单"}, (buf.validate.field).required = true]; // 消息发送 Provider 表单
+}
+
+// 更新消息发送 Provider 请求。
+message UpdateBaseMessageProviderRequest {
+  BaseMessageProviderForm base_message_provider = 1 [(gnostic.openapi.v3.property) = {description: "消息发送 Provider 表单"}, (buf.validate.field).required = true]; // 消息发送 Provider 表单
+}
+
+// 删除消息发送 Provider 请求。
+message DeleteBaseMessageProviderRequest {
+  string id = 1 [(gnostic.openapi.v3.property) = {description: "消息 Provider ID列表"}, (buf.validate.field).cel = {id: "system.admin.base_message_provider.delete.id.required" message: "消息 Provider ID列表不能为空" expression: "this.size() > 0"}]; // 消息 Provider ID列表
+}
+
+// 设置消息发送 Provider 状态请求。
+message SetBaseMessageProviderStatusRequest {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "消息 Provider ID"}, (buf.validate.field).cel = {id: "system.admin.base_message_provider.set_status.id.required" message: "消息 Provider ID不能为空" expression: "this > 0"}]; // 消息 Provider ID
+  .common.v1.Status status = 2 [(gnostic.openapi.v3.property) = {description: "状态"}, (buf.validate.field).enum = {defined_only: true}]; // 状态
+}
+
+// 消息发送 Provider 表单。
+message BaseMessageProviderForm {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "消息 Provider ID"}]; // 消息 Provider ID
+  string provider = 2 [(gnostic.openapi.v3.property) = {description: "Provider稳定标识"}, (buf.validate.field).cel = {id: "system.admin.base_message_provider.form.provider.required" message: "Provider标识格式无效" expression: "this.size() > 0 && this.size() <= 32 && this.matches('^[a-z][a-z0-9_-]*$')"}]; // Provider稳定标识
+  string name = 3 [(gnostic.openapi.v3.property) = {description: "Provider名称"}, (buf.validate.field).cel = {id: "system.admin.base_message_provider.form.name.required" message: "Provider名称不能为空且不能超过50个字符" expression: "this.size() > 0 && this.size() <= 50"}]; // Provider名称
+  string description = 4 [(gnostic.openapi.v3.property) = {description: "Provider说明"}, (buf.validate.field).cel = {id: "system.admin.base_message_provider.form.description.length" message: "Provider说明不能超过255个字符" expression: "this.size() <= 255"}]; // Provider说明
+  string icon = 5 [(gnostic.openapi.v3.property) = {description: "图标键或图片地址"}, (buf.validate.field).cel = {id: "system.admin.base_message_provider.form.icon.length" message: "Provider图标不能超过100个字符" expression: "this.size() <= 100"}]; // 图标键或图片地址
+  string client_id = 6 [(gnostic.openapi.v3.property) = {description: "通用凭证标识"}, (buf.validate.field).cel = {id: "system.admin.base_message_provider.form.client_id.length" message: "通用凭证标识不能超过255个字符" expression: "this.size() <= 255"}]; // 通用凭证标识
+  string client_secret = 7 [(gnostic.openapi.v3.property) = {description: "通用凭证密钥，更新时留空表示不修改"}, (buf.validate.field).cel = {id: "system.admin.base_message_provider.form.client_secret.length" message: "通用凭证密钥不能超过1024个字符" expression: "this.size() <= 1024"}]; // 通用凭证密钥，更新时留空表示不修改
+  bool secret_configured = 8 [(gnostic.openapi.v3.property) = {description: "是否已配置通用凭证密钥"}]; // 是否已配置通用凭证密钥
+  google.protobuf.Struct config = 9 [(gnostic.openapi.v3.property) = {description: "Provider扩展配置JSON对象"}]; // Provider扩展配置JSON对象
+  int32 sort = 10 [(gnostic.openapi.v3.property) = {description: "排序"}]; // 排序
+  .common.v1.Status status = 11 [(gnostic.openapi.v3.property) = {description: "状态"}, (buf.validate.field).enum = {defined_only: true}]; // 状态
+}
+
+// 消息发送 Provider。
+message BaseMessageProvider {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "消息 Provider ID"}]; // 消息 Provider ID
+  string provider = 2 [(gnostic.openapi.v3.property) = {description: "Provider稳定标识"}]; // Provider稳定标识
+  string name = 3 [(gnostic.openapi.v3.property) = {description: "Provider名称"}]; // Provider名称
+  string description = 4 [(gnostic.openapi.v3.property) = {description: "Provider说明"}]; // Provider说明
+  string icon = 5 [(gnostic.openapi.v3.property) = {description: "图标键或图片地址"}]; // 图标键或图片地址
+  string client_id = 6 [(gnostic.openapi.v3.property) = {description: "通用凭证标识"}]; // 通用凭证标识
+  google.protobuf.Struct config = 7 [(gnostic.openapi.v3.property) = {description: "Provider扩展配置JSON对象"}]; // Provider扩展配置JSON对象
+  int32 sort = 8 [(gnostic.openapi.v3.property) = {description: "排序"}]; // 排序
+  .common.v1.Status status = 9 [(gnostic.openapi.v3.property) = {description: "状态"}]; // 状态
+  bool secret_configured = 10 [(gnostic.openapi.v3.property) = {description: "是否已配置通用凭证密钥"}]; // 是否已配置通用凭证密钥
+  string created_at = 100 [(gnostic.openapi.v3.property) = {description: "创建时间"}]; // 创建时间
+  string updated_at = 101 [(gnostic.openapi.v3.property) = {description: "更新时间"}]; // 更新时间
+}

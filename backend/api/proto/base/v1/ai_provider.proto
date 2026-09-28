@@ -1,0 +1,29 @@
+syntax = "proto3";
+
+package base.v1;
+
+import "gnostic/openapi/v3/annotations.proto";
+import "google/api/annotations.proto";
+
+// AI Provider 可选模型查询服务。
+service AiModelService {
+  // 查询已启用的AI Provider及其可用模型。
+  rpc ListAiProviderModelOptions(ListAiProviderModelOptionsRequest) returns (ListAiProviderModelOptionsResponse) {
+    option (google.api.http) = {get: "/api/v1/base/ai/provider-models"};
+  }
+}
+
+// AI Provider模型选项查询请求。
+message ListAiProviderModelOptionsRequest {}
+
+// 已启用的AI Provider及其模型选项。
+message AiProviderModelOption {
+  int64 provider_id = 1 [(gnostic.openapi.v3.property) = {description: "Provider ID"}]; // Provider ID
+  string name = 2 [(gnostic.openapi.v3.property) = {description: "Provider名称"}]; // Provider名称
+  repeated string models = 3 [(gnostic.openapi.v3.property) = {description: "模型名称列表"}]; // 模型名称列表
+}
+
+// AI Provider模型选项查询响应。
+message ListAiProviderModelOptionsResponse {
+  repeated AiProviderModelOption providers = 1 [(gnostic.openapi.v3.property) = {description: "Provider及其模型列表"}]; // Provider及其模型列表
+}

@@ -13,6 +13,7 @@ service AiToolService {
       get: "/api/v1/base/ai/shortcut"
     };
   }
+
 }
 
 // 终端类型。
@@ -32,6 +33,8 @@ message ListAiShortcutRequest {
 
 // AI 助手快捷入口列表响应
 message ListAiShortcutResponse {
+  reserved 2;
+
   repeated AiShortcut shortcuts = 1 [(gnostic.openapi.v3.property) = {description: "快捷入口列表"}]; // 快捷入口列表
 }
 

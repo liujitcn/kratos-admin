@@ -791,9 +791,9 @@ type BaseMessage struct {
 	Priority       basev1.MessagePriority `protobuf:"varint,6,opt,name=priority,proto3,enum=base.v1.MessagePriority" json:"priority,omitempty"`       // 消息优先级
 	Status         basev1.MessageStatus   `protobuf:"varint,7,opt,name=status,proto3,enum=base.v1.MessageStatus" json:"status,omitempty"`             // 消息状态
 	SenderName     string                 `protobuf:"bytes,8,opt,name=sender_name,json=senderName,proto3" json:"sender_name,omitempty"`               // 发送者名称
-	RecipientTotal int64                  `protobuf:"varint,9,opt,name=recipient_total,json=recipientTotal,proto3" json:"recipient_total,omitempty"`  // 目标人数
-	DeliveredTotal int64                  `protobuf:"varint,10,opt,name=delivered_total,json=deliveredTotal,proto3" json:"delivered_total,omitempty"` // 已投递人数
-	FailedTotal    int64                  `protobuf:"varint,11,opt,name=failed_total,json=failedTotal,proto3" json:"failed_total,omitempty"`          // 失败人数
+	RecipientTotal int64                  `protobuf:"varint,9,opt,name=recipient_total,json=recipientTotal,proto3" json:"recipient_total,omitempty"`  // 投递目标数
+	DeliveredTotal int64                  `protobuf:"varint,10,opt,name=delivered_total,json=deliveredTotal,proto3" json:"delivered_total,omitempty"` // 成功投递数
+	FailedTotal    int64                  `protobuf:"varint,11,opt,name=failed_total,json=failedTotal,proto3" json:"failed_total,omitempty"`          // 失败投递数
 	ScheduledAt    string                 `protobuf:"bytes,12,opt,name=scheduled_at,json=scheduledAt,proto3" json:"scheduled_at,omitempty"`           // 计划发布时间
 	PublishedAt    string                 `protobuf:"bytes,13,opt,name=published_at,json=publishedAt,proto3" json:"published_at,omitempty"`           // 发布时间
 	CreatedAt      string                 `protobuf:"bytes,100,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`                // 创建时间
@@ -947,7 +947,7 @@ type BaseMessageDispatch struct {
 	IncludeChildren bool                         `protobuf:"varint,4,opt,name=include_children,json=includeChildren,proto3" json:"include_children,omitempty"`                         // 是否包含子部门
 	Status          basev1.MessageDispatchStatus `protobuf:"varint,5,opt,name=status,proto3,enum=base.v1.MessageDispatchStatus" json:"status,omitempty"`                               // 投递状态
 	MatchedTotal    int64                        `protobuf:"varint,6,opt,name=matched_total,json=matchedTotal,proto3" json:"matched_total,omitempty"`                                  // 匹配人数
-	InsertedTotal   int64                        `protobuf:"varint,7,opt,name=inserted_total,json=insertedTotal,proto3" json:"inserted_total,omitempty"`                               // 新增投递人数
+	InsertedTotal   int64                        `protobuf:"varint,7,opt,name=inserted_total,json=insertedTotal,proto3" json:"inserted_total,omitempty"`                               // 新增投递记录数
 	AttemptCount    int32                        `protobuf:"varint,8,opt,name=attempt_count,json=attemptCount,proto3" json:"attempt_count,omitempty"`                                  // 尝试次数
 	LastError       string                       `protobuf:"bytes,9,opt,name=last_error,json=lastError,proto3" json:"last_error,omitempty"`                                            // 最近错误
 	unknownFields   protoimpl.UnknownFields
@@ -1187,7 +1187,7 @@ const file_system_admin_v1_base_message_proto_rawDesc = "" +
 	"expires_at\x18\f \x01(\tB\x12\xbaG\x0f\x92\x02\f过期时间R\texpiresAt\x12Z\n" +
 	"\taudiences\x18\r \x03(\v2(.system.admin.v1.BaseMessageAudienceFormB\x12\xbaG\x0f\x92\x02\f消息受众R\taudiences\x12/\n" +
 	"\aversion\x18\x0e \x01(\x03B\x15\xbaG\x12\x92\x02\x0f乐观锁版本R\aversion:m\xbaHj\x1ah\n" +
-	"1system.admin.base_message.form.audiences.required\x12\x18消息受众不能为空\x1a\x19this.audiences.size() > 0\"\xd1\x06\n" +
+	"1system.admin.base_message.form.audiences.required\x12\x18消息受众不能为空\x1a\x19this.audiences.size() > 0\"\xd7\x06\n" +
 	"\vBaseMessage\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b消息IDR\x02id\x12+\n" +
 	"\ttenant_id\x18\x02 \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDR\btenantId\x125\n" +
@@ -1198,17 +1198,17 @@ const file_system_admin_v1_base_message_proto_rawDesc = "" +
 	"\bpriority\x18\x06 \x01(\x0e2\x18.base.v1.MessagePriorityB\x15\xbaG\x12\x92\x02\x0f消息优先级R\bpriority\x12B\n" +
 	"\x06status\x18\a \x01(\x0e2\x16.base.v1.MessageStatusB\x12\xbaG\x0f\x92\x02\f消息状态R\x06status\x126\n" +
 	"\vsender_name\x18\b \x01(\tB\x15\xbaG\x12\x92\x02\x0f发送者名称R\n" +
-	"senderName\x12;\n" +
-	"\x0frecipient_total\x18\t \x01(\x03B\x12\xbaG\x0f\x92\x02\f目标人数R\x0erecipientTotal\x12>\n" +
+	"senderName\x12>\n" +
+	"\x0frecipient_total\x18\t \x01(\x03B\x15\xbaG\x12\x92\x02\x0f投递目标数R\x0erecipientTotal\x12>\n" +
 	"\x0fdelivered_total\x18\n" +
-	" \x01(\x03B\x15\xbaG\x12\x92\x02\x0f已投递人数R\x0edeliveredTotal\x125\n" +
-	"\ffailed_total\x18\v \x01(\x03B\x12\xbaG\x0f\x92\x02\f失败人数R\vfailedTotal\x12;\n" +
+	" \x01(\x03B\x15\xbaG\x12\x92\x02\x0f成功投递数R\x0edeliveredTotal\x128\n" +
+	"\ffailed_total\x18\v \x01(\x03B\x15\xbaG\x12\x92\x02\x0f失败投递数R\vfailedTotal\x12;\n" +
 	"\fscheduled_at\x18\f \x01(\tB\x18\xbaG\x15\x92\x02\x12计划发布时间R\vscheduledAt\x125\n" +
 	"\fpublished_at\x18\r \x01(\tB\x12\xbaG\x0f\x92\x02\f发布时间R\vpublishedAt\x121\n" +
 	"\n" +
 	"created_at\x18d \x01(\tB\x12\xbaG\x0f\x92\x02\f创建时间R\tcreatedAt\x121\n" +
 	"\n" +
-	"updated_at\x18e \x01(\tB\x12\xbaG\x0f\x92\x02\f更新时间R\tupdatedAt\"\xea\x04\n" +
+	"updated_at\x18e \x01(\tB\x12\xbaG\x0f\x92\x02\f更新时间R\tupdatedAt\"\xed\x04\n" +
 	"\x13BaseMessageDispatch\x12$\n" +
 	"\x02id\x18\x01 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e投递任务IDR\x02id\x12+\n" +
 	"\ttenant_id\x18\n" +
@@ -1218,8 +1218,8 @@ const file_system_admin_v1_base_message_proto_rawDesc = "" +
 	"audienceId\x12F\n" +
 	"\x10include_children\x18\x04 \x01(\bB\x1b\xbaG\x18\x92\x02\x15是否包含子部门R\x0fincludeChildren\x12J\n" +
 	"\x06status\x18\x05 \x01(\x0e2\x1e.base.v1.MessageDispatchStatusB\x12\xbaG\x0f\x92\x02\f投递状态R\x06status\x127\n" +
-	"\rmatched_total\x18\x06 \x01(\x03B\x12\xbaG\x0f\x92\x02\f匹配人数R\fmatchedTotal\x12?\n" +
-	"\x0einserted_total\x18\a \x01(\x03B\x18\xbaG\x15\x92\x02\x12新增投递人数R\rinsertedTotal\x127\n" +
+	"\rmatched_total\x18\x06 \x01(\x03B\x12\xbaG\x0f\x92\x02\f匹配人数R\fmatchedTotal\x12B\n" +
+	"\x0einserted_total\x18\a \x01(\x03B\x1b\xbaG\x18\x92\x02\x15新增投递记录数R\rinsertedTotal\x127\n" +
 	"\rattempt_count\x18\b \x01(\x05B\x12\xbaG\x0f\x92\x02\f尝试次数R\fattemptCount\x121\n" +
 	"\n" +
 	"last_error\x18\t \x01(\tB\x12\xbaG\x0f\x92\x02\f最近错误R\tlastError\"\x8c\x02\n" +

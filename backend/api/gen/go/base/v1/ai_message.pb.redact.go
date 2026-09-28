@@ -176,6 +176,10 @@ func (x *SendAiMessageRequest) Redact() {
 	// Safe field: Attachments
 
 	// Safe field: Action
+
+	// Safe field: ProviderId
+
+	// Safe field: ModelName
 }
 
 // Ensure RetryAiUserMessageRequest implements the Redactor interface at compile time.

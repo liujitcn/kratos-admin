@@ -264,6 +264,8 @@ func (x *BaseApiRateLimitPolicy) Redact() {
 
 	// Safe field: RuleParams
 
+	// Safe field: RuleType
+
 	// Safe field: Status
 
 	// Safe field: Remark
