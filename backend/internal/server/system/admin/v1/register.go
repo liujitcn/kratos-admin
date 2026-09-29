@@ -28,6 +28,8 @@ type Services struct {
 	Auth        *admin.AuthService
 	BaseAPI     *admin.BaseApiService
 	AiProvider  *admin.AiProviderService
+	AiSession   *admin.AiSessionService
+	AiQuery     *admin.AiQueryService
 	OauthClient *admin.OauthClientService
 
 	BaseAPICase              *biz.BaseAPICase
@@ -95,6 +97,7 @@ type Services struct {
 	BaseRateLimitRule       *admin.BaseRateLimitRuleService
 	BaseApiRateLimitPolicy  *admin.BaseApiRateLimitPolicyService
 	AiSearch                *base.AiSearchService
+	AiQueryBase             *base.AiQueryService
 }
 
 // RegisterGRPC 注册 system.admin.v1 的 gRPC 服务。
@@ -102,6 +105,8 @@ func (s Services) RegisterGRPC(srv grpc.ServiceRegistrar) {
 	adminv1.RegisterAuthServiceServer(srv, adminv1.RedactedAuthServiceServer(s.Auth))
 	adminv1.RegisterBaseApiServiceServer(srv, adminv1.RedactedBaseApiServiceServer(s.BaseAPI))
 	adminv1.RegisterAiProviderServiceServer(srv, adminv1.RedactedAiProviderServiceServer(s.AiProvider))
+	adminv1.RegisterAiSessionServiceServer(srv, adminv1.RedactedAiSessionServiceServer(s.AiSession))
+	adminv1.RegisterAiQueryServiceServer(srv, adminv1.RedactedAiQueryServiceServer(s.AiQuery))
 	adminv1.RegisterOauthClientServiceServer(srv, adminv1.RedactedOauthClientServiceServer(s.OauthClient))
 
 	adminv1.RegisterBaseAreaServiceServer(srv, adminv1.RedactedBaseAreaServiceServer(s.BaseArea))
@@ -168,6 +173,8 @@ func (s Services) RegisterHTTP(srv *http.Server) {
 	adminv1.RegisterAuthServiceHTTPServer(srv, adminv1.RedactedAuthServiceServer(s.Auth))
 	adminv1.RegisterBaseApiServiceHTTPServer(srv, adminv1.RedactedBaseApiServiceServer(s.BaseAPI))
 	adminv1.RegisterAiProviderServiceHTTPServer(srv, adminv1.RedactedAiProviderServiceServer(s.AiProvider))
+	adminv1.RegisterAiSessionServiceHTTPServer(srv, adminv1.RedactedAiSessionServiceServer(s.AiSession))
+	adminv1.RegisterAiQueryServiceHTTPServer(srv, adminv1.RedactedAiQueryServiceServer(s.AiQuery))
 	adminv1.RegisterOauthClientServiceHTTPServer(srv, adminv1.RedactedOauthClientServiceServer(s.OauthClient))
 
 	adminv1.RegisterBaseAreaServiceHTTPServer(srv, adminv1.RedactedBaseAreaServiceServer(s.BaseArea))
@@ -234,6 +241,8 @@ func (s Services) RegisterMCP(server *mcp.Server) {
 	adminv1.RegisterAuthServiceMCPTools(mcpSrv, s.Auth)
 	adminv1.RegisterBaseApiServiceMCPTools(mcpSrv, s.BaseAPI)
 	adminv1.RegisterAiProviderServiceMCPTools(mcpSrv, s.AiProvider)
+	adminv1.RegisterAiSessionServiceMCPTools(mcpSrv, s.AiSession)
+	adminv1.RegisterAiQueryServiceMCPTools(mcpSrv, s.AiQuery)
 
 	adminv1.RegisterBaseAreaServiceMCPTools(mcpSrv, s.BaseArea)
 	adminv1.RegisterBaseConfigServiceMCPTools(mcpSrv, s.BaseConfig)
@@ -375,6 +384,9 @@ func (s Services) AgentTools() ([]tool.Invokable, error) {
 		},
 		func() ([]tool.Invokable, error) {
 			return basev1.NewAiSearchServiceAgentTools(s.AiSearch)
+		},
+		func() ([]tool.Invokable, error) {
+			return basev1.NewAiQueryServiceAgentTools(s.AiQueryBase)
 		},
 	}
 	tools := make([]tool.Invokable, 0)

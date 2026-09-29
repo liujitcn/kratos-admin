@@ -74,6 +74,7 @@ const codeGenFormComponentLabelKeys: Record<ProFormComponentType, string> = {
   input: "system.code.gen.component.input",
   password: "system.code.gen.component.password",
   textarea: "system.code.gen.component.textarea",
+  "yaml-editor": "system.code.gen.component.yaml_editor",
   "input-number": "system.code.gen.component.input_number",
   "color-picker": "system.code.gen.component.color_picker",
   segmented: "system.code.gen.component.segmented",

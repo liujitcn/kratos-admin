@@ -4,40 +4,11 @@ import (
 	"testing"
 
 	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
-	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/dto"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
 	"github.com/liujitcn/kratos-kit/ai/model"
 	"google.golang.org/protobuf/types/known/structpb"
 )
-
-// TestParseAiProviderModelsSupportsMultipleModels 验证供应商可以维护多个模型配置。
-func TestParseAiProviderModelsSupportsMultipleModels(t *testing.T) {
-	values, err := parseAiProviderModels(`[
-  {"model_name":"model-a","api_type":"CHAT_COMPLETIONS"},
-  {"model_name":"model-b","api_type":"RESPONSES","max_tokens":2048}
-]`)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if len(values) != 2 || values[0].ModelName != "model-a" || values[1].ModelName != "model-b" {
-		t.Fatalf("unexpected model configuration: %+v", values)
-	}
-}
-
-// TestParseAiProviderModelsRejectsInvalidEntries 验证重复模型和未知字段会被拒绝。
-func TestParseAiProviderModelsRejectsInvalidEntries(t *testing.T) {
-	var err error
-	_, err = parseAiProviderModels(`[{"model_name":"same","api_type":"CHAT_COMPLETIONS"},{"model_name":"same","api_type":"RESPONSES"}]`)
-	if err == nil {
-		t.Fatal("duplicate model names should be rejected")
-	}
-	err = nil
-	_, err = parseAiProviderModels(`[{"model_name":"model-a","api_type":"CHAT_COMPLETIONS","api_key":"secret"}]`)
-	if err == nil {
-		t.Fatal("unknown model fields should be rejected")
-	}
-}
 
 // TestAiProviderFormNeverReturnsApiKey 验证供应商表单只返回密钥已配置状态。
 func TestAiProviderFormNeverReturnsApiKey(t *testing.T) {
@@ -45,7 +16,7 @@ func TestAiProviderFormNeverReturnsApiKey(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	form, err := toAiProviderForm(&models.AiProvider{ID: 1, APIKey: "stored-secret", Models: "[]", Config: `{"organization":"org-a"}`})
+	form, err := toAiProviderForm(&models.AiProvider{ID: 1, APIKey: "stored-secret", Config: `{"organization":"org-a"}`})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -58,9 +29,8 @@ func TestAiProviderFormNeverReturnsApiKey(t *testing.T) {
 func TestAiProviderEntityPreservesApiKey(t *testing.T) {
 	old := &models.AiProvider{Provider: aiProviderOpenAICompatible, APIKey: "stored-secret"}
 	form := &adminv1.AiProviderForm{
-		Provider:   aiProviderOpenAICompatible,
-		ModelsJson: `[{"model_name":"model-a","api_type":"CHAT_COMPLETIONS"}]`,
-		Status:     commonv1.Status_STATUS_DISABLE,
+		Provider: aiProviderOpenAICompatible,
+		Status:   commonv1.Status_STATUS_DISABLE,
 	}
 	entity, err := aiProviderEntity(form, old)
 	if err != nil {
@@ -85,7 +55,6 @@ func TestValidateAiProviderRequiresKeyWhenOpenAICompatibleEnabled(t *testing.T) 
 		Provider: aiProviderOpenAICompatible,
 		Name:     "test-provider",
 		BaseURL:  "https://example.com/v1",
-		Models:   `[{"model_name":"model-a","api_type":"CHAT_COMPLETIONS"}]`,
 		Config:   "{}",
 		Status:   int32(commonv1.Status_STATUS_ENABLE),
 	}
@@ -98,24 +67,66 @@ func TestValidateAiProviderRequiresKeyWhenOpenAICompatibleEnabled(t *testing.T) 
 	}
 }
 
-// TestOllamaProviderUsesUnifiedBaseURLAndOptionalApiKey 验证Ollama使用统一地址且不强制要求API Key。
-func TestOllamaProviderUsesUnifiedBaseURLAndOptionalApiKey(t *testing.T) {
+// TestChatModelConfigBuildsClientSettings 验证聊天模型配置能生成正确的客户端参数。
+func TestChatModelConfigBuildsClientSettings(t *testing.T) {
 	provider := &models.AiProvider{
 		Provider: aiProviderOllama,
 		Name:     "local-ollama",
 		BaseURL:  "http://localhost:11434/v1",
-		Models:   `[{"model_name":"llama3","api_type":"CHAT_COMPLETIONS"}]`,
 		Config:   "{}",
-		Status:   int32(commonv1.Status_STATUS_ENABLE),
 	}
-	if err := validateAiProvider(provider); err != nil {
-		t.Fatalf("Ollama provider should not require an API key: %v", err)
+	item := &models.AiModel{
+		ModelName: "llama3",
+		Category:  int32(aiModelCategoryChat),
+		Config:    `{"api_type":"CHAT_COMPLETIONS","temperature":0.2,"max_tokens":1024,"timeout_seconds":60,"max_retries":2}`,
 	}
-	modelConfig, err := providerModelConfig(provider, dto.AiProviderModelConfig{ModelName: "llama3", APIType: "CHAT_COMPLETIONS"})
+	modelConfig, err := chatModelConfig(provider, item)
 	if err != nil {
 		t.Fatal(err)
 	}
 	if modelConfig.Provider != model.ProviderOllama || modelConfig.ResolvedAPIKey() != "ollama" || modelConfig.BaseURL != provider.BaseURL {
 		t.Fatalf("unexpected Ollama model configuration: %+v", modelConfig)
+	}
+	if modelConfig.ModelName != "llama3" || modelConfig.Temperature != 0.2 || modelConfig.MaxTokens != 1024 {
+		t.Fatalf("unexpected chat model settings: %+v", modelConfig)
+	}
+}
+
+// TestValidateAiModelRejectsInvalidCategoryConfig 验证模型分类与分类配置的校验边界。
+func TestValidateAiModelRejectsInvalidCategoryConfig(t *testing.T) {
+	base := models.AiModel{
+		ModelName: "model-a",
+		Category:  int32(aiModelCategoryChat),
+		Config:    `{"api_type":"CHAT_COMPLETIONS"}`,
+		Status:    int32(commonv1.Status_STATUS_ENABLE),
+	}
+	if err := validateAiModel(&base); err != nil {
+		t.Fatalf("valid chat model should pass: %v", err)
+	}
+	badCategory := base
+	badCategory.Category = 99
+	if err := validateAiModel(&badCategory); err == nil {
+		t.Fatal("unknown category should be rejected")
+	}
+	badConfig := base
+	badConfig.Config = `{"api_type":"UNSUPPORTED"}`
+	if err := validateAiModel(&badConfig); err == nil {
+		t.Fatal("invalid chat api_type should be rejected")
+	}
+	unknownField := base
+	unknownField.Config = `{"api_type":"CHAT_COMPLETIONS","api_key":"secret"}`
+	if err := validateAiModel(&unknownField); err == nil {
+		t.Fatal("unknown chat config fields should be rejected")
+	}
+	embedding := base
+	embedding.Category = int32(aiModelCategoryEmbedding)
+	embedding.Config = `{"dimensions":1024}`
+	if err := validateAiModel(&embedding); err != nil {
+		t.Fatalf("valid embedding model should pass: %v", err)
+	}
+	badDims := embedding
+	badDims.Config = `{"dimensions":10}`
+	if err := validateAiModel(&badDims); err == nil {
+		t.Fatal("embedding dimensions below 64 should be rejected")
 	}
 }

@@ -5,6 +5,8 @@ import type {
   CreateAiProviderRequest,
   DeleteAiProviderRequest,
   GetAiProviderRequest,
+  ListAiProviderOptionsRequest,
+  ListAiProviderOptionsResponse,
   PageAiProviderRequest,
   PageAiProviderResponse,
   SetAiProviderStatusRequest,
@@ -36,6 +38,11 @@ export class AiProviderServiceImpl implements AiProviderService {
   /** 更新AI供应商。 */
   UpdateAiProvider(request: UpdateAiProviderRequest): Promise<Empty> {
     return service({ url: `${AI_PROVIDER_URL}/${request.ai_provider?.id ?? ""}`, method: "put", data: request.ai_provider });
+  }
+
+  /** 查询已启用的AI供应商选项。 */
+  ListAiProviderOptions(request: ListAiProviderOptionsRequest): Promise<ListAiProviderOptionsResponse> {
+    return service({ url: `${AI_PROVIDER_URL}/options`, method: "get", params: request });
   }
 
   /** 测试供应商表单中的全部模型。 */

@@ -10,8 +10,18 @@ func (*AiMessage) TableComment() string {
 }
 
 // TableComment 返回表注释。
+func (*AiModel) TableComment() string {
+	return "AI模型"
+}
+
+// TableComment 返回表注释。
 func (*AiProvider) TableComment() string {
 	return "AI供应商配置"
+}
+
+// TableComment 返回表注释。
+func (*AiQuery) TableComment() string {
+	return "智能问数记录"
 }
 
 // TableComment 返回表注释。

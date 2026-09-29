@@ -22,6 +22,7 @@ const _ = http.SupportPackageIsVersion3
 const OperationAiProviderServiceCreateAiProvider = "/system.admin.v1.AiProviderService/CreateAiProvider"
 const OperationAiProviderServiceDeleteAiProvider = "/system.admin.v1.AiProviderService/DeleteAiProvider"
 const OperationAiProviderServiceGetAiProvider = "/system.admin.v1.AiProviderService/GetAiProvider"
+const OperationAiProviderServiceListAiProviderOptions = "/system.admin.v1.AiProviderService/ListAiProviderOptions"
 const OperationAiProviderServicePageAiProvider = "/system.admin.v1.AiProviderService/PageAiProvider"
 const OperationAiProviderServiceSetAiProviderStatus = "/system.admin.v1.AiProviderService/SetAiProviderStatus"
 const OperationAiProviderServiceTestAiProviderModels = "/system.admin.v1.AiProviderService/TestAiProviderModels"
@@ -34,6 +35,9 @@ type AiProviderServiceHTTPServer interface {
 	DeleteAiProvider(context.Context, *DeleteAiProviderRequest) (*emptypb.Empty, error)
 	// GetAiProvider 查询AI供应商表单。
 	GetAiProvider(context.Context, *GetAiProviderRequest) (*AiProviderForm, error)
+	// ListAiProviderOptions 查询已启用的AI供应商选项。
+	// 字面路径必须先于 /{id} 声明：gorilla mux 按注册顺序匹配，否则会被 {id} 路由抢占。
+	ListAiProviderOptions(context.Context, *ListAiProviderOptionsRequest) (*ListAiProviderOptionsResponse, error)
 	// PageAiProvider 分页查询AI供应商。
 	PageAiProvider(context.Context, *PageAiProviderRequest) (*PageAiProviderResponse, error)
 	// SetAiProviderStatus 设置AI供应商状态。
@@ -47,6 +51,7 @@ type AiProviderServiceHTTPServer interface {
 func RegisterAiProviderServiceHTTPServer(s *http.Server, srv AiProviderServiceHTTPServer) {
 	r := s.Route("/")
 	r.Handle("GET", "/api/v1/admin/base/ai-provider", _AiProviderService_PageAiProvider0_HTTP_Handler(srv))
+	r.Handle("GET", "/api/v1/admin/base/ai-provider/options", _AiProviderService_ListAiProviderOptions0_HTTP_Handler(srv))
 	r.Handle("GET", "/api/v1/admin/base/ai-provider/{id}", _AiProviderService_GetAiProvider0_HTTP_Handler(srv))
 	r.Handle("POST", "/api/v1/admin/base/ai-provider", _AiProviderService_CreateAiProvider0_HTTP_Handler(srv))
 	r.Handle("PUT", "/api/v1/admin/base/ai-provider/{ai_provider.id}", _AiProviderService_UpdateAiProvider0_HTTP_Handler(srv))
@@ -70,6 +75,25 @@ func _AiProviderService_PageAiProvider0_HTTP_Handler(srv AiProviderServiceHTTPSe
 			return err
 		}
 		reply := out.(*PageAiProviderResponse)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _AiProviderService_ListAiProviderOptions0_HTTP_Handler(srv AiProviderServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in ListAiProviderOptionsRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationAiProviderServiceListAiProviderOptions)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.ListAiProviderOptions(ctx, req.(*ListAiProviderOptionsRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*ListAiProviderOptionsResponse)
 		return ctx.Result(200, reply)
 	}
 }
@@ -216,6 +240,9 @@ type AiProviderServiceHTTPClient interface {
 	DeleteAiProvider(ctx context.Context, req *DeleteAiProviderRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	// GetAiProvider 查询AI供应商表单。
 	GetAiProvider(ctx context.Context, req *GetAiProviderRequest, opts ...http.CallOption) (rsp *AiProviderForm, err error)
+	// ListAiProviderOptions 查询已启用的AI供应商选项。
+	// 字面路径必须先于 /{id} 声明：gorilla mux 按注册顺序匹配，否则会被 {id} 路由抢占。
+	ListAiProviderOptions(ctx context.Context, req *ListAiProviderOptionsRequest, opts ...http.CallOption) (rsp *ListAiProviderOptionsResponse, err error)
 	// PageAiProvider 分页查询AI供应商。
 	PageAiProvider(ctx context.Context, req *PageAiProviderRequest, opts ...http.CallOption) (rsp *PageAiProviderResponse, err error)
 	// SetAiProviderStatus 设置AI供应商状态。
@@ -277,6 +304,24 @@ func (c *AiProviderServiceHTTPClientImpl) GetAiProvider(ctx context.Context, in 
 	opts = append([]http.CallOption{
 		http.Accept("application/protojson"),
 		http.Operation(OperationAiProviderServiceGetAiProvider),
+		http.PathTemplate(pattern),
+	}, opts...)
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+// ListAiProviderOptions 查询已启用的AI供应商选项。
+// 字面路径必须先于 /{id} 声明：gorilla mux 按注册顺序匹配，否则会被 {id} 路由抢占。
+func (c *AiProviderServiceHTTPClientImpl) ListAiProviderOptions(ctx context.Context, in *ListAiProviderOptionsRequest, opts ...http.CallOption) (*ListAiProviderOptionsResponse, error) {
+	var out ListAiProviderOptionsResponse
+	pattern := "/api/v1/admin/base/ai-provider/options"
+	path := http.BuildPath(pattern, in, http.WithQueryParams())
+	opts = append([]http.CallOption{
+		http.Accept("application/protojson"),
+		http.Operation(OperationAiProviderServiceListAiProviderOptions),
 		http.PathTemplate(pattern),
 	}, opts...)
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)

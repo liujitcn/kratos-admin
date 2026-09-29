@@ -32,7 +32,6 @@ func newAiProvider(db *gorm.DB, opts ...gen.DOOption) aiProvider {
 	_aiProvider.Name = field.NewString(tableName, "name")
 	_aiProvider.BaseURL = field.NewString(tableName, "base_url")
 	_aiProvider.APIKey = field.NewString(tableName, "api_key")
-	_aiProvider.Models = field.NewString(tableName, "models")
 	_aiProvider.Config = field.NewString(tableName, "config")
 	_aiProvider.Sort = field.NewInt32(tableName, "sort")
 	_aiProvider.Status = field.NewInt32(tableName, "status")
@@ -57,10 +56,9 @@ type aiProvider struct {
 	Name      field.String // 供应商名称
 	BaseURL   field.String // 模型API基础地址
 	APIKey    field.String // 模型API密钥
-	Models    field.String // 供应商模型配置JSON数组
 	Config    field.String // Provider个性化配置JSON对象
 	Sort      field.Int32  // 排序
-	Status    field.Int32  // 状态
+	Status    field.Int32  // 状态：枚举【Status】
 	CreatedBy field.Int64  // 创建人ID
 	UpdatedBy field.Int64  // 更新人ID
 	CreatedAt field.Time   // 创建时间
@@ -87,7 +85,6 @@ func (a *aiProvider) updateTableName(table string) *aiProvider {
 	a.Name = field.NewString(table, "name")
 	a.BaseURL = field.NewString(table, "base_url")
 	a.APIKey = field.NewString(table, "api_key")
-	a.Models = field.NewString(table, "models")
 	a.Config = field.NewString(table, "config")
 	a.Sort = field.NewInt32(table, "sort")
 	a.Status = field.NewInt32(table, "status")
@@ -122,13 +119,12 @@ func (a *aiProvider) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (a *aiProvider) fillFieldMap() {
-	a.fieldMap = make(map[string]field.Expr, 14)
+	a.fieldMap = make(map[string]field.Expr, 13)
 	a.fieldMap["id"] = a.ID
 	a.fieldMap["provider"] = a.Provider
 	a.fieldMap["name"] = a.Name
 	a.fieldMap["base_url"] = a.BaseURL
 	a.fieldMap["api_key"] = a.APIKey
-	a.fieldMap["models"] = a.Models
 	a.fieldMap["config"] = a.Config
 	a.fieldMap["sort"] = a.Sort
 	a.fieldMap["status"] = a.Status

@@ -6,6 +6,7 @@ import (
 
 	_const "github.com/liujitcn/kratos-admin/backend/internal/const"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
+	ragdata "github.com/liujitcn/kratos-admin/backend/internal/data/gen/rag/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/i18n"
 	"github.com/liujitcn/kratos-admin/backend/internal/openapi"
 	"github.com/liujitcn/kratos-admin/backend/migration"
@@ -61,8 +62,11 @@ func NewModuleResources() module.Resources {
 		&resource{
 			projectKey:  fmt.Sprintf("%s-%s", _const.Project, _const.AppID),
 			projectName: _const.Name,
-			models:      module.Models{gorm.DefaultClientName: models},
-			openAPI:     openapi.Assets(),
+			models: module.Models{
+				gorm.DefaultClientName:    models,
+				ragdata.RagGormClientName: ragdata.Models(),
+			},
+			openAPI: openapi.Assets(),
 			migrations: module.Migrations{
 				{Name: migration.ModuleName, FS: migration.Assets(), Path: "."},
 			},

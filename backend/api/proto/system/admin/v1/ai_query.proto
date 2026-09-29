@@ -1,0 +1,70 @@
+syntax = "proto3";
+
+package system.admin.v1;
+
+import "buf/validate/validate.proto";
+import "gnostic/openapi/v3/annotations.proto";
+import "google/api/annotations.proto";
+
+// 智能问数记录管理服务。
+service AiQueryService {
+  // 分页查询智能问数记录。
+  rpc PageAiQuery(PageAiQueryRequest) returns (PageAiQueryResponse) {
+    option (google.api.http) = {get: "/api/v1/admin/base/ai-query"};
+  }
+  // 查询智能问数记录详情。
+  rpc GetAiQuery(GetAiQueryRequest) returns (AiQueryRecord) {
+    option (google.api.http) = {get: "/api/v1/admin/base/ai-query/{id}"};
+  }
+}
+
+// 智能问数状态枚举。
+enum AiQueryStatus {
+  // 未指定智能问数状态。
+  AI_QUERY_STATUS_UNSPECIFIED = 0;
+  // 成功。
+  AI_QUERY_STATUS_SUCCESS = 1;
+  // 失败。
+  AI_QUERY_STATUS_FAILED = 2;
+}
+
+// 智能问数分页查询条件。
+message PageAiQueryRequest {
+  string question = 1 [(gnostic.openapi.v3.property) = {description: "问题内容"}]; // 问题内容
+  optional AiQueryStatus status = 2 [(gnostic.openapi.v3.property) = {description: "问数状态：枚举【AiQueryStatus】"}]; // 问数状态：枚举【AiQueryStatus】
+  int64 page_num = 101 [(gnostic.openapi.v3.property) = {description: "当前页码", default: {number: 1}}, (buf.validate.field).int64 = {gte: 1, lte: 1000000}]; // 当前页码
+  int64 page_size = 102 [(gnostic.openapi.v3.property) = {description: "每页行数", default: {number: 10}}, (buf.validate.field).int64 = {gte: 1, lte: 100}]; // 每页行数
+}
+
+// 智能问数分页响应。
+message PageAiQueryResponse {
+  repeated AiQueryRecord queries = 1 [(gnostic.openapi.v3.property) = {description: "智能问数记录列表"}]; // 智能问数记录列表
+  int32 total = 2 [(gnostic.openapi.v3.property) = {description: "总数"}]; // 总数
+}
+
+// 查询智能问数记录请求。
+message GetAiQueryRequest {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "记录ID"}, (buf.validate.field).int64 = {gt: 0}]; // 记录ID
+}
+
+// 智能问数结果快照行。
+message AiQueryResultRow {
+  repeated string values = 1 [(gnostic.openapi.v3.property) = {description: "行数据"}]; // 行数据
+}
+
+// 智能问数记录。
+message AiQueryRecord {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "记录ID"}]; // 记录ID
+  int64 tenant_id = 2 [(gnostic.openapi.v3.property) = {description: "租户ID"}]; // 租户ID
+  int64 user_id = 3 [(gnostic.openapi.v3.property) = {description: "用户ID"}]; // 用户ID
+  string user_name = 4 [(gnostic.openapi.v3.property) = {description: "用户账号"}]; // 用户账号
+  string question = 5 [(gnostic.openapi.v3.property) = {description: "自然语言问题"}]; // 自然语言问题
+  string sql = 6 [(gnostic.openapi.v3.property) = {description: "生成的只读SQL"}]; // 生成的只读SQL
+  AiQueryStatus status = 7 [(gnostic.openapi.v3.property) = {description: "问数状态：枚举【AiQueryStatus】"}]; // 问数状态：枚举【AiQueryStatus】
+  int32 row_count = 8 [(gnostic.openapi.v3.property) = {description: "结果行数"}]; // 结果行数
+  int64 elapsed_ms = 9 [(gnostic.openapi.v3.property) = {description: "SQL执行耗时毫秒"}]; // SQL执行耗时毫秒
+  string error_msg = 10 [(gnostic.openapi.v3.property) = {description: "失败原因"}]; // 失败原因
+  repeated string result_columns = 11 [(gnostic.openapi.v3.property) = {description: "结果快照列名，仅详情返回"}]; // 结果快照列名，仅详情返回
+  repeated AiQueryResultRow result_rows = 12 [(gnostic.openapi.v3.property) = {description: "结果快照数据行，仅详情返回"}]; // 结果快照数据行，仅详情返回
+  string created_at = 200 [(gnostic.openapi.v3.property) = {description: "创建时间"}]; // 创建时间
+}

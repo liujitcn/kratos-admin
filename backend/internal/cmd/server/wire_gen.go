@@ -37,6 +37,8 @@ import (
 
 	_ "github.com/liujitcn/kratos-kit/database/gorm/driver/mysql"
 
+	_ "github.com/liujitcn/kratos-kit/database/gorm/driver/postgres"
+
 	_ "github.com/liujitcn/kratos-kit/logger/zap"
 
 	_ "github.com/liujitcn/kratos-kit/registry/consul"

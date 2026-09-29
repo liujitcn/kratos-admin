@@ -30,8 +30,11 @@
       :model-providers="modelProviders"
       :provider-id="selectedProviderId"
       :model-name="selectedModelName"
+      :knowledge-options="knowledgeOptions"
+      :knowledge-ids="selectedKnowledgeIds"
       @submit="handleSubmit"
       @model-change="handleModelChange"
+      @knowledge-change="handleKnowledgeChange"
       @message-action="handleMessageAction"
       @message-edit="handleEditMessage"
     >
@@ -59,9 +62,11 @@ import { defAiMessageService } from "@liujitcn/kratos-admin-system/api/base/v1/a
 import { defAiSessionService } from "@liujitcn/kratos-admin-system/api/base/v1/ai_session";
 import { defAiToolService } from "@liujitcn/kratos-admin-system/api/base/v1/ai_tool";
 import { defAiModelService } from "@liujitcn/kratos-admin-system/api/base/v1/ai_provider";
+import { defAiKnowledgeService } from "@liujitcn/kratos-admin-system/api/base/v1/ai_knowledge";
 import type { AiAction } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_message";
 import type { AiSession } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_session";
 import type { AiProviderModelOption } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_provider";
+import type { AiKnowledgeOption } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_knowledge";
 import type { AiShortcut } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_tool";
 import { AiMessageStatus } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_session";
 import { Terminal } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_tool";
@@ -112,6 +117,8 @@ const starterShortcuts = ref<AiShortcut[]>([]);
 const modelProviders = ref<AiProviderModelOption[]>([]);
 const selectedProviderId = ref(0);
 const selectedModelName = ref("");
+const knowledgeOptions = ref<AiKnowledgeOption[]>([]);
+const selectedKnowledgeIds = ref<number[]>([]);
 const messages = ref<Record<string, ChatMessageItem[]>>({});
 const pendingDeltaMap = new Map<string, AiStreamPayload>();
 const runningStreamTaskMap = new Map<string, AiStreamTask>();
@@ -229,6 +236,7 @@ async function runAiStreamTask(sessionID: string, payload: SubmitPayload) {
         content: payload.text,
         provider_id: selectedProviderId.value,
         model_name: selectedModelName.value,
+        knowledge_base_ids: selectedKnowledgeIds.value,
         attachments: payload.attachments.map(item => ({
           id: item.id,
           name: item.name,
@@ -657,16 +665,23 @@ async function loadAiShortcuts() {
   if (loadingShortcuts.value) return;
   loadingShortcuts.value = true;
   try {
-    const [response, providerResponse] = await Promise.all([
+    const [response, providerResponse, knowledgeResponse] = await Promise.all([
       defAiToolService.ListAiShortcut({ terminal: Terminal.TERMINAL_ADMIN }),
-      defAiModelService.ListAiProviderModelOptions({})
+      defAiModelService.ListAiProviderModelOptions({}),
+      defAiKnowledgeService.ListAiKnowledgeOptions({})
     ]);
     starterShortcuts.value = normalizeStarterShortcuts(response.shortcuts);
     modelProviders.value = providerResponse.providers ?? [];
+    knowledgeOptions.value = knowledgeResponse.options ?? [];
+    // 知识库可能已被删除，剔除无效选择。
+    selectedKnowledgeIds.value = selectedKnowledgeIds.value.filter(id =>
+      knowledgeOptions.value.some(option => option.id === id)
+    );
     applyModelSelection();
   } catch {
     starterShortcuts.value = [];
     modelProviders.value = [];
+    knowledgeOptions.value = [];
     selectedProviderId.value = 0;
     selectedModelName.value = "";
   } finally {
@@ -699,6 +714,11 @@ function handleModelChange(providerId: number, modelName: string) {
   selectedProviderId.value = providerId;
   selectedModelName.value = modelName;
   saveModelSelection({ provider_id: providerId, model_name: modelName });
+}
+
+/** 更新当前聊天检索注入的知识库选择。 */
+function handleKnowledgeChange(knowledgeIds: number[]) {
+  selectedKnowledgeIds.value = knowledgeIds;
 }
 
 /** 使指定会话仍在途的消息列表请求失效。 */

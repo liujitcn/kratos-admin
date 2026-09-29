@@ -8,6 +8,24 @@
 import type { Status } from "../../../common/v1/enum";
 import type { Empty } from "../../../google/protobuf/empty";
 
+/** AI模型分类枚举。 */
+export enum AiModelCategory {
+  /** AI_MODEL_CATEGORY_UNSPECIFIED - 未指定AI模型分类。 */
+  AI_MODEL_CATEGORY_UNSPECIFIED = 0,
+  /** AI_MODEL_CATEGORY_CHAT - 对话模型。 */
+  AI_MODEL_CATEGORY_CHAT = 1,
+  /** AI_MODEL_CATEGORY_EMBEDDING - 向量模型。 */
+  AI_MODEL_CATEGORY_EMBEDDING = 2,
+  /** AI_MODEL_CATEGORY_RERANK - 重排序模型。 */
+  AI_MODEL_CATEGORY_RERANK = 3,
+  /** AI_MODEL_CATEGORY_IMAGE - 图片模型。 */
+  AI_MODEL_CATEGORY_IMAGE = 4,
+  /** AI_MODEL_CATEGORY_VIDEO - 视频模型。 */
+  AI_MODEL_CATEGORY_VIDEO = 5,
+  /** AI_MODEL_CATEGORY_AUDIO - 音频模型。 */
+  AI_MODEL_CATEGORY_AUDIO = 6,
+}
+
 /** AI供应商分页查询条件。 */
 export interface PageAiProviderRequest {
   /** 供应商名称 */
@@ -48,8 +66,6 @@ export interface AiProviderForm {
   api_key: string;
   /** 是否已保存模型密钥 */
   api_key_configured: boolean;
-  /** 多模型JSON数组 */
-  models_json: string;
   /** 排序值 */
   sort: number;
   /** Provider稳定标识 */
@@ -58,6 +74,28 @@ export interface AiProviderForm {
   config:
     | { [key: string]: any }
     | undefined;
+  /** 供应商下的AI模型列表 */
+  models: AiProviderModelForm[];
+  /** 状态 */
+  status: Status;
+}
+
+/** AI供应商模型维护表单；provider_id由所属供应商表单隐式给定。 */
+export interface AiProviderModelForm {
+  /** 模型ID；新增时为0 */
+  id: number;
+  /** 模型名称，供应商API标识 */
+  model_name: string;
+  /** 显示名称 */
+  display_name: string;
+  /** 模型分类：枚举【AiModelCategory】 */
+  category: AiModelCategory;
+  /** 分类个性化配置JSON对象 */
+  config:
+    | { [key: string]: any }
+    | undefined;
+  /** 排序值 */
+  sort: number;
   /** 状态 */
   status: Status;
 }
@@ -74,7 +112,7 @@ export interface UpdateAiProviderRequest {
   ai_provider: AiProviderForm | undefined;
 }
 
-/** 测试AI供应商全部模型请求。 */
+/** 测试AI供应商模型请求。 */
 export interface TestAiProviderModelsRequest {
   /** 待测试的AI供应商草稿 */
   ai_provider: AiProviderForm | undefined;
@@ -96,6 +134,26 @@ export interface AiProviderModelTestResult {
 export interface TestAiProviderModelsResponse {
   /** 模型测试结果 */
   results: AiProviderModelTestResult[];
+}
+
+/** 查询AI供应商选项请求。 */
+export interface ListAiProviderOptionsRequest {
+}
+
+/** 查询AI供应商选项响应。 */
+export interface ListAiProviderOptionsResponse {
+  /** 已启用的AI供应商列表 */
+  options: AiProviderOption[];
+}
+
+/** AI供应商选项。 */
+export interface AiProviderOption {
+  /** 供应商ID */
+  id: number;
+  /** 供应商名称 */
+  name: string;
+  /** Provider稳定标识 */
+  provider: string;
 }
 
 /** 删除AI供应商请求。 */
@@ -122,12 +180,12 @@ export interface AiProvider {
   base_url: string;
   /** 是否已保存模型密钥 */
   api_key_configured: boolean;
-  /** 模型名称列表 */
-  model_names: string[];
   /** 排序值 */
   sort: number;
   /** Provider稳定标识 */
   provider: string;
+  /** 供应商下的模型名称列表 */
+  model_names: string[];
   /** 状态 */
   status: Status;
   /** 创建时间 */
@@ -140,6 +198,11 @@ export interface AiProvider {
 export interface AiProviderService {
   /** 分页查询AI供应商。 */
   PageAiProvider(request: PageAiProviderRequest): Promise<PageAiProviderResponse>;
+  /**
+   * 查询已启用的AI供应商选项。
+   * 字面路径必须先于 /{id} 声明：gorilla mux 按注册顺序匹配，否则会被 {id} 路由抢占。
+   */
+  ListAiProviderOptions(request: ListAiProviderOptionsRequest): Promise<ListAiProviderOptionsResponse>;
   /** 查询AI供应商表单。 */
   GetAiProvider(request: GetAiProviderRequest): Promise<AiProviderForm>;
   /** 创建AI供应商。 */

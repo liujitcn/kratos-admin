@@ -27,8 +27,8 @@ func newBaseRedactStoragePolicy(db *gorm.DB, opts ...gen.DOOption) baseRedactSto
 
 	tableName := _baseRedactStoragePolicy.baseRedactStoragePolicyDo.TableName()
 	_baseRedactStoragePolicy.ALL = field.NewAsterisk(tableName)
-	_baseRedactStoragePolicy.TenantID = field.NewInt64(tableName, "tenant_id")
 	_baseRedactStoragePolicy.ID = field.NewInt64(tableName, "id")
+	_baseRedactStoragePolicy.TenantID = field.NewInt64(tableName, "tenant_id")
 	_baseRedactStoragePolicy.SourceName = field.NewString(tableName, "source_name")
 	_baseRedactStoragePolicy.TableName_ = field.NewString(tableName, "table_name")
 	_baseRedactStoragePolicy.ColumnName = field.NewString(tableName, "column_name")
@@ -52,8 +52,8 @@ type baseRedactStoragePolicy struct {
 	baseRedactStoragePolicyDo baseRedactStoragePolicyDo
 
 	ALL        field.Asterisk
-	TenantID   field.Int64  // 租户ID
 	ID         field.Int64  // 入库策略ID
+	TenantID   field.Int64  // 租户ID
 	SourceName field.String // 数据源名称
 	TableName_ field.String // 数据库表名
 	ColumnName field.String // 数据库字段名
@@ -82,8 +82,8 @@ func (b baseRedactStoragePolicy) As(alias string) *baseRedactStoragePolicy {
 
 func (b *baseRedactStoragePolicy) updateTableName(table string) *baseRedactStoragePolicy {
 	b.ALL = field.NewAsterisk(table)
-	b.TenantID = field.NewInt64(table, "tenant_id")
 	b.ID = field.NewInt64(table, "id")
+	b.TenantID = field.NewInt64(table, "tenant_id")
 	b.SourceName = field.NewString(table, "source_name")
 	b.TableName_ = field.NewString(table, "table_name")
 	b.ColumnName = field.NewString(table, "column_name")
@@ -125,8 +125,8 @@ func (b *baseRedactStoragePolicy) GetFieldByName(fieldName string) (field.OrderE
 
 func (b *baseRedactStoragePolicy) fillFieldMap() {
 	b.fieldMap = make(map[string]field.Expr, 14)
-	b.fieldMap["tenant_id"] = b.TenantID
 	b.fieldMap["id"] = b.ID
+	b.fieldMap["tenant_id"] = b.TenantID
 	b.fieldMap["source_name"] = b.SourceName
 	b.fieldMap["table_name"] = b.TableName_
 	b.fieldMap["column_name"] = b.ColumnName

@@ -15,6 +15,11 @@ service AiProviderService {
   rpc PageAiProvider(PageAiProviderRequest) returns (PageAiProviderResponse) {
     option (google.api.http) = {get: "/api/v1/admin/base/ai-provider"};
   }
+  // 查询已启用的AI供应商选项。
+  // 字面路径必须先于 /{id} 声明：gorilla mux 按注册顺序匹配，否则会被 {id} 路由抢占。
+  rpc ListAiProviderOptions(ListAiProviderOptionsRequest) returns (ListAiProviderOptionsResponse) {
+    option (google.api.http) = {get: "/api/v1/admin/base/ai-provider/options"};
+  }
   // 查询AI供应商表单。
   rpc GetAiProvider(GetAiProviderRequest) returns (AiProviderForm) {
     option (google.api.http) = {get: "/api/v1/admin/base/ai-provider/{id}"};
@@ -62,20 +67,48 @@ message GetAiProviderRequest {
 
 // AI供应商维护表单。
 message AiProviderForm {
-  option (buf.validate.message).cel = {id: "system.admin.base.ai.provider.models_json.required" message: "请至少配置一个模型" expression: "this.models_json.size() > 0"};
-  reserved 3, 7, 8, 9, 10, 14, 15;
-  reserved "type", "organization", "local_host", "local_port", "use_gpu", "description", "icon";
+  reserved 3, 7, 8, 9, 10, 11, 14, 15;
+  reserved "type", "organization", "local_host", "local_port", "use_gpu", "description", "icon", "models_json";
 
   int64 id = 1 [(gnostic.openapi.v3.property) = {description: "供应商ID"}]; // 供应商ID
   string name = 2 [(gnostic.openapi.v3.property) = {description: "供应商名称"}, (buf.validate.field).cel = {id: "system.admin.base.ai.provider.name.required" message: "请输入供应商名称" expression: "this.size() > 0 && this.size() <= 100"}]; // 供应商名称
   string base_url = 4 [(gnostic.openapi.v3.property) = {description: "模型API基础地址"}, (buf.validate.field).cel = {id: "system.admin.base.ai.provider.base_url.max_length" message: "接口地址不能超过512个字符" expression: "this.size() <= 512"}]; // 模型API基础地址
   string api_key = 5 [(gnostic.openapi.v3.property) = {description: "模型API密钥；更新时留空表示保留现有密钥"}, (buf.validate.field).cel = {id: "system.admin.base.ai.provider.api_key.max_length" message: "模型密钥不能超过1024个字符" expression: "this.size() <= 1024"}]; // 模型API密钥；更新时留空表示保留现有密钥
   bool api_key_configured = 6 [(gnostic.openapi.v3.property) = {description: "是否已保存模型密钥"}]; // 是否已保存模型密钥
-  string models_json = 11 [(gnostic.openapi.v3.property) = {description: "多模型JSON数组，每项含model_name、api_type、temperature、max_tokens、timeout_seconds和max_retries"}]; // 多模型JSON数组
   int32 sort = 12 [(gnostic.openapi.v3.property) = {description: "排序值"}, (buf.validate.field).int32 = {gte: 0}]; // 排序值
   string provider = 13 [(gnostic.openapi.v3.property) = {description: "Provider稳定标识：openai_compatible或ollama"}, (buf.validate.field).cel = {id: "system.admin.base.ai.provider.provider.required" message: "请选择模型Provider" expression: "this == 'openai_compatible' || this == 'ollama'"}]; // Provider稳定标识
   google.protobuf.Struct config = 16 [(gnostic.openapi.v3.property) = {description: "Provider个性化配置JSON对象"}]; // Provider个性化配置JSON对象
+  repeated AiProviderModelForm models = 17 [(gnostic.openapi.v3.property) = {description: "供应商下的AI模型列表"}]; // 供应商下的AI模型列表
   .common.v1.Status status = 51 [(gnostic.openapi.v3.property) = {description: "状态"}, (buf.validate.field).enum = {defined_only: true}]; // 状态
+}
+
+// AI模型分类枚举。
+enum AiModelCategory {
+  // 未指定AI模型分类。
+  AI_MODEL_CATEGORY_UNSPECIFIED = 0;
+  // 对话模型。
+  AI_MODEL_CATEGORY_CHAT = 1;
+  // 向量模型。
+  AI_MODEL_CATEGORY_EMBEDDING = 2;
+  // 重排序模型。
+  AI_MODEL_CATEGORY_RERANK = 3;
+  // 图片模型。
+  AI_MODEL_CATEGORY_IMAGE = 4;
+  // 视频模型。
+  AI_MODEL_CATEGORY_VIDEO = 5;
+  // 音频模型。
+  AI_MODEL_CATEGORY_AUDIO = 6;
+}
+
+// AI供应商模型维护表单；provider_id由所属供应商表单隐式给定。
+message AiProviderModelForm {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "模型ID；新增时为0"}]; // 模型ID；新增时为0
+  string model_name = 2 [(gnostic.openapi.v3.property) = {description: "模型名称，供应商API标识"}, (buf.validate.field).cel = {id: "system.admin.base.ai.model.model_name.required" message: "请输入模型名称" expression: "this.size() > 0 && this.size() <= 200"}]; // 模型名称，供应商API标识
+  string display_name = 3 [(gnostic.openapi.v3.property) = {description: "显示名称"}, (buf.validate.field).cel = {id: "system.admin.base.ai.model.display_name.max_length" message: "显示名称不能超过100个字符" expression: "this.size() <= 100"}]; // 显示名称
+  AiModelCategory category = 4 [(gnostic.openapi.v3.property) = {description: "模型分类：枚举【AiModelCategory】"}, (buf.validate.field).enum = {defined_only: true not_in: [0]}]; // 模型分类：枚举【AiModelCategory】
+  google.protobuf.Struct config = 5 [(gnostic.openapi.v3.property) = {description: "分类个性化配置JSON对象"}]; // 分类个性化配置JSON对象
+  int32 sort = 6 [(gnostic.openapi.v3.property) = {description: "排序值"}, (buf.validate.field).int32 = {gte: 0}]; // 排序值
+  .common.v1.Status status = 7 [(gnostic.openapi.v3.property) = {description: "状态"}, (buf.validate.field).enum = {defined_only: true}]; // 状态
 }
 
 // 创建AI供应商请求。
@@ -89,7 +122,7 @@ message UpdateAiProviderRequest {
   AiProviderForm ai_provider = 1 [(gnostic.openapi.v3.property) = {description: "AI供应商表单"}, (buf.validate.field).required = true]; // AI供应商表单
 }
 
-// 测试AI供应商全部模型请求。
+// 测试AI供应商模型请求。
 message TestAiProviderModelsRequest {
   AiProviderForm ai_provider = 1 [(gnostic.openapi.v3.property) = {description: "待测试的AI供应商草稿"}, (buf.validate.field).required = true]; // 待测试的AI供应商草稿
 }
@@ -107,6 +140,21 @@ message TestAiProviderModelsResponse {
   repeated AiProviderModelTestResult results = 1 [(gnostic.openapi.v3.property) = {description: "按配置顺序返回的模型测试结果"}]; // 模型测试结果
 }
 
+// 查询AI供应商选项请求。
+message ListAiProviderOptionsRequest {}
+
+// 查询AI供应商选项响应。
+message ListAiProviderOptionsResponse {
+  repeated AiProviderOption options = 1 [(gnostic.openapi.v3.property) = {description: "已启用的AI供应商列表"}]; // 已启用的AI供应商列表
+}
+
+// AI供应商选项。
+message AiProviderOption {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "供应商ID"}]; // 供应商ID
+  string name = 2 [(gnostic.openapi.v3.property) = {description: "供应商名称"}]; // 供应商名称
+  string provider = 3 [(gnostic.openapi.v3.property) = {description: "Provider稳定标识"}]; // Provider稳定标识
+}
+
 // 删除AI供应商请求。
 message DeleteAiProviderRequest {
   int64 id = 1 [(gnostic.openapi.v3.property) = {description: "供应商ID"}, (buf.validate.field).int64 = {gt: 0}]; // 供应商ID
@@ -120,16 +168,16 @@ message SetAiProviderStatusRequest {
 
 // AI供应商分页记录。
 message AiProvider {
-  reserved 3, 9, 10;
+  reserved 3, 6, 10;
   reserved "type", "description", "icon";
 
   int64 id = 1 [(gnostic.openapi.v3.property) = {description: "供应商ID"}]; // 供应商ID
   string name = 2 [(gnostic.openapi.v3.property) = {description: "供应商名称"}]; // 供应商名称
   string base_url = 4 [(gnostic.openapi.v3.property) = {description: "模型API基础地址"}]; // 模型API基础地址
   bool api_key_configured = 5 [(gnostic.openapi.v3.property) = {description: "是否已保存模型密钥"}]; // 是否已保存模型密钥
-  repeated string model_names = 6 [(gnostic.openapi.v3.property) = {description: "模型名称列表"}]; // 模型名称列表
   int32 sort = 7 [(gnostic.openapi.v3.property) = {description: "排序值"}]; // 排序值
   string provider = 8 [(gnostic.openapi.v3.property) = {description: "Provider稳定标识"}]; // Provider稳定标识
+  repeated string model_names = 9 [(gnostic.openapi.v3.property) = {description: "供应商下的模型名称列表"}]; // 供应商下的模型名称列表
   .common.v1.Status status = 51 [(gnostic.openapi.v3.property) = {description: "状态"}]; // 状态
   string created_at = 200 [(gnostic.openapi.v3.property) = {description: "创建时间"}]; // 创建时间
   string updated_at = 201 [(gnostic.openapi.v3.property) = {description: "更新时间"}]; // 更新时间

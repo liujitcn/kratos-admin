@@ -2,6 +2,7 @@ package service
 
 import (
 	"github.com/liujitcn/kratos-admin/backend/internal/service/base/v1"
+	ragadmin "github.com/liujitcn/kratos-admin/backend/internal/service/rag/admin/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/service/system/admin/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/service/system/app/v1"
 
@@ -13,4 +14,5 @@ var ProviderSet = wire.NewSet(
 	base.ProviderSet,
 	admin.ProviderSet,
 	app.ProviderSet,
+	ragadmin.ProviderSet,
 )

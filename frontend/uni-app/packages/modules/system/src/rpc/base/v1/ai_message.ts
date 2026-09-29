@@ -53,6 +53,8 @@ export interface SendAiMessageRequest {
   provider_id: number;
   /** 所选模型名称 */
   model_name: string;
+  /** 所选知识库ID列表 */
+  knowledge_base_ids: number[];
 }
 
 /** AI 助手失败消息重试请求 */

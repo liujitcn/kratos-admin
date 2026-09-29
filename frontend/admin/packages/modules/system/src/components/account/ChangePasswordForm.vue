@@ -58,7 +58,7 @@ const passwordFormFields = computed<ProFormField[]>(() => [
     prop: "old_pwd",
     label: t("system.profile.password.field.old_password"),
     component: "password",
-    props: { placeholder: t("system.profile.password.placeholder.old_password") }
+    props: { autocomplete: "current-password", placeholder: t("system.profile.password.placeholder.old_password") }
   },
   {
     prop: "new_pwd",

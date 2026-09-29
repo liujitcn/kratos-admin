@@ -6,6 +6,7 @@ export type ProFormComponentType =
   | "input"
   | "password"
   | "textarea"
+  | "yaml-editor"
   | "input-number"
   | "color-picker"
   | "segmented"

@@ -20,6 +20,8 @@ type InputContentPayload struct {
 	ProviderName string `json:"provider_name,omitempty"`
 	// ModelName 本轮选择的模型名称。
 	ModelName string `json:"model_name,omitempty"`
+	// KnowledgeBaseIDs 本轮选择的知识库编号，检索注入上下文使用。
+	KnowledgeBaseIDs []int64 `json:"knowledge_base_ids,omitempty"`
 }
 
 // OutputContentPayload 表示 AI 助手输出内容 JSON 结构。

@@ -19,10 +19,9 @@ type AiProvider struct {
 	Name      string                `gorm:"column:name;type:varchar(100);not null;uniqueIndex:unique_ai_provider,priority:1;comment:供应商名称" json:"name"`                                // 供应商名称
 	BaseURL   string                `gorm:"column:base_url;type:varchar(512);not null;comment:模型API基础地址" json:"base_url"`                                                              // 模型API基础地址
 	APIKey    string                `gorm:"column:api_key;type:varchar(2048);not null;comment:模型API密钥" json:"api_key"`                                                                 // 模型API密钥
-	Models    string                `gorm:"column:models;type:json;not null;comment:供应商模型配置JSON数组" json:"models"`                                                                      // 供应商模型配置JSON数组
 	Config    string                `gorm:"column:config;type:json;not null;comment:Provider个性化配置JSON对象" json:"config"`                                                                // Provider个性化配置JSON对象
 	Sort      int32                 `gorm:"column:sort;type:int;not null;index:idx_ai_provider_status_sort,priority:2;comment:排序" json:"sort"`                                         // 排序
-	Status    int32                 `gorm:"column:status;type:tinyint;not null;index:idx_ai_provider_status_sort,priority:1;comment:状态" json:"status"`                                 // 状态
+	Status    int32                 `gorm:"column:status;type:tinyint;not null;index:idx_ai_provider_status_sort,priority:1;comment:状态：枚举【Status】" json:"status"`                      // 状态：枚举【Status】
 	CreatedBy int64                 `gorm:"column:created_by;type:bigint;not null;comment:创建人ID" json:"created_by"`                                                                    // 创建人ID
 	UpdatedBy int64                 `gorm:"column:updated_by;type:bigint;not null;comment:更新人ID" json:"updated_by"`                                                                    // 更新人ID
 	CreatedAt time.Time             `gorm:"column:created_at;type:datetime;not null;comment:创建时间" json:"created_at"`                                                                   // 创建时间

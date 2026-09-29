@@ -21,13 +21,14 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	AiProviderService_PageAiProvider_FullMethodName       = "/system.admin.v1.AiProviderService/PageAiProvider"
-	AiProviderService_GetAiProvider_FullMethodName        = "/system.admin.v1.AiProviderService/GetAiProvider"
-	AiProviderService_CreateAiProvider_FullMethodName     = "/system.admin.v1.AiProviderService/CreateAiProvider"
-	AiProviderService_UpdateAiProvider_FullMethodName     = "/system.admin.v1.AiProviderService/UpdateAiProvider"
-	AiProviderService_TestAiProviderModels_FullMethodName = "/system.admin.v1.AiProviderService/TestAiProviderModels"
-	AiProviderService_DeleteAiProvider_FullMethodName     = "/system.admin.v1.AiProviderService/DeleteAiProvider"
-	AiProviderService_SetAiProviderStatus_FullMethodName  = "/system.admin.v1.AiProviderService/SetAiProviderStatus"
+	AiProviderService_PageAiProvider_FullMethodName        = "/system.admin.v1.AiProviderService/PageAiProvider"
+	AiProviderService_ListAiProviderOptions_FullMethodName = "/system.admin.v1.AiProviderService/ListAiProviderOptions"
+	AiProviderService_GetAiProvider_FullMethodName         = "/system.admin.v1.AiProviderService/GetAiProvider"
+	AiProviderService_CreateAiProvider_FullMethodName      = "/system.admin.v1.AiProviderService/CreateAiProvider"
+	AiProviderService_UpdateAiProvider_FullMethodName      = "/system.admin.v1.AiProviderService/UpdateAiProvider"
+	AiProviderService_TestAiProviderModels_FullMethodName  = "/system.admin.v1.AiProviderService/TestAiProviderModels"
+	AiProviderService_DeleteAiProvider_FullMethodName      = "/system.admin.v1.AiProviderService/DeleteAiProvider"
+	AiProviderService_SetAiProviderStatus_FullMethodName   = "/system.admin.v1.AiProviderService/SetAiProviderStatus"
 )
 
 // AiProviderServiceClient is the client API for AiProviderService service.
@@ -38,6 +39,9 @@ const (
 type AiProviderServiceClient interface {
 	// 分页查询AI供应商。
 	PageAiProvider(ctx context.Context, in *PageAiProviderRequest, opts ...grpc.CallOption) (*PageAiProviderResponse, error)
+	// 查询已启用的AI供应商选项。
+	// 字面路径必须先于 /{id} 声明：gorilla mux 按注册顺序匹配，否则会被 {id} 路由抢占。
+	ListAiProviderOptions(ctx context.Context, in *ListAiProviderOptionsRequest, opts ...grpc.CallOption) (*ListAiProviderOptionsResponse, error)
 	// 查询AI供应商表单。
 	GetAiProvider(ctx context.Context, in *GetAiProviderRequest, opts ...grpc.CallOption) (*AiProviderForm, error)
 	// 创建AI供应商。
@@ -64,6 +68,16 @@ func (c *aiProviderServiceClient) PageAiProvider(ctx context.Context, in *PageAi
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(PageAiProviderResponse)
 	err := c.cc.Invoke(ctx, AiProviderService_PageAiProvider_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *aiProviderServiceClient) ListAiProviderOptions(ctx context.Context, in *ListAiProviderOptionsRequest, opts ...grpc.CallOption) (*ListAiProviderOptionsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListAiProviderOptionsResponse)
+	err := c.cc.Invoke(ctx, AiProviderService_ListAiProviderOptions_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -138,6 +152,9 @@ func (c *aiProviderServiceClient) SetAiProviderStatus(ctx context.Context, in *S
 type AiProviderServiceServer interface {
 	// 分页查询AI供应商。
 	PageAiProvider(context.Context, *PageAiProviderRequest) (*PageAiProviderResponse, error)
+	// 查询已启用的AI供应商选项。
+	// 字面路径必须先于 /{id} 声明：gorilla mux 按注册顺序匹配，否则会被 {id} 路由抢占。
+	ListAiProviderOptions(context.Context, *ListAiProviderOptionsRequest) (*ListAiProviderOptionsResponse, error)
 	// 查询AI供应商表单。
 	GetAiProvider(context.Context, *GetAiProviderRequest) (*AiProviderForm, error)
 	// 创建AI供应商。
@@ -162,6 +179,9 @@ type UnimplementedAiProviderServiceServer struct{}
 
 func (UnimplementedAiProviderServiceServer) PageAiProvider(context.Context, *PageAiProviderRequest) (*PageAiProviderResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method PageAiProvider not implemented")
+}
+func (UnimplementedAiProviderServiceServer) ListAiProviderOptions(context.Context, *ListAiProviderOptionsRequest) (*ListAiProviderOptionsResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListAiProviderOptions not implemented")
 }
 func (UnimplementedAiProviderServiceServer) GetAiProvider(context.Context, *GetAiProviderRequest) (*AiProviderForm, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetAiProvider not implemented")
@@ -216,6 +236,24 @@ func _AiProviderService_PageAiProvider_Handler(srv interface{}, ctx context.Cont
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(AiProviderServiceServer).PageAiProvider(ctx, req.(*PageAiProviderRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AiProviderService_ListAiProviderOptions_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListAiProviderOptionsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AiProviderServiceServer).ListAiProviderOptions(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AiProviderService_ListAiProviderOptions_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AiProviderServiceServer).ListAiProviderOptions(ctx, req.(*ListAiProviderOptionsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -338,6 +376,10 @@ var AiProviderService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "PageAiProvider",
 			Handler:    _AiProviderService_PageAiProvider_Handler,
+		},
+		{
+			MethodName: "ListAiProviderOptions",
+			Handler:    _AiProviderService_ListAiProviderOptions_Handler,
 		},
 		{
 			MethodName: "GetAiProvider",

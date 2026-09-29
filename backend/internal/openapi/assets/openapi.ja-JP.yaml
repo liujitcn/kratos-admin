@@ -237,6 +237,21 @@ paths:
                 "200":
                     description: OK
                     content: {}
+    /api/v1/admin/base/ai-provider/options:
+        get:
+            tags:
+                - AiProviderService
+            description: |-
+                查询已启用的AI供应商选项。
+                 字面路径必须先于 /{id} 声明：gorilla mux 按注册顺序匹配，否则会被 {id} 路由抢占。
+            operationId: AiProviderService_ListAiProviderOptions
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.ListAiProviderOptionsResponse'
     /api/v1/admin/base/ai-provider/test-models:
         post:
             tags:
@@ -334,6 +349,122 @@ paths:
                 "200":
                     description: OK
                     content: {}
+    /api/v1/admin/base/ai-query:
+        get:
+            tags:
+                - AiQueryService
+            description: スマートデータクエリ記録をページ単位で取得します。
+            operationId: AiQueryService_PageAiQuery
+            parameters:
+                - name: question
+                  in: query
+                  schema:
+                    type: string
+                - name: status
+                  in: query
+                  schema:
+                    enum:
+                        - AI_QUERY_STATUS_UNSPECIFIED
+                        - AI_QUERY_STATUS_SUCCESS
+                        - AI_QUERY_STATUS_FAILED
+                    type: string
+                    format: enum
+                - name: page_num
+                  in: query
+                  schema:
+                    type: string
+                - name: page_size
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.PageAiQueryResponse'
+    /api/v1/admin/base/ai-query/{id}:
+        get:
+            tags:
+                - AiQueryService
+            description: スマートデータクエリ記録の詳細を取得します。
+            operationId: AiQueryService_GetAiQuery
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.AiQueryRecord'
+    /api/v1/admin/base/ai-session:
+        get:
+            tags:
+                - AiSessionService
+            description: AIセッションをページ単位で取得します。
+            operationId: AiSessionService_PageAiSession
+            parameters:
+                - name: title
+                  in: query
+                  schema:
+                    type: string
+                - name: terminal
+                  in: query
+                  schema:
+                    enum:
+                        - TERMINAL_UNSPECIFIED
+                        - TERMINAL_APP
+                        - TERMINAL_ADMIN
+                    type: string
+                    format: enum
+                - name: page_num
+                  in: query
+                  schema:
+                    type: string
+                - name: page_size
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.PageAiSessionResponse'
+    /api/v1/admin/base/ai-session/{id}/message:
+        get:
+            tags:
+                - AiSessionService
+            description: AIセッションのメッセージをページ単位で取得します。
+            operationId: AiSessionService_PageAiSessionMessage
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: page_num
+                  in: query
+                  schema:
+                    type: string
+                - name: page_size
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.PageAiSessionMessageResponse'
     /api/v1/admin/base/api:
         get:
             tags:
@@ -6711,6 +6842,246 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/system.admin.v1.OpsTrafficResponse'
+    /api/v1/admin/rag/knowledge:
+        get:
+            tags:
+                - AiKnowledgeService
+            description: AIナレッジベースをページ単位で取得します。
+            operationId: AiKnowledgeService_PageAiKnowledge
+            parameters:
+                - name: name
+                  in: query
+                  schema:
+                    type: string
+                - name: page_num
+                  in: query
+                  schema:
+                    type: string
+                - name: page_size
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/rag.admin.v1.PageAiKnowledgeResponse'
+        post:
+            tags:
+                - AiKnowledgeService
+            description: AIナレッジベースを作成します。
+            operationId: AiKnowledgeService_CreateAiKnowledge
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/rag.admin.v1.AiKnowledgeForm'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/rag/knowledge/doc/{doc_id}:
+        delete:
+            tags:
+                - AiKnowledgeDocService
+            description: ドキュメントを削除します（チャンクも連鎖削除）。
+            operationId: AiKnowledgeDocService_DeleteAiKnowledgeDoc
+            parameters:
+                - name: doc_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/rag/knowledge/doc/{doc_id}/reprocess:
+        post:
+            tags:
+                - AiKnowledgeDocService
+            description: 失敗したドキュメントを再処理します（保存済みの原文を再チャンク・再ベクトル化）。
+            operationId: AiKnowledgeDocService_ReprocessAiKnowledgeDoc
+            parameters:
+                - name: doc_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/rag/knowledge/models:
+        get:
+            tags:
+                - AiKnowledgeService
+            description: |-
+                查询已启用的embedding模型选项（知识库向量化模型下拉）。
+                 字面路径必须先于 /{id} 声明：gorilla mux 按注册顺序匹配，否则会被 {id} 路由抢占。
+            operationId: AiKnowledgeService_ListAiKnowledgeModels
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/rag.admin.v1.ListAiKnowledgeModelsResponse'
+    /api/v1/admin/rag/knowledge/{ai_knowledge.id}:
+        put:
+            tags:
+                - AiKnowledgeService
+            description: AIナレッジベースを更新します。
+            operationId: AiKnowledgeService_UpdateAiKnowledge
+            parameters:
+                - name: ai_knowledge.id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/rag.admin.v1.AiKnowledgeForm'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/rag/knowledge/{id}:
+        get:
+            tags:
+                - AiKnowledgeService
+            description: AIナレッジベース設定フォームを取得します。
+            operationId: AiKnowledgeService_GetAiKnowledge
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/rag.admin.v1.AiKnowledgeForm'
+        delete:
+            tags:
+                - AiKnowledgeService
+            description: AIナレッジベースを削除します（ドキュメントとチャンクも連鎖削除）。
+            operationId: AiKnowledgeService_DeleteAiKnowledge
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/rag/knowledge/{id}/doc:
+        get:
+            tags:
+                - AiKnowledgeDocService
+            description: ナレッジベース内のドキュメントをページ単位で取得します。
+            operationId: AiKnowledgeDocService_PageAiKnowledgeDoc
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: page_num
+                  in: query
+                  schema:
+                    type: string
+                - name: page_size
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/rag.admin.v1.PageAiKnowledgeDocResponse'
+    /api/v1/admin/rag/knowledge/{id}/doc/file:
+        post:
+            tags:
+                - AiKnowledgeDocService
+            description: ドキュメントファイルをアップロードします（txt/md/docx/pdf；テキスト抽出後に同じ処理へ）。
+            operationId: AiKnowledgeDocService_UploadAiKnowledgeDocFile
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/rag.admin.v1.UploadAiKnowledgeDocFileRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/rag/knowledge/{id}/doc/text:
+        post:
+            tags:
+                - AiKnowledgeDocService
+            description: プレーンテキストドキュメントをアップロードします（チャンク分割 → ベクトル化 → 保存）。
+            operationId: AiKnowledgeDocService_UploadAiKnowledgeDocText
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/rag.admin.v1.UploadAiKnowledgeDocTextRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/rag/knowledge/{id}/search:
+        post:
+            tags:
+                - AiKnowledgeChunkService
+            description: 検索テスト：クエリに意味的に最も近いチャンクを返します。
+            operationId: AiKnowledgeChunkService_SearchAiKnowledge
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/rag.admin.v1.SearchAiKnowledgeRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/rag.admin.v1.SearchAiKnowledgeResponse'
     /api/v1/admin/runtime-log/console:
         post:
             tags:
@@ -6890,6 +7261,19 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/system.app.v1.ListBaseMenuResponse'
+    /api/v1/base/ai/knowledge/options:
+        get:
+            tags:
+                - AiKnowledgeService
+            description: 利用可能なAIナレッジベースオプションを取得します。
+            operationId: AiKnowledgeService_ListAiKnowledgeOptions
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.ListAiKnowledgeOptionsResponse'
     /api/v1/base/ai/provider-models:
         get:
             tags:
@@ -6903,6 +7287,44 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/base.v1.ListAiProviderModelOptionsResponse'
+    /api/v1/base/ai/query/ask:
+        post:
+            tags:
+                - AiQueryService
+            description: スマート問い合わせ：自然言語の質問を読み取り専用 SQL に変換してデータベースを照会し、構造化された結果を返します
+            operationId: AiQueryService_AskAiQuery
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/base.v1.AskAiQueryRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.AskAiQueryResponse'
+    /api/v1/base/ai/query/tables:
+        post:
+            tags:
+                - AiQueryService
+            description: スマート問い合わせで利用可能なデータテーブルカタログを取得します
+            operationId: AiQueryService_OptionAiQueryTable
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/base.v1.OptionAiQueryTableRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.OptionAiQueryTableResponse'
     /api/v1/base/ai/search:
         post:
             tags:
@@ -8160,6 +8582,20 @@ components:
                     type: string
                     description: 内容本文
             description: AI アシスタント入力内容
+        base.v1.AiKnowledgeOption:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: ナレッジベース ID
+                name:
+                    type: string
+                    description: ナレッジベース名
+                doc_count:
+                    type: integer
+                    description: ドキュメント数
+                    format: int32
+            description: AIナレッジベースオプション。
         base.v1.AiMessage:
             type: object
             properties:
@@ -8221,7 +8657,7 @@ components:
                     description: 回复ソース：llm/fallback
                 model:
                     type: string
-                    description: 回复使用量のモデル名
+                    description: 返信に使用したモデル名
                 fallback:
                     type: boolean
                     description: フォールバック応答かどうか
@@ -8263,6 +8699,25 @@ components:
                         $ref: '#/components/schemas/base.v1.AiProviderModel'
                     description: モデルオプション一覧
             description: 有効なAI Providerとそのモデル選択肢。
+        base.v1.AiQueryRow:
+            type: object
+            properties:
+                values:
+                    type: array
+                    items:
+                        type: string
+                    description: 列名の順序に合わせたセル値
+            description: スマート問い合わせの結果行
+        base.v1.AiQueryTable:
+            type: object
+            properties:
+                name:
+                    type: string
+                    description: テーブル名
+                comment:
+                    type: string
+                    description: 表説明
+            description: スマート問い合わせで利用可能なデータテーブル
         base.v1.AiSession:
             type: object
             properties:
@@ -8383,6 +8838,40 @@ components:
                     type: string
                     description: 配信 ID
             description: メッセージをアーカイブリクエスト。
+        base.v1.AskAiQueryRequest:
+            type: object
+            properties:
+                question:
+                    type: string
+                    description: 自然言語の質問
+            description: スマート問い合わせリクエスト
+        base.v1.AskAiQueryResponse:
+            type: object
+            properties:
+                sql:
+                    type: string
+                    description: 生成された読み取り専用 SQL
+                columns:
+                    type: array
+                    items:
+                        type: string
+                    description: 結果の列名
+                rows:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/base.v1.AiQueryRow'
+                    description: 結果行
+                row_count:
+                    type: integer
+                    description: 結果行数
+                    format: int32
+                truncated:
+                    type: boolean
+                    description: 行数またはサイズ上限により結果が切り捨てられたかどうか
+                elapsed_ms:
+                    type: string
+                    description: SQL 実行所要時間（ミリ秒）
+            description: スマート問い合わせレスポンス
         base.v1.BeginMfaDisableRequest:
             type: object
             properties: {}
@@ -8879,6 +9368,15 @@ components:
                     type: string
                     description: ローカル言語名
             description: 言語オプション。
+        base.v1.ListAiKnowledgeOptionsResponse:
+            type: object
+            properties:
+                options:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/base.v1.AiKnowledgeOption'
+                    description: ナレッジベースオプション一覧
+            description: AIナレッジベースオプション検索応答。
         base.v1.ListAiMessageResponse:
             type: object
             properties:
@@ -9234,6 +9732,19 @@ components:
                     type: object
                     description: Provider 個別設定 JSON オブジェクト
             description: サードパーティーログイン方式情報
+        base.v1.OptionAiQueryTableRequest:
+            type: object
+            properties: {}
+            description: スマート問い合わせテーブルカタログリクエスト
+        base.v1.OptionAiQueryTableResponse:
+            type: object
+            properties:
+                tables:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/base.v1.AiQueryTable'
+                    description: 利用可能なデータテーブル一覧
+            description: スマート問い合わせテーブルカタログレスポンス
         base.v1.OptionLanguageResponse:
             type: object
             properties:
@@ -9403,6 +9914,11 @@ components:
                 model_name:
                     type: string
                     description: 選択したモデル名
+                knowledge_base_ids:
+                    type: array
+                    items:
+                        type: string
+                    description: 選択したナレッジベース ID 一覧。空でない場合に検索結果をコンテキストへ注入します
             description: AI アシスタントメッセージ送信リクエスト
         base.v1.SendAiMessageResponse:
             type: object
@@ -9618,6 +10134,214 @@ components:
                         $ref: '#/components/schemas/common.v1.TreeOptionResponse_Option'
                     description: 子ノードツリー
             description: ツリーオプション
+        rag.admin.v1.AiKnowledge:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: ナレッジベース ID
+                name:
+                    type: string
+                    description: ナレッジベース名
+                description:
+                    type: string
+                    description: 説明
+                provider_name:
+                    type: string
+                    description: embeddingモデルの所属プロバイダー名
+                embedding_dimensions:
+                    type: integer
+                    description: embeddingベクトルの次元
+                    format: int32
+                model_id:
+                    type: string
+                    description: ベクトル化に使用するembeddingモデルID
+                model_name:
+                    type: string
+                    description: Embedding モデル名
+                doc_count:
+                    type: integer
+                    description: ドキュメント数
+                    format: int32
+                created_at:
+                    type: string
+                    description: 作成時刻
+                updated_at:
+                    type: string
+                    description: 更新時刻
+            description: AIナレッジベースのページネーションレコード。
+        rag.admin.v1.AiKnowledgeChunkHit:
+            type: object
+            properties:
+                chunk_id:
+                    type: string
+                    description: チャンク ID
+                doc_id:
+                    type: string
+                    description: ドキュメント ID
+                doc_name:
+                    type: string
+                    description: ドキュメント名
+                content:
+                    type: string
+                    description: チャンクテキスト
+                score:
+                    type: number
+                    description: コサイン類似度
+                    format: float
+            description: 検索ヒットしたチャンク。
+        rag.admin.v1.AiKnowledgeDoc:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: ドキュメント ID
+                knowledge_base_id:
+                    type: string
+                    description: ナレッジベース ID
+                name:
+                    type: string
+                    description: ドキュメント名
+                chunk_count:
+                    type: integer
+                    description: チャンク数
+                    format: int32
+                status:
+                    enum:
+                        - AI_KNOWLEDGE_DOC_STATUS_UNSPECIFIED
+                        - AI_KNOWLEDGE_DOC_STATUS_READY
+                        - AI_KNOWLEDGE_DOC_STATUS_FAILED
+                    type: string
+                    description: "処理ステータス: enum [AiKnowledgeDocStatus]"
+                    format: enum
+                error_message:
+                    type: string
+                    description: 失敗原因
+                created_at:
+                    type: string
+                    description: 作成時刻
+            description: AIナレッジベースのドキュメント。
+        rag.admin.v1.AiKnowledgeForm:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: ナレッジベース ID
+                name:
+                    type: string
+                    description: ナレッジベース名
+                description:
+                    type: string
+                    description: 説明
+                model_id:
+                    type: string
+                    description: ベクトル化に使用するembeddingモデルID
+            description: AIナレッジベース設定フォーム。
+        rag.admin.v1.AiKnowledgeModel:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: モデルID
+                provider_name:
+                    type: string
+                    description: モデルの所属プロバイダー名
+                model_name:
+                    type: string
+                    description: モデル名
+                display_name:
+                    type: string
+                    description: 表示名
+            description: ナレッジベースで利用可能なembeddingモデルオプション。
+        rag.admin.v1.ListAiKnowledgeModelsResponse:
+            type: object
+            properties:
+                models:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/rag.admin.v1.AiKnowledgeModel'
+                    description: 有効なembeddingモデルのリスト
+            description: embeddingモデルオプション取得応答。
+        rag.admin.v1.PageAiKnowledgeDocResponse:
+            type: object
+            properties:
+                docs:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/rag.admin.v1.AiKnowledgeDoc'
+                    description: ドキュメント一覧
+                total:
+                    type: integer
+                    description: 合計件数
+                    format: int32
+            description: ナレッジベースドキュメント一覧応答。
+        rag.admin.v1.PageAiKnowledgeResponse:
+            type: object
+            properties:
+                knowledges:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/rag.admin.v1.AiKnowledge'
+                    description: ナレッジベース一覧
+                total:
+                    type: integer
+                    description: 合計件数
+                    format: int32
+            description: AIナレッジベースのページネーション応答。
+        rag.admin.v1.SearchAiKnowledgeRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: ナレッジベース ID
+                query:
+                    type: string
+                    description: 検索キーワード
+                top_k:
+                    type: integer
+                    default: !!float 5
+                    description: 返すチャンク数
+                    format: int32
+            description: 検索テストリクエスト。
+        rag.admin.v1.SearchAiKnowledgeResponse:
+            type: object
+            properties:
+                hits:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/rag.admin.v1.AiKnowledgeChunkHit'
+                    description: クエリに意味的に最も近いチャンク
+            description: 検索テスト応答。
+        rag.admin.v1.UploadAiKnowledgeDocFileRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: ナレッジベース ID
+                file_name:
+                    type: string
+                    description: 元のファイル名（拡張子で抽出器を決定）
+                content_base64:
+                    type: string
+                    description: ファイル内容（10MB以下）
+                    format: bytes
+                doc_name:
+                    type: string
+                    description: ドキュメント表示名。未指定の場合はファイル名から拡張子を除いた名前
+            description: ドキュメントファイルアップロードリクエスト。
+        rag.admin.v1.UploadAiKnowledgeDocTextRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: ナレッジベース ID
+                name:
+                    type: string
+                    description: ドキュメント名
+                content:
+                    type: string
+                    description: ドキュメントのテキスト内容
+            description: プレーンテキストドキュメントアップロードリクエスト。
         system.admin.v1.AiProvider:
             type: object
             properties:
@@ -9633,11 +10357,6 @@ components:
                 api_key_configured:
                     type: boolean
                     description: モデル API キーが保存済みかどうか
-                model_names:
-                    type: array
-                    items:
-                        type: string
-                    description: モデル名一覧
                 sort:
                     type: integer
                     description: 並び順値
@@ -9645,6 +10364,11 @@ components:
                 provider:
                     type: string
                     description: Provider の安定識別子
+                model_names:
+                    type: array
+                    items:
+                        type: string
+                    description: プロバイダー配下のモデル名一覧
                 status:
                     enum:
                         - STATUS_UNSPECIFIED
@@ -9678,9 +10402,6 @@ components:
                 api_key_configured:
                     type: boolean
                     description: モデル API キーが保存済みかどうか
-                models_json:
-                    type: string
-                    description: 複数モデルの JSON 配列。各項目には model_name、api_type、temperature、max_tokens、timeout_seconds、max_retries を含みます
                 sort:
                     type: integer
                     description: 並び順値
@@ -9691,6 +10412,11 @@ components:
                 config:
                     type: object
                     description: Provider 個別設定 JSON オブジェクト
+                models:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.AiProviderModelForm'
+                    description: プロバイダー配下のAIモデル一覧
                 status:
                     enum:
                         - STATUS_UNSPECIFIED
@@ -9700,6 +10426,46 @@ components:
                     description: ステータス
                     format: enum
             description: AIプロバイダー設定フォーム。
+        system.admin.v1.AiProviderModelForm:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: モデルID；新規作成時は0
+                model_name:
+                    type: string
+                    description: モデル名（プロバイダーAPI識別子）
+                display_name:
+                    type: string
+                    description: 表示名
+                category:
+                    enum:
+                        - AI_MODEL_CATEGORY_UNSPECIFIED
+                        - AI_MODEL_CATEGORY_CHAT
+                        - AI_MODEL_CATEGORY_EMBEDDING
+                        - AI_MODEL_CATEGORY_RERANK
+                        - AI_MODEL_CATEGORY_IMAGE
+                        - AI_MODEL_CATEGORY_VIDEO
+                        - AI_MODEL_CATEGORY_AUDIO
+                    type: string
+                    description: "モデルカテゴリ: enum [AiModelCategory]"
+                    format: enum
+                config:
+                    type: object
+                    description: 分類別設定JSONオブジェクト
+                sort:
+                    type: integer
+                    description: 並び順値
+                    format: int32
+                status:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    description: ステータス
+                    format: enum
+            description: AIモデルフォーム；provider_id は所属プロバイダーのフォームから暗黙に決まります。
         system.admin.v1.AiProviderModelTestResult:
             type: object
             properties:
@@ -9716,7 +10482,211 @@ components:
                 message:
                     type: string
                     description: 失敗理由；成功时NULL 可
-            description: 单个AI模型连通性测试結果。
+            description: 単一AIモデルの接続テスト結果。
+        system.admin.v1.AiProviderOption:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: プロバイダー ID
+                name:
+                    type: string
+                    description: プロバイダー名
+                provider:
+                    type: string
+                    description: Provider の安定識別子
+            description: AIプロバイダーオプション。
+        system.admin.v1.AiQueryRecord:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: レコードID
+                tenant_id:
+                    type: string
+                    description: テナント ID
+                user_id:
+                    type: string
+                    description: ユーザー ID
+                user_name:
+                    type: string
+                    description: ユーザー账号
+                question:
+                    type: string
+                    description: 自然言語の質問
+                sql:
+                    type: string
+                    description: 生成された読み取り専用SQL
+                status:
+                    enum:
+                        - AI_QUERY_STATUS_UNSPECIFIED
+                        - AI_QUERY_STATUS_SUCCESS
+                        - AI_QUERY_STATUS_FAILED
+                    type: string
+                    description: "クエリステータス: enum [AiQueryStatus]"
+                    format: enum
+                row_count:
+                    type: integer
+                    description: 結果行数
+                    format: int32
+                elapsed_ms:
+                    type: string
+                    description: SQL実行時間（ミリ秒）
+                error_msg:
+                    type: string
+                    description: 失敗原因
+                result_columns:
+                    type: array
+                    items:
+                        type: string
+                    description: 結果スナップショットの列名（詳細のみ返却）
+                result_rows:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.AiQueryResultRow'
+                    description: 結果スナップショットのデータ行（詳細のみ返却）
+                created_at:
+                    type: string
+                    description: 作成時刻
+            description: スマートデータクエリ記録。
+        system.admin.v1.AiQueryResultRow:
+            type: object
+            properties:
+                values:
+                    type: array
+                    items:
+                        type: string
+                    description: 行データ
+            description: AI問い合わせ結果スナップショット行。
+        system.admin.v1.AiSessionMessageAttachment:
+            type: object
+            properties:
+                name:
+                    type: string
+                    description: 添付ファイル名称
+                size:
+                    type: string
+                    description: 添付ファイル大小
+                url:
+                    type: string
+                    description: 添付ファイルアドレス
+                mime_type:
+                    type: string
+                    description: 添付ファイル MIME 種類
+            description: AIセッションメッセージの添付ファイル。
+        system.admin.v1.AiSessionMessageRecord:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: メッセージ ID
+                input_content:
+                    type: string
+                    description: ユーザー入力内容
+                output_content:
+                    type: string
+                    description: AI返信内容
+                model:
+                    type: string
+                    description: 返信に使用したモデル名
+                status:
+                    enum:
+                        - AI_MESSAGE_STATUS_UNSPECIFIED
+                        - AI_MESSAGE_STATUS_GENERATING
+                        - AI_MESSAGE_STATUS_SUCCESS
+                        - AI_MESSAGE_STATUS_FAILED
+                    type: string
+                    description: "メッセージ生成ステータス: enum [AiMessageStatus]"
+                    format: enum
+                input_tokens:
+                    type: integer
+                    description: 入力トークン数
+                    format: int32
+                output_tokens:
+                    type: integer
+                    description: 出力トークン数
+                    format: int32
+                cache_tokens:
+                    type: integer
+                    description: キャッシュトークン数
+                    format: int32
+                total_tokens:
+                    type: integer
+                    description: 合計トークン数
+                    format: int32
+                first_token_ms:
+                    type: integer
+                    description: 最初のトークン所要時間ミリ秒
+                    format: int32
+                duration_ms:
+                    type: integer
+                    description: 合計所要時間ミリ秒
+                    format: int32
+                attachments:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.AiSessionMessageAttachment'
+                    description: 添付ファイル一覧
+                created_at:
+                    type: string
+                    description: 作成時刻
+            description: AIセッションメッセージレコード。
+        system.admin.v1.AiSessionRecord:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: セッション ID
+                user_id:
+                    type: string
+                    description: 所属ユーザーID
+                user_name:
+                    type: string
+                    description: ユーザー账号
+                nick_name:
+                    type: string
+                    description: ユーザー表示名
+                title:
+                    type: string
+                    description: セッションタイトル
+                summary:
+                    type: string
+                    description: セッション概要
+                terminal:
+                    enum:
+                        - TERMINAL_UNSPECIFIED
+                        - TERMINAL_APP
+                        - TERMINAL_ADMIN
+                    type: string
+                    description: 端末種類：enum【Terminal】
+                    format: enum
+                message_count:
+                    type: integer
+                    description: メッセージターン数
+                    format: int32
+                input_tokens:
+                    type: integer
+                    description: 累計入力トークン数
+                    format: int32
+                output_tokens:
+                    type: integer
+                    description: 累計出力トークン数
+                    format: int32
+                cache_tokens:
+                    type: integer
+                    description: 累計キャッシュトークン数
+                    format: int32
+                total_tokens:
+                    type: integer
+                    description: 累計合計トークン数
+                    format: int32
+                created_at:
+                    type: string
+                    description: 作成時刻
+                updated_at:
+                    type: string
+                    description: 更新時刻
+            description: AIセッションのページネーションレコード。
         system.admin.v1.BaseApi:
             type: object
             properties:
@@ -14279,6 +15249,15 @@ components:
                         $ref: '#/components/schemas/system.admin.v1.BaseLogTraceItem'
                     description: 关联ログ時刻线
             description: 关联审计検索レスポンス。
+        system.admin.v1.ListAiProviderOptionsResponse:
+            type: object
+            properties:
+                options:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.AiProviderOption'
+                    description: 有効なAIプロバイダー一覧
+            description: AIプロバイダーオプション取得レスポンス。
         system.admin.v1.ListBaseRedactStorageColumnResponse:
             type: object
             properties:
@@ -14918,6 +15897,45 @@ components:
                     description: 合計件数
                     format: int32
             description: AIプロバイダーのページネーションレスポンス。
+        system.admin.v1.PageAiQueryResponse:
+            type: object
+            properties:
+                queries:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.AiQueryRecord'
+                    description: スマート問い合わせ記録一覧
+                total:
+                    type: integer
+                    description: 合計件数
+                    format: int32
+            description: スマートデータクエリのページネーション応答。
+        system.admin.v1.PageAiSessionMessageResponse:
+            type: object
+            properties:
+                messages:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.AiSessionMessageRecord'
+                    description: メッセージ一覧
+                total:
+                    type: integer
+                    description: 合計件数
+                    format: int32
+            description: AIセッションメッセージ一覧応答。
+        system.admin.v1.PageAiSessionResponse:
+            type: object
+            properties:
+                sessions:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.AiSessionRecord'
+                    description: セッション一覧
+                total:
+                    type: integer
+                    description: 合計件数
+                    format: int32
+            description: AIセッションのページネーション応答。
         system.admin.v1.PageBaseApiLogResponse:
             type: object
             properties:
@@ -16541,14 +17559,28 @@ components:
                     description: アバター
             description: ユーザープロフィールフォーム
 tags:
+    - name: AiKnowledgeChunkService
+      description: AIナレッジベースチャンク検索サービス。
+    - name: AiKnowledgeDocService
+      description: AIナレッジベースドキュメント管理サービス。
+    - name: AiKnowledgeService
+      description: AIナレッジベースオプション検索サービス。
+    - name: AiKnowledgeService
+      description: AIナレッジベース管理サービス。
     - name: AiMessageService
       description: Base AI アシスタントメッセージサービス
     - name: AiModelService
       description: AI Provider モデル選択サービス。
     - name: AiProviderService
       description: AIプロバイダー管理サービス。
+    - name: AiQueryService
+      description: スマートデータクエリ記録管理サービス。
+    - name: AiQueryService
+      description: Base AI アシスタントのスマート問い合わせサービス
     - name: AiSearchService
       description: Base AI アシスタントWeb検索サービス
+    - name: AiSessionService
+      description: AIセッション管理サービス。
     - name: AiSessionService
       description: Base AI アシスタントセッションサービス
     - name: AiToolService
@@ -16564,9 +17596,9 @@ tags:
     - name: BaseApiService
       description: AdminAPIサービス
     - name: BaseAreaService
-      description: App行政地域サービス
-    - name: BaseAreaService
       description: Admin行政地域サービス
+    - name: BaseAreaService
+      description: App行政地域サービス
     - name: BaseConfigService
       description: Adminシステム設定サービス
     - name: BaseDashboardService
@@ -16600,9 +17632,9 @@ tags:
     - name: BaseLoginPolicyService
       description: Adminログインポリシー管理サービス。
     - name: BaseMenuService
-      description: Appメニューサービス
-    - name: BaseMenuService
       description: Adminメニュー管理サービス
+    - name: BaseMenuService
+      description: Appメニューサービス
     - name: BaseMessageCategoryService
       description: Adminメッセージカテゴリ管理サービス。
     - name: BaseMessageProviderService
@@ -16682,9 +17714,9 @@ tags:
     - name: NotificationService
       description: Base通知サービス。現在のユーザーの受信トレイを提供します。
     - name: OauthClientService
-      description: Base OAuthクライアントトークンサービス。
-    - name: OauthClientService
       description: Admin OAuthクライアント管理サービス。
+    - name: OauthClientService
+      description: Base OAuthクライアントトークンサービス。
     - name: OauthService
       description: Baseサードパーティーログイン共通サービス
     - name: OpsMonitoringService

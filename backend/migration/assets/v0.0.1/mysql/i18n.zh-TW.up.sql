@@ -82,6 +82,9 @@ INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VAL
 INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_dict.name', 1410, 'zh-TW', 'OAuth客戶端加密型別');
 INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_dict.name', 1420, 'zh-TW', '多因素認證策略');
 INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_dict.name', 1430, 'zh-TW', '終端型別');
+INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_dict.name', 1440, 'zh-TW', 'AI知識庫文檔狀態');
+INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_dict.name', 1450, 'zh-TW', '智能問數狀態');
+INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_dict.name', 1460, 'zh-TW', 'AI模型分類');
 
 -- 字典项翻译。
 -- 表归档与备份字典项翻译。
@@ -245,6 +248,16 @@ INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VAL
 INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_dict_item.label', 14203, 'zh-TW', '全部必需');
 INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_dict_item.label', 14301, 'zh-TW', '移動端');
 INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_dict_item.label', 14302, 'zh-TW', '管理端');
+INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_dict_item.label', 14401, 'zh-TW', '處理完成');
+INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_dict_item.label', 14402, 'zh-TW', '處理失敗');
+INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_dict_item.label', 14501, 'zh-TW', '成功');
+INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_dict_item.label', 14502, 'zh-TW', '失敗');
+INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_dict_item.label', 14601, 'zh-TW', '對話模型');
+INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_dict_item.label', 14602, 'zh-TW', '向量模型');
+INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_dict_item.label', 14603, 'zh-TW', '重排序模型');
+INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_dict_item.label', 14604, 'zh-TW', '圖片模型');
+INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_dict_item.label', 14605, 'zh-TW', '視頻模型');
+INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_dict_item.label', 14606, 'zh-TW', '音頻模型');
 
 -- 菜单翻译。
 -- Message categories, scheduled task, and menus.
@@ -293,12 +306,27 @@ INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VAL
 INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_menu.meta.title', 30151000, 'zh-TW', '編輯崗位');
 INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_menu.meta.title', 30151500, 'zh-TW', '修改崗位狀態');
 INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_menu.meta.title', 90000000, 'zh-TW', 'AI助手');
-INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_menu.meta.title', 90010000, 'zh-TW', 'AI供應商');
+INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_menu.meta.title', 90010000, 'zh-TW', '模型管理');
 INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_menu.meta.title', 90010001, 'zh-TW', '新增AI供應商');
 INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_menu.meta.title', 90010002, 'zh-TW', '刪除AI供應商');
 INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_menu.meta.title', 90010003, 'zh-TW', '編輯AI供應商');
 INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_menu.meta.title', 90010004, 'zh-TW', '修改AI供應商狀態');
-INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_menu.meta.title', 90050000, 'zh-TW', 'AI助手');
+INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_menu.meta.title', 90020000, 'zh-TW', 'AI模型');
+INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_menu.meta.title', 90020001, 'zh-TW', '新增AI模型');
+INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_menu.meta.title', 90020002, 'zh-TW', '刪除AI模型');
+INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_menu.meta.title', 90020003, 'zh-TW', '編輯AI模型');
+INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_menu.meta.title', 90020004, 'zh-TW', '修改AI模型狀態');
+INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_menu.meta.title', 90050000, 'zh-TW', 'RAG知識庫');
+INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_menu.meta.title', 90050001, 'zh-TW', '新增AI知識庫');
+INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_menu.meta.title', 90050002, 'zh-TW', '刪除AI知識庫');
+INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_menu.meta.title', 90050003, 'zh-TW', '編輯AI知識庫');
+INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_menu.meta.title', 90050004, 'zh-TW', '上傳AI知識庫文件');
+INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_menu.meta.title', 90100000, 'zh-TW', '會話管理');
+INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_menu.meta.title', 90100001, 'zh-TW', '查看AI會話詳情');
+INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_menu.meta.title', 90100002, 'zh-TW', '查看AI會話用量統計');
+INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_menu.meta.title', 90150000, 'zh-TW', '智能問數');
+INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_menu.meta.title', 90150001, 'zh-TW', '查看問數詳情');
+INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_menu.meta.title', 90990000, 'zh-TW', 'AI對話');
 INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_menu.meta.title', 91000000, 'zh-TW', '系統管理');
 INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_menu.meta.title', 91010000, 'zh-TW', '基礎管理');
 INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_menu.meta.title', 91010100, 'zh-TW', '字典管理');
@@ -480,6 +508,10 @@ INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VAL
 INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_menu.meta.title', 91501500, 'zh-TW', '程式碼生成Proto配置');
 INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_menu.meta.title', 91502000, 'zh-TW', '程式碼生成頁面預覽');
 INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_menu.meta.title', 91502500, 'zh-TW', '程式碼生成程式碼預覽');
+INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_menu.meta.title', 95000000, 'zh-TW', 'Demo示範');
+INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_menu.meta.title', 95000100, 'zh-TW', '左樹右表');
+INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_menu.meta.title', 95000200, 'zh-TW', '純表格');
+INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_menu.meta.title', 95000300, 'zh-TW', '樹形表格');
 INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_menu.meta.title', 99000000, 'zh-TW', '移動端');
 INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_menu.meta.title', 99010000, 'zh-TW', '首頁');
 INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_menu.meta.title', 99010100, 'zh-TW', '登入');

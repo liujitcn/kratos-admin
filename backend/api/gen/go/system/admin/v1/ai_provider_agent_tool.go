@@ -25,6 +25,12 @@ func NewAiProviderServiceAgentTools(aiProviderServiceServer AiProviderServiceSer
 		return nil, err
 	}
 	ts = append(ts, pageAiProviderTool)
+	var listAiProviderOptionsTool tool.InvokableTool
+	listAiProviderOptionsTool, err = NewAiProviderServiceListAiProviderOptionsAgentTool(aiProviderServiceServer)
+	if err != nil {
+		return nil, err
+	}
+	ts = append(ts, listAiProviderOptionsTool)
 	var getAiProviderTool tool.InvokableTool
 	getAiProviderTool, err = NewAiProviderServiceGetAiProviderAgentTool(aiProviderServiceServer)
 	if err != nil {
@@ -74,6 +80,20 @@ func NewAiProviderServicePageAiProviderAgentTool(aiProviderServiceServer AiProvi
 				req = &PageAiProviderRequest{}
 			}
 			return aiProviderServiceServer.PageAiProvider(ctx, req)
+		},
+	)
+}
+
+// NewAiProviderServiceListAiProviderOptionsAgentTool 创建查询已启用的AI供应商选项。 字面路径必须先于 /{id} 声明：gorilla mux 按注册顺序匹配，否则会被 {id} 路由抢占的 Agent Tool。
+func NewAiProviderServiceListAiProviderOptionsAgentTool(aiProviderServiceServer AiProviderServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*ListAiProviderOptionsRequest, *ListAiProviderOptionsResponse](
+		"system_admin_v1_ai_provider_service_list_ai_provider_options",
+		"查询已启用的AI供应商选项。 字面路径必须先于 /{id} 声明：gorilla mux 按注册顺序匹配，否则会被 {id} 路由抢占。",
+		func(ctx context.Context, req *ListAiProviderOptionsRequest) (*ListAiProviderOptionsResponse, error) {
+			if req == nil {
+				req = &ListAiProviderOptionsRequest{}
+			}
+			return aiProviderServiceServer.ListAiProviderOptions(ctx, req)
 		},
 	)
 }

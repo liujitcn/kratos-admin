@@ -1,0 +1,91 @@
+syntax = "proto3";
+
+package rag.admin.v1;
+
+import "buf/validate/validate.proto";
+import "gnostic/openapi/v3/annotations.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+
+// AI知识库文档管理服务。
+service AiKnowledgeDocService {
+  // 分页查询知识库下的文档。
+  rpc PageAiKnowledgeDoc(PageAiKnowledgeDocRequest) returns (PageAiKnowledgeDocResponse) {
+    option (google.api.http) = {get: "/api/v1/admin/rag/knowledge/{id}/doc"};
+  }
+  // 上传纯文本文档（切片 → 向量化 → 落库）。
+  rpc UploadAiKnowledgeDocText(UploadAiKnowledgeDocTextRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {post: "/api/v1/admin/rag/knowledge/{id}/doc/text" body: "*"};
+  }
+  // 上传文档文件（txt/md/docx/pdf：抽取文本后走同一入库链）。
+  rpc UploadAiKnowledgeDocFile(UploadAiKnowledgeDocFileRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {post: "/api/v1/admin/rag/knowledge/{id}/doc/file" body: "*"};
+  }
+  // 删除文档（级联删除切片）。
+  rpc DeleteAiKnowledgeDoc(DeleteAiKnowledgeDocRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {delete: "/api/v1/admin/rag/knowledge/doc/{doc_id}"};
+  }
+  // 重新处理失败的文档（按保存的原文重切片、重向量化）。
+  rpc ReprocessAiKnowledgeDoc(ReprocessAiKnowledgeDocRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {post: "/api/v1/admin/rag/knowledge/doc/{doc_id}/reprocess"};
+  }
+}
+
+// 分页查询知识库文档请求。
+message PageAiKnowledgeDocRequest {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "知识库ID"}, (buf.validate.field).int64 = {gt: 0}]; // 知识库ID
+  int64 page_num = 101 [(gnostic.openapi.v3.property) = {description: "当前页码", default: {number: 1}}, (buf.validate.field).int64 = {gte: 1, lte: 1000000}]; // 当前页码
+  int64 page_size = 102 [(gnostic.openapi.v3.property) = {description: "每页行数", default: {number: 10}}, (buf.validate.field).int64 = {gte: 1, lte: 100}]; // 每页行数
+}
+
+// 分页查询知识库文档响应。
+message PageAiKnowledgeDocResponse {
+  repeated AiKnowledgeDoc docs = 1 [(gnostic.openapi.v3.property) = {description: "文档列表"}]; // 文档列表
+  int32 total = 2 [(gnostic.openapi.v3.property) = {description: "总数"}]; // 总数
+}
+
+// AI知识库文档处理状态枚举。
+enum AiKnowledgeDocStatus {
+  // 未指定文档处理状态。
+  AI_KNOWLEDGE_DOC_STATUS_UNSPECIFIED = 0;
+  // 处理完成。
+  AI_KNOWLEDGE_DOC_STATUS_READY = 1;
+  // 处理失败。
+  AI_KNOWLEDGE_DOC_STATUS_FAILED = 2;
+}
+
+// AI知识库文档。
+message AiKnowledgeDoc {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "文档ID"}]; // 文档ID
+  int64 knowledge_base_id = 2 [(gnostic.openapi.v3.property) = {description: "知识库ID"}]; // 知识库ID
+  string name = 3 [(gnostic.openapi.v3.property) = {description: "文档名称"}]; // 文档名称
+  int32 chunk_count = 4 [(gnostic.openapi.v3.property) = {description: "切片数"}]; // 切片数
+  AiKnowledgeDocStatus status = 5 [(gnostic.openapi.v3.property) = {description: "处理状态：枚举【AiKnowledgeDocStatus】"}, (buf.validate.field).enum = {defined_only: true}]; // 处理状态：枚举【AiKnowledgeDocStatus】
+  string error_message = 6 [(gnostic.openapi.v3.property) = {description: "失败原因"}]; // 失败原因
+  string created_at = 200 [(gnostic.openapi.v3.property) = {description: "创建时间"}]; // 创建时间
+}
+
+// 上传纯文本文档请求。
+message UploadAiKnowledgeDocTextRequest {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "知识库ID"}, (buf.validate.field).int64 = {gt: 0}]; // 知识库ID
+  string name = 2 [(gnostic.openapi.v3.property) = {description: "文档名称"}, (buf.validate.field).cel = {id: "rag.admin.ai.knowledge.doc.name.required" message: "请输入文档名称" expression: "this.size() > 0 && this.size() <= 200"}]; // 文档名称
+  string content = 3 [(gnostic.openapi.v3.property) = {description: "文档文本内容"}, (buf.validate.field).cel = {id: "rag.admin.ai.knowledge.doc.content.required" message: "请输入文档内容" expression: "this.size() > 0 && this.size() <= 1000000"}]; // 文档文本内容
+}
+
+// 上传文档文件请求。
+message UploadAiKnowledgeDocFileRequest {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "知识库ID"}, (buf.validate.field).int64 = {gt: 0}]; // 知识库ID
+  string file_name = 2 [(gnostic.openapi.v3.property) = {description: "原始文件名（扩展名决定抽取器）"}, (buf.validate.field).cel = {id: "rag.admin.ai.knowledge.doc.file_name.required" message: "请输入文件名" expression: "this.size() > 0 && this.size() <= 200"}]; // 原始文件名
+  bytes content_base64 = 3 [(gnostic.openapi.v3.property) = {description: "文件内容（≤10MB）"}, (buf.validate.field).bytes = {min_len: 1, max_len: 10485760}]; // 文件内容（≤10MB）
+  string doc_name = 4 [(gnostic.openapi.v3.property) = {description: "文档显示名，缺省取文件名去扩展名"}, (buf.validate.field).cel = {id: "rag.admin.ai.knowledge.doc.name.max_length" message: "文档名称不能超过200个字符" expression: "this.size() <= 200"}]; // 文档显示名
+}
+
+// 删除文档请求。
+message DeleteAiKnowledgeDocRequest {
+  int64 doc_id = 1 [(gnostic.openapi.v3.property) = {description: "文档ID"}, (buf.validate.field).int64 = {gt: 0}]; // 文档ID
+}
+
+// 重新处理文档请求。
+message ReprocessAiKnowledgeDocRequest {
+  int64 doc_id = 1 [(gnostic.openapi.v3.property) = {description: "文档ID"}, (buf.validate.field).int64 = {gt: 0}]; // 文档ID
+}

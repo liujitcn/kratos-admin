@@ -116,5 +116,10 @@
   "system.ai.model.load_failed": "プロバイダーとモデルを読み込めませんでした",
   "system.ai.model.title": "モデルを選択",
   "system.ai.model.provider_model_count": "{providers} プロバイダー · {models} モデル",
-  "system.ai.model.empty": "選択可能なモデルがありません"
+  "system.ai.model.empty": "選択可能なモデルがありません",
+  "system.ai.knowledge.title": "ナレッジベース",
+  "system.ai.knowledge.selected_count": "{count} 件のナレッジベースを選択中",
+  "system.ai.knowledge.doc_count": "{count} 件のドキュメント",
+  "system.ai.knowledge.select_hint": "コンテキストに注入するナレッジベースを選択",
+  "system.ai.knowledge.empty": "利用可能なナレッジベースがありません"
 }

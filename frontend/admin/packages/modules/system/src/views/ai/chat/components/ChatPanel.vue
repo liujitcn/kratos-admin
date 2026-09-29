@@ -53,8 +53,11 @@
             :model-providers="modelProviders"
             :provider-id="providerId"
             :model-name="modelName"
+            :knowledge-options="knowledgeOptions"
+            :knowledge-ids="knowledgeIds"
             @submit="handleSubmit"
             @model-change="handleModelChange"
+            @knowledge-change="handleKnowledgeChange"
           />
         </div>
       </div>
@@ -336,8 +339,11 @@
           :model-providers="modelProviders"
           :provider-id="providerId"
           :model-name="modelName"
+          :knowledge-options="knowledgeOptions"
+          :knowledge-ids="knowledgeIds"
           @submit="handleSubmit"
           @model-change="handleModelChange"
+          @knowledge-change="handleKnowledgeChange"
         />
       </div>
     </template>
@@ -356,6 +362,7 @@ import { formatDateTime } from "@liujitcn/kratos-admin-core/format";
 import type { AiAction } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_message";
 import { type AiAttachment, type AiSession } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_session";
 import type { AiProviderModelOption } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_provider";
+import type { AiKnowledgeOption } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_knowledge";
 import type { AiShortcut, AiToolCall } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_tool";
 import { AiMessageStatus } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_session";
 import { resolvePersistedMessage } from "../../../../utils/persisted-message";
@@ -501,6 +508,10 @@ const props = defineProps<{
   providerId: number;
   /** 当前选择的模型名称。 */
   modelName: string;
+  /** 当前可供选择的知识库。 */
+  knowledgeOptions: AiKnowledgeOption[];
+  /** 当前选择的知识库编号列表。 */
+  knowledgeIds: number[];
 }>();
 
 const emit = defineEmits<{
@@ -508,6 +519,8 @@ const emit = defineEmits<{
   submit: [payload: SubmitPayload];
   /** 更新当前选择的供应商和模型。 */
   modelChange: [providerId: number, modelName: string];
+  /** 更新当前选择的知识库编号列表。 */
+  knowledgeChange: [knowledgeIds: number[]];
   /** 触发消息级操作。 */
   messageAction: [payload: { action: ChatMessageAction; item: ChatMessageItem }];
   /** 提交当前用户消息的文本编辑。 */
@@ -646,6 +659,11 @@ function handleSubmit(payload: SubmitPayload) {
 /** 转发输入器发出的供应商和模型变更。 */
 function handleModelChange(providerId: number, modelName: string) {
   emit("modelChange", providerId, modelName);
+}
+
+/** 更新当前选择的知识库编号列表。 */
+function handleKnowledgeChange(knowledgeIds: number[]) {
+  emit("knowledgeChange", knowledgeIds);
 }
 
 /** 点击快捷入口时提交对应入口动作。 */

@@ -8,9 +8,11 @@ import {
 import { defAiSessionService } from '../../../api/base/v1/ai_session'
 import { defAiToolService } from '../../../api/base/v1/ai_tool'
 import { defAiModelService } from '../../../api/base/v1/ai_provider'
+import { defAiKnowledgeService } from '../../../api/base/v1/ai_knowledge'
 import type { AiMessage } from '../../../rpc/base/v1/ai_session'
 import type { AiAttachment, AiSession } from '../../../rpc/base/v1/ai_session'
 import type { AiProviderModelOption } from '../../../rpc/base/v1/ai_provider'
+import type { AiKnowledgeOption } from '../../../rpc/base/v1/ai_knowledge'
 import type { AiShortcut, AiToolCall } from '../../../rpc/base/v1/ai_tool'
 import { AiMessageStatus } from '../../../rpc/base/v1/ai_session'
 import { Terminal } from '../../../rpc/base/v1/ai_tool'
@@ -100,6 +102,8 @@ const selectedAttachments = ref<AiAttachment[]>([])
 const modelProviders = ref<AiProviderModelOption[]>([])
 const selectedProviderId = ref(0)
 const selectedModelName = ref('')
+const knowledgeOptions = ref<AiKnowledgeOption[]>([])
+const selectedKnowledgeIds = ref<number[]>([])
 const runningStreamTaskMap = new Map<string, StreamTask>()
 const pendingDeltaMap = new Map<string, AiStreamPayload>()
 let pendingDeltaTimer = 0
@@ -472,11 +476,16 @@ async function loadAiShortcuts() {
   }
   loadingShortcuts.value = true
   try {
-    const [response, providerResponse] = await Promise.all([
+    const [response, providerResponse, knowledgeResponse] = await Promise.all([
       defAiToolService.ListAiShortcut({ terminal: AI_TERMINAL }),
       defAiModelService.ListAiProviderModelOptions({}),
+      defAiKnowledgeService.ListAiKnowledgeOptions({}),
     ])
     modelProviders.value = providerResponse.providers ?? []
+    knowledgeOptions.value = knowledgeResponse.options ?? []
+    selectedKnowledgeIds.value = selectedKnowledgeIds.value.filter((id) =>
+      knowledgeOptions.value.some((option) => option.id === id),
+    )
     applyModelSelection()
     const shortcuts = normalizeStarterShortcuts(response.shortcuts).filter((item) => !item.action)
     if (shortcuts.length) {
@@ -487,6 +496,7 @@ async function loadAiShortcuts() {
     modelProviders.value = []
     selectedProviderId.value = 0
     selectedModelName.value = ''
+    knowledgeOptions.value = []
     showError(error, t('system.ai.load_shortcuts_failed'))
   } finally {
     loadingShortcuts.value = false
@@ -520,6 +530,11 @@ function handleModelChange(providerId: number, modelName: string) {
   saveModelSelection({ provider_id: providerId, model_name: modelName })
 }
 
+/** 更新当前聊天检索注入的知识库选择。 */
+function handleKnowledgeChange(knowledgeIds: number[]) {
+  selectedKnowledgeIds.value = knowledgeIds
+}
+
 async function sendAiPayload(payload: { text: string; attachments: AiAttachment[] }) {
   const sessionID = await ensureActiveSession()
   if (!sessionID || isSessionSending(sessionID)) {
@@ -550,6 +565,7 @@ async function runAiTask(
     content: payload.text,
     provider_id: selectedProviderId.value,
     model_name: selectedModelName.value,
+    knowledge_base_ids: selectedKnowledgeIds.value,
     attachments: payload.attachments,
     action: undefined,
   }
@@ -1332,6 +1348,8 @@ function showError(error: unknown, fallback: string) {
       :model-providers="modelProviders"
       :provider-id="selectedProviderId"
       :model-name="selectedModelName"
+      :knowledge-options="knowledgeOptions"
+      :knowledge-ids="selectedKnowledgeIds"
       :model-placeholder="t('system.ai.model.model_placeholder')"
       :placeholder="composerPlaceholder"
       :bottom="composerBottom"
@@ -1342,6 +1360,7 @@ function showError(error: unknown, fallback: string) {
       @record="handleToggleRecord"
       @send="handleSend"
       @model-change="handleModelChange"
+      @knowledge-change="handleKnowledgeChange"
       @remove-attachment="removeSelectedAttachment"
     />
 

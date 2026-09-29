@@ -68,6 +68,17 @@ func (s *redactedAiProviderServiceServer) PageAiProvider(ctx context.Context, in
 	return res, err
 }
 
+// ListAiProviderOptions is the redacted wrapper for the actual AiProviderServiceServer.ListAiProviderOptions method
+// Unary RPC
+func (s *redactedAiProviderServiceServer) ListAiProviderOptions(ctx context.Context, in *ListAiProviderOptionsRequest) (*ListAiProviderOptionsResponse, error) {
+	res, err := s.srv.ListAiProviderOptions(ctx, in)
+	if !s.bypass.CheckInternal(ctx) {
+		// Apply redaction to the response
+		redact.ApplyWith(redact.WithDirection(redact.WithOperation(ctx, "/system.admin.v1.AiProviderService/ListAiProviderOptions"), redact.DirectionResponse), nil, res)
+	}
+	return res, err
+}
+
 // GetAiProvider is the redacted wrapper for the actual AiProviderServiceServer.GetAiProvider method
 // Unary RPC
 func (s *redactedAiProviderServiceServer) GetAiProvider(ctx context.Context, in *GetAiProviderRequest) (*AiProviderForm, error) {
@@ -197,13 +208,37 @@ func (x *AiProviderForm) Redact() {
 
 	// Safe field: ApiKeyConfigured
 
-	// Safe field: ModelsJson
-
 	// Safe field: Sort
 
 	// Safe field: Provider
 
 	// Safe field: Config
+
+	// Safe field: Models
+
+	// Safe field: Status
+}
+
+// Ensure AiProviderModelForm implements the Redactor interface at compile time.
+var _ redact.Redactor = (*AiProviderModelForm)(nil)
+
+// Redact method implementation for AiProviderModelForm
+func (x *AiProviderModelForm) Redact() {
+	if x == nil {
+		return
+	}
+
+	// Safe field: Id
+
+	// Safe field: ModelName
+
+	// Safe field: DisplayName
+
+	// Safe field: Category
+
+	// Safe field: Config
+
+	// Safe field: Sort
 
 	// Safe field: Status
 }
@@ -274,6 +309,44 @@ func (x *TestAiProviderModelsResponse) Redact() {
 	// Safe field: Results
 }
 
+// Ensure ListAiProviderOptionsRequest implements the Redactor interface at compile time.
+var _ redact.Redactor = (*ListAiProviderOptionsRequest)(nil)
+
+// Redact method implementation for ListAiProviderOptionsRequest
+func (x *ListAiProviderOptionsRequest) Redact() {
+	if x == nil {
+		return
+	}
+}
+
+// Ensure ListAiProviderOptionsResponse implements the Redactor interface at compile time.
+var _ redact.Redactor = (*ListAiProviderOptionsResponse)(nil)
+
+// Redact method implementation for ListAiProviderOptionsResponse
+func (x *ListAiProviderOptionsResponse) Redact() {
+	if x == nil {
+		return
+	}
+
+	// Safe field: Options
+}
+
+// Ensure AiProviderOption implements the Redactor interface at compile time.
+var _ redact.Redactor = (*AiProviderOption)(nil)
+
+// Redact method implementation for AiProviderOption
+func (x *AiProviderOption) Redact() {
+	if x == nil {
+		return
+	}
+
+	// Safe field: Id
+
+	// Safe field: Name
+
+	// Safe field: Provider
+}
+
 // Ensure DeleteAiProviderRequest implements the Redactor interface at compile time.
 var _ redact.Redactor = (*DeleteAiProviderRequest)(nil)
 
@@ -317,11 +390,11 @@ func (x *AiProvider) Redact() {
 
 	// Safe field: ApiKeyConfigured
 
-	// Safe field: ModelNames
-
 	// Safe field: Sort
 
 	// Safe field: Provider
+
+	// Safe field: ModelNames
 
 	// Safe field: Status
 

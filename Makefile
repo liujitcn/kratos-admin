@@ -10,6 +10,7 @@
 .PHONY: help init hooks check gen \
 	build build-backend build-frontend package package-backend package-frontend \
 	i18n i18n-check i18n-add _i18n-sync _i18n-openapi \
+	menu-sort menu-sort-fix \
 	docker-check docker-buildx-check docker-config docker-build docker-push docker-run docker-stop \
 	tag
 
@@ -188,6 +189,16 @@ i18n:
 	@$(MAKE) _i18n-openapi
 	@$(MAKE) i18n-check
 	@echo "==> 国际化生成与校验完成"
+
+# ===== 菜单种子 =====
+
+# 只读检查菜单排序与编号位置规则的一致性，不一致时命令失败。
+menu-sort:
+	@$(PYTHON) scripts/check_menu_sort.py
+
+# 把不一致的菜单排序回写到种子 SQL；加 MENU_SORT_SQL=1 只打印库同步 UPDATE 语句。
+menu-sort-fix:
+	@$(PYTHON) scripts/check_menu_sort.py $(if $(filter 1 true,$(MENU_SORT_SQL)),--sql,--fix)
 
 # ===== Docker =====
 

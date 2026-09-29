@@ -27,7 +27,10 @@
                 <div class="provider-models__heading">
                   <strong>{{ model.model_name }}</strong>
                   <span v-if="model.display_name" class="provider-models__alias">✦ {{ model.display_name }}</span>
-                  <el-tag size="small" effect="plain">{{ apiTypeLabel(model.api_type) }}</el-tag>
+                  <el-tag size="small" effect="plain">{{ categoryLabel(model.category) }}</el-tag>
+                  <el-tag size="small" effect="plain" :type="model.status === Status.STATUS_ENABLE ? 'success' : 'info'">
+                    {{ t(model.status === Status.STATUS_ENABLE ? "common.status.enabled" : "common.status.disabled") }}
+                  </el-tag>
                   <el-tooltip
                     v-if="modelTestResults[model.model_name]"
                     :content="modelTestResults[model.model_name]?.message"
@@ -35,21 +38,27 @@
                     placement="top"
                   >
                     <el-tag
-                    size="small"
-                    effect="plain"
-                    :type="modelTestResults[model.model_name]?.success ? 'success' : 'danger'"
+                      size="small"
+                      effect="plain"
+                      :type="modelTestResults[model.model_name]?.success ? 'success' : 'danger'"
                     >
                       {{ t(modelTestResults[model.model_name]?.success
-                        ? "system.base.ai_provider.model.test_success"
-                        : "system.base.ai_provider.model.test_failed") }} · {{ modelTestResults[model.model_name]?.duration_ms }} ms
+                        ? "system.base.ai.model.action.test_success"
+                        : "system.base.ai.model.action.test_failed") }} · {{ modelTestResults[model.model_name]?.duration_ms }} ms
                     </el-tag>
                   </el-tooltip>
                 </div>
                 <div class="provider-models__details">
-                  <span>{{ t("system.base.ai_provider.field.temperature") }}: {{ model.temperature }}</span>
-                  <span>{{ t("system.base.ai_provider.field.max_tokens") }}: {{ model.max_tokens }}</span>
-                  <span>{{ t("system.base.ai_provider.field.timeout_seconds") }}: {{ model.timeout_seconds }}</span>
-                  <span>{{ t("system.base.ai_provider.field.max_retries") }}: {{ model.max_retries }}</span>
+                  <template v-if="model.category === AiModelCategory.AI_MODEL_CATEGORY_CHAT">
+                    <span>{{ t("system.base.ai.model.field.api_type") }}: {{ apiTypeLabel(model.api_type) }}</span>
+                    <span>{{ t("system.base.ai.model.field.temperature") }}: {{ model.temperature }}</span>
+                    <span>{{ t("system.base.ai.model.field.max_tokens") }}: {{ model.max_tokens }}</span>
+                  </template>
+                  <span v-if="model.category === AiModelCategory.AI_MODEL_CATEGORY_EMBEDDING && model.dimensions > 0">
+                    {{ t("system.base.ai.model.field.dimensions") }}: {{ model.dimensions }}
+                  </span>
+                  <span>{{ t("system.base.ai.model.field.timeout_seconds") }}: {{ model.timeout_seconds }}</span>
+                  <span>{{ t("system.base.ai.model.field.max_retries") }}: {{ model.max_retries }}</span>
                 </div>
               </div>
               <div class="provider-models__actions">
@@ -86,9 +95,8 @@
       v-model="modelDialog.visible"
       ref="modelDialogRef"
       :title="t(modelDialog.editing ? 'system.base.ai_provider.model.edit' : 'system.base.ai_provider.model.add')"
-      width="min(640px, calc(100vw - 32px))"
-      label-width="9em"
-      label-position="left"
+      width="min(720px, calc(100vw - 32px))"
+      label-width="10em"
       :model="modelForm"
       :fields="modelFields"
       :rules="modelRules"
@@ -112,11 +120,13 @@ import { buildPageRequest, normalizeSelectedIds } from "@liujitcn/kratos-admin-c
 import { useTenantScope } from "@liujitcn/kratos-admin-core/tenant";
 import { t } from "@liujitcn/kratos-admin-core";
 import { defAiProviderService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/ai_provider";
-import type {
-  AiProvider,
-  AiProviderForm,
+import {
+  type AiProvider,
+  type AiProviderForm,
+  AiModelCategory,
+  type AiProviderModelForm,
   AiProviderModelTestResult,
-  PageAiProviderRequest
+  type PageAiProviderRequest
 } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/ai_provider";
 import { Status } from "@liujitcn/kratos-admin-system/rpc/common/v1/enum";
 
@@ -128,30 +138,26 @@ interface ConfigItem {
   value: string;
 }
 
-/** 模型请求接口类型。 */
-type ModelApiType = "CHAT_COMPLETIONS" | "RESPONSES";
-
-/** 单个AI模型的可编辑配置。 */
-interface AiModelConfig {
-  /** 服务商侧的模型名称。 */
-  model_name: string;
-  /** 模型在聊天前端的展示名称，留空时由前端按模型名自动映射。 */
-  display_name: string;
-  /** 模型请求接口类型。 */
-  api_type: ModelApiType;
-  /** 文本生成温度。 */
+/** 单个AI模型的页面表单状态；分类个性化配置先拍平成兄弟字段，提交时再收敛进 config。 */
+interface ModelFormState extends Omit<AiProviderModelForm, "config"> {
+  api_type: string;
   temperature: number;
-  /** 单次请求最大输出Token数。 */
   max_tokens: number;
-  /** 模型请求超时秒数。 */
+  dimensions: number;
+  duration: number;
+  size: string;
+  quality: string;
+  resolution: string;
+  task: string;
+  voice: string;
+  speed: number;
   timeout_seconds: number;
-  /** 模型请求失败后的最大重试次数。 */
   max_retries: number;
 }
 
 /** AI Provider页面表单状态。 */
-interface FormState extends Omit<AiProviderForm, "models_json"> {
-  models: AiModelConfig[];
+interface FormState extends Omit<AiProviderForm, "models"> {
+  models: ModelFormState[];
   config_items: ConfigItem[];
 }
 
@@ -163,7 +169,7 @@ const modelDialogRef = ref<InstanceType<typeof FormDialog>>();
 const dialog = reactive({ visible: false, editing: false });
 const modelDialog = reactive({ visible: false, editing: false, index: -1 });
 const form = reactive<FormState>(defaultForm());
-const modelForm = reactive<AiModelConfig>(defaultModelConfig());
+const modelForm = reactive<ModelFormState>(defaultModelForm());
 const testingModels = ref(false);
 const modelTestResults = ref<Record<string, AiProviderModelTestResult>>({});
 
@@ -184,44 +190,88 @@ const providerOptions = computed<ProFormOption[]>(() => [
   { label: t("system.base.ai_provider.provider.ollama"), value: "ollama" }
 ]);
 
-const modelApiTypeOptions = computed<ProFormOption[]>(() => [
-  { label: t("system.base.ai_provider.model.api_type.chat_completions"), value: "CHAT_COMPLETIONS" },
-  { label: t("system.base.ai_provider.model.api_type.responses"), value: "RESPONSES" }
+const categoryOptions = computed<ProFormOption[]>(() => [
+  { label: t("system.base.ai.model.category.chat"), value: AiModelCategory.AI_MODEL_CATEGORY_CHAT },
+  { label: t("system.base.ai.model.category.embedding"), value: AiModelCategory.AI_MODEL_CATEGORY_EMBEDDING },
+  { label: t("system.base.ai.model.category.rerank"), value: AiModelCategory.AI_MODEL_CATEGORY_RERANK },
+  { label: t("system.base.ai.model.category.image"), value: AiModelCategory.AI_MODEL_CATEGORY_IMAGE },
+  { label: t("system.base.ai.model.category.video"), value: AiModelCategory.AI_MODEL_CATEGORY_VIDEO },
+  { label: t("system.base.ai.model.category.audio"), value: AiModelCategory.AI_MODEL_CATEGORY_AUDIO }
 ]);
+
+const apiTypeOptions = computed<ProFormOption[]>(() => [
+  { label: t("system.base.ai.model.api_type.chat_completions"), value: "CHAT_COMPLETIONS" },
+  { label: t("system.base.ai.model.api_type.responses"), value: "RESPONSES" }
+]);
+
+const taskOptions = computed<ProFormOption[]>(() => [
+  { label: t("system.base.ai.model.task.tts"), value: "tts" },
+  { label: t("system.base.ai.model.task.asr"), value: "asr" }
+]);
+
+/** 分类个性化配置的表单字段，按分类过滤展示。 */
+const categoryConfigFields: Partial<Record<AiModelCategory, string[]>> = {
+  [AiModelCategory.AI_MODEL_CATEGORY_CHAT]: ["api_type", "temperature", "max_tokens", "timeout_seconds", "max_retries"],
+  [AiModelCategory.AI_MODEL_CATEGORY_EMBEDDING]: ["dimensions", "timeout_seconds", "max_retries"],
+  [AiModelCategory.AI_MODEL_CATEGORY_RERANK]: ["timeout_seconds", "max_retries"],
+  [AiModelCategory.AI_MODEL_CATEGORY_IMAGE]: ["size", "quality", "timeout_seconds", "max_retries"],
+  [AiModelCategory.AI_MODEL_CATEGORY_VIDEO]: ["duration", "resolution", "timeout_seconds", "max_retries"],
+  [AiModelCategory.AI_MODEL_CATEGORY_AUDIO]: ["task", "voice", "speed", "timeout_seconds", "max_retries"]
+};
+
+/** 全部配置字段的表单项定义。 */
+const configFieldMap: Record<string, ProFormField> = {
+  api_type: { prop: "api_type", label: t("system.base.ai.model.field.api_type"), component: "select", colSpan: 12, options: apiTypeOptions.value },
+  temperature: { prop: "temperature", label: t("system.base.ai.model.field.temperature"), component: "input-number", colSpan: 12, props: { min: 0, max: 2, precision: 2, step: 0.1, controlsPosition: "right" } },
+  max_tokens: { prop: "max_tokens", label: t("system.base.ai.model.field.max_tokens"), component: "input-number", colSpan: 12, props: { min: 0, max: 200000, precision: 0, controlsPosition: "right" } },
+  dimensions: { prop: "dimensions", label: t("system.base.ai.model.field.dimensions"), component: "input-number", colSpan: 12, props: { min: 0, max: 8192, precision: 0, controlsPosition: "right", placeholder: t("system.base.ai.model.placeholder.dimensions") } },
+  duration: { prop: "duration", label: t("system.base.ai.model.field.duration"), component: "input-number", colSpan: 12, props: { min: 0, precision: 0, controlsPosition: "right" } },
+  size: { prop: "size", label: t("system.base.ai.model.field.size"), component: "input", colSpan: 12, props: { maxlength: 50, placeholder: "1024x1024" } },
+  quality: { prop: "quality", label: t("system.base.ai.model.field.quality"), component: "input", colSpan: 12, props: { maxlength: 50 } },
+  resolution: { prop: "resolution", label: t("system.base.ai.model.field.resolution"), component: "input", colSpan: 12, props: { maxlength: 50, placeholder: "1920x1080" } },
+  task: { prop: "task", label: t("system.base.ai.model.field.task"), component: "select", colSpan: 12, options: taskOptions.value },
+  voice: { prop: "voice", label: t("system.base.ai.model.field.voice"), component: "input", colSpan: 12, props: { maxlength: 100 } },
+  speed: { prop: "speed", label: t("system.base.ai.model.field.speed"), component: "input-number", colSpan: 12, props: { min: 0, max: 4, precision: 2, step: 0.1, controlsPosition: "right" } },
+  timeout_seconds: { prop: "timeout_seconds", label: t("system.base.ai.model.field.timeout_seconds"), component: "input-number", colSpan: 12, props: { min: 0, max: 600, precision: 0, controlsPosition: "right" } },
+  max_retries: { prop: "max_retries", label: t("system.base.ai.model.field.max_retries"), component: "input-number", colSpan: 12, props: { min: 0, max: 10, precision: 0, controlsPosition: "right" } }
+};
 
 const fields = computed<ProFormField[]>(() => [
   { prop: "provider", label: t("system.base.ai_provider.field.provider"), component: "select", colSpan: 12, options: providerOptions.value, props: { disabled: dialog.editing } },
-  { prop: "name", label: t("system.base.ai_provider.field.name"), component: "input", colSpan: 12, props: { maxlength: 100 } },
-  { prop: "base_url", label: t("system.base.ai_provider.field.base_url"), component: "input", colSpan: 12, props: { maxlength: 512, placeholder: t("system.base.ai_provider.placeholder.base_url") } },
-  { prop: "api_key", label: t("system.base.ai_provider.field.api_key"), component: "input", colSpan: 12, props: { type: "password", showPassword: true, maxlength: 1024, placeholder: form.api_key_configured ? t("system.base.ai_provider.placeholder.keep_api_key") : t("system.base.ai_provider.placeholder.api_key") } },
+  { prop: "name", label: t("system.base.ai_provider.field.name"), component: "input", colSpan: 12, props: { maxlength: 100, autocomplete: "off" } },
+  { prop: "base_url", label: t("system.base.ai_provider.field.base_url"), component: "input", colSpan: 12, props: { maxlength: 512, autocomplete: "off", placeholder: t("system.base.ai_provider.placeholder.base_url") } },
+  { prop: "api_key", label: t("system.base.ai_provider.field.api_key"), component: "input", colSpan: 12, props: { type: "password", showPassword: true, maxlength: 1024, autocomplete: "new-password", placeholder: form.api_key_configured ? t("system.base.ai_provider.placeholder.keep_api_key") : t("system.base.ai_provider.placeholder.api_key") } },
   { prop: "models", label: t("system.base.ai_provider.field.models"), component: "slot", slotName: "models", colSpan: 24 },
   { prop: "config_items", label: t("system.base.ai_provider.field.config"), component: "kv-list", colSpan: 24, props: { keyInputProps: { maxlength: 128 } } },
   { prop: "sort", label: t("common.field.sort"), component: "input-number", colSpan: 12, props: { min: 0, precision: 0 } },
   { prop: "status", label: t("common.field.status"), component: "radio-group", colSpan: 12, options: statusOptions.value }
 ]);
 
-const modelFields = computed<ProFormField[]>(() => [
-  { prop: "model_name", label: t("system.base.ai_provider.field.model_name"), component: "input", colSpan: 12, props: { maxlength: 100 } },
-  { prop: "display_name", label: t("system.base.ai_provider.field.display_name"), component: "input", colSpan: 12, props: { maxlength: 100, placeholder: t("system.base.ai_provider.model.placeholder.display_name") } },
-  { prop: "api_type", label: t("system.base.ai_provider.field.api_type"), component: "select", colSpan: 12, options: modelApiTypeOptions.value },
-  { prop: "temperature", label: t("system.base.ai_provider.field.temperature"), component: "input-number", colSpan: 12, props: { min: 0, max: 2, precision: 2, step: 0.1, controlsPosition: "right" } },
-  { prop: "max_tokens", label: t("system.base.ai_provider.field.max_tokens"), component: "input-number", colSpan: 12, props: { min: 0, max: 200000, precision: 0, controlsPosition: "right" } },
-  { prop: "timeout_seconds", label: t("system.base.ai_provider.field.timeout_seconds"), component: "input-number", colSpan: 12, props: { min: 0, max: 600, precision: 0, controlsPosition: "right" } },
-  { prop: "max_retries", label: t("system.base.ai_provider.field.max_retries"), component: "input-number", colSpan: 12, props: { min: 0, max: 10, precision: 0, controlsPosition: "right" } }
-]);
+const modelFields = computed<ProFormField[]>(() => {
+  const category = modelForm.category;
+  const configFields = (categoryConfigFields[category] ?? []).map(key => configFieldMap[key]);
+  return [
+    { prop: "model_name", label: t("system.base.ai.model.field.model_name"), component: "input", colSpan: 12, props: { maxlength: 200, autocomplete: "off" } },
+    { prop: "display_name", label: t("system.base.ai.model.field.display_name"), component: "input", colSpan: 12, props: { maxlength: 100, autocomplete: "off", placeholder: t("system.base.ai.model.placeholder.display_name") } },
+    { prop: "category", label: t("system.base.ai.model.field.category"), component: "select", colSpan: 12, options: categoryOptions.value },
+    { prop: "sort", label: t("common.field.sort"), component: "input-number", colSpan: 12, props: { min: 0, precision: 0 } },
+    { prop: "status", label: t("common.field.status"), component: "radio-group", colSpan: 12, options: statusOptions.value },
+    ...configFields
+  ];
+});
 
 const rules = computed<FormRules>(() => ({
   name: [{ required: true, message: t("system.base.ai_provider.validation.name"), trigger: "blur" }],
   provider: [{ required: true, message: t("system.base.ai_provider.validation.provider"), trigger: "change" }],
   models: [{
-    validator: (_rule, value: AiModelConfig[], callback) => {
+    validator: (_rule, value: ModelFormState[], callback) => {
       if (!Array.isArray(value) || value.length === 0) {
         callback(new Error(t("system.base.ai_provider.model.validation.required")));
         return;
       }
       const names = value.map(model => model.model_name);
       callback(names.some(name => !name)
-        ? new Error(t("system.base.ai_provider.validation.model_name"))
+        ? new Error(t("system.base.ai.model.validation.model_name"))
         : new Set(names).size !== names.length
           ? new Error(t("system.base.ai_provider.model.validation.duplicate"))
           : undefined);
@@ -232,15 +282,10 @@ const rules = computed<FormRules>(() => ({
 
 const modelRules = computed<FormRules>(() => ({
   model_name: [
-    { required: true, message: t("system.base.ai_provider.validation.model_name"), trigger: "blur" },
-    { max: 100, message: t("system.base.ai_provider.validation.model_name_length"), trigger: "blur" }
+    { required: true, message: t("system.base.ai.model.validation.model_name"), trigger: "blur" },
+    { max: 200, message: t("system.base.ai.model.validation.model_name_length"), trigger: "blur" }
   ],
-  display_name: [{ max: 100, message: t("system.base.ai_provider.model.validation.display_name"), trigger: "blur" }],
-  api_type: [{ required: true, message: t("system.base.ai_provider.validation.api_type"), trigger: "change" }],
-  temperature: [{ type: "number", required: true, min: 0, max: 2, message: t("system.base.ai_provider.model.validation.range"), trigger: "change" }],
-  max_tokens: [{ type: "number", required: true, min: 0, max: 200000, message: t("system.base.ai_provider.model.validation.range"), trigger: "change" }],
-  timeout_seconds: [{ type: "number", required: true, min: 0, max: 600, message: t("system.base.ai_provider.model.validation.range"), trigger: "change" }],
-  max_retries: [{ type: "number", required: true, min: 0, max: 10, message: t("system.base.ai_provider.model.validation.range"), trigger: "change" }]
+  category: [{ required: true, message: t("system.base.ai.model.validation.category"), trigger: "change" }]
 }));
 
 const columns = computed<ColumnProps[]>(() => [
@@ -299,6 +344,43 @@ function defaultForm(): FormState {
   };
 }
 
+/** 创建默认模型表单；各分类配置字段都先给默认值，切换分类时无需重置。 */
+function defaultModelForm(): ModelFormState {
+  return {
+    id: 0,
+    model_name: "",
+    display_name: "",
+    category: AiModelCategory.AI_MODEL_CATEGORY_CHAT,
+    sort: 0,
+    status: Status.STATUS_ENABLE,
+    api_type: "CHAT_COMPLETIONS",
+    temperature: 0.2,
+    max_tokens: 1024,
+    dimensions: 0,
+    duration: 0,
+    size: "",
+    quality: "",
+    resolution: "",
+    task: "tts",
+    voice: "",
+    speed: 0,
+    timeout_seconds: 60,
+    max_retries: 2
+  };
+}
+
+/** 模型分类显示名。 */
+function categoryLabel(category: AiModelCategory) {
+  const option = categoryOptions.value.find(item => item.value === category);
+  return option?.label ?? String(category);
+}
+
+/** 接口类型显示名。 */
+function apiTypeLabel(apiType: string) {
+  const option = apiTypeOptions.value.find(item => item.value === apiType);
+  return option?.label ?? apiType;
+}
+
 /** 请求AI供应商表格数据。 */
 async function requestTable(params: Record<string, unknown>) {
   const data = await defAiProviderService.PageAiProvider(buildPageRequest<PageAiProviderRequest>(params as unknown as PageAiProviderRequest));
@@ -311,9 +393,8 @@ async function openDialog(id?: number) {
     load: () => (id ? defAiProviderService.GetAiProvider({ id }) : undefined),
     commit: value => {
       if (value) {
-        const { models_json, ...provider } = value;
-        Object.assign(form, defaultForm(), provider, {
-          models: parseModelConfigs(models_json),
+        Object.assign(form, defaultForm(), value, {
+          models: (value.models ?? []).map(model => flattenModel(model)),
           config_items: configToItems(value.config)
         });
       } else {
@@ -324,7 +405,7 @@ async function openDialog(id?: number) {
   });
 }
 
-/** 提交AI供应商表单。 */
+/** 提交AI供应商表单（供应商与模型两张表随同一请求保存）。 */
 async function submit() {
   const valid = await dialogRef.value?.validate();
   if (!valid) return;
@@ -367,11 +448,39 @@ function buildAiProviderPayload(): AiProviderForm | undefined {
     base_url: form.base_url,
     api_key: form.api_key,
     api_key_configured: form.api_key_configured,
-    models_json: JSON.stringify(form.models),
+    models: form.models.map(model => buildModelPayload(model)),
     config,
     sort: form.sort,
     status: form.status
   };
+}
+
+/** 将页面模型表单收敛为保存或测试请求参数。 */
+function buildModelPayload(model: ModelFormState): AiProviderModelForm {
+  const category = model.category;
+  const config: Record<string, unknown> = {};
+  for (const key of categoryConfigFields[category] ?? []) {
+    const value = model[key as keyof ModelFormState];
+    if (value !== undefined && value !== "") config[key] = value;
+  }
+  return {
+    id: model.id,
+    model_name: model.model_name,
+    display_name: model.display_name,
+    category: model.category,
+    config,
+    sort: model.sort,
+    status: model.status
+  };
+}
+
+/** 将接口返回的模型表单拍平为页面状态。 */
+function flattenModel(model: AiProviderModelForm): ModelFormState {
+  const state = { ...defaultModelForm(), ...model, config: undefined } as unknown as ModelFormState;
+  for (const [key, value] of Object.entries(model.config ?? {})) {
+    if (key in state) (state as unknown as Record<string, unknown>)[key] = value;
+  }
+  return state;
 }
 
 /** 重置供应商表单。 */
@@ -380,13 +489,14 @@ function resetForm() {
   dialog.editing = false;
   modelDialog.visible = false;
   resetModelDialog();
+  modelTestResults.value = {};
 }
 
 /** 打开模型新增或编辑表单。 */
 function openModelDialog(index?: number) {
   modelDialog.index = index ?? -1;
   modelDialog.editing = index !== undefined;
-  Object.assign(modelForm, index === undefined ? defaultModelConfig() : { ...form.models[index] });
+  Object.assign(modelForm, index === undefined ? defaultModelForm() : { ...form.models[index] });
   modelDialog.visible = true;
 }
 
@@ -394,7 +504,7 @@ function openModelDialog(index?: number) {
 async function saveModel() {
   const valid = await modelDialogRef.value?.validate();
   if (!valid) return;
-  const duplicated = form.models.some((model, index) => index !== modelDialog.index && model.model_name === modelForm.model_name);
+  const duplicated = form.models.some((model, index) => index !== modelDialog.index && model.model_name === modelForm.model_name.trim());
   if (duplicated) {
     ElMessage.warning(t("system.base.ai_provider.model.validation.duplicate"));
     return;
@@ -418,39 +528,14 @@ async function removeModel(index: number) {
   }
 }
 
-/** 重置模型编辑弹窗状态。 */
+/** 重置模型表单。 */
 function resetModelDialog() {
+  Object.assign(modelForm, defaultModelForm());
   modelDialog.editing = false;
   modelDialog.index = -1;
 }
 
-/** 返回模型接口类型的本地化名称。 */
-function apiTypeLabel(apiType: ModelApiType) {
-  return t(apiType === "RESPONSES"
-    ? "system.base.ai_provider.model.api_type.responses"
-    : "system.base.ai_provider.model.api_type.chat_completions");
-}
-
-/** 将供应商返回的模型配置数组转换为表单数据。 */
-function parseModelConfigs(raw: string): AiModelConfig[] {
-  const values = JSON.parse(raw) as Partial<AiModelConfig>[];
-  return values.map(value => ({
-    model_name: value.model_name ?? "",
-    display_name: value.display_name ?? "",
-    api_type: value.api_type === "RESPONSES" ? "RESPONSES" : "CHAT_COMPLETIONS",
-    temperature: value.temperature ?? 0,
-    max_tokens: value.max_tokens ?? 0,
-    timeout_seconds: value.timeout_seconds ?? 0,
-    max_retries: value.max_retries ?? 0
-  }));
-}
-
-/** 创建单个模型的默认配置。 */
-function defaultModelConfig(): AiModelConfig {
-  return { model_name: "", display_name: "", api_type: "CHAT_COMPLETIONS", temperature: 0.2, max_tokens: 1024, timeout_seconds: 60, max_retries: 2 };
-}
-
-/** 将Provider配置对象转换为键值表单项。 */
+/** 将供应商返回的配置对象转换为键值表单项。 */
 function configToItems(config: Record<string, unknown> | undefined): ConfigItem[] {
   return Object.entries(config ?? {}).map(([key, value]) => ({ key, value: typeof value === "string" ? value : JSON.stringify(value) }));
 }
@@ -478,7 +563,7 @@ function configItemsToMap(items: ConfigItem[]): Record<string, unknown> | undefi
   return result;
 }
 
-/** 批量删除AI供应商。 */
+/** 批量删除AI供应商（级联删除其下模型）。 */
 async function handleDelete(target: AiProvider | number | Array<number>) {
   const row = typeof target === "object" && !Array.isArray(target) ? target : undefined;
   const ids = (row ? [row.id] : normalizeSelectedIds(target as number | number[])).map(Number);
@@ -517,97 +602,58 @@ async function handleSetStatus(row: AiProvider) {
 }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .provider-models {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
   gap: 12px;
   width: 100%;
 }
-
 .provider-models__empty {
-  width: 100%;
-  padding: 16px;
-  border: 1px dashed var(--el-border-color);
-  border-radius: 6px;
+  padding: 16px 0;
   color: var(--el-text-color-secondary);
   text-align: center;
-}
-
-.provider-models__list {
-  width: 100%;
-  overflow: hidden;
-  border: 1px solid var(--el-border-color);
+  background: var(--el-fill-color-light);
   border-radius: 6px;
 }
-
-.provider-models__item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  min-width: 0;
-  padding: 12px 14px;
-}
-
-.provider-models__item + .provider-models__item {
-  border-top: 1px solid var(--el-border-color-lighter);
-}
-
-.provider-models__content {
+.provider-models__list {
   display: flex;
   flex-direction: column;
   gap: 8px;
+}
+.provider-models__item {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: var(--el-fill-color-light);
+  border-radius: 6px;
+}
+.provider-models__content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
   min-width: 0;
 }
-
-.provider-models__heading,
-.provider-models__details,
+.provider-models__heading {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.provider-models__alias {
+  color: var(--el-text-color-secondary);
+}
+.provider-models__details {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  font-size: 12px;
+  color: var(--el-text-color-secondary);
+}
 .provider-models__actions {
   display: flex;
-  align-items: center;
-}
-
-.provider-models__heading {
-  flex-wrap: wrap;
-  gap: 8px;
-  min-width: 0;
-}
-
-.provider-models__heading strong {
-  overflow-wrap: anywhere;
-}
-
-.provider-models__alias {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 1px 8px;
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--el-color-primary);
-  background: var(--el-color-primary-light-9);
-  border-radius: 999px;
-  white-space: nowrap;
-}
-
-.provider-models__details {
-  flex-wrap: wrap;
-  gap: 4px 14px;
-  color: var(--el-text-color-secondary);
-  font-size: 12px;
-}
-
-.provider-models__actions {
-  flex: none;
-  gap: 4px;
-}
-
-@media (max-width: 640px) {
-  .provider-models__item {
-    align-items: flex-start;
-    padding: 10px;
-  }
+  flex-shrink: 0;
 }
 </style>

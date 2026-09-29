@@ -54,7 +54,9 @@ GORM_GEN_BIN ?= $(or \
 GORM_GEN_CONFIG ?= configs/data.yaml
 GORM_GEN_DATABASE ?=
 # 仅生成本仓库使用的表；新增业务表时同步补充此列表。
-GORM_TABLE ?= ai_message,ai_session,ai_provider,base_api,base_api_i18n,base_api_log,base_api_rate_limit_policy,base_area,base_config,base_data_access_log,base_dept,base_dict,base_dict_item,base_file,base_i18n,base_i18n_custom,base_job,base_job_log,base_language,base_login_log,base_login_policy,base_login_policy_rule,base_menu,base_message,base_message_category,base_message_delivery,base_message_dispatch,base_message_provider,base_message_template,base_migration,base_oauth_provider,base_operation_log,base_permission_log,base_policy_evaluation_log,base_post,base_rate_limit_rule,base_redact_output_policy,base_redact_rule,base_redact_storage_policy,base_redact_storage_value,base_role,base_table_archive,base_table_archive_record,base_table_archive_restore,base_table_backup,base_table_backup_record,base_table_backup_restore,base_tenant,base_tenant_project,base_tenant_project_grant,base_third_account,base_user,base_user_mfa,base_user_mfa_recovery,base_user_mfa_totp,base_user_mfa_webauthn,casbin_rule,code_gen_column,code_gen_proto,code_gen_table,oauth_client
+# rag 数据源（AI知识库，PostgreSQL）的表独立维护，生成到 internal/data/gen/rag。
+GORM_TABLE ?= ai_message,ai_model,ai_query,ai_session,ai_provider,base_api,base_api_i18n,base_api_log,base_api_rate_limit_policy,base_area,base_config,base_data_access_log,base_dept,base_dict,base_dict_item,base_file,base_i18n,base_i18n_custom,base_job,base_job_log,base_language,base_login_log,base_login_policy,base_login_policy_rule,base_menu,base_message,base_message_category,base_message_delivery,base_message_dispatch,base_message_provider,base_message_template,base_migration,base_oauth_provider,base_operation_log,base_permission_log,base_policy_evaluation_log,base_post,base_rate_limit_rule,base_redact_output_policy,base_redact_rule,base_redact_storage_policy,base_redact_storage_value,base_role,base_table_archive,base_table_archive_record,base_table_archive_restore,base_table_backup,base_table_backup_record,base_table_backup_restore,base_tenant,base_tenant_project,base_tenant_project_grant,base_third_account,base_user,base_user_mfa,base_user_mfa_recovery,base_user_mfa_totp,base_user_mfa_webauthn,casbin_rule,code_gen_column,code_gen_proto,code_gen_table,oauth_client
+GORM_RAG_TABLE ?= ai_knowledge,ai_knowledge_doc,ai_knowledge_chunk
 
 # ===== 环境初始化 =====
 
@@ -150,7 +152,8 @@ check:
 gorm-gen:
 	@echo "==> 生成 GORM 代码"
 	@test -x "$(GORM_GEN_BIN)" || (echo "未找到 gorm-gen，请先执行 make cli" && exit 1)
-	@$(GORM_GEN_BIN) -base_path=internal/data/gen -config='$(GORM_GEN_CONFIG)' $(if $(strip $(GORM_GEN_DATABASE)),-database='$(GORM_GEN_DATABASE)') $(if $(strip $(GORM_TABLE)),-table='$(GORM_TABLE)')
+	@$(GORM_GEN_BIN) -base_path=internal/data/gen -config='$(GORM_GEN_CONFIG)' -table='$(GORM_TABLE)'
+	@$(GORM_GEN_BIN) -base_path=internal/data/gen -config='$(GORM_GEN_CONFIG)' -database=rag -table='$(GORM_RAG_TABLE)'
 	@PATH="$(GO_BIN_DIR):$$PATH" find internal/data/gen -type f -name '*.go' -exec goimports -w {} +
 	@find internal/data/gen -type f -name '*.go' -exec perl -pi -e 's/;default:[^;"`]+//gi' {} +
 	@echo "==> GORM 代码生成完成"

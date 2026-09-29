@@ -297,16 +297,34 @@ func (r *Runtime) runnerTools(ctx context.Context, input RuntimeInput) []tool.Ba
 	return tools
 }
 
-// toolInfos 收集可传给模型的工具定义。
+// toolInfos 收集可传给模型的工具定义，并保证目录工具每轮常驻暴露。
+//
+// 目录工具不参与关键词打分，只作为兜底路径追加在筛选结果之后：问题措辞与任何工具
+// 描述都对不上时，模型仍可通过目录工具查到完整工具清单并选择正确工具，而不是拿
+// 联网搜索或自身记忆回答内部业务数据问题。
 func (r *Runtime) toolInfos(ctx context.Context, input RuntimeInput) ([]*tool.Info, bool) {
 	registeredInfos := r.allToolInfos(ctx, input)
 	infos := r.enabledToolInfos(ctx, input, registeredInfos)
 	catalogTool := r.newAgentToolCatalogTool(ctx, input.Terminal, registeredInfos, infos, maxModelToolsPerRequest)
 	catalogInfo, err := catalogTool.Info(ctx)
-	if err == nil && catalogInfo != nil {
-		infos = append(infos, catalogInfo)
+	if err != nil || catalogInfo == nil {
+		return selectToolInfos(input, infos)
 	}
-	return selectToolInfos(input, infos)
+	selected, matched := selectToolInfos(input, infos)
+	return appendCatalogInfo(selected, catalogInfo), matched
+}
+
+// appendCatalogInfo 将目录工具追加到本轮暴露列表，已存在时保持原列表不变。
+func appendCatalogInfo(infos []*tool.Info, catalogInfo *tool.Info) []*tool.Info {
+	if catalogInfo == nil {
+		return infos
+	}
+	for _, info := range infos {
+		if info != nil && info.Name == catalogInfo.Name {
+			return infos
+		}
+	}
+	return append(infos, catalogInfo)
 }
 
 // toolMap 按工具名构造本地执行索引。
@@ -478,7 +496,7 @@ func (r *Runtime) resolvePrompt(ctx context.Context, input RuntimeInput) string 
 	lines := []string{
 		r.localizePrompt(ctx, "base.ai.prompt.instruction", nil, fallbackAIInstruction),
 		r.localizePrompt(ctx, "base.ai.prompt.tool_routing_rules", nil,
-			"Use internal tools for private project data. When an internal tool matches this request, answer only with internal tools and do not use web search. Follow tool descriptions and parameter defaults; do not add or remove query conditions without instruction. For a clarified follow-up, reuse the latest relevant tool and preserve other conditions, changing only the clarified condition. Ask if the target or condition is ambiguous."),
+			"Use internal tools for private project data. When an internal tool matches this request, answer only with internal tools and do not use web search. Follow tool descriptions and parameter defaults; do not add or remove query conditions without instruction. For a clarified follow-up, reuse the latest relevant tool and preserve other conditions, changing only the clarified condition. If no exposed tool matches a request about internal project data, call internal_agent_tool_catalog first to locate the correct internal tool; never answer such requests from memory or web search alone. Ask if the target or condition is ambiguous."),
 		"",
 		r.localizePrompt(ctx, "base.ai.prompt.current_session", nil, "Current session:"),
 		r.localizePrompt(ctx, "base.ai.prompt.terminal", map[string]any{"Value": input.Terminal}, "- Terminal: {{.Value}}"),
@@ -490,6 +508,9 @@ func (r *Runtime) resolvePrompt(ctx context.Context, input RuntimeInput) string 
 	}
 	if len(input.Attachments) > 0 {
 		lines = append(lines, "", r.localizePrompt(ctx, "base.ai.prompt.attachment_notice", nil, "Attachments are included in the user message; refer to them when relevant."))
+	}
+	if input.KnowledgeContext != "" {
+		lines = append(lines, "", input.KnowledgeContext)
 	}
 	return strings.Join(lines, "\n")
 }
@@ -593,7 +614,7 @@ func (r *Runtime) newAgentToolCatalogTool(ctx context.Context, terminal string, 
 	return tool.NewCatalogTool(tool.CatalogOptions{
 		Name: agentToolCatalogName,
 		Description: r.localizePrompt(ctx, "base.ai.prompt.catalog_tool_description", nil,
-			"Query the complete internal Agent Tool catalog for the current terminal, including tool counts, names, and descriptions. Use when the user asks which tools or APIs are available."),
+			"Query the complete internal Agent Tool catalog for the current terminal, including tool counts, names, and descriptions. Use when the user asks which tools or APIs are available, or when no other exposed tool matches the user's request and an internal tool may be needed."),
 		Terminal:          terminal,
 		Infos:             infos,
 		EnabledInfos:      enabledInfos,

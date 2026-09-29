@@ -68,8 +68,8 @@ const formFields = computed<ProFormField[]>(() => [
   { prop: "name", label: t("system.base.message_provider.field.name"), component: "input", props: { maxlength: 50 } },
   { prop: "description", label: t("system.base.message_provider.field.description"), component: "input", colSpan: 24, props: { maxlength: 255 } },
   { prop: "icon", label: t("system.base.message_provider.field.icon"), component: "input", props: { maxlength: 100 } },
-  { prop: "client_id", label: t("system.base.message_provider.field.client_id"), component: "input", props: { maxlength: 255 } },
-  { prop: "client_secret", label: t("system.base.message_provider.field.client_secret"), component: "input", props: { type: "password", showPassword: true, maxlength: 1024, placeholder: dialog.editing ? t("system.base.message_provider.placeholder.keep_secret") : "" } },
+  { prop: "client_id", label: t("system.base.message_provider.field.client_id"), component: "input", props: { maxlength: 255, autocomplete: "off" } },
+  { prop: "client_secret", label: t("system.base.message_provider.field.client_secret"), component: "input", props: { type: "password", showPassword: true, maxlength: 1024, autocomplete: "new-password", placeholder: dialog.editing ? t("system.base.message_provider.placeholder.keep_secret") : "" } },
   { prop: "config_items", label: t("system.base.message_provider.field.config"), component: "kv-list", props: { keyInputProps: { maxlength: 128 } } },
   { prop: "sort", label: t("common.field.sort"), component: "input-number", props: { min: 0, precision: 0 } },
   { prop: "status", label: t("common.field.status"), component: "radio-group", options: statusOptions.value }

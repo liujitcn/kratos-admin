@@ -19,7 +19,9 @@ func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 	return &Query{
 		db:                      db,
 		AiMessage:               newAiMessage(db, opts...),
+		AiModel:                 newAiModel(db, opts...),
 		AiProvider:              newAiProvider(db, opts...),
+		AiQuery:                 newAiQuery(db, opts...),
 		AiSession:               newAiSession(db, opts...),
 		BaseAPI:                 newBaseAPI(db, opts...),
 		BaseAPII18N:             newBaseAPII18N(db, opts...),
@@ -85,7 +87,9 @@ func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 type Query struct {
 	db                      *gorm.DB
 	AiMessage               aiMessage
+	AiModel                 aiModel
 	AiProvider              aiProvider
+	AiQuery                 aiQuery
 	AiSession               aiSession
 	BaseAPI                 baseAPI
 	BaseAPII18N             baseAPII18N
@@ -153,7 +157,9 @@ func (q *Query) clone(db *gorm.DB) *Query {
 	return &Query{
 		db:                      db,
 		AiMessage:               q.AiMessage.clone(db),
+		AiModel:                 q.AiModel.clone(db),
 		AiProvider:              q.AiProvider.clone(db),
+		AiQuery:                 q.AiQuery.clone(db),
 		AiSession:               q.AiSession.clone(db),
 		BaseAPI:                 q.BaseAPI.clone(db),
 		BaseAPII18N:             q.BaseAPII18N.clone(db),
@@ -228,7 +234,9 @@ func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 	return &Query{
 		db:                      db,
 		AiMessage:               q.AiMessage.replaceDB(db),
+		AiModel:                 q.AiModel.replaceDB(db),
 		AiProvider:              q.AiProvider.replaceDB(db),
+		AiQuery:                 q.AiQuery.replaceDB(db),
 		AiSession:               q.AiSession.replaceDB(db),
 		BaseAPI:                 q.BaseAPI.replaceDB(db),
 		BaseAPII18N:             q.BaseAPII18N.replaceDB(db),
@@ -293,7 +301,9 @@ func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 
 type queryCtx struct {
 	AiMessage               *aiMessageDo
+	AiModel                 *aiModelDo
 	AiProvider              *aiProviderDo
+	AiQuery                 *aiQueryDo
 	AiSession               *aiSessionDo
 	BaseAPI                 *baseAPIDo
 	BaseAPII18N             *baseAPII18NDo
@@ -358,7 +368,9 @@ type queryCtx struct {
 func (q *Query) WithContext(ctx context.Context) *queryCtx {
 	return &queryCtx{
 		AiMessage:               q.AiMessage.WithContext(ctx),
+		AiModel:                 q.AiModel.WithContext(ctx),
 		AiProvider:              q.AiProvider.WithContext(ctx),
+		AiQuery:                 q.AiQuery.WithContext(ctx),
 		AiSession:               q.AiSession.WithContext(ctx),
 		BaseAPI:                 q.BaseAPI.WithContext(ctx),
 		BaseAPII18N:             q.BaseAPII18N.WithContext(ctx),

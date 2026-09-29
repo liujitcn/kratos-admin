@@ -116,5 +116,10 @@
   "system.ai.model.load_failed": "載入供應商與模型失敗",
   "system.ai.model.title": "選擇模型",
   "system.ai.model.provider_model_count": "{providers} 個供應商 · {models} 個模型",
-  "system.ai.model.empty": "暫無可選模型"
+  "system.ai.model.empty": "暫無可選模型",
+  "system.ai.knowledge.title": "知識庫",
+  "system.ai.knowledge.selected_count": "已選 {count} 個知識庫",
+  "system.ai.knowledge.doc_count": "{count} 篇文件",
+  "system.ai.knowledge.select_hint": "勾選要注入上下文的知識庫",
+  "system.ai.knowledge.empty": "暫無知識庫"
 }

@@ -1,9 +1,14 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
+import { useI18n } from '@liujitcn/kratos-uni-app-core'
 import type { AiAttachment } from '../../../../rpc/base/v1/ai_session'
 import type { AiProviderModelOption } from '../../../../rpc/base/v1/ai_provider'
+import type { AiKnowledgeOption } from '../../../../rpc/base/v1/ai_knowledge'
 import { fallbackModelDisplayName } from '../modelDisplay'
 import ModelPicker from './ModelPicker.vue'
+import KnowledgePicker from './KnowledgePicker.vue'
+
+const { t } = useI18n()
 
 type InputEventValue = {
   detail: {
@@ -19,6 +24,10 @@ const props = defineProps<{
   /** 当前选中的供应商编号和模型名称。 */
   providerId: number
   modelName: string
+  /** 当前可供选择的知识库。 */
+  knowledgeOptions: AiKnowledgeOption[]
+  /** 当前选择的知识库编号列表。 */
+  knowledgeIds: number[]
   modelPlaceholder: string
   placeholder: string
   bottom: string
@@ -34,9 +43,11 @@ const emit = defineEmits<{
   send: []
   'remove-attachment': [attachment: AiAttachment]
   'model-change': [providerId: number, modelName: string]
+  'knowledge-change': [knowledgeIds: number[]]
 }>()
 
 const showModelPicker = ref(false)
+const showKnowledgePicker = ref(false)
 
 const selectedModelDisplayName = computed(() => {
   const provider = props.modelProviders.find((item) => item.provider_id === props.providerId)
@@ -59,6 +70,23 @@ function handleModelSelect(providerId: number, modelName: string) {
   showModelPicker.value = false
   emit('model-change', providerId, modelName)
 }
+
+function openKnowledgePicker() {
+  if (props.sending || !props.knowledgeOptions.length) {
+    return
+  }
+  showKnowledgePicker.value = true
+}
+
+function handleKnowledgeToggle(knowledgeId: number) {
+  const current = new Set(props.knowledgeIds)
+  if (current.has(knowledgeId)) {
+    current.delete(knowledgeId)
+  } else {
+    current.add(knowledgeId)
+  }
+  emit('knowledge-change', [...current])
+}
 </script>
 
 <template>
@@ -70,6 +98,22 @@ function handleModelSelect(providerId: number, modelName: string) {
     >
       <text class="composer-model-chip__spark">✦</text>
       <text class="composer-model-chip__label">{{ selectedModelDisplayName || modelPlaceholder }}</text>
+      <uni-icons type="down" size="12" color="#8a8f99" />
+    </view>
+    <view
+      class="composer-model-chip"
+      :class="{
+        'is-disabled': sending || !knowledgeOptions.length,
+        'is-selected': knowledgeIds.length > 0,
+      }"
+      @tap="openKnowledgePicker"
+    >
+      <text class="composer-model-chip__spark">📚</text>
+      <text class="composer-model-chip__label">{{
+        knowledgeIds.length > 0
+          ? t('system.ai.knowledge.selected_count', { count: knowledgeIds.length })
+          : t('system.ai.knowledge.title')
+      }}</text>
       <uni-icons type="down" size="12" color="#8a8f99" />
     </view>
     <view class="composer-main">
@@ -123,6 +167,14 @@ function handleModelSelect(providerId: number, modelName: string) {
       :model-name="modelName"
       @select="handleModelSelect"
       @close="showModelPicker = false"
+    />
+
+    <KnowledgePicker
+      v-if="showKnowledgePicker"
+      :options="knowledgeOptions"
+      :selected-ids="knowledgeIds"
+      @toggle="handleKnowledgeToggle"
+      @close="showKnowledgePicker = false"
     />
   </view>
 </template>

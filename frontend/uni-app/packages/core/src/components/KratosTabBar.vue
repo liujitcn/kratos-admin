@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, onMounted } from 'vue'
 import { resolveModuleIcon, resolveStaticView } from '../module'
 import { APP_MENU_ROOT_ID, useAppMenuBadge, useAppNavigation } from '../navigation'
 import { resolveRootMenuId } from '../navigation-tree.mjs'
@@ -14,6 +14,12 @@ const activeMenu = computed(() => {
 })
 const visible = computed(() => Boolean(activeMenu.value && tabBar.value.length))
 const messageBadge = useAppMenuBadge('MESSAGE_INBOX')
+// #ifdef H5
+// H5 端 tabBar.custom 不隐藏内置 tabbar,需手动隐藏,否则其边线从自定义栏上方露出形成双线。
+onMounted(() => {
+  uni.hideTabBar({ fail: () => {} })
+})
+// #endif
 </script>
 
 <template>

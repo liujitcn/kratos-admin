@@ -29,16 +29,17 @@ data:
     source: root:112233@tcp(127.0.0.1:3306)/kratos_admin?charset=utf8mb4&parseTime=True&loc=Local&timeout=1000ms
 
   # 按名称区分的多数据库配置；名称由业务或数据访问层引用。
+  # 示例：AI 知识库（RAG）独立数据源，按生成模型自动建表，不占用 MySQL 主库。
   databases:
-    example:
+    rag:
       # 数据库驱动名称。
-      driver: mysql
+      driver: postgres
       # 数据库 DSN。
-      source: user:password@tcp(127.0.0.1:3306)/database
+      source: host=127.0.0.1 port=5432 user=postgres password=your_password dbname=kratos_admin sslmode=disable
       # 是否打印 SQL 调试日志。
       debug: false
-      # 是否执行该数据库迁移。
-      enable_migrate: false
+      # 是否执行该数据库迁移；知识库表结构按 gorm-gen 生成模型自动创建。
+      enable_migrate: true
       # 是否启用链路追踪。
       enable_trace: false
       # 是否启用性能指标。

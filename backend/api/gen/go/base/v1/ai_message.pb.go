@@ -231,15 +231,16 @@ func (*DeleteAiMessageResponse) Descriptor() ([]byte, []int) {
 
 // AI 助手消息发送请求
 type SendAiMessageRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	SessionId     string                 `protobuf:"bytes,1,opt,name=session_id,json=sessionId,proto3" json:"session_id,omitempty"`     // 会话ID
-	Content       string                 `protobuf:"bytes,2,opt,name=content,proto3" json:"content,omitempty"`                          // 消息内容
-	Attachments   []*AiAttachment        `protobuf:"bytes,3,rep,name=attachments,proto3" json:"attachments,omitempty"`                  // 附件列表
-	Action        *AiAction              `protobuf:"bytes,4,opt,name=action,proto3" json:"action,omitempty"`                            // 助手动作
-	ProviderId    int64                  `protobuf:"varint,5,opt,name=provider_id,json=providerId,proto3" json:"provider_id,omitempty"` // 所选供应商ID；留空时使用首个可用模型
-	ModelName     string                 `protobuf:"bytes,6,opt,name=model_name,json=modelName,proto3" json:"model_name,omitempty"`     // 所选模型名称
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state            protoimpl.MessageState `protogen:"open.v1"`
+	SessionId        string                 `protobuf:"bytes,1,opt,name=session_id,json=sessionId,proto3" json:"session_id,omitempty"`                                // 会话ID
+	Content          string                 `protobuf:"bytes,2,opt,name=content,proto3" json:"content,omitempty"`                                                     // 消息内容
+	Attachments      []*AiAttachment        `protobuf:"bytes,3,rep,name=attachments,proto3" json:"attachments,omitempty"`                                             // 附件列表
+	Action           *AiAction              `protobuf:"bytes,4,opt,name=action,proto3" json:"action,omitempty"`                                                       // 助手动作
+	ProviderId       int64                  `protobuf:"varint,5,opt,name=provider_id,json=providerId,proto3" json:"provider_id,omitempty"`                            // 所选供应商ID；留空时使用首个可用模型
+	ModelName        string                 `protobuf:"bytes,6,opt,name=model_name,json=modelName,proto3" json:"model_name,omitempty"`                                // 所选模型名称
+	KnowledgeBaseIds []int64                `protobuf:"varint,7,rep,packed,name=knowledge_base_ids,json=knowledgeBaseIds,proto3" json:"knowledge_base_ids,omitempty"` // 所选知识库ID列表
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
 }
 
 func (x *SendAiMessageRequest) Reset() {
@@ -312,6 +313,13 @@ func (x *SendAiMessageRequest) GetModelName() string {
 		return x.ModelName
 	}
 	return ""
+}
+
+func (x *SendAiMessageRequest) GetKnowledgeBaseIds() []int64 {
+	if x != nil {
+		return x.KnowledgeBaseIds
+	}
+	return nil
 }
 
 // AI 助手失败消息重试请求
@@ -537,7 +545,7 @@ const file_base_v1_ai_message_proto_rawDesc = "" +
 	"\n" +
 	"message_id\x18\x02 \x01(\tBv\xbaG\v\x92\x02\b消息ID\xbaHe\xba\x01b\n" +
 	"*base.ai.message.delete.message_id.positive\x12\x15消息编号不合法\x1a\x1dthis.matches('^[1-9][0-9]*$')R\tmessageId\"\x19\n" +
-	"\x17DeleteAiMessageResponse\"\x84\x04\n" +
+	"\x17DeleteAiMessageResponse\"\xf2\x04\n" +
 	"\x14SendAiMessageRequest\x12\x93\x01\n" +
 	"\n" +
 	"session_id\x18\x01 \x01(\tBt\xbaG\v\x92\x02\b会话ID\xbaHc\xba\x01`\n" +
@@ -548,7 +556,8 @@ const file_base_v1_ai_message_proto_rawDesc = "" +
 	"\vprovider_id\x18\x05 \x01(\x03BB\xbaG8\x92\x025所选供应商ID；留空时使用首个可用模型\xbaH\x04\"\x02(\x00R\n" +
 	"providerId\x127\n" +
 	"\n" +
-	"model_name\x18\x06 \x01(\tB\x18\xbaG\x15\x92\x02\x12所选模型名称R\tmodelName\"\xcf\x02\n" +
+	"model_name\x18\x06 \x01(\tB\x18\xbaG\x15\x92\x02\x12所选模型名称R\tmodelName\x12l\n" +
+	"\x12knowledge_base_ids\x18\a \x03(\x03B>\xbaG;\x92\x028所选知识库ID列表；非空时检索注入上下文R\x10knowledgeBaseIds\"\xcf\x02\n" +
 	"\x19RetryAiUserMessageRequest\x12\x94\x01\n" +
 	"\n" +
 	"session_id\x18\x01 \x01(\tBu\xbaG\v\x92\x02\b会话ID\xbaHd\xba\x01a\n" +

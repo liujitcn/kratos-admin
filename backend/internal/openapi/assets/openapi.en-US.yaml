@@ -237,6 +237,21 @@ paths:
                 "200":
                     description: OK
                     content: {}
+    /api/v1/admin/base/ai-provider/options:
+        get:
+            tags:
+                - AiProviderService
+            description: |-
+                查询已启用的AI供应商选项。
+                 字面路径必须先于 /{id} 声明：gorilla mux 按注册顺序匹配，否则会被 {id} 路由抢占。
+            operationId: AiProviderService_ListAiProviderOptions
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.ListAiProviderOptionsResponse'
     /api/v1/admin/base/ai-provider/test-models:
         post:
             tags:
@@ -334,6 +349,122 @@ paths:
                 "200":
                     description: OK
                     content: {}
+    /api/v1/admin/base/ai-query:
+        get:
+            tags:
+                - AiQueryService
+            description: List smart data query records with pagination.
+            operationId: AiQueryService_PageAiQuery
+            parameters:
+                - name: question
+                  in: query
+                  schema:
+                    type: string
+                - name: status
+                  in: query
+                  schema:
+                    enum:
+                        - AI_QUERY_STATUS_UNSPECIFIED
+                        - AI_QUERY_STATUS_SUCCESS
+                        - AI_QUERY_STATUS_FAILED
+                    type: string
+                    format: enum
+                - name: page_num
+                  in: query
+                  schema:
+                    type: string
+                - name: page_size
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.PageAiQueryResponse'
+    /api/v1/admin/base/ai-query/{id}:
+        get:
+            tags:
+                - AiQueryService
+            description: Get smart data query record details.
+            operationId: AiQueryService_GetAiQuery
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.AiQueryRecord'
+    /api/v1/admin/base/ai-session:
+        get:
+            tags:
+                - AiSessionService
+            description: List AI sessions with pagination.
+            operationId: AiSessionService_PageAiSession
+            parameters:
+                - name: title
+                  in: query
+                  schema:
+                    type: string
+                - name: terminal
+                  in: query
+                  schema:
+                    enum:
+                        - TERMINAL_UNSPECIFIED
+                        - TERMINAL_APP
+                        - TERMINAL_ADMIN
+                    type: string
+                    format: enum
+                - name: page_num
+                  in: query
+                  schema:
+                    type: string
+                - name: page_size
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.PageAiSessionResponse'
+    /api/v1/admin/base/ai-session/{id}/message:
+        get:
+            tags:
+                - AiSessionService
+            description: List AI session messages with pagination.
+            operationId: AiSessionService_PageAiSessionMessage
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: page_num
+                  in: query
+                  schema:
+                    type: string
+                - name: page_size
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.PageAiSessionMessageResponse'
     /api/v1/admin/base/api:
         get:
             tags:
@@ -6711,6 +6842,246 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/system.admin.v1.OpsTrafficResponse'
+    /api/v1/admin/rag/knowledge:
+        get:
+            tags:
+                - AiKnowledgeService
+            description: List AI knowledge bases with pagination.
+            operationId: AiKnowledgeService_PageAiKnowledge
+            parameters:
+                - name: name
+                  in: query
+                  schema:
+                    type: string
+                - name: page_num
+                  in: query
+                  schema:
+                    type: string
+                - name: page_size
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/rag.admin.v1.PageAiKnowledgeResponse'
+        post:
+            tags:
+                - AiKnowledgeService
+            description: Create AI knowledge base.
+            operationId: AiKnowledgeService_CreateAiKnowledge
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/rag.admin.v1.AiKnowledgeForm'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/rag/knowledge/doc/{doc_id}:
+        delete:
+            tags:
+                - AiKnowledgeDocService
+            description: Delete document (cascades to chunks).
+            operationId: AiKnowledgeDocService_DeleteAiKnowledgeDoc
+            parameters:
+                - name: doc_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/rag/knowledge/doc/{doc_id}/reprocess:
+        post:
+            tags:
+                - AiKnowledgeDocService
+            description: Reprocess a failed document (re-chunk and re-embed the saved source text).
+            operationId: AiKnowledgeDocService_ReprocessAiKnowledgeDoc
+            parameters:
+                - name: doc_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/rag/knowledge/models:
+        get:
+            tags:
+                - AiKnowledgeService
+            description: |-
+                查询已启用的embedding模型选项（知识库向量化模型下拉）。
+                 字面路径必须先于 /{id} 声明：gorilla mux 按注册顺序匹配，否则会被 {id} 路由抢占。
+            operationId: AiKnowledgeService_ListAiKnowledgeModels
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/rag.admin.v1.ListAiKnowledgeModelsResponse'
+    /api/v1/admin/rag/knowledge/{ai_knowledge.id}:
+        put:
+            tags:
+                - AiKnowledgeService
+            description: Update AI knowledge base.
+            operationId: AiKnowledgeService_UpdateAiKnowledge
+            parameters:
+                - name: ai_knowledge.id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/rag.admin.v1.AiKnowledgeForm'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/rag/knowledge/{id}:
+        get:
+            tags:
+                - AiKnowledgeService
+            description: Get AI knowledge base form.
+            operationId: AiKnowledgeService_GetAiKnowledge
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/rag.admin.v1.AiKnowledgeForm'
+        delete:
+            tags:
+                - AiKnowledgeService
+            description: Delete AI knowledge base (cascades to documents and chunks).
+            operationId: AiKnowledgeService_DeleteAiKnowledge
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/rag/knowledge/{id}/doc:
+        get:
+            tags:
+                - AiKnowledgeDocService
+            description: List documents under a knowledge base with pagination.
+            operationId: AiKnowledgeDocService_PageAiKnowledgeDoc
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: page_num
+                  in: query
+                  schema:
+                    type: string
+                - name: page_size
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/rag.admin.v1.PageAiKnowledgeDocResponse'
+    /api/v1/admin/rag/knowledge/{id}/doc/file:
+        post:
+            tags:
+                - AiKnowledgeDocService
+            description: Upload document file (txt/md/docx/pdf; text is extracted into the same pipeline).
+            operationId: AiKnowledgeDocService_UploadAiKnowledgeDocFile
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/rag.admin.v1.UploadAiKnowledgeDocFileRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/rag/knowledge/{id}/doc/text:
+        post:
+            tags:
+                - AiKnowledgeDocService
+            description: Upload plain text document (chunk, embed and store).
+            operationId: AiKnowledgeDocService_UploadAiKnowledgeDocText
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/rag.admin.v1.UploadAiKnowledgeDocTextRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/rag/knowledge/{id}/search:
+        post:
+            tags:
+                - AiKnowledgeChunkService
+            description: "Retrieval test: returns chunks semantically closest to the query."
+            operationId: AiKnowledgeChunkService_SearchAiKnowledge
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/rag.admin.v1.SearchAiKnowledgeRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/rag.admin.v1.SearchAiKnowledgeResponse'
     /api/v1/admin/runtime-log/console:
         post:
             tags:
@@ -6890,6 +7261,19 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/system.app.v1.ListBaseMenuResponse'
+    /api/v1/base/ai/knowledge/options:
+        get:
+            tags:
+                - AiKnowledgeService
+            description: List available AI knowledge base options.
+            operationId: AiKnowledgeService_ListAiKnowledgeOptions
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.ListAiKnowledgeOptionsResponse'
     /api/v1/base/ai/provider-models:
         get:
             tags:
@@ -6903,6 +7287,44 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/base.v1.ListAiProviderModelOptionsResponse'
+    /api/v1/base/ai/query/ask:
+        post:
+            tags:
+                - AiQueryService
+            description: "Smart data query: converts natural language questions into read-only SQL queries and returns structured results"
+            operationId: AiQueryService_AskAiQuery
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/base.v1.AskAiQueryRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.AskAiQueryResponse'
+    /api/v1/base/ai/query/tables:
+        post:
+            tags:
+                - AiQueryService
+            description: Query the data table catalog available for smart queries
+            operationId: AiQueryService_OptionAiQueryTable
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/base.v1.OptionAiQueryTableRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.OptionAiQueryTableResponse'
     /api/v1/base/ai/search:
         post:
             tags:
@@ -8160,6 +8582,20 @@ components:
                     type: string
                     description: content body
             description: AI assistant input content
+        base.v1.AiKnowledgeOption:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: Knowledge base ID
+                name:
+                    type: string
+                    description: Knowledge base name
+                doc_count:
+                    type: integer
+                    description: Document count
+                    format: int32
+            description: AI knowledge base option.
         base.v1.AiMessage:
             type: object
             properties:
@@ -8221,7 +8657,7 @@ components:
                     description: "response source: llm/fallback"
                 model:
                     type: string
-                    description: responseusageof model name
+                    description: Model name used for the reply
                 fallback:
                     type: boolean
                     description: whether this is a fallback response
@@ -8263,6 +8699,25 @@ components:
                         $ref: '#/components/schemas/base.v1.AiProviderModel'
                     description: Model options
             description: An enabled AI provider and its model options.
+        base.v1.AiQueryRow:
+            type: object
+            properties:
+                values:
+                    type: array
+                    items:
+                        type: string
+                    description: Cell values aligned with column name order
+            description: Smart query result row
+        base.v1.AiQueryTable:
+            type: object
+            properties:
+                name:
+                    type: string
+                    description: table name
+                comment:
+                    type: string
+                    description: table description
+            description: Data tables available for smart queries
         base.v1.AiSession:
             type: object
             properties:
@@ -8383,6 +8838,40 @@ components:
                     type: string
                     description: delivery ID
             description: Archive message request.
+        base.v1.AskAiQueryRequest:
+            type: object
+            properties:
+                question:
+                    type: string
+                    description: Natural language question
+            description: Smart query request
+        base.v1.AskAiQueryResponse:
+            type: object
+            properties:
+                sql:
+                    type: string
+                    description: Generated read-only SQL
+                columns:
+                    type: array
+                    items:
+                        type: string
+                    description: Result column name
+                rows:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/base.v1.AiQueryRow'
+                    description: result line
+                row_count:
+                    type: integer
+                    description: Result row count
+                    format: int32
+                truncated:
+                    type: boolean
+                    description: Whether the result was truncated by row or size limit
+                elapsed_ms:
+                    type: string
+                    description: SQL Execute duration（ms）
+            description: Smart query response
         base.v1.BeginMfaDisableRequest:
             type: object
             properties: {}
@@ -8879,6 +9368,15 @@ components:
                     type: string
                     description: Native language name
             description: language option.
+        base.v1.ListAiKnowledgeOptionsResponse:
+            type: object
+            properties:
+                options:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/base.v1.AiKnowledgeOption'
+                    description: Knowledge base option list
+            description: AI knowledge base options response.
         base.v1.ListAiMessageResponse:
             type: object
             properties:
@@ -9234,6 +9732,19 @@ components:
                     type: object
                     description: Provider-specific configuration JSON object
             description: third-party login method information
+        base.v1.OptionAiQueryTableRequest:
+            type: object
+            properties: {}
+            description: Smart query table catalog request
+        base.v1.OptionAiQueryTableResponse:
+            type: object
+            properties:
+                tables:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/base.v1.AiQueryTable'
+                    description: Available data table list
+            description: Smart query table catalog response
         base.v1.OptionLanguageResponse:
             type: object
             properties:
@@ -9403,6 +9914,11 @@ components:
                 model_name:
                     type: string
                     description: Selected model name
+                knowledge_base_ids:
+                    type: array
+                    items:
+                        type: string
+                    description: Selected knowledge base IDs; non-empty enables retrieval context injection
             description: AI assistant message Send request
         base.v1.SendAiMessageResponse:
             type: object
@@ -9618,6 +10134,214 @@ components:
                         $ref: '#/components/schemas/common.v1.TreeOptionResponse_Option'
                     description: child node tree
             description: tree option
+        rag.admin.v1.AiKnowledge:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: Knowledge base ID
+                name:
+                    type: string
+                    description: Knowledge base name
+                description:
+                    type: string
+                    description: Description
+                provider_name:
+                    type: string
+                    description: Provider name of the embedding model
+                embedding_dimensions:
+                    type: integer
+                    description: Embedding vector dimensions
+                    format: int32
+                model_id:
+                    type: string
+                    description: Embedding model ID used for vectorization
+                model_name:
+                    type: string
+                    description: Embedding model name
+                doc_count:
+                    type: integer
+                    description: Document count
+                    format: int32
+                created_at:
+                    type: string
+                    description: Create time
+                updated_at:
+                    type: string
+                    description: Update time
+            description: AI knowledge base pagination record.
+        rag.admin.v1.AiKnowledgeChunkHit:
+            type: object
+            properties:
+                chunk_id:
+                    type: string
+                    description: Chunk ID
+                doc_id:
+                    type: string
+                    description: Document ID
+                doc_name:
+                    type: string
+                    description: Document name
+                content:
+                    type: string
+                    description: Chunk text
+                score:
+                    type: number
+                    description: Cosine similarity
+                    format: float
+            description: Retrieved chunk hit.
+        rag.admin.v1.AiKnowledgeDoc:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: Document ID
+                knowledge_base_id:
+                    type: string
+                    description: Knowledge base ID
+                name:
+                    type: string
+                    description: Document name
+                chunk_count:
+                    type: integer
+                    description: Chunk count
+                    format: int32
+                status:
+                    enum:
+                        - AI_KNOWLEDGE_DOC_STATUS_UNSPECIFIED
+                        - AI_KNOWLEDGE_DOC_STATUS_READY
+                        - AI_KNOWLEDGE_DOC_STATUS_FAILED
+                    type: string
+                    description: "Processing status: enum [AiKnowledgeDocStatus]"
+                    format: enum
+                error_message:
+                    type: string
+                    description: Failure reason
+                created_at:
+                    type: string
+                    description: Create time
+            description: AI knowledge base document.
+        rag.admin.v1.AiKnowledgeForm:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: Knowledge base ID
+                name:
+                    type: string
+                    description: Knowledge base name
+                description:
+                    type: string
+                    description: Description
+                model_id:
+                    type: string
+                    description: Embedding model ID used for vectorization
+            description: AI knowledge base form.
+        rag.admin.v1.AiKnowledgeModel:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: Model ID
+                provider_name:
+                    type: string
+                    description: Provider name of the model
+                model_name:
+                    type: string
+                    description: model name
+                display_name:
+                    type: string
+                    description: Display name
+            description: Embedding model option available to knowledge bases.
+        rag.admin.v1.ListAiKnowledgeModelsResponse:
+            type: object
+            properties:
+                models:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/rag.admin.v1.AiKnowledgeModel'
+                    description: List of enabled embedding models
+            description: List embedding model options response.
+        rag.admin.v1.PageAiKnowledgeDocResponse:
+            type: object
+            properties:
+                docs:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/rag.admin.v1.AiKnowledgeDoc'
+                    description: document list
+                total:
+                    type: integer
+                    description: total count
+                    format: int32
+            description: List knowledge base documents response.
+        rag.admin.v1.PageAiKnowledgeResponse:
+            type: object
+            properties:
+                knowledges:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/rag.admin.v1.AiKnowledge'
+                    description: Knowledge base list
+                total:
+                    type: integer
+                    description: total count
+                    format: int32
+            description: AI knowledge base pagination response.
+        rag.admin.v1.SearchAiKnowledgeRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: Knowledge base ID
+                query:
+                    type: string
+                    description: Search query
+                top_k:
+                    type: integer
+                    default: !!float 5
+                    description: Number of chunks to return
+                    format: int32
+            description: Retrieval test request.
+        rag.admin.v1.SearchAiKnowledgeResponse:
+            type: object
+            properties:
+                hits:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/rag.admin.v1.AiKnowledgeChunkHit'
+                    description: Chunks semantically closest to the query
+            description: Retrieval test response.
+        rag.admin.v1.UploadAiKnowledgeDocFileRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: Knowledge base ID
+                file_name:
+                    type: string
+                    description: Original file name (extension selects the extractor)
+                content_base64:
+                    type: string
+                    description: File content (≤10MB)
+                    format: bytes
+                doc_name:
+                    type: string
+                    description: Document display name; defaults to the file name without extension
+            description: Upload document file request.
+        rag.admin.v1.UploadAiKnowledgeDocTextRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: Knowledge base ID
+                name:
+                    type: string
+                    description: Document name
+                content:
+                    type: string
+                    description: Document text content
+            description: Upload plain text document request.
         system.admin.v1.AiProvider:
             type: object
             properties:
@@ -9633,11 +10357,6 @@ components:
                 api_key_configured:
                     type: boolean
                     description: Whether the model API key is saved
-                model_names:
-                    type: array
-                    items:
-                        type: string
-                    description: Model names
                 sort:
                     type: integer
                     description: sort value
@@ -9645,6 +10364,11 @@ components:
                 provider:
                     type: string
                     description: Stable provider identifier
+                model_names:
+                    type: array
+                    items:
+                        type: string
+                    description: Model names under the provider
                 status:
                     enum:
                         - STATUS_UNSPECIFIED
@@ -9678,9 +10402,6 @@ components:
                 api_key_configured:
                     type: boolean
                     description: Whether the model API key is saved
-                models_json:
-                    type: string
-                    description: JSON array of models; each item includes model_name, api_type, temperature, max_tokens, timeout_seconds, and max_retries
                 sort:
                     type: integer
                     description: sort value
@@ -9691,6 +10412,11 @@ components:
                 config:
                     type: object
                     description: Provider-specific configuration JSON object
+                models:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.AiProviderModelForm'
+                    description: AI models under the provider
                 status:
                     enum:
                         - STATUS_UNSPECIFIED
@@ -9700,6 +10426,46 @@ components:
                     description: status
                     format: enum
             description: AI provider configuration form.
+        system.admin.v1.AiProviderModelForm:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: Model ID; 0 when creating
+                model_name:
+                    type: string
+                    description: Model name, the provider API identifier
+                display_name:
+                    type: string
+                    description: Display name
+                category:
+                    enum:
+                        - AI_MODEL_CATEGORY_UNSPECIFIED
+                        - AI_MODEL_CATEGORY_CHAT
+                        - AI_MODEL_CATEGORY_EMBEDDING
+                        - AI_MODEL_CATEGORY_RERANK
+                        - AI_MODEL_CATEGORY_IMAGE
+                        - AI_MODEL_CATEGORY_VIDEO
+                        - AI_MODEL_CATEGORY_AUDIO
+                    type: string
+                    description: "Model category: enum [AiModelCategory]"
+                    format: enum
+                config:
+                    type: object
+                    description: Category-specific configuration JSON object
+                sort:
+                    type: integer
+                    description: sort value
+                    format: int32
+                status:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    description: status
+                    format: enum
+            description: AI model form owned by an AI provider; provider_id is implied by the owning provider form.
         system.admin.v1.AiProviderModelTestResult:
             type: object
             properties:
@@ -9716,7 +10482,211 @@ components:
                 message:
                     type: string
                     description: failure reason；successwhenbe null
-            description: Result of testing a single AI model connection.
+            description: Connection test result for a single AI model.
+        system.admin.v1.AiProviderOption:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: Provider ID
+                name:
+                    type: string
+                    description: Provider name
+                provider:
+                    type: string
+                    description: Stable provider identifier
+            description: AI provider option.
+        system.admin.v1.AiQueryRecord:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: Record ID
+                tenant_id:
+                    type: string
+                    description: tenant ID
+                user_id:
+                    type: string
+                    description: user ID
+                user_name:
+                    type: string
+                    description: user account
+                question:
+                    type: string
+                    description: Natural language question
+                sql:
+                    type: string
+                    description: Generated read-only SQL
+                status:
+                    enum:
+                        - AI_QUERY_STATUS_UNSPECIFIED
+                        - AI_QUERY_STATUS_SUCCESS
+                        - AI_QUERY_STATUS_FAILED
+                    type: string
+                    description: "Query status: enum [AiQueryStatus]"
+                    format: enum
+                row_count:
+                    type: integer
+                    description: Result row count
+                    format: int32
+                elapsed_ms:
+                    type: string
+                    description: SQL execution time in milliseconds
+                error_msg:
+                    type: string
+                    description: Failure reason
+                result_columns:
+                    type: array
+                    items:
+                        type: string
+                    description: Result snapshot column names, returned in details only
+                result_rows:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.AiQueryResultRow'
+                    description: Result snapshot data rows, returned in details only
+                created_at:
+                    type: string
+                    description: Create time
+            description: Smart data query record.
+        system.admin.v1.AiQueryResultRow:
+            type: object
+            properties:
+                values:
+                    type: array
+                    items:
+                        type: string
+                    description: Row data
+            description: AI query result snapshot row.
+        system.admin.v1.AiSessionMessageAttachment:
+            type: object
+            properties:
+                name:
+                    type: string
+                    description: attachment name
+                size:
+                    type: string
+                    description: attachment size
+                url:
+                    type: string
+                    description: attachment address
+                mime_type:
+                    type: string
+                    description: attachment MIME type
+            description: AI session message attachment.
+        system.admin.v1.AiSessionMessageRecord:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: message ID
+                input_content:
+                    type: string
+                    description: User input content
+                output_content:
+                    type: string
+                    description: AI reply content
+                model:
+                    type: string
+                    description: Model name used for the reply
+                status:
+                    enum:
+                        - AI_MESSAGE_STATUS_UNSPECIFIED
+                        - AI_MESSAGE_STATUS_GENERATING
+                        - AI_MESSAGE_STATUS_SUCCESS
+                        - AI_MESSAGE_STATUS_FAILED
+                    type: string
+                    description: "Message generation status: enum [AiMessageStatus]"
+                    format: enum
+                input_tokens:
+                    type: integer
+                    description: input token count
+                    format: int32
+                output_tokens:
+                    type: integer
+                    description: output token count
+                    format: int32
+                cache_tokens:
+                    type: integer
+                    description: cache token count
+                    format: int32
+                total_tokens:
+                    type: integer
+                    description: total token count
+                    format: int32
+                first_token_ms:
+                    type: integer
+                    description: firsttokendurationms
+                    format: int32
+                duration_ms:
+                    type: integer
+                    description: totaldurationms
+                    format: int32
+                attachments:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.AiSessionMessageAttachment'
+                    description: attachment list
+                created_at:
+                    type: string
+                    description: Create time
+            description: AI session message record.
+        system.admin.v1.AiSessionRecord:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: session ID
+                user_id:
+                    type: string
+                    description: Owning user ID
+                user_name:
+                    type: string
+                    description: user account
+                nick_name:
+                    type: string
+                    description: user display name
+                title:
+                    type: string
+                    description: session title
+                summary:
+                    type: string
+                    description: session summary
+                terminal:
+                    enum:
+                        - TERMINAL_UNSPECIFIED
+                        - TERMINAL_APP
+                        - TERMINAL_ADMIN
+                    type: string
+                    description: "terminal type: enum【Terminal】"
+                    format: enum
+                message_count:
+                    type: integer
+                    description: Message turn count
+                    format: int32
+                input_tokens:
+                    type: integer
+                    description: Total input tokens
+                    format: int32
+                output_tokens:
+                    type: integer
+                    description: Total output tokens
+                    format: int32
+                cache_tokens:
+                    type: integer
+                    description: Total cache tokens
+                    format: int32
+                total_tokens:
+                    type: integer
+                    description: Total tokens
+                    format: int32
+                created_at:
+                    type: string
+                    description: Create time
+                updated_at:
+                    type: string
+                    description: Update time
+            description: AI session pagination record.
         system.admin.v1.BaseApi:
             type: object
             properties:
@@ -9739,7 +10709,7 @@ components:
                     description: Service description
                 desc:
                     type: string
-                    description: description
+                    description: Description
                 operation:
                     type: string
                     description: Operation method
@@ -9786,7 +10756,7 @@ components:
                     description: summary
                 description:
                     type: string
-                    description: description
+                    description: Description
                 parameters:
                     type: array
                     items:
@@ -14279,6 +15249,15 @@ components:
                         $ref: '#/components/schemas/system.admin.v1.BaseLogTraceItem'
                     description: associated log time timeline
             description: associated audit query response.
+        system.admin.v1.ListAiProviderOptionsResponse:
+            type: object
+            properties:
+                options:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.AiProviderOption'
+                    description: List of enabled AI providers
+            description: List AI provider options response.
         system.admin.v1.ListBaseRedactStorageColumnResponse:
             type: object
             properties:
@@ -14918,6 +15897,45 @@ components:
                     description: total count
                     format: int32
             description: Paginated AI provider response.
+        system.admin.v1.PageAiQueryResponse:
+            type: object
+            properties:
+                queries:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.AiQueryRecord'
+                    description: Smart query record list
+                total:
+                    type: integer
+                    description: total count
+                    format: int32
+            description: Smart data query paginated response.
+        system.admin.v1.PageAiSessionMessageResponse:
+            type: object
+            properties:
+                messages:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.AiSessionMessageRecord'
+                    description: message list
+                total:
+                    type: integer
+                    description: total count
+                    format: int32
+            description: List AI session messages response.
+        system.admin.v1.PageAiSessionResponse:
+            type: object
+            properties:
+                sessions:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.AiSessionRecord'
+                    description: session list
+                total:
+                    type: integer
+                    description: total count
+                    format: int32
+            description: AI session pagination response.
         system.admin.v1.PageBaseApiLogResponse:
             type: object
             properties:
@@ -16541,14 +17559,28 @@ components:
                     description: avatar
             description: user profile form
 tags:
+    - name: AiKnowledgeChunkService
+      description: AI knowledge base chunk retrieval service.
+    - name: AiKnowledgeDocService
+      description: AI knowledge base document management service.
+    - name: AiKnowledgeService
+      description: AI knowledge base options service.
+    - name: AiKnowledgeService
+      description: AI knowledge base management service.
     - name: AiMessageService
       description: Base AI assistant message service
     - name: AiModelService
       description: AI provider model options service.
     - name: AiProviderService
       description: AI provider management service.
+    - name: AiQueryService
+      description: Smart data query record management service.
+    - name: AiQueryService
+      description: Base AI assistant smart query service
     - name: AiSearchService
       description: Base AI assistant web search service
+    - name: AiSessionService
+      description: AI session management service.
     - name: AiSessionService
       description: Base AI assistant session service
     - name: AiToolService
@@ -16564,9 +17596,9 @@ tags:
     - name: BaseApiService
       description: Admin api service
     - name: BaseAreaService
-      description: app administrative region service
-    - name: BaseAreaService
       description: admin administrative region service
+    - name: BaseAreaService
+      description: app administrative region service
     - name: BaseConfigService
       description: admin system configuration service
     - name: BaseDashboardService
@@ -16600,9 +17632,9 @@ tags:
     - name: BaseLoginPolicyService
       description: admin login policy management service.
     - name: BaseMenuService
-      description: app menu service
-    - name: BaseMenuService
       description: admin menu management service
+    - name: BaseMenuService
+      description: app menu service
     - name: BaseMessageCategoryService
       description: Admin message category management service.
     - name: BaseMessageProviderService
@@ -16682,9 +17714,9 @@ tags:
     - name: NotificationService
       description: Base notification service for the current user's inbox.
     - name: OauthClientService
-      description: Base OAuth client token service.
-    - name: OauthClientService
       description: Admin OAuth client management service.
+    - name: OauthClientService
+      description: Base OAuth client token service.
     - name: OauthService
       description: base third-party login shared service
     - name: OpsMonitoringService

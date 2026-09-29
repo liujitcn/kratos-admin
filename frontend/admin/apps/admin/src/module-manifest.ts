@@ -16,6 +16,10 @@ export const adminModuleManifest = [
     packageName: "@liujitcn/kratos-admin-system",
     load: async () => (await import("@liujitcn/kratos-admin-system")).systemAdminModule,
     optimizeDependencies: ["swagger-ui-dist/swagger-ui-bundle.js"]
+  },
+  {
+    packageName: "@liujitcn/kratos-admin-rag",
+    load: async () => (await import("@liujitcn/kratos-admin-rag")).ragAdminModule
   }
 ] satisfies AdminModuleManifestItem[];
 

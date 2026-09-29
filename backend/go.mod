@@ -11,6 +11,7 @@ require (
 	github.com/go-webauthn/webauthn v0.18.0
 	github.com/google/jsonschema-go v0.4.3
 	github.com/google/wire v0.7.0
+	github.com/ledongthuc/pdf v0.0.0-20220302134840-0c2507a12d80
 	github.com/liujitcn/go-utils v0.0.41
 	github.com/liujitcn/go-utils/crypto v0.0.17
 	github.com/liujitcn/go-utils/http v0.0.8
@@ -29,8 +30,9 @@ require (
 	github.com/liujitcn/kratos-kit/cache v0.0.24
 	github.com/liujitcn/kratos-kit/captcha v0.0.23
 	github.com/liujitcn/kratos-kit/config v0.0.36
-	github.com/liujitcn/kratos-kit/database/gorm v0.0.50
+	github.com/liujitcn/kratos-kit/database/gorm v0.0.51
 	github.com/liujitcn/kratos-kit/database/gorm/driver/mysql v0.0.22
+	github.com/liujitcn/kratos-kit/database/gorm/driver/postgres v0.0.16
 	github.com/liujitcn/kratos-kit/database/gorm/migration v0.0.16
 	github.com/liujitcn/kratos-kit/locker v0.0.21
 	github.com/liujitcn/kratos-kit/logger/zap v0.0.20
@@ -52,6 +54,7 @@ require (
 	github.com/openai/openai-go/v3 v3.35.0
 	github.com/pquerna/otp v1.4.0
 	github.com/redis/go-redis/v9 v9.22.0
+	github.com/sashabaranov/go-openai v1.41.2
 	github.com/shirou/gopsutil/v4 v4.26.7
 	github.com/tjfoc/gmsm v1.4.1
 	golang.org/x/sys v0.47.0
@@ -285,7 +288,6 @@ require (
 	github.com/robfig/cron/v3 v3.0.1 // indirect
 	github.com/rs/xid v1.6.0 // indirect
 	github.com/ryanuber/go-glob v1.0.0 // indirect
-	github.com/sashabaranov/go-openai v1.41.2 // indirect
 	github.com/segmentio/asm v1.2.1 // indirect
 	github.com/segmentio/encoding v0.5.4 // indirect
 	github.com/shopspring/decimal v1.4.0 // indirect
@@ -371,3 +373,5 @@ require (
 	sigs.k8s.io/structured-merge-diff/v6 v6.3.2 // indirect
 	sigs.k8s.io/yaml v1.6.0 // indirect
 )
+
+replace github.com/liujitcn/kratos-admin/backend/api => ./api

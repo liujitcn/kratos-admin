@@ -73,7 +73,8 @@ packages/modules/system
 | `src/api/system/admin/v1/auth.ts`            | 个人中心认证服务请求。                    |
 | `src/api/system/admin/v1/base_*.ts`          | System 基础服务请求。                     |
 | `src/api/system/admin/v1/base_rate_limit_rule.ts` | 限流规则模板服务请求。                 |
-| `src/api/system/admin/v1/ai_provider.ts`            | AI供应商、多模型配置和批量连通性测试请求。 |
+| `src/api/system/admin/v1/ai_provider.ts`            | AI供应商与启用供应商选项请求。            |
+| `src/api/system/admin/v1/ai_model.ts`               | AI模型（按分类维护与连通性测试）请求。     |
 | `src/api/system/admin/v1/base_api_rate_limit_policy.ts` | 接口限流策略服务请求，策略接口以数组维护。 |
 | `src/api/system/admin/v1/base_i18n_custom.ts` | 管理端固定文案自定义翻译请求。             |
 | `src/api/system/admin/v1/code_gen*.ts`       | 代码生成服务请求。                        |
@@ -97,7 +98,8 @@ packages/modules/system
 | `src/views/base/api/index.vue`                                 | API 资源管理页。                   |
 | `src/views/base/rate-limit-rule/index.vue`                     | 限流规则模板管理页。               |
 | `src/views/base/api-rate-limit-policy/index.vue`               | 接口限流策略页；同一接口多策略按 ID 升序首条生效。 |
-| `src/views/base/ai-provider/index.vue`                         | AI供应商和多模型配置维护页。              |
+| `src/views/base/ai-provider/index.vue`                         | AI供应商维护页。                          |
+| `src/views/base/ai-model/index.vue`                            | AI模型维护页；按分类维护模型与分类配置。   |
 | `src/views/base/area/index.vue`                                | 行政区域管理页。                   |
 | `src/views/base/config/index.vue`                              | 系统配置管理页。                   |
 | `src/views/base/i18n-custom/index.vue`                         | 国际化自定义翻译管理页。           |
@@ -202,7 +204,7 @@ System 的 API 与 RPC 都按 Proto 完整层级维护，API 文件名与对应 
 
 ## AI 扩展
 
-AI Provider 在“AI助手 → AI供应商”维护；Provider 弹窗可对当前草稿中的全部模型逐个执行连通性测试，结果显示在对应模型条目中，并仅保存在当前页面状态；修改供应商或模型配置后清除旧结果。测试结果不写入数据库或模型配置。AI 对话页位于“AI助手 → AI助手”，顶部入口可直接打开该页面。单个供应商的 `models` JSON 结构保持不变。管理端、uni-app 和 Taro 对话页通过独立模型选项接口选择 Provider 与模型，快捷入口仍由独立快捷入口接口提供。模型 API Key 使用存储脱敏策略加密，管理接口只返回是否已配置状态。
+AI Provider 在“AI助手 → 模型管理”维护，AI 模型在“AI助手 → AI模型”维护；模型按分类（聊天、向量、重排、图片、视频、语音）挂在供应商下，表单按分类展示个性化配置字段，聊天与向量模型可在保存前测试连通性，结果仅保存在当前页面状态。AI 对话页位于“AI助手 → AI助手”，顶部入口可直接打开该页面；对话页通过独立的聊天模型选项接口选择已启用的聊天模型。模型 API Key 使用存储脱敏策略加密，管理接口只返回是否已配置状态。
 
 System 导出 `ADMIN_AI_EXTENSION`、`AdminAiExtension` 和 `getAdminAiExtension()`。其他业务模块可以在 `AdminModule.extensions` 中使用该扩展名提供 `flowBlocks` 组件，AI 会话页会读取并渲染它。
 

@@ -22,6 +22,7 @@ import (
 	"github.com/liujitcn/kratos-admin/backend/internal/server/middleware/passwordpolicy"
 	"github.com/liujitcn/kratos-admin/backend/internal/server/middleware/securityheaders"
 	"github.com/liujitcn/kratos-admin/backend/internal/server/middleware/sessionpolicy"
+	"github.com/liujitcn/kratos-admin/backend/internal/server/rag/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/server/system/admin/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/server/system/app/v1"
 	"github.com/liujitcn/kratos-admin/backend/pkg/agent"
@@ -38,6 +39,7 @@ type Module struct {
 	baseServices  *base.Services
 	adminServices *admin.Services
 	appServices   *app.Services
+	ragServices   *rag.Services
 	aiRuntime     *ai.Runtime
 	catalog       *i18n.I18n
 }
@@ -49,10 +51,12 @@ func NewModules(
 	baseServices *base.Services,
 	adminServices *admin.Services,
 	appServices *app.Services,
+	ragServices *rag.Services,
 	aiRuntime *ai.Runtime,
 	catalog *i18n.I18n,
 	baseConfigCase *biz.BaseConfigCase,
 	aiProviderCase *biz.AiProviderCase,
+	aiModelCase *biz.AiModelCase,
 	baseLoginPolicyCase *biz.BaseLoginPolicyCase,
 	baseOauthProviderCase *biz.BaseOauthProviderCase,
 	redactResolver *kit.RedactPolicyResolver,
@@ -68,7 +72,7 @@ func NewModules(
 	if err != nil {
 		return nil, err
 	}
-	err = aiProviderCase.RefreshAiProvider(context.Background())
+	err = aiModelCase.RefreshModels(context.Background())
 	if err != nil {
 		return nil, err
 	}
@@ -93,6 +97,7 @@ func NewModules(
 			baseServices:  baseServices,
 			adminServices: adminServices,
 			appServices:   appServices,
+			ragServices:   ragServices,
 			aiRuntime:     aiRuntime,
 			catalog:       catalog,
 		},
@@ -125,6 +130,7 @@ func (m *Module) RegisterGRPC(registrar grpc.ServiceRegistrar) {
 	m.baseServices.RegisterGRPC(registrar)
 	m.adminServices.RegisterGRPC(registrar)
 	m.appServices.RegisterGRPC(registrar)
+	m.ragServices.RegisterGRPC(registrar)
 }
 
 // RegisterHTTP 注册 Admin 的全部 HTTP 服务。
@@ -132,6 +138,7 @@ func (m *Module) RegisterHTTP(server *http.Server) {
 	m.baseServices.RegisterHTTP(server)
 	m.adminServices.RegisterHTTP(server)
 	m.appServices.RegisterHTTP(server)
+	m.ragServices.RegisterHTTP(server)
 	policyMiddleware := passwordpolicy.NewMiddleware(m.adminServices.BaseUserRepository, m.adminServices.BaseCase.Cache)
 	sessionMiddleware := sessionpolicy.NewMiddleware(m.adminServices.BaseCase, m.adminServices.UserToken)
 	server.Use("/system.admin.v1.RuntimeLogService/*", middleware.Chain(
@@ -175,4 +182,5 @@ func (m *Module) RegisterMCP(server *mcp.Server) {
 	m.baseServices.RegisterMCP(server)
 	m.adminServices.RegisterMCP(server)
 	m.appServices.RegisterMCP(server)
+	m.ragServices.RegisterMCP(server)
 }

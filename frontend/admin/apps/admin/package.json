@@ -12,6 +12,7 @@
   "dependencies": {
     "@liujitcn/admin-vite-config": "workspace:*",
     "@liujitcn/kratos-admin-core": "workspace:*",
-    "@liujitcn/kratos-admin-system": "workspace:*"
+    "@liujitcn/kratos-admin-system": "workspace:*",
+    "@liujitcn/kratos-admin-rag": "workspace:*"
   }
 }

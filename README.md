@@ -134,9 +134,12 @@ make gen
 make check
 make build
 make -C backend fmt
+make menu-sort
 ```
 
 `make gen` 按 Backend、Frontend、语言包和 OpenAPI 的顺序生成全仓产物；`make check` 按 Backend、三个前端 workspace 和国际化的顺序执行检查。根目录 `make build` 构建后端二进制及三个前端 H5 宿主；只构建全部前端（H5 + 微信小程序）可使用 `make -C frontend build`，仅构建 H5 使用 `make -C frontend build-h5`，生成全部 npm 发布包使用 `make -C frontend package`。前端各 `build` 目标开始前会自动清理旧的宿主构建产物，也可单独执行 `make -C frontend clean`。
+
+菜单种子排序遵循「sort 等于本级编号位置的两位数字（一级 1-2 位、二级 3-4 位、三级 5-6 位、四级 7-8 位，数字对为 00 时向后回退）」的约定：`make menu-sort` 只读检查（不一致时失败），`make menu-sort-fix` 把不一致项回写种子 SQL（只改 sort 字段，其余字段写后逐条校验）；`make menu-sort-fix MENU_SORT_SQL=1` 改为打印同步已初始化数据库的 UPDATE 语句。脚本位于 `scripts/check_menu_sort.py`，可脱离 make 单独执行。
 
 `make -C backend cli` 会安装 `kratos-kit/cmd/normalize-go-imports`，`make -C backend fmt` 再运行该命令并使用 `goimports` 格式化 Backend 全部 Go 文件。代码生成任务通过 `FMT_FILE_LIST` 传入文件清单（每行一个 Backend 相对路径），仅格式化本次改写文件。`make -C backend api` 在生成结束时统一规范化协议产物的 Go import 别名，避免全量生成与按文件格式化之间反复产生无关差异。
 

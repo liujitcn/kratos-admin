@@ -63,6 +63,10 @@
       "@liujitcn/kratos-admin-system/components/*": ["packages/modules/system/src/components/*"],
       "@liujitcn/kratos-admin-system/package.json": ["packages/modules/system/package.json"],
       "@liujitcn/kratos-admin-system/rpc/*": ["packages/modules/system/src/rpc/*"],
+      "@liujitcn/kratos-admin-rag": ["packages/modules/rag/src/index.ts"],
+      "@liujitcn/kratos-admin-rag/api/*": ["packages/modules/rag/src/api/*"],
+      "@liujitcn/kratos-admin-rag/package.json": ["packages/modules/rag/package.json"],
+      "@liujitcn/kratos-admin-rag/rpc/*": ["packages/modules/rag/src/rpc/*"],
       "@liujitcn/admin-vite-config/admin": ["internal/vite-config/src/admin.ts"]
     }
   },

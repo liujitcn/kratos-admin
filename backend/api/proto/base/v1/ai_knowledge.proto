@@ -1,0 +1,29 @@
+syntax = "proto3";
+
+package base.v1;
+
+import "gnostic/openapi/v3/annotations.proto";
+import "google/api/annotations.proto";
+
+// AI 知识库选项查询服务。
+service AiKnowledgeService {
+  // 查询可用的AI知识库选项。
+  rpc ListAiKnowledgeOptions(ListAiKnowledgeOptionsRequest) returns (ListAiKnowledgeOptionsResponse) {
+    option (google.api.http) = {get: "/api/v1/base/ai/knowledge/options"};
+  }
+}
+
+// AI知识库选项查询请求。
+message ListAiKnowledgeOptionsRequest {}
+
+// AI知识库选项查询响应。
+message ListAiKnowledgeOptionsResponse {
+  repeated AiKnowledgeOption options = 1 [(gnostic.openapi.v3.property) = {description: "知识库选项列表"}]; // 知识库选项列表
+}
+
+// AI知识库选项。
+message AiKnowledgeOption {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "知识库ID"}]; // 知识库ID
+  string name = 2 [(gnostic.openapi.v3.property) = {description: "知识库名称"}]; // 知识库名称
+  int32 doc_count = 3 [(gnostic.openapi.v3.property) = {description: "文档数量"}]; // 文档数量
+}

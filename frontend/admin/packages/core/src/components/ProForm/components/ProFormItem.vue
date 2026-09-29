@@ -10,10 +10,13 @@
     v-model.trim="fieldValue"
     type="password"
     show-password
+    autocomplete="new-password"
     v-bind="fieldProps"
   />
 
   <el-input v-else-if="field.component === 'textarea'" v-model.trim="fieldValue" type="textarea" v-bind="fieldProps" />
+
+  <YamlEditor v-else-if="field.component === 'yaml-editor'" v-model="fieldValue" v-bind="fieldProps" />
 
   <el-input-number v-else-if="field.component === 'input-number'" v-model="fieldValue" v-bind="fieldProps" />
 
@@ -51,7 +54,7 @@
   </el-radio-group>
 
   <el-checkbox-group v-else-if="field.component === 'checkbox-group'" v-model="fieldValue" v-bind="fieldProps">
-    <el-checkbox v-for="option in fieldOptions" :key="String(option.value)" :label="option.value" :disabled="option.disabled">
+    <el-checkbox v-for="option in fieldOptions" :key="String(option.value)" :value="option.value" :disabled="option.disabled">
       {{ option.label }}
     </el-checkbox>
   </el-checkbox-group>
@@ -103,6 +106,7 @@ import TenantSelect from "@/components/TenantSelect/index.vue";
 // 非基础表单控件按需加载，避免 ProForm 基础包携带上传、富文本、Cron 等重组件。
 const CronExpression = defineAsyncComponent(() => import("@/components/CronExpression/index.vue"));
 const WangEditor = defineAsyncComponent(() => import("@/components/WangEditor/index.vue"));
+const YamlEditor = defineAsyncComponent(() => import("@/components/YamlEditor/index.vue"));
 const DynamicList = defineAsyncComponent(() => import("@/components/ProForm/components/DynamicList.vue"));
 const KvList = defineAsyncComponent(() => import("@/components/ProForm/components/KvList.vue"));
 const UploadFile = defineAsyncComponent(() => import("@/components/Upload/File.vue"));

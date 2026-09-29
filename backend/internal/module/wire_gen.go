@@ -13,6 +13,7 @@ import (
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/ai"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/oauthsecret"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/sessionregistry"
+	biz5 "github.com/liujitcn/kratos-admin/backend/internal/biz/rag/admin"
 	biz3 "github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/codegen"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/logstream"
@@ -21,15 +22,18 @@ import (
 	"github.com/liujitcn/kratos-admin/backend/internal/config"
 	data3 "github.com/liujitcn/kratos-admin/backend/internal/data"
 	data2 "github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
+	data4 "github.com/liujitcn/kratos-admin/backend/internal/data/gen/rag/data"
 	base2 "github.com/liujitcn/kratos-admin/backend/internal/server/base/v1"
 	logmiddleware "github.com/liujitcn/kratos-admin/backend/internal/server/middleware/log"
+	"github.com/liujitcn/kratos-admin/backend/internal/server/rag/v1"
 	admin2 "github.com/liujitcn/kratos-admin/backend/internal/server/system/admin/v1"
 	app2 "github.com/liujitcn/kratos-admin/backend/internal/server/system/app/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/service/base/v1"
+	admin3 "github.com/liujitcn/kratos-admin/backend/internal/service/rag/admin/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/service/system/admin/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/service/system/app/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/task"
-	admin3 "github.com/liujitcn/kratos-admin/backend/internal/task/system/admin"
+	admin4 "github.com/liujitcn/kratos-admin/backend/internal/task/system/admin"
 	"github.com/liujitcn/kratos-admin/backend/pkg/projectaccess"
 	"github.com/liujitcn/kratos-core/biz"
 	"github.com/liujitcn/kratos-core/job"
@@ -103,8 +107,15 @@ func BuildModules(migrations *migration.Migration, config2 *configv1.Bootstrap, 
 	authService := admin.NewAuthService(authCase)
 	baseApiService := admin.NewBaseApiService(baseAPICase)
 	aiProviderRepository := data2.NewAiProviderRepository(dataData)
-	aiProviderCase := biz3.NewAiProviderCase(baseCase, transaction, aiProviderRepository, registry)
+	aiModelRepository := data2.NewAiModelRepository(dataData)
+	aiModelCase := biz3.NewAiModelCase(baseCase, transaction, aiModelRepository, aiProviderRepository, registry)
+	aiProviderCase := biz3.NewAiProviderCase(baseCase, transaction, aiProviderRepository, aiModelCase)
 	aiProviderService := admin.NewAiProviderService(aiProviderCase)
+	bizAiSessionCase := biz3.NewAiSessionCase(baseCase, aiSessionRepository, aiMessageRepository, baseUserRepository)
+	aiSessionService := admin.NewAiSessionService(bizAiSessionCase)
+	aiQueryRepository := data2.NewAiQueryRepository(dataData)
+	aiQueryCase := biz3.NewAiQueryCase(baseCase, aiQueryRepository, baseUserRepository)
+	aiQueryService := admin.NewAiQueryService(aiQueryCase)
 	protector, err := oauthsecret.NewProtector(config2)
 	if err != nil {
 		return nil, nil, err
@@ -263,10 +274,14 @@ func BuildModules(migrations *migration.Migration, config2 *configv1.Bootstrap, 
 	baseApiRateLimitPolicyService := admin.NewBaseApiRateLimitPolicyService(baseApiRateLimitPolicyCase)
 	aiSearchCase := biz2.NewAiSearchCase(baseCase)
 	aiSearchService := base.NewAiSearchService(aiSearchCase)
+	bizAiQueryCase := biz2.NewAiQueryCase(baseCase, registry, aiQueryRepository)
+	baseAiQueryService := base.NewAiQueryService(bizAiQueryCase)
 	services := admin2.Services{
 		Auth:                     authService,
 		BaseAPI:                  baseApiService,
 		AiProvider:               aiProviderService,
+		AiSession:                aiSessionService,
+		AiQuery:                  aiQueryService,
 		OauthClient:              oauthClientService,
 		BaseAPICase:              baseAPICase,
 		BaseFileRepository:       baseFileRepository,
@@ -332,6 +347,7 @@ func BuildModules(migrations *migration.Migration, config2 *configv1.Bootstrap, 
 		BaseRateLimitRule:        baseRateLimitRuleService,
 		BaseApiRateLimitPolicy:   baseApiRateLimitPolicyService,
 		AiSearch:                 aiSearchService,
+		AiQueryBase:              baseAiQueryService,
 	}
 	adminTools, err := ParseAdminAgentTools(services)
 	if err != nil {
@@ -354,6 +370,7 @@ func BuildModules(migrations *migration.Migration, config2 *configv1.Bootstrap, 
 		BaseDict: appBaseDictService,
 		BaseMenu: appBaseMenuService,
 		AiSearch: aiSearchService,
+		AiQuery:  baseAiQueryService,
 	}
 	appTools, err := ParseAppAgentTools(appServices)
 	if err != nil {
@@ -361,13 +378,21 @@ func BuildModules(migrations *migration.Migration, config2 *configv1.Bootstrap, 
 		return nil, nil, err
 	}
 	runtime := ai.NewRuntime(registry, mcpCase, adminTools, appTools, catalog)
-	aiMessageCase := biz2.NewAiMessageCase(baseCase, transaction, aiMessageRepository, aiSessionCase, baseUserCase, runtime)
-	aiSessionService := base.NewAiSessionService(aiSessionCase, aiMessageCase)
-	aiModelCase := biz2.NewAiModelCase(baseCase, runtime)
-	aiModelService := base.NewAiModelService(aiModelCase)
+	data5, err := data4.NewData(databases)
+	if err != nil {
+		cleanup()
+		return nil, nil, err
+	}
+	knowledgeEngine := ai.NewKnowledgeEngine(databases, data5, aiProviderRepository, aiModelRepository)
+	aiMessageCase := biz2.NewAiMessageCase(baseCase, transaction, aiMessageRepository, aiSessionCase, baseUserCase, runtime, knowledgeEngine)
+	baseAiSessionService := base.NewAiSessionService(aiSessionCase, aiMessageCase)
+	bizAiModelCase := biz2.NewAiModelCase(baseCase, runtime)
+	aiModelService := base.NewAiModelService(bizAiModelCase)
 	aiToolCase := biz2.NewAiToolCase(baseCase, runtime)
 	aiToolService := base.NewAiToolService(aiToolCase)
 	aiMessageService := base.NewAiMessageService(aiMessageCase)
+	aiKnowledgeCase := biz2.NewAiKnowledgeCase(baseCase, knowledgeEngine)
+	aiKnowledgeService := base.NewAiKnowledgeService(aiKnowledgeCase)
 	configCase := biz2.NewConfigCase(baseCase, baseConfigRepository, baseI18NRepository, baseI18NCustomRepository, baseLanguageRepository)
 	configService := base.NewConfigService(configCase, registry)
 	languageCase := biz2.NewLanguageCase(baseCase, baseLanguageRepository)
@@ -394,11 +419,13 @@ func BuildModules(migrations *migration.Migration, config2 *configv1.Bootstrap, 
 	sseCase := biz2.NewSseCase(baseCase, sseRuntime)
 	sseService := base.NewSseService(sseCase)
 	baseServices := &base2.Services{
-		AiSession:    aiSessionService,
+		AiSession:    baseAiSessionService,
 		AiModel:      aiModelService,
 		AiTool:       aiToolService,
 		AiMessage:    aiMessageService,
 		AiSearch:     aiSearchService,
+		AiQuery:      baseAiQueryService,
+		AiKnowledge:  aiKnowledgeService,
 		Config:       configService,
 		Language:     languageService,
 		File:         fileService,
@@ -414,6 +441,8 @@ func BuildModules(migrations *migration.Migration, config2 *configv1.Bootstrap, 
 		Auth:                     authService,
 		BaseAPI:                  baseApiService,
 		AiProvider:               aiProviderService,
+		AiSession:                aiSessionService,
+		AiQuery:                  aiQueryService,
 		OauthClient:              oauthClientService,
 		BaseAPICase:              baseAPICase,
 		BaseFileRepository:       baseFileRepository,
@@ -479,6 +508,7 @@ func BuildModules(migrations *migration.Migration, config2 *configv1.Bootstrap, 
 		BaseRateLimitRule:        baseRateLimitRuleService,
 		BaseApiRateLimitPolicy:   baseApiRateLimitPolicyService,
 		AiSearch:                 aiSearchService,
+		AiQueryBase:              baseAiQueryService,
 	}
 	services2 := &app2.Services{
 		Auth:     appAuthService,
@@ -486,8 +516,20 @@ func BuildModules(migrations *migration.Migration, config2 *configv1.Bootstrap, 
 		BaseDict: appBaseDictService,
 		BaseMenu: appBaseMenuService,
 		AiSearch: aiSearchService,
+		AiQuery:  baseAiQueryService,
 	}
-	modules, err := NewModules(baseServices, adminServices, services2, runtime, catalog, baseConfigCase, aiProviderCase, baseLoginPolicyCase, baseOauthProviderCase, redactResolver, rateLimitResolver)
+	bizAiKnowledgeCase := biz5.NewAiKnowledgeCase(baseCase, knowledgeEngine, aiModelRepository, aiProviderRepository)
+	adminAiKnowledgeService := admin3.NewAiKnowledgeService(bizAiKnowledgeCase)
+	aiKnowledgeDocCase := biz5.NewAiKnowledgeDocCase(baseCase, knowledgeEngine)
+	aiKnowledgeDocService := admin3.NewAiKnowledgeDocService(aiKnowledgeDocCase)
+	aiKnowledgeChunkCase := biz5.NewAiKnowledgeChunkCase(baseCase, knowledgeEngine)
+	aiKnowledgeChunkService := admin3.NewAiKnowledgeChunkService(aiKnowledgeChunkCase)
+	ragServices := &rag.Services{
+		AiKnowledge:      adminAiKnowledgeService,
+		AiKnowledgeDoc:   aiKnowledgeDocService,
+		AiKnowledgeChunk: aiKnowledgeChunkService,
+	}
+	modules, err := NewModules(baseServices, adminServices, services2, ragServices, runtime, catalog, baseConfigCase, aiProviderCase, aiModelCase, baseLoginPolicyCase, baseOauthProviderCase, redactResolver, rateLimitResolver)
 	if err != nil {
 		cleanup2()
 		cleanup()
@@ -515,7 +557,7 @@ func BuildTasks(databases map[string]*gorm.Client, baseCase *biz.BaseCase, sseRu
 	baseDictItemRepository := data2.NewBaseDictItemRepository(dataData)
 	baseConfigRepository := data2.NewBaseConfigRepository(dataData)
 	baseJobRepository := data2.NewBaseJobRepository(dataData)
-	baseI18nTask := admin3.NewBaseI18nTask(baseI18nCase, baseMenuRepository, baseDictRepository, baseDictItemRepository, baseConfigRepository, baseJobRepository)
+	baseI18nTask := admin4.NewBaseI18nTask(baseI18nCase, baseMenuRepository, baseDictRepository, baseDictItemRepository, baseConfigRepository, baseJobRepository)
 	baseMessageRepository := data2.NewBaseMessageRepository(dataData)
 	baseMessageDispatchRepository := data2.NewBaseMessageDispatchRepository(dataData)
 	baseMessageDeliveryRepository := data2.NewBaseMessageDeliveryRepository(dataData)
@@ -530,18 +572,18 @@ func BuildTasks(databases map[string]*gorm.Client, baseCase *biz.BaseCase, sseRu
 	baseDeptRepository := data2.NewBaseDeptRepository(dataData)
 	basePostRepository := data2.NewBasePostRepository(dataData)
 	baseMessageCase := biz3.NewBaseMessageCase(baseCase, transaction, baseMessageRepository, baseMessageDispatchRepository, baseMessageDeliveryRepository, messageDeliveryWriter, baseMessageCategoryCase, baseUserRepository, baseThirdAccountRepository, baseRoleRepository, baseDeptRepository, basePostRepository, baseMenuRepository, sseRuntime)
-	messageDispatchTask := admin3.NewMessageDispatchTask(baseMessageCase)
+	messageDispatchTask := admin4.NewMessageDispatchTask(baseMessageCase)
 	baseTableArchiveRepository := data2.NewBaseTableArchiveRepository(dataData)
 	baseTableArchiveRecordRepository := data2.NewBaseTableArchiveRecordRepository(dataData)
-	tableArchiveTask := admin3.NewTableArchiveTask(baseCase, baseTableArchiveRepository, baseTableArchiveRecordRepository)
+	tableArchiveTask := admin4.NewTableArchiveTask(baseCase, baseTableArchiveRepository, baseTableArchiveRecordRepository)
 	baseLoginLogRepository := data2.NewBaseLoginLogRepository(dataData)
 	baseOperationLogRepository := data2.NewBaseOperationLogRepository(dataData)
 	baseDataAccessLogRepository := data2.NewBaseDataAccessLogRepository(dataData)
 	basePermissionLogRepository := data2.NewBasePermissionLogRepository(dataData)
-	baseLogFallbackTask := admin3.NewBaseLogFallbackTask(baseCase, baseLoginLogRepository, baseOperationLogRepository, baseDataAccessLogRepository, basePermissionLogRepository)
+	baseLogFallbackTask := admin4.NewBaseLogFallbackTask(baseCase, baseLoginLogRepository, baseOperationLogRepository, baseDataAccessLogRepository, basePermissionLogRepository)
 	baseTableBackupRepository := data2.NewBaseTableBackupRepository(dataData)
 	baseTableBackupRecordRepository := data2.NewBaseTableBackupRecordRepository(dataData)
-	tableBackupTask := admin3.NewTableBackupTask(baseCase, baseTableBackupRepository, baseTableBackupRecordRepository)
+	tableBackupTask := admin4.NewTableBackupTask(baseCase, baseTableBackupRepository, baseTableBackupRecordRepository)
 	tasks := task.NewTask(baseI18nTask, messageDispatchTask, tableArchiveTask, baseLogFallbackTask, tableBackupTask)
 	return tasks, func() {
 	}, nil

@@ -180,6 +180,8 @@ func (x *SendAiMessageRequest) Redact() {
 	// Safe field: ProviderId
 
 	// Safe field: ModelName
+
+	// Safe field: KnowledgeBaseIds
 }
 
 // Ensure RetryAiUserMessageRequest implements the Redactor interface at compile time.

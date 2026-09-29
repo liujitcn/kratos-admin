@@ -3,6 +3,7 @@ package server
 import (
 	"github.com/google/wire"
 	"github.com/liujitcn/kratos-admin/backend/internal/server/base/v1"
+	"github.com/liujitcn/kratos-admin/backend/internal/server/rag/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/server/system/admin/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/server/system/app/v1"
 )
@@ -12,4 +13,5 @@ var ProviderSet = wire.NewSet(
 	base.ProviderSet,
 	admin.ProviderSet,
 	app.ProviderSet,
+	rag.ProviderSet,
 )

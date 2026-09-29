@@ -1,0 +1,66 @@
+syntax = "proto3";
+
+package base.v1;
+
+import "buf/validate/validate.proto";
+import "gnostic/openapi/v3/annotations.proto";
+import "google/api/annotations.proto";
+
+// Base AI 助手智能问数服务
+service AiQueryService {
+  // 智能问数：将自然语言问题转换为只读 SQL 查询数据库并返回结构化结果
+  rpc AskAiQuery(AskAiQueryRequest) returns (AskAiQueryResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/base/ai/query/ask"
+      body: "*"
+    };
+  }
+
+  // 查询智能问数可用的数据表目录
+  rpc OptionAiQueryTable(OptionAiQueryTableRequest) returns (OptionAiQueryTableResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/base/ai/query/tables"
+      body: "*"
+    };
+  }
+}
+
+// 智能问数请求
+message AskAiQueryRequest {
+  string question = 1 [(gnostic.openapi.v3.property) = {description: "自然语言问题"}, (buf.validate.field).cel = {id: "base.ai.query.question.required" message: "问题内容不合法" expression: "this.size() > 0 && this.size() <= 500"}]; // 自然语言问题
+}
+
+// 智能问数响应
+message AskAiQueryResponse {
+  string sql = 1 [(gnostic.openapi.v3.property) = {description: "生成的只读 SQL"}]; // 生成的只读 SQL
+
+  repeated string columns = 2 [(gnostic.openapi.v3.property) = {description: "结果列名"}]; // 结果列名
+
+  repeated AiQueryRow rows = 3 [(gnostic.openapi.v3.property) = {description: "结果行"}]; // 结果行
+
+  int32 row_count = 4 [(gnostic.openapi.v3.property) = {description: "结果行数"}]; // 结果行数
+
+  bool truncated = 5 [(gnostic.openapi.v3.property) = {description: "结果是否因行数或体积上限被截断"}]; // 结果是否因行数或体积上限被截断
+
+  int64 elapsed_ms = 6 [(gnostic.openapi.v3.property) = {description: "SQL 执行耗时（毫秒）"}]; // SQL 执行耗时（毫秒）
+}
+
+// 智能问数结果行
+message AiQueryRow {
+  repeated string values = 1 [(gnostic.openapi.v3.property) = {description: "与列名顺序对齐的单元格值"}]; // 与列名顺序对齐的单元格值
+}
+
+// 智能问数表目录请求
+message OptionAiQueryTableRequest {}
+
+// 智能问数表目录响应
+message OptionAiQueryTableResponse {
+  repeated AiQueryTable tables = 1 [(gnostic.openapi.v3.property) = {description: "可用数据表列表"}]; // 可用数据表列表
+}
+
+// 智能问数可用数据表
+message AiQueryTable {
+  string name = 1 [(gnostic.openapi.v3.property) = {description: "表名"}]; // 表名
+
+  string comment = 2 [(gnostic.openapi.v3.property) = {description: "表说明"}]; // 表说明
+}

@@ -1,0 +1,13 @@
+{
+  "extends": "../../../tsconfig.json",
+  "include": [
+    "../../../packages/core/types/generated/auto-imports.d.ts",
+    "../../../packages/core/types/generated/components.d.ts",
+    "../../../packages/core/src/typings/*.d.ts",
+    "src/**/*.ts",
+    "src/**/*.d.ts",
+    "src/**/*.tsx",
+    "src/**/*.vue"
+  ],
+  "exclude": ["node_modules", "dist", "**/*.js"]
+}

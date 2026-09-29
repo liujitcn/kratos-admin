@@ -14,8 +14,8 @@ const TableNameBaseRedactStoragePolicy = "base_redact_storage_policy"
 
 // BaseRedactStoragePolicy 敏感字段入库策略
 type BaseRedactStoragePolicy struct {
-	TenantID   int64                 `gorm:"column:tenant_id;type:bigint;not null;uniqueIndex:unique_base_redact_storage_policy,priority:1;index:idx_base_redact_storage_policy_tenant_id,priority:1;comment:租户ID" json:"tenant_id"` // 租户ID
 	ID         int64                 `gorm:"column:id;type:bigint;primaryKey;autoIncrement:true;comment:入库策略ID" json:"id"`                                                                                                           // 入库策略ID
+	TenantID   int64                 `gorm:"column:tenant_id;type:bigint;not null;uniqueIndex:unique_base_redact_storage_policy,priority:1;index:idx_base_redact_storage_policy_tenant_id,priority:1;comment:租户ID" json:"tenant_id"` // 租户ID
 	SourceName string                `gorm:"column:source_name;type:varchar(64);not null;uniqueIndex:unique_base_redact_storage_policy,priority:2;comment:数据源名称" json:"source_name"`                                                 // 数据源名称
 	TableName_ string                `gorm:"column:table_name;type:varchar(128);not null;uniqueIndex:unique_base_redact_storage_policy,priority:3;comment:数据库表名" json:"table_name"`                                                  // 数据库表名
 	ColumnName string                `gorm:"column:column_name;type:varchar(128);not null;uniqueIndex:unique_base_redact_storage_policy,priority:4;comment:数据库字段名" json:"column_name"`                                               // 数据库字段名

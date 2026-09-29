@@ -237,6 +237,21 @@ paths:
                 "200":
                     description: OK
                     content: {}
+    /api/v1/admin/base/ai-provider/options:
+        get:
+            tags:
+                - AiProviderService
+            description: |-
+                查询已启用的AI供应商选项。
+                 字面路径必须先于 /{id} 声明：gorilla mux 按注册顺序匹配，否则会被 {id} 路由抢占。
+            operationId: AiProviderService_ListAiProviderOptions
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.ListAiProviderOptionsResponse'
     /api/v1/admin/base/ai-provider/test-models:
         post:
             tags:
@@ -334,6 +349,122 @@ paths:
                 "200":
                     description: OK
                     content: {}
+    /api/v1/admin/base/ai-query:
+        get:
+            tags:
+                - AiQueryService
+            description: 分頁查詢智慧問數記錄。
+            operationId: AiQueryService_PageAiQuery
+            parameters:
+                - name: question
+                  in: query
+                  schema:
+                    type: string
+                - name: status
+                  in: query
+                  schema:
+                    enum:
+                        - AI_QUERY_STATUS_UNSPECIFIED
+                        - AI_QUERY_STATUS_SUCCESS
+                        - AI_QUERY_STATUS_FAILED
+                    type: string
+                    format: enum
+                - name: page_num
+                  in: query
+                  schema:
+                    type: string
+                - name: page_size
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.PageAiQueryResponse'
+    /api/v1/admin/base/ai-query/{id}:
+        get:
+            tags:
+                - AiQueryService
+            description: 查詢智慧問數記錄詳情。
+            operationId: AiQueryService_GetAiQuery
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.AiQueryRecord'
+    /api/v1/admin/base/ai-session:
+        get:
+            tags:
+                - AiSessionService
+            description: 分頁查詢AI會話。
+            operationId: AiSessionService_PageAiSession
+            parameters:
+                - name: title
+                  in: query
+                  schema:
+                    type: string
+                - name: terminal
+                  in: query
+                  schema:
+                    enum:
+                        - TERMINAL_UNSPECIFIED
+                        - TERMINAL_APP
+                        - TERMINAL_ADMIN
+                    type: string
+                    format: enum
+                - name: page_num
+                  in: query
+                  schema:
+                    type: string
+                - name: page_size
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.PageAiSessionResponse'
+    /api/v1/admin/base/ai-session/{id}/message:
+        get:
+            tags:
+                - AiSessionService
+            description: 分頁查詢AI會話訊息。
+            operationId: AiSessionService_PageAiSessionMessage
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: page_num
+                  in: query
+                  schema:
+                    type: string
+                - name: page_size
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.PageAiSessionMessageResponse'
     /api/v1/admin/base/api:
         get:
             tags:
@@ -6711,6 +6842,246 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/system.admin.v1.OpsTrafficResponse'
+    /api/v1/admin/rag/knowledge:
+        get:
+            tags:
+                - AiKnowledgeService
+            description: 分頁查詢AI知識庫。
+            operationId: AiKnowledgeService_PageAiKnowledge
+            parameters:
+                - name: name
+                  in: query
+                  schema:
+                    type: string
+                - name: page_num
+                  in: query
+                  schema:
+                    type: string
+                - name: page_size
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/rag.admin.v1.PageAiKnowledgeResponse'
+        post:
+            tags:
+                - AiKnowledgeService
+            description: 建立AI知識庫。
+            operationId: AiKnowledgeService_CreateAiKnowledge
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/rag.admin.v1.AiKnowledgeForm'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/rag/knowledge/doc/{doc_id}:
+        delete:
+            tags:
+                - AiKnowledgeDocService
+            description: 刪除文件（級聯刪除切片）。
+            operationId: AiKnowledgeDocService_DeleteAiKnowledgeDoc
+            parameters:
+                - name: doc_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/rag/knowledge/doc/{doc_id}/reprocess:
+        post:
+            tags:
+                - AiKnowledgeDocService
+            description: 重新處理失敗的文件（按儲存的原文重切片、重向量化）。
+            operationId: AiKnowledgeDocService_ReprocessAiKnowledgeDoc
+            parameters:
+                - name: doc_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/rag/knowledge/models:
+        get:
+            tags:
+                - AiKnowledgeService
+            description: |-
+                查询已启用的embedding模型选项（知识库向量化模型下拉）。
+                 字面路径必须先于 /{id} 声明：gorilla mux 按注册顺序匹配，否则会被 {id} 路由抢占。
+            operationId: AiKnowledgeService_ListAiKnowledgeModels
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/rag.admin.v1.ListAiKnowledgeModelsResponse'
+    /api/v1/admin/rag/knowledge/{ai_knowledge.id}:
+        put:
+            tags:
+                - AiKnowledgeService
+            description: 更新AI知識庫。
+            operationId: AiKnowledgeService_UpdateAiKnowledge
+            parameters:
+                - name: ai_knowledge.id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/rag.admin.v1.AiKnowledgeForm'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/rag/knowledge/{id}:
+        get:
+            tags:
+                - AiKnowledgeService
+            description: 查詢AI知識庫表單。
+            operationId: AiKnowledgeService_GetAiKnowledge
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/rag.admin.v1.AiKnowledgeForm'
+        delete:
+            tags:
+                - AiKnowledgeService
+            description: 刪除AI知識庫（級聯刪除文件與切片）。
+            operationId: AiKnowledgeService_DeleteAiKnowledge
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/rag/knowledge/{id}/doc:
+        get:
+            tags:
+                - AiKnowledgeDocService
+            description: 分頁查詢知識庫下的文件。
+            operationId: AiKnowledgeDocService_PageAiKnowledgeDoc
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: page_num
+                  in: query
+                  schema:
+                    type: string
+                - name: page_size
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/rag.admin.v1.PageAiKnowledgeDocResponse'
+    /api/v1/admin/rag/knowledge/{id}/doc/file:
+        post:
+            tags:
+                - AiKnowledgeDocService
+            description: 上傳文件檔案（txt/md/docx/pdf：抽取文字後走同一入庫鏈）。
+            operationId: AiKnowledgeDocService_UploadAiKnowledgeDocFile
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/rag.admin.v1.UploadAiKnowledgeDocFileRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/rag/knowledge/{id}/doc/text:
+        post:
+            tags:
+                - AiKnowledgeDocService
+            description: 上傳純文字文件（切片 → 向量化 → 落庫）。
+            operationId: AiKnowledgeDocService_UploadAiKnowledgeDocText
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/rag.admin.v1.UploadAiKnowledgeDocTextRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/rag/knowledge/{id}/search:
+        post:
+            tags:
+                - AiKnowledgeChunkService
+            description: 檢索測試：返回與query語義最相近的切片。
+            operationId: AiKnowledgeChunkService_SearchAiKnowledge
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/rag.admin.v1.SearchAiKnowledgeRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/rag.admin.v1.SearchAiKnowledgeResponse'
     /api/v1/admin/runtime-log/console:
         post:
             tags:
@@ -6890,6 +7261,19 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/system.app.v1.ListBaseMenuResponse'
+    /api/v1/base/ai/knowledge/options:
+        get:
+            tags:
+                - AiKnowledgeService
+            description: 查詢可用的AI知識庫選項。
+            operationId: AiKnowledgeService_ListAiKnowledgeOptions
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.ListAiKnowledgeOptionsResponse'
     /api/v1/base/ai/provider-models:
         get:
             tags:
@@ -6903,6 +7287,44 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/base.v1.ListAiProviderModelOptionsResponse'
+    /api/v1/base/ai/query/ask:
+        post:
+            tags:
+                - AiQueryService
+            description: 智慧問數：將自然語言問題轉換為只讀 SQL 查詢資料庫並返回結構化結果
+            operationId: AiQueryService_AskAiQuery
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/base.v1.AskAiQueryRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.AskAiQueryResponse'
+    /api/v1/base/ai/query/tables:
+        post:
+            tags:
+                - AiQueryService
+            description: 查詢智慧問數可用的資料表目錄
+            operationId: AiQueryService_OptionAiQueryTable
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/base.v1.OptionAiQueryTableRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.OptionAiQueryTableResponse'
     /api/v1/base/ai/search:
         post:
             tags:
@@ -8160,6 +8582,20 @@ components:
                     type: string
                     description: 內容正文
             description: AI 助手輸入內容
+        base.v1.AiKnowledgeOption:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 知識庫ID
+                name:
+                    type: string
+                    description: 知識庫名稱
+                doc_count:
+                    type: integer
+                    description: 文檔數量
+                    format: int32
+            description: AI知識庫選項。
         base.v1.AiMessage:
             type: object
             properties:
@@ -8263,6 +8699,25 @@ components:
                         $ref: '#/components/schemas/base.v1.AiProviderModel'
                     description: 模型選項列表
             description: 已啟用的AI Provider及其模型選項。
+        base.v1.AiQueryRow:
+            type: object
+            properties:
+                values:
+                    type: array
+                    items:
+                        type: string
+                    description: 與列名順序對齊的單元格值
+            description: 智慧問數結果行
+        base.v1.AiQueryTable:
+            type: object
+            properties:
+                name:
+                    type: string
+                    description: 表名
+                comment:
+                    type: string
+                    description: 表說明
+            description: 智慧問數可用資料表
         base.v1.AiSession:
             type: object
             properties:
@@ -8383,6 +8838,40 @@ components:
                     type: string
                     description: 投遞ID
             description: 歸檔訊息請求。
+        base.v1.AskAiQueryRequest:
+            type: object
+            properties:
+                question:
+                    type: string
+                    description: 自然語言問題
+            description: 智慧問數請求
+        base.v1.AskAiQueryResponse:
+            type: object
+            properties:
+                sql:
+                    type: string
+                    description: 生成的只讀 SQL
+                columns:
+                    type: array
+                    items:
+                        type: string
+                    description: 結果列名
+                rows:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/base.v1.AiQueryRow'
+                    description: 結果行
+                row_count:
+                    type: integer
+                    description: 結果行數
+                    format: int32
+                truncated:
+                    type: boolean
+                    description: 結果是否因行數或體積上限被截斷
+                elapsed_ms:
+                    type: string
+                    description: SQL 執行耗時（毫秒）
+            description: 智慧問數響應
         base.v1.BeginMfaDisableRequest:
             type: object
             properties: {}
@@ -8879,6 +9368,15 @@ components:
                     type: string
                     description: 本地語言名稱
             description: 語言選擇項。
+        base.v1.ListAiKnowledgeOptionsResponse:
+            type: object
+            properties:
+                options:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/base.v1.AiKnowledgeOption'
+                    description: 知識庫選項列表
+            description: AI知識庫選項查詢響應。
         base.v1.ListAiMessageResponse:
             type: object
             properties:
@@ -9234,6 +9732,19 @@ components:
                     type: object
                     description: Provider個性化配置JSON物件
             description: 三方登入方式資訊
+        base.v1.OptionAiQueryTableRequest:
+            type: object
+            properties: {}
+            description: 智慧問數表目錄請求
+        base.v1.OptionAiQueryTableResponse:
+            type: object
+            properties:
+                tables:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/base.v1.AiQueryTable'
+                    description: 可用資料表列表
+            description: 智慧問數表目錄響應
         base.v1.OptionLanguageResponse:
             type: object
             properties:
@@ -9403,6 +9914,11 @@ components:
                 model_name:
                     type: string
                     description: 所選模型名稱
+                knowledge_base_ids:
+                    type: array
+                    items:
+                        type: string
+                    description: 所選知識庫ID列表；非空時檢索注入上下文
             description: AI 助手訊息傳送請求
         base.v1.SendAiMessageResponse:
             type: object
@@ -9618,6 +10134,214 @@ components:
                         $ref: '#/components/schemas/common.v1.TreeOptionResponse_Option'
                     description: 子節點樹
             description: 樹形選項
+        rag.admin.v1.AiKnowledge:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 知識庫ID
+                name:
+                    type: string
+                    description: 知識庫名稱
+                description:
+                    type: string
+                    description: 描述
+                provider_name:
+                    type: string
+                    description: embedding模型所屬供應商名稱
+                embedding_dimensions:
+                    type: integer
+                    description: embedding向量維度
+                    format: int32
+                model_id:
+                    type: string
+                    description: 向量化使用的embedding模型ID
+                model_name:
+                    type: string
+                    description: embedding模型名稱
+                doc_count:
+                    type: integer
+                    description: 文檔數量
+                    format: int32
+                created_at:
+                    type: string
+                    description: 建立時間
+                updated_at:
+                    type: string
+                    description: 更新時間
+            description: AI知識庫分頁記錄。
+        rag.admin.v1.AiKnowledgeChunkHit:
+            type: object
+            properties:
+                chunk_id:
+                    type: string
+                    description: 切片ID
+                doc_id:
+                    type: string
+                    description: 文件ID
+                doc_name:
+                    type: string
+                    description: 文件名稱
+                content:
+                    type: string
+                    description: 切片文字
+                score:
+                    type: number
+                    description: 餘弦相似度
+                    format: float
+            description: 檢索命中的切片。
+        rag.admin.v1.AiKnowledgeDoc:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 文件ID
+                knowledge_base_id:
+                    type: string
+                    description: 知識庫ID
+                name:
+                    type: string
+                    description: 文件名稱
+                chunk_count:
+                    type: integer
+                    description: 切片數
+                    format: int32
+                status:
+                    enum:
+                        - AI_KNOWLEDGE_DOC_STATUS_UNSPECIFIED
+                        - AI_KNOWLEDGE_DOC_STATUS_READY
+                        - AI_KNOWLEDGE_DOC_STATUS_FAILED
+                    type: string
+                    description: 處理狀態：列舉【AiKnowledgeDocStatus】
+                    format: enum
+                error_message:
+                    type: string
+                    description: 失敗原因
+                created_at:
+                    type: string
+                    description: 建立時間
+            description: AI知識庫文件。
+        rag.admin.v1.AiKnowledgeForm:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 知識庫ID
+                name:
+                    type: string
+                    description: 知識庫名稱
+                description:
+                    type: string
+                    description: 描述
+                model_id:
+                    type: string
+                    description: 向量化使用的embedding模型ID
+            description: AI知識庫維護表單。
+        rag.admin.v1.AiKnowledgeModel:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 模型ID
+                provider_name:
+                    type: string
+                    description: 模型所屬供應商名稱
+                model_name:
+                    type: string
+                    description: 模型名稱
+                display_name:
+                    type: string
+                    description: 顯示名稱
+            description: 知識庫可用的embedding模型選項。
+        rag.admin.v1.ListAiKnowledgeModelsResponse:
+            type: object
+            properties:
+                models:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/rag.admin.v1.AiKnowledgeModel'
+                    description: 已啟用的embedding模型列表
+            description: 查詢embedding模型選項響應。
+        rag.admin.v1.PageAiKnowledgeDocResponse:
+            type: object
+            properties:
+                docs:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/rag.admin.v1.AiKnowledgeDoc'
+                    description: 文件列表
+                total:
+                    type: integer
+                    description: 總數
+                    format: int32
+            description: 分頁查詢知識庫文件響應。
+        rag.admin.v1.PageAiKnowledgeResponse:
+            type: object
+            properties:
+                knowledges:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/rag.admin.v1.AiKnowledge'
+                    description: 知識庫列表
+                total:
+                    type: integer
+                    description: 總數
+                    format: int32
+            description: AI知識庫分頁響應。
+        rag.admin.v1.SearchAiKnowledgeRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 知識庫ID
+                query:
+                    type: string
+                    description: 檢索關鍵詞
+                top_k:
+                    type: integer
+                    default: !!float 5
+                    description: 返回切片數量
+                    format: int32
+            description: 檢索測試請求。
+        rag.admin.v1.SearchAiKnowledgeResponse:
+            type: object
+            properties:
+                hits:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/rag.admin.v1.AiKnowledgeChunkHit'
+                    description: 語義最相近的切片
+            description: 檢索測試響應。
+        rag.admin.v1.UploadAiKnowledgeDocFileRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 知識庫ID
+                file_name:
+                    type: string
+                    description: 原始檔名（副檔名決定抽取器）
+                content_base64:
+                    type: string
+                    description: 檔案內容（≤10MB）
+                    format: bytes
+                doc_name:
+                    type: string
+                    description: 文件顯示名，預設取檔名去副檔名
+            description: 上傳文件檔案請求。
+        rag.admin.v1.UploadAiKnowledgeDocTextRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 知識庫ID
+                name:
+                    type: string
+                    description: 文件名稱
+                content:
+                    type: string
+                    description: 文件文字內容
+            description: 上傳純文字文件請求。
         system.admin.v1.AiProvider:
             type: object
             properties:
@@ -9633,11 +10357,6 @@ components:
                 api_key_configured:
                     type: boolean
                     description: 是否已儲存模型金鑰
-                model_names:
-                    type: array
-                    items:
-                        type: string
-                    description: 模型名稱列表
                 sort:
                     type: integer
                     description: 排序值
@@ -9645,6 +10364,11 @@ components:
                 provider:
                     type: string
                     description: Provider穩定標識
+                model_names:
+                    type: array
+                    items:
+                        type: string
+                    description: 供應商下的模型名稱列表
                 status:
                     enum:
                         - STATUS_UNSPECIFIED
@@ -9678,9 +10402,6 @@ components:
                 api_key_configured:
                     type: boolean
                     description: 是否已儲存模型金鑰
-                models_json:
-                    type: string
-                    description: 多模型JSON陣列，每項含model_name、api_type、temperature、max_tokens、timeout_seconds和max_retries
                 sort:
                     type: integer
                     description: 排序值
@@ -9691,6 +10412,11 @@ components:
                 config:
                     type: object
                     description: Provider個性化配置JSON物件
+                models:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.AiProviderModelForm'
+                    description: 供應商下的AI模型列表
                 status:
                     enum:
                         - STATUS_UNSPECIFIED
@@ -9700,6 +10426,46 @@ components:
                     description: 狀態
                     format: enum
             description: AI供應商維護表單。
+        system.admin.v1.AiProviderModelForm:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 模型ID；新增時為0
+                model_name:
+                    type: string
+                    description: 模型名稱，供應商API標識
+                display_name:
+                    type: string
+                    description: 顯示名稱
+                category:
+                    enum:
+                        - AI_MODEL_CATEGORY_UNSPECIFIED
+                        - AI_MODEL_CATEGORY_CHAT
+                        - AI_MODEL_CATEGORY_EMBEDDING
+                        - AI_MODEL_CATEGORY_RERANK
+                        - AI_MODEL_CATEGORY_IMAGE
+                        - AI_MODEL_CATEGORY_VIDEO
+                        - AI_MODEL_CATEGORY_AUDIO
+                    type: string
+                    description: 模型分類：列舉【AiModelCategory】
+                    format: enum
+                config:
+                    type: object
+                    description: 分類個性化配置JSON物件
+                sort:
+                    type: integer
+                    description: 排序值
+                    format: int32
+                status:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    description: 狀態
+                    format: enum
+            description: AI供應商模型維護表單；provider_id由所屬供應商表單隱式給定。
         system.admin.v1.AiProviderModelTestResult:
             type: object
             properties:
@@ -9717,6 +10483,210 @@ components:
                     type: string
                     description: 失敗原因；成功時為空
             description: 單個 AI 模型連線測試結果。
+        system.admin.v1.AiProviderOption:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 供應商ID
+                name:
+                    type: string
+                    description: 供應商名稱
+                provider:
+                    type: string
+                    description: Provider穩定標識
+            description: AI供應商選項。
+        system.admin.v1.AiQueryRecord:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 記錄ID
+                tenant_id:
+                    type: string
+                    description: 租戶ID
+                user_id:
+                    type: string
+                    description: 使用者ID
+                user_name:
+                    type: string
+                    description: 使用者賬號
+                question:
+                    type: string
+                    description: 自然語言問題
+                sql:
+                    type: string
+                    description: 生成的只讀SQL
+                status:
+                    enum:
+                        - AI_QUERY_STATUS_UNSPECIFIED
+                        - AI_QUERY_STATUS_SUCCESS
+                        - AI_QUERY_STATUS_FAILED
+                    type: string
+                    description: 問數狀態：列舉【AiQueryStatus】
+                    format: enum
+                row_count:
+                    type: integer
+                    description: 結果行數
+                    format: int32
+                elapsed_ms:
+                    type: string
+                    description: SQL執行耗時毫秒
+                error_msg:
+                    type: string
+                    description: 失敗原因
+                result_columns:
+                    type: array
+                    items:
+                        type: string
+                    description: 結果快照列名，僅詳情返回
+                result_rows:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.AiQueryResultRow'
+                    description: 結果快照資料行，僅詳情返回
+                created_at:
+                    type: string
+                    description: 建立時間
+            description: 智慧問數記錄。
+        system.admin.v1.AiQueryResultRow:
+            type: object
+            properties:
+                values:
+                    type: array
+                    items:
+                        type: string
+                    description: 行資料
+            description: 智慧問數結果快照行。
+        system.admin.v1.AiSessionMessageAttachment:
+            type: object
+            properties:
+                name:
+                    type: string
+                    description: 附件名稱
+                size:
+                    type: string
+                    description: 附件大小
+                url:
+                    type: string
+                    description: 附件地址
+                mime_type:
+                    type: string
+                    description: 附件 MIME 型別
+            description: AI會話訊息附件。
+        system.admin.v1.AiSessionMessageRecord:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 訊息ID
+                input_content:
+                    type: string
+                    description: 使用者輸入內容
+                output_content:
+                    type: string
+                    description: AI回覆內容
+                model:
+                    type: string
+                    description: 回覆使用的模型名稱
+                status:
+                    enum:
+                        - AI_MESSAGE_STATUS_UNSPECIFIED
+                        - AI_MESSAGE_STATUS_GENERATING
+                        - AI_MESSAGE_STATUS_SUCCESS
+                        - AI_MESSAGE_STATUS_FAILED
+                    type: string
+                    description: 訊息生成狀態：列舉【AiMessageStatus】
+                    format: enum
+                input_tokens:
+                    type: integer
+                    description: 輸入Token數
+                    format: int32
+                output_tokens:
+                    type: integer
+                    description: 輸出Token數
+                    format: int32
+                cache_tokens:
+                    type: integer
+                    description: 快取Token數
+                    format: int32
+                total_tokens:
+                    type: integer
+                    description: 總Token數
+                    format: int32
+                first_token_ms:
+                    type: integer
+                    description: 首Token耗時毫秒
+                    format: int32
+                duration_ms:
+                    type: integer
+                    description: 總耗時毫秒
+                    format: int32
+                attachments:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.AiSessionMessageAttachment'
+                    description: 附件列表
+                created_at:
+                    type: string
+                    description: 建立時間
+            description: AI會話訊息記錄。
+        system.admin.v1.AiSessionRecord:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 會話ID
+                user_id:
+                    type: string
+                    description: 所屬使用者ID
+                user_name:
+                    type: string
+                    description: 使用者賬號
+                nick_name:
+                    type: string
+                    description: 使用者暱稱
+                title:
+                    type: string
+                    description: 會話標題
+                summary:
+                    type: string
+                    description: 會話摘要
+                terminal:
+                    enum:
+                        - TERMINAL_UNSPECIFIED
+                        - TERMINAL_APP
+                        - TERMINAL_ADMIN
+                    type: string
+                    description: 終端型別：列舉【Terminal】
+                    format: enum
+                message_count:
+                    type: integer
+                    description: 訊息輪次數
+                    format: int32
+                input_tokens:
+                    type: integer
+                    description: 累計輸入Token數
+                    format: int32
+                output_tokens:
+                    type: integer
+                    description: 累計輸出Token數
+                    format: int32
+                cache_tokens:
+                    type: integer
+                    description: 累計快取Token數
+                    format: int32
+                total_tokens:
+                    type: integer
+                    description: 累計總Token數
+                    format: int32
+                created_at:
+                    type: string
+                    description: 建立時間
+                updated_at:
+                    type: string
+                    description: 更新時間
+            description: AI會話分頁記錄。
         system.admin.v1.BaseApi:
             type: object
             properties:
@@ -14279,6 +15249,15 @@ components:
                         $ref: '#/components/schemas/system.admin.v1.BaseLogTraceItem'
                     description: 關聯日誌時間線
             description: 關聯審計查詢響應。
+        system.admin.v1.ListAiProviderOptionsResponse:
+            type: object
+            properties:
+                options:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.AiProviderOption'
+                    description: 已啟用的AI供應商列表
+            description: 查詢AI供應商選項響應。
         system.admin.v1.ListBaseRedactStorageColumnResponse:
             type: object
             properties:
@@ -14918,6 +15897,45 @@ components:
                     description: 總數
                     format: int32
             description: AI供應商分頁響應。
+        system.admin.v1.PageAiQueryResponse:
+            type: object
+            properties:
+                queries:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.AiQueryRecord'
+                    description: 智慧問數記錄列表
+                total:
+                    type: integer
+                    description: 總數
+                    format: int32
+            description: 智慧問數分頁響應。
+        system.admin.v1.PageAiSessionMessageResponse:
+            type: object
+            properties:
+                messages:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.AiSessionMessageRecord'
+                    description: 訊息列表
+                total:
+                    type: integer
+                    description: 總數
+                    format: int32
+            description: 分頁查詢AI會話訊息響應。
+        system.admin.v1.PageAiSessionResponse:
+            type: object
+            properties:
+                sessions:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.AiSessionRecord'
+                    description: 會話列表
+                total:
+                    type: integer
+                    description: 總數
+                    format: int32
+            description: AI會話分頁響應。
         system.admin.v1.PageBaseApiLogResponse:
             type: object
             properties:
@@ -16541,14 +17559,28 @@ components:
                     description: 頭像
             description: 使用者資料表單
 tags:
+    - name: AiKnowledgeChunkService
+      description: AI知識庫切片檢索服務。
+    - name: AiKnowledgeDocService
+      description: AI知識庫文件管理服務。
+    - name: AiKnowledgeService
+      description: AI 知識庫選項查詢服務。
+    - name: AiKnowledgeService
+      description: AI知識庫管理服務。
     - name: AiMessageService
       description: Base AI 助手訊息服務
     - name: AiModelService
       description: AI Provider 可選模型查詢服務。
     - name: AiProviderService
       description: AI供應商管理服務。
+    - name: AiQueryService
+      description: 智慧問數記錄管理服務。
+    - name: AiQueryService
+      description: Base AI 助手智慧問數服務
     - name: AiSearchService
       description: Base AI 助手聯網搜尋服務
+    - name: AiSessionService
+      description: AI會話管理服務。
     - name: AiSessionService
       description: Base AI 助手會話服務
     - name: AiToolService
@@ -16564,9 +17596,9 @@ tags:
     - name: BaseApiService
       description: Admin API 服務
     - name: BaseAreaService
-      description: App 行政區域服務
-    - name: BaseAreaService
       description: Admin 行政區域服務
+    - name: BaseAreaService
+      description: App 行政區域服務
     - name: BaseConfigService
       description: Admin 系統設定服務
     - name: BaseDashboardService
@@ -16600,9 +17632,9 @@ tags:
     - name: BaseLoginPolicyService
       description: Admin登入策略管理服務。
     - name: BaseMenuService
-      description: App 選單服務
-    - name: BaseMenuService
       description: Admin 選單管理服務
+    - name: BaseMenuService
+      description: App 選單服務
     - name: BaseMessageCategoryService
       description: Admin訊息分類管理服務。
     - name: BaseMessageProviderService
@@ -16682,9 +17714,9 @@ tags:
     - name: NotificationService
       description: Base站內信通知服務，提供當前使用者的收件箱能力。
     - name: OauthClientService
-      description: Base開放授權客戶端令牌服務。
-    - name: OauthClientService
       description: Admin開放授權客戶端管理服務。
+    - name: OauthClientService
+      description: Base開放授權客戶端令牌服務。
     - name: OauthService
       description: Base 第三方登入公共服務
     - name: OpsMonitoringService

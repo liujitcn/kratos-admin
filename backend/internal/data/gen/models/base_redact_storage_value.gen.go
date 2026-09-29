@@ -8,8 +8,8 @@ const TableNameBaseRedactStorageValue = "base_redact_storage_value"
 
 // BaseRedactStorageValue 敏感字段加密原文
 type BaseRedactStorageValue struct {
-	TenantID        int64  `gorm:"column:tenant_id;type:bigint;not null;uniqueIndex:unique_base_redact_storage_value,priority:1;index:idx_base_redact_storage_value_digest,priority:1;comment:租户ID" json:"tenant_id"`                   // 租户ID
 	ID              int64  `gorm:"column:id;type:bigint;primaryKey;autoIncrement:true;comment:加密数据ID" json:"id"`                                                                                                                        // 加密数据ID
+	TenantID        int64  `gorm:"column:tenant_id;type:bigint;not null;uniqueIndex:unique_base_redact_storage_value,priority:1;index:idx_base_redact_storage_value_digest,priority:1;comment:租户ID" json:"tenant_id"`                   // 租户ID
 	StoragePolicyID int64  `gorm:"column:storage_policy_id;type:bigint;not null;uniqueIndex:unique_base_redact_storage_value,priority:2;index:idx_base_redact_storage_value_digest,priority:2;comment:入库策略ID" json:"storage_policy_id"` // 入库策略ID
 	RecordID        int64  `gorm:"column:record_id;type:bigint;not null;uniqueIndex:unique_base_redact_storage_value,priority:3;comment:主表记录ID" json:"record_id"`                                                                       // 主表记录ID
 	Ciphertext      []byte `gorm:"column:ciphertext;type:blob;not null;comment:加密原文" json:"ciphertext"`                                                                                                                                 // 加密原文

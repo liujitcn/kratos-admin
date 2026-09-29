@@ -108,6 +108,8 @@ ts-admin: types-admin
 		PATH="$(TS_PROTO_BIN_DIR):$(GO_BIN_DIR):$$PATH" buf generate --template buf.admin.typescript.gen.yaml --exclude-path proto/system/app
 	@cd "$(API_DIR)" && \
 		PATH="$(TS_PROTO_BIN_DIR):$(GO_BIN_DIR):$$PATH" buf generate --template buf.admin.core.typescript.gen.yaml --exclude-path proto/system/app
+	@cd "$(API_DIR)" && \
+		PATH="$(TS_PROTO_BIN_DIR):$(GO_BIN_DIR):$$PATH" buf generate --template buf.admin.rag.typescript.gen.yaml
 	@echo "==> 管理端 TypeScript RPC 代码生成完成"
 
 # 统一生成管理端 API 与组件自动导入声明。

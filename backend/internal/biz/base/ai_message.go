@@ -29,11 +29,12 @@ const aiHistorySize = 12
 // AiMessageCase 管理 AI 助手消息数据。
 type AiMessageCase struct {
 	*biz.BaseCase
-	tx            data.Transaction
-	aiMessageRepo *data.AiMessageRepository
-	aiSessionCase *AiSessionCase
-	baseUserCase  *BaseUserCase
-	aiRuntime     *ai.Runtime
+	tx                data.Transaction
+	aiMessageRepo     *data.AiMessageRepository
+	aiSessionCase     *AiSessionCase
+	baseUserCase      *BaseUserCase
+	aiRuntime         *ai.Runtime
+	aiKnowledgeEngine *ai.KnowledgeEngine
 }
 
 // NewAiMessageCase 创建 AI 助手消息业务实例。
@@ -44,14 +45,16 @@ func NewAiMessageCase(
 	aiSessionCase *AiSessionCase,
 	baseUserCase *BaseUserCase,
 	aiRuntime *ai.Runtime,
+	aiKnowledgeEngine *ai.KnowledgeEngine,
 ) *AiMessageCase {
 	c := &AiMessageCase{
-		BaseCase:      baseCase,
-		tx:            tx,
-		aiMessageRepo: aiMessageRepo,
-		aiSessionCase: aiSessionCase,
-		baseUserCase:  baseUserCase,
-		aiRuntime:     aiRuntime,
+		BaseCase:          baseCase,
+		tx:                tx,
+		aiMessageRepo:     aiMessageRepo,
+		aiSessionCase:     aiSessionCase,
+		baseUserCase:      baseUserCase,
+		aiRuntime:         aiRuntime,
+		aiKnowledgeEngine: aiKnowledgeEngine,
 	}
 	return c
 }
@@ -124,7 +127,7 @@ func (c *AiMessageCase) SendAiMessage(ctx context.Context, req *basev1.SendAiMes
 	startAt := time.Now()
 	input := ai.ParseInputContent(message.InputContent)
 	var reply *ai.Response
-	reply, err = c.generateAiReply(ctx, session, userName, content, input.ProviderID, input.ProviderName, input.ModelName, req.GetAction(), attachments, aiAttachments, history, nil)
+	reply, err = c.generateAiReply(ctx, session, userName, content, input.ProviderID, input.ProviderName, input.ModelName, req.GetAction(), attachments, aiAttachments, history, req.GetKnowledgeBaseIds(), nil)
 	finishAt := time.Now()
 	durationMs := durationMilliseconds(startAt, finishAt)
 	firstTokenMs := durationMs
@@ -164,7 +167,7 @@ func (c *AiMessageCase) StreamAiMessage(ctx context.Context, req *basev1.SendAiM
 	startAt := time.Now()
 	input := ai.ParseInputContent(message.InputContent)
 	var firstTokenMs int32
-	reply, runErr := c.generateAiReply(ctx, session, userName, content, input.ProviderID, input.ProviderName, input.ModelName, req.GetAction(), attachments, aiAttachments, history, func(delta string) {
+	reply, runErr := c.generateAiReply(ctx, session, userName, content, input.ProviderID, input.ProviderName, input.ModelName, req.GetAction(), attachments, aiAttachments, history, req.GetKnowledgeBaseIds(), func(delta string) {
 		if delta == "" {
 			return
 		}
@@ -291,11 +294,12 @@ func (c *AiMessageCase) prepareNewAiMessage(ctx context.Context, req *basev1.Sen
 
 	now := time.Now()
 	inputContent := ai.InputContentPayload{
-		Kind:         ai.KindText,
-		Content:      ai.BuildUserContent(content, attachments, c.localizedAttachmentPrompt(ctx)),
-		ProviderID:   selection.ProviderID,
-		ProviderName: selection.ProviderName,
-		ModelName:    selection.ModelName,
+		Kind:             ai.KindText,
+		Content:          ai.BuildUserContent(content, attachments, c.localizedAttachmentPrompt(ctx)),
+		ProviderID:       selection.ProviderID,
+		ProviderName:     selection.ProviderName,
+		ModelName:        selection.ModelName,
+		KnowledgeBaseIDs: req.GetKnowledgeBaseIds(),
 	}
 	message := &models.AiMessage{
 		TenantID:      session.TenantID,
@@ -379,7 +383,7 @@ func (c *AiMessageCase) regenerateAiMessageWithContent(ctx context.Context, sess
 	}
 	startAt := time.Now()
 	var reply *ai.Response
-	reply, err = c.generateAiReply(ctx, session, userName, content, input.ProviderID, input.ProviderName, input.ModelName, nil, attachments, aiAttachments, history, nil)
+	reply, err = c.generateAiReply(ctx, session, userName, content, input.ProviderID, input.ProviderName, input.ModelName, nil, attachments, aiAttachments, history, input.KnowledgeBaseIDs, nil)
 	finishAt := time.Now()
 	durationMs := durationMilliseconds(startAt, finishAt)
 	firstTokenMs := durationMs
@@ -478,6 +482,7 @@ func (c *AiMessageCase) generateAiReply(
 	attachments []*basev1.AiAttachment,
 	aiAttachments []ai.Attachment,
 	history []ai.Message,
+	knowledgeBaseIDs []int64,
 	onDelta func(string),
 ) (*ai.Response, error) {
 	var flowReply *ai.Response
@@ -505,6 +510,11 @@ func (c *AiMessageCase) generateAiReply(
 			Content:      content,
 			History:      history,
 			Attachments:  aiAttachments,
+		}
+		if len(knowledgeBaseIDs) > 0 && c.aiKnowledgeEngine != nil {
+			retrieveCtx, cancel := context.WithTimeout(ctx, 20*time.Second)
+			input.KnowledgeContext = c.aiKnowledgeEngine.Retrieve(retrieveCtx, knowledgeBaseIDs, content, 0)
+			cancel()
 		}
 		var response *ai.Response
 		if onDelta != nil {

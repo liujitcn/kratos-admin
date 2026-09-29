@@ -18,6 +18,7 @@ type Services struct {
 	BaseDict *app.BaseDictService
 	BaseMenu *app.BaseMenuService
 	AiSearch *base.AiSearchService
+	AiQuery  *base.AiQueryService
 }
 
 // RegisterGRPC 注册 system.app.v1 的 gRPC 服务。
@@ -74,6 +75,11 @@ func (s Services) AppAgentTools() ([]einoTool.Invokable, error) {
 	}
 	tools = append(tools, values...)
 	values, err = basev1.NewAiSearchServiceAgentTools(s.AiSearch)
+	if err != nil {
+		return nil, err
+	}
+	tools = append(tools, values...)
+	values, err = basev1.NewAiQueryServiceAgentTools(s.AiQuery)
 	if err != nil {
 		return nil, err
 	}

@@ -668,41 +668,44 @@ test("五种限流算法名称和参数摘要在所有系统语言中均已注�
   }
 });
 
-test("AI供应商模型通过结构化表单维护并序列化为现有接口格式", async () => {
-  const [page, ...locales] = await Promise.all([
+test("AI模型随供应商表单维护，独立模型页已移除", async () => {
+  const [providerPage, ...locales] = await Promise.all([
     readSource("src/views/base/ai-provider/index.vue"),
     ...["zh-CN", "zh-TW", "en-US", "ja-JP"].map(async locale =>
       JSON.parse(await readSource(`src/locales/${locale}.json`)) as Record<string, string>
     )
   ]);
+  await assert.rejects(readSource("src/views/base/ai-model/index.vue"));
+  await assert.rejects(readSource("src/api/system/admin/v1/ai_model.ts"));
 
-  assert.match(page, /prop: "models", label:[\s\S]*?component: "slot"/);
-  assert.match(page, /modelFields = computed<ProFormField\[]>/);
-  assert.match(page, /width="min\(640px, calc\(100vw - 32px\)\)"\s+label-width="9em"\s+label-position="left"/);
-  assert.match(page, /models_json: JSON\.stringify\(form\.models\)/);
-  assert.match(page, /parseModelConfigs\(models_json\)/);
-  assert.doesNotMatch(page, /prop: "models_json"[^\n]*component: "textarea"/);
+  assert.match(providerPage, /categoryConfigFields: Partial<Record<AiModelCategory, string\[\]>>/);
+  assert.match(providerPage, /slotName: "models"/);
+  assert.match(providerPage, /for \(const key of categoryConfigFields\[category\] \?\? \[\]\)/);
+  assert.match(providerPage, /models: form\.models\.map\(model => buildModelPayload\(model\)\)/);
+  assert.doesNotMatch(providerPage, /models_json|parseModelConfigs/);
 
   const requiredKeys = [
+    "system.base.ai.model.field.category",
+    "system.base.ai.model.category.chat",
+    "system.base.ai.model.category.embedding",
+    "system.base.ai.model.category.rerank",
+    "system.base.ai.model.category.image",
+    "system.base.ai.model.category.video",
+    "system.base.ai.model.category.audio",
+    "system.base.ai_provider.field.models",
     "system.base.ai_provider.model.add",
     "system.base.ai_provider.model.edit",
-    "system.base.ai_provider.field.model_name",
-    "system.base.ai_provider.field.api_type",
-    "system.base.ai_provider.field.temperature",
-    "system.base.ai_provider.field.max_tokens",
-    "system.base.ai_provider.field.timeout_seconds",
-    "system.base.ai_provider.field.max_retries"
+    "system.base.ai_provider.model.test",
+    "system.base.ai_provider.model.validation.duplicate",
+    "system.base.ai_provider.model.validation.required"
   ];
   for (const locale of locales) {
     for (const key of requiredKeys) assert.ok(locale[key], `missing locale key ${key}`);
   }
-  assert.equal(locales[0]["system.base.ai_provider.field.config"], "服务商个性化配置");
-  assert.equal(locales[1]["system.base.ai_provider.field.config"], "服務商個人化設定");
-  assert.equal(locales[3]["system.base.ai_provider.field.config"], "サービス提供元の個別設定");
 });
 
-test("AI供应商主弹窗测试当前草稿中的全部模型", async () => {
-  const [page, api, ...locales] = await Promise.all([
+test("供应商页支持保存前连通性测试", async () => {
+  const [providerPage, providerApi, ...locales] = await Promise.all([
     readSource("src/views/base/ai-provider/index.vue"),
     readSource("src/api/system/admin/v1/ai_provider.ts"),
     ...["zh-CN", "zh-TW", "en-US", "ja-JP"].map(async locale =>
@@ -710,21 +713,14 @@ test("AI供应商主弹窗测试当前草稿中的全部模型", async () => {
     )
   ]);
 
-  assert.match(page, /<el-button type="primary" plain :icon="Connection"[\s\S]*?system\.base\.ai_provider\.model\.test/);
-  assert.match(page, /<template #footer>[\s\S]*?system\.base\.ai_provider\.model\.test[\s\S]*?<\/template>/);
-  assert.match(page, /async function testProviderModels\(\)[\s\S]*?TestAiProviderModels\(\{ ai_provider: payload \}\)/);
-  assert.match(page, /provider-models__heading[\s\S]*?<el-tooltip[\s\S]*?v-if="modelTestResults\[model\.model_name\]"/);
-  assert.match(page, /modelTestResults\.value = Object\.fromEntries\(response\.results\.map/);
-  assert.doesNotMatch(page, /provider-models__test-result/);
-  assert.doesNotMatch(page, /ElMessageBox\.alert/);
-  assert.match(api, /TestAiProviderModels\(request:/);
-  assert.match(api, /url: `\$\{AI_PROVIDER_URL\}\/test-models`, method: "post"/);
+  assert.match(providerPage, /async function testProviderModels\(\)[\s\S]*?TestAiProviderModels\(\{ ai_provider: payload \}\)/);
+  assert.match(providerApi, /TestAiProviderModels\(request:/);
+  assert.match(providerApi, /url: `\$\{AI_PROVIDER_URL\}\/test-models`, method: "post"/);
+  assert.match(providerApi, /ListAiProviderOptions\(request:/);
+  assert.match(providerApi, /url: `\$\{AI_PROVIDER_URL\}\/options`, method: "get"/);
 
   for (const locale of locales) {
-    assert.ok(locale["system.base.ai_provider.model.test"], "missing model test action locale");
-    assert.ok(locale["system.base.ai_provider.model.test_results"], "missing model test result locale");
-    assert.ok(locale["system.base.ai_provider.model.test_success"], "missing model test success locale");
-    assert.ok(locale["system.base.ai_provider.model.test_failed"], "missing model test failure locale");
+    assert.ok(locale["system.base.ai.model.action.test_success"], "missing model test success locale");
+    assert.ok(locale["system.base.ai.model.action.test_failed"], "missing model test failure locale");
   }
-  assert.equal(locales[0]["system.base.ai_provider.model.test"], "测试模型");
 });

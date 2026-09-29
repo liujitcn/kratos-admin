@@ -116,5 +116,10 @@
   "system.ai.model.load_failed": "加载供应商和模型失败",
   "system.ai.model.title": "选择模型",
   "system.ai.model.provider_model_count": "{providers} 个供应商 · {models} 个模型",
-  "system.ai.model.empty": "暂无可选模型"
+  "system.ai.model.empty": "暂无可选模型",
+  "system.ai.knowledge.title": "知识库",
+  "system.ai.knowledge.selected_count": "已选 {count} 个知识库",
+  "system.ai.knowledge.doc_count": "{count} 篇文档",
+  "system.ai.knowledge.select_hint": "勾选要注入上下文的知识库",
+  "system.ai.knowledge.empty": "暂无知识库"
 }

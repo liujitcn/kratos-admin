@@ -116,6 +116,9 @@ importers:
       '@liujitcn/kratos-admin-core':
         specifier: workspace:*
         version: link:../../packages/core
+      '@liujitcn/kratos-admin-rag':
+        specifier: workspace:*
+        version: link:../../packages/modules/rag
       '@liujitcn/kratos-admin-system':
         specifier: workspace:*
         version: link:../../packages/modules/system
@@ -137,12 +140,21 @@ importers:
       '@codemirror/lang-yaml':
         specifier: ^6.1.3
         version: 6.1.3
+      '@codemirror/language':
+        specifier: ^6.12.4
+        version: 6.12.4
+      '@codemirror/state':
+        specifier: ^6.7.2
+        version: 6.7.2
       '@codemirror/view':
         specifier: ^6.43.10
         version: 6.43.10
       '@element-plus/icons-vue':
         specifier: ^2.3.1
         version: 2.3.2(vue@3.5.42(typescript@6.0.3))
+      '@lezer/highlight':
+        specifier: ^1.2.3
+        version: 1.2.3
       '@lucide/vue':
         specifier: ^1.28.0
         version: 1.39.0(vue@3.5.42(typescript@6.0.3))
@@ -272,6 +284,27 @@ importers:
       vuedraggable:
         specifier: ^4.1.0
         version: 4.1.0(vue@3.5.42(typescript@6.0.3))
+
+  packages/modules/rag:
+    dependencies:
+      '@element-plus/icons-vue':
+        specifier: ^2.3.1
+        version: 2.3.2(vue@3.5.42(typescript@6.0.3))
+      '@liujitcn/kratos-admin-core':
+        specifier: workspace:*
+        version: link:../../core
+      '@vueuse/core':
+        specifier: 14.4.0
+        version: 14.4.0(vue@3.5.42(typescript@6.0.3))
+      element-plus:
+        specifier: 2.14.5
+        version: 2.14.5(vue@3.5.42(typescript@6.0.3))
+      vue:
+        specifier: 3.5.42
+        version: 3.5.42(typescript@6.0.3)
+      vue-router:
+        specifier: 5.3.1
+        version: 5.3.1(@vue/compiler-sfc@3.5.42)(esbuild@0.27.7)(pinia@3.0.4(typescript@6.0.3)(vue@3.5.42(typescript@6.0.3)))(rolldown@1.2.7)(rollup@4.63.1)(vite@8.2.2(@types/node@26.4.1)(esbuild@0.27.7)(jiti@1.21.7)(sass@1.103.1)(terser@5.51.2)(yaml@2.9.0))(vue@3.5.42(typescript@6.0.3))
 
   packages/modules/system:
     dependencies:

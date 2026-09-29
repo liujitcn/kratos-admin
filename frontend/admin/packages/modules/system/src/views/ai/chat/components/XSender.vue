@@ -126,6 +126,72 @@
               {{ t("system.ai.model.empty") }}
             </div>
           </el-popover>
+          <el-popover
+            ref="knowledgePopoverRef"
+            placement="top-start"
+            :width="324"
+            trigger="click"
+            :show-arrow="false"
+            :persistent="false"
+            popper-class="agent-model-popper"
+          >
+            <template #reference>
+              <button
+                class="agent-model-selector"
+                :class="{ 'is-disabled': sending || !knowledgeOptions.length, 'is-selected': selectedKnowledgeCount > 0 }"
+                type="button"
+                :disabled="sending || !knowledgeOptions.length"
+                :aria-label="t('system.ai.knowledge.title')"
+              >
+                <el-icon class="agent-model-selector__spark"><Collection /></el-icon>
+                <span class="agent-model-selector__label">{{
+                  selectedKnowledgeCount > 0
+                    ? t("system.ai.knowledge.selected_count", { count: selectedKnowledgeCount })
+                    : t("system.ai.knowledge.title")
+                }}</span>
+                <el-icon class="agent-model-selector__arrow"><ArrowDown /></el-icon>
+              </button>
+            </template>
+            <div v-if="knowledgeOptions.length" class="agent-model-panel">
+              <div class="agent-model-panel__head">
+                <span class="agent-model-panel__title">{{ t("system.ai.knowledge.title") }}</span>
+                <span class="agent-model-panel__meta">{{
+                  t("system.ai.knowledge.select_hint")
+                }}</span>
+              </div>
+              <div class="agent-model-panel__list">
+                <button
+                  v-for="option in knowledgeOptions"
+                  :key="option.id"
+                  class="agent-model-row"
+                  :class="{ 'is-selected': isKnowledgeSelected(option.id) }"
+                  type="button"
+                  @click="handleKnowledgeToggle(option.id)"
+                >
+                  <span class="agent-model-row__name">{{ option.name }}</span>
+                  <span v-if="option.doc_count" class="agent-model-row__raw">{{
+                    t("system.ai.knowledge.doc_count", { count: option.doc_count })
+                  }}</span>
+                  <el-icon v-if="isKnowledgeSelected(option.id)" class="agent-model-row__check">
+                    <Check />
+                  </el-icon>
+                </button>
+              </div>
+              <button
+                v-if="aiKnowledgeRoute"
+                class="agent-model-panel__manage"
+                type="button"
+                @click="openKnowledgeManage"
+              >
+                <el-icon><Setting /></el-icon>
+                <span>{{ t("system.ai.knowledge.manage") }}</span>
+                <el-icon class="agent-model-panel__manage-arrow"><ArrowRight /></el-icon>
+              </button>
+            </div>
+            <div v-else class="agent-model-panel agent-model-panel--empty">
+              {{ t("system.ai.knowledge.empty") }}
+            </div>
+          </el-popover>
           <el-tooltip
             :content="recording ? t('system.ai.chat.action.stop_voice_input') : t('system.ai.chat.action.voice_input')"
             placement="top"
@@ -181,6 +247,7 @@ import {
   ArrowDown,
   ArrowRight,
   Check,
+  Collection,
   Loading,
   MagicStick,
   Microphone,
@@ -195,6 +262,7 @@ import { useAuthStore } from "@liujitcn/kratos-admin-core/stores/runtime";
 import { defFileService } from "@liujitcn/kratos-admin-core/api/base/v1/file";
 import type { AiAttachment } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_session";
 import type { AiProviderModelOption } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_provider";
+import type { AiKnowledgeOption } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_knowledge";
 import type { SubmitPayload } from "../types";
 import { buildAIAttachmentFileCard } from "../attachment";
 import { fallbackModelDisplayName } from "../modelDisplay";
@@ -210,6 +278,10 @@ const props = defineProps<{
   providerId: number;
   /** 当前选择的模型名称。 */
   modelName: string;
+  /** 当前可供选择的知识库。 */
+  knowledgeOptions: AiKnowledgeOption[];
+  /** 当前选择的知识库编号列表。 */
+  knowledgeIds: number[];
 }>();
 
 const emit = defineEmits<{
@@ -217,6 +289,8 @@ const emit = defineEmits<{
   submit: [payload: SubmitPayload];
   /** 更新当前选择的供应商和模型。 */
   "model-change": [providerId: number, modelName: string];
+  /** 更新当前选择的知识库编号列表。 */
+  "knowledge-change": [knowledgeIds: number[]];
 }>();
 
 const senderRef = ref<InstanceType<typeof BaseXSender>>();
@@ -248,6 +322,9 @@ const selectedModelDisplayName = computed(() => {
 });
 const aiProviderRoute = computed(() =>
   authStore.flatMenuListGet.find(item => item.name === "AiProvider" && item.path)
+);
+const aiKnowledgeRoute = computed(() =>
+  authStore.flatMenuListGet.find(item => item.name === "AiKnowledge" && item.path)
 );
 const uploading = ref(false);
 const maxAttachmentCount = 6;
@@ -321,6 +398,30 @@ async function openModelManage() {
   if (!aiProviderRoute.value?.path) return;
   modelPopoverRef.value?.hide();
   await navigateTo(router, aiProviderRoute.value.path);
+}
+
+const knowledgePopoverRef = ref<InstanceType<typeof ElPopover>>();
+
+const selectedKnowledgeCount = computed(() => props.knowledgeIds.length);
+
+/** 判断知识库是否在当前选择中。 */
+function isKnowledgeSelected(knowledgeId: number) {
+  return props.knowledgeIds.includes(knowledgeId);
+}
+
+/** 切换知识库选择状态并同步父组件。 */
+function handleKnowledgeToggle(knowledgeId: number) {
+  const current = new Set(props.knowledgeIds);
+  if (current.has(knowledgeId)) current.delete(knowledgeId);
+  else current.add(knowledgeId);
+  emit("knowledge-change", [...current]);
+}
+
+/** 跳转到 AI 知识库管理页。 */
+async function openKnowledgeManage() {
+  if (!aiKnowledgeRoute.value?.path) return;
+  knowledgePopoverRef.value?.hide();
+  await navigateTo(router, aiKnowledgeRoute.value.path);
 }
 
 /** 读取输入内容并发送给父组件。 */

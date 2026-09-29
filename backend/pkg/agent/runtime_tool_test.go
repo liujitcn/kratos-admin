@@ -2,11 +2,49 @@ package agent
 
 import (
 	"context"
+	"strconv"
 	"strings"
 	"testing"
 
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/agent/tool"
 )
+
+// stubInvokable 是仅提供工具定义的测试用工具。
+type stubInvokable struct {
+	name string
+	desc string
+}
+
+// Info 返回测试工具定义。
+func (s stubInvokable) Info(context.Context) (*tool.Info, error) {
+	return &tool.Info{Name: s.name, Desc: s.desc}, nil
+}
+
+// InvokableRun 返回固定空对象，测试中不应被执行。
+func (stubInvokable) InvokableRun(context.Context, string, ...tool.Option) (string, error) {
+	return "{}", nil
+}
+
+// toolNames 返回工具集名称列表，便于测试断言输出可读信息。
+func toolNames(infos []*tool.Info) []string {
+	names := make([]string, 0, len(infos))
+	for _, info := range infos {
+		if info != nil {
+			names = append(names, info.Name)
+		}
+	}
+	return names
+}
+
+// hasCatalogToolInfo 判断工具集是否包含目录工具。
+func hasCatalogToolInfo(infos []*tool.Info) bool {
+	for _, info := range infos {
+		if info != nil && info.Name == agentToolCatalogName {
+			return true
+		}
+	}
+	return false
+}
 
 // TestResolvePromptUsesRequestLocalizer 验证系统指令及会话元数据均经过本地化器。
 func TestResolvePromptUsesRequestLocalizer(t *testing.T) {
@@ -219,7 +257,7 @@ func TestSelectToolInfosKeepsSearchForPublicTemporalQuestion(t *testing.T) {
 // TestResolvePromptKeepsDateRulesGeneric 验证系统提示词提供运行时日期且不固化业务日期映射。
 func TestResolvePromptKeepsDateRulesGeneric(t *testing.T) {
 	prompt := (&Runtime{}).resolvePrompt(context.Background(), RuntimeInput{})
-	for _, expected := range []string{"Business date:", "Business time zone:", "Follow tool descriptions and parameter defaults", "changing only the clarified condition"} {
+	for _, expected := range []string{"Business date:", "Business time zone:", "Follow tool descriptions and parameter defaults", "changing only the clarified condition", "internal_agent_tool_catalog"} {
 		if !strings.Contains(prompt, expected) {
 			t.Fatalf("系统提示词缺少 %q", expected)
 		}
@@ -228,5 +266,38 @@ func TestResolvePromptKeepsDateRulesGeneric(t *testing.T) {
 		if strings.Contains(prompt, unexpected) {
 			t.Fatalf("系统提示词不应固化业务日期示例 %q", unexpected)
 		}
+	}
+}
+
+// TestToolInfosAlwaysExposesCatalogTool 验证命中内部工具时目录工具仍每轮常驻暴露。
+func TestToolInfosAlwaysExposesCatalogTool(t *testing.T) {
+	runtime := newRuntime(nil, nil, nil, []tool.Invokable{
+		stubInvokable{name: "base_user_list", desc: "分页查询用户列表"},
+	}, nil, nil)
+	result, matched := runtime.toolInfos(context.Background(), RuntimeInput{Terminal: "admin", Content: "查询用户列表"})
+	if !matched {
+		t.Fatal("命中内部工具时应设置命中标记")
+	}
+	if !hasCatalogToolInfo(result) {
+		t.Fatalf("命中内部工具的工具集 = %v, 期望包含目录工具", toolNames(result))
+	}
+	if len(result) != 2 {
+		t.Fatalf("工具集 = %v, 期望只包含命中工具和目录工具", toolNames(result))
+	}
+}
+
+// TestToolInfosKeepsCatalogFallbackForLargePool 验证工具池超过模型上限且无关键词命中时，目录工具仍兜底暴露。
+func TestToolInfosKeepsCatalogFallbackForLargePool(t *testing.T) {
+	adminTools := make([]tool.Invokable, 0, maxModelToolsPerRequest+1)
+	for i := 0; i <= maxModelToolsPerRequest; i++ {
+		adminTools = append(adminTools, stubInvokable{name: "unrelated_tool_" + strconv.Itoa(i), desc: "执行无关操作"})
+	}
+	runtime := newRuntime(nil, nil, nil, adminTools, nil, nil)
+	result, matched := runtime.toolInfos(context.Background(), RuntimeInput{Terminal: "admin", Content: "今天有什么热点新闻？"})
+	if matched {
+		t.Fatal("无关问题不应设置命中标记")
+	}
+	if len(result) != 1 || result[0].Name != agentToolCatalogName {
+		t.Fatalf("工具集 = %v, 期望只包含目录工具", toolNames(result))
 	}
 }

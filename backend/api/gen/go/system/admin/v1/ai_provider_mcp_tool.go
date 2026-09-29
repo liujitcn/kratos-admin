@@ -17,6 +17,7 @@ import (
 // RegisterAiProviderServiceMCPTools 注册AI供应商管理服务的 MCP Tool。
 func RegisterAiProviderServiceMCPTools(mcpServer *mcp.Server, aiProviderServiceServer AiProviderServiceServer) {
 	RegisterAiProviderServicePageAiProviderMCPTool(mcpServer, aiProviderServiceServer)
+	RegisterAiProviderServiceListAiProviderOptionsMCPTool(mcpServer, aiProviderServiceServer)
 	RegisterAiProviderServiceGetAiProviderMCPTool(mcpServer, aiProviderServiceServer)
 	RegisterAiProviderServiceCreateAiProviderMCPTool(mcpServer, aiProviderServiceServer)
 	RegisterAiProviderServiceUpdateAiProviderMCPTool(mcpServer, aiProviderServiceServer)
@@ -38,6 +39,27 @@ func RegisterAiProviderServicePageAiProviderMCPTool(mcpServer *mcp.Server, aiPro
 				input = &PageAiProviderRequest{}
 			}
 			reply, err := aiProviderServiceServer.PageAiProvider(ctx, input)
+			if err != nil {
+				return nil, nil, err
+			}
+			return nil, reply, nil
+		},
+	)
+}
+
+// RegisterAiProviderServiceListAiProviderOptionsMCPTool 注册查询已启用的AI供应商选项。 字面路径必须先于 /{id} 声明：gorilla mux 按注册顺序匹配，否则会被 {id} 路由抢占的 MCP Tool。
+func RegisterAiProviderServiceListAiProviderOptionsMCPTool(mcpServer *mcp.Server, aiProviderServiceServer AiProviderServiceServer) {
+	mcp.AddTool[*ListAiProviderOptionsRequest, *ListAiProviderOptionsResponse](
+		mcpServer,
+		&mcp.Tool{
+			Name:        "system_admin_v1_ai_provider_service_list_ai_provider_options",
+			Description: "查询已启用的AI供应商选项。 字面路径必须先于 /{id} 声明：gorilla mux 按注册顺序匹配，否则会被 {id} 路由抢占。",
+		},
+		func(ctx context.Context, request *mcp.CallToolRequest, input *ListAiProviderOptionsRequest) (*mcp.CallToolResult, *ListAiProviderOptionsResponse, error) {
+			if input == nil {
+				input = &ListAiProviderOptionsRequest{}
+			}
+			reply, err := aiProviderServiceServer.ListAiProviderOptions(ctx, input)
 			if err != nil {
 				return nil, nil, err
 			}

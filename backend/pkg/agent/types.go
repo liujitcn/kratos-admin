@@ -132,6 +132,8 @@ type RuntimeInput struct {
 	ModelName string
 	// Summary 当前会话摘要，会注入到系统提示词作为压缩后的长期上下文。
 	Summary string
+	// KnowledgeContext 知识库检索注入的上下文，非空时追加到系统提示词。
+	KnowledgeContext string
 	// Content 本轮用户文本内容。
 	Content string
 	// Attachments 本轮用户附件列表，已经由业务层读取过可用内容。
