@@ -958,7 +958,7 @@
   "system.base.user.placeholder.new_password": "Enter new password",
   "system.base.user.placeholder.nick_name": "Enter nickname",
   "system.base.user.placeholder.password": "Enter password",
-  "system.base.user.placeholder.password_optional": "Leave blank to use the initial password from the password policy",
+  "system.base.user.placeholder.password_optional": "Leave blank to use the policy initial password if configured",
   "system.base.user.placeholder.user_code": "Enter user code",
   "system.base.user.placeholder.user_name": "Enter username",
   "system.base.user.title.department_list": "Departments",

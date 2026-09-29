@@ -369,7 +369,8 @@ service.interceptors.response.use(
     const requestConfig = error.config as RetryableRequestConfig | undefined;
 
     // 退出或认证失效后，页面中的在途请求返回 401 属于预期结果，不再重复刷新令牌、弹窗或提示错误。
-    if (isAuthTransitioning()) {
+    // 登录等公共认证接口不受此限制：用户在登录页主动提交失败时必须给出错误反馈（如用户名或密码错误）。
+    if (isAuthTransitioning() && !shouldSkipAuthExpiredPrompt(requestConfig)) {
       return Promise.reject(error);
     }
 

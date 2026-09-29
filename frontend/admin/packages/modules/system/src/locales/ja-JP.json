@@ -958,7 +958,7 @@
   "system.base.user.placeholder.new_password": "新しいパスワードを入力してください",
   "system.base.user.placeholder.nick_name": "ユーザーのニックネームを入力してください",
   "system.base.user.placeholder.password": "パスワードを入力してください",
-  "system.base.user.placeholder.password_optional": "空欄の場合はパスワードポリシーの初期パスワードを使用",
+  "system.base.user.placeholder.password_optional": "空欄の場合は設定済みの初期パスワードを使用（未設定なら明示的に指定）",
   "system.base.user.placeholder.user_code": "ユーザー番号を入力してください",
   "system.base.user.placeholder.user_name": "ユーザー アカウントを入力してください",
   "system.base.user.title.department_list": "部門リスト",

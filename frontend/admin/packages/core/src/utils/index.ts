@@ -256,7 +256,8 @@ export const getAllBreadcrumbList = (
 ) => {
   for (const item of menuList) {
     const routePath = item.path ?? "";
-    const breadcrumb = [...parent, item];
+    // 目录型菜单（path 为空的 Layout 容器）不进入面包屑，避免与重定向后的子页面同名重复。
+    const breadcrumb = routePath ? [...parent, item] : parent;
     if (routePath) result[routePath] = breadcrumb;
     if (item.children) getAllBreadcrumbList(item.children, breadcrumb, result);
   }

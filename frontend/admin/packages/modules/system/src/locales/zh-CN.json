@@ -958,7 +958,7 @@
   "system.base.user.placeholder.new_password": "请输入新密码",
   "system.base.user.placeholder.nick_name": "请输入用户昵称",
   "system.base.user.placeholder.password": "请输入密码",
-  "system.base.user.placeholder.password_optional": "留空使用密码策略中的初始化密码",
+  "system.base.user.placeholder.password_optional": "留空则使用密码策略初始密码（未配置时需显式填写）",
   "system.base.user.placeholder.user_code": "请输入用户编号",
   "system.base.user.placeholder.user_name": "请输入用户账号",
   "system.base.user.title.department_list": "部门列表",

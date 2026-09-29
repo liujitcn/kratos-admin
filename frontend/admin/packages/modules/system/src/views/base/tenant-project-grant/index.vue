@@ -150,9 +150,12 @@ const columns = computed<ColumnProps[]>(() => [
     showOverflowTooltip: true,
     render: scope => {
       const row = scope.row as BaseTenantProjectGrant;
-      return row.project_id.length === 1 && row.project_id[0] === 0
+      // proto3 JSON 会省略空数组字段，project_id / project_names 可能为 undefined。
+      const projectIds = row.project_id ?? [];
+      const projectNames = row.project_names ?? [];
+      return projectIds.length === 1 && projectIds[0] === 0
         ? t("system.base.tenant_project_grant.all_projects")
-        : row.project_names.join(", ") || row.project_id.join(", ") || t("common.value.none");
+        : projectNames.join(", ") || projectIds.join(", ") || t("common.value.none");
     }
   },
   {
@@ -213,12 +216,14 @@ async function handleOpenDialog(row?: BaseTenantProjectGrant) {
     await formDialogRef.value?.open({
       load: async () => {
         await loadTenantOptions(true);
+        // proto3 JSON 会省略空数组字段，行数据里的 project_id 可能为 undefined。
+        const rowProjectIds = row?.project_id ?? [];
         const nextForm = {
           tenant_id: row?.tenant_id ?? (isDefaultTenant.value ? undefined : Number(tenantOptions.value[0]?.value) || undefined),
           subject_type: row?.subject_type ?? DEFAULT_SUBJECT_TYPE,
           subject_id: row?.subject_id,
-          project_id: row && !(row.project_id.length === 1 && row.project_id[0] === 0) ? [...row.project_id] : [],
-          all: Boolean(row && row.project_id.length === 1 && row.project_id[0] === 0)
+          project_id: row && !(rowProjectIds.length === 1 && rowProjectIds[0] === 0) ? [...rowProjectIds] : [],
+          all: Boolean(row && rowProjectIds.length === 1 && rowProjectIds[0] === 0)
         } satisfies ProjectGrantFormState;
         const [projects, subjects] = await Promise.all([
           requestProjectOptions(nextForm.tenant_id),

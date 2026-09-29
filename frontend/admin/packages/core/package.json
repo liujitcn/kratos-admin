@@ -238,6 +238,7 @@
     "dist/package",
     "build",
     "types",
+    "src/runtime-messages.ts",
     "vite.config.ts",
     "tsconfig.json"
   ],
