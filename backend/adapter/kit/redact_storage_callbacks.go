@@ -273,8 +273,12 @@ func (r *storageRuntime) captureStorageDelete(db *gorm.DB) {
 		var err error
 		tenantID, err = entityTenantID(db.Statement.Context, entities[0])
 		if err != nil {
-			db.AddError(err)
-			return
+			// 平台表没有租户字段时使用该表唯一策略租户，与写入和查询路径保持一致。
+			tenantID, err = r.storageTenantID(db.Statement.Context, entities[0], db.Statement.Table)
+			if err != nil {
+				db.AddError(err)
+				return
+			}
 		}
 	}
 	policies := r.resolver.ListStoragePolicies(db.Statement.Context, tenantID, db.Statement.Table)
