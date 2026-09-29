@@ -11,6 +11,9 @@
       "@liujitcn/kratos-admin-core/rpc/*": ["packages/core/src/rpc/*"],
       "@liujitcn/kratos-admin-core/styles/*.scss": ["packages/core/src/styles/*.scss"],
       "@liujitcn/kratos-admin-core/auth": ["packages/core/src/auth.ts"],
+      "@liujitcn/kratos-admin-core/components/CodeBlock/index.vue": [
+        "packages/core/src/components/CodeBlock/index.vue"
+      ],
       "@liujitcn/kratos-admin-core/components/Dialog/FormDialog.vue": ["packages/core/src/components/Dialog/FormDialog.vue"],
       "@liujitcn/kratos-admin-core/components/Dialog/ProDialog.vue": ["packages/core/src/components/Dialog/ProDialog.vue"],
       "@liujitcn/kratos-admin-core/components/Dialog/PasswordVerifyDialog.vue": [
