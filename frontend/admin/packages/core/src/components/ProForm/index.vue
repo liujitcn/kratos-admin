@@ -4,6 +4,7 @@
     ref="formRef"
     :model="model"
     :rules="formRules"
+    :validate-on-rule-change="false"
     :label-width="labelWidth"
     :label-position="labelPosition"
     v-bind="$attrs"

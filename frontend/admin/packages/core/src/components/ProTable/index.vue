@@ -232,7 +232,7 @@ const {
   pageable,
   searchParam,
   searchInitParam,
-  getTableList,
+  getTableList: requestTableList,
   search,
   reset,
   handleSizeChange,
@@ -241,6 +241,13 @@ const {
 
 // 清空选中数据列表
 const clearSelection = () => tableRef.value!.clearSelection();
+
+/** 请求表格数据；未启用跨刷新保留勾选时，同步清空随数据刷新而失效的多选状态。 */
+const getTableList = async () => {
+  const result = await requestTableList();
+  if (!props.restoreSelectedRowKeys.length) clearSelection();
+  return result;
+};
 
 /** 返回当前表格分页总数，供父组件读取统计数量。 */
 const getTotal = () => Number(pageable.value.total || 0);
