@@ -6388,6 +6388,28 @@ paths:
                 "200":
                     description: OK
                     content: {}
+    /api/v1/admin/base/user/{user_id}/app-role:
+        put:
+            tags:
+                - BaseUserService
+            description: Set the app-side role of a base user.
+            operationId: BaseUserService_SetBaseUserAppRole
+            parameters:
+                - name: user_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.SetBaseUserAppRoleRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
     /api/v1/admin/cache:
         get:
             tags:
@@ -8380,33 +8402,38 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/base.v1.HandleOauthCallbackResponse'
-    /api/v1/base/password-public-key:
-        get:
+    /api/v1/base/secret-field/reveal:
+        post:
             tags:
-                - LoginService
-            description: get the temporary public key for password encryption
-            operationId: LoginService_PasswordPublicKey
-            parameters:
-                - name: scene
-                  in: query
-                  schema:
-                    enum:
-                        - PASSWORD_CRYPTO_SCENE_UNSPECIFIED
-                        - PASSWORD_CRYPTO_SCENE_LOGIN
-                        - PASSWORD_CRYPTO_SCENE_CREATE_BASE_USER
-                        - PASSWORD_CRYPTO_SCENE_RESET_BASE_USER_PASSWORD
-                        - PASSWORD_CRYPTO_SCENE_UPDATE_USER_PASSWORD
-                        - PASSWORD_CRYPTO_SCENE_MFA
-                        - PASSWORD_CRYPTO_SCENE_CONFIGURE_PASSWORD_POLICY
-                    type: string
-                    format: enum
+                - SecretCryptoService
+            description: Reveal the plaintext of a registered secret field.
+            operationId: SecretCryptoService_RevealSecretField
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/base.v1.RevealSecretFieldRequest'
+                required: true
             responses:
                 "200":
                     description: OK
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/base.v1.PasswordPublicKeyResponse'
+                                $ref: '#/components/schemas/base.v1.RevealSecretFieldResponse'
+    /api/v1/base/secret-public-key:
+        get:
+            tags:
+                - SecretCryptoService
+            description: Get the ephemeral public key for sensitive fields; multiple encrypted fields in one submission share the same key.
+            operationId: SecretCryptoService_GetSecretPublicKey
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.GetSecretPublicKeyResponse'
     /api/v1/base/session:
         post:
             tags:
@@ -8919,7 +8946,7 @@ components:
             type: object
             properties:
                 password:
-                    $ref: '#/components/schemas/common.v1.PasswordCrypto'
+                    $ref: '#/components/schemas/common.v1.SecretCrypto'
                 setup_ticket:
                     type: string
                     description: mandatory Bind in the scenario temporary ticket
@@ -8959,7 +8986,7 @@ components:
                     type: string
                     description: username
                 password:
-                    $ref: '#/components/schemas/common.v1.PasswordCrypto'
+                    $ref: '#/components/schemas/common.v1.SecretCrypto'
                 captcha_code:
                     type: string
                     description: captcha
@@ -9201,7 +9228,7 @@ components:
             type: object
             properties:
                 password:
-                    $ref: '#/components/schemas/common.v1.PasswordCrypto'
+                    $ref: '#/components/schemas/common.v1.SecretCrypto'
                 code:
                     type: string
                     description: TOTP one-time password
@@ -9302,6 +9329,25 @@ components:
                         $ref: '#/components/schemas/base.v1.I18nCustomItem'
                     description: Custom internationalization overrides for all locales
             description: Custom internationalization override query result for the current tenant.
+        base.v1.GetSecretPublicKeyResponse:
+            type: object
+            properties:
+                key_id:
+                    type: string
+                    description: temporary key ID
+                public_key:
+                    type: string
+                    description: temporary public key
+                algorithm:
+                    type: string
+                    description: encryption algorithm
+                nonce:
+                    type: string
+                    description: nonce
+                expires_in:
+                    type: string
+                    description: "validity period, Unit: seconds"
+            description: sensitive field temporary public key response
         base.v1.HandleMcpRequest:
             type: object
             properties:
@@ -9450,7 +9496,7 @@ components:
                     type: string
                     description: username
                 password:
-                    $ref: '#/components/schemas/common.v1.PasswordCrypto'
+                    $ref: '#/components/schemas/common.v1.SecretCrypto'
                 captcha_code:
                     type: string
                     description: captcha
@@ -9773,25 +9819,6 @@ components:
                     type: boolean
                     description: whether another page exists
             description: paginated response for the current user's inbox.
-        base.v1.PasswordPublicKeyResponse:
-            type: object
-            properties:
-                key_id:
-                    type: string
-                    description: temporary key ID
-                public_key:
-                    type: string
-                    description: temporary public key
-                algorithm:
-                    type: string
-                    description: encryption algorithm
-                nonce:
-                    type: string
-                    description: nonce
-                expires_in:
-                    type: string
-                    description: "validity period, Unit: seconds"
-            description: temporary password public-key response
         base.v1.RecoveryCodesResponse:
             type: object
             properties:
@@ -9859,6 +9886,26 @@ components:
                     type: string
                     description: failure message ID
             description: AI assistant failure message Retry request
+        base.v1.RevealSecretFieldRequest:
+            type: object
+            properties:
+                resource:
+                    type: string
+                    description: Resource identifier of the secret field.
+                id:
+                    type: string
+                    description: Record ID
+                field:
+                    type: string
+                    description: Secret field name.
+            description: Reveal secret field request parameters.
+        base.v1.RevealSecretFieldResponse:
+            type: object
+            properties:
+                text:
+                    type: string
+                    description: Revealed secret plaintext.
+            description: Reveal secret field response.
         base.v1.SearchAiWebItem:
             type: object
             properties:
@@ -10051,7 +10098,7 @@ components:
                         $ref: '#/components/schemas/common.v1.AppTreeOptionResponse_Option'
                     description: child node tree
             description: app tree option
-        common.v1.PasswordCrypto:
+        common.v1.SecretCrypto:
             type: object
             properties:
                 key_id:
@@ -10069,10 +10116,10 @@ components:
                 iv:
                     type: string
                     description: Initialization vector
-                ciphertext:
+                text:
                     type: string
-                    description: Encrypted password data
-            description: Password ciphertext.
+                    description: Ciphertext in transit; the server fills in the plaintext after decryption.
+            description: Secret field ciphertext shared by passwords and all kinds of secret fields.
         common.v1.SelectOptionResponse:
             type: object
             properties:
@@ -10411,8 +10458,7 @@ components:
                     type: string
                     description: Model API base URL
                 api_key:
-                    type: string
-                    description: Model API key; leave blank on update to keep the existing key
+                    $ref: '#/components/schemas/common.v1.SecretCrypto'
                 api_key_configured:
                     type: boolean
                     description: Whether the model API key is saved
@@ -11105,7 +11151,7 @@ components:
                     description: configuration key
                 value:
                     type: string
-                    description: configuration value
+                    description: Configuration value; always empty for sensitive configurations.
                 status:
                     enum:
                         - STATUS_UNSPECIFIED
@@ -11160,8 +11206,7 @@ components:
                     type: string
                     description: configuration key
                 value:
-                    type: string
-                    description: configuration value
+                    $ref: '#/components/schemas/common.v1.SecretCrypto'
                 name_i18ns:
                     type: array
                     items:
@@ -12143,7 +12188,7 @@ components:
                     description: minimum number of character categories required for the password; categories include lowercase, uppercase, digits, and symbols
                     format: int32
                 initial_password:
-                    $ref: '#/components/schemas/common.v1.PasswordCrypto'
+                    $ref: '#/components/schemas/common.v1.SecretCrypto'
             description: login policy form.
         system.admin.v1.BaseLoginPolicyRule:
             type: object
@@ -12781,8 +12826,7 @@ components:
                     type: string
                     description: Generic credential identifier
                 client_secret:
-                    type: string
-                    description: Generic credential secret; leave blank on update to keep unchanged
+                    $ref: '#/components/schemas/common.v1.SecretCrypto'
                 secret_configured:
                     type: boolean
                     description: Whether the generic credential secret is configured
@@ -13005,8 +13049,7 @@ components:
                     type: string
                     description: Third-party application identifier
                 client_secret:
-                    type: string
-                    description: Third-party application secret; leave empty on update to keep unchanged
+                    $ref: '#/components/schemas/common.v1.SecretCrypto'
                 secret_configured:
                     type: boolean
                     description: Whether the third-party application secret is configured
@@ -14538,7 +14581,7 @@ components:
                     description: gender
                     format: enum
                 pwd:
-                    $ref: '#/components/schemas/common.v1.PasswordCrypto'
+                    $ref: '#/components/schemas/common.v1.SecretCrypto'
                 status:
                     enum:
                         - STATUS_UNSPECIFIED
@@ -16569,7 +16612,7 @@ components:
                     type: string
                     description: user ID
                 pwd:
-                    $ref: '#/components/schemas/common.v1.PasswordCrypto'
+                    $ref: '#/components/schemas/common.v1.SecretCrypto'
             description: Reset user password request parameters
         system.admin.v1.RestoreCodeGenRequest:
             type: object
@@ -17110,6 +17153,16 @@ components:
                     description: status
                     format: int32
             description: Set tenant status request parameters
+        system.admin.v1.SetBaseUserAppRoleRequest:
+            type: object
+            properties:
+                user_id:
+                    type: string
+                    description: user ID
+                role_code:
+                    type: string
+                    description: App-side role code.
+            description: Set base user app-side role parameters.
         system.admin.v1.SetBaseUserStatusRequest:
             type: object
             properties:
@@ -17370,9 +17423,9 @@ components:
             type: object
             properties:
                 old_pwd:
-                    $ref: '#/components/schemas/common.v1.PasswordCrypto'
+                    $ref: '#/components/schemas/common.v1.SecretCrypto'
                 new_pwd:
-                    $ref: '#/components/schemas/common.v1.PasswordCrypto'
+                    $ref: '#/components/schemas/common.v1.SecretCrypto'
             description: user password form
         system.admin.v1.UserPhoneForm:
             type: object
@@ -17588,9 +17641,9 @@ tags:
     - name: AiProviderService
       description: AI provider management service.
     - name: AiQueryService
-      description: Smart data query record management service.
-    - name: AiQueryService
       description: Base AI assistant smart query service
+    - name: AiQueryService
+      description: Smart data query record management service.
     - name: AiSearchService
       description: Base AI assistant web search service
     - name: AiSessionService
@@ -17624,9 +17677,9 @@ tags:
     - name: BaseDictItemService
       description: admin dictionary item service
     - name: BaseDictService
-      description: admin dictionary service
-    - name: BaseDictService
       description: app dictionary service
+    - name: BaseDictService
+      description: admin dictionary service
     - name: BaseFileService
       description: admin file asset management service.
     - name: BaseI18nCustomService
@@ -17728,14 +17781,16 @@ tags:
     - name: NotificationService
       description: Base notification service for the current user's inbox.
     - name: OauthClientService
-      description: Admin OAuth client management service.
-    - name: OauthClientService
       description: Base OAuth client token service.
+    - name: OauthClientService
+      description: Admin OAuth client management service.
     - name: OauthService
       description: base third-party login shared service
     - name: OpsMonitoringService
       description: Admin operations monitoring service.
     - name: RuntimeLogService
       description: Admin runtime log service.
+    - name: SecretCryptoService
+      description: sensitive field encryption shared service
     - name: SseService
       description: Base sse service

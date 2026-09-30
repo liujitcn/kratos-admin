@@ -51,16 +51,6 @@ func (s *LoginService) VerifyCaptcha(ctx context.Context, req *basev1.VerifyCapt
 	return res, nil
 }
 
-// PasswordPublicKey 获取密码临时公钥
-func (s *LoginService) PasswordPublicKey(ctx context.Context, req *basev1.PasswordPublicKeyRequest) (*basev1.PasswordPublicKeyResponse, error) {
-	res, err := s.loginCase.PasswordPublicKey(ctx, req)
-	if err != nil {
-		log.Error(fmt.Sprintf("PasswordPublicKey %v", err))
-		return nil, errorsx.WrapInternal(err, "获取密码临时公钥失败")
-	}
-	return res, nil
-}
-
 // Logout 登出
 func (s *LoginService) Logout(ctx context.Context, req *basev1.LogoutRequest) (*emptypb.Empty, error) {
 	// 无论访问令牌是否仍然有效，都先清理浏览器中的认证 Cookie，避免退出后刷新页面恢复登录态或继续读取私有文件。

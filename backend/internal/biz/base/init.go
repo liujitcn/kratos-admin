@@ -27,6 +27,8 @@ var ProviderSet = wire.NewSet(
 	NewFileCase,
 	NewMfaCase,
 	NewLoginCase,
+	NewSecretCryptoCase,
+	NewSecretCryptoService,
 	NewMcpCase,
 	NewNotificationCase,
 	wire.Bind(new(ai.ToolAccessChecker), new(*McpCase)),

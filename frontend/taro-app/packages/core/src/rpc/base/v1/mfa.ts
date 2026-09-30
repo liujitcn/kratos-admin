@@ -5,7 +5,7 @@
 // source: base/v1/mfa.proto
 
 /* eslint-disable */
-import type { PasswordCrypto } from "../../common/v1/types";
+import type { SecretCrypto } from "../../common/v1/types";
 import type { Empty } from "../../google/protobuf/empty";
 import type { LoginResponse } from "./login";
 
@@ -79,7 +79,7 @@ export interface MfaStatusResponse {
 export interface BeginMfaSetupRequest {
   /** 当前登录密码 */
   password:
-    | PasswordCrypto
+    | SecretCrypto
     | undefined;
   /** 强制绑定场景下的临时票据 */
   setup_ticket: string;
@@ -135,7 +135,7 @@ export interface BeginMfaDisableResponse {
 export interface DisableMfaRequest {
   /** 当前登录密码 */
   password:
-    | PasswordCrypto
+    | SecretCrypto
     | undefined;
   /** TOTP 动态口令 */
   code: string;

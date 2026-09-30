@@ -475,5 +475,13 @@
   "core.demo.detail.timeline.created": "創建了記錄",
   "core.demo.detail.timeline.updated": "更新了基礎資訊",
   "core.demo.detail.timeline.enabled": "啟用了記錄",
-  "core.demo.detail.timeline.disabled": "停用了記錄"
+  "core.demo.detail.timeline.disabled": "停用了記錄",
+  "core.password.reveal_unsupported": "目前環境未註冊密鑰查看能力",
+  "core.password.reveal_failed": "查看密鑰失敗",
+  "core.demo.table.tag_item": "標籤 {index}",
+  "core.demo.table.money_unit": " 元",
+  "core.demo.form.tenant.main": "Demo 總租戶",
+  "core.demo.form.tenant.sub": "Demo 子租戶",
+  "core.demo.form.leader_title": "{name}負責人",
+  "core.demo.tree.new_dir": "Demo 目錄 {id}"
 }

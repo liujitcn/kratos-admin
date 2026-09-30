@@ -74,7 +74,7 @@ import type { ColumnProps, HeaderActionProps, ProTableInstance } from "@liujitcn
 import type { ProFormField, ProFormOption } from "@liujitcn/kratos-admin-core/components/ProForm/interface";
 import { useAuthButtons } from "@liujitcn/kratos-admin-core/auth";
 import { buildPageRequest, normalizeSelectedIds } from "@liujitcn/kratos-admin-core/table";
-import { PASSWORD_CRYPTO_SCENE, encryptPassword } from "@liujitcn/kratos-admin-core/security";
+import { encryptPassword } from "@liujitcn/kratos-admin-core/security";
 import { useTenantScope } from "@liujitcn/kratos-admin-core/tenant";
 import { t } from "@liujitcn/kratos-admin-core";
 import { defBaseLoginPolicyService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/base_login_policy";
@@ -490,7 +490,7 @@ async function handleSubmit() {
     tenant_id: formData.tenant_id ?? 0,
     user_id: formData.user_id ?? 0,
     initial_password: formData.initial_password
-      ? await encryptPassword(formData.initial_password, PASSWORD_CRYPTO_SCENE.PASSWORD_CRYPTO_SCENE_CONFIGURE_PASSWORD_POLICY)
+      ? await encryptPassword(formData.initial_password, )
       : undefined
   };
   if (formData.id) await defBaseLoginPolicyService.UpdateBaseLoginPolicy({ base_login_policy: baseLoginPolicy });

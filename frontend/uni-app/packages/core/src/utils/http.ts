@@ -47,7 +47,7 @@ const REFRESH_TOKEN_URL = '/v1/base/token'
 const CAPTCHA_URL = '/v1/base/captcha'
 const CONFIG_URL = '/v1/base/config'
 const LANGUAGE_URL = '/v1/base/language'
-const PASSWORD_PUBLIC_KEY_URL = '/v1/base/password-public-key'
+const SECRET_PUBLIC_KEY_URL = '/v1/base/secret-public-key'
 // 认证公共接口不携带访问令牌。
 const NO_AUTH_URL_SET = new Set([
   SESSION_URL,
@@ -55,14 +55,14 @@ const NO_AUTH_URL_SET = new Set([
   CAPTCHA_URL,
   CONFIG_URL,
   LANGUAGE_URL,
-  PASSWORD_PUBLIC_KEY_URL,
+  SECRET_PUBLIC_KEY_URL,
 ])
 const AUTH_EXPIRED_EXCLUDED_URL_SET = new Set([
   SESSION_URL,
   CAPTCHA_URL,
   CONFIG_URL,
   LANGUAGE_URL,
-  PASSWORD_PUBLIC_KEY_URL,
+  SECRET_PUBLIC_KEY_URL,
 ])
 
 const AUTH_SILENT_LOGOUT_EVENT = 'auth:silent-logout'

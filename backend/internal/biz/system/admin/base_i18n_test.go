@@ -6,6 +6,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/liujitcn/kratos-admin/backend/adapter/kit"
 	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
 	_const "github.com/liujitcn/kratos-admin/backend/internal/const"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
@@ -122,7 +123,11 @@ func TestCreateBaseConfigSavesI18n(t *testing.T) {
 	baseCase := &biz.BaseCase{Cache: cacheStore}
 	languageCase := NewBaseLanguageCase(baseCase, tx, data.NewBaseLanguageRepository(store))
 	i18nCase := NewBaseI18nCase(baseCase, data.NewBaseI18NRepository(store), languageCase)
-	configCase := NewBaseConfigCase(baseCase, tx, data.NewBaseConfigRepository(store), i18nCase)
+	secretStorage, err := kit.BindSecretFieldStorage(db)
+	if err != nil {
+		t.Fatal(err)
+	}
+	configCase := NewBaseConfigCase(baseCase, tx, data.NewBaseConfigRepository(store), i18nCase, secretStorage)
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
@@ -131,7 +136,7 @@ func TestCreateBaseConfigSavesI18n(t *testing.T) {
 		Name:   "站点名称",
 		Type:   adminv1.BaseConfigType_BASE_CONFIG_TYPE_TEXT,
 		Key:    "siteNameTest",
-		Value:  "测试站点",
+		Value:  &commonv1.SecretCrypto{Text: "测试站点"},
 		Status: commonv1.Status_STATUS_ENABLE,
 		NameI18ns: []*adminv1.BaseI18n{{
 			TargetKey: _const.I18N_TARGET_KEY_BASE_CONFIG_NAME,

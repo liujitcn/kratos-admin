@@ -239,7 +239,11 @@
       "types": "./dist/package/declarations/vite.config.d.ts",
       "default": "./vite.config.ts"
     },
-    "./package.json": "./package.json"
+    "./package.json": "./package.json",
+    "./utils/secretCrypto": {
+      "types": "./dist/package/declarations/src/utils/secretCrypto.d.ts",
+      "default": "./dist/package/src/utils/secretCrypto.ts"
+    }
   },
   "files": [
     "dist/package",

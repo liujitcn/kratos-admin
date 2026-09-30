@@ -110,6 +110,9 @@
   "base.ai.prompt.user": {
     "other": "- ユーザー: {{.Value}}"
   },
+  "base.ai.query.question.required": {
+    "other": "質問の内容が不正です"
+  },
   "base.ai.runtime.uninitialized": {
     "other": "AI アシスタントの実行時に初期化されません"
   },
@@ -160,6 +163,9 @@
   },
   "base.config.get.site.required": {
     "other": "ポジションを空にすることはできません"
+  },
+  "base.config.get.site.system_not_allowed": {
+    "other": "システム組み込み設定はサイトへ配信できません"
   },
   "base.config.get_i18n_custom.site.required": {
     "other": "サイトを空にすることはできません"
@@ -376,6 +382,12 @@
   },
   "base.third_account.error.current_user_provider_bound": {
     "other": "現在のユーザーはこのログイン方法をすでに連携しています"
+  },
+  "base.v1.secret_crypto.reveal.field.required": {
+    "other": "フィールド名は必須です"
+  },
+  "base.v1.secret_crypto.reveal.resource.required": {
+    "other": "リソース識別子は必須です"
   },
   "common.action.create_resource": {
     "other": "{resource} を追加しました"
@@ -890,6 +902,9 @@
   "legacy.error.20da88183ea92106": {
     "other": "i18nカスタム翻訳の作成に失敗しました"
   },
+  "legacy.error.20e379d993bbb25c": {
+    "other": "設定値を空にすることはできません"
+  },
   "legacy.error.20eb653252a9bb73": {
     "other": "出力リダクションポリシーのステータス設定に失敗しました"
   },
@@ -1028,6 +1043,9 @@
   "legacy.error.2a1913450ed9f8d0": {
     "other": "辞書コードが重複しています"
   },
+  "legacy.error.2a4cd1962154db7b": {
+    "other": "シークレットフィールドの一時公開鍵の取得に失敗しました"
+  },
   "legacy.error.2b0341c1d9e4dcbc": {
     "other": "通知のアーカイブに失敗しました"
   },
@@ -1144,6 +1162,9 @@
   },
   "legacy.error.320054dca76a2e4d": {
     "other": "カスタムi18n翻訳の取得に失敗しました"
+  },
+  "legacy.error.3237d700b2b610fa": {
+    "other": "モデルキーは1024文字以内で入力してください"
   },
   "legacy.error.323a9f3dfd9436cc": {
     "other": "メッセージが存在しません"
@@ -2120,6 +2141,9 @@
   "legacy.error.77472bb2a160d55d": {
     "other": "同じテーブルフィールドの保存時マスキングポリシーが既に存在します"
   },
+  "legacy.error.776cebce09b25a74": {
+    "other": "シークレットフィールドの表示に失敗しました"
+  },
   "legacy.error.776d13ccebdb1fb7": {
     "other": "ロールの更新に失敗しました。組み込みロールのコードは使用できません"
   },
@@ -2128,6 +2152,9 @@
   },
   "legacy.error.778da14d7ba916df": {
     "other": "テナントのOAuthクライアントトークンの取り消しに失敗しました"
+  },
+  "legacy.error.77db1941b97a251f": {
+    "other": "サードパーティアプリのシークレットは512文字以内で入力してください"
   },
   "legacy.error.77fc0ea919e34629": {
     "other": "ユーザーの組織関係が所属テナントと一致しません"
@@ -2338,6 +2365,9 @@
   },
   "legacy.error.87ae82935905643c": {
     "other": "スケジュールタスクの更新に失敗しました"
+  },
+  "legacy.error.87b7f25f6e118d2d": {
+    "other": "シークレットフィールドが存在しません"
   },
   "legacy.error.88866be60ba8716d": {
     "other": "ユーザー操作に失敗しました。組み込み管理者アカウントは個人センターでのみ変更できます"
@@ -3416,6 +3446,9 @@
   "legacy.error.e3d224984836347a": {
     "other": "メッセージテンプレートのレンダリングに失敗しました: %w"
   },
+  "legacy.error.e3f1b26b38842ada": {
+    "other": "共通資格キーは1024文字以内で入力してください"
+  },
   "legacy.error.e4049241c07c1ec6": {
     "other": "コード生成テーブル設定IDを重複させることはできません"
   },
@@ -3934,6 +3967,30 @@
   },
   "openapi.ai_provider.test_models.summary": {
     "other": "AI プロバイダーフォーム内のすべてのモデルをテストします。"
+  },
+  "rag.admin.ai.knowledge.description.max_length": {
+    "other": "説明は500文字以内で入力してください"
+  },
+  "rag.admin.ai.knowledge.doc.content.required": {
+    "other": "ドキュメント内容を入力してください"
+  },
+  "rag.admin.ai.knowledge.doc.file_name.required": {
+    "other": "ファイル名を入力してください"
+  },
+  "rag.admin.ai.knowledge.doc.name.max_length": {
+    "other": "ドキュメント名は200文字以内で入力してください"
+  },
+  "rag.admin.ai.knowledge.doc.name.required": {
+    "other": "ドキュメント名を入力してください"
+  },
+  "rag.admin.ai.knowledge.name.required": {
+    "other": "ナレッジベース名を入力してください"
+  },
+  "rag.admin.ai.knowledge.search.query.required": {
+    "other": "検索内容を入力してください"
+  },
+  "rag.admin.ai.knowledge.update.id.required": {
+    "other": "ナレッジベースIDは必須です"
   },
   "system.admin.auth.entity.user.password.new_pwd.required": {
     "other": "新しいパスワードを入力してください"
@@ -4874,14 +4931,62 @@
   "system.admin.base_message_category.form.code.length": {
     "other": "カテゴリコードを空にしたり50文字を超えたりすることはできません"
   },
+  "system.admin.base_message_category.form.inbox_enabled.required": {
+    "other": "アプリ内メッセージ状態は必須です"
+  },
   "system.admin.base_message_category.form.name.length": {
     "other": "カテゴリ名を空にしたり50文字を超えたりすることはできません"
+  },
+  "system.admin.base_message_category.form.provider_id.unique": {
+    "other": "メッセージプロバイダーを重複できません"
   },
   "system.admin.base_message_category.get.id.required": {
     "other": "メッセージカテゴリIDを空にすることはできません"
   },
   "system.admin.base_message_category.set_status.id.required": {
     "other": "メッセージカテゴリIDを空にすることはできません"
+  },
+  "system.admin.base_message_provider.delete.id.required": {
+    "other": "メッセージプロバイダーIDリストは必須です"
+  },
+  "system.admin.base_message_provider.form.client_id.length": {
+    "other": "共通クライアント識別子は255文字以内で入力してください"
+  },
+  "system.admin.base_message_provider.form.description.length": {
+    "other": "プロバイダー説明は255文字以内で入力してください"
+  },
+  "system.admin.base_message_provider.form.icon.length": {
+    "other": "プロバイダーアイコンは100文字以内で入力してください"
+  },
+  "system.admin.base_message_provider.form.name.required": {
+    "other": "プロバイダー名は必須で、50文字以内で入力してください"
+  },
+  "system.admin.base_message_provider.form.provider.required": {
+    "other": "プロバイダー識別子の形式が無効です"
+  },
+  "system.admin.base_message_provider.get.id.required": {
+    "other": "メッセージプロバイダーIDは必須です"
+  },
+  "system.admin.base_message_provider.set_status.id.required": {
+    "other": "メッセージプロバイダーIDは必須です"
+  },
+  "system.admin.base_message_template.delete.id.required": {
+    "other": "メッセージテンプレートIDリストは必須です"
+  },
+  "system.admin.base_message_template.form.category_id.required": {
+    "other": "メッセージカテゴリは必須です"
+  },
+  "system.admin.base_message_template.form.content.length": {
+    "other": "テンプレート本文は20000文字以内で入力してください"
+  },
+  "system.admin.base_message_template.form.provider_id.required": {
+    "other": "メッセージプロバイダーは必須です"
+  },
+  "system.admin.base_message_template.form.title.length": {
+    "other": "テンプレートタイトルは必須で、200文字以内で入力してください"
+  },
+  "system.admin.base_message_template.get.id.required": {
+    "other": "メッセージテンプレートIDは必須です"
   },
   "system.admin.code.gen.column.list.table_id.required": {
     "other": "コード生成テーブル構成 ID を空にすることはできません"
@@ -5386,6 +5491,9 @@
   },
   "system.oauth.crypto.error.request_decrypt_failed": {
     "other": "リクエストデータの復号に失敗しました"
+  },
+  "system.oauth.crypto.error.request_too_large": {
+    "other": "リクエストデータがサイズ制限を超えています"
   },
   "system.oauth.crypto.error.response_encrypt_failed": {
     "other": "レスポンスの暗号化に失敗しました"

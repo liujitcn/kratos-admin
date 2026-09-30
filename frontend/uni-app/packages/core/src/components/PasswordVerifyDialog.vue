@@ -1,9 +1,8 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import { useI18n } from '../locales'
-import { PASSWORD_CRYPTO_SCENE, encryptPassword } from '../utils/passwordCrypto'
-import type { PasswordCryptoScene } from '../utils/passwordCrypto'
-import type { PasswordCrypto } from '../rpc/common/v1/types'
+import { encryptPassword } from '../utils/secretCrypto'
+import type { SecretCrypto } from '../rpc/common/v1/types'
 
 const { t } = useI18n()
 
@@ -26,7 +25,6 @@ interface PasswordVerifyDialogProps {
   /** 外部业务提交状态。 */
   confirmLoading?: boolean
   /** 密码加密场景。 */
-  scene?: PasswordCryptoScene
   /** 是否允许点击遮罩关闭。 */
   closeOnClickModal?: boolean
 }
@@ -39,13 +37,12 @@ const props = withDefaults(defineProps<PasswordVerifyDialogProps>(), {
   confirmText: '',
   cancelText: '',
   confirmLoading: false,
-  scene: PASSWORD_CRYPTO_SCENE.PASSWORD_CRYPTO_SCENE_MFA,
   closeOnClickModal: false,
 })
 
 const emit = defineEmits<{
   'update:modelValue': [value: boolean]
-  confirm: [password: PasswordCrypto]
+  confirm: [password: SecretCrypto]
   cancel: []
   closed: []
 }>()
@@ -87,7 +84,7 @@ async function handleConfirm() {
   errorMessage.value = ''
   encrypting.value = true
   try {
-    const encryptedPassword = await encryptPassword(password.value, props.scene)
+    const encryptedPassword = await encryptPassword(password.value)
     emit('confirm', encryptedPassword)
   } finally {
     encrypting.value = false

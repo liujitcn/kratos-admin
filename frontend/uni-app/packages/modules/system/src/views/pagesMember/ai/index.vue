@@ -1309,7 +1309,9 @@ function showError(error: unknown, fallback: string) {
           >
             <view v-if="item.role === 'ai' && item.model" class="reply-meta">
               <text class="reply-tag">{{ t('system.ai.model_reply') }}</text>
-              <text class="reply-model">{{ resolveModelDisplayName(modelProviders, item.model) }}</text>
+              <text class="reply-model">{{
+                resolveModelDisplayName(modelProviders, item.model)
+              }}</text>
             </view>
             <view class="bubble-content">{{ item.content }}</view>
             <view v-if="item.attachments.length" class="attachment-list">

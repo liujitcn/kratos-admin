@@ -5,7 +5,7 @@
 // source: base/v1/oauth.proto
 
 /* eslint-disable */
-import type { PasswordCrypto } from "../../common/v1/types";
+import type { SecretCrypto } from "../../common/v1/types";
 import type { Empty } from "../../google/protobuf/empty";
 import type { LoginStatus } from "./login";
 
@@ -77,7 +77,7 @@ export interface BindOauthSessionRequest {
   user_name: string;
   /** 用户密码 */
   password:
-    | PasswordCrypto
+    | SecretCrypto
     | undefined;
   /** 验证码 */
   captcha_code: string;

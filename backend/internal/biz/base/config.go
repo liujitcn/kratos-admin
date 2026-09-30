@@ -40,7 +40,7 @@ func NewConfigCase(baseCase *biz.BaseCase, baseConfigRepo *data.BaseConfigReposi
 	}
 }
 
-// GetConfig 查询系统配置。
+// GetConfig 查询指定站点的启用运行时配置；系统内置站点由契约校验拒绝，不下发。
 func (c *ConfigCase) GetConfig(ctx context.Context, req *basev1.GetConfigRequest) (*basev1.GetConfigResponse, error) {
 	site := int32(req.GetSite())
 	var cached string
@@ -60,7 +60,7 @@ func (c *ConfigCase) GetConfig(ctx context.Context, req *basev1.GetConfigRequest
 	}
 
 	query := c.Query(ctx).BaseConfig
-	opts := make([]repository.QueryOption, 0, 3)
+	opts := make([]repository.QueryOption, 0, 4)
 	opts = append(opts, repository.Where(query.Site.Eq(site)))
 	opts = append(opts, repository.Where(query.Type.Neq(int32(adminv1.BaseConfigType_BASE_CONFIG_TYPE_FORM))))
 	opts = append(opts, repository.Where(query.Status.Eq(coreconst.STATUS_STATUS_ENABLE)))

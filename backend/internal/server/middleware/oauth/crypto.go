@@ -26,6 +26,9 @@ import (
 
 const maxOAuthCryptoBodyBytes = 10 << 20
 
+// errOAuthCryptoRequestTooLarge 表示请求体超过加解密接口允许的最大字节数。
+var errOAuthCryptoRequestTooLarge = errors.New("oauth request data exceeds the size limit")
+
 // NewCryptoFilter 创建开放授权接口的数据加解密 HTTP Filter。
 //
 // Filter 必须包裹整个 Kratos HTTP 路由树，原因是 Proto HTTP 适配器会先绑定请求体，
@@ -55,6 +58,10 @@ func NewCryptoFilter(clientRepo *data.OauthClientRepository, authenticator engin
 				return
 			}
 			if err = decryptOauthRequest(request, crypto); err != nil {
+				if errors.Is(err, errOAuthCryptoRequestTooLarge) {
+					writeOauthCryptoError(writer, request, http.StatusRequestEntityTooLarge, catalog, "system.oauth.crypto.error.request_too_large", "The request data exceeds the size limit")
+					return
+				}
 				writeOauthCryptoError(writer, request, http.StatusBadRequest, catalog, "system.oauth.crypto.error.request_decrypt_failed", "Failed to decrypt the request data")
 				return
 			}
@@ -131,14 +138,14 @@ func decryptOauthRequest(request *http.Request, crypto oauthcrypto.Crypto) error
 		return nil
 	}
 	if request.ContentLength > maxOAuthCryptoBodyBytes {
-		return errors.New("请求数据超过大小限制")
+		return errOAuthCryptoRequestTooLarge
 	}
 	body, err := io.ReadAll(io.LimitReader(request.Body, maxOAuthCryptoBodyBytes+1))
 	if err != nil {
 		return err
 	}
 	if int64(len(body)) > maxOAuthCryptoBodyBytes {
-		return errors.New("请求数据超过大小限制")
+		return errOAuthCryptoRequestTooLarge
 	}
 	if len(bytes.TrimSpace(body)) == 0 {
 		request.Body = io.NopCloser(bytes.NewReader(nil))
@@ -214,7 +221,7 @@ func (w *oauthCryptoResponseWriter) Write(value []byte) (int, error) {
 	}
 	if int64(w.body.Len()+len(value)) > maxOAuthCryptoBodyBytes {
 		w.overflow = true
-		return 0, errors.New("响应数据超过大小限制")
+		return 0, errors.New("oauth response data exceeds the size limit")
 	}
 	return w.body.Write(value)
 }

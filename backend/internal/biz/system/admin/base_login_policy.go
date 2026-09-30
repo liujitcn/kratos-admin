@@ -7,11 +7,9 @@ import (
 	"github.com/liujitcn/go-utils/mapper"
 	_string "github.com/liujitcn/go-utils/string"
 	"github.com/liujitcn/gorm-kit/repository"
-	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
 	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/loginpolicy"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/password"
-	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/utils"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 	"github.com/liujitcn/kratos-core/biz"
@@ -391,11 +389,7 @@ func (c *BaseLoginPolicyCase) policyFromForm(ctx context.Context, input *adminv1
 		return loginpolicy.Policy{}, errorsx.InvalidArgument("MFA设备免验证天数必须在零到90之间")
 	}
 	if input.GetInitialPassword() != nil {
-		var initialPassword string
-		initialPassword, err = utils.DecryptPassword(c.Cache, input.GetInitialPassword(), basev1.PasswordCryptoScene_PASSWORD_CRYPTO_SCENE_CONFIGURE_PASSWORD_POLICY)
-		if err != nil {
-			return loginpolicy.Policy{}, err
-		}
+		initialPassword := input.GetInitialPassword().GetText()
 		config := loginpolicy.PasswordConfig{MinLength: policy.PasswordMinLength, MinComplexityClasses: policy.PasswordMinComplexityClasses}
 		if err = password.ValidateComplexity(initialPassword, config); err != nil {
 			return loginpolicy.Policy{}, errorsx.InvalidArgument("初始化密码长度或复杂度不符合安全策略").WithCause(err)

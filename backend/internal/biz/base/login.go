@@ -24,7 +24,6 @@ import (
 	passwordPolicy "github.com/liujitcn/kratos-admin/backend/internal/biz/base/password"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/sessionregistry"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/sessionstate"
-	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/utils"
 	adminconst "github.com/liujitcn/kratos-admin/backend/internal/const"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
@@ -160,11 +159,6 @@ func (c *LoginCase) VerifyCaptcha(ctx context.Context, req *basev1.VerifyCaptcha
 		CaptchaToken: token,
 		ExpiresIn:    int64(loginCaptchaTokenExpire / time.Second),
 	}, nil
-}
-
-// PasswordPublicKey 生成密码加密临时公钥。
-func (c *LoginCase) PasswordPublicKey(_ context.Context, req *basev1.PasswordPublicKeyRequest) (*basev1.PasswordPublicKeyResponse, error) {
-	return utils.GeneratePasswordPublicKey(c.Cache, req.GetScene())
 }
 
 // Logout 退出登录。
@@ -346,15 +340,7 @@ func (c *LoginCase) Login(ctx context.Context, req *basev1.LoginRequest) (*basev
 	if blocked, reason := loginSourcePolicy.EvaluateFor(baseTenant.ID, user.ID, loginClientIP(ctx), loginMAC(ctx), loginRegion(ctx), loginDevice(ctx), time.Now()); blocked {
 		return nil, errorsx.PermissionDenied(reason)
 	}
-	var password string
-	password, err = utils.DecryptPassword(c.Cache, req.GetPassword(), basev1.PasswordCryptoScene_PASSWORD_CRYPTO_SCENE_LOGIN)
-	if err != nil {
-		decryptErr := err
-		if err = c.recordLoginFailure(ctx, tenantCode, req.GetUserName(), loginSourcePolicy, baseTenant.ID, user.ID); err != nil {
-			return nil, errorsx.Internal("记录登录失败状态失败").WithCause(err)
-		}
-		return nil, errorsx.Unauthenticated("用户名或密码错误").WithCause(decryptErr)
-	}
+	password := req.GetPassword().GetText()
 	err = crypto.Verify(password, user.Password)
 	if err != nil {
 		if err = c.recordLoginFailure(ctx, tenantCode, req.GetUserName(), loginSourcePolicy, baseTenant.ID, user.ID); err != nil {
@@ -421,7 +407,7 @@ func (c *LoginCase) ConfirmMfaEnrollment(ctx context.Context, req *basev1.Confir
 }
 
 // FindUserByPassword 按租户、用户名和加密密码查找已有用户，不执行验证码校验。
-func (c *LoginCase) FindUserByPassword(ctx context.Context, tenantCode string, userName string, encryptedPassword *commonv1.PasswordCrypto) (*models.BaseUser, error) {
+func (c *LoginCase) FindUserByPassword(ctx context.Context, tenantCode string, userName string, encryptedPassword *commonv1.SecretCrypto) (*models.BaseUser, error) {
 	var err error
 	if tenantCode == "" {
 		tenantCode = databaseGorm.DefaultTenantCode
@@ -475,15 +461,7 @@ func (c *LoginCase) FindUserByPassword(ctx context.Context, tenantCode string, u
 	if blocked, reason := loginSourcePolicy.EvaluateFor(baseTenant.ID, user.ID, loginClientIP(ctx), loginMAC(ctx), loginRegion(ctx), loginDevice(ctx), time.Now()); blocked {
 		return nil, errorsx.PermissionDenied(reason)
 	}
-	var password string
-	password, err = utils.DecryptPassword(c.Cache, encryptedPassword, basev1.PasswordCryptoScene_PASSWORD_CRYPTO_SCENE_LOGIN)
-	if err != nil {
-		decryptErr := err
-		if err = c.recordLoginFailure(ctx, tenantCode, userName, loginSourcePolicy, baseTenant.ID, user.ID); err != nil {
-			return nil, errorsx.Internal("记录登录失败状态失败").WithCause(err)
-		}
-		return nil, errorsx.Unauthenticated("用户名或密码错误").WithCause(decryptErr)
-	}
+	password := encryptedPassword.GetText()
 	if err = crypto.Verify(password, user.Password); err != nil {
 		if err = c.recordLoginFailure(ctx, tenantCode, userName, loginSourcePolicy, baseTenant.ID, user.ID); err != nil {
 			return nil, errorsx.Internal("记录登录失败状态失败").WithCause(err)

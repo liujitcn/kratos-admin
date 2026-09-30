@@ -9,7 +9,7 @@ import { LoginStatus, type LoginRequest, type LoginResponse } from '../../../rpc
 import { useSettingStore, useUserStore } from '../../../stores'
 import { formatSrc } from '../../../utils'
 import { restoreLoginRedirect } from '../../../utils/navigation'
-import { encryptPassword, PASSWORD_CRYPTO_SCENE } from '../../../utils/passwordCrypto'
+import { encryptPassword } from '../../../utils/secretCrypto'
 import { createWebAuthnCredential, getWebAuthnAssertion } from '../../../utils/webauthn'
 import MfaRecoveryCodesDialog from '../../../components/MfaRecoveryCodesDialog'
 import MfaSetupPanel from '../../../components/MfaSetupPanel'
@@ -421,10 +421,7 @@ export default function LoginPage() {
   }
 
   const submitLogin = async (captchaCode: string) => {
-    const encrypted = await encryptPassword(
-      password,
-      PASSWORD_CRYPTO_SCENE.PASSWORD_CRYPTO_SCENE_LOGIN,
-    )
+    const encrypted = await encryptPassword(password)
     return userStore.login({
       ...form,
       tenant_code: showTenantCode ? form.tenant_code : '0000',
@@ -536,10 +533,7 @@ export default function LoginPage() {
     }
     setLoading(true)
     try {
-      const encrypted = await encryptPassword(
-        miniPassword,
-        PASSWORD_CRYPTO_SCENE.PASSWORD_CRYPTO_SCENE_LOGIN,
-      )
+      const encrypted = await encryptPassword(miniPassword)
       const code = (await Taro.login()).code
       const response = await userStore.bindOauthSession({
         provider: wechatMiniProvider,

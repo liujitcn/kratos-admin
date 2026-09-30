@@ -16,12 +16,10 @@ import (
 	"github.com/liujitcn/kratos-kit/auth/authn/engine"
 	"github.com/liujitcn/kratos-kit/database/gorm"
 
-	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
 	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
 	basebiz "github.com/liujitcn/kratos-admin/backend/internal/biz/base"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/loginpolicy"
 	passwordPolicy "github.com/liujitcn/kratos-admin/backend/internal/biz/base/password"
-	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/utils"
 	adminconst "github.com/liujitcn/kratos-admin/backend/internal/const"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
@@ -440,11 +438,7 @@ func (c *BaseUserCase) CreateBaseUser(ctx context.Context, req *adminv1.BaseUser
 		password = passwordConfig.InitialPasswordHash
 		mustChangePassword = adminconst.BASE_USER_PASSWORD_CHANGE_STATUS_REQUIRED
 	} else {
-		var passwordStr string
-		passwordStr, err = utils.DecryptPassword(c.Cache, req.GetPwd(), basev1.PasswordCryptoScene_PASSWORD_CRYPTO_SCENE_CREATE_BASE_USER)
-		if err != nil {
-			return err
-		}
+		passwordStr := req.GetPwd().GetText()
 		if err = passwordPolicy.ValidateComplexity(passwordStr, passwordConfig); err != nil {
 			return errorsx.InvalidArgument("密码长度或复杂度不符合安全策略").WithCause(err)
 		}
@@ -641,15 +635,11 @@ func (c *BaseUserCase) ResetBaseUserPassword(ctx context.Context, req *adminv1.R
 		return errorsx.Internal("读取密码策略失败").WithCause(err)
 	}
 
-	var passwordStr string
 	// 管理端重置密码必须显式提交新密码，禁止回退到可预测默认密码。
 	if req.GetPwd() == nil {
 		return errorsx.InvalidArgument("必须设置符合安全策略的新密码")
 	}
-	passwordStr, err = utils.DecryptPassword(c.Cache, req.GetPwd(), basev1.PasswordCryptoScene_PASSWORD_CRYPTO_SCENE_RESET_BASE_USER_PASSWORD)
-	if err != nil {
-		return err
-	}
+	passwordStr := req.GetPwd().GetText()
 	if err = crypto.Verify(passwordStr, baseUser.Password); err == nil {
 		return errorsx.InvalidArgument("新密码不能与当前密码相同")
 	}

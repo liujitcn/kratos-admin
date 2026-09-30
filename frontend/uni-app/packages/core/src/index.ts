@@ -7,3 +7,4 @@ export { default as KratosSettingsPage } from './components/KratosSettingsPage.v
 export { default as KratosTabBar } from './components/KratosTabBar.vue'
 export { default as pinia } from './stores'
 export * from './stores'
+export * from './utils/secretCrypto'

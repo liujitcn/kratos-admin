@@ -144,6 +144,7 @@ import { Status } from "@liujitcn/kratos-admin-system/rpc/common/v1/enum";
 import { BaseConfigType } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_config";
 import { buildPageRequest, normalizeSelectedIds } from "@liujitcn/kratos-admin-core/table";
 import { t } from "@liujitcn/kratos-admin-core";
+import { encryptSecret } from "@liujitcn/kratos-admin-core/security";
 import DynamicI18nEditor from "@liujitcn/kratos-admin-system/components/i18n/DynamicI18nEditor.vue";
 import DynamicI18nCell from "@liujitcn/kratos-admin-system/components/i18n/DynamicI18nCell.vue";
 import {
@@ -153,11 +154,13 @@ import {
 } from "@liujitcn/kratos-admin-system/components/i18n/dynamicI18n";
 
 /** 系统配置编辑表单状态，新增时枚举字段保持为空，避免把未知值 0 显示为下拉文本。 */
-type BaseConfigFormState = Omit<BaseConfigForm, "site" | "type"> & {
+type BaseConfigFormState = Omit<BaseConfigForm, "site" | "type" | "value"> & {
   /** 配置位置。 */
   site?: BaseConfigSite;
   /** 配置类型。 */
   type?: BaseConfigType;
+  /** 配置值编辑缓冲，提交时统一加密为 SecretCrypto。 */
+  value: string;
 };
 
 defineOptions({
@@ -334,13 +337,6 @@ const rules = computed(() => ({
     {
       max: 50,
       message: t("common.validation.max_length", { field: t("system.base.config.field.key"), max: 50 }),
-      trigger: "blur"
-    }
-  ],
-  value: [
-    {
-      required: true,
-      message: t("common.validation.required_input", { field: t("system.base.config.field.value") }),
       trigger: "blur"
     }
   ],
@@ -661,6 +657,8 @@ async function handleOpenDialog(configId?: number) {
     commit: ({ data }) => {
       if (data) {
         Object.assign(formData, data);
+        // 契约中 value 为 SecretCrypto，编辑缓冲取解密后的明文或脱敏文本。
+        formData.value = data.value?.text ?? "";
         if (formData.type === BaseConfigType.BASE_CONFIG_TYPE_FORM) loadFormValue(formData.value);
       }
       activeTab.value = configId && formData.type === BaseConfigType.BASE_CONFIG_TYPE_FORM ? "form" : "basic";
@@ -774,6 +772,8 @@ async function handleSubmit() {
   saving.value = true;
   try {
     const submitData = JSON.parse(JSON.stringify(formData)) as BaseConfigForm;
+    // 配置值统一密文提交，留空表示保留现有值。
+    submitData.value = formData.value.trim() !== "" ? await encryptSecret(formData.value) : undefined;
     submitData.name_i18ns = serializeDynamicI18ns(
       nameI18nValues.value,
       "base_config.name",
@@ -786,7 +786,7 @@ async function handleSubmit() {
             valueI18nValues.value,
             "base_config.value",
             submitData.id,
-            submitData.value
+            formData.value
           )
         : [];
 

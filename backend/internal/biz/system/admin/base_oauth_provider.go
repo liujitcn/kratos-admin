@@ -117,7 +117,7 @@ func (c *BaseOauthProviderCase) GetBaseOauthProvider(ctx context.Context, idValu
 
 // CreateBaseOauthProvider 创建 OAuth 登录方式并刷新运行时快照。
 func (c *BaseOauthProviderCase) CreateBaseOauthProvider(ctx context.Context, req *adminv1.BaseOauthProviderForm) error {
-	if req.GetClientSecret() == "" {
+	if req.GetClientSecret() == nil {
 		return errorsx.InvalidArgument("第三方应用密钥不能为空")
 	}
 	item, err := c.formEntity(req, nil)
@@ -233,7 +233,13 @@ func (c *BaseOauthProviderCase) formEntity(req *adminv1.BaseOauthProviderForm, o
 			return nil, errorsx.InvalidArgument("Provider个性化配置无效").WithCause(err)
 		}
 	}
-	secret := req.GetClientSecret()
+	var secret string
+	if req.GetClientSecret() != nil {
+		secret = req.GetClientSecret().GetText()
+		if len(secret) > maxSecretLength {
+			return nil, errorsx.InvalidArgument("第三方应用密钥不能超过512个字符")
+		}
+	}
 	if secret == "" && oldItem != nil {
 		secret = oldItem.ClientSecret
 	}

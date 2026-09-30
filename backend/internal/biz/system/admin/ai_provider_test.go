@@ -20,7 +20,7 @@ func TestAiProviderFormNeverReturnsApiKey(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if form.GetApiKey() != "" || !form.GetApiKeyConfigured() || form.GetConfig().GetFields()["organization"].GetStringValue() != config.GetFields()["organization"].GetStringValue() {
+	if form.GetApiKey() != nil || !form.GetApiKeyConfigured() || form.GetConfig().GetFields()["organization"].GetStringValue() != config.GetFields()["organization"].GetStringValue() {
 		t.Fatalf("form exposed the stored key or lost configured state: %+v", form)
 	}
 }

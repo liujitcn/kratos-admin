@@ -18,6 +18,8 @@ import (
 )
 
 const (
+	// maxSecretLength 敏感字段明文的最大长度。
+	maxSecretLength            = 1024
 	aiProviderOpenAICompatible = "openai_compatible"
 	aiProviderOllama           = "ollama"
 )
@@ -253,7 +255,13 @@ func (c *AiProviderCase) SetAiProviderStatus(ctx context.Context, req *adminv1.S
 
 // aiProviderEntity 将表单转换为记录，并在密钥留空时沿用原值。
 func aiProviderEntity(req *adminv1.AiProviderForm, old *models.AiProvider) (*models.AiProvider, error) {
-	apiKey := req.GetApiKey()
+	var apiKey string
+	if req.GetApiKey() != nil {
+		apiKey = req.GetApiKey().GetText()
+		if len(apiKey) > maxSecretLength {
+			return nil, errorsx.InvalidArgument("模型密钥不能超过1024个字符")
+		}
+	}
 	if apiKey == "" && old != nil {
 		apiKey = old.APIKey
 	}
@@ -280,7 +288,7 @@ func toAiProviderForm(provider *models.AiProvider) (*adminv1.AiProviderForm, err
 	}
 	return &adminv1.AiProviderForm{
 		Id: provider.ID, Provider: provider.Provider, Name: provider.Name,
-		BaseUrl: provider.BaseURL, ApiKey: "", ApiKeyConfigured: provider.APIKey != "",
+		BaseUrl: provider.BaseURL, ApiKeyConfigured: provider.APIKey != "",
 		Config: config, Sort: provider.Sort, Status: commonv1.Status(provider.Status),
 	}, nil
 }

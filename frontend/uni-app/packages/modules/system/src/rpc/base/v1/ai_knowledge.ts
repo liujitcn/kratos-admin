@@ -22,7 +22,7 @@ export interface AiKnowledgeOption {
   id: number;
   /** 知识库名称 */
   name: string;
-  /** 文档数量 */
+  /** 已就绪文档数，不含处理失败 */
   doc_count: number;
 }
 

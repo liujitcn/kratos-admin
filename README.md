@@ -15,6 +15,8 @@
 - 消息分类、租户内定向/全员站内信、收件箱已读/归档、Redis 投递恢复和 Admin/uni-app/Taro 消息中心。
 - Proto 驱动的 HTTP、gRPC、OpenAPI、Agent Tool、MCP Tool 和 TypeScript RPC 生成。
 - AI 会话、流式消息、附件、工具调用、重试、再生成和分支会话。
+- AI 供应商与模型管理：供应商弹窗内维护模型子列表、`chat` 到 `audio` 分类枚举、模型连通性测试；AI 知识库使用独立 PostgreSQL 存储，支持文档上传、切片、embedding 入库与检索增强对话。
+- 敏感字段全链路加密：前端以 SecretCrypto 临时公钥加密提交，服务端解密后对 API Key、OAuth/消息 Provider 凭据等列信封加密落库，管理端通过“眼睛”按需查看明文。
 - 管理端代码生成配置、预览、生成进度和还原。
 - 运行日志浏览：实时控制台 SSE、历史日志查询、级别和关键字筛选及历史原文件下载。
 - 登录来源策略（全局及租户/用户定向规则）、密码复杂度策略、按策略启用多设备登录、独立会话超时与撤销、本人登录记录、平台在线会话管理、审计日志异步落库与保留清理、受控 MySQL 备份恢复任务。
@@ -185,11 +187,11 @@ Admin 的公开 `backend/adapter/core` 和 `backend/adapter/kit` 构造函数只
 
 修改固定文案时须补齐该模块各语言的相同 key 和占位符。`make i18n` 不会自动补齐缺失的界面译文；同步发现缺失会直接失败。`src/locales/generated.ts` 等语言注册文件和 `openapi.<locale>.yaml` 是生成产物，不手工维护。初始化 SQL 的变化不会自动覆盖已执行迁移的数据库译文。
 
-完整说明见 [国际化语言扩展指南](docs/国际化语言扩展指南.md)。
+完整说明见 [国际化设计与语言扩展](docs/国际化最终方案.md)。
 
 语言包定义系统能够渲染的语言集合，`base_language` 表只负责运行时启用状态、名称、排序和主语言配置。管理端语言偏好保存为 `kratos-admin:locale`，uni-app 和 Taro 保存为 `kratos-app:locale`；所有 HTTP、刷新令牌、fetch、SSE、uni.request 和 Taro.request 请求都会发送规范化的 `Accept-Language`。固定文案由各 workspace 的 core/System JSON 语言包维护，动态菜单和字典由后端翻译表按请求语言解析，缺少当前语言译文时回退主语言。
 
-新增语言不需要修改 Go、TypeScript 或模块注册代码：在 `backend/internal/i18n/assets` 和三个 workspace 的六个前端语言包目录中增加同名 JSON，然后执行 `make i18n`。脚本会校验语言集合、语言键和占位符，并生成六个前端注册文件、Element Plus 和 Day.js 映射。语言名称、排序、启用状态和主语言由 `base_language` 数据库记录提供；`common.language.*` 用于编译期离线显示和生成语言迁移的初始名称。新增语言的完整文件清单和迁移流程见 [国际化语言扩展指南](docs/国际化语言扩展指南.md)。需要把语言加入新部署数据库时，直接更新唯一的 `v0.0.1` 初始化迁移；已有数据库的启用状态不会被迁移覆盖。
+新增语言不需要修改 Go、TypeScript 或模块注册代码：在 `backend/internal/i18n/assets` 和三个 workspace 的六个前端语言包目录中增加同名 JSON，然后执行 `make i18n`。脚本会校验语言集合、语言键和占位符，并生成六个前端注册文件、Element Plus 和 Day.js 映射。语言名称、排序、启用状态和主语言由 `base_language` 数据库记录提供；`common.language.*` 用于编译期离线显示和生成语言迁移的初始名称。新增语言的完整文件清单和迁移流程见 [国际化设计与语言扩展](docs/国际化最终方案.md)。需要把语言加入新部署数据库时，直接更新唯一的 `v0.0.1` 初始化迁移；已有数据库的启用状态不会被迁移覆盖。
 
 动态资源的主语言由 `base_language.is_primary` 配置。创建或更新菜单、字典、字典项和系统配置时，后端按请求 `Accept-Language` 将输入文本转换为主语言写入主表；请求语言不是主语言时，原文写入对应翻译表，其他已启用非主语言也只保存在翻译表。系统配置名称、菜单标题、字典名称和字典项标签支持在管理端点击名称打开翻译弹窗，文本/富文本配置值支持运行时翻译回退。
 
@@ -232,12 +234,12 @@ make -C frontend publish
 | 数据库迁移 | [docs/数据库与初始化数据设计.md](docs/数据库与初始化数据设计.md) |
 | 参数校验 | [docs/接口参数校验设计.md](docs/接口参数校验设计.md) |
 | 登录和密码 | [docs/登录与密码加密流程.md](docs/登录与密码加密流程.md) |
+| 敏感字段加密 | [docs/敏感字段加密设计.md](docs/敏感字段加密设计.md) |
 | AI 助手 | [docs/AI助手设计.md](docs/AI助手设计.md) |
 | 站内信 | [docs/站内信设计.md](docs/站内信设计.md) |
 | 管理端组件 | [docs/前端组件清单.md](docs/前端组件清单.md) |
-| 国际化设计 | [docs/国际化最终方案.md](docs/国际化最终方案.md) |
+| 国际化设计与语言扩展 | [docs/国际化最终方案.md](docs/国际化最终方案.md) |
 | 安全策略与运维任务 | [docs/安全策略与运维任务.md](docs/安全策略与运维任务.md) |
-| 新增语言 | [docs/国际化语言扩展指南.md](docs/国际化语言扩展指南.md) |
 
 
 创建外部项目时，三端 `packages/cli` 独立生成完整前端，包含语言注册、宿主生命周期及检查构建工具。

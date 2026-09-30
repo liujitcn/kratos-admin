@@ -217,7 +217,7 @@ import { useKeepAliveStore } from "@/stores/modules/keepAlive";
 import { initDynamicRouter } from "@/routers/modules/dynamicRouter";
 import { isUnmatchedRoute, navigateTo, resolveFrontendRouteURL } from "@/utils/router";
 import type { ElForm, FormRules } from "element-plus";
-import { PASSWORD_CRYPTO_SCENE, encryptPassword } from "@/utils/passwordCrypto";
+import { encryptPassword } from "@/utils/secretCrypto";
 import { useConfigStore } from "@/stores/modules/config";
 import { Click as GoCaptchaClick, Rotate as GoCaptchaRotate, Slide as GoCaptchaSlide } from "go-captcha-vue";
 import "go-captcha-vue/dist/style.css";
@@ -797,7 +797,7 @@ const verifyCaptchaToken = async (captchaCode: string) => {
 const submitLogin = async (captchaToken: string) => {
   loading.value = true;
   try {
-    const password = await encryptPassword(loginForm.password, PASSWORD_CRYPTO_SCENE.PASSWORD_CRYPTO_SCENE_LOGIN);
+    const password = await encryptPassword(loginForm.password);
     const loginRequest: LoginRequest = {
       tenant_code: configStore.showTenantCode ? loginForm.tenant_code : "0000",
       user_name: loginForm.user_name,

@@ -15,6 +15,7 @@ var ProviderSet = wire.NewSet(
 	NewLanguageService,
 	NewFileService,
 	NewLoginService,
+	NewSecretCryptoService,
 	NewMfaService,
 	NewMcpService,
 	NewNotificationService,

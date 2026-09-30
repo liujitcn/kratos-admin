@@ -1,14 +1,11 @@
 import Taro from '@tarojs/taro'
 import * as miniCrypto from 'asmcrypto.js'
-import { defLoginService } from '../api/base/v1/login'
+import { defSecretCryptoService } from '../api/base/v1/secret_crypto'
 import { t } from '../locales'
-import { PasswordCryptoScene } from '../rpc/base/v1/login'
-import type { PasswordCrypto } from '../rpc/common/v1/types'
+import type { GetSecretPublicKeyResponse } from '../rpc/base/v1/secret_crypto'
+import type { SecretCrypto } from '../rpc/common/v1/types'
 
 type MiniCrypto = typeof import('asmcrypto.js')
-
-export const PASSWORD_CRYPTO_SCENE = PasswordCryptoScene
-export type { PasswordCryptoScene }
 
 /** 将 PEM 公钥转换为二进制 DER 数据。 */
 function pemToArrayBuffer(pem: string) {
@@ -152,19 +149,14 @@ function miniBytesToBase64(value: Uint8Array) {
 }
 
 /** 使用纯 JavaScript 实现兼容缺少 WebCrypto 的运行时。 */
-async function encryptPortablePassword(
+async function encryptPortableSecret(
   crypto: MiniCrypto,
-  password: string,
-  publicKeyResponse: {
-    key_id: string
-    public_key: string
-    algorithm: string
-    nonce: string
-  },
-): Promise<PasswordCrypto> {
+  value: string,
+  publicKeyResponse: GetSecretPublicKeyResponse,
+): Promise<SecretCrypto> {
   const aesKey = new Uint8Array(await getRandomBytes(32))
   const iv = new Uint8Array(await getRandomBytes(12))
-  const plaintext = crypto.string_to_bytes(password, true)
+  const plaintext = crypto.string_to_bytes(value, true)
   const [modulus, exponent] = parseMiniRsaPublicKey(publicKeyResponse.public_key)
   const hash = new crypto.Sha256()
   const keySize = Math.ceil(new crypto.BigNumber(modulus).bitLength / 8)
@@ -206,26 +198,25 @@ async function encryptPortablePassword(
     algorithm: publicKeyResponse.algorithm,
     encrypted_key: miniBytesToBase64(encryptedKey),
     iv: miniBytesToBase64(iv),
-    ciphertext: miniBytesToBase64(ciphertext),
+    text: miniBytesToBase64(ciphertext),
   }
 }
 
-/** 加密单个密码字段，返回后端可解析的密码密文。 */
-export async function encryptPassword(
-  password: string,
-  scene: PasswordCryptoScene,
-): Promise<PasswordCrypto> {
-  const plainPassword = password.trim()
-  if (!plainPassword) {
-    throw new Error(t('core.crypto.password_required'))
-  }
+/** 获取敏感字段一次性临时公钥，同一次提交的多个密文字段共用该公钥。 */
+export async function fetchSecretPublicKey(): Promise<GetSecretPublicKeyResponse> {
+  return defSecretCryptoService.GetSecretPublicKey({})
+}
 
-  const publicKeyResponse = await defLoginService.PasswordPublicKey({ scene })
+/** 使用已获取的临时公钥加密单个敏感值，供一次取钥加密多个字段的场景复用。 */
+export async function encryptWithPublicKey(
+  publicKeyResponse: GetSecretPublicKeyResponse,
+  value: string,
+): Promise<SecretCrypto> {
 
   const cryptoApi = globalThis.crypto
   const isSecureContext = typeof window === 'undefined' || window.isSecureContext
   if (process.env.TARO_ENV === 'weapp' || !cryptoApi?.subtle || !isSecureContext) {
-    return encryptPortablePassword(miniCrypto, plainPassword, publicKeyResponse)
+    return encryptPortableSecret(miniCrypto, value, publicKeyResponse)
   }
 
   const publicKey = await cryptoApi.subtle.importKey(
@@ -243,7 +234,7 @@ export async function encryptPassword(
   const ciphertext = await cryptoApi.subtle.encrypt(
     { name: 'AES-GCM', iv },
     aesKey,
-    new TextEncoder().encode(plainPassword),
+    new TextEncoder().encode(value),
   )
   const encryptedKey = await cryptoApi.subtle.encrypt({ name: 'RSA-OAEP' }, publicKey, rawAesKey)
 
@@ -253,6 +244,20 @@ export async function encryptPassword(
     algorithm: publicKeyResponse.algorithm,
     encrypted_key: arrayBufferToBase64(encryptedKey),
     iv: arrayBufferToBase64(iv.buffer),
-    ciphertext: arrayBufferToBase64(ciphertext),
+    text: arrayBufferToBase64(ciphertext),
   }
+}
+
+/** 加密单个敏感字段值，自动获取一次性临时公钥。 */
+export async function encryptSecret(value: string): Promise<SecretCrypto> {
+  return encryptWithPublicKey(await fetchSecretPublicKey(), value)
+}
+
+/** 加密密码字段：去除首尾空白且不允许为空。 */
+export async function encryptPassword(password: string): Promise<SecretCrypto> {
+  const plainPassword = password.trim()
+  if (!plainPassword) {
+    throw new Error(t('core.crypto.password_required'))
+  }
+  return encryptSecret(plainPassword)
 }

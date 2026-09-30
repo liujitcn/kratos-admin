@@ -119,6 +119,7 @@ import { useAuthButtons } from "@liujitcn/kratos-admin-core/auth";
 import { buildPageRequest, normalizeSelectedIds } from "@liujitcn/kratos-admin-core/table";
 import { useTenantScope } from "@liujitcn/kratos-admin-core/tenant";
 import { t } from "@liujitcn/kratos-admin-core";
+import { encodeSecretFields } from "@liujitcn/kratos-admin-core/security";
 import { defAiProviderService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/ai_provider";
 import {
   type AiProvider,
@@ -240,7 +241,7 @@ const fields = computed<ProFormField[]>(() => [
   { prop: "provider", label: t("system.base.ai_provider.field.provider"), component: "select", colSpan: 12, options: providerOptions.value, props: { disabled: dialog.editing } },
   { prop: "name", label: t("system.base.ai_provider.field.name"), component: "input", colSpan: 12, props: { maxlength: 100, autocomplete: "off" } },
   { prop: "base_url", label: t("system.base.ai_provider.field.base_url"), component: "input", colSpan: 12, props: { maxlength: 512, autocomplete: "off", placeholder: t("system.base.ai_provider.placeholder.base_url") } },
-  { prop: "api_key", label: t("system.base.ai_provider.field.api_key"), component: "input", colSpan: 12, props: { type: "password", showPassword: true, maxlength: 1024, autocomplete: "new-password", placeholder: form.api_key_configured ? t("system.base.ai_provider.placeholder.keep_api_key") : t("system.base.ai_provider.placeholder.api_key") } },
+  { prop: "api_key", label: t("system.base.ai_provider.field.api_key"), component: "input", colSpan: 12, secret: { resource: "ai_provider", field: "api_key" }, props: { type: "password", showPassword: true, maxlength: 1024, autocomplete: "new-password", placeholder: form.api_key_configured ? t("system.base.ai_provider.placeholder.keep_api_key") : t("system.base.ai_provider.placeholder.api_key") } },
   { prop: "models", label: t("system.base.ai_provider.field.models"), component: "slot", slotName: "models", colSpan: 24 },
   { prop: "config_items", label: t("system.base.ai_provider.field.config"), component: "kv-list", colSpan: 24, props: { keyInputProps: { maxlength: 128 } } },
   { prop: "sort", label: t("common.field.sort"), component: "input-number", colSpan: 12, props: { min: 0, precision: 0 } },
@@ -334,7 +335,7 @@ function defaultForm(): FormState {
     provider: "openai_compatible",
     name: "",
     base_url: "",
-    api_key: "",
+    api_key: undefined,
     api_key_configured: false,
     models: [],
     config: {},
@@ -409,7 +410,7 @@ async function openDialog(id?: number) {
 async function submit() {
   const valid = await dialogRef.value?.validate();
   if (!valid) return;
-  const payload = buildAiProviderPayload();
+  const payload = buildAiProviderPayload(await encodeSecretFields(fields.value, form));
   if (!payload) return;
   if (dialog.editing) await defAiProviderService.UpdateAiProvider({ ai_provider: payload });
   else await defAiProviderService.CreateAiProvider({ ai_provider: payload });
@@ -423,7 +424,7 @@ async function submit() {
 async function testProviderModels() {
   const valid = await dialogRef.value?.validate();
   if (!valid) return;
-  const payload = buildAiProviderPayload();
+  const payload = buildAiProviderPayload(await encodeSecretFields(fields.value, form));
   if (!payload) return;
 
   testingModels.value = true;
@@ -437,21 +438,21 @@ async function testProviderModels() {
   modelTestResults.value = Object.fromEntries(response.results.map(result => [result.model_name, result]));
 }
 
-/** 构造AI Provider保存或测试请求参数。 */
-function buildAiProviderPayload(): AiProviderForm | undefined {
-  const config = configItemsToMap(form.config_items);
+/** 构造AI Provider保存或测试请求参数，source 为加密转换后的提交模型。 */
+function buildAiProviderPayload(source: Record<string, any>): AiProviderForm | undefined {
+  const config = configItemsToMap(source.config_items);
   if (!config) return undefined;
   return {
-    id: form.id,
-    provider: form.provider,
-    name: form.name,
-    base_url: form.base_url,
-    api_key: form.api_key,
-    api_key_configured: form.api_key_configured,
-    models: form.models.map(model => buildModelPayload(model)),
+    id: source.id,
+    provider: source.provider,
+    name: source.name,
+    base_url: source.base_url,
+    api_key: source.api_key,
+    api_key_configured: source.api_key_configured,
+    models: source.models.map(model => buildModelPayload(model)),
     config,
-    sort: form.sort,
-    status: form.status
+    sort: source.sort,
+    status: source.status
   };
 }
 

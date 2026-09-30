@@ -192,12 +192,11 @@ import ProForm from "@liujitcn/kratos-admin-core/components/ProForm/index.vue";
 import MfaSetupPanel from "@liujitcn/kratos-admin-core/components/Mfa/MfaSetupPanel.vue";
 import MfaRecoveryCodesDialog from "@liujitcn/kratos-admin-core/components/Mfa/MfaRecoveryCodesDialog.vue";
 import type { ProFormField, ProFormInstance } from "@liujitcn/kratos-admin-core/components/ProForm/interface";
-import type { PasswordCrypto } from "@liujitcn/kratos-admin-core/rpc/common/v1/types";
+import type { SecretCrypto } from "@liujitcn/kratos-admin-core/rpc/common/v1/types";
 import {
   getOauthProviderIcon,
   withOauthProviderDisplay,
   type OauthProviderDisplay,
-  PASSWORD_CRYPTO_SCENE,
   encryptPassword,
   copyText,
   createWebAuthnCredential,
@@ -449,7 +448,7 @@ function openMfaRecovery() {
 }
 
 /** 开始绑定 MFA。 */
-async function beginMfaSetup(password: PasswordCrypto) {
+async function beginMfaSetup(password: SecretCrypto) {
   mfaLoading.value = true;
   try {
     const result = await defMfaService.BeginMfaSetup({ password, setup_ticket: "" });
@@ -494,7 +493,7 @@ async function disableMfa() {
   }
   mfaLoading.value = true;
   try {
-    const password = await encryptPassword(mfaForm.password, PASSWORD_CRYPTO_SCENE.PASSWORD_CRYPTO_SCENE_MFA);
+    const password = await encryptPassword(mfaForm.password);
     if (mfaForm.recoveryCode) {
       await defMfaService.DisableMfa({
         password,
@@ -574,7 +573,7 @@ async function handleMfaAction() {
     return;
   }
   try {
-    const password = await encryptPassword(mfaForm.password, PASSWORD_CRYPTO_SCENE.PASSWORD_CRYPTO_SCENE_MFA);
+    const password = await encryptPassword(mfaForm.password);
     await beginMfaSetup(password);
     mfaForm.password = "";
   } catch (error) {

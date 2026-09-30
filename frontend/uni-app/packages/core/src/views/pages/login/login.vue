@@ -9,7 +9,7 @@ import { defMfaService } from '../../../api/base/v1/mfa'
 import defaultLogo from '../../../static/images/logo_icon.png'
 import { formatSrc } from '../../../utils'
 import { homeTabPage } from '../../../utils/navigation'
-import { PASSWORD_CRYPTO_SCENE, encryptPassword } from '../../../utils/passwordCrypto'
+import { encryptPassword } from '../../../utils/secretCrypto'
 import { createWebAuthnCredential, getWebAuthnAssertion } from '../../../utils/webauthn'
 import { navigateAppRoute } from '../../../navigation'
 import { getLanguageOptions, useI18n, type SupportedLocale } from '../../../locales'
@@ -274,10 +274,7 @@ const bindMiniAccount = async () => {
   }
   loading.value = true
   try {
-    const password = await encryptPassword(
-      miniPasswordValue.value,
-      PASSWORD_CRYPTO_SCENE.PASSWORD_CRYPTO_SCENE_LOGIN,
-    )
+    const password = await encryptPassword(miniPasswordValue.value)
     const code = (await wx.login()).code
     const response = await userStore.bindOauthSession({
       provider: wechatMiniProvider,
@@ -685,10 +682,7 @@ const verifyCaptchaToken = async (captchaCode: string) => {
 
 // 执行真正的账号登录流程。
 const submitLogin = async (captchaCode: string) => {
-  const password = await encryptPassword(
-    passwordValue.value,
-    PASSWORD_CRYPTO_SCENE.PASSWORD_CRYPTO_SCENE_LOGIN,
-  )
+  const password = await encryptPassword(passwordValue.value)
   return userStore.login({
     ...form.value,
     tenant_code: showTenantCode.value ? form.value.tenant_code : '0000',

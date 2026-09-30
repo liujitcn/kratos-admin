@@ -6388,6 +6388,28 @@ paths:
                 "200":
                     description: OK
                     content: {}
+    /api/v1/admin/base/user/{user_id}/app-role:
+        put:
+            tags:
+                - BaseUserService
+            description: 設定基础ユーザーアプリ端ロール
+            operationId: BaseUserService_SetBaseUserAppRole
+            parameters:
+                - name: user_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.SetBaseUserAppRoleRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
     /api/v1/admin/cache:
         get:
             tags:
@@ -8380,33 +8402,38 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/base.v1.HandleOauthCallbackResponse'
-    /api/v1/base/password-public-key:
-        get:
+    /api/v1/base/secret-field/reveal:
+        post:
             tags:
-                - LoginService
-            description: 取得パスワード一時公開鍵
-            operationId: LoginService_PasswordPublicKey
-            parameters:
-                - name: scene
-                  in: query
-                  schema:
-                    enum:
-                        - PASSWORD_CRYPTO_SCENE_UNSPECIFIED
-                        - PASSWORD_CRYPTO_SCENE_LOGIN
-                        - PASSWORD_CRYPTO_SCENE_CREATE_BASE_USER
-                        - PASSWORD_CRYPTO_SCENE_RESET_BASE_USER_PASSWORD
-                        - PASSWORD_CRYPTO_SCENE_UPDATE_USER_PASSWORD
-                        - PASSWORD_CRYPTO_SCENE_MFA
-                        - PASSWORD_CRYPTO_SCENE_CONFIGURE_PASSWORD_POLICY
-                    type: string
-                    format: enum
+                - SecretCryptoService
+            description: 查看キーフィールド明文，仅允许検索登録过のキーフィールド
+            operationId: SecretCryptoService_RevealSecretField
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/base.v1.RevealSecretFieldRequest'
+                required: true
             responses:
                 "200":
                     description: OK
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/base.v1.PasswordPublicKeyResponse'
+                                $ref: '#/components/schemas/base.v1.RevealSecretFieldResponse'
+    /api/v1/base/secret-public-key:
+        get:
+            tags:
+                - SecretCryptoService
+            description: 取得機密フィールド一時公開鍵，同一次提交の多个密文フィールド共用该公開鍵
+            operationId: SecretCryptoService_GetSecretPublicKey
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.GetSecretPublicKeyResponse'
     /api/v1/base/session:
         post:
             tags:
@@ -8919,7 +8946,7 @@ components:
             type: object
             properties:
                 password:
-                    $ref: '#/components/schemas/common.v1.PasswordCrypto'
+                    $ref: '#/components/schemas/common.v1.SecretCrypto'
                 setup_ticket:
                     type: string
                     description: 强制バインド场景下の一時チケット
@@ -8959,7 +8986,7 @@ components:
                     type: string
                     description: ユーザー名
                 password:
-                    $ref: '#/components/schemas/common.v1.PasswordCrypto'
+                    $ref: '#/components/schemas/common.v1.SecretCrypto'
                 captcha_code:
                     type: string
                     description: CAPTCHA
@@ -9201,7 +9228,7 @@ components:
             type: object
             properties:
                 password:
-                    $ref: '#/components/schemas/common.v1.PasswordCrypto'
+                    $ref: '#/components/schemas/common.v1.SecretCrypto'
                 code:
                     type: string
                     description: TOTP ワンタイムパスワード
@@ -9302,6 +9329,25 @@ components:
                         $ref: '#/components/schemas/base.v1.I18nCustomItem'
                     description: 全言語のカスタム国際化上書き
             description: 現在のテナントのカスタム国際化上書きの検索結果。
+        base.v1.GetSecretPublicKeyResponse:
+            type: object
+            properties:
+                key_id:
+                    type: string
+                    description: 一時キーID
+                public_key:
+                    type: string
+                    description: 一時公開鍵
+                algorithm:
+                    type: string
+                    description: 暗号化アルゴリズム
+                nonce:
+                    type: string
+                    description: nonce
+                expires_in:
+                    type: string
+                    description: "有効期間，単位: 秒"
+            description: 機密フィールド一時公開鍵レスポンス
         base.v1.HandleMcpRequest:
             type: object
             properties:
@@ -9450,7 +9496,7 @@ components:
                     type: string
                     description: ユーザー名
                 password:
-                    $ref: '#/components/schemas/common.v1.PasswordCrypto'
+                    $ref: '#/components/schemas/common.v1.SecretCrypto'
                 captcha_code:
                     type: string
                     description: CAPTCHA
@@ -9773,25 +9819,6 @@ components:
                     type: boolean
                     description: 次のページがあるかどうか
             description: 現在のユーザー收件箱ページネーションレスポンス。
-        base.v1.PasswordPublicKeyResponse:
-            type: object
-            properties:
-                key_id:
-                    type: string
-                    description: 一時キーID
-                public_key:
-                    type: string
-                    description: 一時公開鍵
-                algorithm:
-                    type: string
-                    description: 暗号化アルゴリズム
-                nonce:
-                    type: string
-                    description: nonce
-                expires_in:
-                    type: string
-                    description: "有効期間，単位: 秒"
-            description: パスワード一時公開鍵レスポンス
         base.v1.RecoveryCodesResponse:
             type: object
             properties:
@@ -9859,6 +9886,26 @@ components:
                     type: string
                     description: 失敗メッセージ ID
             description: AI アシスタント失敗メッセージ再試行リクエスト
+        base.v1.RevealSecretFieldRequest:
+            type: object
+            properties:
+                resource:
+                    type: string
+                    description: キーフィールドリソース識別子
+                id:
+                    type: string
+                    description: レコードID
+                field:
+                    type: string
+                    description: キーフィールド名
+            description: キーフィールド查看条件
+        base.v1.RevealSecretFieldResponse:
+            type: object
+            properties:
+                text:
+                    type: string
+                    description: キー明文
+            description: キーフィールド查看レスポンス
         base.v1.SearchAiWebItem:
             type: object
             properties:
@@ -10051,7 +10098,7 @@ components:
                         $ref: '#/components/schemas/common.v1.AppTreeOptionResponse_Option'
                     description: 子ノードツリー
             description: アプリツリーオプション
-        common.v1.PasswordCrypto:
+        common.v1.SecretCrypto:
             type: object
             properties:
                 key_id:
@@ -10069,10 +10116,10 @@ components:
                 iv:
                     type: string
                     description: 初期化ベクトル
-                ciphertext:
+                text:
                     type: string
-                    description: 暗号化されたパスワードデータ
-            description: パスワード暗号文。
+                    description: 传输时として密文，サービス端復号后回填明文
+            description: 機密フィールド密文，パスワードと各类キーフィールド统一使用量。
         common.v1.SelectOptionResponse:
             type: object
             properties:
@@ -10411,8 +10458,7 @@ components:
                     type: string
                     description: モデル API ベース URL
                 api_key:
-                    type: string
-                    description: モデル API キー。更新時に空欄の場合は既存のキーを保持します
+                    $ref: '#/components/schemas/common.v1.SecretCrypto'
                 api_key_configured:
                     type: boolean
                     description: モデル API キーが保存済みかどうか
@@ -11105,7 +11151,7 @@ components:
                     description: 設定key
                 value:
                     type: string
-                    description: 設定value
+                    description: 設定value，機密設定恒NULL 可
                 status:
                     enum:
                         - STATUS_UNSPECIFIED
@@ -11160,8 +11206,7 @@ components:
                     type: string
                     description: 設定key
                 value:
-                    type: string
-                    description: 設定value
+                    $ref: '#/components/schemas/common.v1.SecretCrypto'
                 name_i18ns:
                     type: array
                     items:
@@ -12143,7 +12188,7 @@ components:
                     description: パスワード至少满足の文字種別件数，文字種別小文字、大文字、数字、記号を含む
                     format: int32
                 initial_password:
-                    $ref: '#/components/schemas/common.v1.PasswordCrypto'
+                    $ref: '#/components/schemas/common.v1.SecretCrypto'
             description: ログインポリシーフォーム。
         system.admin.v1.BaseLoginPolicyRule:
             type: object
@@ -12781,8 +12826,7 @@ components:
                     type: string
                     description: 共通認証情報の識別子
                 client_secret:
-                    type: string
-                    description: 共通認証情報のシークレット。更新時に空欄の場合は変更しません
+                    $ref: '#/components/schemas/common.v1.SecretCrypto'
                 secret_configured:
                     type: boolean
                     description: 共通認証情報のシークレットが設定済みかどうか
@@ -13005,8 +13049,7 @@ components:
                     type: string
                     description: サードパーティアプリ識別子
                 client_secret:
-                    type: string
-                    description: サードパーティアプリのシークレット。更新時に空欄の場合は変更なし
+                    $ref: '#/components/schemas/common.v1.SecretCrypto'
                 secret_configured:
                     type: boolean
                     description: サードパーティアプリのシークレットが設定済みかどうか
@@ -14538,7 +14581,7 @@ components:
                     description: 性別
                     format: enum
                 pwd:
-                    $ref: '#/components/schemas/common.v1.PasswordCrypto'
+                    $ref: '#/components/schemas/common.v1.SecretCrypto'
                 status:
                     enum:
                         - STATUS_UNSPECIFIED
@@ -16569,7 +16612,7 @@ components:
                     type: string
                     description: ユーザー ID
                 pwd:
-                    $ref: '#/components/schemas/common.v1.PasswordCrypto'
+                    $ref: '#/components/schemas/common.v1.SecretCrypto'
             description: 重置ユーザーパスワードリクエストパラメータ
         system.admin.v1.RestoreCodeGenRequest:
             type: object
@@ -17110,6 +17153,16 @@ components:
                     description: ステータス
                     format: int32
             description: 設定テナントステータスリクエストパラメータ
+        system.admin.v1.SetBaseUserAppRoleRequest:
+            type: object
+            properties:
+                user_id:
+                    type: string
+                    description: ユーザー ID
+                role_code:
+                    type: string
+                    description: アプリ端ロールコード
+            description: 基础ユーザーアプリ端ロール設定パラメータ
         system.admin.v1.SetBaseUserStatusRequest:
             type: object
             properties:
@@ -17370,9 +17423,9 @@ components:
             type: object
             properties:
                 old_pwd:
-                    $ref: '#/components/schemas/common.v1.PasswordCrypto'
+                    $ref: '#/components/schemas/common.v1.SecretCrypto'
                 new_pwd:
-                    $ref: '#/components/schemas/common.v1.PasswordCrypto'
+                    $ref: '#/components/schemas/common.v1.SecretCrypto'
             description: ユーザーパスワードフォーム
         system.admin.v1.UserPhoneForm:
             type: object
@@ -17588,9 +17641,9 @@ tags:
     - name: AiProviderService
       description: AIプロバイダー管理サービス。
     - name: AiQueryService
-      description: スマートデータクエリ記録管理サービス。
-    - name: AiQueryService
       description: Base AI アシスタントのスマート問い合わせサービス
+    - name: AiQueryService
+      description: スマートデータクエリ記録管理サービス。
     - name: AiSearchService
       description: Base AI アシスタントWeb検索サービス
     - name: AiSessionService
@@ -17624,9 +17677,9 @@ tags:
     - name: BaseDictItemService
       description: Admin辞書項目サービス
     - name: BaseDictService
-      description: Admin辞書サービス
-    - name: BaseDictService
       description: App辞書サービス
+    - name: BaseDictService
+      description: Admin辞書サービス
     - name: BaseFileService
       description: Adminファイル資産管理サービス。
     - name: BaseI18nCustomService
@@ -17728,14 +17781,16 @@ tags:
     - name: NotificationService
       description: Base通知サービス。現在のユーザーの受信トレイを提供します。
     - name: OauthClientService
-      description: Admin OAuthクライアント管理サービス。
-    - name: OauthClientService
       description: Base OAuthクライアントトークンサービス。
+    - name: OauthClientService
+      description: Admin OAuthクライアント管理サービス。
     - name: OauthService
       description: Baseサードパーティーログイン共通サービス
     - name: OpsMonitoringService
       description: Admin運用監視サービス。
     - name: RuntimeLogService
       description: Adminランタイムログサービス。
+    - name: SecretCryptoService
+      description: 機密フィールド暗号化共通サービス
     - name: SseService
       description: Base SSEサービス

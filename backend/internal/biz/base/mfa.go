@@ -28,7 +28,6 @@ import (
 	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/dto"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/loginpolicy"
-	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/utils"
 	_const "github.com/liujitcn/kratos-admin/backend/internal/const"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
@@ -662,11 +661,7 @@ func (c *MfaCase) BeginMfaSetup(ctx context.Context, req *basev1.BeginMfaSetupRe
 		if err != nil {
 			return nil, errorsx.ResourceNotFound("用户不存在").WithCause(err)
 		}
-		var password string
-		password, err = utils.DecryptPassword(c.Cache, req.GetPassword(), basev1.PasswordCryptoScene_PASSWORD_CRYPTO_SCENE_MFA)
-		if err != nil {
-			return nil, err
-		}
+		password := req.GetPassword().GetText()
 		if err = crypto.Verify(password, user.Password); err != nil {
 			return nil, errorsx.InvalidArgument("当前密码错误")
 		}
@@ -1053,11 +1048,7 @@ func (c *MfaCase) DisableMfa(ctx context.Context, req *basev1.DisableMfaRequest)
 	if err != nil {
 		return errorsx.ResourceNotFound("用户不存在").WithCause(err)
 	}
-	var password string
-	password, err = utils.DecryptPassword(c.Cache, req.GetPassword(), basev1.PasswordCryptoScene_PASSWORD_CRYPTO_SCENE_MFA)
-	if err != nil {
-		return err
-	}
+	password := req.GetPassword().GetText()
 	if err = crypto.Verify(password, user.Password); err != nil {
 		return errorsx.InvalidArgument("当前密码错误")
 	}

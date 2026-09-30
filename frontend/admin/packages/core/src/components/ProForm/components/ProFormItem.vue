@@ -1,5 +1,11 @@
 <template>
-  <el-input v-if="field.component === 'input'" v-model.trim="fieldValue" v-bind="fieldProps">
+  <SecretInput
+    v-if="field.component === 'input' && field.secret"
+    v-model="fieldValue"
+    v-bind="secretInputProps"
+  />
+
+  <el-input v-else-if="field.component === 'input'" v-model.trim="fieldValue" v-bind="fieldProps">
     <template v-if="field.suffixSlotName" #append>
       <slot :name="field.suffixSlotName" :field="field" :model="model" />
     </template>
@@ -44,6 +50,8 @@
       </span>
     </el-option>
   </el-select>
+
+  <el-cascader v-else-if="field.component === 'cascader'" v-model="fieldValue" :options="fieldOptions" v-bind="fieldProps" />
 
   <TenantSelect v-else-if="field.component === 'tenant-select'" v-model="fieldValue" v-bind="fieldProps" />
 
@@ -102,6 +110,7 @@ import type { UploadUserFile } from "element-plus";
 import type { ProFormField, ProFormOption } from "@/components/ProForm/interface";
 import Dict from "@/components/Dict/index.vue";
 import TenantSelect from "@/components/TenantSelect/index.vue";
+import SecretInput from "@/components/ProForm/components/SecretInput.vue";
 
 // 非基础表单控件按需加载，避免 ProForm 基础包携带上传、富文本、Cron 等重组件。
 const CronExpression = defineAsyncComponent(() => import("@/components/CronExpression/index.vue"));
@@ -126,6 +135,20 @@ const props = defineProps<ProFormItemProps>();
 const fieldProps = computed(() => {
   if (!props.field.props) return {};
   return typeof props.field.props === "function" ? props.field.props(props.model) : props.field.props;
+});
+
+/** 解析 secret 输入参数：透传输入参数并注入查看所需的资源信息。 */
+const secretInputProps = computed(() => {
+  const { showPassword: _ignored, ...rest } = (fieldProps.value ?? {}) as Record<string, any>;
+  const config = typeof props.field.secret === "object" ? props.field.secret : null;
+  return {
+    ...rest,
+    secret: props.field.secret,
+    resource: config?.resource ?? "",
+    fieldName: config?.field ?? "",
+    recordId: config ? Number(props.model[config.idProp ?? "id"] ?? 0) : 0,
+    configured: config ? Boolean(props.model[config.configuredProp ?? `${config.field}_configured`]) : false
+  };
 });
 
 /** 解析字段选项参数，支持静态数组和函数。 */

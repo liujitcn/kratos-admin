@@ -29,8 +29,9 @@ import { LOGIN_URL } from "@liujitcn/kratos-admin-core/config";
 import { clearPasswordChangeRequired } from "@liujitcn/kratos-admin-core/request";
 import { useUserStore } from "@liujitcn/kratos-admin-core/stores/runtime";
 import {
-  PASSWORD_CRYPTO_SCENE,
-  encryptPassword
+  encryptPassword,
+  fetchSecretPublicKey,
+  encryptWithPublicKey
 } from "@liujitcn/kratos-admin-core/security";
 
 /** 修改密码表单状态，明文只在前端校验和加密前短暂保存。 */
@@ -91,8 +92,9 @@ async function handleSubmitPassword() {
   }
   submitLoading.value = true;
   try {
-    const oldPwd = await encryptPassword(passwordForm.old_pwd, PASSWORD_CRYPTO_SCENE.PASSWORD_CRYPTO_SCENE_UPDATE_USER_PASSWORD);
-    const newPwd = await encryptPassword(passwordForm.new_pwd, PASSWORD_CRYPTO_SCENE.PASSWORD_CRYPTO_SCENE_UPDATE_USER_PASSWORD);
+    const publicKey = await fetchSecretPublicKey();
+    const oldPwd = await encryptWithPublicKey(publicKey, passwordForm.old_pwd);
+    const newPwd = await encryptWithPublicKey(publicKey, passwordForm.new_pwd);
     const userPassword: UserPasswordForm = {
       old_pwd: oldPwd,
       new_pwd: newPwd

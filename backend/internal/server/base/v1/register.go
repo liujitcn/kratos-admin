@@ -22,6 +22,7 @@ type Services struct {
 	Language     *base.LanguageService
 	File         *base.FileService
 	Login        *base.LoginService
+	SecretCrypto *base.SecretCryptoService
 	Mfa          *base.MfaService
 	Oauth        *base.OauthService
 	OauthClient  *base.OauthClientService
@@ -43,6 +44,7 @@ func (s Services) RegisterGRPC(srv grpc.ServiceRegistrar) {
 	basev1.RegisterLanguageServiceServer(srv, basev1.RedactedLanguageServiceServer(s.Language))
 	basev1.RegisterFileServiceServer(srv, basev1.RedactedFileServiceServer(s.File))
 	basev1.RegisterLoginServiceServer(srv, basev1.RedactedLoginServiceServer(s.Login))
+	basev1.RegisterSecretCryptoServiceServer(srv, basev1.RedactedSecretCryptoServiceServer(s.SecretCrypto))
 	basev1.RegisterMfaServiceServer(srv, basev1.RedactedMfaServiceServer(s.Mfa))
 	basev1.RegisterOauthServiceServer(srv, basev1.RedactedOauthServiceServer(s.Oauth))
 	basev1.RegisterOauthClientServiceServer(srv, basev1.RedactedOauthClientServiceServer(s.OauthClient))
@@ -66,6 +68,7 @@ func (s Services) RegisterHTTP(srv *http.Server) {
 	// 文件上传需要兼容 uni.uploadFile 的 multipart/form-data 请求，使用自定义 HTTP 适配器。
 	base.RegisterFileServiceHTTPServer(srv, s.File)
 	basev1.RegisterLoginServiceHTTPServer(srv, basev1.RedactedLoginServiceServer(s.Login))
+	basev1.RegisterSecretCryptoServiceHTTPServer(srv, basev1.RedactedSecretCryptoServiceServer(s.SecretCrypto))
 	basev1.RegisterMfaServiceHTTPServer(srv, basev1.RedactedMfaServiceServer(s.Mfa))
 	basev1.RegisterOauthServiceHTTPServer(srv, basev1.RedactedOauthServiceServer(s.Oauth))
 	basev1.RegisterOauthClientServiceHTTPServer(srv, basev1.RedactedOauthClientServiceServer(s.OauthClient))

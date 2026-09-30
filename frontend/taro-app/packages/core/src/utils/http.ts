@@ -32,21 +32,21 @@ const REFRESH_TOKEN_URL = '/v1/base/token'
 const CAPTCHA_URL = '/v1/base/captcha'
 const CONFIG_URL = '/v1/base/config'
 const LANGUAGE_URL = '/v1/base/language'
-const PASSWORD_PUBLIC_KEY_URL = '/v1/base/password-public-key'
+const SECRET_PUBLIC_KEY_URL = '/v1/base/secret-public-key'
 const NO_AUTH_URL_SET = new Set([
   SESSION_URL,
   REFRESH_TOKEN_URL,
   CAPTCHA_URL,
   CONFIG_URL,
   LANGUAGE_URL,
-  PASSWORD_PUBLIC_KEY_URL,
+  SECRET_PUBLIC_KEY_URL,
 ])
 const AUTH_EXPIRED_EXCLUDED_URL_SET = new Set([
   SESSION_URL,
   CAPTCHA_URL,
   CONFIG_URL,
   LANGUAGE_URL,
-  PASSWORD_PUBLIC_KEY_URL,
+  SECRET_PUBLIC_KEY_URL,
 ])
 /** 认证状态被静默清理的事件名。 */
 export const AUTH_SILENT_LOGOUT_EVENT = 'auth:silent-logout'

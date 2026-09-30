@@ -1407,6 +1407,7 @@
   "system.code.gen.column.value.single": "單選",
   "system.code.gen.column.value.table_comment": "表註釋：{comment}",
   "system.code.gen.column.value.table_name": "表名：{name}",
+  "system.code.gen.component.cascader": "級聯選擇",
   "system.code.gen.component.checkbox": "核取方塊",
   "system.code.gen.component.checkbox_group": "多選組",
   "system.code.gen.component.color_picker": "顏色選擇",

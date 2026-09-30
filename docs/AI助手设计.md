@@ -70,7 +70,7 @@ Agent Tool 来自生成代码，`agent_status` 控制是否可被 AI 使用；`m
 | `components/AiMarkdown.vue` | Markdown 与代码内容。 |
 | `stream.ts`、`message.ts` | SSE 解析和消息状态归一化。 |
 
-AI 助手目录下另有管理页面：`views/base/ai-provider`（AI 供应商）、`views/ai/knowledge`（AI 知识库）、`views/ai/session`（AI 会话）和 `views/ai/query`（智能问数留痕列表，分页查看每次问数的问题、生成 SQL、状态、行数与耗时，通过 `system.admin.v1.AiQueryService` 查询 `ai_query` 表）。
+AI 助手目录下另有管理页面：`views/base/ai-provider`（AI 供应商）、`views/ai/session`（AI 会话）和 `views/ai/query`（智能问数留痕列表，分页查看每次问数的问题、生成 SQL、状态、行数与耗时，通过 `system.admin.v1.AiQueryService` 查询 `ai_query` 表）。AI 知识库在独立模块 `frontend/admin/packages/modules/rag`（`@liujitcn/kratos-admin-rag`），页面为该包的 `views/ai-knowledge`。
 
 System 模块还把 AI 图标注册为顶部工具。结构化流程块组件不是内置固定实现；其他业务模块可通过 `ADMIN_AI_EXTENSION` 提供 `flowBlocks` 扩展。
 
@@ -78,8 +78,30 @@ System 模块还把 AI 图标注册为顶部工具。结构化流程块组件不
 
 uni-app 位于 `frontend/uni-app/packages/modules/system/src/views/pagesMember/ai`，Taro 位于 `frontend/taro-app/packages/modules/system/src/views/pagesMember/ai`。两端都提供会话抽屉、欢迎快捷入口、输入与附件、消息流和多端 SSE 解析，页面属于 `pagesMember` 分包，使用同一 `base.v1` RPC 和 API 封装。H5 使用 Fetch SSE；微信小程序使用各自平台的分块请求能力。
 
-## 配置与验证
+## AI 知识库
 
-AI Provider 及其多个模型配置保存在 `ai_provider` 表，由管理端“AI助手 → 模型管理”维护。模型 API Key 单独存储并通过 `base_redact_storage_policy` 加密；对话端通过 `AiModelService.ListAiProviderModelOptions` 独立读取名称和模型列表，快捷入口仍由 `AiToolService.ListAiShortcut` 提供。发送消息时选择 Provider 与模型，凭据始终保留在服务端。未配置可用模型时 AI 运行时处于关闭状态。
+知识库是独立于会话主库的 RAG 能力，接口包为 `rag.admin.v1`（`backend/api/proto/rag/admin/v1/`），包含三个服务：`AiKnowledgeService`（知识库 CRUD 与模型选项）、`AiKnowledgeDocService`（文档分页、文本/文件上传、删除、重新处理）、`AiKnowledgeChunkService.SearchAiKnowledge`（检索），HTTP 前缀 `/api/v1/admin/rag/*`。
+
+数据存储在独立 PostgreSQL 数据源（`backend/configs/data.yaml` 的 `data.databases.rag`，未配置时回落默认库），三张表：
+
+| 表 | 关键字段 | 说明 |
+| --- | --- | --- |
+| `ai_knowledge` | `embedding_dimensions`、`model_id` | 知识库绑定 embedding 模型与向量维度 |
+| `ai_knowledge_doc` | `knowledge_base_id`、`file_path`、`file_hash`、`status`、`error_message` | 文档状态走 `ai_knowledge_doc_status` 字典（1440），原始文件落对象存储并做 SHA256 校验 |
+| `ai_knowledge_chunk` | `doc_id`、`chunk_index`、`content`、`embedding` | 向量以 TEXT 列存 JSON，不使用 pgvector |
+
+引擎在 `backend/internal/biz/base/ai/knowledge.go`：入库时切片、调用 embedding 模型（OpenAI `CreateEmbeddings` 兼容协议，带超时与重试）并批量写切片，返回维度必须等于知识库配置维度；检索在应用侧计算余弦相似度。聊天发送消息时若选择了知识库（`knowledgeBaseIDs` 非空），`Retrieve` 结果注入 `input.KnowledgeContext`，任一知识库失败只记录日志不阻断会话。
+
+embedding 必须使用真实 embedding 模型（如 `text-embedding-3-small`、`BAAI/bge-m3`）；订阅型 OAuth 账号通常没有 embeddings 能力，需配置 API Key 型供应商。
+
+## AI 供应商与模型管理
+
+供应商与模型由 `system.admin.v1.AiProviderService` 管理（`backend/api/proto/system/admin/v1/ai_provider.proto`）：分页、选项、详情、创建、更新、删除、状态切换和 `TestAiProviderModels` 连通性测试。测试使用当前表单草稿逐个调用模型（chat 与 embedding 分别构造请求），不保存任何配置，返回每个模型的耗时与失败消息。
+
+`ai_provider` 表保存 `provider`（`openai_compatible` 或 `ollama`）、`base_url`、`api_key` 与 JSON `config`；`ai_model` 表通过 `provider_id` 挂在供应商下，`category` 为 `AiModelCategory` 枚举（`chat=1`、`embedding=2`、`rerank=3`、`image=4`、`video=5`、`audio=6`）。模型列表以 `AiProviderForm.models` 子列表随供应商表单在同一个事务内保存（按模型 ID upsert，保留 RAG 等外部引用）。
+
+模型 API Key 的安全链路：表单提交 `common.v1.SecretCrypto` 密文（`api_key_configured` 表示已保存密钥），落库由密钥字段回调或 redact 存储策略加密，页面通过 `RevealSecretField` 眼睛查看，详见 [敏感字段加密设计](敏感字段加密设计.md)。对话端通过 `AiModelService.ListAiProviderModelOptions` 独立读取名称和模型列表，快捷入口仍由 `AiToolService.ListAiShortcut` 提供。发送消息时选择 Provider 与模型，凭据始终保留在服务端。未配置可用模型时 AI 运行时处于关闭状态。
+
+## 配置与验证
 
 修改协议或运行时后执行后端生成与测试；修改管理端执行 `pnpm lint:oxlint`、`pnpm type:check`；修改 uni-app 或 Taro 执行对应 workspace 的 `pnpm lint`、`pnpm tsc`，涉及模块协议或 runner 时再执行 `pnpm test`、`pnpm check:exports`。前端至少检查空会话、历史会话、发送中、失败、附件和过期流程动作状态。

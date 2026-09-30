@@ -8,7 +8,7 @@ import type {
   DisableMfaRequest,
 } from '../rpc/base/v1/mfa'
 import { createWebAuthnCredential, getWebAuthnAssertion } from '../utils/webauthn'
-import { PASSWORD_CRYPTO_SCENE, encryptPassword } from '../utils/passwordCrypto'
+import { encryptPassword } from '../utils/secretCrypto'
 import { useI18n } from '../locales'
 import { defMfaService } from '../api/base/v1/mfa'
 
@@ -92,10 +92,7 @@ async function beginMfaSetup() {
   loading.value = true
   errorMessage.value = ''
   try {
-    const password = await encryptPassword(
-      setupPasswordInput.value,
-      PASSWORD_CRYPTO_SCENE.PASSWORD_CRYPTO_SCENE_MFA,
-    )
+    const password = await encryptPassword(setupPasswordInput.value)
     const request: BeginMfaSetupRequest = { password, setup_ticket: '' }
     const result = await defMfaService.BeginMfaSetup(request)
     setupTicket.value = result.setup_ticket
@@ -136,10 +133,7 @@ async function handleDisableConfirm() {
   loading.value = true
   errorMessage.value = ''
   try {
-    const password = await encryptPassword(
-      disablePasswordInput.value,
-      PASSWORD_CRYPTO_SCENE.PASSWORD_CRYPTO_SCENE_MFA,
-    )
+    const password = await encryptPassword(disablePasswordInput.value)
     let request: DisableMfaRequest
     if (disableRecoveryCode.value.trim()) {
       request = {

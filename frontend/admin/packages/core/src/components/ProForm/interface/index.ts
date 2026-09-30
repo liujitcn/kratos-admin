@@ -13,6 +13,7 @@ export type ProFormComponentType =
   | "switch"
   | "checkbox"
   | "select"
+  | "cascader"
   | "tenant-select"
   | "dict"
   | "radio-group"
@@ -45,6 +46,18 @@ export interface ProFormOption {
   isLeaf?: boolean;
 }
 
+/** secret 字段的查看配置：声明后输入框眼睛点击时按需拉取明文。 */
+export interface ProFormSecretConfig {
+  /** 查看明文的资源标识。 */
+  resource: string;
+  /** 查看明文的字段名。 */
+  field: string;
+  /** 记录ID字段名，默认 "id"。 */
+  idProp?: string;
+  /** 已配置标记字段名，默认 `${field}_configured`。 */
+  configuredProp?: string;
+}
+
 /** ProForm 字段配置。 */
 export interface ProFormField {
   /** 字段绑定路径，支持点路径访问嵌套对象。 */
@@ -69,6 +82,8 @@ export interface ProFormField {
   suffixSlotName?: string;
   /** 标题提示文案。 */
   labelTooltip?: string;
+  /** 提交时是否加密为 SecretCrypto 结构；配置对象时输入框眼睛支持按需查看明文。 */
+  secret?: boolean | ProFormSecretConfig;
   /** 字段校验规则。 */
   rules?: FormItemRule[];
   /** 字段是否显示。 */

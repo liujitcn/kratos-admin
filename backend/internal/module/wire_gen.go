@@ -127,7 +127,12 @@ func BuildModules(migrations *migration.Migration, config2 *configv1.Bootstrap, 
 	baseAreaCase := biz3.NewBaseAreaCase(baseCase, baseAreaRepository)
 	baseAreaService := admin.NewBaseAreaService(baseAreaCase)
 	baseConfigRepository := data2.NewBaseConfigRepository(dataData)
-	baseConfigCase := biz3.NewBaseConfigCase(baseCase, transaction, baseConfigRepository, baseI18nCase)
+	secretFieldRuntime, err := data3.NewSecretFieldStorage(databases)
+	if err != nil {
+		cleanup()
+		return nil, nil, err
+	}
+	baseConfigCase := biz3.NewBaseConfigCase(baseCase, transaction, baseConfigRepository, baseI18nCase, secretFieldRuntime)
 	baseConfigService := admin.NewBaseConfigService(baseConfigCase)
 	baseDeptService := admin.NewBaseDeptService(baseDeptCase)
 	baseDictRepository := data2.NewBaseDictRepository(dataData)
@@ -408,6 +413,9 @@ func BuildModules(migrations *migration.Migration, config2 *configv1.Bootstrap, 
 	}
 	loginCase := biz2.NewLoginCase(baseCase, bizBaseDeptCase, bizBaseRoleCase, baseUserCase, baseTenantRepository, baseDictRepository, baseDictItemRepository, mfaCase, userToken, v)
 	loginService := base.NewLoginService(loginCase)
+	service := biz2.NewSecretCryptoService(baseCase)
+	secretCryptoCase := biz2.NewSecretCryptoCase(service, secretFieldRuntime)
+	secretCryptoService := base.NewSecretCryptoService(secretCryptoCase)
 	mfaService := base.NewMfaService(loginCase, mfaCase)
 	oauthCase := biz2.NewOauthCase(baseCase, transaction, baseThirdAccountCase, baseUserCase, bizBaseRoleCase, bizBaseDeptCase, loginCase, configCase, baseOauthProviderRepository, baseI18NRepository, catalog, manager)
 	oauthService := base.NewOauthService(oauthCase)
@@ -430,6 +438,7 @@ func BuildModules(migrations *migration.Migration, config2 *configv1.Bootstrap, 
 		Language:     languageService,
 		File:         fileService,
 		Login:        loginService,
+		SecretCrypto: secretCryptoService,
 		Mfa:          mfaService,
 		Oauth:        oauthService,
 		OauthClient:  baseOauthClientService,
@@ -529,7 +538,7 @@ func BuildModules(migrations *migration.Migration, config2 *configv1.Bootstrap, 
 		AiKnowledgeDoc:   aiKnowledgeDocService,
 		AiKnowledgeChunk: aiKnowledgeChunkService,
 	}
-	modules, err := NewModules(baseServices, adminServices, services2, ragServices, runtime, catalog, baseConfigCase, aiProviderCase, aiModelCase, baseLoginPolicyCase, baseOauthProviderCase, redactResolver, rateLimitResolver)
+	modules, err := NewModules(baseServices, adminServices, services2, ragServices, runtime, catalog, baseConfigCase, aiProviderCase, aiModelCase, baseLoginPolicyCase, baseOauthProviderCase, redactResolver, rateLimitResolver, secretFieldRuntime)
 	if err != nil {
 		cleanup2()
 		cleanup()

@@ -39,6 +39,7 @@ import { useAuthButtons } from "@liujitcn/kratos-admin-core/auth";
 import { buildPageRequest, normalizeSelectedIds } from "@liujitcn/kratos-admin-core/table";
 import { useTenantScope } from "@liujitcn/kratos-admin-core/tenant";
 import { t } from "@liujitcn/kratos-admin-core";
+import { encodeSecretFields } from "@liujitcn/kratos-admin-core/security";
 import { defBaseOauthProviderService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/base_oauth_provider";
 import { loadEnabledBaseLanguages } from "@liujitcn/kratos-admin-system/api/system/admin/v1/base_language";
 import type {
@@ -103,7 +104,7 @@ const formFields = computed<ProFormField[]>(() => [
   { prop: "description", suffixSlotName: "descriptionI18ns", label: t("system.base.oauth_provider.field.description"), component: "input", colSpan: 24, props: { maxlength: 255, placeholder: t("system.base.oauth_provider.placeholder.description") } },
   { prop: "icon", label: t("system.base.oauth_provider.field.icon"), component: "input", colSpan: 12, props: { maxlength: 255, placeholder: t("system.base.oauth_provider.placeholder.icon") } },
   { prop: "client_id", label: t("system.base.oauth_provider.field.client_id"), component: "input", colSpan: 12, props: { maxlength: 255, autocomplete: "off", placeholder: t("system.base.oauth_provider.placeholder.client_id") } },
-  { prop: "client_secret", label: t("system.base.oauth_provider.field.client_secret"), component: "input", colSpan: 12, props: { type: "password", showPassword: true, maxlength: 512, autocomplete: "new-password", placeholder: dialog.editing ? t("system.base.oauth_provider.placeholder.keep_secret") : t("system.base.oauth_provider.placeholder.client_secret") } },
+  { prop: "client_secret", label: t("system.base.oauth_provider.field.client_secret"), component: "input", colSpan: 12, secret: { resource: "base_oauth_provider", field: "client_secret" }, props: { type: "password", showPassword: true, maxlength: 512, autocomplete: "new-password", placeholder: dialog.editing ? t("system.base.oauth_provider.placeholder.keep_secret") : t("system.base.oauth_provider.placeholder.client_secret") } },
   { prop: "redirect_uri", label: t("system.base.oauth_provider.field.redirect_uri"), component: "input", colSpan: 12, props: { maxlength: 512, placeholder: t("system.base.oauth_provider.placeholder.redirect_uri") } },
   { prop: "scopes", label: t("system.base.oauth_provider.field.scopes"), component: "dynamic-list", colSpan: 12, props: { inputProps: { maxlength: 128, placeholder: t("system.base.oauth_provider.placeholder.scopes") } } },
   { prop: "config_items", label: t("system.base.oauth_provider.field.config"), component: "kv-list", colSpan: 12, props: { keyInputProps: { maxlength: 128 } } },
@@ -152,7 +153,7 @@ const headerActions = computed<HeaderActionProps[]>(() => [
 
 /** 创建默认 OAuth 登录方式表单。 */
 function defaultForm(): OauthProviderFormState {
-  return { id: 0, provider: "", name: "", description: "", icon: "", client_id: "", client_secret: "", secret_configured: false, redirect_uri: "", scopes: [], config: {}, config_items: [], sort: 0, status: Status.STATUS_DISABLE, name_i18ns: [], description_i18ns: [] };
+  return { id: 0, provider: "", name: "", description: "", icon: "", client_id: "", client_secret: undefined, secret_configured: false, redirect_uri: "", scopes: [], config: {}, config_items: [], sort: 0, status: Status.STATUS_DISABLE, name_i18ns: [], description_i18ns: [] };
 }
 
 /** 请求 OAuth 登录方式表格数据。 */
@@ -185,11 +186,13 @@ async function handleSubmit() {
   const payload = JSON.parse(JSON.stringify(formData)) as BaseOauthProviderForm & { config_items?: OauthProviderConfigItem[] };
   delete payload.config_items;
   payload.config = config;
+  const source = await encodeSecretFields(formFields.value, payload);
   payload.scopes = [...new Set(formData.scopes.map(value => value.trim()).filter(Boolean))];
-  payload.name_i18ns = serializeDynamicI18ns(nameI18nValues.value, "base_oauth_provider.name", payload.id, payload.name);
-  payload.description_i18ns = serializeDynamicI18ns(descriptionI18nValues.value, "base_oauth_provider.description", payload.id, payload.description);
-  if (payload.id) await defBaseOauthProviderService.UpdateBaseOauthProvider({ base_oauth_provider: payload });
-  else await defBaseOauthProviderService.CreateBaseOauthProvider({ base_oauth_provider: payload });
+  source.name_i18ns = serializeDynamicI18ns(nameI18nValues.value, "base_oauth_provider.name", source.id, source.name);
+  source.description_i18ns = serializeDynamicI18ns(descriptionI18nValues.value, "base_oauth_provider.description", source.id, source.name);
+  const form = source as BaseOauthProviderForm;
+  if (form.id) await defBaseOauthProviderService.UpdateBaseOauthProvider({ base_oauth_provider: form });
+  else await defBaseOauthProviderService.CreateBaseOauthProvider({ base_oauth_provider: form });
   ElMessage.success(t("common.message.operation_success"));
   dialog.visible = false;
   await proTable.value?.getTableList();

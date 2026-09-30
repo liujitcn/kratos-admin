@@ -953,7 +953,7 @@ func isOperation(info request) bool {
 		if index := strings.LastIndex(methodName, "/"); index >= 0 {
 			methodName = methodName[index+1:]
 		}
-		for _, action := range []string{"Create", "Update", "Delete", "Set", "Reset", "Revoke", "Rotate", "Mark", "Archive", "Restore", "Send", "Confirm", "Disable", "Enable", "Publish"} {
+		for _, action := range []string{"Create", "Update", "Delete", "Set", "Reset", "Revoke", "Rotate", "Mark", "Archive", "Restore", "Send", "Confirm", "Disable", "Enable", "Publish", "Reveal"} {
 			if strings.Contains(info.Operation, "/"+action) || strings.HasSuffix(methodName, action) {
 				return true
 			}

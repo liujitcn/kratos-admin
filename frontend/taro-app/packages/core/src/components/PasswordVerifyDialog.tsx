@@ -1,9 +1,8 @@
 import { Button, Input, Text, View } from '@tarojs/components'
 import { useEffect, useState } from 'react'
 import { useI18n } from '../locales'
-import { PASSWORD_CRYPTO_SCENE, encryptPassword } from '../utils/passwordCrypto'
-import type { PasswordCryptoScene } from '../utils/passwordCrypto'
-import type { PasswordCrypto } from '../rpc/common/v1/types'
+import { encryptPassword } from '../utils/secretCrypto'
+import type { SecretCrypto } from '../rpc/common/v1/types'
 import './PasswordVerifyDialog.scss'
 
 /** Taro 通用密码验证弹窗属性。 */
@@ -24,12 +23,10 @@ export interface PasswordVerifyDialogProps {
   cancelText?: string
   /** 外部业务提交状态。 */
   confirmLoading?: boolean
-  /** 密码加密场景。 */
-  scene?: PasswordCryptoScene
   /** 是否允许点击遮罩关闭弹窗。 */
   closeOnClickModal?: boolean
   /** 确认并返回加密密码。 */
-  onConfirm: (password: PasswordCrypto) => void | Promise<void>
+  onConfirm: (password: SecretCrypto) => void | Promise<void>
   /** 取消验证。 */
   onCancel: () => void
 }
@@ -44,7 +41,7 @@ export default function PasswordVerifyDialog({
   confirmText,
   cancelText,
   confirmLoading = false,
-  scene = PASSWORD_CRYPTO_SCENE.PASSWORD_CRYPTO_SCENE_MFA,
+
   closeOnClickModal = false,
   onConfirm,
   onCancel,
@@ -73,7 +70,7 @@ export default function PasswordVerifyDialog({
     setErrorMessage('')
     setEncrypting(true)
     try {
-      const encryptedPassword = await encryptPassword(password, scene)
+      const encryptedPassword = await encryptPassword(password)
       await onConfirm(encryptedPassword)
     } catch (error) {
       setErrorMessage(error instanceof Error ? error.message : t('common.message.request_error'))

@@ -180,7 +180,7 @@ function handleCreateChild(parentId?: number) {
 function handleFormSubmit(data: Record<string, any>) {
   const node: DemoCatalog = {
     id: ++nextId,
-    name: String(data.name || `Demo 目录 ${nextId}`),
+    name: String(data.name || t("core.demo.tree.new_dir", { id: nextId })),
     code: `demo-${nextId}`,
     owner: data.visibility === "private" ? "--" : "Demo",
     status: data.enabled ? STATUS_ENABLE : STATUS_DISABLE,

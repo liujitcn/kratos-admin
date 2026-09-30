@@ -475,5 +475,13 @@
   "core.demo.detail.timeline.created": "Record created",
   "core.demo.detail.timeline.updated": "Base info updated",
   "core.demo.detail.timeline.enabled": "Record enabled",
-  "core.demo.detail.timeline.disabled": "Record disabled"
+  "core.demo.detail.timeline.disabled": "Record disabled",
+  "core.password.reveal_unsupported": "Secret reveal is not registered in this environment",
+  "core.password.reveal_failed": "Failed to reveal the secret",
+  "core.demo.table.tag_item": "Tag {index}",
+  "core.demo.table.money_unit": " CNY",
+  "core.demo.form.tenant.main": "Demo main tenant",
+  "core.demo.form.tenant.sub": "Demo sub-tenant",
+  "core.demo.form.leader_title": "{name} Lead",
+  "core.demo.tree.new_dir": "Demo directory {id}"
 }

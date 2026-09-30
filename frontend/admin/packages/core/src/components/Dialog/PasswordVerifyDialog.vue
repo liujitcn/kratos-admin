@@ -36,9 +36,8 @@ import ProDialog from "@/components/Dialog/ProDialog.vue";
 import ProForm from "@/components/ProForm/index.vue";
 import type { ProFormField, ProFormInstance, ProFormLabelPosition } from "@/components/ProForm/interface";
 import { useLocaleStore } from "@/locales";
-import { PASSWORD_CRYPTO_SCENE, encryptPassword } from "@/utils/passwordCrypto";
-import type { PasswordCryptoScene } from "@/utils/passwordCrypto";
-import type { PasswordCrypto } from "@/rpc/common/v1/types";
+import { encryptPassword } from "@/utils/secretCrypto";
+import type { SecretCrypto } from "@/rpc/common/v1/types";
 
 const { t } = useLocaleStore();
 
@@ -64,8 +63,6 @@ interface PasswordVerifyDialogProps {
   cancelText?: string;
   /** 外部业务提交状态。 */
   confirmLoading?: boolean;
-  /** 密码加密场景。 */
-  scene?: PasswordCryptoScene;
   /** 是否关闭时销毁内容。 */
   destroyOnClose?: boolean;
   /** 是否允许点击遮罩关闭。 */
@@ -88,7 +85,6 @@ const props = withDefaults(defineProps<PasswordVerifyDialogProps>(), {
   confirmText: "",
   cancelText: "",
   confirmLoading: false,
-  scene: PASSWORD_CRYPTO_SCENE.PASSWORD_CRYPTO_SCENE_MFA,
   destroyOnClose: false,
   closeOnClickModal: false,
   closeOnPressEscape: true,
@@ -98,7 +94,7 @@ const props = withDefaults(defineProps<PasswordVerifyDialogProps>(), {
 
 const emit = defineEmits<{
   "update:modelValue": [value: boolean];
-  confirm: [password: PasswordCrypto];
+  confirm: [password: SecretCrypto];
   cancel: [];
   close: [];
   closed: [];
@@ -142,7 +138,7 @@ async function handleConfirm() {
   if (!(await formRef.value?.validate())) return;
   encrypting.value = true;
   try {
-    const password = await encryptPassword(form.password, props.scene);
+    const password = await encryptPassword(form.password);
     emit("confirm", password);
   } finally {
     encrypting.value = false;

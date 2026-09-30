@@ -11,44 +11,46 @@ require (
 	github.com/go-webauthn/webauthn v0.18.0
 	github.com/google/jsonschema-go v0.4.3
 	github.com/google/wire v0.7.0
+	github.com/jackc/pgx/v5 v5.7.6
 	github.com/ledongthuc/pdf v0.0.0-20220302134840-0c2507a12d80
 	github.com/liujitcn/go-utils v0.0.41
 	github.com/liujitcn/go-utils/crypto v0.0.17
 	github.com/liujitcn/go-utils/http v0.0.8
 	github.com/liujitcn/gorm-kit v0.0.35
-	github.com/liujitcn/kratos-admin/backend/api v0.0.20
-	github.com/liujitcn/kratos-core v0.0.43
-	github.com/liujitcn/kratos-core/api v0.0.5
-	github.com/liujitcn/kratos-kit v0.0.89
+	github.com/liujitcn/kratos-admin/backend/api v0.0.21
+	github.com/liujitcn/kratos-core v0.0.44
+	github.com/liujitcn/kratos-core/api v0.0.6
+	github.com/liujitcn/kratos-kit v0.0.90
 	github.com/liujitcn/kratos-kit/ai/model v0.0.7
 	github.com/liujitcn/kratos-kit/api v0.0.41
 	github.com/liujitcn/kratos-kit/auth v0.0.31
 	github.com/liujitcn/kratos-kit/auth/authn v0.0.24
 	github.com/liujitcn/kratos-kit/auth/authz v0.0.23
 	github.com/liujitcn/kratos-kit/auth/authz/engine/casbin v0.0.22
-	github.com/liujitcn/kratos-kit/bootstrap v0.0.32
-	github.com/liujitcn/kratos-kit/cache v0.0.24
+	github.com/liujitcn/kratos-kit/bootstrap v0.0.33
+	github.com/liujitcn/kratos-kit/cache v0.0.26
 	github.com/liujitcn/kratos-kit/captcha v0.0.23
-	github.com/liujitcn/kratos-kit/config v0.0.36
-	github.com/liujitcn/kratos-kit/database/gorm v0.0.51
-	github.com/liujitcn/kratos-kit/database/gorm/driver/mysql v0.0.22
-	github.com/liujitcn/kratos-kit/database/gorm/driver/postgres v0.0.16
-	github.com/liujitcn/kratos-kit/database/gorm/migration v0.0.16
-	github.com/liujitcn/kratos-kit/locker v0.0.21
-	github.com/liujitcn/kratos-kit/logger/zap v0.0.20
-	github.com/liujitcn/kratos-kit/notify v0.0.1
-	github.com/liujitcn/kratos-kit/oauth v0.0.13
+	github.com/liujitcn/kratos-kit/config v0.0.37
+	github.com/liujitcn/kratos-kit/database/gorm v0.0.53
+	github.com/liujitcn/kratos-kit/database/gorm/driver/mysql v0.0.24
+	github.com/liujitcn/kratos-kit/database/gorm/driver/postgres v0.0.20
+	github.com/liujitcn/kratos-kit/database/gorm/migration v0.0.17
+	github.com/liujitcn/kratos-kit/locker v0.0.22
+	github.com/liujitcn/kratos-kit/logger/zap v0.0.21
+	github.com/liujitcn/kratos-kit/notify v0.0.2
+	github.com/liujitcn/kratos-kit/oauth v0.0.14
 	github.com/liujitcn/kratos-kit/oss v0.0.22
 	github.com/liujitcn/kratos-kit/pprof v0.0.17
-	github.com/liujitcn/kratos-kit/queue v0.0.33
+	github.com/liujitcn/kratos-kit/queue v0.0.34
 	github.com/liujitcn/kratos-kit/redact v0.0.12
-	github.com/liujitcn/kratos-kit/registry/consul v0.0.8
-	github.com/liujitcn/kratos-kit/translator v0.0.8
+	github.com/liujitcn/kratos-kit/registry/consul v0.0.9
+	github.com/liujitcn/kratos-kit/secretcrypto v0.0.3
+	github.com/liujitcn/kratos-kit/translator v0.0.9
 	github.com/liujitcn/kratos-kit/transport/cron v0.0.18
 	github.com/liujitcn/kratos-kit/transport/mcp v0.0.16
 	github.com/liujitcn/kratos-kit/transport/queue v0.0.6
 	github.com/liujitcn/kratos-kit/transport/sse v0.0.15
-	github.com/liujitcn/kratos-kit/utils v0.0.24
+	github.com/liujitcn/kratos-kit/utils v0.0.25
 	github.com/microcosm-cc/bluemonday v1.0.27
 	github.com/modelcontextprotocol/go-sdk v1.7.0
 	github.com/openai/openai-go/v3 v3.35.0
@@ -169,7 +171,7 @@ require (
 	github.com/go-playground/form/v4 v4.3.0 // indirect
 	github.com/go-viper/mapstructure/v2 v2.5.0 // indirect
 	github.com/go-webauthn/x v0.3.0 // indirect
-	github.com/goccy/go-yaml v1.9.8 // indirect
+	github.com/goccy/go-yaml v1.11.0 // indirect
 	github.com/golang-jwt/jwt/v5 v5.3.1 // indirect
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0 // indirect
 	github.com/google/gnostic v0.7.1 // indirect
@@ -210,7 +212,6 @@ require (
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
 	github.com/jackc/pgservicefile v0.0.0-20240606120523-5a60cdf6a761 // indirect
-	github.com/jackc/pgx/v5 v5.7.6 // indirect
 	github.com/jackc/puddle/v2 v2.2.2 // indirect
 	github.com/jinzhu/copier v0.4.0 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
@@ -232,18 +233,18 @@ require (
 	github.com/liujitcn/kratos-kit/auth/authn/middleware v0.0.21 // indirect
 	github.com/liujitcn/kratos-kit/auth/authz/middleware v0.0.20 // indirect
 	github.com/liujitcn/kratos-kit/broker v0.0.12 // indirect
-	github.com/liujitcn/kratos-kit/database/gorm/driver v0.0.19 // indirect
-	github.com/liujitcn/kratos-kit/key v0.0.7 // indirect
-	github.com/liujitcn/kratos-kit/logger v0.0.34 // indirect
+	github.com/liujitcn/kratos-kit/database/gorm/driver v0.0.21 // indirect
+	github.com/liujitcn/kratos-kit/key v0.0.8 // indirect
+	github.com/liujitcn/kratos-kit/logger v0.0.35 // indirect
 	github.com/liujitcn/kratos-kit/oss/s3 v0.0.4 // indirect
 	github.com/liujitcn/kratos-kit/queue/redisqueue v0.0.16 // indirect
 	github.com/liujitcn/kratos-kit/registry v0.0.25 // indirect
-	github.com/liujitcn/kratos-kit/server/grpc v0.0.8 // indirect
-	github.com/liujitcn/kratos-kit/server/http v0.0.7 // indirect
-	github.com/liujitcn/kratos-kit/server/mcp v0.0.5 // indirect
-	github.com/liujitcn/kratos-kit/server/sse v0.0.5 // indirect
+	github.com/liujitcn/kratos-kit/server/grpc v0.0.9 // indirect
+	github.com/liujitcn/kratos-kit/server/http v0.0.8 // indirect
+	github.com/liujitcn/kratos-kit/server/mcp v0.0.6 // indirect
+	github.com/liujitcn/kratos-kit/server/sse v0.0.6 // indirect
 	github.com/liujitcn/kratos-kit/swagger-ui v0.0.15 // indirect
-	github.com/liujitcn/kratos-kit/tracer v0.0.19 // indirect
+	github.com/liujitcn/kratos-kit/tracer v0.0.20 // indirect
 	github.com/liujitcn/kratos-kit/tracing v0.0.12 // indirect
 	github.com/liujitcn/kratos-kit/transport v0.0.25 // indirect
 	github.com/liujitcn/kratos-kit/transport/hptimer v0.0.7 // indirect
@@ -316,7 +317,7 @@ require (
 	github.com/yosida95/uritemplate/v3 v3.0.2 // indirect
 	github.com/yusufpapurcu/wmi v1.2.4 // indirect
 	github.com/zeebo/xxh3 v1.1.0 // indirect
-	go.mongodb.org/mongo-driver v1.13.1 // indirect
+	go.mongodb.org/mongo-driver v1.14.0 // indirect
 	go.opentelemetry.io/auto/sdk v1.2.1 // indirect
 	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.63.0 // indirect
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.65.0 // indirect
@@ -346,7 +347,7 @@ require (
 	golang.org/x/term v0.45.0 // indirect
 	golang.org/x/time v0.15.0 // indirect
 	golang.org/x/tools v0.49.0 // indirect
-	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect
+	golang.org/x/xerrors v0.0.0-20240903120638-7835f813f4da // indirect
 	google.golang.org/api v0.273.1 // indirect
 	google.golang.org/genproto v0.0.0-20260319201613-d00831a3d3e7 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20260819154853-08b0e4226688 // indirect
@@ -373,5 +374,3 @@ require (
 	sigs.k8s.io/structured-merge-diff/v6 v6.3.2 // indirect
 	sigs.k8s.io/yaml v1.6.0 // indirect
 )
-
-replace github.com/liujitcn/kratos-admin/backend/api => ./api

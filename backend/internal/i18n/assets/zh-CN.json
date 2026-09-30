@@ -110,6 +110,9 @@
   "base.ai.prompt.user": {
     "other": "- 用户：{{.Value}}"
   },
+  "base.ai.query.question.required": {
+    "other": "问题内容不合法"
+  },
   "base.ai.runtime.uninitialized": {
     "other": "AI助手运行时未初始化"
   },
@@ -160,6 +163,9 @@
   },
   "base.config.get.site.required": {
     "other": "位置不能为空"
+  },
+  "base.config.get.site.system_not_allowed": {
+    "other": "系统内置配置不支持下发"
   },
   "base.config.get_i18n_custom.site.required": {
     "other": "位置不能为空"
@@ -376,6 +382,12 @@
   },
   "base.third_account.error.current_user_provider_bound": {
     "other": "当前用户已绑定该登录方式"
+  },
+  "base.v1.secret_crypto.reveal.field.required": {
+    "other": "字段名不能为空"
+  },
+  "base.v1.secret_crypto.reveal.resource.required": {
+    "other": "资源标识不能为空"
   },
   "common.action.create_resource": {
     "other": "新增{resource}"
@@ -890,6 +902,9 @@
   "legacy.error.20da88183ea92106": {
     "other": "创建国际化自定义翻译失败"
   },
+  "legacy.error.20e379d993bbb25c": {
+    "other": "配置值不能为空"
+  },
   "legacy.error.20eb653252a9bb73": {
     "other": "设置出库脱敏策略状态失败"
   },
@@ -1028,6 +1043,9 @@
   "legacy.error.2a1913450ed9f8d0": {
     "other": "字典编码重复"
   },
+  "legacy.error.2a4cd1962154db7b": {
+    "other": "获取敏感字段临时公钥失败"
+  },
   "legacy.error.2b0341c1d9e4dcbc": {
     "other": "归档站内信失败"
   },
@@ -1144,6 +1162,9 @@
   },
   "legacy.error.320054dca76a2e4d": {
     "other": "获取自定义国际化翻译失败"
+  },
+  "legacy.error.3237d700b2b610fa": {
+    "other": "模型密钥不能超过1024个字符"
   },
   "legacy.error.323a9f3dfd9436cc": {
     "other": "消息不存在"
@@ -2120,6 +2141,9 @@
   "legacy.error.77472bb2a160d55d": {
     "other": "同一数据表字段的入库脱敏策略已存在"
   },
+  "legacy.error.776cebce09b25a74": {
+    "other": "查看密钥字段失败"
+  },
   "legacy.error.776d13ccebdb1fb7": {
     "other": "更新角色失败，不能使用内置角色编码"
   },
@@ -2128,6 +2152,9 @@
   },
   "legacy.error.778da14d7ba916df": {
     "other": "撤销租户开放授权令牌失败"
+  },
+  "legacy.error.77db1941b97a251f": {
+    "other": "第三方应用密钥不能超过512个字符"
   },
   "legacy.error.77fc0ea919e34629": {
     "other": "用户组织关系与所属租户不一致"
@@ -2338,6 +2365,9 @@
   },
   "legacy.error.87ae82935905643c": {
     "other": "更新定时任务失败"
+  },
+  "legacy.error.87b7f25f6e118d2d": {
+    "other": "密钥字段不存在"
   },
   "legacy.error.88866be60ba8716d": {
     "other": "操作用户失败，内置管理员账号只能通过个人中心修改"
@@ -3416,6 +3446,9 @@
   "legacy.error.e3d224984836347a": {
     "other": "render message template: %w"
   },
+  "legacy.error.e3f1b26b38842ada": {
+    "other": "通用凭证密钥不能超过1024个字符"
+  },
   "legacy.error.e4049241c07c1ec6": {
     "other": "代码生成表配置ID不能重复"
   },
@@ -3934,6 +3967,30 @@
   },
   "openapi.ai_provider.test_models.summary": {
     "other": "测试AI供应商表单中的全部模型。"
+  },
+  "rag.admin.ai.knowledge.description.max_length": {
+    "other": "描述不能超过500个字符"
+  },
+  "rag.admin.ai.knowledge.doc.content.required": {
+    "other": "请输入文档内容"
+  },
+  "rag.admin.ai.knowledge.doc.file_name.required": {
+    "other": "请输入文件名"
+  },
+  "rag.admin.ai.knowledge.doc.name.max_length": {
+    "other": "文档名称不能超过200个字符"
+  },
+  "rag.admin.ai.knowledge.doc.name.required": {
+    "other": "请输入文档名称"
+  },
+  "rag.admin.ai.knowledge.name.required": {
+    "other": "请输入知识库名称"
+  },
+  "rag.admin.ai.knowledge.search.query.required": {
+    "other": "请输入检索内容"
+  },
+  "rag.admin.ai.knowledge.update.id.required": {
+    "other": "知识库ID不能为空"
   },
   "system.admin.auth.entity.user.password.new_pwd.required": {
     "other": "请输入新密码"
@@ -4874,14 +4931,62 @@
   "system.admin.base_message_category.form.code.length": {
     "other": "分类编码不能为空且不能超过50个字符"
   },
+  "system.admin.base_message_category.form.inbox_enabled.required": {
+    "other": "站内信状态不能为空"
+  },
   "system.admin.base_message_category.form.name.length": {
     "other": "分类名称不能为空且不能超过50个字符"
+  },
+  "system.admin.base_message_category.form.provider_id.unique": {
+    "other": "消息 Provider 不能重复"
   },
   "system.admin.base_message_category.get.id.required": {
     "other": "消息分类ID不能为空"
   },
   "system.admin.base_message_category.set_status.id.required": {
     "other": "消息分类ID不能为空"
+  },
+  "system.admin.base_message_provider.delete.id.required": {
+    "other": "消息 Provider ID列表不能为空"
+  },
+  "system.admin.base_message_provider.form.client_id.length": {
+    "other": "通用凭证标识不能超过255个字符"
+  },
+  "system.admin.base_message_provider.form.description.length": {
+    "other": "Provider说明不能超过255个字符"
+  },
+  "system.admin.base_message_provider.form.icon.length": {
+    "other": "Provider图标不能超过100个字符"
+  },
+  "system.admin.base_message_provider.form.name.required": {
+    "other": "Provider名称不能为空且不能超过50个字符"
+  },
+  "system.admin.base_message_provider.form.provider.required": {
+    "other": "Provider标识格式无效"
+  },
+  "system.admin.base_message_provider.get.id.required": {
+    "other": "消息 Provider ID不能为空"
+  },
+  "system.admin.base_message_provider.set_status.id.required": {
+    "other": "消息 Provider ID不能为空"
+  },
+  "system.admin.base_message_template.delete.id.required": {
+    "other": "消息模板ID列表不能为空"
+  },
+  "system.admin.base_message_template.form.category_id.required": {
+    "other": "消息分类不能为空"
+  },
+  "system.admin.base_message_template.form.content.length": {
+    "other": "模板正文不能超过20000个字符"
+  },
+  "system.admin.base_message_template.form.provider_id.required": {
+    "other": "消息 Provider 不能为空"
+  },
+  "system.admin.base_message_template.form.title.length": {
+    "other": "模板标题不能为空且不能超过200个字符"
+  },
+  "system.admin.base_message_template.get.id.required": {
+    "other": "消息模板ID不能为空"
   },
   "system.admin.code.gen.column.list.table_id.required": {
     "other": "代码生成表配置ID不能为空"
@@ -5386,6 +5491,9 @@
   },
   "system.oauth.crypto.error.request_decrypt_failed": {
     "other": "请求数据解密失败"
+  },
+  "system.oauth.crypto.error.request_too_large": {
+    "other": "请求数据超过大小限制"
   },
   "system.oauth.crypto.error.response_encrypt_failed": {
     "other": "响应数据加密失败"

@@ -81,6 +81,7 @@ const codeGenFormComponentLabelKeys: Record<ProFormComponentType, string> = {
   switch: "system.code.gen.component.switch",
   checkbox: "system.code.gen.component.checkbox",
   select: "system.code.gen.component.select",
+  cascader: "system.code.gen.component.cascader",
   "tenant-select": "system.code.gen.component.select",
   dict: "system.code.gen.component.dict",
   "radio-group": "system.code.gen.component.radio_group",

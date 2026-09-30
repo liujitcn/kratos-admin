@@ -6,6 +6,48 @@ import re
 
 
 EN_EXACT = {
+    "密钥字段查看条件":
+        "Reveal secret field request parameters.",
+    "密钥字段查看响应":
+        "Reveal secret field response.",
+    "密钥明文":
+        "Revealed secret plaintext.",
+    "密钥字段资源标识":
+        "Resource identifier of the secret field.",
+    "密钥字段名":
+        "Secret field name.",
+    "敏感字段密文，密码与各类密钥字段统一使用。":
+        "Secret field ciphertext shared by passwords and all kinds of secret fields.",
+    "设置基础用户应用端角色":
+        "Set the app-side role of a base user.",
+    "基础用户应用端角色设置参数":
+        "Set base user app-side role parameters.",
+    "应用端角色编码":
+        "App-side role code.",
+    "已就绪文档数，不含处理失败":
+        "Number of ready documents, excluding failed ones.",
+    "向量维度；0表示按所选模型配置或系统默认":
+        "Vector dimension; 0 means following the selected model configuration or the system default.",
+    "模型声明的输出向量维度；0表示未声明":
+        "Output vector dimension declared by the model; 0 means undeclared.",
+    "可选向量维度列表":
+        "Available vector dimension options.",
+    "配置value，敏感配置恒为空":
+        "Configuration value; always empty for sensitive configurations.",
+    "配置value，敏感配置留空表示保留现有值":
+        "Configuration value; leave empty for sensitive configurations to keep the current value.",
+    "是否敏感配置，服务端按注册表现算":
+        "Whether the configuration is sensitive; computed on the server from the registry.",
+    "是否已配置敏感值，服务端现算":
+        "Whether a sensitive value is configured; computed on the server.",
+    "是否公开下发到免认证配置接口":
+        "Whether the value is served through the token-free configuration API.",
+    "获取敏感字段临时公钥，同一次提交的多个密文字段共用该公钥":
+        "Get the ephemeral public key for sensitive fields; multiple encrypted fields in one submission share the same key.",
+    "查看密钥字段明文，仅允许查询注册过的密钥字段":
+        "Reveal the plaintext of a registered secret field.",
+    "传输时为密文，服务端解密后回填明文":
+        "Ciphertext in transit; the server fills in the plaintext after decryption.",
     "文件访问方式，未指定时默认需要访问令牌": "File access mode; access token required by default when unspecified",
     "文件访问方式：1公开，2需要访问令牌": "File access mode: 1 public, 2 access token required",
     "租户管理员账号": "Tenant administrator username",

@@ -97,7 +97,9 @@ function handleKnowledgeToggle(knowledgeId: number) {
       @tap="openModelPicker"
     >
       <text class="composer-model-chip__spark">✦</text>
-      <text class="composer-model-chip__label">{{ selectedModelDisplayName || modelPlaceholder }}</text>
+      <text class="composer-model-chip__label">{{
+        selectedModelDisplayName || modelPlaceholder
+      }}</text>
       <uni-icons type="down" size="12" color="#8a8f99" />
     </view>
     <view

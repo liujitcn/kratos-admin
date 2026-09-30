@@ -9,9 +9,8 @@ import {
   getWebAuthnAssertion,
 } from '@liujitcn/kratos-taro-app-core/utils/webauthn'
 import {
-  PASSWORD_CRYPTO_SCENE,
   encryptPassword,
-} from '@liujitcn/kratos-taro-app-core/utils/passwordCrypto'
+} from '@liujitcn/kratos-taro-app-core/utils/secretCrypto'
 import './PasswordVerifyDialog.scss'
 
 /** MFA 通用操作弹窗属性。 */
@@ -95,10 +94,7 @@ export default function PasswordVerifyDialog({
     setLoading(true)
     setErrorMessage('')
     try {
-      const password = await encryptPassword(
-        setupPasswordInput,
-        PASSWORD_CRYPTO_SCENE.PASSWORD_CRYPTO_SCENE_MFA,
-      )
+      const password = await encryptPassword(setupPasswordInput)
       const result = await defMfaService.BeginMfaSetup({ password, setup_ticket: '' })
       setSetupTicket(result.setup_ticket)
       setSetupMethod(result.method || 'totp')
@@ -135,10 +131,7 @@ export default function PasswordVerifyDialog({
     setLoading(true)
     setErrorMessage('')
     try {
-      const password = await encryptPassword(
-        disablePasswordInput,
-        PASSWORD_CRYPTO_SCENE.PASSWORD_CRYPTO_SCENE_MFA,
-      )
+      const password = await encryptPassword(disablePasswordInput)
       if (disableRecoveryCode.trim()) {
         await defMfaService.DisableMfa({
           password,

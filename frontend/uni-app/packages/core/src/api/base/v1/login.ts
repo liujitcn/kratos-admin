@@ -5,8 +5,6 @@ import type {
   LogoutRequest,
   LoginRequest,
   LoginResponse,
-  PasswordPublicKeyRequest,
-  PasswordPublicKeyResponse,
   RefreshTokenRequest,
   RefreshTokenResponse,
   VerifyCaptchaRequest,
@@ -17,7 +15,6 @@ import type { Empty } from '../../../rpc/google/protobuf/empty'
 
 const CAPTCHA_URL = '/v1/base/captcha'
 const CAPTCHA_VERIFY_URL = '/v1/base/captcha/verify'
-const PASSWORD_PUBLIC_KEY_URL = '/v1/base/password-public-key'
 const SESSION_URL = '/v1/base/session'
 const TOKEN_URL = '/v1/base/token'
 
@@ -38,16 +35,6 @@ export class LoginServiceImpl implements LoginService {
     return http<VerifyCaptchaResponse>({
       url: `${CAPTCHA_VERIFY_URL}`,
       method: 'POST',
-      authMode: 'none',
-      data: request,
-      header: { Authorization: 'no-auth' },
-    })
-  }
-  /** 获取密码临时公钥 */
-  PasswordPublicKey(request: PasswordPublicKeyRequest): Promise<PasswordPublicKeyResponse> {
-    return http<PasswordPublicKeyResponse>({
-      url: `${PASSWORD_PUBLIC_KEY_URL}`,
-      method: 'GET',
       authMode: 'none',
       data: request,
       header: { Authorization: 'no-auth' },

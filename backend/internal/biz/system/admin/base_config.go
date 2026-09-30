@@ -9,11 +9,13 @@ import (
 
 	_const "github.com/liujitcn/kratos-admin/backend/internal/const"
 
+	"github.com/liujitcn/kratos-admin/backend/adapter/kit"
 	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
 	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/runtimeconfig"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
+	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
 	"github.com/liujitcn/kratos-core/biz"
 	coreconst "github.com/liujitcn/kratos-core/const"
 	"github.com/liujitcn/kratos-core/errorsx"
@@ -31,17 +33,19 @@ type BaseConfigCase struct {
 	*data.BaseConfigRepository
 	tx           data.Transaction
 	baseI18nCase *BaseI18nCase
+	secretFields *kit.SecretFieldRuntime
 	formMapper   *mapper.CopierMapper[adminv1.BaseConfigForm, models.BaseConfig]
 	mapper       *mapper.CopierMapper[adminv1.BaseConfig, models.BaseConfig]
 }
 
 // NewBaseConfigCase 创建配置业务实例
-func NewBaseConfigCase(baseCase *biz.BaseCase, tx data.Transaction, baseConfigRepo *data.BaseConfigRepository, baseI18nCase *BaseI18nCase) *BaseConfigCase {
+func NewBaseConfigCase(baseCase *biz.BaseCase, tx data.Transaction, baseConfigRepo *data.BaseConfigRepository, baseI18nCase *BaseI18nCase, secretFields *kit.SecretFieldRuntime) *BaseConfigCase {
 	return &BaseConfigCase{
 		BaseCase:             baseCase,
 		tx:                   tx,
 		BaseConfigRepository: baseConfigRepo,
 		baseI18nCase:         baseI18nCase,
+		secretFields:         secretFields,
 		formMapper:           mapper.NewCopierMapper[adminv1.BaseConfigForm, models.BaseConfig](),
 		mapper:               mapper.NewCopierMapper[adminv1.BaseConfig, models.BaseConfig](),
 	}
@@ -117,8 +121,9 @@ func (c *BaseConfigCase) PageBaseConfig(ctx context.Context, req *adminv1.PageBa
 	}
 	for _, item := range list {
 		baseConfig := c.mapper.ToDTO(item)
-		if item.Type == int32(adminv1.BaseConfigType_BASE_CONFIG_TYPE_FORM) {
-			baseConfig.Value = ""
+		// 敏感配置与表单配置不下发值（直接置空，不报错），其余配置回明文供列表展示。
+		if item.Type != int32(adminv1.BaseConfigType_BASE_CONFIG_TYPE_FORM) && !kit.IsSecretConfigKey(item.Key) {
+			baseConfig.Value = item.Value
 		}
 		baseConfig.I18ns = i18ns[item.ID]
 		resList = append(resList, baseConfig)
@@ -137,11 +142,17 @@ func (c *BaseConfigCase) GetBaseConfig(ctx context.Context, id int64) (*adminv1.
 		return nil, err
 	}
 	res := c.formMapper.ToDTO(baseConfig)
+	res.Value = &commonv1.SecretCrypto{}
+	// 敏感配置不回显明文；表单配置回脱敏 JSON；其余配置回明文供编辑。
 	if baseConfig.Type == int32(adminv1.BaseConfigType_BASE_CONFIG_TYPE_FORM) {
-		res.Value, err = runtimeconfig.RedactJSON(baseConfig.Key, baseConfig.Value)
+		var masked string
+		masked, err = runtimeconfig.RedactJSON(baseConfig.Key, baseConfig.Value)
 		if err != nil {
 			return nil, errorsx.Internal("脱敏系统配置失败").WithCause(err)
 		}
+		res.Value.Text = masked
+	} else if !kit.IsSecretConfigKey(baseConfig.Key) {
+		res.Value.Text = baseConfig.Value
 	}
 	var nameI18ns, valueI18ns map[int64][]*adminv1.BaseI18n
 	nameI18ns, err = c.baseI18nCase.GetBaseI18nMapByTargetKey(ctx, _const.I18N_TARGET_KEY_BASE_CONFIG_NAME, []int64{id})
@@ -159,9 +170,30 @@ func (c *BaseConfigCase) GetBaseConfig(ctx context.Context, id int64) (*adminv1.
 	return res, nil
 }
 
+// GetConfigValue 读取启用状态的系统配置值并解密为明文，仅供服务端消费使用。
+func (c *BaseConfigCase) GetConfigValue(ctx context.Context, site int32, key string) (string, error) {
+	query := c.Query(ctx).BaseConfig
+	list, err := c.List(ctx,
+		repository.Where(query.Site.Eq(site)),
+		repository.Where(query.Key.Eq(key)),
+		repository.Where(query.Status.Eq(coreconst.STATUS_STATUS_ENABLE)),
+	)
+	if err != nil {
+		return "", err
+	}
+	if len(list) == 0 {
+		return "", nil
+	}
+	return c.secretFields.DecryptConfigValue(list[0].Value)
+}
+
 // CreateBaseConfig 创建配置并校验表单类型的结构和值域。
 func (c *BaseConfigCase) CreateBaseConfig(ctx context.Context, req *adminv1.BaseConfigForm) error {
 	entity := c.formMapper.ToEntity(req)
+	entity.Value = req.GetValue().GetText()
+	if entity.Value == "" {
+		return errorsx.InvalidArgument("配置值不能为空")
+	}
 	if err := validateFormConfig(entity, nil); err != nil {
 		return err
 	}
@@ -191,6 +223,16 @@ func (c *BaseConfigCase) UpdateBaseConfig(ctx context.Context, req *adminv1.Base
 
 	entity := c.formMapper.ToEntity(req)
 	entity.ID = req.GetId()
+	// 值留空表示保留现有值：敏感配置保留信封密文，普通配置保留原明文。
+	entity.Value = req.GetValue().GetText()
+	if entity.Value == "" {
+		entity.Value = oldConfig.Value
+	}
+	// 表单配置内嵌的 SecretCrypto 密文先解密为明文，再进入校验与合并。
+	entity.Value, err = c.secretFields.DecryptConfigEmbeddedCrypto(entity.Key, entity.Value)
+	if err != nil {
+		return err
+	}
 	if err := validateFormConfig(entity, oldConfig); err != nil {
 		return err
 	}
@@ -320,7 +362,7 @@ func (c *BaseConfigCase) deleteBaseI18n(ctx context.Context, ids []int64) error 
 // refreshBaseConfigSite 查询并缓存指定站点的启用配置。
 func (c *BaseConfigCase) refreshBaseConfigSite(ctx context.Context, site int32) error {
 	query := c.Query(ctx).BaseConfig
-	opts := make([]repository.QueryOption, 0, 3)
+	opts := make([]repository.QueryOption, 0, 4)
 	opts = append(opts, repository.Where(query.Site.Eq(site)))
 	opts = append(opts, repository.Where(query.Type.Neq(int32(adminv1.BaseConfigType_BASE_CONFIG_TYPE_FORM))))
 	opts = append(opts, repository.Where(query.Status.Eq(coreconst.STATUS_STATUS_ENABLE)))

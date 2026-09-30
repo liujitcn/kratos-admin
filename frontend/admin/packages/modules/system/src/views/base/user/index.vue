@@ -85,7 +85,7 @@ import { defBasePostService } from "@liujitcn/kratos-admin-system/api/system/adm
 import type { SelectOptionResponse_Option, TreeOptionResponse_Option } from "@liujitcn/kratos-admin-system/rpc/common/v1/common";
 import { Status } from "@liujitcn/kratos-admin-system/rpc/common/v1/enum";
 import { buildPageRequest, normalizeSelectedIds } from "@liujitcn/kratos-admin-core/table";
-import { PASSWORD_CRYPTO_SCENE, encryptPassword } from "@liujitcn/kratos-admin-core/security";
+import { encryptPassword } from "@liujitcn/kratos-admin-core/security";
 import { useTenantScope } from "@liujitcn/kratos-admin-core/tenant";
 import { t } from "@liujitcn/kratos-admin-core";
 
@@ -775,7 +775,7 @@ async function handleConfirmResetPassword() {
   resetPwdFormDialogRef.value?.validate()?.then(async valid => {
     if (!valid) return;
 
-    const pwd = await encryptPassword(resetPwdForm.pwd, PASSWORD_CRYPTO_SCENE.PASSWORD_CRYPTO_SCENE_RESET_BASE_USER_PASSWORD);
+    const pwd = await encryptPassword(resetPwdForm.pwd, );
     defBaseUserService.ResetBaseUserPassword({ id: resetPwdForm.id, pwd }).then(() => {
       ElMessage.success(t("system.base.user.message.reset_password_success", { name: resetPwdTargetName.value }));
       handleCloseResetPasswordDialog();
@@ -796,7 +796,7 @@ const handleSubmit = useDebounceFn(() => {
       pwd:
         submitData.id || !submitData.pwd
           ? undefined
-          : await encryptPassword(submitData.pwd, PASSWORD_CRYPTO_SCENE.PASSWORD_CRYPTO_SCENE_CREATE_BASE_USER)
+          : await encryptPassword(submitData.pwd, )
     } as BaseUserForm;
     const request = submitData.id
       ? defBaseUserService.UpdateBaseUser({ base_user: baseUser })

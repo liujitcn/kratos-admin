@@ -227,7 +227,13 @@ func (c *BaseMessageProviderCase) formEntity(req *adminv1.BaseMessageProviderFor
 	if err != nil {
 		return nil, errorsx.InvalidArgument("消息 Provider 扩展配置无效").WithCause(err)
 	}
-	secret := req.GetClientSecret()
+	var secret string
+	if req.GetClientSecret() != nil {
+		secret = req.GetClientSecret().GetText()
+		if len(secret) > maxSecretLength {
+			return nil, errorsx.InvalidArgument("通用凭证密钥不能超过1024个字符")
+		}
+	}
 	if secret == "" && oldItem != nil {
 		secret = oldItem.ClientSecret
 	}

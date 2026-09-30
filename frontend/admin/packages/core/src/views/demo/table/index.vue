@@ -68,7 +68,7 @@ const statusTagOptions = [
 ];
 
 /** select-v2 大数据下拉的静态选项（isShow: false，仅出现在搜索区）。 */
-const tagSearchOptions = Array.from({ length: 50 }, (_, index) => ({ label: `标签 ${index + 1}`, value: `tag-${index + 1}` }));
+const tagSearchOptions = Array.from({ length: 50 }, (_, index) => ({ label: t("core.demo.table.tag_item", { index: index + 1 }), value: `tag-${index + 1}` }));
 
 /** tree-select 搜索项的静态团队树（isShow: false，仅出现在搜索区）。 */
 const ownerGroupOptions = demoRegionTree;
@@ -121,7 +121,7 @@ const columns = computed<ColumnProps[]>(() => [
     minWidth: 130,
     align: "right",
     cellType: "money",
-    moneyProps: { prefix: "¥", suffix: " 元" }
+    moneyProps: { prefix: "¥", suffix: t("core.demo.table.money_unit") }
   },
   {
     // 多级表头：_children 嵌套的列渲染在“任务情况”分组下

@@ -123,13 +123,13 @@ const deptTreeOptions: ProFormOption[] = demoDeptTree.map(dept => ({
 
 /** 租户静态选项：tenant-select 传入 options 后不再请求租户接口，纯静态可渲染。 */
 const tenantOptions: ProFormOption[] = [
-  { label: "Demo 总租户", value: 1 },
-  { label: "Demo 子租户", value: 2 }
+  { label: t("core.demo.form.tenant.main"), value: 1 },
+  { label: t("core.demo.form.tenant.sub"), value: 2 }
 ];
 
 /** 协作成员穿梭框数据源：value 即选中后的 key。 */
 const memberOptions: ProFormOption[] = demoDeptTree[0].children!.map((dept, index) => ({
-  label: `${dept.name}负责人`,
+  label: t("core.demo.form.leader_title", { name: dept.name }),
   value: index + 1
 }));
 

@@ -16,8 +16,8 @@ test('encryptPassword falls back when WebCrypto subtle is unavailable', async ()
           privateDecrypt,
           webcrypto,
         } from 'node:crypto'
-        import { defLoginService } from './src/api/base/v1/login.ts'
-        import { encryptPassword, PASSWORD_CRYPTO_SCENE } from './src/utils/passwordCrypto.ts'
+        import { defSecretCryptoService } from './src/api/base/v1/secret_crypto.ts'
+        import { encryptPassword } from './src/utils/secretCrypto.ts'
 
         const { publicKey, privateKey } = generateKeyPairSync('rsa', { modulusLength: 2048 })
         const originalCrypto = globalThis.crypto
@@ -25,7 +25,7 @@ test('encryptPassword falls back when WebCrypto subtle is unavailable', async ()
           configurable: true,
           value: { getRandomValues: webcrypto.getRandomValues.bind(webcrypto) },
         })
-        defLoginService.PasswordPublicKey = async () => ({
+        defSecretCryptoService.GetSecretPublicKey = async () => ({
           key_id: 'fallback-test-key',
           public_key: publicKey.export({ type: 'spki', format: 'pem' }).toString(),
           algorithm: 'RSA-OAEP-256+A256GCM',
@@ -35,7 +35,7 @@ test('encryptPassword falls back when WebCrypto subtle is unavailable', async ()
 
         let encrypted
         try {
-          encrypted = await encryptPassword('112233', PASSWORD_CRYPTO_SCENE.LOGIN)
+          encrypted = await encryptPassword('112233')
         } finally {
           Object.defineProperty(globalThis, 'crypto', {
             configurable: true,
@@ -51,7 +51,7 @@ test('encryptPassword falls back when WebCrypto subtle is unavailable', async ()
           },
           Buffer.from(encrypted.encrypted_key, 'base64'),
         )
-        const encryptedPayload = Buffer.from(encrypted.ciphertext, 'base64')
+        const encryptedPayload = Buffer.from(encrypted.text, "base64")
         const decipher = createDecipheriv(
           'aes-256-gcm',
           aesKey,

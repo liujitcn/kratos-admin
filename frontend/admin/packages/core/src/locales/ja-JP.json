@@ -475,5 +475,13 @@
   "core.demo.detail.timeline.created": "記録を作成しました",
   "core.demo.detail.timeline.updated": "基本情報を更新しました",
   "core.demo.detail.timeline.enabled": "記録を有効化しました",
-  "core.demo.detail.timeline.disabled": "記録を無効化しました"
+  "core.demo.detail.timeline.disabled": "記録を無効化しました",
+  "core.password.reveal_unsupported": "この環境ではシークレット表示が登録されていません",
+  "core.password.reveal_failed": "シークレットの表示に失敗しました",
+  "core.demo.table.tag_item": "タグ {index}",
+  "core.demo.table.money_unit": " 円",
+  "core.demo.form.tenant.main": "Demoメインテナント",
+  "core.demo.form.tenant.sub": "Demoサブテナント",
+  "core.demo.form.leader_title": "{name}リーダー",
+  "core.demo.tree.new_dir": "Demoディレクトリ {id}"
 }

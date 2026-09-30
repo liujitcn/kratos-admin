@@ -1,13 +1,112 @@
-import { defLoginService } from "@/api/base/v1/login";
-import { PasswordCryptoScene, type PasswordPublicKeyResponse } from "@/rpc/base/v1/login";
-import type { PasswordCrypto } from "@/rpc/common/v1/types";
+import { defSecretCryptoService } from "@/api/base/v1/secret_crypto";
+import type { GetSecretPublicKeyResponse } from "@/rpc/base/v1/secret_crypto";
+import type { SecretCrypto } from "@/rpc/common/v1/types";
+import type { ProFormField } from "@/components/ProForm/interface";
 import { t } from "@/locales";
 import * as portableCrypto from "asmcrypto.js";
 
 type PortableCrypto = typeof import("asmcrypto.js");
 
-export const PASSWORD_CRYPTO_SCENE = PasswordCryptoScene;
-export type { PasswordCryptoScene };
+/** 获取敏感字段一次性临时公钥，同一次提交的多个密文字段共用该公钥。 */
+export async function fetchSecretPublicKey(): Promise<GetSecretPublicKeyResponse> {
+  return defSecretCryptoService.GetSecretPublicKey({});
+}
+
+/** encodeSecretFields 在提交前把声明 secret 的字段统一加密为 SecretCrypto，返回模型浅克隆且不改动原表单。 */
+export async function encodeSecretFields(
+  fields: ProFormField[],
+  model: Record<string, any>
+): Promise<Record<string, any>> {
+  const secretFields = fields.filter(field => field.secret);
+  const filled = secretFields
+    .map(field => ({ field, value: getByPath(model, field.prop) }))
+    .filter((item): item is { field: ProFormField; value: string } => typeof item.value === "string" && item.value.trim() !== "");
+  if (secretFields.length === 0) {
+    return { ...model };
+  }
+  const publicKey = filled.length > 0 ? await fetchSecretPublicKey() : null;
+  const payload = { ...model };
+  for (const item of secretFields) {
+    const value = getByPath(model, item.prop);
+    if (typeof value === "string" && value.trim() !== "") {
+      payload[item.prop] = await encryptWithPublicKey(publicKey!, value);
+    } else {
+      payload[item.prop] = undefined;
+    }
+  }
+  return payload;
+}
+
+/** 按点路径读取对象字段值。 */
+function getByPath(model: Record<string, any>, path: string) {
+  return path.split(".").reduce((current, key) => (current == null ? current : current[key]), model as any);
+}
+
+/** 使用已获取的临时公钥加密单个敏感值，供一次取钥加密多个字段的场景复用。 */
+export async function encryptWithPublicKey(publicKey: GetSecretPublicKeyResponse, value: string): Promise<SecretCrypto> {
+  if (!value) {
+    throw new Error(t("core.password.required"));
+  }
+  const cryptoApi = globalThis.crypto;
+  const isSecureContext = typeof window === "undefined" || window.isSecureContext;
+  if (!cryptoApi?.subtle || !isSecureContext) {
+    return encryptPortableSecret(portableCrypto, value, publicKey);
+  }
+  const subtleCrypto = getSubtleCrypto();
+  const publicKeyKey = await subtleCrypto.subtle.importKey(
+    "spki",
+    pemToArrayBuffer(publicKey.public_key),
+    { name: "RSA-OAEP", hash: "SHA-256" },
+    false,
+    ["encrypt"]
+  );
+  const aesKey = await subtleCrypto.subtle.generateKey({ name: "AES-GCM", length: 256 }, true, ["encrypt"]);
+  const rawAesKey = await subtleCrypto.subtle.exportKey("raw", aesKey);
+  const iv = subtleCrypto.getRandomValues(new Uint8Array(12));
+  const ciphertext = await subtleCrypto.subtle.encrypt({ name: "AES-GCM", iv }, aesKey, new TextEncoder().encode(value));
+  const encryptedKey = await subtleCrypto.subtle.encrypt({ name: "RSA-OAEP" }, publicKeyKey, rawAesKey);
+
+  return {
+    key_id: publicKey.key_id,
+    nonce: publicKey.nonce,
+    algorithm: publicKey.algorithm,
+    encrypted_key: arrayBufferToBase64(encryptedKey),
+    iv: arrayBufferToBase64(iv.buffer),
+    text: arrayBufferToBase64(ciphertext)
+  };
+}
+
+/** 加密单个敏感字段值，自动获取一次性临时公钥。 */
+export async function encryptSecret(value: string): Promise<SecretCrypto> {
+  return encryptWithPublicKey(await fetchSecretPublicKey(), value);
+}
+
+/** SecretRevealHandler 按资源标识与字段名查看密钥明文的实现。 */
+export type SecretRevealHandler = (resource: string, id: number, field: string) => Promise<string>;
+
+let secretRevealHandler: SecretRevealHandler | null = null;
+
+/** registerSecretRevealHandler 注册密钥明文查看实现，由业务模块在启动时注入。 */
+export function registerSecretRevealHandler(handler: SecretRevealHandler) {
+  secretRevealHandler = handler;
+}
+
+/** revealSecret 查看注册过的密钥字段明文。 */
+export async function revealSecret(resource: string, id: number, field: string): Promise<string> {
+  if (!secretRevealHandler) {
+    throw new Error(t("core.password.reveal_unsupported"));
+  }
+  return secretRevealHandler(resource, id, field);
+}
+
+/** 加密密码字段：去除首尾空白且不允许为空。 */
+export async function encryptPassword(value: string): Promise<SecretCrypto> {
+  const plainPassword = value.trim();
+  if (!plainPassword) {
+    throw new Error(t("core.password.required"));
+  }
+  return encryptSecret(plainPassword);
+}
 
 /** 将 PEM 公钥转换为二进制 DER 数据。 */
 function pemToArrayBuffer(pem: string) {
@@ -129,7 +228,7 @@ function generateMgf1Mask(cryptoApi: PortableCrypto, seed: Uint8Array, length: n
   return mask;
 }
 
-/** 生成纯 JavaScript 密码加密所需的随机字节。 */
+/** 生成纯 JavaScript 加密所需的随机字节。 */
 function getPortableRandomBytes(length: number) {
   const cryptoApi = globalThis.crypto;
   if (!cryptoApi?.getRandomValues) {
@@ -138,15 +237,15 @@ function getPortableRandomBytes(length: number) {
   return cryptoApi.getRandomValues(new Uint8Array(length));
 }
 
-/** 使用纯 JavaScript 实现兼容缺少 WebCrypto 的密码加密协议。 */
-async function encryptPortablePassword(
+/** 使用纯 JavaScript 实现兼容缺少 WebCrypto 环境的敏感值加密协议。 */
+async function encryptPortableSecret(
   cryptoApi: PortableCrypto,
-  password: string,
-  publicKeyResponse: PasswordPublicKeyResponse
-): Promise<PasswordCrypto> {
+  value: string,
+  publicKeyResponse: GetSecretPublicKeyResponse
+): Promise<SecretCrypto> {
   const aesKey = getPortableRandomBytes(32);
   const iv = getPortableRandomBytes(12);
-  const plaintext = cryptoApi.string_to_bytes(password, true);
+  const plaintext = cryptoApi.string_to_bytes(value, true);
   const [modulus, exponent] = parsePortableRsaPublicKey(publicKeyResponse.public_key);
   const hash = new cryptoApi.Sha256();
   const keySize = Math.ceil(new cryptoApi.BigNumber(modulus).bitLength / 8);
@@ -187,43 +286,6 @@ async function encryptPortablePassword(
     algorithm: publicKeyResponse.algorithm,
     encrypted_key: arrayBufferToBase64(encryptedKey.slice().buffer),
     iv: arrayBufferToBase64(iv.buffer),
-    ciphertext: arrayBufferToBase64(ciphertext.slice().buffer)
-  };
-}
-
-/** 加密单个密码字段，返回后端可解析的密码密文。 */
-export async function encryptPassword(password: string, scene: PasswordCryptoScene): Promise<PasswordCrypto> {
-  const plainPassword = password.trim();
-  if (!plainPassword) {
-    throw new Error(t("core.password.required"));
-  }
-
-  const publicKeyResponse = await defLoginService.PasswordPublicKey({ scene });
-  const cryptoApi = globalThis.crypto;
-  const isSecureContext = typeof window === "undefined" || window.isSecureContext;
-  if (!cryptoApi?.subtle || !isSecureContext) {
-    return encryptPortablePassword(portableCrypto, plainPassword, publicKeyResponse);
-  }
-  const subtleCrypto = getSubtleCrypto();
-  const publicKey = await subtleCrypto.subtle.importKey(
-    "spki",
-    pemToArrayBuffer(publicKeyResponse.public_key),
-    { name: "RSA-OAEP", hash: "SHA-256" },
-    false,
-    ["encrypt"]
-  );
-  const aesKey = await subtleCrypto.subtle.generateKey({ name: "AES-GCM", length: 256 }, true, ["encrypt"]);
-  const rawAesKey = await subtleCrypto.subtle.exportKey("raw", aesKey);
-  const iv = subtleCrypto.getRandomValues(new Uint8Array(12));
-  const ciphertext = await subtleCrypto.subtle.encrypt({ name: "AES-GCM", iv }, aesKey, new TextEncoder().encode(plainPassword));
-  const encryptedKey = await subtleCrypto.subtle.encrypt({ name: "RSA-OAEP" }, publicKey, rawAesKey);
-
-  return {
-    key_id: publicKeyResponse.key_id,
-    nonce: publicKeyResponse.nonce,
-    algorithm: publicKeyResponse.algorithm,
-    encrypted_key: arrayBufferToBase64(encryptedKey),
-    iv: arrayBufferToBase64(iv.buffer),
-    ciphertext: arrayBufferToBase64(ciphertext)
+    text: arrayBufferToBase64(ciphertext.slice().buffer)
   };
 }

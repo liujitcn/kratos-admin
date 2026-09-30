@@ -110,6 +110,9 @@
   "base.ai.prompt.user": {
     "other": "- 使用者：{{.Value}}"
   },
+  "base.ai.query.question.required": {
+    "other": "問題內容不合法"
+  },
   "base.ai.runtime.uninitialized": {
     "other": "AI 助手執行環境未初始化"
   },
@@ -160,6 +163,9 @@
   },
   "base.config.get.site.required": {
     "other": "位置不能為空"
+  },
+  "base.config.get.site.system_not_allowed": {
+    "other": "系統內建配置不支援下發"
   },
   "base.config.get_i18n_custom.site.required": {
     "other": "位置不能為空"
@@ -376,6 +382,12 @@
   },
   "base.third_account.error.current_user_provider_bound": {
     "other": "目前使用者已綁定此登入方式"
+  },
+  "base.v1.secret_crypto.reveal.field.required": {
+    "other": "欄位名稱不能為空"
+  },
+  "base.v1.secret_crypto.reveal.resource.required": {
+    "other": "資源標識不能為空"
   },
   "common.action.create_resource": {
     "other": "新增{resource}"
@@ -890,6 +902,9 @@
   "legacy.error.20da88183ea92106": {
     "other": "建立國際化自訂翻譯失敗"
   },
+  "legacy.error.20e379d993bbb25c": {
+    "other": "配置值不能為空"
+  },
   "legacy.error.20eb653252a9bb73": {
     "other": "設定出庫脫敏策略狀態失敗"
   },
@@ -1028,6 +1043,9 @@
   "legacy.error.2a1913450ed9f8d0": {
     "other": "字典編碼重複"
   },
+  "legacy.error.2a4cd1962154db7b": {
+    "other": "獲取敏感欄位臨時公鑰失敗"
+  },
   "legacy.error.2b0341c1d9e4dcbc": {
     "other": "封存站內信失敗"
   },
@@ -1144,6 +1162,9 @@
   },
   "legacy.error.320054dca76a2e4d": {
     "other": "取得自訂國際化翻譯失敗"
+  },
+  "legacy.error.3237d700b2b610fa": {
+    "other": "模型密鑰不能超過1024個字符"
   },
   "legacy.error.323a9f3dfd9436cc": {
     "other": "訊息不存在"
@@ -2120,6 +2141,9 @@
   "legacy.error.77472bb2a160d55d": {
     "other": "同一資料表欄位的入庫脫敏策略已存在"
   },
+  "legacy.error.776cebce09b25a74": {
+    "other": "查看密鑰欄位失敗"
+  },
   "legacy.error.776d13ccebdb1fb7": {
     "other": "更新角色失敗，不能使用內建角色編碼"
   },
@@ -2128,6 +2152,9 @@
   },
   "legacy.error.778da14d7ba916df": {
     "other": "撤銷租戶開放授權令牌失敗"
+  },
+  "legacy.error.77db1941b97a251f": {
+    "other": "第三方應用密鑰不能超過512個字符"
   },
   "legacy.error.77fc0ea919e34629": {
     "other": "使用者組織關係與所屬租戶不一致"
@@ -2338,6 +2365,9 @@
   },
   "legacy.error.87ae82935905643c": {
     "other": "更新定時任務失敗"
+  },
+  "legacy.error.87b7f25f6e118d2d": {
+    "other": "密鑰欄位不存在"
   },
   "legacy.error.88866be60ba8716d": {
     "other": "操作使用者失敗，內建管理員帳號只能透過個人中心修改"
@@ -3416,6 +3446,9 @@
   "legacy.error.e3d224984836347a": {
     "other": "渲染訊息範本失敗: %w"
   },
+  "legacy.error.e3f1b26b38842ada": {
+    "other": "通用憑證密鑰不能超過1024個字符"
+  },
   "legacy.error.e4049241c07c1ec6": {
     "other": "程式碼生成表設定ID不能重複"
   },
@@ -3934,6 +3967,30 @@
   },
   "openapi.ai_provider.test_models.summary": {
     "other": "測試 AI 供應商表單中的全部模型。"
+  },
+  "rag.admin.ai.knowledge.description.max_length": {
+    "other": "描述不能超過500個字元"
+  },
+  "rag.admin.ai.knowledge.doc.content.required": {
+    "other": "請輸入文檔內容"
+  },
+  "rag.admin.ai.knowledge.doc.file_name.required": {
+    "other": "請輸入檔案名稱"
+  },
+  "rag.admin.ai.knowledge.doc.name.max_length": {
+    "other": "文檔名稱不能超過200個字元"
+  },
+  "rag.admin.ai.knowledge.doc.name.required": {
+    "other": "請輸入文檔名稱"
+  },
+  "rag.admin.ai.knowledge.name.required": {
+    "other": "請輸入知識庫名稱"
+  },
+  "rag.admin.ai.knowledge.search.query.required": {
+    "other": "請輸入檢索內容"
+  },
+  "rag.admin.ai.knowledge.update.id.required": {
+    "other": "知識庫ID不能為空"
   },
   "system.admin.auth.entity.user.password.new_pwd.required": {
     "other": "請輸入新密碼"
@@ -4874,14 +4931,62 @@
   "system.admin.base_message_category.form.code.length": {
     "other": "分類編碼不能為空且不能超過50個字符"
   },
+  "system.admin.base_message_category.form.inbox_enabled.required": {
+    "other": "站內信狀態不能為空"
+  },
   "system.admin.base_message_category.form.name.length": {
     "other": "分類名稱不能為空且不能超過50個字符"
+  },
+  "system.admin.base_message_category.form.provider_id.unique": {
+    "other": "消息 Provider 不能重複"
   },
   "system.admin.base_message_category.get.id.required": {
     "other": "消息分類ID不能為空"
   },
   "system.admin.base_message_category.set_status.id.required": {
     "other": "消息分類ID不能為空"
+  },
+  "system.admin.base_message_provider.delete.id.required": {
+    "other": "消息 Provider ID清單不能為空"
+  },
+  "system.admin.base_message_provider.form.client_id.length": {
+    "other": "通用憑證標識不能超過255個字元"
+  },
+  "system.admin.base_message_provider.form.description.length": {
+    "other": "Provider說明不能超過255個字元"
+  },
+  "system.admin.base_message_provider.form.icon.length": {
+    "other": "Provider圖標不能超過100個字元"
+  },
+  "system.admin.base_message_provider.form.name.required": {
+    "other": "Provider名稱不能為空且不能超過50個字元"
+  },
+  "system.admin.base_message_provider.form.provider.required": {
+    "other": "Provider標識格式無效"
+  },
+  "system.admin.base_message_provider.get.id.required": {
+    "other": "消息 Provider ID不能為空"
+  },
+  "system.admin.base_message_provider.set_status.id.required": {
+    "other": "消息 Provider ID不能為空"
+  },
+  "system.admin.base_message_template.delete.id.required": {
+    "other": "消息模板ID清單不能為空"
+  },
+  "system.admin.base_message_template.form.category_id.required": {
+    "other": "消息分類不能為空"
+  },
+  "system.admin.base_message_template.form.content.length": {
+    "other": "模板正文不能超過20000個字元"
+  },
+  "system.admin.base_message_template.form.provider_id.required": {
+    "other": "消息 Provider 不能為空"
+  },
+  "system.admin.base_message_template.form.title.length": {
+    "other": "模板標題不能為空且不能超過200個字元"
+  },
+  "system.admin.base_message_template.get.id.required": {
+    "other": "消息模板ID不能為空"
   },
   "system.admin.code.gen.column.list.table_id.required": {
     "other": "程式碼生成表配置ID不能為空"
@@ -5386,6 +5491,9 @@
   },
   "system.oauth.crypto.error.request_decrypt_failed": {
     "other": "請求資料解密失敗"
+  },
+  "system.oauth.crypto.error.request_too_large": {
+    "other": "請求數據超過大小限制"
   },
   "system.oauth.crypto.error.response_encrypt_failed": {
     "other": "回應資料加密失敗"

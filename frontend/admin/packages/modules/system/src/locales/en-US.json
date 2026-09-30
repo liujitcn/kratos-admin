@@ -1407,6 +1407,7 @@
   "system.code.gen.column.value.single": "Single",
   "system.code.gen.column.value.table_comment": "Comment: {comment}",
   "system.code.gen.column.value.table_name": "Table: {name}",
+  "system.code.gen.component.cascader": "Cascader",
   "system.code.gen.component.checkbox": "Checkbox",
   "system.code.gen.component.checkbox_group": "Checkbox group",
   "system.code.gen.component.color_picker": "Color picker",

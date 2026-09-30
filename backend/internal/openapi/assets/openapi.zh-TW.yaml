@@ -6388,6 +6388,28 @@ paths:
                 "200":
                     description: OK
                     content: {}
+    /api/v1/admin/base/user/{user_id}/app-role:
+        put:
+            tags:
+                - BaseUserService
+            description: 設定基礎使用者應用端角色
+            operationId: BaseUserService_SetBaseUserAppRole
+            parameters:
+                - name: user_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.SetBaseUserAppRoleRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
     /api/v1/admin/cache:
         get:
             tags:
@@ -8380,33 +8402,38 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/base.v1.HandleOauthCallbackResponse'
-    /api/v1/base/password-public-key:
-        get:
+    /api/v1/base/secret-field/reveal:
+        post:
             tags:
-                - LoginService
-            description: 獲取密碼臨時公鑰
-            operationId: LoginService_PasswordPublicKey
-            parameters:
-                - name: scene
-                  in: query
-                  schema:
-                    enum:
-                        - PASSWORD_CRYPTO_SCENE_UNSPECIFIED
-                        - PASSWORD_CRYPTO_SCENE_LOGIN
-                        - PASSWORD_CRYPTO_SCENE_CREATE_BASE_USER
-                        - PASSWORD_CRYPTO_SCENE_RESET_BASE_USER_PASSWORD
-                        - PASSWORD_CRYPTO_SCENE_UPDATE_USER_PASSWORD
-                        - PASSWORD_CRYPTO_SCENE_MFA
-                        - PASSWORD_CRYPTO_SCENE_CONFIGURE_PASSWORD_POLICY
-                    type: string
-                    format: enum
+                - SecretCryptoService
+            description: 檢視金鑰欄位明文，僅允許查詢註冊過的金鑰欄位
+            operationId: SecretCryptoService_RevealSecretField
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/base.v1.RevealSecretFieldRequest'
+                required: true
             responses:
                 "200":
                     description: OK
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/base.v1.PasswordPublicKeyResponse'
+                                $ref: '#/components/schemas/base.v1.RevealSecretFieldResponse'
+    /api/v1/base/secret-public-key:
+        get:
+            tags:
+                - SecretCryptoService
+            description: 獲取敏感欄位臨時公鑰，同一次提交的多個密文欄位共用該公鑰
+            operationId: SecretCryptoService_GetSecretPublicKey
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.GetSecretPublicKeyResponse'
     /api/v1/base/session:
         post:
             tags:
@@ -8919,7 +8946,7 @@ components:
             type: object
             properties:
                 password:
-                    $ref: '#/components/schemas/common.v1.PasswordCrypto'
+                    $ref: '#/components/schemas/common.v1.SecretCrypto'
                 setup_ticket:
                     type: string
                     description: 強制繫結場景下的臨時票據
@@ -8959,7 +8986,7 @@ components:
                     type: string
                     description: 使用者名稱
                 password:
-                    $ref: '#/components/schemas/common.v1.PasswordCrypto'
+                    $ref: '#/components/schemas/common.v1.SecretCrypto'
                 captcha_code:
                     type: string
                     description: 驗證碼
@@ -9201,7 +9228,7 @@ components:
             type: object
             properties:
                 password:
-                    $ref: '#/components/schemas/common.v1.PasswordCrypto'
+                    $ref: '#/components/schemas/common.v1.SecretCrypto'
                 code:
                     type: string
                     description: TOTP 動態口令
@@ -9302,6 +9329,25 @@ components:
                         $ref: '#/components/schemas/base.v1.I18nCustomItem'
                     description: 全部語言的自定義國際化覆蓋項
             description: 當前租戶自定義國際化覆蓋項查詢結果。
+        base.v1.GetSecretPublicKeyResponse:
+            type: object
+            properties:
+                key_id:
+                    type: string
+                    description: 臨時金鑰ID
+                public_key:
+                    type: string
+                    description: 臨時公鑰
+                algorithm:
+                    type: string
+                    description: 加密演算法
+                nonce:
+                    type: string
+                    description: 隨機值
+                expires_in:
+                    type: string
+                    description: 有效時間，單位秒
+            description: 敏感欄位臨時公鑰響應
         base.v1.HandleMcpRequest:
             type: object
             properties:
@@ -9450,7 +9496,7 @@ components:
                     type: string
                     description: 使用者名稱
                 password:
-                    $ref: '#/components/schemas/common.v1.PasswordCrypto'
+                    $ref: '#/components/schemas/common.v1.SecretCrypto'
                 captcha_code:
                     type: string
                     description: 驗證碼
@@ -9773,25 +9819,6 @@ components:
                     type: boolean
                     description: 是否還有下一頁
             description: 當前使用者收件箱分頁響應。
-        base.v1.PasswordPublicKeyResponse:
-            type: object
-            properties:
-                key_id:
-                    type: string
-                    description: 臨時金鑰ID
-                public_key:
-                    type: string
-                    description: 臨時公鑰
-                algorithm:
-                    type: string
-                    description: 加密演算法
-                nonce:
-                    type: string
-                    description: 隨機值
-                expires_in:
-                    type: string
-                    description: 有效時間，單位秒
-            description: 密碼臨時公鑰響應
         base.v1.RecoveryCodesResponse:
             type: object
             properties:
@@ -9859,6 +9886,26 @@ components:
                     type: string
                     description: 失敗訊息ID
             description: AI 助手失敗訊息重試請求
+        base.v1.RevealSecretFieldRequest:
+            type: object
+            properties:
+                resource:
+                    type: string
+                    description: 金鑰欄位資源標識
+                id:
+                    type: string
+                    description: 記錄ID
+                field:
+                    type: string
+                    description: 金鑰欄位名
+            description: 金鑰欄位檢視條件
+        base.v1.RevealSecretFieldResponse:
+            type: object
+            properties:
+                text:
+                    type: string
+                    description: 金鑰明文
+            description: 金鑰欄位檢視響應
         base.v1.SearchAiWebItem:
             type: object
             properties:
@@ -10051,7 +10098,7 @@ components:
                         $ref: '#/components/schemas/common.v1.AppTreeOptionResponse_Option'
                     description: 子節點樹
             description: 應用樹形選項
-        common.v1.PasswordCrypto:
+        common.v1.SecretCrypto:
             type: object
             properties:
                 key_id:
@@ -10069,10 +10116,10 @@ components:
                 iv:
                     type: string
                     description: 初始化向量
-                ciphertext:
+                text:
                     type: string
-                    description: 密碼加密資料
-            description: 密碼密文。
+                    description: 傳輸時為密文，服務端解密後回填明文
+            description: 敏感欄位密文，密碼與各類金鑰欄位統一使用。
         common.v1.SelectOptionResponse:
             type: object
             properties:
@@ -10411,8 +10458,7 @@ components:
                     type: string
                     description: 模型API基礎地址
                 api_key:
-                    type: string
-                    description: 模型API金鑰；更新時留空表示保留現有金鑰
+                    $ref: '#/components/schemas/common.v1.SecretCrypto'
                 api_key_configured:
                     type: boolean
                     description: 是否已儲存模型金鑰
@@ -11105,7 +11151,7 @@ components:
                     description: 配置key
                 value:
                     type: string
-                    description: 配置value
+                    description: 配置value，敏感配置恆為空
                 status:
                     enum:
                         - STATUS_UNSPECIFIED
@@ -11160,8 +11206,7 @@ components:
                     type: string
                     description: 配置key
                 value:
-                    type: string
-                    description: 配置value
+                    $ref: '#/components/schemas/common.v1.SecretCrypto'
                 name_i18ns:
                     type: array
                     items:
@@ -12143,7 +12188,7 @@ components:
                     description: 密碼至少滿足的字元類別數量，字元類別包括小寫、大寫、數字和符號
                     format: int32
                 initial_password:
-                    $ref: '#/components/schemas/common.v1.PasswordCrypto'
+                    $ref: '#/components/schemas/common.v1.SecretCrypto'
             description: 登入策略表單。
         system.admin.v1.BaseLoginPolicyRule:
             type: object
@@ -12781,8 +12826,7 @@ components:
                     type: string
                     description: 通用憑證標識
                 client_secret:
-                    type: string
-                    description: 通用憑證金鑰，更新時留空表示不修改
+                    $ref: '#/components/schemas/common.v1.SecretCrypto'
                 secret_configured:
                     type: boolean
                     description: 是否已配置通用憑證金鑰
@@ -13005,8 +13049,7 @@ components:
                     type: string
                     description: 第三方應用標識
                 client_secret:
-                    type: string
-                    description: 第三方應用金鑰，更新時留空表示不修改
+                    $ref: '#/components/schemas/common.v1.SecretCrypto'
                 secret_configured:
                     type: boolean
                     description: 是否已配置第三方應用金鑰
@@ -14538,7 +14581,7 @@ components:
                     description: 性別
                     format: enum
                 pwd:
-                    $ref: '#/components/schemas/common.v1.PasswordCrypto'
+                    $ref: '#/components/schemas/common.v1.SecretCrypto'
                 status:
                     enum:
                         - STATUS_UNSPECIFIED
@@ -16569,7 +16612,7 @@ components:
                     type: string
                     description: 使用者ID
                 pwd:
-                    $ref: '#/components/schemas/common.v1.PasswordCrypto'
+                    $ref: '#/components/schemas/common.v1.SecretCrypto'
             description: 重置使用者密碼請求引數
         system.admin.v1.RestoreCodeGenRequest:
             type: object
@@ -17110,6 +17153,16 @@ components:
                     description: 狀態
                     format: int32
             description: 設定租戶狀態請求引數
+        system.admin.v1.SetBaseUserAppRoleRequest:
+            type: object
+            properties:
+                user_id:
+                    type: string
+                    description: 使用者ID
+                role_code:
+                    type: string
+                    description: 應用端角色編碼
+            description: 基礎使用者應用端角色設定引數
         system.admin.v1.SetBaseUserStatusRequest:
             type: object
             properties:
@@ -17370,9 +17423,9 @@ components:
             type: object
             properties:
                 old_pwd:
-                    $ref: '#/components/schemas/common.v1.PasswordCrypto'
+                    $ref: '#/components/schemas/common.v1.SecretCrypto'
                 new_pwd:
-                    $ref: '#/components/schemas/common.v1.PasswordCrypto'
+                    $ref: '#/components/schemas/common.v1.SecretCrypto'
             description: 使用者密碼錶單
         system.admin.v1.UserPhoneForm:
             type: object
@@ -17588,9 +17641,9 @@ tags:
     - name: AiProviderService
       description: AI供應商管理服務。
     - name: AiQueryService
-      description: 智慧問數記錄管理服務。
-    - name: AiQueryService
       description: Base AI 助手智慧問數服務
+    - name: AiQueryService
+      description: 智慧問數記錄管理服務。
     - name: AiSearchService
       description: Base AI 助手聯網搜尋服務
     - name: AiSessionService
@@ -17624,9 +17677,9 @@ tags:
     - name: BaseDictItemService
       description: Admin字典項服務
     - name: BaseDictService
-      description: Admin 字典服務
-    - name: BaseDictService
       description: App 字典服務
+    - name: BaseDictService
+      description: Admin 字典服務
     - name: BaseFileService
       description: Admin檔案資產管理服務。
     - name: BaseI18nCustomService
@@ -17728,14 +17781,16 @@ tags:
     - name: NotificationService
       description: Base站內信通知服務，提供當前使用者的收件箱能力。
     - name: OauthClientService
-      description: Admin開放授權客戶端管理服務。
-    - name: OauthClientService
       description: Base開放授權客戶端令牌服務。
+    - name: OauthClientService
+      description: Admin開放授權客戶端管理服務。
     - name: OauthService
       description: Base 第三方登入公共服務
     - name: OpsMonitoringService
       description: Admin運維監控服務。
     - name: RuntimeLogService
       description: Admin執行日誌服務。
+    - name: SecretCryptoService
+      description: 敏感欄位加密公共服務
     - name: SseService
       description: Base SSE 服務

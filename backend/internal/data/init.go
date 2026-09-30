@@ -12,5 +12,6 @@ var ProviderSet = wire.NewSet(
 	ragdata.ProviderSet,
 	wire.Bind(new(ragdata.QueryProvider), new(*ragdata.Data)),
 	NewMessageDeliveryWriter,
+	NewSecretFieldStorage,
 	wire.Bind(new(data.QueryProvider), new(*data.Data)),
 )

@@ -8,12 +8,10 @@ import (
 	"math/rand/v2"
 	"time"
 
-	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
 	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
 	baseBiz "github.com/liujitcn/kratos-admin/backend/internal/biz/base"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/loginpolicy"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/password"
-	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/utils"
 	_const "github.com/liujitcn/kratos-admin/backend/internal/const"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
@@ -383,16 +381,8 @@ func (c *AuthCase) UpdateUserPassword(ctx context.Context, req *adminv1.UserPass
 	if err != nil {
 		return err
 	}
-	var oldPwd string
-	oldPwd, err = utils.DecryptPassword(c.Cache, req.GetOldPwd(), basev1.PasswordCryptoScene_PASSWORD_CRYPTO_SCENE_UPDATE_USER_PASSWORD)
-	if err != nil {
-		return err
-	}
-	var newPwd string
-	newPwd, err = utils.DecryptPassword(c.Cache, req.GetNewPwd(), basev1.PasswordCryptoScene_PASSWORD_CRYPTO_SCENE_UPDATE_USER_PASSWORD)
-	if err != nil {
-		return err
-	}
+	oldPwd := req.GetOldPwd().GetText()
+	newPwd := req.GetNewPwd().GetText()
 
 	userQuery := c.baseUserCase.Query(ctx).BaseUser
 	userOpts := []repository.QueryOption{

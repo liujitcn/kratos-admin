@@ -417,6 +417,7 @@ export default function AiPage() {
       content: payload.text,
       provider_id: selectedProviderId,
       model_name: selectedModelName,
+      knowledge_base_ids: [],
       attachments: payload.attachments,
       action: undefined,
     }

@@ -681,7 +681,7 @@ test("AI模型随供应商表单维护，独立模型页已移除", async () => 
   assert.match(providerPage, /categoryConfigFields: Partial<Record<AiModelCategory, string\[\]>>/);
   assert.match(providerPage, /slotName: "models"/);
   assert.match(providerPage, /for \(const key of categoryConfigFields\[category\] \?\? \[\]\)/);
-  assert.match(providerPage, /models: form\.models\.map\(model => buildModelPayload\(model\)\)/);
+  assert.match(providerPage, /models: \w+\.models\.map\(model => buildModelPayload\(model\)\)/);
   assert.doesNotMatch(providerPage, /models_json|parseModelConfigs/);
 
   const requiredKeys = [

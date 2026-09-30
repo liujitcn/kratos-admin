@@ -2,21 +2,16 @@ package biz
 
 import (
 	"context"
-	"crypto/rand"
 	"database/sql"
-	"encoding/base64"
 	"testing"
 
 	"github.com/go-kratos/kratos/v3/errors"
 	"github.com/liujitcn/go-utils/crypto"
-	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/loginpolicy"
-	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/utils"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
 	"github.com/liujitcn/kratos-core/biz"
-	"github.com/liujitcn/kratos-kit/cache"
 	"github.com/liujitcn/kratos-kit/cache/memory"
 	kitgorm "github.com/liujitcn/kratos-kit/database/gorm"
 	"gorm.io/driver/sqlite"
@@ -130,50 +125,13 @@ func TestFindUserByPasswordUsesTenantCode(t *testing.T) {
 		baseUserCase:   baseUserCase,
 		baseTenantRepo: data.NewBaseTenantRepository(dataStore),
 	}
-	password := encryptTestPassword(t, store, "TenantPassword1!", basev1.PasswordCryptoScene_PASSWORD_CRYPTO_SCENE_LOGIN)
+	password := &commonv1.SecretCrypto{Text: "TenantPassword1!"}
 	user, err := loginCase.FindUserByPassword(context.Background(), "1000", "admin", password)
 	if err != nil {
 		t.Fatalf("普通租户同名管理员登录失败: %v", err)
 	}
 	if user.ID != 2 || user.TenantID != 2 {
 		t.Fatalf("命中了错误租户账号: %+v", user)
-	}
-}
-
-// encryptTestPassword 构造登录接口使用的密码密文，覆盖公钥、RSA 和 AES-GCM 协议链路。
-func encryptTestPassword(t *testing.T, store cache.Cache, password string, scene basev1.PasswordCryptoScene) *commonv1.PasswordCrypto {
-	t.Helper()
-	publicKey, err := utils.GeneratePasswordPublicKey(store, scene)
-	if err != nil {
-		t.Fatal(err)
-	}
-	rsaCrypto, err := crypto.NewRSACryptoFromPublicKeyPEM(publicKey.PublicKey)
-	if err != nil {
-		t.Fatal(err)
-	}
-	aesKey, err := crypto.GenerateAESKey(32)
-	if err != nil {
-		t.Fatal(err)
-	}
-	iv := make([]byte, 12)
-	if _, err = rand.Read(iv); err != nil {
-		t.Fatal(err)
-	}
-	ciphertext, err := crypto.AesGCMEncrypt([]byte(password), aesKey, iv)
-	if err != nil {
-		t.Fatal(err)
-	}
-	encryptedKey, err := rsaCrypto.EncryptBytes(aesKey)
-	if err != nil {
-		t.Fatal(err)
-	}
-	return &commonv1.PasswordCrypto{
-		KeyId:        publicKey.KeyId,
-		Nonce:        publicKey.Nonce,
-		Algorithm:    publicKey.Algorithm,
-		EncryptedKey: encryptedKey,
-		Iv:           base64.StdEncoding.EncodeToString(iv),
-		Ciphertext:   base64.StdEncoding.EncodeToString(ciphertext),
 	}
 }
 

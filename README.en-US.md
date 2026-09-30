@@ -14,6 +14,8 @@
 - Message categories, tenant-targeted/all-tenant internal messages, inbox read/archive operations, Redis delivery recovery, and Admin/uni-app/Taro message centers.
 - Proto-driven generation of HTTP, gRPC, OpenAPI, Agent Tool, MCP Tool, and TypeScript RPC code.
 - AI sessions, streaming messages, attachments, tool calls, retries, regeneration, and branched conversations.
+- AI provider and model management: model sub-lists maintained inside the provider dialog, `chat` through `audio` category enums, and model connectivity testing; the AI knowledge base uses a dedicated PostgreSQL store supporting document upload, chunking, embedding ingestion, and retrieval-augmented conversations.
+- End-to-end sensitive field encryption: the frontend submits ciphertext encrypted with a SecretCrypto one-time public key; the server decrypts and stores columns such as API keys and OAuth/messaging provider credentials with envelope encryption, and the admin UI reveals plaintext on demand via the eye control.
 - Administration-side code generation configuration, preview, generation progress, and restoration.
 - Runtime log browsing: live console SSE, historical log queries, level and keyword filters, and original historical file downloads.
 - Login-source policies (global and tenant/user-targeted rules), password complexity policies, policy-controlled multi-device login, independent session timeout and revocation, personal login records, platform online-session management, asynchronous audit-log persistence and retention cleanup, and controlled MySQL backup and restore jobs.
@@ -180,11 +182,11 @@ For daily work, run `make i18n` (sync, generate, and validate). For commits or C
 
 When changing fixed text, add the same keys and placeholders for every language in that module. `make i18n` does not automatically fill missing UI translations; synchronization fails when missing entries are detected. `src/locales/generated.ts` and similar language-registration files, as well as `openapi.<locale>.yaml`, are generated artifacts and must not be maintained manually. Changes to initialization SQL do not automatically overwrite translations in already-migrated databases.
 
-See [Internationalization Language Extension Guide](docs/国际化语言扩展指南.md) for the complete description.
+See [Internationalization Design and Language Extension](docs/国际化最终方案.md) for the complete description.
 
 Language packages define the set of languages the system can render. The `base_language` table only manages runtime enablement, names, ordering, and primary-language configuration. The administration locale preference is stored as `kratos-admin:locale`; uni-app and Taro use `kratos-app:locale`. All HTTP, refresh-token, fetch, SSE, uni.request, and Taro.request requests send a normalized `Accept-Language`. Fixed text is maintained by Core/System JSON language packages in each workspace; dynamic menus and dictionaries are resolved by backend translation tables for the request language and fall back to the primary language when translations are missing.
 
-Adding a language requires no changes to Go, TypeScript, or module registration code: add same-named JSON files under `backend/internal/i18n/assets` and the six frontend language-package directories in the three workspaces, then run `make i18n`. The script validates language sets, language keys, and placeholders, and generates six frontend registration files plus Element Plus and Day.js mappings. Language name, ordering, enabled state, and primary-language state come from `base_language` records; `common.language.*` is used for compile-time offline display and initial names in generated language migrations. See the [Internationalization Language Extension Guide](docs/国际化语言扩展指南.md) for the complete file list and migration flow. To add the language to a new deployment database, update the single `v0.0.1` initialization migration directly; existing database enablement is not overwritten by migrations.
+Adding a language requires no changes to Go, TypeScript, or module registration code: add same-named JSON files under `backend/internal/i18n/assets` and the six frontend language-package directories in the three workspaces, then run `make i18n`. The script validates language sets, language keys, and placeholders, and generates six frontend registration files plus Element Plus and Day.js mappings. Language name, ordering, enabled state, and primary-language state come from `base_language` records; `common.language.*` is used for compile-time offline display and initial names in generated language migrations. See the [Internationalization Design and Language Extension](docs/国际化最终方案.md) for the complete file list and migration flow. To add the language to a new deployment database, update the single `v0.0.1` initialization migration directly; existing database enablement is not overwritten by migrations.
 
 The primary language for dynamic resources is configured by `base_language.is_primary`. When creating or updating menus, dictionaries, dictionary items, and system configurations, the backend converts input text to the primary language according to `Accept-Language` and writes it to the primary table. When the request language is not primary, the original text is written to the corresponding translation table; other enabled non-primary languages are also stored only in translation tables. The administration console supports opening a translation dialog by clicking names for system configurations, menu titles, dictionary names, and dictionary-item labels. Text and rich-text configuration values support runtime translation fallback.
 
@@ -227,12 +229,12 @@ The publishing script skips package versions already present in the registry and
 | Database migrations | [docs/数据库与初始化数据设计.md](docs/数据库与初始化数据设计.md) |
 | Parameter validation | [docs/接口参数校验设计.md](docs/接口参数校验设计.md) |
 | Login and passwords | [docs/登录与密码加密流程.md](docs/登录与密码加密流程.md) |
+| Sensitive field encryption | [docs/敏感字段加密设计.md](docs/敏感字段加密设计.md) |
 | AI assistant | [docs/AI助手设计.md](docs/AI助手设计.md) |
 | Internal messaging | [docs/站内信设计.md](docs/站内信设计.md) |
 | Administration components | [docs/前端组件清单.md](docs/前端组件清单.md) |
-| Internationalization design | [docs/国际化最终方案.md](docs/国际化最终方案.md) |
+| Internationalization design and language extension | [docs/国际化最终方案.md](docs/国际化最终方案.md) |
 | Security policies and operations jobs | [docs/安全策略与运维任务.md](docs/安全策略与运维任务.md) |
-| Adding languages | [docs/国际化语言扩展指南.md](docs/国际化语言扩展指南.md) |
 | Tenant project authorization | [docs/租户项目授权.md](docs/租户项目授权.md) |
 
 When creating external projects, the `packages/cli` packages for all three clients independently generate complete frontends, including language registration, host lifecycle, and check/build tools.

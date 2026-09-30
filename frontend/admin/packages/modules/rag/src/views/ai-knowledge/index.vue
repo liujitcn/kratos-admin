@@ -196,12 +196,17 @@ const textDialog = reactive({ visible: false });
 const form = reactive<AiKnowledgeFormState>(defaultForm());
 const textForm = reactive({ name: "", content: "" });
 const knowledgeModels = ref<AiKnowledgeModel[]>([]);
-const modelOptions = computed<ProFormOption[]>(() =>
-  knowledgeModels.value.map((item: AiKnowledgeModel) => ({
-    label: item.display_name ? `${item.provider_name} / ${item.display_name}（${item.model_name}）` : `${item.provider_name} / ${item.model_name}`,
-    value: item.id
-  }))
-);
+// 模型级联选项：一级供应商、二级模型，叶子值取模型ID。
+const modelOptions = computed<ProFormOption[]>(() => {
+  const groups = new Map<string, ProFormOption[]>();
+  for (const item of knowledgeModels.value) {
+    const label = item.display_name ? `${item.display_name}（${item.model_name}）` : item.model_name;
+    const children = groups.get(item.provider_name) ?? [];
+    children.push({ label, value: item.id });
+    groups.set(item.provider_name, children);
+  }
+  return [...groups.entries()].map(([provider, children]) => ({ label: provider, value: provider, children }));
+});
 // 维度选项随所选模型联动：模型声明了维度时唯一可选，未声明时提供常用维度。
 const dimensionOptions = computed<ProFormOption[]>(() => {
   const selected = knowledgeModels.value.find((item: AiKnowledgeModel) => item.id === form.model_id);
@@ -224,7 +229,7 @@ const searched = ref(false);
 const fields = computed<ProFormField[]>(() => [
   { prop: "name", label: t("rag.knowledge.field.name"), component: "input", colSpan: 24, props: { maxlength: 100 } },
   { prop: "description", label: t("rag.knowledge.field.description"), component: "textarea", colSpan: 24, props: { maxlength: 500, rows: 3 } },
-  { prop: "model_id", label: t("rag.knowledge.field.model"), component: "select", colSpan: 24, options: modelOptions.value },
+  { prop: "model_id", label: t("rag.knowledge.field.model"), component: "cascader", colSpan: 24, options: modelOptions.value, props: { props: { emitPath: false }, clearable: true, filterable: true, style: "width: 100%" } },
   {
     prop: "embedding_dimensions",
     label: t("rag.knowledge.field.embedding_dimensions"),
@@ -294,7 +299,7 @@ const headerActions = computed<HeaderActionProps[]>(() => [
 
 /** 创建默认知识库表单。 */
 function defaultForm(): AiKnowledgeFormState {
-  return { id: 0, name: "", description: "", model_id: undefined, embedding_dimensions: undefined };
+  return { id: 0, name: "", description: "", embedding_dimensions: 0, model_id: undefined };
 }
 
 /** 请求AI知识库表格数据。 */

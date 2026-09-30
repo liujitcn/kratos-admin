@@ -12,6 +12,7 @@ import (
 	"github.com/go-kratos/kratos/v3/transport/http"
 	"github.com/liujitcn/kratos-admin/backend/adapter/kit"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/ai"
+	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/runtimeconfig"
 	biz "github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/logstream"
 	"github.com/liujitcn/kratos-admin/backend/internal/server/base/v1"
@@ -30,12 +31,14 @@ import (
 	"github.com/liujitcn/kratos-core/queue"
 	"github.com/liujitcn/kratos-core/resource/i18n"
 	"github.com/liujitcn/kratos-kit/queue/data"
+	"github.com/liujitcn/kratos-kit/secretcrypto"
 	"github.com/liujitcn/kratos-kit/transport/mcp"
 	"google.golang.org/grpc"
 )
 
 // Module 聚合 Admin 注册到 Core 宿主的协议服务。
 type Module struct {
+	secretCrypto  *secretcrypto.Service
 	baseServices  *base.Services
 	adminServices *admin.Services
 	appServices   *app.Services
@@ -61,11 +64,22 @@ func NewModules(
 	baseOauthProviderCase *biz.BaseOauthProviderCase,
 	redactResolver *kit.RedactPolicyResolver,
 	rateLimitResolver *kit.RateLimitPolicyResolver,
+	secretFieldStorage *kit.SecretFieldRuntime,
 ) (module.Modules, error) {
 	// 迁移可能新增系统配置，模块启动前刷新缓存，避免认证策略沿用旧快照。
 	var err error
 	err = redactResolver.Initialize(context.Background())
 	if err != nil {
+		return nil, err
+	}
+	secretCryptoService := secretcrypto.NewService(adminServices.BaseCase.Cache)
+	secretFieldStorage.ConfigureConfigEncryption(runtimeconfig.SensitiveFields, secretCryptoService)
+	// 脱敏存储策略已保护的表交给该策略加密，密钥字段回调跳过，避免同列双重加密。
+	secretFieldStorage.SetProtectedTableChecker(redactResolver.HasStoragePolicies)
+	if err = secretFieldStorage.Backfill(context.Background()); err != nil {
+		return nil, err
+	}
+	if err = secretFieldStorage.BackfillConfig(context.Background()); err != nil {
 		return nil, err
 	}
 	err = baseConfigCase.RefreshBaseConfig(context.Background())
@@ -94,6 +108,7 @@ func NewModules(
 	}
 	return module.Modules{
 		&Module{
+			secretCrypto:  secretCryptoService,
 			baseServices:  baseServices,
 			adminServices: adminServices,
 			appServices:   appServices,
@@ -124,7 +139,7 @@ func (m *Module) RegisterGRPC(registrar grpc.ServiceRegistrar) {
 		policyMiddleware := passwordpolicy.NewMiddleware(m.adminServices.BaseUserRepository, m.adminServices.BaseCase.Cache)
 		sessionMiddleware := sessionpolicy.NewMiddleware(m.adminServices.BaseCase, m.adminServices.UserToken)
 		// Core 默认按错误原因选择通用文案，先补充冲突错误的原始消息键和接口位置。
-		server.Use("/*", middleware.Chain(m.adminServices.LogMiddleware, sessionMiddleware, policyMiddleware, conflictmessage.NewConflictMessageKeyMiddleware()))
+		server.Use("/*", middleware.Chain(m.adminServices.LogMiddleware, sessionMiddleware, policyMiddleware, conflictmessage.NewConflictMessageKeyMiddleware(), m.secretCrypto.Middleware()))
 		server.Use("/system.admin.v1.RuntimeLogService/*", middleware.Chain(m.adminServices.LogMiddleware, sessionMiddleware, policyMiddleware, serverlogstream.RuntimeAccessMiddleware(), conflictmessage.NewConflictMessageKeyMiddleware()))
 	}
 	m.baseServices.RegisterGRPC(registrar)
@@ -141,6 +156,7 @@ func (m *Module) RegisterHTTP(server *http.Server) {
 	m.ragServices.RegisterHTTP(server)
 	policyMiddleware := passwordpolicy.NewMiddleware(m.adminServices.BaseUserRepository, m.adminServices.BaseCase.Cache)
 	sessionMiddleware := sessionpolicy.NewMiddleware(m.adminServices.BaseCase, m.adminServices.UserToken)
+	server.Use("/*", middleware.Chain(m.secretCrypto.Middleware()))
 	server.Use("/system.admin.v1.RuntimeLogService/*", middleware.Chain(
 		oauth.NewIPMiddleware(m.adminServices.OauthClientRepository),
 		oauth.NewClientMiddleware(m.adminServices.OauthClientRepository, m.adminServices.BaseAPICase),
