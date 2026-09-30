@@ -21,14 +21,14 @@ type CodeGenProto struct {
 	ProtoFilePath       string                `gorm:"column:proto_file_path;type:varchar(255);not null;comment:Proto文件路径" json:"proto_file_path"`                                        // Proto文件路径
 	TargetEntityName    string                `gorm:"column:target_entity_name;type:varchar(128);not null;comment:目标实体名" json:"target_entity_name"`                                      // 目标实体名
 	MethodName          string                `gorm:"column:method_name;type:varchar(128);not null;comment:方法名" json:"method_name"`                                                      // 方法名
-	GenerateWhenMissing int32                 `gorm:"column:generate_when_missing;type:tinyint;not null;comment:缺失时是否生成" json:"generate_when_missing"`                                   // 缺失时是否生成
-	Config              string                `gorm:"column:config;type:json;not null;comment:接口类型配置JSON" json:"config"`                                                                 // 接口类型配置JSON
+	GenerateWhenMissing int32                 `gorm:"column:generate_when_missing;type:smallint;not null;comment:缺失时是否生成" json:"generate_when_missing"`                                  // 缺失时是否生成
+	Config              string                `gorm:"column:config;type:text;not null;comment:接口类型配置JSON" json:"config"`                                                                 // 接口类型配置JSON
 	Sort                int32                 `gorm:"column:sort;type:int;not null;comment:排序" json:"sort"`                                                                              // 排序
 	CreatedBy           int64                 `gorm:"column:created_by;type:bigint;not null;comment:创建人ID" json:"created_by"`                                                            // 创建人ID
 	UpdatedBy           int64                 `gorm:"column:updated_by;type:bigint;not null;comment:更新人ID" json:"updated_by"`                                                            // 更新人ID
-	CreatedAt           time.Time             `gorm:"column:created_at;type:datetime;not null;comment:创建时间" json:"created_at"`                                                           // 创建时间
-	UpdatedAt           time.Time             `gorm:"column:updated_at;type:datetime;not null;comment:更新时间" json:"updated_at"`                                                           // 更新时间
-	DeletedAt           soft_delete.DeletedAt `gorm:"column:deleted_at;type:bigint unsigned;not null;comment:删除时间;softDelete:milli" json:"deleted_at"`                                   // 删除时间
+	CreatedAt           time.Time             `gorm:"column:created_at;not null;comment:创建时间" json:"created_at"`                                                                         // 创建时间
+	UpdatedAt           time.Time             `gorm:"column:updated_at;not null;comment:更新时间" json:"updated_at"`                                                                         // 更新时间
+	DeletedAt           soft_delete.DeletedAt `gorm:"column:deleted_at;type:bigint;not null;comment:删除时间;softDelete:milli" json:"deleted_at"`                                            // 删除时间
 }
 
 // TableName CodeGenProto's table name

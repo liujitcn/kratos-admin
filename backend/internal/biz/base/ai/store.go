@@ -10,17 +10,17 @@ import (
 
 	"github.com/go-kratos/kratos/v3/log"
 	"github.com/liujitcn/gorm-kit/repository"
-	ragadminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/rag/admin/v1"
-	ragmodels "github.com/liujitcn/kratos-admin/backend/internal/data/gen/rag/models"
+	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/rag/admin/v1"
+	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/rag/models"
 )
 
 // 文档处理状态，取值对应 rag.admin.v1 的 AiKnowledgeDocStatus 枚举，
 // 按存储类型（PG smallint）定义为 int16。
 const (
 	// DocStatusReady 表示文档切片与向量化全部完成。
-	DocStatusReady = int16(ragadminv1.AiKnowledgeDocStatus_AI_KNOWLEDGE_DOC_STATUS_READY)
+	DocStatusReady = int16(adminv1.AiKnowledgeDocStatus_AI_KNOWLEDGE_DOC_STATUS_READY)
 	// DocStatusFailed 表示文档处理失败。
-	DocStatusFailed = int16(ragadminv1.AiKnowledgeDocStatus_AI_KNOWLEDGE_DOC_STATUS_FAILED)
+	DocStatusFailed = int16(adminv1.AiKnowledgeDocStatus_AI_KNOWLEDGE_DOC_STATUS_FAILED)
 )
 
 // DefaultEmbeddingDimensions 是知识库未显式配置维度时的兜底维度。
@@ -28,13 +28,13 @@ const (
 const DefaultEmbeddingDimensions = 1536
 
 // Knowledge AI 知识库表模型（生成类型别名）。
-type Knowledge = ragmodels.AiKnowledge
+type Knowledge = models.AiKnowledge
 
 // Doc AI 知识库文档表模型（生成类型别名）。
-type Doc = ragmodels.AiKnowledgeDoc
+type Doc = models.AiKnowledgeDoc
 
 // Chunk AI 知识库切片表模型（生成类型别名）。
-type Chunk = ragmodels.AiKnowledgeChunk
+type Chunk = models.AiKnowledgeChunk
 
 // ChunkContent 表示待入库的切片及其向量。
 type ChunkContent struct {
@@ -109,9 +109,10 @@ func (e *KnowledgeEngine) ListAllKnowledge(ctx context.Context) ([]*Option, erro
 			KnowledgeBaseID int64
 			Count           int64
 		}, 0, len(ids))
+		// 文档数只统计已就绪文档：处理失败的文档不可用于检索，不能计入展示数量。
 		if err = query.WithContext(ctx).
 			Select(query.KnowledgeBaseID, query.ID.Count().As("count")).
-			Where(query.KnowledgeBaseID.In(ids...)).
+			Where(query.KnowledgeBaseID.In(ids...), query.Status.Eq(DocStatusReady)).
 			Group(query.KnowledgeBaseID).
 			Scan(&rows); err != nil {
 			return nil, err

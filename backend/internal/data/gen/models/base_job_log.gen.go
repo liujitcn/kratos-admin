@@ -18,8 +18,8 @@ type BaseJobLog struct {
 	Output      string    `gorm:"column:output;type:text;comment:输出结果" json:"output"`                                                     // 输出结果
 	Error       string    `gorm:"column:error;type:text;comment:错误信息" json:"error"`                                                       // 错误信息
 	ProcessTime int32     `gorm:"column:process_time;type:int;not null;comment:消耗时间/毫秒" json:"process_time"`                              // 消耗时间/毫秒
-	ExecuteTime time.Time `gorm:"column:execute_time;type:datetime;not null;comment:执行时间" json:"execute_time"`                            // 执行时间
-	Status      int32     `gorm:"column:status;type:tinyint;not null;comment:状态：枚举【BaseJobLogStatus】" json:"status"`                      // 状态：枚举【BaseJobLogStatus】
+	ExecuteTime time.Time `gorm:"column:execute_time;not null;comment:执行时间" json:"execute_time"`                                          // 执行时间
+	Status      int32     `gorm:"column:status;type:smallint;not null;comment:状态：枚举【BaseJobLogStatus】" json:"status"`                     // 状态：枚举【BaseJobLogStatus】
 }
 
 // TableName BaseJobLog's table name

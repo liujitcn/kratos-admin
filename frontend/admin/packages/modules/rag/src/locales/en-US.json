@@ -32,6 +32,7 @@
   "rag.knowledge.field.embedding_dimensions_value": "{dimensions} dims",
   "rag.knowledge.field.model": "Embedding model",
   "rag.knowledge.field.name": "Name",
+  "rag.knowledge.field.provider": "Provider",
   "rag.knowledge.message.confirm_delete": "Delete knowledge base \"{name}\" and all its documents?",
   "rag.knowledge.message.create_success": "Knowledge base created",
   "rag.knowledge.message.delete_success": "Knowledge base deleted",
@@ -44,5 +45,6 @@
   "rag.knowledge.search.score": "Score",
   "rag.knowledge.search.title": "Retrieval Test",
   "rag.knowledge.validation.model": "Please select an embedding model",
-  "rag.knowledge.validation.name": "Please enter a name"
+  "rag.knowledge.validation.name": "Please enter a name",
+  "rag.knowledge.validation.embedding_dimensions": "Please select the vector dimension"
 }

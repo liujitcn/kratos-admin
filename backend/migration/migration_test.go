@@ -60,7 +60,7 @@ func TestSecurityDefaultsMatchMigrationDocumentation(t *testing.T) {
 	if !strings.Contains(string(content), "INSERT IGNORE INTO `base_login_policy`") {
 		t.Fatal("默认迁移未创建全局登录策略记录")
 	}
-	documentation, err := fs.ReadFile(Assets(), "v0.0.1/mysql/README.md")
+	documentation, err := fs.ReadFile(Assets(), "v0.0.1/README.md")
 	if err != nil {
 		t.Fatal(err)
 	}

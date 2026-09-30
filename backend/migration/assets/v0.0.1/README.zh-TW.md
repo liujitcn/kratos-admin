@@ -1,6 +1,6 @@
-# MySQL 預設初始化資源
+# 預設初始化資源（各資料庫類型公用）
 
-本目錄維護 `v0.0.1` 的 MySQL 初始化資源。SQL 腳本只寫入預設資料，不包含建表語句；服務啟動時先由 GORM `AutoMigrate` 建立啟用遷移的模型，再依檔名順序執行本目錄的 `.up.sql`。
+本檔案維護 `v0.0.1` 的公用初始化說明，供各資料庫類型（`mysql/`、`postgres/`）共用；資料來源獨有的說明放在對應目錄內。SQL 腳本只寫入預設資料，不包含建表語句；服務啟動時先由 GORM `AutoMigrate` 建立啟用遷移的模型，再依檔名順序執行資料來源目錄的 `.up.sql`。
 
 ## 檔案職責
 
@@ -9,7 +9,7 @@
 | `default_data.up.sql` | 預設語言、設定、部門、崗位、字典、字典項目、任務、租戶、訊息分類、選單、角色、脫敏規則、資料表歸檔、資料表備份、登入策略和開發帳號。 |
 | `base_area.up.sql` | 行政區劃基礎資料，作為獨立腳本參與預設資料源遷移。 |
 | `base_redact_rule.up.sql` | 脫敏規則類型範例，以及 `base_redact_storage_policy`、`base_redact_output_policy` 的入庫／出庫脫敏策略。 |
-| `language.up.sql` | 語言初始化資料，與 `default_data.up.sql` 的 `base_language` 對齊，`INSERT IGNORE` 冪等。 |
+| `language.up.sql` | 語言初始化資料，與 `default_data.up.sql` 的 `base_language` 對齊，冪等寫入（MySQL `INSERT IGNORE` / PostgreSQL `ON CONFLICT DO NOTHING`）。 |
 | `i18n.en-US.up.sql` | `en-US` 的 `base_i18n` 翻譯資料。 |
 | `i18n.ja-JP.up.sql` | `ja-JP` 的 `base_i18n` 翻譯資料。 |
 | `i18n.zh-TW.up.sql` | `zh-TW` 的 `base_i18n` 翻譯資料。 |
@@ -18,9 +18,9 @@
 
 ## 執行與冪等
 
-啟動時依序執行自動建表、SQL 遷移、遷移說明同步，接著同步 OpenAPI、`base_api`、租戶選單和 Casbin 原則。`default_data.up.sql`、`base_area.up.sql` 與 `base_redact_rule.up.sql` 會暫時停用外鍵檢查，結束時恢復原值。
+啟動時依序執行自動建表、SQL 遷移、遷移說明同步，接著同步 OpenAPI、`base_api`、租戶選單和 Casbin 原則。`default_data.up.sql`、`base_area.up.sql` 與 `base_redact_rule.up.sql` 在 MySQL 上會暫時停用外鍵檢查並於結束時恢復原值；PostgreSQL 無需工作階段調整。
 
-所有初始化記錄均使用單筆 `INSERT IGNORE`：已有唯一鍵的記錄會略過，不覆蓋業務資料。腳本不使用批量 `INSERT`、`UPDATE`、`DELETE` 或 `TRUNCATE`。`default_data.up.sql` 中同一資料表的記錄依 `id` 遞增維護，新增預設資料應放在對應編號區段的位置。
+所有初始化記錄均使用單筆冪等寫入（MySQL `INSERT IGNORE`，PostgreSQL `INSERT ... ON CONFLICT DO NOTHING`）：已有唯一鍵的記錄會略過，不覆蓋業務資料。腳本不使用批量 `INSERT`、`UPDATE`、`DELETE` 或 `TRUNCATE`。`default_data.up.sql` 中同一資料表的記錄依 `id` 遞增維護，新增預設資料應放在對應編號區段的位置。
 
 已記錄 `v0.0.1` 的資料庫不會因修改初始化檔案而自動重跑。驗證修改時請使用全新資料庫，或依開發環境流程重建資料庫。新增功能仍應補齊 `v0.0.1` 的完整初始化狀態，不新增更高版本或針對既有資料庫的增量腳本。
 

@@ -14,24 +14,24 @@ const TableNameBaseMessageCategory = "base_message_category"
 
 // BaseMessageCategory 消息分类
 type BaseMessageCategory struct {
-	ID              int64                 `gorm:"column:id;type:bigint;primaryKey;autoIncrement:true;index:idx_base_message_category_status_sort,priority:3;comment:消息分类ID" json:"id"`                 // 消息分类ID
-	Code            string                `gorm:"column:code;type:varchar(50);not null;uniqueIndex:unique_base_message_category,priority:1;comment:分类编码" json:"code"`                                  // 分类编码
-	Name            string                `gorm:"column:name;type:varchar(50);not null;comment:分类名称" json:"name"`                                                                                      // 分类名称
-	Icon            string                `gorm:"column:icon;type:varchar(100);comment:分类图标" json:"icon"`                                                                                              // 分类图标
-	Color           string                `gorm:"column:color;type:varchar(20);comment:分类颜色" json:"color"`                                                                                             // 分类颜色
-	Sort            int32                 `gorm:"column:sort;type:int;not null;index:idx_base_message_category_status_sort,priority:2;comment:排序" json:"sort"`                                         // 排序
-	DefaultPriority int32                 `gorm:"column:default_priority;type:tinyint;not null;comment:默认优先级：枚举【MessagePriority】" json:"default_priority"`                                             // 默认优先级：枚举【MessagePriority】
-	RetentionDays   int32                 `gorm:"column:retention_days;type:int;not null;comment:保留天数，0表示使用系统默认值" json:"retention_days"`                                                               // 保留天数，0表示使用系统默认值
-	AllowArchive    bool                  `gorm:"column:allow_archive;type:tinyint(1);not null;comment:是否允许用户归档" json:"allow_archive"`                                                                 // 是否允许用户归档
-	AllowDelete     bool                  `gorm:"column:allow_delete;type:tinyint(1);not null;comment:是否允许用户删除" json:"allow_delete"`                                                                   // 是否允许用户删除
-	InboxEnabled    int32                 `gorm:"column:inbox_enabled;type:tinyint;not null;comment:是否启用站内信：枚举【BaseMessageCategoryInboxEnabled】" json:"inbox_enabled"`                                 // 是否启用站内信：枚举【BaseMessageCategoryInboxEnabled】
-	ProviderID      string                `gorm:"column:provider_id;type:json;not null;comment:消息发送 Provider ID JSON数组" json:"provider_id"`                                                            // 消息发送 Provider ID JSON数组
-	Status          int32                 `gorm:"column:status;type:tinyint;not null;index:idx_base_message_category_status_sort,priority:1;comment:状态：枚举【Status】" json:"status"`                      // 状态：枚举【Status】
-	CreatedBy       int64                 `gorm:"column:created_by;type:bigint;not null;comment:创建者ID" json:"created_by"`                                                                              // 创建者ID
-	UpdatedBy       int64                 `gorm:"column:updated_by;type:bigint;not null;comment:更新者ID" json:"updated_by"`                                                                              // 更新者ID
-	CreatedAt       time.Time             `gorm:"column:created_at;type:datetime;not null;comment:创建时间" json:"created_at"`                                                                             // 创建时间
-	UpdatedAt       time.Time             `gorm:"column:updated_at;type:datetime;not null;comment:更新时间" json:"updated_at"`                                                                             // 更新时间
-	DeletedAt       soft_delete.DeletedAt `gorm:"column:deleted_at;type:bigint unsigned;not null;uniqueIndex:unique_base_message_category,priority:2;comment:删除时间;softDelete:milli" json:"deleted_at"` // 删除时间
+	ID              int64                 `gorm:"column:id;type:bigint;primaryKey;autoIncrement:true;index:idx_base_message_category_status_sort,priority:3;comment:消息分类ID" json:"id"`        // 消息分类ID
+	Code            string                `gorm:"column:code;type:varchar(50);not null;uniqueIndex:unique_base_message_category,priority:1;comment:分类编码" json:"code"`                         // 分类编码
+	Name            string                `gorm:"column:name;type:varchar(50);not null;comment:分类名称" json:"name"`                                                                             // 分类名称
+	Icon            string                `gorm:"column:icon;type:varchar(100);comment:分类图标" json:"icon"`                                                                                     // 分类图标
+	Color           string                `gorm:"column:color;type:varchar(20);comment:分类颜色" json:"color"`                                                                                    // 分类颜色
+	Sort            int32                 `gorm:"column:sort;type:int;not null;index:idx_base_message_category_status_sort,priority:2;comment:排序" json:"sort"`                                // 排序
+	DefaultPriority int32                 `gorm:"column:default_priority;type:smallint;not null;comment:默认优先级：枚举【MessagePriority】" json:"default_priority"`                                   // 默认优先级：枚举【MessagePriority】
+	RetentionDays   int32                 `gorm:"column:retention_days;type:int;not null;comment:保留天数，0表示使用系统默认值" json:"retention_days"`                                                      // 保留天数，0表示使用系统默认值
+	AllowArchive    bool                  `gorm:"column:allow_archive;not null;comment:是否允许用户归档" json:"allow_archive"`                                                                        // 是否允许用户归档
+	AllowDelete     bool                  `gorm:"column:allow_delete;not null;comment:是否允许用户删除" json:"allow_delete"`                                                                          // 是否允许用户删除
+	InboxEnabled    int32                 `gorm:"column:inbox_enabled;type:smallint;not null;comment:是否启用站内信：枚举【BaseMessageCategoryInboxEnabled】" json:"inbox_enabled"`                       // 是否启用站内信：枚举【BaseMessageCategoryInboxEnabled】
+	ProviderID      string                `gorm:"column:provider_id;type:text;not null;comment:消息发送 Provider ID JSON数组" json:"provider_id"`                                                   // 消息发送 Provider ID JSON数组
+	Status          int32                 `gorm:"column:status;type:smallint;not null;index:idx_base_message_category_status_sort,priority:1;comment:状态：枚举【Status】" json:"status"`            // 状态：枚举【Status】
+	CreatedBy       int64                 `gorm:"column:created_by;type:bigint;not null;comment:创建者ID" json:"created_by"`                                                                     // 创建者ID
+	UpdatedBy       int64                 `gorm:"column:updated_by;type:bigint;not null;comment:更新者ID" json:"updated_by"`                                                                     // 更新者ID
+	CreatedAt       time.Time             `gorm:"column:created_at;not null;comment:创建时间" json:"created_at"`                                                                                  // 创建时间
+	UpdatedAt       time.Time             `gorm:"column:updated_at;not null;comment:更新时间" json:"updated_at"`                                                                                  // 更新时间
+	DeletedAt       soft_delete.DeletedAt `gorm:"column:deleted_at;type:bigint;not null;uniqueIndex:unique_base_message_category,priority:2;comment:删除时间;softDelete:milli" json:"deleted_at"` // 删除时间
 }
 
 // TableName BaseMessageCategory's table name

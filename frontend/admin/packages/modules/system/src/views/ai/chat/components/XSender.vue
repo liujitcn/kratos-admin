@@ -169,8 +169,9 @@
                   @click="handleKnowledgeToggle(option.id)"
                 >
                   <span class="agent-model-row__name">{{ option.name }}</span>
-                  <span v-if="option.doc_count" class="agent-model-row__raw">{{
-                    t("system.ai.knowledge.doc_count", { count: option.doc_count })
+                  <!-- proto3 JSON 会省略零值字段，计数为 0 时前端补默认值。 -->
+                  <span class="agent-model-row__raw">{{
+                    t("system.ai.knowledge.doc_count", { count: option.doc_count ?? 0 })
                   }}</span>
                   <el-icon v-if="isKnowledgeSelected(option.id)" class="agent-model-row__check">
                     <Check />

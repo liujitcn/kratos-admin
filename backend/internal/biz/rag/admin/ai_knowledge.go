@@ -75,7 +75,7 @@ func (c *AiKnowledgeCase) GetAiKnowledge(ctx context.Context, id int64) (*adminv
 
 // CreateAiKnowledge 创建AI知识库。
 func (c *AiKnowledgeCase) CreateAiKnowledge(ctx context.Context, form *adminv1.AiKnowledgeForm) error {
-	dimensions, err := c.validateEmbeddingModel(ctx, form.GetModelId())
+	dimensions, err := c.validateEmbeddingModel(ctx, form.GetModelId(), form.GetEmbeddingDimensions())
 	if err != nil {
 		return err
 	}
@@ -107,13 +107,16 @@ func (c *AiKnowledgeCase) UpdateAiKnowledge(ctx context.Context, form *adminv1.A
 		return err
 	}
 	if oldItem.ModelID != form.GetModelId() {
-		if _, err = c.validateEmbeddingModel(ctx, form.GetModelId()); err != nil {
+		var dimensions int32
+		dimensions, err = c.validateEmbeddingModel(ctx, form.GetModelId(), form.GetEmbeddingDimensions())
+		if err != nil {
 			return err
 		}
 		// 向量化模型变更会使已入库切片失效，存在文档时禁止修改。
 		if c.hasDocs(ctx, form.GetId()) {
 			return errorsx.InvalidArgument("知识库下已有文档，请先删除全部文档再修改向量化模型")
 		}
+		oldItem.EmbeddingDimensions = dimensions
 	}
 	authInfo, err := c.GetAuthInfo(ctx)
 	if err != nil {
@@ -124,7 +127,7 @@ func (c *AiKnowledgeCase) UpdateAiKnowledge(ctx context.Context, form *adminv1.A
 	item.ID = oldItem.ID
 	item.Name = strings.TrimSpace(item.Name)
 	item.Description = strings.TrimSpace(item.Description)
-	// 维度快照保持创建时的值，避免历史切片与检索维度漂移。
+	// 模型未变更时保持创建时的维度快照；模型变更且无文档时随新模型重新快照。
 	item.EmbeddingDimensions = oldItem.EmbeddingDimensions
 	item.UpdatedBy = authInfo.UserId
 	if err = c.engine.UpdateKnowledge(ctx, item); err != nil {
@@ -162,11 +165,18 @@ func (c *AiKnowledgeCase) ListAiKnowledgeModels(ctx context.Context) (*adminv1.L
 	}
 	records := make([]*adminv1.AiKnowledgeModel, 0, len(items))
 	for _, item := range items {
+		var config *ai.EmbeddingModelConfig
+		config, err = ai.ParseEmbeddingModelConfig(item.Config)
+		if err != nil {
+			return nil, fmt.Errorf("解析embedding模型 %s 配置失败: %w", item.ModelName, err)
+		}
 		records = append(records, &adminv1.AiKnowledgeModel{
-			Id:           item.ID,
-			ProviderName: providerNames[item.ProviderID],
-			ModelName:    item.ModelName,
-			DisplayName:  item.DisplayName,
+			Id:               item.ID,
+			ProviderName:     providerNames[item.ProviderID],
+			ModelName:        item.ModelName,
+			DisplayName:      item.DisplayName,
+			Dimensions:       config.Dimensions,
+			DimensionOptions: ai.EmbeddingDimensionOptions(config.Dimensions),
 		})
 	}
 	return &adminv1.ListAiKnowledgeModelsResponse{Models: records}, nil
@@ -231,8 +241,8 @@ func (c *AiKnowledgeCase) hasDocs(ctx context.Context, knowledgeBaseID int64) bo
 }
 
 // validateEmbeddingModel 校验embedding模型存在、分类正确、模型与供应商均启用，
-// 并返回创建知识库时应快照的向量维度。
-func (c *AiKnowledgeCase) validateEmbeddingModel(ctx context.Context, modelID int64) (int32, error) {
+// 并按表单请求维度解析创建知识库时应快照的向量维度；表单未传时按模型声明或系统默认。
+func (c *AiKnowledgeCase) validateEmbeddingModel(ctx context.Context, modelID int64, requested int32) (int32, error) {
 	query := c.aiModelRepo.Query(ctx).AiModel
 	items, err := c.aiModelRepo.List(ctx,
 		repository.Where(query.ID.Eq(modelID)),
@@ -269,8 +279,9 @@ func (c *AiKnowledgeCase) validateEmbeddingModel(ctx context.Context, modelID in
 	if err != nil {
 		return 0, errorsx.InvalidArgument("embedding模型配置无效").WithCause(err)
 	}
-	if config.Dimensions > 0 {
-		return config.Dimensions, nil
+	dimensions, resolveErr := ai.ResolveEmbeddingDimensions(config.Dimensions, requested)
+	if resolveErr != nil {
+		return 0, errorsx.InvalidArgument(resolveErr.Error())
 	}
-	return ai.DefaultEmbeddingDimensions, nil
+	return dimensions, nil
 }

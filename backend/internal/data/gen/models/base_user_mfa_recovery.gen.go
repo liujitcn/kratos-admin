@@ -18,10 +18,10 @@ type BaseUserMFARecovery struct {
 	MFAID     int64                 `gorm:"column:mfa_id;type:bigint;not null;index:idx_base_user_mfa_recovery_mfa_id,priority:1;comment:MFA配置ID" json:"mfa_id"` // MFA配置ID
 	UserID    int64                 `gorm:"column:user_id;type:bigint;not null;index:idx_base_user_mfa_recovery_user_id,priority:1;comment:用户ID" json:"user_id"` // 用户ID
 	CodeHash  string                `gorm:"column:code_hash;type:varchar(255);not null;comment:恢复码哈希" json:"code_hash"`                                          // 恢复码哈希
-	UsedAt    time.Time             `gorm:"column:used_at;type:datetime;comment:使用时间" json:"used_at"`                                                            // 使用时间
-	CreatedAt time.Time             `gorm:"column:created_at;type:datetime;not null;comment:创建时间" json:"created_at"`                                             // 创建时间
-	UpdatedAt time.Time             `gorm:"column:updated_at;type:datetime;not null;comment:更新时间" json:"updated_at"`                                             // 更新时间
-	DeletedAt soft_delete.DeletedAt `gorm:"column:deleted_at;type:bigint unsigned;not null;comment:删除时间;softDelete:milli" json:"deleted_at"`                     // 删除时间
+	UsedAt    time.Time             `gorm:"column:used_at;comment:使用时间" json:"used_at"`                                                                          // 使用时间
+	CreatedAt time.Time             `gorm:"column:created_at;not null;comment:创建时间" json:"created_at"`                                                           // 创建时间
+	UpdatedAt time.Time             `gorm:"column:updated_at;not null;comment:更新时间" json:"updated_at"`                                                           // 更新时间
+	DeletedAt soft_delete.DeletedAt `gorm:"column:deleted_at;type:bigint;not null;comment:删除时间;softDelete:milli" json:"deleted_at"`                              // 删除时间
 }
 
 // TableName BaseUserMFARecovery's table name

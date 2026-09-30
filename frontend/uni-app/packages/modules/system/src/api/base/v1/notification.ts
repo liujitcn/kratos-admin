@@ -27,6 +27,9 @@ export class NotificationServiceImpl implements NotificationService {
     const data = Object.fromEntries(
       Object.entries(request).filter(([, value]) => value !== undefined),
     )
+    // 后端 buf.validate 要求 page_num>=1；游标模式下该值不参与查询，补默认值保证校验通过。
+    if (data.page_num === undefined) data.page_num = 1
+    if (data.page_size === undefined) data.page_size = 20
     const response = await http<Partial<PageNotificationResponse>>({
       url: NOTIFICATION_URL,
       method: 'GET',

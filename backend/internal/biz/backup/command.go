@@ -9,6 +9,10 @@ const (
 	OpensslCommand = "openssl"
 	// MysqlCommand 是数据库 SQL 恢复的固定命令名。
 	MysqlCommand = "mysql"
+	// PgdumpCommand 是 PostgreSQL 数据库 SQL 导出的固定命令名。
+	PgdumpCommand = "pg_dump"
+	// PsqlCommand 是 PostgreSQL 数据库 SQL 恢复的固定命令名。
+	PsqlCommand = "psql"
 )
 
 // CommandAvailable 判断指定命令是否可以通过当前进程的 PATH 或绝对路径执行。

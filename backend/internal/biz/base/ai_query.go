@@ -287,7 +287,7 @@ func (c *AiQueryCase) generateSQL(ctx context.Context, question string, meta map
 		return "", errorsx.Internal("AI 助手没有已启用的模型")
 	}
 	messages := []*schema.AgenticMessage{
-		message.SystemText(aiQuerySQLSystemPrompt(c.schemaDictionary(meta))),
+		message.SystemText(aiQuerySQLSystemPrompt(aiQueryDialectLabel(c.defaultDriver()), c.schemaDictionary(meta))),
 		message.UserText("查询状态为启用的用户数量"),
 		message.AIText("SELECT tenant_id, COUNT(*) AS total FROM base_user WHERE status = 1 AND tenant_id = -1"),
 		message.UserText("按部门统计用户人数，并给出人数最多的部门"),
@@ -473,9 +473,29 @@ func (c *AiQueryCase) schemaDictionary(meta map[string]*aiQueryTableMeta) string
 	return builder.String()
 }
 
-// aiQuerySQLSystemPrompt 构造 SQL 生成的系统提示词。
-func aiQuerySQLSystemPrompt(dictionary string) string {
-	return `你是数据库查询专家。请根据「可用表结构」把用户问题转换成一条 MySQL 只读 SELECT 查询。
+// aiQueryDialectLabel 把数据源驱动名转换为提示词中的方言展示名。
+func aiQueryDialectLabel(driverName string) string {
+	switch driverName {
+	case "postgres":
+		return "PostgreSQL"
+	case "doris":
+		return "Doris"
+	default:
+		return "MySQL"
+	}
+}
+
+// defaultDriver 返回默认数据源驱动名；客户端缺失时按 MySQL 处理保持历史行为。
+func (c *AiQueryCase) defaultDriver() string {
+	if client := c.GormClients[gorm.DefaultClientName]; client != nil {
+		return client.Driver()
+	}
+	return "mysql"
+}
+
+// aiQuerySQLSystemPrompt 构造 SQL 生成的系统提示词，方言跟随当前默认数据源。
+func aiQuerySQLSystemPrompt(dialect string, dictionary string) string {
+	return `你是数据库查询专家。请根据「可用表结构」把用户问题转换成一条符合 ` + dialect + ` 语法规则的只读 SELECT 查询，只使用该数据库支持的函数与语法。
 
 硬性规则：
 1. 只能生成一条 SELECT 或 WITH ... SELECT 语句，禁止任何写操作、多语句、注释与存储过程调用。

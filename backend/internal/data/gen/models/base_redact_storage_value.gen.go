@@ -12,8 +12,8 @@ type BaseRedactStorageValue struct {
 	TenantID        int64  `gorm:"column:tenant_id;type:bigint;not null;uniqueIndex:unique_base_redact_storage_value,priority:1;index:idx_base_redact_storage_value_digest,priority:1;comment:租户ID" json:"tenant_id"`                   // 租户ID
 	StoragePolicyID int64  `gorm:"column:storage_policy_id;type:bigint;not null;uniqueIndex:unique_base_redact_storage_value,priority:2;index:idx_base_redact_storage_value_digest,priority:2;comment:入库策略ID" json:"storage_policy_id"` // 入库策略ID
 	RecordID        int64  `gorm:"column:record_id;type:bigint;not null;uniqueIndex:unique_base_redact_storage_value,priority:3;comment:主表记录ID" json:"record_id"`                                                                       // 主表记录ID
-	Ciphertext      []byte `gorm:"column:ciphertext;type:blob;not null;comment:加密原文" json:"ciphertext"`                                                                                                                                 // 加密原文
-	Digest          []byte `gorm:"column:digest;type:binary(32);not null;index:idx_base_redact_storage_value_digest,priority:3;comment:HMAC查询摘要" json:"digest"`                                                                         // HMAC查询摘要
+	Ciphertext      []byte `gorm:"column:ciphertext;not null;comment:加密原文" json:"ciphertext"`                                                                                                                                           // 加密原文
+	Digest          []byte `gorm:"column:digest;not null;index:idx_base_redact_storage_value_digest,priority:3;comment:HMAC查询摘要;size:32" json:"digest"`                                                                                 // HMAC查询摘要
 }
 
 // TableName BaseRedactStorageValue's table name

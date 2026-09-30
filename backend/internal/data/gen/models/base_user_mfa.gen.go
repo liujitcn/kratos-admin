@@ -18,13 +18,13 @@ type BaseUserMFA struct {
 	TenantID    int64                 `gorm:"column:tenant_id;type:bigint;not null;index:idx_base_user_mfa_tenant_id,priority:1;comment:租户ID" json:"tenant_id"`                                                   // 租户ID
 	UserID      int64                 `gorm:"column:user_id;type:bigint;not null;uniqueIndex:unique_base_user_mfa_user_method,priority:1;index:idx_base_user_mfa_user_id,priority:1;comment:用户ID" json:"user_id"` // 用户ID
 	Method      string                `gorm:"column:method;type:varchar(20);not null;uniqueIndex:unique_base_user_mfa_user_method,priority:2;comment:认证方式：totp、webauthn" json:"method"`                           // 认证方式：totp、webauthn
-	ConfirmedAt time.Time             `gorm:"column:confirmed_at;type:datetime;comment:确认启用时间" json:"confirmed_at"`                                                                                               // 确认启用时间
-	Status      int32                 `gorm:"column:status;type:tinyint;not null;comment:状态：枚举【Status】" json:"status"`                                                                                            // 状态：枚举【Status】
+	ConfirmedAt time.Time             `gorm:"column:confirmed_at;comment:确认启用时间" json:"confirmed_at"`                                                                                                             // 确认启用时间
+	Status      int32                 `gorm:"column:status;type:smallint;not null;comment:状态：枚举【Status】" json:"status"`                                                                                           // 状态：枚举【Status】
 	CreatedBy   int64                 `gorm:"column:created_by;type:bigint;not null;comment:创建者ID" json:"created_by"`                                                                                             // 创建者ID
 	UpdatedBy   int64                 `gorm:"column:updated_by;type:bigint;not null;comment:更新者ID" json:"updated_by"`                                                                                             // 更新者ID
-	CreatedAt   time.Time             `gorm:"column:created_at;type:datetime;not null;comment:创建时间" json:"created_at"`                                                                                            // 创建时间
-	UpdatedAt   time.Time             `gorm:"column:updated_at;type:datetime;not null;comment:更新时间" json:"updated_at"`                                                                                            // 更新时间
-	DeletedAt   soft_delete.DeletedAt `gorm:"column:deleted_at;type:bigint unsigned;not null;uniqueIndex:unique_base_user_mfa_user_method,priority:3;comment:删除时间;softDelete:milli" json:"deleted_at"`            // 删除时间
+	CreatedAt   time.Time             `gorm:"column:created_at;not null;comment:创建时间" json:"created_at"`                                                                                                          // 创建时间
+	UpdatedAt   time.Time             `gorm:"column:updated_at;not null;comment:更新时间" json:"updated_at"`                                                                                                          // 更新时间
+	DeletedAt   soft_delete.DeletedAt `gorm:"column:deleted_at;type:bigint;not null;uniqueIndex:unique_base_user_mfa_user_method,priority:3;comment:删除时间;softDelete:milli" json:"deleted_at"`                     // 删除时间
 }
 
 // TableName BaseUserMFA's table name

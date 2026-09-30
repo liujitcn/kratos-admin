@@ -150,7 +150,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, reactive, ref } from "vue";
+import { computed, reactive, ref, watch } from "vue";
 import { ElMessage, ElMessageBox } from "element-plus";
 import type { FormRules } from "element-plus";
 import { CirclePlus, Delete, DocumentAdd, EditPen, Refresh, Search, Upload } from "@element-plus/icons-vue";
@@ -180,7 +180,10 @@ defineOptions({ name: "AiKnowledge", inheritAttrs: false });
 const SUPPORTED_EXTENSIONS = [".txt", ".md", ".markdown", ".csv", ".log", ".json", ".xml", ".yml", ".yaml", ".html", ".htm", ".docx", ".pdf"];
 const MAX_FILE_SIZE = 10 * 1024 * 1024;
 
-type AiKnowledgeFormState = Omit<AiKnowledgeForm, "model_id"> & { model_id: number | undefined };
+type AiKnowledgeFormState = Omit<AiKnowledgeForm, "model_id" | "embedding_dimensions"> & {
+  model_id: number | undefined;
+  embedding_dimensions: number | undefined;
+};
 
 const { BUTTONS } = useAuthButtons();
 const { isDefaultTenant } = useTenantScope();
@@ -192,7 +195,18 @@ const dialog = reactive({ visible: false, editing: false });
 const textDialog = reactive({ visible: false });
 const form = reactive<AiKnowledgeFormState>(defaultForm());
 const textForm = reactive({ name: "", content: "" });
-const modelOptions = ref<ProFormOption[]>([]);
+const knowledgeModels = ref<AiKnowledgeModel[]>([]);
+const modelOptions = computed<ProFormOption[]>(() =>
+  knowledgeModels.value.map((item: AiKnowledgeModel) => ({
+    label: item.display_name ? `${item.provider_name} / ${item.display_name}（${item.model_name}）` : `${item.provider_name} / ${item.model_name}`,
+    value: item.id
+  }))
+);
+// 维度选项随所选模型联动：模型声明了维度时唯一可选，未声明时提供常用维度。
+const dimensionOptions = computed<ProFormOption[]>(() => {
+  const selected = knowledgeModels.value.find((item: AiKnowledgeModel) => item.id === form.model_id);
+  return (selected?.dimension_options ?? []).map(value => ({ label: `${value}`, value }));
+});
 const docsDrawer = reactive<{ visible: boolean; knowledge: AiKnowledge | null }>({ visible: false, knowledge: null });
 const docList = ref<AiKnowledgeDoc[]>([]);
 const loadingDocs = ref(false);
@@ -210,8 +224,33 @@ const searched = ref(false);
 const fields = computed<ProFormField[]>(() => [
   { prop: "name", label: t("rag.knowledge.field.name"), component: "input", colSpan: 24, props: { maxlength: 100 } },
   { prop: "description", label: t("rag.knowledge.field.description"), component: "textarea", colSpan: 24, props: { maxlength: 500, rows: 3 } },
-  { prop: "model_id", label: t("rag.knowledge.field.model"), component: "select", colSpan: 24, options: modelOptions.value }
+  { prop: "model_id", label: t("rag.knowledge.field.model"), component: "select", colSpan: 24, options: modelOptions.value },
+  {
+    prop: "embedding_dimensions",
+    label: t("rag.knowledge.field.embedding_dimensions"),
+    component: "select",
+    colSpan: 24,
+    options: dimensionOptions.value,
+    // 编辑时维度是创建快照不可改；未选模型前无可选维度。
+    props: { disabled: dialog.editing || !form.model_id }
+  }
 ]);
+
+// 模型声明了维度或仅有一个可选维度时自动选中；切换模型后清理不再可用的维度。
+watch(
+  () => form.model_id,
+  () => {
+    const selected = knowledgeModels.value.find((item: AiKnowledgeModel) => item.id === form.model_id);
+    const options = selected?.dimension_options ?? [];
+    if (options.length === 1) {
+      form.embedding_dimensions = options[0];
+      return;
+    }
+    if (form.embedding_dimensions === undefined || !options.includes(form.embedding_dimensions)) {
+      form.embedding_dimensions = undefined;
+    }
+  }
+);
 
 const textFields = computed<ProFormField[]>(() => [
   { prop: "name", label: t("rag.knowledge.doc.field.name"), component: "input", colSpan: 24, props: { maxlength: 200 } },
@@ -220,7 +259,8 @@ const textFields = computed<ProFormField[]>(() => [
 
 const rules = computed<FormRules>(() => ({
   name: [{ required: true, message: t("rag.knowledge.validation.name"), trigger: "blur" }],
-  model_id: [{ required: true, message: t("rag.knowledge.validation.model"), trigger: "change" }]
+  model_id: [{ required: true, message: t("rag.knowledge.validation.model"), trigger: "change" }],
+  embedding_dimensions: [{ required: true, message: t("rag.knowledge.validation.embedding_dimensions"), trigger: "change" }]
 }));
 
 const textRules = computed<FormRules>(() => ({
@@ -254,7 +294,7 @@ const headerActions = computed<HeaderActionProps[]>(() => [
 
 /** 创建默认知识库表单。 */
 function defaultForm(): AiKnowledgeFormState {
-  return { id: 0, name: "", description: "", model_id: undefined };
+  return { id: 0, name: "", description: "", model_id: undefined, embedding_dimensions: undefined };
 }
 
 /** 请求AI知识库表格数据。 */
@@ -267,12 +307,9 @@ async function requestTable(params: Record<string, unknown>) {
 async function loadModelOptions() {
   try {
     const response = await defAiKnowledgeService.ListAiKnowledgeModels({});
-    modelOptions.value = (response.models ?? []).map((item: AiKnowledgeModel) => ({
-      label: item.display_name ? `${item.provider_name} / ${item.display_name}（${item.model_name}）` : `${item.provider_name} / ${item.model_name}`,
-      value: item.id
-    }));
+    knowledgeModels.value = response.models ?? [];
   } catch {
-    modelOptions.value = [];
+    knowledgeModels.value = [];
   }
 }
 

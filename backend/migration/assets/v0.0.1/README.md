@@ -1,6 +1,6 @@
-# MySQL 默认初始化资源
+# 默认初始化资源（各数据库类型公用）
 
-本目录维护 `v0.0.1` 的 MySQL 初始化资源。脚本只写入默认数据，不包含建表语句；服务启动时由 GORM `AutoMigrate` 创建启用迁移的模型，再按文件名执行同目录的 `.up.sql`。
+本文件维护 `v0.0.1` 的公用初始化说明，供各数据库类型（`mysql/`、`postgres/`）共用；数据源独有的说明放在对应目录内。脚本只写入默认数据，不包含建表语句；服务启动时由 GORM `AutoMigrate` 创建启用迁移的模型，再按文件名执行数据源目录中的 `.up.sql`。
 
 ## 文件职责
 
@@ -9,7 +9,7 @@
 | `default_data.up.sql` | 默认语言、配置、部门、岗位、字典、字典项、任务、租户、消息分类、菜单、角色、脱敏规则、表归档、表备份、登录策略和开发账号。 |
 | `base_area.up.sql` | 行政区划基础数据，作为独立脚本参与默认数据源迁移。 |
 | `base_redact_rule.up.sql` | 脱敏规则类型示例，以及 `base_redact_storage_policy`、`base_redact_output_policy` 的入库/出库脱敏策略。 |
-| `language.up.sql` | 语言初始化数据，与 `default_data.up.sql` 的 `base_language` 对齐，`INSERT IGNORE` 幂等。 |
+| `language.up.sql` | 语言初始化数据，与 `default_data.up.sql` 的 `base_language` 对齐，幂等写入（MySQL `INSERT IGNORE` / PostgreSQL `ON CONFLICT DO NOTHING`）。 |
 | `i18n.en-US.up.sql` | `en-US` 的 `base_i18n` 翻译数据。 |
 | `i18n.ja-JP.up.sql` | `ja-JP` 的 `base_i18n` 翻译数据。 |
 | `i18n.zh-TW.up.sql` | `zh-TW` 的 `base_i18n` 翻译数据。 |
@@ -18,9 +18,9 @@
 
 ## 执行与幂等
 
-启动时依次执行自动建表、SQL 迁移、迁移说明翻译同步，以及 OpenAPI、`base_api`、租户菜单和 Casbin 策略同步。`default_data.up.sql`、`base_area.up.sql` 和 `base_redact_rule.up.sql` 会临时关闭外键检查，脚本结束时恢复原值。
+启动时依次执行自动建表、SQL 迁移、迁移说明翻译同步，以及 OpenAPI、`base_api`、租户菜单和 Casbin 策略同步。`default_data.up.sql`、`base_area.up.sql` 和 `base_redact_rule.up.sql` 在 MySQL 上会临时关闭外键检查并在结束时恢复原值；PostgreSQL 无需会话级调整。
 
-所有初始化记录均使用单行 `INSERT IGNORE`：已有唯一键记录会跳过，不覆盖业务数据；脚本不使用批量 `INSERT`、`UPDATE`、`DELETE` 或 `TRUNCATE`。`default_data.up.sql` 中同一表内的记录按 `id` 升序维护，新增默认数据应放在对应的编号位置。
+所有初始化记录均使用单行幂等写入（MySQL `INSERT IGNORE`，PostgreSQL `INSERT ... ON CONFLICT DO NOTHING`）：已有唯一键记录会跳过，不覆盖业务数据；脚本不使用批量 `INSERT`、`UPDATE`、`DELETE` 或 `TRUNCATE`。`default_data.up.sql` 中同一表内的记录按 `id` 升序维护，新增默认数据应放在对应的编号位置。
 
 已记录过 `v0.0.1` 的数据库不会因为修改初始化文件而自动重放。验证修改时请使用全新数据库，或按开发环境流程重建数据库。新增功能仍应补齐 `v0.0.1` 的完整初始化状态，不新增更高版本或面向存量库的增量脚本。
 

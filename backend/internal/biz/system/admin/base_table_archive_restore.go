@@ -23,6 +23,7 @@ import (
 	"github.com/liujitcn/kratos-admin/backend/internal/i18n"
 	"github.com/liujitcn/kratos-core/biz"
 	"github.com/liujitcn/kratos-core/errorsx"
+	configv1 "github.com/liujitcn/kratos-kit/api/gen/go/config/v1"
 	"github.com/liujitcn/kratos-kit/database/gorm"
 )
 
@@ -156,14 +157,15 @@ func restoreInternalArchive(ctx context.Context, baseCase *biz.BaseCase, archive
 	}
 	var whereSQL string
 	var values []interface{}
-	whereSQL, values, err = restoreRangeSQL(mode, restoreRange)
+	whereSQL, values, err = restoreRangeSQL(client.Driver(), mode, restoreRange)
 	if err != nil {
 		return 0, err
 	}
-	source := "`" + archiveRecord.TableName_ + "`"
-	archive := "`" + archiveRecord.ArchiveTableName + "`"
+	driverName := client.Driver()
+	source := QuoteSQLIdentifier(driverName, archiveRecord.TableName_)
+	archive := QuoteSQLIdentifier(driverName, archiveRecord.ArchiveTableName)
 	//nolint:forbidigo // 表名来自归档记录并通过白名单校验，恢复范围值使用参数绑定。
-	query := "INSERT IGNORE INTO " + source + " SELECT * FROM " + archive + whereSQL
+	query := CopyRowsIgnoreConflictSQL(driverName, source, archive, whereSQL)
 	result := client.DB.WithContext(ctx).Exec(query, values...)
 	if result.Error != nil {
 		return 0, fmt.Errorf("恢复内部归档数据失败: %w", result.Error)
@@ -187,15 +189,15 @@ func restoreOSSArchive(ctx context.Context, baseCase *biz.BaseCase, archiveRecor
 	if !hmac.Equal([]byte(archiveRecord.Sha256), []byte(hex.EncodeToString(digest[:]))) {
 		return 0, fmt.Errorf("归档对象 SHA-256 校验失败")
 	}
-	var dsn *mysql.Config
-	dsn, err = databaseConfigBySourceName(baseCase, archiveRecord.SourceName)
+	var databaseConfig *configv1.Data_Database
+	databaseConfig, err = databaseConfigBySourceName(baseCase, archiveRecord.SourceName)
 	if err != nil {
 		return 0, err
 	}
-	return importSQLBytes(ctx, dsn, dsn.DBName, dataValue)
+	return importSQLBytes(ctx, databaseConfig, dataValue)
 }
 
-func restoreRangeSQL(mode adminv1.BaseTableArchiveRestoreMode, restoreRange string) (string, []interface{}, error) {
+func restoreRangeSQL(driverName string, mode adminv1.BaseTableArchiveRestoreMode, restoreRange string) (string, []interface{}, error) {
 	if mode == adminv1.BaseTableArchiveRestoreMode_BASE_TABLE_ARCHIVE_RESTORE_MODE_ALL {
 		return "", nil, nil
 	}
@@ -203,10 +205,11 @@ func restoreRangeSQL(mode adminv1.BaseTableArchiveRestoreMode, restoreRange stri
 	if err := json.Unmarshal([]byte(restoreRange), &value); err != nil || value.StartID <= 0 || value.EndID < value.StartID {
 		return "", nil, fmt.Errorf("选择性恢复范围必须是有效的 start_id/end_id")
 	}
-	return " WHERE `id` BETWEEN ? AND ?", []interface{}{value.StartID, value.EndID}, nil
+	return " WHERE " + QuoteSQLIdentifier(driverName, "id") + " BETWEEN ? AND ?", []interface{}{value.StartID, value.EndID}, nil
 }
 
-func databaseConfigBySourceName(baseCase *biz.BaseCase, sourceName string) (*mysql.Config, error) {
+// databaseConfigBySourceName 查询数据源原始配置。
+func databaseConfigBySourceName(baseCase *biz.BaseCase, sourceName string) (*configv1.Data_Database, error) {
 	dataConfig := baseCase.GetConfig().GetData()
 	if dataConfig == nil {
 		return nil, fmt.Errorf("数据源配置为空")
@@ -218,14 +221,11 @@ func databaseConfigBySourceName(baseCase *biz.BaseCase, sourceName string) (*mys
 	if databaseConfig == nil {
 		return nil, fmt.Errorf("目标数据源 %s 未配置", sourceName)
 	}
-	dsn, err := mysql.ParseDSN(databaseConfig.GetSource())
-	if err != nil {
-		return nil, fmt.Errorf("解析目标数据源失败: %w", err)
-	}
-	return dsn, nil
+	return databaseConfig, nil
 }
 
-func importSQLBytes(ctx context.Context, dsn *mysql.Config, database string, content []byte) (int64, error) {
+// importSQLBytes 将 SQL 归档文件恢复到目标数据源，按数据源驱动选择恢复通道。
+func importSQLBytes(ctx context.Context, databaseConfig *configv1.Data_Database, content []byte) (int64, error) {
 	temporaryDirectory, err := os.MkdirTemp("", "kratos-table-archive-restore-")
 	if err != nil {
 		return 0, fmt.Errorf("创建归档恢复目录失败: %w", err)
@@ -235,19 +235,26 @@ func importSQLBytes(ctx context.Context, dsn *mysql.Config, database string, con
 	if err = os.WriteFile(path, content, 0o600); err != nil {
 		return 0, fmt.Errorf("写入归档恢复文件失败: %w", err)
 	}
-	return importSQLFile(ctx, dsn, database, path)
+	return importSQLFile(ctx, databaseConfig, path)
 }
 
-func importSQLFile(ctx context.Context, dsn *mysql.Config, database, sqlPath string) (int64, error) {
+// importSQLFile 将 SQL 文件恢复到目标数据源，按数据源驱动选择恢复通道。
+func importSQLFile(ctx context.Context, databaseConfig *configv1.Data_Database, sqlPath string) (int64, error) {
+	if databaseConfig.GetDriver() == SqlDriverPostgres {
+		return importPostgresSQLFile(ctx, databaseConfig, sqlPath)
+	}
+	dsn, err := mysql.ParseDSN(databaseConfig.GetSource())
+	if err != nil {
+		return 0, fmt.Errorf("解析目标数据源失败: %w", err)
+	}
 	var file *os.File
-	var err error
 	file, err = os.Open(sqlPath)
 	if err != nil {
 		return 0, fmt.Errorf("打开 SQL 恢复文件失败: %w", err)
 	}
 	defer file.Close()
 	if backup.CommandAvailable(backup.MysqlCommand) {
-		args := mysqlCommandArgs(dsn, database)
+		args := mysqlCommandArgs(dsn, dsn.DBName)
 		var passwordFile string
 		passwordFile, err = backup.WriteMySQLDefaultsFile(dsn.Passwd)
 		if err != nil {
@@ -270,7 +277,42 @@ func importSQLFile(ctx context.Context, dsn *mysql.Config, database, sqlPath str
 	if err = sqlDB.PingContext(ctx); err != nil {
 		return 0, fmt.Errorf("连接 Go MySQL 恢复数据库失败: %w", err)
 	}
-	if err = backup.RestoreMySQL(ctx, sqlDB, database, file); err != nil {
+	if err = backup.RestoreMySQL(ctx, sqlDB, dsn.DBName, file); err != nil {
+		return 0, fmt.Errorf("Go 执行 SQL 恢复失败: %w", err)
+	}
+	return 0, nil
+}
+
+// importPostgresSQLFile 将 SQL 文件恢复到 PostgreSQL 数据源，psql 可用时走命令通道，否则使用 Go 执行器。
+func importPostgresSQLFile(ctx context.Context, databaseConfig *configv1.Data_Database, sqlPath string) (int64, error) {
+	dsn, err := backup.ParsePostgresDSN(databaseConfig.GetSource())
+	if err != nil {
+		return 0, err
+	}
+	var file *os.File
+	file, err = os.Open(sqlPath)
+	if err != nil {
+		return 0, fmt.Errorf("打开 SQL 恢复文件失败: %w", err)
+	}
+	defer file.Close()
+	if backup.CommandAvailable(backup.PsqlCommand) {
+		args := []string{"-v", "ON_ERROR_STOP=1", "-h", dsn.Host, "-p", dsn.Port, "-U", dsn.User, "-d", dsn.Database, "-f", sqlPath}
+		command := exec.CommandContext(ctx, backup.PsqlCommand, args...)
+		command.Env = append(os.Environ(), "PGPASSWORD="+dsn.Password)
+		if err = command.Run(); err != nil {
+			return 0, fmt.Errorf("执行 SQL 恢复失败: %w", err)
+		}
+		return 0, nil
+	}
+	sqlDB, err := sql.Open("pgx", databaseConfig.GetSource())
+	if err != nil {
+		return 0, fmt.Errorf("创建 Go PostgreSQL 恢复连接失败: %w", err)
+	}
+	defer sqlDB.Close()
+	if err = sqlDB.PingContext(ctx); err != nil {
+		return 0, fmt.Errorf("连接 Go PostgreSQL 恢复数据库失败: %w", err)
+	}
+	if err = backup.RestorePostgres(ctx, sqlDB, file); err != nil {
 		return 0, fmt.Errorf("Go 执行 SQL 恢复失败: %w", err)
 	}
 	return 0, nil

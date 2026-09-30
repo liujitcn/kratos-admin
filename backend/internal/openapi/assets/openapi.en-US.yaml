@@ -8593,7 +8593,7 @@ components:
                     description: Knowledge base name
                 doc_count:
                     type: integer
-                    description: Document count
+                    description: Ready document count, excluding failed ones
                     format: int32
             description: AI knowledge base option.
         base.v1.AiMessage:
@@ -10233,6 +10233,10 @@ components:
                 description:
                     type: string
                     description: Description
+                embedding_dimensions:
+                    type: integer
+                    description: Vector dimension; 0 uses the selected model configuration or the system default
+                    format: int32
                 model_id:
                     type: string
                     description: Embedding model ID used for vectorization
@@ -10252,6 +10256,16 @@ components:
                 display_name:
                     type: string
                     description: Display name
+                dimensions:
+                    type: integer
+                    description: Output vector dimension declared by the model; 0 means undeclared
+                    format: int32
+                dimension_options:
+                    type: array
+                    items:
+                        type: integer
+                        format: int32
+                    description: Available vector dimension options
             description: Embedding model option available to knowledge bases.
         rag.admin.v1.ListAiKnowledgeModelsResponse:
             type: object

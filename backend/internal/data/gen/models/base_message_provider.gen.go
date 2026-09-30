@@ -14,21 +14,21 @@ const TableNameBaseMessageProvider = "base_message_provider"
 
 // BaseMessageProvider 消息发送 Provider
 type BaseMessageProvider struct {
-	ID           int64                 `gorm:"column:id;type:bigint;primaryKey;autoIncrement:true;index:idx_base_message_provider_status_sort,priority:3;comment:消息 Provider ID" json:"id"`         // 消息 Provider ID
-	Provider     string                `gorm:"column:provider;type:varchar(32);not null;uniqueIndex:unique_base_message_provider,priority:1;comment:Provider稳定标识" json:"provider"`                  // Provider稳定标识
-	Name         string                `gorm:"column:name;type:varchar(50);not null;comment:Provider名称" json:"name"`                                                                                // Provider名称
-	Description  string                `gorm:"column:description;type:varchar(255);not null;comment:Provider说明" json:"description"`                                                                 // Provider说明
-	Icon         string                `gorm:"column:icon;type:varchar(100);not null;comment:图标键或图片地址" json:"icon"`                                                                                 // 图标键或图片地址
-	ClientID     string                `gorm:"column:client_id;type:varchar(255);not null;comment:通用凭证标识" json:"client_id"`                                                                         // 通用凭证标识
-	ClientSecret string                `gorm:"column:client_secret;type:varchar(1024);not null;comment:通用凭证密钥" json:"client_secret"`                                                                // 通用凭证密钥
-	Config       string                `gorm:"column:config;type:json;not null;comment:Provider扩展配置JSON对象" json:"config"`                                                                           // Provider扩展配置JSON对象
-	Sort         int32                 `gorm:"column:sort;type:int;not null;index:idx_base_message_provider_status_sort,priority:2;comment:排序" json:"sort"`                                         // 排序
-	Status       int32                 `gorm:"column:status;type:tinyint;not null;index:idx_base_message_provider_status_sort,priority:1;comment:状态：枚举【Status】" json:"status"`                      // 状态：枚举【Status】
-	CreatedBy    int64                 `gorm:"column:created_by;type:bigint;not null;comment:创建者ID" json:"created_by"`                                                                              // 创建者ID
-	UpdatedBy    int64                 `gorm:"column:updated_by;type:bigint;not null;comment:更新者ID" json:"updated_by"`                                                                              // 更新者ID
-	CreatedAt    time.Time             `gorm:"column:created_at;type:datetime;not null;comment:创建时间" json:"created_at"`                                                                             // 创建时间
-	UpdatedAt    time.Time             `gorm:"column:updated_at;type:datetime;not null;comment:更新时间" json:"updated_at"`                                                                             // 更新时间
-	DeletedAt    soft_delete.DeletedAt `gorm:"column:deleted_at;type:bigint unsigned;not null;uniqueIndex:unique_base_message_provider,priority:2;comment:删除时间;softDelete:milli" json:"deleted_at"` // 删除时间
+	ID           int64                 `gorm:"column:id;type:bigint;primaryKey;autoIncrement:true;index:idx_base_message_provider_status_sort,priority:3;comment:消息 Provider ID" json:"id"` // 消息 Provider ID
+	Provider     string                `gorm:"column:provider;type:varchar(32);not null;uniqueIndex:unique_base_message_provider,priority:1;comment:Provider稳定标识" json:"provider"`          // Provider稳定标识
+	Name         string                `gorm:"column:name;type:varchar(50);not null;comment:Provider名称" json:"name"`                                                                        // Provider名称
+	Description  string                `gorm:"column:description;type:varchar(255);not null;comment:Provider说明" json:"description"`                                                         // Provider说明
+	Icon         string                `gorm:"column:icon;type:varchar(100);not null;comment:图标键或图片地址" json:"icon"`                                                                         // 图标键或图片地址
+	ClientID     string                `gorm:"column:client_id;type:varchar(255);not null;comment:通用凭证标识" json:"client_id"`                                                                 // 通用凭证标识
+	ClientSecret string                `gorm:"column:client_secret;type:varchar(1024);not null;comment:通用凭证密钥" json:"client_secret"`                                                        // 通用凭证密钥
+	Config       string                `gorm:"column:config;type:text;not null;comment:Provider扩展配置JSON对象" json:"config"`                                                                   // Provider扩展配置JSON对象
+	Sort         int32                 `gorm:"column:sort;type:int;not null;index:idx_base_message_provider_status_sort,priority:2;comment:排序" json:"sort"`                                 // 排序
+	Status       int32                 `gorm:"column:status;type:smallint;not null;index:idx_base_message_provider_status_sort,priority:1;comment:状态：枚举【Status】" json:"status"`             // 状态：枚举【Status】
+	CreatedBy    int64                 `gorm:"column:created_by;type:bigint;not null;comment:创建者ID" json:"created_by"`                                                                      // 创建者ID
+	UpdatedBy    int64                 `gorm:"column:updated_by;type:bigint;not null;comment:更新者ID" json:"updated_by"`                                                                      // 更新者ID
+	CreatedAt    time.Time             `gorm:"column:created_at;not null;comment:创建时间" json:"created_at"`                                                                                   // 创建时间
+	UpdatedAt    time.Time             `gorm:"column:updated_at;not null;comment:更新时间" json:"updated_at"`                                                                                   // 更新时间
+	DeletedAt    soft_delete.DeletedAt `gorm:"column:deleted_at;type:bigint;not null;uniqueIndex:unique_base_message_provider,priority:2;comment:删除时间;softDelete:milli" json:"deleted_at"`  // 删除时间
 }
 
 // TableName BaseMessageProvider's table name

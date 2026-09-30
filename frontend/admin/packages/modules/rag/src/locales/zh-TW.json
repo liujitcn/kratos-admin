@@ -32,6 +32,7 @@
   "rag.knowledge.field.embedding_dimensions_value": "{dimensions} 維",
   "rag.knowledge.field.model": "Embedding 模型",
   "rag.knowledge.field.name": "知識庫名稱",
+  "rag.knowledge.field.provider": "供應商",
   "rag.knowledge.message.confirm_delete": "確認刪除知識庫「{name}」及其全部文件？",
   "rag.knowledge.message.create_success": "建立知識庫成功",
   "rag.knowledge.message.delete_success": "刪除知識庫成功",
@@ -44,5 +45,6 @@
   "rag.knowledge.search.score": "相似度",
   "rag.knowledge.search.title": "檢索測試",
   "rag.knowledge.validation.model": "請選擇 Embedding 模型",
-  "rag.knowledge.validation.name": "請輸入知識庫名稱"
+  "rag.knowledge.validation.name": "請輸入知識庫名稱",
+  "rag.knowledge.validation.embedding_dimensions": "請選擇向量維度"
 }

@@ -20,12 +20,12 @@ type BasePost struct {
 	Code      string                `gorm:"column:code;type:varchar(100);not null;uniqueIndex:unique_base_post,priority:2;comment:岗位编码" json:"code"`                                              // 岗位编码
 	Sort      int32                 `gorm:"column:sort;type:int;not null;comment:显示顺序" json:"sort"`                                                                                               // 显示顺序
 	Remark    string                `gorm:"column:remark;type:varchar(500);comment:备注" json:"remark"`                                                                                             // 备注
-	Status    int32                 `gorm:"column:status;type:tinyint;not null;comment:状态：枚举【Status】" json:"status"`                                                                              // 状态：枚举【Status】
+	Status    int32                 `gorm:"column:status;type:smallint;not null;comment:状态：枚举【Status】" json:"status"`                                                                             // 状态：枚举【Status】
 	CreatedBy int64                 `gorm:"column:created_by;type:bigint;not null;comment:创建者ID" json:"created_by"`                                                                               // 创建者ID
 	UpdatedBy int64                 `gorm:"column:updated_by;type:bigint;not null;comment:更新者ID" json:"updated_by"`                                                                               // 更新者ID
-	CreatedAt time.Time             `gorm:"column:created_at;type:datetime;not null;comment:创建时间" json:"created_at"`                                                                              // 创建时间
-	UpdatedAt time.Time             `gorm:"column:updated_at;type:datetime;not null;comment:更新时间" json:"updated_at"`                                                                              // 更新时间
-	DeletedAt soft_delete.DeletedAt `gorm:"column:deleted_at;type:bigint unsigned;not null;uniqueIndex:unique_base_post,priority:3;comment:删除时间;softDelete:milli" json:"deleted_at"`              // 删除时间
+	CreatedAt time.Time             `gorm:"column:created_at;not null;comment:创建时间" json:"created_at"`                                                                                            // 创建时间
+	UpdatedAt time.Time             `gorm:"column:updated_at;not null;comment:更新时间" json:"updated_at"`                                                                                            // 更新时间
+	DeletedAt soft_delete.DeletedAt `gorm:"column:deleted_at;type:bigint;not null;uniqueIndex:unique_base_post,priority:3;comment:删除时间;softDelete:milli" json:"deleted_at"`                       // 删除时间
 }
 
 // TableName BasePost's table name

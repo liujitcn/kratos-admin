@@ -8593,7 +8593,7 @@ components:
                     description: ナレッジベース名
                 doc_count:
                     type: integer
-                    description: ドキュメント数
+                    description: 準備完了文書数（失敗を除く）
                     format: int32
             description: AIナレッジベースオプション。
         base.v1.AiMessage:
@@ -10233,6 +10233,10 @@ components:
                 description:
                     type: string
                     description: 説明
+                embedding_dimensions:
+                    type: integer
+                    description: ベクトル次元。0 は選択したモデル設定またはシステム既定値に従います
+                    format: int32
                 model_id:
                     type: string
                     description: ベクトル化に使用するembeddingモデルID
@@ -10252,6 +10256,16 @@ components:
                 display_name:
                     type: string
                     description: 表示名
+                dimensions:
+                    type: integer
+                    description: モデルが宣言する出力ベクトルの次元。0 は未宣言を示します
+                    format: int32
+                dimension_options:
+                    type: array
+                    items:
+                        type: integer
+                        format: int32
+                    description: 選択可能なベクトル次元の一覧
             description: ナレッジベースで利用可能なembeddingモデルオプション。
         rag.admin.v1.ListAiKnowledgeModelsResponse:
             type: object

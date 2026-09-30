@@ -22,6 +22,7 @@ import (
 	"github.com/liujitcn/kratos-admin/backend/internal/i18n"
 	"github.com/liujitcn/kratos-core/biz"
 	"github.com/liujitcn/kratos-core/errorsx"
+	configv1 "github.com/liujitcn/kratos-kit/api/gen/go/config/v1"
 )
 
 // BaseTableBackupRestoreCase 管理数据库备份恢复记录。
@@ -143,13 +144,13 @@ func restoreBackupRecord(ctx context.Context, baseCase *biz.BaseCase, backupReco
 	if mode == adminv1.BaseTableBackupRestoreMode_BASE_TABLE_BACKUP_RESTORE_MODE_VERIFY_ONLY {
 		return 0, nil
 	}
-	var dsn *mysql.Config
-	dsn, err = databaseConfigBySourceName(baseCase, targetSourceName)
+	var databaseConfig *configv1.Data_Database
+	databaseConfig, err = databaseConfigBySourceName(baseCase, targetSourceName)
 	if err != nil {
 		return 0, err
 	}
-	if dsn.DBName != targetDatabase {
-		return 0, fmt.Errorf("目标数据库必须与目标数据源配置一致")
+	if err = verifyTargetDatabase(databaseConfig, targetDatabase); err != nil {
+		return 0, err
 	}
 	temporaryDirectory, err := os.MkdirTemp("", "kratos-table-restore-")
 	if err != nil {
@@ -169,7 +170,29 @@ func restoreBackupRecord(ctx context.Context, baseCase *biz.BaseCase, backupReco
 	if err = gunzipFile(decryptedPath, sqlPath); err != nil {
 		return 0, err
 	}
-	return importSQLFile(ctx, dsn, targetDatabase, sqlPath)
+	return importSQLFile(ctx, databaseConfig, sqlPath)
+}
+
+// verifyTargetDatabase 校验目标数据库名与数据源连接配置一致。
+func verifyTargetDatabase(databaseConfig *configv1.Data_Database, targetDatabase string) error {
+	if databaseConfig.GetDriver() == SqlDriverPostgres {
+		parsed, err := backup.ParsePostgresDSN(databaseConfig.GetSource())
+		if err != nil {
+			return err
+		}
+		if parsed.Database != targetDatabase {
+			return fmt.Errorf("目标数据库必须与目标数据源配置一致")
+		}
+		return nil
+	}
+	dsn, err := mysql.ParseDSN(databaseConfig.GetSource())
+	if err != nil {
+		return fmt.Errorf("解析目标数据源失败: %w", err)
+	}
+	if dsn.DBName != targetDatabase {
+		return fmt.Errorf("目标数据库必须与目标数据源配置一致")
+	}
+	return nil
 }
 
 func verifyBackupBytes(dataValue []byte, record *models.BaseTableBackupRecord, integrityKey string) error {

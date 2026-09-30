@@ -8,7 +8,7 @@ const TableNameCasbinRule = "casbin_rule"
 
 // CasbinRule Casbin权限信息
 type CasbinRule struct {
-	ID    int64  `gorm:"column:id;type:bigint unsigned;primaryKey;autoIncrement:true;comment:策略规则ID" json:"id"`                    // 策略规则ID
+	ID    int64  `gorm:"column:id;type:bigint;primaryKey;autoIncrement:true;comment:策略规则ID" json:"id"`                             // 策略规则ID
 	Ptype string `gorm:"column:ptype;type:varchar(100);not null;uniqueIndex:idx_casbin_rule,priority:1;comment:策略类型" json:"ptype"` // 策略类型
 	V0    string `gorm:"column:v0;type:varchar(100);not null;uniqueIndex:idx_casbin_rule,priority:2;comment:租户编码" json:"v0"`       // 租户编码
 	V1    string `gorm:"column:v1;type:varchar(100);not null;uniqueIndex:idx_casbin_rule,priority:3;comment:角色编码" json:"v1"`       // 角色编码

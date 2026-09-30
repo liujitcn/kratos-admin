@@ -4,9 +4,4 @@ data:
     driver: mysql
     enable_migrate: true
     source: root:112233@tcp(192.168.60.52:3306)/kratos_admin?charset=utf8mb4&parseTime=True&loc=Local&timeout=1000ms
-  databases:
-    rag:
-      debug: true
-      driver: postgres
-      enable_migrate: true
-      source: host=192.168.60.52 port=5432 user=postgres password=112233 dbname=kratos_admin sslmode=disable
+

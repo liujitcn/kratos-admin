@@ -26,6 +26,7 @@ import (
 	"github.com/liujitcn/gorm-kit/repository"
 	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/backup"
+	adminBiz "github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 	"github.com/liujitcn/kratos-admin/backend/internal/i18n"
@@ -118,7 +119,9 @@ func (t *TableBackupTask) backupOne(ctx context.Context, config *models.BaseTabl
 	if config.BackupType != int32(adminv1.BaseTableBackupType_BASE_TABLE_BACKUP_TYPE_FULL) {
 		return fmt.Errorf("数据源 %s 暂不支持增量备份", config.SourceName)
 	}
-	databaseConfig, err := databaseConfigByName(t.baseCase, config.SourceName)
+	var databaseConfig *configv1.Data_Database
+	var err error
+	databaseConfig, err = databaseConfigByName(t.baseCase, config.SourceName)
 	if err != nil {
 		return err
 	}
@@ -129,9 +132,25 @@ func (t *TableBackupTask) backupOne(ctx context.Context, config *models.BaseTabl
 	if client == nil || client.DB == nil {
 		return fmt.Errorf("数据源 %s 未初始化", config.SourceName)
 	}
-	dsn, err := mysql.ParseDSN(databaseConfig.GetSource())
-	if err != nil {
-		return fmt.Errorf("解析数据源 %s 失败: %w", config.SourceName, err)
+	// 备份导出按数据源驱动分通道：MySQL 系走 mysqldump，PostgreSQL 走 pg_dump。
+	driverName := client.Driver()
+	var databaseName string
+	var dsn *mysql.Config
+	var pgDSN backup.PostgresDSN
+	if adminBiz.MysqlFamilyDriver(driverName) {
+		dsn, err = mysql.ParseDSN(databaseConfig.GetSource())
+		if err != nil {
+			return fmt.Errorf("解析数据源 %s 失败: %w", config.SourceName, err)
+		}
+		databaseName = dsn.DBName
+	} else if driverName == adminBiz.SqlDriverPostgres {
+		pgDSN, err = backup.ParsePostgresDSN(databaseConfig.GetSource())
+		if err != nil {
+			return fmt.Errorf("解析数据源 %s 失败: %w", config.SourceName, err)
+		}
+		databaseName = pgDSN.Database
+	} else {
+		return fmt.Errorf("数据源 %s 的驱动 %s 暂不支持数据库备份导出", config.SourceName, driverName)
 	}
 	var sqlDB *sql.DB
 	sqlDB, err = client.DB.DB()
@@ -148,7 +167,7 @@ func (t *TableBackupTask) backupOne(ctx context.Context, config *models.BaseTabl
 	}
 	now := time.Now()
 	record := &models.BaseTableBackupRecord{
-		BackupID: config.ID, SourceName: config.SourceName, DatabaseName: dsn.DBName, BackupType: config.BackupType,
+		BackupID: config.ID, SourceName: config.SourceName, DatabaseName: databaseName, BackupType: config.BackupType,
 		ObjectKey: "", SizeBytes: 0, Sha256: "", Hmac: "",
 		Status: int32(adminv1.BaseTableBackupRecordStatus_BASE_TABLE_BACKUP_RECORD_STATUS_RUNNING), Error: "",
 		StartedAt: now, FinishedAt: now, VerifiedAt: pendingBackupVerificationAt,
@@ -165,7 +184,7 @@ func (t *TableBackupTask) backupOne(ctx context.Context, config *models.BaseTabl
 	sqlPath := path.Join(temporaryDirectory, backupFilePrefix+".sql")
 	compressedPath := sqlPath + ".gz"
 	encryptedPath := compressedPath + ".enc"
-	err = dumpDatabase(ctx, sqlDB, dsn, sqlPath)
+	err = dumpDatabase(ctx, driverName, sqlDB, dsn, databaseConfig, sqlPath)
 	if err == nil {
 		err = gzipFile(sqlPath, compressedPath)
 	}
@@ -183,7 +202,7 @@ func (t *TableBackupTask) backupOne(ctx context.Context, config *models.BaseTabl
 		return t.failBackupRecord(ctx, record, fmt.Errorf("计算加密备份校验值失败: %w", err))
 	}
 	prefix := strings.Trim(config.OSSPrefix, "/")
-	objectDirectory := buildObjectPath(prefix, config.SourceName, dsn.DBName)
+	objectDirectory := buildObjectPath(prefix, config.SourceName, databaseName)
 	objectName := id.NewGUIDv7NoHyphen() + ".sql.gz.enc"
 	objectKey := buildObjectPath(objectDirectory, objectName)
 	if t.baseCase.OSS == nil {
@@ -284,7 +303,11 @@ func buildObjectPath(prefix string, segments ...string) string {
 	return path.Join(parts...)
 }
 
-func dumpDatabase(ctx context.Context, sqlDB *sql.DB, dsn *mysql.Config, output string) error {
+// dumpDatabase 将数据库完整导出为 SQL 文件，按数据源驱动选择导出通道。
+func dumpDatabase(ctx context.Context, driverName string, sqlDB *sql.DB, dsn *mysql.Config, databaseConfig *configv1.Data_Database, output string) error {
+	if driverName == adminBiz.SqlDriverPostgres {
+		return dumpPostgresDatabase(ctx, sqlDB, databaseConfig, output)
+	}
 	if !backup.CommandAvailable(backup.MysqldumpCommand) {
 		return dumpDatabaseByGo(ctx, sqlDB, dsn, output)
 	}
@@ -481,4 +504,65 @@ func fileDigest(filePath, hmacKey string) (int64, string, string, error) {
 		hmacValue = hex.EncodeToString(mac.Sum(nil))
 	}
 	return size, hex.EncodeToString(digest.Sum(nil)), hmacValue, nil
+}
+
+// dumpPostgresDatabase 将 PostgreSQL 数据库完整导出为 SQL 文件；pg_dump 可用时走命令通道，否则使用 Go 导出器。
+func dumpPostgresDatabase(ctx context.Context, sqlDB *sql.DB, databaseConfig *configv1.Data_Database, output string) error {
+	if backup.CommandAvailable(backup.PgdumpCommand) {
+		pgDSN, err := backup.ParsePostgresDSN(databaseConfig.GetSource())
+		if err != nil {
+			return err
+		}
+		args := []string{"--inserts", "--no-owner", "--no-privileges", "--schema=public"}
+		if pgDSN.Host != "" {
+			args = append(args, "--host="+pgDSN.Host)
+		}
+		if pgDSN.Port != "" {
+			args = append(args, "--port="+pgDSN.Port)
+		}
+		if pgDSN.User != "" {
+			args = append(args, "--username="+pgDSN.User)
+		}
+		if pgDSN.Database != "" {
+			args = append(args, pgDSN.Database)
+		}
+		command := exec.CommandContext(ctx, backup.PgdumpCommand, args...)
+		command.Env = append(os.Environ(), "PGPASSWORD="+pgDSN.Password)
+		var outputFile *os.File
+		outputFile, err = os.OpenFile(output, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0o600)
+		if err != nil {
+			return fmt.Errorf("创建 PostgreSQL 备份文件失败: %w", err)
+		}
+		command.Stdout = outputFile
+		if err = command.Run(); err != nil {
+			_ = outputFile.Close()
+			return fmt.Errorf("执行 pg_dump 失败: %w", err)
+		}
+		if err = outputFile.Close(); err != nil {
+			return fmt.Errorf("关闭 PostgreSQL 备份文件失败: %w", err)
+		}
+		return nil
+	}
+	var file *os.File
+	var err error
+	file, err = os.OpenFile(output, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0o600)
+	if err != nil {
+		return fmt.Errorf("创建 Go 数据库备份文件失败: %w", err)
+	}
+	dumpErr := backup.DumpPostgres(ctx, sqlDB, backup.PostgresDumpOptions{
+		Schema:        "public",
+		IncludeSchema: true,
+		IncludeData:   true,
+	}, file)
+	if dumpErr == nil {
+		dumpErr = file.Sync()
+	}
+	closeErr := file.Close()
+	if dumpErr != nil {
+		return fmt.Errorf("Go 导出数据库失败: %w", dumpErr)
+	}
+	if closeErr != nil {
+		return fmt.Errorf("关闭 Go 数据库备份文件失败: %w", closeErr)
+	}
+	return nil
 }

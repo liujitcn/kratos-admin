@@ -319,6 +319,12 @@ EN_EXACT = {
     "行数据": "Row data",
     "结果行数": "Result row count",
     "embedding向量维度": "Embedding vector dimensions",
+    "向量维度；0表示按所选模型配置或系统默认": "Vector dimension; 0 uses the selected model configuration or the system default",
+    "已就绪文档数，不含处理失败": "Ready document count, excluding failed ones",
+
+
+    "模型声明的输出向量维度；0表示未声明": "Output vector dimension declared by the model; 0 means undeclared",
+    "可选向量维度列表": "Available vector dimension options",
     "显示名称": "Display name",
     "上传纯文本文档（切片 → 向量化 → 落库）。": "Upload plain text document (chunk, embed and store).",
     "上传文档文件（txt/md/docx/pdf：抽取文本后走同一入库链）。": "Upload document file (txt/md/docx/pdf; text is extracted into the same pipeline).",
@@ -807,6 +813,12 @@ JA_EXACT = {
     "行数据": "行データ",
     "结果行数": "結果行数",
     "embedding向量维度": "embeddingベクトルの次元",
+    "向量维度；0表示按所选模型配置或系统默认": "ベクトル次元。0 は選択したモデル設定またはシステム既定値に従います",
+    "已就绪文档数，不含处理失败": "準備完了文書数（失敗を除く）",
+
+
+    "模型声明的输出向量维度；0表示未声明": "モデルが宣言する出力ベクトルの次元。0 は未宣言を示します",
+    "可选向量维度列表": "選択可能なベクトル次元の一覧",
     "显示名称": "表示名",
     "上传纯文本文档（切片 → 向量化 → 落库）。": "プレーンテキストドキュメントをアップロードします（チャンク分割 → ベクトル化 → 保存）。",
     "上传文档文件（txt/md/docx/pdf：抽取文本后走同一入库链）。": "ドキュメントファイルをアップロードします（txt/md/docx/pdf；テキスト抽出後に同じ処理へ）。",

@@ -29,7 +29,8 @@ data:
     source: root:112233@tcp(127.0.0.1:3306)/kratos_admin?charset=utf8mb4&parseTime=True&loc=Local&timeout=1000ms
 
   # 按名称区分的多数据库配置；名称由业务或数据访问层引用。
-  # 示例：AI 知识库（RAG）独立数据源，按生成模型自动建表，不占用 MySQL 主库。
+  # 示例：AI 知识库（RAG）独立数据源，按生成模型自动建表；删除该段则回退默认数据源（主库），启动仅记录告警。
+  # 驱动支持 mysql、postgres，后续可扩展达梦、高斯等国产数据库；模型 type 标签已归一为跨库中立类型。
   databases:
     rag:
       # 数据库驱动名称。

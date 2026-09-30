@@ -8593,7 +8593,7 @@ components:
                     description: 知识库名称
                 doc_count:
                     type: integer
-                    description: 文档数量
+                    description: 已就绪文档数，不含处理失败
                     format: int32
             description: AI知识库选项。
         base.v1.AiMessage:
@@ -10233,6 +10233,10 @@ components:
                 description:
                     type: string
                     description: 描述
+                embedding_dimensions:
+                    type: integer
+                    description: 向量维度；0表示按所选模型配置或系统默认
+                    format: int32
                 model_id:
                     type: string
                     description: 向量化使用的embedding模型ID
@@ -10252,6 +10256,16 @@ components:
                 display_name:
                     type: string
                     description: 显示名称
+                dimensions:
+                    type: integer
+                    description: 模型声明的输出向量维度；0表示未声明
+                    format: int32
+                dimension_options:
+                    type: array
+                    items:
+                        type: integer
+                        format: int32
+                    description: 可选向量维度列表
             description: 知识库可用的embedding模型选项。
         rag.admin.v1.ListAiKnowledgeModelsResponse:
             type: object

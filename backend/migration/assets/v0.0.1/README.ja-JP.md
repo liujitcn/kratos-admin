@@ -1,6 +1,6 @@
-# MySQL デフォルト初期化リソース
+# デフォルト初期化リソース（データベース種別共通）
 
-このディレクトリでは `v0.0.1` の MySQL 初期化リソースを管理します。SQL は既定データの登録だけを行い、テーブルは作成しません。起動時に GORM の `AutoMigrate` が有効なモデルを作成した後、このディレクトリの `.up.sql` をファイル名順に実行します。
+このファイルは `v0.0.1` の共通初期化説明を管理し、すべてのデータベース種別（`mysql/`、`postgres/`）で共用します。データソース固有の説明は各ディレクトリに置きます。SQL は既定データの登録だけを行い、テーブルは作成しません。起動時に GORM の `AutoMigrate` が有効なモデルを作成した後、データソースディレクトリの `.up.sql` をファイル名順に実行します。
 
 ## ファイルの役割
 
@@ -9,7 +9,7 @@
 | `default_data.up.sql` | 言語、設定、部門、役職、辞書、辞書項目、ジョブ、テナント、メッセージカテゴリ、メニュー、ロール、マスキングルール、テーブルアーカイブ、テーブルバックアップ、ログインポリシー、開発用アカウントの既定データ。 |
 | `base_area.up.sql` | 独立したスクリプトで既定データソースの移行に含まれる行政区画データ。 |
 | `base_redact_rule.up.sql` | マスキングルール種別の例と、`base_redact_storage_policy`、`base_redact_output_policy` の保存／出力マスキングポリシー。 |
-| `language.up.sql` | 言語の初期データ。`default_data.up.sql` の `base_language` と一致し、`INSERT IGNORE` で冪等。 |
+| `language.up.sql` | 言語の初期データ。`default_data.up.sql` の `base_language` と一致し、冪等登録（MySQL `INSERT IGNORE` / PostgreSQL `ON CONFLICT DO NOTHING`）。 |
 | `i18n.en-US.up.sql` | `en-US` の `base_i18n` 翻訳データ。 |
 | `i18n.ja-JP.up.sql` | `ja-JP` の `base_i18n` 翻訳データ。 |
 | `i18n.zh-TW.up.sql` | `zh-TW` の `base_i18n` 翻訳データ。 |
@@ -18,9 +18,9 @@
 
 ## 実行と冪等性
 
-起動時は、自動テーブル作成、SQL 移行、移行説明の同期に続けて、OpenAPI、`base_api`、テナントメニュー、Casbin ポリシーを同期します。`default_data.up.sql`、`base_area.up.sql`、`base_redact_rule.up.sql` は外部キー検査を一時的に無効化し、終了時に元の値へ戻します。
+起動時は、自動テーブル作成、SQL 移行、移行説明の同期に続けて、OpenAPI、`base_api`、テナントメニュー、Casbin ポリシーを同期します。`default_data.up.sql`、`base_area.up.sql`、`base_redact_rule.up.sql` は MySQL で外部キー検査を一時的に無効化し、終了時に元の値へ戻します。PostgreSQL ではセッション調整は不要です。
 
-初期データはすべて 1 行ずつ `INSERT IGNORE` で登録します。既存の一意キーはスキップされ、業務データを上書きしません。バッチ `INSERT`、`UPDATE`、`DELETE`、`TRUNCATE` は使用しません。`default_data.up.sql` の各テーブルのレコードは `id` の昇順で管理し、新しい既定データは該当する番号帯の位置に追加してください。
+初期データはすべて 1 行ずつ冪等に登録します（MySQL `INSERT IGNORE`、PostgreSQL `INSERT ... ON CONFLICT DO NOTHING`）。既存の一意キーはスキップされ、業務データを上書きしません。バッチ `INSERT`、`UPDATE`、`DELETE`、`TRUNCATE` は使用しません。`default_data.up.sql` の各テーブルのレコードは `id` の昇順で管理し、新しい既定データは該当する番号帯の位置に追加してください。
 
 `v0.0.1` が記録済みのデータベースでは、初期化ファイルを変更しても移行は再実行されません。変更を確認するときは新しいデータベースを使うか、開発環境の手順で再構築してください。新機能の初期データは引き続き `v0.0.1` に揃え、後続バージョンや既存データ向けの増分スクリプトは追加しません。
 

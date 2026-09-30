@@ -32,6 +32,7 @@
   "rag.knowledge.field.embedding_dimensions_value": "{dimensions} 维",
   "rag.knowledge.field.model": "Embedding 模型",
   "rag.knowledge.field.name": "知识库名称",
+  "rag.knowledge.field.provider": "供应商",
   "rag.knowledge.message.confirm_delete": "确认删除知识库「{name}」及其全部文档？",
   "rag.knowledge.message.create_success": "创建知识库成功",
   "rag.knowledge.message.delete_success": "删除知识库成功",
@@ -44,5 +45,6 @@
   "rag.knowledge.search.score": "相似度",
   "rag.knowledge.search.title": "检索测试",
   "rag.knowledge.validation.model": "请选择 Embedding 模型",
-  "rag.knowledge.validation.name": "请输入知识库名称"
+  "rag.knowledge.validation.name": "请输入知识库名称",
+  "rag.knowledge.validation.embedding_dimensions": "请选择向量维度"
 }

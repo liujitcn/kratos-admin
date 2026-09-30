@@ -32,6 +32,7 @@
   "rag.knowledge.field.embedding_dimensions_value": "{dimensions} 次元",
   "rag.knowledge.field.model": "Embedding モデル",
   "rag.knowledge.field.name": "名称",
+  "rag.knowledge.field.provider": "プロバイダー",
   "rag.knowledge.message.confirm_delete": "ナレッジベース「{name}」とそのすべてのドキュメントを削除しますか？",
   "rag.knowledge.message.create_success": "ナレッジベースを作成しました",
   "rag.knowledge.message.delete_success": "ナレッジベースを削除しました",
@@ -44,5 +45,6 @@
   "rag.knowledge.search.score": "類似度",
   "rag.knowledge.search.title": "検索テスト",
   "rag.knowledge.validation.model": "Embedding モデルを選択してください",
-  "rag.knowledge.validation.name": "名称を入力してください"
+  "rag.knowledge.validation.name": "名称を入力してください",
+  "rag.knowledge.validation.embedding_dimensions": "ベクトル次元を選択してください"
 }

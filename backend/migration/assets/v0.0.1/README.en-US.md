@@ -1,6 +1,6 @@
-# MySQL Default Initialization Resources
+# Default Initialization Resources (shared across database types)
 
-This directory contains the MySQL initialization resources for `v0.0.1`. The scripts insert default data only; they do not create tables. At startup, GORM `AutoMigrate` creates the enabled models, and the `.up.sql` files in this directory are then applied in filename order.
+This file documents the shared initialization resources for `v0.0.1`, used by all database types (`mysql/`, `postgres/`); data-source-specific notes live in their own directories. The scripts insert default data only; they do not create tables. At startup, GORM `AutoMigrate` creates the enabled models, and the `.up.sql` files in each data-source directory are then applied in filename order.
 
 ## File Responsibilities
 
@@ -9,7 +9,7 @@ This directory contains the MySQL initialization resources for `v0.0.1`. The scr
 | `default_data.up.sql` | Default languages, configuration, departments, posts, dictionaries, dictionary items, jobs, tenant, message categories, menus, roles, redaction rules, table archiving, table backup, login policy, and development accounts. |
 | `base_area.up.sql` | Administrative-division data in a separate script that participates in the default data-source migration. |
 | `base_redact_rule.up.sql` | Redaction rule type examples, plus inbound/outbound redaction policies in `base_redact_storage_policy` and `base_redact_output_policy`. |
-| `language.up.sql` | Language initialization data, aligned with `base_language` in `default_data.up.sql` and idempotent via `INSERT IGNORE`. |
+| `language.up.sql` | Language initialization data, aligned with `base_language` in `default_data.up.sql` written idempotently (`INSERT IGNORE` on MySQL, `ON CONFLICT DO NOTHING` on PostgreSQL). |
 | `i18n.en-US.up.sql` | `en-US` `base_i18n` translations. |
 | `i18n.ja-JP.up.sql` | `ja-JP` `base_i18n` translations. |
 | `i18n.zh-TW.up.sql` | `zh-TW` `base_i18n` translations. |
@@ -18,9 +18,9 @@ This directory contains the MySQL initialization resources for `v0.0.1`. The scr
 
 ## Execution and Idempotency
 
-Startup performs automatic table creation, SQL migrations, migration-description synchronization, and then OpenAPI, `base_api`, tenant-menu, and Casbin-policy synchronization. `default_data.up.sql`, `base_area.up.sql`, and `base_redact_rule.up.sql` temporarily disable foreign-key checks and restore the original value when they finish.
+Startup performs automatic table creation, SQL migrations, migration-description synchronization, and then OpenAPI, `base_api`, tenant-menu, and Casbin-policy synchronization. `default_data.up.sql`, `base_area.up.sql`, and `base_redact_rule.up.sql` temporarily disable foreign-key checks on MySQL and restore the original value when they finish; PostgreSQL needs no session adjustments.
 
-Every initialization record is written with an individual `INSERT IGNORE`: an existing unique-key record is skipped and business data is not overwritten. The scripts contain no batch `INSERT`, `UPDATE`, `DELETE`, or `TRUNCATE`. Records for each table in `default_data.up.sql` are maintained in ascending `id` order; new default rows should be placed beside the matching ID range.
+Every initialization record is written with an individual idempotent insert (`INSERT IGNORE` on MySQL, `INSERT ... ON CONFLICT DO NOTHING` on PostgreSQL): an existing unique-key record is skipped and business data is not overwritten. The scripts contain no batch `INSERT`, `UPDATE`, `DELETE`, or `TRUNCATE`. Records for each table in `default_data.up.sql` are maintained in ascending `id` order; new default rows should be placed beside the matching ID range.
 
 A database that has already recorded `v0.0.1` will not replay the migration because an initialization file changed. Validate changes on a fresh database or by rebuilding the development database. New features must complete the `v0.0.1` initialization state; do not add a later version or an incremental script for existing databases.
 

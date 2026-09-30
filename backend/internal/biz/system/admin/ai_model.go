@@ -13,7 +13,7 @@ import (
 	"github.com/liujitcn/gorm-kit/repository"
 	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/agent/model"
-	baseai "github.com/liujitcn/kratos-admin/backend/internal/biz/base/ai"
+	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/ai"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/dto"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
@@ -329,8 +329,8 @@ func parseAiModelChatConfig(raw string) (*dto.AiModelChatConfig, error) {
 }
 
 // validateEmbeddingConfig 解析并校验embedding模型的分类个性化配置。
-func validateEmbeddingConfig(raw string) (*baseai.EmbeddingModelConfig, error) {
-	value, err := baseai.ParseEmbeddingModelConfig(raw)
+func validateEmbeddingConfig(raw string) (*ai.EmbeddingModelConfig, error) {
+	value, err := ai.ParseEmbeddingModelConfig(raw)
 	if err != nil {
 		return nil, err
 	}
@@ -395,7 +395,7 @@ func testChatModel(ctx context.Context, config *modelconfig.ModelConfig) *adminv
 // testEmbeddingModel 运行embedding模型连通性测试，使用极小输入验证接口可用。
 func testEmbeddingModel(ctx context.Context, provider *models.AiProvider, item *models.AiModel) *adminv1.AiProviderModelTestResult {
 	result := &adminv1.AiProviderModelTestResult{}
-	embeddingConfig, err := baseai.ParseEmbeddingModelConfig(item.Config)
+	embeddingConfig, err := ai.ParseEmbeddingModelConfig(item.Config)
 	if err != nil {
 		result.Message = aiTestError(err, provider.APIKey)
 		return result

@@ -141,5 +141,8 @@
   "common.resource.default": "{resource}",
   "common.action.delete_resource": "删除{resource}",
   "common.action.set_field_status": "设置{field}",
-  "common.action.load_more": "加载更多"
+  "common.action.load_more": "加载更多",
+  "common.status.loading": "加载中…",
+  "core.navigation.analytics": "分析",
+  "core.navigation.report": "报表"
 }
