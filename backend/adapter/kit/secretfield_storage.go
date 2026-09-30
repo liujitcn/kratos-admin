@@ -13,6 +13,7 @@ import (
 	"github.com/liujitcn/kratos-kit/sdk"
 	"github.com/liujitcn/kratos-kit/secretcrypto"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 	"gorm.io/gorm/schema"
 )
 
@@ -164,8 +165,8 @@ func (r *SecretFieldRuntime) backfillColumn(ctx context.Context, table, column s
 		return nil
 	}
 	rows, err := r.db.WithContext(ctx).Table(table).
-		Select("id", "`"+column+"`").
-		Where("`"+column+"` <> '' AND `"+column+"` NOT LIKE ?", secretFieldEnvelopePrefix+"%").
+		Select("id", r.quoteName(column)).
+		Where(r.quoteName(column)+" <> '' AND "+r.quoteName(column)+" NOT LIKE ?", secretFieldEnvelopePrefix+"%").
 		Rows()
 	if err != nil {
 		return fmt.Errorf("读取密钥字段存量数据失败: %w", err)
@@ -194,7 +195,7 @@ func (r *SecretFieldRuntime) backfillColumn(ctx context.Context, table, column s
 		if encryptErr != nil {
 			return encryptErr
 		}
-		if updateErr := r.db.WithContext(ctx).Exec("UPDATE `"+table+"` SET `"+column+"` = ? WHERE id = ?", encrypted, item.id.Int64).Error; updateErr != nil {
+		if updateErr := r.db.WithContext(ctx).Exec("UPDATE "+r.quoteName(table)+" SET "+r.quoteName(column)+" = ? WHERE id = ?", encrypted, item.id.Int64).Error; updateErr != nil {
 			return fmt.Errorf("回填密钥字段密文失败: %w", updateErr)
 		}
 	}
@@ -374,7 +375,7 @@ func (r *SecretFieldRuntime) Reveal(ctx context.Context, table, column string, i
 		return "", err
 	}
 	var text string
-	err := r.db.WithContext(ctx).Table(table).Select("`"+column+"`").Where("id = ?", id).Row().Scan(&text)
+	err := r.db.WithContext(ctx).Table(table).Select(r.quoteName(column)).Where("id = ?", id).Row().Scan(&text)
 	if err != nil {
 		return "", fmt.Errorf("读取密钥字段失败: %w", err)
 	}
@@ -663,8 +664,8 @@ func (r *SecretFieldRuntime) BackfillConfig(ctx context.Context) error {
 		return nil
 	}
 	rows, err := r.db.WithContext(ctx).Table(configTable).
-		Select("id", "`"+configKeyColumn+"`", "`"+configValueColumn+"`").
-		Where("`"+configValueColumn+"` <> '' AND `"+configValueColumn+"` NOT LIKE ?", secretFieldEnvelopePrefix+"%").
+		Select("id", r.quoteName(configKeyColumn), r.quoteName(configValueColumn)).
+		Where(r.quoteName(configValueColumn)+" <> '' AND "+r.quoteName(configValueColumn)+" NOT LIKE ?", secretFieldEnvelopePrefix+"%").
 		Rows()
 	if err != nil {
 		return fmt.Errorf("读取系统配置存量数据失败: %w", err)
@@ -693,7 +694,7 @@ func (r *SecretFieldRuntime) BackfillConfig(ctx context.Context) error {
 		if !ok {
 			continue
 		}
-		if updateErr := r.db.WithContext(ctx).Exec("UPDATE `"+configTable+"` SET `"+configValueColumn+"` = ? WHERE id = ?", encrypted, item.id.Int64).Error; updateErr != nil {
+		if updateErr := r.db.WithContext(ctx).Exec("UPDATE "+r.quoteName(configTable)+" SET "+r.quoteName(configValueColumn)+" = ? WHERE id = ?", encrypted, item.id.Int64).Error; updateErr != nil {
 			return fmt.Errorf("回填系统配置密文失败: %w", updateErr)
 		}
 	}
@@ -715,4 +716,9 @@ func (r *SecretFieldRuntime) DecryptConfigSensitiveFields(db *gorm.DB, key, valu
 		return value, nil
 	}
 	return result, nil
+}
+
+// quoteName 按当前数据库方言引用 SQL 标识符，兼容 MySQL 反引号与 PostgreSQL 双引号。
+func (r *SecretFieldRuntime) quoteName(name string) string {
+	return r.db.Statement.Quote(clause.Column{Name: name})
 }
