@@ -3,4 +3,4 @@ data:
     debug: true
     driver: mysql
     enable_migrate: true
-    source: root:112233@tcp(192.168.60.52:3306)/kratos_test?charset=utf8mb4&parseTime=True&loc=Local&timeout=1000ms
+    source: root:112233@tcp(192.168.60.52:3306)/kratos_admin?charset=utf8mb4&parseTime=True&loc=Local&timeout=1000ms
