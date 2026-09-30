@@ -400,7 +400,7 @@ func (c *AiQueryCase) loadSchema(ctx context.Context) (map[string]*aiQueryTableM
 	driverName := database.Driver()
 	err := db.Table("information_schema.tables").
 		Select(TableMetadataColumns(driverName)).
-		Where("table_schema = " + CurrentSchemaExpr(driverName)).
+		Where("table_schema = "+CurrentSchemaExpr(driverName)).
 		Where("table_name IN ?", names).
 		Scan(&tableInfos).Error
 	if err != nil {
@@ -415,7 +415,7 @@ func (c *AiQueryCase) loadSchema(ctx context.Context) (map[string]*aiQueryTableM
 	}
 	err = db.Table("information_schema.columns").
 		Select(ColumnMetadataColumns(driverName)).
-		Where("table_schema = " + CurrentSchemaExpr(driverName)).
+		Where("table_schema = "+CurrentSchemaExpr(driverName)).
 		Where("table_name IN ?", names).
 		Order("table_name, ordinal_position").
 		Scan(&columnInfos).Error

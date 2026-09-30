@@ -262,7 +262,7 @@ func (c *CodeGenColumnCase) listDatabaseColumns(ctx context.Context, sourceName,
 	err = database.DB.WithContext(ctx).
 		Table("information_schema.columns").
 		Select(basebiz.ColumnMetadataColumns(database.Driver())).
-		Where("table_schema = " + basebiz.CurrentSchemaExpr(database.Driver())).
+		Where("table_schema = "+basebiz.CurrentSchemaExpr(database.Driver())).
 		Where("table_name = ?", tableName).
 		Order("ordinal_position").
 		Find(&columns).Error
@@ -340,7 +340,7 @@ func (c *CodeGenColumnCase) listCodeGenOptionTables(ctx context.Context, sourceN
 	err = database.DB.WithContext(ctx).
 		Table("information_schema.tables").
 		Select(basebiz.TableMetadataColumns(database.Driver())).
-		Where("table_schema = " + basebiz.CurrentSchemaExpr(database.Driver())).
+		Where("table_schema = "+basebiz.CurrentSchemaExpr(database.Driver())).
 		Where("table_type = ?", "BASE TABLE").
 		Order("table_name").
 		Find(&tableInfos).Error

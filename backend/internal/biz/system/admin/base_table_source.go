@@ -61,7 +61,7 @@ func listDatabaseTableMetadata(ctx context.Context, database *gorm.Client, table
 	query := database.DB.WithContext(ctx).
 		Table("information_schema.tables").
 		Select(basebiz.TableMetadataColumns(driverName)).
-		Where("table_schema = " + basebiz.CurrentSchemaExpr(driverName)).
+		Where("table_schema = "+basebiz.CurrentSchemaExpr(driverName)).
 		Where("table_type = ?", "BASE TABLE")
 	if len(tableNames) > 0 {
 		query = query.Where("table_name IN ?", tableNames)

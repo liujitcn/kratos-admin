@@ -341,9 +341,9 @@ func (c *BaseRedactStoragePolicyCase) ListBaseRedactStorageTable(ctx context.Con
 	driverName := client.Driver()
 	err = client.DB.WithContext(ctx).
 		Table("information_schema.tables AS tables").
-		Select("tables.table_name AS name, " + basebiz.TableCommentExpr(driverName, "tables.") + " AS comment").
+		Select("tables.table_name AS name, "+basebiz.TableCommentExpr(driverName, "tables.")+" AS comment").
 		Joins("JOIN information_schema.columns AS columns ON columns.table_schema = tables.table_schema AND columns.table_name = tables.table_name AND columns.column_name = ?", "tenant_id").
-		Where("tables.table_schema = " + basebiz.CurrentSchemaExpr(driverName)).
+		Where("tables.table_schema = "+basebiz.CurrentSchemaExpr(driverName)).
 		Where("tables.table_type = ?", "BASE TABLE").
 		Order("tables.table_name").
 		Find(&rows).Error

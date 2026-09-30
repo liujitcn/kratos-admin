@@ -1,7 +1,7 @@
 package biz
 
 import (
-	basebiz "github.com/liujitcn/kratos-admin/backend/internal/biz/base"
+	biz "github.com/liujitcn/kratos-admin/backend/internal/biz/base"
 )
 
 // 表归档与恢复的跨数据库方言辅助：内部归档模式需要在 MySQL 与 PostgreSQL 上生成等价的
@@ -14,7 +14,7 @@ const (
 
 // MysqlFamilyDriver 判断驱动是否属于 MySQL 方言系（含复用 MySQL 方言的 Doris）。
 func MysqlFamilyDriver(driverName string) bool {
-	return basebiz.MysqlFamilyDriver(driverName)
+	return biz.MysqlFamilyDriver(driverName)
 }
 
 // QuoteSQLIdentifier 按数据库方言为表名、字段名加引号：MySQL 系使用反引号，其余使用 SQL 标准双引号。
