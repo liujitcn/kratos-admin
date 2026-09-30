@@ -14,7 +14,7 @@ const TableNameBaseAPI = "base_api"
 type BaseAPI struct {
 	ID             int64                 `gorm:"column:id;type:bigint;primaryKey;autoIncrement:true;comment:API ID" json:"id"`                                                           // API ID
 	ToolName       string                `gorm:"column:tool_name;type:varchar(150);not null;index:idx_base_api_tool_name,priority:1;comment:工具名" json:"tool_name"`                       // 工具名
-	ToolPrompts    string                `gorm:"column:tool_prompts;type:text;not null;comment:工具提示词" json:"tool_prompts"`                                                               // 工具提示词
+	ToolPrompts    string                `gorm:"column:tool_prompts;type:json;not null;comment:工具提示词" json:"tool_prompts"`                                                               // 工具提示词
 	ServiceName    string                `gorm:"column:service_name;type:varchar(100);not null;comment:服务名" json:"service_name"`                                                         // 服务名
 	ServiceDesc    string                `gorm:"column:service_desc;type:varchar(500);not null;comment:服务描述" json:"service_desc"`                                                        // 服务描述
 	Desc           string                `gorm:"column:desc;type:varchar(500);not null;comment:描述" json:"desc"`                                                                          // 描述

@@ -53,7 +53,7 @@ type baseConfig struct {
 	ID        field.Int64  // 系统配置ID
 	Site      field.Int32  // 位置：枚举【BaseConfigSite】
 	Name      field.String // 配置名称
-	Type      field.Int32  // 配置类型：1文本，2图片，3富文本，4字典，5布尔，6表单
+	Type      field.Int32  // 配置类型：枚举【BaseConfigType】
 	Key       field.String // 配置key
 	Value     field.String // 配置值
 	Status    field.Int32  // 状态：枚举【Status】

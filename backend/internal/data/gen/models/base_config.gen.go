@@ -17,7 +17,7 @@ type BaseConfig struct {
 	ID        int64                 `gorm:"column:id;type:bigint;primaryKey;autoIncrement:true;comment:系统配置ID" json:"id"`                                                     // 系统配置ID
 	Site      int32                 `gorm:"column:site;type:smallint;not null;uniqueIndex:unique_base_config,priority:1;comment:位置：枚举【BaseConfigSite】" json:"site"`           // 位置：枚举【BaseConfigSite】
 	Name      string                `gorm:"column:name;type:varchar(50);not null;comment:配置名称" json:"name"`                                                                   // 配置名称
-	Type      int32                 `gorm:"column:type;type:smallint;not null;comment:配置类型：枚举【BaseConfigType】" json:"type"`                                                   // 配置类型：1文本，2图片，3富文本，4字典，5布尔，6表单
+	Type      int32                 `gorm:"column:type;type:smallint;not null;comment:配置类型：枚举【BaseConfigType】" json:"type"`                                                   // 配置类型：枚举【BaseConfigType】
 	Key       string                `gorm:"column:key;type:varchar(50);not null;uniqueIndex:unique_base_config,priority:2;comment:配置key" json:"key"`                          // 配置key
 	Value     string                `gorm:"column:value;type:text;not null;comment:配置值" json:"value"`                                                                         // 配置值
 	Status    int32                 `gorm:"column:status;type:smallint;not null;comment:状态：枚举【Status】" json:"status"`                                                         // 状态：枚举【Status】

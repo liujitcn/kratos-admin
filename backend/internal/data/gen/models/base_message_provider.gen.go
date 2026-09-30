@@ -21,7 +21,7 @@ type BaseMessageProvider struct {
 	Icon         string                `gorm:"column:icon;type:varchar(100);not null;comment:图标键或图片地址" json:"icon"`                                                                         // 图标键或图片地址
 	ClientID     string                `gorm:"column:client_id;type:varchar(255);not null;comment:通用凭证标识" json:"client_id"`                                                                 // 通用凭证标识
 	ClientSecret string                `gorm:"column:client_secret;type:varchar(1024);not null;comment:通用凭证密钥" json:"client_secret"`                                                        // 通用凭证密钥
-	Config       string                `gorm:"column:config;type:text;not null;comment:Provider扩展配置JSON对象" json:"config"`                                                                   // Provider扩展配置JSON对象
+	Config       string                `gorm:"column:config;type:json;not null;comment:Provider扩展配置JSON对象" json:"config"`                                                                   // Provider扩展配置JSON对象
 	Sort         int32                 `gorm:"column:sort;type:int;not null;index:idx_base_message_provider_status_sort,priority:2;comment:排序" json:"sort"`                                 // 排序
 	Status       int32                 `gorm:"column:status;type:smallint;not null;index:idx_base_message_provider_status_sort,priority:1;comment:状态：枚举【Status】" json:"status"`             // 状态：枚举【Status】
 	CreatedBy    int64                 `gorm:"column:created_by;type:bigint;not null;comment:创建者ID" json:"created_by"`                                                                      // 创建者ID

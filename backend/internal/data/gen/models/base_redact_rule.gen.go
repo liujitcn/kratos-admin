@@ -18,7 +18,7 @@ type BaseRedactRule struct {
 	Code          string                `gorm:"column:code;type:varchar(64);not null;uniqueIndex:unique_base_redact_rule,priority:1;comment:规则编码" json:"code"`                         // 规则编码
 	Name          string                `gorm:"column:name;type:varchar(100);not null;comment:规则名称" json:"name"`                                                                       // 规则名称
 	RuleType      string                `gorm:"column:rule_type;type:varchar(32);not null;comment:规则类型" json:"rule_type"`                                                              // 规则类型
-	DefaultParams string                `gorm:"column:default_params;type:text;not null;comment:默认规则参数" json:"default_params"`                                                         // 默认规则参数
+	DefaultParams string                `gorm:"column:default_params;type:json;not null;comment:默认规则参数" json:"default_params"`                                                         // 默认规则参数
 	Status        int32                 `gorm:"column:status;type:smallint;not null;index:idx_base_redact_rule_status,priority:1;comment:状态：枚举【Status】" json:"status"`                 // 状态：枚举【Status】
 	Remark        string                `gorm:"column:remark;type:varchar(500);not null;comment:备注" json:"remark"`                                                                     // 备注
 	CreatedBy     int64                 `gorm:"column:created_by;type:bigint;not null;comment:创建者ID" json:"created_by"`                                                                // 创建者ID

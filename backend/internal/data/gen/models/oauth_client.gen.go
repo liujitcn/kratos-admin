@@ -22,7 +22,7 @@ type OauthClient struct {
 	CryptoType   string                `gorm:"column:crypto_type;type:varchar(16);not null;comment:协议加密类型：枚举【OauthClientCryptoType】" json:"crypto_type"`                                    // 协议加密类型：枚举【OauthClientCryptoType】
 	CryptoKey    string                `gorm:"column:crypto_key;type:varchar(255);not null;comment:协议加密密钥" json:"crypto_key"`                                                               // 协议加密密钥
 	IPWhitelist  string                `gorm:"column:ip_whitelist;type:varchar(512);not null;comment:IP白名单，逗号分隔，支持CIDR" json:"ip_whitelist"`                                                // IP白名单，逗号分隔，支持CIDR
-	API          string                `gorm:"column:api;type:text;not null;comment:允许访问的API operation JSON数组" json:"api"`                                                                  // 允许访问的API operation JSON数组
+	API          string                `gorm:"column:api;type:json;not null;comment:允许访问的API operation JSON数组" json:"api"`                                                                  // 允许访问的API operation JSON数组
 	Status       int32                 `gorm:"column:status;type:smallint;not null;index:idx_oauth_client_status,priority:1;comment:状态：枚举【Status】" json:"status"`                           // 状态：枚举【Status】
 	CreatedBy    int64                 `gorm:"column:created_by;type:bigint;not null;comment:创建者ID" json:"created_by"`                                                                      // 创建者ID
 	UpdatedBy    int64                 `gorm:"column:updated_by;type:bigint;not null;comment:更新者ID" json:"updated_by"`                                                                      // 更新者ID

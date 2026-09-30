@@ -25,7 +25,7 @@ type BaseMessageCategory struct {
 	AllowArchive    bool                  `gorm:"column:allow_archive;not null;comment:是否允许用户归档" json:"allow_archive"`                                                                        // 是否允许用户归档
 	AllowDelete     bool                  `gorm:"column:allow_delete;not null;comment:是否允许用户删除" json:"allow_delete"`                                                                          // 是否允许用户删除
 	InboxEnabled    int32                 `gorm:"column:inbox_enabled;type:smallint;not null;comment:是否启用站内信：枚举【BaseMessageCategoryInboxEnabled】" json:"inbox_enabled"`                       // 是否启用站内信：枚举【BaseMessageCategoryInboxEnabled】
-	ProviderID      string                `gorm:"column:provider_id;type:text;not null;comment:消息发送 Provider ID JSON数组" json:"provider_id"`                                                   // 消息发送 Provider ID JSON数组
+	ProviderID      string                `gorm:"column:provider_id;type:json;not null;comment:消息发送 Provider ID JSON数组" json:"provider_id"`                                                   // 消息发送 Provider ID JSON数组
 	Status          int32                 `gorm:"column:status;type:smallint;not null;index:idx_base_message_category_status_sort,priority:1;comment:状态：枚举【Status】" json:"status"`            // 状态：枚举【Status】
 	CreatedBy       int64                 `gorm:"column:created_by;type:bigint;not null;comment:创建者ID" json:"created_by"`                                                                     // 创建者ID
 	UpdatedBy       int64                 `gorm:"column:updated_by;type:bigint;not null;comment:更新者ID" json:"updated_by"`                                                                     // 更新者ID

@@ -17,7 +17,7 @@ type BaseUserMFAWebauthn struct {
 	PublicKey      []byte    `gorm:"column:public_key;not null;comment:WebAuthn凭据公钥" json:"public_key"`                                                                                    // WebAuthn凭据公钥
 	Aaguid         []byte    `gorm:"column:aaguid;comment:认证器AAGUID;size:16" json:"aaguid"`                                                                                                // 认证器AAGUID
 	SignCount      int64     `gorm:"column:sign_count;type:bigint;not null;comment:WebAuthn签名计数器" json:"sign_count"`                                                                       // WebAuthn签名计数器
-	Transports     string    `gorm:"column:transports;type:text;comment:认证器传输方式" json:"transports"`                                                                                        // 认证器传输方式
+	Transports     string    `gorm:"column:transports;type:json;comment:认证器传输方式" json:"transports"`                                                                                        // 认证器传输方式
 	BackupEligible bool      `gorm:"column:backup_eligible;not null;comment:是否支持备份" json:"backup_eligible"`                                                                                // 是否支持备份
 	BackupState    bool      `gorm:"column:backup_state;not null;comment:是否已备份" json:"backup_state"`                                                                                       // 是否已备份
 	CreatedAt      time.Time `gorm:"column:created_at;not null;comment:创建时间" json:"created_at"`                                                                                            // 创建时间

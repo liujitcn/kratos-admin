@@ -19,7 +19,7 @@ type AiModel struct {
 	ModelName   string                `gorm:"column:model_name;type:varchar(200);not null;uniqueIndex:unique_ai_model,priority:2;comment:模型名称(供应商API标识)" json:"model_name"`               // 模型名称(供应商API标识)
 	DisplayName string                `gorm:"column:display_name;type:varchar(100);not null;comment:显示名称" json:"display_name"`                                                            // 显示名称
 	Category    int32                 `gorm:"column:category;type:smallint;not null;index:idx_ai_model_category_status_sort,priority:1;comment:模型分类：枚举【AiModelCategory】" json:"category"` // 模型分类：枚举【AiModelCategory】
-	Config      string                `gorm:"column:config;type:text;not null;comment:分类个性化配置JSON对象" json:"config"`                                                                       // 分类个性化配置JSON对象
+	Config      string                `gorm:"column:config;type:json;not null;comment:分类个性化配置JSON对象" json:"config"`                                                                       // 分类个性化配置JSON对象
 	Sort        int32                 `gorm:"column:sort;type:int;not null;index:idx_ai_model_category_status_sort,priority:3;comment:排序" json:"sort"`                                    // 排序
 	Status      int32                 `gorm:"column:status;type:smallint;not null;index:idx_ai_model_category_status_sort,priority:2;comment:状态：枚举【Status】" json:"status"`                // 状态：枚举【Status】
 	CreatedBy   int64                 `gorm:"column:created_by;type:bigint;not null;comment:创建人ID" json:"created_by"`                                                                     // 创建人ID

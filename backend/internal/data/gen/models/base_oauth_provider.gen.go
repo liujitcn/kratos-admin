@@ -22,8 +22,8 @@ type BaseOauthProvider struct {
 	ClientID     string                `gorm:"column:client_id;type:varchar(255);not null;comment:第三方应用标识" json:"client_id"`                                                             // 第三方应用标识
 	ClientSecret string                `gorm:"column:client_secret;type:varchar(1024);not null;comment:第三方应用密钥" json:"client_secret"`                                                    // 第三方应用密钥
 	RedirectURI  string                `gorm:"column:redirect_uri;type:varchar(512);not null;comment:OAuth回调地址" json:"redirect_uri"`                                                     // OAuth回调地址
-	Scopes       string                `gorm:"column:scopes;type:text;not null;comment:OAuth Scope JSON数组" json:"scopes"`                                                                // OAuth Scope JSON数组
-	Config       string                `gorm:"column:config;type:text;not null;comment:Provider个性化配置JSON对象" json:"config"`                                                               // Provider个性化配置JSON对象
+	Scopes       string                `gorm:"column:scopes;type:json;not null;comment:OAuth Scope JSON数组" json:"scopes"`                                                                // OAuth Scope JSON数组
+	Config       string                `gorm:"column:config;type:json;not null;comment:Provider个性化配置JSON对象" json:"config"`                                                               // Provider个性化配置JSON对象
 	Sort         int32                 `gorm:"column:sort;type:int;not null;index:idx_base_oauth_provider_status_sort,priority:2;comment:排序" json:"sort"`                                // 排序
 	Status       int32                 `gorm:"column:status;type:smallint;not null;index:idx_base_oauth_provider_status_sort,priority:1;comment:状态：枚举【Status】" json:"status"`            // 状态：枚举【Status】
 	CreatedBy    int64                 `gorm:"column:created_by;type:bigint;not null;comment:创建者ID" json:"created_by"`                                                                   // 创建者ID

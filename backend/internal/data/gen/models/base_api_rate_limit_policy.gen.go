@@ -17,8 +17,8 @@ type BaseAPIRateLimitPolicy struct {
 	ID         int64                 `gorm:"column:id;type:bigint;primaryKey;autoIncrement:true;comment:接口限流策略ID" json:"id"`                                                            // 接口限流策略ID
 	Dimension  string                `gorm:"column:dimension;type:varchar(32);not null;index:idx_base_api_rate_limit_policy_dimension_status,priority:1;comment:限流维度" json:"dimension"` // 限流维度
 	RuleID     int64                 `gorm:"column:rule_id;type:bigint;not null;index:idx_base_api_rate_limit_policy_rule_id,priority:1;comment:限流规则模板ID" json:"rule_id"`               // 限流规则模板ID
-	RuleParams string                `gorm:"column:rule_params;type:text;not null;comment:策略规则参数快照" json:"rule_params"`                                                                 // 策略规则参数快照
-	Operations string                `gorm:"column:operations;type:text;not null;comment:RPC完整操作名列表" json:"operations"`                                                                 // RPC完整操作名列表
+	RuleParams string                `gorm:"column:rule_params;type:json;not null;comment:策略规则参数快照" json:"rule_params"`                                                                 // 策略规则参数快照
+	Operations string                `gorm:"column:operations;type:json;not null;comment:RPC完整操作名列表" json:"operations"`                                                                 // RPC完整操作名列表
 	Status     int32                 `gorm:"column:status;type:smallint;not null;index:idx_base_api_rate_limit_policy_dimension_status,priority:2;comment:状态" json:"status"`            // 状态
 	Remark     string                `gorm:"column:remark;type:varchar(500);not null;comment:备注" json:"remark"`                                                                         // 备注
 	CreatedBy  int64                 `gorm:"column:created_by;type:bigint;not null;comment:创建者ID" json:"created_by"`                                                                    // 创建者ID
