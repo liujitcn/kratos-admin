@@ -120,7 +120,7 @@ import { buildPageRequest, normalizeSelectedIds } from "@liujitcn/kratos-admin-c
 import { useTenantScope } from "@liujitcn/kratos-admin-core/tenant";
 import { t } from "@liujitcn/kratos-admin-core";
 import { encodeSecretFields } from "@liujitcn/kratos-admin-core/security";
-import { resolvePersistedMessage } from "../../utils/persisted-message";
+import { resolvePersistedMessage } from "../../../utils/persisted-message";
 import { defAiProviderService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/ai_provider";
 import {
   type AiProvider,
