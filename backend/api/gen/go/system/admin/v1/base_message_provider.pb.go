@@ -437,7 +437,7 @@ type BaseMessageProviderForm struct {
 	Description      string                 `protobuf:"bytes,4,opt,name=description,proto3" json:"description,omitempty"`                                    // Provider说明
 	Icon             string                 `protobuf:"bytes,5,opt,name=icon,proto3" json:"icon,omitempty"`                                                  // 图标键或图片地址
 	ClientId         string                 `protobuf:"bytes,6,opt,name=client_id,json=clientId,proto3" json:"client_id,omitempty"`                          // 通用凭证标识
-	ClientSecret     string                 `protobuf:"bytes,7,opt,name=client_secret,json=clientSecret,proto3" json:"client_secret,omitempty"`              // 通用凭证密钥，更新时留空表示不修改
+	ClientSecret     *commonv1.SecretCrypto `protobuf:"bytes,7,opt,name=client_secret,json=clientSecret,proto3" json:"client_secret,omitempty"`              // 通用凭证密钥密文，更新时不传表示不修改
 	SecretConfigured bool                   `protobuf:"varint,8,opt,name=secret_configured,json=secretConfigured,proto3" json:"secret_configured,omitempty"` // 是否已配置通用凭证密钥
 	Config           *structpb.Struct       `protobuf:"bytes,9,opt,name=config,proto3" json:"config,omitempty"`                                              // Provider扩展配置JSON对象
 	Sort             int32                  `protobuf:"varint,10,opt,name=sort,proto3" json:"sort,omitempty"`                                                // 排序
@@ -518,11 +518,11 @@ func (x *BaseMessageProviderForm) GetClientId() string {
 	return ""
 }
 
-func (x *BaseMessageProviderForm) GetClientSecret() string {
+func (x *BaseMessageProviderForm) GetClientSecret() *commonv1.SecretCrypto {
 	if x != nil {
 		return x.ClientSecret
 	}
-	return ""
+	return nil
 }
 
 func (x *BaseMessageProviderForm) GetSecretConfigured() bool {
@@ -690,7 +690,7 @@ var File_system_admin_v1_base_message_provider_proto protoreflect.FileDescriptor
 
 const file_system_admin_v1_base_message_provider_proto_rawDesc = "" +
 	"\n" +
-	"+system/admin/v1/base_message_provider.proto\x12\x0fsystem.admin.v1\x1a\x1bbuf/validate/validate.proto\x1a\x16common/v1/common.proto\x1a\x14common/v1/enum.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1cgoogle/protobuf/struct.proto\"\"\n" +
+	"+system/admin/v1/base_message_provider.proto\x12\x0fsystem.admin.v1\x1a\x1bbuf/validate/validate.proto\x1a\x16common/v1/common.proto\x1a\x14common/v1/enum.proto\x1a\x15common/v1/types.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1cgoogle/protobuf/struct.proto\"\"\n" +
 	" OptionBaseMessageProviderRequest\"\xf9\x02\n" +
 	"\x1ePageBaseMessageProviderRequest\x125\n" +
 	"\bprovider\x18\x01 \x01(\tB\x14\xbaG\x11\x92\x02\x0eProvider标识H\x00R\bprovider\x88\x01\x01\x12-\n" +
@@ -717,7 +717,7 @@ const file_system_admin_v1_base_message_provider_proto_rawDesc = "" +
 	"#SetBaseMessageProviderStatusRequest\x12\x94\x01\n" +
 	"\x02id\x18\x01 \x01(\x03B\x83\x01\xbaG\x15\x92\x02\x12消息 Provider ID\xbaHh\xba\x01e\n" +
 	"9system.admin.base_message_provider.set_status.id.required\x12\x1e消息 Provider ID不能为空\x1a\bthis > 0R\x02id\x12?\n" +
-	"\x06status\x18\x02 \x01(\x0e2\x11.common.v1.StatusB\x14\xbaG\t\x92\x02\x06状态\xbaH\x05\x82\x01\x02\x10\x01R\x06status\"\x87\f\n" +
+	"\x06status\x18\x02 \x01(\x0e2\x11.common.v1.StatusB\x14\xbaG\t\x92\x02\x06状态\xbaH\x05\x82\x01\x02\x10\x01R\x06status\"\x9c\v\n" +
 	"\x17BaseMessageProviderForm\x12(\n" +
 	"\x02id\x18\x01 \x01(\x03B\x18\xbaG\x15\x92\x02\x12消息 Provider IDR\x02id\x12\xe2\x01\n" +
 	"\bprovider\x18\x02 \x01(\tB\xc5\x01\xbaG\x17\x92\x02\x14Provider稳定标识\xbaH\xa7\x01\xba\x01\xa3\x01\n" +
@@ -729,9 +729,8 @@ const file_system_admin_v1_base_message_provider_proto_rawDesc = "" +
 	"\x04icon\x18\x05 \x01(\tB\x95\x01\xbaG\x1b\x92\x02\x18图标键或图片地址\xbaHt\xba\x01q\n" +
 	"3system.admin.base_message_provider.form.icon.length\x12&Provider图标不能超过100个字符\x1a\x12this.size() <= 100R\x04icon\x12\xb6\x01\n" +
 	"\tclient_id\x18\x06 \x01(\tB\x98\x01\xbaG\x15\x92\x02\x12通用凭证标识\xbaH}\xba\x01z\n" +
-	"8system.admin.base_message_provider.form.client_id.length\x12*通用凭证标识不能超过255个字符\x1a\x12this.size() <= 255R\bclientId\x12\xe7\x01\n" +
-	"\rclient_secret\x18\a \x01(\tB\xc1\x01\xbaG6\x92\x023通用凭证密钥，更新时留空表示不修改\xbaH\x84\x01\xba\x01\x80\x01\n" +
-	"<system.admin.base_message_provider.form.client_secret.length\x12+通用凭证密钥不能超过1024个字符\x1a\x13this.size() <= 1024R\fclientSecret\x12T\n" +
+	"8system.admin.base_message_provider.form.client_id.length\x12*通用凭证标识不能超过255个字符\x1a\x12this.size() <= 255R\bclientId\x12}\n" +
+	"\rclient_secret\x18\a \x01(\v2\x17.common.v1.SecretCryptoB?\xbaG<\x92\x029通用凭证密钥密文，更新时不传表示不修改R\fclientSecret\x12T\n" +
 	"\x11secret_configured\x18\b \x01(\bB'\xbaG$\x92\x02!是否已配置通用凭证密钥R\x10secretConfigured\x12U\n" +
 	"\x06config\x18\t \x01(\v2\x17.google.protobuf.StructB$\xbaG!\x92\x02\x1eProvider扩展配置JSON对象R\x06config\x12 \n" +
 	"\x04sort\x18\n" +
@@ -788,9 +787,10 @@ var file_system_admin_v1_base_message_provider_proto_goTypes = []any{
 	(*BaseMessageProviderForm)(nil),             // 8: system.admin.v1.BaseMessageProviderForm
 	(*BaseMessageProvider)(nil),                 // 9: system.admin.v1.BaseMessageProvider
 	(commonv1.Status)(0),                        // 10: common.v1.Status
-	(*structpb.Struct)(nil),                     // 11: google.protobuf.Struct
-	(*commonv1.SelectOptionResponse)(nil),       // 12: common.v1.SelectOptionResponse
-	(*emptypb.Empty)(nil),                       // 13: google.protobuf.Empty
+	(*commonv1.SecretCrypto)(nil),               // 11: common.v1.SecretCrypto
+	(*structpb.Struct)(nil),                     // 12: google.protobuf.Struct
+	(*commonv1.SelectOptionResponse)(nil),       // 13: common.v1.SelectOptionResponse
+	(*emptypb.Empty)(nil),                       // 14: google.protobuf.Empty
 }
 var file_system_admin_v1_base_message_provider_proto_depIdxs = []int32{
 	10, // 0: system.admin.v1.PageBaseMessageProviderRequest.status:type_name -> common.v1.Status
@@ -798,29 +798,30 @@ var file_system_admin_v1_base_message_provider_proto_depIdxs = []int32{
 	8,  // 2: system.admin.v1.CreateBaseMessageProviderRequest.base_message_provider:type_name -> system.admin.v1.BaseMessageProviderForm
 	8,  // 3: system.admin.v1.UpdateBaseMessageProviderRequest.base_message_provider:type_name -> system.admin.v1.BaseMessageProviderForm
 	10, // 4: system.admin.v1.SetBaseMessageProviderStatusRequest.status:type_name -> common.v1.Status
-	11, // 5: system.admin.v1.BaseMessageProviderForm.config:type_name -> google.protobuf.Struct
-	10, // 6: system.admin.v1.BaseMessageProviderForm.status:type_name -> common.v1.Status
-	11, // 7: system.admin.v1.BaseMessageProvider.config:type_name -> google.protobuf.Struct
-	10, // 8: system.admin.v1.BaseMessageProvider.status:type_name -> common.v1.Status
-	0,  // 9: system.admin.v1.BaseMessageProviderService.OptionBaseMessageProvider:input_type -> system.admin.v1.OptionBaseMessageProviderRequest
-	1,  // 10: system.admin.v1.BaseMessageProviderService.PageBaseMessageProvider:input_type -> system.admin.v1.PageBaseMessageProviderRequest
-	3,  // 11: system.admin.v1.BaseMessageProviderService.GetBaseMessageProvider:input_type -> system.admin.v1.GetBaseMessageProviderRequest
-	4,  // 12: system.admin.v1.BaseMessageProviderService.CreateBaseMessageProvider:input_type -> system.admin.v1.CreateBaseMessageProviderRequest
-	5,  // 13: system.admin.v1.BaseMessageProviderService.UpdateBaseMessageProvider:input_type -> system.admin.v1.UpdateBaseMessageProviderRequest
-	6,  // 14: system.admin.v1.BaseMessageProviderService.DeleteBaseMessageProvider:input_type -> system.admin.v1.DeleteBaseMessageProviderRequest
-	7,  // 15: system.admin.v1.BaseMessageProviderService.SetBaseMessageProviderStatus:input_type -> system.admin.v1.SetBaseMessageProviderStatusRequest
-	12, // 16: system.admin.v1.BaseMessageProviderService.OptionBaseMessageProvider:output_type -> common.v1.SelectOptionResponse
-	2,  // 17: system.admin.v1.BaseMessageProviderService.PageBaseMessageProvider:output_type -> system.admin.v1.PageBaseMessageProviderResponse
-	8,  // 18: system.admin.v1.BaseMessageProviderService.GetBaseMessageProvider:output_type -> system.admin.v1.BaseMessageProviderForm
-	13, // 19: system.admin.v1.BaseMessageProviderService.CreateBaseMessageProvider:output_type -> google.protobuf.Empty
-	13, // 20: system.admin.v1.BaseMessageProviderService.UpdateBaseMessageProvider:output_type -> google.protobuf.Empty
-	13, // 21: system.admin.v1.BaseMessageProviderService.DeleteBaseMessageProvider:output_type -> google.protobuf.Empty
-	13, // 22: system.admin.v1.BaseMessageProviderService.SetBaseMessageProviderStatus:output_type -> google.protobuf.Empty
-	16, // [16:23] is the sub-list for method output_type
-	9,  // [9:16] is the sub-list for method input_type
-	9,  // [9:9] is the sub-list for extension type_name
-	9,  // [9:9] is the sub-list for extension extendee
-	0,  // [0:9] is the sub-list for field type_name
+	11, // 5: system.admin.v1.BaseMessageProviderForm.client_secret:type_name -> common.v1.SecretCrypto
+	12, // 6: system.admin.v1.BaseMessageProviderForm.config:type_name -> google.protobuf.Struct
+	10, // 7: system.admin.v1.BaseMessageProviderForm.status:type_name -> common.v1.Status
+	12, // 8: system.admin.v1.BaseMessageProvider.config:type_name -> google.protobuf.Struct
+	10, // 9: system.admin.v1.BaseMessageProvider.status:type_name -> common.v1.Status
+	0,  // 10: system.admin.v1.BaseMessageProviderService.OptionBaseMessageProvider:input_type -> system.admin.v1.OptionBaseMessageProviderRequest
+	1,  // 11: system.admin.v1.BaseMessageProviderService.PageBaseMessageProvider:input_type -> system.admin.v1.PageBaseMessageProviderRequest
+	3,  // 12: system.admin.v1.BaseMessageProviderService.GetBaseMessageProvider:input_type -> system.admin.v1.GetBaseMessageProviderRequest
+	4,  // 13: system.admin.v1.BaseMessageProviderService.CreateBaseMessageProvider:input_type -> system.admin.v1.CreateBaseMessageProviderRequest
+	5,  // 14: system.admin.v1.BaseMessageProviderService.UpdateBaseMessageProvider:input_type -> system.admin.v1.UpdateBaseMessageProviderRequest
+	6,  // 15: system.admin.v1.BaseMessageProviderService.DeleteBaseMessageProvider:input_type -> system.admin.v1.DeleteBaseMessageProviderRequest
+	7,  // 16: system.admin.v1.BaseMessageProviderService.SetBaseMessageProviderStatus:input_type -> system.admin.v1.SetBaseMessageProviderStatusRequest
+	13, // 17: system.admin.v1.BaseMessageProviderService.OptionBaseMessageProvider:output_type -> common.v1.SelectOptionResponse
+	2,  // 18: system.admin.v1.BaseMessageProviderService.PageBaseMessageProvider:output_type -> system.admin.v1.PageBaseMessageProviderResponse
+	8,  // 19: system.admin.v1.BaseMessageProviderService.GetBaseMessageProvider:output_type -> system.admin.v1.BaseMessageProviderForm
+	14, // 20: system.admin.v1.BaseMessageProviderService.CreateBaseMessageProvider:output_type -> google.protobuf.Empty
+	14, // 21: system.admin.v1.BaseMessageProviderService.UpdateBaseMessageProvider:output_type -> google.protobuf.Empty
+	14, // 22: system.admin.v1.BaseMessageProviderService.DeleteBaseMessageProvider:output_type -> google.protobuf.Empty
+	14, // 23: system.admin.v1.BaseMessageProviderService.SetBaseMessageProviderStatus:output_type -> google.protobuf.Empty
+	17, // [17:24] is the sub-list for method output_type
+	10, // [10:17] is the sub-list for method input_type
+	10, // [10:10] is the sub-list for extension type_name
+	10, // [10:10] is the sub-list for extension extendee
+	0,  // [0:10] is the sub-list for field type_name
 }
 
 func init() { file_system_admin_v1_base_message_provider_proto_init() }

@@ -27,75 +27,6 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-// 密码加密场景枚举。
-type PasswordCryptoScene int32
-
-const (
-	// 未指定密码加密场景。
-	PasswordCryptoScene_PASSWORD_CRYPTO_SCENE_UNSPECIFIED PasswordCryptoScene = 0
-	// 登录密码加密场景。
-	PasswordCryptoScene_PASSWORD_CRYPTO_SCENE_LOGIN PasswordCryptoScene = 1
-	// 新增后台用户密码加密场景。
-	PasswordCryptoScene_PASSWORD_CRYPTO_SCENE_CREATE_BASE_USER PasswordCryptoScene = 2
-	// 重置后台用户密码加密场景。
-	PasswordCryptoScene_PASSWORD_CRYPTO_SCENE_RESET_BASE_USER_PASSWORD PasswordCryptoScene = 3
-	// 个人修改密码加密场景。
-	PasswordCryptoScene_PASSWORD_CRYPTO_SCENE_UPDATE_USER_PASSWORD PasswordCryptoScene = 4
-	// 多因素认证敏感操作场景。
-	PasswordCryptoScene_PASSWORD_CRYPTO_SCENE_MFA PasswordCryptoScene = 5
-	// 密码策略初始化密码配置场景。
-	PasswordCryptoScene_PASSWORD_CRYPTO_SCENE_CONFIGURE_PASSWORD_POLICY PasswordCryptoScene = 6
-)
-
-// Enum value maps for PasswordCryptoScene.
-var (
-	PasswordCryptoScene_name = map[int32]string{
-		0: "PASSWORD_CRYPTO_SCENE_UNSPECIFIED",
-		1: "PASSWORD_CRYPTO_SCENE_LOGIN",
-		2: "PASSWORD_CRYPTO_SCENE_CREATE_BASE_USER",
-		3: "PASSWORD_CRYPTO_SCENE_RESET_BASE_USER_PASSWORD",
-		4: "PASSWORD_CRYPTO_SCENE_UPDATE_USER_PASSWORD",
-		5: "PASSWORD_CRYPTO_SCENE_MFA",
-		6: "PASSWORD_CRYPTO_SCENE_CONFIGURE_PASSWORD_POLICY",
-	}
-	PasswordCryptoScene_value = map[string]int32{
-		"PASSWORD_CRYPTO_SCENE_UNSPECIFIED":               0,
-		"PASSWORD_CRYPTO_SCENE_LOGIN":                     1,
-		"PASSWORD_CRYPTO_SCENE_CREATE_BASE_USER":          2,
-		"PASSWORD_CRYPTO_SCENE_RESET_BASE_USER_PASSWORD":  3,
-		"PASSWORD_CRYPTO_SCENE_UPDATE_USER_PASSWORD":      4,
-		"PASSWORD_CRYPTO_SCENE_MFA":                       5,
-		"PASSWORD_CRYPTO_SCENE_CONFIGURE_PASSWORD_POLICY": 6,
-	}
-)
-
-func (x PasswordCryptoScene) Enum() *PasswordCryptoScene {
-	p := new(PasswordCryptoScene)
-	*p = x
-	return p
-}
-
-func (x PasswordCryptoScene) String() string {
-	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
-}
-
-func (PasswordCryptoScene) Descriptor() protoreflect.EnumDescriptor {
-	return file_base_v1_login_proto_enumTypes[0].Descriptor()
-}
-
-func (PasswordCryptoScene) Type() protoreflect.EnumType {
-	return &file_base_v1_login_proto_enumTypes[0]
-}
-
-func (x PasswordCryptoScene) Number() protoreflect.EnumNumber {
-	return protoreflect.EnumNumber(x)
-}
-
-// Deprecated: Use PasswordCryptoScene.Descriptor instead.
-func (PasswordCryptoScene) EnumDescriptor() ([]byte, []int) {
-	return file_base_v1_login_proto_rawDescGZIP(), []int{0}
-}
-
 // LoginStatus 表示登录请求当前所处的认证阶段。
 // 只有 AUTHENTICATED 或 PASSWORD_CHANGE_REQUIRED 才会携带正式访问令牌，MFA 状态必须继续完成挑战。
 type LoginStatus int32
@@ -142,11 +73,11 @@ func (x LoginStatus) String() string {
 }
 
 func (LoginStatus) Descriptor() protoreflect.EnumDescriptor {
-	return file_base_v1_login_proto_enumTypes[1].Descriptor()
+	return file_base_v1_login_proto_enumTypes[0].Descriptor()
 }
 
 func (LoginStatus) Type() protoreflect.EnumType {
-	return &file_base_v1_login_proto_enumTypes[1]
+	return &file_base_v1_login_proto_enumTypes[0]
 }
 
 func (x LoginStatus) Number() protoreflect.EnumNumber {
@@ -155,7 +86,7 @@ func (x LoginStatus) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use LoginStatus.Descriptor instead.
 func (LoginStatus) EnumDescriptor() ([]byte, []int) {
-	return file_base_v1_login_proto_rawDescGZIP(), []int{1}
+	return file_base_v1_login_proto_rawDescGZIP(), []int{0}
 }
 
 // 验证码获取条件
@@ -203,51 +134,6 @@ func (x *CaptchaRequest) GetType() string {
 	return ""
 }
 
-// 密码临时公钥获取条件
-type PasswordPublicKeyRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Scene         PasswordCryptoScene    `protobuf:"varint,1,opt,name=scene,proto3,enum=base.v1.PasswordCryptoScene" json:"scene,omitempty"` // 使用场景
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *PasswordPublicKeyRequest) Reset() {
-	*x = PasswordPublicKeyRequest{}
-	mi := &file_base_v1_login_proto_msgTypes[1]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *PasswordPublicKeyRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*PasswordPublicKeyRequest) ProtoMessage() {}
-
-func (x *PasswordPublicKeyRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_base_v1_login_proto_msgTypes[1]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use PasswordPublicKeyRequest.ProtoReflect.Descriptor instead.
-func (*PasswordPublicKeyRequest) Descriptor() ([]byte, []int) {
-	return file_base_v1_login_proto_rawDescGZIP(), []int{1}
-}
-
-func (x *PasswordPublicKeyRequest) GetScene() PasswordCryptoScene {
-	if x != nil {
-		return x.Scene
-	}
-	return PasswordCryptoScene_PASSWORD_CRYPTO_SCENE_UNSPECIFIED
-}
-
 // 登出请求条件
 type LogoutRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -257,7 +143,7 @@ type LogoutRequest struct {
 
 func (x *LogoutRequest) Reset() {
 	*x = LogoutRequest{}
-	mi := &file_base_v1_login_proto_msgTypes[2]
+	mi := &file_base_v1_login_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -269,7 +155,7 @@ func (x *LogoutRequest) String() string {
 func (*LogoutRequest) ProtoMessage() {}
 
 func (x *LogoutRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_base_v1_login_proto_msgTypes[2]
+	mi := &file_base_v1_login_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -282,7 +168,7 @@ func (x *LogoutRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use LogoutRequest.ProtoReflect.Descriptor instead.
 func (*LogoutRequest) Descriptor() ([]byte, []int) {
-	return file_base_v1_login_proto_rawDescGZIP(), []int{2}
+	return file_base_v1_login_proto_rawDescGZIP(), []int{1}
 }
 
 // 验证码响应
@@ -297,7 +183,7 @@ type CaptchaResponse struct {
 
 func (x *CaptchaResponse) Reset() {
 	*x = CaptchaResponse{}
-	mi := &file_base_v1_login_proto_msgTypes[3]
+	mi := &file_base_v1_login_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -309,7 +195,7 @@ func (x *CaptchaResponse) String() string {
 func (*CaptchaResponse) ProtoMessage() {}
 
 func (x *CaptchaResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_base_v1_login_proto_msgTypes[3]
+	mi := &file_base_v1_login_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -322,7 +208,7 @@ func (x *CaptchaResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CaptchaResponse.ProtoReflect.Descriptor instead.
 func (*CaptchaResponse) Descriptor() ([]byte, []int) {
-	return file_base_v1_login_proto_rawDescGZIP(), []int{3}
+	return file_base_v1_login_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *CaptchaResponse) GetCaptchaId() string {
@@ -357,7 +243,7 @@ type VerifyCaptchaRequest struct {
 
 func (x *VerifyCaptchaRequest) Reset() {
 	*x = VerifyCaptchaRequest{}
-	mi := &file_base_v1_login_proto_msgTypes[4]
+	mi := &file_base_v1_login_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -369,7 +255,7 @@ func (x *VerifyCaptchaRequest) String() string {
 func (*VerifyCaptchaRequest) ProtoMessage() {}
 
 func (x *VerifyCaptchaRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_base_v1_login_proto_msgTypes[4]
+	mi := &file_base_v1_login_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -382,7 +268,7 @@ func (x *VerifyCaptchaRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use VerifyCaptchaRequest.ProtoReflect.Descriptor instead.
 func (*VerifyCaptchaRequest) Descriptor() ([]byte, []int) {
-	return file_base_v1_login_proto_rawDescGZIP(), []int{4}
+	return file_base_v1_login_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *VerifyCaptchaRequest) GetCaptchaId() string {
@@ -410,7 +296,7 @@ type VerifyCaptchaResponse struct {
 
 func (x *VerifyCaptchaResponse) Reset() {
 	*x = VerifyCaptchaResponse{}
-	mi := &file_base_v1_login_proto_msgTypes[5]
+	mi := &file_base_v1_login_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -422,7 +308,7 @@ func (x *VerifyCaptchaResponse) String() string {
 func (*VerifyCaptchaResponse) ProtoMessage() {}
 
 func (x *VerifyCaptchaResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_base_v1_login_proto_msgTypes[5]
+	mi := &file_base_v1_login_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -435,7 +321,7 @@ func (x *VerifyCaptchaResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use VerifyCaptchaResponse.ProtoReflect.Descriptor instead.
 func (*VerifyCaptchaResponse) Descriptor() ([]byte, []int) {
-	return file_base_v1_login_proto_rawDescGZIP(), []int{5}
+	return file_base_v1_login_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *VerifyCaptchaResponse) GetCaptchaToken() string {
@@ -452,83 +338,6 @@ func (x *VerifyCaptchaResponse) GetExpiresIn() int64 {
 	return 0
 }
 
-// 密码临时公钥响应
-type PasswordPublicKeyResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	KeyId         string                 `protobuf:"bytes,1,opt,name=key_id,json=keyId,proto3" json:"key_id,omitempty"`              // 临时密钥ID
-	PublicKey     string                 `protobuf:"bytes,2,opt,name=public_key,json=publicKey,proto3" json:"public_key,omitempty"`  // 临时公钥
-	Algorithm     string                 `protobuf:"bytes,3,opt,name=algorithm,proto3" json:"algorithm,omitempty"`                   // 加密算法
-	Nonce         string                 `protobuf:"bytes,4,opt,name=nonce,proto3" json:"nonce,omitempty"`                           // 随机值
-	ExpiresIn     int64                  `protobuf:"varint,5,opt,name=expires_in,json=expiresIn,proto3" json:"expires_in,omitempty"` // 有效时间，单位秒
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *PasswordPublicKeyResponse) Reset() {
-	*x = PasswordPublicKeyResponse{}
-	mi := &file_base_v1_login_proto_msgTypes[6]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *PasswordPublicKeyResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*PasswordPublicKeyResponse) ProtoMessage() {}
-
-func (x *PasswordPublicKeyResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_base_v1_login_proto_msgTypes[6]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use PasswordPublicKeyResponse.ProtoReflect.Descriptor instead.
-func (*PasswordPublicKeyResponse) Descriptor() ([]byte, []int) {
-	return file_base_v1_login_proto_rawDescGZIP(), []int{6}
-}
-
-func (x *PasswordPublicKeyResponse) GetKeyId() string {
-	if x != nil {
-		return x.KeyId
-	}
-	return ""
-}
-
-func (x *PasswordPublicKeyResponse) GetPublicKey() string {
-	if x != nil {
-		return x.PublicKey
-	}
-	return ""
-}
-
-func (x *PasswordPublicKeyResponse) GetAlgorithm() string {
-	if x != nil {
-		return x.Algorithm
-	}
-	return ""
-}
-
-func (x *PasswordPublicKeyResponse) GetNonce() string {
-	if x != nil {
-		return x.Nonce
-	}
-	return ""
-}
-
-func (x *PasswordPublicKeyResponse) GetExpiresIn() int64 {
-	if x != nil {
-		return x.ExpiresIn
-	}
-	return 0
-}
-
 // 刷新令牌请求参数
 type RefreshTokenRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -539,7 +348,7 @@ type RefreshTokenRequest struct {
 
 func (x *RefreshTokenRequest) Reset() {
 	*x = RefreshTokenRequest{}
-	mi := &file_base_v1_login_proto_msgTypes[7]
+	mi := &file_base_v1_login_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -551,7 +360,7 @@ func (x *RefreshTokenRequest) String() string {
 func (*RefreshTokenRequest) ProtoMessage() {}
 
 func (x *RefreshTokenRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_base_v1_login_proto_msgTypes[7]
+	mi := &file_base_v1_login_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -564,7 +373,7 @@ func (x *RefreshTokenRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RefreshTokenRequest.ProtoReflect.Descriptor instead.
 func (*RefreshTokenRequest) Descriptor() ([]byte, []int) {
-	return file_base_v1_login_proto_rawDescGZIP(), []int{7}
+	return file_base_v1_login_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *RefreshTokenRequest) GetRefreshToken() string {
@@ -587,7 +396,7 @@ type RefreshTokenResponse struct {
 
 func (x *RefreshTokenResponse) Reset() {
 	*x = RefreshTokenResponse{}
-	mi := &file_base_v1_login_proto_msgTypes[8]
+	mi := &file_base_v1_login_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -599,7 +408,7 @@ func (x *RefreshTokenResponse) String() string {
 func (*RefreshTokenResponse) ProtoMessage() {}
 
 func (x *RefreshTokenResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_base_v1_login_proto_msgTypes[8]
+	mi := &file_base_v1_login_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -612,7 +421,7 @@ func (x *RefreshTokenResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RefreshTokenResponse.ProtoReflect.Descriptor instead.
 func (*RefreshTokenResponse) Descriptor() ([]byte, []int) {
-	return file_base_v1_login_proto_rawDescGZIP(), []int{8}
+	return file_base_v1_login_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *RefreshTokenResponse) GetAccessToken() string {
@@ -645,19 +454,19 @@ func (x *RefreshTokenResponse) GetExpiresIn() int64 {
 
 // 登录请求参数
 type LoginRequest struct {
-	state         protoimpl.MessageState   `protogen:"open.v1"`
-	TenantCode    string                   `protobuf:"bytes,1,opt,name=tenant_code,json=tenantCode,proto3" json:"tenant_code,omitempty"`    // 租户编码
-	UserName      string                   `protobuf:"bytes,2,opt,name=user_name,json=userName,proto3" json:"user_name,omitempty"`          // 用户名，必选项。
-	Password      *commonv1.PasswordCrypto `protobuf:"bytes,3,opt,name=password,proto3" json:"password,omitempty"`                          // 用户的密码，必选项。
-	CaptchaCode   string                   `protobuf:"bytes,4,opt,name=captcha_code,json=captchaCode,proto3" json:"captcha_code,omitempty"` // 验证码
-	CaptchaId     string                   `protobuf:"bytes,5,opt,name=captcha_id,json=captchaId,proto3" json:"captcha_id,omitempty"`       // 验证码Id
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	TenantCode    string                 `protobuf:"bytes,1,opt,name=tenant_code,json=tenantCode,proto3" json:"tenant_code,omitempty"`    // 租户编码
+	UserName      string                 `protobuf:"bytes,2,opt,name=user_name,json=userName,proto3" json:"user_name,omitempty"`          // 用户名，必选项。
+	Password      *commonv1.SecretCrypto `protobuf:"bytes,3,opt,name=password,proto3" json:"password,omitempty"`                          // 用户的密码，必选项。
+	CaptchaCode   string                 `protobuf:"bytes,4,opt,name=captcha_code,json=captchaCode,proto3" json:"captcha_code,omitempty"` // 验证码
+	CaptchaId     string                 `protobuf:"bytes,5,opt,name=captcha_id,json=captchaId,proto3" json:"captcha_id,omitempty"`       // 验证码Id
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *LoginRequest) Reset() {
 	*x = LoginRequest{}
-	mi := &file_base_v1_login_proto_msgTypes[9]
+	mi := &file_base_v1_login_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -669,7 +478,7 @@ func (x *LoginRequest) String() string {
 func (*LoginRequest) ProtoMessage() {}
 
 func (x *LoginRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_base_v1_login_proto_msgTypes[9]
+	mi := &file_base_v1_login_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -682,7 +491,7 @@ func (x *LoginRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use LoginRequest.ProtoReflect.Descriptor instead.
 func (*LoginRequest) Descriptor() ([]byte, []int) {
-	return file_base_v1_login_proto_rawDescGZIP(), []int{9}
+	return file_base_v1_login_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *LoginRequest) GetTenantCode() string {
@@ -699,7 +508,7 @@ func (x *LoginRequest) GetUserName() string {
 	return ""
 }
 
-func (x *LoginRequest) GetPassword() *commonv1.PasswordCrypto {
+func (x *LoginRequest) GetPassword() *commonv1.SecretCrypto {
 	if x != nil {
 		return x.Password
 	}
@@ -740,7 +549,7 @@ type LoginResponse struct {
 
 func (x *LoginResponse) Reset() {
 	*x = LoginResponse{}
-	mi := &file_base_v1_login_proto_msgTypes[10]
+	mi := &file_base_v1_login_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -752,7 +561,7 @@ func (x *LoginResponse) String() string {
 func (*LoginResponse) ProtoMessage() {}
 
 func (x *LoginResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_base_v1_login_proto_msgTypes[10]
+	mi := &file_base_v1_login_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -765,7 +574,7 @@ func (x *LoginResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use LoginResponse.ProtoReflect.Descriptor instead.
 func (*LoginResponse) Descriptor() ([]byte, []int) {
-	return file_base_v1_login_proto_rawDescGZIP(), []int{10}
+	return file_base_v1_login_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *LoginResponse) GetAccessToken() string {
@@ -851,9 +660,7 @@ const file_base_v1_login_proto_rawDesc = "" +
 	"\n" +
 	"\x13base/v1/login.proto\x12\abase.v1\x1a\x15common/v1/types.proto\x1a\x1bbuf/validate/validate.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"u\n" +
 	"\x0eCaptchaRequest\x12c\n" +
-	"\x04type\x18\x01 \x01(\tBO\xbaGL\x92\x02I验证码类型，random 表示随机选择当前支持的验证码类型R\x04type\"b\n" +
-	"\x18PasswordPublicKeyRequest\x12F\n" +
-	"\x05scene\x18\x01 \x01(\x0e2\x1c.base.v1.PasswordCryptoSceneB\x12\xbaG\x0f\x92\x02\f使用场景R\x05scene\"\x0f\n" +
+	"\x04type\x18\x01 \x01(\tBO\xbaGL\x92\x02I验证码类型，random 表示随机选择当前支持的验证码类型R\x04type\"\x0f\n" +
 	"\rLogoutRequest\"\xb8\x01\n" +
 	"\x0fCaptchaResponse\x120\n" +
 	"\n" +
@@ -869,15 +676,7 @@ const file_base_v1_login_proto_rawDesc = "" +
 	"\x15VerifyCaptchaResponse\x12@\n" +
 	"\rcaptcha_token\x18\x01 \x01(\tB\x1b\xbaG\x18\x92\x02\x15验证码通过令牌R\fcaptchaToken\x12=\n" +
 	"\n" +
-	"expires_in\x18\x02 \x01(\x03B\x1e\xbaG\x1b\x92\x02\x18有效时间，单位秒R\texpiresIn\"\x93\x02\n" +
-	"\x19PasswordPublicKeyResponse\x12+\n" +
-	"\x06key_id\x18\x01 \x01(\tB\x14\xbaG\x11\x92\x02\x0e临时密钥IDR\x05keyId\x121\n" +
-	"\n" +
-	"public_key\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f临时公钥R\tpublicKey\x120\n" +
-	"\talgorithm\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f加密算法R\talgorithm\x12%\n" +
-	"\x05nonce\x18\x04 \x01(\tB\x0f\xbaG\f\x92\x02\t随机值R\x05nonce\x12=\n" +
-	"\n" +
-	"expires_in\x18\x05 \x01(\x03B\x1e\xbaG\x1b\x92\x02\x18有效时间，单位秒R\texpiresIn\"\x98\x01\n" +
+	"expires_in\x18\x02 \x01(\x03B\x1e\xbaG\x1b\x92\x02\x18有效时间，单位秒R\texpiresIn\"\x98\x01\n" +
 	"\x13RefreshTokenRequest\x12o\n" +
 	"\rrefresh_token\x18\x01 \x01(\tBE\xbaGB\x92\x02?更新令牌；未填写时由服务端从HttpOnly Cookie读取H\x00R\frefreshToken\x88\x01\x01B\x10\n" +
 	"\x0e_refresh_token\"\xae\x05\n" +
@@ -887,13 +686,13 @@ const file_base_v1_login_proto_rawDesc = "" +
 	"\n" +
 	"token_type\x18\x03 \x01(\tB\x94\x01\xbaG\x90\x01\x8a\x02\b\x1a\x06Bearer\x92\x02\x81\x01令牌的类型，该值大小写不敏感，必选项，可以是bearer类型或mac类型，通常只是字符串“Bearer”。R\ttokenType\x12\xdc\x01\n" +
 	"\n" +
-	"expires_in\x18\x04 \x01(\x03B\xbc\x01\xbaG\xb8\x01\x92\x02\xb4\x01令牌有效时间，单位为秒。如果访问令牌过期，服务器应回复授予访问令牌的持续时间。如果省略该参数，必须其他方式设置过期时间。R\texpiresIn\"\xf4\x04\n" +
+	"expires_in\x18\x04 \x01(\x03B\xbc\x01\xbaG\xb8\x01\x92\x02\xb4\x01令牌有效时间，单位为秒。如果访问令牌过期，服务器应回复授予访问令牌的持续时间。如果省略该参数，必须其他方式设置过期时间。R\texpiresIn\"\xf2\x04\n" +
 	"\fLoginRequest\x123\n" +
 	"\vtenant_code\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f租户编码R\n" +
 	"tenantCode\x12\x7f\n" +
 	"\tuser_name\x18\x02 \x01(\tBb\xbaG\f\x92\x02\t用户名\xbaHP\xba\x01M\n" +
-	"#base.login.login.user_name.required\x12\x15用户名不能为空\x1a\x0fthis.size() > 0R\buserName\x12I\n" +
-	"\bpassword\x18\x03 \x01(\v2\x19.common.v1.PasswordCryptoB\x12\xbaG\x0f\x92\x02\f用户密码R\bpassword\x12\x88\x01\n" +
+	"#base.login.login.user_name.required\x12\x15用户名不能为空\x1a\x0fthis.size() > 0R\buserName\x12G\n" +
+	"\bpassword\x18\x03 \x01(\v2\x17.common.v1.SecretCryptoB\x12\xbaG\x0f\x92\x02\f用户密码R\bpassword\x12\x88\x01\n" +
 	"\fcaptcha_code\x18\x04 \x01(\tBe\xbaG\f\x92\x02\t验证码\xbaHS\xba\x01P\n" +
 	"&base.login.login.captcha_code.required\x12\x15验证码不能为空\x1a\x0fthis.size() > 0R\vcaptchaCode\x12\x84\x01\n" +
 	"\n" +
@@ -916,25 +715,16 @@ const file_base_v1_login_proto_rawDesc = "" +
 	"mfa_method\x18\t \x01(\tB-\xbaG*\x92\x02'多因素认证方式：totp、webauthnR\tmfaMethod\x12Y\n" +
 	"\x19mfa_webauthn_options_json\x18\n" +
 	" \x01(\tB\x1e\xbaG\x1b\x92\x02\x18WebAuthn认证选项JSONR\x16mfaWebauthnOptionsJson\x12e\n" +
-	"\x11mfa_remember_days\x18\v \x01(\x05B9\xbaG6\x92\x023当前登录策略允许的MFA设备免验证天数R\x0fmfaRememberDays*\xc1\x02\n" +
-	"\x13PasswordCryptoScene\x12%\n" +
-	"!PASSWORD_CRYPTO_SCENE_UNSPECIFIED\x10\x00\x12\x1f\n" +
-	"\x1bPASSWORD_CRYPTO_SCENE_LOGIN\x10\x01\x12*\n" +
-	"&PASSWORD_CRYPTO_SCENE_CREATE_BASE_USER\x10\x02\x122\n" +
-	".PASSWORD_CRYPTO_SCENE_RESET_BASE_USER_PASSWORD\x10\x03\x12.\n" +
-	"*PASSWORD_CRYPTO_SCENE_UPDATE_USER_PASSWORD\x10\x04\x12\x1d\n" +
-	"\x19PASSWORD_CRYPTO_SCENE_MFA\x10\x05\x123\n" +
-	"/PASSWORD_CRYPTO_SCENE_CONFIGURE_PASSWORD_POLICY\x10\x06*\xbf\x01\n" +
+	"\x11mfa_remember_days\x18\v \x01(\x05B9\xbaG6\x92\x023当前登录策略允许的MFA设备免验证天数R\x0fmfaRememberDays*\xbf\x01\n" +
 	"\vLoginStatus\x12\x1c\n" +
 	"\x18LOGIN_STATUS_UNSPECIFIED\x10\x00\x12\x1e\n" +
 	"\x1aLOGIN_STATUS_AUTHENTICATED\x10\x01\x12\x1d\n" +
 	"\x19LOGIN_STATUS_MFA_REQUIRED\x10\x02\x12(\n" +
 	"$LOGIN_STATUS_MFA_ENROLLMENT_REQUIRED\x10\x03\x12)\n" +
-	"%LOGIN_STATUS_PASSWORD_CHANGE_REQUIRED\x10\x042\x86\x05\n" +
+	"%LOGIN_STATUS_PASSWORD_CHANGE_REQUIRED\x10\x042\xff\x03\n" +
 	"\fLoginService\x12Z\n" +
 	"\aCaptcha\x12\x17.base.v1.CaptchaRequest\x1a\x18.base.v1.CaptchaResponse\"\x1c\x82\xd3\xe4\x93\x02\x16\x12\x14/api/v1/base/captcha\x12v\n" +
-	"\rVerifyCaptcha\x12\x1d.base.v1.VerifyCaptchaRequest\x1a\x1e.base.v1.VerifyCaptchaResponse\"&\x82\xd3\xe4\x93\x02 :\x01*\"\x1b/api/v1/base/captcha/verify\x12\x84\x01\n" +
-	"\x11PasswordPublicKey\x12!.base.v1.PasswordPublicKeyRequest\x1a\".base.v1.PasswordPublicKeyResponse\"(\x82\xd3\xe4\x93\x02\"\x12 /api/v1/base/password-public-key\x12V\n" +
+	"\rVerifyCaptcha\x12\x1d.base.v1.VerifyCaptchaRequest\x1a\x1e.base.v1.VerifyCaptchaResponse\"&\x82\xd3\xe4\x93\x02 :\x01*\"\x1b/api/v1/base/captcha/verify\x12V\n" +
 	"\x06Logout\x12\x16.base.v1.LogoutRequest\x1a\x16.google.protobuf.Empty\"\x1c\x82\xd3\xe4\x93\x02\x16*\x14/api/v1/base/session\x12j\n" +
 	"\fRefreshToken\x12\x1c.base.v1.RefreshTokenRequest\x1a\x1d.base.v1.RefreshTokenResponse\"\x1d\x82\xd3\xe4\x93\x02\x17:\x01*\"\x12/api/v1/base/token\x12W\n" +
 	"\x05Login\x12\x15.base.v1.LoginRequest\x1a\x16.base.v1.LoginResponse\"\x1f\x82\xd3\xe4\x93\x02\x19:\x01*\"\x14/api/v1/base/sessionB\x9a\x01\n" +
@@ -953,46 +743,40 @@ func file_base_v1_login_proto_rawDescGZIP() []byte {
 	return file_base_v1_login_proto_rawDescData
 }
 
-var file_base_v1_login_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
-var file_base_v1_login_proto_msgTypes = make([]protoimpl.MessageInfo, 11)
+var file_base_v1_login_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
+var file_base_v1_login_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
 var file_base_v1_login_proto_goTypes = []any{
-	(PasswordCryptoScene)(0),          // 0: base.v1.PasswordCryptoScene
-	(LoginStatus)(0),                  // 1: base.v1.LoginStatus
-	(*CaptchaRequest)(nil),            // 2: base.v1.CaptchaRequest
-	(*PasswordPublicKeyRequest)(nil),  // 3: base.v1.PasswordPublicKeyRequest
-	(*LogoutRequest)(nil),             // 4: base.v1.LogoutRequest
-	(*CaptchaResponse)(nil),           // 5: base.v1.CaptchaResponse
-	(*VerifyCaptchaRequest)(nil),      // 6: base.v1.VerifyCaptchaRequest
-	(*VerifyCaptchaResponse)(nil),     // 7: base.v1.VerifyCaptchaResponse
-	(*PasswordPublicKeyResponse)(nil), // 8: base.v1.PasswordPublicKeyResponse
-	(*RefreshTokenRequest)(nil),       // 9: base.v1.RefreshTokenRequest
-	(*RefreshTokenResponse)(nil),      // 10: base.v1.RefreshTokenResponse
-	(*LoginRequest)(nil),              // 11: base.v1.LoginRequest
-	(*LoginResponse)(nil),             // 12: base.v1.LoginResponse
-	(*commonv1.PasswordCrypto)(nil),   // 13: common.v1.PasswordCrypto
-	(*emptypb.Empty)(nil),             // 14: google.protobuf.Empty
+	(LoginStatus)(0),              // 0: base.v1.LoginStatus
+	(*CaptchaRequest)(nil),        // 1: base.v1.CaptchaRequest
+	(*LogoutRequest)(nil),         // 2: base.v1.LogoutRequest
+	(*CaptchaResponse)(nil),       // 3: base.v1.CaptchaResponse
+	(*VerifyCaptchaRequest)(nil),  // 4: base.v1.VerifyCaptchaRequest
+	(*VerifyCaptchaResponse)(nil), // 5: base.v1.VerifyCaptchaResponse
+	(*RefreshTokenRequest)(nil),   // 6: base.v1.RefreshTokenRequest
+	(*RefreshTokenResponse)(nil),  // 7: base.v1.RefreshTokenResponse
+	(*LoginRequest)(nil),          // 8: base.v1.LoginRequest
+	(*LoginResponse)(nil),         // 9: base.v1.LoginResponse
+	(*commonv1.SecretCrypto)(nil), // 10: common.v1.SecretCrypto
+	(*emptypb.Empty)(nil),         // 11: google.protobuf.Empty
 }
 var file_base_v1_login_proto_depIdxs = []int32{
-	0,  // 0: base.v1.PasswordPublicKeyRequest.scene:type_name -> base.v1.PasswordCryptoScene
-	13, // 1: base.v1.LoginRequest.password:type_name -> common.v1.PasswordCrypto
-	1,  // 2: base.v1.LoginResponse.status:type_name -> base.v1.LoginStatus
-	2,  // 3: base.v1.LoginService.Captcha:input_type -> base.v1.CaptchaRequest
-	6,  // 4: base.v1.LoginService.VerifyCaptcha:input_type -> base.v1.VerifyCaptchaRequest
-	3,  // 5: base.v1.LoginService.PasswordPublicKey:input_type -> base.v1.PasswordPublicKeyRequest
-	4,  // 6: base.v1.LoginService.Logout:input_type -> base.v1.LogoutRequest
-	9,  // 7: base.v1.LoginService.RefreshToken:input_type -> base.v1.RefreshTokenRequest
-	11, // 8: base.v1.LoginService.Login:input_type -> base.v1.LoginRequest
-	5,  // 9: base.v1.LoginService.Captcha:output_type -> base.v1.CaptchaResponse
-	7,  // 10: base.v1.LoginService.VerifyCaptcha:output_type -> base.v1.VerifyCaptchaResponse
-	8,  // 11: base.v1.LoginService.PasswordPublicKey:output_type -> base.v1.PasswordPublicKeyResponse
-	14, // 12: base.v1.LoginService.Logout:output_type -> google.protobuf.Empty
-	10, // 13: base.v1.LoginService.RefreshToken:output_type -> base.v1.RefreshTokenResponse
-	12, // 14: base.v1.LoginService.Login:output_type -> base.v1.LoginResponse
-	9,  // [9:15] is the sub-list for method output_type
-	3,  // [3:9] is the sub-list for method input_type
-	3,  // [3:3] is the sub-list for extension type_name
-	3,  // [3:3] is the sub-list for extension extendee
-	0,  // [0:3] is the sub-list for field type_name
+	10, // 0: base.v1.LoginRequest.password:type_name -> common.v1.SecretCrypto
+	0,  // 1: base.v1.LoginResponse.status:type_name -> base.v1.LoginStatus
+	1,  // 2: base.v1.LoginService.Captcha:input_type -> base.v1.CaptchaRequest
+	4,  // 3: base.v1.LoginService.VerifyCaptcha:input_type -> base.v1.VerifyCaptchaRequest
+	2,  // 4: base.v1.LoginService.Logout:input_type -> base.v1.LogoutRequest
+	6,  // 5: base.v1.LoginService.RefreshToken:input_type -> base.v1.RefreshTokenRequest
+	8,  // 6: base.v1.LoginService.Login:input_type -> base.v1.LoginRequest
+	3,  // 7: base.v1.LoginService.Captcha:output_type -> base.v1.CaptchaResponse
+	5,  // 8: base.v1.LoginService.VerifyCaptcha:output_type -> base.v1.VerifyCaptchaResponse
+	11, // 9: base.v1.LoginService.Logout:output_type -> google.protobuf.Empty
+	7,  // 10: base.v1.LoginService.RefreshToken:output_type -> base.v1.RefreshTokenResponse
+	9,  // 11: base.v1.LoginService.Login:output_type -> base.v1.LoginResponse
+	7,  // [7:12] is the sub-list for method output_type
+	2,  // [2:7] is the sub-list for method input_type
+	2,  // [2:2] is the sub-list for extension type_name
+	2,  // [2:2] is the sub-list for extension extendee
+	0,  // [0:2] is the sub-list for field type_name
 }
 
 func init() { file_base_v1_login_proto_init() }
@@ -1000,14 +784,14 @@ func file_base_v1_login_proto_init() {
 	if File_base_v1_login_proto != nil {
 		return
 	}
-	file_base_v1_login_proto_msgTypes[7].OneofWrappers = []any{}
+	file_base_v1_login_proto_msgTypes[5].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_base_v1_login_proto_rawDesc), len(file_base_v1_login_proto_rawDesc)),
-			NumEnums:      2,
-			NumMessages:   11,
+			NumEnums:      1,
+			NumMessages:   9,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

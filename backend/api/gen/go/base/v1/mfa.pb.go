@@ -440,9 +440,9 @@ func (x *MfaStatusResponse) GetMethod() string {
 
 // 开始绑定多因素认证请求。
 type BeginMfaSetupRequest struct {
-	state         protoimpl.MessageState   `protogen:"open.v1"`
-	Password      *commonv1.PasswordCrypto `protobuf:"bytes,1,opt,name=password,proto3" json:"password,omitempty"`                          // 当前登录密码
-	SetupTicket   string                   `protobuf:"bytes,2,opt,name=setup_ticket,json=setupTicket,proto3" json:"setup_ticket,omitempty"` // 强制绑定场景下的临时票据
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Password      *commonv1.SecretCrypto `protobuf:"bytes,1,opt,name=password,proto3" json:"password,omitempty"`                          // 当前登录密码
+	SetupTicket   string                 `protobuf:"bytes,2,opt,name=setup_ticket,json=setupTicket,proto3" json:"setup_ticket,omitempty"` // 强制绑定场景下的临时票据
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -477,7 +477,7 @@ func (*BeginMfaSetupRequest) Descriptor() ([]byte, []int) {
 	return file_base_v1_mfa_proto_rawDescGZIP(), []int{7}
 }
 
-func (x *BeginMfaSetupRequest) GetPassword() *commonv1.PasswordCrypto {
+func (x *BeginMfaSetupRequest) GetPassword() *commonv1.SecretCrypto {
 	if x != nil {
 		return x.Password
 	}
@@ -782,12 +782,12 @@ func (x *BeginMfaDisableResponse) GetWebauthnOptionsJson() string {
 
 // 禁用多因素认证请求。
 type DisableMfaRequest struct {
-	state                protoimpl.MessageState   `protogen:"open.v1"`
-	Password             *commonv1.PasswordCrypto `protobuf:"bytes,1,opt,name=password,proto3" json:"password,omitempty"`                                                       // 当前登录密码
-	Code                 string                   `protobuf:"bytes,2,opt,name=code,proto3" json:"code,omitempty"`                                                               // TOTP 动态口令
-	WebauthnChallengeId  string                   `protobuf:"bytes,3,opt,name=webauthn_challenge_id,json=webauthnChallengeId,proto3" json:"webauthn_challenge_id,omitempty"`    // WebAuthn 禁用挑战 ID
-	WebauthnResponseJson string                   `protobuf:"bytes,4,opt,name=webauthn_response_json,json=webauthnResponseJson,proto3" json:"webauthn_response_json,omitempty"` // WebAuthn 验证响应 JSON
-	RecoveryCode         string                   `protobuf:"bytes,5,opt,name=recovery_code,json=recoveryCode,proto3" json:"recovery_code,omitempty"`                           // 一次性恢复码
+	state                protoimpl.MessageState `protogen:"open.v1"`
+	Password             *commonv1.SecretCrypto `protobuf:"bytes,1,opt,name=password,proto3" json:"password,omitempty"`                                                       // 当前登录密码
+	Code                 string                 `protobuf:"bytes,2,opt,name=code,proto3" json:"code,omitempty"`                                                               // TOTP 动态口令
+	WebauthnChallengeId  string                 `protobuf:"bytes,3,opt,name=webauthn_challenge_id,json=webauthnChallengeId,proto3" json:"webauthn_challenge_id,omitempty"`    // WebAuthn 禁用挑战 ID
+	WebauthnResponseJson string                 `protobuf:"bytes,4,opt,name=webauthn_response_json,json=webauthnResponseJson,proto3" json:"webauthn_response_json,omitempty"` // WebAuthn 验证响应 JSON
+	RecoveryCode         string                 `protobuf:"bytes,5,opt,name=recovery_code,json=recoveryCode,proto3" json:"recovery_code,omitempty"`                           // 一次性恢复码
 	unknownFields        protoimpl.UnknownFields
 	sizeCache            protoimpl.SizeCache
 }
@@ -822,7 +822,7 @@ func (*DisableMfaRequest) Descriptor() ([]byte, []int) {
 	return file_base_v1_mfa_proto_rawDescGZIP(), []int{13}
 }
 
-func (x *DisableMfaRequest) GetPassword() *commonv1.PasswordCrypto {
+func (x *DisableMfaRequest) GetPassword() *commonv1.SecretCrypto {
 	if x != nil {
 		return x.Password
 	}
@@ -983,9 +983,9 @@ const file_base_v1_mfa_proto_rawDesc = "" +
 	"\x11MfaStatusResponse\x12>\n" +
 	"\aenabled\x18\x01 \x01(\bB$\xbaG!\x92\x02\x1e是否已启用多因素认证R\aenabled\x12^\n" +
 	"\x06policy\x18\x02 \x01(\tBF\xbaGC\x92\x02@全局多因素认证策略：disabled、optional、all_requiredR\x06policy\x12<\n" +
-	"\x06method\x18\x03 \x01(\tB$\xbaG!\x92\x02\x1e认证方式：totp、webauthnR\x06method\"\xb6\x01\n" +
-	"\x14BeginMfaSetupRequest\x12O\n" +
-	"\bpassword\x18\x01 \x01(\v2\x19.common.v1.PasswordCryptoB\x18\xbaG\x15\x92\x02\x12当前登录密码R\bpassword\x12M\n" +
+	"\x06method\x18\x03 \x01(\tB$\xbaG!\x92\x02\x1e认证方式：totp、webauthnR\x06method\"\xb4\x01\n" +
+	"\x14BeginMfaSetupRequest\x12M\n" +
+	"\bpassword\x18\x01 \x01(\v2\x17.common.v1.SecretCryptoB\x18\xbaG\x15\x92\x02\x12当前登录密码R\bpassword\x12M\n" +
 	"\fsetup_ticket\x18\x02 \x01(\tB*\xbaG'\x92\x02$强制绑定场景下的临时票据R\vsetupTicket\"\x97\x03\n" +
 	"\x15BeginMfaSetupResponse\x12;\n" +
 	"\fsetup_ticket\x18\x01 \x01(\tB\x18\xbaG\x15\x92\x02\x12绑定临时票据R\vsetupTicket\x12S\n" +
@@ -1009,9 +1009,9 @@ const file_base_v1_mfa_proto_rawDesc = "" +
 	"\fchallenge_id\x18\x01 \x01(\tB\x1e\xbaG\x1b\x92\x02\x18WebAuthn 禁用挑战 IDR\vchallengeId\x12R\n" +
 	"\n" +
 	"expires_in\x18\x02 \x01(\x03B3\xbaG0\x92\x02-WebAuthn 禁用挑战有效时间，单位秒R\texpiresIn\x12T\n" +
-	"\x15webauthn_options_json\x18\x03 \x01(\tB \xbaG\x1d\x92\x02\x1aWebAuthn 验证选项 JSONR\x13webauthnOptionsJson\"\xfc\x02\n" +
-	"\x11DisableMfaRequest\x12O\n" +
-	"\bpassword\x18\x01 \x01(\v2\x19.common.v1.PasswordCryptoB\x18\xbaG\x15\x92\x02\x12当前登录密码R\bpassword\x12+\n" +
+	"\x15webauthn_options_json\x18\x03 \x01(\tB \xbaG\x1d\x92\x02\x1aWebAuthn 验证选项 JSONR\x13webauthnOptionsJson\"\xfa\x02\n" +
+	"\x11DisableMfaRequest\x12M\n" +
+	"\bpassword\x18\x01 \x01(\v2\x17.common.v1.SecretCryptoB\x18\xbaG\x15\x92\x02\x12当前登录密码R\bpassword\x12+\n" +
 	"\x04code\x18\x02 \x01(\tB\x17\xbaG\x14\x92\x02\x11TOTP 动态口令R\x04code\x12R\n" +
 	"\x15webauthn_challenge_id\x18\x03 \x01(\tB\x1e\xbaG\x1b\x92\x02\x18WebAuthn 禁用挑战 IDR\x13webauthnChallengeId\x12V\n" +
 	"\x16webauthn_response_json\x18\x04 \x01(\tB \xbaG\x1d\x92\x02\x1aWebAuthn 验证响应 JSONR\x14webauthnResponseJson\x12=\n" +
@@ -1064,13 +1064,13 @@ var file_base_v1_mfa_proto_goTypes = []any{
 	(*DisableMfaRequest)(nil),                 // 13: base.v1.DisableMfaRequest
 	(*RegenerateMfaRecoveryCodesRequest)(nil), // 14: base.v1.RegenerateMfaRecoveryCodesRequest
 	(*RecoveryCodesResponse)(nil),             // 15: base.v1.RecoveryCodesResponse
-	(*commonv1.PasswordCrypto)(nil),           // 16: common.v1.PasswordCrypto
+	(*commonv1.SecretCrypto)(nil),             // 16: common.v1.SecretCrypto
 	(*LoginResponse)(nil),                     // 17: base.v1.LoginResponse
 	(*emptypb.Empty)(nil),                     // 18: google.protobuf.Empty
 }
 var file_base_v1_mfa_proto_depIdxs = []int32{
-	16, // 0: base.v1.BeginMfaSetupRequest.password:type_name -> common.v1.PasswordCrypto
-	16, // 1: base.v1.DisableMfaRequest.password:type_name -> common.v1.PasswordCrypto
+	16, // 0: base.v1.BeginMfaSetupRequest.password:type_name -> common.v1.SecretCrypto
+	16, // 1: base.v1.DisableMfaRequest.password:type_name -> common.v1.SecretCrypto
 	0,  // 2: base.v1.MfaService.VerifyMfa:input_type -> base.v1.VerifyMfaRequest
 	1,  // 3: base.v1.MfaService.BeginMfaEnrollment:input_type -> base.v1.BeginMfaEnrollmentRequest
 	3,  // 4: base.v1.MfaService.ConfirmMfaEnrollment:input_type -> base.v1.ConfirmMfaEnrollmentRequest

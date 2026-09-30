@@ -400,7 +400,7 @@ type BaseOauthProviderForm struct {
 	Description      string                 `protobuf:"bytes,4,opt,name=description,proto3" json:"description,omitempty"`                                    // 登录方式提示语
 	Icon             string                 `protobuf:"bytes,5,opt,name=icon,proto3" json:"icon,omitempty"`                                                  // 图标键或图片地址
 	ClientId         string                 `protobuf:"bytes,6,opt,name=client_id,json=clientId,proto3" json:"client_id,omitempty"`                          // 第三方应用标识
-	ClientSecret     string                 `protobuf:"bytes,7,opt,name=client_secret,json=clientSecret,proto3" json:"client_secret,omitempty"`              // 第三方应用密钥，更新时留空表示不修改
+	ClientSecret     *commonv1.SecretCrypto `protobuf:"bytes,7,opt,name=client_secret,json=clientSecret,proto3" json:"client_secret,omitempty"`              // 第三方应用密钥密文，更新时不传表示不修改
 	SecretConfigured bool                   `protobuf:"varint,8,opt,name=secret_configured,json=secretConfigured,proto3" json:"secret_configured,omitempty"` // 是否已配置第三方应用密钥
 	RedirectUri      string                 `protobuf:"bytes,9,opt,name=redirect_uri,json=redirectUri,proto3" json:"redirect_uri,omitempty"`                 // OAuth回调地址
 	Scopes           []string               `protobuf:"bytes,10,rep,name=scopes,proto3" json:"scopes,omitempty"`                                             // OAuth Scope列表
@@ -485,11 +485,11 @@ func (x *BaseOauthProviderForm) GetClientId() string {
 	return ""
 }
 
-func (x *BaseOauthProviderForm) GetClientSecret() string {
+func (x *BaseOauthProviderForm) GetClientSecret() *commonv1.SecretCrypto {
 	if x != nil {
 		return x.ClientSecret
 	}
-	return ""
+	return nil
 }
 
 func (x *BaseOauthProviderForm) GetSecretConfigured() bool {
@@ -701,7 +701,7 @@ var File_system_admin_v1_base_oauth_provider_proto protoreflect.FileDescriptor
 
 const file_system_admin_v1_base_oauth_provider_proto_rawDesc = "" +
 	"\n" +
-	")system/admin/v1/base_oauth_provider.proto\x12\x0fsystem.admin.v1\x1a\x1bbuf/validate/validate.proto\x1a\x14common/v1/enum.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1fsystem/admin/v1/base_i18n.proto\"\xfb\x02\n" +
+	")system/admin/v1/base_oauth_provider.proto\x12\x0fsystem.admin.v1\x1a\x1bbuf/validate/validate.proto\x1a\x14common/v1/enum.proto\x1a\x15common/v1/types.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1fsystem/admin/v1/base_i18n.proto\"\xfb\x02\n" +
 	"\x1cPageBaseOauthProviderRequest\x125\n" +
 	"\bprovider\x18\x01 \x01(\tB\x14\xbaG\x11\x92\x02\x0eProvider标识H\x00R\bprovider\x88\x01\x01\x121\n" +
 	"\x04name\x18\x02 \x01(\tB\x18\xbaG\x15\x92\x02\x12登录方式名称H\x01R\x04name\x88\x01\x01\x12D\n" +
@@ -727,7 +727,7 @@ const file_system_admin_v1_base_oauth_provider_proto_rawDesc = "" +
 	"!SetBaseOauthProviderStatusRequest\x12\x94\x01\n" +
 	"\x02id\x18\x01 \x01(\x03B\x83\x01\xbaG\x16\x92\x02\x13OAuth登录方式ID\xbaHg\xba\x01d\n" +
 	"7system.admin.base.oauth_provider.set_status.id.required\x12\x1fOAuth登录方式ID不能为空\x1a\bthis > 0R\x02id\x12?\n" +
-	"\x06status\x18\x02 \x01(\x0e2\x11.common.v1.StatusB\x14\xbaG\t\x92\x02\x06状态\xbaH\x05\x82\x01\x02\x10\x01R\x06status\"\x8e\x11\n" +
+	"\x06status\x18\x02 \x01(\x0e2\x11.common.v1.StatusB\x14\xbaG\t\x92\x02\x06状态\xbaH\x05\x82\x01\x02\x10\x01R\x06status\"\xa6\x10\n" +
 	"\x15BaseOauthProviderForm\x12)\n" +
 	"\x02id\x18\x01 \x01(\x03B\x19\xbaG\x16\x92\x02\x13OAuth登录方式IDR\x02id\x12\xe0\x01\n" +
 	"\bprovider\x18\x02 \x01(\tB\xc3\x01\xbaG\x17\x92\x02\x14Provider稳定标识\xbaH\xa5\x01\xba\x01\xa1\x01\n" +
@@ -739,9 +739,8 @@ const file_system_admin_v1_base_oauth_provider_proto_rawDesc = "" +
 	"\x04icon\x18\x05 \x01(\tB\xb1\x01\xbaG\x1b\x92\x02\x18图标键或图片地址\xbaH\x8f\x01\xba\x01\x8b\x01\n" +
 	"3system.admin.base.oauth_provider.form.icon.required\x12-图标不能为空且不能超过255个字符\x1a%this.size() > 0 && this.size() <= 255R\x04icon\x12\xe0\x01\n" +
 	"\tclient_id\x18\x06 \x01(\tB\xc2\x01\xbaG\x18\x92\x02\x15第三方应用标识\xbaH\xa3\x01\xba\x01\x9f\x01\n" +
-	"8system.admin.base.oauth_provider.form.client_id.required\x12<第三方应用标识不能为空且不能超过255个字符\x1a%this.size() > 0 && this.size() <= 255R\bclientId\x12\xe8\x01\n" +
-	"\rclient_secret\x18\a \x01(\tB\xc2\x01\xbaG9\x92\x026第三方应用密钥，更新时留空表示不修改\xbaH\x82\x01\xba\x01\x7f\n" +
-	":system.admin.base.oauth_provider.form.client_secret.length\x12-第三方应用密钥不能超过512个字符\x1a\x12this.size() <= 512R\fclientSecret\x12W\n" +
+	"8system.admin.base.oauth_provider.form.client_id.required\x12<第三方应用标识不能为空且不能超过255个字符\x1a%this.size() > 0 && this.size() <= 255R\bclientId\x12\x80\x01\n" +
+	"\rclient_secret\x18\a \x01(\v2\x17.common.v1.SecretCryptoBB\xbaG?\x92\x02<第三方应用密钥密文，更新时不传表示不修改R\fclientSecret\x12W\n" +
 	"\x11secret_configured\x18\b \x01(\bB*\xbaG'\x92\x02$是否已配置第三方应用密钥R\x10secretConfigured\x12\xbb\x01\n" +
 	"\fredirect_uri\x18\t \x01(\tB\x97\x01\xbaG\x14\x92\x02\x11OAuth回调地址\xbaH}\xba\x01z\n" +
 	"9system.admin.base.oauth_provider.form.redirect_uri.length\x12)OAuth回调地址不能超过512个字符\x1a\x12this.size() <= 512R\vredirectUri\x12\x92\x01\n" +
@@ -805,9 +804,10 @@ var file_system_admin_v1_base_oauth_provider_proto_goTypes = []any{
 	(*BaseOauthProviderForm)(nil),             // 7: system.admin.v1.BaseOauthProviderForm
 	(*BaseOauthProvider)(nil),                 // 8: system.admin.v1.BaseOauthProvider
 	(commonv1.Status)(0),                      // 9: common.v1.Status
-	(*structpb.Struct)(nil),                   // 10: google.protobuf.Struct
-	(*BaseI18n)(nil),                          // 11: system.admin.v1.BaseI18n
-	(*emptypb.Empty)(nil),                     // 12: google.protobuf.Empty
+	(*commonv1.SecretCrypto)(nil),             // 10: common.v1.SecretCrypto
+	(*structpb.Struct)(nil),                   // 11: google.protobuf.Struct
+	(*BaseI18n)(nil),                          // 12: system.admin.v1.BaseI18n
+	(*emptypb.Empty)(nil),                     // 13: google.protobuf.Empty
 }
 var file_system_admin_v1_base_oauth_provider_proto_depIdxs = []int32{
 	9,  // 0: system.admin.v1.PageBaseOauthProviderRequest.status:type_name -> common.v1.Status
@@ -815,29 +815,30 @@ var file_system_admin_v1_base_oauth_provider_proto_depIdxs = []int32{
 	7,  // 2: system.admin.v1.CreateBaseOauthProviderRequest.base_oauth_provider:type_name -> system.admin.v1.BaseOauthProviderForm
 	7,  // 3: system.admin.v1.UpdateBaseOauthProviderRequest.base_oauth_provider:type_name -> system.admin.v1.BaseOauthProviderForm
 	9,  // 4: system.admin.v1.SetBaseOauthProviderStatusRequest.status:type_name -> common.v1.Status
-	10, // 5: system.admin.v1.BaseOauthProviderForm.config:type_name -> google.protobuf.Struct
-	9,  // 6: system.admin.v1.BaseOauthProviderForm.status:type_name -> common.v1.Status
-	11, // 7: system.admin.v1.BaseOauthProviderForm.name_i18ns:type_name -> system.admin.v1.BaseI18n
-	11, // 8: system.admin.v1.BaseOauthProviderForm.description_i18ns:type_name -> system.admin.v1.BaseI18n
-	10, // 9: system.admin.v1.BaseOauthProvider.config:type_name -> google.protobuf.Struct
-	9,  // 10: system.admin.v1.BaseOauthProvider.status:type_name -> common.v1.Status
-	0,  // 11: system.admin.v1.BaseOauthProviderService.PageBaseOauthProvider:input_type -> system.admin.v1.PageBaseOauthProviderRequest
-	2,  // 12: system.admin.v1.BaseOauthProviderService.GetBaseOauthProvider:input_type -> system.admin.v1.GetBaseOauthProviderRequest
-	3,  // 13: system.admin.v1.BaseOauthProviderService.CreateBaseOauthProvider:input_type -> system.admin.v1.CreateBaseOauthProviderRequest
-	4,  // 14: system.admin.v1.BaseOauthProviderService.UpdateBaseOauthProvider:input_type -> system.admin.v1.UpdateBaseOauthProviderRequest
-	5,  // 15: system.admin.v1.BaseOauthProviderService.DeleteBaseOauthProvider:input_type -> system.admin.v1.DeleteBaseOauthProviderRequest
-	6,  // 16: system.admin.v1.BaseOauthProviderService.SetBaseOauthProviderStatus:input_type -> system.admin.v1.SetBaseOauthProviderStatusRequest
-	1,  // 17: system.admin.v1.BaseOauthProviderService.PageBaseOauthProvider:output_type -> system.admin.v1.PageBaseOauthProviderResponse
-	7,  // 18: system.admin.v1.BaseOauthProviderService.GetBaseOauthProvider:output_type -> system.admin.v1.BaseOauthProviderForm
-	12, // 19: system.admin.v1.BaseOauthProviderService.CreateBaseOauthProvider:output_type -> google.protobuf.Empty
-	12, // 20: system.admin.v1.BaseOauthProviderService.UpdateBaseOauthProvider:output_type -> google.protobuf.Empty
-	12, // 21: system.admin.v1.BaseOauthProviderService.DeleteBaseOauthProvider:output_type -> google.protobuf.Empty
-	12, // 22: system.admin.v1.BaseOauthProviderService.SetBaseOauthProviderStatus:output_type -> google.protobuf.Empty
-	17, // [17:23] is the sub-list for method output_type
-	11, // [11:17] is the sub-list for method input_type
-	11, // [11:11] is the sub-list for extension type_name
-	11, // [11:11] is the sub-list for extension extendee
-	0,  // [0:11] is the sub-list for field type_name
+	10, // 5: system.admin.v1.BaseOauthProviderForm.client_secret:type_name -> common.v1.SecretCrypto
+	11, // 6: system.admin.v1.BaseOauthProviderForm.config:type_name -> google.protobuf.Struct
+	9,  // 7: system.admin.v1.BaseOauthProviderForm.status:type_name -> common.v1.Status
+	12, // 8: system.admin.v1.BaseOauthProviderForm.name_i18ns:type_name -> system.admin.v1.BaseI18n
+	12, // 9: system.admin.v1.BaseOauthProviderForm.description_i18ns:type_name -> system.admin.v1.BaseI18n
+	11, // 10: system.admin.v1.BaseOauthProvider.config:type_name -> google.protobuf.Struct
+	9,  // 11: system.admin.v1.BaseOauthProvider.status:type_name -> common.v1.Status
+	0,  // 12: system.admin.v1.BaseOauthProviderService.PageBaseOauthProvider:input_type -> system.admin.v1.PageBaseOauthProviderRequest
+	2,  // 13: system.admin.v1.BaseOauthProviderService.GetBaseOauthProvider:input_type -> system.admin.v1.GetBaseOauthProviderRequest
+	3,  // 14: system.admin.v1.BaseOauthProviderService.CreateBaseOauthProvider:input_type -> system.admin.v1.CreateBaseOauthProviderRequest
+	4,  // 15: system.admin.v1.BaseOauthProviderService.UpdateBaseOauthProvider:input_type -> system.admin.v1.UpdateBaseOauthProviderRequest
+	5,  // 16: system.admin.v1.BaseOauthProviderService.DeleteBaseOauthProvider:input_type -> system.admin.v1.DeleteBaseOauthProviderRequest
+	6,  // 17: system.admin.v1.BaseOauthProviderService.SetBaseOauthProviderStatus:input_type -> system.admin.v1.SetBaseOauthProviderStatusRequest
+	1,  // 18: system.admin.v1.BaseOauthProviderService.PageBaseOauthProvider:output_type -> system.admin.v1.PageBaseOauthProviderResponse
+	7,  // 19: system.admin.v1.BaseOauthProviderService.GetBaseOauthProvider:output_type -> system.admin.v1.BaseOauthProviderForm
+	13, // 20: system.admin.v1.BaseOauthProviderService.CreateBaseOauthProvider:output_type -> google.protobuf.Empty
+	13, // 21: system.admin.v1.BaseOauthProviderService.UpdateBaseOauthProvider:output_type -> google.protobuf.Empty
+	13, // 22: system.admin.v1.BaseOauthProviderService.DeleteBaseOauthProvider:output_type -> google.protobuf.Empty
+	13, // 23: system.admin.v1.BaseOauthProviderService.SetBaseOauthProviderStatus:output_type -> google.protobuf.Empty
+	18, // [18:24] is the sub-list for method output_type
+	12, // [12:18] is the sub-list for method input_type
+	12, // [12:12] is the sub-list for extension type_name
+	12, // [12:12] is the sub-list for extension extendee
+	0,  // [0:12] is the sub-list for field type_name
 }
 
 func init() { file_system_admin_v1_base_oauth_provider_proto_init() }

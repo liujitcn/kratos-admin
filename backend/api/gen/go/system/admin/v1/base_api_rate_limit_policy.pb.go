@@ -803,7 +803,7 @@ const file_system_admin_v1_base_api_rate_limit_policy_proto_rawDesc = "" +
 	"&SetBaseApiRateLimitPolicyStatusRequest\x12\x80\x01\n" +
 	"\x02id\x18\x01 \x01(\x03Bp\xbaG\v\x92\x02\b策略ID\xbaH_\xba\x01\\\n" +
 	":system.admin.base.api_rate_limit_policy.status.id.required\x12\x14策略ID不能为空\x1a\bthis > 0R\x02id\x12?\n" +
-	"\x06status\x18\x02 \x01(\x0e2\x11.common.v1.StatusB\x14\xbaG\t\x92\x02\x06状态\xbaH\x05\x82\x01\x02\x10\x01R\x06status\"\xf3\x05\n" +
+	"\x06status\x18\x02 \x01(\x0e2\x11.common.v1.StatusB\x14\xbaG\t\x92\x02\x06状态\xbaH\x05\x82\x01\x02\x10\x01R\x06status\"\xed\x05\n" +
 	"\x16BaseApiRateLimitPolicy\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b策略IDR\x02id\x12X\n" +
 	"\x04apis\x18\x02 \x03(\v2*.system.admin.v1.BaseApiRateLimitPolicyAPIB\x18\xbaG\x15\x92\x02\x12限流接口列表R\x04apis\x12\\\n" +
@@ -820,7 +820,7 @@ const file_system_admin_v1_base_api_rate_limit_policy_proto_rawDesc = "" +
 	"\n" +
 	"created_at\x18\xc8\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f创建时间R\tcreatedAt\x122\n" +
 	"\n" +
-	"updated_at\x18\xc9\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f更新时间R\tupdatedAtJ\x04\b\x03\x10\a\"\x8f\x02\n" +
+	"updated_at\x18\xc9\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f更新时间R\tupdatedAt\"\x8f\x02\n" +
 	"\x19BaseApiRateLimitPolicyAPI\x120\n" +
 	"\toperation\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f接口操作R\toperation\x125\n" +
 	"\fservice_name\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f服务名称R\vserviceName\x125\n" +

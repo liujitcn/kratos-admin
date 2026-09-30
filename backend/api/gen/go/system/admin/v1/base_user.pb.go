@@ -846,7 +846,7 @@ type BaseUserForm struct {
 	IdCode        string                  `protobuf:"bytes,15,opt,name=id_code,json=idCode,proto3" json:"id_code,omitempty"`                                       // 证件号
 	Avatar        string                  `protobuf:"bytes,8,opt,name=avatar,proto3" json:"avatar,omitempty"`                                                      // 头像
 	Gender        BaseUserGender          `protobuf:"varint,9,opt,name=gender,proto3,enum=system.admin.v1.BaseUserGender" json:"gender,omitempty"`                 // 性别
-	Pwd           *v1.PasswordCrypto      `protobuf:"bytes,300,opt,name=pwd,proto3" json:"pwd,omitempty"`                                                          // 密码
+	Pwd           *v1.SecretCrypto        `protobuf:"bytes,300,opt,name=pwd,proto3" json:"pwd,omitempty"`                                                          // 密码
 	Status        v1.Status               `protobuf:"varint,101,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"`                             // 用户状态
 	Remark        string                  `protobuf:"bytes,102,opt,name=remark,proto3" json:"remark,omitempty"`                                                    // 备注名
 	unknownFields protoimpl.UnknownFields
@@ -981,7 +981,7 @@ func (x *BaseUserForm) GetGender() BaseUserGender {
 	return BaseUserGender_BASE_USER_GENDER_UNSPECIFIED
 }
 
-func (x *BaseUserForm) GetPwd() *v1.PasswordCrypto {
+func (x *BaseUserForm) GetPwd() *v1.SecretCrypto {
 	if x != nil {
 		return x.Pwd
 	}
@@ -1006,7 +1006,7 @@ func (x *BaseUserForm) GetRemark() string {
 type ResetBaseUserPasswordRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`  // 用户ID
-	Pwd           *v1.PasswordCrypto     `protobuf:"bytes,2,opt,name=pwd,proto3" json:"pwd,omitempty"` // 密码
+	Pwd           *v1.SecretCrypto       `protobuf:"bytes,2,opt,name=pwd,proto3" json:"pwd,omitempty"` // 密码
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1048,7 +1048,7 @@ func (x *ResetBaseUserPasswordRequest) GetId() int64 {
 	return 0
 }
 
-func (x *ResetBaseUserPasswordRequest) GetPwd() *v1.PasswordCrypto {
+func (x *ResetBaseUserPasswordRequest) GetPwd() *v1.SecretCrypto {
 	if x != nil {
 		return x.Pwd
 	}
@@ -1361,7 +1361,7 @@ const file_system_admin_v1_base_user_proto_rawDesc = "" +
 	"created_at\x18\xc8\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f创建时间R\tcreatedAt\x122\n" +
 	"\n" +
 	"updated_at\x18\xc9\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f更新时间R\tupdatedAt\x12N\n" +
-	"\fis_protected\x18\xac\x02 \x01(\bB*\xbaG'\x92\x02$是否禁止通过用户管理操作R\visProtected\"\xd8\x12\n" +
+	"\fis_protected\x18\xac\x02 \x01(\bB*\xbaG'\x92\x02$是否禁止通过用户管理操作R\visProtected\"\xd6\x12\n" +
 	"\fBaseUserForm\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b用户IDR\x02id\x12\x87\x01\n" +
 	"\ttenant_id\x18\x02 \x01(\x03Bj\xbaG\v\x92\x02\b租户ID\xbaHY\xba\x01V\n" +
@@ -1389,14 +1389,14 @@ const file_system_admin_v1_base_user_proto_rawDesc = "" +
 	",system.admin.base.user.entity.id_code.format\x12\x1b请输入正确的证件号\x1aCthis.size() == 0 || this.matches('^[A-Za-z0-9][A-Za-z0-9-]{0,63}$')R\x06idCode\x12\x93\x01\n" +
 	"\x06avatar\x18\b \x01(\tB{\xbaG\t\x92\x02\x06头像\xbaHl\xba\x01i\n" +
 	"/system.admin.base.user.entity.avatar.max_length\x12!头像不能超过 1024 个字符\x1a\x13this.size() <= 1024R\x06avatar\x12M\n" +
-	"\x06gender\x18\t \x01(\x0e2\x1f.system.admin.v1.BaseUserGenderB\x14\xbaG\t\x92\x02\x06性别\xbaH\x05\x82\x01\x02\x10\x01R\x06gender\x12:\n" +
-	"\x03pwd\x18\xac\x02 \x01(\v2\x19.common.v1.PasswordCryptoB\f\xbaG\t\x92\x02\x06密码R\x03pwd\x12E\n" +
+	"\x06gender\x18\t \x01(\x0e2\x1f.system.admin.v1.BaseUserGenderB\x14\xbaG\t\x92\x02\x06性别\xbaH\x05\x82\x01\x02\x10\x01R\x06gender\x128\n" +
+	"\x03pwd\x18\xac\x02 \x01(\v2\x17.common.v1.SecretCryptoB\f\xbaG\t\x92\x02\x06密码R\x03pwd\x12E\n" +
 	"\x06status\x18e \x01(\x0e2\x11.common.v1.StatusB\x1a\xbaG\x0f\x92\x02\f用户状态\xbaH\x05\x82\x01\x02\x10\x01R\x06status\x12\x94\x01\n" +
 	"\x06remark\x18f \x01(\tB|\xbaG\f\x92\x02\t备注名\xbaHj\xba\x01g\n" +
-	"/system.admin.base.user.entity.remark.max_length\x12 备注不能超过 500 个字符\x1a\x12this.size() <= 500R\x06remark\"\xdd\x01\n" +
+	"/system.admin.base.user.entity.remark.max_length\x12 备注不能超过 500 个字符\x1a\x12this.size() <= 500R\x06remark\"\xdb\x01\n" +
 	"\x1cResetBaseUserPasswordRequest\x12\x1e\n" +
-	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b用户IDR\x02id\x129\n" +
-	"\x03pwd\x18\x02 \x01(\v2\x19.common.v1.PasswordCryptoB\f\xbaG\t\x92\x02\x06密码R\x03pwd:b\xbaH_\x1a]\n" +
+	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b用户IDR\x02id\x127\n" +
+	"\x03pwd\x18\x02 \x01(\v2\x17.common.v1.SecretCryptoB\f\xbaG\t\x92\x02\x06密码R\x03pwd:b\xbaH_\x1a]\n" +
 	"8system.admin.base.user.reset_password.reset_pwd.required\x12\x12请输入新密码\x1a\rhas(this.pwd)\"\xcf\x02\n" +
 	"\x19SetBaseUserAppRoleRequest\x12\x83\x01\n" +
 	"\auser_id\x18\x01 \x01(\x03Bj\xbaG\v\x92\x02\b用户ID\xbaHY\xba\x01V\n" +
@@ -1420,7 +1420,7 @@ const file_system_admin_v1_base_user_proto_rawDesc = "" +
 	"\x1cBASE_USER_GENDER_UNSPECIFIED\x10\x00\x12\x1b\n" +
 	"\x17BASE_USER_GENDER_SECRET\x10\x01\x12\x19\n" +
 	"\x15BASE_USER_GENDER_MALE\x10\x02\x12\x1b\n" +
-	"\x17BASE_USER_GENDER_FEMALE\x10\x032\x9a\v\n" +
+	"\x17BASE_USER_GENDER_FEMALE\x10\x032\xd2\v\n" +
 	"\x0fBaseUserService\x12\x81\x01\n" +
 	"\x0eOptionBaseUser\x12&.system.admin.v1.OptionBaseUserRequest\x1a\x1f.common.v1.SelectOptionResponse\"&\x82\xd3\xe4\x93\x02 \x12\x1e/api/v1/admin/base/user/option\x12\x81\x01\n" +
 	"\fListBaseUser\x12$.system.admin.v1.ListBaseUserRequest\x1a%.system.admin.v1.ListBaseUserResponse\"$\x82\xd3\xe4\x93\x02\x1e\x12\x1c/api/v1/admin/base/user/list\x12|\n" +
@@ -1430,8 +1430,8 @@ const file_system_admin_v1_base_user_proto_rawDesc = "" +
 	"\x0eUpdateBaseUser\x12&.system.admin.v1.UpdateBaseUserRequest\x1a\x16.google.protobuf.Empty\"9\x82\xd3\xe4\x93\x023:\tbase_user\x1a&/api/v1/admin/base/user/{base_user.id}\x12v\n" +
 	"\x0eDeleteBaseUser\x12&.system.admin.v1.DeleteBaseUserRequest\x1a\x16.google.protobuf.Empty\"$\x82\xd3\xe4\x93\x02\x1e*\x1c/api/v1/admin/base/user/{id}\x12\x86\x01\n" +
 	"\x11SetBaseUserStatus\x12).system.admin.v1.SetBaseUserStatusRequest\x1a\x16.google.protobuf.Empty\".\x82\xd3\xe4\x93\x02(:\x01*\x1a#/api/v1/admin/base/user/{id}/status\x12\x90\x01\n" +
-	"\x15ResetBaseUserPassword\x12-.system.admin.v1.ResetBaseUserPasswordRequest\x1a\x16.google.protobuf.Empty\"0\x82\xd3\xe4\x93\x02*:\x01*\x1a%/api/v1/admin/base/user/{id}/password\x12X\n" +
-	"\x12SetBaseUserAppRole\x12*.system.admin.v1.SetBaseUserAppRoleRequest\x1a\x16.google.protobuf.Empty\x12\x8d\x01\n" +
+	"\x15ResetBaseUserPassword\x12-.system.admin.v1.ResetBaseUserPasswordRequest\x1a\x16.google.protobuf.Empty\"0\x82\xd3\xe4\x93\x02*:\x01*\x1a%/api/v1/admin/base/user/{id}/password\x12\x8f\x01\n" +
+	"\x12SetBaseUserAppRole\x12*.system.admin.v1.SetBaseUserAppRoleRequest\x1a\x16.google.protobuf.Empty\"5\x82\xd3\xe4\x93\x02/:\x01*\x1a*/api/v1/admin/base/user/{user_id}/app-role\x12\x8d\x01\n" +
 	"\x0fSummaryBaseUser\x12'.system.admin.v1.SummaryBaseUserRequest\x1a(.system.admin.v1.SummaryBaseUserResponse\"'\x82\xd3\xe4\x93\x02!\x12\x1f/api/v1/admin/base/user/summaryB\xcf\x01\n" +
 	"\x13com.system.admin.v1B\rBaseUserProtoP\x01ZKgithub.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1;adminv1\xa2\x02\x03SAX\xaa\x02\x0fSystem.Admin.V1\xca\x02\x0fSystem\\Admin\\V1\xe2\x02\x1bSystem\\Admin\\V1\\GPBMetadata\xea\x02\x11System::Admin::V1b\x06proto3"
 
@@ -1471,7 +1471,7 @@ var file_system_admin_v1_base_user_proto_goTypes = []any{
 	(v1.Status)(0),                             // 18: common.v1.Status
 	(commonv1.BaseUserIDType)(0),               // 19: system.common.v1.BaseUserIDType
 	(commonv1.BaseUserPasswordChangeStatus)(0), // 20: system.common.v1.BaseUserPasswordChangeStatus
-	(*v1.PasswordCrypto)(nil),                  // 21: common.v1.PasswordCrypto
+	(*v1.SecretCrypto)(nil),                    // 21: common.v1.SecretCrypto
 	(*timestamppb.Timestamp)(nil),              // 22: google.protobuf.Timestamp
 	(v1.AnalyticsTimeType)(0),                  // 23: common.v1.AnalyticsTimeType
 	(*v1.SelectOptionResponse)(nil),            // 24: common.v1.SelectOptionResponse
@@ -1490,9 +1490,9 @@ var file_system_admin_v1_base_user_proto_depIdxs = []int32{
 	20, // 9: system.admin.v1.BaseUser.must_change_password:type_name -> system.common.v1.BaseUserPasswordChangeStatus
 	19, // 10: system.admin.v1.BaseUserForm.id_type:type_name -> system.common.v1.BaseUserIDType
 	0,  // 11: system.admin.v1.BaseUserForm.gender:type_name -> system.admin.v1.BaseUserGender
-	21, // 12: system.admin.v1.BaseUserForm.pwd:type_name -> common.v1.PasswordCrypto
+	21, // 12: system.admin.v1.BaseUserForm.pwd:type_name -> common.v1.SecretCrypto
 	18, // 13: system.admin.v1.BaseUserForm.status:type_name -> common.v1.Status
-	21, // 14: system.admin.v1.ResetBaseUserPasswordRequest.pwd:type_name -> common.v1.PasswordCrypto
+	21, // 14: system.admin.v1.ResetBaseUserPasswordRequest.pwd:type_name -> common.v1.SecretCrypto
 	22, // 15: system.admin.v1.SummaryBaseUserRequest.start_at:type_name -> google.protobuf.Timestamp
 	22, // 16: system.admin.v1.SummaryBaseUserRequest.end_at:type_name -> google.protobuf.Timestamp
 	23, // 17: system.admin.v1.SummaryBaseUserRequest.time_type:type_name -> common.v1.AnalyticsTimeType

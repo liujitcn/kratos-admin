@@ -3,6 +3,7 @@ syntax = "proto3";
 package system.admin.v1;
 
 import "common/v1/enum.proto";
+import "common/v1/types.proto";
 import "base/v1/config.proto";
 import "buf/validate/validate.proto";
 import "gnostic/openapi/v3/annotations.proto";
@@ -134,7 +135,7 @@ message BaseConfigForm {
 
   string key = 5 [(gnostic.openapi.v3.property) = {description: "配置key"}, (buf.validate.field).cel = {id: "system.admin.base.config.entity.key.required" message: "请输入系统配置编码" expression: "this.size() > 0"}, (buf.validate.field).cel = {id: "system.admin.base.config.entity.key.max_length" message: "配置key不能超过 50 个字符" expression: "this.size() <= 50"}]; // 配置key
 
-  string value = 6 [(gnostic.openapi.v3.property) = {description: "配置value"}, (buf.validate.field).cel = {id: "system.admin.base.config.entity.value.required" message: "配置值不能为空" expression: "this.size() > 0"}]; // 配置value
+  optional .common.v1.SecretCrypto value = 6 [(gnostic.openapi.v3.property) = {description: "配置value，前端统一加密提交，服务端统一解密；留空表示保留现有值"}]; // 配置value，前端统一加密提交，服务端统一解密
 
   repeated BaseI18n name_i18ns = 7 [(gnostic.openapi.v3.property) = {description: "配置名称多语言翻"}]; // 配置名称多语言翻
 
@@ -182,7 +183,7 @@ message BaseConfig {
 
   string key = 5 [(gnostic.openapi.v3.property) = {description: "配置key"}]; // 配置key
 
-  string value = 6 [(gnostic.openapi.v3.property) = {description: "配置value"}]; // 配置value
+  string value = 6 [(gnostic.openapi.v3.property) = {description: "配置value，敏感配置恒为空"}]; // 配置value，敏感配置恒为空
 
   .common.v1.Status status = 100 [(gnostic.openapi.v3.property) = {description: "状态：枚举【Status】"}]; // 状态：枚举【Status】
 

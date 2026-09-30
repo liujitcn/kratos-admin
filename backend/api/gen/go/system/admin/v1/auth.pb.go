@@ -1015,8 +1015,8 @@ func (x *RouteParams) GetValue() string {
 // 用户密码表单
 type UserPasswordForm struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	OldPwd        *v11.PasswordCrypto    `protobuf:"bytes,1,opt,name=old_pwd,json=oldPwd,proto3" json:"old_pwd,omitempty"` // 原密码
-	NewPwd        *v11.PasswordCrypto    `protobuf:"bytes,2,opt,name=new_pwd,json=newPwd,proto3" json:"new_pwd,omitempty"` // 新密码
+	OldPwd        *v11.SecretCrypto      `protobuf:"bytes,1,opt,name=old_pwd,json=oldPwd,proto3" json:"old_pwd,omitempty"` // 原密码
+	NewPwd        *v11.SecretCrypto      `protobuf:"bytes,2,opt,name=new_pwd,json=newPwd,proto3" json:"new_pwd,omitempty"` // 新密码
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1051,14 +1051,14 @@ func (*UserPasswordForm) Descriptor() ([]byte, []int) {
 	return file_system_admin_v1_auth_proto_rawDescGZIP(), []int{16}
 }
 
-func (x *UserPasswordForm) GetOldPwd() *v11.PasswordCrypto {
+func (x *UserPasswordForm) GetOldPwd() *v11.SecretCrypto {
 	if x != nil {
 		return x.OldPwd
 	}
 	return nil
 }
 
-func (x *UserPasswordForm) GetNewPwd() *v11.PasswordCrypto {
+func (x *UserPasswordForm) GetNewPwd() *v11.SecretCrypto {
 	if x != nil {
 		return x.NewPwd
 	}
@@ -1218,10 +1218,10 @@ const file_system_admin_v1_auth_proto_rawDesc = "" +
 	"\x03key\x18\x01 \x01(\tB\t\xbaG\x06\x92\x02\x03keyH\x00R\x03key\x88\x01\x01\x12&\n" +
 	"\x05value\x18\x02 \x01(\tB\v\xbaG\b\x92\x02\x05valueH\x01R\x05value\x88\x01\x01B\x06\n" +
 	"\x04_keyB\b\n" +
-	"\x06_value\"\xe7\x02\n" +
-	"\x10UserPasswordForm\x12C\n" +
-	"\aold_pwd\x18\x01 \x01(\v2\x19.common.v1.PasswordCryptoB\x0f\xbaG\f\x92\x02\t原密码R\x06oldPwd\x12C\n" +
-	"\anew_pwd\x18\x02 \x01(\v2\x19.common.v1.PasswordCryptoB\x0f\xbaG\f\x92\x02\t新密码R\x06newPwd:\xc8\x01\xbaH\xc4\x01\x1a`\n" +
+	"\x06_value\"\xe3\x02\n" +
+	"\x10UserPasswordForm\x12A\n" +
+	"\aold_pwd\x18\x01 \x01(\v2\x17.common.v1.SecretCryptoB\x0f\xbaG\f\x92\x02\t原密码R\x06oldPwd\x12A\n" +
+	"\anew_pwd\x18\x02 \x01(\v2\x17.common.v1.SecretCryptoB\x0f\xbaG\f\x92\x02\t新密码R\x06newPwd:\xc8\x01\xbaH\xc4\x01\x1a`\n" +
 	"7system.admin.auth.entity.user.password.old_pwd.required\x12\x12请输入原密码\x1a\x11has(this.old_pwd)\x1a`\n" +
 	"7system.admin.auth.entity.user.password.new_pwd.required\x12\x12请输入新密码\x1a\x11has(this.new_pwd)\"\xfb\x02\n" +
 	"\rUserPhoneForm\x12\xed\x01\n" +
@@ -1277,7 +1277,7 @@ var file_system_admin_v1_auth_proto_goTypes = []any{
 	(*UserPhoneForm)(nil),                   // 17: system.admin.v1.UserPhoneForm
 	(commonv1.BaseUserIDType)(0),            // 18: system.common.v1.BaseUserIDType
 	(BaseMenuType)(0),                       // 19: system.admin.v1.BaseMenuType
-	(*v11.PasswordCrypto)(nil),              // 20: common.v1.PasswordCrypto
+	(*v11.SecretCrypto)(nil),                // 20: common.v1.SecretCrypto
 	(*v11.StringValues)(nil),                // 21: common.v1.StringValues
 	(*emptypb.Empty)(nil),                   // 22: google.protobuf.Empty
 }
@@ -1292,8 +1292,8 @@ var file_system_admin_v1_auth_proto_depIdxs = []int32{
 	19, // 7: system.admin.v1.RouteItem.type:type_name -> system.admin.v1.BaseMenuType
 	13, // 8: system.admin.v1.RouteItem.children:type_name -> system.admin.v1.RouteItem
 	15, // 9: system.admin.v1.RouteMeta.params:type_name -> system.admin.v1.RouteParams
-	20, // 10: system.admin.v1.UserPasswordForm.old_pwd:type_name -> common.v1.PasswordCrypto
-	20, // 11: system.admin.v1.UserPasswordForm.new_pwd:type_name -> common.v1.PasswordCrypto
+	20, // 10: system.admin.v1.UserPasswordForm.old_pwd:type_name -> common.v1.SecretCrypto
+	20, // 11: system.admin.v1.UserPasswordForm.new_pwd:type_name -> common.v1.SecretCrypto
 	0,  // 12: system.admin.v1.AuthService.TreeUserMenu:input_type -> system.admin.v1.TreeUserMenuRequest
 	2,  // 13: system.admin.v1.AuthService.ListUserButton:input_type -> system.admin.v1.ListUserButtonRequest
 	3,  // 14: system.admin.v1.AuthService.GetUserInfo:input_type -> system.admin.v1.GetUserInfoRequest

@@ -30,12 +30,6 @@ func NewLoginServiceAgentTools(loginServiceServer LoginServiceServer) ([]tool.In
 		return nil, err
 	}
 	ts = append(ts, verifyCaptchaTool)
-	var passwordPublicKeyTool tool.InvokableTool
-	passwordPublicKeyTool, err = NewLoginServicePasswordPublicKeyAgentTool(loginServiceServer)
-	if err != nil {
-		return nil, err
-	}
-	ts = append(ts, passwordPublicKeyTool)
 	var logoutTool tool.InvokableTool
 	logoutTool, err = NewLoginServiceLogoutAgentTool(loginServiceServer)
 	if err != nil {
@@ -81,20 +75,6 @@ func NewLoginServiceVerifyCaptchaAgentTool(loginServiceServer LoginServiceServer
 				req = &VerifyCaptchaRequest{}
 			}
 			return loginServiceServer.VerifyCaptcha(ctx, req)
-		},
-	)
-}
-
-// NewLoginServicePasswordPublicKeyAgentTool 创建获取密码临时公钥的 Agent Tool。
-func NewLoginServicePasswordPublicKeyAgentTool(loginServiceServer LoginServiceServer) (tool.InvokableTool, error) {
-	return utils.InferTool[*PasswordPublicKeyRequest, *PasswordPublicKeyResponse](
-		"base_v1_login_service_password_public_key",
-		"获取密码临时公钥",
-		func(ctx context.Context, req *PasswordPublicKeyRequest) (*PasswordPublicKeyResponse, error) {
-			if req == nil {
-				req = &PasswordPublicKeyRequest{}
-			}
-			return loginServiceServer.PasswordPublicKey(ctx, req)
 		},
 	)
 }

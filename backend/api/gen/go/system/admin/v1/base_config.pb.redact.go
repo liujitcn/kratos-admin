@@ -24,6 +24,7 @@ var (
 	_ codes.Code
 	_ status.Status
 	_ commonv1.Status
+	_ commonv1.DoubleValues
 	_ basev1.GetConfigRequest
 	_ validate.Rule
 	_ emptypb.Empty

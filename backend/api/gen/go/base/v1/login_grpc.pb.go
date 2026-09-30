@@ -21,12 +21,11 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	LoginService_Captcha_FullMethodName           = "/base.v1.LoginService/Captcha"
-	LoginService_VerifyCaptcha_FullMethodName     = "/base.v1.LoginService/VerifyCaptcha"
-	LoginService_PasswordPublicKey_FullMethodName = "/base.v1.LoginService/PasswordPublicKey"
-	LoginService_Logout_FullMethodName            = "/base.v1.LoginService/Logout"
-	LoginService_RefreshToken_FullMethodName      = "/base.v1.LoginService/RefreshToken"
-	LoginService_Login_FullMethodName             = "/base.v1.LoginService/Login"
+	LoginService_Captcha_FullMethodName       = "/base.v1.LoginService/Captcha"
+	LoginService_VerifyCaptcha_FullMethodName = "/base.v1.LoginService/VerifyCaptcha"
+	LoginService_Logout_FullMethodName        = "/base.v1.LoginService/Logout"
+	LoginService_RefreshToken_FullMethodName  = "/base.v1.LoginService/RefreshToken"
+	LoginService_Login_FullMethodName         = "/base.v1.LoginService/Login"
 )
 
 // LoginServiceClient is the client API for LoginService service.
@@ -39,8 +38,6 @@ type LoginServiceClient interface {
 	Captcha(ctx context.Context, in *CaptchaRequest, opts ...grpc.CallOption) (*CaptchaResponse, error)
 	// 验证码预校验
 	VerifyCaptcha(ctx context.Context, in *VerifyCaptchaRequest, opts ...grpc.CallOption) (*VerifyCaptchaResponse, error)
-	// 获取密码临时公钥
-	PasswordPublicKey(ctx context.Context, in *PasswordPublicKeyRequest, opts ...grpc.CallOption) (*PasswordPublicKeyResponse, error)
 	// 登出
 	Logout(ctx context.Context, in *LogoutRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// 刷新认证令牌
@@ -71,16 +68,6 @@ func (c *loginServiceClient) VerifyCaptcha(ctx context.Context, in *VerifyCaptch
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(VerifyCaptchaResponse)
 	err := c.cc.Invoke(ctx, LoginService_VerifyCaptcha_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *loginServiceClient) PasswordPublicKey(ctx context.Context, in *PasswordPublicKeyRequest, opts ...grpc.CallOption) (*PasswordPublicKeyResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(PasswordPublicKeyResponse)
-	err := c.cc.Invoke(ctx, LoginService_PasswordPublicKey_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -127,8 +114,6 @@ type LoginServiceServer interface {
 	Captcha(context.Context, *CaptchaRequest) (*CaptchaResponse, error)
 	// 验证码预校验
 	VerifyCaptcha(context.Context, *VerifyCaptchaRequest) (*VerifyCaptchaResponse, error)
-	// 获取密码临时公钥
-	PasswordPublicKey(context.Context, *PasswordPublicKeyRequest) (*PasswordPublicKeyResponse, error)
 	// 登出
 	Logout(context.Context, *LogoutRequest) (*emptypb.Empty, error)
 	// 刷新认证令牌
@@ -150,9 +135,6 @@ func (UnimplementedLoginServiceServer) Captcha(context.Context, *CaptchaRequest)
 }
 func (UnimplementedLoginServiceServer) VerifyCaptcha(context.Context, *VerifyCaptchaRequest) (*VerifyCaptchaResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method VerifyCaptcha not implemented")
-}
-func (UnimplementedLoginServiceServer) PasswordPublicKey(context.Context, *PasswordPublicKeyRequest) (*PasswordPublicKeyResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method PasswordPublicKey not implemented")
 }
 func (UnimplementedLoginServiceServer) Logout(context.Context, *LogoutRequest) (*emptypb.Empty, error) {
 	return nil, status.Error(codes.Unimplemented, "method Logout not implemented")
@@ -216,24 +198,6 @@ func _LoginService_VerifyCaptcha_Handler(srv interface{}, ctx context.Context, d
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(LoginServiceServer).VerifyCaptcha(ctx, req.(*VerifyCaptchaRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _LoginService_PasswordPublicKey_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(PasswordPublicKeyRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(LoginServiceServer).PasswordPublicKey(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: LoginService_PasswordPublicKey_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(LoginServiceServer).PasswordPublicKey(ctx, req.(*PasswordPublicKeyRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -306,10 +270,6 @@ var LoginService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "VerifyCaptcha",
 			Handler:    _LoginService_VerifyCaptcha_Handler,
-		},
-		{
-			MethodName: "PasswordPublicKey",
-			Handler:    _LoginService_PasswordPublicKey_Handler,
 		},
 		{
 			MethodName: "Logout",

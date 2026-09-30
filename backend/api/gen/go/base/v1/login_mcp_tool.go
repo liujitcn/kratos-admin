@@ -17,7 +17,6 @@ import (
 func RegisterLoginServiceMCPTools(mcpServer *mcp.Server, loginServiceServer LoginServiceServer) {
 	RegisterLoginServiceCaptchaMCPTool(mcpServer, loginServiceServer)
 	RegisterLoginServiceVerifyCaptchaMCPTool(mcpServer, loginServiceServer)
-	RegisterLoginServicePasswordPublicKeyMCPTool(mcpServer, loginServiceServer)
 	RegisterLoginServiceLogoutMCPTool(mcpServer, loginServiceServer)
 	RegisterLoginServiceRefreshTokenMCPTool(mcpServer, loginServiceServer)
 	RegisterLoginServiceLoginMCPTool(mcpServer, loginServiceServer)
@@ -57,27 +56,6 @@ func RegisterLoginServiceVerifyCaptchaMCPTool(mcpServer *mcp.Server, loginServic
 				input = &VerifyCaptchaRequest{}
 			}
 			reply, err := loginServiceServer.VerifyCaptcha(ctx, input)
-			if err != nil {
-				return nil, nil, err
-			}
-			return nil, reply, nil
-		},
-	)
-}
-
-// RegisterLoginServicePasswordPublicKeyMCPTool 注册获取密码临时公钥的 MCP Tool。
-func RegisterLoginServicePasswordPublicKeyMCPTool(mcpServer *mcp.Server, loginServiceServer LoginServiceServer) {
-	mcp.AddTool[*PasswordPublicKeyRequest, *PasswordPublicKeyResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "base_v1_login_service_password_public_key",
-			Description: "获取密码临时公钥",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *PasswordPublicKeyRequest) (*mcp.CallToolResult, *PasswordPublicKeyResponse, error) {
-			if input == nil {
-				input = &PasswordPublicKeyRequest{}
-			}
-			reply, err := loginServiceServer.PasswordPublicKey(ctx, input)
 			if err != nil {
 				return nil, nil, err
 			}

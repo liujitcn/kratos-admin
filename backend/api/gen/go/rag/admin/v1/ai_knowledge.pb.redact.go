@@ -176,6 +176,8 @@ func (x *AiKnowledgeForm) Redact() {
 
 	// Safe field: Description
 
+	// Safe field: EmbeddingDimensions
+
 	// Safe field: ModelId
 }
 
@@ -283,4 +285,8 @@ func (x *AiKnowledgeModel) Redact() {
 	// Safe field: ModelName
 
 	// Safe field: DisplayName
+
+	// Safe field: Dimensions
+
+	// Safe field: DimensionOptions
 }

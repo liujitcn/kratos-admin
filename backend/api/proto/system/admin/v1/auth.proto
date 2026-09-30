@@ -247,9 +247,9 @@ message UserPasswordForm {
     expression: "has(this.new_pwd)"
   };
 
-  .common.v1.PasswordCrypto old_pwd = 1 [(gnostic.openapi.v3.property) = {description: "原密码"}]; // 原密码
+  .common.v1.SecretCrypto old_pwd = 1 [(gnostic.openapi.v3.property) = {description: "原密码"}]; // 原密码
 
-  .common.v1.PasswordCrypto new_pwd = 2 [(gnostic.openapi.v3.property) = {description: "新密码"}]; // 新密码
+  .common.v1.SecretCrypto new_pwd = 2 [(gnostic.openapi.v3.property) = {description: "新密码"}]; // 新密码
 }
 
 // 用户手机号表单

@@ -396,10 +396,11 @@ var File_base_v1_config_proto protoreflect.FileDescriptor
 
 const file_base_v1_config_proto_rawDesc = "" +
 	"\n" +
-	"\x14base/v1/config.proto\x12\abase.v1\x1a\x1bbuf/validate/validate.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\"\xb4\x01\n" +
-	"\x10GetConfigRequest\x12\x9f\x01\n" +
-	"\x04site\x18\x02 \x01(\x0e2\x17.base.v1.BaseConfigSiteBr\xbaG&\x92\x02#位置：枚举【BaseConfigSite】\xbaHF\xba\x01>\n" +
-	"\x1dbase.config.get.site.required\x12\x12位置不能为空\x1a\tthis != 0\x82\x01\x02\x10\x01R\x04site\"x\n" +
+	"\x14base/v1/config.proto\x12\abase.v1\x1a\x1bbuf/validate/validate.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\"\x90\x02\n" +
+	"\x10GetConfigRequest\x12\xfb\x01\n" +
+	"\x04site\x18\x02 \x01(\x0e2\x17.base.v1.BaseConfigSiteB\xcd\x01\xbaG&\x92\x02#位置：枚举【BaseConfigSite】\xbaH\xa0\x01\xba\x01>\n" +
+	"\x1dbase.config.get.site.required\x12\x12位置不能为空\x1a\tthis != 0\xba\x01W\n" +
+	"'base.config.get.site.system_not_allowed\x12!系统内置配置不支持下发\x1a\tthis != 1\x82\x01\x02\x10\x01R\x04site\"x\n" +
 	"\n" +
 	"ConfigItem\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b配置IDR\x02id\x12!\n" +

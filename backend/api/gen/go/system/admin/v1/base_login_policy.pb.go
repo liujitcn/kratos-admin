@@ -574,7 +574,7 @@ type BaseLoginPolicyForm struct {
 	PasswordMinLength            *int32                   `protobuf:"varint,11,opt,name=password_min_length,json=passwordMinLength,proto3,oneof" json:"password_min_length,omitempty"`                                    // 密码最小长度
 	PasswordHistoryCount         *int32                   `protobuf:"varint,12,opt,name=password_history_count,json=passwordHistoryCount,proto3,oneof" json:"password_history_count,omitempty"`                           // 禁止重复使用的历史密码数量，0表示不启用
 	PasswordMinComplexityClasses *int32                   `protobuf:"varint,13,opt,name=password_min_complexity_classes,json=passwordMinComplexityClasses,proto3,oneof" json:"password_min_complexity_classes,omitempty"` // 密码至少满足的字符类别数量，字符类别包括小写、大写、数字和符号
-	InitialPassword              *commonv1.PasswordCrypto `protobuf:"bytes,14,opt,name=initial_password,json=initialPassword,proto3" json:"initial_password,omitempty"`                                                   // 初始化密码，新增用户未提交密码时使用
+	InitialPassword              *commonv1.SecretCrypto   `protobuf:"bytes,14,opt,name=initial_password,json=initialPassword,proto3" json:"initial_password,omitempty"`                                                   // 初始化密码，新增用户未提交密码时使用
 	unknownFields                protoimpl.UnknownFields
 	sizeCache                    protoimpl.SizeCache
 }
@@ -707,7 +707,7 @@ func (x *BaseLoginPolicyForm) GetPasswordMinComplexityClasses() int32 {
 	return 0
 }
 
-func (x *BaseLoginPolicyForm) GetInitialPassword() *commonv1.PasswordCrypto {
+func (x *BaseLoginPolicyForm) GetInitialPassword() *commonv1.SecretCrypto {
 	if x != nil {
 		return x.InitialPassword
 	}
@@ -1014,7 +1014,7 @@ const file_system_admin_v1_base_login_policy_proto_rawDesc = "" +
 	"\x02id\x18\x01 \x01(\tB\x1a\xbaG\x17\x92\x02\x14登录策略ID列表R\x02id\"\x88\x01\n" +
 	"\x1fSetBaseLoginPolicyStatusRequest\x12$\n" +
 	"\x02id\x18\x01 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e登录策略IDR\x02id\x12?\n" +
-	"\x06status\x18\x02 \x01(\x0e2\x11.common.v1.StatusB\x14\xbaG\t\x92\x02\x06状态\xbaH\x05\x82\x01\x02\x10\x01R\x06status\"\xda\f\n" +
+	"\x06status\x18\x02 \x01(\x0e2\x11.common.v1.StatusB\x14\xbaG\t\x92\x02\x06状态\xbaH\x05\x82\x01\x02\x10\x01R\x06status\"\xd8\f\n" +
 	"\x13BaseLoginPolicyForm\x12$\n" +
 	"\x02id\x18\x01 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e登录策略IDR\x02id\x12\x82\x01\n" +
 	"\n" +
@@ -1030,8 +1030,8 @@ const file_system_admin_v1_base_login_policy_proto_rawDesc = "" +
 	"\x05rules\x18\b \x03(\v2$.system.admin.v1.BaseLoginPolicyRuleB\x18\xbaG\x15\x92\x02\x12限制规则列表R\x05rules\x12M\n" +
 	"\x13password_min_length\x18\v \x01(\x05B\x18\xbaG\x15\x92\x02\x12密码最小长度H\x02R\x11passwordMinLength\x88\x01\x01\x12{\n" +
 	"\x16password_history_count\x18\f \x01(\x05B@\xbaG=\x92\x02:禁止重复使用的历史密码数量，0表示不启用H\x03R\x14passwordHistoryCount\x88\x01\x01\x12\xaf\x01\n" +
-	"\x1fpassword_min_complexity_classes\x18\r \x01(\x05Bc\xbaG`\x92\x02]密码至少满足的字符类别数量，字符类别包括小写、大写、数字和符号H\x04R\x1cpasswordMinComplexityClasses\x88\x01\x01\x12\x82\x01\n" +
-	"\x10initial_password\x18\x0e \x01(\v2\x19.common.v1.PasswordCryptoB<\xbaG9\x92\x026初始化密码，新增用户未提交密码时使用R\x0finitialPasswordB\x18\n" +
+	"\x1fpassword_min_complexity_classes\x18\r \x01(\x05Bc\xbaG`\x92\x02]密码至少满足的字符类别数量，字符类别包括小写、大写、数字和符号H\x04R\x1cpasswordMinComplexityClasses\x88\x01\x01\x12\x80\x01\n" +
+	"\x10initial_password\x18\x0e \x01(\v2\x17.common.v1.SecretCryptoB<\xbaG9\x92\x026初始化密码，新增用户未提交密码时使用R\x0finitialPasswordB\x18\n" +
 	"\x16_password_max_age_daysB\x14\n" +
 	"\x12_mfa_remember_daysB\x16\n" +
 	"\x14_password_min_lengthB\x19\n" +
@@ -1125,7 +1125,7 @@ var file_system_admin_v1_base_login_policy_proto_goTypes = []any{
 	(*BaseLoginPolicy)(nil),                 // 11: system.admin.v1.BaseLoginPolicy
 	(*BaseLoginPolicyRule)(nil),             // 12: system.admin.v1.BaseLoginPolicyRule
 	(commonv1.Status)(0),                    // 13: common.v1.Status
-	(*commonv1.PasswordCrypto)(nil),         // 14: common.v1.PasswordCrypto
+	(*commonv1.SecretCrypto)(nil),           // 14: common.v1.SecretCrypto
 	(*emptypb.Empty)(nil),                   // 15: google.protobuf.Empty
 }
 var file_system_admin_v1_base_login_policy_proto_depIdxs = []int32{
@@ -1138,7 +1138,7 @@ var file_system_admin_v1_base_login_policy_proto_depIdxs = []int32{
 	0,  // 6: system.admin.v1.BaseLoginPolicyForm.scope_type:type_name -> system.admin.v1.BaseLoginPolicyScopeType
 	13, // 7: system.admin.v1.BaseLoginPolicyForm.status:type_name -> common.v1.Status
 	12, // 8: system.admin.v1.BaseLoginPolicyForm.rules:type_name -> system.admin.v1.BaseLoginPolicyRule
-	14, // 9: system.admin.v1.BaseLoginPolicyForm.initial_password:type_name -> common.v1.PasswordCrypto
+	14, // 9: system.admin.v1.BaseLoginPolicyForm.initial_password:type_name -> common.v1.SecretCrypto
 	0,  // 10: system.admin.v1.BaseLoginPolicy.scope_type:type_name -> system.admin.v1.BaseLoginPolicyScopeType
 	13, // 11: system.admin.v1.BaseLoginPolicy.status:type_name -> common.v1.Status
 	12, // 12: system.admin.v1.BaseLoginPolicy.rules:type_name -> system.admin.v1.BaseLoginPolicyRule

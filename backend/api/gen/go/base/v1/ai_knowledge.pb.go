@@ -111,7 +111,7 @@ type AiKnowledgeOption struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                             // 知识库ID
 	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`                          // 知识库名称
-	DocCount      int32                  `protobuf:"varint,3,opt,name=doc_count,json=docCount,proto3" json:"doc_count,omitempty"` // 文档数量
+	DocCount      int32                  `protobuf:"varint,3,opt,name=doc_count,json=docCount,proto3" json:"doc_count,omitempty"` // 已就绪文档数，不含处理失败
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -174,11 +174,11 @@ const file_base_v1_ai_knowledge_proto_rawDesc = "" +
 	"\x1abase/v1/ai_knowledge.proto\x12\abase.v1\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\"\x1f\n" +
 	"\x1dListAiKnowledgeOptionsRequest\"s\n" +
 	"\x1eListAiKnowledgeOptionsResponse\x12Q\n" +
-	"\aoptions\x18\x01 \x03(\v2\x1a.base.v1.AiKnowledgeOptionB\x1b\xbaG\x18\x92\x02\x15知识库选项列表R\aoptions\"\x92\x01\n" +
+	"\aoptions\x18\x01 \x03(\v2\x1a.base.v1.AiKnowledgeOptionB\x1b\xbaG\x18\x92\x02\x15知识库选项列表R\aoptions\"\xad\x01\n" +
 	"\x11AiKnowledgeOption\x12!\n" +
 	"\x02id\x18\x01 \x01(\x03B\x11\xbaG\x0e\x92\x02\v知识库IDR\x02id\x12)\n" +
-	"\x04name\x18\x02 \x01(\tB\x15\xbaG\x12\x92\x02\x0f知识库名称R\x04name\x12/\n" +
-	"\tdoc_count\x18\x03 \x01(\x05B\x12\xbaG\x0f\x92\x02\f文档数量R\bdocCount2\xab\x01\n" +
+	"\x04name\x18\x02 \x01(\tB\x15\xbaG\x12\x92\x02\x0f知识库名称R\x04name\x12J\n" +
+	"\tdoc_count\x18\x03 \x01(\x05B-\xbaG*\x92\x02'已就绪文档数，不含处理失败R\bdocCount2\xab\x01\n" +
 	"\x12AiKnowledgeService\x12\x94\x01\n" +
 	"\x16ListAiKnowledgeOptions\x12&.base.v1.ListAiKnowledgeOptionsRequest\x1a'.base.v1.ListAiKnowledgeOptionsResponse\")\x82\xd3\xe4\x93\x02#\x12!/api/v1/base/ai/knowledge/optionsB\xa0\x01\n" +
 	"\vcom.base.v1B\x10AiKnowledgeProtoP\x01ZBgithub.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1;basev1\xa2\x02\x03BXX\xaa\x02\aBase.V1\xca\x02\aBase\\V1\xe2\x02\x13Base\\V1\\GPBMetadata\xea\x02\bBase::V1b\x06proto3"

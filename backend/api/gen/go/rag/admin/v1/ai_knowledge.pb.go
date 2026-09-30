@@ -187,13 +187,14 @@ func (x *GetAiKnowledgeRequest) GetId() int64 {
 
 // AI知识库维护表单。
 type AiKnowledgeForm struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                          // 知识库ID
-	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`                       // 知识库名称
-	Description   string                 `protobuf:"bytes,3,opt,name=description,proto3" json:"description,omitempty"`         // 描述
-	ModelId       int64                  `protobuf:"varint,7,opt,name=model_id,json=modelId,proto3" json:"model_id,omitempty"` // 向量化使用的embedding模型ID
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state               protoimpl.MessageState `protogen:"open.v1"`
+	Id                  int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                                              // 知识库ID
+	Name                string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`                                                           // 知识库名称
+	Description         string                 `protobuf:"bytes,3,opt,name=description,proto3" json:"description,omitempty"`                                             // 描述
+	EmbeddingDimensions int32                  `protobuf:"varint,4,opt,name=embedding_dimensions,json=embeddingDimensions,proto3" json:"embedding_dimensions,omitempty"` // 向量维度；0表示按所选模型配置或系统默认
+	ModelId             int64                  `protobuf:"varint,5,opt,name=model_id,json=modelId,proto3" json:"model_id,omitempty"`                                     // 向量化使用的embedding模型ID
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
 }
 
 func (x *AiKnowledgeForm) Reset() {
@@ -245,6 +246,13 @@ func (x *AiKnowledgeForm) GetDescription() string {
 		return x.Description
 	}
 	return ""
+}
+
+func (x *AiKnowledgeForm) GetEmbeddingDimensions() int32 {
+	if x != nil {
+		return x.EmbeddingDimensions
+	}
+	return 0
 }
 
 func (x *AiKnowledgeForm) GetModelId() int64 {
@@ -395,13 +403,13 @@ type AiKnowledge struct {
 	Id                  int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                                              // 知识库ID
 	Name                string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`                                                           // 知识库名称
 	Description         string                 `protobuf:"bytes,3,opt,name=description,proto3" json:"description,omitempty"`                                             // 描述
-	ProviderName        string                 `protobuf:"bytes,5,opt,name=provider_name,json=providerName,proto3" json:"provider_name,omitempty"`                       // embedding模型所属供应商名称
-	EmbeddingDimensions int32                  `protobuf:"varint,8,opt,name=embedding_dimensions,json=embeddingDimensions,proto3" json:"embedding_dimensions,omitempty"` // embedding向量维度
-	ModelId             int64                  `protobuf:"varint,9,opt,name=model_id,json=modelId,proto3" json:"model_id,omitempty"`                                     // 向量化使用的embedding模型ID
-	ModelName           string                 `protobuf:"bytes,10,opt,name=model_name,json=modelName,proto3" json:"model_name,omitempty"`                               // embedding模型名称
-	DocCount            int32                  `protobuf:"varint,7,opt,name=doc_count,json=docCount,proto3" json:"doc_count,omitempty"`                                  // 文档数量
-	CreatedAt           string                 `protobuf:"bytes,200,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`                              // 创建时间
-	UpdatedAt           string                 `protobuf:"bytes,201,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`                              // 更新时间
+	ProviderName        string                 `protobuf:"bytes,4,opt,name=provider_name,json=providerName,proto3" json:"provider_name,omitempty"`                       // embedding模型所属供应商名称
+	EmbeddingDimensions int32                  `protobuf:"varint,5,opt,name=embedding_dimensions,json=embeddingDimensions,proto3" json:"embedding_dimensions,omitempty"` // embedding向量维度
+	ModelId             int64                  `protobuf:"varint,6,opt,name=model_id,json=modelId,proto3" json:"model_id,omitempty"`                                     // 向量化使用的embedding模型ID
+	ModelName           string                 `protobuf:"bytes,7,opt,name=model_name,json=modelName,proto3" json:"model_name,omitempty"`                                // embedding模型名称
+	DocCount            int32                  `protobuf:"varint,8,opt,name=doc_count,json=docCount,proto3" json:"doc_count,omitempty"`                                  // 文档数量
+	CreatedAt           string                 `protobuf:"bytes,9,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`                                // 创建时间
+	UpdatedAt           string                 `protobuf:"bytes,10,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`                               // 更新时间
 	unknownFields       protoimpl.UnknownFields
 	sizeCache           protoimpl.SizeCache
 }
@@ -590,13 +598,15 @@ func (x *ListAiKnowledgeModelsResponse) GetModels() []*AiKnowledgeModel {
 
 // 知识库可用的embedding模型选项。
 type AiKnowledgeModel struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                        // 模型ID
-	ProviderName  string                 `protobuf:"bytes,2,opt,name=provider_name,json=providerName,proto3" json:"provider_name,omitempty"` // 模型所属供应商名称
-	ModelName     string                 `protobuf:"bytes,3,opt,name=model_name,json=modelName,proto3" json:"model_name,omitempty"`          // 模型名称
-	DisplayName   string                 `protobuf:"bytes,4,opt,name=display_name,json=displayName,proto3" json:"display_name,omitempty"`    // 显示名称
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state            protoimpl.MessageState `protogen:"open.v1"`
+	Id               int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                                            // 模型ID
+	ProviderName     string                 `protobuf:"bytes,2,opt,name=provider_name,json=providerName,proto3" json:"provider_name,omitempty"`                     // 模型所属供应商名称
+	ModelName        string                 `protobuf:"bytes,3,opt,name=model_name,json=modelName,proto3" json:"model_name,omitempty"`                              // 模型名称
+	DisplayName      string                 `protobuf:"bytes,4,opt,name=display_name,json=displayName,proto3" json:"display_name,omitempty"`                        // 显示名称
+	Dimensions       int32                  `protobuf:"varint,5,opt,name=dimensions,proto3" json:"dimensions,omitempty"`                                            // 模型声明的输出向量维度；0表示未声明
+	DimensionOptions []int32                `protobuf:"varint,6,rep,packed,name=dimension_options,json=dimensionOptions,proto3" json:"dimension_options,omitempty"` // 可选向量维度列表
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
 }
 
 func (x *AiKnowledgeModel) Reset() {
@@ -657,6 +667,20 @@ func (x *AiKnowledgeModel) GetDisplayName() string {
 	return ""
 }
 
+func (x *AiKnowledgeModel) GetDimensions() int32 {
+	if x != nil {
+		return x.Dimensions
+	}
+	return 0
+}
+
+func (x *AiKnowledgeModel) GetDimensionOptions() []int32 {
+	if x != nil {
+		return x.DimensionOptions
+	}
+	return nil
+}
+
 var File_rag_admin_v1_ai_knowledge_proto protoreflect.FileDescriptor
 
 const file_rag_admin_v1_ai_knowledge_proto_rawDesc = "" +
@@ -672,45 +696,50 @@ const file_rag_admin_v1_ai_knowledge_proto_rawDesc = "" +
 	"knowledges\x12\"\n" +
 	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\"A\n" +
 	"\x15GetAiKnowledgeRequest\x12(\n" +
-	"\x02id\x18\x01 \x01(\x03B\x18\xbaG\x0e\x92\x02\v知识库ID\xbaH\x04\"\x02 \x00R\x02id\"\xfb\x03\n" +
+	"\x02id\x18\x01 \x01(\x03B\x18\xbaG\x0e\x92\x02\v知识库ID\xbaH\x04\"\x02 \x00R\x02id\"\xaa\x04\n" +
 	"\x0fAiKnowledgeForm\x12!\n" +
 	"\x02id\x18\x01 \x01(\x03B\x11\xbaG\x0e\x92\x02\v知识库IDR\x02id\x12\x97\x01\n" +
 	"\x04name\x18\x02 \x01(\tB\x82\x01\xbaG\x12\x92\x02\x0f知识库名称\xbaHj\xba\x01g\n" +
 	"$rag.admin.ai.knowledge.name.required\x12\x18请输入知识库名称\x1a%this.size() > 0 && this.size() <= 100R\x04name\x12\x97\x01\n" +
 	"\vdescription\x18\x03 \x01(\tBu\xbaG\t\x92\x02\x06描述\xbaHf\xba\x01c\n" +
-	"-rag.admin.ai.knowledge.description.max_length\x12\x1e描述不能超过500个字符\x1a\x12this.size() <= 500R\vdescription\x12K\n" +
-	"\bmodel_id\x18\a \x01(\x03B0\xbaG&\x92\x02#向量化使用的embedding模型ID\xbaH\x04\"\x02 \x00R\amodelIdJ\x04\b\x04\x10\x05J\x04\b\x05\x10\x06J\x04\b\x06\x10\aR\vprovider_idR\x0fembedding_modelR\x14embedding_dimensions\"{\n" +
+	"-rag.admin.ai.knowledge.description.max_length\x12\x1e描述不能超过500个字符\x1a\x12this.size() <= 500R\vdescription\x12s\n" +
+	"\x14embedding_dimensions\x18\x04 \x01(\x05B@\xbaG=\x92\x02:向量维度；0表示按所选模型配置或系统默认R\x13embeddingDimensions\x12K\n" +
+	"\bmodel_id\x18\x05 \x01(\x03B0\xbaG&\x92\x02#向量化使用的embedding模型ID\xbaH\x04\"\x02 \x00R\amodelId\"{\n" +
 	"\x18CreateAiKnowledgeRequest\x12_\n" +
 	"\fai_knowledge\x18\x01 \x01(\v2\x1d.rag.admin.v1.AiKnowledgeFormB\x1d\xbaG\x14\x92\x02\x11AI知识库表单\xbaH\x03\xc8\x01\x01R\vaiKnowledge\"\xe0\x01\n" +
 	"\x18UpdateAiKnowledgeRequest\x12_\n" +
 	"\fai_knowledge\x18\x01 \x01(\v2\x1d.rag.admin.v1.AiKnowledgeFormB\x1d\xbaG\x14\x92\x02\x11AI知识库表单\xbaH\x03\xc8\x01\x01R\vaiKnowledge:c\xbaH`\x1a^\n" +
 	")rag.admin.ai.knowledge.update.id.required\x12\x17知识库ID不能为空\x1a\x18this.ai_knowledge.id > 0\"D\n" +
 	"\x18DeleteAiKnowledgeRequest\x12(\n" +
-	"\x02id\x18\x01 \x01(\x03B\x18\xbaG\x0e\x92\x02\v知识库ID\xbaH\x04\"\x02 \x00R\x02id\"\xf1\x04\n" +
+	"\x02id\x18\x01 \x01(\x03B\x18\xbaG\x0e\x92\x02\v知识库ID\xbaH\x04\"\x02 \x00R\x02id\"\xc5\x04\n" +
 	"\vAiKnowledge\x12!\n" +
 	"\x02id\x18\x01 \x01(\x03B\x11\xbaG\x0e\x92\x02\v知识库IDR\x02id\x12)\n" +
 	"\x04name\x18\x02 \x01(\tB\x15\xbaG\x12\x92\x02\x0f知识库名称R\x04name\x12.\n" +
 	"\vdescription\x18\x03 \x01(\tB\f\xbaG\t\x92\x02\x06描述R\vdescription\x12O\n" +
-	"\rprovider_name\x18\x05 \x01(\tB*\xbaG'\x92\x02$embedding模型所属供应商名称R\fproviderName\x12N\n" +
-	"\x14embedding_dimensions\x18\b \x01(\x05B\x1b\xbaG\x18\x92\x02\x15embedding向量维度R\x13embeddingDimensions\x12D\n" +
-	"\bmodel_id\x18\t \x01(\x03B)\xbaG&\x92\x02#向量化使用的embedding模型IDR\amodelId\x12:\n" +
+	"\rprovider_name\x18\x04 \x01(\tB*\xbaG'\x92\x02$embedding模型所属供应商名称R\fproviderName\x12N\n" +
+	"\x14embedding_dimensions\x18\x05 \x01(\x05B\x1b\xbaG\x18\x92\x02\x15embedding向量维度R\x13embeddingDimensions\x12D\n" +
+	"\bmodel_id\x18\x06 \x01(\x03B)\xbaG&\x92\x02#向量化使用的embedding模型IDR\amodelId\x12:\n" +
 	"\n" +
-	"model_name\x18\n" +
-	" \x01(\tB\x1b\xbaG\x18\x92\x02\x15embedding模型名称R\tmodelName\x12/\n" +
-	"\tdoc_count\x18\a \x01(\x05B\x12\xbaG\x0f\x92\x02\f文档数量R\bdocCount\x122\n" +
+	"model_name\x18\a \x01(\tB\x1b\xbaG\x18\x92\x02\x15embedding模型名称R\tmodelName\x12/\n" +
+	"\tdoc_count\x18\b \x01(\x05B\x12\xbaG\x0f\x92\x02\f文档数量R\bdocCount\x121\n" +
 	"\n" +
-	"created_at\x18\xc8\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f创建时间R\tcreatedAt\x122\n" +
+	"created_at\x18\t \x01(\tB\x12\xbaG\x0f\x92\x02\f创建时间R\tcreatedAt\x121\n" +
 	"\n" +
-	"updated_at\x18\xc9\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f更新时间R\tupdatedAtJ\x04\b\x04\x10\x05J\x04\b\x06\x10\aR\vprovider_idR\x0fembedding_model\"\x1e\n" +
+	"updated_at\x18\n" +
+	" \x01(\tB\x12\xbaG\x0f\x92\x02\f更新时间R\tupdatedAt\"\x1e\n" +
 	"\x1cListAiKnowledgeModelsRequest\"\x80\x01\n" +
 	"\x1dListAiKnowledgeModelsResponse\x12_\n" +
-	"\x06models\x18\x01 \x03(\v2\x1e.rag.admin.v1.AiKnowledgeModelB'\xbaG$\x92\x02!已启用的embedding模型列表R\x06models\"\xe4\x01\n" +
+	"\x06models\x18\x01 \x03(\v2\x1e.rag.admin.v1.AiKnowledgeModelB'\xbaG$\x92\x02!已启用的embedding模型列表R\x06models\"\x8d\x03\n" +
 	"\x10AiKnowledgeModel\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b模型IDR\x02id\x12F\n" +
 	"\rprovider_name\x18\x02 \x01(\tB!\xbaG\x1e\x92\x02\x1b模型所属供应商名称R\fproviderName\x121\n" +
 	"\n" +
 	"model_name\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f模型名称R\tmodelName\x125\n" +
-	"\fdisplay_name\x18\x04 \x01(\tB\x12\xbaG\x0f\x92\x02\f显示名称R\vdisplayName2\xdc\x06\n" +
+	"\fdisplay_name\x18\x04 \x01(\tB\x12\xbaG\x0f\x92\x02\f显示名称R\vdisplayName\x12Z\n" +
+	"\n" +
+	"dimensions\x18\x05 \x01(\x05B:\xbaG7\x92\x024模型声明的输出向量维度；0表示未声明R\n" +
+	"dimensions\x12K\n" +
+	"\x11dimension_options\x18\x06 \x03(\x05B\x1e\xbaG\x1b\x92\x02\x18可选向量维度列表R\x10dimensionOptions2\xdc\x06\n" +
 	"\x12AiKnowledgeService\x12\x83\x01\n" +
 	"\x0fPageAiKnowledge\x12$.rag.admin.v1.PageAiKnowledgeRequest\x1a%.rag.admin.v1.PageAiKnowledgeResponse\"#\x82\xd3\xe4\x93\x02\x1d\x12\x1b/api/v1/admin/rag/knowledge\x12\x9c\x01\n" +
 	"\x15ListAiKnowledgeModels\x12*.rag.admin.v1.ListAiKnowledgeModelsRequest\x1a+.rag.admin.v1.ListAiKnowledgeModelsResponse\"*\x82\xd3\xe4\x93\x02$\x12\"/api/v1/admin/rag/knowledge/models\x12~\n" +

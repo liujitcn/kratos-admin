@@ -26,6 +26,7 @@ var (
 	_ validate.Rule
 	_ commonv1.SetStatusRequest
 	_ commonv1.Status
+	_ commonv1.DoubleValues
 	_ emptypb.Empty
 	_ structpb.Struct
 )

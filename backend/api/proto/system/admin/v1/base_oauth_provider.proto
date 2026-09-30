@@ -4,6 +4,7 @@ package system.admin.v1;
 
 import "buf/validate/validate.proto";
 import "common/v1/enum.proto";
+import "common/v1/types.proto";
 import "gnostic/openapi/v3/annotations.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/empty.proto";
@@ -75,7 +76,7 @@ message BaseOauthProviderForm {
   string description = 4 [(gnostic.openapi.v3.property) = {description: "登录方式提示语"}, (buf.validate.field).cel = {id: "system.admin.base.oauth_provider.form.description.length" message: "登录方式提示语不能超过255个字符" expression: "this.size() <= 255"}]; // 登录方式提示语
   string icon = 5 [(gnostic.openapi.v3.property) = {description: "图标键或图片地址"}, (buf.validate.field).cel = {id: "system.admin.base.oauth_provider.form.icon.required" message: "图标不能为空且不能超过255个字符" expression: "this.size() > 0 && this.size() <= 255"}]; // 图标键或图片地址
   string client_id = 6 [(gnostic.openapi.v3.property) = {description: "第三方应用标识"}, (buf.validate.field).cel = {id: "system.admin.base.oauth_provider.form.client_id.required" message: "第三方应用标识不能为空且不能超过255个字符" expression: "this.size() > 0 && this.size() <= 255"}]; // 第三方应用标识
-  string client_secret = 7 [(gnostic.openapi.v3.property) = {description: "第三方应用密钥，更新时留空表示不修改"}, (buf.validate.field).cel = {id: "system.admin.base.oauth_provider.form.client_secret.length" message: "第三方应用密钥不能超过512个字符" expression: "this.size() <= 512"}]; // 第三方应用密钥，更新时留空表示不修改
+  .common.v1.SecretCrypto client_secret = 7 [(gnostic.openapi.v3.property) = {description: "第三方应用密钥密文，更新时不传表示不修改"}]; // 第三方应用密钥密文，更新时不传表示不修改
   bool secret_configured = 8 [(gnostic.openapi.v3.property) = {description: "是否已配置第三方应用密钥"}]; // 是否已配置第三方应用密钥
   string redirect_uri = 9 [(gnostic.openapi.v3.property) = {description: "OAuth回调地址"}, (buf.validate.field).cel = {id: "system.admin.base.oauth_provider.form.redirect_uri.length" message: "OAuth回调地址不能超过512个字符" expression: "this.size() <= 512"}]; // OAuth回调地址
   repeated string scopes = 10 [(gnostic.openapi.v3.property) = {description: "OAuth Scope列表"}, (buf.validate.field).cel = {id: "system.admin.base.oauth_provider.form.scopes.unique" message: "OAuth Scope不能重复" expression: "this.unique()"}]; // OAuth Scope列表

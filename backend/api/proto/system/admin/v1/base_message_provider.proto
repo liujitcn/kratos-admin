@@ -5,6 +5,7 @@ package system.admin.v1;
 import "buf/validate/validate.proto";
 import "common/v1/common.proto";
 import "common/v1/enum.proto";
+import "common/v1/types.proto";
 import "gnostic/openapi/v3/annotations.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/empty.proto";
@@ -81,7 +82,7 @@ message BaseMessageProviderForm {
   string description = 4 [(gnostic.openapi.v3.property) = {description: "Provider说明"}, (buf.validate.field).cel = {id: "system.admin.base_message_provider.form.description.length" message: "Provider说明不能超过255个字符" expression: "this.size() <= 255"}]; // Provider说明
   string icon = 5 [(gnostic.openapi.v3.property) = {description: "图标键或图片地址"}, (buf.validate.field).cel = {id: "system.admin.base_message_provider.form.icon.length" message: "Provider图标不能超过100个字符" expression: "this.size() <= 100"}]; // 图标键或图片地址
   string client_id = 6 [(gnostic.openapi.v3.property) = {description: "通用凭证标识"}, (buf.validate.field).cel = {id: "system.admin.base_message_provider.form.client_id.length" message: "通用凭证标识不能超过255个字符" expression: "this.size() <= 255"}]; // 通用凭证标识
-  string client_secret = 7 [(gnostic.openapi.v3.property) = {description: "通用凭证密钥，更新时留空表示不修改"}, (buf.validate.field).cel = {id: "system.admin.base_message_provider.form.client_secret.length" message: "通用凭证密钥不能超过1024个字符" expression: "this.size() <= 1024"}]; // 通用凭证密钥，更新时留空表示不修改
+  .common.v1.SecretCrypto client_secret = 7 [(gnostic.openapi.v3.property) = {description: "通用凭证密钥密文，更新时不传表示不修改"}]; // 通用凭证密钥密文，更新时不传表示不修改
   bool secret_configured = 8 [(gnostic.openapi.v3.property) = {description: "是否已配置通用凭证密钥"}]; // 是否已配置通用凭证密钥
   google.protobuf.Struct config = 9 [(gnostic.openapi.v3.property) = {description: "Provider扩展配置JSON对象"}]; // Provider扩展配置JSON对象
   int32 sort = 10 [(gnostic.openapi.v3.property) = {description: "排序"}]; // 排序

@@ -270,7 +270,7 @@ type AiProviderForm struct {
 	Id               int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                                       // 供应商ID
 	Name             string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`                                                    // 供应商名称
 	BaseUrl          string                 `protobuf:"bytes,4,opt,name=base_url,json=baseUrl,proto3" json:"base_url,omitempty"`                               // 模型API基础地址
-	ApiKey           string                 `protobuf:"bytes,5,opt,name=api_key,json=apiKey,proto3" json:"api_key,omitempty"`                                  // 模型API密钥；更新时留空表示保留现有密钥
+	ApiKey           *commonv1.SecretCrypto `protobuf:"bytes,5,opt,name=api_key,json=apiKey,proto3" json:"api_key,omitempty"`                                  // 模型API密钥密文，更新时不传表示保留现有密钥
 	ApiKeyConfigured bool                   `protobuf:"varint,6,opt,name=api_key_configured,json=apiKeyConfigured,proto3" json:"api_key_configured,omitempty"` // 是否已保存模型密钥
 	Sort             int32                  `protobuf:"varint,12,opt,name=sort,proto3" json:"sort,omitempty"`                                                  // 排序值
 	Provider         string                 `protobuf:"bytes,13,opt,name=provider,proto3" json:"provider,omitempty"`                                           // Provider稳定标识
@@ -332,11 +332,11 @@ func (x *AiProviderForm) GetBaseUrl() string {
 	return ""
 }
 
-func (x *AiProviderForm) GetApiKey() string {
+func (x *AiProviderForm) GetApiKey() *commonv1.SecretCrypto {
 	if x != nil {
 		return x.ApiKey
 	}
-	return ""
+	return nil
 }
 
 func (x *AiProviderForm) GetApiKeyConfigured() bool {
@@ -1085,7 +1085,7 @@ var File_system_admin_v1_ai_provider_proto protoreflect.FileDescriptor
 
 const file_system_admin_v1_ai_provider_proto_rawDesc = "" +
 	"\n" +
-	"!system/admin/v1/ai_provider.proto\x12\x0fsystem.admin.v1\x1a\x1bbuf/validate/validate.proto\x1a\x14common/v1/enum.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1cgoogle/protobuf/struct.proto\"\xac\x02\n" +
+	"!system/admin/v1/ai_provider.proto\x12\x0fsystem.admin.v1\x1a\x1bbuf/validate/validate.proto\x1a\x14common/v1/enum.proto\x1a\x15common/v1/types.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1cgoogle/protobuf/struct.proto\"\xac\x02\n" +
 	"\x15PageAiProviderRequest\x12)\n" +
 	"\x04name\x18\x01 \x01(\tB\x15\xbaG\x12\x92\x02\x0f供应商名称R\x04name\x12Q\n" +
 	"\x06status\x18\x02 \x01(\x0e2\x11.common.v1.StatusB!\xbaG\x1e\x92\x02\x1b状态：枚举【Status】H\x00R\x06status\x88\x01\x01\x12D\n" +
@@ -1096,27 +1096,21 @@ const file_system_admin_v1_ai_provider_proto_rawDesc = "" +
 	"\tproviders\x18\x01 \x03(\v2\x1b.system.admin.v1.AiProviderB\x15\xbaG\x12\x92\x02\x0f供应商列表R\tproviders\x12\"\n" +
 	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\"@\n" +
 	"\x14GetAiProviderRequest\x12(\n" +
-	"\x02id\x18\x01 \x01(\x03B\x18\xbaG\x0e\x92\x02\v供应商ID\xbaH\x04\"\x02 \x00R\x02id\"\xa9\n" +
-	"\n" +
+	"\x02id\x18\x01 \x01(\x03B\x18\xbaG\x0e\x92\x02\v供应商ID\xbaH\x04\"\x02 \x00R\x02id\"\xcd\b\n" +
 	"\x0eAiProviderForm\x12!\n" +
 	"\x02id\x18\x01 \x01(\x03B\x11\xbaG\x0e\x92\x02\v供应商IDR\x02id\x12\x9e\x01\n" +
 	"\x04name\x18\x02 \x01(\tB\x89\x01\xbaG\x12\x92\x02\x0f供应商名称\xbaHq\xba\x01n\n" +
 	"+system.admin.base.ai.provider.name.required\x12\x18请输入供应商名称\x1a%this.size() > 0 && this.size() <= 100R\x04name\x12\xaa\x01\n" +
 	"\bbase_url\x18\x04 \x01(\tB\x8e\x01\xbaG\x18\x92\x02\x15模型API基础地址\xbaHp\xba\x01m\n" +
-	"1system.admin.base.ai.provider.base_url.max_length\x12$接口地址不能超过512个字符\x1a\x12this.size() <= 512R\abaseUrl\x12\xcd\x01\n" +
-	"\aapi_key\x18\x05 \x01(\tB\xb3\x01\xbaG<\x92\x029模型API密钥；更新时留空表示保留现有密钥\xbaHq\xba\x01n\n" +
-	"0system.admin.base.ai.provider.api_key.max_length\x12%模型密钥不能超过1024个字符\x1a\x13this.size() <= 1024R\x06apiKey\x12O\n" +
+	"1system.admin.base.ai.provider.base_url.max_length\x12$接口地址不能超过512个字符\x1a\x12this.size() <= 512R\abaseUrl\x12w\n" +
+	"\aapi_key\x18\x05 \x01(\v2\x17.common.v1.SecretCryptoBE\xbaGB\x92\x02?模型API密钥密文，更新时不传表示保留现有密钥R\x06apiKey\x12O\n" +
 	"\x12api_key_configured\x18\x06 \x01(\bB!\xbaG\x1e\x92\x02\x1b是否已保存模型密钥R\x10apiKeyConfigured\x12*\n" +
 	"\x04sort\x18\f \x01(\x05B\x16\xbaG\f\x92\x02\t排序值\xbaH\x04\x1a\x02(\x00R\x04sort\x12\xd5\x01\n" +
 	"\bprovider\x18\r \x01(\tB\xb8\x01\xbaG4\x92\x021Provider稳定标识：openai_compatible或ollama\xbaH~\xba\x01{\n" +
 	"/system.admin.base.ai.provider.provider.required\x12\x17请选择模型Provider\x1a/this == 'openai_compatible' || this == 'ollama'R\bprovider\x12X\n" +
 	"\x06config\x18\x10 \x01(\v2\x17.google.protobuf.StructB'\xbaG$\x92\x02!Provider个性化配置JSON对象R\x06config\x12a\n" +
 	"\x06models\x18\x11 \x03(\v2$.system.admin.v1.AiProviderModelFormB#\xbaG \x92\x02\x1d供应商下的AI模型列表R\x06models\x12?\n" +
-	"\x06status\x183 \x01(\x0e2\x11.common.v1.StatusB\x14\xbaG\t\x92\x02\x06状态\xbaH\x05\x82\x01\x02\x10\x01R\x06statusJ\x04\b\x03\x10\x04J\x04\b\a\x10\bJ\x04\b\b\x10\tJ\x04\b\t\x10\n" +
-	"J\x04\b\n" +
-	"\x10\vJ\x04\b\v\x10\fJ\x04\b\x0e\x10\x0fJ\x04\b\x0f\x10\x10R\x04typeR\forganizationR\n" +
-	"local_hostR\n" +
-	"local_portR\ause_gpuR\vdescriptionR\x04iconR\vmodels_json\"\xef\x05\n" +
+	"\x06status\x183 \x01(\x0e2\x11.common.v1.StatusB\x14\xbaG\t\x92\x02\x06状态\xbaH\x05\x82\x01\x02\x10\x01R\x06status\"\xef\x05\n" +
 	"\x13AiProviderModelForm\x12.\n" +
 	"\x02id\x18\x01 \x01(\x03B\x1e\xbaG\x1b\x92\x02\x18模型ID；新增时为0R\x02id\x12\xbb\x01\n" +
 	"\n" +
@@ -1158,7 +1152,7 @@ const file_system_admin_v1_ai_provider_proto_rawDesc = "" +
 	"\x02id\x18\x01 \x01(\x03B\x18\xbaG\x0e\x92\x02\v供应商ID\xbaH\x04\"\x02 \x00R\x02id\"\x87\x01\n" +
 	"\x1aSetAiProviderStatusRequest\x12(\n" +
 	"\x02id\x18\x01 \x01(\x03B\x18\xbaG\x0e\x92\x02\v供应商ID\xbaH\x04\"\x02 \x00R\x02id\x12?\n" +
-	"\x06status\x18\x02 \x01(\x0e2\x11.common.v1.StatusB\x14\xbaG\t\x92\x02\x06状态\xbaH\x05\x82\x01\x02\x10\x01R\x06status\"\xd6\x04\n" +
+	"\x06status\x18\x02 \x01(\x0e2\x11.common.v1.StatusB\x14\xbaG\t\x92\x02\x06状态\xbaH\x05\x82\x01\x02\x10\x01R\x06status\"\xab\x04\n" +
 	"\n" +
 	"AiProvider\x12!\n" +
 	"\x02id\x18\x01 \x01(\x03B\x11\xbaG\x0e\x92\x02\v供应商IDR\x02id\x12)\n" +
@@ -1173,8 +1167,7 @@ const file_system_admin_v1_ai_provider_proto_rawDesc = "" +
 	"\n" +
 	"created_at\x18\xc8\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f创建时间R\tcreatedAt\x122\n" +
 	"\n" +
-	"updated_at\x18\xc9\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f更新时间R\tupdatedAtJ\x04\b\x03\x10\x04J\x04\b\x06\x10\aJ\x04\b\n" +
-	"\x10\vR\x04typeR\vdescriptionR\x04icon*\xe6\x01\n" +
+	"updated_at\x18\xc9\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f更新时间R\tupdatedAt*\xe6\x01\n" +
 	"\x0fAiModelCategory\x12!\n" +
 	"\x1dAI_MODEL_CATEGORY_UNSPECIFIED\x10\x00\x12\x1a\n" +
 	"\x16AI_MODEL_CATEGORY_CHAT\x10\x01\x12\x1f\n" +
@@ -1227,46 +1220,48 @@ var file_system_admin_v1_ai_provider_proto_goTypes = []any{
 	(*SetAiProviderStatusRequest)(nil),    // 15: system.admin.v1.SetAiProviderStatusRequest
 	(*AiProvider)(nil),                    // 16: system.admin.v1.AiProvider
 	(commonv1.Status)(0),                  // 17: common.v1.Status
-	(*structpb.Struct)(nil),               // 18: google.protobuf.Struct
-	(*emptypb.Empty)(nil),                 // 19: google.protobuf.Empty
+	(*commonv1.SecretCrypto)(nil),         // 18: common.v1.SecretCrypto
+	(*structpb.Struct)(nil),               // 19: google.protobuf.Struct
+	(*emptypb.Empty)(nil),                 // 20: google.protobuf.Empty
 }
 var file_system_admin_v1_ai_provider_proto_depIdxs = []int32{
 	17, // 0: system.admin.v1.PageAiProviderRequest.status:type_name -> common.v1.Status
 	16, // 1: system.admin.v1.PageAiProviderResponse.providers:type_name -> system.admin.v1.AiProvider
-	18, // 2: system.admin.v1.AiProviderForm.config:type_name -> google.protobuf.Struct
-	5,  // 3: system.admin.v1.AiProviderForm.models:type_name -> system.admin.v1.AiProviderModelForm
-	17, // 4: system.admin.v1.AiProviderForm.status:type_name -> common.v1.Status
-	0,  // 5: system.admin.v1.AiProviderModelForm.category:type_name -> system.admin.v1.AiModelCategory
-	18, // 6: system.admin.v1.AiProviderModelForm.config:type_name -> google.protobuf.Struct
-	17, // 7: system.admin.v1.AiProviderModelForm.status:type_name -> common.v1.Status
-	4,  // 8: system.admin.v1.CreateAiProviderRequest.ai_provider:type_name -> system.admin.v1.AiProviderForm
-	4,  // 9: system.admin.v1.UpdateAiProviderRequest.ai_provider:type_name -> system.admin.v1.AiProviderForm
-	4,  // 10: system.admin.v1.TestAiProviderModelsRequest.ai_provider:type_name -> system.admin.v1.AiProviderForm
-	9,  // 11: system.admin.v1.TestAiProviderModelsResponse.results:type_name -> system.admin.v1.AiProviderModelTestResult
-	13, // 12: system.admin.v1.ListAiProviderOptionsResponse.options:type_name -> system.admin.v1.AiProviderOption
-	17, // 13: system.admin.v1.SetAiProviderStatusRequest.status:type_name -> common.v1.Status
-	17, // 14: system.admin.v1.AiProvider.status:type_name -> common.v1.Status
-	1,  // 15: system.admin.v1.AiProviderService.PageAiProvider:input_type -> system.admin.v1.PageAiProviderRequest
-	11, // 16: system.admin.v1.AiProviderService.ListAiProviderOptions:input_type -> system.admin.v1.ListAiProviderOptionsRequest
-	3,  // 17: system.admin.v1.AiProviderService.GetAiProvider:input_type -> system.admin.v1.GetAiProviderRequest
-	6,  // 18: system.admin.v1.AiProviderService.CreateAiProvider:input_type -> system.admin.v1.CreateAiProviderRequest
-	7,  // 19: system.admin.v1.AiProviderService.UpdateAiProvider:input_type -> system.admin.v1.UpdateAiProviderRequest
-	8,  // 20: system.admin.v1.AiProviderService.TestAiProviderModels:input_type -> system.admin.v1.TestAiProviderModelsRequest
-	14, // 21: system.admin.v1.AiProviderService.DeleteAiProvider:input_type -> system.admin.v1.DeleteAiProviderRequest
-	15, // 22: system.admin.v1.AiProviderService.SetAiProviderStatus:input_type -> system.admin.v1.SetAiProviderStatusRequest
-	2,  // 23: system.admin.v1.AiProviderService.PageAiProvider:output_type -> system.admin.v1.PageAiProviderResponse
-	12, // 24: system.admin.v1.AiProviderService.ListAiProviderOptions:output_type -> system.admin.v1.ListAiProviderOptionsResponse
-	4,  // 25: system.admin.v1.AiProviderService.GetAiProvider:output_type -> system.admin.v1.AiProviderForm
-	19, // 26: system.admin.v1.AiProviderService.CreateAiProvider:output_type -> google.protobuf.Empty
-	19, // 27: system.admin.v1.AiProviderService.UpdateAiProvider:output_type -> google.protobuf.Empty
-	10, // 28: system.admin.v1.AiProviderService.TestAiProviderModels:output_type -> system.admin.v1.TestAiProviderModelsResponse
-	19, // 29: system.admin.v1.AiProviderService.DeleteAiProvider:output_type -> google.protobuf.Empty
-	19, // 30: system.admin.v1.AiProviderService.SetAiProviderStatus:output_type -> google.protobuf.Empty
-	23, // [23:31] is the sub-list for method output_type
-	15, // [15:23] is the sub-list for method input_type
-	15, // [15:15] is the sub-list for extension type_name
-	15, // [15:15] is the sub-list for extension extendee
-	0,  // [0:15] is the sub-list for field type_name
+	18, // 2: system.admin.v1.AiProviderForm.api_key:type_name -> common.v1.SecretCrypto
+	19, // 3: system.admin.v1.AiProviderForm.config:type_name -> google.protobuf.Struct
+	5,  // 4: system.admin.v1.AiProviderForm.models:type_name -> system.admin.v1.AiProviderModelForm
+	17, // 5: system.admin.v1.AiProviderForm.status:type_name -> common.v1.Status
+	0,  // 6: system.admin.v1.AiProviderModelForm.category:type_name -> system.admin.v1.AiModelCategory
+	19, // 7: system.admin.v1.AiProviderModelForm.config:type_name -> google.protobuf.Struct
+	17, // 8: system.admin.v1.AiProviderModelForm.status:type_name -> common.v1.Status
+	4,  // 9: system.admin.v1.CreateAiProviderRequest.ai_provider:type_name -> system.admin.v1.AiProviderForm
+	4,  // 10: system.admin.v1.UpdateAiProviderRequest.ai_provider:type_name -> system.admin.v1.AiProviderForm
+	4,  // 11: system.admin.v1.TestAiProviderModelsRequest.ai_provider:type_name -> system.admin.v1.AiProviderForm
+	9,  // 12: system.admin.v1.TestAiProviderModelsResponse.results:type_name -> system.admin.v1.AiProviderModelTestResult
+	13, // 13: system.admin.v1.ListAiProviderOptionsResponse.options:type_name -> system.admin.v1.AiProviderOption
+	17, // 14: system.admin.v1.SetAiProviderStatusRequest.status:type_name -> common.v1.Status
+	17, // 15: system.admin.v1.AiProvider.status:type_name -> common.v1.Status
+	1,  // 16: system.admin.v1.AiProviderService.PageAiProvider:input_type -> system.admin.v1.PageAiProviderRequest
+	11, // 17: system.admin.v1.AiProviderService.ListAiProviderOptions:input_type -> system.admin.v1.ListAiProviderOptionsRequest
+	3,  // 18: system.admin.v1.AiProviderService.GetAiProvider:input_type -> system.admin.v1.GetAiProviderRequest
+	6,  // 19: system.admin.v1.AiProviderService.CreateAiProvider:input_type -> system.admin.v1.CreateAiProviderRequest
+	7,  // 20: system.admin.v1.AiProviderService.UpdateAiProvider:input_type -> system.admin.v1.UpdateAiProviderRequest
+	8,  // 21: system.admin.v1.AiProviderService.TestAiProviderModels:input_type -> system.admin.v1.TestAiProviderModelsRequest
+	14, // 22: system.admin.v1.AiProviderService.DeleteAiProvider:input_type -> system.admin.v1.DeleteAiProviderRequest
+	15, // 23: system.admin.v1.AiProviderService.SetAiProviderStatus:input_type -> system.admin.v1.SetAiProviderStatusRequest
+	2,  // 24: system.admin.v1.AiProviderService.PageAiProvider:output_type -> system.admin.v1.PageAiProviderResponse
+	12, // 25: system.admin.v1.AiProviderService.ListAiProviderOptions:output_type -> system.admin.v1.ListAiProviderOptionsResponse
+	4,  // 26: system.admin.v1.AiProviderService.GetAiProvider:output_type -> system.admin.v1.AiProviderForm
+	20, // 27: system.admin.v1.AiProviderService.CreateAiProvider:output_type -> google.protobuf.Empty
+	20, // 28: system.admin.v1.AiProviderService.UpdateAiProvider:output_type -> google.protobuf.Empty
+	10, // 29: system.admin.v1.AiProviderService.TestAiProviderModels:output_type -> system.admin.v1.TestAiProviderModelsResponse
+	20, // 30: system.admin.v1.AiProviderService.DeleteAiProvider:output_type -> google.protobuf.Empty
+	20, // 31: system.admin.v1.AiProviderService.SetAiProviderStatus:output_type -> google.protobuf.Empty
+	24, // [24:32] is the sub-list for method output_type
+	16, // [16:24] is the sub-list for method input_type
+	16, // [16:16] is the sub-list for extension type_name
+	16, // [16:16] is the sub-list for extension extendee
+	0,  // [0:16] is the sub-list for field type_name
 }
 
 func init() { file_system_admin_v1_ai_provider_proto_init() }

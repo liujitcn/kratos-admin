@@ -77,17 +77,6 @@ func (s *redactedLoginServiceServer) VerifyCaptcha(ctx context.Context, in *Veri
 	return res, err
 }
 
-// PasswordPublicKey is the redacted wrapper for the actual LoginServiceServer.PasswordPublicKey method
-// Unary RPC
-func (s *redactedLoginServiceServer) PasswordPublicKey(ctx context.Context, in *PasswordPublicKeyRequest) (*PasswordPublicKeyResponse, error) {
-	res, err := s.srv.PasswordPublicKey(ctx, in)
-	if !s.bypass.CheckInternal(ctx) {
-		// Apply redaction to the response
-		redact.ApplyWith(redact.WithDirection(redact.WithOperation(ctx, "/base.v1.LoginService/PasswordPublicKey"), redact.DirectionResponse), nil, res)
-	}
-	return res, err
-}
-
 // Logout is the redacted wrapper for the actual LoginServiceServer.Logout method
 // Unary RPC
 func (s *redactedLoginServiceServer) Logout(ctx context.Context, in *LogoutRequest) (*emptypb.Empty, error) {
@@ -131,18 +120,6 @@ func (x *CaptchaRequest) Redact() {
 	}
 
 	// Safe field: Type
-}
-
-// Ensure PasswordPublicKeyRequest implements the Redactor interface at compile time.
-var _ redact.Redactor = (*PasswordPublicKeyRequest)(nil)
-
-// Redact method implementation for PasswordPublicKeyRequest
-func (x *PasswordPublicKeyRequest) Redact() {
-	if x == nil {
-		return
-	}
-
-	// Safe field: Scene
 }
 
 // Ensure LogoutRequest implements the Redactor interface at compile time.
@@ -195,26 +172,6 @@ func (x *VerifyCaptchaResponse) Redact() {
 	}
 
 	// Safe field: CaptchaToken
-
-	// Safe field: ExpiresIn
-}
-
-// Ensure PasswordPublicKeyResponse implements the Redactor interface at compile time.
-var _ redact.Redactor = (*PasswordPublicKeyResponse)(nil)
-
-// Redact method implementation for PasswordPublicKeyResponse
-func (x *PasswordPublicKeyResponse) Redact() {
-	if x == nil {
-		return
-	}
-
-	// Safe field: KeyId
-
-	// Safe field: PublicKey
-
-	// Safe field: Algorithm
-
-	// Safe field: Nonce
 
 	// Safe field: ExpiresIn
 }

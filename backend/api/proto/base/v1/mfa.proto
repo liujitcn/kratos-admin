@@ -150,7 +150,7 @@ message MfaStatusResponse {
 
 // 开始绑定多因素认证请求。
 message BeginMfaSetupRequest {
-  .common.v1.PasswordCrypto password = 1 [(gnostic.openapi.v3.property) = {description: "当前登录密码"}]; // 当前登录密码
+  .common.v1.SecretCrypto password = 1 [(gnostic.openapi.v3.property) = {description: "当前登录密码"}]; // 当前登录密码
 
   string setup_ticket = 2 [(gnostic.openapi.v3.property) = {description: "强制绑定场景下的临时票据"}]; // 强制绑定场景下的临时票据
 }
@@ -204,7 +204,7 @@ message BeginMfaDisableResponse {
 
 // 禁用多因素认证请求。
 message DisableMfaRequest {
-  .common.v1.PasswordCrypto password = 1 [(gnostic.openapi.v3.property) = {description: "当前登录密码"}]; // 当前登录密码
+  .common.v1.SecretCrypto password = 1 [(gnostic.openapi.v3.property) = {description: "当前登录密码"}]; // 当前登录密码
 
   string code = 2 [(gnostic.openapi.v3.property) = {description: "TOTP 动态口令"}]; // TOTP 动态口令
 

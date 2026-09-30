@@ -151,7 +151,7 @@ message BindOauthSessionRequest {
 
   string user_name = 4 [(gnostic.openapi.v3.property) = {description: "用户名"}, (buf.validate.field).cel = {id: "base.oauth.bind_session.user_name.required" message: "用户名不能为空" expression: "this.size() > 0"}]; // 用户名
 
-  .common.v1.PasswordCrypto password = 5 [(gnostic.openapi.v3.property) = {description: "用户密码"}]; // 用户密码
+  .common.v1.SecretCrypto password = 5 [(gnostic.openapi.v3.property) = {description: "用户密码"}]; // 用户密码
 
   string captcha_code = 6 [(gnostic.openapi.v3.property) = {description: "验证码"}, (buf.validate.field).cel = {id: "base.oauth.bind_session.captcha_code.required" message: "验证码不能为空" expression: "this.size() > 0"}]; // 验证码
 

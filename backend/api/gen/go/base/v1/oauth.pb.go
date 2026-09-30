@@ -443,14 +443,14 @@ func (x *CreateOauthSessionRequest) GetCode() string {
 
 // 绑定已有账号的三方登录会话创建条件
 type BindOauthSessionRequest struct {
-	state         protoimpl.MessageState   `protogen:"open.v1"`
-	Provider      string                   `protobuf:"bytes,1,opt,name=provider,proto3" json:"provider,omitempty"`                          // 登录方式标识
-	Code          string                   `protobuf:"bytes,2,opt,name=code,proto3" json:"code,omitempty"`                                  // 三方授权码
-	TenantCode    string                   `protobuf:"bytes,3,opt,name=tenant_code,json=tenantCode,proto3" json:"tenant_code,omitempty"`    // 租户编码
-	UserName      string                   `protobuf:"bytes,4,opt,name=user_name,json=userName,proto3" json:"user_name,omitempty"`          // 用户名
-	Password      *commonv1.PasswordCrypto `protobuf:"bytes,5,opt,name=password,proto3" json:"password,omitempty"`                          // 用户密码
-	CaptchaCode   string                   `protobuf:"bytes,6,opt,name=captcha_code,json=captchaCode,proto3" json:"captcha_code,omitempty"` // 验证码
-	CaptchaId     string                   `protobuf:"bytes,7,opt,name=captcha_id,json=captchaId,proto3" json:"captcha_id,omitempty"`       // 验证码Id
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Provider      string                 `protobuf:"bytes,1,opt,name=provider,proto3" json:"provider,omitempty"`                          // 登录方式标识
+	Code          string                 `protobuf:"bytes,2,opt,name=code,proto3" json:"code,omitempty"`                                  // 三方授权码
+	TenantCode    string                 `protobuf:"bytes,3,opt,name=tenant_code,json=tenantCode,proto3" json:"tenant_code,omitempty"`    // 租户编码
+	UserName      string                 `protobuf:"bytes,4,opt,name=user_name,json=userName,proto3" json:"user_name,omitempty"`          // 用户名
+	Password      *commonv1.SecretCrypto `protobuf:"bytes,5,opt,name=password,proto3" json:"password,omitempty"`                          // 用户密码
+	CaptchaCode   string                 `protobuf:"bytes,6,opt,name=captcha_code,json=captchaCode,proto3" json:"captcha_code,omitempty"` // 验证码
+	CaptchaId     string                 `protobuf:"bytes,7,opt,name=captcha_id,json=captchaId,proto3" json:"captcha_id,omitempty"`       // 验证码Id
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -513,7 +513,7 @@ func (x *BindOauthSessionRequest) GetUserName() string {
 	return ""
 }
 
-func (x *BindOauthSessionRequest) GetPassword() *commonv1.PasswordCrypto {
+func (x *BindOauthSessionRequest) GetPassword() *commonv1.SecretCrypto {
 	if x != nil {
 		return x.Password
 	}
@@ -1301,7 +1301,7 @@ const file_base_v1_oauth_proto_rawDesc = "" +
 	"\bprovider\x18\x01 \x01(\tB|\xbaG\x15\x92\x02\x12登录方式标识\xbaHa\xba\x01^\n" +
 	"+base.oauth.create_session.provider.required\x12\x1e登录方式标识不能为空\x1a\x0fthis.size() > 0R\bprovider\x12\x86\x01\n" +
 	"\x04code\x18\x02 \x01(\tBr\xbaG\x12\x92\x02\x0f三方授权码\xbaHZ\xba\x01W\n" +
-	"'base.oauth.create_session.code.required\x12\x1b三方授权码不能为空\x1a\x0fthis.size() > 0R\x04code\"\x9e\b\n" +
+	"'base.oauth.create_session.code.required\x12\x1b三方授权码不能为空\x1a\x0fthis.size() > 0R\x04code\"\x9c\b\n" +
 	"\x17BindOauthSessionRequest\x12\x96\x01\n" +
 	"\bprovider\x18\x01 \x01(\tBz\xbaG\x15\x92\x02\x12登录方式标识\xbaH_\xba\x01\\\n" +
 	")base.oauth.bind_session.provider.required\x12\x1e登录方式标识不能为空\x1a\x0fthis.size() > 0R\bprovider\x12\x84\x01\n" +
@@ -1311,8 +1311,8 @@ const file_base_v1_oauth_proto_rawDesc = "" +
 	",base.oauth.bind_session.tenant_code.required\x12\x18租户编码不能为空\x1a\x0fthis.size() > 0R\n" +
 	"tenantCode\x12\x86\x01\n" +
 	"\tuser_name\x18\x04 \x01(\tBi\xbaG\f\x92\x02\t用户名\xbaHW\xba\x01T\n" +
-	"*base.oauth.bind_session.user_name.required\x12\x15用户名不能为空\x1a\x0fthis.size() > 0R\buserName\x12I\n" +
-	"\bpassword\x18\x05 \x01(\v2\x19.common.v1.PasswordCryptoB\x12\xbaG\x0f\x92\x02\f用户密码R\bpassword\x12\x8f\x01\n" +
+	"*base.oauth.bind_session.user_name.required\x12\x15用户名不能为空\x1a\x0fthis.size() > 0R\buserName\x12G\n" +
+	"\bpassword\x18\x05 \x01(\v2\x17.common.v1.SecretCryptoB\x12\xbaG\x0f\x92\x02\f用户密码R\bpassword\x12\x8f\x01\n" +
 	"\fcaptcha_code\x18\x06 \x01(\tBl\xbaG\f\x92\x02\t验证码\xbaHZ\xba\x01W\n" +
 	"-base.oauth.bind_session.captcha_code.required\x12\x15验证码不能为空\x1a\x0fthis.size() > 0R\vcaptchaCode\x12\x8d\x01\n" +
 	"\n" +
@@ -1439,7 +1439,7 @@ var file_base_v1_oauth_proto_goTypes = []any{
 	(*UnbindOauthAccountRequest)(nil),               // 17: base.v1.UnbindOauthAccountRequest
 	(*OauthProvider)(nil),                           // 18: base.v1.OauthProvider
 	(*OauthBinding)(nil),                            // 19: base.v1.OauthBinding
-	(*commonv1.PasswordCrypto)(nil),                 // 20: common.v1.PasswordCrypto
+	(*commonv1.SecretCrypto)(nil),                   // 20: common.v1.SecretCrypto
 	(LoginStatus)(0),                                // 21: base.v1.LoginStatus
 	(*structpb.Struct)(nil),                         // 22: google.protobuf.Struct
 	(*emptypb.Empty)(nil),                           // 23: google.protobuf.Empty
@@ -1447,7 +1447,7 @@ var file_base_v1_oauth_proto_goTypes = []any{
 var file_base_v1_oauth_proto_depIdxs = []int32{
 	19, // 0: base.v1.ListOauthBindingResponse.bindings:type_name -> base.v1.OauthBinding
 	18, // 1: base.v1.ListOauthProviderResponse.providers:type_name -> base.v1.OauthProvider
-	20, // 2: base.v1.BindOauthSessionRequest.password:type_name -> common.v1.PasswordCrypto
+	20, // 2: base.v1.BindOauthSessionRequest.password:type_name -> common.v1.SecretCrypto
 	21, // 3: base.v1.CreateOauthSessionResponse.status:type_name -> base.v1.LoginStatus
 	21, // 4: base.v1.ExchangeOauthTicketResponse.status:type_name -> base.v1.LoginStatus
 	22, // 5: base.v1.OauthProvider.config:type_name -> google.protobuf.Struct

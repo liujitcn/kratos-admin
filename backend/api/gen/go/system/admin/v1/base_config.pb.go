@@ -296,7 +296,7 @@ type BaseConfigForm struct {
 	Name          string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`                                      // 配置名称
 	Type          BaseConfigType         `protobuf:"varint,4,opt,name=type,proto3,enum=system.admin.v1.BaseConfigType" json:"type,omitempty"` // 配置类型：1、文本，2、图片，3、富文本，4、字典，5、布尔，6、表单
 	Key           string                 `protobuf:"bytes,5,opt,name=key,proto3" json:"key,omitempty"`                                        // 配置key
-	Value         string                 `protobuf:"bytes,6,opt,name=value,proto3" json:"value,omitempty"`                                    // 配置value
+	Value         *commonv1.SecretCrypto `protobuf:"bytes,6,opt,name=value,proto3,oneof" json:"value,omitempty"`                              // 配置value，前端统一加密提交，服务端统一解密
 	NameI18ns     []*BaseI18n            `protobuf:"bytes,7,rep,name=name_i18ns,json=nameI18ns,proto3" json:"name_i18ns,omitempty"`           // 配置名称多语言翻
 	ValueI18ns    []*BaseI18n            `protobuf:"bytes,8,rep,name=value_i18ns,json=valueI18ns,proto3" json:"value_i18ns,omitempty"`        // 配置value文本/富文本配置值的多语言翻译
 	Status        commonv1.Status        `protobuf:"varint,51,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"`          // 状态
@@ -369,11 +369,11 @@ func (x *BaseConfigForm) GetKey() string {
 	return ""
 }
 
-func (x *BaseConfigForm) GetValue() string {
+func (x *BaseConfigForm) GetValue() *commonv1.SecretCrypto {
 	if x != nil {
 		return x.Value
 	}
-	return ""
+	return nil
 }
 
 func (x *BaseConfigForm) GetNameI18ns() []*BaseI18n {
@@ -630,7 +630,7 @@ type BaseConfig struct {
 	Name          string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`                                      // 配置名称
 	Type          BaseConfigType         `protobuf:"varint,4,opt,name=type,proto3,enum=system.admin.v1.BaseConfigType" json:"type,omitempty"` // 配置类型：枚举【BaseConfigType】
 	Key           string                 `protobuf:"bytes,5,opt,name=key,proto3" json:"key,omitempty"`                                        // 配置key
-	Value         string                 `protobuf:"bytes,6,opt,name=value,proto3" json:"value,omitempty"`                                    // 配置value
+	Value         string                 `protobuf:"bytes,6,opt,name=value,proto3" json:"value,omitempty"`                                    // 配置value，敏感配置恒为空
 	Status        commonv1.Status        `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"`         // 状态：枚举【Status】
 	CreatedAt     string                 `protobuf:"bytes,200,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`         // 创建时间
 	UpdatedAt     string                 `protobuf:"bytes,201,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`         // 更新时间
@@ -743,7 +743,7 @@ var File_system_admin_v1_base_config_proto protoreflect.FileDescriptor
 
 const file_system_admin_v1_base_config_proto_rawDesc = "" +
 	"\n" +
-	"!system/admin/v1/base_config.proto\x12\x0fsystem.admin.v1\x1a\x14common/v1/enum.proto\x1a\x14base/v1/config.proto\x1a\x1bbuf/validate/validate.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fsystem/admin/v1/base_i18n.proto\"\xc7\x04\n" +
+	"!system/admin/v1/base_config.proto\x12\x0fsystem.admin.v1\x1a\x14common/v1/enum.proto\x1a\x15common/v1/types.proto\x1a\x14base/v1/config.proto\x1a\x1bbuf/validate/validate.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fsystem/admin/v1/base_i18n.proto\"\xc7\x04\n" +
 	"\x15PageBaseConfigRequest\x12[\n" +
 	"\x04site\x18\x02 \x01(\x0e2\x17.base.v1.BaseConfigSiteB)\xbaG&\x92\x02#位置：枚举【BaseConfigSite】H\x00R\x04site\x88\x01\x01\x12+\n" +
 	"\x04name\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f配置名称H\x01R\x04name\x88\x01\x01\x12i\n" +
@@ -762,8 +762,7 @@ const file_system_admin_v1_base_config_proto_rawDesc = "" +
 	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\"\x86\x01\n" +
 	"\x14GetBaseConfigRequest\x12n\n" +
 	"\x02id\x18\x01 \x01(\x03B^\xbaG\v\x92\x02\b配置ID\xbaHM\xba\x01J\n" +
-	"(system.admin.base.config.get.id.required\x12\x14配置ID不能为空\x1a\bthis > 0R\x02id\"\xf5\n" +
-	"\n" +
+	"(system.admin.base.config.get.id.required\x12\x14配置ID不能为空\x1a\bthis > 0R\x02id\"\x90\v\n" +
 	"\x0eBaseConfigForm\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b配置IDR\x02id\x12\xb9\x01\n" +
 	"\x04site\x18\x02 \x01(\x0e2\x17.base.v1.BaseConfigSiteB\x8b\x01\xbaG&\x92\x02#位置：枚举【BaseConfigSite】\xbaH_\xba\x01W\n" +
@@ -775,14 +774,14 @@ const file_system_admin_v1_base_config_proto_rawDesc = "" +
 	"-system.admin.base.config.entity.type.required\x12\x1b请选择系统配置类型\x1a\tthis != 0\x82\x01\x02\x10\x01R\x04type\x12\xef\x01\n" +
 	"\x03key\x18\x05 \x01(\tB\xdc\x01\xbaG\f\x92\x02\t配置key\xbaH\xc9\x01\xba\x01\\\n" +
 	",system.admin.base.config.entity.key.required\x12\x1b请输入系统配置编码\x1a\x0fthis.size() > 0\xba\x01g\n" +
-	".system.admin.base.config.entity.key.max_length\x12\"配置key不能超过 50 个字符\x1a\x11this.size() <= 50R\x03key\x12\x85\x01\n" +
-	"\x05value\x18\x06 \x01(\tBo\xbaG\x0e\x92\x02\v配置value\xbaH[\xba\x01X\n" +
-	".system.admin.base.config.entity.value.required\x12\x15配置值不能为空\x1a\x0fthis.size() > 0R\x05value\x12X\n" +
+	".system.admin.base.config.entity.key.max_length\x12\"配置key不能超过 50 个字符\x1a\x11this.size() <= 50R\x03key\x12\x96\x01\n" +
+	"\x05value\x18\x06 \x01(\v2\x17.common.v1.SecretCryptoBb\xbaG_\x92\x02\\配置value，前端统一加密提交，服务端统一解密；留空表示保留现有值H\x00R\x05value\x88\x01\x01\x12X\n" +
 	"\n" +
 	"name_i18ns\x18\a \x03(\v2\x19.system.admin.v1.BaseI18nB\x1e\xbaG\x1b\x92\x02\x18配置名称多语言翻R\tnameI18ns\x12x\n" +
 	"\vvalue_i18ns\x18\b \x03(\v2\x19.system.admin.v1.BaseI18nB<\xbaG9\x92\x026配置value文本/富文本配置值的多语言翻译R\n" +
 	"valueI18ns\x12?\n" +
-	"\x06status\x183 \x01(\x0e2\x11.common.v1.StatusB\x14\xbaG\t\x92\x02\x06状态\xbaH\x05\x82\x01\x02\x10\x01R\x06status\"{\n" +
+	"\x06status\x183 \x01(\x0e2\x11.common.v1.StatusB\x14\xbaG\t\x92\x02\x06状态\xbaH\x05\x82\x01\x02\x10\x01R\x06statusB\b\n" +
+	"\x06_value\"{\n" +
 	"\x17CreateBaseConfigRequest\x12`\n" +
 	"\vbase_config\x18\x01 \x01(\v2\x1f.system.admin.v1.BaseConfigFormB\x1e\xbaG\x15\x92\x02\x12系统配置表单\xbaH\x03\xc8\x01\x01R\n" +
 	"baseConfig\"\xde\x01\n" +
@@ -797,15 +796,15 @@ const file_system_admin_v1_base_config_proto_rawDesc = "" +
 	"\x02id\x18\x01 \x01(\x03Be\xbaG\v\x92\x02\b配置ID\xbaHT\xba\x01Q\n" +
 	"/system.admin.base.config.set_status.id.required\x12\x14配置ID不能为空\x1a\bthis > 0R\x02id\x12$\n" +
 	"\x06status\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06状态R\x06status\"\x1f\n" +
-	"\x1dRefreshBaseConfigCacheRequest\"\x88\x05\n" +
+	"\x1dRefreshBaseConfigCacheRequest\"\xa0\x05\n" +
 	"\n" +
 	"BaseConfig\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b配置IDR\x02id\x12V\n" +
 	"\x04site\x18\x02 \x01(\x0e2\x17.base.v1.BaseConfigSiteB)\xbaG&\x92\x02#位置：枚举【BaseConfigSite】R\x04site\x12&\n" +
 	"\x04name\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f配置名称R\x04name\x12d\n" +
 	"\x04type\x18\x04 \x01(\x0e2\x1f.system.admin.v1.BaseConfigTypeB/\xbaG,\x92\x02)配置类型：枚举【BaseConfigType】R\x04type\x12!\n" +
-	"\x03key\x18\x05 \x01(\tB\x0f\xbaG\f\x92\x02\t配置keyR\x03key\x12'\n" +
-	"\x05value\x18\x06 \x01(\tB\x11\xbaG\x0e\x92\x02\v配置valueR\x05value\x12L\n" +
+	"\x03key\x18\x05 \x01(\tB\x0f\xbaG\f\x92\x02\t配置keyR\x03key\x12?\n" +
+	"\x05value\x18\x06 \x01(\tB)\xbaG&\x92\x02#配置value，敏感配置恒为空R\x05value\x12L\n" +
 	"\x06status\x18d \x01(\x0e2\x11.common.v1.StatusB!\xbaG\x1e\x92\x02\x1b状态：枚举【Status】R\x06status\x122\n" +
 	"\n" +
 	"created_at\x18\xc8\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f创建时间R\tcreatedAt\x122\n" +
@@ -858,8 +857,9 @@ var file_system_admin_v1_base_config_proto_goTypes = []any{
 	(*BaseConfig)(nil),                    // 10: system.admin.v1.BaseConfig
 	(basev1.BaseConfigSite)(0),            // 11: base.v1.BaseConfigSite
 	(commonv1.Status)(0),                  // 12: common.v1.Status
-	(*BaseI18n)(nil),                      // 13: system.admin.v1.BaseI18n
-	(*emptypb.Empty)(nil),                 // 14: google.protobuf.Empty
+	(*commonv1.SecretCrypto)(nil),         // 13: common.v1.SecretCrypto
+	(*BaseI18n)(nil),                      // 14: system.admin.v1.BaseI18n
+	(*emptypb.Empty)(nil),                 // 15: google.protobuf.Empty
 }
 var file_system_admin_v1_base_config_proto_depIdxs = []int32{
 	11, // 0: system.admin.v1.PageBaseConfigRequest.site:type_name -> base.v1.BaseConfigSite
@@ -868,34 +868,35 @@ var file_system_admin_v1_base_config_proto_depIdxs = []int32{
 	10, // 3: system.admin.v1.PageBaseConfigResponse.base_configs:type_name -> system.admin.v1.BaseConfig
 	11, // 4: system.admin.v1.BaseConfigForm.site:type_name -> base.v1.BaseConfigSite
 	0,  // 5: system.admin.v1.BaseConfigForm.type:type_name -> system.admin.v1.BaseConfigType
-	13, // 6: system.admin.v1.BaseConfigForm.name_i18ns:type_name -> system.admin.v1.BaseI18n
-	13, // 7: system.admin.v1.BaseConfigForm.value_i18ns:type_name -> system.admin.v1.BaseI18n
-	12, // 8: system.admin.v1.BaseConfigForm.status:type_name -> common.v1.Status
-	4,  // 9: system.admin.v1.CreateBaseConfigRequest.base_config:type_name -> system.admin.v1.BaseConfigForm
-	4,  // 10: system.admin.v1.UpdateBaseConfigRequest.base_config:type_name -> system.admin.v1.BaseConfigForm
-	11, // 11: system.admin.v1.BaseConfig.site:type_name -> base.v1.BaseConfigSite
-	0,  // 12: system.admin.v1.BaseConfig.type:type_name -> system.admin.v1.BaseConfigType
-	12, // 13: system.admin.v1.BaseConfig.status:type_name -> common.v1.Status
-	13, // 14: system.admin.v1.BaseConfig.i18ns:type_name -> system.admin.v1.BaseI18n
-	9,  // 15: system.admin.v1.BaseConfigService.RefreshBaseConfigCache:input_type -> system.admin.v1.RefreshBaseConfigCacheRequest
-	1,  // 16: system.admin.v1.BaseConfigService.PageBaseConfig:input_type -> system.admin.v1.PageBaseConfigRequest
-	3,  // 17: system.admin.v1.BaseConfigService.GetBaseConfig:input_type -> system.admin.v1.GetBaseConfigRequest
-	5,  // 18: system.admin.v1.BaseConfigService.CreateBaseConfig:input_type -> system.admin.v1.CreateBaseConfigRequest
-	6,  // 19: system.admin.v1.BaseConfigService.UpdateBaseConfig:input_type -> system.admin.v1.UpdateBaseConfigRequest
-	7,  // 20: system.admin.v1.BaseConfigService.DeleteBaseConfig:input_type -> system.admin.v1.DeleteBaseConfigRequest
-	8,  // 21: system.admin.v1.BaseConfigService.SetBaseConfigStatus:input_type -> system.admin.v1.SetBaseConfigStatusRequest
-	14, // 22: system.admin.v1.BaseConfigService.RefreshBaseConfigCache:output_type -> google.protobuf.Empty
-	2,  // 23: system.admin.v1.BaseConfigService.PageBaseConfig:output_type -> system.admin.v1.PageBaseConfigResponse
-	4,  // 24: system.admin.v1.BaseConfigService.GetBaseConfig:output_type -> system.admin.v1.BaseConfigForm
-	14, // 25: system.admin.v1.BaseConfigService.CreateBaseConfig:output_type -> google.protobuf.Empty
-	14, // 26: system.admin.v1.BaseConfigService.UpdateBaseConfig:output_type -> google.protobuf.Empty
-	14, // 27: system.admin.v1.BaseConfigService.DeleteBaseConfig:output_type -> google.protobuf.Empty
-	14, // 28: system.admin.v1.BaseConfigService.SetBaseConfigStatus:output_type -> google.protobuf.Empty
-	22, // [22:29] is the sub-list for method output_type
-	15, // [15:22] is the sub-list for method input_type
-	15, // [15:15] is the sub-list for extension type_name
-	15, // [15:15] is the sub-list for extension extendee
-	0,  // [0:15] is the sub-list for field type_name
+	13, // 6: system.admin.v1.BaseConfigForm.value:type_name -> common.v1.SecretCrypto
+	14, // 7: system.admin.v1.BaseConfigForm.name_i18ns:type_name -> system.admin.v1.BaseI18n
+	14, // 8: system.admin.v1.BaseConfigForm.value_i18ns:type_name -> system.admin.v1.BaseI18n
+	12, // 9: system.admin.v1.BaseConfigForm.status:type_name -> common.v1.Status
+	4,  // 10: system.admin.v1.CreateBaseConfigRequest.base_config:type_name -> system.admin.v1.BaseConfigForm
+	4,  // 11: system.admin.v1.UpdateBaseConfigRequest.base_config:type_name -> system.admin.v1.BaseConfigForm
+	11, // 12: system.admin.v1.BaseConfig.site:type_name -> base.v1.BaseConfigSite
+	0,  // 13: system.admin.v1.BaseConfig.type:type_name -> system.admin.v1.BaseConfigType
+	12, // 14: system.admin.v1.BaseConfig.status:type_name -> common.v1.Status
+	14, // 15: system.admin.v1.BaseConfig.i18ns:type_name -> system.admin.v1.BaseI18n
+	9,  // 16: system.admin.v1.BaseConfigService.RefreshBaseConfigCache:input_type -> system.admin.v1.RefreshBaseConfigCacheRequest
+	1,  // 17: system.admin.v1.BaseConfigService.PageBaseConfig:input_type -> system.admin.v1.PageBaseConfigRequest
+	3,  // 18: system.admin.v1.BaseConfigService.GetBaseConfig:input_type -> system.admin.v1.GetBaseConfigRequest
+	5,  // 19: system.admin.v1.BaseConfigService.CreateBaseConfig:input_type -> system.admin.v1.CreateBaseConfigRequest
+	6,  // 20: system.admin.v1.BaseConfigService.UpdateBaseConfig:input_type -> system.admin.v1.UpdateBaseConfigRequest
+	7,  // 21: system.admin.v1.BaseConfigService.DeleteBaseConfig:input_type -> system.admin.v1.DeleteBaseConfigRequest
+	8,  // 22: system.admin.v1.BaseConfigService.SetBaseConfigStatus:input_type -> system.admin.v1.SetBaseConfigStatusRequest
+	15, // 23: system.admin.v1.BaseConfigService.RefreshBaseConfigCache:output_type -> google.protobuf.Empty
+	2,  // 24: system.admin.v1.BaseConfigService.PageBaseConfig:output_type -> system.admin.v1.PageBaseConfigResponse
+	4,  // 25: system.admin.v1.BaseConfigService.GetBaseConfig:output_type -> system.admin.v1.BaseConfigForm
+	15, // 26: system.admin.v1.BaseConfigService.CreateBaseConfig:output_type -> google.protobuf.Empty
+	15, // 27: system.admin.v1.BaseConfigService.UpdateBaseConfig:output_type -> google.protobuf.Empty
+	15, // 28: system.admin.v1.BaseConfigService.DeleteBaseConfig:output_type -> google.protobuf.Empty
+	15, // 29: system.admin.v1.BaseConfigService.SetBaseConfigStatus:output_type -> google.protobuf.Empty
+	23, // [23:30] is the sub-list for method output_type
+	16, // [16:23] is the sub-list for method input_type
+	16, // [16:16] is the sub-list for extension type_name
+	16, // [16:16] is the sub-list for extension extendee
+	0,  // [0:16] is the sub-list for field type_name
 }
 
 func init() { file_system_admin_v1_base_config_proto_init() }
@@ -905,6 +906,7 @@ func file_system_admin_v1_base_config_proto_init() {
 	}
 	file_system_admin_v1_base_i18n_proto_init()
 	file_system_admin_v1_base_config_proto_msgTypes[0].OneofWrappers = []any{}
+	file_system_admin_v1_base_config_proto_msgTypes[3].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{

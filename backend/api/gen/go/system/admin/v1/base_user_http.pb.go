@@ -27,6 +27,7 @@ const OperationBaseUserServiceListBaseUser = "/system.admin.v1.BaseUserService/L
 const OperationBaseUserServiceOptionBaseUser = "/system.admin.v1.BaseUserService/OptionBaseUser"
 const OperationBaseUserServicePageBaseUser = "/system.admin.v1.BaseUserService/PageBaseUser"
 const OperationBaseUserServiceResetBaseUserPassword = "/system.admin.v1.BaseUserService/ResetBaseUserPassword"
+const OperationBaseUserServiceSetBaseUserAppRole = "/system.admin.v1.BaseUserService/SetBaseUserAppRole"
 const OperationBaseUserServiceSetBaseUserStatus = "/system.admin.v1.BaseUserService/SetBaseUserStatus"
 const OperationBaseUserServiceSummaryBaseUser = "/system.admin.v1.BaseUserService/SummaryBaseUser"
 const OperationBaseUserServiceUpdateBaseUser = "/system.admin.v1.BaseUserService/UpdateBaseUser"
@@ -46,6 +47,8 @@ type BaseUserServiceHTTPServer interface {
 	PageBaseUser(context.Context, *PageBaseUserRequest) (*PageBaseUserResponse, error)
 	// ResetBaseUserPassword 重置密码
 	ResetBaseUserPassword(context.Context, *ResetBaseUserPasswordRequest) (*emptypb.Empty, error)
+	// SetBaseUserAppRole 设置基础用户应用端角色
+	SetBaseUserAppRole(context.Context, *SetBaseUserAppRoleRequest) (*emptypb.Empty, error)
 	// SetBaseUserStatus 设置状态
 	SetBaseUserStatus(context.Context, *SetBaseUserStatusRequest) (*emptypb.Empty, error)
 	// SummaryBaseUser 汇总用户注册数据
@@ -65,6 +68,7 @@ func RegisterBaseUserServiceHTTPServer(s *http.Server, srv BaseUserServiceHTTPSe
 	r.Handle("DELETE", "/api/v1/admin/base/user/{id}", _BaseUserService_DeleteBaseUser0_HTTP_Handler(srv))
 	r.Handle("PUT", "/api/v1/admin/base/user/{id}/status", _BaseUserService_SetBaseUserStatus0_HTTP_Handler(srv))
 	r.Handle("PUT", "/api/v1/admin/base/user/{id}/password", _BaseUserService_ResetBaseUserPassword0_HTTP_Handler(srv))
+	r.Handle("PUT", "/api/v1/admin/base/user/{user_id}/app-role", _BaseUserService_SetBaseUserAppRole0_HTTP_Handler(srv))
 	r.Handle("GET", "/api/v1/admin/base/user/summary", _BaseUserService_SummaryBaseUser0_HTTP_Handler(srv))
 }
 
@@ -260,6 +264,28 @@ func _BaseUserService_ResetBaseUserPassword0_HTTP_Handler(srv BaseUserServiceHTT
 	}
 }
 
+func _BaseUserService_SetBaseUserAppRole0_HTTP_Handler(srv BaseUserServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in SetBaseUserAppRoleRequest
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindVars(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationBaseUserServiceSetBaseUserAppRole)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.SetBaseUserAppRole(ctx, req.(*SetBaseUserAppRoleRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*emptypb.Empty)
+		return ctx.Result(200, reply)
+	}
+}
+
 func _BaseUserService_SummaryBaseUser0_HTTP_Handler(srv BaseUserServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in SummaryBaseUserRequest
@@ -294,6 +320,8 @@ type BaseUserServiceHTTPClient interface {
 	PageBaseUser(ctx context.Context, req *PageBaseUserRequest, opts ...http.CallOption) (rsp *PageBaseUserResponse, err error)
 	// ResetBaseUserPassword 重置密码
 	ResetBaseUserPassword(ctx context.Context, req *ResetBaseUserPasswordRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
+	// SetBaseUserAppRole 设置基础用户应用端角色
+	SetBaseUserAppRole(ctx context.Context, req *SetBaseUserAppRoleRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	// SetBaseUserStatus 设置状态
 	SetBaseUserStatus(ctx context.Context, req *SetBaseUserStatusRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	// SummaryBaseUser 汇总用户注册数据
@@ -422,6 +450,24 @@ func (c *BaseUserServiceHTTPClientImpl) ResetBaseUserPassword(ctx context.Contex
 		http.Accept("application/protojson"),
 		http.ContentType("application/protojson"),
 		http.Operation(OperationBaseUserServiceResetBaseUserPassword),
+		http.PathTemplate(pattern),
+	}, opts...)
+	err := c.cc.Invoke(ctx, "PUT", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+// SetBaseUserAppRole 设置基础用户应用端角色
+func (c *BaseUserServiceHTTPClientImpl) SetBaseUserAppRole(ctx context.Context, in *SetBaseUserAppRoleRequest, opts ...http.CallOption) (*emptypb.Empty, error) {
+	var out emptypb.Empty
+	pattern := "/api/v1/admin/base/user/{user_id}/app-role"
+	path := http.BuildPath(pattern, in)
+	opts = append([]http.CallOption{
+		http.Accept("application/protojson"),
+		http.ContentType("application/protojson"),
+		http.Operation(OperationBaseUserServiceSetBaseUserAppRole),
 		http.PathTemplate(pattern),
 	}, opts...)
 	err := c.cc.Invoke(ctx, "PUT", path, in, &out, opts...)
