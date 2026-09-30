@@ -18,9 +18,9 @@ import (
 // 按存储类型（PG smallint）定义为 int16。
 const (
 	// DocStatusReady 表示文档切片与向量化全部完成。
-	DocStatusReady = int16(adminv1.AiKnowledgeDocStatus_AI_KNOWLEDGE_DOC_STATUS_READY)
+	DocStatusReady = int32(adminv1.AiKnowledgeDocStatus_AI_KNOWLEDGE_DOC_STATUS_READY)
 	// DocStatusFailed 表示文档处理失败。
-	DocStatusFailed = int16(adminv1.AiKnowledgeDocStatus_AI_KNOWLEDGE_DOC_STATUS_FAILED)
+	DocStatusFailed = int32(adminv1.AiKnowledgeDocStatus_AI_KNOWLEDGE_DOC_STATUS_FAILED)
 )
 
 // DefaultEmbeddingDimensions 是知识库未显式配置维度时的兜底维度。
@@ -221,7 +221,7 @@ func (e *KnowledgeEngine) CreateDoc(ctx context.Context, item *Doc) error {
 }
 
 // UpdateDocStatus 更新文档切片数与处理状态，支持状态字段清零。
-func (e *KnowledgeEngine) UpdateDocStatus(ctx context.Context, id int64, chunkCount int32, status int16, errorMessage string) error {
+func (e *KnowledgeEngine) UpdateDocStatus(ctx context.Context, id int64, chunkCount int32, status int32, errorMessage string) error {
 	if err := e.require(); err != nil {
 		return err
 	}

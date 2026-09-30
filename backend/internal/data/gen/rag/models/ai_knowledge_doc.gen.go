@@ -20,7 +20,7 @@ type AiKnowledgeDoc struct {
 	ChunkCount      int32                 `gorm:"column:chunk_count;type:int;not null;comment:切片数量" json:"chunk_count"`                                                              // 切片数量
 	FilePath        string                `gorm:"column:file_path;type:varchar(500);not null;comment:原始文件对象存储路径" json:"file_path"`                                                   // 原始文件对象存储路径
 	FileHash        string                `gorm:"column:file_hash;type:varchar(64);not null;comment:原始文件SHA256哈希" json:"file_hash"`                                                  // 原始文件SHA256哈希
-	Status          int16                 `gorm:"column:status;type:smallint;not null;comment:处理状态：枚举【AiKnowledgeDocStatus】" json:"status"`                                          // 处理状态：枚举【AiKnowledgeDocStatus】
+	Status          int32                 `gorm:"column:status;type:smallint;not null;comment:处理状态：枚举【AiKnowledgeDocStatus】" json:"status"`                                          // 处理状态：枚举【AiKnowledgeDocStatus】
 	ErrorMessage    string                `gorm:"column:error_message;type:text;not null;comment:处理失败原因" json:"error_message"`                                                       // 处理失败原因
 	CreatedBy       int64                 `gorm:"column:created_by;type:bigint;not null;comment:创建人ID" json:"created_by"`                                                            // 创建人ID
 	CreatedAt       time.Time             `gorm:"column:created_at;not null;comment:创建时间" json:"created_at"`                                                                         // 创建时间

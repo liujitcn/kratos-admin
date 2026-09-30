@@ -1,0 +1,6 @@
+data:
+  database:
+    debug: true
+    driver: postgres
+    enable_migrate: true
+    source: host=192.168.60.52 port=5432 user=postgres password=112233 dbname=kratos_admin sslmode=disable

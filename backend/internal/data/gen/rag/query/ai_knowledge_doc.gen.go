@@ -33,7 +33,7 @@ func newAiKnowledgeDoc(db *gorm.DB, opts ...gen.DOOption) aiKnowledgeDoc {
 	_aiKnowledgeDoc.ChunkCount = field.NewInt32(tableName, "chunk_count")
 	_aiKnowledgeDoc.FilePath = field.NewString(tableName, "file_path")
 	_aiKnowledgeDoc.FileHash = field.NewString(tableName, "file_hash")
-	_aiKnowledgeDoc.Status = field.NewInt16(tableName, "status")
+	_aiKnowledgeDoc.Status = field.NewInt32(tableName, "status")
 	_aiKnowledgeDoc.ErrorMessage = field.NewString(tableName, "error_message")
 	_aiKnowledgeDoc.CreatedBy = field.NewInt64(tableName, "created_by")
 	_aiKnowledgeDoc.CreatedAt = field.NewTime(tableName, "created_at")
@@ -56,7 +56,7 @@ type aiKnowledgeDoc struct {
 	ChunkCount      field.Int32  // 切片数量
 	FilePath        field.String // 原始文件对象存储路径
 	FileHash        field.String // 原始文件SHA256哈希
-	Status          field.Int16  // 处理状态：枚举【AiKnowledgeDocStatus】
+	Status          field.Int32  // 处理状态：枚举【AiKnowledgeDocStatus】
 	ErrorMessage    field.String // 处理失败原因
 	CreatedBy       field.Int64  // 创建人ID
 	CreatedAt       field.Time   // 创建时间
@@ -84,7 +84,7 @@ func (a *aiKnowledgeDoc) updateTableName(table string) *aiKnowledgeDoc {
 	a.ChunkCount = field.NewInt32(table, "chunk_count")
 	a.FilePath = field.NewString(table, "file_path")
 	a.FileHash = field.NewString(table, "file_hash")
-	a.Status = field.NewInt16(table, "status")
+	a.Status = field.NewInt32(table, "status")
 	a.ErrorMessage = field.NewString(table, "error_message")
 	a.CreatedBy = field.NewInt64(table, "created_by")
 	a.CreatedAt = field.NewTime(table, "created_at")
