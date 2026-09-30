@@ -1,20 +1,20 @@
 package biz
 
+import (
+	basebiz "github.com/liujitcn/kratos-admin/backend/internal/biz/base"
+)
+
 // 表归档与恢复的跨数据库方言辅助：内部归档模式需要在 MySQL 与 PostgreSQL 上生成等价的
 // 建表、复制和标识符引用 SQL；OSS 导出依赖 mysqldump，仅 MySQL 系数据源支持。
 
 const (
-	// sqlDriverMySQL 是 MySQL 驱动名。
-	sqlDriverMySQL = "mysql"
 	// SqlDriverPostgres 是 PostgreSQL 驱动名。
 	SqlDriverPostgres = "postgres"
-	// sqlDriverDoris 是 Doris 驱动名，与 MySQL 共用方言。
-	sqlDriverDoris = "doris"
 )
 
 // MysqlFamilyDriver 判断驱动是否属于 MySQL 方言系（含复用 MySQL 方言的 Doris）。
 func MysqlFamilyDriver(driverName string) bool {
-	return driverName == sqlDriverMySQL || driverName == sqlDriverDoris
+	return basebiz.MysqlFamilyDriver(driverName)
 }
 
 // QuoteSQLIdentifier 按数据库方言为表名、字段名加引号：MySQL 系使用反引号，其余使用 SQL 标准双引号。

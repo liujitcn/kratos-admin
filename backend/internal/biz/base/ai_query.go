@@ -397,9 +397,10 @@ func (c *AiQueryCase) loadSchema(ctx context.Context) (map[string]*aiQueryTableM
 		TableName    string `gorm:"column:table_name"`
 		TableComment string `gorm:"column:table_comment"`
 	}
+	driverName := database.Driver()
 	err := db.Table("information_schema.tables").
-		Select("table_name, table_comment").
-		Where("table_schema = DATABASE()").
+		Select(TableMetadataColumns(driverName)).
+		Where("table_schema = " + CurrentSchemaExpr(driverName)).
 		Where("table_name IN ?", names).
 		Scan(&tableInfos).Error
 	if err != nil {
@@ -413,8 +414,8 @@ func (c *AiQueryCase) loadSchema(ctx context.Context) (map[string]*aiQueryTableM
 		ColumnComment string `gorm:"column:column_comment"`
 	}
 	err = db.Table("information_schema.columns").
-		Select("table_name, column_name, column_type, column_comment").
-		Where("table_schema = DATABASE()").
+		Select(ColumnMetadataColumns(driverName)).
+		Where("table_schema = " + CurrentSchemaExpr(driverName)).
 		Where("table_name IN ?", names).
 		Order("table_name, ordinal_position").
 		Scan(&columnInfos).Error

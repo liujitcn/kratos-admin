@@ -6,6 +6,7 @@ import (
 	"sort"
 
 	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
+	basebiz "github.com/liujitcn/kratos-admin/backend/internal/biz/base"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/dto"
 	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
 	"github.com/liujitcn/kratos-core/biz"
@@ -56,10 +57,11 @@ func (c *BaseTableSourceCase) OptionBaseTable(ctx context.Context, req *adminv1.
 
 // listDatabaseTableMetadata 查询指定客户端的数据表名和表描述。
 func listDatabaseTableMetadata(ctx context.Context, database *gorm.Client, tableNames []string) ([]dto.CodeGenDatabaseTable, error) {
+	driverName := database.Driver()
 	query := database.DB.WithContext(ctx).
 		Table("information_schema.tables").
-		Select("table_name, table_comment").
-		Where("table_schema = DATABASE()").
+		Select(basebiz.TableMetadataColumns(driverName)).
+		Where("table_schema = " + basebiz.CurrentSchemaExpr(driverName)).
 		Where("table_type = ?", "BASE TABLE")
 	if len(tableNames) > 0 {
 		query = query.Where("table_name IN ?", tableNames)

@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
+	basebiz "github.com/liujitcn/kratos-admin/backend/internal/biz/base"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/dto"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
@@ -260,8 +261,8 @@ func (c *CodeGenColumnCase) listDatabaseColumns(ctx context.Context, sourceName,
 	// information_schema 没有业务生成模型，表名经白名单校验后使用参数化查询读取字段元数据。
 	err = database.DB.WithContext(ctx).
 		Table("information_schema.columns").
-		Select("column_name, column_comment, data_type, column_type, column_key, is_nullable, extra, ordinal_position, character_maximum_length, numeric_precision, numeric_scale, column_default").
-		Where("table_schema = DATABASE()").
+		Select(basebiz.ColumnMetadataColumns(database.Driver())).
+		Where("table_schema = " + basebiz.CurrentSchemaExpr(database.Driver())).
 		Where("table_name = ?", tableName).
 		Order("ordinal_position").
 		Find(&columns).Error
@@ -338,8 +339,8 @@ func (c *CodeGenColumnCase) listCodeGenOptionTables(ctx context.Context, sourceN
 	var tableInfos []dto.CodeGenDatabaseTable
 	err = database.DB.WithContext(ctx).
 		Table("information_schema.tables").
-		Select("table_name, table_comment").
-		Where("table_schema = DATABASE()").
+		Select(basebiz.TableMetadataColumns(database.Driver())).
+		Where("table_schema = " + basebiz.CurrentSchemaExpr(database.Driver())).
 		Where("table_type = ?", "BASE TABLE").
 		Order("table_name").
 		Find(&tableInfos).Error
@@ -518,7 +519,8 @@ func validateCodeGenColumnConfig(column *adminv1.CodeGenColumn, databaseColumn d
 		if !formConfig.GetEnabled() || formConfig.GetComponent() != "tree-select" || formConfig.GetOption().GetKind() != "tree" {
 			return errorsx.InvalidArgument("字段" + column.GetName() + "的表单多选仅支持树形选择")
 		}
-		if !strings.EqualFold(strings.TrimSpace(databaseColumn.DataType), "json") {
+		dataType := strings.ToLower(strings.TrimSpace(databaseColumn.DataType))
+		if dataType != "json" && dataType != "jsonb" {
 			return errorsx.InvalidArgument("字段" + column.GetName() + "的表单多选仅支持JSON字段")
 		}
 	}
@@ -749,7 +751,7 @@ func inferCodeGenGoType(dbType string) string {
 	}
 	// 其余数值字段按是否包含小数映射。
 	if isCodeGenNumericType(lowerType) {
-		if strings.Contains(lowerType, "decimal") || strings.Contains(lowerType, "float") || strings.Contains(lowerType, "double") {
+		if strings.Contains(lowerType, "decimal") || strings.Contains(lowerType, "numeric") || strings.Contains(lowerType, "float") || strings.Contains(lowerType, "double") {
 			return "float64"
 		}
 		return "int32"
@@ -774,7 +776,7 @@ func inferCodeGenProtoType(dbType string) string {
 	if strings.Contains(lowerType, "int") {
 		return "int32"
 	}
-	if strings.Contains(lowerType, "decimal") || strings.Contains(lowerType, "float") || strings.Contains(lowerType, "double") {
+	if strings.Contains(lowerType, "decimal") || strings.Contains(lowerType, "numeric") || strings.Contains(lowerType, "float") || strings.Contains(lowerType, "double") {
 		return "double"
 	}
 	return "string"
@@ -807,7 +809,7 @@ func isCodeGenBoolType(dbType string) bool {
 // isCodeGenNumericType 判断数据库字段是否表示数值。
 func isCodeGenNumericType(dbType string) bool {
 	lowerType := strings.ToLower(dbType)
-	return strings.Contains(lowerType, "int") || strings.Contains(lowerType, "decimal") || strings.Contains(lowerType, "float") || strings.Contains(lowerType, "double")
+	return strings.Contains(lowerType, "int") || strings.Contains(lowerType, "decimal") || strings.Contains(lowerType, "numeric") || strings.Contains(lowerType, "float") || strings.Contains(lowerType, "double")
 }
 
 // isCodeGenDateTimeType 判断数据库字段是否表示日期时间。
