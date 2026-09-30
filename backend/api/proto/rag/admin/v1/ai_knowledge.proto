@@ -56,13 +56,11 @@ message GetAiKnowledgeRequest {
 
 // AI知识库维护表单。
 message AiKnowledgeForm {
-  reserved 4, 5, 6;
-  reserved "provider_id", "embedding_model", "embedding_dimensions";
-
   int64 id = 1 [(gnostic.openapi.v3.property) = {description: "知识库ID"}]; // 知识库ID
   string name = 2 [(gnostic.openapi.v3.property) = {description: "知识库名称"}, (buf.validate.field).cel = {id: "rag.admin.ai.knowledge.name.required" message: "请输入知识库名称" expression: "this.size() > 0 && this.size() <= 100"}]; // 知识库名称
   string description = 3 [(gnostic.openapi.v3.property) = {description: "描述"}, (buf.validate.field).cel = {id: "rag.admin.ai.knowledge.description.max_length" message: "描述不能超过500个字符" expression: "this.size() <= 500"}]; // 描述
-  int64 model_id = 7 [(gnostic.openapi.v3.property) = {description: "向量化使用的embedding模型ID"}, (buf.validate.field).int64 = {gt: 0}]; // 向量化使用的embedding模型ID
+  int32 embedding_dimensions = 4 [(gnostic.openapi.v3.property) = {description: "向量维度；0表示按所选模型配置或系统默认"}]; // 向量维度；0表示按所选模型配置或系统默认
+  int64 model_id = 5 [(gnostic.openapi.v3.property) = {description: "向量化使用的embedding模型ID"}, (buf.validate.field).int64 = {gt: 0}]; // 向量化使用的embedding模型ID
 }
 
 // 创建AI知识库请求。
@@ -83,19 +81,16 @@ message DeleteAiKnowledgeRequest {
 
 // AI知识库分页记录。
 message AiKnowledge {
-  reserved 4, 6;
-  reserved "provider_id", "embedding_model";
-
   int64 id = 1 [(gnostic.openapi.v3.property) = {description: "知识库ID"}]; // 知识库ID
   string name = 2 [(gnostic.openapi.v3.property) = {description: "知识库名称"}]; // 知识库名称
   string description = 3 [(gnostic.openapi.v3.property) = {description: "描述"}]; // 描述
-  string provider_name = 5 [(gnostic.openapi.v3.property) = {description: "embedding模型所属供应商名称"}]; // embedding模型所属供应商名称
-  int32 embedding_dimensions = 8 [(gnostic.openapi.v3.property) = {description: "embedding向量维度"}]; // embedding向量维度
-  int64 model_id = 9 [(gnostic.openapi.v3.property) = {description: "向量化使用的embedding模型ID"}]; // 向量化使用的embedding模型ID
-  string model_name = 10 [(gnostic.openapi.v3.property) = {description: "embedding模型名称"}]; // embedding模型名称
-  int32 doc_count = 7 [(gnostic.openapi.v3.property) = {description: "文档数量"}]; // 文档数量
-  string created_at = 200 [(gnostic.openapi.v3.property) = {description: "创建时间"}]; // 创建时间
-  string updated_at = 201 [(gnostic.openapi.v3.property) = {description: "更新时间"}]; // 更新时间
+  string provider_name = 4 [(gnostic.openapi.v3.property) = {description: "embedding模型所属供应商名称"}]; // embedding模型所属供应商名称
+  int32 embedding_dimensions = 5 [(gnostic.openapi.v3.property) = {description: "embedding向量维度"}]; // embedding向量维度
+  int64 model_id = 6 [(gnostic.openapi.v3.property) = {description: "向量化使用的embedding模型ID"}]; // 向量化使用的embedding模型ID
+  string model_name = 7 [(gnostic.openapi.v3.property) = {description: "embedding模型名称"}]; // embedding模型名称
+  int32 doc_count = 8 [(gnostic.openapi.v3.property) = {description: "文档数量"}]; // 文档数量
+  string created_at = 9 [(gnostic.openapi.v3.property) = {description: "创建时间"}]; // 创建时间
+  string updated_at = 10 [(gnostic.openapi.v3.property) = {description: "更新时间"}]; // 更新时间
 }
 
 // 查询embedding模型选项请求。
@@ -112,4 +107,6 @@ message AiKnowledgeModel {
   string provider_name = 2 [(gnostic.openapi.v3.property) = {description: "模型所属供应商名称"}]; // 模型所属供应商名称
   string model_name = 3 [(gnostic.openapi.v3.property) = {description: "模型名称"}]; // 模型名称
   string display_name = 4 [(gnostic.openapi.v3.property) = {description: "显示名称"}]; // 显示名称
+  int32 dimensions = 5 [(gnostic.openapi.v3.property) = {description: "模型声明的输出向量维度；0表示未声明"}]; // 模型声明的输出向量维度；0表示未声明
+  repeated int32 dimension_options = 6 [(gnostic.openapi.v3.property) = {description: "可选向量维度列表"}]; // 可选向量维度列表
 }

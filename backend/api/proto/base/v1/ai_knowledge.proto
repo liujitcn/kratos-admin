@@ -25,5 +25,5 @@ message ListAiKnowledgeOptionsResponse {
 message AiKnowledgeOption {
   int64 id = 1 [(gnostic.openapi.v3.property) = {description: "知识库ID"}]; // 知识库ID
   string name = 2 [(gnostic.openapi.v3.property) = {description: "知识库名称"}]; // 知识库名称
-  int32 doc_count = 3 [(gnostic.openapi.v3.property) = {description: "文档数量"}]; // 文档数量
+  int32 doc_count = 3 [(gnostic.openapi.v3.property) = {description: "已就绪文档数，不含处理失败"}]; // 已就绪文档数，不含处理失败
 }

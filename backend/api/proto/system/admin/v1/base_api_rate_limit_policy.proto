@@ -97,7 +97,6 @@ message SetBaseApiRateLimitPolicyStatusRequest {
 message BaseApiRateLimitPolicy {
   int64 id = 1 [(gnostic.openapi.v3.property) = {description: "策略ID"}]; // 策略ID
   repeated BaseApiRateLimitPolicyAPI apis = 2 [(gnostic.openapi.v3.property) = {description: "限流接口列表"}]; // 限流接口列表
-  reserved 3 to 6;
   BaseApiRateLimitDimension dimension = 7 [(gnostic.openapi.v3.property) = {description: "限流维度"}]; // 限流维度
   int64 rule_id = 8 [(gnostic.openapi.v3.property) = {description: "限流规则ID"}]; // 限流规则ID
   string rule_code = 9 [(gnostic.openapi.v3.property) = {description: "限流规则编码"}]; // 限流规则编码
