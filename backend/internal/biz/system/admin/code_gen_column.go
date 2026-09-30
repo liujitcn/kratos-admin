@@ -137,7 +137,7 @@ func (c *CodeGenColumnCase) SaveCodeGenColumn(ctx context.Context, req *adminv1.
 		}
 		// 同一个字段只能保存一份配置，避免覆盖顺序影响最终结果。
 		if _, exists := requestColumns[column.GetName()]; exists {
-			return errorsx.InvalidArgument("字段" + column.GetName() + "配置重复")
+			return errorsx.WithMessageKey(errorsx.InvalidArgument("字段"+column.GetName()+"配置重复"), "system.code.gen.error.column_duplicate", map[string]string{"Name": column.GetName()})
 		}
 		requestColumns[column.GetName()] = column
 	}
@@ -203,7 +203,7 @@ func (c *CodeGenColumnCase) SaveCodeGenColumn(ctx context.Context, req *adminv1.
 		}
 		// 请求中出现非数据库字段时拒绝保存，避免写入失效配置。
 		for columnName := range requestColumns {
-			return errorsx.InvalidArgument("字段" + columnName + "不存在")
+			return errorsx.WithMessageKey(errorsx.InvalidArgument("字段"+columnName+"不存在"), "system.code.gen.error.column_not_found", map[string]string{"Name": columnName})
 		}
 		// 数据库已删除的字段配置以及历史重复配置同步删除。
 		for _, saved := range savedByName {
@@ -517,11 +517,11 @@ func validateCodeGenColumnConfig(column *adminv1.CodeGenColumn, databaseColumn d
 	// 多选树形值以 JSON 数组存储，避免数组直接写入标量字段。
 	if formConfig.GetMultiple() {
 		if !formConfig.GetEnabled() || formConfig.GetComponent() != "tree-select" || formConfig.GetOption().GetKind() != "tree" {
-			return errorsx.InvalidArgument("字段" + column.GetName() + "的表单多选仅支持树形选择")
+			return errorsx.WithMessageKey(errorsx.InvalidArgument("字段"+column.GetName()+"的表单多选仅支持树形选择"), "system.code.gen.error.column_form_multiple_tree_only", map[string]string{"Name": column.GetName()})
 		}
 		dataType := strings.ToLower(strings.TrimSpace(databaseColumn.DataType))
 		if dataType != "json" && dataType != "jsonb" {
-			return errorsx.InvalidArgument("字段" + column.GetName() + "的表单多选仅支持JSON字段")
+			return errorsx.WithMessageKey(errorsx.InvalidArgument("字段"+column.GetName()+"的表单多选仅支持JSON字段"), "system.code.gen.error.column_form_multiple_json_only", map[string]string{"Name": column.GetName()})
 		}
 	}
 	return nil
@@ -534,7 +534,7 @@ func validateCodeGenListOptionConfig(columnName string, config *adminv1.CodeGenC
 	switch config.GetComponent() {
 	case "text", "image", "money", "date":
 		if option.GetKind() != "" || option.GetSourceType() != "" || option.GetSourceValue() != "" || option.GetLabelField() != "" || option.GetValueField() != "" || option.GetParentField() != "" || option.GetActiveValue() != "" || option.GetInactiveValue() != "" {
-			return errorsx.InvalidArgument("字段" + columnName + "的列表组件不需要选项配置")
+			return errorsx.WithMessageKey(errorsx.InvalidArgument("字段"+columnName+"的列表组件不需要选项配置"), "system.code.gen.error.column_list_option_unnecessary", map[string]string{"Name": columnName})
 		}
 		return nil
 	case "switch":
@@ -547,17 +547,17 @@ func validateCodeGenListOptionConfig(columnName string, config *adminv1.CodeGenC
 			return validateCodeGenOptionConfig(columnName, "列表", option)
 		}
 		if option.GetKind() != "option" {
-			return errorsx.InvalidArgument("字段" + columnName + "的列表下拉选项配置不完整")
+			return errorsx.WithMessageKey(errorsx.InvalidArgument("字段"+columnName+"的列表下拉选项配置不完整"), "system.code.gen.error.column_list_select_incomplete", map[string]string{"Name": columnName})
 		}
 	case "tree-select":
 		if !config.GetEnabled() {
 			return validateCodeGenOptionConfig(columnName, "列表", option)
 		}
 		if option.GetKind() != "tree" {
-			return errorsx.InvalidArgument("字段" + columnName + "的列表树形选项配置不完整")
+			return errorsx.WithMessageKey(errorsx.InvalidArgument("字段"+columnName+"的列表树形选项配置不完整"), "system.code.gen.error.column_list_tree_incomplete", map[string]string{"Name": columnName})
 		}
 	default:
-		return errorsx.InvalidArgument("字段" + columnName + "的列表组件不支持")
+		return errorsx.WithMessageKey(errorsx.InvalidArgument("字段"+columnName+"的列表组件不支持"), "system.code.gen.error.column_list_component_unsupported", map[string]string{"Name": columnName})
 	}
 	return validateCodeGenOptionConfig(columnName, "列表", option)
 }
@@ -575,7 +575,7 @@ func validateCodeGenFormOptionConfig(columnName string, config *adminv1.CodeGenC
 	}
 	// 字典选择组件只读取字典编码，不能使用静态数据或数据表来源。
 	if config.GetComponent() == "dict" && (option.GetKind() != "option" || option.GetSourceType() != "dict" || option.GetSourceValue() == "") {
-		return errorsx.InvalidArgument("字段" + columnName + "的表单字典选择配置不完整")
+		return errorsx.WithMessageKey(errorsx.InvalidArgument("字段"+columnName+"的表单字典选择配置不完整"), "system.code.gen.error.column_form_dict_incomplete", map[string]string{"Name": columnName})
 	}
 	return validateCodeGenOptionConfig(columnName, "表单", option)
 }
@@ -584,11 +584,11 @@ func validateCodeGenFormOptionConfig(columnName string, config *adminv1.CodeGenC
 func validateCodeGenSwitchOptionConfig(columnName string, scope string, option *adminv1.CodeGenColumnOptionConfig) error {
 	// 开关必须绑定字典，并配置可区分的开启、关闭值。
 	if option.GetKind() != "switch" || option.GetSourceType() != "dict" || option.GetSourceValue() == "" || option.GetActiveValue() == "" || option.GetInactiveValue() == "" {
-		return errorsx.InvalidArgument("字段" + columnName + "的" + scope + "开关配置不完整")
+		return errorsx.WithMessageKey(errorsx.InvalidArgument("字段"+columnName+"的"+scope+"开关配置不完整"), "system.code.gen.error.column_switch_incomplete", map[string]string{"Name": columnName, "Scope": scope})
 	}
 	// 开关两个状态值不能相同。
 	if option.GetActiveValue() == option.GetInactiveValue() {
-		return errorsx.InvalidArgument("字段" + columnName + "的" + scope + "开关开启值和关闭值不能相同")
+		return errorsx.WithMessageKey(errorsx.InvalidArgument("字段"+columnName+"的"+scope+"开关开启值和关闭值不能相同"), "system.code.gen.error.column_switch_values_conflict", map[string]string{"Name": columnName, "Scope": scope})
 	}
 	return nil
 }
@@ -598,34 +598,34 @@ func validateCodeGenOptionConfig(columnName string, scope string, option *adminv
 	// 未启用选项能力时不允许只残留部分来源字段。
 	if option.GetKind() == "" {
 		if option.GetSourceType() != "" || option.GetSourceValue() != "" || option.GetLabelField() != "" || option.GetValueField() != "" || option.GetParentField() != "" || option.GetActiveValue() != "" || option.GetInactiveValue() != "" || option.GetLazy() {
-			return errorsx.InvalidArgument("字段" + columnName + "的" + scope + "选项形态不能为空")
+			return errorsx.WithMessageKey(errorsx.InvalidArgument("字段"+columnName+"的"+scope+"选项形态不能为空"), "system.code.gen.error.column_option_kind_empty", map[string]string{"Name": columnName, "Scope": scope})
 		}
 		return nil
 	}
 	// 开关值只能由开关选项配置维护。
 	if option.GetKind() != "switch" && (option.GetActiveValue() != "" || option.GetInactiveValue() != "") {
-		return errorsx.InvalidArgument("字段" + columnName + "的" + scope + "选项不能配置开关值")
+		return errorsx.WithMessageKey(errorsx.InvalidArgument("字段"+columnName+"的"+scope+"选项不能配置开关值"), "system.code.gen.error.column_option_switch_value_forbidden", map[string]string{"Name": columnName, "Scope": scope})
 	}
 	if option.GetLazy() && option.GetKind() != "tree" {
-		return errorsx.InvalidArgument("字段" + columnName + "的" + scope + "仅树形选项支持懒加载")
+		return errorsx.WithMessageKey(errorsx.InvalidArgument("字段"+columnName+"的"+scope+"仅树形选项支持懒加载"), "system.code.gen.error.column_option_lazy_only_tree", map[string]string{"Name": columnName, "Scope": scope})
 	}
 	// 树形选项只能使用数据库表构建真实父子关系。
 	if option.GetKind() == "tree" && option.GetSourceType() != "table" {
-		return errorsx.InvalidArgument("字段" + columnName + "的" + scope + "树形选项只能使用数据表来源")
+		return errorsx.WithMessageKey(errorsx.InvalidArgument("字段"+columnName+"的"+scope+"树形选项只能使用数据表来源"), "system.code.gen.error.column_option_tree_table_only", map[string]string{"Name": columnName, "Scope": scope})
 	}
 	// 启用选项能力后，来源只能是静态数据、字典或数据表。
 	switch option.GetSourceType() {
 	case "static", "dict", "table":
 	default:
-		return errorsx.InvalidArgument("字段" + columnName + "的" + scope + "选项来源配置不完整")
+		return errorsx.WithMessageKey(errorsx.InvalidArgument("字段"+columnName+"的"+scope+"选项来源配置不完整"), "system.code.gen.error.column_option_source_incomplete", map[string]string{"Name": columnName, "Scope": scope})
 	}
 	// 所有选项来源都必须配置具体来源值。
 	if option.GetSourceValue() == "" {
-		return errorsx.InvalidArgument("字段" + columnName + "的" + scope + "选项来源值不能为空")
+		return errorsx.WithMessageKey(errorsx.InvalidArgument("字段"+columnName+"的"+scope+"选项来源值不能为空"), "system.code.gen.error.column_option_source_value_empty", map[string]string{"Name": columnName, "Scope": scope})
 	}
 	// 数据表选项必须明确展示字段、值字段以及树形父级字段。
 	if option.GetSourceType() == "table" && (option.GetLabelField() == "" || option.GetValueField() == "" || option.GetKind() == "tree" && option.GetParentField() == "") {
-		return errorsx.InvalidArgument("字段" + columnName + "的" + scope + "数据表选项字段配置不完整")
+		return errorsx.WithMessageKey(errorsx.InvalidArgument("字段"+columnName+"的"+scope+"数据表选项字段配置不完整"), "system.code.gen.error.column_option_table_fields_incomplete", map[string]string{"Name": columnName, "Scope": scope})
 	}
 	return nil
 }

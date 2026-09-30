@@ -272,6 +272,7 @@
   "system.base.ai_provider.field.name": "プロバイダー名",
   "system.base.ai_provider.field.provider": "モデル提供元の種類",
   "system.base.ai_provider.message.confirm_delete": "プロバイダー「{name}」を削除しますか？",
+  "system.base.ai_provider.message.test_unsupported_category": "このモデル分類は接続テストに対応していません",
   "system.base.ai_provider.message.create_success": "プロバイダーを作成しました",
   "system.base.ai_provider.message.delete_success": "プロバイダーを削除しました",
   "system.base.ai_provider.message.status_success": "プロバイダーの状態を更新しました",

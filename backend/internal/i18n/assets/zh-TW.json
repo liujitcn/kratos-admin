@@ -1970,6 +1970,9 @@
   "legacy.error.6de8ebe104908a91": {
     "other": "初始化租戶管理員角色失敗"
   },
+  "legacy.error.6e3c9cde7970ab77": {
+    "other": "重新擷取文件文字失敗"
+  },
   "legacy.error.6e402b7ebdd5b6e9": {
     "other": "微信登入預設角色設定錯誤"
   },
@@ -5230,6 +5233,75 @@
   },
   "system.code.gen.error.batch.definition_conflict": {
     "other": "資料表{{.Previous}}與資料表{{.Current}}在{{.Key}}中的生成定義不一致"
+  },
+  "system.code.gen.error.column_duplicate": {
+    "other": "欄位 {{.Name}} 配置重複"
+  },
+  "system.code.gen.error.column_not_found": {
+    "other": "欄位 {{.Name}} 不存在"
+  },
+  "system.code.gen.error.column_form_multiple_tree_only": {
+    "other": "欄位 {{.Name}} 的表單多選僅支援樹形選擇"
+  },
+  "system.code.gen.error.column_form_multiple_json_only": {
+    "other": "欄位 {{.Name}} 的表單多選僅支援JSON欄位"
+  },
+  "system.code.gen.error.column_list_option_unnecessary": {
+    "other": "欄位 {{.Name}} 的列表元件不需要選項配置"
+  },
+  "system.code.gen.error.column_list_select_incomplete": {
+    "other": "欄位 {{.Name}} 的列表下拉選項配置不完整"
+  },
+  "system.code.gen.error.column_list_tree_incomplete": {
+    "other": "欄位 {{.Name}} 的列表樹形選項配置不完整"
+  },
+  "system.code.gen.error.column_list_component_unsupported": {
+    "other": "欄位 {{.Name}} 的列表元件不支援"
+  },
+  "system.code.gen.error.column_form_dict_incomplete": {
+    "other": "欄位 {{.Name}} 的表單字典選擇配置不完整"
+  },
+  "system.code.gen.error.column_switch_incomplete": {
+    "other": "欄位 {{.Name}} 的 {{.Scope}} 開關配置不完整"
+  },
+  "system.code.gen.error.column_switch_values_conflict": {
+    "other": "欄位 {{.Name}} 的 {{.Scope}} 開關開啟值和關閉值不能相同"
+  },
+  "system.code.gen.error.column_option_kind_empty": {
+    "other": "欄位 {{.Name}} 的 {{.Scope}} 選項形態不能為空"
+  },
+  "system.code.gen.error.column_option_switch_value_forbidden": {
+    "other": "欄位 {{.Name}} 的 {{.Scope}} 選項不能配置開關值"
+  },
+  "system.code.gen.error.column_option_lazy_only_tree": {
+    "other": "欄位 {{.Name}} 的 {{.Scope}} 僅樹形選項支援懶加載"
+  },
+  "system.code.gen.error.column_option_tree_table_only": {
+    "other": "欄位 {{.Name}} 的 {{.Scope}} 樹形選項只能使用資料表來源"
+  },
+  "system.code.gen.error.column_option_source_incomplete": {
+    "other": "欄位 {{.Name}} 的 {{.Scope}} 選項來源配置不完整"
+  },
+  "system.code.gen.error.column_option_source_value_empty": {
+    "other": "欄位 {{.Name}} 的 {{.Scope}} 選項來源值不能為空"
+  },
+  "system.code.gen.error.column_option_table_fields_incomplete": {
+    "other": "欄位 {{.Name}} 的 {{.Scope}} 資料表選項欄位配置不完整"
+  },
+  "system.code.gen.error.proto_api_kind_unsupported": {
+    "other": "Proto介面 {{.Method}} 的介面類型不支援"
+  },
+  "system.code.gen.error.proto_field_required": {
+    "other": "請選擇Proto介面 {{.Method}} 的 {{.Label}}"
+  },
+  "system.code.gen.error.proto_field_not_in_table": {
+    "other": "Proto介面 {{.Method}} 的 {{.Label}} {{.Value}} 不屬於目標表 {{.Table}}"
+  },
+  "system.admin.base.ai.model.name.duplicated": {
+    "other": "AI模型名稱重複: {{.Name}}"
+  },
+  "rag.admin.ai.knowledge.doc.reextract.failed": {
+    "other": "重新擷取文件文字失敗"
   },
   "system.code.gen.error.batch.empty": {
     "other": "批次生成至少需要選擇一張資料表"

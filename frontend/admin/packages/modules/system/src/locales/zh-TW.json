@@ -272,6 +272,7 @@
   "system.base.ai_provider.field.name": "供應商名稱",
   "system.base.ai_provider.field.provider": "模型服務商類型",
   "system.base.ai_provider.message.confirm_delete": "確定要刪除供應商「{name}」嗎？",
+  "system.base.ai_provider.message.test_unsupported_category": "該模型分類暫不支援連通性測試",
   "system.base.ai_provider.message.create_success": "供應商建立成功",
   "system.base.ai_provider.message.delete_success": "供應商刪除成功",
   "system.base.ai_provider.message.status_success": "供應商狀態更新成功",

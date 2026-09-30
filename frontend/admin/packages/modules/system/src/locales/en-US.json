@@ -272,6 +272,7 @@
   "system.base.ai_provider.field.name": "Provider name",
   "system.base.ai_provider.field.provider": "Provider type",
   "system.base.ai_provider.message.confirm_delete": "Delete provider \"{name}\"?",
+  "system.base.ai_provider.message.test_unsupported_category": "Connectivity test is not supported for this model category",
   "system.base.ai_provider.message.create_success": "Provider created",
   "system.base.ai_provider.message.delete_success": "Provider deleted",
   "system.base.ai_provider.message.status_success": "Provider status updated",

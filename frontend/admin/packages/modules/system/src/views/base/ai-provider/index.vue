@@ -33,7 +33,7 @@
                   </el-tag>
                   <el-tooltip
                     v-if="modelTestResults[model.model_name]"
-                    :content="modelTestResults[model.model_name]?.message"
+                    :content="resolvePersistedMessage(modelTestResults[model.model_name]?.message)"
                     :disabled="!modelTestResults[model.model_name]?.message"
                     placement="top"
                   >
@@ -120,6 +120,7 @@ import { buildPageRequest, normalizeSelectedIds } from "@liujitcn/kratos-admin-c
 import { useTenantScope } from "@liujitcn/kratos-admin-core/tenant";
 import { t } from "@liujitcn/kratos-admin-core";
 import { encodeSecretFields } from "@liujitcn/kratos-admin-core/security";
+import { resolvePersistedMessage } from "../../utils/persisted-message";
 import { defAiProviderService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/ai_provider";
 import {
   type AiProvider,

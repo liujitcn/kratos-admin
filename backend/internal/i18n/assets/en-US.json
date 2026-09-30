@@ -1970,6 +1970,9 @@
   "legacy.error.6de8ebe104908a91": {
     "other": "Failed to initialize the tenant administrator role"
   },
+  "legacy.error.6e3c9cde7970ab77": {
+    "other": "Failed to re-extract document text"
+  },
   "legacy.error.6e402b7ebdd5b6e9": {
     "other": "WeChat login default role configuration is incorrect"
   },
@@ -5230,6 +5233,75 @@
   },
   "system.code.gen.error.batch.definition_conflict": {
     "other": "Tables {{.Previous}} and {{.Current}} define different content for {{.Key}}"
+  },
+  "system.code.gen.error.column_duplicate": {
+    "other": "Duplicate configuration for column {{.Name}}"
+  },
+  "system.code.gen.error.column_not_found": {
+    "other": "Column {{.Name}} does not exist"
+  },
+  "system.code.gen.error.column_form_multiple_tree_only": {
+    "other": "Multiple selection for column {{.Name}} only supports tree select"
+  },
+  "system.code.gen.error.column_form_multiple_json_only": {
+    "other": "Multiple selection for column {{.Name}} only supports JSON columns"
+  },
+  "system.code.gen.error.column_list_option_unnecessary": {
+    "other": "The list component for column {{.Name}} does not need option configuration"
+  },
+  "system.code.gen.error.column_list_select_incomplete": {
+    "other": "Incomplete dropdown option configuration for column {{.Name}} in list view"
+  },
+  "system.code.gen.error.column_list_tree_incomplete": {
+    "other": "Incomplete tree option configuration for column {{.Name}} in list view"
+  },
+  "system.code.gen.error.column_list_component_unsupported": {
+    "other": "Unsupported list component for column {{.Name}}"
+  },
+  "system.code.gen.error.column_form_dict_incomplete": {
+    "other": "Incomplete dictionary selection configuration for column {{.Name}} in form view"
+  },
+  "system.code.gen.error.column_switch_incomplete": {
+    "other": "Incomplete switch configuration for column {{.Name}} ({{.Scope}})"
+  },
+  "system.code.gen.error.column_switch_values_conflict": {
+    "other": "The active and inactive values of the switch for column {{.Name}} ({{.Scope}}) cannot be the same"
+  },
+  "system.code.gen.error.column_option_kind_empty": {
+    "other": "The option kind for column {{.Name}} ({{.Scope}}) cannot be empty"
+  },
+  "system.code.gen.error.column_option_switch_value_forbidden": {
+    "other": "Options for column {{.Name}} ({{.Scope}}) cannot configure switch values"
+  },
+  "system.code.gen.error.column_option_lazy_only_tree": {
+    "other": "Lazy loading for column {{.Name}} ({{.Scope}}) only supports tree options"
+  },
+  "system.code.gen.error.column_option_tree_table_only": {
+    "other": "Tree options for column {{.Name}} ({{.Scope}}) only support table source"
+  },
+  "system.code.gen.error.column_option_source_incomplete": {
+    "other": "Incomplete option source configuration for column {{.Name}} ({{.Scope}})"
+  },
+  "system.code.gen.error.column_option_source_value_empty": {
+    "other": "The option source value for column {{.Name}} ({{.Scope}}) cannot be empty"
+  },
+  "system.code.gen.error.column_option_table_fields_incomplete": {
+    "other": "Incomplete table option fields for column {{.Name}} ({{.Scope}})"
+  },
+  "system.code.gen.error.proto_api_kind_unsupported": {
+    "other": "Unsupported API kind for Proto API {{.Method}}"
+  },
+  "system.code.gen.error.proto_field_required": {
+    "other": "Please select {{.Label}} for Proto API {{.Method}}"
+  },
+  "system.code.gen.error.proto_field_not_in_table": {
+    "other": "The {{.Label}} {{.Value}} of Proto API {{.Method}} does not belong to target table {{.Table}}"
+  },
+  "system.admin.base.ai.model.name.duplicated": {
+    "other": "Duplicate AI model name: {{.Name}}"
+  },
+  "rag.admin.ai.knowledge.doc.reextract.failed": {
+    "other": "Failed to re-extract document text"
   },
   "system.code.gen.error.batch.empty": {
     "other": "Select at least one table for batch generation"

@@ -144,7 +144,7 @@ func (c *AiKnowledgeDocCase) ReprocessAiKnowledgeDoc(ctx context.Context, docID 
 	}
 	text, err := extractDocText(path.Base(item.FilePath), content)
 	if err != nil {
-		return errorsx.InvalidArgument(fmt.Sprintf("重新抽取文档文本失败: %v", err))
+		return errorsx.WithMessageKey(errorsx.InvalidArgument("重新抽取文档文本失败"), "rag.admin.ai.knowledge.doc.reextract.failed", nil).WithCause(err)
 	}
 	return c.engine.ReprocessDoc(ctx, docID, text)
 }

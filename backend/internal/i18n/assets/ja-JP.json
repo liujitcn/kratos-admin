@@ -1970,6 +1970,9 @@
   "legacy.error.6de8ebe104908a91": {
     "other": "テナント管理者ロールの初期化に失敗しました"
   },
+  "legacy.error.6e3c9cde7970ab77": {
+    "other": "ドキュメントテキストの再抽出に失敗しました"
+  },
   "legacy.error.6e402b7ebdd5b6e9": {
     "other": "WeChatログインの既定ロール設定が正しくありません"
   },
@@ -5230,6 +5233,75 @@
   },
   "system.code.gen.error.batch.definition_conflict": {
     "other": "テーブル{{.Previous}}と{{.Current}}の{{.Key}}定義が一致しません"
+  },
+  "system.code.gen.error.column_duplicate": {
+    "other": "カラム {{.Name}} の設定が重複しています"
+  },
+  "system.code.gen.error.column_not_found": {
+    "other": "カラム {{.Name}} は存在しません"
+  },
+  "system.code.gen.error.column_form_multiple_tree_only": {
+    "other": "カラム {{.Name}} のフォーム複数選択はツリー選択のみ対応しています"
+  },
+  "system.code.gen.error.column_form_multiple_json_only": {
+    "other": "カラム {{.Name}} のフォーム複数選択はJSONカラムのみ対応しています"
+  },
+  "system.code.gen.error.column_list_option_unnecessary": {
+    "other": "カラム {{.Name}} のリストコンポーネントにオプション設定は不要です"
+  },
+  "system.code.gen.error.column_list_select_incomplete": {
+    "other": "カラム {{.Name}} のリスト用ドロップダウン設定が不完全です"
+  },
+  "system.code.gen.error.column_list_tree_incomplete": {
+    "other": "カラム {{.Name}} のリスト用ツリー設定が不完全です"
+  },
+  "system.code.gen.error.column_list_component_unsupported": {
+    "other": "カラム {{.Name}} のリストコンポーネントは対応していません"
+  },
+  "system.code.gen.error.column_form_dict_incomplete": {
+    "other": "カラム {{.Name}} のフォーム用辞書選択設定が不完全です"
+  },
+  "system.code.gen.error.column_switch_incomplete": {
+    "other": "カラム {{.Name}} のスイッチ設定が不完全です（{{.Scope}}）"
+  },
+  "system.code.gen.error.column_switch_values_conflict": {
+    "other": "カラム {{.Name}} のスイッチのON値とOFF値は同じにできません（{{.Scope}}）"
+  },
+  "system.code.gen.error.column_option_kind_empty": {
+    "other": "カラム {{.Name}} のオプション種別は空にできません（{{.Scope}}）"
+  },
+  "system.code.gen.error.column_option_switch_value_forbidden": {
+    "other": "カラム {{.Name}} のオプションにスイッチ値は設定できません（{{.Scope}}）"
+  },
+  "system.code.gen.error.column_option_lazy_only_tree": {
+    "other": "カラム {{.Name}} で遅延読み込みはツリーオプションのみ対応しています（{{.Scope}}）"
+  },
+  "system.code.gen.error.column_option_tree_table_only": {
+    "other": "カラム {{.Name}} のツリーオプションはテーブルソースのみ利用できます（{{.Scope}}）"
+  },
+  "system.code.gen.error.column_option_source_incomplete": {
+    "other": "カラム {{.Name}} のオプションソース設定が不完全です（{{.Scope}}）"
+  },
+  "system.code.gen.error.column_option_source_value_empty": {
+    "other": "カラム {{.Name}} のオプションソース値は空にできません（{{.Scope}}）"
+  },
+  "system.code.gen.error.column_option_table_fields_incomplete": {
+    "other": "カラム {{.Name}} のテーブルオプションフィールド設定が不完全です（{{.Scope}}）"
+  },
+  "system.code.gen.error.proto_api_kind_unsupported": {
+    "other": "Proto API {{.Method}} のAPI種別は対応していません"
+  },
+  "system.code.gen.error.proto_field_required": {
+    "other": "Proto API {{.Method}} の {{.Label}} を選択してください"
+  },
+  "system.code.gen.error.proto_field_not_in_table": {
+    "other": "Proto API {{.Method}} の {{.Label}} {{.Value}} は対象テーブル {{.Table}} に属しません"
+  },
+  "system.admin.base.ai.model.name.duplicated": {
+    "other": "AIモデル名が重複しています: {{.Name}}"
+  },
+  "rag.admin.ai.knowledge.doc.reextract.failed": {
+    "other": "ドキュメントテキストの再抽出に失敗しました"
   },
   "system.code.gen.error.batch.empty": {
     "other": "一括生成するテーブルを1つ以上選択してください"

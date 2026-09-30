@@ -244,7 +244,7 @@ func (c *CodeGenProtoCase) validateCodeGenProtoColumns(ctx context.Context, sour
 	fields, supported := codeGenProtoConfigFields(proto.GetApiKind(), proto.GetConfig())
 	// 未知接口类型没有可用的生成模板。
 	if !supported {
-		return errorsx.InvalidArgument("Proto接口" + methodName + "的接口类型不支持")
+		return errorsx.WithMessageKey(errorsx.InvalidArgument("Proto接口"+methodName+"的接口类型不支持"), "system.code.gen.error.proto_api_kind_unsupported", map[string]string{"Method": methodName})
 	}
 	// 基础接口没有类型配置字段，无需读取数据库元数据。
 	if len(fields) == 0 {
@@ -256,10 +256,10 @@ func (c *CodeGenProtoCase) validateCodeGenProtoColumns(ctx context.Context, sour
 	}
 	for _, field := range fields {
 		if field.value == "" {
-			return errorsx.InvalidArgument("请选择Proto接口" + methodName + "的" + field.label)
+			return errorsx.WithMessageKey(errorsx.InvalidArgument("请选择Proto接口"+methodName+"的"+field.label), "system.code.gen.error.proto_field_required", map[string]string{"Method": methodName, "Label": field.label})
 		}
 		if _, exists := columnNames[field.value]; !exists {
-			return errorsx.InvalidArgument("Proto接口" + methodName + "的" + field.label + field.value + "不属于目标表" + tableName)
+			return errorsx.WithMessageKey(errorsx.InvalidArgument("Proto接口"+methodName+"的"+field.label+field.value+"不属于目标表"+tableName), "system.code.gen.error.proto_field_not_in_table", map[string]string{"Method": methodName, "Label": field.label, "Value": field.value, "Table": tableName})
 		}
 	}
 	return nil

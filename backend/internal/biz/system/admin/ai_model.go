@@ -172,7 +172,7 @@ func (c *AiModelCase) SyncProviderModels(ctx context.Context, provider *models.A
 			return err
 		}
 		if _, duplicated := seenNames[entity.ModelName]; duplicated {
-			return errorsx.InvalidArgument(fmt.Sprintf("AI模型名称重复: %s", entity.ModelName))
+			return errorsx.WithMessageKey(errorsx.InvalidArgument(fmt.Sprintf("AI模型名称重复: %s", entity.ModelName)), "system.admin.base.ai.model.name.duplicated", map[string]string{"Name": entity.ModelName})
 		}
 		seenNames[entity.ModelName] = struct{}{}
 		entity.ProviderID = provider.ID
@@ -247,7 +247,8 @@ func (c *AiModelCase) TestProviderModels(ctx context.Context, provider *models.A
 			testResult := testEmbeddingModel(ctx, provider, item)
 			result.Success, result.DurationMs, result.Message = testResult.Success, testResult.DurationMs, testResult.Message
 		default:
-			result.Message = "该模型分类暂不支持连通性测试"
+			// 持久化国际化消息标记，由管理端按当前语言渲染。
+			result.Message = "__I18N__:system.base.ai_provider.message.test_unsupported_category"
 		}
 		results = append(results, result)
 	}
