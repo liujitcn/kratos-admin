@@ -1,14 +1,14 @@
 #!/bin/sh
 set -eu
 
-static_seed_directory="${KRATOS_STATIC_SEED_DIRECTORY:-/opt/kratos-admin/static}"
-static_directory="${KRATOS_STATIC_DIRECTORY:-/app/web}"
-config_seed_directory="${KRATOS_CONFIG_SEED_DIRECTORY:-/opt/kratos-admin/configs}"
+web_seed_directory="${KRATOS_WEB_SEED_DIRECTORY:-/opt/kratos/web}"
+web_directory="${KRATOS_WEB_DIRECTORY:-/app/web}"
+config_seed_directory="${KRATOS_CONFIG_SEED_DIRECTORY:-/opt/kratos/configs}"
 config_directory="${KRATOS_CONFIG_DIRECTORY:-/app/configs}"
 
-mkdir -p "$static_directory"
-if [ -d "$static_seed_directory" ]; then
-  cp -R "$static_seed_directory"/. "$static_directory"/
+mkdir -p "$web_directory"
+if [ -d "$web_seed_directory" ]; then
+  cp -R "$web_seed_directory"/. "$web_directory"/
 fi
 
 mkdir -p "$config_directory"
