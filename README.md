@@ -187,11 +187,11 @@ Admin 的公开 `backend/adapter/core` 和 `backend/adapter/kit` 构造函数只
 
 修改固定文案时须补齐该模块各语言的相同 key 和占位符。`make i18n` 不会自动补齐缺失的界面译文；同步发现缺失会直接失败。`src/locales/generated.ts` 等语言注册文件和 `openapi.<locale>.yaml` 是生成产物，不手工维护。初始化 SQL 的变化不会自动覆盖已执行迁移的数据库译文。
 
-完整说明见 [国际化设计与语言扩展](docs/国际化最终方案.md)。
+完整说明见 [国际化设计与语言扩展](docs/国际化设计与语言扩展.md)。
 
 语言包定义系统能够渲染的语言集合，`base_language` 表只负责运行时启用状态、名称、排序和主语言配置。管理端语言偏好保存为 `kratos-admin:locale`，uni-app 和 Taro 保存为 `kratos-app:locale`；所有 HTTP、刷新令牌、fetch、SSE、uni.request 和 Taro.request 请求都会发送规范化的 `Accept-Language`。固定文案由各 workspace 的 core/System JSON 语言包维护，动态菜单和字典由后端翻译表按请求语言解析，缺少当前语言译文时回退主语言。
 
-新增语言不需要修改 Go、TypeScript 或模块注册代码：在 `backend/internal/i18n/assets` 和三个 workspace 的六个前端语言包目录中增加同名 JSON，然后执行 `make i18n`。脚本会校验语言集合、语言键和占位符，并生成六个前端注册文件、Element Plus 和 Day.js 映射。语言名称、排序、启用状态和主语言由 `base_language` 数据库记录提供；`common.language.*` 用于编译期离线显示和生成语言迁移的初始名称。新增语言的完整文件清单和迁移流程见 [国际化设计与语言扩展](docs/国际化最终方案.md)。需要把语言加入新部署数据库时，直接更新唯一的 `v0.0.1` 初始化迁移；已有数据库的启用状态不会被迁移覆盖。
+新增语言不需要修改 Go、TypeScript 或模块注册代码：在 `backend/internal/i18n/assets` 和三个 workspace 的六个前端语言包目录中增加同名 JSON，然后执行 `make i18n`。脚本会校验语言集合、语言键和占位符，并生成六个前端注册文件、Element Plus 和 Day.js 映射。语言名称、排序、启用状态和主语言由 `base_language` 数据库记录提供；`common.language.*` 用于编译期离线显示和生成语言迁移的初始名称。新增语言的完整文件清单和迁移流程见 [国际化设计与语言扩展](docs/国际化设计与语言扩展.md)。需要把语言加入新部署数据库时，直接更新唯一的 `v0.0.1` 初始化迁移；已有数据库的启用状态不会被迁移覆盖。
 
 动态资源的主语言由 `base_language.is_primary` 配置。创建或更新菜单、字典、字典项和系统配置时，后端按请求 `Accept-Language` 将输入文本转换为主语言写入主表；请求语言不是主语言时，原文写入对应翻译表，其他已启用非主语言也只保存在翻译表。系统配置名称、菜单标题、字典名称和字典项标签支持在管理端点击名称打开翻译弹窗，文本/富文本配置值支持运行时翻译回退。
 
@@ -238,7 +238,7 @@ make -C frontend publish
 | AI 助手 | [docs/AI助手设计.md](docs/AI助手设计.md) |
 | 站内信 | [docs/站内信设计.md](docs/站内信设计.md) |
 | 管理端组件 | [docs/前端组件清单.md](docs/前端组件清单.md) |
-| 国际化设计与语言扩展 | [docs/国际化最终方案.md](docs/国际化最终方案.md) |
+| 国际化设计与语言扩展 | [docs/国际化设计与语言扩展.md](docs/国际化设计与语言扩展.md) |
 | 安全策略与运维任务 | [docs/安全策略与运维任务.md](docs/安全策略与运维任务.md) |
 
 

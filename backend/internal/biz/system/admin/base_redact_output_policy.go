@@ -122,7 +122,7 @@ func (c *BaseRedactOutputPolicyCase) CreateBaseRedactOutputPolicy(ctx context.Co
 			return errorsx.InvalidArgument("出库脱敏策略不能为空")
 		}
 		var rule *models.BaseRedactRule
-		rule, err = c.validateOutputForm(ctx, input)
+		rule, err = c.validateOutputForm(ctx, input, input.GetTenantId())
 		if err != nil {
 			return err
 		}
@@ -179,10 +179,8 @@ func (c *BaseRedactOutputPolicyCase) UpdateBaseRedactOutputPolicy(ctx context.Co
 		if err != nil {
 			return err
 		}
-		validationInput := *input
-		validationInput.TenantId = oldItem.TenantID
 		var rule *models.BaseRedactRule
-		rule, err = c.validateOutputForm(ctx, &validationInput)
+		rule, err = c.validateOutputForm(ctx, input, oldItem.TenantID)
 		if err != nil {
 			return err
 		}
@@ -281,8 +279,8 @@ func (c *BaseRedactOutputPolicyCase) GetBaseRedactOutputFieldDoc(ctx context.Con
 }
 
 // validateOutputForm 校验出库策略接口、模式和规则参数。
-func (c *BaseRedactOutputPolicyCase) validateOutputForm(ctx context.Context, input *adminv1.BaseRedactOutputPolicyForm) (*models.BaseRedactRule, error) {
-	if input.GetTenantId() <= 0 {
+func (c *BaseRedactOutputPolicyCase) validateOutputForm(ctx context.Context, input *adminv1.BaseRedactOutputPolicyForm, tenantId int64) (*models.BaseRedactRule, error) {
+	if tenantId <= 0 {
 		return nil, errorsx.InvalidArgument("请选择租户")
 	}
 	query := c.baseAPIRepo.Query(ctx).BaseAPI

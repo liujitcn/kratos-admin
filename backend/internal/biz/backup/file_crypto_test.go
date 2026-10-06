@@ -33,8 +33,7 @@ func TestFileCryptoGoFallback(t *testing.T) {
 
 // TestFileCryptoCommandToGoFallback 验证 OpenSSL 加密文件可以由 Go fallback 解密。
 func TestFileCryptoCommandToGoFallback(t *testing.T) {
-	opensslPath, err := exec.LookPath("openssl")
-	if err != nil {
+	if _, err := exec.LookPath(OpensslCommand); err != nil {
 		t.Skipf("openssl is unavailable: %v", err)
 	}
 	directory := t.TempDir()
@@ -42,10 +41,16 @@ func TestFileCryptoCommandToGoFallback(t *testing.T) {
 	encrypted := filepath.Join(directory, "encrypted.bin")
 	decrypted := filepath.Join(directory, "decrypted.bin")
 	content := []byte("OpenSSL to Go backup fallback")
-	if err = os.WriteFile(source, content, 0o600); err != nil {
+	if err := os.WriteFile(source, content, 0o600); err != nil {
 		t.Fatalf("write source: %v", err)
 	}
-	command := exec.Command(opensslPath, "enc", "-aes-256-cbc", "-pbkdf2", "-iter", "100000", "-md", "sha256", "-salt", "-saltlen", "8", "-in", source, "-out", encrypted, "-pass", "pass:backup-password")
+	// 复用生产参数构造（含 -saltlen 能力探测），夹具需与本机 OpenSSL 实际用法一致。
+	passwordFile, err := WriteSecretFile("kratos-openssl-", "backup-password\n")
+	if err != nil {
+		t.Fatalf("write password file: %v", err)
+	}
+	defer os.Remove(passwordFile)
+	command := exec.Command(OpensslCommand, opensslFileCommandArgs(false, source, encrypted, passwordFile)...)
 	if output, runErr := command.CombinedOutput(); runErr != nil {
 		t.Fatalf("openssl encryption: %v: %s", runErr, output)
 	}
