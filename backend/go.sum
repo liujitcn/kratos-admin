@@ -771,8 +771,8 @@ github.com/liujitcn/kratos-kit/database/gorm/driver v0.0.22 h1:yFMRg09fgWOnrf0oC
 github.com/liujitcn/kratos-kit/database/gorm/driver v0.0.22/go.mod h1:o8yW8lcmcz2evAQaCjeXjX2WMOFwmElz5S74bngDlb8=
 github.com/liujitcn/kratos-kit/database/gorm/driver/mysql v0.0.25 h1:zwc+4vvR7c86qVSeJrxci+XXVg1AWNiWsdnpfWb2wIQ=
 github.com/liujitcn/kratos-kit/database/gorm/driver/mysql v0.0.25/go.mod h1:541b99YTJ4aPJFhj9Ld3X+gMqcIiNkrYE84pIKLxi6E=
-github.com/liujitcn/kratos-kit/database/gorm/driver/postgres v0.0.21 h1:m2O/pf0Z4KBxzC+fLk10lH/A8CYHWqBSWa2fXg/4lBw=
-github.com/liujitcn/kratos-kit/database/gorm/driver/postgres v0.0.21/go.mod h1:AoRRnwtXmf+qI9aVUxCRtwKRr5xOzrykRAlg2r/l2hk=
+github.com/liujitcn/kratos-kit/database/gorm/driver/postgres v0.0.22 h1:mL7DqWfeCnrt1pkfppK4Atw6JAtQ1ZgTIm63lVx/CJw=
+github.com/liujitcn/kratos-kit/database/gorm/driver/postgres v0.0.22/go.mod h1:AoRRnwtXmf+qI9aVUxCRtwKRr5xOzrykRAlg2r/l2hk=
 github.com/liujitcn/kratos-kit/database/gorm/migration v0.0.17 h1:e1Bf8qKvqUbvgmbXKLJwqJ5ZqHodHKOfSDVJVHwLfe4=
 github.com/liujitcn/kratos-kit/database/gorm/migration v0.0.17/go.mod h1:vG7rD+itLbTx1i633meZmrTPQAAskdlmWUz5EEtredw=
 github.com/liujitcn/kratos-kit/key v0.0.8 h1:oVJcItx2HioP50NDzAmIUiUSbvTJGrX7Ki7uJxucldY=

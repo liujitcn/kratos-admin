@@ -33,7 +33,7 @@ require (
 	github.com/liujitcn/kratos-kit/config v0.0.37
 	github.com/liujitcn/kratos-kit/database/gorm v0.0.54
 	github.com/liujitcn/kratos-kit/database/gorm/driver/mysql v0.0.25
-	github.com/liujitcn/kratos-kit/database/gorm/driver/postgres v0.0.21
+	github.com/liujitcn/kratos-kit/database/gorm/driver/postgres v0.0.22
 	github.com/liujitcn/kratos-kit/database/gorm/migration v0.0.17
 	github.com/liujitcn/kratos-kit/locker v0.0.22
 	github.com/liujitcn/kratos-kit/logger/zap v0.0.21
