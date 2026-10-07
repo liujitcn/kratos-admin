@@ -10,6 +10,7 @@ import (
 	"github.com/liujitcn/kratos-admin/backend/adapter/kit"
 	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
 	basebiz "github.com/liujitcn/kratos-admin/backend/internal/biz/base"
+	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/dto"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/redact"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
@@ -21,6 +22,7 @@ import (
 
 	_string "github.com/liujitcn/go-utils/string"
 	"github.com/liujitcn/gorm-kit/repository"
+	kitgorm "github.com/liujitcn/kratos-kit/database/gorm"
 	"gorm.io/gorm"
 )
 
@@ -72,16 +74,54 @@ func (c *BaseRedactStoragePolicyCase) PageBaseRedactStoragePolicy(ctx context.Co
 	if err != nil {
 		return nil, err
 	}
+	var comments map[string]string
+	comments, err = c.listTableComments(ctx, list)
+	if err != nil {
+		return nil, err
+	}
 	result := make([]*adminv1.BaseRedactStoragePolicy, 0, len(list))
 	for _, item := range list {
 		var dto *adminv1.BaseRedactStoragePolicy
-		dto, err = c.toBaseRedactStoragePolicy(ctx, item)
+		dto, err = c.toBaseRedactStoragePolicy(ctx, item, comments)
 		if err != nil {
 			return nil, err
 		}
 		result = append(result, dto)
 	}
 	return &adminv1.PageBaseRedactStoragePolicyResponse{BaseRedactStoragePolicies: result, Total: int32(total)}, nil
+}
+
+// listTableComments 批量查询本页策略涉及的数据表注释，返回数据源和表名组合键到注释的映射。
+func (c *BaseRedactStoragePolicyCase) listTableComments(ctx context.Context, rows []*models.BaseRedactStoragePolicy) (map[string]string, error) {
+	tablesBySource := make(map[string][]string)
+	seen := make(map[string]struct{})
+	for _, row := range rows {
+		key := row.SourceName + "\x00" + row.TableName_
+		if _, ok := seen[key]; ok {
+			continue
+		}
+		seen[key] = struct{}{}
+		tablesBySource[row.SourceName] = append(tablesBySource[row.SourceName], row.TableName_)
+	}
+	comments := make(map[string]string)
+	var err error
+	for sourceName, tableNames := range tablesBySource {
+		var client *kitgorm.Client
+		client, err = GormClientBySourceName(c.BaseCase, sourceName)
+		if err != nil {
+			// 数据源已下线的策略回退展示裸表名，不阻塞整个列表。
+			continue
+		}
+		var metas []dto.CodeGenDatabaseTable
+		metas, err = listDatabaseTableMetadata(ctx, client, tableNames)
+		if err != nil {
+			return nil, errorsx.Internal("查询数据表注释失败").WithCause(err)
+		}
+		for _, meta := range metas {
+			comments[sourceName+"\x00"+meta.TableName] = meta.TableComment
+		}
+	}
+	return comments, nil
 }
 
 // GetBaseRedactStoragePolicy 查询入库脱敏策略详情。
@@ -434,10 +474,10 @@ func (c *BaseRedactStoragePolicyCase) ensureNoStoredValues(ctx context.Context, 
 	return nil
 }
 
-// validateStorageForm 校验入库策略的目标字段和规则参数。
+// validateStorageForm 校验入库策略的目标字段和规则参数，租户编号为零表示全局策略。
 func (c *BaseRedactStoragePolicyCase) validateStorageForm(ctx context.Context, input *adminv1.BaseRedactStoragePolicyForm) (*models.BaseRedactRule, error) {
-	if input.GetTenantId() <= 0 {
-		return nil, errorsx.InvalidArgument("请选择租户")
+	if input.GetTenantId() < 0 {
+		return nil, errorsx.InvalidArgument("租户ID不能为负数")
 	}
 	client, err := GormClientBySourceName(c.BaseCase, input.GetSourceName())
 	if err != nil {
@@ -513,11 +553,11 @@ func isUniqueStorageIndexColumn(columnName string, indexes []gorm.Index) bool {
 	return false
 }
 
-// toBaseRedactStoragePolicy 转换入库脱敏策略列表项。
-func (c *BaseRedactStoragePolicyCase) toBaseRedactStoragePolicy(ctx context.Context, item *models.BaseRedactStoragePolicy) (*adminv1.BaseRedactStoragePolicy, error) {
+// toBaseRedactStoragePolicy 转换入库脱敏策略列表项并填充数据表注释。
+func (c *BaseRedactStoragePolicyCase) toBaseRedactStoragePolicy(ctx context.Context, item *models.BaseRedactStoragePolicy, comments map[string]string) (*adminv1.BaseRedactStoragePolicy, error) {
 	rule, err := c.ruleRepo.FindByID(ctx, item.RuleID)
 	if err != nil {
 		return nil, err
 	}
-	return &adminv1.BaseRedactStoragePolicy{Id: item.ID, TenantId: item.TenantID, SourceName: item.SourceName, TableName: item.TableName_, ColumnName: item.ColumnName, RuleId: item.RuleID, RuleCode: rule.Code, RuleName: rule.Name, RuleType: rule.RuleType, RuleParams: item.RuleParams, Status: commonv1.Status(item.Status), Remark: item.Remark, CreatedAt: item.CreatedAt.Format("2006-01-02 15:04:05"), UpdatedAt: item.UpdatedAt.Format("2006-01-02 15:04:05")}, nil
+	return &adminv1.BaseRedactStoragePolicy{Id: item.ID, TenantId: item.TenantID, SourceName: item.SourceName, TableName: item.TableName_, TableComment: comments[item.SourceName+"\x00"+item.TableName_], ColumnName: item.ColumnName, RuleId: item.RuleID, RuleCode: rule.Code, RuleName: rule.Name, RuleType: rule.RuleType, RuleParams: item.RuleParams, Status: commonv1.Status(item.Status), Remark: item.Remark, CreatedAt: item.CreatedAt.Format("2006-01-02 15:04:05"), UpdatedAt: item.UpdatedAt.Format("2006-01-02 15:04:05")}, nil
 }

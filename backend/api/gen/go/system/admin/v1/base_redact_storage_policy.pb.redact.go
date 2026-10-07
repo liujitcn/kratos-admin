@@ -302,6 +302,8 @@ func (x *BaseRedactStoragePolicy) Redact() {
 
 	// Safe field: TenantId
 
+	// Safe field: TableComment
+
 	// Safe field: Status
 
 	// Safe field: Remark

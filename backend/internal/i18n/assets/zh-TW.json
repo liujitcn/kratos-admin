@@ -2120,6 +2120,9 @@
   "legacy.error.767282ee3a85c273": {
     "other": "欄位加密規則僅支援入庫策略"
   },
+  "legacy.error.7682fda2321265f8": {
+    "other": "查詢數據表註釋失敗"
+  },
   "legacy.error.768924fa8f2215c3": {
     "other": "只能設定已啟用的語言區域"
   },
@@ -2329,6 +2332,9 @@
   },
   "legacy.error.8378c73fbc6061ca": {
     "other": "查詢崗位分頁列表失敗"
+  },
+  "legacy.error.83a3eb2b68bdbb54": {
+    "other": "租戶ID不能為負數"
   },
   "legacy.error.83e43a4951d784c2": {
     "other": "上級行政區域不能是自身"

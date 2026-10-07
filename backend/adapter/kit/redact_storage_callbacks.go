@@ -23,10 +23,9 @@ type storageDigestResolver interface {
 }
 
 type preparedEntity struct {
-	tenantID        int64
-	entity          any
-	deletePolicyIDs []int64
-	values          map[int64]*redact.StorageValue
+	entity         any
+	deletePolicies []redact.StorageFieldPolicy
+	values         map[int64]*redact.StorageValue
 }
 
 type preparedState struct {
@@ -122,7 +121,7 @@ func (r *storageRuntime) prepareStorageEntities(db *gorm.DB, creating bool) {
 			db.AddError(err)
 			return
 		}
-		if len(prepared.values) == 0 && len(prepared.deletePolicyIDs) == 0 {
+		if len(prepared.values) == 0 && len(prepared.deletePolicies) == 0 {
 			continue
 		}
 		state.entities = append(state.entities, prepared)
@@ -163,7 +162,7 @@ func queryFieldSelected(selects []string, columnName string) bool {
 // prepareStorageEntity 处理单个实体并记录待保存或删除的旁表值。
 func (r *storageRuntime) prepareStorageEntity(ctx context.Context, policies []redact.StorageFieldPolicy, entity any, db *gorm.DB, creating bool) (preparedEntity, error) {
 	selectedPolicies := make([]redact.StorageFieldPolicy, 0, len(policies))
-	deletePolicyIDs := make([]int64, 0)
+	deletePolicies := make([]redact.StorageFieldPolicy, 0)
 	accessor := gormEntityFieldAccessor{}
 	var err error
 	for _, policy := range policies {
@@ -183,7 +182,7 @@ func (r *storageRuntime) prepareStorageEntity(ctx context.Context, policies []re
 		}
 		if zero || value == nil || value == "" {
 			if !creating {
-				deletePolicyIDs = append(deletePolicyIDs, policy.ID)
+				deletePolicies = append(deletePolicies, policy)
 			}
 			continue
 		}
@@ -208,7 +207,7 @@ func (r *storageRuntime) prepareStorageEntity(ctx context.Context, policies []re
 	if err != nil {
 		return preparedEntity{}, err
 	}
-	return preparedEntity{tenantID: policies[0].TenantID, entity: entity, deletePolicyIDs: deletePolicyIDs, values: values}, nil
+	return preparedEntity{entity: entity, deletePolicies: deletePolicies, values: values}, nil
 }
 
 // saveStorageValues 在主表写入完成后保存旁表敏感值。
@@ -246,8 +245,9 @@ func (r *storageRuntime) saveStorageValues(db *gorm.DB) {
 				return
 			}
 		}
-		for _, storagePolicyID := range prepared.deletePolicyIDs {
-			err = r.store.DeleteWithDB(db.Statement.Context, db, prepared.tenantID, storagePolicyID, recordID)
+		for _, storagePolicy := range prepared.deletePolicies {
+			// 全局和租户策略混合时按各策略自身租户删除旁表记录。
+			err = r.store.DeleteWithDB(db.Statement.Context, db, storagePolicy.TenantID, storagePolicy.ID, recordID)
 			if err != nil {
 				db.AddError(err)
 				return
@@ -393,10 +393,12 @@ func (r *storageRuntime) materializeStorageResponse(db *gorm.DB) {
 	}
 }
 
-// storageTenantID 返回实体租户；平台表没有租户字段时使用该表唯一策略租户。
+// storageTenantID 返回实体租户；租户为零表示应用全局策略，
+// 平台表没有租户字段时使用该表唯一策略租户。
 func (r *storageRuntime) storageTenantID(ctx context.Context, entity any, tableName string) (int64, error) {
 	tenantID, err := entityTenantID(ctx, entity)
-	if err == nil && tenantID > 0 {
+	// 实体自带租户字段时以字段为准，零值回退全局策略。
+	if err == nil {
 		return tenantID, nil
 	}
 	policies := r.resolver.ListStoragePoliciesByTable(tableName)
@@ -409,7 +411,7 @@ func (r *storageRuntime) storageTenantID(ctx context.Context, entity any, tableN
 			return 0, fmt.Errorf("平台表 %s 存在多个存储策略租户", tableName)
 		}
 	}
-	if tenantID <= 0 {
+	if tenantID < 0 {
 		return 0, err
 	}
 	return tenantID, nil
@@ -445,7 +447,8 @@ func (r *storageRuntime) decryptDirectEntity(ctx context.Context, entity any, po
 	}
 	plaintext, err := r.fieldCipher.Decrypt(policy.Rule.EncryptAlgorithm, text)
 	if err != nil {
-		return err
+		// 存量明文行解密失败时按原值透传，等待下次保存经直接加密自动转为密文。
+		return nil
 	}
 	return accessor.Set(ctx, entity, policy.ColumnName, plaintext)
 }

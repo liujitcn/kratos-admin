@@ -357,6 +357,7 @@
   "common.field.sort": "Sort order",
   "common.field.status": "Status",
   "common.field.tenant": "Tenant",
+  "common.field.tenant_global": "Global",
   "common.field.project": "Project",
   "common.field.updated_at": "Updated at",
   "common.field.user": "User",

@@ -13743,6 +13743,9 @@ components:
                 tenant_id:
                     type: string
                     description: テナント ID
+                table_comment:
+                    type: string
+                    description: データテーブルのコメント
                 status:
                     enum:
                         - STATUS_UNSPECIFIED

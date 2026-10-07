@@ -1,6 +1,7 @@
 import { computed, ref, type ComputedRef, type Ref } from "vue";
 import type { ProFormField } from "@/components/ProForm/interface";
 import type { ColumnProps, EnumProps, RenderScope, SearchType } from "@/components/ProTable/interface";
+import { t } from "@/locales";
 import { defBaseTenantService } from "@/api/system/admin/v1/base_tenant";
 import type { SelectOptionResponse_Option } from "@/rpc/common/v1/common";
 import { useUserStore } from "@/stores/runtime";
@@ -25,6 +26,22 @@ export async function requestTenantCodeOptions() {
   return { data: options };
 }
 
+/** 查询包含全局选项的租户选项，值为零表示全局。 */
+export async function requestGlobalTenantOptions() {
+  const { data } = await requestTenantOptionData();
+  return { data: [globalTenantOption(), ...data] };
+}
+
+/** 构造全局租户选项。 */
+function globalTenantOption(): SelectOptionResponse_Option {
+  return { label: t("common.field.tenant_global"), value: 0, disabled: false };
+}
+
+/** 在租户选项前插入全局选项。 */
+function prependGlobalTenantOption(options: SelectOptionResponse_Option[]) {
+  return [globalTenantOption(), ...options];
+}
+
 /** 租户上下文状态。 */
 export interface TenantScope {
   /** 当前账号是否为默认租户。 */
@@ -36,7 +53,7 @@ export interface TenantScope {
   /** 加载默认租户可选择的租户。 */
   loadTenantOptions: (includeCurrentTenant?: boolean) => Promise<void>;
   /** 将页面租户筛选值转换成后端请求值。 */
-  toRequestTenantId: (value: unknown) => number | undefined;
+  toRequestTenantId: (value: unknown, allowGlobal?: boolean) => number | undefined;
   /** 创建默认租户可见的表单字段。 */
   tenantFormField: (options: TenantFormFieldOptions) => ProFormField;
   /** 创建默认租户可见的表格租户列。 */
@@ -55,6 +72,8 @@ export interface TenantFormFieldOptions {
   props?: Record<string, any>;
   /** 是否允许编辑态修改租户。 */
   disabledOnEdit?: boolean;
+  /** 是否在选项最前面追加全局选项（值为零）。 */
+  includeGlobal?: boolean;
 }
 
 /** 租户表格列配置。 */
@@ -81,6 +100,8 @@ export interface TenantColumnOptions {
   searchEl?: SearchType;
   /** 自定义单元格展示。 */
   render?: (scope: RenderScope) => ReturnType<NonNullable<ColumnProps["render"]>>;
+  /** 是否在选项最前面追加全局选项（值为零）。 */
+  includeGlobal?: boolean;
 }
 
 /** 创建租户范围能力，统一默认租户和普通租户的前端行为。 */
@@ -96,10 +117,13 @@ export function useTenantScope(): TenantScope {
     tenantOptions.value = await loadSharedTenantOptions();
   }
 
-  function toRequestTenantId(value: unknown) {
+  function toRequestTenantId(value: unknown, allowGlobal = false) {
     if (!isDefaultTenant.value || value === undefined || value === null || value === "") return undefined;
     const tenantId = Number(value);
-    return Number.isFinite(tenantId) && tenantId > 0 ? tenantId : undefined;
+    if (!Number.isFinite(tenantId) || tenantId < 0) return undefined;
+    // 允许全局时零值原样透传，由后端筛选全局策略。
+    if (tenantId === 0) return allowGlobal ? 0 : undefined;
+    return tenantId;
   }
 
   function tenantFormField(options: TenantFormFieldOptions): ProFormField {
@@ -110,6 +134,7 @@ export function useTenantScope(): TenantScope {
       component: "tenant-select",
       props: (model: Record<string, any>) => ({
         filterable: true,
+        ...(options.includeGlobal ? { options: prependGlobalTenantOption(tenantOptions.value) } : {}),
         ...(options.disabledOnEdit ? { disabled: Boolean(model.id) } : {}),
         ...options.props
       }),
@@ -120,6 +145,7 @@ export function useTenantScope(): TenantScope {
   function tenantColumns(options: TenantColumnOptions): ColumnProps[] {
     if (!isDefaultTenant.value) return [];
     const prop = options.prop ?? "tenant_id";
+    const includeGlobal = options.includeGlobal === true;
     return [
       {
         prop,
@@ -135,11 +161,18 @@ export function useTenantScope(): TenantScope {
             : {
                 el: options.searchEl ?? "tenant-select",
                 key: options.searchKey ?? prop,
-                props: { filterable: true },
+                props: {
+                  filterable: true,
+                  ...(includeGlobal ? { options: prependGlobalTenantOption(tenantOptions.value) } : {})
+                },
                 order: options.order ?? 1
               },
-        enum: options.enum ?? requestTenantOptionData,
-        render: options.render ?? (scope => resolveTenantLabel(scope.row, prop))
+        enum: options.enum ?? (includeGlobal ? requestGlobalTenantOptions : requestTenantOptionData),
+        render:
+          options.render ??
+          (scope =>
+            // 租户编号为零表示全局数据。
+            includeGlobal && Number(scope.row[prop]) === 0 ? t("common.field.tenant_global") : resolveTenantLabel(scope.row, prop))
       }
     ];
   }
@@ -149,6 +182,8 @@ export function useTenantScope(): TenantScope {
     if (directLabel) return String(directLabel);
     const value = row[field];
     if (value === undefined || value === null || value === "") return "";
+    // 租户编号为零表示全局数据。
+    if (Number(value) === 0) return t("common.field.tenant_global");
     const nameMap = new Map(options.map(item => [String(item.value), item.label] as const));
     return nameMap.get(String(value)) ?? String(value);
   }

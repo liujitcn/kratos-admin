@@ -357,6 +357,7 @@
   "common.field.sort": "排序",
   "common.field.status": "狀態",
   "common.field.tenant": "租戶",
+  "common.field.tenant_global": "全域",
   "common.field.project": "專案",
   "common.field.updated_at": "更新時間",
   "common.field.user": "使用者",

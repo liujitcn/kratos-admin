@@ -20,6 +20,9 @@ import (
 
 const policyCacheTTL = time.Minute
 
+// globalTenantID 表示全局脱敏策略的租户编号。
+const globalTenantID = int64(0)
+
 var (
 	_ redact.PolicyResolver        = (*RedactPolicyResolver)(nil)
 	_ redact.StoragePolicyResolver = (*RedactPolicyResolver)(nil)
@@ -203,7 +206,8 @@ func (r *RedactPolicyResolver) Resolve(ctx context.Context, fieldRef string) (re
 	return policy, ok
 }
 
-// ListStoragePolicies 返回默认数据源的入库策略，仅在初始化成功后自动刷新缓存。
+// ListStoragePolicies 返回默认数据源的入库策略：租户策略覆盖同字段全局策略，
+// 租户ID为零或不为正时仅应用全局策略。仅在初始化成功后自动刷新缓存。
 func (r *RedactPolicyResolver) ListStoragePolicies(ctx context.Context, tenantID int64, tableName string) []redact.StorageFieldPolicy {
 	if r == nil {
 		return nil
@@ -211,17 +215,33 @@ func (r *RedactPolicyResolver) ListStoragePolicies(ctx context.Context, tenantID
 	r.mu.RLock()
 	loadedAt := r.loadedAt
 	initialized := r.runtime != nil
-	policies := append([]redact.StorageFieldPolicy(nil), r.storagePolicies[storagePolicyKey(tenantID, kitgorm.DefaultClientName, tableName)]...)
+	policies := r.mergedStoragePolicies(tenantID, tableName)
 	r.mu.RUnlock()
 	if initialized && time.Since(loadedAt) >= policyCacheTTL {
 		err := r.refreshIfExpired(ctx)
 		if err == nil {
 			r.mu.RLock()
-			policies = append([]redact.StorageFieldPolicy(nil), r.storagePolicies[storagePolicyKey(tenantID, kitgorm.DefaultClientName, tableName)]...)
+			policies = r.mergedStoragePolicies(tenantID, tableName)
 			r.mu.RUnlock()
 		}
 	}
-	return policies
+	return append([]redact.StorageFieldPolicy(nil), policies...)
+}
+
+// mergedStoragePolicies 合并全局和租户入库策略，调用方必须持有读锁。
+func (r *RedactPolicyResolver) mergedStoragePolicies(tenantID int64, tableName string) []redact.StorageFieldPolicy {
+	global := r.storagePolicies[storagePolicyKey(globalTenantID, kitgorm.DefaultClientName, tableName)]
+	if tenantID <= 0 {
+		return global
+	}
+	tenant := r.storagePolicies[storagePolicyKey(tenantID, kitgorm.DefaultClientName, tableName)]
+	if len(tenant) == 0 {
+		return global
+	}
+	if len(global) == 0 {
+		return tenant
+	}
+	return mergeStoragePolicies(global, tenant)
 }
 
 // HasStoragePolicies 判断物理表是否配置了任一租户存储脱敏策略。
@@ -257,7 +277,8 @@ func (r *RedactPolicyResolver) ListStoragePoliciesByTable(tableName string) []re
 	return policies
 }
 
-// lookupOutputPolicy 按精确接口和字段执行出库策略匹配。
+// lookupOutputPolicy 按精确接口和字段执行出库策略匹配：
+// 优先使用响应数据所属租户的策略，未命中或未携带租户时回退全局策略。
 func (r *RedactPolicyResolver) lookupOutputPolicy(ctx context.Context, fieldRef string) (redact.FieldPolicy, bool) {
 	operation := redact.OperationFromContext(ctx)
 	if operation == "" {
@@ -266,18 +287,20 @@ func (r *RedactPolicyResolver) lookupOutputPolicy(ctx context.Context, fieldRef 
 	if authenticationResponseOperation(operation) {
 		return redact.FieldPolicy{Mode: redact.PolicyModeFull}, true
 	}
-	tenantID := redact.TenantIDFromContext(ctx)
-	if tenantID <= 0 {
-		return redact.FieldPolicy{}, false
+	if tenantID := redact.TenantIDFromContext(ctx); tenantID > 0 {
+		policy, ok := r.outputPolicies[outputPolicyKey(tenantID, operation, fieldRef)]
+		if ok {
+			return policy, true
+		}
 	}
-	policy, ok := r.outputPolicies[outputPolicyKey(tenantID, operation, fieldRef)]
+	policy, ok := r.outputPolicies[outputPolicyKey(globalTenantID, operation, fieldRef)]
 	if ok {
 		return policy, true
 	}
 	return redact.FieldPolicy{}, false
 }
 
-// buildStoragePolicies 构建按物理表分组的入库策略。
+// buildStoragePolicies 构建按物理表分组的入库策略，租户编号为零表示全局策略。
 func buildStoragePolicies(rows []*models.BaseRedactStoragePolicy, rules map[int64]*models.BaseRedactRule) (map[string][]redact.StorageFieldPolicy, error) {
 	result := make(map[string][]redact.StorageFieldPolicy)
 	var err error
@@ -297,8 +320,8 @@ func buildStoragePolicies(rows []*models.BaseRedactStoragePolicy, rules map[int6
 		}
 		fieldPolicy.RuleID = rule.ID
 		fieldPolicy.Fingerprint = redact.RuleFingerprint(rule.RuleType, params)
-		if row.TenantID <= 0 {
-			return nil, fmt.Errorf("入库脱敏策略 %d 缺少租户", row.ID)
+		if row.TenantID < 0 {
+			return nil, fmt.Errorf("入库脱敏策略 %d 租户ID无效", row.ID)
 		}
 		key := storagePolicyKey(row.TenantID, row.SourceName, row.TableName_)
 		result[key] = append(result[key], redact.StorageFieldPolicy{
@@ -312,13 +335,13 @@ func buildStoragePolicies(rows []*models.BaseRedactStoragePolicy, rules map[int6
 	return result, nil
 }
 
-// buildOutputPolicies 构建精确接口字段出库策略。
+// buildOutputPolicies 构建精确接口字段出库策略，租户编号为零表示全局策略。
 func buildOutputPolicies(rows []*models.BaseRedactOutputPolicy, rules map[int64]*models.BaseRedactRule) (map[string]redact.FieldPolicy, error) {
 	result := make(map[string]redact.FieldPolicy, len(rows))
 	var err error
 	for _, row := range rows {
-		if row.TenantID <= 0 {
-			return nil, fmt.Errorf("响应脱敏策略 %d 缺少租户", row.ID)
+		if row.TenantID < 0 {
+			return nil, fmt.Errorf("响应脱敏策略 %d 租户ID无效", row.ID)
 		}
 		if row.ServiceName == "" || row.Operation == "" || row.MessageRef == "" || row.FieldPath == "" {
 			return nil, fmt.Errorf("出库脱敏策略 %d 缺少接口或Proto字段", row.ID)
@@ -379,4 +402,20 @@ func authenticationResponseOperation(operation string) bool {
 // outputPolicyKey 生成接口和Proto字段组成的出库策略键。
 func outputPolicyKey(tenantID int64, operation, fieldRef string) string {
 	return fmt.Sprintf("%d\x00%s\x00%s", tenantID, operation, fieldRef)
+}
+
+// mergeStoragePolicies 合并全局和租户入库策略，租户策略按字段覆盖全局策略。
+func mergeStoragePolicies(global, tenant []redact.StorageFieldPolicy) []redact.StorageFieldPolicy {
+	overridden := make(map[string]struct{}, len(tenant))
+	for _, policy := range tenant {
+		overridden[strings.ToLower(policy.ColumnName)] = struct{}{}
+	}
+	merged := make([]redact.StorageFieldPolicy, 0, len(global)+len(tenant))
+	for _, policy := range global {
+		if _, ok := overridden[strings.ToLower(policy.ColumnName)]; ok {
+			continue
+		}
+		merged = append(merged, policy)
+	}
+	return append(merged, tenant...)
 }

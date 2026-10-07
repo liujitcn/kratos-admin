@@ -45,6 +45,23 @@ func TestDirectEncryptionPolicyStoresPayloadAndRestoresPlaintext(t *testing.T) {
 	}
 }
 
+// TestDecryptDirectEntityToleratesLegacyPlaintext 验证存量明文解密失败时按原值透传且不报错。
+func TestDecryptDirectEntityToleratesLegacyPlaintext(t *testing.T) {
+	cipher, err := newFieldCipher([]byte("12345678901234567890123456789012"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	runtime := &storageRuntime{fieldCipher: cipher}
+	entity := &storageCallbackTestEntity{ID: 42, Phone: "legacy-plain-secret"}
+	policy := redact.StorageFieldPolicy{ID: 11, TenantID: 1, TableName: "storage_callback_test", ColumnName: "phone", Rule: redact.FieldPolicy{Mode: redact.PolicyModeApplyRule, RuleType: directEncryptionRuleType, EncryptAlgorithm: "AES_GCM", Transform: func(value any) any { return value }}}
+	if testErr := runtime.decryptDirectEntity(context.Background(), entity, policy); testErr != nil {
+		t.Fatal(testErr)
+	}
+	if entity.Phone != "legacy-plain-secret" {
+		t.Fatalf("存量明文应保持原值: %q", entity.Phone)
+	}
+}
+
 type storageQueryTestResolver struct {
 	recordIDs map[string][]int64
 }

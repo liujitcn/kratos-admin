@@ -235,7 +235,7 @@ type BaseRedactStoragePolicyForm struct {
 	RuleId        int64                  `protobuf:"varint,4,opt,name=rule_id,json=ruleId,proto3" json:"rule_id,omitempty"`            // 规则ID
 	RuleParams    string                 `protobuf:"bytes,5,opt,name=rule_params,json=ruleParams,proto3" json:"rule_params,omitempty"` // 规则参数
 	SourceName    string                 `protobuf:"bytes,6,opt,name=source_name,json=sourceName,proto3" json:"source_name,omitempty"` // 数据源名称
-	TenantId      int64                  `protobuf:"varint,7,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`      // 租户ID
+	TenantId      int64                  `protobuf:"varint,7,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`      // 租户ID，零表示全局策略
 	Status        commonv1.Status        `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"`  // 状态
 	Remark        string                 `protobuf:"bytes,101,opt,name=remark,proto3" json:"remark,omitempty"`                         // 备注
 	unknownFields protoimpl.UnknownFields
@@ -526,20 +526,21 @@ func (x *SetBaseRedactStoragePolicyStatusRequest) GetStatus() commonv1.Status {
 // 入库脱敏策略。
 type BaseRedactStoragePolicy struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                  // 入库策略ID
-	TableName     string                 `protobuf:"bytes,2,opt,name=table_name,json=tableName,proto3" json:"table_name,omitempty"`    // 数据库表名
-	ColumnName    string                 `protobuf:"bytes,3,opt,name=column_name,json=columnName,proto3" json:"column_name,omitempty"` // 数据库字段名
-	RuleId        int64                  `protobuf:"varint,4,opt,name=rule_id,json=ruleId,proto3" json:"rule_id,omitempty"`            // 规则ID
-	RuleCode      string                 `protobuf:"bytes,5,opt,name=rule_code,json=ruleCode,proto3" json:"rule_code,omitempty"`       // 规则编码
-	RuleName      string                 `protobuf:"bytes,6,opt,name=rule_name,json=ruleName,proto3" json:"rule_name,omitempty"`       // 规则名称
-	RuleType      string                 `protobuf:"bytes,7,opt,name=rule_type,json=ruleType,proto3" json:"rule_type,omitempty"`       // 规则类型
-	RuleParams    string                 `protobuf:"bytes,8,opt,name=rule_params,json=ruleParams,proto3" json:"rule_params,omitempty"` // 规则参数
-	SourceName    string                 `protobuf:"bytes,9,opt,name=source_name,json=sourceName,proto3" json:"source_name,omitempty"` // 数据源名称
-	TenantId      int64                  `protobuf:"varint,10,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`     // 租户ID
-	Status        commonv1.Status        `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"`  // 状态
-	Remark        string                 `protobuf:"bytes,101,opt,name=remark,proto3" json:"remark,omitempty"`                         // 备注
-	CreatedAt     string                 `protobuf:"bytes,200,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`  // 创建时间
-	UpdatedAt     string                 `protobuf:"bytes,201,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`  // 更新时间
+	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                         // 入库策略ID
+	TableName     string                 `protobuf:"bytes,2,opt,name=table_name,json=tableName,proto3" json:"table_name,omitempty"`           // 数据库表名
+	ColumnName    string                 `protobuf:"bytes,3,opt,name=column_name,json=columnName,proto3" json:"column_name,omitempty"`        // 数据库字段名
+	RuleId        int64                  `protobuf:"varint,4,opt,name=rule_id,json=ruleId,proto3" json:"rule_id,omitempty"`                   // 规则ID
+	RuleCode      string                 `protobuf:"bytes,5,opt,name=rule_code,json=ruleCode,proto3" json:"rule_code,omitempty"`              // 规则编码
+	RuleName      string                 `protobuf:"bytes,6,opt,name=rule_name,json=ruleName,proto3" json:"rule_name,omitempty"`              // 规则名称
+	RuleType      string                 `protobuf:"bytes,7,opt,name=rule_type,json=ruleType,proto3" json:"rule_type,omitempty"`              // 规则类型
+	RuleParams    string                 `protobuf:"bytes,8,opt,name=rule_params,json=ruleParams,proto3" json:"rule_params,omitempty"`        // 规则参数
+	SourceName    string                 `protobuf:"bytes,9,opt,name=source_name,json=sourceName,proto3" json:"source_name,omitempty"`        // 数据源名称
+	TenantId      int64                  `protobuf:"varint,10,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`            // 租户ID
+	TableComment  string                 `protobuf:"bytes,11,opt,name=table_comment,json=tableComment,proto3" json:"table_comment,omitempty"` // 数据表注释
+	Status        commonv1.Status        `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"`         // 状态
+	Remark        string                 `protobuf:"bytes,101,opt,name=remark,proto3" json:"remark,omitempty"`                                // 备注
+	CreatedAt     string                 `protobuf:"bytes,200,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`         // 创建时间
+	UpdatedAt     string                 `protobuf:"bytes,201,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`         // 更新时间
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -642,6 +643,13 @@ func (x *BaseRedactStoragePolicy) GetTenantId() int64 {
 		return x.TenantId
 	}
 	return 0
+}
+
+func (x *BaseRedactStoragePolicy) GetTableComment() string {
+	if x != nil {
+		return x.TableComment
+	}
+	return ""
 }
 
 func (x *BaseRedactStoragePolicy) GetStatus() commonv1.Status {
@@ -1009,7 +1017,7 @@ const file_system_admin_v1_base_redact_storage_policy_proto_rawDesc = "" +
 	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\"\xaf\x01\n" +
 	"!GetBaseRedactStoragePolicyRequest\x12\x89\x01\n" +
 	"\x02id\x18\x01 \x01(\x03By\xbaG\x11\x92\x02\x0e入库策略ID\xbaHb\xba\x01_\n" +
-	"7system.admin.base.redact.storage_policy.get.id.required\x12\x1a入库策略ID不能为空\x1a\bthis > 0R\x02id\"\xae\v\n" +
+	"7system.admin.base.redact.storage_policy.get.id.required\x12\x1a入库策略ID不能为空\x1a\bthis > 0R\x02id\"\xb4\v\n" +
 	"\x1bBaseRedactStoragePolicyForm\x12$\n" +
 	"\x02id\x18\x01 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e入库策略IDR\x02id\x12\xf5\x01\n" +
 	"\n" +
@@ -1025,9 +1033,9 @@ const file_system_admin_v1_base_redact_storage_policy_proto_rawDesc = "" +
 	"ruleParams\x12\xda\x01\n" +
 	"\vsource_name\x18\x06 \x01(\tB\xb8\x01\xbaG\x12\x92\x02\x0f数据源名称\xbaH\x9f\x01\xba\x01\x9b\x01\n" +
 	"<system.admin.base.redact.storage_policy.source_name.required\x125数据源名称不能为空且不能超过64个字符\x1a$this.size() > 0 && this.size() <= 64R\n" +
-	"sourceName\x12\x88\x01\n" +
-	"\ttenant_id\x18\a \x01(\x03Bk\xbaG\v\x92\x02\b租户ID\xbaHZ\xba\x01W\n" +
-	":system.admin.base.redact.storage_policy.tenant_id.required\x12\x0f请选择租户\x1a\bthis > 0R\btenantId\x12?\n" +
+	"sourceName\x12\x8e\x01\n" +
+	"\ttenant_id\x18\a \x01(\x03Bq\xbaG\v\x92\x02\b租户ID\xbaH`\xba\x01]\n" +
+	"7system.admin.base.redact.storage_policy.tenant_id.valid\x12\x17租户ID不能为负数\x1a\tthis >= 0R\btenantId\x12?\n" +
 	"\x06status\x18d \x01(\x0e2\x11.common.v1.StatusB\x14\xbaG\t\x92\x02\x06状态\xbaH\x05\x82\x01\x02\x10\x01R\x06status\x12\x95\x01\n" +
 	"\x06remark\x18e \x01(\tB}\xbaG\t\x92\x02\x06备注\xbaHn\xba\x01k\n" +
 	"5system.admin.base.redact.storage_policy.remark.length\x12\x1e备注不能超过500个字符\x1a\x12this.size() <= 500R\x06remark\"\xae\x02\n" +
@@ -1043,7 +1051,7 @@ const file_system_admin_v1_base_redact_storage_policy_proto_rawDesc = "" +
 	"'SetBaseRedactStoragePolicyStatusRequest\x12\x8c\x01\n" +
 	"\x02id\x18\x01 \x01(\x03B|\xbaG\x11\x92\x02\x0e入库策略ID\xbaHe\xba\x01b\n" +
 	":system.admin.base.redact.storage_policy.status.id.required\x12\x1a入库策略ID不能为空\x1a\bthis > 0R\x02id\x12?\n" +
-	"\x06status\x18\x02 \x01(\x0e2\x11.common.v1.StatusB\x14\xbaG\t\x92\x02\x06状态\xbaH\x05\x82\x01\x02\x10\x01R\x06status\"\xcd\x05\n" +
+	"\x06status\x18\x02 \x01(\x0e2\x11.common.v1.StatusB\x14\xbaG\t\x92\x02\x06状态\xbaH\x05\x82\x01\x02\x10\x01R\x06status\"\x89\x06\n" +
 	"\x17BaseRedactStoragePolicy\x12$\n" +
 	"\x02id\x18\x01 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e入库策略IDR\x02id\x124\n" +
 	"\n" +
@@ -1059,7 +1067,8 @@ const file_system_admin_v1_base_redact_storage_policy_proto_rawDesc = "" +
 	"\vsource_name\x18\t \x01(\tB\x15\xbaG\x12\x92\x02\x0f数据源名称R\n" +
 	"sourceName\x12+\n" +
 	"\ttenant_id\x18\n" +
-	" \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDR\btenantId\x127\n" +
+	" \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDR\btenantId\x12:\n" +
+	"\rtable_comment\x18\v \x01(\tB\x15\xbaG\x12\x92\x02\x0f数据表注释R\ftableComment\x127\n" +
 	"\x06status\x18d \x01(\x0e2\x11.common.v1.StatusB\f\xbaG\t\x92\x02\x06状态R\x06status\x12$\n" +
 	"\x06remark\x18e \x01(\tB\f\xbaG\t\x92\x02\x06备注R\x06remark\x122\n" +
 	"\n" +

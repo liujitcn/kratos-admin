@@ -18,7 +18,7 @@ require (
 	github.com/liujitcn/go-utils/http v0.0.8
 	github.com/liujitcn/gorm-kit v0.0.35
 	github.com/liujitcn/kratos-admin/backend/api v0.0.21
-	github.com/liujitcn/kratos-core v0.0.45
+	github.com/liujitcn/kratos-core v0.0.46
 	github.com/liujitcn/kratos-core/api v0.0.6
 	github.com/liujitcn/kratos-kit v0.0.90
 	github.com/liujitcn/kratos-kit/ai/model v0.0.7
@@ -42,7 +42,7 @@ require (
 	github.com/liujitcn/kratos-kit/oss v0.0.22
 	github.com/liujitcn/kratos-kit/pprof v0.0.17
 	github.com/liujitcn/kratos-kit/queue v0.0.34
-	github.com/liujitcn/kratos-kit/redact v0.0.12
+	github.com/liujitcn/kratos-kit/redact v0.0.13
 	github.com/liujitcn/kratos-kit/registry/consul v0.0.9
 	github.com/liujitcn/kratos-kit/secretcrypto v0.0.3
 	github.com/liujitcn/kratos-kit/translator v0.0.9
@@ -240,7 +240,7 @@ require (
 	github.com/liujitcn/kratos-kit/queue/redisqueue v0.0.16 // indirect
 	github.com/liujitcn/kratos-kit/registry v0.0.25 // indirect
 	github.com/liujitcn/kratos-kit/server/grpc v0.0.9 // indirect
-	github.com/liujitcn/kratos-kit/server/http v0.0.8 // indirect
+	github.com/liujitcn/kratos-kit/server/http v0.0.9 // indirect
 	github.com/liujitcn/kratos-kit/server/mcp v0.0.6 // indirect
 	github.com/liujitcn/kratos-kit/server/sse v0.0.6 // indirect
 	github.com/liujitcn/kratos-kit/swagger-ui v0.0.15 // indirect

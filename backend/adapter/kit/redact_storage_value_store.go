@@ -156,7 +156,7 @@ func (s *StorageValueStore) DeleteWithDB(ctx context.Context, db *gorm.DB, tenan
 	if s == nil || s.repository == nil {
 		return errors.New("敏感字段旁表仓储未初始化")
 	}
-	if db == nil || tenantID <= 0 || storagePolicyID <= 0 || recordID <= 0 {
+	if db == nil || tenantID < 0 || storagePolicyID <= 0 || recordID <= 0 {
 		return nil
 	}
 	base := queryForDB(db).BaseRedactStorageValue

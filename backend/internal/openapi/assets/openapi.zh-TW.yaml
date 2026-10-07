@@ -13743,6 +13743,9 @@ components:
                 tenant_id:
                     type: string
                     description: 租戶ID
+                table_comment:
+                    type: string
+                    description: 資料表註釋
                 status:
                     enum:
                         - STATUS_UNSPECIFIED

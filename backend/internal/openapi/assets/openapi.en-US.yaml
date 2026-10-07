@@ -13743,6 +13743,9 @@ components:
                 tenant_id:
                     type: string
                     description: tenant ID
+                table_comment:
+                    type: string
+                    description: Data table comment
                 status:
                     enum:
                         - STATUS_UNSPECIFIED

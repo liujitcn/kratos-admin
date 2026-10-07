@@ -2120,6 +2120,9 @@
   "legacy.error.767282ee3a85c273": {
     "other": "Field encryption rules only support inbound policies"
   },
+  "legacy.error.7682fda2321265f8": {
+    "other": "Failed to query table comments"
+  },
   "legacy.error.768924fa8f2215c3": {
     "other": "Only enabled locales can be configured"
   },
@@ -2329,6 +2332,9 @@
   },
   "legacy.error.8378c73fbc6061ca": {
     "other": "Failed to page posts"
+  },
+  "legacy.error.83a3eb2b68bdbb54": {
+    "other": "Tenant ID cannot be negative"
   },
   "legacy.error.83e43a4951d784c2": {
     "other": "An administrative area cannot be its own parent"

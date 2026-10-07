@@ -323,13 +323,14 @@ test("脱敏列表和下拉使用中文名称并保持简洁选择器", async ()
 
   assert.match(storageSource, /defBaseRedactStoragePolicyService\.ListBaseRedactStorageTable/);
   assert.match(storageSource, /item\.comment/);
-  assert.match(storageSource, /tableCommentMap/);
+  assert.match(storageSource, /table_comment/);
   assert.match(outputSource, /item\.service_desc/);
   assert.match(outputSource, /api\.desc/);
   assert.match(outputSource, /apiLabel/);
   assert.match(outputSource, /isGetApi/);
   assert.match(outputSource, /api\.method\.toUpperCase\(\) === "GET"/);
-  assert.match(outputSource, /OptionBaseApi\(\{ include_public: true, tenant_response: true \}\)/);
+  assert.match(outputSource, /OptionBaseApi\(\{ include_public: true \}\)/);
+  assert.match(outputSource, /function matchesTenantScope\(item: BaseApi\)/);
   assert.ok(requestApisBlock, "缺少 API 选项请求方法");
   assert.doesNotMatch(requestApisBlock, /requestResponseFields\(api\.id\)/);
   assert.match(outputSource, /mode: BaseRedactOutputPolicyMode\.BASE_REDACT_OUTPUT_POLICY_MODE_FULL/);

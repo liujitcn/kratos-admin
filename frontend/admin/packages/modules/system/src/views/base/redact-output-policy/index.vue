@@ -220,12 +220,12 @@ const statusOptions = computed<ProFormOption[]>(() => [{ label: t("common.status
 const serviceOptions = computed<ProFormOption[]>(() => {
   const services = new Map<string, string>();
   for (const item of apiCatalog.value) {
-    if (!isGetApi(item)) continue;
+    if (!isGetApi(item) || !matchesTenantScope(item)) continue;
     if (item.service_name && !services.has(item.service_name)) services.set(item.service_name, serviceLabel(item.service_name));
   }
   return [...services.entries()].sort(([left], [right]) => left.localeCompare(right)).map(([value, label]) => ({ label, value }));
 });
-const interfaceOptions = computed(() => apiCatalog.value.filter(item => item.service_name === form.service_name && isGetApi(item)));
+const interfaceOptions = computed(() => apiCatalog.value.filter(item => item.service_name === form.service_name && isGetApi(item) && matchesTenantScope(item)));
 const serviceLabels = computed(() => new Map(apiCatalog.value.map(item => [item.service_name, item.service_desc || item.service_name])));
 const operationLabels = computed(() => new Map(apiCatalog.value.map(item => [item.operation, item.desc || item.operation])));
 const modeOptions = computed<ProFormOption[]>(() => [
@@ -235,7 +235,8 @@ const modeOptions = computed<ProFormOption[]>(() => [
 ]);
 const configuredFieldCount = computed(() => form.field_rows.filter(isConfiguredRow).length);
 const fields = computed<ProFormField[]>(() => [
-  tenantFormField({ label: t("common.field.tenant"), disabledOnEdit: true }),
+  // 脱敏策略支持全局配置，租户选择器追加全局选项。
+  tenantFormField({ label: t("common.field.tenant"), disabledOnEdit: true, includeGlobal: true }),
   { prop: "service_name", label: t("system.base.redact_output_policy.field.service_name"), component: "select", options: serviceOptions.value, props: { filterable: true, clearable: true, placeholder: t("system.base.redact_output_policy.placeholder.service"), onChange: handleServiceChange } },
   { prop: "api_id", label: t("system.base.redact_output_policy.field.api"), component: "select", options: interfaceOptions.value.map(api => ({ label: apiLabel(api), value: api.id })), props: { filterable: true, clearable: true, disabled: !form.service_name, placeholder: t("system.base.redact_output_policy.placeholder.api"), onChange: handleApiChange } },
   { prop: "field_rows", label: t("system.base.redact_output_policy.field.response_field"), component: "slot", slotName: "field_rows", colSpan: 24, visible: () => form.api_id !== undefined },
@@ -251,7 +252,7 @@ const rules = computed<FormRules>(() => ({
 const modeEnums = computed<EnumProps[]>(() => modeOptions.value);
 const columns = computed<ColumnProps[]>(() => [
   { type: "selection", width: 55 },
-  ...tenantColumns({ label: t("common.field.tenant"), order: 1 }),
+  ...tenantColumns({ label: t("common.field.tenant"), order: 1, includeGlobal: true }),
   { prop: "service_name", label: t("system.base.redact_output_policy.field.service_name"), minWidth: 220, search: { el: "input" }, render: scope => serviceLabels.value.get(scope.row.service_name) ?? scope.row.service_name },
   { prop: "operation", label: t("system.base.redact_output_policy.field.api"), minWidth: 260, search: { el: "input" }, render: scope => operationLabels.value.get(scope.row.operation) ?? scope.row.operation },
   { prop: "message_ref", label: t("system.base.redact_output_policy.field.message_ref"), minWidth: 220 },
@@ -264,13 +265,13 @@ const columns = computed<ColumnProps[]>(() => [
 const headerActions = computed<HeaderActionProps[]>(() => [{ label: t("common.action.create"), type: "success", icon: CirclePlus, hidden: () => !BUTTONS.value["base:redact-output-policy:create"], onClick: () => openDialog() }, { label: t("common.action.delete"), type: "danger", icon: Delete, hidden: () => !BUTTONS.value["base:redact-output-policy:delete"], disabled: scope => !scope.selectedList.length, onClick: scope => deleteItems(scope.selectedList as BaseRedactOutputPolicy[]) }]);
 
 /** 请求出库脱敏策略分页列表。 */
-async function requestTable(params: PageBaseRedactOutputPolicyRequest) { const data = await defBaseRedactOutputPolicyService.PageBaseRedactOutputPolicy({ ...buildPageRequest(params), tenant_id: toRequestTenantId(params.tenant_id) }); return { data: { list: data.base_redact_output_policies ?? [], total: data.total } }; }
+async function requestTable(params: PageBaseRedactOutputPolicyRequest) { const data = await defBaseRedactOutputPolicyService.PageBaseRedactOutputPolicy({ ...buildPageRequest(params), tenant_id: toRequestTenantId(params.tenant_id, true) }); return { data: { list: data.base_redact_output_policies ?? [], total: data.total } }; }
 /** 加载 API 选项。 */
 async function loadApis() { apiCatalog.value = await requestApis(); }
-/** 请求具备租户响应字段的 GET API 选项。 */
+/** 请求 GET API 选项，包含全局策略可用的非租户响应接口。 */
 async function requestApis() {
   if (!apiCatalogRequest) {
-    apiCatalogRequest = defBaseApiService.OptionBaseApi({ include_public: true, tenant_response: true })
+    apiCatalogRequest = defBaseApiService.OptionBaseApi({ include_public: true })
       .then(data => (data.base_apis ?? []).filter(isGetApi))
       .catch(error => {
         apiCatalogRequest = undefined;
@@ -283,6 +284,8 @@ async function requestApis() {
 async function loadRules() { const rules = await requestRules(); ruleCatalog.value = rules.catalog; ruleOptions.value = rules.options; }
 /** 请求脱敏规则选项。 */
 async function requestRules() { const data = await defBaseRedactRuleService.PageBaseRedactRule({ code: "", name: "", rule_type: "", page_num: 1, page_size: 100 }); const catalog = (data.base_redact_rules ?? []).filter(item => item.rule_type !== "ENCRYPT"); return { catalog, options: catalog.map(item => ({ label: `${item.name} (${item.code})`, value: item.id, disabled: item.status !== Status.STATUS_ENABLE })) }; }
+/** 判断接口是否适用于当前租户范围；仅选择全局策略时允许租户响应以外的接口。 */
+function matchesTenantScope(item: BaseApi) { return form.tenant_id === 0 || Boolean(item.tenant_response); }
 /** 服务变更后清空接口和返回字段。 */
 function handleServiceChange(serviceName?: string) { responseFieldsRequestRevision += 1; form.service_name = serviceName ?? ""; form.api_id = undefined; form.operation = ""; form.message_ref = ""; form.field_path = ""; form.field_rows = []; }
 /** API 变更后重新加载返回字段。 */

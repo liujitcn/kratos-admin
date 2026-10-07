@@ -192,7 +192,6 @@ const table = ref<ProTableInstance>();
 const dialogRef = ref<InstanceType<typeof FormDialog>>();
 const sourceOptions = ref<ProFormOption[]>([]);
 const tableOptions = ref<ProFormOption[]>([]);
-const tableCommentMap = ref(new Map<string, string>());
 const ruleOptions = ref<ProFormOption[]>([]);
 const ruleCatalog = ref<BaseRedactRule[]>([]);
 const dialog = reactive({ visible: false, titleKey: "common.action.create_resource" });
@@ -201,7 +200,8 @@ let columnsRequestRevision = 0;
 const statusOptions = computed<ProFormOption[]>(() => [{ label: t("common.status.enabled"), value: Status.STATUS_ENABLE }, { label: t("common.status.disabled"), value: Status.STATUS_DISABLE }]);
 const configuredFieldCount = computed(() => form.column_rows.filter(row => Boolean(row.rule_id)).length);
 const fields = computed<ProFormField[]>(() => [
-  tenantFormField({ label: t("common.field.tenant"), disabledOnEdit: true }),
+  // 脱敏策略支持全局配置，租户选择器追加全局选项。
+  tenantFormField({ label: t("common.field.tenant"), disabledOnEdit: true, includeGlobal: true }),
   { prop: "source_name", label: t("system.base.redact_storage_policy.field.source_name"), component: "select", props: { filterable: true, disabled: Boolean(form.id), onChange: handleSourceChange }, options: sourceOptions.value },
   { prop: "table_name", label: t("system.base.redact_storage_policy.field.table_name"), component: "select", props: { filterable: true, disabled: Boolean(form.id) || !form.source_name, onChange: handleTableChange }, options: tableOptions.value },
   { prop: "column_rows", label: t("system.base.redact_storage_policy.field.column_name"), component: "slot", slotName: "column_rows", colSpan: 24, visible: () => Boolean(form.table_name) },
@@ -221,7 +221,7 @@ const rules = computed<FormRules>(() => ({
 }));
 const columns = computed<ColumnProps[]>(() => [
   { type: "selection", width: 55 },
-  ...tenantColumns({ label: t("common.field.tenant"), order: 1 }),
+  ...tenantColumns({ label: t("common.field.tenant"), order: 1, includeGlobal: true }),
   { prop: "source_name", label: t("system.base.redact_storage_policy.field.source_name"), minWidth: 130, search: { el: "input" } },
   { prop: "table_name", label: t("system.base.redact_storage_policy.field.table_name"), minWidth: 180, search: { el: "input" }, render: scope => tableLabel(scope.row as BaseRedactStoragePolicy) },
   { prop: "column_name", label: t("system.base.redact_storage_policy.field.column_name"), minWidth: 150, search: { el: "input" } },
@@ -232,7 +232,7 @@ const columns = computed<ColumnProps[]>(() => [
 const headerActions = computed<HeaderActionProps[]>(() => [{ label: t("common.action.create"), type: "success", icon: CirclePlus, hidden: () => !BUTTONS.value["base:redact-storage-policy:create"], onClick: () => openDialog() }, { label: t("common.action.delete"), type: "danger", icon: Delete, hidden: () => !BUTTONS.value["base:redact-storage-policy:delete"], disabled: scope => !scope.selectedList.length, onClick: scope => deleteItems(scope.selectedList as BaseRedactStoragePolicy[]) }]);
 
 /** 请求入库脱敏策略分页列表。 */
-async function requestTable(params: PageBaseRedactStoragePolicyRequest) { const data = await defBaseRedactStoragePolicyService.PageBaseRedactStoragePolicy({ ...buildPageRequest(params), tenant_id: toRequestTenantId(params.tenant_id) }); return { data: { list: data.base_redact_storage_policies ?? [], total: data.total } }; }
+async function requestTable(params: PageBaseRedactStoragePolicyRequest) { const data = await defBaseRedactStoragePolicyService.PageBaseRedactStoragePolicy({ ...buildPageRequest(params), tenant_id: toRequestTenantId(params.tenant_id, true) }); return { data: { list: data.base_redact_storage_policies ?? [], total: data.total } }; }
 /** 加载脱敏规则选项。 */
 async function loadRules() { const rules = await requestRules(); ruleCatalog.value = rules.catalog; ruleOptions.value = rules.options; }
 /** 请求脱敏规则选项。 */
@@ -249,8 +249,6 @@ async function requestSourceOptions() { const data = await defBaseTableSourceSer
 async function loadTables(sourceName = form.source_name) { tableOptions.value = await requestTables(sourceName); }
 /** 请求指定数据源的数据表选项。 */
 async function requestTables(sourceName: string) { if (!sourceName) return []; const data = await defBaseRedactStoragePolicyService.ListBaseRedactStorageTable({ source_name: sourceName }); return (data.tables ?? []).map(item => ({ label: item.comment && item.comment !== item.name ? `${item.comment}（${item.name}）` : item.name, value: item.name })); }
-/** 预加载数据表中文注释，供列表显示。 */
-async function loadTableComments() { await loadSourceOptions(); const comments = new Map<string, string>(); await Promise.all(sourceOptions.value.map(async option => { const sourceName = String(option.value); const data = await defBaseRedactStoragePolicyService.ListBaseRedactStorageTable({ source_name: sourceName }); for (const item of data.tables ?? []) { if (item.comment) comments.set(`${sourceName}\x00${item.name}`, item.comment); } })); tableCommentMap.value = comments; }
 /** 加载并过滤数据库字段。 */
 async function loadColumns() { const revision = ++columnsRequestRevision; const rows = await requestColumns(form.source_name, form.table_name); if (revision === columnsRequestRevision) form.column_rows = rows; }
 /** 请求并转换数据库字段。 */
@@ -307,10 +305,8 @@ function deleteItems(selected?: BaseRedactStoragePolicy | BaseRedactStoragePolic
 /** 创建默认入库表单。 */
 function defaultForm(): StorageFormState { return { id: 0, tenant_id: undefined, source_name: "", table_name: "", column_name: "", column_rows: [], rule_id: 0, rule_params: "{}", status: Status.STATUS_ENABLE, remark: "" }; }
 
-/** 格式化列表中的数据表名称。 */
-function tableLabel(row: BaseRedactStoragePolicy) { const comment = tableCommentMap.value.get(`${row.source_name}\x00${row.table_name}`); return comment && comment !== row.table_name ? `${comment}（${row.table_name}）` : row.table_name; }
-
-void loadTableComments().catch(() => undefined);
+/** 格式化列表中的数据表名称，表注释由列表接口按行返回。 */
+function tableLabel(row: BaseRedactStoragePolicy) { return row.table_comment && row.table_comment !== row.table_name ? `${row.table_comment}（${row.table_name}）` : row.table_name; }
 </script>
 
 <style scoped lang="scss">
