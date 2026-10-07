@@ -11,6 +11,7 @@ import (
 	kratosGRPC "github.com/go-kratos/kratos/v3/transport/grpc"
 	"github.com/go-kratos/kratos/v3/transport/http"
 	"github.com/liujitcn/kratos-admin/backend/adapter/kit"
+	basemfa "github.com/liujitcn/kratos-admin/backend/internal/biz/base"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/ai"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/runtimeconfig"
 	biz "github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin"
@@ -65,6 +66,7 @@ func NewModules(
 	redactResolver *kit.RedactPolicyResolver,
 	rateLimitResolver *kit.RateLimitPolicyResolver,
 	secretFieldStorage *kit.SecretFieldRuntime,
+	mfaCase *basemfa.MfaCase,
 ) (module.Modules, error) {
 	// 迁移可能新增系统配置，模块启动前刷新缓存，避免认证策略沿用旧快照。
 	var err error
@@ -74,12 +76,13 @@ func NewModules(
 	}
 	secretCryptoService := secretcrypto.NewService(adminServices.BaseCase.Cache)
 	secretFieldStorage.ConfigureConfigEncryption(runtimeconfig.SensitiveFields, secretCryptoService)
-	// 脱敏存储策略已保护的表交给该策略加密，密钥字段回调跳过，避免同列双重加密。
+	// 脱敏存储策略已保护的表交给该策略加密，配置加密回调跳过，避免同列双重加密。
 	secretFieldStorage.SetProtectedTableChecker(redactResolver.HasStoragePolicies)
-	if err = secretFieldStorage.Backfill(context.Background()); err != nil {
+	if err = secretFieldStorage.BackfillConfig(context.Background()); err != nil {
 		return nil, err
 	}
-	if err = secretFieldStorage.BackfillConfig(context.Background()); err != nil {
+	// 把存量独立加密的 TOTP 密钥改写为明文，交由入库脱敏策略重新加密。
+	if err = mfaCase.BackfillLegacyTotpSecrets(context.Background()); err != nil {
 		return nil, err
 	}
 	err = baseConfigCase.RefreshBaseConfig(context.Background())
@@ -171,7 +174,6 @@ func (m *Module) RegisterHTTP(server *http.Server) {
 	server.Server.Handler = securityheaders.NewHandler(oauth.NewCryptoFilter(
 		m.adminServices.OauthClientRepository,
 		m.adminServices.Authenticator,
-		m.adminServices.OauthCredentialProtector,
 		m.catalog,
 	)(protectStaticFileAccess(
 		blockStaticDirectoryListing(server.Server.Handler),

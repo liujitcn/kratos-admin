@@ -18,12 +18,10 @@ import (
 )
 
 const (
-	// secretFieldEnvelopePrefix 密钥字段落库密文信封前缀。
+	// secretFieldEnvelopePrefix 敏感配置落库密文信封前缀。
 	secretFieldEnvelopePrefix = "sbox:v1:"
-	// secretFieldKeyName 密钥字段落库加密的派生密钥名。
+	// secretFieldKeyName 敏感配置落库加密的派生密钥名。
 	secretFieldKeyName = "kratos-admin:secret/field"
-	// secretFieldNonceSize 密钥字段落库加密随机数长度。
-	secretFieldNonceSize = 12
 	// configTable 系统配置表名。
 	configTable = "base_config"
 	// configValueColumn 系统配置值列名。
@@ -70,15 +68,8 @@ func WithConfigCrypto(service *secretcrypto.Service) SecretFieldOption {
 	return func(r *SecretFieldRuntime) { r.configCrypto = service }
 }
 
-// secretFieldColumns 密钥字段注册表：表名到密文列名集合。
-// oauth_client.client_secret 已由 OAuth 凭据保护器单独加密，不在此列。
-var secretFieldColumns = map[string]map[string]struct{}{
-	"ai_provider":           {"api_key": {}},
-	"base_oauth_provider":   {"client_secret": {}},
-	"base_message_provider": {"client_secret": {}},
-}
-
-// SecretFieldRuntime 密钥字段落库加密运行时。
+// SecretFieldRuntime 系统配置敏感字段落库加密运行时。
+// 业务表的密钥字段统一由脱敏存储策略（base_redact_storage_policy）落库加密，不再在此注册。
 type SecretFieldRuntime struct {
 	db           *gorm.DB
 	key          []byte
@@ -113,13 +104,13 @@ func (r *SecretFieldRuntime) deriveKey() error {
 	return r.keyErr
 }
 
-// BindSecretFieldStorage 在数据库上注册密钥字段加解密回调，重复绑定同一数据库时直接复用。
+// BindSecretFieldStorage 在数据库上注册系统配置敏感字段的写前加密回调，重复绑定同一数据库时直接复用。
 func BindSecretFieldStorage(db *gorm.DB, opts ...SecretFieldOption) (*SecretFieldRuntime, error) {
 	if db == nil {
-		return nil, errors.New("密钥字段落库加密数据库为空")
+		return nil, errors.New("敏感配置落库加密数据库为空")
 	}
 	if db.Callback().Create().Get("kratos-admin:secretfield/create") != nil {
-		return nil, fmt.Errorf("数据库已注册密钥字段回调")
+		return nil, fmt.Errorf("数据库已注册敏感配置加密回调")
 	}
 	runtime := &SecretFieldRuntime{db: db}
 	for _, opt := range opts {
@@ -130,193 +121,31 @@ func BindSecretFieldStorage(db *gorm.DB, opts ...SecretFieldOption) (*SecretFiel
 		handler  func(*gorm.DB)
 		register func(string, func(*gorm.DB)) error
 	}{
+		// 配置值只在写入侧信封化；读取侧明文只允许 GetConfigValue/DecryptSensitiveFields 等显式出口。
 		{"kratos-admin:secretfield/create", runtime.encryptWrite, db.Callback().Create().Before("gorm:before_create").Register},
 		{"kratos-admin:secretfield/update", runtime.encryptWrite, db.Callback().Update().Before("gorm:update").Register},
-		{"kratos-admin:secretfield/query", runtime.decryptRead, db.Callback().Query().After("gorm:after_query").Register},
 	}
 	var err error
 	for _, callback := range callbacks {
 		if err = callback.register(callback.name, callback.handler); err != nil {
-			return nil, fmt.Errorf("注册密钥字段回调 %s 失败: %w", callback.name, err)
+			return nil, fmt.Errorf("注册敏感配置加密回调 %s 失败: %w", callback.name, err)
 		}
 	}
 	return runtime, nil
 }
 
-// Backfill 将存量明文密钥字段加密为信封密文。
-func (r *SecretFieldRuntime) Backfill(ctx context.Context) error {
-	if err := r.deriveKey(); err != nil {
-		return err
-	}
-	for table, columns := range secretFieldColumns {
-		for column := range columns {
-			if err := r.backfillColumn(ctx, table, column); err != nil {
-				return err
-			}
-		}
-	}
-	return nil
-}
-
-// backfillColumn 加密单张表的存量明文列。
-func (r *SecretFieldRuntime) backfillColumn(ctx context.Context, table, column string) error {
-	// 受脱敏存储策略保护的表由该策略自行处理存量，且回填必须绕过业务回调。
-	if r.protectedTable != nil && r.protectedTable(table) {
-		return nil
-	}
-	rows, err := r.db.WithContext(ctx).Table(table).
-		Select("id", r.quoteName(column)).
-		Where(r.quoteName(column)+" <> '' AND "+r.quoteName(column)+" NOT LIKE ?", secretFieldEnvelopePrefix+"%").
-		Rows()
-	if err != nil {
-		return fmt.Errorf("读取密钥字段存量数据失败: %w", err)
-	}
-	type pair struct {
-		id   sql.NullInt64
-		text string
-	}
-	var pending []pair
-	for rows.Next() {
-		var item pair
-		if err = rows.Scan(&item.id, &item.text); err != nil {
-			_ = rows.Close()
-			return fmt.Errorf("扫描密钥字段存量数据失败: %w", err)
-		}
-		if !item.id.Valid {
-			continue
-		}
-		pending = append(pending, item)
-	}
-	if err = rows.Close(); err != nil {
-		return fmt.Errorf("关闭密钥字段存量游标失败: %w", err)
-	}
-	for _, item := range pending {
-		encrypted, encryptErr := r.encryptValue(table, column, item.text)
-		if encryptErr != nil {
-			return encryptErr
-		}
-		if updateErr := r.db.WithContext(ctx).Exec("UPDATE "+r.quoteName(table)+" SET "+r.quoteName(column)+" = ? WHERE id = ?", encrypted, item.id.Int64).Error; updateErr != nil {
-			return fmt.Errorf("回填密钥字段密文失败: %w", updateErr)
-		}
-	}
-	return nil
-}
-
-// encryptWrite 在写入前把注册列的明文改写为信封密文。
+// encryptWrite 在系统配置写入前把注册的敏感配置值改写为信封密文。
 func (r *SecretFieldRuntime) encryptWrite(db *gorm.DB) {
 	if db.Error != nil || db.Statement == nil || db.Statement.Schema == nil {
 		return
 	}
-	// 脱敏存储策略已保护的表不再做密钥字段加密，避免同列双重加密。
+	// 脱敏存储策略已保护的表不再做配置加密，避免同列双重加密。
 	if r.protectedTable != nil && r.protectedTable(db.Statement.Table) {
 		return
 	}
 	if db.Statement.Table == configTable {
 		r.encryptConfigWrite(db)
-		return
 	}
-	columns := secretFieldColumns[db.Statement.Table]
-	if len(columns) == 0 {
-		return
-	}
-	if dest, ok := db.Statement.Dest.(map[string]interface{}); ok {
-		for key, value := range dest {
-			column := secretFieldMapColumn(db.Statement.Schema, key)
-			if _, matched := columns[column]; column == "" || !matched {
-				continue
-			}
-			if encrypted, ok := r.replacePlaintext(db, db.Statement.Table, column, value); ok {
-				dest[key] = encrypted
-			}
-		}
-		return
-	}
-	eachSecretFieldRow(db, columns, r.encryptStructRow)
-}
-
-// decryptRead 在查询后把注册列的信封密文还原为明文。
-// 系统配置表不自动解密：敏感配置的明文只允许 GetConfigValue/DecryptSensitiveFields
-// 等显式出口，避免解密值混入免认证的运行时快照。
-func (r *SecretFieldRuntime) decryptRead(db *gorm.DB) {
-	if db.Error != nil || db.Statement == nil || db.Statement.Schema == nil {
-		return
-	}
-	if db.Statement.Table == configTable {
-		return
-	}
-	columns := secretFieldColumns[db.Statement.Table]
-	if len(columns) == 0 {
-		return
-	}
-	eachSecretFieldRow(db, columns, r.decryptStructRow)
-}
-
-// eachSecretFieldRow 遍历语句目标中的每一行记录，对注册列执行处理。
-func eachSecretFieldRow(db *gorm.DB, columns map[string]struct{}, handle func(*gorm.DB, *schema.Field, reflect.Value)) {
-	reflectValue := db.Statement.ReflectValue
-	var rows []reflect.Value
-	switch reflectValue.Kind() {
-	case reflect.Slice, reflect.Array:
-		for i := 0; i < reflectValue.Len(); i++ {
-			rows = append(rows, reflectValue.Index(i))
-		}
-	case reflect.Struct:
-		rows = append(rows, reflectValue)
-	}
-	if len(rows) == 0 {
-		return
-	}
-	for _, field := range db.Statement.Schema.Fields {
-		if _, matched := columns[field.DBName]; field.DBName == "" || field.FieldType.Kind() != reflect.String || !matched {
-			continue
-		}
-		for _, row := range rows {
-			handle(db, field, row)
-		}
-	}
-}
-
-// encryptStructRow 加密单行记录中的注册列明文。
-func (r *SecretFieldRuntime) encryptStructRow(db *gorm.DB, field *schema.Field, row reflect.Value) {
-	value, isZero := field.ValueOf(db.Statement.Context, row)
-	if isZero {
-		return
-	}
-	if encrypted, ok := r.replacePlaintext(db, db.Statement.Table, field.DBName, value); ok {
-		_ = field.Set(db.Statement.Context, row, encrypted)
-	}
-}
-
-// decryptStructRow 解密单行记录中的注册列密文。
-func (r *SecretFieldRuntime) decryptStructRow(db *gorm.DB, field *schema.Field, row reflect.Value) {
-	value, isZero := field.ValueOf(db.Statement.Context, row)
-	if isZero {
-		return
-	}
-	text, ok := value.(string)
-	if !ok || !isSecretFieldEnvelope(text) {
-		return
-	}
-	plaintext, err := r.decryptValue(db.Statement.Table, field.DBName, text)
-	if err != nil {
-		db.AddError(err)
-		return
-	}
-	_ = field.Set(db.Statement.Context, row, plaintext)
-}
-
-// replacePlaintext 把明文加密为信封密文，空值与已有密文原样跳过。
-func (r *SecretFieldRuntime) replacePlaintext(db *gorm.DB, table, column string, value interface{}) (string, bool) {
-	text, ok := value.(string)
-	if !ok || text == "" || isSecretFieldEnvelope(text) {
-		return "", false
-	}
-	encrypted, err := r.encryptValue(table, column, text)
-	if err != nil {
-		db.AddError(err)
-		return "", false
-	}
-	return encrypted, true
 }
 
 // encryptValue 按表列绑定 AAD 加密明文并追加信封前缀。
@@ -338,51 +167,6 @@ func (r *SecretFieldRuntime) decryptValue(table, column, envelope string) (strin
 // isSecretFieldEnvelope 判断字段值是否已是信封密文。
 func isSecretFieldEnvelope(value string) bool {
 	return secretcrypto.IsFieldEnvelope(value)
-}
-
-// secretFieldMapColumn 把更新字典的键规整为数据库列名，未命中时返回空串。
-func secretFieldMapColumn(schema *schema.Schema, key string) string {
-	if field := schema.FieldsByDBName[key]; field != nil {
-		return field.DBName
-	}
-	if field := schema.FieldsByName[key]; field != nil {
-		return field.DBName
-	}
-	return ""
-}
-
-// SecretFieldColumn 校验资源与字段是否注册为密钥字段，返回规范列名。
-func SecretFieldColumn(table, field string) (string, bool) {
-	columns, ok := secretFieldColumns[table]
-	if !ok {
-		return "", false
-	}
-	if _, ok = columns[field]; !ok {
-		return "", false
-	}
-	return field, true
-}
-
-// Reveal 解密指定记录的密钥字段并返回明文，仅供受控的查询接口使用。
-func (r *SecretFieldRuntime) Reveal(ctx context.Context, table, column string, id int64) (string, error) {
-	if _, ok := secretFieldColumns[table]; !ok {
-		return "", errors.New("密钥字段资源未注册")
-	}
-	if _, ok := secretFieldColumns[table][column]; !ok {
-		return "", errors.New("密钥字段未注册")
-	}
-	if err := r.deriveKey(); err != nil {
-		return "", err
-	}
-	var text string
-	err := r.db.WithContext(ctx).Table(table).Select(r.quoteName(column)).Where("id = ?", id).Row().Scan(&text)
-	if err != nil {
-		return "", fmt.Errorf("读取密钥字段失败: %w", err)
-	}
-	if text == "" || !isSecretFieldEnvelope(text) {
-		return text, nil
-	}
-	return r.decryptValue(table, column, text)
 }
 
 // encryptConfigWrite 在系统配置写入前按注册表加密整值或 JSON 敏感字段。

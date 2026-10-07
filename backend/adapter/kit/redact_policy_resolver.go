@@ -2,6 +2,7 @@ package kit
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"strings"
 	"sync"
@@ -16,6 +17,7 @@ import (
 	kitgorm "github.com/liujitcn/kratos-kit/database/gorm"
 	"github.com/liujitcn/kratos-kit/redact"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 const policyCacheTTL = time.Minute
@@ -35,6 +37,7 @@ type RedactPolicyResolver struct {
 	initializeMu            sync.Mutex
 	refreshMu               sync.Mutex
 	runtime                 *storageRuntime
+	fieldCipher             *fieldCipher
 	storagePolicyRepository *data.BaseRedactStoragePolicyRepository
 	outputPolicyRepository  *data.BaseRedactOutputPolicyRepository
 	ruleRepository          *data.BaseRedactRuleRepository
@@ -89,6 +92,7 @@ func (r *RedactPolicyResolver) Initialize(ctx context.Context) error {
 	if err != nil {
 		return fmt.Errorf("创建直接字段加密器失败: %w", err)
 	}
+	r.fieldCipher = directCipher
 	runtime := newStorageRuntime(r.store, r, protector, directCipher)
 	err = runtime.registerCallbacks(r.defaultDB)
 	if err != nil {
@@ -369,6 +373,56 @@ func buildOutputPolicies(rows []*models.BaseRedactOutputPolicy, rules map[int64]
 		result[outputPolicyKey(row.TenantID, row.Operation, row.MessageRef+"."+row.FieldPath)] = policy
 	}
 	return result, nil
+}
+
+// ErrUnprotectedStorageField 表示字段未配置直接加密入库策略，不能通过受控接口查看明文。
+var ErrUnprotectedStorageField = errors.New("敏感字段未配置直接加密入库策略")
+
+// RevealStorageField 读取默认数据源受保护表的直接加密字段明文，仅供受控查询接口使用。
+// 未配置直接加密策略、旁表脱敏字段和跨数据源字段一律拒绝。
+func (r *RedactPolicyResolver) RevealStorageField(ctx context.Context, tableName, columnName string, recordID int64) (string, error) {
+	if r == nil || r.defaultDB == nil || r.fieldCipher == nil {
+		return "", fmt.Errorf("脱敏策略解析器未初始化")
+	}
+	algorithm, ok := r.directEncryptionAlgorithm(kitgorm.DefaultClientName, tableName, columnName)
+	if !ok {
+		return "", ErrUnprotectedStorageField
+	}
+	var text string
+	db := r.defaultDB.WithContext(ctx)
+	err := db.Table(tableName).
+		Select(db.Statement.Quote(clause.Column{Name: columnName})).
+		Where("id = ?", recordID).Row().Scan(&text)
+	if err != nil {
+		return "", fmt.Errorf("读取敏感字段失败: %w", err)
+	}
+	if text == "" {
+		return text, nil
+	}
+	plaintext, err := r.fieldCipher.Decrypt(algorithm, text)
+	if err != nil {
+		// 存量旧格式或明文按原值返回，等待下次保存时经策略转为策略密文。
+		return text, nil
+	}
+	return plaintext, nil
+}
+
+// directEncryptionAlgorithm 判断默认数据源物理表字段是否配置了直接加密策略，返回加密算法。
+func (r *RedactPolicyResolver) directEncryptionAlgorithm(sourceName, tableName, columnName string) (string, bool) {
+	r.mu.RLock()
+	defer r.mu.RUnlock()
+	for key, policies := range r.storagePolicies {
+		parts := strings.SplitN(key, "\x00", 3)
+		if len(parts) != 3 || parts[1] != sourceName || parts[2] != tableName {
+			continue
+		}
+		for _, policy := range policies {
+			if strings.EqualFold(policy.ColumnName, columnName) && isDirectEncryptionPolicy(policy) {
+				return policy.Rule.EncryptAlgorithm, true
+			}
+		}
+	}
+	return "", false
 }
 
 // storagePolicyKey 返回数据源和物理表组成的策略键。

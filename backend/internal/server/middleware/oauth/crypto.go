@@ -12,7 +12,6 @@ import (
 	"strings"
 
 	"github.com/liujitcn/gorm-kit/repository"
-	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/oauthsecret"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 	oauthcrypto "github.com/liujitcn/kratos-admin/backend/internal/server/middleware/oauth/crypto"
@@ -33,7 +32,8 @@ var errOAuthCryptoRequestTooLarge = errors.New("oauth request data exceeds the s
 //
 // Filter 必须包裹整个 Kratos HTTP 路由树，原因是 Proto HTTP 适配器会先绑定请求体，
 // 只有在绑定前解密才能让业务收到正常 JSON。普通用户令牌、非开放授权路径和错误响应均不处理。
-func NewCryptoFilter(clientRepo *data.OauthClientRepository, authenticator engine.TokenAuthenticator, protector *oauthsecret.Protector, catalog *i18n.I18n) func(http.Handler) http.Handler {
+// 客户端协议加密密钥由入库脱敏策略落库加密，查询回调已还原为明文后直接使用。
+func NewCryptoFilter(clientRepo *data.OauthClientRepository, authenticator engine.TokenAuthenticator, catalog *i18n.I18n) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
 			if !isOauthDevelopmentAPI(request.URL.Path) {
@@ -41,7 +41,7 @@ func NewCryptoFilter(clientRepo *data.OauthClientRepository, authenticator engin
 				return
 			}
 
-			client, ok, err := oauthCryptoClient(request.Context(), clientRepo, authenticator, protector, request)
+			client, ok, err := oauthCryptoClient(request.Context(), clientRepo, authenticator, request)
 			if err != nil {
 				writeOauthCryptoError(writer, request, http.StatusUnauthorized, catalog, "system.oauth.crypto.error.client_token_invalid", "The client access token is invalid")
 				return
@@ -88,7 +88,7 @@ func NewCryptoFilter(clientRepo *data.OauthClientRepository, authenticator engin
 }
 
 // oauthCryptoClient 从已签发的客户端令牌解析加密配置。
-func oauthCryptoClient(ctx context.Context, clientRepo *data.OauthClientRepository, authenticator engine.TokenAuthenticator, protector *oauthsecret.Protector, request *http.Request) (*models.OauthClient, bool, error) {
+func oauthCryptoClient(ctx context.Context, clientRepo *data.OauthClientRepository, authenticator engine.TokenAuthenticator, request *http.Request) (*models.OauthClient, bool, error) {
 	if authenticator == nil {
 		return nil, false, nil
 	}
@@ -121,13 +121,6 @@ func oauthCryptoClient(ctx context.Context, clientRepo *data.OauthClientReposito
 	}
 	if client.Status != _const.STATUS_STATUS_ENABLE {
 		return nil, true, errors.New("oauth client disabled")
-	}
-	if protector == nil {
-		return nil, true, errors.New("oauth credential protector unavailable")
-	}
-	client.CryptoKey, err = protector.Unprotect(client.CryptoKey)
-	if err != nil {
-		return nil, true, err
 	}
 	return client, true, nil
 }

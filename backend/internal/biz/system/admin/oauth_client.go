@@ -8,7 +8,6 @@ import (
 	"time"
 
 	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
-	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/oauthsecret"
 	_const "github.com/liujitcn/kratos-admin/backend/internal/const"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
@@ -35,6 +34,7 @@ const (
 )
 
 // OauthClientCase 开放授权客户端业务实例。
+// 客户端密钥和协议加密密钥由入库脱敏策略（ENCRYPT 规则）落库加密，业务层保存和读取明文。
 type OauthClientCase struct {
 	*biz.BaseCase
 	tx data.Transaction
@@ -43,7 +43,6 @@ type OauthClientCase struct {
 	baseTenantRepo *data.BaseTenantRepository
 	casbinRuleCase *CasbinRuleCase
 	userToken      *authData.UserToken
-	protector      *oauthsecret.Protector
 	credentialMu   sync.Mutex
 }
 
@@ -56,7 +55,6 @@ func NewOauthClientCase(
 	baseTenantRepo *data.BaseTenantRepository,
 	casbinRuleCase *CasbinRuleCase,
 	userToken *authData.UserToken,
-	protector *oauthsecret.Protector,
 ) *OauthClientCase {
 	return &OauthClientCase{
 		BaseCase:              baseCase,
@@ -66,7 +64,6 @@ func NewOauthClientCase(
 		baseTenantRepo:        baseTenantRepo,
 		casbinRuleCase:        casbinRuleCase,
 		userToken:             userToken,
-		protector:             protector,
 	}
 }
 
@@ -175,21 +172,9 @@ func (c *OauthClientCase) RotateOauthClientCredentials(ctx context.Context, idVa
 	if err != nil {
 		return nil, errorsx.Internal("生成客户端加密密钥失败").WithCause(err)
 	}
-	if c.protector == nil {
-		return nil, errorsx.Internal("OAuth 凭据保护器未初始化")
-	}
-	var protectedSecret string
-	protectedSecret, err = c.protector.Protect(secret)
-	if err != nil {
-		return nil, errorsx.Internal("保护客户端密钥失败").WithCause(err)
-	}
-	var protectedCryptoKey string
-	protectedCryptoKey, err = c.protector.Protect(cryptoKey)
-	if err != nil {
-		return nil, errorsx.Internal("保护客户端加密密钥失败").WithCause(err)
-	}
 	query := c.Query(ctx).OauthClient
-	updated := &models.OauthClient{ID: item.ID, TenantID: item.TenantID, ClientSecret: protectedSecret, CryptoKey: protectedCryptoKey, UpdatedBy: authInfo.UserId, UpdatedAt: time.Now()}
+	// 明文交由入库脱敏策略在写库前加密。
+	updated := &models.OauthClient{ID: item.ID, TenantID: item.TenantID, ClientSecret: secret, CryptoKey: cryptoKey, UpdatedBy: authInfo.UserId, UpdatedAt: time.Now()}
 	if err = c.Update(ctx, updated, repository.Where(query.ID.Eq(item.ID)), repository.Select(query.ClientSecret, query.CryptoKey, query.UpdatedBy, query.UpdatedAt)); err != nil {
 		return nil, errorsx.Internal("轮换客户端凭据失败").WithCause(err)
 	}
@@ -239,17 +224,8 @@ func (c *OauthClientCase) CreateOauthClient(ctx context.Context, req *adminv1.Oa
 	if err != nil {
 		return errorsx.Internal("生成客户端加密密钥失败").WithCause(err)
 	}
-	if c.protector == nil {
-		return errorsx.Internal("OAuth 凭据保护器未初始化")
-	}
-	item.ClientSecret, err = c.protector.Protect(clientSecret)
-	if err != nil {
-		return errorsx.Internal("保护客户端密钥失败").WithCause(err)
-	}
-	item.CryptoKey, err = c.protector.Protect(item.CryptoKey)
-	if err != nil {
-		return errorsx.Internal("保护客户端加密密钥失败").WithCause(err)
-	}
+	// 客户端密钥和协议加密密钥保存明文，由入库脱敏策略在写库前加密。
+	item.ClientSecret = clientSecret
 	if item.Status == 0 {
 		item.Status = coreconst.STATUS_STATUS_ENABLE
 	}
@@ -314,26 +290,11 @@ func (c *OauthClientCase) UpdateOauthClient(ctx context.Context, req *adminv1.Oa
 	if item.Status == 0 {
 		item.Status = current.Status
 	}
-	if c.protector == nil {
-		return errorsx.Internal("OAuth 凭据保护器未初始化")
-	}
-	var currentCryptoKey string
-	currentCryptoKey, err = c.protector.Unprotect(current.CryptoKey)
-	if err != nil {
-		return errorsx.Internal("读取客户端加密密钥失败").WithCause(err)
-	}
-	if cryptoType != current.CryptoType || !oauthcrypto.KeyValid(cryptoType, currentCryptoKey) {
-		var plainCryptoKey string
-		plainCryptoKey, err = oauthcrypto.GenerateKey(cryptoType)
+	// 查询回调已把协议加密密钥还原为明文，类型切换或密钥失效时重新生成。
+	if cryptoType != current.CryptoType || !oauthcrypto.KeyValid(cryptoType, current.CryptoKey) {
+		item.CryptoKey, err = oauthcrypto.GenerateKey(cryptoType)
 		if err != nil {
 			return errorsx.Internal("生成客户端加密密钥失败").WithCause(err)
-		}
-		if c.protector == nil {
-			return errorsx.Internal("OAuth 凭据保护器未初始化")
-		}
-		item.CryptoKey, err = c.protector.Protect(plainCryptoKey)
-		if err != nil {
-			return errorsx.Internal("保护客户端加密密钥失败").WithCause(err)
 		}
 	}
 	err = c.tx.Transaction(ctx, func(ctx context.Context) error {

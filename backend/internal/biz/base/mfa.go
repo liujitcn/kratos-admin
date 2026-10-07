@@ -36,6 +36,7 @@ import (
 	configv1 "github.com/liujitcn/kratos-kit/api/gen/go/config/v1"
 	authData "github.com/liujitcn/kratos-kit/auth/data"
 	"github.com/liujitcn/kratos-kit/cache/store"
+	kitgorm "github.com/liujitcn/kratos-kit/database/gorm"
 	"github.com/liujitcn/kratos-kit/sdk"
 	"github.com/redis/go-redis/v9"
 	"gorm.io/gen"
@@ -43,15 +44,17 @@ import (
 )
 
 const (
-	mfaMethodTOTP                  = "totp"
-	mfaMethodWebAuthn              = "webauthn"
-	mfaStatusEnabled               = int32(1)
-	mfaStatusDisabled              = int32(2)
-	mfaPolicyDisabled              = "disabled"
-	mfaPolicyOptional              = "optional"
-	mfaPolicyAllRequired           = "all_required"
-	mfaLoginChallengePrefix        = "shared:auth:mfa:login:"
-	mfaSetupTicketPrefix           = "shared:auth:mfa:setup:"
+	mfaMethodTOTP           = "totp"
+	mfaMethodWebAuthn       = "webauthn"
+	mfaStatusEnabled        = int32(1)
+	mfaStatusDisabled       = int32(2)
+	mfaPolicyDisabled       = "disabled"
+	mfaPolicyOptional       = "optional"
+	mfaPolicyAllRequired    = "all_required"
+	mfaLoginChallengePrefix = "shared:auth:mfa:login:"
+	mfaSetupTicketPrefix    = "shared:auth:mfa:setup:"
+	// legacyTotpSecretColumn 表示历史版本存放 TOTP 密钥密文的列名。
+	legacyTotpSecretColumn         = "secret_ciphertext"
 	defaultMfaLoginChallengeExpire = 5 * time.Minute
 	defaultMfaSetupTicketExpire    = 10 * time.Minute
 	defaultMfaLoginMaxAttempts     = 5
@@ -744,6 +747,7 @@ func (c *MfaCase) ConfirmMfaSetup(ctx context.Context, req *basev1.ConfirmMfaSet
 	if err != nil {
 		return nil, errorsx.Internal("生成多因素认证恢复码失败").WithCause(err)
 	}
+	// TOTP 密钥保存明文，由入库脱敏策略在写库前加密；票据密文仅用于 Redis 传输。
 	now := time.Now()
 	var mfa *models.BaseUserMFA
 	mfa, err = c.findMFA(ctx, payload.UserID, mfaMethodTOTP)
@@ -753,7 +757,7 @@ func (c *MfaCase) ConfirmMfaSetup(ctx context.Context, req *basev1.ConfirmMfaSet
 			if err = c.baseUserMFARepo.Create(txCtx, mfa); err != nil {
 				return err
 			}
-			if err = c.baseUserMFATotpRepo.Create(txCtx, &models.BaseUserMFATotp{MFAID: mfa.ID, SecretCiphertext: payload.EncryptedSecret, LastUsedStep: 0}); err != nil {
+			if err = c.baseUserMFATotpRepo.Create(txCtx, &models.BaseUserMFATotp{MFAID: mfa.ID, Secret: secret, LastUsedStep: 0}); err != nil {
 				return err
 			}
 			return c.createRecoveryCodes(txCtx, mfa, hashes, now)
@@ -770,7 +774,7 @@ func (c *MfaCase) ConfirmMfaSetup(ctx context.Context, req *basev1.ConfirmMfaSet
 			if err = c.baseUserMFATotpRepo.DeleteByID(txCtx, mfa.ID); err != nil {
 				return err
 			}
-			if err = c.baseUserMFATotpRepo.Create(txCtx, &models.BaseUserMFATotp{MFAID: mfa.ID, SecretCiphertext: payload.EncryptedSecret, LastUsedStep: 0}); err != nil {
+			if err = c.baseUserMFATotpRepo.Create(txCtx, &models.BaseUserMFATotp{MFAID: mfa.ID, Secret: secret, LastUsedStep: 0}); err != nil {
 				return err
 			}
 			if err = c.deleteRecoveryCodes(txCtx, mfa.ID); err != nil {
@@ -791,6 +795,78 @@ func (c *MfaCase) ConfirmMfaSetup(ctx context.Context, req *basev1.ConfirmMfaSet
 		return nil, errorsx.Internal("撤销旧登录会话失败").WithCause(err)
 	}
 	return &basev1.ConfirmMfaSetupResponse{Enabled: true, RecoveryCodes: recoveryCodes}, nil
+}
+
+// BackfillLegacyTotpSecrets 把存量独立加密的 TOTP 密钥改写为明文，由入库脱敏策略重新加密。
+// 旧版本列 secret_ciphertext 的数据先搬迁到 secret 列；查询回调已把策略密文还原为明文，
+// 仅当旧格式解密成功时才需要改写，重复执行无副作用。
+func (c *MfaCase) BackfillLegacyTotpSecrets(ctx context.Context) error {
+	if err := c.copyLegacyTotpColumn(ctx); err != nil {
+		return err
+	}
+	query := c.baseUserMFARepo.Query(ctx).BaseUserMFA
+	opts := make([]repository.QueryOption, 0, 1)
+	opts = append(opts, repository.Where(query.Method.Eq(mfaMethodTOTP)))
+	var configs []*models.BaseUserMFA
+	var err error
+	configs, err = c.baseUserMFARepo.List(ctx, opts...)
+	if err != nil {
+		return fmt.Errorf("读取多因素认证存量配置失败: %w", err)
+	}
+	for _, mfa := range configs {
+		var totpConfig *models.BaseUserMFATotp
+		totpConfig, err = c.baseUserMFATotpRepo.FindByID(ctx, mfa.ID)
+		if err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				continue
+			}
+			return fmt.Errorf("读取多因素认证存量密钥失败: %w", err)
+		}
+		var plaintext string
+		plaintext, err = c.unprotectMFASecret(totpConfig.Secret, mfa.UserID)
+		if err != nil {
+			// 策略密文和明文都无法按旧格式解开，说明已经迁移完成。
+			continue
+		}
+		updated := &models.BaseUserMFATotp{MFAID: mfa.ID, Secret: plaintext}
+		totpQuery := c.baseUserMFATotpRepo.Query(ctx).BaseUserMFATotp
+		err = c.baseUserMFATotpRepo.Update(ctx, updated, repository.Where(totpQuery.MFAID.Eq(mfa.ID)), repository.Select(totpQuery.Secret))
+		if err != nil {
+			return fmt.Errorf("改写多因素认证存量密钥失败: %w", err)
+		}
+	}
+	return nil
+}
+
+// copyLegacyTotpColumn 把旧版本 secret_ciphertext 列的存量数据搬迁到 secret 列并删除旧列。
+// 旧列只存在于历史版本的数据库中，AutoMigrate 不会删除它，必须在此显式清理。
+func (c *MfaCase) copyLegacyTotpColumn(ctx context.Context) error {
+	client := c.GormClients[kitgorm.DefaultClientName]
+	if client == nil || client.DB == nil {
+		return nil
+	}
+	db := client.DB.WithContext(ctx)
+	var count int64
+	err := db.Table("information_schema.columns").
+		Where("table_schema = "+CurrentSchemaExpr(client.Driver())).
+		Where("table_name = ?", "base_user_mfa_totp").
+		Where("column_name = ?", legacyTotpSecretColumn).
+		Count(&count).Error
+	if err != nil {
+		return fmt.Errorf("查询 TOTP 密钥旧列失败: %w", err)
+	}
+	if count == 0 {
+		return nil
+	}
+	err = db.Exec("UPDATE base_user_mfa_totp SET secret = " + legacyTotpSecretColumn + " WHERE secret = ''").Error
+	if err != nil {
+		return fmt.Errorf("搬迁 TOTP 密钥旧列数据失败: %w", err)
+	}
+	err = db.Exec("ALTER TABLE base_user_mfa_totp DROP COLUMN " + legacyTotpSecretColumn).Error
+	if err != nil {
+		return fmt.Errorf("删除 TOTP 密钥旧列失败: %w", err)
+	}
+	return nil
 }
 
 // beginWebAuthnSetup 创建 WebAuthn 注册选项并保存服务端会话数据。
@@ -1288,11 +1364,8 @@ func (c *MfaCase) verifyFactor(ctx context.Context, mfa *models.BaseUserMFA, cod
 	if err != nil {
 		return false, errorsx.Internal("读取 TOTP 配置失败").WithCause(err)
 	}
-	var secret string
-	secret, err = c.unprotectMFASecret(totpConfig.SecretCiphertext, mfa.UserID)
-	if err != nil {
-		return false, errorsx.Internal("读取多因素认证密钥失败").WithCause(err)
-	}
+	// 入库脱敏策略的查询回调已把密钥还原为明文。
+	secret := totpConfig.Secret
 	now := time.Now().UTC()
 	currentStep := now.Unix() / int64(c.runtimeConfig.totpPeriod)
 	skew := int64(c.runtimeConfig.totpSkew)
@@ -1521,7 +1594,7 @@ func (c *MfaCase) generateRecoveryCodes() ([]string, []string, error) {
 	return codes, hashes, nil
 }
 
-// protectMFASecret 使用配置密钥加密 TOTP secret。
+// protectMFASecret 加密 TOTP secret 供 Redis 绑定票据临时保存；数据库落库改由入库脱敏策略加密。
 func (c *MfaCase) protectMFASecret(secret string, userID int64) (string, error) {
 	var err error
 	var key []byte
@@ -1548,7 +1621,7 @@ func (c *MfaCase) protectMFASecret(secret string, userID int64) (string, error) 
 	return value, nil
 }
 
-// unprotectMFASecret 解密 TOTP secret。
+// unprotectMFASecret 解密 Redis 绑定票据中的 TOTP secret，同时用于识别存量落库密文。
 func (c *MfaCase) unprotectMFASecret(value string, userID int64) (string, error) {
 	var err error
 	var key []byte

@@ -8,9 +8,9 @@ const TableNameBaseUserMFATotp = "base_user_mfa_totp"
 
 // BaseUserMFATotp 用户TOTP多因素认证配置
 type BaseUserMFATotp struct {
-	MFAID            int64  `gorm:"column:mfa_id;type:bigint;primaryKey;autoIncrement:true;comment:MFA配置ID" json:"mfa_id"`           // MFA配置ID
-	SecretCiphertext string `gorm:"column:secret_ciphertext;type:varchar(512);not null;comment:加密后的TOTP密钥" json:"secret_ciphertext"` // 加密后的TOTP密钥
-	LastUsedStep     int64  `gorm:"column:last_used_step;type:bigint;not null;comment:最近使用的TOTP时间窗口" json:"last_used_step"`          // 最近使用的TOTP时间窗口
+	MFAID        int64  `gorm:"column:mfa_id;type:bigint;primaryKey;autoIncrement:true;comment:MFA配置ID" json:"mfa_id"`  // MFA配置ID
+	Secret       string `gorm:"column:secret;type:varchar(512);not null;comment:TOTP密钥" json:"secret"`                  // TOTP密钥
+	LastUsedStep int64  `gorm:"column:last_used_step;type:bigint;not null;comment:最近使用的TOTP时间窗口" json:"last_used_step"` // 最近使用的TOTP时间窗口
 }
 
 // TableName BaseUserMFATotp's table name

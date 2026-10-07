@@ -4,7 +4,6 @@ import (
 	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
 	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/agent/tool"
-	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/oauthsecret"
 	biz "github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/server/middleware/conflictmessage"
@@ -32,15 +31,14 @@ type Services struct {
 	AiQuery     *admin.AiQueryService
 	OauthClient *admin.OauthClientService
 
-	BaseAPICase              *biz.BaseAPICase
-	BaseFileRepository       *data.BaseFileRepository
-	BaseUserRepository       *data.BaseUserRepository
-	OauthClientRepository    *data.OauthClientRepository
-	Authenticator            engine.Authenticator
-	OauthCredentialProtector *oauthsecret.Protector
-	LogMiddleware            middleware.Middleware
-	BaseCase                 *coreBiz.BaseCase
-	UserToken                *authData.UserToken
+	BaseAPICase           *biz.BaseAPICase
+	BaseFileRepository    *data.BaseFileRepository
+	BaseUserRepository    *data.BaseUserRepository
+	OauthClientRepository *data.OauthClientRepository
+	Authenticator         engine.Authenticator
+	LogMiddleware         middleware.Middleware
+	BaseCase              *coreBiz.BaseCase
+	UserToken             *authData.UserToken
 
 	BaseArea                *admin.BaseAreaService
 	BaseConfig              *admin.BaseConfigService

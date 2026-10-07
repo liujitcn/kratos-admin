@@ -28,7 +28,7 @@ func newBaseUserMFATotp(db *gorm.DB, opts ...gen.DOOption) baseUserMFATotp {
 	tableName := _baseUserMFATotp.baseUserMFATotpDo.TableName()
 	_baseUserMFATotp.ALL = field.NewAsterisk(tableName)
 	_baseUserMFATotp.MFAID = field.NewInt64(tableName, "mfa_id")
-	_baseUserMFATotp.SecretCiphertext = field.NewString(tableName, "secret_ciphertext")
+	_baseUserMFATotp.Secret = field.NewString(tableName, "secret")
 	_baseUserMFATotp.LastUsedStep = field.NewInt64(tableName, "last_used_step")
 
 	_baseUserMFATotp.fillFieldMap()
@@ -40,10 +40,10 @@ func newBaseUserMFATotp(db *gorm.DB, opts ...gen.DOOption) baseUserMFATotp {
 type baseUserMFATotp struct {
 	baseUserMFATotpDo baseUserMFATotpDo
 
-	ALL              field.Asterisk
-	MFAID            field.Int64  // MFA配置ID
-	SecretCiphertext field.String // 加密后的TOTP密钥
-	LastUsedStep     field.Int64  // 最近使用的TOTP时间窗口
+	ALL          field.Asterisk
+	MFAID        field.Int64  // MFA配置ID
+	Secret       field.String // TOTP密钥
+	LastUsedStep field.Int64  // 最近使用的TOTP时间窗口
 
 	fieldMap map[string]field.Expr
 }
@@ -61,7 +61,7 @@ func (b baseUserMFATotp) As(alias string) *baseUserMFATotp {
 func (b *baseUserMFATotp) updateTableName(table string) *baseUserMFATotp {
 	b.ALL = field.NewAsterisk(table)
 	b.MFAID = field.NewInt64(table, "mfa_id")
-	b.SecretCiphertext = field.NewString(table, "secret_ciphertext")
+	b.Secret = field.NewString(table, "secret")
 	b.LastUsedStep = field.NewInt64(table, "last_used_step")
 
 	b.fillFieldMap()
@@ -93,7 +93,7 @@ func (b *baseUserMFATotp) GetFieldByName(fieldName string) (field.OrderExpr, boo
 func (b *baseUserMFATotp) fillFieldMap() {
 	b.fieldMap = make(map[string]field.Expr, 3)
 	b.fieldMap["mfa_id"] = b.MFAID
-	b.fieldMap["secret_ciphertext"] = b.SecretCiphertext
+	b.fieldMap["secret"] = b.Secret
 	b.fieldMap["last_used_step"] = b.LastUsedStep
 }
 

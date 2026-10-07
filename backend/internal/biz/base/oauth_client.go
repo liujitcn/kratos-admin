@@ -14,7 +14,6 @@ import (
 	"github.com/go-kratos/kratos/v3/transport"
 	"github.com/go-kratos/kratos/v3/transport/http"
 	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
-	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/oauthsecret"
 	_const "github.com/liujitcn/kratos-admin/backend/internal/const"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
@@ -37,17 +36,17 @@ const (
 )
 
 // OauthClientTokenCase 处理开放授权客户端令牌签发。
+// 客户端密钥由入库脱敏策略落库加密，查询回调已还原为明文后直接比对。
 type OauthClientTokenCase struct {
 	*biz.BaseCase
 	oauthClientRepo *data.OauthClientRepository
 	baseTenantRepo  *data.BaseTenantRepository
 	userToken       *authData.UserToken
-	protector       *oauthsecret.Protector
 }
 
 // NewOauthClientTokenCase 创建开放授权客户端令牌业务实例。
-func NewOauthClientTokenCase(baseCase *biz.BaseCase, oauthClientRepo *data.OauthClientRepository, baseTenantRepo *data.BaseTenantRepository, userToken *authData.UserToken, protector *oauthsecret.Protector) *OauthClientTokenCase {
-	return &OauthClientTokenCase{BaseCase: baseCase, oauthClientRepo: oauthClientRepo, baseTenantRepo: baseTenantRepo, userToken: userToken, protector: protector}
+func NewOauthClientTokenCase(baseCase *biz.BaseCase, oauthClientRepo *data.OauthClientRepository, baseTenantRepo *data.BaseTenantRepository, userToken *authData.UserToken) *OauthClientTokenCase {
+	return &OauthClientTokenCase{BaseCase: baseCase, oauthClientRepo: oauthClientRepo, baseTenantRepo: baseTenantRepo, userToken: userToken}
 }
 
 // IssueOauthClientToken 使用客户端凭据签发访问令牌。
@@ -79,12 +78,7 @@ func (c *OauthClientTokenCase) IssueOauthClientToken(ctx context.Context, req *b
 		}
 		return nil, errorsx.Internal("读取客户端凭据失败").WithCause(err)
 	}
-	if c.protector == nil {
-		return nil, errorsx.Internal("OAuth 凭据保护器未初始化")
-	}
-	var clientSecret string
-	clientSecret, err = c.protector.Unprotect(item.ClientSecret)
-	if err != nil || subtle.ConstantTimeCompare([]byte(clientSecret), []byte(req.GetClientSecret())) != 1 {
+	if subtle.ConstantTimeCompare([]byte(item.ClientSecret), []byte(req.GetClientSecret())) != 1 {
 		if err = c.recordOauthClientFailure(ctx, req.GetClientId()); err != nil {
 			return nil, errorsx.Internal("记录客户端认证失败状态失败").WithCause(err)
 		}
