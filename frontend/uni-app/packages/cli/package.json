@@ -7,7 +7,7 @@
     "type": "git",
     "url": "git@github.com:liujitcn/kratos-admin.git"
   },
-  "version": "0.0.72",
+  "version": "0.0.73",
   "type": "module",
   "files": [
     "assets",
