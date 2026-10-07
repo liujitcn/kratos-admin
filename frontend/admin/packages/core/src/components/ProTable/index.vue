@@ -239,8 +239,8 @@ const {
   handleCurrentChange
 } = useTable(props.requestApi, props.initParam, props.pagination, props.dataCallback, props.requestError);
 
-// 清空选中数据列表
-const clearSelection = () => tableRef.value!.clearSelection();
+// 清空选中数据列表；表格卸载或未挂载完成时引用为空，跳过清空避免报错
+const clearSelection = () => tableRef.value?.clearSelection();
 
 /** 请求表格数据；未启用跨刷新保留勾选时，同步清空随数据刷新而失效的多选状态。 */
 const getTableList = async () => {
