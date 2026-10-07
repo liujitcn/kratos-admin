@@ -141,7 +141,9 @@ func (r *RateLimitPolicyResolver) refreshIfExpired(ctx context.Context) error {
 }
 
 // refreshLocked 从数据库构建新策略快照，调用方必须持有刷新锁。
+// 快照被全部请求共享，这里脱离调用方的取消信号执行查询，避免单个请求中断把失败缓存 5 秒扩散给其他请求。
 func (r *RateLimitPolicyResolver) refreshLocked(ctx context.Context) error {
+	ctx = context.WithoutCancel(ctx)
 	r.mu.Lock()
 	r.refreshAttempted = time.Now()
 	r.refreshErr = nil
