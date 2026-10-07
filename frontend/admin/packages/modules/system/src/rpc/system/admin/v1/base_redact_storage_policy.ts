@@ -61,7 +61,7 @@ export interface BaseRedactStoragePolicyForm {
   rule_params: string;
   /** 数据源名称 */
   source_name: string;
-  /** 租户ID，零表示全局策略 */
+  /** 租户ID，默认租户策略为全局策略 */
   tenant_id: number;
   /** 状态 */
   status: Status;
@@ -114,7 +114,7 @@ export interface BaseRedactStoragePolicy {
   rule_params: string;
   /** 数据源名称 */
   source_name: string;
-  /** 租户ID */
+  /** 租户ID，默认租户策略为全局策略 */
   tenant_id: number;
   /** 数据表注释 */
   table_comment: string;

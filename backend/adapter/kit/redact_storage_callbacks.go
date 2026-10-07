@@ -393,11 +393,11 @@ func (r *storageRuntime) materializeStorageResponse(db *gorm.DB) {
 	}
 }
 
-// storageTenantID 返回实体租户；租户为零表示应用全局策略，
+// storageTenantID 返回实体租户；租户为零的实体由策略解析回退默认租户（全局）策略，
 // 平台表没有租户字段时使用该表唯一策略租户。
 func (r *storageRuntime) storageTenantID(ctx context.Context, entity any, tableName string) (int64, error) {
 	tenantID, err := entityTenantID(ctx, entity)
-	// 实体自带租户字段时以字段为准，零值回退全局策略。
+	// 实体自带租户字段时以字段为准，零值由策略解析回退默认租户策略。
 	if err == nil {
 		return tenantID, nil
 	}

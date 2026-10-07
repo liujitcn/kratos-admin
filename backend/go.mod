@@ -42,7 +42,7 @@ require (
 	github.com/liujitcn/kratos-kit/oss v0.0.22
 	github.com/liujitcn/kratos-kit/pprof v0.0.17
 	github.com/liujitcn/kratos-kit/queue v0.0.34
-	github.com/liujitcn/kratos-kit/redact v0.0.13
+	github.com/liujitcn/kratos-kit/redact v0.0.14
 	github.com/liujitcn/kratos-kit/registry/consul v0.0.9
 	github.com/liujitcn/kratos-kit/secretcrypto v0.0.3
 	github.com/liujitcn/kratos-kit/translator v0.0.9

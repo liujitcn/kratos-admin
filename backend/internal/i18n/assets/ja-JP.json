@@ -2333,9 +2333,6 @@
   "legacy.error.8378c73fbc6061ca": {
     "other": "役職のページング照会に失敗しました"
   },
-  "legacy.error.83a3eb2b68bdbb54": {
-    "other": "テナントIDを負の値にすることはできません"
-  },
   "legacy.error.83e43a4951d784c2": {
     "other": "行政区域を自身の親にすることはできません"
   },

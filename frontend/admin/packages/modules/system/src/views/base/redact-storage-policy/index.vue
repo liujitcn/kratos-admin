@@ -200,8 +200,7 @@ let columnsRequestRevision = 0;
 const statusOptions = computed<ProFormOption[]>(() => [{ label: t("common.status.enabled"), value: Status.STATUS_ENABLE }, { label: t("common.status.disabled"), value: Status.STATUS_DISABLE }]);
 const configuredFieldCount = computed(() => form.column_rows.filter(row => Boolean(row.rule_id)).length);
 const fields = computed<ProFormField[]>(() => [
-  // 脱敏策略支持全局配置，租户选择器追加全局选项。
-  tenantFormField({ label: t("common.field.tenant"), disabledOnEdit: true, includeGlobal: true }),
+  tenantFormField({ label: t("common.field.tenant"), disabledOnEdit: true }),
   { prop: "source_name", label: t("system.base.redact_storage_policy.field.source_name"), component: "select", props: { filterable: true, disabled: Boolean(form.id), onChange: handleSourceChange }, options: sourceOptions.value },
   { prop: "table_name", label: t("system.base.redact_storage_policy.field.table_name"), component: "select", props: { filterable: true, disabled: Boolean(form.id) || !form.source_name, onChange: handleTableChange }, options: tableOptions.value },
   { prop: "column_rows", label: t("system.base.redact_storage_policy.field.column_name"), component: "slot", slotName: "column_rows", colSpan: 24, visible: () => Boolean(form.table_name) },
@@ -221,7 +220,7 @@ const rules = computed<FormRules>(() => ({
 }));
 const columns = computed<ColumnProps[]>(() => [
   { type: "selection", width: 55 },
-  ...tenantColumns({ label: t("common.field.tenant"), order: 1, includeGlobal: true }),
+  ...tenantColumns({ label: t("common.field.tenant"), order: 1 }),
   { prop: "source_name", label: t("system.base.redact_storage_policy.field.source_name"), minWidth: 130, search: { el: "input" } },
   { prop: "table_name", label: t("system.base.redact_storage_policy.field.table_name"), minWidth: 180, search: { el: "input" }, render: scope => tableLabel(scope.row as BaseRedactStoragePolicy) },
   { prop: "column_name", label: t("system.base.redact_storage_policy.field.column_name"), minWidth: 150, search: { el: "input" } },
@@ -232,7 +231,7 @@ const columns = computed<ColumnProps[]>(() => [
 const headerActions = computed<HeaderActionProps[]>(() => [{ label: t("common.action.create"), type: "success", icon: CirclePlus, hidden: () => !BUTTONS.value["base:redact-storage-policy:create"], onClick: () => openDialog() }, { label: t("common.action.delete"), type: "danger", icon: Delete, hidden: () => !BUTTONS.value["base:redact-storage-policy:delete"], disabled: scope => !scope.selectedList.length, onClick: scope => deleteItems(scope.selectedList as BaseRedactStoragePolicy[]) }]);
 
 /** 请求入库脱敏策略分页列表。 */
-async function requestTable(params: PageBaseRedactStoragePolicyRequest) { const data = await defBaseRedactStoragePolicyService.PageBaseRedactStoragePolicy({ ...buildPageRequest(params), tenant_id: toRequestTenantId(params.tenant_id, true) }); return { data: { list: data.base_redact_storage_policies ?? [], total: data.total } }; }
+async function requestTable(params: PageBaseRedactStoragePolicyRequest) { const data = await defBaseRedactStoragePolicyService.PageBaseRedactStoragePolicy({ ...buildPageRequest(params), tenant_id: toRequestTenantId(params.tenant_id) }); return { data: { list: data.base_redact_storage_policies ?? [], total: data.total } }; }
 /** 加载脱敏规则选项。 */
 async function loadRules() { const rules = await requestRules(); ruleCatalog.value = rules.catalog; ruleOptions.value = rules.options; }
 /** 请求脱敏规则选项。 */

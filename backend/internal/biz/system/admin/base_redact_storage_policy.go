@@ -474,10 +474,10 @@ func (c *BaseRedactStoragePolicyCase) ensureNoStoredValues(ctx context.Context, 
 	return nil
 }
 
-// validateStorageForm 校验入库策略的目标字段和规则参数，租户编号为零表示全局策略。
+// validateStorageForm 校验入库策略的目标字段和规则参数，默认租户策略即全局策略。
 func (c *BaseRedactStoragePolicyCase) validateStorageForm(ctx context.Context, input *adminv1.BaseRedactStoragePolicyForm) (*models.BaseRedactRule, error) {
-	if input.GetTenantId() < 0 {
-		return nil, errorsx.InvalidArgument("租户ID不能为负数")
+	if input.GetTenantId() <= 0 {
+		return nil, errorsx.InvalidArgument("请选择租户")
 	}
 	client, err := GormClientBySourceName(c.BaseCase, input.GetSourceName())
 	if err != nil {

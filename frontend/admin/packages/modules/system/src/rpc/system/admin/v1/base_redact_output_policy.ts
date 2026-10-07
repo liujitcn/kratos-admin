@@ -74,7 +74,7 @@ export interface BaseRedactOutputPolicyForm {
   field_path: string;
   /** 服务名 */
   service_name: string;
-  /** 租户ID，零表示全局策略 */
+  /** 租户ID，默认租户策略为全局策略 */
   tenant_id: number;
   /** 处理模式 */
   mode: BaseRedactOutputPolicyMode;
@@ -123,7 +123,7 @@ export interface BaseRedactOutputPolicy {
   message_ref: string;
   /** 返回字段路径 */
   field_path: string;
-  /** 租户ID */
+  /** 租户ID，默认租户策略为全局策略 */
   tenant_id: number;
   /** 处理模式 */
   mode: BaseRedactOutputPolicyMode;

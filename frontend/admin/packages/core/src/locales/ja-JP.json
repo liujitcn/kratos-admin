@@ -357,7 +357,6 @@
   "common.field.sort": "並べ替え",
   "common.field.status": "ステータス",
   "common.field.tenant": "テナント",
-  "common.field.tenant_global": "グローバル",
   "common.field.project": "プロジェクト",
   "common.field.updated_at": "更新時間",
   "common.field.user": "ユーザー",

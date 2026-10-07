@@ -797,8 +797,8 @@ github.com/liujitcn/kratos-kit/queue v0.0.34 h1:izaPbjXJxKc1WoXU0m5O1SI0K/DmwPBV
 github.com/liujitcn/kratos-kit/queue v0.0.34/go.mod h1:qIMIDE8f8snG+vMDfu84uYbxk+MughUqdiQF8l2h36w=
 github.com/liujitcn/kratos-kit/queue/redisqueue v0.0.16 h1:bedifEZn+0HUHfKQ4p7QXMlEBoDu4786r39M1UZwuPU=
 github.com/liujitcn/kratos-kit/queue/redisqueue v0.0.16/go.mod h1:iz4f5nO2ZyLqc+jVCHSHQvK1o/Ex1UsJvagqB5KTE74=
-github.com/liujitcn/kratos-kit/redact v0.0.13 h1:7oF0cbVmTejecg7fcOakMngNUZG4c9otqs46RO2h9y0=
-github.com/liujitcn/kratos-kit/redact v0.0.13/go.mod h1:FnSLS81bA/4zWRq08JNsblrVyo7Bpcd1bS3Lvrqx8Co=
+github.com/liujitcn/kratos-kit/redact v0.0.14 h1:oV0nD5HUD5NZvCPianiCD4l07oWjgIHawDBxYHwV66g=
+github.com/liujitcn/kratos-kit/redact v0.0.14/go.mod h1:FnSLS81bA/4zWRq08JNsblrVyo7Bpcd1bS3Lvrqx8Co=
 github.com/liujitcn/kratos-kit/registry v0.0.25 h1:dJzxhPKtefIqrfY64tADNL6Novmb7vvXe8FggvEKQIc=
 github.com/liujitcn/kratos-kit/registry v0.0.25/go.mod h1:D9mSyOHJ1kap4+OXXQkwFv0DnU6J8ySX4uOI/GgZ13g=
 github.com/liujitcn/kratos-kit/registry/consul v0.0.9 h1:vxMk9NKkMh0NK3PuN8VNs3BBxa6GApl8UIpvows5Ndw=

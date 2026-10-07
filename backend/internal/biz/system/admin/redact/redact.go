@@ -10,6 +10,9 @@ import (
 	"github.com/liujitcn/kratos-kit/database/gorm"
 )
 
+// DefaultTenantID 表示默认租户编号（种子固定），默认租户的脱敏策略即全局策略。
+const DefaultTenantID int64 = 1
+
 // EnsureRedactPlatformOperator 校验当前操作者具备平台级脱敏管理权限。
 func EnsureRedactPlatformOperator(ctx context.Context, baseCase *biz.BaseCase) error {
 	authInfo, err := baseCase.GetAuthInfo(ctx)

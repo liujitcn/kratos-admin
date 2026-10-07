@@ -20,8 +20,8 @@ import (
 
 const policyCacheTTL = time.Minute
 
-// globalTenantID 表示全局脱敏策略的租户编号。
-const globalTenantID = int64(0)
+// defaultTenantID 表示默认租户编号（种子固定），默认租户的脱敏策略即全局策略。
+const defaultTenantID = int64(1)
 
 var (
 	_ redact.PolicyResolver        = (*RedactPolicyResolver)(nil)
@@ -206,8 +206,9 @@ func (r *RedactPolicyResolver) Resolve(ctx context.Context, fieldRef string) (re
 	return policy, ok
 }
 
-// ListStoragePolicies 返回默认数据源的入库策略：租户策略覆盖同字段全局策略，
-// 租户ID为零或不为正时仅应用全局策略。仅在初始化成功后自动刷新缓存。
+// ListStoragePolicies 返回默认数据源的入库策略：默认租户策略即全局策略，
+// 其他租户的策略按字段覆盖默认租户策略，未携带租户或租户未配置时应用默认租户策略。
+// 仅在初始化成功后自动刷新缓存。
 func (r *RedactPolicyResolver) ListStoragePolicies(ctx context.Context, tenantID int64, tableName string) []redact.StorageFieldPolicy {
 	if r == nil {
 		return nil
@@ -228,10 +229,10 @@ func (r *RedactPolicyResolver) ListStoragePolicies(ctx context.Context, tenantID
 	return append([]redact.StorageFieldPolicy(nil), policies...)
 }
 
-// mergedStoragePolicies 合并全局和租户入库策略，调用方必须持有读锁。
+// mergedStoragePolicies 合并默认租户和其他租户的入库策略，调用方必须持有读锁。
 func (r *RedactPolicyResolver) mergedStoragePolicies(tenantID int64, tableName string) []redact.StorageFieldPolicy {
-	global := r.storagePolicies[storagePolicyKey(globalTenantID, kitgorm.DefaultClientName, tableName)]
-	if tenantID <= 0 {
+	global := r.storagePolicies[storagePolicyKey(defaultTenantID, kitgorm.DefaultClientName, tableName)]
+	if tenantID <= 0 || tenantID == defaultTenantID {
 		return global
 	}
 	tenant := r.storagePolicies[storagePolicyKey(tenantID, kitgorm.DefaultClientName, tableName)]
@@ -278,7 +279,7 @@ func (r *RedactPolicyResolver) ListStoragePoliciesByTable(tableName string) []re
 }
 
 // lookupOutputPolicy 按精确接口和字段执行出库策略匹配：
-// 优先使用响应数据所属租户的策略，未命中或未携带租户时回退全局策略。
+// 优先使用响应数据所属租户的策略，未命中或未携带租户时回退默认租户的全局策略。
 func (r *RedactPolicyResolver) lookupOutputPolicy(ctx context.Context, fieldRef string) (redact.FieldPolicy, bool) {
 	operation := redact.OperationFromContext(ctx)
 	if operation == "" {
@@ -287,20 +288,21 @@ func (r *RedactPolicyResolver) lookupOutputPolicy(ctx context.Context, fieldRef 
 	if authenticationResponseOperation(operation) {
 		return redact.FieldPolicy{Mode: redact.PolicyModeFull}, true
 	}
-	if tenantID := redact.TenantIDFromContext(ctx); tenantID > 0 {
+	tenantID := redact.TenantIDFromContext(ctx)
+	if tenantID > 0 {
 		policy, ok := r.outputPolicies[outputPolicyKey(tenantID, operation, fieldRef)]
 		if ok {
 			return policy, true
 		}
 	}
-	policy, ok := r.outputPolicies[outputPolicyKey(globalTenantID, operation, fieldRef)]
+	policy, ok := r.outputPolicies[outputPolicyKey(defaultTenantID, operation, fieldRef)]
 	if ok {
 		return policy, true
 	}
 	return redact.FieldPolicy{}, false
 }
 
-// buildStoragePolicies 构建按物理表分组的入库策略，租户编号为零表示全局策略。
+// buildStoragePolicies 构建按物理表分组的入库策略，默认租户策略即全局策略。
 func buildStoragePolicies(rows []*models.BaseRedactStoragePolicy, rules map[int64]*models.BaseRedactRule) (map[string][]redact.StorageFieldPolicy, error) {
 	result := make(map[string][]redact.StorageFieldPolicy)
 	var err error
@@ -320,8 +322,8 @@ func buildStoragePolicies(rows []*models.BaseRedactStoragePolicy, rules map[int6
 		}
 		fieldPolicy.RuleID = rule.ID
 		fieldPolicy.Fingerprint = redact.RuleFingerprint(rule.RuleType, params)
-		if row.TenantID < 0 {
-			return nil, fmt.Errorf("入库脱敏策略 %d 租户ID无效", row.ID)
+		if row.TenantID <= 0 {
+			return nil, fmt.Errorf("入库脱敏策略 %d 缺少租户", row.ID)
 		}
 		key := storagePolicyKey(row.TenantID, row.SourceName, row.TableName_)
 		result[key] = append(result[key], redact.StorageFieldPolicy{
@@ -335,13 +337,13 @@ func buildStoragePolicies(rows []*models.BaseRedactStoragePolicy, rules map[int6
 	return result, nil
 }
 
-// buildOutputPolicies 构建精确接口字段出库策略，租户编号为零表示全局策略。
+// buildOutputPolicies 构建精确接口字段出库策略，默认租户策略即全局策略。
 func buildOutputPolicies(rows []*models.BaseRedactOutputPolicy, rules map[int64]*models.BaseRedactRule) (map[string]redact.FieldPolicy, error) {
 	result := make(map[string]redact.FieldPolicy, len(rows))
 	var err error
 	for _, row := range rows {
-		if row.TenantID < 0 {
-			return nil, fmt.Errorf("响应脱敏策略 %d 租户ID无效", row.ID)
+		if row.TenantID <= 0 {
+			return nil, fmt.Errorf("响应脱敏策略 %d 缺少租户", row.ID)
 		}
 		if row.ServiceName == "" || row.Operation == "" || row.MessageRef == "" || row.FieldPath == "" {
 			return nil, fmt.Errorf("出库脱敏策略 %d 缺少接口或Proto字段", row.ID)

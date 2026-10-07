@@ -278,10 +278,10 @@ func (c *BaseRedactOutputPolicyCase) GetBaseRedactOutputFieldDoc(ctx context.Con
 	return doc, nil
 }
 
-// validateOutputForm 校验出库策略接口、模式和规则参数，租户编号为零表示全局策略。
+// validateOutputForm 校验出库策略接口、模式和规则参数，默认租户策略即全局策略。
 func (c *BaseRedactOutputPolicyCase) validateOutputForm(ctx context.Context, input *adminv1.BaseRedactOutputPolicyForm, tenantId int64) (*models.BaseRedactRule, error) {
-	if tenantId < 0 {
-		return nil, errorsx.InvalidArgument("租户ID不能为负数")
+	if tenantId <= 0 {
+		return nil, errorsx.InvalidArgument("请选择租户")
 	}
 	query := c.baseAPIRepo.Query(ctx).BaseAPI
 	var api *models.BaseAPI
@@ -296,8 +296,8 @@ func (c *BaseRedactOutputPolicyCase) validateOutputForm(ctx context.Context, inp
 	if !strings.EqualFold(api.Method, http.MethodGet) {
 		return nil, errorsx.InvalidArgument("出库脱敏只支持 GET 接口")
 	}
-	// 全局策略适用于不携带租户编号的响应，不要求响应类型包含租户字段。
-	if tenantId > 0 {
+	// 默认租户策略即全局策略，适用于不携带租户编号的响应，不要求响应类型包含租户字段。
+	if tenantId != redact.DefaultTenantID {
 		err = validateTenantResponseType(input.GetMessageRef())
 		if err != nil {
 			return nil, err

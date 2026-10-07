@@ -13534,7 +13534,7 @@ components:
                     description: 返回字段路径
                 tenant_id:
                     type: string
-                    description: 租户ID
+                    description: 租户ID，默认租户策略为全局策略
                 mode:
                     enum:
                         - BASE_REDACT_OUTPUT_POLICY_MODE_UNSPECIFIED
@@ -13600,7 +13600,7 @@ components:
                     description: 服务名
                 tenant_id:
                     type: string
-                    description: 租户ID
+                    description: 租户ID，默认租户策略为全局策略
                 mode:
                     enum:
                         - BASE_REDACT_OUTPUT_POLICY_MODE_UNSPECIFIED
@@ -13742,7 +13742,7 @@ components:
                     description: 数据源名称
                 tenant_id:
                     type: string
-                    description: 租户ID
+                    description: 租户ID，默认租户策略为全局策略
                 table_comment:
                     type: string
                     description: 数据表注释
@@ -13787,7 +13787,7 @@ components:
                     description: 数据源名称
                 tenant_id:
                     type: string
-                    description: 租户ID
+                    description: 租户ID，默认租户策略为全局策略
                 status:
                     enum:
                         - STATUS_UNSPECIFIED

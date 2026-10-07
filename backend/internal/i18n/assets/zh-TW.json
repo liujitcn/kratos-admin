@@ -2333,9 +2333,6 @@
   "legacy.error.8378c73fbc6061ca": {
     "other": "查詢崗位分頁列表失敗"
   },
-  "legacy.error.83a3eb2b68bdbb54": {
-    "other": "租戶ID不能為負數"
-  },
   "legacy.error.83e43a4951d784c2": {
     "other": "上級行政區域不能是自身"
   },

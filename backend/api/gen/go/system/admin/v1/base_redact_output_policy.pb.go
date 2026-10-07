@@ -299,7 +299,7 @@ type BaseRedactOutputPolicyForm struct {
 	MessageRef    string                     `protobuf:"bytes,3,opt,name=message_ref,json=messageRef,proto3" json:"message_ref,omitempty"`                      // Proto消息完整名称
 	FieldPath     string                     `protobuf:"bytes,4,opt,name=field_path,json=fieldPath,proto3" json:"field_path,omitempty"`                         // 返回字段路径
 	ServiceName   string                     `protobuf:"bytes,5,opt,name=service_name,json=serviceName,proto3" json:"service_name,omitempty"`                   // 服务名
-	TenantId      int64                      `protobuf:"varint,6,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`                           // 租户ID，零表示全局策略
+	TenantId      int64                      `protobuf:"varint,6,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`                           // 租户ID，默认租户策略为全局策略
 	Mode          BaseRedactOutputPolicyMode `protobuf:"varint,100,opt,name=mode,proto3,enum=system.admin.v1.BaseRedactOutputPolicyMode" json:"mode,omitempty"` // 处理模式
 	RuleId        int64                      `protobuf:"varint,101,opt,name=rule_id,json=ruleId,proto3" json:"rule_id,omitempty"`                               // 规则ID
 	RuleParams    string                     `protobuf:"bytes,102,opt,name=rule_params,json=ruleParams,proto3" json:"rule_params,omitempty"`                    // 规则参数
@@ -611,7 +611,7 @@ type BaseRedactOutputPolicy struct {
 	Operation     string                     `protobuf:"bytes,2,opt,name=operation,proto3" json:"operation,omitempty"`                                          // 接口操作
 	MessageRef    string                     `protobuf:"bytes,3,opt,name=message_ref,json=messageRef,proto3" json:"message_ref,omitempty"`                      // Proto消息完整名称
 	FieldPath     string                     `protobuf:"bytes,4,opt,name=field_path,json=fieldPath,proto3" json:"field_path,omitempty"`                         // 返回字段路径
-	TenantId      int64                      `protobuf:"varint,5,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`                           // 租户ID
+	TenantId      int64                      `protobuf:"varint,5,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`                           // 租户ID，默认租户策略为全局策略
 	Mode          BaseRedactOutputPolicyMode `protobuf:"varint,100,opt,name=mode,proto3,enum=system.admin.v1.BaseRedactOutputPolicyMode" json:"mode,omitempty"` // 处理模式
 	RuleId        int64                      `protobuf:"varint,101,opt,name=rule_id,json=ruleId,proto3" json:"rule_id,omitempty"`                               // 规则ID
 	RuleCode      string                     `protobuf:"bytes,102,opt,name=rule_code,json=ruleCode,proto3" json:"rule_code,omitempty"`                          // 规则编码
@@ -840,7 +840,7 @@ const file_system_admin_v1_base_redact_output_policy_proto_rawDesc = "" +
 	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\"\xad\x01\n" +
 	" GetBaseRedactOutputPolicyRequest\x12\x88\x01\n" +
 	"\x02id\x18\x01 \x01(\x03Bx\xbaG\x11\x92\x02\x0e出库策略ID\xbaHa\xba\x01^\n" +
-	"6system.admin.base.redact.output_policy.get.id.required\x12\x1a出库策略ID不能为空\x1a\bthis > 0R\x02id\"\xc1\f\n" +
+	"6system.admin.base.redact.output_policy.get.id.required\x12\x1a出库策略ID不能为空\x1a\bthis > 0R\x02id\"\xe0\f\n" +
 	"\x1aBaseRedactOutputPolicyForm\x12$\n" +
 	"\x02id\x18\x01 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e出库策略IDR\x02id\x12\xcd\x01\n" +
 	"\toperation\x18\x02 \x01(\tB\xae\x01\xbaG\x0f\x92\x02\f接口操作\xbaH\x98\x01\xba\x01\x94\x01\n" +
@@ -852,9 +852,9 @@ const file_system_admin_v1_base_redact_output_policy_proto_rawDesc = "" +
 	"field_path\x18\x04 \x01(\tB\xbb\x01\xbaG\x15\x92\x02\x12返回字段路径\xbaH\x9f\x01\xba\x01\x9b\x01\n" +
 	":system.admin.base.redact.output_policy.field_path.required\x126返回字段路径不能为空且不超过255个字符\x1a%this.size() > 0 && this.size() <= 255R\tfieldPath\x12\xd0\x01\n" +
 	"\fservice_name\x18\x05 \x01(\tB\xac\x01\xbaG\f\x92\x02\t服务名\xbaH\x99\x01\xba\x01\x95\x01\n" +
-	"<system.admin.base.redact.output_policy.service_name.required\x12/服务名不能为空且不能超过50个字符\x1a$this.size() > 0 && this.size() <= 50R\vserviceName\x12\x8d\x01\n" +
-	"\ttenant_id\x18\x06 \x01(\x03Bp\xbaG\v\x92\x02\b租户ID\xbaH_\xba\x01\\\n" +
-	"6system.admin.base.redact.output_policy.tenant_id.valid\x12\x17租户ID不能为负数\x1a\tthis >= 0R\btenantId\x12[\n" +
+	"<system.admin.base.redact.output_policy.service_name.required\x12/服务名不能为空且不能超过50个字符\x1a$this.size() > 0 && this.size() <= 50R\vserviceName\x12\xac\x01\n" +
+	"\ttenant_id\x18\x06 \x01(\x03B\x8e\x01\xbaG/\x92\x02,租户ID，默认租户策略为全局策略\xbaHY\xba\x01V\n" +
+	"9system.admin.base.redact.output_policy.tenant_id.required\x12\x0f请选择租户\x1a\bthis > 0R\btenantId\x12[\n" +
 	"\x04mode\x18d \x01(\x0e2+.system.admin.v1.BaseRedactOutputPolicyModeB\x1a\xbaG\x0f\x92\x02\f处理模式\xbaH\x05\x82\x01\x02\x10\x01R\x04mode\x12'\n" +
 	"\arule_id\x18e \x01(\x03B\x0e\xbaG\v\x92\x02\b规则IDR\x06ruleId\x12\xa2\x01\n" +
 	"\vrule_params\x18f \x01(\tB\x80\x01\xbaG\x0f\x92\x02\f规则参数\xbaHk\xba\x01h\n" +
@@ -875,15 +875,15 @@ const file_system_admin_v1_base_redact_output_policy_proto_rawDesc = "" +
 	"&SetBaseRedactOutputPolicyStatusRequest\x12\x8b\x01\n" +
 	"\x02id\x18\x01 \x01(\x03B{\xbaG\x11\x92\x02\x0e出库策略ID\xbaHd\xba\x01a\n" +
 	"9system.admin.base.redact.output_policy.status.id.required\x12\x1a出库策略ID不能为空\x1a\bthis > 0R\x02id\x12?\n" +
-	"\x06status\x18\x02 \x01(\x0e2\x11.common.v1.StatusB\x14\xbaG\t\x92\x02\x06状态\xbaH\x05\x82\x01\x02\x10\x01R\x06status\"\xd7\x06\n" +
+	"\x06status\x18\x02 \x01(\x0e2\x11.common.v1.StatusB\x14\xbaG\t\x92\x02\x06状态\xbaH\x05\x82\x01\x02\x10\x01R\x06status\"\xfb\x06\n" +
 	"\x16BaseRedactOutputPolicy\x12$\n" +
 	"\x02id\x18\x01 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e出库策略IDR\x02id\x120\n" +
 	"\toperation\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f接口操作R\toperation\x12>\n" +
 	"\vmessage_ref\x18\x03 \x01(\tB\x1d\xbaG\x1a\x92\x02\x17Proto消息完整名称R\n" +
 	"messageRef\x127\n" +
 	"\n" +
-	"field_path\x18\x04 \x01(\tB\x18\xbaG\x15\x92\x02\x12返回字段路径R\tfieldPath\x12+\n" +
-	"\ttenant_id\x18\x05 \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDR\btenantId\x12S\n" +
+	"field_path\x18\x04 \x01(\tB\x18\xbaG\x15\x92\x02\x12返回字段路径R\tfieldPath\x12O\n" +
+	"\ttenant_id\x18\x05 \x01(\x03B2\xbaG/\x92\x02,租户ID，默认租户策略为全局策略R\btenantId\x12S\n" +
 	"\x04mode\x18d \x01(\x0e2+.system.admin.v1.BaseRedactOutputPolicyModeB\x12\xbaG\x0f\x92\x02\f处理模式R\x04mode\x12'\n" +
 	"\arule_id\x18e \x01(\x03B\x0e\xbaG\v\x92\x02\b规则IDR\x06ruleId\x12/\n" +
 	"\trule_code\x18f \x01(\tB\x12\xbaG\x0f\x92\x02\f规则编码R\bruleCode\x12/\n" +
