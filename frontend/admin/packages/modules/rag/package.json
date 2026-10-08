@@ -1,7 +1,7 @@
 {
   "name": "@liujitcn/kratos-admin-rag",
   "private": false,
-  "version": "0.0.75",
+  "version": "0.0.76",
   "type": "module",
   "description": "kratos-admin RAG knowledge base management module",
   "license": "MIT",
