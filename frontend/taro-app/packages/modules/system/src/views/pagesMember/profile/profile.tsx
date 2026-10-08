@@ -65,7 +65,7 @@ export default function ProfilePage() {
 
   useEffect(() => {
     void Taro.setNavigationBarTitle({ title: t('system.profile.title') })
-  }, [locale])
+  }, [locale, t])
 
   useEffect(() => {
     return () => {

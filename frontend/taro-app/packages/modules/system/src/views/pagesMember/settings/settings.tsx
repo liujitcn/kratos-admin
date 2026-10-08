@@ -37,7 +37,7 @@ export default function SettingsPage() {
 
   useEffect(() => {
     void Taro.setNavigationBarTitle({ title: t('system.settings.title') })
-  }, [locale])
+  }, [locale, t])
 
   const loadMfaStatus = async (force = false) => {
     if (!useUserStore.getState().isAuthenticated() || (mfaStatusLoading && !force)) return

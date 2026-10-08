@@ -171,7 +171,7 @@ export default function LoginPage() {
 
   useEffect(() => {
     void Taro.setNavigationBarTitle({ title: t('common.action.login') })
-  }, [locale])
+  }, [locale, t])
 
   useEffect(() => {
     return () => {

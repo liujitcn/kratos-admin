@@ -3,6 +3,7 @@
  * 各语言 JSON 由模块定义文件导入，不能在 JSON 文件内添加注释。
  */
 import Taro from '@tarojs/taro'
+import { useCallback } from 'react'
 import { create } from 'zustand'
 import type { KratosTaroModule } from '../module'
 import type { I18nCustomItem } from '../rpc/base/v1/config'
@@ -196,10 +197,14 @@ export function t(key: string, params: LocaleParams = {}, locale = getCurrentLoc
 export function useI18n() {
   useLocaleMessagesRevision()
   const locale = useLocaleStore((state) => state.locale)
+  const translate = useCallback(
+    (key: string, params: LocaleParams = {}) => t(key, params, locale),
+    [locale],
+  )
   return {
     locale,
     setLocale: setCurrentLocale,
-    t: (key: string, params: LocaleParams = {}) => t(key, params, locale),
+    t: translate,
   }
 }
 
