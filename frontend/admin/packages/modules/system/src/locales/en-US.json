@@ -239,6 +239,7 @@
   "system.base.ai.model.category.embedding": "Embedding model (RAG)",
   "system.base.ai.model.category.image": "Image model",
   "system.base.ai.model.category.rerank": "Rerank model",
+  "system.base.ai.model.category.translation": "Translation model",
   "system.base.ai.model.category.video": "Video model",
   "system.base.ai.model.field.api_type": "API type",
   "system.base.ai.model.field.category": "Category",

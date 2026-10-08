@@ -10507,6 +10507,7 @@ components:
                         - AI_MODEL_CATEGORY_IMAGE
                         - AI_MODEL_CATEGORY_VIDEO
                         - AI_MODEL_CATEGORY_AUDIO
+                        - AI_MODEL_CATEGORY_TRANSLATION
                     type: string
                     description: 模型分類：列舉【AiModelCategory】
                     format: enum
@@ -13534,7 +13535,7 @@ components:
                     description: 返回欄位路徑
                 tenant_id:
                     type: string
-                    description: 租戶ID
+                    description: 租戶ID，預設租戶策略為全域性策略
                 mode:
                     enum:
                         - BASE_REDACT_OUTPUT_POLICY_MODE_UNSPECIFIED
@@ -13600,7 +13601,7 @@ components:
                     description: 服務名
                 tenant_id:
                     type: string
-                    description: 租戶ID
+                    description: 租戶ID，預設租戶策略為全域性策略
                 mode:
                     enum:
                         - BASE_REDACT_OUTPUT_POLICY_MODE_UNSPECIFIED
@@ -13742,7 +13743,7 @@ components:
                     description: 資料來源名稱
                 tenant_id:
                     type: string
-                    description: 租戶ID
+                    description: 租戶ID，預設租戶策略為全域性策略
                 table_comment:
                     type: string
                     description: 資料表註釋
@@ -13787,7 +13788,7 @@ components:
                     description: 資料來源名稱
                 tenant_id:
                     type: string
-                    description: 租戶ID
+                    description: 租戶ID，預設租戶策略為全域性策略
                 status:
                     enum:
                         - STATUS_UNSPECIFIED

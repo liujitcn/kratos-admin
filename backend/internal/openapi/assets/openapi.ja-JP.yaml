@@ -10507,6 +10507,7 @@ components:
                         - AI_MODEL_CATEGORY_IMAGE
                         - AI_MODEL_CATEGORY_VIDEO
                         - AI_MODEL_CATEGORY_AUDIO
+                        - AI_MODEL_CATEGORY_TRANSLATION
                     type: string
                     description: "モデルカテゴリ: enum [AiModelCategory]"
                     format: enum
@@ -13534,7 +13535,7 @@ components:
                     description: 返却フィールドパス
                 tenant_id:
                     type: string
-                    description: テナント ID
+                    description: テナント ID，デフォルトテナントポリシーとしてグローバルポリシー
                 mode:
                     enum:
                         - BASE_REDACT_OUTPUT_POLICY_MODE_UNSPECIFIED
@@ -13600,7 +13601,7 @@ components:
                     description: サービス名
                 tenant_id:
                     type: string
-                    description: テナント ID
+                    description: テナント ID，デフォルトテナントポリシーとしてグローバルポリシー
                 mode:
                     enum:
                         - BASE_REDACT_OUTPUT_POLICY_MODE_UNSPECIFIED
@@ -13742,7 +13743,7 @@ components:
                     description: データソース名称
                 tenant_id:
                     type: string
-                    description: テナント ID
+                    description: テナント ID，デフォルトテナントポリシーとしてグローバルポリシー
                 table_comment:
                     type: string
                     description: データテーブルのコメント
@@ -13787,7 +13788,7 @@ components:
                     description: データソース名称
                 tenant_id:
                     type: string
-                    description: テナント ID
+                    description: テナント ID，デフォルトテナントポリシーとしてグローバルポリシー
                 status:
                     enum:
                         - STATUS_UNSPECIFIED

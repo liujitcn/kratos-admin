@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	kitgorm "github.com/liujitcn/kratos-kit/database/gorm"
+	"github.com/liujitcn/kratos-kit/database/gorm"
 	"github.com/liujitcn/kratos-kit/redact"
 
 	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
@@ -34,11 +34,11 @@ func newDefaultTenantPolicyTestResolver(t *testing.T) *RedactPolicyResolver {
 			outputPolicyKey(2, operation, "system.admin.v1.BaseUser.email"):   maskPolicy,
 		},
 		storagePolicies: map[string][]redact.StorageFieldPolicy{
-			storagePolicyKey(1, kitgorm.DefaultClientName, "base_user"): {
+			storagePolicyKey(1, gorm.DefaultClientName, "base_user"): {
 				{ID: 11, TenantID: 1, TableName: "base_user", ColumnName: "phone", Rule: maskPolicy},
 				{ID: 12, TenantID: 1, TableName: "base_user", ColumnName: "id_code", Rule: fixedPolicy},
 			},
-			storagePolicyKey(2, kitgorm.DefaultClientName, "base_user"): {
+			storagePolicyKey(2, gorm.DefaultClientName, "base_user"): {
 				{ID: 21, TenantID: 2, TableName: "base_user", ColumnName: "phone", Rule: fixedPolicy},
 			},
 		},

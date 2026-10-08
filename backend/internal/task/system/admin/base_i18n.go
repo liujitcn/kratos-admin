@@ -87,7 +87,11 @@ func (t *BaseI18nTask) Task() cronTransport.Task {
 func (t *BaseI18nTask) Exec(ctx context.Context, _ map[string]string) ([]string, error) {
 	t.mu.Lock()
 	defer t.mu.Unlock()
-	if t.i18nCase.Translator == nil {
+	available, err := t.i18nCase.TranslatorAvailable(ctx)
+	if err != nil {
+		return nil, i18n.WrapMessageError("system.base.job.error.i18n_task_failed", err)
+	}
+	if !available {
 		return []string{i18n.EncodeMessage("system.base.job.result.i18n_translator_disabled", nil)}, nil
 	}
 	state, err := t.i18nCase.LocaleState(ctx)
@@ -194,7 +198,7 @@ func (t *BaseI18nTask) loadI18nIndex(ctx context.Context) (i18nIndex, error) {
 
 // translateOneWithState 使用已读取的语言状态生成单个资源译文。
 func (t *BaseI18nTask) translateOneWithState(ctx context.Context, state *dto.LocaleState, i18ns i18nIndex, targetKey string, targetID int64, sourceLocale string, targetLocale string, sourceText string) error {
-	if t.i18nCase.Translator == nil {
+	if !t.i18nCase.HasTranslator() {
 		return errorsx.PermissionDenied("机器翻译功能未启用")
 	}
 	if targetID <= 0 {

@@ -26,16 +26,17 @@ import (
 
 // AI模型分类标识，取值对应 system.admin.v1 的 AiModelCategory 枚举。
 const (
-	aiModelCategoryChat      = adminv1.AiModelCategory_AI_MODEL_CATEGORY_CHAT
-	aiModelCategoryEmbedding = adminv1.AiModelCategory_AI_MODEL_CATEGORY_EMBEDDING
-	aiModelCategoryRerank    = adminv1.AiModelCategory_AI_MODEL_CATEGORY_RERANK
-	aiModelCategoryImage     = adminv1.AiModelCategory_AI_MODEL_CATEGORY_IMAGE
-	aiModelCategoryVideo     = adminv1.AiModelCategory_AI_MODEL_CATEGORY_VIDEO
-	aiModelCategoryAudio     = adminv1.AiModelCategory_AI_MODEL_CATEGORY_AUDIO
+	aiModelCategoryChat        = adminv1.AiModelCategory_AI_MODEL_CATEGORY_CHAT
+	aiModelCategoryEmbedding   = adminv1.AiModelCategory_AI_MODEL_CATEGORY_EMBEDDING
+	aiModelCategoryRerank      = adminv1.AiModelCategory_AI_MODEL_CATEGORY_RERANK
+	aiModelCategoryImage       = adminv1.AiModelCategory_AI_MODEL_CATEGORY_IMAGE
+	aiModelCategoryVideo       = adminv1.AiModelCategory_AI_MODEL_CATEGORY_VIDEO
+	aiModelCategoryAudio       = adminv1.AiModelCategory_AI_MODEL_CATEGORY_AUDIO
+	aiModelCategoryTranslation = adminv1.AiModelCategory_AI_MODEL_CATEGORY_TRANSLATION
 )
 
 // aiModelCategories 汇总全部合法的模型分类。
-var aiModelCategories = []adminv1.AiModelCategory{aiModelCategoryChat, aiModelCategoryEmbedding, aiModelCategoryRerank, aiModelCategoryImage, aiModelCategoryVideo, aiModelCategoryAudio}
+var aiModelCategories = []adminv1.AiModelCategory{aiModelCategoryChat, aiModelCategoryEmbedding, aiModelCategoryRerank, aiModelCategoryImage, aiModelCategoryVideo, aiModelCategoryAudio, aiModelCategoryTranslation}
 
 // AiModelCase 维护AI模型持久化并管理运行时聊天模型快照；模型随AI供应商表单一并保存。
 type AiModelCase struct {
@@ -246,6 +247,9 @@ func (c *AiModelCase) TestProviderModels(ctx context.Context, provider *models.A
 		case int32(aiModelCategoryEmbedding):
 			testResult := testEmbeddingModel(ctx, provider, item)
 			result.Success, result.DurationMs, result.Message = testResult.Success, testResult.DurationMs, testResult.Message
+		case int32(aiModelCategoryTranslation):
+			testResult := testTranslationModel(ctx, provider, item)
+			result.Success, result.DurationMs, result.Message = testResult.Success, testResult.DurationMs, testResult.Message
 		default:
 			// 持久化国际化消息标记，由管理端按当前语言渲染。
 			result.Message = "__I18N__:system.base.ai_provider.message.test_unsupported_category"
@@ -301,6 +305,8 @@ func validateAiModel(item *models.AiModel) error {
 		_, err = parseAiModelChatConfig(item.Config)
 	case aiModelCategoryEmbedding:
 		_, err = validateEmbeddingConfig(item.Config)
+	case aiModelCategoryTranslation:
+		_, err = validateTranslationConfig(item.Config)
 	default:
 		// 其余分类暂无运行时消费字段，仅要求配置是JSON对象。
 		_, err = parseConfigStruct(item.Config)
@@ -340,6 +346,18 @@ func validateEmbeddingConfig(raw string) (*ai.EmbeddingModelConfig, error) {
 	}
 	if value.TimeoutSeconds < 0 || value.TimeoutSeconds > 600 || value.MaxRetries < 0 || value.MaxRetries > 10 {
 		return nil, errors.New("embedding模型请求参数超出范围")
+	}
+	return value, nil
+}
+
+// validateTranslationConfig 校验翻译模型的分类个性化配置。
+func validateTranslationConfig(raw string) (*ai.TranslationModelConfig, error) {
+	value, err := ai.ParseTranslationModelConfig(raw)
+	if err != nil {
+		return nil, err
+	}
+	if value.TimeoutSeconds < 0 || value.TimeoutSeconds > 600 || value.MaxRetries < 0 || value.MaxRetries > 10 {
+		return nil, errors.New("翻译模型请求参数超出范围")
 	}
 	return value, nil
 }
@@ -419,6 +437,33 @@ func testEmbeddingModel(ctx context.Context, provider *models.AiProvider, item *
 	startAt := time.Now()
 	request := openai.EmbeddingRequest{Model: openai.EmbeddingModel(item.ModelName), Input: []string{"ping"}}
 	_, err = client.CreateEmbeddings(modelCtx, request)
+	result.DurationMs = int32(time.Since(startAt).Milliseconds())
+	result.Success = err == nil
+	if err != nil {
+		result.Message = aiTestError(err, provider.APIKey)
+	}
+	return result
+}
+
+// testTranslationModel 运行翻译模型连通性测试，复用聊天模型探测逻辑。
+func testTranslationModel(ctx context.Context, provider *models.AiProvider, item *models.AiModel) *adminv1.AiProviderModelTestResult {
+	result := &adminv1.AiProviderModelTestResult{}
+	translationConfig, err := ai.ParseTranslationModelConfig(item.Config)
+	if err != nil {
+		result.Message = aiTestError(err, provider.APIKey)
+		return result
+	}
+	timeoutSeconds := translationConfig.TimeoutSeconds
+	if timeoutSeconds <= 0 || timeoutSeconds > 30 {
+		timeoutSeconds = 30
+	}
+	modelCtx, cancel := context.WithTimeout(ctx, time.Duration(timeoutSeconds)*time.Second)
+	defer cancel()
+	startAt := time.Now()
+	err = model.TestConnection(modelCtx, &modelconfig.ModelConfig{
+		Provider: modelconfig.Provider(provider.Provider), ModelName: item.ModelName,
+		APIKey: provider.APIKey, BaseURL: provider.BaseURL, TimeoutSeconds: timeoutSeconds,
+	})
 	result.DurationMs = int32(time.Since(startAt).Milliseconds())
 	result.Success = err == nil
 	if err != nil {

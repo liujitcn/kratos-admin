@@ -8,12 +8,13 @@ import (
 
 	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
 	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
+	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/ai"
 	_const "github.com/liujitcn/kratos-admin/backend/internal/const"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 	"github.com/liujitcn/kratos-core/biz"
 	coreconst "github.com/liujitcn/kratos-core/const"
-	kitgorm "github.com/liujitcn/kratos-kit/database/gorm"
+	"github.com/liujitcn/kratos-kit/database/gorm"
 
 	"github.com/go-kratos/kratos/v3/log"
 	"google.golang.org/protobuf/proto"
@@ -29,10 +30,11 @@ type ConfigCase struct {
 	i18nCustomRepo *data.BaseI18NCustomRepository
 	languageRepo   *data.BaseLanguageRepository
 	tenantRepo     *data.BaseTenantRepository
+	translator     *ai.ModelTranslator
 }
 
 // NewConfigCase 创建配置业务实例。
-func NewConfigCase(baseCase *biz.BaseCase, baseConfigRepo *data.BaseConfigRepository, i18nRepo *data.BaseI18NRepository, i18nCustomRepo *data.BaseI18NCustomRepository, languageRepo *data.BaseLanguageRepository, tenantRepo *data.BaseTenantRepository) *ConfigCase {
+func NewConfigCase(baseCase *biz.BaseCase, baseConfigRepo *data.BaseConfigRepository, i18nRepo *data.BaseI18NRepository, i18nCustomRepo *data.BaseI18NCustomRepository, languageRepo *data.BaseLanguageRepository, tenantRepo *data.BaseTenantRepository, translator *ai.ModelTranslator) *ConfigCase {
 	return &ConfigCase{
 		BaseCase:             baseCase,
 		BaseConfigRepository: baseConfigRepo,
@@ -40,14 +42,18 @@ func NewConfigCase(baseCase *biz.BaseCase, baseConfigRepo *data.BaseConfigReposi
 		i18nCustomRepo:       i18nCustomRepo,
 		languageRepo:         languageRepo,
 		tenantRepo:           tenantRepo,
+		translator:           translator,
 	}
 }
 
 // GetConfig 查询指定站点的启用运行时配置；系统内置站点由契约校验拒绝，不下发。
 func (c *ConfigCase) GetConfig(ctx context.Context, req *basev1.GetConfigRequest) (*basev1.GetConfigResponse, error) {
+	translatorEnabled, err := c.translatorEnabled(ctx)
+	if err != nil {
+		return nil, err
+	}
 	site := int32(req.GetSite())
 	var cached string
-	var err error
 	cached, err = c.Cache.Get(_const.BaseConfigCacheKey(site))
 	if err == nil {
 		configs := make([]*basev1.ConfigItem, 0)
@@ -58,7 +64,7 @@ func (c *ConfigCase) GetConfig(ctx context.Context, req *basev1.GetConfigRequest
 			if err != nil {
 				return nil, err
 			}
-			return &basev1.GetConfigResponse{Configs: appendI18nRuntimeConfig(localized, c.Translator != nil)}, nil
+			return &basev1.GetConfigResponse{Configs: appendI18nRuntimeConfig(localized, translatorEnabled)}, nil
 		}
 	}
 
@@ -87,7 +93,7 @@ func (c *ConfigCase) GetConfig(ctx context.Context, req *basev1.GetConfigRequest
 		return nil, err
 	}
 	response := &basev1.GetConfigResponse{
-		Configs: appendI18nRuntimeConfig(localized, c.Translator != nil),
+		Configs: appendI18nRuntimeConfig(localized, translatorEnabled),
 	}
 	var payload []byte
 	payload, err = json.Marshal(configs)
@@ -100,6 +106,20 @@ func (c *ConfigCase) GetConfig(ctx context.Context, req *basev1.GetConfigRequest
 		log.Error(fmt.Sprintf("SetBaseConfigCache %v", err))
 	}
 	return response, nil
+}
+
+// translatorEnabled 判断是否存在可用翻译器：优先翻译模型，未配置时回退配置文件翻译器。
+func (c *ConfigCase) translatorEnabled(ctx context.Context) (bool, error) {
+	if c.translator != nil {
+		available, err := c.translator.Available(ctx)
+		if err != nil {
+			return false, err
+		}
+		if available {
+			return true, nil
+		}
+	}
+	return c.Translator != nil, nil
 }
 
 // GetI18nCustom 查询当前租户指定站点全部语言的启用国际化覆盖项，缺失项回退到默认租户的同键文案。
@@ -147,7 +167,7 @@ func (c *ConfigCase) listI18nCustom(ctx context.Context, site int32, tenantID in
 func (c *ConfigCase) defaultTenantID(ctx context.Context) (int64, error) {
 	tenantQuery := c.tenantRepo.Query(ctx).BaseTenant
 	opts := make([]repository.QueryOption, 0, 1)
-	opts = append(opts, repository.Where(tenantQuery.Code.Eq(kitgorm.DefaultTenantCode)))
+	opts = append(opts, repository.Where(tenantQuery.Code.Eq(gorm.DefaultTenantCode)))
 	var tenants []*models.BaseTenant
 	var err error
 	tenants, err = c.tenantRepo.List(ctx, opts...)

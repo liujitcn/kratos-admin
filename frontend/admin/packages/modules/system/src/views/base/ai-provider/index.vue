@@ -198,7 +198,8 @@ const categoryOptions = computed<ProFormOption[]>(() => [
   { label: t("system.base.ai.model.category.rerank"), value: AiModelCategory.AI_MODEL_CATEGORY_RERANK },
   { label: t("system.base.ai.model.category.image"), value: AiModelCategory.AI_MODEL_CATEGORY_IMAGE },
   { label: t("system.base.ai.model.category.video"), value: AiModelCategory.AI_MODEL_CATEGORY_VIDEO },
-  { label: t("system.base.ai.model.category.audio"), value: AiModelCategory.AI_MODEL_CATEGORY_AUDIO }
+  { label: t("system.base.ai.model.category.audio"), value: AiModelCategory.AI_MODEL_CATEGORY_AUDIO },
+  { label: t("system.base.ai.model.category.translation"), value: AiModelCategory.AI_MODEL_CATEGORY_TRANSLATION }
 ]);
 
 const apiTypeOptions = computed<ProFormOption[]>(() => [
@@ -218,7 +219,8 @@ const categoryConfigFields: Partial<Record<AiModelCategory, string[]>> = {
   [AiModelCategory.AI_MODEL_CATEGORY_RERANK]: ["timeout_seconds", "max_retries"],
   [AiModelCategory.AI_MODEL_CATEGORY_IMAGE]: ["size", "quality", "timeout_seconds", "max_retries"],
   [AiModelCategory.AI_MODEL_CATEGORY_VIDEO]: ["duration", "resolution", "timeout_seconds", "max_retries"],
-  [AiModelCategory.AI_MODEL_CATEGORY_AUDIO]: ["task", "voice", "speed", "timeout_seconds", "max_retries"]
+  [AiModelCategory.AI_MODEL_CATEGORY_AUDIO]: ["task", "voice", "speed", "timeout_seconds", "max_retries"],
+  [AiModelCategory.AI_MODEL_CATEGORY_TRANSLATION]: ["timeout_seconds", "max_retries"]
 };
 
 /** 全部配置字段的表单项定义。 */

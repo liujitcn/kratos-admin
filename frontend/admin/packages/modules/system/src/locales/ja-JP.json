@@ -239,6 +239,7 @@
   "system.base.ai.model.category.embedding": "埋め込みモデル（RAG）",
   "system.base.ai.model.category.image": "画像モデル",
   "system.base.ai.model.category.rerank": "リランクモデル",
+  "system.base.ai.model.category.translation": "翻訳モデル",
   "system.base.ai.model.category.video": "動画モデル",
   "system.base.ai.model.field.api_type": "API 種別",
   "system.base.ai.model.field.category": "モデル分類",

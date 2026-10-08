@@ -239,6 +239,7 @@
   "system.base.ai.model.category.embedding": "向量模型（RAG）",
   "system.base.ai.model.category.image": "图片模型",
   "system.base.ai.model.category.rerank": "重排模型",
+  "system.base.ai.model.category.translation": "翻译模型",
   "system.base.ai.model.category.video": "视频模型",
   "system.base.ai.model.field.api_type": "接口类型",
   "system.base.ai.model.field.category": "模型分类",

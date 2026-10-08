@@ -96,6 +96,8 @@ enum AiModelCategory {
   AI_MODEL_CATEGORY_VIDEO = 5;
   // 音频模型。
   AI_MODEL_CATEGORY_AUDIO = 6;
+  // 翻译模型。
+  AI_MODEL_CATEGORY_TRANSLATION = 7;
 }
 
 // AI供应商模型维护表单；provider_id由所属供应商表单隐式给定。

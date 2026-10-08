@@ -10507,6 +10507,7 @@ components:
                         - AI_MODEL_CATEGORY_IMAGE
                         - AI_MODEL_CATEGORY_VIDEO
                         - AI_MODEL_CATEGORY_AUDIO
+                        - AI_MODEL_CATEGORY_TRANSLATION
                     type: string
                     description: 模型分类：枚举【AiModelCategory】
                     format: enum

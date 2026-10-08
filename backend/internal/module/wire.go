@@ -7,6 +7,7 @@ import (
 	"github.com/google/wire"
 	"github.com/liujitcn/kratos-admin/backend/adapter/kit"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz"
+	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/ai"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/codegen"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/logstream"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/sse"
@@ -72,6 +73,7 @@ func BuildTasks(
 ) (job.Tasks, func(), error) {
 	panic(wire.Build(
 		data.ProviderSet,
+		ai.NewModelTranslator,
 		biz.MessageProviderSet,
 		task.ProviderSet,
 	))

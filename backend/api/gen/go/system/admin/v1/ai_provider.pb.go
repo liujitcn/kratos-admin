@@ -46,6 +46,8 @@ const (
 	AiModelCategory_AI_MODEL_CATEGORY_VIDEO AiModelCategory = 5
 	// 音频模型。
 	AiModelCategory_AI_MODEL_CATEGORY_AUDIO AiModelCategory = 6
+	// 翻译模型。
+	AiModelCategory_AI_MODEL_CATEGORY_TRANSLATION AiModelCategory = 7
 )
 
 // Enum value maps for AiModelCategory.
@@ -58,6 +60,7 @@ var (
 		4: "AI_MODEL_CATEGORY_IMAGE",
 		5: "AI_MODEL_CATEGORY_VIDEO",
 		6: "AI_MODEL_CATEGORY_AUDIO",
+		7: "AI_MODEL_CATEGORY_TRANSLATION",
 	}
 	AiModelCategory_value = map[string]int32{
 		"AI_MODEL_CATEGORY_UNSPECIFIED": 0,
@@ -67,6 +70,7 @@ var (
 		"AI_MODEL_CATEGORY_IMAGE":       4,
 		"AI_MODEL_CATEGORY_VIDEO":       5,
 		"AI_MODEL_CATEGORY_AUDIO":       6,
+		"AI_MODEL_CATEGORY_TRANSLATION": 7,
 	}
 )
 
@@ -1167,7 +1171,7 @@ const file_system_admin_v1_ai_provider_proto_rawDesc = "" +
 	"\n" +
 	"created_at\x18\xc8\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f创建时间R\tcreatedAt\x122\n" +
 	"\n" +
-	"updated_at\x18\xc9\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f更新时间R\tupdatedAt*\xe6\x01\n" +
+	"updated_at\x18\xc9\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f更新时间R\tupdatedAt*\x89\x02\n" +
 	"\x0fAiModelCategory\x12!\n" +
 	"\x1dAI_MODEL_CATEGORY_UNSPECIFIED\x10\x00\x12\x1a\n" +
 	"\x16AI_MODEL_CATEGORY_CHAT\x10\x01\x12\x1f\n" +
@@ -1175,7 +1179,8 @@ const file_system_admin_v1_ai_provider_proto_rawDesc = "" +
 	"\x18AI_MODEL_CATEGORY_RERANK\x10\x03\x12\x1b\n" +
 	"\x17AI_MODEL_CATEGORY_IMAGE\x10\x04\x12\x1b\n" +
 	"\x17AI_MODEL_CATEGORY_VIDEO\x10\x05\x12\x1b\n" +
-	"\x17AI_MODEL_CATEGORY_AUDIO\x10\x062\xc7\t\n" +
+	"\x17AI_MODEL_CATEGORY_AUDIO\x10\x06\x12!\n" +
+	"\x1dAI_MODEL_CATEGORY_TRANSLATION\x10\a2\xc7\t\n" +
 	"\x11AiProviderService\x12\x89\x01\n" +
 	"\x0ePageAiProvider\x12&.system.admin.v1.PageAiProviderRequest\x1a'.system.admin.v1.PageAiProviderResponse\"&\x82\xd3\xe4\x93\x02 \x12\x1e/api/v1/admin/base/ai-provider\x12\xa6\x01\n" +
 	"\x15ListAiProviderOptions\x12-.system.admin.v1.ListAiProviderOptionsRequest\x1a..system.admin.v1.ListAiProviderOptionsResponse\".\x82\xd3\xe4\x93\x02(\x12&/api/v1/admin/base/ai-provider/options\x12\x84\x01\n" +

@@ -10507,6 +10507,7 @@ components:
                         - AI_MODEL_CATEGORY_IMAGE
                         - AI_MODEL_CATEGORY_VIDEO
                         - AI_MODEL_CATEGORY_AUDIO
+                        - AI_MODEL_CATEGORY_TRANSLATION
                     type: string
                     description: "Model category: enum [AiModelCategory]"
                     format: enum
@@ -13534,7 +13535,7 @@ components:
                     description: return field path
                 tenant_id:
                     type: string
-                    description: tenant ID
+                    description: tenant ID, defaulttenantpolicyas global policy
                 mode:
                     enum:
                         - BASE_REDACT_OUTPUT_POLICY_MODE_UNSPECIFIED
@@ -13600,7 +13601,7 @@ components:
                     description: service name
                 tenant_id:
                     type: string
-                    description: tenant ID
+                    description: tenant ID, defaulttenantpolicyas global policy
                 mode:
                     enum:
                         - BASE_REDACT_OUTPUT_POLICY_MODE_UNSPECIFIED
@@ -13742,7 +13743,7 @@ components:
                     description: data source name
                 tenant_id:
                     type: string
-                    description: tenant ID
+                    description: tenant ID, defaulttenantpolicyas global policy
                 table_comment:
                     type: string
                     description: Data table comment
@@ -13787,7 +13788,7 @@ components:
                     description: data source name
                 tenant_id:
                     type: string
-                    description: tenant ID
+                    description: tenant ID, defaulttenantpolicyas global policy
                 status:
                     enum:
                         - STATUS_UNSPECIFIED

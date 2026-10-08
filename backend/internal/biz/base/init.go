@@ -18,6 +18,7 @@ var ProviderSet = wire.NewSet(
 	NewAiQueryCase,
 	NewAiKnowledgeCase,
 	ai.NewKnowledgeEngine,
+	ai.NewModelTranslator,
 	NewBaseDeptCase,
 	NewBaseRoleCase,
 	NewBaseThirdAccountCase,

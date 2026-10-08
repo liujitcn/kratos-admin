@@ -55,7 +55,7 @@ func TestSaveBaseI18nReusesCallerTransaction(t *testing.T) {
 	tx := data.NewTransaction(store)
 	baseCase := &biz.BaseCase{}
 	languageCase := NewBaseLanguageCase(baseCase, tx, data.NewBaseLanguageRepository(store))
-	i18nCase := NewBaseI18nCase(baseCase, data.NewBaseI18NRepository(store), languageCase)
+	i18nCase := NewBaseI18nCase(baseCase, data.NewBaseI18NRepository(store), languageCase, nil)
 	dictCase := NewBaseDictCase(baseCase, tx, data.NewBaseDictRepository(store), nil, i18nCase)
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
@@ -122,7 +122,7 @@ func TestCreateBaseConfigSavesI18n(t *testing.T) {
 	tx := data.NewTransaction(store)
 	baseCase := &biz.BaseCase{Cache: cacheStore}
 	languageCase := NewBaseLanguageCase(baseCase, tx, data.NewBaseLanguageRepository(store))
-	i18nCase := NewBaseI18nCase(baseCase, data.NewBaseI18NRepository(store), languageCase)
+	i18nCase := NewBaseI18nCase(baseCase, data.NewBaseI18NRepository(store), languageCase, nil)
 	secretStorage, err := kit.BindSecretFieldStorage(db)
 	if err != nil {
 		t.Fatal(err)

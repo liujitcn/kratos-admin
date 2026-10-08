@@ -8,8 +8,10 @@ import (
 	"strings"
 	"sync"
 
+	kittranslator "github.com/liujitcn/go-utils/translator"
 	"github.com/liujitcn/gorm-kit/repository"
 	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
+	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/ai"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/dto"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
@@ -29,6 +31,7 @@ type BaseI18nCase struct {
 	*biz.BaseCase
 	*data.BaseI18NRepository
 	languageCase *BaseLanguageCase
+	translator   *ai.ModelTranslator
 	draftMu      sync.Mutex
 }
 
@@ -37,13 +40,46 @@ func NewBaseI18nCase(
 	baseCase *biz.BaseCase,
 	baseI18nRepository *data.BaseI18NRepository,
 	languageCase *BaseLanguageCase,
+	translator *ai.ModelTranslator,
 ) *BaseI18nCase {
 	i18nCase := &BaseI18nCase{
 		BaseCase:           baseCase,
 		BaseI18NRepository: baseI18nRepository,
 		languageCase:       languageCase,
+		translator:         translator,
 	}
 	return i18nCase
+}
+
+// TranslatorAvailable 判断当前是否存在可用翻译器：优先翻译模型，未配置时回退配置文件翻译器。
+func (c *BaseI18nCase) TranslatorAvailable(ctx context.Context) (bool, error) {
+	translator, err := c.resolveTranslator(ctx)
+	if err != nil {
+		return false, err
+	}
+	return translator != nil, nil
+}
+
+// HasTranslator 判断翻译器是否已装配，供无需查询数据库的快速判断使用。
+func (c *BaseI18nCase) HasTranslator() bool {
+	return c.translator != nil || c.Translator != nil
+}
+
+// resolveTranslator 返回当前应使用的翻译器：优先已启用的翻译模型，未配置时回退配置文件翻译器，两者皆无返回空。
+func (c *BaseI18nCase) resolveTranslator(ctx context.Context) (kittranslator.Translator, error) {
+	if c.translator != nil {
+		available, err := c.translator.Available(ctx)
+		if err != nil {
+			return nil, err
+		}
+		if available {
+			return c.translator, nil
+		}
+	}
+	if c.Translator != nil {
+		return c.Translator, nil
+	}
+	return nil, nil
 }
 
 // LocaleState 查询动态翻译使用的运行时语言状态。
@@ -53,14 +89,18 @@ func (c *BaseI18nCase) LocaleState(ctx context.Context) (*dto.LocaleState, error
 
 // DraftBaseI18n 翻译请求中的单个文本，不保存翻译结果。
 func (c *BaseI18nCase) DraftBaseI18n(ctx context.Context, req *adminv1.DraftBaseI18nRequest) (*adminv1.DraftBaseI18nResponse, error) {
-	translator := c.Translator
+	translator, err := c.resolveTranslator(ctx)
+	if err != nil {
+		return nil, err
+	}
 	if translator == nil {
 		return nil, errorsx.PermissionDenied("机器翻译草稿功能未启用")
 	}
 	if req.GetSource() == "" {
 		return nil, errorsx.InvalidArgument("待翻译源文不能为空")
 	}
-	state, err := c.LocaleState(ctx)
+	var state *dto.LocaleState
+	state, err = c.LocaleState(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -86,14 +126,18 @@ func (c *BaseI18nCase) DraftBaseI18n(ctx context.Context, req *adminv1.DraftBase
 	return &adminv1.DraftBaseI18nResponse{I18ns: i18ns}, nil
 }
 
-// TranslateText 使用 SDK 翻译器生成译文，并保护代码、占位符和 URL 等结构化片段。
+// TranslateText 使用翻译模型或配置文件翻译器生成译文，并保护代码、占位符和 URL 等结构化片段。
 func (c *BaseI18nCase) TranslateText(ctx context.Context, source, sourceLocale, targetLocale string) (string, error) {
-	translator := c.Translator
+	translator, err := c.resolveTranslator(ctx)
+	if err != nil {
+		return "", err
+	}
 	if translator == nil {
 		return "", errorsx.PermissionDenied("机器翻译功能未启用")
 	}
 	protectedSource, values := protectI18nText(source)
-	translated, err := translator.Translate(ctx, protectedSource, sourceLocale, targetLocale)
+	var translated string
+	translated, err = translator.Translate(ctx, protectedSource, sourceLocale, targetLocale)
 	if err != nil {
 		return "", fmt.Errorf("生成翻译草稿: %w", err)
 	}
