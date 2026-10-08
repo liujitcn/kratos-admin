@@ -48,7 +48,9 @@ packages/modules/system
 | `src/components/log/log.ts` | 日志列表列和查询辅助函数。 |
 | `src/components/notification/Notification.vue` | System 提供的站内信顶部工具入口。 |
 | `src/components/tenant-project/TenantProjectSelect.vue` | 租户项目树选择器，默认租户显示“租户 / 项目”，普通租户显示当前租户项目。 |
-| `src/components/tenant-project/TenantProjectText.vue` | 租户项目列表展示组件，按当前租户身份自动组合名称。 |
+| `src/components/tenant-project/TenantProjectText.vue` | 租户项目列表展示组件，按当前租户身份自动组合名称；支持仅传项目 ID 并从公共目录解析名称。 |
+| `src/components/tenant-project/tenant-project-catalog.ts` | 租户项目公共目录缓存，按账号加载树或项目选项并维护 ID 到租户/项目名称的映射。 |
+| `src/components/tenant-project/tenant-project-scope.ts` | 租户项目范围组合状态，提供与搜索条件配套的 ProTable 列、范围归一化和展示文本解析。 |
 | `src/components/tenant-project/TenantProjectManager.vue` | 可复用的租户项目管理组件，支持追加列、业务数据加载、操作和作用域插槽。 |
 | `src/components/tenant-project/tenant-project-manager.ts` | 租户项目管理组件的扩展类型、双键上下文和数据合并辅助函数。 |
 | `src/components/tenant-project-grant/ProjectGrantDialog.vue` | 岗位、角色、部门和用户的项目授权弹窗。 |
@@ -167,6 +169,8 @@ export const adminModules = [systemAdminModule];
 不再兼容 `base/user/index`、`profile/index` 等无模块前缀路径。不同业务模块可以拥有同名 `views`，core 会按 `<module>/<view>` 解析，不发生覆盖。
 
 跨模块跳转使用 Vue Router；复用 System 代码时只引用 `package.json#exports` 公开的 npm 子路径。
+
+业务列表需要“租户 / 二级资源”查询条件与所属列时，使用根入口导出的 `useTenantProjectScope`：它按当前账号加载公共项目目录（默认租户为租户树，普通租户为项目选项），维护项目 ID 到“租户名 / 项目名”的映射，并返回 `column`（同时包含表格渲染和 `search.render`，列与查询条件天然共用同一份范围状态）和 `normalizeParams`、`projectSelections` 等范围工具。二级资源名称通过 `resourceLabelKey`、`allResourceLabelKey` 指定国际化键，默认使用项目文案，换成门店等资源时只需替换加载目录与国际化键。列表行只需提供项目 ID（可选租户 ID），单元格由 `TenantProjectText` 自动解析为两级文本；导出可复用 `resolveTenantProjectLabel`。
 
 租户项目管理组件通过 `TenantProjectManager` 公开。默认租户创建项目时在表单中选择目标租户，普通租户由服务端自动使用当前租户；默认租户查询全部项目，普通租户按项目授权范围查询。外部业务模块可以传入 `extraColumns`、`extraActions` 和 `loadExtraData`：扩展列可通过 `after` 指定插入到哪个基础字段后面，列的同名表格插槽会沿用该位置，未配置时默认插入备注后面，例如 `{ prop: "address", after: "name" }` 配合 `#address` 插槽即可把内容放到项目名称后面；数据加载器接收当前页的 `tenant_id + project_id` 集合，单条操作回调接收同一组双键以及项目基础数据。组件也会透传表格具名插槽，并向行插槽增加 `tenantProject` 上下文；保存业务配置后可通过组件实例的 `refresh()` 刷新列表。按外部业务字段搜索或排序时，应由外部接口参与分页查询，不能只在当前页加载后过滤。
 

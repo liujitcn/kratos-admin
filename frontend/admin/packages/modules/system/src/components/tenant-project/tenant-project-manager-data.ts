@@ -51,6 +51,23 @@ export function tenantProjectKey(tenantId: number, projectId: number): string {
   return `${tenantId}:${projectId}`;
 }
 
+/** 租户项目树节点解析结果。 */
+export type TenantProjectValueSelection = {
+  /** 租户 ID，选中租户节点或项目节点时返回。 */
+  tenant_id?: number;
+  /** 项目 ID，仅选中项目节点时返回。 */
+  project_id?: number;
+};
+
+/** 解析租户项目树节点值，租户节点返回租户 ID，项目节点返回租户和项目 ID。 */
+export function parseTenantProjectValue(value?: string): TenantProjectValueSelection {
+  if (!value) return {};
+  const [type, tenantId, projectId] = value.split(":");
+  if (type === "tenant" && Number.isFinite(Number(tenantId))) return { tenant_id: Number(tenantId), project_id: 0 };
+  if (type === "project" && Number.isFinite(Number(tenantId)) && Number.isFinite(Number(projectId))) return { tenant_id: Number(tenantId), project_id: Number(projectId) };
+  return {};
+}
+
 /** 将外部业务字段合并到项目行，同时保护公共项目字段。 */
 export function mergeTenantProjectExtraData(
   project: BaseTenantProject,
