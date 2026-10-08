@@ -16,8 +16,9 @@ require (
 	github.com/liujitcn/go-utils v0.0.41
 	github.com/liujitcn/go-utils/crypto v0.0.17
 	github.com/liujitcn/go-utils/http v0.0.8
+	github.com/liujitcn/go-utils/translator v0.0.4
 	github.com/liujitcn/gorm-kit v0.0.35
-	github.com/liujitcn/kratos-admin/backend/api v0.0.23
+	github.com/liujitcn/kratos-admin/backend/api v0.0.24
 	github.com/liujitcn/kratos-core v0.0.46
 	github.com/liujitcn/kratos-core/api v0.0.6
 	github.com/liujitcn/kratos-kit v0.0.90
@@ -224,7 +225,6 @@ require (
 	github.com/klauspost/crc32 v1.3.0 // indirect
 	github.com/kylelemons/godebug v1.1.0 // indirect
 	github.com/liujitcn/go-utils/geoip v0.0.5 // indirect
-	github.com/liujitcn/go-utils/translator v0.0.4 // indirect
 	github.com/liujitcn/go-utils/translator/alibaba v0.0.5 // indirect
 	github.com/liujitcn/go-utils/translator/baidu v0.0.5 // indirect
 	github.com/liujitcn/go-utils/translator/google v0.0.5 // indirect
