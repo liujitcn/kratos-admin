@@ -17,6 +17,7 @@ PROJECT_VERSION_FILE = ROOT / "backend/internal/const/project.go"
 PACKAGE_FILES = (
     ROOT / "frontend/admin/packages/core/package.json",
     ROOT / "frontend/admin/packages/modules/system/package.json",
+    ROOT / "frontend/admin/packages/modules/rag/package.json",
     ROOT / "frontend/admin/packages/cli/package.json",
     ROOT / "frontend/uni-app/packages/core/package.json",
     ROOT / "frontend/uni-app/packages/modules/system/package.json",

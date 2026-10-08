@@ -20,6 +20,7 @@ if [[ "$#" -eq 0 ]]; then
   set -- \
     admin/packages/core \
     admin/packages/modules/system \
+    admin/packages/modules/rag \
     admin/packages/cli \
     uni-app/packages/core \
     uni-app/packages/modules/system \
