@@ -230,7 +230,7 @@ export function getFlatMenuList(menuList: RouteItem[]): RouteItem[] {
 }
 
 /**
- * @description 使用递归过滤出需要渲染在左侧菜单的列表 (需剔除 hide == true 的菜单)
+ * @description 使用递归过滤出需要渲染在左侧菜单的列表 (需剔除 hide == true 的菜单，目录下无可见子菜单时目录一并隐藏)
  * @param {Array} menuList 菜单列表
  * @returns {Array}
  * */
@@ -238,6 +238,8 @@ export function getShowMenuList(menuList: RouteItem[]) {
   let newMenuList: RouteItem[] = JSON.parse(JSON.stringify(menuList));
   return newMenuList.filter(item => {
     item.children?.length && (item.children = getShowMenuList(item.children));
+    // 子菜单全部隐藏的空目录不再渲染，避免侧边栏出现无子项的可展开目录。
+    if (item.type === BaseMenuType.BASE_MENU_TYPE_FOLDER && !item.children?.length) return false;
     return !getRouteMetaHidden(item.meta);
   });
 }
