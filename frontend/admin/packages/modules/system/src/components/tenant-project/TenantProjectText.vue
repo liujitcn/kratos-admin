@@ -3,10 +3,10 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, onMounted } from "vue";
 import { useTenantScope } from "@liujitcn/kratos-admin-core/tenant";
 import type { SelectOptionResponse_Option } from "@liujitcn/kratos-admin-core/rpc/common/v1/common";
-import { resolveTenantProjectDisplay } from "./tenant-project-catalog";
+import { loadTenantProjectOptions, resolveTenantProjectDisplay } from "./tenant-project-catalog";
 
 defineOptions({ name: "TenantProjectText" });
 
@@ -39,12 +39,18 @@ const props = withDefaults(defineProps<TenantProjectTextProps>(), {
 });
 const { isDefaultTenant, resolveTenantLabel } = useTenantScope();
 
+onMounted(() => {
+  // 纯列表页不会打开搜索下拉，这里主动加载共享目录补齐名称；加载失败仅影响名称回退展示。
+  void loadTenantProjectOptions(isDefaultTenant.value).catch(() => undefined);
+});
+
 const label = computed(() => {
   const projectId = props.projectId ?? props.row.project_id;
   const displayInfo = resolveTenantProjectDisplay(props.tenantId ?? props.row.tenant_id, projectId);
   const projectName = props.row[props.projectField] ?? props.row.project_name ?? props.row.name ?? displayInfo?.projectName ?? projectId ?? "";
   if (!isDefaultTenant.value) return String(projectName);
-  const tenantName = props.row[props.tenantField] ?? resolveTenantLabel(props.row, "tenant_id", props.tenantOptions) ?? displayInfo?.tenantName;
+  // 共享目录的租户名优先于租户选项解析，避免选项未加载时把租户 ID 当名称展示。
+  const tenantName = props.row[props.tenantField] ?? displayInfo?.tenantName ?? resolveTenantLabel(props.row, "tenant_id", props.tenantOptions);
   return tenantName ? `${tenantName} / ${projectName}` : String(projectName);
 });
 </script>

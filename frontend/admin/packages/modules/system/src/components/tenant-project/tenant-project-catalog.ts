@@ -1,3 +1,4 @@
+import { reactive } from "vue";
 import type { SelectOptionResponse_Option } from "@liujitcn/kratos-admin-core/rpc/common/v1/common";
 import { defBaseTenantProjectService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/base_tenant_project";
 import type { TreeBaseTenantProjectResponse_Option } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_tenant_project";
@@ -46,13 +47,14 @@ type SharedCatalog = TenantProjectCatalog & {
   projectMap: Map<string, TenantProjectDisplayInfo>;
 };
 
-const sharedCatalog: SharedCatalog = {
+// 共享目录使用响应式对象，目录异步加载完成后已渲染的名称单元格能自动刷新。
+const sharedCatalog = reactive<SharedCatalog>({
   loaded: false,
   treeOptions: [],
   projectOptions: [],
   displayMap: new Map(),
   projectMap: new Map()
-};
+});
 
 /** 创建租户项目键。 */
 function scopeKey(tenantId: number, projectId: number) {

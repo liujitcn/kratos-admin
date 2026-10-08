@@ -13,6 +13,7 @@ import (
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 	"github.com/liujitcn/kratos-core/biz"
 	coreconst "github.com/liujitcn/kratos-core/const"
+	kitgorm "github.com/liujitcn/kratos-kit/database/gorm"
 
 	"github.com/go-kratos/kratos/v3/log"
 	"google.golang.org/protobuf/proto"
@@ -27,16 +28,18 @@ type ConfigCase struct {
 	i18nRepo       *data.BaseI18NRepository
 	i18nCustomRepo *data.BaseI18NCustomRepository
 	languageRepo   *data.BaseLanguageRepository
+	tenantRepo     *data.BaseTenantRepository
 }
 
 // NewConfigCase 创建配置业务实例。
-func NewConfigCase(baseCase *biz.BaseCase, baseConfigRepo *data.BaseConfigRepository, i18nRepo *data.BaseI18NRepository, i18nCustomRepo *data.BaseI18NCustomRepository, languageRepo *data.BaseLanguageRepository) *ConfigCase {
+func NewConfigCase(baseCase *biz.BaseCase, baseConfigRepo *data.BaseConfigRepository, i18nRepo *data.BaseI18NRepository, i18nCustomRepo *data.BaseI18NCustomRepository, languageRepo *data.BaseLanguageRepository, tenantRepo *data.BaseTenantRepository) *ConfigCase {
 	return &ConfigCase{
 		BaseCase:             baseCase,
 		BaseConfigRepository: baseConfigRepo,
 		i18nRepo:             i18nRepo,
 		i18nCustomRepo:       i18nCustomRepo,
 		languageRepo:         languageRepo,
+		tenantRepo:           tenantRepo,
 	}
 }
 
@@ -99,28 +102,77 @@ func (c *ConfigCase) GetConfig(ctx context.Context, req *basev1.GetConfigRequest
 	return response, nil
 }
 
-// GetI18nCustom 查询当前租户指定站点全部语言的启用国际化覆盖项。
+// GetI18nCustom 查询当前租户指定站点全部语言的启用国际化覆盖项，缺失项回退到默认租户的同键文案。
 func (c *ConfigCase) GetI18nCustom(ctx context.Context, req *basev1.GetI18nCustomRequest) (*basev1.GetI18nCustomResponse, error) {
 	authInfo, err := c.GetAuthInfo(ctx)
 	if err != nil {
 		return nil, err
 	}
-	query := c.i18nCustomRepo.Query(ctx).BaseI18NCustom
-	opts := make([]repository.QueryOption, 0, 5)
-	opts = append(opts, repository.Where(query.TenantID.Eq(authInfo.TenantId)))
-	opts = append(opts, repository.Where(query.Site.Eq(int32(req.GetSite()))))
-	opts = append(opts, repository.Where(query.Status.Eq(coreconst.STATUS_STATUS_ENABLE)))
-	opts = append(opts, repository.Order(query.Locale.Asc()), repository.Order(query.ID.Asc()))
 	var rows []*models.BaseI18NCustom
-	rows, err = c.i18nCustomRepo.List(ctx, opts...)
+	rows, err = c.listI18nCustom(ctx, int32(req.GetSite()), authInfo.TenantId)
 	if err != nil {
 		return nil, err
+	}
+	defaultTenantID, err := c.defaultTenantID(ctx)
+	if err != nil {
+		return nil, err
+	}
+	if authInfo.TenantId != defaultTenantID {
+		var fallbackRows []*models.BaseI18NCustom
+		fallbackRows, err = c.listI18nCustom(ctx, int32(req.GetSite()), defaultTenantID)
+		if err != nil {
+			return nil, err
+		}
+		rows = mergeI18nCustomRows(rows, fallbackRows)
 	}
 	items := make([]*basev1.I18nCustomItem, 0, len(rows))
 	for _, row := range rows {
 		items = append(items, &basev1.I18nCustomItem{Locale: row.Locale, Key: row.Key, Value: row.Value})
 	}
 	return &basev1.GetI18nCustomResponse{Items: items}, nil
+}
+
+// listI18nCustom 查询指定租户和站点全部语言的启用国际化覆盖项。
+func (c *ConfigCase) listI18nCustom(ctx context.Context, site int32, tenantID int64) ([]*models.BaseI18NCustom, error) {
+	query := c.i18nCustomRepo.Query(ctx).BaseI18NCustom
+	opts := make([]repository.QueryOption, 0, 4)
+	opts = append(opts, repository.Where(query.TenantID.Eq(tenantID)))
+	opts = append(opts, repository.Where(query.Site.Eq(site)))
+	opts = append(opts, repository.Where(query.Status.Eq(coreconst.STATUS_STATUS_ENABLE)))
+	opts = append(opts, repository.Order(query.Locale.Asc()), repository.Order(query.ID.Asc()))
+	return c.i18nCustomRepo.List(ctx, opts...)
+}
+
+// defaultTenantID 查询默认租户 ID，默认租户不存在时返回 0 表示跳过回退。
+func (c *ConfigCase) defaultTenantID(ctx context.Context) (int64, error) {
+	tenantQuery := c.tenantRepo.Query(ctx).BaseTenant
+	opts := make([]repository.QueryOption, 0, 1)
+	opts = append(opts, repository.Where(tenantQuery.Code.Eq(kitgorm.DefaultTenantCode)))
+	var tenants []*models.BaseTenant
+	var err error
+	tenants, err = c.tenantRepo.List(ctx, opts...)
+	if err != nil {
+		return 0, err
+	}
+	if len(tenants) == 0 {
+		return 0, nil
+	}
+	return tenants[0].ID, nil
+}
+
+// mergeI18nCustomRows 将默认租户覆盖项补充到当前租户结果中，当前租户已有同语言同键项时保持不变。
+func mergeI18nCustomRows(rows []*models.BaseI18NCustom, fallbackRows []*models.BaseI18NCustom) []*models.BaseI18NCustom {
+	existing := make(map[string]struct{}, len(rows))
+	for _, row := range rows {
+		existing[row.Locale+"\x00"+row.Key] = struct{}{}
+	}
+	for _, row := range fallbackRows {
+		if _, ok := existing[row.Locale+"\x00"+row.Key]; ok {
+			continue
+		}
+		rows = append(rows, row)
+	}
+	return rows
 }
 
 // localizeRuntimeConfigValues 将当前语言已有的文本配置值覆盖到运行时结果。

@@ -17,7 +17,9 @@ test("租户项目文本组件支持仅传项目 ID 并从共享目录解析名�
   assert.match(source, /projectId = props\.projectId \?\? props\.row\.project_id/);
   assert.match(source, /resolveTenantProjectDisplay\(props\.tenantId \?\? props\.row\.tenant_id, projectId\)/);
   assert.match(source, /displayInfo\?\.projectName/);
-  assert.match(source, /displayInfo\?\.tenantName/);
+  // 租户名优先取共享目录解析结果，避免租户选项未加载时把租户 ID 当名称展示。
+  assert.match(source, /props\.row\[props\.tenantField\] \?\? displayInfo\?\.tenantName \?\? resolveTenantLabel/);
+  assert.match(source, /loadTenantProjectOptions\(isDefaultTenant\.value\)/);
 });
 
 test("租户项目范围列与搜索条件使用同一份范围状态", async () => {

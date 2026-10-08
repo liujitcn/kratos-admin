@@ -40,6 +40,8 @@ const mutableLanguageOptions = ref<LocaleOption[]>([]);
 const localeChangeHandlers = new Set<() => void | Promise<void>>();
 const defaultLocaleMessages = new Map<SupportedLocale, LocaleMessages>();
 const customLocaleMessages = new Map<SupportedLocale, LocaleMessages>();
+// 语言包版本号：数据库自定义翻译热应用时递增，让缓存 t() 结果的 computed 依赖失效。
+const localeMessagesVersion = ref(0);
 
 /** 管理端 Vue I18n 实例。 */
 export const adminI18n = createI18n({
@@ -109,6 +111,7 @@ export function registerLocaleMessages(modules: AdminModule[]): void {
     customLocaleMessages.set(locale, messages);
     adminI18n.global.setLocaleMessage(locale, messages);
   });
+  localeMessagesVersion.value += 1;
 }
 
 /** 应用全部语言的数据库自定义翻译覆盖项。 */
@@ -122,6 +125,7 @@ export function applyCustomLocaleMessages(customs: Array<{ locale?: string; key?
     customLocaleMessages.set(locale, messages);
     adminI18n.global.setLocaleMessage(locale, messages);
   });
+  localeMessagesVersion.value += 1;
 }
 
 /** 初始化持久化语言偏好并同步日期库。 */
@@ -188,6 +192,8 @@ export function registerLocaleChangeHandler(handler: () => void | Promise<void>)
 
 /** 在非组件代码中翻译稳定语言键。 */
 export function t(key: string, params: LocaleParams = {}): string {
+  // 读取版本号建立响应式依赖，自定义翻译热应用后缓存文案的 computed 能自动重算。
+  void localeMessagesVersion.value;
   return String(adminI18n.global.t(key, params));
 }
 

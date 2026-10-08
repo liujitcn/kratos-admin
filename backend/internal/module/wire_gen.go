@@ -392,7 +392,7 @@ func BuildModules(migrations *migration.Migration, config2 *configv1.Bootstrap, 
 	aiMessageService := base.NewAiMessageService(aiMessageCase)
 	aiKnowledgeCase := biz2.NewAiKnowledgeCase(baseCase, knowledgeEngine)
 	aiKnowledgeService := base.NewAiKnowledgeService(aiKnowledgeCase)
-	configCase := biz2.NewConfigCase(baseCase, baseConfigRepository, baseI18NRepository, baseI18NCustomRepository, baseLanguageRepository)
+	configCase := biz2.NewConfigCase(baseCase, baseConfigRepository, baseI18NRepository, baseI18NCustomRepository, baseLanguageRepository, baseTenantRepository)
 	configService := base.NewConfigService(configCase, registry)
 	languageCase := biz2.NewLanguageCase(baseCase, baseLanguageRepository)
 	languageService := base.NewLanguageService(languageCase)
