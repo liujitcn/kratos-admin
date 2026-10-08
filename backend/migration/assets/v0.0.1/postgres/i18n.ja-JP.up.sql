@@ -258,6 +258,7 @@ INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('b
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_dict_item.label', 14604, 'ja-JP', '画像モデル') ON CONFLICT DO NOTHING;
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_dict_item.label', 14605, 'ja-JP', '動画モデル') ON CONFLICT DO NOTHING;
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_dict_item.label', 14606, 'ja-JP', '音声モデル') ON CONFLICT DO NOTHING;
+INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_dict_item.label', 14607, 'ja-JP', '翻訳モデル') ON CONFLICT DO NOTHING;
 
 -- 菜单翻译。
 -- Message categories, scheduled task, and menus.
