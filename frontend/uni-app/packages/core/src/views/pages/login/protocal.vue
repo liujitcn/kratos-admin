@@ -98,7 +98,7 @@ page {
   overflow: hidden;
   padding: 40rpx 32rpx 56rpx;
   border: 1rpx solid #edf1ef;
-  border-radius: 16rpx;
+  border-radius: 24rpx;
   background-color: #fff;
   box-shadow: 0 8rpx 24rpx rgba(33, 54, 48, 0.05);
 }

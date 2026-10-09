@@ -1174,7 +1174,7 @@ onUnload(() => {
 
 .login-panel {
   padding: 36rpx 28rpx 30rpx;
-  border-radius: 36rpx;
+  border-radius: 24rpx;
   background: rgba(255, 255, 255, 0.96);
   box-shadow: 0 24rpx 60rpx rgba(15, 23, 42, 0.08);
 }
@@ -1380,7 +1380,7 @@ onUnload(() => {
   width: auto;
   max-width: 100%;
   padding: 24rpx;
-  border-radius: 28rpx;
+  border-radius: 24rpx;
   background: #fff;
   box-shadow: 0 24rpx 70rpx rgba(15, 23, 42, 0.18);
   box-sizing: border-box;
