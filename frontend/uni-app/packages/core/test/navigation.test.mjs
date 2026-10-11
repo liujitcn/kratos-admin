@@ -12,7 +12,7 @@ test('tab 导航复用页面栈并忽略当前页和未完成的重复跳转', (
     navigation,
     /if \(currentRoute === targetRoute \|\| tabNavigationTarget === targetRoute\) return/,
   )
-  assert.match(navigation, /if \(isH5Runtime\) \{\s+uni\.reLaunch\(\{ url,/)
+  assert.match(navigation, /if \(isH5Runtime\) \{\s+uni\.redirectTo\(\{\s+url,/)
   assert.match(navigation, /uni\.switchTab\(\{\s+url,/)
   assert.match(navigation, /uni\.navigateBack\(\{\s+delta: currentIndex - targetIndex,/)
   assert.match(navigation, /uni\.navigateTo\(\{\s+url,/)

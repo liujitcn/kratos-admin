@@ -328,7 +328,9 @@ function navigateTabRoute(url: string): void {
     if (tabNavigationTarget === targetRoute) tabNavigationTarget = undefined
   }
   if (process.env.TARO_ENV === 'h5') {
-    void Taro.reLaunch({ url }).then(release, release)
+    void Taro.redirectTo({ url }).then(release, () => {
+      void Taro.reLaunch({ url }).then(release, release)
+    })
     return
   }
   if (nativeTabViewKeys.some((viewKey) => resolveStaticView(viewKey) === targetRoute)) {

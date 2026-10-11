@@ -64,6 +64,10 @@ async function loadNavigationRuntime(state, environment = 'weapp') {
                       state.navigateCalls.push(options)
                       return Promise.resolve({ errMsg: 'navigateTo:ok' })
                     },
+                    redirectTo(options) {
+                      state.redirectCalls.push(options)
+                      return Promise.resolve({ errMsg: 'redirectTo:ok' })
+                    },
                     navigateBack(options) {
                       state.navigateBackCalls.push(options)
                       return Promise.resolve({ errMsg: 'navigateBack:ok' })
@@ -134,6 +138,7 @@ function createState(pages) {
   return {
     pages,
     navigateCalls: [],
+    redirectCalls: [],
     navigateBackCalls: [],
     switchTabCalls: [],
     reLaunchCalls: [],
@@ -196,13 +201,15 @@ test('切换已存在的固定 tab 仍使用原生 switchTab', async () => {
   assert.equal(state.reLaunchCalls.length, 0)
 })
 
-test('H5 自绘 tab 直接切换，不使用带滑动动画的页面栈导航', async () => {
+test('H5 自绘 tab 替换当前路由，避免重建应用产生闪烁', async () => {
   const state = createState([{ route: 'pages/index/index' }])
   const navigation = await loadNavigationRuntime(state, 'h5')
   navigation.installAppNavigation(menus)
   navigation.navigateAppRoute('app/my')
   await new Promise((done) => setTimeout(done, 0))
-  assert.equal(state.reLaunchCalls.length, 1)
+  assert.equal(state.redirectCalls.length, 1)
+  assert.equal(state.redirectCalls[0].url, '/pages/my/my')
+  assert.equal(state.reLaunchCalls.length, 0)
   assert.equal(state.switchTabCalls.length, 0)
   assert.equal(state.navigateCalls.length, 0)
   assert.equal(state.navigateBackCalls.length, 0)

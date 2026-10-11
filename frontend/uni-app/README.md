@@ -116,6 +116,8 @@ uni-app 支持的语言由 core 和 System JSON 语言包自动发现，模块�
 
 页面 wrapper 统一挂载自绘 `KratosTabBar`；固定首页和我的页同时注册为隐藏的原生 tab 路由，切换时使用 `switchTab` 保持微信原生效果，动态扩展 tab 再复用页面栈。普通页面优先使用 `navigateTo`，下级页面会沿父级关系归属并高亮对应 tab。因此接口内容变化后可以调整菜单层级、逻辑路径和 `viewKey`，无需把每个业务路由写死在宿主。
 
+H5 自绘底部 tab 使用 `redirectTo` 替换当前路由，避免 `reLaunch` 重建应用造成切换闪烁；微信端保持原生 tab 与页面栈导航策略。
+
 ## 开发与构建
 
 ```bash

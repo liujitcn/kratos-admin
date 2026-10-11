@@ -21,6 +21,11 @@ async function loadNavigationRuntime(state) {
     navigateTo(options) {
       state.navigateCalls.push(options)
     },
+    redirectTo(options) {
+      state.redirectCalls.push(options)
+      options.success?.({ errMsg: 'redirectTo:ok' })
+      options.complete?.({ errMsg: 'redirectTo:ok' })
+    },
     navigateBack(options) {
       state.navigateBackCalls.push(options)
     },
@@ -139,21 +144,23 @@ function createState(pages) {
   return {
     pages,
     navigateCalls: [],
+    redirectCalls: [],
     navigateBackCalls: [],
     switchTabCalls: [],
     reLaunchCalls: [],
   }
 }
 
-test('H5 切换自绘 tab 使用 reLaunch，避免原生 tabBar 状态不一致', async () => {
+test('H5 切换自绘 tab 替换当前路由，避免重建应用产生闪烁', async () => {
   const state = { ...createState([{ route: 'pages/index/index' }]), isH5: true }
   const runtime = await loadNavigationRuntime(state)
   runtime.installAppNavigation(menus)
 
   runtime.navigateAppRoute('app/my')
 
-  assert.equal(state.reLaunchCalls.length, 1)
-  assert.equal(state.reLaunchCalls[0].url, '/pages/my/my')
+  assert.equal(state.redirectCalls.length, 1)
+  assert.equal(state.redirectCalls[0].url, '/pages/my/my')
+  assert.equal(state.reLaunchCalls.length, 0)
   assert.equal(state.switchTabCalls.length, 0)
   assert.equal(state.navigateCalls.length, 0)
 })

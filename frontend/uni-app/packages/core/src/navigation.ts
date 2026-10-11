@@ -271,7 +271,13 @@ function navigateTabRoute(url: string): void {
     if (tabNavigationTarget === targetRoute) tabNavigationTarget = undefined
   }
   if (isH5Runtime) {
-    uni.reLaunch({ url, success: release, fail: release, complete: release })
+    uni.redirectTo({
+      url,
+      success: release,
+      fail: () => {
+        uni.reLaunch({ url, success: release, fail: release, complete: release })
+      },
+    })
     return
   }
   if (nativeTabViewKeys.some((viewKey) => resolveStaticView(viewKey) === targetRoute)) {
