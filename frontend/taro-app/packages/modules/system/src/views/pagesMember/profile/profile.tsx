@@ -12,7 +12,6 @@ import {
 import Taro, { useLoad } from '@tarojs/taro'
 import { useEffect, useRef, useState } from 'react'
 import defaultAvatar from '@liujitcn/kratos-taro-app-core/static/images/avatar.png'
-import navigatorBackground from '@liujitcn/kratos-taro-app-core/static/images/navigator_bg.png'
 import { defAuthService } from '@liujitcn/kratos-taro-app-core/api/system/app/v1/auth'
 import { defBaseDictService } from '@liujitcn/kratos-taro-app-core/api/system/app/v1/base_dict'
 import type { BaseDictForm_DictItem } from '@liujitcn/kratos-taro-app-core/rpc/system/app/v1/base_dict'
@@ -23,6 +22,7 @@ import {
   navigateToLogin,
   uploadFile,
   useI18n,
+  useThemeStore,
   useUserStore,
 } from '@liujitcn/kratos-taro-app-core'
 import './profile.scss'
@@ -33,7 +33,8 @@ const ID_CODE_PATTERN = /^[A-Za-z0-9][A-Za-z0-9-]{0,63}$/
 
 /** 用户个人资料编辑页。 */
 export default function ProfilePage() {
-  const { locale, t } = useI18n()
+  const { t } = useI18n()
+  const themeStore = useThemeStore()
   const [userInfo, setUserInfo] = useState<UserProfileForm>({
     user_name: '',
     nick_name: '',
@@ -48,7 +49,6 @@ export default function ProfilePage() {
   const submittingRef = useRef(false)
   const navigateBackTimerRef = useRef<ReturnType<typeof setTimeout>>()
   const ensureAuthenticated = useUserStore((state) => state.ensureAuthenticated)
-  const safeTop = Taro.getWindowInfo().safeArea?.top || 0
   const idTypeOptions = [
     { label: t('system.profile.id_type.unspecified'), value: BaseUserIDType.BASE_USER_ID_TYPE_UNSPECIFIED },
     { label: t('system.profile.id_type.id_card'), value: BaseUserIDType.BASE_USER_ID_TYPE_ID_CARD },
@@ -62,10 +62,6 @@ export default function ProfilePage() {
     { label: t('system.profile.id_type.other'), value: BaseUserIDType.BASE_USER_ID_TYPE_OTHER },
   ]
   const idTypeIndex = Math.max(0, idTypeOptions.findIndex((item) => item.value === userInfo.id_type))
-
-  useEffect(() => {
-    void Taro.setNavigationBarTitle({ title: t('system.profile.title') })
-  }, [locale, t])
 
   useEffect(() => {
     return () => {
@@ -153,44 +149,63 @@ export default function ProfilePage() {
   }
 
   return (
-    <View className='profile-viewport' style={{ backgroundImage: `url(${navigatorBackground})` }}>
-      <View className='profile-navbar' style={{ paddingTop: `${safeTop}px` }}>
-        <View className='profile-back' onClick={() => void Taro.navigateBack()}>‹</View>
-        <View className='profile-navbar__title'>{t('system.profile.title')}</View>
-      </View>
-      <View className='profile-avatar'>
-        <View className='profile-avatar__content' onClick={() => void onAvatarChange()}>
-          <Image className='profile-avatar__image' src={userInfo.avatar ? formatSrc(userInfo.avatar) : defaultAvatar} mode='aspectFill' />
-          <Text className='profile-avatar__text'>{t('system.profile.avatar_change')}</Text>
+    <View
+      className={`profile-viewport ${themeStore.theme === 'light' ? 'theme-light' : 'theme-dark'}`}
+    >
+      <View className='profile-content'>
+        <View className={`k-page-nav ${process.env.TARO_ENV === 'weapp' ? 'k-page-nav--weapp' : ''}`}>
+          <View
+            className='k-page-nav__back'
+            aria-label={t('common.action.back')}
+            onClick={() => void Taro.navigateBack()}
+          />
+          <View className='k-page-nav__title'>{t('system.profile.title')}</View>
+          <View className='k-page-nav__side' aria-hidden />
         </View>
-      </View>
-      <View className='profile-form'>
-        <View className='profile-form__content'>
+
+        <View className='k-glass k-glass--lit k-pfx profile-id' onClick={() => void onAvatarChange()}>
+          <View className='k-cnr k-cnr--tl' aria-hidden />
+          <View className='k-cnr k-cnr--br' aria-hidden />
+          <View className='profile-id__main'>
+            <View className='k-pfx__av'>
+              <Image className='profile-av-img' src={userInfo.avatar ? formatSrc(userInfo.avatar) : defaultAvatar} mode='aspectFill' />
+            </View>
+            <View className='profile-id__meta'>
+              <View className='k-pfx__nm'>{userInfo.nick_name || t('system.profile.title')}</View>
+              <View className='k-pfx__ac'>{userInfo.user_name}</View>
+            </View>
+          </View>
+          <View className='k-pfx__ent'>{t('system.profile.avatar_change')}</View>
+        </View>
+
+        <View className='k-glass profile-form'>
+          <View className='k-phd'>
+            <View className='k-phd__title'>{t('system.profile.title')}</View>
+          </View>
+
           {userInfo.user_name ? (
-            <View className='profile-form__item'>
-              <Text className='profile-label'>{t('system.profile.account')}</Text>
-              <Text className='profile-account profile-placeholder'>{userInfo.user_name}</Text>
+            <View className='k-field'>
+              <Text className='k-field__k'>{t('system.profile.account')}</Text>
+              <Text className='k-field__v'>{userInfo.user_name}</Text>
             </View>
           ) : null}
           {process.env.TARO_ENV === 'weapp' ? (
-            <View className='profile-form__item'>
-              <Text className='profile-label'>{t('system.profile.mobile')}</Text>
-              <View className='profile-input'>
-                {userInfo.phone ? (
-                  <Text className='profile-account'>{userInfo.phone}</Text>
-                ) : (
-                  <Button className='profile-auth-button' openType='getPhoneNumber' onGetPhoneNumber={onGetPhoneNumber}>{t('system.profile.phone_authorization')}</Button>
-                )}
-              </View>
+            <View className='k-field'>
+              <Text className='k-field__k'>{t('system.profile.mobile')}</Text>
+              {userInfo.phone ? (
+                <Text className='k-field__v'>{userInfo.phone}</Text>
+              ) : (
+                <Button className='profile-auth-button' openType='getPhoneNumber' onGetPhoneNumber={onGetPhoneNumber}>{t('system.profile.phone_authorization')}</Button>
+              )}
             </View>
           ) : null}
-          <View className='profile-form__item'>
-            <Text className='profile-label'>{t('system.profile.nick_name')}</Text>
-            <Input className='profile-input' placeholder={t('system.profile.nick_name_placeholder')} value={userInfo.nick_name} onInput={(event) => setUserInfo((current) => ({ ...current, nick_name: event.detail.value }))} />
+          <View className='k-field'>
+            <Text className='k-field__k'>{t('system.profile.nick_name')}</Text>
+            <Input className='k-field__v profile-input' placeholder={t('system.profile.nick_name_placeholder')} value={userInfo.nick_name} onInput={(event) => setUserInfo((current) => ({ ...current, nick_name: event.detail.value }))} />
           </View>
-          <View className='profile-form__item'>
-            <Text className='profile-label'>{t('system.profile.email')}</Text>
-            <Input className='profile-input' type='text' placeholder={t('system.profile.email_placeholder')} value={userInfo.email} onInput={(event) => setUserInfo((current) => ({ ...current, email: event.detail.value }))} />
+          <View className='k-field'>
+            <Text className='k-field__k'>{t('system.profile.email')}</Text>
+            <Input className='k-field__v profile-input' type='text' placeholder={t('system.profile.email_placeholder')} value={userInfo.email} onInput={(event) => setUserInfo((current) => ({ ...current, email: event.detail.value }))} />
           </View>
           <Picker
             mode='selector'
@@ -198,28 +213,33 @@ export default function ProfilePage() {
             value={idTypeIndex}
             onChange={(event) => setUserInfo((current) => ({ ...current, id_type: idTypeOptions[Number(event.detail.value)]?.value ?? BaseUserIDType.BASE_USER_ID_TYPE_UNSPECIFIED }))}
           >
-            <View className='profile-form__item'>
-              <Text className='profile-label'>{t('system.profile.id_type')}</Text>
-              <Text className='profile-input profile-account'>{idTypeOptions[idTypeIndex]?.label}</Text>
+            <View className='k-field profile-field--sub'>
+              <Text className='k-field__k'>{t('system.profile.id_type')}</Text>
+              <Text className='k-field__v'>{idTypeOptions[idTypeIndex]?.label}</Text>
             </View>
           </Picker>
-          <View className='profile-form__item'>
-            <Text className='profile-label'>{t('system.profile.id_code')}</Text>
-            <Input className='profile-input' type='text' placeholder={t('system.profile.id_code_placeholder')} value={userInfo.id_code} onInput={(event) => setUserInfo((current) => ({ ...current, id_code: event.detail.value }))} />
+          <View className='k-field'>
+            <Text className='k-field__k'>{t('system.profile.id_code')}</Text>
+            <Input className='k-field__v profile-input' type='text' placeholder={t('system.profile.id_code_placeholder')} value={userInfo.id_code} onInput={(event) => setUserInfo((current) => ({ ...current, id_code: event.detail.value }))} />
           </View>
-          <View className='profile-form__item'>
-            <Text className='profile-label'>{t('system.profile.gender')}</Text>
-            <RadioGroup onChange={(event) => setUserInfo((current) => ({ ...current, gender: Number(event.detail.value) }))}>
+          <View className='k-field'>
+            <Text className='k-field__k'>{t('system.profile.gender')}</Text>
+            <RadioGroup className='profile-radios' onChange={(event) => setUserInfo((current) => ({ ...current, gender: Number(event.detail.value) }))}>
               {genderList.map((item) => (
                 <Label className='profile-radio' key={item.value}>
-                  <Radio value={item.value} color='#27ba9b' checked={userInfo.gender === Number(item.value)} />
+                  <Radio
+                    value={item.value}
+                    color={themeStore.theme === 'light' ? '#039e8c' : '#28f0d4'}
+                    checked={userInfo.gender === Number(item.value)}
+                  />
                   {item.label}
                 </Label>
               ))}
             </RadioGroup>
           </View>
+
+          <Button className='k-save' onClick={() => void onSubmit()}>{t('common.action.save')}</Button>
         </View>
-        <Button className='profile-form__button' onClick={() => void onSubmit()}>{t('common.action.save')}</Button>
       </View>
     </View>
   )

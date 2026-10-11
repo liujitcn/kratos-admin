@@ -1,42 +1,89 @@
+page {
+  background-color: #eef3f8;
+}
+
 .login-page {
   position: relative;
   display: flex;
   flex-direction: column;
   justify-content: center;
   min-height: 100vh;
-  padding: 48px 40px 56px;
-  background: linear-gradient(180deg, #f4fbf8 0%, #fff 45%, #fff 100%);
+  padding: 48px 40px calc(56px + env(safe-area-inset-bottom));
+  background: var(--kratos-bg-gradient);
   box-sizing: border-box;
 }
 
+/* 自绘头部：左返回、右上角语言，替代原生导航栏，背景随主题渐变 */
+.login-header {
+  position: fixed;
+  top: 0;
+  right: 0;
+  left: 0;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 44PX;
+  padding: env(safe-area-inset-top) 28px 0;
+  box-sizing: content-box;
+}
+
+/* #ifdef weapp */
+.login-header {
+  /* 右上角避让小程序胶囊 */
+  padding-right: 220px;
+}
+/* #endif */
+
+.login-back {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  color: var(--kratos-color-text);
+  font-size: 48px;
+  line-height: 1;
+}
+
 .login-locale {
-  position: absolute;
-  top: calc(24px + env(safe-area-inset-top));
-  right: 28px;
-  z-index: 2;
+  max-width: calc(100% - 120px);
 }
 
 .login-locale__value {
-  padding: 12px 16px;
-  color: #16806d;
-  font-size: 24px;
+  padding: 12px 22px;
+  border: 1PX solid var(--kratos-color-border);
+  border-radius: 999px;
+  color: var(--kratos-color-text-muted);
+  font-size: 22px;
+  font-family: var(--kratos-font-mono);
 }
 
 .login-hero {
-  margin-bottom: 40px;
+  margin-bottom: 44px;
   text-align: center;
 }
 
 .login-logo-shell {
+  position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 180px;
-  height: 180px;
-  margin-bottom: 24px;
-  border-radius: 44px;
-  background: rgba(255, 255, 255, 0.92);
-  box-shadow: 0 18px 44px rgba(40, 187, 156, 0.12);
+  width: 176px;
+  height: 176px;
+  margin-bottom: 28px;
+  border-radius: 40px;
+  background: linear-gradient(135deg, var(--kratos-color-primary-deep), var(--kratos-color-info));
+  box-shadow: 0 0 48px rgba(40, 240, 212, 0.4);
+}
+
+.login-logo-shell::after {
+  position: absolute;
+  inset: -12px;
+  border: 1PX solid var(--kratos-color-border-accent);
+  border-radius: 48px;
+  opacity: 0.55;
+  content: '';
 }
 
 .login-logo {
@@ -50,22 +97,48 @@
 }
 
 .login-title {
-  color: #1f2937;
+  color: var(--kratos-color-text);
   font-size: 44px;
-  font-weight: 600;
+  font-weight: 800;
 }
 
 .login-subtitle {
   margin-top: 12px;
-  color: #6b7280;
+  color: var(--kratos-color-text-muted);
   font-size: 26px;
 }
 
 .login-panel {
-  padding: 36px 28px 30px;
+  position: relative;
+  padding: 36px 30px 30px;
+  border: 1PX solid var(--kratos-color-border-accent);
   border-radius: 24px;
-  background: rgba(255, 255, 255, 0.96);
-  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.08);
+  background: var(--kratos-color-surface);
+  box-shadow: var(--kratos-glow-soft);
+}
+
+.login-panel::before,
+.login-panel::after {
+  position: absolute;
+  width: 24px;
+  height: 24px;
+  border: 3px solid var(--kratos-color-primary);
+  opacity: 0.5;
+  content: '';
+}
+
+.login-panel::before {
+  top: 16px;
+  left: 16px;
+  border-right: 0;
+  border-bottom: 0;
+}
+
+.login-panel::after {
+  top: 16px;
+  right: 16px;
+  border-left: 0;
+  border-bottom: 0;
 }
 
 .login-form {
@@ -75,7 +148,7 @@
 
 .login-bind-tip {
   margin-bottom: 20px;
-  color: #6b7280;
+  color: var(--kratos-color-text-muted);
   font-size: 24px;
   line-height: 1.5;
   text-align: center;
@@ -83,15 +156,15 @@
 
 .login-input {
   width: 100%;
-  height: 88px;
+  height: 96px;
   padding: 0 30px;
   margin-bottom: 20px;
-  border: 1PX solid #e5e7eb;
-  border-radius: 24px;
+  border: 1PX solid var(--kratos-color-border);
+  border-radius: 20px;
   box-sizing: border-box;
-  color: #1f2937;
+  color: var(--kratos-color-text);
   font-size: 28px;
-  background: #f9fbfa;
+  background: var(--kratos-color-surface-2);
 
   .weui-input {
     width: 100%;
@@ -103,18 +176,56 @@
   }
 }
 
+.password-field {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: 96px;
+  padding: 0 24px 0 30px;
+  margin-bottom: 20px;
+  border: 1PX solid var(--kratos-color-border);
+  border-radius: 20px;
+  box-sizing: border-box;
+  background: var(--kratos-color-surface-2);
+}
+
+.password-input {
+  flex: 1;
+  width: auto;
+  height: 100%;
+  padding: 0;
+  margin-bottom: 0;
+  border: 0;
+  background: transparent;
+}
+
+.password-toggle {
+  display: flex;
+  flex: 0 0 52px;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  margin-left: 12px;
+}
+
+.password-toggle-icon {
+  width: 24px;
+  height: 24px;
+}
+
 .login-button {
   display: flex;
   align-items: center;
   justify-content: center;
   width: 100%;
-  height: 88px;
+  height: 96px;
   margin-top: 12px;
-  border-radius: 24px;
-  color: #fff;
+  border-radius: 20px;
+  color: var(--kratos-color-on-primary);
   font-size: 30px;
-  font-weight: 500;
-  box-shadow: 0 18px 36px rgba(40, 187, 156, 0.24);
+  font-weight: 800;
+  box-shadow: 0 0 40px rgba(40, 240, 212, 0.35);
 
   &::after {
     border: 0;
@@ -122,7 +233,7 @@
 }
 
 .login-button-primary {
-  background: linear-gradient(135deg, #34c8aa 0%, #28bb9c 100%);
+  background: linear-gradient(135deg, var(--kratos-color-primary-deep) 0%, var(--kratos-color-primary) 100%);
 }
 
 .login-phone-icon {
@@ -134,13 +245,13 @@
   display: flex;
   align-items: center;
   width: 100%;
-  height: 88px;
+  height: 96px;
   padding: 0 12px 0 30px;
   margin-bottom: 20px;
-  border: 1PX solid #e5e7eb;
-  border-radius: 24px;
+  border: 1PX solid var(--kratos-color-border);
+  border-radius: 20px;
   box-sizing: border-box;
-  background: #f9fbfa;
+  background: var(--kratos-color-surface-2);
 }
 
 .captcha-input {
@@ -149,13 +260,14 @@
   padding: 0;
   margin-bottom: 0;
   border: 0;
+  color: var(--kratos-color-text);
   background: transparent;
 }
 
 .captcha-divider {
   width: 1px;
   height: 44px;
-  background: #e7ebf0;
+  background: var(--kratos-color-border);
 }
 
 .captcha-trigger {
@@ -165,9 +277,10 @@
   justify-content: center;
   height: 72px;
   margin-left: 14px;
-  border-radius: 18px;
+  border: 1PX solid var(--kratos-color-border);
+  border-radius: 16px;
   box-sizing: border-box;
-  background: #fff;
+  background: var(--kratos-color-primary-soft);
 }
 
 .captcha-image {
@@ -185,9 +298,10 @@
   justify-content: center;
   padding: 24px;
   box-sizing: border-box;
-  background: rgba(15, 23, 42, 0.38);
+  background: var(--kratos-color-mask);
 }
 
+/* 行为验证码弹层保留白底：第三方验证码图片为浅色素材。 */
 .login-behavior-panel {
   position: relative;
   width: auto;
@@ -252,16 +366,16 @@
     height: 56px;
     margin-top: -28px;
     border-radius: 999px;
-    color: #fff;
-    fill: #fff;
-    background: linear-gradient(135deg, #36d6b4 0%, #20aa8f 100%);
-    box-shadow: 0 14px 28px rgba(40, 187, 156, 0.28);
+    color: var(--kratos-color-on-primary);
+    fill: var(--kratos-color-on-primary);
+    background: linear-gradient(135deg, var(--kratos-color-primary-deep) 0%, var(--kratos-color-primary) 100%);
+    box-shadow: 0 14px 28px rgba(40, 240, 212, 0.28);
   }
 }
 
 .login-tips {
   margin-top: 26px;
-  color: #999;
+  color: var(--kratos-color-text-muted);
   font-size: 22px;
   line-height: 1.6;
 }
@@ -274,7 +388,7 @@
   align-items: center;
   justify-content: center;
   padding: 40px;
-  background: rgba(15, 23, 42, 0.46);
+  background: var(--kratos-color-mask);
 }
 
 .mfa-panel {
@@ -283,14 +397,15 @@
   width: 100%;
   max-width: 520px;
   padding: 32px;
+  border: 1PX solid var(--kratos-color-border-accent);
   border-radius: 24px;
-  background: #fff;
+  background: var(--kratos-color-surface-solid);
   box-sizing: border-box;
 }
 
 .mfa-title {
   margin-bottom: 20px;
-  color: #172a35;
+  color: var(--kratos-color-text);
   font-size: 32px;
   font-weight: 700;
 }
@@ -300,7 +415,7 @@
   align-items: center;
   gap: 10px;
   margin: 4px 0 20px;
-  color: #53636d;
+  color: var(--kratos-color-text-muted);
   font-size: 24px;
   line-height: 1.4;
 }
@@ -322,21 +437,21 @@
   width: 26px;
   height: 26px;
   margin-right: 2px;
-  border: 2px solid #d1d5db;
+  border: 2px solid var(--kratos-color-primary);
   border-radius: 50%;
   box-sizing: border-box;
-  background-color: #fff;
+  background-color: transparent;
 }
 
 .login-agree-icon.checked {
-  border-color: #28bb9c;
-  background-color: #28bb9c;
-  box-shadow: inset 0 0 0 6px #fff;
+  border-color: var(--kratos-color-primary);
+  background-color: var(--kratos-color-primary);
+  box-shadow: inset 0 0 0 6px var(--kratos-color-on-primary);
 }
 
 .login-agree-link {
   min-width: 0;
-  color: #28bb9c;
+  color: var(--kratos-color-primary);
   overflow-wrap: anywhere;
 }
 
@@ -347,7 +462,7 @@
 }
 
 .login-agree-desc {
-  color: #9ca3af;
+  color: var(--kratos-color-text-muted);
 }
 
 .login-tips--shake {

@@ -169,7 +169,7 @@ watch(
 .password-verify-dialog__panel {
   width: min(100%, 640rpx);
   overflow: hidden;
-  background-color: #fff;
+  background-color: var(--kratos-color-surface-solid);
   border-radius: 16rpx;
   box-shadow: 0 20rpx 64rpx rgb(0 0 0 / 20%);
 }
@@ -179,18 +179,18 @@ watch(
   align-items: center;
   justify-content: space-between;
   padding: 28rpx 32rpx;
-  border-bottom: 1rpx solid #eee;
+  border-bottom: 1rpx solid var(--kratos-color-border);
 }
 
 .password-verify-dialog__title {
-  color: #222;
+  color: var(--kratos-color-text);
   font-size: 34rpx;
   font-weight: 600;
 }
 
 .password-verify-dialog__close {
   padding: 0 8rpx;
-  color: #999;
+  color: var(--kratos-color-text-muted);
   font-size: 42rpx;
   line-height: 1;
 }
@@ -202,7 +202,7 @@ watch(
 .password-verify-dialog__description {
   display: block;
   margin-bottom: 24rpx;
-  color: #666;
+  color: var(--kratos-color-text-muted);
   font-size: 26rpx;
   line-height: 1.6;
 }
@@ -210,7 +210,7 @@ watch(
 .password-verify-dialog__label {
   display: block;
   margin-bottom: 12rpx;
-  color: #333;
+  color: var(--kratos-color-text);
   font-size: 28rpx;
 }
 
@@ -219,20 +219,21 @@ watch(
   width: 100%;
   height: 84rpx;
   padding: 0 24rpx;
-  color: #222;
+  color: var(--kratos-color-text);
   font-size: 30rpx;
-  border: 1rpx solid #ddd;
+  border: 1rpx solid var(--kratos-color-border);
+  background-color: var(--kratos-color-surface-2);
   border-radius: 8rpx;
 }
 
 .password-verify-dialog__input:focus {
-  border-color: #27ba9b;
+  border-color: var(--kratos-color-primary);
 }
 
 .password-verify-dialog__error {
   display: block;
   margin-top: 10rpx;
-  color: #e64340;
+  color: var(--kratos-color-danger);
   font-size: 24rpx;
 }
 
@@ -259,13 +260,13 @@ watch(
 }
 
 .password-verify-dialog__button--cancel {
-  color: #555;
-  background-color: #f3f3f3;
+  color: var(--kratos-color-text-muted);
+  background-color: var(--kratos-color-track);
 }
 
 .password-verify-dialog__button--confirm {
-  color: #fff;
-  background-color: #27ba9b;
+  color: var(--kratos-color-on-primary);
+  background-color: var(--kratos-color-primary);
 }
 
 .password-verify-dialog__button[disabled] {

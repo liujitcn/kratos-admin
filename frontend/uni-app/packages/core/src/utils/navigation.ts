@@ -77,5 +77,21 @@ export const navigateToLogin = (redirectUrl?: string) => {
   })
 }
 
+/** 跳转登录页并替换当前页面：路由守卫使用，避免反复拦截时在页面栈堆积登录页。 */
+export const redirectToLogin = (redirectUrl?: string) => {
+  // 模板直接绑定时会传入点击事件对象，只有字符串才是明确的回跳地址。
+  if (typeof redirectUrl === 'string' && redirectUrl) {
+    saveLoginRedirectUrl(redirectUrl)
+  } else {
+    saveCurrentRoute()
+  }
+  uni.redirectTo({
+    url: LOGIN_PAGE,
+    fail: () => {
+      uni.reLaunch({ url: LOGIN_PAGE })
+    },
+  })
+}
+
 /** 返回首页。 */
 export const switchTabToHome = () => uni.reLaunch({ url: homeTabPage })

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useSettingStore, useUserStore } from '../../../stores'
+import { useSettingStore, useThemeStore, useUserStore } from '../../../stores'
 import type { LoginRequest } from '../../../rpc/base/v1/login'
 import { LoginStatus, type LoginResponse } from '../../../rpc/base/v1/login'
 import { onLoad, onUnload } from '@dcloudio/uni-app'
@@ -23,6 +23,7 @@ const GoCaptchaUni = defineAsyncComponent(() => import('go-captcha-uni'))
 
 const userStore = useUserStore()
 const settingStore = useSettingStore()
+const themeStore = useThemeStore()
 const { locale, setLocale, t } = useI18n()
 const localeOptions = computed(() => getLanguageOptions())
 const localeLabels = computed(() => localeOptions.value.map((item) => item.native_name))
@@ -33,6 +34,12 @@ const localeIndex = computed(() =>
   ),
 )
 const wechatMiniProvider = 'wechatmini'
+
+/** 参考管理端 View、Hide 图标视觉的本端 SVG 路径。 */
+const passwordIconPaths = {
+  view: 'M512 160c320 0 512 352 512 352S832 864 512 864 0 512 0 512s192-352 512-352m0 64c-225.28 0-384.128 208.064-436.8 288 52.608 79.872 211.456 288 436.8 288 225.28 0 384.128-208.064 436.8-288-52.608-79.872-211.456-288-436.8-288m0 64a224 224 0 1 1 0 448 224 224 0 0 1 0-448m0 64a160.19 160.19 0 0 0-160 160c0 88.192 71.744 160 160 160s160-71.808 160-160-71.744-160-160-160',
+  hide: 'M876.8 156.8c0-9.6-3.2-16-9.6-22.4s-12.8-9.6-22.4-9.6-16 3.2-22.4 9.6L736 220.8c-64-32-137.6-51.2-224-60.8-160 16-288 73.6-377.6 176S0 496 0 512s48 73.6 134.4 176c22.4 25.6 44.8 48 73.6 67.2l-86.4 89.6c-6.4 6.4-9.6 12.8-9.6 22.4s3.2 16 9.6 22.4 12.8 9.6 22.4 9.6 16-3.2 22.4-9.6l704-710.4c3.2-6.4 6.4-12.8 6.4-22.4m-646.4 528Q115.2 579.2 76.8 512q43.2-72 153.6-172.8C304 272 400 230.4 512 224c64 3.2 124.8 19.2 176 44.8l-54.4 54.4C598.4 300.8 560 288 512 288c-64 0-115.2 22.4-160 64s-64 96-64 160c0 48 12.8 89.6 35.2 124.8L256 707.2c-9.6-6.4-19.2-16-25.6-22.4m140.8-96Q352 555.2 352 512c0-44.8 16-83.2 48-112s67.2-48 112-48c28.8 0 54.4 6.4 73.6 19.2zM889.599 336c-12.8-16-28.8-28.8-41.6-41.6l-48 48c73.6 67.2 124.8 124.8 150.4 169.6q-43.2 72-153.6 172.8c-73.6 67.2-172.8 108.8-284.8 115.2-51.2-3.2-99.2-12.8-140.8-28.8l-48 48c57.6 22.4 118.4 38.4 188.8 44.8 160-16 288-73.6 377.6-176S1024 528 1024 512s-48.001-73.6-134.401-176M511.998 672c-12.8 0-25.6-3.2-38.4-6.4l-51.2 51.2c28.8 12.8 57.6 19.2 89.6 19.2 64 0 115.2-22.4 160-64 41.6-41.6 64-96 64-160 0-32-6.4-64-19.2-89.6l-51.2 51.2c3.2 12.8 6.4 25.6 6.4 38.4 0 44.8-16 83.2-48 112s-67.2 48-112 48',
+} as const
 const loginSettingsReady = ref(false)
 let loginSettingsPromise: Promise<boolean> | undefined
 
@@ -48,6 +55,13 @@ const configuredAppLogo = computed(() => {
 })
 const appLogo = ref(defaultLogo)
 const showTenantCode = computed(() => settingStore.getData('showTenantCode') !== 'false')
+/** 按管理端 View、Hide 视觉生成本端密码可见性图标。 */
+const passwordIconSrc = (visible: boolean) => {
+  const color = themeStore.theme === 'light' ? '#5a7083' : '#8aa0b4'
+  const path = visible ? passwordIconPaths.hide : passwordIconPaths.view
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" fill="${color}"><path d="${path}"/></svg>`
+  return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`
+}
 
 watch(
   configuredAppLogo,
@@ -85,10 +99,6 @@ const mfaSetupMethod = ref('totp')
 const mfaSetupWebAuthnOptionsJson = ref('')
 const mfaRecoveryCodesVisible = ref(false)
 const mfaRecoveryCodes = ref<string[]>([])
-
-watch(locale, () => void uni.setNavigationBarTitle({ title: t('common.action.login') }), {
-  immediate: true,
-})
 
 /** 切换登录页语言。 */
 const onLocaleChange = (event: { detail: { value: string | number } }) => {
@@ -151,6 +161,7 @@ const miniForm = reactive({
   captcha_id: '',
 })
 const miniPasswordValue = ref('')
+const miniPasswordVisible = ref(false)
 
 type MiniFileSystemManager = {
   writeFile(options: {
@@ -589,6 +600,13 @@ const refreshCaptcha = async () => {
   }
 }
 
+/** 返回上一页；登录页可能是冷启动首页，无上级页面时回主页。 */
+const goBack = () => {
+  uni.navigateBack({
+    fail: () => uni.reLaunch({ url: homeTabPage }),
+  })
+}
+
 // 页面加载或普通表单刷新验证码，行为验证码延迟到登录弹窗打开时再请求。
 const loadPageCaptcha = async () => {
   if (isBehaviorCaptcha.value) {
@@ -636,6 +654,7 @@ const form = ref<LoginRequest>({
   captcha_code: '',
 })
 const passwordValue = ref('')
+const passwordVisible = ref(false)
 // 校验账号密码与协议勾选状态。
 const validateLoginForm = async () => {
   if (!(await ensureLoginSettings())) {
@@ -807,6 +826,8 @@ const checkedAgreePrivacy = async () => {
       content: t('core.login.protocol_prompt'),
       confirmText: t('common.action.confirm'),
       cancelText: t('common.action.cancel'),
+      confirmColor: themeStore.theme === 'light' ? '#039e8c' : '#28f0d4',
+      cancelColor: themeStore.theme === 'light' ? '#5a7083' : '#8aa0b4',
       success: ({ confirm }) => {
         if (confirm) {
           isAgreePrivacy.value = true
@@ -875,18 +896,21 @@ onUnload(() => {
 </script>
 
 <template>
-  <view class="login-page">
-    <picker
-      class="login-locale"
-      :range="localeLabels"
-      :value="localeIndex"
-      @change="onLocaleChange"
-    >
-      <view class="login-locale__value">{{ localeLabels[localeIndex] }}</view>
-    </picker>
+  <view class="login-page" :class="themeStore.themeClass">
+    <view class="login-header">
+      <view class="login-back" aria-hidden="true" @tap="goBack">‹</view>
+      <picker
+        class="login-locale"
+        :range="localeLabels"
+        :value="localeIndex"
+        @change="onLocaleChange"
+      >
+        <view class="k-lg-lang login-locale__value">{{ localeLabels[localeIndex] }}</view>
+      </picker>
+    </view>
     <view class="login-hero">
       <view class="login-logo-shell">
-        <image :src="appLogo" @error="handleLogoError" />
+        <image class="login-logo" :src="appLogo" @error="handleLogoError" />
       </view>
       <view class="login-hero-copy">
         <text class="login-title">{{ configuredMainTitle }}</text>
@@ -913,15 +937,28 @@ onUnload(() => {
           :placeholder="t('core.login.user_name_mobile')"
           @confirm="onSubmit"
         />
-        <input
-          v-model="passwordValue"
-          class="login-input"
-          type="text"
-          password
-          confirm-type="done"
-          :placeholder="t('core.login.password')"
-          @confirm="onSubmit"
-        />
+        <view class="password-field">
+          <input
+            v-model="passwordValue"
+            class="login-input password-input"
+            type="text"
+            :password="!passwordVisible"
+            confirm-type="done"
+            :placeholder="t('core.login.password')"
+            @confirm="onSubmit"
+          />
+          <view
+            class="password-toggle"
+            :aria-label="passwordVisible ? '隐藏密码' : '显示密码'"
+            @tap="passwordVisible = !passwordVisible"
+          >
+            <image
+              class="password-toggle-icon"
+              :src="passwordIconSrc(passwordVisible)"
+              mode="aspectFit"
+            ></image>
+          </view>
+        </view>
         <view v-if="!isBehaviorCaptcha" class="captcha-row">
           <input
             v-model="form.captcha_code"
@@ -989,13 +1026,26 @@ onUnload(() => {
             type="text"
             :placeholder="t('core.login.user_name_mobile')"
           />
-          <input
-            v-model="miniPasswordValue"
-            class="login-input"
-            type="text"
-            password
-            :placeholder="t('core.login.password')"
-          />
+          <view class="password-field">
+            <input
+              v-model="miniPasswordValue"
+              class="login-input password-input"
+              type="text"
+              :password="!miniPasswordVisible"
+              :placeholder="t('core.login.password')"
+            />
+            <view
+              class="password-toggle"
+              :aria-label="miniPasswordVisible ? '隐藏密码' : '显示密码'"
+              @tap="miniPasswordVisible = !miniPasswordVisible"
+            >
+              <image
+                class="password-toggle-icon"
+                :src="passwordIconSrc(miniPasswordVisible)"
+                mode="aspectFit"
+              ></image>
+            </view>
+          </view>
           <view class="captcha-row">
             <input
               v-model="miniForm.captcha_code"
@@ -1052,7 +1102,11 @@ onUnload(() => {
             @change="rememberMfaDevice = $event.detail.value.includes('remember')"
           >
             <label class="mfa-remember-device">
-              <checkbox value="remember" :checked="rememberMfaDevice" />
+              <checkbox
+                class="mfa-remember-device__checkbox"
+                value="remember"
+                :checked="rememberMfaDevice"
+              />
               <text>{{ t('core.login.mfa_remember_device', { days: mfaRememberDays }) }}</text>
             </label>
           </checkbox-group>
@@ -1110,46 +1164,89 @@ onUnload(() => {
   flex-direction: column;
   justify-content: center;
   min-height: 100vh;
-  padding: 48rpx 40rpx 56rpx;
-  background: linear-gradient(180deg, #f4fbf8 0%, #ffffff 45%, #ffffff 100%);
+  padding: 48rpx 40rpx calc(56rpx + env(safe-area-inset-bottom));
+  background: var(--kratos-bg-gradient);
   box-sizing: border-box;
 }
 
+/* 自绘头部：左返回、右上角语言，替代原生导航栏，背景随主题渐变 */
+.login-header {
+  position: fixed;
+  top: 0;
+  right: 0;
+  left: 0;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 44px;
+  padding: env(safe-area-inset-top) 28rpx 0;
+  box-sizing: content-box;
+}
+
+/* #ifdef MP-WEIXIN */
+.login-header {
+  /* 右上角避让小程序胶囊 */
+  padding-right: 220rpx;
+}
+/* #endif */
+
+.login-back {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64rpx;
+  height: 64rpx;
+  color: var(--kratos-color-text);
+  font-size: 48rpx;
+  line-height: 1;
+}
+
 .login-locale {
-  position: absolute;
-  top: calc(24rpx + env(safe-area-inset-top));
-  right: 28rpx;
-  z-index: 2;
-  max-width: calc(100% - 56rpx);
+  max-width: calc(100% - 120rpx);
 }
 
 .login-locale__value {
   max-width: 240rpx;
   overflow: hidden;
-  padding: 12rpx 16rpx;
-  color: #16806d;
-  font-size: 24rpx;
+  padding: 12rpx 22rpx;
+  color: var(--kratos-color-text-muted);
+  font-size: 22rpx;
+  font-family: var(--kratos-font-mono);
   text-overflow: ellipsis;
   white-space: nowrap;
+  border: 1rpx solid var(--kratos-color-border);
+  border-radius: 999rpx;
+  background: var(--kratos-color-surface);
 }
 
 .login-hero {
-  margin-bottom: 40rpx;
+  margin-bottom: 44rpx;
   text-align: center;
 
   .login-logo-shell {
+    position: relative;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 180rpx;
-    height: 180rpx;
-    margin-bottom: 24rpx;
-    border-radius: 44rpx;
-    background: rgba(255, 255, 255, 0.92);
-    box-shadow: 0 18rpx 44rpx rgba(40, 187, 156, 0.12);
+    width: 176rpx;
+    height: 176rpx;
+    margin-bottom: 28rpx;
+    border-radius: 40rpx;
+    background: linear-gradient(135deg, var(--kratos-color-primary-deep), var(--kratos-color-info));
+    box-shadow: 0 0 48rpx rgba(40, 240, 212, 0.4);
+
+    &::after {
+      position: absolute;
+      inset: -12rpx;
+      border: 1rpx solid var(--kratos-color-border-accent);
+      border-radius: 48rpx;
+      opacity: 0.55;
+      content: '';
+    }
   }
 
-  image {
+  .login-logo {
     width: 120rpx;
     height: 120rpx;
   }
@@ -1161,22 +1258,48 @@ onUnload(() => {
 
   .login-title {
     font-size: 44rpx;
-    font-weight: 600;
-    color: #1f2937;
+    font-weight: 800;
+    color: var(--kratos-color-text);
   }
 
   .login-subtitle {
     margin-top: 12rpx;
-    color: #6b7280;
+    color: var(--kratos-color-text-muted);
     font-size: 26rpx;
   }
 }
 
 .login-panel {
-  padding: 36rpx 28rpx 30rpx;
+  position: relative;
+  padding: 36rpx 30rpx 30rpx;
+  border: 1rpx solid var(--kratos-color-border-accent);
   border-radius: 24rpx;
-  background: rgba(255, 255, 255, 0.96);
-  box-shadow: 0 24rpx 60rpx rgba(15, 23, 42, 0.08);
+  background: var(--kratos-color-surface);
+  box-shadow: var(--kratos-glow-soft);
+
+  &::before,
+  &::after {
+    position: absolute;
+    width: 24rpx;
+    height: 24rpx;
+    border: 3rpx solid var(--kratos-color-primary);
+    opacity: 0.5;
+    content: '';
+  }
+
+  &::before {
+    top: 16rpx;
+    left: 16rpx;
+    border-right: 0;
+    border-bottom: 0;
+  }
+
+  &::after {
+    top: 16rpx;
+    right: 16rpx;
+    border-left: 0;
+    border-bottom: 0;
+  }
 }
 
 .login-form {
@@ -1185,7 +1308,7 @@ onUnload(() => {
 
   .login-bind-tip {
     margin-bottom: 20rpx;
-    color: #6b7280;
+    color: var(--kratos-color-text-muted);
     font-size: 24rpx;
     line-height: 1.5;
     text-align: center;
@@ -1193,15 +1316,53 @@ onUnload(() => {
 
   .login-input {
     width: 100%;
-    height: 88rpx;
+    height: 96rpx;
     font-size: 28rpx;
-    color: #1f2937;
-    border-radius: 24rpx;
-    border: 1px solid #e5e7eb;
-    background: #f9fbfa;
+    color: var(--kratos-color-text);
+    border: 1rpx solid var(--kratos-color-border);
+    border-radius: 20rpx;
+    background: var(--kratos-color-surface-2);
     padding: 0 30rpx;
     margin-bottom: 20rpx;
     box-sizing: border-box;
+  }
+
+  .password-field {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    height: 96rpx;
+    padding: 0 24rpx 0 30rpx;
+    margin-bottom: 20rpx;
+    border: 1rpx solid var(--kratos-color-border);
+    border-radius: 20rpx;
+    box-sizing: border-box;
+    background: var(--kratos-color-surface-2);
+  }
+
+  .password-input {
+    flex: 1;
+    width: auto;
+    height: 100%;
+    padding: 0;
+    margin-bottom: 0;
+    border: 0;
+    background: transparent;
+  }
+
+  .password-toggle {
+    display: flex;
+    flex: 0 0 52rpx;
+    align-items: center;
+    justify-content: center;
+    width: 52rpx;
+    height: 52rpx;
+    margin-left: 12rpx;
+  }
+
+  .password-toggle-icon {
+    width: 24rpx;
+    height: 24rpx;
   }
 
   .login-button {
@@ -1209,13 +1370,13 @@ onUnload(() => {
     align-items: center;
     justify-content: center;
     width: 100%;
-    height: 88rpx;
+    height: 96rpx;
     margin-top: 12rpx;
     font-size: 30rpx;
-    font-weight: 500;
-    border-radius: 24rpx;
-    color: #fff;
-    box-shadow: 0 18rpx 36rpx rgba(40, 187, 156, 0.24);
+    font-weight: 800;
+    border-radius: 20rpx;
+    color: var(--kratos-color-on-primary);
+    box-shadow: 0 0 40rpx rgba(40, 240, 212, 0.35);
 
     &::after {
       border: 0;
@@ -1232,19 +1393,23 @@ onUnload(() => {
   }
 
   .login-button-primary {
-    background: linear-gradient(135deg, #34c8aa 0%, #28bb9c 100%);
+    background: linear-gradient(
+      135deg,
+      var(--kratos-color-primary-deep) 0%,
+      var(--kratos-color-primary) 100%
+    );
   }
 
   .captcha-row {
     display: flex;
     align-items: center;
     width: 100%;
-    height: 88rpx;
+    height: 96rpx;
     margin-bottom: 20rpx;
     padding: 0 12rpx 0 30rpx;
-    border: 1px solid #e5e7eb;
-    border-radius: 24rpx;
-    background: #f9fbfa;
+    border: 1rpx solid var(--kratos-color-border);
+    border-radius: 20rpx;
+    background: var(--kratos-color-surface-2);
     box-sizing: border-box;
 
     .captcha-input {
@@ -1254,12 +1419,13 @@ onUnload(() => {
       padding: 0;
       border: 0;
       background: transparent;
+      color: var(--kratos-color-text);
     }
 
     .captcha-divider {
       width: 1rpx;
       height: 44rpx;
-      background: #e7ebf0;
+      background: var(--kratos-color-border);
     }
 
     .captcha-trigger {
@@ -1269,8 +1435,9 @@ onUnload(() => {
       flex: 0 0 auto;
       height: 72rpx;
       margin-left: 14rpx;
-      border-radius: 18rpx;
-      background: #fff;
+      border: 1rpx solid var(--kratos-color-border);
+      border-radius: 16rpx;
+      background: var(--kratos-color-primary-soft);
       box-sizing: border-box;
     }
 
@@ -1289,7 +1456,7 @@ onUnload(() => {
   align-items: center;
   justify-content: center;
   padding: 40rpx;
-  background: rgba(15, 23, 42, 0.46);
+  background: var(--kratos-color-mask);
 }
 .mfa-panel {
   display: flex;
@@ -1297,7 +1464,8 @@ onUnload(() => {
   width: 100%;
   max-width: 620rpx;
   padding: 36rpx;
-  background: #fff;
+  background: var(--kratos-color-surface-solid);
+  border: 1rpx solid var(--kratos-color-border-accent);
   border-radius: 24rpx;
   box-sizing: border-box;
 }
@@ -1305,7 +1473,7 @@ onUnload(() => {
   margin-bottom: 22rpx;
   font-size: 34rpx;
   font-weight: 700;
-  color: #172a35;
+  color: var(--kratos-color-text);
 }
 
 .mfa-remember-device {
@@ -1314,24 +1482,24 @@ onUnload(() => {
   margin-bottom: 20rpx;
   font-size: 26rpx;
   line-height: 1.5;
-  color: #172a35;
+  color: var(--kratos-color-text);
 }
 
-.mfa-remember-device checkbox {
+.mfa-remember-device__checkbox {
   flex-shrink: 0;
   margin-right: 12rpx;
 }
 
 .mfa-panel .login-input {
   width: 100%;
-  height: 88rpx;
+  height: 96rpx;
   margin-bottom: 20rpx;
   padding: 0 30rpx;
-  color: #1f2937;
+  color: var(--kratos-color-text);
   font-size: 28rpx;
-  background: #f9fbfa;
-  border: 1px solid #e5e7eb;
-  border-radius: 24rpx;
+  background: var(--kratos-color-surface-2);
+  border: 1rpx solid var(--kratos-color-border);
+  border-radius: 20rpx;
   box-sizing: border-box;
 }
 
@@ -1340,16 +1508,16 @@ onUnload(() => {
   align-items: center;
   justify-content: center;
   width: 100%;
-  height: 88rpx;
+  height: 96rpx;
   margin-top: 12rpx;
   padding: 0;
-  color: #fff;
+  color: var(--kratos-color-on-primary);
   font-size: 30rpx;
-  font-weight: 500;
+  font-weight: 800;
   background: transparent;
   border: 0;
-  border-radius: 24rpx;
-  box-shadow: 0 18rpx 36rpx rgba(40, 187, 156, 0.24);
+  border-radius: 20rpx;
+  box-shadow: 0 0 40rpx rgba(40, 240, 212, 0.35);
 }
 
 .mfa-panel .login-button::after {
@@ -1357,7 +1525,11 @@ onUnload(() => {
 }
 
 .mfa-panel .login-button-primary {
-  background: linear-gradient(135deg, #34c8aa 0%, #28bb9c 100%);
+  background: linear-gradient(
+    135deg,
+    var(--kratos-color-primary-deep) 0%,
+    var(--kratos-color-primary) 100%
+  );
 }
 
 .login-behavior-mask {
@@ -1371,7 +1543,7 @@ onUnload(() => {
   align-items: center;
   justify-content: center;
   padding: 24rpx;
-  background: rgba(15, 23, 42, 0.38);
+  background: var(--kratos-color-mask);
   box-sizing: border-box;
 }
 
@@ -1437,11 +1609,15 @@ onUnload(() => {
   width: 92rpx;
   height: 56rpx;
   margin-top: -28rpx;
-  background: linear-gradient(135deg, #36d6b4 0%, #20aa8f 100%);
+  background: linear-gradient(
+    135deg,
+    var(--kratos-color-primary-deep) 0%,
+    var(--kratos-color-primary) 100%
+  );
   border-radius: 999rpx;
-  box-shadow: 0 14rpx 28rpx rgba(40, 187, 156, 0.28);
-  color: #fff;
-  fill: #fff;
+  box-shadow: 0 14rpx 28rpx rgba(40, 240, 212, 0.28);
+  color: var(--kratos-color-on-primary);
+  fill: var(--kratos-color-on-primary);
 }
 
 .login-behavior-panel .go-captcha .gc-drag-block.disabled {
@@ -1450,7 +1626,7 @@ onUnload(() => {
 }
 
 .login-behavior-panel .go-captcha .gc-drag-block .gc-icon {
-  color: #fff;
+  color: var(--kratos-color-on-primary);
   font-size: 42rpx;
 }
 
@@ -1482,7 +1658,7 @@ onUnload(() => {
 .login-tips {
   margin-top: 26rpx;
   font-size: 22rpx;
-  color: #999;
+  color: var(--kratos-color-text-muted);
   line-height: 1.6;
 
   .login-agreement {
@@ -1507,28 +1683,28 @@ onUnload(() => {
     width: 26rpx;
     height: 26rpx;
     margin-right: 2rpx;
-    border: 2rpx solid #d1d5db;
+    border: 2rpx solid var(--kratos-color-primary);
     border-radius: 50%;
-    background-color: #fff;
+    background-color: transparent;
     box-sizing: border-box;
   }
 
   .login-agree-icon.checked {
-    border-color: #28bb9c;
-    background-color: #28bb9c;
-    box-shadow: inset 0 0 0 6rpx #fff;
+    border-color: var(--kratos-color-primary);
+    background-color: var(--kratos-color-primary);
+    box-shadow: inset 0 0 0 6rpx var(--kratos-color-on-primary);
   }
 
   .login-agree-link {
     min-width: 0;
     overflow-wrap: anywhere;
-    color: #28bb9c;
+    color: var(--kratos-color-primary);
   }
 
   .login-agree-desc {
     min-width: 0;
     overflow-wrap: anywhere;
-    color: #9ca3af;
+    color: var(--kratos-color-text-muted);
   }
 }
 </style>

@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
-import { useUserStore } from '../stores'
+import { computed, onMounted, ref } from 'vue'
+import { useThemeStore, useUserStore, type ThemeMode } from '../stores'
 import { navigateToLogin } from '../utils/navigation'
 import { getLanguageOptions, useI18n, type SupportedLocale } from '../locales'
 import { isAuthExpiredError } from '../utils/http'
@@ -15,6 +15,7 @@ defineSlots<{
 }>()
 
 const userStore = useUserStore()
+const themeStore = useThemeStore()
 const { locale, setLocale, t } = useI18n()
 
 const logoutLoading = ref(false)
@@ -24,6 +25,17 @@ const mfaEnabled = ref(false)
 const mfaMethod = ref('totp')
 const mfaStatusLoading = ref(false)
 const localeOptions = computed(() => getLanguageOptions())
+const themeModeOptions: ThemeMode[] = ['auto', 'dark', 'light']
+const themeModeLabels = computed(() =>
+  themeModeOptions.map((mode) =>
+    mode === 'auto'
+      ? t('core.theme.auto')
+      : mode === 'dark'
+        ? t('core.theme.dark')
+        : t('core.theme.light'),
+  ),
+)
+const themeModeIndex = computed(() => Math.max(0, themeModeOptions.indexOf(themeStore.mode)))
 const localeLabels = computed(() => localeOptions.value.map((item) => item.native_name))
 const localeIndex = computed(() =>
   Math.max(
@@ -32,9 +44,40 @@ const localeIndex = computed(() =>
   ),
 )
 
-watch(locale, () => void uni.setNavigationBarTitle({ title: t('core.settings.title') }), {
-  immediate: true,
+const settingsIcons = computed(() => {
+  const primary = themeStore.theme === 'light' ? '#039e8c' : '#28f0d4'
+  const warning = themeStore.theme === 'light' ? '#d9880f' : '#ffb648'
+  const violet = themeStore.theme === 'light' ? '#5f4fe0' : '#9b8cff'
+  const createIcon = (body: string, color: string) =>
+    `data:image/svg+xml;charset=utf-8,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${body}</svg>`)}`
+
+  return {
+    theme: createIcon('<path d="M21 12.8A8.5 8.5 0 1 1 11.2 3a6.5 6.5 0 0 0 9.8 9.8Z"/>', primary),
+    mfa: createIcon(
+      '<path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6l-8-3Z"/><path d="m9 12 2 2 4-4"/>',
+      primary,
+    ),
+    language: createIcon(
+      '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/>',
+      primary,
+    ),
+    authorization: createIcon(
+      '<circle cx="8" cy="15" r="4"/><path d="m11 12 7-7 3 3-7 7"/><path d="m15 8 2 2"/>',
+      warning,
+    ),
+    feedback: createIcon('<path d="M4 5h16v12H8l-4 4z"/>', violet),
+    contact: createIcon(
+      '<path d="M4 5c0 9 6 15 15 15 1 0 2-1 2-2v-2l-4-2-2 2a11 11 0 0 1-5-5l2-2-2-4H6c-1 0-2 1-2 2Z"/>',
+      primary,
+    ),
+  }
 })
+
+/** 处理主题外观选择并持久化。 */
+const onThemeModeChange = (event: { detail: { value: string | number } }) => {
+  const nextMode = themeModeOptions[Number(event.detail.value)]
+  if (nextMode) themeStore.setMode(nextMode)
+}
 
 /** 处理语言选择并刷新动态本地化数据。 */
 const onLocaleChange = (event: { detail: { value: string | number } }) => {
@@ -107,6 +150,15 @@ const onMfaDisabled = async () => {
   uni.reLaunch({ url: '/pages/login/login' })
 }
 
+/** 返回个人中心，页面栈不可返回时回到首页。 */
+const onBack = () => {
+  uni.navigateBack({
+    fail: () => {
+      uni.reLaunch({ url: '/pages/index/index' })
+    },
+  })
+}
+
 // 公共设置模块挂载时加载 MFA 状态，兼容页面包装和业务插槽场景。
 onMounted(() => {
   if (!userStore.ensureAuthenticated()) {
@@ -126,7 +178,8 @@ const onLogout = () => {
   // 模态弹窗
   uni.showModal({
     content: t('core.settings.logout_confirm'),
-    confirmColor: '#27BA9B',
+    confirmColor: themeStore.theme === 'light' ? '#039e8c' : '#28f0d4',
+    cancelColor: themeStore.theme === 'light' ? '#5a7083' : '#8aa0b4',
     success: async (res) => {
       if (!res.confirm) {
         return
@@ -153,37 +206,98 @@ const onLogout = () => {
 </script>
 
 <template>
-  <view class="viewport">
+  <view class="settings-page" :class="themeStore.themeClass">
     <slot name="extensions" />
-    <view class="list">
-      <view v-if="userStore.isAuthenticated()" class="item arrow mfa-item" @tap="onMfaTap">
-        <text>{{ t('core.settings.mfa_title') }}</text>
-        <text class="mfa-value">{{ mfaStatusText }}</text>
-      </view>
-      <picker :range="localeLabels" :value="localeIndex" @change="onLocaleChange">
-        <view class="item arrow locale-item">
-          <text>{{ t('common.field.language') }}</text>
-          <text class="locale-value">{{ localeLabels[localeIndex] }}</text>
+    <view class="k-page-nav">
+      <view class="k-page-nav__back" :aria-label="t('common.action.back')" @tap="onBack"></view>
+      <view class="k-page-nav__title">{{ t('core.settings.title') }}</view>
+      <view class="k-page-nav__side" aria-hidden="true"></view>
+    </view>
+    <view class="settings-content">
+      <view class="k-set-cat">{{ t('core.settings.section_appearance') }}</view>
+      <picker :range="themeModeLabels" :value="themeModeIndex" @change="onThemeModeChange">
+        <view class="k-set-row k-set-row--arrow">
+          <view class="k-set-row__lead">
+            <view class="k-set-row__icon">
+              <image class="settings-row__icon" :src="settingsIcons.theme" mode="aspectFit" />
+            </view>
+            <text class="k-set-row__title">{{ t('core.settings.theme') }}</text>
+          </view>
+          <text class="k-set-row__value settings-row__value">{{
+            themeModeLabels[themeModeIndex]
+          }}</text>
         </view>
       </picker>
-    </view>
-    <!-- #ifdef MP-WEIXIN -->
-    <!-- 列表2 -->
-    <view class="list">
-      <button hover-class="none" class="item arrow" open-type="openSetting">
-        {{ t('core.settings.authorization') }}
+
+      <view class="k-set-cat">{{ t('core.settings.section_security') }}</view>
+      <view v-if="userStore.isAuthenticated()" class="k-set-row k-set-row--arrow" @tap="onMfaTap">
+        <view class="k-set-row__lead">
+          <view class="k-set-row__icon">
+            <image class="settings-row__icon" :src="settingsIcons.mfa" mode="aspectFit" />
+          </view>
+          <text class="k-set-row__title">{{ t('core.settings.mfa_title') }}</text>
+        </view>
+        <text
+          class="k-set-row__value settings-row__value"
+          :class="{ 'k-set-row__value--on': mfaEnabled }"
+          >{{ mfaStatusText }}</text
+        >
+      </view>
+      <picker :range="localeLabels" :value="localeIndex" @change="onLocaleChange">
+        <view class="k-set-row k-set-row--arrow">
+          <view class="k-set-row__lead">
+            <view class="k-set-row__icon">
+              <image class="settings-row__icon" :src="settingsIcons.language" mode="aspectFit" />
+            </view>
+            <text class="k-set-row__title">{{ t('common.field.language') }}</text>
+          </view>
+          <text class="k-set-row__value settings-row__value">{{ localeLabels[localeIndex] }}</text>
+        </view>
+      </picker>
+
+      <!-- #ifdef MP-WEIXIN -->
+      <view class="k-set-cat">{{ t('core.settings.section_more') }}</view>
+      <button
+        hover-class="none"
+        class="k-set-row k-set-row--arrow settings-row--button"
+        open-type="openSetting"
+      >
+        <view class="k-set-row__lead">
+          <view class="k-set-row__icon">
+            <image class="settings-row__icon" :src="settingsIcons.authorization" mode="aspectFit" />
+          </view>
+          <text class="k-set-row__title">{{ t('core.settings.authorization') }}</text>
+        </view>
       </button>
-      <button hover-class="none" class="item arrow" open-type="feedback">
-        {{ t('core.settings.feedback') }}
+      <button
+        hover-class="none"
+        class="k-set-row k-set-row--arrow settings-row--button"
+        open-type="feedback"
+      >
+        <view class="k-set-row__lead">
+          <view class="k-set-row__icon">
+            <image class="settings-row__icon" :src="settingsIcons.feedback" mode="aspectFit" />
+          </view>
+          <text class="k-set-row__title">{{ t('core.settings.feedback') }}</text>
+        </view>
       </button>
-      <button hover-class="none" class="item arrow" open-type="contact">
-        {{ t('core.settings.contact') }}
+      <button
+        hover-class="none"
+        class="k-set-row k-set-row--arrow settings-row--button"
+        open-type="contact"
+      >
+        <view class="k-set-row__lead">
+          <view class="k-set-row__icon">
+            <image class="settings-row__icon" :src="settingsIcons.contact" mode="aspectFit" />
+          </view>
+          <text class="k-set-row__title">{{ t('core.settings.contact') }}</text>
+        </view>
       </button>
-    </view>
-    <!-- #endif -->
-    <!-- 操作按钮 -->
-    <view class="action" v-if="userStore.isAuthenticated()">
-      <view @tap="onLogout" class="button">{{ t('common.action.logout') }}</view>
+      <!-- #endif -->
+
+      <view v-if="userStore.isAuthenticated()" class="k-set-logout" @tap="onLogout">{{
+        t('common.action.logout')
+      }}</view>
     </view>
   </view>
   <MfaManageDialog
@@ -196,101 +310,39 @@ const onLogout = () => {
 </template>
 
 <style scoped lang="scss">
-.viewport {
+.settings-page {
   min-height: 100vh;
-  padding: 20rpx;
   box-sizing: border-box;
-  background-color: #f4f4f4;
+  padding: 0 32rpx calc(40rpx + env(safe-area-inset-bottom));
+  background: var(--kratos-bg-gradient);
+}
+.settings-content {
+  padding-bottom: 20rpx;
 }
 
-/* 列表 */
-.list {
-  padding: 0 20rpx;
-  background-color: #fff;
-  margin-bottom: 20rpx;
-  border-radius: 10rpx;
-  .item {
-    line-height: 90rpx;
-    padding-left: 10rpx;
-    font-size: 30rpx;
-    color: #333;
-    border-top: 1rpx solid #ddd;
-    position: relative;
-    text-align: left;
-    border-radius: 0;
-    background-color: #fff;
-    &::after {
-      width: auto;
-      height: auto;
-      left: auto;
-      border: none;
-    }
-    &::after {
-      right: 5rpx;
-    }
-  }
-  > .item:first-child {
-    border: none;
-  }
-  .arrow::after {
-    content: '›';
-    position: absolute;
-    top: 50%;
-    color: #ccc;
-    font-size: 36rpx;
-    transform: translateY(-50%);
-  }
+/* 行图标图片尺寸（挂在 .k-set-row__icon 内的 image 上） */
+.settings-row__icon {
+  width: 38rpx;
+  height: 38rpx;
 }
 
-.locale-item {
-  display: flex;
+/* 行尾值文本截断（配合全局 .k-set-row__value 使用） */
+.settings-row__value {
   min-width: 0;
-  justify-content: space-between;
-  padding-right: 42rpx;
-
-  > text:first-child {
-    flex-shrink: 0;
-  }
-}
-
-.locale-value {
-  flex: 1;
-  min-width: 0;
+  max-width: 45%;
   overflow: hidden;
-  margin-left: 24rpx;
-  color: #888;
-  text-align: right;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.mfa-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding-right: 42rpx;
+/* 小程序 button 皮肤为 .k-set-row：去掉原生边框，保留箭头 ::after */
+.settings-row--button {
+  line-height: normal;
 }
 
-.mfa-value {
-  max-width: 55%;
-  overflow: hidden;
-  color: #888;
-  font-size: 26rpx;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-/* 操作按钮 */
-.action {
-  text-align: center;
-  line-height: 90rpx;
-  margin-top: 40rpx;
-  font-size: 32rpx;
-  color: #333;
-  .button {
-    background-color: #fff;
-    margin-bottom: 20rpx;
-    border-radius: 10rpx;
-  }
+.settings-row--button::after {
+  position: static;
+  border-left: 0;
+  border-bottom: 0;
 }
 </style>

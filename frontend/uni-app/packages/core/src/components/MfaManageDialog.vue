@@ -363,7 +363,7 @@ watch(
 .mfa-bind-dialog__panel {
   width: min(100%, 680rpx);
   overflow: hidden;
-  background-color: #fff;
+  background-color: var(--kratos-color-surface-solid);
   border-radius: 16rpx;
   box-shadow: 0 20rpx 64rpx rgb(0 0 0 / 20%);
 }
@@ -373,17 +373,17 @@ watch(
   align-items: center;
   justify-content: space-between;
   padding: 28rpx 32rpx;
-  border-bottom: 1rpx solid #eee;
+  border-bottom: 1rpx solid var(--kratos-color-border);
 }
 
 .mfa-bind-dialog__title {
-  color: #222;
+  color: var(--kratos-color-text);
   font-size: 34rpx;
   font-weight: 600;
 }
 
 .mfa-bind-dialog__close {
-  color: #999;
+  color: var(--kratos-color-text-muted);
   font-size: 42rpx;
   line-height: 1;
 }
@@ -395,7 +395,7 @@ watch(
 .mfa-bind-dialog__label {
   display: block;
   margin-bottom: 12rpx;
-  color: #333;
+  color: var(--kratos-color-text);
   font-size: 28rpx;
 }
 
@@ -403,9 +403,10 @@ watch(
   box-sizing: border-box;
   width: 100%;
   padding: 20rpx 24rpx;
-  color: #222;
+  color: var(--kratos-color-text);
   font-size: 30rpx;
-  border: 1rpx solid #ddd;
+  border: 1rpx solid var(--kratos-color-border);
+  background-color: var(--kratos-color-surface-2);
   border-radius: 8rpx;
 }
 
@@ -422,7 +423,7 @@ watch(
 }
 
 .mfa-bind-dialog__error {
-  color: #e64340;
+  color: var(--kratos-color-danger);
 }
 
 .mfa-bind-dialog__footer {
@@ -448,16 +449,16 @@ watch(
 }
 
 .mfa-bind-dialog__button--cancel {
-  color: #555;
-  background-color: #f3f3f3;
+  color: var(--kratos-color-text-muted);
+  background-color: var(--kratos-color-track);
 }
 
 .mfa-bind-dialog__button--confirm {
-  color: #fff;
-  background-color: #27ba9b;
+  color: var(--kratos-color-on-primary);
+  background-color: var(--kratos-color-primary);
 }
 
 .mfa-bind-dialog__button--danger {
-  background-color: #e64340;
+  background-color: var(--kratos-color-danger);
 }
 </style>

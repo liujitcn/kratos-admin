@@ -15,7 +15,7 @@
 .mfa-setup-panel__uri-text {
   flex: 1;
   min-width: 0;
-  color: #666;
+  color: var(--kratos-color-text-muted);
   font-size: 24px;
   line-height: 1.5;
   overflow-wrap: anywhere;
@@ -30,8 +30,8 @@
   height: 58px;
   margin: 0;
   padding: 0;
-  color: #27ba9b;
-  background: #f0fbf8;
+  color: var(--kratos-color-primary);
+  background: var(--kratos-color-primary-soft);
   border: 0;
   border-radius: 8px;
 }
@@ -66,5 +66,5 @@
 .mfa-setup-panel__copy-front {
   right: 0;
   bottom: 0;
-  background: #f0fbf8;
+  background: var(--kratos-color-primary-soft);
 }

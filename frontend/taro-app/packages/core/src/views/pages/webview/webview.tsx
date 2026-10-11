@@ -3,6 +3,7 @@ import Taro, { useLoad } from '@tarojs/taro'
 import { useEffect, useState } from 'react'
 import './webview.scss'
 import { useI18n } from '../../../locales'
+import { useThemeStore } from '../../../stores'
 
 /** 只放行 http(s) 外链，其它协议按非法地址处理。 */
 const isAllowedUrl = (value: string) => /^https?:\/\//i.test(value)
@@ -18,6 +19,7 @@ const safeDecodeURIComponent = (value: string) => {
 /** 统一外链承载页。 */
 export default function WebViewPage() {
   const { t } = useI18n()
+  const themeStore = useThemeStore()
   const [url, setUrl] = useState('')
   const [iframeLoaded, setIframeLoaded] = useState(false)
   const [iframeTimedOut, setIframeTimedOut] = useState(false)
@@ -44,7 +46,7 @@ export default function WebViewPage() {
     : t('core.webview.invalid_url')
 
   return (
-    <View className='webview-container'>
+    <View className={`webview-container ${themeStore.theme === 'light' ? 'theme-light' : 'theme-dark'}`}>
       {url ? (
         <WebView src={url} onLoad={() => setIframeLoaded(true)} />
       ) : null}

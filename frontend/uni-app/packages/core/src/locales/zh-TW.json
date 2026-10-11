@@ -115,6 +115,9 @@
   "core.settings.authorization": "授權管理",
   "core.settings.contact": "聯絡我們",
   "core.settings.feedback": "問題反饋",
+  "core.settings.section_appearance": "外觀",
+  "core.settings.section_security": "帳戶安全",
+  "core.settings.section_more": "更多・小程式端",
   "core.settings.logout_confirm": "是否退出登入？",
   "core.settings.logout_failed": "退出登入失敗",
   "core.settings.mfa_bind_success": "多因素認證綁定成功",
@@ -144,5 +147,9 @@
   "common.action.load_more": "載入更多",
   "common.status.loading": "載入中…",
   "core.navigation.analytics": "分析",
-  "core.navigation.report": "報表"
+  "core.navigation.report": "報表",
+  "core.settings.theme": "主題外觀",
+  "core.theme.auto": "跟隨系統",
+  "core.theme.dark": "暗黑",
+  "core.theme.light": "明亮"
 }

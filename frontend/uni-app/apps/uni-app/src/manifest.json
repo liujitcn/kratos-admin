@@ -82,6 +82,8 @@
     "quickapp" : {},
     "mp-weixin" : {
         "appid" : "wx3fe0d8a39051f39a",
+        "darkmode" : true,
+        "themeLocation" : "theme.json",
         "setting" : {
             "minified" : true,
             "urlCheck" : false

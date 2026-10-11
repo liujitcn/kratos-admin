@@ -115,6 +115,9 @@
   "core.settings.authorization": "Authorization settings",
   "core.settings.contact": "Contact us",
   "core.settings.feedback": "Feedback",
+  "core.settings.section_appearance": "Appearance",
+  "core.settings.section_security": "Account security",
+  "core.settings.section_more": "More · Mini Program",
   "core.settings.logout_confirm": "Log out now?",
   "core.settings.logout_failed": "Logout failed",
   "core.settings.mfa_bind_success": "Multi-factor authentication enabled",
@@ -144,5 +147,9 @@
   "common.action.load_more": "Load more",
   "common.status.loading": "Loading…",
   "core.navigation.analytics": "Analytics",
-  "core.navigation.report": "Reports"
+  "core.navigation.report": "Reports",
+  "core.settings.theme": "Theme Appearance",
+  "core.theme.auto": "Follow System",
+  "core.theme.dark": "Dark",
+  "core.theme.light": "Light"
 }

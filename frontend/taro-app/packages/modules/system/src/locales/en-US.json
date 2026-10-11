@@ -100,6 +100,9 @@
   "system.settings.authorization": "Authorization settings",
   "system.settings.contact": "Contact us",
   "system.settings.feedback": "Feedback",
+  "system.settings.section_appearance": "Appearance",
+  "system.settings.section_security": "Account security",
+  "system.settings.section_more": "More · Mini Program",
   "system.settings.go_ask": "Ask now",
   "system.settings.logout_confirm": "Log out now?",
   "system.settings.logout_failed": "Logout failed",
@@ -134,5 +137,14 @@
   "system.ai.model.load_failed": "Failed to load providers and models",
   "system.ai.model.title": "Select Model",
   "system.ai.model.provider_model_count": "{providers} providers · {models} models",
-  "system.ai.model.empty": "No models available"
+  "system.ai.model.empty": "No models available",
+  "system.ai.knowledge.title": "Knowledge Base",
+  "system.ai.knowledge.selected_count": "{count} knowledge base(s) selected",
+  "system.ai.knowledge.doc_count": "{count} doc(s)",
+  "system.ai.knowledge.select_hint": "Select knowledge bases to inject into context",
+  "system.ai.knowledge.empty": "No knowledge base available",
+  "system.settings.theme": "Theme Appearance",
+  "system.settings.theme_auto": "Follow System",
+  "system.settings.theme_dark": "Dark",
+  "system.settings.theme_light": "Light"
 }

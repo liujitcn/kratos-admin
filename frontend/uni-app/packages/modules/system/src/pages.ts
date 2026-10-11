@@ -9,7 +9,9 @@ export const systemPages: Record<string, KratosAppPageConfig> = {
       navigationBarTitleText: '',
     },
   },
-  'pagesMember/settings/settings': { style: { navigationBarTitleText: '' } },
+  'pagesMember/settings/settings': {
+    style: { navigationStyle: 'custom', navigationBarTitleText: '' },
+  },
   'pagesMember/ai/index': {
     style: {
       navigationStyle: 'custom',
@@ -29,5 +31,7 @@ export const systemPages: Record<string, KratosAppPageConfig> = {
       navigationBarTitleText: '',
     },
   },
-  'pagesMember/message/detail': { style: { navigationBarTitleText: '' } },
+  'pagesMember/message/detail': {
+    style: { navigationStyle: 'custom', navigationBarTitleText: '' },
+  },
 }

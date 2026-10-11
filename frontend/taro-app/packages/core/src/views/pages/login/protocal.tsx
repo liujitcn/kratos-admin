@@ -1,8 +1,9 @@
 import { RichText, View } from '@tarojs/components'
 import Taro, { useLoad } from '@tarojs/taro'
 import { useState } from 'react'
-import { useSettingStore } from '../../../stores'
+import { useSettingStore, useThemeStore } from '../../../stores'
 import { useI18n } from '../../../locales'
+import { homeTabPage } from '../../../utils/navigation'
 import './protocal.scss'
 
 const protocolClassMap: Record<string, string> = {
@@ -41,11 +42,14 @@ function decorateProtocolContent(html: string): string {
 /** 服务条款与隐私协议页。 */
 export default function ProtocolPage() {
   const { t } = useI18n()
+  const themeStore = useThemeStore()
   const [content, setContent] = useState('')
+  const [pageTitle, setPageTitle] = useState(t('core.navigation.protocol'))
 
   useLoad((query) => {
     const isPrivacy = query?.type === 'privacy'
     const title = isPrivacy ? t('core.protocol.privacy') : t('core.protocol.service')
+    setPageTitle(title)
     const key = isPrivacy ? 'privacyProtocol' : 'serviceProtocol'
     const settingStore = useSettingStore.getState()
     void settingStore
@@ -53,7 +57,6 @@ export default function ProtocolPage() {
       .then(() => {
         const protocol = settingStore.getData(key)
         if (!protocol) throw new Error(t('core.protocol.not_configured', { title }))
-        void Taro.setNavigationBarTitle({ title })
         setContent(decorateProtocolContent(protocol))
       })
       .catch(async (error: unknown) => {
@@ -65,8 +68,18 @@ export default function ProtocolPage() {
       })
   })
 
+  /** 返回来源页，页面栈为空时回到首页。 */
+  const onBack = () => {
+    void Taro.navigateBack({ fail: () => void Taro.reLaunch({ url: homeTabPage }) })
+  }
+
   return (
-    <View className='protocol-page'>
+    <View className={`protocol-page ${themeStore.theme === 'light' ? 'theme-light' : 'theme-dark'}`}>
+      <View className={`k-page-nav ${process.env.TARO_ENV === 'weapp' ? 'k-page-nav--weapp' : ''}`}>
+        <View className='k-page-nav__back' aria-label={t('common.action.back')} onClick={onBack} />
+        <View className='k-page-nav__title'>{pageTitle}</View>
+        <View className='k-page-nav__side' aria-hidden />
+      </View>
       <View className='protocol-card'>
         <RichText className='protocol-content' nodes={content} />
       </View>

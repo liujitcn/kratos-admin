@@ -1,6 +1,6 @@
 import { Button, Text, View } from '@tarojs/components'
-import { ArrowRight, Refresh } from '@liujitcn/kratos-taro-app-ui'
-import { t, useI18n } from '@liujitcn/kratos-taro-app-core'
+import { UniIcon } from '@liujitcn/kratos-taro-app-ui'
+import { t, useI18n, useThemeStore } from '@liujitcn/kratos-taro-app-core'
 import type { AiShortcut } from '../../../../rpc/base/v1/ai_tool'
 import './welcome-panel.scss'
 
@@ -16,6 +16,9 @@ type WelcomePanelProps = {
 /** AI 助手空会话欢迎面板。 */
 export default function WelcomePanel(props: WelcomePanelProps) {
   useI18n()
+  const themeStore = useThemeStore()
+  const primaryIconColor = themeStore.theme === 'light' ? '#039e8c' : '#28f0d4'
+  const mutedIconColor = themeStore.theme === 'light' ? '#9aabbb' : '#8aa0b4'
   return (
     <View className='welcome-panel'>
       <View className='welcome-row is-hello'>
@@ -46,7 +49,7 @@ export default function WelcomePanel(props: WelcomePanelProps) {
           </View>
           {props.canRefresh ? (
             <Button className='prompt-refresh' hoverClass='none' onClick={props.onRefresh}>
-              <Text>{t('system.ai.refresh')}</Text><Refresh size={25} color='#00a96b' />
+              <Text>{t('system.ai.refresh')}</Text><UniIcon type='refresh' size={25} color={primaryIconColor} />
             </Button>
           ) : null}
         </View>
@@ -67,7 +70,7 @@ export default function WelcomePanel(props: WelcomePanelProps) {
                   <Text className='prompt-text'>{shortcut.title}</Text>
                   <Text className='prompt-meta'>{shortcut.group || t('system.ai.general_assistant')}</Text>
                 </View>
-                <ArrowRight size={20} color='#9aa0aa' />
+                <UniIcon type='right' size={20} color={mutedIconColor} />
               </Button>
             ))
           : null}

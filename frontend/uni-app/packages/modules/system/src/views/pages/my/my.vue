@@ -1,19 +1,37 @@
 <script setup lang="ts">
-import { useSettingStore, useUserStore } from '@liujitcn/kratos-uni-app-core/stores'
+import { useSettingStore, useThemeStore, useUserStore } from '@liujitcn/kratos-uni-app-core/stores'
 import { computed } from 'vue'
 import { formatSrc } from '@liujitcn/kratos-uni-app-core/utils/index'
 import { navigateToLogin } from '@liujitcn/kratos-uni-app-core/utils/navigation'
 import { navigateAppRoute } from '@liujitcn/kratos-uni-app-core'
 import defaultAvatar from '@liujitcn/kratos-uni-app-core/static/images/avatar.png'
-import centerBackground from '@liujitcn/kratos-uni-app-core/static/images/center_bg.png'
 import { useI18n } from '@liujitcn/kratos-uni-app-core'
 
 // 获取会员信息
 const userStore = useUserStore()
 const settingStore = useSettingStore()
+const themeStore = useThemeStore()
 const { t } = useI18n()
 const isLoggedIn = computed(() => userStore.isAuthenticated())
 const profile = computed(() => userStore.userInfo)
+
+/** 昵称或占位账号首字符，用于渐变头像兜底。 */
+const avatarText = computed(() => (profile.value?.nick_name || 'U').slice(0, 1))
+
+/** 设计稿齿轮线稿，随主题取色的 data URI，替代 CSS 手绘图标。 */
+const gearIcon = computed(() => {
+  const color = themeStore.theme === 'light' ? '#102232' : '#e9f4f6'
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.6 1.6 0 0 0 .3 1.8 2 2 0 1 1-2.8 2.8 1.6 1.6 0 0 0-2.7 1.1 2 2 0 1 1-4 0 1.6 1.6 0 0 0-2.6-1.1 2 2 0 1 1-2.8-2.8A1.6 1.6 0 0 0 3 13.9a2 2 0 1 1 0-4 1.6 1.6 0 0 0 1.5-2.7 2 2 0 1 1 2.8-2.8A1.6 1.6 0 0 0 10 4.6a2 2 0 1 1 4 0 1.6 1.6 0 0 0 2.7.6 2 2 0 1 1 2.8 2.8 1.6 1.6 0 0 0-.1 2.6"/></svg>`
+  return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`
+})
+
+/** 个人卡账号行：登录展示账号，未登录提示去登录。 */
+const accountText = computed(() => {
+  if (isLoggedIn.value && profile.value) {
+    return profile.value.user_name || profile.value.nick_name || ''
+  }
+  return t('system.profile.login_prompt')
+})
 
 /** 打开移动端 AI 助手静态页，未登录时先进入登录流程。 */
 const navigateToAi = () => {
@@ -38,207 +56,100 @@ const navigateToProfile = () => navigateAppRoute('app/profile')
 </script>
 
 <template>
-  <scroll-view
-    enable-back-to-top
-    class="viewport"
-    scroll-y
-    :style="{ backgroundImage: `url(${centerBackground})` }"
-  >
-    <!-- 个人资料 -->
-    <view class="profile">
-      <!-- 情况1：已登录 -->
-      <view class="overview" v-if="isLoggedIn && profile">
-        <view @tap="navigateToProfile">
-          <image
-            v-if="profile.avatar"
-            class="avatar"
-            :src="formatSrc(profile.avatar)"
-            mode="aspectFill"
-          ></image>
-          <image v-else class="avatar" :src="defaultAvatar" mode="aspectFill"></image>
-        </view>
-        <view class="meta">
-          <view class="nickname">
-            {{ profile.nick_name }}
-          </view>
-          <view class="extra" @tap="navigateToProfile">
-            <text class="update">{{ t('system.profile.avatar_update') }}</text>
-          </view>
+  <scroll-view enable-back-to-top class="my-viewport" scroll-y :class="themeStore.themeClass">
+    <view class="my-content">
+      <!-- 顶栏：标题 + 设置入口（Tab 根页，无返回） -->
+      <view class="k-top">
+        <view class="k-top__title">{{ t('core.navigation.my') }}</view>
+        <view class="k-ic" @tap="navigateToSettings">
+          <image class="my-gear" :src="gearIcon" mode="aspectFit" />
         </view>
       </view>
-      <!-- 情况2：未登录 -->
-      <view class="overview" v-else>
-        <view @tap="navigateToLogin">
-          <image class="avatar gray" mode="aspectFill" :src="defaultAvatar"></image>
-        </view>
-        <view class="meta">
-          <view @tap="navigateToLogin" class="nickname">{{
-            t('system.profile.not_logged_in')
-          }}</view>
-          <view class="extra">
-            <text class="tips">{{ t('system.profile.login_prompt') }}</text>
+
+      <view class="my-stack">
+        <!-- 个人资料 -->
+        <view class="k-glass k-glass--lit k-pfx my-profile" @tap="navigateToProfile">
+          <view class="k-cnr k-cnr--tr" aria-hidden="true"></view>
+          <view class="k-cnr k-cnr--bl" aria-hidden="true"></view>
+          <view class="my-pfx-main">
+            <image
+              v-if="isLoggedIn && profile"
+              class="k-pfx__av"
+              :src="profile.avatar ? formatSrc(profile.avatar) : defaultAvatar"
+              mode="aspectFill"
+            ></image>
+            <view v-else class="k-pfx__av">{{ avatarText }}</view>
+            <view class="my-pfx-meta">
+              <view class="k-pfx__nm">
+                {{ isLoggedIn && profile ? profile.nick_name : t('system.profile.not_logged_in') }}
+              </view>
+              <view class="k-pfx__ac">{{ accountText }}</view>
+            </view>
           </view>
+          <view class="k-pfx__ent">{{ t('system.profile.title') }} ›</view>
+        </view>
+
+        <!-- AI 助手入口 -->
+        <view v-if="settingStore.aiEnabled" class="k-aix" @tap="navigateToAi">
+          <view class="k-aix__ic">AI</view>
+          <view class="my-aix-copy">
+            <view class="k-aix__t">{{ t('system.settings.ai_title') }}</view>
+            <view class="k-aix__d">{{ t('system.settings.ai_description') }}</view>
+          </view>
+          <view class="k-aix__b">{{ t('system.settings.go_ask') }}</view>
         </view>
       </view>
-      <view class="settings" @tap="navigateToSettings">{{ t('core.settings.title') }}</view>
-    </view>
-    <!-- AI 助手入口 -->
-    <view v-if="settingStore.aiEnabled" class="ai-entry" @tap="navigateToAi">
-      <view class="ai-entry__icon">AI</view>
-      <view class="ai-entry__content">
-        <view class="ai-entry__title">{{ t('system.settings.ai_title') }}</view>
-        <view class="ai-entry__desc">{{ t('system.settings.ai_description') }}</view>
-      </view>
-      <view class="ai-entry__action">{{ t('system.settings.go_ask') }}</view>
     </view>
   </scroll-view>
 </template>
 
 <style lang="scss">
-page {
-  height: 100%;
-  overflow: hidden;
-  background-color: #f7f7f8;
-}
-
-/* AI 助手入口 */
-.ai-entry {
-  position: relative;
-  z-index: 99;
-  display: flex;
-  align-items: center;
-  margin: 20rpx 20rpx 0;
-  padding: 26rpx 24rpx;
-  border-radius: 10rpx;
-  background-color: #fff;
-  box-shadow: 0 4rpx 6rpx rgba(240, 240, 240, 0.6);
-}
-
-.ai-entry__icon {
-  flex-shrink: 0;
-  width: 92rpx;
-  height: 92rpx;
-  border-radius: 24rpx;
-  color: #fff;
-  font-size: 28rpx;
-  font-weight: 700;
-  line-height: 92rpx;
-  text-align: center;
-  background-color: #27ba9b;
-}
-
-.ai-entry__content {
-  flex: 1;
-  min-width: 0;
-  margin-left: 18rpx;
-}
-
-.ai-entry__title {
-  color: #1e1e1e;
-  font-size: 30rpx;
-  font-weight: 600;
-  line-height: 40rpx;
-}
-
-.ai-entry__desc {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  margin-top: 8rpx;
-  color: #747f7c;
-  font-size: 24rpx;
-  line-height: 32rpx;
-}
-
-.ai-entry__action {
-  flex-shrink: 0;
-  margin-left: 16rpx;
-  padding: 10rpx 18rpx;
-  border-radius: 999rpx;
-  color: #16806d;
-  font-size: 24rpx;
-  background-color: #e8f8f4;
-}
-
-.viewport {
+.my-viewport {
   height: 100%;
   min-height: 100vh;
   box-sizing: border-box;
-  background-color: #f7f7f8;
-  background-repeat: no-repeat;
-  background-size: 100% auto;
+  background: var(--kratos-bg-gradient);
 }
 
-/* 用户信息 */
-.profile {
-  margin-top: 30rpx;
-  position: relative;
+.my-content {
+  padding: calc(env(safe-area-inset-top) + 24rpx) 32rpx calc(40rpx + env(safe-area-inset-bottom));
 
   /* #ifdef MP-WEIXIN */
-  padding-top: 44px;
+  padding-top: calc(44px + 24rpx);
   /* #endif */
+}
 
-  .overview {
-    display: flex;
-    height: 120rpx;
-    padding: 0 36rpx;
-    color: #fff;
-  }
+.my-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 24rpx;
+  margin-top: 16rpx;
+}
 
-  .avatar {
-    width: 120rpx;
-    height: 120rpx;
-    border-radius: 50%;
-    background-color: #eee;
-  }
+.my-gear {
+  width: 34rpx;
+  height: 34rpx;
+}
 
-  .gray {
-    filter: grayscale(100%);
-  }
+/* k-pfx 仅定义 flex 排布，卡片内边距交由页面控制 */
+.my-profile {
+  padding: 36rpx 30rpx;
+}
 
-  .meta {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: flex-start;
-    line-height: 30rpx;
-    padding: 16rpx 0;
-    margin-left: 20rpx;
-  }
+.my-pfx-main {
+  display: flex;
+  align-items: center;
+  gap: 24rpx;
+  min-width: 0;
+}
 
-  .nickname {
-    max-width: 180rpx;
-    margin-bottom: 16rpx;
-    font-size: 30rpx;
+.my-pfx-meta {
+  min-width: 0;
+}
 
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  .extra {
-    display: flex;
-    font-size: 20rpx;
-  }
-
-  .tips {
-    font-size: 22rpx;
-  }
-
-  .update {
-    padding: 3rpx 10rpx 1rpx;
-    color: rgba(255, 255, 255, 0.8);
-    border: 1rpx solid rgba(255, 255, 255, 0.8);
-    margin-right: 10rpx;
-    border-radius: 30rpx;
-  }
-
-  .settings {
-    position: absolute;
-    bottom: 0;
-    right: 40rpx;
-    font-size: 30rpx;
-    color: #fff;
-  }
+/* k-aix 中部文案占位伸展 */
+.my-aix-copy {
+  flex: 1;
+  min-width: 0;
 }
 </style>

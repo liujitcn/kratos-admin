@@ -1,18 +1,21 @@
 .kratos-tab-bar {
-  --kratos-tab-bar-color: #333;
-  --kratos-tab-bar-active-color: #27ba9b;
+  --kratos-tab-bar-color: var(--kratos-color-text-dim, #4e6378);
+  --kratos-tab-bar-active-color: var(--kratos-color-primary, #28f0d4);
 
   position: fixed;
-  right: 0;
-  bottom: 0;
-  left: 0;
+  right: 20px;
+  bottom: calc(20px + env(safe-area-inset-bottom));
+  left: 20px;
   z-index: 999;
   box-sizing: border-box;
   display: flex;
-  height: calc(48PX + env(safe-area-inset-bottom));
-  padding-bottom: env(safe-area-inset-bottom);
-  border-top: 1PX solid #eee;
-  background: #fff;
+  height: calc(104px + env(safe-area-inset-bottom));
+  padding: 0 8px env(safe-area-inset-bottom);
+  border: 1PX solid var(--kratos-color-border-accent, rgba(120, 230, 215, 0.16));
+  border-radius: 30px;
+  background: var(--kratos-dock-bg, rgba(10, 18, 30, 0.72));
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(32px);
 }
 
 .kratos-tab-bar__item {
@@ -22,10 +25,23 @@
   align-items: center;
   justify-content: center;
   flex-direction: column;
-  transform: translateY(clamp(1PX, env(safe-area-inset-bottom), 7PX));
   color: var(--kratos-tab-bar-color);
   font-size: 10PX;
   line-height: 12PX;
+}
+
+/* 设计稿：激活项顶部霓虹发光条 */
+.kratos-tab-bar__item--active::before {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 26px;
+  height: 3px;
+  border-radius: 3px;
+  background: var(--kratos-tab-bar-active-color);
+  box-shadow: 0 0 12px var(--kratos-tab-bar-active-color);
+  content: '';
+  transform: translateX(-50%);
 }
 
 .kratos-tab-bar__icon {
@@ -65,7 +81,7 @@
   height: 7PX;
   border-right: 2PX solid var(--kratos-tab-bar-color);
   border-bottom: 2PX solid var(--kratos-tab-bar-color);
-  background: #fff;
+  background: var(--kratos-dock-bg, rgba(10, 18, 30, 0.72));
   content: '';
   transform: rotate(45deg);
 }
@@ -87,6 +103,8 @@
 
 .kratos-tab-bar__text--active {
   color: var(--kratos-tab-bar-active-color);
+  font-weight: 700;
+  text-shadow: 0 0 12px currentColor;
 }
 
 .kratos-tab-bar__badge {
@@ -96,7 +114,8 @@
   width: 10PX;
   height: 10PX;
   box-sizing: border-box;
-  border: 2PX solid #fff;
+  border: 2PX solid var(--kratos-dock-bg, rgba(10, 18, 30, 0.72));
   border-radius: 50%;
-  background: #e5484d;
+  background: var(--kratos-color-danger, #ff4d6d);
+  box-shadow: 0 0 12px var(--kratos-color-danger, #ff4d6d);
 }

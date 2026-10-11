@@ -115,6 +115,9 @@
   "core.settings.authorization": "授权管理",
   "core.settings.contact": "联系我们",
   "core.settings.feedback": "问题反馈",
+  "core.settings.section_appearance": "外观",
+  "core.settings.section_security": "账户安全",
+  "core.settings.section_more": "更多 · 小程序端",
   "core.settings.logout_confirm": "是否退出登录？",
   "core.settings.logout_failed": "退出登录失败",
   "core.settings.mfa_bind_success": "多因素认证绑定成功",
@@ -144,5 +147,9 @@
   "common.action.load_more": "加载更多",
   "common.status.loading": "加载中…",
   "core.navigation.analytics": "分析",
-  "core.navigation.report": "报表"
+  "core.navigation.report": "报表",
+  "core.settings.theme": "主题外观",
+  "core.theme.auto": "跟随系统",
+  "core.theme.dark": "暗黑",
+  "core.theme.light": "明亮"
 }

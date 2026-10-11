@@ -3,11 +3,13 @@ import { computed, onMounted } from 'vue'
 import { resolveModuleIcon, resolveStaticView } from '../module'
 import { APP_MENU_ROOT_ID, useAppMenuBadge, useAppNavigation } from '../navigation'
 import { useI18n } from '../locales'
+import { useThemeStore } from '../stores'
 import { resolveRootMenuId } from '../navigation-tree.mjs'
 
 const props = defineProps<{ route: string }>()
 const { menus, tabBar, navigate } = useAppNavigation()
 const { t } = useI18n()
+const themeStore = useThemeStore()
 
 /** 按稳定 viewKey 优先取界面语言标签，未配置的菜单回退后端标题。 */
 const tabBarTitleKeys: Record<string, string> = {
@@ -19,6 +21,30 @@ const tabBarTitleKeys: Record<string, string> = {
 }
 const tabBarTitle = (item: { viewKey: string; title: string }): string =>
   (tabBarTitleKeys[item.viewKey] ? t(tabBarTitleKeys[item.viewKey]) : '') || item.title
+/** 设计稿导航坞线稿图标（viewKey → SVG path）。 */
+const TAB_ICON_PATHS: Record<string, string> = {
+  HOME: 'M3 11 12 3l9 8M5 10v10h14V10',
+  APP_ANALYTIC: 'M4 20V10M10 20V4M16 20v-7M21 20H3',
+  APP_REPORT: 'M6 4h9l5 5v11H6zM14 4v5h5',
+  MESSAGE_INBOX: 'M4 5h16v12H8l-4 4z',
+  PROFILE_HOME: 'M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM4 21c0-4 3.5-6 8-6s8 2 8 6',
+}
+
+/** 按设计稿线稿生成随主题与激活态取色的图标地址，未知 viewKey 返回空串走后端图标兜底。 */
+const tabIconSrc = (viewKey: string, active: boolean): string => {
+  const path = TAB_ICON_PATHS[viewKey]
+  if (!path) return ''
+  const color = active
+    ? themeStore.theme === 'light'
+      ? '#039e8c'
+      : '#28f0d4'
+    : themeStore.theme === 'light'
+      ? '#9aabbb'
+      : '#4e6378'
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="${path}"/></svg>`
+  return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`
+}
+
 const activeMenu = computed(() => {
   const routeMenu = menus.value.find((menu) => resolveStaticView(menu.viewKey) === props.route)
   if (!routeMenu) return
@@ -36,11 +62,12 @@ onMounted(() => {
 </script>
 
 <template>
-  <view v-if="visible" class="kratos-tab-bar">
+  <view v-if="visible" class="kratos-tab-bar" :class="themeStore.themeClass">
     <view
       v-for="item in tabBar"
       :key="item.id"
       class="kratos-tab-bar__item"
+      :class="{ 'kratos-tab-bar__item--active': activeMenu?.id === item.id }"
       @tap="navigate(item.path)"
     >
       <view
@@ -49,7 +76,13 @@ onMounted(() => {
         aria-hidden="true"
       />
       <image
-        v-if="resolveModuleIcon(item.icon)"
+        v-if="tabIconSrc(item.viewKey, activeMenu?.id === item.id)"
+        class="kratos-tab-bar__icon"
+        :src="tabIconSrc(item.viewKey, activeMenu?.id === item.id)"
+        mode="aspectFit"
+      />
+      <image
+        v-else-if="resolveModuleIcon(item.icon)"
         class="kratos-tab-bar__icon"
         :src="
           resolveModuleIcon(
@@ -73,20 +106,22 @@ onMounted(() => {
 
 <style scoped>
 .kratos-tab-bar {
-  --kratos-tab-bar-color: #333;
-  --kratos-tab-bar-active-color: #27ba9b;
+  --kratos-tab-bar-color: var(--kratos-color-text-dim, #4e6378);
+  --kratos-tab-bar-active-color: var(--kratos-color-primary, #28f0d4);
 
   position: fixed;
-  right: 0;
-  bottom: 0;
-  left: 0;
+  right: 20rpx;
+  bottom: calc(20rpx + env(safe-area-inset-bottom));
+  left: 20rpx;
   z-index: 999;
-  box-sizing: border-box;
   display: flex;
-  height: calc(48px + env(safe-area-inset-bottom));
-  padding-bottom: env(safe-area-inset-bottom);
-  border-top: 1px solid #eee;
-  background: #fff;
+  height: calc(104rpx + env(safe-area-inset-bottom));
+  padding: 0 8rpx env(safe-area-inset-bottom);
+  border: 1rpx solid var(--kratos-color-border-accent, rgba(120, 230, 215, 0.16));
+  border-radius: 30rpx;
+  background: var(--kratos-dock-bg, rgba(10, 18, 30, 0.72));
+  box-shadow: 0 24rpx 64rpx rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(32rpx);
 }
 .kratos-tab-bar__item {
   position: relative;
@@ -95,10 +130,23 @@ onMounted(() => {
   align-items: center;
   justify-content: center;
   flex-direction: column;
-  transform: translateY(clamp(1px, env(safe-area-inset-bottom), 7px));
   color: var(--kratos-tab-bar-color);
   font-size: 10px;
   line-height: 12px;
+}
+
+/* 设计稿：激活项顶部霓虹发光条 */
+.kratos-tab-bar__item--active::before {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 26px;
+  height: 3px;
+  border-radius: 3px;
+  background: var(--kratos-tab-bar-active-color);
+  box-shadow: 0 0 12px var(--kratos-tab-bar-active-color);
+  content: '';
+  transform: translateX(-50%);
 }
 .kratos-tab-bar__icon {
   width: 28px;
@@ -135,7 +183,7 @@ onMounted(() => {
   height: 7px;
   border-right: 2px solid var(--kratos-tab-bar-color);
   border-bottom: 2px solid var(--kratos-tab-bar-color);
-  background: #fff;
+  background: var(--kratos-dock-bg, rgba(10, 18, 30, 0.72));
   content: '';
   transform: rotate(45deg);
 }
@@ -153,6 +201,8 @@ onMounted(() => {
 }
 .kratos-tab-bar__text--active {
   color: var(--kratos-tab-bar-active-color);
+  font-weight: 700;
+  text-shadow: 0 0 12px currentColor;
 }
 .kratos-tab-bar__badge {
   position: absolute;
@@ -161,8 +211,9 @@ onMounted(() => {
   width: 10px;
   height: 10px;
   box-sizing: border-box;
-  border: 2px solid #fff;
+  border: 2px solid var(--kratos-dock-bg, rgba(10, 18, 30, 0.72));
   border-radius: 50%;
-  background: #e5484d;
+  background: var(--kratos-color-danger, #ff4d6d);
+  box-shadow: 0 0 12px var(--kratos-color-danger, #ff4d6d);
 }
 </style>

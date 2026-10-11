@@ -115,6 +115,9 @@
   "core.settings.authorization": "認可管理",
   "core.settings.contact": "お問い合わせ",
   "core.settings.feedback": "問題のフィードバック",
+  "core.settings.section_appearance": "外観",
+  "core.settings.section_security": "アカウントセキュリティ",
+  "core.settings.section_more": "その他・ミニプログラム",
   "core.settings.logout_confirm": "ログアウトしますか?",
   "core.settings.logout_failed": "ログアウトに失敗しました",
   "core.settings.mfa_bind_success": "多要素認証を有効にしました",
@@ -144,5 +147,9 @@
   "common.action.load_more": "さらに読み込む",
   "common.status.loading": "読み込み中…",
   "core.navigation.analytics": "分析",
-  "core.navigation.report": "レポート"
+  "core.navigation.report": "レポート",
+  "core.settings.theme": "テーマ外観",
+  "core.theme.auto": "システムに従う",
+  "core.theme.dark": "ダーク",
+  "core.theme.light": "ライト"
 }

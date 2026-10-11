@@ -23,6 +23,7 @@ import Composer from './components/Composer.vue'
 import SessionDrawer from './components/SessionDrawer.vue'
 import WelcomePanel from './components/WelcomePanel.vue'
 import { navigateAppRoute, useI18n } from '@liujitcn/kratos-uni-app-core'
+import { useThemeStore } from '@liujitcn/kratos-uni-app-core/stores'
 import {
   type AiStreamEvent,
   type AiStreamPayload,
@@ -72,6 +73,9 @@ const PENDING_MESSAGE_ID = 'pending'
 const MAX_ATTACHMENT_COUNT = 6
 const STARTER_PROMPT_PAGE_SIZE = 4
 const { locale, t } = useI18n()
+const themeStore = useThemeStore()
+/** 导航图标随主题取色，uni-icons 的 color 属性不接受 CSS 变量。 */
+const navIconColor = computed(() => (themeStore.theme === 'light' ? '#102232' : '#e9f4f6'))
 
 const windowInfo = uni.getWindowInfo()
 let safeAreaTop =
@@ -476,13 +480,21 @@ async function loadAiShortcuts() {
   }
   loadingShortcuts.value = true
   try {
-    const [response, providerResponse, knowledgeResponse] = await Promise.all([
+    const [shortcutResult, providerResult, knowledgeResult] = await Promise.allSettled([
       defAiToolService.ListAiShortcut({ terminal: AI_TERMINAL }),
       defAiModelService.ListAiProviderModelOptions({}),
       defAiKnowledgeService.ListAiKnowledgeOptions({}),
     ])
+    if (shortcutResult.status === 'rejected') throw shortcutResult.reason
+    if (providerResult.status === 'rejected') throw providerResult.reason
+    if (knowledgeResult.status === 'rejected' && isAuthExpiredError(knowledgeResult.reason)) {
+      throw knowledgeResult.reason
+    }
+    const response = shortcutResult.value
+    const providerResponse = providerResult.value
     modelProviders.value = providerResponse.providers ?? []
-    knowledgeOptions.value = knowledgeResponse.options ?? []
+    knowledgeOptions.value =
+      knowledgeResult.status === 'fulfilled' ? (knowledgeResult.value.options ?? []) : []
     selectedKnowledgeIds.value = selectedKnowledgeIds.value.filter((id) =>
       knowledgeOptions.value.some((option) => option.id === id),
     )
@@ -497,6 +509,7 @@ async function loadAiShortcuts() {
     selectedProviderId.value = 0
     selectedModelName.value = ''
     knowledgeOptions.value = []
+    selectedKnowledgeIds.value = []
     showError(error, t('system.ai.load_shortcuts_failed'))
   } finally {
     loadingShortcuts.value = false
@@ -1262,14 +1275,14 @@ function showError(error: unknown, fallback: string) {
 </script>
 
 <template>
-  <view class="ai-page">
+  <view class="ai-page" :class="themeStore.themeClass">
     <view class="ai-navbar">
       <button class="nav-back-button" hover-class="none" @tap="navigateBack">
-        <uni-icons type="left" size="24" color="#111" />
+        <uni-icons type="left" size="24" :color="navIconColor" />
       </button>
       <view class="ai-navbar__title">{{ t('system.ai.chat_title') }}</view>
       <button class="nav-menu-button" hover-class="none" @tap="toggleSessionDrawer">
-        <uni-icons type="bars" size="24" color="#111" />
+        <uni-icons type="bars" size="24" :color="navIconColor" />
       </button>
     </view>
 
@@ -1383,12 +1396,6 @@ function showError(error: unknown, fallback: string) {
 </template>
 
 <style lang="scss">
-page {
-  height: 100%;
-  overflow: hidden;
-  background-color: #f6f6f6;
-}
-
 .ai-page {
   position: relative;
   display: flex;
@@ -1397,8 +1404,8 @@ page {
   height: 100vh;
   height: 100dvh;
   overflow: hidden;
-  color: #333;
-  background-color: #f6f6f6;
+  color: var(--kratos-color-text);
+  background: var(--kratos-bg-gradient);
 }
 
 .ai-navbar {
@@ -1407,8 +1414,8 @@ page {
   align-items: center;
   justify-content: space-between;
   box-sizing: border-box;
-  background-color: #fff;
-  border-bottom: 1rpx solid #eceef1;
+  background: var(--kratos-color-surface);
+  border-bottom: 1rpx solid var(--kratos-color-border-accent);
 
   height: 44px;
 
@@ -1466,9 +1473,9 @@ page {
 
 .ai-navbar__title {
   flex: 1;
-  color: #111;
+  color: var(--kratos-color-text);
   font-size: 32rpx;
-  font-weight: 600;
+  font-weight: 700;
   text-align: center;
 }
 
@@ -1502,16 +1509,21 @@ page {
 }
 
 .user-bubble {
-  color: #fff;
-  background-color: #27ba9b;
+  color: var(--kratos-color-on-primary);
+  background: linear-gradient(
+    135deg,
+    var(--kratos-color-primary-deep) 0%,
+    var(--kratos-color-primary) 100%
+  );
   border-bottom-right-radius: 6rpx;
+  box-shadow: 0 0 24rpx rgba(40, 240, 212, 0.25);
 }
 
 .ai-bubble {
-  color: #333;
-  background-color: #fff;
+  color: var(--kratos-color-text);
+  background: var(--kratos-color-surface);
+  border: 1rpx solid var(--kratos-color-border);
   border-bottom-left-radius: 6rpx;
-  box-shadow: 0 8rpx 24rpx rgba(15, 23, 42, 0.05);
 }
 
 .bubble.is-streaming {
@@ -1529,12 +1541,13 @@ page {
   align-items: center;
   gap: 12rpx;
   margin-bottom: 8rpx;
-  color: #8a8f99;
+  color: var(--kratos-color-text-muted);
   font-size: 20rpx;
+  font-family: var(--kratos-font-mono);
 }
 
 .reply-tag {
-  color: #16806d;
+  color: var(--kratos-color-primary);
 }
 
 .attachment-list {
@@ -1548,8 +1561,9 @@ page {
   max-width: 100%;
   padding: 12rpx;
   margin-top: 8rpx;
-  border-radius: 10rpx;
-  background-color: rgba(255, 255, 255, 0.72);
+  border: 1rpx solid var(--kratos-color-border);
+  border-radius: 12rpx;
+  background: var(--kratos-color-surface-2);
   box-sizing: border-box;
 }
 
@@ -1557,12 +1571,13 @@ page {
   flex-shrink: 0;
   width: 48rpx;
   height: 48rpx;
-  border-radius: 8rpx;
-  color: #16806d;
-  font-size: 22rpx;
-  line-height: 48rpx;
+  border-radius: 10rpx;
+  color: var(--kratos-color-primary);
+  font-size: 20rpx;
+  line-height: 46rpx;
   text-align: center;
-  background-color: #e8f8f4;
+  background: var(--kratos-color-primary-soft);
+  border: 1rpx solid var(--kratos-color-primary-edge);
 }
 
 .attachment-info {
@@ -1583,14 +1598,16 @@ page {
 
 .attachment-meta {
   margin-top: 4rpx;
-  color: #8a8f99;
+  color: var(--kratos-color-text-muted);
   font-size: 19rpx;
+  font-family: var(--kratos-font-mono);
 }
 
 .tool-row,
 .loading-session {
-  color: #8a8f99;
+  color: var(--kratos-color-text-muted);
   font-size: 22rpx;
+  font-family: var(--kratos-font-mono);
   line-height: 34rpx;
 }
 

@@ -9,8 +9,10 @@ export const corePages: Record<string, KratosTaroPageConfig> = {
       navigationBarTitleText: '',
     },
   },
-  'pages/login/login': { style: { navigationBarTitleText: '' } },
-  'pages/login/protocal': { style: { navigationBarTitleText: '' } },
+  'pages/login/login': {
+    style: { navigationStyle: 'custom', navigationBarTitleText: '' },
+  },
+  'pages/login/protocal': { style: { navigationStyle: 'custom', navigationBarTitleText: '' } },
   'pages/webview/webview': { style: { navigationBarTitleText: '' } },
   'pages/status/index': {
     style: {

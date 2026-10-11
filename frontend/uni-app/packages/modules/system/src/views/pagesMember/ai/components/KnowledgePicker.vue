@@ -74,7 +74,7 @@ function handleToggle(knowledgeId: number) {
 .knowledge-picker__mask {
   position: absolute;
   inset: 0;
-  background: rgba(0, 0, 0, 0.45);
+  background: var(--kratos-color-mask, rgba(2, 6, 12, 0.55));
 }
 
 .knowledge-picker__sheet {
@@ -84,7 +84,7 @@ function handleToggle(knowledgeId: number) {
   width: 100%;
   max-height: 62vh;
   padding: 10px 20px calc(20px + env(safe-area-inset-bottom));
-  background: #fff;
+  background: var(--kratos-color-surface-solid, #070d18);
   border-radius: 20px 20px 0 0;
 }
 
@@ -92,7 +92,7 @@ function handleToggle(knowledgeId: number) {
   width: 36px;
   height: 4px;
   margin: 0 auto 10px;
-  background: #e5e6eb;
+  background: var(--kratos-color-track, rgba(255, 255, 255, 0.06));
   border-radius: 2px;
 }
 
@@ -105,21 +105,28 @@ function handleToggle(knowledgeId: number) {
 .knowledge-picker__title {
   font-size: 17px;
   font-weight: 600;
-  color: #111;
+  color: var(--kratos-color-text, #e9f4f6);
 }
 
 .knowledge-picker__count {
   flex: 1;
   font-size: 12px;
-  color: #8a8f99;
+  color: var(--kratos-color-text-muted, #8aa0b4);
 }
 
 .knowledge-picker__close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44rpx;
+  height: 44rpx;
   padding: 0;
+  margin: 0;
   font-size: 16px;
-  line-height: 1;
-  color: #8a8f99;
+  line-height: normal;
+  color: var(--kratos-color-text-muted, #8aa0b4);
   background: transparent;
+  border-radius: 0;
 }
 
 .knowledge-picker__close::after {
@@ -129,7 +136,7 @@ function handleToggle(knowledgeId: number) {
 .knowledge-picker__hint {
   margin-top: 6px;
   font-size: 12px;
-  color: #8a8f99;
+  color: var(--kratos-color-text-muted, #8aa0b4);
 }
 
 .knowledge-picker__body {
@@ -142,7 +149,7 @@ function handleToggle(knowledgeId: number) {
   justify-content: space-between;
   gap: 12px;
   padding: 12px 4px;
-  border-bottom: 1px solid #f2f3f5;
+  border-bottom: 1rpx solid var(--kratos-color-border, #e3eaf2);
 }
 
 .knowledge-picker__row-main {
@@ -154,12 +161,12 @@ function handleToggle(knowledgeId: number) {
 
 .knowledge-picker__row-name {
   font-size: 15px;
-  color: #111;
+  color: var(--kratos-color-text, #e9f4f6);
 }
 
 .knowledge-picker__row-meta {
   font-size: 12px;
-  color: #8a8f99;
+  color: var(--kratos-color-text-muted, #8aa0b4);
 }
 
 .knowledge-picker__check {
@@ -168,14 +175,14 @@ function handleToggle(knowledgeId: number) {
   justify-content: center;
   width: 22px;
   height: 22px;
-  border: 1px solid #d0d2d6;
+  border: 1rpx solid var(--kratos-color-border, #d0d2d6);
   border-radius: 50%;
   font-size: 13px;
-  color: #fff;
+  color: var(--kratos-color-on-primary, #031513);
 }
 
 .knowledge-picker__check.is-checked {
-  background: #00a96b;
-  border-color: #00a96b;
+  background: var(--kratos-color-primary, #28f0d4);
+  border-color: var(--kratos-color-primary, #28f0d4);
 }
 </style>

@@ -1,7 +1,7 @@
-import { useLoad } from '@tarojs/taro'
+import Taro, { useLoad } from '@tarojs/taro'
 import { Button, RichText, Text, View } from '@tarojs/components'
 import { useState } from 'react'
-import { navigateAppView, t } from '@liujitcn/kratos-taro-app-core'
+import { homeTabPage, navigateAppView, t, useThemeStore } from '@liujitcn/kratos-taro-app-core'
 import { UniIcon } from '@liujitcn/kratos-taro-app-ui'
 import { defNotificationService } from '../../../api/base/v1/notification'
 import type { Notification } from '../../../rpc/base/v1/notification'
@@ -11,6 +11,7 @@ import './message.scss'
 
 /** Taro 站内信详情页面。 */
 export default function MessageDetailPage() {
+  const themeStore = useThemeStore()
   const [detail, setDetail] = useState<Notification>()
 
   useLoad((options) => {
@@ -53,32 +54,49 @@ export default function MessageDetailPage() {
     navigateAppView(detail.action_target, params)
   }
 
-  if (!detail) return <View className='empty'>{t('core.status.loading')}</View>
+  /** 返回消息列表，页面栈为空时回到首页。 */
+  function onBack() {
+    void Taro.navigateBack({ fail: () => void Taro.reLaunch({ url: homeTabPage }) })
+  }
+
   return (
-    <View className='detail-page'>
-      <Text className='detail-title'>{detail.title}</Text>
-      <View className='detail-meta'>
-        <View className='detail-category' style={{ color: detail.category_color || undefined }}>
-          <UniIcon
-            className='detail-category__icon'
-            type={resolveMessageCategoryIcon(detail.category_icon)}
-            size={18}
-            color={detail.category_color || '#64748b'}
-          />
-          <Text>{detail.category_name}</Text>
-        </View>
-        <Text>{resolveSenderName(detail.sender_name)}</Text>
-        <Text>{detail.received_at}</Text>
+    <View
+      className={`detail-page ${themeStore.theme === 'light' ? 'theme-light' : 'theme-dark'}`}
+    >
+      <View className={`k-page-nav ${process.env.TARO_ENV === 'weapp' ? 'k-page-nav--weapp' : ''}`}>
+        <View className='k-page-nav__back' aria-label={t('common.action.back')} onClick={onBack} />
+        <View className='k-page-nav__title'>{t('system.notification.title')}</View>
+        <View className='k-page-nav__side' aria-hidden />
       </View>
-      {detail.content_format === MessageContentFormat.MESSAGE_CONTENT_FORMAT_RICH_TEXT ? (
-        <RichText className='detail-content-rich' nodes={detail.content} />
+      {detail ? (
+        <>
+          <Text className='detail-title'>{detail.title}</Text>
+          <View className='detail-meta'>
+            <View className='detail-category' style={{ color: detail.category_color || undefined }}>
+              <UniIcon
+                className='detail-category__icon'
+                type={resolveMessageCategoryIcon(detail.category_icon)}
+                size={18}
+                color={detail.category_color || '#64748b'}
+              />
+              <Text>{detail.category_name}</Text>
+            </View>
+            <Text>{resolveSenderName(detail.sender_name)}</Text>
+            <Text>{detail.received_at}</Text>
+          </View>
+          {detail.content_format === MessageContentFormat.MESSAGE_CONTENT_FORMAT_RICH_TEXT ? (
+            <RichText className='detail-content-rich' nodes={detail.content} />
+          ) : (
+            <Text className='detail-content'>{detail.content}</Text>
+          )}
+          {detail.action_type === MessageActionType.MESSAGE_ACTION_TYPE_VIEW_KEY && (
+            <Button className='detail-action' onClick={openAction}>
+              {t('common.action.view')}
+            </Button>
+          )}
+        </>
       ) : (
-        <Text className='detail-content'>{detail.content}</Text>
-      )}
-      {detail.action_type === MessageActionType.MESSAGE_ACTION_TYPE_VIEW_KEY && (
-        <Button className='detail-action' onClick={openAction}>
-          {t('common.action.view')}
-        </Button>
+        <View className='detail-loading'>{t('core.status.loading')}</View>
       )}
     </View>
   )

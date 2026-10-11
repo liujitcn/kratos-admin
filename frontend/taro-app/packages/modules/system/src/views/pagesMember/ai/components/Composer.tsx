@@ -1,9 +1,12 @@
 import { Button, Text, Textarea, View } from '@tarojs/components'
 import { useMemo, useState } from 'react'
+import { t, useThemeStore } from '@liujitcn/kratos-taro-app-core'
 import { UniIcon } from '@liujitcn/kratos-taro-app-ui'
 import type { AiAttachment } from '../../../../rpc/base/v1/ai_session'
 import type { AiProviderModelOption } from '../../../../rpc/base/v1/ai_provider'
+import type { AiKnowledgeOption } from '../../../../rpc/base/v1/ai_knowledge'
 import { fallbackModelDisplayName } from '../modelDisplay'
+import KnowledgePicker from './KnowledgePicker'
 import ModelPicker from './ModelPicker'
 import './composer.scss'
 
@@ -16,6 +19,9 @@ type ComposerProps = {
   /** 当前选中的供应商编号和模型名称。 */
   providerId: number
   modelName: string
+  /** 当前可供选择的知识库及已选择编号。 */
+  knowledgeOptions: AiKnowledgeOption[]
+  knowledgeIds: number[]
   /** 选择器未配置时显示的本地化占位文字。 */
   modelPlaceholder: string
   placeholder: string
@@ -29,11 +35,16 @@ type ComposerProps = {
   onSend: () => void
   onRemoveAttachment: (attachment: AiAttachment) => void
   onModelChange: (providerId: number, modelName: string) => void
+  onKnowledgeChange: (knowledgeIds: number[]) => void
 }
 
 /** AI 助手消息输入器。 */
 export default function Composer(props: ComposerProps) {
   const [showModelPicker, setShowModelPicker] = useState(false)
+  const [showKnowledgePicker, setShowKnowledgePicker] = useState(false)
+  const themeStore = useThemeStore()
+  const iconColor = themeStore.theme === 'light' ? '#5a7083' : '#8aa0b4'
+  const primaryIconColor = themeStore.theme === 'light' ? '#039e8c' : '#28f0d4'
 
   const selectedModelDisplayName = useMemo(() => {
     const provider = props.modelProviders.find((item) => item.provider_id === props.providerId)
@@ -53,6 +64,20 @@ export default function Composer(props: ComposerProps) {
     props.onModelChange(providerId, modelName)
   }
 
+  /** 打开可用知识库选择器。 */
+  const openKnowledgePicker = () => {
+    if (props.sending || !props.knowledgeOptions.length) return
+    setShowKnowledgePicker(true)
+  }
+
+  /** 切换知识库选择并通知页面。 */
+  const handleKnowledgeToggle = (knowledgeId: number) => {
+    const current = new Set(props.knowledgeIds)
+    if (current.has(knowledgeId)) current.delete(knowledgeId)
+    else current.add(knowledgeId)
+    props.onKnowledgeChange([...current])
+  }
+
   return (
     <View className='composer' style={{ paddingBottom: props.bottom }}>
       <View
@@ -65,9 +90,21 @@ export default function Composer(props: ComposerProps) {
         </Text>
         <Text className='composer-model-chip__chevron'>▾</Text>
       </View>
+      <View
+        className={`composer-model-chip${props.sending || !props.knowledgeOptions.length ? ' is-disabled' : ''}${props.knowledgeIds.length ? ' is-selected' : ''}`}
+        onClick={openKnowledgePicker}
+      >
+        <Text className='composer-model-chip__spark'>📚</Text>
+        <Text className='composer-model-chip__label'>
+          {props.knowledgeIds.length
+            ? t('system.ai.knowledge.selected_count', { count: props.knowledgeIds.length })
+            : t('system.ai.knowledge.title')}
+        </Text>
+        <Text className='composer-model-chip__chevron'>▾</Text>
+      </View>
       <View className='composer-main'>
         <Button className='attach-button' hoverClass='none' onClick={props.onAttach}>
-          <UniIcon type='plusempty' size={30} color='#111' />
+          <UniIcon type='plusempty' size={30} color={iconColor} />
         </Button>
         <View className='composer-card'>
           {props.attachments.length ? (
@@ -97,7 +134,7 @@ export default function Composer(props: ComposerProps) {
             hoverClass='none'
             onClick={props.onRecord}
           >
-            <UniIcon type='mic' size={28} color={props.recording ? '#00a96b' : '#111'} />
+            <UniIcon type='mic' size={28} color={props.recording ? primaryIconColor : iconColor} />
           </Button>
         </View>
         <Button
@@ -106,7 +143,11 @@ export default function Composer(props: ComposerProps) {
           hoverClass='none'
           onClick={props.onSend}
         >
-          <UniIcon type='paperplane' size={28} color={props.disabled ? '#111' : '#00a96b'} />
+          <UniIcon
+            type='paperplane'
+            size={28}
+            color={props.disabled ? iconColor : primaryIconColor}
+          />
         </Button>
       </View>
 
@@ -117,6 +158,14 @@ export default function Composer(props: ComposerProps) {
           modelName={props.modelName}
           onSelect={handleModelSelect}
           onClose={() => setShowModelPicker(false)}
+        />
+      ) : null}
+      {showKnowledgePicker ? (
+        <KnowledgePicker
+          options={props.knowledgeOptions}
+          selectedIds={props.knowledgeIds}
+          onToggle={handleKnowledgeToggle}
+          onClose={() => setShowKnowledgePicker(false)}
         />
       ) : null}
     </View>

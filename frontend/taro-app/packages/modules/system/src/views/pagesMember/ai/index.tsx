@@ -8,6 +8,7 @@ import {
   t,
   uploadFile,
   useI18n,
+  useThemeStore,
 } from '@liujitcn/kratos-taro-app-core'
 import { UniIcon } from '@liujitcn/kratos-taro-app-ui'
 import { isAuthExpiredError } from '@liujitcn/kratos-taro-app-core/utils/http'
@@ -15,8 +16,10 @@ import { defAiMessageService, StreamAiMessageByChunkedRequest } from '../../../a
 import { defAiSessionService } from '../../../api/base/v1/ai_session'
 import { defAiToolService } from '../../../api/base/v1/ai_tool'
 import { defAiModelService } from '../../../api/base/v1/ai_provider'
+import { defAiKnowledgeService } from '../../../api/base/v1/ai_knowledge'
 import type { AiAttachment, AiMessage, AiSession } from '../../../rpc/base/v1/ai_session'
 import type { AiProviderModelOption } from '../../../rpc/base/v1/ai_provider'
+import type { AiKnowledgeOption } from '../../../rpc/base/v1/ai_knowledge'
 import type { AiShortcut, AiToolCall } from '../../../rpc/base/v1/ai_tool'
 import { AiMessageStatus } from '../../../rpc/base/v1/ai_session'
 import { Terminal } from '../../../rpc/base/v1/ai_tool'
@@ -67,6 +70,9 @@ const STARTER_PROMPT_PAGE_SIZE = 4
 /** AI 助手页面。 */
 export default function AiPage() {
   const { locale } = useI18n()
+  const themeStore = useThemeStore()
+  /** 导航图标随主题取色，UniIcon 的 color 属性不接受 CSS 变量。 */
+  const navIconColor = themeStore.theme === 'light' ? '#102232' : '#e9f4f6'
   const windowInfo = Taro.getWindowInfo() as ReturnType<typeof Taro.getWindowInfo> & {
     safeAreaInsets?: { top?: number; bottom?: number }
   }
@@ -100,6 +106,8 @@ export default function AiPage() {
   const [modelProviders, setModelProviders] = useState<AiProviderModelOption[]>([])
   const [selectedProviderId, setSelectedProviderId] = useState(0)
   const [selectedModelName, setSelectedModelName] = useState('')
+  const [knowledgeOptions, setKnowledgeOptions] = useState<AiKnowledgeOption[]>([])
+  const [selectedKnowledgeIds, setSelectedKnowledgeIds] = useState<number[]>([])
   const [starterShortcuts, setStarterShortcuts] = useState<AiShortcut[]>(createDefaultShortcuts)
 
   const activeSessionIDRef = useRef('')
@@ -359,13 +367,24 @@ export default function AiPage() {
     if (loadingShortcutsRef.current) return
     setLoadingShortcuts(true)
     try {
-      const [response, providerResponse] = await Promise.all([
+      const [shortcutResult, providerResult, knowledgeResult] = await Promise.allSettled([
         defAiToolService.ListAiShortcut({ terminal: AI_TERMINAL }),
         defAiModelService.ListAiProviderModelOptions({}),
+        defAiKnowledgeService.ListAiKnowledgeOptions({}),
       ])
+      if (shortcutResult.status === 'rejected') throw shortcutResult.reason
+      if (providerResult.status === 'rejected') throw providerResult.reason
+      if (knowledgeResult.status === 'rejected' && isAuthExpiredError(knowledgeResult.reason)) {
+        throw knowledgeResult.reason
+      }
+      const response = shortcutResult.value
+      const providerResponse = providerResult.value
       const shortcuts = normalizeStarterShortcuts(response.shortcuts).filter((item) => !item.action)
       const providers = providerResponse.providers ?? []
       setModelProviders(providers)
+      const options = knowledgeResult.status === 'fulfilled' ? knowledgeResult.value.options ?? [] : []
+      setKnowledgeOptions(options)
+      setSelectedKnowledgeIds((ids) => ids.filter((id) => options.some((option) => option.id === id)))
       applyModelSelection(providers)
       if (shortcuts.length) {
         setStarterShortcuts(shortcuts)
@@ -375,6 +394,8 @@ export default function AiPage() {
       setModelProviders([])
       setSelectedProviderId(0)
       setSelectedModelName('')
+      setKnowledgeOptions([])
+      setSelectedKnowledgeIds([])
       showError(error, t('system.ai.load_shortcuts_failed'))
     } finally {
       setLoadingShortcuts(false)
@@ -385,6 +406,11 @@ export default function AiPage() {
     setSelectedProviderId(providerId)
     setSelectedModelName(modelName)
     saveModelSelection({ provider_id: providerId, model_name: modelName })
+  }
+
+  /** 更新当前聊天检索注入的知识库选择。 */
+  const handleKnowledgeChange = (knowledgeIds: number[]) => {
+    setSelectedKnowledgeIds(knowledgeIds)
   }
 
   /** 优先恢复本地缓存的模型选择，缓存失效时回退到首个可用模型。 */
@@ -417,7 +443,7 @@ export default function AiPage() {
       content: payload.text,
       provider_id: selectedProviderId,
       model_name: selectedModelName,
-      knowledge_base_ids: [],
+      knowledge_base_ids: selectedKnowledgeIds,
       attachments: payload.attachments,
       action: undefined,
     }
@@ -506,7 +532,6 @@ export default function AiPage() {
   })
 
   useEffect(() => {
-    void Taro.setNavigationBarTitle({ title: t('system.ai.chat_title') })
     setStarterShortcuts(createDefaultShortcuts())
     setStarterPromptGroupIndex(0)
   }, [locale])
@@ -559,6 +584,7 @@ export default function AiPage() {
       }),
       confirmText: t('common.action.delete'),
       confirmColor: '#cf4444',
+      cancelColor: themeStore.theme === 'light' ? '#5a7083' : '#8aa0b4',
     })
     if (!result.confirm) return
     try {
@@ -695,14 +721,16 @@ export default function AiPage() {
   }
 
   return (
-    <View className='ai-page'>
+    <View
+      className={`ai-page ${themeStore.theme === 'light' ? 'theme-light' : 'theme-dark'}`}
+    >
       <View className={`ai-navbar${process.env.TARO_ENV === 'weapp' ? ' is-weapp' : ''}`}>
         <Button className='nav-back-button' hoverClass='none' onClick={navigateBack}>
-          <UniIcon type='left' size={24} color='#111' />
+          <UniIcon type='left' size={24} color={navIconColor} />
         </Button>
         <View className='ai-navbar__title'>{t('system.ai.chat_title')}</View>
         <Button className='nav-menu-button' hoverClass='none' onClick={() => setShowSessionDrawer((open) => !open)}>
-          <UniIcon type='bars' size={24} color='#111' />
+          <UniIcon type='bars' size={24} color={navIconColor} />
         </Button>
       </View>
       <ScrollView
@@ -773,6 +801,8 @@ export default function AiPage() {
         modelProviders={modelProviders}
         providerId={selectedProviderId}
         modelName={selectedModelName}
+        knowledgeOptions={knowledgeOptions}
+        knowledgeIds={selectedKnowledgeIds}
         modelPlaceholder={t('system.ai.model.model_placeholder')}
         placeholder={composerPlaceholder}
         bottom={composerBottom}
@@ -792,6 +822,7 @@ export default function AiPage() {
         }}
         onSend={() => void handleSend()}
         onModelChange={handleModelChange}
+        onKnowledgeChange={handleKnowledgeChange}
         onRemoveAttachment={(attachment) => setSelectedAttachments((current) => current.filter((item) => item !== attachment))}
       />
       <SessionDrawer

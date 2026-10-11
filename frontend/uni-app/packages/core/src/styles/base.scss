@@ -1,3 +1,6 @@
+@use './theme.scss';
+@use './components.scss';
+
 view,
 navigator,
 input,
@@ -40,3 +43,57 @@ image {
   color: #dd524d;
   margin-right: 8rpx;
  }
+
+/* ============================================================
+ * H5 系统弹层随主题：uni.showModal/showToast 渲染在 body 下，
+ * 取不到页面根类，用 theme store 镜像到 html 上的主题类着色。
+ * ============================================================ */
+/* #ifdef H5 */
+html.theme-light page {
+  background-color: #eef3f8;
+}
+
+html.theme-dark page {
+  background-color: #060a12;
+}
+
+html.theme-dark .uni-modal {
+  background-color: #070d18;
+}
+
+html.theme-dark .uni-modal__title {
+  color: #e9f4f6;
+}
+
+html.theme-dark .uni-modal__bd {
+  color: #8aa0b4;
+}
+
+html.theme-dark .uni-modal__btn_default {
+  color: #8aa0b4;
+}
+
+html.theme-dark .uni-modal__btn_primary {
+  color: #28f0d4;
+}
+
+html.theme-dark .uni-toast,
+html.theme-dark .uni-sample-toast {
+  background: rgba(10, 18, 30, 0.9);
+  border: 1px solid rgba(120, 230, 215, 0.16);
+  color: #e9f4f6;
+}
+
+/* Chrome 密码自动填充默认涂浅蓝底，用不透明内阴影盖回主题色 */
+html.theme-dark .uni-input-input:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0 1000px #121b2a inset;
+  -webkit-text-fill-color: #e9f4f6;
+  caret-color: #e9f4f6;
+}
+
+html.theme-light .uni-input-input:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0 1000px #eef4fa inset;
+  -webkit-text-fill-color: #102232;
+  caret-color: #102232;
+}
+/* #endif */

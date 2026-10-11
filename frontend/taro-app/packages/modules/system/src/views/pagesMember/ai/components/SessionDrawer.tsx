@@ -1,6 +1,6 @@
 import { Button, Input, ScrollView, Text, View } from '@tarojs/components'
-import { More, Plus, Search } from '@liujitcn/kratos-taro-app-ui'
-import { t, useI18n } from '@liujitcn/kratos-taro-app-core'
+import { UniIcon } from '@liujitcn/kratos-taro-app-ui'
+import { t, useI18n, useThemeStore } from '@liujitcn/kratos-taro-app-core'
 import type { AiSession } from '../../../../rpc/base/v1/ai_session'
 import './session-drawer.scss'
 
@@ -39,6 +39,9 @@ function formatSessionTime(session: AiSession) {
 /** AI 助手历史会话抽屉。 */
 export default function SessionDrawer(props: SessionDrawerProps) {
   useI18n()
+  const themeStore = useThemeStore()
+  const primaryIconColor = themeStore.theme === 'light' ? '#039e8c' : '#28f0d4'
+  const mutedIconColor = themeStore.theme === 'light' ? '#5a7083' : '#8aa0b4'
   return (
     <>
       {props.open ? <View className='session-mask' onClick={props.onClose} /> : null}
@@ -49,12 +52,12 @@ export default function SessionDrawer(props: SessionDrawerProps) {
         <View className='session-drawer__head'>
           <View className='session-drawer__title'>{t('system.ai.history')}</View>
           <Button className='session-create' hoverClass='none' onClick={props.onCreate}>
-            <Plus size={16} color='#27ba9b' />
+            <UniIcon type='plusempty' size={16} color={primaryIconColor} />
             <Text>{t('common.action.new')}</Text>
           </Button>
         </View>
         <View className='session-search'>
-          <Search size={16} color='#898b94' />
+          <UniIcon type='search' size={16} color={mutedIconColor} />
           <Input
             className='session-search-input'
             confirmType='search'
@@ -88,7 +91,7 @@ export default function SessionDrawer(props: SessionDrawerProps) {
                   props.onAction(session)
                 }}
               >
-                <More size={22} color='#9ca3af' />
+                <UniIcon type='more' size={22} color={mutedIconColor} />
               </Button>
             </View>
           ))}

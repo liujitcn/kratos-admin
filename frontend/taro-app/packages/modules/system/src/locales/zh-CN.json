@@ -100,6 +100,9 @@
   "system.settings.authorization": "授权管理",
   "system.settings.contact": "联系我们",
   "system.settings.feedback": "问题反馈",
+  "system.settings.section_appearance": "外观",
+  "system.settings.section_security": "账户安全",
+  "system.settings.section_more": "更多 · 小程序端",
   "system.settings.go_ask": "去提问",
   "system.settings.logout_confirm": "是否退出登录？",
   "system.settings.logout_failed": "退出登录失败",
@@ -134,5 +137,14 @@
   "system.ai.model.load_failed": "加载供应商和模型失败",
   "system.ai.model.title": "选择模型",
   "system.ai.model.provider_model_count": "{providers} 个供应商 · {models} 个模型",
-  "system.ai.model.empty": "暂无可选模型"
+  "system.ai.model.empty": "暂无可选模型",
+  "system.ai.knowledge.title": "知识库",
+  "system.ai.knowledge.selected_count": "已选 {count} 个知识库",
+  "system.ai.knowledge.doc_count": "{count} 篇文档",
+  "system.ai.knowledge.select_hint": "勾选要注入上下文的知识库",
+  "system.ai.knowledge.empty": "暂无知识库",
+  "system.settings.theme": "主题外观",
+  "system.settings.theme_auto": "跟随系统",
+  "system.settings.theme_dark": "暗黑",
+  "system.settings.theme_light": "明亮"
 }

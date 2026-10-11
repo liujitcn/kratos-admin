@@ -24,12 +24,14 @@
     {
       "path": "pages/login/login",
       "style": {
+        "navigationStyle": "custom",
         "navigationBarTitleText": ""
       }
     },
     {
       "path": "pages/login/protocal",
       "style": {
+        "navigationStyle": "custom",
         "navigationBarTitleText": ""
       }
     },
@@ -99,12 +101,14 @@
         {
           "path": "settings/settings",
           "style": {
+            "navigationStyle": "custom",
             "navigationBarTitleText": ""
           }
         },
         {
           "path": "message/detail",
           "style": {
+            "navigationStyle": "custom",
             "navigationBarTitleText": ""
           }
         },

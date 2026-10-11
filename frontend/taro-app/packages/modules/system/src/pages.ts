@@ -9,7 +9,7 @@ export const systemPages: Record<string, KratosTaroPageConfig> = {
       navigationBarTitleText: '',
     },
   },
-  'pagesMember/settings/settings': { style: { navigationBarTitleText: '' } },
+  'pagesMember/settings/settings': { style: { navigationStyle: 'custom', navigationBarTitleText: '' } },
   'pagesMember/ai/index': {
     style: {
       navigationStyle: 'custom',
@@ -29,5 +29,5 @@ export const systemPages: Record<string, KratosTaroPageConfig> = {
       navigationBarTitleText: '',
     },
   },
-  'pagesMember/message/detail': { style: { navigationBarTitleText: '' } },
+  'pagesMember/message/detail': { style: { navigationStyle: 'custom', navigationBarTitleText: '' } },
 }

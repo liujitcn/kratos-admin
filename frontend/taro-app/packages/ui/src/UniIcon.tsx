@@ -8,7 +8,11 @@ export type UniIconName =
   | 'paperplane'
   | 'paperplane-filled'
   | 'left'
+  | 'right'
   | 'bars'
+  | 'search'
+  | 'more'
+  | 'refresh'
   | 'notification'
   | 'notification-filled'
   | 'locked-filled'
@@ -36,7 +40,11 @@ const iconUnicode: Record<UniIconName, string> = {
   paperplane: '\ue672',
   'paperplane-filled': '\ue675',
   left: '\ue6b7',
+  right: '\ue6b5',
   bars: '\ue627',
+  search: '\ue654',
+  more: '\ue64d',
+  refresh: '\ue657',
   notification: '\ue6a6',
   'notification-filled': '\ue6c1',
   'locked-filled': '\ue668',

@@ -2,7 +2,7 @@ import { computed, readonly, ref } from 'vue'
 import { defBaseMenuService } from './api/system/app/v1/base_menu'
 import type { BaseMenu, ListBaseMenuResponse } from './rpc/system/app/v1/base_menu'
 import { hasValidToken } from './utils/auth'
-import { navigateToLogin } from './utils/navigation'
+import { redirectToLogin } from './utils/navigation'
 import { resolveStaticView } from './module'
 import { matchLogicalPath, parseLogicalQuery } from './navigation-pattern.mjs'
 import { buildMenuTree } from './navigation-tree.mjs'
@@ -233,8 +233,9 @@ export function navigateAppRoute(rawRoute: string, options: { replace?: boolean 
     launchAppStatus('NOT_FOUND')
     return
   }
+  // 守卫拦截用替换式跳转：登录页顶掉当前页，返回时不再弹回被拦截的页面形成循环。
   if (resolved.menu.access === 'AUTHENTICATED' && !hasValidToken()) {
-    navigateToLogin(`/pages/bootstrap/index?route=${encodeURIComponent(rawRoute)}`)
+    redirectToLogin(`/pages/bootstrap/index?route=${encodeURIComponent(rawRoute)}`)
     return
   }
   if (resolved.menu.access === 'GUEST_ONLY' && hasValidToken()) {

@@ -80,6 +80,18 @@ export function navigateToLogin(redirectUrl?: string): void {
   })
 }
 
+/** 跳转登录页并替换当前页面：路由守卫使用，避免反复拦截时在页面栈堆积登录页。 */
+export function redirectToLogin(redirectUrl?: string): void {
+  if (typeof redirectUrl === 'string' && redirectUrl) saveLoginRedirectUrl(redirectUrl)
+  else saveCurrentRoute()
+  void Taro.redirectTo({
+    url: LOGIN_PAGE,
+    fail: () => {
+      void Taro.reLaunch({ url: LOGIN_PAGE })
+    },
+  })
+}
+
 /** 返回首页。 */
 export function switchTabToHome(): Promise<TaroGeneral.CallbackResult> {
   return Taro.reLaunch({ url: homeTabPage })

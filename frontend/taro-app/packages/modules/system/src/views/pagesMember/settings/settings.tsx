@@ -1,12 +1,15 @@
-import { Button, Picker, Text, View } from '@tarojs/components'
+import { Button, Image, Picker, Text, View } from '@tarojs/components'
 import Taro, { useLoad } from '@tarojs/taro'
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import {
   useLocaleStore,
   navigateToLogin,
   type SupportedLocale,
   useI18n,
+  useThemeStore,
   useUserStore,
+  type ThemeMode,
+  homeTabPage,
 } from '@liujitcn/kratos-taro-app-core'
 import { defMfaService } from '@liujitcn/kratos-taro-app-core/api/base/v1/mfa'
 import { isAuthExpiredError } from '@liujitcn/kratos-taro-app-core/utils/http'
@@ -16,6 +19,14 @@ import './settings.scss'
 /** 应用设置页。 */
 export default function SettingsPage() {
   const { locale, setLocale, t } = useI18n()
+  const themeStore = useThemeStore()
+  const themeModeOptions: ThemeMode[] = ['auto', 'dark', 'light']
+  const themeModeLabels = [
+    t('system.settings.theme_auto'),
+    t('system.settings.theme_dark'),
+    t('system.settings.theme_light'),
+  ]
+  const themeModeIndex = Math.max(0, themeModeOptions.indexOf(themeStore.mode))
   const languageOptions = useLocaleStore((state) => state.languageOptions)
   const [logoutLoading, setLogoutLoading] = useState(false)
   const [mfaStatusLoading, setMfaStatusLoading] = useState(false)
@@ -34,10 +45,29 @@ export default function SettingsPage() {
     0,
     languageOptions.findIndex((item) => item.language_code === locale),
   )
+  const settingsIcons = useMemo(() => {
+    const primary = themeStore.theme === 'light' ? '#039e8c' : '#28f0d4'
+    const warning = themeStore.theme === 'light' ? '#d9880f' : '#ffb648'
+    const violet = themeStore.theme === 'light' ? '#5f4fe0' : '#9b8cff'
+    const createIcon = (body: string, color: string) =>
+      'data:image/svg+xml;charset=utf-8,' +
+      encodeURIComponent(
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="' +
+          color +
+          '" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">' +
+          body +
+          '</svg>',
+      )
 
-  useEffect(() => {
-    void Taro.setNavigationBarTitle({ title: t('system.settings.title') })
-  }, [locale, t])
+    return {
+      theme: createIcon('<path d="M21 12.8A8.5 8.5 0 1 1 11.2 3a6.5 6.5 0 0 0 9.8 9.8Z"/>', primary),
+      mfa: createIcon('<path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6l-8-3Z"/><path d="m9 12 2 2 4-4"/>', primary),
+      language: createIcon('<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/>', primary),
+      authorization: createIcon('<circle cx="8" cy="15" r="4"/><path d="m11 12 7-7 3 3-7 7"/><path d="m15 8 2 2"/>', warning),
+      feedback: createIcon('<path d="M4 5h16v12H8l-4 4z"/>', violet),
+      contact: createIcon('<path d="M4 5c0 9 6 15 15 15 1 0 2-1 2-2v-2l-4-2-2 2a11 11 0 0 1-5-5l2-2-2-4H6c-1 0-2 1-2 2Z"/>', primary),
+    }
+  }, [themeStore.theme])
 
   const loadMfaStatus = async (force = false) => {
     if (!useUserStore.getState().isAuthenticated() || (mfaStatusLoading && !force)) return
@@ -110,11 +140,19 @@ export default function SettingsPage() {
     void loadMfaStatus()
   })
 
+  /** 返回个人中心，页面栈不可返回时回到首页。 */
+  const onBack = () => {
+    void Taro.navigateBack({
+      fail: () => void Taro.reLaunch({ url: homeTabPage }),
+    })
+  }
+
   const onLogout = async () => {
     if (logoutLoading) return
     const result = await Taro.showModal({
       content: t('system.settings.logout_confirm'),
-      confirmColor: '#27BA9B',
+      confirmColor: themeStore.theme === 'light' ? '#039e8c' : '#28f0d4',
+      cancelColor: themeStore.theme === 'light' ? '#5a7083' : '#8aa0b4',
     })
     if (!result.confirm) return
     setLogoutLoading(true)
@@ -132,29 +170,58 @@ export default function SettingsPage() {
 
   return (
     <>
-      <View className='settings-viewport'>
-        {process.env.TARO_ENV === 'weapp' ? (
-          <View className='settings-list'>
-            <Button
-              className='settings-item settings-arrow'
-              hoverClass='none'
-              openType='openSetting'
-            >
-              {t('system.settings.authorization')}
-            </Button>
-            <Button className='settings-item settings-arrow' hoverClass='none' openType='feedback'>
-              {t('system.settings.feedback')}
-            </Button>
-            <Button className='settings-item settings-arrow' hoverClass='none' openType='contact'>
-              {t('system.settings.contact')}
-            </Button>
+      <View
+        className={`settings-viewport ${
+          themeStore.theme === 'light' ? 'theme-light' : 'theme-dark'
+        }`}
+      >
+        <View className={`k-page-nav ${process.env.TARO_ENV === 'weapp' ? 'k-page-nav--weapp' : ''}`}>
+          <View className='k-page-nav__back' aria-label={t('common.action.back')} onClick={onBack}>
           </View>
-        ) : null}
-        <View className='settings-list'>
+          <View className='k-page-nav__title'>{t('system.settings.title')}</View>
+          <View className='k-page-nav__side' aria-hidden />
+        </View>
+
+        <View className='settings-content'>
+          <View className='k-set-cat'>{t('system.settings.section_appearance')}</View>
+          <Picker
+            mode='selector'
+            range={themeModeLabels}
+            value={themeModeIndex}
+            onChange={(event) => {
+              const nextMode = themeModeOptions[Number(event.detail.value)]
+              if (nextMode) themeStore.setMode(nextMode)
+            }}
+          >
+            <View className='k-set-row k-set-row--arrow'>
+              <View className='k-set-row__lead'>
+                <View className='k-set-row__icon'>
+                  <Image className='settings-row__icon' src={settingsIcons.theme} mode='aspectFit' />
+                </View>
+                <Text className='k-set-row__title'>{t('system.settings.theme')}</Text>
+              </View>
+              <Text className='k-set-row__value settings-row__value'>
+                {themeModeLabels[themeModeIndex]}
+              </Text>
+            </View>
+          </Picker>
+
+          <View className='k-set-cat'>{t('system.settings.section_security')}</View>
           {authenticated ? (
-            <View className='settings-item settings-arrow settings-mfa' onClick={onMfaTap}>
-              <Text>{t('system.settings.mfa_title')}</Text>
-              <Text className='settings-mfa__value'>{mfaStatusText}</Text>
+            <View className='k-set-row k-set-row--arrow' onClick={onMfaTap}>
+              <View className='k-set-row__lead'>
+                <View className='k-set-row__icon'>
+                  <Image className='settings-row__icon' src={settingsIcons.mfa} mode='aspectFit' />
+                </View>
+                <Text className='k-set-row__title'>{t('system.settings.mfa_title')}</Text>
+              </View>
+              <Text
+                className={`k-set-row__value settings-row__value ${
+                  mfaEnabled ? 'k-set-row__value--on' : ''
+                }`}
+              >
+                {mfaStatusText}
+              </Text>
             </View>
           ) : null}
           <Picker
@@ -168,19 +235,77 @@ export default function SettingsPage() {
               if (nextLocale) void setLocale(nextLocale)
             }}
           >
-            <View className='settings-item settings-arrow settings-locale'>
-              <Text>{t('common.field.language')}</Text>
-              <Text className='settings-locale__value'>{localeLabels[localeIndex]}</Text>
+            <View className='k-set-row k-set-row--arrow'>
+              <View className='k-set-row__lead'>
+                <View className='k-set-row__icon'>
+                  <Image className='settings-row__icon' src={settingsIcons.language} mode='aspectFit' />
+                </View>
+                <Text className='k-set-row__title'>{t('common.field.language')}</Text>
+              </View>
+              <Text className='k-set-row__value settings-row__value'>{localeLabels[localeIndex]}</Text>
             </View>
           </Picker>
-        </View>
-        {authenticated ? (
-          <View className='settings-action'>
-            <View className='settings-button' onClick={() => void onLogout()}>
+
+          {process.env.TARO_ENV === 'weapp' ? (
+            <>
+              <View className='k-set-cat'>{t('system.settings.section_more')}</View>
+              <Button
+                className='k-set-row k-set-row--arrow settings-row--button'
+                hoverClass='none'
+                openType='openSetting'
+              >
+                <View className='k-set-row__lead'>
+                  <View className='k-set-row__icon'>
+                    <Image
+                      className='settings-row__icon'
+                      src={settingsIcons.authorization}
+                      mode='aspectFit'
+                    />
+                  </View>
+                  <Text className='k-set-row__title'>{t('system.settings.authorization')}</Text>
+                </View>
+              </Button>
+              <Button
+                className='k-set-row k-set-row--arrow settings-row--button'
+                hoverClass='none'
+                openType='feedback'
+              >
+                <View className='k-set-row__lead'>
+                  <View className='k-set-row__icon'>
+                    <Image
+                      className='settings-row__icon'
+                      src={settingsIcons.feedback}
+                      mode='aspectFit'
+                    />
+                  </View>
+                  <Text className='k-set-row__title'>{t('system.settings.feedback')}</Text>
+                </View>
+              </Button>
+              <Button
+                className='k-set-row k-set-row--arrow settings-row--button'
+                hoverClass='none'
+                openType='contact'
+              >
+                <View className='k-set-row__lead'>
+                  <View className='k-set-row__icon'>
+                    <Image
+                      className='settings-row__icon'
+                      src={settingsIcons.contact}
+                      mode='aspectFit'
+                    />
+                  </View>
+                  <Text className='k-set-row__title'>{t('system.settings.contact')}</Text>
+                </View>
+              </Button>
+            </>
+          ) : null}
+
+          {authenticated ? (
+            <View className='k-set-logout' onClick={() => void onLogout()}>
               {t('common.action.logout')}
             </View>
-          </View>
-        ) : null}
+          ) : null}
+        </View>
       </View>
       <PasswordVerifyDialog
         open={mfaDialogOpen}

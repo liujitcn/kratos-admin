@@ -1,0 +1,66 @@
+/* ============================================================
+ * Kratos 移动端主题令牌（暗黑 / 明亮双主题）
+ * 变量挂在页面根类 .theme-dark / .theme-light 上，页面样式只消费变量。
+ * ============================================================ */
+
+/* 暗黑主题：深色数据驾驶舱 */
+.theme-dark {
+  --kratos-color-background: #060a12;
+  --kratos-bg-gradient: linear-gradient(180deg, #081120 0%, #060a12 40%);
+  --kratos-color-surface: rgba(255, 255, 255, 0.035);
+  --kratos-color-surface-2: rgba(255, 255, 255, 0.06);
+  --kratos-color-surface-solid: #070d18;
+  --kratos-color-border: rgba(255, 255, 255, 0.08);
+  --kratos-color-border-accent: rgba(120, 230, 215, 0.16);
+  --kratos-color-primary: #28f0d4;
+  --kratos-color-primary-deep: #13c7b4;
+  --kratos-color-on-primary: #031513;
+  --kratos-color-primary-soft: rgba(40, 240, 212, 0.08);
+  --kratos-color-primary-soft-2: rgba(40, 240, 212, 0.1);
+  --kratos-color-primary-edge: rgba(40, 240, 212, 0.3);
+  --kratos-color-info: #45c2ff;
+  --kratos-color-warning: #ffb648;
+  --kratos-color-danger: #ff4d6d;
+  --kratos-color-danger-soft: rgba(255, 77, 109, 0.1);
+  --kratos-color-violet: #9b8cff;
+  --kratos-color-text: #e9f4f6;
+  --kratos-color-text-muted: #8aa0b4;
+  --kratos-color-text-dim: #4e6378;
+  --kratos-color-track: rgba(255, 255, 255, 0.06);
+  --kratos-color-mask: rgba(2, 6, 12, 0.55);
+  --kratos-dock-bg: rgba(10, 18, 30, 0.72);
+  --kratos-glow: 0 0 24px rgba(40, 240, 212, 0.35);
+  --kratos-glow-soft: 0 0 40px rgba(40, 240, 212, 0.06);
+  --kratos-font-mono: ui-monospace, 'SF Mono', 'JetBrains Mono', Menlo, monospace;
+}
+
+/* 明亮主题 */
+.theme-light {
+  --kratos-color-background: #eef3f8;
+  --kratos-bg-gradient: linear-gradient(180deg, #f4f9fd 0%, #e9f1f8 60%);
+  --kratos-color-surface: #ffffff;
+  --kratos-color-surface-2: #eef4fa;
+  --kratos-color-surface-solid: #ffffff;
+  --kratos-color-border: #e3eaf2;
+  --kratos-color-border-accent: rgba(0, 150, 134, 0.28);
+  --kratos-color-primary: #039e8c;
+  --kratos-color-primary-deep: #00b3a0;
+  --kratos-color-on-primary: #ffffff;
+  --kratos-color-primary-soft: rgba(3, 158, 140, 0.08);
+  --kratos-color-primary-soft-2: rgba(3, 158, 140, 0.1);
+  --kratos-color-primary-edge: rgba(3, 158, 140, 0.3);
+  --kratos-color-info: #1a93d8;
+  --kratos-color-warning: #d9880f;
+  --kratos-color-danger: #e0324f;
+  --kratos-color-danger-soft: rgba(224, 50, 79, 0.1);
+  --kratos-color-violet: #5f4fe0;
+  --kratos-color-text: #102232;
+  --kratos-color-text-muted: #5a7083;
+  --kratos-color-text-dim: #9aabbb;
+  --kratos-color-track: #e8eef5;
+  --kratos-color-mask: rgba(16, 34, 50, 0.45);
+  --kratos-dock-bg: rgba(255, 255, 255, 0.82);
+  --kratos-glow: 0 10px 26px rgba(0, 120, 110, 0.14);
+  --kratos-glow-soft: none;
+  --kratos-font-mono: ui-monospace, 'SF Mono', 'JetBrains Mono', Menlo, monospace;
+}

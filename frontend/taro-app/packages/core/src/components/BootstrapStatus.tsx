@@ -1,6 +1,7 @@
 import { Image, Text, View } from '@tarojs/components'
 import './BootstrapStatus.scss'
 import { useI18n } from '../locales'
+import { useThemeStore } from '../stores'
 
 /** 启动状态组件参数。 */
 export interface BootstrapStatusProps {
@@ -11,8 +12,9 @@ export interface BootstrapStatusProps {
 /** 全屏启动状态。 */
 export function BootstrapStatus({ title, detail }: BootstrapStatusProps) {
   const { t } = useI18n()
+  const themeStore = useThemeStore()
   return (
-    <View className='bootstrap-status'>
+    <View className={`bootstrap-status ${themeStore.theme === 'light' ? 'theme-light' : 'theme-dark'}`}>
       <Image
         className='bootstrap-status__logo'
         src='/static/images/logo_icon.png'

@@ -13,9 +13,10 @@
 .composer {
   flex-shrink: 0;
   width: 100%;
-  padding: 14px 24px 18px;
+  padding: 14px 24px calc(18px + env(safe-area-inset-bottom));
   overflow: hidden;
-  background-color: transparent;
+  background: var(--kratos-color-surface, #fff);
+  border-top: 1PX solid var(--kratos-color-border-accent, rgba(0, 150, 134, 0.28));
   box-sizing: border-box;
 }
 
@@ -27,11 +28,10 @@
   height: 56px;
   padding: 0 24px;
   margin: 0 8px 12px;
-  color: #1f2937;
-  background: #fff;
-  border: 2px solid #d6dae2;
+  color: var(--kratos-color-text, #102232);
+  background: var(--kratos-color-surface, #fff);
+  border: 1PX solid var(--kratos-color-border-accent, rgba(0, 150, 134, 0.28));
   border-radius: 28px;
-  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);
   box-sizing: border-box;
 }
 
@@ -41,7 +41,7 @@
 
 .composer-model-chip__spark {
   flex-shrink: 0;
-  color: #00a96b;
+  color: var(--kratos-color-primary, #039e8c);
   font-size: 26px;
   line-height: 26px;
 }
@@ -59,7 +59,7 @@
 
 .composer-model-chip__chevron {
   flex-shrink: 0;
-  color: #8a8f99;
+  color: var(--kratos-color-text-muted, #5a7083);
   font-size: 22px;
   line-height: 22px;
 }
@@ -70,9 +70,9 @@
   gap: 16px;
   min-height: 124px;
   padding: 22px 18px;
+  border: 1PX solid var(--kratos-color-border, #e3eaf2);
   border-radius: 24px;
-  background-color: #fff;
-  box-shadow: 0 12px 34px rgba(15, 23, 42, 0.08);
+  background: var(--kratos-color-surface, #fff);
   box-sizing: border-box;
 }
 
@@ -83,9 +83,10 @@
   justify-content: center;
   width: 72px;
   height: 72px;
-  border: 2px solid #d6dae2;
+  border: 1PX solid var(--kratos-color-border, #e3eaf2);
   border-radius: 50%;
-  background-color: #fff;
+  background: var(--kratos-color-surface, #fff);
+  color: var(--kratos-color-text-muted, #5a7083);
   box-shadow: none;
   box-sizing: border-box;
 }
@@ -99,9 +100,9 @@
   gap: 10px;
   min-height: 72px;
   padding: 0 12px 0 28px;
-  border: 2px solid #d6dae2;
+  border: 1PX solid var(--kratos-color-border, #e3eaf2);
   border-radius: 38px;
-  background-color: #fff;
+  background: var(--kratos-color-surface-2, #eef4fa);
   box-shadow: none;
   box-sizing: border-box;
 }
@@ -120,11 +121,12 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   padding: 6px 12px;
+  border: 1PX solid var(--kratos-color-primary-edge, rgba(0, 150, 134, 0.3));
   border-radius: 8px;
-  color: #16806d;
+  color: var(--kratos-color-primary, #039e8c);
   font-size: 20px;
   line-height: 28px;
-  background-color: #e8f8f4;
+  background: var(--kratos-color-primary-soft, rgba(3, 158, 140, 0.08));
 }
 
 .composer-input {
@@ -134,14 +136,14 @@
   max-height: 126px;
   padding: 14px 0;
   box-sizing: border-box;
-  color: #333;
+  color: var(--kratos-color-text, #102232);
   font-size: 29px;
   line-height: 42px;
   overflow-y: auto;
-  background-color: transparent;
+  background: transparent;
 }
 
-.composer-placeholder { color: #8d929c; font-size: 29px; }
+.composer-placeholder { color: var(--kratos-color-text-dim, #9aabbb); font-size: 29px; }
 
 .voice-button,
 .send-button {
@@ -153,7 +155,10 @@
 }
 
 .voice-button { width: 60px; height: 60px; background-color: transparent; }
-.voice-button.active { background-color: #e8f8f4; }
-.send-button { width: 74px; height: 74px; background-color: #f2f2f2; }
-.send-button.is-disabled { background-color: #f2f2f2; }
-.send-button:not(.is-disabled) { background-color: #e7f7f2; }
+.voice-button.active { background: var(--kratos-color-primary-soft, rgba(3, 158, 140, 0.08)); }
+.send-button { width: 74px; height: 74px; background: var(--kratos-color-track, #e8eef5); }
+.send-button.is-disabled { background: var(--kratos-color-track, #e8eef5); }
+.send-button:not(.is-disabled) {
+  background: var(--kratos-color-primary-soft-2, rgba(3, 158, 140, 0.1));
+  border: 1PX solid var(--kratos-color-primary-edge, rgba(0, 150, 134, 0.3));
+}

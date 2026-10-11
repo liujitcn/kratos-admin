@@ -100,7 +100,10 @@ async function loadNavigationRuntime(state, environment = 'weapp') {
               return { loader: 'js', contents: 'export function hasValidToken() { return false }' }
             }
             if (args.path === 'navigation-utils-test-runtime') {
-              return { loader: 'js', contents: 'export function navigateToLogin() {}' }
+              return {
+                loader: 'js',
+                contents: 'export function navigateToLogin() {}\nexport function redirectToLogin() {}',
+              }
             }
             if (args.path === 'module-test-runtime') {
               return {

@@ -175,9 +175,9 @@
 }
 
 .welcome-bubble {
-  color: #111;
-  background-color: #fff;
-  box-shadow: 0 10px 32px rgba(15, 23, 42, 0.04);
+  color: var(--kratos-color-text, #e9f4f6);
+  background: var(--kratos-color-surface, #fff);
+  border: 1PX solid var(--kratos-color-border, rgba(255, 255, 255, 0.08));
   box-sizing: border-box;
 }
 
@@ -204,10 +204,10 @@
 .prompt-card {
   margin-top: 34px;
   padding: 30px 28px 24px;
-  border: 1px solid #e7ecef;
-  border-radius: 10px;
-  background: linear-gradient(180deg, rgba(0, 169, 107, 0.05), rgba(255, 255, 255, 0) 38%), #fff;
-  box-shadow: 0 10px 34px rgba(15, 23, 42, 0.05);
+  border: 1PX solid var(--kratos-color-border-accent, rgba(120, 230, 215, 0.16));
+  border-radius: 16px;
+  background: var(--kratos-color-surface, #fff);
+  box-shadow: var(--kratos-glow-soft, none);
   box-sizing: border-box;
 }
 
@@ -219,8 +219,19 @@
   margin-bottom: 18px;
 }
 
-.prompt-card__eyebrow { color: #00a96b; font-size: 22px; font-weight: 600; line-height: 30px; }
-.prompt-card__title { color: #111; font-size: 31px; font-weight: 700; line-height: 42px; }
+.prompt-card__eyebrow {
+  color: var(--kratos-color-primary, #28f0d4);
+  font-size: 22px;
+  font-family: var(--kratos-font-mono, monospace);
+  font-weight: 600;
+  line-height: 30px;
+}
+.prompt-card__title {
+  color: var(--kratos-color-text, #e9f4f6);
+  font-size: 31px;
+  font-weight: 700;
+  line-height: 42px;
+}
 
 .prompt-refresh {
   flex-shrink: 0;
@@ -228,12 +239,12 @@
   align-items: center;
   gap: 14px;
   height: 50px;
-  color: #00a96b;
+  color: var(--kratos-color-primary, #28f0d4);
   font-size: 25px;
   line-height: 50px;
 }
 
-.prompt-loading { padding: 32px 0; color: #8d929c; font-size: 26px; line-height: 38px; }
+.prompt-loading { padding: 32px 0; color: var(--kratos-color-text-muted, #8aa0b4); font-size: 26px; line-height: 38px; }
 
 .prompt-item {
   display: flex;
@@ -241,8 +252,8 @@
   width: 100%;
   min-height: 96px;
   padding: 16px 16px 16px 0;
-  border-top: 1px solid #edf0f2;
-  color: #111;
+  border-top: 1PX solid var(--kratos-color-border, rgba(255, 255, 255, 0.08));
+  color: var(--kratos-color-text, #e9f4f6);
   text-align: left;
   box-sizing: border-box;
 }
@@ -255,12 +266,12 @@
   height: 36px;
   margin-right: 24px;
   border-radius: 8px;
-  color: #00a96b;
+  color: var(--kratos-color-primary, #28f0d4);
   font-size: 24px;
   font-weight: 700;
   line-height: 34px;
   text-align: center;
-  background-color: #e7f7f2;
+  background: var(--kratos-color-primary-soft, rgba(40, 240, 212, 0.08));
   box-sizing: border-box;
 }
 
@@ -280,5 +291,5 @@
   white-space: nowrap;
 }
 
-.prompt-text { color: #111; font-size: 29px; line-height: 40px; }
-.prompt-meta { color: #8d929c; font-size: 22px; line-height: 30px; }
+.prompt-text { color: var(--kratos-color-text, #e9f4f6); font-size: 29px; line-height: 40px; }
+.prompt-meta { color: var(--kratos-color-text-muted, #8aa0b4); font-size: 22px; line-height: 30px; }

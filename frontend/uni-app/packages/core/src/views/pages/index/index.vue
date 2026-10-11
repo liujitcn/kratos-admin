@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import { onLoad } from '@dcloudio/uni-app'
 import { computed, ref, watch } from 'vue'
-import { useSettingStore } from '../../../stores'
+import { useSettingStore, useThemeStore } from '../../../stores'
 import defaultLogo from '../../../static/images/logo_icon.png'
 import { formatSrc } from '../../../utils'
 import { useI18n } from '../../../locales'
 
 const settingStore = useSettingStore()
+const themeStore = useThemeStore()
 const { t } = useI18n()
 const mainTitle = computed(() => settingStore.getData('mainTitle') || t('core.home.main_title'))
 const subTitle = computed(() => settingStore.getData('subTitle') || t('core.home.sub_title'))
@@ -37,59 +38,73 @@ onLoad(() => {
 </script>
 
 <template>
-  <view class="page">
-    <view class="hero">
-      <image class="logo" :src="appLogo" mode="aspectFit" @error="handleLogoError" />
-      <view class="hero-copy">
-        <text class="title">{{ mainTitle }}</text>
-        <text class="subtitle">{{ subTitle }}</text>
+  <view class="home-page" :class="themeStore.themeClass">
+    <view class="k-grid-bg" aria-hidden="true"></view>
+    <view class="home-content">
+      <view class="home-top">
+        <view class="home-top__title">{{ mainTitle }}</view>
       </view>
-    </view>
 
-    <view class="section">
-      <text class="section-title">{{ t('core.home.tech_stack') }}</text>
-      <view class="info-list">
-        <view class="info-row">
-          <text class="info-label">{{ t('core.home.framework') }}</text>
-          <text class="info-value">uni-app + Vue 3</text>
-        </view>
-        <view class="info-row">
-          <text class="info-label">{{ t('core.home.language') }}</text>
-          <text class="info-value">TypeScript</text>
-        </view>
-        <view class="info-row">
-          <text class="info-label">{{ t('core.home.state_management') }}</text>
-          <text class="info-value">Pinia</text>
-        </view>
-        <view class="info-row">
-          <text class="info-label">{{ t('core.home.style_solution') }}</text>
-          <text class="info-value">Sass + rpx</text>
-        </view>
-      </view>
-    </view>
-
-    <view class="section">
-      <text class="section-title">{{ t('core.home.demo_scope') }}</text>
-      <view class="demo-list">
-        <view class="demo-item">
-          <view class="demo-dot">1</view>
-          <view class="demo-copy">
-            <text class="demo-title">{{ t('core.home.cross_platform') }}</text>
-            <text class="demo-desc">{{ t('core.home.cross_platform_description') }}</text>
+      <view class="k-glass k-glass--lit home-hero">
+        <view class="k-cnr k-cnr--tl" aria-hidden="true"></view>
+        <view class="k-cnr k-cnr--tr" aria-hidden="true"></view>
+        <view class="k-cnr k-cnr--bl" aria-hidden="true"></view>
+        <view class="k-cnr k-cnr--br" aria-hidden="true"></view>
+        <view class="home-hero__main">
+          <image class="home-logo" :src="appLogo" mode="aspectFit" @error="handleLogoError" />
+          <view class="home-hero__copy">
+            <text class="home-subtitle">{{ subTitle }}</text>
           </view>
         </view>
-        <view class="demo-item">
-          <view class="demo-dot">2</view>
-          <view class="demo-copy">
-            <text class="demo-title">{{ t('core.home.account_capability') }}</text>
-            <text class="demo-desc">{{ t('core.home.account_capability_description') }}</text>
+      </view>
+
+      <view class="home-section">
+        <text class="home-section__title">{{ t('core.home.tech_stack') }}</text>
+        <view class="k-glass home-info-list">
+          <view class="k-field">
+            <text class="k-field__k">{{ t('core.home.framework') }}</text>
+            <text class="k-field__v">uni-app + Vue 3</text>
+          </view>
+          <view class="k-field">
+            <text class="k-field__k">{{ t('core.home.language') }}</text>
+            <text class="k-field__v">TypeScript</text>
+          </view>
+          <view class="k-field">
+            <text class="k-field__k">{{ t('core.home.state_management') }}</text>
+            <text class="k-field__v">Pinia</text>
+          </view>
+          <view class="k-field">
+            <text class="k-field__k">{{ t('core.home.style_solution') }}</text>
+            <text class="k-field__v">Sass + rpx</text>
           </view>
         </view>
-        <view class="demo-item">
-          <view class="demo-dot">3</view>
-          <view class="demo-copy">
-            <text class="demo-title">{{ t('core.home.static_home') }}</text>
-            <text class="demo-desc">{{ t('core.home.static_home_description') }}</text>
+      </view>
+
+      <view class="home-section">
+        <text class="home-section__title">{{ t('core.home.demo_scope') }}</text>
+        <view class="k-glass home-demo-list">
+          <view class="home-demo-item">
+            <view class="home-demo-dot">1</view>
+            <view class="home-demo-copy">
+              <text class="home-demo-title">{{ t('core.home.cross_platform') }}</text>
+              <text class="home-demo-desc">{{ t('core.home.cross_platform_description') }}</text>
+            </view>
+          </view>
+          <view class="home-demo-item">
+            <view class="home-demo-dot">2</view>
+            <view class="home-demo-copy">
+              <text class="home-demo-title">{{ t('core.home.account_capability') }}</text>
+              <text class="home-demo-desc">{{
+                t('core.home.account_capability_description')
+              }}</text>
+            </view>
+          </view>
+          <view class="home-demo-item">
+            <view class="home-demo-dot">3</view>
+            <view class="home-demo-copy">
+              <text class="home-demo-title">{{ t('core.home.static_home') }}</text>
+              <text class="home-demo-desc">{{ t('core.home.static_home_description') }}</text>
+            </view>
           </view>
         </view>
       </view>
@@ -98,151 +113,132 @@ onLoad(() => {
 </template>
 
 <style lang="scss">
-page {
-  background-color: #f7f7f8;
+.home-page {
+  position: relative;
+  min-height: 100vh;
+  overflow: hidden;
+  background: var(--kratos-bg-gradient);
 }
 
-.page {
-  min-height: 100vh;
-  padding: 44rpx 28rpx 56rpx;
-  box-sizing: border-box;
+.home-content {
+  position: relative;
+  z-index: 1;
+  padding: calc(env(safe-area-inset-top) + 20rpx) 32rpx 220rpx;
 
   /* #ifdef MP-WEIXIN */
-  padding-top: calc(44rpx + 44px);
+  padding-top: calc(44px + 24rpx);
   /* #endif */
 }
 
-.hero {
+.home-top {
+  padding: 8rpx 4rpx 24rpx;
+}
+
+/* 页面大标题 */
+.home-top__title {
+  margin-top: 14rpx;
+  color: var(--kratos-color-text);
+  font-size: 44rpx;
+  font-weight: 800;
+  letter-spacing: -0.5rpx;
+}
+
+.home-hero {
+  padding: 40rpx 36rpx;
+}
+
+.home-hero__main {
   display: flex;
   align-items: center;
-  padding: 34rpx 28rpx;
-  border-radius: 12rpx;
-  background-color: #27ba9b;
-  box-shadow: 0 8rpx 18rpx rgba(39, 186, 155, 0.18);
 }
 
-.logo {
+/* 简洁 Logo：圆角方块 + 细描边 */
+.home-logo {
   flex: 0 0 auto;
-  width: 92rpx;
-  height: 92rpx;
-  border-radius: 20rpx;
-  background-color: #fff;
+  width: 104rpx;
+  height: 104rpx;
+  border-radius: 26rpx;
+  border: 1rpx solid var(--kratos-color-border-accent);
+  background: var(--kratos-color-surface-2);
 }
 
-.hero-copy {
+.home-hero__copy {
+  min-width: 0;
+  margin-left: 26rpx;
+}
+
+.home-subtitle {
+  display: block;
+  color: var(--kratos-color-text-muted);
+  font-size: 26rpx;
+  line-height: 1.6;
+}
+
+.home-section {
+  margin-top: 36rpx;
+}
+
+.home-section__title {
+  display: block;
+  margin: 0 4rpx 16rpx;
+  color: var(--kratos-color-text-muted);
+  font-size: 26rpx;
+  font-weight: 700;
+}
+
+.home-info-list {
+  padding: 8rpx 28rpx;
+}
+
+.home-demo-list {
+  padding: 10rpx 28rpx;
+}
+
+.home-demo-item {
+  display: flex;
+  align-items: flex-start;
+  padding: 28rpx 0;
+  border-top: 1rpx solid var(--kratos-color-border);
+
+  &:first-child {
+    border-top: 0;
+  }
+}
+
+.home-demo-dot {
+  flex: 0 0 auto;
+  width: 48rpx;
+  height: 48rpx;
+  border-radius: 14rpx;
+  background: var(--kratos-color-primary-soft);
+  border: 1rpx solid var(--kratos-color-primary-edge);
+  color: var(--kratos-color-primary);
+  font-size: 24rpx;
+  font-family: var(--kratos-font-mono);
+  font-weight: 700;
+  line-height: 46rpx;
+  text-align: center;
+}
+
+.home-demo-copy {
   min-width: 0;
   margin-left: 22rpx;
 }
 
-.eyebrow,
-.title,
-.subtitle {
+.home-demo-title,
+.home-demo-desc {
   display: block;
 }
 
-.eyebrow {
-  color: rgba(255, 255, 255, 0.8);
-  font-size: 20rpx;
-  letter-spacing: 2rpx;
-}
-
-.title {
-  margin-top: 8rpx;
-  color: #fff;
-  font-size: 40rpx;
-  font-weight: 600;
-}
-
-.subtitle {
-  margin-top: 10rpx;
-  color: rgba(255, 255, 255, 0.86);
-  font-size: 24rpx;
-}
-
-.section {
-  margin-top: 24rpx;
-}
-
-.section-title {
-  display: block;
-  margin: 0 8rpx 14rpx;
-  color: #26332f;
+.home-demo-title {
+  color: var(--kratos-color-text);
   font-size: 28rpx;
   font-weight: 600;
 }
 
-.info-list,
-.demo-list {
-  overflow: hidden;
-  border-radius: 10rpx;
-  background-color: #fff;
-}
-
-.info-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 26rpx 24rpx;
-  border-bottom: 1rpx solid #edf1ef;
-}
-
-.info-row:last-child {
-  border-bottom: 0;
-}
-
-.info-label {
-  color: #66736f;
-  font-size: 26rpx;
-}
-
-.info-value {
-  color: #26332f;
-  font-size: 26rpx;
-  font-weight: 500;
-}
-
-.demo-item {
-  display: flex;
-  align-items: flex-start;
-  padding: 26rpx 24rpx;
-  border-bottom: 1rpx solid #edf1ef;
-}
-
-.demo-item:last-child {
-  border-bottom: 0;
-}
-
-.demo-dot {
-  flex: 0 0 auto;
-  width: 42rpx;
-  height: 42rpx;
-  border-radius: 50%;
-  background-color: #e8f8f4;
-  color: #16806d;
-  font-size: 24rpx;
-  line-height: 42rpx;
-  text-align: center;
-}
-
-.demo-copy {
-  min-width: 0;
-  margin-left: 18rpx;
-}
-
-.demo-title,
-.demo-desc {
-  display: block;
-}
-
-.demo-title {
-  color: #26332f;
-  font-size: 28rpx;
-  font-weight: 500;
-}
-
-.demo-desc {
+.home-demo-desc {
   margin-top: 8rpx;
-  color: #8a9691;
+  color: var(--kratos-color-text-muted);
   font-size: 24rpx;
   line-height: 1.5;
 }

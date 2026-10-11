@@ -8,6 +8,8 @@ export default defineAppConfig({
     "pages/webview/webview",
     "pages/my/my"
   ],
+  "darkmode": true,
+  "themeLocation": "theme.json",
   "window": {
     "backgroundTextStyle": "light",
     "navigationBarBackgroundColor": "#f8f8f8",

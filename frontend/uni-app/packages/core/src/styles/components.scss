@@ -1,0 +1,767 @@
+/* ============================================================
+ * Kratos 移动端共享组件词汇（对齐 docs/ui-redesign/mobile-themed.html）
+ * 规则：
+ *  - 全部基于 theme.scss 的 --kratos-* 运行时变量，自动随 dark/light 切换；
+ *  - 这是“共享视觉词汇（k-*，全局）”，页面布局用各自的 <page>-* 类；
+ *  - 微信小程序红线：k-glass 不用 backdrop-filter；旋转一律 transform: rotate()；
+ *    ::before/::after 只挂在 view 上；grid mask 仅 H5（#ifdef H5）。
+ * 单位：uni 用 rpx；效果图 1px ≈ 2rpx（375 → 750）。
+ * ============================================================ */
+
+/* 玻璃卡（通用容器） */
+.k-glass {
+  position: relative;
+  overflow: hidden;
+  border: 1rpx solid var(--kratos-color-border);
+  border-radius: 26rpx;
+  background: var(--kratos-color-surface);
+  box-shadow: inset 0 1rpx 0 rgba(255, 255, 255, 0.05);
+}
+.k-glass--lit {
+  border-color: var(--kratos-color-border-accent);
+  box-shadow: var(--kratos-glow-soft);
+}
+
+/* 四角 L 形角标：渲染为真实 view 节点（weapp 伪元素仅支持 view） */
+.k-cnr {
+  position: absolute;
+  width: 24rpx;
+  height: 24rpx;
+  border: 3rpx solid var(--kratos-color-primary);
+  opacity: 0.5;
+  pointer-events: none;
+}
+.k-cnr--tl {
+  top: 16rpx;
+  left: 16rpx;
+  border-right: 0;
+  border-bottom: 0;
+}
+.k-cnr--tr {
+  top: 16rpx;
+  right: 16rpx;
+  border-left: 0;
+  border-bottom: 0;
+}
+.k-cnr--bl {
+  bottom: 16rpx;
+  left: 16rpx;
+  border-right: 0;
+  border-top: 0;
+}
+.k-cnr--br {
+  bottom: 16rpx;
+  right: 16rpx;
+  border-left: 0;
+  border-top: 0;
+}
+
+/* 装饰网格背景 */
+.k-grid-bg {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(120, 230, 215, 0.05) 1rpx, transparent 1rpx),
+    linear-gradient(90deg, rgba(120, 230, 215, 0.05) 1rpx, transparent 1rpx);
+  background-size: 60rpx 60rpx;
+  /* #ifdef H5 */
+  -webkit-mask: radial-gradient(130% 80% at 50% 0, #000 40%, transparent 85%);
+  mask: radial-gradient(130% 80% at 50% 0, #000 40%, transparent 85%);
+  /* #endif */
+}
+
+/* 卡片小标题（前置 neon 竖条）；__title 必须是 view 才能出 ::before */
+.k-phd {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24rpx;
+}
+.k-phd__title {
+  display: flex;
+  align-items: center;
+  color: var(--kratos-color-text);
+  font-size: 27rpx;
+  font-weight: 700;
+}
+.k-phd__title::before {
+  content: '';
+  width: 6rpx;
+  height: 26rpx;
+  margin-right: 16rpx;
+  border-radius: 4rpx;
+  background: var(--kratos-color-primary);
+  box-shadow: 0 0 8px var(--kratos-color-primary-edge);
+}
+
+/* 键值表单行 */
+.k-field {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24rpx;
+  padding: 28rpx 0;
+  border-top: 1rpx solid var(--kratos-color-border);
+}
+.k-field:first-child {
+  border-top: 0;
+}
+.k-field__k {
+  flex-shrink: 0;
+  color: var(--kratos-color-text-muted);
+  font-size: 25rpx;
+}
+.k-field__v {
+  min-width: 0;
+  text-align: right;
+  color: var(--kratos-color-text);
+  font-size: 25rpx;
+  font-family: var(--kratos-font-mono);
+}
+.k-field__v--ph {
+  color: var(--kratos-color-text-dim);
+}
+
+/* 主操作大按钮（neon 渐变） */
+.k-save {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 96rpx;
+  margin-top: 36rpx;
+  border-radius: 20rpx;
+  background: linear-gradient(135deg, var(--kratos-color-primary-deep), var(--kratos-color-primary));
+  color: var(--kratos-color-on-primary);
+  font-size: 30rpx;
+  font-weight: 800;
+  letter-spacing: 4rpx;
+  box-shadow: var(--kratos-glow);
+}
+
+/* 顶栏 */
+.k-page-nav {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-sizing: border-box;
+  height: calc(88rpx + env(safe-area-inset-top));
+  padding-top: env(safe-area-inset-top);
+}
+/* #ifdef MP-WEIXIN */
+.k-page-nav {
+  height: calc(88rpx + 44px);
+  padding-top: 44px;
+}
+/* #endif */
+.k-page-nav__back,
+.k-page-nav__side {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 76rpx;
+  width: 76rpx;
+  height: 76rpx;
+}
+.k-page-nav__back {
+  border: 1rpx solid var(--kratos-color-border);
+  border-radius: 24rpx;
+  background: var(--kratos-color-surface);
+}
+.k-page-nav__back::before {
+  width: 16rpx;
+  height: 16rpx;
+  border-left: 2rpx solid var(--kratos-color-primary);
+  border-bottom: 2rpx solid var(--kratos-color-primary);
+  content: '';
+  transform: rotate(45deg);
+}
+.k-page-nav__title {
+  position: absolute;
+  left: 50%;
+  max-width: calc(100% - 190rpx);
+  overflow: hidden;
+  color: var(--kratos-color-text);
+  font-size: 36rpx;
+  font-weight: 800;
+  text-overflow: ellipsis;
+  transform: translateX(-50%);
+  white-space: nowrap;
+}
+.k-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16rpx;
+}
+.k-top__title {
+  font-size: 38rpx;
+  font-weight: 800;
+  letter-spacing: -0.3rpx;
+  color: var(--kratos-color-text);
+}
+.k-top__t2 {
+  font-size: 32rpx;
+  font-weight: 700;
+  color: var(--kratos-color-text);
+}
+
+/* 方形图标按钮 + 角标 */
+.k-ic {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 76rpx;
+  height: 76rpx;
+  border-radius: 24rpx;
+  background: var(--kratos-color-surface);
+  border: 1rpx solid var(--kratos-color-border);
+  color: var(--kratos-color-text);
+}
+.k-ic--gh {
+  background: transparent;
+  border: 0;
+}
+.k-bdg {
+  position: absolute;
+  top: -10rpx;
+  right: -10rpx;
+  min-width: 34rpx;
+  height: 34rpx;
+  padding: 0 8rpx;
+  border-radius: 18rpx;
+  background: var(--kratos-color-danger);
+  color: #fff;
+  font-size: 21rpx;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 键值行（浏览态） */
+.k-kv {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 28rpx;
+  padding: 26rpx 0;
+  border-top: 1rpx solid var(--kratos-color-border);
+}
+.k-kv:first-child {
+  border-top: 0;
+}
+.k-kv__k {
+  color: var(--kratos-color-text-muted);
+  font-size: 24rpx;
+}
+.k-kv__v {
+  text-align: right;
+  color: var(--kratos-color-text);
+  font-size: 24rpx;
+  font-weight: 600;
+  font-family: var(--kratos-font-mono);
+}
+.k-kv__v--dim {
+  color: var(--kratos-color-text-muted);
+}
+
+/* neon 小药丸标签 */
+.k-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 8rpx 20rpx;
+  border-radius: 999rpx;
+  background: var(--kratos-color-primary-soft-2);
+  border: 1rpx solid var(--kratos-color-border-accent);
+  color: var(--kratos-color-primary);
+  font-size: 20rpx;
+  font-family: var(--kratos-font-mono);
+}
+
+/* 分段切换（收件箱/未读/已归档等） */
+.k-pills {
+  display: inline-flex;
+  gap: 8rpx;
+  padding: 6rpx;
+  border-radius: 22rpx;
+  background: var(--kratos-color-track);
+  border: 1rpx solid var(--kratos-color-border);
+}
+.k-pills__item {
+  padding: 12rpx 24rpx;
+  border-radius: 16rpx;
+  color: var(--kratos-color-text-muted);
+  font-size: 22rpx;
+  font-family: var(--kratos-font-mono);
+  text-align: center;
+}
+.k-pills__item--on {
+  color: var(--kratos-color-on-primary);
+  font-weight: 700;
+  background: var(--kratos-color-primary);
+  box-shadow: var(--kratos-glow-soft);
+}
+
+/* 过滤芯片 */
+.k-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16rpx;
+  margin-bottom: 24rpx;
+}
+.k-ch {
+  display: inline-flex;
+  align-items: center;
+  gap: 12rpx;
+  padding: 14rpx 24rpx;
+  border-radius: 999rpx;
+  background: var(--kratos-color-surface);
+  border: 1rpx solid var(--kratos-color-border);
+  color: var(--kratos-color-text-muted);
+  font-size: 22rpx;
+  font-family: var(--kratos-font-mono);
+}
+.k-ch--pri {
+  color: var(--kratos-color-primary);
+  border-color: var(--kratos-color-border-accent);
+  background: var(--kratos-color-primary-soft);
+}
+.k-ch--act::after {
+  content: '';
+  width: 10rpx;
+  height: 10rpx;
+  margin-top: -6rpx;
+  border-right: 3rpx solid currentColor;
+  border-bottom: 3rpx solid currentColor;
+  transform: rotate(45deg);
+}
+
+/* ============================================================
+ * 登录页词汇
+ * ============================================================ */
+.k-lg-lang {
+  display: inline-flex;
+  align-items: center;
+  gap: 12rpx;
+  padding: 12rpx 24rpx;
+  border-radius: 999rpx;
+  background: var(--kratos-color-surface);
+  border: 1rpx solid var(--kratos-color-border);
+  color: var(--kratos-color-text-muted);
+  font-size: 22rpx;
+  font-family: var(--kratos-font-mono);
+}
+.k-lg-logo {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 148rpx;
+  height: 148rpx;
+  margin: 0 auto;
+  border-radius: 30rpx;
+  background: linear-gradient(135deg, var(--kratos-color-primary-deep), var(--kratos-color-info));
+  color: var(--kratos-color-on-primary);
+  font-size: 48rpx;
+  font-weight: 800;
+  box-shadow: var(--kratos-glow);
+}
+.k-lg-logo::after {
+  content: '';
+  position: absolute;
+  top: -12rpx;
+  right: -12rpx;
+  bottom: -12rpx;
+  left: -12rpx;
+  border: 1rpx solid var(--kratos-color-border-accent);
+  border-radius: 38rpx;
+  opacity: 0.55;
+}
+.k-lg-title {
+  margin-top: 32rpx;
+  font-size: 42rpx;
+  font-weight: 800;
+  text-align: center;
+  color: var(--kratos-color-text);
+}
+.k-lg-sub {
+  margin-top: 14rpx;
+  font-size: 24rpx;
+  text-align: center;
+  color: var(--kratos-color-text-muted);
+}
+.k-lg-field {
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+  height: 100rpx;
+  padding: 0 28rpx;
+  margin-top: 24rpx;
+  border-radius: 20rpx;
+  background: var(--kratos-color-surface);
+  border: 1rpx solid var(--kratos-color-border);
+}
+.k-lg-field__input {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  font-size: 26rpx;
+  color: var(--kratos-color-text);
+  background: transparent;
+}
+.k-lg-field__ph {
+  color: var(--kratos-color-text-dim);
+}
+.k-lg-cap {
+  flex-shrink: 0;
+  width: 180rpx;
+  height: 72rpx;
+  border-radius: 16rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--kratos-color-primary-soft-2);
+  border: 1rpx solid var(--kratos-color-border);
+  color: var(--kratos-color-primary);
+  font-family: var(--kratos-font-mono);
+  font-size: 34rpx;
+  letter-spacing: 8rpx;
+  font-style: italic;
+}
+.k-lg-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16rpx;
+  height: 100rpx;
+  margin-top: 36rpx;
+  border-radius: 20rpx;
+  font-size: 30rpx;
+  font-weight: 800;
+}
+.k-lg-btn--pri {
+  background: linear-gradient(135deg, var(--kratos-color-primary-deep), var(--kratos-color-primary));
+  color: var(--kratos-color-on-primary);
+  box-shadow: var(--kratos-glow);
+}
+.k-lg-btn--wx {
+  background: var(--kratos-color-surface);
+  border: 1rpx solid var(--kratos-color-border);
+  color: var(--kratos-color-text);
+  font-weight: 700;
+}
+.k-lg-or {
+  display: flex;
+  align-items: center;
+  gap: 24rpx;
+  margin-top: 32rpx;
+  color: var(--kratos-color-text-dim);
+  font-size: 22rpx;
+  font-family: var(--kratos-font-mono);
+}
+.k-lg-or::before,
+.k-lg-or::after {
+  content: '';
+  flex: 1;
+  height: 1rpx;
+  background: var(--kratos-color-border);
+}
+.k-lg-agree {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 14rpx;
+  margin-top: 40rpx;
+  font-size: 22rpx;
+  color: var(--kratos-color-text-muted);
+}
+.k-lg-chk {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32rpx;
+  height: 32rpx;
+  border-radius: 10rpx;
+  border: 3rpx solid var(--kratos-color-primary);
+  color: var(--kratos-color-primary);
+  font-size: 22rpx;
+}
+.k-lg-chk--off {
+  border-color: var(--kratos-color-border);
+  color: transparent;
+}
+.k-lg-link {
+  color: var(--kratos-color-primary);
+}
+
+/* ============================================================
+ * 我的 / 资料 词汇
+ * ============================================================ */
+.k-pfx {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24rpx;
+}
+.k-pfx__av {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 112rpx;
+  height: 112rpx;
+  border-radius: 22rpx;
+  background: linear-gradient(135deg, var(--kratos-color-primary-deep), var(--kratos-color-info));
+  color: var(--kratos-color-on-primary);
+  font-size: 44rpx;
+  font-weight: 800;
+  box-shadow: var(--kratos-glow-soft);
+}
+.k-pfx__nm {
+  font-size: 34rpx;
+  font-weight: 800;
+  color: var(--kratos-color-text);
+}
+.k-pfx__ac {
+  margin-top: 10rpx;
+  font-size: 22rpx;
+  color: var(--kratos-color-text-muted);
+  font-family: var(--kratos-font-mono);
+}
+.k-pfx__ent {
+  flex-shrink: 0;
+  padding: 14rpx 22rpx;
+  border-radius: 999rpx;
+  background: var(--kratos-color-primary-soft);
+  border: 1rpx solid var(--kratos-color-border-accent);
+  color: var(--kratos-color-primary);
+  font-size: 22rpx;
+  font-family: var(--kratos-font-mono);
+}
+.k-aix {
+  display: flex;
+  align-items: center;
+  gap: 26rpx;
+  padding: 30rpx;
+  border-radius: 24rpx;
+  background: linear-gradient(135deg, var(--kratos-color-primary-soft-2), var(--kratos-color-primary-soft));
+  border: 1rpx solid var(--kratos-color-border-accent);
+}
+.k-aix__ic {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 92rpx;
+  height: 92rpx;
+  border-radius: 20rpx;
+  background: linear-gradient(135deg, var(--kratos-color-violet), var(--kratos-color-info));
+  color: #fff;
+  font-size: 30rpx;
+  font-weight: 800;
+  box-shadow: var(--kratos-glow-soft);
+}
+.k-aix__t {
+  font-size: 27rpx;
+  font-weight: 700;
+  color: var(--kratos-color-text);
+}
+.k-aix__d {
+  margin-top: 8rpx;
+  font-size: 21rpx;
+  color: var(--kratos-color-text-muted);
+}
+.k-aix__b {
+  flex-shrink: 0;
+  padding: 14rpx 24rpx;
+  border-radius: 999rpx;
+  background: var(--kratos-color-primary-soft-2);
+  border: 1rpx solid var(--kratos-color-border-accent);
+  color: var(--kratos-color-primary);
+  font-size: 22rpx;
+  font-family: var(--kratos-font-mono);
+}
+.k-svc {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 20rpx;
+}
+.k-svc__s {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18rpx;
+  padding: 24rpx 0;
+}
+.k-svc__si {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 92rpx;
+  height: 92rpx;
+  border-radius: 20rpx;
+  border: 1rpx solid var(--kratos-color-border);
+  color: var(--kratos-color-primary);
+  background: var(--kratos-color-primary-soft);
+}
+.k-svc__label {
+  font-size: 22rpx;
+  color: var(--kratos-color-text);
+}
+
+/* ============================================================
+ * 设置页词汇
+ * ============================================================ */
+.k-set-cat {
+  margin: 32rpx 4rpx 20rpx;
+  font-size: 21rpx;
+  letter-spacing: 2rpx;
+  color: var(--kratos-color-text-dim);
+  font-family: var(--kratos-font-mono);
+  text-transform: uppercase;
+}
+.k-set-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24rpx;
+  padding: 28rpx 30rpx;
+  margin-bottom: 20rpx;
+  border-radius: 20rpx;
+  background: var(--kratos-color-surface);
+  border: 1rpx solid var(--kratos-color-border);
+}
+.k-set-row--arrow::after {
+  content: '';
+  flex-shrink: 0;
+  width: 14rpx;
+  height: 14rpx;
+  border-top: 3rpx solid var(--kratos-color-text-muted);
+  border-right: 3rpx solid var(--kratos-color-text-muted);
+  transform: rotate(45deg);
+}
+.k-set-row__lead {
+  display: flex;
+  align-items: center;
+  gap: 24rpx;
+  min-width: 0;
+}
+.k-set-row__icon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 76rpx;
+  height: 76rpx;
+  border-radius: 22rpx;
+  border: 1rpx solid var(--kratos-color-border);
+  color: var(--kratos-color-primary);
+}
+.k-set-row__title {
+  font-size: 27rpx;
+  font-weight: 600;
+  color: var(--kratos-color-text);
+}
+.k-set-row__value {
+  margin-left: auto;
+  font-size: 24rpx;
+  color: var(--kratos-color-text-muted);
+  font-family: var(--kratos-font-mono);
+}
+.k-set-row__value--on {
+  color: var(--kratos-color-primary);
+}
+.k-set-logout {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100rpx;
+  margin-top: 44rpx;
+  border-radius: 20rpx;
+  color: var(--kratos-color-danger);
+  background: var(--kratos-color-danger-soft);
+  border: 1rpx solid var(--kratos-color-danger);
+  font-size: 30rpx;
+  font-weight: 700;
+}
+
+/* ============================================================
+ * 消息列表词汇
+ * ============================================================ */
+.k-msg-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+}
+.k-msg-item {
+  position: relative;
+  overflow: hidden;
+  padding: 26rpx 28rpx;
+  border-radius: 20rpx;
+  background: var(--kratos-color-surface);
+  border: 1rpx solid var(--kratos-color-border);
+}
+.k-msg-item--unread::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 6rpx;
+  background: var(--kratos-color-danger);
+  box-shadow: 0 0 8px var(--kratos-color-danger);
+}
+.k-msg-item__head {
+  display: flex;
+  align-items: flex-start;
+  gap: 24rpx;
+}
+.k-msg-item__icon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 76rpx;
+  height: 76rpx;
+  border-radius: 22rpx;
+  border: 1rpx solid var(--kratos-color-border);
+  color: var(--kratos-color-primary);
+  background: var(--kratos-color-primary-soft);
+}
+.k-msg-item__title {
+  font-size: 25rpx;
+  font-weight: 700;
+  color: var(--kratos-color-text);
+}
+.k-msg-item__meta {
+  margin-top: 10rpx;
+  font-size: 20rpx;
+  color: var(--kratos-color-text-muted);
+  font-family: var(--kratos-font-mono);
+}
+.k-msg-item__time {
+  flex-shrink: 0;
+  font-size: 19rpx;
+  color: var(--kratos-color-text-dim);
+  font-family: var(--kratos-font-mono);
+}
+.k-msg-item__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 36rpx;
+  margin-top: 22rpx;
+  padding-top: 22rpx;
+  border-top: 1rpx solid var(--kratos-color-border);
+}
+.k-msg-item__action {
+  font-size: 22rpx;
+  color: var(--kratos-color-primary);
+  font-family: var(--kratos-font-mono);
+}

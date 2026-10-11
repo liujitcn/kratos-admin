@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { useI18n } from '@liujitcn/kratos-uni-app-core'
+import { useThemeStore } from '@liujitcn/kratos-uni-app-core/stores'
 import type { AiAttachment } from '../../../../rpc/base/v1/ai_session'
 import type { AiProviderModelOption } from '../../../../rpc/base/v1/ai_provider'
 import type { AiKnowledgeOption } from '../../../../rpc/base/v1/ai_knowledge'
@@ -48,6 +49,9 @@ const emit = defineEmits<{
 
 const showModelPicker = ref(false)
 const showKnowledgePicker = ref(false)
+const themeStore = useThemeStore()
+const iconColor = computed(() => (themeStore.theme === 'light' ? '#5a7083' : '#8aa0b4'))
+const primaryIconColor = computed(() => (themeStore.theme === 'light' ? '#039e8c' : '#28f0d4'))
 
 const selectedModelDisplayName = computed(() => {
   const provider = props.modelProviders.find((item) => item.provider_id === props.providerId)
@@ -100,7 +104,7 @@ function handleKnowledgeToggle(knowledgeId: number) {
       <text class="composer-model-chip__label">{{
         selectedModelDisplayName || modelPlaceholder
       }}</text>
-      <uni-icons type="down" size="12" color="#8a8f99" />
+      <uni-icons type="down" size="12" :color="iconColor" />
     </view>
     <view
       class="composer-model-chip"
@@ -116,11 +120,11 @@ function handleKnowledgeToggle(knowledgeId: number) {
           ? t('system.ai.knowledge.selected_count', { count: knowledgeIds.length })
           : t('system.ai.knowledge.title')
       }}</text>
-      <uni-icons type="down" size="12" color="#8a8f99" />
+      <uni-icons type="down" size="12" :color="iconColor" />
     </view>
     <view class="composer-main">
       <button class="attach-button" hover-class="none" @tap="emit('attach')">
-        <uni-icons type="plusempty" size="30" color="#111" />
+        <uni-icons type="plusempty" size="30" :color="iconColor" />
       </button>
       <view class="composer-card">
         <view v-if="attachments.length" class="composer-attachments">
@@ -148,7 +152,7 @@ function handleKnowledgeToggle(knowledgeId: number) {
           hover-class="none"
           @tap="emit('record')"
         >
-          <uni-icons type="mic" size="28" :color="recording ? '#00a96b' : '#111'" />
+          <uni-icons type="mic" size="28" :color="recording ? primaryIconColor : iconColor" />
         </button>
       </view>
       <button
@@ -158,7 +162,7 @@ function handleKnowledgeToggle(knowledgeId: number) {
         hover-class="none"
         @tap="emit('send')"
       >
-        <uni-icons type="paperplane" size="28" :color="disabled ? '#111' : '#00a96b'" />
+        <uni-icons type="paperplane" size="28" :color="disabled ? iconColor : primaryIconColor" />
       </button>
     </view>
 
@@ -199,9 +203,10 @@ function handleKnowledgeToggle(knowledgeId: number) {
 .composer {
   flex-shrink: 0;
   width: 100%;
-  padding: 14rpx 24rpx 18rpx;
+  padding: 14rpx 24rpx calc(18rpx + env(safe-area-inset-bottom));
   overflow: hidden;
-  background-color: transparent;
+  background: var(--kratos-color-surface, #fff);
+  border-top: 1rpx solid var(--kratos-color-border-accent, rgba(120, 230, 215, 0.16));
   box-sizing: border-box;
 }
 
@@ -211,9 +216,9 @@ function handleKnowledgeToggle(knowledgeId: number) {
   gap: 16rpx;
   min-height: 124rpx;
   padding: 22rpx 18rpx;
+  border: 1rpx solid var(--kratos-color-border, #e3eaf2);
   border-radius: 24rpx;
-  background-color: #fff;
-  box-shadow: 0 12rpx 34rpx rgba(15, 23, 42, 0.08);
+  background: var(--kratos-color-surface, #fff);
   box-sizing: border-box;
 }
 
@@ -225,11 +230,10 @@ function handleKnowledgeToggle(knowledgeId: number) {
   height: 56rpx;
   padding: 0 24rpx;
   margin: 0 8rpx 12rpx;
-  color: #1f2937;
-  background: #fff;
-  border: 2rpx solid #d6dae2;
+  color: var(--kratos-color-text, #102232);
+  background: var(--kratos-color-surface, #fff);
+  border: 2rpx solid var(--kratos-color-border-accent, rgba(0, 150, 134, 0.28));
   border-radius: 28rpx;
-  box-shadow: 0 4rpx 16rpx rgba(15, 23, 42, 0.04);
   box-sizing: border-box;
 }
 
@@ -239,7 +243,7 @@ function handleKnowledgeToggle(knowledgeId: number) {
 
 .composer-model-chip__spark {
   flex-shrink: 0;
-  color: #00a96b;
+  color: var(--kratos-color-primary, #039e8c);
   font-size: 26rpx;
   line-height: 26rpx;
 }
@@ -262,9 +266,10 @@ function handleKnowledgeToggle(knowledgeId: number) {
   justify-content: center;
   width: 72rpx;
   height: 72rpx;
-  border: 2rpx solid #d6dae2;
+  border: 2rpx solid var(--kratos-color-border, #e3eaf2);
   border-radius: 50%;
-  background-color: #fff;
+  background: var(--kratos-color-surface, #fff);
+  color: var(--kratos-color-text-muted, #5a7083);
   box-shadow: none;
   box-sizing: border-box;
 }
@@ -278,9 +283,9 @@ function handleKnowledgeToggle(knowledgeId: number) {
   gap: 10rpx;
   min-height: 72rpx;
   padding: 0 12rpx 0 28rpx;
-  border: 2rpx solid #d6dae2;
+  border: 2rpx solid var(--kratos-color-border, #e3eaf2);
   border-radius: 38rpx;
-  background-color: #fff;
+  background: var(--kratos-color-surface-2, #eef4fa);
   box-shadow: none;
   box-sizing: border-box;
 }
@@ -299,11 +304,12 @@ function handleKnowledgeToggle(knowledgeId: number) {
   text-overflow: ellipsis;
   white-space: nowrap;
   padding: 6rpx 12rpx;
+  border: 1rpx solid var(--kratos-color-primary-edge, rgba(0, 150, 134, 0.3));
   border-radius: 8rpx;
-  color: #16806d;
+  color: var(--kratos-color-primary, #039e8c);
   font-size: 20rpx;
   line-height: 28rpx;
-  background-color: #e8f8f4;
+  background: var(--kratos-color-primary-soft, rgba(3, 158, 140, 0.08));
 }
 
 .composer-input {
@@ -313,15 +319,15 @@ function handleKnowledgeToggle(knowledgeId: number) {
   max-height: 126rpx;
   padding: 14rpx 0;
   box-sizing: border-box;
-  color: #333;
+  color: var(--kratos-color-text, #102232);
   font-size: 29rpx;
   line-height: 42rpx;
   overflow-y: auto;
-  background-color: transparent;
+  background: transparent;
 }
 
 .composer-placeholder {
-  color: #8d929c;
+  color: var(--kratos-color-text-dim, #9aabbb);
   font-size: 29rpx;
 }
 
@@ -337,24 +343,25 @@ function handleKnowledgeToggle(knowledgeId: number) {
 .voice-button {
   width: 60rpx;
   height: 60rpx;
-  background-color: transparent;
+  background: transparent;
 }
 
 .voice-button.active {
-  background-color: #e8f8f4;
+  background: var(--kratos-color-primary-soft, rgba(3, 158, 140, 0.08));
 }
 
 .send-button {
   width: 74rpx;
   height: 74rpx;
-  background-color: #f2f2f2;
+  background: var(--kratos-color-track, #e8eef5);
 }
 
 .send-button.is-disabled {
-  background-color: #f2f2f2;
+  background: var(--kratos-color-track, #e8eef5);
 }
 
 .send-button:not(.is-disabled) {
-  background-color: #e7f7f2;
+  background: var(--kratos-color-primary-soft-2, rgba(3, 158, 140, 0.1));
+  border: 1rpx solid var(--kratos-color-primary-edge, rgba(0, 150, 134, 0.3));
 }
 </style>

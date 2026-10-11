@@ -4,7 +4,7 @@
   right: 0;
   bottom: 0;
   left: 0;
-  z-index: 100;
+  z-index: 1000;
 }
 
 .model-picker__mask {
@@ -13,7 +13,7 @@
   right: 0;
   bottom: 0;
   left: 0;
-  background-color: rgba(15, 23, 42, 0.45);
+  background: var(--kratos-color-mask, rgba(2, 6, 12, 0.55));
 }
 
 .model-picker__sheet {
@@ -25,7 +25,9 @@
   flex-direction: column;
   max-height: 68vh;
   overflow: hidden;
-  background-color: #fff;
+  background: var(--kratos-color-surface-solid, #070d18);
+  border: 1PX solid var(--kratos-color-border-accent, rgba(120, 230, 215, 0.16));
+  border-bottom: 0;
   border-radius: 32px 32px 0 0;
   box-shadow: 0 -24px 80px rgba(15, 23, 42, 0.16);
   box-sizing: border-box;
@@ -36,7 +38,7 @@
   width: 72px;
   height: 8px;
   margin: 16px auto 8px;
-  background-color: #e2e5ea;
+  background: var(--kratos-color-track, rgba(255, 255, 255, 0.06));
   border-radius: 4px;
 }
 
@@ -51,13 +53,13 @@
 }
 
 .model-picker__title {
-  color: #111;
+  color: var(--kratos-color-text, #e9f4f6);
   font-size: 32px;
   font-weight: 600;
 }
 
 .model-picker__count {
-  color: #8a8f99;
+  color: var(--kratos-color-text-muted, #8aa0b4);
   font-size: 20px;
 }
 
@@ -70,7 +72,7 @@
   justify-content: center;
   width: 56px;
   height: 56px;
-  color: #8a8f99;
+  color: var(--kratos-color-text-muted, #8aa0b4);
   font-size: 28px;
 }
 
@@ -84,7 +86,7 @@
 
 .model-picker__group {
   padding: 24px 8px 12px;
-  color: #8a8f99;
+  color: var(--kratos-color-text-muted, #8aa0b4);
   font-size: 22px;
   line-height: 32px;
 }
@@ -95,16 +97,18 @@
   min-height: 88px;
   padding: 16px 28px;
   margin-bottom: 12px;
-  border: 2px solid #eef0f4;
+  border: 1PX solid var(--kratos-color-border, rgba(255, 255, 255, 0.08));
+  background: var(--kratos-color-surface, rgba(255, 255, 255, 0.035));
   border-radius: 24px;
   box-sizing: border-box;
 }
 
 .model-picker__row.is-selected {
-  color: #0f7a62;
+  color: var(--kratos-color-primary, #28f0d4);
+  font-weight: 600;
   font-weight: 500;
-  background-color: #e8f8f4;
-  border-color: #d5efe7;
+  background: var(--kratos-color-primary-soft, rgba(40, 240, 212, 0.08));
+  border-color: var(--kratos-color-primary-edge, rgba(40, 240, 212, 0.3));
 }
 
 .model-picker__row-main {
@@ -121,7 +125,8 @@
 }
 
 .model-picker__row-raw {
-  color: #a7acb5;
+  color: var(--kratos-color-text-dim, #4e6378);
+  font-family: var(--kratos-font-mono, monospace);
   font-size: 22px;
   font-weight: 400;
   line-height: 30px;
@@ -129,13 +134,13 @@
 
 .model-picker__row-check {
   margin-left: auto;
-  color: #00a96b;
+  color: var(--kratos-color-primary, #28f0d4);
   font-size: 32px;
 }
 
 .model-picker__empty {
   padding: 64px 0;
-  color: #8a8f99;
+  color: var(--kratos-color-text-muted, #8aa0b4);
   font-size: 26px;
   text-align: center;
 }

@@ -1,5 +1,7 @@
 {
   "pages": ["pages/bootstrap/index"],
+  "darkmode": true,
+  "themeLocation": "theme.json",
   "window": {
     "backgroundTextStyle": "light",
     "navigationBarBackgroundColor": "#f8f8f8",

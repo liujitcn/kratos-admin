@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { defAuthService } from '@liujitcn/kratos-uni-app-core/api/system/app/v1/auth'
-import { useUserStore } from '@liujitcn/kratos-uni-app-core/stores'
+import { useThemeStore, useUserStore } from '@liujitcn/kratos-uni-app-core/stores'
 import type { UserProfileForm } from '@liujitcn/kratos-uni-app-core/rpc/system/app/v1/auth'
 import { onLoad } from '@dcloudio/uni-app'
 import { computed, onBeforeUnmount, ref } from 'vue'
@@ -11,14 +11,14 @@ import { formatSrc } from '@liujitcn/kratos-uni-app-core/utils/index'
 import { uploadFile } from '@liujitcn/kratos-uni-app-core/utils/file'
 import { navigateToLogin } from '@liujitcn/kratos-uni-app-core/utils/navigation'
 import defaultAvatar from '@liujitcn/kratos-uni-app-core/static/images/avatar.png'
-import navigatorBackground from '@liujitcn/kratos-uni-app-core/static/images/navigator_bg.png'
 import { useI18n } from '@liujitcn/kratos-uni-app-core'
 
 const userStore = useUserStore()
+const themeStore = useThemeStore()
 const { t } = useI18n()
 
-// 获取屏幕边界到安全区域距离
-const { safeAreaInsets } = uni.getSystemInfoSync()
+/** 返回上一页。 */
+const onBack = () => uni.navigateBack()
 
 const imgMaxSize = ref(1024 * 1024)
 const submitting = ref(false)
@@ -248,254 +248,195 @@ const onSubmit = async () => {
 </script>
 
 <template>
-  <view class="viewport" :style="{ backgroundImage: `url(${navigatorBackground})` }">
-    <!-- 导航栏 -->
-    <view class="navbar" :style="{ paddingTop: safeAreaInsets?.top + 'px' }">
-      <navigator open-type="navigateBack" class="back icon-left" hover-class="none"></navigator>
-      <view class="title">{{ t('system.profile.title') }}</view>
-    </view>
-    <view class="avatar">
-      <view @tap="onAvatarChange" class="avatar-content">
-        <image
-          v-if="userInfo?.avatar"
-          class="image"
-          :src="formatSrc(userInfo?.avatar)"
-          mode="aspectFill"
-        />
-        <image v-else class="image" :src="defaultAvatar" mode="aspectFill"></image>
-        <text class="text">{{ t('system.profile.avatar_change') }}</text>
+  <view class="profile-viewport" :class="themeStore.themeClass">
+    <view class="profile-content">
+      <!-- 导航栏：统一子页头（单一返回 + 标题） -->
+      <view class="k-page-nav">
+        <view class="k-page-nav__back" :aria-label="t('common.action.back')" @tap="onBack"></view>
+        <view class="k-page-nav__title">{{ t('system.profile.title') }}</view>
+        <view class="k-page-nav__side" aria-hidden="true"></view>
       </view>
-    </view>
-    <!-- 表单 -->
-    <view class="form">
-      <!-- 表单内容 -->
-      <view class="form-content">
-        <view class="form-item" v-if="userInfo?.user_name">
-          <text class="label">{{ t('system.profile.account') }}</text>
-          <text class="account placeholder">{{ userInfo?.user_name }}</text>
+
+      <!-- 头像卡：点击更换头像 -->
+      <view class="k-glass k-glass--lit k-pfx profile-id" @tap="onAvatarChange">
+        <view class="k-cnr k-cnr--tl" aria-hidden="true"></view>
+        <view class="k-cnr k-cnr--br" aria-hidden="true"></view>
+        <view class="profile-id__main">
+          <view class="k-pfx__av">
+            <image
+              class="profile-av-img"
+              :src="userInfo?.avatar ? formatSrc(userInfo?.avatar) : defaultAvatar"
+              mode="aspectFill"
+            />
+          </view>
+          <view class="profile-id__meta">
+            <view class="k-pfx__nm">{{ userInfo?.nick_name || t('system.profile.title') }}</view>
+            <view class="k-pfx__ac">{{ userInfo?.user_name }}</view>
+          </view>
+        </view>
+        <view class="k-pfx__ent">{{ t('system.profile.avatar_change') }}</view>
+      </view>
+
+      <!-- 表单 -->
+      <view class="k-glass profile-form">
+        <view class="k-phd">
+          <view class="k-phd__title">{{ t('system.profile.title') }}</view>
+        </view>
+
+        <view class="k-field" v-if="userInfo?.user_name">
+          <text class="k-field__k">{{ t('system.profile.account') }}</text>
+          <text class="k-field__v">{{ userInfo?.user_name }}</text>
         </view>
         <!-- #ifdef MP-WEIXIN -->
         <!-- 手机号 -->
-        <view class="form-item">
-          <text class="label">{{ t('system.profile.mobile') }}</text>
-          <view class="input">
-            <text v-if="userInfo.phone" class="account">{{ userInfo.phone }}</text>
-            <button
-              v-else
-              class="auth-button"
-              open-type="getPhoneNumber"
-              @getphonenumber="onGetPhoneNumber"
-            >
-              {{ t('system.profile.phone_authorization') }}
-            </button>
-          </view>
+        <view class="k-field">
+          <text class="k-field__k">{{ t('system.profile.mobile') }}</text>
+          <text v-if="userInfo.phone" class="k-field__v">{{ userInfo.phone }}</text>
+          <button
+            v-else
+            class="profile-auth-button"
+            open-type="getPhoneNumber"
+            @getphonenumber="onGetPhoneNumber"
+          >
+            {{ t('system.profile.phone_authorization') }}
+          </button>
         </view>
         <!-- #endif -->
-        <view class="form-item">
-          <text class="label">{{ t('system.profile.nick_name') }}</text>
+        <view class="k-field">
+          <text class="k-field__k">{{ t('system.profile.nick_name') }}</text>
           <input
-            class="input"
+            class="k-field__v profile-input"
             type="text"
             :placeholder="t('system.profile.nick_name_placeholder')"
             v-model="userInfo.nick_name"
           />
         </view>
-        <view class="form-item">
-          <text class="label">{{ t('system.profile.email') }}</text>
+        <view class="k-field">
+          <text class="k-field__k">{{ t('system.profile.email') }}</text>
           <input
-            class="input"
+            class="k-field__v profile-input"
             type="text"
             :placeholder="t('system.profile.email_placeholder')"
             v-model="userInfo.email"
           />
         </view>
-        <view class="form-item">
-          <text class="label">{{ t('system.profile.id_type') }}</text>
-          <picker
-            class="picker"
-            mode="selector"
-            :range="idTypeOptions"
-            range-key="label"
-            :value="idTypeIndex"
-            @change="onIdTypeChange"
-          >
-            <view class="input">{{ idTypeLabel }}</view>
-          </picker>
-        </view>
-        <view class="form-item">
-          <text class="label">{{ t('system.profile.id_code') }}</text>
+        <picker
+          mode="selector"
+          :range="idTypeOptions"
+          range-key="label"
+          :value="idTypeIndex"
+          @change="onIdTypeChange"
+        >
+          <view class="k-field profile-field--sub">
+            <text class="k-field__k">{{ t('system.profile.id_type') }}</text>
+            <view class="k-field__v">{{ idTypeLabel }}</view>
+          </view>
+        </picker>
+        <view class="k-field">
+          <text class="k-field__k">{{ t('system.profile.id_code') }}</text>
           <input
-            class="input"
+            class="k-field__v profile-input"
             type="text"
             :placeholder="t('system.profile.id_code_placeholder')"
             v-model="userInfo.id_code"
           />
         </view>
-        <view class="form-item">
-          <text class="label">{{ t('system.profile.gender') }}</text>
-          <radio-group @change="onGenderChange">
-            <label class="radio" v-for="(item, index) in genderList" :key="index">
+        <view class="k-field">
+          <text class="k-field__k">{{ t('system.profile.gender') }}</text>
+          <radio-group class="profile-radios" @change="onGenderChange">
+            <label class="profile-radio" v-for="(item, index) in genderList" :key="index">
               <radio
                 :value="item.value"
-                color="#27ba9b"
+                :color="themeStore.theme === 'light' ? '#039e8c' : '#28f0d4'"
                 :checked="userInfo?.gender === Number(item.value)"
               />
               {{ item.label }}
             </label>
           </radio-group>
         </view>
+
+        <!-- 提交按钮 -->
+        <button @tap="onSubmit" class="k-save">{{ t('common.action.save') }}</button>
       </view>
-      <!-- 提交按钮 -->
-      <button @tap="onSubmit" class="form-button">{{ t('common.action.save') }}</button>
     </view>
   </view>
 </template>
 
 <style lang="scss">
-page {
-  background-color: #f4f4f4;
-}
-
-.viewport {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
+.profile-viewport {
   min-height: 100vh;
   box-sizing: border-box;
-  background-color: #f4f4f4;
-  background-size: auto 420rpx;
-  background-repeat: no-repeat;
+  background: var(--kratos-bg-gradient);
 }
 
-// 导航栏
-.navbar {
-  position: relative;
-
-  .title {
-    height: 40px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 16px;
-    font-weight: 500;
-    color: #fff;
-  }
-
-  .back {
-    position: absolute;
-    height: 40px;
-    width: 40px;
-    left: 0;
-    font-size: 20px;
-    color: #fff;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-
-    &::before {
-      content: '‹';
-    }
-  }
+/* k-page-nav 自带安全区顶部内边距，这里只补水平与底部 */
+.profile-content {
+  padding: 0 32rpx calc(40rpx + env(safe-area-inset-bottom));
 }
 
-// 头像
-.avatar {
-  text-align: center;
-  width: 100%;
-  height: 260rpx;
+/* 头像卡 */
+.profile-id {
+  margin-top: 8rpx;
+  padding: 36rpx 30rpx;
+}
+
+.profile-id__main {
   display: flex;
-  flex-direction: column;
-  justify-content: center;
   align-items: center;
-
-  .image {
-    width: 160rpx;
-    height: 160rpx;
-    border-radius: 50%;
-    background-color: #eee;
-  }
-
-  .text {
-    display: block;
-    padding-top: 20rpx;
-    line-height: 1;
-    font-size: 26rpx;
-    color: #fff;
-  }
+  gap: 24rpx;
+  min-width: 0;
 }
 
-// 表单
-.form {
-  background-color: #f4f4f4;
-
-  &-content {
-    margin: 20rpx 20rpx 0;
-    padding: 0 20rpx;
-    border-radius: 10rpx;
-    background-color: #fff;
-  }
-
-  &-item {
-    display: flex;
-    height: 96rpx;
-    line-height: 46rpx;
-    padding: 25rpx 10rpx;
-    background-color: #fff;
-    font-size: 28rpx;
-    border-bottom: 1rpx solid #ddd;
-
-    &:last-child {
-      border: none;
-    }
-
-    .label {
-      width: 180rpx;
-      color: #333;
-    }
-
-    .account {
-      color: #666;
-    }
-
-    .input {
-      flex: 1;
-      display: block;
-      height: 46rpx;
-    }
-
-    .radio {
-      margin-right: 20rpx;
-    }
-
-    .picker {
-      flex: 1;
-    }
-    .placeholder {
-      color: #808080;
-    }
-  }
-
-  &-button {
-    height: 80rpx;
-    text-align: center;
-    line-height: 80rpx;
-    margin: 30rpx 20rpx;
-    color: #fff;
-    border-radius: 80rpx;
-    font-size: 30rpx;
-    background-color: #27ba9b;
-  }
+.profile-id__meta {
+  min-width: 0;
 }
-.auth-button {
+
+.profile-av-img {
+  width: 100%;
+  height: 100%;
+  border-radius: 22rpx;
+}
+
+/* 表单卡 */
+.profile-form {
+  margin-top: 24rpx;
+  padding: 10rpx 28rpx 28rpx;
+}
+
+/* 子项字段包在 picker 中会命中 :first-child，恢复分隔线 */
+.profile-field--sub {
+  border-top: 1rpx solid var(--kratos-color-border);
+}
+
+.profile-input {
+  flex: 1;
+  height: 46rpx;
+}
+
+.profile-radios {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 24rpx;
+}
+
+.profile-radio {
+  display: flex;
+  align-items: center;
+  color: var(--kratos-color-text);
+  font-size: 25rpx;
+}
+
+.profile-auth-button {
   height: 60rpx;
-  line-height: 60rpx;
   margin: 0;
-  padding: 0 20rpx;
-  font-size: 26rpx;
-  color: #27ba9b;
-  border: 1rpx solid #27ba9b;
-  border-radius: 30rpx;
-  background: none;
+  padding: 0 24rpx;
+  color: var(--kratos-color-primary);
+  font-size: 24rpx;
+  line-height: 58rpx;
+  border: 1rpx solid var(--kratos-color-border-accent);
+  border-radius: 999rpx;
+  background: var(--kratos-color-primary-soft);
 
   &::after {
     border: none;

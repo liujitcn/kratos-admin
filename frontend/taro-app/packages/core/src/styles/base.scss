@@ -1,3 +1,5 @@
+@use './components.scss';
+
 page,
 body {
   min-height: 100%;
@@ -31,11 +33,6 @@ button::after {
   overflow-y: auto !important;
 }
 
-// Taro H5 的默认确认色与 uni-app H5 不同，统一为基线平台色。
-.taro-model__confirm {
-  color: #007aff !important;
-}
-
 // H5 ScrollView 使用内部滚动，隐藏其滚动条避免额外占用内容宽度。
 .taro-scroll-view__scroll-y {
   scrollbar-width: none;
@@ -46,3 +43,75 @@ button::after {
   width: 0;
   height: 0;
 }
+
+html.theme-light body,
+html.theme-light page {
+  background: #eef3f8;
+}
+
+html.theme-dark body,
+html.theme-dark page {
+  background: #060a12;
+}
+
+/* ============================================================
+ * H5 系统弹层随主题：Taro.showModal/showToast 渲染在 body 下，
+ * 取不到页面根类，用 theme store 镜像到 html 上的主题类着色。
+ * ============================================================ */
+/* #ifdef h5 */
+html.theme-dark .taro-modal__mask {
+  background: var(--kratos-color-mask) !important;
+}
+
+html.theme-dark .taro-modal__content {
+  background: var(--kratos-color-surface-solid) !important;
+  color: var(--kratos-color-text);
+}
+
+html.theme-dark .taro-modal__title {
+  color: var(--kratos-color-text);
+}
+
+html.theme-dark .taro-modal__text {
+  color: var(--kratos-color-text-muted) !important;
+}
+
+html.theme-dark .taro-modal__foot::after,
+html.theme-dark .taro-model__btn::after {
+  border-color: var(--kratos-color-border);
+}
+
+html.theme-dark .taro-model__btn:active {
+  background: var(--kratos-color-surface-2);
+}
+
+html.theme-dark .taro-model__btn.taro-model__cancel {
+  color: var(--kratos-color-text-muted) !important;
+}
+
+html.theme-dark .taro__actionSheet > div:first-child {
+  background: var(--kratos-color-mask) !important;
+}
+
+html.theme-dark .taro__actionSheet > div:last-child {
+  background: var(--kratos-color-background) !important;
+}
+
+html.theme-dark .taro__actionSheet > div:last-child > div {
+  background: var(--kratos-color-surface-solid) !important;
+  color: var(--kratos-color-text) !important;
+}
+
+html.theme-dark .taro__actionSheet .taro-actionsheet__cell:first-child {
+  color: var(--kratos-color-text-muted) !important;
+}
+
+html.theme-dark .taro__actionSheet .taro-actionsheet__cell::after {
+  border-color: var(--kratos-color-border);
+}
+
+html.theme-dark .taro__toast > div:last-child {
+  background: rgba(10, 18, 30, 0.9) !important;
+  color: var(--kratos-color-text) !important;
+}
+/* #endif */

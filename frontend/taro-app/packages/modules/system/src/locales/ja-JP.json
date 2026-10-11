@@ -100,6 +100,9 @@
   "system.settings.authorization": "認可管理",
   "system.settings.contact": "お問い合わせ",
   "system.settings.feedback": "問題のフィードバック",
+  "system.settings.section_appearance": "外観",
+  "system.settings.section_security": "アカウントセキュリティ",
+  "system.settings.section_more": "その他・ミニプログラム",
   "system.settings.go_ask": "質問してみよう",
   "system.settings.logout_confirm": "ログアウトしますか?",
   "system.settings.logout_failed": "ログアウトに失敗しました",
@@ -134,5 +137,14 @@
   "system.ai.model.load_failed": "プロバイダーとモデルを読み込めませんでした",
   "system.ai.model.title": "モデルを選択",
   "system.ai.model.provider_model_count": "{providers} プロバイダー · {models} モデル",
-  "system.ai.model.empty": "選択可能なモデルがありません"
+  "system.ai.model.empty": "選択可能なモデルがありません",
+  "system.ai.knowledge.title": "ナレッジベース",
+  "system.ai.knowledge.selected_count": "{count} 件のナレッジベースを選択中",
+  "system.ai.knowledge.doc_count": "{count} 件のドキュメント",
+  "system.ai.knowledge.select_hint": "コンテキストに注入するナレッジベースを選択",
+  "system.ai.knowledge.empty": "利用可能なナレッジベースがありません",
+  "system.settings.theme": "テーマ外観",
+  "system.settings.theme_auto": "システムに従う",
+  "system.settings.theme_dark": "ダーク",
+  "system.settings.theme_light": "ライト"
 }

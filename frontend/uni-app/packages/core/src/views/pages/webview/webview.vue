@@ -1,5 +1,5 @@
 <template>
-  <view class="webview-container">
+  <view class="webview-container" :class="themeStore.themeClass">
     <!-- 小程序/APP 使用 web-view 组件 -->
     <!-- #ifdef MP-WEIXIN || MP-ALIPAY || APP-PLUS -->
     <web-view :src="url" @message="handleMessage"></web-view>
@@ -34,12 +34,14 @@
 import { computed, ref } from 'vue'
 import { onLoad } from '@dcloudio/uni-app'
 import { useI18n } from '../../../locales'
+import { useThemeStore } from '../../../stores'
 
 const url = ref('')
 const isH5 = ref(false)
 const isIframeLoaded = ref(false)
 const isIframeTimedOut = ref(false)
 const { t } = useI18n()
+const themeStore = useThemeStore()
 
 /** 只放行 http(s) 外链，其它协议按非法地址处理。 */
 const isAllowedUrl = (value: string) => /^https?:\/\//i.test(value)
@@ -117,19 +119,19 @@ const handleMessage = () => {}
   justify-content: center;
   padding: 48rpx;
   text-align: center;
-  background-color: #fff;
+  background: var(--kratos-bg-gradient);
 }
 
 .webview-empty__title {
   font-size: 32rpx;
   font-weight: 600;
-  color: #333;
+  color: var(--kratos-color-text);
 }
 
 .webview-empty__desc {
   margin-top: 16rpx;
   font-size: 26rpx;
-  color: #888;
+  color: var(--kratos-color-text-muted);
 }
 
 .webview-open-button {
@@ -141,8 +143,12 @@ const handleMessage = () => {}
   height: 72rpx;
   line-height: 72rpx;
   border-radius: 72rpx;
-  background-color: #27ba9b;
-  color: #fff;
+  background: linear-gradient(
+    135deg,
+    var(--kratos-color-primary-deep),
+    var(--kratos-color-primary)
+  );
+  color: var(--kratos-color-on-primary);
   font-size: 26rpx;
 }
 </style>

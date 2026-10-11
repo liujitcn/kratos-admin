@@ -11,6 +11,7 @@ import {
 } from './auth'
 import { saveCurrentRoute } from './navigation'
 import { getLocaleRequestHeaders, t } from '../locales'
+import { useThemeStore } from '../stores/theme'
 
 const apiBasePath = process.env.VITE_APP_BASE_API || '/api'
 const apiTargetUrl = process.env.VITE_APP_API_URL || ''
@@ -265,11 +266,13 @@ async function promptRelogin(): Promise<void> {
   if (isPromptingRelogin) return
   isPromptingRelogin = true
   try {
+    const theme = useThemeStore.getState().theme
     const modal = await Taro.showModal({
       title: t('common.title.notice'),
       content: t('core.auth.session_expired'),
       showCancel: false,
       confirmText: t('core.auth.login_again'),
+      confirmColor: theme === 'light' ? '#039e8c' : '#28f0d4',
     })
     if (!modal.confirm) return
     await new Promise((resolve) => setTimeout(resolve, 80))

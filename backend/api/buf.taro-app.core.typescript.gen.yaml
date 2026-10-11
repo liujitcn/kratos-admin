@@ -20,6 +20,7 @@ inputs:
       - proto/base/v1/ai_session.proto
       - proto/base/v1/ai_tool.proto
       - proto/base/v1/ai_provider.proto
+      - proto/base/v1/ai_knowledge.proto
       - proto/base/v1/notification.proto
 
 plugins:

@@ -1,6 +1,8 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import type { AiSession } from '../../../../rpc/base/v1/ai_session'
 import { useI18n } from '@liujitcn/kratos-uni-app-core'
+import { useThemeStore } from '@liujitcn/kratos-uni-app-core/stores'
 
 type PressPoint = {
   clientX?: number
@@ -43,6 +45,9 @@ const emit = defineEmits<{
   'update:keyword': [value: string]
 }>()
 const { t } = useI18n()
+const themeStore = useThemeStore()
+const primaryIconColor = computed(() => (themeStore.theme === 'light' ? '#039e8c' : '#28f0d4'))
+const mutedIconColor = computed(() => (themeStore.theme === 'light' ? '#5a7083' : '#8aa0b4'))
 
 function handleKeywordInput(event: Event) {
   emit('update:keyword', ((event as unknown as InputEventValue).detail?.value || '').toString())
@@ -75,12 +80,12 @@ function formatSessionTime(session: AiSession) {
     <view class="session-drawer__head">
       <view class="session-drawer__title">{{ t('system.ai.history') }}</view>
       <button class="session-create" hover-class="none" @tap="emit('create')">
-        <uni-icons type="plusempty" size="16" color="#27ba9b" />
+        <uni-icons type="plusempty" size="16" :color="primaryIconColor" />
         <text>{{ t('common.action.new') }}</text>
       </button>
     </view>
     <view class="session-search">
-      <uni-icons type="search" size="16" color="#898b94" />
+      <uni-icons type="search" size="16" :color="mutedIconColor" />
       <input
         class="session-search-input"
         confirm-type="search"
@@ -108,8 +113,9 @@ function formatSessionTime(session: AiSession) {
           <view class="session-summary">{{ session.summary || t('system.ai.no_summary') }}</view>
         </view>
         <button class="session-more" hover-class="none" @tap.stop="emit('action', session, $event)">
-          <view></view>
-          <view></view>
+          <view class="session-more__dot"></view>
+          <view class="session-more__dot"></view>
+          <view class="session-more__dot"></view>
           <view></view>
         </button>
       </view>
@@ -142,7 +148,7 @@ function formatSessionTime(session: AiSession) {
   left: 560rpx;
   /* 高于 KratosTabBar 的 z-index:999,避免抽屉被底部导航遮挡 */
   z-index: 1000;
-  background-color: rgba(0, 0, 0, 0.18);
+  background-color: var(--kratos-color-mask, rgba(2, 6, 12, 0.55));
 }
 
 .session-drawer {
@@ -155,7 +161,8 @@ function formatSessionTime(session: AiSession) {
   z-index: 1001;
   width: 560rpx;
   padding: 0 24rpx 36rpx;
-  background-color: #fff;
+  background: var(--kratos-color-surface-solid, #070d18);
+  border-right: 1rpx solid var(--kratos-color-border-accent, rgba(120, 230, 215, 0.16));
   box-shadow: none;
   box-sizing: border-box;
   transform: translateX(-100%);
@@ -163,7 +170,7 @@ function formatSessionTime(session: AiSession) {
 }
 
 .session-drawer.is-open {
-  box-shadow: 24rpx 0 60rpx rgba(0, 0, 0, 0.12);
+  box-shadow: 24rpx 0 60rpx rgba(0, 0, 0, 0.3);
   transform: translateX(0);
 }
 
@@ -177,7 +184,7 @@ function formatSessionTime(session: AiSession) {
 }
 
 .session-drawer__title {
-  color: #333;
+  color: var(--kratos-color-text, #e9f4f6);
   font-size: 32rpx;
   font-weight: 700;
   line-height: 40rpx;
@@ -190,11 +197,12 @@ function formatSessionTime(session: AiSession) {
   gap: 4rpx;
   width: 112rpx;
   height: 52rpx;
-  border-radius: 8rpx;
-  color: #27ba9b;
+  border: 1rpx solid var(--kratos-color-primary-edge, rgba(40, 240, 212, 0.3));
+  border-radius: 12rpx;
+  color: var(--kratos-color-primary, #28f0d4);
   font-size: 24rpx;
-  line-height: 52rpx;
-  background-color: #e8f8f4;
+  line-height: 50rpx;
+  background: var(--kratos-color-primary-soft, rgba(40, 240, 212, 0.08));
 }
 
 .session-search {
@@ -205,20 +213,21 @@ function formatSessionTime(session: AiSession) {
   height: 64rpx;
   padding: 0 18rpx;
   margin-bottom: 18rpx;
-  border-radius: 10rpx;
-  background-color: #f6f7f9;
+  border: 1rpx solid var(--kratos-color-border, rgba(255, 255, 255, 0.08));
+  border-radius: 12rpx;
+  background: var(--kratos-color-surface-2, rgba(255, 255, 255, 0.06));
   box-sizing: border-box;
 }
 
 .session-search-input {
   flex: 1;
   min-width: 0;
-  color: #333;
+  color: var(--kratos-color-text, #e9f4f6);
   font-size: 24rpx;
 }
 
 .session-search-placeholder {
-  color: #b8bcc5;
+  color: var(--kratos-color-text-dim, #4e6378);
 }
 
 .session-list {
@@ -231,9 +240,9 @@ function formatSessionTime(session: AiSession) {
   align-items: center;
   gap: 12rpx;
   padding: 22rpx 16rpx 22rpx 22rpx;
-  border: 1rpx solid #eee;
-  border-radius: 10rpx;
-  background-color: #fff;
+  border: 1rpx solid var(--kratos-color-border, rgba(255, 255, 255, 0.08));
+  border-radius: 14rpx;
+  background: var(--kratos-color-surface, rgba(255, 255, 255, 0.035));
 }
 
 .session-item + .session-item {
@@ -241,8 +250,8 @@ function formatSessionTime(session: AiSession) {
 }
 
 .session-item.is-active {
-  border-color: #c7eee4;
-  background-color: #e8f8f4;
+  border-color: var(--kratos-color-primary-edge, rgba(40, 240, 212, 0.3));
+  background: var(--kratos-color-primary-soft, rgba(40, 240, 212, 0.08));
 }
 
 .session-content {
@@ -262,7 +271,7 @@ function formatSessionTime(session: AiSession) {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  color: #333;
+  color: var(--kratos-color-text, #e9f4f6);
   font-size: 26rpx;
   font-weight: 600;
   line-height: 34rpx;
@@ -270,8 +279,9 @@ function formatSessionTime(session: AiSession) {
 
 .session-time {
   flex-shrink: 0;
-  color: #a6abb3;
+  color: var(--kratos-color-text-dim, #4e6378);
   font-size: 20rpx;
+  font-family: var(--kratos-font-mono, monospace);
   line-height: 30rpx;
 }
 
@@ -280,7 +290,7 @@ function formatSessionTime(session: AiSession) {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  color: #777;
+  color: var(--kratos-color-text-muted, #8aa0b4);
   font-size: 22rpx;
   line-height: 32rpx;
 }
@@ -294,19 +304,19 @@ function formatSessionTime(session: AiSession) {
   width: 56rpx;
   height: 56rpx;
   border-radius: 50%;
-  background-color: transparent;
+  background: transparent;
 }
 
-.session-more view {
+.session-more__dot {
   width: 6rpx;
   height: 6rpx;
   border-radius: 50%;
-  background-color: #9ca3af;
+  background: var(--kratos-color-text-muted, #8aa0b4);
 }
 
 .session-empty {
   padding: 60rpx 0;
-  color: #999;
+  color: var(--kratos-color-text-dim, #4e6378);
   font-size: 24rpx;
   text-align: center;
 }

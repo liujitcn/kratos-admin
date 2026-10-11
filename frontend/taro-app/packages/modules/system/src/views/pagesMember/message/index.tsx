@@ -1,7 +1,7 @@
 import { useDidShow } from '@tarojs/taro'
-import { Button, ScrollView, Text, View } from '@tarojs/components'
+import { Button, Text, View } from '@tarojs/components'
 import { useRef, useState } from 'react'
-import { navigateAppView, t } from '@liujitcn/kratos-taro-app-core'
+import { navigateAppView, t, useThemeStore } from '@liujitcn/kratos-taro-app-core'
 import { UniIcon } from '@liujitcn/kratos-taro-app-ui'
 import { defNotificationService } from '../../../api/base/v1/notification'
 import type { Notification, NotificationCategory } from '../../../rpc/base/v1/notification'
@@ -12,6 +12,7 @@ import './message.scss'
 
 /** Taro 站内信收件箱页面。 */
 export default function MessageInboxPage() {
+  const themeStore = useThemeStore()
   const [items, setItems] = useState<Notification[]>([])
   const [cursorId, setCursorId] = useState(0)
   const [loading, setLoading] = useState(false)
@@ -151,119 +152,123 @@ export default function MessageInboxPage() {
   }
 
   return (
-    <View className='message-page'>
-      <View className='message-header'>
+    <View
+      className={`message-page ${
+        themeStore.theme === 'light' ? 'theme-light' : 'theme-dark'
+      }`}
+    >
+      <View className='k-top message-header'>
         <View className='message-header__title'>
-          <Text className='message-title'>{t('system.notification.title')}</Text>
+          <Text className='k-top__t2'>{t('system.notification.title')}</Text>
           {unreadTotal > 0 && <View className='message-unread-dot' aria-hidden='true' />}
         </View>
         {selectedView !== NotificationView.NOTIFICATION_VIEW_ARCHIVED && unreadTotal > 0 && (
-          <Button
-            className='message-action message-action--read message-header__action'
+          <View
+            className='k-ch k-ch--pri'
             onClick={() => void markAllRead().catch(() => undefined)}
           >
             {t('system.notification.mark_all_read')}
-          </Button>
+          </View>
         )}
       </View>
-      <View className='message-controls'>
-        <ScrollView className='message-category-scroll' scrollX showScrollbar={false}>
-          <View className='message-category-list'>
-            <Button
-              className={categoryId === undefined ? 'message-category active' : 'message-category'}
-              onClick={() => changeCategory()}
-            >
-              {t('system.notification.view.inbox')}
-            </Button>
-            {categoryOptions.map((category) => (
-              <Button
-                key={category.id}
-                className={
-                  categoryId === category.id ? 'message-category active' : 'message-category'
-                }
-                onClick={() => changeCategory(category.id)}
-              >
-                <UniIcon
-                  className='message-category__icon'
-                  type={resolveMessageCategoryIcon(category.icon)}
-                  size={16}
-                  color={categoryId === category.id ? '#fff' : category.color || '#64748b'}
-                />
-                {category.name}
-              </Button>
-            ))}
-          </View>
-        </ScrollView>
-        <View className='message-tabs'>
-          {viewOptions.map((option) => (
-            <Button
-              key={option.value}
-              className={selectedView === option.value ? 'message-tab active' : 'message-tab'}
-              onClick={() => changeView(option.value)}
-            >
-              {t(option.key)}
-            </Button>
-          ))}
-        </View>
-      </View>
-      {items.map((item) => (
+      <View className='k-chips'>
         <View
-          className='message-item'
-          key={item.id}
-          onClick={() => void openDetail(item).catch(() => undefined)}
+          className={`k-ch${categoryId === undefined ? ' k-ch--pri' : ''}`}
+          onClick={() => changeCategory()}
         >
-          <View className='message-item__main'>
-            <Text className={`message-item__title ${item.read_at ? '' : 'unread'}`}>
-              {item.title}
-            </Text>
-            <Text className='message-item__time'>{item.received_at}</Text>
-          </View>
-          <View className='message-item__category'>
-            <UniIcon
-              className='message-item__category-icon'
-              type={resolveMessageCategoryIcon(item.category_icon)}
-              size={16}
-              color={item.category_color || '#64748b'}
-            />
-            <Text>{item.category_name}</Text>
-          </View>
-          <View className='message-item__actions'>
-            {selectedView !== NotificationView.NOTIFICATION_VIEW_ARCHIVED && item.allow_archive && (
-              <Button
-                size='mini'
-                onClick={(event) => {
-                  event.stopPropagation()
-                  void toggleArchive(item).catch(() => undefined)
-                }}
-              >
-                {t('system.notification.action.archive')}
-              </Button>
-            )}
-            {selectedView === NotificationView.NOTIFICATION_VIEW_ARCHIVED && (
-              <Button
-                size='mini'
-                onClick={(event) => {
-                  event.stopPropagation()
-                  void toggleArchive(item).catch(() => undefined)
-                }}
-              >
-                {t('system.notification.action.restore')}
-              </Button>
-            )}
-            {item.allow_delete && (
-              <Button
-                size='mini'
-                onClick={(event) => {
-                  event.stopPropagation()
-                  void deleteItem(item).catch(() => undefined)
-                }}
-              >
-                {t('system.notification.action.delete')}
-              </Button>
-            )}
-          </View>
+          {t('system.notification.view.inbox')}
         </View>
-      ))}
+        {categoryOptions.map((category) => (
+          <View
+            key={category.id}
+            className={`k-ch${categoryId === category.id ? ' k-ch--pri' : ''}`}
+            onClick={() => changeCategory(category.id)}
+          >
+            <UniIcon
+              type={resolveMessageCategoryIcon(category.icon)}
+              size={16}
+              color={category.color || '#64748b'}
+            />
+            {category.name}
+          </View>
+        ))}
+      </View>
+      <View className='k-pills message-tabs'>
+        {viewOptions.map((option) => (
+          <View
+            key={option.value}
+            className={`k-pills__item message-tab${
+              selectedView === option.value ? ' k-pills__item--on' : ''
+            }`}
+            onClick={() => changeView(option.value)}
+          >
+            {t(option.key)}
+          </View>
+        ))}
+      </View>
+      <View className='k-msg-list'>
+        {items.map((item) => (
+          <View
+            className={`k-msg-item${item.read_at ? '' : ' k-msg-item--unread'}`}
+            key={item.id}
+            onClick={() => void openDetail(item).catch(() => undefined)}
+          >
+            <View className='k-msg-item__head'>
+              <View className='k-msg-item__icon'>
+                <UniIcon
+                  type={resolveMessageCategoryIcon(item.category_icon)}
+                  size={18}
+                  color={item.category_color || '#64748b'}
+                />
+              </View>
+              <View className='message-item__body'>
+                <Text className='k-msg-item__title'>{item.title}</Text>
+                <Text className='k-msg-item__meta'>{item.category_name}</Text>
+              </View>
+              <Text className='k-msg-item__time'>{item.received_at}</Text>
+            </View>
+            {(selectedView === NotificationView.NOTIFICATION_VIEW_ARCHIVED ||
+              item.allow_archive ||
+              item.allow_delete) && (
+              <View className='k-msg-item__actions'>
+                {selectedView !== NotificationView.NOTIFICATION_VIEW_ARCHIVED && item.allow_archive && (
+                  <Text
+                    className='k-msg-item__action'
+                    onClick={(event) => {
+                      event.stopPropagation()
+                      void toggleArchive(item).catch(() => undefined)
+                    }}
+                  >
+                    {t('system.notification.action.archive')}
+                  </Text>
+                )}
+                {selectedView === NotificationView.NOTIFICATION_VIEW_ARCHIVED && (
+                  <Text
+                    className='k-msg-item__action'
+                    onClick={(event) => {
+                      event.stopPropagation()
+                      void toggleArchive(item).catch(() => undefined)
+                    }}
+                  >
+                    {t('system.notification.action.restore')}
+                  </Text>
+                )}
+                {item.allow_delete && (
+                  <Text
+                    className='k-msg-item__action'
+                    onClick={(event) => {
+                      event.stopPropagation()
+                      void deleteItem(item).catch(() => undefined)
+                    }}
+                  >
+                    {t('system.notification.action.delete')}
+                  </Text>
+                )}
+              </View>
+            )}
+          </View>
+        ))}
+      </View>
       {!finished && (
         <Button
           className='load-more'

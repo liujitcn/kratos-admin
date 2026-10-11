@@ -30,8 +30,13 @@ test('生成可扩展的 Taro workspace、本地模块和发布模块清单', ()
     const config = readFileSync(resolve(target, 'apps/taro-app/config/index.ts'), 'utf8')
     const indexHtml = readFileSync(resolve(target, 'apps/taro-app/src/index.html'), 'utf8')
     const h5Env = readFileSync(resolve(target, '.env.development-h5'), 'utf8')
+    const appConfig = readJson(resolve(target, 'apps/taro-app/src/app.config.base.json'))
+    const theme = readJson(resolve(target, 'apps/taro-app/src/theme.json'))
 
     assert.equal(rootPackage.packageManager, 'pnpm@10.13.1')
+    assert.equal(appConfig.darkmode, true)
+    assert.equal(appConfig.themeLocation, 'theme.json')
+    assert.ok(theme.light && theme.dark)
     assert.match(rootPackage.scripts['dev:h5'], /prepare:modules/)
     assert.equal(hostPackage.type, undefined)
     assert.equal(

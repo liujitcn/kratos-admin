@@ -235,6 +235,8 @@ function writeHost(target, projectName, modules, packages, options) {
     'apps/taro-app/src/app.config.base.json',
     json({
       pages: ['pages/bootstrap/index'],
+      darkmode: true,
+      themeLocation: 'theme.json',
       window: {
         backgroundTextStyle: 'light',
         navigationBarBackgroundColor: '#f8f8f8',
@@ -242,6 +244,14 @@ function writeHost(target, projectName, modules, packages, options) {
         navigationBarTextStyle: 'black',
         backgroundColor: '#f8f8f8',
       },
+    }),
+  )
+  write(
+    target,
+    'apps/taro-app/src/theme.json',
+    json({
+      light: { navBgColor: '#f4f9fd', navTextStyle: 'black', pageBgColor: '#f4f9fd' },
+      dark: { navBgColor: '#060a12', navTextStyle: 'white', pageBgColor: '#060a12' },
     }),
   )
   write(

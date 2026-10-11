@@ -26,6 +26,13 @@ test('生成默认 system、本地模块和发布模块', () => {
     readFileSync(resolve(target, 'packages/modules/orders/package.json'), 'utf8'),
   )
   const productionEnv = readFileSync(resolve(target, '.env.production'), 'utf8')
+  const appManifest = JSON.parse(readFileSync(resolve(target, 'apps/uni-app/src/manifest.json')))
+  const theme = JSON.parse(readFileSync(resolve(target, 'apps/uni-app/src/theme.json')))
+  const pages = JSON.parse(readFileSync(resolve(target, 'apps/uni-app/src/pages.json')))
+  assert.equal(appManifest['mp-weixin'].darkmode, true)
+  assert.equal(appManifest['mp-weixin'].themeLocation, 'theme.json')
+  assert.ok(theme.light && theme.dark)
+  assert.equal(pages.darkmode, undefined)
   assert.match(manifest, /kratos-uni-app-system/)
   assert.match(manifest, /@local\/orders/)
   assert.match(manifest, /@acme\/pay/)

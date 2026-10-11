@@ -121,6 +121,14 @@ export function scaffoldKratosApp(targetPath, options = {}) {
   )
   write(
     target,
+    'apps/uni-app/src/theme.json',
+    json({
+      light: { navBgColor: '#f4f9fd', navTextStyle: 'black', pageBgColor: '#f4f9fd' },
+      dark: { navBgColor: '#060a12', navTextStyle: 'white', pageBgColor: '#060a12' },
+    }),
+  )
+  write(
+    target,
     'apps/uni-app/src/pages/bootstrap/index.vue',
     `<script setup lang="ts">
 import { onLoad } from '@dcloudio/uni-app'
@@ -144,7 +152,12 @@ onLoad((options) => {
       versionName: '1.0.0',
       versionCode: '100',
       transformPx: false,
-      'mp-weixin': { appid: '', setting: { urlCheck: false } },
+      'mp-weixin': {
+        appid: '',
+        darkmode: true,
+        themeLocation: 'theme.json',
+        setting: { urlCheck: false },
+      },
       h5: { router: { mode: 'hash' } },
     }),
   )

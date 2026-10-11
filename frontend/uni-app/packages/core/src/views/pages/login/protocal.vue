@@ -1,12 +1,15 @@
 <script setup lang="ts">
 import { onLoad } from '@dcloudio/uni-app'
-import { useSettingStore } from '../../../stores'
+import { useSettingStore, useThemeStore } from '../../../stores'
 import { ref } from 'vue'
 import { useI18n } from '../../../locales'
+import { homeTabPage } from '../../../utils/navigation'
 
 const settingStore = useSettingStore()
+const themeStore = useThemeStore()
 const { t } = useI18n()
 const content = ref('')
+const pageTitle = ref(t('core.navigation.protocol'))
 
 const protocolClassMap: Record<string, string> = {
   h2: 'protocol-title',
@@ -49,6 +52,7 @@ const decorateProtocolContent = (html: string) => {
 const loadProtocol = async (type?: string) => {
   const isPrivacy = type === 'privacy'
   const title = isPrivacy ? t('core.protocol.privacy') : t('core.protocol.service')
+  pageTitle.value = title
   const key = isPrivacy ? 'privacyProtocol' : 'serviceProtocol'
 
   try {
@@ -58,7 +62,6 @@ const loadProtocol = async (type?: string) => {
       throw new Error(t('core.protocol.not_configured', { title }))
     }
 
-    await uni.setNavigationBarTitle({ title })
     content.value = decorateProtocolContent(protocol)
   } catch (error) {
     await uni.showToast({
@@ -74,9 +77,19 @@ const loadProtocol = async (type?: string) => {
 onLoad((query) => {
   void loadProtocol(query?.type)
 })
+
+/** 返回来源页，页面栈为空时回到首页。 */
+const onBack = () => {
+  uni.navigateBack({ fail: () => uni.reLaunch({ url: homeTabPage }) })
+}
 </script>
 <template>
-  <view class="protocol-page">
+  <view class="protocol-page" :class="themeStore.themeClass">
+    <view class="k-page-nav">
+      <view class="k-page-nav__back" :aria-label="t('common.action.back')" @tap="onBack"></view>
+      <view class="k-page-nav__title">{{ pageTitle }}</view>
+      <view class="k-page-nav__side" aria-hidden="true"></view>
+    </view>
     <view class="protocol-card">
       <rich-text class="protocol-content" :nodes="content" />
     </view>
@@ -84,28 +97,25 @@ onLoad((query) => {
 </template>
 
 <style lang="scss">
-page {
-  background-color: #f5f7f6;
-}
-
 .protocol-page {
   min-height: 100vh;
   padding: 24rpx;
   box-sizing: border-box;
+  background: var(--kratos-bg-gradient);
 }
 
 .protocol-card {
   overflow: hidden;
   padding: 40rpx 32rpx 56rpx;
-  border: 1rpx solid #edf1ef;
+  border: 1rpx solid var(--kratos-color-border);
   border-radius: 24rpx;
-  background-color: #fff;
-  box-shadow: 0 8rpx 24rpx rgba(33, 54, 48, 0.05);
+  background-color: var(--kratos-color-surface);
+  box-shadow: var(--kratos-glow-soft);
 }
 
 .protocol-content {
   display: block;
-  color: #53635d;
+  color: var(--kratos-color-text-muted);
   font-size: 28rpx;
   line-height: 1.85;
   word-break: break-word;
@@ -113,7 +123,7 @@ page {
 
 .protocol-content .protocol-title {
   margin: 0 0 28rpx;
-  color: #1f2d29;
+  color: var(--kratos-color-text);
   font-size: 42rpx;
   font-weight: 700;
   line-height: 1.35;
@@ -122,8 +132,8 @@ page {
 .protocol-content .protocol-section-title {
   margin: 38rpx 0 14rpx;
   padding-left: 16rpx;
-  border-left: 6rpx solid #27ba9b;
-  color: #263a34;
+  border-left: 6rpx solid var(--kratos-color-primary);
+  color: var(--kratos-color-text);
   font-size: 31rpx;
   font-weight: 600;
   line-height: 1.45;
@@ -131,7 +141,7 @@ page {
 
 .protocol-content .protocol-paragraph {
   margin: 0 0 22rpx;
-  color: #53635d;
+  color: var(--kratos-color-text-muted);
   font-size: 28rpx;
   line-height: 1.85;
 }
@@ -152,12 +162,12 @@ page {
 }
 
 .protocol-content .protocol-emphasis {
-  color: #263a34;
+  color: var(--kratos-color-text);
   font-weight: 600;
 }
 
 .protocol-content .protocol-link {
-  color: #16806d;
+  color: var(--kratos-color-primary);
   text-decoration: underline;
 }
 
@@ -171,8 +181,8 @@ page {
 .protocol-content .protocol-quote {
   margin: 24rpx 0;
   padding: 18rpx 22rpx;
-  border-left: 6rpx solid #b8e8dc;
-  color: #6c7b75;
-  background-color: #f3fbf8;
+  border-left: 6rpx solid var(--kratos-color-primary-edge);
+  color: var(--kratos-color-text-muted);
+  background-color: var(--kratos-color-primary-soft);
 }
 </style>

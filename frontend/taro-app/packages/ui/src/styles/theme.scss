@@ -1,32 +1,99 @@
-$kratos-primary: #27ba9b;
-$kratos-primary-pressed: #1d9e83;
-$kratos-primary-light: #e9f8f4;
-$kratos-success: #27ba9b;
-$kratos-danger: #cf4444;
-$kratos-text: #333;
-$kratos-muted: #8a8f99;
-$kratos-background: #f7f7f8;
+/* ============================================================
+ * Kratos Taro 移动端主题令牌（暗黑 / 明亮双主题）
+ * 默认输出明亮主题；暗黑主题挂在页面根类 .theme-dark 上，
+ * 页面根节点绑定 .theme-light 或 .theme-dark 后变量随主题生效。
+ * ============================================================ */
 
 :root,
-page {
-  --kratos-color-primary: #{$kratos-primary};
-  --kratos-color-primary-pressed: #{$kratos-primary-pressed};
-  --kratos-color-primary-light: #{$kratos-primary-light};
-  --kratos-color-danger: #{$kratos-danger};
-  --kratos-color-text: #{$kratos-text};
-  --kratos-color-text-muted: #{$kratos-muted};
-  --kratos-color-background: #{$kratos-background};
+page,
+.theme-light {
+  --kratos-color-background: #eef3f8;
+  --kratos-bg-gradient: linear-gradient(180deg, #f4f9fd 0%, #e9f1f8 60%);
+  --kratos-color-surface: #ffffff;
+  --kratos-color-surface-2: #eef4fa;
+  --kratos-color-surface-solid: #ffffff;
+  --kratos-color-border: #e3eaf2;
+  --kratos-color-border-accent: rgba(0, 150, 134, 0.28);
+  --kratos-color-primary: #039e8c;
+  --kratos-color-primary-deep: #00b3a0;
+  --kratos-color-on-primary: #ffffff;
+  --kratos-color-primary-soft: rgba(3, 158, 140, 0.08);
+  --kratos-color-primary-soft-2: rgba(3, 158, 140, 0.1);
+  --kratos-color-primary-edge: rgba(3, 158, 140, 0.3);
+  --kratos-color-info: #1a93d8;
+  --kratos-color-warning: #d9880f;
+  --kratos-color-danger: #e0324f;
+  --kratos-color-danger-soft: rgba(224, 50, 79, 0.1);
+  --kratos-color-violet: #5f4fe0;
+  --kratos-color-text: #102232;
+  --kratos-color-text-muted: #5a7083;
+  --kratos-color-text-dim: #9aabbb;
+  --kratos-color-track: #e8eef5;
+  --kratos-color-mask: rgba(16, 34, 50, 0.45);
+  --kratos-dock-bg: rgba(255, 255, 255, 0.82);
+  --kratos-glow: 0 10px 26px rgba(0, 120, 110, 0.14);
+  --kratos-glow-soft: none;
+  --kratos-font-mono: ui-monospace, 'SF Mono', 'JetBrains Mono', Menlo, monospace;
 
-  --nutui-color-primary: #{$kratos-primary};
-  --nutui-color-primary-stop-1: #{$kratos-primary};
-  --nutui-color-primary-stop-2: #{$kratos-primary};
-  --nutui-color-primary-pressed: #{$kratos-primary-pressed};
-  --nutui-color-primary-light: #{$kratos-primary-light};
-  --nutui-color-primary-light-pressed: #d7f1ea;
-  --nutui-color-success: #{$kratos-success};
-  --nutui-color-danger: #{$kratos-danger};
-  --nutui-color-background: #{$kratos-background};
-  --nutui-color-title: #{$kratos-text};
-  --nutui-color-text-help: #{$kratos-muted};
+  --kratos-color-primary-pressed: #008f80;
+  --kratos-color-primary-light: #e0f5f2;
+
+  --nutui-color-primary: #039e8c;
+  --nutui-color-primary-stop-1: #039e8c;
+  --nutui-color-primary-stop-2: #039e8c;
+  --nutui-color-primary-pressed: #008f80;
+  --nutui-color-primary-light: #e0f5f2;
+  --nutui-color-primary-light-pressed: #d0efe9;
+  --nutui-color-success: #039e8c;
+  --nutui-color-danger: #e0324f;
+  --nutui-color-background: #eef3f8;
+  --nutui-color-title: #102232;
+  --nutui-color-text-help: #5a7083;
   --nutui-button-border-radius: 6px;
+}
+
+/* 暗黑主题：深色数据驾驶舱 */
+.theme-dark {
+  --kratos-color-background: #060a12;
+  --kratos-bg-gradient: linear-gradient(180deg, #081120 0%, #060a12 40%);
+  --kratos-color-surface: rgba(255, 255, 255, 0.035);
+  --kratos-color-surface-2: rgba(255, 255, 255, 0.06);
+  --kratos-color-surface-solid: #070d18;
+  --kratos-color-border: rgba(255, 255, 255, 0.08);
+  --kratos-color-border-accent: rgba(120, 230, 215, 0.16);
+  --kratos-color-primary: #28f0d4;
+  --kratos-color-primary-deep: #13c7b4;
+  --kratos-color-on-primary: #031513;
+  --kratos-color-primary-soft: rgba(40, 240, 212, 0.08);
+  --kratos-color-primary-soft-2: rgba(40, 240, 212, 0.1);
+  --kratos-color-primary-edge: rgba(40, 240, 212, 0.3);
+  --kratos-color-info: #45c2ff;
+  --kratos-color-warning: #ffb648;
+  --kratos-color-danger: #ff4d6d;
+  --kratos-color-danger-soft: rgba(255, 77, 109, 0.1);
+  --kratos-color-violet: #9b8cff;
+  --kratos-color-text: #e9f4f6;
+  --kratos-color-text-muted: #8aa0b4;
+  --kratos-color-text-dim: #4e6378;
+  --kratos-color-track: rgba(255, 255, 255, 0.06);
+  --kratos-color-mask: rgba(2, 6, 12, 0.55);
+  --kratos-dock-bg: rgba(10, 18, 30, 0.72);
+  --kratos-glow: 0 0 24px rgba(40, 240, 212, 0.35);
+  --kratos-glow-soft: 0 0 40px rgba(40, 240, 212, 0.06);
+  --kratos-font-mono: ui-monospace, 'SF Mono', 'JetBrains Mono', Menlo, monospace;
+
+  --kratos-color-primary-pressed: #13c7b4;
+  --kratos-color-primary-light: rgba(40, 240, 212, 0.12);
+
+  --nutui-color-primary: #28f0d4;
+  --nutui-color-primary-stop-1: #28f0d4;
+  --nutui-color-primary-stop-2: #28f0d4;
+  --nutui-color-primary-pressed: #13c7b4;
+  --nutui-color-primary-light: rgba(40, 240, 212, 0.12);
+  --nutui-color-primary-light-pressed: rgba(40, 240, 212, 0.2);
+  --nutui-color-success: #28f0d4;
+  --nutui-color-danger: #ff4d6d;
+  --nutui-color-background: #060a12;
+  --nutui-color-title: #e9f4f6;
+  --nutui-color-text-help: #8aa0b4;
 }

@@ -1,135 +1,79 @@
 .profile-viewport {
-  display: flex;
-  flex-direction: column;
   min-height: 100vh;
-  background-color: #f4f4f4;
-  background-size: auto 420px;
-  background-repeat: no-repeat;
+  background: var(--kratos-bg-gradient);
+  color: var(--kratos-color-text);
 }
 
-.profile-navbar {
-  position: relative;
+/* k-page-nav 自带安全区顶部内边距，这里只补水平与底部 */
+.profile-content {
+  padding: 0 32px calc(40px + env(safe-area-inset-bottom));
 }
 
-.profile-navbar__title {
+/* 头像卡 */
+.profile-id {
+  margin-top: 8px;
+  padding: 36px 30px;
+}
+
+.profile-id__main {
   display: flex;
-  height: 40PX;
   align-items: center;
-  justify-content: center;
-  color: #fff;
-  font-size: 16PX;
-  font-weight: 500;
+  gap: 24px;
+  min-width: 0;
 }
 
-.profile-back {
-  position: absolute;
-  left: 0;
-  bottom: 0;
-  display: flex;
-  width: 40PX;
-  height: 40PX;
-  align-items: center;
-  justify-content: center;
-  color: #fff;
-  font-size: 30PX;
+.profile-id__meta {
+  min-width: 0;
 }
 
-.profile-avatar {
-  display: flex;
+.profile-av-img {
   width: 100%;
-  height: 260px;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
+  height: 100%;
+  border-radius: 22px;
 }
 
-.profile-avatar__image {
-  width: 160px;
-  height: 160px;
-  border-radius: 50%;
-  background-color: #eee;
-}
-
-.profile-avatar__text {
-  display: block;
-  padding-top: 20px;
-  color: #fff;
-  font-size: 26px;
-  line-height: 1;
-}
-
+/* 表单卡 */
 .profile-form {
-  background-color: #f4f4f4;
+  margin-top: 24px;
+  padding: 10px 28px 28px;
 }
 
-.profile-form__content {
-  padding: 0 20px;
-  margin: 20px 20px 0;
-  border-radius: 10px;
-  background-color: #fff;
-}
-
-.profile-form__item {
-  display: flex;
-  height: 96px;
-  padding: 25px 10px;
-  border-bottom: 1px solid #ddd;
-  background-color: #fff;
-  color: #333;
-  font-size: 28px;
-  line-height: 46px;
-
-  &:last-child {
-    border: 0;
-  }
-}
-
-.profile-label {
-  width: 180px;
-  color: #333;
-}
-
-.profile-account {
-  color: #666;
-}
-
-.profile-placeholder {
-  color: #808080;
+/* 子项字段包在 Picker 中会命中 :first-child，恢复分隔线 */
+.profile-field--sub {
+  border-top: 1PX solid var(--kratos-color-border);
 }
 
 .profile-input {
-  display: block;
   flex: 1;
-  height: 46px;
+  min-height: 46px;
+}
+
+.profile-radios {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 24px;
 }
 
 .profile-radio {
-  margin-right: 20px;
-}
-
-.profile-form__button {
-  height: 80px;
-  margin: 30px 20px;
-  border-radius: 80px;
-  color: #fff;
-  font-size: 30px;
-  line-height: 80px;
-  text-align: center;
-  background-color: #27ba9b;
+  display: flex;
+  align-items: center;
+  color: var(--kratos-color-text);
+  font-size: 25px;
 }
 
 .profile-auth-button {
   height: 60px;
-  padding: 0 20px;
   margin: 0;
-  border: 1px solid #27ba9b;
-  border-radius: 30px;
-  color: #27ba9b;
-  font-size: 26px;
-  line-height: 60px;
-  background: none;
+  padding: 0 24px;
+  border: 1PX solid var(--kratos-color-border-accent);
+  border-radius: 999px;
+  background: var(--kratos-color-primary-soft);
+  color: var(--kratos-color-primary);
+  font-size: 24px;
+  line-height: 58px;
 
   &::after {
-    border: 0;
+    border: none;
   }
 }

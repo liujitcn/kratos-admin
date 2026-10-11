@@ -88,7 +88,7 @@ onBeforeUnmount(() => {
 .mfa-setup-panel__uri-text {
   flex: 1;
   min-width: 0;
-  color: #666;
+  color: var(--kratos-color-text-muted);
   font-size: 24rpx;
   line-height: 1.5;
   overflow-wrap: anywhere;
@@ -103,8 +103,8 @@ onBeforeUnmount(() => {
   height: 58rpx;
   margin: 0;
   padding: 0;
-  color: #27ba9b;
-  background: #f0fbf8;
+  color: var(--kratos-color-primary);
+  background: var(--kratos-color-primary-soft);
   border: 0;
   border-radius: 8rpx;
 }
@@ -114,13 +114,13 @@ onBeforeUnmount(() => {
 }
 
 .mfa-setup-panel__copy.is-copied {
-  color: #fff;
-  background: #27ba9b;
+  color: var(--kratos-color-on-primary);
+  background: var(--kratos-color-primary);
 }
 
 .mfa-setup-panel__copy.is-failed {
-  color: #e64340;
-  background: #fff1f0;
+  color: var(--kratos-color-danger);
+  background: var(--kratos-color-danger-soft);
 }
 
 .mfa-setup-panel__status {
@@ -155,6 +155,6 @@ onBeforeUnmount(() => {
 .mfa-setup-panel__copy-front {
   right: 0;
   bottom: 0;
-  background-color: #f0fbf8;
+  background-color: var(--kratos-color-primary-soft);
 }
 </style>

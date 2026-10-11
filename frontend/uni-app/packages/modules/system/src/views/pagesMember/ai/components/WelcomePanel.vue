@@ -1,6 +1,8 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import type { AiShortcut } from '../../../../rpc/base/v1/ai_tool'
 import { useI18n } from '@liujitcn/kratos-uni-app-core'
+import { useThemeStore } from '@liujitcn/kratos-uni-app-core/stores'
 
 defineProps<{
   greetingMessage: string
@@ -14,6 +16,9 @@ const emit = defineEmits<{
   'shortcut-tap': [shortcut: AiShortcut]
 }>()
 const { t } = useI18n()
+const themeStore = useThemeStore()
+const primaryIconColor = computed(() => (themeStore.theme === 'light' ? '#039e8c' : '#28f0d4'))
+const mutedIconColor = computed(() => (themeStore.theme === 'light' ? '#9aabbb' : '#8aa0b4'))
 </script>
 
 <template>
@@ -25,8 +30,8 @@ const { t } = useI18n()
         <view class="ai-avatar__face">
           <view class="ai-avatar__bang"></view>
           <view class="ai-avatar__eyes">
-            <view></view>
-            <view></view>
+            <view class="ai-avatar__eye"></view>
+            <view class="ai-avatar__eye"></view>
           </view>
           <view class="ai-avatar__blush is-left"></view>
           <view class="ai-avatar__blush is-right"></view>
@@ -50,7 +55,7 @@ const { t } = useI18n()
         </view>
         <button v-if="canRefresh" class="prompt-refresh" hover-class="none" @tap="emit('refresh')">
           <text>{{ t('system.ai.refresh') }}</text>
-          <uni-icons type="refresh" size="25" color="#00a96b" />
+          <uni-icons type="refresh" size="25" :color="primaryIconColor" />
         </button>
       </view>
       <view v-if="loading" class="prompt-loading">{{ t('common.message.loading') }}...</view>
@@ -72,7 +77,7 @@ const { t } = useI18n()
               shortcut.group || t('system.ai.general_assistant')
             }}</text>
           </view>
-          <uni-icons type="right" size="20" color="#9aa0aa" />
+          <uni-icons type="right" size="20" :color="mutedIconColor" />
         </button>
       </template>
     </view>
@@ -172,7 +177,7 @@ const { t } = useI18n()
   margin: 22rpx auto 0;
 }
 
-.ai-avatar__eyes view {
+.ai-avatar__eye {
   width: 6rpx;
   height: 9rpx;
   border-radius: 50%;
@@ -311,9 +316,9 @@ const { t } = useI18n()
 }
 
 .welcome-bubble {
-  color: #111;
-  background-color: #fff;
-  box-shadow: 0 10rpx 32rpx rgba(15, 23, 42, 0.04);
+  color: var(--kratos-color-text, #e9f4f6);
+  background: var(--kratos-color-surface, #fff);
+  border: 1rpx solid var(--kratos-color-border, rgba(255, 255, 255, 0.08));
   box-sizing: border-box;
 }
 
@@ -340,10 +345,10 @@ const { t } = useI18n()
 .prompt-card {
   margin-top: 34rpx;
   padding: 30rpx 28rpx 24rpx;
-  border: 1rpx solid #e7ecef;
-  border-radius: 10rpx;
-  background: linear-gradient(180deg, rgba(0, 169, 107, 0.05), rgba(255, 255, 255, 0) 38%), #fff;
-  box-shadow: 0 10rpx 34rpx rgba(15, 23, 42, 0.05);
+  border: 1rpx solid var(--kratos-color-border-accent, rgba(120, 230, 215, 0.16));
+  border-radius: 16rpx;
+  background: var(--kratos-color-surface, #fff);
+  box-shadow: var(--kratos-glow-soft, none);
   box-sizing: border-box;
 }
 
@@ -356,14 +361,15 @@ const { t } = useI18n()
 }
 
 .prompt-card__eyebrow {
-  color: #00a96b;
+  color: var(--kratos-color-primary, #28f0d4);
   font-size: 22rpx;
+  font-family: var(--kratos-font-mono, monospace);
   font-weight: 600;
   line-height: 30rpx;
 }
 
 .prompt-card__title {
-  color: #111;
+  color: var(--kratos-color-text, #e9f4f6);
   font-size: 31rpx;
   font-weight: 700;
   line-height: 42rpx;
@@ -375,14 +381,14 @@ const { t } = useI18n()
   align-items: center;
   gap: 14rpx;
   height: 50rpx;
-  color: #00a96b;
+  color: var(--kratos-color-primary, #28f0d4);
   font-size: 25rpx;
   line-height: 50rpx;
 }
 
 .prompt-loading {
   padding: 32rpx 0;
-  color: #8d929c;
+  color: var(--kratos-color-text-muted, #8aa0b4);
   font-size: 26rpx;
   line-height: 38rpx;
 }
@@ -393,8 +399,8 @@ const { t } = useI18n()
   width: 100%;
   min-height: 96rpx;
   padding: 16rpx 16rpx 16rpx 0;
-  border-top: 1rpx solid #edf0f2;
-  color: #111;
+  border-top: 1rpx solid var(--kratos-color-border, rgba(255, 255, 255, 0.08));
+  color: var(--kratos-color-text, #e9f4f6);
   text-align: left;
   box-sizing: border-box;
 }
@@ -408,13 +414,14 @@ const { t } = useI18n()
   width: 36rpx;
   height: 36rpx;
   margin-right: 24rpx;
-  border-radius: 8rpx;
-  color: #00a96b;
+  border: 1rpx solid var(--kratos-color-primary-edge, rgba(40, 240, 212, 0.3));
+  border-radius: 10rpx;
+  color: var(--kratos-color-primary, #28f0d4);
   font-size: 24rpx;
   font-weight: 700;
   line-height: 34rpx;
   text-align: center;
-  background-color: #e7f7f2;
+  background: var(--kratos-color-primary-soft, rgba(40, 240, 212, 0.08));
   box-sizing: border-box;
 }
 
@@ -431,7 +438,7 @@ const { t } = useI18n()
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  color: #111;
+  color: var(--kratos-color-text, #e9f4f6);
   font-size: 29rpx;
   line-height: 40rpx;
 }
@@ -441,7 +448,7 @@ const { t } = useI18n()
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  color: #8d929c;
+  color: var(--kratos-color-text-dim, #4e6378);
   font-size: 22rpx;
   line-height: 30rpx;
 }

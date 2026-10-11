@@ -2,6 +2,7 @@
   position: relative;
   flex: 1;
   height: 100vh;
+  background: var(--kratos-bg-gradient);
 }
 
 .webview-empty {
@@ -13,19 +14,19 @@
   justify-content: center;
   padding: 48px;
   text-align: center;
-  background-color: #fff;
+  background: var(--kratos-bg-gradient);
 }
 
 .webview-empty__title {
   font-size: 32px;
   font-weight: 600;
-  color: #333;
+  color: var(--kratos-color-text);
 }
 
 .webview-empty__desc {
   margin-top: 16px;
   font-size: 26px;
-  color: #888;
+  color: var(--kratos-color-text-muted);
 }
 
 .webview-open-button {
@@ -37,7 +38,7 @@
   height: 72px;
   line-height: 72px;
   border-radius: 72px;
-  background-color: #27ba9b;
-  color: #fff;
+  background: linear-gradient(135deg, var(--kratos-color-primary-deep), var(--kratos-color-primary));
+  color: var(--kratos-color-on-primary);
   font-size: 26px;
 }

@@ -6,9 +6,9 @@ import { defLoginService } from '../../../api/base/v1/login'
 import { defMfaService } from '../../../api/base/v1/mfa'
 import { navigateAppRoute } from '../../../navigation'
 import { LoginStatus, type LoginRequest, type LoginResponse } from '../../../rpc/base/v1/login'
-import { useSettingStore, useUserStore } from '../../../stores'
+import { useSettingStore, useThemeStore, useUserStore } from '../../../stores'
 import { formatSrc } from '../../../utils'
-import { restoreLoginRedirect } from '../../../utils/navigation'
+import { homeTabPage, restoreLoginRedirect } from '../../../utils/navigation'
 import { encryptPassword } from '../../../utils/secretCrypto'
 import { createWebAuthnCredential, getWebAuthnAssertion } from '../../../utils/webauthn'
 import MfaRecoveryCodesDialog from '../../../components/MfaRecoveryCodesDialog'
@@ -20,6 +20,12 @@ import { t as translate, useLocaleStore, useI18n, type SupportedLocale } from '.
 
 const behaviorCaptchaTypes = new Set(['slide', 'click', 'rotate'])
 const wechatMiniProvider = 'wechatmini'
+
+/** 参考管理端 View、Hide 图标视觉的本端 SVG 路径。 */
+const passwordIconPaths = {
+  view: 'M512 160c320 0 512 352 512 352S832 864 512 864 0 512 0 512s192-352 512-352m0 64c-225.28 0-384.128 208.064-436.8 288 52.608 79.872 211.456 288 436.8 288 225.28 0 384.128-208.064 436.8-288-52.608-79.872-211.456-288-436.8-288m0 64a224 224 0 1 1 0 448 224 224 0 0 1 0-448m0 64a160.19 160.19 0 0 0-160 160c0 88.192 71.744 160 160 160s160-71.808 160-160-71.744-160-160-160',
+  hide: 'M876.8 156.8c0-9.6-3.2-16-9.6-22.4s-12.8-9.6-22.4-9.6-16 3.2-22.4 9.6L736 220.8c-64-32-137.6-51.2-224-60.8-160 16-288 73.6-377.6 176S0 496 0 512s48 73.6 134.4 176c22.4 25.6 44.8 48 73.6 67.2l-86.4 89.6c-6.4 6.4-9.6 12.8-9.6 22.4s3.2 16 9.6 22.4 12.8 9.6 22.4 9.6 16-3.2 22.4-9.6l704-710.4c3.2-6.4 6.4-12.8 6.4-22.4m-646.4 528Q115.2 579.2 76.8 512q43.2-72 153.6-172.8C304 272 400 230.4 512 224c64 3.2 124.8 19.2 176 44.8l-54.4 54.4C598.4 300.8 560 288 512 288c-64 0-115.2 22.4-160 64s-64 96-64 160c0 48 12.8 89.6 35.2 124.8L256 707.2c-9.6-6.4-19.2-16-25.6-22.4m140.8-96Q352 555.2 352 512c0-44.8 16-83.2 48-112s67.2-48 112-48c28.8 0 54.4 6.4 73.6 19.2zM889.599 336c-12.8-16-28.8-28.8-41.6-41.6l-48 48c73.6 67.2 124.8 124.8 150.4 169.6q-43.2 72-153.6 172.8c-73.6 67.2-172.8 108.8-284.8 115.2-51.2-3.2-99.2-12.8-140.8-28.8l-48 48c57.6 22.4 118.4 38.4 188.8 44.8 160-16 288-73.6 377.6-176S1024 528 1024 512s-48.001-73.6-134.401-176M511.998 672c-12.8 0-25.6-3.2-38.4-6.4l-51.2 51.2c28.8 12.8 57.6 19.2 89.6 19.2 64 0 115.2-22.4 160-64 41.6-41.6 64-96 64-160 0-32-6.4-64-19.2-89.6l-51.2 51.2c3.2 12.8 6.4 25.6 6.4 38.4 0 44.8-16 83.2-48 112s-67.2 48-112 48',
+} as const
 
 type BehaviorPayload = BehaviorCaptchaData & {
   type?: string
@@ -76,6 +82,14 @@ export default function LoginPage() {
   const { locale, setLocale, t } = useI18n()
   const languageOptions = useLocaleStore((state) => state.languageOptions)
   const settings = useSettingStore((state) => state.data)
+  const themeStore = useThemeStore()
+
+  /** 返回上一页；登录页可能是冷启动首页，无上级页面时回主页。 */
+  const goBack = () => {
+    Taro.navigateBack({
+      fail: () => void Taro.reLaunch({ url: homeTabPage }),
+    })
+  }
   const loadSettings = useSettingStore((state) => state.loadData)
   const userStore = useUserStore.getState()
   const [agreed, setAgreed] = useState(false)
@@ -85,6 +99,7 @@ export default function LoginPage() {
   const settingsPromise = useRef<Promise<boolean>>()
   const [form, setForm] = useState<LoginRequest>(emptyLoginForm)
   const [password, setPassword] = useState('')
+  const [passwordVisible, setPasswordVisible] = useState(false)
   const [captchaImage, setCaptchaImage] = useState('')
   const [captchaType, setCaptchaType] = useState('')
   const [behaviorVisible, setBehaviorVisible] = useState(false)
@@ -95,6 +110,7 @@ export default function LoginPage() {
   const [miniCaptchaImage, setMiniCaptchaImage] = useState('')
   const [miniForm, setMiniForm] = useState(emptyLoginForm)
   const [miniPassword, setMiniPassword] = useState('')
+  const [miniPasswordVisible, setMiniPasswordVisible] = useState(false)
   const [mfaVisible, setMfaVisible] = useState(false)
   const [mfaLoading, setMfaLoading] = useState(false)
   const [mfaChallengeId, setMfaChallengeId] = useState('')
@@ -122,6 +138,13 @@ export default function LoginPage() {
   const configuredLogoUrl = configuredAppLogo ? formatSrc(configuredAppLogo) : defaultLogo
   const [appLogo, setAppLogo] = useState(configuredLogoUrl)
   const showTenantCode = settings?.get('showTenantCode') !== 'false'
+  /** 按管理端 View、Hide 视觉生成本端密码可见性图标。 */
+  const passwordIconSrc = (visible: boolean) => {
+    const color = themeStore.theme === 'light' ? '#5a7083' : '#8aa0b4'
+    const path = visible ? passwordIconPaths.hide : passwordIconPaths.view
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" fill="${color}"><path d="${path}"/></svg>`
+    return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`
+  }
   const configuredCaptchaType = settings?.get('captchaType') || ''
   const isBehaviorCaptcha = behaviorCaptchaTypes.has(captchaType)
   const behaviorWidth = Math.round(
@@ -168,10 +191,6 @@ export default function LoginPage() {
   useEffect(() => {
     setAppLogo(configuredLogoUrl)
   }, [configuredLogoUrl])
-
-  useEffect(() => {
-    void Taro.setNavigationBarTitle({ title: t('common.action.login') })
-  }, [locale, t])
 
   useEffect(() => {
     return () => {
@@ -288,6 +307,8 @@ export default function LoginPage() {
       content: t('core.login.protocol_prompt'),
       confirmText: t('common.action.confirm'),
       cancelText: t('common.action.cancel'),
+      confirmColor: themeStore.theme === 'light' ? '#039e8c' : '#28f0d4',
+      cancelColor: themeStore.theme === 'light' ? '#5a7083' : '#8aa0b4',
     })
     if (result.confirm) setAgreed(true)
     return result.confirm
@@ -585,24 +606,29 @@ export default function LoginPage() {
   )
 
   return (
-    <View className='login-page'>
-      <Picker
-        className='login-locale'
-        mode='selector'
-        range={languageOptions.map((item) => item.native_name)}
-        value={Math.max(
-          0,
-          languageOptions.findIndex((item) => item.language_code === locale),
-        )}
-        onChange={(event) => {
-          const nextLocale = languageOptions[Number(event.detail.value)]?.language_code as
-            | SupportedLocale
-            | undefined
-          if (nextLocale) void setLocale(nextLocale)
-        }}
-      >
-        <View className='login-locale__value'>{currentLanguageName}</View>
-      </Picker>
+    <View className={`login-page ${themeStore.theme === 'light' ? 'theme-light' : 'theme-dark'}`}>
+      <View className='login-header'>
+        <View className='login-back' aria-hidden onClick={goBack}>
+          ‹
+        </View>
+        <Picker
+          className='login-locale'
+          mode='selector'
+          range={languageOptions.map((item) => item.native_name)}
+          value={Math.max(
+            0,
+            languageOptions.findIndex((item) => item.language_code === locale),
+          )}
+          onChange={(event) => {
+            const nextLocale = languageOptions[Number(event.detail.value)]?.language_code as
+              | SupportedLocale
+              | undefined
+            if (nextLocale) void setLocale(nextLocale)
+          }}
+        >
+          <View className='login-locale__value'>{currentLanguageName}</View>
+        </Picker>
+      </View>
       <View className='login-hero'>
         <View className='login-logo-shell'>
           <Image className='login-logo' src={appLogo} onError={() => setAppLogo(defaultLogo)} />
@@ -629,14 +655,27 @@ export default function LoginPage() {
               value={form.user_name}
               onInput={(event) => updateForm('user_name', event.detail.value)}
             />
-            <Input
-              className='login-input'
-              password
-              placeholder={t('core.login.password')}
-              value={password}
-              onInput={(event) => setPassword(event.detail.value)}
-              onConfirm={() => void onSubmit()}
-            />
+            <View className='password-field'>
+              <Input
+                className='login-input password-input'
+                password={!passwordVisible}
+                placeholder={t('core.login.password')}
+                value={password}
+                onInput={(event) => setPassword(event.detail.value)}
+                onConfirm={() => void onSubmit()}
+              />
+              <View
+                className='password-toggle'
+                aria-label={passwordVisible ? '隐藏密码' : '显示密码'}
+                onClick={() => setPasswordVisible((visible) => !visible)}
+              >
+                <Image
+                  className='password-toggle-icon'
+                  src={passwordIconSrc(passwordVisible)}
+                  mode='aspectFit'
+                />
+              </View>
+            </View>
             {!isBehaviorCaptcha ? (
               <View className='captcha-row'>
                 <Input
@@ -705,13 +744,26 @@ export default function LoginPage() {
               value={miniForm.user_name}
               onInput={(event) => updateMiniForm('user_name', event.detail.value)}
             />
-            <Input
-              className='login-input'
-              password
-              placeholder={t('core.login.password')}
-              value={miniPassword}
-              onInput={(event) => setMiniPassword(event.detail.value)}
-            />
+            <View className='password-field'>
+              <Input
+                className='login-input password-input'
+                password={!miniPasswordVisible}
+                placeholder={t('core.login.password')}
+                value={miniPassword}
+                onInput={(event) => setMiniPassword(event.detail.value)}
+              />
+              <View
+                className='password-toggle'
+                aria-label={miniPasswordVisible ? '隐藏密码' : '显示密码'}
+                onClick={() => setMiniPasswordVisible((visible) => !visible)}
+              >
+                <Image
+                  className='password-toggle-icon'
+                  src={passwordIconSrc(miniPasswordVisible)}
+                  mode='aspectFit'
+                />
+              </View>
+            </View>
             <View className='captcha-row'>
               <Input
                 className='login-input captcha-input'

@@ -115,18 +115,18 @@ onBeforeUnmount(() => {
 .mfa-recovery-dialog__panel {
   width: min(100%, 640rpx);
   overflow: hidden;
-  background-color: #fff;
+  background-color: var(--kratos-color-surface-solid);
   border-radius: 16rpx;
   box-shadow: 0 20rpx 64rpx rgb(0 0 0 / 20%);
 }
 
 .mfa-recovery-dialog__header {
   padding: 28rpx 32rpx;
-  border-bottom: 1rpx solid #eee;
+  border-bottom: 1rpx solid var(--kratos-color-border);
 }
 
 .mfa-recovery-dialog__title {
-  color: #222;
+  color: var(--kratos-color-text);
   font-size: 34rpx;
   font-weight: 600;
 }
@@ -141,10 +141,11 @@ onBeforeUnmount(() => {
   min-height: 220rpx;
   margin-bottom: 16rpx;
   padding: 20rpx 24rpx;
-  color: #222;
+  color: var(--kratos-color-text);
   font-size: 30rpx;
   line-height: 1.6;
-  border: 1rpx solid #ddd;
+  border: 1rpx solid var(--kratos-color-border);
+  background-color: var(--kratos-color-surface-2);
   border-radius: 8rpx;
   overflow-wrap: anywhere;
   white-space: pre-wrap;
@@ -156,10 +157,10 @@ onBeforeUnmount(() => {
   height: 58rpx;
   margin: 0;
   padding: 0 18rpx;
-  color: #27ba9b;
+  color: var(--kratos-color-primary);
   font-size: 24rpx;
   line-height: 58rpx;
-  background-color: #f0fbf8;
+  background-color: var(--kratos-color-primary-soft);
   border: 0;
   border-radius: 8rpx;
 }
@@ -170,14 +171,14 @@ onBeforeUnmount(() => {
 }
 
 .mfa-recovery-dialog__copy.is-failed {
-  color: #e64340;
-  background-color: #fff1f0;
+  color: var(--kratos-color-danger);
+  background-color: var(--kratos-color-danger-soft);
 }
 
 .mfa-recovery-dialog__warning {
   display: block;
   margin-top: 12rpx;
-  color: #c58b00;
+  color: var(--kratos-color-warning);
   font-size: 24rpx;
   line-height: 1.5;
 }
@@ -193,10 +194,10 @@ onBeforeUnmount(() => {
   height: 72rpx;
   margin: 0;
   padding: 0 24rpx;
-  color: #fff;
+  color: var(--kratos-color-on-primary);
   font-size: 28rpx;
   line-height: 72rpx;
-  background-color: #27ba9b;
+  background-color: var(--kratos-color-primary);
   border: 0;
   border-radius: 8rpx;
 }
