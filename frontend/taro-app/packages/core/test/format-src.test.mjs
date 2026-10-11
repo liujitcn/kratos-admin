@@ -20,6 +20,21 @@ async function loadFormatSrc(taroEnv) {
       'process.env.VITE_APP_API_URL': JSON.stringify('https://api.example.com'),
       'process.env.VITE_APP_STATIC_URL': JSON.stringify('https://static.example.com'),
     },
+    plugins: [
+      {
+        name: 'taro-runtime-stub',
+        setup(buildApi) {
+          buildApi.onResolve({ filter: /^@tarojs\/taro$/ }, () => ({
+            path: 'taro-runtime',
+            namespace: 'test',
+          }))
+          buildApi.onLoad({ filter: /.*/, namespace: 'test' }, () => ({
+            loader: 'js',
+            contents: 'export default {}',
+          }))
+        },
+      },
+    ],
   })
   return {
     formatSrc: (await import(pathToFileURL(output).href)).formatSrc,
