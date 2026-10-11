@@ -57,6 +57,9 @@ function handleToggle(knowledgeId: number) {
             <text v-if="isSelected(option.id)">✓</text>
           </view>
         </view>
+        <view v-if="!options.length" class="knowledge-picker__empty">{{
+          t('system.ai.knowledge.empty')
+        }}</view>
       </scroll-view>
     </view>
   </view>
@@ -66,9 +69,8 @@ function handleToggle(knowledgeId: number) {
 .knowledge-picker {
   position: fixed;
   inset: 0;
+  /* 高于 KratosTabBar 的 z-index:999,避免弹层被底部导航遮挡 */
   z-index: 1000;
-  display: flex;
-  align-items: flex-end;
 }
 
 .knowledge-picker__mask {
@@ -78,43 +80,51 @@ function handleToggle(knowledgeId: number) {
 }
 
 .knowledge-picker__sheet {
-  position: relative;
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
   display: flex;
   flex-direction: column;
-  width: 100%;
   max-height: 62vh;
-  padding: 10px 20px calc(20px + env(safe-area-inset-bottom));
+  padding: 40rpx 80rpx calc(80rpx + env(safe-area-inset-bottom));
+  overflow: hidden;
   background: var(--kratos-color-surface-solid, #070d18);
-  border-radius: 20px 20px 0 0;
+  border-radius: 40rpx 40rpx 0 0;
+  box-sizing: border-box;
 }
 
 .knowledge-picker__handle {
-  width: 36px;
-  height: 4px;
-  margin: 0 auto 10px;
+  flex-shrink: 0;
+  width: 72rpx;
+  height: 8rpx;
+  margin: 0 auto 20rpx;
   background: var(--kratos-color-track, rgba(255, 255, 255, 0.06));
-  border-radius: 2px;
+  border-radius: 4rpx;
 }
 
 .knowledge-picker__head {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 20rpx;
 }
 
 .knowledge-picker__title {
-  font-size: 17px;
-  font-weight: 600;
+  flex-shrink: 0;
   color: var(--kratos-color-text, #e9f4f6);
+  font-size: 34rpx;
+  font-weight: 600;
 }
 
 .knowledge-picker__count {
   flex: 1;
-  font-size: 12px;
+  min-width: 0;
   color: var(--kratos-color-text-muted, #8aa0b4);
+  font-size: 24rpx;
 }
 
 .knowledge-picker__close {
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -122,9 +132,9 @@ function handleToggle(knowledgeId: number) {
   height: 44rpx;
   padding: 0;
   margin: 0;
-  font-size: 16px;
-  line-height: normal;
   color: var(--kratos-color-text-muted, #8aa0b4);
+  font-size: 32rpx;
+  line-height: normal;
   background: transparent;
   border-radius: 0;
 }
@@ -134,55 +144,72 @@ function handleToggle(knowledgeId: number) {
 }
 
 .knowledge-picker__hint {
-  margin-top: 6px;
-  font-size: 12px;
+  flex-shrink: 0;
+  margin-top: 12rpx;
   color: var(--kratos-color-text-muted, #8aa0b4);
+  font-size: 24rpx;
 }
 
 .knowledge-picker__body {
-  margin-top: 10px;
+  flex: 1;
+  min-height: 0;
+  margin-top: 20rpx;
 }
 
 .knowledge-picker__row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  padding: 12px 4px;
+  gap: 24rpx;
+  min-height: 92rpx;
+  padding: 24rpx 8rpx;
   border-bottom: 1rpx solid var(--kratos-color-border, #e3eaf2);
+  box-sizing: border-box;
 }
 
 .knowledge-picker__row-main {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 4rpx;
   min-width: 0;
 }
 
 .knowledge-picker__row-name {
-  font-size: 15px;
+  overflow: hidden;
   color: var(--kratos-color-text, #e9f4f6);
+  font-size: 30rpx;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .knowledge-picker__row-meta {
-  font-size: 12px;
   color: var(--kratos-color-text-muted, #8aa0b4);
+  font-size: 24rpx;
 }
 
 .knowledge-picker__check {
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 22px;
-  height: 22px;
+  width: 44rpx;
+  height: 44rpx;
   border: 1rpx solid var(--kratos-color-border, #d0d2d6);
   border-radius: 50%;
-  font-size: 13px;
   color: var(--kratos-color-on-primary, #031513);
+  font-size: 26rpx;
+  box-sizing: border-box;
 }
 
 .knowledge-picker__check.is-checked {
   background: var(--kratos-color-primary, #28f0d4);
   border-color: var(--kratos-color-primary, #28f0d4);
+}
+
+.knowledge-picker__empty {
+  padding: 48rpx 0;
+  color: var(--kratos-color-text-muted, #8aa0b4);
+  font-size: 26rpx;
+  text-align: center;
 }
 </style>

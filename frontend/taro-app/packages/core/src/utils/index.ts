@@ -1,3 +1,5 @@
+import Taro from '@tarojs/taro'
+
 const configuredStaticUrl =
   process.env.VITE_APP_STATIC_URL || process.env.VITE_APP_API_URL || ''
 
@@ -43,4 +45,21 @@ export function formatSrc(src: string): string {
   return src.startsWith('/')
     ? `${staticOrigin}${src}`
     : `${staticOrigin}/${src.replace(/^\/+/, '')}`
+}
+
+/**
+ * 微信小程序原生胶囊按钮（右上角 ⋯ / ◯）右侧避让宽度（px）。
+ * 自定义导航栏（navigationStyle: 'custom'）在 weapp 下仍会显示原生胶囊，
+ * 页头右侧若放置可交互图标/按钮需预留该宽度，避免与胶囊重叠；
+ * 非 weapp 平台返回 0，无需特殊处理。
+ */
+export function getMpCapsuleRightGap(): number {
+  if (process.env.TARO_ENV !== 'weapp') return 0
+  try {
+    const menu = Taro.getMenuButtonBoundingClientRect()
+    const { windowWidth } = Taro.getSystemInfoSync()
+    return Math.max(0, Math.round(windowWidth - menu.left + 12))
+  } catch {
+    return 0
+  }
 }

@@ -264,7 +264,8 @@ const deleteSession = async (sessionID: string) => {
       title: session?.title || t('system.ai.current_session'),
     }),
     confirmText: t('common.action.delete'),
-    confirmColor: '#cf4444',
+    confirmColor: themeStore.theme === 'light' ? '#e0324f' : '#ff4d6d',
+    cancelColor: themeStore.theme === 'light' ? '#5a7083' : '#8aa0b4',
   })
   if (!result.confirm) {
     return
@@ -1276,14 +1277,20 @@ function showError(error: unknown, fallback: string) {
 
 <template>
   <view class="ai-page" :class="themeStore.themeClass">
-    <view class="ai-navbar">
-      <button class="nav-back-button" hover-class="none" @tap="navigateBack">
-        <uni-icons type="left" size="24" :color="navIconColor" />
-      </button>
-      <view class="ai-navbar__title">{{ t('system.ai.chat_title') }}</view>
-      <button class="nav-menu-button" hover-class="none" @tap="toggleSessionDrawer">
-        <uni-icons type="bars" size="24" :color="navIconColor" />
-      </button>
+    <view class="ai-navbar k-page-nav">
+      <view
+        class="k-page-nav__back"
+        :aria-label="t('common.action.back')"
+        @tap="navigateBack"
+      ></view>
+      <view class="k-page-nav__title">{{ t('system.ai.chat_title') }}</view>
+      <view
+        class="k-page-nav__side k-ic"
+        :aria-label="t('system.ai.history')"
+        @tap="toggleSessionDrawer"
+      >
+        <uni-icons type="bars" size="22" :color="navIconColor" />
+      </view>
     </view>
 
     <scroll-view
@@ -1410,73 +1417,7 @@ function showError(error: unknown, fallback: string) {
 
 .ai-navbar {
   flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  box-sizing: border-box;
-  background: var(--kratos-color-surface);
-  border-bottom: 1rpx solid var(--kratos-color-border-accent);
-
-  height: 44px;
-
-  /* #ifdef MP-WEIXIN */
-  height: 88px;
-  padding-top: 44px;
-  /* #endif */
-}
-
-/* #ifdef MP-WEIXIN */
-.ai-navbar {
-  position: relative;
-}
-
-.ai-navbar .nav-back-button,
-.ai-navbar .nav-menu-button {
-  position: absolute;
-  bottom: 0;
-}
-
-.ai-navbar .nav-back-button {
-  left: 0;
-}
-
-.ai-navbar .nav-menu-button {
-  left: 56rpx;
-  right: auto;
-}
-
-.ai-navbar__title {
-  width: 100%;
-  height: 44px;
-  line-height: 44px;
-}
-/* #endif */
-
-.nav-back-button,
-.nav-menu-button {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 88rpx;
-  height: 44px;
-  padding: 0;
-  border: 0;
-  border-radius: 0;
-  background: transparent;
-  line-height: normal;
-}
-
-.nav-back-button::after,
-.nav-menu-button::after {
-  border: 0;
-}
-
-.ai-navbar__title {
-  flex: 1;
-  color: var(--kratos-color-text);
-  font-size: 32rpx;
-  font-weight: 700;
-  text-align: center;
+  padding: 0 24rpx;
 }
 
 .ai-body {
@@ -1516,7 +1457,7 @@ function showError(error: unknown, fallback: string) {
     var(--kratos-color-primary) 100%
   );
   border-bottom-right-radius: 6rpx;
-  box-shadow: 0 0 24rpx rgba(40, 240, 212, 0.25);
+  box-shadow: var(--kratos-glow);
 }
 
 .ai-bubble {

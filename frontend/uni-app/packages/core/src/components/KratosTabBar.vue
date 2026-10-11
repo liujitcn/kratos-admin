@@ -111,12 +111,12 @@ onMounted(() => {
 
   position: fixed;
   right: 20rpx;
-  bottom: calc(20rpx + env(safe-area-inset-bottom));
+  bottom: env(safe-area-inset-bottom);
   left: 20rpx;
   z-index: 999;
   display: flex;
-  height: calc(104rpx + env(safe-area-inset-bottom));
-  padding: 0 8rpx env(safe-area-inset-bottom);
+  height: 104rpx;
+  padding: 0 8rpx;
   border: 1rpx solid var(--kratos-color-border-accent, rgba(120, 230, 215, 0.16));
   border-radius: 30rpx;
   background: var(--kratos-dock-bg, rgba(10, 18, 30, 0.72));

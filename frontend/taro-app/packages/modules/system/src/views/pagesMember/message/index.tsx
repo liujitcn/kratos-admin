@@ -1,7 +1,8 @@
+import type { CSSProperties } from 'react'
 import { useDidShow } from '@tarojs/taro'
 import { Button, Text, View } from '@tarojs/components'
 import { useRef, useState } from 'react'
-import { navigateAppView, t, useThemeStore } from '@liujitcn/kratos-taro-app-core'
+import { getMpCapsuleRightGap, navigateAppView, t, useThemeStore } from '@liujitcn/kratos-taro-app-core'
 import { UniIcon } from '@liujitcn/kratos-taro-app-ui'
 import { defNotificationService } from '../../../api/base/v1/notification'
 import type { Notification, NotificationCategory } from '../../../rpc/base/v1/notification'
@@ -13,6 +14,9 @@ import './message.scss'
 /** Taro 站内信收件箱页面。 */
 export default function MessageInboxPage() {
   const themeStore = useThemeStore()
+  /** MP-WEIXIN 原生胶囊按钮右侧避让宽度，写入 --mp-capsule-gap 供 .k-top 预留空间。 */
+  const capsuleGap = getMpCapsuleRightGap()
+  const topNavStyle = { '--mp-capsule-gap': `${capsuleGap}px` } as CSSProperties
   const [items, setItems] = useState<Notification[]>([])
   const [cursorId, setCursorId] = useState(0)
   const [loading, setLoading] = useState(false)
@@ -157,7 +161,7 @@ export default function MessageInboxPage() {
         themeStore.theme === 'light' ? 'theme-light' : 'theme-dark'
       }`}
     >
-      <View className='k-top message-header'>
+      <View className='k-top message-header' style={topNavStyle}>
         <View className='message-header__title'>
           <Text className='k-top__t2'>{t('system.notification.title')}</Text>
           {unreadTotal > 0 && <View className='message-unread-dot' aria-hidden='true' />}

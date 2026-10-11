@@ -1,4 +1,4 @@
-import { Button, ScrollView, Text, View } from '@tarojs/components'
+import { ScrollView, Text, View } from '@tarojs/components'
 import Taro, { getCurrentPages, useLoad } from '@tarojs/taro'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import {
@@ -583,7 +583,7 @@ export default function AiPage() {
         title: session?.title || t('system.ai.current_session'),
       }),
       confirmText: t('common.action.delete'),
-      confirmColor: '#cf4444',
+      confirmColor: themeStore.theme === 'light' ? '#e0324f' : '#ff4d6d',
       cancelColor: themeStore.theme === 'light' ? '#5a7083' : '#8aa0b4',
     })
     if (!result.confirm) return
@@ -724,14 +724,16 @@ export default function AiPage() {
     <View
       className={`ai-page ${themeStore.theme === 'light' ? 'theme-light' : 'theme-dark'}`}
     >
-      <View className={`ai-navbar${process.env.TARO_ENV === 'weapp' ? ' is-weapp' : ''}`}>
-        <Button className='nav-back-button' hoverClass='none' onClick={navigateBack}>
-          <UniIcon type='left' size={24} color={navIconColor} />
-        </Button>
-        <View className='ai-navbar__title'>{t('system.ai.chat_title')}</View>
-        <Button className='nav-menu-button' hoverClass='none' onClick={() => setShowSessionDrawer((open) => !open)}>
-          <UniIcon type='bars' size={24} color={navIconColor} />
-        </Button>
+      <View className={`ai-navbar k-page-nav ${process.env.TARO_ENV === 'weapp' ? 'k-page-nav--weapp' : ''}`}>
+        <View className='k-page-nav__back' aria-label={t('common.action.back')} onClick={navigateBack} />
+        <View className='k-page-nav__title'>{t('system.ai.chat_title')}</View>
+        <View
+          className='k-page-nav__side k-ic'
+          aria-label={t('system.ai.history')}
+          onClick={() => setShowSessionDrawer((open) => !open)}
+        >
+          <UniIcon type='bars' size={22} color={navIconColor} />
+        </View>
       </View>
       <ScrollView
         className='ai-body'

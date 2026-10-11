@@ -83,3 +83,24 @@ export const formatSrc = (src: string) => {
 
   return `${staticOrigin}/${src.replace(/^\/+/, '')}`
 }
+
+/**
+ * 微信小程序原生胶囊按钮（右上角 ⋯ / ◯）右侧避让宽度（px）。
+ * 自定义导航栏（navigationStyle: 'custom'）在 MP-WEIXIN 下仍会显示原生胶囊，
+ * 页头右侧若放置可交互图标/按钮需预留该宽度，避免与胶囊重叠；
+ * 非 MP-WEIXIN 平台返回 0，无需特殊处理。
+ */
+export const getMpCapsuleRightGap = (): number => {
+  // #ifdef MP-WEIXIN
+  try {
+    const menu = uni.getMenuButtonBoundingClientRect()
+    const { windowWidth } = uni.getSystemInfoSync()
+    return Math.max(0, Math.round(windowWidth - menu.left + 12))
+  } catch {
+    return 0
+  }
+  // #endif
+  // #ifndef MP-WEIXIN
+  return 0
+  // #endif
+}

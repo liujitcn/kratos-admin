@@ -197,6 +197,9 @@
   align-items: center;
   justify-content: space-between;
   gap: 16rpx;
+  /* MP-WEIXIN 原生胶囊避让：页面通过 getMpCapsuleRightGap() 写入该变量，
+     其余平台未设置时回退 0，不影响布局。 */
+  padding-right: var(--mp-capsule-gap, 0px);
 }
 .k-top__title {
   font-size: 38rpx;

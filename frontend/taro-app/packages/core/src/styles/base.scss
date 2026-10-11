@@ -1,5 +1,21 @@
 @use './components.scss';
 
+/*
+ * H5 的 pxtransform 结果使用 rem。根字号与 uni-app H5 保持同一套
+ * 375 设计宽度规则；根字号脚本未能从部署子路径加载时仍能正确缩放。
+ */
+/* #ifdef h5 */
+html {
+  font-size: 5.333333vw;
+}
+
+@media screen and (min-width: 961px) {
+  html {
+    font-size: 20PX;
+  }
+}
+/* #endif */
+
 page,
 body {
   min-height: 100%;

@@ -579,11 +579,11 @@ export default function LoginPage() {
 
   const agreement = (
     <View className={`login-tips${shake ? ' login-tips--shake' : ''}`}>
-      <View className='login-agreement' onClick={() => setAgreed((value) => !value)}>
-        <View className={`login-agree-icon${agreed ? ' checked' : ''}`} />
+      <View className='k-lg-agree login-agreement' onClick={() => setAgreed((value) => !value)}>
+        <View className={`k-lg-chk${agreed ? '' : ' k-lg-chk--off'}`}>✓</View>
         <Text className='login-agree-desc'>{t('core.login.agree_prefix')}</Text>
         <Text
-          className='login-agree-link'
+          className='k-lg-link login-agree-link'
           onClick={(event) => {
             event.stopPropagation()
             navigateAppRoute('app/protocol/service')
@@ -593,7 +593,7 @@ export default function LoginPage() {
         </Text>
         <Text className='login-agree-separator'>{t('core.login.agree_separator')}</Text>
         <Text
-          className='login-agree-link'
+          className='k-lg-link login-agree-link'
           onClick={(event) => {
             event.stopPropagation()
             navigateAppRoute('app/protocol/privacy')
@@ -608,7 +608,7 @@ export default function LoginPage() {
   return (
     <View className={`login-page ${themeStore.theme === 'light' ? 'theme-light' : 'theme-dark'}`}>
       <View className='login-header'>
-        <View className='login-back' aria-hidden onClick={goBack}>
+        <View className='k-ic login-back' aria-hidden onClick={goBack}>
           ‹
         </View>
         <Picker
@@ -626,38 +626,46 @@ export default function LoginPage() {
             if (nextLocale) void setLocale(nextLocale)
           }}
         >
-          <View className='login-locale__value'>{currentLanguageName}</View>
+          <View className='k-lg-lang login-locale__value'>{currentLanguageName}</View>
         </Picker>
       </View>
       <View className='login-hero'>
-        <View className='login-logo-shell'>
+        <View className='k-lg-logo login-logo-shell'>
           <Image className='login-logo' src={appLogo} onError={() => setAppLogo(defaultLogo)} />
         </View>
         <View className='login-hero-copy'>
-          <Text className='login-title'>{mainTitle}</Text>
-          <Text className='login-subtitle'>{subTitle}</Text>
+          <Text className='k-lg-title login-title'>{mainTitle}</Text>
+          <Text className='k-lg-sub login-subtitle'>{subTitle}</Text>
         </View>
       </View>
-      <View className='login-panel'>
+      <View className='k-glass k-glass--lit login-panel'>
+        <View className='k-cnr k-cnr--tl' aria-hidden />
+        <View className='k-cnr k-cnr--tr' aria-hidden />
+        <View className='k-cnr k-cnr--bl' aria-hidden />
+        <View className='k-cnr k-cnr--br' aria-hidden />
         {process.env.TARO_ENV === 'h5' ? (
           <View className='login-form'>
             {showTenantCode ? (
-              <Input
-                className='login-input'
-                placeholder={t('core.login.tenant')}
-                value={form.tenant_code}
-                onInput={(event) => updateForm('tenant_code', event.detail.value)}
-              />
+              <View className='k-lg-field'>
+                <Input
+                  className='k-lg-field__input'
+                  placeholder={t('core.login.tenant')}
+                  value={form.tenant_code}
+                  onInput={(event) => updateForm('tenant_code', event.detail.value)}
+                />
+              </View>
             ) : null}
-            <Input
-              className='login-input'
-              placeholder={t('core.login.user_name_mobile')}
-              value={form.user_name}
-              onInput={(event) => updateForm('user_name', event.detail.value)}
-            />
-            <View className='password-field'>
+            <View className='k-lg-field'>
               <Input
-                className='login-input password-input'
+                className='k-lg-field__input'
+                placeholder={t('core.login.user_name_mobile')}
+                value={form.user_name}
+                onInput={(event) => updateForm('user_name', event.detail.value)}
+              />
+            </View>
+            <View className='k-lg-field'>
+              <Input
+                className='k-lg-field__input'
                 password={!passwordVisible}
                 placeholder={t('core.login.password')}
                 value={password}
@@ -677,25 +685,21 @@ export default function LoginPage() {
               </View>
             </View>
             {!isBehaviorCaptcha ? (
-              <View className='captcha-row'>
+              <View className='k-lg-field'>
                 <Input
-                  className='login-input captcha-input'
+                  className='k-lg-field__input'
                   placeholder={t('core.login.captcha')}
                   value={form.captcha_code}
                   onInput={(event) => updateForm('captcha_code', event.detail.value)}
                   onConfirm={() => void onSubmit()}
                 />
                 <View className='captcha-divider' />
-                <View className='captcha-trigger' onClick={() => void refreshCaptcha()}>
+                <View className='k-lg-cap captcha-trigger' onClick={() => void refreshCaptcha()}>
                   <Image className='captcha-image' src={captchaImage} mode='aspectFit' />
                 </View>
               </View>
             ) : null}
-            <Button
-              className='login-button login-button-primary'
-              loading={loading}
-              onClick={() => void onSubmit()}
-            >
+            <Button className='k-lg-btn k-lg-btn--pri' loading={loading} onClick={() => void onSubmit()}>
               {t('common.action.login')}
             </Button>
             {behaviorVisible ? (
@@ -720,7 +724,7 @@ export default function LoginPage() {
           </View>
         ) : !miniBinding ? (
           <Button
-            className='login-button login-button-primary'
+            className='k-lg-btn k-lg-btn--wx'
             loading={loading}
             onClick={() => void wxLogin()}
           >
@@ -731,22 +735,26 @@ export default function LoginPage() {
           <View className='login-form'>
             <View className='login-bind-tip'>{t('core.login.wechat_bind_tip')}</View>
             {showTenantCode ? (
-              <Input
-                className='login-input'
-                placeholder={t('core.login.tenant')}
-                value={miniForm.tenant_code}
-                onInput={(event) => updateMiniForm('tenant_code', event.detail.value)}
-              />
+              <View className='k-lg-field'>
+                <Input
+                  className='k-lg-field__input'
+                  placeholder={t('core.login.tenant')}
+                  value={miniForm.tenant_code}
+                  onInput={(event) => updateMiniForm('tenant_code', event.detail.value)}
+                />
+              </View>
             ) : null}
-            <Input
-              className='login-input'
-              placeholder={t('core.login.user_name_mobile')}
-              value={miniForm.user_name}
-              onInput={(event) => updateMiniForm('user_name', event.detail.value)}
-            />
-            <View className='password-field'>
+            <View className='k-lg-field'>
               <Input
-                className='login-input password-input'
+                className='k-lg-field__input'
+                placeholder={t('core.login.user_name_mobile')}
+                value={miniForm.user_name}
+                onInput={(event) => updateMiniForm('user_name', event.detail.value)}
+              />
+            </View>
+            <View className='k-lg-field'>
+              <Input
+                className='k-lg-field__input'
                 password={!miniPasswordVisible}
                 placeholder={t('core.login.password')}
                 value={miniPassword}
@@ -764,20 +772,20 @@ export default function LoginPage() {
                 />
               </View>
             </View>
-            <View className='captcha-row'>
+            <View className='k-lg-field'>
               <Input
-                className='login-input captcha-input'
+                className='k-lg-field__input'
                 placeholder={t('core.login.captcha')}
                 value={miniForm.captcha_code}
                 onInput={(event) => updateMiniForm('captcha_code', event.detail.value)}
               />
               <View className='captcha-divider' />
-              <View className='captcha-trigger' onClick={() => void refreshMiniCaptcha()}>
+              <View className='k-lg-cap captcha-trigger' onClick={() => void refreshMiniCaptcha()}>
                 <Image className='captcha-image' src={miniCaptchaImage} mode='aspectFit' />
               </View>
             </View>
             <Button
-              className='login-button login-button-primary'
+              className='k-lg-btn k-lg-btn--pri'
               loading={loading}
               onClick={() => void bindMiniAccount()}
             >

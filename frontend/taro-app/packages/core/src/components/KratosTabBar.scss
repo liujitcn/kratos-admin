@@ -4,13 +4,13 @@
 
   position: fixed;
   right: 20px;
-  bottom: calc(20px + env(safe-area-inset-bottom));
+  bottom: env(safe-area-inset-bottom);
   left: 20px;
   z-index: 999;
   box-sizing: border-box;
   display: flex;
-  height: calc(104px + env(safe-area-inset-bottom));
-  padding: 0 8px env(safe-area-inset-bottom);
+  height: 104px;
+  padding: 0 8px;
   border: 1PX solid var(--kratos-color-border-accent, rgba(120, 230, 215, 0.16));
   border-radius: 30px;
   background: var(--kratos-dock-bg, rgba(10, 18, 30, 0.72));

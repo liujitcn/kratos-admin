@@ -232,7 +232,7 @@ function handleKnowledgeToggle(knowledgeId: number) {
   margin: 0 8rpx 12rpx;
   color: var(--kratos-color-text, #102232);
   background: var(--kratos-color-surface, #fff);
-  border: 2rpx solid var(--kratos-color-border-accent, rgba(0, 150, 134, 0.28));
+  border: 1rpx solid var(--kratos-color-border-accent, rgba(0, 150, 134, 0.28));
   border-radius: 28rpx;
   box-sizing: border-box;
 }
@@ -266,7 +266,7 @@ function handleKnowledgeToggle(knowledgeId: number) {
   justify-content: center;
   width: 72rpx;
   height: 72rpx;
-  border: 2rpx solid var(--kratos-color-border, #e3eaf2);
+  border: 1rpx solid var(--kratos-color-border, #e3eaf2);
   border-radius: 50%;
   background: var(--kratos-color-surface, #fff);
   color: var(--kratos-color-text-muted, #5a7083);
@@ -283,7 +283,7 @@ function handleKnowledgeToggle(knowledgeId: number) {
   gap: 10rpx;
   min-height: 72rpx;
   padding: 0 12rpx 0 28rpx;
-  border: 2rpx solid var(--kratos-color-border, #e3eaf2);
+  border: 1rpx solid var(--kratos-color-border, #e3eaf2);
   border-radius: 38rpx;
   background: var(--kratos-color-surface-2, #eef4fa);
   box-shadow: none;

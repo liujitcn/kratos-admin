@@ -1,7 +1,9 @@
+import type { CSSProperties } from 'react'
 import { Image, ScrollView, View } from '@tarojs/components'
 import defaultAvatar from '@liujitcn/kratos-taro-app-core/static/images/avatar.png'
 import {
   formatSrc,
+  getMpCapsuleRightGap,
   navigateAppRoute,
   navigateToLogin,
   useI18n,
@@ -20,6 +22,9 @@ export default function MyPage() {
   const ensureAuthenticated = useUserStore((state) => state.ensureAuthenticated)
   const aiEnabled = useSettingStore((state) => state.aiEnabled)
   const avatarText = (profile?.nick_name || 'U').slice(0, 1)
+  /** MP-WEIXIN 原生胶囊按钮右侧避让宽度，写入 --mp-capsule-gap 供 .k-top 预留空间。 */
+  const capsuleGap = getMpCapsuleRightGap()
+  const topNavStyle = { '--mp-capsule-gap': `${capsuleGap}px` } as CSSProperties
   /** 设计稿齿轮线稿，随主题取色的 data URI，替代 CSS 手绘图标。 */
   const gearIcon = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(
     `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="${
@@ -47,7 +52,7 @@ export default function MyPage() {
       }`}
     >
       <View className='my-content'>
-        <View className='k-top'>
+        <View className='k-top' style={topNavStyle}>
           <View className='k-top__title'>{t('core.navigation.my')}</View>
           <View className='k-ic' onClick={() => openAuthenticatedPage('app/settings')}>
             <Image className='my-gear' src={gearIcon} mode='aspectFit' />

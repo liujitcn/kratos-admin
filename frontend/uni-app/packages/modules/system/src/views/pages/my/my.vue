@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useSettingStore, useThemeStore, useUserStore } from '@liujitcn/kratos-uni-app-core/stores'
 import { computed } from 'vue'
-import { formatSrc } from '@liujitcn/kratos-uni-app-core/utils/index'
+import { formatSrc, getMpCapsuleRightGap } from '@liujitcn/kratos-uni-app-core/utils/index'
 import { navigateToLogin } from '@liujitcn/kratos-uni-app-core/utils/navigation'
 import { navigateAppRoute } from '@liujitcn/kratos-uni-app-core'
 import defaultAvatar from '@liujitcn/kratos-uni-app-core/static/images/avatar.png'
@@ -14,6 +14,9 @@ const themeStore = useThemeStore()
 const { t } = useI18n()
 const isLoggedIn = computed(() => userStore.isAuthenticated())
 const profile = computed(() => userStore.userInfo)
+
+/** MP-WEIXIN 原生胶囊按钮右侧避让宽度，写入 --mp-capsule-gap 供 .k-top 预留空间。 */
+const capsuleGap = getMpCapsuleRightGap()
 
 /** 昵称或占位账号首字符，用于渐变头像兜底。 */
 const avatarText = computed(() => (profile.value?.nick_name || 'U').slice(0, 1))
@@ -59,7 +62,7 @@ const navigateToProfile = () => navigateAppRoute('app/profile')
   <scroll-view enable-back-to-top class="my-viewport" scroll-y :class="themeStore.themeClass">
     <view class="my-content">
       <!-- 顶栏：标题 + 设置入口（Tab 根页，无返回） -->
-      <view class="k-top">
+      <view class="k-top" :style="{ '--mp-capsule-gap': `${capsuleGap}px` }">
         <view class="k-top__title">{{ t('core.navigation.my') }}</view>
         <view class="k-ic" @tap="navigateToSettings">
           <image class="my-gear" :src="gearIcon" mode="aspectFit" />

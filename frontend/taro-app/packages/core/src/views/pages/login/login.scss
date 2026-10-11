@@ -13,7 +13,7 @@ page {
   box-sizing: border-box;
 }
 
-/* 自绘头部：左返回、右上角语言，替代原生导航栏，背景随主题渐变 */
+/* 自绘头部：左返回（复用 k-ic）、右上角语言（复用 k-lg-lang），替代原生导航栏 */
 .login-header {
   position: fixed;
   top: 0;
@@ -35,14 +35,9 @@ page {
 }
 /* #endif */
 
+/* k-ic 已提供方形图标按钮视觉，这里只补字号以容纳返回符号 */
 .login-back {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 64px;
-  height: 64px;
-  color: var(--kratos-color-text);
-  font-size: 48px;
+  font-size: 36px;
   line-height: 1;
 }
 
@@ -50,13 +45,12 @@ page {
   max-width: calc(100% - 120px);
 }
 
+/* k-lg-lang 已提供视觉样式，这里只补多语言文案的截断处理 */
 .login-locale__value {
-  padding: 12px 22px;
-  border: 1PX solid var(--kratos-color-border);
-  border-radius: 999px;
-  color: var(--kratos-color-text-muted);
-  font-size: 22px;
-  font-family: var(--kratos-font-mono);
+  max-width: 240px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .login-hero {
@@ -64,31 +58,10 @@ page {
   text-align: center;
 }
 
-.login-logo-shell {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 176px;
-  height: 176px;
-  margin-bottom: 28px;
-  border-radius: 40px;
-  background: linear-gradient(135deg, var(--kratos-color-primary-deep), var(--kratos-color-info));
-  box-shadow: 0 0 48px rgba(40, 240, 212, 0.4);
-}
-
-.login-logo-shell::after {
-  position: absolute;
-  inset: -12px;
-  border: 1PX solid var(--kratos-color-border-accent);
-  border-radius: 48px;
-  opacity: 0.55;
-  content: '';
-}
-
+/* k-lg-logo 已提供渐变底板，这里只约束内部实际 Logo 图片尺寸 */
 .login-logo {
-  width: 120px;
-  height: 120px;
+  width: 100px;
+  height: 100px;
 }
 
 .login-hero-copy {
@@ -96,49 +69,9 @@ page {
   flex-direction: column;
 }
 
-.login-title {
-  color: var(--kratos-color-text);
-  font-size: 44px;
-  font-weight: 800;
-}
-
-.login-subtitle {
-  margin-top: 12px;
-  color: var(--kratos-color-text-muted);
-  font-size: 26px;
-}
-
+/* k-glass/k-glass--lit 已提供卡片底色与描边，这里只补内部留白 */
 .login-panel {
-  position: relative;
   padding: 36px 30px 30px;
-  border: 1PX solid var(--kratos-color-border-accent);
-  border-radius: 24px;
-  background: var(--kratos-color-surface);
-  box-shadow: var(--kratos-glow-soft);
-}
-
-.login-panel::before,
-.login-panel::after {
-  position: absolute;
-  width: 24px;
-  height: 24px;
-  border: 3px solid var(--kratos-color-primary);
-  opacity: 0.5;
-  content: '';
-}
-
-.login-panel::before {
-  top: 16px;
-  left: 16px;
-  border-right: 0;
-  border-bottom: 0;
-}
-
-.login-panel::after {
-  top: 16px;
-  right: 16px;
-  border-left: 0;
-  border-bottom: 0;
 }
 
 .login-form {
@@ -154,51 +87,17 @@ page {
   text-align: center;
 }
 
-.login-input {
+/* k-lg-field__input 已提供输入框视觉，这里只修复 Taro H5 端 weui-input 内层尺寸 */
+.k-lg-field__input .weui-input {
   width: 100%;
-  height: 96px;
-  padding: 0 30px;
-  margin-bottom: 20px;
-  border: 1PX solid var(--kratos-color-border);
-  border-radius: 20px;
-  box-sizing: border-box;
-  color: var(--kratos-color-text);
-  font-size: 28px;
-  background: var(--kratos-color-surface-2);
-
-  .weui-input {
-    width: 100%;
-    height: 100%;
-    padding: 0;
-    box-sizing: border-box;
-    color: inherit;
-    font: inherit;
-  }
-}
-
-.password-field {
-  display: flex;
-  align-items: center;
-  width: 100%;
-  height: 96px;
-  padding: 0 24px 0 30px;
-  margin-bottom: 20px;
-  border: 1PX solid var(--kratos-color-border);
-  border-radius: 20px;
-  box-sizing: border-box;
-  background: var(--kratos-color-surface-2);
-}
-
-.password-input {
-  flex: 1;
-  width: auto;
   height: 100%;
   padding: 0;
-  margin-bottom: 0;
-  border: 0;
-  background: transparent;
+  box-sizing: border-box;
+  color: inherit;
+  font: inherit;
 }
 
+/* 密码/验证码行内尾随的小按钮： k-lg-field 没有对应词汇，保留页面局部样式 */
 .password-toggle {
   display: flex;
   flex: 0 0 52px;
@@ -214,73 +113,21 @@ page {
   height: 24px;
 }
 
-.login-button {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  height: 96px;
-  margin-top: 12px;
-  border-radius: 20px;
-  color: var(--kratos-color-on-primary);
-  font-size: 30px;
-  font-weight: 800;
-  box-shadow: 0 0 40px rgba(40, 240, 212, 0.35);
-
-  &::after {
-    border: 0;
-  }
-}
-
-.login-button-primary {
-  background: linear-gradient(135deg, var(--kratos-color-primary-deep) 0%, var(--kratos-color-primary) 100%);
-}
-
 .login-phone-icon {
   margin-right: 10px;
   font-size: 40px;
 }
 
-.captcha-row {
-  display: flex;
-  align-items: center;
-  width: 100%;
-  height: 96px;
-  padding: 0 12px 0 30px;
-  margin-bottom: 20px;
-  border: 1PX solid var(--kratos-color-border);
-  border-radius: 20px;
-  box-sizing: border-box;
-  background: var(--kratos-color-surface-2);
-}
-
-.captcha-input {
-  flex: 1;
-  height: 100%;
-  padding: 0;
-  margin-bottom: 0;
-  border: 0;
-  color: var(--kratos-color-text);
-  background: transparent;
-}
-
 .captcha-divider {
+  flex-shrink: 0;
   width: 1px;
   height: 44px;
   background: var(--kratos-color-border);
 }
 
+/* k-lg-cap 已提供验证码色块视觉，这里只补行内间距 */
 .captcha-trigger {
-  display: flex;
-  flex: 0 0 170px;
-  align-items: center;
-  justify-content: center;
-  height: 72px;
   margin-left: 14px;
-  border: 1PX solid var(--kratos-color-border);
-  border-radius: 16px;
-  box-sizing: border-box;
-  background: var(--kratos-color-primary-soft);
 }
 
 .captcha-image {
@@ -420,49 +267,54 @@ page {
   line-height: 1.4;
 }
 
-.login-agreement {
+/* MFA 弹窗未纳入本次登录页改版词汇，沿用原有独立按钮/输入框视觉，仅改为按面板作用域限定 */
+.mfa-panel .login-input {
+  width: 100%;
+  height: 96px;
+  margin-bottom: 20px;
+  padding: 0 30px;
+  border: 1PX solid var(--kratos-color-border);
+  border-radius: 20px;
+  box-sizing: border-box;
+  color: var(--kratos-color-text);
+  font-size: 28px;
+  background: var(--kratos-color-surface-2);
+}
+
+.mfa-panel .login-button {
   display: flex;
   align-items: center;
-  flex-wrap: wrap;
   justify-content: center;
+  width: 100%;
+  height: 96px;
+  margin-top: 12px;
+  border-radius: 20px;
+  color: var(--kratos-color-on-primary);
+  font-size: 30px;
+  font-weight: 800;
+  box-shadow: 0 0 40px rgba(40, 240, 212, 0.35);
+
+  &::after {
+    border: 0;
+  }
+}
+
+.mfa-panel .login-button-primary {
+  background: linear-gradient(135deg, var(--kratos-color-primary-deep) 0%, var(--kratos-color-primary) 100%);
+}
+
+.login-agreement {
+  box-sizing: border-box;
   width: 100%;
   max-width: 100%;
   min-width: 0;
-  gap: 6px;
-  box-sizing: border-box;
 }
 
-.login-agree-icon {
-  flex: 0 0 auto;
-  width: 26px;
-  height: 26px;
-  margin-right: 2px;
-  border: 2px solid var(--kratos-color-primary);
-  border-radius: 50%;
-  box-sizing: border-box;
-  background-color: transparent;
-}
-
-.login-agree-icon.checked {
-  border-color: var(--kratos-color-primary);
-  background-color: var(--kratos-color-primary);
-  box-shadow: inset 0 0 0 6px var(--kratos-color-on-primary);
-}
-
-.login-agree-link {
-  min-width: 0;
-  color: var(--kratos-color-primary);
-  overflow-wrap: anywhere;
-}
-
+.login-agree-link,
 .login-agree-desc,
 .login-agree-separator {
   min-width: 0;
   overflow-wrap: anywhere;
-}
-
-.login-agree-desc {
-  color: var(--kratos-color-text-muted);
 }
 
 .login-tips--shake {

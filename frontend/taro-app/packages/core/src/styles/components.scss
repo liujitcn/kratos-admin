@@ -145,11 +145,12 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: calc(124px + env(safe-area-inset-top));
+  box-sizing: border-box;
+  height: calc(88px + env(safe-area-inset-top));
   padding-top: env(safe-area-inset-top);
 }
 .k-page-nav--weapp {
-  height: calc(124px + 44PX);
+  height: calc(88px + 44PX);
   padding-top: 44PX;
 }
 .k-page-nav__back,
@@ -191,6 +192,9 @@
   align-items: center;
   justify-content: space-between;
   gap: 16px;
+  /* weapp 原生胶囊避让：页面通过 getMpCapsuleRightGap() 写入该变量，
+     其余平台未设置时回退 0，不影响布局。 */
+  padding-right: var(--mp-capsule-gap, 0px);
 }
 .k-top__title {
   font-size: 38px;

@@ -898,7 +898,7 @@ onUnload(() => {
 <template>
   <view class="login-page" :class="themeStore.themeClass">
     <view class="login-header">
-      <view class="login-back" aria-hidden="true" @tap="goBack">‹</view>
+      <view class="k-ic login-back" aria-hidden="true" @tap="goBack">‹</view>
       <picker
         class="login-locale"
         :range="localeLabels"
@@ -909,38 +909,45 @@ onUnload(() => {
       </picker>
     </view>
     <view class="login-hero">
-      <view class="login-logo-shell">
+      <view class="k-lg-logo login-logo-shell">
         <image class="login-logo" :src="appLogo" @error="handleLogoError" />
       </view>
       <view class="login-hero-copy">
-        <text class="login-title">{{ configuredMainTitle }}</text>
-        <text class="login-subtitle">{{ configuredSubTitle }}</text>
+        <text class="k-lg-title login-title">{{ configuredMainTitle }}</text>
+        <text class="k-lg-sub login-subtitle">{{ configuredSubTitle }}</text>
       </view>
     </view>
-    <view class="login-panel">
+    <view class="k-glass k-glass--lit login-panel">
+      <view class="k-cnr k-cnr--tl" aria-hidden="true"></view>
+      <view class="k-cnr k-cnr--tr" aria-hidden="true"></view>
+      <view class="k-cnr k-cnr--bl" aria-hidden="true"></view>
+      <view class="k-cnr k-cnr--br" aria-hidden="true"></view>
       <view class="login-form">
         <!-- 网页端表单登录 -->
         <!-- #ifdef H5 -->
-        <input
-          v-if="showTenantCode"
-          v-model="form.tenant_code"
-          class="login-input"
-          type="text"
-          confirm-type="next"
-          :placeholder="t('core.login.tenant')"
-        />
-        <input
-          v-model="form.user_name"
-          class="login-input"
-          type="text"
-          confirm-type="next"
-          :placeholder="t('core.login.user_name_mobile')"
-          @confirm="onSubmit"
-        />
-        <view class="password-field">
+        <view v-if="showTenantCode" class="k-lg-field">
+          <input
+            v-model="form.tenant_code"
+            class="k-lg-field__input"
+            type="text"
+            confirm-type="next"
+            :placeholder="t('core.login.tenant')"
+          />
+        </view>
+        <view class="k-lg-field">
+          <input
+            v-model="form.user_name"
+            class="k-lg-field__input"
+            type="text"
+            confirm-type="next"
+            :placeholder="t('core.login.user_name_mobile')"
+            @confirm="onSubmit"
+          />
+        </view>
+        <view class="k-lg-field">
           <input
             v-model="passwordValue"
-            class="login-input password-input"
+            class="k-lg-field__input"
             type="text"
             :password="!passwordVisible"
             confirm-type="done"
@@ -959,17 +966,21 @@ onUnload(() => {
             ></image>
           </view>
         </view>
-        <view v-if="!isBehaviorCaptcha" class="captcha-row">
+        <view v-if="!isBehaviorCaptcha" class="k-lg-field">
           <input
             v-model="form.captcha_code"
-            class="login-input captcha-input"
+            class="k-lg-field__input"
             type="text"
             confirm-type="done"
             :placeholder="t('core.login.captcha')"
             @confirm="onSubmit"
           />
           <view class="captcha-divider"></view>
-          <view class="captcha-trigger" :style="{ width: captchaImageWidth }" @tap="getCaptcha">
+          <view
+            class="k-lg-cap captcha-trigger"
+            :style="{ width: captchaImageWidth }"
+            @tap="getCaptcha"
+          >
             <image
               class="captcha-image"
               :style="{ width: captchaImageWidth }"
@@ -979,7 +990,7 @@ onUnload(() => {
             />
           </view>
         </view>
-        <button @tap="onSubmit" class="login-button login-button-primary">
+        <button @tap="onSubmit" class="k-lg-btn k-lg-btn--pri">
           {{ t('common.action.login') }}
         </button>
         <view v-if="behaviorDialogVisible" class="login-behavior-mask">
@@ -1002,34 +1013,32 @@ onUnload(() => {
 
         <!-- 小程序端授权登录 -->
         <!-- #ifdef MP-WEIXIN -->
-        <button
-          v-if="!miniBinding"
-          class="login-button login-button-primary"
-          :loading="loading"
-          @tap="wxLogin"
-        >
+        <button v-if="!miniBinding" class="k-lg-btn k-lg-btn--wx" :loading="loading" @tap="wxLogin">
           <text class="icon icon-phone"></text>
           {{ t('core.login.wechat') }}
         </button>
         <view v-else class="login-form">
           <view class="login-bind-tip">{{ t('core.login.wechat_bind_tip') }}</view>
-          <input
-            v-if="showTenantCode"
-            v-model="miniForm.tenant_code"
-            class="login-input"
-            type="text"
-            :placeholder="t('core.login.tenant')"
-          />
-          <input
-            v-model="miniForm.user_name"
-            class="login-input"
-            type="text"
-            :placeholder="t('core.login.user_name_mobile')"
-          />
-          <view class="password-field">
+          <view v-if="showTenantCode" class="k-lg-field">
+            <input
+              v-model="miniForm.tenant_code"
+              class="k-lg-field__input"
+              type="text"
+              :placeholder="t('core.login.tenant')"
+            />
+          </view>
+          <view class="k-lg-field">
+            <input
+              v-model="miniForm.user_name"
+              class="k-lg-field__input"
+              type="text"
+              :placeholder="t('core.login.user_name_mobile')"
+            />
+          </view>
+          <view class="k-lg-field">
             <input
               v-model="miniPasswordValue"
-              class="login-input password-input"
+              class="k-lg-field__input"
               type="text"
               :password="!miniPasswordVisible"
               :placeholder="t('core.login.password')"
@@ -1046,37 +1055,33 @@ onUnload(() => {
               ></image>
             </view>
           </view>
-          <view class="captcha-row">
+          <view class="k-lg-field">
             <input
               v-model="miniForm.captcha_code"
-              class="login-input captcha-input"
+              class="k-lg-field__input"
               type="text"
               :placeholder="t('core.login.captcha')"
             />
             <view class="captcha-divider"></view>
-            <view class="captcha-trigger" @tap="refreshMiniCaptcha">
+            <view class="k-lg-cap captcha-trigger" @tap="refreshMiniCaptcha">
               <image class="captcha-image" :src="miniCaptchaImage" mode="aspectFit" />
             </view>
           </view>
-          <button
-            class="login-button login-button-primary"
-            :loading="loading"
-            @tap="bindMiniAccount"
-          >
+          <button class="k-lg-btn k-lg-btn--pri" :loading="loading" @tap="bindMiniAccount">
             {{ t('core.login.bind_wechat') }}
           </button>
         </view>
         <!-- #endif -->
       </view>
       <view class="login-tips" :class="{ animate__shakeY: isAgreePrivacyShakeY }">
-        <view class="login-agreement" @tap="toggleAgreePrivacy">
-          <view class="login-agree-icon" :class="{ checked: isAgreePrivacy }"></view>
+        <view class="k-lg-agree login-agreement" @tap="toggleAgreePrivacy">
+          <view class="k-lg-chk" :class="{ 'k-lg-chk--off': !isAgreePrivacy }">✓</view>
           <text class="login-agree-desc">{{ t('core.login.agree_prefix') }}</text>
-          <text class="login-agree-link" @tap.stop="onOpenServiceProtocol">{{
+          <text class="k-lg-link login-agree-link" @tap.stop="onOpenServiceProtocol">{{
             t('core.login.service')
           }}</text>
           <text class="login-agree-separator">{{ t('core.login.agree_separator') }}</text>
-          <text class="login-agree-link" @tap.stop="onOpenPrivacyContract">{{
+          <text class="k-lg-link login-agree-link" @tap.stop="onOpenPrivacyContract">{{
             t('core.login.privacy')
           }}</text>
         </view>
@@ -1169,7 +1174,7 @@ onUnload(() => {
   box-sizing: border-box;
 }
 
-/* 自绘头部：左返回、右上角语言，替代原生导航栏，背景随主题渐变 */
+/* 自绘头部：左返回（复用 k-ic）、右上角语言（复用 k-lg-lang），替代原生导航栏 */
 .login-header {
   position: fixed;
   top: 0;
@@ -1191,14 +1196,9 @@ onUnload(() => {
 }
 /* #endif */
 
+/* k-ic 已提供方形图标按钮视觉，这里只补字号以容纳返回符号 */
 .login-back {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 64rpx;
-  height: 64rpx;
-  color: var(--kratos-color-text);
-  font-size: 48rpx;
+  font-size: 36rpx;
   line-height: 1;
 }
 
@@ -1206,100 +1206,33 @@ onUnload(() => {
   max-width: calc(100% - 120rpx);
 }
 
+/* k-lg-lang 已提供视觉样式，这里只补多语言文案的截断处理 */
 .login-locale__value {
   max-width: 240rpx;
   overflow: hidden;
-  padding: 12rpx 22rpx;
-  color: var(--kratos-color-text-muted);
-  font-size: 22rpx;
-  font-family: var(--kratos-font-mono);
   text-overflow: ellipsis;
   white-space: nowrap;
-  border: 1rpx solid var(--kratos-color-border);
-  border-radius: 999rpx;
-  background: var(--kratos-color-surface);
 }
 
 .login-hero {
   margin-bottom: 44rpx;
   text-align: center;
 
-  .login-logo-shell {
-    position: relative;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 176rpx;
-    height: 176rpx;
-    margin-bottom: 28rpx;
-    border-radius: 40rpx;
-    background: linear-gradient(135deg, var(--kratos-color-primary-deep), var(--kratos-color-info));
-    box-shadow: 0 0 48rpx rgba(40, 240, 212, 0.4);
-
-    &::after {
-      position: absolute;
-      inset: -12rpx;
-      border: 1rpx solid var(--kratos-color-border-accent);
-      border-radius: 48rpx;
-      opacity: 0.55;
-      content: '';
-    }
-  }
-
+  /* k-lg-logo 已提供渐变底板，这里只约束内部实际 Logo 图片尺寸 */
   .login-logo {
-    width: 120rpx;
-    height: 120rpx;
+    width: 100rpx;
+    height: 100rpx;
   }
 
   .login-hero-copy {
     display: flex;
     flex-direction: column;
   }
-
-  .login-title {
-    font-size: 44rpx;
-    font-weight: 800;
-    color: var(--kratos-color-text);
-  }
-
-  .login-subtitle {
-    margin-top: 12rpx;
-    color: var(--kratos-color-text-muted);
-    font-size: 26rpx;
-  }
 }
 
+/* k-glass/k-glass--lit 已提供卡片底色与描边，这里只补内部留白 */
 .login-panel {
-  position: relative;
   padding: 36rpx 30rpx 30rpx;
-  border: 1rpx solid var(--kratos-color-border-accent);
-  border-radius: 24rpx;
-  background: var(--kratos-color-surface);
-  box-shadow: var(--kratos-glow-soft);
-
-  &::before,
-  &::after {
-    position: absolute;
-    width: 24rpx;
-    height: 24rpx;
-    border: 3rpx solid var(--kratos-color-primary);
-    opacity: 0.5;
-    content: '';
-  }
-
-  &::before {
-    top: 16rpx;
-    left: 16rpx;
-    border-right: 0;
-    border-bottom: 0;
-  }
-
-  &::after {
-    top: 16rpx;
-    right: 16rpx;
-    border-left: 0;
-    border-bottom: 0;
-  }
 }
 
 .login-form {
@@ -1314,42 +1247,7 @@ onUnload(() => {
     text-align: center;
   }
 
-  .login-input {
-    width: 100%;
-    height: 96rpx;
-    font-size: 28rpx;
-    color: var(--kratos-color-text);
-    border: 1rpx solid var(--kratos-color-border);
-    border-radius: 20rpx;
-    background: var(--kratos-color-surface-2);
-    padding: 0 30rpx;
-    margin-bottom: 20rpx;
-    box-sizing: border-box;
-  }
-
-  .password-field {
-    display: flex;
-    align-items: center;
-    width: 100%;
-    height: 96rpx;
-    padding: 0 24rpx 0 30rpx;
-    margin-bottom: 20rpx;
-    border: 1rpx solid var(--kratos-color-border);
-    border-radius: 20rpx;
-    box-sizing: border-box;
-    background: var(--kratos-color-surface-2);
-  }
-
-  .password-input {
-    flex: 1;
-    width: auto;
-    height: 100%;
-    padding: 0;
-    margin-bottom: 0;
-    border: 0;
-    background: transparent;
-  }
-
+  /* 密码/验证码行内尾随的小按钮： k-lg-field 没有对应词汇，保留页面局部样式 */
   .password-toggle {
     display: flex;
     flex: 0 0 52rpx;
@@ -1365,87 +1263,31 @@ onUnload(() => {
     height: 24rpx;
   }
 
-  .login-button {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    height: 96rpx;
-    margin-top: 12rpx;
-    font-size: 30rpx;
-    font-weight: 800;
-    border-radius: 20rpx;
-    color: var(--kratos-color-on-primary);
-    box-shadow: 0 0 40rpx rgba(40, 240, 212, 0.35);
-
-    &::after {
-      border: 0;
-    }
-
-    .icon {
-      font-size: 40rpx;
-      margin-right: 10rpx;
-    }
-
-    .icon-phone::before {
-      content: '☎';
-    }
+  .icon {
+    margin-right: 10rpx;
+    font-size: 32rpx;
   }
 
-  .login-button-primary {
-    background: linear-gradient(
-      135deg,
-      var(--kratos-color-primary-deep) 0%,
-      var(--kratos-color-primary) 100%
-    );
+  .icon-phone::before {
+    content: '☎';
   }
 
-  .captcha-row {
-    display: flex;
-    align-items: center;
-    width: 100%;
-    height: 96rpx;
-    margin-bottom: 20rpx;
-    padding: 0 12rpx 0 30rpx;
-    border: 1rpx solid var(--kratos-color-border);
-    border-radius: 20rpx;
-    background: var(--kratos-color-surface-2);
-    box-sizing: border-box;
+  .captcha-divider {
+    flex-shrink: 0;
+    width: 1rpx;
+    height: 44rpx;
+    background: var(--kratos-color-border);
+  }
 
-    .captcha-input {
-      flex: 1;
-      height: 100%;
-      margin-bottom: 0;
-      padding: 0;
-      border: 0;
-      background: transparent;
-      color: var(--kratos-color-text);
-    }
+  /* k-lg-cap 已提供验证码色块视觉，这里只补行内间距 */
+  .captcha-trigger {
+    margin-left: 14rpx;
+  }
 
-    .captcha-divider {
-      width: 1rpx;
-      height: 44rpx;
-      background: var(--kratos-color-border);
-    }
-
-    .captcha-trigger {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex: 0 0 auto;
-      height: 72rpx;
-      margin-left: 14rpx;
-      border: 1rpx solid var(--kratos-color-border);
-      border-radius: 16rpx;
-      background: var(--kratos-color-primary-soft);
-      box-sizing: border-box;
-    }
-
-    .captcha-image {
-      width: 170rpx;
-      flex-shrink: 0;
-      height: 60rpx;
-    }
+  .captcha-image {
+    width: 170rpx;
+    flex-shrink: 0;
+    height: 60rpx;
   }
 }
 .mfa-mask {
@@ -1657,54 +1499,28 @@ onUnload(() => {
 
 .login-tips {
   margin-top: 26rpx;
-  font-size: 22rpx;
-  color: var(--kratos-color-text-muted);
-  line-height: 1.6;
+}
 
-  .login-agreement {
-    display: flex;
-    align-items: center;
-    flex-wrap: wrap;
-    justify-content: center;
-    width: 100%;
-    max-width: 100%;
-    min-width: 0;
-    gap: 6rpx;
-    box-sizing: border-box;
-  }
+/* k-lg-agree 已提供排版与字色，这里只补宽度约束，保证长文案正常换行 */
+.login-agreement {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+}
 
-  .login-agree-separator {
-    min-width: 0;
-    overflow-wrap: anywhere;
-  }
+.login-agree-separator {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
 
-  .login-agree-icon {
-    flex: 0 0 auto;
-    width: 26rpx;
-    height: 26rpx;
-    margin-right: 2rpx;
-    border: 2rpx solid var(--kratos-color-primary);
-    border-radius: 50%;
-    background-color: transparent;
-    box-sizing: border-box;
-  }
+.login-agree-link {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
 
-  .login-agree-icon.checked {
-    border-color: var(--kratos-color-primary);
-    background-color: var(--kratos-color-primary);
-    box-shadow: inset 0 0 0 6rpx var(--kratos-color-on-primary);
-  }
-
-  .login-agree-link {
-    min-width: 0;
-    overflow-wrap: anywhere;
-    color: var(--kratos-color-primary);
-  }
-
-  .login-agree-desc {
-    min-width: 0;
-    overflow-wrap: anywhere;
-    color: var(--kratos-color-text-muted);
-  }
+.login-agree-desc {
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 </style>

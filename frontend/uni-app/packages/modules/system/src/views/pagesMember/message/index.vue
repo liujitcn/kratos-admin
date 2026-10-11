@@ -3,6 +3,7 @@ import { onShow } from '@dcloudio/uni-app'
 import { ref } from 'vue'
 import { navigateAppView, t } from '@liujitcn/kratos-uni-app-core'
 import { useThemeStore } from '@liujitcn/kratos-uni-app-core/stores'
+import { getMpCapsuleRightGap } from '@liujitcn/kratos-uni-app-core/utils/index'
 import { defNotificationService } from '../../../api/base/v1/notification'
 import type { Notification, NotificationCategory } from '../../../rpc/base/v1/notification'
 import { NotificationView } from '../../../rpc/base/v1/notification'
@@ -10,6 +11,8 @@ import { notificationUnreadTotal, refreshNotificationSummary } from '../../../no
 import { resolveMessageCategoryIcon } from './icons'
 
 const themeStore = useThemeStore()
+/** MP-WEIXIN 原生胶囊按钮右侧避让宽度，写入 --mp-capsule-gap 供 .k-top 预留空间。 */
+const capsuleGap = getMpCapsuleRightGap()
 const items = ref<Notification[]>([])
 const loading = ref(false)
 const cursorId = ref(0)
@@ -116,7 +119,7 @@ async function openDetail(item: Notification) {
 
 <template>
   <view class="message-page" :class="themeStore.themeClass">
-    <view class="k-top message-header">
+    <view class="k-top message-header" :style="{ '--mp-capsule-gap': `${capsuleGap}px` }">
       <view class="message-header__title">
         <text class="k-top__t2">{{ t('system.notification.title') }}</text>
         <view v-if="notificationUnreadTotal > 0" class="message-unread-dot" aria-hidden="true" />
@@ -230,8 +233,7 @@ async function openDetail(item: Notification) {
 .message-page {
   box-sizing: border-box;
   min-height: 100vh;
-  padding: calc(16rpx + env(safe-area-inset-top)) 24rpx
-    calc(200rpx + env(safe-area-inset-bottom));
+  padding: calc(16rpx + env(safe-area-inset-top)) 24rpx calc(200rpx + env(safe-area-inset-bottom));
   background: var(--kratos-bg-gradient);
   color: var(--kratos-color-text);
 }

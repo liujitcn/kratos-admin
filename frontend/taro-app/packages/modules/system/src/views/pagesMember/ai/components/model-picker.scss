@@ -55,12 +55,13 @@
 .model-picker__title {
   color: var(--kratos-color-text, #e9f4f6);
   font-size: 32px;
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .model-picker__count {
   color: var(--kratos-color-text-muted, #8aa0b4);
   font-size: 20px;
+  font-family: var(--kratos-font-mono, monospace);
 }
 
 .model-picker__close {
@@ -88,6 +89,7 @@
   padding: 24px 8px 12px;
   color: var(--kratos-color-text-muted, #8aa0b4);
   font-size: 22px;
+  font-family: var(--kratos-font-mono, monospace);
   line-height: 32px;
 }
 
@@ -99,14 +101,13 @@
   margin-bottom: 12px;
   border: 1PX solid var(--kratos-color-border, rgba(255, 255, 255, 0.08));
   background: var(--kratos-color-surface, rgba(255, 255, 255, 0.035));
-  border-radius: 24px;
+  border-radius: 20px;
   box-sizing: border-box;
 }
 
 .model-picker__row.is-selected {
   color: var(--kratos-color-primary, #28f0d4);
   font-weight: 600;
-  font-weight: 500;
   background: var(--kratos-color-primary-soft, rgba(40, 240, 212, 0.08));
   border-color: var(--kratos-color-primary-edge, rgba(40, 240, 212, 0.3));
 }
@@ -140,7 +141,7 @@
 
 .model-picker__empty {
   padding: 64px 0;
-  color: var(--kratos-color-text-muted, #8aa0b4);
+  color: var(--kratos-color-text-dim, #4e6378);
   font-size: 26px;
   text-align: center;
 }
