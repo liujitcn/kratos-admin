@@ -1,7 +1,6 @@
 import { Image, Text, View } from '@tarojs/components'
 import { resolveModuleIcon, resolveStaticView } from '../module'
 import { APP_MENU_ROOT_ID, navigateAppRoute, useAppMenuBadges, useAppNavigation } from '../navigation'
-import { useI18n } from '../locales'
 import { useThemeStore } from '../stores'
 import { resolveRootMenuId } from '../navigation-tree.mjs'
 import './KratosTabBar.scss'
@@ -39,19 +38,8 @@ const tabIconSrc = (viewKey: string, active: boolean, theme: string): string => 
 export function KratosTabBar({ route }: KratosTabBarProps) {
   const menus = useAppNavigation((state) => state.menus)
   const tabBar = useAppNavigation((state) => state.tabBar)
-  const { t } = useI18n()
   const themeStore = useThemeStore()
 
-  /** 按稳定 viewKey 优先取界面语言标签，未配置的菜单回退后端标题。 */
-  const tabBarTitleKeys: Record<string, string> = {
-    HOME: 'core.navigation.home',
-    APP_ANALYTIC: 'core.navigation.analytics',
-    APP_REPORT: 'core.navigation.report',
-    MESSAGE_INBOX: 'core.navigation.message',
-    PROFILE_HOME: 'core.navigation.my',
-  }
-  const tabBarTitle = (item: { viewKey: string; title: string }): string =>
-    (tabBarTitleKeys[item.viewKey] ? t(tabBarTitleKeys[item.viewKey]) : '') || item.title
   const messageBadge = useAppMenuBadges((state) => state.badges.MESSAGE_INBOX ?? 0)
   const routeMenu = menus.find((menu) => resolveStaticView(menu.viewKey) === route)
   const tabMenuId = routeMenu
@@ -85,7 +73,7 @@ export function KratosTabBar({ route }: KratosTabBarProps) {
             {item.viewKey === 'MESSAGE_INBOX' && messageBadge ? (
               <View className='kratos-tab-bar__badge' aria-hidden='true' />
             ) : null}
-            <Text className={active ? 'kratos-tab-bar__text--active' : ''}>{tabBarTitle(item)}</Text>
+            <Text className={active ? 'kratos-tab-bar__text--active' : ''}>{item.title}</Text>
           </View>
         )
       })}

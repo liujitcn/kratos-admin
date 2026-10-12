@@ -2,25 +2,13 @@
 import { computed, onMounted } from 'vue'
 import { resolveModuleIcon, resolveStaticView } from '../module'
 import { APP_MENU_ROOT_ID, useAppMenuBadge, useAppNavigation } from '../navigation'
-import { useI18n } from '../locales'
 import { useThemeStore } from '../stores'
 import { resolveRootMenuId } from '../navigation-tree.mjs'
 
 const props = defineProps<{ route: string }>()
 const { menus, tabBar, navigate } = useAppNavigation()
-const { t } = useI18n()
 const themeStore = useThemeStore()
 
-/** 按稳定 viewKey 优先取界面语言标签，未配置的菜单回退后端标题。 */
-const tabBarTitleKeys: Record<string, string> = {
-  HOME: 'core.navigation.home',
-  APP_ANALYTIC: 'core.navigation.analytics',
-  APP_REPORT: 'core.navigation.report',
-  MESSAGE_INBOX: 'core.navigation.message',
-  PROFILE_HOME: 'core.navigation.my',
-}
-const tabBarTitle = (item: { viewKey: string; title: string }): string =>
-  (tabBarTitleKeys[item.viewKey] ? t(tabBarTitleKeys[item.viewKey]) : '') || item.title
 /** 设计稿导航坞线稿图标（viewKey → SVG path）。 */
 const TAB_ICON_PATHS: Record<string, string> = {
   HOME: 'M3 11 12 3l9 8M5 10v10h14V10',
@@ -98,7 +86,7 @@ onMounted(() => {
         aria-hidden="true"
       />
       <text :class="{ 'kratos-tab-bar__text--active': activeMenu?.id === item.id }">
-        {{ tabBarTitle(item) }}
+        {{ item.title }}
       </text>
     </view>
   </view>
