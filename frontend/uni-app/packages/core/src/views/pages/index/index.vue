@@ -134,13 +134,13 @@ onLoad(() => {
   padding: 8rpx 4rpx 24rpx;
 }
 
-/* 页面大标题 */
+/* 页面大标题：与其他页面导航标题同规格，向原生导航栏看齐 */
 .home-top__title {
   margin-top: 14rpx;
   color: var(--kratos-color-text);
-  font-size: 44rpx;
-  font-weight: 800;
-  letter-spacing: -0.5rpx;
+  font-size: 32rpx;
+  font-weight: 700;
+  text-align: center;
 }
 
 .home-hero {

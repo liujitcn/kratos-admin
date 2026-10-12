@@ -163,7 +163,7 @@ export default function MessageInboxPage() {
     >
       <View className='k-top message-header' style={topNavStyle}>
         <View className='message-header__title'>
-          <Text className='k-top__t2'>{t('system.notification.title')}</Text>
+          <Text className='message-header__text'>{t('system.notification.title')}</Text>
           {unreadTotal > 0 && <View className='message-unread-dot' aria-hidden='true' />}
         </View>
         {selectedView !== NotificationView.NOTIFICATION_VIEW_ARCHIVED && unreadTotal > 0 && (

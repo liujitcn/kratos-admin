@@ -121,7 +121,7 @@ async function openDetail(item: Notification) {
   <view class="message-page" :class="themeStore.themeClass">
     <view class="k-top message-header" :style="{ '--mp-capsule-gap': `${capsuleGap}px` }">
       <view class="message-header__title">
-        <text class="k-top__t2">{{ t('system.notification.title') }}</text>
+        <text class="message-header__text">{{ t('system.notification.title') }}</text>
         <view v-if="notificationUnreadTotal > 0" class="message-unread-dot" aria-hidden="true" />
       </view>
       <view
@@ -243,14 +243,32 @@ async function openDetail(item: Notification) {
 }
 /* #endif */
 .message-header {
+  /* 标题绝对居中后头部不再依赖流内内容撑高，保证标题行与筛选行留出间距 */
+  min-height: 76rpx;
   padding: 20rpx 4rpx 24rpx;
 }
+/* 标题排版与 k-page-nav__title/k-top__title 同规格，绝对居中后文字与红点同行排布 */
 .message-header__title {
+  position: absolute;
+  left: 50%;
   display: flex;
   align-items: center;
   min-width: 0;
+  max-width: calc(100% - 190rpx);
+  overflow: hidden;
+  font-size: 32rpx;
+  font-weight: 700;
+  color: var(--kratos-color-text);
+  transform: translateX(-50%);
+  white-space: nowrap;
+}
+.message-header__text {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .message-unread-dot {
+  flex-shrink: 0;
   width: 12rpx;
   height: 12rpx;
   margin-left: 12rpx;

@@ -181,31 +181,34 @@
   max-width: calc(100% - 190px);
   overflow: hidden;
   color: var(--kratos-color-text);
-  font-size: 36px;
-  font-weight: 800;
+  font-size: 16PX;
+  font-weight: 700;
   text-overflow: ellipsis;
   transform: translateX(-50%);
   white-space: nowrap;
 }
 .k-top {
+  position: relative;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  /* 标题绝对居中后，流内子元素（右侧动作按钮）统一靠右排布 */
+  justify-content: flex-end;
   gap: 16px;
   /* weapp 原生胶囊避让：页面通过 getMpCapsuleRightGap() 写入该变量，
      其余平台未设置时回退 0，不影响布局。 */
   padding-right: var(--mp-capsule-gap, 0px);
 }
 .k-top__title {
-  font-size: 38px;
-  font-weight: 800;
-  letter-spacing: -0.3px;
+  position: absolute;
+  left: 50%;
+  max-width: calc(100% - 190px);
+  overflow: hidden;
   color: var(--kratos-color-text);
-}
-.k-top__t2 {
-  font-size: 32px;
+  font-size: 16PX;
   font-weight: 700;
-  color: var(--kratos-color-text);
+  text-overflow: ellipsis;
+  transform: translateX(-50%);
+  white-space: nowrap;
 }
 
 /* 方形图标按钮 + 角标 */
@@ -306,12 +309,20 @@
   box-shadow: var(--kratos-glow-soft);
 }
 
-/* 过滤芯片 */
+/* 过滤芯片：单行横向滚动，超出隐藏滚动条 */
 .k-chips {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: 16px;
   margin-bottom: 24px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.k-chips::-webkit-scrollbar {
+  display: none;
+}
+.k-chips .k-ch {
+  flex: 0 0 auto;
 }
 .k-ch {
   display: inline-flex;
@@ -437,6 +448,8 @@
   align-items: center;
   justify-content: center;
   gap: 16px;
+  /* 各端 H5 原生 button 默认宽度不一，显式通栏保证双端一致 */
+  width: 100%;
   height: 100px;
   margin-top: 36px;
   border-radius: 20px;
