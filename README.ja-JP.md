@@ -105,8 +105,8 @@ cd ../taro-app && pnpm dev:h5
 
 | サービス | デフォルトアドレス |
 | --- | --- |
-| バックエンド HTTP | `http://localhost:7001` |
-| バックエンド HTTPS（`APP_ENV=https`） | `https://localhost:7001` |
+| バックエンド HTTP | `http://127.0.0.1:7001` |
+| バックエンド HTTPS（`APP_ENV=https`） | `https://127.0.0.1:7001` |
 | バックエンド gRPC | `localhost:6001` |
 | 管理画面 | `http://localhost:8848` |
 | uni-app H5 | `http://localhost:5004` |
@@ -123,7 +123,7 @@ bash scripts/generate-dev-cert.sh 192.168.1.100
 make -C backend run-only APP_ENV=https
 ```
 
-管理画面の開発プロキシはローカル環境ファイルで `VITE_PROXY` のバックエンドアドレスを `https://localhost:7001` に変更します。Taro と uni-app H5 はそれぞれの `.env.development-h5.local` で `VITE_APP_API_URL` を `https://localhost:7001` に変更します。3 端末の開発プロキシはいずれも自己署名証明書の検証をスキップします。
+管理画面の開発プロキシはローカル環境ファイルで `VITE_PROXY` のバックエンドアドレスを `https://127.0.0.1:7001` に変更します。Taro と uni-app H5 はそれぞれの `.env.development-h5.local` で `VITE_APP_API_URL` を `https://127.0.0.1:7001` に変更します。3 端末の開発プロキシはいずれも自己署名証明書の検証をスキップします。
 
 デフォルトのマイグレーションには開発アカウント `super / 112233` と `admin / 112233` が含まれます。デプロイ前にデフォルトパスワード、JWT キー、データベース、Redis の認証情報を変更してください。
 

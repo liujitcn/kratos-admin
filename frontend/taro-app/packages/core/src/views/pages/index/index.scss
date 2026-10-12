@@ -10,8 +10,21 @@ page {
 }
 
 .home-page--weapp .home-content {
-  /* 44PX 是系统导航栏高度，88px 按设计稿转换为 44 物理像素。 */
-  padding-top: calc(44PX + 88px);
+  padding-top: 0;
+}
+
+/* 小程序端首页标题占导航带：与 k-page-nav--weapp 同几何，标题与胶囊同行 */
+.home-page--weapp .home-top {
+  box-sizing: border-box;
+  height: calc(88px + 44PX);
+  padding: 44PX 4px 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.home-page--weapp .home-top__title {
+  margin-top: 0;
 }
 
 .home-content {

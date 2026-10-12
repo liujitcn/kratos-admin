@@ -5,7 +5,6 @@ export const systemPages: Record<string, KratosTaroPageConfig> = {
   'pages/my/my': {
     style: {
       navigationStyle: 'custom',
-      navigationBarTextStyle: 'white',
       navigationBarTitleText: '',
     },
   },
@@ -19,7 +18,6 @@ export const systemPages: Record<string, KratosTaroPageConfig> = {
   'pagesMember/profile/profile': {
     style: {
       navigationStyle: 'custom',
-      navigationBarTextStyle: 'white',
       navigationBarTitleText: '',
     },
   },

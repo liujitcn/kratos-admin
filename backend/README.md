@@ -105,7 +105,7 @@ bash scripts/generate-dev-cert.sh 192.168.1.100
 make -C backend run-only APP_ENV=https
 ```
 
-`APP_ENV=https` 会加载 `configs/server.https.yaml`，复用仓库根 `certs/dev-cert.pem` 和 `certs/dev-key.pem`，并将 HTTP 服务地址 `:7001` 以 HTTPS 方式提供，即访问 `https://localhost:7001` 或 `https://192.168.1.100:7001`。该环境覆盖配置不能与容器发布路径直接复用，生产环境应将证书挂载到部署目录并在对应配置中填写实际路径。
+`APP_ENV=https` 会加载 `configs/server.https.yaml`，复用仓库根 `certs/dev-cert.pem` 和 `certs/dev-key.pem`，并将 HTTP 服务地址 `:7001` 以 HTTPS 方式提供，即访问 `https://127.0.0.1:7001` 或 `https://192.168.1.100:7001`。该环境覆盖配置不能与容器发布路径直接复用，生产环境应将证书挂载到部署目录并在对应配置中填写实际路径。
 
 独立入口注入 `kratoscore.ProviderSet` 与内部模块 ProviderSet；Core 负责统一创建和管理 HTTP、gRPC、MCP、SSE、队列与定时任务运行时。Admin 注册六张完整审计日志模型并负责自动迁移；Core 异步写入 API/策略日志，Admin 异步写入登录、操作、数据访问和权限日志。
 

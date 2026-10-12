@@ -398,8 +398,15 @@ async function refreshAccessToken() {
   setTokenExpiresIn(expires_in)
 }
 
+/** 会话过期弹窗等待时长：H5 端路由切换会卸载弹窗且 Promise 永不结算，超时释放避免提示永久卡死。 */
+const RELOGIN_PROMPT_TIMEOUT = 60_000
+
 /** 业务页提示重新登录；登录页只清理残留登录态，避免后台请求触发循环弹窗。 */
 async function promptRelogin() {
+  // 401 来自旧会话的在途请求而当前已是有效登录态时直接忽略，避免刚登录成功被弹窗打断。
+  if (hasValidToken()) {
+    return
+  }
   const pages = getCurrentPages()
   if (pages[pages.length - 1]?.route === 'pages/login/login') {
     if (getToken() || getRefreshToken() || uni.getStorageSync('user')) {
@@ -412,14 +419,22 @@ async function promptRelogin() {
   }
   isPromptingRelogin = true
   try {
-    const modalRes = await uni.showModal({
-      title: t('common.title.notice'),
-      content: t('core.auth.session_expired'),
-      showCancel: false,
-      confirmText: t('core.auth.login_again'),
-    })
+    const modalRes = await Promise.race([
+      // 按钮文案复用通用确认键：平台对 confirmText 限制 4 个汉字/8 字符，长文案会被整体拒绝。
+      uni
+        .showModal({
+          title: t('common.title.notice'),
+          content: t('core.auth.session_expired'),
+          showCancel: false,
+          confirmText: t('common.action.confirm'),
+        })
+        .catch(() => ({ confirm: false })),
+      new Promise<{ confirm: boolean }>((resolve) =>
+        setTimeout(() => resolve({ confirm: false }), RELOGIN_PROMPT_TIMEOUT),
+      ),
+    ])
 
-    if (!modalRes.confirm) {
+    if (!modalRes?.confirm) {
       return
     }
 

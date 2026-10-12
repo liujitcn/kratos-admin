@@ -35,7 +35,6 @@ import (
 	"github.com/liujitcn/kratos-kit/auth/authn/engine"
 	authData "github.com/liujitcn/kratos-kit/auth/data"
 	"github.com/liujitcn/kratos-kit/captcha"
-	databaseGorm "github.com/liujitcn/kratos-kit/database/gorm"
 	"github.com/liujitcn/kratos-kit/locker"
 	"github.com/redis/go-redis/v9"
 	"gorm.io/gorm"
@@ -286,7 +285,7 @@ func (c *LoginCase) Login(ctx context.Context, req *basev1.LoginRequest) (*basev
 
 	tenantCode := req.GetTenantCode()
 	if tenantCode == "" {
-		tenantCode = databaseGorm.DefaultTenantCode
+		return nil, errorsx.InvalidArgument("租户编号不能为空")
 	}
 	var loginSourcePolicy loginpolicy.PolicySet
 	loginSourcePolicy, err = loginpolicy.LoadFromCacheStrict(c.Cache)
@@ -410,7 +409,7 @@ func (c *LoginCase) ConfirmMfaEnrollment(ctx context.Context, req *basev1.Confir
 func (c *LoginCase) FindUserByPassword(ctx context.Context, tenantCode string, userName string, encryptedPassword *commonv1.SecretCrypto) (*models.BaseUser, error) {
 	var err error
 	if tenantCode == "" {
-		tenantCode = databaseGorm.DefaultTenantCode
+		return nil, errorsx.InvalidArgument("租户编号不能为空")
 	}
 	var loginSourcePolicy loginpolicy.PolicySet
 	loginSourcePolicy, err = loginpolicy.LoadFromCacheStrict(c.Cache)

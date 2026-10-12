@@ -19,40 +19,6 @@
   box-shadow: var(--kratos-glow-soft);
 }
 
-/* 四角 L 形角标：渲染为真实 view 节点（weapp 伪元素仅支持 view） */
-.k-cnr {
-  position: absolute;
-  width: 24px;
-  height: 24px;
-  border: 3px solid var(--kratos-color-primary);
-  opacity: 0.5;
-  pointer-events: none;
-}
-.k-cnr--tl {
-  top: 16px;
-  left: 16px;
-  border-right: 0;
-  border-bottom: 0;
-}
-.k-cnr--tr {
-  top: 16px;
-  right: 16px;
-  border-left: 0;
-  border-bottom: 0;
-}
-.k-cnr--bl {
-  bottom: 16px;
-  left: 16px;
-  border-right: 0;
-  border-top: 0;
-}
-.k-cnr--br {
-  bottom: 16px;
-  right: 16px;
-  border-left: 0;
-  border-top: 0;
-}
-
 /* 装饰网格背景 */
 .k-grid-bg {
   position: absolute;
@@ -198,6 +164,16 @@
      其余平台未设置时回退 0，不影响布局。 */
   padding-right: var(--mp-capsule-gap, 0px);
 }
+/* #ifdef weapp */
+/* 双写类名提高优先级：页面级 padding 简写（如 .message-header）不得压掉导航带 */
+.k-top.k-top {
+  /* 小程序右上角是原生胶囊：操作按钮靠左，标题行与胶囊同行（同 k-page-nav--weapp 几何） */
+  justify-content: flex-start;
+  height: calc(88px + 44PX);
+  padding-top: 44PX;
+  padding-right: 0;
+}
+/* #endif */
 .k-top__title {
   position: absolute;
   left: 50%;
@@ -747,15 +723,30 @@
   background: var(--kratos-color-primary-soft);
 }
 .k-msg-item__title {
+  display: -webkit-box;
+  overflow: hidden;
   font-size: 25px;
   font-weight: 700;
   color: var(--kratos-color-text);
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  word-break: break-word;
+}
+.k-msg-item__foot {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  margin-top: 10px;
 }
 .k-msg-item__meta {
-  margin-top: 10px;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
   font-size: 20px;
   color: var(--kratos-color-text-muted);
   font-family: var(--kratos-font-mono);
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .k-msg-item__time {
   flex-shrink: 0;
@@ -774,5 +765,50 @@
 .k-msg-item__action {
   font-size: 22px;
   color: var(--kratos-color-primary);
+  font-family: var(--kratos-font-mono);
+}
+
+/* ============================================================
+ * 标准空态词汇（列表无数据时统一使用）
+ * ============================================================ */
+.k-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 140px 32px;
+}
+.k-empty__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 112px;
+  height: 112px;
+  border-radius: 26px;
+  border: 1PX solid var(--kratos-color-border-accent);
+  background: var(--kratos-color-primary-soft-2);
+  color: var(--kratos-color-primary);
+  box-shadow: var(--kratos-glow-soft);
+}
+.k-empty__title {
+  margin-top: 28px;
+  color: var(--kratos-color-text);
+  font-size: 27px;
+  font-weight: 700;
+}
+.k-empty__desc {
+  margin-top: 12px;
+  color: var(--kratos-color-text-muted);
+  font-size: 22px;
+  font-family: var(--kratos-font-mono);
+  text-align: center;
+}
+.k-empty__act {
+  margin-top: 32px;
+  padding: 16px 40px;
+  border-radius: 999px;
+  border: 1PX solid var(--kratos-color-border-accent);
+  background: var(--kratos-color-primary-soft-2);
+  color: var(--kratos-color-primary);
+  font-size: 24px;
   font-family: var(--kratos-font-mono);
 }

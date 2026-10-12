@@ -6,4 +6,4 @@ Development output is under `apps/taro-app/dist/dev/<platform>` and production o
 
 The fixed startup page is in `src/pages/bootstrap`. The core runner temporarily generates wrappers, page configuration, and static assets for other module pages during builds, then restores the host directory.
 
-To access H5 over a LAN IP, use the shared certificate under the repository's `certs` directory and set `VITE_APP_HTTPS=true` in `.env.development-h5.local`. If the backend uses HTTPS, also set `VITE_APP_API_URL=https://localhost:7001`.
+To access H5 over a LAN IP, use the shared certificate under the repository's `certs` directory and set `VITE_APP_HTTPS=true` in `.env.development-h5.local`. If the backend uses HTTPS, also set `VITE_APP_API_URL=https://127.0.0.1:7001`.

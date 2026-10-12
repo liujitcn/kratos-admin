@@ -131,3 +131,16 @@ html.theme-dark .taro__toast > div:last-child {
   color: var(--kratos-color-text) !important;
 }
 /* #endif */
+
+/* H5 隐藏滚动条但保留滚动能力，视觉对齐小程序；小程序端滚动条本就不存在，无副作用。 */
+/* #ifdef h5 */
+::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  display: none;
+}
+
+* {
+  scrollbar-width: none;
+}
+/* #endif */

@@ -41,6 +41,6 @@ pnpm build:h5
 pnpm build:mp-weixin
 ```
 
-通过局域网 IP 访问 H5 时，可复用仓库根 `certs` 下的共享证书，并在 `.env.development-h5.local` 中设置 `VITE_APP_HTTPS=true`；后端使用 HTTPS 时同步设置 `VITE_APP_API_URL=https://localhost:7001`。
+通过局域网 IP 访问 H5 时，可复用仓库根 `certs` 下的共享证书，并在 `.env.development-h5.local` 中设置 `VITE_APP_HTTPS=true`；后端使用 HTTPS 时同步设置 `VITE_APP_API_URL=https://127.0.0.1:7001`。
 
 模块开发和动态导航约定见 [workspace 文档](../../README.md)。

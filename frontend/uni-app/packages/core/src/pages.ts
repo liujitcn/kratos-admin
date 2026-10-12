@@ -5,7 +5,6 @@ export const corePages: Record<string, KratosAppPageConfig> = {
   'pages/index/index': {
     style: {
       navigationStyle: 'custom',
-      navigationBarTextStyle: 'white',
       navigationBarTitleText: '',
     },
   },

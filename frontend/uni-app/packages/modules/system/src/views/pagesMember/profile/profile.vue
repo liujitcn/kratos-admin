@@ -259,8 +259,6 @@ const onSubmit = async () => {
 
       <!-- 头像卡：点击更换头像 -->
       <view class="k-glass k-glass--lit k-pfx profile-id" @tap="onAvatarChange">
-        <view class="k-cnr k-cnr--tl" aria-hidden="true"></view>
-        <view class="k-cnr k-cnr--br" aria-hidden="true"></view>
         <view class="profile-id__main">
           <view class="k-pfx__av">
             <image

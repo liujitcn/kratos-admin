@@ -146,17 +146,17 @@ export default defineConfig<'webpack5'>(async (merge) => {
         https: httpsOptions,
         proxy: {
           [apiBasePath || '/api']: {
-            target: apiTargetUrl || 'http://localhost:7001',
+            target: apiTargetUrl || 'http://127.0.0.1:7001',
             changeOrigin: true,
             ...apiProxyOptions,
           },
           '/events': {
-            target: apiTargetUrl || 'http://localhost:7001',
+            target: apiTargetUrl || 'http://127.0.0.1:7001',
             changeOrigin: true,
             ...apiProxyOptions,
           },
           '/data': {
-            target: apiTargetUrl || 'http://localhost:7001',
+            target: apiTargetUrl || 'http://127.0.0.1:7001',
             changeOrigin: true,
             ...apiProxyOptions,
           },

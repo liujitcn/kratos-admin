@@ -7,7 +7,7 @@ const messages = {
     module_name_invalid: '模块名无效：{name}',
     package_name_invalid: '包名无效：{name}',
     https_environment_hint:
-      '后端使用 HTTPS 时，在 .env.development-h5.local 中设置 VITE_APP_API_URL=https://localhost:7001。',
+      '后端使用 HTTPS 时，在 .env.development-h5.local 中设置 VITE_APP_API_URL=https://127.0.0.1:7001。',
   },
   'en-US': {
     package_version_missing: 'CLI package.json is missing a valid version',
@@ -17,7 +17,7 @@ const messages = {
     module_name_invalid: 'Invalid module name: {name}',
     package_name_invalid: 'Invalid package name: {name}',
     https_environment_hint:
-      'When the backend uses HTTPS, set VITE_APP_API_URL=https://localhost:7001 in .env.development-h5.local.',
+      'When the backend uses HTTPS, set VITE_APP_API_URL=https://127.0.0.1:7001 in .env.development-h5.local.',
   },
 }
 

@@ -639,10 +639,6 @@ export default function LoginPage() {
         </View>
       </View>
       <View className='k-glass k-glass--lit login-panel'>
-        <View className='k-cnr k-cnr--tl' aria-hidden />
-        <View className='k-cnr k-cnr--tr' aria-hidden />
-        <View className='k-cnr k-cnr--bl' aria-hidden />
-        <View className='k-cnr k-cnr--br' aria-hidden />
         {process.env.TARO_ENV === 'h5' ? (
           <View className='login-form'>
             {showTenantCode ? (

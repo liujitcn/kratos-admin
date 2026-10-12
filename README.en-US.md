@@ -105,8 +105,8 @@ cd ../taro-app && pnpm dev:h5
 
 | Service | Default address |
 | --- | --- |
-| Backend HTTP | `http://localhost:7001` |
-| Backend HTTPS (`APP_ENV=https`) | `https://localhost:7001` |
+| Backend HTTP | `http://127.0.0.1:7001` |
+| Backend HTTPS (`APP_ENV=https`) | `https://127.0.0.1:7001` |
 | Backend gRPC | `localhost:6001` |
 | Administration console | `http://localhost:8848` |
 | uni-app H5 | `http://localhost:5004` |
@@ -123,7 +123,7 @@ bash scripts/generate-dev-cert.sh 192.168.1.100
 make -C backend run-only APP_ENV=https
 ```
 
-The administration proxy must set `VITE_PROXY` in a local environment file to `https://localhost:7001`; Taro and uni-app H5 must set `VITE_APP_API_URL` in their respective `.env.development-h5.local` files to `https://localhost:7001`. All three development proxies skip self-signed certificate verification.
+The administration proxy must set `VITE_PROXY` in a local environment file to `https://127.0.0.1:7001`; Taro and uni-app H5 must set `VITE_APP_API_URL` in their respective `.env.development-h5.local` files to `https://127.0.0.1:7001`. All three development proxies skip self-signed certificate verification.
 
 The default migration provides development accounts `super / 112233` and `admin / 112233`. Change the default passwords, JWT key, database credentials, and Redis credentials before deployment.
 

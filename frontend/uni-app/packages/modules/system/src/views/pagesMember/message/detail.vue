@@ -23,14 +23,6 @@ async function loadDetail(id: number) {
   if (!detail.value.read_at) await defNotificationService.MarkNotificationRead({ ids: [id] })
 }
 
-/** 将系统通知发送者映射到当前语言。 */
-function resolveSenderName(value?: string) {
-  if (value === '系统' || value === '__I18N__:system.notification.sender.system') {
-    return t('system.notification.sender.system')
-  }
-  return value ?? ''
-}
-
 /** 执行通知携带的稳定 viewKey 动作。 */
 function openAction() {
   if (!detail.value || detail.value.action_type !== MessageActionType.MESSAGE_ACTION_TYPE_VIEW_KEY)
@@ -79,7 +71,6 @@ function onBack() {
           />
           <text>{{ detail.category_name }}</text>
         </view>
-        <text>{{ resolveSenderName(detail.sender_name) }}</text>
         <text>{{ detail.received_at }}</text>
       </view>
       <rich-text
@@ -124,11 +115,12 @@ function onBack() {
 }
 .detail-meta {
   display: flex;
-  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
   gap: 18rpx;
   margin: 24rpx 0 36rpx;
   padding-bottom: 28rpx;
-  border-bottom: 1rpx solid var(--kratos-color-border);
+  border-bottom: 1px solid var(--kratos-color-border);
   color: var(--kratos-color-text-muted);
   font-size: 22rpx;
   font-family: var(--kratos-font-mono);
@@ -136,6 +128,10 @@ function onBack() {
 .detail-category {
   display: inline-flex;
   align-items: center;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .detail-category__icon {
   margin-right: 8rpx;
@@ -143,7 +139,7 @@ function onBack() {
 .detail-content {
   display: block;
   padding: 28rpx;
-  border: 1rpx solid var(--kratos-color-border);
+  border: 1px solid var(--kratos-color-border);
   border-radius: 20rpx;
   background: var(--kratos-color-surface);
   color: var(--kratos-color-text);
@@ -165,7 +161,7 @@ function onBack() {
 }
 .detail-action {
   margin-top: 36rpx;
-  border: 1rpx solid var(--kratos-color-border-accent);
+  border: 1px solid var(--kratos-color-border-accent);
   border-radius: 20rpx;
   background: var(--kratos-color-primary-soft);
   color: var(--kratos-color-primary);

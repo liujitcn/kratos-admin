@@ -58,10 +58,6 @@
   min-width: 0;
 }
 
-.message-item__body .k-msg-item__meta {
-  display: block;
-}
-
 .load-more {
   box-sizing: border-box;
   width: 100%;
@@ -78,13 +74,6 @@
 
 .load-more::after {
   border: 0;
-}
-
-.empty {
-  padding: 120px 0;
-  color: var(--kratos-color-text-dim);
-  font-family: var(--kratos-font-mono);
-  text-align: center;
 }
 
 .detail-page {
@@ -113,7 +102,8 @@
 
 .detail-meta {
   display: flex;
-  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
   gap: 18px;
   margin: 24px 0 36px;
   padding-bottom: 28px;
@@ -126,6 +116,10 @@
 .detail-category {
   display: inline-flex;
   align-items: center;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .detail-category__icon {

@@ -918,10 +918,6 @@ onUnload(() => {
       </view>
     </view>
     <view class="k-glass k-glass--lit login-panel">
-      <view class="k-cnr k-cnr--tl" aria-hidden="true"></view>
-      <view class="k-cnr k-cnr--tr" aria-hidden="true"></view>
-      <view class="k-cnr k-cnr--bl" aria-hidden="true"></view>
-      <view class="k-cnr k-cnr--br" aria-hidden="true"></view>
       <view class="login-form">
         <!-- 网页端表单登录 -->
         <!-- #ifdef H5 -->

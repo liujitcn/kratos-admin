@@ -25,7 +25,7 @@ pnpm build:h5
 pnpm build:mp-weixin
 ```
 
-H5 通过局域网 IP 访问时，先在仓库根目录运行 `bash scripts/generate-dev-cert.sh 192.168.1.100` 生成证书，再在 `.env.development-h5.local` 中设置 `VITE_APP_HTTPS=true`；后端使用 HTTPS 时同时设置 `VITE_APP_API_URL=https://localhost:7001`。
+H5 通过局域网 IP 访问时，先在仓库根目录运行 `bash scripts/generate-dev-cert.sh 192.168.1.100` 生成证书，再在 `.env.development-h5.local` 中设置 `VITE_APP_HTTPS=true`；后端使用 HTTPS 时同时设置 `VITE_APP_API_URL=https://127.0.0.1:7001`。
 
 模块装配入口是 `apps/uni-app/src/module-manifest.ts`。新增、删除或调整模块时同步维护该清单，并在模块自己的 README 中记录页面和接口职责。
 

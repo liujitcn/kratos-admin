@@ -25,7 +25,7 @@ pnpm build:h5
 pnpm build:mp-weixin
 ```
 
-To access H5 over a LAN IP, run `bash scripts/generate-dev-cert.sh 192.168.1.100` from the repository root, then set `VITE_APP_HTTPS=true` in `.env.development-h5.local`. If the backend uses HTTPS, also set `VITE_APP_API_URL=https://localhost:7001`.
+To access H5 over a LAN IP, run `bash scripts/generate-dev-cert.sh 192.168.1.100` from the repository root, then set `VITE_APP_HTTPS=true` in `.env.development-h5.local`. If the backend uses HTTPS, also set `VITE_APP_API_URL=https://127.0.0.1:7001`.
 
 The module assembly entry is `apps/uni-app/src/module-manifest.ts`. Keep it in sync when adding, removing, or changing modules, and document page and API responsibilities in each module README.
 

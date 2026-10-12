@@ -686,9 +686,10 @@ const file_base_v1_login_proto_rawDesc = "" +
 	"\n" +
 	"token_type\x18\x03 \x01(\tB\x94\x01\xbaG\x90\x01\x8a\x02\b\x1a\x06Bearer\x92\x02\x81\x01令牌的类型，该值大小写不敏感，必选项，可以是bearer类型或mac类型，通常只是字符串“Bearer”。R\ttokenType\x12\xdc\x01\n" +
 	"\n" +
-	"expires_in\x18\x04 \x01(\x03B\xbc\x01\xbaG\xb8\x01\x92\x02\xb4\x01令牌有效时间，单位为秒。如果访问令牌过期，服务器应回复授予访问令牌的持续时间。如果省略该参数，必须其他方式设置过期时间。R\texpiresIn\"\xf2\x04\n" +
-	"\fLoginRequest\x123\n" +
-	"\vtenant_code\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f租户编码R\n" +
+	"expires_in\x18\x04 \x01(\x03B\xbc\x01\xbaG\xb8\x01\x92\x02\xb4\x01令牌有效时间，单位为秒。如果访问令牌过期，服务器应回复授予访问令牌的持续时间。如果省略该参数，必须其他方式设置过期时间。R\texpiresIn\"\xcb\x05\n" +
+	"\fLoginRequest\x12\x8b\x01\n" +
+	"\vtenant_code\x18\x01 \x01(\tBj\xbaG\x0f\x92\x02\f租户编码\xbaHU\xba\x01R\n" +
+	"%base.login.login.tenant_code.required\x12\x18租户编码不能为空\x1a\x0fthis.size() > 0R\n" +
 	"tenantCode\x12\x7f\n" +
 	"\tuser_name\x18\x02 \x01(\tBb\xbaG\f\x92\x02\t用户名\xbaHP\xba\x01M\n" +
 	"#base.login.login.user_name.required\x12\x15用户名不能为空\x1a\x0fthis.size() > 0R\buserName\x12G\n" +

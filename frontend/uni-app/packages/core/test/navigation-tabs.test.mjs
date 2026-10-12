@@ -115,7 +115,11 @@ async function loadNavigationRuntime(state) {
               return {
                 loader: 'js',
                 contents: `export function resolveStaticView(key) {
-                  return { HOME: 'pages/index/index', PROFILE_HOME: 'pages/my/my' }[key]
+                  return {
+                    HOME: 'pages/index/index',
+                    MESSAGE_INBOX: 'pagesMember/message/index',
+                    PROFILE_HOME: 'pages/my/my',
+                  }[key]
                 }`,
               }
             }
@@ -151,7 +155,7 @@ function createState(pages) {
   }
 }
 
-test('H5 切换自绘 tab 替换当前路由，避免重建应用产生闪烁', async () => {
+test('H5 自绘 tab 替换当前路由，避免重建应用产生闪烁', async () => {
   const state = { ...createState([{ route: 'pages/index/index' }]), isH5: true }
   const runtime = await loadNavigationRuntime(state)
   runtime.installAppNavigation(menus)
@@ -163,6 +167,21 @@ test('H5 切换自绘 tab 替换当前路由，避免重建应用产生闪烁', 
   assert.equal(state.reLaunchCalls.length, 0)
   assert.equal(state.switchTabCalls.length, 0)
   assert.equal(state.navigateCalls.length, 0)
+  assert.equal(state.navigateBackCalls.length, 0)
+})
+
+test('H5 从消息 tab 切换到我的仍替换当前路由，不触发页面滑动栈', async () => {
+  const state = { ...createState([{ route: 'pagesMember/message/index' }]), isH5: true }
+  const runtime = await loadNavigationRuntime(state)
+  runtime.installAppNavigation(menus)
+
+  runtime.navigateAppRoute('app/my')
+
+  assert.equal(state.redirectCalls.length, 1)
+  assert.equal(state.redirectCalls[0].url, '/pages/my/my')
+  assert.equal(state.navigateCalls.length, 0)
+  assert.equal(state.navigateBackCalls.length, 0)
+  assert.equal(state.reLaunchCalls.length, 0)
 })
 
 const menus = [
@@ -183,6 +202,16 @@ const menus = [
     path: 'app/my',
     viewKey: 'PROFILE_HOME',
     title: 'My',
+    access: 'PUBLIC',
+    inTabBar: true,
+  },
+  {
+    id: 99040000,
+    parentId: 99000000,
+    name: 'AppMessage',
+    path: 'app/message',
+    viewKey: 'MESSAGE_INBOX',
+    title: 'Messages',
     access: 'PUBLIC',
     inTabBar: true,
   },

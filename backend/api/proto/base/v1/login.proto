@@ -122,7 +122,7 @@ message LoginRequest {
     expression: "has(this.password)"
   };
 
-  string tenant_code = 1 [(gnostic.openapi.v3.property) = {description: "租户编码"}]; // 租户编码
+  string tenant_code = 1 [(gnostic.openapi.v3.property) = {description: "租户编码"}, (buf.validate.field).cel = {id: "base.login.login.tenant_code.required" message: "租户编码不能为空" expression: "this.size() > 0"}]; // 租户编码
 
   string user_name = 2 [(gnostic.openapi.v3.property) = {description: "用户名"}, (buf.validate.field).cel = {id: "base.login.login.user_name.required" message: "用户名不能为空" expression: "this.size() > 0"}]; // 用户名，必选项。
 

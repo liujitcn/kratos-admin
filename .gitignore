@@ -78,3 +78,4 @@ service_tmp/
 /gui-test-screenshots/
 /backend/migration/assets/v0.0.1/mysql/base_ai.up.sql
 /.claude/
+/.zcode/

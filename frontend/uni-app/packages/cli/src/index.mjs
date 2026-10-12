@@ -323,12 +323,12 @@ function writeEnvironmentFiles(target) {
   write(
     target,
     '.env.development',
-    'VITE_APP_BASE_API=/api\nVITE_APP_API_URL=http://localhost:7001\nVITE_APP_STATIC_API=\nVITE_APP_STATIC_URL=http://localhost:7001\n',
+    'VITE_APP_BASE_API=/api\nVITE_APP_API_URL=http://127.0.0.1:7001\nVITE_APP_STATIC_API=\nVITE_APP_STATIC_URL=http://127.0.0.1:7001\n',
   )
   write(
     target,
     '.env.development-h5',
-    `VITE_APP_PORT=5004\nVITE_APP_HTTPS=false\n# VITE_APP_HTTPS_KEY=../../certs/dev-key.pem\n# VITE_APP_HTTPS_CERT=../../certs/dev-cert.pem\n# ${cliMessage('https_environment_hint')}\nVITE_APP_BASE_PATH=/\nVITE_APP_BASE_API=/api\nVITE_APP_API_URL=http://localhost:7001\nVITE_APP_STATIC_API=\nVITE_APP_STATIC_URL=http://localhost:7001\n`,
+    `VITE_APP_PORT=5004\nVITE_APP_HTTPS=false\n# VITE_APP_HTTPS_KEY=../../certs/dev-key.pem\n# VITE_APP_HTTPS_CERT=../../certs/dev-cert.pem\n# ${cliMessage('https_environment_hint')}\nVITE_APP_BASE_PATH=/\nVITE_APP_BASE_API=/api\nVITE_APP_API_URL=http://127.0.0.1:7001\nVITE_APP_STATIC_API=\nVITE_APP_STATIC_URL=http://127.0.0.1:7001\n`,
   )
   write(
     target,

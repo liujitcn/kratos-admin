@@ -14,8 +14,8 @@ page {
 }
 
 .my-viewport--weapp .my-content {
-  /* 44PX 是系统导航栏高度，88px 按设计稿转换为 44 物理像素。 */
-  padding-top: calc(44PX + 88px);
+  /* k-top 在小程序端自带 44PX 状态栏高度的导航带，页面不再额外让出顶部空间 */
+  padding-top: 0;
 }
 
 .my-stack {

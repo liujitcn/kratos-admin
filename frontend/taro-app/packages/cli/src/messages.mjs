@@ -14,7 +14,7 @@ const messages = {
     example_create: '  kratos-taro-app create customer-app',
     example_modules: '  kratos-taro-app create business-app --module business,report',
     example_package: '  kratos-taro-app create customer-app --with @acme/customer-module',
-    https_environment_hint: '后端使用 HTTPS 时，在 .env.development-h5.local 中设置 VITE_APP_API_URL=https://localhost:7001。',
+    https_environment_hint: '后端使用 HTTPS 时，在 .env.development-h5.local 中设置 VITE_APP_API_URL=https://127.0.0.1:7001。',
   },
   'en-US': {
     package_version_missing: 'CLI package.json is missing a valid version',
@@ -31,7 +31,7 @@ const messages = {
     example_create: '  kratos-taro-app create customer-app',
     example_modules: '  kratos-taro-app create business-app --module business,report',
     example_package: '  kratos-taro-app create customer-app --with @acme/customer-module',
-    https_environment_hint: 'When the backend uses HTTPS, set VITE_APP_API_URL=https://localhost:7001 in .env.development-h5.local.',
+    https_environment_hint: 'When the backend uses HTTPS, set VITE_APP_API_URL=https://127.0.0.1:7001 in .env.development-h5.local.',
   },
 }
 

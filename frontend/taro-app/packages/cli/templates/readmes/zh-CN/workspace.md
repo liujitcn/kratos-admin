@@ -32,4 +32,4 @@ pnpm tsc
 
 环境文件位于 workspace 根目录，变量名与 uni-app 保持一致：`VITE_APP_PORT`、`VITE_APP_BASE_PATH`、`VITE_APP_BASE_API`、`VITE_APP_API_URL`、`VITE_APP_STATIC_API`、`VITE_APP_STATIC_URL`。H5 会在基础模式文件上叠加对应的 `*-h5` 文件。
 
-H5 通过局域网 IP 访问时，先在仓库根目录运行 `bash scripts/generate-dev-cert.sh 192.168.1.100` 生成证书，再在 `.env.development-h5.local` 中设置 `VITE_APP_HTTPS=true`；后端使用 HTTPS 时同时设置 `VITE_APP_API_URL=https://localhost:7001`。
+H5 通过局域网 IP 访问时，先在仓库根目录运行 `bash scripts/generate-dev-cert.sh 192.168.1.100` 生成证书，再在 `.env.development-h5.local` 中设置 `VITE_APP_HTTPS=true`；后端使用 HTTPS 时同时设置 `VITE_APP_API_URL=https://127.0.0.1:7001`。

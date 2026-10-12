@@ -13,7 +13,7 @@ export default function HomePage() {
   const themeStore = useThemeStore()
   const settings = useSettingStore((state) => state.data)
   const loadData = useSettingStore((state) => state.loadData)
-  const mainTitle = settings?.get('mainTitle') || t('core.home.main_title')
+  const mainTitle = t('core.navigation.home')
   const subTitle = settings?.get('subTitle') || t('core.home.sub_title')
   const configuredAppLogo = settings?.get('appLogo')
   const configuredLogoUrl = configuredAppLogo ? formatSrc(configuredAppLogo) : defaultLogo
@@ -36,7 +36,8 @@ export default function HomePage() {
   const demos = [
     [t('core.home.cross_platform'), t('core.home.cross_platform_description')],
     [t('core.home.account_capability'), t('core.home.account_capability_description')],
-    [t('core.home.static_home'), t('core.home.static_home_description')],
+    [t('core.home.message_center'), t('core.home.message_center_description')],
+    [t('core.home.dynamic_config'), t('core.home.dynamic_config_description')],
   ]
   return (
     <View
@@ -51,10 +52,6 @@ export default function HomePage() {
         </View>
 
         <View className='k-glass k-glass--lit home-hero'>
-          <View className='k-cnr k-cnr--tl' aria-hidden />
-          <View className='k-cnr k-cnr--tr' aria-hidden />
-          <View className='k-cnr k-cnr--bl' aria-hidden />
-          <View className='k-cnr k-cnr--br' aria-hidden />
           <View className='home-hero__main'>
             <Image
               className='home-logo'

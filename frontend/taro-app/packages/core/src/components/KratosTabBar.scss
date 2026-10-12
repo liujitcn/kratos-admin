@@ -30,21 +30,8 @@
   line-height: 12PX;
 }
 
-/* 设计稿：激活项顶部霓虹发光条 */
-.kratos-tab-bar__item--active::before {
-  position: absolute;
-  top: 0;
-  left: 50%;
-  width: 26px;
-  height: 3px;
-  border-radius: 3px;
-  background: var(--kratos-tab-bar-active-color);
-  box-shadow: 0 0 12px var(--kratos-tab-bar-active-color);
-  content: '';
-  transform: translateX(-50%);
-}
-
 .kratos-tab-bar__icon {
+  flex-shrink: 0;
   width: 28PX;
   height: 28PX;
   margin-bottom: 4PX;

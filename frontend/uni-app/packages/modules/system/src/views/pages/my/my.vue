@@ -24,7 +24,7 @@ const avatarText = computed(() => (profile.value?.nick_name || 'U').slice(0, 1))
 /** 设计稿齿轮线稿，随主题取色的 data URI，替代 CSS 手绘图标。 */
 const gearIcon = computed(() => {
   const color = themeStore.theme === 'light' ? '#102232' : '#e9f4f6'
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.6 1.6 0 0 0 .3 1.8 2 2 0 1 1-2.8 2.8 1.6 1.6 0 0 0-2.7 1.1 2 2 0 1 1-4 0 1.6 1.6 0 0 0-2.6-1.1 2 2 0 1 1-2.8-2.8A1.6 1.6 0 0 0 3 13.9a2 2 0 1 1 0-4 1.6 1.6 0 0 0 1.5-2.7 2 2 0 1 1 2.8-2.8A1.6 1.6 0 0 0 10 4.6a2 2 0 1 1 4 0 1.6 1.6 0 0 0 2.7.6 2 2 0 1 1 2.8 2.8 1.6 1.6 0 0 0-.1 2.6"/></svg>`
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.6 1.6 0 0 0 .3 1.8 2 2 0 1 1-2.8 2.8 1.6 1.6 0 0 0-2.7 1.1 2 2 0 1 1-4 0 1.6 1.6 0 0 0-2.6-1.1 2 2 0 1 1-2.8-2.8A1.6 1.6 0 0 0 3 13.9a2 2 0 1 1 0-4 1.6 1.6 0 0 0 1.5-2.7 2 2 0 1 1 2.8-2.8A1.6 1.6 0 0 0 10 4.6a2 2 0 1 1 4 0 1.6 1.6 0 0 0 2.7.6 2 2 0 1 1 2.8 2.8 1.6 1.6 0 0 0-.1 2.6a2.2 2.2 0 1 1 0 4.4Z"/></svg>`
   return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`
 })
 
@@ -72,8 +72,6 @@ const navigateToProfile = () => navigateAppRoute('app/profile')
       <view class="my-stack">
         <!-- 个人资料 -->
         <view class="k-glass k-glass--lit k-pfx my-profile" @tap="navigateToProfile">
-          <view class="k-cnr k-cnr--tr" aria-hidden="true"></view>
-          <view class="k-cnr k-cnr--bl" aria-hidden="true"></view>
           <view class="my-pfx-main">
             <image
               v-if="isLoggedIn && profile"
@@ -118,7 +116,8 @@ const navigateToProfile = () => navigateAppRoute('app/profile')
   padding: calc(env(safe-area-inset-top) + 24rpx) 32rpx calc(40rpx + env(safe-area-inset-bottom));
 
   /* #ifdef MP-WEIXIN */
-  padding-top: calc(44px + 24rpx);
+  /* k-top 在小程序端自带 44px 状态栏高度的导航带，页面不再额外让出顶部空间 */
+  padding-top: 0;
   /* #endif */
 }
 

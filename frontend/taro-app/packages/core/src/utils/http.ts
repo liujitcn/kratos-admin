@@ -1,4 +1,4 @@
-import Taro from '@tarojs/taro'
+import Taro, { getCurrentPages } from '@tarojs/taro'
 import {
   clearToken,
   getRefreshToken,
@@ -262,19 +262,36 @@ async function refreshAccessToken(): Promise<void> {
   setTokenExpiresIn(data.expires_in)
 }
 
+/** 会话过期弹窗等待时长：H5 端路由切换会自动隐藏模态且 Promise 永不结算，超时释放避免提示永久卡死。 */
+const RELOGIN_PROMPT_TIMEOUT = 60_000
+
 async function promptRelogin(): Promise<void> {
+  // 401 来自旧会话的在途请求而当前已是有效登录态时直接忽略，避免刚登录成功被弹窗打断。
+  if (hasValidToken()) return
+  const pages = getCurrentPages()
+  // 登录页自身的请求失效只清理残留登录态，避免确认后重载登录页丢失已填写的表单。
+  if (pages[pages.length - 1]?.route === 'pages/login/login') {
+    if (getToken() || getRefreshToken() || Taro.getStorageSync('user')) silentClearAuthData()
+    return
+  }
   if (isPromptingRelogin) return
   isPromptingRelogin = true
   try {
     const theme = useThemeStore.getState().theme
-    const modal = await Taro.showModal({
-      title: t('common.title.notice'),
-      content: t('core.auth.session_expired'),
-      showCancel: false,
-      confirmText: t('core.auth.login_again'),
-      confirmColor: theme === 'light' ? '#039e8c' : '#28f0d4',
-    })
-    if (!modal.confirm) return
+    const modal = await Promise.race([
+      // 按钮文案复用通用确认键：平台对 confirmText 限制 4 个汉字/8 字符，长文案会被整体拒绝。
+      Taro.showModal({
+        title: t('common.title.notice'),
+        content: t('core.auth.session_expired'),
+        showCancel: false,
+        confirmText: t('common.action.confirm'),
+        confirmColor: theme === 'light' ? '#039e8c' : '#28f0d4',
+      }).catch(() => undefined as undefined),
+      new Promise<undefined>((resolve) =>
+        setTimeout(() => resolve(undefined), RELOGIN_PROMPT_TIMEOUT),
+      ),
+    ])
+    if (!modal?.confirm) return
     await new Promise((resolve) => setTimeout(resolve, 80))
     silentClearAuthData()
     saveCurrentRoute()

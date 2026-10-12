@@ -107,8 +107,8 @@ cd ../taro-app && pnpm dev:h5
 
 | 服务 | 默认地址 |
 | --- | --- |
-| 后端 HTTP | `http://localhost:7001` |
-| 后端 HTTPS（`APP_ENV=https`） | `https://localhost:7001` |
+| 后端 HTTP | `http://127.0.0.1:7001` |
+| 后端 HTTPS（`APP_ENV=https`） | `https://127.0.0.1:7001` |
 | 后端 gRPC | `localhost:6001` |
 | 管理后台 | `http://localhost:8848` |
 | uni-app H5 | `http://localhost:5004` |
@@ -125,7 +125,7 @@ bash scripts/generate-dev-cert.sh 192.168.1.100
 make -C backend run-only APP_ENV=https
 ```
 
-管理端开发代理需要在本地环境文件中将 `VITE_PROXY` 的后端地址改为 `https://localhost:7001`；Taro 和 uni-app H5 需要在各自 `.env.development-h5.local` 中将 `VITE_APP_API_URL` 改为 `https://localhost:7001`。三端开发代理都会跳过自签名证书校验。
+管理端开发代理需要在本地环境文件中将 `VITE_PROXY` 的后端地址改为 `https://127.0.0.1:7001`；Taro 和 uni-app H5 需要在各自 `.env.development-h5.local` 中将 `VITE_APP_API_URL` 改为 `https://127.0.0.1:7001`。三端开发代理都会跳过自签名证书校验。
 
 默认迁移提供开发账号 `super / 112233` 和 `admin / 112233`。部署前必须修改默认密码、JWT 密钥、数据库和 Redis 凭据。
 

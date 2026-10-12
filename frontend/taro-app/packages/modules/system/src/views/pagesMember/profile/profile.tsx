@@ -164,8 +164,6 @@ export default function ProfilePage() {
         </View>
 
         <View className='k-glass k-glass--lit k-pfx profile-id' onClick={() => void onAvatarChange()}>
-          <View className='k-cnr k-cnr--tl' aria-hidden />
-          <View className='k-cnr k-cnr--br' aria-hidden />
           <View className='profile-id__main'>
             <View className='k-pfx__av'>
               <Image className='profile-av-img' src={userInfo.avatar ? formatSrc(userInfo.avatar) : defaultAvatar} mode='aspectFill' />

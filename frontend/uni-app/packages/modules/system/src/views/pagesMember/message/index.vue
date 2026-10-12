@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onShow } from '@dcloudio/uni-app'
-import { ref } from 'vue'
-import { navigateAppView, t } from '@liujitcn/kratos-uni-app-core'
+import { computed, ref } from 'vue'
+import { KratosEmpty, navigateAppView, t } from '@liujitcn/kratos-uni-app-core'
 import { useThemeStore } from '@liujitcn/kratos-uni-app-core/stores'
 import { getMpCapsuleRightGap } from '@liujitcn/kratos-uni-app-core/utils/index'
 import { defNotificationService } from '../../../api/base/v1/notification'
@@ -115,6 +115,15 @@ async function openDetail(item: Notification) {
   if (!item.read_at) await defNotificationService.MarkNotificationRead({ ids: [item.id] })
   navigateAppView('MESSAGE_DETAIL', { id: String(item.id) })
 }
+
+/** 空态提示语随当前视图切换。 */
+const emptyHintKey = computed(() => {
+  if (selectedView.value === NotificationView.NOTIFICATION_VIEW_UNREAD)
+    return 'system.notification.empty_unread_hint'
+  if (selectedView.value === NotificationView.NOTIFICATION_VIEW_ARCHIVED)
+    return 'system.notification.empty_archived_hint'
+  return 'system.notification.empty_inbox_hint'
+})
 </script>
 
 <template>
@@ -185,9 +194,11 @@ async function openDetail(item: Notification) {
           </view>
           <view class="message-item__body">
             <text class="k-msg-item__title">{{ item.title }}</text>
-            <text class="k-msg-item__meta">{{ item.category_name }}</text>
+            <view class="k-msg-item__foot">
+              <text class="k-msg-item__meta">{{ item.category_name }}</text>
+              <text class="k-msg-item__time">{{ item.received_at }}</text>
+            </view>
           </view>
-          <text class="k-msg-item__time">{{ item.received_at }}</text>
         </view>
         <view
           v-if="
@@ -222,9 +233,12 @@ async function openDetail(item: Notification) {
     <button v-if="!finished" class="load-more" :loading="loading" @tap="loadMore">
       {{ t('common.action.load_more') }}
     </button>
-    <view v-if="finished && items.length === 0" class="empty">{{
-      t('system.notification.empty')
-    }}</view>
+    <KratosEmpty
+      v-if="finished && items.length === 0"
+      icon="notification-filled"
+      :title="t('system.notification.empty')"
+      :description="t(emptyHintKey)"
+    />
   </view>
 </template>
 
@@ -239,7 +253,8 @@ async function openDetail(item: Notification) {
 }
 /* #ifdef MP-WEIXIN */
 .message-page {
-  padding-top: calc(44px + 16rpx);
+  /* k-top 在小程序端自带 44px 状态栏高度的导航带，页面不再额外让出顶部空间 */
+  padding-top: 0;
 }
 /* #endif */
 .message-header {
@@ -293,7 +308,7 @@ async function openDetail(item: Notification) {
   height: 76rpx;
   margin-top: 24rpx;
   padding: 0 24rpx;
-  border: 1rpx solid var(--kratos-color-border);
+  border: 1px solid var(--kratos-color-border);
   border-radius: 16rpx;
   background: var(--kratos-color-surface-2);
   color: var(--kratos-color-text);
@@ -302,11 +317,5 @@ async function openDetail(item: Notification) {
 }
 .load-more::after {
   border: 0;
-}
-.empty {
-  padding: 120rpx 0;
-  color: var(--kratos-color-text-dim);
-  font-family: var(--kratos-font-mono);
-  text-align: center;
 }
 </style>

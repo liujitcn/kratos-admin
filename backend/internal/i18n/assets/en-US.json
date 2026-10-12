@@ -5590,5 +5590,8 @@
   },
   "获取当前用户生效的密码策略": {
     "other": "Get the password policy effective for the current user"
+  },
+  "legacy.error.26a98594498a94ca": {
+    "other": "Tenant code cannot be empty"
   }
 }

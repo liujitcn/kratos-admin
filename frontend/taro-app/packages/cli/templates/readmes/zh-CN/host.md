@@ -6,4 +6,4 @@
 
 固定启动页位于 `src/pages/bootstrap`。其他模块页面由 core runner 在构建期间临时生成包装器、页面配置与静态资源，构建结束后会自动恢复宿主目录。
 
-通过局域网 IP 访问 H5 时，可复用仓库根 certs 下的共享证书，并在 .env.development-h5.local 中设置 VITE_APP_HTTPS=true；后端使用 HTTPS 时同步设置 VITE_APP_API_URL=https://localhost:7001。
+通过局域网 IP 访问 H5 时，可复用仓库根 certs 下的共享证书，并在 .env.development-h5.local 中设置 VITE_APP_HTTPS=true；后端使用 HTTPS 时同步设置 VITE_APP_API_URL=https://127.0.0.1:7001。

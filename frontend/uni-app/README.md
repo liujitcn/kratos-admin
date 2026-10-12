@@ -128,7 +128,7 @@ pnpm dev:h5
 pnpm dev:mp-weixin
 ```
 
-H5 通过局域网 IP 访问时，先在仓库根目录运行 `bash scripts/generate-dev-cert.sh 192.168.1.100` 生成共享证书，再在 `.env.development-h5.local` 中设置 `VITE_APP_HTTPS=true`；后端使用 `APP_ENV=https` 时同时将 `VITE_APP_API_URL` 改为 `https://localhost:7001`。证书默认读取仓库根 `certs/dev-key.pem` 和 `certs/dev-cert.pem`。
+H5 通过局域网 IP 访问时，先在仓库根目录运行 `bash scripts/generate-dev-cert.sh 192.168.1.100` 生成共享证书，再在 `.env.development-h5.local` 中设置 `VITE_APP_HTTPS=true`；后端使用 `APP_ENV=https` 时同时将 `VITE_APP_API_URL` 改为 `https://127.0.0.1:7001`。证书默认读取仓库根 `certs/dev-key.pem` 和 `certs/dev-cert.pem`。
 
 上一级 Frontend Makefile 提供对应的聚合入口：
 
@@ -142,7 +142,7 @@ make -C .. package-uni-app
 开发和构建命令由 `turbo.json` 保证先执行依赖包的 `build:entries`；独立测试和
 exports 检查则通过 `prepare:modules` 完成相同准备，因此不依赖仓库中的历史
 `dist`。H5 默认地址为 `http://localhost:5004`，开发 API 默认代理到
-`http://localhost:7001`。
+`http://127.0.0.1:7001`。
 根命令由 Turbo 按 workspace 依赖图调度；启动或构建宿主前会先生成 core 和
 system 的运行入口，命令名称和产物目录保持不变。
 

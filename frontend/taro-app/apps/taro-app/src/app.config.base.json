@@ -1,5 +1,6 @@
 {
   "pages": ["pages/bootstrap/index"],
+  "animation": false,
   "darkmode": true,
   "themeLocation": "theme.json",
   "window": {

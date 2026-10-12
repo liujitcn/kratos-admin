@@ -94,17 +94,17 @@ function writeEnvironmentFiles(target) {
   write(
     target,
     '.env.development',
-    'VITE_APP_BASE_API=/api\nVITE_APP_API_URL=http://localhost:7001\nVITE_APP_STATIC_API=\nVITE_APP_STATIC_URL=http://localhost:7001\n',
+    'VITE_APP_BASE_API=/api\nVITE_APP_API_URL=http://127.0.0.1:7001\nVITE_APP_STATIC_API=\nVITE_APP_STATIC_URL=http://127.0.0.1:7001\n',
   )
   write(
     target,
     '.env.development-h5',
-    `VITE_APP_PORT=5002\nVITE_APP_HTTPS=false\n# VITE_APP_HTTPS_KEY=../../certs/dev-key.pem\n# VITE_APP_HTTPS_CERT=../../certs/dev-cert.pem\n# ${cliMessage('https_environment_hint')}\nVITE_APP_BASE_PATH=/\nVITE_APP_BASE_API=/api\nVITE_APP_API_URL=http://localhost:7001\nVITE_APP_STATIC_API=\nVITE_APP_STATIC_URL=http://localhost:7001\n`,
+    `VITE_APP_PORT=5002\nVITE_APP_HTTPS=false\n# VITE_APP_HTTPS_KEY=../../certs/dev-key.pem\n# VITE_APP_HTTPS_CERT=../../certs/dev-cert.pem\n# ${cliMessage('https_environment_hint')}\nVITE_APP_BASE_PATH=/\nVITE_APP_BASE_API=/api\nVITE_APP_API_URL=http://127.0.0.1:7001\nVITE_APP_STATIC_API=\nVITE_APP_STATIC_URL=http://127.0.0.1:7001\n`,
   )
   write(
     target,
     '.env.production',
-    'VITE_APP_BASE_API=/api\nVITE_APP_API_URL=http://localhost:7001\nVITE_APP_STATIC_API=\nVITE_APP_STATIC_URL=http://localhost:7001\n',
+    'VITE_APP_BASE_API=/api\nVITE_APP_API_URL=http://127.0.0.1:7001\nVITE_APP_STATIC_API=\nVITE_APP_STATIC_URL=http://127.0.0.1:7001\n',
   )
   write(
     target,
@@ -235,6 +235,7 @@ function writeHost(target, projectName, modules, packages, options) {
     'apps/taro-app/src/app.config.base.json',
     json({
       pages: ['pages/bootstrap/index'],
+      animation: false,
       darkmode: true,
       themeLocation: 'theme.json',
       window: {
@@ -469,7 +470,7 @@ export default defineConfig<'webpack5'>(async (merge) => {
     'dist/' + outputMode + '/' + (platform === 'weapp' ? 'mp-weixin' : platform || 'h5')
   const publicPath = env.VITE_APP_BASE_PATH ?? '/'
   const apiBasePath = env.VITE_APP_BASE_API ?? '/api'
-  const apiTargetUrl = env.VITE_APP_API_URL ?? 'http://localhost:7001'
+  const apiTargetUrl = env.VITE_APP_API_URL ?? 'http://127.0.0.1:7001'
   const apiProxyOptions = apiTargetUrl.startsWith('https://') ? { secure: false } : {}
   const staticApi = env.VITE_APP_STATIC_API ?? ''
   const staticUrl = env.VITE_APP_STATIC_URL ?? apiTargetUrl
@@ -534,8 +535,8 @@ export default defineConfig<'webpack5'>(async (merge) => {
         host: '0.0.0.0',
         https: httpsOptions,
         proxy: {
-          [apiBasePath || '/api']: { target: apiTargetUrl || 'http://localhost:7001', changeOrigin: true, ...apiProxyOptions },
-          '/events': { target: apiTargetUrl || 'http://localhost:7001', changeOrigin: true, ...apiProxyOptions },
+          [apiBasePath || '/api']: { target: apiTargetUrl || 'http://127.0.0.1:7001', changeOrigin: true, ...apiProxyOptions },
+          '/events': { target: apiTargetUrl || 'http://127.0.0.1:7001', changeOrigin: true, ...apiProxyOptions },
         },
       },
       output: {

@@ -102,6 +102,16 @@ export const defaultAppMenus: AppMenu[] = [
     selectedIcon: 'MESSAGE_SELECTED',
   },
   {
+    id: 99050100,
+    parentId: 99040000,
+    name: 'AppMessageDetail',
+    path: 'app/message/detail',
+    viewKey: 'MESSAGE_DETAIL',
+    title: '',
+    access: 'AUTHENTICATED',
+    inTabBar: false,
+  },
+  {
     id: 99090000,
     parentId: APP_MENU_ROOT_ID,
     name: 'AppMy',
@@ -222,8 +232,9 @@ export async function initializeAppNavigation(): Promise<void> {
   const cached = readCachedMenus(cacheKey)
   useAppNavigation.setState(createNavigationState(filterUnavailableMenus(cached ?? localizedDefaultAppMenus()), false))
   try {
-    const nextMenus = filterUnavailableMenus(normalizeMenuResponse(await adapter.list()))
-    validateMenus(nextMenus)
+    const nextMenus = validateMenus(
+      filterUnavailableMenus(normalizeMenuResponse(await adapter.list())),
+    )
     Taro.setStorageSync(cacheKey, nextMenus)
     useAppNavigation.setState(createNavigationState(nextMenus, true))
   } catch (error) {
@@ -240,8 +251,7 @@ function filterUnavailableMenus(nextMenus: AppMenu[]): AppMenu[] {
 
 /** 使用已经校验的整份配置进行原子切换。 */
 export function installAppNavigation(nextMenus: AppMenu[]): void {
-  validateMenus(nextMenus)
-  const snapshot = nextMenus.map((menu) => ({ ...menu }))
+  const snapshot = validateMenus(nextMenus).map((menu) => ({ ...menu }))
   Taro.setStorageSync(resolveCacheKey(), snapshot)
   useAppNavigation.setState(createNavigationState(snapshot, true))
 }
@@ -382,9 +392,16 @@ function readCachedMenus(cacheKey: string): AppMenu[] | undefined {
   const cached = Taro.getStorageSync<unknown>(cacheKey)
   if (!Array.isArray(cached)) return
   try {
-    const cachedMenus = cached as AppMenu[]
-    validateMenus(cachedMenus)
-    return cachedMenus
+    const cachedMenus = (cached as AppMenu[]).map((menu) => ({
+      ...menu,
+      title:
+        menu.viewKey === 'HOME'
+          ? t('core.navigation.home')
+          : menu.viewKey === 'MESSAGE_INBOX'
+            ? t('core.navigation.message')
+            : menu.title,
+    }))
+    return validateMenus(cachedMenus)
   } catch {
     Taro.removeStorageSync(cacheKey)
   }
@@ -403,7 +420,12 @@ function normalizeMenu(item: BaseMenu): AppMenu {
     name: item.name,
     path: item.path,
     viewKey: app?.view_key ?? '',
-    title: meta?.title ?? '',
+    title:
+      app?.view_key === 'HOME'
+        ? t('core.navigation.home')
+        : app?.view_key === 'MESSAGE_INBOX'
+          ? t('core.navigation.message')
+          : meta?.title ?? '',
     access: (app?.access ?? 'AUTHENTICATED') as AppMenuAccess,
     inTabBar: app?.in_tab_bar ?? false,
     icon: meta?.icon,
@@ -411,11 +433,17 @@ function normalizeMenu(item: BaseMenu): AppMenu {
   }
 }
 
-function validateMenus(nextMenus: AppMenu[]): void {
+function validateMenus(nextMenus: AppMenu[]): AppMenu[] {
+  // 多端共用后端时菜单可能携带本应用未注册的视图键，过滤跳过而不是让整份菜单失效。
+  const knownMenus = nextMenus.filter((menu) => {
+    if (resolveStaticView(menu.viewKey)) return true
+    console.warn(t('core.navigation.error.view_key', { viewKey: menu.viewKey }))
+    return false
+  })
   const ids = new Set<number>()
   const names = new Set<string>()
   const paths = new Set<string>()
-  for (const menu of nextMenus) {
+  for (const menu of knownMenus) {
     if (!Number.isSafeInteger(menu.id) || !menu.name || !menu.path.startsWith('app/')) {
       throw new Error(t('core.navigation.error.identity'))
     }
@@ -425,9 +453,6 @@ function validateMenus(nextMenus: AppMenu[]): void {
     if (!['PUBLIC', 'GUEST_ONLY', 'AUTHENTICATED'].includes(menu.access)) {
       throw new Error(t('core.navigation.error.access', { access: menu.access }))
     }
-    if (!resolveStaticView(menu.viewKey)) {
-      throw new Error(t('core.navigation.error.view_key', { viewKey: menu.viewKey }))
-    }
     if (ids.has(menu.id) || names.has(menu.name) || paths.has(menu.path)) {
       throw new Error(t('core.navigation.error.unique'))
     }
@@ -435,8 +460,8 @@ function validateMenus(nextMenus: AppMenu[]): void {
     names.add(menu.name)
     paths.add(menu.path)
   }
-  const menuMap = new Map(nextMenus.map((menu) => [menu.id, menu]))
-  for (const menu of nextMenus) {
+  const menuMap = new Map(knownMenus.map((menu) => [menu.id, menu]))
+  for (const menu of knownMenus) {
     if (menu.parentId === undefined) {
       throw new Error(t('core.navigation.error.parent_missing', { name: menu.name }))
     }
@@ -457,6 +482,7 @@ function validateMenus(nextMenus: AppMenu[]): void {
       parentId = parent.parentId
     }
   }
-  const tabCount = nextMenus.filter((menu) => menu.parentId === APP_MENU_ROOT_ID).length
+  const tabCount = knownMenus.filter((menu) => menu.parentId === APP_MENU_ROOT_ID).length
   if (tabCount === 1 || tabCount > 5) throw new Error(t('core.navigation.error.tab_count'))
+  return knownMenus
 }

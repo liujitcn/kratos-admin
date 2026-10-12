@@ -34,6 +34,7 @@ test('生成可扩展的 Taro workspace、本地模块和发布模块清单', ()
     const theme = readJson(resolve(target, 'apps/taro-app/src/theme.json'))
 
     assert.equal(rootPackage.packageManager, 'pnpm@10.13.1')
+    assert.equal(appConfig.animation, false)
     assert.equal(appConfig.darkmode, true)
     assert.equal(appConfig.themeLocation, 'theme.json')
     assert.ok(theme.light && theme.dark)
@@ -298,7 +299,7 @@ test('H5 转换 npm 业务包尺寸，保留第三方组件的原始样式', asy
           return {
             dotenvParse: (_root, _prefix, mode) => {
               if (mode === 'production') {
-                runtimeProcess.env.VITE_APP_API_URL = 'http://192.168.60.52:7001'
+                runtimeProcess.env.VITE_APP_API_URL = 'http://127.0.0.1:7001'
                 return { VITE_APP_API_URL: runtimeProcess.env.VITE_APP_API_URL }
               }
               return {

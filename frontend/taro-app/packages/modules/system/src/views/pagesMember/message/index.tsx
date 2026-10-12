@@ -2,7 +2,13 @@ import type { CSSProperties } from 'react'
 import { useDidShow } from '@tarojs/taro'
 import { Button, Text, View } from '@tarojs/components'
 import { useRef, useState } from 'react'
-import { getMpCapsuleRightGap, navigateAppView, t, useThemeStore } from '@liujitcn/kratos-taro-app-core'
+import {
+  getMpCapsuleRightGap,
+  KratosEmpty,
+  navigateAppView,
+  t,
+  useThemeStore,
+} from '@liujitcn/kratos-taro-app-core'
 import { UniIcon } from '@liujitcn/kratos-taro-app-ui'
 import { defNotificationService } from '../../../api/base/v1/notification'
 import type { Notification, NotificationCategory } from '../../../rpc/base/v1/notification'
@@ -155,6 +161,15 @@ export default function MessageInboxPage() {
     navigateAppView('MESSAGE_DETAIL', { id: String(item.id) })
   }
 
+  /** 空态提示语随当前视图切换。 */
+  function emptyHintKey() {
+    if (selectedView === NotificationView.NOTIFICATION_VIEW_UNREAD)
+      return 'system.notification.empty_unread_hint'
+    if (selectedView === NotificationView.NOTIFICATION_VIEW_ARCHIVED)
+      return 'system.notification.empty_archived_hint'
+    return 'system.notification.empty_inbox_hint'
+  }
+
   return (
     <View
       className={`message-page ${
@@ -227,9 +242,11 @@ export default function MessageInboxPage() {
               </View>
               <View className='message-item__body'>
                 <Text className='k-msg-item__title'>{item.title}</Text>
-                <Text className='k-msg-item__meta'>{item.category_name}</Text>
+                <View className='k-msg-item__foot'>
+                  <Text className='k-msg-item__meta'>{item.category_name}</Text>
+                  <Text className='k-msg-item__time'>{item.received_at}</Text>
+                </View>
               </View>
-              <Text className='k-msg-item__time'>{item.received_at}</Text>
             </View>
             {(selectedView === NotificationView.NOTIFICATION_VIEW_ARCHIVED ||
               item.allow_archive ||
@@ -283,7 +300,13 @@ export default function MessageInboxPage() {
         </Button>
       )}
       {finished && items.length === 0 && (
-        <View className='empty'>{t('system.notification.empty')}</View>
+        <KratosEmpty
+          icon={
+            <UniIcon type='notification-filled' size={26} color='var(--kratos-color-primary)' />
+          }
+          title={t('system.notification.empty')}
+          description={t(emptyHintKey())}
+        />
       )}
     </View>
   )

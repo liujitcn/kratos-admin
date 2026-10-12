@@ -5,7 +5,6 @@ export const corePages: Record<string, KratosTaroPageConfig> = {
   'pages/index/index': {
     style: {
       navigationStyle: 'custom',
-      navigationBarTextStyle: 'white',
       navigationBarTitleText: '',
     },
   },

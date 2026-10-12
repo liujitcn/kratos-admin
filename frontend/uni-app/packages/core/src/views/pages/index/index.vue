@@ -9,7 +9,7 @@ import { useI18n } from '../../../locales'
 const settingStore = useSettingStore()
 const themeStore = useThemeStore()
 const { t } = useI18n()
-const mainTitle = computed(() => settingStore.getData('mainTitle') || t('core.home.main_title'))
+const mainTitle = computed(() => t('core.navigation.home'))
 const subTitle = computed(() => settingStore.getData('subTitle') || t('core.home.sub_title'))
 const configuredAppLogo = computed(() => {
   const configuredLogo = settingStore.getData('appLogo')
@@ -46,10 +46,6 @@ onLoad(() => {
       </view>
 
       <view class="k-glass k-glass--lit home-hero">
-        <view class="k-cnr k-cnr--tl" aria-hidden="true"></view>
-        <view class="k-cnr k-cnr--tr" aria-hidden="true"></view>
-        <view class="k-cnr k-cnr--bl" aria-hidden="true"></view>
-        <view class="k-cnr k-cnr--br" aria-hidden="true"></view>
         <view class="home-hero__main">
           <image class="home-logo" :src="appLogo" mode="aspectFit" @error="handleLogoError" />
           <view class="home-hero__copy">
@@ -102,8 +98,15 @@ onLoad(() => {
           <view class="home-demo-item">
             <view class="home-demo-dot">3</view>
             <view class="home-demo-copy">
-              <text class="home-demo-title">{{ t('core.home.static_home') }}</text>
-              <text class="home-demo-desc">{{ t('core.home.static_home_description') }}</text>
+              <text class="home-demo-title">{{ t('core.home.message_center') }}</text>
+              <text class="home-demo-desc">{{ t('core.home.message_center_description') }}</text>
+            </view>
+          </view>
+          <view class="home-demo-item">
+            <view class="home-demo-dot">4</view>
+            <view class="home-demo-copy">
+              <text class="home-demo-title">{{ t('core.home.dynamic_config') }}</text>
+              <text class="home-demo-desc">{{ t('core.home.dynamic_config_description') }}</text>
             </view>
           </view>
         </view>
@@ -126,9 +129,26 @@ onLoad(() => {
   padding: calc(env(safe-area-inset-top) + 20rpx) 32rpx 220rpx;
 
   /* #ifdef MP-WEIXIN */
-  padding-top: calc(44px + 24rpx);
+  /* 首页标题在小程序端占导航带，页面不再额外让出顶部空间 */
+  padding-top: 0;
   /* #endif */
 }
+
+/* 小程序端首页标题占导航带：与 k-page-nav 同几何，标题与胶囊同行 */
+/* #ifdef MP-WEIXIN */
+.home-top {
+  box-sizing: border-box;
+  height: calc(88rpx + 44px);
+  padding: 44px 4rpx 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.home-top__title {
+  margin-top: 0;
+}
+/* #endif */
 
 .home-top {
   padding: 8rpx 4rpx 24rpx;
@@ -158,7 +178,7 @@ onLoad(() => {
   width: 104rpx;
   height: 104rpx;
   border-radius: 26rpx;
-  border: 1rpx solid var(--kratos-color-border-accent);
+  border: 1px solid var(--kratos-color-border-accent);
   background: var(--kratos-color-surface-2);
 }
 
@@ -198,7 +218,7 @@ onLoad(() => {
   display: flex;
   align-items: flex-start;
   padding: 28rpx 0;
-  border-top: 1rpx solid var(--kratos-color-border);
+  border-top: 1px solid var(--kratos-color-border);
 
   &:first-child {
     border-top: 0;
@@ -211,7 +231,7 @@ onLoad(() => {
   height: 48rpx;
   border-radius: 14rpx;
   background: var(--kratos-color-primary-soft);
-  border: 1rpx solid var(--kratos-color-primary-edge);
+  border: 1px solid var(--kratos-color-primary-edge);
   color: var(--kratos-color-primary);
   font-size: 24rpx;
   font-family: var(--kratos-font-mono);

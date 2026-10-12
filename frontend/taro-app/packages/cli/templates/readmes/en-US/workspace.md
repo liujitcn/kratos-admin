@@ -32,4 +32,4 @@ The module assembly entry is `apps/taro-app/src/module-manifest.ts`. Declaration
 
 Environment files are at the workspace root and use the same names as uni-app: `VITE_APP_PORT`, `VITE_APP_BASE_PATH`, `VITE_APP_BASE_API`, `VITE_APP_API_URL`, `VITE_APP_STATIC_API`, and `VITE_APP_STATIC_URL`. H5 overlays the matching `*-h5` file on the base mode file.
 
-To access H5 over a LAN IP, run `bash scripts/generate-dev-cert.sh 192.168.1.100` from the repository root, then set `VITE_APP_HTTPS=true` in `.env.development-h5.local`. If the backend uses HTTPS, also set `VITE_APP_API_URL=https://localhost:7001`.
+To access H5 over a LAN IP, run `bash scripts/generate-dev-cert.sh 192.168.1.100` from the repository root, then set `VITE_APP_HTTPS=true` in `.env.development-h5.local`. If the backend uses HTTPS, also set `VITE_APP_API_URL=https://127.0.0.1:7001`.

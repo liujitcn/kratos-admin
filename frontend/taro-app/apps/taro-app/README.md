@@ -28,4 +28,4 @@ H5 生产构建默认输出到 `backend/web/taro-app` 并使用 `/taro-app/` 公
 
 环境文件位于 workspace 根目录，变量名与 uni-app 保持一致：`VITE_APP_PORT`、`VITE_APP_BASE_PATH`、`VITE_APP_BASE_API`、`VITE_APP_API_URL`、`VITE_APP_STATIC_API`、`VITE_APP_STATIC_URL`。H5 会在基础模式文件上叠加对应的 `*-h5` 文件。
 
-通过局域网 IP 访问 H5 时，可复用仓库根 `certs` 下的共享证书，并在 `.env.development-h5.local` 中设置 `VITE_APP_HTTPS=true`；后端使用 HTTPS 时同步设置 `VITE_APP_API_URL=https://localhost:7001`。
+通过局域网 IP 访问 H5 时，可复用仓库根 `certs` 下的共享证书，并在 `.env.development-h5.local` 中设置 `VITE_APP_HTTPS=true`；后端使用 HTTPS 时同步设置 `VITE_APP_API_URL=https://127.0.0.1:7001`。

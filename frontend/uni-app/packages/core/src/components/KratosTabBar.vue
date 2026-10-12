@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted } from 'vue'
+import { computed, onBeforeMount, onMounted } from 'vue'
 import { resolveModuleIcon, resolveStaticView } from '../module'
 import { APP_MENU_ROOT_ID, useAppMenuBadge, useAppNavigation } from '../navigation'
 import { useThemeStore } from '../stores'
@@ -43,9 +43,12 @@ const visible = computed(() => Boolean(activeMenu.value && tabBar.value.length))
 const messageBadge = useAppMenuBadge('MESSAGE_INBOX')
 // #ifdef H5
 // H5 端 tabBar.custom 不隐藏内置 tabbar,需手动隐藏,否则其边线从自定义栏上方露出形成双线。
-onMounted(() => {
+const hideNativeTabBar = () => {
   uni.hideTabBar({ fail: () => {} })
-})
+}
+onBeforeMount(hideNativeTabBar)
+// H5 runtime 可能在页面挂载时重新同步内置 tabbar 状态，挂载后幂等重试避免首次切换露出一帧。
+onMounted(hideNativeTabBar)
 // #endif
 </script>
 
@@ -105,7 +108,7 @@ onMounted(() => {
   display: flex;
   height: 104rpx;
   padding: 0 8rpx;
-  border: 1rpx solid var(--kratos-color-border-accent, rgba(120, 230, 215, 0.16));
+  border: 1px solid var(--kratos-color-border-accent, rgba(120, 230, 215, 0.16));
   border-radius: 30rpx;
   background: var(--kratos-dock-bg, rgba(10, 18, 30, 0.72));
   box-shadow: 0 24rpx 64rpx rgba(0, 0, 0, 0.45);
@@ -123,20 +126,8 @@ onMounted(() => {
   line-height: 12px;
 }
 
-/* 设计稿：激活项顶部霓虹发光条 */
-.kratos-tab-bar__item--active::before {
-  position: absolute;
-  top: 0;
-  left: 50%;
-  width: 26px;
-  height: 3px;
-  border-radius: 3px;
-  background: var(--kratos-tab-bar-active-color);
-  box-shadow: 0 0 12px var(--kratos-tab-bar-active-color);
-  content: '';
-  transform: translateX(-50%);
-}
 .kratos-tab-bar__icon {
+  flex-shrink: 0;
   width: 28px;
   height: 28px;
   margin-bottom: 4px;
