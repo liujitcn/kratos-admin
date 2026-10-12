@@ -81,6 +81,7 @@ test('刷新令牌失效后在重新登录弹窗确认前清理本地认证', as
                     },
                   }
                   export default Taro
+                  export const getCurrentPages = () => [{ route: 'pages/index/index' }]
                 `,
               }
             })
