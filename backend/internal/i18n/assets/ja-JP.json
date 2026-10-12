@@ -402,7 +402,7 @@
     "other": "{field}を設定"
   },
   "common.dialog.cancel_delete": {
-    "other": "削除を取り消しました {resource}"
+    "other": "{resource} の削除を取り消しました"
   },
   "common.dialog.delete_selected": {
     "other": "選択した {resource} を削除してもよろしいですか?"
@@ -426,7 +426,7 @@
     "other": "{action} 成功"
   },
   "common.message.update_success": {
-    "other": "が {resource} を正常に変更しました"
+    "other": "{resource} が正常に変更されました"
   },
   "common.resource.default": {
     "other": "{resource}"

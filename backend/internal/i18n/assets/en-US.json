@@ -120,10 +120,10 @@
     "other": "The web search service returned an unexpected status: {{.Status}}"
   },
   "base.ai.search.limit.range": {
-    "other": "result count is invalid"
+    "other": "Result count is invalid"
   },
   "base.ai.search.query.required": {
-    "other": "search keyword is invalid"
+    "other": "Search keyword is invalid"
   },
   "base.ai.session.attachment_summary": {
     "other": "{{.Count}} attachment(s)"
@@ -168,7 +168,7 @@
     "other": "Built-in configuration cannot be delivered to sites"
   },
   "base.config.get_i18n_custom.site.required": {
-    "other": "site cannot be empty"
+    "other": "Site cannot be empty"
   },
   "base.file.download.path.required": {
     "other": "File path cannot be empty"
@@ -231,37 +231,37 @@
     "other": "MCP service identifier cannot be empty"
   },
   "base.mfa.begin_enrollment.setup_ticket.required": {
-    "other": "enrollment ticket cannot be empty"
+    "other": "Enrollment ticket cannot be empty"
   },
   "base.mfa.confirm_enrollment.code.invalid": {
     "other": "Invalid one-time password"
   },
   "base.mfa.confirm_enrollment.factor.required": {
-    "other": "one-time password or WebAuthn registration response cannot be empty"
+    "other": "One-time password or WebAuthn registration response cannot be empty"
   },
   "base.mfa.confirm_enrollment.setup_ticket.required": {
-    "other": "enrollment ticket cannot be empty"
+    "other": "Enrollment ticket cannot be empty"
   },
   "base.mfa.confirm_setup.factor.required": {
-    "other": "one-time password or WebAuthn registration response cannot be empty"
+    "other": "One-time password or WebAuthn registration response cannot be empty"
   },
   "base.mfa.confirm_setup.setup_ticket.required": {
-    "other": "enrollment ticket cannot be empty"
+    "other": "Enrollment ticket cannot be empty"
   },
   "base.mfa.verify.challenge_id.required": {
     "other": "MFA challenge cannot be empty"
   },
   "base.notification.action.id.required": {
-    "other": "message ID cannot be empty"
+    "other": "Message ID cannot be empty"
   },
   "base.notification.get.id.required": {
-    "other": "message ID cannot be empty"
+    "other": "Message ID cannot be empty"
   },
   "base.notification.mark.ids.required": {
-    "other": "message ID list cannot be empty or contain duplicates"
+    "other": "Message ID list cannot be empty or contain duplicates"
   },
   "base.notification.mark_all.before_delivery_id.required": {
-    "other": "read watermark cannot be empty"
+    "other": "Read watermark cannot be empty"
   },
   "base.oauth.bind_session.captcha_code.required": {
     "other": "Verification code cannot be empty"
@@ -366,10 +366,10 @@
     "other": "Login method identifier cannot be empty"
   },
   "base.oauth_client.issue_token.client_id.required": {
-    "other": "client ID cannot be empty"
+    "other": "Client ID cannot be empty"
   },
   "base.oauth_client.issue_token.client_secret.required": {
-    "other": "client secret cannot be empty"
+    "other": "Client secret cannot be empty"
   },
   "base.sse.subscribe.stream.required": {
     "other": "SSE stream cannot be empty"
@@ -462,10 +462,10 @@
     "other": "Yes"
   },
   "current_user_login_log.page_num.range": {
-    "other": "page number must be between 1 and 1000000"
+    "other": "Page number must be between 1 and 1000000"
   },
   "current_user_login_log.page_size.range": {
-    "other": "page size must be between 1 and 100"
+    "other": "Page size must be between 1 and 100"
   },
   "legacy.error.00a5f55d03368fd5": {
     "other": "Failed to save login session"
@@ -567,7 +567,7 @@
     "other": "The provider bound to the message category does not exist"
   },
   "legacy.error.082f8954f62749dc": {
-    "other": "burst must be between 1 and %d"
+    "other": "Burst must be between 1 and %d"
   },
   "legacy.error.0860e716d6b0f753": {
     "other": "Failed to subscribe to SSE event stream"
@@ -732,7 +732,7 @@
     "other": "Message action target cannot exceed 255 characters"
   },
   "legacy.error.152a0d8516f025d6": {
-    "other": "limit must be between 1 and %d"
+    "other": "Limit must be between 1 and %d"
   },
   "legacy.error.1572896dd8ea2149": {
     "other": "File metadata repository is not configured"
@@ -1059,7 +1059,7 @@
     "other": "Failed to set role menu permissions because they exceed the permission limit"
   },
   "legacy.error.2c024b0c19528860": {
-    "other": "api_type of model %s must be CHAT_COMPLETIONS or RESPONSES"
+    "other": "Api_type of model %s must be CHAT_COMPLETIONS or RESPONSES"
   },
   "legacy.error.2c1c5b8f80033e01": {
     "other": "Failed to read password policy configuration"
@@ -1389,7 +1389,7 @@
     "other": "Failed to query storage-redactable tables"
   },
   "legacy.error.43c2f70a29b0150b": {
-    "other": "tokens_per_second must be between %g and %g"
+    "other": "Tokens_per_second must be between %g and %g"
   },
   "legacy.error.44542c22a668344a": {
     "other": "Failed to set file scan temp file permissions"
@@ -1497,7 +1497,7 @@
     "other": "Failed to confirm forced MFA binding"
   },
   "legacy.error.49ecd0e342d6d23b": {
-    "other": "field"
+    "other": "Field"
   },
   "legacy.error.4abcd33acfc279f4": {
     "other": "Unsupported message provider %q"
@@ -1674,7 +1674,7 @@
     "other": "Failed to page policy evaluation logs"
   },
   "legacy.error.578f778acd3d1fb7": {
-    "other": "window_seconds must be between 1 and %d"
+    "other": "Window_seconds must be between 1 and %d"
   },
   "legacy.error.57f76d1d57ee5abb": {
     "other": "Failed to query post dropdown"
@@ -1827,7 +1827,7 @@
     "other": "Failed to query administrative area tree list"
   },
   "legacy.error.62abf78cc507b4fd": {
-    "other": "form"
+    "other": "Form"
   },
   "legacy.error.62f6ab1e2687f26b": {
     "other": "MCP requests only support HTTP access"
@@ -2088,7 +2088,7 @@
     "other": "API rate limit policy not found"
   },
   "legacy.error.74ff8b52b91f31f4": {
-    "other": "leak_rate_per_second must be between %g and %g"
+    "other": "Leak_rate_per_second must be between %g and %g"
   },
   "legacy.error.75102ea685607b9b": {
     "other": "Failed to create AI assistant branch session"
@@ -2301,7 +2301,7 @@
     "other": "The role code already exists in the same tenant"
   },
   "legacy.error.82166f10832cd9cd": {
-    "other": "capacity must be between 1 and %d"
+    "other": "Capacity must be between 1 and %d"
   },
   "legacy.error.822aec8a7670de02": {
     "other": "The resource to translate does not exist"
@@ -2403,7 +2403,7 @@
     "other": "The redaction rule is disabled"
   },
   "legacy.error.8a7bad13f468ff29": {
-    "other": "config.organization must be a string"
+    "other": "Config.organization must be a string"
   },
   "legacy.error.8aa52f265f3ade36": {
     "other": "Failed to update dictionary"
@@ -2811,7 +2811,7 @@
     "other": "Failed to build model config for AI provider %d: %w"
   },
   "legacy.error.aedd6814ff8c516c": {
-    "other": "list"
+    "other": "List"
   },
   "legacy.error.af5a0d2f0417df45": {
     "other": "API rate limit policy requires at least one API"
@@ -3024,7 +3024,7 @@
     "other": "The message priority is invalid"
   },
   "legacy.error.bf4cedf76a4ed116": {
-    "other": "query failed"
+    "other": "Query failed"
   },
   "legacy.error.bf63668c07aa83ee": {
     "other": "The message provider is not bound to this message category"
@@ -4008,7 +4008,7 @@
     "other": "Email cannot exceed 128 characters"
   },
   "system.admin.auth.profile.id_code.format": {
-    "other": "please enter a valid ID number"
+    "other": "Please enter a valid ID number"
   },
   "system.admin.auth.send_phone_code.phone.format": {
     "other": "Please enter the correct mobile phone number"
@@ -4023,7 +4023,7 @@
     "other": "Email cannot exceed 128 characters"
   },
   "system.admin.auth.user.id_code.format": {
-    "other": "please enter a valid ID number"
+    "other": "Please enter a valid ID number"
   },
   "system.admin.auth.user_phone.code.required": {
     "other": "Please enter the verification code"
@@ -4140,7 +4140,7 @@
     "other": "Configuration ID cannot be empty"
   },
   "system.admin.base.dashboard.login_trend.days.range": {
-    "other": "statistics days must be between 1 and 31"
+    "other": "Statistics days must be between 1 and 31"
   },
   "system.admin.base.dept.delete.id.required": {
     "other": "Department ID list cannot be empty"
@@ -4245,16 +4245,16 @@
     "other": "Dictionary attribute ID cannot be empty"
   },
   "system.admin.base.file.delete.id.positive": {
-    "other": "file ID must be greater than 0"
+    "other": "File ID must be greater than 0"
   },
   "system.admin.base.file.get.id.positive": {
-    "other": "file ID must be greater than 0"
+    "other": "File ID must be greater than 0"
   },
   "system.admin.base.file.page.page_num.positive": {
-    "other": "page number must be greater than 0"
+    "other": "Page number must be greater than 0"
   },
   "system.admin.base.file.page.page_size.range": {
-    "other": "page size must be between 1 and 100"
+    "other": "Page size must be between 1 and 100"
   },
   "system.admin.base.i18n.draft.source.required": {
     "other": "Source text cannot be empty"
@@ -4263,34 +4263,34 @@
     "other": "Complete target information is required when the ID is zero"
   },
   "system.admin.base.i18n_custom.delete.id.required": {
-    "other": "i18n custom translation ID list cannot be empty"
+    "other": "I18n custom translation ID list cannot be empty"
   },
   "system.admin.base.i18n_custom.entity.key.length": {
-    "other": "language key cannot be empty and must not exceed 255 characters"
+    "other": "Language key cannot be empty and must not exceed 255 characters"
   },
   "system.admin.base.i18n_custom.entity.locale.length": {
-    "other": "locale cannot be empty and must not exceed 16 characters"
+    "other": "Locale cannot be empty and must not exceed 16 characters"
   },
   "system.admin.base.i18n_custom.entity.site.required": {
-    "other": "please select a site"
+    "other": "Please select a site"
   },
   "system.admin.base.i18n_custom.entity.tenant_id.required": {
-    "other": "please select a tenant"
+    "other": "Please select a tenant"
   },
   "system.admin.base.i18n_custom.entity.value.required": {
-    "other": "custom translation content cannot be empty"
+    "other": "Custom translation content cannot be empty"
   },
   "system.admin.base.i18n_custom.get.id.required": {
-    "other": "i18n custom translation ID cannot be empty"
+    "other": "I18n custom translation ID cannot be empty"
   },
   "system.admin.base.i18n_custom.set_status.id.required": {
-    "other": "i18n custom translation ID cannot be empty"
+    "other": "I18n custom translation ID cannot be empty"
   },
   "system.admin.base.job.entity.args.key.required": {
     "other": "All parameters must be filled in key"
   },
   "system.admin.base.job.entity.cron_expression.length": {
-    "other": "cron expression cannot be empty and cannot exceed 50 characters"
+    "other": "Cron expression cannot be empty and cannot exceed 50 characters"
   },
   "system.admin.base.job.entity.invoke_target.length": {
     "other": "The call target cannot be empty and cannot exceed 100 characters"
@@ -4323,13 +4323,13 @@
     "other": "Language ID cannot be empty"
   },
   "system.admin.base.log_trace.identity.required": {
-    "other": "request ID and trace ID cannot both be empty"
+    "other": "Request ID and trace ID cannot both be empty"
   },
   "system.admin.base.login_policy.rule.reason.length": {
-    "other": "restriction reason must not exceed 500 characters"
+    "other": "Restriction reason must not exceed 500 characters"
   },
   "system.admin.base.login_policy.rule.value.required": {
-    "other": "restriction value cannot be empty and must not exceed 512 characters"
+    "other": "Restriction value cannot be empty and must not exceed 512 characters"
   },
   "system.admin.base.menu.create.parent_id.required": {
     "other": "To add a new menu, you must select the upper-level menu"
@@ -4470,7 +4470,7 @@
     "other": "Rate limit rule ID is required"
   },
   "system.admin.base.redact.output_policy.create.list.required": {
-    "other": "output redaction policy list cannot be empty"
+    "other": "Output redaction policy list cannot be empty"
   },
   "system.admin.base.redact.output_policy.delete.id.required": {
     "other": "The outbound policy ID list is required"
@@ -4503,22 +4503,22 @@
     "other": "The outbound policy ID is required"
   },
   "system.admin.base.redact.output_policy.tenant_id.required": {
-    "other": "please select a tenant"
+    "other": "Please select a tenant"
   },
   "system.admin.base.redact.output_policy.update.list.required": {
-    "other": "output redaction policy list cannot be empty"
+    "other": "Output redaction policy list cannot be empty"
   },
   "system.admin.base.redact.rule.code.immutable": {
     "other": "The rule template code cannot be changed"
   },
   "system.admin.base.redact.rule.code.required": {
-    "other": "rule code cannot be empty and must not exceed 64 characters"
+    "other": "Rule code cannot be empty and must not exceed 64 characters"
   },
   "system.admin.base.redact.rule.create.unsupported": {
     "other": "Redaction rule templates are built in and cannot be created"
   },
   "system.admin.base.redact.rule.delete.id.required": {
-    "other": "rule ID list cannot be empty"
+    "other": "Rule ID list cannot be empty"
   },
   "system.admin.base.redact.rule.delete.unsupported": {
     "other": "Redaction rule templates are built in and cannot be deleted"
@@ -4554,31 +4554,31 @@
     "other": "Mask URL query parameter values"
   },
   "system.admin.base.redact.rule.get.id.required": {
-    "other": "rule ID cannot be empty"
+    "other": "Rule ID cannot be empty"
   },
   "system.admin.base.redact.rule.name.required": {
-    "other": "rule name cannot be empty and must not exceed 100 characters"
+    "other": "Rule name cannot be empty and must not exceed 100 characters"
   },
   "system.admin.base.redact.rule.permission_denied": {
     "other": "Only platform administrators can manage redaction rules"
   },
   "system.admin.base.redact.rule.remark.length": {
-    "other": "remark must not exceed 500 characters"
+    "other": "Remark must not exceed 500 characters"
   },
   "system.admin.base.redact.rule.rule.invalid": {
     "other": "The rule template parameters are invalid"
   },
   "system.admin.base.redact.rule.rule.required": {
-    "other": "rule parameter cannot be empty"
+    "other": "Rule parameter cannot be empty"
   },
   "system.admin.base.redact.rule.rule_type.immutable": {
     "other": "The rule template type cannot be changed"
   },
   "system.admin.base.redact.rule.rule_type.required": {
-    "other": "rule type cannot be empty and must not exceed 32 characters"
+    "other": "Rule type cannot be empty and must not exceed 32 characters"
   },
   "system.admin.base.redact.rule.status.id.required": {
-    "other": "rule ID cannot be empty"
+    "other": "Rule ID cannot be empty"
   },
   "system.admin.base.redact.rule.status.invalid": {
     "other": "The rule template status is invalid"
@@ -4623,16 +4623,16 @@
     "other": "The rule template ID is required"
   },
   "system.admin.base.redact.storage_policy.column_list.source_name.required": {
-    "other": "data source name cannot be empty and must not exceed 64 characters"
+    "other": "Data source name cannot be empty and must not exceed 64 characters"
   },
   "system.admin.base.redact.storage_policy.column_list.table_name.required": {
-    "other": "database table name cannot be empty and has an invalid format"
+    "other": "Database table name cannot be empty and has an invalid format"
   },
   "system.admin.base.redact.storage_policy.column_name.required": {
     "other": "The database field name is required and has an invalid format"
   },
   "system.admin.base.redact.storage_policy.create.list.required": {
-    "other": "storage redaction policy list cannot be empty"
+    "other": "Storage redaction policy list cannot be empty"
   },
   "system.admin.base.redact.storage_policy.delete.id.required": {
     "other": "The inbound policy ID list is required"
@@ -4656,16 +4656,16 @@
     "other": "The inbound policy ID is required"
   },
   "system.admin.base.redact.storage_policy.table_list.source_name.required": {
-    "other": "data source name cannot be empty and must not exceed 64 characters"
+    "other": "Data source name cannot be empty and must not exceed 64 characters"
   },
   "system.admin.base.redact.storage_policy.table_name.required": {
     "other": "The database table name is required and has an invalid format"
   },
   "system.admin.base.redact.storage_policy.tenant_id.required": {
-    "other": "please select a tenant"
+    "other": "Please select a tenant"
   },
   "system.admin.base.redact.storage_policy.update.list.required": {
-    "other": "storage redaction policy list cannot be empty"
+    "other": "Storage redaction policy list cannot be empty"
   },
   "system.admin.base.redact_rule.disable.output_policy_in_use": {
     "other": "This rule is referenced by enabled output redaction policies. Disable those policies first"
@@ -4716,34 +4716,34 @@
     "other": "Role ID cannot be empty"
   },
   "system.admin.base.table.source.option.table.source_name.required": {
-    "other": "data source name cannot be empty"
+    "other": "Data source name cannot be empty"
   },
   "system.admin.base.table_archive.archive_retention_days.non_negative": {
-    "other": "archive retention days cannot be negative"
+    "other": "Archive retention days cannot be negative"
   },
   "system.admin.base.table_archive.batch_size.positive": {
-    "other": "batch size must be greater than zero"
+    "other": "Batch size must be greater than zero"
   },
   "system.admin.base.table_archive.online_retention_days.positive": {
-    "other": "online retention days must be greater than zero"
+    "other": "Online retention days must be greater than zero"
   },
   "system.admin.base.table_archive.oss_prefix.max_len": {
     "other": "OSS object prefix must not exceed 255 characters"
   },
   "system.admin.base.table_archive.source_name.required": {
-    "other": "data source name cannot be empty"
+    "other": "Data source name cannot be empty"
   },
   "system.admin.base.table_archive.table_name.required": {
-    "other": "data table name cannot be empty"
+    "other": "Data table name cannot be empty"
   },
   "system.admin.base.table_backup.oss_prefix.max_len": {
     "other": "OSS object prefix must not exceed 255 characters"
   },
   "system.admin.base.table_backup.retention_count.positive": {
-    "other": "retention count must be greater than zero"
+    "other": "Retention count must be greater than zero"
   },
   "system.admin.base.table_backup.source_name.required": {
-    "other": "data source name cannot be empty"
+    "other": "Data source name cannot be empty"
   },
   "system.admin.base.tenant.delete.id.required": {
     "other": "Tenant ID list cannot be empty"
@@ -4776,43 +4776,43 @@
     "other": "Tenant ID cannot be empty"
   },
   "system.admin.base.tenant.project.create.id": {
-    "other": "cannot specify ID when creating a project"
+    "other": "Cannot specify ID when creating a project"
   },
   "system.admin.base.tenant.project.delete.id.required": {
-    "other": "project ID list cannot be empty"
+    "other": "Project ID list cannot be empty"
   },
   "system.admin.base.tenant.project.entity.code.max_length": {
-    "other": "project code must not exceed 50 characters"
+    "other": "Project code must not exceed 50 characters"
   },
   "system.admin.base.tenant.project.entity.code.required": {
-    "other": "please enter a project code"
+    "other": "Please enter a project code"
   },
   "system.admin.base.tenant.project.entity.name.max_length": {
-    "other": "project name must not exceed 100 characters"
+    "other": "Project name must not exceed 100 characters"
   },
   "system.admin.base.tenant.project.entity.name.required": {
-    "other": "please enter a project name"
+    "other": "Please enter a project name"
   },
   "system.admin.base.tenant.project.entity.remark.max_length": {
-    "other": "remark must not exceed 500 characters"
+    "other": "Remark must not exceed 500 characters"
   },
   "system.admin.base.tenant.project.entity.sort.required": {
-    "other": "sort must not be less than 0"
+    "other": "Sort must not be less than 0"
   },
   "system.admin.base.tenant.project.entity.tenant_id.required": {
-    "other": "please select a tenant"
+    "other": "Please select a tenant"
   },
   "system.admin.base.tenant.project.get.id.required": {
-    "other": "project ID cannot be empty"
+    "other": "Project ID cannot be empty"
   },
   "system.admin.base.tenant.project.grant.project_id.valid": {
-    "other": "project ID must be a safe non-negative integer; 0 alone represents full grant"
+    "other": "Project ID must be a safe non-negative integer; 0 alone represents full grant"
   },
   "system.admin.base.tenant.project.set_status.id.required": {
-    "other": "project ID cannot be empty"
+    "other": "Project ID cannot be empty"
   },
   "system.admin.base.tenant.project.update.id.required": {
-    "other": "project ID cannot be empty"
+    "other": "Project ID cannot be empty"
   },
   "system.admin.base.tenant.response.admin_user_name": {
     "other": "Tenant administrator username"
@@ -4854,7 +4854,7 @@
     "other": "Email cannot exceed 128 characters"
   },
   "system.admin.base.user.entity.id_code.format": {
-    "other": "please enter a valid ID number"
+    "other": "Please enter a valid ID number"
   },
   "system.admin.base.user.entity.nick_name.max_length": {
     "other": "User nickname cannot exceed 30 characters"
@@ -4908,49 +4908,49 @@
     "other": "User ID cannot be empty"
   },
   "system.admin.base_message.action.id.required": {
-    "other": "message ID cannot be empty"
+    "other": "Message ID cannot be empty"
   },
   "system.admin.base_message.delete.id.required": {
-    "other": "message ID list cannot be empty"
+    "other": "Message ID list cannot be empty"
   },
   "system.admin.base_message.form.audiences.required": {
-    "other": "message audience cannot be empty"
+    "other": "Message audience cannot be empty"
   },
   "system.admin.base_message.form.category_id.required": {
-    "other": "message category cannot be empty"
+    "other": "Message category cannot be empty"
   },
   "system.admin.base_message.form.content.length": {
-    "other": "message body cannot be empty and must not exceed 20000 characters"
+    "other": "Message body cannot be empty and must not exceed 20000 characters"
   },
   "system.admin.base_message.form.title.length": {
-    "other": "message title cannot be empty and must not exceed 200 characters"
+    "other": "Message title cannot be empty and must not exceed 200 characters"
   },
   "system.admin.base_message.get.id.required": {
-    "other": "message ID cannot be empty"
+    "other": "Message ID cannot be empty"
   },
   "system.admin.base_message.retry.id.required": {
-    "other": "dispatch task ID cannot be empty"
+    "other": "Dispatch task ID cannot be empty"
   },
   "system.admin.base_message_category.delete.id.required": {
-    "other": "message category ID list cannot be empty"
+    "other": "Message category ID list cannot be empty"
   },
   "system.admin.base_message_category.form.code.length": {
-    "other": "category code cannot be empty and must not exceed 50 characters"
+    "other": "Category code cannot be empty and must not exceed 50 characters"
   },
   "system.admin.base_message_category.form.inbox_enabled.required": {
     "other": "In-site message status is required"
   },
   "system.admin.base_message_category.form.name.length": {
-    "other": "category name cannot be empty and must not exceed 50 characters"
+    "other": "Category name cannot be empty and must not exceed 50 characters"
   },
   "system.admin.base_message_category.form.provider_id.unique": {
     "other": "Message provider must not be duplicated"
   },
   "system.admin.base_message_category.get.id.required": {
-    "other": "message category ID cannot be empty"
+    "other": "Message category ID cannot be empty"
   },
   "system.admin.base_message_category.set_status.id.required": {
-    "other": "message category ID cannot be empty"
+    "other": "Message category ID cannot be empty"
   },
   "system.admin.base_message_provider.delete.id.required": {
     "other": "Message provider ID list is required"
@@ -4998,7 +4998,7 @@
     "other": "Code generation table configuration ID cannot be empty"
   },
   "system.admin.code.gen.column.list_gen_database_column.source_name.required": {
-    "other": "data source name cannot be empty"
+    "other": "Data source name cannot be empty"
   },
   "system.admin.code.gen.column.list_gen_database_column.table_name.pattern": {
     "other": "Database table name format is incorrect"
@@ -5067,7 +5067,7 @@
     "other": "Comments cannot exceed 500 characters"
   },
   "system.admin.code.gen.table.field.source_name.required": {
-    "other": "data source name cannot be empty"
+    "other": "Data source name cannot be empty"
   },
   "system.admin.code.gen.table.field.tree_label_column.length": {
     "other": "The tree node display field cannot exceed 64 characters"
@@ -5079,16 +5079,16 @@
     "other": "Primary key ID cannot be empty"
   },
   "system.admin.oauth_client.delete.id.required": {
-    "other": "client ID list cannot be empty"
+    "other": "Client ID list cannot be empty"
   },
   "system.admin.oauth_client.form.api.unique": {
-    "other": "authorized APIs must not contain duplicates"
+    "other": "Authorized APIs must not contain duplicates"
   },
   "system.admin.oauth_client.form.client_name.required": {
-    "other": "client name cannot be empty"
+    "other": "Client name cannot be empty"
   },
   "system.admin.oauth_client.set_status.id.required": {
-    "other": "client ID cannot be empty"
+    "other": "Client ID cannot be empty"
   },
   "system.admin.openapi.document.name": {
     "other": "Core Services"
@@ -5208,7 +5208,7 @@
     "other": "Email cannot exceed 128 characters"
   },
   "system.app.auth.profile.id_code.format": {
-    "other": "please enter a valid ID number"
+    "other": "Please enter a valid ID number"
   },
   "system.base.tenant.default_admin_nickname": {
     "other": "Administrator"

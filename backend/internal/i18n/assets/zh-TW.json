@@ -432,7 +432,7 @@
     "other": "{resource}"
   },
   "common.status.disabled": {
-    "other": "禁用"
+    "other": "停用"
   },
   "common.status.enabled": {
     "other": "啟用"
@@ -1797,7 +1797,7 @@
     "other": "訊息動作參數鍵名過長"
   },
   "legacy.error.5f947483457341be": {
-    "other": "批量生成表配置缺失"
+    "other": "批次生成表配置遺失"
   },
   "legacy.error.5fe54f1b13aabace": {
     "other": "分類存在尚未完成的 Provider 投遞，不能移除該 Provider"
@@ -5160,7 +5160,7 @@
     "other": "Redis 設定無效，請查看服務日誌"
   },
   "system.admin.ops_monitoring.redis_unconfigured": {
-    "other": "未配置 Redis"
+    "other": "未設定 Redis"
   },
   "system.admin.ops_monitoring.request_failed": {
     "other": "介面請求失敗"
@@ -5169,7 +5169,7 @@
     "other": "無法使用"
   },
   "system.admin.ops_monitoring.unconfigured": {
-    "other": "未配置"
+    "other": "未設定"
   },
   "system.admin.ops_monitoring.undeclared": {
     "other": "未宣告"

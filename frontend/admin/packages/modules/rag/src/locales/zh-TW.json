@@ -39,7 +39,7 @@
   "rag.knowledge.message.update_success": "更新知識庫成功",
   "rag.knowledge.resource": "知識庫",
   "rag.knowledge.search.action": "檢索",
-  "rag.knowledge.search.empty": "暫無命中切片",
+  "rag.knowledge.search.empty": "暫無符合的切片",
   "rag.knowledge.search.hint": "按語義相似度返回最相近的切片",
   "rag.knowledge.search.placeholder": "輸入檢索內容",
   "rag.knowledge.search.score": "相似度",
