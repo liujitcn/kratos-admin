@@ -64,7 +64,7 @@ const navigateToProfile = () => navigateAppRoute('app/profile')
         variant="tab"
         :action="{
           icon: 'settings',
-          label: t('system.settings.title'),
+          label: t('core.settings.title'),
           onClick: navigateToSettings,
         }"
       />

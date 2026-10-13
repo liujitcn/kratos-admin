@@ -199,10 +199,11 @@ Admin 的公开 `backend/adapter/core` 和 `backend/adapter/kit` 构造函数只
 
 ## 发布
 
-统一发布会更新并发布 10 个 npm 包：
+统一发布会更新并发布 11 个 npm 包：
 
 - `@liujitcn/kratos-admin-core`
 - `@liujitcn/kratos-admin-system`
+- `@liujitcn/kratos-admin-rag`
 - `@liujitcn/kratos-admin-cli`
 - `@liujitcn/kratos-uni-app-core`
 - `@liujitcn/kratos-uni-app-system`
@@ -216,7 +217,7 @@ Admin 的公开 `backend/adapter/core` 和 `backend/adapter/kit` 构造函数只
 make tag VERSION=0.0.30
 ```
 
-`make tag` 会先执行只读的 `make i18n-check`，检查语言包、SQL 翻译脚本、OpenAPI 多语言文档；生成物未同步时会直接拒绝发布，不会在发布过程中自动翻译或改写文件。随后发布脚本要求当前分支为远程默认分支且与 `origin` 同步，把后端服务版本和全部前端 npm 包版本更新为不带 `v` 的 `X.Y.Z`，执行后端测试和前端打包，然后推送 `vX.Y.Z`、`backend/vX.Y.Z`、`npm/vX.Y.Z`。后续 Docker 构建默认使用同一个后端服务版本作为镜像 tag，无需再次指定 `TAG`。`npm/vX.Y.Z` 触发 `.github/workflows/publish-npm.yml`，通过 npm Trusted Publishing 发布以上 10 个包；三个默认宿主均为私有包，不参与发布。本机需要可用的 `git`、`gh` 和 GitHub 登录态。
+`make tag` 会先执行只读的 `make i18n-check`，检查语言包、SQL 翻译脚本、OpenAPI 多语言文档；生成物未同步时会直接拒绝发布，不会在发布过程中自动翻译或改写文件。随后发布脚本要求当前分支为远程默认分支且与 `origin` 同步，把后端服务版本和全部前端 npm 包版本更新为不带 `v` 的 `X.Y.Z`，执行后端测试和前端打包，然后推送 `vX.Y.Z`、`backend/vX.Y.Z`、`npm/vX.Y.Z`。后续 Docker 构建默认使用同一个后端服务版本作为镜像 tag，无需再次指定 `TAG`。`npm/vX.Y.Z` 触发 `.github/workflows/publish-npm.yml`，通过 npm Trusted Publishing 发布以上 11 个包；三个默认宿主均为私有包，不参与发布。本机需要可用的 `git`、`gh` 和 GitHub 登录态。
 
 只做本地 npm 发布时：
 
