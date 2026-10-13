@@ -1,9 +1,10 @@
 <script setup lang="ts">
+import KratosEmpty from '@liujitcn/kratos-uni-app-core/components/KratosEmpty.vue'
+import KratosNavBar from '@liujitcn/kratos-uni-app-core/components/KratosNavBar.vue'
 import { onShow } from '@dcloudio/uni-app'
 import { computed, ref } from 'vue'
-import { KratosEmpty, navigateAppView, t } from '@liujitcn/kratos-uni-app-core'
+import { navigateAppView, t } from '@liujitcn/kratos-uni-app-core'
 import { useThemeStore } from '@liujitcn/kratos-uni-app-core/stores'
-import { getMpCapsuleRightGap } from '@liujitcn/kratos-uni-app-core/utils/index'
 import { defNotificationService } from '../../../api/base/v1/notification'
 import type { Notification, NotificationCategory } from '../../../rpc/base/v1/notification'
 import { NotificationView } from '../../../rpc/base/v1/notification'
@@ -11,8 +12,6 @@ import { notificationUnreadTotal, refreshNotificationSummary } from '../../../no
 import { resolveMessageCategoryIcon } from './icons'
 
 const themeStore = useThemeStore()
-/** MP-WEIXIN 原生胶囊按钮右侧避让宽度，写入 --mp-capsule-gap 供 .k-top 预留空间。 */
-const capsuleGap = getMpCapsuleRightGap()
 const items = ref<Notification[]>([])
 const loading = ref(false)
 const cursorId = ref(0)
@@ -128,22 +127,19 @@ const emptyHintKey = computed(() => {
 
 <template>
   <view class="message-page" :class="themeStore.themeClass">
-    <view class="k-top message-header" :style="{ '--mp-capsule-gap': `${capsuleGap}px` }">
-      <view class="message-header__title">
-        <text class="message-header__text">{{ t('system.notification.title') }}</text>
-        <view v-if="notificationUnreadTotal > 0" class="message-unread-dot" aria-hidden="true" />
-      </view>
-      <view
-        v-if="
-          selectedView !== NotificationView.NOTIFICATION_VIEW_ARCHIVED &&
-          notificationUnreadTotal > 0
-        "
-        class="k-ch k-ch--pri"
-        @tap="markAllRead"
-      >
-        {{ t('system.notification.mark_all_read') }}
-      </view>
-    </view>
+    <KratosNavBar
+      :title="t('system.notification.title')"
+      variant="tab"
+      :action="
+        selectedView !== NotificationView.NOTIFICATION_VIEW_ARCHIVED && notificationUnreadTotal > 0
+          ? {
+              display: 'text',
+              label: t('system.notification.mark_all_read'),
+              onClick: markAllRead,
+            }
+          : undefined
+      "
+    />
     <view class="k-chips">
       <view class="k-ch" :class="{ 'k-ch--pri': categoryId === undefined }" @tap="changeCategory()">
         {{ t('system.notification.view.inbox') }}
@@ -247,49 +243,9 @@ const emptyHintKey = computed(() => {
 .message-page {
   box-sizing: border-box;
   min-height: 100vh;
-  padding: calc(16rpx + env(safe-area-inset-top)) 24rpx calc(200rpx + env(safe-area-inset-bottom));
+  padding: 0 20rpx calc(200rpx + env(safe-area-inset-bottom));
   background: var(--kratos-bg-gradient);
   color: var(--kratos-color-text);
-}
-/* #ifdef MP-WEIXIN */
-.message-page {
-  /* k-top 在小程序端自带 44px 状态栏高度的导航带，页面不再额外让出顶部空间 */
-  padding-top: 0;
-}
-/* #endif */
-.message-header {
-  /* 标题绝对居中后头部不再依赖流内内容撑高，保证标题行与筛选行留出间距 */
-  min-height: 76rpx;
-  padding: 20rpx 4rpx 24rpx;
-}
-/* 标题排版与 k-page-nav__title/k-top__title 同规格，绝对居中后文字与红点同行排布 */
-.message-header__title {
-  position: absolute;
-  left: 50%;
-  display: flex;
-  align-items: center;
-  min-width: 0;
-  max-width: calc(100% - 190rpx);
-  overflow: hidden;
-  font-size: 32rpx;
-  font-weight: 700;
-  color: var(--kratos-color-text);
-  transform: translateX(-50%);
-  white-space: nowrap;
-}
-.message-header__text {
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.message-unread-dot {
-  flex-shrink: 0;
-  width: 12rpx;
-  height: 12rpx;
-  margin-left: 12rpx;
-  border-radius: 50%;
-  background: var(--kratos-color-danger);
-  box-shadow: 0 0 16rpx var(--kratos-color-danger);
 }
 .message-tabs {
   display: flex;

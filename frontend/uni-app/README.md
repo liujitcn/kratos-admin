@@ -81,6 +81,8 @@ export const moduleManifest = [coreModule, systemModule]
 
 构建插件自动扫描各模块的 `src/views/**/*.vue`，忽略任意层级的 `components` 目录。后注册模块可以用相同物理路由或 `viewKey` 替换前面模块的静态页面。
 
+自定义顶部导航统一使用 core 的 `KratosNavBar`：普通页、tabBar 页和有无操作按钮共用相同标题栏高度，组件负责安全区、返回行为、按钮尺寸与微信胶囊避让。新页面只传标题和操作，外层不要重复添加顶部安全区或导航栏高度；具体用法见 [通用顶部导航](packages/core/README.md#通用顶部导航)。
+
 项目可复用 system 的 `KratosMyPage` 组件，通过 `extensions` 插槽在个人信息和 AI 助手下方追加订单、收藏或统计卡片，顶部设置入口由公共组件维护。默认“我的”页面已装配空的业务扩展示例；业务模块使用相同的 `pages/my/my` 路由覆盖默认页，具体示例见 [system 个人中心扩展](packages/modules/system/README.md#个人中心扩展)。
 
 宿主 `pages.json` 只提交固定 bootstrap 页面。开发或构建期间，插件会临时生成页面 wrapper、合并页面配置，并把模块 static 逐文件合并到宿主；同名宿主文件优先，事务只记录和清理插件实际写入的文件。正常退出后自动恢复。若进程被强制结束，下次启动会先根据 `.kratos-uni-app-pages-state.json` 恢复上一次事务。同一宿主同时只允许一个 H5 或小程序开发/构建进程持有页面事务，切换平台前需要先停止当前进程。
@@ -154,7 +156,7 @@ pnpm build:mp-weixin
 ```
 
 - H5 产物写入 `backend/web/uni-app`，后端通过 `/uni-app/` 挂载。
-- 微信小程序产物写入 `apps/uni-app/dist/build/mp-weixin`，使用微信开发者工具导入。
+- 微信小程序产物写入 `apps/uni-app/dist/build/mp-weixin`，使用微信开发者工具导入；构建后自动检查实际 WXML 引用的 `kratos-*` 组件是否注册到 `usingComponents`，防止组件漏注册却构建成功。
 
 ## RPC 生成
 

@@ -1,9 +1,9 @@
 <script setup lang="ts">
+import KratosNavBar from '@liujitcn/kratos-uni-app-core/components/KratosNavBar.vue'
 import { onLoad } from '@dcloudio/uni-app'
 import { ref } from 'vue'
 import { navigateAppView, t } from '@liujitcn/kratos-uni-app-core'
 import { useThemeStore } from '@liujitcn/kratos-uni-app-core/stores'
-import { homeTabPage } from '@liujitcn/kratos-uni-app-core/utils/navigation'
 import { defNotificationService } from '../../../api/base/v1/notification'
 import type { Notification } from '../../../rpc/base/v1/notification'
 import { MessageActionType, MessageContentFormat } from '../../../rpc/base/v1/notification'
@@ -52,20 +52,11 @@ function openAction() {
   }
   navigateAppView(detail.value.action_target, params)
 }
-
-/** 返回消息列表，页面栈为空时回到首页。 */
-function onBack() {
-  uni.navigateBack({ fail: () => uni.reLaunch({ url: homeTabPage }) })
-}
 </script>
 
 <template>
   <view class="detail-page" :class="themeStore.themeClass">
-    <view class="k-page-nav">
-      <view class="k-page-nav__back" :aria-label="t('common.action.back')" @tap="onBack"></view>
-      <view class="k-page-nav__title">{{ t('system.notification.title') }}</view>
-      <view class="k-page-nav__side" aria-hidden="true"></view>
-    </view>
+    <KratosNavBar :title="t('system.notification.title')" />
     <template v-if="detail">
       <text class="detail-title">{{ detail.title }}</text>
       <view class="detail-meta">
@@ -104,7 +95,7 @@ function onBack() {
 .detail-page {
   box-sizing: border-box;
   min-height: 100vh;
-  padding: 24rpx 30rpx calc(96rpx + env(safe-area-inset-bottom));
+  padding: 0 30rpx calc(96rpx + env(safe-area-inset-bottom));
   background: var(--kratos-bg-gradient);
   color: var(--kratos-color-text);
 }

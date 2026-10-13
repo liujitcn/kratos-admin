@@ -10,7 +10,7 @@
 packages/core
 ├── src
 │   ├── api                    # 与 Proto 完整路径一致的接口 service
-│   ├── components             # 启动状态、自绘 tabBar、公共设置页和 MFA 组件
+│   ├── components             # 通用导航栏、自绘 tabBar、公共设置页和 MFA 组件
 │   ├── rpc                    # Buf 生成的 TypeScript 接口类型
 │   ├── static                 # 底座图片和 tab 图标
 │   ├── stores                 # Pinia 设置与用户状态
@@ -49,6 +49,41 @@ packages/core
 - `@liujitcn/kratos-uni-app-core/module`：模块协议和 core 模块。
 - `@liujitcn/kratos-uni-app-core/vite`：Vite 配置、页面装配插件和构建错误文案格式化器。
 - `@liujitcn/kratos-uni-app-core/api/*`、`components/*.vue`、`utils/*`、`views/*`：白名单子路径。
+
+## 通用顶部导航
+
+所有自定义顶部导航统一使用公开组件 `KratosNavBar`，页面只提供标题和业务操作，不再定义导航高度、安全区、标题居中、按钮尺寸或微信胶囊避让。普通页与 tabBar 页的标题栏使用相同高度，按钮显隐不会改变标题位置。页面外层只维护水平与底部留白，顶部留白由组件处理；tabBar 页的导航栏还统一预留内容间距。
+
+```vue
+<script setup lang="ts">
+import KratosNavBar from '@liujitcn/kratos-uni-app-core/components/KratosNavBar.vue'
+</script>
+
+<template>
+  <!-- 普通页：默认带返回，无法返回时回到首页 -->
+  <KratosNavBar title="个人信息" />
+  <!-- tabBar 页：默认不带返回，也可以不传操作按钮 -->
+  <KratosNavBar title="首页" variant="tab" />
+  <KratosNavBar
+    title="我的"
+    variant="tab"
+    :action="{ icon: 'settings', label: '设置', onClick: openSettings }"
+  />
+</template>
+```
+
+`back` 可显式控制返回按钮，`onBack` 可覆盖默认返回操作。`action` 包含 `label`、可选 `icon`、可选 `display` 和 `onClick`；`display` 支持 `icon`（纯图标）、`text`（纯文字）和 `both`（图标加文字），默认有图标时显示图标，否则显示文字。图标支持内置 `settings`、`read-all`、`history`，以及自定义图片地址。不传 `action` 时不渲染操作按钮。三种按钮形式共用相同高度；纯图标保持方形，文字与组合按钮按内容增宽，空间不足时省略文字。组件通过公开的 `components/KratosNavBar.vue` 子路径导入；`KratosNavBarProps`、`KratosNavBarAction` 类型从包根公开导出。小程序的 Vue 组件必须直接导入 `.vue` 文件，避免经 TypeScript 入口重导出导致编译产物漏登记 `usingComponents`；业务模块应传入翻译后的标题和按钮名称。
+
+```ts
+import type { KratosNavBarAction } from '@liujitcn/kratos-uni-app-core'
+
+// 纯图标
+const iconAction: KratosNavBarAction = { icon: 'settings', label: '设置', display: 'icon', onClick: openSettings }
+// 纯文字
+const textAction: KratosNavBarAction = { label: '全部已读', display: 'text', onClick: markAllRead }
+// 图标加文字
+const combinedAction: KratosNavBarAction = { icon: 'history', label: '历史', display: 'both', onClick: openHistory }
+```
 
 ## 公共设置页
 

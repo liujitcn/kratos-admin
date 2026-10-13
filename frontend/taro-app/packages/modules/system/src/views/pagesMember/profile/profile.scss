@@ -4,7 +4,7 @@
   color: var(--kratos-color-text);
 }
 
-/* k-page-nav 自带安全区顶部内边距，这里只补水平与底部 */
+/* 导航组件统一处理顶部空间，页面只维护内容的水平与底部留白。 */
 .profile-content {
   padding: 0 32px calc(40px + env(safe-area-inset-bottom));
 }

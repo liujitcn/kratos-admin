@@ -1,47 +1,9 @@
 .message-page {
   box-sizing: border-box;
   min-height: 100vh;
-  padding: 16px 24px calc(200px + env(safe-area-inset-bottom));
+  padding: 0 20px calc(200px + env(safe-area-inset-bottom));
   background: var(--kratos-bg-gradient);
   color: var(--kratos-color-text);
-}
-
-.message-header {
-  /* 标题绝对居中后头部不再依赖流内内容撑高，保证标题行与筛选行留出间距 */
-  min-height: 76px;
-  padding: 20px 4px 24px;
-}
-
-/* 标题排版与 k-page-nav__title/k-top__title 同规格，绝对居中后文字与红点同行排布 */
-.message-header__title {
-  position: absolute;
-  left: 50%;
-  display: flex;
-  align-items: center;
-  min-width: 0;
-  max-width: calc(100% - 190px);
-  overflow: hidden;
-  font-size: 16PX;
-  font-weight: 700;
-  color: var(--kratos-color-text);
-  transform: translateX(-50%);
-  white-space: nowrap;
-}
-
-.message-header__text {
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.message-unread-dot {
-  flex-shrink: 0;
-  width: 12px;
-  height: 12px;
-  margin-left: 12px;
-  border-radius: 50%;
-  background: var(--kratos-color-danger);
-  box-shadow: 0 0 16px var(--kratos-color-danger);
 }
 
 .message-tabs {
@@ -79,7 +41,7 @@
 .detail-page {
   box-sizing: border-box;
   min-height: 100vh;
-  padding: 24px 30px calc(96px + env(safe-area-inset-bottom));
+  padding: 0 30px calc(96px + env(safe-area-inset-bottom));
   background: var(--kratos-bg-gradient);
   color: var(--kratos-color-text);
 }

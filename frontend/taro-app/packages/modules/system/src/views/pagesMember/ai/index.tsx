@@ -1,16 +1,15 @@
 import { ScrollView, Text, View } from '@tarojs/components'
-import Taro, { getCurrentPages, useLoad } from '@tarojs/taro'
+import Taro, { useLoad } from '@tarojs/taro'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import {
   formatSrc,
   getCurrentLocale,
-  navigateAppRoute,
+  KratosNavBar,
   t,
   uploadFile,
   useI18n,
   useThemeStore,
 } from '@liujitcn/kratos-taro-app-core'
-import { UniIcon } from '@liujitcn/kratos-taro-app-ui'
 import { isAuthExpiredError } from '@liujitcn/kratos-taro-app-core/utils/http'
 import { defAiMessageService, StreamAiMessageByChunkedRequest } from '../../../api/base/v1/ai_message'
 import { defAiSessionService } from '../../../api/base/v1/ai_session'
@@ -67,12 +66,10 @@ const PENDING_MESSAGE_ID = 'pending'
 const MAX_ATTACHMENT_COUNT = 6
 const STARTER_PROMPT_PAGE_SIZE = 4
 
-/** AI 助手页面。 */
+/** AiPage 展示 AI 助手对话与会话历史。 */
 export default function AiPage() {
   const { locale } = useI18n()
   const themeStore = useThemeStore()
-  /** 导航图标随主题取色，UniIcon 的 color 属性不接受 CSS 变量。 */
-  const navIconColor = themeStore.theme === 'light' ? '#102232' : '#e9f4f6'
   const windowInfo = Taro.getWindowInfo() as ReturnType<typeof Taro.getWindowInfo> & {
     safeAreaInsets?: { top?: number; bottom?: number }
   }
@@ -658,14 +655,6 @@ export default function AiPage() {
     }
   }
 
-  const navigateBack = () => {
-    if (getCurrentPages().length > 1) {
-      void Taro.navigateBack()
-      return
-    }
-    navigateAppRoute('app/home')
-  }
-
   const handleSend = async () => {
     if (isSubmitDisabled) return
     const text = inputText.trim() || t('system.ai.attachment_answer')
@@ -724,16 +713,11 @@ export default function AiPage() {
     <View
       className={`ai-page ${themeStore.theme === 'light' ? 'theme-light' : 'theme-dark'}`}
     >
-      <View className={`ai-navbar k-page-nav ${process.env.TARO_ENV === 'weapp' ? 'k-page-nav--weapp' : ''}`}>
-        <View className='k-page-nav__back' aria-label={t('common.action.back')} onClick={navigateBack} />
-        <View className='k-page-nav__title'>{t('system.ai.chat_title')}</View>
-        <View
-          className='k-page-nav__side k-ic'
-          aria-label={t('system.ai.history')}
-          onClick={() => setShowSessionDrawer((open) => !open)}
-        >
-          <UniIcon type='bars' size={22} color={navIconColor} />
-        </View>
+      <View className='ai-navbar'>
+        <KratosNavBar
+          title={t('system.ai.chat_title')}
+          action={{ icon: 'history', label: t('system.ai.history'), onClick: () => setShowSessionDrawer((open) => !open) }}
+        />
       </View>
       <ScrollView
         className='ai-body'

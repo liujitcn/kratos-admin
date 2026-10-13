@@ -8,7 +8,7 @@
     "dev:h5": "turbo run dev:h5 --filter=@liujitcn/kratos-uni-app --ui=stream --log-order=stream --log-prefix=task --no-color",
     "dev:mp-weixin": "turbo run dev:mp-weixin --filter=@liujitcn/kratos-uni-app --ui=stream --log-order=stream --log-prefix=task --no-color",
     "build:h5": "turbo run build:h5 --filter=@liujitcn/kratos-uni-app --ui=stream --log-order=grouped --log-prefix=none --no-color --output-logs=errors-only",
-    "build:mp-weixin": "turbo run build:mp-weixin --filter=@liujitcn/kratos-uni-app --ui=stream --log-order=grouped --log-prefix=none --no-color --output-logs=errors-only",
+    "build:mp-weixin": "turbo run build:mp-weixin --filter=@liujitcn/kratos-uni-app --ui=stream --log-order=grouped --log-prefix=none --no-color --output-logs=errors-only && node scripts/check-mini-components.mjs",
     "build:packages": "turbo run build --concurrency=1 --filter=@liujitcn/kratos-uni-app-core --filter=@liujitcn/kratos-uni-app-system --filter=@liujitcn/kratos-uni-app-cli --ui=stream --log-order=grouped --log-prefix=none --no-color --output-logs=errors-only",
     "generate:rpc": "make -C .. ts-uni-app",
     "check:exports": "pnpm run prepare:modules && node scripts/check-package-exports.mjs",

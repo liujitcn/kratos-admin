@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import KratosNavBar from '@liujitcn/kratos-uni-app-core/components/KratosNavBar.vue'
 import { defAuthService } from '@liujitcn/kratos-uni-app-core/api/system/app/v1/auth'
 import { useThemeStore, useUserStore } from '@liujitcn/kratos-uni-app-core/stores'
 import type { UserProfileForm } from '@liujitcn/kratos-uni-app-core/rpc/system/app/v1/auth'
@@ -16,9 +17,6 @@ import { useI18n } from '@liujitcn/kratos-uni-app-core'
 const userStore = useUserStore()
 const themeStore = useThemeStore()
 const { t } = useI18n()
-
-/** 返回上一页。 */
-const onBack = () => uni.navigateBack()
 
 const imgMaxSize = ref(1024 * 1024)
 const submitting = ref(false)
@@ -251,11 +249,7 @@ const onSubmit = async () => {
   <view class="profile-viewport" :class="themeStore.themeClass">
     <view class="profile-content">
       <!-- 导航栏：统一子页头（单一返回 + 标题） -->
-      <view class="k-page-nav">
-        <view class="k-page-nav__back" :aria-label="t('common.action.back')" @tap="onBack"></view>
-        <view class="k-page-nav__title">{{ t('system.profile.title') }}</view>
-        <view class="k-page-nav__side" aria-hidden="true"></view>
-      </view>
+      <KratosNavBar :title="t('system.profile.title')" />
 
       <!-- 头像卡：点击更换头像 -->
       <view class="k-glass k-glass--lit k-pfx profile-id" @tap="onAvatarChange">
@@ -367,7 +361,7 @@ const onSubmit = async () => {
   background: var(--kratos-bg-gradient);
 }
 
-/* k-page-nav 自带安全区顶部内边距，这里只补水平与底部 */
+/* 导航组件统一处理顶部空间，页面只维护内容的水平与底部留白。 */
 .profile-content {
   padding: 0 32rpx calc(40rpx + env(safe-area-inset-bottom));
 }

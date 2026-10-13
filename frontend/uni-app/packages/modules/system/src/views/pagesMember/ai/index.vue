@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import KratosNavBar from '@liujitcn/kratos-uni-app-core/components/KratosNavBar.vue'
 import { onLoad } from '@dcloudio/uni-app'
 import { computed, nextTick, onBeforeUnmount, ref, watch } from 'vue'
 import {
@@ -22,7 +23,7 @@ import { isAuthExpiredError } from '@liujitcn/kratos-uni-app-core/utils/http'
 import Composer from './components/Composer.vue'
 import SessionDrawer from './components/SessionDrawer.vue'
 import WelcomePanel from './components/WelcomePanel.vue'
-import { navigateAppRoute, useI18n } from '@liujitcn/kratos-uni-app-core'
+import { useI18n } from '@liujitcn/kratos-uni-app-core'
 import { useThemeStore } from '@liujitcn/kratos-uni-app-core/stores'
 import {
   type AiStreamEvent,
@@ -74,9 +75,6 @@ const MAX_ATTACHMENT_COUNT = 6
 const STARTER_PROMPT_PAGE_SIZE = 4
 const { locale, t } = useI18n()
 const themeStore = useThemeStore()
-/** 导航图标随主题取色，uni-icons 的 color 属性不接受 CSS 变量。 */
-const navIconColor = computed(() => (themeStore.theme === 'light' ? '#102232' : '#e9f4f6'))
-
 const windowInfo = uni.getWindowInfo()
 let safeAreaTop =
   windowInfo.safeArea?.top || windowInfo.statusBarHeight || windowInfo.safeAreaInsets?.top || 0
@@ -360,15 +358,6 @@ const handleMessageAction = (item: ChatMessageItem) => {
       }
     },
   })
-}
-
-const navigateBack = () => {
-  const pages = getCurrentPages()
-  if (pages.length > 1) {
-    uni.navigateBack()
-    return
-  }
-  navigateAppRoute('app/home')
 }
 
 const handleSend = async () => {
@@ -1277,20 +1266,11 @@ function showError(error: unknown, fallback: string) {
 
 <template>
   <view class="ai-page" :class="themeStore.themeClass">
-    <view class="ai-navbar k-page-nav">
-      <view
-        class="k-page-nav__back"
-        :aria-label="t('common.action.back')"
-        @tap="navigateBack"
-      ></view>
-      <view class="k-page-nav__title">{{ t('system.ai.chat_title') }}</view>
-      <view
-        class="k-page-nav__side k-ic"
-        :aria-label="t('system.ai.history')"
-        @tap="toggleSessionDrawer"
-      >
-        <uni-icons type="bars" size="22" :color="navIconColor" />
-      </view>
+    <view class="ai-navbar">
+      <KratosNavBar
+        :title="t('system.ai.chat_title')"
+        :action="{ icon: 'history', label: t('system.ai.history'), onClick: toggleSessionDrawer }"
+      />
     </view>
 
     <scroll-view

@@ -28,6 +28,37 @@
 
 业务模块只能通过这些 exports 使用底座，不得相对引用 core 源码。RPC 由 `make -C frontend ts-taro-app` 生成，不能手工编辑。
 
+## 通用顶部导航
+
+所有自定义顶部导航统一使用公开组件 `KratosNavBar`，页面只提供标题和业务操作，不再定义导航高度、安全区、标题居中、按钮尺寸或微信胶囊避让。普通页与 tabBar 页的标题栏使用相同高度，按钮显隐不会改变标题位置。页面外层只维护水平与底部留白，顶部留白由组件处理；tabBar 页的导航栏还统一预留内容间距。
+
+```tsx
+import { KratosNavBar } from '@liujitcn/kratos-taro-app-core'
+
+// 普通页默认带返回，无法返回时回到首页。
+<KratosNavBar title='个人信息' />
+// tabBar 页默认不带返回，也可以不传操作按钮。
+<KratosNavBar title='首页' variant='tab' />
+<KratosNavBar
+  title='我的'
+  variant='tab'
+  action={{ icon: 'settings', label: '设置', onClick: openSettings }}
+/>
+```
+
+`back` 可显式控制返回按钮，`onBack` 可覆盖默认返回操作。`action` 包含 `label`、可选 `icon`、可选 `display` 和 `onClick`；`display` 支持 `icon`（纯图标）、`text`（纯文字）和 `both`（图标加文字），默认有图标时显示图标，否则显示文字。图标支持内置 `settings`、`read-all`、`history`，以及自定义图片地址。不传 `action` 时不渲染操作按钮。三种按钮形式共用相同高度；纯图标保持方形，文字与组合按钮按内容增宽，空间不足时省略文字。组件及 `KratosNavBarProps`、`KratosNavBarAction` 类型均从包根公开导出；业务模块应传入翻译后的标题和按钮名称。
+
+```ts
+import type { KratosNavBarAction } from '@liujitcn/kratos-taro-app-core'
+
+// 纯图标
+const iconAction: KratosNavBarAction = { icon: 'settings', label: '设置', display: 'icon', onClick: openSettings }
+// 纯文字
+const textAction: KratosNavBarAction = { label: '全部已读', display: 'text', onClick: markAllRead }
+// 图标加文字
+const combinedAction: KratosNavBarAction = { icon: 'history', label: '历史', display: 'both', onClick: openHistory }
+```
+
 ## Runner 协议
 
 模块必须同时提供运行时定义和 `./build` 导出。构建入口返回模块名称、包根目录与页面清单；runner 根据宿主的静态 `module-manifest.ts` 解析模块顺序，扫描页面并创建事务。

@@ -44,3 +44,6 @@ export { default as PasswordVerifyDialog } from './components/PasswordVerifyDial
 export type { PasswordVerifyDialogProps } from './components/PasswordVerifyDialog'
 export { default as KratosEmpty } from './components/KratosEmpty'
 export type { KratosEmptyProps } from './components/KratosEmpty'
+/** KratosNavBar 普通页面与 tabBar 页面共用的顶部导航栏。 */
+export { default as KratosNavBar } from './components/KratosNavBar'
+export type { KratosNavBarAction, KratosNavBarProps } from './components/KratosNavBar'

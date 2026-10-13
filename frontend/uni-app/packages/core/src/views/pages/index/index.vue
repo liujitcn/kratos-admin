@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { onLoad } from '@dcloudio/uni-app'
+import KratosNavBar from '../../../components/KratosNavBar.vue'
 import { computed, ref, watch } from 'vue'
 import { useSettingStore, useThemeStore } from '../../../stores'
 import defaultLogo from '../../../static/images/logo_icon.png'
@@ -41,9 +42,7 @@ onLoad(() => {
   <view class="home-page" :class="themeStore.themeClass">
     <view class="k-grid-bg" aria-hidden="true"></view>
     <view class="home-content">
-      <view class="home-top">
-        <view class="home-top__title">{{ mainTitle }}</view>
-      </view>
+      <KratosNavBar :title="mainTitle" variant="tab" />
 
       <view class="k-glass k-glass--lit home-hero">
         <view class="home-hero__main">
@@ -126,41 +125,7 @@ onLoad(() => {
 .home-content {
   position: relative;
   z-index: 1;
-  padding: calc(env(safe-area-inset-top) + 20rpx) 32rpx 220rpx;
-
-  /* #ifdef MP-WEIXIN */
-  /* 首页标题在小程序端占导航带，页面不再额外让出顶部空间 */
-  padding-top: 0;
-  /* #endif */
-}
-
-/* 小程序端首页标题占导航带：与 k-page-nav 同几何，标题与胶囊同行 */
-/* #ifdef MP-WEIXIN */
-.home-top {
-  box-sizing: border-box;
-  height: calc(88rpx + 44px);
-  padding: 44px 4rpx 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.home-top__title {
-  margin-top: 0;
-}
-/* #endif */
-
-.home-top {
-  padding: 8rpx 4rpx 24rpx;
-}
-
-/* 页面大标题：与其他页面导航标题同规格，向原生导航栏看齐 */
-.home-top__title {
-  margin-top: 14rpx;
-  color: var(--kratos-color-text);
-  font-size: 32rpx;
-  font-weight: 700;
-  text-align: center;
+  padding: 0 20rpx 220rpx;
 }
 
 .home-hero {

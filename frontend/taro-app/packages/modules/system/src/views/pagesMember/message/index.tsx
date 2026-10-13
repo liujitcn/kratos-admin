@@ -1,9 +1,8 @@
-import type { CSSProperties } from 'react'
 import { useDidShow } from '@tarojs/taro'
 import { Button, Text, View } from '@tarojs/components'
 import { useRef, useState } from 'react'
 import {
-  getMpCapsuleRightGap,
+  KratosNavBar,
   KratosEmpty,
   navigateAppView,
   t,
@@ -17,12 +16,9 @@ import { refreshNotificationSummary } from '../../../notification'
 import { resolveMessageCategoryIcon } from './icons'
 import './message.scss'
 
-/** Taro 站内信收件箱页面。 */
+/** MessageInboxPage 展示站内信收件箱，并提供全部已读操作。 */
 export default function MessageInboxPage() {
   const themeStore = useThemeStore()
-  /** MP-WEIXIN 原生胶囊按钮右侧避让宽度，写入 --mp-capsule-gap 供 .k-top 预留空间。 */
-  const capsuleGap = getMpCapsuleRightGap()
-  const topNavStyle = { '--mp-capsule-gap': `${capsuleGap}px` } as CSSProperties
   const [items, setItems] = useState<Notification[]>([])
   const [cursorId, setCursorId] = useState(0)
   const [loading, setLoading] = useState(false)
@@ -176,20 +172,13 @@ export default function MessageInboxPage() {
         themeStore.theme === 'light' ? 'theme-light' : 'theme-dark'
       }`}
     >
-      <View className='k-top message-header' style={topNavStyle}>
-        <View className='message-header__title'>
-          <Text className='message-header__text'>{t('system.notification.title')}</Text>
-          {unreadTotal > 0 && <View className='message-unread-dot' aria-hidden='true' />}
-        </View>
-        {selectedView !== NotificationView.NOTIFICATION_VIEW_ARCHIVED && unreadTotal > 0 && (
-          <View
-            className='k-ch k-ch--pri'
-            onClick={() => void markAllRead().catch(() => undefined)}
-          >
-            {t('system.notification.mark_all_read')}
-          </View>
-        )}
-      </View>
+      <KratosNavBar
+        title={t('system.notification.title')}
+        variant='tab'
+        action={selectedView !== NotificationView.NOTIFICATION_VIEW_ARCHIVED && unreadTotal > 0
+          ? { display: 'text', label: t('system.notification.mark_all_read'), onClick: () => void markAllRead().catch(() => undefined) }
+          : undefined}
+      />
       <View className='k-chips'>
         <View
           className={`k-ch${categoryId === undefined ? ' k-ch--pri' : ''}`}

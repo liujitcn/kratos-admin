@@ -3,7 +3,7 @@ import { onLoad } from '@dcloudio/uni-app'
 import { useSettingStore, useThemeStore } from '../../../stores'
 import { ref } from 'vue'
 import { useI18n } from '../../../locales'
-import { homeTabPage } from '../../../utils/navigation'
+import KratosNavBar from '../../../components/KratosNavBar.vue'
 
 const settingStore = useSettingStore()
 const themeStore = useThemeStore()
@@ -77,19 +77,10 @@ const loadProtocol = async (type?: string) => {
 onLoad((query) => {
   void loadProtocol(query?.type)
 })
-
-/** 返回来源页，页面栈为空时回到首页。 */
-const onBack = () => {
-  uni.navigateBack({ fail: () => uni.reLaunch({ url: homeTabPage }) })
-}
 </script>
 <template>
   <view class="protocol-page" :class="themeStore.themeClass">
-    <view class="k-page-nav">
-      <view class="k-page-nav__back" :aria-label="t('common.action.back')" @tap="onBack"></view>
-      <view class="k-page-nav__title">{{ pageTitle }}</view>
-      <view class="k-page-nav__side" aria-hidden="true"></view>
-    </view>
+    <KratosNavBar :title="pageTitle" />
     <view class="protocol-card">
       <rich-text class="protocol-content" :nodes="content" />
     </view>
@@ -99,7 +90,7 @@ const onBack = () => {
 <style lang="scss">
 .protocol-page {
   min-height: 100vh;
-  padding: 24rpx;
+  padding: 0 24rpx 24rpx;
   box-sizing: border-box;
   background: var(--kratos-bg-gradient);
 }

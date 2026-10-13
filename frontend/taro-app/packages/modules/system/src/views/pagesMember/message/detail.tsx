@@ -1,7 +1,7 @@
-import Taro, { useLoad } from '@tarojs/taro'
+import { useLoad } from '@tarojs/taro'
 import { Button, RichText, Text, View } from '@tarojs/components'
 import { useState } from 'react'
-import { homeTabPage, navigateAppView, t, useThemeStore } from '@liujitcn/kratos-taro-app-core'
+import { KratosNavBar, navigateAppView, t, useThemeStore } from '@liujitcn/kratos-taro-app-core'
 import { UniIcon } from '@liujitcn/kratos-taro-app-ui'
 import { defNotificationService } from '../../../api/base/v1/notification'
 import type { Notification } from '../../../rpc/base/v1/notification'
@@ -9,7 +9,7 @@ import { MessageActionType, MessageContentFormat } from '../../../rpc/base/v1/no
 import { resolveMessageCategoryIcon } from './icons'
 import './message.scss'
 
-/** Taro 站内信详情页面。 */
+/** MessageDetailPage 展示站内信详情与通知操作。 */
 export default function MessageDetailPage() {
   const themeStore = useThemeStore()
   const [detail, setDetail] = useState<Notification>()
@@ -55,20 +55,11 @@ export default function MessageDetailPage() {
     navigateAppView(detail.action_target, params)
   }
 
-  /** 返回消息列表，页面栈为空时回到首页。 */
-  function onBack() {
-    void Taro.navigateBack({ fail: () => void Taro.reLaunch({ url: homeTabPage }) })
-  }
-
   return (
     <View
       className={`detail-page ${themeStore.theme === 'light' ? 'theme-light' : 'theme-dark'}`}
     >
-      <View className={`k-page-nav ${process.env.TARO_ENV === 'weapp' ? 'k-page-nav--weapp' : ''}`}>
-        <View className='k-page-nav__back' aria-label={t('common.action.back')} onClick={onBack} />
-        <View className='k-page-nav__title'>{t('system.notification.title')}</View>
-        <View className='k-page-nav__side' aria-hidden />
-      </View>
+      <KratosNavBar title={t('system.notification.title')} />
       {detail ? (
         <>
           <Text className='detail-title'>{detail.title}</Text>

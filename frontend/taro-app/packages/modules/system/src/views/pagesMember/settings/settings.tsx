@@ -9,14 +9,14 @@ import {
   useThemeStore,
   useUserStore,
   type ThemeMode,
-  homeTabPage,
+  KratosNavBar,
 } from '@liujitcn/kratos-taro-app-core'
 import { defMfaService } from '@liujitcn/kratos-taro-app-core/api/base/v1/mfa'
 import { isAuthExpiredError } from '@liujitcn/kratos-taro-app-core/utils/http'
 import PasswordVerifyDialog from './components/PasswordVerifyDialog'
 import './settings.scss'
 
-/** 应用设置页。 */
+/** SettingsPage 展示应用设置与账号安全操作。 */
 export default function SettingsPage() {
   const { locale, setLocale, t } = useI18n()
   const themeStore = useThemeStore()
@@ -140,13 +140,7 @@ export default function SettingsPage() {
     void loadMfaStatus()
   })
 
-  /** 返回个人中心，页面栈不可返回时回到首页。 */
-  const onBack = () => {
-    void Taro.navigateBack({
-      fail: () => void Taro.reLaunch({ url: homeTabPage }),
-    })
-  }
-
+  /** onLogout 确认后退出当前账号并返回来源页面。 */
   const onLogout = async () => {
     if (logoutLoading) return
     const result = await Taro.showModal({
@@ -175,12 +169,7 @@ export default function SettingsPage() {
           themeStore.theme === 'light' ? 'theme-light' : 'theme-dark'
         }`}
       >
-        <View className={`k-page-nav ${process.env.TARO_ENV === 'weapp' ? 'k-page-nav--weapp' : ''}`}>
-          <View className='k-page-nav__back' aria-label={t('common.action.back')} onClick={onBack}>
-          </View>
-          <View className='k-page-nav__title'>{t('system.settings.title')}</View>
-          <View className='k-page-nav__side' aria-hidden />
-        </View>
+        <KratosNavBar title={t('system.settings.title')} />
 
         <View className='settings-content'>
           <View className='k-set-cat'>{t('system.settings.section_appearance')}</View>

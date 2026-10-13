@@ -18,6 +18,7 @@ import type { BaseDictForm_DictItem } from '@liujitcn/kratos-taro-app-core/rpc/s
 import type { UserProfileForm } from '@liujitcn/kratos-taro-app-core/rpc/system/app/v1/auth'
 import { BaseUserIDType } from '@liujitcn/kratos-taro-app-core/rpc/system/common/v1/common'
 import {
+  KratosNavBar,
   formatSrc,
   navigateToLogin,
   uploadFile,
@@ -31,7 +32,7 @@ const IMG_MAX_SIZE = 1024 * 1024
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const ID_CODE_PATTERN = /^[A-Za-z0-9][A-Za-z0-9-]{0,63}$/
 
-/** 用户个人资料编辑页。 */
+/** ProfilePage 展示并编辑用户个人资料。 */
 export default function ProfilePage() {
   const { t } = useI18n()
   const themeStore = useThemeStore()
@@ -153,15 +154,7 @@ export default function ProfilePage() {
       className={`profile-viewport ${themeStore.theme === 'light' ? 'theme-light' : 'theme-dark'}`}
     >
       <View className='profile-content'>
-        <View className={`k-page-nav ${process.env.TARO_ENV === 'weapp' ? 'k-page-nav--weapp' : ''}`}>
-          <View
-            className='k-page-nav__back'
-            aria-label={t('common.action.back')}
-            onClick={() => void Taro.navigateBack()}
-          />
-          <View className='k-page-nav__title'>{t('system.profile.title')}</View>
-          <View className='k-page-nav__side' aria-hidden />
-        </View>
+        <KratosNavBar title={t('system.profile.title')} />
 
         <View className='k-glass k-glass--lit k-pfx profile-id' onClick={() => void onAvatarChange()}>
           <View className='profile-id__main'>

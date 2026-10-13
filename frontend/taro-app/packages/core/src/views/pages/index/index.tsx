@@ -5,9 +5,10 @@ import defaultLogo from '@liujitcn/kratos-taro-app-core/static/images/logo_icon.
 import { useSettingStore, useThemeStore } from '../../../stores'
 import { formatSrc } from '../../../utils'
 import './index.scss'
+import KratosNavBar from '../../../components/KratosNavBar'
 import { useI18n } from '../../../locales'
 
-/** 应用首页。 */
+/** HomePage 展示应用首页，并复用固定高度的 Tab 标题栏。 */
 export default function HomePage() {
   const { t } = useI18n()
   const themeStore = useThemeStore()
@@ -41,15 +42,13 @@ export default function HomePage() {
   ]
   return (
     <View
-      className={`home-page${process.env.TARO_ENV === 'weapp' ? ' home-page--weapp' : ''} ${
+      className={`home-page ${
         themeStore.theme === 'light' ? 'theme-light' : 'theme-dark'
       }`}
     >
       <View className='k-grid-bg' aria-hidden />
       <View className='home-content'>
-        <View className='home-top'>
-          <View className='home-top__title'>{mainTitle}</View>
-        </View>
+        <KratosNavBar title={mainTitle} variant='tab' />
 
         <View className='k-glass k-glass--lit home-hero'>
           <View className='home-hero__main'>

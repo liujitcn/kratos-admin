@@ -116,6 +116,8 @@ cd ../taro-app && pnpm dev:h5
 
 Taro 开发产物位于 `frontend/taro-app/apps/taro-app/dist/dev/<平台>`，微信小程序生产产物位于 `dist/build/mp-weixin`；H5 生产产物仍输出到 `backend/web/taro-app`。微信开发者工具默认使用开发目录，发布时导入生产目录。
 
+uni-app 微信小程序通过 `frontend/uni-app` 的 `pnpm build:mp-weixin` 构建，产物位于 `apps/uni-app/dist/build/mp-weixin`；构建完成后会检查自定义组件在小程序配置中的注册，避免页面引用了组件却未渲染。
+
 uni-app 和 Taro H5 默认分别使用 `5004` 与 `5002`，可以同时启动。局域网设备访问 uni-app 时，将 `localhost` 替换为开发机局域网 IP。
 
 局域网 HTTPS 联调时，在仓库根目录生成共享证书，并让后端使用 HTTPS 环境：

@@ -9,41 +9,10 @@ page {
   background: var(--kratos-bg-gradient);
 }
 
-.home-page--weapp .home-content {
-  padding-top: 0;
-}
-
-/* 小程序端首页标题占导航带：与 k-page-nav--weapp 同几何，标题与胶囊同行 */
-.home-page--weapp .home-top {
-  box-sizing: border-box;
-  height: calc(88px + 44PX);
-  padding: 44PX 4px 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.home-page--weapp .home-top__title {
-  margin-top: 0;
-}
-
 .home-content {
   position: relative;
   z-index: 1;
-  padding: calc(env(safe-area-inset-top) + 20px) 32px 220px;
-}
-
-.home-top {
-  padding: 8px 4px 24px;
-}
-
-/* 页面大标题：与其他页面导航标题同规格，向原生导航栏看齐 */
-.home-top__title {
-  margin-top: 14px;
-  color: var(--kratos-color-text);
-  font-size: 16PX;
-  font-weight: 700;
-  text-align: center;
+  padding: 0 20px 220px;
 }
 
 .home-hero {

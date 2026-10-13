@@ -11,24 +11,13 @@ page {
 }
 
 .my-content {
-  padding: calc(env(safe-area-inset-top) + 24px) 32px calc(40px + env(safe-area-inset-bottom));
-}
-
-.my-viewport--weapp .my-content {
-  /* k-top 在小程序端自带 44PX 状态栏高度的导航带，页面不再额外让出顶部空间 */
-  padding-top: 0;
+  padding: 0 20px calc(40px + env(safe-area-inset-bottom));
 }
 
 .my-stack {
   display: flex;
   flex-direction: column;
   gap: 24px;
-  margin-top: 16px;
-}
-
-.my-gear {
-  width: 34px;
-  height: 34px;
 }
 
 /* k-pfx 仅定义 flex 排布，卡片内边距交由页面控制 */

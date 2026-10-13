@@ -6,6 +6,7 @@ import { getLanguageOptions, useI18n, type SupportedLocale } from '../locales'
 import { isAuthExpiredError } from '../utils/http'
 import { defMfaService } from '../api/base/v1/mfa'
 import MfaManageDialog from './MfaManageDialog.vue'
+import KratosNavBar from './KratosNavBar.vue'
 
 defineOptions({ name: 'KratosSettingsPage' })
 
@@ -150,15 +151,6 @@ const onMfaDisabled = async () => {
   uni.reLaunch({ url: '/pages/login/login' })
 }
 
-/** 返回个人中心，页面栈不可返回时回到首页。 */
-const onBack = () => {
-  uni.navigateBack({
-    fail: () => {
-      uni.reLaunch({ url: '/pages/index/index' })
-    },
-  })
-}
-
 // 公共设置模块挂载时加载 MFA 状态，兼容页面包装和业务插槽场景。
 onMounted(() => {
   if (!userStore.ensureAuthenticated()) {
@@ -208,11 +200,7 @@ const onLogout = () => {
 <template>
   <view class="settings-page" :class="themeStore.themeClass">
     <slot name="extensions" />
-    <view class="k-page-nav">
-      <view class="k-page-nav__back" :aria-label="t('common.action.back')" @tap="onBack"></view>
-      <view class="k-page-nav__title">{{ t('core.settings.title') }}</view>
-      <view class="k-page-nav__side" aria-hidden="true"></view>
-    </view>
+    <KratosNavBar :title="t('core.settings.title')" />
     <view class="settings-content">
       <view class="k-set-cat">{{ t('core.settings.section_appearance') }}</view>
       <picker :range="themeModeLabels" :value="themeModeIndex" @change="onThemeModeChange">
