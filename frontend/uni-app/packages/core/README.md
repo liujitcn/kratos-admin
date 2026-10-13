@@ -43,6 +43,8 @@ packages/core
 
 ## 公开入口
 
+登录页返回会清理本次回跳并替换到首页；直接打开登录页清理旧 `lastRoute`，登录成功默认进入首页。主动登录、路由守卫和会话过期重登通过 `redirect=1` 标记保留本次业务目标及查询参数，成功跳转后才清理目标。登录页每次显示都会检查有效登录态，已登录则替换回首页，避免浏览器回退重新停留在登录页。H5 与微信小程序统一使用 `reLaunch` 替换登录入口并重置应用页面栈。
+
 - `@liujitcn/kratos-uni-app-core`：运行时、导航、store 和组件。
 - `@liujitcn/kratos-uni-app-core/module`：模块协议和 core 模块。
 - `@liujitcn/kratos-uni-app-core/vite`：Vite 配置、页面装配插件和构建错误文案格式化器。

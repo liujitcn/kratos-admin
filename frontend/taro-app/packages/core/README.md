@@ -18,6 +18,8 @@
 
 ## 公开入口
 
+登录页返回会清理本次回跳并替换到首页；直接打开登录页清理旧 `lastRoute`，登录成功默认进入首页。主动登录、路由守卫和会话过期重登通过 `redirect=1` 标记保留本次业务目标及查询参数，成功跳转后才清理目标。登录页每次显示都会检查有效登录态，已登录则替换回首页，避免浏览器回退重新停留在登录页。H5 与微信小程序统一使用 `reLaunch` 替换登录入口并重置应用页面栈。
+
 - `@liujitcn/kratos-taro-app-core`：启动、模块、导航、状态和常用工具，包含动态路径使用的 `resolveBundledAsset()`。
 - `@liujitcn/kratos-taro-app-core/static/*`：页面图片等可由 Webpack 静态分析的打包资源。
 - `@liujitcn/kratos-taro-app-core/build`：构建期模块描述和双语构建错误文案格式化器。

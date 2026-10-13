@@ -1,7 +1,10 @@
 import Taro, { getCurrentPages } from '@tarojs/taro'
+import { hasValidToken } from './auth'
 
 const LAST_ROUTE_KEY = 'lastRoute'
 const LOGIN_PAGE = '/pages/login/login'
+/** 携带本次回跳标记的登录入口。 */
+const LOGIN_REDIRECT_PAGE = `${LOGIN_PAGE}?redirect=1`
 /** 首页 tab 页面路径。 */
 export const homeTabPage = '/pages/index/index'
 
@@ -57,10 +60,27 @@ export function consumeLoginRedirectUrl(): string {
   return url
 }
 
-/** 登录成功后恢复访问目标，并仅在跳转成功后清理保存的地址。 */
+/** prepareLoginPage 清理直接访问的旧目标，已登录时替换回首页。 */
+export function prepareLoginPage(redirect?: string): boolean {
+  if (redirect !== '1') Taro.removeStorageSync(LAST_ROUTE_KEY)
+  if (!hasValidToken()) return true
+  void returnFromLogin()
+  return false
+}
+
+/** returnFromLogin 结束本次登录入口并替换到首页，避免返回受保护页面。 */
+export async function returnFromLogin(): Promise<void> {
+  Taro.removeStorageSync(LAST_ROUTE_KEY)
+  Taro.setStorageSync('SwitchTabIndex', true)
+  await Taro.reLaunch({ url: homeTabPage })
+}
+
+/** restoreLoginRedirect 替换到本次访问目标，跳转成功后才清理保存的地址。 */
 export async function restoreLoginRedirect(): Promise<void> {
   const savedRoute = Taro.getStorageSync<string>(LAST_ROUTE_KEY) || ''
-  const targetRoute = savedRoute ? normalizeRouteUrl(savedRoute) : homeTabPage
+  const normalizedRoute = normalizeRouteUrl(savedRoute)
+  const targetRoute =
+    savedRoute && !normalizedRoute.startsWith(LOGIN_PAGE) ? normalizedRoute : homeTabPage
   if (targetRoute.startsWith(homeTabPage)) Taro.setStorageSync('SwitchTabIndex', true)
   await Taro.reLaunch({ url: targetRoute })
   if (savedRoute && Taro.getStorageSync<string>(LAST_ROUTE_KEY) === savedRoute) {
@@ -73,9 +93,9 @@ export function navigateToLogin(redirectUrl?: string): void {
   if (typeof redirectUrl === 'string' && redirectUrl) saveLoginRedirectUrl(redirectUrl)
   else saveCurrentRoute()
   void Taro.navigateTo({
-    url: LOGIN_PAGE,
+    url: LOGIN_REDIRECT_PAGE,
     fail: () => {
-      void Taro.reLaunch({ url: LOGIN_PAGE })
+      void Taro.reLaunch({ url: LOGIN_REDIRECT_PAGE })
     },
   })
 }
@@ -85,9 +105,9 @@ export function redirectToLogin(redirectUrl?: string): void {
   if (typeof redirectUrl === 'string' && redirectUrl) saveLoginRedirectUrl(redirectUrl)
   else saveCurrentRoute()
   void Taro.redirectTo({
-    url: LOGIN_PAGE,
+    url: LOGIN_REDIRECT_PAGE,
     fail: () => {
-      void Taro.reLaunch({ url: LOGIN_PAGE })
+      void Taro.reLaunch({ url: LOGIN_REDIRECT_PAGE })
     },
   })
 }

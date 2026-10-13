@@ -1,5 +1,5 @@
 import { Button, Checkbox, Image, Input, Picker, Text, View } from '@tarojs/components'
-import Taro, { useLoad } from '@tarojs/taro'
+import Taro, { useDidShow, useLoad } from '@tarojs/taro'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import defaultLogo from '@liujitcn/kratos-taro-app-core/static/images/logo_icon.png'
 import { defLoginService } from '../../../api/base/v1/login'
@@ -8,7 +8,7 @@ import { navigateAppRoute } from '../../../navigation'
 import { LoginStatus, type LoginRequest, type LoginResponse } from '../../../rpc/base/v1/login'
 import { useSettingStore, useThemeStore, useUserStore } from '../../../stores'
 import { formatSrc } from '../../../utils'
-import { homeTabPage, restoreLoginRedirect } from '../../../utils/navigation'
+import { prepareLoginPage, restoreLoginRedirect, returnFromLogin } from '../../../utils/navigation'
 import { encryptPassword } from '../../../utils/secretCrypto'
 import { createWebAuthnCredential, getWebAuthnAssertion } from '../../../utils/webauthn'
 import MfaRecoveryCodesDialog from '../../../components/MfaRecoveryCodesDialog'
@@ -84,11 +84,9 @@ export default function LoginPage() {
   const settings = useSettingStore((state) => state.data)
   const themeStore = useThemeStore()
 
-  /** 返回上一页；登录页可能是冷启动首页，无上级页面时回主页。 */
+  /** 返回首页并结束本次登录回跳，避免上一页再次要求登录。 */
   const goBack = () => {
-    Taro.navigateBack({
-      fail: () => void Taro.reLaunch({ url: homeTabPage }),
-    })
+    void returnFromLogin()
   }
   const loadSettings = useSettingStore((state) => state.loadData)
   const userStore = useUserStore.getState()
@@ -281,7 +279,12 @@ export default function LoginPage() {
     return settingsPromise.current
   }
 
-  useLoad(() => {
+  const loginRedirect = useRef<string>()
+  useLoad((options) => {
+    loginRedirect.current = options.redirect
+  })
+  useDidShow(() => {
+    if (!prepareLoginPage(loginRedirect.current)) return
     void loadLoginSettings()
   })
 

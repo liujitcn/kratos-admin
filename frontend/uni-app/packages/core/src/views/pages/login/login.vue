@@ -2,13 +2,13 @@
 import { useSettingStore, useThemeStore, useUserStore } from '../../../stores'
 import type { LoginRequest } from '../../../rpc/base/v1/login'
 import { LoginStatus, type LoginResponse } from '../../../rpc/base/v1/login'
-import { onLoad, onUnload } from '@dcloudio/uni-app'
+import { onLoad, onShow, onUnload } from '@dcloudio/uni-app'
 import { computed, defineAsyncComponent, nextTick, reactive, ref, watch } from 'vue'
 import { defLoginService } from '../../../api/base/v1/login'
 import { defMfaService } from '../../../api/base/v1/mfa'
 import defaultLogo from '../../../static/images/logo_icon.png'
 import { formatSrc } from '../../../utils'
-import { homeTabPage } from '../../../utils/navigation'
+import { prepareLoginPage, restoreLoginRedirect, returnFromLogin } from '../../../utils/navigation'
 import { encryptPassword } from '../../../utils/secretCrypto'
 import { createWebAuthnCredential, getWebAuthnAssertion } from '../../../utils/webauthn'
 import { navigateAppRoute } from '../../../navigation'
@@ -600,11 +600,9 @@ const refreshCaptcha = async () => {
   }
 }
 
-/** 返回上一页；登录页可能是冷启动首页，无上级页面时回主页。 */
+/** 返回首页并结束本次登录回跳，避免上一页再次要求登录。 */
 const goBack = () => {
-  uni.navigateBack({
-    fail: () => uni.reLaunch({ url: homeTabPage }),
-  })
+  void returnFromLogin()
 }
 
 // 页面加载或普通表单刷新验证码，行为验证码延迟到登录弹窗打开时再请求。
@@ -786,6 +784,7 @@ const onSubmit = async () => {
   }
 }
 // #endif
+/** 完成用户资料加载并替换到本次登录目标，直接登录默认进入首页。 */
 const loginSuccess = async () => {
   await userStore.getUserProfile()
   // 成功提示
@@ -793,13 +792,7 @@ const loginSuccess = async () => {
   if (loginSuccessTimer) clearTimeout(loginSuccessTimer)
   loginSuccessTimer = setTimeout(() => {
     loginSuccessTimer = undefined
-    const lastRoute = uni.getStorageSync('lastRoute') || homeTabPage
-    if (lastRoute.startsWith(homeTabPage)) {
-      uni.setStorageSync('SwitchTabIndex', true)
-    }
-    uni.removeStorageSync('lastRoute')
-
-    uni.reLaunch({ url: lastRoute })
+    void restoreLoginRedirect()
   }, 500)
 }
 
@@ -882,8 +875,13 @@ const loadLoginSettings = () => {
 /** 确保登录前已完成移动端配置加载。 */
 const ensureLoginSettings = () => loadLoginSettings()
 
-// 获取 code 登录凭证
-onLoad(() => {
+let loginRedirect: string | undefined
+onLoad((options) => {
+  loginRedirect = options?.redirect
+})
+
+onShow(() => {
+  if (!prepareLoginPage(loginRedirect)) return
   void loadLoginSettings()
 })
 

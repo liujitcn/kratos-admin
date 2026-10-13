@@ -265,6 +265,7 @@ async function refreshAccessToken(): Promise<void> {
 /** 会话过期弹窗等待时长：H5 端路由切换会自动隐藏模态且 Promise 永不结算，超时释放避免提示永久卡死。 */
 const RELOGIN_PROMPT_TIMEOUT = 60_000
 
+/** 提示会话过期并进入携带本次业务回跳标记的登录页。 */
 async function promptRelogin(): Promise<void> {
   // 401 来自旧会话的在途请求而当前已是有效登录态时直接忽略，避免刚登录成功被弹窗打断。
   if (hasValidToken()) return
@@ -295,7 +296,7 @@ async function promptRelogin(): Promise<void> {
     await new Promise((resolve) => setTimeout(resolve, 80))
     silentClearAuthData()
     saveCurrentRoute()
-    await Taro.reLaunch({ url: '/pages/login/login' })
+    await Taro.reLaunch({ url: '/pages/login/login?redirect=1' })
   } finally {
     isPromptingRelogin = false
   }

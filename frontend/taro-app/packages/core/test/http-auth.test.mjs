@@ -101,7 +101,7 @@ test('刷新令牌失效后在重新登录弹窗确认前清理本地认证', as
 
     resolveModal({ confirm: true })
     await assert.rejects(refreshAttempt)
-    assert.deepEqual(state.launches, [{ url: '/pages/login/login' }])
+    assert.deepEqual(state.launches, [{ url: '/pages/login/login?redirect=1' }])
   } finally {
     delete process.__KRATOS_TARO_HTTP_TEST_STATE__
     delete process.__KRATOS_TARO_HTTP_MODAL_RESOLVE__

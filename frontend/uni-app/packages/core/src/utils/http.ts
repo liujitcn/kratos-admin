@@ -467,15 +467,16 @@ function silentClearAuthData() {
   uni.$emit(AUTH_SILENT_LOGOUT_EVENT)
 }
 
+/** 清理失效认证并进入携带本次业务回跳标记的登录页。 */
 async function clearUserData() {
   clearToken()
   uni.removeStorageSync('user')
   saveCurrentRoute()
   // token 失效时直接重启页面栈，避免小程序历史页残留。
   uni.reLaunch({
-    url: '/pages/login/login',
+    url: '/pages/login/login?redirect=1',
     fail: () => {
-      uni.redirectTo({ url: '/pages/login/login' })
+      uni.redirectTo({ url: '/pages/login/login?redirect=1' })
     },
   })
 }

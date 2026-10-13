@@ -1,7 +1,11 @@
+import { hasValidToken } from './auth'
+
 /** 登录前暂存的目标路由。 */
 const LAST_ROUTE_KEY = 'lastRoute'
 /** 登录页路径。 */
 const LOGIN_PAGE = '/pages/login/login'
+/** 携带本次回跳标记的登录入口。 */
+const LOGIN_REDIRECT_PAGE = `${LOGIN_PAGE}?redirect=1`
 /** 首页 tab 页面路径。 */
 export const homeTabPage = '/pages/index/index'
 
@@ -47,7 +51,6 @@ const getCurrentRouteUrl = () => {
 export const saveCurrentRoute = () => {
   const currentRoute = getCurrentRouteUrl()
   if (!currentRoute || currentRoute.startsWith(LOGIN_PAGE)) {
-    uni.removeStorageSync(LAST_ROUTE_KEY)
     return
   }
   uni.setStorageSync(LAST_ROUTE_KEY, currentRoute)
@@ -61,6 +64,34 @@ export const saveLoginRedirectUrl = (url: string) => {
   }
 }
 
+/** prepareLoginPage 清理直接访问的旧目标，已登录时替换回首页。 */
+export const prepareLoginPage = (redirect?: string): boolean => {
+  if (redirect !== '1') uni.removeStorageSync(LAST_ROUTE_KEY)
+  if (!hasValidToken()) return true
+  void returnFromLogin()
+  return false
+}
+
+/** returnFromLogin 结束本次登录入口并替换到首页，避免返回受保护页面。 */
+export const returnFromLogin = async (): Promise<void> => {
+  uni.removeStorageSync(LAST_ROUTE_KEY)
+  uni.setStorageSync('SwitchTabIndex', true)
+  await uni.reLaunch({ url: homeTabPage })
+}
+
+/** restoreLoginRedirect 替换到本次访问目标，跳转成功后才清理保存的地址。 */
+export const restoreLoginRedirect = async (): Promise<void> => {
+  const savedRoute = uni.getStorageSync(LAST_ROUTE_KEY) || ''
+  const normalizedRoute = `/${savedRoute.replace(/^\/+/, '')}`
+  const targetRoute =
+    savedRoute && !normalizedRoute.startsWith(LOGIN_PAGE) ? normalizedRoute : homeTabPage
+  if (targetRoute.startsWith(homeTabPage)) uni.setStorageSync('SwitchTabIndex', true)
+  await uni.reLaunch({ url: targetRoute })
+  if (savedRoute && uni.getStorageSync(LAST_ROUTE_KEY) === savedRoute) {
+    uni.removeStorageSync(LAST_ROUTE_KEY)
+  }
+}
+
 /** 跳转到登录页，并在跳转前记录当前页面。 */
 export const navigateToLogin = (redirectUrl?: string) => {
   // 模板直接绑定时会传入点击事件对象，只有字符串才是明确的回跳地址。
@@ -70,9 +101,9 @@ export const navigateToLogin = (redirectUrl?: string) => {
     saveCurrentRoute()
   }
   uni.navigateTo({
-    url: LOGIN_PAGE,
+    url: LOGIN_REDIRECT_PAGE,
     fail: () => {
-      uni.reLaunch({ url: LOGIN_PAGE })
+      uni.reLaunch({ url: LOGIN_REDIRECT_PAGE })
     },
   })
 }
@@ -86,9 +117,9 @@ export const redirectToLogin = (redirectUrl?: string) => {
     saveCurrentRoute()
   }
   uni.redirectTo({
-    url: LOGIN_PAGE,
+    url: LOGIN_REDIRECT_PAGE,
     fail: () => {
-      uni.reLaunch({ url: LOGIN_PAGE })
+      uni.reLaunch({ url: LOGIN_REDIRECT_PAGE })
     },
   })
 }
