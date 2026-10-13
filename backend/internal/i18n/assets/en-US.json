@@ -203,6 +203,9 @@
   "base.login.login.password.required": {
     "other": "Password cannot be empty"
   },
+  "base.login.login.tenant_code.required": {
+    "other": "Tenant code is required"
+  },
   "base.login.login.user_name.required": {
     "other": "Username cannot be empty"
   },
@@ -211,9 +214,6 @@
   },
   "base.login.refresh.failed": {
     "other": "Failed to refresh the authentication token"
-  },
-  "base.login.refresh_token.required": {
-    "other": "Refresh token cannot be empty"
   },
   "base.login.role.disabled": {
     "other": "Role is disabled"
@@ -437,9 +437,6 @@
   "common.status.enabled": {
     "other": "Enabled"
   },
-  "common.validation.max_length": {
-    "other": "{field} must not exceed {max} characters"
-  },
   "common.validation.required_input": {
     "other": "Enter {field}"
   },
@@ -454,9 +451,6 @@
   },
   "common.value.no": {
     "other": "No"
-  },
-  "common.value.top_level": {
-    "other": "Top level"
   },
   "common.value.yes": {
     "other": "Yes"
@@ -527,9 +521,6 @@
   "legacy.error.05b48898d3eb38b6": {
     "other": "Failed to read data table metadata"
   },
-  "legacy.error.05f4b86ff1dd487d": {
-    "other": "The rule referenced by API rate limit policy %d does not exist or is disabled"
-  },
   "legacy.error.0613b78ae7041646": {
     "other": "Failed to delete output redaction policy"
   },
@@ -587,8 +578,14 @@
   "legacy.error.09ce61cf8bbd6ceb": {
     "other": "Failed to record password history"
   },
+  "legacy.error.09f1b9c640191da8": {
+    "other": "Failed to retrieve embedding models"
+  },
   "legacy.error.0a22a1d04ad1f909": {
     "other": "Invalid API rate limit policy operation data"
+  },
+  "legacy.error.0a316bc49274dfbc": {
+    "other": "Failed to delete the message provider"
   },
   "legacy.error.0a3a04decad3d136": {
     "other": "Failed to create WebAuthn login challenge"
@@ -613,6 +610,9 @@
   },
   "legacy.error.0c182ab409f0a51d": {
     "other": "Message action parameter nesting is too deep"
+  },
+  "legacy.error.0c3357178bf356f4": {
+    "other": "Failed to update the API rate limit policy"
   },
   "legacy.error.0c3f314f627082c1": {
     "other": "Failed to page dictionary items"
@@ -671,9 +671,6 @@
   "legacy.error.1081d71c3185baaa": {
     "other": "Failed to create language"
   },
-  "legacy.error.10925dcbbfb6cab2": {
-    "other": "Invalid AI model JSON format"
-  },
   "legacy.error.10b9257f2ecab2c3": {
     "other": "This backup record is being restored, please retry later"
   },
@@ -692,9 +689,6 @@
   "legacy.error.11bc2823ec42b680": {
     "other": "Verification code verification failed"
   },
-  "legacy.error.11bcdd4b5a74da0a": {
-    "other": "This model category does not support connection tests yet"
-  },
   "legacy.error.1252b0cf293d5df2": {
     "other": "Failed to save MFA binding ticket"
   },
@@ -709,6 +703,12 @@
   },
   "legacy.error.13d2e1e8985487d2": {
     "other": "Current authentication method does not require WebAuthn verification"
+  },
+  "legacy.error.13dc7c0d91a6fcaf": {
+    "other": "Failed to retrieve AI data query record details"
+  },
+  "legacy.error.13ea143799fc39d2": {
+    "other": "Failed to retrieve the AI data query table catalog"
   },
   "legacy.error.13ef79bb92bde2f9": {
     "other": "Failed to query business operation log detail"
@@ -727,6 +727,9 @@
   },
   "legacy.error.14d64ced023b18bb": {
     "other": "The current time is outside the allowed window"
+  },
+  "legacy.error.14dc349eb32ebb06": {
+    "other": "Failed to create the message template"
   },
   "legacy.error.14eae20685387649": {
     "other": "Message action target cannot exceed 255 characters"
@@ -839,9 +842,6 @@
   "legacy.error.1c4cb88e436974df": {
     "other": "Failed to validate the menu route name"
   },
-  "legacy.error.1c65d5a16bce10ff": {
-    "other": "Password key algorithm is not supported"
-  },
   "legacy.error.1c9297afd7f34fa0": {
     "other": "Mobile page menu has reached the maximum level"
   },
@@ -881,9 +881,6 @@
   "legacy.error.1f050b534f743477": {
     "other": "A non-empty translation already exists and cannot be overwritten by machine translation"
   },
-  "legacy.error.1f498c5427741d05": {
-    "other": "Password encryption scenario is not supported"
-  },
   "legacy.error.1f52b62ea4c51d36": {
     "other": "Failed to parse message provider ID"
   },
@@ -907,9 +904,6 @@
   },
   "legacy.error.20eb653252a9bb73": {
     "other": "Failed to set output redaction policy status"
-  },
-  "legacy.error.20fd1c2a6b8d3574": {
-    "other": "At least one model must be configured"
   },
   "legacy.error.2125bd1384350cf7": {
     "other": "User authentication failed"
@@ -995,6 +989,9 @@
   "legacy.error.27071404c9de8a94": {
     "other": "Failed to save captcha token"
   },
+  "legacy.error.2791c0708e5e304c": {
+    "other": "Failed to retrieve AI providers"
+  },
   "legacy.error.27c12cba0463a64f": {
     "other": "The login region is on the denylist"
   },
@@ -1058,9 +1055,6 @@
   "legacy.error.2bcdb4bb0f0550e6": {
     "other": "Failed to set role menu permissions because they exceed the permission limit"
   },
-  "legacy.error.2c024b0c19528860": {
-    "other": "Api_type of model %s must be CHAT_COMPLETIONS or RESPONSES"
-  },
   "legacy.error.2c1c5b8f80033e01": {
     "other": "Failed to read password policy configuration"
   },
@@ -1102,9 +1096,6 @@
   },
   "legacy.error.2e1aa6824e89cd3e": {
     "other": "Failed to page projects"
-  },
-  "legacy.error.2e3650e27dc3c56c": {
-    "other": "Failed to get password temporary public key"
   },
   "legacy.error.2ec2a0c6920bee1e": {
     "other": "Realtime console channel cannot be empty"
@@ -1160,6 +1151,9 @@
   "legacy.error.31d2b7d8c6338edd": {
     "other": "Provider extension config must be a JSON object: %w"
   },
+  "legacy.error.31dfc283e55f1b95": {
+    "other": "Failed to retrieve API rate limit policy details"
+  },
   "legacy.error.320054dca76a2e4d": {
     "other": "Failed to get custom i18n translation"
   },
@@ -1177,6 +1171,9 @@
   },
   "legacy.error.330dd2d11fcdadbb": {
     "other": "Failed to test AI models"
+  },
+  "legacy.error.3315ebd1228a9dfb": {
+    "other": "Failed to change the rate limit rule status"
   },
   "legacy.error.3329506452b21001": {
     "other": "Only draft messages can be edited"
@@ -1220,11 +1217,11 @@
   "legacy.error.3772108e1c6666ab": {
     "other": "The session has expired. Please sign in again"
   },
+  "legacy.error.380bffbcf0a41ea9": {
+    "other": "Failed to retrieve message providers"
+  },
   "legacy.error.38575468bd5f4185": {
     "other": "The outbound redaction policy cannot be empty"
-  },
-  "legacy.error.3874b295110dd6d7": {
-    "other": "Failed to decrypt password"
   },
   "legacy.error.38c29cd72f9c1d82": {
     "other": "Access token service is not initialized"
@@ -1262,8 +1259,11 @@
   "legacy.error.3adfff798e9b6a1e": {
     "other": "Failed to initialize the tenant default department"
   },
-  "legacy.error.3b07ca8b36d1da22": {
-    "other": "Model config must be a JSON array: %w"
+  "legacy.error.3b77b280d4265902": {
+    "other": "Failed to retrieve AI conversations"
+  },
+  "legacy.error.3b8cf56ad5786683": {
+    "other": "Failed to retrieve message provider options"
   },
   "legacy.error.3bde8781a0eca664": {
     "other": "Failed to save refresh authentication info"
@@ -1307,6 +1307,9 @@
   "legacy.error.3de4efbfbc877881": {
     "other": "An administrative area cannot be its own parent or descendant"
   },
+  "legacy.error.3df67385ca02d8d9": {
+    "other": "Failed to retrieve rate limit rule options"
+  },
   "legacy.error.3e26555b667f0ece": {
     "other": "The rule is referenced by output redaction policies and cannot be deleted"
   },
@@ -1334,8 +1337,8 @@
   "legacy.error.3fcc79cd186820d6": {
     "other": "Failed to query OpenAPI document options"
   },
-  "legacy.error.4104675314a2eb39": {
-    "other": "Failed to decode message template config: %w"
+  "legacy.error.4081e8ae5ebee83d": {
+    "other": "Failed to create the rate limit rule"
   },
   "legacy.error.415c70ceebc9339a": {
     "other": "The minimum password length must be greater than zero"
@@ -1499,8 +1502,8 @@
   "legacy.error.49ecd0e342d6d23b": {
     "other": "Field"
   },
-  "legacy.error.4abcd33acfc279f4": {
-    "other": "Unsupported message provider %q"
+  "legacy.error.4aa73d6b11aaff30": {
+    "other": "Failed to update the message provider"
   },
   "legacy.error.4acac868b13d25a3": {
     "other": "Failed to generate verification code"
@@ -1537,6 +1540,9 @@
   },
   "legacy.error.4c555c9a85f1bc09": {
     "other": "Failed to clear old login sessions"
+  },
+  "legacy.error.4c7474b9aece0829": {
+    "other": "Failed to create the AI provider"
   },
   "legacy.error.4cd0aa2f83038a4d": {
     "other": "Failed to update code generation table config"
@@ -1591,6 +1597,9 @@
   },
   "legacy.error.513deff78da44959": {
     "other": "The configuration key already exists in the same location"
+  },
+  "legacy.error.513e5400f23d1f52": {
+    "other": "Failed to list API rate limit policies"
   },
   "legacy.error.5161f2dbae92bdea": {
     "other": "Failed to delete the menu: submenus exist"
@@ -1739,9 +1748,6 @@
   "legacy.error.5b6b2552126d5785": {
     "other": "AI assistant runtime is not initialized"
   },
-  "legacy.error.5c7fba0bf2cc08d5": {
-    "other": "Model config JSON must contain exactly one array"
-  },
   "legacy.error.5c9ce1a293619574": {
     "other": "User post does not match the tenant"
   },
@@ -1756,6 +1762,9 @@
   },
   "legacy.error.5cf2077fa039493c": {
     "other": "Failed to update department"
+  },
+  "legacy.error.5cf6b67473dfc0eb": {
+    "other": "Failed to retrieve message templates"
   },
   "legacy.error.5d42cf37242f8db5": {
     "other": "File path cannot escape the repository directory"
@@ -1777,6 +1786,9 @@
   },
   "legacy.error.5db31c831c8a5e79": {
     "other": "Failed to delete notification"
+  },
+  "legacy.error.5dbd56218d59a51a": {
+    "other": "Failed to delete the API rate limit policy"
   },
   "legacy.error.5dbeb80f31fb77e3": {
     "other": "Failed to generate MFA key"
@@ -1874,11 +1886,11 @@
   "legacy.error.6809a6b85e22a0dd": {
     "other": "Failed to query permission log detail"
   },
+  "legacy.error.68166c0df150f899": {
+    "other": "AI data query failed"
+  },
   "legacy.error.6875490152490a8a": {
     "other": "Failed to query scheduled task dropdown"
-  },
-  "legacy.error.687c31528f9d0424": {
-    "other": "Request parameters of model %s are out of range"
   },
   "legacy.error.690a6b7f9c24cefa": {
     "other": "Too many MFA failures"
@@ -1888,9 +1900,6 @@
   },
   "legacy.error.69554cee7f93cf4a": {
     "other": "Message department audience is invalid"
-  },
-  "legacy.error.698e9d36968c9e46": {
-    "other": "The provider of the AI model does not exist"
   },
   "legacy.error.69a762d521761a3c": {
     "other": "A login policy already exists for the same scope"
@@ -1943,9 +1952,6 @@
   "legacy.error.6b64e214f43995d3": {
     "other": "Failed to read MFA key"
   },
-  "legacy.error.6be6914a95e5882d": {
-    "other": "Password initialization vector is invalid"
-  },
   "legacy.error.6c6a75417d9b96f4": {
     "other": "The message category status is invalid"
   },
@@ -1960,9 +1966,6 @@
   },
   "legacy.error.6ce9e8310f7d0a6f": {
     "other": "The login MAC address is not on the allowlist"
-  },
-  "legacy.error.6cfe5d7ba8f783d2": {
-    "other": "Failed to parse model config of AI provider %d: %w"
   },
   "legacy.error.6d9b633b7f857dbe": {
     "other": "Archive config status is invalid"
@@ -2021,9 +2024,6 @@
   "legacy.error.70e0900c1017d449": {
     "other": "AI assistant has no enabled model"
   },
-  "legacy.error.70fe022d705a9f4f": {
-    "other": "Password random value is invalid"
-  },
   "legacy.error.710dd04852eca77e": {
     "other": "Message template ID cannot be empty"
   },
@@ -2056,9 +2056,6 @@
   },
   "legacy.error.72aaa4285bec9431": {
     "other": "Failed to change the phone number"
-  },
-  "legacy.error.72b2fe6cec3f04de": {
-    "other": "Failed to protect client secret"
   },
   "legacy.error.738ffa9d13b38867": {
     "other": "The post number already exists in the same tenant"
@@ -2165,9 +2162,6 @@
   "legacy.error.77fc0ea919e34629": {
     "other": "User organization does not match the tenant"
   },
-  "legacy.error.78340dfcaefb707d": {
-    "other": "Duplicate model name: %s"
-  },
   "legacy.error.7871e907338a7317": {
     "other": "Project grant does not exist"
   },
@@ -2218,9 +2212,6 @@
   },
   "legacy.error.7afa7362b45cbfcb": {
     "other": "The WeChat account is not bound. Please bind an existing account first"
-  },
-  "legacy.error.7b30d5094b0bcff1": {
-    "other": "Password key is invalid"
   },
   "legacy.error.7b648efa0f8584bf": {
     "other": "AI knowledge base document not found"
@@ -2273,9 +2264,6 @@
   "legacy.error.7f2e31e4312fc8b8": {
     "other": "Failed to create scheduled task"
   },
-  "legacy.error.800a6290c7b45121": {
-    "other": "The provider of the AI model is not enabled"
-  },
   "legacy.error.800ad5e277d8f771": {
     "other": "Rate limit rule parameters are not valid JSON: %w"
   },
@@ -2293,9 +2281,6 @@
   },
   "legacy.error.815660c688153283": {
     "other": "Unique index fields do not support storage redaction"
-  },
-  "legacy.error.81675d6621af09a5": {
-    "other": "Password ciphertext cannot be empty"
   },
   "legacy.error.81e65e451284e06e": {
     "other": "The role code already exists in the same tenant"
@@ -2317,6 +2302,9 @@
   },
   "legacy.error.827e959fee2fe159": {
     "other": "Failed to page data access logs"
+  },
+  "legacy.error.82b04b8ac662d348": {
+    "other": "Failed to create the message provider"
   },
   "legacy.error.82b1615a6570f037": {
     "other": "MCP permission repository is not initialized"
@@ -2366,6 +2354,9 @@
   "legacy.error.864599651db759ed": {
     "other": "Failed to encode WebAuthn transport"
   },
+  "legacy.error.868c8aa44a5b2231": {
+    "other": "Failed to update the AI provider"
+  },
   "legacy.error.86d2256c7e4bacb9": {
     "other": "Failed to query third-party account binding"
   },
@@ -2408,12 +2399,6 @@
   "legacy.error.8aa52f265f3ade36": {
     "other": "Failed to update dictionary"
   },
-  "legacy.error.8aa9263d6eb57e94": {
-    "other": "Password ciphertext is invalid"
-  },
-  "legacy.error.8add0a0b5bd0296f": {
-    "other": "Failed to generate password temporary key"
-  },
   "legacy.error.8b14be98bee08880": {
     "other": "Failed to query database fields"
   },
@@ -2452,9 +2437,6 @@
   },
   "legacy.error.8d4c7687edb51962": {
     "other": "A password that meets the security policy must be set"
-  },
-  "legacy.error.8dad2a060865729e": {
-    "other": "Failed to parse message template: %w"
   },
   "legacy.error.8dcfb2899db4e48a": {
     "other": "The storage redaction policy is in use by existing data and cannot be disabled or deleted"
@@ -2522,6 +2504,9 @@
   "legacy.error.92c25f13b0fa3691": {
     "other": "Failed to query API access log detail"
   },
+  "legacy.error.92c48c00cdced7e2": {
+    "other": "Failed to change the AI provider status"
+  },
   "legacy.error.92c7c92a01724676": {
     "other": "Failed to delete department"
   },
@@ -2537,6 +2522,9 @@
   "legacy.error.9376c1aa6cc99070": {
     "other": "Provider name cannot be empty and cannot exceed 100 characters"
   },
+  "legacy.error.93e714b106bfebb2": {
+    "other": "Failed to retrieve rate limit rule details"
+  },
   "legacy.error.9405199c2964f7ab": {
     "other": "The outbound redaction policy list cannot be empty"
   },
@@ -2548,6 +2536,9 @@
   },
   "legacy.error.94a4acd52ee779cb": {
     "other": "Failed to query archive config"
+  },
+  "legacy.error.94f40163f02c3e7b": {
+    "other": "Failed to retrieve OAuth login providers"
   },
   "legacy.error.950e67e8fd397802": {
     "other": "A disabled language cannot be set as the primary language"
@@ -2567,29 +2558,23 @@
   "legacy.error.96e08944f72d6ab7": {
     "other": "Failed to query project grant detail"
   },
-  "legacy.error.97138843fc30f3ad": {
-    "other": "Model name cannot be empty and cannot exceed 100 characters"
-  },
   "legacy.error.975dc005fdfef059": {
     "other": "Only draft messages can be deleted"
   },
   "legacy.error.97670ce8001ca7ba": {
     "other": "API operations cannot be duplicated"
   },
+  "legacy.error.979239d613cf2761": {
+    "other": "Failed to retrieve AI conversation messages"
+  },
   "legacy.error.9798ae7fa191abd0": {
     "other": "Failed to create the role: built-in role codes cannot be used"
-  },
-  "legacy.error.97e79319fb69c297": {
-    "other": "Password key has expired, please resubmit"
   },
   "legacy.error.9828341ae3541d3d": {
     "other": "Failed to query user role"
   },
   "legacy.error.98607017b11fd268": {
     "other": "An API key must be configured before enabling an OpenAI-compatible provider"
-  },
-  "legacy.error.99412861ce1126ab": {
-    "other": "Provider custom config must be a JSON object: %w"
   },
   "legacy.error.998d00125d42ac70": {
     "other": "Failed to query policy evaluation log detail"
@@ -2611,9 +2596,6 @@
   },
   "legacy.error.9b3edb9015b7680f": {
     "other": "Failed to query historical log files"
-  },
-  "legacy.error.9b401de8146507e4": {
-    "other": "Embedding model provider is disabled"
   },
   "legacy.error.9b4f045798a240f3": {
     "other": "Failed to query database upgrade history"
@@ -2783,6 +2765,9 @@
   "legacy.error.ac1dcca2468c6eea": {
     "other": "Failed to query message detail"
   },
+  "legacy.error.ad3e7934969052c3": {
+    "other": "Failed to delete the message template"
+  },
   "legacy.error.ad41477a76b25935": {
     "other": "User department does not match the tenant"
   },
@@ -2807,8 +2792,8 @@
   "legacy.error.ae673166a2862514": {
     "other": "Failed to delete project grant"
   },
-  "legacy.error.ae777b70383bc1a5": {
-    "other": "Failed to build model config for AI provider %d: %w"
+  "legacy.error.ae8453b3b0b6b5b9": {
+    "other": "Failed to delete the rate limit rule"
   },
   "legacy.error.aedd6814ff8c516c": {
     "other": "List"
@@ -2833,6 +2818,9 @@
   },
   "legacy.error.b090926a1b808c30": {
     "other": "Generated API conflicts with an existing API"
+  },
+  "legacy.error.b0a0e7733febb2dc": {
+    "other": "Failed to list rate limit rules"
   },
   "legacy.error.b0f28c5f3181d572": {
     "other": "The file extension does not match the actual content type"
@@ -2900,8 +2888,14 @@
   "legacy.error.b589203ee80a2bd3": {
     "other": "Only platform administrators can subscribe to real-time ops data"
   },
+  "legacy.error.b59718ffeaef06c5": {
+    "other": "Failed to change the API rate limit policy status"
+  },
   "legacy.error.b5f1440999896065": {
     "other": "Failed to query output redaction policy detail"
+  },
+  "legacy.error.b6a5cd0e0d7bc920": {
+    "other": "Failed to create the API rate limit policy"
   },
   "legacy.error.b6aa14aecfe74975": {
     "other": "Failed to parse message provider config"
@@ -2911,9 +2905,6 @@
   },
   "legacy.error.b6d869235b2177c7": {
     "other": "Failed to write file scan temp file"
-  },
-  "legacy.error.b6e0a493dfe61d5d": {
-    "other": "Failed to decrypt password key"
   },
   "legacy.error.b74cf37538de3767": {
     "other": "Only directories, menus, or external links can be created under a level-two directory"
@@ -2948,14 +2939,14 @@
   "legacy.error.b89055c6f7498238": {
     "other": "Rate limit rule not found"
   },
-  "legacy.error.b9331236f24f9f11": {
-    "other": "Failed to read client encryption key"
-  },
   "legacy.error.b9a452b87cde115a": {
     "other": "Current authentication method does not support regenerating recovery codes"
   },
   "legacy.error.ba2694f62e4fbbaf": {
     "other": "Failed to delete message: message does not exist"
+  },
+  "legacy.error.ba92dfedf01811fc": {
+    "other": "Failed to update the message template"
   },
   "legacy.error.baabf07429595997": {
     "other": "The login MAC address is on the denylist"
@@ -2996,9 +2987,6 @@
   "legacy.error.bd71a5a12e6c406b": {
     "other": "Failed to create project"
   },
-  "legacy.error.bd9cb10928c622d0": {
-    "other": "Default permissions for tenant administrators, managed by the default tenant"
-  },
   "legacy.error.bdd60e902e922105": {
     "other": "Failed to update AI knowledge base"
   },
@@ -3010,9 +2998,6 @@
   },
   "legacy.error.be74ce92a610e199": {
     "other": "Message audience cannot be duplicated"
-  },
-  "legacy.error.bec78afeac7c5d9d": {
-    "other": "The user account or user number already exists in the same tenant"
   },
   "legacy.error.bf136ecb202be363": {
     "other": "The dictionary item does not exist"
@@ -3028,6 +3013,9 @@
   },
   "legacy.error.bf63668c07aa83ee": {
     "other": "The message provider is not bound to this message category"
+  },
+  "legacy.error.bf63b762ae696187": {
+    "other": "Failed to change the message provider status"
   },
   "legacy.error.c04abdd20cec9b79": {
     "other": "Failed to start code generation task"
@@ -3119,6 +3107,9 @@
   "legacy.error.c6b03a85bc8fbf37": {
     "other": "Client is not authorized for any interface"
   },
+  "legacy.error.c6bdc5b830a5045c": {
+    "other": "Failed to retrieve AI data query records"
+  },
   "legacy.error.c6e568027ccfef14": {
     "other": "The inbound redaction rule parameters are invalid"
   },
@@ -3136,9 +3127,6 @@
   },
   "legacy.error.c86f532fdac6da42": {
     "other": "Failed to delete AI assistant message"
-  },
-  "legacy.error.c8948a07ea2e2694": {
-    "other": "Password encryption algorithm is not supported"
   },
   "legacy.error.c8a52b66651d294c": {
     "other": "Failed to log out"
@@ -3163,6 +3151,9 @@
   },
   "legacy.error.cb4d8b88147d9592": {
     "other": "Failed to regenerate AI assistant output"
+  },
+  "legacy.error.cb5504b909e1d923": {
+    "other": "Failed to delete the AI provider"
   },
   "legacy.error.cb76a5106c7552b1": {
     "other": "Failed to query third-party login methods"
@@ -3218,6 +3209,9 @@
   "legacy.error.d07181150520a6b4": {
     "other": "The archive record cannot be empty"
   },
+  "legacy.error.d09a5d730f10b232": {
+    "other": "Failed to change the OAuth login provider status"
+  },
   "legacy.error.d1700e2d9ad8a545": {
     "other": "The message tenant cannot be empty"
   },
@@ -3232,6 +3226,9 @@
   },
   "legacy.error.d24eeded7c5fdb3d": {
     "other": "Field name cannot be empty"
+  },
+  "legacy.error.d288fa4bbb028a72": {
+    "other": "Failed to update the rate limit rule"
   },
   "legacy.error.d294046fc1790f27": {
     "other": "The primary language cannot be disabled"
@@ -3274,9 +3271,6 @@
   },
   "legacy.error.d6139243cdbfb13f": {
     "other": "Failed to stream AI assistant message"
-  },
-  "legacy.error.d6887076a959f733": {
-    "other": "Embedding model provider not found"
   },
   "legacy.error.d6b948e91117f8b3": {
     "other": "Failed to process third-party login callback"
@@ -3398,6 +3392,9 @@
   "legacy.error.ded15f67c86763a2": {
     "other": "Message status has changed, please refresh and retry"
   },
+  "legacy.error.df2269225d5069ee": {
+    "other": "Failed to retrieve AI provider model options"
+  },
   "legacy.error.df5a442da0b21158": {
     "other": "Failed to update login session"
   },
@@ -3449,9 +3446,6 @@
   "legacy.error.e3625317beb5819a": {
     "other": "Failed to save MFA configuration"
   },
-  "legacy.error.e3d224984836347a": {
-    "other": "Failed to render message template: %w"
-  },
   "legacy.error.e3f1b26b38842ada": {
     "other": "The provider secret must not exceed 1024 characters"
   },
@@ -3460,6 +3454,9 @@
   },
   "legacy.error.e4343921c928a856": {
     "other": "Login failed"
+  },
+  "legacy.error.e437c820d5e0f35e": {
+    "other": "Failed to reprocess the AI knowledge base document"
   },
   "legacy.error.e443a571d38b6bfc": {
     "other": "Failed to upload AI knowledge base document"
@@ -3512,6 +3509,9 @@
   "legacy.error.e744b6ce7a8acf92": {
     "other": "Failed to send AI assistant message"
   },
+  "legacy.error.e7c3fa9643b03f00": {
+    "other": "Failed to delete the OAuth login provider"
+  },
   "legacy.error.e8487c03570fcf89": {
     "other": "Rule type cannot be modified"
   },
@@ -3523,6 +3523,9 @@
   },
   "legacy.error.e99cd8d50d6e7bac": {
     "other": "Third-party authorization failed"
+  },
+  "legacy.error.ea534d6d4b3b5cdb": {
+    "other": "Failed to create the OAuth login provider"
   },
   "legacy.error.ea95a44ecebf2fb5": {
     "other": "The user position does not exist"
@@ -3565,6 +3568,9 @@
   },
   "legacy.error.edcd01eaa0471076": {
     "other": "Rate limit rule parameters contain multiple JSON values"
+  },
+  "legacy.error.edd752cd05aa9b5c": {
+    "other": "Failed to update the OAuth login provider"
   },
   "legacy.error.ee08d452f352173b": {
     "other": "Failed to page business operation logs"
@@ -3677,9 +3683,6 @@
   "legacy.error.f44979b473b17b86": {
     "other": "Object storage is not configured"
   },
-  "legacy.error.f47f76334f3d0c38": {
-    "other": "OAuth credential protector is not initialized"
-  },
   "legacy.error.f4e3c1c7f6c7d220": {
     "other": "Failed to delete dictionary item"
   },
@@ -3700,9 +3703,6 @@
   },
   "legacy.error.f69ca1af9b15704d": {
     "other": "WebAuthn authentication response cannot be empty"
-  },
-  "legacy.error.f6a69354c27cbb52": {
-    "other": "Failed to protect client encryption key"
   },
   "legacy.error.f6cb4f54bd294d0a": {
     "other": "Failed to save WebAuthn disable challenge"
@@ -3752,14 +3752,8 @@
   "legacy.error.f98d0d9f79a757c2": {
     "other": "Failed to update i18n custom translation"
   },
-  "legacy.error.f9956342537bf6a2": {
-    "other": "Failed to read AI provider model config"
-  },
   "legacy.error.f9b9133ecf174317": {
     "other": "Failed to parse the original field encryption algorithm"
-  },
-  "legacy.error.f9ce176f5efb576b": {
-    "other": "Password key scenario does not match"
   },
   "legacy.error.f9cf7294d51dc2ec": {
     "other": "Failed to update the user: built-in roles cannot be selected"
@@ -4034,17 +4028,11 @@
   "system.admin.auth.user_phone.phone.required": {
     "other": "Please enter mobile phone number"
   },
-  "system.admin.base.ai.model.category.supported": {
-    "other": "Invalid model category"
-  },
   "system.admin.base.ai.model.display_name.max_length": {
     "other": "Display name cannot exceed 100 characters"
   },
   "system.admin.base.ai.model.model_name.required": {
     "other": "Please enter a model name"
-  },
-  "system.admin.base.ai.model.update.id.required": {
-    "other": "Model ID cannot be empty"
   },
   "system.admin.base.ai.provider.api_key.max_length": {
     "other": "The model API key must not exceed 1024 characters"
@@ -4463,9 +4451,6 @@
   "system.admin.base.rate_limit_rule.remark.length": {
     "other": "Remark must not exceed 500 characters"
   },
-  "system.admin.base.rate_limit_rule.rule_type.required": {
-    "other": "Rate limit algorithm is required and must not exceed 32 characters"
-  },
   "system.admin.base.rate_limit_rule.status.id.required": {
     "other": "Rate limit rule ID is required"
   },
@@ -4508,50 +4493,11 @@
   "system.admin.base.redact.output_policy.update.list.required": {
     "other": "Output redaction policy list cannot be empty"
   },
-  "system.admin.base.redact.rule.code.immutable": {
-    "other": "The rule template code cannot be changed"
-  },
   "system.admin.base.redact.rule.code.required": {
     "other": "Rule code cannot be empty and must not exceed 64 characters"
   },
-  "system.admin.base.redact.rule.create.unsupported": {
-    "other": "Redaction rule templates are built in and cannot be created"
-  },
   "system.admin.base.redact.rule.delete.id.required": {
     "other": "Rule ID list cannot be empty"
-  },
-  "system.admin.base.redact.rule.delete.unsupported": {
-    "other": "Redaction rule templates are built in and cannot be deleted"
-  },
-  "system.admin.base.redact.rule.description.email_mask": {
-    "other": "Mask the email local part and optionally its domain"
-  },
-  "system.admin.base.redact.rule.description.fixed_length_mask": {
-    "other": "Replace content with a fixed character while preserving its length"
-  },
-  "system.admin.base.redact.rule.description.hash_digest": {
-    "other": "Generate an irreversible result with a digest algorithm"
-  },
-  "system.admin.base.redact.rule.description.ip_mask": {
-    "other": "Keep the IP prefix octets and mask the rest"
-  },
-  "system.admin.base.redact.rule.description.phone_mask": {
-    "other": "Keep the first three and last four digits of a phone number"
-  },
-  "system.admin.base.redact.rule.description.regex_replace": {
-    "other": "Replace matching content with a regular expression"
-  },
-  "system.admin.base.redact.rule.description.stable_uuid": {
-    "other": "Convert text to a stable UUID"
-  },
-  "system.admin.base.redact.rule.description.string_mask": {
-    "other": "Keep configured leading and trailing characters and mask the middle"
-  },
-  "system.admin.base.redact.rule.description.truncate_text": {
-    "other": "Keep a text prefix and append a suffix"
-  },
-  "system.admin.base.redact.rule.description.url_mask": {
-    "other": "Mask URL query parameter values"
   },
   "system.admin.base.redact.rule.get.id.required": {
     "other": "Rule ID cannot be empty"
@@ -4559,68 +4505,17 @@
   "system.admin.base.redact.rule.name.required": {
     "other": "Rule name cannot be empty and must not exceed 100 characters"
   },
-  "system.admin.base.redact.rule.permission_denied": {
-    "other": "Only platform administrators can manage redaction rules"
-  },
   "system.admin.base.redact.rule.remark.length": {
     "other": "Remark must not exceed 500 characters"
   },
-  "system.admin.base.redact.rule.rule.invalid": {
-    "other": "The rule template parameters are invalid"
-  },
   "system.admin.base.redact.rule.rule.required": {
     "other": "Rule parameter cannot be empty"
-  },
-  "system.admin.base.redact.rule.rule_type.immutable": {
-    "other": "The rule template type cannot be changed"
   },
   "system.admin.base.redact.rule.rule_type.required": {
     "other": "Rule type cannot be empty and must not exceed 32 characters"
   },
   "system.admin.base.redact.rule.status.id.required": {
     "other": "Rule ID cannot be empty"
-  },
-  "system.admin.base.redact.rule.status.invalid": {
-    "other": "The rule template status is invalid"
-  },
-  "system.admin.base.redact.rule.template.email_mask": {
-    "other": "Email mask"
-  },
-  "system.admin.base.redact.rule.template.fixed_length_mask": {
-    "other": "Fixed-length mask"
-  },
-  "system.admin.base.redact.rule.template.hash_digest": {
-    "other": "Hash digest"
-  },
-  "system.admin.base.redact.rule.template.ip_mask": {
-    "other": "IP address mask"
-  },
-  "system.admin.base.redact.rule.template.not_found": {
-    "other": "The rule template does not exist"
-  },
-  "system.admin.base.redact.rule.template.phone_mask": {
-    "other": "Phone number mask"
-  },
-  "system.admin.base.redact.rule.template.regex_replace": {
-    "other": "Regular expression replacement"
-  },
-  "system.admin.base.redact.rule.template.stable_uuid": {
-    "other": "Stable UUID"
-  },
-  "system.admin.base.redact.rule.template.string_mask": {
-    "other": "Generic string mask"
-  },
-  "system.admin.base.redact.rule.template.truncate_text": {
-    "other": "Text truncation"
-  },
-  "system.admin.base.redact.rule.template.unsupported": {
-    "other": "The rule template is not supported"
-  },
-  "system.admin.base.redact.rule.template.url_mask": {
-    "other": "URL parameter mask"
-  },
-  "system.admin.base.redact.rule.update.id.required": {
-    "other": "The rule template ID is required"
   },
   "system.admin.base.redact.storage_policy.column_list.source_name.required": {
     "other": "Data source name cannot be empty and must not exceed 64 characters"
@@ -4837,9 +4732,6 @@
   },
   "system.admin.base.third.account.get_identifier.user_id.required": {
     "other": "User ID cannot be empty"
-  },
-  "system.admin.base.user.create.pwd.required": {
-    "other": "Please enter password"
   },
   "system.admin.base.user.delete.id.required": {
     "other": "User ID list cannot be empty"
@@ -5539,9 +5431,6 @@
   },
   "system.code.gen.message.progress.sync_complete": {
     "other": "Sync complete"
-  },
-  "system.code.gen.message.proto.file_missing": {
-    "other": "Proto file does not exist"
   },
   "system.code.gen.message.proto.missing_select_generate": {
     "other": "Missing; select to generate"

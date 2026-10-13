@@ -6,15 +6,17 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
 import re
 import sys
+from collections.abc import Iterator
 from pathlib import Path
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 ROOT = SCRIPT_DIR.parent
 sys.path.insert(0, str(SCRIPT_DIR))
 
-from generate_locale_drafts import parse_primary_i18n_sources  # noqa: E402
+from generate_locale_drafts import parse_primary_i18n_sources, parse_sql_values  # noqa: E402
 from sync_locales import (  # noqa: E402
     DEFAULT_LOCALE,
     FRONTEND_GENERATED_FILES,
@@ -28,8 +30,13 @@ from sync_locales import (  # noqa: E402
 LOCALE_PATTERN = re.compile(r"^[A-Za-z]{2,3}(?:-[A-Za-z0-9]{2,8})*$")
 TARGET_KEY_PATTERN = re.compile(r"^[a-z][a-z0-9_]*(?:\.[a-z][a-z0-9_]*)+$")
 SQL_FILE_PATTERN = re.compile(r"^i18n\.(?P<locale>[^.]+)\.up\.sql$")
-SQL_INSERT_PREFIX = "INSERT IGNORE INTO `base_i18n`"
-GO_ERROR_MESSAGE_PATTERN = re.compile(r'errorsx\.\w+\("([^"]*[\u4e00-\u9fff][^"]*)"')
+SQL_INSERT_PATTERN = re.compile(r'INSERT(?: IGNORE)? INTO [`"]base_i18n[`"]')
+GO_ERROR_CALL_PATTERN = re.compile(r'errorsx\.(?P<method>\w+)\s*\(')
+SOURCE_TOKEN_PATTERN = re.compile(r'"(?:\\.|[^"\\])*"|\x27(?:\\.|[^\x27\\])*\x27|`[^`]*`|//[^\n]*|/\*[\s\S]*?\*/|[()\[\]{},]')
+PROTO_MESSAGE_KEY_PATTERN = re.compile(r'\bid:\s*"([^"\n]+)"')
+FRONTEND_MESSAGE_KEY_PATTERN = re.compile(r"[\"'`]((?:common|core|system|rag)\.[A-Za-z0-9_.-]+)[\"'`]")
+SSE_EVENT_NAMES = {"system.admin.codegen", "system.admin.runtime-console", "system.admin.ops-monitoring"}
+PERSISTED_MESSAGE_KEY_PATTERN = re.compile(r'(?:EncodeMessage|WrapMessageError)\(\s*"([^"\n]+)"|(?:NameKey|DescriptionKey):\s*"([^"\n]+)"')
 GO_ERROR_KEY_PREFIX = "legacy.error."
 OPENAPI_LOCALIZED_FIELD_PATTERN = re.compile(
     r"^(?P<indent>\s*)(?P<field>description|summary|title):(?:\s.*)?$"
@@ -37,7 +44,6 @@ OPENAPI_LOCALIZED_FIELD_PATTERN = re.compile(
 OPENAPI_REQUIRED_MARKERS = ("openapi:", "info:", "paths:", "components:", "tags:")
 OPENAPI_CJK_PATTERN = re.compile(r"[一-龥]")
 OPENAPI_JA_UNTRANSLATED_TERMS = ("出库", "入库")
-SQL_SOURCE_LOCALE = "en-US"
 SOURCE_LOCALE = DEFAULT_LOCALE
 
 
@@ -61,56 +67,11 @@ def parse_locales(value: str) -> list[str]:
     return locales
 
 
-def parse_sql_values(line: str) -> list[str | None] | None:
-    """解析单行 SQL VALUES，兼容转义单引号、反斜杠和文本逗号。"""
-    values_match = re.search(r"VALUES\s*\((.*)\)\s*;\s*$", line)
-    if not values_match:
-        return None
-
-    values: list[str | None] = []
-    current: list[str] = []
-    quoted = False
-    escaped = False
-    value_text = values_match.group(1)
-    index = 0
-    while index < len(value_text):
-        char = value_text[index]
-        if quoted:
-            if escaped:
-                current.append(char)
-                escaped = False
-            elif char == "\\":
-                escaped = True
-            elif char == "'":
-                if index + 1 < len(value_text) and value_text[index + 1] == "'":
-                    current.append("'")
-                    index += 1
-                else:
-                    quoted = False
-            else:
-                current.append(char)
-        elif char == "'":
-            quoted = True
-        elif char == ",":
-            value = "".join(current).strip()
-            values.append(None if value.upper() == "NULL" else value)
-            current = []
-        else:
-            current.append(char)
-        index += 1
-
-    if quoted or escaped:
-        return None
-    value = "".join(current).strip()
-    values.append(None if value.upper() == "NULL" else value)
-    return values
-
-
 def parse_sql_records(path: Path) -> list[tuple[str, int, str, str]]:
     """读取一个 i18n SQL 文件中的翻译记录。"""
     records: list[tuple[str, int, str, str]] = []
     for line_number, line in enumerate(path.read_text(encoding="utf-8").splitlines(), start=1):
-        if SQL_INSERT_PREFIX not in line:
+        if not SQL_INSERT_PATTERN.search(line):
             continue
         values = parse_sql_values(line)
         if values is None or len(values) != 4:
@@ -144,79 +105,54 @@ def verify_language_bundles() -> list[str]:
 
 
 def verify_sql(locales: list[str], source_locale: str) -> None:
-    """校验每个迁移目录中的语言 SQL 文件集合和翻译主键集合。"""
+    """校验两种数据库的译文集合、默认源记录和跨数据库一致性。"""
     expected_locales = set(locales) - {source_locale}
     migration_root = ROOT / "backend/migration/assets"
     groups: dict[Path, dict[str, Path]] = {}
-    for path in migration_root.glob("*/mysql/i18n.*.up.sql"):
-        match = SQL_FILE_PATTERN.fullmatch(path.name)
-        if match is None or not LOCALE_PATTERN.fullmatch(match.group("locale")):
-            raise VerificationError(f"SQL 文件名不是 i18n.<locale>.up.sql: {path}")
-        groups.setdefault(path.parent, {})[match.group("locale")] = path
-
+    for database in ("mysql", "postgres"):
+        for path in migration_root.glob(f"*/{database}/i18n.*.up.sql"):
+            match = SQL_FILE_PATTERN.fullmatch(path.name)
+            if match is None or not LOCALE_PATTERN.fullmatch(match.group("locale")):
+                raise VerificationError(f"SQL 文件名不是 i18n.<locale>.up.sql: {path}")
+            groups.setdefault(path.parent, {})[match.group("locale")] = path
     if not groups:
         raise VerificationError(f"未找到国际化 SQL 文件: {migration_root}")
 
-    covered_locales: set[str] = set()
-    covered_keys: set[tuple[str, int]] = set()
+    database_records: dict[tuple[Path, str], set[tuple[str, int, str, str]]] = {}
     for directory, files in sorted(groups.items(), key=lambda item: str(item[0])):
-        actual_locales = set(files)
-        extra = sorted(actual_locales - expected_locales)
-        if extra:
-            raise VerificationError(f"{directory} 包含未注册语言 SQL: {', '.join(extra)}")
-        covered_locales.update(actual_locales)
-
-        reference_locale = SQL_SOURCE_LOCALE if SQL_SOURCE_LOCALE in files else sorted(files)[0]
-        reference_records = parse_sql_records(files[reference_locale])
-        reference_keys = {(item[0], item[1]) for item in reference_records}
-        covered_keys.update(reference_keys)
-        if len(reference_keys) != len(reference_records):
-            raise VerificationError(f"SQL 翻译记录重复: {files[reference_locale]}")
+        if set(files) != expected_locales:
+            raise VerificationError(
+                f"{directory} 的 SQL 语言集合不一致: "
+                f"缺少 {sorted(expected_locales - set(files))}，多出 {sorted(set(files) - expected_locales)}"
+            )
+        sources = parse_primary_i18n_sources(directory / "default_data.up.sql")
+        required_keys = {
+            key for key, value in sources.items()
+            if key[0] != "base_config.value" and value
+        }
+        reference_keys: set[tuple[str, int]] | None = None
         for locale, path in sorted(files.items()):
             records = parse_sql_records(path)
             keys = {(item[0], item[1]) for item in records}
             if len(keys) != len(records):
                 raise VerificationError(f"SQL 翻译记录重复: {path}")
-            if keys != reference_keys:
-                missing_keys = sorted(reference_keys - keys)
-                extra_keys = sorted(keys - reference_keys)
-                raise VerificationError(
-                    f"{path} 与 {files[reference_locale]} 的翻译目标集合不一致: "
-                    f"缺少 {missing_keys[:5]}，多出 {extra_keys[:5]}"
-                )
-            invalid_locales = sorted({item[2] for item in records if item[2] != locale})
-            if invalid_locales:
-                raise VerificationError(f"{path} 包含错误的 locale: {', '.join(invalid_locales)}")
+            if reference_keys is not None and keys != reference_keys:
+                raise VerificationError(f"{path} 的翻译目标集合与其他语言不一致")
+            reference_keys = keys
+            if any(item[2] != locale for item in records):
+                raise VerificationError(f"{path} 包含与文件名不一致的 locale")
+            missing = sorted(required_keys - keys)
+            orphaned = sorted(keys - set(sources))
+            if missing or orphaned:
+                raise VerificationError(f"{path} 缺少默认译文 {missing}，无默认源记录的译文 {orphaned}")
+            database_records[(directory, locale)] = set(records)
 
-    missing_locales = sorted(expected_locales - covered_locales)
-    if missing_locales:
-        raise VerificationError(f"迁移目录缺少当前语言的 SQL 翻译: {', '.join(missing_locales)}")
-
-    default_translatable_keys: set[tuple[str, int]] = set()
-    for default_data in migration_root.glob("*/mysql/default_data.up.sql"):
-        default_translatable_keys.update(
-            (target_key, target_id)
-            for (target_key, target_id), value in parse_primary_i18n_sources(default_data).items()
-            if target_key
-            in {
-                "base_config.name",
-                "base_dict.name",
-                "base_dict_item.label",
-                "base_menu.meta.title",
-                "base_job.name",
-                "base_oauth_provider.name",
-                "base_oauth_provider.description",
-                "base_message_provider.name",
-                "base_message_provider.description",
-            }
-            and value
-        )
-    missing_translations = sorted(default_translatable_keys - covered_keys)
-    if missing_translations:
-        raise VerificationError(
-            "默认数据缺少国际化 SQL 翻译: "
-            + ", ".join(f"({target_key}, {target_id})" for target_key, target_id in missing_translations)
-        )
+    for (directory, locale), records in database_records.items():
+        if directory.name != "mysql":
+            continue
+        postgres_directory = directory.parent / "postgres"
+        if postgres_directory.exists() and database_records.get((postgres_directory, locale)) != records:
+            raise VerificationError(f"{directory.parent} 的 MySQL/PostgreSQL {locale} 译文不一致")
 
 
 def normalized_openapi(text: str) -> tuple[str, ...]:
@@ -273,26 +209,103 @@ def verify_openapi(target_locales: list[str]) -> None:
                 )
 
 
-def verify_go_error_messages() -> None:
-    """校验后端 Go 源码中的 errorsx 错误消息在四个语言包都有翻译词条。"""
-    go_root = ROOT / "backend"
-    bundle: dict[str, dict[str, object]] = {}
-    for locale in ("zh-CN", "zh-TW", "en-US", "ja-JP"):
-        bundle_path = go_root / "internal/i18n/assets" / f"{locale}.json"
-        with bundle_path.open(encoding="utf-8") as file:
-            bundle[locale] = json.load(file)
-    missing: list[str] = []
-    for path in go_root.rglob("*.go"):
-        if "_test.go" in path.name or "/gen/" in str(path) or "/migration/" in str(path):
+def go_error_messages(source: str) -> Iterator[tuple[int, str]]:
+    """提取 errorsx 静态文案，正确跳过错误实参内的嵌套调用、逗号和字符串。"""
+    for call in GO_ERROR_CALL_PATTERN.finditer(source):
+        arguments: list[str] = []
+        start = call.end()
+        depth = 0
+        for token in SOURCE_TOKEN_PATTERN.finditer(source, start):
+            value = token.group()
+            if value in ("(", "[", "{"):
+                depth += 1
+            elif value == ")" and depth == 0:
+                arguments.append(source[start:token.start()].strip())
+                break
+            elif value in (")", "]", "}"):
+                depth -= 1
+            elif value == "," and depth == 0:
+                arguments.append(source[start:token.start()].strip())
+                start = token.end()
+        index = 1 if call.group("method") == "WrapInternal" else 0
+        if len(arguments) <= index:
             continue
-        for message in GO_ERROR_MESSAGE_PATTERN.findall(path.read_text(encoding="utf-8")):
+        argument = arguments[index]
+        if re.fullmatch(r'"(?:\\.|[^"\\])*"', argument):
+            yield call.start(), json.loads(argument)
+        elif re.fullmatch(r'`[^`]*`', argument):
+            yield call.start(), argument[1:-1]
+
+
+def verify_go_error_messages() -> None:
+    """校验 errorsx 构造文案、WrapInternal 文案及 Proto CEL 消息键。"""
+    bundles = {
+        locale: json.loads(path.read_text(encoding="utf-8"))
+        for locale, path in locale_files(LOCALE_DIRECTORIES["backend"]).items()
+    }
+    missing: list[str] = []
+    go_root = ROOT / "backend"
+    for path in go_root.rglob("*.go"):
+        if path.name.endswith("_test.go") or "gen" in path.parts or "migration" in path.parts:
+            continue
+        source = path.read_text(encoding="utf-8")
+        for offset, message in go_error_messages(source):
             key = GO_ERROR_KEY_PREFIX + hashlib.sha256(message.encode()).hexdigest()[:16]
-            if any(key not in entries for entries in bundle.values()):
-                missing.append(f"{path.relative_to(ROOT)}: {message}")
+            if any(key not in bundle for bundle in bundles.values()):
+                line = source.count("\n", 0, offset) + 1
+                missing.append(f"{path.relative_to(ROOT)}:{line}: {key} ({message})")
+    for path in (go_root / "api/proto").rglob("*.proto"):
+        source = path.read_text(encoding="utf-8")
+        for match in PROTO_MESSAGE_KEY_PATTERN.finditer(source):
+            key = match.group(1)
+            if any(key not in bundle for bundle in bundles.values()):
+                line = source.count("\n", 0, match.start()) + 1
+                missing.append(f"{path.relative_to(ROOT)}:{line}: {key}")
     if missing:
-        raise VerificationError(
-            "Go 错误消息缺少语言包翻译词条: " + "；".join(missing[:5])
-        )
+        raise VerificationError("后端消息缺少语言包词条: " + "；".join(missing))
+
+
+def verify_frontend_message_keys() -> None:
+    """校验界面命名空间中的静态 key 和后端下发给前端的消息键。"""
+    bundles: dict[str, dict[str, set[str]]] = {}
+    for name, directory in LOCALE_DIRECTORIES.items():
+        if name == "backend":
+            continue
+        terminal = name.split("-", 1)[0]
+        for locale, path in locale_files(directory).items():
+            bundles.setdefault(terminal, {}).setdefault(locale, set()).update(
+                json.loads(path.read_text(encoding="utf-8"))
+            )
+    missing: list[str] = []
+    for terminal, workspace in (("admin", "admin"), ("uni", "uni-app"), ("taro", "taro-app")):
+        for directory, children, files in os.walk(ROOT / "frontend" / workspace):
+            children[:] = [name for name in children if name not in {
+                "node_modules", "dist", "rpc", "locales", "tests", "test"
+            }]
+            for filename in files:
+                path = Path(directory) / filename
+                if path.suffix not in {".ts", ".tsx", ".vue", ".mjs"} or re.search(r"\.(?:test|spec)\.", filename):
+                    continue
+                source = path.read_text(encoding="utf-8")
+                for match in FRONTEND_MESSAGE_KEY_PATTERN.finditer(source):
+                    key = match.group(1)
+                    # SSE 名称属于事件协议；结尾点号是动态查找前缀。
+                    if key.endswith(".") or key in SSE_EVENT_NAMES:
+                        continue
+                    if any(key not in keys for keys in bundles[terminal].values()):
+                        line = source.count("\n", 0, match.start()) + 1
+                        missing.append(f"{path.relative_to(ROOT)}:{line}: {key}")
+    for path in (ROOT / "backend").rglob("*.go"):
+        if path.name.endswith("_test.go") or "gen" in path.parts:
+            continue
+        source = path.read_text(encoding="utf-8")
+        for match in PERSISTED_MESSAGE_KEY_PATTERN.finditer(source):
+            key = match.group(1) or match.group(2)
+            if any(key not in keys for keys in bundles["admin"].values()):
+                line = source.count("\n", 0, match.start()) + 1
+                missing.append(f"{path.relative_to(ROOT)}:{line}: {key}")
+    if missing:
+        raise VerificationError("前端引用未定义的语言 key: " + "；".join(missing))
 
 
 def main() -> int:
@@ -332,7 +345,12 @@ def main() -> int:
     try:
         verify_go_error_messages()
     except (OSError, json.JSONDecodeError, VerificationError, ValueError) as error:
-        errors.append(f"Go错误消息: {error}")
+        errors.append(f"后端消息: {error}")
+
+    try:
+        verify_frontend_message_keys()
+    except (OSError, json.JSONDecodeError, VerificationError, ValueError) as error:
+        errors.append(f"前端引用: {error}")
 
     if errors:
         print("国际化发布校验失败:", file=sys.stderr)
@@ -344,7 +362,7 @@ def main() -> int:
 
     print(
         "国际化发布校验通过："
-        f"语言包({len(locales)})、SQL({len(set(locales) - {SOURCE_LOCALE})}种目标语言)、"
+        f"语言包({len(locales)})、前端引用、后端错误/Proto、SQL({len(set(locales) - {SOURCE_LOCALE})}种目标语言)、"
         f"OpenAPI({len(target_locales)}种目标语言)"
     )
     return 0

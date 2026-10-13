@@ -146,6 +146,7 @@ package: package-backend package-frontend
 # 只读检查全部语言包、注册文件、SQL 翻译和 OpenAPI。
 i18n-check:
 	@echo "==> 检查国际化资源"
+	@$(PYTHON) -m unittest discover -s scripts -p 'test_verify_i18n.py'
 	@$(PYTHON) scripts/verify_i18n.py \
 		--source-locale "$(I18N_SOURCE_LOCALE)" \
 		--locales "$(I18N_LOCALES)"

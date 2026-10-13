@@ -312,11 +312,6 @@ INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('b
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 90010002, 'en-US', 'Delete AI provider') ON CONFLICT DO NOTHING;
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 90010003, 'en-US', 'Edit AI provider') ON CONFLICT DO NOTHING;
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 90010004, 'en-US', 'Change AI provider status') ON CONFLICT DO NOTHING;
-INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 90020000, 'en-US', 'AI Model') ON CONFLICT DO NOTHING;
-INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 90020001, 'en-US', 'Create AI model') ON CONFLICT DO NOTHING;
-INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 90020002, 'en-US', 'Delete AI model') ON CONFLICT DO NOTHING;
-INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 90020003, 'en-US', 'Edit AI model') ON CONFLICT DO NOTHING;
-INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 90020004, 'en-US', 'Update AI model status') ON CONFLICT DO NOTHING;
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 90050000, 'en-US', 'RAG Knowledge Base') ON CONFLICT DO NOTHING;
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 90050001, 'en-US', 'Add AI knowledge base') ON CONFLICT DO NOTHING;
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 90050002, 'en-US', 'Delete AI knowledge base') ON CONFLICT DO NOTHING;

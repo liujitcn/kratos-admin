@@ -11,8 +11,6 @@ const messages = {
     system_alias_forbidden: '{location}: 非 system 代码不得使用 system 私有别名 {specifier}',
     cross_package_relative_forbidden: '{location}: 禁止通过相对路径跨包引用 {specifier}',
     export_not_public: '{location}: {specifier} 未在 {packageName} exports 中公开',
-    core_dir_unexpected: '{packageName}: core 包目录异常',
-    system_dir_unexpected: '{packageName}: system 包目录异常',
     exports_check_failed: 'uni-app package exports 检查失败：\n{violations}',
     exports_check_passed: 'uni-app package exports 检查通过（{packages}）',
     list_separator: '、',
@@ -32,8 +30,6 @@ const messages = {
     cross_package_relative_forbidden:
       '{location}: Cross-package relative import is forbidden: {specifier}',
     export_not_public: '{location}: {specifier} is not exposed by {packageName} exports',
-    core_dir_unexpected: '{packageName}: unexpected core package directory',
-    system_dir_unexpected: '{packageName}: unexpected system package directory',
     exports_check_failed: 'uni-app package exports check failed:\n{violations}',
     exports_check_passed: 'uni-app package exports check passed ({packages})',
     list_separator: ', ',

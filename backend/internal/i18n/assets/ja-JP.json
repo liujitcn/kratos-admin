@@ -203,6 +203,9 @@
   "base.login.login.password.required": {
     "other": "パスワードを空にすることはできません"
   },
+  "base.login.login.tenant_code.required": {
+    "other": "テナントコードは必須です"
+  },
   "base.login.login.user_name.required": {
     "other": "ユーザー名を空にすることはできません"
   },
@@ -211,9 +214,6 @@
   },
   "base.login.refresh.failed": {
     "other": "認証トークンの更新に失敗しました"
-  },
-  "base.login.refresh_token.required": {
-    "other": "リフレッシュトークンを空にすることはできません"
   },
   "base.login.role.disabled": {
     "other": "ロールが無効になりました"
@@ -390,7 +390,7 @@
     "other": "リソース識別子は必須です"
   },
   "common.action.create_resource": {
-    "other": "{resource} を追加しました"
+    "other": "{resource} の追加"
   },
   "common.action.delete_resource": {
     "other": "{resource}を削除"
@@ -437,9 +437,6 @@
   "common.status.enabled": {
     "other": "有効にする"
   },
-  "common.validation.max_length": {
-    "other": "{field} は {max} 文字を超えることはできません"
-  },
   "common.validation.required_input": {
     "other": "{field} を入力してください"
   },
@@ -454,9 +451,6 @@
   },
   "common.value.no": {
     "other": "いいえ"
-  },
-  "common.value.top_level": {
-    "other": "トップレベル"
   },
   "common.value.yes": {
     "other": "はい"
@@ -527,9 +521,6 @@
   "legacy.error.05b48898d3eb38b6": {
     "other": "データテーブルメタデータの読み取りに失敗しました"
   },
-  "legacy.error.05f4b86ff1dd487d": {
-    "other": "API レート制限ポリシー %d が参照するルールが存在しないか無効です"
-  },
   "legacy.error.0613b78ae7041646": {
     "other": "出力リダクションポリシーの削除に失敗しました"
   },
@@ -587,8 +578,14 @@
   "legacy.error.09ce61cf8bbd6ceb": {
     "other": "パスワード履歴の記録に失敗しました"
   },
+  "legacy.error.09f1b9c640191da8": {
+    "other": "埋め込みモデルを取得できませんでした"
+  },
   "legacy.error.0a22a1d04ad1f909": {
     "other": "API レート制限ポリシーの API データが無効です"
+  },
+  "legacy.error.0a316bc49274dfbc": {
+    "other": "メッセージプロバイダーを削除できませんでした"
   },
   "legacy.error.0a3a04decad3d136": {
     "other": "WebAuthnログインチャレンジの作成に失敗しました"
@@ -613,6 +610,9 @@
   },
   "legacy.error.0c182ab409f0a51d": {
     "other": "メッセージアクションパラメータのネストが深すぎます"
+  },
+  "legacy.error.0c3357178bf356f4": {
+    "other": "APIレート制限ポリシーを更新できませんでした"
   },
   "legacy.error.0c3f314f627082c1": {
     "other": "辞書項目のページング照会に失敗しました"
@@ -671,9 +671,6 @@
   "legacy.error.1081d71c3185baaa": {
     "other": "言語の作成に失敗しました"
   },
-  "legacy.error.10925dcbbfb6cab2": {
-    "other": "AI モデル JSON 形式が無効です"
-  },
   "legacy.error.10b9257f2ecab2c3": {
     "other": "このバックアップレコードは復元中です。後で再試行してください"
   },
@@ -692,9 +689,6 @@
   "legacy.error.11bc2823ec42b680": {
     "other": "認証コードの検証に失敗しました"
   },
-  "legacy.error.11bcdd4b5a74da0a": {
-    "other": "このモデル分類は現在接続テストに対応していません"
-  },
   "legacy.error.1252b0cf293d5df2": {
     "other": "MFA連携チケットの保存に失敗しました"
   },
@@ -709,6 +703,12 @@
   },
   "legacy.error.13d2e1e8985487d2": {
     "other": "現在の認証方式ではWebAuthn検証は不要です"
+  },
+  "legacy.error.13dc7c0d91a6fcaf": {
+    "other": "AIデータ照会の記録の詳細を取得できませんでした"
+  },
+  "legacy.error.13ea143799fc39d2": {
+    "other": "AIデータ照会のテーブルカタログを取得できませんでした"
   },
   "legacy.error.13ef79bb92bde2f9": {
     "other": "業務操作ログ詳細の照会に失敗しました"
@@ -727,6 +727,9 @@
   },
   "legacy.error.14d64ced023b18bb": {
     "other": "現在の時刻は許可された時間帯ではありません"
+  },
+  "legacy.error.14dc349eb32ebb06": {
+    "other": "メッセージテンプレートを作成できませんでした"
   },
   "legacy.error.14eae20685387649": {
     "other": "メッセージアクションターゲットは255文字を超えることはできません"
@@ -839,9 +842,6 @@
   "legacy.error.1c4cb88e436974df": {
     "other": "メニュールート名の検証に失敗しました"
   },
-  "legacy.error.1c65d5a16bce10ff": {
-    "other": "パスワードキーのアルゴリズムはサポートされていません"
-  },
   "legacy.error.1c9297afd7f34fa0": {
     "other": "モバイルページメニューが最大階層に達しました"
   },
@@ -881,9 +881,6 @@
   "legacy.error.1f050b534f743477": {
     "other": "空でない翻訳がすでに存在するため、機械翻訳で上書きできません"
   },
-  "legacy.error.1f498c5427741d05": {
-    "other": "パスワード暗号化シナリオはサポートされていません"
-  },
   "legacy.error.1f52b62ea4c51d36": {
     "other": "メッセージプロバイダー ID の解析に失敗しました"
   },
@@ -907,9 +904,6 @@
   },
   "legacy.error.20eb653252a9bb73": {
     "other": "出力リダクションポリシーのステータス設定に失敗しました"
-  },
-  "legacy.error.20fd1c2a6b8d3574": {
-    "other": "少なくとも 1 つのモデルを設定する必要があります"
   },
   "legacy.error.2125bd1384350cf7": {
     "other": "ユーザー認証に失敗しました"
@@ -995,6 +989,9 @@
   "legacy.error.27071404c9de8a94": {
     "other": "キャプチャトークンの保存に失敗しました"
   },
+  "legacy.error.2791c0708e5e304c": {
+    "other": "AIプロバイダーを取得できませんでした"
+  },
   "legacy.error.27c12cba0463a64f": {
     "other": "ログイン地域がブラックリストに登録されています"
   },
@@ -1058,9 +1055,6 @@
   "legacy.error.2bcdb4bb0f0550e6": {
     "other": "ロールのメニュー権限が上限を超えているため設定に失敗しました"
   },
-  "legacy.error.2c024b0c19528860": {
-    "other": "モデル %s の api_type は CHAT_COMPLETIONS または RESPONSES である必要があります"
-  },
   "legacy.error.2c1c5b8f80033e01": {
     "other": "パスワードポリシー設定の読み取りに失敗しました"
   },
@@ -1102,9 +1096,6 @@
   },
   "legacy.error.2e1aa6824e89cd3e": {
     "other": "プロジェクトのページング照会に失敗しました"
-  },
-  "legacy.error.2e3650e27dc3c56c": {
-    "other": "パスワード一時公開鍵の取得に失敗しました"
   },
   "legacy.error.2ec2a0c6920bee1e": {
     "other": "リアルタイムコンソールチャンネルを空にすることはできません"
@@ -1160,6 +1151,9 @@
   "legacy.error.31d2b7d8c6338edd": {
     "other": "プロバイダー拡張設定は JSON オブジェクトである必要があります: %w"
   },
+  "legacy.error.31dfc283e55f1b95": {
+    "other": "APIレート制限ポリシーの詳細を取得できませんでした"
+  },
   "legacy.error.320054dca76a2e4d": {
     "other": "カスタムi18n翻訳の取得に失敗しました"
   },
@@ -1177,6 +1171,9 @@
   },
   "legacy.error.330dd2d11fcdadbb": {
     "other": "AI モデルのテストに失敗しました"
+  },
+  "legacy.error.3315ebd1228a9dfb": {
+    "other": "レート制限ルールの状態を変更できませんでした"
   },
   "legacy.error.3329506452b21001": {
     "other": "編集できるのは下書きメッセージのみです"
@@ -1220,11 +1217,11 @@
   "legacy.error.3772108e1c6666ab": {
     "other": "セッションの有効期限が切れています。もう一度サインインしてください"
   },
+  "legacy.error.380bffbcf0a41ea9": {
+    "other": "メッセージプロバイダーを取得できませんでした"
+  },
   "legacy.error.38575468bd5f4185": {
     "other": "アウトバウンド保護ポリシーを空にすることはできません"
-  },
-  "legacy.error.3874b295110dd6d7": {
-    "other": "パスワードの復号に失敗しました"
   },
   "legacy.error.38c29cd72f9c1d82": {
     "other": "アクセストークンサービスが初期化されていません"
@@ -1262,8 +1259,11 @@
   "legacy.error.3adfff798e9b6a1e": {
     "other": "テナントのデフォルト部門の初期化に失敗しました"
   },
-  "legacy.error.3b07ca8b36d1da22": {
-    "other": "モデル設定は JSON 配列である必要があります: %w"
+  "legacy.error.3b77b280d4265902": {
+    "other": "AI会話を取得できませんでした"
+  },
+  "legacy.error.3b8cf56ad5786683": {
+    "other": "メッセージプロバイダーの選択肢を取得できませんでした"
   },
   "legacy.error.3bde8781a0eca664": {
     "other": "リフレッシュ認証情報の保存に失敗しました"
@@ -1307,6 +1307,9 @@
   "legacy.error.3de4efbfbc877881": {
     "other": "行政区域を自身または下位区域の親にすることはできません"
   },
+  "legacy.error.3df67385ca02d8d9": {
+    "other": "レート制限ルールの選択肢を取得できませんでした"
+  },
   "legacy.error.3e26555b667f0ece": {
     "other": "出力マスキングポリシーがこのルールを参照しているため、削除できません"
   },
@@ -1334,8 +1337,8 @@
   "legacy.error.3fcc79cd186820d6": {
     "other": "OpenAPIドキュメントオプションの照会に失敗しました"
   },
-  "legacy.error.4104675314a2eb39": {
-    "other": "メッセージテンプレート設定のデコードに失敗しました: %w"
+  "legacy.error.4081e8ae5ebee83d": {
+    "other": "レート制限ルールを作成できませんでした"
   },
   "legacy.error.415c70ceebc9339a": {
     "other": "パスワードの最小長は0より大きくしてください"
@@ -1499,8 +1502,8 @@
   "legacy.error.49ecd0e342d6d23b": {
     "other": "フィールド"
   },
-  "legacy.error.4abcd33acfc279f4": {
-    "other": "未対応のメッセージプロバイダー %q"
+  "legacy.error.4aa73d6b11aaff30": {
+    "other": "メッセージプロバイダーを更新できませんでした"
   },
   "legacy.error.4acac868b13d25a3": {
     "other": "認証コードの生成に失敗しました"
@@ -1537,6 +1540,9 @@
   },
   "legacy.error.4c555c9a85f1bc09": {
     "other": "古いログインセッションのクリアに失敗しました"
+  },
+  "legacy.error.4c7474b9aece0829": {
+    "other": "AIプロバイダーを作成できませんでした"
   },
   "legacy.error.4cd0aa2f83038a4d": {
     "other": "コード生成テーブル設定の更新に失敗しました"
@@ -1591,6 +1597,9 @@
   },
   "legacy.error.513deff78da44959": {
     "other": "同じ位置の設定キーが重複しています"
+  },
+  "legacy.error.513e5400f23d1f52": {
+    "other": "APIレート制限ポリシーの一覧を取得できませんでした"
   },
   "legacy.error.5161f2dbae92bdea": {
     "other": "メニューの削除に失敗しました。配下にメニューが存在します"
@@ -1739,9 +1748,6 @@
   "legacy.error.5b6b2552126d5785": {
     "other": "AIアシスタントのランタイムが初期化されていません"
   },
-  "legacy.error.5c7fba0bf2cc08d5": {
-    "other": "モデル設定 JSON には配列を 1 つだけ含めることができます"
-  },
   "legacy.error.5c9ce1a293619574": {
     "other": "ユーザーの役職が所属テナントと一致しません"
   },
@@ -1756,6 +1762,9 @@
   },
   "legacy.error.5cf2077fa039493c": {
     "other": "部門の更新に失敗しました"
+  },
+  "legacy.error.5cf6b67473dfc0eb": {
+    "other": "メッセージテンプレートを取得できませんでした"
   },
   "legacy.error.5d42cf37242f8db5": {
     "other": "ファイルパスがリポジトリディレクトリの外に出ることはできません"
@@ -1777,6 +1786,9 @@
   },
   "legacy.error.5db31c831c8a5e79": {
     "other": "通知の削除に失敗しました"
+  },
+  "legacy.error.5dbd56218d59a51a": {
+    "other": "APIレート制限ポリシーを削除できませんでした"
   },
   "legacy.error.5dbeb80f31fb77e3": {
     "other": "MFAキーの生成に失敗しました"
@@ -1874,11 +1886,11 @@
   "legacy.error.6809a6b85e22a0dd": {
     "other": "権限ログ詳細の照会に失敗しました"
   },
+  "legacy.error.68166c0df150f899": {
+    "other": "AIデータ照会に失敗しました"
+  },
   "legacy.error.6875490152490a8a": {
     "other": "スケジュールタスクのドロップダウン照会に失敗しました"
-  },
-  "legacy.error.687c31528f9d0424": {
-    "other": "モデル %s のリクエストパラメータが範囲外です"
   },
   "legacy.error.690a6b7f9c24cefa": {
     "other": "多要素認証の失敗回数が多すぎます"
@@ -1888,9 +1900,6 @@
   },
   "legacy.error.69554cee7f93cf4a": {
     "other": "メッセージの部門受信者が無効です"
-  },
-  "legacy.error.698e9d36968c9e46": {
-    "other": "AIモデルのプロバイダーが存在しません"
   },
   "legacy.error.69a762d521761a3c": {
     "other": "同じスコープのログインポリシーが既に存在します"
@@ -1943,9 +1952,6 @@
   "legacy.error.6b64e214f43995d3": {
     "other": "MFAキーの読み取りに失敗しました"
   },
-  "legacy.error.6be6914a95e5882d": {
-    "other": "パスワード初期化ベクトルが無効です"
-  },
   "legacy.error.6c6a75417d9b96f4": {
     "other": "メッセージカテゴリのステータスが無効です"
   },
@@ -1960,9 +1966,6 @@
   },
   "legacy.error.6ce9e8310f7d0a6f": {
     "other": "ログインMACアドレスがホワイトリストにありません"
-  },
-  "legacy.error.6cfe5d7ba8f783d2": {
-    "other": "AI プロバイダー %d のモデル設定の解析に失敗しました: %w"
   },
   "legacy.error.6d9b633b7f857dbe": {
     "other": "アーカイブ設定のステータスが無効です"
@@ -2021,9 +2024,6 @@
   "legacy.error.70e0900c1017d449": {
     "other": "AIアシスタントに有効なモデルがありません"
   },
-  "legacy.error.70fe022d705a9f4f": {
-    "other": "パスワード乱数値が無効です"
-  },
   "legacy.error.710dd04852eca77e": {
     "other": "メッセージテンプレート ID を空にすることはできません"
   },
@@ -2056,9 +2056,6 @@
   },
   "legacy.error.72aaa4285bec9431": {
     "other": "電話番号の変更に失敗しました"
-  },
-  "legacy.error.72b2fe6cec3f04de": {
-    "other": "クライアントシークレットの保護に失敗しました"
   },
   "legacy.error.738ffa9d13b38867": {
     "other": "同じテナントに役職番号が重複しています"
@@ -2165,9 +2162,6 @@
   "legacy.error.77fc0ea919e34629": {
     "other": "ユーザーの組織関係が所属テナントと一致しません"
   },
-  "legacy.error.78340dfcaefb707d": {
-    "other": "モデル名が重複しています: %s"
-  },
   "legacy.error.7871e907338a7317": {
     "other": "プロジェクト付与が存在しません"
   },
@@ -2218,9 +2212,6 @@
   },
   "legacy.error.7afa7362b45cbfcb": {
     "other": "WeChatアカウントが連携されていません。先に既存のアカウントを連携してください"
-  },
-  "legacy.error.7b30d5094b0bcff1": {
-    "other": "パスワードキーが無効です"
   },
   "legacy.error.7b648efa0f8584bf": {
     "other": "AIナレッジベースのドキュメントが存在しません"
@@ -2273,9 +2264,6 @@
   "legacy.error.7f2e31e4312fc8b8": {
     "other": "スケジュールタスクの作成に失敗しました"
   },
-  "legacy.error.800a6290c7b45121": {
-    "other": "AIモデルのプロバイダーが有効になっていません"
-  },
   "legacy.error.800ad5e277d8f771": {
     "other": "レート制限ルールのパラメータが有効な JSON ではありません: %w"
   },
@@ -2293,9 +2281,6 @@
   },
   "legacy.error.815660c688153283": {
     "other": "一意インデックスフィールドはストレージリダクションに対応していません"
-  },
-  "legacy.error.81675d6621af09a5": {
-    "other": "パスワード暗号文を空にすることはできません"
   },
   "legacy.error.81e65e451284e06e": {
     "other": "同じテナントにロールコードが重複しています"
@@ -2317,6 +2302,9 @@
   },
   "legacy.error.827e959fee2fe159": {
     "other": "データアクセスログのページング照会に失敗しました"
+  },
+  "legacy.error.82b04b8ac662d348": {
+    "other": "メッセージプロバイダーを作成できませんでした"
   },
   "legacy.error.82b1615a6570f037": {
     "other": "MCP権限リポジトリが初期化されていません"
@@ -2366,6 +2354,9 @@
   "legacy.error.864599651db759ed": {
     "other": "WebAuthnトランスポートのエンコードに失敗しました"
   },
+  "legacy.error.868c8aa44a5b2231": {
+    "other": "AIプロバイダーを更新できませんでした"
+  },
   "legacy.error.86d2256c7e4bacb9": {
     "other": "サードパーティアカウント連携の照会に失敗しました"
   },
@@ -2408,12 +2399,6 @@
   "legacy.error.8aa52f265f3ade36": {
     "other": "辞書の更新に失敗しました"
   },
-  "legacy.error.8aa9263d6eb57e94": {
-    "other": "パスワード暗号文が無効です"
-  },
-  "legacy.error.8add0a0b5bd0296f": {
-    "other": "パスワード一時キーの生成に失敗しました"
-  },
   "legacy.error.8b14be98bee08880": {
     "other": "データベースフィールドの照会に失敗しました"
   },
@@ -2452,9 +2437,6 @@
   },
   "legacy.error.8d4c7687edb51962": {
     "other": "セキュリティポリシーを満たすパスワードを設定してください"
-  },
-  "legacy.error.8dad2a060865729e": {
-    "other": "メッセージテンプレートの解析に失敗しました: %w"
   },
   "legacy.error.8dcfb2899db4e48a": {
     "other": "既存データがこの保存時マスキングポリシーを使用しているため、無効化または削除できません"
@@ -2522,6 +2504,9 @@
   "legacy.error.92c25f13b0fa3691": {
     "other": "APIアクセスログ詳細の照会に失敗しました"
   },
+  "legacy.error.92c48c00cdced7e2": {
+    "other": "AIプロバイダーの状態を変更できませんでした"
+  },
   "legacy.error.92c7c92a01724676": {
     "other": "部門の削除に失敗しました"
   },
@@ -2537,6 +2522,9 @@
   "legacy.error.9376c1aa6cc99070": {
     "other": "プロバイダー名は必須で、100 文字を超えることはできません"
   },
+  "legacy.error.93e714b106bfebb2": {
+    "other": "レート制限ルールの詳細を取得できませんでした"
+  },
   "legacy.error.9405199c2964f7ab": {
     "other": "アウトバウンド保護ポリシー一覧を空にすることはできません"
   },
@@ -2548,6 +2536,9 @@
   },
   "legacy.error.94a4acd52ee779cb": {
     "other": "アーカイブ設定の照会に失敗しました"
+  },
+  "legacy.error.94f40163f02c3e7b": {
+    "other": "OAuthログイン方式を取得できませんでした"
   },
   "legacy.error.950e67e8fd397802": {
     "other": "無効な言語を主言語に設定できません"
@@ -2567,29 +2558,23 @@
   "legacy.error.96e08944f72d6ab7": {
     "other": "プロジェクト付与詳細の照会に失敗しました"
   },
-  "legacy.error.97138843fc30f3ad": {
-    "other": "モデル名は必須で、100 文字を超えることはできません"
-  },
   "legacy.error.975dc005fdfef059": {
     "other": "下書きメッセージのみ削除できます"
   },
   "legacy.error.97670ce8001ca7ba": {
     "other": "API 操作を重複させることはできません"
   },
+  "legacy.error.979239d613cf2761": {
+    "other": "AI会話のメッセージを取得できませんでした"
+  },
   "legacy.error.9798ae7fa191abd0": {
     "other": "ロールの作成に失敗しました。組み込みロールのコードは使用できません"
-  },
-  "legacy.error.97e79319fb69c297": {
-    "other": "パスワードキーの有効期限が切れました。再送信してください"
   },
   "legacy.error.9828341ae3541d3d": {
     "other": "ユーザーロールの照会に失敗しました"
   },
   "legacy.error.98607017b11fd268": {
     "other": "OpenAI 互換プロバイダーを有効にする前に API キーを設定する必要があります"
-  },
-  "legacy.error.99412861ce1126ab": {
-    "other": "プロバイダーカスタム設定は JSON オブジェクトである必要があります: %w"
   },
   "legacy.error.998d00125d42ac70": {
     "other": "ポリシー評価ログ詳細の照会に失敗しました"
@@ -2611,9 +2596,6 @@
   },
   "legacy.error.9b3edb9015b7680f": {
     "other": "履歴ログファイルの照会に失敗しました"
-  },
-  "legacy.error.9b401de8146507e4": {
-    "other": "Embeddingモデルのプロバイダーが無効です"
   },
   "legacy.error.9b4f045798a240f3": {
     "other": "データベースアップグレード履歴の照会に失敗しました"
@@ -2783,6 +2765,9 @@
   "legacy.error.ac1dcca2468c6eea": {
     "other": "メッセージ詳細の照会に失敗しました"
   },
+  "legacy.error.ad3e7934969052c3": {
+    "other": "メッセージテンプレートを削除できませんでした"
+  },
   "legacy.error.ad41477a76b25935": {
     "other": "ユーザーの部門が所属テナントと一致しません"
   },
@@ -2807,8 +2792,8 @@
   "legacy.error.ae673166a2862514": {
     "other": "プロジェクト付与の削除に失敗しました"
   },
-  "legacy.error.ae777b70383bc1a5": {
-    "other": "AI プロバイダー %d のモデル設定の構築に失敗しました: %w"
+  "legacy.error.ae8453b3b0b6b5b9": {
+    "other": "レート制限ルールを削除できませんでした"
   },
   "legacy.error.aedd6814ff8c516c": {
     "other": "リスト"
@@ -2833,6 +2818,9 @@
   },
   "legacy.error.b090926a1b808c30": {
     "other": "生成した API が既存の API と重複しています"
+  },
+  "legacy.error.b0a0e7733febb2dc": {
+    "other": "レート制限ルールの一覧を取得できませんでした"
   },
   "legacy.error.b0f28c5f3181d572": {
     "other": "ファイル拡張子が実際のコンテンツタイプと一致しません"
@@ -2900,8 +2888,14 @@
   "legacy.error.b589203ee80a2bd3": {
     "other": "プラットフォーム管理者のみ運用リアルタイムデータを購読できます"
   },
+  "legacy.error.b59718ffeaef06c5": {
+    "other": "APIレート制限ポリシーの状態を変更できませんでした"
+  },
   "legacy.error.b5f1440999896065": {
     "other": "出力リダクションポリシー詳細の照会に失敗しました"
+  },
+  "legacy.error.b6a5cd0e0d7bc920": {
+    "other": "APIレート制限ポリシーを作成できませんでした"
   },
   "legacy.error.b6aa14aecfe74975": {
     "other": "メッセージプロバイダー設定の解析に失敗しました"
@@ -2911,9 +2905,6 @@
   },
   "legacy.error.b6d869235b2177c7": {
     "other": "ファイルスキャン一時ファイルの書き込みに失敗しました"
-  },
-  "legacy.error.b6e0a493dfe61d5d": {
-    "other": "パスワードキーの復号に失敗しました"
   },
   "legacy.error.b74cf37538de3767": {
     "other": "第2階層のディレクトリには、ディレクトリ、メニュー、外部リンクのみ作成できます"
@@ -2948,14 +2939,14 @@
   "legacy.error.b89055c6f7498238": {
     "other": "レート制限ルールが見つかりません"
   },
-  "legacy.error.b9331236f24f9f11": {
-    "other": "クライアント暗号化キーの読み取りに失敗しました"
-  },
   "legacy.error.b9a452b87cde115a": {
     "other": "現在の認証方式はリカバリーコードの再生成に対応していません"
   },
   "legacy.error.ba2694f62e4fbbaf": {
     "other": "メッセージの削除に失敗しました（メッセージが存在しません）"
+  },
+  "legacy.error.ba92dfedf01811fc": {
+    "other": "メッセージテンプレートを更新できませんでした"
   },
   "legacy.error.baabf07429595997": {
     "other": "ログインMACアドレスがブラックリストに登録されています"
@@ -2996,9 +2987,6 @@
   "legacy.error.bd71a5a12e6c406b": {
     "other": "プロジェクトの作成に失敗しました"
   },
-  "legacy.error.bd9cb10928c622d0": {
-    "other": "テナント管理者の既定権限テンプレート。既定テナントで管理できます。"
-  },
   "legacy.error.bdd60e902e922105": {
     "other": "AIナレッジベースの更新に失敗しました"
   },
@@ -3010,9 +2998,6 @@
   },
   "legacy.error.be74ce92a610e199": {
     "other": "メッセージの受信者を重複させることはできません"
-  },
-  "legacy.error.bec78afeac7c5d9d": {
-    "other": "同じテナントにユーザーアカウントまたはユーザー番号が重複しています"
   },
   "legacy.error.bf136ecb202be363": {
     "other": "辞書項目が存在しません"
@@ -3028,6 +3013,9 @@
   },
   "legacy.error.bf63668c07aa83ee": {
     "other": "メッセージプロバイダーはこのメッセージカテゴリにバインドされていません"
+  },
+  "legacy.error.bf63b762ae696187": {
+    "other": "メッセージプロバイダーの状態を変更できませんでした"
   },
   "legacy.error.c04abdd20cec9b79": {
     "other": "コード生成タスクの開始に失敗しました"
@@ -3119,6 +3107,9 @@
   "legacy.error.c6b03a85bc8fbf37": {
     "other": "クライアントはどのインターフェースも認可されていません"
   },
+  "legacy.error.c6bdc5b830a5045c": {
+    "other": "AIデータ照会の記録を取得できませんでした"
+  },
   "legacy.error.c6e568027ccfef14": {
     "other": "インバウンド保護ルールのパラメータが無効です"
   },
@@ -3136,9 +3127,6 @@
   },
   "legacy.error.c86f532fdac6da42": {
     "other": "AIアシスタントメッセージの削除に失敗しました"
-  },
-  "legacy.error.c8948a07ea2e2694": {
-    "other": "パスワード暗号化アルゴリズムはサポートされていません"
   },
   "legacy.error.c8a52b66651d294c": {
     "other": "ログアウトに失敗しました"
@@ -3163,6 +3151,9 @@
   },
   "legacy.error.cb4d8b88147d9592": {
     "other": "AIアシスタント出力の再生成に失敗しました"
+  },
+  "legacy.error.cb5504b909e1d923": {
+    "other": "AIプロバイダーを削除できませんでした"
   },
   "legacy.error.cb76a5106c7552b1": {
     "other": "サードパーティログイン方式の照会に失敗しました"
@@ -3218,6 +3209,9 @@
   "legacy.error.d07181150520a6b4": {
     "other": "アーカイブレコードを空にすることはできません"
   },
+  "legacy.error.d09a5d730f10b232": {
+    "other": "OAuthログイン方式の状態を変更できませんでした"
+  },
   "legacy.error.d1700e2d9ad8a545": {
     "other": "メッセージのテナントを空にすることはできません"
   },
@@ -3232,6 +3226,9 @@
   },
   "legacy.error.d24eeded7c5fdb3d": {
     "other": "フィールド名を空にすることはできません"
+  },
+  "legacy.error.d288fa4bbb028a72": {
+    "other": "レート制限ルールを更新できませんでした"
   },
   "legacy.error.d294046fc1790f27": {
     "other": "主言語は無効化できません"
@@ -3274,9 +3271,6 @@
   },
   "legacy.error.d6139243cdbfb13f": {
     "other": "AIアシスタントメッセージのストリーミング送信に失敗しました"
-  },
-  "legacy.error.d6887076a959f733": {
-    "other": "Embeddingモデルのプロバイダーが存在しません"
   },
   "legacy.error.d6b948e91117f8b3": {
     "other": "サードパーティログインコールバックの処理に失敗しました"
@@ -3398,6 +3392,9 @@
   "legacy.error.ded15f67c86763a2": {
     "other": "メッセージ状態が変更されました。更新して再試行してください"
   },
+  "legacy.error.df2269225d5069ee": {
+    "other": "AIプロバイダーのモデル選択肢を取得できませんでした"
+  },
   "legacy.error.df5a442da0b21158": {
     "other": "ログインセッションの更新に失敗しました"
   },
@@ -3449,9 +3446,6 @@
   "legacy.error.e3625317beb5819a": {
     "other": "MFA設定の保存に失敗しました"
   },
-  "legacy.error.e3d224984836347a": {
-    "other": "メッセージテンプレートのレンダリングに失敗しました: %w"
-  },
   "legacy.error.e3f1b26b38842ada": {
     "other": "共通資格キーは1024文字以内で入力してください"
   },
@@ -3460,6 +3454,9 @@
   },
   "legacy.error.e4343921c928a856": {
     "other": "ログインに失敗しました"
+  },
+  "legacy.error.e437c820d5e0f35e": {
+    "other": "AIナレッジベースのドキュメントを再処理できませんでした"
   },
   "legacy.error.e443a571d38b6bfc": {
     "other": "AIナレッジベースのドキュメントアップロードに失敗しました"
@@ -3512,6 +3509,9 @@
   "legacy.error.e744b6ce7a8acf92": {
     "other": "AIアシスタントメッセージの送信に失敗しました"
   },
+  "legacy.error.e7c3fa9643b03f00": {
+    "other": "OAuthログイン方式を削除できませんでした"
+  },
   "legacy.error.e8487c03570fcf89": {
     "other": "ルールタイプは変更できません"
   },
@@ -3523,6 +3523,9 @@
   },
   "legacy.error.e99cd8d50d6e7bac": {
     "other": "サードパーティ認可に失敗しました"
+  },
+  "legacy.error.ea534d6d4b3b5cdb": {
+    "other": "OAuthログイン方式を作成できませんでした"
   },
   "legacy.error.ea95a44ecebf2fb5": {
     "other": "ユーザーの役職が存在しません"
@@ -3565,6 +3568,9 @@
   },
   "legacy.error.edcd01eaa0471076": {
     "other": "レート制限ルールのパラメータに複数の JSON 値が含まれています"
+  },
+  "legacy.error.edd752cd05aa9b5c": {
+    "other": "OAuthログイン方式を更新できませんでした"
   },
   "legacy.error.ee08d452f352173b": {
     "other": "業務操作ログのページング照会に失敗しました"
@@ -3677,9 +3683,6 @@
   "legacy.error.f44979b473b17b86": {
     "other": "オブジェクトストレージが設定されていません"
   },
-  "legacy.error.f47f76334f3d0c38": {
-    "other": "OAuth資格情報プロテクターが初期化されていません"
-  },
   "legacy.error.f4e3c1c7f6c7d220": {
     "other": "辞書項目の削除に失敗しました"
   },
@@ -3700,9 +3703,6 @@
   },
   "legacy.error.f69ca1af9b15704d": {
     "other": "WebAuthn認証レスポンスを空にすることはできません"
-  },
-  "legacy.error.f6a69354c27cbb52": {
-    "other": "クライアント暗号化キーの保護に失敗しました"
   },
   "legacy.error.f6cb4f54bd294d0a": {
     "other": "WebAuthn無効化チャレンジの保存に失敗しました"
@@ -3752,14 +3752,8 @@
   "legacy.error.f98d0d9f79a757c2": {
     "other": "i18nカスタム翻訳の更新に失敗しました"
   },
-  "legacy.error.f9956342537bf6a2": {
-    "other": "AI プロバイダーのモデル設定の読み込みに失敗しました"
-  },
   "legacy.error.f9b9133ecf174317": {
     "other": "元フィールド暗号化アルゴリズムの解析に失敗しました"
-  },
-  "legacy.error.f9ce176f5efb576b": {
-    "other": "パスワードキーのシナリオが一致しません"
   },
   "legacy.error.f9cf7294d51dc2ec": {
     "other": "ユーザーの更新に失敗しました。組み込みロールは選択できません"
@@ -4034,17 +4028,11 @@
   "system.admin.auth.user_phone.phone.required": {
     "other": "携帯電話番号を入力してください"
   },
-  "system.admin.base.ai.model.category.supported": {
-    "other": "モデル分類が無効です"
-  },
   "system.admin.base.ai.model.display_name.max_length": {
     "other": "表示名は100文字以内で入力してください"
   },
   "system.admin.base.ai.model.model_name.required": {
     "other": "モデル名を入力してください"
-  },
-  "system.admin.base.ai.model.update.id.required": {
-    "other": "モデルIDは空にできません"
   },
   "system.admin.base.ai.provider.api_key.max_length": {
     "other": "モデルAPIキーは1024文字以内で入力してください"
@@ -4463,9 +4451,6 @@
   "system.admin.base.rate_limit_rule.remark.length": {
     "other": "備考は500文字以内で入力してください"
   },
-  "system.admin.base.rate_limit_rule.rule_type.required": {
-    "other": "レート制限アルゴリズムは必須で、32文字以内で入力してください"
-  },
   "system.admin.base.rate_limit_rule.status.id.required": {
     "other": "レート制限ルールIDを入力してください"
   },
@@ -4508,50 +4493,11 @@
   "system.admin.base.redact.output_policy.update.list.required": {
     "other": "出力リダクションポリシーリストを空にすることはできません"
   },
-  "system.admin.base.redact.rule.code.immutable": {
-    "other": "ルールテンプレートコードは変更できません"
-  },
   "system.admin.base.redact.rule.code.required": {
     "other": "ルールコードを空にしたり64文字を超えたりすることはできません"
   },
-  "system.admin.base.redact.rule.create.unsupported": {
-    "other": "脱敏ルールテンプレートは組み込みのため、新規作成できません"
-  },
   "system.admin.base.redact.rule.delete.id.required": {
     "other": "ルールIDリストを空にすることはできません"
-  },
-  "system.admin.base.redact.rule.delete.unsupported": {
-    "other": "脱敏ルールテンプレートは組み込みのため、削除できません"
-  },
-  "system.admin.base.redact.rule.description.email_mask": {
-    "other": "メールアドレスのローカル部とドメインをマスクします"
-  },
-  "system.admin.base.redact.rule.description.fixed_length_mask": {
-    "other": "固定文字で置換し、元の長さを保持します"
-  },
-  "system.admin.base.redact.rule.description.hash_digest": {
-    "other": "ダイジェストアルゴリズムで不可逆な結果を生成します"
-  },
-  "system.admin.base.redact.rule.description.ip_mask": {
-    "other": "IP の先頭オクテットを保持し、残りをマスクします"
-  },
-  "system.admin.base.redact.rule.description.phone_mask": {
-    "other": "電話番号の先頭 3 桁と末尾 4 桁を保持します"
-  },
-  "system.admin.base.redact.rule.description.regex_replace": {
-    "other": "正規表現で一致した内容を置換します"
-  },
-  "system.admin.base.redact.rule.description.stable_uuid": {
-    "other": "テキストを安定 UUID に変換します"
-  },
-  "system.admin.base.redact.rule.description.string_mask": {
-    "other": "設定した先頭と末尾の文字を保持し、中間をマスクします"
-  },
-  "system.admin.base.redact.rule.description.truncate_text": {
-    "other": "テキストの先頭を保持して末尾に接尾辞を追加します"
-  },
-  "system.admin.base.redact.rule.description.url_mask": {
-    "other": "URL クエリーパラメーターの値をマスクします"
   },
   "system.admin.base.redact.rule.get.id.required": {
     "other": "ルールIDを空にすることはできません"
@@ -4559,68 +4505,17 @@
   "system.admin.base.redact.rule.name.required": {
     "other": "ルール名を空にしたり100文字を超えたりすることはできません"
   },
-  "system.admin.base.redact.rule.permission_denied": {
-    "other": "脱敏ルールを管理できるのはプラットフォーム管理者のみです"
-  },
   "system.admin.base.redact.rule.remark.length": {
     "other": "備考は500文字を超えることはできません"
   },
-  "system.admin.base.redact.rule.rule.invalid": {
-    "other": "ルールテンプレートのパラメーターが無効です"
-  },
   "system.admin.base.redact.rule.rule.required": {
     "other": "ルールパラメータを空にすることはできません"
-  },
-  "system.admin.base.redact.rule.rule_type.immutable": {
-    "other": "ルールテンプレートの種類は変更できません"
   },
   "system.admin.base.redact.rule.rule_type.required": {
     "other": "ルールタイプを空にしたり32文字を超えたりすることはできません"
   },
   "system.admin.base.redact.rule.status.id.required": {
     "other": "ルールIDを空にすることはできません"
-  },
-  "system.admin.base.redact.rule.status.invalid": {
-    "other": "ルールテンプレートの状態が無効です"
-  },
-  "system.admin.base.redact.rule.template.email_mask": {
-    "other": "メールアドレスマスク"
-  },
-  "system.admin.base.redact.rule.template.fixed_length_mask": {
-    "other": "固定長マスク"
-  },
-  "system.admin.base.redact.rule.template.hash_digest": {
-    "other": "ハッシュダイジェスト"
-  },
-  "system.admin.base.redact.rule.template.ip_mask": {
-    "other": "IP アドレスマスク"
-  },
-  "system.admin.base.redact.rule.template.not_found": {
-    "other": "ルールテンプレートが存在しません"
-  },
-  "system.admin.base.redact.rule.template.phone_mask": {
-    "other": "電話番号マスク"
-  },
-  "system.admin.base.redact.rule.template.regex_replace": {
-    "other": "正規表現置換"
-  },
-  "system.admin.base.redact.rule.template.stable_uuid": {
-    "other": "安定 UUID"
-  },
-  "system.admin.base.redact.rule.template.string_mask": {
-    "other": "汎用文字列マスク"
-  },
-  "system.admin.base.redact.rule.template.truncate_text": {
-    "other": "テキスト切り詰め"
-  },
-  "system.admin.base.redact.rule.template.unsupported": {
-    "other": "サポートされていないルールテンプレートです"
-  },
-  "system.admin.base.redact.rule.template.url_mask": {
-    "other": "URL パラメーターマスク"
-  },
-  "system.admin.base.redact.rule.update.id.required": {
-    "other": "ルールテンプレート ID は必須です"
   },
   "system.admin.base.redact.storage_policy.column_list.source_name.required": {
     "other": "データソース名を空にしたり64文字を超えたりすることはできません"
@@ -4837,9 +4732,6 @@
   },
   "system.admin.base.third.account.get_identifier.user_id.required": {
     "other": "ユーザー ID を空にすることはできません"
-  },
-  "system.admin.base.user.create.pwd.required": {
-    "other": "パスワードを入力してください"
   },
   "system.admin.base.user.delete.id.required": {
     "other": "ユーザー ID リストを空にすることはできません"
@@ -5539,9 +5431,6 @@
   },
   "system.code.gen.message.progress.sync_complete": {
     "other": "同期完了"
-  },
-  "system.code.gen.message.proto.file_missing": {
-    "other": "Protoファイルが存在しません"
   },
   "system.code.gen.message.proto.missing_select_generate": {
     "other": "不足しています。生成対象として選択できます"

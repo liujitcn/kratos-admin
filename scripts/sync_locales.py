@@ -22,8 +22,8 @@ def discover_locale_directories() -> dict[str, Path]:
         "uni-core": ROOT / "frontend/uni-app/packages/core/src/locales",
         "taro-core": ROOT / "frontend/taro-app/packages/core/src/locales",
     }
-    for terminal in ("admin", "uni", "taro"):
-        modules_root = ROOT / f"frontend/{terminal}/packages/modules"
+    for terminal, workspace in (("admin", "admin"), ("uni", "uni-app"), ("taro", "taro-app")):
+        modules_root = ROOT / f"frontend/{workspace}/packages/modules"
         for path in sorted(modules_root.glob("*/src/locales")):
             if path.is_dir():
                 module_name = path.parent.parent.name
@@ -143,6 +143,14 @@ def validate_locale_sets(file_sets: dict[str, dict[str, Path]]) -> list[str]:
         for key in common_keys:
             if message_placeholders(messages[key]) != message_placeholders(backend_messages[DEFAULT_LOCALE][key]):
                 raise ValueError(f"后端通用文案占位符不一致: {locale}/{key}")
+        admin_messages = json.loads(file_sets["admin-core"][locale].read_text(encoding="utf-8"))
+        for key in messages.keys() & admin_messages.keys():
+            # OpenAPI 同时合并后端和管理端 Core，同名词条不能因加载顺序改变译文。
+            backend_value = messages[key]
+            if isinstance(backend_value, dict):
+                backend_value = backend_value.get("other")
+            if backend_value != admin_messages[key]:
+                raise ValueError(f"后端与管理端共享词条内容不一致: {locale}/{key}")
     return ordered_locales(expected)
 
 

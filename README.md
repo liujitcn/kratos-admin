@@ -174,7 +174,7 @@ Admin 的公开 `backend/adapter/core` 和 `backend/adapter/kit` 构造函数只
 
 ## 国际化
 
-日常只需 `make i18n`（同步、生成并校验），提交或 CI 检查用 `make i18n-check`（只读）。新增语言时使用 `make i18n-add I18N_LOCALE=de-DE` 生成草稿，人工复核后再执行 `make i18n`；OpenAPI 默认自动发现已有语言包，也可通过 `I18N_LOCALES` 限定目标语言。
+日常只需 `make i18n`（同步、生成并校验），提交或 CI 检查用 `make i18n-check`（只读）。检查涵盖三个前端的静态 key 引用、后端错误文案（含 `errorsx.WrapInternal`）和 Proto CEL 校验 ID，以及 MySQL/PostgreSQL 译文的默认源记录和一致性。新增语言时使用 `make i18n-add I18N_LOCALE=de-DE` 生成草稿，人工复核后再执行 `make i18n`；OpenAPI 默认自动发现已有语言包，也可通过 `I18N_LOCALES` 限定目标语言。
 
 | 需要维护的内容 | 源文件 |
 | --- | --- |
@@ -191,7 +191,7 @@ Admin 的公开 `backend/adapter/core` 和 `backend/adapter/kit` 构造函数只
 
 语言包定义系统能够渲染的语言集合，`base_language` 表只负责运行时启用状态、名称、排序和主语言配置。管理端语言偏好保存为 `kratos-admin:locale`，uni-app 和 Taro 保存为 `kratos-app:locale`；所有 HTTP、刷新令牌、fetch、SSE、uni.request 和 Taro.request 请求都会发送规范化的 `Accept-Language`。固定文案由各 workspace 的 core/System JSON 语言包维护，动态菜单和字典由后端翻译表按请求语言解析，缺少当前语言译文时回退主语言。
 
-新增语言不需要修改 Go、TypeScript 或模块注册代码：在 `backend/internal/i18n/assets` 和三个 workspace 的六个前端语言包目录中增加同名 JSON，然后执行 `make i18n`。脚本会校验语言集合、语言键和占位符，并生成六个前端注册文件、Element Plus 和 Day.js 映射。语言名称、排序、启用状态和主语言由 `base_language` 数据库记录提供；`common.language.*` 用于编译期离线显示和生成语言迁移的初始名称。新增语言的完整文件清单和迁移流程见 [国际化设计与语言扩展](docs/国际化设计与语言扩展.md)。需要把语言加入新部署数据库时，直接更新唯一的 `v0.0.1` 初始化迁移；已有数据库的启用状态不会被迁移覆盖。
+新增语言不需要修改 Go、TypeScript 或模块注册代码：在 `backend/internal/i18n/assets`、三个 workspace 的 Core 和各业务模块语言包目录中增加同名 JSON，然后执行 `make i18n`。脚本会校验语言集合、语言键和占位符，并生成各前端注册文件、Element Plus 和 Day.js 映射。语言名称、排序、启用状态和主语言由 `base_language` 数据库记录提供；管理端 Core 的 `common.language.*` 用于编译期离线显示和生成语言迁移的初始名称。新增语言的完整文件清单和迁移流程见 [国际化设计与语言扩展](docs/国际化设计与语言扩展.md)。需要把语言加入新部署数据库时，直接更新唯一的 `v0.0.1` 初始化迁移；已有数据库的启用状态不会被迁移覆盖。
 
 动态资源的主语言由 `base_language.is_primary` 配置。创建或更新菜单、字典、字典项和系统配置时，后端按请求 `Accept-Language` 将输入文本转换为主语言写入主表；请求语言不是主语言时，原文写入对应翻译表，其他已启用非主语言也只保存在翻译表。系统配置名称、菜单标题、字典名称和字典项标签支持在管理端点击名称打开翻译弹窗，文本/富文本配置值支持运行时翻译回退。
 

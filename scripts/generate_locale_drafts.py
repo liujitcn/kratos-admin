@@ -854,7 +854,7 @@ def generate_json(
 
 def parse_sql_values(line: str) -> list[str | None] | None:
     """解析 INSERT 语句中的值，兼容逗号、SQL 双单引号和反斜杠。"""
-    values_match = re.search(r"VALUES\s*\((.*)\)\s*;\s*$", line)
+    values_match = re.search(r"VALUES\s*\((.*)\)\s*(?:ON CONFLICT DO NOTHING\s*)?;\s*$", line, re.DOTALL)
     if not values_match:
         return None
     values: list[str | None] = []
@@ -908,10 +908,10 @@ def i18n_record(line: str) -> tuple[str, int, str, str] | None:
 
 
 def parse_primary_i18n_sources(default_data: Path) -> dict[tuple[str, int], str]:
-    """从主数据 SQL 提取统一翻译表各目标键对应的简体中文源文。"""
+    """从 MySQL 或 PostgreSQL 主数据 SQL 提取翻译目标和简体中文源文。"""
     sources: dict[tuple[str, int], str] = {}
     for line in default_data.read_text(encoding="utf-8").splitlines():
-        table_match = re.search(r"INSERT IGNORE INTO `([^`]+)`", line)
+        table_match = re.search(r'INSERT(?: IGNORE)? INTO [`"]([^`"]+)[`"]', line)
         values = parse_sql_values(line)
         if not table_match or not values:
             continue

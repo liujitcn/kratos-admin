@@ -203,6 +203,9 @@
   "base.login.login.password.required": {
     "other": "密码不能为空"
   },
+  "base.login.login.tenant_code.required": {
+    "other": "租户编码不能为空"
+  },
   "base.login.login.user_name.required": {
     "other": "用户名不能为空"
   },
@@ -211,9 +214,6 @@
   },
   "base.login.refresh.failed": {
     "other": "刷新认证令牌失败"
-  },
-  "base.login.refresh_token.required": {
-    "other": "刷新令牌不能为空"
   },
   "base.login.role.disabled": {
     "other": "角色已被禁用"
@@ -437,9 +437,6 @@
   "common.status.enabled": {
     "other": "启用"
   },
-  "common.validation.max_length": {
-    "other": "{field}不能超过 {max} 个字符"
-  },
   "common.validation.required_input": {
     "other": "请输入{field}"
   },
@@ -454,9 +451,6 @@
   },
   "common.value.no": {
     "other": "否"
-  },
-  "common.value.top_level": {
-    "other": "顶级节点"
   },
   "common.value.yes": {
     "other": "是"
@@ -527,9 +521,6 @@
   "legacy.error.05b48898d3eb38b6": {
     "other": "读取数据表元数据失败"
   },
-  "legacy.error.05f4b86ff1dd487d": {
-    "other": "接口限流策略 %d 引用的规则不存在或未启用"
-  },
   "legacy.error.0613b78ae7041646": {
     "other": "删除出库脱敏策略失败"
   },
@@ -587,8 +578,14 @@
   "legacy.error.09ce61cf8bbd6ceb": {
     "other": "记录历史密码失败"
   },
+  "legacy.error.09f1b9c640191da8": {
+    "other": "查询embedding模型失败"
+  },
   "legacy.error.0a22a1d04ad1f909": {
     "other": "接口限流策略接口数据无效"
+  },
+  "legacy.error.0a316bc49274dfbc": {
+    "other": "删除消息 Provider 失败"
   },
   "legacy.error.0a3a04decad3d136": {
     "other": "创建 WebAuthn 登录挑战失败"
@@ -613,6 +610,9 @@
   },
   "legacy.error.0c182ab409f0a51d": {
     "other": "消息动作参数嵌套层级过深"
+  },
+  "legacy.error.0c3357178bf356f4": {
+    "other": "更新接口限流策略失败"
   },
   "legacy.error.0c3f314f627082c1": {
     "other": "查询字典属性分页列表失败"
@@ -671,9 +671,6 @@
   "legacy.error.1081d71c3185baaa": {
     "other": "创建语言失败"
   },
-  "legacy.error.10925dcbbfb6cab2": {
-    "other": "AI模型JSON格式无效"
-  },
   "legacy.error.10b9257f2ecab2c3": {
     "other": "该备份记录正在恢复中，请稍后重试"
   },
@@ -692,9 +689,6 @@
   "legacy.error.11bc2823ec42b680": {
     "other": "验证码校验失败"
   },
-  "legacy.error.11bcdd4b5a74da0a": {
-    "other": "该模型分类暂不支持连通性测试"
-  },
   "legacy.error.1252b0cf293d5df2": {
     "other": "保存多因素认证绑定票据失败"
   },
@@ -709,6 +703,12 @@
   },
   "legacy.error.13d2e1e8985487d2": {
     "other": "当前认证方式不需要 WebAuthn 验证"
+  },
+  "legacy.error.13dc7c0d91a6fcaf": {
+    "other": "查询智能问数记录详情失败"
+  },
+  "legacy.error.13ea143799fc39d2": {
+    "other": "查询智能问数表目录失败"
   },
   "legacy.error.13ef79bb92bde2f9": {
     "other": "查询业务操作日志详情失败"
@@ -727,6 +727,9 @@
   },
   "legacy.error.14d64ced023b18bb": {
     "other": "当前时间不在允许窗口"
+  },
+  "legacy.error.14dc349eb32ebb06": {
+    "other": "创建消息模板失败"
   },
   "legacy.error.14eae20685387649": {
     "other": "消息动作目标不能超过255个字符"
@@ -839,9 +842,6 @@
   "legacy.error.1c4cb88e436974df": {
     "other": "校验菜单路由名称失败"
   },
-  "legacy.error.1c65d5a16bce10ff": {
-    "other": "密码密钥算法不支持"
-  },
   "legacy.error.1c9297afd7f34fa0": {
     "other": "移动端页面菜单已达到最大层级"
   },
@@ -881,9 +881,6 @@
   "legacy.error.1f050b534f743477": {
     "other": "已有非空译文，不允许被机器翻译覆盖"
   },
-  "legacy.error.1f498c5427741d05": {
-    "other": "密码加密场景不支持"
-  },
   "legacy.error.1f52b62ea4c51d36": {
     "other": "解析消息 Provider ID失败"
   },
@@ -907,9 +904,6 @@
   },
   "legacy.error.20eb653252a9bb73": {
     "other": "设置出库脱敏策略状态失败"
-  },
-  "legacy.error.20fd1c2a6b8d3574": {
-    "other": "至少需要配置一个模型"
   },
   "legacy.error.2125bd1384350cf7": {
     "other": "用户认证失败"
@@ -995,6 +989,9 @@
   "legacy.error.27071404c9de8a94": {
     "other": "验证码令牌保存失败"
   },
+  "legacy.error.2791c0708e5e304c": {
+    "other": "查询AI供应商失败"
+  },
   "legacy.error.27c12cba0463a64f": {
     "other": "登录地区命中黑名单"
   },
@@ -1058,9 +1055,6 @@
   "legacy.error.2bcdb4bb0f0550e6": {
     "other": "设置角色菜单权限失败，不能分配超出权限上限的菜单权限"
   },
-  "legacy.error.2c024b0c19528860": {
-    "other": "模型 %s 的 api_type 必须是 CHAT_COMPLETIONS 或 RESPONSES"
-  },
   "legacy.error.2c1c5b8f80033e01": {
     "other": "读取密码策略配置失败"
   },
@@ -1102,9 +1096,6 @@
   },
   "legacy.error.2e1aa6824e89cd3e": {
     "other": "查询项目分页列表失败"
-  },
-  "legacy.error.2e3650e27dc3c56c": {
-    "other": "获取密码临时公钥失败"
   },
   "legacy.error.2ec2a0c6920bee1e": {
     "other": "实时控制台频道不能为空"
@@ -1160,6 +1151,9 @@
   "legacy.error.31d2b7d8c6338edd": {
     "other": "Provider 扩展配置必须是 JSON 对象: %w"
   },
+  "legacy.error.31dfc283e55f1b95": {
+    "other": "查询接口限流策略详情失败"
+  },
   "legacy.error.320054dca76a2e4d": {
     "other": "获取自定义国际化翻译失败"
   },
@@ -1177,6 +1171,9 @@
   },
   "legacy.error.330dd2d11fcdadbb": {
     "other": "测试AI模型失败"
+  },
+  "legacy.error.3315ebd1228a9dfb": {
+    "other": "设置限流规则状态失败"
   },
   "legacy.error.3329506452b21001": {
     "other": "只有草稿消息可以编辑"
@@ -1220,11 +1217,11 @@
   "legacy.error.3772108e1c6666ab": {
     "other": "会话已超时，请重新登录"
   },
+  "legacy.error.380bffbcf0a41ea9": {
+    "other": "查询消息 Provider 失败"
+  },
   "legacy.error.38575468bd5f4185": {
     "other": "出库脱敏策略不能为空"
-  },
-  "legacy.error.3874b295110dd6d7": {
-    "other": "密码解密失败"
   },
   "legacy.error.38c29cd72f9c1d82": {
     "other": "访问令牌服务未初始化"
@@ -1262,8 +1259,11 @@
   "legacy.error.3adfff798e9b6a1e": {
     "other": "初始化租户默认部门失败"
   },
-  "legacy.error.3b07ca8b36d1da22": {
-    "other": "模型配置必须是JSON数组: %w"
+  "legacy.error.3b77b280d4265902": {
+    "other": "查询AI会话失败"
+  },
+  "legacy.error.3b8cf56ad5786683": {
+    "other": "查询消息 Provider 选项失败"
   },
   "legacy.error.3bde8781a0eca664": {
     "other": "保存刷新认证信息失败"
@@ -1307,6 +1307,9 @@
   "legacy.error.3de4efbfbc877881": {
     "other": "上级行政区域不能是自身或其下级"
   },
+  "legacy.error.3df67385ca02d8d9": {
+    "other": "查询限流规则选项失败"
+  },
   "legacy.error.3e26555b667f0ece": {
     "other": "已有出库脱敏策略引用该规则，不能删除"
   },
@@ -1334,8 +1337,8 @@
   "legacy.error.3fcc79cd186820d6": {
     "other": "查询OpenAPI文档选项列表失败"
   },
-  "legacy.error.4104675314a2eb39": {
-    "other": "decode message template config: %w"
+  "legacy.error.4081e8ae5ebee83d": {
+    "other": "创建限流规则失败"
   },
   "legacy.error.415c70ceebc9339a": {
     "other": "密码最小长度必须大于零"
@@ -1499,8 +1502,8 @@
   "legacy.error.49ecd0e342d6d23b": {
     "other": "字段"
   },
-  "legacy.error.4abcd33acfc279f4": {
-    "other": "unsupported message Provider %q"
+  "legacy.error.4aa73d6b11aaff30": {
+    "other": "更新消息 Provider 失败"
   },
   "legacy.error.4acac868b13d25a3": {
     "other": "生成验证码失败"
@@ -1537,6 +1540,9 @@
   },
   "legacy.error.4c555c9a85f1bc09": {
     "other": "清理旧登录会话失败"
+  },
+  "legacy.error.4c7474b9aece0829": {
+    "other": "创建AI供应商失败"
   },
   "legacy.error.4cd0aa2f83038a4d": {
     "other": "更新代码生成表配置失败"
@@ -1591,6 +1597,9 @@
   },
   "legacy.error.513deff78da44959": {
     "other": "同一位置的配置键重复"
+  },
+  "legacy.error.513e5400f23d1f52": {
+    "other": "分页查询接口限流策略失败"
   },
   "legacy.error.5161f2dbae92bdea": {
     "other": "删除菜单失败，下面有菜单"
@@ -1739,9 +1748,6 @@
   "legacy.error.5b6b2552126d5785": {
     "other": "AI助手运行时未初始化"
   },
-  "legacy.error.5c7fba0bf2cc08d5": {
-    "other": "模型配置JSON只能包含一个数组"
-  },
   "legacy.error.5c9ce1a293619574": {
     "other": "用户岗位与所属租户不一致"
   },
@@ -1756,6 +1762,9 @@
   },
   "legacy.error.5cf2077fa039493c": {
     "other": "更新部门失败"
+  },
+  "legacy.error.5cf6b67473dfc0eb": {
+    "other": "查询消息模板失败"
   },
   "legacy.error.5d42cf37242f8db5": {
     "other": "文件路径不允许跳出仓库目录"
@@ -1777,6 +1786,9 @@
   },
   "legacy.error.5db31c831c8a5e79": {
     "other": "删除站内信失败"
+  },
+  "legacy.error.5dbd56218d59a51a": {
+    "other": "删除接口限流策略失败"
   },
   "legacy.error.5dbeb80f31fb77e3": {
     "other": "生成多因素认证密钥失败"
@@ -1874,11 +1886,11 @@
   "legacy.error.6809a6b85e22a0dd": {
     "other": "查询权限日志详情失败"
   },
+  "legacy.error.68166c0df150f899": {
+    "other": "智能问数失败"
+  },
   "legacy.error.6875490152490a8a": {
     "other": "查询定时任务下拉列表失败"
-  },
-  "legacy.error.687c31528f9d0424": {
-    "other": "模型 %s 的请求参数超出范围"
   },
   "legacy.error.690a6b7f9c24cefa": {
     "other": "多因素认证失败次数过多"
@@ -1888,9 +1900,6 @@
   },
   "legacy.error.69554cee7f93cf4a": {
     "other": "消息部门受众无效"
-  },
-  "legacy.error.698e9d36968c9e46": {
-    "other": "AI模型所属供应商不存在"
   },
   "legacy.error.69a762d521761a3c": {
     "other": "同一作用域的登录策略已存在"
@@ -1943,9 +1952,6 @@
   "legacy.error.6b64e214f43995d3": {
     "other": "读取多因素认证密钥失败"
   },
-  "legacy.error.6be6914a95e5882d": {
-    "other": "密码初始化向量无效"
-  },
   "legacy.error.6c6a75417d9b96f4": {
     "other": "消息分类状态无效"
   },
@@ -1960,9 +1966,6 @@
   },
   "legacy.error.6ce9e8310f7d0a6f": {
     "other": "登录 MAC 不在白名单"
-  },
-  "legacy.error.6cfe5d7ba8f783d2": {
-    "other": "解析AI供应商 %d 的模型配置失败: %w"
   },
   "legacy.error.6d9b633b7f857dbe": {
     "other": "归档配置状态无效"
@@ -2021,9 +2024,6 @@
   "legacy.error.70e0900c1017d449": {
     "other": "AI 助手没有已启用的模型"
   },
-  "legacy.error.70fe022d705a9f4f": {
-    "other": "密码随机值无效"
-  },
   "legacy.error.710dd04852eca77e": {
     "other": "消息模板 ID不能为空"
   },
@@ -2056,9 +2056,6 @@
   },
   "legacy.error.72aaa4285bec9431": {
     "other": "修改手机号失败"
-  },
-  "legacy.error.72b2fe6cec3f04de": {
-    "other": "保护客户端密钥失败"
   },
   "legacy.error.738ffa9d13b38867": {
     "other": "同一租户的岗位编号重复"
@@ -2165,9 +2162,6 @@
   "legacy.error.77fc0ea919e34629": {
     "other": "用户组织关系与所属租户不一致"
   },
-  "legacy.error.78340dfcaefb707d": {
-    "other": "模型名称重复: %s"
-  },
   "legacy.error.7871e907338a7317": {
     "other": "项目授权不存在"
   },
@@ -2218,9 +2212,6 @@
   },
   "legacy.error.7afa7362b45cbfcb": {
     "other": "微信账号未绑定，请先绑定已有账号"
-  },
-  "legacy.error.7b30d5094b0bcff1": {
-    "other": "密码密钥无效"
   },
   "legacy.error.7b648efa0f8584bf": {
     "other": "AI知识库文档不存在"
@@ -2273,9 +2264,6 @@
   "legacy.error.7f2e31e4312fc8b8": {
     "other": "创建定时任务失败"
   },
-  "legacy.error.800a6290c7b45121": {
-    "other": "AI模型所属供应商未启用"
-  },
   "legacy.error.800ad5e277d8f771": {
     "other": "限流规则参数不是有效JSON: %w"
   },
@@ -2293,9 +2281,6 @@
   },
   "legacy.error.815660c688153283": {
     "other": "唯一索引字段不支持入库脱敏"
-  },
-  "legacy.error.81675d6621af09a5": {
-    "other": "密码密文不能为空"
   },
   "legacy.error.81e65e451284e06e": {
     "other": "同一租户的角色编码重复"
@@ -2317,6 +2302,9 @@
   },
   "legacy.error.827e959fee2fe159": {
     "other": "查询数据访问日志分页列表失败"
+  },
+  "legacy.error.82b04b8ac662d348": {
+    "other": "创建消息 Provider 失败"
   },
   "legacy.error.82b1615a6570f037": {
     "other": "MCP权限仓储未初始化"
@@ -2366,6 +2354,9 @@
   "legacy.error.864599651db759ed": {
     "other": "编码 WebAuthn 传输方式失败"
   },
+  "legacy.error.868c8aa44a5b2231": {
+    "other": "更新AI供应商失败"
+  },
   "legacy.error.86d2256c7e4bacb9": {
     "other": "查询三方账号绑定失败"
   },
@@ -2408,12 +2399,6 @@
   "legacy.error.8aa52f265f3ade36": {
     "other": "更新字典失败"
   },
-  "legacy.error.8aa9263d6eb57e94": {
-    "other": "密码密文无效"
-  },
-  "legacy.error.8add0a0b5bd0296f": {
-    "other": "生成密码临时密钥失败"
-  },
   "legacy.error.8b14be98bee08880": {
     "other": "查询数据库字段失败"
   },
@@ -2452,9 +2437,6 @@
   },
   "legacy.error.8d4c7687edb51962": {
     "other": "必须设置符合安全策略的新密码"
-  },
-  "legacy.error.8dad2a060865729e": {
-    "other": "parse message template: %w"
   },
   "legacy.error.8dcfb2899db4e48a": {
     "other": "已有数据使用该入库脱敏策略，不能停用或删除"
@@ -2522,6 +2504,9 @@
   "legacy.error.92c25f13b0fa3691": {
     "other": "查询 API 访问日志详情失败"
   },
+  "legacy.error.92c48c00cdced7e2": {
+    "other": "设置AI供应商状态失败"
+  },
   "legacy.error.92c7c92a01724676": {
     "other": "删除部门失败"
   },
@@ -2537,6 +2522,9 @@
   "legacy.error.9376c1aa6cc99070": {
     "other": "供应商名称不能为空且不能超过100个字符"
   },
+  "legacy.error.93e714b106bfebb2": {
+    "other": "查询限流规则详情失败"
+  },
   "legacy.error.9405199c2964f7ab": {
     "other": "出库脱敏策略列表不能为空"
   },
@@ -2548,6 +2536,9 @@
   },
   "legacy.error.94a4acd52ee779cb": {
     "other": "查询归档配置失败"
+  },
+  "legacy.error.94f40163f02c3e7b": {
+    "other": "查询OAuth登录方式失败"
   },
   "legacy.error.950e67e8fd397802": {
     "other": "禁用语言不能设为主语言"
@@ -2567,29 +2558,23 @@
   "legacy.error.96e08944f72d6ab7": {
     "other": "查询项目授权详情失败"
   },
-  "legacy.error.97138843fc30f3ad": {
-    "other": "模型名称不能为空且不能超过100个字符"
-  },
   "legacy.error.975dc005fdfef059": {
     "other": "只有草稿消息可以删除"
   },
   "legacy.error.97670ce8001ca7ba": {
     "other": "接口操作不能重复"
   },
+  "legacy.error.979239d613cf2761": {
+    "other": "查询AI会话消息失败"
+  },
   "legacy.error.9798ae7fa191abd0": {
     "other": "创建角色失败，不能使用内置角色编码"
-  },
-  "legacy.error.97e79319fb69c297": {
-    "other": "密码密钥已过期，请重新提交"
   },
   "legacy.error.9828341ae3541d3d": {
     "other": "查询用户角色失败"
   },
   "legacy.error.98607017b11fd268": {
     "other": "启用OpenAI兼容Provider前必须配置API密钥"
-  },
-  "legacy.error.99412861ce1126ab": {
-    "other": "Provider个性化配置必须是JSON对象: %w"
   },
   "legacy.error.998d00125d42ac70": {
     "other": "查询策略评估日志详情失败"
@@ -2611,9 +2596,6 @@
   },
   "legacy.error.9b3edb9015b7680f": {
     "other": "查询历史日志文件失败"
-  },
-  "legacy.error.9b401de8146507e4": {
-    "other": "embedding模型供应商未启用"
   },
   "legacy.error.9b4f045798a240f3": {
     "other": "查询数据库升级历史失败"
@@ -2783,6 +2765,9 @@
   "legacy.error.ac1dcca2468c6eea": {
     "other": "查询消息详情失败"
   },
+  "legacy.error.ad3e7934969052c3": {
+    "other": "删除消息模板失败"
+  },
   "legacy.error.ad41477a76b25935": {
     "other": "用户部门与所属租户不一致"
   },
@@ -2807,8 +2792,8 @@
   "legacy.error.ae673166a2862514": {
     "other": "删除项目授权失败"
   },
-  "legacy.error.ae777b70383bc1a5": {
-    "other": "构造AI供应商 %d 的模型配置失败: %w"
+  "legacy.error.ae8453b3b0b6b5b9": {
+    "other": "删除限流规则失败"
   },
   "legacy.error.aedd6814ff8c516c": {
     "other": "列表"
@@ -2833,6 +2818,9 @@
   },
   "legacy.error.b090926a1b808c30": {
     "other": "生成接口与已有 API 重复"
+  },
+  "legacy.error.b0a0e7733febb2dc": {
+    "other": "分页查询限流规则失败"
   },
   "legacy.error.b0f28c5f3181d572": {
     "other": "文件扩展名与实际内容类型不匹配"
@@ -2900,8 +2888,14 @@
   "legacy.error.b589203ee80a2bd3": {
     "other": "只有平台管理员可以订阅运维实时数据"
   },
+  "legacy.error.b59718ffeaef06c5": {
+    "other": "设置接口限流策略状态失败"
+  },
   "legacy.error.b5f1440999896065": {
     "other": "查询出库脱敏策略详情失败"
+  },
+  "legacy.error.b6a5cd0e0d7bc920": {
+    "other": "创建接口限流策略失败"
   },
   "legacy.error.b6aa14aecfe74975": {
     "other": "解析消息 Provider 配置失败"
@@ -2911,9 +2905,6 @@
   },
   "legacy.error.b6d869235b2177c7": {
     "other": "写入文件扫描临时文件失败"
-  },
-  "legacy.error.b6e0a493dfe61d5d": {
-    "other": "密码密钥解密失败"
   },
   "legacy.error.b74cf37538de3767": {
     "other": "二级目录下只能创建目录、菜单或外链"
@@ -2948,14 +2939,14 @@
   "legacy.error.b89055c6f7498238": {
     "other": "限流规则不存在"
   },
-  "legacy.error.b9331236f24f9f11": {
-    "other": "读取客户端加密密钥失败"
-  },
   "legacy.error.b9a452b87cde115a": {
     "other": "当前认证方式暂不支持重新生成恢复码"
   },
   "legacy.error.ba2694f62e4fbbaf": {
     "other": "删除消息失败，消息不存在"
+  },
+  "legacy.error.ba92dfedf01811fc": {
+    "other": "更新消息模板失败"
   },
   "legacy.error.baabf07429595997": {
     "other": "登录 MAC 命中黑名单"
@@ -2996,9 +2987,6 @@
   "legacy.error.bd71a5a12e6c406b": {
     "other": "创建项目失败"
   },
-  "legacy.error.bd9cb10928c622d0": {
-    "other": "默认租户管理员权限模板，可由默认租户维护"
-  },
   "legacy.error.bdd60e902e922105": {
     "other": "更新AI知识库失败"
   },
@@ -3010,9 +2998,6 @@
   },
   "legacy.error.be74ce92a610e199": {
     "other": "消息受众不能重复"
-  },
-  "legacy.error.bec78afeac7c5d9d": {
-    "other": "同一租户的用户账号或用户编号重复"
   },
   "legacy.error.bf136ecb202be363": {
     "other": "字典项不存在"
@@ -3028,6 +3013,9 @@
   },
   "legacy.error.bf63668c07aa83ee": {
     "other": "消息 Provider 未绑定到该消息分类"
+  },
+  "legacy.error.bf63b762ae696187": {
+    "other": "设置消息 Provider 状态失败"
   },
   "legacy.error.c04abdd20cec9b79": {
     "other": "启动代码生成任务失败"
@@ -3119,6 +3107,9 @@
   "legacy.error.c6b03a85bc8fbf37": {
     "other": "客户端未授权任何接口"
   },
+  "legacy.error.c6bdc5b830a5045c": {
+    "other": "查询智能问数记录失败"
+  },
   "legacy.error.c6e568027ccfef14": {
     "other": "入库脱敏规则参数无效"
   },
@@ -3136,9 +3127,6 @@
   },
   "legacy.error.c86f532fdac6da42": {
     "other": "删除AI助手消息失败"
-  },
-  "legacy.error.c8948a07ea2e2694": {
-    "other": "密码加密算法不支持"
   },
   "legacy.error.c8a52b66651d294c": {
     "other": "退出登录失败"
@@ -3163,6 +3151,9 @@
   },
   "legacy.error.cb4d8b88147d9592": {
     "other": "重新生成AI助手输出失败"
+  },
+  "legacy.error.cb5504b909e1d923": {
+    "other": "删除AI供应商失败"
   },
   "legacy.error.cb76a5106c7552b1": {
     "other": "查询三方登录方式失败"
@@ -3218,6 +3209,9 @@
   "legacy.error.d07181150520a6b4": {
     "other": "归档记录不能为空"
   },
+  "legacy.error.d09a5d730f10b232": {
+    "other": "设置OAuth登录方式状态失败"
+  },
   "legacy.error.d1700e2d9ad8a545": {
     "other": "消息租户不能为空"
   },
@@ -3232,6 +3226,9 @@
   },
   "legacy.error.d24eeded7c5fdb3d": {
     "other": "字段名不能为空"
+  },
+  "legacy.error.d288fa4bbb028a72": {
+    "other": "更新限流规则失败"
   },
   "legacy.error.d294046fc1790f27": {
     "other": "主语言不允许禁用"
@@ -3274,9 +3271,6 @@
   },
   "legacy.error.d6139243cdbfb13f": {
     "other": "流式发送AI助手消息失败"
-  },
-  "legacy.error.d6887076a959f733": {
-    "other": "embedding模型供应商不存在"
   },
   "legacy.error.d6b948e91117f8b3": {
     "other": "处理三方登录回调失败"
@@ -3398,6 +3392,9 @@
   "legacy.error.ded15f67c86763a2": {
     "other": "消息状态已变化，请刷新后重试"
   },
+  "legacy.error.df2269225d5069ee": {
+    "other": "查询AI Provider模型选项失败"
+  },
   "legacy.error.df5a442da0b21158": {
     "other": "更新登录会话失败"
   },
@@ -3449,9 +3446,6 @@
   "legacy.error.e3625317beb5819a": {
     "other": "保存多因素认证配置失败"
   },
-  "legacy.error.e3d224984836347a": {
-    "other": "render message template: %w"
-  },
   "legacy.error.e3f1b26b38842ada": {
     "other": "通用凭证密钥不能超过1024个字符"
   },
@@ -3460,6 +3454,9 @@
   },
   "legacy.error.e4343921c928a856": {
     "other": "登录失败"
+  },
+  "legacy.error.e437c820d5e0f35e": {
+    "other": "重新处理AI知识库文档失败"
   },
   "legacy.error.e443a571d38b6bfc": {
     "other": "上传AI知识库文档失败"
@@ -3512,6 +3509,9 @@
   "legacy.error.e744b6ce7a8acf92": {
     "other": "发送AI助手消息失败"
   },
+  "legacy.error.e7c3fa9643b03f00": {
+    "other": "删除OAuth登录方式失败"
+  },
   "legacy.error.e8487c03570fcf89": {
     "other": "规则类型不允许修改"
   },
@@ -3523,6 +3523,9 @@
   },
   "legacy.error.e99cd8d50d6e7bac": {
     "other": "三方授权失败"
+  },
+  "legacy.error.ea534d6d4b3b5cdb": {
+    "other": "创建OAuth登录方式失败"
   },
   "legacy.error.ea95a44ecebf2fb5": {
     "other": "用户岗位不存在"
@@ -3565,6 +3568,9 @@
   },
   "legacy.error.edcd01eaa0471076": {
     "other": "限流规则参数包含多个JSON值"
+  },
+  "legacy.error.edd752cd05aa9b5c": {
+    "other": "更新OAuth登录方式失败"
   },
   "legacy.error.ee08d452f352173b": {
     "other": "查询业务操作日志分页列表失败"
@@ -3677,9 +3683,6 @@
   "legacy.error.f44979b473b17b86": {
     "other": "对象存储未配置"
   },
-  "legacy.error.f47f76334f3d0c38": {
-    "other": "OAuth 凭据保护器未初始化"
-  },
   "legacy.error.f4e3c1c7f6c7d220": {
     "other": "删除字典属性失败"
   },
@@ -3700,9 +3703,6 @@
   },
   "legacy.error.f69ca1af9b15704d": {
     "other": "WebAuthn认证响应不能为空"
-  },
-  "legacy.error.f6a69354c27cbb52": {
-    "other": "保护客户端加密密钥失败"
   },
   "legacy.error.f6cb4f54bd294d0a": {
     "other": "保存 WebAuthn 禁用挑战失败"
@@ -3752,14 +3752,8 @@
   "legacy.error.f98d0d9f79a757c2": {
     "other": "更新国际化自定义翻译失败"
   },
-  "legacy.error.f9956342537bf6a2": {
-    "other": "读取AI供应商模型配置失败"
-  },
   "legacy.error.f9b9133ecf174317": {
     "other": "解析原字段加密算法失败"
-  },
-  "legacy.error.f9ce176f5efb576b": {
-    "other": "密码密钥场景不匹配"
   },
   "legacy.error.f9cf7294d51dc2ec": {
     "other": "更新用户失败，不能选择内置角色"
@@ -4034,17 +4028,11 @@
   "system.admin.auth.user_phone.phone.required": {
     "other": "请输入手机号"
   },
-  "system.admin.base.ai.model.category.supported": {
-    "other": "模型分类无效"
-  },
   "system.admin.base.ai.model.display_name.max_length": {
     "other": "显示名称不能超过100个字符"
   },
   "system.admin.base.ai.model.model_name.required": {
     "other": "请输入模型名称"
-  },
-  "system.admin.base.ai.model.update.id.required": {
-    "other": "模型ID不能为空"
   },
   "system.admin.base.ai.provider.api_key.max_length": {
     "other": "模型密钥不能超过1024个字符"
@@ -4463,9 +4451,6 @@
   "system.admin.base.rate_limit_rule.remark.length": {
     "other": "备注不能超过500个字符"
   },
-  "system.admin.base.rate_limit_rule.rule_type.required": {
-    "other": "限流算法类型不能为空且不超过32个字符"
-  },
   "system.admin.base.rate_limit_rule.status.id.required": {
     "other": "限流规则ID不能为空"
   },
@@ -4508,50 +4493,11 @@
   "system.admin.base.redact.output_policy.update.list.required": {
     "other": "出库脱敏策略列表不能为空"
   },
-  "system.admin.base.redact.rule.code.immutable": {
-    "other": "规则模板编码不允许修改"
-  },
   "system.admin.base.redact.rule.code.required": {
     "other": "规则编码不能为空且不超过64个字符"
   },
-  "system.admin.base.redact.rule.create.unsupported": {
-    "other": "脱敏规则模板由系统内置，不支持新增"
-  },
   "system.admin.base.redact.rule.delete.id.required": {
     "other": "规则ID列表不能为空"
-  },
-  "system.admin.base.redact.rule.delete.unsupported": {
-    "other": "脱敏规则模板由系统内置，不支持删除"
-  },
-  "system.admin.base.redact.rule.description.email_mask": {
-    "other": "按邮箱本地部分和域名执行掩码"
-  },
-  "system.admin.base.redact.rule.description.fixed_length_mask": {
-    "other": "使用固定字符替换为等长文本"
-  },
-  "system.admin.base.redact.rule.description.hash_digest": {
-    "other": "使用摘要算法生成不可逆结果"
-  },
-  "system.admin.base.redact.rule.description.ip_mask": {
-    "other": "保留 IP 前缀网段并隐藏其余部分"
-  },
-  "system.admin.base.redact.rule.description.phone_mask": {
-    "other": "保留手机号前三位和后四位"
-  },
-  "system.admin.base.redact.rule.description.regex_replace": {
-    "other": "使用正则表达式替换匹配内容"
-  },
-  "system.admin.base.redact.rule.description.stable_uuid": {
-    "other": "将文本转换为稳定 UUID"
-  },
-  "system.admin.base.redact.rule.description.string_mask": {
-    "other": "按配置保留字符串首尾字符并掩码中间内容"
-  },
-  "system.admin.base.redact.rule.description.truncate_text": {
-    "other": "保留文本前缀并追加后缀"
-  },
-  "system.admin.base.redact.rule.description.url_mask": {
-    "other": "隐藏 URL 查询参数值"
   },
   "system.admin.base.redact.rule.get.id.required": {
     "other": "规则ID不能为空"
@@ -4559,68 +4505,17 @@
   "system.admin.base.redact.rule.name.required": {
     "other": "规则名称不能为空且不超过100个字符"
   },
-  "system.admin.base.redact.rule.permission_denied": {
-    "other": "只有平台管理员可以管理脱敏规则"
-  },
   "system.admin.base.redact.rule.remark.length": {
     "other": "备注不能超过500个字符"
   },
-  "system.admin.base.redact.rule.rule.invalid": {
-    "other": "规则模板参数无效"
-  },
   "system.admin.base.redact.rule.rule.required": {
     "other": "规则参数不能为空"
-  },
-  "system.admin.base.redact.rule.rule_type.immutable": {
-    "other": "规则模板类型不允许修改"
   },
   "system.admin.base.redact.rule.rule_type.required": {
     "other": "规则类型不能为空且不超过32个字符"
   },
   "system.admin.base.redact.rule.status.id.required": {
     "other": "规则ID不能为空"
-  },
-  "system.admin.base.redact.rule.status.invalid": {
-    "other": "规则模板状态无效"
-  },
-  "system.admin.base.redact.rule.template.email_mask": {
-    "other": "邮箱掩码"
-  },
-  "system.admin.base.redact.rule.template.fixed_length_mask": {
-    "other": "等长掩码"
-  },
-  "system.admin.base.redact.rule.template.hash_digest": {
-    "other": "哈希摘要"
-  },
-  "system.admin.base.redact.rule.template.ip_mask": {
-    "other": "IP 地址掩码"
-  },
-  "system.admin.base.redact.rule.template.not_found": {
-    "other": "规则模板不存在"
-  },
-  "system.admin.base.redact.rule.template.phone_mask": {
-    "other": "手机号掩码"
-  },
-  "system.admin.base.redact.rule.template.regex_replace": {
-    "other": "正则替换"
-  },
-  "system.admin.base.redact.rule.template.stable_uuid": {
-    "other": "稳定 UUID"
-  },
-  "system.admin.base.redact.rule.template.string_mask": {
-    "other": "通用字符串掩码"
-  },
-  "system.admin.base.redact.rule.template.truncate_text": {
-    "other": "文本截断"
-  },
-  "system.admin.base.redact.rule.template.unsupported": {
-    "other": "规则模板不受支持"
-  },
-  "system.admin.base.redact.rule.template.url_mask": {
-    "other": "URL 参数掩码"
-  },
-  "system.admin.base.redact.rule.update.id.required": {
-    "other": "规则模板 ID 不能为空"
   },
   "system.admin.base.redact.storage_policy.column_list.source_name.required": {
     "other": "数据源名称不能为空且不能超过64个字符"
@@ -4837,9 +4732,6 @@
   },
   "system.admin.base.third.account.get_identifier.user_id.required": {
     "other": "用户ID不能为空"
-  },
-  "system.admin.base.user.create.pwd.required": {
-    "other": "请输入密码"
   },
   "system.admin.base.user.delete.id.required": {
     "other": "用户ID列表不能为空"
@@ -5539,9 +5431,6 @@
   },
   "system.code.gen.message.progress.sync_complete": {
     "other": "同步完成"
-  },
-  "system.code.gen.message.proto.file_missing": {
-    "other": "Proto文件不存在"
   },
   "system.code.gen.message.proto.missing_select_generate": {
     "other": "缺少，可选择生成"
