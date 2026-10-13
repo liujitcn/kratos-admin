@@ -49,6 +49,8 @@ core 不依赖 UI 或业务模块；system 只通过 core 和 UI 的公开 expor
 
 页面 wrapper 统一挂载自绘 `KratosTabBar`；固定首页和我的页同时注册为隐藏的原生 tab 路由，切换时使用 `switchTab` 保持微信原生效果，动态扩展 tab 再复用页面栈。普通页面优先使用 `navigateTo`，下级页面会沿父级关系归属并高亮对应 tab。
 
+项目可复用 system 的 `KratosMyPage` 组件，通过 React `children` 在个人信息和 AI 助手下方追加订单、收藏或统计卡片，顶部设置入口由公共组件维护。默认“我的”页面已装配空的业务扩展示例；业务模块使用相同的 `pages/my/my` 路由覆盖默认页，具体示例见 [system 个人中心扩展](packages/modules/system/README.md#个人中心扩展)。
+
 异常退出后，下次命令会根据 `.kratos-taro-app-pages-state.json` 自动恢复。H5 和微信小程序开发进程可以同时持有同一份页面装配事务；所有进程退出后，runner 才恢复宿主文件。开发产物分别写入 `dist/dev/h5` 和 `dist/dev/mp-weixin`，生产默认写入 `dist/build/h5` 和 `dist/build/mp-weixin`；显式设置 `KRATOS_TARO_OUTPUT_ROOT` 时优先使用该目录。
 
 ## 开发与构建

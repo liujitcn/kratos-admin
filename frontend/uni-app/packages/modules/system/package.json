@@ -25,6 +25,7 @@
       "import": "./dist/module.mjs",
       "default": "./dist/module.mjs"
     },
+    "./components/*.vue": "./src/components/*.vue",
     "./views/*": "./src/views/*",
     "./package.json": "./package.json"
   },

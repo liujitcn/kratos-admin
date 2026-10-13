@@ -28,6 +28,7 @@
     },
     "./api/*": "./src/api/*",
     "./rpc/*": "./src/rpc/*",
+    "./components/*": "./src/components/*.tsx",
     "./views/*": "./src/views/*",
     "./package.json": "./package.json"
   },

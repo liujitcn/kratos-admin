@@ -81,6 +81,8 @@ export const moduleManifest = [coreModule, systemModule]
 
 构建插件自动扫描各模块的 `src/views/**/*.vue`，忽略任意层级的 `components` 目录。后注册模块可以用相同物理路由或 `viewKey` 替换前面模块的静态页面。
 
+项目可复用 system 的 `KratosMyPage` 组件，通过 `extensions` 插槽在个人信息和 AI 助手下方追加订单、收藏或统计卡片，顶部设置入口由公共组件维护。默认“我的”页面已装配空的业务扩展示例；业务模块使用相同的 `pages/my/my` 路由覆盖默认页，具体示例见 [system 个人中心扩展](packages/modules/system/README.md#个人中心扩展)。
+
 宿主 `pages.json` 只提交固定 bootstrap 页面。开发或构建期间，插件会临时生成页面 wrapper、合并页面配置，并把模块 static 逐文件合并到宿主；同名宿主文件优先，事务只记录和清理插件实际写入的文件。正常退出后自动恢复。若进程被强制结束，下次启动会先根据 `.kratos-uni-app-pages-state.json` 恢复上一次事务。同一宿主同时只允许一个 H5 或小程序开发/构建进程持有页面事务，切换平台前需要先停止当前进程。
 
 ## 动态导航
