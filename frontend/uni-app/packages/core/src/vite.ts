@@ -257,6 +257,7 @@ export function kratosApp(options: KratosAppViteOptions): Plugin {
   }
 }
 
+/** preparePageAssembly 装配自绘导航页面，并通过事务保留宿主原配置。 */
 function preparePageAssembly(options: {
   inputDir: string
   pagesFile: string
@@ -288,6 +289,8 @@ function preparePageAssembly(options: {
     }
 
     const manifest = JSON.parse(originalPages) as PagesManifest
+    // 所有宿主统一使用 KratosTabBar，原生 tab 声明会限制普通页面跳转并要求额外组件。
+    delete manifest.tabBar
     manifest.pages ??= []
     const generatedFiles = options.pageMap
       .map((page) => resolve(options.inputDir, `${page.route}.vue`))

@@ -166,7 +166,6 @@ let adapter: AppNavigationAdapter = {
   list: () => defBaseMenuService.ListBaseMenu(),
 }
 
-const nativeTabViewKeys = ['HOME', 'PROFILE_HOME']
 const pageTitleKeys: Record<string, string> = {
   'pages/index/index': 'core.home.main_title',
   'pages/login/login': 'common.action.login',
@@ -178,7 +177,6 @@ const pageTitleKeys: Record<string, string> = {
   'pagesMember/profile/profile': 'system.profile.title',
   'pagesMember/settings/settings': 'core.settings.title',
 }
-const resetTabViewKeys = ['MESSAGE_INBOX']
 
 /** 替换导航远端适配器，供宿主接入自定义契约。 */
 export function setAppNavigationAdapter(nextAdapter: AppNavigationAdapter): void {
@@ -268,7 +266,7 @@ export function navigateAppRoute(rawRoute: string, options: { replace?: boolean 
   uni.navigateTo({ url, fail: () => uni.reLaunch({ url }) })
 }
 
-/** 切换 tab 页面，优先复用已有页面，避免重建页面栈产生空白帧。 */
+/** 切换自绘 tab：H5 替换路由，微信端复用页面栈，避免重建整个页面栈。 */
 function navigateTabRoute(url: string): void {
   const targetRoute = url.slice(1).split('?', 1)[0].replace(/^\/+/, '')
   const pages = getCurrentPages()
@@ -284,36 +282,10 @@ function navigateTabRoute(url: string): void {
     uni.redirectTo({
       url,
       success: release,
-      fail: () => {
-        uni.reLaunch({ url, success: release, fail: release, complete: release })
-      },
+      fail: release,
     })
     return
   }
-  if (nativeTabViewKeys.some((viewKey) => resolveStaticView(viewKey) === targetRoute)) {
-    uni.switchTab({
-      url,
-      success: release,
-      fail: () => navigateTabRouteInStack(url, targetRoute, pages, currentIndex, release),
-      complete: release,
-    })
-    return
-  }
-  if (resetTabViewKeys.some((viewKey) => resolveStaticView(viewKey) === targetRoute)) {
-    uni.reLaunch({ url, success: release, fail: release, complete: release })
-    return
-  }
-  navigateTabRouteInStack(url, targetRoute, pages, currentIndex, release)
-}
-
-/** 在没有原生 tab 路由的动态菜单上复用页面栈。 */
-function navigateTabRouteInStack(
-  url: string,
-  targetRoute: string,
-  pages: ReturnType<typeof getCurrentPages>,
-  currentIndex: number,
-  release: () => void,
-): void {
   const targetIndex = pages.findIndex((page) => page.route?.replace(/^\/+/, '') === targetRoute)
   if (targetIndex >= 0 && targetIndex < currentIndex) {
     uni.navigateBack({
@@ -328,7 +300,8 @@ function navigateTabRouteInStack(
     url,
     success: release,
     fail: () => {
-      uni.reLaunch({ url, success: release, fail: release, complete: release })
+      // 小程序页面栈满时只替换栈顶，保留其他 tab 的已加载页面。
+      uni.redirectTo({ url, success: release, fail: release, complete: release })
     },
   })
 }

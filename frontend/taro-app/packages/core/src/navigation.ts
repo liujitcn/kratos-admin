@@ -197,8 +197,6 @@ const defaultMenuTitleKeys: Record<string, string> = {
 }
 
 let tabNavigationTarget: string | undefined
-const nativeTabViewKeys = ['HOME', 'PROFILE_HOME']
-const resetTabViewKeys = ['MESSAGE_INBOX']
 
 function localizedDefaultAppMenus(): AppMenu[] {
   return defaultAppMenus.map((menu) => ({
@@ -325,7 +323,7 @@ export function navigateAppView(viewKey: string, params: Record<string, string> 
   navigateAppRoute(`${path}${query ? `?${query}` : ''}`)
 }
 
-/** 自绘 tab 在 H5 直接切换，微信端优先复用原生 tab 或页面栈。 */
+/** 切换自绘 tab：H5 替换路由，微信端复用页面栈，避免重建整个页面栈。 */
 function navigateTabRoute(url: string): void {
   const targetRoute = url.slice(1).split('?', 1)[0].replace(/^\/+/, '')
   const pages = getCurrentPages()
@@ -338,41 +336,17 @@ function navigateTabRoute(url: string): void {
     if (tabNavigationTarget === targetRoute) tabNavigationTarget = undefined
   }
   if (process.env.TARO_ENV === 'h5') {
-    void Taro.redirectTo({ url }).then(release, () => {
-      void Taro.reLaunch({ url }).then(release, release)
-    })
+    void Taro.redirectTo({ url }).then(release, release)
     return
   }
-  if (nativeTabViewKeys.some((viewKey) => resolveStaticView(viewKey) === targetRoute)) {
-    void Taro.switchTab({ url })
-      .then(release)
-      .catch(() => {
-        navigateTabRouteInStack(url, targetRoute, pages, currentIndex, release)
-      })
-    return
-  }
-  if (resetTabViewKeys.some((viewKey) => resolveStaticView(viewKey) === targetRoute)) {
-    void Taro.reLaunch({ url }).then(release, release)
-    return
-  }
-  navigateTabRouteInStack(url, targetRoute, pages, currentIndex, release)
-}
-
-/** 在没有原生 tab 路由的动态菜单上复用页面栈。 */
-function navigateTabRouteInStack(
-  url: string,
-  targetRoute: string,
-  pages: ReturnType<typeof getCurrentPages>,
-  currentIndex: number,
-  release: () => void,
-): void {
   const targetIndex = pages.findIndex((page) => page.route?.replace(/^\/+/, '') === targetRoute)
-  const navigation =
-    targetIndex >= 0 && targetIndex < currentIndex
-      ? Taro.navigateBack({ delta: currentIndex - targetIndex })
-      : Taro.navigateTo({ url })
-  void navigation.then(release).catch(() => {
-    void Taro.reLaunch({ url }).then(release, release)
+  if (targetIndex >= 0 && targetIndex < currentIndex) {
+    void Taro.navigateBack({ delta: currentIndex - targetIndex }).then(release, release)
+    return
+  }
+  void Taro.navigateTo({ url }).then(release, () => {
+    // 小程序页面栈满时只替换栈顶，保留其他 tab 的已加载页面。
+    void Taro.redirectTo({ url }).then(release, release)
   })
 }
 

@@ -69,6 +69,8 @@ async function main(): Promise<void> {
 
   const originalAppConfig = readFileSync(appConfigFile, 'utf8')
   const manifest = JSON.parse(readFileSync(baseConfigFile, 'utf8')) as AppManifest
+  // 所有宿主统一使用 KratosTabBar，原生 tab 声明会限制普通页面跳转并要求额外组件。
+  delete manifest.tabBar
   const modules = await loadBuildModules(hostRoot, resolve(inputDir, 'module-manifest.ts'))
   const pageMap = new Map<string, PageEntry>()
   modules.forEach((module) => {

@@ -47,7 +47,9 @@ core 不依赖 UI 或业务模块；system 只通过 core 和 UI 的公开 expor
 - 合并各模块 `src/static` 到宿主，宿主已有文件优先，模块同名文件后注册优先。
 - 构建退出后恢复原始 `app.config.ts` 并删除临时文件。
 
-页面 wrapper 统一挂载自绘 `KratosTabBar`；固定首页和我的页同时注册为隐藏的原生 tab 路由，切换时使用 `switchTab` 保持微信原生效果，动态扩展 tab 再复用页面栈。普通页面优先使用 `navigateTo`，下级页面会沿父级关系归属并高亮对应 tab。
+页面 wrapper 统一挂载自绘 `KratosTabBar`，宿主不声明原生 `tabBar`。H5 tab 切换使用 `redirectTo`；微信端首次访问使用 `navigateTo`，已在页面栈中的 tab 使用 `navigateBack` 复用，栈满时使用 `redirectTo` 替换栈顶。tab 切换不使用 `switchTab` 或 `reLaunch`，避免原生 tab 配置冲突和整栈重建造成闪烁、白屏。普通页面优先使用 `navigateTo`，下级页面会沿父级关系归属并高亮对应 tab。
+
+上述策略由可发布的 core 包统一提供，业务模块可以覆盖 `HOME` 的物理页面或扩展至 2–5 个 tab。runner 在编译配置中移除宿主已有的原生 `tabBar`，结束后恢复宿主原文件；引用项目升级 core 后无需单独修改导航实现。
 
 自定义顶部导航统一使用 core 的 `KratosNavBar`：普通页、tabBar 页和有无操作按钮共用相同标题栏高度，组件负责安全区、返回行为、按钮尺寸与微信胶囊避让。新页面只传标题和操作，外层不要重复添加顶部安全区或导航栏高度；具体用法见 [通用顶部导航](packages/core/README.md#通用顶部导航)。
 
@@ -151,7 +153,6 @@ CLI 直接生成完整宿主、本地业务模块、四种语言源文件与注�
 
 H5 宿主通过 `esnextModules` 将已装配 npm 源码包加入 Taro 样式处理，确保 px 按 750 设计稿转换为 rem；仅设置脚本的 `compile.include` 无法覆盖样式转换。第三方组件仍遵循 Taro 默认处理规则。
 
-H5 自绘底部 tab 使用 redirectTo 替换当前路由，避免 reLaunch 重建应用造成切换闪烁；详情页保留 navigateTo，微信端保持原有导航策略。
 
 构建日志使用 Turbo 普通文本界面，按任务分组输出并关闭颜色，适用于终端和 IDE 控制台。仓库统一构建入口会显示各平台的开始与完成阶段。
 

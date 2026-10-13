@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onBeforeMount, onMounted } from 'vue'
+import { computed } from 'vue'
 import { resolveModuleIcon, resolveStaticView } from '../module'
 import { APP_MENU_ROOT_ID, useAppMenuBadge, useAppNavigation } from '../navigation'
 import { useThemeStore } from '../stores'
@@ -41,15 +41,6 @@ const activeMenu = computed(() => {
 })
 const visible = computed(() => Boolean(activeMenu.value && tabBar.value.length))
 const messageBadge = useAppMenuBadge('MESSAGE_INBOX')
-// #ifdef H5
-// H5 端 tabBar.custom 不隐藏内置 tabbar,需手动隐藏,否则其边线从自定义栏上方露出形成双线。
-const hideNativeTabBar = () => {
-  uni.hideTabBar({ fail: () => {} })
-}
-onBeforeMount(hideNativeTabBar)
-// H5 runtime 可能在页面挂载时重新同步内置 tabbar 状态，挂载后幂等重试避免首次切换露出一帧。
-onMounted(hideNativeTabBar)
-// #endif
 </script>
 
 <template>

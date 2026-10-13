@@ -151,6 +151,37 @@ test('宿主已声明模块页面时不重复追加路由', async () => {
   }
 })
 
+test('外部宿主的原生 tabBar 在页面装配时移除，退出后恢复宿主原配置', async () => {
+  const original = JSON.stringify({
+    pages: [
+      { path: 'pages/bootstrap/index' },
+      { path: 'pages/index/index' },
+      { path: 'pages/my/my' },
+    ],
+    globalStyle: { backgroundColor: '#123456' },
+    tabBar: {
+      custom: true,
+      list: [
+        { pagePath: 'pages/index/index', text: '首页' },
+        { pagePath: 'pages/my/my', text: '我的' },
+      ],
+    },
+  })
+  const fixture = await createViteFixture({ original })
+
+  try {
+    const generated = JSON.parse(readFileSync(fixture.pagesFile, 'utf8'))
+    assert.equal(generated.tabBar, undefined)
+    assert.deepEqual(generated.globalStyle, { backgroundColor: '#123456' })
+    assert.ok(generated.pages.some((page) => page.path === 'pages/my/my'))
+
+    fixture.plugin.closeBundle()
+    assert.equal(readFileSync(fixture.pagesFile, 'utf8'), original)
+  } finally {
+    fixture.dispose()
+  }
+})
+
 test('watch 构建在关闭监听器前保留生成页面', async () => {
   const fixture = await createViteFixture()
   const { generatedStaticFile, original, pagesFile, plugin, transactionFile } = fixture

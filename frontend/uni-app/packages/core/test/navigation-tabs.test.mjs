@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict'
-import { mkdtempSync, rmSync } from 'node:fs'
+import { mkdtempSync, readFileSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
@@ -7,6 +7,10 @@ import test from 'node:test'
 import { build } from 'esbuild'
 
 async function loadNavigationRuntime(state) {
+  const manifest = JSON.parse(
+    readFileSync(resolve(import.meta.dirname, '../../../apps/uni-app/src/pages.json'), 'utf8'),
+  )
+  const nativeTabRoutes = new Set(manifest.tabBar?.list.map((item) => `/${item.pagePath}`))
   const root = mkdtempSync(resolve(tmpdir(), 'kratos-uni-tabs-'))
   const output = resolve(root, 'navigation.mjs')
   const originalWindow = globalThis.window
@@ -20,17 +24,46 @@ async function loadNavigationRuntime(state) {
     removeStorageSync() {},
     navigateTo(options) {
       state.navigateCalls.push(options)
+      if (state.pages.length >= 10) {
+        options.fail?.({ errMsg: 'navigateTo:fail exceed max webview count' })
+        return
+      }
+      if (state.deferNavigation) return
+      state.pages.push({ route: options.url.slice(1).split('?', 1)[0] })
+      options.success?.({ errMsg: 'navigateTo:ok' })
+      options.complete?.({ errMsg: 'navigateTo:ok' })
     },
     redirectTo(options) {
       state.redirectCalls.push(options)
+      if (nativeTabRoutes.has(options.url.split('?', 1)[0])) {
+        const error = { errMsg: 'redirectTo:fail can not redirectTo a tabbar page' }
+        state.navigationErrors.push(error.errMsg)
+        options.fail?.(error)
+        options.complete?.(error)
+        return
+      }
+      if (state.deferNavigation) return
+      state.pages.splice(state.pages.length - 1, 1, {
+        route: options.url.slice(1).split('?', 1)[0],
+      })
       options.success?.({ errMsg: 'redirectTo:ok' })
       options.complete?.({ errMsg: 'redirectTo:ok' })
     },
     navigateBack(options) {
       state.navigateBackCalls.push(options)
+      state.pages.splice(state.pages.length - options.delta)
+      options.success?.({ errMsg: 'navigateBack:ok' })
+      options.complete?.({ errMsg: 'navigateBack:ok' })
     },
     switchTab(options) {
       state.switchTabCalls.push(options)
+      if (!nativeTabRoutes.has(options.url.split('?', 1)[0])) {
+        const error = { errMsg: 'switchTab:fail can not switch to no-tabBar page' }
+        state.navigationErrors.push(error.errMsg)
+        options.fail?.(error)
+        options.complete?.(error)
+        return
+      }
       options.success?.({ errMsg: 'switchTab:ok' })
     },
     reLaunch(options) {
@@ -119,6 +152,7 @@ async function loadNavigationRuntime(state) {
                     HOME: 'pages/index/index',
                     MESSAGE_INBOX: 'pagesMember/message/index',
                     PROFILE_HOME: 'pages/my/my',
+                    ...${JSON.stringify(state.viewRoutes ?? {})},
                   }[key]
                 }`,
               }
@@ -152,6 +186,7 @@ function createState(pages) {
     navigateBackCalls: [],
     switchTabCalls: [],
     reLaunchCalls: [],
+    navigationErrors: [],
   }
 }
 
@@ -164,10 +199,19 @@ test('H5 自绘 tab 替换当前路由，避免重建应用产生闪烁', async 
 
   assert.equal(state.redirectCalls.length, 1)
   assert.equal(state.redirectCalls[0].url, '/pages/my/my')
+  assert.deepEqual(state.navigationErrors, [])
   assert.equal(state.reLaunchCalls.length, 0)
   assert.equal(state.switchTabCalls.length, 0)
   assert.equal(state.navigateCalls.length, 0)
   assert.equal(state.navigateBackCalls.length, 0)
+})
+
+test('自绘 tab 页面不声明缺少 custom-tab-bar 组件的原生 tabBar', () => {
+  const manifest = JSON.parse(
+    readFileSync(resolve(import.meta.dirname, '../../../apps/uni-app/src/pages.json'), 'utf8'),
+  )
+
+  assert.equal(manifest.tabBar, undefined)
 })
 
 test('H5 从消息 tab 切换到我的仍替换当前路由，不触发页面滑动栈', async () => {
@@ -217,20 +261,22 @@ const menus = [
   },
 ]
 
-test('首次切换固定 tab 使用原生 switchTab，不重建页面栈', async () => {
+test('微信端首次切换我的使用普通页面栈，不重建页面栈', async () => {
   const state = createState([{ route: 'pages/index/index' }])
   const runtime = await loadNavigationRuntime(state)
   runtime.installAppNavigation(menus)
 
   runtime.navigateAppRoute('app/my')
 
-  assert.equal(state.switchTabCalls.length, 1)
-  assert.equal(state.switchTabCalls[0].url, '/pages/my/my')
-  assert.equal(state.navigateCalls.length, 0)
+  assert.equal(state.navigateCalls.length, 1)
+  assert.equal(state.navigateCalls[0].url, '/pages/my/my')
+  assert.equal(state.switchTabCalls.length, 0)
   assert.equal(state.reLaunchCalls.length, 0)
+  assert.deepEqual(state.navigationErrors, [])
+  assert.equal(state.pages.at(-1).route, 'pages/my/my')
 })
 
-test('切换已存在的固定 tab 仍使用原生 switchTab', async () => {
+test('微信端切换已存在的 tab 复用已有页面', async () => {
   const state = createState([
     { route: 'pages/index/index' },
     { route: 'pages/my/my' },
@@ -241,9 +287,151 @@ test('切换已存在的固定 tab 仍使用原生 switchTab', async () => {
 
   runtime.navigateAppRoute('app/my')
 
-  assert.equal(state.switchTabCalls.length, 1)
-  assert.equal(state.switchTabCalls[0].url, '/pages/my/my')
-  assert.equal(state.navigateBackCalls.length, 0)
+  assert.equal(state.switchTabCalls.length, 0)
+  assert.equal(state.navigateBackCalls.length, 1)
+  assert.equal(state.navigateBackCalls[0].delta, 1)
   assert.equal(state.navigateCalls.length, 0)
   assert.equal(state.reLaunchCalls.length, 0)
+  assert.equal(state.pages.at(-1).route, 'pages/my/my')
+})
+
+test('微信端首页、消息、我的反复切换不重建页面栈', async () => {
+  const state = createState([{ route: 'pages/index/index' }])
+  const runtime = await loadNavigationRuntime(state)
+  runtime.installAppNavigation(menus)
+
+  for (let index = 0; index < 20; index++) {
+    runtime.navigateAppRoute('app/message')
+    assert.equal(state.pages.at(-1).route, 'pagesMember/message/index')
+    runtime.navigateAppRoute('app/my')
+    assert.equal(state.pages.at(-1).route, 'pages/my/my')
+    runtime.navigateAppRoute('app/message')
+    assert.equal(state.pages.at(-1).route, 'pagesMember/message/index')
+    runtime.navigateAppRoute('app/home')
+    assert.equal(state.pages.at(-1).route, 'pages/index/index')
+  }
+
+  assert.equal(state.pages.length, 1)
+  assert.equal(state.reLaunchCalls.length, 0)
+  assert.equal(state.switchTabCalls.length, 0)
+  assert.equal(state.redirectCalls.length, 0)
+  assert.deepEqual(state.navigationErrors, [])
+})
+
+test('外部业务模块覆盖首页并扩展到五个 tab 时，两端保持同一导航策略', async () => {
+  const businessMenus = [
+    ...menus,
+    {
+      id: 99020000,
+      parentId: 99000000,
+      name: 'AppAnalytic',
+      path: 'app/analytic',
+      viewKey: 'APP_ANALYTIC',
+      title: 'Analytics',
+      access: 'PUBLIC',
+      inTabBar: true,
+    },
+    {
+      id: 99030000,
+      parentId: 99000000,
+      name: 'AppReport',
+      path: 'app/report',
+      viewKey: 'APP_REPORT',
+      title: 'Reports',
+      access: 'PUBLIC',
+      inTabBar: true,
+    },
+  ]
+  const viewRoutes = {
+    HOME: 'pages/workspace/index',
+    APP_ANALYTIC: 'pages/analytic/index',
+    APP_REPORT: 'pages/report/index',
+    MESSAGE_INBOX: 'pagesMember/message/index',
+    PROFILE_HOME: 'pages/my/my',
+  }
+
+  for (const isH5 of [true, false]) {
+    const state = { ...createState([{ route: viewRoutes.HOME }]), isH5, viewRoutes }
+    const runtime = await loadNavigationRuntime(state)
+    runtime.installAppNavigation(businessMenus)
+
+    for (const menu of businessMenus) {
+      runtime.navigateAppRoute(menu.path)
+      assert.equal(state.pages.at(-1).route, viewRoutes[menu.viewKey])
+    }
+    runtime.navigateAppRoute('app/home')
+
+    assert.equal(state.pages.at(-1).route, 'pages/workspace/index')
+    assert.equal(state.pages.length, 1)
+    assert.equal(state.reLaunchCalls.length, 0)
+    assert.equal(state.switchTabCalls.length, 0)
+    assert.deepEqual(state.navigationErrors, [])
+  }
+})
+
+test('微信端页面栈满时替换栈顶，保留之前的页面', async () => {
+  const pages = Array.from({ length: 10 }, (_, index) => ({ route: `pages/detail/${index}` }))
+  const state = createState([...pages])
+  const runtime = await loadNavigationRuntime(state)
+  runtime.installAppNavigation(menus)
+
+  runtime.navigateAppRoute('app/message')
+
+  assert.equal(state.redirectCalls.length, 1)
+  assert.equal(state.redirectCalls[0].url, '/pagesMember/message/index')
+  assert.deepEqual(state.pages.slice(0, 9), pages.slice(0, 9))
+  assert.equal(state.pages.at(-1).route, 'pagesMember/message/index')
+  assert.equal(state.pages.length, 10)
+  assert.equal(state.reLaunchCalls.length, 0)
+})
+
+test('两端重复点击当前 tab 不发起跳转', async () => {
+  for (const isH5 of [true, false]) {
+    const state = { ...createState([{ route: 'pages/index/index' }]), isH5 }
+    const runtime = await loadNavigationRuntime(state)
+    runtime.installAppNavigation(menus)
+
+    runtime.navigateAppRoute('app/home')
+
+    assert.equal(state.redirectCalls.length, 0)
+    assert.equal(state.navigateCalls.length, 0)
+    assert.equal(state.navigateBackCalls.length, 0)
+    assert.equal(state.switchTabCalls.length, 0)
+    assert.equal(state.reLaunchCalls.length, 0)
+  }
+})
+
+test('两端跳转未结束时忽略同一 tab 的重复点击，失败后允许重试', async () => {
+  for (const isH5 of [true, false]) {
+    const state = {
+      ...createState([{ route: 'pages/index/index' }]),
+      isH5,
+      deferNavigation: true,
+    }
+    const runtime = await loadNavigationRuntime(state)
+    runtime.installAppNavigation(menus)
+
+    runtime.navigateAppRoute('app/my')
+    runtime.navigateAppRoute('app/my')
+
+    const calls = isH5 ? state.redirectCalls : state.navigateCalls
+    assert.equal(calls.length, 1)
+    calls[0].fail({ errMsg: 'navigation:fail' })
+    if (!isH5) state.redirectCalls[0].fail({ errMsg: 'redirectTo:fail' })
+    runtime.navigateAppRoute('app/my')
+
+    assert.equal(calls.length, 2)
+    assert.equal(state.reLaunchCalls.length, 0)
+  }
+})
+
+test('启动或身份变化要求 replace 时保留整栈替换行为', async () => {
+  const state = createState([{ route: 'pages/bootstrap/index' }])
+  const runtime = await loadNavigationRuntime(state)
+  runtime.installAppNavigation(menus)
+
+  runtime.navigateAppRoute('app/home', { replace: true })
+
+  assert.equal(state.reLaunchCalls.length, 1)
+  assert.equal(state.reLaunchCalls[0].url, '/pages/index/index')
 })

@@ -118,9 +118,11 @@ uni-app 支持的语言由 core 和 System JSON 语言包自动发现，模块�
 
 所有 `uni.request`、文件上传和 SSE 请求统一发送 `Accept-Language`。动态菜单沿用后端解析后的标题，缺少当前语言译文时回退主语言；新增语言需要同步后端国际化目录、三个 workspace 的六个前端语言包目录，再执行仓库根目录的 `make i18n`。具体流程见 [国际化设计与语言扩展](../../docs/国际化设计与语言扩展.md)。
 
-页面 wrapper 统一挂载自绘 `KratosTabBar`；固定首页和我的页同时注册为隐藏的原生 tab 路由，切换时使用 `switchTab` 保持微信原生效果，动态扩展 tab 再复用页面栈。普通页面优先使用 `navigateTo`，下级页面会沿父级关系归属并高亮对应 tab。因此接口内容变化后可以调整菜单层级、逻辑路径和 `viewKey`，无需把每个业务路由写死在宿主。
+页面 wrapper 统一挂载自绘 `KratosTabBar`，宿主不声明原生 `tabBar`。首页、消息、我的和动态扩展 tab 均使用普通页面路由。普通页面优先使用 `navigateTo`，下级页面会沿父级关系归属并高亮对应 tab。因此接口内容变化后可以调整菜单层级、逻辑路径和 `viewKey`，无需把每个业务路由写死在宿主。
 
-H5 自绘底部 tab 使用 `redirectTo` 替换当前路由，避免 `reLaunch` 重建应用造成切换闪烁；微信端保持原生 tab 与页面栈导航策略。
+H5 自绘底部 tab 使用 `redirectTo` 替换当前路由；微信端首次访问使用 `navigateTo`，已在页面栈中的 tab 使用 `navigateBack` 复用，栈满时使用 `redirectTo` 替换栈顶。tab 切换不使用 `switchTab` 或 `reLaunch`，避免原生 tab 配置冲突和整栈重建造成闪烁、白屏。
+
+上述策略由可发布的 core 包统一提供，业务模块可以覆盖 `HOME` 的物理页面或扩展至 2–5 个 tab。构建插件在编译配置中移除宿主已有的原生 `tabBar`，结束后恢复宿主原文件；引用项目升级 core 后无需单独修改导航实现。
 
 ## 开发与构建
 
