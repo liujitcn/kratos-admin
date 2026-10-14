@@ -862,7 +862,7 @@
   "system.base.message.field.title": "Title",
   "system.base.message.field.user_id": "User ID",
   "system.base.message.placeholder.action_target": "For example: system/base/user/index",
-  "system.base.message.placeholder.category": "Select a tenant first, then choose a category",
+  "system.base.message.placeholder.category": "Select a category",
   "system.base.message.placeholder.content": "Enter the notification body using rich text",
   "system.base.message.placeholder.expires_at": "Optional; the message expires after this time",
   "system.base.message.placeholder.scheduled_at": "Leave empty to publish immediately",

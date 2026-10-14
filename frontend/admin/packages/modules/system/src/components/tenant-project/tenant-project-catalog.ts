@@ -119,7 +119,7 @@ export async function loadTenantProjectOptions(isDefaultTenant: boolean, force =
       sharedCatalog.treeOptions = response.list ?? [];
       indexTree(sharedCatalog.treeOptions);
     } else {
-      const response = await defBaseTenantProjectService.OptionBaseTenantProject({ tenant_id: 0 });
+      const response = await defBaseTenantProjectService.OptionBaseTenantProject({});
       sharedCatalog.projectOptions = response.list ?? [];
       for (const option of sharedCatalog.projectOptions) indexProject(0, Number(option.value), option.label, "");
       sharedCatalog.treeOptions = sharedCatalog.projectOptions.map(option => ({

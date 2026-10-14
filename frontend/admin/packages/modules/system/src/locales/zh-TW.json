@@ -862,7 +862,7 @@
   "system.base.message.field.title": "消息標題",
   "system.base.message.field.user_id": "使用者ID",
   "system.base.message.placeholder.action_target": "例如：system/base/user/index",
-  "system.base.message.placeholder.category": "請先選擇租戶，再選擇消息分類",
+  "system.base.message.placeholder.category": "請選擇消息分類",
   "system.base.message.placeholder.content": "請輸入通知正文，可使用富文字格式",
   "system.base.message.placeholder.expires_at": "可選，超過時間後消息失效",
   "system.base.message.placeholder.scheduled_at": "不填寫則立即發布",

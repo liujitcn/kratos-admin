@@ -59,6 +59,18 @@ const AUTH_EXPIRED_EXCLUDED_URL_SET = new Set([
   MFA_ENROLLMENT_CONFIRM_URL
 ]);
 
+/** 删除查询参数中表示“未选择”的租户项目零值。 */
+function compactTenantProjectQueryParams(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map(item => compactTenantProjectQueryParams(item));
+  if (!value || typeof value !== "object") return value;
+  const result: Record<string, unknown> = {};
+  for (const [key, nested] of Object.entries(value as Record<string, unknown>)) {
+    if ((key === "tenant_id" || key === "project_id" || key.endsWith(".tenant_id") || key.endsWith(".project_id")) && nested === 0) continue;
+    result[key] = compactTenantProjectQueryParams(nested);
+  }
+  return result;
+}
+
 /** 支持自动重试的 Axios 请求配置。 */
 type RetryableRequestConfig = InternalAxiosRequestConfig & {
   /** 标记当前请求已经因认证失败重试过，避免刷新失败时递归重放。 */
@@ -109,7 +121,7 @@ const service = axios.create({
   baseURL: requestBaseURL,
   timeout: 50000,
   headers: { "Content-Type": "application/json;charset=utf-8" },
-  paramsSerializer: params => qs.stringify(params),
+  paramsSerializer: params => qs.stringify(compactTenantProjectQueryParams(params)),
   withCredentials: true
 });
 
