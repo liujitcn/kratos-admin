@@ -2,6 +2,17 @@ version: 2
 updates:
   - package-ecosystem: gomod
     directory: /backend
+    # agenticopenai v0.2.4 的稳定契约为 SDK v3.44.0；上游适配后再移除此上限。
+    ignore:
+      - dependency-name: github.com/openai/openai-go/v3
+        versions: [">3.44.0"]
+    groups:
+      openai-adapter:
+        patterns:
+          - github.com/cloudwego/eino
+          - github.com/cloudwego/eino-ext/components/model/agenticopenai
+          - github.com/cloudwego/eino-ext/libs/acl/openai
+          - github.com/openai/openai-go/v3
     schedule:
       interval: weekly
     open-pull-requests-limit: 5

@@ -1,0 +1,2 @@
+# pnpm 生成的 unified diff 以单个空格表示空行上下文。
+patches/*.patch whitespace=-blank-at-eol

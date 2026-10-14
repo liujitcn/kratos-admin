@@ -38,6 +38,10 @@ Each directory containing a `package.json` has its own README with details about
 
 ## Development
 
+Use Node.js 24 and pnpm 10.33.4. Run `nvm install && nvm use` first. After dependency upgrades, regenerate the lockfile with `pnpm install --no-frozen-lockfile` and verify it with `pnpm install --frozen-lockfile`.
+
+`patches/braces@3.0.3.patch` bounds parser and AST traversal depth for CVE-2026-93687, which has no upstream fixed release. The audit exception applies only to this patch. Run `pnpm test:dependency-security` before `pnpm audit --audit-level high`; remove the patch, this exception and its regression tests together when an upstream fix becomes available.
+
 ```bash
 pnpm install
 pnpm dev

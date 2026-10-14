@@ -40,8 +40,8 @@
 
 ## 环境
 
-- Go `1.27.0`。
-- Node.js `^20.19.0` 或 `>=22.12.0`。
+- Go `1.27.2` 或更高补丁版本。
+- Node.js `24`；管理端及其 CLI 模板使用 `frontend/admin/.nvmrc`，进入该目录后执行 `nvm install && nvm use`。
 - pnpm 版本以各 workspace 的 `packageManager` 为准：管理端 `10.33.4`，uni-app 与 Taro 应用端 `10.13.1`。
 - MySQL、Consul 和 Vault；Redis 与队列按需启用，未配置时单实例使用进程内实现。用途与最小/完整配置入口见下方说明。
 - Docker 部署需要可用的 Docker CLI 与 Docker daemon。

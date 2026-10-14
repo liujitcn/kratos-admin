@@ -95,7 +95,7 @@ func TestExternalHostWire(t *testing.T) {
 		workspaceModules = append(workspaceModules, modulePath)
 	}
 	var workspaceBuilder strings.Builder
-	workspaceBuilder.WriteString("go 1.27.0\n\nuse (\n")
+	workspaceBuilder.WriteString("go 1.27.2\n\nuse (\n")
 	for _, modulePath := range workspaceModules {
 		_, err = fmt.Fprintf(&workspaceBuilder, "%q\n", modulePath)
 		if err != nil {

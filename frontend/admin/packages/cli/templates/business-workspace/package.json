@@ -12,20 +12,21 @@
     "lint:oxlint": "oxlint --fix --vue-plugin --config ./internal/lint-config/oxlint.json --ignore-path .oxlintignore ./apps ./packages ./internal ./scripts",
     "lint:lint-staged": "lint-staged",
     "lint:prettier": "prettier --write \"{apps,packages,internal,scripts}/**/*.{js,mjs,ts,json,tsx,css,less,scss,vue,html,md,yaml}\"",
-    "lint:stylelint": "stylelint --cache --fix \"{apps,packages}/**/*.{vue,less,postcss,css,scss}\" --cache-location node_modules/.cache/stylelint/",
+    "lint:stylelint": "stylelint --config .stylelintrc.cjs --cache --fix \"{apps,packages}/**/*.{vue,less,postcss,css,scss}\" --cache-location node_modules/.cache/stylelint/",
     "generate:auto-import-types": "node scripts/generate-auto-import-types.mjs",
     "i18n:sync": "node scripts/sync-locales.mjs --write",
-    "i18n:check": "node scripts/sync-locales.mjs"
+    "i18n:check": "node scripts/sync-locales.mjs",
+    "test:dependency-security": "node --test scripts/dependency-security.test.mjs"
   },
   "devDependencies": {
-    "@types/node": "^25.9.1",
+    "@types/node": "26.5.1",
     "sass": "^1.100.0",
     "turbo": "^2.5.6",
     "typescript": "6.0.3",
     "vite": "^8.0.14",
     "vue-tsc": "^3.3.2",
-    "@commitlint/cli": "^18.4.3",
-    "@commitlint/config-conventional": "^18.4.3",
+    "@commitlint/cli": "21.2.2",
+    "@commitlint/config-conventional": "21.2.2",
     "@types/md5": "^2.3.5",
     "@types/nprogress": "^0.2.3",
     "@types/qs": "^6.9.15",
@@ -39,7 +40,7 @@
     "postcss-html": "^1.8.1",
     "prettier": "^3.3.2",
     "standard-version": "^9.5.0",
-    "stylelint": "^17.12.0",
+    "stylelint": "^17.15.0",
     "stylelint-config-html": "^1.1.0",
     "stylelint-config-recess-order": "^7.7.0",
     "stylelint-config-recommended-scss": "^17.0.1",
@@ -50,7 +51,7 @@
     "ts-proto": "^2.11.8"
   },
   "engines": {
-    "node": "^20.19.0 || >=22.12.0"
+    "node": "^24.0.0"
   },
   "packageManager": "pnpm@10.33.4",
   "pnpm": {
@@ -61,7 +62,11 @@
       "svg-baker>micromatch": "4.0.8",
       "svg-baker>postcss": "8.5.26",
       "vue": "3.5.42",
-      "vue-router": "5.3.1"
+      "vue-router": "5.3.1",
+      "brace-expansion@<2.0.0": "1.1.20",
+      "brace-expansion@>=2.0.0 <3.0.0": "2.1.6",
+      "handlebars@<4.7.10": "4.7.10",
+      "source-map-js@<1.2.2": "1.2.2"
     },
     "onlyBuiltDependencies": [
       "@parcel/watcher",
@@ -76,8 +81,12 @@
     "auditConfig": {
       "ignoreCves": [
         "CVE-2025-71330",
-        "CVE-2025-71329"
+        "CVE-2025-71329",
+        "CVE-2026-93687"
       ]
+    },
+    "patchedDependencies": {
+      "braces@3.0.3": "patches/braces@3.0.3.patch"
     }
   }
 }

@@ -39,6 +39,10 @@ __MODULE_TABLE_ROWS__
 
 ## 开发
 
+使用 Node.js 24 和 pnpm 10.33.4，先执行 `nvm install && nvm use`。依赖升级后通过 `pnpm install --no-frozen-lockfile` 生成锁文件，再用 `pnpm install --frozen-lockfile` 验证。
+
+`patches/braces@3.0.3.patch` 限制括号解析与 AST 遍历深度，处理尚无上游修复版本的 `CVE-2026-93687`；审计豁免仅针对此补丁。执行 `pnpm test:dependency-security` 验证实际安装的依赖后再运行 `pnpm audit --audit-level high`，上游发布修复版本后同时删除补丁、该豁免和对应测试。
+
 ```bash
 pnpm install
 pnpm dev

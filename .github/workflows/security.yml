@@ -33,7 +33,15 @@ jobs:
           cache-dependency-path: backend/go.sum
       - run: go mod edit -replace=github.com/liujitcn/go-utils/crypto=../go-utils/crypto
       - run: go install golang.org/x/vuln/cmd/govulncheck@latest
-      - run: go install github.com/securego/gosec/v2/cmd/gosec@latest
+      - name: 安装兼容 Go 1.27 的 Gosec
+        # v2.29.0 默认的 x/tools 不能读取 Go 1.27 的 export data v5。
+        run: |
+          security_tools_dir=$(mktemp -d)
+          trap 'rm -rf "$security_tools_dir"' EXIT
+          cd "$security_tools_dir"
+          go mod init kratos-admin-security-tools
+          go get github.com/securego/gosec/v2/cmd/gosec@v2.29.0 golang.org/x/tools@v0.51.0
+          go install github.com/securego/gosec/v2/cmd/gosec
       - run: govulncheck ./...
       - run: gosec -exclude-generated -confidence high -severity high ./...
 
@@ -50,11 +58,12 @@ jobs:
           version: 10.33.4
       - uses: actions/setup-node@v6
         with:
-          node-version: 22
+          node-version-file: frontend/admin/.nvmrc
           cache: pnpm
           cache-dependency-path: frontend/admin/pnpm-lock.yaml
       - run: pnpm install --frozen-lockfile
-      - run: pnpm audit --audit-level high --ignore-unfixable
+      - run: pnpm test:dependency-security
+      - run: pnpm audit --registry=https://registry.npmjs.org --audit-level high
 
   repository:
     name: Repository and image-context scan

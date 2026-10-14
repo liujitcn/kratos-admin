@@ -1,11 +1,11 @@
 module github.com/liujitcn/kratos-admin/backend
 
-go 1.27.0
+go 1.27.2
 
 require (
 	buf.build/go/protovalidate v1.4.0
-	github.com/cloudwego/eino v0.9.19
-	github.com/cloudwego/eino-ext/components/model/agenticopenai v0.2.2
+	github.com/cloudwego/eino v0.9.21
+	github.com/cloudwego/eino-ext/components/model/agenticopenai v0.2.4
 	github.com/go-kratos/kratos/v3 v3.0.0
 	github.com/go-sql-driver/mysql v1.10.1
 	github.com/go-webauthn/webauthn v0.18.2
@@ -54,7 +54,7 @@ require (
 	github.com/liujitcn/kratos-kit/utils v0.0.28
 	github.com/microcosm-cc/bluemonday v1.0.27
 	github.com/modelcontextprotocol/go-sdk v1.8.0
-	github.com/openai/openai-go/v3 v3.35.0
+	github.com/openai/openai-go/v3 v3.44.0
 	github.com/pquerna/otp v1.4.0
 	github.com/redis/go-redis/v9 v9.23.0
 	github.com/sashabaranov/go-openai v1.43.0
@@ -146,7 +146,7 @@ require (
 	github.com/clipperhouse/displaywidth v0.11.0 // indirect
 	github.com/clipperhouse/uax29/v2 v2.7.0 // indirect
 	github.com/cloudwego/base64x v0.1.6 // indirect
-	github.com/cloudwego/eino-ext/libs/acl/openai v0.1.18-0.20260527084435-846f52bd97c6 // indirect
+	github.com/cloudwego/eino-ext/libs/acl/openai v0.1.18-0.20260924031408-10df7cac3f6d // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/dustin/go-humanize v1.1.0 // indirect
 	github.com/ebitengine/purego v0.11.1 // indirect
@@ -264,7 +264,7 @@ require (
 	github.com/mattn/go-isatty v0.0.24 // indirect
 	github.com/mattn/go-runewidth v0.0.31 // indirect
 	github.com/mattn/go-sqlite3 v1.14.52 // indirect
-	github.com/meguminnnnnnnnn/go-openai v0.1.2 // indirect
+	github.com/meguminnnnnnnnn/go-openai v0.1.6 // indirect
 	github.com/minio/crc64nvme v1.1.1 // indirect
 	github.com/minio/md5-simd v1.1.2 // indirect
 	github.com/minio/minio-go/v7 v7.3.0 // indirect

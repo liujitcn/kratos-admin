@@ -2,3 +2,7 @@
 /public/*
 public/*
 stats.html
+
+# 模板占位符尚未渲染，不能作为独立工程解析。
+packages/cli/templates/**
+**/dist/**

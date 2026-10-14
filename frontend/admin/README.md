@@ -78,6 +78,14 @@ npm 打包和发布清单。
 
 ## 开发与构建
 
+开发环境统一使用 Node.js 24 和 pnpm 10.33.4。进入本目录后执行 `nvm install && nvm use`；CLI 生成的 workspace 使用相同版本约束。
+
+依赖升级后使用 `pnpm install --no-frozen-lockfile` 重新生成锁文件，再用 `pnpm install --frozen-lockfile` 验证；不要手工合并 peer snapshot。CI 的依赖安装与安全审计使用已提交的锁文件。
+
+安全覆盖版本固定在 `package.json#pnpm.overrides`，修复旧版 `brace-expansion`、`handlebars` 与 `source-map-js`。`braces@3.0.3` 尚无上游修复版本，`patches/braces@3.0.3.patch` 将括号解析与直接 AST 遍历深度限制为 128，超限返回受控 `SyntaxError`；常规 glob、转义和引号行为保持一致。`CVE-2026-93687` 的审计豁免仅对应此本地补丁，CI 必须先运行 `pnpm test:dependency-security`，验证 Stylelint 与 lint-staged 实际加载的依赖已受到保护，再执行审计。上游发布修复版本后应同时删除补丁、该豁免和对应回归测试；保留原有其他豁免。
+
+`pnpm lint:stylelint` 显式使用根配置并排除未渲染的 CLI 模板和构建产物；现有源码样式错误需按独立清理任务处理。
+
 ```bash
 cd frontend/admin
 pnpm install

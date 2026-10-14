@@ -1,5 +1,11 @@
 # backend
 
+后端、API 和 Client 模块使用 Go 1.27.2 或更高补丁版本，Docker 构建镜像同步固定为 1.27.2。
+
+Security 工作流在临时工具模块内安装 `gosec v2.29.0`，配套 `golang.org/x/tools v0.51.0`，以读取 Go 1.27 的编译数据；该工具模块不修改业务模块依赖。使用默认依赖直接安装 Gosec 会出现 export data v5 导入错误，不能作为扫描通过的证据。
+
+AI 依赖配套使用 `agenticopenai v0.2.4`、`eino v0.9.21` 与 OpenAI SDK `v3.44.0`。SDK `v3.73.0` 的 Responses 类型与当前稳定适配库不兼容，因此 Dependabot 暂时限制 SDK 不超过 `v3.44.0`，并将相关依赖归入同一升级组；上游发布兼容版本后，先验证模型和工具调用再解除版本限制。
+
 个人中心登录记录以本地 `YYYY-MM-DD HH:mm:ss` 显示登录时间；设备标识优先记录 `X-Device-ID`，缺失时使用 User-Agent，历史空设备字段在页面展示已有 User-Agent。说明对应 `reason`，仅失败或异常时记录错误原因，成功时为空。
 
 账号密码、OAuth 票据兑换和微信登录统一返回 `mfa_remember_days`，表示当前登录策略允许的 MFA 设备免验证天数；为 `0` 时不提供记住设备选项。 OAuth 一次性票据在缓存与兑换时保留该字段。
