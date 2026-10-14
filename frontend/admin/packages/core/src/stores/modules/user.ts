@@ -25,7 +25,8 @@ const defaultUserInfo: UserInfoForm = {
   role_name: "",
   dept_name: "",
   tenant_code: "",
-  tenant_name: ""
+  tenant_name: "",
+  tenant_id: 0
 };
 
 export const useUserStore = defineStore("admin-user", {

@@ -1,15 +1,78 @@
 package biz
 
 import (
+	"context"
+	"database/sql"
 	"sync"
 	"testing"
 
 	"github.com/liujitcn/go-utils/crypto"
+	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/loginpolicy"
 	passwordPolicy "github.com/liujitcn/kratos-admin/backend/internal/biz/base/password"
+	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
+	"github.com/liujitcn/kratos-core/biz"
+	"github.com/liujitcn/kratos-kit/auth/authn/engine"
+	authdata "github.com/liujitcn/kratos-kit/auth/data"
+	kitgorm "github.com/liujitcn/kratos-kit/database/gorm"
+	"gorm.io/driver/sqlite"
+	"gorm.io/gorm"
 	"gorm.io/gorm/schema"
 )
+
+// TestOptionBaseTenantScopesOrdinaryTenant 验证普通租户的租户选项只返回当前租户，默认租户仍可查看全部租户。
+func TestOptionBaseTenantScopesOrdinaryTenant(t *testing.T) {
+	db, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	var connection *sql.DB
+	connection, err = db.DB()
+	if err != nil {
+		t.Fatal(err)
+	}
+	connection.SetMaxOpenConns(1)
+	t.Cleanup(func() {
+		if err := connection.Close(); err != nil {
+			t.Error(err)
+		}
+	})
+	err = db.AutoMigrate(&models.BaseTenant{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, tenant := range []*models.BaseTenant{
+		{ID: 1, Code: kitgorm.DefaultTenantCode, Name: "默认租户", Status: 1},
+		{ID: 3, Code: "tenant-3", Name: "租户三", Status: 1},
+		{ID: 4, Code: "tenant-4", Name: "租户四", Status: 1},
+	} {
+		if err = db.Create(tenant).Error; err != nil {
+			t.Fatal(err)
+		}
+	}
+	store, err := data.NewData(map[string]*kitgorm.Client{kitgorm.DefaultClientName: {DB: db}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	caseValue := &BaseTenantCase{BaseCase: &biz.BaseCase{}, BaseTenantRepository: data.NewBaseTenantRepository(store)}
+	ordinaryCtx := engine.ContextWithAuthClaims(context.Background(), (&authdata.UserTokenPayload{TenantId: 4, TenantCode: "tenant-4"}).MakeAuthClaims())
+	options, err := caseValue.OptionBaseTenant(ordinaryCtx, &adminv1.OptionBaseTenantRequest{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(options.List) != 1 || options.List[0].Value != 4 {
+		t.Fatalf("普通租户选项 = %+v, want only tenant 4", options.List)
+	}
+	defaultCtx := engine.ContextWithAuthClaims(context.Background(), (&authdata.UserTokenPayload{TenantId: 1, TenantCode: kitgorm.DefaultTenantCode}).MakeAuthClaims())
+	options, err = caseValue.OptionBaseTenant(defaultCtx, &adminv1.OptionBaseTenantRequest{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(options.List) != 3 {
+		t.Fatalf("默认租户选项数量 = %d, want 3", len(options.List))
+	}
+}
 
 // TestBaseTenantIDUsesDatabaseAutoIncrement 验证租户 ID 由数据库自增且不依赖租户编号。
 func TestBaseTenantIDUsesDatabaseAutoIncrement(t *testing.T) {

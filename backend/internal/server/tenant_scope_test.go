@@ -46,3 +46,28 @@ func TestTenantScopeMiddlewareRejectsExplicitZeroTenant(t *testing.T) {
 		t.Fatal("显式零租户ID未被拒绝")
 	}
 }
+
+// TestTenantScopeMiddlewareFillsProjectGrantTenant 验证项目授权请求省略租户时由当前身份补全。
+func TestTenantScopeMiddlewareFillsProjectGrantTenant(t *testing.T) {
+	request := &adminv1.CreateBaseTenantProjectGrantRequest{
+		BaseTenantProjectGrant: &adminv1.BaseTenantProjectGrant{
+			SubjectType: adminv1.BaseTenantProjectGrantSubjectType_BASE_TENANT_PROJECT_GRANT_SUBJECT_TYPE_ROLE,
+			SubjectId:   8,
+		},
+	}
+	ctx := engine.ContextWithAuthClaims(context.Background(), (&data.UserTokenPayload{
+		TenantId:   7,
+		TenantCode: "tenant-7",
+	}).MakeAuthClaims())
+
+	handler := middleware.NewTenantScopeMiddleware()(func(_ context.Context, req any) (any, error) {
+		return req, nil
+	})
+	_, err := handler(ctx, request)
+	if err != nil {
+		t.Fatalf("项目授权租户补全失败: %v", err)
+	}
+	if request.GetBaseTenantProjectGrant().GetTenantId() != 7 {
+		t.Fatalf("项目授权租户ID = %d, want 7", request.GetBaseTenantProjectGrant().GetTenantId())
+	}
+}

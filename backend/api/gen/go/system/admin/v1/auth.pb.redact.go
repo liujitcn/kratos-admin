@@ -230,6 +230,8 @@ func (x *UserInfoForm) Redact() {
 	// Safe field: TenantCode
 
 	// Safe field: TenantName
+
+	// Safe field: TenantId
 }
 
 // Ensure GetUserProfileRequest implements the Redactor interface at compile time.

@@ -34,7 +34,7 @@ import FormDialog from "@liujitcn/kratos-admin-core/components/Dialog/FormDialog
 import type { ProFormField, ProFormOption } from "@liujitcn/kratos-admin-core/components/ProForm/interface";
 import { useAuthButtons } from "@liujitcn/kratos-admin-core/auth";
 import { buildPageRequest } from "@liujitcn/kratos-admin-core/table";
-import { invalidateTenantOptions, useTenantScope } from "@liujitcn/kratos-admin-core/tenant";
+import { useTenantScope } from "@liujitcn/kratos-admin-core/tenant";
 import { t } from "@liujitcn/kratos-admin-core";
 import { defBaseDeptService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/base_dept";
 import { defBasePostService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/base_post";
@@ -65,7 +65,7 @@ type ProjectGrantFormState = {
 const { BUTTONS } = useAuthButtons();
 const proTable = ref<ProTableInstance>();
 const formDialogRef = ref<InstanceType<typeof FormDialog>>();
-const { isDefaultTenant, tenantOptions, tenantColumns, tenantFormField, toRequestTenantId, loadTenantOptions } = useTenantScope();
+const { isDefaultTenant, currentTenantId, tenantColumns, tenantFormField, toRequestTenantId, loadTenantOptions } = useTenantScope();
 const projectOptions = ref<SelectOptionResponse_Option[]>([]);
 const subjectOptions = ref<ProFormOption[]>([]);
 const loading = ref(false);
@@ -215,12 +215,11 @@ async function handleOpenDialog(row?: BaseTenantProjectGrant) {
   try {
     await formDialogRef.value?.open({
       load: async () => {
-        if (!isDefaultTenant.value) invalidateTenantOptions();
-        await loadTenantOptions(true);
+        if (isDefaultTenant.value) await loadTenantOptions(true);
         // proto3 JSON 会省略空数组字段，行数据里的 project_id 可能为 undefined。
         const rowProjectIds = row?.project_id ?? [];
         const nextForm = {
-          tenant_id: row?.tenant_id ?? (isDefaultTenant.value ? undefined : Number(tenantOptions.value[0]?.value) || undefined),
+          tenant_id: row?.tenant_id ?? (isDefaultTenant.value ? undefined : currentTenantId.value),
           subject_type: row?.subject_type ?? DEFAULT_SUBJECT_TYPE,
           subject_id: row?.subject_id,
           project_id: row && !(rowProjectIds.length === 1 && rowProjectIds[0] === 0) ? [...rowProjectIds] : [],
@@ -302,8 +301,8 @@ async function handleSubjectTypeChange(value: unknown) {
 function handleSubmit() {
   formDialogRef.value?.validate()?.then(valid => {
     if (!valid || !formData.tenant_id || !formData.subject_id || formData.subject_type === 0) return;
-    const grant: BaseTenantProjectGrant = {
-      tenant_id: formData.tenant_id,
+    const grant = {
+      ...(isDefaultTenant.value ? { tenant_id: formData.tenant_id } : {}),
       subject_type: formData.subject_type,
       subject_id: formData.subject_id,
       project_id: formData.all ? [0] : [...formData.project_id],
@@ -312,7 +311,7 @@ function handleSubmit() {
       subject_code: "",
       project_names: [],
       grant_key: ""
-    };
+    } as BaseTenantProjectGrant;
     loading.value = true;
     const request = dialog.editing
       ? defBaseTenantProjectGrantService.UpdateBaseTenantProjectGrant({ base_tenant_project_grant: grant })

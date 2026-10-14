@@ -277,6 +277,7 @@ func (c *AuthCase) GetUserInfo(ctx context.Context) (*adminv1.UserInfoForm, erro
 	res.RoleCode = baseRole.Code
 	res.RoleName = baseRole.Name
 	res.DeptName = baseDept.Name
+	res.TenantId = baseUser.TenantID
 	res.TenantCode = baseTenant.Code
 	res.TenantName = baseTenant.Name
 	return res, nil

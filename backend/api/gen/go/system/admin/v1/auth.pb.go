@@ -199,6 +199,7 @@ type UserInfoForm struct {
 	DeptName      string                  `protobuf:"bytes,102,opt,name=dept_name,json=deptName,proto3" json:"dept_name,omitempty"`                               // 部门名称
 	TenantCode    string                  `protobuf:"bytes,104,opt,name=tenant_code,json=tenantCode,proto3" json:"tenant_code,omitempty"`                         // 租户编码
 	TenantName    string                  `protobuf:"bytes,105,opt,name=tenant_name,json=tenantName,proto3" json:"tenant_name,omitempty"`                         // 租户名称
+	TenantId      int64                   `protobuf:"varint,106,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`                              // 当前用户所属租户ID
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -315,6 +316,13 @@ func (x *UserInfoForm) GetTenantName() string {
 		return x.TenantName
 	}
 	return ""
+}
+
+func (x *UserInfoForm) GetTenantId() int64 {
+	if x != nil {
+		return x.TenantId
+	}
+	return 0
 }
 
 // 获取个人中心用户信息请求参数
@@ -1127,7 +1135,7 @@ const file_system_admin_v1_auth_proto_rawDesc = "" +
 	"\x11TreeRouteResponse\x12F\n" +
 	"\x06routes\x18\x01 \x03(\v2\x1a.system.admin.v1.RouteItemB\x12\xbaG\x0f\x92\x02\f路由列表R\x06routes\"\x17\n" +
 	"\x15ListUserButtonRequest\"\x14\n" +
-	"\x12GetUserInfoRequest\"\xfc\x06\n" +
+	"\x12GetUserInfoRequest\"\xbb\a\n" +
 	"\fUserInfoForm\x12/\n" +
 	"\tuser_name\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f用户账号R\buserName\x12/\n" +
 	"\tnick_name\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f用户昵称R\bnickName\x12%\n" +
@@ -1144,7 +1152,8 @@ const file_system_admin_v1_auth_proto_rawDesc = "" +
 	"\vtenant_code\x18h \x01(\tB\x12\xbaG\x0f\x92\x02\f租户编码R\n" +
 	"tenantCode\x123\n" +
 	"\vtenant_name\x18i \x01(\tB\x12\xbaG\x0f\x92\x02\f租户名称R\n" +
-	"tenantName\"\x17\n" +
+	"tenantName\x12=\n" +
+	"\ttenant_id\x18j \x01(\x03B \xbaG\x1d\x92\x02\x1a当前用户所属租户IDR\btenantId\"\x17\n" +
 	"\x15GetUserProfileRequest\"!\n" +
 	"\x1fGetCurrentPasswordPolicyRequest\"\xf5\x02\n" +
 	"\x15CurrentPasswordPolicy\x127\n" +

@@ -434,7 +434,8 @@ test("项目授权主体选项遵循当前租户请求范围", async () => {
   const source = await readSource("src/views/base/tenant-project-grant/index.vue");
   const block = source.match(/async function requestSubjectOptions\([\s\S]*?\n\}/)?.[0];
 
-  assert.match(source, /if \(!isDefaultTenant\.value\) invalidateTenantOptions\(\);/);
+  assert.match(source, /if \(isDefaultTenant\.value\) await loadTenantOptions\(true\);/);
+  assert.match(source, /\.\.\.\(isDefaultTenant\.value \? \{ tenant_id: formData\.tenant_id \} : \{\}\)/);
   assert.ok(block, "缺少项目授权主体选项请求方法");
   assert.match(block, /const requestTenantId = toRequestTenantId\(tenantId\);/);
   assert.equal((block.match(/tenant_id: requestTenantId/g) ?? []).length, 4);

@@ -54,6 +54,8 @@ export interface UserInfoForm {
   tenant_code: string;
   /** 租户名称 */
   tenant_name: string;
+  /** 当前用户所属租户ID */
+  tenant_id: number;
 }
 
 /** 获取个人中心用户信息请求参数 */

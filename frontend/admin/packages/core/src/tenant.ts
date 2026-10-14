@@ -29,6 +29,8 @@ export async function requestTenantCodeOptions() {
 export interface TenantScope {
   /** 当前账号是否为默认租户。 */
   isDefaultTenant: ComputedRef<boolean>;
+  /** 当前账号所属租户编号。 */
+  currentTenantId: ComputedRef<number | undefined>;
   /** 当前账号可用的租户选项。 */
   tenantOptions: Ref<SelectOptionResponse_Option[]>;
   /** 租户选项名称映射。 */
@@ -87,6 +89,10 @@ export interface TenantColumnOptions {
 export function useTenantScope(): TenantScope {
   const userStore = useUserStore();
   const isDefaultTenant = computed(() => userStore.userInfo.tenant_code === DEFAULT_TENANT_CODE);
+  const currentTenantId = computed(() => {
+    const tenantId = Number(userStore.userInfo.tenant_id);
+    return Number.isFinite(tenantId) && tenantId > 0 ? tenantId : undefined;
+  });
   const tenantOptions = ref<SelectOptionResponse_Option[]>([]);
   const tenantNameMap = computed(() => new Map(tenantOptions.value.map(item => [String(item.value), item.label] as const)));
 
@@ -155,6 +161,7 @@ export function useTenantScope(): TenantScope {
 
   return {
     isDefaultTenant,
+    currentTenantId,
     tenantOptions,
     tenantNameMap,
     loadTenantOptions,

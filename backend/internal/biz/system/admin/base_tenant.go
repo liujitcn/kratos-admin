@@ -123,14 +123,22 @@ func (c *BaseTenantCase) FindDefault(ctx context.Context) (*models.BaseTenant, e
 // OptionBaseTenant 查询租户选项。
 func (c *BaseTenantCase) OptionBaseTenant(ctx context.Context, req *adminv1.OptionBaseTenantRequest) (*commonv1.SelectOptionResponse, error) {
 	query := c.Query(ctx).BaseTenant
+	authInfo, err := c.GetAuthInfo(ctx)
+	if err != nil {
+		return nil, err
+	}
 	opts := make([]repository.QueryOption, 0, 4)
 	opts = append(opts, repository.Order(query.CreatedAt.Desc()))
 	opts = append(opts, repository.Where(query.Status.Eq(coreconst.STATUS_STATUS_ENABLE)))
+	if authInfo.TenantCode != gorm.DefaultTenantCode {
+		opts = append(opts, repository.Where(query.ID.Eq(authInfo.TenantId)))
+	}
 	if req.GetKeyword() != "" {
 		opts = append(opts, repository.Where(query.Name.Like("%"+req.GetKeyword()+"%")))
 	}
 
-	list, err := c.List(ctx, opts...)
+	var list []*models.BaseTenant
+	list, err = c.List(ctx, opts...)
 	if err != nil {
 		return nil, err
 	}

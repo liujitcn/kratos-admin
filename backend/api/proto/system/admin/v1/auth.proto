@@ -120,6 +120,8 @@ message UserInfoForm {
   string tenant_code = 104 [(gnostic.openapi.v3.property) = {description: "租户编码"}]; // 租户编码
 
   string tenant_name = 105 [(gnostic.openapi.v3.property) = {description: "租户名称"}]; // 租户名称
+
+  int64 tenant_id = 106 [(gnostic.openapi.v3.property) = {description: "当前用户所属租户ID"}]; // 当前用户所属租户ID
 }
 
 // 获取个人中心用户信息请求参数
