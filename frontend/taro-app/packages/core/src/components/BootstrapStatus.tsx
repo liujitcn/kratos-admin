@@ -1,4 +1,5 @@
 import { Image, Text, View } from '@tarojs/components'
+import defaultLogo from '@liujitcn/kratos-taro-app-core/static/images/logo_icon.png'
 import './BootstrapStatus.scss'
 import { useI18n } from '../locales'
 import { useThemeStore } from '../stores'
@@ -17,7 +18,7 @@ export function BootstrapStatus({ title, detail }: BootstrapStatusProps) {
     <View className={`bootstrap-status ${themeStore.theme === 'light' ? 'theme-light' : 'theme-dark'}`}>
       <Image
         className='bootstrap-status__logo'
-        src='/static/images/logo_icon.png'
+        src={defaultLogo}
         mode='aspectFit'
       />
       <Text className='bootstrap-status__title'>{title || t('core.status.loading')}</Text>
