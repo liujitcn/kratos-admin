@@ -673,7 +673,7 @@ export default function LoginPage() {
               />
               <View
                 className='password-toggle'
-                aria-label={passwordVisible ? '隐藏密码' : '显示密码'}
+                aria-label={passwordVisible ? t('core.login.password_hide') : t('core.login.password_show')}
                 onClick={() => setPasswordVisible((visible) => !visible)}
               >
                 <Image
@@ -761,7 +761,7 @@ export default function LoginPage() {
               />
               <View
                 className='password-toggle'
-                aria-label={miniPasswordVisible ? '隐藏密码' : '显示密码'}
+                aria-label={miniPasswordVisible ? t('core.login.password_hide') : t('core.login.password_show')}
                 onClick={() => setMiniPasswordVisible((visible) => !visible)}
               >
                 <Image

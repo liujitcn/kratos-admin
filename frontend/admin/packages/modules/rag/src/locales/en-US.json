@@ -35,7 +35,6 @@
   "rag.knowledge.message.create_success": "Knowledge base created",
   "rag.knowledge.message.delete_success": "Knowledge base deleted",
   "rag.knowledge.message.update_success": "Knowledge base updated",
-  "rag.knowledge.resource": "Knowledge Base",
   "rag.knowledge.search.action": "Search",
   "rag.knowledge.search.empty": "No matching chunks",
   "rag.knowledge.search.hint": "Returns the semantically closest chunks",

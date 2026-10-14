@@ -8,9 +8,6 @@
   "base.ai.message.delete.session_id.positive": {
     "other": "The session number is invalid"
   },
-  "base.ai.message.not_found": {
-    "other": "Message not found"
-  },
   "base.ai.message.regenerate.message_id.positive": {
     "other": "The message number is invalid"
   },
@@ -113,9 +110,6 @@
   "base.ai.query.question.required": {
     "other": "The question content is invalid"
   },
-  "base.ai.runtime.uninitialized": {
-    "other": "The AI assistant runtime is not initialized"
-  },
   "base.ai.search.http_status": {
     "other": "The web search service returned an unexpected status: {{.Status}}"
   },
@@ -173,32 +167,11 @@
   "base.file.download.path.required": {
     "other": "File path cannot be empty"
   },
-  "base.file.upload.failed": {
-    "other": "File upload failed"
-  },
-  "base.login.account.disabled": {
-    "other": "Account is disabled"
-  },
-  "base.login.captcha.invalid": {
-    "other": "Verification code is incorrect"
-  },
-  "base.login.captcha.verify_failed": {
-    "other": "Verification code validation failed"
-  },
-  "base.login.credentials.invalid": {
-    "other": "Incorrect username or password"
-  },
-  "base.login.department.disabled": {
-    "other": "Department is disabled"
-  },
   "base.login.login.captcha_code.required": {
     "other": "Verification code cannot be empty"
   },
   "base.login.login.captcha_id.required": {
     "other": "Verification code cannot be empty"
-  },
-  "base.login.login.failed": {
-    "other": "Login failed"
   },
   "base.login.login.password.required": {
     "other": "Password cannot be empty"
@@ -208,18 +181,6 @@
   },
   "base.login.login.user_name.required": {
     "other": "Username cannot be empty"
-  },
-  "base.login.logout.failed": {
-    "other": "Logout failed"
-  },
-  "base.login.refresh.failed": {
-    "other": "Failed to refresh the authentication token"
-  },
-  "base.login.role.disabled": {
-    "other": "Role is disabled"
-  },
-  "base.login.tenant.disabled": {
-    "other": "Tenant is disabled"
   },
   "base.login.verify_captcha.captcha_code.required": {
     "other": "Verification code cannot be empty"
@@ -355,12 +316,6 @@
   },
   "base.oauth.handle_callback.state.required": {
     "other": "Authorization status code cannot be empty"
-  },
-  "base.oauth.login_method.unsupported": {
-    "other": "The login method is not supported"
-  },
-  "base.oauth.state.invalid": {
-    "other": "The third-party login state has expired"
   },
   "base.oauth.unbind_account.provider.required": {
     "other": "Login method identifier cannot be empty"
@@ -4034,9 +3989,6 @@
   "system.admin.base.ai.model.model_name.required": {
     "other": "Please enter a model name"
   },
-  "system.admin.base.ai.provider.api_key.max_length": {
-    "other": "The model API key must not exceed 1024 characters"
-  },
   "system.admin.base.ai.provider.base_url.max_length": {
     "other": "The API URL must not exceed 512 characters"
   },
@@ -4102,9 +4054,6 @@
   },
   "system.admin.base.config.entity.type.required": {
     "other": "Please select system configuration type"
-  },
-  "system.admin.base.config.entity.value.required": {
-    "other": "Configuration value cannot be empty"
   },
   "system.admin.base.config.form.identity": {
     "other": "The site, type and key of a form configuration cannot be changed"
@@ -4372,9 +4321,6 @@
   },
   "system.admin.base.oauth_provider.form.client_id.required": {
     "other": "The third-party application ID is required and must not exceed 255 characters"
-  },
-  "system.admin.base.oauth_provider.form.client_secret.length": {
-    "other": "The third-party application secret must not exceed 512 characters"
   },
   "system.admin.base.oauth_provider.form.description.length": {
     "other": "The sign-in method hint must not exceed 255 characters"
@@ -4981,9 +4927,6 @@
   },
   "system.admin.oauth_client.set_status.id.required": {
     "other": "Client ID cannot be empty"
-  },
-  "system.admin.openapi.document.name": {
-    "other": "Core Services"
   },
   "system.admin.ops_monitoring.active_connections": {
     "other": "Active connections"

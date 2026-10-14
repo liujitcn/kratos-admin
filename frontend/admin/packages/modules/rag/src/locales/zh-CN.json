@@ -35,7 +35,6 @@
   "rag.knowledge.message.create_success": "创建知识库成功",
   "rag.knowledge.message.delete_success": "删除知识库成功",
   "rag.knowledge.message.update_success": "更新知识库成功",
-  "rag.knowledge.resource": "知识库",
   "rag.knowledge.search.action": "检索",
   "rag.knowledge.search.empty": "暂无命中切片",
   "rag.knowledge.search.hint": "按语义相似度返回最相近的切片",

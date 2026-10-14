@@ -8,9 +8,6 @@
   "base.ai.message.delete.session_id.positive": {
     "other": "會話編號不合法"
   },
-  "base.ai.message.not_found": {
-    "other": "找不到訊息"
-  },
   "base.ai.message.regenerate.message_id.positive": {
     "other": "訊息編號不合法"
   },
@@ -113,9 +110,6 @@
   "base.ai.query.question.required": {
     "other": "問題內容不合法"
   },
-  "base.ai.runtime.uninitialized": {
-    "other": "AI 助手執行環境未初始化"
-  },
   "base.ai.search.http_status": {
     "other": "網路搜尋服務返回異常狀態：{{.Status}}"
   },
@@ -173,32 +167,11 @@
   "base.file.download.path.required": {
     "other": "檔案路徑不能為空"
   },
-  "base.file.upload.failed": {
-    "other": "檔案上傳失敗"
-  },
-  "base.login.account.disabled": {
-    "other": "帳號已停用"
-  },
-  "base.login.captcha.invalid": {
-    "other": "驗證碼錯誤"
-  },
-  "base.login.captcha.verify_failed": {
-    "other": "驗證碼校驗失敗"
-  },
-  "base.login.credentials.invalid": {
-    "other": "使用者名稱或密碼錯誤"
-  },
-  "base.login.department.disabled": {
-    "other": "部門已停用"
-  },
   "base.login.login.captcha_code.required": {
     "other": "驗證碼不能為空"
   },
   "base.login.login.captcha_id.required": {
     "other": "驗證碼不能為空"
-  },
-  "base.login.login.failed": {
-    "other": "登入失敗"
   },
   "base.login.login.password.required": {
     "other": "密碼不能為空"
@@ -208,18 +181,6 @@
   },
   "base.login.login.user_name.required": {
     "other": "使用者名稱不能為空"
-  },
-  "base.login.logout.failed": {
-    "other": "登出失敗"
-  },
-  "base.login.refresh.failed": {
-    "other": "更新驗證令牌失敗"
-  },
-  "base.login.role.disabled": {
-    "other": "角色已停用"
-  },
-  "base.login.tenant.disabled": {
-    "other": "租戶已停用"
   },
   "base.login.verify_captcha.captcha_code.required": {
     "other": "驗證碼不能為空"
@@ -355,12 +316,6 @@
   },
   "base.oauth.handle_callback.state.required": {
     "other": "授權狀態碼不能為空"
-  },
-  "base.oauth.login_method.unsupported": {
-    "other": "不支援此登入方式"
-  },
-  "base.oauth.state.invalid": {
-    "other": "第三方登入狀態已失效"
   },
   "base.oauth.unbind_account.provider.required": {
     "other": "登入方式標識不能為空"
@@ -4034,9 +3989,6 @@
   "system.admin.base.ai.model.model_name.required": {
     "other": "請輸入模型名稱"
   },
-  "system.admin.base.ai.provider.api_key.max_length": {
-    "other": "模型金鑰不得超過1024個字元"
-  },
   "system.admin.base.ai.provider.base_url.max_length": {
     "other": "介面地址不得超過512個字元"
   },
@@ -4102,9 +4054,6 @@
   },
   "system.admin.base.config.entity.type.required": {
     "other": "請選擇系統配置型別"
-  },
-  "system.admin.base.config.entity.value.required": {
-    "other": "配置值不能為空"
   },
   "system.admin.base.config.form.identity": {
     "other": "表單配置的位置、類型和編碼不可修改"
@@ -4372,9 +4321,6 @@
   },
   "system.admin.base.oauth_provider.form.client_id.required": {
     "other": "第三方應用程式識別不可為空且不得超過255個字元"
-  },
-  "system.admin.base.oauth_provider.form.client_secret.length": {
-    "other": "第三方應用程式密鑰不得超過512個字元"
   },
   "system.admin.base.oauth_provider.form.description.length": {
     "other": "登入方式提示語不得超過255個字元"
@@ -4981,9 +4927,6 @@
   },
   "system.admin.oauth_client.set_status.id.required": {
     "other": "客戶端ID不能為空"
-  },
-  "system.admin.openapi.document.name": {
-    "other": "基礎功能服務"
   },
   "system.admin.ops_monitoring.active_connections": {
     "other": "活躍連線"

@@ -161,10 +161,6 @@ func TestLocalizeOAuthProviderValidationMessages(t *testing.T) {
 			translations: map[string]string{"zh-CN": "第三方应用标识不能为空且不能超过255个字符", "en-US": "The third-party application ID is required and must not exceed 255 characters", "zh-TW": "第三方應用程式識別不可為空且不得超過255個字元", "ja-JP": "サードパーティアプリケーションIDを入力してください（255文字以内）"},
 		},
 		{
-			ruleID: "system.admin.base.oauth_provider.form.client_secret.length", source: "第三方应用密钥不能超过512个字符",
-			translations: map[string]string{"zh-CN": "第三方应用密钥不能超过512个字符", "en-US": "The third-party application secret must not exceed 512 characters", "zh-TW": "第三方應用程式密鑰不得超過512個字元", "ja-JP": "サードパーティアプリケーションのシークレットは512文字以内で入力してください"},
-		},
-		{
 			ruleID: "system.admin.base.oauth_provider.form.redirect_uri.length", source: "OAuth回调地址不能超过512个字符",
 			translations: map[string]string{"zh-CN": "OAuth回调地址不能超过512个字符", "en-US": "The OAuth redirect URI must not exceed 512 characters", "zh-TW": "OAuth回呼網址不得超過512個字元", "ja-JP": "OAuthリダイレクトURIは512文字以内で入力してください"},
 		},

@@ -8,9 +8,6 @@
   "base.ai.message.delete.session_id.positive": {
     "other": "セッション番号が無効です"
   },
-  "base.ai.message.not_found": {
-    "other": "メッセージは存在しません"
-  },
   "base.ai.message.regenerate.message_id.positive": {
     "other": "メッセージ番号が不正です"
   },
@@ -113,9 +110,6 @@
   "base.ai.query.question.required": {
     "other": "質問の内容が不正です"
   },
-  "base.ai.runtime.uninitialized": {
-    "other": "AI アシスタントの実行時に初期化されません"
-  },
   "base.ai.search.http_status": {
     "other": "ウェブ検索サービスが予期しないステータスを返しました: {{.Status}}"
   },
@@ -173,32 +167,11 @@
   "base.file.download.path.required": {
     "other": "ファイル パスを空にすることはできません"
   },
-  "base.file.upload.failed": {
-    "other": "ファイルのアップロードに失敗しました"
-  },
-  "base.login.account.disabled": {
-    "other": "アカウントが無効になりました"
-  },
-  "base.login.captcha.invalid": {
-    "other": "認証コードエラー"
-  },
-  "base.login.captcha.verify_failed": {
-    "other": "認証コードの検証に失敗しました"
-  },
-  "base.login.credentials.invalid": {
-    "other": "ユーザー名またはパスワードが間違っています"
-  },
-  "base.login.department.disabled": {
-    "other": "部門が無効になりました"
-  },
   "base.login.login.captcha_code.required": {
     "other": "確認コードを空にすることはできません"
   },
   "base.login.login.captcha_id.required": {
     "other": "確認コードを空にすることはできません"
-  },
-  "base.login.login.failed": {
-    "other": "ログインに失敗しました"
   },
   "base.login.login.password.required": {
     "other": "パスワードを空にすることはできません"
@@ -208,18 +181,6 @@
   },
   "base.login.login.user_name.required": {
     "other": "ユーザー名を空にすることはできません"
-  },
-  "base.login.logout.failed": {
-    "other": "ログアウトに失敗しました"
-  },
-  "base.login.refresh.failed": {
-    "other": "認証トークンの更新に失敗しました"
-  },
-  "base.login.role.disabled": {
-    "other": "ロールが無効になりました"
-  },
-  "base.login.tenant.disabled": {
-    "other": "テナントが無効になりました"
   },
   "base.login.verify_captcha.captcha_code.required": {
     "other": "確認コードを空にすることはできません"
@@ -355,12 +316,6 @@
   },
   "base.oauth.handle_callback.state.required": {
     "other": "認証ステータス コードを空にすることはできません"
-  },
-  "base.oauth.login_method.unsupported": {
-    "other": "ログイン方法はサポートされていません"
-  },
-  "base.oauth.state.invalid": {
-    "other": "スリーパーティ ログイン ステータスの有効期限が切れました"
   },
   "base.oauth.unbind_account.provider.required": {
     "other": "ログイン方法識別子を空にすることはできません"
@@ -4034,9 +3989,6 @@
   "system.admin.base.ai.model.model_name.required": {
     "other": "モデル名を入力してください"
   },
-  "system.admin.base.ai.provider.api_key.max_length": {
-    "other": "モデルAPIキーは1024文字以内で入力してください"
-  },
   "system.admin.base.ai.provider.base_url.max_length": {
     "other": "API URLは512文字以内で入力してください"
   },
@@ -4102,9 +4054,6 @@
   },
   "system.admin.base.config.entity.type.required": {
     "other": "システム構成タイプを選択してください"
-  },
-  "system.admin.base.config.entity.value.required": {
-    "other": "設定値を空にすることはできません"
   },
   "system.admin.base.config.form.identity": {
     "other": "フォーム設定の対象、種類、キーは変更できません"
@@ -4372,9 +4321,6 @@
   },
   "system.admin.base.oauth_provider.form.client_id.required": {
     "other": "サードパーティアプリケーションIDを入力してください（255文字以内）"
-  },
-  "system.admin.base.oauth_provider.form.client_secret.length": {
-    "other": "サードパーティアプリケーションのシークレットは512文字以内で入力してください"
   },
   "system.admin.base.oauth_provider.form.description.length": {
     "other": "ログイン方式のヒントは255文字以内で入力してください"
@@ -4981,9 +4927,6 @@
   },
   "system.admin.oauth_client.set_status.id.required": {
     "other": "クライアントIDを空にすることはできません"
-  },
-  "system.admin.openapi.document.name": {
-    "other": "基本機能サービス"
   },
   "system.admin.ops_monitoring.active_connections": {
     "other": "アクティブ接続"

@@ -35,7 +35,6 @@
   "rag.knowledge.message.create_success": "ナレッジベースを作成しました",
   "rag.knowledge.message.delete_success": "ナレッジベースを削除しました",
   "rag.knowledge.message.update_success": "ナレッジベースを更新しました",
-  "rag.knowledge.resource": "ナレッジベース",
   "rag.knowledge.search.action": "検索",
   "rag.knowledge.search.empty": "該当するチャンクがありません",
   "rag.knowledge.search.hint": "意味的に最も近いチャンクを返します",

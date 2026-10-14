@@ -950,7 +950,9 @@ onUnload(() => {
           />
           <view
             class="password-toggle"
-            :aria-label="passwordVisible ? '隐藏密码' : '显示密码'"
+            :aria-label="
+              passwordVisible ? t('core.login.password_hide') : t('core.login.password_show')
+            "
             @tap="passwordVisible = !passwordVisible"
           >
             <image
@@ -1039,7 +1041,9 @@ onUnload(() => {
             />
             <view
               class="password-toggle"
-              :aria-label="miniPasswordVisible ? '隐藏密码' : '显示密码'"
+              :aria-label="
+                miniPasswordVisible ? t('core.login.password_hide') : t('core.login.password_show')
+              "
               @tap="miniPasswordVisible = !miniPasswordVisible"
             >
               <image
