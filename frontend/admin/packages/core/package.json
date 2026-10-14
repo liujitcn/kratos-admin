@@ -54,7 +54,7 @@
     "md5": "^2.3.0",
     "mitt": "^3.0.1",
     "nprogress": "^0.2.0",
-    "pinia": "^3.0.4",
+    "pinia": "^4.0.3",
     "pinia-plugin-persistedstate": "^4.7.1",
     "qrcode-generator": "^2.0.4",
     "qs": "^6.12.1",
