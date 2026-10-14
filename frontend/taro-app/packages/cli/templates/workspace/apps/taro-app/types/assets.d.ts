@@ -3,3 +3,6 @@ declare module '*.png' {
   const url: string;
   export default url;
 }
+
+// 样式以副作用导入方式引入，仅声明模块存在。
+declare module '*.scss';
