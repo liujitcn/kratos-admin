@@ -52,6 +52,7 @@ EN_EXACT = {
     "文件访问方式：1公开，2需要访问令牌": "File access mode: 1 public, 2 access token required",
     "租户管理员账号": "Tenant administrator username",
     "租户管理员初始密码，仅在随机生成时返回": "Tenant administrator initial password, returned only when generated randomly",
+    "当前用户所属租户ID": "Current user's tenant ID",
     "创建租户响应参数": "Create tenant response parameters",
     "查询包含租户ID字段的数据表列表。": "List data tables containing a tenant ID field.",
     "获取当前租户的自定义国际化覆盖项":
@@ -540,6 +541,7 @@ EN_EXACT = {
 
 
 JA_EXACT = {
+    "当前用户所属租户ID": "現在のユーザーが所属するテナントID",
     "文件访问方式，未指定时默认需要访问令牌": "ファイルアクセス方式。未指定の場合はアクセストークンが必要です",
     "文件访问方式：1公开，2需要访问令牌": "ファイルアクセス方式：1 公開、2 アクセストークン必須",
     "租户管理员账号": "テナント管理者アカウント",

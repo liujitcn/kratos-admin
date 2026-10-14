@@ -17422,6 +17422,9 @@ components:
                 tenant_name:
                     type: string
                     description: tenant name
+                tenant_id:
+                    type: string
+                    description: Current user's tenant ID
             description: user information form
         system.admin.v1.UserPasswordForm:
             type: object

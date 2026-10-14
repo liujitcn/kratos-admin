@@ -17422,6 +17422,9 @@ components:
                 tenant_name:
                     type: string
                     description: テナント名称
+                tenant_id:
+                    type: string
+                    description: 現在のユーザーが所属するテナントID
             description: ユーザー情報フォーム
         system.admin.v1.UserPasswordForm:
             type: object

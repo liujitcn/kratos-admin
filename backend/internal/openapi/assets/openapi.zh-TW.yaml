@@ -17422,6 +17422,9 @@ components:
                 tenant_name:
                     type: string
                     description: 租戶名稱
+                tenant_id:
+                    type: string
+                    description: 當前使用者所屬租戶ID
             description: 使用者資訊表單
         system.admin.v1.UserPasswordForm:
             type: object
