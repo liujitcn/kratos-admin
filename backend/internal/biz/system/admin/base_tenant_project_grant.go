@@ -239,6 +239,10 @@ func (c *BaseTenantProjectGrantCase) EffectiveProjects(ctx context.Context) (map
 		}
 		return result, nil
 	}
+	// 内置租户管理员负责管理本租户全部项目，不需要额外配置四维项目授权。
+	if role.Code == _const.BASE_ROLE_CODE_TENANT {
+		return map[int64][]int64{user.TenantID: {0}}, nil
+	}
 	table := query.BaseTenantProjectGrant
 	predicates := []field.Expr{field.And(table.SubjectType.Eq(4), table.SubjectID.Eq(user.ID))}
 	if user.PostID > 0 {

@@ -106,6 +106,26 @@ func TestEffectiveProjectsSources(t *testing.T) {
 	}
 }
 
+// TestTenantAdminProjectScope 验证租户管理员无需四维授权即可访问本租户全部项目。
+func TestTenantAdminProjectScope(t *testing.T) {
+	service, db, _ := newGrantTestCase(t)
+	if err := db.Model(&models.BaseRole{}).Where("id = ?", 10).Update("code", "tenant").Error; err != nil {
+		t.Fatal(err)
+	}
+	if err := db.Where("tenant_id = ?", 1).Delete(&models.BaseTenantProjectGrant{}).Error; err != nil {
+		t.Fatal(err)
+	}
+	identity := &authdata.UserTokenPayload{TenantId: 1, TenantCode: "tenant", UserId: 100, RoleId: 10, RoleCode: "tenant", DeptId: 20, DataScope: 1}
+	ctx := engine.ContextWithAuthClaims(context.Background(), identity.MakeAuthClaims())
+	scope, err := service.EffectiveProjects(ctx)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !reflect.DeepEqual(scope[1], []int64{0}) {
+		t.Fatalf("租户管理员项目范围错误: %v", scope)
+	}
+}
+
 // TestProjectGrantCRUD 验证项目授权新增、更新、查询、删除及租户边界。
 func TestProjectGrantCRUD(t *testing.T) {
 	service, _, ctx := newGrantTestCase(t)
