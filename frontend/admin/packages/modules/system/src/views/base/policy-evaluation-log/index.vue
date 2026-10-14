@@ -26,7 +26,7 @@ import type { BasePolicyEvaluationLog, PageBasePolicyEvaluationLogRequest } from
 defineOptions({ name: "BasePolicyEvaluationLog", inheritAttrs: false });
 
 const page = ref<InstanceType<typeof LogTable>>();
-const { tenantColumns, loadTenantOptions, resolveTenantLabel } = useTenantScope();
+const { tenantColumns, loadTenantOptions, resolveTenantLabel, toRequestTenantId } = useTenantScope();
 
 onMounted(() => void loadTenantOptions(true));
 const decisionOptions = computed(() => createLogEnumOptions([
@@ -89,7 +89,9 @@ const config = computed<LogTableConfig>(() => ({
 }));
 
 async function requestTable(params: Record<string, unknown>) {
-  const response = await defBasePolicyEvaluationLogService.PageBasePolicyEvaluationLog(buildPageRequest(params as unknown as PageBasePolicyEvaluationLogRequest));
+  const response = await defBasePolicyEvaluationLogService.PageBasePolicyEvaluationLog(
+    buildPageRequest({ ...params, tenant_id: toRequestTenantId(params.tenant_id) } as unknown as PageBasePolicyEvaluationLogRequest)
+  );
   return { list: response.base_policy_evaluation_logs as unknown as Record<string, unknown>[], total: response.total };
 }
 

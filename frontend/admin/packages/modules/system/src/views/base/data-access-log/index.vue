@@ -27,7 +27,7 @@ import type { BaseDataAccessLog, PageBaseDataAccessLogRequest } from "@liujitcn/
 defineOptions({ name: "BaseDataAccessLog", inheritAttrs: false });
 
 const page = ref<InstanceType<typeof LogTable>>();
-const { tenantColumns, loadTenantOptions, resolveTenantLabel } = useTenantScope();
+const { tenantColumns, loadTenantOptions, resolveTenantLabel, toRequestTenantId } = useTenantScope();
 
 onMounted(() => void loadTenantOptions(true));
 const resultOptions = computed(() => createLogEnumOptions([
@@ -92,7 +92,9 @@ const config = computed<LogTableConfig>(() => ({
 }));
 
 async function requestTable(params: Record<string, unknown>) {
-  const response = await defBaseDataAccessLogService.PageBaseDataAccessLog(buildPageRequest(params as unknown as PageBaseDataAccessLogRequest));
+  const response = await defBaseDataAccessLogService.PageBaseDataAccessLog(
+    buildPageRequest({ ...params, tenant_id: toRequestTenantId(params.tenant_id) } as unknown as PageBaseDataAccessLogRequest)
+  );
   return { list: response.base_data_access_logs as unknown as Record<string, unknown>[], total: response.total };
 }
 

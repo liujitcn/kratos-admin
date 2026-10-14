@@ -11,6 +11,7 @@ import { useDictStoreHook } from "@/stores/modules/dict";
 import { useLockScreenStore } from "@/stores/modules/lockScreen";
 import { useAuthStore } from "@/stores/modules/auth";
 import { useConfigStore } from "@/stores/modules/config";
+import { invalidateTenantOptions } from "@/utils/tenant";
 
 const defaultUserInfo: UserInfoForm = {
   user_name: "",
@@ -99,6 +100,7 @@ export const useUserStore = defineStore("admin-user", {
     clearAuthData() {
       // 清理登录态时同步清空字典缓存，避免切换账号后读到旧字典。
       useDictStoreHook().clearDictionaryCache();
+      invalidateTenantOptions();
       useLockScreenStore().clearLock();
       useAuthStore().$reset();
       useConfigStore().resetI18nCustom();

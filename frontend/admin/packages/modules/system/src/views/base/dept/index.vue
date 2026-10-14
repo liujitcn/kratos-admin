@@ -281,7 +281,7 @@ function filterDeptTree(deptList: BaseDept[], keywordMap: { name: string; remark
  * 请求部门树数据，并按搜索条件过滤树形结构。
  */
 async function requestBaseDeptTable(params: Record<string, string>) {
-  currentTenantId.value = params.tenant_id ? Number(params.tenant_id) : undefined;
+  currentTenantId.value = toRequestTenantId(params.tenant_id);
   const data = await defBaseDeptService.TreeBaseDept({ tenant_id: currentTenantId.value });
   const keywordMap = {
     name: params.name ?? "",

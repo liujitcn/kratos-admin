@@ -27,7 +27,7 @@ import type { BaseApiLog, PageBaseApiLogRequest } from "@liujitcn/kratos-admin-s
 defineOptions({ name: "BaseApiLog", inheritAttrs: false });
 
 const page = ref<InstanceType<typeof LogTable>>();
-const { tenantColumns, loadTenantOptions, resolveTenantLabel } = useTenantScope();
+const { tenantColumns, loadTenantOptions, resolveTenantLabel, toRequestTenantId } = useTenantScope();
 
 onMounted(() => void loadTenantOptions(true));
 const resultOptions = computed(() =>
@@ -90,7 +90,9 @@ const config = computed<LogTableConfig>(() => ({
 }));
 
 async function requestTable(params: Record<string, unknown>) {
-  const response = await defBaseApiLogService.PageBaseApiLog(buildPageRequest(params as unknown as PageBaseApiLogRequest));
+  const response = await defBaseApiLogService.PageBaseApiLog(
+    buildPageRequest({ ...params, tenant_id: toRequestTenantId(params.tenant_id) } as unknown as PageBaseApiLogRequest)
+  );
   return { list: response.base_api_logs as unknown as Record<string, unknown>[], total: response.total };
 }
 

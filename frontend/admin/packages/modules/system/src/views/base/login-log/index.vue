@@ -19,7 +19,7 @@ import type { BaseLoginLog, PageBaseLoginLogRequest } from "@liujitcn/kratos-adm
 defineOptions({ name: "BaseLoginLog", inheritAttrs: false });
 
 const page = ref<InstanceType<typeof LogTable>>();
-const { tenantColumns, loadTenantOptions, resolveTenantLabel } = useTenantScope();
+const { tenantColumns, loadTenantOptions, resolveTenantLabel, toRequestTenantId } = useTenantScope();
 
 onMounted(() => void loadTenantOptions(true));
 const resultOptions = computed(() =>
@@ -91,7 +91,9 @@ const config = computed<LogTableConfig>(() => ({
 }));
 
 async function requestTable(params: Record<string, unknown>) {
-  const response = await defBaseLoginLogService.PageBaseLoginLog(buildPageRequest(params as unknown as PageBaseLoginLogRequest));
+  const response = await defBaseLoginLogService.PageBaseLoginLog(
+    buildPageRequest({ ...params, tenant_id: toRequestTenantId(params.tenant_id) } as unknown as PageBaseLoginLogRequest)
+  );
   return { list: response.base_login_logs as unknown as Record<string, unknown>[], total: response.total };
 }
 

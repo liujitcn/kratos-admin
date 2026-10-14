@@ -19,7 +19,7 @@ import type { BasePermissionLog, PageBasePermissionLogRequest } from "@liujitcn/
 defineOptions({ name: "BasePermissionLog", inheritAttrs: false });
 
 const page = ref<InstanceType<typeof LogTable>>();
-const { tenantColumns, loadTenantOptions, resolveTenantLabel } = useTenantScope();
+const { tenantColumns, loadTenantOptions, resolveTenantLabel, toRequestTenantId } = useTenantScope();
 
 onMounted(() => void loadTenantOptions(true));
 const resultOptions = computed(() => createLogEnumOptions([
@@ -86,7 +86,9 @@ const config = computed<LogTableConfig>(() => ({
 }));
 
 async function requestTable(params: Record<string, unknown>) {
-  const response = await defBasePermissionLogService.PageBasePermissionLog(buildPageRequest(params as unknown as PageBasePermissionLogRequest));
+  const response = await defBasePermissionLogService.PageBasePermissionLog(
+    buildPageRequest({ ...params, tenant_id: toRequestTenantId(params.tenant_id) } as unknown as PageBasePermissionLogRequest)
+  );
   return { list: response.base_permission_logs as unknown as Record<string, unknown>[], total: response.total };
 }
 

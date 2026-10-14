@@ -90,19 +90,20 @@ watch(
 );
 
 /** 退出登录并清理当前登录态。 */
-const logout = () => {
-  ElMessageBox.confirm(t("core.layout.logout_confirm"), t("common.title.warning"), {
+const logout = async () => {
+  const confirmed = await ElMessageBox.confirm(t("core.layout.logout_confirm"), t("common.title.warning"), {
     confirmButtonText: t("common.action.confirm"),
     cancelButtonText: t("common.action.cancel"),
     type: "warning"
-  }).then(async () => {
-    // 1.执行退出登录接口并清理本地状态
-    await userStore.logout();
+  }).then(() => true).catch(() => false);
+  if (!confirmed) return;
 
-    // 2.重定向到登录页
-    router.replace(LOGIN_URL);
-    ElMessage.success(t("core.layout.logout_success"));
-  });
+  // 1.执行退出登录接口并清理本地状态
+  await userStore.logout();
+
+  // 2.等待重定向到登录页完成
+  await router.replace(LOGIN_URL);
+  ElMessage.success(t("core.layout.logout_success"));
 };
 
 /** 头像加载失败时兜底显示默认头像，避免出现破图。 */

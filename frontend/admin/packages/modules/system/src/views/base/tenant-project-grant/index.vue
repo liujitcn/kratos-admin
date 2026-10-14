@@ -34,7 +34,7 @@ import FormDialog from "@liujitcn/kratos-admin-core/components/Dialog/FormDialog
 import type { ProFormField, ProFormOption } from "@liujitcn/kratos-admin-core/components/ProForm/interface";
 import { useAuthButtons } from "@liujitcn/kratos-admin-core/auth";
 import { buildPageRequest } from "@liujitcn/kratos-admin-core/table";
-import { useTenantScope } from "@liujitcn/kratos-admin-core/tenant";
+import { invalidateTenantOptions, useTenantScope } from "@liujitcn/kratos-admin-core/tenant";
 import { t } from "@liujitcn/kratos-admin-core";
 import { defBaseDeptService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/base_dept";
 import { defBasePostService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/base_post";
@@ -215,6 +215,7 @@ async function handleOpenDialog(row?: BaseTenantProjectGrant) {
   try {
     await formDialogRef.value?.open({
       load: async () => {
+        if (!isDefaultTenant.value) invalidateTenantOptions();
         await loadTenantOptions(true);
         // proto3 JSON 会省略空数组字段，行数据里的 project_id 可能为 undefined。
         const rowProjectIds = row?.project_id ?? [];
@@ -264,15 +265,16 @@ async function loadSubjectOptions() {
 /** 请求指定租户和主体类型的主体选项。 */
 async function requestSubjectOptions(tenantId: number | undefined, subjectType: BaseTenantProjectGrantSubjectType) {
   if (!tenantId || subjectType === BaseTenantProjectGrantSubjectType.BASE_TENANT_PROJECT_GRANT_SUBJECT_TYPE_UNSPECIFIED) return [];
+  const requestTenantId = toRequestTenantId(tenantId);
   switch (subjectType) {
     case BaseTenantProjectGrantSubjectType.BASE_TENANT_PROJECT_GRANT_SUBJECT_TYPE_POST:
-      return (await defBasePostService.OptionBasePost({ tenant_id: tenantId })).list ?? [];
+      return (await defBasePostService.OptionBasePost({ tenant_id: requestTenantId })).list ?? [];
     case BaseTenantProjectGrantSubjectType.BASE_TENANT_PROJECT_GRANT_SUBJECT_TYPE_ROLE:
-      return (await defBaseRoleService.OptionBaseRole({ tenant_id: tenantId })).list ?? [];
+      return (await defBaseRoleService.OptionBaseRole({ tenant_id: requestTenantId })).list ?? [];
     case BaseTenantProjectGrantSubjectType.BASE_TENANT_PROJECT_GRANT_SUBJECT_TYPE_DEPT:
-      return ((await defBaseDeptService.OptionBaseDept({ tenant_id: tenantId })).list ?? []) as unknown as ProFormOption[];
+      return ((await defBaseDeptService.OptionBaseDept({ tenant_id: requestTenantId })).list ?? []) as unknown as ProFormOption[];
     case BaseTenantProjectGrantSubjectType.BASE_TENANT_PROJECT_GRANT_SUBJECT_TYPE_USER:
-      return (await defBaseUserService.OptionBaseUser({ keyword: "", tenant_id: tenantId })).list ?? [];
+      return (await defBaseUserService.OptionBaseUser({ keyword: "", tenant_id: requestTenantId })).list ?? [];
   }
   return [];
 }

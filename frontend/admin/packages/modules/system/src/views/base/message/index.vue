@@ -197,7 +197,7 @@ type MessageFormState = Omit<BaseMessageForm, "tenant_id" | "category_id"> & {
 };
 
 const { BUTTONS } = useAuthButtons();
-const { isDefaultTenant, tenantColumns, tenantFormField, loadTenantOptions } = useTenantScope();
+const { isDefaultTenant, tenantColumns, tenantFormField, loadTenantOptions, toRequestTenantId } = useTenantScope();
 const proTable = ref<ProTableInstance>();
 const formDialogRef = ref<InstanceType<typeof FormDialog>>();
 const contentDialogRef = ref<InstanceType<typeof ProDialog>>();
@@ -564,7 +564,10 @@ function onAudienceTypeChange(audience: BaseMessageAudienceForm) {
 /** 请求消息表格数据。 */
 async function requestTable(params: Record<string, unknown>) {
   const data = await defBaseMessageService.PageBaseMessage(
-    buildPageRequest<PageBaseMessageRequest>(params as unknown as PageBaseMessageRequest)
+    buildPageRequest<PageBaseMessageRequest>({
+      ...params,
+      tenant_id: toRequestTenantId(params.tenant_id)
+    } as unknown as PageBaseMessageRequest)
   );
   return { data: { list: data.base_messages ?? [], total: data.total } };
 }

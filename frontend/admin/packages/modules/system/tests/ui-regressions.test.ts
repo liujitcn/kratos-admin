@@ -422,6 +422,31 @@ test("项目授权新增弹窗默认使用有效授权类型", async () => {
   assert.match(source, /await Promise\.all\(\[loadProjectOptions\(\), loadSubjectOptions\(\)\]\)/);
 });
 
+test("切换登录租户时清理共享租户选项缓存", async () => {
+  const source = await readSource("../../core/src/stores/modules/user.ts");
+  assert.match(source, /import \{ invalidateTenantOptions \} from "@\/utils\/tenant";/);
+  const clearAuthBlock = source.match(/clearAuthData\(\) \{[\s\S]*?\n    \},/)?.[0];
+  assert.ok(clearAuthBlock, "缺少认证数据清理方法");
+  assert.match(clearAuthBlock, /invalidateTenantOptions\(\);/);
+});
+
+test("项目授权主体选项遵循当前租户请求范围", async () => {
+  const source = await readSource("src/views/base/tenant-project-grant/index.vue");
+  const block = source.match(/async function requestSubjectOptions\([\s\S]*?\n\}/)?.[0];
+
+  assert.match(source, /if \(!isDefaultTenant\.value\) invalidateTenantOptions\(\);/);
+  assert.ok(block, "缺少项目授权主体选项请求方法");
+  assert.match(block, /const requestTenantId = toRequestTenantId\(tenantId\);/);
+  assert.equal((block.match(/tenant_id: requestTenantId/g) ?? []).length, 4);
+  assert.doesNotMatch(block, /tenant_id: tenantId/);
+});
+
+test("退出登录完成后等待路由跳转到登录页", async () => {
+  const source = await readSource("../../core/src/layouts/components/Header/components/Avatar.vue");
+  assert.match(source, /const logout = async \(\) =>/);
+  assert.match(source, /await userStore\.logout\(\);[\s\S]*?await router\.replace\(LOGIN_URL\);/);
+});
+
 test("角色分配权限默认关闭父子联动", async () => {
   const source = await readSource("src/views/base/role/index.vue");
 
@@ -500,12 +525,31 @@ test("携带租户查询的列表统一将租户作为第一业务列和第一�
   assert.match(tenantSource, /order: options\.order \?\? 1/);
 });
 
+test("租户筛选列表统一归一化普通租户的查询租户", async () => {
+  const normalizedPages = [
+    "api-log/index.vue",
+    "data-access-log/index.vue",
+    "login-log/index.vue",
+    "message/index.vue",
+    "operation-log/index.vue",
+    "permission-log/index.vue",
+    "policy-evaluation-log/index.vue"
+  ];
+  for (const page of normalizedPages) {
+    const source = await readSource(`src/views/base/${page}`);
+    assert.match(source, /toRequestTenantId\(params\.tenant_id\)/, `${page} 未归一化查询租户`);
+  }
+
+  const deptSource = await readSource("src/views/base/dept/index.vue");
+  assert.match(deptSource, /currentTenantId\.value = toRequestTenantId\(params\.tenant_id\)/);
+});
+
 test("日志审计页面统一加载并显示租户名称", async () => {
   const pages = ["api-log", "data-access-log", "login-log", "operation-log", "permission-log", "policy-evaluation-log"];
 
   for (const page of pages) {
     const source = await readSource(`src/views/base/${page}/index.vue`);
-    assert.match(source, /const \{ tenantColumns, loadTenantOptions, resolveTenantLabel \} = useTenantScope\(\);/);
+    assert.match(source, /const \{ tenantColumns, loadTenantOptions, resolveTenantLabel(?:, toRequestTenantId)? \} = useTenantScope\(\);/);
     assert.match(source, /onMounted\(\(\) => void loadTenantOptions\(true\)\);/);
     assert.match(
       source,

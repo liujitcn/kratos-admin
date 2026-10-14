@@ -19,7 +19,7 @@ import type { BaseOperationLog, PageBaseOperationLogRequest } from "@liujitcn/kr
 defineOptions({ name: "BaseOperationLog", inheritAttrs: false });
 
 const page = ref<InstanceType<typeof LogTable>>();
-const { tenantColumns, loadTenantOptions, resolveTenantLabel } = useTenantScope();
+const { tenantColumns, loadTenantOptions, resolveTenantLabel, toRequestTenantId } = useTenantScope();
 
 onMounted(() => void loadTenantOptions(true));
 const resultOptions = computed(() => createLogEnumOptions([
@@ -82,7 +82,9 @@ const config = computed<LogTableConfig>(() => ({
 }));
 
 async function requestTable(params: Record<string, unknown>) {
-  const response = await defBaseOperationLogService.PageBaseOperationLog(buildPageRequest(params as unknown as PageBaseOperationLogRequest));
+  const response = await defBaseOperationLogService.PageBaseOperationLog(
+    buildPageRequest({ ...params, tenant_id: toRequestTenantId(params.tenant_id) } as unknown as PageBaseOperationLogRequest)
+  );
   return { list: response.base_operation_logs as unknown as Record<string, unknown>[], total: response.total };
 }
 
