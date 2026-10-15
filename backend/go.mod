@@ -19,7 +19,7 @@ require (
 	github.com/liujitcn/go-utils/translator v0.0.6
 	github.com/liujitcn/gorm-kit v0.0.37
 	github.com/liujitcn/kratos-admin/backend/api v0.0.27
-	github.com/liujitcn/kratos-core v0.0.49
+	github.com/liujitcn/kratos-core v0.0.50
 	github.com/liujitcn/kratos-core/api v0.0.7
 	github.com/liujitcn/kratos-kit v0.0.96
 	github.com/liujitcn/kratos-kit/ai/model v0.0.8
@@ -249,7 +249,7 @@ require (
 	github.com/liujitcn/kratos-kit/queue/redisqueue v0.0.19 // indirect
 	github.com/liujitcn/kratos-kit/registry v0.0.27 // indirect
 	github.com/liujitcn/kratos-kit/server/grpc v0.0.12 // indirect
-	github.com/liujitcn/kratos-kit/server/http v0.0.12 // indirect
+	github.com/liujitcn/kratos-kit/server/http v0.0.13 // indirect
 	github.com/liujitcn/kratos-kit/server/mcp v0.0.9 // indirect
 	github.com/liujitcn/kratos-kit/server/sse v0.0.9 // indirect
 	github.com/liujitcn/kratos-kit/swagger-ui v0.0.18 // indirect

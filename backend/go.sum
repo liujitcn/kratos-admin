@@ -767,8 +767,8 @@ github.com/liujitcn/go-utils/translator/volc v0.0.5 h1:qrN91a333+AaHx4WjJsg3I9IT
 github.com/liujitcn/go-utils/translator/volc v0.0.5/go.mod h1:D1fqGNcIfm/WxzI/e1k/oaLnafnA7tYRRSQoyrhRiIg=
 github.com/liujitcn/gorm-kit v0.0.37 h1:4dDyu7abgxroxinWOkfjPnoAvpmH6U7vTmlvXWbe78k=
 github.com/liujitcn/gorm-kit v0.0.37/go.mod h1:qG7HuM0eCoV2PHUcmhd1E0t3pkh25rbxeFATXiUqZss=
-github.com/liujitcn/kratos-core v0.0.49 h1:G+QdEjh/U97QsD0/YXxQT9ouTEmFF4Bb/WooIyYgyWs=
-github.com/liujitcn/kratos-core v0.0.49/go.mod h1:qKdvBWCKgaKrMbLENtNeL8SXAAcY9rXXwes2sYqdirQ=
+github.com/liujitcn/kratos-core v0.0.50 h1:EdAITkAE+pKdjIbd94oZLGArSAMWoJLI0apctFHW15g=
+github.com/liujitcn/kratos-core v0.0.50/go.mod h1:aFJ5c/4a3yglWHSkdYPtnQWQDhYVeggUSkiW/FlHbKQ=
 github.com/liujitcn/kratos-core/api v0.0.7 h1:/AXnWx2VIpqjlL6qXeo6zMrutIboQjrbLMXD9xaA4Hc=
 github.com/liujitcn/kratos-core/api v0.0.7/go.mod h1:UUzA7haVM1PF+AQH8CMSwGNLvpKx0sPC9vFT/+sVQU4=
 github.com/liujitcn/kratos-kit v0.0.96 h1:qPDLis90yWqhV42Roc/4PewHMVN9maeSyGEAMHzEeT4=
@@ -843,8 +843,8 @@ github.com/liujitcn/kratos-kit/secretcrypto v0.0.6 h1:WlsBAch3MvW/HW+Em2d1WjGHgt
 github.com/liujitcn/kratos-kit/secretcrypto v0.0.6/go.mod h1:uMtGr9DjY7o8pDQb1Jry7eDe+hfd4ZxVXY5VOGKLUfw=
 github.com/liujitcn/kratos-kit/server/grpc v0.0.12 h1:VrsEBYNTFr8EVlbUmONj0F22NNhNlOBsloqbJTI2yJk=
 github.com/liujitcn/kratos-kit/server/grpc v0.0.12/go.mod h1:g11xkjd+ywMrC0dwroIoULr8Ik2jfWmFfR8WNnYn1HA=
-github.com/liujitcn/kratos-kit/server/http v0.0.12 h1:tnKgbPtVULiW9zKN1prsJiRNegmbzxlOI4jJBJvRN9Y=
-github.com/liujitcn/kratos-kit/server/http v0.0.12/go.mod h1:MD/mpZ99oeNtWZDN+hYqS9ufIjoKeGZJSCzcP3cCyHA=
+github.com/liujitcn/kratos-kit/server/http v0.0.13 h1:Y3uC7wfhqlGnVd+4ZbEE3slFwXfTj6bDRCAsqvSl2fA=
+github.com/liujitcn/kratos-kit/server/http v0.0.13/go.mod h1:MD/mpZ99oeNtWZDN+hYqS9ufIjoKeGZJSCzcP3cCyHA=
 github.com/liujitcn/kratos-kit/server/mcp v0.0.9 h1:F7ak3olJP60uJ6QJkNeKZgYzkcczO6Hx6jIMMNgqyKw=
 github.com/liujitcn/kratos-kit/server/mcp v0.0.9/go.mod h1:l5BmHhVfJbNIjo/xj5yMr/ytQiIOVKjYQJxi7gFbn2s=
 github.com/liujitcn/kratos-kit/server/sse v0.0.9 h1:9KbHGqwF6Kgj2lC12ZYedJj+sfIc+Y8sPh7vNxjOLYo=

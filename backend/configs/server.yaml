@@ -3,6 +3,7 @@ server:
     addr: :7001
     max_body_bytes: 67108864
     enable_swagger: true
+    enable_pprof: true
     middleware:
       enable_logging: true
       enable_recovery: true
