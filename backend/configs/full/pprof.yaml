@@ -9,9 +9,9 @@ pprof:
     # Pyroscope 服务端地址。
     server_address: http://localhost:4040
     # HTTP Basic 认证用户名。
-    basic_auth_user: ''
+    basic_auth_user: pyroscope
     # HTTP Basic 认证密码。
-    basic_auth_password: ''
+    basic_auth_password: "11223388"
     # 多租户 Pyroscope 的租户 ID。
     tenant_id: ''
     # 性能数据上传频率；15s 表示每 15 秒上传一次。
