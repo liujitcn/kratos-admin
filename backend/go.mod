@@ -17,7 +17,7 @@ require (
 	github.com/liujitcn/go-utils/crypto v0.0.18
 	github.com/liujitcn/go-utils/http v0.0.9
 	github.com/liujitcn/go-utils/translator v0.0.6
-	github.com/liujitcn/gorm-kit v0.0.37
+	github.com/liujitcn/gorm-kit v0.0.38
 	github.com/liujitcn/kratos-admin/backend/api v0.0.27
 	github.com/liujitcn/kratos-core v0.0.50
 	github.com/liujitcn/kratos-core/api v0.0.7
