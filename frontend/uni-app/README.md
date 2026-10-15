@@ -83,7 +83,7 @@ export const moduleManifest = [coreModule, systemModule]
 
 自定义顶部导航统一使用 core 的 `KratosNavBar`：普通页、tabBar 页和有无操作按钮共用相同标题栏高度，组件负责安全区、返回行为、按钮尺寸与微信胶囊避让。新页面只传标题和操作，外层不要重复添加顶部安全区或导航栏高度；具体用法见 [通用顶部导航](packages/core/README.md#通用顶部导航)。
 
-项目可复用 system 的 `KratosMyPage` 组件，通过 `extensions` 插槽在个人信息和 AI 助手下方追加订单、收藏或统计卡片，顶部设置入口由公共组件维护。默认“我的”页面已装配空的业务扩展示例；业务模块使用相同的 `pages/my/my` 路由覆盖默认页，具体示例见 [system 个人中心扩展](packages/modules/system/README.md#个人中心扩展)。
+System 的 `KratosMyPage` 负责个人信息、AI 助手和顶部设置入口；默认“我的”页面保留空的 `extensions` 扩展区，当前宿主不预置其他业务卡片。页面覆盖规则见 [system 个人中心扩展](packages/modules/system/README.md#个人中心扩展)。
 
 宿主 `pages.json` 只提交固定 bootstrap 页面。开发或构建期间，插件会临时生成页面 wrapper、合并页面配置，并把模块 static 逐文件合并到宿主；同名宿主文件优先，事务只记录和清理插件实际写入的文件。正常退出后自动恢复。若进程被强制结束，下次启动会先根据 `.kratos-uni-app-pages-state.json` 恢复上一次事务。同一宿主同时只允许一个 H5 或小程序开发/构建进程持有页面事务，切换平台前需要先停止当前进程。
 
@@ -181,7 +181,7 @@ CLI 包提供 `kratos-uni-app` 命令：
 
 ```bash
 pnpm dlx @liujitcn/kratos-uni-app-cli create my-app
-pnpm dlx @liujitcn/kratos-uni-app-cli create my-app --module orders
+pnpm dlx @liujitcn/kratos-uni-app-cli create my-app --module business
 pnpm dlx @liujitcn/kratos-uni-app-cli create my-app --with @acme/pay
 ```
 
@@ -231,7 +231,7 @@ CLI 直接生成完整宿主、本地业务模块、四种语言源文件与注�
 支持本地 `system` 与其他模块一起创建；管理端本地 System 继承内置能力，运行时只注册一次，
 构建仍扫描内置源码。应用端本地模块使用独立导入别名，保留内置 System。
 
-通过 `--kratos-project` 生成与 Go 后端配套的前端：H5 输出到 `backend/data/<terminal>`，
+通过 `--kratos-project` 生成当前仓库约定的前端：H5 输出到 `backend/data/<terminal>`，
 管理端 CLI 同时在 workspace 父目录创建共享 `Makefile` 与 `scripts`。Go 调用方仅传参执行 CLI。
 新增语言或修改语言文件后运行 `pnpm i18n:sync`；`pnpm i18n:check` 校验注册文件是否同步。
 

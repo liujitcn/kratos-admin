@@ -53,7 +53,7 @@ core 不依赖 UI 或业务模块；system 只通过 core 和 UI 的公开 expor
 
 自定义顶部导航统一使用 core 的 `KratosNavBar`：普通页、tabBar 页和有无操作按钮共用相同标题栏高度，组件负责安全区、返回行为、按钮尺寸与微信胶囊避让。新页面只传标题和操作，外层不要重复添加顶部安全区或导航栏高度；具体用法见 [通用顶部导航](packages/core/README.md#通用顶部导航)。
 
-项目可复用 system 的 `KratosMyPage` 组件，通过 React `children` 在个人信息和 AI 助手下方追加订单、收藏或统计卡片，顶部设置入口由公共组件维护。默认“我的”页面已装配空的业务扩展示例；业务模块使用相同的 `pages/my/my` 路由覆盖默认页，具体示例见 [system 个人中心扩展](packages/modules/system/README.md#个人中心扩展)。
+System 的 `KratosMyPage` 负责个人信息、AI 助手和顶部设置入口；默认“我的”页面保留空的 children 扩展区，当前宿主不预置其他业务卡片。页面覆盖规则见 [system 个人中心扩展](packages/modules/system/README.md#个人中心扩展)。
 
 异常退出后，下次命令会根据 `.kratos-taro-app-pages-state.json` 自动恢复。H5 和微信小程序开发进程可以同时持有同一份页面装配事务；所有进程退出后，runner 才恢复宿主文件。开发产物分别写入 `dist/dev/h5` 和 `dist/dev/mp-weixin`，生产默认写入 `dist/build/h5` 和 `dist/build/mp-weixin`；显式设置 `KRATOS_TARO_OUTPUT_ROOT` 时优先使用该目录。
 
@@ -117,7 +117,7 @@ pnpm dlx @liujitcn/kratos-taro-app-cli create business-app --module business,rep
 pnpm dlx @liujitcn/kratos-taro-app-cli create my-app --with @acme/customer-module
 ```
 
-生成项目沿用相同的 React/Taro 技术栈、模块清单、runner 事务协议和 H5/微信构建方式。本地模块独立维护 `pages`、运行时入口与构建期入口，适合后续按业务域加入商城等能力。
+生成项目沿用相同的 React/Taro 技术栈、模块清单、runner 事务协议和 H5/微信构建方式。本地模块独立维护 `pages`、运行时入口与构建期入口。
 
 ## 包与验证
 
@@ -147,7 +147,7 @@ CLI 直接生成完整宿主、本地业务模块、四种语言源文件与注�
 支持本地 `system` 与其他模块一起创建；管理端本地 System 继承内置能力，运行时只注册一次，
 构建仍扫描内置源码。应用端本地模块使用独立导入别名，保留内置 System。
 
-通过 `--kratos-project` 生成与 Go 后端配套的前端：H5 输出到 `backend/data/<terminal>`，
+通过 `--kratos-project` 生成当前仓库约定的前端：H5 输出到 `backend/data/<terminal>`，
 管理端 CLI 同时在 workspace 父目录创建共享 `Makefile` 与 `scripts`。Go 调用方仅传参执行 CLI。
 新增语言或修改语言文件后运行 `pnpm i18n:sync`；`pnpm i18n:check` 校验注册文件是否同步。
 

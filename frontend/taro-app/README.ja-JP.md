@@ -27,7 +27,7 @@ frontend/taro-app
 
 ホストがコミットするのは固定の `pages/bootstrap` ページだけです。core runner は開発・ビルド開始前に各モジュールの `src/views/**/*.tsx` を走査し、`components` を除外して page wrapper と設定を生成します。自作 `KratosTabBar` を統一して取り付け、`pages*` ルートからメインパッケージと分包を分け、各モジュールの `src/static` を宿主へ統合します。宿主に既存するファイルを優先し、同名モジュールは後に登録されたものを優先します。ビルド終了後は元の `app.config.ts` を復元し、一時ファイルを削除します。
 
-ホームとマイページは非表示のネイティブ tab ルートとして登録し、`switchTab` で WeChat のネイティブ体験を維持します。通常ページは `navigateTo` を優先し、下位ページは親階層に所属して対応する tab を強調します。異常終了後は次回コマンドが `.kratos-taro-app-pages-state.json` に基づき復元します。H5 と WeChat の開発プロセスは同じ装配トランザクションを保持でき、全プロセス終了後に宿主ファイルを復元します。
+ホストはネイティブ `tabBar` を宣言せず、wrapper に自作 `KratosTabBar` を取り付けます。H5 は `redirectTo`、WeChat はページスタックを再利用し、通常ページは `navigateTo` を優先します。下位ページは親階層に所属して対応する tab を強調します。異常終了後は次回コマンドが `.kratos-taro-app-pages-state.json` に基づき復元します。H5 と WeChat の開発プロセスは同じ装配トランザクションを保持でき、全プロセス終了後に宿主ファイルを復元します。
 
 ## 開発とビルド
 

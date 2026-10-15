@@ -1,257 +1,102 @@
-# backend
+# Backend
 
-后端、API 和 Client 模块使用 Go 1.27.2 或更高补丁版本，Docker 构建镜像同步固定为 1.27.2。
-
-Security 工作流在临时工具模块内安装 `gosec v2.29.0`，配套 `golang.org/x/tools v0.51.0`，以读取 Go 1.27 的编译数据；该工具模块不修改业务模块依赖。使用默认依赖直接安装 Gosec 会出现 export data v5 导入错误，不能作为扫描通过的证据。
-
-AI 依赖配套使用 `agenticopenai v0.2.4`、`eino v0.9.21` 与 OpenAI SDK `v3.44.0`。SDK `v3.73.0` 的 Responses 类型与当前稳定适配库不兼容，因此 Dependabot 暂时限制 SDK 不超过 `v3.44.0`，并将相关依赖归入同一升级组；上游发布兼容版本后，先验证模型和工具调用再解除版本限制。
-
-个人中心登录记录以本地 `YYYY-MM-DD HH:mm:ss` 显示登录时间；设备标识优先记录 `X-Device-ID`，缺失时使用 User-Agent，历史空设备字段在页面展示已有 User-Agent。说明对应 `reason`，仅失败或异常时记录错误原因，成功时为空。
-
-账号密码、OAuth 票据兑换和微信登录统一返回 `mfa_remember_days`，表示当前登录策略允许的 MFA 设备免验证天数；为 `0` 时不提供记住设备选项。 OAuth 一次性票据在缓存与兑换时保留该字段。
-
-Backend 同时提供消息分类、站内信管理、用户收件箱、按分类路由的外部消息 Provider、可恢复的统一投递记录、Redis 投递恢复、后台工作台统计、文件资产元数据、登录来源策略、会话撤销、审计事件异步落库、日志保留清理和受控数据库备份任务。安全、消息和开放授权默认数据统一由 `v0.0.1` 初始化迁移提供。
-
-HTTP 与 gRPC 支持按接口配置令牌桶、固定窗口、滑动窗口计数、滑动窗口日志和漏桶限流；平台超级管理员可维护规则模板，并为接口和限流维度创建策略。规则的 `default_params` JSON 按算法分别校验；新建策略时复制所选规则的参数快照，之后可独立调整。初始化不预置限流规则或启用中的接口策略。
-
-多节点部署复用 `data.redis` 配置的 Cache：所有实例必须连接同一 Redis 或 Redis Cluster，并使用相同逻辑库与键空间，各算法状态才能共享并原子检查更新。未配置 Redis 时 Cache 会退回进程内存，只适用于单节点；不要在多节点环境启用接口限流后使用内存缓存。
-
-`backend` 保留 API 契约、Go 生成接口、Service 实现、Biz 业务层，以及任务调度、HTTP/gRPC/MCP/AI 注册和必要的数据访问闭包；进程入口位于 `internal/cmd/server`。根包通过 `ProviderSet`、`NewModuleResources`、`NewModules`、`NewTasks`、`NewStreams` 和 `NewQueueConsumers` 提供可被外部 Core 宿主复用的公共边界，`adapter/core` 负责将 Admin 生成的数据库访问能力适配为 `kratos-core/data` 的 Store/Writer 契约，`internal/module` 仅承载模块实现。AI Runtime 实现在 `internal/biz`，对外复用入口为 `pkg/agent`；业务模块通过 `pkg/notification.Publish` 发布消息，由内部 Dispatch 按分类路由站内信和外部 Provider，所有投递结果写入 `base_message_delivery`，Provider 失败由恢复任务重试。开放授权客户端使用单表 JSON operation 白名单并绑定租户，公开端点签发客户端 Bearer Token；HTTP middleware 分别校验租户、状态、IP 白名单和 API 范围，HTTP 加解密 Filter 在请求绑定前解密客户端数据并在成功响应后加密。登录认证支持 TOTP 多因素认证、一次性恢复码，以及全局和租户/用户定向登录来源策略。
+`backend` 是本仓库的 Go 服务，负责 HTTP/gRPC 接口、认证授权、系统管理、AI、消息、任务、迁移和静态资源托管。后端与管理端、uni-app、Taro 共用 `backend/api/proto` 中的接口契约。
 
 ## 目录
 
 ```text
 backend
-├── internal/cmd/server             # Admin 独立启动入口与 Wire 组合根
-├── api
-│   ├── proto                         # Proto 契约
-│   └── gen/go                        # Buf 生成的 Go 接口、HTTP、gRPC 和工具代码
-├── internal/biz                      # 业务 Case、DTO、代码生成和辅助领域代码
-├── adapter/core                      # 公开的 Core 存储与事务适配器，内部创建仓储
-├── adapter/kit                       # 公开的 Kit 适配器，脱敏及限流运行时策略
-├── bootstrap.go                      # 对外 ProviderSet 和模块/任务/SSE/队列/资源入口
-├── internal/module                   # Admin 到 kratos-core 的内部模块适配和资源实现
-│   ├── module.go                     # Core Module 协议注册
-│   ├── resources.go                  # module.Module 静态资源
-│   ├── init.go                        # Admin 模块 ProviderSet
-│   └── wire.go / wire_gen.go          # 公共入口使用的内部依赖装配
-├── pkg/agent                         # 对外复用的 AI Runtime、模型和工具 API
-├── pkg/runtimeconfig                  # 对外复用的运行配置 Proto 注册、校验和缓存 API
-├── pkg/notification                  # 对外复用的站内信发布 API
-├── internal/task                     # 异步任务与定时任务执行器
-├── internal/server                   # 服务拦截器和 API 模块注册适配
-│   └── middleware/{oauth,logstream}  # 按业务分组的 HTTP/gRPC 服务拦截器
-├── internal/data/gen                 # GORM 生成的模型、查询和仓储
-├── internal/service                  # Proto Service 实现
-├── internal/const                    # 业务常量
-├── internal/i18n/assets              # 业务语言资源
-├── data                              # 前端 H5 产物和 OSS 上传对象
-├── logs                              # 运行日志和日志入库回退文件
-├── backups                           # 本地备份工作目录
-├── codegen/restore                   # 代码生成还原快照
-└── migration                         # 代码生成业务使用的迁移资源
+├── api/proto                         # Proto、HTTP 路由和校验
+├── api/gen                           # 生成的 Go 协议代码
+├── configs                           # 最小启动配置
+├── configs/full                      # 完整配置模板
+├── internal/cmd/server               # 独立服务入口
+├── internal/service                  # HTTP/gRPC 服务适配
+├── internal/biz                      # 认证、系统、AI、消息和任务规则
+├── internal/data                     # 数据库、缓存、对象存储和仓储
+├── internal/module                   # 模块、SSE、队列和任务装配
+├── internal/openapi                  # OpenAPI 生成资源
+├── migration/assets/v0.0.1/mysql     # 初始化数据、菜单、权限和多语言
+└── pkg/agent、pkg/notification       # AI 与消息的稳定业务入口
 ```
+
+## 已实现能力
+
+- 账号密码、验证码、OAuth、TOTP/WebAuthn MFA、恢复码、JWT 刷新和会话撤销。
+- 多租户、用户、角色、部门、岗位、菜单、字典、配置、API、Casbin 权限和项目授权。
+- 文件上传、公开文件、对象存储、敏感字段加密和按权限查看密钥。
+- AI 会话、附件、SSE 流式响应、工具调用、智能问数、供应商/模型和知识库检索。
+- 站内信分类、发布、投递、收件箱、Provider、失败恢复和三端通知。
+- 定时任务、运行日志、六类审计日志、表归档、数据库备份恢复和迁移记录。
+- 开放授权客户端、Bearer Token、API 白名单、来源限制、请求加解密和限流。
+
+## 配置
+
+最小启动配置在 `configs`，完整字段模板在 `configs/full`。常用配置文件如下：
+
+| 文件 | 作用 |
+| --- | --- |
+| `data.yaml` | MySQL、Redis 和可选 AI 知识库数据源 |
+| `oss.yaml` | 本地或 S3 兼容对象存储 |
+| `auth.yaml` | JWT、会话、验证码和认证策略 |
+| `mfa.yaml` | TOTP/WebAuthn 参数 |
+| `key.yaml` | 运行时根密钥和密钥服务 |
+| `server.yaml` | HTTP、gRPC、SSE、MCP 和超时 |
+| `registry.yaml` | 服务注册配置 |
+
+配置敏感值使用 `ENC[...]` 保存。生产环境必须使用有效的密钥服务、TLS 和最小权限凭据；密钥服务不可用时服务启动失败，不回退明文文件。
+
+Redis 未配置时，单实例缓存、任务锁和队列使用进程内实现；多实例必须连接同一个 Redis。AI 知识库默认使用 `data.databases.rag`，未配置时回落默认数据源。
 
 ## 常用流程
 
-进入 `backend` 目录后，先通过帮助查看全部目标、参数默认值和覆盖示例：
-
 ```bash
-make help
+make -C backend help
+make -C backend init
+make -C backend run-minimal
+make -C backend run-full
+make -C backend build
+make -C backend test
 ```
 
-首次开发安装 Buf、protoc、Wire、gorm-gen、goimports 和检查工具：
-
-```bash
-make init
-```
-
-日常启动使用最小配置：
-
-```bash
-make run-minimal
-```
-
-`make run-minimal` 使用当前目录的 `configs` 配置。`make run` 会先按“protobuf Go -> OpenAPI -> 独立入口 Wire”的顺序刷新必要产物，再使用同一套最小配置启动服务。确认生成产物没有变化时，可跳过生成直接启动：
-
-```bash
-make run-only
-```
-
-完整配置启动使用：
-
-```bash
-make run-full
-```
-
-`run-full` 使用 `configs/full`，该目录按当前 `kratos-kit/api` 版本保留完整配置字段。最小配置只保留服务启动和本地开发所需字段；完整配置中的注册中心、远程配置、通知、MFA、日志等组件按需填写后启用。OAuth 第三方登录方式由“系统管理 → 登录管理 → OAuth登录配置”动态维护，不再使用启动配置文件。MySQL、本地对象存储和本地根密钥分别配置在 `configs/data.yaml`、`configs/oss.yaml`、`configs/key.yaml`；Redis 与队列配置可选，省略时缓存、队列和任务锁使用进程内实现，完整配置示例位于 `configs/full`。启动前需保证已启用的中间件可访问、Vault 已解封，并在终端或 IDE 中提供具有根密钥读取权限的 `VAULT_TOKEN`。同一应用的各节点应使用一致的根密钥引用和 `scope`；密钥服务不可用、未解封、密钥不存在或 token 无效时，启动失败，不回退本地文件。中间件的部署、初始化和凭据维护由运行环境负责，不与项目启动联动。
-
-默认配置目录为 `./configs`，默认不加载环境覆盖文件。基础配置使用 `<name>.yaml`；需要环境覆盖时显式传入 `APP_ENV`，加载同一目录下的 `<name>.<env>.yaml`。完整配置目录是独立的 `./configs/full`，不会与最小配置目录合并。可以覆盖配置目录、运行环境或追加启动参数：
-
-会话生命周期和上传安全扫描使用 `authn.session`、`oss.upload_security` 启动配置；审计日志保留在“系统管理 → 数据备份 → 数据归档”按表维护，数据库备份在“系统管理 → 数据备份 → 数据备份”按数据源维护。日志入库回退配置使用表单类型配置 `baseLogFallback`；备份完整性密钥和加密密钥在具体任务执行时分别按 `kratos-admin:backup/integrity`、`kratos-admin:backup/encryption` 从运行时密钥服务派生。普通系统配置仍由“系统配置”页面维护。HTTP 普通请求只使用 `server.http.timeout` 和 `server.http.max_body_bytes`，`/events`、`/mcp` 及 AI 消息流自动跳过普通请求超时。
-
-本地文件存储的磁盘根目录只由 `configs/oss.yaml` 的 `oss.root_directory` 配置，Core 将该目录映射到 `/data/`。上传对象按 `租户/业务类型/文件分类/年/月/日/文件名` 分层，OSS 内部对象键和数据库 `link_url` 统一使用不带前导 `/` 的格式，浏览器访问地址统一使用带 `/data/` 前缀的格式；`/data/` 只允许精确文件访问，不返回目录索引；`backend/data` 只保留三端 H5 产物和上传对象，日志、备份及代码生成还原快照分别位于 `backend/logs`、`backend/backups` 和 `backend/codegen/restore`。
-
-多因素认证方式由系统配置 `securityMfaMethod` 选择，当前支持 `totp` 和 `webauthn`。运行时 MFA 参数通过 `mfa.yaml` 的 `mfa` 节点加载；`mfa.encryption_key` 有显式值时优先使用，留空时在 TOTP 密钥真正加解密时按 `kratos-kit:mfa/encryption` 从运行时密钥服务派生。管理端和应用端禁用 TOTP 需要当前密码和动态口令或恢复码，禁用 WebAuthn 需要当前密码和一次 Passkey 或恢复码验证。生产环境不要把真实密钥写入仓库或数据库。完整字段以 `kratos-kit/api/proto/config/v1/mfa.proto` 为准。
-
-```bash
-make run-only CONF=/path/to/configs
-make run-only APP_ENV=prod
-make run-only RUN_ARGS='--help'
-```
-
-例如 `make run-only APP_ENV=prod` 会在 `configs` 中额外加载 `*.prod.yaml`；不传 `APP_ENV` 时只加载基础 YAML 文件。
-
-AI供应商与AI模型分别在管理端“AI助手 → 模型管理”（供应商）和“AI助手 → AI模型”中维护；模型按分类（聊天、向量、重排、图片、视频、语音）挂在供应商下，个性化参数保存在模型的分类配置JSON中。模型密钥通过入库脱敏策略加密保存，接口不会返回密钥原文。
-
-本地需要通过 HTTPS 启动 HTTP 服务时，先在仓库根目录生成前端与后端共用的开发证书，再使用 `https` 运行环境：
+局域网 HTTPS 联调：
 
 ```bash
 bash scripts/generate-dev-cert.sh 192.168.1.100
 make -C backend run-only APP_ENV=https
 ```
 
-`APP_ENV=https` 会加载 `configs/server.https.yaml`，复用仓库根 `certs/dev-cert.pem` 和 `certs/dev-key.pem`，并将 HTTP 服务地址 `:7001` 以 HTTPS 方式提供，即访问 `https://127.0.0.1:7001` 或 `https://192.168.1.100:7001`。该环境覆盖配置不能与容器发布路径直接复用，生产环境应将证书挂载到部署目录并在对应配置中填写实际路径。
+独立服务默认监听 HTTP `7001`、gRPC `6001`。迁移、默认账号和三端静态资源均由服务启动流程读取；开发默认账号为 `super / 112233`、`admin / 112233`，部署前必须修改密码和密钥。
 
-独立入口注入 `kratoscore.ProviderSet` 与内部模块 ProviderSet；Core 负责统一创建和管理 HTTP、gRPC、MCP、SSE、队列与定时任务运行时。Admin 注册六张完整审计日志模型并负责自动迁移；Core 异步写入 API/策略日志，Admin 异步写入登录、操作、数据访问和权限日志。
+## 生成链路
 
-定时任务每次执行前按任务编号取得执行锁，定时触发在锁被其他实例持有时跳过，手工执行则返回锁竞争错误。未配置 Redis 时使用进程内内存锁，适用于单实例运行；多实例部署必须确保各实例连接同一 Redis 并处于 Redis 锁模式。
+| 命令 | 产物 |
+| --- | --- |
+| `make -C backend api` | Go 协议代码和 OpenAPI 源文件 |
+| `make -C backend gorm-gen` | GORM Model、Query 和 Data 代码 |
+| `make -C backend public-wire` | 模块装配和公共 Wire 代码 |
+| `make -C backend wire` | 独立服务入口 Wire 代码 |
+| `make -C backend fmt` | 格式化后端 Go 文件 |
+| `make -C backend openapi` | OpenAPI YAML |
 
-## 修改后执行
+生成文件位于 `api/gen`、`internal/data/gen`、`internal/openapi` 和 Wire 文件，不得手工修改。Proto 改动后按“生成 → Service/Biz → 前端 RPC → 初始化权限”的顺序完成。
 
-| 修改场景 | 命令 | 说明 |
-| --- | --- | --- |
-| Proto 契约 | `make api openapi` | 生成 Backend protobuf Go 和 OpenAPI 源文档；前端 TypeScript RPC 使用仓库根目录的 `make -C ../frontend ts`，也可按端执行 `ts-admin`、`ts-uni-app` 或 `ts-taro-app`。 |
-| 数据库表结构 | `make gorm-gen` | 先更新开发库，再按 `GORM_GEN_CONFIG`、`GORM_GEN_DATABASE` 和 `GORM_TABLE` 生成。 |
-| ProviderSet 或构造参数 | `make public-wire wire` | 刷新业务模块内部装配和独立服务入口。 |
-| 语言包或国际化资源 | `make -C .. i18n` | 国际化属于仓库根目录公共命令。 |
-| Go import 别名 | `make cli fmt` | `cli` 安装 `kratos-kit/cmd/normalize-go-imports`，`fmt` 运行它并使用 `goimports` 格式化。 |
-| 多类后端生成源同时变化 | `make gen` | 依次执行 GORM、接口、OpenAPI、Wire 和格式化；需要可访问开发数据库。 |
+## 数据与迁移
 
-所有生成产物都必须通过上述命令刷新，不能手工修改。
+初始化资源统一位于 `migration/assets/v0.0.1/mysql`：
 
-`make api` 在生成完成前对协议产物执行同一套别名规范化，重复生成不会因 `commonv1` 等别名变化改写无关接口。
+- `default_data.up.sql`：语言、租户、账号、菜单、按钮、API 权限和默认配置；
+- `i18n.*.up.sql`：菜单、字典、配置和任务的非主语言译文；
+- `README*.md`：迁移说明，由服务保存文件引用和校验摘要。
 
-Go import 别名规范化命令由 `kratos-kit/cmd/normalize-go-imports` 提供，Admin 不保留本地副本；先安装命令，再执行格式化：
+本仓库不新增 `v0.0.2` 等迁移目录。新表由 GORM 自动迁移创建，菜单、权限和多语言在唯一的 `v0.0.1` 初始化资源中维护。
 
-```bash
-make cli
-make fmt
-```
-
-
-## 检查
-
-提交前执行完整 Backend 检查：
+## 运行检查
 
 ```bash
-make check
+go test ./...
+make -C backend fmt
+make -C backend menu-sort
 ```
 
-`make check` 依次运行 `make lint` 和 `make test`，不会自动格式化代码。全仓检查（含国际化）请在仓库根目录执行 `make check`。需要格式化时先执行：
-
-```bash
-make fmt
-```
-
-也可以单独运行某一项：
-
-```bash
-make lint
-make test
-```
-
-## 构建
-
-默认构建 `linux/amd64`、`CGO_ENABLED=0` 的可执行文件：
-
-```bash
-make build
-```
-
-产物为 `bin/server`。其他平台可以覆盖参数：
-
-```bash
-make build GOOS=darwin GOARCH=arm64 BINARY=bin/server-darwin-arm64
-```
-
-发布压缩包、Docker 镜像和三端静态资源属于仓库级流程，请在根目录执行 `make package` 或 `make docker-build`；对应参数和运行示例见根目录 README。
-
-## 常用参数
-
-| 参数 | 默认值 | 用途 |
-| --- | --- | --- |
-| `CONF` | `./configs` | 服务运行配置目录。 |
-| `APP_ENV` | 空 | 可选，选择 `<name>.<env>.yaml` 环境覆盖配置。 |
-| `FULL_CONF` | `./configs/full` | `make run-full` 使用的完整配置目录。 |
-| `RUN_ARGS` | 空 | 追加到服务命令后的参数。 |
-| `CGO_ENABLED` | `0` | Go 构建时是否启用 CGO。 |
-| `GOOS` / `GOARCH` | `linux` / `amd64` | 构建目标平台。 |
-| `BINARY` | `bin/server` | 可执行文件输出路径。 |
-| `ARCHIVE` | `dist/backend-<os>-<arch>.tar.gz` | 后端二进制压缩包输出路径（由根目录 `make package` 调用）。 |
-| `PUBLIC_WIRE_DIR` | `internal/module` | 公共入口使用的内部 `wire.go` 所在目录。 |
-| `WIRE_DIR` | `internal/cmd/server` | 独立入口 `wire.go` 所在目录。 |
-| `GORM_GEN_CONFIG` | `configs/data.yaml` | GORM 生成使用的数据源配置。 |
-| `GORM_GEN_DATABASE` | 空 | 可选数据库名，默认读取配置文件。 |
-| `GORM_TABLE` | 内置表清单 | 逗号分隔的 GORM 生成表。 |
-
-## 外部宿主复用
-
-外部 Go 项目复用 Backend 时，在自己的 Wire 组合根中加入 `kratoscore.ProviderSet`、`backend.ProviderSet` 和宿主的合并 ProviderSet：
-
-```go
-func NewApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
-	panic(wire.Build(
-		kratoscore.ProviderSet,
-		backend.ProviderSet,
-		mergeProviderSet,
-	))
-}
-```
-
-`backend.NewCodeGenManager` 是共享代码生成任务管理器的公开构造入口，已加入 `backend.ProviderSet`。Service 与 SSE 由同一个 Wire 图注入同一实例；外部生成代码只调用该公开构造器。新增内部依赖时，应在根包提供公开构造边界，不直接向公开 ProviderSet 展开 internal ProviderSet。
-
-根包通过 `AdminResources`、`AdminModules`、`AdminTasks`、`AdminStreams` 和 `AdminConsumers` 输出具名贡献，宿主的合并 ProviderSet 将它们与其他业务模块的贡献显式追加为 Core 最终集合。公开构造器只使用 Core 公共类型，外部生成的 `wire_gen.go` 不会依赖 `backend/internal`。
-
-`adapter/core` 和 `adapter/kit` 与 `internal` 平级，构造函数统一接收 `databases map[string]*gorm.Client`，在内部创建并保存所需 Data、Repository，不把内部仓储类型放入公开签名。Core 适配器通过公共存储与事务接口参与 Wire，事务查询通过生成数据包的上下文传递，数据库客户端仍由 Core 创建和清理。
-
-Kit 脱敏和限流策略解析器由 Wire 创建并注入 Core 协议入口和 Admin 模块，不使用进程级默认解析器或存储运行时。解析器构造时不查表；`NewModules` 在迁移就绪后初始化限流策略快照并绑定默认数据库的实例级脱敏回调，HTTP、gRPC 和 MCP 请求通过自身上下文携带相应解析器。限流策略运行时定期刷新，管理端变更后会立即刷新；缓存对同一请求涉及的多条策略原子检查更新，Redis Cluster 状态键按接口操作使用相同 hash slot。
-
-外部项目保持自己的 Go module 和普通服务入口，不需要将 module 改为 Admin 路径，也不需要额外的宿主 `go.mod` 或 `go.work`。本地联调可以临时替换依赖，正式使用须按 Kit redact 和 server/grpc、Core、Backend 的顺序发布修复版本并重新运行宿主 Wire。
-
-`backend.NewModules` 初始化的是宿主进程级运行日志采集器；外部项目按上述方式接入 Backend 后，其自身以及其他已注册模块写入 stdout/stderr 的日志也会进入运行日志实时控制台，历史日志文件则按宿主的日志配置读取。
-
-`configs/auth.yaml` 中的 JWT 密钥有显式值时优先使用；留空时服务端和客户端共同按 `kratos-kit:authn/jwt` 从运行时密钥服务派生。配置文件中的敏感值应使用 `ENC[...]` 保存，不要提交明文密钥。
-
-管理端浏览器使用 Cookie-only 刷新令牌模式：刷新令牌只保存在 Path 收窄的 HttpOnly Cookie，访问令牌只保存在页面内存；uni-app 和 Taro 不发送该模式标识，继续使用各自现有的令牌传输方式。
-
-外部模块接入 AI 时使用 `pkg/agent.NewRuntime` 创建运行时，通过 `RuntimeConfig.AdminTools/AppTools` 或 `Runtime.RegisterTool` 注册 Eino `InvokableTool`；复用 Admin 宿主时，也可通过 `AdminModules.RegisterAgentTools` 将宿主工具追加到指定终端。简单结构化工具优先使用 `pkg/agent.InferTool` 自动生成参数 schema。评论审核、内容提取等固定流程可以组合 `NewChatClient`、`NewStructuredRunner`、`SchemaFor` 和多模态 Part 构造函数，不需要引用 `internal` 包。需要权限控制时实现 `ToolAccessChecker`，不接入权限系统则保持 `Checker` 为 `nil`。
-
-外部模块接入运行配置时，在自己的 Proto 中定义配置消息并通过 `pkg/runtimeconfig.Register` 注册 key、默认值和敏感字段；Admin 启动时会统一初始化 `base_config` 表单类型配置并刷新 Redis。配置 JSON 使用 ProtoJSON 编解码和 Protovalidate 校验，校验规则 ID 可直接作为国际化消息键。通用启动配置优先复用 `kratos-kit/api` 的 `config.v1.Bootstrap`，例如 `authn.session`、`oss.upload_security`、`logger` 和 `data`。
-
-代码生成任务执行 `ts` 步骤时使用同级 `frontend` 目录的 Makefile，生成三端 RPC；`gorm-gen`、`api`、`openapi`、`public-wire`、`wire`、`fmt` 仍在 `backend` 目录执行。
-还原快照包含 OpenAPI YAML、三端 RPC 与管理端自动导入声明；任务快照保存后额外手动执行生成命令产生的变化不属于该快照。
-
-代码生成 Biz 模板统一引用 `kratos-core/biz.BaseCase`。任务进度管理器由 Backend 宿主创建并注入协议服务和 SSE 入口，保证生成任务归属校验与实时事件使用同一实例。
-
-向已有业务 Case 合并 CRUD 时，同步补齐标准 mapper、formMapper 字段及构造初始化，保留已有依赖和构造逻辑。
-
-系统配置统一通过列表与编辑弹窗维护。类型 `6` 为表单，按注册的 key 加载字段定义；表单 JSON 沿用 ProtoJSON 校验、敏感值合并及运行缓存刷新。公共配置接口不返回表单内容，表单配置不允许删除、停用或修改位置、类型和编码。
-
-代码生成向已有服务注册文件追加字段和 HTTP/gRPC/MCP 注册时，按导入路径复用协议包及服务包的现有别名；未显式命名的导入使用实际包名，避免新增服务引用不存在的别名。
-
-代码生成追加业务和服务构造函数到 `ProviderSet` 后，先执行 `public-wire` 刷新模块装配，再执行 `wire` 刷新独立入口；前一步失败时跳过后续生成步骤，避免使用缺失新服务的旧装配代码。
-
-代码生成菜单 SQL 固定合并到 `migration/assets/v0.0.1/mysql/default_data.up.sql`，按表标记替换片段，保留原有初始化内容，不创建新迁移版本。先写脚本和源码，再在事务内同步菜单；已执行的初始化版本不会自动重放。菜单组件地址由实际 Vue 文件路径统一推导，SQL 在生成阶段按在线创建的层级规则预留明确编号，仅输出菜单和译文 INSERT，以及当前登录角色的菜单 UPDATE；角色授权追加并去重，保留原有权限。脚本针对生成时的菜单编号，请在编号一致的数据库执行。
-
-代码生成的 `make fmt` 通过 `FMT_FILE_LIST` 只处理生成前后发生变化的 Go 文件；手动不传清单仍为全量格式化。Vue 配置合并按源码偏移逆序替换，保留旧页扩展属性。还原快照 v3 额外保存生成前菜单译文，恢复菜单、译文和权限，并恢复 SQL 文件；不修改业务表数据。旧快照不含译文，无法追溯恢复这部分历史内容。
-
-## 迁移文件与记录
-
-迁移 SQL 和说明固定从二进制内置资源读取，不支持外部目录覆盖。Docker 镜像和 `make package-binary` 仍携带迁移目录，独立复制二进制时无需额外复制迁移文件。
-
-`base_migration` 的 `up_files`、`down_files`、`description_files` 均为可空 JSON，保存有序的 `{ "path": "v0.0.1/mysql/default_data.up.sql", "sha256": "..." }` 文件引用数组。升级、回退和说明内容由 Core 在详情请求时读取校验，详情接口返回 `files` 数组，每项包含 `path`、`content`，依次列出说明、升级、回退文件，不合并正文。多语言说明在 `base_i18n` 中也只保存文件引用。
-
-历史文件必须保留且不可覆盖，否则详情会明确报错。旧库的三个 longtext 列不会由 AutoMigrate 自动删除或转换；部署新代码前需要备份并转换历史记录，开发环境可使用全新数据库验证。Core 与迁移模块使用正式 tag 依赖，不依赖本地目录。
-
-Backend Makefile 统一关闭递归目录提示和终端颜色，代码生成、检查、构建和打包按阶段输出摘要；失败命令保留原始错误输出。
+涉及 Proto、Wire、前端调用或初始化权限时，完成后在仓库根目录执行 `make gen`、`make check` 和 `make menu-sort`。

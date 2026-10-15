@@ -20,7 +20,7 @@
 - 管理端代码生成配置、预览、生成进度和还原。
 - 运行日志浏览：实时控制台 SSE、历史日志查询、级别和关键字筛选及历史原文件下载。
 - 登录来源策略（全局及租户/用户定向规则）、密码复杂度策略、按策略启用多设备登录、独立会话超时与撤销、本人登录记录、平台在线会话管理、审计日志异步落库与保留清理、受控 MySQL 备份恢复任务。
-- 可挂载的 Go Core 模块；后端实现 `module.Module`，通过 `Resources` 提供静态资源，并由启动入口交给 Core 统一注册协议服务。
+- 可组合的后端模块；后端通过统一装配入口注册协议服务、静态资源、任务、SSE 和队列消费者。
 - 管理端、uni-app、Taro 和后端错误目录的语言集合由语言包自动发现；动态菜单、字典和代码生成同步支持所有已注册语言。
 - 管理端支持在“系统管理 / 基础管理 / 国际化自定义翻译”中按租户、位置、语言和语言键覆盖固定界面文案，登录后加载当前租户数据，默认语言包作为未配置时的回退。
 
@@ -30,11 +30,13 @@
 
 | 目录 | 说明 | 文档 |
 | --- | --- | --- |
-| `backend` | Kratos 服务、Proto、GORM、迁移和 Core 宿主组合。 | [backend/README.md](backend/README.md) |
+| `backend` | Kratos 服务、Proto、GORM、迁移、任务和静态资源托管。 | [backend/README.md](backend/README.md) |
 | `frontend/admin` | 管理端 workspace，包含默认宿主、core、System 和 CLI。 | [frontend/admin/README.md](frontend/admin/README.md) |
 | `frontend/uni-app` | uni-app workspace，包含默认宿主、core、system 和 CLI。 | [frontend/uni-app/README.md](frontend/uni-app/README.md) |
 | `frontend/taro-app` | React/Taro workspace，包含默认宿主、core、UI、system 和 CLI。 | [frontend/taro-app/README.md](frontend/taro-app/README.md) |
 | `docs` | 当前架构、操作流程和专题说明。 | [docs/README.md](docs/README.md) |
+
+快速确认当前已经实现的后端、管理端和应用端能力，请先阅读[功能总览](docs/功能总览.md)。
 
 开放授权协议的接口范围、拦截器边界和加密扩展点见 [docs/开放授权协议设计.md](docs/开放授权协议设计.md)。
 
@@ -45,7 +47,7 @@
 - pnpm 版本以各 workspace 的 `packageManager` 为准：管理端 `10.33.4`，uni-app 与 Taro 应用端 `10.13.1`。
 - MySQL、Consul 和 Vault；Redis 与队列按需启用，未配置时单实例使用进程内实现。用途与最小/完整配置入口见下方说明。
 - Docker 部署需要可用的 Docker CLI 与 Docker daemon。
-- 启用 TOTP 绑定时，`mfa.encryption_key` 有显式值则使用该值，留空时在实际保护 TOTP 密钥时按 `kratos-kit:mfa/encryption` 从运行时密钥服务派生；启用 WebAuthn 时还要配置 `mfa.webauthn.rp_id` 与 `mfa.webauthn.rp_origins`。配置文件中的敏感值应使用 `ENC[...]` 保存。
+- 启用 TOTP 绑定时，`mfa.encryption_key` 有显式值则使用该值，留空时由运行时密钥服务派生；启用 WebAuthn 时还要配置 `mfa.webauthn.rp_id` 与 `mfa.webauthn.rp_origins`。配置文件中的敏感值应使用 `ENC[...]` 保存。
 - Buf、protoc 插件、Wire 和 gorm-gen 只在重新生成代码时需要，可通过 `make -C backend init` 安装。
 
 直接执行 `make` 或 `make help` 查看仓库级命令；Backend 和 Frontend 的完整目标分别使用 `make -C backend help`、`make -C frontend help` 查看。
@@ -59,7 +61,7 @@
 | Consul | 服务注册与发现。 | `backend/configs/full/registry.yaml` |
 | Vault | 应用根密钥管理、配置解密及业务密钥派生。 | `backend/configs/key.yaml`、`backend/configs/full/key.yaml` |
 
-默认启动只读取配置目录顶层的基础 YAML 文件；需要环境覆盖时显式传入 `APP_ENV`，再加载对应的 `<name>.<env>.yaml`。`backend/configs` 是最小启动配置，`backend/configs/full` 是按当前 `kratos-kit/api` 保留全部配置字段的完整配置。启动前应保证已启用的中间件可访问，Vault 已初始化、已解封，且 `VAULT_TOKEN` 具有读取所需根密钥的权限；部署、初始化和凭据维护由运行环境负责，不与项目启动联动。生产环境应使用安全连接和最小权限凭据。
+默认启动只读取配置目录顶层的基础 YAML 文件；需要环境覆盖时显式传入 `APP_ENV`，再加载对应的 `<name>.<env>.yaml`。`backend/configs` 是最小启动配置，`backend/configs/full` 是包含全部可选字段的完整配置。启动前应保证已启用的中间件可访问，密钥服务已初始化、已解封，且 `VAULT_TOKEN` 具有读取所需根密钥的权限；部署、初始化和凭据维护由运行环境负责，不与项目启动联动。生产环境应使用安全连接和最小权限凭据。
 
 ## 本地启动
 
@@ -145,9 +147,7 @@ make menu-sort
 
 菜单种子排序遵循「sort 等于本级编号位置的两位数字（一级 1-2 位、二级 3-4 位、三级 5-6 位、四级 7-8 位，数字对为 00 时向后回退）」的约定：`make menu-sort` 只读检查（不一致时失败），`make menu-sort-fix` 把不一致项回写种子 SQL（只改 sort 字段，其余字段写后逐条校验）；`make menu-sort-fix MENU_SORT_SQL=1` 改为打印同步已初始化数据库的 UPDATE 语句。脚本位于 `scripts/check_menu_sort.py`，可脱离 make 单独执行。
 
-`make -C backend cli` 会安装 `kratos-kit/cmd/normalize-go-imports`，`make -C backend fmt` 再运行该命令并使用 `goimports` 格式化 Backend 全部 Go 文件。代码生成任务通过 `FMT_FILE_LIST` 传入文件清单（每行一个 Backend 相对路径），仅格式化本次改写文件。`make -C backend api` 在生成结束时统一规范化协议产物的 Go import 别名，避免全量生成与按文件格式化之间反复产生无关差异。
-
-该工具实现统一位于 `kratos-kit/cmd/normalize-go-imports`，不再在 Admin 仓库保留独立 Make 目标。
+`make -C backend fmt` 使用仓库配置的 Go 格式化工具处理后端文件。代码生成任务通过 `FMT_FILE_LIST` 传入文件清单（每行一个 Backend 相对路径），仅格式化本次改写文件；`make -C backend api` 在生成结束时统一规范化协议产物的 Go import 别名，避免全量生成与按文件格式化之间产生无关差异。
 
 后端默认通过 `make -C backend build` 构建 `linux/amd64` 二进制；仓库根目录的 `make package` 会生成包含 `bin/server` 和 `configs` 的后端发布压缩包，并同时生成全部前端 npm 包。目标平台可使用 `GOOS`、`GOARCH` 覆盖。
 
@@ -160,7 +160,7 @@ make docker-run IMAGE=kratos-admin
 make docker-stop IMAGE=kratos-admin
 ```
 
-Docker 镜像 `TAG` 默认读取 `backend/internal/const/project.go` 中的服务版本，也可以通过命令行显式覆盖。`docker-build` 使用 Docker Buildx 同时构建 `linux/amd64` 和 `linux/arm64`，默认使用 Docker media types、关闭 provenance 附件，并将双架构镜像写入本地容器镜像存储；可用 `DOCKER_PLATFORMS` 和 `DOCKER_LOCAL_OUTPUT` 覆盖平台及输出方式。`docker-push` 将本地镜像按相同 `TAG` 标记为 `DOCKER_PUSH_IMAGE` 并推送，默认目标为 `swr.cn-north-4.myhuaweicloud.com/newcapec/$(IMAGE)`。Docker 内的 Go 模块下载默认继承宿主机 `go env GOPROXY`，宿主机没有 Go 时回退到官方代理，也可通过 `DOCKER_GOPROXY` 显式覆盖。构建命令先检查 Docker，再重新构建管理后台、uni-app H5、Taro H5，后端程序由 Docker 多阶段构建按目标架构编译。三个 H5 构建会并行执行；Dockerfile 会复用项目独立的 Go 模块和编译缓存。运行命令发布宿主机 `7001/6001` 端口，将 `backend/data`、`backend/logs`、`backend/backups` 和 `backend/configs` 分别映射到容器的 `/app/data`、`/app/logs`、`/app/backups` 和 `/app/configs`。镜像内包含默认 `configs` 和三端静态资源；容器启动时仅将镜像中的缺失配置补充到宿主机的 `backend/configs`，不会覆盖宿主机已修改的配置，再使用该目录启动服务。静态站点启动时补充到 `backend/data`，已有上传文件不会被清空；Core 根据 `oss.root_directory` 将本地对象统一映射到 `/data/`。完整构建参数和运行示例见本节。
+Docker 镜像 `TAG` 默认读取 `backend/internal/const/project.go` 中的服务版本，也可以通过命令行显式覆盖。`docker-build` 使用 Docker Buildx 同时构建 `linux/amd64` 和 `linux/arm64`，默认使用 Docker media types、关闭 provenance 附件，并将双架构镜像写入本地容器镜像存储；可用 `DOCKER_PLATFORMS` 和 `DOCKER_LOCAL_OUTPUT` 覆盖平台及输出方式。`docker-push` 将本地镜像按相同 `TAG` 标记为 `DOCKER_PUSH_IMAGE` 并推送，默认目标为 `swr.cn-north-4.myhuaweicloud.com/newcapec/$(IMAGE)`。Docker 内的 Go 模块下载默认继承宿主机 `go env GOPROXY`，宿主机没有 Go 时回退到官方代理，也可通过 `DOCKER_GOPROXY` 显式覆盖。构建命令先检查 Docker，再重新构建管理后台、uni-app H5、Taro H5，后端程序由 Docker 多阶段构建按目标架构编译。三个 H5 构建会并行执行；Dockerfile 会复用项目独立的 Go 模块和编译缓存。运行命令发布宿主机 `7001/6001` 端口，将 `backend/data`、`backend/logs`、`backend/backups` 和 `backend/configs` 分别映射到容器的 `/app/data`、`/app/logs`、`/app/backups` 和 `/app/configs`。镜像内包含默认 `configs` 和三端静态资源；容器启动时仅将镜像中的缺失配置补充到宿主机的 `backend/configs`，不会覆盖宿主机已修改的配置，再使用该目录启动服务。静态站点启动时补充到 `backend/data`，已有上传文件不会被清空；后端根据 `oss.root_directory` 将本地对象统一映射到 `/data/`。完整构建参数和运行示例见本节。
 
 `I18N_LOCALES` 使用逗号分隔的 BCP 47 语言代码列表（默认从后端语言包自动发现，排除主语言），控制 OpenAPI 的目标语言。`make i18n` 生成 OpenAPI 多语言 YAML。离线生成使用 `I18N_OFFLINE=1 make i18n`。
 
@@ -168,11 +168,9 @@ Docker 镜像 `TAG` 默认读取 `backend/internal/const/project.go` 中的服�
 
 `make -C backend gen` 会生成 `backend/internal/module` 的业务模块装配和 `backend/internal/cmd/server` 的独立启动 Wire 产物；单独刷新前者使用 `make -C backend public-wire`，单独刷新自定义组合根可通过 `WIRE_DIR` 指定包含 `wire.go` 的目录。
 
-外部 Go 项目将 `github.com/liujitcn/kratos-admin/backend` 的具名模块、资源、定时任务、SSE 流和队列消费者贡献与自身贡献合并后，再交给 `github.com/liujitcn/kratos-core` 创建协议服务及应用生命周期；外部生成代码不会引用 `backend/internal`。
+后端通过统一装配入口注册模块、资源、定时任务、SSE 流和队列消费者；独立服务和测试入口共用同一套实现。
 
-Admin 的公开 `backend/adapter/core` 和 `backend/adapter/kit` 构造函数只接收数据库客户端，在内部创建所需仓储，分别通过 Core 存储接口和 Kit 脱敏接口参与 Wire。脱敏解析器按应用实例注入并随请求上下文传递，存储回调绑定对应数据库，不使用全局默认实例。外部项目保持普通单模块结构，无需额外的接口集合或特殊宿主模块；跨仓库发布顺序为 Kit redact 和 server/grpc、Core、Admin Backend。
-
-`make i18n` 会在生成 `openapi.yaml` 后同步生成 `openapi.en-US.yaml`、`openapi.zh-TW.yaml` 和 `openapi.ja-JP.yaml`。默认资源来自后端错误目录和管理端 Core 语言包；外部资源可通过 `OPENAPI_I18N_CONTENT="语言=路径"` 传入。未命中的文案默认自动翻译：英文和日语使用 Google V1，繁体中文使用 OpenCC；设置 `I18N_AUTO_LOCALIZE=0` 可关闭自动翻译。无网络环境使用 `I18N_OFFLINE=1 make i18n`。
+`make i18n` 会在生成 `openapi.yaml` 后同步生成 `openapi.en-US.yaml`、`openapi.zh-TW.yaml` 和 `openapi.ja-JP.yaml`。默认资源来自本仓库后端错误目录和三个前端语言包；未命中的文案默认自动翻译，设置 `I18N_AUTO_LOCALIZE=0` 可关闭自动翻译。无网络环境使用 `I18N_OFFLINE=1 make i18n`。
 
 ## 国际化
 
@@ -193,7 +191,7 @@ Admin 的公开 `backend/adapter/core` 和 `backend/adapter/kit` 构造函数只
 
 语言包定义系统能够渲染的语言集合，`base_language` 表只负责运行时启用状态、名称、排序和主语言配置。管理端语言偏好保存为 `kratos-admin:locale`，uni-app 和 Taro 保存为 `kratos-app:locale`；所有 HTTP、刷新令牌、fetch、SSE、uni.request 和 Taro.request 请求都会发送规范化的 `Accept-Language`。固定文案由各 workspace 的 core/System JSON 语言包维护，动态菜单和字典由后端翻译表按请求语言解析，缺少当前语言译文时回退主语言。
 
-新增语言不需要修改 Go、TypeScript 或模块注册代码：在 `backend/internal/i18n/assets`、三个 workspace 的 Core 和各业务模块语言包目录中增加同名 JSON，然后执行 `make i18n`。脚本会校验语言集合、语言键和占位符，并生成各前端注册文件、Element Plus 和 Day.js 映射。语言名称、排序、启用状态和主语言由 `base_language` 数据库记录提供；管理端 Core 的 `common.language.*` 用于编译期离线显示和生成语言迁移的初始名称。新增语言的完整文件清单和迁移流程见 [国际化设计与语言扩展](docs/国际化设计与语言扩展.md)。需要把语言加入新部署数据库时，直接更新唯一的 `v0.0.1` 初始化迁移；已有数据库的启用状态不会被迁移覆盖。
+新增语言不需要修改 Go、TypeScript 或模块注册代码：在 `backend/internal/i18n/assets`、三个 workspace 的 core 和各业务模块语言包目录中增加同名 JSON，然后执行 `make i18n`。脚本会校验语言集合、语言键和占位符，并生成各前端注册文件、Element Plus 和 Day.js 映射。语言名称、排序、启用状态和主语言由 `base_language` 数据库记录提供；新增语言的完整文件清单和迁移流程见 [国际化设计与语言扩展](docs/国际化设计与语言扩展.md)。需要把语言加入新部署数据库时，直接更新唯一的 `v0.0.1` 初始化迁移；已有数据库的启用状态不会被迁移覆盖。
 
 动态资源的主语言由 `base_language.is_primary` 配置。创建或更新菜单、字典、字典项和系统配置时，后端按请求 `Accept-Language` 将输入文本转换为主语言写入主表；请求语言不是主语言时，原文写入对应翻译表，其他已启用非主语言也只保存在翻译表。系统配置名称、菜单标题、字典名称和字典项标签支持在管理端点击名称打开翻译弹窗，文本/富文本配置值支持运行时翻译回退。
 
@@ -245,8 +243,7 @@ make -C frontend publish
 | 安全策略与运维任务 | [docs/安全策略与运维任务.md](docs/安全策略与运维任务.md) |
 
 
-创建外部项目时，三端 `packages/cli` 独立生成完整前端，包含语言注册、宿主生命周期及检查构建工具。
-Go 脚手架只调用 npm CLI；`--kratos-project` 适配后端静态输出，管理端 CLI 生成共享前端 Makefile 和脚本。
+创建业务项目时，三端 `packages/cli` 独立生成完整前端，包含语言注册、宿主生命周期及检查构建工具。脚手架只负责生成当前仓库约定的前端 workspace、模块清单和构建脚本。
 三端支持本地 `system`，无需临时模块名或生成后的文件补写。CLI 更新需先发布到 npm，Go 的精确版本调用才能使用新能力。
 
 Backend 的 `NewModules` 与 `NewStreams` 共享宿主注入的 `*backend.CodeGenManager`；通过 `backend.ProviderSet` 自动装配，手动调用这两个入口时也需传入同一实例。修改内部依赖装配后执行 `make -C backend public-wire wire`。

@@ -172,9 +172,9 @@ export const adminModules = [systemAdminModule];
 
 业务列表需要“租户 / 二级资源”查询条件与所属列时，使用根入口导出的 `useTenantProjectScope`：它按当前账号加载公共项目目录（默认租户为租户树，普通租户为项目选项），维护项目 ID 到“租户名 / 项目名”的映射，并返回 `column`（同时包含表格渲染和 `search.render`，列与查询条件天然共用同一份范围状态）和 `normalizeParams`、`projectSelections` 等范围工具。二级资源名称通过 `resourceLabelKey`、`allResourceLabelKey` 指定国际化键，默认使用项目文案，换成门店等资源时只需替换加载目录与国际化键。列表行只需提供项目 ID（可选租户 ID），单元格由 `TenantProjectText` 自动解析为两级文本；导出可复用 `resolveTenantProjectLabel`。
 
-租户项目管理组件通过 `TenantProjectManager` 公开。默认租户创建项目时在表单中选择目标租户，普通租户由服务端自动使用当前租户；默认租户查询全部项目，普通租户按项目授权范围查询。外部业务模块可以传入 `extraColumns`、`extraActions` 和 `loadExtraData`：扩展列可通过 `after` 指定插入到哪个基础字段后面，列的同名表格插槽会沿用该位置，未配置时默认插入备注后面，例如 `{ prop: "address", after: "name" }` 配合 `#address` 插槽即可把内容放到项目名称后面；数据加载器接收当前页的 `tenant_id + project_id` 集合，单条操作回调接收同一组双键以及项目基础数据。组件也会透传表格具名插槽，并向行插槽增加 `tenantProject` 上下文；保存业务配置后可通过组件实例的 `refresh()` 刷新列表。按外部业务字段搜索或排序时，应由外部接口参与分页查询，不能只在当前页加载后过滤。
+租户项目管理组件通过 `TenantProjectManager` 公开。默认租户创建项目时在表单中选择目标租户，普通租户由服务端自动使用当前租户；默认租户查询全部项目，普通租户按项目授权范围查询。当前宿主的业务页面可以传入 `extraColumns`、`extraActions` 和 `loadExtraData`：扩展列可通过 `after` 指定插入到哪个基础字段后面，列的同名表格插槽会沿用该位置；数据加载器接收当前页的 `tenant_id + project_id` 集合，单条操作回调接收同一组双键以及项目基础数据。组件也会透传表格具名插槽，并向行插槽增加 `tenantProject` 上下文；保存业务配置后可通过组件实例的 `refresh()` 刷新列表。按业务字段搜索或排序时，应由对应接口参与分页查询，不能只在当前页加载后过滤。
 
-外部项目可以在自己的页面中包装该组件，并通过菜单将项目管理页面的 `component` 指向包装页面：
+当前仓库的业务页面可以在自己的页面中包装该组件，并通过菜单将项目管理页面的 `component` 指向包装页面：
 
 ```vue
 <template>
@@ -192,7 +192,7 @@ import { TenantProjectManager, type TenantProjectAction, type TenantProjectExtra
 </script>
 ```
 
-包装页面、业务 API 和弹窗仍属于外部模块；`apps/admin` 只在模块清单中加载该模块。
+包装页面、业务 API 和弹窗属于当前宿主的业务模块；`apps/admin` 只在模块清单中加载对应模块。
 
 System 页面只通过 `systemAdminModule.views` 注册，不作为 npm 子路径公开。模块内组件默认不对外开放；`TenantProjectManager` 是显式公开的跨业务复用组件，其他组件仍保持内部使用。
 

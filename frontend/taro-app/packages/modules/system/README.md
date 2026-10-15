@@ -19,27 +19,22 @@
 
 公共组件与样式位于 `src/components/KratosMyPage.tsx` 和 `KratosMyPage.scss`。内置 [我的页面](src/views/pages/my/my.tsx) 已使用该组件，并挂载 [MyExtensions 空实现](src/views/pages/my/components/MyExtensions.tsx)。空实现返回 `null`，不显示占位卡片；项目可以按这个结构组织自己的业务内容。
 
-在项目业务模块的 `src/views/pages/my/my.tsx` 复用公开组件入口：
+当前模块的 `src/views/pages/my/my.tsx` 通过公开组件入口装配个人中心：
 
 ```tsx
 import KratosMyPage from '@liujitcn/kratos-taro-app-system/components/KratosMyPage'
-import OrderSection from './components/OrderSection'
-import ServiceSection from './components/ServiceSection'
 
 /** MyPage 组合公共个人中心与项目业务卡片。 */
 export default function MyPage() {
   return (
-    <KratosMyPage>
-      <OrderSection />
-      <ServiceSection />
-    </KratosMyPage>
+    <KratosMyPage />
   )
 }
 ```
 
 项目模块的 `pages` 声明 `'pages/my/my': { style: { navigationStyle: 'custom', navigationBarTitleText: '' } }`，`views` 声明 `PROFILE_HOME: 'pages/my/my'`，并在宿主 `module-manifest.ts` 中排在 system 模块之后。构建期 `buildModule.pages` 复用相同页面配置。使用相同的物理路由可以保留微信原生 tab 切换；页面 wrapper 和底部 tabBar 继续由 runner 生成，不在业务页面重复挂载。
 
-扩展区可以直接放多个业务卡片，不需要复制公共页面或给顶部入口提供替换内容。需要登录态、用户资料或导航时，通过 core 的公开 store 与导航 API 获取。
+当前页面保留空的 children 扩展区，宿主可以在本仓库的模块清单中装配业务内容；公共页面、顶部入口和导航逻辑仍由 System 维护。需要登录态、用户资料或导航时，通过 core 的公开 store 与导航 API 获取。
 
 ## AI 助手
 

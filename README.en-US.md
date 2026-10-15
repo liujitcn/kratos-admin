@@ -19,7 +19,7 @@
 - Administration-side code generation configuration, preview, generation progress, and restoration.
 - Runtime log browsing: live console SSE, historical log queries, level and keyword filters, and original historical file downloads.
 - Login-source policies (global and tenant/user-targeted rules), password complexity policies, policy-controlled multi-device login, independent session timeout and revocation, personal login records, platform online-session management, asynchronous audit-log persistence and retention cleanup, and controlled MySQL backup and restore jobs.
-- Mountable Go Core modules; the backend implements `module.Module`, provides static assets through `Resources`, and lets the startup entry register protocol services through Core.
+- Composable backend modules; the local assembly entry registers protocol services, static assets, jobs, SSE streams, and queue consumers.
 - Language sets for the administration console, uni-app, Taro, and backend error catalog are discovered automatically from language packages; dynamic menus, dictionaries, and code generation support all registered languages.
 - Uploaded files require authentication by default; file URLs continue to use `/data/...`, browser-native `src` requests authenticate through an HttpOnly access-token cookie, and explicitly public files can be accessed anonymously.
 - The administration console supports tenant-scoped overrides for fixed UI text under “System Management / Basic Management / Custom Internationalization,” loaded for the current tenant after login and falling back to the default language package when no override exists.
@@ -30,7 +30,7 @@ The repository does not include commerce, order, payment, or recommendation modu
 
 | Directory | Description | Documentation |
 | --- | --- | --- |
-| `backend` | Kratos services, Proto, GORM, migrations, and Core host composition. | [backend/README.md](backend/README.md) |
+| `backend` | Kratos services, Proto, GORM, migrations, jobs, and static asset hosting. | [backend/README.md](backend/README.md) |
 | `frontend/admin` | Administration workspace containing the default host, core, System, and CLI. | [frontend/admin/README.md](frontend/admin/README.md) |
 | `frontend/uni-app` | uni-app workspace containing the default host, core, system, and CLI. | [frontend/uni-app/README.md](frontend/uni-app/README.md) |
 | `frontend/taro-app` | React/Taro workspace containing the default host, core, UI, system, and CLI. | [frontend/taro-app/README.md](frontend/taro-app/README.md) |
@@ -45,7 +45,7 @@ See [docs/开放授权协议设计.md](docs/开放授权协议设计.md) for the
 - The pnpm version follows each workspace's `packageManager`: `10.33.4` for the administration console, and `10.13.1` for uni-app and Taro.
 - MySQL, Consul, and Vault; Redis and queue support are optional, with in-process implementations for single-instance deployments when omitted. See the sections below for their purposes and configuration entry points.
 - Docker deployment requires an available Docker CLI and Docker daemon.
-- When enabling TOTP enrollment, an explicit `mfa.encryption_key` takes precedence; when empty, the key is derived from the runtime key service using `kratos-kit:mfa/encryption` when protecting the TOTP secret. Enabling WebAuthn also requires `mfa.webauthn.rp_id` and `mfa.webauthn.rp_origins`. Sensitive configuration values should be stored using `ENC[...]`.
+- When enabling TOTP enrollment, an explicit `mfa.encryption_key` takes precedence; when empty, the key is derived from the runtime key service. Enabling WebAuthn also requires `mfa.webauthn.rp_id` and `mfa.webauthn.rp_origins`. Sensitive configuration values should be stored using `ENC[...]`.
 - Buf, protoc plugins, Wire, and gorm-gen are only required when regenerating code and can be installed with `make -C backend init`.
 
 Run `make` or `make help` to view repository-level commands. Run `make -C backend help` and `make -C frontend help` for the complete Backend and Frontend targets.
@@ -138,9 +138,7 @@ make -C backend fmt
 
 `make gen` generates repository artifacts in Backend, Frontend, language packages, and OpenAPI order; `make check` checks Backend, the three frontend workspaces, and internationalization in order. The root `make build` builds the backend binary and three frontend H5 hosts; use `make -C frontend build` to build all frontends (H5 + WeChat Mini Program), `make -C frontend build-h5` for H5 only, and `make -C frontend package` to generate all npm release packages.
 
-`make -C backend cli` installs `kratos-kit/cmd/normalize-go-imports`; `make -C backend fmt` runs it and formats all Backend Go files with `goimports`. Code-generation tasks receive a file list through `FMT_FILE_LIST` (one Backend-relative path per line) and format only the files rewritten in that task. `make -C backend api` normalizes Go import aliases for protocol artifacts after generation to prevent unrelated diffs between full generation and per-file formatting.
-
-The shared implementation of this tool is `kratos-kit/cmd/normalize-go-imports`; the Admin repository no longer keeps a separate Make target for it.
+`make -C backend fmt` formats Backend Go files with the repository's configured Go formatting tools. Code-generation tasks receive a file list through `FMT_FILE_LIST` (one Backend-relative path per line) and format only the files rewritten in that task. `make -C backend api` normalizes Go import aliases for protocol artifacts after generation to prevent unrelated diffs.
 
 The backend defaults to building a `linux/amd64` binary through `make -C backend build`; the root `make package` creates a backend release archive containing `bin/server` and `configs`, and also generates all frontend npm packages. Override the target platform with `GOOS` and `GOARCH`.
 
@@ -161,11 +159,9 @@ make docker-stop IMAGE=kratos-admin TAG=latest
 
 `make -C backend gen` generates business-module assembly in `backend/internal/module` and the independent startup Wire artifact in `backend/internal/cmd/server`; refresh the former alone with `make -C backend public-wire`, or specify a directory containing `wire.go` through `WIRE_DIR` for a custom composition root.
 
-External Go projects merge the named modules, resources, scheduled jobs, SSE streams, and queue consumers contributed by `github.com/liujitcn/kratos-admin/backend` with their own contributions, then pass them to `github.com/liujitcn/kratos-core` to create protocol services and the application lifecycle. External generated code does not reference `backend/internal`.
+The Backend entrypoint registers modules, resources, scheduled jobs, SSE streams, and queue consumers through one local assembly. The standalone service and test entrypoints share the same implementation.
 
-Admin's public `backend/adapter/core` and `backend/adapter/kit` constructors accept only the database client and create the required repositories internally. They participate in Wire through the Core storage interfaces and Kit redaction interfaces respectively. The redaction resolver is injected per application instance and passed through request contexts; storage callbacks bind to the corresponding database and do not use a global default instance. External projects retain a normal single-module structure and need no additional interface set or special host module. Cross-repository release order is Kit redact and server/grpc, Core, then Admin Backend.
-
-`make i18n` generates `openapi.en-US.yaml`, `openapi.zh-TW.yaml`, and `openapi.ja-JP.yaml` after generating `openapi.yaml`. Default resources come from the backend error catalog and the administration Core language packages; external resources can be supplied through `OPENAPI_I18N_CONTENT="language=path"`. Unmatched text is automatically translated by default: English and Japanese use Google V1, and Traditional Chinese uses OpenCC. Set `I18N_AUTO_LOCALIZE=0` to disable automatic translation. Use `I18N_OFFLINE=1 make i18n` without network access.
+`make i18n` generates `openapi.en-US.yaml`, `openapi.zh-TW.yaml`, and `openapi.ja-JP.yaml` after generating `openapi.yaml`. Default resources come from this repository's backend error catalog and three frontend language packages. Unmatched text is automatically translated by default; set `I18N_AUTO_LOCALIZE=0` to disable automatic translation. Use `I18N_OFFLINE=1 make i18n` without network access.
 
 ## Internationalization
 
@@ -192,10 +188,11 @@ The primary language for dynamic resources is configured by `base_language.is_pr
 
 ## Release
 
-The unified release updates and publishes 10 npm packages:
+The unified release updates and publishes 11 npm packages:
 
 - `@liujitcn/kratos-admin-core`
 - `@liujitcn/kratos-admin-system`
+- `@liujitcn/kratos-admin-rag`
 - `@liujitcn/kratos-admin-cli`
 - `@liujitcn/kratos-uni-app-core`
 - `@liujitcn/kratos-uni-app-system`
@@ -209,7 +206,7 @@ The unified release updates and publishes 10 npm packages:
 make tag VERSION=0.0.30
 ```
 
-`make tag` first runs the read-only `make i18n-check` to inspect language packages, SQL translation scripts, and multilingual OpenAPI documents. It refuses to release when generated artifacts are out of sync and does not translate or rewrite files during release. The release script then requires the current branch to be the remote default branch and synchronized with `origin`, runs backend tests and frontend packaging, and pushes `vX.Y.Z`, `backend/vX.Y.Z`, and `npm/vX.Y.Z`. `npm/vX.Y.Z` triggers `.github/workflows/publish-npm.yml` and publishes the 10 packages above through npm Trusted Publishing; the three default hosts are private packages and are not published. A usable `git`, `gh`, and GitHub login session are required locally.
+`make tag` first runs the read-only `make i18n-check` to inspect language packages, SQL translation scripts, and multilingual OpenAPI documents. It refuses to release when generated artifacts are out of sync and does not translate or rewrite files during release. The release script then requires the current branch to be the remote default branch and synchronized with `origin`, runs backend tests and frontend packaging, and pushes `vX.Y.Z`, `backend/vX.Y.Z`, and `npm/vX.Y.Z`. `npm/vX.Y.Z` triggers `.github/workflows/publish-npm.yml` and publishes the 11 packages above through npm Trusted Publishing; the three default hosts are private packages and are not published. A usable `git`, `gh`, and GitHub login session are required locally.
 
 For local npm publishing only:
 
@@ -237,7 +234,7 @@ The publishing script skips package versions already present in the registry and
 | Security policies and operations jobs | [docs/安全策略与运维任务.md](docs/安全策略与运维任务.md) |
 | Tenant project authorization | [docs/租户项目授权.md](docs/租户项目授权.md) |
 
-When creating external projects, the `packages/cli` packages for all three clients independently generate complete frontends, including language registration, host lifecycle, and check/build tools.
+When creating a business workspace, the `packages/cli` packages for all three clients generate the frontend workspace, language registration, host lifecycle, and check/build tools used by this repository.
 The Go scaffolding only calls the npm CLI; `--kratos-project` adapts backend static output, while the administration CLI generates the shared frontend Makefile and scripts.
 All three clients support a local `system` module, with no temporary module names or post-generation file patching. CLI updates must be published to npm first so that the Go code can call the exact version.
 

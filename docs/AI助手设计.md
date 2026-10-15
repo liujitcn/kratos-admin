@@ -98,7 +98,7 @@ embedding 必须使用真实 embedding 模型（如 `text-embedding-3-small`、`
 
 供应商与模型由 `system.admin.v1.AiProviderService` 管理（`backend/api/proto/system/admin/v1/ai_provider.proto`）：分页、选项、详情、创建、更新、删除、状态切换和 `TestAiProviderModels` 连通性测试。测试使用当前表单草稿逐个调用模型（chat 与 embedding 分别构造请求），不保存任何配置，返回每个模型的耗时与失败消息。
 
-`ai_provider` 表保存 `provider`（`openai_compatible` 或 `ollama`）、`base_url`、`api_key` 与 JSON `config`；`ai_model` 表通过 `provider_id` 挂在供应商下，`category` 为 `AiModelCategory` 枚举（`chat=1`、`embedding=2`、`rerank=3`、`image=4`、`video=5`、`audio=6`）。模型列表以 `AiProviderForm.models` 子列表随供应商表单在同一个事务内保存（按模型 ID upsert，保留 RAG 等外部引用）。
+`ai_provider` 表保存 `provider`（`openai_compatible` 或 `ollama`）、`base_url`、`api_key` 与 JSON `config`；`ai_model` 表通过 `provider_id` 挂在供应商下，`category` 为 `AiModelCategory` 枚举（`chat=1`、`embedding=2`、`rerank=3`、`image=4`、`video=5`、`audio=6`）。模型列表以 `AiProviderForm.models` 子列表随供应商表单在同一个事务内保存（按模型 ID upsert，保留知识库等现有功能的引用）。
 
 模型 API Key 的安全链路：表单提交 `common.v1.SecretCrypto` 密文（`api_key_configured` 表示已保存密钥），落库由密钥字段回调或 redact 存储策略加密，页面通过 `RevealSecretField` 眼睛查看，详见 [敏感字段加密设计](敏感字段加密设计.md)。对话端通过 `AiModelService.ListAiProviderModelOptions` 独立读取名称和模型列表，快捷入口仍由 `AiToolService.ListAiShortcut` 提供。发送消息时选择 Provider 与模型，凭据始终保留在服务端。未配置可用模型时 AI 运行时处于关闭状态。
 

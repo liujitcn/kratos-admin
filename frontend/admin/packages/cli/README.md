@@ -104,6 +104,6 @@ CLI 直接生成完整宿主、本地业务模块、四种语言源文件与注�
 支持本地 `system` 与其他模块一起创建；管理端本地 System 继承内置能力，运行时只注册一次，
 构建仍扫描内置源码。应用端本地模块使用独立导入别名，保留内置 System。
 
-通过 `--kratos-project` 生成与 Go 后端配套的前端：H5 输出到 `backend/data/<terminal>`，
+通过 `--kratos-project` 生成与当前 Go 后端目录配合的前端：H5 输出到 `backend/data/<terminal>`，
 管理端 CLI 同时在 workspace 父目录创建共享 `Makefile` 与 `scripts`。Go 调用方仅传参执行 CLI。
 新增语言或修改语言文件后运行 `pnpm i18n:sync`；`pnpm i18n:check` 校验注册文件是否同步。

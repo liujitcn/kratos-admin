@@ -19,7 +19,7 @@
 - 管理画面のコード生成設定、プレビュー、生成進捗、復元。
 - 実行ログ閲覧：リアルタイムコンソール SSE、履歴ログ検索、レベルとキーワードによる絞り込み、履歴元ファイルのダウンロード。
 - ログイン元ポリシー（グローバルおよびテナント/ユーザー指定ルール）、パスワード複雑度ポリシー、ポリシーに基づく複数端末ログイン、独立したセッションタイムアウトと失効、自分のログイン履歴、プラットフォームのオンラインセッション管理、監査ログの非同期保存と保持期間整理、制御された MySQL バックアップ復元タスク。
-- マウント可能な Go Core モジュール。バックエンドは `module.Module` を実装し、`Resources` で静的リソースを提供し、起動エントリーポイントから Core にプロトコルサービスを一括登録します。
+- 組み合わせ可能なバックエンドモジュール。起動の組み立て入口からプロトコルサービス、静的リソース、ジョブ、SSE、キューコンシューマーを登録します。
 - 管理画面、uni-app、Taro、バックエンドエラーカタログの言語集合を言語パッケージから自動検出し、動的メニュー、辞書、コード生成は登録済みの全言語に対応します。
 - アップロードファイルはデフォルトで認証が必要です。ファイル URL は `/data/...` を使い、ブラウザーのネイティブ `src` リクエストは HttpOnly のアクセストークン Cookie で認証します。明示的に公開したファイルは匿名で取得できます。
 - 管理画面は「システム管理 / 基礎管理 / 国際化カスタム翻訳」で、テナント、位置、言語、言語キー単位の固定 UI 文言を上書きできます。ログイン後に現在のテナントのデータを読み込み、未設定時は既定の言語パッケージへフォールバックします。
@@ -30,7 +30,7 @@
 
 | ディレクトリ | 説明 | ドキュメント |
 | --- | --- | --- |
-| `backend` | Kratos サービス、Proto、GORM、マイグレーション、Core ホスト構成。 | [backend/README.md](backend/README.md) |
+| `backend` | Kratos サービス、Proto、GORM、マイグレーション、ジョブ、静的リソース。 | [backend/README.md](backend/README.md) |
 | `frontend/admin` | デフォルトホスト、core、System、CLI を含む管理画面 workspace。 | [frontend/admin/README.md](frontend/admin/README.md) |
 | `frontend/uni-app` | デフォルトホスト、core、system、CLI を含む uni-app workspace。 | [frontend/uni-app/README.md](frontend/uni-app/README.md) |
 | `frontend/taro-app` | デフォルトホスト、core、UI、system、CLI を含む React/Taro workspace。 | [frontend/taro-app/README.md](frontend/taro-app/README.md) |
@@ -45,7 +45,7 @@
 - pnpm のバージョンは各 workspace の `packageManager` に従います。管理画面は `10.33.4`、uni-app と Taro は `10.13.1` です。
 - MySQL、Consul、Vault。Redis とキューは任意で、未設定の単一インスタンス環境ではプロセス内実装を使用します。用途と設定入口は以下を参照してください。
 - Docker デプロイには利用可能な Docker CLI と Docker daemon が必要です。
-- TOTP のバインドを有効にする場合、`mfa.encryption_key` に明示値があればそれを使用し、空の場合は TOTP シークレットを保護する時点で `kratos-kit:mfa/encryption` により実行時キースサービスから派生します。WebAuthn を有効にする場合は `mfa.webauthn.rp_id` と `mfa.webauthn.rp_origins` も設定します。設定ファイルの機密値は `ENC[...]` で保存してください。
+- TOTP のバインドを有効にする場合、`mfa.encryption_key` に明示値があればそれを使用し、空の場合は実行時キースサービスから派生します。WebAuthn を有効にする場合は `mfa.webauthn.rp_id` と `mfa.webauthn.rp_origins` も設定します。設定ファイルの機密値は `ENC[...]` で保存してください。
 - Buf、protoc プラグイン、Wire、gorm-gen はコード再生成時だけ必要で、`make -C backend init` でインストールできます。
 
 `make` または `make help` を実行するとリポジトリ全体のコマンドを確認できます。Backend と Frontend の完全なターゲットは、それぞれ `make -C backend help`、`make -C frontend help` で確認できます。
@@ -138,9 +138,7 @@ make -C backend fmt
 
 `make gen` は Backend、Frontend、言語パッケージ、OpenAPI の順にリポジトリ全体の生成物を作成します。`make check` は Backend、3 つの frontend workspace、国際化の順にチェックします。ルートの `make build` はバックエンドバイナリと 3 つのフロントエンド H5 ホストをビルドします。すべてのフロントエンド（H5 + WeChat ミニプログラム）は `make -C frontend build`、H5 のみは `make -C frontend build-h5`、すべての npm リリースパッケージは `make -C frontend package` を使用します。
 
-`make -C backend cli` は `kratos-kit/cmd/normalize-go-imports` をインストールし、`make -C backend fmt` はそのコマンドを実行して `goimports` で Backend の全 Go ファイルを整形します。コード生成タスクは `FMT_FILE_LIST`（Backend 相対パスを 1 行に 1 つ）でファイル一覧を受け取り、今回書き換えたファイルだけを整形します。`make -C backend api` は生成終了時にプロトコル生成物の Go import alias を統一し、全量生成とファイル単位の整形による不要な差分を防ぎます。
-
-このツールの実装は `kratos-kit/cmd/normalize-go-imports` に統一され、Admin リポジトリには独立した Make ターゲットを保持しません。
+`make -C backend fmt` はリポジトリの Go 整形設定で Backend のファイルを整形します。コード生成タスクは `FMT_FILE_LIST`（Backend 相対パスを 1 行に 1 つ）でファイル一覧を受け取り、今回書き換えたファイルだけを整形します。`make -C backend api` は生成終了時にプロトコル生成物の Go import alias を統一し、不要な差分を防ぎます。
 
 バックエンドはデフォルトで `make -C backend build` により `linux/amd64` バイナリをビルドします。ルートの `make package` は `bin/server` と `configs` を含むバックエンドリリースアーカイブを作成し、同時にすべてのフロントエンド npm パッケージを生成します。対象プラットフォームは `GOOS`、`GOARCH` で上書きできます。
 
@@ -161,11 +159,9 @@ make docker-stop IMAGE=kratos-admin TAG=latest
 
 `make -C backend gen` は `backend/internal/module` の業務モジュール構成と `backend/internal/cmd/server` の独立起動 Wire 成果物を生成します。前者だけを更新する場合は `make -C backend public-wire`、カスタム構成ルートを更新する場合は `WIRE_DIR` に `wire.go` を含むディレクトリを指定します。
 
-外部 Go プロジェクトは `github.com/liujitcn/kratos-admin/backend` が提供する名前付きモジュール、リソース、定期タスク、SSE ストリーム、キューコンシューマーを自身の貢献と統合し、`github.com/liujitcn/kratos-core` に渡してプロトコルサービスとアプリケーションライフサイクルを作成します。外部で生成されたコードは `backend/internal` を参照しません。
+Backend は一つのローカルな組み立て入口からモジュール、リソース、定期タスク、SSE、キューコンシューマーを登録します。独立サービスとテスト入口は同じ実装を共有します。
 
-Admin の公開 `backend/adapter/core` と `backend/adapter/kit` のコンストラクターはデータベースクライアントだけを受け取り、必要なリポジトリを内部で作成します。それぞれ Core のストレージインターフェースと Kit の redact インターフェースを通じて Wire に参加します。redact resolver はアプリケーションインスタンス単位で注入され、リクエストコンテキストを通じて渡されます。ストレージコールバックは対応するデータベースに紐付けられ、グローバルなデフォルトインスタンスは使用しません。外部プロジェクトは通常の単一モジュール構成を維持でき、追加のインターフェース集合や特殊なホストモジュールは不要です。リポジトリ間のリリース順序は Kit redact と server/grpc、Core、Admin Backend です。
-
-`make i18n` は `openapi.yaml` の生成後に `openapi.en-US.yaml`、`openapi.zh-TW.yaml`、`openapi.ja-JP.yaml` を同期生成します。デフォルトのリソースはバックエンドエラーカタログと管理画面 Core の言語パッケージから取得し、外部リソースは `OPENAPI_I18N_CONTENT="言語=パス"` で渡せます。未一致の文言はデフォルトで自動翻訳され、英語と日本語には Google V1、繁体字中国語には OpenCC を使用します。`I18N_AUTO_LOCALIZE=0` で自動翻訳を無効化できます。ネットワークがない場合は `I18N_OFFLINE=1 make i18n` を使用してください。
+`make i18n` は `openapi.yaml` の生成後に `openapi.en-US.yaml`、`openapi.zh-TW.yaml`、`openapi.ja-JP.yaml` を同期生成します。デフォルトのリソースは本リポジトリのバックエンドエラーカタログと 3 つのフロントエンド言語パッケージから取得します。未一致の文言はデフォルトで自動翻訳され、`I18N_AUTO_LOCALIZE=0` で無効化できます。ネットワークがない場合は `I18N_OFFLINE=1 make i18n` を使用してください。
 
 ## 国際化
 
@@ -192,10 +188,11 @@ Admin の公開 `backend/adapter/core` と `backend/adapter/kit` のコンスト
 
 ## リリース
 
-統合リリースでは次の 10 個の npm パッケージを更新・公開します。
+統合リリースでは次の 11 個の npm パッケージを更新・公開します。
 
 - `@liujitcn/kratos-admin-core`
 - `@liujitcn/kratos-admin-system`
+- `@liujitcn/kratos-admin-rag`
 - `@liujitcn/kratos-admin-cli`
 - `@liujitcn/kratos-uni-app-core`
 - `@liujitcn/kratos-uni-app-system`
@@ -209,7 +206,7 @@ Admin の公開 `backend/adapter/core` と `backend/adapter/kit` のコンスト
 make tag VERSION=0.0.30
 ```
 
-`make tag` は最初に読み取り専用の `make i18n-check` を実行し、言語パッケージ、SQL 翻訳スクリプト、OpenAPI 多言語ドキュメントを検査します。生成物が同期していない場合はリリースを拒否し、リリース中に自動翻訳やファイル書き換えは行いません。その後、リリーススクリプトは現在のブランチがリモートのデフォルトブランチで `origin` と同期していることを要求し、バックエンドテストとフロントエンドのパッケージ化を実行し、`vX.Y.Z`、`backend/vX.Y.Z`、`npm/vX.Y.Z` を push します。`npm/vX.Y.Z` は `.github/workflows/publish-npm.yml` を起動し、npm Trusted Publishing で上記 10 パッケージを公開します。3 つのデフォルトホストはプライベートパッケージのため公開対象外です。ローカルでは利用可能な `git`、`gh`、GitHub ログイン状態が必要です。
+`make tag` は最初に読み取り専用の `make i18n-check` を実行し、言語パッケージ、SQL 翻訳スクリプト、OpenAPI 多言語ドキュメントを検査します。生成物が同期していない場合はリリースを拒否し、リリース中に自動翻訳やファイル書き換えは行いません。その後、リリーススクリプトは現在のブランチがリモートのデフォルトブランチで `origin` と同期していることを要求し、バックエンドテストとフロントエンドのパッケージ化を実行し、`vX.Y.Z`、`backend/vX.Y.Z`、`npm/vX.Y.Z` を push します。`npm/vX.Y.Z` は `.github/workflows/publish-npm.yml` を起動し、npm Trusted Publishing で上記 11 パッケージを公開します。3 つのデフォルトホストはプライベートパッケージのため公開対象外です。ローカルでは利用可能な `git`、`gh`、GitHub ログイン状態が必要です。
 
 ローカル npm 公開のみを行う場合：
 
@@ -237,7 +234,7 @@ make -C frontend publish
 | セキュリティポリシーと運用タスク | [docs/安全策略与运维任务.md](docs/安全策略与运维任务.md) |
 | テナントプロジェクト認可 | [docs/租户项目授权.md](docs/租户项目授权.md) |
 
-外部プロジェクトを作成するとき、3 端末の `packages/cli` は言語登録、ホストライフサイクル、チェック・ビルドツールを含む完全なフロントエンドを独立して生成します。
+業務 workspace を作成するとき、3 端末の `packages/cli` は本リポジトリで使用するフロントエンド workspace、言語登録、ホストライフサイクル、チェック・ビルドツールを生成します。
 Go スキャフォールドは npm CLI だけを呼び出します。`--kratos-project` はバックエンドの静的出力に適応し、管理画面 CLI は共通フロントエンド Makefile とスクリプトを生成します。
 3 端末はローカルの `system` をサポートし、一時的なモジュール名や生成後のファイル追記は必要ありません。CLI の更新は先に npm へ公開し、Go の正確なバージョン呼び出しで新機能を使用できるようにしてください。
 

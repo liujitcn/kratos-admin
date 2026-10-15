@@ -29,7 +29,9 @@ frontend/admin
 │   ├── src/rpc                       # 登录、菜单和底座能力 Proto 类型
 │   └── src/views                     # 登录与静态错误页面
 ├── packages/modules/system           # @liujitcn/kratos-admin-system
-│   └── src/{api,config,rpc,utils,views} # API 与 RPC 按 Proto 层级维护
+│   └── src/{api,config,rpc,utils,views} # 系统管理、个人中心、AI 与消息页面
+├── packages/modules/rag              # @liujitcn/kratos-admin-rag
+│   └── src/{api,rpc,views,locales}   # AI 知识库管理页面
 ├── packages/cli                      # @liujitcn/kratos-admin-cli
 │   └── templates/business-workspace  # 完整 pnpm workspace 模板
 ├── internal/vite-config              # 当前仓库宿主构建配置
@@ -42,7 +44,7 @@ frontend/admin
 └── turbo.json
 ```
 
-`apps/admin/src/module-manifest.ts` 是默认宿主 module 配置的唯一来源，同时声明运行时加载器、Vite 扫描包和预构建依赖；`apps/admin/src/modules.ts` 加载并默认导出当前宿主的全部 module。core 的业务视图目录只保留登录页，403、404、500、Pending 由 core 提供默认静态实现；个人中心、AI 助手与系统管理页面均由 `systemAdminModule` 提供。个人中心和 AI 助手由后端菜单动态注册路由，不在宿主中声明静态业务路由。
+`apps/admin/src/module-manifest.ts` 是默认宿主 module 配置的唯一来源，同时声明运行时加载器、Vite 扫描包和预构建依赖；当前默认宿主按 `system`、`rag` 顺序加载两个业务模块。`apps/admin/src/modules.ts` 加载并默认导出当前宿主的全部 module。core 的业务视图目录只保留登录页，403、404、500、Pending 由 core 提供默认静态实现；个人中心、AI、系统管理和知识库页面由业务模块提供。动态路由由后端菜单注册，不在宿主中重复声明业务页面。
 
 ## 根目录文件
 
@@ -50,7 +52,7 @@ frontend/admin
 | -------------------------------------- | ----------------------------------------------------------------- |
 | `apps/`                                | 可运行的管理端宿主集合；当前默认宿主是 `admin`。                  |
 | `packages/core/`                       | 可发布的管理端运行时、布局、组件和基础页面。                      |
-| `packages/modules/`                    | 可选业务模块集合，API 与页面在模块内一起维护。                    |
+| `packages/modules/`                    | 当前包含 System 与 RAG 业务模块，API 与页面在模块内一起维护。    |
 | `packages/cli/`                        | 可发布的独立业务 workspace 命令行工具和模板。                     |
 | `internal/`                            | 仅供当前源码仓库使用的 Vite、TypeScript 和 lint 配置包。          |
 | `scripts/build-package.mjs`            | 生成 npm 包源码副本和 TypeScript 声明，并转换 core 内部源码别名。 |
@@ -72,9 +74,9 @@ frontend/admin
 
 每个包含 `package.json` 的子目录都有同级 `README.md`，用于说明该包内部文件和目录职责。
 
-管理端发布 `@liujitcn/kratos-admin-core`、`@liujitcn/kratos-admin-system` 和
-`@liujitcn/kratos-admin-cli`。默认宿主 `@liujitcn/kratos-admin` 为私有包，不进入
-npm 打包和发布清单。
+管理端发布 `@liujitcn/kratos-admin-core`、`@liujitcn/kratos-admin-system`、
+`@liujitcn/kratos-admin-rag` 和 `@liujitcn/kratos-admin-cli`。默认宿主
+`@liujitcn/kratos-admin` 为私有包，不进入 npm 打包和发布清单。
 
 ## 开发与构建
 
@@ -233,7 +235,7 @@ CLI 直接生成完整宿主、本地业务模块、四种语言源文件与注�
 支持本地 `system` 与其他模块一起创建；管理端本地 System 继承内置能力，运行时只注册一次，
 构建仍扫描内置源码。应用端本地模块使用独立导入别名，保留内置 System。
 
-通过 `--kratos-project` 生成与 Go 后端配套的前端：H5 输出到 `backend/data/<terminal>`，
+通过 `--kratos-project` 生成与当前 Go 后端目录配合的前端：H5 输出到 `backend/data/<terminal>`，
 管理端 CLI 同时在 workspace 父目录创建共享 `Makefile` 与 `scripts`。Go 调用方仅传参执行 CLI。
 新增语言或修改语言文件后运行 `pnpm i18n:sync`；`pnpm i18n:check` 校验注册文件是否同步。
 

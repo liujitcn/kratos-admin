@@ -19,7 +19,7 @@
 - 管理端程式碼產生設定、預覽、產生進度與還原。
 - 執行日誌瀏覽：即時主控台 SSE、歷史日誌查詢、層級與關鍵字篩選，以及歷史原始檔案下載。
 - 登入來源策略（全域及租戶/使用者定向規則）、密碼複雜度策略、按策略啟用多裝置登入、獨立工作階段逾時與撤銷、本人登入記錄、平台線上工作階段管理、稽核日誌非同步落庫與保留清理，以及受控 MySQL 備份還原工作。
-- 可掛載的 Go Core 模組；後端實作 `module.Module`，透過 `Resources` 提供靜態資源，並由啟動入口交給 Core 統一註冊協定服務。
+- 可組合的後端模組；後端透過統一組裝入口註冊協定服務、靜態資源、工作、SSE 與佇列消費者。
 - 管理端、uni-app、Taro 與後端錯誤目錄的語言集合由語言包自動發現；動態選單、字典與程式碼產生同步支援所有已註冊語言。
 - 上傳檔案預設需要登入；檔案地址仍使用 `/data/...`，瀏覽器原生 `src` 請求透過 HttpOnly 存取權杖 Cookie 鑑權，明確公開的檔案可匿名存取。
 - 管理端支援在「系統管理 / 基礎管理 / 國際化自訂翻譯」中按租戶、位置、語言與語言鍵覆蓋固定介面文案，登入後載入目前租戶資料，預設語言包作為未配置時的回退。
@@ -30,7 +30,7 @@
 
 | 目錄 | 說明 | 文件 |
 | --- | --- | --- |
-| `backend` | Kratos 服務、Proto、GORM、遷移與 Core 宿主組合。 | [backend/README.md](backend/README.md) |
+| `backend` | Kratos 服務、Proto、GORM、遷移、工作與靜態資源託管。 | [backend/README.md](backend/README.md) |
 | `frontend/admin` | 管理端 workspace，包含預設宿主、core、System 與 CLI。 | [frontend/admin/README.md](frontend/admin/README.md) |
 | `frontend/uni-app` | uni-app workspace，包含預設宿主、core、system 與 CLI。 | [frontend/uni-app/README.md](frontend/uni-app/README.md) |
 | `frontend/taro-app` | React/Taro workspace，包含預設宿主、core、UI、system 與 CLI。 | [frontend/taro-app/README.md](frontend/taro-app/README.md) |
@@ -45,7 +45,7 @@
 - pnpm 版本依各 workspace 的 `packageManager` 為準：管理後台 `10.33.4`，uni-app 與 Taro 應用端 `10.13.1`。
 - MySQL、Consul 與 Vault；Redis 與佇列可按需啟用，未配置時單一實例使用進程內實作。用途與設定入口見下方說明。
 - Docker 部署需要可用的 Docker CLI 與 Docker daemon。
-- 啟用 TOTP 綁定時，`mfa.encryption_key` 有明確值則使用該值，留空時在實際保護 TOTP 金鑰時按 `kratos-kit:mfa/encryption` 從執行時金鑰服務派生；啟用 WebAuthn 時還需設定 `mfa.webauthn.rp_id` 與 `mfa.webauthn.rp_origins`。設定檔中的敏感值應使用 `ENC[...]` 儲存。
+- 啟用 TOTP 綁定時，`mfa.encryption_key` 有明確值則使用該值，留空時由執行時金鑰服務派生；啟用 WebAuthn 時還需設定 `mfa.webauthn.rp_id` 與 `mfa.webauthn.rp_origins`。設定檔中的敏感值應使用 `ENC[...]` 儲存。
 - Buf、protoc 插件、Wire 與 gorm-gen 僅在重新產生程式碼時需要，可透過 `make -C backend init` 安裝。
 
 直接執行 `make` 或 `make help` 查看儲存庫命令；Backend 與 Frontend 的完整目標分別使用 `make -C backend help`、`make -C frontend help` 查看。
@@ -138,9 +138,7 @@ make -C backend fmt
 
 `make gen` 依 Backend、Frontend、語言包與 OpenAPI 的順序產生全倉產物；`make check` 依 Backend、三個前端 workspace 與國際化的順序執行檢查。根目錄 `make build` 建置後端二進位檔與三個前端 H5 宿主；只建置全部前端（H5 + 微信小程式）可使用 `make -C frontend build`，僅建置 H5 使用 `make -C frontend build-h5`，產生全部 npm 發佈包使用 `make -C frontend package`。
 
-`make -C backend cli` 會安裝 `kratos-kit/cmd/normalize-go-imports`，`make -C backend fmt` 再執行該命令並使用 `goimports` 格式化 Backend 全部 Go 檔案。程式碼產生任務透過 `FMT_FILE_LIST` 傳入檔案清單（每行一個 Backend 相對路徑），僅格式化本次改寫檔案。`make -C backend api` 在產生結束時統一規範化協定產物的 Go import 別名，避免全量產生與依檔案格式化之間反覆產生無關差異。
-
-該工具實作統一位於 `kratos-kit/cmd/normalize-go-imports`，不再於 Admin 儲存庫保留獨立 Make 目標。
+`make -C backend fmt` 使用儲存庫的 Go 格式化設定處理 Backend 檔案。程式碼產生任務透過 `FMT_FILE_LIST` 傳入檔案清單（每行一個 Backend 相對路徑），僅格式化本次改寫檔案。`make -C backend api` 在產生結束時統一規範化協定產物的 Go import 別名，避免無關差異。
 
 後端預設透過 `make -C backend build` 建置 `linux/amd64` 二進位檔；儲存庫根目錄的 `make package` 會產生包含 `bin/server` 與 `configs` 的後端發佈壓縮包，並同時產生全部前端 npm 套件。目標平台可使用 `GOOS`、`GOARCH` 覆蓋。
 
@@ -161,11 +159,9 @@ make docker-stop IMAGE=kratos-admin TAG=latest
 
 `make -C backend gen` 會產生 `backend/internal/module` 的業務模組組裝與 `backend/internal/cmd/server` 的獨立啟動 Wire 產物；單獨更新前者使用 `make -C backend public-wire`，單獨更新自訂組合根可透過 `WIRE_DIR` 指定包含 `wire.go` 的目錄。
 
-外部 Go 專案將 `github.com/liujitcn/kratos-admin/backend` 的具名模組、資源、排程工作、SSE 串流與佇列消費者貢獻，與自身貢獻合併後，再交給 `github.com/liujitcn/kratos-core` 建立協定服務及應用生命週期；外部產生程式碼不會引用 `backend/internal`。
+Backend 透過單一組裝入口註冊模組、資源、排程工作、SSE 串流與佇列消費者；獨立服務和測試入口共用同一套實作。
 
-Admin 公開的 `backend/adapter/core` 與 `backend/adapter/kit` 建構函式只接收資料庫用戶端，並在內部建立所需儲存庫，分別透過 Core 儲存介面與 Kit 脫敏介面參與 Wire。脫敏解析器按應用程式實例注入並隨請求上下文傳遞，儲存回呼綁定對應資料庫，不使用全域預設實例。外部專案保持普通單模組結構，無需額外的介面集合或特殊宿主模組；跨儲存庫發佈順序為 Kit redact 與 server/grpc、Core、Admin Backend。
-
-`make i18n` 會在產生 `openapi.yaml` 後同步產生 `openapi.en-US.yaml`、`openapi.zh-TW.yaml` 與 `openapi.ja-JP.yaml`。預設資源來自後端錯誤目錄與管理端 Core 語言包；外部資源可透過 `OPENAPI_I18N_CONTENT="語言=路徑"` 傳入。未命中的文案預設自動翻譯：英文與日文使用 Google V1，繁體中文使用 OpenCC；設定 `I18N_AUTO_LOCALIZE=0` 可關閉自動翻譯。無網路環境使用 `I18N_OFFLINE=1 make i18n`。
+`make i18n` 會在產生 `openapi.yaml` 後同步產生 `openapi.en-US.yaml`、`openapi.zh-TW.yaml` 與 `openapi.ja-JP.yaml`。預設資源來自本儲存庫後端錯誤目錄與三個前端語言包。未命中的文案預設自動翻譯，設定 `I18N_AUTO_LOCALIZE=0` 可關閉自動翻譯。無網路環境使用 `I18N_OFFLINE=1 make i18n`。
 
 ## 國際化
 
@@ -192,10 +188,11 @@ Admin 公開的 `backend/adapter/core` 與 `backend/adapter/kit` 建構函式只
 
 ## 發佈
 
-統一發佈會更新並發佈 10 個 npm 套件：
+統一發佈會更新並發佈 11 個 npm 套件：
 
 - `@liujitcn/kratos-admin-core`
 - `@liujitcn/kratos-admin-system`
+- `@liujitcn/kratos-admin-rag`
 - `@liujitcn/kratos-admin-cli`
 - `@liujitcn/kratos-uni-app-core`
 - `@liujitcn/kratos-uni-app-system`
@@ -209,7 +206,7 @@ Admin 公開的 `backend/adapter/core` 與 `backend/adapter/kit` 建構函式只
 make tag VERSION=0.0.30
 ```
 
-`make tag` 會先執行唯讀的 `make i18n-check`，檢查語言包、SQL 翻譯腳本與 OpenAPI 多語言文件；產生物未同步時會直接拒絕發佈，不會在發佈過程中自動翻譯或改寫檔案。隨後發佈腳本要求目前分支為遠端預設分支且與 `origin` 同步，執行後端測試與前端打包，然後推送 `vX.Y.Z`、`backend/vX.Y.Z`、`npm/vX.Y.Z`。`npm/vX.Y.Z` 觸發 `.github/workflows/publish-npm.yml`，透過 npm Trusted Publishing 發佈以上 10 個套件；三個預設宿主均為私有套件，不參與發佈。本機需要可用的 `git`、`gh` 與 GitHub 登入狀態。
+`make tag` 會先執行唯讀的 `make i18n-check`，檢查語言包、SQL 翻譯腳本與 OpenAPI 多語言文件；產生物未同步時會直接拒絕發佈，不會在發佈過程中自動翻譯或改寫檔案。隨後發佈腳本要求目前分支為遠端預設分支且與 `origin` 同步，執行後端測試與前端打包，然後推送 `vX.Y.Z`、`backend/vX.Y.Z`、`npm/vX.Y.Z`。`npm/vX.Y.Z` 觸發 `.github/workflows/publish-npm.yml`，透過 npm Trusted Publishing 發佈以上 11 個套件；三個預設宿主均為私有套件，不參與發佈。本機需要可用的 `git`、`gh` 與 GitHub 登入狀態。
 
 只進行本機 npm 發佈時：
 
@@ -237,7 +234,7 @@ make -C frontend publish
 | 安全策略與維運工作 | [docs/安全策略與運維任務.md](docs/安全策略与运维任务.md) |
 | 租戶專案授權 | [docs/租戶專案授權.md](docs/租户项目授权.md) |
 
-建立外部專案時，三端 `packages/cli` 獨立產生完整前端，包含語言註冊、宿主生命週期與檢查建置工具。
+建立業務 workspace 時，三端 `packages/cli` 產生本儲存庫使用的前端 workspace、語言註冊、宿主生命週期與檢查建置工具。
 Go 腳手架只呼叫 npm CLI；`--kratos-project` 適配後端靜態輸出，管理端 CLI 產生共用前端 Makefile 與腳本。
 三端支援本地 `system`，不需要臨時模組名稱或產生後補寫檔案。CLI 更新需先發佈到 npm，Go 的精確版本呼叫才能使用新能力。
 
