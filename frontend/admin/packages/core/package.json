@@ -1,7 +1,7 @@
 {
   "name": "@liujitcn/kratos-admin-core",
   "private": false,
-  "version": "0.0.91",
+  "version": "0.0.92",
   "type": "module",
   "description": "kratos-admin frontend runtime and base modules",
   "author": {
@@ -239,6 +239,10 @@
       "default": "./vite.config.ts"
     },
     "./package.json": "./package.json",
+    "./utils": {
+      "types": "./dist/package/declarations/src/utils/index.d.ts",
+      "default": "./dist/package/src/utils/index.ts"
+    },
     "./utils/secretCrypto": {
       "types": "./dist/package/declarations/src/utils/secretCrypto.d.ts",
       "default": "./dist/package/src/utils/secretCrypto.ts"

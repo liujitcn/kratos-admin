@@ -66,6 +66,7 @@ packages/core
 | `src/navigation.ts`                    | 业务模块使用的路由与跳转入口。                                                 |
 | `src/request.ts`                       | 业务模块使用的请求客户端入口。                                                 |
 | `src/security.ts`                      | OAuth、密码加密、密码强度和 WebAuthn 入口。                                    |
+| `src/utils/index.ts`                   | 浏览器存储、UUID、路由菜单和通用数据处理工具入口。                              |
 | `src/table.ts`                         | ProTable 请求和选择值处理入口。                                                |
 | `src/tenant.ts`                        | 租户上下文、租户选项、查询范围转换以及租户列/表单字段生成入口。                 |
 | `src/components/ProTable.ts`           | ProTable 对外 Adapter，稳定组件入口为 `components/ProTable`。                  |
@@ -162,6 +163,7 @@ core 通过 `ADMIN_STATIC_VIEWS` 注册全部默认静态页面，后注册业�
 | 权限             | `@liujitcn/kratos-admin-core/auth`                          |
 | 格式化           | `@liujitcn/kratos-admin-core/format`                        |
 | 密码与 OAuth     | `@liujitcn/kratos-admin-core/security`                      |
+| 公共工具         | `@liujitcn/kratos-admin-core/utils`                         |
 | 表格工具         | `@liujitcn/kratos-admin-core/table`                         |
 | 租户选项         | `@liujitcn/kratos-admin-core/tenant`                        |
 | 运行时 Store     | `@liujitcn/kratos-admin-core/stores/runtime`                |
@@ -170,7 +172,7 @@ core 通过 `ADMIN_STATIC_VIEWS` 注册全部默认静态页面，后注册业�
 | SearchForm       | `@liujitcn/kratos-admin-core/components/SearchForm/index.vue` |
 | YamlEditor       | `@liujitcn/kratos-admin-core/components/YamlEditor/index.vue` |
 
-其他 Vue 组件以 `package.json#exports` 中的明确白名单为准。禁止使用 `components/ProTable/index.vue`、`utils/*`、`hooks/*`、`stores/modules/*` 等实现路径。发布构建会把内部 `@/` 别名转换成包内相对路径，内部实现不占用公共子路径。
+其他 Vue 组件以 `package.json#exports` 中的明确白名单为准。禁止使用 `components/ProTable/index.vue`、`utils/*`、`hooks/*`、`stores/modules/*` 等未公开实现路径；公共工具统一从 `@liujitcn/kratos-admin-core/utils` 导入。发布构建会把内部 `@/` 别名转换成包内相对路径，内部实现不占用公共子路径。
 
 `setAdminDocumentTitle` 使用公共配置接口返回的 `sysName` 作为应用名称，配置接口失败或未返回名称时回退宿主的 `VITE_GLOB_APP_TITLE`。
 
