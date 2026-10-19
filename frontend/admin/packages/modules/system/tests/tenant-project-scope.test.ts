@@ -26,7 +26,10 @@ test("租户项目范围列与搜索条件使用同一份范围状态", async ()
   const source = await readFile(join(process.cwd(), "src/components/tenant-project/tenant-project-scope.ts"), "utf8");
 
   assert.match(source, /render: \(\{ row \}\) => h\(TenantProjectText/);
-  assert.match(source, /render: \(scope: SearchRenderScope\) => renderTenantProjectSearch/);
+  // 搜索渲染走固定入口并关闭 attrs 透传，避免 SearchFormItem 把 v-model 回调合并进函数式组件导致回显 [object Object]。
+  assert.match(source, /const renderScopeSearch = \(scope: SearchRenderScope\) => renderTenantProjectSearch/);
+  assert.match(source, /\(renderScopeSearch as unknown as \{ inheritAttrs\?: boolean \}\)\.inheritAttrs = false/);
+  assert.match(source, /render: renderScopeSearch/);
   assert.match(source, /await loadTenantProjectOptions\(isDefaultTenant\.value, force\)/);
   assert.match(source, /delete result\.tenant_project_tree_value/);
 });
