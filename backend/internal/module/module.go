@@ -159,7 +159,17 @@ func (m *Module) RegisterHTTP(server *http.Server) {
 	m.ragServices.RegisterHTTP(server)
 	policyMiddleware := passwordpolicy.NewMiddleware(m.adminServices.BaseUserRepository, m.adminServices.BaseCase.Cache)
 	sessionMiddleware := sessionpolicy.NewMiddleware(m.adminServices.BaseCase, m.adminServices.UserToken)
-	server.Use("/*", middleware.Chain(m.secretCrypto.Middleware()))
+	// Kratos matcher 对同一 selector 是整体替换而非追加，全局链必须一次性注册完整，
+	// 否则会覆盖 adminServices 已注册的审计、会话与策略中间件。
+	server.Use("/*", middleware.Chain(
+		oauth.NewIPMiddleware(m.adminServices.OauthClientRepository),
+		oauth.NewClientMiddleware(m.adminServices.OauthClientRepository, m.adminServices.BaseAPICase),
+		m.adminServices.LogMiddleware,
+		sessionMiddleware,
+		policyMiddleware,
+		conflictmessage.NewConflictMessageKeyMiddleware(),
+		m.secretCrypto.Middleware(),
+	))
 	server.Use("/system.admin.v1.RuntimeLogService/*", middleware.Chain(
 		oauth.NewIPMiddleware(m.adminServices.OauthClientRepository),
 		oauth.NewClientMiddleware(m.adminServices.OauthClientRepository, m.adminServices.BaseAPICase),

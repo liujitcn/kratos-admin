@@ -227,16 +227,8 @@ func (c *LoginCase) RefreshToken(ctx context.Context, req *basev1.RefreshTokenRe
 		}
 		return nil, errorsx.Internal("刷新认证令牌失败").WithCause(err)
 	}
-	if c.mfaCase != nil {
-		var mfaPolicy string
-		mfaPolicy, err = c.mfaCase.policy(ctx)
-		if err != nil {
-			return nil, err
-		}
-		if mfaPolicy == mfaPolicyAllRequired {
-			return nil, errorsx.Unauthenticated("多因素认证策略要求重新登录")
-		}
-	}
+	// all_required 策略在登录阶段就强制完成 MFA 验证或绑定（信任设备视同通过）后才签发令牌，
+	// 刷新是既有会话的延续而非重新登录，这里不能按策略二次拦截，否则静默刷新必然失败。
 	authInfo, err = c.buildAuthInfo(ctx, user)
 	if err != nil {
 		return nil, err
