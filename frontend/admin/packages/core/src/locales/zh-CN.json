@@ -1,5 +1,7 @@
 {
   "common.action.back": "返回",
+  "common.action.next": "下一步",
+  "common.action.previous": "上一步",
   "common.action.cancel": "取消",
   "common.action.close": "关闭",
   "common.action.confirm": "确定",

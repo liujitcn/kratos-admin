@@ -1,5 +1,7 @@
 {
   "common.action.back": "戻る",
+  "common.action.next": "次へ",
+  "common.action.previous": "前へ",
   "common.action.cancel": "キャンセル",
   "common.action.close": "閉じる",
   "common.action.confirm": "OK",

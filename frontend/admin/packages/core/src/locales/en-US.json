@@ -1,5 +1,7 @@
 {
   "common.action.back": "Back",
+  "common.action.next": "Next",
+  "common.action.previous": "Previous",
   "common.action.cancel": "Cancel",
   "common.action.close": "Close",
   "common.action.confirm": "Confirm",

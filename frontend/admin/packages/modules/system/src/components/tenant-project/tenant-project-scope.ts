@@ -106,6 +106,11 @@ export function useTenantProjectScope(options: TenantProjectScopeOptions = {}): 
     return result;
   }
 
+  // SearchFormItem 会把 v-model 的 onUpdate 处理器透传给函数式渲染组件并合并触发，原始选择对象会覆盖
+  // 下方回调写入的字符串值，导致选中后回显 [object Object]，这里固定单一渲染入口并关闭 attrs 透传。
+  const renderScopeSearch = (scope: SearchRenderScope) => renderTenantProjectSearch(scope, loadOptions, treeOptions, allLabel.value);
+  (renderScopeSearch as unknown as { inheritAttrs?: boolean }).inheritAttrs = false;
+
   const column = computed<ColumnProps>(() => ({
     prop: options.projectField ?? "project_id",
     label: scopeLabel.value,
@@ -120,7 +125,7 @@ export function useTenantProjectScope(options: TenantProjectScopeOptions = {}): 
     search: {
       key: options.searchKey ?? "tenant_project_tree_value",
       order: options.order ?? 1,
-      render: (scope: SearchRenderScope) => renderTenantProjectSearch(scope, loadOptions, treeOptions, allLabel.value)
+      render: renderScopeSearch
     },
     enum: async () => ({ data: await loadOptions() }),
     isFilterEnum: false
