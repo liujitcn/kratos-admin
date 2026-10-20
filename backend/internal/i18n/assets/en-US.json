@@ -4985,6 +4985,12 @@
   "system.admin.ops_monitoring.monitor_healthy": {
     "other": "Monitoring service is healthy"
   },
+  "system.admin.ops_monitoring.mqtt_congested": {
+    "other": "Message processing is congested. Check subscription handlers and publish acknowledgements."
+  },
+  "system.admin.ops_monitoring.mqtt_unconfigured": {
+    "other": "MQTT is not configured"
+  },
   "system.admin.ops_monitoring.normal": {
     "other": "Normal"
   },

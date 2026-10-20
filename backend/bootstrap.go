@@ -28,6 +28,7 @@ import (
 	"github.com/liujitcn/kratos-kit/auth/authz/engine"
 	"github.com/liujitcn/kratos-kit/auth/data"
 	"github.com/liujitcn/kratos-kit/database/gorm"
+	mqtttransport "github.com/liujitcn/kratos-kit/transport/mqtt"
 )
 
 // CodeGenManager 表示宿主内服务与 SSE 共享的代码生成任务管理器。
@@ -62,10 +63,30 @@ type AdminStreams sse.Streams
 // AdminConsumers 表示 Admin 提供的队列消费者集合。
 type AdminConsumers queue.Consumers
 
+// MQTTRegistration 描述一个由宿主业务模块提供的 MQTT 订阅。
+type MQTTRegistration = mqtttransport.Registration
+
+// AdminMQTTRegistrations 表示 Admin 宿主可合并的 MQTT 订阅集合。
+type AdminMQTTRegistrations []MQTTRegistration
+
+// RegisterMQTTSubscriptions 将宿主业务模块的 MQTT 订阅注册到固定 MQTT 服务。
+// MQTT 未在配置中启用时 server 为空，注册入口保持无操作。
+func RegisterMQTTSubscriptions(server *mqtttransport.Server, registrations ...MQTTRegistration) error {
+	if server == nil {
+		return nil
+	}
+	for _, registration := range registrations {
+		if err := server.Register(registration); err != nil {
+			return fmt.Errorf("注册 MQTT 订阅 %q 失败: %w", registration.Topic, err)
+		}
+	}
+	return nil
+}
+
 // ProviderSet 提供可被外部 Core 宿主复用的 Backend 业务、模块和运行时能力。
 //
 // 外部项目将本集合与其他业务模块的具名贡献合并后，再交给 kratos-core.ProviderSet
-// 统一创建 HTTP、gRPC、MCP、SSE、队列和定时任务运行时。
+// 统一创建 HTTP、gRPC、MCP、SSE、队列、定时任务和 MQTT 运行时。
 var ProviderSet = wire.NewSet(
 	core.ProviderSet,
 	kit.ProviderSet,
@@ -108,6 +129,7 @@ func NewModules(
 	rateLimitResolver *kit.RateLimitPolicyResolver,
 	progressManager *CodeGenManager,
 	lifecycle *projectaccess.Lifecycle,
+	mqttServer *mqtttransport.Server,
 ) (AdminModules, func(), error) {
 	var err error
 	// 迁移完成后再加载策略和绑定存储回调，构造适配器时不查询尚未创建的表。
@@ -121,7 +143,7 @@ func NewModules(
 	}
 	var modules module.Modules
 	var cleanup func()
-	modules, cleanup, err = adminModule.BuildModules(migrations, config, databases, baseCase, authorizer, authenticator, userToken, jobRuntime, sseRuntime, catalog, openAPIRuntime, redactResolver, rateLimitResolver, progressManager, lifecycle)
+	modules, cleanup, err = adminModule.BuildModules(migrations, config, databases, baseCase, authorizer, authenticator, userToken, jobRuntime, sseRuntime, catalog, openAPIRuntime, redactResolver, rateLimitResolver, progressManager, lifecycle, mqttServer)
 	if err != nil {
 		stopErr := logstream.StopConsoleCapture()
 		if stopErr != nil {
@@ -147,8 +169,9 @@ func NewStreams(
 	databases map[string]*gorm.Client,
 	baseCase *biz.BaseCase,
 	catalog *i18n.I18n,
+	mqttServer *mqtttransport.Server,
 ) (AdminStreams, func(), error) {
-	streams, cleanup, err := adminModule.BuildStreams(progressManager, databases, baseCase, catalog)
+	streams, cleanup, err := adminModule.BuildStreams(progressManager, databases, baseCase, catalog, mqttServer)
 	return AdminStreams(streams), cleanup, err
 }
 

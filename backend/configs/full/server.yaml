@@ -1,5 +1,5 @@
 # 服务端完整配置模板。
-# HTTP、gRPC、MCP、SSE 可分别独立监听，也可以将 MCP/SSE 设置为 IN_PROCESS 挂载到 HTTP 服务。
+# HTTP、gRPC、MCP、SSE 可分别独立监听，也可以将 MCP/SSE 设置为 IN_PROCESS 挂载到 HTTP 服务；MQTT 作为客户端连接外部 Broker。
 server:
   http:
     # 监听网络类型，通常为 tcp。
@@ -148,6 +148,27 @@ server:
       domain: ''
     # 是否启用自定义健康检查接口。
     custom_health: false
+
+  mqtt:
+    # 存在此配置节点即连接外部 MQTT Broker；不使用 MQTT 时删除整个 mqtt 节点。
+    # Broker 地址，例如 tcp://127.0.0.1:1883 或 ssl://mqtt.example.com:8883。
+    endpoint: tcp://127.0.0.1:1883
+    # 多实例部署时每个进程必须使用唯一 Client ID。
+    client_id: ''
+    username: ''
+    password: ''
+    clean_session: true
+    codec: json
+    keep_alive: 30s
+    auto_reconnect: true
+    resume_subs: true
+    order_matters: true
+    write_timeout: 10s
+    connect_retry_interval: 5s
+    max_reconnect_interval: 5m
+    tls:
+      insecure_skip_verify: false
+      domain: ''
 
   mcp:
     # MCP 服务运行形态；可选 UNSPECIFIED、HTTP、SSE、STDIO、IN_PROCESS。

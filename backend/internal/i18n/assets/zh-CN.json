@@ -4985,6 +4985,12 @@
   "system.admin.ops_monitoring.monitor_healthy": {
     "other": "监控服务响应正常"
   },
+  "system.admin.ops_monitoring.mqtt_congested": {
+    "other": "消息处理存在拥堵，请检查订阅处理和发布确认"
+  },
+  "system.admin.ops_monitoring.mqtt_unconfigured": {
+    "other": "未配置 MQTT"
+  },
   "system.admin.ops_monitoring.normal": {
     "other": "正常"
   },

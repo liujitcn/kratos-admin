@@ -25,6 +25,7 @@ import (
 
 	"github.com/liujitcn/gorm-kit/repository"
 	"github.com/liujitcn/kratos-kit/database/gorm"
+	mqtttransport "github.com/liujitcn/kratos-kit/transport/mqtt"
 	"github.com/liujitcn/kratos-kit/utils"
 	"github.com/redis/go-redis/v9"
 )
@@ -33,6 +34,7 @@ const (
 	defaultMonitoringWindow = 15
 	monitoringBucketCount   = 12
 	monitoringLogLimit      = 10000
+	mqttCongestionThreshold = 100
 )
 
 // OpsMonitoringCase 提供当前服务运行状态和访问日志聚合能力。
@@ -41,6 +43,7 @@ type OpsMonitoringCase struct {
 	baseAPILogRepository *data.BaseAPILogRepository
 	dispatchRepository   *data.BaseMessageDispatchRepository
 	catalog              *i18n.I18n
+	mqttServer           *mqtttransport.Server
 }
 
 // NewOpsMonitoringCase 创建运维监控业务实例。
@@ -49,12 +52,14 @@ func NewOpsMonitoringCase(
 	baseAPILogRepository *data.BaseAPILogRepository,
 	dispatchRepository *data.BaseMessageDispatchRepository,
 	catalog *i18n.I18n,
+	mqttServer *mqtttransport.Server,
 ) *OpsMonitoringCase {
 	return &OpsMonitoringCase{
 		BaseCase:             baseCase,
 		baseAPILogRepository: baseAPILogRepository,
 		dispatchRepository:   dispatchRepository,
 		catalog:              catalog,
+		mqttServer:           mqttServer,
 	}
 }
 
@@ -198,7 +203,52 @@ func (c *OpsMonitoringCase) collectDependencies(ctx context.Context) ([]*adminv1
 		storage = append(storage, redisStorage)
 	}
 	services = append(services, c.dispatchStatus(ctx, locale))
+	services = append(services, c.mqttStatus(ctx, locale))
 	return services, storage
+}
+
+// mqttStatus 汇总 MQTT 连接、订阅和消息拥堵状态。
+func (c *OpsMonitoringCase) mqttStatus(ctx context.Context, locale string) *adminv1.OpsServiceStatus {
+	service := &adminv1.OpsServiceStatus{
+		Name:   "MQTT",
+		Status: monitoringText(c.catalog, locale, "unconfigured"),
+	}
+	if c.mqttServer == nil {
+		service.Message = monitoringText(c.catalog, locale, "mqtt_unconfigured")
+		return service
+	}
+	stats := c.mqttServer.Stats()
+	service.Address = stats.Address
+	service.Metrics = []*adminv1.OpsMetric{
+		{Label: "client_id", Value: stats.ClientID},
+		{Label: "registered_subscriptions", Value: strconv.FormatUint(stats.RegisteredSubscriptions, 10)},
+		{Label: "active_subscriptions", Value: strconv.FormatUint(stats.ActiveSubscriptions, 10)},
+		{Label: "published", Value: strconv.FormatUint(stats.Published, 10)},
+		{Label: "publish_pending", Value: strconv.FormatUint(stats.PublishPending, 10)},
+		{Label: "max_publish_pending", Value: strconv.FormatUint(stats.MaxPublishPending, 10)},
+		{Label: "publish_errors", Value: strconv.FormatUint(stats.PublishErrors, 10)},
+		{Label: "received", Value: strconv.FormatUint(stats.Received, 10)},
+		{Label: "handled", Value: strconv.FormatUint(stats.Handled, 10)},
+		{Label: "receive_in_flight", Value: strconv.FormatUint(stats.ReceiveInFlight, 10)},
+		{Label: "max_receive_in_flight", Value: strconv.FormatUint(stats.MaxReceiveInFlight, 10)},
+		{Label: "receive_errors", Value: strconv.FormatUint(stats.ReceiveErrors, 10)},
+		{Label: "subscribe_errors", Value: strconv.FormatUint(stats.SubscribeErrors, 10)},
+	}
+	if stats.LastError != "" {
+		service.Metrics = append(service.Metrics, &adminv1.OpsMetric{Label: "last_error", Value: stats.LastError})
+	}
+	if !stats.Connected {
+		service.Status = monitoringText(c.catalog, locale, "error")
+		service.Message = monitoringText(c.catalog, locale, "connection_check_failed")
+		return service
+	}
+	service.Status = monitoringText(c.catalog, locale, "normal")
+	service.Message = monitoringText(c.catalog, locale, "connection_healthy")
+	if stats.PublishPending >= mqttCongestionThreshold || stats.ReceiveInFlight >= mqttCongestionThreshold {
+		service.Status = monitoringText(c.catalog, locale, "attention")
+		service.Message = monitoringText(c.catalog, locale, "mqtt_congested")
+	}
+	return service
 }
 
 // dispatchStatus 汇总站内信投递积压和最老待处理任务。

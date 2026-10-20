@@ -96,8 +96,15 @@
         </template>
         <div class="ops-summary-list">
           <div v-for="item in availabilityItems" :key="item.label" class="ops-summary-row">
-            <span>{{ item.label }}</span>
-            <strong :class="`is-${item.tone}`"><i />{{ item.value }}</strong>
+            <div class="ops-summary-main">
+              <span>{{ item.label }}</span>
+              <strong :class="`is-${item.tone}`"><i />{{ item.value }}</strong>
+            </div>
+            <div v-if="item.metrics.length" class="ops-summary-metrics">
+              <span v-for="metric in item.metrics" :key="metric.label">
+                <b>{{ metric.label }}</b><em>{{ metric.value }}</em>
+              </span>
+            </div>
           </div>
         </div>
       </el-card>
@@ -229,6 +236,7 @@ import type {
   OpsNode,
   OpsAlertsResponse,
   OpsEndpointsResponse,
+  OpsMetric,
   OpsServicesResponse,
   OpsStorage,
   OpsStorageResponse,
@@ -333,6 +341,8 @@ interface AvailabilityItem {
   value: string;
   /** 状态颜色。 */
   tone: "ok" | "warn";
+  /** 服务运行指标。 */
+  metrics: OpsMetric[];
 }
 
 const loading = ref(false);
@@ -442,7 +452,8 @@ const availabilityItems = computed<AvailabilityItem[]>(() =>
   (services.value?.services ?? []).map(service => ({
     label: service.name,
     value: translateStatus(service.status),
-    tone: isNormalStatus(service.status) ? "ok" : "warn"
+    tone: isNormalStatus(service.status) ? "ok" : "warn",
+    metrics: service.metrics ?? []
   }))
 );
 
@@ -916,11 +927,10 @@ onBeforeUnmount(stopMonitoring);
   margin-top: 5px;
 }
 .ops-summary-row {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-  justify-content: space-between;
+  display: grid;
+  gap: 6px;
   min-height: 40px;
+  padding: 9px 0;
   font-size: 12px;
   color: var(--ops-text-secondary);
   border-bottom: 1px solid var(--el-border-color-lighter);
@@ -946,6 +956,30 @@ onBeforeUnmount(stopMonitoring);
 }
 .ops-summary-row strong.is-warn {
   color: var(--el-color-warning);
+}
+.ops-summary-main {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: space-between;
+}
+.ops-summary-metrics {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  color: var(--ops-text-placeholder);
+  font-size: 11px;
+}
+.ops-summary-metrics span {
+  display: inline-flex;
+  gap: 4px;
+}
+.ops-summary-metrics b {
+  font-weight: 500;
+}
+.ops-summary-metrics em {
+  font-style: normal;
+  color: var(--ops-text-secondary);
 }
 .ops-storage-section {
   margin-bottom: 10px;

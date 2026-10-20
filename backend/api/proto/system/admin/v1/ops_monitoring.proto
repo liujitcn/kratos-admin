@@ -161,6 +161,7 @@ message OpsServiceStatus {
   string status = 3 [(gnostic.openapi.v3.property) = {description: "状态：正常、未配置或异常"}]; // 状态：正常、未配置或异常
   string message = 4 [(gnostic.openapi.v3.property) = {description: "状态说明"}]; // 状态说明
   int64 latency_ms = 5 [(gnostic.openapi.v3.property) = {description: "探测耗时，单位毫秒"}]; // 探测耗时，单位毫秒
+  repeated OpsMetric metrics = 6 [(gnostic.openapi.v3.property) = {description: "服务运行指标"}]; // 服务运行指标
 }
 
 // 数据存储状态。

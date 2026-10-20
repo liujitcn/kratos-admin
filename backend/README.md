@@ -27,7 +27,7 @@ backend
 - 文件上传、公开文件、对象存储、敏感字段加密和按权限查看密钥。
 - AI 会话、附件、SSE 流式响应、工具调用、智能问数、供应商/模型和知识库检索。
 - 站内信分类、发布、投递、收件箱、Provider、失败恢复和三端通知。
-- 定时任务、运行日志、六类审计日志、表归档、数据库备份恢复和迁移记录。
+- 定时任务、运行日志、六类审计日志、表归档、数据库备份恢复、迁移记录和 MQTT 宿主订阅装配。
 - 开放授权客户端、Bearer Token、API 白名单、来源限制、请求加解密和限流。
 
 ## 配置
@@ -41,12 +41,27 @@ backend
 | `auth.yaml` | JWT、会话、验证码和认证策略 |
 | `mfa.yaml` | TOTP/WebAuthn 参数 |
 | `key.yaml` | 运行时根密钥和密钥服务 |
-| `server.yaml` | HTTP、gRPC、SSE、MCP 和超时 |
+| `server.yaml` | HTTP、gRPC、SSE、MCP、MQTT 和超时 |
 | `registry.yaml` | 服务注册配置 |
 
 配置敏感值使用 `ENC[...]` 保存。生产环境必须使用有效的密钥服务、TLS 和最小权限凭据；密钥服务不可用时服务启动失败，不回退明文文件。
 
 Redis 未配置时，单实例缓存、任务锁和队列使用进程内实现；多实例必须连接同一个 Redis。AI 知识库默认使用 `data.databases.rag`，未配置时回落默认数据源。
+
+### MQTT 宿主订阅
+
+业务宿主在自己的 Wire Provider 中接收 `*github.com/liujitcn/kratos-kit/transport/mqtt.Server`，用 `backend.RegisterMQTTSubscriptions` 注册本模块的设备主题。配置存在 `server.mqtt` 节点时创建并连接 MQTT 服务；删除整个节点即可不创建服务。运维监控会展示连接、订阅、发布等待、接收处理中和错误计数；设备凭据、租户 ACL、主题中的租户/项目归属和消息入库逻辑由宿主业务实现。
+
+```go
+func NewCloudModule(mqttServer *mqtttransport.Server) (*Module, error) {
+	if err := backend.RegisterMQTTSubscriptions(mqttServer,
+		mqtttransport.NewRegistration("$share/cloud-scp/device/+/status", handleStatus, bindStatus),
+	); err != nil {
+		return nil, err
+	}
+	return &Module{}, nil
+}
+```
 
 ## 常用流程
 

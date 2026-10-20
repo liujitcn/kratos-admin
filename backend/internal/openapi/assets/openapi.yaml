@@ -15737,6 +15737,11 @@ components:
                 latency_ms:
                     type: string
                     description: 探测耗时，单位毫秒
+                metrics:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.OpsMetric'
+                    description: 服务运行指标
             description: 服务或外部依赖状态。
         system.admin.v1.OpsServicesResponse:
             type: object

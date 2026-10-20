@@ -4985,6 +4985,12 @@
   "system.admin.ops_monitoring.monitor_healthy": {
     "other": "監視サービスは正常に応答しています"
   },
+  "system.admin.ops_monitoring.mqtt_congested": {
+    "other": "メッセージ処理が混雑しています。購読ハンドラーと公開確認を確認してください。"
+  },
+  "system.admin.ops_monitoring.mqtt_unconfigured": {
+    "other": "MQTT は未設定です"
+  },
   "system.admin.ops_monitoring.normal": {
     "other": "正常"
   },

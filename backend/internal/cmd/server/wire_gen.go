@@ -13,13 +13,14 @@ import (
 	"github.com/liujitcn/kratos-admin/backend/adapter/core"
 	"github.com/liujitcn/kratos-admin/backend/adapter/kit"
 	"github.com/liujitcn/kratos-admin/backend/pkg/projectaccess"
-	kratoscore "github.com/liujitcn/kratos-core"
+	"github.com/liujitcn/kratos-core"
 	biz2 "github.com/liujitcn/kratos-core/biz"
 	"github.com/liujitcn/kratos-core/config"
 	"github.com/liujitcn/kratos-core/data"
 	"github.com/liujitcn/kratos-core/job"
 	"github.com/liujitcn/kratos-core/mcp"
 	"github.com/liujitcn/kratos-core/module"
+	"github.com/liujitcn/kratos-core/mqtt"
 	queue2 "github.com/liujitcn/kratos-core/queue"
 	"github.com/liujitcn/kratos-core/resource"
 	"github.com/liujitcn/kratos-core/resource/biz"
@@ -34,13 +35,12 @@ import (
 	"github.com/liujitcn/kratos-kit/pprof"
 	"github.com/liujitcn/kratos-kit/queue"
 	"github.com/liujitcn/kratos-kit/translator"
+)
 
+import (
 	_ "github.com/liujitcn/kratos-kit/database/gorm/driver/mysql"
-
 	_ "github.com/liujitcn/kratos-kit/database/gorm/driver/postgres"
-
 	_ "github.com/liujitcn/kratos-kit/logger/zap"
-
 	_ "github.com/liujitcn/kratos-kit/registry/consul"
 )
 
@@ -212,7 +212,15 @@ func NewApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 	sseRegistry := sse.NewRegistry()
 	streamIDResolver := sse.NewStreamResolver(sseRegistry, authenticator, userToken)
 	v3 := backend.NewCodeGenManager()
-	adminStreams, cleanup5, err := backend.NewStreams(v3, v2, baseCase, i18nI18n)
+	mqttServer, err := mqtt.NewServer(configv1Bootstrap)
+	if err != nil {
+		cleanup4()
+		cleanup3()
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
+	adminStreams, cleanup5, err := backend.NewStreams(v3, v2, baseCase, i18nI18n, mqttServer)
 	if err != nil {
 		cleanup4()
 		cleanup3()
@@ -282,7 +290,7 @@ func NewApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 		return nil, nil, err
 	}
 	lifecycle := projectaccess.NewLifecycle()
-	adminModules, cleanup9, err := backend.NewModules(migrationMigration, configv1Bootstrap, v2, baseCase, engine, authenticator, userToken, jobJob, sseSSE, i18nI18n, openapiOpenAPI, redactPolicyResolver, rateLimitPolicyResolver, v3, lifecycle)
+	adminModules, cleanup9, err := backend.NewModules(migrationMigration, configv1Bootstrap, v2, baseCase, engine, authenticator, userToken, jobJob, sseSSE, i18nI18n, openapiOpenAPI, redactPolicyResolver, rateLimitPolicyResolver, v3, lifecycle, mqttServer)
 	if err != nil {
 		cleanup8()
 		cleanup7()
@@ -385,7 +393,7 @@ func NewApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 		return nil, nil, err
 	}
 	jobServer := job.NewServer(scheduler)
-	app := kratoscore.NewApp(ctx, syncResult, transportServer, grpcServer, mcpServer, sseServer, queueServer, jobServer)
+	app := kratoscore.NewApp(ctx, syncResult, transportServer, grpcServer, mcpServer, sseServer, queueServer, jobServer, mqttServer)
 	return app, func() {
 		cleanup12()
 		cleanup11()

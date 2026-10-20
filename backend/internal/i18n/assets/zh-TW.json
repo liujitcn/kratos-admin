@@ -4985,6 +4985,12 @@
   "system.admin.ops_monitoring.monitor_healthy": {
     "other": "監控服務回應正常"
   },
+  "system.admin.ops_monitoring.mqtt_congested": {
+    "other": "訊息處理存在壅塞，請檢查訂閱處理與發布確認"
+  },
+  "system.admin.ops_monitoring.mqtt_unconfigured": {
+    "other": "未設定 MQTT"
+  },
   "system.admin.ops_monitoring.normal": {
     "other": "正常"
   },

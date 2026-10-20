@@ -15737,6 +15737,11 @@ components:
                 latency_ms:
                     type: string
                     description: "probe duration, Unit: ms"
+                metrics:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.OpsMetric'
+                    description: service runtime metric
             description: service or external dependency status.
         system.admin.v1.OpsServicesResponse:
             type: object

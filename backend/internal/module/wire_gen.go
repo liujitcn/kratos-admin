@@ -23,7 +23,7 @@ import (
 	data2 "github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	data4 "github.com/liujitcn/kratos-admin/backend/internal/data/gen/rag/data"
 	base2 "github.com/liujitcn/kratos-admin/backend/internal/server/base/v1"
-	logmiddleware "github.com/liujitcn/kratos-admin/backend/internal/server/middleware/log"
+	"github.com/liujitcn/kratos-admin/backend/internal/server/middleware/log"
 	"github.com/liujitcn/kratos-admin/backend/internal/server/rag/v1"
 	admin2 "github.com/liujitcn/kratos-admin/backend/internal/server/system/admin/v1"
 	app2 "github.com/liujitcn/kratos-admin/backend/internal/server/system/app/v1"
@@ -42,17 +42,18 @@ import (
 	"github.com/liujitcn/kratos-core/resource/migration"
 	"github.com/liujitcn/kratos-core/resource/openapi"
 	"github.com/liujitcn/kratos-core/sse"
-	configv1 "github.com/liujitcn/kratos-kit/api/gen/go/config/v1"
+	"github.com/liujitcn/kratos-kit/api/gen/go/config/v1"
 	engine2 "github.com/liujitcn/kratos-kit/auth/authn/engine"
 	"github.com/liujitcn/kratos-kit/auth/authz/engine"
 	"github.com/liujitcn/kratos-kit/auth/data"
 	"github.com/liujitcn/kratos-kit/database/gorm"
+	"github.com/liujitcn/kratos-kit/transport/mqtt"
 )
 
 // Injectors from wire.go:
 
 // BuildModules 使用宿主共享的任务管理器装配 Admin 协议服务。
-func BuildModules(migrations *migration.Migration, config2 *configv1.Bootstrap, databases map[string]*gorm.Client, baseCase *biz.BaseCase, authorizer engine.Engine, authenticator engine2.Authenticator, userToken *data.UserToken, jobRuntime *job.Job, sseRuntime *sse.SSE, catalog *i18n.I18n, openAPIRuntime *openapi.OpenAPI, redactResolver *kit.RedactPolicyResolver, rateLimitResolver *kit.RateLimitPolicyResolver, progressManager *codegen.Manager, lifecycle *projectaccess.Lifecycle) (module.Modules, func(), error) {
+func BuildModules(migrations *migration.Migration, config2 *configv1.Bootstrap, databases map[string]*gorm.Client, baseCase *biz.BaseCase, authorizer engine.Engine, authenticator engine2.Authenticator, userToken *data.UserToken, jobRuntime *job.Job, sseRuntime *sse.SSE, catalog *i18n.I18n, openAPIRuntime *openapi.OpenAPI, redactResolver *kit.RedactPolicyResolver, rateLimitResolver *kit.RateLimitPolicyResolver, progressManager *codegen.Manager, lifecycle *projectaccess.Lifecycle, mqttServer *mqtt.Server) (module.Modules, func(), error) {
 	dataData, err := data2.NewData(databases)
 	if err != nil {
 		return nil, nil, err
@@ -220,7 +221,7 @@ func BuildModules(migrations *migration.Migration, config2 *configv1.Bootstrap, 
 	codeGenProtoService := admin.NewCodeGenProtoService(codeGenProtoCase)
 	codeGenTableService := admin.NewCodeGenTableService(codeGenTableCase)
 	baseMigrationService := admin.NewBaseMigrationService(baseMigrationCase)
-	opsMonitoringCase := biz3.NewOpsMonitoringCase(baseCase, baseAPILogRepository, baseMessageDispatchRepository, catalog)
+	opsMonitoringCase := biz3.NewOpsMonitoringCase(baseCase, baseAPILogRepository, baseMessageDispatchRepository, catalog, mqttServer)
 	opsMonitoringService := admin.NewOpsMonitoringService(opsMonitoringCase)
 	cacheCase := biz3.NewCacheCase(baseCase)
 	cacheService := admin.NewCacheService(cacheCase)
@@ -596,7 +597,7 @@ func BuildTasks(databases map[string]*gorm.Client, baseCase *biz.BaseCase, sseRu
 }
 
 // BuildStreams 使用与协议服务相同的任务管理器装配 Admin SSE 流。
-func BuildStreams(progressManager *codegen.Manager, databases map[string]*gorm.Client, baseCase *biz.BaseCase, catalog *i18n.I18n) (sse.Streams, func(), error) {
+func BuildStreams(progressManager *codegen.Manager, databases map[string]*gorm.Client, baseCase *biz.BaseCase, catalog *i18n.I18n, mqttServer *mqtt.Server) (sse.Streams, func(), error) {
 	sseCodegen := sse2.NewCodegen(progressManager)
 	notification := sse2.NewNotification()
 	dataData, err := data2.NewData(databases)
@@ -605,7 +606,7 @@ func BuildStreams(progressManager *codegen.Manager, databases map[string]*gorm.C
 	}
 	baseAPILogRepository := data2.NewBaseAPILogRepository(dataData)
 	baseMessageDispatchRepository := data2.NewBaseMessageDispatchRepository(dataData)
-	opsMonitoringCase := biz3.NewOpsMonitoringCase(baseCase, baseAPILogRepository, baseMessageDispatchRepository, catalog)
+	opsMonitoringCase := biz3.NewOpsMonitoringCase(baseCase, baseAPILogRepository, baseMessageDispatchRepository, catalog, mqttServer)
 	opsMonitoring := sse2.NewOpsMonitoring(opsMonitoringCase)
 	hub := logstream.DefaultHub()
 	runtimeConsole := sse2.NewRuntimeConsole(hub)

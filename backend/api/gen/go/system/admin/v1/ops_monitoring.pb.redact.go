@@ -388,6 +388,8 @@ func (x *OpsServiceStatus) Redact() {
 	// Safe field: Message
 
 	// Safe field: LatencyMs
+
+	// Safe field: Metrics
 }
 
 // Ensure OpsStorage implements the Redactor interface at compile time.

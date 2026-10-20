@@ -19,11 +19,11 @@ require (
 	github.com/liujitcn/go-utils/translator v0.0.6
 	github.com/liujitcn/gorm-kit v0.0.37
 	github.com/liujitcn/kratos-admin/backend/api v0.0.27
-	github.com/liujitcn/kratos-core v0.0.50
+	github.com/liujitcn/kratos-core v0.0.51
 	github.com/liujitcn/kratos-core/api v0.0.7
 	github.com/liujitcn/kratos-kit v0.0.96
 	github.com/liujitcn/kratos-kit/ai/model v0.0.8
-	github.com/liujitcn/kratos-kit/api v0.0.41
+	github.com/liujitcn/kratos-kit/api v0.0.42
 	github.com/liujitcn/kratos-kit/auth v0.0.34
 	github.com/liujitcn/kratos-kit/auth/authn v0.0.27
 	github.com/liujitcn/kratos-kit/auth/authz v0.0.26
@@ -49,6 +49,7 @@ require (
 	github.com/liujitcn/kratos-kit/translator v0.0.12
 	github.com/liujitcn/kratos-kit/transport/cron v0.0.21
 	github.com/liujitcn/kratos-kit/transport/mcp v0.0.19
+	github.com/liujitcn/kratos-kit/transport/mqtt v0.0.1
 	github.com/liujitcn/kratos-kit/transport/queue v0.0.9
 	github.com/liujitcn/kratos-kit/transport/sse v0.0.18
 	github.com/liujitcn/kratos-kit/utils v0.0.28
@@ -150,6 +151,7 @@ require (
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/dustin/go-humanize v1.1.0 // indirect
 	github.com/ebitengine/purego v0.11.1 // indirect
+	github.com/eclipse/paho.mqtt.golang v1.5.1 // indirect
 	github.com/eino-contrib/jsonschema v1.0.3 // indirect
 	github.com/emicklei/go-restful/v3 v3.14.0 // indirect
 	github.com/evanphx/json-patch v0.5.2 // indirect
@@ -242,6 +244,7 @@ require (
 	github.com/liujitcn/kratos-kit/auth/authn/middleware v0.0.24 // indirect
 	github.com/liujitcn/kratos-kit/auth/authz/middleware v0.0.23 // indirect
 	github.com/liujitcn/kratos-kit/broker v0.0.15 // indirect
+	github.com/liujitcn/kratos-kit/broker/mqtt v0.0.1 // indirect
 	github.com/liujitcn/kratos-kit/database/gorm/driver v0.0.24 // indirect
 	github.com/liujitcn/kratos-kit/key v0.0.11 // indirect
 	github.com/liujitcn/kratos-kit/logger v0.0.37 // indirect

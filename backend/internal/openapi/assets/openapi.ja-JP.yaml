@@ -15737,6 +15737,11 @@ components:
                 latency_ms:
                     type: string
                     description: "プローブ所要時間，単位: ミリ秒"
+                metrics:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.OpsMetric'
+                    description: サービス実行メトリクス
             description: サービスまたは外部依存先の状態。
         system.admin.v1.OpsServicesResponse:
             type: object

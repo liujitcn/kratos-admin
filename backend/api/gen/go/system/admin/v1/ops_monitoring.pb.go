@@ -953,6 +953,7 @@ type OpsServiceStatus struct {
 	Status        string                 `protobuf:"bytes,3,opt,name=status,proto3" json:"status,omitempty"`                         // 状态：正常、未配置或异常
 	Message       string                 `protobuf:"bytes,4,opt,name=message,proto3" json:"message,omitempty"`                       // 状态说明
 	LatencyMs     int64                  `protobuf:"varint,5,opt,name=latency_ms,json=latencyMs,proto3" json:"latency_ms,omitempty"` // 探测耗时，单位毫秒
+	Metrics       []*OpsMetric           `protobuf:"bytes,6,rep,name=metrics,proto3" json:"metrics,omitempty"`                       // 服务运行指标
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1020,6 +1021,13 @@ func (x *OpsServiceStatus) GetLatencyMs() int64 {
 		return x.LatencyMs
 	}
 	return 0
+}
+
+func (x *OpsServiceStatus) GetMetrics() []*OpsMetric {
+	if x != nil {
+		return x.Metrics
+	}
+	return nil
 }
 
 // 数据存储状态。
@@ -1506,14 +1514,15 @@ const file_system_admin_v1_ops_monitoring_proto_rawDesc = "" +
 	"\x0ep95_latency_ms\x18\x03 \x01(\x01B'\xbaG$\x92\x02!时间点P95延迟，单位毫秒R\fp95LatencyMs\x129\n" +
 	"\vqps_percent\x18\x04 \x01(\x01B\x18\xbaG\x15\x92\x02\x12QPS柱状图比例R\n" +
 	"qpsPercent\x12D\n" +
-	"\x0flatency_percent\x18\x05 \x01(\x01B\x1b\xbaG\x18\x92\x02\x15延迟柱状图比例R\x0elatencyPercent\"\x9c\x02\n" +
+	"\x0flatency_percent\x18\x05 \x01(\x01B\x1b\xbaG\x18\x92\x02\x15延迟柱状图比例R\x0elatencyPercent\"\xec\x02\n" +
 	"\x10OpsServiceStatus\x12&\n" +
 	"\x04name\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f服务名称R\x04name\x12,\n" +
 	"\aaddress\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f服务地址R\aaddress\x12B\n" +
 	"\x06status\x18\x03 \x01(\tB*\xbaG'\x92\x02$状态：正常、未配置或异常R\x06status\x12,\n" +
 	"\amessage\x18\x04 \x01(\tB\x12\xbaG\x0f\x92\x02\f状态说明R\amessage\x12@\n" +
 	"\n" +
-	"latency_ms\x18\x05 \x01(\x03B!\xbaG\x1e\x92\x02\x1b探测耗时，单位毫秒R\tlatencyMs\"\x9d\x03\n" +
+	"latency_ms\x18\x05 \x01(\x03B!\xbaG\x1e\x92\x02\x1b探测耗时，单位毫秒R\tlatencyMs\x12N\n" +
+	"\ametrics\x18\x06 \x03(\v2\x1a.system.admin.v1.OpsMetricB\x18\xbaG\x15\x92\x02\x12服务运行指标R\ametrics\"\x9d\x03\n" +
 	"\n" +
 	"OpsStorage\x12&\n" +
 	"\x04name\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f存储名称R\x04name\x121\n" +
@@ -1605,27 +1614,28 @@ var file_system_admin_v1_ops_monitoring_proto_depIdxs = []int32{
 	19, // 4: system.admin.v1.OpsEndpointsResponse.endpoints:type_name -> system.admin.v1.OpsEndpoint
 	20, // 5: system.admin.v1.OpsNodesResponse.nodes:type_name -> system.admin.v1.OpsNode
 	22, // 6: system.admin.v1.OpsAlertsResponse.alerts:type_name -> system.admin.v1.OpsAlert
-	18, // 7: system.admin.v1.OpsStorage.metrics:type_name -> system.admin.v1.OpsMetric
-	21, // 8: system.admin.v1.OpsNode.metrics:type_name -> system.admin.v1.OpsNodeMetric
-	0,  // 9: system.admin.v1.OpsMonitoringService.GetOpsRuntime:input_type -> system.admin.v1.GetOpsRuntimeRequest
-	1,  // 10: system.admin.v1.OpsMonitoringService.GetOpsTraffic:input_type -> system.admin.v1.GetOpsTrafficRequest
-	2,  // 11: system.admin.v1.OpsMonitoringService.GetOpsServices:input_type -> system.admin.v1.GetOpsServicesRequest
-	3,  // 12: system.admin.v1.OpsMonitoringService.GetOpsStorage:input_type -> system.admin.v1.GetOpsStorageRequest
-	4,  // 13: system.admin.v1.OpsMonitoringService.GetOpsEndpoints:input_type -> system.admin.v1.GetOpsEndpointsRequest
-	5,  // 14: system.admin.v1.OpsMonitoringService.GetOpsNodes:input_type -> system.admin.v1.GetOpsNodesRequest
-	6,  // 15: system.admin.v1.OpsMonitoringService.GetOpsAlerts:input_type -> system.admin.v1.GetOpsAlertsRequest
-	13, // 16: system.admin.v1.OpsMonitoringService.GetOpsRuntime:output_type -> system.admin.v1.OpsRuntime
-	7,  // 17: system.admin.v1.OpsMonitoringService.GetOpsTraffic:output_type -> system.admin.v1.OpsTrafficResponse
-	8,  // 18: system.admin.v1.OpsMonitoringService.GetOpsServices:output_type -> system.admin.v1.OpsServicesResponse
-	9,  // 19: system.admin.v1.OpsMonitoringService.GetOpsStorage:output_type -> system.admin.v1.OpsStorageResponse
-	10, // 20: system.admin.v1.OpsMonitoringService.GetOpsEndpoints:output_type -> system.admin.v1.OpsEndpointsResponse
-	11, // 21: system.admin.v1.OpsMonitoringService.GetOpsNodes:output_type -> system.admin.v1.OpsNodesResponse
-	12, // 22: system.admin.v1.OpsMonitoringService.GetOpsAlerts:output_type -> system.admin.v1.OpsAlertsResponse
-	16, // [16:23] is the sub-list for method output_type
-	9,  // [9:16] is the sub-list for method input_type
-	9,  // [9:9] is the sub-list for extension type_name
-	9,  // [9:9] is the sub-list for extension extendee
-	0,  // [0:9] is the sub-list for field type_name
+	18, // 7: system.admin.v1.OpsServiceStatus.metrics:type_name -> system.admin.v1.OpsMetric
+	18, // 8: system.admin.v1.OpsStorage.metrics:type_name -> system.admin.v1.OpsMetric
+	21, // 9: system.admin.v1.OpsNode.metrics:type_name -> system.admin.v1.OpsNodeMetric
+	0,  // 10: system.admin.v1.OpsMonitoringService.GetOpsRuntime:input_type -> system.admin.v1.GetOpsRuntimeRequest
+	1,  // 11: system.admin.v1.OpsMonitoringService.GetOpsTraffic:input_type -> system.admin.v1.GetOpsTrafficRequest
+	2,  // 12: system.admin.v1.OpsMonitoringService.GetOpsServices:input_type -> system.admin.v1.GetOpsServicesRequest
+	3,  // 13: system.admin.v1.OpsMonitoringService.GetOpsStorage:input_type -> system.admin.v1.GetOpsStorageRequest
+	4,  // 14: system.admin.v1.OpsMonitoringService.GetOpsEndpoints:input_type -> system.admin.v1.GetOpsEndpointsRequest
+	5,  // 15: system.admin.v1.OpsMonitoringService.GetOpsNodes:input_type -> system.admin.v1.GetOpsNodesRequest
+	6,  // 16: system.admin.v1.OpsMonitoringService.GetOpsAlerts:input_type -> system.admin.v1.GetOpsAlertsRequest
+	13, // 17: system.admin.v1.OpsMonitoringService.GetOpsRuntime:output_type -> system.admin.v1.OpsRuntime
+	7,  // 18: system.admin.v1.OpsMonitoringService.GetOpsTraffic:output_type -> system.admin.v1.OpsTrafficResponse
+	8,  // 19: system.admin.v1.OpsMonitoringService.GetOpsServices:output_type -> system.admin.v1.OpsServicesResponse
+	9,  // 20: system.admin.v1.OpsMonitoringService.GetOpsStorage:output_type -> system.admin.v1.OpsStorageResponse
+	10, // 21: system.admin.v1.OpsMonitoringService.GetOpsEndpoints:output_type -> system.admin.v1.OpsEndpointsResponse
+	11, // 22: system.admin.v1.OpsMonitoringService.GetOpsNodes:output_type -> system.admin.v1.OpsNodesResponse
+	12, // 23: system.admin.v1.OpsMonitoringService.GetOpsAlerts:output_type -> system.admin.v1.OpsAlertsResponse
+	17, // [17:24] is the sub-list for method output_type
+	10, // [10:17] is the sub-list for method input_type
+	10, // [10:10] is the sub-list for extension type_name
+	10, // [10:10] is the sub-list for extension extendee
+	0,  // [0:10] is the sub-list for field type_name
 }
 
 func init() { file_system_admin_v1_ops_monitoring_proto_init() }

@@ -166,6 +166,8 @@ export interface OpsServiceStatus {
   message: string;
   /** 探测耗时，单位毫秒 */
   latency_ms: number;
+  /** 服务运行指标 */
+  metrics: OpsMetric[];
 }
 
 /** 数据存储状态。 */

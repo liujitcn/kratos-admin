@@ -6,7 +6,7 @@
 
 | 文件 | 配置内容 |
 | --- | --- |
-| `server.yaml` | HTTP、gRPC、MCP、SSE 服务端 |
+| `server.yaml` | HTTP、gRPC、MCP、SSE、MQTT 服务端 |
 | `client.yaml` | HTTP、gRPC、MCP、SSE 客户端 |
 | `data.yaml` | 数据库、Redis、队列 |
 | `trace.yaml` | 链路追踪 |
@@ -52,6 +52,8 @@
 - `UNSPECIFIED`：未指定，默认使用 HTTP。
 - `HTTP`：独立监听端口的 SSE 服务。
 - `IN_PROCESS`：进程内 SSE 服务。
+
+存在 `server.mqtt` 配置节点且填写 `endpoint` 时创建 MQTT 客户端；不使用 MQTT 时删除整个节点。`client_id`、用户名密码、TLS 和重连参数由宿主按 Broker 部署填写，业务模块负责注册自己的设备主题。
 
 `server.mcp.transport`：
 
