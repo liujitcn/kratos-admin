@@ -151,8 +151,10 @@ func (m *Module) RegisterGRPC(registrar grpc.ServiceRegistrar) {
 	m.ragServices.RegisterGRPC(registrar)
 }
 
-// RegisterHTTP 注册 Admin 的全部 HTTP 服务。
+// RegisterHTTP 注册 Admin 的全部 HTTP 服务，并把根路径重定向到管理端 SPA 入口。
 func (m *Module) RegisterHTTP(server *http.Server) {
+	// 静态目录只注册 /admin 等子目录路由，根路径补一条跳转，避免直接访问端口时 404。
+	server.Handle("/", nethttp.RedirectHandler("/admin", nethttp.StatusFound))
 	m.baseServices.RegisterHTTP(server)
 	m.adminServices.RegisterHTTP(server)
 	m.appServices.RegisterHTTP(server)
