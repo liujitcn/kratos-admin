@@ -657,6 +657,7 @@ onBeforeUnmount(stopMonitoring);
 .ops-monitoring-page {
   --ops-card-bg: var(--admin-page-card-bg);
   --ops-card-border: var(--admin-page-card-border);
+  --ops-grid-columns: minmax(0, 1.4fr) minmax(280px, 0.9fr);
   --ops-text-primary: var(--admin-page-text-primary);
   --ops-text-secondary: var(--admin-page-text-secondary);
   --ops-text-placeholder: var(--admin-page-text-placeholder);
@@ -746,7 +747,7 @@ onBeforeUnmount(stopMonitoring);
   opacity: 0.65;
 }
 .ops-primary-grid {
-  grid-template-columns: minmax(0, 1.65fr) minmax(280px, 0.85fr);
+  grid-template-columns: var(--ops-grid-columns);
   margin-bottom: 10px;
 }
 .ops-panel :deep(.el-card__header),
@@ -985,7 +986,7 @@ onBeforeUnmount(stopMonitoring);
   margin-bottom: 10px;
 }
 .ops-storage-grid {
-  grid-template-columns: minmax(0, 1.4fr) minmax(280px, 0.9fr);
+  grid-template-columns: var(--ops-grid-columns);
 }
 .ops-storage-card {
   min-width: 0;
@@ -1064,7 +1065,7 @@ onBeforeUnmount(stopMonitoring);
   background: var(--el-fill-color-light);
 }
 .ops-secondary-grid {
-  grid-template-columns: minmax(0, 1.4fr) minmax(280px, 0.9fr);
+  grid-template-columns: var(--ops-grid-columns);
   margin-bottom: 10px;
 }
 .ops-table :deep(.el-table__inner-wrapper::before) {
