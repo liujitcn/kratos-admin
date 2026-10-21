@@ -25,7 +25,7 @@ import (
 
 	"github.com/liujitcn/gorm-kit/repository"
 	"github.com/liujitcn/kratos-kit/database/gorm"
-	mqtttransport "github.com/liujitcn/kratos-kit/transport/mqtt"
+	"github.com/liujitcn/kratos-kit/transport/mqtt"
 	"github.com/liujitcn/kratos-kit/utils"
 	"github.com/redis/go-redis/v9"
 )
@@ -43,7 +43,7 @@ type OpsMonitoringCase struct {
 	baseAPILogRepository *data.BaseAPILogRepository
 	dispatchRepository   *data.BaseMessageDispatchRepository
 	catalog              *i18n.I18n
-	mqttServer           *mqtttransport.Server
+	mqttServer           *mqtt.Server
 }
 
 // NewOpsMonitoringCase 创建运维监控业务实例。
@@ -52,7 +52,7 @@ func NewOpsMonitoringCase(
 	baseAPILogRepository *data.BaseAPILogRepository,
 	dispatchRepository *data.BaseMessageDispatchRepository,
 	catalog *i18n.I18n,
-	mqttServer *mqtttransport.Server,
+	mqttServer *mqtt.Server,
 ) *OpsMonitoringCase {
 	return &OpsMonitoringCase{
 		BaseCase:             baseCase,

@@ -78,6 +78,7 @@ type Services struct {
 	CodeGenTable            *admin.CodeGenTableService
 	BaseMigration           *admin.BaseMigrationService
 	OpsMonitoring           *admin.OpsMonitoringService
+	MqttMessage             *admin.MqttMessageService
 	Cache                   *admin.CacheService
 	RuntimeLog              *admin.RuntimeLogService
 	BaseSession             *admin.BaseSessionService
@@ -145,6 +146,7 @@ func (s Services) RegisterGRPC(srv grpc.ServiceRegistrar) {
 	adminv1.RegisterCodeGenTableServiceServer(srv, adminv1.RedactedCodeGenTableServiceServer(s.CodeGenTable))
 	adminv1.RegisterBaseMigrationServiceServer(srv, adminv1.RedactedBaseMigrationServiceServer(s.BaseMigration))
 	adminv1.RegisterOpsMonitoringServiceServer(srv, adminv1.RedactedOpsMonitoringServiceServer(s.OpsMonitoring))
+	adminv1.RegisterMqttMessageServiceServer(srv, adminv1.RedactedMqttMessageServiceServer(s.MqttMessage))
 	adminv1.RegisterCacheServiceServer(srv, adminv1.RedactedCacheServiceServer(s.Cache))
 	adminv1.RegisterRuntimeLogServiceServer(srv, adminv1.RedactedRuntimeLogServiceServer(s.RuntimeLog))
 	adminv1.RegisterBaseSessionServiceServer(srv, adminv1.RedactedBaseSessionServiceServer(s.BaseSession))
@@ -215,6 +217,7 @@ func (s Services) RegisterHTTP(srv *http.Server) {
 	adminv1.RegisterCodeGenTableServiceHTTPServer(srv, adminv1.RedactedCodeGenTableServiceServer(s.CodeGenTable))
 	adminv1.RegisterBaseMigrationServiceHTTPServer(srv, adminv1.RedactedBaseMigrationServiceServer(s.BaseMigration))
 	adminv1.RegisterOpsMonitoringServiceHTTPServer(srv, adminv1.RedactedOpsMonitoringServiceServer(s.OpsMonitoring))
+	adminv1.RegisterMqttMessageServiceHTTPServer(srv, adminv1.RedactedMqttMessageServiceServer(s.MqttMessage))
 	adminv1.RegisterCacheServiceHTTPServer(srv, adminv1.RedactedCacheServiceServer(s.Cache))
 	adminv1.RegisterRuntimeLogServiceHTTPServer(srv, adminv1.RedactedRuntimeLogServiceServer(s.RuntimeLog))
 	adminv1.RegisterBaseSessionServiceHTTPServer(srv, adminv1.RedactedBaseSessionServiceServer(s.BaseSession))

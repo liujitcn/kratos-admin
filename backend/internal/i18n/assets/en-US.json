@@ -5431,5 +5431,14 @@
   },
   "legacy.error.26a98594498a94ca": {
     "other": "Tenant code cannot be empty"
+  },
+  "legacy.error.f26c80a1e129c384": {
+    "other": "Failed to query MQTT message records"
+  },
+  "legacy.error.12ceb1313032276b": {
+    "other": "Failed to query MQTT message details"
+  },
+  "system.admin.mqtt_message.get.id.required": {
+    "other": "Message record ID cannot be empty"
   }
 }

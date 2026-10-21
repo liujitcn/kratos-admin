@@ -7,11 +7,13 @@ import (
 	"os"
 
 	"github.com/liujitcn/kratos-admin/backend/pkg/agent"
+	"github.com/liujitcn/kratos-admin/backend/pkg/mqtt"
 	"github.com/liujitcn/kratos-admin/backend/pkg/projectaccess"
 
 	"github.com/google/wire"
 	"github.com/liujitcn/kratos-admin/backend/adapter/core"
 	"github.com/liujitcn/kratos-admin/backend/adapter/kit"
+	mqttbiz "github.com/liujitcn/kratos-admin/backend/internal/biz/mqtt"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/codegen"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/logstream"
 	adminModule "github.com/liujitcn/kratos-admin/backend/internal/module"
@@ -27,6 +29,7 @@ import (
 	authnEngine "github.com/liujitcn/kratos-kit/auth/authn/engine"
 	"github.com/liujitcn/kratos-kit/auth/authz/engine"
 	"github.com/liujitcn/kratos-kit/auth/data"
+	"github.com/liujitcn/kratos-kit/broker"
 	"github.com/liujitcn/kratos-kit/database/gorm"
 	mqtttransport "github.com/liujitcn/kratos-kit/transport/mqtt"
 )
@@ -62,26 +65,6 @@ type AdminStreams sse.Streams
 
 // AdminConsumers 表示 Admin 提供的队列消费者集合。
 type AdminConsumers queue.Consumers
-
-// MQTTRegistration 描述一个由宿主业务模块提供的 MQTT 订阅。
-type MQTTRegistration = mqtttransport.Registration
-
-// AdminMQTTRegistrations 表示 Admin 宿主可合并的 MQTT 订阅集合。
-type AdminMQTTRegistrations []MQTTRegistration
-
-// RegisterMQTTSubscriptions 将宿主业务模块的 MQTT 订阅注册到固定 MQTT 服务。
-// MQTT 未在配置中启用时 server 为空，注册入口保持无操作。
-func RegisterMQTTSubscriptions(server *mqtttransport.Server, registrations ...MQTTRegistration) error {
-	if server == nil {
-		return nil
-	}
-	for _, registration := range registrations {
-		if err := server.Register(registration); err != nil {
-			return fmt.Errorf("注册 MQTT 订阅 %q 失败: %w", registration.Topic, err)
-		}
-	}
-	return nil
-}
 
 // ProviderSet 提供可被外部 Core 宿主复用的 Backend 业务、模块和运行时能力。
 //
@@ -141,13 +124,42 @@ func NewModules(
 	if err != nil {
 		_, _ = fmt.Fprintf(os.Stderr, "启动运行日志采集失败: %v\n", err)
 	}
+	if mqttServer != nil {
+		mqttServer.SetRecorder(mqttbiz.NewMessageRecorder())
+		mqttConfig := config.GetServer().GetMqtt()
+		if mqttConfig != nil && mqttConfig.GetRecordAll() {
+			err = mqttServer.Register(mqtttransport.NewRegistration(
+				"#",
+				func(context.Context, broker.Event) error { return nil },
+				nil,
+				mqtttransport.WithQoS(1),
+				mqtttransport.WithNoLocal(true),
+			))
+			if err != nil {
+				return nil, nil, fmt.Errorf("注册 MQTT 全主题审计订阅失败: %w", err)
+			}
+		}
+	}
 	var modules module.Modules
 	var cleanup func()
 	modules, cleanup, err = adminModule.BuildModules(migrations, config, databases, baseCase, authorizer, authenticator, userToken, jobRuntime, sseRuntime, catalog, openAPIRuntime, redactResolver, rateLimitResolver, progressManager, lifecycle, mqttServer)
 	if err != nil {
+		mqtt.SetDefaultClient(nil)
 		stopErr := logstream.StopConsoleCapture()
 		if stopErr != nil {
 			err = errors.Join(err, fmt.Errorf("恢复启动日志输出失败: %w", stopErr))
+		}
+	}
+	if err == nil && mqttServer != nil {
+		mqtt.SetDefaultClient(mqtt.NewClient(mqttServer))
+	} else if err == nil {
+		mqtt.SetDefaultClient(nil)
+	}
+	if err == nil && cleanup != nil {
+		moduleCleanup := cleanup
+		cleanup = func() {
+			mqtt.SetDefaultClient(nil)
+			moduleCleanup()
 		}
 	}
 	return AdminModules(modules), cleanup, err

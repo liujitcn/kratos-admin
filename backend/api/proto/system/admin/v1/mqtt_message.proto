@@ -1,0 +1,117 @@
+syntax = "proto3";
+
+package system.admin.v1;
+
+import "buf/validate/validate.proto";
+import "gnostic/openapi/v3/annotations.proto";
+import "google/api/annotations.proto";
+
+// Admin MQTT 消息记录查询服务。
+service MqttMessageService {
+  // 分页查询 MQTT 消息记录。
+  rpc PageMqttMessage(PageMqttMessageRequest) returns (PageMqttMessageResponse) {
+    option (google.api.http) = {get: "/api/v1/admin/mqtt-message"};
+  }
+
+  // 查询 MQTT 消息记录详情。
+  rpc GetMqttMessage(GetMqttMessageRequest) returns (MqttMessageDetail) {
+    option (google.api.http) = {get: "/api/v1/admin/mqtt-message/{id}"};
+  }
+}
+
+// MQTT 消息方向枚举；字典编码为 mqtt_message_direction。
+enum MqttMessageDirection {
+  // 未指定消息方向。
+  MQTT_MESSAGE_DIRECTION_UNSPECIFIED = 0;
+  // Admin 向 Broker 发布消息。
+  MQTT_MESSAGE_DIRECTION_PUBLISH = 1;
+  // Admin 从 Broker 订阅接收消息。
+  MQTT_MESSAGE_DIRECTION_SUBSCRIBE = 2;
+}
+
+// MQTT Payload 格式枚举；字典编码为 mqtt_message_payload_format。
+enum MqttMessagePayloadFormat {
+  // 未指定 Payload 格式。
+  MQTT_MESSAGE_PAYLOAD_FORMAT_UNSPECIFIED = 0;
+  // JSON 格式。
+  MQTT_MESSAGE_PAYLOAD_FORMAT_JSON = 1;
+  // UTF-8 文本格式。
+  MQTT_MESSAGE_PAYLOAD_FORMAT_TEXT = 2;
+  // 二进制格式。
+  MQTT_MESSAGE_PAYLOAD_FORMAT_BINARY = 3;
+}
+
+// MQTT 消息处理状态枚举；字典编码为 mqtt_message_status。
+enum MqttMessageStatus {
+  // 未指定处理状态。
+  MQTT_MESSAGE_STATUS_UNSPECIFIED = 0;
+  // 发布消息已得到 Broker 确认。
+  MQTT_MESSAGE_STATUS_SENT = 1;
+  // 订阅消息已处理。
+  MQTT_MESSAGE_STATUS_HANDLED = 2;
+  // 发布或订阅处理失败。
+  MQTT_MESSAGE_STATUS_FAILED = 3;
+}
+
+// MQTT 消息分页查询条件。
+message PageMqttMessageRequest {
+  MqttMessageDirection direction = 1 [(gnostic.openapi.v3.property) = {description: "消息方向：枚举【MqttMessageDirection】，字典【mqtt_message_direction】"}]; // 消息方向
+  string topic = 2 [(gnostic.openapi.v3.property) = {description: "MQTT主题"}]; // MQTT主题
+  MqttMessageStatus status = 3 [(gnostic.openapi.v3.property) = {description: "处理状态：枚举【MqttMessageStatus】，字典【mqtt_message_status】"}]; // 处理状态
+  MqttMessagePayloadFormat payload_format = 4 [(gnostic.openapi.v3.property) = {description: "消息格式：枚举【MqttMessagePayloadFormat】，字典【mqtt_message_payload_format】"}]; // 消息格式
+  int64 page_num = 101 [
+    (gnostic.openapi.v3.property) = {description: "当前页码", default: {number: 1}},
+    (buf.validate.field).int64 = {gte: 1, lte: 1000000}
+  ]; // 当前页码
+  int64 page_size = 102 [
+    (gnostic.openapi.v3.property) = {description: "每页数量", default: {number: 10}},
+    (buf.validate.field).int64 = {gte: 1, lte: 100}
+  ]; // 每页数量
+}
+
+// MQTT 消息分页响应。
+message PageMqttMessageResponse {
+  repeated MqttMessageSummary mqtt_messages = 1 [(gnostic.openapi.v3.property) = {description: "消息记录列表"}]; // 消息记录列表
+  int32 total = 2 [(gnostic.openapi.v3.property) = {description: "总数"}]; // 总数
+}
+
+// MQTT 消息详情查询条件。
+message GetMqttMessageRequest {
+  int64 id = 1 [
+    (gnostic.openapi.v3.property) = {description: "消息记录ID"},
+    (buf.validate.field).cel = {id: "system.admin.mqtt_message.get.id.required" message: "消息记录ID不能为空" expression: "this > 0"}
+  ]; // 消息记录ID
+}
+
+// MQTT 消息记录摘要。
+message MqttMessageSummary {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "消息记录ID"}]; // 消息记录ID
+  MqttMessageDirection direction = 2 [(gnostic.openapi.v3.property) = {description: "消息方向：枚举【MqttMessageDirection】，字典【mqtt_message_direction】"}]; // 消息方向
+  string topic = 3 [(gnostic.openapi.v3.property) = {description: "MQTT主题"}]; // MQTT主题
+  int64 payload_size = 4 [(gnostic.openapi.v3.property) = {description: "消息大小，单位字节"}]; // 消息大小，单位字节
+  MqttMessagePayloadFormat payload_format = 5 [(gnostic.openapi.v3.property) = {description: "消息格式：枚举【MqttMessagePayloadFormat】，字典【mqtt_message_payload_format】"}]; // 消息格式
+  int32 qos = 6 [(gnostic.openapi.v3.property) = {description: "MQTT QoS"}]; // MQTT QoS
+  MqttMessageStatus status = 7 [(gnostic.openapi.v3.property) = {description: "处理状态：枚举【MqttMessageStatus】，字典【mqtt_message_status】"}]; // 处理状态
+  int64 latency_ms = 8 [(gnostic.openapi.v3.property) = {description: "处理耗时，单位毫秒"}]; // 处理耗时，单位毫秒
+  string created_at = 9 [(gnostic.openapi.v3.property) = {description: "创建时间"}]; // 创建时间
+}
+
+// MQTT 消息记录详情。
+message MqttMessageDetail {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "消息记录ID"}]; // 消息记录ID
+  MqttMessageDirection direction = 2 [(gnostic.openapi.v3.property) = {description: "消息方向：枚举【MqttMessageDirection】，字典【mqtt_message_direction】"}]; // 消息方向
+  string topic = 3 [(gnostic.openapi.v3.property) = {description: "MQTT主题"}]; // MQTT主题
+  bytes payload_raw = 4 [(gnostic.openapi.v3.property) = {description: "原始消息内容"}]; // 原始消息内容
+  string payload_json = 5 [(gnostic.openapi.v3.property) = {description: "解析后的JSON内容"}]; // 解析后的JSON内容
+  int64 payload_size = 6 [(gnostic.openapi.v3.property) = {description: "消息大小，单位字节"}]; // 消息大小，单位字节
+  MqttMessagePayloadFormat payload_format = 7 [(gnostic.openapi.v3.property) = {description: "消息格式：枚举【MqttMessagePayloadFormat】，字典【mqtt_message_payload_format】"}]; // 消息格式
+  int32 qos = 8 [(gnostic.openapi.v3.property) = {description: "MQTT QoS"}]; // MQTT QoS
+  bool retained = 9 [(gnostic.openapi.v3.property) = {description: "是否为保留消息"}]; // 是否为保留消息
+  bool duplicate = 10 [(gnostic.openapi.v3.property) = {description: "是否为重复消息"}]; // 是否为重复消息
+  string message_id = 11 [(gnostic.openapi.v3.property) = {description: "MQTT或业务消息ID"}]; // MQTT或业务消息ID
+  MqttMessageStatus status = 12 [(gnostic.openapi.v3.property) = {description: "处理状态：枚举【MqttMessageStatus】，字典【mqtt_message_status】"}]; // 处理状态
+  string error_message = 13 [(gnostic.openapi.v3.property) = {description: "错误信息"}]; // 错误信息
+  int64 latency_ms = 14 [(gnostic.openapi.v3.property) = {description: "处理耗时，单位毫秒"}]; // 处理耗时，单位毫秒
+  string created_at = 15 [(gnostic.openapi.v3.property) = {description: "创建时间"}]; // 创建时间
+  string handled_at = 16 [(gnostic.openapi.v3.property) = {description: "处理完成时间"}]; // 处理完成时间
+}

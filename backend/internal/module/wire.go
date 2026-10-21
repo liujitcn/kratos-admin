@@ -31,7 +31,7 @@ import (
 	"github.com/liujitcn/kratos-kit/auth/authz/engine"
 	authData "github.com/liujitcn/kratos-kit/auth/data"
 	"github.com/liujitcn/kratos-kit/database/gorm"
-	mqtttransport "github.com/liujitcn/kratos-kit/transport/mqtt"
+	"github.com/liujitcn/kratos-kit/transport/mqtt"
 )
 
 // BuildModules 使用宿主共享的任务管理器装配 Admin 协议服务。
@@ -51,7 +51,7 @@ func BuildModules(
 	rateLimitResolver *kit.RateLimitPolicyResolver,
 	progressManager *codegen.Manager,
 	lifecycle *projectaccess.Lifecycle,
-	mqttServer *mqtttransport.Server,
+	mqttServer *mqtt.Server,
 ) (module.Modules, func(), error) {
 	panic(wire.Build(
 		ParseAdminAgentTools,
@@ -87,7 +87,7 @@ func BuildStreams(
 	databases map[string]*gorm.Client,
 	baseCase *coreBiz.BaseCase,
 	catalog *i18n.I18n,
-	mqttServer *mqtttransport.Server,
+	mqttServer *mqtt.Server,
 ) (coreSSE.Streams, func(), error) {
 	panic(wire.Build(
 		data.ProviderSet,
@@ -105,6 +105,7 @@ func BuildQueueConsumers(
 		data.ProviderSet,
 		biz.MessageProviderSet,
 		logmiddleware.NewConsumer,
+		NewMQTTMessageConsumer,
 		NewQueueConsumers,
 	))
 }

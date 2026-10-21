@@ -85,6 +85,9 @@ INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('b
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_dict.name', 1440, 'en-US', 'AI Knowledge Doc Status') ON CONFLICT DO NOTHING;
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_dict.name', 1450, 'en-US', 'AI Query Status') ON CONFLICT DO NOTHING;
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_dict.name', 1460, 'en-US', 'AI Model Category') ON CONFLICT DO NOTHING;
+INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_dict.name', 1470, 'en-US', 'MQTT Message Direction') ON CONFLICT DO NOTHING;
+INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_dict.name', 1480, 'en-US', 'MQTT Payload Format') ON CONFLICT DO NOTHING;
+INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_dict.name', 1490, 'en-US', 'MQTT Message Status') ON CONFLICT DO NOTHING;
 
 -- 字典项翻译。
 -- 表归档与备份字典项翻译。
@@ -259,6 +262,14 @@ INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('b
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_dict_item.label', 14605, 'en-US', 'Video Model') ON CONFLICT DO NOTHING;
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_dict_item.label', 14606, 'en-US', 'Audio Model') ON CONFLICT DO NOTHING;
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_dict_item.label', 14607, 'en-US', 'Translation Model') ON CONFLICT DO NOTHING;
+INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_dict_item.label', 14701, 'en-US', 'Publish') ON CONFLICT DO NOTHING;
+INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_dict_item.label', 14702, 'en-US', 'Subscribe') ON CONFLICT DO NOTHING;
+INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_dict_item.label', 14801, 'en-US', 'JSON') ON CONFLICT DO NOTHING;
+INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_dict_item.label', 14802, 'en-US', 'Text') ON CONFLICT DO NOTHING;
+INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_dict_item.label', 14803, 'en-US', 'Binary') ON CONFLICT DO NOTHING;
+INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_dict_item.label', 14901, 'en-US', 'Sent') ON CONFLICT DO NOTHING;
+INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_dict_item.label', 14902, 'en-US', 'Handled') ON CONFLICT DO NOTHING;
+INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_dict_item.label', 14903, 'en-US', 'Failed') ON CONFLICT DO NOTHING;
 
 -- 菜单翻译。
 -- Message categories, scheduled task, and menus.
@@ -488,6 +499,7 @@ INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('b
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91450500, 'en-US', 'Runtime Logs') ON CONFLICT DO NOTHING;
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91451000, 'en-US', 'Cache Query') ON CONFLICT DO NOTHING;
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91451500, 'en-US', 'Database Migration Records') ON CONFLICT DO NOTHING;
+INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91451200, 'en-US', 'MQTT Messages') ON CONFLICT DO NOTHING;
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91500000, 'en-US', 'Development Tools') ON CONFLICT DO NOTHING;
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91500100, 'en-US', 'API Documentation') ON CONFLICT DO NOTHING;
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91500500, 'en-US', 'Code Generation') ON CONFLICT DO NOTHING;
@@ -527,6 +539,7 @@ INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('b
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_job.name', 1002, 'en-US', 'Log Archive') ON CONFLICT DO NOTHING;
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_job.name', 1003, 'en-US', 'Database Backup') ON CONFLICT DO NOTHING;
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_job.name', 1004, 'en-US', 'Log Ingestion Fallback Task') ON CONFLICT DO NOTHING;
+INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_job.name', 1005, 'en-US', 'MQTT Message Retention Cleanup') ON CONFLICT DO NOTHING;
 
 -- OAuth 登录方式名称翻译。
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_oauth_provider.name', 1, 'en-US', 'DingTalk') ON CONFLICT DO NOTHING;

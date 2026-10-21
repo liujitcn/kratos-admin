@@ -6,6 +6,7 @@ import (
 	nethttp "net/http"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/go-kratos/kratos/v3/middleware"
 	kratosGRPC "github.com/go-kratos/kratos/v3/transport/grpc"
@@ -16,6 +17,8 @@ import (
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/runtimeconfig"
 	biz "github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/logstream"
+	mqttdata "github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
+	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 	"github.com/liujitcn/kratos-admin/backend/internal/server/base/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/server/middleware/conflictmessage"
 	logmiddleware "github.com/liujitcn/kratos-admin/backend/internal/server/middleware/log"
@@ -34,6 +37,7 @@ import (
 	"github.com/liujitcn/kratos-kit/queue/data"
 	"github.com/liujitcn/kratos-kit/secretcrypto"
 	"github.com/liujitcn/kratos-kit/transport/mcp"
+	"github.com/liujitcn/kratos-kit/transport/mqtt"
 	"google.golang.org/grpc"
 )
 
@@ -128,12 +132,60 @@ func (m *Module) RegisterAgentTools(terminal string, tools ...agent.Tool) error 
 }
 
 // NewQueueConsumers 提供 Admin 自身投递事件的队列消费者集合。
-func NewQueueConsumers(baseMessageCase *biz.BaseMessageCase, logConsumer data.ConsumerFunc) queue.Consumers {
+func NewQueueConsumers(baseMessageCase *biz.BaseMessageCase, logConsumer data.ConsumerFunc, mqttMessageConsumer mqttMessageConsumer) queue.Consumers {
 	return queue.Consumers{
 		{Stream: "base.message.schedule", Handler: baseMessageCase.HandleScheduledMessage},
 		{Stream: "base.message.dispatch", Handler: baseMessageCase.HandleDispatchMessage},
 		{Stream: logmiddleware.AdminEventStream(), Handler: logConsumer},
+		{Stream: "base.mqtt.message", Handler: data.ConsumerFunc(mqttMessageConsumer)},
 	}
+}
+
+// NewMQTTMessageConsumer 创建 MQTT 消息记录消费者。
+func NewMQTTMessageConsumer(repository *mqttdata.MqttMessageRepository) mqttMessageConsumer {
+	return mqttMessageConsumer(func(message data.Message) error {
+		record, err := queue.Decode[mqtt.MessageRecord](message)
+		if err != nil {
+			return err
+		}
+		createdAt := time.UnixMilli(record.CreatedAt)
+		if record.CreatedAt <= 0 {
+			createdAt = time.Now()
+		}
+		payloadSize := record.PayloadSize
+		if payloadSize == 0 {
+			payloadSize = int64(len(record.PayloadRaw))
+		}
+		payloadRaw := append([]byte{}, record.PayloadRaw...)
+		err = repository.Create(context.Background(), &models.MqttMessage{
+			Direction:     record.Direction,
+			Topic:         record.Topic,
+			PayloadRaw:    payloadRaw,
+			PayloadJSON:   record.PayloadJSON,
+			PayloadSize:   payloadSize,
+			PayloadFormat: record.PayloadFormat,
+			Qos:           int32(record.QoS),
+			Retained:      boolToInt32(record.Retained),
+			DuplicateFlag: boolToInt32(record.Duplicate),
+			MessageID:     record.MessageID,
+			Status:        record.Status,
+			ErrorMessage:  record.ErrorMessage,
+			LatencyMs:     record.LatencyMs,
+			CreatedAt:     createdAt,
+			HandledAt:     record.HandledAt,
+		})
+		return err
+	})
+}
+
+type mqttMessageConsumer data.ConsumerFunc
+
+// boolToInt32 将布尔消息属性转换为数据库标志值。
+func boolToInt32(value bool) int32 {
+	if value {
+		return 1
+	}
+	return 0
 }
 
 // RegisterGRPC 注册 Admin 的全部 gRPC 服务。

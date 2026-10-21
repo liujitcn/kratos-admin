@@ -19,16 +19,17 @@ require (
 	github.com/liujitcn/go-utils/translator v0.0.6
 	github.com/liujitcn/gorm-kit v0.0.37
 	github.com/liujitcn/kratos-admin/backend/api v0.0.27
-	github.com/liujitcn/kratos-core v0.0.51
+	github.com/liujitcn/kratos-core v0.0.52
 	github.com/liujitcn/kratos-core/api v0.0.7
-	github.com/liujitcn/kratos-kit v0.0.96
+	github.com/liujitcn/kratos-kit v0.0.97
 	github.com/liujitcn/kratos-kit/ai/model v0.0.8
-	github.com/liujitcn/kratos-kit/api v0.0.42
+	github.com/liujitcn/kratos-kit/api v0.0.43
 	github.com/liujitcn/kratos-kit/auth v0.0.34
 	github.com/liujitcn/kratos-kit/auth/authn v0.0.27
 	github.com/liujitcn/kratos-kit/auth/authz v0.0.26
 	github.com/liujitcn/kratos-kit/auth/authz/engine/casbin v0.0.25
 	github.com/liujitcn/kratos-kit/bootstrap v0.0.38
+	github.com/liujitcn/kratos-kit/broker v0.0.15
 	github.com/liujitcn/kratos-kit/cache v0.0.29
 	github.com/liujitcn/kratos-kit/captcha v0.0.26
 	github.com/liujitcn/kratos-kit/config v0.0.42
@@ -49,7 +50,7 @@ require (
 	github.com/liujitcn/kratos-kit/translator v0.0.12
 	github.com/liujitcn/kratos-kit/transport/cron v0.0.21
 	github.com/liujitcn/kratos-kit/transport/mcp v0.0.19
-	github.com/liujitcn/kratos-kit/transport/mqtt v0.0.1
+	github.com/liujitcn/kratos-kit/transport/mqtt v0.0.2
 	github.com/liujitcn/kratos-kit/transport/queue v0.0.9
 	github.com/liujitcn/kratos-kit/transport/sse v0.0.18
 	github.com/liujitcn/kratos-kit/utils v0.0.28
@@ -66,8 +67,6 @@ require (
 	google.golang.org/genproto/googleapis/api v0.0.0-20261005182115-fad411399dd8
 	google.golang.org/grpc v1.86.0-dev
 	google.golang.org/protobuf v1.36.12
-	gorm.io/driver/mysql v1.6.0
-	gorm.io/driver/sqlite v1.6.0
 	gorm.io/gen v0.3.29
 	gorm.io/gorm v1.31.2
 	gorm.io/plugin/dbresolver v1.6.2
@@ -151,7 +150,7 @@ require (
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/dustin/go-humanize v1.1.0 // indirect
 	github.com/ebitengine/purego v0.11.1 // indirect
-	github.com/eclipse/paho.mqtt.golang v1.5.1 // indirect
+	github.com/eclipse/paho.golang v0.10.0 // indirect
 	github.com/eino-contrib/jsonschema v1.0.3 // indirect
 	github.com/emicklei/go-restful/v3 v3.14.0 // indirect
 	github.com/evanphx/json-patch v0.5.2 // indirect
@@ -243,8 +242,7 @@ require (
 	github.com/liujitcn/kratos-kit/auth/authn/engine/jwt v0.0.23 // indirect
 	github.com/liujitcn/kratos-kit/auth/authn/middleware v0.0.24 // indirect
 	github.com/liujitcn/kratos-kit/auth/authz/middleware v0.0.23 // indirect
-	github.com/liujitcn/kratos-kit/broker v0.0.15 // indirect
-	github.com/liujitcn/kratos-kit/broker/mqtt v0.0.1 // indirect
+	github.com/liujitcn/kratos-kit/broker/mqtt v0.0.2 // indirect
 	github.com/liujitcn/kratos-kit/database/gorm/driver v0.0.24 // indirect
 	github.com/liujitcn/kratos-kit/key v0.0.11 // indirect
 	github.com/liujitcn/kratos-kit/logger v0.0.37 // indirect
@@ -266,7 +264,6 @@ require (
 	github.com/mattn/go-colorable v0.1.16 // indirect
 	github.com/mattn/go-isatty v0.0.24 // indirect
 	github.com/mattn/go-runewidth v0.0.31 // indirect
-	github.com/mattn/go-sqlite3 v1.14.52 // indirect
 	github.com/meguminnnnnnnnn/go-openai v0.1.6 // indirect
 	github.com/minio/crc64nvme v1.1.1 // indirect
 	github.com/minio/md5-simd v1.1.2 // indirect
@@ -371,6 +368,7 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	gorm.io/datatypes v1.2.7 // indirect
 	gorm.io/driver/clickhouse v0.7.0 // indirect
+	gorm.io/driver/mysql v1.6.0 // indirect
 	gorm.io/driver/postgres v1.6.3 // indirect
 	gorm.io/hints v1.1.2 // indirect
 	gorm.io/plugin/opentelemetry v0.1.16 // indirect

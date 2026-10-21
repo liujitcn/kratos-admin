@@ -5431,5 +5431,14 @@
   },
   "legacy.error.26a98594498a94ca": {
     "other": "租户编码不能为空"
+  },
+  "legacy.error.f26c80a1e129c384": {
+    "other": "查询 MQTT 消息记录失败"
+  },
+  "legacy.error.12ceb1313032276b": {
+    "other": "查询 MQTT 消息详情失败"
+  },
+  "system.admin.mqtt_message.get.id.required": {
+    "other": "消息记录ID不能为空"
   }
 }

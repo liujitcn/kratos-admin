@@ -13,7 +13,7 @@ import (
 	"github.com/liujitcn/kratos-admin/backend/adapter/core"
 	"github.com/liujitcn/kratos-admin/backend/adapter/kit"
 	"github.com/liujitcn/kratos-admin/backend/pkg/projectaccess"
-	"github.com/liujitcn/kratos-core"
+	kratoscore "github.com/liujitcn/kratos-core"
 	biz2 "github.com/liujitcn/kratos-core/biz"
 	"github.com/liujitcn/kratos-core/config"
 	"github.com/liujitcn/kratos-core/data"
@@ -35,12 +35,13 @@ import (
 	"github.com/liujitcn/kratos-kit/pprof"
 	"github.com/liujitcn/kratos-kit/queue"
 	"github.com/liujitcn/kratos-kit/translator"
-)
 
-import (
 	_ "github.com/liujitcn/kratos-kit/database/gorm/driver/mysql"
+
 	_ "github.com/liujitcn/kratos-kit/database/gorm/driver/postgres"
+
 	_ "github.com/liujitcn/kratos-kit/logger/zap"
+
 	_ "github.com/liujitcn/kratos-kit/registry/consul"
 )
 

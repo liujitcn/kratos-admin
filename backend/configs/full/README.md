@@ -53,7 +53,7 @@
 - `HTTP`：独立监听端口的 SSE 服务。
 - `IN_PROCESS`：进程内 SSE 服务。
 
-存在 `server.mqtt` 配置节点且填写 `endpoint` 时创建 MQTT 客户端；不使用 MQTT 时删除整个节点。`client_id`、用户名密码、TLS 和重连参数由宿主按 Broker 部署填写，业务模块负责注册自己的设备主题。
+存在 `server.mqtt` 配置节点且填写 `endpoint` 时创建 MQTT 客户端；不使用 MQTT 时删除整个节点。`record_all` 开启后会额外订阅 `#` 并记录全部普通 MQTT 主题消息，默认关闭；`client_id`、用户名密码、TLS 和重连参数由宿主按 Broker 部署填写，业务模块负责注册自己的设备主题。
 
 `server.mcp.transport`：
 

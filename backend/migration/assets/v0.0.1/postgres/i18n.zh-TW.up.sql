@@ -85,6 +85,9 @@ INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('b
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_dict.name', 1440, 'zh-TW', 'AI知識庫文檔狀態') ON CONFLICT DO NOTHING;
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_dict.name', 1450, 'zh-TW', '智能問數狀態') ON CONFLICT DO NOTHING;
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_dict.name', 1460, 'zh-TW', 'AI模型分類') ON CONFLICT DO NOTHING;
+INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_dict.name', 1470, 'zh-TW', 'MQTT訊息方向') ON CONFLICT DO NOTHING;
+INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_dict.name', 1480, 'zh-TW', 'MQTT訊息格式') ON CONFLICT DO NOTHING;
+INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_dict.name', 1490, 'zh-TW', 'MQTT訊息處理狀態') ON CONFLICT DO NOTHING;
 
 -- 字典项翻译。
 -- 表归档与备份字典项翻译。
@@ -259,6 +262,14 @@ INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('b
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_dict_item.label', 14605, 'zh-TW', '視頻模型') ON CONFLICT DO NOTHING;
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_dict_item.label', 14606, 'zh-TW', '音頻模型') ON CONFLICT DO NOTHING;
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_dict_item.label', 14607, 'zh-TW', '翻譯模型') ON CONFLICT DO NOTHING;
+INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_dict_item.label', 14701, 'zh-TW', '發布') ON CONFLICT DO NOTHING;
+INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_dict_item.label', 14702, 'zh-TW', '訂閱') ON CONFLICT DO NOTHING;
+INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_dict_item.label', 14801, 'zh-TW', 'JSON') ON CONFLICT DO NOTHING;
+INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_dict_item.label', 14802, 'zh-TW', '文字') ON CONFLICT DO NOTHING;
+INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_dict_item.label', 14803, 'zh-TW', '二進位') ON CONFLICT DO NOTHING;
+INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_dict_item.label', 14901, 'zh-TW', '已發送') ON CONFLICT DO NOTHING;
+INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_dict_item.label', 14902, 'zh-TW', '已處理') ON CONFLICT DO NOTHING;
+INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_dict_item.label', 14903, 'zh-TW', '失敗') ON CONFLICT DO NOTHING;
 
 -- 菜单翻译。
 -- Message categories, scheduled task, and menus.
@@ -488,6 +499,7 @@ INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('b
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91450500, 'zh-TW', '執行日誌') ON CONFLICT DO NOTHING;
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91451000, 'zh-TW', '快取查詢') ON CONFLICT DO NOTHING;
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91451500, 'zh-TW', '資料庫遷移記錄') ON CONFLICT DO NOTHING;
+INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91451200, 'zh-TW', 'MQTT 訊息') ON CONFLICT DO NOTHING;
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91500000, 'zh-TW', '開發工具') ON CONFLICT DO NOTHING;
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91500100, 'zh-TW', '介面文件') ON CONFLICT DO NOTHING;
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91500500, 'zh-TW', '程式碼產生') ON CONFLICT DO NOTHING;
@@ -527,6 +539,7 @@ INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('b
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_job.name', 1002, 'zh-TW', '資料表歸檔任務') ON CONFLICT DO NOTHING;
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_job.name', 1003, 'zh-TW', '資料表備份任務') ON CONFLICT DO NOTHING;
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_job.name', 1004, 'zh-TW', '日誌入庫回退任務') ON CONFLICT DO NOTHING;
+INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_job.name', 1005, 'zh-TW', 'MQTT 訊息保留清理任務') ON CONFLICT DO NOTHING;
 
 -- OAuth 登录方式名称翻译。
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_oauth_provider.name', 1, 'zh-TW', '釘釘') ON CONFLICT DO NOTHING;

@@ -64,4 +64,5 @@ var ProviderSet = wire.NewSet(
 	NewBaseRedactRuleService,
 	NewBaseRedactStoragePolicyService,
 	NewBaseRateLimitRuleService,
+	NewMqttMessageService,
 )

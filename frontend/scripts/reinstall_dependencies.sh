@@ -30,7 +30,7 @@ while IFS= read -r workspace_file; do
   echo "==> 安装 ${workspace_dir#"${FRONTEND_DIR}/"} 依赖"
   (
     cd "${workspace_dir}"
-    CI=1 pnpm install --frozen-lockfile
+    CI=1 corepack pnpm install --frozen-lockfile
   )
 done < <(find "${FRONTEND_DIR}" -type f -name pnpm-workspace.yaml -print)
 

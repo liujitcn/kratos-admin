@@ -6,6 +6,13 @@ import re
 
 
 EN_EXACT = {
+    "消息方向": "Message direction",
+    "MQTT主题": "MQTT topic",
+    "原始消息内容": "Original message content",
+    "解析后的JSON内容": "Parsed JSON content",
+    "是否为保留消息": "Whether the message is retained",
+    "是否为重复消息": "Whether the message is duplicated",
+    "MQTT或业务消息ID": "MQTT or business message ID",
     "密钥字段查看条件":
         "Reveal secret field request parameters.",
     "密钥字段查看响应":
@@ -541,6 +548,13 @@ EN_EXACT = {
 
 
 JA_EXACT = {
+    "消息方向": "メッセージの方向",
+    "MQTT主题": "MQTTトピック",
+    "原始消息内容": "元のメッセージ内容",
+    "解析后的JSON内容": "解析済みJSON内容",
+    "是否为保留消息": "保持メッセージかどうか",
+    "是否为重复消息": "重複メッセージかどうか",
+    "MQTT或业务消息ID": "MQTTまたは業務メッセージID",
     "当前用户所属租户ID": "現在のユーザーが所属するテナントID",
     "文件访问方式，未指定时默认需要访问令牌": "ファイルアクセス方式。未指定の場合はアクセストークンが必要です",
     "文件访问方式：1公开，2需要访问令牌": "ファイルアクセス方式：1 公開、2 アクセストークン必須",

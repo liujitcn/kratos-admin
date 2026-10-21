@@ -6755,6 +6755,63 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/system.admin.v1.CodeGenTask'
+    /api/v1/admin/mqtt-message:
+        get:
+            tags:
+                - MqttMessageService
+            description: ページネーション検索 MQTT メッセージ記録。
+            operationId: MqttMessageService_PageMqttMessage
+            parameters:
+                - name: direction
+                  in: query
+                  schema:
+                    type: string
+                - name: topic
+                  in: query
+                  schema:
+                    type: string
+                - name: status
+                  in: query
+                  schema:
+                    type: string
+                - name: payload_format
+                  in: query
+                  schema:
+                    type: string
+                - name: page_num
+                  in: query
+                  schema:
+                    type: string
+                - name: page_size
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.PageMqttMessageResponse'
+    /api/v1/admin/mqtt-message/{id}:
+        get:
+            tags:
+                - MqttMessageService
+            description: 検索 MQTT メッセージ記録詳細。
+            operationId: MqttMessageService_GetMqttMessage
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.MqttMessageDetail'
     /api/v1/admin/ops-monitoring/alerts:
         get:
             tags:
@@ -15400,6 +15457,92 @@ components:
                         $ref: '#/components/schemas/system.admin.v1.RuntimeLogFile'
                     description: 履歴ログファイル一覧
             description: 履歴ログファイル一覧レスポンス。
+        system.admin.v1.MqttMessageDetail:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: メッセージ記録ID
+                direction:
+                    type: string
+                    description: メッセージの方向
+                topic:
+                    type: string
+                    description: MQTTトピック
+                payload_raw:
+                    type: string
+                    description: 元のメッセージ内容
+                    format: bytes
+                payload_json:
+                    type: string
+                    description: 解析済みJSON内容
+                payload_size:
+                    type: string
+                    description: "メッセージ大小，単位: バイト"
+                payload_format:
+                    type: string
+                    description: メッセージ形式
+                qos:
+                    type: integer
+                    description: MQTT QoS
+                    format: int32
+                retained:
+                    type: boolean
+                    description: 保持メッセージかどうか
+                duplicate:
+                    type: boolean
+                    description: 重複メッセージかどうか
+                message_id:
+                    type: string
+                    description: MQTTまたは業務メッセージID
+                status:
+                    type: string
+                    description: 処理ステータス
+                error_message:
+                    type: string
+                    description: エラー情報
+                latency_ms:
+                    type: string
+                    description: "処理所要時間，単位: ミリ秒"
+                created_at:
+                    type: string
+                    description: 作成時刻
+                handled_at:
+                    type: string
+                    description: 処理完成時刻
+            description: MQTT メッセージ記録詳細。
+        system.admin.v1.MqttMessageSummary:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: メッセージ記録ID
+                direction:
+                    type: string
+                    description: メッセージの方向
+                topic:
+                    type: string
+                    description: MQTTトピック
+                payload_size:
+                    type: string
+                    description: "メッセージ大小，単位: バイト"
+                payload_format:
+                    type: string
+                    description: メッセージ形式
+                qos:
+                    type: integer
+                    description: MQTT QoS
+                    format: int32
+                status:
+                    type: string
+                    description: 処理ステータス
+                latency_ms:
+                    type: string
+                    description: "処理所要時間，単位: ミリ秒"
+                created_at:
+                    type: string
+                    description: 作成時刻
+            description: MQTT メッセージ記録概要。
         system.admin.v1.OauthClient:
             type: object
             properties:
@@ -16534,6 +16677,19 @@ components:
                     description: 合計件数
                     format: int32
             description: コード生成テーブル設定ページネーションレスポンス
+        system.admin.v1.PageMqttMessageResponse:
+            type: object
+            properties:
+                mqtt_messages:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.MqttMessageSummary'
+                    description: メッセージ記録一覧
+                total:
+                    type: integer
+                    description: 合計件数
+                    format: int32
+            description: MQTT メッセージページネーションレスポンス。
         system.admin.v1.PageOauthClientResponse:
             type: object
             properties:
@@ -17790,6 +17946,8 @@ tags:
       description: Base MCPサービス
     - name: MfaService
       description: Base 多要素認証共通サービス。
+    - name: MqttMessageService
+      description: Admin MQTT メッセージ記録検索サービス。
     - name: NotificationService
       description: Base通知サービス。現在のユーザーの受信トレイを提供します。
     - name: OauthClientService

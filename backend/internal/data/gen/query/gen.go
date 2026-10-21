@@ -78,6 +78,7 @@ func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 		CodeGenColumn:           newCodeGenColumn(db, opts...),
 		CodeGenProto:            newCodeGenProto(db, opts...),
 		CodeGenTable:            newCodeGenTable(db, opts...),
+		MqttMessage:             newMqttMessage(db, opts...),
 		OauthClient:             newOauthClient(db, opts...),
 	}
 }
@@ -146,6 +147,7 @@ type Query struct {
 	CodeGenColumn           codeGenColumn
 	CodeGenProto            codeGenProto
 	CodeGenTable            codeGenTable
+	MqttMessage             mqttMessage
 	OauthClient             oauthClient
 }
 
@@ -216,6 +218,7 @@ func (q *Query) clone(db *gorm.DB) *Query {
 		CodeGenColumn:           q.CodeGenColumn.clone(db),
 		CodeGenProto:            q.CodeGenProto.clone(db),
 		CodeGenTable:            q.CodeGenTable.clone(db),
+		MqttMessage:             q.MqttMessage.clone(db),
 		OauthClient:             q.OauthClient.clone(db),
 	}
 }
@@ -293,6 +296,7 @@ func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 		CodeGenColumn:           q.CodeGenColumn.replaceDB(db),
 		CodeGenProto:            q.CodeGenProto.replaceDB(db),
 		CodeGenTable:            q.CodeGenTable.replaceDB(db),
+		MqttMessage:             q.MqttMessage.replaceDB(db),
 		OauthClient:             q.OauthClient.replaceDB(db),
 	}
 }
@@ -360,6 +364,7 @@ type queryCtx struct {
 	CodeGenColumn           *codeGenColumnDo
 	CodeGenProto            *codeGenProtoDo
 	CodeGenTable            *codeGenTableDo
+	MqttMessage             *mqttMessageDo
 	OauthClient             *oauthClientDo
 }
 
@@ -427,6 +432,7 @@ func (q *Query) WithContext(ctx context.Context) *queryCtx {
 		CodeGenColumn:           q.CodeGenColumn.WithContext(ctx),
 		CodeGenProto:            q.CodeGenProto.WithContext(ctx),
 		CodeGenTable:            q.CodeGenTable.WithContext(ctx),
+		MqttMessage:             q.MqttMessage.WithContext(ctx),
 		OauthClient:             q.OauthClient.WithContext(ctx),
 	}
 }

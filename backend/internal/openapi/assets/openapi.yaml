@@ -6755,6 +6755,63 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/system.admin.v1.CodeGenTask'
+    /api/v1/admin/mqtt-message:
+        get:
+            tags:
+                - MqttMessageService
+            description: 分页查询 MQTT 消息记录。
+            operationId: MqttMessageService_PageMqttMessage
+            parameters:
+                - name: direction
+                  in: query
+                  schema:
+                    type: string
+                - name: topic
+                  in: query
+                  schema:
+                    type: string
+                - name: status
+                  in: query
+                  schema:
+                    type: string
+                - name: payload_format
+                  in: query
+                  schema:
+                    type: string
+                - name: page_num
+                  in: query
+                  schema:
+                    type: string
+                - name: page_size
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.PageMqttMessageResponse'
+    /api/v1/admin/mqtt-message/{id}:
+        get:
+            tags:
+                - MqttMessageService
+            description: 查询 MQTT 消息记录详情。
+            operationId: MqttMessageService_GetMqttMessage
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.MqttMessageDetail'
     /api/v1/admin/ops-monitoring/alerts:
         get:
             tags:
@@ -15400,6 +15457,92 @@ components:
                         $ref: '#/components/schemas/system.admin.v1.RuntimeLogFile'
                     description: 历史日志文件列表
             description: 历史日志文件列表响应。
+        system.admin.v1.MqttMessageDetail:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 消息记录ID
+                direction:
+                    type: string
+                    description: 消息方向
+                topic:
+                    type: string
+                    description: MQTT主题
+                payload_raw:
+                    type: string
+                    description: 原始消息内容
+                    format: bytes
+                payload_json:
+                    type: string
+                    description: 解析后的JSON内容
+                payload_size:
+                    type: string
+                    description: 消息大小，单位字节
+                payload_format:
+                    type: string
+                    description: 消息格式
+                qos:
+                    type: integer
+                    description: MQTT QoS
+                    format: int32
+                retained:
+                    type: boolean
+                    description: 是否为保留消息
+                duplicate:
+                    type: boolean
+                    description: 是否为重复消息
+                message_id:
+                    type: string
+                    description: MQTT或业务消息ID
+                status:
+                    type: string
+                    description: 处理状态
+                error_message:
+                    type: string
+                    description: 错误信息
+                latency_ms:
+                    type: string
+                    description: 处理耗时，单位毫秒
+                created_at:
+                    type: string
+                    description: 创建时间
+                handled_at:
+                    type: string
+                    description: 处理完成时间
+            description: MQTT 消息记录详情。
+        system.admin.v1.MqttMessageSummary:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 消息记录ID
+                direction:
+                    type: string
+                    description: 消息方向
+                topic:
+                    type: string
+                    description: MQTT主题
+                payload_size:
+                    type: string
+                    description: 消息大小，单位字节
+                payload_format:
+                    type: string
+                    description: 消息格式
+                qos:
+                    type: integer
+                    description: MQTT QoS
+                    format: int32
+                status:
+                    type: string
+                    description: 处理状态
+                latency_ms:
+                    type: string
+                    description: 处理耗时，单位毫秒
+                created_at:
+                    type: string
+                    description: 创建时间
+            description: MQTT 消息记录摘要。
         system.admin.v1.OauthClient:
             type: object
             properties:
@@ -16534,6 +16677,19 @@ components:
                     description: 总数
                     format: int32
             description: 代码生成表配置分页响应
+        system.admin.v1.PageMqttMessageResponse:
+            type: object
+            properties:
+                mqtt_messages:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.MqttMessageSummary'
+                    description: 消息记录列表
+                total:
+                    type: integer
+                    description: 总数
+                    format: int32
+            description: MQTT 消息分页响应。
         system.admin.v1.PageOauthClientResponse:
             type: object
             properties:
@@ -17790,6 +17946,8 @@ tags:
       description: Base MCP服务
     - name: MfaService
       description: Base 多因素认证公共服务。
+    - name: MqttMessageService
+      description: Admin MQTT 消息记录查询服务。
     - name: NotificationService
       description: Base站内信通知服务，提供当前用户的收件箱能力。
     - name: OauthClientService

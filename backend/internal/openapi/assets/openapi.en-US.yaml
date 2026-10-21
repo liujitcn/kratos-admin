@@ -6755,6 +6755,63 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/system.admin.v1.CodeGenTask'
+    /api/v1/admin/mqtt-message:
+        get:
+            tags:
+                - MqttMessageService
+            description: Paginated query for  MQTT message record.
+            operationId: MqttMessageService_PageMqttMessage
+            parameters:
+                - name: direction
+                  in: query
+                  schema:
+                    type: string
+                - name: topic
+                  in: query
+                  schema:
+                    type: string
+                - name: status
+                  in: query
+                  schema:
+                    type: string
+                - name: payload_format
+                  in: query
+                  schema:
+                    type: string
+                - name: page_num
+                  in: query
+                  schema:
+                    type: string
+                - name: page_size
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.PageMqttMessageResponse'
+    /api/v1/admin/mqtt-message/{id}:
+        get:
+            tags:
+                - MqttMessageService
+            description: Query  MQTT message record details.
+            operationId: MqttMessageService_GetMqttMessage
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.MqttMessageDetail'
     /api/v1/admin/ops-monitoring/alerts:
         get:
             tags:
@@ -15400,6 +15457,92 @@ components:
                         $ref: '#/components/schemas/system.admin.v1.RuntimeLogFile'
                     description: historical log file list
             description: historical log file list response.
+        system.admin.v1.MqttMessageDetail:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: message record ID
+                direction:
+                    type: string
+                    description: Message direction
+                topic:
+                    type: string
+                    description: MQTT topic
+                payload_raw:
+                    type: string
+                    description: Original message content
+                    format: bytes
+                payload_json:
+                    type: string
+                    description: Parsed JSON content
+                payload_size:
+                    type: string
+                    description: "message size, Unit: bytes"
+                payload_format:
+                    type: string
+                    description: message format
+                qos:
+                    type: integer
+                    description: MQTT Qo S
+                    format: int32
+                retained:
+                    type: boolean
+                    description: Whether the message is retained
+                duplicate:
+                    type: boolean
+                    description: Whether the message is duplicated
+                message_id:
+                    type: string
+                    description: MQTT or business message ID
+                status:
+                    type: string
+                    description: Handle status
+                error_message:
+                    type: string
+                    description: Error message
+                latency_ms:
+                    type: string
+                    description: "Handle duration, Unit: ms"
+                created_at:
+                    type: string
+                    description: Create time
+                handled_at:
+                    type: string
+                    description: Handle completion time
+            description: MQTT message record details.
+        system.admin.v1.MqttMessageSummary:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: message record ID
+                direction:
+                    type: string
+                    description: Message direction
+                topic:
+                    type: string
+                    description: MQTT topic
+                payload_size:
+                    type: string
+                    description: "message size, Unit: bytes"
+                payload_format:
+                    type: string
+                    description: message format
+                qos:
+                    type: integer
+                    description: MQTT Qo S
+                    format: int32
+                status:
+                    type: string
+                    description: Handle status
+                latency_ms:
+                    type: string
+                    description: "Handle duration, Unit: ms"
+                created_at:
+                    type: string
+                    description: Create time
+            description: MQTT message record summary.
         system.admin.v1.OauthClient:
             type: object
             properties:
@@ -16534,6 +16677,19 @@ components:
                     description: total count
                     format: int32
             description: code-generation table configuration paginated response
+        system.admin.v1.PageMqttMessageResponse:
+            type: object
+            properties:
+                mqtt_messages:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.MqttMessageSummary'
+                    description: message record list
+                total:
+                    type: integer
+                    description: total count
+                    format: int32
+            description: MQTT message paginated response.
         system.admin.v1.PageOauthClientResponse:
             type: object
             properties:
@@ -17790,6 +17946,8 @@ tags:
       description: Base mcp service
     - name: MfaService
       description: Base multi-factor authentication service.
+    - name: MqttMessageService
+      description: Admin MQTT message record Query service.
     - name: NotificationService
       description: Base notification service for the current user's inbox.
     - name: OauthClientService

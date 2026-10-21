@@ -50,13 +50,14 @@ Redis 未配置时，单实例缓存、任务锁和队列使用进程内实现�
 
 ### MQTT 宿主订阅
 
-业务宿主在自己的 Wire Provider 中接收 `*github.com/liujitcn/kratos-kit/transport/mqtt.Server`，用 `backend.RegisterMQTTSubscriptions` 注册本模块的设备主题。配置存在 `server.mqtt` 节点时创建并连接 MQTT 服务；删除整个节点即可不创建服务。运维监控会展示连接、订阅、发布等待、接收处理中和错误计数；设备凭据、租户 ACL、主题中的租户/项目归属和消息入库逻辑由宿主业务实现。
+业务宿主在自己的 Wire Provider 中接收 `*github.com/liujitcn/kratos-kit/transport/mqtt.Server`，用 `backend/pkg/mqtt` 注册订阅并发布业务消息。配置存在 `server.mqtt` 节点时创建并连接 MQTT 服务；删除整个节点即可不创建服务。`server.mqtt.record_all` 开启后会在现有连接上追加 `#` 审计订阅，并使用 No Local 避免把当前客户端发布的消息重复当作订阅消息处理；该订阅不会替换宿主已有主题订阅，但会增加 Broker 下发和消息入库流量。运维监控会展示连接、订阅、发布等待、接收处理中和错误计数；设备凭据、租户 ACL、主题中的租户/项目归属和消息入库逻辑由宿主业务实现。
 
 ```go
 func NewCloudModule(mqttServer *mqtttransport.Server) (*Module, error) {
-	if err := backend.RegisterMQTTSubscriptions(mqttServer,
-		mqtttransport.NewRegistration("$share/cloud-scp/device/+/status", handleStatus, bindStatus),
-	); err != nil {
+	if err := mqttpkg.Subscribe("$share/cloud-scp/device/+/status", handleStatus, bindStatus); err != nil {
+		return nil, err
+	}
+	if err := mqttpkg.Publish(context.Background(), "cloud/platform/ready", map[string]any{"ready": true}); err != nil {
 		return nil, err
 	}
 	return &Module{}, nil

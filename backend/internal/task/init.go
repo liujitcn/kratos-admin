@@ -15,11 +15,12 @@ var ProviderSet = wire.NewSet(
 	admin.NewTableArchiveTask,
 	admin.NewBaseLogFallbackTask,
 	admin.NewTableBackupTask,
+	admin.NewMqttMessageRetentionTask,
 	NewTask,
 )
 
 // NewTask 收集 Backend 全部任务执行器。
-func NewTask(baseI18nTask *admin.BaseI18nTask, messageDispatchTask *admin.MessageDispatchTask, tableArchiveTask *admin.TableArchiveTask, baseLogFallbackTask *admin.BaseLogFallbackTask, tableBackupTask *admin.TableBackupTask) job.Tasks {
+func NewTask(baseI18nTask *admin.BaseI18nTask, messageDispatchTask *admin.MessageDispatchTask, tableArchiveTask *admin.TableArchiveTask, baseLogFallbackTask *admin.BaseLogFallbackTask, tableBackupTask *admin.TableBackupTask, mqttMessageRetentionTask *admin.MqttMessageRetentionTask) job.Tasks {
 	return job.Tasks{
 		{
 			Name: admin.BaseI18nTaskName,
@@ -40,6 +41,10 @@ func NewTask(baseI18nTask *admin.BaseI18nTask, messageDispatchTask *admin.Messag
 		{
 			Name: admin.TableBackupTaskName,
 			Exec: tableBackupTask,
+		},
+		{
+			Name: admin.MqttMessageRetentionTaskName,
+			Exec: mqttMessageRetentionTask,
 		},
 	}
 }

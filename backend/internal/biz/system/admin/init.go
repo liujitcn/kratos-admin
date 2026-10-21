@@ -64,6 +64,7 @@ var ProviderSet = wire.NewSet(
 	NewBaseRedactRuleCase,
 	NewBaseRedactStoragePolicyCase,
 	NewBaseRateLimitRuleCase,
+	NewMqttMessageCase,
 )
 
 // MessageProviderSet 汇总站内信管理和投递业务依赖。

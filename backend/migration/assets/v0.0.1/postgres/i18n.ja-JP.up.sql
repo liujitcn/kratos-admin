@@ -85,6 +85,9 @@ INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('b
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_dict.name', 1440, 'ja-JP', 'AI ナレッジドキュメントの状態') ON CONFLICT DO NOTHING;
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_dict.name', 1450, 'ja-JP', 'AI 問い合わせのステータス') ON CONFLICT DO NOTHING;
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_dict.name', 1460, 'ja-JP', 'AI モデルカテゴリ') ON CONFLICT DO NOTHING;
+INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_dict.name', 1470, 'ja-JP', 'MQTT メッセージ方向') ON CONFLICT DO NOTHING;
+INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_dict.name', 1480, 'ja-JP', 'MQTT ペイロード形式') ON CONFLICT DO NOTHING;
+INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_dict.name', 1490, 'ja-JP', 'MQTT メッセージ状態') ON CONFLICT DO NOTHING;
 
 -- 字典项翻译。
 -- 表归档与备份字典项翻译。
@@ -259,6 +262,14 @@ INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('b
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_dict_item.label', 14605, 'ja-JP', '動画モデル') ON CONFLICT DO NOTHING;
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_dict_item.label', 14606, 'ja-JP', '音声モデル') ON CONFLICT DO NOTHING;
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_dict_item.label', 14607, 'ja-JP', '翻訳モデル') ON CONFLICT DO NOTHING;
+INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_dict_item.label', 14701, 'ja-JP', '公開') ON CONFLICT DO NOTHING;
+INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_dict_item.label', 14702, 'ja-JP', '購読') ON CONFLICT DO NOTHING;
+INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_dict_item.label', 14801, 'ja-JP', 'JSON') ON CONFLICT DO NOTHING;
+INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_dict_item.label', 14802, 'ja-JP', 'テキスト') ON CONFLICT DO NOTHING;
+INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_dict_item.label', 14803, 'ja-JP', 'バイナリ') ON CONFLICT DO NOTHING;
+INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_dict_item.label', 14901, 'ja-JP', '送信済み') ON CONFLICT DO NOTHING;
+INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_dict_item.label', 14902, 'ja-JP', '処理済み') ON CONFLICT DO NOTHING;
+INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_dict_item.label', 14903, 'ja-JP', '失敗') ON CONFLICT DO NOTHING;
 
 -- 菜单翻译。
 -- Message categories, scheduled task, and menus.
@@ -488,6 +499,7 @@ INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('b
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91450500, 'ja-JP', '実行ログ') ON CONFLICT DO NOTHING;
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91451000, 'ja-JP', 'キャッシュ照会') ON CONFLICT DO NOTHING;
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91451500, 'ja-JP', 'データベースマイグレーション履歴') ON CONFLICT DO NOTHING;
+INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91451200, 'ja-JP', 'MQTTメッセージ') ON CONFLICT DO NOTHING;
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91500000, 'ja-JP', '開発ツール') ON CONFLICT DO NOTHING;
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91500100, 'ja-JP', 'API ドキュメント') ON CONFLICT DO NOTHING;
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91500500, 'ja-JP', 'コード生成') ON CONFLICT DO NOTHING;
@@ -527,6 +539,7 @@ INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('b
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_job.name', 1002, 'ja-JP', 'データテーブルアーカイブタスク') ON CONFLICT DO NOTHING;
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_job.name', 1003, 'ja-JP', 'データテーブルバックアップタスク') ON CONFLICT DO NOTHING;
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_job.name', 1004, 'ja-JP', 'ログ ウェアハウスのロールバック タスク') ON CONFLICT DO NOTHING;
+INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_job.name', 1005, 'ja-JP', 'MQTT メッセージ保持クリーンアップ') ON CONFLICT DO NOTHING;
 
 -- OAuth 登录方式名称翻译。
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_oauth_provider.name', 1, 'ja-JP', 'DingTalk') ON CONFLICT DO NOTHING;

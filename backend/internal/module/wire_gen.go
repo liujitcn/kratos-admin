@@ -23,7 +23,7 @@ import (
 	data2 "github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	data4 "github.com/liujitcn/kratos-admin/backend/internal/data/gen/rag/data"
 	base2 "github.com/liujitcn/kratos-admin/backend/internal/server/base/v1"
-	"github.com/liujitcn/kratos-admin/backend/internal/server/middleware/log"
+	logmiddleware "github.com/liujitcn/kratos-admin/backend/internal/server/middleware/log"
 	"github.com/liujitcn/kratos-admin/backend/internal/server/rag/v1"
 	admin2 "github.com/liujitcn/kratos-admin/backend/internal/server/system/admin/v1"
 	app2 "github.com/liujitcn/kratos-admin/backend/internal/server/system/app/v1"
@@ -42,7 +42,7 @@ import (
 	"github.com/liujitcn/kratos-core/resource/migration"
 	"github.com/liujitcn/kratos-core/resource/openapi"
 	"github.com/liujitcn/kratos-core/sse"
-	"github.com/liujitcn/kratos-kit/api/gen/go/config/v1"
+	configv1 "github.com/liujitcn/kratos-kit/api/gen/go/config/v1"
 	engine2 "github.com/liujitcn/kratos-kit/auth/authn/engine"
 	"github.com/liujitcn/kratos-kit/auth/authz/engine"
 	"github.com/liujitcn/kratos-kit/auth/data"
@@ -223,6 +223,9 @@ func BuildModules(migrations *migration.Migration, config2 *configv1.Bootstrap, 
 	baseMigrationService := admin.NewBaseMigrationService(baseMigrationCase)
 	opsMonitoringCase := biz3.NewOpsMonitoringCase(baseCase, baseAPILogRepository, baseMessageDispatchRepository, catalog, mqttServer)
 	opsMonitoringService := admin.NewOpsMonitoringService(opsMonitoringCase)
+	mqttMessageRepository := data2.NewMqttMessageRepository(dataData)
+	mqttMessageCase := biz3.NewMqttMessageCase(baseCase, mqttMessageRepository)
+	mqttMessageService := admin.NewMqttMessageService(mqttMessageCase)
 	cacheCase := biz3.NewCacheCase(baseCase)
 	cacheService := admin.NewCacheService(cacheCase)
 	hub := logstream.DefaultHub()
@@ -331,6 +334,7 @@ func BuildModules(migrations *migration.Migration, config2 *configv1.Bootstrap, 
 		CodeGenTable:            codeGenTableService,
 		BaseMigration:           baseMigrationService,
 		OpsMonitoring:           opsMonitoringService,
+		MqttMessage:             mqttMessageService,
 		Cache:                   cacheService,
 		RuntimeLog:              runtimeLogService,
 		BaseSession:             baseSessionService,
@@ -495,6 +499,7 @@ func BuildModules(migrations *migration.Migration, config2 *configv1.Bootstrap, 
 		CodeGenTable:            codeGenTableService,
 		BaseMigration:           baseMigrationService,
 		OpsMonitoring:           opsMonitoringService,
+		MqttMessage:             mqttMessageService,
 		Cache:                   cacheService,
 		RuntimeLog:              runtimeLogService,
 		BaseSession:             baseSessionService,
@@ -591,7 +596,9 @@ func BuildTasks(databases map[string]*gorm.Client, baseCase *biz.BaseCase, sseRu
 	baseTableBackupRepository := data2.NewBaseTableBackupRepository(dataData)
 	baseTableBackupRecordRepository := data2.NewBaseTableBackupRecordRepository(dataData)
 	tableBackupTask := admin4.NewTableBackupTask(baseCase, baseTableBackupRepository, baseTableBackupRecordRepository)
-	tasks := task.NewTask(baseI18nTask, messageDispatchTask, tableArchiveTask, baseLogFallbackTask, tableBackupTask)
+	mqttMessageRepository := data2.NewMqttMessageRepository(dataData)
+	mqttMessageRetentionTask := admin4.NewMqttMessageRetentionTask(mqttMessageRepository)
+	tasks := task.NewTask(baseI18nTask, messageDispatchTask, tableArchiveTask, baseLogFallbackTask, tableBackupTask, mqttMessageRetentionTask)
 	return tasks, func() {
 	}, nil
 }
@@ -643,7 +650,9 @@ func BuildQueueConsumers(databases map[string]*gorm.Client, baseCase *biz.BaseCa
 	baseDataAccessLogRepository := data2.NewBaseDataAccessLogRepository(dataData)
 	basePermissionLogRepository := data2.NewBasePermissionLogRepository(dataData)
 	consumerFunc := logmiddleware.NewConsumer(baseLoginLogRepository, baseOperationLogRepository, baseDataAccessLogRepository, basePermissionLogRepository)
-	consumers := NewQueueConsumers(baseMessageCase, consumerFunc)
+	mqttMessageRepository := data2.NewMqttMessageRepository(dataData)
+	moduleMqttMessageConsumer := NewMQTTMessageConsumer(mqttMessageRepository)
+	consumers := NewQueueConsumers(baseMessageCase, consumerFunc, moduleMqttMessageConsumer)
 	return consumers, func() {
 	}, nil
 }

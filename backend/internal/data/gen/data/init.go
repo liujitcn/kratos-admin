@@ -70,5 +70,6 @@ var ProviderSet = wire.NewSet(
 	NewCodeGenColumnRepository,
 	NewCodeGenProtoRepository,
 	NewCodeGenTableRepository,
+	NewMqttMessageRepository,
 	NewOauthClientRepository,
 )

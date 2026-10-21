@@ -5431,5 +5431,14 @@
   },
   "legacy.error.26a98594498a94ca": {
     "other": "テナント コードを空にすることはできません"
+  },
+  "legacy.error.f26c80a1e129c384": {
+    "other": "MQTT メッセージ記録の照会に失敗しました"
+  },
+  "legacy.error.12ceb1313032276b": {
+    "other": "MQTT メッセージ詳細の照会に失敗しました"
+  },
+  "system.admin.mqtt_message.get.id.required": {
+    "other": "メッセージ記録IDを入力してください"
   }
 }

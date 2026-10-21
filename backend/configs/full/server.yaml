@@ -157,6 +157,7 @@ server:
     client_id: ''
     username: ''
     password: ''
+    record_all: false
     clean_session: true
     codec: json
     keep_alive: 30s
@@ -165,7 +166,7 @@ server:
     order_matters: true
     write_timeout: 10s
     connect_retry_interval: 5s
-    max_reconnect_interval: 5m
+    max_reconnect_interval: 300s
     tls:
       insecure_skip_verify: false
       domain: ''

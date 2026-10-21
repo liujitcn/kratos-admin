@@ -313,6 +313,11 @@ func (*CodeGenTable) TableComment() string {
 }
 
 // TableComment 返回表注释。
+func (*MqttMessage) TableComment() string {
+	return "MQTT消息记录"
+}
+
+// TableComment 返回表注释。
 func (*OauthClient) TableComment() string {
 	return "开放授权客户端"
 }
