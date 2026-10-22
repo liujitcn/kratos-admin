@@ -36,7 +36,7 @@ backend
 
 | 文件 | 作用 |
 | --- | --- |
-| `data.yaml` | MySQL、Redis 和可选 AI 知识库数据源 |
+| `data.yaml` | MySQL/TiDB、Redis 和可选 AI 知识库数据源 |
 | `oss.yaml` | 本地或 S3 兼容对象存储 |
 | `auth.yaml` | JWT、会话、验证码和认证策略 |
 | `mfa.yaml` | TOTP/WebAuthn 参数 |
@@ -47,6 +47,20 @@ backend
 配置敏感值使用 `ENC[...]` 保存。生产环境必须使用有效的密钥服务、TLS 和最小权限凭据；密钥服务不可用时服务启动失败，不回退明文文件。
 
 Redis 未配置时，单实例缓存、任务锁和队列使用进程内实现；多实例必须连接同一个 Redis。AI 知识库默认使用 `data.databases.rag`，未配置时回落默认数据源。
+
+### TiDB 配置
+
+TiDB 使用 MySQL 兼容协议，主数据源将 `driver` 设置为 `tidb`，连接端口通常为 `4000`：
+
+```yaml
+data:
+  database:
+    driver: tidb
+    source: root:password@tcp(127.0.0.1:4000)/kratos_admin?charset=utf8mb4&parseTime=True&loc=Local
+    enable_migrate: true
+```
+
+服务会自动注册 TiDB 驱动并补充多语句连接参数；初始化迁移和版本化迁移继续读取 `migration/assets/v0.0.1/mysql`。使用 TiDB 生成业务表模型时，将 `gorm-gen` 数据源的 `driver` 同样设为 `tidb`，生成的 Model 可直接用于 GORM 自动迁移和表结构往返验证。
 
 ### MQTT 宿主订阅
 
@@ -99,7 +113,7 @@ make -C backend run-only APP_ENV=https
 
 ## 数据与迁移
 
-初始化资源统一位于 `migration/assets/v0.0.1/mysql`：
+初始化资源统一位于 `migration/assets/v0.0.1/mysql`；TiDB 复用该目录，不需要复制 TiDB 专用 SQL：
 
 - `default_data.up.sql`：语言、租户、账号、菜单、按钮、API 权限和默认配置；
 - `i18n.*.up.sql`：菜单、字典、配置和任务的非主语言译文；

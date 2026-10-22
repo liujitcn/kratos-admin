@@ -7,7 +7,7 @@ data:
     connection_timeout: 5s
     # 是否启用数据库调试模式；true 会打印 GORM SQL。
     debug: true
-    # 数据库驱动；常见值为 mysql、postgres、sqlite。
+    # 数据库驱动；常见值为 mysql、tidb、postgres、sqlite。
     driver: mysql
     # 是否启用数据库性能指标。
     enable_metrics: false
@@ -30,7 +30,7 @@ data:
 
   # 按名称区分的多数据库配置；名称由业务或数据访问层引用。
   # 示例：AI 知识库（RAG）独立数据源，按生成模型自动建表；删除该段则回退默认数据源（主库），启动仅记录告警。
-  # 驱动支持 mysql、postgres，后续可扩展达梦、高斯等国产数据库；模型 type 标签已归一为跨库中立类型。
+  # 驱动支持 mysql、tidb、postgres；TiDB 使用 MySQL 兼容协议和迁移资源；模型 type 标签已归一为跨库中立类型。
   databases:
     rag:
       # 数据库驱动名称。

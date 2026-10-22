@@ -85,7 +85,7 @@
 
 ### 数据、密钥与存储
 
-- `data.database.driver`：`mysql`、`postgres`、`sqlite`。
+- `data.database.driver`：`mysql`、`tidb`、`postgres`、`sqlite`。
 - `key.type`：`file`、`vault`、`aws`、`google`、`azure`、`kubernetes`。
 - `oss.type`：`local`、`aliyun`、`ftp`、`minio`、`s3`。
 - `oss.upload_security.command` 是扫描器可执行文件路径，例如 `clamdscan`，不是枚举值。

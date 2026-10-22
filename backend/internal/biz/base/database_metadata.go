@@ -3,9 +3,9 @@ package biz
 // 跨数据库元数据查询辅助：information_schema 的注释、完整类型、索引标记列是 MySQL 专有的，
 // PostgreSQL 需映射 pg_catalog 等价实现；输出列名与 MySQL 对齐，扫描结构无需区分方言。
 
-// MysqlFamilyDriver 判断驱动是否属于 MySQL 方言系（含复用 MySQL 方言的 Doris）。
+// MysqlFamilyDriver 判断驱动是否属于 MySQL 方言系（含复用 MySQL 方言的 Doris 与 TiDB）。
 func MysqlFamilyDriver(driverName string) bool {
-	return driverName == "mysql" || driverName == "doris"
+	return driverName == "mysql" || driverName == "doris" || driverName == "tidb"
 }
 
 // CurrentSchemaExpr 按方言返回当前库名（MySQL）或当前模式名（PostgreSQL）表达式。

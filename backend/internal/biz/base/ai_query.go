@@ -481,6 +481,8 @@ func aiQueryDialectLabel(driverName string) string {
 		return "PostgreSQL"
 	case "doris":
 		return "Doris"
+	case "tidb":
+		return "TiDB"
 	default:
 		return "MySQL"
 	}

@@ -45,7 +45,7 @@
 - Go `1.27.2` 或更高补丁版本。
 - Node.js `24`；管理端及其 CLI 模板使用 `frontend/admin/.nvmrc`，进入该目录后执行 `nvm install && nvm use`。
 - pnpm 版本以各 workspace 的 `packageManager` 为准：管理端 `10.33.4`，uni-app 与 Taro 应用端 `10.13.1`。
-- MySQL、Consul 和 Vault；Redis 与队列按需启用，未配置时单实例使用进程内实现。用途与最小/完整配置入口见下方说明。
+- MySQL 或 TiDB、Consul 和 Vault；Redis 与队列按需启用，未配置时单实例使用进程内实现。用途与最小/完整配置入口见下方说明。
 - Docker 部署需要可用的 Docker CLI 与 Docker daemon。
 - 启用 TOTP 绑定时，`mfa.encryption_key` 有显式值则使用该值，留空时由运行时密钥服务派生；启用 WebAuthn 时还要配置 `mfa.webauthn.rp_id` 与 `mfa.webauthn.rp_origins`。配置文件中的敏感值应使用 `ENC[...]` 保存。
 - Buf、protoc 插件、Wire 和 gorm-gen 只在重新生成代码时需要，可通过 `make -C backend init` 安装。
@@ -56,7 +56,7 @@
 
 | 中间件 | 用途 | 配置入口 |
 | --- | --- | --- |
-| MySQL | 业务数据持久化与数据库迁移。 | `backend/configs/data.yaml`、`backend/configs/full/data.yaml` |
+| MySQL/TiDB | 业务数据持久化与数据库迁移；TiDB 使用 MySQL 兼容协议和迁移资源。 | `backend/configs/data.yaml`、`backend/configs/full/data.yaml` |
 | Redis（可选） | 缓存、分布式锁、队列和消息投递；未配置时单实例使用进程内实现。 | `backend/configs/data.yaml`、`backend/configs/full/data.yaml` |
 | Consul | 服务注册与发现。 | `backend/configs/full/registry.yaml` |
 | Vault | 应用根密钥管理、配置解密及业务密钥派生。 | `backend/configs/key.yaml`、`backend/configs/full/key.yaml` |
@@ -65,7 +65,7 @@
 
 ## 本地启动
 
-先创建数据库：
+先创建 MySQL 或 TiDB 数据库：
 
 ```sql
 CREATE DATABASE kratos_admin CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;

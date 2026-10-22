@@ -33,10 +33,10 @@ require (
 	github.com/liujitcn/kratos-kit/cache v0.0.29
 	github.com/liujitcn/kratos-kit/captcha v0.0.26
 	github.com/liujitcn/kratos-kit/config v0.0.42
-	github.com/liujitcn/kratos-kit/database/gorm v0.0.58
-	github.com/liujitcn/kratos-kit/database/gorm/driver/mysql v0.0.28
+	github.com/liujitcn/kratos-kit/database/gorm v0.0.59
+	github.com/liujitcn/kratos-kit/database/gorm/driver/mysql v0.0.29
 	github.com/liujitcn/kratos-kit/database/gorm/driver/postgres v0.0.25
-	github.com/liujitcn/kratos-kit/database/gorm/migration v0.0.20
+	github.com/liujitcn/kratos-kit/database/gorm/migration v0.0.21
 	github.com/liujitcn/kratos-kit/locker v0.0.25
 	github.com/liujitcn/kratos-kit/logger/zap v0.0.23
 	github.com/liujitcn/kratos-kit/notify v0.0.5
