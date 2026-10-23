@@ -52,6 +52,8 @@
     "md-editor-v3": "^6.5.5",
     "md5": "^2.3.0",
     "mitt": "^3.0.1",
+    "monaco-editor": "^0.52.2",
+    "monaco-editor": "^0.52.2",
     "nprogress": "^0.2.0",
     "pinia": "^4.0.3",
     "pinia-plugin-persistedstate": "^4.7.1",
@@ -156,6 +158,10 @@
     "./components/YamlEditor/index.vue": {
       "types": "./dist/package/declarations/src/components/YamlEditor/index.vue.d.ts",
       "default": "./dist/package/src/components/YamlEditor/index.vue"
+    },
+    "./components/CodeEditor/index.vue": {
+      "types": "./dist/package/declarations/src/components/CodeEditor/index.vue.d.ts",
+      "default": "./dist/package/src/components/CodeEditor/index.vue"
     },
     "./components/ProForm/index.vue": {
       "types": "./dist/package/declarations/src/components/ProForm/index.vue.d.ts",

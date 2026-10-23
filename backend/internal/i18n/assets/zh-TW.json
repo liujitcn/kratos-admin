@@ -5440,5 +5440,30 @@
   },
   "system.admin.mqtt_message.get.id.required": {
     "other": "訊息記錄 ID 不能為空"
-  }
+  },
+  "legacy.error.53e503c248312ca3": {"other": "腳本名稱重複"},
+  "legacy.error.2eb4c634e73c7c20": {"other": "腳本 ID 清單不能為空"},
+  "legacy.error.627129d821b9a9ae": {"other": "腳本狀態無效"},
+  "legacy.error.0c349c765bb1630c": {"other": "目前僅支援 JavaScript 腳本"},
+  "legacy.error.3198350bdf120177": {"other": "腳本原始碼不能為空"},
+  "legacy.error.58814f41ef0b63a7": {"other": "記錄腳本執行日誌失敗"},
+  "legacy.error.804ff47d9145111c": {"other": "腳本 ID 無效"},
+  "legacy.error.154bb194d8d7704f": {"other": "查詢腳本執行日誌失敗"},
+  "legacy.error.ac1dfc62a1e129c384": {"other": "查詢腳本執行日誌詳情失敗"},
+  "legacy.error.ac1dfc62f18f680": {"other": "查詢腳本執行日誌詳情失敗"},
+  "legacy.error.ac1dfc62f18f6808": {"other": "查詢腳本執行日誌詳情失敗"},
+  "legacy.error.a29ca3d4464b4117": {"other": "查詢腳本列表失敗"},
+  "legacy.error.6006ddbf35bdc480": {"other": "查詢腳本失敗"},
+  "legacy.error.6e274beea35914d0": {"other": "建立腳本失敗"},
+  "legacy.error.d2321b6e6cdb0b72": {"other": "更新腳本失敗"},
+  "legacy.error.c343976847d80363": {"other": "刪除腳本失敗"},
+  "legacy.error.855a3a4a1e73873b": {"other": "設定腳本狀態失敗"},
+  "legacy.error.d9af671132576c58": {"other": "試執行腳本失敗"},
+  "system.admin.base.script.entity.name.required": {"other": "請輸入腳本名稱"},
+  "system.admin.base.script.entity.hook_point.max_length": {"other": "鉤子點不能超過160個字元"},
+  "system.admin.base.script.entity.source.required": {"other": "請輸入腳本原始碼"},
+  "system.admin.base.script.entity.description.max_length": {"other": "腳本說明不能超過512個字元"},
+  "system.admin.base.script.delete.id.required": {"other": "腳本 ID 清單不能為空"},
+  "system.admin.base.script.test_run.source.max_length": {"other": "腳本原始碼不能超過200000個字元"},
+  "system.admin.base.script.test_run.context_json.max_length": {"other": "上下文不能超過200000個字元"}
 }

@@ -1,0 +1,154 @@
+syntax = "proto3";
+
+package system.admin.v1;
+
+import "common/v1/common.proto";
+import "common/v1/enum.proto";
+import "gnostic/openapi/v3/annotations.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+import "buf/validate/validate.proto";
+
+// Admin脚本管理服务。
+service BaseScriptService {
+  // 查询脚本分页列表。
+  rpc PageBaseScript(PageBaseScriptRequest) returns (PageBaseScriptResponse) {
+    option (google.api.http) = {get: "/api/v1/admin/base/script"};
+  }
+
+  // 查询脚本详情。
+  rpc GetBaseScript(GetBaseScriptRequest) returns (BaseScriptForm) {
+    option (google.api.http) = {get: "/api/v1/admin/base/script/{id}"};
+  }
+
+  // 创建脚本。
+  rpc CreateBaseScript(CreateBaseScriptRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/api/v1/admin/base/script"
+      body: "base_script"
+    };
+  }
+
+  // 更新脚本。
+  rpc UpdateBaseScript(UpdateBaseScriptRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put: "/api/v1/admin/base/script/{base_script.id}"
+      body: "base_script"
+    };
+  }
+
+  // 删除脚本。
+  rpc DeleteBaseScript(DeleteBaseScriptRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {delete: "/api/v1/admin/base/script/{id}"};
+  }
+
+  // 设置脚本状态。
+  rpc SetBaseScriptStatus(SetBaseScriptStatusRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put: "/api/v1/admin/base/script/{id}/status"
+      body: "*"
+    };
+  }
+
+  // 试运行脚本。
+  rpc TestRunBaseScript(TestRunBaseScriptRequest) returns (TestRunBaseScriptResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/admin/base/script/test-run"
+      body: "*"
+    };
+  }
+}
+
+// 脚本语言。
+enum BaseScriptLanguage {
+  // 未指定脚本语言。
+  BASE_SCRIPT_LANGUAGE_UNSPECIFIED = 0;
+  // JavaScript脚本。
+  BASE_SCRIPT_LANGUAGE_JAVASCRIPT = 1;
+}
+
+// 脚本分页查询条件。
+message PageBaseScriptRequest {
+  string name = 1 [(gnostic.openapi.v3.property) = {description: "脚本名称"}]; // 脚本名称
+  string hook_point = 2 [(gnostic.openapi.v3.property) = {description: "挂载钩子点"}]; // 挂载钩子点
+  optional BaseScriptLanguage language = 3 [(gnostic.openapi.v3.property) = {description: "脚本语言"}]; // 脚本语言
+  optional .common.v1.Status status = 100 [(gnostic.openapi.v3.property) = {description: "状态"}]; // 状态
+  int64 page_num = 101 [(gnostic.openapi.v3.property) = {description: "当前页码", default: {number: 1}}, (buf.validate.field).int64 = {gte: 1, lte: 1000000}]; // 当前页码
+  int64 page_size = 102 [(gnostic.openapi.v3.property) = {description: "每页行数", default: {number: 10}}, (buf.validate.field).int64 = {gte: 1, lte: 100}]; // 每页行数
+}
+
+// 脚本分页响应。
+message PageBaseScriptResponse {
+  repeated BaseScript base_scripts = 1 [(gnostic.openapi.v3.property) = {description: "分页数据"}]; // 分页数据
+  int32 total = 2 [(gnostic.openapi.v3.property) = {description: "总数"}]; // 总数
+}
+
+// 查询脚本请求参数。
+message GetBaseScriptRequest {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "脚本ID"}, (buf.validate.field).int64 = {gt: 0}]; // 脚本ID
+}
+
+// 脚本表单。
+message BaseScriptForm {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "脚本ID"}]; // 脚本ID
+  string name = 2 [(gnostic.openapi.v3.property) = {description: "脚本名称"}, (buf.validate.field).cel = {id: "system.admin.base.script.entity.name.required" message: "请输入脚本名称" expression: "this.size() > 0 && this.size() <= 100"}, (buf.validate.field).string.pattern = "^[A-Za-z][A-Za-z0-9_.-]*$"]; // 脚本名称
+  BaseScriptLanguage language = 3 [(gnostic.openapi.v3.property) = {description: "脚本语言"}, (buf.validate.field).enum = {defined_only: true}]; // 脚本语言
+  string hook_point = 4 [(gnostic.openapi.v3.property) = {description: "挂载钩子点"}, (buf.validate.field).cel = {id: "system.admin.base.script.entity.hook_point.max_length" message: "钩子点不能超过160个字符" expression: "this.size() <= 160"}]; // 挂载钩子点
+  string source = 5 [(gnostic.openapi.v3.property) = {description: "脚本源码"}, (buf.validate.field).cel = {id: "system.admin.base.script.entity.source.required" message: "请输入脚本源码" expression: "this.size() > 0 && this.size() <= 200000"}]; // 脚本源码
+  int32 priority = 6 [(gnostic.openapi.v3.property) = {description: "执行优先级"}, (buf.validate.field).int32 = {gte: 0, lte: 1000}]; // 执行优先级
+  string description = 7 [(gnostic.openapi.v3.property) = {description: "脚本说明"}, (buf.validate.field).cel = {id: "system.admin.base.script.entity.description.max_length" message: "脚本说明不能超过512个字符" expression: "this.size() <= 512"}]; // 脚本说明
+  bool critical = 8 [(gnostic.openapi.v3.property) = {description: "是否关键脚本"}]; // 是否关键脚本
+  .common.v1.Status status = 100 [(gnostic.openapi.v3.property) = {description: "状态"}, (buf.validate.field).enum = {defined_only: true}]; // 状态
+}
+
+// 创建脚本请求参数。
+message CreateBaseScriptRequest {
+  BaseScriptForm base_script = 1 [(gnostic.openapi.v3.property) = {description: "脚本表单"}, (buf.validate.field).required = true]; // 脚本表单
+}
+
+// 更新脚本请求参数。
+message UpdateBaseScriptRequest {
+  BaseScriptForm base_script = 1 [(gnostic.openapi.v3.property) = {description: "脚本表单"}, (buf.validate.field).required = true]; // 脚本表单
+}
+
+// 删除脚本请求参数。
+message DeleteBaseScriptRequest {
+  string id = 1 [(gnostic.openapi.v3.property) = {description: "脚本ID列表"}, (buf.validate.field).cel = {id: "system.admin.base.script.delete.id.required" message: "脚本ID列表不能为空" expression: "this.size() > 0"}]; // 脚本ID列表
+}
+
+// 设置脚本状态请求参数。
+message SetBaseScriptStatusRequest {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "脚本ID"}, (buf.validate.field).int64 = {gt: 0}]; // 脚本ID
+  .common.v1.Status status = 2 [(gnostic.openapi.v3.property) = {description: "状态"}, (buf.validate.field).enum = {defined_only: true}]; // 状态
+}
+
+// 脚本试运行请求参数。
+message TestRunBaseScriptRequest {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "已保存脚本ID，为0时执行草稿"}]; // 已保存脚本ID
+  BaseScriptLanguage language = 2 [(gnostic.openapi.v3.property) = {description: "草稿脚本语言"}, (buf.validate.field).enum = {defined_only: true}]; // 草稿脚本语言
+  string source = 3 [(gnostic.openapi.v3.property) = {description: "草稿脚本源码"}, (buf.validate.field).cel = {id: "system.admin.base.script.test_run.source.max_length" message: "脚本源码不能超过200000个字符" expression: "this.size() <= 200000"}]; // 草稿脚本源码
+  string context_json = 4 [(gnostic.openapi.v3.property) = {description: "初始上下文JSON"}, (buf.validate.field).cel = {id: "system.admin.base.script.test_run.context_json.max_length" message: "上下文不能超过200000个字符" expression: "this.size() <= 200000"}]; // 初始上下文JSON
+}
+
+// 脚本试运行响应。
+message TestRunBaseScriptResponse {
+  bool success = 1 [(gnostic.openapi.v3.property) = {description: "是否成功"}]; // 是否成功
+  string error = 2 [(gnostic.openapi.v3.property) = {description: "错误信息"}]; // 错误信息
+  string output_json = 3 [(gnostic.openapi.v3.property) = {description: "执行结果JSON"}]; // 执行结果JSON
+  int64 duration_ms = 4 [(gnostic.openapi.v3.property) = {description: "耗时毫秒"}]; // 耗时毫秒
+}
+
+// 脚本列表展示对象。
+message BaseScript {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "脚本ID"}]; // 脚本ID
+  string name = 2 [(gnostic.openapi.v3.property) = {description: "脚本名称"}]; // 脚本名称
+  BaseScriptLanguage language = 3 [(gnostic.openapi.v3.property) = {description: "脚本语言"}]; // 脚本语言
+  string hook_point = 4 [(gnostic.openapi.v3.property) = {description: "挂载钩子点"}]; // 挂载钩子点
+  int32 priority = 5 [(gnostic.openapi.v3.property) = {description: "执行优先级"}]; // 执行优先级
+  string description = 6 [(gnostic.openapi.v3.property) = {description: "脚本说明"}]; // 脚本说明
+  bool critical = 7 [(gnostic.openapi.v3.property) = {description: "是否关键脚本"}]; // 是否关键脚本
+  int32 version = 8 [(gnostic.openapi.v3.property) = {description: "脚本版本"}]; // 脚本版本
+  .common.v1.Status status = 100 [(gnostic.openapi.v3.property) = {description: "状态"}]; // 状态
+  string created_at = 200 [(gnostic.openapi.v3.property) = {description: "创建时间"}]; // 创建时间
+  string updated_at = 201 [(gnostic.openapi.v3.property) = {description: "更新时间"}]; // 更新时间
+}

@@ -21,6 +21,8 @@ var ProviderSet = wire.NewSet(
 	NewBaseDictItemCase,
 	NewBaseJobCase,
 	NewBaseJobLogCase,
+	NewBaseScriptCase,
+	NewBaseScriptLogCase,
 	NewCacheCase,
 	NewBaseAPILogCase,
 	NewBaseDataAccessLogCase,

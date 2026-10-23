@@ -5008,6 +5008,224 @@ paths:
                 "200":
                     description: OK
                     content: {}
+    /api/v1/admin/base/script:
+        get:
+            tags:
+                - BaseScriptService
+            description: スクリプトをページングして一覧表示します。
+            operationId: BaseScriptService_PageBaseScript
+            parameters:
+                - name: name
+                  in: query
+                  schema:
+                    type: string
+                - name: hook_point
+                  in: query
+                  schema:
+                    type: string
+                - name: language
+                  in: query
+                  schema:
+                    enum:
+                        - BASE_SCRIPT_LANGUAGE_UNSPECIFIED
+                        - BASE_SCRIPT_LANGUAGE_JAVASCRIPT
+                    type: string
+                    format: enum
+                - name: status
+                  in: query
+                  schema:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    format: enum
+                - name: page_num
+                  in: query
+                  schema:
+                    type: string
+                - name: page_size
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.PageBaseScriptResponse'
+        post:
+            tags:
+                - BaseScriptService
+            description: スクリプトを作成します。
+            operationId: BaseScriptService_CreateBaseScript
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.BaseScriptForm'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/script-log:
+        get:
+            tags:
+                - BaseScriptLogService
+            description: スクリプト実行ログをページングして一覧表示します。
+            operationId: BaseScriptLogService_PageBaseScriptLog
+            parameters:
+                - name: script_id
+                  in: query
+                  schema:
+                    type: string
+                - name: trigger_type
+                  in: query
+                  schema:
+                    type: string
+                - name: success
+                  in: query
+                  schema:
+                    type: boolean
+                - name: created_at
+                  in: query
+                  schema:
+                    type: array
+                    items:
+                        type: string
+                - name: page_num
+                  in: query
+                  schema:
+                    type: string
+                - name: page_size
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.PageBaseScriptLogResponse'
+    /api/v1/admin/base/script-log/{id}:
+        get:
+            tags:
+                - BaseScriptLogService
+            description: スクリプト実行ログの詳細を取得します。
+            operationId: BaseScriptLogService_GetBaseScriptLog
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.BaseScriptLog'
+    /api/v1/admin/base/script/test-run:
+        post:
+            tags:
+                - BaseScriptService
+            description: スクリプトをテスト実行します。
+            operationId: BaseScriptService_TestRunBaseScript
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.TestRunBaseScriptRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.TestRunBaseScriptResponse'
+    /api/v1/admin/base/script/{base_script.id}:
+        put:
+            tags:
+                - BaseScriptService
+            description: スクリプトを更新します。
+            operationId: BaseScriptService_UpdateBaseScript
+            parameters:
+                - name: base_script.id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.BaseScriptForm'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/script/{id}:
+        get:
+            tags:
+                - BaseScriptService
+            description: スクリプトの詳細を取得します。
+            operationId: BaseScriptService_GetBaseScript
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.BaseScriptForm'
+        delete:
+            tags:
+                - BaseScriptService
+            description: スクリプトを削除します。
+            operationId: BaseScriptService_DeleteBaseScript
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/script/{id}/status:
+        put:
+            tags:
+                - BaseScriptService
+            description: スクリプト状態を設定します。
+            operationId: BaseScriptService_SetBaseScriptStatus
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.SetBaseScriptStatusRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
     /api/v1/admin/base/session/current:
         get:
             tags:
@@ -6765,7 +6983,12 @@ paths:
                 - name: direction
                   in: query
                   schema:
+                    enum:
+                        - MQTT_MESSAGE_DIRECTION_UNSPECIFIED
+                        - MQTT_MESSAGE_DIRECTION_PUBLISH
+                        - MQTT_MESSAGE_DIRECTION_SUBSCRIBE
                     type: string
+                    format: enum
                 - name: topic
                   in: query
                   schema:
@@ -6773,11 +6996,23 @@ paths:
                 - name: status
                   in: query
                   schema:
+                    enum:
+                        - MQTT_MESSAGE_STATUS_UNSPECIFIED
+                        - MQTT_MESSAGE_STATUS_SENT
+                        - MQTT_MESSAGE_STATUS_HANDLED
+                        - MQTT_MESSAGE_STATUS_FAILED
                     type: string
+                    format: enum
                 - name: payload_format
                   in: query
                   schema:
+                    enum:
+                        - MQTT_MESSAGE_PAYLOAD_FORMAT_UNSPECIFIED
+                        - MQTT_MESSAGE_PAYLOAD_FORMAT_JSON
+                        - MQTT_MESSAGE_PAYLOAD_FORMAT_TEXT
+                        - MQTT_MESSAGE_PAYLOAD_FORMAT_BINARY
                     type: string
+                    format: enum
                 - name: page_num
                   in: query
                   schema:
@@ -13961,6 +14196,139 @@ components:
                     type: string
                     description: 備考
             description: ロールフォーム
+        system.admin.v1.BaseScript:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: スクリプトID
+                name:
+                    type: string
+                    description: スクリプト名
+                language:
+                    enum:
+                        - BASE_SCRIPT_LANGUAGE_UNSPECIFIED
+                        - BASE_SCRIPT_LANGUAGE_JAVASCRIPT
+                    type: string
+                    description: スクリプト言語
+                    format: enum
+                hook_point:
+                    type: string
+                    description: フックポイント
+                priority:
+                    type: integer
+                    description: 実行優先度
+                    format: int32
+                description:
+                    type: string
+                    description: スクリプト説明
+                critical:
+                    type: boolean
+                    description: 重要スクリプトかどうか
+                version:
+                    type: integer
+                    description: スクリプトバージョン
+                    format: int32
+                status:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    description: ステータス
+                    format: enum
+                created_at:
+                    type: string
+                    description: 作成時刻
+                updated_at:
+                    type: string
+                    description: 更新時刻
+            description: スクリプト一覧項目。
+        system.admin.v1.BaseScriptForm:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: スクリプトID
+                name:
+                    type: string
+                    description: スクリプト名
+                language:
+                    enum:
+                        - BASE_SCRIPT_LANGUAGE_UNSPECIFIED
+                        - BASE_SCRIPT_LANGUAGE_JAVASCRIPT
+                    type: string
+                    description: スクリプト言語
+                    format: enum
+                hook_point:
+                    type: string
+                    description: フックポイント
+                source:
+                    type: string
+                    description: スクリプトソース
+                priority:
+                    type: integer
+                    description: 実行優先度
+                    format: int32
+                description:
+                    type: string
+                    description: スクリプト説明
+                critical:
+                    type: boolean
+                    description: 重要スクリプトかどうか
+                status:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    description: ステータス
+                    format: enum
+            description: スクリプトフォーム。
+        system.admin.v1.BaseScriptLog:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: ログ ID
+                script_id:
+                    type: string
+                    description: スクリプトID
+                script_name:
+                    type: string
+                    description: スクリプト名
+                language:
+                    type: string
+                    description: スクリプト言語
+                trigger_type:
+                    type: string
+                    description: トリガー種別
+                hook_point:
+                    type: string
+                    description: フックポイントまたはタスクハンドラー
+                version:
+                    type: integer
+                    description: 実行时バージョン
+                    format: int32
+                success:
+                    type: boolean
+                    description: 〜かどうか成功
+                duration_ms:
+                    type: string
+                    description: 所要時間ミリ秒
+                error:
+                    type: string
+                    description: エラー情報
+                request_id:
+                    type: string
+                    description: リクエスト ID
+                trace_id:
+                    type: string
+                    description: トレース ID
+                created_at:
+                    type: string
+                    description: 実行時刻
+            description: スクリプト実行ログ。
         system.admin.v1.BaseSession:
             type: object
             properties:
@@ -15464,8 +15832,13 @@ components:
                     type: string
                     description: メッセージ記録ID
                 direction:
+                    enum:
+                        - MQTT_MESSAGE_DIRECTION_UNSPECIFIED
+                        - MQTT_MESSAGE_DIRECTION_PUBLISH
+                        - MQTT_MESSAGE_DIRECTION_SUBSCRIBE
                     type: string
-                    description: メッセージの方向
+                    description: "メッセージの方向: enum [MqttMessageDirection], dictionary [mqtt_message_direction]"
+                    format: enum
                 topic:
                     type: string
                     description: MQTTトピック
@@ -15480,8 +15853,14 @@ components:
                     type: string
                     description: "メッセージ大小，単位: バイト"
                 payload_format:
+                    enum:
+                        - MQTT_MESSAGE_PAYLOAD_FORMAT_UNSPECIFIED
+                        - MQTT_MESSAGE_PAYLOAD_FORMAT_JSON
+                        - MQTT_MESSAGE_PAYLOAD_FORMAT_TEXT
+                        - MQTT_MESSAGE_PAYLOAD_FORMAT_BINARY
                     type: string
-                    description: メッセージ形式
+                    description: メッセージ形式：enum【MqttMessagePayloadFormat】，辞書【mqtt_message_payload_format】
+                    format: enum
                 qos:
                     type: integer
                     description: MQTT QoS
@@ -15496,8 +15875,14 @@ components:
                     type: string
                     description: MQTTまたは業務メッセージID
                 status:
+                    enum:
+                        - MQTT_MESSAGE_STATUS_UNSPECIFIED
+                        - MQTT_MESSAGE_STATUS_SENT
+                        - MQTT_MESSAGE_STATUS_HANDLED
+                        - MQTT_MESSAGE_STATUS_FAILED
                     type: string
-                    description: 処理ステータス
+                    description: 処理ステータス：enum【MqttMessageStatus】，辞書【mqtt_message_status】
+                    format: enum
                 error_message:
                     type: string
                     description: エラー情報
@@ -15518,8 +15903,13 @@ components:
                     type: string
                     description: メッセージ記録ID
                 direction:
+                    enum:
+                        - MQTT_MESSAGE_DIRECTION_UNSPECIFIED
+                        - MQTT_MESSAGE_DIRECTION_PUBLISH
+                        - MQTT_MESSAGE_DIRECTION_SUBSCRIBE
                     type: string
-                    description: メッセージの方向
+                    description: "メッセージの方向: enum [MqttMessageDirection], dictionary [mqtt_message_direction]"
+                    format: enum
                 topic:
                     type: string
                     description: MQTTトピック
@@ -15527,15 +15917,27 @@ components:
                     type: string
                     description: "メッセージ大小，単位: バイト"
                 payload_format:
+                    enum:
+                        - MQTT_MESSAGE_PAYLOAD_FORMAT_UNSPECIFIED
+                        - MQTT_MESSAGE_PAYLOAD_FORMAT_JSON
+                        - MQTT_MESSAGE_PAYLOAD_FORMAT_TEXT
+                        - MQTT_MESSAGE_PAYLOAD_FORMAT_BINARY
                     type: string
-                    description: メッセージ形式
+                    description: メッセージ形式：enum【MqttMessagePayloadFormat】，辞書【mqtt_message_payload_format】
+                    format: enum
                 qos:
                     type: integer
                     description: MQTT QoS
                     format: int32
                 status:
+                    enum:
+                        - MQTT_MESSAGE_STATUS_UNSPECIFIED
+                        - MQTT_MESSAGE_STATUS_SENT
+                        - MQTT_MESSAGE_STATUS_HANDLED
+                        - MQTT_MESSAGE_STATUS_FAILED
                     type: string
-                    description: 処理ステータス
+                    description: 処理ステータス：enum【MqttMessageStatus】，辞書【mqtt_message_status】
+                    format: enum
                 latency_ms:
                     type: string
                     description: "処理所要時間，単位: ミリ秒"
@@ -16521,6 +16923,32 @@ components:
                     description: 合計件数
                     format: int32
             description: ロールページネーションレスポンス
+        system.admin.v1.PageBaseScriptLogResponse:
+            type: object
+            properties:
+                base_script_logs:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.BaseScriptLog'
+                    description: ページネーションデータ
+                total:
+                    type: integer
+                    description: 合計件数
+                    format: int32
+            description: スクリプト実行ログのページングレスポンス。
+        system.admin.v1.PageBaseScriptResponse:
+            type: object
+            properties:
+                base_scripts:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.BaseScript'
+                    description: ページネーションデータ
+                total:
+                    type: integer
+                    description: 合計件数
+                    format: int32
+            description: スクリプトのページングレスポンス。
         system.admin.v1.PageBaseTableArchiveRecordResponse:
             type: object
             properties:
@@ -17274,6 +17702,21 @@ components:
                     description: ステータス
                     format: int32
             description: 設定ロールステータスリクエストパラメータ
+        system.admin.v1.SetBaseScriptStatusRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: スクリプトID
+                status:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    description: ステータス
+                    format: enum
+            description: スクリプト状態設定リクエストパラメータ。
         system.admin.v1.SetBaseTableArchiveStatusRequest:
             type: object
             properties:
@@ -17398,6 +17841,42 @@ components:
                         $ref: '#/components/schemas/system.admin.v1.AiProviderModelTestResult'
                     description: 按設定顺序返却の模型测试結果
             description: 测试AI供应商すべて模型レスポンス。
+        system.admin.v1.TestRunBaseScriptRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 保存済みスクリプトID。0の場合は下書きを実行
+                language:
+                    enum:
+                        - BASE_SCRIPT_LANGUAGE_UNSPECIFIED
+                        - BASE_SCRIPT_LANGUAGE_JAVASCRIPT
+                    type: string
+                    description: 下書きスクリプト言語
+                    format: enum
+                source:
+                    type: string
+                    description: 下書きスクリプトソース
+                context_json:
+                    type: string
+                    description: 初期コンテキスト JSON
+            description: スクリプトテスト実行リクエストパラメータ。
+        system.admin.v1.TestRunBaseScriptResponse:
+            type: object
+            properties:
+                success:
+                    type: boolean
+                    description: 〜かどうか成功
+                error:
+                    type: string
+                    description: エラー情報
+                output_json:
+                    type: string
+                    description: 実行結果JSON
+                duration_ms:
+                    type: string
+                    description: 所要時間ミリ秒
+            description: スクリプトテスト実行レスポンス。
         system.admin.v1.TreeBaseAreaResponse:
             type: object
             properties:
@@ -17799,9 +18278,9 @@ tags:
     - name: AiKnowledgeDocService
       description: AIナレッジベースドキュメント管理サービス。
     - name: AiKnowledgeService
-      description: AIナレッジベースオプション検索サービス。
-    - name: AiKnowledgeService
       description: AIナレッジベース管理サービス。
+    - name: AiKnowledgeService
+      description: AIナレッジベースオプション検索サービス。
     - name: AiMessageService
       description: Base AI アシスタントメッセージサービス
     - name: AiModelService
@@ -17821,9 +18300,9 @@ tags:
     - name: AiToolService
       description: Base AI アシスタントツールサービス
     - name: AuthService
-      description: Appユーザー認証サービス
-    - name: AuthService
       description: Adminユーザーログイン認証サービス
+    - name: AuthService
+      description: Appユーザー認証サービス
     - name: BaseApiLogService
       description: Admin APIアクセスログサービス。
     - name: BaseApiRateLimitPolicyService
@@ -17831,9 +18310,9 @@ tags:
     - name: BaseApiService
       description: AdminAPIサービス
     - name: BaseAreaService
-      description: Admin行政地域サービス
-    - name: BaseAreaService
       description: App行政地域サービス
+    - name: BaseAreaService
+      description: Admin行政地域サービス
     - name: BaseConfigService
       description: Adminシステム設定サービス
     - name: BaseDashboardService
@@ -17845,9 +18324,9 @@ tags:
     - name: BaseDictItemService
       description: Admin辞書項目サービス
     - name: BaseDictService
-      description: App辞書サービス
-    - name: BaseDictService
       description: Admin辞書サービス
+    - name: BaseDictService
+      description: App辞書サービス
     - name: BaseFileService
       description: Adminファイル資産管理サービス。
     - name: BaseI18nCustomService
@@ -17867,9 +18346,9 @@ tags:
     - name: BaseLoginPolicyService
       description: Adminログインポリシー管理サービス。
     - name: BaseMenuService
-      description: Adminメニュー管理サービス
-    - name: BaseMenuService
       description: Appメニューサービス
+    - name: BaseMenuService
+      description: Adminメニュー管理サービス
     - name: BaseMessageCategoryService
       description: Adminメッセージカテゴリ管理サービス。
     - name: BaseMessageProviderService
@@ -17900,6 +18379,10 @@ tags:
       description: Admin保存時マスキングポリシーサービス。
     - name: BaseRoleService
       description: Adminロール管理サービス
+    - name: BaseScriptLogService
+      description: Adminスクリプト実行ログサービス。
+    - name: BaseScriptService
+      description: Adminスクリプト管理サービス。
     - name: BaseSessionService
       description: Adminセッション管理サービス。
     - name: BaseTableArchiveRecordService
@@ -17951,9 +18434,9 @@ tags:
     - name: NotificationService
       description: Base通知サービス。現在のユーザーの受信トレイを提供します。
     - name: OauthClientService
-      description: Base OAuthクライアントトークンサービス。
-    - name: OauthClientService
       description: Admin OAuthクライアント管理サービス。
+    - name: OauthClientService
+      description: Base OAuthクライアントトークンサービス。
     - name: OauthService
       description: Baseサードパーティーログイン共通サービス
     - name: OpsMonitoringService

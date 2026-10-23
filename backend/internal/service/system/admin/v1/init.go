@@ -17,6 +17,8 @@ var ProviderSet = wire.NewSet(
 	NewBaseDictItemService,
 	NewBaseJobService,
 	NewBaseJobLogService,
+	NewBaseScriptService,
+	NewBaseScriptLogService,
 	NewBaseLanguageService,
 	NewBaseLogService,
 	NewBaseLoginLogService,

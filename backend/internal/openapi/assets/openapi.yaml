@@ -5008,6 +5008,224 @@ paths:
                 "200":
                     description: OK
                     content: {}
+    /api/v1/admin/base/script:
+        get:
+            tags:
+                - BaseScriptService
+            description: 查询脚本分页列表。
+            operationId: BaseScriptService_PageBaseScript
+            parameters:
+                - name: name
+                  in: query
+                  schema:
+                    type: string
+                - name: hook_point
+                  in: query
+                  schema:
+                    type: string
+                - name: language
+                  in: query
+                  schema:
+                    enum:
+                        - BASE_SCRIPT_LANGUAGE_UNSPECIFIED
+                        - BASE_SCRIPT_LANGUAGE_JAVASCRIPT
+                    type: string
+                    format: enum
+                - name: status
+                  in: query
+                  schema:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    format: enum
+                - name: page_num
+                  in: query
+                  schema:
+                    type: string
+                - name: page_size
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.PageBaseScriptResponse'
+        post:
+            tags:
+                - BaseScriptService
+            description: 创建脚本。
+            operationId: BaseScriptService_CreateBaseScript
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.BaseScriptForm'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/script-log:
+        get:
+            tags:
+                - BaseScriptLogService
+            description: 查询脚本执行日志分页列表。
+            operationId: BaseScriptLogService_PageBaseScriptLog
+            parameters:
+                - name: script_id
+                  in: query
+                  schema:
+                    type: string
+                - name: trigger_type
+                  in: query
+                  schema:
+                    type: string
+                - name: success
+                  in: query
+                  schema:
+                    type: boolean
+                - name: created_at
+                  in: query
+                  schema:
+                    type: array
+                    items:
+                        type: string
+                - name: page_num
+                  in: query
+                  schema:
+                    type: string
+                - name: page_size
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.PageBaseScriptLogResponse'
+    /api/v1/admin/base/script-log/{id}:
+        get:
+            tags:
+                - BaseScriptLogService
+            description: 查询脚本执行日志详情。
+            operationId: BaseScriptLogService_GetBaseScriptLog
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.BaseScriptLog'
+    /api/v1/admin/base/script/test-run:
+        post:
+            tags:
+                - BaseScriptService
+            description: 试运行脚本。
+            operationId: BaseScriptService_TestRunBaseScript
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.TestRunBaseScriptRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.TestRunBaseScriptResponse'
+    /api/v1/admin/base/script/{base_script.id}:
+        put:
+            tags:
+                - BaseScriptService
+            description: 更新脚本。
+            operationId: BaseScriptService_UpdateBaseScript
+            parameters:
+                - name: base_script.id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.BaseScriptForm'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/script/{id}:
+        get:
+            tags:
+                - BaseScriptService
+            description: 查询脚本详情。
+            operationId: BaseScriptService_GetBaseScript
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.BaseScriptForm'
+        delete:
+            tags:
+                - BaseScriptService
+            description: 删除脚本。
+            operationId: BaseScriptService_DeleteBaseScript
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/script/{id}/status:
+        put:
+            tags:
+                - BaseScriptService
+            description: 设置脚本状态。
+            operationId: BaseScriptService_SetBaseScriptStatus
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.SetBaseScriptStatusRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
     /api/v1/admin/base/session/current:
         get:
             tags:
@@ -6765,7 +6983,12 @@ paths:
                 - name: direction
                   in: query
                   schema:
+                    enum:
+                        - MQTT_MESSAGE_DIRECTION_UNSPECIFIED
+                        - MQTT_MESSAGE_DIRECTION_PUBLISH
+                        - MQTT_MESSAGE_DIRECTION_SUBSCRIBE
                     type: string
+                    format: enum
                 - name: topic
                   in: query
                   schema:
@@ -6773,11 +6996,23 @@ paths:
                 - name: status
                   in: query
                   schema:
+                    enum:
+                        - MQTT_MESSAGE_STATUS_UNSPECIFIED
+                        - MQTT_MESSAGE_STATUS_SENT
+                        - MQTT_MESSAGE_STATUS_HANDLED
+                        - MQTT_MESSAGE_STATUS_FAILED
                     type: string
+                    format: enum
                 - name: payload_format
                   in: query
                   schema:
+                    enum:
+                        - MQTT_MESSAGE_PAYLOAD_FORMAT_UNSPECIFIED
+                        - MQTT_MESSAGE_PAYLOAD_FORMAT_JSON
+                        - MQTT_MESSAGE_PAYLOAD_FORMAT_TEXT
+                        - MQTT_MESSAGE_PAYLOAD_FORMAT_BINARY
                     type: string
+                    format: enum
                 - name: page_num
                   in: query
                   schema:
@@ -13961,6 +14196,139 @@ components:
                     type: string
                     description: 备注
             description: 角色表单
+        system.admin.v1.BaseScript:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 脚本ID
+                name:
+                    type: string
+                    description: 脚本名称
+                language:
+                    enum:
+                        - BASE_SCRIPT_LANGUAGE_UNSPECIFIED
+                        - BASE_SCRIPT_LANGUAGE_JAVASCRIPT
+                    type: string
+                    description: 脚本语言
+                    format: enum
+                hook_point:
+                    type: string
+                    description: 挂载钩子点
+                priority:
+                    type: integer
+                    description: 执行优先级
+                    format: int32
+                description:
+                    type: string
+                    description: 脚本说明
+                critical:
+                    type: boolean
+                    description: 是否关键脚本
+                version:
+                    type: integer
+                    description: 脚本版本
+                    format: int32
+                status:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    description: 状态
+                    format: enum
+                created_at:
+                    type: string
+                    description: 创建时间
+                updated_at:
+                    type: string
+                    description: 更新时间
+            description: 脚本列表展示对象。
+        system.admin.v1.BaseScriptForm:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 脚本ID
+                name:
+                    type: string
+                    description: 脚本名称
+                language:
+                    enum:
+                        - BASE_SCRIPT_LANGUAGE_UNSPECIFIED
+                        - BASE_SCRIPT_LANGUAGE_JAVASCRIPT
+                    type: string
+                    description: 脚本语言
+                    format: enum
+                hook_point:
+                    type: string
+                    description: 挂载钩子点
+                source:
+                    type: string
+                    description: 脚本源码
+                priority:
+                    type: integer
+                    description: 执行优先级
+                    format: int32
+                description:
+                    type: string
+                    description: 脚本说明
+                critical:
+                    type: boolean
+                    description: 是否关键脚本
+                status:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    description: 状态
+                    format: enum
+            description: 脚本表单。
+        system.admin.v1.BaseScriptLog:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 日志ID
+                script_id:
+                    type: string
+                    description: 脚本ID
+                script_name:
+                    type: string
+                    description: 脚本名称
+                language:
+                    type: string
+                    description: 脚本语言
+                trigger_type:
+                    type: string
+                    description: 触发方式
+                hook_point:
+                    type: string
+                    description: 钩子点或任务处理器
+                version:
+                    type: integer
+                    description: 执行时版本
+                    format: int32
+                success:
+                    type: boolean
+                    description: 是否成功
+                duration_ms:
+                    type: string
+                    description: 耗时毫秒
+                error:
+                    type: string
+                    description: 错误信息
+                request_id:
+                    type: string
+                    description: 请求ID
+                trace_id:
+                    type: string
+                    description: 链路追踪ID
+                created_at:
+                    type: string
+                    description: 执行时间
+            description: 脚本执行日志。
         system.admin.v1.BaseSession:
             type: object
             properties:
@@ -15464,8 +15832,13 @@ components:
                     type: string
                     description: 消息记录ID
                 direction:
+                    enum:
+                        - MQTT_MESSAGE_DIRECTION_UNSPECIFIED
+                        - MQTT_MESSAGE_DIRECTION_PUBLISH
+                        - MQTT_MESSAGE_DIRECTION_SUBSCRIBE
                     type: string
-                    description: 消息方向
+                    description: 消息方向：枚举【MqttMessageDirection】，字典【mqtt_message_direction】
+                    format: enum
                 topic:
                     type: string
                     description: MQTT主题
@@ -15480,8 +15853,14 @@ components:
                     type: string
                     description: 消息大小，单位字节
                 payload_format:
+                    enum:
+                        - MQTT_MESSAGE_PAYLOAD_FORMAT_UNSPECIFIED
+                        - MQTT_MESSAGE_PAYLOAD_FORMAT_JSON
+                        - MQTT_MESSAGE_PAYLOAD_FORMAT_TEXT
+                        - MQTT_MESSAGE_PAYLOAD_FORMAT_BINARY
                     type: string
-                    description: 消息格式
+                    description: 消息格式：枚举【MqttMessagePayloadFormat】，字典【mqtt_message_payload_format】
+                    format: enum
                 qos:
                     type: integer
                     description: MQTT QoS
@@ -15496,8 +15875,14 @@ components:
                     type: string
                     description: MQTT或业务消息ID
                 status:
+                    enum:
+                        - MQTT_MESSAGE_STATUS_UNSPECIFIED
+                        - MQTT_MESSAGE_STATUS_SENT
+                        - MQTT_MESSAGE_STATUS_HANDLED
+                        - MQTT_MESSAGE_STATUS_FAILED
                     type: string
-                    description: 处理状态
+                    description: 处理状态：枚举【MqttMessageStatus】，字典【mqtt_message_status】
+                    format: enum
                 error_message:
                     type: string
                     description: 错误信息
@@ -15518,8 +15903,13 @@ components:
                     type: string
                     description: 消息记录ID
                 direction:
+                    enum:
+                        - MQTT_MESSAGE_DIRECTION_UNSPECIFIED
+                        - MQTT_MESSAGE_DIRECTION_PUBLISH
+                        - MQTT_MESSAGE_DIRECTION_SUBSCRIBE
                     type: string
-                    description: 消息方向
+                    description: 消息方向：枚举【MqttMessageDirection】，字典【mqtt_message_direction】
+                    format: enum
                 topic:
                     type: string
                     description: MQTT主题
@@ -15527,15 +15917,27 @@ components:
                     type: string
                     description: 消息大小，单位字节
                 payload_format:
+                    enum:
+                        - MQTT_MESSAGE_PAYLOAD_FORMAT_UNSPECIFIED
+                        - MQTT_MESSAGE_PAYLOAD_FORMAT_JSON
+                        - MQTT_MESSAGE_PAYLOAD_FORMAT_TEXT
+                        - MQTT_MESSAGE_PAYLOAD_FORMAT_BINARY
                     type: string
-                    description: 消息格式
+                    description: 消息格式：枚举【MqttMessagePayloadFormat】，字典【mqtt_message_payload_format】
+                    format: enum
                 qos:
                     type: integer
                     description: MQTT QoS
                     format: int32
                 status:
+                    enum:
+                        - MQTT_MESSAGE_STATUS_UNSPECIFIED
+                        - MQTT_MESSAGE_STATUS_SENT
+                        - MQTT_MESSAGE_STATUS_HANDLED
+                        - MQTT_MESSAGE_STATUS_FAILED
                     type: string
-                    description: 处理状态
+                    description: 处理状态：枚举【MqttMessageStatus】，字典【mqtt_message_status】
+                    format: enum
                 latency_ms:
                     type: string
                     description: 处理耗时，单位毫秒
@@ -16521,6 +16923,32 @@ components:
                     description: 总数
                     format: int32
             description: 角色分页响应
+        system.admin.v1.PageBaseScriptLogResponse:
+            type: object
+            properties:
+                base_script_logs:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.BaseScriptLog'
+                    description: 分页数据
+                total:
+                    type: integer
+                    description: 总数
+                    format: int32
+            description: 脚本执行日志分页响应。
+        system.admin.v1.PageBaseScriptResponse:
+            type: object
+            properties:
+                base_scripts:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.BaseScript'
+                    description: 分页数据
+                total:
+                    type: integer
+                    description: 总数
+                    format: int32
+            description: 脚本分页响应。
         system.admin.v1.PageBaseTableArchiveRecordResponse:
             type: object
             properties:
@@ -17274,6 +17702,21 @@ components:
                     description: 状态
                     format: int32
             description: 设置角色状态请求参数
+        system.admin.v1.SetBaseScriptStatusRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 脚本ID
+                status:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    description: 状态
+                    format: enum
+            description: 设置脚本状态请求参数。
         system.admin.v1.SetBaseTableArchiveStatusRequest:
             type: object
             properties:
@@ -17398,6 +17841,42 @@ components:
                         $ref: '#/components/schemas/system.admin.v1.AiProviderModelTestResult'
                     description: 按配置顺序返回的模型测试结果
             description: 测试AI供应商全部模型响应。
+        system.admin.v1.TestRunBaseScriptRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 已保存脚本ID，为0时执行草稿
+                language:
+                    enum:
+                        - BASE_SCRIPT_LANGUAGE_UNSPECIFIED
+                        - BASE_SCRIPT_LANGUAGE_JAVASCRIPT
+                    type: string
+                    description: 草稿脚本语言
+                    format: enum
+                source:
+                    type: string
+                    description: 草稿脚本源码
+                context_json:
+                    type: string
+                    description: 初始上下文JSON
+            description: 脚本试运行请求参数。
+        system.admin.v1.TestRunBaseScriptResponse:
+            type: object
+            properties:
+                success:
+                    type: boolean
+                    description: 是否成功
+                error:
+                    type: string
+                    description: 错误信息
+                output_json:
+                    type: string
+                    description: 执行结果JSON
+                duration_ms:
+                    type: string
+                    description: 耗时毫秒
+            description: 脚本试运行响应。
         system.admin.v1.TreeBaseAreaResponse:
             type: object
             properties:
@@ -17799,9 +18278,9 @@ tags:
     - name: AiKnowledgeDocService
       description: AI知识库文档管理服务。
     - name: AiKnowledgeService
-      description: AI 知识库选项查询服务。
-    - name: AiKnowledgeService
       description: AI知识库管理服务。
+    - name: AiKnowledgeService
+      description: AI 知识库选项查询服务。
     - name: AiMessageService
       description: Base AI 助手消息服务
     - name: AiModelService
@@ -17821,9 +18300,9 @@ tags:
     - name: AiToolService
       description: Base AI 助手工具服务
     - name: AuthService
-      description: App用户认证服务
-    - name: AuthService
       description: Admin用户登录认证服务
+    - name: AuthService
+      description: App用户认证服务
     - name: BaseApiLogService
       description: Admin API访问日志服务。
     - name: BaseApiRateLimitPolicyService
@@ -17831,9 +18310,9 @@ tags:
     - name: BaseApiService
       description: AdminAPI服务
     - name: BaseAreaService
-      description: Admin行政区域服务
-    - name: BaseAreaService
       description: App行政区域服务
+    - name: BaseAreaService
+      description: Admin行政区域服务
     - name: BaseConfigService
       description: Admin系统配置服务
     - name: BaseDashboardService
@@ -17845,9 +18324,9 @@ tags:
     - name: BaseDictItemService
       description: Admin字典项服务
     - name: BaseDictService
-      description: App字典服务
-    - name: BaseDictService
       description: Admin字典服务
+    - name: BaseDictService
+      description: App字典服务
     - name: BaseFileService
       description: Admin文件资产管理服务。
     - name: BaseI18nCustomService
@@ -17867,9 +18346,9 @@ tags:
     - name: BaseLoginPolicyService
       description: Admin登录策略管理服务。
     - name: BaseMenuService
-      description: Admin菜单管理服务
-    - name: BaseMenuService
       description: App菜单服务
+    - name: BaseMenuService
+      description: Admin菜单管理服务
     - name: BaseMessageCategoryService
       description: Admin消息分类管理服务。
     - name: BaseMessageProviderService
@@ -17900,6 +18379,10 @@ tags:
       description: Admin入库脱敏策略服务。
     - name: BaseRoleService
       description: Admin角色管理服务
+    - name: BaseScriptLogService
+      description: Admin脚本执行日志服务。
+    - name: BaseScriptService
+      description: Admin脚本管理服务。
     - name: BaseSessionService
       description: Admin会话管理服务。
     - name: BaseTableArchiveRecordService
@@ -17951,9 +18434,9 @@ tags:
     - name: NotificationService
       description: Base站内信通知服务，提供当前用户的收件箱能力。
     - name: OauthClientService
-      description: Base开放授权客户端令牌服务。
-    - name: OauthClientService
       description: Admin开放授权客户端管理服务。
+    - name: OauthClientService
+      description: Base开放授权客户端令牌服务。
     - name: OauthService
       description: Base三方登录公共服务
     - name: OpsMonitoringService

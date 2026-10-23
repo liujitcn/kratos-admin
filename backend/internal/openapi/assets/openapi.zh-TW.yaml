@@ -5008,6 +5008,224 @@ paths:
                 "200":
                     description: OK
                     content: {}
+    /api/v1/admin/base/script:
+        get:
+            tags:
+                - BaseScriptService
+            description: 查詢指令碼分頁列表。
+            operationId: BaseScriptService_PageBaseScript
+            parameters:
+                - name: name
+                  in: query
+                  schema:
+                    type: string
+                - name: hook_point
+                  in: query
+                  schema:
+                    type: string
+                - name: language
+                  in: query
+                  schema:
+                    enum:
+                        - BASE_SCRIPT_LANGUAGE_UNSPECIFIED
+                        - BASE_SCRIPT_LANGUAGE_JAVASCRIPT
+                    type: string
+                    format: enum
+                - name: status
+                  in: query
+                  schema:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    format: enum
+                - name: page_num
+                  in: query
+                  schema:
+                    type: string
+                - name: page_size
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.PageBaseScriptResponse'
+        post:
+            tags:
+                - BaseScriptService
+            description: 建立指令碼。
+            operationId: BaseScriptService_CreateBaseScript
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.BaseScriptForm'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/script-log:
+        get:
+            tags:
+                - BaseScriptLogService
+            description: 查詢指令碼執行日誌分頁列表。
+            operationId: BaseScriptLogService_PageBaseScriptLog
+            parameters:
+                - name: script_id
+                  in: query
+                  schema:
+                    type: string
+                - name: trigger_type
+                  in: query
+                  schema:
+                    type: string
+                - name: success
+                  in: query
+                  schema:
+                    type: boolean
+                - name: created_at
+                  in: query
+                  schema:
+                    type: array
+                    items:
+                        type: string
+                - name: page_num
+                  in: query
+                  schema:
+                    type: string
+                - name: page_size
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.PageBaseScriptLogResponse'
+    /api/v1/admin/base/script-log/{id}:
+        get:
+            tags:
+                - BaseScriptLogService
+            description: 查詢指令碼執行日誌詳情。
+            operationId: BaseScriptLogService_GetBaseScriptLog
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.BaseScriptLog'
+    /api/v1/admin/base/script/test-run:
+        post:
+            tags:
+                - BaseScriptService
+            description: 試執行指令碼。
+            operationId: BaseScriptService_TestRunBaseScript
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.TestRunBaseScriptRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.TestRunBaseScriptResponse'
+    /api/v1/admin/base/script/{base_script.id}:
+        put:
+            tags:
+                - BaseScriptService
+            description: 更新指令碼。
+            operationId: BaseScriptService_UpdateBaseScript
+            parameters:
+                - name: base_script.id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.BaseScriptForm'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/script/{id}:
+        get:
+            tags:
+                - BaseScriptService
+            description: 查詢指令碼詳情。
+            operationId: BaseScriptService_GetBaseScript
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.BaseScriptForm'
+        delete:
+            tags:
+                - BaseScriptService
+            description: 刪除指令碼。
+            operationId: BaseScriptService_DeleteBaseScript
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/script/{id}/status:
+        put:
+            tags:
+                - BaseScriptService
+            description: 設定指令碼狀態。
+            operationId: BaseScriptService_SetBaseScriptStatus
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.SetBaseScriptStatusRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
     /api/v1/admin/base/session/current:
         get:
             tags:
@@ -6765,7 +6983,12 @@ paths:
                 - name: direction
                   in: query
                   schema:
+                    enum:
+                        - MQTT_MESSAGE_DIRECTION_UNSPECIFIED
+                        - MQTT_MESSAGE_DIRECTION_PUBLISH
+                        - MQTT_MESSAGE_DIRECTION_SUBSCRIBE
                     type: string
+                    format: enum
                 - name: topic
                   in: query
                   schema:
@@ -6773,11 +6996,23 @@ paths:
                 - name: status
                   in: query
                   schema:
+                    enum:
+                        - MQTT_MESSAGE_STATUS_UNSPECIFIED
+                        - MQTT_MESSAGE_STATUS_SENT
+                        - MQTT_MESSAGE_STATUS_HANDLED
+                        - MQTT_MESSAGE_STATUS_FAILED
                     type: string
+                    format: enum
                 - name: payload_format
                   in: query
                   schema:
+                    enum:
+                        - MQTT_MESSAGE_PAYLOAD_FORMAT_UNSPECIFIED
+                        - MQTT_MESSAGE_PAYLOAD_FORMAT_JSON
+                        - MQTT_MESSAGE_PAYLOAD_FORMAT_TEXT
+                        - MQTT_MESSAGE_PAYLOAD_FORMAT_BINARY
                     type: string
+                    format: enum
                 - name: page_num
                   in: query
                   schema:
@@ -13961,6 +14196,139 @@ components:
                     type: string
                     description: 備註
             description: 角色表單
+        system.admin.v1.BaseScript:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 指令碼ID
+                name:
+                    type: string
+                    description: 指令碼名稱
+                language:
+                    enum:
+                        - BASE_SCRIPT_LANGUAGE_UNSPECIFIED
+                        - BASE_SCRIPT_LANGUAGE_JAVASCRIPT
+                    type: string
+                    description: 指令碼語言
+                    format: enum
+                hook_point:
+                    type: string
+                    description: 掛載鉤子點
+                priority:
+                    type: integer
+                    description: 執行優先順序
+                    format: int32
+                description:
+                    type: string
+                    description: 指令碼說明
+                critical:
+                    type: boolean
+                    description: 是否關鍵指令碼
+                version:
+                    type: integer
+                    description: 指令碼版本
+                    format: int32
+                status:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    description: 狀態
+                    format: enum
+                created_at:
+                    type: string
+                    description: 建立時間
+                updated_at:
+                    type: string
+                    description: 更新時間
+            description: 指令碼列表展示物件。
+        system.admin.v1.BaseScriptForm:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 指令碼ID
+                name:
+                    type: string
+                    description: 指令碼名稱
+                language:
+                    enum:
+                        - BASE_SCRIPT_LANGUAGE_UNSPECIFIED
+                        - BASE_SCRIPT_LANGUAGE_JAVASCRIPT
+                    type: string
+                    description: 指令碼語言
+                    format: enum
+                hook_point:
+                    type: string
+                    description: 掛載鉤子點
+                source:
+                    type: string
+                    description: 指令碼原始碼
+                priority:
+                    type: integer
+                    description: 執行優先順序
+                    format: int32
+                description:
+                    type: string
+                    description: 指令碼說明
+                critical:
+                    type: boolean
+                    description: 是否關鍵指令碼
+                status:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    description: 狀態
+                    format: enum
+            description: 指令碼表單。
+        system.admin.v1.BaseScriptLog:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 日誌ID
+                script_id:
+                    type: string
+                    description: 指令碼ID
+                script_name:
+                    type: string
+                    description: 指令碼名稱
+                language:
+                    type: string
+                    description: 指令碼語言
+                trigger_type:
+                    type: string
+                    description: 觸發方式
+                hook_point:
+                    type: string
+                    description: 鉤子點或任務處理器
+                version:
+                    type: integer
+                    description: 執行時版本
+                    format: int32
+                success:
+                    type: boolean
+                    description: 是否成功
+                duration_ms:
+                    type: string
+                    description: 耗時毫秒
+                error:
+                    type: string
+                    description: 錯誤資訊
+                request_id:
+                    type: string
+                    description: 請求ID
+                trace_id:
+                    type: string
+                    description: 鏈路追蹤ID
+                created_at:
+                    type: string
+                    description: 執行時間
+            description: 指令碼執行日誌。
         system.admin.v1.BaseSession:
             type: object
             properties:
@@ -15464,8 +15832,13 @@ components:
                     type: string
                     description: 訊息記錄ID
                 direction:
+                    enum:
+                        - MQTT_MESSAGE_DIRECTION_UNSPECIFIED
+                        - MQTT_MESSAGE_DIRECTION_PUBLISH
+                        - MQTT_MESSAGE_DIRECTION_SUBSCRIBE
                     type: string
-                    description: 訊息方向
+                    description: 訊息方向：列舉【MqttMessageDirection】，字典【mqtt_message_direction】
+                    format: enum
                 topic:
                     type: string
                     description: MQTT主題
@@ -15480,8 +15853,14 @@ components:
                     type: string
                     description: 訊息大小，單位位元組
                 payload_format:
+                    enum:
+                        - MQTT_MESSAGE_PAYLOAD_FORMAT_UNSPECIFIED
+                        - MQTT_MESSAGE_PAYLOAD_FORMAT_JSON
+                        - MQTT_MESSAGE_PAYLOAD_FORMAT_TEXT
+                        - MQTT_MESSAGE_PAYLOAD_FORMAT_BINARY
                     type: string
-                    description: 訊息格式
+                    description: 訊息格式：列舉【MqttMessagePayloadFormat】，字典【mqtt_message_payload_format】
+                    format: enum
                 qos:
                     type: integer
                     description: MQTT QoS
@@ -15496,8 +15875,14 @@ components:
                     type: string
                     description: MQTT或業務訊息ID
                 status:
+                    enum:
+                        - MQTT_MESSAGE_STATUS_UNSPECIFIED
+                        - MQTT_MESSAGE_STATUS_SENT
+                        - MQTT_MESSAGE_STATUS_HANDLED
+                        - MQTT_MESSAGE_STATUS_FAILED
                     type: string
-                    description: 處理狀態
+                    description: 處理狀態：列舉【MqttMessageStatus】，字典【mqtt_message_status】
+                    format: enum
                 error_message:
                     type: string
                     description: 錯誤資訊
@@ -15518,8 +15903,13 @@ components:
                     type: string
                     description: 訊息記錄ID
                 direction:
+                    enum:
+                        - MQTT_MESSAGE_DIRECTION_UNSPECIFIED
+                        - MQTT_MESSAGE_DIRECTION_PUBLISH
+                        - MQTT_MESSAGE_DIRECTION_SUBSCRIBE
                     type: string
-                    description: 訊息方向
+                    description: 訊息方向：列舉【MqttMessageDirection】，字典【mqtt_message_direction】
+                    format: enum
                 topic:
                     type: string
                     description: MQTT主題
@@ -15527,15 +15917,27 @@ components:
                     type: string
                     description: 訊息大小，單位位元組
                 payload_format:
+                    enum:
+                        - MQTT_MESSAGE_PAYLOAD_FORMAT_UNSPECIFIED
+                        - MQTT_MESSAGE_PAYLOAD_FORMAT_JSON
+                        - MQTT_MESSAGE_PAYLOAD_FORMAT_TEXT
+                        - MQTT_MESSAGE_PAYLOAD_FORMAT_BINARY
                     type: string
-                    description: 訊息格式
+                    description: 訊息格式：列舉【MqttMessagePayloadFormat】，字典【mqtt_message_payload_format】
+                    format: enum
                 qos:
                     type: integer
                     description: MQTT QoS
                     format: int32
                 status:
+                    enum:
+                        - MQTT_MESSAGE_STATUS_UNSPECIFIED
+                        - MQTT_MESSAGE_STATUS_SENT
+                        - MQTT_MESSAGE_STATUS_HANDLED
+                        - MQTT_MESSAGE_STATUS_FAILED
                     type: string
-                    description: 處理狀態
+                    description: 處理狀態：列舉【MqttMessageStatus】，字典【mqtt_message_status】
+                    format: enum
                 latency_ms:
                     type: string
                     description: 處理耗時，單位毫秒
@@ -16521,6 +16923,32 @@ components:
                     description: 總數
                     format: int32
             description: 角色分頁響應
+        system.admin.v1.PageBaseScriptLogResponse:
+            type: object
+            properties:
+                base_script_logs:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.BaseScriptLog'
+                    description: 分頁資料
+                total:
+                    type: integer
+                    description: 總數
+                    format: int32
+            description: 指令碼執行日誌分頁響應。
+        system.admin.v1.PageBaseScriptResponse:
+            type: object
+            properties:
+                base_scripts:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.BaseScript'
+                    description: 分頁資料
+                total:
+                    type: integer
+                    description: 總數
+                    format: int32
+            description: 指令碼分頁響應。
         system.admin.v1.PageBaseTableArchiveRecordResponse:
             type: object
             properties:
@@ -17274,6 +17702,21 @@ components:
                     description: 狀態
                     format: int32
             description: 設定角色狀態請求引數
+        system.admin.v1.SetBaseScriptStatusRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 指令碼ID
+                status:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    description: 狀態
+                    format: enum
+            description: 設定指令碼狀態請求引數。
         system.admin.v1.SetBaseTableArchiveStatusRequest:
             type: object
             properties:
@@ -17398,6 +17841,42 @@ components:
                         $ref: '#/components/schemas/system.admin.v1.AiProviderModelTestResult'
                     description: 依設定順序返回的模型測試結果
             description: 測試 AI 供應商全部模型回應。
+        system.admin.v1.TestRunBaseScriptRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 已儲存指令碼ID，為0時執行草稿
+                language:
+                    enum:
+                        - BASE_SCRIPT_LANGUAGE_UNSPECIFIED
+                        - BASE_SCRIPT_LANGUAGE_JAVASCRIPT
+                    type: string
+                    description: 草稿指令碼語言
+                    format: enum
+                source:
+                    type: string
+                    description: 草稿指令碼原始碼
+                context_json:
+                    type: string
+                    description: 初始上下文JSON
+            description: 指令碼試執行請求引數。
+        system.admin.v1.TestRunBaseScriptResponse:
+            type: object
+            properties:
+                success:
+                    type: boolean
+                    description: 是否成功
+                error:
+                    type: string
+                    description: 錯誤資訊
+                output_json:
+                    type: string
+                    description: 執行結果JSON
+                duration_ms:
+                    type: string
+                    description: 耗時毫秒
+            description: 指令碼試執行響應。
         system.admin.v1.TreeBaseAreaResponse:
             type: object
             properties:
@@ -17799,9 +18278,9 @@ tags:
     - name: AiKnowledgeDocService
       description: AI知識庫文件管理服務。
     - name: AiKnowledgeService
-      description: AI 知識庫選項查詢服務。
-    - name: AiKnowledgeService
       description: AI知識庫管理服務。
+    - name: AiKnowledgeService
+      description: AI 知識庫選項查詢服務。
     - name: AiMessageService
       description: Base AI 助手訊息服務
     - name: AiModelService
@@ -17821,9 +18300,9 @@ tags:
     - name: AiToolService
       description: Base AI 助手工具服務
     - name: AuthService
-      description: App 使用者認證服務
-    - name: AuthService
       description: Admin 使用者登入認證服務
+    - name: AuthService
+      description: App 使用者認證服務
     - name: BaseApiLogService
       description: Admin API訪問日誌服務。
     - name: BaseApiRateLimitPolicyService
@@ -17831,9 +18310,9 @@ tags:
     - name: BaseApiService
       description: Admin API 服務
     - name: BaseAreaService
-      description: Admin 行政區域服務
-    - name: BaseAreaService
       description: App 行政區域服務
+    - name: BaseAreaService
+      description: Admin 行政區域服務
     - name: BaseConfigService
       description: Admin 系統設定服務
     - name: BaseDashboardService
@@ -17845,9 +18324,9 @@ tags:
     - name: BaseDictItemService
       description: Admin字典項服務
     - name: BaseDictService
-      description: App 字典服務
-    - name: BaseDictService
       description: Admin 字典服務
+    - name: BaseDictService
+      description: App 字典服務
     - name: BaseFileService
       description: Admin檔案資產管理服務。
     - name: BaseI18nCustomService
@@ -17867,9 +18346,9 @@ tags:
     - name: BaseLoginPolicyService
       description: Admin登入策略管理服務。
     - name: BaseMenuService
-      description: Admin 選單管理服務
-    - name: BaseMenuService
       description: App 選單服務
+    - name: BaseMenuService
+      description: Admin 選單管理服務
     - name: BaseMessageCategoryService
       description: Admin訊息分類管理服務。
     - name: BaseMessageProviderService
@@ -17900,6 +18379,10 @@ tags:
       description: Admin入庫脫敏策略服務。
     - name: BaseRoleService
       description: Admin 角色管理服務
+    - name: BaseScriptLogService
+      description: Admin指令碼執行日誌服務。
+    - name: BaseScriptService
+      description: Admin指令碼管理服務。
     - name: BaseSessionService
       description: Admin會話管理服務。
     - name: BaseTableArchiveRecordService
@@ -17951,9 +18434,9 @@ tags:
     - name: NotificationService
       description: Base站內信通知服務，提供當前使用者的收件箱能力。
     - name: OauthClientService
-      description: Base開放授權客戶端令牌服務。
-    - name: OauthClientService
       description: Admin開放授權客戶端管理服務。
+    - name: OauthClientService
+      description: Base開放授權客戶端令牌服務。
     - name: OauthService
       description: Base 第三方登入公共服務
     - name: OpsMonitoringService

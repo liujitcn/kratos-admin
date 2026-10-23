@@ -34,6 +34,7 @@ import (
 	"github.com/liujitcn/kratos-admin/backend/internal/task"
 	admin4 "github.com/liujitcn/kratos-admin/backend/internal/task/system/admin"
 	"github.com/liujitcn/kratos-admin/backend/pkg/projectaccess"
+	"github.com/liujitcn/kratos-admin/backend/pkg/scripting"
 	"github.com/liujitcn/kratos-core/biz"
 	"github.com/liujitcn/kratos-core/job"
 	"github.com/liujitcn/kratos-core/module"
@@ -144,6 +145,13 @@ func BuildModules(migrations *migration.Migration, config2 *configv1.Bootstrap, 
 	baseJobCase := biz3.NewBaseJobCase(baseCase, transaction, jobRuntime, baseJobRepository, baseJobLogCase, baseI18nCase)
 	baseJobService := admin.NewBaseJobService(baseJobCase)
 	baseJobLogService := admin.NewBaseJobLogService(baseJobLogCase)
+	baseScriptRepository := data2.NewBaseScriptRepository(dataData)
+	baseScriptLogRepository := data2.NewBaseScriptLogRepository(dataData)
+	baseScriptLogCase := biz3.NewBaseScriptLogCase(baseCase, baseScriptLogRepository)
+	runtime := scripting.NewRuntime()
+	baseScriptCase := biz3.NewBaseScriptCase(baseCase, transaction, baseScriptRepository, baseScriptLogCase, runtime)
+	baseScriptService := admin.NewBaseScriptService(baseScriptCase)
+	baseScriptLogService := admin.NewBaseScriptLogService(baseScriptLogCase)
 	baseLanguageService := admin.NewBaseLanguageService(baseLanguageCase)
 	baseLoginLogRepository := data2.NewBaseLoginLogRepository(dataData)
 	baseLoginLogCase := biz3.NewBaseLoginLogCase(baseCase, baseLoginLogRepository, catalog)
@@ -303,6 +311,8 @@ func BuildModules(migrations *migration.Migration, config2 *configv1.Bootstrap, 
 		BaseDictItem:            baseDictItemService,
 		BaseJob:                 baseJobService,
 		BaseJobLog:              baseJobLogService,
+		BaseScript:              baseScriptService,
+		BaseScriptLog:           baseScriptLogService,
 		BaseLanguage:            baseLanguageService,
 		BaseLog:                 baseLogService,
 		BaseLoginLog:            baseLoginLogService,
@@ -382,18 +392,18 @@ func BuildModules(migrations *migration.Migration, config2 *configv1.Bootstrap, 
 		cleanup()
 		return nil, nil, err
 	}
-	runtime := ai.NewRuntime(registry, mcpCase, adminTools, appTools, catalog)
+	aiRuntime := ai.NewRuntime(registry, mcpCase, adminTools, appTools, catalog)
 	data5, err := data4.NewData(databases)
 	if err != nil {
 		cleanup()
 		return nil, nil, err
 	}
 	knowledgeEngine := ai.NewKnowledgeEngine(databases, data5, aiProviderRepository, aiModelRepository)
-	aiMessageCase := biz2.NewAiMessageCase(baseCase, transaction, aiMessageRepository, aiSessionCase, baseUserCase, runtime, knowledgeEngine)
+	aiMessageCase := biz2.NewAiMessageCase(baseCase, transaction, aiMessageRepository, aiSessionCase, baseUserCase, aiRuntime, knowledgeEngine)
 	baseAiSessionService := base.NewAiSessionService(aiSessionCase, aiMessageCase)
-	bizAiModelCase := biz2.NewAiModelCase(baseCase, runtime)
+	bizAiModelCase := biz2.NewAiModelCase(baseCase, aiRuntime)
 	aiModelService := base.NewAiModelService(bizAiModelCase)
-	aiToolCase := biz2.NewAiToolCase(baseCase, runtime)
+	aiToolCase := biz2.NewAiToolCase(baseCase, aiRuntime)
 	aiToolService := base.NewAiToolService(aiToolCase)
 	aiMessageService := base.NewAiMessageService(aiMessageCase)
 	aiKnowledgeCase := biz2.NewAiKnowledgeCase(baseCase, knowledgeEngine)
@@ -468,6 +478,8 @@ func BuildModules(migrations *migration.Migration, config2 *configv1.Bootstrap, 
 		BaseDictItem:            baseDictItemService,
 		BaseJob:                 baseJobService,
 		BaseJobLog:              baseJobLogService,
+		BaseScript:              baseScriptService,
+		BaseScriptLog:           baseScriptLogService,
 		BaseLanguage:            baseLanguageService,
 		BaseLog:                 baseLogService,
 		BaseLoginLog:            baseLoginLogService,
@@ -538,7 +550,7 @@ func BuildModules(migrations *migration.Migration, config2 *configv1.Bootstrap, 
 		AiKnowledgeDoc:   aiKnowledgeDocService,
 		AiKnowledgeChunk: aiKnowledgeChunkService,
 	}
-	modules, err := NewModules(baseServices, adminServices, services2, ragServices, runtime, catalog, baseConfigCase, aiProviderCase, aiModelCase, baseLoginPolicyCase, baseOauthProviderCase, redactResolver, rateLimitResolver, secretFieldRuntime, mfaCase)
+	modules, err := NewModules(baseServices, adminServices, services2, ragServices, aiRuntime, catalog, baseConfigCase, aiProviderCase, aiModelCase, baseLoginPolicyCase, baseOauthProviderCase, redactResolver, rateLimitResolver, secretFieldRuntime, mfaCase)
 	if err != nil {
 		cleanup2()
 		cleanup()

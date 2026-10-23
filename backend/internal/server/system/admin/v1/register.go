@@ -47,6 +47,8 @@ type Services struct {
 	BaseDictItem            *admin.BaseDictItemService
 	BaseJob                 *admin.BaseJobService
 	BaseJobLog              *admin.BaseJobLogService
+	BaseScript              *admin.BaseScriptService
+	BaseScriptLog           *admin.BaseScriptLogService
 	BaseLanguage            *admin.BaseLanguageService
 	BaseLog                 *admin.BaseLogService
 	BaseLoginLog            *admin.BaseLoginLogService
@@ -115,6 +117,8 @@ func (s Services) RegisterGRPC(srv grpc.ServiceRegistrar) {
 	adminv1.RegisterBaseDictItemServiceServer(srv, adminv1.RedactedBaseDictItemServiceServer(s.BaseDictItem))
 	adminv1.RegisterBaseJobServiceServer(srv, adminv1.RedactedBaseJobServiceServer(s.BaseJob))
 	adminv1.RegisterBaseJobLogServiceServer(srv, adminv1.RedactedBaseJobLogServiceServer(s.BaseJobLog))
+	adminv1.RegisterBaseScriptServiceServer(srv, adminv1.RedactedBaseScriptServiceServer(s.BaseScript))
+	adminv1.RegisterBaseScriptLogServiceServer(srv, adminv1.RedactedBaseScriptLogServiceServer(s.BaseScriptLog))
 	adminv1.RegisterBaseLanguageServiceServer(srv, adminv1.RedactedBaseLanguageServiceServer(s.BaseLanguage))
 	adminv1.RegisterBaseLogServiceServer(srv, adminv1.RedactedBaseLogServiceServer(s.BaseLog))
 	adminv1.RegisterBaseLoginLogServiceServer(srv, adminv1.RedactedBaseLoginLogServiceServer(s.BaseLoginLog))
@@ -184,6 +188,8 @@ func (s Services) RegisterHTTP(srv *http.Server) {
 	adminv1.RegisterBaseDictItemServiceHTTPServer(srv, adminv1.RedactedBaseDictItemServiceServer(s.BaseDictItem))
 	adminv1.RegisterBaseJobServiceHTTPServer(srv, adminv1.RedactedBaseJobServiceServer(s.BaseJob))
 	adminv1.RegisterBaseJobLogServiceHTTPServer(srv, adminv1.RedactedBaseJobLogServiceServer(s.BaseJobLog))
+	adminv1.RegisterBaseScriptServiceHTTPServer(srv, adminv1.RedactedBaseScriptServiceServer(s.BaseScript))
+	adminv1.RegisterBaseScriptLogServiceHTTPServer(srv, adminv1.RedactedBaseScriptLogServiceServer(s.BaseScriptLog))
 	adminv1.RegisterBaseLanguageServiceHTTPServer(srv, adminv1.RedactedBaseLanguageServiceServer(s.BaseLanguage))
 	adminv1.RegisterBaseLogServiceHTTPServer(srv, adminv1.RedactedBaseLogServiceServer(s.BaseLog))
 	adminv1.RegisterBaseLoginLogServiceHTTPServer(srv, adminv1.RedactedBaseLoginLogServiceServer(s.BaseLoginLog))
@@ -252,6 +258,8 @@ func (s Services) RegisterMCP(server *mcp.Server) {
 	adminv1.RegisterBaseDictItemServiceMCPTools(mcpSrv, s.BaseDictItem)
 	adminv1.RegisterBaseJobServiceMCPTools(mcpSrv, s.BaseJob)
 	adminv1.RegisterBaseJobLogServiceMCPTools(mcpSrv, s.BaseJobLog)
+	adminv1.RegisterBaseScriptServiceMCPTools(mcpSrv, s.BaseScript)
+	adminv1.RegisterBaseScriptLogServiceMCPTools(mcpSrv, s.BaseScriptLog)
 	adminv1.RegisterBaseLanguageServiceMCPTools(mcpSrv, s.BaseLanguage)
 	adminv1.RegisterBaseMenuServiceMCPTools(mcpSrv, s.BaseMenu)
 	adminv1.RegisterBasePostServiceMCPTools(mcpSrv, s.BasePost)
@@ -309,6 +317,10 @@ func (s Services) AgentTools() ([]tool.Invokable, error) {
 		func() ([]tool.Invokable, error) { return adminv1.NewBaseJobServiceAgentTools(s.BaseJob) },
 		func() ([]tool.Invokable, error) {
 			return adminv1.NewBaseJobLogServiceAgentTools(s.BaseJobLog)
+		},
+		func() ([]tool.Invokable, error) { return adminv1.NewBaseScriptServiceAgentTools(s.BaseScript) },
+		func() ([]tool.Invokable, error) {
+			return adminv1.NewBaseScriptLogServiceAgentTools(s.BaseScriptLog)
 		},
 		func() ([]tool.Invokable, error) {
 			return adminv1.NewBaseLanguageServiceAgentTools(s.BaseLanguage)

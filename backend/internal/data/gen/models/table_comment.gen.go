@@ -218,6 +218,16 @@ func (*BaseRole) TableComment() string {
 }
 
 // TableComment 返回表注释。
+func (*BaseScript) TableComment() string {
+	return "脚本定义"
+}
+
+// TableComment 返回表注释。
+func (*BaseScriptLog) TableComment() string {
+	return "脚本执行日志"
+}
+
+// TableComment 返回表注释。
 func (*BaseTableArchive) TableComment() string {
 	return "表归档配置"
 }

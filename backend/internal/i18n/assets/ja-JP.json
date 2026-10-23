@@ -5440,5 +5440,30 @@
   },
   "system.admin.mqtt_message.get.id.required": {
     "other": "メッセージ記録IDを入力してください"
-  }
+  },
+  "legacy.error.53e503c248312ca3": {"other": "スクリプト名が重複しています"},
+  "legacy.error.2eb4c634e73c7c20": {"other": "スクリプトID一覧を入力してください"},
+  "legacy.error.627129d821b9a9ae": {"other": "スクリプト状態が無効です"},
+  "legacy.error.0c349c765bb1630c": {"other": "現在はJavaScriptスクリプトのみ対応しています"},
+  "legacy.error.3198350bdf120177": {"other": "スクリプトソースを入力してください"},
+  "legacy.error.58814f41ef0b63a7": {"other": "スクリプト実行ログの記録に失敗しました"},
+  "legacy.error.804ff47d9145111c": {"other": "スクリプトIDが無効です"},
+  "legacy.error.154bb194d8d7704f": {"other": "スクリプト実行ログの照会に失敗しました"},
+  "legacy.error.ac1dfc62a1e129c384": {"other": "スクリプト実行ログ詳細の照会に失敗しました"},
+  "legacy.error.ac1dfc62f18f680": {"other": "スクリプト実行ログ詳細の照会に失敗しました"},
+  "legacy.error.ac1dfc62f18f6808": {"other": "スクリプト実行ログ詳細の照会に失敗しました"},
+  "legacy.error.a29ca3d4464b4117": {"other": "スクリプト一覧の照会に失敗しました"},
+  "legacy.error.6006ddbf35bdc480": {"other": "スクリプトの照会に失敗しました"},
+  "legacy.error.6e274beea35914d0": {"other": "スクリプトの作成に失敗しました"},
+  "legacy.error.d2321b6e6cdb0b72": {"other": "スクリプトの更新に失敗しました"},
+  "legacy.error.c343976847d80363": {"other": "スクリプトの削除に失敗しました"},
+  "legacy.error.855a3a4a1e73873b": {"other": "スクリプト状態の更新に失敗しました"},
+  "legacy.error.d9af671132576c58": {"other": "スクリプトのテスト実行に失敗しました"},
+  "system.admin.base.script.entity.name.required": {"other": "スクリプト名を入力してください"},
+  "system.admin.base.script.entity.hook_point.max_length": {"other": "フックポイントは160文字以内で入力してください"},
+  "system.admin.base.script.entity.source.required": {"other": "スクリプトソースを入力してください"},
+  "system.admin.base.script.entity.description.max_length": {"other": "説明は512文字以内で入力してください"},
+  "system.admin.base.script.delete.id.required": {"other": "スクリプトID一覧を入力してください"},
+  "system.admin.base.script.test_run.source.max_length": {"other": "スクリプトソースは200000文字以内で入力してください"},
+  "system.admin.base.script.test_run.context_json.max_length": {"other": "コンテキストは200000文字以内で入力してください"}
 }

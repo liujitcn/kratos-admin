@@ -57,6 +57,8 @@ func Models() []interface{} {
 		new(models.BaseRedactStoragePolicy),
 		new(models.BaseRedactStorageValue),
 		new(models.BaseRole),
+		new(models.BaseScript),
+		new(models.BaseScriptLog),
 		new(models.BaseTableArchive),
 		new(models.BaseTableArchiveRecord),
 		new(models.BaseTableArchiveRestore),

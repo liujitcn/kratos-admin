@@ -59,6 +59,8 @@ func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 		BaseRedactStoragePolicy: newBaseRedactStoragePolicy(db, opts...),
 		BaseRedactStorageValue:  newBaseRedactStorageValue(db, opts...),
 		BaseRole:                newBaseRole(db, opts...),
+		BaseScript:              newBaseScript(db, opts...),
+		BaseScriptLog:           newBaseScriptLog(db, opts...),
 		BaseTableArchive:        newBaseTableArchive(db, opts...),
 		BaseTableArchiveRecord:  newBaseTableArchiveRecord(db, opts...),
 		BaseTableArchiveRestore: newBaseTableArchiveRestore(db, opts...),
@@ -128,6 +130,8 @@ type Query struct {
 	BaseRedactStoragePolicy baseRedactStoragePolicy
 	BaseRedactStorageValue  baseRedactStorageValue
 	BaseRole                baseRole
+	BaseScript              baseScript
+	BaseScriptLog           baseScriptLog
 	BaseTableArchive        baseTableArchive
 	BaseTableArchiveRecord  baseTableArchiveRecord
 	BaseTableArchiveRestore baseTableArchiveRestore
@@ -199,6 +203,8 @@ func (q *Query) clone(db *gorm.DB) *Query {
 		BaseRedactStoragePolicy: q.BaseRedactStoragePolicy.clone(db),
 		BaseRedactStorageValue:  q.BaseRedactStorageValue.clone(db),
 		BaseRole:                q.BaseRole.clone(db),
+		BaseScript:              q.BaseScript.clone(db),
+		BaseScriptLog:           q.BaseScriptLog.clone(db),
 		BaseTableArchive:        q.BaseTableArchive.clone(db),
 		BaseTableArchiveRecord:  q.BaseTableArchiveRecord.clone(db),
 		BaseTableArchiveRestore: q.BaseTableArchiveRestore.clone(db),
@@ -277,6 +283,8 @@ func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 		BaseRedactStoragePolicy: q.BaseRedactStoragePolicy.replaceDB(db),
 		BaseRedactStorageValue:  q.BaseRedactStorageValue.replaceDB(db),
 		BaseRole:                q.BaseRole.replaceDB(db),
+		BaseScript:              q.BaseScript.replaceDB(db),
+		BaseScriptLog:           q.BaseScriptLog.replaceDB(db),
 		BaseTableArchive:        q.BaseTableArchive.replaceDB(db),
 		BaseTableArchiveRecord:  q.BaseTableArchiveRecord.replaceDB(db),
 		BaseTableArchiveRestore: q.BaseTableArchiveRestore.replaceDB(db),
@@ -345,6 +353,8 @@ type queryCtx struct {
 	BaseRedactStoragePolicy *baseRedactStoragePolicyDo
 	BaseRedactStorageValue  *baseRedactStorageValueDo
 	BaseRole                *baseRoleDo
+	BaseScript              *baseScriptDo
+	BaseScriptLog           *baseScriptLogDo
 	BaseTableArchive        *baseTableArchiveDo
 	BaseTableArchiveRecord  *baseTableArchiveRecordDo
 	BaseTableArchiveRestore *baseTableArchiveRestoreDo
@@ -413,6 +423,8 @@ func (q *Query) WithContext(ctx context.Context) *queryCtx {
 		BaseRedactStoragePolicy: q.BaseRedactStoragePolicy.WithContext(ctx),
 		BaseRedactStorageValue:  q.BaseRedactStorageValue.WithContext(ctx),
 		BaseRole:                q.BaseRole.WithContext(ctx),
+		BaseScript:              q.BaseScript.WithContext(ctx),
+		BaseScriptLog:           q.BaseScriptLog.WithContext(ctx),
 		BaseTableArchive:        q.BaseTableArchive.WithContext(ctx),
 		BaseTableArchiveRecord:  q.BaseTableArchiveRecord.WithContext(ctx),
 		BaseTableArchiveRestore: q.BaseTableArchiveRestore.WithContext(ctx),

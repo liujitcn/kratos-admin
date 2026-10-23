@@ -5008,6 +5008,224 @@ paths:
                 "200":
                     description: OK
                     content: {}
+    /api/v1/admin/base/script:
+        get:
+            tags:
+                - BaseScriptService
+            description: List scripts with pagination.
+            operationId: BaseScriptService_PageBaseScript
+            parameters:
+                - name: name
+                  in: query
+                  schema:
+                    type: string
+                - name: hook_point
+                  in: query
+                  schema:
+                    type: string
+                - name: language
+                  in: query
+                  schema:
+                    enum:
+                        - BASE_SCRIPT_LANGUAGE_UNSPECIFIED
+                        - BASE_SCRIPT_LANGUAGE_JAVASCRIPT
+                    type: string
+                    format: enum
+                - name: status
+                  in: query
+                  schema:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    format: enum
+                - name: page_num
+                  in: query
+                  schema:
+                    type: string
+                - name: page_size
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.PageBaseScriptResponse'
+        post:
+            tags:
+                - BaseScriptService
+            description: Create a script.
+            operationId: BaseScriptService_CreateBaseScript
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.BaseScriptForm'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/script-log:
+        get:
+            tags:
+                - BaseScriptLogService
+            description: List script execution logs with pagination.
+            operationId: BaseScriptLogService_PageBaseScriptLog
+            parameters:
+                - name: script_id
+                  in: query
+                  schema:
+                    type: string
+                - name: trigger_type
+                  in: query
+                  schema:
+                    type: string
+                - name: success
+                  in: query
+                  schema:
+                    type: boolean
+                - name: created_at
+                  in: query
+                  schema:
+                    type: array
+                    items:
+                        type: string
+                - name: page_num
+                  in: query
+                  schema:
+                    type: string
+                - name: page_size
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.PageBaseScriptLogResponse'
+    /api/v1/admin/base/script-log/{id}:
+        get:
+            tags:
+                - BaseScriptLogService
+            description: Get script execution log details.
+            operationId: BaseScriptLogService_GetBaseScriptLog
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.BaseScriptLog'
+    /api/v1/admin/base/script/test-run:
+        post:
+            tags:
+                - BaseScriptService
+            description: Test-run a script.
+            operationId: BaseScriptService_TestRunBaseScript
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.TestRunBaseScriptRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.TestRunBaseScriptResponse'
+    /api/v1/admin/base/script/{base_script.id}:
+        put:
+            tags:
+                - BaseScriptService
+            description: Update a script.
+            operationId: BaseScriptService_UpdateBaseScript
+            parameters:
+                - name: base_script.id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.BaseScriptForm'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/script/{id}:
+        get:
+            tags:
+                - BaseScriptService
+            description: Get script details.
+            operationId: BaseScriptService_GetBaseScript
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.BaseScriptForm'
+        delete:
+            tags:
+                - BaseScriptService
+            description: Delete a script.
+            operationId: BaseScriptService_DeleteBaseScript
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/script/{id}/status:
+        put:
+            tags:
+                - BaseScriptService
+            description: Set script status.
+            operationId: BaseScriptService_SetBaseScriptStatus
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.SetBaseScriptStatusRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
     /api/v1/admin/base/session/current:
         get:
             tags:
@@ -6765,7 +6983,12 @@ paths:
                 - name: direction
                   in: query
                   schema:
+                    enum:
+                        - MQTT_MESSAGE_DIRECTION_UNSPECIFIED
+                        - MQTT_MESSAGE_DIRECTION_PUBLISH
+                        - MQTT_MESSAGE_DIRECTION_SUBSCRIBE
                     type: string
+                    format: enum
                 - name: topic
                   in: query
                   schema:
@@ -6773,11 +6996,23 @@ paths:
                 - name: status
                   in: query
                   schema:
+                    enum:
+                        - MQTT_MESSAGE_STATUS_UNSPECIFIED
+                        - MQTT_MESSAGE_STATUS_SENT
+                        - MQTT_MESSAGE_STATUS_HANDLED
+                        - MQTT_MESSAGE_STATUS_FAILED
                     type: string
+                    format: enum
                 - name: payload_format
                   in: query
                   schema:
+                    enum:
+                        - MQTT_MESSAGE_PAYLOAD_FORMAT_UNSPECIFIED
+                        - MQTT_MESSAGE_PAYLOAD_FORMAT_JSON
+                        - MQTT_MESSAGE_PAYLOAD_FORMAT_TEXT
+                        - MQTT_MESSAGE_PAYLOAD_FORMAT_BINARY
                     type: string
+                    format: enum
                 - name: page_num
                   in: query
                   schema:
@@ -13961,6 +14196,139 @@ components:
                     type: string
                     description: Remarks
             description: role form
+        system.admin.v1.BaseScript:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: Script ID
+                name:
+                    type: string
+                    description: Script name
+                language:
+                    enum:
+                        - BASE_SCRIPT_LANGUAGE_UNSPECIFIED
+                        - BASE_SCRIPT_LANGUAGE_JAVASCRIPT
+                    type: string
+                    description: Script language
+                    format: enum
+                hook_point:
+                    type: string
+                    description: Hook point
+                priority:
+                    type: integer
+                    description: Execute priority
+                    format: int32
+                description:
+                    type: string
+                    description: Script description
+                critical:
+                    type: boolean
+                    description: Whether the script is critical
+                version:
+                    type: integer
+                    description: Script version
+                    format: int32
+                status:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    description: status
+                    format: enum
+                created_at:
+                    type: string
+                    description: Create time
+                updated_at:
+                    type: string
+                    description: Update time
+            description: Script list item.
+        system.admin.v1.BaseScriptForm:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: Script ID
+                name:
+                    type: string
+                    description: Script name
+                language:
+                    enum:
+                        - BASE_SCRIPT_LANGUAGE_UNSPECIFIED
+                        - BASE_SCRIPT_LANGUAGE_JAVASCRIPT
+                    type: string
+                    description: Script language
+                    format: enum
+                hook_point:
+                    type: string
+                    description: Hook point
+                source:
+                    type: string
+                    description: Script source
+                priority:
+                    type: integer
+                    description: Execute priority
+                    format: int32
+                description:
+                    type: string
+                    description: Script description
+                critical:
+                    type: boolean
+                    description: Whether the script is critical
+                status:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    description: status
+                    format: enum
+            description: Script form.
+        system.admin.v1.BaseScriptLog:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: log ID
+                script_id:
+                    type: string
+                    description: Script ID
+                script_name:
+                    type: string
+                    description: Script name
+                language:
+                    type: string
+                    description: Script language
+                trigger_type:
+                    type: string
+                    description: Trigger type
+                hook_point:
+                    type: string
+                    description: Hook point or task handler
+                version:
+                    type: integer
+                    description: Execute when version
+                    format: int32
+                success:
+                    type: boolean
+                    description: Whether success
+                duration_ms:
+                    type: string
+                    description: durationms
+                error:
+                    type: string
+                    description: Error message
+                request_id:
+                    type: string
+                    description: request ID
+                trace_id:
+                    type: string
+                    description: trace ID
+                created_at:
+                    type: string
+                    description: Execute time
+            description: Script execution log.
         system.admin.v1.BaseSession:
             type: object
             properties:
@@ -15464,8 +15832,13 @@ components:
                     type: string
                     description: message record ID
                 direction:
+                    enum:
+                        - MQTT_MESSAGE_DIRECTION_UNSPECIFIED
+                        - MQTT_MESSAGE_DIRECTION_PUBLISH
+                        - MQTT_MESSAGE_DIRECTION_SUBSCRIBE
                     type: string
-                    description: Message direction
+                    description: "Message direction: enum [MqttMessageDirection], dictionary [mqtt_message_direction]"
+                    format: enum
                 topic:
                     type: string
                     description: MQTT topic
@@ -15480,8 +15853,14 @@ components:
                     type: string
                     description: "message size, Unit: bytes"
                 payload_format:
+                    enum:
+                        - MQTT_MESSAGE_PAYLOAD_FORMAT_UNSPECIFIED
+                        - MQTT_MESSAGE_PAYLOAD_FORMAT_JSON
+                        - MQTT_MESSAGE_PAYLOAD_FORMAT_TEXT
+                        - MQTT_MESSAGE_PAYLOAD_FORMAT_BINARY
                     type: string
-                    description: message format
+                    description: "message format: enum【Mqtt Message Payload Format】, dictionary【mqtt_message_payload_format】"
+                    format: enum
                 qos:
                     type: integer
                     description: MQTT Qo S
@@ -15496,8 +15875,14 @@ components:
                     type: string
                     description: MQTT or business message ID
                 status:
+                    enum:
+                        - MQTT_MESSAGE_STATUS_UNSPECIFIED
+                        - MQTT_MESSAGE_STATUS_SENT
+                        - MQTT_MESSAGE_STATUS_HANDLED
+                        - MQTT_MESSAGE_STATUS_FAILED
                     type: string
-                    description: Handle status
+                    description: "Handle status: enum【Mqtt Message Status】, dictionary【mqtt_message_status】"
+                    format: enum
                 error_message:
                     type: string
                     description: Error message
@@ -15518,8 +15903,13 @@ components:
                     type: string
                     description: message record ID
                 direction:
+                    enum:
+                        - MQTT_MESSAGE_DIRECTION_UNSPECIFIED
+                        - MQTT_MESSAGE_DIRECTION_PUBLISH
+                        - MQTT_MESSAGE_DIRECTION_SUBSCRIBE
                     type: string
-                    description: Message direction
+                    description: "Message direction: enum [MqttMessageDirection], dictionary [mqtt_message_direction]"
+                    format: enum
                 topic:
                     type: string
                     description: MQTT topic
@@ -15527,15 +15917,27 @@ components:
                     type: string
                     description: "message size, Unit: bytes"
                 payload_format:
+                    enum:
+                        - MQTT_MESSAGE_PAYLOAD_FORMAT_UNSPECIFIED
+                        - MQTT_MESSAGE_PAYLOAD_FORMAT_JSON
+                        - MQTT_MESSAGE_PAYLOAD_FORMAT_TEXT
+                        - MQTT_MESSAGE_PAYLOAD_FORMAT_BINARY
                     type: string
-                    description: message format
+                    description: "message format: enum【Mqtt Message Payload Format】, dictionary【mqtt_message_payload_format】"
+                    format: enum
                 qos:
                     type: integer
                     description: MQTT Qo S
                     format: int32
                 status:
+                    enum:
+                        - MQTT_MESSAGE_STATUS_UNSPECIFIED
+                        - MQTT_MESSAGE_STATUS_SENT
+                        - MQTT_MESSAGE_STATUS_HANDLED
+                        - MQTT_MESSAGE_STATUS_FAILED
                     type: string
-                    description: Handle status
+                    description: "Handle status: enum【Mqtt Message Status】, dictionary【mqtt_message_status】"
+                    format: enum
                 latency_ms:
                     type: string
                     description: "Handle duration, Unit: ms"
@@ -16521,6 +16923,32 @@ components:
                     description: total count
                     format: int32
             description: role paginated response
+        system.admin.v1.PageBaseScriptLogResponse:
+            type: object
+            properties:
+                base_script_logs:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.BaseScriptLog'
+                    description: Paginated data
+                total:
+                    type: integer
+                    description: total count
+                    format: int32
+            description: Script execution log paginated response.
+        system.admin.v1.PageBaseScriptResponse:
+            type: object
+            properties:
+                base_scripts:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.BaseScript'
+                    description: Paginated data
+                total:
+                    type: integer
+                    description: total count
+                    format: int32
+            description: Script paginated response.
         system.admin.v1.PageBaseTableArchiveRecordResponse:
             type: object
             properties:
@@ -17274,6 +17702,21 @@ components:
                     description: status
                     format: int32
             description: Set role status request parameters
+        system.admin.v1.SetBaseScriptStatusRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: Script ID
+                status:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    description: status
+                    format: enum
+            description: Set script status request parameters.
         system.admin.v1.SetBaseTableArchiveStatusRequest:
             type: object
             properties:
@@ -17398,6 +17841,42 @@ components:
                         $ref: '#/components/schemas/system.admin.v1.AiProviderModelTestResult'
                     description: Model test results in configuration order
             description: Response containing test results for all AI provider models.
+        system.admin.v1.TestRunBaseScriptRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: Saved script ID; zero runs the draft
+                language:
+                    enum:
+                        - BASE_SCRIPT_LANGUAGE_UNSPECIFIED
+                        - BASE_SCRIPT_LANGUAGE_JAVASCRIPT
+                    type: string
+                    description: Draft script language
+                    format: enum
+                source:
+                    type: string
+                    description: Draft script source
+                context_json:
+                    type: string
+                    description: Initial context JSON
+            description: Script test-run request parameters.
+        system.admin.v1.TestRunBaseScriptResponse:
+            type: object
+            properties:
+                success:
+                    type: boolean
+                    description: Whether success
+                error:
+                    type: string
+                    description: Error message
+                output_json:
+                    type: string
+                    description: Execute result JSON
+                duration_ms:
+                    type: string
+                    description: durationms
+            description: Script test-run response.
         system.admin.v1.TreeBaseAreaResponse:
             type: object
             properties:
@@ -17799,9 +18278,9 @@ tags:
     - name: AiKnowledgeDocService
       description: AI knowledge base document management service.
     - name: AiKnowledgeService
-      description: AI knowledge base options service.
-    - name: AiKnowledgeService
       description: AI knowledge base management service.
+    - name: AiKnowledgeService
+      description: AI knowledge base options service.
     - name: AiMessageService
       description: Base AI assistant message service
     - name: AiModelService
@@ -17821,9 +18300,9 @@ tags:
     - name: AiToolService
       description: Base AI assistant tool service
     - name: AuthService
-      description: app user authentication service
-    - name: AuthService
       description: admin user login authentication service
+    - name: AuthService
+      description: app user authentication service
     - name: BaseApiLogService
       description: Admin API access log service.
     - name: BaseApiRateLimitPolicyService
@@ -17831,9 +18310,9 @@ tags:
     - name: BaseApiService
       description: Admin api service
     - name: BaseAreaService
-      description: admin administrative region service
-    - name: BaseAreaService
       description: app administrative region service
+    - name: BaseAreaService
+      description: admin administrative region service
     - name: BaseConfigService
       description: admin system configuration service
     - name: BaseDashboardService
@@ -17845,9 +18324,9 @@ tags:
     - name: BaseDictItemService
       description: admin dictionary item service
     - name: BaseDictService
-      description: app dictionary service
-    - name: BaseDictService
       description: admin dictionary service
+    - name: BaseDictService
+      description: app dictionary service
     - name: BaseFileService
       description: admin file asset management service.
     - name: BaseI18nCustomService
@@ -17867,9 +18346,9 @@ tags:
     - name: BaseLoginPolicyService
       description: admin login policy management service.
     - name: BaseMenuService
-      description: admin menu management service
-    - name: BaseMenuService
       description: app menu service
+    - name: BaseMenuService
+      description: admin menu management service
     - name: BaseMessageCategoryService
       description: Admin message category management service.
     - name: BaseMessageProviderService
@@ -17900,6 +18379,10 @@ tags:
       description: Admin inbound redaction policy service.
     - name: BaseRoleService
       description: admin role management service
+    - name: BaseScriptLogService
+      description: Admin script execution log service.
+    - name: BaseScriptService
+      description: Admin script management service.
     - name: BaseSessionService
       description: admin session management service.
     - name: BaseTableArchiveRecordService
@@ -17951,9 +18434,9 @@ tags:
     - name: NotificationService
       description: Base notification service for the current user's inbox.
     - name: OauthClientService
-      description: Base OAuth client token service.
-    - name: OauthClientService
       description: Admin OAuth client management service.
+    - name: OauthClientService
+      description: Base OAuth client token service.
     - name: OauthService
       description: base third-party login shared service
     - name: OpsMonitoringService

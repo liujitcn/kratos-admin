@@ -18,6 +18,7 @@ import (
 	"github.com/liujitcn/kratos-admin/backend/internal/service"
 	"github.com/liujitcn/kratos-admin/backend/internal/task"
 	"github.com/liujitcn/kratos-admin/backend/pkg/projectaccess"
+	"github.com/liujitcn/kratos-admin/backend/pkg/scripting"
 	coreBiz "github.com/liujitcn/kratos-core/biz"
 	"github.com/liujitcn/kratos-core/job"
 	"github.com/liujitcn/kratos-core/module"
@@ -64,6 +65,7 @@ func BuildModules(
 		data.ProviderSet,
 		service.ProviderSet,
 		server.ProviderSet,
+		scripting.ProviderSet,
 	))
 }
 
