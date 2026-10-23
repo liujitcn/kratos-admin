@@ -79,7 +79,10 @@ const messageBadge = useAppMenuBadge('MESSAGE_INBOX')
         :class="{ 'kratos-tab-bar__message-icon--active': activeMenu?.id === item.id }"
         aria-hidden="true"
       />
-      <text :class="{ 'kratos-tab-bar__text--active': activeMenu?.id === item.id }">
+      <text
+        class="kratos-tab-bar__text"
+        :class="{ 'kratos-tab-bar__text--active': activeMenu?.id === item.id }"
+      >
         {{ item.title }}
       </text>
     </view>
@@ -97,13 +100,13 @@ const messageBadge = useAppMenuBadge('MESSAGE_INBOX')
   left: 20rpx;
   z-index: 999;
   display: flex;
+  box-sizing: border-box;
   height: 104rpx;
   padding: 0 8rpx;
-  border: 1px solid var(--kratos-color-border-accent, rgba(120, 230, 215, 0.16));
+  border: 1rpx solid var(--kratos-color-border-accent, rgba(120, 230, 215, 0.16));
   border-radius: 30rpx;
   background: var(--kratos-dock-bg, rgba(10, 18, 30, 0.72));
-  box-shadow: 0 24rpx 64rpx rgba(0, 0, 0, 0.45);
-  backdrop-filter: blur(32rpx);
+  box-shadow: 0 12rpx 32rpx rgba(0, 0, 0, 0.2);
 }
 .kratos-tab-bar__item {
   position: relative;
@@ -112,47 +115,50 @@ const messageBadge = useAppMenuBadge('MESSAGE_INBOX')
   align-items: center;
   justify-content: center;
   flex-direction: column;
+  height: 100%;
+  padding: 10rpx 0 8rpx;
+  box-sizing: border-box;
   color: var(--kratos-tab-bar-color);
-  font-size: 10px;
-  line-height: 12px;
+  font-size: 20rpx;
+  line-height: 28rpx;
 }
 
 .kratos-tab-bar__icon {
   flex-shrink: 0;
-  width: 28px;
-  height: 28px;
-  margin-bottom: 4px;
+  width: 44rpx;
+  height: 44rpx;
+  margin-bottom: 4rpx;
 }
 .kratos-tab-bar__message-icon {
   position: relative;
-  width: 22px;
-  height: 18px;
-  margin-bottom: 6px;
-  border: 2px solid var(--kratos-tab-bar-color);
-  border-radius: 6px;
+  width: 36rpx;
+  height: 30rpx;
+  margin-bottom: 8rpx;
+  border: 2rpx solid var(--kratos-tab-bar-color);
+  border-radius: 8rpx;
   box-sizing: border-box;
 }
 .kratos-tab-bar__message-icon::before {
   position: absolute;
-  top: 5px;
-  left: 4px;
-  width: 3px;
-  height: 3px;
+  top: 8rpx;
+  left: 7rpx;
+  width: 4rpx;
+  height: 4rpx;
   border-radius: 50%;
   background: var(--kratos-tab-bar-color);
   box-shadow:
-    5px 0 var(--kratos-tab-bar-color),
-    10px 0 var(--kratos-tab-bar-color);
+    8rpx 0 var(--kratos-tab-bar-color),
+    16rpx 0 var(--kratos-tab-bar-color);
   content: '';
 }
 .kratos-tab-bar__message-icon::after {
   position: absolute;
-  bottom: -5px;
-  left: 3px;
-  width: 7px;
-  height: 7px;
-  border-right: 2px solid var(--kratos-tab-bar-color);
-  border-bottom: 2px solid var(--kratos-tab-bar-color);
+  bottom: -8rpx;
+  left: 5rpx;
+  width: 10rpx;
+  height: 10rpx;
+  border-right: 2rpx solid var(--kratos-tab-bar-color);
+  border-bottom: 2rpx solid var(--kratos-tab-bar-color);
   background: var(--kratos-dock-bg, rgba(10, 18, 30, 0.72));
   content: '';
   transform: rotate(45deg);
@@ -163,27 +169,32 @@ const messageBadge = useAppMenuBadge('MESSAGE_INBOX')
 .kratos-tab-bar__message-icon--active::before {
   background: var(--kratos-tab-bar-active-color);
   box-shadow:
-    5px 0 var(--kratos-tab-bar-active-color),
-    10px 0 var(--kratos-tab-bar-active-color);
+    8rpx 0 var(--kratos-tab-bar-active-color),
+    16rpx 0 var(--kratos-tab-bar-active-color);
 }
 .kratos-tab-bar__message-icon--active::after {
   border-color: var(--kratos-tab-bar-active-color);
 }
+.kratos-tab-bar__text {
+  display: block;
+  min-height: 28rpx;
+  text-align: center;
+  white-space: nowrap;
+}
 .kratos-tab-bar__text--active {
   color: var(--kratos-tab-bar-active-color);
   font-weight: 700;
-  text-shadow: 0 0 12px currentColor;
 }
 .kratos-tab-bar__badge {
   position: absolute;
   top: 0;
-  right: calc(50% - 19px);
-  width: 10px;
-  height: 10px;
+  right: calc(50% - 30rpx);
+  width: 16rpx;
+  height: 16rpx;
   box-sizing: border-box;
-  border: 2px solid var(--kratos-dock-bg, rgba(10, 18, 30, 0.72));
+  border: 2rpx solid var(--kratos-dock-bg, rgba(10, 18, 30, 0.72));
   border-radius: 50%;
   background: var(--kratos-color-danger, #ff4d6d);
-  box-shadow: 0 0 12px var(--kratos-color-danger, #ff4d6d);
+  box-shadow: 0 0 12rpx var(--kratos-color-danger, #ff4d6d);
 }
 </style>

@@ -73,6 +73,7 @@ async function loadNavigationRuntime(state) {
     },
   }
   globalThis.getCurrentPages = () => state.pages
+  globalThis.__menuResponse = state.menuResponse ?? { items: [] }
   await build({
     entryPoints: [resolve(import.meta.dirname, '../src/navigation.ts')],
     bundle: true,
@@ -131,7 +132,8 @@ async function loadNavigationRuntime(state) {
             if (args.path === 'menu-test-runtime') {
               return {
                 loader: 'js',
-                contents: 'export const defBaseMenuService = { list: async () => [] }',
+                contents:
+                  'export const defBaseMenuService = { ListBaseMenu: async () => globalThis.__menuResponse }',
               }
             }
             if (args.path === 'auth-test-runtime') {
@@ -150,6 +152,7 @@ async function loadNavigationRuntime(state) {
                 contents: `export function resolveStaticView(key) {
                   return {
                     HOME: 'pages/index/index',
+                    SHOP_CATEGORY: 'pages/category/category',
                     MESSAGE_INBOX: 'pagesMember/message/index',
                     PROFILE_HOME: 'pages/my/my',
                     ...${JSON.stringify(state.viewRoutes ?? {})},
@@ -212,6 +215,52 @@ test('自绘 tab 页面不声明缺少 custom-tab-bar 组件的原生 tabBar', (
   )
 
   assert.equal(manifest.tabBar, undefined)
+})
+
+test('动态菜单缺失标题时仅按公共 viewKey 回退本地化标题', async () => {
+  const rootId = 99000000
+  const state = {
+    ...createState([{ route: 'pages/index/index' }]),
+    menuResponse: {
+      items: [
+        {
+          id: 99010000,
+          parent_id: rootId,
+          name: 'AppHome',
+          path: 'app/home',
+          meta: { app: { view_key: 'HOME', access: 'PUBLIC', in_tab_bar: true } },
+        },
+        {
+          id: 99020000,
+          parent_id: rootId,
+          name: 'AppCategory',
+          path: 'app/category',
+          meta: { app: { view_key: 'SHOP_CATEGORY', access: 'PUBLIC', in_tab_bar: true } },
+        },
+        {
+          id: 99040000,
+          parent_id: rootId,
+          name: 'AppMessage',
+          path: 'app/message',
+          meta: { app: { view_key: 'MESSAGE_INBOX', access: 'PUBLIC', in_tab_bar: true } },
+        },
+        {
+          id: 99090000,
+          parent_id: rootId,
+          name: 'AppMy',
+          path: 'app/my',
+          meta: { app: { view_key: 'PROFILE_HOME', access: 'PUBLIC', in_tab_bar: true } },
+        },
+      ],
+    },
+  }
+  const runtime = await loadNavigationRuntime(state)
+  await runtime.initializeAppNavigation()
+
+  assert.deepEqual(
+    runtime.useAppNavigation().tabBar.value.map((item) => item.title),
+    ['core.navigation.home', '', 'core.navigation.message', 'core.navigation.my'],
+  )
 })
 
 test('H5 从消息 tab 切换到我的仍替换当前路由，不触发页面滑动栈', async () => {

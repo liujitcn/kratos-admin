@@ -178,6 +178,12 @@ const pageTitleKeys: Record<string, string> = {
   'pagesMember/settings/settings': 'core.settings.title',
 }
 
+const fallbackMenuTitleKeys: Record<string, string> = {
+  HOME: 'core.navigation.home',
+  MESSAGE_INBOX: 'core.navigation.message',
+  PROFILE_HOME: 'core.navigation.my',
+}
+
 /** 替换导航远端适配器，供宿主接入自定义契约。 */
 export function setAppNavigationAdapter(nextAdapter: AppNavigationAdapter): void {
   adapter = nextAdapter
@@ -384,7 +390,7 @@ function readCachedMenus(cacheKey: string): AppMenu[] | undefined {
           ? t('core.navigation.home')
           : menu.viewKey === 'MESSAGE_INBOX'
             ? t('core.navigation.message')
-            : menu.title,
+            : resolveMenuTitle(menu.viewKey, menu.title),
     }))
     return validateMenus(cachedMenus)
   } catch {
@@ -399,23 +405,26 @@ function normalizeMenuResponse(response: ListBaseMenuResponse): AppMenu[] {
 function normalizeMenu(item: BaseMenu): AppMenu {
   const meta = item.meta
   const app = meta?.app
+  const viewKey = app?.view_key ?? ''
   return {
     id: item.id,
     parentId: item.parent_id,
     name: item.name,
     path: item.path,
-    viewKey: app?.view_key ?? '',
-    title:
-      app?.view_key === 'HOME'
-        ? t('core.navigation.home')
-        : app?.view_key === 'MESSAGE_INBOX'
-          ? t('core.navigation.message')
-          : (meta?.title ?? ''),
+    viewKey,
+    title: resolveMenuTitle(viewKey, meta?.title ?? ''),
     access: (app?.access ?? 'AUTHENTICATED') as AppMenuAccess,
     inTabBar: app?.in_tab_bar ?? false,
     icon: meta?.icon,
     selectedIcon: app?.selected_icon,
   }
+}
+
+/** 为缺少后端标题的菜单提供稳定的本地化文案。 */
+function resolveMenuTitle(viewKey: string, title: string): string {
+  if (title) return title
+  const titleKey = fallbackMenuTitleKeys[viewKey]
+  return titleKey ? t(titleKey) : ''
 }
 
 function validateMenus(nextMenus: AppMenu[]): AppMenu[] {
