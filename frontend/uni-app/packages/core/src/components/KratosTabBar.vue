@@ -24,11 +24,11 @@ const tabIconSrc = (viewKey: string, active: boolean): string => {
   if (!path) return ''
   const color = active
     ? themeStore.theme === 'light'
-      ? '#039e8c'
-      : '#28f0d4'
+      ? '#e1251b'
+      : '#ff4d4f'
     : themeStore.theme === 'light'
-      ? '#9aabbb'
-      : '#4e6378'
+      ? '#8c8c8c'
+      : '#8c8c8c'
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="${path}"/></svg>`
   return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`
 }
@@ -91,8 +91,8 @@ const messageBadge = useAppMenuBadge('MESSAGE_INBOX')
 
 <style scoped>
 .kratos-tab-bar {
-  --kratos-tab-bar-color: var(--kratos-color-text-dim, #4e6378);
-  --kratos-tab-bar-active-color: var(--kratos-color-primary, #28f0d4);
+  --kratos-tab-bar-color: var(--kratos-color-text-dim, #8c8c8c);
+  --kratos-tab-bar-active-color: var(--kratos-color-primary, #ff4d4f);
 
   position: fixed;
   right: 20rpx;
@@ -194,7 +194,7 @@ const messageBadge = useAppMenuBadge('MESSAGE_INBOX')
   box-sizing: border-box;
   border: 2rpx solid var(--kratos-dock-bg, rgba(10, 18, 30, 0.72));
   border-radius: 50%;
-  background: var(--kratos-color-danger, #ff4d6d);
-  box-shadow: 0 0 12rpx var(--kratos-color-danger, #ff4d6d);
+  background: var(--kratos-color-danger, #ff4d4f);
+  box-shadow: 0 0 12rpx var(--kratos-color-danger, #ff4d4f);
 }
 </style>

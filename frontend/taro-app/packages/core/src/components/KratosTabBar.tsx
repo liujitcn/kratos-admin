@@ -25,11 +25,11 @@ const tabIconSrc = (viewKey: string, active: boolean, theme: string): string => 
   if (!path) return ''
   const color = active
     ? theme === 'light'
-      ? '#039e8c'
-      : '#28f0d4'
+      ? '#e1251b'
+      : '#ff4d4f'
     : theme === 'light'
-      ? '#9aabbb'
-      : '#4e6378'
+      ? '#8c8c8c'
+      : '#8c8c8c'
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="${path}"/></svg>`
   return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`
 }

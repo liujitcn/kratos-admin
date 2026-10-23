@@ -19,10 +19,10 @@ html {
 page,
 body {
   min-height: 100%;
-  color: #333;
-  font-size: 16PX;
+  color: var(--kratos-color-text, #1f1f1f);
+  font-size: 14PX;
   line-height: normal;
-  background: #f7f7f8;
+  background: var(--kratos-color-background, #f5f5f5);
   font-family:
     -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB',
     'Microsoft YaHei', sans-serif;
@@ -62,12 +62,12 @@ button::after {
 
 html.theme-light body,
 html.theme-light page {
-  background: #eef3f8;
+  background: #f5f5f5;
 }
 
 html.theme-dark body,
 html.theme-dark page {
-  background: #060a12;
+  background: #141414;
 }
 
 /* ============================================================

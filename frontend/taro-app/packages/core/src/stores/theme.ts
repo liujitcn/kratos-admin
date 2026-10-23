@@ -35,7 +35,7 @@ const readStoredMode = (): ThemeMode => {
 /** 主题实际生效时给导航栏与页面底色染色，覆盖全局配置的静态浅色。 */
 const applyChrome = (theme: ResolvedTheme) => {
   try {
-    const backgroundColor = theme === 'light' ? '#f4f9fd' : '#060a12'
+    const backgroundColor = theme === 'light' ? '#ffffff' : '#141414'
     void Taro.setNavigationBarColor({
       frontColor: theme === 'light' ? '#000000' : '#ffffff',
       backgroundColor,

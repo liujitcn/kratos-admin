@@ -1,6 +1,6 @@
 .kratos-tab-bar {
-  --kratos-tab-bar-color: var(--kratos-color-text-dim, #4e6378);
-  --kratos-tab-bar-active-color: var(--kratos-color-primary, #28f0d4);
+  --kratos-tab-bar-color: var(--kratos-color-text-dim, #8c8c8c);
+  --kratos-tab-bar-active-color: var(--kratos-color-primary, #ff4d4f);
 
   position: fixed;
   right: 20px;
@@ -103,6 +103,6 @@
   box-sizing: border-box;
   border: 2PX solid var(--kratos-dock-bg, rgba(10, 18, 30, 0.72));
   border-radius: 50%;
-  background: var(--kratos-color-danger, #ff4d6d);
-  box-shadow: 0 0 12px var(--kratos-color-danger, #ff4d6d);
+  background: var(--kratos-color-danger, #ff4d4f);
+  box-shadow: 0 0 12px var(--kratos-color-danger, #ff4d4f);
 }

@@ -45,7 +45,7 @@ const readStoredMode = (): ThemeMode => {
 /** 主题实际生效时给导航栏与页面底色染色，覆盖 pages.json 的静态浅色配置。 */
 const applyChrome = (theme: ResolvedTheme) => {
   try {
-    const navigationBarColor = theme === 'light' ? '#f4f9fd' : '#060a12'
+    const navigationBarColor = theme === 'light' ? '#ffffff' : '#141414'
     uni.setNavigationBarColor({
       frontColor: theme === 'light' ? '#000000' : '#ffffff',
       backgroundColor: navigationBarColor,

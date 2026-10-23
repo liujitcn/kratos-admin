@@ -4,9 +4,8 @@
 page,
 body,
 uni-page-body {
-  font-family:
-    -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB',
-    'Microsoft YaHei', sans-serif;
+  font-family: var(--kratos-font-sans, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif);
+  font-size: 28rpx;
 }
 
 view,
@@ -58,51 +57,51 @@ image {
  * ============================================================ */
 /* #ifdef H5 */
 html.theme-light page {
-  background-color: #eef3f8;
+  background-color: #f5f5f5;
 }
 
 html.theme-dark page {
-  background-color: #060a12;
+  background-color: #141414;
 }
 
 html.theme-dark .uni-modal {
-  background-color: #070d18;
+  background-color: #1f1f1f;
 }
 
 html.theme-dark .uni-modal__title {
-  color: #e9f4f6;
+  color: #f5f5f5;
 }
 
 html.theme-dark .uni-modal__bd {
-  color: #8aa0b4;
+  color: #bfbfbf;
 }
 
 html.theme-dark .uni-modal__btn_default {
-  color: #8aa0b4;
+  color: #bfbfbf;
 }
 
 html.theme-dark .uni-modal__btn_primary {
-  color: #28f0d4;
+  color: #ff4d4f;
 }
 
 html.theme-dark .uni-toast,
 html.theme-dark .uni-sample-toast {
-  background: rgba(10, 18, 30, 0.9);
-  border: 1px solid rgba(120, 230, 215, 0.16);
-  color: #e9f4f6;
+  background: rgba(31, 31, 31, 0.96);
+  border: 1px solid #383838;
+  color: #f5f5f5;
 }
 
 /* Chrome 密码自动填充默认涂浅蓝底，用不透明内阴影盖回主题色 */
 html.theme-dark .uni-input-input:-webkit-autofill {
-  -webkit-box-shadow: 0 0 0 1000px #121b2a inset;
-  -webkit-text-fill-color: #e9f4f6;
-  caret-color: #e9f4f6;
+  -webkit-box-shadow: 0 0 0 1000px #262626 inset;
+  -webkit-text-fill-color: #f5f5f5;
+  caret-color: #f5f5f5;
 }
 
 html.theme-light .uni-input-input:-webkit-autofill {
-  -webkit-box-shadow: 0 0 0 1000px #eef4fa inset;
-  -webkit-text-fill-color: #102232;
-  caret-color: #102232;
+  -webkit-box-shadow: 0 0 0 1000px #f7f7f7 inset;
+  -webkit-text-fill-color: #1f1f1f;
+  caret-color: #1f1f1f;
 }
 /* #endif */
 

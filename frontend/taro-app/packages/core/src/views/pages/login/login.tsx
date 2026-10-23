@@ -138,7 +138,7 @@ export default function LoginPage() {
   const showTenantCode = settings?.get('showTenantCode') !== 'false'
   /** 按管理端 View、Hide 视觉生成本端密码可见性图标。 */
   const passwordIconSrc = (visible: boolean) => {
-    const color = themeStore.theme === 'light' ? '#5a7083' : '#8aa0b4'
+    const color = themeStore.theme === 'light' ? '#666666' : '#bfbfbf'
     const path = visible ? passwordIconPaths.hide : passwordIconPaths.view
     const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" fill="${color}"><path d="${path}"/></svg>`
     return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`
@@ -310,8 +310,8 @@ export default function LoginPage() {
       content: t('core.login.protocol_prompt'),
       confirmText: t('common.action.confirm'),
       cancelText: t('common.action.cancel'),
-      confirmColor: themeStore.theme === 'light' ? '#039e8c' : '#28f0d4',
-      cancelColor: themeStore.theme === 'light' ? '#5a7083' : '#8aa0b4',
+      confirmColor: themeStore.theme === 'light' ? '#e1251b' : '#ff4d4f',
+      cancelColor: themeStore.theme === 'light' ? '#666666' : '#bfbfbf',
     })
     if (result.confirm) setAgreed(true)
     return result.confirm

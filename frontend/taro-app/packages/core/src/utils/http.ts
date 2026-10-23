@@ -286,7 +286,7 @@ async function promptRelogin(): Promise<void> {
         content: t('core.auth.session_expired'),
         showCancel: false,
         confirmText: t('common.action.confirm'),
-        confirmColor: theme === 'light' ? '#039e8c' : '#28f0d4',
+        confirmColor: theme === 'light' ? '#e1251b' : '#ff4d4f',
       }).catch(() => undefined as undefined),
       new Promise<undefined>((resolve) =>
         setTimeout(() => resolve(undefined), RELOGIN_PROMPT_TIMEOUT),
