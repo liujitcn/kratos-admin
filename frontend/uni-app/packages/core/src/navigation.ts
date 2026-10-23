@@ -272,7 +272,7 @@ export function navigateAppRoute(rawRoute: string, options: { replace?: boolean 
   uni.navigateTo({ url, fail: () => uni.reLaunch({ url }) })
 }
 
-/** 切换自绘 tab：H5 替换路由，微信端复用页面栈，避免重建整个页面栈。 */
+/** 切换自绘 tab：直接替换当前页面，避免微信端页面入栈/出栈动画造成闪烁。 */
 function navigateTabRoute(url: string): void {
   const targetRoute = url.slice(1).split('?', 1)[0].replace(/^\/+/, '')
   const pages = getCurrentPages()
@@ -292,6 +292,21 @@ function navigateTabRoute(url: string): void {
     })
     return
   }
+  uni.redirectTo({
+    url,
+    success: release,
+    fail: () => navigateTabRouteInStack(url, targetRoute, pages, currentIndex, release),
+  })
+}
+
+/** 微信端替换路由失败时复用已有页面栈。 */
+function navigateTabRouteInStack(
+  url: string,
+  targetRoute: string,
+  pages: ReturnType<typeof getCurrentPages>,
+  currentIndex: number,
+  release: () => void,
+): void {
   const targetIndex = pages.findIndex((page) => page.route?.replace(/^\/+/, '') === targetRoute)
   if (targetIndex >= 0 && targetIndex < currentIndex) {
     uni.navigateBack({

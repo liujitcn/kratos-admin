@@ -120,7 +120,7 @@ uni-app 支持的语言由 core 和 System JSON 语言包自动发现，模块�
 
 页面 wrapper 统一挂载自绘 `KratosTabBar`，宿主不声明原生 `tabBar`。首页、消息、我的和动态扩展 tab 均使用普通页面路由。普通页面优先使用 `navigateTo`，下级页面会沿父级关系归属并高亮对应 tab。因此接口内容变化后可以调整菜单层级、逻辑路径和 `viewKey`，无需把每个业务路由写死在宿主。
 
-H5 自绘底部 tab 使用 `redirectTo` 替换当前路由；微信端首次访问使用 `navigateTo`，已在页面栈中的 tab 使用 `navigateBack` 复用，栈满时使用 `redirectTo` 替换栈顶。tab 切换不使用 `switchTab` 或 `reLaunch`，避免原生 tab 配置冲突和整栈重建造成闪烁、白屏。
+H5 和微信端自绘底部 tab 都优先使用 `redirectTo` 替换当前页面，微信端仅在替换失败时回退到页面栈复用。tab 切换不使用 `switchTab` 或 `reLaunch`，避免原生 tab 配置冲突和页面入栈/出栈动画造成闪烁。普通页面仍优先使用 `navigateTo`。
 
 上述策略由可发布的 core 包统一提供，业务模块可以覆盖 `HOME` 的物理页面或扩展至 2–5 个 tab。构建插件在编译配置中移除宿主已有的原生 `tabBar`，结束后恢复宿主原文件；引用项目升级 core 后无需单独修改导航实现。
 

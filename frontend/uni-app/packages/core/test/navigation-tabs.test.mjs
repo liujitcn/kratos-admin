@@ -209,6 +209,21 @@ test('H5 自绘 tab 替换当前路由，避免重建应用产生闪烁', async 
   assert.equal(state.navigateBackCalls.length, 0)
 })
 
+test('微信端 tab 切换替换当前页面，避免页面入栈动画闪烁', async () => {
+  const state = createState([{ route: 'pagesMember/message/index' }])
+  const runtime = await loadNavigationRuntime(state)
+  runtime.installAppNavigation(menus)
+
+  runtime.navigateAppRoute('app/my')
+
+  assert.equal(state.redirectCalls.length, 1)
+  assert.equal(state.redirectCalls[0].url, '/pages/my/my')
+  assert.equal(state.navigateCalls.length, 0)
+  assert.equal(state.navigateBackCalls.length, 0)
+  assert.equal(state.pages.length, 1)
+  assert.equal(state.pages.at(-1).route, 'pages/my/my')
+})
+
 test('自绘 tab 页面不声明缺少 custom-tab-bar 组件的原生 tabBar', () => {
   const manifest = JSON.parse(
     readFileSync(resolve(import.meta.dirname, '../../../apps/uni-app/src/pages.json'), 'utf8'),
@@ -310,22 +325,24 @@ const menus = [
   },
 ]
 
-test('微信端首次切换我的使用普通页面栈，不重建页面栈', async () => {
+test('微信端首次切换我的替换当前页面，避免页面入栈动画', async () => {
   const state = createState([{ route: 'pages/index/index' }])
   const runtime = await loadNavigationRuntime(state)
   runtime.installAppNavigation(menus)
 
   runtime.navigateAppRoute('app/my')
 
-  assert.equal(state.navigateCalls.length, 1)
-  assert.equal(state.navigateCalls[0].url, '/pages/my/my')
+  assert.equal(state.redirectCalls.length, 1)
+  assert.equal(state.redirectCalls[0].url, '/pages/my/my')
+  assert.equal(state.navigateCalls.length, 0)
+  assert.equal(state.navigateBackCalls.length, 0)
   assert.equal(state.switchTabCalls.length, 0)
   assert.equal(state.reLaunchCalls.length, 0)
   assert.deepEqual(state.navigationErrors, [])
   assert.equal(state.pages.at(-1).route, 'pages/my/my')
 })
 
-test('微信端切换已存在的 tab 复用已有页面', async () => {
+test('微信端从子页面切换 tab 仍替换当前页面', async () => {
   const state = createState([
     { route: 'pages/index/index' },
     { route: 'pages/my/my' },
@@ -337,9 +354,10 @@ test('微信端切换已存在的 tab 复用已有页面', async () => {
   runtime.navigateAppRoute('app/my')
 
   assert.equal(state.switchTabCalls.length, 0)
-  assert.equal(state.navigateBackCalls.length, 1)
-  assert.equal(state.navigateBackCalls[0].delta, 1)
+  assert.equal(state.redirectCalls.length, 1)
+  assert.equal(state.redirectCalls[0].url, '/pages/my/my')
   assert.equal(state.navigateCalls.length, 0)
+  assert.equal(state.navigateBackCalls.length, 0)
   assert.equal(state.reLaunchCalls.length, 0)
   assert.equal(state.pages.at(-1).route, 'pages/my/my')
 })
@@ -363,7 +381,7 @@ test('微信端首页、消息、我的反复切换不重建页面栈', async ()
   assert.equal(state.pages.length, 1)
   assert.equal(state.reLaunchCalls.length, 0)
   assert.equal(state.switchTabCalls.length, 0)
-  assert.equal(state.redirectCalls.length, 0)
+  assert.equal(state.redirectCalls.length, 80)
   assert.deepEqual(state.navigationErrors, [])
 })
 
@@ -463,13 +481,16 @@ test('两端跳转未结束时忽略同一 tab 的重复点击，失败后允许
     runtime.navigateAppRoute('app/my')
     runtime.navigateAppRoute('app/my')
 
-    const calls = isH5 ? state.redirectCalls : state.navigateCalls
+    const calls = state.redirectCalls
     assert.equal(calls.length, 1)
     calls[0].fail({ errMsg: 'navigation:fail' })
-    if (!isH5) state.redirectCalls[0].fail({ errMsg: 'redirectTo:fail' })
+    if (!isH5) {
+      state.navigateCalls[0].fail({ errMsg: 'navigateTo:fail' })
+      state.redirectCalls[1].fail({ errMsg: 'redirectTo:fail' })
+    }
     runtime.navigateAppRoute('app/my')
 
-    assert.equal(calls.length, 2)
+    assert.equal(calls.length, isH5 ? 2 : 3)
     assert.equal(state.reLaunchCalls.length, 0)
   }
 })

@@ -49,7 +49,7 @@ uni-app の対応言語は core と System の JSON パックから自動検出�
 
 すべての `uni.request`、ファイルアップロード、SSE は `Accept-Language` を送信します。動的メニューはバックエンドのタイトルを使用し、訳がない場合は主言語へフォールバックします。言語追加時はバックエンドと 3 workspace の言語パックを同期し、ルートで `make i18n` を実行します。
 
-ページ wrapper は自作 `KratosTabBar` を統一的に取り付けます。ホストはネイティブ `tabBar` を宣言せず、ホーム、メッセージ、マイページと動的な tab は通常ページのルートで表示します。H5 は `redirectTo`、WeChat はページスタックを再利用し、通常ページは `navigateTo` を優先します。
+ページ wrapper は自作 `KratosTabBar` を統一的に取り付けます。ホストはネイティブ `tabBar` を宣言せず、ホーム、メッセージ、マイページと動的な tab は通常ページのルートで表示します。H5 と WeChat の tab 切り替えは `redirectTo` で現在ページを置換し、WeChat は置換に失敗した場合のみページスタックを再利用します。通常ページは `navigateTo` を優先します。
 
 ## 開発とビルド
 

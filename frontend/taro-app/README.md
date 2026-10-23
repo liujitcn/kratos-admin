@@ -47,7 +47,7 @@ core 不依赖 UI 或业务模块；system 只通过 core 和 UI 的公开 expor
 - 合并各模块 `src/static` 到宿主，宿主已有文件优先，模块同名文件后注册优先。
 - 构建退出后恢复原始 `app.config.ts` 并删除临时文件。
 
-页面 wrapper 统一挂载自绘 `KratosTabBar`，宿主不声明原生 `tabBar`。H5 tab 切换使用 `redirectTo`；微信端首次访问使用 `navigateTo`，已在页面栈中的 tab 使用 `navigateBack` 复用，栈满时使用 `redirectTo` 替换栈顶。tab 切换不使用 `switchTab` 或 `reLaunch`，避免原生 tab 配置冲突和整栈重建造成闪烁、白屏。普通页面优先使用 `navigateTo`，下级页面会沿父级关系归属并高亮对应 tab。
+页面 wrapper 统一挂载自绘 `KratosTabBar`，宿主不声明原生 `tabBar`。H5 和微信端 tab 切换都优先使用 `redirectTo` 替换当前页面，微信端仅在替换失败时回退到页面栈复用。tab 切换不使用 `switchTab` 或 `reLaunch`，避免原生 tab 配置冲突和页面入栈/出栈动画造成闪烁。普通页面优先使用 `navigateTo`，下级页面会沿父级关系归属并高亮对应 tab。
 
 上述策略由可发布的 core 包统一提供，业务模块可以覆盖 `HOME` 的物理页面或扩展至 2–5 个 tab。runner 在编译配置中移除宿主已有的原生 `tabBar`，结束后恢复宿主原文件；引用项目升级 core 后无需单独修改导航实现。
 
