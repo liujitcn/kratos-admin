@@ -1,4 +1,6 @@
 import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
+import { join } from "node:path";
 import test from "node:test";
 import { createSourcePatterns } from "../build/source-patterns.js";
 
@@ -18,4 +20,12 @@ test("POSIX 路径转义特殊字符并限制源码目录和文件类型", () =>
   assert.ok(!pattern.test("/app/core(1)/src-other/index.ts"));
   assert.ok(!pattern.test("/app/core(1)/src/styles/index.scss"));
   assert.ok(!pattern.test("/other/app/core(1)/src/index.ts"));
+});
+
+test("纯表格的团队筛选不复用城市级联树", async () => {
+  const source = await readFile(join(process.cwd(), "src/views/demo/table/index.vue"), "utf8");
+  const data = await readFile(join(process.cwd(), "src/views/demo/demo-data.ts"), "utf8");
+  assert.match(data, /export const demoOwnerGroupTree/);
+  assert.match(source, /demoOwnerGroupTree/);
+  assert.doesNotMatch(source, /const ownerGroupOptions = demoRegionTree/);
 });

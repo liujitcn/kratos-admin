@@ -17,6 +17,14 @@ test("菜单搜索使用 ProDialog 并保留主题样式", async () => {
   assert.doesNotMatch(source, /:global\(\.search-dialog\)[\s\S]*\.el-dialog__header\s*\{/);
 });
 
+test("运行日志自动滚动读取 Element Plus scrollbar 的 wrapRef value", async () => {
+  const source = await readSource("src/views/tool/runtime-log/index.vue");
+
+  assert.match(source, /const wrap = scrollbarRef\.value\?\.wrapRef\?\.value;/);
+  assert.match(source, /setScrollTop\(wrap\.scrollHeight\)/);
+  assert.doesNotMatch(source, /const wrap = scrollbarRef\.value\?\.wrapRef;[\s\S]*?wrap\.scrollHeight/);
+});
+
 test("AI chat welcome copy and composer placeholder use the registered system locale bundle", async () => {
   const [chatPanel, sender, moduleSource, generatedLocales, hostManifest, bootstrapSource] = await Promise.all([
     readSource("src/views/ai/chat/components/ChatPanel.vue"),

@@ -35,6 +35,11 @@ test("HTTP 和结构化响应拦截器都使用限流提示回退", async () => 
   assert.match(source, /resolveStructuredErrorMessage\(data, key => t\(key\)\)/);
 });
 
+test("查询数组使用重复字段序列化，兼容 Kratos 查询绑定", async () => {
+  const source = await readFile(join(process.cwd(), "src/utils/request.ts"), "utf8");
+  assert.match(source, /qs\.stringify\(compactTenantProjectQueryParams\(params\), \{ arrayFormat: "repeat" \}\)/);
+});
+
 test("公共认证接口返回 401 时展示后端业务错误", async () => {
   const source = await readFile(join(process.cwd(), "src/utils/request.ts"), "utf8");
   const responseInterceptor = source.match(/service\.interceptors\.response\.use\([\s\S]*?\n\);/)?.[0];

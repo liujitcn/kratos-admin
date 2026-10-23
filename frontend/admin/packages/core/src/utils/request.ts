@@ -121,7 +121,7 @@ const service = axios.create({
   baseURL: requestBaseURL,
   timeout: 50000,
   headers: { "Content-Type": "application/json;charset=utf-8" },
-  paramsSerializer: params => qs.stringify(compactTenantProjectQueryParams(params)),
+  paramsSerializer: params => qs.stringify(compactTenantProjectQueryParams(params), { arrayFormat: "repeat" }),
   withCredentials: true
 });
 

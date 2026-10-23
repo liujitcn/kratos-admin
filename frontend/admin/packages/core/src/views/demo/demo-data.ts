@@ -220,6 +220,27 @@ export const demoRegionTree = [
   }
 ];
 
+/** 团队树静态数据：与城市级联数据分离，供纯表格团队筛选使用。 */
+export const demoOwnerGroupTree = [
+  {
+    value: "engineering",
+    label: "研发团队",
+    children: [
+      { value: "frontend", label: "前端组" },
+      { value: "backend", label: "后端组" }
+    ]
+  },
+  {
+    value: "product",
+    label: "产品团队",
+    children: [
+      { value: "design", label: "设计组" },
+      { value: "research", label: "研究组" }
+    ]
+  },
+  { value: "operations", label: "运营团队" }
+];
+
 /** 项目静态数据：25 条覆盖分页、多级表头、进度条、标签列等展示场景。 */
 export const demoProjects: DemoProject[] = [
   { id: 1, name: "星尘数据平台", level: "S", owner: "陈默", status: STATUS_ENABLE, budget: 128000000, task_total: 46, progress: 82, region: ["zhejiang", "hangzhou"], created_at: "2025-01-06 09:30:00" },

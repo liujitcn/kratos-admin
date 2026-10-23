@@ -46,7 +46,7 @@ import { t } from "@/locales";
 import DemoFormDialog from "../components/DemoFormDialog.vue";
 import DemoDetailDrawer from "../components/DemoDetailDrawer.vue";
 import type { DemoDetailModel, DemoProject } from "../demo-data";
-import { STATUS_DISABLE, STATUS_ENABLE, demoLevelOptions, demoProjects, demoRegionTree } from "../demo-data";
+import { STATUS_DISABLE, STATUS_ENABLE, demoLevelOptions, demoOwnerGroupTree, demoProjects, demoRegionTree } from "../demo-data";
 
 defineOptions({
   name: "DemoTable",
@@ -71,7 +71,7 @@ const statusTagOptions = [
 const tagSearchOptions = Array.from({ length: 50 }, (_, index) => ({ label: t("core.demo.table.tag_item", { index: index + 1 }), value: `tag-${index + 1}` }));
 
 /** tree-select 搜索项的静态团队树（isShow: false，仅出现在搜索区）。 */
-const ownerGroupOptions = demoRegionTree;
+const ownerGroupOptions = demoOwnerGroupTree;
 
 /** 把级联编码翻译成“省 / 市”文本，用于 region 列单元格展示。 */
 function formatRegion(region: string[]): string {
