@@ -17,12 +17,14 @@ test("菜单搜索使用 ProDialog 并保留主题样式", async () => {
   assert.doesNotMatch(source, /:global\(\.search-dialog\)[\s\S]*\.el-dialog__header\s*\{/);
 });
 
-test("运行日志自动滚动读取 Element Plus scrollbar 的 wrapRef value", async () => {
+test("运行日志自动滚动使用已解包的 wrapRef 并响应重新开启", async () => {
   const source = await readSource("src/views/tool/runtime-log/index.vue");
 
-  assert.match(source, /const wrap = scrollbarRef\.value\?\.wrapRef\?\.value;/);
+  assert.match(source, /wrapRef\?: HTMLElement;/);
+  assert.match(source, /const wrap = scrollbarRef\.value\?\.wrapRef;/);
   assert.match(source, /setScrollTop\(wrap\.scrollHeight\)/);
-  assert.doesNotMatch(source, /const wrap = scrollbarRef\.value\?\.wrapRef;[\s\S]*?wrap\.scrollHeight/);
+  assert.doesNotMatch(source, /wrapRef\?\.value/);
+  assert.match(source, /watch\(autoScroll, enabled => \{[\s\S]*?if \(enabled\) scrollToBottom\(\);[\s\S]*?\}\);/);
 });
 
 test("AI chat welcome copy and composer placeholder use the registered system locale bundle", async () => {
@@ -461,6 +463,18 @@ test("角色分配权限默认关闭父子联动", async () => {
 
   assert.match(source, /const parentChildLinked = ref\(false\);/);
   assert.match(source, /:check-strictly="!parentChildLinked"/);
+});
+
+test("角色表单按目标租户加载菜单权限上限", async () => {
+  const [pageSource, protoSource] = await Promise.all([
+    readSource("src/views/base/role/index.vue"),
+    readSource("../../../../../backend/api/proto/system/admin/v1/base_menu.proto")
+  ]);
+
+  assert.match(protoSource, /optional int64 tenant_id = 4[\s\S]*目标租户ID/);
+  assert.match(pageSource, /function requestMenuPermOptions\(roleId\?: number, tenantId\?: number\)/);
+  assert.match(pageSource, /OptionBaseMenu\(\{[\s\S]*role_id: roleId,[\s\S]*tenant_id: toRequestTenantId\(tenantId\)[\s\S]*\}\)/);
+  assert.match(pageSource, /loadMenuPermOptions\(undefined, formData\.tenant_id\)/);
 });
 
 test("定时任务操作列使用统一操作按钮配置", async () => {

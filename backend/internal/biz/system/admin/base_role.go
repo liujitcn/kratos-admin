@@ -341,9 +341,10 @@ func (c *BaseRoleCase) validateAssignableMenus(ctx context.Context, targetTenant
 	// 默认租户为普通租户维护角色时，以目标租户内置管理员角色作为权限上限。
 	if authInfo.TenantCode == gorm.DefaultTenantCode && targetTenantID > 0 && targetTenantID != authInfo.TenantId {
 		query := c.Query(ctx).BaseRole
-		opts := make([]repository.QueryOption, 0, 2)
+		opts := make([]repository.QueryOption, 0, 3)
 		opts = append(opts, repository.Select(query.TenantID, query.Menus, query.Status))
 		opts = append(opts, repository.Where(query.Code.Eq(_const.BASE_ROLE_CODE_TENANT)))
+		opts = append(opts, repository.Where(query.TenantID.Eq(targetTenantID)))
 		allowedBaseRole, err = c.Find(ctx, opts...)
 		if err != nil {
 			return errorsx.Internal("查询租户最大权限失败").WithCause(err)

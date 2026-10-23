@@ -147,6 +147,8 @@ func (x *OptionBaseMenuRequest) Redact() {
 	// Safe field: RoleId
 
 	// Safe field: Lazy
+
+	// Safe field: TenantId
 }
 
 // Ensure TreeBaseMenuRequest implements the Redactor interface at compile time.

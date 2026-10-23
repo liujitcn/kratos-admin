@@ -201,7 +201,7 @@ type RuntimeConnectionState = "connecting" | "live" | "paused" | "disconnected";
 /** Element Plus 滚动条公开能力。 */
 interface RuntimeLogScrollbar {
   /** 滚动条内容元素。 */
-  wrapRef?: { value?: HTMLElement };
+  wrapRef?: HTMLElement;
   /** 设置垂直滚动位置。 */
   setScrollTop: (top: number) => void;
 }
@@ -423,7 +423,8 @@ function stopRuntimeSubscription() {
 function scrollToBottom() {
   if (!autoScroll.value) return;
   void nextTick(() => {
-    const wrap = scrollbarRef.value?.wrapRef?.value;
+    if (!autoScroll.value) return;
+    const wrap = scrollbarRef.value?.wrapRef;
     if (wrap) scrollbarRef.value?.setScrollTop(wrap.scrollHeight);
   });
 }
@@ -456,6 +457,10 @@ watch([keyword, selectedLevels], () => {
   if (!activeFile.value) return;
   if (filterTimer) clearTimeout(filterTimer);
   filterTimer = setTimeout(() => void refreshHistory(), 300);
+});
+
+watch(autoScroll, enabled => {
+  if (enabled) scrollToBottom();
 });
 
 onMounted(() => {

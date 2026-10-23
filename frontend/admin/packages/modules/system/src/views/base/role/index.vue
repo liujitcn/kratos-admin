@@ -391,13 +391,16 @@ function refreshTable() {
 /**
  * 按目标角色加载可分配的菜单权限树数据。
  */
-async function loadMenuPermOptions(roleId?: number) {
-  menuPermOptions.value = await requestMenuPermOptions(roleId);
+async function loadMenuPermOptions(roleId?: number, tenantId?: number) {
+  menuPermOptions.value = await requestMenuPermOptions(roleId, tenantId);
 }
 
 /** 请求指定角色可分配的菜单权限树。 */
-async function requestMenuPermOptions(roleId?: number) {
-  const optionBaseMenuRes = await defBaseMenuService.OptionBaseMenu({ role_id: roleId });
+async function requestMenuPermOptions(roleId?: number, tenantId?: number) {
+  const optionBaseMenuRes = await defBaseMenuService.OptionBaseMenu({
+    role_id: roleId,
+    tenant_id: toRequestTenantId(tenantId)
+  });
   return optionBaseMenuRes.list ?? [];
 }
 
@@ -406,7 +409,7 @@ async function requestMenuPermOptions(roleId?: number) {
  */
 async function handleFormTenantChange() {
   formData.menus = [];
-  await loadMenuPermOptions();
+  await loadMenuPermOptions(undefined, formData.tenant_id);
 }
 
 /**

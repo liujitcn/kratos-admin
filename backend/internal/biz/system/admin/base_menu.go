@@ -72,7 +72,7 @@ func (c *BaseMenuCase) OptionBaseMenu(ctx context.Context, req *adminv1.OptionBa
 	opts := make([]repository.QueryOption, 0, 4)
 	opts = append(opts, repository.Order(query.Sort.Asc()))
 	opts = append(opts, repository.Order(query.CreatedAt.Desc()))
-	allowedMenuIDs, isSuperRole, err := c.listAssignableMenuIDs(ctx, req.GetRoleId())
+	allowedMenuIDs, isSuperRole, err := c.listAssignableMenuIDs(ctx, req.GetRoleId(), req.GetTenantId())
 	if err != nil {
 		return nil, err
 	}
@@ -80,7 +80,7 @@ func (c *BaseMenuCase) OptionBaseMenu(ctx context.Context, req *adminv1.OptionBa
 	if !isSuperRole && len(allowedMenuIDs) == 0 {
 		return &commonv1.TreeOptionResponse{}, nil
 	}
-	// 非超级管理员只能看到当前角色已经拥有的菜单上限。
+	// 非超级管理员只能看到当前操作允许的菜单上限。
 	if !isSuperRole {
 		opts = append(opts, repository.Where(query.ID.In(allowedMenuIDs...)))
 	}
@@ -124,7 +124,7 @@ func (c *BaseMenuCase) TreeBaseMenu(ctx context.Context, req *adminv1.TreeBaseMe
 	opts := make([]repository.QueryOption, 0, 4)
 	opts = append(opts, repository.Order(query.Sort.Asc()))
 	opts = append(opts, repository.Order(query.CreatedAt.Desc()))
-	allowedMenuIDs, isSuperRole, err := c.listAssignableMenuIDs(ctx, 0)
+	allowedMenuIDs, isSuperRole, err := c.listAssignableMenuIDs(ctx, 0, 0)
 	if err != nil {
 		return nil, err
 	}
@@ -417,8 +417,8 @@ func (c *BaseMenuCase) validateBaseMenuIdentity(ctx context.Context, menu *model
 	return nil
 }
 
-// listAssignableMenuIDs 根据真实角色归属查询当前操作可分配的菜单 ID 列表。
-func (c *BaseMenuCase) listAssignableMenuIDs(ctx context.Context, targetRoleID int64) ([]int64, bool, error) {
+// listAssignableMenuIDs 根据目标租户或角色归属查询当前操作可分配的菜单 ID 列表。
+func (c *BaseMenuCase) listAssignableMenuIDs(ctx context.Context, targetRoleID, targetTenantID int64) ([]int64, bool, error) {
 	authInfo, err := c.GetAuthInfo(ctx)
 	if err != nil {
 		return nil, false, err
@@ -433,13 +433,18 @@ func (c *BaseMenuCase) listAssignableMenuIDs(ctx context.Context, targetRoleID i
 		if err != nil {
 			return nil, false, errorsx.Internal("查询目标角色失败").WithCause(err)
 		}
+		targetTenantID = targetRole.TenantID
+	}
+	if targetTenantID == 0 {
+		targetTenantID = authInfo.TenantId
 	}
 	// 默认租户为普通租户维护角色时，以角色真实所属租户的内置管理员角色作为权限上限。
-	if targetRole != nil && authInfo.TenantCode == gorm.DefaultTenantCode && targetRole.TenantID != authInfo.TenantId {
+	if authInfo.TenantCode == gorm.DefaultTenantCode && targetTenantID != authInfo.TenantId {
 		query := c.baseRoleRepo.Query(ctx).BaseRole
-		opts := make([]repository.QueryOption, 0, 2)
+		opts := make([]repository.QueryOption, 0, 3)
 		opts = append(opts, repository.Select(query.Menus, query.Status))
 		opts = append(opts, repository.Where(query.Code.Eq(coreconst.BASE_ROLE_CODE_TENANT)))
+		opts = append(opts, repository.Where(query.TenantID.Eq(targetTenantID)))
 		var tenantBaseRole *models.BaseRole
 		tenantBaseRole, err = c.baseRoleRepo.Find(ctx, opts...)
 		if err != nil {

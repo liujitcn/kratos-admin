@@ -2734,6 +2734,10 @@ paths:
                   in: query
                   schema:
                     type: boolean
+                - name: tenant_id
+                  in: query
+                  schema:
+                    type: string
             responses:
                 "200":
                     description: OK

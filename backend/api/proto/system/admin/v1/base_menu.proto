@@ -73,6 +73,8 @@ message OptionBaseMenuRequest {
   optional int64 role_id = 2 [(gnostic.openapi.v3.property) = {description: "目标角色ID"}]; // 目标角色ID
 
   optional bool lazy = 3 [(gnostic.openapi.v3.property) = {description: "是否懒加载"}]; // 是否懒加载
+
+  optional int64 tenant_id = 4 [(gnostic.openapi.v3.property) = {description: "目标租户ID"}]; // 目标租户ID
 }
 
 // 菜单树查询条件
