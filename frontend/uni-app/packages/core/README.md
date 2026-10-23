@@ -49,8 +49,8 @@ packages/core
 import { registerThemeColors } from '@liujitcn/kratos-uni-app-core/stores'
 
 registerThemeColors({
-  light: { primary: '#e1251b' },
-  dark: { primary: '#ff4d4f' },
+  light: { primary: '#039e8c' },
+  dark: { primary: '#28f0d4' },
 })
 ```
 

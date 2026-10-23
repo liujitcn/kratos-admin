@@ -3,68 +3,68 @@
  * 变量挂在页面根类 .theme-dark / .theme-light 上，页面样式只消费变量。
  * ============================================================ */
 
-/* 暗黑主题：高对比商城深色主题 */
+/* 暗黑主题：深色数据驾驶舱 */
 .theme-dark {
-  --kratos-color-background: #141414;
-  --kratos-bg-gradient: linear-gradient(180deg, #1f1f1f 0%, #141414 100%);
-  --kratos-color-surface: #1f1f1f;
-  --kratos-color-surface-2: #262626;
-  --kratos-color-surface-solid: #1f1f1f;
-  --kratos-color-border: #383838;
-  --kratos-color-border-accent: rgba(255, 77, 79, 0.32);
-  --kratos-color-primary: #ff4d4f;
-  --kratos-color-primary-deep: #e1251b;
-  --kratos-color-on-primary: #ffffff;
-  --kratos-color-primary-soft: rgba(255, 77, 79, 0.12);
-  --kratos-color-primary-soft-2: rgba(255, 77, 79, 0.16);
-  --kratos-color-primary-edge: rgba(255, 77, 79, 0.42);
-  --kratos-color-info: #4096ff;
-  --kratos-color-warning: #faad14;
-  --kratos-color-danger: #ff4d4f;
-  --kratos-color-danger-soft: rgba(255, 77, 79, 0.14);
-  --kratos-color-violet: #b37feb;
-  --kratos-color-text: #f5f5f5;
-  --kratos-color-text-muted: #bfbfbf;
-  --kratos-color-text-dim: #8c8c8c;
-  --kratos-color-track: #2b2b2b;
-  --kratos-color-mask: rgba(0, 0, 0, 0.62);
-  --kratos-dock-bg: rgba(31, 31, 31, 0.96);
-  --kratos-glow: 0 6px 18px rgba(0, 0, 0, 0.24);
-  --kratos-glow-soft: 0 2px 8px rgba(0, 0, 0, 0.16);
+  --kratos-color-background: #060a12;
+  --kratos-bg-gradient: linear-gradient(180deg, #081120 0%, #060a12 40%);
+  --kratos-color-surface: rgba(255, 255, 255, 0.035);
+  --kratos-color-surface-2: rgba(255, 255, 255, 0.06);
+  --kratos-color-surface-solid: #070d18;
+  --kratos-color-border: rgba(255, 255, 255, 0.08);
+  --kratos-color-border-accent: rgba(120, 230, 215, 0.16);
+  --kratos-color-primary: #28f0d4;
+  --kratos-color-primary-deep: #13c7b4;
+  --kratos-color-on-primary: #031513;
+  --kratos-color-primary-soft: rgba(40, 240, 212, 0.08);
+  --kratos-color-primary-soft-2: rgba(40, 240, 212, 0.1);
+  --kratos-color-primary-edge: rgba(40, 240, 212, 0.3);
+  --kratos-color-info: #45c2ff;
+  --kratos-color-warning: #ffb648;
+  --kratos-color-danger: #ff4d6d;
+  --kratos-color-danger-soft: rgba(255, 77, 109, 0.1);
+  --kratos-color-violet: #9b8cff;
+  --kratos-color-text: #e9f4f6;
+  --kratos-color-text-muted: #8aa0b4;
+  --kratos-color-text-dim: #4e6378;
+  --kratos-color-track: rgba(255, 255, 255, 0.06);
+  --kratos-color-mask: rgba(2, 6, 12, 0.55);
+  --kratos-dock-bg: rgba(10, 18, 30, 0.72);
+  --kratos-glow: 0 0 24px rgba(40, 240, 212, 0.35);
+  --kratos-glow-soft: 0 0 40px rgba(40, 240, 212, 0.06);
   --kratos-font-sans:
     -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB',
     'Microsoft YaHei', sans-serif;
   --kratos-font-mono: var(--kratos-font-sans);
 }
 
-/* 明亮主题：白底、深色正文、红色价格 */
+/* 明亮主题 */
 .theme-light {
-  --kratos-color-background: #f5f5f5;
-  --kratos-bg-gradient: linear-gradient(180deg, #f7f7f7 0%, #f5f5f5 100%);
+  --kratos-color-background: #eef3f8;
+  --kratos-bg-gradient: linear-gradient(180deg, #f4f9fd 0%, #e9f1f8 60%);
   --kratos-color-surface: #ffffff;
-  --kratos-color-surface-2: #f7f7f7;
+  --kratos-color-surface-2: #eef4fa;
   --kratos-color-surface-solid: #ffffff;
-  --kratos-color-border: #eeeeee;
-  --kratos-color-border-accent: rgba(225, 37, 27, 0.22);
-  --kratos-color-primary: #e1251b;
-  --kratos-color-primary-deep: #c81623;
+  --kratos-color-border: #e3eaf2;
+  --kratos-color-border-accent: rgba(0, 150, 134, 0.28);
+  --kratos-color-primary: #039e8c;
+  --kratos-color-primary-deep: #00b3a0;
   --kratos-color-on-primary: #ffffff;
-  --kratos-color-primary-soft: rgba(225, 37, 27, 0.08);
-  --kratos-color-primary-soft-2: rgba(225, 37, 27, 0.12);
-  --kratos-color-primary-edge: rgba(225, 37, 27, 0.28);
-  --kratos-color-info: #1677ff;
-  --kratos-color-warning: #fa8c16;
-  --kratos-color-danger: #e1251b;
-  --kratos-color-danger-soft: rgba(225, 37, 27, 0.1);
-  --kratos-color-violet: #722ed1;
-  --kratos-color-text: #1f1f1f;
-  --kratos-color-text-muted: #666666;
-  --kratos-color-text-dim: #8c8c8c;
-  --kratos-color-track: #f2f2f2;
-  --kratos-color-mask: rgba(0, 0, 0, 0.45);
-  --kratos-dock-bg: rgba(255, 255, 255, 0.96);
-  --kratos-glow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  --kratos-glow-soft: 0 2px 8px rgba(0, 0, 0, 0.05);
+  --kratos-color-primary-soft: rgba(3, 158, 140, 0.08);
+  --kratos-color-primary-soft-2: rgba(3, 158, 140, 0.1);
+  --kratos-color-primary-edge: rgba(3, 158, 140, 0.3);
+  --kratos-color-info: #1a93d8;
+  --kratos-color-warning: #d9880f;
+  --kratos-color-danger: #e0324f;
+  --kratos-color-danger-soft: rgba(224, 50, 79, 0.1);
+  --kratos-color-violet: #5f4fe0;
+  --kratos-color-text: #102232;
+  --kratos-color-text-muted: #5a7083;
+  --kratos-color-text-dim: #9aabbb;
+  --kratos-color-track: #e8eef5;
+  --kratos-color-mask: rgba(16, 34, 50, 0.45);
+  --kratos-dock-bg: rgba(255, 255, 255, 0.82);
+  --kratos-glow: 0 10px 26px rgba(0, 120, 110, 0.14);
+  --kratos-glow-soft: none;
   --kratos-font-sans:
     -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB',
     'Microsoft YaHei', sans-serif;
