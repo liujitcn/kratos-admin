@@ -86,14 +86,24 @@ const emit = defineEmits<{
   "update:value": [value: string];
   "check-validate": [];
 }>();
+
+/** 判断富文本 HTML 是否只包含空白节点。 */
+const normalizeEditorValue = (value: string) => {
+  if (!value) return "";
+  if (/<(?:img|video|iframe)\b/i.test(value)) return value;
+  const text = value
+    .replace(/<[^>]*>/g, "")
+    .replace(/&nbsp;|&#160;|&#8203;/gi, "")
+    .trim();
+  return text ? value : "";
+};
 const valueHtml = computed({
   get() {
     return normalizeRichTextMediaPaths(props.value);
   },
   set(val: string) {
-    // 防止富文本内容为空时，校验失败
-    if (editorRef.value.isEmpty()) val = "";
-    emit("update:value", val);
+    // 以编辑器回写的 HTML 为准，避免 isEmpty() 在回写时序中误清空有效内容。
+    emit("update:value", normalizeEditorValue(val));
   }
 });
 
@@ -180,7 +190,8 @@ editorMenuConfig["uploadVideo"] = {
 };
 
 // 编辑框失去焦点时触发
-const handleBlur = () => {
+const handleBlur = async () => {
+  await nextTick();
   formItemContext?.prop && formContext?.validateField([formItemContext.prop as string]);
 };
 

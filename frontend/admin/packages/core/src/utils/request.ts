@@ -128,7 +128,8 @@ const service = axios.create({
 // 刷新令牌请求使用独立实例，避免与主请求拦截器互相递归。
 const refreshService = axios.create({
   baseURL: requestBaseURL,
-  timeout: 50000,
+  // 路由守卫会同步等待刷新结果：超时过长时后端重启窗口内整站黑屏挂起，收敛到 8 秒。
+  timeout: 8000,
   headers: { "Content-Type": "application/json;charset=utf-8" },
   withCredentials: true
 });
