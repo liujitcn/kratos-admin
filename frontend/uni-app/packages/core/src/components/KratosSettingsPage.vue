@@ -46,9 +46,9 @@ const localeIndex = computed(() =>
 )
 
 const settingsIcons = computed(() => {
-  const primary = themeStore.theme === 'light' ? '#e1251b' : '#ff4d4f'
-  const warning = themeStore.theme === 'light' ? '#fa8c16' : '#faad14'
-  const violet = themeStore.theme === 'light' ? '#722ed1' : '#b37feb'
+  const primary = themeStore.colors.primary
+  const warning = themeStore.colors.warning
+  const violet = themeStore.colors.violet
   const createIcon = (body: string, color: string) =>
     `data:image/svg+xml;charset=utf-8,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${body}</svg>`)}`
 
@@ -170,8 +170,8 @@ const onLogout = () => {
   // 模态弹窗
   uni.showModal({
     content: t('core.settings.logout_confirm'),
-    confirmColor: themeStore.theme === 'light' ? '#e1251b' : '#ff4d4f',
-    cancelColor: themeStore.theme === 'light' ? '#666666' : '#bfbfbf',
+    confirmColor: themeStore.colors.primary,
+    cancelColor: themeStore.colors.textMuted,
     success: async (res) => {
       if (!res.confirm) {
         return

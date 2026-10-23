@@ -40,8 +40,8 @@ function formatSessionTime(session: AiSession) {
 export default function SessionDrawer(props: SessionDrawerProps) {
   useI18n()
   const themeStore = useThemeStore()
-  const primaryIconColor = themeStore.theme === 'light' ? '#039e8c' : '#28f0d4'
-  const mutedIconColor = themeStore.theme === 'light' ? '#5a7083' : '#8aa0b4'
+  const primaryIconColor = themeStore.colors.aiPrimary
+  const mutedIconColor = themeStore.colors.aiTextMuted
   return (
     <>
       {props.open ? <View className='session-mask' onClick={props.onClose} /> : null}

@@ -46,8 +46,8 @@ const emit = defineEmits<{
 }>()
 const { t } = useI18n()
 const themeStore = useThemeStore()
-const primaryIconColor = computed(() => (themeStore.theme === 'light' ? '#039e8c' : '#28f0d4'))
-const mutedIconColor = computed(() => (themeStore.theme === 'light' ? '#5a7083' : '#8aa0b4'))
+const primaryIconColor = computed(() => themeStore.colors.aiPrimary)
+const mutedIconColor = computed(() => themeStore.colors.aiTextMuted)
 
 function handleKeywordInput(event: Event) {
   emit('update:keyword', ((event as unknown as InputEventValue).detail?.value || '').toString())

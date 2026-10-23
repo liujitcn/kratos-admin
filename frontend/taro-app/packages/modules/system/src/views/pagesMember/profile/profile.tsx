@@ -220,7 +220,7 @@ export default function ProfilePage() {
                 <Label className='profile-radio' key={item.value}>
                   <Radio
                     value={item.value}
-                    color={themeStore.theme === 'light' ? '#039e8c' : '#28f0d4'}
+                    color={themeStore.colors.aiPrimary}
                     checked={userInfo.gender === Number(item.value)}
                   />
                   {item.label}

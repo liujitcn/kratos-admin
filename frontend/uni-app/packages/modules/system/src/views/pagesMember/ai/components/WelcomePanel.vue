@@ -17,8 +17,8 @@ const emit = defineEmits<{
 }>()
 const { t } = useI18n()
 const themeStore = useThemeStore()
-const primaryIconColor = computed(() => (themeStore.theme === 'light' ? '#039e8c' : '#28f0d4'))
-const mutedIconColor = computed(() => (themeStore.theme === 'light' ? '#9aabbb' : '#8aa0b4'))
+const primaryIconColor = computed(() => themeStore.colors.aiPrimary)
+const mutedIconColor = computed(() => themeStore.colors.aiTextDim)
 </script>
 
 <template>

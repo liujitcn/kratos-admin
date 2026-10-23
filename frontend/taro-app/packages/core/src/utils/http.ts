@@ -278,7 +278,7 @@ async function promptRelogin(): Promise<void> {
   if (isPromptingRelogin) return
   isPromptingRelogin = true
   try {
-    const theme = useThemeStore.getState().theme
+    const colors = useThemeStore.getState().colors
     const modal = await Promise.race([
       // 按钮文案复用通用确认键：平台对 confirmText 限制 4 个汉字/8 字符，长文案会被整体拒绝。
       Taro.showModal({
@@ -286,7 +286,7 @@ async function promptRelogin(): Promise<void> {
         content: t('core.auth.session_expired'),
         showCancel: false,
         confirmText: t('common.action.confirm'),
-        confirmColor: theme === 'light' ? '#e1251b' : '#ff4d4f',
+        confirmColor: colors.primary,
       }).catch(() => undefined as undefined),
       new Promise<undefined>((resolve) =>
         setTimeout(() => resolve(undefined), RELOGIN_PROMPT_TIMEOUT),

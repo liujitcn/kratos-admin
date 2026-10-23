@@ -25,7 +25,7 @@ const iconPaths: Record<string, string> = {
 const actionIcon = computed(() => {
   const icon = props.action?.icon
   if (!icon || !iconPaths[icon]) return icon
-  const color = themeStore.theme === 'light' ? '#1f1f1f' : '#f5f5f5'
+  const color = themeStore.colors.text
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">${iconPaths[icon]}</svg>`
   return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`
 })

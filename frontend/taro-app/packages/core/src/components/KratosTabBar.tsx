@@ -1,7 +1,7 @@
 import { Image, Text, View } from '@tarojs/components'
 import { resolveModuleIcon, resolveStaticView } from '../module'
 import { APP_MENU_ROOT_ID, navigateAppRoute, useAppMenuBadges, useAppNavigation } from '../navigation'
-import { useThemeStore } from '../stores'
+import { useThemeStore, type ThemeColors } from '../stores'
 import { resolveRootMenuId } from '../navigation-tree.mjs'
 import './KratosTabBar.scss'
 
@@ -20,16 +20,10 @@ const TAB_ICON_PATHS: Record<string, string> = {
 }
 
 /** 按设计稿线稿生成随主题与激活态取色的图标地址，未知 viewKey 返回空串走后端图标兜底。 */
-const tabIconSrc = (viewKey: string, active: boolean, theme: string): string => {
+const tabIconSrc = (viewKey: string, active: boolean, colors: ThemeColors): string => {
   const path = TAB_ICON_PATHS[viewKey]
   if (!path) return ''
-  const color = active
-    ? theme === 'light'
-      ? '#e1251b'
-      : '#ff4d4f'
-    : theme === 'light'
-      ? '#8c8c8c'
-      : '#8c8c8c'
+  const color = active ? colors.primary : colors.textDim
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="${path}"/></svg>`
   return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`
 }
@@ -56,7 +50,7 @@ export function KratosTabBar({ route }: KratosTabBarProps) {
     >
       {tabBar.map((item) => {
         const active = activeMenu.id === item.id
-        const designIcon = tabIconSrc(item.viewKey, active, themeStore.theme)
+        const designIcon = tabIconSrc(item.viewKey, active, themeStore.colors)
         const icon = designIcon || resolveModuleIcon(active && item.selectedIcon ? item.selectedIcon : item.icon)
         return (
           <View

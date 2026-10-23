@@ -43,8 +43,8 @@ export default function Composer(props: ComposerProps) {
   const [showModelPicker, setShowModelPicker] = useState(false)
   const [showKnowledgePicker, setShowKnowledgePicker] = useState(false)
   const themeStore = useThemeStore()
-  const iconColor = themeStore.theme === 'light' ? '#5a7083' : '#8aa0b4'
-  const primaryIconColor = themeStore.theme === 'light' ? '#039e8c' : '#28f0d4'
+  const iconColor = themeStore.colors.aiTextMuted
+  const primaryIconColor = themeStore.colors.aiPrimary
 
   const selectedModelDisplayName = useMemo(() => {
     const provider = props.modelProviders.find((item) => item.provider_id === props.providerId)

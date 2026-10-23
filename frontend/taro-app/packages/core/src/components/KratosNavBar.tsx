@@ -48,7 +48,7 @@ export default function KratosNavBar({ title, variant = 'page', back, action, on
   const navStyle = { '--kratos-nav-bar-capsule-gap': `${capsuleGap}px` } as CSSProperties
   const showBack = back ?? variant === 'page'
   const iconPath = action?.icon ? iconPaths[action.icon] : undefined
-  const color = themeStore.theme === 'light' ? '#1f1f1f' : '#f5f5f5'
+  const color = themeStore.colors.text
   const actionIcon = iconPath
     ? `data:image/svg+xml;charset=utf-8,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">${iconPath}</svg>`)}`
     : action?.icon

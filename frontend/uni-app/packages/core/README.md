@@ -43,6 +43,17 @@ packages/core
 - 登录阶段支持 TOTP、WebAuthn 和一次性恢复码校验；WebAuthn 编解码封装在 `src/utils/webauthn.ts`。
 - 构建时扫描模块 `src/views/**/*.vue`，逐文件合并模块 static，生成宿主页并在退出时按事务精确恢复。
 
+主题 store 公开 `themeStore.colors` 和 `registerThemeColors`。页面脚本使用语义颜色（例如 `colors.primary`、`colors.textMuted`），业务模块可以在初始化时传入 `light`、`dark` 的局部字段覆盖 Core 默认值；未传入的字段保持默认值，覆盖会立即作用于当前主题。
+
+```ts
+import { registerThemeColors } from '@liujitcn/kratos-uni-app-core/stores'
+
+registerThemeColors({
+  light: { primary: '#e1251b' },
+  dark: { primary: '#ff4d4f' },
+})
+```
+
 ## 公开入口
 
 登录页返回会清理本次回跳并替换到首页；直接打开登录页清理旧 `lastRoute`，登录成功默认进入首页。主动登录、路由守卫和会话过期重登通过 `redirect=1` 标记保留本次业务目标及查询参数，成功跳转后才清理目标。登录页每次显示都会检查有效登录态，已登录则替换回首页，避免浏览器回退重新停留在登录页。H5 与微信小程序统一使用 `reLaunch` 替换登录入口并重置应用页面栈。

@@ -262,8 +262,8 @@ const deleteSession = async (sessionID: string) => {
       title: session?.title || t('system.ai.current_session'),
     }),
     confirmText: t('common.action.delete'),
-    confirmColor: themeStore.theme === 'light' ? '#e0324f' : '#ff4d6d',
-    cancelColor: themeStore.theme === 'light' ? '#5a7083' : '#8aa0b4',
+    confirmColor: themeStore.colors.aiDanger,
+    cancelColor: themeStore.colors.aiTextMuted,
   })
   if (!result.confirm) {
     return

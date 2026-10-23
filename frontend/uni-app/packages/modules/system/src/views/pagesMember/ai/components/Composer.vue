@@ -50,8 +50,8 @@ const emit = defineEmits<{
 const showModelPicker = ref(false)
 const showKnowledgePicker = ref(false)
 const themeStore = useThemeStore()
-const iconColor = computed(() => (themeStore.theme === 'light' ? '#5a7083' : '#8aa0b4'))
-const primaryIconColor = computed(() => (themeStore.theme === 'light' ? '#039e8c' : '#28f0d4'))
+const iconColor = computed(() => themeStore.colors.aiTextMuted)
+const primaryIconColor = computed(() => themeStore.colors.aiPrimary)
 
 const selectedModelDisplayName = computed(() => {
   const provider = props.modelProviders.find((item) => item.provider_id === props.providerId)

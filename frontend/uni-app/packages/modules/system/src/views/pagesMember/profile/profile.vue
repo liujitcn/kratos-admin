@@ -339,7 +339,7 @@ const onSubmit = async () => {
             <label class="profile-radio" v-for="(item, index) in genderList" :key="index">
               <radio
                 :value="item.value"
-                :color="themeStore.theme === 'light' ? '#039e8c' : '#28f0d4'"
+                :color="themeStore.colors.aiPrimary"
                 :checked="userInfo?.gender === Number(item.value)"
               />
               {{ item.label }}

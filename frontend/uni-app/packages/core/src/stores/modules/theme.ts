@@ -1,10 +1,108 @@
 import { defineStore } from 'pinia'
-import { computed, ref, watch } from 'vue'
+import { computed, reactive, ref, watch } from 'vue'
 
 /** 主题模式：暗黑、明亮、跟随系统。 */
 export type ThemeMode = 'dark' | 'light' | 'auto'
 /** 实际生效的主题。 */
 export type ResolvedTheme = 'dark' | 'light'
+
+/** 当前主题可供脚本使用的语义颜色。 */
+export interface ThemeColors {
+  background: string
+  surface: string
+  surface2: string
+  surfaceRgb: string
+  primary: string
+  primaryDeep: string
+  onPrimary: string
+  info: string
+  warning: string
+  danger: string
+  violet: string
+  text: string
+  textMuted: string
+  textDim: string
+  aiPrimary: string
+  aiDanger: string
+  aiWarning: string
+  aiViolet: string
+  aiTextMuted: string
+  aiTextDim: string
+  navigationBarText: string
+}
+
+/** 引用模块可按主题覆盖的颜色字段。未提供的字段继续使用 Core 默认值。 */
+export type ThemeColorOverrides = {
+  light?: Partial<ThemeColors>
+  dark?: Partial<ThemeColors>
+}
+
+/** 明暗主题的统一语义颜色表；页面脚本禁止直接维护主题颜色三元表达式。 */
+export const themeColors: Record<ResolvedTheme, ThemeColors> = {
+  light: {
+    background: '#f5f5f5',
+    surface: '#ffffff',
+    surface2: '#f7f7f7',
+    surfaceRgb: '255, 255, 255',
+    primary: '#e1251b',
+    primaryDeep: '#c81623',
+    onPrimary: '#ffffff',
+    info: '#1677ff',
+    warning: '#fa8c16',
+    danger: '#e1251b',
+    violet: '#722ed1',
+    text: '#1f1f1f',
+    textMuted: '#666666',
+    textDim: '#8c8c8c',
+    aiPrimary: '#039e8c',
+    aiDanger: '#e0324f',
+    aiWarning: '#d9880f',
+    aiViolet: '#5f4fe0',
+    aiTextMuted: '#5a7083',
+    aiTextDim: '#9aabbb',
+    navigationBarText: '#000000',
+  },
+  dark: {
+    background: '#141414',
+    surface: '#1f1f1f',
+    surface2: '#262626',
+    surfaceRgb: '31, 31, 31',
+    primary: '#ff4d4f',
+    primaryDeep: '#e1251b',
+    onPrimary: '#ffffff',
+    info: '#4096ff',
+    warning: '#faad14',
+    danger: '#ff4d4f',
+    violet: '#b37feb',
+    text: '#f5f5f5',
+    textMuted: '#bfbfbf',
+    textDim: '#8c8c8c',
+    aiPrimary: '#28f0d4',
+    aiDanger: '#ff4d6d',
+    aiWarning: '#ffb648',
+    aiViolet: '#9b8cff',
+    aiTextMuted: '#8aa0b4',
+    aiTextDim: '#8aa0b4',
+    navigationBarText: '#ffffff',
+  },
+}
+
+const themeColorOverrides: Record<ResolvedTheme, Partial<ThemeColors>> = reactive({
+  light: {},
+  dark: {},
+})
+
+/** 获取指定主题的语义颜色。 */
+export const getThemeColors = (theme: ResolvedTheme): ThemeColors => ({
+  ...themeColors[theme],
+  ...themeColorOverrides[theme],
+})
+
+/** 注册引用模块的主题颜色覆盖，并立即刷新已创建的主题 store。 */
+export const registerThemeColors = (overrides: ThemeColorOverrides): void => {
+  if (overrides.light) Object.assign(themeColorOverrides.light, overrides.light)
+  if (overrides.dark) Object.assign(themeColorOverrides.dark, overrides.dark)
+}
 
 const THEME_MODE_STORAGE_KEY = 'kratos_theme_mode'
 const DEFAULT_THEME_MODE: ThemeMode = 'light'
@@ -45,13 +143,13 @@ const readStoredMode = (): ThemeMode => {
 /** 主题实际生效时给导航栏与页面底色染色，覆盖 pages.json 的静态浅色配置。 */
 const applyChrome = (theme: ResolvedTheme) => {
   try {
-    const navigationBarColor = theme === 'light' ? '#ffffff' : '#141414'
+    const colors = getThemeColors(theme)
     uni.setNavigationBarColor({
-      frontColor: theme === 'light' ? '#000000' : '#ffffff',
-      backgroundColor: navigationBarColor,
+      frontColor: colors.navigationBarText,
+      backgroundColor: colors.surface,
       fail: () => undefined,
     })
-    uni.setBackgroundColor({ backgroundColor: navigationBarColor, fail: () => undefined })
+    uni.setBackgroundColor({ backgroundColor: colors.background, fail: () => undefined })
   } catch {
     // 部分平台/版本未暴露导航栏染色 API，跳过不影响主题类。
   }
@@ -71,6 +169,7 @@ export const useThemeStore = defineStore('theme', () => {
     mode.value === 'auto' ? systemTheme.value : mode.value,
   )
   const themeClass = computed(() => `theme-${theme.value}`)
+  const colors = computed(() => getThemeColors(theme.value))
 
   /** 切换主题模式并持久化。 */
   const setMode = (nextMode: ThemeMode) => {
@@ -107,5 +206,5 @@ export const useThemeStore = defineStore('theme', () => {
 
   watch(theme, (value) => applyChrome(value), { immediate: true })
 
-  return { mode, theme, themeClass, setMode }
+  return { mode, theme, themeClass, colors, setMode }
 })

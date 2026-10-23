@@ -17,8 +17,8 @@ type WelcomePanelProps = {
 export default function WelcomePanel(props: WelcomePanelProps) {
   useI18n()
   const themeStore = useThemeStore()
-  const primaryIconColor = themeStore.theme === 'light' ? '#039e8c' : '#28f0d4'
-  const mutedIconColor = themeStore.theme === 'light' ? '#9aabbb' : '#8aa0b4'
+  const primaryIconColor = themeStore.colors.aiPrimary
+  const mutedIconColor = themeStore.colors.aiTextDim
   return (
     <View className='welcome-panel'>
       <View className='welcome-row is-hello'>
