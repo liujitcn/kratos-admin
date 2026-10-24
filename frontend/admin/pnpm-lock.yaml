@@ -6,7 +6,7 @@ settings:
 
 overrides:
   '@vueuse/core': 14.4.0
-  element-plus: 2.14.5
+  element-plus: 2.14.7
   svg-baker>braces: 3.0.3
   svg-baker>micromatch: 4.0.8
   svg-baker>postcss: 8.5.26
@@ -207,8 +207,8 @@ importers:
         specifier: ^6.1.0
         version: 6.1.0
       element-plus:
-        specifier: 2.14.5
-        version: 2.14.5(vue@3.5.42(typescript@6.0.3))
+        specifier: 2.14.7
+        version: 2.14.7(vue@3.5.42(typescript@6.0.3))
       go-captcha-vue:
         specifier: 2.0.7
         version: 2.0.7(vue@3.5.42(typescript@6.0.3))
@@ -306,8 +306,8 @@ importers:
         specifier: 14.4.0
         version: 14.4.0(vue@3.5.42(typescript@6.0.3))
       element-plus:
-        specifier: 2.14.5
-        version: 2.14.5(vue@3.5.42(typescript@6.0.3))
+        specifier: 2.14.7
+        version: 2.14.7(vue@3.5.42(typescript@6.0.3))
       vue:
         specifier: 3.5.42
         version: 3.5.42(typescript@6.0.3)
@@ -333,8 +333,8 @@ importers:
         specifier: 14.4.0
         version: 14.4.0(vue@3.5.42(typescript@6.0.3))
       element-plus:
-        specifier: 2.14.5
-        version: 2.14.5(vue@3.5.42(typescript@6.0.3))
+        specifier: 2.14.7
+        version: 2.14.7(vue@3.5.42(typescript@6.0.3))
       sortablejs:
         specifier: ^1.15.2
         version: 1.15.7
@@ -346,7 +346,7 @@ importers:
         version: 3.5.42(typescript@6.0.3)
       vue-element-plus-x:
         specifier: ^2.0.3
-        version: 2.0.3(element-plus@2.14.5(vue@3.5.42(typescript@6.0.3)))(rolldown@1.2.7)(rollup@4.64.5)(vue@3.5.42(typescript@6.0.3))
+        version: 2.0.3(element-plus@2.14.7(vue@3.5.42(typescript@6.0.3)))(rolldown@1.2.7)(rollup@4.64.5)(vue@3.5.42(typescript@6.0.3))
       vue-router:
         specifier: 5.3.1
         version: 5.3.1(@vue/compiler-sfc@3.5.42)(esbuild@0.27.7)(pinia@4.0.3(@vue/devtools-api@8.2.1)(typescript@6.0.3)(vue@3.5.42(typescript@6.0.3)))(rolldown@1.2.7)(rollup@4.64.5)(vite@8.2.2(@types/node@26.6.5)(esbuild@0.27.7)(jiti@2.6.1)(sass@1.103.1)(terser@5.51.2)(yaml@2.9.0))(vue@3.5.42(typescript@6.0.3))
@@ -1158,8 +1158,8 @@ packages:
     peerDependencies:
       postcss-selector-parser: ^7.1.1
 
-  '@ctrl/tinycolor@4.2.0':
-    resolution: {integrity: sha512-kzyuwOAQnXJNLS9PSyrk0CWk35nWJW/zl/6KvnTBMFK65gm7U1/Z5BqjxeapjZCIhQcM/DsrEmcbRwDyXyXK4A==}
+  '@ctrl/tinycolor@4.2.1':
+    resolution: {integrity: sha512-Vh5uy9Y1JBMId6J1f68TMXnZrTCvNdo9Fu2k0d1YnJngR+sM5kWTKl441c/3TFs+cG0NWOjRWgQ/iaWhbYx+7A==}
     engines: {node: '>=14'}
 
   '@element-plus/icons-vue@2.3.2':
@@ -2035,8 +2035,8 @@ packages:
   '@types/lodash-es@4.17.12':
     resolution: {integrity: sha512-0NgftHUcV4v34VhXm8QBSftKVXtbkBG3ViCjs6+eJ5a6y6Mi/jiFGPc1sC7QK+9BFhWrURE3EOggmWaSxL9OzQ==}
 
-  '@types/lodash@4.17.25':
-    resolution: {integrity: sha512-+K1NIO8I+F9/wNulfVvu23QYd0Pe9/OCqRrim4NoYIf1VoEDL90Ve4ClzpyqBLc7NpGGWRvYNCKZ1BE/Jpf8dQ==}
+  '@types/lodash@4.17.26':
+    resolution: {integrity: sha512-48NWfiY6oNcKOh47Z4h+sIvwcQR91h6KPhaYKgeMIrkT2jV82Gy90SErj60vW8jQbeMSOSbhIv3bZ7JoqPPVhA==}
 
   '@types/markdown-it@14.2.0':
     resolution: {integrity: sha512-NoQ2yGlLWj4wpxMs+TYmRKk3thDrQ97agr7sFqfLsAlvoS8SNQuTrlObhFqG9iugdTtgOE9jpJ6FNM4ZGsa5xQ==}
@@ -3044,8 +3044,8 @@ packages:
   electron-to-chromium@1.5.452:
     resolution: {integrity: sha512-cVvk1YBSj6571VmV6hdJTqj94Y79xSu8cj6Y9t6ae4Y4431z8/7EJFvu3rVp90xhfuv9BpPKUmaLfTo4+FOGBg==}
 
-  element-plus@2.14.5:
-    resolution: {integrity: sha512-bghYy/S+qg87enHPXELirhEdDqsVAUGcGpbGIeG8dz0kwpIkGz7gYsifulBshXX74iRtHib85XWQj0uSH2A1Yg==}
+  element-plus@2.14.7:
+    resolution: {integrity: sha512-lrG7pZyCS+mpCNVpzxxyu5r35+T6V0hzkAeIwn7HA6to772XSTHKuYCZG51OfzlqaxGbNegLxs650zAF1j43gA==}
     peerDependencies:
       vue: 3.5.42
 
@@ -5550,13 +5550,13 @@ packages:
   vscode-uri@3.2.0:
     resolution: {integrity: sha512-m2gXo3bn0G1kT9InzMf07fTbqMbGtyckj3bH5ktLO+1Ssv+yiATZ4dhwaQv9UZWxJh6E9IFGnQyjgWVDWVBDrg==}
 
-  vue-component-type-helpers@3.3.11:
-    resolution: {integrity: sha512-LwcxzeliO9fkQcpJG0PoX8X5kmAhKmH9wkpDLxNabwzkQ9Zeib2YVHwFV4pcWmMLfXVfjr/dSV+DaJ3cIPgSNA==}
+  vue-component-type-helpers@3.3.13:
+    resolution: {integrity: sha512-02KCxSmKDhIITjKyJ4QT5csP6L0WoRborLqY/34a40+S9uvMvdNgMV0yVjO3p2Gkz3ZoPmFz/0JsGHacwJYTxw==}
 
   vue-element-plus-x@2.0.3:
     resolution: {integrity: sha512-rWsIvozmZkJQLo0aV84YDQkfBf73AlooDZYWskg7I0EMJfLtau5CoPJkJaT76Qkbr9LUCnFIhLiAEFP/bOV/8w==}
     peerDependencies:
-      element-plus: 2.14.5
+      element-plus: 2.14.7
       vue: 3.5.42
 
   vue-i18n@11.4.10:
@@ -6954,7 +6954,7 @@ snapshots:
     dependencies:
       postcss-selector-parser: 7.1.6
 
-  '@ctrl/tinycolor@4.2.0': {}
+  '@ctrl/tinycolor@4.2.1': {}
 
   '@element-plus/icons-vue@2.3.2(vue@3.5.42(typescript@6.0.3))':
     dependencies:
@@ -7556,9 +7556,9 @@ snapshots:
 
   '@types/lodash-es@4.17.12':
     dependencies:
-      '@types/lodash': 4.17.25
+      '@types/lodash': 4.17.26
 
-  '@types/lodash@4.17.25': {}
+  '@types/lodash@4.17.26': {}
 
   '@types/markdown-it@14.2.0':
     dependencies:
@@ -8711,13 +8711,13 @@ snapshots:
 
   electron-to-chromium@1.5.452: {}
 
-  element-plus@2.14.5(vue@3.5.42(typescript@6.0.3)):
+  element-plus@2.14.7(vue@3.5.42(typescript@6.0.3)):
     dependencies:
-      '@ctrl/tinycolor': 4.2.0
+      '@ctrl/tinycolor': 4.2.1
       '@element-plus/icons-vue': 2.3.2(vue@3.5.42(typescript@6.0.3))
       '@floating-ui/dom': 1.8.0
       '@popperjs/core': '@sxzz/popperjs-es@2.11.8'
-      '@types/lodash': 4.17.25
+      '@types/lodash': 4.17.26
       '@types/lodash-es': 4.17.12
       '@vueuse/core': 14.4.0(vue@3.5.42(typescript@6.0.3))
       async-validator: 4.2.5
@@ -8728,7 +8728,7 @@ snapshots:
       memoize-one: 6.0.0
       normalize-wheel-es: 1.2.0
       vue: 3.5.42(typescript@6.0.3)
-      vue-component-type-helpers: 3.3.11
+      vue-component-type-helpers: 3.3.13
 
   emoji-regex@10.6.0: {}
 
@@ -11405,14 +11405,14 @@ snapshots:
 
   vscode-uri@3.2.0: {}
 
-  vue-component-type-helpers@3.3.11: {}
+  vue-component-type-helpers@3.3.13: {}
 
-  vue-element-plus-x@2.0.3(element-plus@2.14.5(vue@3.5.42(typescript@6.0.3)))(rolldown@1.2.7)(rollup@4.64.5)(vue@3.5.42(typescript@6.0.3)):
+  vue-element-plus-x@2.0.3(element-plus@2.14.7(vue@3.5.42(typescript@6.0.3)))(rolldown@1.2.7)(rollup@4.64.5)(vue@3.5.42(typescript@6.0.3)):
     dependencies:
       '@element-plus/icons-vue': 2.3.2(vue@3.5.42(typescript@6.0.3))
       '@vueuse/core': 14.4.0(vue@3.5.42(typescript@6.0.3))
       deepmerge: 4.3.1
-      element-plus: 2.14.5(vue@3.5.42(typescript@6.0.3))
+      element-plus: 2.14.7(vue@3.5.42(typescript@6.0.3))
       radash: 12.1.1
       rollup-plugin-visualizer: 6.0.11(rolldown@1.2.7)(rollup@4.64.5)
       ts-md5: 2.0.1
