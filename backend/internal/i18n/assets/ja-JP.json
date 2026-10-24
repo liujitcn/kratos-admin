@@ -5444,6 +5444,7 @@
   "legacy.error.53e503c248312ca3": {"other": "スクリプト名が重複しています"},
   "legacy.error.2eb4c634e73c7c20": {"other": "スクリプトID一覧を入力してください"},
   "legacy.error.627129d821b9a9ae": {"other": "スクリプト状態が無効です"},
+  "legacy.error.709fd6d34b5ab217": {"other": "スクリプト言語が無効です"},
   "legacy.error.0c349c765bb1630c": {"other": "現在はJavaScriptスクリプトのみ対応しています"},
   "legacy.error.3198350bdf120177": {"other": "スクリプトソースを入力してください"},
   "legacy.error.58814f41ef0b63a7": {"other": "スクリプト実行ログの記録に失敗しました"},

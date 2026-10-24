@@ -1802,6 +1802,7 @@
   "system.base.script.field.description": "説明",
   "system.base.script.field.critical": "重要スクリプト",
   "system.base.script.field.source": "ソースコード",
+  "system.base.script.placeholder.wasm_source": "WebAssembly ソースにはコンパイル済み成果物の Base64 テキストを入力してください。",
   "system.base.script.placeholder.hook_point": "将来の拡張ポイント用（任意）",
   "system.base.script.validation.name": "スクリプト名を入力してください",
   "system.base.script.validation.source": "ソースコードを入力してください",

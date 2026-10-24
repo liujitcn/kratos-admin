@@ -5444,6 +5444,7 @@
   "legacy.error.53e503c248312ca3": {"other": "腳本名稱重複"},
   "legacy.error.2eb4c634e73c7c20": {"other": "腳本 ID 清單不能為空"},
   "legacy.error.627129d821b9a9ae": {"other": "腳本狀態無效"},
+  "legacy.error.709fd6d34b5ab217": {"other": "腳本語言無效"},
   "legacy.error.0c349c765bb1630c": {"other": "目前僅支援 JavaScript 腳本"},
   "legacy.error.3198350bdf120177": {"other": "腳本原始碼不能為空"},
   "legacy.error.58814f41ef0b63a7": {"other": "記錄腳本執行日誌失敗"},

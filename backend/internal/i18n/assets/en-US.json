@@ -5444,6 +5444,7 @@
   "legacy.error.53e503c248312ca3": {"other": "Script name already exists"},
   "legacy.error.2eb4c634e73c7c20": {"other": "Script ID list cannot be empty"},
   "legacy.error.627129d821b9a9ae": {"other": "Invalid script status"},
+  "legacy.error.709fd6d34b5ab217": {"other": "Invalid script language"},
   "legacy.error.0c349c765bb1630c": {"other": "Only JavaScript scripts are supported"},
   "legacy.error.3198350bdf120177": {"other": "Script source cannot be empty"},
   "legacy.error.58814f41ef0b63a7": {"other": "Failed to record script execution log"},

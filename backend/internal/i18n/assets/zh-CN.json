@@ -5444,6 +5444,7 @@
   "legacy.error.53e503c248312ca3": {"other": "脚本名称重复"},
   "legacy.error.2eb4c634e73c7c20": {"other": "脚本ID列表不能为空"},
   "legacy.error.627129d821b9a9ae": {"other": "脚本状态无效"},
+  "legacy.error.709fd6d34b5ab217": {"other": "脚本语言无效"},
   "legacy.error.0c349c765bb1630c": {"other": "当前仅支持 JavaScript 脚本"},
   "legacy.error.3198350bdf120177": {"other": "脚本源码不能为空"},
   "legacy.error.58814f41ef0b63a7": {"other": "记录脚本执行日志失败"},
