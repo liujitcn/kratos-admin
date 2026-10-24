@@ -14,6 +14,9 @@
       "@liujitcn/kratos-admin-core/components/CodeBlock/index.vue": [
         "packages/core/src/components/CodeBlock/index.vue"
       ],
+      "@liujitcn/kratos-admin-core/components/CodeEditor/index.vue": [
+        "packages/core/src/components/CodeEditor/index.vue"
+      ],
       "@liujitcn/kratos-admin-core/components/Dialog/FormDialog.vue": ["packages/core/src/components/Dialog/FormDialog.vue"],
       "@liujitcn/kratos-admin-core/components/Dialog/ProDialog.vue": ["packages/core/src/components/Dialog/ProDialog.vue"],
       "@liujitcn/kratos-admin-core/components/Dialog/PasswordVerifyDialog.vue": [
