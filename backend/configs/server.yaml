@@ -28,23 +28,23 @@ server:
     event_ttl: 300s
     auto_stream: true
     auto_reply: true
-  mqtt:
-    # MQTT Broker 地址；不使用 MQTT 时删除整个 mqtt 节点。
-    endpoint: tcp://192.168.60.52:1883
-    # 多实例部署时每个进程必须使用唯一 Client ID，留空时由客户端生成。
-    client_id: KratosAdmin-EMQX
-    username: kratos-admin
-    password: kratos-admin
-    record_all: true
-    clean_session: true
-    codec: json
-    keep_alive: 30s
-    auto_reconnect: true
-    resume_subs: true
-    order_matters: true
-    write_timeout: 10s
-    connect_retry_interval: 5s
-    max_reconnect_interval: 300s
-    tls:
-      insecure_skip_verify: false
-      domain: ''
+#  mqtt:
+#    # MQTT Broker 地址；不使用 MQTT 时删除整个 mqtt 节点。
+#    endpoint: tcp://192.168.60.52:1883
+#    # 多实例部署时每个进程必须使用唯一 Client ID，留空时由客户端生成。
+#    client_id: KratosAdmin-EMQX
+#    username: kratos-admin
+#    password: kratos-admin
+#    record_all: true
+#    clean_session: true
+#    codec: json
+#    keep_alive: 30s
+#    auto_reconnect: true
+#    resume_subs: true
+#    order_matters: true
+#    write_timeout: 10s
+#    connect_retry_interval: 5s
+#    max_reconnect_interval: 300s
+#    tls:
+#      insecure_skip_verify: false
+#      domain: ''

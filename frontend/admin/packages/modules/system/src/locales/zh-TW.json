@@ -1802,6 +1802,7 @@
   "system.base.script.field.description": "腳本說明",
   "system.base.script.field.critical": "關鍵腳本",
   "system.base.script.field.source": "腳本原始碼",
+  "system.base.script.placeholder.wasm_source": "WebAssembly 原始碼請填寫編譯產物的 Base64 文字。",
   "system.base.script.placeholder.hook_point": "可留空，作為未來擴充點標記",
   "system.base.script.validation.name": "請輸入腳本名稱",
   "system.base.script.validation.source": "請輸入腳本原始碼",

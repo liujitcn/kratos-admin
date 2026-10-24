@@ -1802,6 +1802,7 @@
   "system.base.script.field.description": "脚本说明",
   "system.base.script.field.critical": "关键脚本",
   "system.base.script.field.source": "脚本源码",
+  "system.base.script.placeholder.wasm_source": "WebAssembly 源码请填写编译产物的 Base64 文本。",
   "system.base.script.placeholder.hook_point": "可留空，当前版本仅用于标记扩展点",
   "system.base.script.validation.name": "请输入脚本名称",
   "system.base.script.validation.source": "请输入脚本源码",

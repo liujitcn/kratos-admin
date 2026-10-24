@@ -86,7 +86,7 @@ func toBaseScriptLog(item *models.BaseScriptLog) *adminv1.BaseScriptLog {
 		Id:          item.ID,
 		ScriptId:    item.ScriptID,
 		ScriptName:  item.ScriptName,
-		Language:    item.Language,
+		Language:    scriptLanguageEnum(item.Language),
 		TriggerType: item.TriggerType,
 		HookPoint:   item.HookPoint,
 		Version:     item.Version,

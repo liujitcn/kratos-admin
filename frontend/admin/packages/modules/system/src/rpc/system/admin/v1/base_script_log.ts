@@ -5,6 +5,7 @@
 // source: system/admin/v1/base_script_log.proto
 
 /* eslint-disable */
+import type { BaseScriptLanguage } from "./base_script";
 
 /** 脚本执行日志分页查询条件。 */
 export interface PageBaseScriptLogRequest {
@@ -47,7 +48,7 @@ export interface BaseScriptLog {
   /** 脚本名称 */
   script_name: string;
   /** 脚本语言 */
-  language: string;
+  language: BaseScriptLanguage;
   /** 触发方式 */
   trigger_type: string;
   /** 钩子点或任务处理器 */

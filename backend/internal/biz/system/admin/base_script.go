@@ -52,8 +52,11 @@ func (c *BaseScriptCase) PageBaseScript(ctx context.Context, req *adminv1.PageBa
 	if req.GetHookPoint() != "" {
 		opts = append(opts, repository.Where(query.HookPoint.Like("%"+req.GetHookPoint()+"%")))
 	}
-	if req.Language != nil {
-		opts = append(opts, repository.Where(query.Language.Eq(scriptLanguageString(req.GetLanguage()))))
+	if req.Language != nil && req.GetLanguage() != adminv1.BaseScriptLanguage_BASE_SCRIPT_LANGUAGE_UNSPECIFIED {
+		language := scriptLanguageString(req.GetLanguage())
+		if language != "" {
+			opts = append(opts, repository.Where(query.Language.Eq(language)))
+		}
 	}
 	if req.Status != nil {
 		opts = append(opts, repository.Where(query.Status.Eq(int32(req.GetStatus()))))
@@ -162,8 +165,8 @@ func (c *BaseScriptCase) TestRunBaseScript(ctx context.Context, req *adminv1.Tes
 		language = scriptLanguageString(req.GetLanguage())
 		source = req.GetSource()
 	}
-	if language != scripting.JavaScriptLanguage {
-		return nil, errorsx.InvalidArgument("当前仅支持 JavaScript 脚本")
+	if language == "" {
+		return nil, errorsx.InvalidArgument("脚本语言无效")
 	}
 	if source == "" {
 		return nil, errorsx.InvalidArgument("脚本源码不能为空")
@@ -178,10 +181,11 @@ func (c *BaseScriptCase) TestRunBaseScript(ctx context.Context, req *adminv1.Tes
 	}
 
 	started := time.Now()
-	output, runErr := c.runtime.Execute(ctx, source, input)
-	response := &adminv1.TestRunBaseScriptResponse{Success: runErr == nil}
-	if runErr != nil {
-		response.Error = runErr.Error()
+	var output any
+	output, err = c.runtime.Execute(ctx, language, source, input)
+	response := &adminv1.TestRunBaseScriptResponse{Success: err == nil}
+	if err != nil {
+		response.Error = err.Error()
 	} else {
 		response.OutputJson, err = scripting.MarshalOutput(output)
 		if err != nil {
@@ -213,8 +217,8 @@ func validateScriptForm(req *adminv1.BaseScriptForm) error {
 	if req.GetId() < 0 {
 		return errorsx.InvalidArgument("脚本ID无效")
 	}
-	if req.GetLanguage() != adminv1.BaseScriptLanguage_BASE_SCRIPT_LANGUAGE_JAVASCRIPT {
-		return errorsx.InvalidArgument("当前仅支持 JavaScript 脚本")
+	if scriptLanguageString(req.GetLanguage()) == "" {
+		return errorsx.InvalidArgument("脚本语言无效")
 	}
 	if !scriptStatusValid(int32(req.GetStatus())) {
 		return errorsx.InvalidArgument("脚本状态无效")
@@ -277,16 +281,50 @@ func toBaseScriptForm(item *models.BaseScript) *adminv1.BaseScriptForm {
 
 // scriptLanguageString 将协议语言转换为数据库语言标识。
 func scriptLanguageString(language adminv1.BaseScriptLanguage) string {
-	if language == adminv1.BaseScriptLanguage_BASE_SCRIPT_LANGUAGE_JAVASCRIPT {
+	switch language {
+	case adminv1.BaseScriptLanguage_BASE_SCRIPT_LANGUAGE_JAVASCRIPT:
 		return scripting.JavaScriptLanguage
+	case adminv1.BaseScriptLanguage_BASE_SCRIPT_LANGUAGE_LUA:
+		return scripting.LuaLanguage
+	case adminv1.BaseScriptLanguage_BASE_SCRIPT_LANGUAGE_PYTHON:
+		return scripting.PythonLanguage
+	case adminv1.BaseScriptLanguage_BASE_SCRIPT_LANGUAGE_GO:
+		return scripting.GoLanguage
+	case adminv1.BaseScriptLanguage_BASE_SCRIPT_LANGUAGE_WASM:
+		return scripting.WasmLanguage
+	case adminv1.BaseScriptLanguage_BASE_SCRIPT_LANGUAGE_CEL:
+		return scripting.CELLanguage
+	case adminv1.BaseScriptLanguage_BASE_SCRIPT_LANGUAGE_EXPR:
+		return scripting.ExprLanguage
+	case adminv1.BaseScriptLanguage_BASE_SCRIPT_LANGUAGE_STARLARK:
+		return scripting.StarlarkLanguage
+	case adminv1.BaseScriptLanguage_BASE_SCRIPT_LANGUAGE_TCL:
+		return scripting.TclLanguage
 	}
 	return ""
 }
 
 // scriptLanguageEnum 将数据库语言标识转换为协议枚举。
 func scriptLanguageEnum(language string) adminv1.BaseScriptLanguage {
-	if language == scripting.JavaScriptLanguage {
+	switch language {
+	case scripting.JavaScriptLanguage:
 		return adminv1.BaseScriptLanguage_BASE_SCRIPT_LANGUAGE_JAVASCRIPT
+	case scripting.LuaLanguage:
+		return adminv1.BaseScriptLanguage_BASE_SCRIPT_LANGUAGE_LUA
+	case scripting.PythonLanguage:
+		return adminv1.BaseScriptLanguage_BASE_SCRIPT_LANGUAGE_PYTHON
+	case scripting.GoLanguage:
+		return adminv1.BaseScriptLanguage_BASE_SCRIPT_LANGUAGE_GO
+	case scripting.WasmLanguage:
+		return adminv1.BaseScriptLanguage_BASE_SCRIPT_LANGUAGE_WASM
+	case scripting.CELLanguage:
+		return adminv1.BaseScriptLanguage_BASE_SCRIPT_LANGUAGE_CEL
+	case scripting.ExprLanguage:
+		return adminv1.BaseScriptLanguage_BASE_SCRIPT_LANGUAGE_EXPR
+	case scripting.StarlarkLanguage:
+		return adminv1.BaseScriptLanguage_BASE_SCRIPT_LANGUAGE_STARLARK
+	case scripting.TclLanguage:
+		return adminv1.BaseScriptLanguage_BASE_SCRIPT_LANGUAGE_TCL
 	}
 	return adminv1.BaseScriptLanguage_BASE_SCRIPT_LANGUAGE_UNSPECIFIED
 }

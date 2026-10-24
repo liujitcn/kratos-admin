@@ -211,19 +211,19 @@ func (x *GetBaseScriptLogRequest) GetId() int64 {
 // 脚本执行日志。
 type BaseScriptLog struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                     // 日志ID
-	ScriptId      int64                  `protobuf:"varint,2,opt,name=script_id,json=scriptId,proto3" json:"script_id,omitempty"`         // 脚本ID
-	ScriptName    string                 `protobuf:"bytes,3,opt,name=script_name,json=scriptName,proto3" json:"script_name,omitempty"`    // 脚本名称
-	Language      string                 `protobuf:"bytes,4,opt,name=language,proto3" json:"language,omitempty"`                          // 脚本语言
-	TriggerType   string                 `protobuf:"bytes,5,opt,name=trigger_type,json=triggerType,proto3" json:"trigger_type,omitempty"` // 触发方式
-	HookPoint     string                 `protobuf:"bytes,6,opt,name=hook_point,json=hookPoint,proto3" json:"hook_point,omitempty"`       // 钩子点或任务处理器
-	Version       int32                  `protobuf:"varint,7,opt,name=version,proto3" json:"version,omitempty"`                           // 执行时版本
-	Success       bool                   `protobuf:"varint,8,opt,name=success,proto3" json:"success,omitempty"`                           // 是否成功
-	DurationMs    int64                  `protobuf:"varint,9,opt,name=duration_ms,json=durationMs,proto3" json:"duration_ms,omitempty"`   // 耗时毫秒
-	Error         string                 `protobuf:"bytes,10,opt,name=error,proto3" json:"error,omitempty"`                               // 错误信息
-	RequestId     string                 `protobuf:"bytes,11,opt,name=request_id,json=requestId,proto3" json:"request_id,omitempty"`      // 请求ID
-	TraceId       string                 `protobuf:"bytes,12,opt,name=trace_id,json=traceId,proto3" json:"trace_id,omitempty"`            // 链路追踪ID
-	CreatedAt     string                 `protobuf:"bytes,200,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`     // 执行时间
+	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                                     // 日志ID
+	ScriptId      int64                  `protobuf:"varint,2,opt,name=script_id,json=scriptId,proto3" json:"script_id,omitempty"`                         // 脚本ID
+	ScriptName    string                 `protobuf:"bytes,3,opt,name=script_name,json=scriptName,proto3" json:"script_name,omitempty"`                    // 脚本名称
+	Language      BaseScriptLanguage     `protobuf:"varint,4,opt,name=language,proto3,enum=system.admin.v1.BaseScriptLanguage" json:"language,omitempty"` // 脚本语言
+	TriggerType   string                 `protobuf:"bytes,5,opt,name=trigger_type,json=triggerType,proto3" json:"trigger_type,omitempty"`                 // 触发方式
+	HookPoint     string                 `protobuf:"bytes,6,opt,name=hook_point,json=hookPoint,proto3" json:"hook_point,omitempty"`                       // 钩子点或任务处理器
+	Version       int32                  `protobuf:"varint,7,opt,name=version,proto3" json:"version,omitempty"`                                           // 执行时版本
+	Success       bool                   `protobuf:"varint,8,opt,name=success,proto3" json:"success,omitempty"`                                           // 是否成功
+	DurationMs    int64                  `protobuf:"varint,9,opt,name=duration_ms,json=durationMs,proto3" json:"duration_ms,omitempty"`                   // 耗时毫秒
+	Error         string                 `protobuf:"bytes,10,opt,name=error,proto3" json:"error,omitempty"`                                               // 错误信息
+	RequestId     string                 `protobuf:"bytes,11,opt,name=request_id,json=requestId,proto3" json:"request_id,omitempty"`                      // 请求ID
+	TraceId       string                 `protobuf:"bytes,12,opt,name=trace_id,json=traceId,proto3" json:"trace_id,omitempty"`                            // 链路追踪ID
+	CreatedAt     string                 `protobuf:"bytes,200,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`                     // 执行时间
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -279,11 +279,11 @@ func (x *BaseScriptLog) GetScriptName() string {
 	return ""
 }
 
-func (x *BaseScriptLog) GetLanguage() string {
+func (x *BaseScriptLog) GetLanguage() BaseScriptLanguage {
 	if x != nil {
 		return x.Language
 	}
-	return ""
+	return BaseScriptLanguage_BASE_SCRIPT_LANGUAGE_UNSPECIFIED
 }
 
 func (x *BaseScriptLog) GetTriggerType() string {
@@ -353,7 +353,7 @@ var File_system_admin_v1_base_script_log_proto protoreflect.FileDescriptor
 
 const file_system_admin_v1_base_script_log_proto_rawDesc = "" +
 	"\n" +
-	"%system/admin/v1/base_script_log.proto\x12\x0fsystem.admin.v1\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bbuf/validate/validate.proto\"\x82\x03\n" +
+	"%system/admin/v1/base_script_log.proto\x12\x0fsystem.admin.v1\x1a!system/admin/v1/base_script.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bbuf/validate/validate.proto\"\x82\x03\n" +
 	"\x18PageBaseScriptLogRequest\x12+\n" +
 	"\tscript_id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b脚本IDR\bscriptId\x125\n" +
 	"\ftrigger_type\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f触发方式R\vtriggerType\x121\n" +
@@ -368,13 +368,13 @@ const file_system_admin_v1_base_script_log_proto_rawDesc = "" +
 	"\x10base_script_logs\x18\x01 \x03(\v2\x1e.system.admin.v1.BaseScriptLogB\x12\xbaG\x0f\x92\x02\f分页数据R\x0ebaseScriptLogs\x12\"\n" +
 	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\"F\n" +
 	"\x17GetBaseScriptLogRequest\x12+\n" +
-	"\x02id\x18\x01 \x01(\x03B\x1b\xbaG\x11\x92\x02\x0e脚本日志ID\xbaH\x04\"\x02 \x00R\x02id\"\x8c\x05\n" +
+	"\x02id\x18\x01 \x01(\x03B\x1b\xbaG\x11\x92\x02\x0e脚本日志ID\xbaH\x04\"\x02 \x00R\x02id\"\xb1\x05\n" +
 	"\rBaseScriptLog\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b日志IDR\x02id\x12+\n" +
 	"\tscript_id\x18\x02 \x01(\x03B\x0e\xbaG\v\x92\x02\b脚本IDR\bscriptId\x123\n" +
 	"\vscript_name\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f脚本名称R\n" +
-	"scriptName\x12.\n" +
-	"\blanguage\x18\x04 \x01(\tB\x12\xbaG\x0f\x92\x02\f脚本语言R\blanguage\x125\n" +
+	"scriptName\x12S\n" +
+	"\blanguage\x18\x04 \x01(\x0e2#.system.admin.v1.BaseScriptLanguageB\x12\xbaG\x0f\x92\x02\f脚本语言R\blanguage\x125\n" +
 	"\ftrigger_type\x18\x05 \x01(\tB\x12\xbaG\x0f\x92\x02\f触发方式R\vtriggerType\x12@\n" +
 	"\n" +
 	"hook_point\x18\x06 \x01(\tB!\xbaG\x1e\x92\x02\x1b钩子点或任务处理器R\thookPoint\x12/\n" +
@@ -412,18 +412,20 @@ var file_system_admin_v1_base_script_log_proto_goTypes = []any{
 	(*PageBaseScriptLogResponse)(nil), // 1: system.admin.v1.PageBaseScriptLogResponse
 	(*GetBaseScriptLogRequest)(nil),   // 2: system.admin.v1.GetBaseScriptLogRequest
 	(*BaseScriptLog)(nil),             // 3: system.admin.v1.BaseScriptLog
+	(BaseScriptLanguage)(0),           // 4: system.admin.v1.BaseScriptLanguage
 }
 var file_system_admin_v1_base_script_log_proto_depIdxs = []int32{
 	3, // 0: system.admin.v1.PageBaseScriptLogResponse.base_script_logs:type_name -> system.admin.v1.BaseScriptLog
-	0, // 1: system.admin.v1.BaseScriptLogService.PageBaseScriptLog:input_type -> system.admin.v1.PageBaseScriptLogRequest
-	2, // 2: system.admin.v1.BaseScriptLogService.GetBaseScriptLog:input_type -> system.admin.v1.GetBaseScriptLogRequest
-	1, // 3: system.admin.v1.BaseScriptLogService.PageBaseScriptLog:output_type -> system.admin.v1.PageBaseScriptLogResponse
-	3, // 4: system.admin.v1.BaseScriptLogService.GetBaseScriptLog:output_type -> system.admin.v1.BaseScriptLog
-	3, // [3:5] is the sub-list for method output_type
-	1, // [1:3] is the sub-list for method input_type
-	1, // [1:1] is the sub-list for extension type_name
-	1, // [1:1] is the sub-list for extension extendee
-	0, // [0:1] is the sub-list for field type_name
+	4, // 1: system.admin.v1.BaseScriptLog.language:type_name -> system.admin.v1.BaseScriptLanguage
+	0, // 2: system.admin.v1.BaseScriptLogService.PageBaseScriptLog:input_type -> system.admin.v1.PageBaseScriptLogRequest
+	2, // 3: system.admin.v1.BaseScriptLogService.GetBaseScriptLog:input_type -> system.admin.v1.GetBaseScriptLogRequest
+	1, // 4: system.admin.v1.BaseScriptLogService.PageBaseScriptLog:output_type -> system.admin.v1.PageBaseScriptLogResponse
+	3, // 5: system.admin.v1.BaseScriptLogService.GetBaseScriptLog:output_type -> system.admin.v1.BaseScriptLog
+	4, // [4:6] is the sub-list for method output_type
+	2, // [2:4] is the sub-list for method input_type
+	2, // [2:2] is the sub-list for extension type_name
+	2, // [2:2] is the sub-list for extension extendee
+	0, // [0:2] is the sub-list for field type_name
 }
 
 func init() { file_system_admin_v1_base_script_log_proto_init() }
@@ -431,6 +433,7 @@ func file_system_admin_v1_base_script_log_proto_init() {
 	if File_system_admin_v1_base_script_log_proto != nil {
 		return
 	}
+	file_system_admin_v1_base_script_proto_init()
 	file_system_admin_v1_base_script_log_proto_msgTypes[0].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{

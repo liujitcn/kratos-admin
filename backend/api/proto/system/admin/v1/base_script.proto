@@ -65,6 +65,22 @@ enum BaseScriptLanguage {
   BASE_SCRIPT_LANGUAGE_UNSPECIFIED = 0;
   // JavaScript脚本。
   BASE_SCRIPT_LANGUAGE_JAVASCRIPT = 1;
+  // Lua脚本。
+  BASE_SCRIPT_LANGUAGE_LUA = 2;
+  // Python脚本。
+  BASE_SCRIPT_LANGUAGE_PYTHON = 3;
+  // Go脚本。
+  BASE_SCRIPT_LANGUAGE_GO = 4;
+  // WebAssembly脚本。
+  BASE_SCRIPT_LANGUAGE_WASM = 5;
+  // CEL表达式。
+  BASE_SCRIPT_LANGUAGE_CEL = 6;
+  // Expr表达式。
+  BASE_SCRIPT_LANGUAGE_EXPR = 7;
+  // Starlark脚本。
+  BASE_SCRIPT_LANGUAGE_STARLARK = 8;
+  // TCL脚本。
+  BASE_SCRIPT_LANGUAGE_TCL = 9;
 }
 
 // 脚本分页查询条件。

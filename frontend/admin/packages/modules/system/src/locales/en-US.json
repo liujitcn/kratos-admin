@@ -1802,6 +1802,7 @@
   "system.base.script.field.description": "Description",
   "system.base.script.field.critical": "Critical script",
   "system.base.script.field.source": "Source",
+  "system.base.script.placeholder.wasm_source": "Enter the compiled WebAssembly artifact as Base64 text.",
   "system.base.script.placeholder.hook_point": "Optional marker for a future extension point",
   "system.base.script.validation.name": "Enter a script name",
   "system.base.script.validation.source": "Enter script source",

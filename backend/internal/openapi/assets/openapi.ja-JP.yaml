@@ -5033,6 +5033,14 @@ paths:
                     enum:
                         - BASE_SCRIPT_LANGUAGE_UNSPECIFIED
                         - BASE_SCRIPT_LANGUAGE_JAVASCRIPT
+                        - BASE_SCRIPT_LANGUAGE_LUA
+                        - BASE_SCRIPT_LANGUAGE_PYTHON
+                        - BASE_SCRIPT_LANGUAGE_GO
+                        - BASE_SCRIPT_LANGUAGE_WASM
+                        - BASE_SCRIPT_LANGUAGE_CEL
+                        - BASE_SCRIPT_LANGUAGE_EXPR
+                        - BASE_SCRIPT_LANGUAGE_STARLARK
+                        - BASE_SCRIPT_LANGUAGE_TCL
                     type: string
                     format: enum
                 - name: status
@@ -14213,6 +14221,14 @@ components:
                     enum:
                         - BASE_SCRIPT_LANGUAGE_UNSPECIFIED
                         - BASE_SCRIPT_LANGUAGE_JAVASCRIPT
+                        - BASE_SCRIPT_LANGUAGE_LUA
+                        - BASE_SCRIPT_LANGUAGE_PYTHON
+                        - BASE_SCRIPT_LANGUAGE_GO
+                        - BASE_SCRIPT_LANGUAGE_WASM
+                        - BASE_SCRIPT_LANGUAGE_CEL
+                        - BASE_SCRIPT_LANGUAGE_EXPR
+                        - BASE_SCRIPT_LANGUAGE_STARLARK
+                        - BASE_SCRIPT_LANGUAGE_TCL
                     type: string
                     description: スクリプト言語
                     format: enum
@@ -14261,6 +14277,14 @@ components:
                     enum:
                         - BASE_SCRIPT_LANGUAGE_UNSPECIFIED
                         - BASE_SCRIPT_LANGUAGE_JAVASCRIPT
+                        - BASE_SCRIPT_LANGUAGE_LUA
+                        - BASE_SCRIPT_LANGUAGE_PYTHON
+                        - BASE_SCRIPT_LANGUAGE_GO
+                        - BASE_SCRIPT_LANGUAGE_WASM
+                        - BASE_SCRIPT_LANGUAGE_CEL
+                        - BASE_SCRIPT_LANGUAGE_EXPR
+                        - BASE_SCRIPT_LANGUAGE_STARLARK
+                        - BASE_SCRIPT_LANGUAGE_TCL
                     type: string
                     description: スクリプト言語
                     format: enum
@@ -14302,8 +14326,20 @@ components:
                     type: string
                     description: スクリプト名
                 language:
+                    enum:
+                        - BASE_SCRIPT_LANGUAGE_UNSPECIFIED
+                        - BASE_SCRIPT_LANGUAGE_JAVASCRIPT
+                        - BASE_SCRIPT_LANGUAGE_LUA
+                        - BASE_SCRIPT_LANGUAGE_PYTHON
+                        - BASE_SCRIPT_LANGUAGE_GO
+                        - BASE_SCRIPT_LANGUAGE_WASM
+                        - BASE_SCRIPT_LANGUAGE_CEL
+                        - BASE_SCRIPT_LANGUAGE_EXPR
+                        - BASE_SCRIPT_LANGUAGE_STARLARK
+                        - BASE_SCRIPT_LANGUAGE_TCL
                     type: string
                     description: スクリプト言語
+                    format: enum
                 trigger_type:
                     type: string
                     description: トリガー種別
@@ -17855,6 +17891,14 @@ components:
                     enum:
                         - BASE_SCRIPT_LANGUAGE_UNSPECIFIED
                         - BASE_SCRIPT_LANGUAGE_JAVASCRIPT
+                        - BASE_SCRIPT_LANGUAGE_LUA
+                        - BASE_SCRIPT_LANGUAGE_PYTHON
+                        - BASE_SCRIPT_LANGUAGE_GO
+                        - BASE_SCRIPT_LANGUAGE_WASM
+                        - BASE_SCRIPT_LANGUAGE_CEL
+                        - BASE_SCRIPT_LANGUAGE_EXPR
+                        - BASE_SCRIPT_LANGUAGE_STARLARK
+                        - BASE_SCRIPT_LANGUAGE_TCL
                     type: string
                     description: 下書きスクリプト言語
                     format: enum

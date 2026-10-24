@@ -35,6 +35,22 @@ const (
 	BaseScriptLanguage_BASE_SCRIPT_LANGUAGE_UNSPECIFIED BaseScriptLanguage = 0
 	// JavaScript脚本。
 	BaseScriptLanguage_BASE_SCRIPT_LANGUAGE_JAVASCRIPT BaseScriptLanguage = 1
+	// Lua脚本。
+	BaseScriptLanguage_BASE_SCRIPT_LANGUAGE_LUA BaseScriptLanguage = 2
+	// Python脚本。
+	BaseScriptLanguage_BASE_SCRIPT_LANGUAGE_PYTHON BaseScriptLanguage = 3
+	// Go脚本。
+	BaseScriptLanguage_BASE_SCRIPT_LANGUAGE_GO BaseScriptLanguage = 4
+	// WebAssembly脚本。
+	BaseScriptLanguage_BASE_SCRIPT_LANGUAGE_WASM BaseScriptLanguage = 5
+	// CEL表达式。
+	BaseScriptLanguage_BASE_SCRIPT_LANGUAGE_CEL BaseScriptLanguage = 6
+	// Expr表达式。
+	BaseScriptLanguage_BASE_SCRIPT_LANGUAGE_EXPR BaseScriptLanguage = 7
+	// Starlark脚本。
+	BaseScriptLanguage_BASE_SCRIPT_LANGUAGE_STARLARK BaseScriptLanguage = 8
+	// TCL脚本。
+	BaseScriptLanguage_BASE_SCRIPT_LANGUAGE_TCL BaseScriptLanguage = 9
 )
 
 // Enum value maps for BaseScriptLanguage.
@@ -42,10 +58,26 @@ var (
 	BaseScriptLanguage_name = map[int32]string{
 		0: "BASE_SCRIPT_LANGUAGE_UNSPECIFIED",
 		1: "BASE_SCRIPT_LANGUAGE_JAVASCRIPT",
+		2: "BASE_SCRIPT_LANGUAGE_LUA",
+		3: "BASE_SCRIPT_LANGUAGE_PYTHON",
+		4: "BASE_SCRIPT_LANGUAGE_GO",
+		5: "BASE_SCRIPT_LANGUAGE_WASM",
+		6: "BASE_SCRIPT_LANGUAGE_CEL",
+		7: "BASE_SCRIPT_LANGUAGE_EXPR",
+		8: "BASE_SCRIPT_LANGUAGE_STARLARK",
+		9: "BASE_SCRIPT_LANGUAGE_TCL",
 	}
 	BaseScriptLanguage_value = map[string]int32{
 		"BASE_SCRIPT_LANGUAGE_UNSPECIFIED": 0,
 		"BASE_SCRIPT_LANGUAGE_JAVASCRIPT":  1,
+		"BASE_SCRIPT_LANGUAGE_LUA":         2,
+		"BASE_SCRIPT_LANGUAGE_PYTHON":      3,
+		"BASE_SCRIPT_LANGUAGE_GO":          4,
+		"BASE_SCRIPT_LANGUAGE_WASM":        5,
+		"BASE_SCRIPT_LANGUAGE_CEL":         6,
+		"BASE_SCRIPT_LANGUAGE_EXPR":        7,
+		"BASE_SCRIPT_LANGUAGE_STARLARK":    8,
+		"BASE_SCRIPT_LANGUAGE_TCL":         9,
 	}
 )
 
@@ -895,10 +927,18 @@ const file_system_admin_v1_base_script_proto_rawDesc = "" +
 	"\n" +
 	"created_at\x18\xc8\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f创建时间R\tcreatedAt\x122\n" +
 	"\n" +
-	"updated_at\x18\xc9\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f更新时间R\tupdatedAt*_\n" +
+	"updated_at\x18\xc9\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f更新时间R\tupdatedAt*\xd8\x02\n" +
 	"\x12BaseScriptLanguage\x12$\n" +
 	" BASE_SCRIPT_LANGUAGE_UNSPECIFIED\x10\x00\x12#\n" +
-	"\x1fBASE_SCRIPT_LANGUAGE_JAVASCRIPT\x10\x012\xe3\a\n" +
+	"\x1fBASE_SCRIPT_LANGUAGE_JAVASCRIPT\x10\x01\x12\x1c\n" +
+	"\x18BASE_SCRIPT_LANGUAGE_LUA\x10\x02\x12\x1f\n" +
+	"\x1bBASE_SCRIPT_LANGUAGE_PYTHON\x10\x03\x12\x1b\n" +
+	"\x17BASE_SCRIPT_LANGUAGE_GO\x10\x04\x12\x1d\n" +
+	"\x19BASE_SCRIPT_LANGUAGE_WASM\x10\x05\x12\x1c\n" +
+	"\x18BASE_SCRIPT_LANGUAGE_CEL\x10\x06\x12\x1d\n" +
+	"\x19BASE_SCRIPT_LANGUAGE_EXPR\x10\a\x12!\n" +
+	"\x1dBASE_SCRIPT_LANGUAGE_STARLARK\x10\b\x12\x1c\n" +
+	"\x18BASE_SCRIPT_LANGUAGE_TCL\x10\t2\xe3\a\n" +
 	"\x11BaseScriptService\x12\x84\x01\n" +
 	"\x0ePageBaseScript\x12&.system.admin.v1.PageBaseScriptRequest\x1a'.system.admin.v1.PageBaseScriptResponse\"!\x82\xd3\xe4\x93\x02\x1b\x12\x19/api/v1/admin/base/script\x12\x7f\n" +
 	"\rGetBaseScript\x12%.system.admin.v1.GetBaseScriptRequest\x1a\x1f.system.admin.v1.BaseScriptForm\"&\x82\xd3\xe4\x93\x02 \x12\x1e/api/v1/admin/base/script/{id}\x12\x84\x01\n" +

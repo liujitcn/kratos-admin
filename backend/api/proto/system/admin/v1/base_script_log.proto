@@ -2,6 +2,7 @@ syntax = "proto3";
 
 package system.admin.v1;
 
+import "system/admin/v1/base_script.proto";
 import "gnostic/openapi/v3/annotations.proto";
 import "google/api/annotations.proto";
 import "buf/validate/validate.proto";
@@ -45,7 +46,7 @@ message BaseScriptLog {
   int64 id = 1 [(gnostic.openapi.v3.property) = {description: "日志ID"}]; // 日志ID
   int64 script_id = 2 [(gnostic.openapi.v3.property) = {description: "脚本ID"}]; // 脚本ID
   string script_name = 3 [(gnostic.openapi.v3.property) = {description: "脚本名称"}]; // 脚本名称
-  string language = 4 [(gnostic.openapi.v3.property) = {description: "脚本语言"}]; // 脚本语言
+  BaseScriptLanguage language = 4 [(gnostic.openapi.v3.property) = {description: "脚本语言"}]; // 脚本语言
   string trigger_type = 5 [(gnostic.openapi.v3.property) = {description: "触发方式"}]; // 触发方式
   string hook_point = 6 [(gnostic.openapi.v3.property) = {description: "钩子点或任务处理器"}]; // 钩子点或任务处理器
   int32 version = 7 [(gnostic.openapi.v3.property) = {description: "执行时版本"}]; // 执行时版本

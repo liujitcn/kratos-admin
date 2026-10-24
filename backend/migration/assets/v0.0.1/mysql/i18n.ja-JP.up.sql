@@ -587,3 +587,17 @@ INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VAL
 INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_menu.meta.title', 91410106, 'ja-JP', 'スクリプトログを表示');
 INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_menu.meta.title', 91410500, 'ja-JP', 'スクリプトログ');
 INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_menu.meta.title', 91410501, 'ja-JP', 'スクリプトログ詳細');
+
+-- スクリプト辞書の翻訳。
+INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_dict.name', 1500, 'ja-JP', 'スクリプト言語');
+INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_dict.name', 1510, 'ja-JP', 'スクリプトトリガー種別');
+INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_dict_item.label', 15001, 'ja-JP', 'JavaScript');
+INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_dict_item.label', 15002, 'ja-JP', 'Lua');
+INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_dict_item.label', 15003, 'ja-JP', 'Python');
+INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_dict_item.label', 15004, 'ja-JP', 'Go');
+INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_dict_item.label', 15005, 'ja-JP', 'WebAssembly');
+INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_dict_item.label', 15006, 'ja-JP', 'CEL');
+INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_dict_item.label', 15007, 'ja-JP', 'Expr');
+INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_dict_item.label', 15008, 'ja-JP', 'Starlark');
+INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_dict_item.label', 15009, 'ja-JP', 'TCL');
+INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_dict_item.label', 15101, 'ja-JP', 'テスト実行');

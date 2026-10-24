@@ -587,3 +587,17 @@ INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VAL
 INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_menu.meta.title', 91410106, 'en-US', 'View Script Logs');
 INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_menu.meta.title', 91410500, 'en-US', 'Script Logs');
 INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_menu.meta.title', 91410501, 'en-US', 'View Script Log Details');
+
+-- Script dictionaries.
+INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_dict.name', 1500, 'en-US', 'Script Language');
+INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_dict.name', 1510, 'en-US', 'Script Trigger Type');
+INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_dict_item.label', 15001, 'en-US', 'JavaScript');
+INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_dict_item.label', 15002, 'en-US', 'Lua');
+INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_dict_item.label', 15003, 'en-US', 'Python');
+INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_dict_item.label', 15004, 'en-US', 'Go');
+INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_dict_item.label', 15005, 'en-US', 'WebAssembly');
+INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_dict_item.label', 15006, 'en-US', 'CEL');
+INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_dict_item.label', 15007, 'en-US', 'Expr');
+INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_dict_item.label', 15008, 'en-US', 'Starlark');
+INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_dict_item.label', 15009, 'en-US', 'TCL');
+INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_dict_item.label', 15101, 'en-US', 'Test Run');
