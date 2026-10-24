@@ -31,7 +31,7 @@
     "oxlint": "^1.87.0",
     "postcss": "^8.5.29",
     "postcss-html": "^1.8.1",
-    "prettier": "^3.3.2",
+    "prettier": "^3.9.10",
     "sass": "^1.100.0",
     "standard-version": "^9.5.0",
     "stylelint": "^17.15.0",
