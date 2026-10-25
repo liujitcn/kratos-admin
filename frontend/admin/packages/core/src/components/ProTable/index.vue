@@ -128,11 +128,25 @@
     </slot>
   </div>
   <!-- 列设置 -->
-  <ColSetting v-if="toolButton" ref="colRef" v-model:col-setting="colSetting" />
+  <ColSetting v-if="toolButton" ref="colRef" :col-setting="colSetting" />
 </template>
 
 <script setup lang="ts" name="ProTable">
-import { ref, watch, provide, onMounted, unref, computed, nextTick, useAttrs, useSlots, isProxy, markRaw, toRaw } from "vue";
+import {
+  ref,
+  watch,
+  provide,
+  onMounted,
+  onScopeDispose,
+  unref,
+  computed,
+  nextTick,
+  useAttrs,
+  useSlots,
+  isProxy,
+  markRaw,
+  toRaw
+} from "vue";
 import { ElTable, type TableInstance } from "element-plus";
 import { useTable } from "@/hooks/useTable";
 import { useSelection } from "@/hooks/useSelection";
@@ -151,8 +165,9 @@ import SearchForm from "@/components/SearchForm/index.vue";
 import Pagination from "./components/Pagination.vue";
 import ColSetting from "./components/ColSetting.vue";
 import TableColumn from "./components/TableColumn.vue";
+import { syncTableColumns } from "./columns";
 import Sortable from "sortablejs";
-import { useLocaleStore } from "@/locales";
+import { registerLocaleChangeHandler, useLocaleStore } from "@/locales";
 
 const { t } = useLocaleStore();
 
@@ -313,14 +328,24 @@ watch(
 // 监听页面 initParam 改化，重新获取表格数据
 watch(() => props.initParam, getTableList, { deep: true });
 
-// 接收 columns 并设置为响应式
-const tableColumns = ref<ColumnProps[]>(props.columns as ColumnProps[]);
+// 保留独立的列设置和源配置快照，语言重算时同步新文案并保留用户设置。
+const tableColumns = ref<ColumnProps[]>([]);
+let previousColumns: ColumnProps[] = [];
+watch(
+  () => props.columns,
+  columns => {
+    tableColumns.value = syncTableColumns(columns, tableColumns.value, previousColumns);
+    previousColumns = syncTableColumns(columns);
+  },
+  { deep: true, immediate: true }
+);
 
 // 扁平化 columns
 const flatColumns = computed(() => flatColumnsFunc(tableColumns.value as any) as ColumnProps[]);
 
 // 定义 enumMap 存储 enum 值（避免异步请求无法格式化单元格内容 || 无法填充搜索下拉选择）
 const enumMap = ref(new Map<string, { [key: string]: any }[]>());
+const enumRequests = new Map<string, symbol>();
 
 /** 更新枚举缓存时替换 Map 引用，确保搜索下拉能响应异步枚举结果。 */
 const setEnumMapValue = (prop: string | undefined, data: { [key: string]: any }[]) => {
@@ -346,24 +371,29 @@ const buildStatusEnum = (column: ColumnProps): EnumProps[] => {
 const setEnumMap = async ({ prop, enum: enumValue }: ColumnProps) => {
   if (!prop || !enumValue) return;
 
-  // 如果当前 enumMap 存在相同的值 return
-  if (enumMap.value.has(prop) && (typeof enumValue === "function" || enumMap.value.get(prop) === enumValue)) return;
-
   // 当前 enum 为静态数据，则直接存储到 enumMap
   if (typeof enumValue !== "function") {
-    setEnumMapValue(prop, unref(enumValue!));
+    enumRequests.delete(prop);
+    const data = unref(enumValue);
+    if (enumMap.value.get(prop) !== data) setEnumMapValue(prop, data);
     return;
   }
 
+  if (enumMap.value.has(prop)) return;
+
+  const request = Symbol(prop);
+  enumRequests.set(prop, request);
   // 为了防止接口执行慢，而存储慢，导致重复请求，所以预先存储为[]，接口返回后再二次存储
   setEnumMapValue(prop, []);
 
   // 当前 enum 为后台数据需要请求数据，则调用该请求接口，并存储到 enumMap
   try {
     const response = await enumValue();
+    if (enumRequests.get(prop) !== request) return;
     const data = Array.isArray(response) ? response : (response?.data ?? response?.list ?? []);
     setEnumMapValue(prop, data);
   } catch {
+    if (enumRequests.get(prop) !== request) return;
     // 请求层负责展示接口错误；删除占位缓存，允许列配置再次同步时重试。
     const nextEnumMap = new Map(enumMap.value);
     nextEnumMap.delete(prop);
@@ -377,6 +407,7 @@ const setEnumMap = async ({ prop, enum: enumValue }: ColumnProps) => {
 const syncColumnEnumMap = async (column: ColumnProps) => {
   const statusEnum = buildStatusEnum(column);
   if (statusEnum.length && column.prop) {
+    enumRequests.delete(column.prop);
     setEnumMapValue(column.prop, statusEnum);
     return;
   }
@@ -387,25 +418,25 @@ const syncColumnEnumMap = async (column: ColumnProps) => {
 const refreshEnums = async () => {
   const nextEnumMap = new Map(enumMap.value);
   flatColumns.value.forEach(column => {
-    if (column.prop) nextEnumMap.delete(column.prop);
+    if (!column.prop) return;
+    nextEnumMap.delete(column.prop);
+    enumRequests.delete(column.prop);
   });
   enumMap.value = nextEnumMap;
   await Promise.all(flatColumns.value.map(column => syncColumnEnumMap(column)));
 };
 
+// 公共运行时先刷新字典缓存，随后按当前语言重新加载当前表格的枚举。
+onScopeDispose(registerLocaleChangeHandler(refreshEnums));
+
 // 注入 enumMap
 provide("enumMap", enumMap);
 
-// 扁平化 columns 的方法
+/** 扁平化多级列配置，供搜索项和枚举缓存使用。 */
 const flatColumnsFunc = (columns: ColumnProps[], flatArr: ColumnProps[] = []) => {
   columns.forEach(col => {
     if (col._children?.length) flatArr.push(...flatColumnsFunc(col._children));
     flatArr.push(col);
-
-    // column 添加默认 isShow && isSetting && isFilterEnum 属性值
-    col.isShow = col.isShow ?? true;
-    col.isSetting = col.isSetting ?? true;
-    col.isFilterEnum = col.isFilterEnum ?? true;
   });
   return flatArr.filter(item => !item._children?.length);
 };
@@ -441,10 +472,12 @@ searchColumns.value?.forEach((column, index) => {
 
 // 列设置 ==> 需要过滤掉不需要设置的列
 const colRef = ref();
-const colSetting = (tableColumns.value as ColumnProps[]).filter(item => {
-  const { type, prop, isSetting } = item;
-  return !columnTypes.includes(type!) && prop !== "operation" && isSetting;
-});
+const colSetting = computed<ColumnProps[]>(() =>
+  (tableColumns.value as ColumnProps[]).filter(item => {
+    const { type, prop, isSetting } = item;
+    return !columnTypes.includes(type!) && prop !== "operation" && isSetting;
+  })
+);
 /** 打开列设置弹窗。 */
 const openColSetting = () => colRef.value.openColSetting();
 

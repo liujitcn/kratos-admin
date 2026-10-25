@@ -48,9 +48,8 @@ export const useDictStore = defineStore("admin-dict", {
     clearDictionaryCache() {
       this.dictionary = {};
     },
-    /** 强制刷新字典缓存 */
+    /** 加载成功后整体替换字典缓存，刷新期间保留当前文案和表单选中值。 */
     async updateDictionaryCache() {
-      this.clearDictionaryCache();
       await this.loadDictionaries(true);
     }
   },

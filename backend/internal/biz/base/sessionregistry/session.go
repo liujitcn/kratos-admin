@@ -14,6 +14,7 @@ import (
 
 	"github.com/go-kratos/kratos/v3/transport"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/sessionstate"
+	_const "github.com/liujitcn/kratos-core/const"
 
 	"github.com/liujitcn/go-utils/id"
 	"github.com/liujitcn/kratos-kit/auth/data"
@@ -86,13 +87,14 @@ func Get(store cache.Cache, sessionID string) (Record, error) {
 	return record, nil
 }
 
-// List 返回当前仍有访问令牌或刷新令牌的会话记录。
+// List 返回令牌仍有效且未超过所属用户会话超时策略的记录，不延长活动时间。
 func List(store cache.Cache, userToken *data.UserToken) ([]Record, error) {
 	ids, err := loadIndex(store)
 	if err != nil {
 		return nil, err
 	}
 	result := make([]Record, 0, len(ids))
+	now := time.Now()
 	for _, sessionID := range ids {
 		var record Record
 		record, err = Get(store, sessionID)
@@ -106,9 +108,33 @@ func List(store cache.Cache, userToken *data.UserToken) ([]Record, error) {
 			return nil, err
 		}
 		// 令牌轮换与展示记录更新之间存在短暂间隔，查询不得据旧令牌删除会话。
-		if userToken.IsAccessTokenValid(record.UserID, record.AccessToken) || userToken.IsRefreshTokenValid(record.UserID, record.RefreshToken) {
-			result = append(result, record)
+		if !userToken.IsAccessTokenValid(record.UserID, record.AccessToken) && !userToken.IsRefreshTokenValid(record.UserID, record.RefreshToken) {
+			continue
 		}
+		_, err = sessionstate.Validate(store, record.SessionID, now)
+		if err != nil {
+			if !errors.Is(err, sessionstate.ErrStateNotFound) && !errors.Is(err, sessionstate.ErrIdleExpired) && !errors.Is(err, sessionstate.ErrMaxLifetimeExpired) {
+				return nil, fmt.Errorf("校验在线会话状态失败: %w", err)
+			}
+			// 普通应用用户不创建管理会话状态，按刷新身份判断其超时豁免，不能使用查询管理员的角色。
+			var payload string
+			payload, err = store.Get(RefreshTokenAuthKey(record.RefreshToken))
+			if err != nil {
+				if isCacheMiss(err) {
+					continue
+				}
+				return nil, fmt.Errorf("读取在线会话身份失败: %w", err)
+			}
+			var authInfo data.UserTokenPayload
+			err = json.Unmarshal([]byte(payload), &authInfo)
+			if err != nil {
+				return nil, fmt.Errorf("解析在线会话身份失败: %w", err)
+			}
+			if authInfo.RoleCode != _const.BASE_ROLE_CODE_USER && authInfo.RoleCode != _const.BASE_ROLE_CODE_AUTHUSER {
+				continue
+			}
+		}
+		result = append(result, record)
 	}
 	sort.Slice(result, func(i, j int) bool { return result[i].IssuedAt.After(result[j].IssuedAt) })
 	return result, nil

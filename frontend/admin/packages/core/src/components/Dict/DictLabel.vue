@@ -4,7 +4,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from "vue";
+import { computed, watch } from "vue";
 import { useDictStore } from "@/stores/modules/dict";
 
 /** Element Plus 标签支持的展示类型。 */
@@ -22,8 +22,9 @@ const props = withDefaults(defineProps<DictLabelProps>(), {
 });
 
 const dictStore = useDictStore();
-const label = ref("");
-const tagType = ref<TagType | undefined>();
+const matchedItem = computed(() => dictStore.getDictionary(props.code).find(item => item.value == props.modelValue));
+const label = computed(() => matchedItem.value?.label ?? "");
+const tagType = computed(() => normalizeTagType(matchedItem.value?.tag_type));
 
 /**
  * 过滤后端返回的 tag 类型，确保只传递 Element Plus 支持的枚举值。
@@ -34,28 +35,10 @@ function normalizeTagType(rawTagType?: string): TagType | undefined {
   return supportedTagTypes.find(tag => tag === rawTagType);
 }
 
-/**
- * 根据字典值刷新标签文本和标签类型。
- */
-async function refreshLabelAndTag() {
-  if (!props.code) {
-    label.value = "";
-    tagType.value = undefined;
-    return;
-  }
-
-  // 字典缓存可能来自持久化旧数据，按当前编码兜底刷新一次。
-  const dictList = await dictStore.ensureDictionary(props.code);
-
-  const matchedItem = dictList.find(dictItem => dictItem.value == props.modelValue);
-  label.value = matchedItem?.label ?? "";
-  tagType.value = normalizeTagType(matchedItem?.tag_type);
-}
-
 watch(
-  () => [props.code, props.modelValue],
-  async () => {
-    await refreshLabelAndTag();
+  () => props.code,
+  async code => {
+    if (code) await dictStore.ensureDictionary(code);
   },
   { immediate: true }
 );

@@ -38,7 +38,7 @@
 
 <script setup lang="ts">
 import type { CSSProperties } from "vue";
-import { ref, watch } from "vue";
+import { computed, ref, watch } from "vue";
 import { useDictStore } from "@/stores/modules/dict";
 import type { OptionBaseDictResponse_BaseDictItem } from "@/rpc/system/admin/v1/base_dict";
 import { useLocaleStore } from "@/locales";
@@ -80,7 +80,12 @@ const emit = defineEmits<{
 }>();
 
 const dictStore = useDictStore();
-const options = ref<Array<{ label: string; value: DictValue }>>([]);
+const options = computed(() =>
+  dictStore.getDictionary(props.code).map(dictItem => ({
+    label: dictItem.label,
+    value: convertDictValue(dictItem)
+  }))
+);
 const selectedSingleValue = ref<DictValue | undefined>();
 const selectedMultiValue = ref<DictValue[]>([]);
 const optionsLoaded = ref(false);
@@ -105,21 +110,6 @@ function convertDictValue(dictItem: OptionBaseDictResponse_BaseDictItem): DictVa
 }
 
 /**
- * 加载当前字典选项，若本地无缓存则自动拉取。
- */
-async function loadOptions() {
-  // 按当前字典编码兜底刷新，避免持久化旧缓存里缺少该字典导致下拉无数据。
-  optionsLoaded.value = false;
-  const dictList = await dictStore.ensureDictionary(props.code);
-
-  options.value = dictList.map(dictItem => ({
-    label: dictItem.label,
-    value: convertDictValue(dictItem)
-  }));
-  optionsLoaded.value = true;
-}
-
-/**
  * 校验当前值是否仍在可选项内，避免字典切换后残留无效值。
  */
 function ensureSelectedValueValid() {
@@ -131,10 +121,7 @@ function ensureSelectedValueValid() {
     emit("update:modelValue", normalizedValues);
     return;
   }
-  const normalizedValue = normalizeDictValue(
-    selectedSingleValue.value,
-    availableValues
-  );
+  const normalizedValue = normalizeDictValue(selectedSingleValue.value, availableValues);
   if (normalizedValue === selectedSingleValue.value) return;
   selectedSingleValue.value = normalizedValue;
   emit("update:modelValue", normalizedValue);
@@ -165,10 +152,21 @@ watch(
 
 watch(
   () => [props.code, props.codeType],
-  async () => {
-    await loadOptions();
+  async (_, __, onCleanup) => {
+    let active = true;
+    onCleanup(() => {
+      active = false;
+    });
+    optionsLoaded.value = false;
+    await dictStore.ensureDictionary(props.code);
+    if (!active) return;
+    optionsLoaded.value = true;
     ensureSelectedValueValid();
   },
   { immediate: true }
 );
+
+watch(options, () => {
+  if (optionsLoaded.value) ensureSelectedValueValid();
+});
 </script>

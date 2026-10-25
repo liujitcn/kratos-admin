@@ -165,7 +165,8 @@ const columns = computed<ColumnProps[]>(() => [
     minWidth: 160,
     search: {
       el: "cascader",
-      props: { options: demoRegionTree, clearable: true, placeholder: t("common.placeholder.select") },
+      enum: demoRegionTree,
+      props: { clearable: true, placeholder: t("common.placeholder.select") },
       order: 3
     },
     render: scope => formatRegion((scope.row as DemoProject).region)
