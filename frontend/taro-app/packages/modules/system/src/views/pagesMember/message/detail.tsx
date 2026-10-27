@@ -6,6 +6,7 @@ import { UniIcon } from '@liujitcn/kratos-taro-app-ui'
 import { defNotificationService } from '../../../api/base/v1/notification'
 import type { Notification } from '../../../rpc/base/v1/notification'
 import { MessageActionType, MessageContentFormat } from '../../../rpc/base/v1/notification'
+import { resolvePersistedMessage } from '../../../utils/persisted-message'
 import { resolveMessageCategoryIcon } from './icons'
 import './message.scss'
 
@@ -24,14 +25,6 @@ export default function MessageDetailPage() {
     const value = await defNotificationService.GetNotification({ id })
     setDetail(value)
     if (!value.read_at) await defNotificationService.MarkNotificationRead({ ids: [id] })
-  }
-
-  /** 将系统通知发送者映射到当前语言。 */
-  function resolveSenderName(value?: string) {
-    if (value === '系统' || value === '__I18N__:system.notification.sender.system') {
-      return t('system.notification.sender.system')
-    }
-    return value || ''
   }
 
   /** 执行通知携带的稳定 viewKey 动作。 */
@@ -62,7 +55,7 @@ export default function MessageDetailPage() {
       <KratosNavBar title={t('system.notification.title')} />
       {detail ? (
         <>
-          <Text className='detail-title'>{detail.title}</Text>
+          <Text className='detail-title'>{resolvePersistedMessage(detail.title)}</Text>
           <View className='detail-meta'>
             <View className='detail-category' style={{ color: detail.category_color || undefined }}>
               <UniIcon
@@ -73,13 +66,13 @@ export default function MessageDetailPage() {
               />
               <Text>{detail.category_name}</Text>
             </View>
-            <Text>{resolveSenderName(detail.sender_name)}</Text>
+            <Text>{resolvePersistedMessage(detail.sender_name)}</Text>
             <Text>{detail.received_at}</Text>
           </View>
           {detail.content_format === MessageContentFormat.MESSAGE_CONTENT_FORMAT_RICH_TEXT ? (
-            <RichText className='detail-content-rich' nodes={detail.content} />
+            <RichText className='detail-content-rich' nodes={resolvePersistedMessage(detail.content)} />
           ) : (
-            <Text className='detail-content'>{detail.content}</Text>
+            <Text className='detail-content'>{resolvePersistedMessage(detail.content)}</Text>
           )}
           {detail.action_type === MessageActionType.MESSAGE_ACTION_TYPE_VIEW_KEY && (
             <Button className='detail-action' onClick={openAction}>

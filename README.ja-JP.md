@@ -42,7 +42,7 @@
 
 - Go `1.27.0`。
 - Node.js `^20.19.0` または `>=22.12.0`。
-- pnpm のバージョンは各 workspace の `packageManager` に従います。管理画面は `10.33.4`、uni-app と Taro は `10.13.1` です。
+- pnpm のバージョンは各 workspace の `packageManager` に従います。管理画面、uni-app、Taro はすべて `10.33.4` です。
 - MySQL、Consul、Vault。Redis とキューは任意で、未設定の単一インスタンス環境ではプロセス内実装を使用します。用途と設定入口は以下を参照してください。
 - Docker デプロイには利用可能な Docker CLI と Docker daemon が必要です。
 - TOTP のバインドを有効にする場合、`mfa.encryption_key` に明示値があればそれを使用し、空の場合は実行時キースサービスから派生します。WebAuthn を有効にする場合は `mfa.webauthn.rp_id` と `mfa.webauthn.rp_origins` も設定します。設定ファイルの機密値は `ENC[...]` で保存してください。

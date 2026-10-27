@@ -13,6 +13,7 @@ import { defNotificationService } from '../../../api/base/v1/notification'
 import type { Notification, NotificationCategory } from '../../../rpc/base/v1/notification'
 import { NotificationView } from '../../../rpc/base/v1/notification'
 import { refreshNotificationSummary } from '../../../notification'
+import { resolvePersistedMessage } from '../../../utils/persisted-message'
 import { resolveMessageCategoryIcon } from './icons'
 import './message.scss'
 
@@ -230,7 +231,7 @@ export default function MessageInboxPage() {
                 />
               </View>
               <View className='message-item__body'>
-                <Text className='k-msg-item__title'>{item.title}</Text>
+                <Text className='k-msg-item__title'>{resolvePersistedMessage(item.title)}</Text>
                 <View className='k-msg-item__foot'>
                   <Text className='k-msg-item__meta'>{item.category_name}</Text>
                   <Text className='k-msg-item__time'>{item.received_at}</Text>

@@ -1,0 +1,214 @@
+syntax = "proto3";
+
+package system.admin.v1;
+
+import "common/v1/common.proto";
+import "common/v1/enum.proto";
+import "buf/validate/validate.proto";
+import "gnostic/openapi/v3/annotations.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+import "system/admin/v1/workflow_common.proto";
+import "system/admin/v1/base_script.proto";
+
+// Admin工作流流程定义服务
+service WorkflowDefinitionService {
+  // 查询流程可用的已启用受限脚本
+  rpc PageWorkflowScript(PageBaseScriptRequest) returns (PageBaseScriptResponse) {
+    option (google.api.http) = {get: "/api/v1/admin/workflow/definition/script"};
+  }
+
+  // 试运行已保存且启用的受限流程脚本，不接受客户端源码
+  rpc TestWorkflowScript(TestWorkflowScriptRequest) returns (TestRunBaseScriptResponse) {
+    option (google.api.http) = {post: "/api/v1/admin/workflow/definition/script/test" body: "*"};
+  }
+
+  // 查询启用流程定义下拉选择
+  rpc OptionWorkflowDefinition(OptionWorkflowDefinitionRequest) returns (.common.v1.SelectOptionResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/admin/workflow/definition/option"
+    };
+  }
+
+  // 查询启用流程定义的申请表单
+  rpc GetWorkflowApplyForm(GetWorkflowApplyFormRequest) returns (GetWorkflowApplyFormResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/admin/workflow/definition/apply-form"
+    };
+  }
+
+  // 查询流程定义分页列表
+  rpc PageWorkflowDefinition(PageWorkflowDefinitionRequest) returns (PageWorkflowDefinitionResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/admin/workflow/definition"
+    };
+  }
+
+  // 查询流程定义
+  rpc GetWorkflowDefinition(GetWorkflowDefinitionRequest) returns (WorkflowDefinitionForm) {
+    option (google.api.http) = {
+      get: "/api/v1/admin/workflow/definition/{id}"
+    };
+  }
+
+  // 创建流程定义
+  rpc CreateWorkflowDefinition(CreateWorkflowDefinitionRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/api/v1/admin/workflow/definition"
+      body: "definition"
+    };
+  }
+
+  // 更新流程定义
+  rpc UpdateWorkflowDefinition(UpdateWorkflowDefinitionRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put: "/api/v1/admin/workflow/definition/{definition.id}"
+      body: "definition"
+    };
+  }
+
+  // 删除流程定义
+  rpc DeleteWorkflowDefinition(DeleteWorkflowDefinitionRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/api/v1/admin/workflow/definition/{id}"
+    };
+  }
+
+  // 设置流程定义状态
+  rpc SetWorkflowDefinitionStatus(SetWorkflowDefinitionStatusRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put: "/api/v1/admin/workflow/definition/{id}/status"
+      body: "*"
+    };
+  }
+}
+
+// 流程定义选项查询条件
+message OptionWorkflowDefinitionRequest {
+  optional int64 tenant_id = 1 [(gnostic.openapi.v3.property) = {description: "租户ID"}]; // 租户ID
+}
+
+// 申请表单查询条件
+message GetWorkflowApplyFormRequest {
+  string code = 1 [(gnostic.openapi.v3.property) = {description: "流程编码"}, (buf.validate.field).cel = {id: "system.admin.workflow.definition.apply_form.code.required" message: "流程编码不能为空" expression: "this.size() > 0"}]; // 流程编码
+
+  int32 version = 2 [(gnostic.openapi.v3.property) = {description: "流程版本"}, (buf.validate.field).cel = {id: "system.admin.workflow.definition.apply_form.version.required" message: "流程版本不能为空" expression: "this > 0"}]; // 流程版本
+}
+
+// 申请表单响应
+message GetWorkflowApplyFormResponse {
+  int64 definition_id = 1 [(gnostic.openapi.v3.property) = {description: "流程定义ID"}]; // 流程定义ID
+
+  string definition_name = 2 [(gnostic.openapi.v3.property) = {description: "流程名称"}]; // 流程名称
+
+  string form_schema = 3 [(gnostic.openapi.v3.property) = {description: "申请表单定义JSON"}]; // 申请表单定义JSON
+}
+
+// 流程定义分页查询条件
+message PageWorkflowDefinitionRequest {
+  string name = 2 [(gnostic.openapi.v3.property) = {description: "流程名称"}]; // 流程名称
+
+  string code = 3 [(gnostic.openapi.v3.property) = {description: "流程编码"}]; // 流程编码
+
+  optional int64 tenant_id = 4 [(gnostic.openapi.v3.property) = {description: "租户ID"}]; // 租户ID
+
+  optional WorkflowDefinitionStatus status = 100 [(gnostic.openapi.v3.property) = {description: "定义状态"}]; // 定义状态
+
+  int64 page_num = 101 [(gnostic.openapi.v3.property) = {
+    description: "当前页码"
+    default: {number: 1}
+  },
+    (buf.validate.field).int64 = {gte: 1, lte: 1000000}]; // 当前页码
+
+  int64 page_size = 102 [(gnostic.openapi.v3.property) = {
+    description: "每一页的行数"
+    default: {number: 10}
+  },
+    (buf.validate.field).int64 = {gte: 1, lte: 100}]; // 每一页的行数
+}
+
+// 流程定义分页响应
+message PageWorkflowDefinitionResponse {
+  repeated WorkflowDefinition definitions = 1 [(gnostic.openapi.v3.property) = {description: "分页数据"}]; // 分页数据
+
+  int32 total = 2 [(gnostic.openapi.v3.property) = {description: "总数"}]; // 总数
+}
+
+// 查询流程定义请求参数
+message GetWorkflowDefinitionRequest {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "流程定义ID"}, (buf.validate.field).cel = {id: "system.admin.workflow.definition.get.id.required" message: "流程定义ID不能为空" expression: "this > 0"}]; // 流程定义ID
+}
+
+// 流程定义表单
+message WorkflowDefinitionForm {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "流程定义ID"}]; // 流程定义ID
+
+  optional int64 tenant_id = 2 [(gnostic.openapi.v3.property) = {description: "租户ID"}]; // 租户ID
+
+  string name = 3 [(gnostic.openapi.v3.property) = {description: "流程名称"}, (buf.validate.field).cel = {id: "system.admin.workflow.definition.entity.name.required" message: "请输入流程名称" expression: "this.size() > 0"}, (buf.validate.field).cel = {id: "system.admin.workflow.definition.entity.name.max_length" message: "流程名称不能超过 100 个字符" expression: "this.size() <= 100"}]; // 流程名称
+
+  string code = 4 [(gnostic.openapi.v3.property) = {description: "流程编码"}, (buf.validate.field).cel = {id: "system.admin.workflow.definition.entity.code.required" message: "请输入流程编码" expression: "this.size() > 0"}, (buf.validate.field).cel = {id: "system.admin.workflow.definition.entity.code.max_length" message: "流程编码不能超过 100 个字符" expression: "this.size() <= 100"}]; // 流程编码
+
+  int32 version = 5 [(gnostic.openapi.v3.property) = {description: "流程版本"}, (buf.validate.field).cel = {id: "system.admin.workflow.definition.entity.version.required" message: "流程版本必须大于 0" expression: "this > 0"}]; // 流程版本
+
+  string node_config = 6 [(gnostic.openapi.v3.property) = {description: "节点图配置JSON"}, (buf.validate.field).cel = {id: "system.admin.workflow.definition.entity.node_config.required" message: "节点图配置不能为空" expression: "this.size() > 0"}, (buf.validate.field).cel = {id: "system.admin.workflow.definition.entity.node_config.max_length" message: "节点图配置不能超过 1048576 个字符" expression: "this.size() <= 1048576"}]; // 节点图配置JSON
+
+  string form_schema = 7 [(gnostic.openapi.v3.property) = {description: "申请表单定义JSON"}, (buf.validate.field).cel = {id: "system.admin.workflow.definition.entity.form_schema.max_length" message: "申请表单定义不能超过 65536 个字符" expression: "this.size() <= 65536"}]; // 申请表单定义JSON
+
+  string remark = 101 [(gnostic.openapi.v3.property) = {description: "备注"}, (buf.validate.field).cel = {id: "system.admin.workflow.definition.entity.remark.max_length" message: "备注不能超过 500 个字符" expression: "this.size() <= 500"}]; // 备注
+}
+
+// 创建流程定义请求参数
+message CreateWorkflowDefinitionRequest {
+  WorkflowDefinitionForm definition = 1 [(gnostic.openapi.v3.property) = {description: "流程定义表单"}, (buf.validate.field).required = true]; // 流程定义表单
+}
+
+// 更新流程定义请求参数
+message UpdateWorkflowDefinitionRequest {
+  option (buf.validate.message).cel = {id: "system.admin.workflow.definition.update.id.required" message: "流程定义ID不能为空" expression: "this.definition.id > 0"};
+
+  WorkflowDefinitionForm definition = 1 [(gnostic.openapi.v3.property) = {description: "流程定义表单"}, (buf.validate.field).required = true]; // 流程定义表单
+}
+
+// 删除流程定义请求参数
+message DeleteWorkflowDefinitionRequest {
+  string id = 1 [(gnostic.openapi.v3.property) = {description: "流程定义ID列表"}, (buf.validate.field).cel = {id: "system.admin.workflow.definition.delete.id.required" message: "流程定义ID列表不能为空" expression: "this.size() > 0"}]; // 流程定义ID列表
+}
+
+// 设置流程定义状态请求参数
+message SetWorkflowDefinitionStatusRequest {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "流程定义ID"}, (buf.validate.field).cel = {id: "system.admin.workflow.definition.set_status.id.required" message: "流程定义ID不能为空" expression: "this > 0"}]; // 流程定义ID
+
+  WorkflowDefinitionStatus status = 2 [(gnostic.openapi.v3.property) = {description: "定义状态"}, (buf.validate.field).enum = {defined_only: true}]; // 定义状态
+}
+
+// 流程定义
+message WorkflowDefinition {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "流程定义ID"}]; // 流程定义ID
+
+  int64 tenant_id = 2 [(gnostic.openapi.v3.property) = {description: "租户ID"}]; // 租户ID
+
+  string name = 3 [(gnostic.openapi.v3.property) = {description: "流程名称"}]; // 流程名称
+
+  string code = 4 [(gnostic.openapi.v3.property) = {description: "流程编码"}]; // 流程编码
+
+  int32 version = 5 [(gnostic.openapi.v3.property) = {description: "流程版本"}]; // 流程版本
+
+  string node_config = 6 [(gnostic.openapi.v3.property) = {description: "节点图配置JSON"}]; // 节点图配置JSON
+
+  string form_schema = 7 [(gnostic.openapi.v3.property) = {description: "申请表单定义JSON"}]; // 申请表单定义JSON
+
+  WorkflowDefinitionStatus status = 100 [(gnostic.openapi.v3.property) = {description: "定义状态"}]; // 定义状态
+
+  string remark = 101 [(gnostic.openapi.v3.property) = {description: "备注"}]; // 备注
+
+  string created_at = 200 [(gnostic.openapi.v3.property) = {description: "创建时间"}]; // 创建时间
+
+  string updated_at = 201 [(gnostic.openapi.v3.property) = {description: "更新时间"}]; // 更新时间
+}
+
+// 流程脚本试运行参数，仅允许引用保存的脚本。
+message TestWorkflowScriptRequest {
+  int64 script_id = 1 [(gnostic.openapi.v3.property) = {description: "已保存脚本ID"}, (buf.validate.field).cel = {id: "system.admin.workflow.definition.script_test.script_id.required" message: "脚本ID必须大于0" expression: "this > 0"}]; // 已保存脚本ID
+  string context_json = 2 [(gnostic.openapi.v3.property) = {description: "初始上下文JSON，最大200KiB"}, (buf.validate.field).string.max_bytes = 204800]; // 初始上下文JSON，最大200KiB
+}

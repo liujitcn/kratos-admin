@@ -141,3 +141,176 @@ test('登录页失效请求不重复弹窗，公共接口不携带旧令牌，�
     rmSync(root, { recursive: true, force: true })
   }
 })
+
+test('本地令牌有效但服务端返回 401 时静默刷新令牌', async () => {
+  const root = mkdtempSync(resolve(tmpdir(), 'kratos-uni-http-refresh-'))
+  const originalUni = globalThis.uni
+  const originalPages = globalThis.getCurrentPages
+  const storage = new Map([
+    ['access_token', 'Bearer stale'],
+    ['refresh_token', 'valid-refresh'],
+    ['expiresIn', String(Date.now() + 60 * 60_000)],
+  ])
+  const requests = []
+  const modals = []
+  let requestInterceptor
+  try {
+    const output = resolve(root, 'http.mjs')
+    await build({
+      entryPoints: [resolve(import.meta.dirname, '../src/utils/http.ts')],
+      bundle: true,
+      platform: 'node',
+      format: 'esm',
+      outfile: output,
+      define: { 'import.meta.env': '{}' },
+      plugins: [
+        {
+          name: 'runtime-stubs',
+          setup(builder) {
+            builder.onResolve({ filter: /^\.\.\/locales$/ }, () => ({
+              path: 'locales',
+              namespace: 'stub',
+            }))
+            builder.onResolve({ filter: /^\.\/navigation$/ }, () => ({
+              path: 'navigation',
+              namespace: 'stub',
+            }))
+            builder.onLoad({ filter: /.*/, namespace: 'stub' }, ({ path }) => ({
+              contents:
+                path === 'locales'
+                  ? 'export const t = (key) => key; export const getLocaleRequestHeaders = () => ({})'
+                  : 'export const saveCurrentRoute = () => {}',
+            }))
+          },
+        },
+      ],
+    })
+    globalThis.getCurrentPages = () => [{ route: 'pages/profile/index' }]
+    globalThis.uni = {
+      getStorageSync: (key) => storage.get(key),
+      setStorageSync: (key, value) => storage.set(key, value),
+      removeStorageSync: (key) => storage.delete(key),
+      $emit() {},
+      addInterceptor(name, interceptor) {
+        if (name === 'request') requestInterceptor = interceptor
+      },
+      request(options) {
+        requestInterceptor.invoke(options)
+        requests.push(options)
+        if (options.url.endsWith('/v1/base/token')) {
+          options.success({
+            statusCode: 200,
+            data: {
+              token_type: 'Bearer',
+              access_token: 'renewed',
+              refresh_token: 'renewed-refresh',
+              expires_in: 60,
+            },
+          })
+          return
+        }
+        options.success({ statusCode: 401, data: { reason: 'UNAUTHENTICATED' } })
+      },
+      async showModal(options) {
+        modals.push(options)
+        return { confirm: true }
+      },
+      async showToast() {},
+      reLaunch() {},
+    }
+    const runtime = await import(pathToFileURL(output).href)
+    await assert.rejects(runtime.http({ url: '/v1/app/base/menu', method: 'GET' }))
+    assert.equal(
+      requests.filter((request) => request.url.endsWith('/v1/base/token')).length,
+      1,
+      '服务端拒绝本地有效令牌时应只刷新一次',
+    )
+    assert.equal(storage.get('access_token'), 'Bearer renewed')
+    assert.equal(storage.get('refresh_token'), 'renewed-refresh')
+    assert.equal(modals.length, 0, '刷新成功后不应弹出重新登录提示')
+  } finally {
+    globalThis.uni = originalUni
+    globalThis.getCurrentPages = originalPages
+    rmSync(root, { recursive: true, force: true })
+  }
+})
+
+test('用户关闭重新登录提示时清理本地认证', async () => {
+  const root = mkdtempSync(resolve(tmpdir(), 'kratos-uni-http-dismiss-'))
+  const originalUni = globalThis.uni
+  const originalPages = globalThis.getCurrentPages
+  const originalSetTimeout = globalThis.setTimeout
+  const storage = new Map([
+    ['access_token', 'Bearer expired'],
+    ['refresh_token', 'expired-refresh'],
+  ])
+  const launches = []
+  let requestInterceptor
+  try {
+    const output = resolve(root, 'http.mjs')
+    await build({
+      entryPoints: [resolve(import.meta.dirname, '../src/utils/http.ts')],
+      bundle: true,
+      platform: 'node',
+      format: 'esm',
+      outfile: output,
+      define: { 'import.meta.env': '{}' },
+      plugins: [
+        {
+          name: 'runtime-stubs',
+          setup(builder) {
+            builder.onResolve({ filter: /^\.\.\/locales$/ }, () => ({
+              path: 'locales',
+              namespace: 'stub',
+            }))
+            builder.onResolve({ filter: /^\.\/navigation$/ }, () => ({
+              path: 'navigation',
+              namespace: 'stub',
+            }))
+            builder.onLoad({ filter: /.*/, namespace: 'stub' }, ({ path }) => ({
+              contents:
+                path === 'locales'
+                  ? 'export const t = (key) => key; export const getLocaleRequestHeaders = () => ({})'
+                  : 'export const saveCurrentRoute = () => {}',
+            }))
+          },
+        },
+      ],
+    })
+    globalThis.getCurrentPages = () => [{ route: 'pages/profile/index' }]
+    globalThis.setTimeout = (callback, delay, ...args) =>
+      originalSetTimeout(callback, delay === 60_000 ? 0 : delay, ...args)
+    globalThis.uni = {
+      getStorageSync: (key) => storage.get(key),
+      setStorageSync: (key, value) => storage.set(key, value),
+      removeStorageSync: (key) => storage.delete(key),
+      $emit() {},
+      addInterceptor(name, interceptor) {
+        if (name === 'request') requestInterceptor = interceptor
+      },
+      request(options) {
+        requestInterceptor.invoke(options)
+        options.fail(new Error('unexpected request'))
+      },
+      async showModal() {
+        return { confirm: false }
+      },
+      async showToast() {},
+      reLaunch(options) {
+        launches.push(options)
+      },
+      redirectTo() {},
+    }
+    const runtime = await import(pathToFileURL(output).href)
+    await assert.rejects(runtime.getRequestAccessToken('required'))
+    assert.equal(storage.has('access_token'), false)
+    assert.equal(storage.has('refresh_token'), false)
+    assert.equal(launches.length, 1)
+    assert.equal(launches[0].url, '/pages/login/login?redirect=1')
+  } finally {
+    globalThis.uni = originalUni
+    globalThis.getCurrentPages = originalPages
+    globalThis.setTimeout = originalSetTimeout
+    rmSync(root, { recursive: true, force: true })
+  }
+})

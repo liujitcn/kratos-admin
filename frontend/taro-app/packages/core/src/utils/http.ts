@@ -268,7 +268,16 @@ const RELOGIN_PROMPT_TIMEOUT = 60_000
 /** 提示会话过期并进入携带本次业务回跳标记的登录页。 */
 async function promptRelogin(): Promise<void> {
   // 401 来自旧会话的在途请求而当前已是有效登录态时直接忽略，避免刚登录成功被弹窗打断。
-  if (hasValidToken()) return
+  if (hasValidToken()) {
+    // 本地令牌未过期但服务端已判定失效时，先强制续签一次；续签成功即静默恢复，
+    // 续签失败清空残留登录态后继续弹窗，避免停留在“本地有效”的假登录态。
+    try {
+      await handleTokenRefresh()
+      return
+    } catch {
+      silentClearAuthData()
+    }
+  }
   const pages = getCurrentPages()
   // 登录页自身的请求失效只清理残留登录态，避免确认后重载登录页丢失已填写的表单。
   if (pages[pages.length - 1]?.route === 'pages/login/login') {

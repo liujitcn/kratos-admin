@@ -84,6 +84,10 @@ packages/modules/system
 | `src/api/system/admin/v1/ops_monitoring.ts`  | 运维监控服务请求。                        |
 | `src/api/system/admin/v1/runtime_log.ts`     | 运行日志服务请求。                        |
 | `src/api/system/admin/v1/cache.ts`           | 运行时缓存服务请求。                      |
+| `src/api/system/admin/v1/workflow_definition.ts`  | 工作流流程定义服务请求。               |
+| `src/api/system/admin/v1/workflow_instance.ts`    | 工作流流程实例服务请求。               |
+| `src/api/system/admin/v1/workflow_task.ts`        | 工作流审批任务服务请求。               |
+| `src/api/system/admin/v1/workflow_delegation.ts`  | 工作流审批委托服务请求。               |
 | `@liujitcn/kratos-admin-core/api/base/v1/mfa` | 当前用户 MFA 服务请求。                   |
 
 `src/config` 维护运行配置定义，`src/utils` 维护 SSE 订阅、响应归一化和代码生成序列化等内部辅助；这些文件不属于 Proto 服务 API。
@@ -144,6 +148,14 @@ packages/modules/system
 | `src/views/base/oauth-client/index.vue` | 开放授权客户端管理页。 |
 | `src/views/tool/runtime-log/index.vue` | 运行日志控制台、历史文件和下载页。 |
 | `src/views/tool/cache/index.vue` | 运行时缓存查询页，展示键、值、TTL 和时间元数据。 |
+| `src/views/workflow/approval/index.vue`                       | 工作流审批中心页，使用标准搜索表单按审批类型与流程名称/编码查询，支持搜索、重置。 |
+| `src/views/workflow/approval/submit-drawer.vue`               | 发起申请抽屉（按表单定义动态渲染）。 |
+| `src/views/workflow/definition/index.vue`                     | 工作流流程定义列表页。             |
+| `src/views/workflow/definition/definition-dialog.vue`         | 流程定义新增/编辑弹窗，按基本信息、申请表单、流程设计分为三个页签，画布右侧配置节点和连线属性，校验错误自动切换页签。 |
+| `src/views/workflow/definition/definition-view.vue`            | 流程定义只读查看弹窗，展示基本信息、申请表单、流程图和节点/连线属性，不提供保存或编辑操作。 |
+| `src/views/workflow/definition/workflow-graph.vue`            | 设计器与流程定义查看器共用的 Vue Flow 流程画布，支持节点拖拽、端口连线、缩放、小地图与办理状态高亮。 |
+| `src/views/workflow/definition/graph-draft.ts`                | 节点图草稿序列化与校验纯逻辑，保存节点坐标并统一校验画布与表单连线。 |
+| `src/views/workflow/delegation/index.vue`                     | 工作流审批委托页。                 |
 
 租户管理页创建租户时会自动初始化并启用 `admin` 管理员账号；有全局初始化密码时复用该密码，没有配置时通过创建响应一次性展示随机初始密码。
 

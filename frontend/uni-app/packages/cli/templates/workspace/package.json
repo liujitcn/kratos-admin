@@ -2,7 +2,7 @@
   "name": "__PROJECT_NAME__",
   "description": "Independent pnpm workspace for __PROJECT_NAME__.",
   "private": true,
-  "packageManager": "pnpm@10.13.1",
+  "packageManager": "pnpm@10.33.4",
   "scripts": {
     "prepare": "pnpm run prepare:modules",
     "prepare:modules": "pnpm --silent --recursive --filter './packages/modules/**' --if-present run build:entries",

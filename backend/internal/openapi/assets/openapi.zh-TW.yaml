@@ -7495,6 +7495,539 @@ paths:
                     description: OK
                     content:
                         '*/*': {}
+    /api/v1/admin/workflow/definition:
+        get:
+            tags:
+                - WorkflowDefinitionService
+            description: 查詢流程定義分頁列表
+            operationId: WorkflowDefinitionService_PageWorkflowDefinition
+            parameters:
+                - name: name
+                  in: query
+                  schema:
+                    type: string
+                - name: code
+                  in: query
+                  schema:
+                    type: string
+                - name: tenant_id
+                  in: query
+                  schema:
+                    type: string
+                - name: status
+                  in: query
+                  schema:
+                    enum:
+                        - WORKFLOW_DEFINITION_STATUS_UNSPECIFIED
+                        - WORKFLOW_DEFINITION_STATUS_DRAFT
+                        - WORKFLOW_DEFINITION_STATUS_ENABLED
+                        - WORKFLOW_DEFINITION_STATUS_DISABLED
+                    type: string
+                    format: enum
+                - name: page_num
+                  in: query
+                  schema:
+                    type: string
+                - name: page_size
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.PageWorkflowDefinitionResponse'
+        post:
+            tags:
+                - WorkflowDefinitionService
+            description: 建立流程定義
+            operationId: WorkflowDefinitionService_CreateWorkflowDefinition
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.WorkflowDefinitionForm'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/workflow/definition/apply-form:
+        get:
+            tags:
+                - WorkflowDefinitionService
+            description: 查詢啟用流程定義的申請表單
+            operationId: WorkflowDefinitionService_GetWorkflowApplyForm
+            parameters:
+                - name: code
+                  in: query
+                  schema:
+                    type: string
+                - name: version
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.GetWorkflowApplyFormResponse'
+    /api/v1/admin/workflow/definition/option:
+        get:
+            tags:
+                - WorkflowDefinitionService
+            description: 查詢啟用流程定義下拉選擇
+            operationId: WorkflowDefinitionService_OptionWorkflowDefinition
+            parameters:
+                - name: tenant_id
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/common.v1.SelectOptionResponse'
+    /api/v1/admin/workflow/definition/script:
+        get:
+            tags:
+                - WorkflowDefinitionService
+            description: 查詢流程可用的已啟用受限腳本
+            operationId: WorkflowDefinitionService_PageWorkflowScript
+            parameters:
+                - name: name
+                  in: query
+                  schema:
+                    type: string
+                - name: hook_point
+                  in: query
+                  schema:
+                    type: string
+                - name: language
+                  in: query
+                  schema:
+                    enum:
+                        - BASE_SCRIPT_LANGUAGE_UNSPECIFIED
+                        - BASE_SCRIPT_LANGUAGE_JAVASCRIPT
+                        - BASE_SCRIPT_LANGUAGE_LUA
+                        - BASE_SCRIPT_LANGUAGE_PYTHON
+                        - BASE_SCRIPT_LANGUAGE_GO
+                        - BASE_SCRIPT_LANGUAGE_WASM
+                        - BASE_SCRIPT_LANGUAGE_CEL
+                        - BASE_SCRIPT_LANGUAGE_EXPR
+                        - BASE_SCRIPT_LANGUAGE_STARLARK
+                        - BASE_SCRIPT_LANGUAGE_TCL
+                    type: string
+                    format: enum
+                - name: status
+                  in: query
+                  schema:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    format: enum
+                - name: page_num
+                  in: query
+                  schema:
+                    type: string
+                - name: page_size
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.PageBaseScriptResponse'
+    /api/v1/admin/workflow/definition/script/test:
+        post:
+            tags:
+                - WorkflowDefinitionService
+            description: 試執行已儲存且啟用的受限流程腳本，不接受用戶端原始碼
+            operationId: WorkflowDefinitionService_TestWorkflowScript
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.TestWorkflowScriptRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.TestRunBaseScriptResponse'
+    /api/v1/admin/workflow/definition/{definition.id}:
+        put:
+            tags:
+                - WorkflowDefinitionService
+            description: 更新流程定義
+            operationId: WorkflowDefinitionService_UpdateWorkflowDefinition
+            parameters:
+                - name: definition.id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.WorkflowDefinitionForm'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/workflow/definition/{id}:
+        get:
+            tags:
+                - WorkflowDefinitionService
+            description: 查詢流程定義
+            operationId: WorkflowDefinitionService_GetWorkflowDefinition
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.WorkflowDefinitionForm'
+        delete:
+            tags:
+                - WorkflowDefinitionService
+            description: 刪除流程定義
+            operationId: WorkflowDefinitionService_DeleteWorkflowDefinition
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/workflow/definition/{id}/status:
+        put:
+            tags:
+                - WorkflowDefinitionService
+            description: 設定流程定義狀態
+            operationId: WorkflowDefinitionService_SetWorkflowDefinitionStatus
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.SetWorkflowDefinitionStatusRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/workflow/delegation:
+        get:
+            tags:
+                - WorkflowDelegationService
+            description: 查詢審批委託分頁列表
+            operationId: WorkflowDelegationService_PageWorkflowDelegation
+            parameters:
+                - name: delegator_user_id
+                  in: query
+                  schema:
+                    type: string
+                - name: delegate_user_id
+                  in: query
+                  schema:
+                    type: string
+                - name: tenant_id
+                  in: query
+                  schema:
+                    type: string
+                - name: page_num
+                  in: query
+                  schema:
+                    type: string
+                - name: page_size
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.PageWorkflowDelegationResponse'
+        post:
+            tags:
+                - WorkflowDelegationService
+            description: 設定我的審批委託
+            operationId: WorkflowDelegationService_SetWorkflowDelegation
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.WorkflowDelegationForm'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/workflow/delegation/{id}:
+        delete:
+            tags:
+                - WorkflowDelegationService
+            description: 刪除審批委託
+            operationId: WorkflowDelegationService_DeleteWorkflowDelegation
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/workflow/instance:
+        get:
+            tags:
+                - WorkflowInstanceService
+            description: 查詢流程例項分頁列表
+            operationId: WorkflowInstanceService_PageWorkflowInstance
+            parameters:
+                - name: code
+                  in: query
+                  schema:
+                    type: string
+                - name: definition_id
+                  in: query
+                  schema:
+                    type: string
+                - name: applicant_user_id
+                  in: query
+                  schema:
+                    type: string
+                - name: tenant_id
+                  in: query
+                  schema:
+                    type: string
+                - name: business_type
+                  in: query
+                  schema:
+                    type: string
+                - name: status
+                  in: query
+                  schema:
+                    enum:
+                        - WORKFLOW_INSTANCE_STATUS_UNSPECIFIED
+                        - WORKFLOW_INSTANCE_STATUS_PENDING
+                        - WORKFLOW_INSTANCE_STATUS_APPROVED
+                        - WORKFLOW_INSTANCE_STATUS_REJECTED
+                        - WORKFLOW_INSTANCE_STATUS_WITHDRAWN
+                    type: string
+                    format: enum
+                - name: page_num
+                  in: query
+                  schema:
+                    type: string
+                - name: page_size
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.PageWorkflowInstanceResponse'
+        post:
+            tags:
+                - WorkflowInstanceService
+            description: 提交審批申請
+            operationId: WorkflowInstanceService_SubmitWorkflowInstance
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.SubmitWorkflowInstanceRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.SubmitWorkflowInstanceResponse'
+    /api/v1/admin/workflow/instance/{id}:
+        get:
+            tags:
+                - WorkflowInstanceService
+            description: 查詢流程例項詳情
+            operationId: WorkflowInstanceService_GetWorkflowInstance
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.GetWorkflowInstanceResponse'
+    /api/v1/admin/workflow/instance/{id}/withdraw:
+        put:
+            tags:
+                - WorkflowInstanceService
+            description: 撤回審批申請
+            operationId: WorkflowInstanceService_WithdrawWorkflowInstance
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.WithdrawWorkflowInstanceRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/workflow/instance/{instance_id}/script-run/{id}/retry:
+        put:
+            tags:
+                - WorkflowInstanceService
+            description: 重試失敗的工作流腳本
+            operationId: WorkflowInstanceService_RetryWorkflowScript
+            parameters:
+                - name: instance_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.RetryWorkflowScriptRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/workflow/task/mine:
+        get:
+            tags:
+                - WorkflowTaskService
+            description: 查詢我的審批任務分頁列表
+            operationId: WorkflowTaskService_PageMyWorkflowTask
+            parameters:
+                - name: list_type
+                  in: query
+                  schema:
+                    enum:
+                        - WORKFLOW_LIST_TYPE_UNSPECIFIED
+                        - WORKFLOW_LIST_TYPE_PENDING
+                        - WORKFLOW_LIST_TYPE_DONE
+                        - WORKFLOW_LIST_TYPE_SUBMITTED
+                    type: string
+                    format: enum
+                - name: keyword
+                  in: query
+                  schema:
+                    type: string
+                - name: page_num
+                  in: query
+                  schema:
+                    type: string
+                - name: page_size
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.PageMyWorkflowTaskResponse'
+    /api/v1/admin/workflow/task/{id}:
+        get:
+            tags:
+                - WorkflowTaskService
+            description: 查詢審批任務詳情
+            operationId: WorkflowTaskService_GetWorkflowTask
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.GetWorkflowTaskResponse'
+    /api/v1/admin/workflow/task/{task_id}/audit:
+        put:
+            tags:
+                - WorkflowTaskService
+            description: 審批任務辦理
+            operationId: WorkflowTaskService_AuditWorkflowTask
+            parameters:
+                - name: task_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.AuditWorkflowTaskRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
     /api/v1/app/auth/phone:
         put:
             tags:
@@ -11052,6 +11585,32 @@ components:
                     type: string
                     description: 更新時間
             description: AI會話分頁記錄。
+        system.admin.v1.AuditWorkflowTaskRequest:
+            type: object
+            properties:
+                task_id:
+                    type: string
+                    description: 審批任務ID
+                action:
+                    enum:
+                        - WORKFLOW_AUDIT_ACTION_UNSPECIFIED
+                        - WORKFLOW_AUDIT_ACTION_APPROVE
+                        - WORKFLOW_AUDIT_ACTION_REJECT
+                        - WORKFLOW_AUDIT_ACTION_FORWARD
+                        - WORKFLOW_AUDIT_ACTION_ADD_APPROVER
+                    type: string
+                    description: 審批動作
+                    format: enum
+                comment:
+                    type: string
+                    description: 審批意見
+                forward_to:
+                    type: string
+                    description: 轉辦目標使用者ID
+                additional_approver:
+                    type: string
+                    description: 加簽使用者ID
+            description: 審批任務辦理請求引數
         system.admin.v1.BaseApi:
             type: object
             properties:
@@ -15775,6 +16334,58 @@ components:
                         $ref: '#/components/schemas/system.admin.v1.BaseLogTraceItem'
                     description: 關聯日誌時間線
             description: 關聯審計查詢響應。
+        system.admin.v1.GetWorkflowApplyFormResponse:
+            type: object
+            properties:
+                definition_id:
+                    type: string
+                    description: 流程定義ID
+                definition_name:
+                    type: string
+                    description: 流程名稱
+                form_schema:
+                    type: string
+                    description: 申請表單定義JSON
+            description: 申請表單響應
+        system.admin.v1.GetWorkflowInstanceResponse:
+            type: object
+            properties:
+                instance:
+                    $ref: '#/components/schemas/system.admin.v1.WorkflowInstance'
+                logs:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.WorkflowLog'
+                    description: 審批日誌
+                tasks:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.WorkflowTask'
+                    description: 審批任務
+                script_runs:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.WorkflowScriptRun'
+                    description: 腳本執行紀錄
+            description: 流程例項詳情響應
+        system.admin.v1.GetWorkflowTaskResponse:
+            type: object
+            properties:
+                task:
+                    $ref: '#/components/schemas/system.admin.v1.WorkflowTask'
+                instance:
+                    $ref: '#/components/schemas/system.admin.v1.WorkflowInstance'
+                logs:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.WorkflowLog'
+                    description: 審批日誌
+                script_runs:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.WorkflowScriptRun'
+                    description: 腳本執行紀錄
+            description: 審批任務詳情響應
         system.admin.v1.ListAiProviderOptionsResponse:
             type: object
             properties:
@@ -15985,6 +16596,57 @@ components:
                     type: string
                     description: 建立時間
             description: MQTT 訊息記錄摘要。
+        system.admin.v1.MyWorkflowTaskItem:
+            type: object
+            properties:
+                task_id:
+                    type: string
+                    description: 審批任務ID，列表型別為已發起時為 0
+                instance_id:
+                    type: string
+                    description: 流程例項ID
+                definition_code:
+                    type: string
+                    description: 流程編碼
+                definition_name:
+                    type: string
+                    description: 流程名稱
+                applicant_user_id:
+                    type: string
+                    description: 申請人使用者ID
+                applicant_name:
+                    type: string
+                    description: 申請人暱稱
+                business_type:
+                    type: string
+                    description: 業務單據型別
+                instance_status:
+                    enum:
+                        - WORKFLOW_INSTANCE_STATUS_UNSPECIFIED
+                        - WORKFLOW_INSTANCE_STATUS_PENDING
+                        - WORKFLOW_INSTANCE_STATUS_APPROVED
+                        - WORKFLOW_INSTANCE_STATUS_REJECTED
+                        - WORKFLOW_INSTANCE_STATUS_WITHDRAWN
+                    type: string
+                    description: 例項狀態
+                    format: enum
+                task_status:
+                    enum:
+                        - WORKFLOW_TASK_STATUS_UNSPECIFIED
+                        - WORKFLOW_TASK_STATUS_PENDING
+                        - WORKFLOW_TASK_STATUS_APPROVED
+                        - WORKFLOW_TASK_STATUS_REJECTED
+                        - WORKFLOW_TASK_STATUS_CANCELED
+                    type: string
+                    description: 任務狀態，列表型別為已發起時為未指定
+                    format: enum
+                submit_at:
+                    type: string
+                    description: 提交時間
+                task_created_at:
+                    type: string
+                    description: 任務到達時間
+            description: 我的審批任務列表項
         system.admin.v1.OauthClient:
             type: object
             properties:
@@ -17158,6 +17820,19 @@ components:
                     description: 總數
                     format: int32
             description: MQTT 訊息分頁響應。
+        system.admin.v1.PageMyWorkflowTaskResponse:
+            type: object
+            properties:
+                items:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.MyWorkflowTaskItem'
+                    description: 分頁資料
+                total:
+                    type: integer
+                    description: 總數
+                    format: int32
+            description: 我的審批任務分頁響應
         system.admin.v1.PageOauthClientResponse:
             type: object
             properties:
@@ -17184,6 +17859,45 @@ components:
                     description: 總數
                     format: int32
             description: 線上會話分頁響應。
+        system.admin.v1.PageWorkflowDefinitionResponse:
+            type: object
+            properties:
+                definitions:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.WorkflowDefinition'
+                    description: 分頁資料
+                total:
+                    type: integer
+                    description: 總數
+                    format: int32
+            description: 流程定義分頁響應
+        system.admin.v1.PageWorkflowDelegationResponse:
+            type: object
+            properties:
+                delegations:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.WorkflowDelegation'
+                    description: 分頁資料
+                total:
+                    type: integer
+                    description: 總數
+                    format: int32
+            description: 審批委託分頁響應
+        system.admin.v1.PageWorkflowInstanceResponse:
+            type: object
+            properties:
+                instances:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.WorkflowInstance'
+                    description: 分頁資料
+                total:
+                    type: integer
+                    description: 總數
+                    format: int32
+            description: 流程例項分頁響應
         system.admin.v1.PreviewCodeGenRequest:
             type: object
             properties:
@@ -17263,6 +17977,16 @@ components:
                     type: string
                     description: 投遞任務ID
             description: 重試投遞任務請求。
+        system.admin.v1.RetryWorkflowScriptRequest:
+            type: object
+            properties:
+                instance_id:
+                    type: string
+                    description: 流程例項ID
+                id:
+                    type: string
+                    description: 腳本執行ID
+            description: 重試工作流腳本請求
         system.admin.v1.RevokeAllBaseSessionsRequest:
             type: object
             properties: {}
@@ -17837,6 +18561,22 @@ components:
                     description: 狀態
                     format: enum
             description: 設定開放授權客戶端狀態請求。
+        system.admin.v1.SetWorkflowDefinitionStatusRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 流程定義ID
+                status:
+                    enum:
+                        - WORKFLOW_DEFINITION_STATUS_UNSPECIFIED
+                        - WORKFLOW_DEFINITION_STATUS_DRAFT
+                        - WORKFLOW_DEFINITION_STATUS_ENABLED
+                        - WORKFLOW_DEFINITION_STATUS_DISABLED
+                    type: string
+                    description: 定義狀態
+                    format: enum
+            description: 設定流程定義狀態請求引數
         system.admin.v1.StartBaseJobRequest:
             type: object
             properties:
@@ -17860,6 +18600,33 @@ components:
                     type: string
                     description: 生成任務ID
             description: 啟動程式碼生成任務響應
+        system.admin.v1.SubmitWorkflowInstanceRequest:
+            type: object
+            properties:
+                code:
+                    type: string
+                    description: 流程編碼
+                version:
+                    type: integer
+                    description: 流程版本
+                    format: int32
+                form_data:
+                    type: string
+                    description: 申請表單資料JSON
+                business_type:
+                    type: string
+                    description: 業務單據型別
+                business_id:
+                    type: string
+                    description: 業務單據ID
+            description: 提交審批申請請求引數
+        system.admin.v1.SubmitWorkflowInstanceResponse:
+            type: object
+            properties:
+                instance_id:
+                    type: string
+                    description: 流程例項ID
+            description: 提交審批申請響應
         system.admin.v1.SummaryBaseUserResponse:
             type: object
             properties:
@@ -17925,6 +18692,16 @@ components:
                     type: string
                     description: 耗時毫秒
             description: 指令碼試執行響應。
+        system.admin.v1.TestWorkflowScriptRequest:
+            type: object
+            properties:
+                script_id:
+                    type: string
+                    description: 已儲存腳本ID
+                context_json:
+                    type: string
+                    description: 初始上下文JSON，最大200KiB
+            description: 流程腳本試執行參數，僅允許引用儲存的腳本。
         system.admin.v1.TreeBaseAreaResponse:
             type: object
             properties:
@@ -18179,6 +18956,334 @@ components:
                     type: string
                     description: 建立時間
             description: 使用者資料表單
+        system.admin.v1.WithdrawWorkflowInstanceRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 流程例項ID
+            description: 撤回審批申請請求引數
+        system.admin.v1.WorkflowDefinition:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 流程定義ID
+                tenant_id:
+                    type: string
+                    description: 租戶ID
+                name:
+                    type: string
+                    description: 流程名稱
+                code:
+                    type: string
+                    description: 流程編碼
+                version:
+                    type: integer
+                    description: 流程版本
+                    format: int32
+                node_config:
+                    type: string
+                    description: 節點圖配置JSON
+                form_schema:
+                    type: string
+                    description: 申請表單定義JSON
+                status:
+                    enum:
+                        - WORKFLOW_DEFINITION_STATUS_UNSPECIFIED
+                        - WORKFLOW_DEFINITION_STATUS_DRAFT
+                        - WORKFLOW_DEFINITION_STATUS_ENABLED
+                        - WORKFLOW_DEFINITION_STATUS_DISABLED
+                    type: string
+                    description: 定義狀態
+                    format: enum
+                remark:
+                    type: string
+                    description: 備註
+                created_at:
+                    type: string
+                    description: 建立時間
+                updated_at:
+                    type: string
+                    description: 更新時間
+            description: 流程定義
+        system.admin.v1.WorkflowDefinitionForm:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 流程定義ID
+                tenant_id:
+                    type: string
+                    description: 租戶ID
+                name:
+                    type: string
+                    description: 流程名稱
+                code:
+                    type: string
+                    description: 流程編碼
+                version:
+                    type: integer
+                    description: 流程版本
+                    format: int32
+                node_config:
+                    type: string
+                    description: 節點圖配置JSON
+                form_schema:
+                    type: string
+                    description: 申請表單定義JSON
+                remark:
+                    type: string
+                    description: 備註
+            description: 流程定義表單
+        system.admin.v1.WorkflowDelegation:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 審批委託ID
+                tenant_id:
+                    type: string
+                    description: 租戶ID
+                delegator_user_id:
+                    type: string
+                    description: 委託人使用者ID
+                delegator_name:
+                    type: string
+                    description: 委託人暱稱
+                delegate_user_id:
+                    type: string
+                    description: 被委託人使用者ID
+                delegate_name:
+                    type: string
+                    description: 被委託人暱稱
+                status:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    description: 狀態
+                    format: enum
+                remark:
+                    type: string
+                    description: 備註
+                created_at:
+                    type: string
+                    description: 建立時間
+                updated_at:
+                    type: string
+                    description: 更新時間
+            description: 審批委託
+        system.admin.v1.WorkflowDelegationForm:
+            type: object
+            properties:
+                delegate_user_id:
+                    type: string
+                    description: 被委託人使用者ID
+                remark:
+                    type: string
+                    description: 備註
+            description: 審批委託表單
+        system.admin.v1.WorkflowInstance:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 流程例項ID
+                tenant_id:
+                    type: string
+                    description: 租戶ID
+                definition_id:
+                    type: string
+                    description: 流程定義ID
+                definition_code:
+                    type: string
+                    description: 流程編碼
+                definition_name:
+                    type: string
+                    description: 流程名稱
+                applicant_user_id:
+                    type: string
+                    description: 申請人使用者ID
+                applicant_name:
+                    type: string
+                    description: 申請人暱稱
+                form_data:
+                    type: string
+                    description: 申請表單資料JSON
+                business_type:
+                    type: string
+                    description: 業務單據型別
+                business_id:
+                    type: string
+                    description: 業務單據ID
+                node_config:
+                    type: string
+                    description: 流程節點圖快照（不含腳本原始碼）
+                variables:
+                    type: string
+                    description: 流程變數JSON
+                status:
+                    enum:
+                        - WORKFLOW_INSTANCE_STATUS_UNSPECIFIED
+                        - WORKFLOW_INSTANCE_STATUS_PENDING
+                        - WORKFLOW_INSTANCE_STATUS_APPROVED
+                        - WORKFLOW_INSTANCE_STATUS_REJECTED
+                        - WORKFLOW_INSTANCE_STATUS_WITHDRAWN
+                    type: string
+                    description: 例項狀態
+                    format: enum
+                submit_at:
+                    type: string
+                    description: 提交時間
+                end_at:
+                    type: string
+                    description: 終結時間
+                created_at:
+                    type: string
+                    description: 建立時間
+                updated_at:
+                    type: string
+                    description: 更新時間
+            description: 流程例項
+        system.admin.v1.WorkflowLog:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 審批日誌ID
+                tenant_id:
+                    type: string
+                    description: 租戶ID
+                instance_id:
+                    type: string
+                    description: 流程例項ID
+                node_id:
+                    type: string
+                    description: 節點ID
+                task_id:
+                    type: string
+                    description: 審批任務ID
+                action:
+                    enum:
+                        - WORKFLOW_LOG_ACTION_UNSPECIFIED
+                        - WORKFLOW_LOG_ACTION_SUBMIT
+                        - WORKFLOW_LOG_ACTION_APPROVE
+                        - WORKFLOW_LOG_ACTION_REJECT
+                        - WORKFLOW_LOG_ACTION_FORWARD
+                        - WORKFLOW_LOG_ACTION_WITHDRAW
+                    type: string
+                    description: 日誌動作
+                    format: enum
+                operator_user_id:
+                    type: string
+                    description: 操作人使用者ID
+                operator_name:
+                    type: string
+                    description: 操作人暱稱
+                comment:
+                    type: string
+                    description: 審批意見
+                created_at:
+                    type: string
+                    description: 建立時間
+            description: 審批日誌
+        system.admin.v1.WorkflowScriptRun:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 腳本執行ID
+                instance_id:
+                    type: string
+                    description: 流程例項ID
+                node_id:
+                    type: string
+                    description: 節點ID
+                stage:
+                    type: string
+                    description: 執行階段
+                script_id:
+                    type: string
+                    description: 指令碼ID
+                script_name:
+                    type: string
+                    description: 腳本名稱快照
+                version:
+                    type: integer
+                    description: 指令碼版本
+                    format: int32
+                status:
+                    type: string
+                    description: 執行狀態：PENDING/RUNNING/SUCCEEDED/FAILED/CANCELED
+                attempts:
+                    type: integer
+                    description: 嘗試次數
+                    format: int32
+                input_json:
+                    type: string
+                    description: 輸入JSON
+                output_json:
+                    type: string
+                    description: 輸出JSON
+                last_error:
+                    type: string
+                    description: 最近錯誤
+                duration_ms:
+                    type: string
+                    description: 耗時毫秒
+                next_retry_at:
+                    type: string
+                    description: 下次重試時間
+                created_at:
+                    type: string
+                    description: 建立時間
+                updated_at:
+                    type: string
+                    description: 更新時間
+            description: 工作流腳本執行紀錄
+        system.admin.v1.WorkflowTask:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 審批任務ID
+                tenant_id:
+                    type: string
+                    description: 租戶ID
+                instance_id:
+                    type: string
+                    description: 流程例項ID
+                node_id:
+                    type: string
+                    description: 節點ID
+                assignee_user_id:
+                    type: string
+                    description: 辦理人使用者ID
+                assignee_name:
+                    type: string
+                    description: 辦理人暱稱
+                status:
+                    enum:
+                        - WORKFLOW_TASK_STATUS_UNSPECIFIED
+                        - WORKFLOW_TASK_STATUS_PENDING
+                        - WORKFLOW_TASK_STATUS_APPROVED
+                        - WORKFLOW_TASK_STATUS_REJECTED
+                        - WORKFLOW_TASK_STATUS_CANCELED
+                    type: string
+                    description: 任務狀態
+                    format: enum
+                comment:
+                    type: string
+                    description: 審批意見
+                created_at:
+                    type: string
+                    description: 建立時間
+                updated_at:
+                    type: string
+                    description: 更新時間
+            description: 審批任務
         system.app.v1.BaseDictForm:
             type: object
             properties:
@@ -18372,9 +19477,9 @@ tags:
     - name: BaseDictItemService
       description: Admin字典項服務
     - name: BaseDictService
-      description: Admin 字典服務
-    - name: BaseDictService
       description: App 字典服務
+    - name: BaseDictService
+      description: Admin 字典服務
     - name: BaseFileService
       description: Admin檔案資產管理服務。
     - name: BaseI18nCustomService
@@ -18482,9 +19587,9 @@ tags:
     - name: NotificationService
       description: Base站內信通知服務，提供當前使用者的收件箱能力。
     - name: OauthClientService
-      description: Admin開放授權客戶端管理服務。
-    - name: OauthClientService
       description: Base開放授權客戶端令牌服務。
+    - name: OauthClientService
+      description: Admin開放授權客戶端管理服務。
     - name: OauthService
       description: Base 第三方登入公共服務
     - name: OpsMonitoringService
@@ -18495,3 +19600,11 @@ tags:
       description: 敏感欄位加密公共服務
     - name: SseService
       description: Base SSE 服務
+    - name: WorkflowDefinitionService
+      description: Admin工作流流程定義服務
+    - name: WorkflowDelegationService
+      description: Admin工作流審批委託服務
+    - name: WorkflowInstanceService
+      description: Admin工作流流程例項服務
+    - name: WorkflowTaskService
+      description: Admin工作流審批任務服務

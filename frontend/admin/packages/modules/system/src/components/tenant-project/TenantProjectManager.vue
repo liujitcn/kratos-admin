@@ -395,9 +395,10 @@ function handleSubmit() {
       : defBaseTenantProjectService.CreateBaseTenantProject({ base_tenant_project: submitData as BaseTenantProjectForm });
     request.then(() => {
       ElMessage.success(
-        t(submitData.id ? "common.message.update_success" : "common.message.create_success", {
-          resource: t("common.field.project")
-        })
+        t(
+          submitData.id ? "common.message.update_success" : "system.workflow.approval.message.submitted",
+          submitData.id ? { resource: t("common.field.project") } : undefined
+        )
       );
       handleCloseDialog();
       void refreshTable();

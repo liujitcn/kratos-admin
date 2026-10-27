@@ -42,7 +42,7 @@ See [docs/开放授权协议设计.md](docs/开放授权协议设计.md) for the
 
 - Go `1.27.0`.
 - Node.js `^20.19.0` or `>=22.12.0`.
-- The pnpm version follows each workspace's `packageManager`: `10.33.4` for the administration console, and `10.13.1` for uni-app and Taro.
+- The pnpm version follows each workspace's `packageManager`: `10.33.4` for the administration console, uni-app, and Taro.
 - MySQL, Consul, and Vault; Redis and queue support are optional, with in-process implementations for single-instance deployments when omitted. See the sections below for their purposes and configuration entry points.
 - Docker deployment requires an available Docker CLI and Docker daemon.
 - When enabling TOTP enrollment, an explicit `mfa.encryption_key` takes precedence; when empty, the key is derived from the runtime key service. Enabling WebAuthn also requires `mfa.webauthn.rp_id` and `mfa.webauthn.rp_origins`. Sensitive configuration values should be stored using `ENC[...]`.

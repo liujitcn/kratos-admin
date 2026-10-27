@@ -5466,5 +5466,308 @@
   "system.admin.base.script.entity.description.max_length": {"other": "脚本说明不能超过512个字符"},
   "system.admin.base.script.delete.id.required": {"other": "脚本ID列表不能为空"},
   "system.admin.base.script.test_run.source.max_length": {"other": "脚本源码不能超过200000个字符"},
-  "system.admin.base.script.test_run.context_json.max_length": {"other": "上下文不能超过200000个字符"}
+  "system.admin.base.script.test_run.context_json.max_length": {"other": "上下文不能超过200000个字符"},
+  "legacy.error.0e953f80478aa9ed": {
+    "other": "同一租户的流程编码与版本重复"
+  },
+  "legacy.error.1456d3981707f770": {
+    "other": "删除流程定义失败，仅草稿状态可删除"
+  },
+  "legacy.error.1593dca0dfa86346": {
+    "other": "任务已被处理"
+  },
+  "legacy.error.2059cc6d984d24a6": {
+    "other": "被委托人无效"
+  },
+  "legacy.error.23b476d2ff5c6a0d": {
+    "other": "不是您的审批任务"
+  },
+  "legacy.error.279970960cdc7d86": {
+    "other": "未找到业务单据关联的流程实例"
+  },
+  "legacy.error.2bf0ca2e14dbf0a8": {
+    "other": "流程节点图配置异常"
+  },
+  "legacy.error.2ff36648250506aa": {
+    "other": "加签用户无效"
+  },
+  "legacy.error.44da1869e0376a29": {
+    "other": "转办目标用户无效"
+  },
+  "legacy.error.4608a748e161e339": {
+    "other": "查询审批任务详情失败"
+  },
+  "legacy.error.490b5cd41129c88f": {
+    "other": "查询审批委托失败"
+  },
+  "legacy.error.540259b5547228e3": {
+    "other": "撤回申请失败，申请不在审批中"
+  },
+  "legacy.error.5e4af6477c9e57a5": {
+    "other": "查询流程实例详情失败"
+  },
+  "legacy.error.7988a9c57b1e18af": {
+    "other": "流程编码与版本不可修改，请创建新版本"
+  },
+  "legacy.error.7e7027a1d80c578d": {
+    "other": "不能查询其他租户的审批委托"
+  },
+  "legacy.error.8358173c19c8b805": {
+    "other": "删除流程定义失败"
+  },
+  "legacy.error.84c684cce9bedfe9": {
+    "other": "设置审批委托失败"
+  },
+  "legacy.error.8d5c3940aba9dd25": {
+    "other": "同一用户只能设置一条审批委托"
+  },
+  "legacy.error.8f08aae578d818eb": {
+    "other": "流程定义不存在"
+  },
+  "legacy.error.8f0c281936a2dd93": {
+    "other": "创建流程定义失败"
+  },
+  "legacy.error.94dc7cfc60980a69": {
+    "other": "删除流程定义失败，仍有流程实例引用该定义"
+  },
+  "legacy.error.a922fa8d9aefc4b3": {
+    "other": "流程定义未启用"
+  },
+  "legacy.error.afac2a2e5bf769d4": {
+    "other": "审批动作无效"
+  },
+  "legacy.error.b2df4070287d940b": {
+    "other": "查询我的审批任务失败"
+  },
+  "legacy.error.b55bf245bac9ce6e": {
+    "other": "删除流程定义失败，流程定义不存在"
+  },
+  "legacy.error.b698dd181813542e": {
+    "other": "不能查询其他租户的流程实例"
+  },
+  "legacy.error.b7dfaaed47b862eb": {
+    "other": "删除审批委托失败，委托不存在"
+  },
+  "legacy.error.b88bad52eb5ea941": {
+    "other": "用户已禁用"
+  },
+  "legacy.error.ba653419d73d2ec8": {
+    "other": "撤回审批申请失败"
+  },
+  "legacy.error.bbf6b13e90ad673c": {
+    "other": "流程节点状态异常"
+  },
+  "legacy.error.bd716eafd672c746": {
+    "other": "更新流程定义失败"
+  },
+  "legacy.error.c48643c9d6f06c71": {
+    "other": "列表类型无效"
+  },
+  "legacy.error.c916f58aa90099af": {
+    "other": "流程定义状态无效"
+  },
+  "legacy.error.cc09b1c30b456fcf": {
+    "other": "提交审批申请失败"
+  },
+  "legacy.error.ce1a849baef38a91": {
+    "other": "流程实例不在审批中"
+  },
+  "legacy.error.ce842a9b36cba468": {
+    "other": "查询流程定义下拉列表失败"
+  },
+  "legacy.error.cebf0a62a661df9c": {
+    "other": "查询流程定义失败"
+  },
+  "legacy.error.cecfa12c95140940": {
+    "other": "不能查询其他租户的流程定义"
+  },
+  "legacy.error.d194c776a0ee5e26": {
+    "other": "节点图配置无效: 缺少开始节点"
+  },
+  "legacy.error.d9c4f018f338212d": {
+    "other": "只能撤回自己的申请"
+  },
+  "legacy.error.db35c5c0de7472a2": {
+    "other": "不能操作其他租户的流程定义"
+  },
+  "legacy.error.e4113197ca2325fa": {
+    "other": "查询申请表单失败"
+  },
+  "legacy.error.e81dbd0ba4f7a963": {
+    "other": "不是您的待审批任务"
+  },
+  "legacy.error.ec066a971ee52c71": {
+    "other": "审批任务办理失败"
+  },
+  "legacy.error.ef81783f5a70a01a": {
+    "other": "设置流程定义状态失败"
+  },
+  "legacy.error.f11c9913680e6b54": {
+    "other": "只能删除自己的审批委托"
+  },
+  "legacy.error.fc746194ec482626": {
+    "other": "查询流程实例失败"
+  },
+  "legacy.error.fcdabb6237ef15d3": {
+    "other": "更新流程定义失败，仅草稿状态可编辑"
+  },
+  "legacy.error.fe26a2c819b1e6c0": {
+    "other": "删除审批委托失败"
+  },
+  "system.admin.workflow.definition.apply_form.code.required": {
+    "other": "流程编码不能为空"
+  },
+  "system.admin.workflow.definition.apply_form.version.required": {
+    "other": "流程版本不能为空"
+  },
+  "system.admin.workflow.definition.delete.id.required": {
+    "other": "流程定义ID列表不能为空"
+  },
+  "system.admin.workflow.definition.entity.code.max_length": {
+    "other": "流程编码不能超过 100 个字符"
+  },
+  "system.admin.workflow.definition.entity.code.required": {
+    "other": "请输入流程编码"
+  },
+  "system.admin.workflow.definition.entity.form_schema.max_length": {
+    "other": "申请表单定义不能超过 65536 个字符"
+  },
+  "system.admin.workflow.definition.entity.name.max_length": {
+    "other": "流程名称不能超过 100 个字符"
+  },
+  "system.admin.workflow.definition.entity.name.required": {
+    "other": "请输入流程名称"
+  },
+  "system.admin.workflow.definition.entity.node_config.max_length": {
+    "other": "节点图配置不能超过 65536 个字符"
+  },
+  "system.admin.workflow.definition.entity.node_config.required": {
+    "other": "节点图配置不能为空"
+  },
+  "system.admin.workflow.definition.entity.remark.max_length": {
+    "other": "备注不能超过 500 个字符"
+  },
+  "system.admin.workflow.definition.entity.tenant_id.required": {
+    "other": "请选择所属租户"
+  },
+  "system.admin.workflow.definition.entity.version.required": {
+    "other": "流程版本必须大于 0"
+  },
+  "system.admin.workflow.definition.get.id.required": {
+    "other": "流程定义ID不能为空"
+  },
+  "system.admin.workflow.definition.set_status.id.required": {
+    "other": "流程定义ID不能为空"
+  },
+  "system.admin.workflow.definition.update.id.required": {
+    "other": "流程定义ID不能为空"
+  },
+  "system.admin.workflow.delegation.delete.id.required": {
+    "other": "审批委托ID列表不能为空"
+  },
+  "system.admin.workflow.delegation.entity.delegate_user_id.required": {
+    "other": "请选择被委托人"
+  },
+  "system.admin.workflow.delegation.entity.remark.max_length": {
+    "other": "备注不能超过 500 个字符"
+  },
+  "system.admin.workflow.instance.get.id.required": {
+    "other": "流程实例ID不能为空"
+  },
+  "system.admin.workflow.instance.submit.business_type.max_length": {
+    "other": "业务单据类型不能超过 50 个字符"
+  },
+  "system.admin.workflow.instance.submit.code.required": {
+    "other": "流程编码不能为空"
+  },
+  "system.admin.workflow.instance.submit.form_data.max_length": {
+    "other": "申请表单数据不能超过 65536 个字符"
+  },
+  "system.admin.workflow.instance.submit.form_data.required": {
+    "other": "申请表单数据不能为空"
+  },
+  "system.admin.workflow.instance.submit.version.required": {
+    "other": "流程版本不能为空"
+  },
+  "system.admin.workflow.instance.withdraw.id.required": {
+    "other": "流程实例ID不能为空"
+  },
+  "system.admin.workflow.task.audit.comment.max_length": {
+    "other": "审批意见不能超过 500 个字符"
+  },
+  "system.admin.workflow.task.audit.task_id.required": {
+    "other": "审批任务ID不能为空"
+  },
+  "system.admin.workflow.task.get.id.required": {
+    "other": "审批任务ID不能为空"
+  },
+  "legacy.error.6a96890d025d36c6": {
+    "other": "保存业务单据流程关联失败"
+  },
+  "legacy.error.07169436625cbd35": {
+    "other": "任务已被处理或转办"
+  },
+  "system.workflow.job.error.script_scan_failed": {
+    "other": "工作流脚本恢复扫描失败"
+  },
+  "system.workflow.job.result.scripts_scanned": {
+    "other": "工作流脚本恢复扫描完成：处理 {Count} 条"
+  },
+  "legacy.error.2f173bbdd8aabbbb": {"other": "实例流程快照无效"},
+  "legacy.error.067118c2b128c55f": {"other": "不能重试其他租户的脚本"},
+  "legacy.error.ac6310ee83bcf7f9": {"other": "只有流程参与者或管理员可以重试脚本"},
+  "legacy.error.7e1cee01625c342f": {"other": "脚本执行不属于当前流程"},
+  "legacy.error.e02e13af31934679": {"other": "只有失败的脚本可以重试"},
+  "legacy.error.2dcf0a202b5aa077": {"other": "脚本节点不存在"},
+  "legacy.error.9578a4511b3382df": {"other": "申请表单数据必须是JSON对象"},
+  "legacy.error.53f89634cde5df00": {"other": "流程未发布脚本快照，请重新启用流程"},
+  "legacy.error.b008ba1ac3fb0652": {"other": "执行租约已被其他任务接管"},
+  "legacy.error.dcad9e63f38f931c": {"other": "流程尚未终结"},
+  "legacy.error.17513f0b76033b88": {"other": "通知动作参数无效"},
+  "legacy.error.f464573b785f5f5e": {"other": "通知动作需要标题、内容和1至100个本租户用户"},
+  "legacy.error.424ef3bf19c0731c": {"other": "节点图配置无效"},
+  "legacy.error.97a011fa2c37581c": {"other": "引用脚本不存在或未启用"},
+  "legacy.error.c21640c2f2bf1181": {"other": "发布节点图配置不能超过 1MiB"},
+  "legacy.error.68c36a9a40ff17ea": {"other": "重试工作流脚本失败"},
+  "legacy.error.bb42bc14719faff4": {"other": "查询流程脚本失败"},
+  "legacy.error.1be13391c90d0c32": {"other": "试运行流程脚本失败"},
+  "system.admin.workflow.definition.script_test.script_id.required": {"other": "脚本ID必须大于0"},
+  "system.workflow.openapi.script.page": {"other": "查询流程可用的已启用受限脚本"},
+  "system.workflow.openapi.script.test": {"other": "试运行已保存且启用的受限流程脚本，不接受客户端源码"},
+  "system.workflow.openapi.script.retry": {"other": "重试失败的工作流脚本"},
+  "system.workflow.openapi.script.retry_request": {"other": "重试工作流脚本请求"},
+  "system.workflow.openapi.script.runs": {"other": "工作流脚本执行记录"},
+  "system.workflow.openapi.script.run": {"other": "脚本执行记录"},
+  "system.workflow.openapi.script.run_id": {"other": "脚本执行ID"},
+  "system.workflow.openapi.script.snapshot": {"other": "流程节点图快照（不含脚本源码）"},
+  "system.workflow.openapi.script.variables": {"other": "流程变量JSON"},
+  "system.workflow.openapi.script.name": {"other": "脚本名称快照"},
+  "system.workflow.openapi.script.test_request": {"other": "流程脚本试运行参数，仅允许引用保存的脚本。"},
+  "system.workflow.openapi.script.saved_id": {"other": "已保存脚本ID"},
+  "system.workflow.openapi.script.context": {"other": "初始上下文JSON，最大200KiB"},
+  "system.workflow.openapi.script.context_short": {"other": "初始上下文JSON"},
+  "system.workflow.openapi.script.stage": {"other": "执行阶段"},
+  "system.workflow.openapi.script.next_retry": {"other": "下次重试时间"},
+  "legacy.error.0b38823ed34c2c02": {"other": "流程仅支持 JavaScript 脚本"},
+  "legacy.error.732403aa5b743865": {"other": "宿主关联回写必须注册流程关联核验器"},
+  "legacy.error.a7beabf5ecc07c42": {"other": "业务单据关联尚未确认，请稍后撤回"},
+  "system.notification.sender.system": {"other": "系统"},
+  "system.workflow.notification.title.withdrawn": {"other": "待审批申请已被撤回"},
+  "system.workflow.notification.content.withdrawn": {"other": "申请人已撤回该申请，无需继续处理"},
+  "system.workflow.notification.title.rejected": {"other": "您的申请已被驳回"},
+  "system.workflow.notification.content.rejected": {"other": "请登录系统查看审批意见"},
+  "system.workflow.notification.title.forwarded": {"other": "您有被转办的审批任务"},
+  "system.workflow.notification.title.added": {"other": "您有被加签的审批任务"},
+  "system.workflow.notification.title.pending": {"other": "您有新的待审批任务"},
+  "system.workflow.notification.content.pending": {"other": "请登录系统处理待审批事项"},
+  "system.workflow.notification.title.approved": {"other": "您的申请已通过"},
+  "system.workflow.notification.content.approved": {"other": "全部审批节点已通过"},
+  "system.workflow.notification.title.definition_rejected": {"other": "您的申请已被驳回"},
+  "system.workflow.notification.content.definition_rejected": {"other": "流程定义异常，请联系管理员"},
+  "system.workflow.notification.title.escalated_assignee": {"other": "您有待审批任务严重超时"},
+  "system.workflow.notification.content.escalated_assignee": {"other": "该任务已超时较久仍未处理，已同步提醒申请人关注进度。"},
+  "system.workflow.notification.title.escalated_applicant": {"other": "您的申请审批超时"},
+  "system.workflow.notification.content.escalated_applicant": {"other": "当前审批节点办理人长时间未处理，系统已再次提醒对方。"},
+  "system.workflow.notification.title.reminder": {"other": "您有待审批任务超时未处理"},
+  "system.workflow.notification.content.reminder": {"other": "请尽快登录系统处理待审批事项，长时间未处理将同步提醒申请人。"}
 }

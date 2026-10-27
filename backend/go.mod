@@ -6,10 +6,13 @@ require (
 	buf.build/go/protovalidate v1.4.0
 	github.com/cloudwego/eino v0.9.21
 	github.com/cloudwego/eino-ext/components/model/agenticopenai v0.2.4
+	github.com/dop251/goja v0.0.0-20261022125820-07c4b9d6265b
+	github.com/expr-lang/expr v1.17.8
 	github.com/go-kratos/kratos/v3 v3.0.0
 	github.com/go-sql-driver/mysql v1.10.1
 	github.com/go-webauthn/webauthn v0.18.2
 	github.com/google/jsonschema-go v0.4.3
+	github.com/google/uuid v1.6.0
 	github.com/google/wire v0.7.0
 	github.com/jackc/pgx/v5 v5.11.0
 	github.com/ledongthuc/pdf v0.0.0-20220302134840-0c2507a12d80
@@ -44,6 +47,7 @@ require (
 	github.com/liujitcn/kratos-kit/captcha v0.0.26
 	github.com/liujitcn/kratos-kit/config v0.0.42
 	github.com/liujitcn/kratos-kit/database/gorm v0.0.59
+	github.com/liujitcn/kratos-kit/database/gorm/driver v0.0.24
 	github.com/liujitcn/kratos-kit/database/gorm/driver/mysql v0.0.29
 	github.com/liujitcn/kratos-kit/database/gorm/driver/postgres v0.0.25
 	github.com/liujitcn/kratos-kit/database/gorm/migration v0.0.21
@@ -77,6 +81,7 @@ require (
 	google.golang.org/genproto/googleapis/api v0.0.0-20261019180522-ce908d29299b
 	google.golang.org/grpc v1.86.0-dev
 	google.golang.org/protobuf v1.36.12
+	gorm.io/driver/sqlite v1.6.0
 	gorm.io/gen v0.3.29
 	gorm.io/gorm v1.31.2
 	gorm.io/plugin/dbresolver v1.6.2
@@ -161,7 +166,6 @@ require (
 	github.com/cloudwego/eino-ext/libs/acl/openai v0.1.18-0.20260924031408-10df7cac3f6d // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/dlclark/regexp2/v2 v2.9.1 // indirect
-	github.com/dop251/goja v0.0.0-20261022125820-07c4b9d6265b // indirect
 	github.com/dop251/goja_nodejs v0.0.0-20260918173711-b481721df8a2 // indirect
 	github.com/dustin/go-humanize v1.1.0 // indirect
 	github.com/ebitengine/purego v0.11.1 // indirect
@@ -169,7 +173,6 @@ require (
 	github.com/eino-contrib/jsonschema v1.0.3 // indirect
 	github.com/emicklei/go-restful/v3 v3.14.0 // indirect
 	github.com/evanphx/json-patch v0.5.2 // indirect
-	github.com/expr-lang/expr v1.17.8 // indirect
 	github.com/fatih/color v1.19.0 // indirect
 	github.com/felixge/httpsnoop v1.1.0 // indirect
 	github.com/fsnotify/fsnotify v1.10.1 // indirect
@@ -210,7 +213,6 @@ require (
 	github.com/google/pprof v0.0.0-20261016150608-1facf8f91b50 // indirect
 	github.com/google/s2a-go v0.1.11 // indirect
 	github.com/google/subcommands v1.2.0 // indirect
-	github.com/google/uuid v1.6.0 // indirect
 	github.com/googleapis/enterprise-certificate-proxy v0.3.23 // indirect
 	github.com/googleapis/gax-go/v2 v2.26.2 // indirect
 	github.com/goph/emperror v0.17.2 // indirect
@@ -265,7 +267,6 @@ require (
 	github.com/liujitcn/kratos-kit/auth/authn/middleware v0.0.24 // indirect
 	github.com/liujitcn/kratos-kit/auth/authz/middleware v0.0.23 // indirect
 	github.com/liujitcn/kratos-kit/broker/mqtt v0.0.2 // indirect
-	github.com/liujitcn/kratos-kit/database/gorm/driver v0.0.24 // indirect
 	github.com/liujitcn/kratos-kit/key v0.0.11 // indirect
 	github.com/liujitcn/kratos-kit/logger v0.0.37 // indirect
 	github.com/liujitcn/kratos-kit/oss/s3 v0.0.5 // indirect

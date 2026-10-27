@@ -57,7 +57,7 @@ test('生成默认 system、本地模块和发布模块', () => {
   )
   assert.equal(hostPackage.dependencies['@dcloudio/vite-plugin-uni'], '3.0.0-5010520260709002')
   assert.equal(hostPackage.scripts['dev:h5'], 'pnpm run recover:pages && uni --mode development-h5')
-  assert.equal(workspacePackage.packageManager, 'pnpm@10.13.1')
+  assert.equal(workspacePackage.packageManager, 'pnpm@10.33.4')
   assert.match(viteConfig, /VITE_APP_PORT/)
   assert.match(viteConfig, /kratosApp\(\{ modules: moduleManifest \}\)/)
   assert.ok(existsSync(resolve(target, 'packages/modules/orders/src/index.mjs')))

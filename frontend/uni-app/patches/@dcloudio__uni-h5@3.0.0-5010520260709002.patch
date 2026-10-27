@@ -1,0 +1,24 @@
+diff --git a/dist/uni-h5.cjs.js b/dist/uni-h5.cjs.js
+--- a/dist/uni-h5.cjs.js
++++ b/dist/uni-h5.cjs.js
+@@ -10803,7 +10803,7 @@ function usePopupStyle(props2) {
+       const popoverHeight = getNumber(popover.height);
+       const center = popoverLeft + popoverWidth / 2;
+       contentStyle.transform = "none !important";
+-      const contentLeft = Math.max(0, center - popoverWidth / 2);
++      const contentLeft = Math.min(Math.max(0, center - popoverWidth / 2), (typeof window !== "undefined" ? window.innerWidth : 0) - Math.max(popoverWidth, 300));
+       contentStyle.left = `${contentLeft}px`;
+       if (popover.width) {
+         contentStyle.width = `${popoverWidth}px`;
+diff --git a/dist/uni-h5.es.js b/dist/uni-h5.es.js
+--- a/dist/uni-h5.es.js
++++ b/dist/uni-h5.es.js
+@@ -22821,7 +22821,7 @@ function usePopupStyle(props2) {
+       const popoverHeight = getNumber(popover.height);
+       const center = popoverLeft + popoverWidth / 2;
+       contentStyle.transform = "none !important";
+-      const contentLeft = Math.max(0, center - popoverWidth / 2);
++      const contentLeft = Math.min(Math.max(0, center - popoverWidth / 2), (typeof window !== "undefined" ? window.innerWidth : 0) - Math.max(popoverWidth, 300));
+       contentStyle.left = `${contentLeft}px`;
+       if (popover.width) {
+         contentStyle.width = `${popoverWidth}px`;

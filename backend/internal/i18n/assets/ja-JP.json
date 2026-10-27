@@ -5466,5 +5466,308 @@
   "system.admin.base.script.entity.description.max_length": {"other": "説明は512文字以内で入力してください"},
   "system.admin.base.script.delete.id.required": {"other": "スクリプトID一覧を入力してください"},
   "system.admin.base.script.test_run.source.max_length": {"other": "スクリプトソースは200000文字以内で入力してください"},
-  "system.admin.base.script.test_run.context_json.max_length": {"other": "コンテキストは200000文字以内で入力してください"}
+  "system.admin.base.script.test_run.context_json.max_length": {"other": "コンテキストは200000文字以内で入力してください"},
+  "legacy.error.0e953f80478aa9ed": {
+    "other": "同一テナントのフローコードとバージョンが重複"
+  },
+  "legacy.error.1456d3981707f770": {
+    "other": "削除失敗、ドラフト状態のみ削除できます"
+  },
+  "legacy.error.1593dca0dfa86346": {
+    "other": "タスクは処理済みです"
+  },
+  "legacy.error.2059cc6d984d24a6": {
+    "other": "被委任者が無効です"
+  },
+  "legacy.error.23b476d2ff5c6a0d": {
+    "other": "あなたの承認タスクではありません"
+  },
+  "legacy.error.279970960cdc7d86": {
+    "other": "業務記録に関連するフローインスタンスが見つかりません"
+  },
+  "legacy.error.2bf0ca2e14dbf0a8": {
+    "other": "フロー図設定に異常があります"
+  },
+  "legacy.error.2ff36648250506aa": {
+    "other": "加簽ユーザーが無効です"
+  },
+  "legacy.error.44da1869e0376a29": {
+    "other": "転送先ユーザーが無効です"
+  },
+  "legacy.error.4608a748e161e339": {
+    "other": "承認タスク詳細の検索に失敗"
+  },
+  "legacy.error.490b5cd41129c88f": {
+    "other": "承認委任の検索に失敗"
+  },
+  "legacy.error.540259b5547228e3": {
+    "other": "取下げ失敗、申請は承認中ではありません"
+  },
+  "legacy.error.5e4af6477c9e57a5": {
+    "other": "フローインスタンス詳細の検索に失敗"
+  },
+  "legacy.error.7988a9c57b1e18af": {
+    "other": "コードとバージョンは変更できません、新バージョンを作成してください"
+  },
+  "legacy.error.7e7027a1d80c578d": {
+    "other": "他テナントの承認委任を検索できません"
+  },
+  "legacy.error.8358173c19c8b805": {
+    "other": "ワークフロー定義の削除に失敗"
+  },
+  "legacy.error.84c684cce9bedfe9": {
+    "other": "承認委任の設定に失敗"
+  },
+  "legacy.error.8d5c3940aba9dd25": {
+    "other": "一人のユーザーは一件の承認委任のみ設定できます"
+  },
+  "legacy.error.8f08aae578d818eb": {
+    "other": "ワークフロー定義が存在しません"
+  },
+  "legacy.error.8f0c281936a2dd93": {
+    "other": "ワークフロー定義の作成に失敗"
+  },
+  "legacy.error.94dc7cfc60980a69": {
+    "other": "削除失敗、この定義を参照するインスタンスが存在します"
+  },
+  "legacy.error.a922fa8d9aefc4b3": {
+    "other": "ワークフロー定義が有効化されていません"
+  },
+  "legacy.error.afac2a2e5bf769d4": {
+    "other": "承認操作が無効です"
+  },
+  "legacy.error.b2df4070287d940b": {
+    "other": "自分の承認タスクの検索に失敗"
+  },
+  "legacy.error.b55bf245bac9ce6e": {
+    "other": "削除失敗、定義が存在しません"
+  },
+  "legacy.error.b698dd181813542e": {
+    "other": "他テナントのフローインスタンスを検索できません"
+  },
+  "legacy.error.b7dfaaed47b862eb": {
+    "other": "削除失敗、委任が存在しません"
+  },
+  "legacy.error.b88bad52eb5ea941": {
+    "other": "ユーザーは無効化されています"
+  },
+  "legacy.error.ba653419d73d2ec8": {
+    "other": "申請の取下げに失敗"
+  },
+  "legacy.error.bbf6b13e90ad673c": {
+    "other": "フローノード状態に異常があります"
+  },
+  "legacy.error.bd716eafd672c746": {
+    "other": "ワークフロー定義の更新に失敗"
+  },
+  "legacy.error.c48643c9d6f06c71": {
+    "other": "リストタイプが無効です"
+  },
+  "legacy.error.c916f58aa90099af": {
+    "other": "ワークフロー定義の状態が無効です"
+  },
+  "legacy.error.cc09b1c30b456fcf": {
+    "other": "承認申請の提出に失敗"
+  },
+  "legacy.error.ce1a849baef38a91": {
+    "other": "フローインスタンスは承認中ではありません"
+  },
+  "legacy.error.ce842a9b36cba468": {
+    "other": "ワークフロー定義選択肢の検索に失敗"
+  },
+  "legacy.error.cebf0a62a661df9c": {
+    "other": "ワークフロー定義の検索に失敗"
+  },
+  "legacy.error.cecfa12c95140940": {
+    "other": "他テナントのワークフロー定義を検索できません"
+  },
+  "legacy.error.d194c776a0ee5e26": {
+    "other": "フロー図設定が無効：開始ノードがありません"
+  },
+  "legacy.error.d9c4f018f338212d": {
+    "other": "自分の申請のみ取下げできます"
+  },
+  "legacy.error.db35c5c0de7472a2": {
+    "other": "他テナントのワークフロー定義を操作できません"
+  },
+  "legacy.error.e4113197ca2325fa": {
+    "other": "申請フォームの検索に失敗"
+  },
+  "legacy.error.e81dbd0ba4f7a963": {
+    "other": "あなたの承認待ちタスクではありません"
+  },
+  "legacy.error.ec066a971ee52c71": {
+    "other": "承認タスクの処理に失敗"
+  },
+  "legacy.error.ef81783f5a70a01a": {
+    "other": "ワークフロー定義状態の設定に失敗"
+  },
+  "legacy.error.f11c9913680e6b54": {
+    "other": "自分の承認委任のみ削除できます"
+  },
+  "legacy.error.fc746194ec482626": {
+    "other": "フローインスタンスの検索に失敗"
+  },
+  "legacy.error.fcdabb6237ef15d3": {
+    "other": "更新失敗、ドラフト状態のみ編集できます"
+  },
+  "legacy.error.fe26a2c819b1e6c0": {
+    "other": "承認委任の削除に失敗"
+  },
+  "system.admin.workflow.definition.apply_form.code.required": {
+    "other": "フローコードは必須です"
+  },
+  "system.admin.workflow.definition.apply_form.version.required": {
+    "other": "フローバージョンは必須です"
+  },
+  "system.admin.workflow.definition.delete.id.required": {
+    "other": "ワークフロー定義IDリストは必須です"
+  },
+  "system.admin.workflow.definition.entity.code.max_length": {
+    "other": "フローコードは100文字以内です"
+  },
+  "system.admin.workflow.definition.entity.code.required": {
+    "other": "フローコードを入力してください"
+  },
+  "system.admin.workflow.definition.entity.form_schema.max_length": {
+    "other": "フォーム定義は65536文字以内です"
+  },
+  "system.admin.workflow.definition.entity.name.max_length": {
+    "other": "フロー名は100文字以内です"
+  },
+  "system.admin.workflow.definition.entity.name.required": {
+    "other": "フロー名を入力してください"
+  },
+  "system.admin.workflow.definition.entity.node_config.max_length": {
+    "other": "フロー図設定は65536文字以内です"
+  },
+  "system.admin.workflow.definition.entity.node_config.required": {
+    "other": "フロー図設定は必須です"
+  },
+  "system.admin.workflow.definition.entity.remark.max_length": {
+    "other": "備考は500文字以内です"
+  },
+  "system.admin.workflow.definition.entity.tenant_id.required": {
+    "other": "テナントを選択してください"
+  },
+  "system.admin.workflow.definition.entity.version.required": {
+    "other": "バージョンは0より大きい必要があります"
+  },
+  "system.admin.workflow.definition.get.id.required": {
+    "other": "ワークフロー定義IDは必須です"
+  },
+  "system.admin.workflow.definition.set_status.id.required": {
+    "other": "ワークフロー定義IDは必須です"
+  },
+  "system.admin.workflow.definition.update.id.required": {
+    "other": "ワークフロー定義IDは必須です"
+  },
+  "system.admin.workflow.delegation.delete.id.required": {
+    "other": "承認委任IDリストは必須です"
+  },
+  "system.admin.workflow.delegation.entity.delegate_user_id.required": {
+    "other": "被委任者を選択してください"
+  },
+  "system.admin.workflow.delegation.entity.remark.max_length": {
+    "other": "備考は500文字以内です"
+  },
+  "system.admin.workflow.instance.get.id.required": {
+    "other": "フローインスタンスIDは必須です"
+  },
+  "system.admin.workflow.instance.submit.business_type.max_length": {
+    "other": "業務種別は50文字以内です"
+  },
+  "system.admin.workflow.instance.submit.code.required": {
+    "other": "フローコードは必須です"
+  },
+  "system.admin.workflow.instance.submit.form_data.max_length": {
+    "other": "申請フォームデータは65536文字以内です"
+  },
+  "system.admin.workflow.instance.submit.form_data.required": {
+    "other": "申請フォームデータは必須です"
+  },
+  "system.admin.workflow.instance.submit.version.required": {
+    "other": "フローバージョンは必須です"
+  },
+  "system.admin.workflow.instance.withdraw.id.required": {
+    "other": "フローインスタンスIDは必須です"
+  },
+  "system.admin.workflow.task.audit.comment.max_length": {
+    "other": "承認意見は500文字以内です"
+  },
+  "system.admin.workflow.task.audit.task_id.required": {
+    "other": "承認タスクIDは必須です"
+  },
+  "system.admin.workflow.task.get.id.required": {
+    "other": "承認タスクIDは必須です"
+  },
+  "legacy.error.6a96890d025d36c6": {
+    "other": "業務伝票とワークフローの関連付けを保存できませんでした"
+  },
+  "legacy.error.07169436625cbd35": {
+    "other": "タスクはすでに処理または転送されています"
+  },
+  "system.workflow.job.error.script_scan_failed": {
+    "other": "ワークフロースクリプトの復旧スキャンに失敗しました"
+  },
+  "system.workflow.job.result.scripts_scanned": {
+    "other": "ワークフロースクリプトの復旧スキャン完了：{Count} 件を処理"
+  },
+  "legacy.error.2f173bbdd8aabbbb": {"other": "ワークフローインスタンスのスナップショットが無効です"},
+  "legacy.error.067118c2b128c55f": {"other": "他のテナントのスクリプトは再試行できません"},
+  "legacy.error.ac6310ee83bcf7f9": {"other": "フローの参加者または管理者のみスクリプトを再試行できます"},
+  "legacy.error.7e1cee01625c342f": {"other": "スクリプト実行はこのフローに属していません"},
+  "legacy.error.e02e13af31934679": {"other": "失敗したスクリプトのみ再試行できます"},
+  "legacy.error.2dcf0a202b5aa077": {"other": "スクリプトノードが存在しません"},
+  "legacy.error.9578a4511b3382df": {"other": "申請フォームデータは JSON オブジェクトである必要があります"},
+  "legacy.error.53f89634cde5df00": {"other": "公開済みスクリプトのスナップショットがありません。フローを再度有効にしてください"},
+  "legacy.error.b008ba1ac3fb0652": {"other": "実行リースは他のタスクに引き継がれました"},
+  "legacy.error.dcad9e63f38f931c": {"other": "フローはまだ終了していません"},
+  "legacy.error.17513f0b76033b88": {"other": "通知アクションのパラメーターが無効です"},
+  "legacy.error.f464573b785f5f5e": {"other": "通知アクションにはタイトル、内容、および同じテナントの1〜100人のユーザーが必要です"},
+  "legacy.error.424ef3bf19c0731c": {"other": "ノードグラフの設定が無効です"},
+  "legacy.error.97a011fa2c37581c": {"other": "参照したスクリプトが存在しないか無効になっています"},
+  "legacy.error.c21640c2f2bf1181": {"other": "公開するノードグラフ設定は 1 MiB を超えてはいけません"},
+  "legacy.error.68c36a9a40ff17ea": {"other": "ワークフロースクリプトの再試行に失敗しました"},
+  "legacy.error.bb42bc14719faff4": {"other": "ワークフロースクリプトの取得に失敗しました"},
+  "legacy.error.1be13391c90d0c32": {"other": "ワークフロースクリプトの試験実行に失敗しました"},
+  "system.admin.workflow.definition.script_test.script_id.required": {"other": "スクリプト ID は0より大きい必要があります"},
+  "system.workflow.openapi.script.page": {"other": "ワークフローで利用可能な有効な制限付きスクリプトを取得します"},
+  "system.workflow.openapi.script.test": {"other": "保存済みかつ有効な制限付きワークフロースクリプトを試験実行します。クライアントのソースは受け付けません"},
+  "system.workflow.openapi.script.retry": {"other": "失敗したワークフロースクリプトを再試行します"},
+  "system.workflow.openapi.script.retry_request": {"other": "ワークフロースクリプト再試行リクエスト"},
+  "system.workflow.openapi.script.runs": {"other": "ワークフロースクリプト実行履歴"},
+  "system.workflow.openapi.script.run": {"other": "スクリプト実行履歴"},
+  "system.workflow.openapi.script.run_id": {"other": "スクリプト実行 ID"},
+  "system.workflow.openapi.script.snapshot": {"other": "スクリプトソースを含まないワークフローグラフのスナップショット"},
+  "system.workflow.openapi.script.variables": {"other": "ワークフロー変数 JSON"},
+  "system.workflow.openapi.script.name": {"other": "スクリプト名のスナップショット"},
+  "system.workflow.openapi.script.test_request": {"other": "ワークフロースクリプトの試験実行パラメーター。保存済みスクリプトのみ参照できます。"},
+  "system.workflow.openapi.script.saved_id": {"other": "保存済みスクリプト ID"},
+  "system.workflow.openapi.script.context": {"other": "初期コンテキスト JSON、最大200 KiB"},
+  "system.workflow.openapi.script.context_short": {"other": "初期コンテキスト JSON"},
+  "system.workflow.openapi.script.stage": {"other": "実行段階"},
+  "system.workflow.openapi.script.next_retry": {"other": "次回の再試行時刻"},
+  "legacy.error.0b38823ed34c2c02": {"other": "フローは JavaScript スクリプトのみ対応しています"},
+  "legacy.error.732403aa5b743865": {"other": "ホストの関連付けコールバックにはワークフロー関連付け検証器の登録が必要です"},
+  "legacy.error.a7beabf5ecc07c42": {"other": "業務伝票の関連付けが未確認です。後で取り下げてください"},
+  "system.notification.sender.system": {"other": "システム"},
+  "system.workflow.notification.title.withdrawn": {"other": "承認待ちの申請が取り下げられました"},
+  "system.workflow.notification.content.withdrawn": {"other": "申請者が申請を取り下げたため、これ以上の対応は不要です"},
+  "system.workflow.notification.title.rejected": {"other": "申請が却下されました"},
+  "system.workflow.notification.content.rejected": {"other": "ログインして承認コメントを確認してください"},
+  "system.workflow.notification.title.forwarded": {"other": "承認タスクが転送されました"},
+  "system.workflow.notification.title.added": {"other": "承認タスクが追加されました"},
+  "system.workflow.notification.title.pending": {"other": "新しい承認タスクがあります"},
+  "system.workflow.notification.content.pending": {"other": "ログインして承認待ちのタスクを処理してください"},
+  "system.workflow.notification.title.approved": {"other": "申請が承認されました"},
+  "system.workflow.notification.content.approved": {"other": "すべての承認ステップが完了しました"},
+  "system.workflow.notification.title.definition_rejected": {"other": "申請が却下されました"},
+  "system.workflow.notification.content.definition_rejected": {"other": "ワークフロー定義に異常があります。管理者に連絡してください"},
+  "system.workflow.notification.title.escalated_assignee": {"other": "承認待ちタスクが大幅に期限超過しています"},
+  "system.workflow.notification.content.escalated_assignee": {"other": "タスクが長時間処理されていないため、申請者にも通知しました"},
+  "system.workflow.notification.title.escalated_applicant": {"other": "申請の承認が期限超過しています"},
+  "system.workflow.notification.content.escalated_applicant": {"other": "現在の承認者が長時間タスクを処理していないため、再通知しました"},
+  "system.workflow.notification.title.reminder": {"other": "承認待ちタスクが期限超過しています"},
+  "system.workflow.notification.content.reminder": {"other": "ログインして承認待ちのタスクを処理してください。未処理の場合は申請者にも通知されます"}
 }

@@ -376,7 +376,11 @@ async function handleSubmit() {
   } else {
     const response = await defBaseTenantService.CreateBaseTenant({ base_tenant: submitData });
     invalidateTenantOptions();
-    ElMessage.success(t("common.message.create_success", { resource: t("common.field.tenant") }));
+    ElMessage.success(
+      response.initial_password
+        ? t("common.message.create_success", { resource: t("common.field.tenant") })
+        : t("system.workflow.approval.message.submitted")
+    );
     handleCloseDialog();
     refreshTable();
     if (response.initial_password) {

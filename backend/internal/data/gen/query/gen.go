@@ -82,6 +82,14 @@ func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 		CodeGenTable:            newCodeGenTable(db, opts...),
 		MqttMessage:             newMqttMessage(db, opts...),
 		OauthClient:             newOauthClient(db, opts...),
+		WorkflowDefinition:      newWorkflowDefinition(db, opts...),
+		WorkflowDelegation:      newWorkflowDelegation(db, opts...),
+		WorkflowInstance:        newWorkflowInstance(db, opts...),
+		WorkflowJoin:            newWorkflowJoin(db, opts...),
+		WorkflowLog:             newWorkflowLog(db, opts...),
+		WorkflowParentLink:      newWorkflowParentLink(db, opts...),
+		WorkflowScriptRun:       newWorkflowScriptRun(db, opts...),
+		WorkflowTask:            newWorkflowTask(db, opts...),
 	}
 }
 
@@ -153,6 +161,14 @@ type Query struct {
 	CodeGenTable            codeGenTable
 	MqttMessage             mqttMessage
 	OauthClient             oauthClient
+	WorkflowDefinition      workflowDefinition
+	WorkflowDelegation      workflowDelegation
+	WorkflowInstance        workflowInstance
+	WorkflowJoin            workflowJoin
+	WorkflowLog             workflowLog
+	WorkflowParentLink      workflowParentLink
+	WorkflowScriptRun       workflowScriptRun
+	WorkflowTask            workflowTask
 }
 
 func (q *Query) Available() bool { return q.db != nil }
@@ -226,6 +242,14 @@ func (q *Query) clone(db *gorm.DB) *Query {
 		CodeGenTable:            q.CodeGenTable.clone(db),
 		MqttMessage:             q.MqttMessage.clone(db),
 		OauthClient:             q.OauthClient.clone(db),
+		WorkflowDefinition:      q.WorkflowDefinition.clone(db),
+		WorkflowDelegation:      q.WorkflowDelegation.clone(db),
+		WorkflowInstance:        q.WorkflowInstance.clone(db),
+		WorkflowJoin:            q.WorkflowJoin.clone(db),
+		WorkflowLog:             q.WorkflowLog.clone(db),
+		WorkflowParentLink:      q.WorkflowParentLink.clone(db),
+		WorkflowScriptRun:       q.WorkflowScriptRun.clone(db),
+		WorkflowTask:            q.WorkflowTask.clone(db),
 	}
 }
 
@@ -306,6 +330,14 @@ func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 		CodeGenTable:            q.CodeGenTable.replaceDB(db),
 		MqttMessage:             q.MqttMessage.replaceDB(db),
 		OauthClient:             q.OauthClient.replaceDB(db),
+		WorkflowDefinition:      q.WorkflowDefinition.replaceDB(db),
+		WorkflowDelegation:      q.WorkflowDelegation.replaceDB(db),
+		WorkflowInstance:        q.WorkflowInstance.replaceDB(db),
+		WorkflowJoin:            q.WorkflowJoin.replaceDB(db),
+		WorkflowLog:             q.WorkflowLog.replaceDB(db),
+		WorkflowParentLink:      q.WorkflowParentLink.replaceDB(db),
+		WorkflowScriptRun:       q.WorkflowScriptRun.replaceDB(db),
+		WorkflowTask:            q.WorkflowTask.replaceDB(db),
 	}
 }
 
@@ -376,6 +408,14 @@ type queryCtx struct {
 	CodeGenTable            *codeGenTableDo
 	MqttMessage             *mqttMessageDo
 	OauthClient             *oauthClientDo
+	WorkflowDefinition      *workflowDefinitionDo
+	WorkflowDelegation      *workflowDelegationDo
+	WorkflowInstance        *workflowInstanceDo
+	WorkflowJoin            *workflowJoinDo
+	WorkflowLog             *workflowLogDo
+	WorkflowParentLink      *workflowParentLinkDo
+	WorkflowScriptRun       *workflowScriptRunDo
+	WorkflowTask            *workflowTaskDo
 }
 
 func (q *Query) WithContext(ctx context.Context) *queryCtx {
@@ -446,6 +486,14 @@ func (q *Query) WithContext(ctx context.Context) *queryCtx {
 		CodeGenTable:            q.CodeGenTable.WithContext(ctx),
 		MqttMessage:             q.MqttMessage.WithContext(ctx),
 		OauthClient:             q.OauthClient.WithContext(ctx),
+		WorkflowDefinition:      q.WorkflowDefinition.WithContext(ctx),
+		WorkflowDelegation:      q.WorkflowDelegation.WithContext(ctx),
+		WorkflowInstance:        q.WorkflowInstance.WithContext(ctx),
+		WorkflowJoin:            q.WorkflowJoin.WithContext(ctx),
+		WorkflowLog:             q.WorkflowLog.WithContext(ctx),
+		WorkflowParentLink:      q.WorkflowParentLink.WithContext(ctx),
+		WorkflowScriptRun:       q.WorkflowScriptRun.WithContext(ctx),
+		WorkflowTask:            q.WorkflowTask.WithContext(ctx),
 	}
 }
 

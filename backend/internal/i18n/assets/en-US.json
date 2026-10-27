@@ -5466,5 +5466,308 @@
   "system.admin.base.script.entity.description.max_length": {"other": "Description cannot exceed 512 characters"},
   "system.admin.base.script.delete.id.required": {"other": "Script ID list cannot be empty"},
   "system.admin.base.script.test_run.source.max_length": {"other": "Script source cannot exceed 200000 characters"},
-  "system.admin.base.script.test_run.context_json.max_length": {"other": "Context cannot exceed 200000 characters"}
+  "system.admin.base.script.test_run.context_json.max_length": {"other": "Context cannot exceed 200000 characters"},
+  "legacy.error.0e953f80478aa9ed": {
+    "other": "Workflow code and version duplicated in the tenant"
+  },
+  "legacy.error.1456d3981707f770": {
+    "other": "Cannot delete workflow definition: only draft can be deleted"
+  },
+  "legacy.error.1593dca0dfa86346": {
+    "other": "Task already handled"
+  },
+  "legacy.error.2059cc6d984d24a6": {
+    "other": "Invalid delegate user"
+  },
+  "legacy.error.23b476d2ff5c6a0d": {
+    "other": "Not your approval task"
+  },
+  "legacy.error.279970960cdc7d86": {
+    "other": "No workflow instance linked to the business record"
+  },
+  "legacy.error.2bf0ca2e14dbf0a8": {
+    "other": "Workflow graph config corrupted"
+  },
+  "legacy.error.2ff36648250506aa": {
+    "other": "Invalid additional approver"
+  },
+  "legacy.error.44da1869e0376a29": {
+    "other": "Invalid forward target user"
+  },
+  "legacy.error.4608a748e161e339": {
+    "other": "Failed to query approval task detail"
+  },
+  "legacy.error.490b5cd41129c88f": {
+    "other": "Failed to query approval delegation"
+  },
+  "legacy.error.540259b5547228e3": {
+    "other": "Cannot withdraw: application not pending"
+  },
+  "legacy.error.5e4af6477c9e57a5": {
+    "other": "Failed to query workflow instance detail"
+  },
+  "legacy.error.7988a9c57b1e18af": {
+    "other": "Code and version cannot be changed; create a new version"
+  },
+  "legacy.error.7e7027a1d80c578d": {
+    "other": "Cannot query other tenants' delegations"
+  },
+  "legacy.error.8358173c19c8b805": {
+    "other": "Failed to delete workflow definition"
+  },
+  "legacy.error.84c684cce9bedfe9": {
+    "other": "Failed to set approval delegation"
+  },
+  "legacy.error.8d5c3940aba9dd25": {
+    "other": "One user can only set one delegation"
+  },
+  "legacy.error.8f08aae578d818eb": {
+    "other": "Workflow definition not found"
+  },
+  "legacy.error.8f0c281936a2dd93": {
+    "other": "Failed to create workflow definition"
+  },
+  "legacy.error.94dc7cfc60980a69": {
+    "other": "Cannot delete: instances still reference the definition"
+  },
+  "legacy.error.a922fa8d9aefc4b3": {
+    "other": "Workflow definition not enabled"
+  },
+  "legacy.error.afac2a2e5bf769d4": {
+    "other": "Invalid audit action"
+  },
+  "legacy.error.b2df4070287d940b": {
+    "other": "Failed to query my approval tasks"
+  },
+  "legacy.error.b55bf245bac9ce6e": {
+    "other": "Cannot delete: definition not found"
+  },
+  "legacy.error.b698dd181813542e": {
+    "other": "Cannot query other tenants' instances"
+  },
+  "legacy.error.b7dfaaed47b862eb": {
+    "other": "Cannot delete: delegation not found"
+  },
+  "legacy.error.b88bad52eb5ea941": {
+    "other": "User disabled"
+  },
+  "legacy.error.ba653419d73d2ec8": {
+    "other": "Failed to withdraw application"
+  },
+  "legacy.error.bbf6b13e90ad673c": {
+    "other": "Workflow node state corrupted"
+  },
+  "legacy.error.bd716eafd672c746": {
+    "other": "Failed to update workflow definition"
+  },
+  "legacy.error.c48643c9d6f06c71": {
+    "other": "Invalid list type"
+  },
+  "legacy.error.c916f58aa90099af": {
+    "other": "Invalid workflow definition status"
+  },
+  "legacy.error.cc09b1c30b456fcf": {
+    "other": "Failed to submit application"
+  },
+  "legacy.error.ce1a849baef38a91": {
+    "other": "Workflow instance not pending"
+  },
+  "legacy.error.ce842a9b36cba468": {
+    "other": "Failed to query workflow definition options"
+  },
+  "legacy.error.cebf0a62a661df9c": {
+    "other": "Failed to query workflow definition"
+  },
+  "legacy.error.cecfa12c95140940": {
+    "other": "Cannot query other tenants' definitions"
+  },
+  "legacy.error.d194c776a0ee5e26": {
+    "other": "Invalid graph config: missing start node"
+  },
+  "legacy.error.d9c4f018f338212d": {
+    "other": "Can only withdraw your own application"
+  },
+  "legacy.error.db35c5c0de7472a2": {
+    "other": "Cannot operate other tenants' definitions"
+  },
+  "legacy.error.e4113197ca2325fa": {
+    "other": "Failed to query apply form"
+  },
+  "legacy.error.e81dbd0ba4f7a963": {
+    "other": "Not your pending task"
+  },
+  "legacy.error.ec066a971ee52c71": {
+    "other": "Failed to audit task"
+  },
+  "legacy.error.ef81783f5a70a01a": {
+    "other": "Failed to set workflow definition status"
+  },
+  "legacy.error.f11c9913680e6b54": {
+    "other": "Can only delete your own delegation"
+  },
+  "legacy.error.fc746194ec482626": {
+    "other": "Failed to query workflow instances"
+  },
+  "legacy.error.fcdabb6237ef15d3": {
+    "other": "Cannot update: only draft can be edited"
+  },
+  "legacy.error.fe26a2c819b1e6c0": {
+    "other": "Failed to delete approval delegation"
+  },
+  "system.admin.workflow.definition.apply_form.code.required": {
+    "other": "Workflow code required"
+  },
+  "system.admin.workflow.definition.apply_form.version.required": {
+    "other": "Workflow version required"
+  },
+  "system.admin.workflow.definition.delete.id.required": {
+    "other": "Workflow definition ID list required"
+  },
+  "system.admin.workflow.definition.entity.code.max_length": {
+    "other": "Workflow code cannot exceed 100 characters"
+  },
+  "system.admin.workflow.definition.entity.code.required": {
+    "other": "Enter workflow code"
+  },
+  "system.admin.workflow.definition.entity.form_schema.max_length": {
+    "other": "Form schema cannot exceed 65536 characters"
+  },
+  "system.admin.workflow.definition.entity.name.max_length": {
+    "other": "Workflow name cannot exceed 100 characters"
+  },
+  "system.admin.workflow.definition.entity.name.required": {
+    "other": "Enter workflow name"
+  },
+  "system.admin.workflow.definition.entity.node_config.max_length": {
+    "other": "Graph config cannot exceed 65536 characters"
+  },
+  "system.admin.workflow.definition.entity.node_config.required": {
+    "other": "Graph config required"
+  },
+  "system.admin.workflow.definition.entity.remark.max_length": {
+    "other": "Remark cannot exceed 500 characters"
+  },
+  "system.admin.workflow.definition.entity.tenant_id.required": {
+    "other": "Select a tenant"
+  },
+  "system.admin.workflow.definition.entity.version.required": {
+    "other": "Version must be greater than 0"
+  },
+  "system.admin.workflow.definition.get.id.required": {
+    "other": "Workflow definition ID required"
+  },
+  "system.admin.workflow.definition.set_status.id.required": {
+    "other": "Workflow definition ID required"
+  },
+  "system.admin.workflow.definition.update.id.required": {
+    "other": "Workflow definition ID required"
+  },
+  "system.admin.workflow.delegation.delete.id.required": {
+    "other": "Delegation ID list required"
+  },
+  "system.admin.workflow.delegation.entity.delegate_user_id.required": {
+    "other": "Select a delegate user"
+  },
+  "system.admin.workflow.delegation.entity.remark.max_length": {
+    "other": "Remark cannot exceed 500 characters"
+  },
+  "system.admin.workflow.instance.get.id.required": {
+    "other": "Workflow instance ID required"
+  },
+  "system.admin.workflow.instance.submit.business_type.max_length": {
+    "other": "Business type cannot exceed 50 characters"
+  },
+  "system.admin.workflow.instance.submit.code.required": {
+    "other": "Workflow code required"
+  },
+  "system.admin.workflow.instance.submit.form_data.max_length": {
+    "other": "Form data cannot exceed 65536 characters"
+  },
+  "system.admin.workflow.instance.submit.form_data.required": {
+    "other": "Form data required"
+  },
+  "system.admin.workflow.instance.submit.version.required": {
+    "other": "Workflow version required"
+  },
+  "system.admin.workflow.instance.withdraw.id.required": {
+    "other": "Workflow instance ID required"
+  },
+  "system.admin.workflow.task.audit.comment.max_length": {
+    "other": "Comment cannot exceed 500 characters"
+  },
+  "system.admin.workflow.task.audit.task_id.required": {
+    "other": "Approval task ID required"
+  },
+  "system.admin.workflow.task.get.id.required": {
+    "other": "Approval task ID required"
+  },
+  "legacy.error.6a96890d025d36c6": {
+    "other": "Failed to save the business document's workflow association"
+  },
+  "legacy.error.07169436625cbd35": {
+    "other": "The task has already been processed or reassigned"
+  },
+  "system.workflow.job.error.script_scan_failed": {
+    "other": "Workflow script recovery scan failed"
+  },
+  "system.workflow.job.result.scripts_scanned": {
+    "other": "Workflow script recovery scan finished: processed {Count} runs"
+  },
+  "legacy.error.2f173bbdd8aabbbb": {"other": "Invalid workflow instance snapshot"},
+  "legacy.error.067118c2b128c55f": {"other": "Cannot retry scripts belonging to another tenant"},
+  "legacy.error.ac6310ee83bcf7f9": {"other": "Only workflow participants or administrators can retry scripts"},
+  "legacy.error.7e1cee01625c342f": {"other": "Script run does not belong to this workflow"},
+  "legacy.error.e02e13af31934679": {"other": "Only failed scripts can be retried"},
+  "legacy.error.2dcf0a202b5aa077": {"other": "Script node does not exist"},
+  "legacy.error.9578a4511b3382df": {"other": "Application form data must be a JSON object"},
+  "legacy.error.53f89634cde5df00": {"other": "Workflow has no published script snapshots; enable it again"},
+  "legacy.error.b008ba1ac3fb0652": {"other": "The execution lease has been acquired by another task"},
+  "legacy.error.dcad9e63f38f931c": {"other": "Workflow has not ended"},
+  "legacy.error.17513f0b76033b88": {"other": "Invalid notification action parameters"},
+  "legacy.error.f464573b785f5f5e": {"other": "Notification actions require a title, content and 1 to 100 users in this tenant"},
+  "legacy.error.424ef3bf19c0731c": {"other": "Invalid node graph configuration"},
+  "legacy.error.97a011fa2c37581c": {"other": "Referenced script does not exist or is disabled"},
+  "legacy.error.c21640c2f2bf1181": {"other": "Published node graph configuration must not exceed 1 MiB"},
+  "legacy.error.68c36a9a40ff17ea": {"other": "Failed to retry workflow script"},
+  "legacy.error.bb42bc14719faff4": {"other": "Failed to query workflow scripts"},
+  "legacy.error.1be13391c90d0c32": {"other": "Failed to test workflow script"},
+  "system.admin.workflow.definition.script_test.script_id.required": {"other": "Script ID must be greater than zero"},
+  "system.workflow.openapi.script.page": {"other": "List enabled restricted scripts available for workflows"},
+  "system.workflow.openapi.script.test": {"other": "Test a saved and enabled restricted workflow script without accepting client source code"},
+  "system.workflow.openapi.script.retry": {"other": "Retry a failed workflow script"},
+  "system.workflow.openapi.script.retry_request": {"other": "Workflow script retry request"},
+  "system.workflow.openapi.script.runs": {"other": "Workflow script execution record"},
+  "system.workflow.openapi.script.run": {"other": "Script execution records"},
+  "system.workflow.openapi.script.run_id": {"other": "Script run ID"},
+  "system.workflow.openapi.script.snapshot": {"other": "Workflow graph snapshot without script source"},
+  "system.workflow.openapi.script.variables": {"other": "Workflow variables JSON"},
+  "system.workflow.openapi.script.name": {"other": "Script name snapshot"},
+  "system.workflow.openapi.script.test_request": {"other": "Workflow script test parameters; only saved scripts may be referenced."},
+  "system.workflow.openapi.script.saved_id": {"other": "Saved script ID"},
+  "system.workflow.openapi.script.context": {"other": "Initial context JSON, up to 200 KiB"},
+  "system.workflow.openapi.script.context_short": {"other": "Initial context JSON"},
+  "system.workflow.openapi.script.stage": {"other": "Execution stage"},
+  "system.workflow.openapi.script.next_retry": {"other": "Next retry time"},
+  "legacy.error.0b38823ed34c2c02": {"other": "Workflows support only JavaScript scripts"},
+  "legacy.error.732403aa5b743865": {"other": "A workflow binding verifier must be registered for host binding callbacks"},
+  "legacy.error.a7beabf5ecc07c42": {"other": "Business document binding is not confirmed; try withdrawing later"},
+  "system.notification.sender.system": {"other": "System"},
+  "system.workflow.notification.title.withdrawn": {"other": "Pending approval request withdrawn"},
+  "system.workflow.notification.content.withdrawn": {"other": "The applicant withdrew this request; no further action is needed"},
+  "system.workflow.notification.title.rejected": {"other": "Your request was rejected"},
+  "system.workflow.notification.content.rejected": {"other": "Sign in to review the approval comments"},
+  "system.workflow.notification.title.forwarded": {"other": "An approval task was forwarded to you"},
+  "system.workflow.notification.title.added": {"other": "An approval task was added for you"},
+  "system.workflow.notification.title.pending": {"other": "You have a new approval task"},
+  "system.workflow.notification.content.pending": {"other": "Sign in to process the pending approval task"},
+  "system.workflow.notification.title.approved": {"other": "Your request was approved"},
+  "system.workflow.notification.content.approved": {"other": "All approval steps have been completed"},
+  "system.workflow.notification.title.definition_rejected": {"other": "Your request was rejected"},
+  "system.workflow.notification.content.definition_rejected": {"other": "The workflow definition is invalid. Contact an administrator"},
+  "system.workflow.notification.title.escalated_assignee": {"other": "Your pending approval task is severely overdue"},
+  "system.workflow.notification.content.escalated_assignee": {"other": "This task has remained unprocessed for a long time; the applicant has been notified"},
+  "system.workflow.notification.title.escalated_applicant": {"other": "Your approval request is overdue"},
+  "system.workflow.notification.content.escalated_applicant": {"other": "The current approver has not processed the task for a long time; they have been reminded"},
+  "system.workflow.notification.title.reminder": {"other": "Your pending approval task is overdue"},
+  "system.workflow.notification.content.reminder": {"other": "Please sign in to process the pending approval task; the applicant will be notified if it remains unresolved"}
 }

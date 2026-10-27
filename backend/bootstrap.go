@@ -169,9 +169,10 @@ func NewModules(
 func NewTasks(
 	databases map[string]*gorm.Client,
 	baseCase *biz.BaseCase,
+	catalog *i18n.I18n,
 	sseRuntime *sse.SSE,
 ) (AdminTasks, func(), error) {
-	tasks, cleanup, err := adminModule.BuildTasks(databases, baseCase, sseRuntime)
+	tasks, cleanup, err := adminModule.BuildTasks(databases, baseCase, catalog, sseRuntime)
 	return AdminTasks(tasks), cleanup, err
 }
 

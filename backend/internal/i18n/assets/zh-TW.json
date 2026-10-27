@@ -5466,5 +5466,308 @@
   "system.admin.base.script.entity.description.max_length": {"other": "腳本說明不能超過512個字元"},
   "system.admin.base.script.delete.id.required": {"other": "腳本 ID 清單不能為空"},
   "system.admin.base.script.test_run.source.max_length": {"other": "腳本原始碼不能超過200000個字元"},
-  "system.admin.base.script.test_run.context_json.max_length": {"other": "上下文不能超過200000個字元"}
+  "system.admin.base.script.test_run.context_json.max_length": {"other": "上下文不能超過200000個字元"},
+  "legacy.error.0e953f80478aa9ed": {
+    "other": "同一租戶的流程編碼與版本重複"
+  },
+  "legacy.error.1456d3981707f770": {
+    "other": "刪除流程定義失敗，僅草稿狀態可刪除"
+  },
+  "legacy.error.1593dca0dfa86346": {
+    "other": "任務已被處理"
+  },
+  "legacy.error.2059cc6d984d24a6": {
+    "other": "被委託人無效"
+  },
+  "legacy.error.23b476d2ff5c6a0d": {
+    "other": "不是您的審批任務"
+  },
+  "legacy.error.279970960cdc7d86": {
+    "other": "未找到業務單據關聯的流程實例"
+  },
+  "legacy.error.2bf0ca2e14dbf0a8": {
+    "other": "流程節點圖配置異常"
+  },
+  "legacy.error.2ff36648250506aa": {
+    "other": "加簽用戶無效"
+  },
+  "legacy.error.44da1869e0376a29": {
+    "other": "轉辦目標用戶無效"
+  },
+  "legacy.error.4608a748e161e339": {
+    "other": "查詢審批任務詳情失敗"
+  },
+  "legacy.error.490b5cd41129c88f": {
+    "other": "查詢審批委託失敗"
+  },
+  "legacy.error.540259b5547228e3": {
+    "other": "撤回申請失敗，申請不在審批中"
+  },
+  "legacy.error.5e4af6477c9e57a5": {
+    "other": "查詢流程實例詳情失敗"
+  },
+  "legacy.error.7988a9c57b1e18af": {
+    "other": "流程編碼與版本不可修改，請創建新版本"
+  },
+  "legacy.error.7e7027a1d80c578d": {
+    "other": "不能查詢其他租戶的審批委託"
+  },
+  "legacy.error.8358173c19c8b805": {
+    "other": "刪除流程定義失敗"
+  },
+  "legacy.error.84c684cce9bedfe9": {
+    "other": "設置審批委託失敗"
+  },
+  "legacy.error.8d5c3940aba9dd25": {
+    "other": "同一用戶只能設置一條審批委託"
+  },
+  "legacy.error.8f08aae578d818eb": {
+    "other": "流程定義不存在"
+  },
+  "legacy.error.8f0c281936a2dd93": {
+    "other": "創建流程定義失敗"
+  },
+  "legacy.error.94dc7cfc60980a69": {
+    "other": "刪除流程定義失敗，仍有流程實例引用該定義"
+  },
+  "legacy.error.a922fa8d9aefc4b3": {
+    "other": "流程定義未啟用"
+  },
+  "legacy.error.afac2a2e5bf769d4": {
+    "other": "審批動作無效"
+  },
+  "legacy.error.b2df4070287d940b": {
+    "other": "查詢我的審批任務失敗"
+  },
+  "legacy.error.b55bf245bac9ce6e": {
+    "other": "刪除流程定義失敗，流程定義不存在"
+  },
+  "legacy.error.b698dd181813542e": {
+    "other": "不能查詢其他租戶的流程實例"
+  },
+  "legacy.error.b7dfaaed47b862eb": {
+    "other": "刪除審批委託失敗，委託不存在"
+  },
+  "legacy.error.b88bad52eb5ea941": {
+    "other": "用戶已禁用"
+  },
+  "legacy.error.ba653419d73d2ec8": {
+    "other": "撤回審批申請失敗"
+  },
+  "legacy.error.bbf6b13e90ad673c": {
+    "other": "流程節點狀態異常"
+  },
+  "legacy.error.bd716eafd672c746": {
+    "other": "更新流程定義失敗"
+  },
+  "legacy.error.c48643c9d6f06c71": {
+    "other": "列表類型無效"
+  },
+  "legacy.error.c916f58aa90099af": {
+    "other": "流程定義狀態無效"
+  },
+  "legacy.error.cc09b1c30b456fcf": {
+    "other": "提交審批申請失敗"
+  },
+  "legacy.error.ce1a849baef38a91": {
+    "other": "流程實例不在審批中"
+  },
+  "legacy.error.ce842a9b36cba468": {
+    "other": "查詢流程定義下拉列表失敗"
+  },
+  "legacy.error.cebf0a62a661df9c": {
+    "other": "查詢流程定義失敗"
+  },
+  "legacy.error.cecfa12c95140940": {
+    "other": "不能查詢其他租戶的流程定義"
+  },
+  "legacy.error.d194c776a0ee5e26": {
+    "other": "節點圖配置無效: 缺少開始節點"
+  },
+  "legacy.error.d9c4f018f338212d": {
+    "other": "只能撤回自己的申請"
+  },
+  "legacy.error.db35c5c0de7472a2": {
+    "other": "不能操作其他租戶的流程定義"
+  },
+  "legacy.error.e4113197ca2325fa": {
+    "other": "查詢申請表單失敗"
+  },
+  "legacy.error.e81dbd0ba4f7a963": {
+    "other": "不是您的待審批任務"
+  },
+  "legacy.error.ec066a971ee52c71": {
+    "other": "審批任務辦理失敗"
+  },
+  "legacy.error.ef81783f5a70a01a": {
+    "other": "設置流程定義狀態失敗"
+  },
+  "legacy.error.f11c9913680e6b54": {
+    "other": "只能刪除自己的審批委託"
+  },
+  "legacy.error.fc746194ec482626": {
+    "other": "查詢流程實例失敗"
+  },
+  "legacy.error.fcdabb6237ef15d3": {
+    "other": "更新流程定義失敗，僅草稿狀態可編輯"
+  },
+  "legacy.error.fe26a2c819b1e6c0": {
+    "other": "刪除審批委託失敗"
+  },
+  "system.admin.workflow.definition.apply_form.code.required": {
+    "other": "流程編碼不能為空"
+  },
+  "system.admin.workflow.definition.apply_form.version.required": {
+    "other": "流程版本不能為空"
+  },
+  "system.admin.workflow.definition.delete.id.required": {
+    "other": "流程定義ID列表不能為空"
+  },
+  "system.admin.workflow.definition.entity.code.max_length": {
+    "other": "流程編碼不能超過 100 個字符"
+  },
+  "system.admin.workflow.definition.entity.code.required": {
+    "other": "請輸入流程編碼"
+  },
+  "system.admin.workflow.definition.entity.form_schema.max_length": {
+    "other": "申請表單定義不能超過 65536 個字符"
+  },
+  "system.admin.workflow.definition.entity.name.max_length": {
+    "other": "流程名稱不能超過 100 個字符"
+  },
+  "system.admin.workflow.definition.entity.name.required": {
+    "other": "請輸入流程名稱"
+  },
+  "system.admin.workflow.definition.entity.node_config.max_length": {
+    "other": "節點圖配置不能超過 65536 個字符"
+  },
+  "system.admin.workflow.definition.entity.node_config.required": {
+    "other": "節點圖配置不能為空"
+  },
+  "system.admin.workflow.definition.entity.remark.max_length": {
+    "other": "備註不能超過 500 個字符"
+  },
+  "system.admin.workflow.definition.entity.tenant_id.required": {
+    "other": "請選擇所屬租戶"
+  },
+  "system.admin.workflow.definition.entity.version.required": {
+    "other": "流程版本必須大於 0"
+  },
+  "system.admin.workflow.definition.get.id.required": {
+    "other": "流程定義ID不能為空"
+  },
+  "system.admin.workflow.definition.set_status.id.required": {
+    "other": "流程定義ID不能為空"
+  },
+  "system.admin.workflow.definition.update.id.required": {
+    "other": "流程定義ID不能為空"
+  },
+  "system.admin.workflow.delegation.delete.id.required": {
+    "other": "審批委託ID列表不能為空"
+  },
+  "system.admin.workflow.delegation.entity.delegate_user_id.required": {
+    "other": "請選擇被委託人"
+  },
+  "system.admin.workflow.delegation.entity.remark.max_length": {
+    "other": "備註不能超過 500 個字符"
+  },
+  "system.admin.workflow.instance.get.id.required": {
+    "other": "流程實例ID不能為空"
+  },
+  "system.admin.workflow.instance.submit.business_type.max_length": {
+    "other": "業務單據類型不能超過 50 個字符"
+  },
+  "system.admin.workflow.instance.submit.code.required": {
+    "other": "流程編碼不能為空"
+  },
+  "system.admin.workflow.instance.submit.form_data.max_length": {
+    "other": "申請表單數據不能超過 65536 個字符"
+  },
+  "system.admin.workflow.instance.submit.form_data.required": {
+    "other": "申請表單數據不能為空"
+  },
+  "system.admin.workflow.instance.submit.version.required": {
+    "other": "流程版本不能為空"
+  },
+  "system.admin.workflow.instance.withdraw.id.required": {
+    "other": "流程實例ID不能為空"
+  },
+  "system.admin.workflow.task.audit.comment.max_length": {
+    "other": "審批意見不能超過 500 個字符"
+  },
+  "system.admin.workflow.task.audit.task_id.required": {
+    "other": "審批任務ID不能為空"
+  },
+  "system.admin.workflow.task.get.id.required": {
+    "other": "審批任務ID不能為空"
+  },
+  "legacy.error.6a96890d025d36c6": {
+    "other": "儲存業務單據流程關聯失敗"
+  },
+  "legacy.error.07169436625cbd35": {
+    "other": "任務已被處理或轉辦"
+  },
+  "system.workflow.job.error.script_scan_failed": {
+    "other": "工作流腳本恢復掃描失敗"
+  },
+  "system.workflow.job.result.scripts_scanned": {
+    "other": "工作流腳本恢復掃描完成：處理 {Count} 筆"
+  },
+  "legacy.error.2f173bbdd8aabbbb": {"other": "實例流程快照無效"},
+  "legacy.error.067118c2b128c55f": {"other": "不能重試其他租戶的腳本"},
+  "legacy.error.ac6310ee83bcf7f9": {"other": "只有流程參與者或管理員可以重試腳本"},
+  "legacy.error.7e1cee01625c342f": {"other": "腳本執行不屬於目前流程"},
+  "legacy.error.e02e13af31934679": {"other": "只有失敗的腳本可以重試"},
+  "legacy.error.2dcf0a202b5aa077": {"other": "腳本節點不存在"},
+  "legacy.error.9578a4511b3382df": {"other": "申請表單資料必須是JSON物件"},
+  "legacy.error.53f89634cde5df00": {"other": "流程未發布腳本快照，請重新啟用流程"},
+  "legacy.error.b008ba1ac3fb0652": {"other": "執行租約已被其他任務接管"},
+  "legacy.error.dcad9e63f38f931c": {"other": "流程尚未終結"},
+  "legacy.error.17513f0b76033b88": {"other": "通知動作參數無效"},
+  "legacy.error.f464573b785f5f5e": {"other": "通知動作需要標題、內容和1至100個本租戶使用者"},
+  "legacy.error.424ef3bf19c0731c": {"other": "節點圖設定無效"},
+  "legacy.error.97a011fa2c37581c": {"other": "引用腳本不存在或未啟用"},
+  "legacy.error.c21640c2f2bf1181": {"other": "發布節點圖設定不能超過 1MiB"},
+  "legacy.error.68c36a9a40ff17ea": {"other": "重試工作流腳本失敗"},
+  "legacy.error.bb42bc14719faff4": {"other": "查詢流程腳本失敗"},
+  "legacy.error.1be13391c90d0c32": {"other": "試執行流程腳本失敗"},
+  "system.admin.workflow.definition.script_test.script_id.required": {"other": "腳本ID必須大於0"},
+  "system.workflow.openapi.script.page": {"other": "查詢流程可用的已啟用受限腳本"},
+  "system.workflow.openapi.script.test": {"other": "試執行已儲存且啟用的受限流程腳本，不接受用戶端原始碼"},
+  "system.workflow.openapi.script.retry": {"other": "重試失敗的工作流腳本"},
+  "system.workflow.openapi.script.retry_request": {"other": "重試工作流腳本請求"},
+  "system.workflow.openapi.script.runs": {"other": "工作流腳本執行紀錄"},
+  "system.workflow.openapi.script.run": {"other": "腳本執行紀錄"},
+  "system.workflow.openapi.script.run_id": {"other": "腳本執行ID"},
+  "system.workflow.openapi.script.snapshot": {"other": "流程節點圖快照（不含腳本原始碼）"},
+  "system.workflow.openapi.script.variables": {"other": "流程變數JSON"},
+  "system.workflow.openapi.script.name": {"other": "腳本名稱快照"},
+  "system.workflow.openapi.script.test_request": {"other": "流程腳本試執行參數，僅允許引用儲存的腳本。"},
+  "system.workflow.openapi.script.saved_id": {"other": "已儲存腳本ID"},
+  "system.workflow.openapi.script.context": {"other": "初始上下文JSON，最大200KiB"},
+  "system.workflow.openapi.script.context_short": {"other": "初始上下文JSON"},
+  "system.workflow.openapi.script.stage": {"other": "執行階段"},
+  "system.workflow.openapi.script.next_retry": {"other": "下次重試時間"},
+  "legacy.error.0b38823ed34c2c02": {"other": "流程僅支援 JavaScript 腳本"},
+  "legacy.error.732403aa5b743865": {"other": "宿主關聯回寫必須註冊流程關聯核驗器"},
+  "legacy.error.a7beabf5ecc07c42": {"other": "業務單據關聯尚未確認，請稍後撤回"},
+  "system.notification.sender.system": {"other": "系統"},
+  "system.workflow.notification.title.withdrawn": {"other": "待審批申請已被撤回"},
+  "system.workflow.notification.content.withdrawn": {"other": "申請人已撤回該申請，無需繼續處理"},
+  "system.workflow.notification.title.rejected": {"other": "您的申請已被駁回"},
+  "system.workflow.notification.content.rejected": {"other": "請登入系統查看審批意見"},
+  "system.workflow.notification.title.forwarded": {"other": "您有被轉辦的審批任務"},
+  "system.workflow.notification.title.added": {"other": "您有被加簽的審批任務"},
+  "system.workflow.notification.title.pending": {"other": "您有新的待審批任務"},
+  "system.workflow.notification.content.pending": {"other": "請登入系統處理待審批事項"},
+  "system.workflow.notification.title.approved": {"other": "您的申請已通過"},
+  "system.workflow.notification.content.approved": {"other": "全部審批節點已通過"},
+  "system.workflow.notification.title.definition_rejected": {"other": "您的申請已被駁回"},
+  "system.workflow.notification.content.definition_rejected": {"other": "流程定義異常，請聯絡管理員"},
+  "system.workflow.notification.title.escalated_assignee": {"other": "您有待審批任務嚴重超時"},
+  "system.workflow.notification.content.escalated_assignee": {"other": "該任務已超時較久仍未處理，已同步提醒申請人關注進度。"},
+  "system.workflow.notification.title.escalated_applicant": {"other": "您的申請審批超時"},
+  "system.workflow.notification.content.escalated_applicant": {"other": "目前審批節點辦理人長時間未處理，系統已再次提醒對方。"},
+  "system.workflow.notification.title.reminder": {"other": "您有待審批任務超時未處理"},
+  "system.workflow.notification.content.reminder": {"other": "請盡快登入系統處理待審批事項，長時間未處理將同步提醒申請人。"}
 }

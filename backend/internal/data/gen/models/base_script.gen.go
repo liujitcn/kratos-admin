@@ -14,21 +14,21 @@ const TableNameBaseScript = "base_script"
 
 // BaseScript 脚本定义
 type BaseScript struct {
-	ID          int64                 `gorm:"column:id;type:bigint;primaryKey;autoIncrement:true;comment:脚本ID" json:"id"`                                                                                           // 脚本ID
-	Name        string                `gorm:"column:name;type:varchar(100);not null;uniqueIndex:unique_base_script_name,priority:1;comment:脚本名称" json:"name"`                                                       // 脚本名称
-	Language    string                `gorm:"column:language;type:varchar(32);not null;comment:脚本语言" json:"language"`                                                                            // 脚本语言
-	HookPoint   string                `gorm:"column:hook_point;type:varchar(160);not null;index:idx_base_script_hook_status,priority:1;comment:挂载钩子点" json:"hook_point"`                                            // 挂载钩子点
-	Source      string                `gorm:"column:source;type:text;not null;comment:脚本源码" json:"source"`                                                                                                          // 脚本源码
-	Priority    int32                 `gorm:"column:priority;type:int;not null;index:idx_base_script_hook_status,priority:3;comment:执行优先级" json:"priority"`                                                         // 执行优先级
-	Description string                `gorm:"column:description;type:varchar(512);not null;comment:脚本说明" json:"description"`                                                                                        // 脚本说明
-	Critical    int32                 `gorm:"column:critical;type:smallint;not null;comment:是否关键脚本" json:"critical"`                                                                                                // 是否关键脚本
+	ID          int64                 `gorm:"column:id;type:bigint;primaryKey;autoIncrement:true;comment:脚本ID" json:"id"`                                                                                 // 脚本ID
+	Name        string                `gorm:"column:name;type:varchar(100);not null;uniqueIndex:unique_base_script_name,priority:1;comment:脚本名称" json:"name"`                                             // 脚本名称
+	Language    string                `gorm:"column:language;type:varchar(32);not null;comment:脚本语言" json:"language"`                                                                                     // 脚本语言
+	HookPoint   string                `gorm:"column:hook_point;type:varchar(160);not null;index:idx_base_script_hook_status,priority:1;comment:挂载钩子点" json:"hook_point"`                                  // 挂载钩子点
+	Source      string                `gorm:"column:source;type:text;not null;comment:脚本源码" json:"source"`                                                                                                // 脚本源码
+	Priority    int32                 `gorm:"column:priority;type:int;not null;index:idx_base_script_hook_status,priority:3;comment:执行优先级" json:"priority"`                                               // 执行优先级
+	Description string                `gorm:"column:description;type:varchar(512);not null;comment:脚本说明" json:"description"`                                                                              // 脚本说明
+	Critical    int32                 `gorm:"column:critical;type:smallint;not null;comment:是否关键脚本" json:"critical"`                                                                                      // 是否关键脚本
 	Version     int32                 `gorm:"column:version;type:int;not null;comment:脚本版本" json:"version"`                                                                                               // 脚本版本
 	Status      int32                 `gorm:"column:status;type:smallint;not null;index:idx_base_script_hook_status,priority:2;index:idx_base_script_status_updated,priority:1;comment:状态" json:"status"` // 状态
-	CreatedBy   int64                 `gorm:"column:created_by;type:bigint;not null;comment:创建人ID" json:"created_by"`                                                                                               // 创建人ID
-	UpdatedBy   int64                 `gorm:"column:updated_by;type:bigint;not null;comment:更新人ID" json:"updated_by"`                                                                                               // 更新人ID
-	CreatedAt   time.Time             `gorm:"column:created_at;not null;comment:创建时间" json:"created_at"`                                                                                  // 创建时间
-	UpdatedAt   time.Time             `gorm:"column:updated_at;not null;index:idx_base_script_status_updated,priority:2;comment:更新时间" json:"updated_at"`                                  // 更新时间
-	DeletedAt   soft_delete.DeletedAt `gorm:"column:deleted_at;type:bigint;not null;uniqueIndex:unique_base_script_name,priority:2;comment:删除时间;softDelete:milli" json:"deleted_at"`                                // 删除时间
+	CreatedBy   int64                 `gorm:"column:created_by;type:bigint;not null;comment:创建人ID" json:"created_by"`                                                                                     // 创建人ID
+	UpdatedBy   int64                 `gorm:"column:updated_by;type:bigint;not null;comment:更新人ID" json:"updated_by"`                                                                                     // 更新人ID
+	CreatedAt   time.Time             `gorm:"column:created_at;not null;comment:创建时间" json:"created_at"`                                                                                                  // 创建时间
+	UpdatedAt   time.Time             `gorm:"column:updated_at;not null;index:idx_base_script_status_updated,priority:2;comment:更新时间" json:"updated_at"`                                                  // 更新时间
+	DeletedAt   soft_delete.DeletedAt `gorm:"column:deleted_at;type:bigint;not null;uniqueIndex:unique_base_script_name,priority:2;comment:删除时间;softDelete:milli" json:"deleted_at"`                      // 删除时间
 }
 
 // TableName BaseScript's table name

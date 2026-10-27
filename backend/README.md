@@ -30,6 +30,8 @@ backend
 - 定时任务、运行日志、六类审计日志、表归档、数据库备份恢复、迁移记录和 MQTT 宿主订阅装配。
 - 开放授权客户端、Bearer Token、API 白名单、来源限制、请求加解密和限流。
 
+经典工作流配置及测试说明见 [testdata/workflow](testdata/workflow/README.md)，包含串行审批、金额分支、会签、或签及并行汇聚，使用临时 SQLite 验证完整流转。
+
 ## 配置
 
 最小启动配置在 `configs`，完整字段模板在 `configs/full`。常用配置文件如下：
@@ -130,3 +132,5 @@ make -C backend menu-sort
 ```
 
 涉及 Proto、Wire、前端调用或初始化权限时，完成后在仓库根目录执行 `make gen`、`make check` 和 `make menu-sort`。
+
+脚本工作流闭环示例见 [script-expense](testdata/workflow/script-expense/README.md)，包含提交校验、SCRIPT 变量计算、动态审批人及终态动作重试；宿主动作注册与幂等约束见 [工作流接入指南](../docs/工作流接入指南.md)。

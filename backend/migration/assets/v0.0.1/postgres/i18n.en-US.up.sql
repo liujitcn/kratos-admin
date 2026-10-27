@@ -371,6 +371,30 @@ INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('b
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91013002, 'en-US', 'Delete custom translation') ON CONFLICT DO NOTHING;
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91013003, 'en-US', 'Edit custom translation') ON CONFLICT DO NOTHING;
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91013004, 'en-US', 'Change custom translation status') ON CONFLICT DO NOTHING;
+INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91020000, 'en-US', 'API Rate Limiting') ON CONFLICT DO NOTHING;
+INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91020100, 'en-US', 'Rate Limit Rules') ON CONFLICT DO NOTHING;
+INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91020101, 'en-US', 'Create Rate Limit Rule') ON CONFLICT DO NOTHING;
+INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91020105, 'en-US', 'Delete Rate Limit Rule') ON CONFLICT DO NOTHING;
+INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91020110, 'en-US', 'Edit Rate Limit Rule') ON CONFLICT DO NOTHING;
+INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91020115, 'en-US', 'Change Rate Limit Rule Status') ON CONFLICT DO NOTHING;
+INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91020500, 'en-US', 'Rate Limit Policies') ON CONFLICT DO NOTHING;
+INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91020501, 'en-US', 'Create Rate Limit Policy') ON CONFLICT DO NOTHING;
+INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91020505, 'en-US', 'Delete Rate Limit Policy') ON CONFLICT DO NOTHING;
+INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91020510, 'en-US', 'Edit Rate Limit Policy') ON CONFLICT DO NOTHING;
+INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91020515, 'en-US', 'Change Rate Limit Policy Status') ON CONFLICT DO NOTHING;
+INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91030000, 'en-US', 'OA Approval') ON CONFLICT DO NOTHING;
+INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91030100, 'en-US', 'Approval Center') ON CONFLICT DO NOTHING;
+INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91030101, 'en-US', 'Submit Application') ON CONFLICT DO NOTHING;
+INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91030102, 'en-US', 'Audit Task') ON CONFLICT DO NOTHING;
+INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91030103, 'en-US', 'Withdraw Application') ON CONFLICT DO NOTHING;
+INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91030500, 'en-US', 'Workflow Definitions') ON CONFLICT DO NOTHING;
+INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91030501, 'en-US', 'Create Definition') ON CONFLICT DO NOTHING;
+INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91030502, 'en-US', 'Update Definition') ON CONFLICT DO NOTHING;
+INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91030503, 'en-US', 'Delete Definition') ON CONFLICT DO NOTHING;
+INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91030504, 'en-US', 'Set Definition Status') ON CONFLICT DO NOTHING;
+INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91031000, 'en-US', 'Approval Delegation') ON CONFLICT DO NOTHING;
+INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91031001, 'en-US', 'Set Delegation') ON CONFLICT DO NOTHING;
+INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91031002, 'en-US', 'Delete Delegation') ON CONFLICT DO NOTHING;
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91050000, 'en-US', 'Permission Management') ON CONFLICT DO NOTHING;
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91050100, 'en-US', 'Menu Management') ON CONFLICT DO NOTHING;
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91050101, 'en-US', 'Create Menu') ON CONFLICT DO NOTHING;
@@ -388,17 +412,6 @@ INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('b
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91051003, 'en-US', 'Delete Application Client') ON CONFLICT DO NOTHING;
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91051004, 'en-US', 'Copy OAuth Client Credentials') ON CONFLICT DO NOTHING;
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91051005, 'en-US', 'Change Application Client Status') ON CONFLICT DO NOTHING;
-INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91020000, 'en-US', 'API Rate Limiting') ON CONFLICT DO NOTHING;
-INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91020100, 'en-US', 'Rate Limit Rules') ON CONFLICT DO NOTHING;
-INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91020101, 'en-US', 'Create Rate Limit Rule') ON CONFLICT DO NOTHING;
-INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91020105, 'en-US', 'Delete Rate Limit Rule') ON CONFLICT DO NOTHING;
-INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91020110, 'en-US', 'Edit Rate Limit Rule') ON CONFLICT DO NOTHING;
-INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91020115, 'en-US', 'Change Rate Limit Rule Status') ON CONFLICT DO NOTHING;
-INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91020500, 'en-US', 'Rate Limit Policies') ON CONFLICT DO NOTHING;
-INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91020501, 'en-US', 'Create Rate Limit Policy') ON CONFLICT DO NOTHING;
-INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91020505, 'en-US', 'Delete Rate Limit Policy') ON CONFLICT DO NOTHING;
-INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91020510, 'en-US', 'Edit Rate Limit Policy') ON CONFLICT DO NOTHING;
-INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91020515, 'en-US', 'Change Rate Limit Policy Status') ON CONFLICT DO NOTHING;
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91100000, 'en-US', 'Login Management') ON CONFLICT DO NOTHING;
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91100100, 'en-US', 'Login Policies') ON CONFLICT DO NOTHING;
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91100101, 'en-US', 'Add login policy') ON CONFLICT DO NOTHING;
@@ -540,6 +553,8 @@ INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('b
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_job.name', 1003, 'en-US', 'Database Backup') ON CONFLICT DO NOTHING;
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_job.name', 1004, 'en-US', 'Log Ingestion Fallback Task') ON CONFLICT DO NOTHING;
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_job.name', 1005, 'en-US', 'MQTT Message Retention Cleanup') ON CONFLICT DO NOTHING;
+INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_job.name', 1006, 'en-US', 'Workflow Timeout Reminder') ON CONFLICT DO NOTHING;
+INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_job.name', 1007, 'en-US', 'Workflow Script Recovery') ON CONFLICT DO NOTHING;
 
 -- OAuth 登录方式名称翻译。
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_oauth_provider.name', 1, 'en-US', 'DingTalk') ON CONFLICT DO NOTHING;

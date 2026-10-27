@@ -2,10 +2,14 @@ package biz
 
 import (
 	"context"
+	"encoding/json"
+	"errors"
 	"fmt"
 	"slices"
 
+	"github.com/go-kratos/kratos/v3/log"
 	"github.com/liujitcn/kratos-admin/backend/pkg/projectaccess"
+	"github.com/liujitcn/kratos-admin/backend/pkg/workflow"
 	"gorm.io/gen/field"
 
 	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
@@ -21,6 +25,7 @@ import (
 	_string "github.com/liujitcn/go-utils/string"
 	"github.com/liujitcn/gorm-kit/repository"
 	"github.com/liujitcn/kratos-kit/database/gorm"
+	gormdb "gorm.io/gorm"
 )
 
 // BaseTenantProjectCase 项目业务实例。
@@ -30,9 +35,10 @@ type BaseTenantProjectCase struct {
 	*biz.BaseCase
 	tx data.Transaction
 	*data.BaseTenantProjectRepository
-	catalog    *i18n.I18n
-	formMapper *mapper.CopierMapper[adminv1.BaseTenantProjectForm, models.BaseTenantProject]
-	mapper     *mapper.CopierMapper[adminv1.BaseTenantProject, models.BaseTenantProject]
+	catalog       *i18n.I18n
+	eventRegistry *workflow.EventRegistry
+	formMapper    *mapper.CopierMapper[adminv1.BaseTenantProjectForm, models.BaseTenantProject]
+	mapper        *mapper.CopierMapper[adminv1.BaseTenantProject, models.BaseTenantProject]
 }
 
 // NewBaseTenantProjectCase 创建项目业务实例。
@@ -43,17 +49,22 @@ func NewBaseTenantProjectCase(
 	tx data.Transaction,
 	baseTenantProjectRepo *data.BaseTenantProjectRepository,
 	catalog *i18n.I18n,
+	eventRegistry *workflow.EventRegistry,
 ) *BaseTenantProjectCase {
-	return &BaseTenantProjectCase{
+	caseValue := &BaseTenantProjectCase{
 		lifecycle:                   lifecycle,
 		grants:                      grants,
 		BaseCase:                    baseCase,
 		tx:                          tx,
 		BaseTenantProjectRepository: baseTenantProjectRepo,
 		catalog:                     catalog,
+		eventRegistry:               eventRegistry,
 		formMapper:                  mapper.NewCopierMapper[adminv1.BaseTenantProjectForm, models.BaseTenantProject](),
 		mapper:                      mapper.NewCopierMapper[adminv1.BaseTenantProject, models.BaseTenantProject](),
 	}
+	eventRegistry.Register(baseTenantProjectCreateBusinessType, caseValue.handleTenantProjectWorkflowEvent)
+	eventRegistry.RegisterAction(baseTenantProjectCreateBusinessType, baseTenantProjectCreateAction, caseValue.handleTenantProjectWorkflowAction)
+	return caseValue
 }
 
 // OptionBaseTenantProject 查询项目选项。
@@ -194,26 +205,62 @@ func (c *BaseTenantProjectCase) GetBaseTenantProject(ctx context.Context, id int
 
 // CreateBaseTenantProject 创建项目。
 func (c *BaseTenantProjectCase) CreateBaseTenantProject(ctx context.Context, req *adminv1.BaseTenantProjectForm) error {
+	_, err := c.submitTenantProjectApproval(ctx, req)
+	return err
+}
+
+const (
+	baseTenantProjectCreateWorkflowCode = "BASE_TENANT_PROJECT_CREATE"
+	baseTenantProjectCreateBusinessType = "BASE_TENANT_PROJECT_CREATE"
+	baseTenantProjectCreateAction       = "base.tenant.project.create.complete"
+)
+
+// submitTenantProjectApproval 创建待审批项目占位记录并提交默认审批流程。
+func (c *BaseTenantProjectCase) submitTenantProjectApproval(ctx context.Context, req *adminv1.BaseTenantProjectForm) (int64, error) {
 	err := c.requireProjectManager(ctx)
 	if err != nil {
-		return err
+		return 0, err
 	}
 	if req.GetId() != 0 {
-		return errorsx.InvalidArgument("新增项目不能指定ID")
+		return 0, errorsx.InvalidArgument("新增项目不能指定ID")
 	}
-	baseTenantProject := c.formMapper.ToEntity(req)
-	var tenantID int64
-	tenantID, err = c.resolveTenantID(ctx, req.GetTenantId())
+	tenantID, err := c.resolveTenantID(ctx, req.GetTenantId())
 	if err != nil {
-		return err
+		return 0, err
 	}
-	baseTenantProject.TenantID = tenantID
-	if baseTenantProject.Status == 0 {
-		baseTenantProject.Status = _const.STATUS_STATUS_ENABLE
+	project, err := c.createProjectPlaceholder(ctx, req, tenantID)
+	if err != nil {
+		return 0, err
 	}
-	return c.tx.Transaction(ctx, func(ctx context.Context) error {
-		err = c.Create(ctx, baseTenantProject)
-		if err != nil {
+	formDataValue := *req
+	formDataValue.Id = 0
+	formDataValue.TenantId = project.TenantID
+	formData, err := json.Marshal(&formDataValue)
+	if err != nil {
+		return 0, err
+	}
+	instanceID, err := workflow.Submit(ctx, workflow.SubmitParams{
+		Code:         baseTenantProjectCreateWorkflowCode,
+		Version:      1,
+		FormData:     string(formData),
+		BusinessType: baseTenantProjectCreateBusinessType,
+		BusinessID:   project.ID,
+	})
+	if err != nil {
+		_ = c.removeProjectPlaceholder(context.WithoutCancel(ctx), project.ID)
+		return 0, err
+	}
+	return instanceID, nil
+}
+
+// createProjectPlaceholder 创建禁用状态的项目占位记录，审批通过后才启用项目。
+func (c *BaseTenantProjectCase) createProjectPlaceholder(ctx context.Context, req *adminv1.BaseTenantProjectForm, tenantID int64) (*models.BaseTenantProject, error) {
+	project := c.formMapper.ToEntity(req)
+	project.ID = 0
+	project.TenantID = tenantID
+	project.Status = _const.STATUS_STATUS_DISABLE
+	err := c.tx.Transaction(ctx, func(ctx context.Context) error {
+		if err := c.Create(ctx, project); err != nil {
 			if errorsx.IsDuplicateKey(err) {
 				return errorsx.UniqueConflict("同一租户的项目编号重复", "base_tenant_project", "code", "unique_base_tenant_project").WithCause(err)
 			}
@@ -221,6 +268,101 @@ func (c *BaseTenantProjectCase) CreateBaseTenantProject(ctx context.Context, req
 		}
 		return nil
 	})
+	return project, err
+}
+
+// completeProjectCreation 审批通过后按申请状态启用项目，重复执行保持幂等。
+func (c *BaseTenantProjectCase) completeProjectCreation(ctx context.Context, projectID, tenantID int64, requestedStatus int32) error {
+	return c.tx.Transaction(ctx, func(ctx context.Context) error {
+		query := c.Query(ctx).BaseTenantProject
+		project, err := c.Find(ctx, repository.Where(query.ID.Eq(projectID)), repository.Where(query.TenantID.Eq(tenantID)))
+		if err != nil {
+			return err
+		}
+		if project.Status == _const.STATUS_STATUS_ENABLE {
+			return nil
+		}
+		if requestedStatus != _const.STATUS_STATUS_DISABLE {
+			requestedStatus = _const.STATUS_STATUS_ENABLE
+		}
+		return c.UpdateByID(ctx, &models.BaseTenantProject{ID: projectID, Status: requestedStatus})
+	})
+}
+
+// removeProjectPlaceholder 清理驳回或撤回的待审批项目占位记录。
+func (c *BaseTenantProjectCase) removeProjectPlaceholder(ctx context.Context, projectID int64) error {
+	project, err := c.BaseTenantProjectRepository.FindByID(ctx, projectID)
+	if errors.Is(err, gormdb.ErrRecordNotFound) {
+		return nil
+	}
+	if err != nil {
+		return err
+	}
+	if project.Status != _const.STATUS_STATUS_DISABLE {
+		return nil
+	}
+	return c.tx.Transaction(ctx, func(ctx context.Context) error { return c.DeleteByIDs(ctx, []int64{projectID}) })
+}
+
+// handleTenantProjectWorkflowAction 执行审批通过后的项目启用动作。
+func (c *BaseTenantProjectCase) handleTenantProjectWorkflowAction(ctx context.Context, input workflow.ActionContext) error {
+	defaultTenantID, err := findDefaultTenantID(c.Query)
+	if err != nil {
+		return errorsx.Internal("校验项目审批来源失败").WithCause(err)
+	}
+	if input.TenantID != defaultTenantID {
+		return errorsx.PermissionDenied("只有默认租户可以执行新增项目审批动作")
+	}
+	var bound bool
+	bound, err = workflowInstanceBindingExists(c.Query, input.TenantID, input.InstanceID, input.BusinessID, baseTenantProjectCreateBusinessType, input.Status)
+	if err != nil {
+		return errorsx.Internal("校验项目审批关联失败").WithCause(err)
+	}
+	if !bound {
+		return errorsx.PermissionDenied("新增项目审批业务关联无效")
+	}
+	form, ok := input.Payload["form"].(map[string]any)
+	if !ok {
+		return errorsx.InvalidArgument("新增项目审批表单无效")
+	}
+	formTenantID, exists := form["tenant_id"].(float64)
+	if !exists || formTenantID <= 0 || formTenantID != float64(int64(formTenantID)) {
+		return errorsx.InvalidArgument("新增项目审批所属租户无效")
+	}
+	status := int32(_const.STATUS_STATUS_ENABLE)
+	if value, exists := form["status"].(float64); exists {
+		status = int32(value)
+	}
+	return c.completeProjectCreation(ctx, input.BusinessID, int64(formTenantID), status)
+}
+
+// handleTenantProjectWorkflowEvent 清理被驳回或撤回的项目占位记录。
+func (c *BaseTenantProjectCase) handleTenantProjectWorkflowEvent(_ context.Context, tenantID, instanceID, businessID int64, status adminv1.WorkflowInstanceStatus) {
+	defaultTenantID, err := findDefaultTenantID(c.Query)
+	if err != nil {
+		log.Error(fmt.Sprintf("校验项目审批来源失败: %v", err))
+		return
+	}
+	if tenantID != defaultTenantID {
+		log.Error(fmt.Sprintf("拒绝非默认租户清理项目审批占位记录: tenant_id=%d business_id=%d", tenantID, businessID))
+		return
+	}
+	var bound bool
+	bound, err = workflowInstanceBindingExists(c.Query, tenantID, instanceID, businessID, baseTenantProjectCreateBusinessType, int32(status))
+	if err != nil {
+		log.Error(fmt.Sprintf("校验项目审批关联失败: %v", err))
+		return
+	}
+	if !bound {
+		log.Error(fmt.Sprintf("拒绝清理未绑定流程实例的项目审批占位记录: instance_id=%d business_id=%d", instanceID, businessID))
+		return
+	}
+	if status == adminv1.WorkflowInstanceStatus_WORKFLOW_INSTANCE_STATUS_REJECTED || status == adminv1.WorkflowInstanceStatus_WORKFLOW_INSTANCE_STATUS_WITHDRAWN {
+		err = c.removeProjectPlaceholder(context.Background(), businessID)
+		if err != nil {
+			log.Error(fmt.Sprintf("清理项目审批占位记录失败: %v", err))
+		}
+	}
 }
 
 // UpdateBaseTenantProject 更新项目。

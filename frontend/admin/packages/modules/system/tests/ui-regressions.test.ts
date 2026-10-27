@@ -138,8 +138,8 @@ test("system notification sender uses its localized value in every client", asyn
   assert.match(publisher, /EncodeMessage\("system\.notification\.sender\.system"/);
   assert.match(adminPage, /resolvePersistedMessage\(detail\.data\.base_message\?\.sender_name\)/);
   assert.match(resolver, /system\.notification\.sender\.system/);
-  assert.match(uniPage, /resolveSenderName\(detail\.sender_name\)/);
-  assert.match(taroPage, /resolveSenderName\(detail\.sender_name\)/);
+  assert.match(uniPage, /resolvePersistedMessage\(detail\.sender_name\)/);
+  assert.match(taroPage, /resolvePersistedMessage\(detail\.sender_name\)/);
   for (const locale of ["zh-CN", "en-US", "ja-JP", "zh-TW"]) {
     const [adminMessages, uniMessages, taroMessages] = await Promise.all([
       readSource(`src/locales/${locale}.json`),
@@ -150,6 +150,68 @@ test("system notification sender uses its localized value in every client", asyn
     assert.ok(JSON.parse(uniMessages)["system.notification.sender.system"], `missing uni-app system sender in ${locale}`);
     assert.ok(JSON.parse(taroMessages)["system.notification.sender.system"], `missing Taro system sender in ${locale}`);
   }
+});
+
+test("workflow notifications use persisted i18n markers across all message clients", async () => {
+  const [publisher, adminNotification, adminInbox, adminMessage, uniList, uniDetail, taroList, taroDetail] = await Promise.all([
+    readSource("../../../../../backend/internal/biz/system/admin/workflow_instance.go"),
+    readSource("src/components/notification/Notification.vue"),
+    readSource("src/views/message/inbox/index.vue"),
+    readSource("src/views/base/message/index.vue"),
+    readSource("../../../../uni-app/packages/modules/system/src/views/pagesMember/message/index.vue"),
+    readSource("../../../../uni-app/packages/modules/system/src/views/pagesMember/message/detail.vue"),
+    readSource("../../../../taro-app/packages/modules/system/src/views/pagesMember/message/index.tsx"),
+    readSource("../../../../taro-app/packages/modules/system/src/views/pagesMember/message/detail.tsx")
+  ]);
+
+  assert.doesNotMatch(publisher, /"您的申请已通过"/);
+	assert.match(publisher, /admini18n\.EncodeMessage\(titleKey/);
+	assert.match(publisher, /admini18n\.EncodeMessage\(contentKey/);
+	assert.match(publisher, /admini18n\.EncodeMessage\("system\.notification\.sender\.system"/);
+  for (const key of [
+    "system.workflow.notification.title.approved",
+    "system.workflow.notification.content.approved",
+    "system.workflow.notification.title.pending",
+    "system.workflow.notification.content.pending"
+  ]) {
+    assert.match(publisher, new RegExp(key.replaceAll(".", "\\.")), `missing workflow marker ${key}`);
+  }
+  for (const source of [adminNotification, adminInbox, adminMessage, uniList, uniDetail, taroList, taroDetail]) {
+    assert.match(source, /resolvePersistedMessage/);
+    assert.match(source, /(?:title|content)/);
+  }
+  for (const locale of ["zh-CN", "en-US", "ja-JP", "zh-TW"]) {
+    const [adminMessages, uniMessages, taroMessages] = await Promise.all([
+      readSource(`src/locales/${locale}.json`),
+      readSource(`../../../../uni-app/packages/modules/system/src/locales/${locale}.json`),
+      readSource(`../../../../taro-app/packages/modules/system/src/locales/${locale}.json`)
+    ]);
+    for (const messages of [adminMessages, uniMessages, taroMessages]) {
+      const parsed = JSON.parse(messages) as Record<string, string>;
+      for (const key of [
+        "system.workflow.notification.title.approved",
+        "system.workflow.notification.content.approved",
+        "system.workflow.notification.title.pending",
+        "system.workflow.notification.content.pending"
+      ]) {
+        assert.ok(parsed[key], `missing ${key} in ${locale}`);
+      }
+    }
+  }
+});
+
+test("审批通知点击后直接进入审批页，普通通知仍保留详情弹窗", async () => {
+  const [notification, inbox] = await Promise.all([
+    readSource("src/components/notification/Notification.vue"),
+    readSource("src/views/message/inbox/index.vue")
+  ]);
+  for (const source of [notification, inbox]) {
+    assert.match(source, /resolveNotificationAction\(row\.action_target, row\.action_params\)/);
+    assert.match(source, /action\?\.name === "WorkflowApproval"/);
+    assert.match(source, /router\.push\(action\)/);
+  }
+  assert.match(notification, /detailDialogRef\.value\?\.open/);
+  assert.match(inbox, /detailDialogRef\.value\?\.open/);
 });
 
 test("菜单管理按节点懒加载并在搜索时查询完整树", async () => {
@@ -356,7 +418,7 @@ test("消息标题单独打开正文，发送详情只展示投递信息", async
   assert.match(source, /function openContent\(id: number\)/);
   assert.match(source, /prop: "operation"[\s\S]*?message-operation-column/);
   assert.doesNotMatch(source, /prop: "operation"[\s\S]*?width: 380/);
-  assert.match(source, /whiteSpace: "nowrap"[\s\S]*?\n\s*\},\n\s*row\.title/);
+  assert.match(source, /whiteSpace: "nowrap"[\s\S]*?\n\s*\},\n\s*resolvePersistedMessage\(row\.title\)/);
   assert.ok(sendDetailDialog, "缺少发送详情弹窗");
   assert.doesNotMatch(sendDetailDialog, /message-detail-content|detail\.data\.form\?\.content/);
 });
@@ -458,11 +520,12 @@ test("退出登录完成后等待路由跳转到登录页", async () => {
   assert.match(source, /await userStore\.logout\(\);[\s\S]*?await router\.replace\(LOGIN_URL\);/);
 });
 
-test("角色分配权限默认关闭父子联动", async () => {
+test("角色权限默认开启父子联动", async () => {
   const source = await readSource("src/views/base/role/index.vue");
 
-  assert.match(source, /const parentChildLinked = ref\(false\);/);
+  assert.match(source, /const parentChildLinked = ref\(true\);/);
   assert.match(source, /:check-strictly="!parentChildLinked"/);
+  assert.match(source, /checkStrictly: false/);
 });
 
 test("角色表单按目标租户加载菜单权限上限", async () => {

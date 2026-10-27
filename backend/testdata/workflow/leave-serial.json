@@ -1,0 +1,26 @@
+{
+  "name": "经典示例 · 请假串行审批",
+  "code": "DEMO_LEAVE_SERIAL",
+  "version": 1,
+  "remark": "主管通过后才进入人事审批；任一驳回即终结。示例用户：1 申请人，2 主管，3 人事。",
+  "form_schema": [
+    {"key": "leave_type", "label": "请假类型", "type": "select", "required": true, "options": "事假,年假,调休"},
+    {"key": "start_date", "label": "开始日期", "type": "date", "required": true},
+    {"key": "days", "label": "请假天数", "type": "number", "required": true},
+    {"key": "reason", "label": "请假事由", "type": "textarea", "required": true}
+  ],
+  "node_config": {
+    "version": 2,
+    "nodes": [
+      {"id": "start", "type": "START", "x": 30, "y": 150},
+      {"id": "supervisor", "type": "TASK", "strategy": "ALL", "approvers": [{"type": "USER", "id": 2}], "x": 250, "y": 150},
+      {"id": "hr", "type": "TASK", "strategy": "ALL", "approvers": [{"type": "USER", "id": 3}], "x": 470, "y": 150},
+      {"id": "end", "type": "END", "x": 690, "y": 150}
+    ],
+    "edges": [
+      {"from": "start", "to": "supervisor"},
+      {"from": "supervisor", "to": "hr"},
+      {"from": "hr", "to": "end"}
+    ]
+  }
+}

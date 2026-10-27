@@ -1,0 +1,33 @@
+{
+  "name": "经典示例 · 采购并行汇聚",
+  "code": "DEMO_PURCHASE_PARALLEL",
+  "version": 1,
+  "remark": "财务和法务并行审批，全部完成后汇聚到经理审批。示例用户：1 申请人，2 财务，3 法务，4 经理。",
+  "form_schema": [
+    {"key": "item_name", "label": "采购物品", "type": "text", "required": true},
+    {"key": "quantity", "label": "数量", "type": "number", "required": true},
+    {"key": "amount", "label": "预算金额（元）", "type": "number", "required": true},
+    {"key": "reason", "label": "采购事由", "type": "textarea", "required": true}
+  ],
+  "node_config": {
+    "version": 2,
+    "nodes": [
+      {"id": "start", "type": "START", "x": 20, "y": 190},
+      {"id": "fork", "type": "PARALLEL_GATEWAY_FORK", "x": 200, "y": 190},
+      {"id": "finance", "type": "TASK", "strategy": "ALL", "approvers": [{"type": "USER", "id": 2}], "x": 400, "y": 60},
+      {"id": "legal", "type": "TASK", "strategy": "ALL", "approvers": [{"type": "USER", "id": 3}], "x": 400, "y": 320},
+      {"id": "join", "type": "PARALLEL_GATEWAY_JOIN", "x": 620, "y": 190},
+      {"id": "manager", "type": "TASK", "strategy": "ALL", "approvers": [{"type": "USER", "id": 4}], "x": 820, "y": 190},
+      {"id": "end", "type": "END", "x": 1040, "y": 190}
+    ],
+    "edges": [
+      {"from": "start", "to": "fork"},
+      {"from": "fork", "to": "finance"},
+      {"from": "fork", "to": "legal"},
+      {"from": "finance", "to": "join"},
+      {"from": "legal", "to": "join"},
+      {"from": "join", "to": "manager"},
+      {"from": "manager", "to": "end"}
+    ]
+  }
+}

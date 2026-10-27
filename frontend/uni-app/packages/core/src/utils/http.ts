@@ -405,7 +405,14 @@ const RELOGIN_PROMPT_TIMEOUT = 60_000
 async function promptRelogin() {
   // 401 来自旧会话的在途请求而当前已是有效登录态时直接忽略，避免刚登录成功被弹窗打断。
   if (hasValidToken()) {
-    return
+    // 本地令牌未过期但服务端已判定失效时，先强制续签一次；续签成功即静默恢复，
+    // 续签失败清空残留登录态后继续弹窗，避免停留在“本地有效”的假登录态。
+    try {
+      await handleTokenRefresh()
+      return
+    } catch {
+      silentClearAuthData()
+    }
   }
   const pages = getCurrentPages()
   if (pages[pages.length - 1]?.route === 'pages/login/login') {
@@ -435,6 +442,9 @@ async function promptRelogin() {
     ])
 
     if (!modalRes?.confirm) {
+      // 用户关闭提示或超时未确认时也要完成登出，避免残留“本地有效”的假登录态
+      // 导致后续请求全部 401 被静默吞掉、界面看起来像按钮失灵。
+      await clearUserData()
       return
     }
 

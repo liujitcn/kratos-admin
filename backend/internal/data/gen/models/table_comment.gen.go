@@ -331,3 +331,43 @@ func (*MqttMessage) TableComment() string {
 func (*OauthClient) TableComment() string {
 	return "开放授权客户端"
 }
+
+// TableComment 返回表注释。
+func (*WorkflowDefinition) TableComment() string {
+	return "工作流流程定义"
+}
+
+// TableComment 返回表注释。
+func (*WorkflowDelegation) TableComment() string {
+	return "工作流审批委托"
+}
+
+// TableComment 返回表注释。
+func (*WorkflowInstance) TableComment() string {
+	return "工作流流程实例"
+}
+
+// TableComment 返回表注释。
+func (*WorkflowJoin) TableComment() string {
+	return "工作流并行汇聚计数"
+}
+
+// TableComment 返回表注释。
+func (*WorkflowLog) TableComment() string {
+	return "工作流审批日志"
+}
+
+// TableComment 返回表注释。
+func (*WorkflowParentLink) TableComment() string {
+	return "工作流父子流程关联"
+}
+
+// TableComment 返回表注释。
+func (*WorkflowScriptRun) TableComment() string {
+	return "工作流脚本执行记录"
+}
+
+// TableComment 返回表注释。
+func (*WorkflowTask) TableComment() string {
+	return "工作流审批任务"
+}

@@ -1,22 +1,29 @@
 <template>
   <div class="table-box">
     <ProTable ref="proTable" row-key="id" :columns="columns" :header-actions="headerActions" :request-api="requestTable" />
-    <ProDialog ref="detailDialogRef" v-model="detailVisible" :title="detail?.title" width="720px" destroy-on-close :show-footer="false">
+    <ProDialog
+      ref="detailDialogRef"
+      v-model="detailVisible"
+      :title="resolvePersistedMessage(detail?.title)"
+      width="720px"
+      destroy-on-close
+      :show-footer="false"
+    >
       <div v-if="detail" class="message-detail">
         <div class="message-meta">
           <span class="message-category" :style="{ color: detail.category_color || undefined }">
             <component :is="resolveNotificationIcon(detail.category_icon)" />
             <span class="message-category__name">{{ detail.category_name }}</span>
           </span>
-          <span>{{ detail.sender_name }}</span>
+          <span>{{ resolvePersistedMessage(detail.sender_name) }}</span>
           <span>{{ detail.received_at }}</span>
         </div>
         <RichTextPreview
           v-if="detail.content_format === MessageContentFormat.MESSAGE_CONTENT_FORMAT_RICH_TEXT"
           class="message-content"
-          :model-value="detail.content"
+          :model-value="resolvePersistedMessage(detail.content)"
         />
-        <pre v-else class="message-content">{{ detail.content }}</pre>
+        <pre v-else class="message-content">{{ resolvePersistedMessage(detail.content) }}</pre>
         <el-button
           v-if="detail.action_type === MessageActionType.MESSAGE_ACTION_TYPE_VIEW_KEY && actionRouteName"
           class="message-action"
@@ -40,6 +47,7 @@ import type { ProFormOption } from "@liujitcn/kratos-admin-core/components/ProFo
 import RichTextPreview from "@liujitcn/kratos-admin-core/components/RichTextPreview/index.vue";
 import { buildPageRequest } from "@liujitcn/kratos-admin-core/table";
 import { t } from "@liujitcn/kratos-admin-core";
+import { resolvePersistedMessage } from "../../../utils/persisted-message";
 import { defNotificationService } from "@liujitcn/kratos-admin-system/api/base/v1/notification";
 import type {
   Notification,
@@ -51,6 +59,7 @@ import {
   MessageContentFormat,
   NotificationView
 } from "@liujitcn/kratos-admin-system/rpc/base/v1/notification";
+import { resolveNotificationAction } from "../../../utils/notification-action";
 
 defineOptions({ name: "NotificationInbox", inheritAttrs: false });
 
@@ -60,11 +69,8 @@ const detailDialogRef = ref<InstanceType<typeof ProDialog>>();
 const detailVisible = ref(false);
 const detail = ref<Notification>();
 const categoryOptions = ref<NotificationCategory[]>([]);
-const actionRouteName = computed(() => {
-  const viewKey = detail.value?.action_target;
-  if (!viewKey) return "";
-  return ({ MESSAGE_INBOX: "NotificationInbox", PROFILE: "Profile", AI: "AiChat" } as Record<string, string>)[viewKey] ?? "";
-});
+const actionRoute = computed(() => resolveNotificationAction(detail.value?.action_target, detail.value?.action_params));
+const actionRouteName = computed(() => actionRoute.value?.name ?? "");
 const notificationIcons = {
   Bell,
   Calendar,
@@ -95,7 +101,12 @@ const categoryFilterOptions = computed<ProFormOption[]>(() =>
 onMounted(() => void loadCategoryOptions());
 
 const columns = computed<ColumnProps[]>(() => [
-  { prop: "title", label: t("system.base.message.field.title"), minWidth: 240 },
+  {
+    prop: "title",
+    label: t("system.base.message.field.title"),
+    minWidth: 240,
+    render: scope => resolvePersistedMessage((scope.row as Notification).title)
+  },
   {
     prop: "category_name",
     label: t("system.base.message.field.category"),
@@ -117,7 +128,12 @@ const columns = computed<ColumnProps[]>(() => [
     render: scope =>
       (scope.row as Notification).read_at ? t("system.notification.status.read") : t("system.notification.status.unread")
   },
-  { prop: "sender_name", label: t("system.notification.field.sender"), minWidth: 130 },
+  {
+    prop: "sender_name",
+    label: t("system.notification.field.sender"),
+    minWidth: 130,
+    render: scope => resolvePersistedMessage((scope.row as Notification).sender_name)
+  },
   { prop: "received_at", label: t("system.notification.field.received_at"), minWidth: 180 },
   {
     prop: "operation",
@@ -178,6 +194,13 @@ async function loadCategoryOptions() {
 
 /** 打开消息详情并标记已读。 */
 async function openDetail(row: Notification) {
+  const action = resolveNotificationAction(row.action_target, row.action_params);
+  if (action?.name === "WorkflowApproval") {
+    if (!row.read_at) await defNotificationService.MarkNotificationRead({ ids: [row.id] });
+    proTable.value?.getTableList();
+    void router.push(action);
+    return;
+  }
   await detailDialogRef.value?.open({
     load: () => defNotificationService.GetNotification({ id: row.id }),
     commit: data => {
@@ -192,8 +215,9 @@ async function openDetail(row: Notification) {
 
 /** 执行通知携带的稳定 viewKey 动作。 */
 function openAction() {
-  if (!actionRouteName.value) return;
-  void router.push({ name: actionRouteName.value });
+  const route = actionRoute.value;
+  if (!route) return;
+  void router.push(route);
 }
 
 /** 标记消息为未读。 */

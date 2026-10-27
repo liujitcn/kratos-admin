@@ -30,7 +30,7 @@
             <component :is="resolveNotificationIcon(item.category_icon)" />
           </span>
           <span class="notification-status" :style="{ backgroundColor: item.category_color || undefined }" aria-hidden="true"></span>
-          <span class="notification-title">{{ item.title }}</span>
+          <span class="notification-title">{{ resolvePersistedMessage(item.title) }}</span>
           <span class="notification-time">{{ item.received_at }}</span>
         </button>
         <el-empty v-if="notifications.length === 0" :description="t('system.notification.empty')" :image-size="72" />
@@ -38,22 +38,29 @@
       <el-button class="notification-more" text @click="openInbox">{{ t("system.notification.action.view_all") }}</el-button>
     </div>
   </el-popover>
-  <ProDialog ref="detailDialogRef" v-model="detailVisible" :title="detail?.title" width="720px" destroy-on-close :show-footer="false">
+  <ProDialog
+    ref="detailDialogRef"
+    v-model="detailVisible"
+    :title="resolvePersistedMessage(detail?.title)"
+    width="720px"
+    destroy-on-close
+    :show-footer="false"
+  >
     <div v-if="detail" class="notification-detail">
       <div class="notification-detail-meta">
         <span class="notification-detail-category" :style="{ color: detail.category_color || undefined }">
           <component :is="resolveNotificationIcon(detail.category_icon)" />
           <span>{{ detail.category_name }}</span>
         </span>
-        <span>{{ detail.sender_name }}</span>
+        <span>{{ resolvePersistedMessage(detail.sender_name) }}</span>
         <span>{{ detail.received_at }}</span>
       </div>
       <RichTextPreview
         v-if="detail.content_format === MessageContentFormat.MESSAGE_CONTENT_FORMAT_RICH_TEXT"
         class="notification-detail-content"
-        :model-value="detail.content"
+        :model-value="resolvePersistedMessage(detail.content)"
       />
-      <pre v-else class="notification-detail-content">{{ detail.content }}</pre>
+      <pre v-else class="notification-detail-content">{{ resolvePersistedMessage(detail.content) }}</pre>
       <el-button
         v-if="detail.action_type === MessageActionType.MESSAGE_ACTION_TYPE_VIEW_KEY && actionRouteName"
         type="primary"
@@ -79,6 +86,8 @@ import {
   MessageContentFormat,
   NotificationView
 } from "@liujitcn/kratos-admin-system/rpc/base/v1/notification";
+import { resolvePersistedMessage } from "../../utils/persisted-message";
+import { resolveNotificationAction } from "../../utils/notification-action";
 
 const router = useRouter();
 const popoverVisible = ref(false);
@@ -93,11 +102,8 @@ let stopSse: SseStop | undefined;
 defineOptions({ name: "Notification", inheritAttrs: false });
 
 const badgeValue = computed(() => Math.min(unreadTotal.value, 99));
-const actionRouteName = computed(() => {
-  const viewKey = detail.value?.action_target;
-  if (!viewKey) return "";
-  return ({ MESSAGE_INBOX: "NotificationInbox", PROFILE: "Profile", AI: "AiChat" } as Record<string, string>)[viewKey] ?? "";
-});
+const actionRoute = computed(() => resolveNotificationAction(detail.value?.action_target, detail.value?.action_params));
+const actionRouteName = computed(() => actionRoute.value?.name ?? "");
 const notificationIcons = {
   Bell,
   Calendar,
@@ -154,6 +160,16 @@ async function markAllRead() {
 /** 打开下拉消息详情并标记消息为已读。 */
 async function openNotification(row: Notification) {
   popoverVisible.value = false;
+  const action = resolveNotificationAction(row.action_target, row.action_params);
+  if (action?.name === "WorkflowApproval") {
+    if (!row.read_at) {
+      await defNotificationService.MarkNotificationRead({ ids: [row.id] });
+      unreadTotal.value = Math.max(0, unreadTotal.value - 1);
+    }
+    notifications.value = notifications.value.filter(item => item.id !== row.id);
+    void router.push(action);
+    return;
+  }
   const wasUnread = !row.read_at;
   await detailDialogRef.value?.open({
     load: async () => {
@@ -179,9 +195,10 @@ function openInbox() {
 
 /** 执行通知携带的稳定 viewKey 动作。 */
 function openAction() {
-  if (!actionRouteName.value) return;
+  const route = actionRoute.value;
+  if (!route) return;
   detailVisible.value = false;
-  void router.push({ name: actionRouteName.value });
+  void router.push(route);
 }
 
 /** 解析收件箱分类图标，未知图标使用默认图标。 */

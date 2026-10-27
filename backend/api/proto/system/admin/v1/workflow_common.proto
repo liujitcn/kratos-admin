@@ -1,0 +1,87 @@
+syntax = "proto3";
+
+package system.admin.v1;
+
+// 工作流审批公共类型。
+
+// 流程定义状态。
+enum WorkflowDefinitionStatus {
+  // 未指定流程定义状态。
+  WORKFLOW_DEFINITION_STATUS_UNSPECIFIED = 0;
+  // 草稿，可编辑不可发起。
+  WORKFLOW_DEFINITION_STATUS_DRAFT = 1;
+  // 启用，可发起审批。
+  WORKFLOW_DEFINITION_STATUS_ENABLED = 2;
+  // 停用，不可发起。
+  WORKFLOW_DEFINITION_STATUS_DISABLED = 3;
+}
+
+// 流程实例状态。
+enum WorkflowInstanceStatus {
+  // 未指定流程实例状态。
+  WORKFLOW_INSTANCE_STATUS_UNSPECIFIED = 0;
+  // 审批中。
+  WORKFLOW_INSTANCE_STATUS_PENDING = 1;
+  // 已通过。
+  WORKFLOW_INSTANCE_STATUS_APPROVED = 2;
+  // 已驳回。
+  WORKFLOW_INSTANCE_STATUS_REJECTED = 3;
+  // 已撤回。
+  WORKFLOW_INSTANCE_STATUS_WITHDRAWN = 4;
+}
+
+// 审批任务状态。
+enum WorkflowTaskStatus {
+  // 未指定审批任务状态。
+  WORKFLOW_TASK_STATUS_UNSPECIFIED = 0;
+  // 待审批。
+  WORKFLOW_TASK_STATUS_PENDING = 1;
+  // 已通过。
+  WORKFLOW_TASK_STATUS_APPROVED = 2;
+  // 已驳回。
+  WORKFLOW_TASK_STATUS_REJECTED = 3;
+  // 已取消。
+  WORKFLOW_TASK_STATUS_CANCELED = 4;
+}
+
+// 审批日志动作。
+enum WorkflowLogAction {
+  // 未指定审批日志动作。
+  WORKFLOW_LOG_ACTION_UNSPECIFIED = 0;
+  // 提交申请。
+  WORKFLOW_LOG_ACTION_SUBMIT = 1;
+  // 审批通过。
+  WORKFLOW_LOG_ACTION_APPROVE = 2;
+  // 审批驳回。
+  WORKFLOW_LOG_ACTION_REJECT = 3;
+  // 转办或加签。
+  WORKFLOW_LOG_ACTION_FORWARD = 4;
+  // 撤回申请。
+  WORKFLOW_LOG_ACTION_WITHDRAW = 5;
+}
+
+// 审批动作类型。
+enum WorkflowAuditAction {
+  // 未指定审批动作。
+  WORKFLOW_AUDIT_ACTION_UNSPECIFIED = 0;
+  // 通过。
+  WORKFLOW_AUDIT_ACTION_APPROVE = 1;
+  // 驳回。
+  WORKFLOW_AUDIT_ACTION_REJECT = 2;
+  // 转办。
+  WORKFLOW_AUDIT_ACTION_FORWARD = 3;
+  // 加签。
+  WORKFLOW_AUDIT_ACTION_ADD_APPROVER = 4;
+}
+
+// 我的审批列表类型。
+enum WorkflowListType {
+  // 未指定列表类型，按全部审批视角处理。
+  WORKFLOW_LIST_TYPE_UNSPECIFIED = 0;
+  // 待我审批。
+  WORKFLOW_LIST_TYPE_PENDING = 1;
+  // 我已审批。
+  WORKFLOW_LIST_TYPE_DONE = 2;
+  // 我发起的。
+  WORKFLOW_LIST_TYPE_SUBMITTED = 3;
+}

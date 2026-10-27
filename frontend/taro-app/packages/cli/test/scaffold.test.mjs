@@ -33,7 +33,7 @@ test('生成可扩展的 Taro workspace、本地模块和发布模块清单', ()
     const appConfig = readJson(resolve(target, 'apps/taro-app/src/app.config.base.json'))
     const theme = readJson(resolve(target, 'apps/taro-app/src/theme.json'))
 
-    assert.equal(rootPackage.packageManager, 'pnpm@10.13.1')
+    assert.equal(rootPackage.packageManager, 'pnpm@10.33.4')
     assert.equal(appConfig.animation, false)
     assert.equal(appConfig.darkmode, true)
     assert.equal(appConfig.themeLocation, 'theme.json')

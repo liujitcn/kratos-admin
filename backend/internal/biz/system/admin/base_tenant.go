@@ -3,38 +3,48 @@ package biz
 import (
 	"context"
 	"crypto/rand"
+	"encoding/json"
+	"errors"
 	"fmt"
 	"math/big"
 	"strconv"
 	"time"
 
+	"github.com/go-kratos/kratos/v3/log"
 	"github.com/liujitcn/go-utils/crypto"
 	"github.com/liujitcn/go-utils/mapper"
 	_string "github.com/liujitcn/go-utils/string"
 	"github.com/liujitcn/gorm-kit/repository"
 	"github.com/liujitcn/kratos-kit/database/gorm"
 
+	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
 	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/loginpolicy"
 	passwordPolicy "github.com/liujitcn/kratos-admin/backend/internal/biz/base/password"
 	_const "github.com/liujitcn/kratos-admin/backend/internal/const"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
+	"github.com/liujitcn/kratos-admin/backend/pkg/notification"
+	pkgWorkflow "github.com/liujitcn/kratos-admin/backend/pkg/workflow"
 	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
 	"github.com/liujitcn/kratos-core/biz"
 	coreconst "github.com/liujitcn/kratos-core/const"
 	"github.com/liujitcn/kratos-core/errorsx"
 	"github.com/liujitcn/kratos-core/resource/i18n"
 	authData "github.com/liujitcn/kratos-kit/auth/data"
+	gormdb "gorm.io/gorm"
 )
 
 const (
-	baseTenantAdminUserName   = "admin"
-	baseTenantDefaultDeptPath = "/0/%d"
-	baseTenantDefaultDeptSort = int32(0)
-	baseTenantInitialCode     = int64(1000)
-	baseTenantMaxCode         = int64(9999)
-	baseTenantNumericCodeExpr = "^[0-9]+$"
+	baseTenantAdminUserName      = "admin"
+	baseTenantDefaultDeptPath    = "/0/%d"
+	baseTenantDefaultDeptSort    = int32(0)
+	baseTenantInitialCode        = int64(1000)
+	baseTenantMaxCode            = int64(9999)
+	baseTenantNumericCodeExpr    = "^[0-9]+$"
+	baseTenantCreateWorkflowCode = "BASE_TENANT_CREATE"
+	baseTenantCreateBusinessType = "BASE_TENANT_CREATE"
+	baseTenantCreateAction       = "base.tenant.create.complete"
 )
 
 // BaseTenantCase 租户业务实例。
@@ -59,6 +69,7 @@ type BaseTenantCase struct {
 	casbinRuleRepo          *data.CasbinRuleRepository
 	casbinRuleCase          *CasbinRuleCase
 	catalog                 *i18n.I18n
+	eventRegistry           *pkgWorkflow.EventRegistry
 	formMapper              *mapper.CopierMapper[adminv1.BaseTenantForm, models.BaseTenant]
 	mapper                  *mapper.CopierMapper[adminv1.BaseTenant, models.BaseTenant]
 }
@@ -85,8 +96,9 @@ func NewBaseTenantCase(
 	casbinRuleRepo *data.CasbinRuleRepository,
 	casbinRuleCase *CasbinRuleCase,
 	catalog *i18n.I18n,
+	eventRegistry *pkgWorkflow.EventRegistry,
 ) *BaseTenantCase {
-	return &BaseTenantCase{
+	caseValue := &BaseTenantCase{
 		BaseCase:                baseCase,
 		tx:                      tx,
 		BaseTenantRepository:    baseTenantRepo,
@@ -107,9 +119,13 @@ func NewBaseTenantCase(
 		casbinRuleRepo:          casbinRuleRepo,
 		casbinRuleCase:          casbinRuleCase,
 		catalog:                 catalog,
+		eventRegistry:           eventRegistry,
 		formMapper:              mapper.NewCopierMapper[adminv1.BaseTenantForm, models.BaseTenant](),
 		mapper:                  mapper.NewCopierMapper[adminv1.BaseTenant, models.BaseTenant](),
 	}
+	eventRegistry.Register(baseTenantCreateBusinessType, caseValue.handleTenantWorkflowEvent)
+	eventRegistry.RegisterAction(baseTenantCreateBusinessType, baseTenantCreateAction, caseValue.handleTenantWorkflowAction)
+	return caseValue
 }
 
 // FindDefault 查询默认租户。
@@ -196,37 +212,198 @@ func (c *BaseTenantCase) GetBaseTenant(ctx context.Context, id int64) (*adminv1.
 
 // CreateBaseTenant 创建租户并返回租户管理员的一次性初始凭据。
 func (c *BaseTenantCase) CreateBaseTenant(ctx context.Context, req *adminv1.BaseTenantForm) (*adminv1.CreateBaseTenantResponse, error) {
+	return c.submitTenantApproval(ctx, req)
+}
+
+// submitTenantApproval 创建待审批占位租户并提交默认审批流程。
+func (c *BaseTenantCase) submitTenantApproval(ctx context.Context, req *adminv1.BaseTenantForm) (*adminv1.CreateBaseTenantResponse, error) {
+	authInfo, err := c.GetAuthInfo(ctx)
+	if err != nil {
+		return nil, err
+	}
+	if authInfo.TenantCode != gorm.DefaultTenantCode {
+		return nil, errorsx.PermissionDenied("只有默认租户可以申请新增租户")
+	}
+	baseTenant, err := c.createTenantPlaceholder(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	formDataValue := *req
+	formDataValue.Id = 0
+	formDataValue.Code = baseTenant.Code
+	formData, err := json.Marshal(&formDataValue)
+	if err != nil {
+		return nil, err
+	}
+	_, err = pkgWorkflow.Submit(ctx, pkgWorkflow.SubmitParams{
+		Code:         baseTenantCreateWorkflowCode,
+		Version:      1,
+		FormData:     string(formData),
+		BusinessType: baseTenantCreateBusinessType,
+		BusinessID:   baseTenant.ID,
+	})
+	if err != nil {
+		_ = c.removeTenantPlaceholder(context.WithoutCancel(ctx), baseTenant.ID)
+		return nil, err
+	}
+	return &adminv1.CreateBaseTenantResponse{TenantCode: baseTenant.Code}, nil
+}
+
+// createTenantPlaceholder 创建禁用状态的租户占位记录，审批通过后才初始化租户资源。
+func (c *BaseTenantCase) createTenantPlaceholder(ctx context.Context, req *adminv1.BaseTenantForm) (*models.BaseTenant, error) {
 	baseTenant := c.formMapper.ToEntity(req)
-	var response *adminv1.CreateBaseTenantResponse
+	var result *models.BaseTenant
 	err := c.tx.Transaction(ctx, func(ctx context.Context) error {
 		code, err := c.getNextBaseTenantCode(ctx)
 		if err != nil {
 			return err
 		}
-
-		// 租户编号只允许后端生成，避免客户端传入自定义编号。
 		baseTenant.Code = code
-		// 租户 ID 由数据库自增，避免客户端或表单中的 ID 参与新租户创建。
 		baseTenant.ID = 0
-		// 未指定状态时，新租户默认启用，避免初始化完成后仍无法登录。
-		if baseTenant.Status == 0 {
-			baseTenant.Status = coreconst.STATUS_STATUS_ENABLE
-		}
-		err = c.Create(ctx, baseTenant)
-		if err != nil {
-			// 命中租户编号唯一索引冲突时，返回稳定的业务冲突错误。
+		baseTenant.Status = coreconst.STATUS_STATUS_DISABLE
+		if err = c.Create(ctx, baseTenant); err != nil {
 			if errorsx.IsDuplicateKey(err) {
 				return errorsx.UniqueConflict("租户编号重复", "base_tenant", "code", "unique_base_tenant").WithCause(err)
 			}
 			return err
 		}
+		result = baseTenant
+		return nil
+	})
+	return result, err
+}
+
+// completeTenantCreation 审批通过后初始化租户默认资源并按申请状态启用租户。
+func (c *BaseTenantCase) completeTenantCreation(ctx context.Context, tenantID, notificationTenantID, applicantUserID, instanceID int64, requestedStatus int32, idempotencyKey string) (*adminv1.CreateBaseTenantResponse, error) {
+	var response *adminv1.CreateBaseTenantResponse
+	err := c.tx.Transaction(ctx, func(ctx context.Context) error {
+		baseTenant, err := c.FindByID(ctx, tenantID)
+		if err != nil {
+			return err
+		}
+		if baseTenant.Status == coreconst.STATUS_STATUS_ENABLE {
+			return nil
+		}
+		userQuery := c.baseUserRepo.Query(ctx).BaseUser
+		_, err = c.baseUserRepo.Find(ctx, repository.Where(userQuery.TenantID.Eq(tenantID)), repository.Where(userQuery.UserName.Eq(baseTenantAdminUserName)))
+		if err == nil {
+			if requestedStatus != coreconst.STATUS_STATUS_DISABLE {
+				requestedStatus = coreconst.STATUS_STATUS_ENABLE
+			}
+			return c.UpdateByID(ctx, &models.BaseTenant{ID: tenantID, Status: requestedStatus})
+		}
+		if !errors.Is(err, gormdb.ErrRecordNotFound) {
+			return err
+		}
 		response, err = c.initTenantDefaults(ctx, baseTenant)
+		if err != nil {
+			return err
+		}
+		if requestedStatus != coreconst.STATUS_STATUS_DISABLE {
+			requestedStatus = coreconst.STATUS_STATUS_ENABLE
+		}
+		err = c.UpdateByID(ctx, &models.BaseTenant{ID: tenantID, Status: requestedStatus})
+		if err != nil {
+			return err
+		}
+		if response == nil || response.InitialPassword == "" || applicantUserID <= 0 {
+			return nil
+		}
+		if idempotencyKey == "" {
+			idempotencyKey = fmt.Sprintf("workflow:tenant-create:%d", tenantID)
+		}
+		content := fmt.Sprintf("租户 %s 已审批通过。管理员账号：%s，初始密码：%s，请登录后立即修改密码。", response.TenantCode, response.AdminUserName, response.InitialPassword)
+		_, err = notification.Publish(ctx, notification.Message{
+			TenantID: notificationTenantID, CategoryCode: workflowMessageCategory, Title: "租户创建完成", Content: content,
+			ContentFormat: basev1.MessageContentFormat_MESSAGE_CONTENT_FORMAT_PLAIN_TEXT,
+			Priority:      basev1.MessagePriority_MESSAGE_PRIORITY_NORMAL,
+			ActionType:    basev1.MessageActionType_MESSAGE_ACTION_TYPE_VIEW_KEY,
+			ActionTarget:  workflowMessageActionTarget,
+			ActionParams:  workflowMessageActionParams("tenant", 0, instanceID),
+			Audiences:     []notification.Audience{{Type: basev1.MessageAudienceType_MESSAGE_AUDIENCE_TYPE_USER, ID: applicantUserID}},
+			Source:        "tenant", IdempotencyKey: idempotencyKey,
+			SenderName: c.localizeTenantDefault(biz.LocaleFromContext(ctx), "system.notification.sender.system", "系统"),
+		})
 		return err
 	})
-	if err != nil {
-		return nil, err
+	return response, err
+}
+
+// removeTenantPlaceholder 清理驳回或撤回的待审批租户占位记录。
+func (c *BaseTenantCase) removeTenantPlaceholder(ctx context.Context, tenantID int64) error {
+	baseTenant, err := c.FindByID(ctx, tenantID)
+	if errors.Is(err, gormdb.ErrRecordNotFound) {
+		return nil
 	}
-	return response, nil
+	if err != nil {
+		return err
+	}
+	if baseTenant.Status != coreconst.STATUS_STATUS_DISABLE {
+		return nil
+	}
+	return c.tx.Transaction(ctx, func(ctx context.Context) error { return c.DeleteByIDs(ctx, []int64{tenantID}) })
+}
+
+// handleTenantWorkflowAction 执行审批通过后的租户初始化动作，并向申请人发送一次性凭据。
+func (c *BaseTenantCase) handleTenantWorkflowAction(ctx context.Context, input pkgWorkflow.ActionContext) error {
+	defaultTenantID, err := findDefaultTenantID(c.Query)
+	if err != nil {
+		return errorsx.Internal("校验租户审批来源失败").WithCause(err)
+	}
+	if input.TenantID != defaultTenantID {
+		return errorsx.PermissionDenied("只有默认租户可以执行新增租户审批动作")
+	}
+	var bound bool
+	bound, err = workflowInstanceBindingExists(c.Query, input.TenantID, input.InstanceID, input.BusinessID, baseTenantCreateBusinessType, input.Status)
+	if err != nil {
+		return errorsx.Internal("校验租户审批关联失败").WithCause(err)
+	}
+	if !bound {
+		return errorsx.PermissionDenied("新增租户审批业务关联无效")
+	}
+	form, ok := input.Payload["form"].(map[string]any)
+	if !ok {
+		return errorsx.InvalidArgument("新增租户审批表单无效")
+	}
+	status := int32(coreconst.STATUS_STATUS_ENABLE)
+	if value, exists := form["status"].(float64); exists {
+		status = int32(value)
+	}
+	var applicantUserID int64
+	userID, exists := input.Payload["applicant_user_id"].(float64)
+	if exists && userID > 0 {
+		applicantUserID = int64(userID)
+	}
+	_, err = c.completeTenantCreation(ctx, input.BusinessID, input.TenantID, applicantUserID, input.InstanceID, status, input.IdempotencyKey)
+	return err
+}
+
+// handleTenantWorkflowEvent 清理被驳回或撤回的租户占位记录。
+func (c *BaseTenantCase) handleTenantWorkflowEvent(_ context.Context, tenantID, instanceID, businessID int64, status adminv1.WorkflowInstanceStatus) {
+	defaultTenantID, err := findDefaultTenantID(c.Query)
+	if err != nil {
+		log.Error(fmt.Sprintf("校验租户审批来源失败: %v", err))
+		return
+	}
+	if tenantID != defaultTenantID {
+		log.Error(fmt.Sprintf("拒绝非默认租户清理租户审批占位记录: tenant_id=%d business_id=%d", tenantID, businessID))
+		return
+	}
+	var bound bool
+	bound, err = workflowInstanceBindingExists(c.Query, tenantID, instanceID, businessID, baseTenantCreateBusinessType, int32(status))
+	if err != nil {
+		log.Error(fmt.Sprintf("校验租户审批关联失败: %v", err))
+		return
+	}
+	if !bound {
+		log.Error(fmt.Sprintf("拒绝清理未绑定流程实例的租户审批占位记录: instance_id=%d business_id=%d", instanceID, businessID))
+		return
+	}
+	if status == adminv1.WorkflowInstanceStatus_WORKFLOW_INSTANCE_STATUS_REJECTED || status == adminv1.WorkflowInstanceStatus_WORKFLOW_INSTANCE_STATUS_WITHDRAWN {
+		if err = c.removeTenantPlaceholder(context.Background(), businessID); err != nil {
+			log.Error(fmt.Sprintf("清理租户审批占位记录失败: %v", err))
+		}
+	}
 }
 
 // UpdateBaseTenant 更新租户。

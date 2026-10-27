@@ -44,7 +44,7 @@
 
 - Go `1.27.2` 或更高补丁版本。
 - Node.js `24`；管理端及其 CLI 模板使用 `frontend/admin/.nvmrc`，进入该目录后执行 `nvm install && nvm use`。
-- pnpm 版本以各 workspace 的 `packageManager` 为准：管理端 `10.33.4`，uni-app 与 Taro 应用端 `10.13.1`。
+- pnpm 版本以各 workspace 的 `packageManager` 为准：管理端、uni-app 与 Taro 应用端均为 `10.33.4`。
 - MySQL 或 TiDB、Consul 和 Vault；Redis 与队列按需启用，未配置时单实例使用进程内实现。用途与最小/完整配置入口见下方说明。
 - Docker 部署需要可用的 Docker CLI 与 Docker daemon。
 - 启用 TOTP 绑定时，`mfa.encryption_key` 有显式值则使用该值，留空时由运行时密钥服务派生；启用 WebAuthn 时还要配置 `mfa.webauthn.rp_id` 与 `mfa.webauthn.rp_origins`。配置文件中的敏感值应使用 `ENC[...]` 保存。
@@ -263,3 +263,5 @@ Go 调用方可通过 `backend/client.NewClient` 创建全部服务客户端，�
 公共租户项目和岗位、角色、直属部门、用户四维授权的模型与模块职责见 [租户项目授权](docs/租户项目授权.md)。
 
 `backend/pkg/projectaccess` 提供项目停用、删除前的生命周期校验扩展；项目查询统一读取有效授权范围，不提供自定义 Context 项目范围覆盖入口。
+
+工作流设计器与系统脚本管理已打通：提交校验、变量计算、动态审批人和终态业务动作共用已发布脚本快照，支持执行审计、自动恢复和人工重试。接入方式见[工作流接入指南](docs/工作流接入指南.md)。

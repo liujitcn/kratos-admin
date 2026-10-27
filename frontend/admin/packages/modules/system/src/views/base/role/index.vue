@@ -233,7 +233,7 @@ const checkedBaseRole = ref<CheckedBaseRole>({});
 const assignPermDialogVisible = ref(false);
 const permKeywords = ref("");
 const isExpanded = ref(true);
-const parentChildLinked = ref(false);
+const parentChildLinked = ref(true);
 
 const { isDefaultTenant, tenantColumns, tenantFormField, toRequestTenantId, loadTenantOptions } = useTenantScope();
 onMounted(() => {
@@ -266,7 +266,7 @@ const formFields = computed<ProFormField[]>(() => [
       props: { label: "label", children: "children" },
       multiple: true,
       showCheckbox: true,
-      checkStrictly: true,
+      checkStrictly: false,
       style: { width: "100%" },
       onCheck: handleCheck
     }

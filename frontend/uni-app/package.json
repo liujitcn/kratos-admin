@@ -2,7 +2,7 @@
   "name": "kratos-uni-app-workspace",
   "description": "Independent pnpm workspace for the Kratos uni-app application.",
   "private": true,
-  "packageManager": "pnpm@10.13.1",
+  "packageManager": "pnpm@10.33.4",
   "scripts": {
     "prepare:modules": "turbo run build:entries --filter=@liujitcn/kratos-uni-app-system --ui=stream --log-order=grouped --log-prefix=none --no-color --output-logs=errors-only",
     "dev:h5": "turbo run dev:h5 --filter=@liujitcn/kratos-uni-app --ui=stream --log-order=stream --log-prefix=task --no-color",
@@ -42,6 +42,9 @@
       "core-js-pure",
       "vue-demi"
     ],
+    "patchedDependencies": {
+      "@dcloudio/uni-h5@3.0.0-5010520260709002": "patches/@dcloudio__uni-h5@3.0.0-5010520260709002.patch"
+    },
     "auditConfig": {
       "ignoreCves": [
         "CVE-2024-6783"

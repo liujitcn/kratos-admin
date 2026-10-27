@@ -1,0 +1,20 @@
+{
+  "name": "经典示例 · 合同会签",
+  "code": "DEMO_CONTRACT_ALL",
+  "version": 1,
+  "remark": "法务和财务在同一节点会签，必须全员通过；任一驳回即终结。示例用户：1 申请人，2 法务，3 财务。",
+  "form_schema": [
+    {"key": "contract_name", "label": "合同名称", "type": "text", "required": true},
+    {"key": "amount", "label": "合同金额（元）", "type": "number", "required": true},
+    {"key": "reason", "label": "合同说明", "type": "textarea", "required": true}
+  ],
+  "node_config": {
+    "version": 2,
+    "nodes": [
+      {"id": "start", "type": "START", "x": 40, "y": 150},
+      {"id": "joint_review", "type": "TASK", "strategy": "ALL", "approvers": [{"type": "USER", "id": 2}, {"type": "USER", "id": 3}], "x": 310, "y": 150},
+      {"id": "end", "type": "END", "x": 580, "y": 150}
+    ],
+    "edges": [{"from": "start", "to": "joint_review"}, {"from": "joint_review", "to": "end"}]
+  }
+}

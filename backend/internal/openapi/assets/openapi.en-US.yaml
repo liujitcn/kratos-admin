@@ -3415,7 +3415,7 @@ paths:
         put:
             tags:
                 - BaseMessageService
-            description: Recall message.
+            description: withdraw message.
             operationId: BaseMessageService_RevokeBaseMessage
             parameters:
                 - name: id
@@ -7495,6 +7495,539 @@ paths:
                     description: OK
                     content:
                         '*/*': {}
+    /api/v1/admin/workflow/definition:
+        get:
+            tags:
+                - WorkflowDefinitionService
+            description: Query workflow definition pagination list
+            operationId: WorkflowDefinitionService_PageWorkflowDefinition
+            parameters:
+                - name: name
+                  in: query
+                  schema:
+                    type: string
+                - name: code
+                  in: query
+                  schema:
+                    type: string
+                - name: tenant_id
+                  in: query
+                  schema:
+                    type: string
+                - name: status
+                  in: query
+                  schema:
+                    enum:
+                        - WORKFLOW_DEFINITION_STATUS_UNSPECIFIED
+                        - WORKFLOW_DEFINITION_STATUS_DRAFT
+                        - WORKFLOW_DEFINITION_STATUS_ENABLED
+                        - WORKFLOW_DEFINITION_STATUS_DISABLED
+                    type: string
+                    format: enum
+                - name: page_num
+                  in: query
+                  schema:
+                    type: string
+                - name: page_size
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.PageWorkflowDefinitionResponse'
+        post:
+            tags:
+                - WorkflowDefinitionService
+            description: Create workflow definition
+            operationId: WorkflowDefinitionService_CreateWorkflowDefinition
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.WorkflowDefinitionForm'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/workflow/definition/apply-form:
+        get:
+            tags:
+                - WorkflowDefinitionService
+            description: Query enabled workflow definitionof apply form
+            operationId: WorkflowDefinitionService_GetWorkflowApplyForm
+            parameters:
+                - name: code
+                  in: query
+                  schema:
+                    type: string
+                - name: version
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.GetWorkflowApplyFormResponse'
+    /api/v1/admin/workflow/definition/option:
+        get:
+            tags:
+                - WorkflowDefinitionService
+            description: Query enabled workflow definition dropdown selection
+            operationId: WorkflowDefinitionService_OptionWorkflowDefinition
+            parameters:
+                - name: tenant_id
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/common.v1.SelectOptionResponse'
+    /api/v1/admin/workflow/definition/script:
+        get:
+            tags:
+                - WorkflowDefinitionService
+            description: List enabled restricted scripts available for workflows
+            operationId: WorkflowDefinitionService_PageWorkflowScript
+            parameters:
+                - name: name
+                  in: query
+                  schema:
+                    type: string
+                - name: hook_point
+                  in: query
+                  schema:
+                    type: string
+                - name: language
+                  in: query
+                  schema:
+                    enum:
+                        - BASE_SCRIPT_LANGUAGE_UNSPECIFIED
+                        - BASE_SCRIPT_LANGUAGE_JAVASCRIPT
+                        - BASE_SCRIPT_LANGUAGE_LUA
+                        - BASE_SCRIPT_LANGUAGE_PYTHON
+                        - BASE_SCRIPT_LANGUAGE_GO
+                        - BASE_SCRIPT_LANGUAGE_WASM
+                        - BASE_SCRIPT_LANGUAGE_CEL
+                        - BASE_SCRIPT_LANGUAGE_EXPR
+                        - BASE_SCRIPT_LANGUAGE_STARLARK
+                        - BASE_SCRIPT_LANGUAGE_TCL
+                    type: string
+                    format: enum
+                - name: status
+                  in: query
+                  schema:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    format: enum
+                - name: page_num
+                  in: query
+                  schema:
+                    type: string
+                - name: page_size
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.PageBaseScriptResponse'
+    /api/v1/admin/workflow/definition/script/test:
+        post:
+            tags:
+                - WorkflowDefinitionService
+            description: Test a saved and enabled restricted workflow script without accepting client source code
+            operationId: WorkflowDefinitionService_TestWorkflowScript
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.TestWorkflowScriptRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.TestRunBaseScriptResponse'
+    /api/v1/admin/workflow/definition/{definition.id}:
+        put:
+            tags:
+                - WorkflowDefinitionService
+            description: Update workflow definition
+            operationId: WorkflowDefinitionService_UpdateWorkflowDefinition
+            parameters:
+                - name: definition.id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.WorkflowDefinitionForm'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/workflow/definition/{id}:
+        get:
+            tags:
+                - WorkflowDefinitionService
+            description: Query workflow definition
+            operationId: WorkflowDefinitionService_GetWorkflowDefinition
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.WorkflowDefinitionForm'
+        delete:
+            tags:
+                - WorkflowDefinitionService
+            description: Delete workflow definition
+            operationId: WorkflowDefinitionService_DeleteWorkflowDefinition
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/workflow/definition/{id}/status:
+        put:
+            tags:
+                - WorkflowDefinitionService
+            description: Set workflow definition status
+            operationId: WorkflowDefinitionService_SetWorkflowDefinitionStatus
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.SetWorkflowDefinitionStatusRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/workflow/delegation:
+        get:
+            tags:
+                - WorkflowDelegationService
+            description: Query approval delegation pagination list
+            operationId: WorkflowDelegationService_PageWorkflowDelegation
+            parameters:
+                - name: delegator_user_id
+                  in: query
+                  schema:
+                    type: string
+                - name: delegate_user_id
+                  in: query
+                  schema:
+                    type: string
+                - name: tenant_id
+                  in: query
+                  schema:
+                    type: string
+                - name: page_num
+                  in: query
+                  schema:
+                    type: string
+                - name: page_size
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.PageWorkflowDelegationResponse'
+        post:
+            tags:
+                - WorkflowDelegationService
+            description: Set my approval delegation
+            operationId: WorkflowDelegationService_SetWorkflowDelegation
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.WorkflowDelegationForm'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/workflow/delegation/{id}:
+        delete:
+            tags:
+                - WorkflowDelegationService
+            description: Delete approval delegation
+            operationId: WorkflowDelegationService_DeleteWorkflowDelegation
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/workflow/instance:
+        get:
+            tags:
+                - WorkflowInstanceService
+            description: Query workflow instance pagination list
+            operationId: WorkflowInstanceService_PageWorkflowInstance
+            parameters:
+                - name: code
+                  in: query
+                  schema:
+                    type: string
+                - name: definition_id
+                  in: query
+                  schema:
+                    type: string
+                - name: applicant_user_id
+                  in: query
+                  schema:
+                    type: string
+                - name: tenant_id
+                  in: query
+                  schema:
+                    type: string
+                - name: business_type
+                  in: query
+                  schema:
+                    type: string
+                - name: status
+                  in: query
+                  schema:
+                    enum:
+                        - WORKFLOW_INSTANCE_STATUS_UNSPECIFIED
+                        - WORKFLOW_INSTANCE_STATUS_PENDING
+                        - WORKFLOW_INSTANCE_STATUS_APPROVED
+                        - WORKFLOW_INSTANCE_STATUS_REJECTED
+                        - WORKFLOW_INSTANCE_STATUS_WITHDRAWN
+                    type: string
+                    format: enum
+                - name: page_num
+                  in: query
+                  schema:
+                    type: string
+                - name: page_size
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.PageWorkflowInstanceResponse'
+        post:
+            tags:
+                - WorkflowInstanceService
+            description: submit approval application
+            operationId: WorkflowInstanceService_SubmitWorkflowInstance
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.SubmitWorkflowInstanceRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.SubmitWorkflowInstanceResponse'
+    /api/v1/admin/workflow/instance/{id}:
+        get:
+            tags:
+                - WorkflowInstanceService
+            description: Query workflow instance details
+            operationId: WorkflowInstanceService_GetWorkflowInstance
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.GetWorkflowInstanceResponse'
+    /api/v1/admin/workflow/instance/{id}/withdraw:
+        put:
+            tags:
+                - WorkflowInstanceService
+            description: withdraw approval application
+            operationId: WorkflowInstanceService_WithdrawWorkflowInstance
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.WithdrawWorkflowInstanceRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/workflow/instance/{instance_id}/script-run/{id}/retry:
+        put:
+            tags:
+                - WorkflowInstanceService
+            description: Retry a failed workflow script
+            operationId: WorkflowInstanceService_RetryWorkflowScript
+            parameters:
+                - name: instance_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.RetryWorkflowScriptRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/workflow/task/mine:
+        get:
+            tags:
+                - WorkflowTaskService
+            description: Query my approval task pagination list
+            operationId: WorkflowTaskService_PageMyWorkflowTask
+            parameters:
+                - name: list_type
+                  in: query
+                  schema:
+                    enum:
+                        - WORKFLOW_LIST_TYPE_UNSPECIFIED
+                        - WORKFLOW_LIST_TYPE_PENDING
+                        - WORKFLOW_LIST_TYPE_DONE
+                        - WORKFLOW_LIST_TYPE_SUBMITTED
+                    type: string
+                    format: enum
+                - name: keyword
+                  in: query
+                  schema:
+                    type: string
+                - name: page_num
+                  in: query
+                  schema:
+                    type: string
+                - name: page_size
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.PageMyWorkflowTaskResponse'
+    /api/v1/admin/workflow/task/{id}:
+        get:
+            tags:
+                - WorkflowTaskService
+            description: Query approval task details
+            operationId: WorkflowTaskService_GetWorkflowTask
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.GetWorkflowTaskResponse'
+    /api/v1/admin/workflow/task/{task_id}/audit:
+        put:
+            tags:
+                - WorkflowTaskService
+            description: approval task handling
+            operationId: WorkflowTaskService_AuditWorkflowTask
+            parameters:
+                - name: task_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.AuditWorkflowTaskRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
     /api/v1/app/auth/phone:
         put:
             tags:
@@ -11052,6 +11585,32 @@ components:
                     type: string
                     description: Update time
             description: AI session pagination record.
+        system.admin.v1.AuditWorkflowTaskRequest:
+            type: object
+            properties:
+                task_id:
+                    type: string
+                    description: approval task ID
+                action:
+                    enum:
+                        - WORKFLOW_AUDIT_ACTION_UNSPECIFIED
+                        - WORKFLOW_AUDIT_ACTION_APPROVE
+                        - WORKFLOW_AUDIT_ACTION_REJECT
+                        - WORKFLOW_AUDIT_ACTION_FORWARD
+                        - WORKFLOW_AUDIT_ACTION_ADD_APPROVER
+                    type: string
+                    description: audit action
+                    format: enum
+                comment:
+                    type: string
+                    description: approval comment
+                forward_to:
+                    type: string
+                    description: forward target user ID
+                additional_approver:
+                    type: string
+                    description: add-approver user ID
+            description: approval task handling request parameters
         system.admin.v1.BaseApi:
             type: object
             properties:
@@ -15775,6 +16334,58 @@ components:
                         $ref: '#/components/schemas/system.admin.v1.BaseLogTraceItem'
                     description: associated log time timeline
             description: associated audit query response.
+        system.admin.v1.GetWorkflowApplyFormResponse:
+            type: object
+            properties:
+                definition_id:
+                    type: string
+                    description: workflow definition ID
+                definition_name:
+                    type: string
+                    description: workflow name
+                form_schema:
+                    type: string
+                    description: apply form definition JSON
+            description: apply form response
+        system.admin.v1.GetWorkflowInstanceResponse:
+            type: object
+            properties:
+                instance:
+                    $ref: '#/components/schemas/system.admin.v1.WorkflowInstance'
+                logs:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.WorkflowLog'
+                    description: approval log
+                tasks:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.WorkflowTask'
+                    description: approval task
+                script_runs:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.WorkflowScriptRun'
+                    description: Script execution records
+            description: workflow instance details response
+        system.admin.v1.GetWorkflowTaskResponse:
+            type: object
+            properties:
+                task:
+                    $ref: '#/components/schemas/system.admin.v1.WorkflowTask'
+                instance:
+                    $ref: '#/components/schemas/system.admin.v1.WorkflowInstance'
+                logs:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.WorkflowLog'
+                    description: approval log
+                script_runs:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.WorkflowScriptRun'
+                    description: Script execution records
+            description: approval task details response
         system.admin.v1.ListAiProviderOptionsResponse:
             type: object
             properties:
@@ -15985,6 +16596,57 @@ components:
                     type: string
                     description: Create time
             description: MQTT message record summary.
+        system.admin.v1.MyWorkflowTaskItem:
+            type: object
+            properties:
+                task_id:
+                    type: string
+                    description: approval task ID, list typeas alreadysubmittedwhenas  0
+                instance_id:
+                    type: string
+                    description: workflow instance ID
+                definition_code:
+                    type: string
+                    description: workflow code
+                definition_name:
+                    type: string
+                    description: workflow name
+                applicant_user_id:
+                    type: string
+                    description: applicant user ID
+                applicant_name:
+                    type: string
+                    description: applicant display name
+                business_type:
+                    type: string
+                    description: business record type
+                instance_status:
+                    enum:
+                        - WORKFLOW_INSTANCE_STATUS_UNSPECIFIED
+                        - WORKFLOW_INSTANCE_STATUS_PENDING
+                        - WORKFLOW_INSTANCE_STATUS_APPROVED
+                        - WORKFLOW_INSTANCE_STATUS_REJECTED
+                        - WORKFLOW_INSTANCE_STATUS_WITHDRAWN
+                    type: string
+                    description: instance status
+                    format: enum
+                task_status:
+                    enum:
+                        - WORKFLOW_TASK_STATUS_UNSPECIFIED
+                        - WORKFLOW_TASK_STATUS_PENDING
+                        - WORKFLOW_TASK_STATUS_APPROVED
+                        - WORKFLOW_TASK_STATUS_REJECTED
+                        - WORKFLOW_TASK_STATUS_CANCELED
+                    type: string
+                    description: task status, list typeas alreadysubmittedwhenas not specified
+                    format: enum
+                submit_at:
+                    type: string
+                    description: submit time
+                task_created_at:
+                    type: string
+                    description: task arrival time
+            description: my approval task list item
         system.admin.v1.OauthClient:
             type: object
             properties:
@@ -17158,6 +17820,19 @@ components:
                     description: total count
                     format: int32
             description: MQTT message paginated response.
+        system.admin.v1.PageMyWorkflowTaskResponse:
+            type: object
+            properties:
+                items:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.MyWorkflowTaskItem'
+                    description: Paginated data
+                total:
+                    type: integer
+                    description: total count
+                    format: int32
+            description: my approval task paginated response
         system.admin.v1.PageOauthClientResponse:
             type: object
             properties:
@@ -17184,6 +17859,45 @@ components:
                     description: total count
                     format: int32
             description: online session paginated response.
+        system.admin.v1.PageWorkflowDefinitionResponse:
+            type: object
+            properties:
+                definitions:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.WorkflowDefinition'
+                    description: Paginated data
+                total:
+                    type: integer
+                    description: total count
+                    format: int32
+            description: workflow definition paginated response
+        system.admin.v1.PageWorkflowDelegationResponse:
+            type: object
+            properties:
+                delegations:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.WorkflowDelegation'
+                    description: Paginated data
+                total:
+                    type: integer
+                    description: total count
+                    format: int32
+            description: approval delegation paginated response
+        system.admin.v1.PageWorkflowInstanceResponse:
+            type: object
+            properties:
+                instances:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.WorkflowInstance'
+                    description: Paginated data
+                total:
+                    type: integer
+                    description: total count
+                    format: int32
+            description: workflow instance paginated response
         system.admin.v1.PreviewCodeGenRequest:
             type: object
             properties:
@@ -17263,6 +17977,16 @@ components:
                     type: string
                     description: delivery task ID
             description: Retry delivery task request.
+        system.admin.v1.RetryWorkflowScriptRequest:
+            type: object
+            properties:
+                instance_id:
+                    type: string
+                    description: workflow instance ID
+                id:
+                    type: string
+                    description: Script run ID
+            description: Workflow script retry request
         system.admin.v1.RevokeAllBaseSessionsRequest:
             type: object
             properties: {}
@@ -17273,7 +17997,7 @@ components:
                 id:
                     type: string
                     description: message ID
-            description: Recall message request.
+            description: withdraw message request.
         system.admin.v1.RouteItem:
             type: object
             properties:
@@ -17837,6 +18561,22 @@ components:
                     description: status
                     format: enum
             description: Set OAuth client status request.
+        system.admin.v1.SetWorkflowDefinitionStatusRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: workflow definition ID
+                status:
+                    enum:
+                        - WORKFLOW_DEFINITION_STATUS_UNSPECIFIED
+                        - WORKFLOW_DEFINITION_STATUS_DRAFT
+                        - WORKFLOW_DEFINITION_STATUS_ENABLED
+                        - WORKFLOW_DEFINITION_STATUS_DISABLED
+                    type: string
+                    description: definition status
+                    format: enum
+            description: Set workflow definition status request parameters
         system.admin.v1.StartBaseJobRequest:
             type: object
             properties:
@@ -17860,6 +18600,33 @@ components:
                     type: string
                     description: Generation task ID
             description: Start code-generation task response
+        system.admin.v1.SubmitWorkflowInstanceRequest:
+            type: object
+            properties:
+                code:
+                    type: string
+                    description: workflow code
+                version:
+                    type: integer
+                    description: workflow version
+                    format: int32
+                form_data:
+                    type: string
+                    description: apply form data JSON
+                business_type:
+                    type: string
+                    description: business record type
+                business_id:
+                    type: string
+                    description: business record ID
+            description: submit approval application request parameters
+        system.admin.v1.SubmitWorkflowInstanceResponse:
+            type: object
+            properties:
+                instance_id:
+                    type: string
+                    description: workflow instance ID
+            description: submit approval application response
         system.admin.v1.SummaryBaseUserResponse:
             type: object
             properties:
@@ -17925,6 +18692,16 @@ components:
                     type: string
                     description: durationms
             description: Script test-run response.
+        system.admin.v1.TestWorkflowScriptRequest:
+            type: object
+            properties:
+                script_id:
+                    type: string
+                    description: Saved script ID
+                context_json:
+                    type: string
+                    description: Initial context JSON, up to 200 KiB
+            description: Workflow script test parameters; only saved scripts may be referenced.
         system.admin.v1.TreeBaseAreaResponse:
             type: object
             properties:
@@ -18179,6 +18956,334 @@ components:
                     type: string
                     description: Create time
             description: user profile form
+        system.admin.v1.WithdrawWorkflowInstanceRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: workflow instance ID
+            description: withdraw approval application request parameters
+        system.admin.v1.WorkflowDefinition:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: workflow definition ID
+                tenant_id:
+                    type: string
+                    description: tenant ID
+                name:
+                    type: string
+                    description: workflow name
+                code:
+                    type: string
+                    description: workflow code
+                version:
+                    type: integer
+                    description: workflow version
+                    format: int32
+                node_config:
+                    type: string
+                    description: node graph configuration JSON
+                form_schema:
+                    type: string
+                    description: apply form definition JSON
+                status:
+                    enum:
+                        - WORKFLOW_DEFINITION_STATUS_UNSPECIFIED
+                        - WORKFLOW_DEFINITION_STATUS_DRAFT
+                        - WORKFLOW_DEFINITION_STATUS_ENABLED
+                        - WORKFLOW_DEFINITION_STATUS_DISABLED
+                    type: string
+                    description: definition status
+                    format: enum
+                remark:
+                    type: string
+                    description: Remarks
+                created_at:
+                    type: string
+                    description: Create time
+                updated_at:
+                    type: string
+                    description: Update time
+            description: workflow definition
+        system.admin.v1.WorkflowDefinitionForm:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: workflow definition ID
+                tenant_id:
+                    type: string
+                    description: tenant ID
+                name:
+                    type: string
+                    description: workflow name
+                code:
+                    type: string
+                    description: workflow code
+                version:
+                    type: integer
+                    description: workflow version
+                    format: int32
+                node_config:
+                    type: string
+                    description: node graph configuration JSON
+                form_schema:
+                    type: string
+                    description: apply form definition JSON
+                remark:
+                    type: string
+                    description: Remarks
+            description: workflow definition form
+        system.admin.v1.WorkflowDelegation:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: approval delegation ID
+                tenant_id:
+                    type: string
+                    description: tenant ID
+                delegator_user_id:
+                    type: string
+                    description: delegator user ID
+                delegator_name:
+                    type: string
+                    description: delegator display name
+                delegate_user_id:
+                    type: string
+                    description: delegate user ID
+                delegate_name:
+                    type: string
+                    description: delegate display name
+                status:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    description: status
+                    format: enum
+                remark:
+                    type: string
+                    description: Remarks
+                created_at:
+                    type: string
+                    description: Create time
+                updated_at:
+                    type: string
+                    description: Update time
+            description: approval delegation
+        system.admin.v1.WorkflowDelegationForm:
+            type: object
+            properties:
+                delegate_user_id:
+                    type: string
+                    description: delegate user ID
+                remark:
+                    type: string
+                    description: Remarks
+            description: approval delegation form
+        system.admin.v1.WorkflowInstance:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: workflow instance ID
+                tenant_id:
+                    type: string
+                    description: tenant ID
+                definition_id:
+                    type: string
+                    description: workflow definition ID
+                definition_code:
+                    type: string
+                    description: workflow code
+                definition_name:
+                    type: string
+                    description: workflow name
+                applicant_user_id:
+                    type: string
+                    description: applicant user ID
+                applicant_name:
+                    type: string
+                    description: applicant display name
+                form_data:
+                    type: string
+                    description: apply form data JSON
+                business_type:
+                    type: string
+                    description: business record type
+                business_id:
+                    type: string
+                    description: business record ID
+                node_config:
+                    type: string
+                    description: Workflow graph snapshot without script source
+                variables:
+                    type: string
+                    description: Workflow variables JSON
+                status:
+                    enum:
+                        - WORKFLOW_INSTANCE_STATUS_UNSPECIFIED
+                        - WORKFLOW_INSTANCE_STATUS_PENDING
+                        - WORKFLOW_INSTANCE_STATUS_APPROVED
+                        - WORKFLOW_INSTANCE_STATUS_REJECTED
+                        - WORKFLOW_INSTANCE_STATUS_WITHDRAWN
+                    type: string
+                    description: instance status
+                    format: enum
+                submit_at:
+                    type: string
+                    description: submit time
+                end_at:
+                    type: string
+                    description: end time
+                created_at:
+                    type: string
+                    description: Create time
+                updated_at:
+                    type: string
+                    description: Update time
+            description: workflow instance
+        system.admin.v1.WorkflowLog:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: approval log ID
+                tenant_id:
+                    type: string
+                    description: tenant ID
+                instance_id:
+                    type: string
+                    description: workflow instance ID
+                node_id:
+                    type: string
+                    description: node ID
+                task_id:
+                    type: string
+                    description: approval task ID
+                action:
+                    enum:
+                        - WORKFLOW_LOG_ACTION_UNSPECIFIED
+                        - WORKFLOW_LOG_ACTION_SUBMIT
+                        - WORKFLOW_LOG_ACTION_APPROVE
+                        - WORKFLOW_LOG_ACTION_REJECT
+                        - WORKFLOW_LOG_ACTION_FORWARD
+                        - WORKFLOW_LOG_ACTION_WITHDRAW
+                    type: string
+                    description: log action
+                    format: enum
+                operator_user_id:
+                    type: string
+                    description: operator user ID
+                operator_name:
+                    type: string
+                    description: operator display name
+                comment:
+                    type: string
+                    description: approval comment
+                created_at:
+                    type: string
+                    description: Create time
+            description: approval log
+        system.admin.v1.WorkflowScriptRun:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: Script run ID
+                instance_id:
+                    type: string
+                    description: workflow instance ID
+                node_id:
+                    type: string
+                    description: node ID
+                stage:
+                    type: string
+                    description: Execution stage
+                script_id:
+                    type: string
+                    description: Script ID
+                script_name:
+                    type: string
+                    description: Script name snapshot
+                version:
+                    type: integer
+                    description: Script version
+                    format: int32
+                status:
+                    type: string
+                    description: "Execute status: PENDING/RUNNING/SUCCEEDED/FAILED/CANCELED"
+                attempts:
+                    type: integer
+                    description: attempt count
+                    format: int32
+                input_json:
+                    type: string
+                    description: input JSON
+                output_json:
+                    type: string
+                    description: output JSON
+                last_error:
+                    type: string
+                    description: latest error
+                duration_ms:
+                    type: string
+                    description: durationms
+                next_retry_at:
+                    type: string
+                    description: Next retry time
+                created_at:
+                    type: string
+                    description: Create time
+                updated_at:
+                    type: string
+                    description: Update time
+            description: Workflow script execution record
+        system.admin.v1.WorkflowTask:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: approval task ID
+                tenant_id:
+                    type: string
+                    description: tenant ID
+                instance_id:
+                    type: string
+                    description: workflow instance ID
+                node_id:
+                    type: string
+                    description: node ID
+                assignee_user_id:
+                    type: string
+                    description: assignee user ID
+                assignee_name:
+                    type: string
+                    description: assignee display name
+                status:
+                    enum:
+                        - WORKFLOW_TASK_STATUS_UNSPECIFIED
+                        - WORKFLOW_TASK_STATUS_PENDING
+                        - WORKFLOW_TASK_STATUS_APPROVED
+                        - WORKFLOW_TASK_STATUS_REJECTED
+                        - WORKFLOW_TASK_STATUS_CANCELED
+                    type: string
+                    description: task status
+                    format: enum
+                comment:
+                    type: string
+                    description: approval comment
+                created_at:
+                    type: string
+                    description: Create time
+                updated_at:
+                    type: string
+                    description: Update time
+            description: approval task
         system.app.v1.BaseDictForm:
             type: object
             properties:
@@ -18372,9 +19477,9 @@ tags:
     - name: BaseDictItemService
       description: admin dictionary item service
     - name: BaseDictService
-      description: admin dictionary service
-    - name: BaseDictService
       description: app dictionary service
+    - name: BaseDictService
+      description: admin dictionary service
     - name: BaseFileService
       description: admin file asset management service.
     - name: BaseI18nCustomService
@@ -18482,9 +19587,9 @@ tags:
     - name: NotificationService
       description: Base notification service for the current user's inbox.
     - name: OauthClientService
-      description: Admin OAuth client management service.
-    - name: OauthClientService
       description: Base OAuth client token service.
+    - name: OauthClientService
+      description: Admin OAuth client management service.
     - name: OauthService
       description: base third-party login shared service
     - name: OpsMonitoringService
@@ -18495,3 +19600,11 @@ tags:
       description: sensitive field encryption shared service
     - name: SseService
       description: Base sse service
+    - name: WorkflowDefinitionService
+      description: admin workflow workflow definition service
+    - name: WorkflowDelegationService
+      description: admin workflow approval delegation service
+    - name: WorkflowInstanceService
+      description: admin workflow workflow instance service
+    - name: WorkflowTaskService
+      description: admin workflow approval task service

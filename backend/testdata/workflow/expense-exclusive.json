@@ -1,0 +1,28 @@
+{
+  "name": "经典示例 · 报销金额分支",
+  "code": "DEMO_EXPENSE_EXCLUSIVE",
+  "version": 1,
+  "remark": "主管通过后，金额大于 1000 元增加财务审批；1000 元及以下直接结束。示例用户：1 申请人，2 主管，3 财务。",
+  "form_schema": [
+    {"key": "category", "label": "报销类型", "type": "select", "required": true, "options": "差旅,办公,招待"},
+    {"key": "amount", "label": "报销金额（元）", "type": "number", "required": true},
+    {"key": "reason", "label": "报销说明", "type": "textarea", "required": true}
+  ],
+  "node_config": {
+    "version": 2,
+    "nodes": [
+      {"id": "start", "type": "START", "x": 20, "y": 170},
+      {"id": "supervisor", "type": "TASK", "strategy": "ALL", "approvers": [{"type": "USER", "id": 2}], "x": 220, "y": 170},
+      {"id": "amount_check", "type": "EXCLUSIVE_GATEWAY", "x": 420, "y": 170},
+      {"id": "finance", "type": "TASK", "strategy": "ALL", "approvers": [{"type": "USER", "id": 3}], "x": 620, "y": 50},
+      {"id": "end", "type": "END", "x": 840, "y": 170}
+    ],
+    "edges": [
+      {"from": "start", "to": "supervisor"},
+      {"from": "supervisor", "to": "amount_check"},
+      {"from": "amount_check", "to": "finance", "condition": "amount > 1000"},
+      {"from": "amount_check", "to": "end", "condition": "default"},
+      {"from": "finance", "to": "end"}
+    ]
+  }
+}

@@ -16,11 +16,13 @@ var ProviderSet = wire.NewSet(
 	admin.NewBaseLogFallbackTask,
 	admin.NewTableBackupTask,
 	admin.NewMqttMessageRetentionTask,
+	admin.NewWorkflowTimeoutTask,
+	admin.NewWorkflowScriptRetryTask,
 	NewTask,
 )
 
 // NewTask 收集 Backend 全部任务执行器。
-func NewTask(baseI18nTask *admin.BaseI18nTask, messageDispatchTask *admin.MessageDispatchTask, tableArchiveTask *admin.TableArchiveTask, baseLogFallbackTask *admin.BaseLogFallbackTask, tableBackupTask *admin.TableBackupTask, mqttMessageRetentionTask *admin.MqttMessageRetentionTask) job.Tasks {
+func NewTask(baseI18nTask *admin.BaseI18nTask, messageDispatchTask *admin.MessageDispatchTask, tableArchiveTask *admin.TableArchiveTask, baseLogFallbackTask *admin.BaseLogFallbackTask, tableBackupTask *admin.TableBackupTask, mqttMessageRetentionTask *admin.MqttMessageRetentionTask, workflowTimeoutTask *admin.WorkflowTimeoutTask, workflowScriptRetryTask *admin.WorkflowScriptRetryTask) job.Tasks {
 	return job.Tasks{
 		{
 			Name: admin.BaseI18nTaskName,
@@ -45,6 +47,14 @@ func NewTask(baseI18nTask *admin.BaseI18nTask, messageDispatchTask *admin.Messag
 		{
 			Name: admin.MqttMessageRetentionTaskName,
 			Exec: mqttMessageRetentionTask,
+		},
+		{
+			Name: admin.WorkflowTimeoutTaskName,
+			Exec: workflowTimeoutTask,
+		},
+		{
+			Name: admin.WorkflowScriptRetryTaskName,
+			Exec: workflowScriptRetryTask,
 		},
 	}
 }

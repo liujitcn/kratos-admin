@@ -1,0 +1,70 @@
+{
+  "name": "脚本报销闭环",
+  "code": "DEMO_SCRIPT_EXPENSE",
+  "version": 1,
+  "form_schema": [
+    {
+      "key": "amount",
+      "label": "报销金额",
+      "type": "number",
+      "required": true
+    }
+  ],
+  "node_config": {
+    "version": 2,
+    "hooks": {
+      "before_submit": 101,
+      "approved": 104,
+      "rejected": 105,
+      "withdrawn": 105
+    },
+    "nodes": [
+      {
+        "id": "start",
+        "type": "START"
+      },
+      {
+        "id": "calc",
+        "type": "SCRIPT",
+        "script_id": 102
+      },
+      {
+        "id": "gate",
+        "type": "EXCLUSIVE_GATEWAY"
+      },
+      {
+        "id": "finance",
+        "type": "TASK",
+        "approver_script_id": 103
+      },
+      {
+        "id": "end",
+        "type": "END"
+      }
+    ],
+    "edges": [
+      {
+        "from": "start",
+        "to": "calc"
+      },
+      {
+        "from": "calc",
+        "to": "gate"
+      },
+      {
+        "from": "gate",
+        "to": "finance",
+        "condition": "variables.total > 1000"
+      },
+      {
+        "from": "gate",
+        "to": "end",
+        "condition": "default"
+      },
+      {
+        "from": "finance",
+        "to": "end"
+      }
+    ]
+  }
+}

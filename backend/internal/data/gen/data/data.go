@@ -80,6 +80,14 @@ func Models() []interface{} {
 		new(models.CodeGenTable),
 		new(models.MqttMessage),
 		new(models.OauthClient),
+		new(models.WorkflowDefinition),
+		new(models.WorkflowDelegation),
+		new(models.WorkflowInstance),
+		new(models.WorkflowJoin),
+		new(models.WorkflowLog),
+		new(models.WorkflowParentLink),
+		new(models.WorkflowScriptRun),
+		new(models.WorkflowTask),
 	}
 }
 

@@ -240,7 +240,7 @@ func NewApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 		return nil, nil, err
 	}
 	sseSSE, cleanup7 := sse.NewSSE(authenticator, userToken, sseRegistry, sseServer)
-	adminTasks, cleanup8, err := backend.NewTasks(v2, baseCase, sseSSE)
+	adminTasks, cleanup8, err := backend.NewTasks(v2, baseCase, i18nI18n, sseSSE)
 	if err != nil {
 		cleanup7()
 		cleanup6()

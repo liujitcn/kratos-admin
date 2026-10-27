@@ -371,6 +371,30 @@ INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('b
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91013002, 'ja-JP', 'カスタム翻訳を削除') ON CONFLICT DO NOTHING;
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91013003, 'ja-JP', 'カスタム翻訳を編集') ON CONFLICT DO NOTHING;
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91013004, 'ja-JP', 'カスタム翻訳の状態を変更') ON CONFLICT DO NOTHING;
+INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91020000, 'ja-JP', 'APIレート制限') ON CONFLICT DO NOTHING;
+INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91020100, 'ja-JP', 'レート制限ルール') ON CONFLICT DO NOTHING;
+INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91020101, 'ja-JP', 'レート制限ルールを作成') ON CONFLICT DO NOTHING;
+INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91020105, 'ja-JP', 'レート制限ルールを削除') ON CONFLICT DO NOTHING;
+INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91020110, 'ja-JP', 'レート制限ルールを編集') ON CONFLICT DO NOTHING;
+INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91020115, 'ja-JP', 'レート制限ルールの状態を変更') ON CONFLICT DO NOTHING;
+INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91020500, 'ja-JP', 'レート制限ポリシー') ON CONFLICT DO NOTHING;
+INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91020501, 'ja-JP', 'レート制限ポリシーを作成') ON CONFLICT DO NOTHING;
+INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91020505, 'ja-JP', 'レート制限ポリシーを削除') ON CONFLICT DO NOTHING;
+INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91020510, 'ja-JP', 'レート制限ポリシーを編集') ON CONFLICT DO NOTHING;
+INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91020515, 'ja-JP', 'レート制限ポリシーの状態を変更') ON CONFLICT DO NOTHING;
+INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91030000, 'ja-JP', 'OA承認') ON CONFLICT DO NOTHING;
+INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91030100, 'ja-JP', '承認センター') ON CONFLICT DO NOTHING;
+INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91030101, 'ja-JP', '申請を提出') ON CONFLICT DO NOTHING;
+INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91030102, 'ja-JP', '承認タスク処理') ON CONFLICT DO NOTHING;
+INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91030103, 'ja-JP', '申請を取下げ') ON CONFLICT DO NOTHING;
+INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91030500, 'ja-JP', 'ワークフロー定義') ON CONFLICT DO NOTHING;
+INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91030501, 'ja-JP', '定義を追加') ON CONFLICT DO NOTHING;
+INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91030502, 'ja-JP', '定義を編集') ON CONFLICT DO NOTHING;
+INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91030503, 'ja-JP', '定義を削除') ON CONFLICT DO NOTHING;
+INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91030504, 'ja-JP', '定義状態を変更') ON CONFLICT DO NOTHING;
+INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91031000, 'ja-JP', '承認委任') ON CONFLICT DO NOTHING;
+INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91031001, 'ja-JP', '委任を設定') ON CONFLICT DO NOTHING;
+INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91031002, 'ja-JP', '委任を削除') ON CONFLICT DO NOTHING;
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91050000, 'ja-JP', '権限管理') ON CONFLICT DO NOTHING;
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91050100, 'ja-JP', 'メニュー管理') ON CONFLICT DO NOTHING;
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91050101, 'ja-JP', '新メニュー') ON CONFLICT DO NOTHING;
@@ -388,17 +412,6 @@ INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('b
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91051003, 'ja-JP', '認可アプリケーションクライアントを削除') ON CONFLICT DO NOTHING;
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91051004, 'ja-JP', 'クライアント資格情報をコピーします') ON CONFLICT DO NOTHING;
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91051005, 'ja-JP', '認可アプリケーションクライアントの状態を変更') ON CONFLICT DO NOTHING;
-INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91020000, 'ja-JP', 'APIレート制限') ON CONFLICT DO NOTHING;
-INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91020100, 'ja-JP', 'レート制限ルール') ON CONFLICT DO NOTHING;
-INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91020101, 'ja-JP', 'レート制限ルールを作成') ON CONFLICT DO NOTHING;
-INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91020105, 'ja-JP', 'レート制限ルールを削除') ON CONFLICT DO NOTHING;
-INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91020110, 'ja-JP', 'レート制限ルールを編集') ON CONFLICT DO NOTHING;
-INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91020115, 'ja-JP', 'レート制限ルールの状態を変更') ON CONFLICT DO NOTHING;
-INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91020500, 'ja-JP', 'レート制限ポリシー') ON CONFLICT DO NOTHING;
-INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91020501, 'ja-JP', 'レート制限ポリシーを作成') ON CONFLICT DO NOTHING;
-INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91020505, 'ja-JP', 'レート制限ポリシーを削除') ON CONFLICT DO NOTHING;
-INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91020510, 'ja-JP', 'レート制限ポリシーを編集') ON CONFLICT DO NOTHING;
-INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91020515, 'ja-JP', 'レート制限ポリシーの状態を変更') ON CONFLICT DO NOTHING;
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91100000, 'ja-JP', 'ログイン管理') ON CONFLICT DO NOTHING;
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91100100, 'ja-JP', 'ログインポリシー') ON CONFLICT DO NOTHING;
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91100101, 'ja-JP', 'ログインポリシーを追加') ON CONFLICT DO NOTHING;
@@ -540,6 +553,8 @@ INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('b
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_job.name', 1003, 'ja-JP', 'データテーブルバックアップタスク') ON CONFLICT DO NOTHING;
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_job.name', 1004, 'ja-JP', 'ログ ウェアハウスのロールバック タスク') ON CONFLICT DO NOTHING;
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_job.name', 1005, 'ja-JP', 'MQTT メッセージ保持クリーンアップ') ON CONFLICT DO NOTHING;
+INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_job.name', 1006, 'ja-JP', 'ワークフロー時間超過催促') ON CONFLICT DO NOTHING;
+INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_job.name', 1007, 'ja-JP', 'ワークフロースクリプト復旧') ON CONFLICT DO NOTHING;
 
 -- OAuth 登录方式名称翻译。
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_oauth_provider.name', 1, 'ja-JP', 'DingTalk') ON CONFLICT DO NOTHING;

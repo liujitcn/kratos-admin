@@ -42,7 +42,7 @@
 
 - Go `1.27.0`。
 - Node.js `^20.19.0` 或 `>=22.12.0`。
-- pnpm 版本依各 workspace 的 `packageManager` 為準：管理後台 `10.33.4`，uni-app 與 Taro 應用端 `10.13.1`。
+- pnpm 版本依各 workspace 的 `packageManager` 為準：管理後台、uni-app 與 Taro 應用端皆為 `10.33.4`。
 - MySQL、Consul 與 Vault；Redis 與佇列可按需啟用，未配置時單一實例使用進程內實作。用途與設定入口見下方說明。
 - Docker 部署需要可用的 Docker CLI 與 Docker daemon。
 - 啟用 TOTP 綁定時，`mfa.encryption_key` 有明確值則使用該值，留空時由執行時金鑰服務派生；啟用 WebAuthn 時還需設定 `mfa.webauthn.rp_id` 與 `mfa.webauthn.rp_origins`。設定檔中的敏感值應使用 `ENC[...]` 儲存。

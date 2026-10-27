@@ -49,7 +49,7 @@
     <ProDialog
       ref="contentDialogRef"
       v-model="content.visible"
-      :title="content.data?.base_message?.title || t('system.base.message.content.title')"
+      :title="resolvePersistedMessage(content.data?.base_message?.title) || t('system.base.message.content.title')"
       width="760px"
       destroy-on-close
       :show-footer="false"
@@ -63,9 +63,9 @@
         <RichTextPreview
           v-if="content.data.form?.content_format === MessageContentFormat.MESSAGE_CONTENT_FORMAT_RICH_TEXT"
           class="message-content-body"
-          :model-value="content.data.form?.content ?? ''"
+          :model-value="resolvePersistedMessage(content.data.form?.content ?? '')"
         />
-        <pre v-else class="message-content-body">{{ content.data.form?.content ?? "" }}</pre>
+        <pre v-else class="message-content-body">{{ resolvePersistedMessage(content.data.form?.content) }}</pre>
       </template>
     </ProDialog>
     <ProDialog
@@ -78,7 +78,7 @@
       <template v-if="detail.data">
         <el-descriptions :column="2" border>
           <el-descriptions-item :label="t('system.base.message.field.title')">{{
-            detail.data.base_message?.title
+            resolvePersistedMessage(detail.data.base_message?.title)
           }}</el-descriptions-item>
           <el-descriptions-item :label="t('system.base.message.field.category')">{{
             detail.data.base_message?.category_name
@@ -397,7 +397,7 @@ const columns = computed<ColumnProps[]>(() => [
         "a",
         {
           href: "#",
-          title: row.title,
+          title: resolvePersistedMessage(row.title),
           style: {
             display: "block",
             maxWidth: "100%",
@@ -412,7 +412,7 @@ const columns = computed<ColumnProps[]>(() => [
             void openContent(row.id);
           }
         },
-        row.title
+        resolvePersistedMessage(row.title)
       );
     }
   },

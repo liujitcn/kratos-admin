@@ -1,0 +1,103 @@
+syntax = "proto3";
+
+package system.admin.v1;
+
+import "common/v1/common.proto";
+import "common/v1/enum.proto";
+import "buf/validate/validate.proto";
+import "gnostic/openapi/v3/annotations.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+
+// Admin工作流审批委托服务
+service WorkflowDelegationService {
+  // 查询审批委托分页列表
+  rpc PageWorkflowDelegation(PageWorkflowDelegationRequest) returns (PageWorkflowDelegationResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/admin/workflow/delegation"
+    };
+  }
+
+  // 设置我的审批委托
+  rpc SetWorkflowDelegation(SetWorkflowDelegationRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/api/v1/admin/workflow/delegation"
+      body: "delegation"
+    };
+  }
+
+  // 删除审批委托
+  rpc DeleteWorkflowDelegation(DeleteWorkflowDelegationRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/api/v1/admin/workflow/delegation/{id}"
+    };
+  }
+}
+
+// 审批委托分页查询条件
+message PageWorkflowDelegationRequest {
+  int64 delegator_user_id = 2 [(gnostic.openapi.v3.property) = {description: "委托人用户ID"}]; // 委托人用户ID
+
+  int64 delegate_user_id = 3 [(gnostic.openapi.v3.property) = {description: "被委托人用户ID"}]; // 被委托人用户ID
+
+  optional int64 tenant_id = 4 [(gnostic.openapi.v3.property) = {description: "租户ID"}]; // 租户ID
+
+  int64 page_num = 101 [(gnostic.openapi.v3.property) = {
+    description: "当前页码"
+    default: {number: 1}
+  },
+    (buf.validate.field).int64 = {gte: 1, lte: 1000000}]; // 当前页码
+
+  int64 page_size = 102 [(gnostic.openapi.v3.property) = {
+    description: "每一页的行数"
+    default: {number: 10}
+  },
+    (buf.validate.field).int64 = {gte: 1, lte: 100}]; // 每一页的行数
+}
+
+// 审批委托分页响应
+message PageWorkflowDelegationResponse {
+  repeated WorkflowDelegation delegations = 1 [(gnostic.openapi.v3.property) = {description: "分页数据"}]; // 分页数据
+
+  int32 total = 2 [(gnostic.openapi.v3.property) = {description: "总数"}]; // 总数
+}
+
+// 审批委托表单
+message WorkflowDelegationForm {
+  int64 delegate_user_id = 1 [(gnostic.openapi.v3.property) = {description: "被委托人用户ID"}, (buf.validate.field).cel = {id: "system.admin.workflow.delegation.entity.delegate_user_id.required" message: "请选择被委托人" expression: "this > 0"}]; // 被委托人用户ID
+
+  string remark = 101 [(gnostic.openapi.v3.property) = {description: "备注"}, (buf.validate.field).cel = {id: "system.admin.workflow.delegation.entity.remark.max_length" message: "备注不能超过 500 个字符" expression: "this.size() <= 500"}]; // 备注
+}
+
+// 设置审批委托请求参数
+message SetWorkflowDelegationRequest {
+  WorkflowDelegationForm delegation = 1 [(gnostic.openapi.v3.property) = {description: "审批委托表单"}, (buf.validate.field).required = true]; // 审批委托表单
+}
+
+// 删除审批委托请求参数
+message DeleteWorkflowDelegationRequest {
+  string id = 1 [(gnostic.openapi.v3.property) = {description: "审批委托ID列表"}, (buf.validate.field).cel = {id: "system.admin.workflow.delegation.delete.id.required" message: "审批委托ID列表不能为空" expression: "this.size() > 0"}]; // 审批委托ID列表
+}
+
+// 审批委托
+message WorkflowDelegation {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "审批委托ID"}]; // 审批委托ID
+
+  int64 tenant_id = 2 [(gnostic.openapi.v3.property) = {description: "租户ID"}]; // 租户ID
+
+  int64 delegator_user_id = 3 [(gnostic.openapi.v3.property) = {description: "委托人用户ID"}]; // 委托人用户ID
+
+  string delegator_name = 4 [(gnostic.openapi.v3.property) = {description: "委托人昵称"}]; // 委托人昵称
+
+  int64 delegate_user_id = 5 [(gnostic.openapi.v3.property) = {description: "被委托人用户ID"}]; // 被委托人用户ID
+
+  string delegate_name = 6 [(gnostic.openapi.v3.property) = {description: "被委托人昵称"}]; // 被委托人昵称
+
+  .common.v1.Status status = 100 [(gnostic.openapi.v3.property) = {description: "状态"}]; // 状态
+
+  string remark = 101 [(gnostic.openapi.v3.property) = {description: "备注"}]; // 备注
+
+  string created_at = 200 [(gnostic.openapi.v3.property) = {description: "创建时间"}]; // 创建时间
+
+  string updated_at = 201 [(gnostic.openapi.v3.property) = {description: "更新时间"}]; // 更新时间
+}

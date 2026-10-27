@@ -1,0 +1,20 @@
+{
+  "name": "经典示例 · 值班或签",
+  "code": "DEMO_DUTY_ANY",
+  "version": 1,
+  "remark": "两位值班负责人任一通过即可，其余待办自动取消；任一先驳回则整单驳回。示例用户：1 申请人，2/3 值班负责人。",
+  "form_schema": [
+    {"key": "duty_date", "label": "值班日期", "type": "date", "required": true},
+    {"key": "shift", "label": "班次", "type": "select", "required": true, "options": "白班,晚班"},
+    {"key": "reason", "label": "调班事由", "type": "textarea", "required": true}
+  ],
+  "node_config": {
+    "version": 2,
+    "nodes": [
+      {"id": "start", "type": "START", "x": 40, "y": 150},
+      {"id": "duty_review", "type": "TASK", "strategy": "ANY", "approvers": [{"type": "USER", "id": 2}, {"type": "USER", "id": 3}], "x": 310, "y": 150},
+      {"id": "end", "type": "END", "x": 580, "y": 150}
+    ],
+    "edges": [{"from": "start", "to": "duty_review"}, {"from": "duty_review", "to": "end"}]
+  }
+}

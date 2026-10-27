@@ -35,6 +35,7 @@ import (
 	admin4 "github.com/liujitcn/kratos-admin/backend/internal/task/system/admin"
 	"github.com/liujitcn/kratos-admin/backend/pkg/projectaccess"
 	"github.com/liujitcn/kratos-admin/backend/pkg/scripting"
+	"github.com/liujitcn/kratos-admin/backend/pkg/workflow"
 	"github.com/liujitcn/kratos-core/biz"
 	"github.com/liujitcn/kratos-core/job"
 	"github.com/liujitcn/kratos-core/module"
@@ -105,7 +106,8 @@ func BuildModules(migrations *migration.Migration, config2 *configv1.Bootstrap, 
 	baseUserMFATotpRepository := data2.NewBaseUserMFATotpRepository(dataData)
 	baseUserMFARecoveryRepository := data2.NewBaseUserMFARecoveryRepository(dataData)
 	baseUserMFAWebauthnRepository := data2.NewBaseUserMFAWebauthnRepository(dataData)
-	baseTenantCase := biz3.NewBaseTenantCase(baseCase, transaction, baseTenantRepository, baseDeptRepository, baseRoleRepository, baseUserRepository, baseMessageRepository, baseMessageDispatchRepository, baseMessageDeliveryRepository, oauthClientRepository, baseFileRepository, baseThirdAccountRepository, baseUserMFARepository, baseUserMFATotpRepository, baseUserMFARecoveryRepository, baseUserMFAWebauthnRepository, userToken, casbinRuleRepository, casbinRuleCase, catalog)
+	eventRegistry := workflow.DefaultEventRegistry()
+	baseTenantCase := biz3.NewBaseTenantCase(baseCase, transaction, baseTenantRepository, baseDeptRepository, baseRoleRepository, baseUserRepository, baseMessageRepository, baseMessageDispatchRepository, baseMessageDeliveryRepository, oauthClientRepository, baseFileRepository, baseThirdAccountRepository, baseUserMFARepository, baseUserMFATotpRepository, baseUserMFARecoveryRepository, baseUserMFAWebauthnRepository, userToken, casbinRuleRepository, casbinRuleCase, catalog, eventRegistry)
 	fileCase := biz2.NewFileCase(baseCase, baseFileRepository)
 	authCase := biz3.NewAuthCase(baseCase, bizBaseUserCase, baseRoleCase, baseDeptCase, baseTenantCase, baseMenuCase, fileCase)
 	authService := admin.NewAuthService(authCase)
@@ -200,10 +202,25 @@ func BuildModules(migrations *migration.Migration, config2 *configv1.Bootstrap, 
 	baseOauthProviderService := admin.NewBaseOauthProviderService(baseOauthProviderCase)
 	basePostCase := biz3.NewBasePostCase(baseCase, transaction, basePostRepository, baseUserRepository)
 	basePostService := admin.NewBasePostService(basePostCase)
+	workflowDefinitionRepository := data2.NewWorkflowDefinitionRepository(dataData)
+	workflowInstanceRepository := data2.NewWorkflowInstanceRepository(dataData)
+	workflowDefinitionCase := biz3.NewWorkflowDefinitionCase(baseCase, transaction, workflowDefinitionRepository, workflowInstanceRepository, baseScriptRepository, baseScriptCase)
+	workflowDefinitionService := admin.NewWorkflowDefinitionService(workflowDefinitionCase)
+	workflowTaskRepository := data2.NewWorkflowTaskRepository(dataData)
+	workflowLogRepository := data2.NewWorkflowLogRepository(dataData)
+	workflowJoinRepository := data2.NewWorkflowJoinRepository(dataData)
+	workflowDelegationRepository := data2.NewWorkflowDelegationRepository(dataData)
+	workflowScriptRunRepository := data2.NewWorkflowScriptRunRepository(dataData)
+	workflowInstanceCase := biz3.NewWorkflowInstanceCase(baseCase, catalog, transaction, workflowInstanceRepository, workflowDefinitionRepository, workflowTaskRepository, workflowLogRepository, workflowJoinRepository, workflowDelegationRepository, baseUserRepository, eventRegistry, workflowScriptRunRepository, baseScriptLogRepository, runtime)
+	workflowInstanceService := admin.NewWorkflowInstanceService(workflowInstanceCase)
+	workflowTaskCase := biz3.NewWorkflowTaskCase(baseCase, workflowTaskRepository, workflowInstanceCase, workflowInstanceRepository, workflowDefinitionRepository, baseUserRepository)
+	workflowTaskService := admin.NewWorkflowTaskService(workflowTaskCase)
+	workflowDelegationCase := biz3.NewWorkflowDelegationCase(baseCase, transaction, workflowDelegationRepository, baseUserRepository)
+	workflowDelegationService := admin.NewWorkflowDelegationService(workflowDelegationCase)
 	baseTenantProjectGrantRepository := data2.NewBaseTenantProjectGrantRepository(dataData)
 	baseTenantProjectGrantCase := biz3.NewBaseTenantProjectGrantCase(baseCase, transaction, baseTenantProjectGrantRepository)
 	baseTenantProjectRepository := data2.NewBaseTenantProjectRepository(dataData)
-	baseTenantProjectCase := biz3.NewBaseTenantProjectCase(lifecycle, baseCase, baseTenantProjectGrantCase, transaction, baseTenantProjectRepository, catalog)
+	baseTenantProjectCase := biz3.NewBaseTenantProjectCase(lifecycle, baseCase, baseTenantProjectGrantCase, transaction, baseTenantProjectRepository, catalog, eventRegistry)
 	baseTenantProjectService := admin.NewBaseTenantProjectService(baseTenantProjectCase)
 	baseTenantProjectGrantService := admin.NewBaseTenantProjectGrantService(baseTenantProjectGrantCase)
 	baseRoleService := admin.NewBaseRoleService(baseRoleCase)
@@ -330,6 +347,10 @@ func BuildModules(migrations *migration.Migration, config2 *configv1.Bootstrap, 
 		BaseMessageTemplate:     baseMessageTemplateService,
 		BaseOauthProvider:       baseOauthProviderService,
 		BasePost:                basePostService,
+		WorkflowDefinition:      workflowDefinitionService,
+		WorkflowInstance:        workflowInstanceService,
+		WorkflowTask:            workflowTaskService,
+		WorkflowDelegation:      workflowDelegationService,
 		BaseTenantProject:       baseTenantProjectService,
 		BaseTenantProjectGrant:  baseTenantProjectGrantService,
 		BaseRole:                baseRoleService,
@@ -497,6 +518,10 @@ func BuildModules(migrations *migration.Migration, config2 *configv1.Bootstrap, 
 		BaseMessageTemplate:     baseMessageTemplateService,
 		BaseOauthProvider:       baseOauthProviderService,
 		BasePost:                basePostService,
+		WorkflowDefinition:      workflowDefinitionService,
+		WorkflowInstance:        workflowInstanceService,
+		WorkflowTask:            workflowTaskService,
+		WorkflowDelegation:      workflowDelegationService,
 		BaseTenantProject:       baseTenantProjectService,
 		BaseTenantProjectGrant:  baseTenantProjectGrantService,
 		BaseRole:                baseRoleService,
@@ -563,7 +588,7 @@ func BuildModules(migrations *migration.Migration, config2 *configv1.Bootstrap, 
 }
 
 // BuildTasks 通过最小依赖集合装配 Admin 定时任务。
-func BuildTasks(databases map[string]*gorm.Client, baseCase *biz.BaseCase, sseRuntime *sse.SSE) (job.Tasks, func(), error) {
+func BuildTasks(databases map[string]*gorm.Client, baseCase *biz.BaseCase, catalog *i18n.I18n, sseRuntime *sse.SSE) (job.Tasks, func(), error) {
 	dataData, err := data2.NewData(databases)
 	if err != nil {
 		return nil, nil, err
@@ -610,7 +635,20 @@ func BuildTasks(databases map[string]*gorm.Client, baseCase *biz.BaseCase, sseRu
 	tableBackupTask := admin4.NewTableBackupTask(baseCase, baseTableBackupRepository, baseTableBackupRecordRepository)
 	mqttMessageRepository := data2.NewMqttMessageRepository(dataData)
 	mqttMessageRetentionTask := admin4.NewMqttMessageRetentionTask(mqttMessageRepository)
-	tasks := task.NewTask(baseI18nTask, messageDispatchTask, tableArchiveTask, baseLogFallbackTask, tableBackupTask, mqttMessageRetentionTask)
+	workflowInstanceRepository := data2.NewWorkflowInstanceRepository(dataData)
+	workflowDefinitionRepository := data2.NewWorkflowDefinitionRepository(dataData)
+	workflowTaskRepository := data2.NewWorkflowTaskRepository(dataData)
+	workflowLogRepository := data2.NewWorkflowLogRepository(dataData)
+	workflowJoinRepository := data2.NewWorkflowJoinRepository(dataData)
+	workflowDelegationRepository := data2.NewWorkflowDelegationRepository(dataData)
+	eventRegistry := workflow.DefaultEventRegistry()
+	workflowScriptRunRepository := data2.NewWorkflowScriptRunRepository(dataData)
+	baseScriptLogRepository := data2.NewBaseScriptLogRepository(dataData)
+	runtime := scripting.NewRuntime()
+	workflowInstanceCase := biz3.NewWorkflowInstanceCase(baseCase, catalog, transaction, workflowInstanceRepository, workflowDefinitionRepository, workflowTaskRepository, workflowLogRepository, workflowJoinRepository, workflowDelegationRepository, baseUserRepository, eventRegistry, workflowScriptRunRepository, baseScriptLogRepository, runtime)
+	workflowTimeoutTask := admin4.NewWorkflowTimeoutTask(workflowInstanceCase)
+	workflowScriptRetryTask := admin4.NewWorkflowScriptRetryTask(workflowInstanceCase)
+	tasks := task.NewTask(baseI18nTask, messageDispatchTask, tableArchiveTask, baseLogFallbackTask, tableBackupTask, mqttMessageRetentionTask, workflowTimeoutTask, workflowScriptRetryTask)
 	return tasks, func() {
 	}, nil
 }

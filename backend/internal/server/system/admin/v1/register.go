@@ -66,6 +66,10 @@ type Services struct {
 	BaseMessageTemplate     *admin.BaseMessageTemplateService
 	BaseOauthProvider       *admin.BaseOauthProviderService
 	BasePost                *admin.BasePostService
+	WorkflowDefinition      *admin.WorkflowDefinitionService
+	WorkflowInstance        *admin.WorkflowInstanceService
+	WorkflowTask            *admin.WorkflowTaskService
+	WorkflowDelegation      *admin.WorkflowDelegationService
 	BaseTenantProject       *admin.BaseTenantProjectService
 	BaseTenantProjectGrant  *admin.BaseTenantProjectGrantService
 	BaseRole                *admin.BaseRoleService
@@ -136,6 +140,10 @@ func (s Services) RegisterGRPC(srv grpc.ServiceRegistrar) {
 	adminv1.RegisterBaseMessageTemplateServiceServer(srv, adminv1.RedactedBaseMessageTemplateServiceServer(s.BaseMessageTemplate))
 	adminv1.RegisterBaseOauthProviderServiceServer(srv, adminv1.RedactedBaseOauthProviderServiceServer(s.BaseOauthProvider))
 	adminv1.RegisterBasePostServiceServer(srv, adminv1.RedactedBasePostServiceServer(s.BasePost))
+	adminv1.RegisterWorkflowDefinitionServiceServer(srv, adminv1.RedactedWorkflowDefinitionServiceServer(s.WorkflowDefinition))
+	adminv1.RegisterWorkflowInstanceServiceServer(srv, adminv1.RedactedWorkflowInstanceServiceServer(s.WorkflowInstance))
+	adminv1.RegisterWorkflowTaskServiceServer(srv, adminv1.RedactedWorkflowTaskServiceServer(s.WorkflowTask))
+	adminv1.RegisterWorkflowDelegationServiceServer(srv, adminv1.RedactedWorkflowDelegationServiceServer(s.WorkflowDelegation))
 	adminv1.RegisterBaseTenantProjectServiceServer(srv, adminv1.RedactedBaseTenantProjectServiceServer(s.BaseTenantProject))
 	adminv1.RegisterBaseTenantProjectGrantServiceServer(srv, adminv1.RedactedBaseTenantProjectGrantServiceServer(s.BaseTenantProjectGrant))
 	adminv1.RegisterBaseRoleServiceServer(srv, adminv1.RedactedBaseRoleServiceServer(s.BaseRole))
@@ -207,6 +215,10 @@ func (s Services) RegisterHTTP(srv *http.Server) {
 	adminv1.RegisterBaseMessageTemplateServiceHTTPServer(srv, adminv1.RedactedBaseMessageTemplateServiceServer(s.BaseMessageTemplate))
 	adminv1.RegisterBaseOauthProviderServiceHTTPServer(srv, adminv1.RedactedBaseOauthProviderServiceServer(s.BaseOauthProvider))
 	adminv1.RegisterBasePostServiceHTTPServer(srv, adminv1.RedactedBasePostServiceServer(s.BasePost))
+	adminv1.RegisterWorkflowDefinitionServiceHTTPServer(srv, adminv1.RedactedWorkflowDefinitionServiceServer(s.WorkflowDefinition))
+	adminv1.RegisterWorkflowInstanceServiceHTTPServer(srv, adminv1.RedactedWorkflowInstanceServiceServer(s.WorkflowInstance))
+	adminv1.RegisterWorkflowTaskServiceHTTPServer(srv, adminv1.RedactedWorkflowTaskServiceServer(s.WorkflowTask))
+	adminv1.RegisterWorkflowDelegationServiceHTTPServer(srv, adminv1.RedactedWorkflowDelegationServiceServer(s.WorkflowDelegation))
 	registerTenantProjectHTTP(
 		srv,
 		adminv1.RedactedBaseTenantProjectServiceServer(s.BaseTenantProject),
@@ -263,6 +275,10 @@ func (s Services) RegisterMCP(server *mcp.Server) {
 	adminv1.RegisterBaseLanguageServiceMCPTools(mcpSrv, s.BaseLanguage)
 	adminv1.RegisterBaseMenuServiceMCPTools(mcpSrv, s.BaseMenu)
 	adminv1.RegisterBasePostServiceMCPTools(mcpSrv, s.BasePost)
+	adminv1.RegisterWorkflowDefinitionServiceMCPTools(mcpSrv, s.WorkflowDefinition)
+	adminv1.RegisterWorkflowInstanceServiceMCPTools(mcpSrv, s.WorkflowInstance)
+	adminv1.RegisterWorkflowTaskServiceMCPTools(mcpSrv, s.WorkflowTask)
+	adminv1.RegisterWorkflowDelegationServiceMCPTools(mcpSrv, s.WorkflowDelegation)
 	adminv1.RegisterBaseTenantProjectServiceMCPTools(mcpSrv, s.BaseTenantProject)
 	adminv1.RegisterBaseTenantProjectGrantServiceMCPTools(mcpSrv, s.BaseTenantProjectGrant)
 	adminv1.RegisterBaseRoleServiceMCPTools(mcpSrv, s.BaseRole)
@@ -330,6 +346,18 @@ func (s Services) AgentTools() ([]tool.Invokable, error) {
 		},
 		func() ([]tool.Invokable, error) {
 			return adminv1.NewBasePostServiceAgentTools(s.BasePost)
+		},
+		func() ([]tool.Invokable, error) {
+			return adminv1.NewWorkflowDefinitionServiceAgentTools(s.WorkflowDefinition)
+		},
+		func() ([]tool.Invokable, error) {
+			return adminv1.NewWorkflowInstanceServiceAgentTools(s.WorkflowInstance)
+		},
+		func() ([]tool.Invokable, error) {
+			return adminv1.NewWorkflowTaskServiceAgentTools(s.WorkflowTask)
+		},
+		func() ([]tool.Invokable, error) {
+			return adminv1.NewWorkflowDelegationServiceAgentTools(s.WorkflowDelegation)
 		},
 		func() ([]tool.Invokable, error) {
 			return adminv1.NewBaseTenantProjectServiceAgentTools(s.BaseTenantProject)

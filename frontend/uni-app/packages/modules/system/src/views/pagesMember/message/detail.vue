@@ -7,6 +7,7 @@ import { useThemeStore } from '@liujitcn/kratos-uni-app-core/stores'
 import { defNotificationService } from '../../../api/base/v1/notification'
 import type { Notification } from '../../../rpc/base/v1/notification'
 import { MessageActionType, MessageContentFormat } from '../../../rpc/base/v1/notification'
+import { resolvePersistedMessage } from '../../../utils/persisted-message'
 import { resolveMessageCategoryIcon } from './icons'
 
 const themeStore = useThemeStore()
@@ -21,14 +22,6 @@ onLoad((options) => {
 async function loadDetail(id: number) {
   detail.value = await defNotificationService.GetNotification({ id })
   if (!detail.value.read_at) await defNotificationService.MarkNotificationRead({ ids: [id] })
-}
-
-/** 将系统通知发送者映射到当前语言。 */
-function resolveSenderName(value?: string) {
-  if (value === '系统' || value === '__I18N__:system.notification.sender.system') {
-    return t('system.notification.sender.system')
-  }
-  return value ?? ''
 }
 
 /** 执行通知携带的稳定 viewKey 动作。 */
@@ -58,7 +51,7 @@ function openAction() {
   <view class="detail-page" :class="themeStore.themeClass">
     <KratosNavBar :title="t('system.notification.title')" />
     <template v-if="detail">
-      <text class="detail-title">{{ detail.title }}</text>
+      <text class="detail-title">{{ resolvePersistedMessage(detail.title) }}</text>
       <view class="detail-meta">
         <view class="detail-category" :style="{ color: detail.category_color || undefined }">
           <uni-icons
@@ -70,15 +63,15 @@ function openAction() {
           />
           <text>{{ detail.category_name }}</text>
         </view>
-        <text>{{ resolveSenderName(detail.sender_name) }}</text>
+        <text>{{ resolvePersistedMessage(detail.sender_name) }}</text>
         <text>{{ detail.received_at }}</text>
       </view>
       <rich-text
         v-if="detail.content_format === MessageContentFormat.MESSAGE_CONTENT_FORMAT_RICH_TEXT"
         class="detail-content-rich"
-        :nodes="detail.content"
+        :nodes="resolvePersistedMessage(detail.content)"
       />
-      <text v-else class="detail-content">{{ detail.content }}</text>
+      <text v-else class="detail-content">{{ resolvePersistedMessage(detail.content) }}</text>
       <button
         v-if="detail.action_type === MessageActionType.MESSAGE_ACTION_TYPE_VIEW_KEY"
         class="detail-action"

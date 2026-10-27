@@ -1,0 +1,119 @@
+syntax = "proto3";
+
+package system.admin.v1;
+
+import "buf/validate/validate.proto";
+import "gnostic/openapi/v3/annotations.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+import "system/admin/v1/workflow_common.proto";
+import "system/admin/v1/workflow_instance.proto";
+
+// Admin工作流审批任务服务
+service WorkflowTaskService {
+  // 查询我的审批任务分页列表
+  rpc PageMyWorkflowTask(PageMyWorkflowTaskRequest) returns (PageMyWorkflowTaskResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/admin/workflow/task/mine"
+    };
+  }
+
+  // 查询审批任务详情
+  rpc GetWorkflowTask(GetWorkflowTaskRequest) returns (GetWorkflowTaskResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/admin/workflow/task/{id}"
+    };
+  }
+
+  // 审批任务办理
+  rpc AuditWorkflowTask(AuditWorkflowTaskRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put: "/api/v1/admin/workflow/task/{task_id}/audit"
+      body: "*"
+    };
+  }
+}
+
+// 我的审批任务分页查询条件
+message PageMyWorkflowTaskRequest {
+  WorkflowListType list_type = 1 [(gnostic.openapi.v3.property) = {description: "列表类型"}, (buf.validate.field).enum = {defined_only: true}]; // 列表类型
+
+  string keyword = 2 [(gnostic.openapi.v3.property) = {description: "流程名称或编码关键词"}]; // 流程名称或编码关键词
+
+  int64 page_num = 101 [(gnostic.openapi.v3.property) = {
+    description: "当前页码"
+    default: {number: 1}
+  },
+    (buf.validate.field).int64 = {gte: 1, lte: 1000000}]; // 当前页码
+
+  int64 page_size = 102 [(gnostic.openapi.v3.property) = {
+    description: "每一页的行数"
+    default: {number: 10}
+  },
+    (buf.validate.field).int64 = {gte: 1, lte: 100}]; // 每一页的行数
+}
+
+// 我的审批任务分页响应
+message PageMyWorkflowTaskResponse {
+  repeated MyWorkflowTaskItem items = 1 [(gnostic.openapi.v3.property) = {description: "分页数据"}]; // 分页数据
+
+  int32 total = 2 [(gnostic.openapi.v3.property) = {description: "总数"}]; // 总数
+}
+
+// 我的审批任务列表项
+message MyWorkflowTaskItem {
+  int64 task_id = 1 [(gnostic.openapi.v3.property) = {description: "审批任务ID，列表类型为已发起时为 0"}]; // 审批任务ID，列表类型为已发起时为 0
+
+  int64 instance_id = 2 [(gnostic.openapi.v3.property) = {description: "流程实例ID"}]; // 流程实例ID
+
+  string definition_code = 3 [(gnostic.openapi.v3.property) = {description: "流程编码"}]; // 流程编码
+
+  string definition_name = 4 [(gnostic.openapi.v3.property) = {description: "流程名称"}]; // 流程名称
+
+  int64 applicant_user_id = 5 [(gnostic.openapi.v3.property) = {description: "申请人用户ID"}]; // 申请人用户ID
+
+  string applicant_name = 6 [(gnostic.openapi.v3.property) = {description: "申请人昵称"}]; // 申请人昵称
+
+  string business_type = 7 [(gnostic.openapi.v3.property) = {description: "业务单据类型"}]; // 业务单据类型
+
+  WorkflowInstanceStatus instance_status = 8 [(gnostic.openapi.v3.property) = {description: "实例状态"}]; // 实例状态
+
+  WorkflowTaskStatus task_status = 9 [(gnostic.openapi.v3.property) = {description: "任务状态，列表类型为已发起时为未指定"}]; // 任务状态，列表类型为已发起时为未指定
+
+  WorkflowListType list_type = 10 [(gnostic.openapi.v3.property) = {description: "列表视角"}]; // 列表视角
+
+  string submit_at = 200 [(gnostic.openapi.v3.property) = {description: "提交时间"}]; // 提交时间
+
+  string task_created_at = 201 [(gnostic.openapi.v3.property) = {description: "任务到达时间"}]; // 任务到达时间
+}
+
+// 查询审批任务详情请求参数
+message GetWorkflowTaskRequest {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "审批任务ID"}, (buf.validate.field).cel = {id: "system.admin.workflow.task.get.id.required" message: "审批任务ID不能为空" expression: "this > 0"}]; // 审批任务ID
+}
+
+// 审批任务详情响应
+message GetWorkflowTaskResponse {
+  WorkflowTask task = 1 [(gnostic.openapi.v3.property) = {description: "审批任务"}]; // 审批任务
+
+  WorkflowInstance instance = 2 [(gnostic.openapi.v3.property) = {description: "流程实例"}]; // 流程实例
+
+  repeated WorkflowLog logs = 3 [(gnostic.openapi.v3.property) = {description: "审批日志"}]; // 审批日志
+
+  repeated WorkflowScriptRun script_runs = 4 [(gnostic.openapi.v3.property) = {description: "脚本执行记录"}]; // 脚本执行记录
+}
+
+// 审批任务办理请求参数
+message AuditWorkflowTaskRequest {
+  option (buf.validate.message).cel = {id: "system.admin.workflow.task.audit.task_id.required" message: "审批任务ID不能为空" expression: "this.task_id > 0"};
+
+  int64 task_id = 1 [(gnostic.openapi.v3.property) = {description: "审批任务ID"}]; // 审批任务ID
+
+  WorkflowAuditAction action = 2 [(gnostic.openapi.v3.property) = {description: "审批动作"}, (buf.validate.field).enum = {defined_only: true, not_in: [0]}]; // 审批动作
+
+  string comment = 3 [(gnostic.openapi.v3.property) = {description: "审批意见"}, (buf.validate.field).cel = {id: "system.admin.workflow.task.audit.comment.max_length" message: "审批意见不能超过 500 个字符" expression: "this.size() <= 500"}]; // 审批意见
+
+  int64 forward_to = 4 [(gnostic.openapi.v3.property) = {description: "转办目标用户ID"}]; // 转办目标用户ID
+
+  int64 additional_approver = 5 [(gnostic.openapi.v3.property) = {description: "加签用户ID"}]; // 加签用户ID
+}

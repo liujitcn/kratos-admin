@@ -371,6 +371,30 @@ INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('b
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91013002, 'zh-TW', '刪除自訂翻譯') ON CONFLICT DO NOTHING;
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91013003, 'zh-TW', '編輯自訂翻譯') ON CONFLICT DO NOTHING;
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91013004, 'zh-TW', '修改自訂翻譯狀態') ON CONFLICT DO NOTHING;
+INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91020000, 'zh-TW', '介面限流') ON CONFLICT DO NOTHING;
+INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91020100, 'zh-TW', '限流規則') ON CONFLICT DO NOTHING;
+INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91020101, 'zh-TW', '新增限流規則') ON CONFLICT DO NOTHING;
+INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91020105, 'zh-TW', '刪除限流規則') ON CONFLICT DO NOTHING;
+INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91020110, 'zh-TW', '編輯限流規則') ON CONFLICT DO NOTHING;
+INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91020115, 'zh-TW', '修改限流規則狀態') ON CONFLICT DO NOTHING;
+INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91020500, 'zh-TW', '限流策略') ON CONFLICT DO NOTHING;
+INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91020501, 'zh-TW', '新增限流策略') ON CONFLICT DO NOTHING;
+INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91020505, 'zh-TW', '刪除限流策略') ON CONFLICT DO NOTHING;
+INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91020510, 'zh-TW', '編輯限流策略') ON CONFLICT DO NOTHING;
+INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91020515, 'zh-TW', '修改限流策略狀態') ON CONFLICT DO NOTHING;
+INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91030000, 'zh-TW', 'OA 審批') ON CONFLICT DO NOTHING;
+INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91030100, 'zh-TW', '審批中心') ON CONFLICT DO NOTHING;
+INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91030101, 'zh-TW', '發起申請') ON CONFLICT DO NOTHING;
+INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91030102, 'zh-TW', '審批任務辦理') ON CONFLICT DO NOTHING;
+INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91030103, 'zh-TW', '撤回申請') ON CONFLICT DO NOTHING;
+INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91030500, 'zh-TW', '流程定義') ON CONFLICT DO NOTHING;
+INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91030501, 'zh-TW', '新增流程定義') ON CONFLICT DO NOTHING;
+INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91030502, 'zh-TW', '編輯流程定義') ON CONFLICT DO NOTHING;
+INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91030503, 'zh-TW', '刪除流程定義') ON CONFLICT DO NOTHING;
+INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91030504, 'zh-TW', '修改流程定義狀態') ON CONFLICT DO NOTHING;
+INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91031000, 'zh-TW', '審批委託') ON CONFLICT DO NOTHING;
+INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91031001, 'zh-TW', '設置審批委託') ON CONFLICT DO NOTHING;
+INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91031002, 'zh-TW', '刪除審批委託') ON CONFLICT DO NOTHING;
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91050000, 'zh-TW', '權限管理') ON CONFLICT DO NOTHING;
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91050100, 'zh-TW', '選單管理') ON CONFLICT DO NOTHING;
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91050101, 'zh-TW', '新增選單') ON CONFLICT DO NOTHING;
@@ -388,17 +412,6 @@ INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('b
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91051003, 'zh-TW', '刪除應用授權客戶端') ON CONFLICT DO NOTHING;
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91051004, 'zh-TW', '複製客戶端憑據') ON CONFLICT DO NOTHING;
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91051005, 'zh-TW', '修改應用授權客戶端狀態') ON CONFLICT DO NOTHING;
-INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91020000, 'zh-TW', '介面限流') ON CONFLICT DO NOTHING;
-INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91020100, 'zh-TW', '限流規則') ON CONFLICT DO NOTHING;
-INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91020101, 'zh-TW', '新增限流規則') ON CONFLICT DO NOTHING;
-INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91020105, 'zh-TW', '刪除限流規則') ON CONFLICT DO NOTHING;
-INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91020110, 'zh-TW', '編輯限流規則') ON CONFLICT DO NOTHING;
-INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91020115, 'zh-TW', '修改限流規則狀態') ON CONFLICT DO NOTHING;
-INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91020500, 'zh-TW', '限流策略') ON CONFLICT DO NOTHING;
-INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91020501, 'zh-TW', '新增限流策略') ON CONFLICT DO NOTHING;
-INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91020505, 'zh-TW', '刪除限流策略') ON CONFLICT DO NOTHING;
-INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91020510, 'zh-TW', '編輯限流策略') ON CONFLICT DO NOTHING;
-INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91020515, 'zh-TW', '修改限流策略狀態') ON CONFLICT DO NOTHING;
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91100000, 'zh-TW', '登入管理') ON CONFLICT DO NOTHING;
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91100100, 'zh-TW', '登入策略') ON CONFLICT DO NOTHING;
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91100101, 'zh-TW', '新增登入策略') ON CONFLICT DO NOTHING;
@@ -540,6 +553,8 @@ INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('b
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_job.name', 1003, 'zh-TW', '資料表備份任務') ON CONFLICT DO NOTHING;
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_job.name', 1004, 'zh-TW', '日誌入庫回退任務') ON CONFLICT DO NOTHING;
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_job.name', 1005, 'zh-TW', 'MQTT 訊息保留清理任務') ON CONFLICT DO NOTHING;
+INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_job.name', 1006, 'zh-TW', '工作流超時催辦任務') ON CONFLICT DO NOTHING;
+INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_job.name', 1007, 'zh-TW', '工作流腳本恢復任務') ON CONFLICT DO NOTHING;
 
 -- OAuth 登录方式名称翻译。
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_oauth_provider.name', 1, 'zh-TW', '釘釘') ON CONFLICT DO NOTHING;

@@ -119,3 +119,25 @@ func TestParseContext(t *testing.T) {
 func containsQuotaError(err error) bool {
 	return err != nil && (errors.Is(err, context.DeadlineExceeded) || strings.Contains(err.Error(), "execution quota exceeded"))
 }
+
+// TestRuntimeNestedInputIsolation 校验脚本修改嵌套对象与数组不会污染调用者输入。
+func TestRuntimeNestedInputIsolation(t *testing.T) {
+	runtime := NewRuntime()
+	input := map[string]any{"form": map[string]any{"amount": 1}, "rows": []any{map[string]any{"value": "original"}}}
+	_, err := runtime.Execute(context.Background(), JavaScriptLanguage, `ctx.form.amount = 99; ctx.rows[0].value = "changed"; ctx;`, input)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if fmt.Sprint(input["form"].(map[string]any)["amount"]) != "1" || input["rows"].([]any)[0].(map[string]any)["value"] != "original" {
+		t.Fatalf("输入被脚本污染: %#v", input)
+	}
+}
+
+// TestRuntimeRejectsOversizedInput 校验直接调用执行入口也受 JSON 输入大小限制。
+func TestRuntimeRejectsOversizedInput(t *testing.T) {
+	runtime := NewRuntime()
+	_, err := runtime.Execute(context.Background(), JavaScriptLanguage, `ctx;`, map[string]any{"large": strings.Repeat("x", MaxContextBytes)})
+	if err == nil {
+		t.Fatal("超大输入必须拒绝")
+	}
+}

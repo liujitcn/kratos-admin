@@ -74,4 +74,12 @@ var ProviderSet = wire.NewSet(
 	NewCodeGenTableRepository,
 	NewMqttMessageRepository,
 	NewOauthClientRepository,
+	NewWorkflowDefinitionRepository,
+	NewWorkflowDelegationRepository,
+	NewWorkflowInstanceRepository,
+	NewWorkflowJoinRepository,
+	NewWorkflowLogRepository,
+	NewWorkflowParentLinkRepository,
+	NewWorkflowScriptRunRepository,
+	NewWorkflowTaskRepository,
 )

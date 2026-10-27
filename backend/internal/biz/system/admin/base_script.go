@@ -145,6 +145,11 @@ func (c *BaseScriptCase) SetBaseScriptStatus(ctx context.Context, req *adminv1.S
 
 // TestRunBaseScript 在隔离运行时执行已保存脚本或草稿源码。
 func (c *BaseScriptCase) TestRunBaseScript(ctx context.Context, req *adminv1.TestRunBaseScriptRequest) (*adminv1.TestRunBaseScriptResponse, error) {
+	return c.testRunBaseScript(ctx, req, false)
+}
+
+// testRunBaseScript 复用保存脚本读取与审计，流程调用选择无宿主能力的专用执行器。
+func (c *BaseScriptCase) testRunBaseScript(ctx context.Context, req *adminv1.TestRunBaseScriptRequest, workflowOnly bool) (*adminv1.TestRunBaseScriptResponse, error) {
 	var scriptID int64
 	var scriptName string
 	var language string
@@ -182,7 +187,11 @@ func (c *BaseScriptCase) TestRunBaseScript(ctx context.Context, req *adminv1.Tes
 
 	started := time.Now()
 	var output any
-	output, err = c.runtime.Execute(ctx, language, source, input)
+	if workflowOnly {
+		output, err = c.runtime.ExecuteWorkflow(ctx, language, source, input)
+	} else {
+		output, err = c.runtime.Execute(ctx, language, source, input)
+	}
 	response := &adminv1.TestRunBaseScriptResponse{Success: err == nil}
 	if err != nil {
 		response.Error = err.Error()

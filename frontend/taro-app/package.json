@@ -2,7 +2,7 @@
   "name": "kratos-taro-app-workspace",
   "description": "Independent pnpm workspace for the Kratos Taro React application.",
   "private": true,
-  "packageManager": "pnpm@10.13.1",
+  "packageManager": "pnpm@10.33.4",
   "scripts": {
     "prepare:modules": "turbo run build:entries --filter=@liujitcn/kratos-taro-app-system --ui=stream --log-order=grouped --log-prefix=none --no-color --output-logs=errors-only",
     "dev:h5": "turbo run dev:h5 --filter=@liujitcn/kratos-taro-app --ui=stream --log-order=stream --log-prefix=task --no-color",

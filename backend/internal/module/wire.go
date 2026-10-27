@@ -73,11 +73,13 @@ func BuildModules(
 func BuildTasks(
 	databases map[string]*gorm.Client,
 	baseCase *coreBiz.BaseCase,
+	catalog *i18n.I18n,
 	sseRuntime *coreSSE.SSE,
 ) (job.Tasks, func(), error) {
 	panic(wire.Build(
 		data.ProviderSet,
 		ai.NewModelTranslator,
+		scripting.ProviderSet,
 		biz.MessageProviderSet,
 		task.ProviderSet,
 	))

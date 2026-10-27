@@ -21,6 +21,10 @@
     "@liujitcn/kratos-admin-core": "workspace:*",
     "@lucide/vue": "^1.39.0",
     "@microsoft/fetch-event-source": "^2.0.1",
+    "@vue-flow/background": "^1.3.2",
+    "@vue-flow/controls": "^1.1.3",
+    "@vue-flow/core": "^1.48.2",
+    "@vue-flow/minimap": "^1.5.4",
     "sortablejs": "^1.15.2",
     "swagger-ui-dist": "^5.32.15",
     "vue-element-plus-x": "^2.0.3"

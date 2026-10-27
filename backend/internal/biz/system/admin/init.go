@@ -3,6 +3,7 @@ package biz
 import (
 	"github.com/google/wire"
 	"github.com/liujitcn/kratos-admin/backend/pkg/notification"
+	"github.com/liujitcn/kratos-admin/backend/pkg/workflow"
 )
 
 // ProviderSet 汇总 system.admin 业务依赖注入提供者。
@@ -36,6 +37,11 @@ var ProviderSet = wire.NewSet(
 	NewBaseLanguageCase,
 	NewBaseMenuCase,
 	NewBasePostCase,
+	workflow.DefaultEventRegistry,
+	NewWorkflowDefinitionCase,
+	NewWorkflowInstanceCase,
+	NewWorkflowTaskCase,
+	NewWorkflowDelegationCase,
 	NewBaseTenantProjectCase,
 	NewBaseTenantProjectGrantCase,
 	NewBaseRoleCase,
