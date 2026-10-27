@@ -19,8 +19,8 @@ export function resolvePersistedMessage(value?: string): string {
   if (!key) return value
   const params: Record<string, string> = {}
   if (separator >= 0) {
-    new URLSearchParams(marker.slice(separator + 1)).forEach((value, name) => {
-      params[name] = value
+    new URLSearchParams(marker.slice(separator + 1)).forEach((paramValue, name) => {
+      params[name] = paramValue
     })
   }
   const localized = t(key, params)
