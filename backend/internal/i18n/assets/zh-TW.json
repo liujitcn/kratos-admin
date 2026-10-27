@@ -5769,5 +5769,17 @@
   "system.workflow.notification.title.escalated_applicant": {"other": "您的申請審批超時"},
   "system.workflow.notification.content.escalated_applicant": {"other": "目前審批節點辦理人長時間未處理，系統已再次提醒對方。"},
   "system.workflow.notification.title.reminder": {"other": "您有待審批任務超時未處理"},
-  "system.workflow.notification.content.reminder": {"other": "請盡快登入系統處理待審批事項，長時間未處理將同步提醒申請人。"}
+  "system.workflow.notification.content.reminder": {"other": "請盡快登入系統處理待審批事項，長時間未處理將同步提醒申請人。"},
+  "legacy.error.ed128739722f40db": {"other": "只有預設租戶可以申請新增租戶"},
+  "legacy.error.3da415f938fb011b": {"other": "驗證租戶審批來源失敗"},
+  "legacy.error.8c6af8b20cd52f9c": {"other": "只有預設租戶可以執行新增租戶審批動作"},
+  "legacy.error.12880bf977139081": {"other": "驗證租戶審批關聯失敗"},
+  "legacy.error.488a83cdadc0d421": {"other": "新增租戶審批業務關聯無效"},
+  "legacy.error.83c152306e3a4a8e": {"other": "新增租戶審批表單無效"},
+  "legacy.error.f93a42e989ecd8af": {"other": "驗證專案審批來源失敗"},
+  "legacy.error.4348feb419bc4342": {"other": "只有預設租戶可以執行新增專案審批動作"},
+  "legacy.error.347070fc997f7568": {"other": "驗證專案審批關聯失敗"},
+  "legacy.error.359210281db55f21": {"other": "新增專案審批業務關聯無效"},
+  "legacy.error.d20fc8bcc8d8f5c7": {"other": "新增專案審批表單無效"},
+  "legacy.error.0224ce0d4c9763eb": {"other": "新增專案審批所屬租戶無效"}
 }

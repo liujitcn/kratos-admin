@@ -159,5 +159,6 @@
   "system.settings.theme": "テーマ外観",
   "system.settings.theme_auto": "システムに従う",
   "system.settings.theme_dark": "ダーク",
-  "system.settings.theme_light": "ライト"
+  "system.settings.theme_light": "ライト",
+  "common.message.unknown": "不明"
 }

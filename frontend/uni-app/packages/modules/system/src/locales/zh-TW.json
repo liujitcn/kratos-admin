@@ -136,5 +136,6 @@
   "system.ai.knowledge.selected_count": "已選 {count} 個知識庫",
   "system.ai.knowledge.doc_count": "{count} 篇文件",
   "system.ai.knowledge.select_hint": "勾選要注入上下文的知識庫",
-  "system.ai.knowledge.empty": "暫無知識庫"
+  "system.ai.knowledge.empty": "暫無知識庫",
+  "common.message.unknown": "未知"
 }

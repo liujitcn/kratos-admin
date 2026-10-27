@@ -16640,6 +16640,15 @@ components:
                     type: string
                     description: 任務狀態，列表型別為已發起時為未指定
                     format: enum
+                list_type:
+                    enum:
+                        - WORKFLOW_LIST_TYPE_UNSPECIFIED
+                        - WORKFLOW_LIST_TYPE_PENDING
+                        - WORKFLOW_LIST_TYPE_DONE
+                        - WORKFLOW_LIST_TYPE_SUBMITTED
+                    type: string
+                    description: 列表視角
+                    format: enum
                 submit_at:
                     type: string
                     description: 提交時間

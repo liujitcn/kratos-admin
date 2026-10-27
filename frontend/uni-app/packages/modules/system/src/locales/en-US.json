@@ -136,5 +136,6 @@
   "system.ai.knowledge.selected_count": "{count} knowledge base(s) selected",
   "system.ai.knowledge.doc_count": "{count} doc(s)",
   "system.ai.knowledge.select_hint": "Select knowledge bases to inject into context",
-  "system.ai.knowledge.empty": "No knowledge base available"
+  "system.ai.knowledge.empty": "No knowledge base available",
+  "common.message.unknown": "Unknown"
 }

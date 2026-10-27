@@ -16640,6 +16640,15 @@ components:
                     type: string
                     description: task status, list typeas alreadysubmittedwhenas not specified
                     format: enum
+                list_type:
+                    enum:
+                        - WORKFLOW_LIST_TYPE_UNSPECIFIED
+                        - WORKFLOW_LIST_TYPE_PENDING
+                        - WORKFLOW_LIST_TYPE_DONE
+                        - WORKFLOW_LIST_TYPE_SUBMITTED
+                    type: string
+                    description: List view
+                    format: enum
                 submit_at:
                     type: string
                     description: submit time

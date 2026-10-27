@@ -159,5 +159,6 @@
   "system.settings.theme": "主題外觀",
   "system.settings.theme_auto": "跟隨系統",
   "system.settings.theme_dark": "暗黑",
-  "system.settings.theme_light": "明亮"
+  "system.settings.theme_light": "明亮",
+  "common.message.unknown": "未知"
 }

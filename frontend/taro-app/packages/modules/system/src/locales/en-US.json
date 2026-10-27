@@ -159,5 +159,6 @@
   "system.settings.theme": "Theme Appearance",
   "system.settings.theme_auto": "Follow System",
   "system.settings.theme_dark": "Dark",
-  "system.settings.theme_light": "Light"
+  "system.settings.theme_light": "Light",
+  "common.message.unknown": "Unknown"
 }

@@ -5769,5 +5769,17 @@
   "system.workflow.notification.title.escalated_applicant": {"other": "Your approval request is overdue"},
   "system.workflow.notification.content.escalated_applicant": {"other": "The current approver has not processed the task for a long time; they have been reminded"},
   "system.workflow.notification.title.reminder": {"other": "Your pending approval task is overdue"},
-  "system.workflow.notification.content.reminder": {"other": "Please sign in to process the pending approval task; the applicant will be notified if it remains unresolved"}
+  "system.workflow.notification.content.reminder": {"other": "Please sign in to process the pending approval task; the applicant will be notified if it remains unresolved"},
+  "legacy.error.ed128739722f40db": {"other": "Only the default tenant can request a new tenant"},
+  "legacy.error.3da415f938fb011b": {"other": "Failed to validate the tenant approval source"},
+  "legacy.error.8c6af8b20cd52f9c": {"other": "Only the default tenant can execute the new tenant approval action"},
+  "legacy.error.12880bf977139081": {"other": "Failed to validate the tenant approval association"},
+  "legacy.error.488a83cdadc0d421": {"other": "The new tenant approval business association is invalid"},
+  "legacy.error.83c152306e3a4a8e": {"other": "The new tenant approval form is invalid"},
+  "legacy.error.f93a42e989ecd8af": {"other": "Failed to validate the project approval source"},
+  "legacy.error.4348feb419bc4342": {"other": "Only the default tenant can execute the new project approval action"},
+  "legacy.error.347070fc997f7568": {"other": "Failed to validate the project approval association"},
+  "legacy.error.359210281db55f21": {"other": "The new project approval business association is invalid"},
+  "legacy.error.d20fc8bcc8d8f5c7": {"other": "The new project approval form is invalid"},
+  "legacy.error.0224ce0d4c9763eb": {"other": "The tenant for the new project approval is invalid"}
 }

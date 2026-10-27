@@ -16640,6 +16640,15 @@ components:
                     type: string
                     description: タスクステータス，一覧種類として已提出时として未指定
                     format: enum
+                list_type:
+                    enum:
+                        - WORKFLOW_LIST_TYPE_UNSPECIFIED
+                        - WORKFLOW_LIST_TYPE_PENDING
+                        - WORKFLOW_LIST_TYPE_DONE
+                        - WORKFLOW_LIST_TYPE_SUBMITTED
+                    type: string
+                    description: 一覧表示
+                    format: enum
                 submit_at:
                     type: string
                     description: 提交時刻

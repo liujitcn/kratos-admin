@@ -5769,5 +5769,17 @@
   "system.workflow.notification.title.escalated_applicant": {"other": "申請の承認が期限超過しています"},
   "system.workflow.notification.content.escalated_applicant": {"other": "現在の承認者が長時間タスクを処理していないため、再通知しました"},
   "system.workflow.notification.title.reminder": {"other": "承認待ちタスクが期限超過しています"},
-  "system.workflow.notification.content.reminder": {"other": "ログインして承認待ちのタスクを処理してください。未処理の場合は申請者にも通知されます"}
+  "system.workflow.notification.content.reminder": {"other": "ログインして承認待ちのタスクを処理してください。未処理の場合は申請者にも通知されます"},
+  "legacy.error.ed128739722f40db": {"other": "デフォルトテナントのみ新しいテナントを申請できます"},
+  "legacy.error.3da415f938fb011b": {"other": "テナント承認元の検証に失敗しました"},
+  "legacy.error.8c6af8b20cd52f9c": {"other": "デフォルトテナントのみ新しいテナントの承認処理を実行できます"},
+  "legacy.error.12880bf977139081": {"other": "テナント承認関連付けの検証に失敗しました"},
+  "legacy.error.488a83cdadc0d421": {"other": "新しいテナント承認の業務関連付けが無効です"},
+  "legacy.error.83c152306e3a4a8e": {"other": "新しいテナント承認フォームが無効です"},
+  "legacy.error.f93a42e989ecd8af": {"other": "プロジェクト承認元の検証に失敗しました"},
+  "legacy.error.4348feb419bc4342": {"other": "デフォルトテナントのみ新しいプロジェクトの承認処理を実行できます"},
+  "legacy.error.347070fc997f7568": {"other": "プロジェクト承認関連付けの検証に失敗しました"},
+  "legacy.error.359210281db55f21": {"other": "新しいプロジェクト承認の業務関連付けが無効です"},
+  "legacy.error.d20fc8bcc8d8f5c7": {"other": "新しいプロジェクト承認フォームが無効です"},
+  "legacy.error.0224ce0d4c9763eb": {"other": "新しいプロジェクト承認の所属テナントが無効です"}
 }
