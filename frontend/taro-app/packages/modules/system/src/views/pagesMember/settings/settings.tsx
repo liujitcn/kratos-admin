@@ -68,7 +68,7 @@ export default function SettingsPage() {
       feedback: createIcon('<path d="M4 5h16v12H8l-4 4z"/>', violet),
       contact: createIcon('<path d="M4 5c0 9 6 15 15 15 1 0 2-1 2-2v-2l-4-2-2 2a11 11 0 0 1-5-5l2-2-2-4H6c-1 0-2 1-2 2Z"/>', primary),
     }
-  }, [themeStore.theme])
+  }, [themeStore.colors.aiPrimary, themeStore.colors.aiWarning, themeStore.colors.aiViolet])
 
   const loadMfaStatus = async (force = false) => {
     if (!useUserStore.getState().isAuthenticated() || (mfaStatusLoading && !force)) return

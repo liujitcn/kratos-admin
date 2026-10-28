@@ -5,10 +5,7 @@ import KratosNavBar from '@liujitcn/kratos-uni-app-core/components/KratosNavBar.
 import { useI18n } from '@liujitcn/kratos-uni-app-core'
 import { useThemeStore, useUserStore } from '@liujitcn/kratos-uni-app-core/stores'
 import { navigateToLogin } from '@liujitcn/kratos-uni-app-core/utils/navigation'
-import {
-  launchAppStatus,
-  resolveAppRoute,
-} from '@liujitcn/kratos-uni-app-core'
+import { launchAppStatus, resolveAppRoute } from '@liujitcn/kratos-uni-app-core'
 import {
   encryptWithPublicKey,
   fetchSecretPublicKey,

@@ -23,7 +23,6 @@ async function loadDetail(id: number) {
   detail.value = await defNotificationService.GetNotification({ id })
   if (!detail.value.read_at) await defNotificationService.MarkNotificationRead({ ids: [id] })
 }
-
 </script>
 
 <template>
