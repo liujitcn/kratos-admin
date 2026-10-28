@@ -23,7 +23,7 @@ require (
 	github.com/liujitcn/go-scripts/javascript v0.0.1
 	github.com/liujitcn/go-scripts/lua v0.0.1
 	github.com/liujitcn/go-scripts/starlark v0.0.1
-	github.com/liujitcn/go-scripts/tcl v0.0.1
+	github.com/liujitcn/go-scripts/tcl v0.0.2
 	github.com/liujitcn/go-scripts/wazero v0.0.1
 	github.com/liujitcn/go-scripts/yaegi v0.0.1
 	github.com/liujitcn/go-utils v0.0.43
@@ -81,6 +81,7 @@ require (
 	google.golang.org/genproto/googleapis/api v0.0.0-20261019180522-ce908d29299b
 	google.golang.org/grpc v1.86.0-dev
 	google.golang.org/protobuf v1.36.12
+	gorm.io/driver/mysql v1.6.0
 	gorm.io/driver/sqlite v1.6.0
 	gorm.io/gen v0.3.29
 	gorm.io/gorm v1.31.2
@@ -299,7 +300,6 @@ require (
 	github.com/mojocn/base64Captcha v1.3.8 // indirect
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
 	github.com/mvrilo/go-redoc v0.1.5 // indirect
-	github.com/ncruces/go-strftime v1.1.0 // indirect
 	github.com/nicksnyder/go-i18n/v2 v2.0.2 // indirect
 	github.com/nikolalohinski/gonja v1.5.3 // indirect
 	github.com/olekukonko/cat v0.0.0-20250911104152-50322a0618f6 // indirect
@@ -404,7 +404,6 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	gorm.io/datatypes v1.2.7 // indirect
 	gorm.io/driver/clickhouse v0.7.0 // indirect
-	gorm.io/driver/mysql v1.6.0 // indirect
 	gorm.io/driver/postgres v1.6.3 // indirect
 	gorm.io/hints v1.1.2 // indirect
 	gorm.io/plugin/opentelemetry v0.1.16 // indirect
@@ -417,7 +416,7 @@ require (
 	k8s.io/utils v0.0.0-20260707023825-cf1189d6abe3 // indirect
 	layeh.com/gopher-luar v1.0.11 // indirect
 	modernc.org/httpfs v1.0.6 // indirect
-	modernc.org/libc v1.79.0 // indirect
+	modernc.org/libc v1.29.0 // indirect
 	modernc.org/mathutil v1.7.1 // indirect
 	modernc.org/memory v1.12.1 // indirect
 	modernc.org/tcl v1.15.3 // indirect
