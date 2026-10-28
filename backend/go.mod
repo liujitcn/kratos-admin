@@ -30,7 +30,7 @@ require (
 	github.com/liujitcn/go-utils/crypto v0.0.18
 	github.com/liujitcn/go-utils/http v0.0.9
 	github.com/liujitcn/go-utils/translator v0.0.6
-	github.com/liujitcn/gorm-kit v0.0.37
+	github.com/liujitcn/gorm-kit v0.0.39
 	github.com/liujitcn/kratos-admin/backend/api v0.0.29
 	github.com/liujitcn/kratos-core v0.0.52
 	github.com/liujitcn/kratos-core/api v0.0.7
@@ -81,6 +81,7 @@ require (
 	google.golang.org/genproto/googleapis/api v0.0.0-20261019180522-ce908d29299b
 	google.golang.org/grpc v1.86.0-dev
 	google.golang.org/protobuf v1.36.12
+	gorm.io/driver/mysql v1.6.0
 	gorm.io/driver/sqlite v1.6.0
 	gorm.io/gen v0.3.29
 	gorm.io/gorm v1.31.2
@@ -404,7 +405,6 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	gorm.io/datatypes v1.2.7 // indirect
 	gorm.io/driver/clickhouse v0.7.0 // indirect
-	gorm.io/driver/mysql v1.6.0 // indirect
 	gorm.io/driver/postgres v1.6.3 // indirect
 	gorm.io/hints v1.1.2 // indirect
 	gorm.io/plugin/opentelemetry v0.1.16 // indirect
