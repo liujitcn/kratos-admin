@@ -23,6 +23,12 @@ export const systemPages: Record<string, KratosAppPageConfig> = {
       navigationBarTitleText: '',
     },
   },
+  'pagesMember/password/password': {
+    style: {
+      navigationStyle: 'custom',
+      navigationBarTitleText: '',
+    },
+  },
   'pagesMember/message/index': {
     style: {
       navigationStyle: 'custom',

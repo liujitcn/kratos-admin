@@ -529,11 +529,10 @@
  * ============================================================ */
 .k-set-cat {
   margin: 32rpx 4rpx 20rpx;
-  font-size: 21rpx;
-  letter-spacing: 2rpx;
-  color: var(--kratos-color-text-dim);
-  font-family: var(--kratos-font-mono);
-  text-transform: uppercase;
+  color: var(--kratos-color-text-muted);
+  font-size: 26rpx;
+  font-family: var(--kratos-font-sans);
+  font-weight: 700;
 }
 .k-set-row {
   display: flex;

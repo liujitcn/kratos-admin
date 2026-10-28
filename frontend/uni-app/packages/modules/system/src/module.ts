@@ -9,6 +9,7 @@ export const systemModule = defineKratosAppModule({
   views: {
     PROFILE_HOME: 'pages/my/my',
     PROFILE: 'pagesMember/profile/profile',
+    PASSWORD: 'pagesMember/password/password',
     SETTINGS: 'pagesMember/settings/settings',
     AI: 'pagesMember/ai/index',
     MESSAGE_INBOX: 'pagesMember/message/index',

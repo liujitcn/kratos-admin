@@ -9,6 +9,7 @@ import (
 
 // ProviderSet 汇总 base 业务依赖注入提供者。
 var ProviderSet = wire.NewSet(
+	NewAccountCase,
 	sessionregistry.NewLoginLocker,
 	NewAiSessionCase,
 	NewAiModelCase,

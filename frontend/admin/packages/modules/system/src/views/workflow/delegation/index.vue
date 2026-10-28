@@ -31,6 +31,7 @@ import ProTable from "@liujitcn/kratos-admin-core/components/ProTable";
 import FormDialog from "@liujitcn/kratos-admin-core/components/Dialog/FormDialog.vue";
 import type { ProFormField, ProFormOption } from "@liujitcn/kratos-admin-core/components/ProForm/interface";
 import { useAuthButtons } from "@liujitcn/kratos-admin-core/auth";
+import { useTenantScope } from "@liujitcn/kratos-admin-core/tenant";
 import { buildPageRequest, normalizeSelectedIds } from "@liujitcn/kratos-admin-core/table";
 import { t } from "@liujitcn/kratos-admin-core";
 import { defWorkflowDelegationService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/workflow_delegation";
@@ -46,6 +47,7 @@ defineOptions({
 });
 
 const { BUTTONS } = useAuthButtons();
+const { currentTenantId } = useTenantScope();
 const proTable = ref<ProTableInstance>();
 const formDialogRef = ref<InstanceType<typeof FormDialog>>();
 
@@ -76,7 +78,7 @@ onMounted(() => {
 
 /** 预加载用户下拉。 */
 async function loadUserOptions() {
-  const data = await defBaseUserService.OptionBaseUser({ keyword: "" });
+  const data = await defBaseUserService.OptionBaseUser({ keyword: "", tenant_id: currentTenantId.value });
   userOptions.value = data.list ?? [];
 }
 

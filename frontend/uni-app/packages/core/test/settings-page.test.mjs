@@ -25,4 +25,13 @@ test('设置页把 extensions 插槽直接放在公共设置之前', async () =>
   assert.match(styles, /\.settings-row__value\s*\{[\s\S]*?overflow:\s*hidden/)
   assert.match(styles, /\.settings-row__value\s*\{[\s\S]*?text-overflow:\s*ellipsis/)
   assert.match(template, /core\.settings\.theme/)
+  assert.match(template, /<slot name="security" \/>/)
+  assert.ok(
+    template.indexOf('core.settings.section_security') <
+      template.indexOf('core.settings.section_appearance'),
+  )
+  assert.ok(
+    template.indexOf('common.field.language') >
+      template.indexOf('core.settings.section_appearance'),
+  )
 })

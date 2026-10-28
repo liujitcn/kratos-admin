@@ -10,8 +10,6 @@ import (
 
 	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
 	baseBiz "github.com/liujitcn/kratos-admin/backend/internal/biz/base"
-	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/loginpolicy"
-	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/password"
 	_const "github.com/liujitcn/kratos-admin/backend/internal/const"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
@@ -20,7 +18,6 @@ import (
 	"github.com/liujitcn/kratos-core/errorsx"
 
 	"github.com/go-kratos/kratos/v3/log"
-	"github.com/liujitcn/go-utils/crypto"
 	"github.com/liujitcn/go-utils/mapper"
 	_string "github.com/liujitcn/go-utils/string"
 	"github.com/liujitcn/gorm-kit/repository"
@@ -344,105 +341,6 @@ func (c *AuthCase) GetUserProfile(ctx context.Context) (*adminv1.UserProfileForm
 	res.RoleName = baseRole.Name
 	res.DeptName = baseDept.Name
 	return res, nil
-}
-
-// GetCurrentPasswordPolicy 获取当前用户生效的密码策略。
-func (c *AuthCase) GetCurrentPasswordPolicy(ctx context.Context) (*adminv1.CurrentPasswordPolicy, error) {
-	authInfo, err := c.GetAuthInfo(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	userQuery := c.baseUserCase.Query(ctx).BaseUser
-	var baseUser *models.BaseUser
-	baseUser, err = c.baseUserCase.Find(ctx,
-		repository.Select(userQuery.ID, userQuery.TenantID),
-		repository.Where(userQuery.ID.Eq(authInfo.UserId)),
-	)
-	if err != nil {
-		return nil, errorsx.ResourceNotFound("用户不存在").WithCause(err)
-	}
-
-	var config loginpolicy.PasswordConfig
-	config, err = loginpolicy.LoadPasswordConfig(c.Cache, baseUser.TenantID, baseUser.ID)
-	if err != nil {
-		return nil, errorsx.Internal("读取密码策略失败").WithCause(err)
-	}
-	return &adminv1.CurrentPasswordPolicy{
-		MinLength:            config.MinLength,
-		MinComplexityClasses: config.MinComplexityClasses,
-		HistoryCount:         config.HistoryCount,
-		MaxAgeDays:           config.MaxAgeDays,
-	}, nil
-}
-
-// UpdateUserPassword 更新用户密码
-func (c *AuthCase) UpdateUserPassword(ctx context.Context, req *adminv1.UserPasswordForm) error {
-	authInfo, err := c.GetAuthInfo(ctx)
-	if err != nil {
-		return err
-	}
-	oldPwd := req.GetOldPwd().GetText()
-	newPwd := req.GetNewPwd().GetText()
-
-	userQuery := c.baseUserCase.Query(ctx).BaseUser
-	userOpts := []repository.QueryOption{
-		repository.Select(userQuery.ID, userQuery.TenantID, userQuery.Password, userQuery.PasswordHistory),
-		repository.Where(userQuery.ID.Eq(authInfo.UserId)),
-	}
-	var baseUser *models.BaseUser
-	baseUser, err = c.baseUserCase.Find(ctx, userOpts...)
-	if err != nil {
-		return errorsx.ResourceNotFound("用户不存在").WithCause(err)
-	}
-	var passwordConfig loginpolicy.PasswordConfig
-	passwordConfig, err = loginpolicy.LoadPasswordConfig(c.Cache, baseUser.TenantID, baseUser.ID)
-	if err != nil {
-		return errorsx.Internal("读取密码策略失败").WithCause(err)
-	}
-
-	err = crypto.Verify(oldPwd, baseUser.Password)
-	if err != nil {
-		return errorsx.InvalidArgument("原密码错误")
-	}
-	if err = crypto.Verify(newPwd, baseUser.Password); err == nil {
-		return errorsx.InvalidArgument("新密码不能与当前密码相同")
-	}
-	if err = password.CheckHistoryJSON(baseUser.PasswordHistory, newPwd, passwordConfig.HistoryCount); err != nil {
-		return errorsx.InvalidArgument("新密码不能重复使用近期历史密码").WithCause(err)
-	}
-	if err = password.ValidateComplexity(newPwd, passwordConfig); err != nil {
-		return errorsx.InvalidArgument("密码长度或复杂度不符合安全策略").WithCause(err)
-	}
-
-	var encrypted string
-	encrypted, err = crypto.Encrypt(newPwd)
-	if err != nil {
-		return errorsx.Internal("修改密码失败").WithCause(err)
-	}
-	if err = c.baseUserCase.revokeUserToken(authInfo.UserId); err != nil {
-		return err
-	}
-	var history string
-	history, err = password.AppendHistoryJSON(baseUser.PasswordHistory, baseUser.Password, passwordConfig.HistoryCount)
-	if err != nil {
-		return errorsx.Internal("记录历史密码失败").WithCause(err)
-	}
-	now := time.Now()
-	query := c.baseUserCase.Query(ctx).BaseUser
-	_, err = query.WithContext(ctx).
-		Where(query.ID.Eq(authInfo.UserId)).
-		UpdateSimple(
-			query.Password.Value(encrypted),
-			query.PasswordChangedAt.Value(now),
-			query.PasswordHistory.Value(history),
-			query.MustChangePassword.Value(_const.BASE_USER_PASSWORD_CHANGE_STATUS_NOT_REQUIRED),
-			query.UpdatedAt.Value(now),
-		)
-	if err != nil {
-		return err
-	}
-	return nil
 }
 
 // UpdateUserPhone 更新用户手机号

@@ -68,26 +68,6 @@ func (s *AuthService) GetUserProfile(ctx context.Context, req *adminv1.GetUserPr
 	return res, nil
 }
 
-// GetCurrentPasswordPolicy 获取当前用户生效的密码策略。
-func (s *AuthService) GetCurrentPasswordPolicy(ctx context.Context, req *adminv1.GetCurrentPasswordPolicyRequest) (*adminv1.CurrentPasswordPolicy, error) {
-	res, err := s.authCase.GetCurrentPasswordPolicy(ctx)
-	if err != nil {
-		log.Error(fmt.Sprintf("GetCurrentPasswordPolicy %v", err))
-		return nil, errorsx.WrapInternal(err, "获取密码策略失败")
-	}
-	return res, nil
-}
-
-// UpdateUserPassword 修改个人中心密码
-func (s *AuthService) UpdateUserPassword(ctx context.Context, req *adminv1.UpdateUserPasswordRequest) (*emptypb.Empty, error) {
-	err := s.authCase.UpdateUserPassword(ctx, req.GetUserPassword())
-	if err != nil {
-		log.Error(fmt.Sprintf("UpdateUserPassword %v", err))
-		return nil, errorsx.WrapInternal(err, "重置密码失败")
-	}
-	return new(emptypb.Empty), nil
-}
-
 // UpdateUserPhone 修改个人中心手机号
 func (s *AuthService) UpdateUserPhone(ctx context.Context, req *adminv1.UpdateUserPhoneRequest) (*emptypb.Empty, error) {
 	err := s.authCase.UpdateUserPhone(ctx, req.GetUserPhone())

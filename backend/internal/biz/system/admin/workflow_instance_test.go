@@ -25,7 +25,7 @@ import (
 	authData "github.com/liujitcn/kratos-kit/auth/data"
 	databaseGorm "github.com/liujitcn/kratos-kit/database/gorm"
 	"github.com/liujitcn/kratos-kit/database/gorm/driver"
-	mysqlDriver "gorm.io/driver/mysql"
+	"gorm.io/driver/mysql"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 	"gorm.io/gorm/schema"
@@ -452,7 +452,7 @@ func TestWorkflowTaskNullableTimesRemainUnset(t *testing.T) {
 
 // TestWorkflowTaskMySQLCreateDoesNotBindZeroDatetime 验证 MySQL 方言下新待办不会绑定零日期。
 func TestWorkflowTaskMySQLCreateDoesNotBindZeroDatetime(t *testing.T) {
-	db, err := gorm.Open(mysqlDriver.New(mysqlDriver.Config{DSN: "root:invalid@tcp(127.0.0.1:3306)/kratos_admin", SkipInitializeWithVersion: true}), &gorm.Config{DryRun: true, DisableAutomaticPing: true})
+	db, err := gorm.Open(mysql.New(mysql.Config{DSN: "root:invalid@tcp(127.0.0.1:3306)/kratos_admin", SkipInitializeWithVersion: true}), &gorm.Config{DryRun: true, DisableAutomaticPing: true})
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -1397,14 +1397,14 @@ function showError(error: unknown, fallback: string) {
 
 .ai-navbar {
   flex-shrink: 0;
-  padding: 0 24rpx;
+  padding: 0 20rpx;
 }
 
 .ai-body {
   flex: 1;
   min-height: 0;
   box-sizing: border-box;
-  padding: 28rpx 24rpx 10rpx;
+  padding: 28rpx 20rpx 10rpx;
 }
 
 .chat-list {

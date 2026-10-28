@@ -6,6 +6,7 @@ import { test } from "node:test";
 import {
   addGraphEdge,
   deriveProgressEdgeStates,
+  formatGraphLayout,
   makeGraphNode,
   parseGraph,
   serializeGraph,
@@ -88,12 +89,43 @@ test("流程定义新增编辑与查看使用独立组件", async () => {
   assert.doesNotMatch(viewSource, /CreateWorkflowDefinition/);
 });
 
+test("工作流用户选项按当前租户查询，避免空关键字返回空列表", async () => {
+  const sources = await Promise.all(
+    [
+      "src/views/workflow/definition/definition-dialog.vue",
+      "src/views/workflow/approval/index.vue",
+      "src/views/workflow/delegation/index.vue"
+    ].map(path => readFile(join(process.cwd(), path), "utf8"))
+  );
+  for (const source of sources) {
+    assert.match(source, /useTenantScope/);
+    assert.match(source, /OptionBaseUser\(\{ keyword: "", tenant_id: currentTenantId\.value \}\)/);
+  }
+});
+
 test("审批中心默认显示全部审批而不是待我审批", async () => {
   const source = await readFile(join(process.cwd(), "src/views/workflow/approval/index.vue"), "utf8");
   assert.match(source, /defaultValue: WorkflowListType\.WORKFLOW_LIST_TYPE_UNSPECIFIED/);
   assert.match(source, /WORKFLOW_LIST_TYPE_UNSPECIFIED/);
   assert.match(source, /prop: "list_type"[\s\S]*?render: scope => workflowListTypeLabel/);
   assert.doesNotMatch(source, /defaultValue: WorkflowListType\.WORKFLOW_LIST_TYPE_PENDING/);
+});
+
+test("审批详情按表单标签展示申请内容，并将审批活动交给节点悬浮卡", async () => {
+  const approvalSource = await readFile(join(process.cwd(), "src/views/workflow/approval/index.vue"), "utf8");
+  const graphSource = await readFile(join(process.cwd(), "src/views/workflow/definition/workflow-graph.vue"), "utf8");
+  assert.match(approvalSource, /parseFormSchema/);
+  assert.match(approvalSource, /label: formFields\.value\.find\(field => field\.key === key\)\?\.label \|\| key/);
+  assert.match(approvalSource, /:node-details="progressNodeDetails"/);
+  assert.doesNotMatch(approvalSource, /system\.workflow\.approval\.section\.logs/);
+  assert.doesNotMatch(approvalSource, /system\.workflow\.approval\.section\.tasks/);
+  assert.match(graphSource, /<el-popover v-if="nodeDetails" placement="top" trigger="hover"/);
+  assert.match(graphSource, /activities/);
+});
+
+test("审批详情先展示申请内容，再展示流程进度", async () => {
+  const source = await readFile(join(process.cwd(), "src/views/workflow/approval/index.vue"), "utf8");
+  assert.ok(source.indexOf("section.form_data") < source.indexOf("section.progress"));
 });
 
 test("流程定义向导文案在四种语言中均已注册", async () => {
@@ -186,6 +218,45 @@ test("无坐标的流程仍能生成可显示的节点布局", () => {
   const parsed = parseGraph(JSON.stringify({ version: 2, nodes: [{ id: "start", type: "START" }], edges: [] }));
   assert.equal(typeof parsed?.nodes[0].x, "number");
   assert.equal(typeof parsed?.nodes[0].y, "number");
+});
+
+test("保存前自动按拓扑整理节点坐标，线性节点对齐且分支节点分行", () => {
+  const draft: GraphDraft = {
+    version: 2,
+    nodes: [
+      { id: "start", type: "START" },
+      { id: "gateway", type: "PARALLEL_GATEWAY_FORK" },
+      { id: "left", type: "TASK" },
+      { id: "right", type: "TASK" },
+      { id: "join", type: "PARALLEL_GATEWAY_JOIN" },
+      { id: "end", type: "END" }
+    ],
+    edges: [
+      { from: "start", to: "gateway" },
+      { from: "gateway", to: "left" },
+      { from: "gateway", to: "right" },
+      { from: "left", to: "join" },
+      { from: "right", to: "join" },
+      { from: "join", to: "end" }
+    ]
+  };
+  formatGraphLayout(draft);
+  assert.deepEqual(
+    draft.nodes.map(node => [node.id, node.x, node.y]),
+    [
+      ["start", 40, 100],
+      ["gateway", 240, 100],
+      ["left", 440, 40],
+      ["right", 440, 160],
+      ["join", 640, 100],
+      ["end", 840, 100]
+    ]
+  );
+});
+
+test("流程定义保存前执行节点自动布局", async () => {
+  const source = await readFile(join(process.cwd(), "src/views/workflow/definition/definition-dialog.vue"), "utf8");
+  assert.match(source, /formatGraphLayout\(draft\)/);
 });
 
 test("后端将缺失坐标补为零时仍能展开默认流程节点", () => {

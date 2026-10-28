@@ -2,7 +2,7 @@ import { Button, Input, ScrollView, Text, View } from '@tarojs/components'
 import { UniIcon } from '@liujitcn/kratos-taro-app-ui'
 import { t, useI18n, useThemeStore } from '@liujitcn/kratos-taro-app-core'
 import type { AiSession } from '../../../../rpc/base/v1/ai_session'
-import './session-drawer.scss'
+import './SessionDrawer.scss'
 
 type SessionDrawerProps = {
   open: boolean

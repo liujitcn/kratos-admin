@@ -33,7 +33,7 @@ func NewMiddleware(baseUserRepo *data.BaseUserRepository, policyCache cache.Cach
 			if err != nil || authInfo == nil || authInfo.UserId <= 0 {
 				return handler(ctx, req)
 			}
-			// 密码策略仅针对后台账号；应用端没有后台改密接口，不能把应用用户锁死。
+			// 普通应用账号不参与后台的强制改密拦截，但仍可主动调用 Base 账户安全接口。
 			if authInfo.RoleCode == coreconst.BASE_ROLE_CODE_USER || authInfo.RoleCode == coreconst.BASE_ROLE_CODE_AUTHUSER {
 				return handler(ctx, req)
 			}
@@ -85,8 +85,8 @@ func passwordChangeOperation(operation string) bool {
 		"/system.admin.v1.AuthService/ListUserButton",
 		"/system.admin.v1.AuthService/GetUserInfo",
 		"/system.admin.v1.AuthService/GetUserProfile",
-		"/system.admin.v1.AuthService/GetCurrentPasswordPolicy",
-		"/system.admin.v1.AuthService/UpdateUserPassword":
+		"/base.v1.AccountService/GetCurrentPasswordPolicy",
+		"/base.v1.AccountService/UpdateUserPassword":
 		return true
 	case "/base.v1.LoginService/Logout":
 		return true

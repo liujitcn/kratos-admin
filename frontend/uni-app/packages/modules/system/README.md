@@ -26,7 +26,7 @@ packages/modules/system
 
 - 注册 `PROFILE_HOME`、`PROFILE`、`SETTINGS` 和 `AI` 四个稳定 `viewKey`。
 - 提供个人中心、资料维护（昵称、邮箱和证件信息）、默认应用设置包装和 AI 助手页面。
-- 默认设置页直接装配 core 的 `KratosSettingsPage`；产品模块可用同一公共设置页的顶部 `extensions` 插槽追加业务设置。
+- 默认设置页直接装配 core 的 `KratosSettingsPage`；产品模块可用顶部 `extensions` 或账户安全分组的 `security` 插槽追加业务设置。H5 下默认提供修改密码入口，调用 Base 账户安全接口。
 - 通过 core 的公开 service、store 和工具复用底座能力。
 - 允许后续模块按相同物理路由或 `viewKey` 覆盖 system 静态视图。
 - npm 根入口使用 `dist/index.mjs`；workspace 的 Turbo 任务和 `prepare:modules` 会先构建 system 及其依赖的 core Node 入口，干净安装后不依赖历史 dist。

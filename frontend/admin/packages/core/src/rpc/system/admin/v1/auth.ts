@@ -5,7 +5,7 @@
 // source: system/admin/v1/auth.proto
 
 /* eslint-disable */
-import type { SecretCrypto, StringValues } from "../../../common/v1/types";
+import type { StringValues } from "../../../common/v1/types";
 import type { Empty } from "../../../google/protobuf/empty";
 import type { BaseUserIDType } from "../../common/v1/common";
 import type { BaseMenuType } from "./common";
@@ -62,22 +62,6 @@ export interface UserInfoForm {
 export interface GetUserProfileRequest {
 }
 
-/** 获取当前用户密码策略请求参数 */
-export interface GetCurrentPasswordPolicyRequest {
-}
-
-/** 当前用户生效的密码策略 */
-export interface CurrentPasswordPolicy {
-  /** 密码最小长度 */
-  min_length: number;
-  /** 密码至少满足的字符类别数量 */
-  min_complexity_classes: number;
-  /** 禁止重复使用的历史密码数量，零表示不启用 */
-  history_count: number;
-  /** 密码有效期天数，零表示长期有效 */
-  max_age_days: number;
-}
-
 /** 用户资料表单 */
 export interface UserProfileForm {
   /** 用户名 */
@@ -102,12 +86,6 @@ export interface UserProfileForm {
   dept_name: string;
   /** 创建时间 */
   created_at: string;
-}
-
-/** 更新个人中心密码请求参数 */
-export interface UpdateUserPasswordRequest {
-  /** 个人中心密码 */
-  user_password: UserPasswordForm | undefined;
 }
 
 /** 更新个人中心手机号请求参数 */
@@ -200,16 +178,6 @@ export interface RouteParams {
   value?: string | undefined;
 }
 
-/** 用户密码表单 */
-export interface UserPasswordForm {
-  /** 原密码 */
-  old_pwd:
-    | SecretCrypto
-    | undefined;
-  /** 新密码 */
-  new_pwd: SecretCrypto | undefined;
-}
-
 /** 用户手机号表单 */
 export interface UserPhoneForm {
   /** 手机号 */
@@ -228,10 +196,6 @@ export interface AuthService {
   GetUserInfo(request: GetUserInfoRequest): Promise<UserInfoForm>;
   /** 获取个人中心用户信息 */
   GetUserProfile(request: GetUserProfileRequest): Promise<UserProfileForm>;
-  /** 获取当前用户生效的密码策略 */
-  GetCurrentPasswordPolicy(request: GetCurrentPasswordPolicyRequest): Promise<CurrentPasswordPolicy>;
-  /** 修改个人中心密码 */
-  UpdateUserPassword(request: UpdateUserPasswordRequest): Promise<Empty>;
   /** 修改个人中心手机号 */
   UpdateUserPhone(request: UpdateUserPhoneRequest): Promise<Empty>;
   /** 修改个人中心用户信息 */

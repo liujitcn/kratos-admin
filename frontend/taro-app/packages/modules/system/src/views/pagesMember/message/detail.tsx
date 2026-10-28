@@ -1,11 +1,11 @@
 import { useLoad } from '@tarojs/taro'
-import { Button, RichText, Text, View } from '@tarojs/components'
+import { RichText, Text, View } from '@tarojs/components'
 import { useState } from 'react'
-import { KratosNavBar, navigateAppView, t, useThemeStore } from '@liujitcn/kratos-taro-app-core'
+import { KratosNavBar, t, useThemeStore } from '@liujitcn/kratos-taro-app-core'
 import { UniIcon } from '@liujitcn/kratos-taro-app-ui'
 import { defNotificationService } from '../../../api/base/v1/notification'
 import type { Notification } from '../../../rpc/base/v1/notification'
-import { MessageActionType, MessageContentFormat } from '../../../rpc/base/v1/notification'
+import { MessageContentFormat } from '../../../rpc/base/v1/notification'
 import { resolvePersistedMessage } from '../../../utils/persisted-message'
 import { resolveMessageCategoryIcon } from './icons'
 import './message.scss'
@@ -25,27 +25,6 @@ export default function MessageDetailPage() {
     const value = await defNotificationService.GetNotification({ id })
     setDetail(value)
     if (!value.read_at) await defNotificationService.MarkNotificationRead({ ids: [id] })
-  }
-
-  /** 执行通知携带的稳定 viewKey 动作。 */
-  function openAction() {
-    if (!detail || detail.action_type !== MessageActionType.MESSAGE_ACTION_TYPE_VIEW_KEY) return
-    let params: Record<string, string> = {}
-    if (detail.action_params) {
-      try {
-        const value = JSON.parse(detail.action_params) as Record<string, unknown>
-        if (value && typeof value === 'object' && !Array.isArray(value)) {
-          params = Object.fromEntries(
-            Object.entries(value)
-              .filter(([, item]) => typeof item === 'string' || typeof item === 'number')
-              .map(([key, item]) => [key, String(item)]),
-          )
-        }
-      } catch {
-        params = {}
-      }
-    }
-    navigateAppView(detail.action_target, params)
   }
 
   return (
@@ -73,11 +52,6 @@ export default function MessageDetailPage() {
             <RichText className='detail-content-rich' nodes={resolvePersistedMessage(detail.content)} />
           ) : (
             <Text className='detail-content'>{resolvePersistedMessage(detail.content)}</Text>
-          )}
-          {detail.action_type === MessageActionType.MESSAGE_ACTION_TYPE_VIEW_KEY && (
-            <Button className='detail-action' onClick={openAction}>
-              {t('common.action.view')}
-            </Button>
           )}
         </>
       ) : (

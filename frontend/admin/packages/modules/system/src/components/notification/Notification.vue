@@ -87,7 +87,7 @@ import {
   NotificationView
 } from "@liujitcn/kratos-admin-system/rpc/base/v1/notification";
 import { resolvePersistedMessage } from "../../utils/persisted-message";
-import { resolveNotificationAction } from "../../utils/notification-action";
+import { isNotificationActionRouteAvailable, resolveNotificationAction } from "../../utils/notification-action";
 
 const router = useRouter();
 const popoverVisible = ref(false);
@@ -162,6 +162,10 @@ async function openNotification(row: Notification) {
   popoverVisible.value = false;
   const action = resolveNotificationAction(row.action_target, row.action_params);
   if (action?.name === "WorkflowApproval") {
+    if (!isNotificationActionRouteAvailable(router, action)) {
+      ElMessage.warning(t("core.auth.no_permission"));
+      return;
+    }
     if (!row.read_at) {
       await defNotificationService.MarkNotificationRead({ ids: [row.id] });
       unreadTotal.value = Math.max(0, unreadTotal.value - 1);
@@ -197,6 +201,10 @@ function openInbox() {
 function openAction() {
   const route = actionRoute.value;
   if (!route) return;
+  if (!isNotificationActionRouteAvailable(router, route)) {
+    ElMessage.warning(t("core.auth.no_permission"));
+    return;
+  }
   detailVisible.value = false;
   void router.push(route);
 }

@@ -232,6 +232,56 @@ export function parseGraph(nodeConfig: string): GraphDraft | null {
   }
 }
 
+/** 根据流程拓扑自动整理节点坐标，使线性节点保持同一水平线、分支节点按行排列。 */
+export function formatGraphLayout(draft: GraphDraft): void {
+  const outgoing = new Map<string, string[]>();
+  const indegree = new Map<string, number>();
+  const ranks = new Map<string, number>();
+  for (const node of draft.nodes) {
+    outgoing.set(node.id, []);
+    indegree.set(node.id, 0);
+  }
+  for (const edge of draft.edges) {
+    if (!outgoing.has(edge.from) || !indegree.has(edge.to)) continue;
+    outgoing.get(edge.from)?.push(edge.to);
+    indegree.set(edge.to, (indegree.get(edge.to) ?? 0) + 1);
+  }
+
+  const queue = draft.nodes.filter(node => indegree.get(node.id) === 0).map(node => node.id);
+  for (const nodeID of queue) ranks.set(nodeID, 0);
+  while (queue.length) {
+    const nodeID = queue.shift() as string;
+    const rank = ranks.get(nodeID) ?? 0;
+    for (const nextID of outgoing.get(nodeID) ?? []) {
+      ranks.set(nextID, Math.max(ranks.get(nextID) ?? 0, rank + 1));
+      const nextIndegree = (indegree.get(nextID) ?? 0) - 1;
+      indegree.set(nextID, nextIndegree);
+      if (nextIndegree === 0) queue.push(nextID);
+    }
+  }
+
+  // shortcut: 不做复杂交叉最小化，分支交叉明显时再引入 dagre 或 ELK。
+  let maxRank = -1;
+  for (const rank of ranks.values()) maxRank = Math.max(maxRank, rank);
+  const fallbackRank = maxRank + 1;
+  const columns = new Map<number, GraphNodeDraft[]>();
+  for (const node of draft.nodes) {
+    const rank = ranks.get(node.id) ?? fallbackRank;
+    const column = columns.get(rank) ?? [];
+    column.push(node);
+    columns.set(rank, column);
+  }
+
+  const maxRows = Math.max(1, ...Array.from(columns.values(), column => column.length));
+  const centerY = 40 + ((maxRows - 1) / 2) * 120;
+  for (const [rank, column] of columns) {
+    column.forEach((node, index) => {
+      node.x = 40 + rank * 200;
+      node.y = centerY + (index - (column.length - 1) / 2) * 120;
+    });
+  }
+}
+
 /** 为画布与配置表单统一新增连线，拒绝缺失端点、自连线和重复连线。 */
 export function addGraphEdge(draft: GraphDraft, from: string, to: string, condition = ""): string {
   if (!from || !to) return "system.workflow.definition.error.edge_required";

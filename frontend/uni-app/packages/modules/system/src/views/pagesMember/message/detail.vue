@@ -2,11 +2,11 @@
 import KratosNavBar from '@liujitcn/kratos-uni-app-core/components/KratosNavBar.vue'
 import { onLoad } from '@dcloudio/uni-app'
 import { ref } from 'vue'
-import { navigateAppView, t } from '@liujitcn/kratos-uni-app-core'
+import { t } from '@liujitcn/kratos-uni-app-core'
 import { useThemeStore } from '@liujitcn/kratos-uni-app-core/stores'
 import { defNotificationService } from '../../../api/base/v1/notification'
 import type { Notification } from '../../../rpc/base/v1/notification'
-import { MessageActionType, MessageContentFormat } from '../../../rpc/base/v1/notification'
+import { MessageContentFormat } from '../../../rpc/base/v1/notification'
 import { resolvePersistedMessage } from '../../../utils/persisted-message'
 import { resolveMessageCategoryIcon } from './icons'
 
@@ -24,27 +24,6 @@ async function loadDetail(id: number) {
   if (!detail.value.read_at) await defNotificationService.MarkNotificationRead({ ids: [id] })
 }
 
-/** 执行通知携带的稳定 viewKey 动作。 */
-function openAction() {
-  if (!detail.value || detail.value.action_type !== MessageActionType.MESSAGE_ACTION_TYPE_VIEW_KEY)
-    return
-  let params: Record<string, string> = {}
-  if (detail.value.action_params) {
-    try {
-      const value = JSON.parse(detail.value.action_params) as Record<string, unknown>
-      if (value && typeof value === 'object' && !Array.isArray(value)) {
-        params = Object.fromEntries(
-          Object.entries(value)
-            .filter(([, item]) => typeof item === 'string' || typeof item === 'number')
-            .map(([key, item]) => [key, String(item)]),
-        )
-      }
-    } catch {
-      params = {}
-    }
-  }
-  navigateAppView(detail.value.action_target, params)
-}
 </script>
 
 <template>
@@ -72,13 +51,6 @@ function openAction() {
         :nodes="resolvePersistedMessage(detail.content)"
       />
       <text v-else class="detail-content">{{ resolvePersistedMessage(detail.content) }}</text>
-      <button
-        v-if="detail.action_type === MessageActionType.MESSAGE_ACTION_TYPE_VIEW_KEY"
-        class="detail-action"
-        @tap="openAction"
-      >
-        {{ t('common.action.view') }}
-      </button>
     </template>
     <view v-else class="detail-loading">{{ t('core.status.loading') }}</view>
   </view>
@@ -88,7 +60,7 @@ function openAction() {
 .detail-page {
   box-sizing: border-box;
   min-height: 100vh;
-  padding: 0 30rpx calc(96rpx + env(safe-area-inset-bottom));
+  padding: 0 20rpx calc(96rpx + env(safe-area-inset-bottom));
   background: var(--kratos-bg-gradient);
   color: var(--kratos-color-text);
 }
@@ -151,16 +123,6 @@ function openAction() {
   font-size: 30rpx;
   line-height: 1.8;
   overflow-wrap: anywhere;
-}
-.detail-action {
-  margin-top: 36rpx;
-  border: 1px solid var(--kratos-color-border-accent);
-  border-radius: 20rpx;
-  background: var(--kratos-color-primary-soft);
-  color: var(--kratos-color-primary);
-  font-size: 28rpx;
-  font-weight: 700;
-  line-height: 88rpx;
 }
 .empty {
   box-sizing: border-box;

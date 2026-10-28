@@ -363,7 +363,7 @@ const onSubmit = async () => {
 
 /* 导航组件统一处理顶部空间，页面只维护内容的水平与底部留白。 */
 .profile-content {
-  padding: 0 32rpx calc(40rpx + env(safe-area-inset-bottom));
+  padding: 0 20rpx calc(40rpx + env(safe-area-inset-bottom));
 }
 
 /* 头像卡 */
@@ -381,6 +381,11 @@ const onSubmit = async () => {
 
 .profile-id__meta {
   min-width: 0;
+}
+
+.profile-id .k-pfx__av {
+  background: transparent;
+  box-shadow: none;
 }
 
 .profile-av-img {
@@ -417,6 +422,13 @@ const onSubmit = async () => {
   align-items: center;
   color: var(--kratos-color-text);
   font-size: 25rpx;
+}
+
+/* 原生 radio 在各端默认尺寸不同，只统一视觉比例，保留原生交互。 */
+.profile-radio radio,
+.profile-radio uni-radio {
+  transform: scale(0.9);
+  transform-origin: center;
 }
 
 .profile-auth-button {

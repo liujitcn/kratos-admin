@@ -59,7 +59,7 @@ import {
   MessageContentFormat,
   NotificationView
 } from "@liujitcn/kratos-admin-system/rpc/base/v1/notification";
-import { resolveNotificationAction } from "../../../utils/notification-action";
+import { isNotificationActionRouteAvailable, resolveNotificationAction } from "../../../utils/notification-action";
 
 defineOptions({ name: "NotificationInbox", inheritAttrs: false });
 
@@ -196,6 +196,10 @@ async function loadCategoryOptions() {
 async function openDetail(row: Notification) {
   const action = resolveNotificationAction(row.action_target, row.action_params);
   if (action?.name === "WorkflowApproval") {
+    if (!isNotificationActionRouteAvailable(router, action)) {
+      ElMessage.warning(t("core.auth.no_permission"));
+      return;
+    }
     if (!row.read_at) await defNotificationService.MarkNotificationRead({ ids: [row.id] });
     proTable.value?.getTableList();
     void router.push(action);
@@ -217,6 +221,10 @@ async function openDetail(row: Notification) {
 function openAction() {
   const route = actionRoute.value;
   if (!route) return;
+  if (!isNotificationActionRouteAvailable(router, route)) {
+    ElMessage.warning(t("core.auth.no_permission"));
+    return;
+  }
   void router.push(route);
 }
 

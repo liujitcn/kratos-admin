@@ -43,18 +43,6 @@
               {{ t(isExpanded ? "system.base.role.action.collapse_nodes" : "system.base.role.action.expand_nodes") }}
             </el-button>
           </div>
-          <div class="perm-toolbar__group perm-toolbar__group--linkage">
-            <span class="perm-toolbar__label">{{ t("system.base.role.field.selection_mode") }}</span>
-            <el-checkbox v-model="parentChildLinked" @change="handelParentChildLinkedChange">{{
-              t("system.base.role.field.parent_child_linked")
-            }}</el-checkbox>
-            <el-tooltip placement="bottom">
-              <template #content>{{ t("system.base.role.message.parent_child_linked_tip") }}</template>
-              <el-icon class="perm-linkage__icon">
-                <QuestionFilled />
-              </el-icon>
-            </el-tooltip>
-          </div>
         </div>
       </div>
 
@@ -65,7 +53,7 @@
         :data="menuPermOptions"
         :filter-node-method="handlePermFilter"
         :default-expand-all="true"
-        :check-strictly="!parentChildLinked"
+        :check-strictly="true"
         class="mt-5"
       >
         <template #default="{ data }">
@@ -86,8 +74,7 @@
 <script setup lang="ts">
 import { computed, nextTick, onMounted, reactive, ref, watch } from "vue";
 import { ElMessage, ElMessageBox, ElTree } from "element-plus";
-import type { CheckboxValueType } from "element-plus";
-import { CirclePlus, Delete, EditPen, Position, QuestionFilled, Search, Switch } from "@element-plus/icons-vue";
+import { CirclePlus, Delete, EditPen, Position, Search, Switch } from "@element-plus/icons-vue";
 import type { ColumnProps, HeaderActionProps, ProTableInstance } from "@liujitcn/kratos-admin-core/components/ProTable/interface";
 import ProTable from "@liujitcn/kratos-admin-core/components/ProTable";
 import FormDialog from "@liujitcn/kratos-admin-core/components/Dialog/FormDialog.vue";
@@ -233,7 +220,6 @@ const checkedBaseRole = ref<CheckedBaseRole>({});
 const assignPermDialogVisible = ref(false);
 const permKeywords = ref("");
 const isExpanded = ref(true);
-const parentChildLinked = ref(true);
 
 const { isDefaultTenant, tenantColumns, tenantFormField, toRequestTenantId, loadTenantOptions } = useTenantScope();
 onMounted(() => {
@@ -266,7 +252,8 @@ const formFields = computed<ProFormField[]>(() => [
       props: { label: "label", children: "children" },
       multiple: true,
       showCheckbox: true,
-      checkStrictly: false,
+      checkStrictly: true,
+      defaultExpandAll: true,
       style: { width: "100%" },
       onCheck: handleCheck
     }
@@ -645,12 +632,6 @@ function handlePermFilter(value: string, data: Record<string, any>) {
   return data.label.includes(value);
 }
 
-/**
- * 切换父子联动配置。
- */
-function handelParentChildLinkedChange(val: CheckboxValueType) {
-  parentChildLinked.value = Boolean(val);
-}
 </script>
 
 <style scoped>
@@ -683,9 +664,6 @@ function handelParentChildLinkedChange(val: CheckboxValueType) {
   border: 1px solid #e4eaf3;
   border-radius: var(--admin-page-radius);
 }
-.perm-toolbar__group--linkage {
-  margin-left: auto;
-}
 .perm-toolbar__label {
   font-size: 12px;
   font-weight: 600;
@@ -704,19 +682,12 @@ function handelParentChildLinkedChange(val: CheckboxValueType) {
   background: var(--el-color-primary-light-9);
   border-color: var(--el-color-primary-light-5);
 }
-.perm-linkage__icon {
-  font-size: 14px;
-  color: var(--el-color-primary);
-  cursor: pointer;
-}
-
 @media (width <= 768px) {
   .perm-toolbar__actions {
     flex-direction: column;
     align-items: stretch;
   }
-  .perm-toolbar__group,
-  .perm-toolbar__group--linkage {
+  .perm-toolbar__group {
     justify-content: space-between;
     width: 100%;
     margin-left: 0;

@@ -1,6 +1,18 @@
 @use './theme.scss';
 @use './components.scss';
 
+html,
+body,
+#app,
+uni-app,
+uni-page,
+uni-page-wrapper,
+uni-page-body,
+page {
+  min-height: 100%;
+  background-color: var(--kratos-color-background, #eef3f8);
+}
+
 page,
 body,
 uni-page-body {
@@ -62,6 +74,49 @@ html.theme-light page {
 
 html.theme-dark page {
   background-color: #060a12;
+}
+
+html .uni-modal {
+  background-color: var(--kratos-color-surface-solid, #ffffff);
+  color: var(--kratos-color-text, #102232);
+  font-family: var(--kratos-font-sans, sans-serif);
+}
+
+html .uni-modal__hd {
+  padding: 16px 24px 8px;
+}
+
+html .uni-modal__title {
+  color: var(--kratos-color-text, #102232);
+  font-size: 18px;
+  line-height: 25px;
+}
+
+html .uni-modal__bd {
+  min-height: 40px;
+  padding: 8px 24px 16px;
+  color: var(--kratos-color-text-muted, #5a7083);
+  font-size: 15px;
+  line-height: 21px;
+}
+
+html .uni-modal__ft {
+  font-size: 18px;
+  line-height: 48px;
+}
+
+html .uni-modal__ft::after,
+html .uni-modal__btn::after {
+  border-color: var(--kratos-color-border, #e3eaf2);
+  color: var(--kratos-color-border, #e3eaf2);
+}
+
+html .uni-modal__btn_primary {
+  color: var(--kratos-color-primary, #039e8c) !important;
+}
+
+html .uni-modal__btn_default {
+  color: var(--kratos-color-text-muted, #5a7083) !important;
 }
 
 html.theme-dark .uni-modal {

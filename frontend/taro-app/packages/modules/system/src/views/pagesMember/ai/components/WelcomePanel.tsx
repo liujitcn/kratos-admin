@@ -2,7 +2,7 @@ import { Button, Text, View } from '@tarojs/components'
 import { UniIcon } from '@liujitcn/kratos-taro-app-ui'
 import { t, useI18n, useThemeStore } from '@liujitcn/kratos-taro-app-core'
 import type { AiShortcut } from '../../../../rpc/base/v1/ai_tool'
-import './welcome-panel.scss'
+import './WelcomePanel.scss'
 
 type WelcomePanelProps = {
   greetingMessage: string

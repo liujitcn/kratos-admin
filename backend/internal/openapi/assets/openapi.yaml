@@ -32,35 +32,6 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/system.admin.v1.TreeRouteResponse'
-    /api/v1/admin/auth/password:
-        put:
-            tags:
-                - AuthService
-            description: 修改个人中心密码
-            operationId: AuthService_UpdateUserPassword
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/system.admin.v1.UserPasswordForm'
-                required: true
-            responses:
-                "200":
-                    description: OK
-                    content: {}
-    /api/v1/admin/auth/password-policy:
-        get:
-            tags:
-                - AuthService
-            description: 获取当前用户生效的密码策略
-            operationId: AuthService_GetCurrentPasswordPolicy
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/system.admin.v1.CurrentPasswordPolicy'
     /api/v1/admin/auth/phone:
         put:
             tags:
@@ -8120,6 +8091,35 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/system.app.v1.ListBaseMenuResponse'
+    /api/v1/base/account/password:
+        put:
+            tags:
+                - AccountService
+            description: 修改当前用户密码。
+            operationId: AccountService_UpdateUserPassword
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/base.v1.UserPasswordForm'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/base/account/password-policy:
+        get:
+            tags:
+                - AccountService
+            description: 获取当前用户生效的密码策略。
+            operationId: AccountService_GetCurrentPasswordPolicy
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.CurrentPasswordPolicy'
     /api/v1/base/ai/knowledge/options:
         get:
             tags:
@@ -10053,6 +10053,26 @@ components:
                     description: 当前登录策略允许的MFA设备免验证天数
                     format: int32
             description: 三方登录会话创建响应
+        base.v1.CurrentPasswordPolicy:
+            type: object
+            properties:
+                min_length:
+                    type: integer
+                    description: 密码最小长度
+                    format: int32
+                min_complexity_classes:
+                    type: integer
+                    description: 密码至少满足的字符类别数量
+                    format: int32
+                history_count:
+                    type: integer
+                    description: 禁止重复使用的历史密码数量，零表示不启用
+                    format: int32
+                max_age_days:
+                    type: integer
+                    description: 密码有效期天数，零表示长期有效
+                    format: int32
+            description: 当前用户生效的密码策略。
         base.v1.DeleteAiMessageResponse:
             type: object
             properties: {}
@@ -10875,6 +10895,14 @@ components:
                 file:
                     $ref: '#/components/schemas/base.v1.UploadFileInfo'
             description: 单文件上传请求参数
+        base.v1.UserPasswordForm:
+            type: object
+            properties:
+                old_pwd:
+                    $ref: '#/components/schemas/common.v1.SecretCrypto'
+                new_pwd:
+                    $ref: '#/components/schemas/common.v1.SecretCrypto'
+            description: 当前用户密码表单。
         base.v1.VerifyCaptchaRequest:
             type: object
             properties:
@@ -16269,26 +16297,6 @@ components:
                     type: string
                     description: 租户管理员初始密码，仅在随机生成时返回
             description: 创建租户响应参数
-        system.admin.v1.CurrentPasswordPolicy:
-            type: object
-            properties:
-                min_length:
-                    type: integer
-                    description: 密码最小长度
-                    format: int32
-                min_complexity_classes:
-                    type: integer
-                    description: 密码至少满足的字符类别数量
-                    format: int32
-                history_count:
-                    type: integer
-                    description: 禁止重复使用的历史密码数量，零表示不启用
-                    format: int32
-                max_age_days:
-                    type: integer
-                    description: 密码有效期天数，零表示长期有效
-                    format: int32
-            description: 当前用户生效的密码策略
         system.admin.v1.DraftBaseI18nItem:
             type: object
             properties:
@@ -18900,14 +18908,6 @@ components:
                     type: string
                     description: 当前用户所属租户ID
             description: 用户信息表单
-        system.admin.v1.UserPasswordForm:
-            type: object
-            properties:
-                old_pwd:
-                    $ref: '#/components/schemas/common.v1.SecretCrypto'
-                new_pwd:
-                    $ref: '#/components/schemas/common.v1.SecretCrypto'
-            description: 用户密码表单
         system.admin.v1.UserPhoneForm:
             type: object
             properties:
@@ -19435,14 +19435,16 @@ components:
                     description: 头像
             description: 用户资料表单
 tags:
+    - name: AccountService
+      description: Base 账户安全服务。
     - name: AiKnowledgeChunkService
       description: AI知识库切片检索服务。
     - name: AiKnowledgeDocService
       description: AI知识库文档管理服务。
     - name: AiKnowledgeService
-      description: AI知识库管理服务。
-    - name: AiKnowledgeService
       description: AI 知识库选项查询服务。
+    - name: AiKnowledgeService
+      description: AI知识库管理服务。
     - name: AiMessageService
       description: Base AI 助手消息服务
     - name: AiModelService
@@ -19450,21 +19452,21 @@ tags:
     - name: AiProviderService
       description: AI供应商管理服务。
     - name: AiQueryService
-      description: Base AI 助手智能问数服务
-    - name: AiQueryService
       description: 智能问数记录管理服务。
+    - name: AiQueryService
+      description: Base AI 助手智能问数服务
     - name: AiSearchService
       description: Base AI 助手联网搜索服务
     - name: AiSessionService
-      description: AI会话管理服务。
-    - name: AiSessionService
       description: Base AI 助手会话服务
+    - name: AiSessionService
+      description: AI会话管理服务。
     - name: AiToolService
       description: Base AI 助手工具服务
     - name: AuthService
-      description: Admin用户登录认证服务
-    - name: AuthService
       description: App用户认证服务
+    - name: AuthService
+      description: Admin用户登录认证服务
     - name: BaseApiLogService
       description: Admin API访问日志服务。
     - name: BaseApiRateLimitPolicyService
@@ -19472,9 +19474,9 @@ tags:
     - name: BaseApiService
       description: AdminAPI服务
     - name: BaseAreaService
-      description: App行政区域服务
-    - name: BaseAreaService
       description: Admin行政区域服务
+    - name: BaseAreaService
+      description: App行政区域服务
     - name: BaseConfigService
       description: Admin系统配置服务
     - name: BaseDashboardService
@@ -19508,9 +19510,9 @@ tags:
     - name: BaseLoginPolicyService
       description: Admin登录策略管理服务。
     - name: BaseMenuService
-      description: App菜单服务
-    - name: BaseMenuService
       description: Admin菜单管理服务
+    - name: BaseMenuService
+      description: App菜单服务
     - name: BaseMessageCategoryService
       description: Admin消息分类管理服务。
     - name: BaseMessageProviderService

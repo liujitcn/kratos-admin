@@ -25,7 +25,7 @@ import (
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 	"github.com/liujitcn/kratos-admin/backend/pkg/notification"
-	pkgWorkflow "github.com/liujitcn/kratos-admin/backend/pkg/workflow"
+	"github.com/liujitcn/kratos-admin/backend/pkg/workflow"
 	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
 	"github.com/liujitcn/kratos-core/biz"
 	coreconst "github.com/liujitcn/kratos-core/const"
@@ -69,7 +69,7 @@ type BaseTenantCase struct {
 	casbinRuleRepo          *data.CasbinRuleRepository
 	casbinRuleCase          *CasbinRuleCase
 	catalog                 *i18n.I18n
-	eventRegistry           *pkgWorkflow.EventRegistry
+	eventRegistry           *workflow.EventRegistry
 	formMapper              *mapper.CopierMapper[adminv1.BaseTenantForm, models.BaseTenant]
 	mapper                  *mapper.CopierMapper[adminv1.BaseTenant, models.BaseTenant]
 }
@@ -96,7 +96,7 @@ func NewBaseTenantCase(
 	casbinRuleRepo *data.CasbinRuleRepository,
 	casbinRuleCase *CasbinRuleCase,
 	catalog *i18n.I18n,
-	eventRegistry *pkgWorkflow.EventRegistry,
+	eventRegistry *workflow.EventRegistry,
 ) *BaseTenantCase {
 	caseValue := &BaseTenantCase{
 		BaseCase:                baseCase,
@@ -235,7 +235,7 @@ func (c *BaseTenantCase) submitTenantApproval(ctx context.Context, req *adminv1.
 	if err != nil {
 		return nil, err
 	}
-	_, err = pkgWorkflow.Submit(ctx, pkgWorkflow.SubmitParams{
+	_, err = workflow.Submit(ctx, workflow.SubmitParams{
 		Code:         baseTenantCreateWorkflowCode,
 		Version:      1,
 		FormData:     string(formData),
@@ -345,7 +345,7 @@ func (c *BaseTenantCase) removeTenantPlaceholder(ctx context.Context, tenantID i
 }
 
 // handleTenantWorkflowAction 执行审批通过后的租户初始化动作，并向申请人发送一次性凭据。
-func (c *BaseTenantCase) handleTenantWorkflowAction(ctx context.Context, input pkgWorkflow.ActionContext) error {
+func (c *BaseTenantCase) handleTenantWorkflowAction(ctx context.Context, input workflow.ActionContext) error {
 	defaultTenantID, err := findDefaultTenantID(c.Query)
 	if err != nil {
 		return errorsx.Internal("校验租户审批来源失败").WithCause(err)

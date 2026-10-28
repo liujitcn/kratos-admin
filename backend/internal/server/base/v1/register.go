@@ -29,6 +29,7 @@ type Services struct {
 	Mcp          *base.McpService
 	Notification *base.NotificationService
 	Sse          *base.SseService
+	Account      *base.AccountService
 }
 
 // RegisterGRPC 注册 base.v1 的 gRPC 服务。
@@ -51,6 +52,7 @@ func (s Services) RegisterGRPC(srv grpc.ServiceRegistrar) {
 	basev1.RegisterMcpServiceServer(srv, basev1.RedactedMcpServiceServer(s.Mcp))
 	basev1.RegisterNotificationServiceServer(srv, basev1.RedactedNotificationServiceServer(s.Notification))
 	basev1.RegisterSseServiceServer(srv, basev1.RedactedSseServiceServer(s.Sse))
+	basev1.RegisterAccountServiceServer(srv, basev1.RedactedAccountServiceServer(s.Account))
 }
 
 // RegisterHTTP 注册 base.v1 的 HTTP 服务。
@@ -77,6 +79,7 @@ func (s Services) RegisterHTTP(srv *http.Server) {
 	basev1.RegisterNotificationServiceHTTPServer(srv, basev1.RedactedNotificationServiceServer(s.Notification))
 	// SSE 订阅保留 Base 协议兼容路由，统一运行时由 Core SSE 服务承载。
 	base.RegisterSseServiceHTTPServer(srv, s.Sse)
+	basev1.RegisterAccountServiceHTTPServer(srv, basev1.RedactedAccountServiceServer(s.Account))
 }
 
 // RegisterMCP 注册 base.v1 的 MCP 工具。

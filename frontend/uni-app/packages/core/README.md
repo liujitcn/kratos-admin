@@ -38,7 +38,7 @@ packages/core
 - 页面装配插件在编译配置中移除宿主的原生 `tabBar`，退出后恢复宿主原文件。导航按模块注册的 `viewKey` 解析物理页面，支持业务模块覆盖首页和扩展 tab；引用项目升级 core 包后即可使用相同策略。
 - 按匿名态、登录态缓存导航，并在远端不可用时回退到最近缓存或默认菜单。
 - 统一认证、token、MFA、HTTP、上传、配置、Pinia 和基础页面能力。
-- 提供可复用的 `KratosSettingsPage`，统一语言、MFA、微信设置和退出登录，并允许产品在最上方追加业务设置。
+- 提供可复用的 `KratosSettingsPage`，统一账户安全、语言、主题外观、MFA、微信设置和退出登录，并允许产品在最上方或账户安全分组追加业务设置。
 - 公开通用密码弹窗、MFA 绑定面板与恢复码弹窗，供登录页和业务模块复用同一套绑定界面。
 - 登录阶段支持 TOTP、WebAuthn 和一次性恢复码校验；WebAuthn 编解码封装在 `src/utils/webauthn.ts`。
 - 构建时扫描模块 `src/views/**/*.vue`，逐文件合并模块 static，生成宿主页并在退出时按事务精确恢复。
@@ -100,7 +100,7 @@ const combinedAction: KratosNavBarAction = { icon: 'history', label: '历史', d
 
 ## 公共设置页
 
-产品设置页通过公开子路径引用 `KratosSettingsPage`。`extensions` 是唯一业务扩展插槽，固定直接渲染在页面视口最上方；没有传入内容时不会生成容器或额外间距。
+产品设置页通过公开子路径引用 `KratosSettingsPage`。`extensions` 用于页面最上方扩展，`security` 用于账户安全分组内扩展；没有传入内容时不会生成容器或额外间距。
 
 ```vue
 <script setup lang="ts">
@@ -116,7 +116,7 @@ import KratosSettingsPage from '@liujitcn/kratos-uni-app-core/components/KratosS
 </template>
 ```
 
-扩展内容由产品模块自行组织完整卡片。页面顺序固定为业务扩展、MFA 与语言、微信设置、退出登录；产品模块可以注册自己的物理页面，并通过后注册的 `SETTINGS` viewKey 覆盖 system 默认包装页。
+扩展内容由产品模块自行组织完整卡片。页面顺序固定为业务扩展、账户安全、外观（主题与语言）、微信设置、退出登录；产品模块可以注册自己的物理页面，并通过后注册的 `SETTINGS` viewKey 覆盖 system 默认包装页。
 
 构建与验证命令见 [workspace 文档](../../README.md)。
 

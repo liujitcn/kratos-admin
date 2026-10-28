@@ -4,20 +4,20 @@ import (
 	"context"
 	"time"
 
-	stringutil "github.com/liujitcn/go-utils/string"
+	_string "github.com/liujitcn/go-utils/string"
 	"github.com/liujitcn/gorm-kit/repository"
 	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 	"github.com/liujitcn/kratos-admin/backend/pkg/scripting"
 	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
-	corebiz "github.com/liujitcn/kratos-core/biz"
+	"github.com/liujitcn/kratos-core/biz"
 	"github.com/liujitcn/kratos-core/errorsx"
 )
 
 // BaseScriptCase 脚本管理业务实例。
 type BaseScriptCase struct {
-	*corebiz.BaseCase
+	*biz.BaseCase
 	*data.BaseScriptRepository
 	tx            data.Transaction
 	baseScriptLog *BaseScriptLogCase
@@ -26,7 +26,7 @@ type BaseScriptCase struct {
 
 // NewBaseScriptCase 创建脚本管理业务实例。
 func NewBaseScriptCase(
-	baseCase *corebiz.BaseCase,
+	baseCase *biz.BaseCase,
 	tx data.Transaction,
 	repo *data.BaseScriptRepository,
 	baseScriptLog *BaseScriptLogCase,
@@ -125,7 +125,7 @@ func (c *BaseScriptCase) UpdateBaseScript(ctx context.Context, req *adminv1.Base
 
 // DeleteBaseScript 删除脚本，执行日志保留用于审计。
 func (c *BaseScriptCase) DeleteBaseScript(ctx context.Context, id string) error {
-	ids := stringutil.ConvertStringToInt64Array(id)
+	ids := _string.ConvertStringToInt64Array(id)
 	if len(ids) == 0 {
 		return errorsx.InvalidArgument("脚本ID列表不能为空")
 	}

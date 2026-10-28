@@ -8,7 +8,7 @@ import type { AiKnowledgeOption } from '../../../../rpc/base/v1/ai_knowledge'
 import { fallbackModelDisplayName } from '../modelDisplay'
 import KnowledgePicker from './KnowledgePicker'
 import ModelPicker from './ModelPicker'
-import './composer.scss'
+import './Composer.scss'
 
 /** AI 助手输入框与模型选择器参数。 */
 type ComposerProps = {
@@ -88,7 +88,7 @@ export default function Composer(props: ComposerProps) {
         <Text className='composer-model-chip__label'>
           {selectedModelDisplayName || props.modelPlaceholder}
         </Text>
-        <Text className='composer-model-chip__chevron'>▾</Text>
+        <UniIcon type='down' size={12} color={iconColor} />
       </View>
       <View
         className={`composer-model-chip${props.sending || !props.knowledgeOptions.length ? ' is-disabled' : ''}${props.knowledgeIds.length ? ' is-selected' : ''}`}
@@ -100,7 +100,7 @@ export default function Composer(props: ComposerProps) {
             ? t('system.ai.knowledge.selected_count', { count: props.knowledgeIds.length })
             : t('system.ai.knowledge.title')}
         </Text>
-        <Text className='composer-model-chip__chevron'>▾</Text>
+        <UniIcon type='down' size={12} color={iconColor} />
       </View>
       <View className='composer-main'>
         <Button className='attach-button' hoverClass='none' onClick={props.onAttach}>

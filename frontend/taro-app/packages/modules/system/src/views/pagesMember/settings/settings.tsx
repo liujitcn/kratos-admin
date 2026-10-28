@@ -14,6 +14,7 @@ import {
 import { defMfaService } from '@liujitcn/kratos-taro-app-core/api/base/v1/mfa'
 import { isAuthExpiredError } from '@liujitcn/kratos-taro-app-core/utils/http'
 import PasswordVerifyDialog from './components/PasswordVerifyDialog'
+import ChangePasswordEntry from './components/ChangePasswordEntry'
 import './settings.scss'
 
 /** SettingsPage 展示应用设置与账号安全操作。 */
@@ -172,6 +173,27 @@ export default function SettingsPage() {
         <KratosNavBar title={t('system.settings.title')} />
 
         <View className='settings-content'>
+          <View className='k-set-cat'>{t('system.settings.section_security')}</View>
+          {authenticated ? (
+            <View className='k-set-row k-set-row--arrow' onClick={onMfaTap}>
+              <View className='k-set-row__lead'>
+                <View className='k-set-row__icon'>
+                  <Image className='settings-row__icon' src={settingsIcons.mfa} mode='aspectFit' />
+                </View>
+                <Text className='k-set-row__title'>{t('system.settings.mfa_title')}</Text>
+              </View>
+              <Text
+                className={`k-set-row__value settings-row__value ${
+                  mfaEnabled ? 'k-set-row__value--on' : ''
+                }`}
+              >
+                {mfaStatusText}
+              </Text>
+            </View>
+          ) : null}
+
+          {process.env.TARO_ENV === 'h5' ? <ChangePasswordEntry /> : null}
+
           <View className='k-set-cat'>{t('system.settings.section_appearance')}</View>
           <Picker
             mode='selector'
@@ -194,25 +216,6 @@ export default function SettingsPage() {
               </Text>
             </View>
           </Picker>
-
-          <View className='k-set-cat'>{t('system.settings.section_security')}</View>
-          {authenticated ? (
-            <View className='k-set-row k-set-row--arrow' onClick={onMfaTap}>
-              <View className='k-set-row__lead'>
-                <View className='k-set-row__icon'>
-                  <Image className='settings-row__icon' src={settingsIcons.mfa} mode='aspectFit' />
-                </View>
-                <Text className='k-set-row__title'>{t('system.settings.mfa_title')}</Text>
-              </View>
-              <Text
-                className={`k-set-row__value settings-row__value ${
-                  mfaEnabled ? 'k-set-row__value--on' : ''
-                }`}
-              >
-                {mfaStatusText}
-              </Text>
-            </View>
-          ) : null}
           <Picker
             mode='selector'
             range={localeLabels}

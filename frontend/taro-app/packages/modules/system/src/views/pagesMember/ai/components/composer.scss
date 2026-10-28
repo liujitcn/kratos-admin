@@ -57,13 +57,6 @@
   white-space: nowrap;
 }
 
-.composer-model-chip__chevron {
-  flex-shrink: 0;
-  color: var(--kratos-color-text-muted, #5a7083);
-  font-size: 22px;
-  line-height: 22px;
-}
-
 .composer-main {
   display: flex;
   align-items: center;
@@ -144,6 +137,33 @@
 }
 
 .composer-placeholder { color: var(--kratos-color-text-dim, #9aabbb); font-size: 29px; }
+
+/* H5 的 Taro textarea 是自定义宿主，样式需要落到内部原生 textarea。 */
+/* #ifdef h5 */
+.composer-input {
+  padding: 0;
+}
+
+.composer-input .taro-textarea {
+  width: 100%;
+  min-height: 42px;
+  max-height: 126px;
+  padding: 14px 0;
+  border: 0;
+  outline: 0;
+  color: var(--kratos-color-text, #102232);
+  font-size: 29px;
+  line-height: 42px;
+  background: transparent;
+  resize: none;
+}
+
+.composer-input .taro-textarea::placeholder {
+  color: var(--kratos-color-text-dim, #9aabbb);
+  font-size: 29px;
+  opacity: 1;
+}
+/* #endif */
 
 .voice-button,
 .send-button {

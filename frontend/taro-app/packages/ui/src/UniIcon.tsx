@@ -9,6 +9,7 @@ export type UniIconName =
   | 'paperplane-filled'
   | 'left'
   | 'right'
+  | 'down'
   | 'bars'
   | 'search'
   | 'more'
@@ -41,6 +42,7 @@ const iconUnicode: Record<UniIconName, string> = {
   'paperplane-filled': '\ue675',
   left: '\ue6b7',
   right: '\ue6b5',
+  down: '\ue6b8',
   bars: '\ue627',
   search: '\ue654',
   more: '\ue64d',

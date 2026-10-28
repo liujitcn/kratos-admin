@@ -85,6 +85,8 @@ export const moduleManifest = [coreModule, systemModule]
 
 System 的 `KratosMyPage` 负责个人信息、AI 助手和顶部设置入口；默认“我的”页面保留空的 `extensions` 扩展区，当前宿主不预置其他业务卡片。页面覆盖规则见 [system 个人中心扩展](packages/modules/system/README.md#个人中心扩展)。
 
+公共设置页通过 `KratosSettingsPage` 的 `extensions` 和 `security` 插槽扩展页面顶部与账户安全分组；System 的修改密码入口仅在 H5 装配，并调用 Base 账户安全服务。
+
 宿主 `pages.json` 只提交固定 bootstrap 页面。开发或构建期间，插件会临时生成页面 wrapper、合并页面配置，并把模块 static 逐文件合并到宿主；同名宿主文件优先，事务只记录和清理插件实际写入的文件。正常退出后自动恢复。若进程被强制结束，下次启动会先根据 `.kratos-uni-app-pages-state.json` 恢复上一次事务。同一宿主同时只允许一个 H5 或小程序开发/构建进程持有页面事务，切换平台前需要先停止当前进程。
 
 ## 动态导航

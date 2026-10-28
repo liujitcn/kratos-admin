@@ -20,8 +20,8 @@
 import { computed, reactive, ref } from "vue";
 import { useRouter } from "vue-router";
 import { t } from "@liujitcn/kratos-admin-core";
-import { defProfileAuthService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/auth";
-import type { UserPasswordForm } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/auth";
+import { defAccountService } from "@liujitcn/kratos-admin-core/api/base/v1/account";
+import type { UserPasswordForm } from "@liujitcn/kratos-admin-core/rpc/base/v1/account";
 import PasswordStrength from "@liujitcn/kratos-admin-core/components/PasswordStrength/index.vue";
 import ProForm from "@liujitcn/kratos-admin-core/components/ProForm/index.vue";
 import type { ProFormField, ProFormInstance } from "@liujitcn/kratos-admin-core/components/ProForm/interface";
@@ -99,7 +99,7 @@ async function handleSubmitPassword() {
       old_pwd: oldPwd,
       new_pwd: newPwd
     };
-    await defProfileAuthService.UpdateUserPassword({ user_password: userPassword });
+    await defAccountService.UpdateUserPassword({ user_password: userPassword });
     clearPasswordChangeRequired();
     ElMessage.success(t("system.profile.password.message.updated"));
     resetPasswordForm();

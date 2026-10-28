@@ -67,7 +67,9 @@ export function KratosTabBar({ route }: KratosTabBarProps) {
             {item.viewKey === 'MESSAGE_INBOX' && messageBadge ? (
               <View className='kratos-tab-bar__badge' aria-hidden='true' />
             ) : null}
-            <Text className={active ? 'kratos-tab-bar__text--active' : ''}>{item.title}</Text>
+            <Text className={`kratos-tab-bar__text${active ? ' kratos-tab-bar__text--active' : ''}`}>
+              {item.title}
+            </Text>
           </View>
         )
       })}

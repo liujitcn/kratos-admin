@@ -32,35 +32,6 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/system.admin.v1.TreeRouteResponse'
-    /api/v1/admin/auth/password:
-        put:
-            tags:
-                - AuthService
-            description: 修改個人中心密碼
-            operationId: AuthService_UpdateUserPassword
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/system.admin.v1.UserPasswordForm'
-                required: true
-            responses:
-                "200":
-                    description: OK
-                    content: {}
-    /api/v1/admin/auth/password-policy:
-        get:
-            tags:
-                - AuthService
-            description: 取得目前使用者生效的密碼策略
-            operationId: AuthService_GetCurrentPasswordPolicy
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/system.admin.v1.CurrentPasswordPolicy'
     /api/v1/admin/auth/phone:
         put:
             tags:
@@ -8120,6 +8091,35 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/system.app.v1.ListBaseMenuResponse'
+    /api/v1/base/account/password:
+        put:
+            tags:
+                - AccountService
+            description: 修改當前使用者密碼。
+            operationId: AccountService_UpdateUserPassword
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/base.v1.UserPasswordForm'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/base/account/password-policy:
+        get:
+            tags:
+                - AccountService
+            description: 獲取當前使用者生效的密碼策略。
+            operationId: AccountService_GetCurrentPasswordPolicy
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.CurrentPasswordPolicy'
     /api/v1/base/ai/knowledge/options:
         get:
             tags:
@@ -10053,6 +10053,26 @@ components:
                     description: 當前登入策略允許的MFA裝置免驗證天數
                     format: int32
             description: 三方登入會話建立響應
+        base.v1.CurrentPasswordPolicy:
+            type: object
+            properties:
+                min_length:
+                    type: integer
+                    description: 密碼最小長度
+                    format: int32
+                min_complexity_classes:
+                    type: integer
+                    description: 密碼至少符合的字元類別數量
+                    format: int32
+                history_count:
+                    type: integer
+                    description: 禁止重複使用的歷史密碼數量，零表示不啟用
+                    format: int32
+                max_age_days:
+                    type: integer
+                    description: 密碼有效期天數，零表示長期有效
+                    format: int32
+            description: 當前使用者生效的密碼策略。
         base.v1.DeleteAiMessageResponse:
             type: object
             properties: {}
@@ -10875,6 +10895,14 @@ components:
                 file:
                     $ref: '#/components/schemas/base.v1.UploadFileInfo'
             description: 單檔案上傳請求引數
+        base.v1.UserPasswordForm:
+            type: object
+            properties:
+                old_pwd:
+                    $ref: '#/components/schemas/common.v1.SecretCrypto'
+                new_pwd:
+                    $ref: '#/components/schemas/common.v1.SecretCrypto'
+            description: 當前使用者密碼錶單。
         base.v1.VerifyCaptchaRequest:
             type: object
             properties:
@@ -16269,26 +16297,6 @@ components:
                     type: string
                     description: 租戶管理員初始密碼，僅在隨機產生時返回
             description: 建立租戶回應參數
-        system.admin.v1.CurrentPasswordPolicy:
-            type: object
-            properties:
-                min_length:
-                    type: integer
-                    description: 密碼最小長度
-                    format: int32
-                min_complexity_classes:
-                    type: integer
-                    description: 密碼至少符合的字元類別數量
-                    format: int32
-                history_count:
-                    type: integer
-                    description: 禁止重複使用的歷史密碼數量，零表示不啟用
-                    format: int32
-                max_age_days:
-                    type: integer
-                    description: 密碼有效期天數，零表示長期有效
-                    format: int32
-            description: 目前使用者生效的密碼策略
         system.admin.v1.DraftBaseI18nItem:
             type: object
             properties:
@@ -18900,14 +18908,6 @@ components:
                     type: string
                     description: 當前使用者所屬租戶ID
             description: 使用者資訊表單
-        system.admin.v1.UserPasswordForm:
-            type: object
-            properties:
-                old_pwd:
-                    $ref: '#/components/schemas/common.v1.SecretCrypto'
-                new_pwd:
-                    $ref: '#/components/schemas/common.v1.SecretCrypto'
-            description: 使用者密碼錶單
         system.admin.v1.UserPhoneForm:
             type: object
             properties:
@@ -19435,14 +19435,16 @@ components:
                     description: 頭像
             description: 使用者資料表單
 tags:
+    - name: AccountService
+      description: Base 賬戶安全服務。
     - name: AiKnowledgeChunkService
       description: AI知識庫切片檢索服務。
     - name: AiKnowledgeDocService
       description: AI知識庫文件管理服務。
     - name: AiKnowledgeService
-      description: AI知識庫管理服務。
-    - name: AiKnowledgeService
       description: AI 知識庫選項查詢服務。
+    - name: AiKnowledgeService
+      description: AI知識庫管理服務。
     - name: AiMessageService
       description: Base AI 助手訊息服務
     - name: AiModelService
@@ -19450,21 +19452,21 @@ tags:
     - name: AiProviderService
       description: AI供應商管理服務。
     - name: AiQueryService
-      description: Base AI 助手智慧問數服務
-    - name: AiQueryService
       description: 智慧問數記錄管理服務。
+    - name: AiQueryService
+      description: Base AI 助手智慧問數服務
     - name: AiSearchService
       description: Base AI 助手聯網搜尋服務
     - name: AiSessionService
-      description: AI會話管理服務。
-    - name: AiSessionService
       description: Base AI 助手會話服務
+    - name: AiSessionService
+      description: AI會話管理服務。
     - name: AiToolService
       description: Base AI 助手工具服務
     - name: AuthService
-      description: Admin 使用者登入認證服務
-    - name: AuthService
       description: App 使用者認證服務
+    - name: AuthService
+      description: Admin 使用者登入認證服務
     - name: BaseApiLogService
       description: Admin API訪問日誌服務。
     - name: BaseApiRateLimitPolicyService
@@ -19472,9 +19474,9 @@ tags:
     - name: BaseApiService
       description: Admin API 服務
     - name: BaseAreaService
-      description: App 行政區域服務
-    - name: BaseAreaService
       description: Admin 行政區域服務
+    - name: BaseAreaService
+      description: App 行政區域服務
     - name: BaseConfigService
       description: Admin 系統設定服務
     - name: BaseDashboardService
@@ -19508,9 +19510,9 @@ tags:
     - name: BaseLoginPolicyService
       description: Admin登入策略管理服務。
     - name: BaseMenuService
-      description: App 選單服務
-    - name: BaseMenuService
       description: Admin 選單管理服務
+    - name: BaseMenuService
+      description: App 選單服務
     - name: BaseMessageCategoryService
       description: Admin訊息分類管理服務。
     - name: BaseMessageProviderService

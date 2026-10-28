@@ -115,7 +115,7 @@
   "core.settings.feedback": "問題反饋",
   "core.settings.section_appearance": "外觀",
   "core.settings.section_security": "帳戶安全",
-  "core.settings.section_more": "更多・小程式端",
+  "core.settings.section_more": "更多服務",
   "core.settings.logout_confirm": "是否退出登入？",
   "core.settings.logout_failed": "退出登入失敗",
   "core.settings.mfa_bind_success": "多因素認證綁定成功",

@@ -13,6 +13,8 @@ defineOptions({ name: 'KratosSettingsPage' })
 defineSlots<{
   /** 在所有公共设置卡片之前渲染的业务扩展内容。 */
   extensions?: () => unknown
+  /** 在账户安全分组中 MFA 卡片之后渲染的业务扩展内容。 */
+  security?: () => unknown
 }>()
 
 const userStore = useUserStore()
@@ -202,21 +204,6 @@ const onLogout = () => {
     <slot name="extensions" />
     <KratosNavBar :title="t('core.settings.title')" />
     <view class="settings-content">
-      <view class="k-set-cat">{{ t('core.settings.section_appearance') }}</view>
-      <picker :range="themeModeLabels" :value="themeModeIndex" @change="onThemeModeChange">
-        <view class="k-set-row k-set-row--arrow">
-          <view class="k-set-row__lead">
-            <view class="k-set-row__icon">
-              <image class="settings-row__icon" :src="settingsIcons.theme" mode="aspectFit" />
-            </view>
-            <text class="k-set-row__title">{{ t('core.settings.theme') }}</text>
-          </view>
-          <text class="k-set-row__value settings-row__value">{{
-            themeModeLabels[themeModeIndex]
-          }}</text>
-        </view>
-      </picker>
-
       <view class="k-set-cat">{{ t('core.settings.section_security') }}</view>
       <view v-if="userStore.isAuthenticated()" class="k-set-row k-set-row--arrow" @tap="onMfaTap">
         <view class="k-set-row__lead">
@@ -231,6 +218,22 @@ const onLogout = () => {
           >{{ mfaStatusText }}</text
         >
       </view>
+      <slot name="security" />
+
+      <view class="k-set-cat">{{ t('core.settings.section_appearance') }}</view>
+      <picker :range="themeModeLabels" :value="themeModeIndex" @change="onThemeModeChange">
+        <view class="k-set-row k-set-row--arrow">
+          <view class="k-set-row__lead">
+            <view class="k-set-row__icon">
+              <image class="settings-row__icon" :src="settingsIcons.theme" mode="aspectFit" />
+            </view>
+            <text class="k-set-row__title">{{ t('core.settings.theme') }}</text>
+          </view>
+          <text class="k-set-row__value settings-row__value">{{
+            themeModeLabels[themeModeIndex]
+          }}</text>
+        </view>
+      </picker>
       <picker :range="localeLabels" :value="localeIndex" @change="onLocaleChange">
         <view class="k-set-row k-set-row--arrow">
           <view class="k-set-row__lead">
@@ -301,7 +304,7 @@ const onLogout = () => {
 .settings-page {
   min-height: 100vh;
   box-sizing: border-box;
-  padding: 0 32rpx calc(40rpx + env(safe-area-inset-bottom));
+  padding: 0 20rpx calc(40rpx + env(safe-area-inset-bottom));
   background: var(--kratos-bg-gradient);
 }
 .settings-content {

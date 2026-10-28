@@ -1,0 +1,71 @@
+syntax = "proto3";
+
+package base.v1;
+
+import "common/v1/types.proto";
+import "buf/validate/validate.proto";
+import "gnostic/openapi/v3/annotations.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+
+// Base 账户安全服务。
+service AccountService {
+  // 获取当前用户生效的密码策略。
+  rpc GetCurrentPasswordPolicy(GetCurrentPasswordPolicyRequest) returns (CurrentPasswordPolicy) {
+    option (google.api.http) = {
+      get: "/api/v1/base/account/password-policy"
+    };
+  }
+
+  // 修改当前用户密码。
+  rpc UpdateUserPassword(UpdateUserPasswordRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put: "/api/v1/base/account/password"
+      body: "user_password"
+    };
+  }
+}
+
+// 获取当前用户密码策略请求参数。
+message GetCurrentPasswordPolicyRequest {}
+
+// 当前用户生效的密码策略。
+message CurrentPasswordPolicy {
+  int32 min_length = 1 [(gnostic.openapi.v3.property) = {description: "密码最小长度"}]; // 密码最小长度
+
+  int32 min_complexity_classes = 2 [(gnostic.openapi.v3.property) = {description: "密码至少满足的字符类别数量"}]; // 密码至少满足的字符类别数量
+
+  int32 history_count = 3 [(gnostic.openapi.v3.property) = {description: "禁止重复使用的历史密码数量，零表示不启用"}]; // 禁止重复使用的历史密码数量
+
+  int32 max_age_days = 4 [(gnostic.openapi.v3.property) = {description: "密码有效期天数，零表示长期有效"}]; // 密码有效期天数
+}
+
+// 更新当前用户密码请求参数。
+message UpdateUserPasswordRequest {
+  option (buf.validate.message).cel = {
+    id: "system.admin.auth.update.user_password.required"
+    message: "请输入原密码"
+    expression: "has(this.user_password)"
+  };
+
+  UserPasswordForm user_password = 1 [(gnostic.openapi.v3.property) = {description: "当前用户密码"}]; // 当前用户密码
+}
+
+// 当前用户密码表单。
+message UserPasswordForm {
+  option (buf.validate.message).cel = {
+    id: "system.admin.auth.entity.user.password.old_pwd.required"
+    message: "请输入原密码"
+    expression: "has(this.old_pwd)"
+  };
+
+  option (buf.validate.message).cel = {
+    id: "system.admin.auth.entity.user.password.new_pwd.required"
+    message: "请输入新密码"
+    expression: "has(this.new_pwd)"
+  };
+
+  .common.v1.SecretCrypto old_pwd = 1 [(gnostic.openapi.v3.property) = {description: "原密码"}]; // 原密码
+
+  .common.v1.SecretCrypto new_pwd = 2 [(gnostic.openapi.v3.property) = {description: "新密码"}]; // 新密码
+}

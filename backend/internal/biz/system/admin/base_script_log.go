@@ -3,23 +3,23 @@ package biz
 import (
 	"context"
 
-	utilsTime "github.com/liujitcn/go-utils/time"
+	"github.com/liujitcn/go-utils/time"
 	"github.com/liujitcn/gorm-kit/repository"
 	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
-	corebiz "github.com/liujitcn/kratos-core/biz"
+	"github.com/liujitcn/kratos-core/biz"
 	_const "github.com/liujitcn/kratos-core/const"
 )
 
 // BaseScriptLogCase 脚本执行日志业务实例。
 type BaseScriptLogCase struct {
-	*corebiz.BaseCase
+	*biz.BaseCase
 	*data.BaseScriptLogRepository
 }
 
 // NewBaseScriptLogCase 创建脚本执行日志业务实例。
-func NewBaseScriptLogCase(baseCase *corebiz.BaseCase, repo *data.BaseScriptLogRepository) *BaseScriptLogCase {
+func NewBaseScriptLogCase(baseCase *biz.BaseCase, repo *data.BaseScriptLogRepository) *BaseScriptLogCase {
 	return &BaseScriptLogCase{BaseCase: baseCase, BaseScriptLogRepository: repo}
 }
 
@@ -42,8 +42,8 @@ func (c *BaseScriptLogCase) PageBaseScriptLog(ctx context.Context, req *adminv1.
 		opts = append(opts, repository.Where(query.Success.Eq(success)))
 	}
 	if len(req.GetCreatedAt()) == 2 {
-		startAt := utilsTime.StringTimeToTime(req.GetCreatedAt()[0])
-		endAt := utilsTime.StringTimeToTime(req.GetCreatedAt()[1])
+		startAt := time.StringTimeToTime(req.GetCreatedAt()[0])
+		endAt := time.StringTimeToTime(req.GetCreatedAt()[1])
 		if startAt != nil {
 			opts = append(opts, repository.Where(query.CreatedAt.Gte(*startAt)))
 		}

@@ -75,6 +75,57 @@ html.theme-dark page {
  * 取不到页面根类，用 theme store 镜像到 html 上的主题类着色。
  * ============================================================ */
 /* #ifdef h5 */
+html .taro-modal__content {
+  box-sizing: border-box;
+  background: var(--kratos-color-surface-solid, #ffffff) !important;
+  color: var(--kratos-color-text, #102232) !important;
+  font-family: var(--kratos-font-sans, sans-serif);
+}
+
+html .taro-modal__content * {
+  box-sizing: border-box;
+}
+
+html .taro-modal__title {
+  padding: 16PX 24PX 8PX !important;
+  color: var(--kratos-color-text, #102232) !important;
+  font-size: 18PX !important;
+  line-height: 25PX !important;
+}
+
+html .taro-modal__text {
+  min-height: 40PX !important;
+  padding: 8PX 24PX 16PX !important;
+  color: var(--kratos-color-text-muted, #5a7083) !important;
+  font-size: 15PX !important;
+  line-height: 21PX !important;
+}
+
+html .taro-modal__foot {
+  font-size: 18PX !important;
+  line-height: 48PX !important;
+}
+
+html .taro-modal__foot::after {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  height: 1PX;
+  border-top: 1PX solid var(--kratos-color-border, #e3eaf2);
+  content: '';
+  transform: scaleY(0.5);
+  transform-origin: 0 0;
+}
+
+html .taro-model__confirm {
+  color: var(--kratos-color-primary, #039e8c) !important;
+}
+
+html .taro-model__cancel {
+  color: var(--kratos-color-text-muted, #5a7083) !important;
+}
+
 html.theme-dark .taro-modal__mask {
   background: var(--kratos-color-mask) !important;
 }

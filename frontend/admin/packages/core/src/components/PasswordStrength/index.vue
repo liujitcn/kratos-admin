@@ -23,8 +23,8 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from "vue";
-import { defAuthService } from "@/api/system/admin/v1/auth";
-import type { CurrentPasswordPolicy } from "@/rpc/system/admin/v1/auth";
+import { defAccountService } from "@/api/base/v1/account";
+import type { CurrentPasswordPolicy } from "@/rpc/base/v1/account";
 import { getPasswordStrength } from "@/utils/passwordStrength";
 import { useLocaleStore } from "@/locales";
 
@@ -82,7 +82,7 @@ const displayedTip = computed(() => {
 onMounted(async () => {
   if (!props.loadCurrentPolicy || props.policy) return;
   try {
-    currentPolicy.value = await defAuthService.GetCurrentPasswordPolicy({});
+    currentPolicy.value = await defAccountService.GetCurrentPasswordPolicy({});
   } catch (_error) {
     currentPolicy.value = undefined;
   }

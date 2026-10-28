@@ -457,6 +457,8 @@ func BuildModules(migrations *migration.Migration, config2 *configv1.Bootstrap, 
 	notificationService := base.NewNotificationService(notificationCase)
 	sseCase := biz2.NewSseCase(baseCase, sseRuntime)
 	sseService := base.NewSseService(sseCase)
+	accountCase := biz2.NewAccountCase(baseCase, baseUserRepository, userToken)
+	accountService := base.NewAccountService(accountCase)
 	baseServices := &base2.Services{
 		AiSession:    baseAiSessionService,
 		AiModel:      aiModelService,
@@ -476,6 +478,7 @@ func BuildModules(migrations *migration.Migration, config2 *configv1.Bootstrap, 
 		Mcp:          mcpService,
 		Notification: notificationService,
 		Sse:          sseService,
+		Account:      accountService,
 	}
 	adminServices := &admin2.Services{
 		Auth:                    authService,

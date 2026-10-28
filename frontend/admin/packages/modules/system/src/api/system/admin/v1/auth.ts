@@ -2,10 +2,8 @@ import service from "@liujitcn/kratos-admin-core/request";
 import type {
   GetUserProfileRequest,
   SendPhoneCodeRequest,
-  UpdateUserPasswordRequest,
   UpdateUserPhoneRequest,
   UpdateUserProfileRequest,
-  UserPasswordForm,
   UserPhoneForm,
   UserProfileForm
 } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/auth";
@@ -21,15 +19,6 @@ export class ProfileAuthServiceImpl {
       url: `${AUTH_URL}/profile`,
       method: "get",
       params: request
-    });
-  }
-
-  /** 修改个人中心密码。 */
-  UpdateUserPassword(request: UpdateUserPasswordRequest): Promise<Empty> {
-    return service<UserPasswordForm | undefined, Empty>({
-      url: `${AUTH_URL}/password`,
-      method: "put",
-      data: request.user_password
     });
   }
 

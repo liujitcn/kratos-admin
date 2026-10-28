@@ -215,9 +215,7 @@
       <section v-show="activeStep === 2" class="definition-step-panel">
         <div class="workflow-design">
           <div class="graph-toolbar">
-            <el-button size="small" @click="addNode('SCRIPT')">{{
-              t("system.workflow.definition.node_type.SCRIPT")
-            }}</el-button>
+            <el-button size="small" @click="addNode('SCRIPT')">{{ t("system.workflow.definition.node_type.SCRIPT") }}</el-button>
             <el-button size="small" @click="addNode('TASK')">{{ t("system.workflow.definition.action.add_task") }}</el-button>
             <el-button size="small" @click="addNode('EXCLUSIVE_GATEWAY')">{{
               t("system.workflow.definition.node_type.EXCLUSIVE_GATEWAY")
@@ -403,10 +401,10 @@
     </div>
     <template #footer>
       <div class="definition-footer-actions">
+        <el-button @click="visible = false">{{ t("common.action.cancel") }}</el-button>
         <el-button v-if="activeStep > 0" :disabled="saving" @click="handlePrevious">
           {{ t("system.workflow.definition.wizard.previous") }}
         </el-button>
-        <el-button @click="visible = false">{{ t("common.action.cancel") }}</el-button>
         <el-button v-if="activeStep < lastStepIndex" type="primary" :disabled="saving" @click="handleNext">
           {{ t("system.workflow.definition.wizard.next") }}
         </el-button>
@@ -423,6 +421,7 @@ import { computed, nextTick, reactive, ref, watch } from "vue";
 import type { FormInstance, FormRules } from "element-plus";
 import { ArrowDown, ArrowUp, Delete } from "@element-plus/icons-vue";
 import { t } from "@liujitcn/kratos-admin-core";
+import { useTenantScope } from "@liujitcn/kratos-admin-core/tenant";
 import { defWorkflowDefinitionService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/workflow_definition";
 import { defBaseUserService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/base_user";
 import { defBaseRoleService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/base_role";
@@ -431,6 +430,7 @@ import type { ProFormOption } from "@liujitcn/kratos-admin-core/components/ProFo
 import {
   addGraphEdge,
   type ApproverDraft,
+  formatGraphLayout,
   type GraphDraft,
   type GraphNodeDraft,
   makeGraphNode,
@@ -463,6 +463,7 @@ import ScriptSelect from "./script-select.vue";
 defineOptions({ name: "WorkflowDefinitionDialog" });
 
 const emit = defineEmits<{ saved: [] }>();
+const { currentTenantId } = useTenantScope();
 
 const visible = ref(false);
 const saving = ref(false);
@@ -655,7 +656,7 @@ async function open(id?: number) {
 /** 预加载审批人目标下拉。 */
 async function loadOptions() {
   const [users, roles, posts] = await Promise.all([
-    defBaseUserService.OptionBaseUser({ keyword: "" }),
+    defBaseUserService.OptionBaseUser({ keyword: "", tenant_id: currentTenantId.value }),
     defBaseRoleService.OptionBaseRole({}),
     defBasePostService.OptionBasePost({})
   ]);
@@ -854,6 +855,7 @@ function handlePrevious() {
 async function handleSave() {
   if (!(await validateAllSteps())) return;
   saving.value = true;
+  formatGraphLayout(draft);
   const request = {
     definition: {
       id: formData.id,

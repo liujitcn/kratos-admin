@@ -126,6 +126,16 @@ const createDefaultMenus = (): AppMenu[] => [
     inTabBar: false,
   },
   {
+    id: 99090400,
+    parentId: 99090000,
+    name: 'AppPassword',
+    path: 'app/password',
+    viewKey: 'PASSWORD',
+    title: t('system.settings.password_title'),
+    access: 'AUTHENTICATED',
+    inTabBar: false,
+  },
+  {
     id: 99090200,
     parentId: 99090000,
     name: 'AppSettings',
@@ -175,6 +185,7 @@ const pageTitleKeys: Record<string, string> = {
   'pagesMember/message/detail': 'system.notification.title',
   'pagesMember/message/index': 'system.notification.title',
   'pagesMember/profile/profile': 'system.profile.title',
+  'pagesMember/password/password': 'system.settings.password_title',
   'pagesMember/settings/settings': 'core.settings.title',
 }
 
@@ -182,6 +193,7 @@ const fallbackMenuTitleKeys: Record<string, string> = {
   HOME: 'core.navigation.home',
   MESSAGE_INBOX: 'core.navigation.message',
   PROFILE_HOME: 'core.navigation.my',
+  PASSWORD: 'system.settings.password_title',
 }
 
 /** 替换导航远端适配器，供宿主接入自定义契约。 */

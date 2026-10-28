@@ -32,35 +32,6 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/system.admin.v1.TreeRouteResponse'
-    /api/v1/admin/auth/password:
-        put:
-            tags:
-                - AuthService
-            description: Update profile password
-            operationId: AuthService_UpdateUserPassword
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/system.admin.v1.UserPasswordForm'
-                required: true
-            responses:
-                "200":
-                    description: OK
-                    content: {}
-    /api/v1/admin/auth/password-policy:
-        get:
-            tags:
-                - AuthService
-            description: Get the password policy effective for the current user
-            operationId: AuthService_GetCurrentPasswordPolicy
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/system.admin.v1.CurrentPasswordPolicy'
     /api/v1/admin/auth/phone:
         put:
             tags:
@@ -8120,6 +8091,35 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/system.app.v1.ListBaseMenuResponse'
+    /api/v1/base/account/password:
+        put:
+            tags:
+                - AccountService
+            description: Update current user password.
+            operationId: AccountService_UpdateUserPassword
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/base.v1.UserPasswordForm'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/base/account/password-policy:
+        get:
+            tags:
+                - AccountService
+            description: Get the password policy effective for the current user.
+            operationId: AccountService_GetCurrentPasswordPolicy
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.CurrentPasswordPolicy'
     /api/v1/base/ai/knowledge/options:
         get:
             tags:
@@ -10053,6 +10053,26 @@ components:
                     description: Number of days the current login policy allows a device to skip MFA verification
                     format: int32
             description: third-party login session Create response
+        base.v1.CurrentPasswordPolicy:
+            type: object
+            properties:
+                min_length:
+                    type: integer
+                    description: password minimum length
+                    format: int32
+                min_complexity_classes:
+                    type: integer
+                    description: passwordat least character categories count
+                    format: int32
+                history_count:
+                    type: integer
+                    description: Number of recent passwords that cannot be reused; zero disables password history
+                    format: int32
+                max_age_days:
+                    type: integer
+                    description: Password validity period in days; zero means the password does not expire
+                    format: int32
+            description: Password policy effective for the current user.
         base.v1.DeleteAiMessageResponse:
             type: object
             properties: {}
@@ -10875,6 +10895,14 @@ components:
                 file:
                     $ref: '#/components/schemas/base.v1.UploadFileInfo'
             description: Single-file upload request parameters
+        base.v1.UserPasswordForm:
+            type: object
+            properties:
+                old_pwd:
+                    $ref: '#/components/schemas/common.v1.SecretCrypto'
+                new_pwd:
+                    $ref: '#/components/schemas/common.v1.SecretCrypto'
+            description: current user password form.
         base.v1.VerifyCaptchaRequest:
             type: object
             properties:
@@ -16269,26 +16297,6 @@ components:
                     type: string
                     description: Tenant administrator initial password, returned only when generated randomly
             description: Create tenant response parameters
-        system.admin.v1.CurrentPasswordPolicy:
-            type: object
-            properties:
-                min_length:
-                    type: integer
-                    description: password minimum length
-                    format: int32
-                min_complexity_classes:
-                    type: integer
-                    description: passwordat least character categories count
-                    format: int32
-                history_count:
-                    type: integer
-                    description: Number of recent passwords that cannot be reused; zero disables password history
-                    format: int32
-                max_age_days:
-                    type: integer
-                    description: Password validity period in days; zero means the password does not expire
-                    format: int32
-            description: Password policy effective for the current user
         system.admin.v1.DraftBaseI18nItem:
             type: object
             properties:
@@ -18900,14 +18908,6 @@ components:
                     type: string
                     description: Current user's tenant ID
             description: user information form
-        system.admin.v1.UserPasswordForm:
-            type: object
-            properties:
-                old_pwd:
-                    $ref: '#/components/schemas/common.v1.SecretCrypto'
-                new_pwd:
-                    $ref: '#/components/schemas/common.v1.SecretCrypto'
-            description: user password form
         system.admin.v1.UserPhoneForm:
             type: object
             properties:
@@ -19435,14 +19435,16 @@ components:
                     description: avatar
             description: user profile form
 tags:
+    - name: AccountService
+      description: Base account security service.
     - name: AiKnowledgeChunkService
       description: AI knowledge base chunk retrieval service.
     - name: AiKnowledgeDocService
       description: AI knowledge base document management service.
     - name: AiKnowledgeService
-      description: AI knowledge base management service.
-    - name: AiKnowledgeService
       description: AI knowledge base options service.
+    - name: AiKnowledgeService
+      description: AI knowledge base management service.
     - name: AiMessageService
       description: Base AI assistant message service
     - name: AiModelService
@@ -19450,21 +19452,21 @@ tags:
     - name: AiProviderService
       description: AI provider management service.
     - name: AiQueryService
-      description: Base AI assistant smart query service
-    - name: AiQueryService
       description: Smart data query record management service.
+    - name: AiQueryService
+      description: Base AI assistant smart query service
     - name: AiSearchService
       description: Base AI assistant web search service
     - name: AiSessionService
-      description: AI session management service.
-    - name: AiSessionService
       description: Base AI assistant session service
+    - name: AiSessionService
+      description: AI session management service.
     - name: AiToolService
       description: Base AI assistant tool service
     - name: AuthService
-      description: admin user login authentication service
-    - name: AuthService
       description: app user authentication service
+    - name: AuthService
+      description: admin user login authentication service
     - name: BaseApiLogService
       description: Admin API access log service.
     - name: BaseApiRateLimitPolicyService
@@ -19472,9 +19474,9 @@ tags:
     - name: BaseApiService
       description: Admin api service
     - name: BaseAreaService
-      description: app administrative region service
-    - name: BaseAreaService
       description: admin administrative region service
+    - name: BaseAreaService
+      description: app administrative region service
     - name: BaseConfigService
       description: admin system configuration service
     - name: BaseDashboardService
@@ -19508,9 +19510,9 @@ tags:
     - name: BaseLoginPolicyService
       description: admin login policy management service.
     - name: BaseMenuService
-      description: app menu service
-    - name: BaseMenuService
       description: admin menu management service
+    - name: BaseMenuService
+      description: app menu service
     - name: BaseMessageCategoryService
       description: Admin message category management service.
     - name: BaseMessageProviderService

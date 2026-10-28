@@ -30,7 +30,46 @@
         mask-color="var(--el-fill-color-light)"
       />
       <template #node-workflow="{ id, data }">
+        <el-popover v-if="nodeDetails" placement="top" trigger="hover" :width="320">
+          <template #reference>
+            <div
+              class="workflow-node"
+              :class="[
+                `node-type-${data.type.toLowerCase()}`,
+                `state-${nodeStates?.[id] ?? ''}`,
+                { selected: selectedNodeId === id }
+              ]"
+            >
+              <Handle v-if="data.type !== 'START'" id="in" type="target" :position="Position.Left" />
+              <strong>{{ t(nodeTypeI18nKey(data.type)) }}</strong>
+              <small>{{ id }}</small>
+              <Handle v-if="data.type !== 'END'" id="out" type="source" :position="Position.Right" />
+            </div>
+          </template>
+          <div class="workflow-node-detail">
+            <div class="workflow-node-detail-title">
+              <strong>{{ t(nodeTypeI18nKey(data.type)) }}</strong>
+              <small>{{ id }}</small>
+            </div>
+            <div v-if="nodeDetails[id]?.activities.length" class="workflow-node-activities">
+              <div
+                v-for="(activity, index) in nodeDetails[id].activities"
+                :key="`${activity.timestamp}-${index}`"
+                class="workflow-node-activity"
+              >
+                <div class="workflow-node-activity-heading">
+                  <el-tag size="small" :type="activity.tagType">{{ activity.label }}</el-tag>
+                  <span>{{ activity.operator || "-" }}</span>
+                </div>
+                <small>{{ activity.timestamp || "-" }}</small>
+                <p v-if="activity.comment">{{ activity.comment }}</p>
+              </div>
+            </div>
+            <span v-else class="workflow-node-empty">-</span>
+          </div>
+        </el-popover>
         <div
+          v-else
           class="workflow-node"
           :class="[
             `node-type-${data.type.toLowerCase()}`,
@@ -67,6 +106,26 @@ import "@vue-flow/core/dist/style.css";
 import "@vue-flow/controls/dist/style.css";
 import "@vue-flow/minimap/dist/style.css";
 
+/** 流程图节点上展示的一条审批活动。 */
+export interface WorkflowNodeActivity {
+  /** 活动名称。 */
+  label: string;
+  /** 操作人或办理人。 */
+  operator: string;
+  /** 活动时间。 */
+  timestamp: string;
+  /** 审批意见或任务备注。 */
+  comment: string;
+  /** 活动标签颜色。 */
+  tagType: "success" | "warning" | "danger" | "info";
+}
+
+/** 流程图节点悬浮展示的信息。 */
+export interface WorkflowNodeDetail {
+  /** 节点审批活动。 */
+  activities: WorkflowNodeActivity[];
+}
+
 /** 流程画布仅处理图交互，审批配置和提交由设计器维护。 */
 interface WorkflowGraphProps {
   draft: GraphDraft;
@@ -78,6 +137,8 @@ interface WorkflowGraphProps {
   nodeStates?: Record<string, "done" | "active" | "rejected" | "todo">;
   /** 审批详情中的连线执行状态，设计器不传入。 */
   edgeStates?: Record<number, WorkflowProgressEdgeState>;
+  /** 审批详情中的节点活动，设计器和定义查看页不传入。 */
+  nodeDetails?: Record<string, WorkflowNodeDetail>;
 }
 
 const props = defineProps<WorkflowGraphProps>();
@@ -108,6 +169,7 @@ const edges = computed<Edge[]>(() =>
     sourceHandle: "out",
     targetHandle: "in",
     type: "smoothstep",
+    pathOptions: { borderRadius: 10, offset: 20 },
     selected: props.selectedEdgeIndex === index,
     label: edge.condition === CONDITION_DEFAULT ? t("system.workflow.definition.field.default_condition") : edge.condition,
     class: [
@@ -132,7 +194,10 @@ function selectNode({ node }: NodeMouseEvent) {
 
 /** 点击连线后通知设计器打开对应的条件配置。 */
 function selectEdge({ edge }: EdgeMouseEvent) {
-  emit("selectEdge", props.draft.edges.findIndex(item => item.from === edge.source && item.to === edge.target));
+  emit(
+    "selectEdge",
+    props.draft.edges.findIndex(item => item.from === edge.source && item.to === edge.target)
+  );
 }
 
 /** 将缩放换算后的画布坐标回写业务草稿。 */
@@ -209,6 +274,60 @@ defineExpose({ fitGraph });
     border-color: var(--el-color-primary);
     box-shadow: 0 0 0 2px var(--el-color-primary-light-5);
   }
+}
+
+.workflow-node-detail {
+  color: var(--el-text-color-primary);
+}
+
+.workflow-node-detail-title,
+.workflow-node-activity-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.workflow-node-detail-title {
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--el-border-color-lighter);
+
+  small {
+    color: var(--el-text-color-secondary);
+  }
+}
+
+.workflow-node-activities {
+  max-height: 260px;
+  margin-top: 8px;
+  overflow-y: auto;
+}
+
+.workflow-node-activity {
+  padding: 8px 0;
+  border-bottom: 1px solid var(--el-border-color-lighter);
+
+  &:last-child {
+    border-bottom: 0;
+  }
+
+  small {
+    display: block;
+    margin-top: 4px;
+    color: var(--el-text-color-secondary);
+  }
+
+  p {
+    margin: 4px 0 0;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+}
+
+.workflow-node-empty {
+  display: block;
+  padding-top: 8px;
+  color: var(--el-text-color-secondary);
 }
 
 .workflow-graph :deep(.vue-flow__edge-path) {

@@ -153,8 +153,8 @@ packages/modules/system
 | `src/views/workflow/definition/index.vue`                     | 工作流流程定义列表页。             |
 | `src/views/workflow/definition/definition-dialog.vue`         | 流程定义新增/编辑弹窗，按基本信息、申请表单、流程设计分为三个页签，画布右侧配置节点和连线属性，校验错误自动切换页签。 |
 | `src/views/workflow/definition/definition-view.vue`            | 流程定义只读查看弹窗，展示基本信息、申请表单、流程图和节点/连线属性，不提供保存或编辑操作。 |
-| `src/views/workflow/definition/workflow-graph.vue`            | 设计器与流程定义查看器共用的 Vue Flow 流程画布，支持节点拖拽、端口连线、缩放、小地图与办理状态高亮。 |
-| `src/views/workflow/definition/graph-draft.ts`                | 节点图草稿序列化与校验纯逻辑，保存节点坐标并统一校验画布与表单连线。 |
+| `src/views/workflow/definition/workflow-graph.vue`            | 设计器与流程定义查看器共用的 Vue Flow 流程画布，支持节点拖拽、端口连线、平滑连线、缩放、小地图与办理状态高亮；审批详情在节点悬浮展示活动信息。 |
+| `src/views/workflow/definition/graph-draft.ts`                | 节点图草稿序列化、校验与拓扑自动布局纯逻辑，保存前统一整理节点坐标并校验画布与表单连线。 |
 | `src/views/workflow/delegation/index.vue`                     | 工作流审批委托页。                 |
 
 租户管理页创建租户时会自动初始化并启用 `admin` 管理员账号；有全局初始化密码时复用该密码，没有配置时通过创建响应一次性展示随机初始密码。

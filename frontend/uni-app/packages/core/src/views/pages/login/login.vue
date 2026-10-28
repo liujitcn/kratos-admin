@@ -1167,7 +1167,7 @@ onUnload(() => {
   flex-direction: column;
   justify-content: center;
   min-height: 100vh;
-  padding: 48rpx 40rpx calc(56rpx + env(safe-area-inset-bottom));
+  padding: 48rpx 20rpx calc(56rpx + env(safe-area-inset-bottom));
   background: var(--kratos-bg-gradient);
   box-sizing: border-box;
 }
@@ -1183,7 +1183,7 @@ onUnload(() => {
   align-items: center;
   justify-content: space-between;
   height: 44px;
-  padding: env(safe-area-inset-top) 28rpx 0;
+  padding: env(safe-area-inset-top) 20rpx 0;
   box-sizing: content-box;
 }
 

@@ -6,6 +6,14 @@ export interface NotificationActionLocation {
   query?: Record<string, string>;
 }
 
+/** 判断通知动作对应的动态路由是否已注册。 */
+export function isNotificationActionRouteAvailable(
+  router: { hasRoute: (name: string) => boolean },
+  action?: NotificationActionLocation
+): boolean {
+  return Boolean(action && router.hasRoute(action.name));
+}
+
 const viewKeyRoutes: Record<string, string> = {
   MESSAGE_INBOX: "NotificationInbox",
   PROFILE: "Profile",

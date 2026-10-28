@@ -115,7 +115,7 @@
   "core.settings.feedback": "Feedback",
   "core.settings.section_appearance": "Appearance",
   "core.settings.section_security": "Account security",
-  "core.settings.section_more": "More · Mini Program",
+  "core.settings.section_more": "More Services",
   "core.settings.logout_confirm": "Log out now?",
   "core.settings.logout_failed": "Logout failed",
   "core.settings.mfa_bind_success": "Multi-factor authentication enabled",

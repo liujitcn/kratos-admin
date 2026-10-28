@@ -6,7 +6,7 @@ page {
 .settings-viewport {
   min-height: 100vh;
   box-sizing: border-box;
-  padding: 0 32px calc(40px + env(safe-area-inset-bottom));
+  padding: 0 20px calc(40px + env(safe-area-inset-bottom));
   background: var(--kratos-bg-gradient);
 }
 

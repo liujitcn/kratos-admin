@@ -200,6 +200,16 @@ test("workflow notifications use persisted i18n markers across all message clien
   }
 });
 
+test("消息详情页与消息列表使用统一的页面左右边距", async () => {
+  const [uniDetail, taroDetail] = await Promise.all([
+    readSource("../../../../uni-app/packages/modules/system/src/views/pagesMember/message/detail.vue"),
+    readSource("../../../../taro-app/packages/modules/system/src/views/pagesMember/message/message.scss")
+  ]);
+
+  assert.match(uniDetail, /\.detail-page \{[\s\S]*?padding: 0 20rpx/);
+  assert.match(taroDetail, /\.detail-page \{[\s\S]*?padding: 0 20px/);
+});
+
 test("审批通知点击后直接进入审批页，普通通知仍保留详情弹窗", async () => {
   const [notification, inbox] = await Promise.all([
     readSource("src/components/notification/Notification.vue"),
@@ -520,12 +530,16 @@ test("退出登录完成后等待路由跳转到登录页", async () => {
   assert.match(source, /await userStore\.logout\(\);[\s\S]*?await router\.replace\(LOGIN_URL\);/);
 });
 
-test("角色权限默认开启父子联动", async () => {
+test("角色权限树默认展开且取消父子联动", async () => {
   const source = await readSource("src/views/base/role/index.vue");
 
-  assert.match(source, /const parentChildLinked = ref\(true\);/);
-  assert.match(source, /:check-strictly="!parentChildLinked"/);
-  assert.match(source, /checkStrictly: false/);
+  assert.match(source, /:default-expand-all="true"/);
+  assert.match(source, /:check-strictly="true"/);
+  assert.match(source, /checkStrictly: true/);
+  assert.match(source, /defaultExpandAll: true/);
+  assert.match(source, /menus: \[\]/);
+  assert.match(source, /formData\.menus = \[\]/);
+  assert.doesNotMatch(source, /parentChildLinked/);
 });
 
 test("角色表单按目标租户加载菜单权限上限", async () => {

@@ -3,7 +3,7 @@ import { useMemo } from 'react'
 import { t } from '@liujitcn/kratos-taro-app-core'
 import type { AiProviderModelOption } from '../../../../rpc/base/v1/ai_provider'
 import { fallbackModelDisplayName } from '../modelDisplay'
-import './model-picker.scss'
+import './ModelPicker.scss'
 
 type PickerModel = {
   name: string

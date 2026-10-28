@@ -32,35 +32,6 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/system.admin.v1.TreeRouteResponse'
-    /api/v1/admin/auth/password:
-        put:
-            tags:
-                - AuthService
-            description: 更新プロフィールパスワード
-            operationId: AuthService_UpdateUserPassword
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/system.admin.v1.UserPasswordForm'
-                required: true
-            responses:
-                "200":
-                    description: OK
-                    content: {}
-    /api/v1/admin/auth/password-policy:
-        get:
-            tags:
-                - AuthService
-            description: 取得現在のユーザー生效のパスワードポリシー
-            operationId: AuthService_GetCurrentPasswordPolicy
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/system.admin.v1.CurrentPasswordPolicy'
     /api/v1/admin/auth/phone:
         put:
             tags:
@@ -8120,6 +8091,35 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/system.app.v1.ListBaseMenuResponse'
+    /api/v1/base/account/password:
+        put:
+            tags:
+                - AccountService
+            description: 更新現在のユーザーパスワード。
+            operationId: AccountService_UpdateUserPassword
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/base.v1.UserPasswordForm'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/base/account/password-policy:
+        get:
+            tags:
+                - AccountService
+            description: 現在のユーザーに適用されるパスワードポリシーを取得します。
+            operationId: AccountService_GetCurrentPasswordPolicy
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.CurrentPasswordPolicy'
     /api/v1/base/ai/knowledge/options:
         get:
             tags:
@@ -10053,6 +10053,26 @@ components:
                     description: 現在のログインポリシーで許可される端末のMFA認証省略日数
                     format: int32
             description: サードパーティーログインセッション作成レスポンス
+        base.v1.CurrentPasswordPolicy:
+            type: object
+            properties:
+                min_length:
+                    type: integer
+                    description: パスワード最小長
+                    format: int32
+                min_complexity_classes:
+                    type: integer
+                    description: パスワード至少满足の文字種別件数
+                    format: int32
+                history_count:
+                    type: integer
+                    description: 禁止重复使用量の過去のパスワード件数，零表示不有効
+                    format: int32
+                max_age_days:
+                    type: integer
+                    description: パスワード有効期間日数，零表示长期有效
+                    format: int32
+            description: 現在のユーザーに適用されるパスワードポリシー。
         base.v1.DeleteAiMessageResponse:
             type: object
             properties: {}
@@ -10875,6 +10895,14 @@ components:
                 file:
                     $ref: '#/components/schemas/base.v1.UploadFileInfo'
             description: 単一ファイルアップロードのリクエストパラメータ
+        base.v1.UserPasswordForm:
+            type: object
+            properties:
+                old_pwd:
+                    $ref: '#/components/schemas/common.v1.SecretCrypto'
+                new_pwd:
+                    $ref: '#/components/schemas/common.v1.SecretCrypto'
+            description: 現在のユーザーパスワードフォーム。
         base.v1.VerifyCaptchaRequest:
             type: object
             properties:
@@ -16269,26 +16297,6 @@ components:
                     type: string
                     description: テナント管理者の初期パスワード。ランダム生成時のみ返却
             description: テナント作成レスポンスパラメータ
-        system.admin.v1.CurrentPasswordPolicy:
-            type: object
-            properties:
-                min_length:
-                    type: integer
-                    description: パスワード最小長
-                    format: int32
-                min_complexity_classes:
-                    type: integer
-                    description: パスワード至少满足の文字種別件数
-                    format: int32
-                history_count:
-                    type: integer
-                    description: 禁止重复使用量の過去のパスワード件数，零表示不有効
-                    format: int32
-                max_age_days:
-                    type: integer
-                    description: パスワード有効期間日数，零表示长期有效
-                    format: int32
-            description: 現在のユーザー生效のパスワードポリシー
         system.admin.v1.DraftBaseI18nItem:
             type: object
             properties:
@@ -18900,14 +18908,6 @@ components:
                     type: string
                     description: 現在のユーザーが所属するテナントID
             description: ユーザー情報フォーム
-        system.admin.v1.UserPasswordForm:
-            type: object
-            properties:
-                old_pwd:
-                    $ref: '#/components/schemas/common.v1.SecretCrypto'
-                new_pwd:
-                    $ref: '#/components/schemas/common.v1.SecretCrypto'
-            description: ユーザーパスワードフォーム
         system.admin.v1.UserPhoneForm:
             type: object
             properties:
@@ -19435,14 +19435,16 @@ components:
                     description: アバター
             description: ユーザープロフィールフォーム
 tags:
+    - name: AccountService
+      description: Baseアカウントセキュリティサービス。
     - name: AiKnowledgeChunkService
       description: AIナレッジベースチャンク検索サービス。
     - name: AiKnowledgeDocService
       description: AIナレッジベースドキュメント管理サービス。
     - name: AiKnowledgeService
-      description: AIナレッジベース管理サービス。
-    - name: AiKnowledgeService
       description: AIナレッジベースオプション検索サービス。
+    - name: AiKnowledgeService
+      description: AIナレッジベース管理サービス。
     - name: AiMessageService
       description: Base AI アシスタントメッセージサービス
     - name: AiModelService
@@ -19450,21 +19452,21 @@ tags:
     - name: AiProviderService
       description: AIプロバイダー管理サービス。
     - name: AiQueryService
-      description: Base AI アシスタントのスマート問い合わせサービス
-    - name: AiQueryService
       description: スマートデータクエリ記録管理サービス。
+    - name: AiQueryService
+      description: Base AI アシスタントのスマート問い合わせサービス
     - name: AiSearchService
       description: Base AI アシスタントWeb検索サービス
     - name: AiSessionService
-      description: AIセッション管理サービス。
-    - name: AiSessionService
       description: Base AI アシスタントセッションサービス
+    - name: AiSessionService
+      description: AIセッション管理サービス。
     - name: AiToolService
       description: Base AI アシスタントツールサービス
     - name: AuthService
-      description: Adminユーザーログイン認証サービス
-    - name: AuthService
       description: Appユーザー認証サービス
+    - name: AuthService
+      description: Adminユーザーログイン認証サービス
     - name: BaseApiLogService
       description: Admin APIアクセスログサービス。
     - name: BaseApiRateLimitPolicyService
@@ -19472,9 +19474,9 @@ tags:
     - name: BaseApiService
       description: AdminAPIサービス
     - name: BaseAreaService
-      description: App行政地域サービス
-    - name: BaseAreaService
       description: Admin行政地域サービス
+    - name: BaseAreaService
+      description: App行政地域サービス
     - name: BaseConfigService
       description: Adminシステム設定サービス
     - name: BaseDashboardService
@@ -19508,9 +19510,9 @@ tags:
     - name: BaseLoginPolicyService
       description: Adminログインポリシー管理サービス。
     - name: BaseMenuService
-      description: Appメニューサービス
-    - name: BaseMenuService
       description: Adminメニュー管理サービス
+    - name: BaseMenuService
+      description: Appメニューサービス
     - name: BaseMessageCategoryService
       description: Adminメッセージカテゴリ管理サービス。
     - name: BaseMessageProviderService

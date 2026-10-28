@@ -115,7 +115,7 @@
   "core.settings.feedback": "問題のフィードバック",
   "core.settings.section_appearance": "外観",
   "core.settings.section_security": "アカウントセキュリティ",
-  "core.settings.section_more": "その他・ミニプログラム",
+  "core.settings.section_more": "その他のサービス",
   "core.settings.logout_confirm": "ログアウトしますか?",
   "core.settings.logout_failed": "ログアウトに失敗しました",
   "core.settings.mfa_bind_success": "多要素認証を有効にしました",

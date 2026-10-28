@@ -13,7 +13,7 @@ import (
 	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/sessionregistry"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/sessionstate"
-	corebiz "github.com/liujitcn/kratos-core/biz"
+	"github.com/liujitcn/kratos-core/biz"
 	_const "github.com/liujitcn/kratos-core/const"
 	"github.com/liujitcn/kratos-kit/auth/authn/engine"
 	"github.com/liujitcn/kratos-kit/auth/data"
@@ -162,7 +162,7 @@ func newSessionTestCase(t *testing.T) *BaseSessionCase {
 	}
 	t.Cleanup(cleanup)
 	tokens := data.NewUserToken(store, &sessionTestIssuer{}, "test:access:", "test:refresh:", time.Hour, 24*time.Hour)
-	return NewBaseSessionCase(&corebiz.BaseCase{Cache: store}, tokens)
+	return NewBaseSessionCase(&biz.BaseCase{Cache: store}, tokens)
 }
 
 // seedSession 写入真实会话令牌、刷新身份、展示记录和可选服务端状态。

@@ -27,6 +27,14 @@
         </el-descriptions-item>
       </el-descriptions>
 
+      <el-divider content-position="left">{{ t("system.workflow.approval.section.form_data") }}</el-divider>
+      <el-descriptions v-if="formDataItems.length" :column="2" size="small" border>
+        <el-descriptions-item v-for="item in formDataItems" :key="item.key" :label="item.label">{{
+          item.value
+        }}</el-descriptions-item>
+      </el-descriptions>
+      <el-input v-else :model-value="detail?.instance?.form_data ?? '-'" type="textarea" :rows="4" readonly />
+
       <template v-if="progressNodes.length">
         <el-divider content-position="left">{{ t("system.workflow.approval.section.progress") }}</el-divider>
         <WorkflowGraph
@@ -35,6 +43,7 @@
           readonly
           :node-states="progressNodeStates"
           :edge-states="progressEdgeStates"
+          :node-details="progressNodeDetails"
         />
         <div class="progress-legend">
           <el-tag size="small" type="success">{{ t("system.workflow.approval.progress.done") }}</el-tag>
@@ -44,14 +53,6 @@
           <el-tag size="small" type="danger">{{ t("system.workflow.approval.progress.rejected") }}</el-tag>
         </div>
       </template>
-
-      <el-divider content-position="left">{{ t("system.workflow.approval.section.form_data") }}</el-divider>
-      <el-descriptions v-if="formDataItems.length" :column="2" size="small" border>
-        <el-descriptions-item v-for="item in formDataItems" :key="item.key" :label="item.key">{{
-          item.value
-        }}</el-descriptions-item>
-      </el-descriptions>
-      <el-input v-else :model-value="detail?.instance?.form_data ?? '-'" type="textarea" :rows="4" readonly />
 
       <el-divider content-position="left">{{ t("system.workflow.script.variables") }}</el-divider>
       <el-input :model-value="detail?.instance?.variables || '{}'" type="textarea" :rows="4" readonly />
@@ -94,34 +95,6 @@
           </template></el-table-column
         >
       </el-table>
-      <el-divider content-position="left">{{ t("system.workflow.approval.section.logs") }}</el-divider>
-      <el-table :data="detail?.logs ?? []" size="small" border>
-        <el-table-column prop="created_at" :label="t('common.field.created_at')" width="170" />
-        <el-table-column :label="t('system.workflow.approval.field.log_action')" width="110" align="center">
-          <template #default="{ row }">
-            <el-tag :type="logActionTag(row.action)" size="small">{{ logActionLabel(row.action) }}</el-tag>
-          </template>
-        </el-table-column>
-        <el-table-column prop="node_id" :label="t('system.workflow.definition.field.node_id')" width="110" />
-        <el-table-column prop="operator_name" :label="t('system.workflow.approval.field.operator')" width="120" />
-        <el-table-column prop="comment" :label="t('system.workflow.approval.field.comment')" />
-      </el-table>
-
-      <template v-if="detailTasks.length">
-        <el-divider content-position="left">{{ t("system.workflow.approval.section.tasks") }}</el-divider>
-        <el-table :data="detailTasks" size="small" border>
-          <el-table-column prop="node_id" :label="t('system.workflow.definition.field.node_id')" width="110" />
-          <el-table-column prop="assignee_name" :label="t('system.workflow.approval.field.assignee')" width="130" />
-          <el-table-column :label="t('system.workflow.approval.field.task_status')" width="100" align="center">
-            <template #default="{ row }">
-              <el-tag size="small" :type="taskStatusTag(row.status)">{{ taskStatusLabel(row.status) }}</el-tag>
-            </template>
-          </el-table-column>
-          <el-table-column prop="comment" :label="t('system.workflow.approval.field.comment')" />
-          <el-table-column prop="created_at" :label="t('common.field.created_at')" width="170" />
-        </el-table>
-      </template>
-
       <template v-if="isPendingDetail">
         <el-divider content-position="left">{{ t("system.workflow.approval.section.audit") }}</el-divider>
         <el-input
@@ -172,9 +145,11 @@ import { CirclePlus } from "@element-plus/icons-vue";
 import type { ColumnProps, HeaderActionProps, ProTableInstance } from "@liujitcn/kratos-admin-core/components/ProTable/interface";
 import ProTable from "@liujitcn/kratos-admin-core/components/ProTable";
 import { useAuthButtons } from "@liujitcn/kratos-admin-core/auth";
+import { useTenantScope } from "@liujitcn/kratos-admin-core/tenant";
 import { buildPageRequest } from "@liujitcn/kratos-admin-core/table";
 import { t } from "@liujitcn/kratos-admin-core";
 import type { ProFormOption } from "@liujitcn/kratos-admin-core/components/ProForm/interface";
+import { defWorkflowDefinitionService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/workflow_definition";
 import { defWorkflowTaskService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/workflow_task";
 import { defWorkflowInstanceService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/workflow_instance";
 import { defBaseUserService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/base_user";
@@ -185,6 +160,8 @@ import {
   parseGraph,
   type WorkflowProgressNodeState
 } from "../definition/graph-draft";
+import { parseFormSchema, type FormSchemaField } from "../definition/form-schema";
+import type { WorkflowNodeDetail } from "../definition/workflow-graph.vue";
 import type { PageMyWorkflowTaskRequest } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/workflow_task";
 import type { GetWorkflowTaskResponse } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/workflow_task";
 import type { GetWorkflowInstanceResponse } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/workflow_instance";
@@ -204,6 +181,7 @@ defineOptions({
 });
 
 const { BUTTONS } = useAuthButtons();
+const { currentTenantId } = useTenantScope();
 const route = useRoute();
 const proTable = ref<ProTableInstance>();
 const submitDrawerRef = ref<InstanceType<typeof WorkflowSubmitDrawer>>();
@@ -218,13 +196,18 @@ const forwardVisible = ref(false);
 const forwardMode = ref<"forward" | "add_approver">("forward");
 const forwardTarget = ref<number>();
 const userOptions = ref<ProFormOption[]>([]);
+const formFields = ref<FormSchemaField[]>([]);
 
 const forwardTitle = computed(() =>
   t(forwardMode.value === "forward" ? "system.workflow.approval.action.forward" : "system.workflow.approval.action.add_approver")
 );
 
-/** 实例详情返回的审批任务列表，"我发起的"视角展示各节点办理进度。 */
-const detailTasks = computed(() => (detail.value as GetWorkflowInstanceResponse | undefined)?.tasks ?? []);
+/** 实例详情返回的审批任务列表，并补入当前待办详情中的任务。 */
+const detailTasks = computed(() => {
+  const tasks = (detail.value as GetWorkflowInstanceResponse | undefined)?.tasks ?? [];
+  const currentTask = (detail.value as GetWorkflowTaskResponse | undefined)?.task;
+  return currentTask ? [...tasks, currentTask] : tasks;
+});
 
 /** 进度图的节点与边，来自实例所属流程定义。 */
 const progressNodes = ref<GraphNodeDraft[]>([]);
@@ -245,12 +228,40 @@ const formDataItems = computed(() => {
     const parsed = JSON.parse(raw) as Record<string, unknown>;
     return Object.entries(parsed).map(([key, value]) => ({
       key,
+      label: formFields.value.find(field => field.key === key)?.label || key,
       value: typeof value === "object" ? JSON.stringify(value) : String(value)
     }));
   } catch {
     return [];
   }
 });
+
+/** 将节点日志和当前待办任务整理为流程图悬浮信息。 */
+const progressNodeDetails = computed<Record<string, WorkflowNodeDetail>>(() =>
+  Object.fromEntries(
+    progressNodes.value.map(node => {
+      const activities = (detail.value?.logs ?? [])
+        .filter(item => (item.node_id || "start") === node.id)
+        .map(item => ({
+          label: logActionLabel(item.action),
+          operator: item.operator_name,
+          timestamp: item.created_at,
+          comment: item.comment,
+          tagType: logActionTag(item.action)
+        }));
+      const pendingTasks = detailTasks.value
+        .filter(item => item.node_id === node.id && item.status === WorkflowTaskStatus.WORKFLOW_TASK_STATUS_PENDING)
+        .map(item => ({
+          label: taskStatusLabel(item.status),
+          operator: item.assignee_name,
+          timestamp: item.created_at,
+          comment: item.comment,
+          tagType: taskStatusTag(item.status)
+        }));
+      return [node.id, { activities: [...activities, ...pendingTasks] }];
+    })
+  )
+);
 
 /** 表格列配置，随列表类型切换动作列。 */
 const columns = computed<ColumnProps[]>(() => [
@@ -397,7 +408,7 @@ function readRouteID(value: unknown): number {
 
 /** 预加载用户下拉，转办与加签共用。 */
 async function loadUserOptions() {
-  const data = await defBaseUserService.OptionBaseUser({ keyword: "" });
+  const data = await defBaseUserService.OptionBaseUser({ keyword: "", tenant_id: currentTenantId.value });
   userOptions.value = data.list ?? [];
 }
 
@@ -519,9 +530,23 @@ async function handleOpenDetail(row: { task_id: number; instance_id: number; lis
     detail.value = await defWorkflowTaskService.GetWorkflowTask({ id: row.task_id });
     detailTaskId.value = row.task_id;
   }
+  formFields.value = [];
+  await loadFormSchema();
   auditComment.value = "";
   detailVisible.value = true;
-  void loadProgressGraph();
+  loadProgressGraph();
+}
+
+/** 读取流程定义字段标签，详情接口失败时保留字段键名回退。 */
+async function loadFormSchema() {
+  const definitionId = detail.value?.instance?.definition_id;
+  if (!definitionId) return;
+  try {
+    const definition = await defWorkflowDefinitionService.GetWorkflowDefinition({ id: definitionId });
+    formFields.value = parseFormSchema(definition.form_schema);
+  } catch {
+    // 流程定义可能已被删除，申请内容仍可按原始字段键展示。
+  }
 }
 
 /** 从实例固定快照加载进度图，不读取后续修改的流程定义。 */

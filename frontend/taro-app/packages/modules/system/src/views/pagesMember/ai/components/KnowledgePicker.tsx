@@ -1,7 +1,7 @@
 import { ScrollView, Text, View } from '@tarojs/components'
 import { t } from '@liujitcn/kratos-taro-app-core'
 import type { AiKnowledgeOption } from '../../../../rpc/base/v1/ai_knowledge'
-import './knowledge-picker.scss'
+import './KnowledgePicker.scss'
 
 type KnowledgePickerProps = {
   options: AiKnowledgeOption[]
