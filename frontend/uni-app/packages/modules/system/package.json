@@ -38,7 +38,7 @@
     "access": "public"
   },
   "dependencies": {
-    "@dcloudio/uni-app": "3.0.0-5010520260709002",
+    "@dcloudio/uni-app": "3.0.0-alpha-5030320261021002",
     "@dcloudio/uni-ui": "^1.4.28",
     "@liujitcn/kratos-uni-app-core": "workspace:^",
     "vue": "^3.4.21"

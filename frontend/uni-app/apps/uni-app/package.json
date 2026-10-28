@@ -13,12 +13,12 @@
     "tsc": "vue-tsc --noEmit -p tsconfig.json"
   },
   "dependencies": {
-    "@dcloudio/uni-app": "3.0.0-5010520260709002",
-    "@dcloudio/uni-components": "3.0.0-5010520260709002",
-    "@dcloudio/uni-h5": "3.0.0-5010520260709002",
-    "@dcloudio/uni-mp-weixin": "3.0.0-5010520260709002",
+    "@dcloudio/uni-app": "3.0.0-alpha-5030320261021002",
+    "@dcloudio/uni-components": "3.0.0-alpha-5030320261021002",
+    "@dcloudio/uni-h5": "3.0.0-alpha-5030320261021002",
+    "@dcloudio/uni-mp-weixin": "3.0.0-alpha-5030320261021002",
     "@dcloudio/uni-ui": "^1.4.28",
-    "@dcloudio/vite-plugin-uni": "3.0.0-5010520260709002",
+    "@dcloudio/vite-plugin-uni": "3.0.0-alpha-5030320261021002",
     "@liujitcn/kratos-uni-app-core": "workspace:*",
     "@liujitcn/kratos-uni-app-system": "workspace:*",
     "pinia": "^2.0.27",

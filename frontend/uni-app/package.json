@@ -42,9 +42,6 @@
       "core-js-pure",
       "vue-demi"
     ],
-    "patchedDependencies": {
-      "@dcloudio/uni-h5@3.0.0-5010520260709002": "patches/@dcloudio__uni-h5@3.0.0-5010520260709002.patch"
-    },
     "auditConfig": {
       "ignoreCves": [
         "CVE-2024-6783"

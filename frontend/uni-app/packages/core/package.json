@@ -47,9 +47,9 @@
     "access": "public"
   },
   "dependencies": {
-    "@dcloudio/uni-app": "3.0.0-5010520260709002",
+    "@dcloudio/uni-app": "3.0.0-alpha-5030320261021002",
     "@dcloudio/uni-ui": "^1.4.28",
-    "@dcloudio/vite-plugin-uni": "3.0.0-5010520260709002",
+    "@dcloudio/vite-plugin-uni": "3.0.0-alpha-5030320261021002",
     "asmcrypto.js": "^2.3.2",
     "go-captcha-uni": "1.0.6",
     "pinia": "^2.0.27",
