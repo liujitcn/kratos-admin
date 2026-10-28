@@ -89,18 +89,17 @@ const messageBadge = useAppMenuBadge('MESSAGE_INBOX')
   --kratos-tab-bar-active-color: var(--kratos-color-primary, #28f0d4);
 
   position: fixed;
-  right: 20rpx;
-  bottom: env(safe-area-inset-bottom);
-  left: 20rpx;
+  right: 0;
+  bottom: 0;
+  left: 0;
   z-index: 999;
   display: flex;
   box-sizing: border-box;
-  height: 104rpx;
+  height: var(--kratos-tab-bar-space, calc(104rpx + env(safe-area-inset-bottom)));
   padding: 0 8rpx;
-  border: 1rpx solid var(--kratos-color-border-accent, rgba(120, 230, 215, 0.16));
-  border-radius: 30rpx;
-  background: var(--kratos-dock-bg, rgba(10, 18, 30, 0.72));
-  box-shadow: 0 12rpx 32rpx rgba(0, 0, 0, 0.2);
+  border-top: 1rpx solid var(--kratos-color-border-accent, rgba(120, 230, 215, 0.16));
+  background: var(--kratos-color-surface-solid, #070d18);
+  box-shadow: 0 -8rpx 24rpx rgba(0, 0, 0, 0.12);
 }
 .kratos-tab-bar__item {
   position: relative;
@@ -109,7 +108,7 @@ const messageBadge = useAppMenuBadge('MESSAGE_INBOX')
   align-items: center;
   justify-content: center;
   flex-direction: column;
-  height: 100%;
+  height: 104rpx;
   padding: 10rpx 0 8rpx;
   box-sizing: border-box;
   color: var(--kratos-tab-bar-color);
@@ -153,7 +152,7 @@ const messageBadge = useAppMenuBadge('MESSAGE_INBOX')
   height: 10rpx;
   border-right: 2rpx solid var(--kratos-tab-bar-color);
   border-bottom: 2rpx solid var(--kratos-tab-bar-color);
-  background: var(--kratos-dock-bg, rgba(10, 18, 30, 0.72));
+  background: var(--kratos-color-surface-solid, #070d18);
   content: '';
   transform: rotate(45deg);
 }
@@ -186,7 +185,7 @@ const messageBadge = useAppMenuBadge('MESSAGE_INBOX')
   width: 16rpx;
   height: 16rpx;
   box-sizing: border-box;
-  border: 2rpx solid var(--kratos-dock-bg, rgba(10, 18, 30, 0.72));
+  border: 2rpx solid var(--kratos-color-surface-solid, #070d18);
   border-radius: 50%;
   background: var(--kratos-color-danger, #ff4d6d);
   box-shadow: 0 0 12rpx var(--kratos-color-danger, #ff4d6d);

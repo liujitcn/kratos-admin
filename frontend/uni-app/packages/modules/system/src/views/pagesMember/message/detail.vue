@@ -59,7 +59,7 @@ async function loadDetail(id: number) {
 .detail-page {
   box-sizing: border-box;
   min-height: 100vh;
-  padding: 0 20rpx calc(96rpx + env(safe-area-inset-bottom));
+  padding: 0 20rpx var(--kratos-tab-bar-space, calc(104rpx + env(safe-area-inset-bottom)));
   background: var(--kratos-bg-gradient);
   color: var(--kratos-color-text);
 }

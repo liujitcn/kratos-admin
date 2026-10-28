@@ -188,7 +188,7 @@ async function handleSubmit() {
 .change-password-page {
   min-height: 100vh;
   box-sizing: border-box;
-  padding: 0 20rpx calc(40rpx + env(safe-area-inset-bottom));
+  padding: 0 20rpx var(--kratos-tab-bar-space, calc(104rpx + env(safe-area-inset-bottom)));
   background: var(--kratos-bg-gradient);
 }
 .change-password-page__content {

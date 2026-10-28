@@ -31,6 +31,7 @@ page,
   --kratos-color-track: #e8eef5;
   --kratos-color-mask: rgba(16, 34, 50, 0.45);
   --kratos-dock-bg: rgba(255, 255, 255, 0.82);
+  --kratos-tab-bar-space: calc(104px + env(safe-area-inset-bottom));
   --kratos-glow: 0 10px 26px rgba(0, 120, 110, 0.14);
   --kratos-glow-soft: none;
   --kratos-font-sans:
@@ -81,6 +82,7 @@ page,
   --kratos-color-track: rgba(255, 255, 255, 0.06);
   --kratos-color-mask: rgba(2, 6, 12, 0.55);
   --kratos-dock-bg: rgba(10, 18, 30, 0.72);
+  --kratos-tab-bar-space: calc(104px + env(safe-area-inset-bottom));
   --kratos-glow: 0 0 24px rgba(40, 240, 212, 0.35);
   --kratos-glow-soft: 0 0 40px rgba(40, 240, 212, 0.06);
   --kratos-font-sans:

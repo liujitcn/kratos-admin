@@ -363,7 +363,7 @@ const onSubmit = async () => {
 
 /* 导航组件统一处理顶部空间，页面只维护内容的水平与底部留白。 */
 .profile-content {
-  padding: 0 20rpx calc(40rpx + env(safe-area-inset-bottom));
+  padding: 0 20rpx var(--kratos-tab-bar-space, calc(104rpx + env(safe-area-inset-bottom)));
 }
 
 /* 头像卡 */

@@ -203,6 +203,7 @@ function handleKnowledgeToggle(knowledgeId: number) {
 .composer {
   flex-shrink: 0;
   width: 100%;
+  margin-bottom: var(--kratos-tab-bar-space, calc(104rpx + env(safe-area-inset-bottom)));
   padding: 14rpx 24rpx calc(18rpx + env(safe-area-inset-bottom));
   overflow: hidden;
   background: var(--kratos-color-surface, #fff);

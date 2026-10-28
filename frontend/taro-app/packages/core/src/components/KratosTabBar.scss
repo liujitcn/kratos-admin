@@ -3,18 +3,17 @@
   --kratos-tab-bar-active-color: var(--kratos-color-primary, #28f0d4);
 
   position: fixed;
-  right: 20px;
-  bottom: env(safe-area-inset-bottom);
-  left: 20px;
+  right: 0;
+  bottom: 0;
+  left: 0;
   z-index: 999;
   box-sizing: border-box;
   display: flex;
-  height: 104px;
+  height: var(--kratos-tab-bar-space, calc(104px + env(safe-area-inset-bottom)));
   padding: 0 8px;
-  border: 1px solid var(--kratos-color-border-accent, rgba(120, 230, 215, 0.16));
-  border-radius: 30px;
-  background: var(--kratos-dock-bg, rgba(10, 18, 30, 0.72));
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2);
+  border-top: 1px solid var(--kratos-color-border-accent, rgba(120, 230, 215, 0.16));
+  background: var(--kratos-color-surface-solid, #070d18);
+  box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.12);
 }
 
 .kratos-tab-bar__item {
@@ -24,7 +23,7 @@
   align-items: center;
   justify-content: center;
   flex-direction: column;
-  height: 100%;
+  height: 104px;
   padding: 10px 0 8px;
   color: var(--kratos-tab-bar-color);
   font-size: 20px;
@@ -69,7 +68,7 @@
   height: 10px;
   border-right: 2px solid var(--kratos-tab-bar-color);
   border-bottom: 2px solid var(--kratos-tab-bar-color);
-  background: var(--kratos-dock-bg, rgba(10, 18, 30, 0.72));
+  background: var(--kratos-color-surface-solid, #070d18);
   content: '';
   transform: rotate(45deg);
 }
@@ -108,7 +107,7 @@
   width: 16px;
   height: 16px;
   box-sizing: border-box;
-  border: 2px solid var(--kratos-dock-bg, rgba(10, 18, 30, 0.72));
+  border: 2px solid var(--kratos-color-surface-solid, #070d18);
   border-radius: 18px;
   background: var(--kratos-color-danger, #ff4d6d);
   box-shadow: 0 0 12px var(--kratos-color-danger, #ff4d6d);

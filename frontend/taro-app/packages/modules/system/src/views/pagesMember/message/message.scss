@@ -41,7 +41,7 @@
 .detail-page {
   box-sizing: border-box;
   min-height: 100vh;
-  padding: 0 20px calc(96px + env(safe-area-inset-bottom));
+  padding: 0 20px var(--kratos-tab-bar-space, calc(104px + env(safe-area-inset-bottom)));
   background: var(--kratos-bg-gradient);
   color: var(--kratos-color-text);
 }
