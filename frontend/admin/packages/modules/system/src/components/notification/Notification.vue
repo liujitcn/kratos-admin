@@ -52,7 +52,6 @@
           <component :is="resolveNotificationIcon(detail.category_icon)" />
           <span>{{ detail.category_name }}</span>
         </span>
-        <span>{{ resolvePersistedMessage(detail.sender_name) }}</span>
         <span>{{ detail.received_at }}</span>
       </div>
       <RichTextPreview
@@ -80,7 +79,7 @@ import ProDialog from "@liujitcn/kratos-admin-core/components/Dialog/ProDialog.v
 import RichTextPreview from "@liujitcn/kratos-admin-core/components/RichTextPreview/index.vue";
 import { defNotificationService } from "@liujitcn/kratos-admin-system/api/base/v1/notification";
 import { subscribeSseEvent, type SseStop } from "@liujitcn/kratos-admin-system/api/base/v1/sse";
-import type { Notification } from "@liujitcn/kratos-admin-system/rpc/base/v1/notification";
+import type { Notification, NotificationDetail } from "@liujitcn/kratos-admin-system/rpc/base/v1/notification";
 import {
   MessageActionType,
   MessageContentFormat,
@@ -96,7 +95,7 @@ const unreadTotal = ref(0);
 const latestDeliveryID = ref(0);
 const notifications = ref<Notification[]>([]);
 const detailVisible = ref(false);
-const detail = ref<Notification>();
+const detail = ref<NotificationDetail>();
 let stopSse: SseStop | undefined;
 
 defineOptions({ name: "Notification", inheritAttrs: false });

@@ -123,9 +123,11 @@ function goBack() {
   border-radius: 24rpx;
   background: var(--kratos-color-surface);
   color: var(--kratos-color-text);
+  line-height: 0;
 }
 
 .kratos-nav-bar__back::before {
+  display: block;
   width: 16rpx;
   height: 16rpx;
   border-left: 2px solid var(--kratos-color-primary);
@@ -149,6 +151,7 @@ function goBack() {
 
 .kratos-nav-bar__icon {
   flex-shrink: 0;
+  display: block;
   width: 34rpx;
   height: 34rpx;
 }

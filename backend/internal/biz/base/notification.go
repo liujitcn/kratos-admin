@@ -101,10 +101,14 @@ func (c *NotificationCase) PageNotification(ctx context.Context, req *basev1.Pag
 	if err != nil {
 		return nil, err
 	}
-	var items []*basev1.Notification
-	items, err = c.buildNotifications(ctx, list, false)
+	var detailItems []*basev1.NotificationDetail
+	detailItems, err = c.buildNotificationDetails(ctx, list, false)
 	if err != nil {
 		return nil, err
+	}
+	items := make([]*basev1.Notification, 0, len(detailItems))
+	for _, item := range detailItems {
+		items = append(items, toNotificationList(item))
 	}
 	var nextCursorID int64
 	if hasMore && len(list) > 0 {
@@ -166,7 +170,7 @@ func (c *NotificationCase) ListNotificationCategories(ctx context.Context, _ *ba
 }
 
 // GetNotification 查询当前用户消息详情。
-func (c *NotificationCase) GetNotification(ctx context.Context, id int64) (*basev1.Notification, error) {
+func (c *NotificationCase) GetNotification(ctx context.Context, id int64) (*basev1.NotificationDetail, error) {
 	authInfo, err := c.GetAuthInfo(ctx)
 	if err != nil {
 		return nil, err
@@ -176,8 +180,8 @@ func (c *NotificationCase) GetNotification(ctx context.Context, id int64) (*base
 	if err != nil {
 		return nil, err
 	}
-	var items []*basev1.Notification
-	items, err = c.buildNotifications(ctx, []*models.BaseMessageDelivery{delivery}, true)
+	var items []*basev1.NotificationDetail
+	items, err = c.buildNotificationDetails(ctx, []*models.BaseMessageDelivery{delivery}, true)
 	if err != nil {
 		return nil, err
 	}
@@ -375,8 +379,8 @@ func (c *NotificationCase) filterMessageIDs(ctx context.Context, req *basev1.Pag
 	return ids, nil
 }
 
-// buildNotifications 批量组装收件箱响应。
-func (c *NotificationCase) buildNotifications(ctx context.Context, deliveries []*models.BaseMessageDelivery, includeContent bool) ([]*basev1.Notification, error) {
+// buildNotificationDetails 批量组装消息详情响应。
+func (c *NotificationCase) buildNotificationDetails(ctx context.Context, deliveries []*models.BaseMessageDelivery, includeContent bool) ([]*basev1.NotificationDetail, error) {
 	messageIDs := make([]int64, 0, len(deliveries))
 	for _, item := range deliveries {
 		messageIDs = append(messageIDs, item.MessageID)
@@ -400,7 +404,7 @@ func (c *NotificationCase) buildNotifications(ctx context.Context, deliveries []
 	for _, item := range categories {
 		categoryMap[item.ID] = item
 	}
-	result := make([]*basev1.Notification, 0, len(deliveries))
+	result := make([]*basev1.NotificationDetail, 0, len(deliveries))
 	for _, delivery := range deliveries {
 		message := messageMap[delivery.MessageID]
 		if message == nil {
@@ -417,18 +421,28 @@ func (c *NotificationCase) buildNotifications(ctx context.Context, deliveries []
 		if includeContent {
 			content = message.Content
 		}
-		result = append(result, &basev1.Notification{
+		result = append(result, &basev1.NotificationDetail{
 			Id: delivery.ID, TenantId: delivery.TenantID, MessageId: message.ID, CategoryId: category.ID,
 			CategoryName: category.Name, CategoryIcon: category.Icon, CategoryColor: category.Color,
 			Priority: basev1.MessagePriority(message.Priority), Title: message.Title, Content: content,
 			ContentFormat: basev1.MessageContentFormat(message.ContentFormat), ActionType: basev1.MessageActionType(message.ActionType),
-			ActionTarget: message.ActionTarget, ActionParams: message.ActionParams, SenderName: message.SenderName,
+			ActionTarget: message.ActionTarget, ActionParams: message.ActionParams,
 			ReceivedAt: formatNotificationTime(delivery.ReceivedAt), ReadAt: formatNotificationMillis(delivery.ReadAt),
 			ArchivedAt: formatNotificationMillis(delivery.ArchivedAt), ExpiresAt: formatNotificationMillis(delivery.ExpiresAt),
 			AllowArchive: category.AllowArchive, AllowDelete: category.AllowDelete,
 		})
 	}
 	return result, nil
+}
+
+// toNotificationList 将消息详情转换为列表响应。
+func toNotificationList(item *basev1.NotificationDetail) *basev1.Notification {
+	return &basev1.Notification{
+		Id: item.Id, CategoryName: item.CategoryName, CategoryIcon: item.CategoryIcon, CategoryColor: item.CategoryColor,
+		Title: item.Title, ActionTarget: item.ActionTarget, ActionParams: item.ActionParams,
+		ReceivedAt: item.ReceivedAt, ReadAt: item.ReadAt, ArchivedAt: item.ArchivedAt,
+		AllowArchive: item.AllowArchive, AllowDelete: item.AllowDelete,
+	}
 }
 
 // findOwnedDelivery 查询当前用户拥有且可见的投递记录。

@@ -5,13 +5,13 @@ import { ref } from 'vue'
 import { t } from '@liujitcn/kratos-uni-app-core'
 import { useThemeStore } from '@liujitcn/kratos-uni-app-core/stores'
 import { defNotificationService } from '../../../api/base/v1/notification'
-import type { Notification } from '../../../rpc/base/v1/notification'
+import type { NotificationDetail } from '../../../rpc/base/v1/notification'
 import { MessageContentFormat } from '../../../rpc/base/v1/notification'
 import { resolvePersistedMessage } from '../../../utils/persisted-message'
 import { resolveMessageCategoryIcon } from './icons'
 
 const themeStore = useThemeStore()
-const detail = ref<Notification>()
+const detail = ref<NotificationDetail>()
 
 onLoad((options) => {
   const id = Number(options?.id)
@@ -41,7 +41,6 @@ async function loadDetail(id: number) {
           />
           <text>{{ detail.category_name }}</text>
         </view>
-        <text>{{ resolvePersistedMessage(detail.sender_name) }}</text>
         <text>{{ detail.received_at }}</text>
       </view>
       <rich-text

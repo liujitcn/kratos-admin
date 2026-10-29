@@ -36,7 +36,7 @@ type NotificationServiceHTTPServer interface {
 	// DeleteNotification 从个人收件箱删除消息。
 	DeleteNotification(context.Context, *DeleteNotificationRequest) (*emptypb.Empty, error)
 	// GetNotification 查询当前用户消息详情。
-	GetNotification(context.Context, *GetNotificationRequest) (*Notification, error)
+	GetNotification(context.Context, *GetNotificationRequest) (*NotificationDetail, error)
 	// GetNotificationSummary 查询当前用户未读汇总。
 	GetNotificationSummary(context.Context, *GetNotificationSummaryRequest) (*NotificationSummary, error)
 	// ListNotificationCategories 查询消息分类列表。
@@ -141,7 +141,7 @@ func _NotificationService_GetNotification0_HTTP_Handler(srv NotificationServiceH
 		if err != nil {
 			return err
 		}
-		reply := out.(*Notification)
+		reply := out.(*NotificationDetail)
 		return ctx.Result(200, reply)
 	}
 }
@@ -275,7 +275,7 @@ type NotificationServiceHTTPClient interface {
 	// DeleteNotification 从个人收件箱删除消息。
 	DeleteNotification(ctx context.Context, req *DeleteNotificationRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	// GetNotification 查询当前用户消息详情。
-	GetNotification(ctx context.Context, req *GetNotificationRequest, opts ...http.CallOption) (rsp *Notification, err error)
+	GetNotification(ctx context.Context, req *GetNotificationRequest, opts ...http.CallOption) (rsp *NotificationDetail, err error)
 	// GetNotificationSummary 查询当前用户未读汇总。
 	GetNotificationSummary(ctx context.Context, req *GetNotificationSummaryRequest, opts ...http.CallOption) (rsp *NotificationSummary, err error)
 	// ListNotificationCategories 查询消息分类列表。
@@ -336,8 +336,8 @@ func (c *NotificationServiceHTTPClientImpl) DeleteNotification(ctx context.Conte
 }
 
 // GetNotification 查询当前用户消息详情。
-func (c *NotificationServiceHTTPClientImpl) GetNotification(ctx context.Context, in *GetNotificationRequest, opts ...http.CallOption) (*Notification, error) {
-	var out Notification
+func (c *NotificationServiceHTTPClientImpl) GetNotification(ctx context.Context, in *GetNotificationRequest, opts ...http.CallOption) (*NotificationDetail, error) {
+	var out NotificationDetail
 	pattern := "/api/v1/base/notification/{id}"
 	path := http.BuildPath(pattern, in, http.WithQueryParams())
 	opts = append([]http.CallOption{

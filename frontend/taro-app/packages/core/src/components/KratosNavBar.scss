@@ -43,9 +43,11 @@
   border-radius: 24px;
   background: var(--kratos-color-surface);
   color: var(--kratos-color-text);
+  line-height: 0;
 }
 
 .kratos-nav-bar__back::before {
+  display: block;
   width: 16px;
   height: 16px;
   border-left: 2PX solid var(--kratos-color-primary);
@@ -69,6 +71,7 @@
 
 .kratos-nav-bar__icon {
   flex-shrink: 0;
+  display: block;
   width: 34px;
   height: 34px;
 }

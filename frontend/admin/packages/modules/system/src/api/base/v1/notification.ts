@@ -9,7 +9,7 @@ import type {
   MarkAllNotificationReadRequest,
   MarkNotificationReadRequest,
   MarkNotificationUnreadRequest,
-  Notification,
+  NotificationDetail,
   NotificationService,
   NotificationSummary,
   PageNotificationRequest,
@@ -43,8 +43,8 @@ export class NotificationServiceImpl implements NotificationService {
   }
 
   /** 查询当前用户消息详情。 */
-  GetNotification(request: GetNotificationRequest): Promise<Notification> {
-    return service<GetNotificationRequest, Notification>({ url: `${NOTIFICATION_URL}/${request.id}`, method: "get" });
+  GetNotification(request: GetNotificationRequest): Promise<NotificationDetail> {
+    return service<GetNotificationRequest, NotificationDetail>({ url: `${NOTIFICATION_URL}/${request.id}`, method: "get" });
   }
 
   /** 查询当前用户未读汇总。 */

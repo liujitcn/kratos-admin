@@ -8953,7 +8953,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/base.v1.Notification'
+                                $ref: '#/components/schemas/base.v1.NotificationDetail'
         delete:
             tags:
                 - NotificationService
@@ -10469,15 +10469,6 @@ components:
                 id:
                     type: string
                     description: 投遞ID
-                tenant_id:
-                    type: string
-                    description: 租戶ID
-                message_id:
-                    type: string
-                    description: 訊息ID
-                category_id:
-                    type: string
-                    description: 分類ID
                 category_name:
                     type: string
                     description: 分類名稱
@@ -10487,46 +10478,15 @@ components:
                 category_color:
                     type: string
                     description: 分類顏色
-                priority:
-                    enum:
-                        - MESSAGE_PRIORITY_UNSPECIFIED
-                        - MESSAGE_PRIORITY_NORMAL
-                        - MESSAGE_PRIORITY_IMPORTANT
-                        - MESSAGE_PRIORITY_URGENT
-                    type: string
-                    description: 訊息優先順序
-                    format: enum
                 title:
                     type: string
                     description: 訊息標題
-                content:
-                    type: string
-                    description: 訊息正文，列表響應為空
-                content_format:
-                    enum:
-                        - MESSAGE_CONTENT_FORMAT_UNSPECIFIED
-                        - MESSAGE_CONTENT_FORMAT_PLAIN_TEXT
-                        - MESSAGE_CONTENT_FORMAT_SAFE_MARKDOWN
-                        - MESSAGE_CONTENT_FORMAT_RICH_TEXT
-                    type: string
-                    description: 正文格式
-                    format: enum
-                action_type:
-                    enum:
-                        - MESSAGE_ACTION_TYPE_UNSPECIFIED
-                        - MESSAGE_ACTION_TYPE_VIEW_KEY
-                    type: string
-                    description: 動作型別
-                    format: enum
                 action_target:
                     type: string
                     description: 動作目標
                 action_params:
                     type: string
                     description: 動作引數JSON
-                sender_name:
-                    type: string
-                    description: 傳送者名稱
                 received_at:
                     type: string
                     description: 接收時間
@@ -10536,16 +10496,13 @@ components:
                 archived_at:
                     type: string
                     description: 歸檔時間
-                expires_at:
-                    type: string
-                    description: 過期時間
                 allow_archive:
                     type: boolean
                     description: 是否允許歸檔
                 allow_delete:
                     type: boolean
                     description: 是否允許刪除
-            description: 當前使用者訊息。
+            description: 當前使用者訊息列表項。
         base.v1.NotificationCategory:
             type: object
             properties:
@@ -10579,6 +10536,86 @@ components:
                     type: string
                     description: 分類未讀數
             description: 當前使用者單個分類的未讀數量。
+        base.v1.NotificationDetail:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 投遞ID
+                tenant_id:
+                    type: string
+                    description: 租戶ID
+                message_id:
+                    type: string
+                    description: 訊息ID
+                category_id:
+                    type: string
+                    description: 分類ID
+                category_name:
+                    type: string
+                    description: 分類名稱
+                category_icon:
+                    type: string
+                    description: 分類圖示
+                category_color:
+                    type: string
+                    description: 分類顏色
+                priority:
+                    enum:
+                        - MESSAGE_PRIORITY_UNSPECIFIED
+                        - MESSAGE_PRIORITY_NORMAL
+                        - MESSAGE_PRIORITY_IMPORTANT
+                        - MESSAGE_PRIORITY_URGENT
+                    type: string
+                    description: 訊息優先順序
+                    format: enum
+                title:
+                    type: string
+                    description: 訊息標題
+                content:
+                    type: string
+                    description: 訊息正文
+                content_format:
+                    enum:
+                        - MESSAGE_CONTENT_FORMAT_UNSPECIFIED
+                        - MESSAGE_CONTENT_FORMAT_PLAIN_TEXT
+                        - MESSAGE_CONTENT_FORMAT_SAFE_MARKDOWN
+                        - MESSAGE_CONTENT_FORMAT_RICH_TEXT
+                    type: string
+                    description: 正文格式
+                    format: enum
+                action_type:
+                    enum:
+                        - MESSAGE_ACTION_TYPE_UNSPECIFIED
+                        - MESSAGE_ACTION_TYPE_VIEW_KEY
+                    type: string
+                    description: 動作型別
+                    format: enum
+                action_target:
+                    type: string
+                    description: 動作目標
+                action_params:
+                    type: string
+                    description: 動作引數JSON
+                received_at:
+                    type: string
+                    description: 接收時間
+                read_at:
+                    type: string
+                    description: 已讀時間
+                archived_at:
+                    type: string
+                    description: 歸檔時間
+                expires_at:
+                    type: string
+                    description: 過期時間
+                allow_archive:
+                    type: boolean
+                    description: 是否允許歸檔
+                allow_delete:
+                    type: boolean
+                    description: 是否允許刪除
+            description: 訊息詳情。
         base.v1.NotificationSummary:
             type: object
             properties:

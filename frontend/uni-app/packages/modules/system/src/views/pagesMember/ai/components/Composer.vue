@@ -204,7 +204,7 @@ function handleKnowledgeToggle(knowledgeId: number) {
   flex-shrink: 0;
   width: 100%;
   margin-bottom: var(--kratos-tab-bar-space, calc(104rpx + env(safe-area-inset-bottom)));
-  padding: 14rpx 24rpx calc(18rpx + env(safe-area-inset-bottom));
+  padding: 14rpx 24rpx 18rpx;
   overflow: hidden;
   background: var(--kratos-color-surface, #fff);
   border-top: 1rpx solid var(--kratos-color-border-accent, rgba(120, 230, 215, 0.16));

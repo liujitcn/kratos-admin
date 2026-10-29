@@ -88,7 +88,7 @@ func (s *redactedNotificationServiceServer) GetNotificationSummary(ctx context.C
 
 // GetNotification is the redacted wrapper for the actual NotificationServiceServer.GetNotification method
 // Unary RPC
-func (s *redactedNotificationServiceServer) GetNotification(ctx context.Context, in *GetNotificationRequest) (*Notification, error) {
+func (s *redactedNotificationServiceServer) GetNotification(ctx context.Context, in *GetNotificationRequest) (*NotificationDetail, error) {
 	res, err := s.srv.GetNotification(ctx, in)
 	if !s.bypass.CheckInternal(ctx) {
 		// Apply redaction to the response
@@ -382,6 +382,40 @@ func (x *Notification) Redact() {
 
 	// Safe field: Id
 
+	// Safe field: CategoryName
+
+	// Safe field: CategoryIcon
+
+	// Safe field: CategoryColor
+
+	// Safe field: Title
+
+	// Safe field: ActionTarget
+
+	// Safe field: ActionParams
+
+	// Safe field: ReceivedAt
+
+	// Safe field: ReadAt
+
+	// Safe field: ArchivedAt
+
+	// Safe field: AllowArchive
+
+	// Safe field: AllowDelete
+}
+
+// Ensure NotificationDetail implements the Redactor interface at compile time.
+var _ redact.Redactor = (*NotificationDetail)(nil)
+
+// Redact method implementation for NotificationDetail
+func (x *NotificationDetail) Redact() {
+	if x == nil {
+		return
+	}
+
+	// Safe field: Id
+
 	// Safe field: TenantId
 
 	// Safe field: MessageId
@@ -407,8 +441,6 @@ func (x *Notification) Redact() {
 	// Safe field: ActionTarget
 
 	// Safe field: ActionParams
-
-	// Safe field: SenderName
 
 	// Safe field: ReceivedAt
 

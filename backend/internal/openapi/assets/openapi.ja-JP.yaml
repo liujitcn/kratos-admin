@@ -8953,7 +8953,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/base.v1.Notification'
+                                $ref: '#/components/schemas/base.v1.NotificationDetail'
         delete:
             tags:
                 - NotificationService
@@ -10469,15 +10469,6 @@ components:
                 id:
                     type: string
                     description: 配信 ID
-                tenant_id:
-                    type: string
-                    description: テナント ID
-                message_id:
-                    type: string
-                    description: メッセージ ID
-                category_id:
-                    type: string
-                    description: カテゴリ ID
                 category_name:
                     type: string
                     description: カテゴリ名
@@ -10487,46 +10478,15 @@ components:
                 category_color:
                     type: string
                     description: カテゴリの色
-                priority:
-                    enum:
-                        - MESSAGE_PRIORITY_UNSPECIFIED
-                        - MESSAGE_PRIORITY_NORMAL
-                        - MESSAGE_PRIORITY_IMPORTANT
-                        - MESSAGE_PRIORITY_URGENT
-                    type: string
-                    description: メッセージ優先度
-                    format: enum
                 title:
                     type: string
                     description: メッセージタイトル
-                content:
-                    type: string
-                    description: メッセージ本文，一覧レスポンスNULL 可
-                content_format:
-                    enum:
-                        - MESSAGE_CONTENT_FORMAT_UNSPECIFIED
-                        - MESSAGE_CONTENT_FORMAT_PLAIN_TEXT
-                        - MESSAGE_CONTENT_FORMAT_SAFE_MARKDOWN
-                        - MESSAGE_CONTENT_FORMAT_RICH_TEXT
-                    type: string
-                    description: 本文形式
-                    format: enum
-                action_type:
-                    enum:
-                        - MESSAGE_ACTION_TYPE_UNSPECIFIED
-                        - MESSAGE_ACTION_TYPE_VIEW_KEY
-                    type: string
-                    description: 动作種類
-                    format: enum
                 action_target:
                     type: string
                     description: 动作対象
                 action_params:
                     type: string
                     description: 动作パラメータJSON
-                sender_name:
-                    type: string
-                    description: 送信者名称
                 received_at:
                     type: string
                     description: 受信時刻
@@ -10536,16 +10496,13 @@ components:
                 archived_at:
                     type: string
                     description: アーカイブ時刻
-                expires_at:
-                    type: string
-                    description: 有効期限
                 allow_archive:
                     type: boolean
                     description: アーカイブを許可するかどうか
                 allow_delete:
                     type: boolean
                     description: 削除を許可するかどうか
-            description: 現在のユーザーメッセージ。
+            description: 現在のユーザーメッセージ一覧項目。
         base.v1.NotificationCategory:
             type: object
             properties:
@@ -10579,6 +10536,86 @@ components:
                     type: string
                     description: カテゴリ別未読数
             description: 現在のユーザー单个分类の未読件数。
+        base.v1.NotificationDetail:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 配信 ID
+                tenant_id:
+                    type: string
+                    description: テナント ID
+                message_id:
+                    type: string
+                    description: メッセージ ID
+                category_id:
+                    type: string
+                    description: カテゴリ ID
+                category_name:
+                    type: string
+                    description: カテゴリ名
+                category_icon:
+                    type: string
+                    description: カテゴリのアイコン
+                category_color:
+                    type: string
+                    description: カテゴリの色
+                priority:
+                    enum:
+                        - MESSAGE_PRIORITY_UNSPECIFIED
+                        - MESSAGE_PRIORITY_NORMAL
+                        - MESSAGE_PRIORITY_IMPORTANT
+                        - MESSAGE_PRIORITY_URGENT
+                    type: string
+                    description: メッセージ優先度
+                    format: enum
+                title:
+                    type: string
+                    description: メッセージタイトル
+                content:
+                    type: string
+                    description: メッセージ本文
+                content_format:
+                    enum:
+                        - MESSAGE_CONTENT_FORMAT_UNSPECIFIED
+                        - MESSAGE_CONTENT_FORMAT_PLAIN_TEXT
+                        - MESSAGE_CONTENT_FORMAT_SAFE_MARKDOWN
+                        - MESSAGE_CONTENT_FORMAT_RICH_TEXT
+                    type: string
+                    description: 本文形式
+                    format: enum
+                action_type:
+                    enum:
+                        - MESSAGE_ACTION_TYPE_UNSPECIFIED
+                        - MESSAGE_ACTION_TYPE_VIEW_KEY
+                    type: string
+                    description: 动作種類
+                    format: enum
+                action_target:
+                    type: string
+                    description: 动作対象
+                action_params:
+                    type: string
+                    description: 动作パラメータJSON
+                received_at:
+                    type: string
+                    description: 受信時刻
+                read_at:
+                    type: string
+                    description: 既読時刻
+                archived_at:
+                    type: string
+                    description: アーカイブ時刻
+                expires_at:
+                    type: string
+                    description: 有効期限
+                allow_archive:
+                    type: boolean
+                    description: アーカイブを許可するかどうか
+                allow_delete:
+                    type: boolean
+                    description: 削除を許可するかどうか
+            description: メッセージ詳細。
         base.v1.NotificationSummary:
             type: object
             properties:

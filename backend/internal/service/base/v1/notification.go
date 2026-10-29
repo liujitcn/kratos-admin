@@ -44,7 +44,7 @@ func (s *NotificationService) ListNotificationCategories(ctx context.Context, re
 }
 
 // GetNotification 查询当前用户消息详情。
-func (s *NotificationService) GetNotification(ctx context.Context, req *basev1.GetNotificationRequest) (*basev1.Notification, error) {
+func (s *NotificationService) GetNotification(ctx context.Context, req *basev1.GetNotificationRequest) (*basev1.NotificationDetail, error) {
 	result, err := s.notificationCase.GetNotification(ctx, req.GetId())
 	if err != nil {
 		log.Error(fmt.Sprintf("GetNotification %v", err))

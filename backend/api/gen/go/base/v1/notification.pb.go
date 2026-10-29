@@ -1355,30 +1355,21 @@ func (x *DeleteNotificationRequest) GetId() int64 {
 	return 0
 }
 
-// 当前用户消息。
+// 当前用户消息列表项。
 type Notification struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                                                               // 投递ID
-	TenantId      int64                  `protobuf:"varint,21,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`                                                  // 租户ID
-	MessageId     int64                  `protobuf:"varint,2,opt,name=message_id,json=messageId,proto3" json:"message_id,omitempty"`                                                // 消息ID
-	CategoryId    int64                  `protobuf:"varint,3,opt,name=category_id,json=categoryId,proto3" json:"category_id,omitempty"`                                             // 分类ID
-	CategoryName  string                 `protobuf:"bytes,4,opt,name=category_name,json=categoryName,proto3" json:"category_name,omitempty"`                                        // 分类名称
-	CategoryIcon  string                 `protobuf:"bytes,5,opt,name=category_icon,json=categoryIcon,proto3" json:"category_icon,omitempty"`                                        // 分类图标
-	CategoryColor string                 `protobuf:"bytes,6,opt,name=category_color,json=categoryColor,proto3" json:"category_color,omitempty"`                                     // 分类颜色
-	Priority      MessagePriority        `protobuf:"varint,7,opt,name=priority,proto3,enum=base.v1.MessagePriority" json:"priority,omitempty"`                                      // 消息优先级
-	Title         string                 `protobuf:"bytes,8,opt,name=title,proto3" json:"title,omitempty"`                                                                          // 消息标题
-	Content       string                 `protobuf:"bytes,9,opt,name=content,proto3" json:"content,omitempty"`                                                                      // 消息正文
-	ContentFormat MessageContentFormat   `protobuf:"varint,10,opt,name=content_format,json=contentFormat,proto3,enum=base.v1.MessageContentFormat" json:"content_format,omitempty"` // 正文格式
-	ActionType    MessageActionType      `protobuf:"varint,11,opt,name=action_type,json=actionType,proto3,enum=base.v1.MessageActionType" json:"action_type,omitempty"`             // 动作类型
-	ActionTarget  string                 `protobuf:"bytes,12,opt,name=action_target,json=actionTarget,proto3" json:"action_target,omitempty"`                                       // 动作目标
-	ActionParams  string                 `protobuf:"bytes,13,opt,name=action_params,json=actionParams,proto3" json:"action_params,omitempty"`                                       // 动作参数JSON
-	SenderName    string                 `protobuf:"bytes,14,opt,name=sender_name,json=senderName,proto3" json:"sender_name,omitempty"`                                             // 发送者名称
-	ReceivedAt    string                 `protobuf:"bytes,15,opt,name=received_at,json=receivedAt,proto3" json:"received_at,omitempty"`                                             // 接收时间
-	ReadAt        string                 `protobuf:"bytes,16,opt,name=read_at,json=readAt,proto3" json:"read_at,omitempty"`                                                         // 已读时间
-	ArchivedAt    string                 `protobuf:"bytes,17,opt,name=archived_at,json=archivedAt,proto3" json:"archived_at,omitempty"`                                             // 归档时间
-	ExpiresAt     string                 `protobuf:"bytes,18,opt,name=expires_at,json=expiresAt,proto3" json:"expires_at,omitempty"`                                                // 过期时间
-	AllowArchive  bool                   `protobuf:"varint,19,opt,name=allow_archive,json=allowArchive,proto3" json:"allow_archive,omitempty"`                                      // 是否允许归档
-	AllowDelete   bool                   `protobuf:"varint,20,opt,name=allow_delete,json=allowDelete,proto3" json:"allow_delete,omitempty"`                                         // 是否允许删除
+	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                           // 投递ID
+	CategoryName  string                 `protobuf:"bytes,4,opt,name=category_name,json=categoryName,proto3" json:"category_name,omitempty"`    // 分类名称
+	CategoryIcon  string                 `protobuf:"bytes,5,opt,name=category_icon,json=categoryIcon,proto3" json:"category_icon,omitempty"`    // 分类图标
+	CategoryColor string                 `protobuf:"bytes,6,opt,name=category_color,json=categoryColor,proto3" json:"category_color,omitempty"` // 分类颜色
+	Title         string                 `protobuf:"bytes,8,opt,name=title,proto3" json:"title,omitempty"`                                      // 消息标题
+	ActionTarget  string                 `protobuf:"bytes,12,opt,name=action_target,json=actionTarget,proto3" json:"action_target,omitempty"`   // 动作目标
+	ActionParams  string                 `protobuf:"bytes,13,opt,name=action_params,json=actionParams,proto3" json:"action_params,omitempty"`   // 动作参数JSON
+	ReceivedAt    string                 `protobuf:"bytes,15,opt,name=received_at,json=receivedAt,proto3" json:"received_at,omitempty"`         // 接收时间
+	ReadAt        string                 `protobuf:"bytes,16,opt,name=read_at,json=readAt,proto3" json:"read_at,omitempty"`                     // 已读时间
+	ArchivedAt    string                 `protobuf:"bytes,17,opt,name=archived_at,json=archivedAt,proto3" json:"archived_at,omitempty"`         // 归档时间
+	AllowArchive  bool                   `protobuf:"varint,19,opt,name=allow_archive,json=allowArchive,proto3" json:"allow_archive,omitempty"`  // 是否允许归档
+	AllowDelete   bool                   `protobuf:"varint,20,opt,name=allow_delete,json=allowDelete,proto3" json:"allow_delete,omitempty"`     // 是否允许删除
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1420,27 +1411,6 @@ func (x *Notification) GetId() int64 {
 	return 0
 }
 
-func (x *Notification) GetTenantId() int64 {
-	if x != nil {
-		return x.TenantId
-	}
-	return 0
-}
-
-func (x *Notification) GetMessageId() int64 {
-	if x != nil {
-		return x.MessageId
-	}
-	return 0
-}
-
-func (x *Notification) GetCategoryId() int64 {
-	if x != nil {
-		return x.CategoryId
-	}
-	return 0
-}
-
 func (x *Notification) GetCategoryName() string {
 	if x != nil {
 		return x.CategoryName
@@ -1462,39 +1432,11 @@ func (x *Notification) GetCategoryColor() string {
 	return ""
 }
 
-func (x *Notification) GetPriority() MessagePriority {
-	if x != nil {
-		return x.Priority
-	}
-	return MessagePriority_MESSAGE_PRIORITY_UNSPECIFIED
-}
-
 func (x *Notification) GetTitle() string {
 	if x != nil {
 		return x.Title
 	}
 	return ""
-}
-
-func (x *Notification) GetContent() string {
-	if x != nil {
-		return x.Content
-	}
-	return ""
-}
-
-func (x *Notification) GetContentFormat() MessageContentFormat {
-	if x != nil {
-		return x.ContentFormat
-	}
-	return MessageContentFormat_MESSAGE_CONTENT_FORMAT_UNSPECIFIED
-}
-
-func (x *Notification) GetActionType() MessageActionType {
-	if x != nil {
-		return x.ActionType
-	}
-	return MessageActionType_MESSAGE_ACTION_TYPE_UNSPECIFIED
 }
 
 func (x *Notification) GetActionTarget() string {
@@ -1507,13 +1449,6 @@ func (x *Notification) GetActionTarget() string {
 func (x *Notification) GetActionParams() string {
 	if x != nil {
 		return x.ActionParams
-	}
-	return ""
-}
-
-func (x *Notification) GetSenderName() string {
-	if x != nil {
-		return x.SenderName
 	}
 	return ""
 }
@@ -1539,13 +1474,6 @@ func (x *Notification) GetArchivedAt() string {
 	return ""
 }
 
-func (x *Notification) GetExpiresAt() string {
-	if x != nil {
-		return x.ExpiresAt
-	}
-	return ""
-}
-
 func (x *Notification) GetAllowArchive() bool {
 	if x != nil {
 		return x.AllowArchive
@@ -1554,6 +1482,203 @@ func (x *Notification) GetAllowArchive() bool {
 }
 
 func (x *Notification) GetAllowDelete() bool {
+	if x != nil {
+		return x.AllowDelete
+	}
+	return false
+}
+
+// 消息详情。
+type NotificationDetail struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                                                               // 投递ID
+	TenantId      int64                  `protobuf:"varint,21,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`                                                  // 租户ID
+	MessageId     int64                  `protobuf:"varint,2,opt,name=message_id,json=messageId,proto3" json:"message_id,omitempty"`                                                // 消息ID
+	CategoryId    int64                  `protobuf:"varint,3,opt,name=category_id,json=categoryId,proto3" json:"category_id,omitempty"`                                             // 分类ID
+	CategoryName  string                 `protobuf:"bytes,4,opt,name=category_name,json=categoryName,proto3" json:"category_name,omitempty"`                                        // 分类名称
+	CategoryIcon  string                 `protobuf:"bytes,5,opt,name=category_icon,json=categoryIcon,proto3" json:"category_icon,omitempty"`                                        // 分类图标
+	CategoryColor string                 `protobuf:"bytes,6,opt,name=category_color,json=categoryColor,proto3" json:"category_color,omitempty"`                                     // 分类颜色
+	Priority      MessagePriority        `protobuf:"varint,7,opt,name=priority,proto3,enum=base.v1.MessagePriority" json:"priority,omitempty"`                                      // 消息优先级
+	Title         string                 `protobuf:"bytes,8,opt,name=title,proto3" json:"title,omitempty"`                                                                          // 消息标题
+	Content       string                 `protobuf:"bytes,9,opt,name=content,proto3" json:"content,omitempty"`                                                                      // 消息正文
+	ContentFormat MessageContentFormat   `protobuf:"varint,10,opt,name=content_format,json=contentFormat,proto3,enum=base.v1.MessageContentFormat" json:"content_format,omitempty"` // 正文格式
+	ActionType    MessageActionType      `protobuf:"varint,11,opt,name=action_type,json=actionType,proto3,enum=base.v1.MessageActionType" json:"action_type,omitempty"`             // 动作类型
+	ActionTarget  string                 `protobuf:"bytes,12,opt,name=action_target,json=actionTarget,proto3" json:"action_target,omitempty"`                                       // 动作目标
+	ActionParams  string                 `protobuf:"bytes,13,opt,name=action_params,json=actionParams,proto3" json:"action_params,omitempty"`                                       // 动作参数JSON
+	ReceivedAt    string                 `protobuf:"bytes,15,opt,name=received_at,json=receivedAt,proto3" json:"received_at,omitempty"`                                             // 接收时间
+	ReadAt        string                 `protobuf:"bytes,16,opt,name=read_at,json=readAt,proto3" json:"read_at,omitempty"`                                                         // 已读时间
+	ArchivedAt    string                 `protobuf:"bytes,17,opt,name=archived_at,json=archivedAt,proto3" json:"archived_at,omitempty"`                                             // 归档时间
+	ExpiresAt     string                 `protobuf:"bytes,18,opt,name=expires_at,json=expiresAt,proto3" json:"expires_at,omitempty"`                                                // 过期时间
+	AllowArchive  bool                   `protobuf:"varint,19,opt,name=allow_archive,json=allowArchive,proto3" json:"allow_archive,omitempty"`                                      // 是否允许归档
+	AllowDelete   bool                   `protobuf:"varint,20,opt,name=allow_delete,json=allowDelete,proto3" json:"allow_delete,omitempty"`                                         // 是否允许删除
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *NotificationDetail) Reset() {
+	*x = NotificationDetail{}
+	mi := &file_base_v1_notification_proto_msgTypes[16]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *NotificationDetail) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*NotificationDetail) ProtoMessage() {}
+
+func (x *NotificationDetail) ProtoReflect() protoreflect.Message {
+	mi := &file_base_v1_notification_proto_msgTypes[16]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use NotificationDetail.ProtoReflect.Descriptor instead.
+func (*NotificationDetail) Descriptor() ([]byte, []int) {
+	return file_base_v1_notification_proto_rawDescGZIP(), []int{16}
+}
+
+func (x *NotificationDetail) GetId() int64 {
+	if x != nil {
+		return x.Id
+	}
+	return 0
+}
+
+func (x *NotificationDetail) GetTenantId() int64 {
+	if x != nil {
+		return x.TenantId
+	}
+	return 0
+}
+
+func (x *NotificationDetail) GetMessageId() int64 {
+	if x != nil {
+		return x.MessageId
+	}
+	return 0
+}
+
+func (x *NotificationDetail) GetCategoryId() int64 {
+	if x != nil {
+		return x.CategoryId
+	}
+	return 0
+}
+
+func (x *NotificationDetail) GetCategoryName() string {
+	if x != nil {
+		return x.CategoryName
+	}
+	return ""
+}
+
+func (x *NotificationDetail) GetCategoryIcon() string {
+	if x != nil {
+		return x.CategoryIcon
+	}
+	return ""
+}
+
+func (x *NotificationDetail) GetCategoryColor() string {
+	if x != nil {
+		return x.CategoryColor
+	}
+	return ""
+}
+
+func (x *NotificationDetail) GetPriority() MessagePriority {
+	if x != nil {
+		return x.Priority
+	}
+	return MessagePriority_MESSAGE_PRIORITY_UNSPECIFIED
+}
+
+func (x *NotificationDetail) GetTitle() string {
+	if x != nil {
+		return x.Title
+	}
+	return ""
+}
+
+func (x *NotificationDetail) GetContent() string {
+	if x != nil {
+		return x.Content
+	}
+	return ""
+}
+
+func (x *NotificationDetail) GetContentFormat() MessageContentFormat {
+	if x != nil {
+		return x.ContentFormat
+	}
+	return MessageContentFormat_MESSAGE_CONTENT_FORMAT_UNSPECIFIED
+}
+
+func (x *NotificationDetail) GetActionType() MessageActionType {
+	if x != nil {
+		return x.ActionType
+	}
+	return MessageActionType_MESSAGE_ACTION_TYPE_UNSPECIFIED
+}
+
+func (x *NotificationDetail) GetActionTarget() string {
+	if x != nil {
+		return x.ActionTarget
+	}
+	return ""
+}
+
+func (x *NotificationDetail) GetActionParams() string {
+	if x != nil {
+		return x.ActionParams
+	}
+	return ""
+}
+
+func (x *NotificationDetail) GetReceivedAt() string {
+	if x != nil {
+		return x.ReceivedAt
+	}
+	return ""
+}
+
+func (x *NotificationDetail) GetReadAt() string {
+	if x != nil {
+		return x.ReadAt
+	}
+	return ""
+}
+
+func (x *NotificationDetail) GetArchivedAt() string {
+	if x != nil {
+		return x.ArchivedAt
+	}
+	return ""
+}
+
+func (x *NotificationDetail) GetExpiresAt() string {
+	if x != nil {
+		return x.ExpiresAt
+	}
+	return ""
+}
+
+func (x *NotificationDetail) GetAllowArchive() bool {
+	if x != nil {
+		return x.AllowArchive
+	}
+	return false
+}
+
+func (x *NotificationDetail) GetAllowDelete() bool {
 	if x != nil {
 		return x.AllowDelete
 	}
@@ -1621,8 +1746,27 @@ const file_base_v1_notification_proto_rawDesc = "" +
 	"$base.notification.action.id.required\x12\x14消息ID不能为空\x1a\bthis > 0R\x02id\"\x87\x01\n" +
 	"\x19DeleteNotificationRequest\x12j\n" +
 	"\x02id\x18\x01 \x01(\x03BZ\xbaG\v\x92\x02\b投递ID\xbaHI\xba\x01F\n" +
-	"$base.notification.action.id.required\x12\x14消息ID不能为空\x1a\bthis > 0R\x02id\"\xc1\t\n" +
+	"$base.notification.action.id.required\x12\x14消息ID不能为空\x1a\bthis > 0R\x02id\"\xb1\x06\n" +
 	"\fNotification\x12\x1e\n" +
+	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b投递IDR\x02id\x127\n" +
+	"\rcategory_name\x18\x04 \x01(\tB\x12\xbaG\x0f\x92\x02\f分类名称R\fcategoryName\x127\n" +
+	"\rcategory_icon\x18\x05 \x01(\tB\x12\xbaG\x0f\x92\x02\f分类图标R\fcategoryIcon\x129\n" +
+	"\x0ecategory_color\x18\x06 \x01(\tB\x12\xbaG\x0f\x92\x02\f分类颜色R\rcategoryColor\x12(\n" +
+	"\x05title\x18\b \x01(\tB\x12\xbaG\x0f\x92\x02\f消息标题R\x05title\x127\n" +
+	"\raction_target\x18\f \x01(\tB\x12\xbaG\x0f\x92\x02\f动作目标R\factionTarget\x12;\n" +
+	"\raction_params\x18\r \x01(\tB\x16\xbaG\x13\x92\x02\x10动作参数JSONR\factionParams\x123\n" +
+	"\vreceived_at\x18\x0f \x01(\tB\x12\xbaG\x0f\x92\x02\f接收时间R\n" +
+	"receivedAt\x12+\n" +
+	"\aread_at\x18\x10 \x01(\tB\x12\xbaG\x0f\x92\x02\f已读时间R\x06readAt\x123\n" +
+	"\varchived_at\x18\x11 \x01(\tB\x12\xbaG\x0f\x92\x02\f归档时间R\n" +
+	"archivedAt\x12=\n" +
+	"\rallow_archive\x18\x13 \x01(\bB\x18\xbaG\x15\x92\x02\x12是否允许归档R\fallowArchive\x12;\n" +
+	"\fallow_delete\x18\x14 \x01(\bB\x18\xbaG\x15\x92\x02\x12是否允许删除R\vallowDeleteJ\x04\b\x02\x10\x03J\x04\b\x03\x10\x04J\x04\b\a\x10\bJ\x04\b\t\x10\n" +
+	"J\x04\b\n" +
+	"\x10\vJ\x04\b\v\x10\fJ\x04\b\x0e\x10\x0fJ\x04\b\x12\x10\x13J\x04\b\x15\x10\x16R\ttenant_idR\n" +
+	"message_idR\vcategory_idR\bpriorityR\acontentR\x0econtent_formatR\vaction_typeR\vsender_nameR\n" +
+	"expires_at\"\xfa\b\n" +
+	"\x12NotificationDetail\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b投递IDR\x02id\x12+\n" +
 	"\ttenant_id\x18\x15 \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDR\btenantId\x12-\n" +
 	"\n" +
@@ -1633,16 +1777,14 @@ const file_base_v1_notification_proto_rawDesc = "" +
 	"\rcategory_icon\x18\x05 \x01(\tB\x12\xbaG\x0f\x92\x02\f分类图标R\fcategoryIcon\x129\n" +
 	"\x0ecategory_color\x18\x06 \x01(\tB\x12\xbaG\x0f\x92\x02\f分类颜色R\rcategoryColor\x12K\n" +
 	"\bpriority\x18\a \x01(\x0e2\x18.base.v1.MessagePriorityB\x15\xbaG\x12\x92\x02\x0f消息优先级R\bpriority\x12(\n" +
-	"\x05title\x18\b \x01(\tB\x12\xbaG\x0f\x92\x02\f消息标题R\x05title\x12A\n" +
-	"\acontent\x18\t \x01(\tB'\xbaG$\x92\x02!消息正文，列表响应为空R\acontent\x12X\n" +
+	"\x05title\x18\b \x01(\tB\x12\xbaG\x0f\x92\x02\f消息标题R\x05title\x12,\n" +
+	"\acontent\x18\t \x01(\tB\x12\xbaG\x0f\x92\x02\f消息正文R\acontent\x12X\n" +
 	"\x0econtent_format\x18\n" +
 	" \x01(\x0e2\x1d.base.v1.MessageContentFormatB\x12\xbaG\x0f\x92\x02\f正文格式R\rcontentFormat\x12O\n" +
 	"\vaction_type\x18\v \x01(\x0e2\x1a.base.v1.MessageActionTypeB\x12\xbaG\x0f\x92\x02\f动作类型R\n" +
 	"actionType\x127\n" +
 	"\raction_target\x18\f \x01(\tB\x12\xbaG\x0f\x92\x02\f动作目标R\factionTarget\x12;\n" +
-	"\raction_params\x18\r \x01(\tB\x16\xbaG\x13\x92\x02\x10动作参数JSONR\factionParams\x126\n" +
-	"\vsender_name\x18\x0e \x01(\tB\x15\xbaG\x12\x92\x02\x0f发送者名称R\n" +
-	"senderName\x123\n" +
+	"\raction_params\x18\r \x01(\tB\x16\xbaG\x13\x92\x02\x10动作参数JSONR\factionParams\x123\n" +
 	"\vreceived_at\x18\x0f \x01(\tB\x12\xbaG\x0f\x92\x02\f接收时间R\n" +
 	"receivedAt\x12+\n" +
 	"\aread_at\x18\x10 \x01(\tB\x12\xbaG\x0f\x92\x02\f已读时间R\x06readAt\x123\n" +
@@ -1701,13 +1843,13 @@ const file_base_v1_notification_proto_rawDesc = "" +
 	"\x1dNOTIFICATION_VIEW_UNSPECIFIED\x10\x00\x12\x1b\n" +
 	"\x17NOTIFICATION_VIEW_INBOX\x10\x01\x12\x1c\n" +
 	"\x18NOTIFICATION_VIEW_UNREAD\x10\x02\x12\x1e\n" +
-	"\x1aNOTIFICATION_VIEW_ARCHIVED\x10\x032\xd5\n" +
+	"\x1aNOTIFICATION_VIEW_ARCHIVED\x10\x032\xdb\n" +
 	"\n" +
 	"\x13NotificationService\x12z\n" +
 	"\x10PageNotification\x12 .base.v1.PageNotificationRequest\x1a!.base.v1.PageNotificationResponse\"!\x82\xd3\xe4\x93\x02\x1b\x12\x19/api/v1/base/notification\x12\xa3\x01\n" +
 	"\x1aListNotificationCategories\x12*.base.v1.ListNotificationCategoriesRequest\x1a+.base.v1.ListNotificationCategoriesResponse\",\x82\xd3\xe4\x93\x02&\x12$/api/v1/base/notification/categories\x12\x89\x01\n" +
-	"\x16GetNotificationSummary\x12&.base.v1.GetNotificationSummaryRequest\x1a\x1c.base.v1.NotificationSummary\")\x82\xd3\xe4\x93\x02#\x12!/api/v1/base/notification/summary\x12q\n" +
-	"\x0fGetNotification\x12\x1f.base.v1.GetNotificationRequest\x1a\x15.base.v1.Notification\"&\x82\xd3\xe4\x93\x02 \x12\x1e/api/v1/base/notification/{id}\x12\x7f\n" +
+	"\x16GetNotificationSummary\x12&.base.v1.GetNotificationSummaryRequest\x1a\x1c.base.v1.NotificationSummary\")\x82\xd3\xe4\x93\x02#\x12!/api/v1/base/notification/summary\x12w\n" +
+	"\x0fGetNotification\x12\x1f.base.v1.GetNotificationRequest\x1a\x1b.base.v1.NotificationDetail\"&\x82\xd3\xe4\x93\x02 \x12\x1e/api/v1/base/notification/{id}\x12\x7f\n" +
 	"\x14MarkNotificationRead\x12$.base.v1.MarkNotificationReadRequest\x1a\x16.google.protobuf.Empty\")\x82\xd3\xe4\x93\x02#:\x01*\x1a\x1e/api/v1/base/notification/read\x12\x85\x01\n" +
 	"\x16MarkNotificationUnread\x12&.base.v1.MarkNotificationUnreadRequest\x1a\x16.google.protobuf.Empty\"+\x82\xd3\xe4\x93\x02%:\x01*\x1a /api/v1/base/notification/unread\x12\x89\x01\n" +
 	"\x17MarkAllNotificationRead\x12'.base.v1.MarkAllNotificationReadRequest\x1a\x16.google.protobuf.Empty\"-\x82\xd3\xe4\x93\x02':\x01*\x1a\"/api/v1/base/notification/read/all\x12\x85\x01\n" +
@@ -1729,7 +1871,7 @@ func file_base_v1_notification_proto_rawDescGZIP() []byte {
 }
 
 var file_base_v1_notification_proto_enumTypes = make([]protoimpl.EnumInfo, 9)
-var file_base_v1_notification_proto_msgTypes = make([]protoimpl.MessageInfo, 16)
+var file_base_v1_notification_proto_msgTypes = make([]protoimpl.MessageInfo, 17)
 var file_base_v1_notification_proto_goTypes = []any{
 	(MessagePriority)(0),                       // 0: base.v1.MessagePriority
 	(MessageContentFormat)(0),                  // 1: base.v1.MessageContentFormat
@@ -1756,7 +1898,8 @@ var file_base_v1_notification_proto_goTypes = []any{
 	(*RestoreNotificationRequest)(nil),         // 22: base.v1.RestoreNotificationRequest
 	(*DeleteNotificationRequest)(nil),          // 23: base.v1.DeleteNotificationRequest
 	(*Notification)(nil),                       // 24: base.v1.Notification
-	(*emptypb.Empty)(nil),                      // 25: google.protobuf.Empty
+	(*NotificationDetail)(nil),                 // 25: base.v1.NotificationDetail
+	(*emptypb.Empty)(nil),                      // 26: google.protobuf.Empty
 }
 var file_base_v1_notification_proto_depIdxs = []int32{
 	8,  // 0: base.v1.PageNotificationRequest.view:type_name -> base.v1.NotificationView
@@ -1764,9 +1907,9 @@ var file_base_v1_notification_proto_depIdxs = []int32{
 	24, // 2: base.v1.PageNotificationResponse.notifications:type_name -> base.v1.Notification
 	13, // 3: base.v1.ListNotificationCategoriesResponse.categories:type_name -> base.v1.NotificationCategory
 	17, // 4: base.v1.NotificationSummary.category_unread:type_name -> base.v1.NotificationCategoryUnread
-	0,  // 5: base.v1.Notification.priority:type_name -> base.v1.MessagePriority
-	1,  // 6: base.v1.Notification.content_format:type_name -> base.v1.MessageContentFormat
-	2,  // 7: base.v1.Notification.action_type:type_name -> base.v1.MessageActionType
+	0,  // 5: base.v1.NotificationDetail.priority:type_name -> base.v1.MessagePriority
+	1,  // 6: base.v1.NotificationDetail.content_format:type_name -> base.v1.MessageContentFormat
+	2,  // 7: base.v1.NotificationDetail.action_type:type_name -> base.v1.MessageActionType
 	9,  // 8: base.v1.NotificationService.PageNotification:input_type -> base.v1.PageNotificationRequest
 	11, // 9: base.v1.NotificationService.ListNotificationCategories:input_type -> base.v1.ListNotificationCategoriesRequest
 	15, // 10: base.v1.NotificationService.GetNotificationSummary:input_type -> base.v1.GetNotificationSummaryRequest
@@ -1780,13 +1923,13 @@ var file_base_v1_notification_proto_depIdxs = []int32{
 	10, // 18: base.v1.NotificationService.PageNotification:output_type -> base.v1.PageNotificationResponse
 	12, // 19: base.v1.NotificationService.ListNotificationCategories:output_type -> base.v1.ListNotificationCategoriesResponse
 	16, // 20: base.v1.NotificationService.GetNotificationSummary:output_type -> base.v1.NotificationSummary
-	24, // 21: base.v1.NotificationService.GetNotification:output_type -> base.v1.Notification
-	25, // 22: base.v1.NotificationService.MarkNotificationRead:output_type -> google.protobuf.Empty
-	25, // 23: base.v1.NotificationService.MarkNotificationUnread:output_type -> google.protobuf.Empty
-	25, // 24: base.v1.NotificationService.MarkAllNotificationRead:output_type -> google.protobuf.Empty
-	25, // 25: base.v1.NotificationService.ArchiveNotification:output_type -> google.protobuf.Empty
-	25, // 26: base.v1.NotificationService.RestoreNotification:output_type -> google.protobuf.Empty
-	25, // 27: base.v1.NotificationService.DeleteNotification:output_type -> google.protobuf.Empty
+	25, // 21: base.v1.NotificationService.GetNotification:output_type -> base.v1.NotificationDetail
+	26, // 22: base.v1.NotificationService.MarkNotificationRead:output_type -> google.protobuf.Empty
+	26, // 23: base.v1.NotificationService.MarkNotificationUnread:output_type -> google.protobuf.Empty
+	26, // 24: base.v1.NotificationService.MarkAllNotificationRead:output_type -> google.protobuf.Empty
+	26, // 25: base.v1.NotificationService.ArchiveNotification:output_type -> google.protobuf.Empty
+	26, // 26: base.v1.NotificationService.RestoreNotification:output_type -> google.protobuf.Empty
+	26, // 27: base.v1.NotificationService.DeleteNotification:output_type -> google.protobuf.Empty
 	18, // [18:28] is the sub-list for method output_type
 	8,  // [8:18] is the sub-list for method input_type
 	8,  // [8:8] is the sub-list for extension type_name
@@ -1806,7 +1949,7 @@ func file_base_v1_notification_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_base_v1_notification_proto_rawDesc), len(file_base_v1_notification_proto_rawDesc)),
 			NumEnums:      9,
-			NumMessages:   16,
+			NumMessages:   17,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

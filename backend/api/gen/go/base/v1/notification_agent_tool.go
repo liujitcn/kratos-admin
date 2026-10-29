@@ -125,10 +125,10 @@ func NewNotificationServiceGetNotificationSummaryAgentTool(notificationServiceSe
 
 // NewNotificationServiceGetNotificationAgentTool 创建查询当前用户消息详情的 Agent Tool。
 func NewNotificationServiceGetNotificationAgentTool(notificationServiceServer NotificationServiceServer) (tool.InvokableTool, error) {
-	return utils.InferTool[*GetNotificationRequest, *Notification](
+	return utils.InferTool[*GetNotificationRequest, *NotificationDetail](
 		"base_v1_notification_service_get_notification",
 		"查询当前用户消息详情。",
-		func(ctx context.Context, req *GetNotificationRequest) (*Notification, error) {
+		func(ctx context.Context, req *GetNotificationRequest) (*NotificationDetail, error) {
 			if req == nil {
 				req = &GetNotificationRequest{}
 			}

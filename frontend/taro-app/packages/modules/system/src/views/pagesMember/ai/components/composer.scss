@@ -14,7 +14,7 @@
   flex-shrink: 0;
   width: 100%;
   margin-bottom: var(--kratos-tab-bar-space, calc(104px + env(safe-area-inset-bottom)));
-  padding: 14px 24px calc(18px + env(safe-area-inset-bottom));
+  padding: 14px 24px 18px;
   overflow: hidden;
   background: var(--kratos-color-surface, #fff);
   border-top: 1PX solid var(--kratos-color-border-accent, rgba(0, 150, 134, 0.28));

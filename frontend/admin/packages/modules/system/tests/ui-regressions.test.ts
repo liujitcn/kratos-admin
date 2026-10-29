@@ -126,11 +126,18 @@ test("web search tool titles use localized labels across all chat clients", asyn
   }
 });
 
-test("system notification sender uses its localized value in every client", async () => {
-  const [publisher, adminPage, resolver, uniPage, taroPage] = await Promise.all([
+test("system notification list and detail responses expose only their required fields", async () => {
+  const [publisher, adminPage, resolver, notificationProto, adminApi, uniApi, taroApi, notificationRpc, adminNotification, adminInbox, uniPage, taroPage] = await Promise.all([
     readSource("../../../../../backend/internal/biz/system/admin/base_message.go"),
     readSource("src/views/base/message/index.vue"),
     readSource("src/utils/persisted-message.ts"),
+    readSource("../../../../../backend/api/proto/base/v1/notification.proto"),
+    readSource("src/api/base/v1/notification.ts"),
+    readSource("../../../../uni-app/packages/modules/system/src/api/base/v1/notification.ts"),
+    readSource("../../../../taro-app/packages/modules/system/src/api/base/v1/notification.ts"),
+    readSource("src/rpc/base/v1/notification.ts"),
+    readSource("src/components/notification/Notification.vue"),
+    readSource("src/views/message/inbox/index.vue"),
     readSource("../../../../uni-app/packages/modules/system/src/views/pagesMember/message/detail.vue"),
     readSource("../../../../taro-app/packages/modules/system/src/views/pagesMember/message/detail.tsx")
   ]);
@@ -138,8 +145,20 @@ test("system notification sender uses its localized value in every client", asyn
   assert.match(publisher, /EncodeMessage\("system\.notification\.sender\.system"/);
   assert.match(adminPage, /resolvePersistedMessage\(detail\.data\.base_message\?\.sender_name\)/);
   assert.match(resolver, /system\.notification\.sender\.system/);
-  assert.match(uniPage, /resolvePersistedMessage\(detail\.sender_name\)/);
-  assert.match(taroPage, /resolvePersistedMessage\(detail\.sender_name\)/);
+  assert.match(notificationProto, /rpc GetNotification\(GetNotificationRequest\) returns \(NotificationDetail\)/);
+  for (const source of [adminApi, uniApi, taroApi]) {
+    assert.match(source, /GetNotification\(request: GetNotificationRequest\): Promise<NotificationDetail>/);
+  }
+  const notificationList = notificationRpc.slice(notificationRpc.indexOf("export interface Notification {"), notificationRpc.indexOf("export interface NotificationDetail"));
+  for (const field of ["tenant_id", "message_id", "category_id", "priority", "content", "content_format", "action_type", "sender_name", "expires_at"]) {
+    assert.doesNotMatch(notificationList, new RegExp(`\\b${field}:`));
+  }
+  const notificationDetail = notificationRpc.slice(notificationRpc.indexOf("export interface NotificationDetail"), notificationRpc.indexOf("/** Base站内信通知服务"));
+  assert.doesNotMatch(notificationDetail, /sender_name/);
+  assert.doesNotMatch(adminInbox, /sender_name/);
+  for (const source of [adminNotification, adminInbox, uniPage, taroPage]) {
+    assert.doesNotMatch(source, /detail\.sender_name/);
+  }
   for (const locale of ["zh-CN", "en-US", "ja-JP", "zh-TW"]) {
     const [adminMessages, uniMessages, taroMessages] = await Promise.all([
       readSource(`src/locales/${locale}.json`),

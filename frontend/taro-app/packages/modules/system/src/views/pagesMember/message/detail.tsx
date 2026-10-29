@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { KratosNavBar, t, useThemeStore } from '@liujitcn/kratos-taro-app-core'
 import { UniIcon } from '@liujitcn/kratos-taro-app-ui'
 import { defNotificationService } from '../../../api/base/v1/notification'
-import type { Notification } from '../../../rpc/base/v1/notification'
+import type { NotificationDetail } from '../../../rpc/base/v1/notification'
 import { MessageContentFormat } from '../../../rpc/base/v1/notification'
 import { resolvePersistedMessage } from '../../../utils/persisted-message'
 import { resolveMessageCategoryIcon } from './icons'
@@ -13,7 +13,7 @@ import './message.scss'
 /** MessageDetailPage 展示站内信详情与通知操作。 */
 export default function MessageDetailPage() {
   const themeStore = useThemeStore()
-  const [detail, setDetail] = useState<Notification>()
+  const [detail, setDetail] = useState<NotificationDetail>()
 
   useLoad((options) => {
     const id = Number(options?.id)
@@ -45,7 +45,6 @@ export default function MessageDetailPage() {
               />
               <Text>{detail.category_name}</Text>
             </View>
-            <Text>{resolvePersistedMessage(detail.sender_name)}</Text>
             <Text>{detail.received_at}</Text>
           </View>
           {detail.content_format === MessageContentFormat.MESSAGE_CONTENT_FORMAT_RICH_TEXT ? (

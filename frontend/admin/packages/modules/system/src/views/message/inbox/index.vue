@@ -15,7 +15,6 @@
             <component :is="resolveNotificationIcon(detail.category_icon)" />
             <span class="message-category__name">{{ detail.category_name }}</span>
           </span>
-          <span>{{ resolvePersistedMessage(detail.sender_name) }}</span>
           <span>{{ detail.received_at }}</span>
         </div>
         <RichTextPreview
@@ -52,6 +51,7 @@ import { defNotificationService } from "@liujitcn/kratos-admin-system/api/base/v
 import type {
   Notification,
   NotificationCategory,
+  NotificationDetail,
   PageNotificationRequest
 } from "@liujitcn/kratos-admin-system/rpc/base/v1/notification";
 import {
@@ -67,7 +67,7 @@ const proTable = ref<ProTableInstance>();
 const router = useRouter();
 const detailDialogRef = ref<InstanceType<typeof ProDialog>>();
 const detailVisible = ref(false);
-const detail = ref<Notification>();
+const detail = ref<NotificationDetail>();
 const categoryOptions = ref<NotificationCategory[]>([]);
 const actionRoute = computed(() => resolveNotificationAction(detail.value?.action_target, detail.value?.action_params));
 const actionRouteName = computed(() => actionRoute.value?.name ?? "");
@@ -127,12 +127,6 @@ const columns = computed<ColumnProps[]>(() => [
     search: { el: "select", key: "view", enum: viewOptions.value },
     render: scope =>
       (scope.row as Notification).read_at ? t("system.notification.status.read") : t("system.notification.status.unread")
-  },
-  {
-    prop: "sender_name",
-    label: t("system.notification.field.sender"),
-    minWidth: 130,
-    render: scope => resolvePersistedMessage((scope.row as Notification).sender_name)
   },
   { prop: "received_at", label: t("system.notification.field.received_at"), minWidth: 180 },
   {

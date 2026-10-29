@@ -46,7 +46,7 @@ type NotificationServiceClient interface {
 	// 查询当前用户未读汇总。
 	GetNotificationSummary(ctx context.Context, in *GetNotificationSummaryRequest, opts ...grpc.CallOption) (*NotificationSummary, error)
 	// 查询当前用户消息详情。
-	GetNotification(ctx context.Context, in *GetNotificationRequest, opts ...grpc.CallOption) (*Notification, error)
+	GetNotification(ctx context.Context, in *GetNotificationRequest, opts ...grpc.CallOption) (*NotificationDetail, error)
 	// 标记消息为已读。
 	MarkNotificationRead(ctx context.Context, in *MarkNotificationReadRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// 标记消息为未读。
@@ -99,9 +99,9 @@ func (c *notificationServiceClient) GetNotificationSummary(ctx context.Context, 
 	return out, nil
 }
 
-func (c *notificationServiceClient) GetNotification(ctx context.Context, in *GetNotificationRequest, opts ...grpc.CallOption) (*Notification, error) {
+func (c *notificationServiceClient) GetNotification(ctx context.Context, in *GetNotificationRequest, opts ...grpc.CallOption) (*NotificationDetail, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(Notification)
+	out := new(NotificationDetail)
 	err := c.cc.Invoke(ctx, NotificationService_GetNotification_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -182,7 +182,7 @@ type NotificationServiceServer interface {
 	// 查询当前用户未读汇总。
 	GetNotificationSummary(context.Context, *GetNotificationSummaryRequest) (*NotificationSummary, error)
 	// 查询当前用户消息详情。
-	GetNotification(context.Context, *GetNotificationRequest) (*Notification, error)
+	GetNotification(context.Context, *GetNotificationRequest) (*NotificationDetail, error)
 	// 标记消息为已读。
 	MarkNotificationRead(context.Context, *MarkNotificationReadRequest) (*emptypb.Empty, error)
 	// 标记消息为未读。
@@ -214,7 +214,7 @@ func (UnimplementedNotificationServiceServer) ListNotificationCategories(context
 func (UnimplementedNotificationServiceServer) GetNotificationSummary(context.Context, *GetNotificationSummaryRequest) (*NotificationSummary, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetNotificationSummary not implemented")
 }
-func (UnimplementedNotificationServiceServer) GetNotification(context.Context, *GetNotificationRequest) (*Notification, error) {
+func (UnimplementedNotificationServiceServer) GetNotification(context.Context, *GetNotificationRequest) (*NotificationDetail, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetNotification not implemented")
 }
 func (UnimplementedNotificationServiceServer) MarkNotificationRead(context.Context, *MarkNotificationReadRequest) (*emptypb.Empty, error) {

@@ -8953,7 +8953,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/base.v1.Notification'
+                                $ref: '#/components/schemas/base.v1.NotificationDetail'
         delete:
             tags:
                 - NotificationService
@@ -10469,15 +10469,6 @@ components:
                 id:
                     type: string
                     description: delivery ID
-                tenant_id:
-                    type: string
-                    description: tenant ID
-                message_id:
-                    type: string
-                    description: message ID
-                category_id:
-                    type: string
-                    description: Category ID
                 category_name:
                     type: string
                     description: Category name
@@ -10487,46 +10478,15 @@ components:
                 category_color:
                     type: string
                     description: Category color
-                priority:
-                    enum:
-                        - MESSAGE_PRIORITY_UNSPECIFIED
-                        - MESSAGE_PRIORITY_NORMAL
-                        - MESSAGE_PRIORITY_IMPORTANT
-                        - MESSAGE_PRIORITY_URGENT
-                    type: string
-                    description: message priority
-                    format: enum
                 title:
                     type: string
                     description: message title
-                content:
-                    type: string
-                    description: message body, list responsebe null
-                content_format:
-                    enum:
-                        - MESSAGE_CONTENT_FORMAT_UNSPECIFIED
-                        - MESSAGE_CONTENT_FORMAT_PLAIN_TEXT
-                        - MESSAGE_CONTENT_FORMAT_SAFE_MARKDOWN
-                        - MESSAGE_CONTENT_FORMAT_RICH_TEXT
-                    type: string
-                    description: body format
-                    format: enum
-                action_type:
-                    enum:
-                        - MESSAGE_ACTION_TYPE_UNSPECIFIED
-                        - MESSAGE_ACTION_TYPE_VIEW_KEY
-                    type: string
-                    description: action type
-                    format: enum
                 action_target:
                     type: string
                     description: action target
                 action_params:
                     type: string
                     description: action parameter JSON
-                sender_name:
-                    type: string
-                    description: Send sender name
                 received_at:
                     type: string
                     description: received time
@@ -10536,16 +10496,13 @@ components:
                 archived_at:
                     type: string
                     description: archived time
-                expires_at:
-                    type: string
-                    description: expiration time
                 allow_archive:
                     type: boolean
                     description: whether archiving is allowed
                 allow_delete:
                     type: boolean
                     description: whether deletion is allowed
-            description: current user message.
+            description: current user message list item.
         base.v1.NotificationCategory:
             type: object
             properties:
@@ -10579,6 +10536,86 @@ components:
                     type: string
                     description: unread count by category
             description: unread count for one category of the current user.
+        base.v1.NotificationDetail:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: delivery ID
+                tenant_id:
+                    type: string
+                    description: tenant ID
+                message_id:
+                    type: string
+                    description: message ID
+                category_id:
+                    type: string
+                    description: Category ID
+                category_name:
+                    type: string
+                    description: Category name
+                category_icon:
+                    type: string
+                    description: Category icon
+                category_color:
+                    type: string
+                    description: Category color
+                priority:
+                    enum:
+                        - MESSAGE_PRIORITY_UNSPECIFIED
+                        - MESSAGE_PRIORITY_NORMAL
+                        - MESSAGE_PRIORITY_IMPORTANT
+                        - MESSAGE_PRIORITY_URGENT
+                    type: string
+                    description: message priority
+                    format: enum
+                title:
+                    type: string
+                    description: message title
+                content:
+                    type: string
+                    description: message body
+                content_format:
+                    enum:
+                        - MESSAGE_CONTENT_FORMAT_UNSPECIFIED
+                        - MESSAGE_CONTENT_FORMAT_PLAIN_TEXT
+                        - MESSAGE_CONTENT_FORMAT_SAFE_MARKDOWN
+                        - MESSAGE_CONTENT_FORMAT_RICH_TEXT
+                    type: string
+                    description: body format
+                    format: enum
+                action_type:
+                    enum:
+                        - MESSAGE_ACTION_TYPE_UNSPECIFIED
+                        - MESSAGE_ACTION_TYPE_VIEW_KEY
+                    type: string
+                    description: action type
+                    format: enum
+                action_target:
+                    type: string
+                    description: action target
+                action_params:
+                    type: string
+                    description: action parameter JSON
+                received_at:
+                    type: string
+                    description: received time
+                read_at:
+                    type: string
+                    description: read time
+                archived_at:
+                    type: string
+                    description: archived time
+                expires_at:
+                    type: string
+                    description: expiration time
+                allow_archive:
+                    type: boolean
+                    description: whether archiving is allowed
+                allow_delete:
+                    type: boolean
+                    description: whether deletion is allowed
+            description: message details.
         base.v1.NotificationSummary:
             type: object
             properties:

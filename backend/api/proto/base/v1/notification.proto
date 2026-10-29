@@ -22,7 +22,7 @@ service NotificationService {
     option (google.api.http) = {get: "/api/v1/base/notification/summary"};
   }
   // 查询当前用户消息详情。
-  rpc GetNotification(GetNotificationRequest) returns (Notification) {
+  rpc GetNotification(GetNotificationRequest) returns (NotificationDetail) {
     option (google.api.http) = {get: "/api/v1/base/notification/{id}"};
   }
   // 标记消息为已读。
@@ -268,8 +268,26 @@ message DeleteNotificationRequest {
   int64 id = 1 [(gnostic.openapi.v3.property) = {description: "投递ID"}, (buf.validate.field).cel = {id: "base.notification.action.id.required" message: "消息ID不能为空" expression: "this > 0"}]; // 投递ID
 }
 
-// 当前用户消息。
+// 当前用户消息列表项。
 message Notification {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "投递ID"}]; // 投递ID
+  string category_name = 4 [(gnostic.openapi.v3.property) = {description: "分类名称"}]; // 分类名称
+  string category_icon = 5 [(gnostic.openapi.v3.property) = {description: "分类图标"}]; // 分类图标
+  string category_color = 6 [(gnostic.openapi.v3.property) = {description: "分类颜色"}]; // 分类颜色
+  string title = 8 [(gnostic.openapi.v3.property) = {description: "消息标题"}]; // 消息标题
+  string action_target = 12 [(gnostic.openapi.v3.property) = {description: "动作目标"}]; // 动作目标
+  string action_params = 13 [(gnostic.openapi.v3.property) = {description: "动作参数JSON"}]; // 动作参数JSON
+  string received_at = 15 [(gnostic.openapi.v3.property) = {description: "接收时间"}]; // 接收时间
+  string read_at = 16 [(gnostic.openapi.v3.property) = {description: "已读时间"}]; // 已读时间
+  string archived_at = 17 [(gnostic.openapi.v3.property) = {description: "归档时间"}]; // 归档时间
+  bool allow_archive = 19 [(gnostic.openapi.v3.property) = {description: "是否允许归档"}]; // 是否允许归档
+  bool allow_delete = 20 [(gnostic.openapi.v3.property) = {description: "是否允许删除"}]; // 是否允许删除
+  reserved 2, 3, 7, 9, 10, 11, 14, 18, 21;
+  reserved "tenant_id", "message_id", "category_id", "priority", "content", "content_format", "action_type", "sender_name", "expires_at";
+}
+
+// 消息详情。
+message NotificationDetail {
   int64 id = 1 [(gnostic.openapi.v3.property) = {description: "投递ID"}]; // 投递ID
   int64 tenant_id = 21 [(gnostic.openapi.v3.property) = {description: "租户ID"}]; // 租户ID
   int64 message_id = 2 [(gnostic.openapi.v3.property) = {description: "消息ID"}]; // 消息ID
@@ -279,12 +297,11 @@ message Notification {
   string category_color = 6 [(gnostic.openapi.v3.property) = {description: "分类颜色"}]; // 分类颜色
   MessagePriority priority = 7 [(gnostic.openapi.v3.property) = {description: "消息优先级"}]; // 消息优先级
   string title = 8 [(gnostic.openapi.v3.property) = {description: "消息标题"}]; // 消息标题
-  string content = 9 [(gnostic.openapi.v3.property) = {description: "消息正文，列表响应为空"}]; // 消息正文
+  string content = 9 [(gnostic.openapi.v3.property) = {description: "消息正文"}]; // 消息正文
   MessageContentFormat content_format = 10 [(gnostic.openapi.v3.property) = {description: "正文格式"}]; // 正文格式
   MessageActionType action_type = 11 [(gnostic.openapi.v3.property) = {description: "动作类型"}]; // 动作类型
   string action_target = 12 [(gnostic.openapi.v3.property) = {description: "动作目标"}]; // 动作目标
   string action_params = 13 [(gnostic.openapi.v3.property) = {description: "动作参数JSON"}]; // 动作参数JSON
-  string sender_name = 14 [(gnostic.openapi.v3.property) = {description: "发送者名称"}]; // 发送者名称
   string received_at = 15 [(gnostic.openapi.v3.property) = {description: "接收时间"}]; // 接收时间
   string read_at = 16 [(gnostic.openapi.v3.property) = {description: "已读时间"}]; // 已读时间
   string archived_at = 17 [(gnostic.openapi.v3.property) = {description: "归档时间"}]; // 归档时间

@@ -92,13 +92,13 @@ func RegisterNotificationServiceGetNotificationSummaryMCPTool(mcpServer *mcp.Ser
 
 // RegisterNotificationServiceGetNotificationMCPTool 注册查询当前用户消息详情的 MCP Tool。
 func RegisterNotificationServiceGetNotificationMCPTool(mcpServer *mcp.Server, notificationServiceServer NotificationServiceServer) {
-	mcp.AddTool[*GetNotificationRequest, *Notification](
+	mcp.AddTool[*GetNotificationRequest, *NotificationDetail](
 		mcpServer,
 		&mcp.Tool{
 			Name:        "base_v1_notification_service_get_notification",
 			Description: "查询当前用户消息详情。",
 		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *GetNotificationRequest) (*mcp.CallToolResult, *Notification, error) {
+		func(ctx context.Context, request *mcp.CallToolRequest, input *GetNotificationRequest) (*mcp.CallToolResult, *NotificationDetail, error) {
 			if input == nil {
 				input = &GetNotificationRequest{}
 			}

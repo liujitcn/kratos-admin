@@ -8953,7 +8953,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/base.v1.Notification'
+                                $ref: '#/components/schemas/base.v1.NotificationDetail'
         delete:
             tags:
                 - NotificationService
@@ -10469,15 +10469,6 @@ components:
                 id:
                     type: string
                     description: 投递ID
-                tenant_id:
-                    type: string
-                    description: 租户ID
-                message_id:
-                    type: string
-                    description: 消息ID
-                category_id:
-                    type: string
-                    description: 分类ID
                 category_name:
                     type: string
                     description: 分类名称
@@ -10487,46 +10478,15 @@ components:
                 category_color:
                     type: string
                     description: 分类颜色
-                priority:
-                    enum:
-                        - MESSAGE_PRIORITY_UNSPECIFIED
-                        - MESSAGE_PRIORITY_NORMAL
-                        - MESSAGE_PRIORITY_IMPORTANT
-                        - MESSAGE_PRIORITY_URGENT
-                    type: string
-                    description: 消息优先级
-                    format: enum
                 title:
                     type: string
                     description: 消息标题
-                content:
-                    type: string
-                    description: 消息正文，列表响应为空
-                content_format:
-                    enum:
-                        - MESSAGE_CONTENT_FORMAT_UNSPECIFIED
-                        - MESSAGE_CONTENT_FORMAT_PLAIN_TEXT
-                        - MESSAGE_CONTENT_FORMAT_SAFE_MARKDOWN
-                        - MESSAGE_CONTENT_FORMAT_RICH_TEXT
-                    type: string
-                    description: 正文格式
-                    format: enum
-                action_type:
-                    enum:
-                        - MESSAGE_ACTION_TYPE_UNSPECIFIED
-                        - MESSAGE_ACTION_TYPE_VIEW_KEY
-                    type: string
-                    description: 动作类型
-                    format: enum
                 action_target:
                     type: string
                     description: 动作目标
                 action_params:
                     type: string
                     description: 动作参数JSON
-                sender_name:
-                    type: string
-                    description: 发送者名称
                 received_at:
                     type: string
                     description: 接收时间
@@ -10536,16 +10496,13 @@ components:
                 archived_at:
                     type: string
                     description: 归档时间
-                expires_at:
-                    type: string
-                    description: 过期时间
                 allow_archive:
                     type: boolean
                     description: 是否允许归档
                 allow_delete:
                     type: boolean
                     description: 是否允许删除
-            description: 当前用户消息。
+            description: 当前用户消息列表项。
         base.v1.NotificationCategory:
             type: object
             properties:
@@ -10579,6 +10536,86 @@ components:
                     type: string
                     description: 分类未读数
             description: 当前用户单个分类的未读数量。
+        base.v1.NotificationDetail:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 投递ID
+                tenant_id:
+                    type: string
+                    description: 租户ID
+                message_id:
+                    type: string
+                    description: 消息ID
+                category_id:
+                    type: string
+                    description: 分类ID
+                category_name:
+                    type: string
+                    description: 分类名称
+                category_icon:
+                    type: string
+                    description: 分类图标
+                category_color:
+                    type: string
+                    description: 分类颜色
+                priority:
+                    enum:
+                        - MESSAGE_PRIORITY_UNSPECIFIED
+                        - MESSAGE_PRIORITY_NORMAL
+                        - MESSAGE_PRIORITY_IMPORTANT
+                        - MESSAGE_PRIORITY_URGENT
+                    type: string
+                    description: 消息优先级
+                    format: enum
+                title:
+                    type: string
+                    description: 消息标题
+                content:
+                    type: string
+                    description: 消息正文
+                content_format:
+                    enum:
+                        - MESSAGE_CONTENT_FORMAT_UNSPECIFIED
+                        - MESSAGE_CONTENT_FORMAT_PLAIN_TEXT
+                        - MESSAGE_CONTENT_FORMAT_SAFE_MARKDOWN
+                        - MESSAGE_CONTENT_FORMAT_RICH_TEXT
+                    type: string
+                    description: 正文格式
+                    format: enum
+                action_type:
+                    enum:
+                        - MESSAGE_ACTION_TYPE_UNSPECIFIED
+                        - MESSAGE_ACTION_TYPE_VIEW_KEY
+                    type: string
+                    description: 动作类型
+                    format: enum
+                action_target:
+                    type: string
+                    description: 动作目标
+                action_params:
+                    type: string
+                    description: 动作参数JSON
+                received_at:
+                    type: string
+                    description: 接收时间
+                read_at:
+                    type: string
+                    description: 已读时间
+                archived_at:
+                    type: string
+                    description: 归档时间
+                expires_at:
+                    type: string
+                    description: 过期时间
+                allow_archive:
+                    type: boolean
+                    description: 是否允许归档
+                allow_delete:
+                    type: boolean
+                    description: 是否允许删除
+            description: 消息详情。
         base.v1.NotificationSummary:
             type: object
             properties:
