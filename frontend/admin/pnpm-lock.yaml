@@ -69,8 +69,8 @@ importers:
         specifier: ^1.8.1
         version: 1.8.1
       prettier:
-        specifier: ^3.3.2
-        version: 3.9.6
+        specifier: ^3.9.10
+        version: 3.9.10
       sass:
         specifier: ^1.100.0
         version: 1.103.1
@@ -3439,6 +3439,7 @@ packages:
   glob@11.1.0:
     resolution: {integrity: sha512-vuNwKSaKiqm7g0THUBu2x7ckSs3XJLXE+2ssL7/MfTGPLLcrJQ/4Uq1CjPTtO5cCIiRxqvN6Twy1qOwhL0Xjcw==}
     engines: {node: 20 || >=22}
+    deprecated: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
     hasBin: true
 
   global-directory@5.0.0:
@@ -4627,8 +4628,8 @@ packages:
       preact-render-to-string:
         optional: true
 
-  prettier@3.9.6:
-    resolution: {integrity: sha512-OpN0zzVdiaiAhxpuuj5efpIS4sY9j7bY6uR5mnj5yPzGkdkjNKSJeUThPb60Jw29QuAZgA4o+/iB49kFiaBX6g==}
+  prettier@3.9.10:
+    resolution: {integrity: sha512-skGHTH1Yb9QvaTC4hWnRTzEYtCpApF0UMBPz+t/0ZPzP8ihefo/btKd+QA7pUE0fEwA1SbS/NmhyEcstdXOIdA==}
     engines: {node: '>=14'}
     hasBin: true
 
@@ -10375,7 +10376,7 @@ snapshots:
 
   preact@10.29.8: {}
 
-  prettier@3.9.6: {}
+  prettier@3.9.10: {}
 
   pretty-bytes@5.6.0: {}
 
