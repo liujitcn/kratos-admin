@@ -549,16 +549,18 @@ test("退出登录完成后等待路由跳转到登录页", async () => {
   assert.match(source, /await userStore\.logout\(\);[\s\S]*?await router\.replace\(LOGIN_URL\);/);
 });
 
-test("角色权限树默认展开且取消父子联动", async () => {
+test("角色权限树默认展开且可切换父子联动", async () => {
   const source = await readSource("src/views/base/role/index.vue");
 
   assert.match(source, /:default-expand-all="true"/);
-  assert.match(source, /:check-strictly="true"/);
+  assert.match(source, /<el-checkbox v-model="parentChildLinked"/);
+  assert.match(source, /:check-strictly="!parentChildLinked"/);
+  assert.match(source, /const parentChildLinked = ref\(false\)/);
+  assert.match(source, /handelParentChildLinkedChange/);
   assert.match(source, /checkStrictly: true/);
   assert.match(source, /defaultExpandAll: true/);
   assert.match(source, /menus: \[\]/);
   assert.match(source, /formData\.menus = \[\]/);
-  assert.doesNotMatch(source, /parentChildLinked/);
 });
 
 test("角色表单按目标租户加载菜单权限上限", async () => {
