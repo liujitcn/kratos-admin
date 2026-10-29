@@ -4,7 +4,7 @@ go 1.27.2
 
 require (
 	buf.build/go/protovalidate v1.4.0
-	github.com/cloudwego/eino v0.9.21
+	github.com/cloudwego/eino v0.9.22
 	github.com/cloudwego/eino-ext/components/model/agenticopenai v0.2.4
 	github.com/dop251/goja v0.0.0-20261022125820-07c4b9d6265b
 	github.com/expr-lang/expr v1.17.8

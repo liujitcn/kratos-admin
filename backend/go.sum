@@ -310,8 +310,8 @@ github.com/clipperhouse/uax29/v2 v2.7.0 h1:+gs4oBZ2gPfVrKPthwbMzWZDaAFPGYK72F0NJ
 github.com/clipperhouse/uax29/v2 v2.7.0/go.mod h1:EFJ2TJMRUaplDxHKj1qAEhCtQPW2tJSwu5BF98AuoVM=
 github.com/cloudwego/base64x v0.1.6 h1:t11wG9AECkCDk5fMSoxmufanudBtJ+/HemLstXDLI2M=
 github.com/cloudwego/base64x v0.1.6/go.mod h1:OFcloc187FXDaYHvrNIjxSe8ncn0OOM8gEHfghB2IPU=
-github.com/cloudwego/eino v0.9.21 h1:kBAyAjsnPq5NDWjt0VdmP9HY/XVUHs05LoeqybudPRQ=
-github.com/cloudwego/eino v0.9.21/go.mod h1:OBD1mrkfkt/pJa4rkg1P0VnaMeOVl7l8IAdEqY//3IQ=
+github.com/cloudwego/eino v0.9.22 h1:qBSgj+H5geYTysjta/bgdE9OVXX+9MVXP74vA6QA4GQ=
+github.com/cloudwego/eino v0.9.22/go.mod h1:OBD1mrkfkt/pJa4rkg1P0VnaMeOVl7l8IAdEqY//3IQ=
 github.com/cloudwego/eino-ext/components/model/agenticopenai v0.2.4 h1:M5ODiB1UaYV0I/dL2dmgc/HfZ2WUBV0saM9Tkhk2IDg=
 github.com/cloudwego/eino-ext/components/model/agenticopenai v0.2.4/go.mod h1:AfLNKxrTFFkJbCWSvOtqKK1ZXEp0hpe26CBQ8GSf5zo=
 github.com/cloudwego/eino-ext/libs/acl/openai v0.1.18-0.20260924031408-10df7cac3f6d h1:FaBHOMj/ZDBmtsI9UMoDMDu9CNZPbjJwK/O26JFuZ8k=
