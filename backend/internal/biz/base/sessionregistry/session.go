@@ -140,14 +140,17 @@ func List(store cache.Cache, userToken *data.UserToken) ([]Record, error) {
 	return result, nil
 }
 
-// FindByAccessToken 按访问令牌查找当前会话。
+// FindByAccessToken 按访问令牌查找当前会话，轮换后的旧令牌在宽限期内仍命中同一会话。
 func FindByAccessToken(store cache.Cache, userToken *data.UserToken, userID int64, accessToken string) (Record, error) {
 	sessions, err := userToken.GetTokenSessions(userID)
 	if err != nil {
 		return Record{}, err
 	}
+	now := time.Now().UnixNano()
 	for _, session := range sessions {
-		if session.AccessToken == accessToken && userToken.IsAccessTokenValid(userID, accessToken) {
+		// 宽限期内的旧令牌属于同一会话，避免刷新竞态期间的在途请求被误判会话失效。
+		inGrace := session.PreviousAccessToken == accessToken && now < session.PreviousAccessExpiresAt
+		if (session.AccessToken == accessToken || inGrace) && userToken.IsAccessTokenValid(userID, accessToken) {
 			return Get(store, session.SessionID)
 		}
 	}

@@ -16,11 +16,14 @@ import (
 	"github.com/liujitcn/kratos-core/biz"
 	coreconst "github.com/liujitcn/kratos-core/const"
 	"github.com/liujitcn/kratos-core/errorsx"
+	authData "github.com/liujitcn/kratos-kit/auth/data"
 
 	"github.com/go-kratos/kratos/v3/log"
 	"github.com/liujitcn/go-utils/mapper"
 	_string "github.com/liujitcn/go-utils/string"
 	"github.com/liujitcn/gorm-kit/repository"
+	"github.com/liujitcn/kratos-kit/auth/authn/engine"
+	kitgorm "github.com/liujitcn/kratos-kit/database/gorm"
 	"gorm.io/gorm"
 )
 
@@ -81,6 +84,7 @@ func (c *AuthCase) TreeUserMenu(ctx context.Context) (*adminv1.TreeRouteResponse
 	if err != nil {
 		return nil, err
 	}
+	ctx = selfServiceContext(ctx, authInfo)
 
 	roleQuery := c.baseRoleCase.Query(ctx).BaseRole
 	var baseRole *models.BaseRole
@@ -144,6 +148,7 @@ func (c *AuthCase) ListUserButton(ctx context.Context) (*commonv1.StringValues, 
 	if err != nil {
 		return nil, err
 	}
+	ctx = selfServiceContext(ctx, authInfo)
 
 	userQuery := c.baseUserCase.Query(ctx).BaseUser
 	userOpts := []repository.QueryOption{
@@ -208,6 +213,7 @@ func (c *AuthCase) GetUserInfo(ctx context.Context) (*adminv1.UserInfoForm, erro
 	if err != nil {
 		return nil, err
 	}
+	ctx = selfServiceContext(ctx, authInfo)
 
 	userQuery := c.baseUserCase.Query(ctx).BaseUser
 	userOpts := []repository.QueryOption{
@@ -286,6 +292,7 @@ func (c *AuthCase) GetUserProfile(ctx context.Context) (*adminv1.UserProfileForm
 	if err != nil {
 		return nil, err
 	}
+	ctx = selfServiceContext(ctx, authInfo)
 
 	userQuery := c.baseUserCase.Query(ctx).BaseUser
 	userOpts := []repository.QueryOption{
@@ -349,6 +356,7 @@ func (c *AuthCase) UpdateUserPhone(ctx context.Context, req *adminv1.UserPhoneFo
 	if err != nil {
 		return err
 	}
+	ctx = selfServiceContext(ctx, authInfo)
 	cacheKey := c.makeUpdatePhoneCodeCacheKey(authInfo.UserId, req.GetPhone())
 	var cacheCode string
 	cacheCode, err = c.Cache.Get(cacheKey)
@@ -399,6 +407,7 @@ func (c *AuthCase) UpdateUserProfile(ctx context.Context, req *adminv1.UserProfi
 	if err != nil {
 		return err
 	}
+	ctx = selfServiceContext(ctx, authInfo)
 
 	userQuery := c.baseUserCase.Query(ctx).BaseUser
 	userOpts := []repository.QueryOption{
@@ -437,6 +446,7 @@ func (c *AuthCase) SendPhoneCode(ctx context.Context, req *adminv1.SendPhoneCode
 	if err != nil {
 		return err
 	}
+	ctx = selfServiceContext(ctx, authInfo)
 	var userID int64
 	userID, err = c.findUserIDByPhone(ctx, req.GetPhone())
 	// 手机号占用查询异常时，统一返回发送失败。
@@ -479,4 +489,12 @@ func (c *AuthCase) findUserIDByPhone(ctx context.Context, phone string) (int64, 
 func (c *AuthCase) makeUpdatePhoneCodeCacheKey(userID int64, phone string) string {
 	digest := sha256.Sum256([]byte(phone))
 	return fmt.Sprintf("%s%d:%x", UPDATE_PHONE_CODE_CACHE_PREFIX, userID, digest[:])
+}
+
+// selfServiceContext 基于登录用户信息构建豁免角色数据范围的上下文。
+// 登录引导与个人资料仅按令牌身份读写本人数据，"仅本人"范围会把这些查询错误过滤为资源不存在。
+func selfServiceContext(ctx context.Context, authInfo *authData.UserTokenPayload) context.Context {
+	selfAuthInfo := *authInfo
+	selfAuthInfo.DataScope = kitgorm.DataScopeAll
+	return engine.ContextWithAuthClaims(ctx, selfAuthInfo.MakeAuthClaims())
 }

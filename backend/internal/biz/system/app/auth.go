@@ -19,6 +19,9 @@ import (
 	"github.com/go-kratos/kratos/v3/log"
 	"github.com/liujitcn/go-utils/mapper"
 	"github.com/liujitcn/gorm-kit/repository"
+	"github.com/liujitcn/kratos-kit/auth/authn/engine"
+	authData "github.com/liujitcn/kratos-kit/auth/data"
+	kitgorm "github.com/liujitcn/kratos-kit/database/gorm"
 	"github.com/liujitcn/kratos-kit/oauth"
 	"github.com/liujitcn/kratos-kit/oauth/provider"
 	"gorm.io/gorm"
@@ -61,6 +64,7 @@ func (c *AuthCase) GetUserProfile(ctx context.Context) (*appv1.UserProfileForm, 
 	if err != nil {
 		return nil, err
 	}
+	ctx = selfServiceContext(ctx, authInfo)
 
 	var user *models.BaseUser
 	query := c.baseUserCase.Query(ctx).BaseUser
@@ -86,6 +90,7 @@ func (c *AuthCase) UpdateUserProfile(ctx context.Context, req *appv1.UserProfile
 	if err != nil {
 		return err
 	}
+	ctx = selfServiceContext(ctx, authInfo)
 
 	var oldBaseUser *models.BaseUser
 	query := c.baseUserCase.Query(ctx).BaseUser
@@ -146,6 +151,7 @@ func (c *AuthCase) BindUserPhone(ctx context.Context, req *appv1.BindUserPhoneRe
 	if err != nil {
 		return nil, err
 	}
+	ctx = selfServiceContext(ctx, authInfo)
 
 	var accessToken string
 	accessToken, err = c.Cache.Get(CACHE_KEY_WX_ACCESS_TOKEN)
@@ -215,4 +221,12 @@ func (c *AuthCase) BindUserPhone(ctx context.Context, req *appv1.BindUserPhoneRe
 	return &appv1.BindUserPhoneResponse{
 		Phone: user.Phone,
 	}, nil
+}
+
+// selfServiceContext 基于登录用户信息构建豁免角色数据范围的上下文。
+// 个人资料仅按令牌身份读写本人数据，"仅本人"范围会把这些查询错误过滤为资源不存在。
+func selfServiceContext(ctx context.Context, authInfo *authData.UserTokenPayload) context.Context {
+	selfAuthInfo := *authInfo
+	selfAuthInfo.DataScope = kitgorm.DataScopeAll
+	return engine.ContextWithAuthClaims(ctx, selfAuthInfo.MakeAuthClaims())
 }

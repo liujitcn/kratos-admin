@@ -37,7 +37,7 @@ require (
 	github.com/liujitcn/kratos-kit v0.0.97
 	github.com/liujitcn/kratos-kit/ai/model v0.0.8
 	github.com/liujitcn/kratos-kit/api v0.0.44
-	github.com/liujitcn/kratos-kit/auth v0.0.34
+	github.com/liujitcn/kratos-kit/auth v0.0.35
 	github.com/liujitcn/kratos-kit/auth/authn v0.0.27
 	github.com/liujitcn/kratos-kit/auth/authz v0.0.26
 	github.com/liujitcn/kratos-kit/auth/authz/engine/casbin v0.0.25
