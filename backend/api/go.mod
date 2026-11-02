@@ -4,7 +4,7 @@ go 1.27.2
 
 require (
 	buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.36.12-20260825204119-511051f7f437.1
-	github.com/cloudwego/eino v0.9.15
+	github.com/cloudwego/eino v0.9.22
 	github.com/go-kratos/kratos/v3 v3.0.0
 	github.com/google/gnostic v0.7.1
 	github.com/liujitcn/kratos-core/api v0.0.6
