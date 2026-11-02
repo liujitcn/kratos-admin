@@ -1,5 +1,5 @@
 <template>
-  <el-form ref="loginFormRef" :model="loginForm" :rules="loginRules" size="large">
+  <el-form ref="loginFormRef" :model="loginForm" :rules="loginRules" size="large" :validate-on-rule-change="false">
     <el-form-item v-if="configStore.showTenantCode" prop="tenant_code">
       <el-input v-model="loginForm.tenant_code" :placeholder="t('core.login.tenant_code')">
         <template #prefix>

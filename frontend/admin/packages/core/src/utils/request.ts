@@ -237,6 +237,12 @@ function hasRefreshCookieHint() {
   return Number.isFinite(expiresAt) && expiresAt * 1000 > Date.now();
 }
 
+/** 清除刷新令牌过期提示 Cookie，供会话吊销与刷新失败路径复用，避免守卫误判仍可静默刷新。 */
+function clearRefreshExpiryCookie() {
+  if (typeof document === "undefined") return;
+  document.cookie = `${REFRESH_EXPIRY_COOKIE}=; Max-Age=0; path=/`;
+}
+
 /** 判断当前访问令牌是否仍在有效期内。 */
 export function hasValidAccessToken() {
   const userStore = getUserStore();
@@ -291,30 +297,24 @@ export async function ensureAccessToken() {
 let isHandlingAuthExpired = false;
 let passwordChangePromptUntil = 0;
 
-/** 统一处理认证失效 */
+/** 统一处理认证失效：会话已不可用时直接清理本地凭据并回到登录页，避免用户停留在全 401 的空壳页面。 */
 export function handleAuthExpired() {
   if (isHandlingAuthExpired) {
     return;
   }
 
   isHandlingAuthExpired = true;
-  ElMessageBox.confirm(t("core.auth.session_expired"), t("common.title.notice"), {
-    confirmButtonText: t("core.auth.login_again"),
-    cancelButtonText: t("common.action.cancel"),
-    type: "warning",
-    closeOnClickModal: false,
-    closeOnPressEscape: false
-  })
-    .then(() => {
-      const userStore = getUserStore();
-      const currentRoute = router.currentRoute.value;
-      const redirect = currentRoute.path === LOGIN_URL ? undefined : currentRoute.fullPath;
-      clearPasswordChangeRequired();
-      userStore.clearAuthData();
-      return router.replace({
-        path: LOGIN_URL,
-        query: redirect ? { redirect } : undefined
-      });
+  const userStore = getUserStore();
+  const currentRoute = router.currentRoute.value;
+  const redirect = currentRoute.path === LOGIN_URL ? undefined : currentRoute.fullPath;
+  clearPasswordChangeRequired();
+  clearRefreshExpiryCookie();
+  userStore.clearAuthData();
+  ElMessage.warning(t("core.auth.session_expired"));
+  void router
+    .replace({
+      path: LOGIN_URL,
+      query: redirect ? { redirect } : undefined
     })
     .finally(() => {
       isHandlingAuthExpired = false;
@@ -447,6 +447,7 @@ async function handleTokenRefresh(promptOnFailure = true) {
       .catch(error => {
         if (isRefreshTokenUnauthorized(error)) {
           // 刷新令牌失效后立即终止后续自动刷新，避免旧 Cookie 被反复提交。
+          clearRefreshExpiryCookie();
           getUserStore().clearAuthData();
         }
         if (promptOnFailure) {
