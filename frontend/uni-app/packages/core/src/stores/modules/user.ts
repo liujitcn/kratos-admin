@@ -248,6 +248,10 @@ export const useUserStore = defineStore(
       if (isAuthenticated()) {
         return true
       }
+      // token 仍在有效期而用户资料缺失（如整页加载竞态）时不清理登录态，让调用方用有效 token 继续加载数据。
+      if (hasValidToken()) {
+        return true
+      }
       silentLogout()
       return false
     }
