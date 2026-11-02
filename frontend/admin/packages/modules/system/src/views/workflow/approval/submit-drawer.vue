@@ -14,6 +14,13 @@
         </el-select>
       </el-form-item>
 
+      <el-form-item :label="t('system.workflow.approval.field.business_type')" prop="business_type">
+        <el-input v-model="submitForm.business_type" :maxlength="50" :placeholder="t('system.workflow.approval.placeholder.business_type')" />
+      </el-form-item>
+      <el-form-item :label="t('system.workflow.approval.field.business_id')" prop="business_id">
+        <el-input-number v-model="submitForm.business_id" :min="0" controls-position="right" style="width: 100%" />
+      </el-form-item>
+
       <template v-if="fields.length">
         <el-form-item
           v-for="field in fields"
@@ -89,6 +96,10 @@ const formJsonText = ref("");
 const submitForm = reactive({
   /** 选中的流程定义 ID。 */
   definition: undefined as number | undefined,
+  /** 业务单据类型，脚本动作按该类型查找处理器。 */
+  business_type: "",
+  /** 业务单据 ID，脚本动作执行时定位业务数据。 */
+  business_id: 0,
   /** 表单数据。 */
   form: {} as Record<string, string | number | undefined>
 });
@@ -167,8 +178,8 @@ function handleSubmit() {
         code: selectedDefinition.value.code,
         version: selectedDefinition.value.version,
         form_data: formData,
-        business_type: "",
-        business_id: 0
+        business_type: submitForm.business_type.trim(),
+        business_id: submitForm.business_id
       })
       .then(() => {
         ElMessage.success(t("system.workflow.approval.message.submitted"));
@@ -187,6 +198,8 @@ function resetState() {
   fields.value = [];
   formJsonText.value = "";
   submitForm.definition = undefined;
+  submitForm.business_type = "";
+  submitForm.business_id = 0;
   submitForm.form = {};
   selectedDefinition.value = null;
 }
