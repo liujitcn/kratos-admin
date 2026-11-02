@@ -30,6 +30,8 @@ type Message struct {
 // 前端上传后传入的 proto 附件只包含文件元信息；业务层会读取 OSS 文件内容后填充
 // Content 或 Bytes。运行时根据 MIME 类型决定将附件作为文本片段还是多模态图片输入。
 type Attachment struct {
+	// FileID 服务端上传到模型供应商后的临时文件编号，不接受客户端提供。
+	FileID string `json:"-"`
 	// Name 附件名称，用于提示词中展示给模型。
 	Name string `json:"name"`
 	// Size 附件大小，模型无法直接读取文件时会作为辅助说明。
@@ -40,7 +42,7 @@ type Attachment struct {
 	MIMEType string `json:"mimeType"`
 	// Content 附件文本内容，通常来自文本、JSON、XML、CSV 等可直接读取的文件。
 	Content string `json:"content"`
-	// Bytes 附件原始字节，图片类附件会通过该字段作为视觉输入传给模型。
+	// Bytes 附件原始字节，图片和 PDF 会通过该字段上传到模型供应商。
 	Bytes []byte `json:"-"`
 }
 

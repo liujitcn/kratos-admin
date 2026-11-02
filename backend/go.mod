@@ -4,8 +4,8 @@ go 1.27.2
 
 require (
 	buf.build/go/protovalidate v1.4.0
-	github.com/cloudwego/eino v0.9.21
-	github.com/cloudwego/eino-ext/components/model/agenticopenai v0.2.4
+	github.com/cloudwego/eino v0.9.22
+	github.com/cloudwego/eino-ext/components/model/agenticopenai v0.2.5-0.20261019121619-eee37f63ff95
 	github.com/dop251/goja v0.0.0-20261022125820-07c4b9d6265b
 	github.com/expr-lang/expr v1.17.8
 	github.com/go-kratos/kratos/v3 v3.0.0
@@ -31,7 +31,7 @@ require (
 	github.com/liujitcn/go-utils/http v0.0.9
 	github.com/liujitcn/go-utils/translator v0.0.6
 	github.com/liujitcn/gorm-kit v0.0.37
-	github.com/liujitcn/kratos-admin/backend/api v0.0.29
+	github.com/liujitcn/kratos-admin/backend/api v0.0.30
 	github.com/liujitcn/kratos-core v0.0.52
 	github.com/liujitcn/kratos-core/api v0.0.7
 	github.com/liujitcn/kratos-kit v0.0.97
@@ -426,5 +426,3 @@ require (
 	sigs.k8s.io/structured-merge-diff/v6 v6.4.2 // indirect
 	sigs.k8s.io/yaml v1.6.0 // indirect
 )
-
-replace github.com/liujitcn/kratos-admin/backend/api => ./api

@@ -11,6 +11,7 @@ import (
 	"unicode"
 	"unicode/utf8"
 
+	"github.com/go-kratos/kratos/v3/log"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/agent/adk"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/agent/callback"
 	einoMessage "github.com/liujitcn/kratos-admin/backend/internal/biz/agent/message"
@@ -152,7 +153,10 @@ func (r *Runtime) Run(ctx context.Context, input RuntimeInput) (*Response, error
 	if err != nil {
 		return nil, err
 	}
-	output, token, tools, err := r.runGenerate(ctx, input, client, r.buildMessages(ctx, input))
+	var output *einoMessage.AgenticMessage
+	var token TokenUsage
+	var tools []ToolUsage
+	output, token, tools, err = r.runGenerate(ctx, input, client)
 	if err != nil {
 		return nil, err
 	}
@@ -168,7 +172,6 @@ func (r *Runtime) RunStream(ctx context.Context, input RuntimeInput, onDelta fun
 	if err != nil {
 		return nil, err
 	}
-	messages := r.buildMessages(ctx, input)
 	toolInfos, internalToolMatched := r.toolInfos(ctx, input)
 	if disabledCall := r.disabledToolCall(ctx, input, toolInfos); disabledCall != nil {
 		if onDelta != nil {
@@ -176,11 +179,61 @@ func (r *Runtime) RunStream(ctx context.Context, input RuntimeInput, onDelta fun
 		}
 		return r.buildResponse(einoMessage.AIText(disabledCall.Content), TokenUsage{}, []ToolUsage{disabledCall.Usage}, client.Name()), nil
 	}
-	result, recorder, err := r.runADK(ctx, input, client, messages, toolInfos, internalToolMatched, true, onDelta)
+	preparedInput, cleanup := r.prepareAttachments(ctx, input, client)
+	if cleanup != nil {
+		defer cleanup()
+	}
+	messages := r.buildMessages(ctx, preparedInput)
+	var result *adk.Result
+	var recorder *callback.Recorder
+	result, recorder, err = r.runADK(ctx, preparedInput, client, messages, toolInfos, internalToolMatched, true, onDelta)
 	if err != nil {
 		return nil, err
 	}
 	return r.buildResponse(result.Message, tokenFromCallback(result.Token), toolsFromRecorder(recorder), client.Name()), nil
+}
+
+// prepareAttachments 为支持的 Responses 客户端上传图片和 PDF，并返回请求结束后的清理函数。
+func (r *Runtime) prepareAttachments(ctx context.Context, input RuntimeInput, client *model.AssistantClient) (RuntimeInput, func()) {
+	input.Attachments = append([]Attachment(nil), input.Attachments...)
+	for index := range input.Attachments {
+		input.Attachments[index].FileID = ""
+	}
+	if !client.SupportsFileUpload() {
+		return input, nil
+	}
+
+	fileIDs := make([]string, 0, len(input.Attachments))
+	var err error
+	for index := range input.Attachments {
+		item := &input.Attachments[index]
+		mimeType := normalizeRuntimeMIMEType(*item)
+		if (!isRuntimeImageMIME(mimeType) && mimeType != "application/pdf") || len(item.Bytes) == 0 {
+			continue
+		}
+		var fileID string
+		fileID, err = client.UploadFile(ctx, item.Name, item.Bytes)
+		if err != nil {
+			log.Warn("上传 AI 助手附件失败，沿用现有处理方式", "filename", item.Name, "error", err)
+			continue
+		}
+		item.FileID = fileID
+		fileIDs = append(fileIDs, fileID)
+	}
+	if len(fileIDs) == 0 {
+		return input, nil
+	}
+	return input, func() {
+		cleanupCtx, cancel := context.WithTimeout(context.WithoutCancel(ctx), 5*time.Second)
+		defer cancel()
+		for _, fileID := range fileIDs {
+			var cleanupErr error
+			cleanupErr = client.DeleteFile(cleanupCtx, fileID)
+			if cleanupErr != nil {
+				log.Warn("删除 AI 助手临时附件失败", "file_id", fileID, "error", cleanupErr)
+			}
+		}
+	}
 }
 
 // ToolInvokeResult 表示直接调用 Agent 工具后的结果。
@@ -200,12 +253,17 @@ type disabledToolCall struct {
 }
 
 // runGenerate 执行非流式模型调用，并在需要时继续执行工具回填。
-func (r *Runtime) runGenerate(ctx context.Context, input RuntimeInput, client *model.AssistantClient, messages []*einoMessage.AgenticMessage) (*einoMessage.AgenticMessage, TokenUsage, []ToolUsage, error) {
+func (r *Runtime) runGenerate(ctx context.Context, input RuntimeInput, client *model.AssistantClient) (*einoMessage.AgenticMessage, TokenUsage, []ToolUsage, error) {
 	toolInfos, internalToolMatched := r.toolInfos(ctx, input)
 	if disabledCall := r.disabledToolCall(ctx, input, toolInfos); disabledCall != nil {
 		return einoMessage.AIText(disabledCall.Content), TokenUsage{}, []ToolUsage{disabledCall.Usage}, nil
 	}
-	result, recorder, err := r.runADK(ctx, input, client, messages, toolInfos, internalToolMatched, false, nil)
+	preparedInput, cleanup := r.prepareAttachments(ctx, input, client)
+	if cleanup != nil {
+		defer cleanup()
+	}
+	messages := r.buildMessages(ctx, preparedInput)
+	result, recorder, err := r.runADK(ctx, preparedInput, client, messages, toolInfos, internalToolMatched, false, nil)
 	if err != nil {
 		return nil, TokenUsage{}, nil, err
 	}
@@ -531,6 +589,7 @@ func (r *Runtime) buildUserMessage(ctx context.Context, input RuntimeInput) *ein
 	content := input.Content
 	attachmentLines := make([]string, 0, len(input.Attachments)*2)
 	images := make([]einoMessage.ImageData, 0, len(input.Attachments))
+	files := make([]einoMessage.FileData, 0, len(input.Attachments))
 
 	for _, item := range input.Attachments {
 		attachmentContent := item.Content
@@ -542,12 +601,21 @@ func (r *Runtime) buildUserMessage(ctx context.Context, input RuntimeInput) *ein
 
 		// 图片附件走多模态输入，避免把本地 admin 地址误当成公网图片 URL。
 		if isRuntimeImageMIME(cleanMIMEType) {
-			// 图片必须具备原始字节，才能作为多模态视觉输入传给模型。
+			if item.FileID != "" {
+				attachmentLines = append(attachmentLines, r.localizePrompt(ctx, "base.ai.prompt.image_attachment", map[string]any{"Name": name}, "Image attachment {{.Name}} is provided as visual input."))
+				images = append(images, einoMessage.ImageData{FileID: item.FileID, MIMEType: cleanMIMEType})
+				continue
+			}
 			if len(item.Bytes) == 0 {
 				continue
 			}
 			attachmentLines = append(attachmentLines, r.localizePrompt(ctx, "base.ai.prompt.image_attachment", map[string]any{"Name": name}, "Image attachment {{.Name}} is provided as visual input."))
 			images = append(images, einoMessage.ImageData{Bytes: item.Bytes, MIMEType: cleanMIMEType})
+			continue
+		}
+		if cleanMIMEType == "application/pdf" && item.FileID != "" {
+			attachmentLines = append(attachmentLines, r.localizePrompt(ctx, "base.ai.prompt.file_attachment", map[string]any{"Name": name}, "File attachment {{.Name}} is provided as file input."))
+			files = append(files, einoMessage.FileData{FileID: item.FileID, MIMEType: cleanMIMEType, Name: name})
 			continue
 		}
 
@@ -561,10 +629,10 @@ func (r *Runtime) buildUserMessage(ctx context.Context, input RuntimeInput) *ein
 		attachmentLines = append(attachmentLines, r.buildAttachmentDetailLine(ctx, name, item))
 	}
 
-	if len(attachmentLines) == 0 && len(images) == 0 {
+	if len(attachmentLines) == 0 && len(images) == 0 && len(files) == 0 {
 		return einoMessage.UserText(content)
 	}
-	return buildUserMessageParts(content, attachmentLines, images, r.localizePrompt(ctx, "base.ai.prompt.attachment_message_intro", nil, "The current message includes the following attachments. Refer to them when relevant:"))
+	return buildUserMessageParts(content, attachmentLines, images, files, r.localizePrompt(ctx, "base.ai.prompt.attachment_message_intro", nil, "The current message includes the following attachments. Refer to them when relevant:"))
 }
 
 // buildAttachmentDetailLine 构造模型无法直接读取附件内容时的本地化元信息说明。
@@ -1145,13 +1213,13 @@ func isRuntimeImageMIME(mimeType string) bool {
 }
 
 // buildUserMessageParts 合并文本提示和图片输入，形成 Eino 用户消息。
-func buildUserMessageParts(content string, attachmentLines []string, images []einoMessage.ImageData, attachmentIntro string) *einoMessage.AgenticMessage {
+func buildUserMessageParts(content string, attachmentLines []string, images []einoMessage.ImageData, files []einoMessage.FileData, attachmentIntro string) *einoMessage.AgenticMessage {
 	textSections := make([]string, 0, 2)
 	// 附件说明统一追加到用户正文后，避免模型误以为附件内容来自系统指令。
 	if len(attachmentLines) > 0 {
 		textSections = append(textSections, attachmentIntro, strings.Join(attachmentLines, "\n\n"))
 	}
-	return einoMessage.UserTextWithImages(content, textSections, images)
+	return einoMessage.UserTextWithMedia(content, textSections, images, files)
 }
 
 // toolUsageFromCallResult 将 Eino 工具调用结果转换为助手协议工具卡。

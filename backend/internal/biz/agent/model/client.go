@@ -1,16 +1,23 @@
 package model
 
 import (
+	"bytes"
 	"context"
 	"errors"
 	"fmt"
+	"mime"
+	"path"
 	"time"
 
 	"github.com/cloudwego/eino-ext/components/model/agenticopenai"
 	"github.com/cloudwego/eino/components/model"
 	"github.com/cloudwego/eino/schema"
 	modelconfig "github.com/liujitcn/kratos-kit/ai/model"
+	"github.com/openai/openai-go/v3"
+	"github.com/openai/openai-go/v3/option"
 )
+
+const defaultFileAPIRequestTimeout = 30 * time.Second
 
 // AgenticModel 表示当前项目使用的 Eino Agentic 模型接口。
 type AgenticModel = model.AgenticModel
@@ -74,6 +81,20 @@ func NewAssistantClientWithName(modelCfg *modelconfig.ModelConfig, name string) 
 	if err != nil {
 		return client
 	}
+	if modelCfg.Provider == modelconfig.ProviderOpenAICompatible && client.apiType == modelconfig.APITypeResponses {
+		requestTimeout := defaultFileAPIRequestTimeout
+		if modelCfg.TimeoutSeconds > 0 {
+			requestTimeout = time.Duration(modelCfg.TimeoutSeconds) * time.Second
+		}
+		fileClient := openai.NewClient(
+			option.WithAPIKey(modelCfg.ResolvedAPIKey()),
+			option.WithBaseURL(modelCfg.ResolvedBaseURL()),
+			option.WithRequestTimeout(requestTimeout),
+			// 单次上传超时后不自动重试，避免已落盘但响应超时的文件被重复创建。
+			option.WithMaxRetries(0),
+		)
+		client.fileClient = &fileClient
+	}
 	client.name = name
 	if client.name == "" {
 		client.name = modelCfg.ModelName
@@ -85,8 +106,9 @@ func NewAssistantClientWithName(modelCfg *modelconfig.ModelConfig, name string) 
 // AssistantClient 表示 AI 助手专用模型客户端，按配置选择 Chat Completions 或 Responses 协议。
 type AssistantClient struct {
 	model.AgenticModel
-	name    string
-	apiType modelconfig.APIType
+	name       string
+	apiType    modelconfig.APIType
+	fileClient *openai.Client
 }
 
 // Enabled 判断 AI 助手模型客户端是否可用。
@@ -113,6 +135,43 @@ func (c *AssistantClient) APIType() modelconfig.APIType {
 // SupportsResponsesServerTools 判断当前协议是否支持 Responses 服务端工具。
 func (c *AssistantClient) SupportsResponsesServerTools() bool {
 	return c != nil && c.apiType == modelconfig.APITypeResponses
+}
+
+// SupportsFileUpload 判断当前客户端是否支持临时上传供应商文件。
+func (c *AssistantClient) SupportsFileUpload() bool {
+	return c != nil && c.fileClient != nil
+}
+
+// UploadFile 将附件上传到当前 Responses 供应商并返回文件编号。
+func (c *AssistantClient) UploadFile(ctx context.Context, filename string, data []byte) (string, error) {
+	if !c.SupportsFileUpload() {
+		return "", errors.New("file upload is not supported")
+	}
+	// shortcut: multipart MIME 由文件名后缀推断；附件名可能无后缀或后缀错误时需改为传入声明 MIME。
+	contentType := mime.TypeByExtension(path.Ext(filename))
+	if contentType == "" {
+		contentType = "application/octet-stream"
+	}
+	file, err := c.fileClient.Files.New(ctx, openai.FileNewParams{
+		File:    openai.File(bytes.NewReader(data), filename, contentType),
+		Purpose: openai.FilePurposeUserData,
+	})
+	if err != nil {
+		return "", err
+	}
+	if file == nil || file.ID == "" {
+		return "", errors.New("provider file upload returned an empty ID")
+	}
+	return file.ID, nil
+}
+
+// DeleteFile 删除本轮请求上传到供应商的临时文件。
+func (c *AssistantClient) DeleteFile(ctx context.Context, fileID string) error {
+	if !c.SupportsFileUpload() {
+		return errors.New("file upload is not supported")
+	}
+	_, err := c.fileClient.Files.Delete(ctx, fileID)
+	return err
 }
 
 // resolveAssistantAPIType 解析 AI 助手使用的 API 协议类型，未配置时默认聊天补全。

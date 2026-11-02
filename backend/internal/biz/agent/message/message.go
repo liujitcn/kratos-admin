@@ -26,12 +26,24 @@ type ToolCall = schema.ToolCall
 // FunctionCall 表示 Eino 函数工具调用参数。
 type FunctionCall = schema.FunctionCall
 
-// ImageData 表示图片字节输入。
+// ImageData 表示图片字节或供应商文件编号输入。
 type ImageData struct {
 	// Bytes 图片原始字节。
 	Bytes []byte
+	// FileID 图片在模型供应商处的文件编号。
+	FileID string
 	// MIMEType 图片 MIME 类型。
 	MIMEType string
+}
+
+// FileData 表示附件文件编号输入。
+type FileData struct {
+	// FileID 文件在模型供应商处的编号。
+	FileID string
+	// MIMEType 附件 MIME 类型。
+	MIMEType string
+	// Name 附件名称。
+	Name string
 }
 
 // SystemText 创建系统文本消息。
@@ -74,21 +86,26 @@ func UserParts(parts []*ContentBlock) *AgenticMessage {
 	}
 }
 
-// UserTextWithImages 创建包含正文、补充文本和图片的用户消息。
-func UserTextWithImages(content string, textSections []string, images []ImageData) *AgenticMessage {
+// UserTextWithMedia 创建包含正文、补充文本、图片和文件的用户消息。
+func UserTextWithMedia(content string, textSections []string, images []ImageData, files []FileData) *AgenticMessage {
 	textParts := []string{content}
 	textParts = append(textParts, textSections...)
-	blocks := make([]*ContentBlock, 0, 1+len(images))
-	// 用户可能只上传图片不输入文本，空文本不传入 message parts。
+	blocks := make([]*ContentBlock, 0, 1+len(images)+len(files))
 	if text := strings.Join(textParts, "\n\n"); text != "" {
 		blocks = append(blocks, TextPart(text))
 	}
 	for _, image := range images {
-		// 没有原始字节的图片无法作为视觉输入，跳过避免构造无效多模态块。
-		if len(image.Bytes) == 0 {
+		if image.FileID != "" {
+			blocks = append(blocks, ImageFileIDPart(image.FileID, image.MIMEType))
+		} else if len(image.Bytes) > 0 {
+			blocks = append(blocks, ImageDataPart(image.Bytes, image.MIMEType))
+		}
+	}
+	for _, file := range files {
+		if file.FileID == "" {
 			continue
 		}
-		blocks = append(blocks, ImageDataPart(image.Bytes, image.MIMEType))
+		blocks = append(blocks, FileIDPart(file.FileID, file.MIMEType, file.Name))
 	}
 	return UserParts(blocks)
 }
@@ -112,6 +129,24 @@ func ImageDataPart(data []byte, mimeType string) *ContentBlock {
 		Base64Data: base64.StdEncoding.EncodeToString(data),
 		MIMEType:   mimeType,
 		Detail:     schema.ImageURLDetailAuto,
+	})
+}
+
+// ImageFileIDPart 构造图片文件编号输入片段。
+func ImageFileIDPart(fileID string, mimeType string) *ContentBlock {
+	return schema.NewContentBlock(&schema.UserInputImage{
+		FileID:   fileID,
+		MIMEType: mimeType,
+		Detail:   schema.ImageURLDetailAuto,
+	})
+}
+
+// FileIDPart 构造普通附件文件编号输入片段。
+func FileIDPart(fileID string, mimeType string, name string) *ContentBlock {
+	return schema.NewContentBlock(&schema.UserInputFile{
+		FileID:   fileID,
+		MIMEType: mimeType,
+		Name:     name,
 	})
 }
 
