@@ -2,6 +2,7 @@ package biz
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/liujitcn/go-utils/mapper"
 	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
@@ -95,7 +96,8 @@ func (c *BaseMigrationCase) GetBaseMigration(ctx context.Context, id int64) (*ad
 		[]int64{id},
 	)
 	if err != nil {
-		return nil, err
+		// 描述翻译是展示增强信息，查询失败降级为空，避免阻断迁移记录详情主流程。
+		descriptions = nil
 	}
 	if description := descriptions[id]; description != "" {
 		item.DescriptionFiles = description
@@ -105,7 +107,11 @@ func (c *BaseMigrationCase) GetBaseMigration(ctx context.Context, id int64) (*ad
 		var files []*coreMigration.FileContent
 		files, err = c.migrations.ReadFiles(item.Module, item.Version, item.DataSource, references)
 		if err != nil {
-			return nil, err
+			// 历史记录可能与当前内嵌迁移资产漂移导致回读失败，降级为带失败说明的占位文件，详情接口不再 500。
+			res.Files = append(res.Files, &adminv1.BaseMigrationFile{
+				Path: fmt.Sprintf("%s（迁移文件读取失败：%v）", references, err),
+			})
+			continue
 		}
 		for _, file := range files {
 			res.Files = append(res.Files, fileMapper.ToDTO(file))
