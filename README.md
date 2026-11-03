@@ -168,7 +168,7 @@ Docker 镜像 `TAG` 默认读取 `backend/internal/const/project.go` 中的服�
 
 `make -C backend gen` 会生成 `backend/internal/module` 的业务模块装配和 `backend/internal/cmd/server` 的独立启动 Wire 产物；单独刷新前者使用 `make -C backend public-wire`，单独刷新自定义组合根可通过 `WIRE_DIR` 指定包含 `wire.go` 的目录。
 
-后端通过统一装配入口注册模块、资源、定时任务、SSE 流和队列消费者；独立服务和测试入口共用同一套实现。
+后端通过统一装配入口注册模块、资源、定时任务、SSE 流和队列消费者；独立服务入口复用统一注册逻辑。
 
 `make i18n` 会在生成 `openapi.yaml` 后同步生成 `openapi.en-US.yaml`、`openapi.zh-TW.yaml` 和 `openapi.ja-JP.yaml`。默认资源来自本仓库后端错误目录和三个前端语言包；未命中的文案默认自动翻译，设置 `I18N_AUTO_LOCALIZE=0` 可关闭自动翻译。无网络环境使用 `I18N_OFFLINE=1 make i18n`。
 

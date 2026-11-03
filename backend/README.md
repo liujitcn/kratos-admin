@@ -30,7 +30,7 @@ backend
 - 定时任务、运行日志、六类审计日志、表归档、数据库备份恢复、迁移记录和 MQTT 宿主订阅装配。
 - 开放授权客户端、Bearer Token、API 白名单、来源限制、请求加解密和限流。
 
-经典工作流配置及测试说明见 [testdata/workflow](testdata/workflow/README.md)，包含串行审批、金额分支、会签、或签及并行汇聚，使用临时 SQLite 验证完整流转。
+经典工作流配置样例见 [testdata/workflow](testdata/workflow/README.md)，包含串行审批、金额分支、会签、或签及并行汇聚，可作为流程配置参考。
 
 ## 配置
 
@@ -126,7 +126,7 @@ make -C backend run-only APP_ENV=https
 ## 运行检查
 
 ```bash
-go test ./...
+go test ./... # 编译检查；当前没有自动化 Go 测试
 make -C backend fmt
 make -C backend menu-sort
 ```
