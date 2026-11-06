@@ -1,7 +1,7 @@
 {
   "name": "@liujitcn/kratos-admin-bi",
   "private": false,
-  "version": "0.1.5",
+  "version": "0.1.6",
   "type": "module",
   "description": "kratos-admin BI analysis and semantic query module",
   "license": "MIT",
@@ -53,9 +53,9 @@
       "types": "./dist/package/declarations/src/views/*.d.ts",
       "default": "./dist/package/src/views/*"
     },
-    "./locales/*": "./src/locales/*",
+    "./locales/*": "./dist/package/src/locales/*",
     "./module": {
-      "types": "./src/module.ts",
+      "types": "./dist/package/declarations/src/module.d.ts",
       "default": "./dist/package/src/module.ts"
     },
     "./package.json": "./package.json"

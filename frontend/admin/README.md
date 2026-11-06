@@ -89,7 +89,7 @@ frontend/admin
 每个包含 `package.json` 的子目录都有同级 `README.md`，用于说明该包内部文件和目录职责。
 
 管理端发布 `@liujitcn/kratos-admin-core`、`@liujitcn/kratos-admin-system`、
-`@liujitcn/kratos-admin-rag` 和 `@liujitcn/kratos-admin-cli`。默认宿主
+`@liujitcn/kratos-admin-rag`、`@liujitcn/kratos-admin-bi` 和 `@liujitcn/kratos-admin-cli`。默认宿主
 `@liujitcn/kratos-admin` 为私有包，不进入 npm 打包和发布清单。
 
 ## 开发与构建
