@@ -320,60 +320,6 @@ paths:
                 "200":
                     description: OK
                     content: {}
-    /api/v1/admin/base/ai-query:
-        get:
-            tags:
-                - AiQueryService
-            description: List smart data query records with pagination.
-            operationId: AiQueryService_PageAiQuery
-            parameters:
-                - name: question
-                  in: query
-                  schema:
-                    type: string
-                - name: status
-                  in: query
-                  schema:
-                    enum:
-                        - AI_QUERY_STATUS_UNSPECIFIED
-                        - AI_QUERY_STATUS_SUCCESS
-                        - AI_QUERY_STATUS_FAILED
-                    type: string
-                    format: enum
-                - name: page_num
-                  in: query
-                  schema:
-                    type: string
-                - name: page_size
-                  in: query
-                  schema:
-                    type: string
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/system.admin.v1.PageAiQueryResponse'
-    /api/v1/admin/base/ai-query/{id}:
-        get:
-            tags:
-                - AiQueryService
-            description: Get smart data query record details.
-            operationId: AiQueryService_GetAiQuery
-            parameters:
-                - name: id
-                  in: path
-                  required: true
-                  schema:
-                    type: string
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/system.admin.v1.AiQueryRecord'
     /api/v1/admin/base/ai-session:
         get:
             tags:
@@ -6611,6 +6557,596 @@ paths:
                 "200":
                     description: OK
                     content: {}
+    /api/v1/admin/bi/card:
+        get:
+            tags:
+                - BiCardService
+            description: List data cards visible to the current user.
+            operationId: BiCardService_PageBiCard
+            parameters:
+                - name: name
+                  in: query
+                  schema:
+                    type: string
+                - name: source_code
+                  in: query
+                  schema:
+                    type: string
+                - name: category
+                  in: query
+                  schema:
+                    type: string
+                - name: search_source_codes
+                  in: query
+                  schema:
+                    type: array
+                    items:
+                        type: string
+                - name: page_num
+                  in: query
+                  schema:
+                    type: string
+                - name: page_size
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/bi.admin.v1.PageBiCardResponse'
+        post:
+            tags:
+                - BiCardService
+            description: Create or update an owned data card.
+            operationId: BiCardService_SaveBiCard
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/bi.admin.v1.SaveBiCardRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/bi.admin.v1.BiCard'
+    /api/v1/admin/bi/card/{id}:
+        delete:
+            tags:
+                - BiCardService
+            description: Delete an owned data card.
+            operationId: BiCardService_DeleteBiCard
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/bi.admin.v1.DeleteBiCardResponse'
+    /api/v1/admin/bi/card/{id}/data:
+        get:
+            tags:
+                - BiCardService
+            description: Query card data within the current user permissions.
+            operationId: BiCardService_GetBiCardData
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: range_days
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/bi.admin.v1.BiQueryResult'
+    /api/v1/admin/bi/dashboard:
+        get:
+            tags:
+                - BiDashboardService
+            description: List dashboards accessible to the current user.
+            operationId: BiDashboardService_PageBiDashboard
+            parameters:
+                - name: name
+                  in: query
+                  schema:
+                    type: string
+                - name: page_num
+                  in: query
+                  schema:
+                    type: string
+                - name: page_size
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/bi.admin.v1.PageBiDashboardResponse'
+        post:
+            tags:
+                - BiDashboardService
+            description: Create or save a dashboard draft.
+            operationId: BiDashboardService_SaveBiDashboard
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/bi.admin.v1.SaveBiDashboardRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/bi.admin.v1.BiDashboard'
+    /api/v1/admin/bi/dashboard/{id}:
+        get:
+            tags:
+                - BiDashboardService
+            description: Get a dashboard and its current draft.
+            operationId: BiDashboardService_GetBiDashboard
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/bi.admin.v1.BiDashboard'
+        delete:
+            tags:
+                - BiDashboardService
+            description: Delete a dashboard.
+            operationId: BiDashboardService_DeleteBiDashboard
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/bi.admin.v1.DeleteBiDashboardResponse'
+    /api/v1/admin/bi/dashboard/{id}/data:
+        get:
+            tags:
+                - BiDashboardService
+            description: Execute all card queries in a published dashboard.
+            operationId: BiDashboardService_GetBiDashboardData
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: version
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/bi.admin.v1.BiDashboardDataResponse'
+    /api/v1/admin/bi/dashboard/{id}/publish:
+        post:
+            tags:
+                - BiDashboardService
+            description: Publish a dashboard draft.
+            operationId: BiDashboardService_PublishBiDashboard
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/bi.admin.v1.PublishBiDashboardRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/bi.admin.v1.BiDashboard'
+    /api/v1/admin/bi/query-record:
+        get:
+            tags:
+                - BiQueryRecordService
+            description: List the current user's natural-language query history.
+            operationId: BiQueryRecordService_PageBiQuery
+            parameters:
+                - name: question
+                  in: query
+                  schema:
+                    type: string
+                - name: status
+                  in: query
+                  schema:
+                    enum:
+                        - BI_QUERY_STATUS_UNSPECIFIED
+                        - BI_QUERY_STATUS_SUCCESS
+                        - BI_QUERY_STATUS_FAILED
+                    type: string
+                    format: enum
+                - name: source_code
+                  in: query
+                  schema:
+                    type: string
+                - name: page_num
+                  in: query
+                  schema:
+                    type: string
+                - name: page_size
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/bi.admin.v1.PageBiQueryResponse'
+    /api/v1/admin/bi/query-record/{id}:
+        get:
+            tags:
+                - BiQueryRecordService
+            description: Get smart data query record details.
+            operationId: BiQueryRecordService_GetBiQuery
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/bi.admin.v1.BiQueryRecord'
+    /api/v1/admin/bi/query/ask:
+        post:
+            tags:
+                - BiQueryService
+            description: Generate a semantic query from natural language and preview its result.
+            operationId: BiQueryService_AskBiQuery
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/bi.admin.v1.AskBiQueryRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/bi.admin.v1.AskBiQueryResponse'
+    /api/v1/admin/bi/query/preview:
+        post:
+            tags:
+                - BiQueryService
+            description: Preview a semantic query configured by the client.
+            operationId: BiQueryService_PreviewBiQuery
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/bi.admin.v1.PreviewBiQueryRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/bi.admin.v1.BiQueryResult'
+    /api/v1/admin/bi/source:
+        get:
+            tags:
+                - BiSourceService
+            description: List data source settings for the current tenant.
+            operationId: BiSourceService_PageBiSource
+            parameters:
+                - name: code
+                  in: query
+                  schema:
+                    type: string
+                - name: name
+                  in: query
+                  schema:
+                    type: string
+                - name: source_name
+                  in: query
+                  schema:
+                    type: string
+                - name: status
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+                - name: page_num
+                  in: query
+                  schema:
+                    type: string
+                - name: page_size
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/bi.admin.v1.PageBiSourceResponse'
+        post:
+            tags:
+                - BiSourceService
+            description: Create data source configuration.
+            operationId: BiSourceService_CreateBiSource
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/bi.admin.v1.BiSourceForm'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/bi.admin.v1.BiSource'
+    /api/v1/admin/bi/source/options/databases:
+        get:
+            tags:
+                - BiSourceService
+            description: List configured server database clients.
+            operationId: BiSourceService_OptionBiSourceDatabase
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/bi.admin.v1.OptionBiSourceDatabaseResponse'
+    /api/v1/admin/bi/source/test:
+        post:
+            tags:
+                - BiSourceService
+            description: Test data source connectivity.
+            operationId: BiSourceService_TestBiSource
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/bi.admin.v1.BiSourceForm'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/bi.admin.v1.TestBiSourceResponse'
+    /api/v1/admin/bi/source/{id}:
+        get:
+            tags:
+                - BiSourceService
+            description: Query data source configuration details.
+            operationId: BiSourceService_GetBiSource
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/bi.admin.v1.BiSource'
+        delete:
+            tags:
+                - BiSourceService
+            description: Delete data source configuration.
+            operationId: BiSourceService_DeleteBiSource
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/bi.admin.v1.DeleteBiSourceResponse'
+    /api/v1/admin/bi/source/{id}/model:
+        put:
+            tags:
+                - BiSourceService
+            description: Save a validated multi-table semantic model.
+            operationId: BiSourceService_SaveBiSourceModel
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/bi.admin.v1.BiSourceModel'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/bi.admin.v1.BiSource'
+    /api/v1/admin/bi/source/{id}/status:
+        put:
+            tags:
+                - BiSourceService
+            description: Update data source enabled status.
+            operationId: BiSourceService_SetBiSourceStatus
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/bi.admin.v1.SetBiSourceStatusRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/bi.admin.v1.BiSource'
+    /api/v1/admin/bi/source/{id}/tables:
+        get:
+            tags:
+                - BiSourceService
+            description: Discover tables, columns and unique keys in a saved source.
+            operationId: BiSourceService_ListBiSourceTables
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/bi.admin.v1.ListBiSourceTablesResponse'
+    /api/v1/admin/bi/source/{source.id}:
+        put:
+            tags:
+                - BiSourceService
+            description: Update data source configuration.
+            operationId: BiSourceService_UpdateBiSource
+            parameters:
+                - name: source.id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/bi.admin.v1.BiSourceForm'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/bi.admin.v1.BiSource'
+    /api/v1/admin/bi/sources:
+        get:
+            tags:
+                - BiQueryService
+            description: Query current user available data source directory.
+            operationId: BiQueryService_ListBiSources
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/bi.admin.v1.ListBiSourcesResponse'
+    /api/v1/admin/bi/workbench:
+        get:
+            tags:
+                - BiCardService
+            description: Get the current user workspace and favorites.
+            operationId: BiCardService_GetBiWorkbench
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/bi.admin.v1.BiWorkbench'
+        put:
+            tags:
+                - BiCardService
+            description: Save the current user card order and favorites.
+            operationId: BiCardService_SaveBiWorkbench
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/bi.admin.v1.SaveBiWorkbenchRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/bi.admin.v1.BiWorkbench'
     /api/v1/admin/cache:
         get:
             tags:
@@ -8146,44 +8682,6 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/base.v1.ListAiProviderModelOptionsResponse'
-    /api/v1/base/ai/query/ask:
-        post:
-            tags:
-                - AiQueryService
-            description: "Smart data query: converts natural language questions into read-only SQL queries and returns structured results"
-            operationId: AiQueryService_AskAiQuery
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/base.v1.AskAiQueryRequest'
-                required: true
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/base.v1.AskAiQueryResponse'
-    /api/v1/base/ai/query/tables:
-        post:
-            tags:
-                - AiQueryService
-            description: Query the data table catalog available for smart queries
-            operationId: AiQueryService_OptionAiQueryTable
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/base.v1.OptionAiQueryTableRequest'
-                required: true
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/base.v1.OptionAiQueryTableResponse'
     /api/v1/base/ai/search:
         post:
             tags:
@@ -9609,25 +10107,6 @@ components:
                         $ref: '#/components/schemas/base.v1.AiProviderModel'
                     description: Model options
             description: An enabled AI provider and its model options.
-        base.v1.AiQueryRow:
-            type: object
-            properties:
-                values:
-                    type: array
-                    items:
-                        type: string
-                    description: Cell values aligned with column name order
-            description: Smart query result row
-        base.v1.AiQueryTable:
-            type: object
-            properties:
-                name:
-                    type: string
-                    description: table name
-                comment:
-                    type: string
-                    description: table description
-            description: Data tables available for smart queries
         base.v1.AiSession:
             type: object
             properties:
@@ -9764,40 +10243,6 @@ components:
                     type: string
                     description: delivery ID
             description: Archive message request.
-        base.v1.AskAiQueryRequest:
-            type: object
-            properties:
-                question:
-                    type: string
-                    description: Natural language question
-            description: Smart query request
-        base.v1.AskAiQueryResponse:
-            type: object
-            properties:
-                sql:
-                    type: string
-                    description: Generated read-only SQL
-                columns:
-                    type: array
-                    items:
-                        type: string
-                    description: Result column name
-                rows:
-                    type: array
-                    items:
-                        $ref: '#/components/schemas/base.v1.AiQueryRow'
-                    description: result line
-                row_count:
-                    type: integer
-                    description: Result row count
-                    format: int32
-                truncated:
-                    type: boolean
-                    description: Whether the result was truncated by row or size limit
-                elapsed_ms:
-                    type: string
-                    description: SQL Execute duration（ms）
-            description: Smart query response
         base.v1.BeginMfaDisableRequest:
             type: object
             properties: {}
@@ -10750,19 +11195,6 @@ components:
                     type: object
                     description: Provider-specific configuration JSON object
             description: third-party login method information
-        base.v1.OptionAiQueryTableRequest:
-            type: object
-            properties: {}
-            description: Smart query table catalog request
-        base.v1.OptionAiQueryTableResponse:
-            type: object
-            properties:
-                tables:
-                    type: array
-                    items:
-                        $ref: '#/components/schemas/base.v1.AiQueryTable'
-                    description: Available data table list
-            description: Smart query table catalog response
         base.v1.OptionLanguageResponse:
             type: object
             properties:
@@ -11057,6 +11489,925 @@ components:
                     type: boolean
                     description: Whether to remember the current device
             description: multi-factor authentication validate request.
+        bi.admin.v1.AskBiQueryRequest:
+            type: object
+            properties:
+                question:
+                    type: string
+                    description: Natural language question
+                provider_id:
+                    type: string
+                    description: Selected provider ID; uses the first available model when omitted
+                model_name:
+                    type: string
+                    description: Selected model name
+            description: BI natural-language query request.
+        bi.admin.v1.AskBiQueryResponse:
+            type: object
+            properties:
+                query:
+                    $ref: '#/components/schemas/bi.admin.v1.BiQuerySpec'
+                result:
+                    $ref: '#/components/schemas/bi.admin.v1.BiQueryResult'
+                chart_type:
+                    type: string
+                    description: Suggested chart type
+                title:
+                    type: string
+                    description: Suggested chart title
+            description: BI natural-language query response.
+        bi.admin.v1.BiCard:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: Card ID
+                tenant_id:
+                    type: string
+                    description: tenant ID
+                project_id:
+                    type: string
+                    description: Project ID; zero means tenant-wide
+                owner_id:
+                    type: string
+                    description: Owner user ID; zero indicates a built-in card
+                query_record_id:
+                    type: string
+                    description: source Query record ID
+                name:
+                    type: string
+                    description: Card name
+                source_code:
+                    type: string
+                    description: Semantic data source code
+                query:
+                    $ref: '#/components/schemas/bi.admin.v1.BiQuerySpec'
+                chart_type:
+                    type: string
+                    description: Chart type
+                chart_json:
+                    type: string
+                    description: Chart field mapping and style configuration JSON
+                refresh_seconds:
+                    type: integer
+                    description: Refresh interval in seconds; 86400 means daily at 02:00
+                    format: int32
+                is_shared:
+                    type: boolean
+                    description: Whether shared
+                updated_at:
+                    type: string
+                    description: Update time
+                category:
+                    type: string
+                    description: "Category: system, mine or shared"
+                can_edit:
+                    type: boolean
+                    description: Whether the current user can edit
+            description: Data card record.
+        bi.admin.v1.BiCardCounts:
+            type: object
+            properties:
+                all:
+                    type: string
+                    description: All card count
+                system:
+                    type: string
+                    description: Built-in card count
+                mine:
+                    type: string
+                    description: Owned card count
+                favorite:
+                    type: string
+                    description: Favorite card count
+                shared:
+                    type: string
+                    description: Shared card count
+            description: Data card category counts.
+        bi.admin.v1.BiCardForm:
+            type: object
+            properties:
+                name:
+                    type: string
+                    description: Card name
+                query:
+                    $ref: '#/components/schemas/bi.admin.v1.BiQuerySpec'
+                chart_type:
+                    type: string
+                    description: Chart type
+                query_record_id:
+                    type: string
+                    description: source success Query record ID
+                chart_json:
+                    type: string
+                    description: Chart field mapping and style configuration JSON
+                refresh_seconds:
+                    type: integer
+                    description: "Refresh interval in seconds: zero is manual; 86400 means daily at 02:00"
+                    format: int32
+                is_shared:
+                    type: boolean
+                    description: Whether shared within the current project
+            description: Data card settings.
+        bi.admin.v1.BiDashboard:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: Dashboard ID
+                tenant_id:
+                    type: string
+                    description: tenant ID
+                project_id:
+                    type: string
+                    description: Project ID; zero means tenant-wide
+                code:
+                    type: string
+                    description: Dashboard code
+                name:
+                    type: string
+                    description: Dashboard name
+                description:
+                    type: string
+                    description: Dashboard description
+                owner_id:
+                    type: string
+                    description: all sender user ID
+                status:
+                    type: integer
+                    description: "status: 1draft, 2already Publish , 3disabled"
+                    format: int32
+                draft_version:
+                    type: string
+                    description: draft version
+                published_version:
+                    type: string
+                    description: already Publish version
+                schema_json:
+                    type: string
+                    description: Dashboard schema JSON
+                updated_at:
+                    type: string
+                    description: Update time
+                can_edit:
+                    type: boolean
+                    description: Whether the current user can edit
+            description: BI dashboard record.
+        bi.admin.v1.BiDashboardCardResult:
+            type: object
+            properties:
+                item_id:
+                    type: string
+                    description: Chart item ID
+                result:
+                    $ref: '#/components/schemas/bi.admin.v1.BiQueryResult'
+            description: Query result for one card.
+        bi.admin.v1.BiDashboardDataResponse:
+            type: object
+            properties:
+                cards:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/bi.admin.v1.BiDashboardCardResult'
+                    description: Card results
+                schema_json:
+                    type: string
+                    description: Dashboard schema JSON for the executed version
+            description: Dashboard data response.
+        bi.admin.v1.BiFieldDescriptor:
+            type: object
+            properties:
+                code:
+                    type: string
+                    description: field code
+                name:
+                    type: string
+                    description: field name
+                type:
+                    type: string
+                    description: "field type: string、number、date"
+                filterable:
+                    type: boolean
+                    description: Whether filtering is allowed
+            description: BI field description.
+        bi.admin.v1.BiFilterSpec:
+            type: object
+            properties:
+                field:
+                    type: string
+                    description: field code
+                operator:
+                    type: string
+                    description: "operator: eq、in、between、contains"
+                values:
+                    type: array
+                    items:
+                        type: string
+                    description: Filter values
+            description: BI filter condition.
+        bi.admin.v1.BiMeasureDescriptor:
+            type: object
+            properties:
+                code:
+                    type: string
+                    description: metric code
+                name:
+                    type: string
+                    description: metric name
+                type:
+                    type: string
+                    description: metric type
+                aggregations:
+                    type: array
+                    items:
+                        type: string
+                    description: Allowed aggregation functions
+            description: BI metric description.
+        bi.admin.v1.BiMeasureSpec:
+            type: object
+            properties:
+                code:
+                    type: string
+                    description: metric code
+                aggregation:
+                    type: string
+                    description: Aggregation function
+            description: BI metric Query item.
+        bi.admin.v1.BiOrderSpec:
+            type: object
+            properties:
+                field:
+                    type: string
+                    description: alreadyselectionof dimensionormetriccode
+                direction:
+                    type: string
+                    description: "Sort direction: asc or desc"
+            description: BI result sort rule.
+        bi.admin.v1.BiQueryRecord:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: Record ID
+                tenant_id:
+                    type: string
+                    description: tenant ID
+                user_id:
+                    type: string
+                    description: user ID
+                project_id:
+                    type: string
+                    description: item item ID
+                dashboard_id:
+                    type: string
+                    description: Dashboard ID
+                dashboard_version:
+                    type: string
+                    description: Dashboard version
+                widget_id:
+                    type: string
+                    description: Chart item ID
+                source_code:
+                    type: string
+                    description: data source code
+                question:
+                    type: string
+                    description: Natural language question; empty for other queries
+                query_json:
+                    type: string
+                    description: Semantic query plan in JSON
+                query_hash:
+                    type: string
+                    description: Query plan hash
+                status:
+                    enum:
+                        - BI_QUERY_STATUS_UNSPECIFIED
+                        - BI_QUERY_STATUS_SUCCESS
+                        - BI_QUERY_STATUS_FAILED
+                    type: string
+                    description: "Query status: BiQueryStatus enum"
+                    format: enum
+                row_count:
+                    type: integer
+                    description: Result row count
+                    format: int32
+                truncated:
+                    type: integer
+                    description: "Whether results were truncated: 0=no, 1=yes"
+                    format: int32
+                elapsed_ms:
+                    type: string
+                    description: Query duration in milliseconds, including model generation for natural language queries
+                error_msg:
+                    type: string
+                    description: Failure reason
+                created_at:
+                    type: string
+                    description: Create time
+                user_name:
+                    type: string
+                    description: user account
+                result:
+                    $ref: '#/components/schemas/bi.admin.v1.BiQueryResult'
+            description: BI Query record.
+        bi.admin.v1.BiQueryResult:
+            type: object
+            properties:
+                columns:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/bi.admin.v1.BiResultColumn'
+                    description: Result columns
+                rows:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/bi.admin.v1.BiResultRow'
+                    description: result line
+                truncated:
+                    type: boolean
+                    description: Whether the result was truncated by a limit
+                elapsed_ms:
+                    type: string
+                    description: Query durationms
+                query_record_id:
+                    type: string
+                    description: Successful query record ID, usable as a card source
+            description: BI query result.
+        bi.admin.v1.BiQuerySpec:
+            type: object
+            properties:
+                source_code:
+                    type: string
+                    description: data source code
+                dimensions:
+                    type: array
+                    items:
+                        type: string
+                    description: Grouping dimension codes
+                measures:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/bi.admin.v1.BiMeasureSpec'
+                    description: Query metric
+                filters:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/bi.admin.v1.BiFilterSpec'
+                    description: Filter conditions
+                limit:
+                    type: integer
+                    description: Result row limit; defaults to 100
+                    format: int32
+                time_range:
+                    $ref: '#/components/schemas/bi.admin.v1.BiTimeRangeSpec'
+                orders:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/bi.admin.v1.BiOrderSpec'
+                    description: result sort rule
+            description: BI semantic query plan.
+        bi.admin.v1.BiResultColumn:
+            type: object
+            properties:
+                code:
+                    type: string
+                    description: Column code
+                name:
+                    type: string
+                    description: Column name
+                type:
+                    type: string
+                    description: Column type
+            description: BI result column.
+        bi.admin.v1.BiResultRow:
+            type: object
+            properties:
+                values:
+                    type: array
+                    items:
+                        type: string
+                    description: Values in column order
+            description: BI result line.
+        bi.admin.v1.BiSource:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: data source ID
+                tenant_id:
+                    type: string
+                    description: tenant ID
+                code:
+                    type: string
+                    description: data source code
+                name:
+                    type: string
+                    description: data source name
+                description:
+                    type: string
+                    description: data source description
+                source_name:
+                    type: string
+                    description: Server database client name
+                driver:
+                    type: string
+                    description: Database driver
+                host:
+                    type: string
+                    description: database host
+                port:
+                    type: integer
+                    description: Database port
+                    format: int32
+                database_name:
+                    type: string
+                    description: database name
+                username:
+                    type: string
+                    description: database username
+                password_configured:
+                    type: boolean
+                    description: Whether already Save database password
+                ssl_mode:
+                    type: string
+                    description: Postgre SQL SSLmode
+                schema_name:
+                    type: string
+                    description: database Schema
+                table_name:
+                    type: string
+                    description: Database table or view name
+                tenant_column:
+                    type: string
+                    description: Tenant column
+                schema_json:
+                    type: string
+                    description: Semantic dimension and measure configuration JSON
+                status:
+                    type: integer
+                    description: "status: 1enabled, 2disabled"
+                    format: int32
+                version:
+                    type: integer
+                    description: Semantic version
+                    format: int32
+                max_rows:
+                    type: integer
+                    description: maximum result line count
+                    format: int32
+                created_at:
+                    type: string
+                    description: Create time
+                updated_at:
+                    type: string
+                    description: Update time
+                model_configured:
+                    type: boolean
+                    description: Whether the semantic model is configured
+                table_count:
+                    type: integer
+                    description: Number of tables selected in the model
+                    format: int32
+            description: BI data source configuration.
+        bi.admin.v1.BiSourceDatabase:
+            type: object
+            properties:
+                name:
+                    type: string
+                    description: client name
+                driver:
+                    type: string
+                    description: Database driver
+            description: Server database client option.
+        bi.admin.v1.BiSourceDescriptor:
+            type: object
+            properties:
+                code:
+                    type: string
+                    description: data source code
+                name:
+                    type: string
+                    description: data source name
+                description:
+                    type: string
+                    description: data source description
+                version:
+                    type: integer
+                    description: Data source semantic version
+                    format: int32
+                dimensions:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/bi.admin.v1.BiFieldDescriptor'
+                    description: Available dimensions
+                measures:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/bi.admin.v1.BiMeasureDescriptor'
+                    description: Available measures
+                max_rows:
+                    type: integer
+                    description: maximum result line count
+                    format: int32
+            description: BI data source description.
+        bi.admin.v1.BiSourceDimension:
+            type: object
+            properties:
+                code:
+                    type: string
+                    description: Semantic code
+                name:
+                    type: string
+                    description: Display name
+                type:
+                    type: string
+                    description: BIfield type
+                table:
+                    type: string
+                    description: Owning table identifier
+                column:
+                    type: string
+                    description: database field
+                filterable:
+                    type: boolean
+                    description: Whether filtering is allowed
+            description: Data source semantic dimension.
+        bi.admin.v1.BiSourceForm:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: data source ID
+                code:
+                    type: string
+                    description: data source code
+                name:
+                    type: string
+                    description: data source name
+                description:
+                    type: string
+                    description: data source description
+                source_name:
+                    type: string
+                    description: Server database client name
+                driver:
+                    type: string
+                    description: "Database driver: mysql, postgres, doris or tidb"
+                host:
+                    type: string
+                    description: database host
+                port:
+                    type: integer
+                    description: Database port
+                    format: int32
+                database_name:
+                    type: string
+                    description: database name
+                username:
+                    type: string
+                    description: database username
+                password:
+                    $ref: '#/components/schemas/common.v1.SecretCrypto'
+                ssl_mode:
+                    type: string
+                    description: Postgre SQL SSLmode
+                schema_name:
+                    type: string
+                    description: database Schema, availablebe null
+                max_rows:
+                    type: integer
+                    description: maximum result line count
+                    format: int32
+                status:
+                    type: integer
+                    description: "status: 1enabled, 2disabled"
+                    format: int32
+            description: BI data source configuration form.
+        bi.admin.v1.BiSourceMeasure:
+            type: object
+            properties:
+                code:
+                    type: string
+                    description: Semantic code
+                name:
+                    type: string
+                    description: Display name
+                type:
+                    type: string
+                    description: BIfield type
+                table:
+                    type: string
+                    description: Owning table identifier
+                column:
+                    type: string
+                    description: database field
+                aggregations:
+                    type: array
+                    items:
+                        type: string
+                    description: Allowed aggregation functions
+            description: Data source semantic measure.
+        bi.admin.v1.BiSourceModel:
+            type: object
+            properties:
+                base_table:
+                    type: string
+                    description: Fact table identifier
+                tables:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/bi.admin.v1.BiSourceModelTable'
+                    description: Selected table structures
+                relations:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/bi.admin.v1.BiSourceRelation'
+                    description: Table relationships
+                dimensions:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/bi.admin.v1.BiSourceDimension'
+                    description: Semantic dimensions
+                measures:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/bi.admin.v1.BiSourceMeasure'
+                    description: Semantic measures
+            description: Tables, relationships and business semantics available in the source.
+        bi.admin.v1.BiSourceModelTable:
+            type: object
+            properties:
+                key:
+                    type: string
+                    description: Table structure identifier
+                tenant_column:
+                    type: string
+                    description: Tenant isolation field; empty for connection isolation or shared tables
+                x:
+                    type: integer
+                    description: Canvas horizontal position
+                    format: int32
+                y:
+                    type: integer
+                    description: Canvas vertical position
+                    format: int32
+            description: Table node in the semantic model.
+        bi.admin.v1.BiSourceRelation:
+            type: object
+            properties:
+                left_table:
+                    type: string
+                    description: Joined table identifier
+                left_column:
+                    type: string
+                    description: Joined table field
+                right_table:
+                    type: string
+                    description: dimension table identifier
+                right_column:
+                    type: string
+                    description: Unique dimension table field
+                join_type:
+                    type: string
+                    description: "Join type: inner or left"
+            description: Validated many-to-one relationship between two tables.
+        bi.admin.v1.BiSourceSchemaColumn:
+            type: object
+            properties:
+                name:
+                    type: string
+                    description: field name
+                data_type:
+                    type: string
+                    description: database field type
+                nullable:
+                    type: boolean
+                    description: whether nullable
+                primary_key:
+                    type: boolean
+                    description: Whether as primary key
+                unique:
+                    type: boolean
+                    description: Whether the column has a single-column unique constraint
+                comment:
+                    type: string
+                    description: field comment
+            description: Database column structure.
+        bi.admin.v1.BiSourceSchemaTable:
+            type: object
+            properties:
+                key:
+                    type: string
+                    description: Table structure identifier
+                schema_name:
+                    type: string
+                    description: database Schema
+                name:
+                    type: string
+                    description: Table or view name
+                table_type:
+                    type: string
+                    description: table type
+                columns:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/bi.admin.v1.BiSourceSchemaColumn'
+                    description: field list
+                comment:
+                    type: string
+                    description: Table or view comment
+            description: Table or view structure in the database.
+        bi.admin.v1.BiTimeRangeSpec:
+            type: object
+            properties:
+                field:
+                    type: string
+                    description: time dimension code
+                start:
+                    type: string
+                    description: Range start
+                end:
+                    type: string
+                    description: Range end
+            description: BI time scope.
+        bi.admin.v1.BiWorkbench:
+            type: object
+            properties:
+                dashboard_ids:
+                    type: array
+                    items:
+                        type: string
+                    description: Workbench dashboard IDs in display order
+                favorite_ids:
+                    type: array
+                    items:
+                        type: string
+                    description: Favorite card IDs
+                dashboards:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/bi.admin.v1.BiDashboard'
+                    description: Published dashboards currently visible in the workbench
+            description: Personal dashboard shortcuts and card favorites.
+        bi.admin.v1.DeleteBiCardResponse:
+            type: object
+            properties: {}
+            description: Delete data card response.
+        bi.admin.v1.DeleteBiDashboardResponse:
+            type: object
+            properties: {}
+            description: Delete BI dashboard response.
+        bi.admin.v1.DeleteBiSourceResponse:
+            type: object
+            properties: {}
+            description: Delete  BI data source response.
+        bi.admin.v1.ListBiSourceTablesResponse:
+            type: object
+            properties:
+                tables:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/bi.admin.v1.BiSourceSchemaTable'
+                    description: Database table structures
+            description: Data source table structure response.
+        bi.admin.v1.ListBiSourcesResponse:
+            type: object
+            properties:
+                sources:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/bi.admin.v1.BiSourceDescriptor'
+                    description: current user available data source
+            description: BI data source directory response.
+        bi.admin.v1.OptionBiSourceDatabaseResponse:
+            type: object
+            properties:
+                databases:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/bi.admin.v1.BiSourceDatabase'
+                    description: Server database client list
+            description: Server database client list response.
+        bi.admin.v1.PageBiCardResponse:
+            type: object
+            properties:
+                cards:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/bi.admin.v1.BiCard'
+                    description: Data cards
+                total:
+                    type: integer
+                    description: total count
+                    format: int32
+                counts:
+                    $ref: '#/components/schemas/bi.admin.v1.BiCardCounts'
+            description: Data card page results.
+        bi.admin.v1.PageBiDashboardResponse:
+            type: object
+            properties:
+                dashboards:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/bi.admin.v1.BiDashboard'
+                    description: Dashboard list
+                total:
+                    type: integer
+                    description: total count
+                    format: int32
+            description: BI dashboard page response.
+        bi.admin.v1.PageBiQueryResponse:
+            type: object
+            properties:
+                queries:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/bi.admin.v1.BiQueryRecord'
+                    description: Smart query record list
+                total:
+                    type: integer
+                    description: total count
+                    format: int32
+            description: Smart data query paginated response.
+        bi.admin.v1.PageBiSourceResponse:
+            type: object
+            properties:
+                sources:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/bi.admin.v1.BiSource'
+                    description: data source configuration list
+                total:
+                    type: integer
+                    description: total count
+                    format: int32
+            description: BI data source paginated response.
+        bi.admin.v1.PreviewBiQueryRequest:
+            type: object
+            properties:
+                query:
+                    $ref: '#/components/schemas/bi.admin.v1.BiQuerySpec'
+            description: BI Query Preview request.
+        bi.admin.v1.PublishBiDashboardRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: Dashboard ID
+                version:
+                    type: string
+                    description: draft version
+            description: Publish BI dashboard request.
+        bi.admin.v1.SaveBiCardRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: Card ID; zero creates a card
+                card:
+                    $ref: '#/components/schemas/bi.admin.v1.BiCardForm'
+            description: Save data card request.
+        bi.admin.v1.SaveBiDashboardRequest:
+            type: object
+            properties:
+                dashboard:
+                    $ref: '#/components/schemas/bi.admin.v1.BiDashboard'
+            description: Save BI dashboard request.
+        bi.admin.v1.SaveBiWorkbenchRequest:
+            type: object
+            properties:
+                dashboard_ids:
+                    type: array
+                    items:
+                        type: string
+                    description: Workbench dashboard IDs; at most 50 unique IDs
+                favorite_ids:
+                    type: array
+                    items:
+                        type: string
+                    description: Favorite card IDs; at most 50 unique IDs
+            description: Save personal workspace request.
+        bi.admin.v1.SetBiSourceStatusRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: data source ID
+                status:
+                    type: integer
+                    description: "status: 1enabled, 2disabled"
+                    format: int32
+            description: Update  BI data source status request.
+        bi.admin.v1.TestBiSourceResponse:
+            type: object
+            properties:
+                success:
+                    type: boolean
+                    description: Whether available access
+                message:
+                    type: string
+                    description: Test result description
+            description: Test BI data source response.
         common.v1.AppTreeOptionResponse_Option:
             type: object
             properties:
@@ -11537,68 +12888,6 @@ components:
                     type: string
                     description: Stable provider identifier
             description: AI provider option.
-        system.admin.v1.AiQueryRecord:
-            type: object
-            properties:
-                id:
-                    type: string
-                    description: Record ID
-                tenant_id:
-                    type: string
-                    description: tenant ID
-                user_id:
-                    type: string
-                    description: user ID
-                user_name:
-                    type: string
-                    description: user account
-                question:
-                    type: string
-                    description: Natural language question
-                sql:
-                    type: string
-                    description: Generated read-only SQL
-                status:
-                    enum:
-                        - AI_QUERY_STATUS_UNSPECIFIED
-                        - AI_QUERY_STATUS_SUCCESS
-                        - AI_QUERY_STATUS_FAILED
-                    type: string
-                    description: "Query status: enum [AiQueryStatus]"
-                    format: enum
-                row_count:
-                    type: integer
-                    description: Result row count
-                    format: int32
-                elapsed_ms:
-                    type: string
-                    description: SQL execution time in milliseconds
-                error_msg:
-                    type: string
-                    description: Failure reason
-                result_columns:
-                    type: array
-                    items:
-                        type: string
-                    description: Result snapshot column names, returned in details only
-                result_rows:
-                    type: array
-                    items:
-                        $ref: '#/components/schemas/system.admin.v1.AiQueryResultRow'
-                    description: Result snapshot data rows, returned in details only
-                created_at:
-                    type: string
-                    description: Create time
-            description: Smart data query record.
-        system.admin.v1.AiQueryResultRow:
-            type: object
-            properties:
-                values:
-                    type: array
-                    items:
-                        type: string
-                    description: Row data
-            description: AI query result snapshot row.
         system.admin.v1.AiSessionMessageAttachment:
             type: object
             properties:
@@ -17343,19 +18632,6 @@ components:
                     description: total count
                     format: int32
             description: Paginated AI provider response.
-        system.admin.v1.PageAiQueryResponse:
-            type: object
-            properties:
-                queries:
-                    type: array
-                    items:
-                        $ref: '#/components/schemas/system.admin.v1.AiQueryRecord'
-                    description: Smart query record list
-                total:
-                    type: integer
-                    description: total count
-                    format: int32
-            description: Smart data query paginated response.
         system.admin.v1.PageAiSessionMessageResponse:
             type: object
             properties:
@@ -19567,16 +20843,12 @@ tags:
       description: AI provider model options service.
     - name: AiProviderService
       description: AI provider management service.
-    - name: AiQueryService
-      description: Smart data query record management service.
-    - name: AiQueryService
-      description: Base AI assistant smart query service
     - name: AiSearchService
       description: Base AI assistant web search service
     - name: AiSessionService
-      description: Base AI assistant session service
-    - name: AiSessionService
       description: AI session management service.
+    - name: AiSessionService
+      description: Base AI assistant session service
     - name: AiToolService
       description: Base AI assistant tool service
     - name: AuthService
@@ -19604,9 +20876,9 @@ tags:
     - name: BaseDictItemService
       description: admin dictionary item service
     - name: BaseDictService
-      description: app dictionary service
-    - name: BaseDictService
       description: admin dictionary service
+    - name: BaseDictService
+      description: app dictionary service
     - name: BaseFileService
       description: admin file asset management service.
     - name: BaseI18nCustomService
@@ -19626,9 +20898,9 @@ tags:
     - name: BaseLoginPolicyService
       description: admin login policy management service.
     - name: BaseMenuService
-      description: admin menu management service
-    - name: BaseMenuService
       description: app menu service
+    - name: BaseMenuService
+      description: admin menu management service
     - name: BaseMessageCategoryService
       description: Admin message category management service.
     - name: BaseMessageProviderService
@@ -19687,6 +20959,16 @@ tags:
       description: admin tenant management service
     - name: BaseUserService
       description: admin user management service
+    - name: BiCardService
+      description: BI data card and personal workspace service.
+    - name: BiDashboardService
+      description: BI dashboard management service.
+    - name: BiQueryRecordService
+      description: BI Query record management service.
+    - name: BiQueryService
+      description: BI semantic query service.
+    - name: BiSourceService
+      description: BI data source configuration management service.
     - name: CacheService
       description: Admin runtime cache query service.
     - name: CodeGenColumnService
@@ -19714,9 +20996,9 @@ tags:
     - name: NotificationService
       description: Base notification service for the current user's inbox.
     - name: OauthClientService
-      description: Base OAuth client token service.
-    - name: OauthClientService
       description: Admin OAuth client management service.
+    - name: OauthClientService
+      description: Base OAuth client token service.
     - name: OauthService
       description: base third-party login shared service
     - name: OpsMonitoringService

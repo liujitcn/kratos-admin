@@ -129,8 +129,7 @@ export const initDynamicRouter = async () => {
         type: "warning",
         duration: 3000
       });
-      userStore.clearAuthData();
-      router.replace(LOGIN_URL);
+      // 保留登录态由调用方引导到 403 页，避免清除会话后登录页回跳形成重定向循环。
       return Promise.reject("No permission");
     }
 

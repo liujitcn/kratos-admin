@@ -1,0 +1,122 @@
+syntax = "proto3";
+
+package bi.admin.v1;
+
+import "buf/validate/validate.proto";
+import "gnostic/openapi/v3/annotations.proto";
+import "google/api/annotations.proto";
+import "bi/admin/v1/bi_query.proto";
+
+// BI 仪表盘管理服务。
+service BiDashboardService {
+  // 分页查询当前用户可见的仪表盘。
+  rpc PageBiDashboard(PageBiDashboardRequest) returns (PageBiDashboardResponse) {
+    option (google.api.http) = {get: "/api/v1/admin/bi/dashboard"};
+  }
+
+  // 查询仪表盘及当前草稿内容。
+  rpc GetBiDashboard(GetBiDashboardRequest) returns (BiDashboard) {
+    option (google.api.http) = {get: "/api/v1/admin/bi/dashboard/{id}"};
+  }
+
+  // 创建或保存仪表盘草稿。
+  rpc SaveBiDashboard(SaveBiDashboardRequest) returns (BiDashboard) {
+    option (google.api.http) = {
+      post: "/api/v1/admin/bi/dashboard"
+      body: "*"
+    };
+  }
+
+  // 发布仪表盘草稿。
+  rpc PublishBiDashboard(PublishBiDashboardRequest) returns (BiDashboard) {
+    option (google.api.http) = {
+      post: "/api/v1/admin/bi/dashboard/{id}/publish"
+      body: "*"
+    };
+  }
+
+  // 删除仪表盘。
+  rpc DeleteBiDashboard(DeleteBiDashboardRequest) returns (DeleteBiDashboardResponse) {
+    option (google.api.http) = {delete: "/api/v1/admin/bi/dashboard/{id}"};
+  }
+
+  // 执行已发布仪表盘中的全部图表查询。
+  rpc GetBiDashboardData(GetBiDashboardDataRequest) returns (BiDashboardDataResponse) {
+    option (google.api.http) = {get: "/api/v1/admin/bi/dashboard/{id}/data"};
+  }
+}
+
+// BI 仪表盘分页查询条件。
+message PageBiDashboardRequest {
+  string name = 1 [(gnostic.openapi.v3.property) = {description: "仪表盘名称"}]; // 仪表盘名称
+  int64 page_num = 101 [(gnostic.openapi.v3.property) = {description: "页码"}, (buf.validate.field).int64 = {gte: 1, lte: 1000000}]; // 页码
+  int64 page_size = 102 [(gnostic.openapi.v3.property) = {description: "每页数量"}, (buf.validate.field).int64 = {gte: 1, lte: 100}]; // 每页数量
+}
+
+// BI 仪表盘分页响应。
+message PageBiDashboardResponse {
+  repeated BiDashboard dashboards = 1 [(gnostic.openapi.v3.property) = {description: "仪表盘列表"}]; // 仪表盘列表
+  int32 total = 2 [(gnostic.openapi.v3.property) = {description: "总数"}]; // 总数
+}
+
+// 查询 BI 仪表盘请求。
+message GetBiDashboardRequest {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "仪表盘ID"}, (buf.validate.field).int64 = {gt: 0}]; // 仪表盘ID
+}
+
+// 保存 BI 仪表盘请求。
+message SaveBiDashboardRequest {
+  BiDashboard dashboard = 1 [(gnostic.openapi.v3.property) = {description: "仪表盘草稿"}, (buf.validate.field).required = true]; // 仪表盘草稿
+}
+
+// 发布 BI 仪表盘请求。
+message PublishBiDashboardRequest {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "仪表盘ID"}, (buf.validate.field).int64 = {gt: 0}]; // 仪表盘ID
+  int64 version = 2 [(gnostic.openapi.v3.property) = {description: "草稿版本"}, (buf.validate.field).int64 = {gt: 0}]; // 草稿版本
+}
+
+// 删除 BI 仪表盘请求。
+message DeleteBiDashboardRequest {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "仪表盘ID"}, (buf.validate.field).int64 = {gt: 0}]; // 仪表盘ID
+}
+
+// 删除 BI 仪表盘响应。
+message DeleteBiDashboardResponse {}
+
+// 查询已发布仪表盘数据请求。
+message GetBiDashboardDataRequest {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "仪表盘ID"}, (buf.validate.field).int64 = {gt: 0}]; // 仪表盘ID
+  int64 version = 2 [(gnostic.openapi.v3.property) = {description: "发布版本，0表示当前版本"}, (buf.validate.field).int64 = {gte: 0}]; // 发布版本，0表示当前版本
+}
+
+// 仪表盘数据响应。
+message BiDashboardDataResponse {
+  repeated BiDashboardCardResult cards = 1 [(gnostic.openapi.v3.property) = {description: "图表结果"}]; // 图表结果
+  string schema_json = 2 [
+    json_name = "schemaJson",
+    (gnostic.openapi.v3.property) = {description: "本次执行版本的仪表盘Schema JSON"}
+  ]; // 本次执行版本的仪表盘Schema JSON
+}
+
+// 单个图表查询结果。
+message BiDashboardCardResult {
+  string item_id = 1 [json_name = "itemId", (gnostic.openapi.v3.property) = {description: "图表组件ID"}]; // 图表组件ID
+  BiQueryResult result = 2 [(gnostic.openapi.v3.property) = {description: "图表查询结果"}]; // 图表查询结果
+}
+
+// BI 仪表盘记录。
+message BiDashboard {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "仪表盘ID"}]; // 仪表盘ID
+  int64 tenant_id = 2 [(gnostic.openapi.v3.property) = {description: "租户ID"}]; // 租户ID
+  int64 project_id = 3 [(gnostic.openapi.v3.property) = {description: "项目ID，0表示租户级"}]; // 项目ID，0表示租户级
+  string code = 4 [(gnostic.openapi.v3.property) = {description: "仪表盘编码"}]; // 仪表盘编码
+  string name = 5 [(gnostic.openapi.v3.property) = {description: "仪表盘名称"}]; // 仪表盘名称
+  string description = 6 [(gnostic.openapi.v3.property) = {description: "仪表盘说明"}]; // 仪表盘说明
+  int64 owner_id = 7 [(gnostic.openapi.v3.property) = {description: "所有者用户ID"}]; // 所有者用户ID
+  int32 status = 8 [(gnostic.openapi.v3.property) = {description: "状态：1草稿，2已发布，3停用"}]; // 状态：1草稿，2已发布，3停用
+  int64 draft_version = 9 [(gnostic.openapi.v3.property) = {description: "草稿版本"}]; // 草稿版本
+  int64 published_version = 10 [(gnostic.openapi.v3.property) = {description: "已发布版本"}]; // 已发布版本
+  string schema_json = 11 [(gnostic.openapi.v3.property) = {description: "仪表盘Schema JSON"}]; // 仪表盘Schema JSON
+  string updated_at = 12 [(gnostic.openapi.v3.property) = {description: "更新时间"}]; // 更新时间
+  bool can_edit = 13 [(gnostic.openapi.v3.property) = {description: "当前用户是否可编辑"}]; // 当前用户是否可编辑
+}

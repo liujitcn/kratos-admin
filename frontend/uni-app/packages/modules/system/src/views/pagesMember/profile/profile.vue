@@ -391,7 +391,7 @@ const onSubmit = async () => {
 .profile-av-img {
   width: 100%;
   height: 100%;
-  border-radius: 22rpx;
+  border-radius: var(--kratos-page-radius);
 }
 
 /* 表单卡 */
@@ -439,7 +439,7 @@ const onSubmit = async () => {
   font-size: 24rpx;
   line-height: 58rpx;
   border: 1rpx solid var(--kratos-color-border-accent);
-  border-radius: 999rpx;
+  border-radius: var(--kratos-page-radius);
   background: var(--kratos-color-primary-soft);
 
   &::after {

@@ -4,8 +4,16 @@
 
 语言集合：zh-CN, en-US, ja-JP, zh-TW。
 
-AI 工具人工确认的完整初始化包括 `ai_tool_approval.up.sql`、`default_data.up.sql` 中的消息状态 `4` 和管理端 AI 对话菜单审批权限。表内同时保存 Eino checkpoint 和审批状态；终止运行后清空 checkpoint，待确认有效期为 10 分钟。`base_api` 路径由 Proto 路由在启动时同步，确认路由为 `POST /api/v1/base/ai/session/{session_id}/message/{message_id}/approval`。
+管理端一级菜单按 AI 助手 `90000000`、BI 分析 `91000000`、系统管理 `97000000`、Demo 演示 `98000000` 排列；BI 子页面为 `91010000` 至 `91070000`，数据源按钮为 `91050100` 至 `91050400`，角色与译文同步使用这些编号。
+
+BI 表结构由开发库通过 GORM 生成并在启动时自动建表，`default_data.up.sql` 只维护默认数据、菜单和权限。可见菜单依次为工作台、智能问数、卡片库、仪表盘管理、数据源管理；设计器和通用展示页为隐藏路由，问数记录并入历史栏。新工作台保存仪表盘入口，卡片保存来源查询记录及展示配置，不兼容旧数据；应使用全新数据库初始化验证。
+
+BI 查询统一使用 `bi_query`，保存问题、语义查询计划、项目与仪表盘上下文、执行指标和结果快照，结果快照包含列编码、名称和类型，字段采用 MEDIUMTEXT；卡片通过查询记录 ID 追溯来源。
+
+数据源页面仅授予列表与详情读取权限；新增、编辑、删除和启停由对应按钮单独授权，连接测试、数据库选项、表结构发现和模型保存随新增或编辑按钮授权。
+
+AI 工具人工确认表 `ai_tool_approval` 由已注册的 `AiToolApproval` Model 在启用 `enable_migrate` 时自动创建，不重复维护建表 SQL。`default_data.up.sql` 维护消息状态 `4` 和管理端 AI 对话菜单审批权限。表内同时保存 Eino checkpoint 和审批状态；终止运行后清空 checkpoint，待确认有效期为 10 分钟。`base_api` 路径由 Proto 路由在启动时同步，确认路由为 `POST /api/v1/base/ai/session/{session_id}/message/{message_id}/approval`。
 
 `checkpoint_data` 使用 LONGBLOB 保存 zstd 压缩快照；MySQL `max_allowed_packet` 至少为 64 MiB。运行时将编码后的上下文输入限制为 28 MiB，并限制未压缩/压缩快照为 192/48 MiB，保存失败不会生成可执行审批。
 
-存量库不会自动重放本版本；需按开发环境流程重建，或单独建表并更新菜单权限、字典数据。脚本和执行型工具由运行时硬性封闭，不受 `agent_status` 开关绕过。
+存量库启用 `enable_migrate` 后会自动补齐注册模型的表结构，但不会自动重放本版本的初始化数据；菜单权限、字典数据仍需按开发环境流程重建或补齐。脚本和执行型工具由运行时硬性封闭，不受 `agent_status` 开关绕过。

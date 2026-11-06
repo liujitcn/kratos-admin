@@ -35,6 +35,8 @@ core 不依赖 UI 或业务模块；system 只通过 core 和 UI 的公开 expor
 - [system 模块](packages/modules/system/README.md)
 - [项目脚手架](packages/cli/README.md)
 
+普通矩形控件统一使用 `--kratos-page-radius`（默认设计稿 `12px`），与 uni-app 的 `12rpx` 对齐；使用规则见 [UI 基础包](packages/ui/README.md#统一圆角)。
+
 ## 页面装配
 
 `apps/taro-app/src/module-manifest.ts` 是唯一模块清单，声明顺序决定页面、稳定 `viewKey` 和图标的覆盖优先级。模块通过 `defineKratosTaroModule()` 声明运行时能力，通过 `defineKratosTaroBuildModule()` 暴露构建期页面描述。

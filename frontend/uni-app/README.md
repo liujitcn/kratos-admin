@@ -65,6 +65,8 @@ frontend/uni-app
 
 workspace 根目录不再保留旧单体应用的 `src`、`bin` 或空模板目录，业务源码只能位于对应的宿主或 package 内。
 
+普通矩形控件统一使用 `--kratos-page-radius`（默认 `12rpx`），由 core 全局主题维护；页面不再单独设置圆角数值，使用规则见 [应用底座](packages/core/README.md#统一圆角)。
+
 ## 页面装配
 
 宿主在 `apps/uni-app/src/module-manifest.ts` 维护唯一模块清单，顺序决定静态视图覆盖优先级：

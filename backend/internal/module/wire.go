@@ -17,6 +17,7 @@ import (
 	logmiddleware "github.com/liujitcn/kratos-admin/backend/internal/server/middleware/log"
 	"github.com/liujitcn/kratos-admin/backend/internal/service"
 	"github.com/liujitcn/kratos-admin/backend/internal/task"
+	"github.com/liujitcn/kratos-admin/backend/pkg/bi"
 	"github.com/liujitcn/kratos-admin/backend/pkg/projectaccess"
 	"github.com/liujitcn/kratos-admin/backend/pkg/scripting"
 	coreBiz "github.com/liujitcn/kratos-core/biz"
@@ -61,6 +62,7 @@ func BuildModules(
 		logstream.DefaultHub,
 		NewModules,
 		biz.ProviderSet,
+		bi.NewRegistry,
 		biz.MessageProviderSet,
 		data.ProviderSet,
 		service.ProviderSet,

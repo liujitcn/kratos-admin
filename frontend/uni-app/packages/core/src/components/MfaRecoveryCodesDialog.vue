@@ -116,7 +116,7 @@ onBeforeUnmount(() => {
   width: min(100%, 640rpx);
   overflow: hidden;
   background-color: var(--kratos-color-surface-solid);
-  border-radius: 16rpx;
+  border-radius: var(--kratos-page-radius);
   box-shadow: 0 20rpx 64rpx rgb(0 0 0 / 20%);
 }
 
@@ -146,7 +146,7 @@ onBeforeUnmount(() => {
   line-height: 1.6;
   border: 1rpx solid var(--kratos-color-border);
   background-color: var(--kratos-color-surface-2);
-  border-radius: 8rpx;
+  border-radius: var(--kratos-page-radius);
   overflow-wrap: anywhere;
   white-space: pre-wrap;
 }
@@ -162,7 +162,7 @@ onBeforeUnmount(() => {
   line-height: 58rpx;
   background-color: var(--kratos-color-primary-soft);
   border: 0;
-  border-radius: 8rpx;
+  border-radius: var(--kratos-page-radius);
 }
 
 .mfa-recovery-dialog__copy::after,
@@ -199,6 +199,6 @@ onBeforeUnmount(() => {
   line-height: 72rpx;
   background-color: var(--kratos-color-primary);
   border: 0;
-  border-radius: 8rpx;
+  border-radius: var(--kratos-page-radius);
 }
 </style>

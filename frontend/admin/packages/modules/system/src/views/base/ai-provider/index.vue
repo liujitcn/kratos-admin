@@ -618,7 +618,7 @@ async function handleSetStatus(row: AiProvider) {
   color: var(--el-text-color-secondary);
   text-align: center;
   background: var(--el-fill-color-light);
-  border-radius: 6px;
+  border-radius: var(--admin-page-radius);
 }
 .provider-models__list {
   display: flex;
@@ -632,7 +632,7 @@ async function handleSetStatus(row: AiProvider) {
   justify-content: space-between;
   padding: 8px 12px;
   background: var(--el-fill-color-light);
-  border-radius: 6px;
+  border-radius: var(--admin-page-radius);
 }
 .provider-models__content {
   display: flex;

@@ -39,6 +39,8 @@ runtime.RegisterTool("admin", anotherTool)
 不接入权限系统时 `Checker` 保持 `nil`；需要按终端控制工具时实现
 `agent.ToolAccessChecker`。
 
+Runtime 会把调用终端写入工具上下文；工具通过 `agent.TerminalFromContext(ctx)` 读取 `admin` 或 `app`。其他受信工具入口可用 `agent.ContextWithTerminal` 传入终端，数据权限仍由认证身份和业务规则决定。
+
 ## 结构化输出
 
 评论审核、内容提取等业务可以复用公共聊天客户端和结构化运行器，不需要引用
@@ -56,6 +58,8 @@ err = runner.Generate(ctx, instruction, []*agent.Part{
 	agent.ImageURLPart(imageURL),
 }, schema, &result)
 ```
+
+Runtime 也会通过 `agent.ContextWithAssistantClient` 传递本轮已解析的模型客户端。BI 等业务工具可用 `agent.AssistantClientFromContext` 沿用本轮模型；直接业务请求再按自身的模型参数解析。
 
 ## 人工确认
 

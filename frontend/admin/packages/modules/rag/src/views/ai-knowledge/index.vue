@@ -655,7 +655,7 @@ loadModelOptions();
 .rag-knowledge-search__item {
   padding: 10px 12px;
   border: 1px solid var(--el-border-color-lighter);
-  border-radius: 6px;
+  border-radius: var(--admin-page-radius);
 }
 
 .rag-knowledge-search__meta {

@@ -1,4 +1,10 @@
 {
+  "base.ai.approval.message_id.positive": {
+    "other": "消息编号不合法"
+  },
+  "base.ai.approval.session_id.positive": {
+    "other": "会话编号不合法"
+  },
   "base.ai.message.attachment_prompt": {
     "other": "请结合附件内容继续分析"
   },
@@ -344,6 +350,159 @@
   "base.v1.secret_crypto.reveal.resource.required": {
     "other": "资源标识不能为空"
   },
+  "bi.admin.source.code.required": {
+    "other": "请输入数据源编码"
+  },
+  "bi.admin.source.name.required": {
+    "other": "请输入数据源名称"
+  },
+  "bi.query_record.description.dashboard_version": {
+    "other": "仪表盘版本"
+  },
+  "bi.query_record.description.elapsed_ms": {
+    "other": "查询耗时毫秒，问数包含模型生成耗时"
+  },
+  "bi.query_record.description.list": {
+    "other": "分页查询 BI 问数、预览、卡片和仪表盘执行记录。"
+  },
+  "bi.query_record.description.query_hash": {
+    "other": "查询计划哈希"
+  },
+  "bi.query_record.description.query_json": {
+    "other": "语义查询计划JSON"
+  },
+  "bi.query_record.description.question": {
+    "other": "自然语言问题，非问数查询为空"
+  },
+  "bi.query_record.description.truncated": {
+    "other": "是否截断：0否，1是"
+  },
+  "bi_card.name.required": {
+    "other": "请输入卡片名称"
+  },
+  "bi_card.openapi.005aa123d25c": {
+    "other": "是否共享到当前项目范围"
+  },
+  "bi_card.openapi.009744571b72": {
+    "other": "他人分享的卡片数量"
+  },
+  "bi_card.openapi.07331147707f": {
+    "other": "BI 数据卡片与个人工作台服务。"
+  },
+  "bi_card.openapi.0dc3f431fb45": {
+    "other": "分页查询当前用户可见的数据卡片。"
+  },
+  "bi_card.openapi.0de1b165b1e1": {
+    "other": "自动刷新间隔秒数，86400表示每日02:00"
+  },
+  "bi_card.openapi.1a4dfdc21e5f": {
+    "other": "保存数据卡片请求。"
+  },
+  "bi_card.openapi.1d28f61085fa": {
+    "other": "当前用户是否可编辑"
+  },
+  "bi_card.openapi.20e77a9e71a8": {
+    "other": "删除数据卡片响应。"
+  },
+  "bi_card.openapi.2134601b97c0": {
+    "other": "个人工作台配置与可见卡片。"
+  },
+  "bi_card.openapi.262e68e1d7bc": {
+    "other": "自己创建的卡片数量"
+  },
+  "bi_card.openapi.2a826bce2843": {
+    "other": "数据卡片分类数量。"
+  },
+  "bi_card.openapi.2ecd19ce97bb": {
+    "other": "全部卡片数量"
+  },
+  "bi_card.openapi.3a25d9cc0660": {
+    "other": "数据卡片分页结果。"
+  },
+  "bi_card.openapi.3a464134e806": {
+    "other": "卡片ID，0表示新建"
+  },
+  "bi_card.openapi.3e5bb084dafe": {
+    "other": "系统卡片数量"
+  },
+  "bi_card.openapi.4c7e87f9cc5d": {
+    "other": "收藏卡片ID"
+  },
+  "bi_card.openapi.580bce06b222": {
+    "other": "工作台中当前可见的卡片"
+  },
+  "bi_card.openapi.5f43e6d95395": {
+    "other": "数据卡片"
+  },
+  "bi_card.openapi.61654ee8cfec": {
+    "other": "保存个人工作台请求。"
+  },
+  "bi_card.openapi.623e966e7555": {
+    "other": "所有者用户ID，0表示系统内置"
+  },
+  "bi_card.openapi.6bccd87e0adf": {
+    "other": "卡片ID"
+  },
+  "bi_card.openapi.6fbb255e657c": {
+    "other": "数据卡片配置。"
+  },
+  "bi_card.openapi.79cda09042ff": {
+    "other": "工作台卡片ID，按展示顺序排列"
+  },
+  "bi_card.openapi.81d834a8948c": {
+    "other": "自动刷新间隔秒数，0表示手动，86400表示每日02:00"
+  },
+  "bi_card.openapi.905668622d44": {
+    "other": "在当前用户权限范围内执行卡片查询。"
+  },
+  "bi_card.openapi.9ca189b4a720": {
+    "other": "保存当前用户的工作台顺序与收藏。"
+  },
+  "bi_card.openapi.a41ec76ecac2": {
+    "other": "卡片名称"
+  },
+  "bi_card.openapi.ae1df30215e7": {
+    "other": "工作台卡片ID，最多50张且不重复"
+  },
+  "bi_card.openapi.b253c3e5ffbc": {
+    "other": "数据卡片记录。"
+  },
+  "bi_card.openapi.b45c0ca52ac2": {
+    "other": "分类：system系统、mine自建、shared分享"
+  },
+  "bi_card.openapi.ba08c496cd30": {
+    "other": "收藏卡片数量"
+  },
+  "bi_card.openapi.c779cc4cd584": {
+    "other": "获取当前用户的工作台与收藏。"
+  },
+  "bi_card.openapi.cc2e617e0f66": {
+    "other": "收藏卡片ID，最多50张且不重复"
+  },
+  "bi_card.openapi.d5a10a84415d": {
+    "other": "删除自己的数据卡片。"
+  },
+  "bi_card.openapi.d6da6a158b2a": {
+    "other": "是否共享"
+  },
+  "bi_card.openapi.e8e62c6fa703": {
+    "other": "创建或修改自己的数据卡片。"
+  },
+  "bi_card.range_days.valid": {
+    "other": "仅支持卡片配置、近7日或近30日"
+  },
+  "bi_card.refresh_seconds.range": {
+    "other": "刷新间隔应为0或30至86400秒"
+  },
+  "bi_workbench.card_ids.valid": {
+    "other": "工作台最多50张卡片，ID须为正数且不重复"
+  },
+  "bi_workbench.dashboard_ids.valid": {
+    "other": "工作台最多50个仪表盘，ID须为正数且不重复"
+  },
+  "bi_workbench.favorite_ids.valid": {
+    "other": "最多收藏50张卡片，ID须为正数且不重复"
+  },
   "common.action.create_resource": {
     "other": "新增{resource}"
   },
@@ -431,6 +590,9 @@
   "legacy.error.0196b093ca02959f": {
     "other": "更新角色失败，不能修改内置角色编码"
   },
+  "legacy.error.01c8029537c813fd": {
+    "other": "关闭数据库表结构查询失败"
+  },
   "legacy.error.01c9d0be20537d49": {
     "other": "联网搜索地址配置异常"
   },
@@ -442,6 +604,9 @@
   },
   "legacy.error.020eaa6e9305844c": {
     "other": "当前时间不允许登录"
+  },
+  "legacy.error.0224ce0d4c9763eb": {
+    "other": "新增项目审批所属租户无效"
   },
   "legacy.error.02f1a3ae0f4c961f": {
     "other": "所选接口与已有策略存在相同限流维度"
@@ -461,6 +626,9 @@
   "legacy.error.03e6e6dd32bbae1d": {
     "other": "模型名称不能为空且不能超过200个字符"
   },
+  "legacy.error.046589dfdbb5d3cb": {
+    "other": "新建独立数据库连接时密码不能为空"
+  },
   "legacy.error.04a6034f8c1bdf2e": {
     "other": "项目授权必须为安全正整数数组，全部授权只能使用[0]"
   },
@@ -473,8 +641,14 @@
   "legacy.error.04d0cca843621bab": {
     "other": "请配置模型API密钥后再测试"
   },
+  "legacy.error.05150c4d72f90d46": {
+    "other": "字段编码、名称和物理列不能为空"
+  },
   "legacy.error.05b48898d3eb38b6": {
     "other": "读取数据表元数据失败"
+  },
+  "legacy.error.05db1e230bf8ee93": {
+    "other": "数据库驱动不支持"
   },
   "legacy.error.0613b78ae7041646": {
     "other": "删除出库脱敏策略失败"
@@ -482,14 +656,23 @@
   "legacy.error.066abfeb67fd7b94": {
     "other": "分页查询API列表失败"
   },
+  "legacy.error.067118c2b128c55f": {
+    "other": "不能重试其他租户的脚本"
+  },
   "legacy.error.06c4f81359c8cccd": {
     "other": "上级部门不能是自身"
   },
   "legacy.error.06c5c603bfde8e01": {
     "other": "数据库表名格式不正确"
   },
+  "legacy.error.06c61ec15c9666e6": {
+    "other": "读取当前数据库名称失败"
+  },
   "legacy.error.06d043cf0c992b56": {
     "other": "限流规则已停用，不能用于接口策略"
+  },
+  "legacy.error.07169436625cbd35": {
+    "other": "任务已被处理或转办"
   },
   "legacy.error.0761a956d76e9f97": {
     "other": "多因素认证绑定票据已失效"
@@ -557,8 +740,17 @@
   "legacy.error.0a7b29f34faeda2d": {
     "other": "发送验证码失败"
   },
+  "legacy.error.0a7fb1b3f8eaf265": {
+    "other": "获取 BI 数据库连接失败"
+  },
   "legacy.error.0ad5ac1b6de56f07": {
     "other": "登录策略不存在"
+  },
+  "legacy.error.0af53829eb85ec21": {
+    "other": "删除 BI 数据源失败"
+  },
+  "legacy.error.0b38823ed34c2c02": {
+    "other": "流程仅支持 JavaScript 脚本"
   },
   "legacy.error.0b8c6c4bfc046e48": {
     "other": "规则状态无效"
@@ -568,6 +760,9 @@
   },
   "legacy.error.0c3357178bf356f4": {
     "other": "更新接口限流策略失败"
+  },
+  "legacy.error.0c349c765bb1630c": {
+    "other": "当前仅支持 JavaScript 脚本"
   },
   "legacy.error.0c3f314f627082c1": {
     "other": "查询字典属性分页列表失败"
@@ -587,8 +782,14 @@
   "legacy.error.0d38b9f361e60e0e": {
     "other": "消息已被其他人修改，请刷新后重试"
   },
+  "legacy.error.0dbf60614597b70f": {
+    "other": "选中的数据表已不存在，请重新发现表结构"
+  },
   "legacy.error.0dffb0e02ff26b50": {
     "other": "查询代码生成任务进度失败"
+  },
+  "legacy.error.0e01a87b0d86090d": {
+    "other": "AI运行状态已变化，不能保存审批"
   },
   "legacy.error.0e02ebd3b1522e8e": {
     "other": "更新菜单失败"
@@ -605,6 +806,9 @@
   "legacy.error.0e578ecd3aeab2fd": {
     "other": "编码 WebAuthn 注册选项失败"
   },
+  "legacy.error.0e953f80478aa9ed": {
+    "other": "同一租户的流程编码与版本重复"
+  },
   "legacy.error.0f1a25c888980db7": {
     "other": "创建AI知识库失败"
   },
@@ -620,6 +824,9 @@
   "legacy.error.0fc85039279b8b71": {
     "other": "删除项目失败"
   },
+  "legacy.error.1017884009a421be": {
+    "other": "指标聚合函数与数据库字段类型不匹配"
+  },
   "legacy.error.10506d539567bc0d": {
     "other": "创建 WebAuthn 禁用挑战失败"
   },
@@ -632,8 +839,14 @@
   "legacy.error.10c1ec9fad526657": {
     "other": "撤销用户登录令牌失败"
   },
+  "legacy.error.110ac6a7d5ebc383": {
+    "other": "数据卡片不存在"
+  },
   "legacy.error.1120563ed5b635f4": {
     "other": "手机号已被占用"
+  },
+  "legacy.error.11246289bb29a05e": {
+    "other": "数据源语义模型超过大小限制"
   },
   "legacy.error.119edf9016dac56b": {
     "other": "执行备份恢复失败"
@@ -647,6 +860,12 @@
   "legacy.error.1252b0cf293d5df2": {
     "other": "保存多因素认证绑定票据失败"
   },
+  "legacy.error.12880bf977139081": {
+    "other": "校验租户审批关联失败"
+  },
+  "legacy.error.12ceb1313032276b": {
+    "other": "查询 MQTT 消息详情失败"
+  },
   "legacy.error.12d4e553e5368399": {
     "other": "Provider个性化配置无效"
   },
@@ -658,6 +877,9 @@
   },
   "legacy.error.13d2e1e8985487d2": {
     "other": "当前认证方式不需要 WebAuthn 验证"
+  },
+  "legacy.error.13d9db4a12e72986": {
+    "other": "指标卡和仪表图需要不分组的查询结果"
   },
   "legacy.error.13dc7c0d91a6fcaf": {
     "other": "查询智能问数记录详情失败"
@@ -674,6 +896,12 @@
   "legacy.error.14371b5324ef93e4": {
     "other": "设置主语言失败"
   },
+  "legacy.error.143f1e9772b24277": {
+    "other": "工作台和收藏分别最多50张卡片"
+  },
+  "legacy.error.1456d3981707f770": {
+    "other": "删除流程定义失败，仅草稿状态可删除"
+  },
   "legacy.error.1464dd4a73b2a25b": {
     "other": "解析AI Provider个性化配置失败"
   },
@@ -686,14 +914,23 @@
   "legacy.error.14dc349eb32ebb06": {
     "other": "创建消息模板失败"
   },
+  "legacy.error.14e9541958eaf29c": {
+    "other": "仪表盘尚未发布"
+  },
   "legacy.error.14eae20685387649": {
     "other": "消息动作目标不能超过255个字符"
   },
   "legacy.error.152a0d8516f025d6": {
     "other": "limit 必须在 1 到 %d 之间"
   },
+  "legacy.error.154bb194d8d7704f": {
+    "other": "查询脚本执行日志失败"
+  },
   "legacy.error.1572896dd8ea2149": {
     "other": "文件元数据仓储未配置"
+  },
+  "legacy.error.1593dca0dfa86346": {
+    "other": "任务已被处理"
   },
   "legacy.error.15de1844824e8acf": {
     "other": "微信登录凭据无效"
@@ -713,11 +950,17 @@
   "legacy.error.168485da154caef3": {
     "other": "查询项目授权分页列表失败"
   },
+  "legacy.error.1689611862abe259": {
+    "other": "指标卡不能选择分组维度"
+  },
   "legacy.error.1706c4959e58af6a": {
     "other": "删除项目失败，项目不存在"
   },
   "legacy.error.1708cff4d379a80e": {
     "other": "保存 WebAuthn 绑定票据失败"
+  },
+  "legacy.error.170d7e87736e41ab": {
+    "other": "打开 BI 数据源失败"
   },
   "legacy.error.172798ff29ffcc90": {
     "other": "删除角色失败，不能删除默认角色"
@@ -730,6 +973,9 @@
   },
   "legacy.error.174453c31c654750": {
     "other": "消息正文清洗后不能为空"
+  },
+  "legacy.error.17513f0b76033b88": {
+    "other": "通知动作参数无效"
   },
   "legacy.error.175e2e193a614cee": {
     "other": "验证码令牌消费失败"
@@ -764,6 +1010,9 @@
   "legacy.error.19803e49d77d7763": {
     "other": "更新角色失败，不能修改默认角色状态"
   },
+  "legacy.error.19e303eaf75621aa": {
+    "other": "BI 时间范围不可用"
+  },
   "legacy.error.1a09a09d2d75fb94": {
     "other": "菜单创建后不允许更换父级"
   },
@@ -784,6 +1033,9 @@
   },
   "legacy.error.1b8c5c49d6878d19": {
     "other": "读取微信登录配置失败"
+  },
+  "legacy.error.1be13391c90d0c32": {
+    "other": "试运行流程脚本失败"
   },
   "legacy.error.1bf41abcd3c3a692": {
     "other": "文档未保存原始文件，无法重试，请删除后重新上传"
@@ -818,6 +1070,9 @@
   "legacy.error.1d5eca3ba22a1f89": {
     "other": "查询租户用户失败"
   },
+  "legacy.error.1d65089c82e93a8f": {
+    "other": "BI 数据源不存在"
+  },
   "legacy.error.1db7bf52e1db8bbc": {
     "other": "上级部门与所属租户不一致"
   },
@@ -851,6 +1106,9 @@
   "legacy.error.202c0d21ae9faf03": {
     "other": "保护多因素认证密钥失败"
   },
+  "legacy.error.2059cc6d984d24a6": {
+    "other": "被委托人无效"
+  },
   "legacy.error.20da88183ea92106": {
     "other": "创建国际化自定义翻译失败"
   },
@@ -866,11 +1124,17 @@
   "legacy.error.2128a7376d079312": {
     "other": "文件路径不允许使用绝对路径"
   },
+  "legacy.error.21a5509ce518ca64": {
+    "other": "生成 BI 数据源目录失败"
+  },
   "legacy.error.21fa23c0f931e551": {
     "other": "创建多因素认证挑战失败"
   },
   "legacy.error.2242abaaa50d1dc3": {
     "other": "出库脱敏策略不存在"
+  },
+  "legacy.error.224ee6da67e2c49e": {
+    "other": "仪表盘草稿版本已变化，请刷新后重试"
   },
   "legacy.error.2267986a1e381ebd": {
     "other": "登录页地址无效"
@@ -883,6 +1147,9 @@
   },
   "legacy.error.2339340aba3669da": {
     "other": "获取用户信息失败"
+  },
+  "legacy.error.233a1cb83044d300": {
+    "other": "查询 BI 数据源目录失败"
   },
   "legacy.error.234c138d7e2973f8": {
     "other": "读取登录策略状态失败"
@@ -899,11 +1166,20 @@
   "legacy.error.23a96f3371e92fc8": {
     "other": "删除脱敏规则失败"
   },
+  "legacy.error.23b476d2ff5c6a0d": {
+    "other": "不是您的审批任务"
+  },
+  "legacy.error.23c256532945f3f2": {
+    "other": "BI 数据源表关系未从事实表连通"
+  },
   "legacy.error.241051568bef8e2e": {
     "other": "字段加密算法无效"
   },
   "legacy.error.2468b2acc984ef68": {
     "other": "机器翻译草稿功能未启用"
+  },
+  "legacy.error.246aed7b4eafe3bc": {
+    "other": "数据库 Schema 不合法"
   },
   "legacy.error.24d27137f8387e6f": {
     "other": "移动端页面下只能创建页面菜单"
@@ -913,6 +1189,9 @@
   },
   "legacy.error.254cc892d3964cfb": {
     "other": "查询登录结果分布失败"
+  },
+  "legacy.error.254f007cd9859a8b": {
+    "other": "工作台和收藏分别最多50项"
   },
   "legacy.error.25975f21342bc053": {
     "other": "多个文件上传失败"
@@ -929,11 +1208,17 @@
   "legacy.error.25deb89aa8542274": {
     "other": "父级菜单ID不符合菜单编号层级规则"
   },
+  "legacy.error.2613784f837f2081": {
+    "other": "查询 BI 数据源失败"
+  },
   "legacy.error.26743666f680a06d": {
     "other": "限流规则ID不能为空"
   },
   "legacy.error.26a80f169b515e97": {
     "other": "查询字典失败"
+  },
+  "legacy.error.26a98594498a94ca": {
+    "other": "租户编码不能为空"
   },
   "legacy.error.2703b88803392bf3": {
     "other": "查询AI知识库选项失败"
@@ -944,11 +1229,20 @@
   "legacy.error.27071404c9de8a94": {
     "other": "验证码令牌保存失败"
   },
+  "legacy.error.2756cd89149303b6": {
+    "other": "语义维度必须映射到已选表中的同类型字段"
+  },
   "legacy.error.2791c0708e5e304c": {
     "other": "查询AI供应商失败"
   },
+  "legacy.error.279970960cdc7d86": {
+    "other": "未找到业务单据关联的流程实例"
+  },
   "legacy.error.27c12cba0463a64f": {
     "other": "登录地区命中黑名单"
+  },
+  "legacy.error.2800470b2bba28f6": {
+    "other": "更新 BI 数据源失败"
   },
   "legacy.error.282efea07da3b268": {
     "other": "表单配置的位置、类型和编码不可修改"
@@ -971,6 +1265,9 @@
   "legacy.error.291d427436dbaf83": {
     "other": "获取密码策略失败"
   },
+  "legacy.error.29290718ec0b858f": {
+    "other": "读取当前数据库 Schema 失败"
+  },
   "legacy.error.2937cc9333bbb190": {
     "other": "开启只读事务失败"
   },
@@ -983,11 +1280,17 @@
   "legacy.error.29c2f394b38444b3": {
     "other": "已有启用的出库脱敏策略引用该规则，请先停用引用策略"
   },
+  "legacy.error.29df9b342346ad59": {
+    "other": "请先加入至少一张数据卡片"
+  },
   "legacy.error.29ebf2e88f812e63": {
     "other": "三方账号未绑定"
   },
   "legacy.error.29f371ada01e1053": {
     "other": "保存多因素认证恢复码失败"
+  },
+  "legacy.error.29f4637294cdc134": {
+    "other": "图表引用了查询结果不存在的字段"
   },
   "legacy.error.29fe5b349e7c8101": {
     "other": "岗位已被禁用，不能选择"
@@ -1009,6 +1312,9 @@
   },
   "legacy.error.2bcdb4bb0f0550e6": {
     "other": "设置角色菜单权限失败，不能分配超出权限上限的菜单权限"
+  },
+  "legacy.error.2bf0ca2e14dbf0a8": {
+    "other": "流程节点图配置异常"
   },
   "legacy.error.2c1c5b8f80033e01": {
     "other": "读取密码策略配置失败"
@@ -1037,11 +1343,17 @@
   "legacy.error.2d170c005d708f0e": {
     "other": "读取客户端认证失败状态失败"
   },
+  "legacy.error.2d4f74e7a98cbdd3": {
+    "other": "BI 数据源配置ID无效"
+  },
   "legacy.error.2d98325ea8ebe8a4": {
     "other": "会话不存在"
   },
   "legacy.error.2da97a9d0e6f12e4": {
     "other": "查询包含租户ID的数据表失败"
+  },
+  "legacy.error.2dcf0a202b5aa077": {
+    "other": "脚本节点不存在"
   },
   "legacy.error.2de441703db096ce": {
     "other": "系统配置内容无效"
@@ -1052,6 +1364,12 @@
   "legacy.error.2e1aa6824e89cd3e": {
     "other": "查询项目分页列表失败"
   },
+  "legacy.error.2e9e8485207551ae": {
+    "other": "工具接口契约不存在"
+  },
+  "legacy.error.2eb4c634e73c7c20": {
+    "other": "脚本ID列表不能为空"
+  },
   "legacy.error.2ec2a0c6920bee1e": {
     "other": "实时控制台频道不能为空"
   },
@@ -1060,6 +1378,9 @@
   },
   "legacy.error.2f049ea5e2d27c12": {
     "other": "读取绑定租户失败"
+  },
+  "legacy.error.2f173bbdd8aabbbb": {
+    "other": "实例流程快照无效"
   },
   "legacy.error.2f92c31da328aeba": {
     "other": "删除用户失败，不能删除内置管理员账号"
@@ -1072,6 +1393,9 @@
   },
   "legacy.error.2fedf7ac89c458d3": {
     "other": "读取数据表字段元数据失败"
+  },
+  "legacy.error.2ff36648250506aa": {
+    "other": "加签用户无效"
   },
   "legacy.error.2ffd8c27873e2d27": {
     "other": "AI Provider标识无效"
@@ -1096,6 +1420,9 @@
   },
   "legacy.error.31280f278d823685": {
     "other": "菜单路径已存在"
+  },
+  "legacy.error.3198350bdf120177": {
+    "other": "脚本源码不能为空"
   },
   "legacy.error.31b4abb95ec6dd56": {
     "other": "归档模式无效"
@@ -1124,6 +1451,9 @@
   "legacy.error.326cefee542b4c0d": {
     "other": "AI模型状态无效"
   },
+  "legacy.error.32de8478e8559092": {
+    "other": "BI 数据源不存在或未启用"
+  },
   "legacy.error.330dd2d11fcdadbb": {
     "other": "测试AI模型失败"
   },
@@ -1135,6 +1465,12 @@
   },
   "legacy.error.3333e1755cbd096d": {
     "other": "数据库字段不存在"
+  },
+  "legacy.error.334c34185a2d0f07": {
+    "other": "保存发布快照失败"
+  },
+  "legacy.error.33b665911d371252": {
+    "other": "卡片名称和查询配置无效"
   },
   "legacy.error.33cd4ce5ee01fa4c": {
     "other": "Proto接口配置不在当前检查结果中"
@@ -1148,11 +1484,17 @@
   "legacy.error.3469afe93c5e18c4": {
     "other": "出库脱敏策略状态无效"
   },
+  "legacy.error.347070fc997f7568": {
+    "other": "校验项目审批关联失败"
+  },
   "legacy.error.35323e14c1481ad4": {
     "other": "加载OAuth登录方式配置失败"
   },
   "legacy.error.35899c9b41798f9c": {
     "other": "删除消息分类失败，分类不存在"
+  },
+  "legacy.error.359210281db55f21": {
+    "other": "新增项目审批业务关联无效"
   },
   "legacy.error.3645acb13cba03bc": {
     "other": "多因素认证挑战已失效"
@@ -1190,8 +1532,14 @@
   "legacy.error.39fef6385cd1e4ce": {
     "other": "不能查询其他租户的项目授权"
   },
+  "legacy.error.3a0e3d1ee5791c6c": {
+    "other": "仪表盘草稿版本已变化"
+  },
   "legacy.error.3a2fde07feec27e2": {
     "other": "流式响应不支持"
+  },
+  "legacy.error.3a48ba301b1a4d4c": {
+    "other": "遍历配置数据源结果失败"
   },
   "legacy.error.3a64745b27f68327": {
     "other": "校验菜单路径失败"
@@ -1213,6 +1561,9 @@
   },
   "legacy.error.3adfff798e9b6a1e": {
     "other": "初始化租户默认部门失败"
+  },
+  "legacy.error.3b20680a1792fa16": {
+    "other": "当前租户的数据源编码已存在"
   },
   "legacy.error.3b77b280d4265902": {
     "other": "查询AI会话失败"
@@ -1238,8 +1589,14 @@
   "legacy.error.3c2c77928163020e": {
     "other": "图片、字典和布尔配置值不支持翻译"
   },
+  "legacy.error.3c68e430f00780ee": {
+    "other": "保存仪表盘布局失败"
+  },
   "legacy.error.3c6cd7a93b0d400a": {
     "other": "消息过期时间必须晚于当前时间"
+  },
+  "legacy.error.3c717f1dd2b1eb26": {
+    "other": "无法确定数据库 Schema，请在连接配置中填写"
   },
   "legacy.error.3c832fb81c6829ba": {
     "other": "全局策略不能设置租户或用户"
@@ -1259,11 +1616,20 @@
   "legacy.error.3d7953d9d4128c4d": {
     "other": "出库脱敏只支持 GET 接口"
   },
+  "legacy.error.3da415f938fb011b": {
+    "other": "校验租户审批来源失败"
+  },
+  "legacy.error.3daaf675f351d2bf": {
+    "other": "仅支持卡片配置、近7日或近30日"
+  },
   "legacy.error.3de4efbfbc877881": {
     "other": "上级行政区域不能是自身或其下级"
   },
   "legacy.error.3df67385ca02d8d9": {
     "other": "查询限流规则选项失败"
+  },
+  "legacy.error.3e2415e298964c24": {
+    "other": "图表配置格式无效"
   },
   "legacy.error.3e26555b667f0ece": {
     "other": "已有出库脱敏策略引用该规则，不能删除"
@@ -1292,8 +1658,17 @@
   "legacy.error.3fcc79cd186820d6": {
     "other": "查询OpenAPI文档选项列表失败"
   },
+  "legacy.error.4040fba6e5d004ad": {
+    "other": "查询条件已变化，请重新问数后保存卡片"
+  },
+  "legacy.error.4070e624fd8a26e8": {
+    "other": "保存图表配置失败"
+  },
   "legacy.error.4081e8ae5ebee83d": {
     "other": "创建限流规则失败"
+  },
+  "legacy.error.412e9898702f7499": {
+    "other": "删除 BI 仪表盘失败"
   },
   "legacy.error.415c70ceebc9339a": {
     "other": "密码最小长度必须大于零"
@@ -1312,6 +1687,9 @@
   },
   "legacy.error.424b444c31bcfe1f": {
     "other": "批量生成定义冲突"
+  },
+  "legacy.error.424ef3bf19c0731c": {
+    "other": "节点图配置无效"
   },
   "legacy.error.42531d74e8c7d2b7": {
     "other": "Proto接口配置不能为空"
@@ -1340,14 +1718,23 @@
   "legacy.error.434234568b7ce4f4": {
     "other": "更新语言失败"
   },
+  "legacy.error.4348feb419bc4342": {
+    "other": "只有默认租户可以执行新增项目审批动作"
+  },
   "legacy.error.435d2092fabb1d0c": {
     "other": "构造消息 Provider %d(%s) 失败: %w"
   },
   "legacy.error.43ac2c9a541832d6": {
     "other": "查询可入库脱敏数据表失败"
   },
+  "legacy.error.43c19b4f281561f4": {
+    "other": "between过滤条件需要两个值"
+  },
   "legacy.error.43c2f70a29b0150b": {
     "other": "tokens_per_second 必须在 %g 到 %g 之间"
+  },
+  "legacy.error.43ff9b33e2653511": {
+    "other": "查询 BI 仪表盘数据失败"
   },
   "legacy.error.44542c22a668344a": {
     "other": "设置文件扫描临时文件权限失败"
@@ -1361,6 +1748,12 @@
   "legacy.error.44670a4145535bf4": {
     "other": "转换左树配置失败"
   },
+  "legacy.error.4469a9509ea2865a": {
+    "other": "BI 数据源表模型无效"
+  },
+  "legacy.error.446c05bbcf853ae6": {
+    "other": "Agent工具未启用"
+  },
   "legacy.error.44885987e1e7fc05": {
     "other": "租户编号已用完"
   },
@@ -1369,6 +1762,12 @@
   },
   "legacy.error.44b45b049ae6f2a2": {
     "other": "查询开放授权客户端凭据失败"
+  },
+  "legacy.error.44da1869e0376a29": {
+    "other": "转办目标用户无效"
+  },
+  "legacy.error.452e3daf17a58e96": {
+    "other": "获取个人工作台失败"
   },
   "legacy.error.453122ec31407492": {
     "other": "OAuth Scope配置无效"
@@ -1394,6 +1793,9 @@
   "legacy.error.45fd3e95d5189cee": {
     "other": "查询用户三方账号标识失败"
   },
+  "legacy.error.4608a748e161e339": {
+    "other": "查询审批任务详情失败"
+  },
   "legacy.error.4626b149e2036433": {
     "other": "关闭日志压缩流失败"
   },
@@ -1415,6 +1817,9 @@
   "legacy.error.477bb0945b48c9a0": {
     "other": "查询登录日志详情失败"
   },
+  "legacy.error.47a58292ae95d795": {
+    "other": "审批工具参数损坏"
+  },
   "legacy.error.47bf6383bace0dfd": {
     "other": "更新用户失败"
   },
@@ -1433,6 +1838,9 @@
   "legacy.error.484f0d7c707f3db3": {
     "other": "还原代码生成结果失败"
   },
+  "legacy.error.488a83cdadc0d421": {
+    "other": "新增租户审批业务关联无效"
+  },
   "legacy.error.48aa6dc021aefeea": {
     "other": "登录策略状态无效"
   },
@@ -1442,6 +1850,9 @@
   "legacy.error.4901070bdec3330a": {
     "other": "查询数据访问日志详情失败"
   },
+  "legacy.error.490b5cd41129c88f": {
+    "other": "查询审批委托失败"
+  },
   "legacy.error.49895dd434859396": {
     "other": "创建岗位失败"
   },
@@ -1450,6 +1861,9 @@
   },
   "legacy.error.499e50f8a502df9f": {
     "other": "查询入库脱敏策略详情失败"
+  },
+  "legacy.error.49b9ce570fb7f0e7": {
+    "other": "读取配置数据源结果失败"
   },
   "legacy.error.49e95fc46747e658": {
     "other": "确认强制绑定多因素认证失败"
@@ -1475,6 +1889,9 @@
   "legacy.error.4b161abdbb32e7d8": {
     "other": "统计开始时间无效"
   },
+  "legacy.error.4b22686799e196a2": {
+    "other": "修改 BI 数据源状态失败"
+  },
   "legacy.error.4b4740ead55343e1": {
     "other": "轮换客户端凭据失败"
   },
@@ -1496,8 +1913,14 @@
   "legacy.error.4c555c9a85f1bc09": {
     "other": "清理旧登录会话失败"
   },
+  "legacy.error.4c65796a83996bb1": {
+    "other": "卡片ID须为正数且不重复"
+  },
   "legacy.error.4c7474b9aece0829": {
     "other": "创建AI供应商失败"
+  },
+  "legacy.error.4c7c6936111e1e5d": {
+    "other": "保存 BI 仪表盘失败"
   },
   "legacy.error.4cd0aa2f83038a4d": {
     "other": "更新代码生成表配置失败"
@@ -1510,6 +1933,9 @@
   },
   "legacy.error.4d2311ea76ac1eff": {
     "other": "表级国际化配置格式错误"
+  },
+  "legacy.error.4d48785e7ebd39fb": {
+    "other": "审批已失效或已处理"
   },
   "legacy.error.4d5562070c003b98": {
     "other": "查询国际化自定义翻译分页列表失败"
@@ -1526,8 +1952,17 @@
   "legacy.error.4e29312694e6b8ba": {
     "other": "创建角色失败"
   },
+  "legacy.error.4e85ed12d1f85f75": {
+    "other": "请选择当前账号和项目下成功的查询记录"
+  },
+  "legacy.error.4e87b18fb42af3c4": {
+    "other": "BI 问数结果不是有效查询计划"
+  },
   "legacy.error.4eac7c4f6e499baa": {
     "other": "查询角色失败"
+  },
+  "legacy.error.4ebafd9f1ba3e747": {
+    "other": "事实表必须包含在选中的数据表中"
   },
   "legacy.error.4ed8854ac5648878": {
     "other": "消息来源、幂等键或发送者名称长度无效"
@@ -1541,6 +1976,9 @@
   "legacy.error.4f98589ed2ce7172": {
     "other": "语言代码必须是有效的语言代码"
   },
+  "legacy.error.4fdff590d3a88345": {
+    "other": "读取数据库表结构失败"
+  },
   "legacy.error.4ffe6a7d0728688a": {
     "other": "生成动态口令校验值失败"
   },
@@ -1549,6 +1987,9 @@
   },
   "legacy.error.5046c2110be55873": {
     "other": "读取多因素认证策略失败"
+  },
+  "legacy.error.508e0bd781aa07f1": {
+    "other": "无权访问仪表盘草稿"
   },
   "legacy.error.513deff78da44959": {
     "other": "同一位置的配置键重复"
@@ -1562,11 +2003,20 @@
   "legacy.error.516db9f035cc5c99": {
     "other": "验证码类型保存失败"
   },
+  "legacy.error.51ab852fc75caab8": {
+    "other": "分页查询数据卡片失败"
+  },
+  "legacy.error.51c27a5266d7b445": {
+    "other": "BI 智能问数失败"
+  },
   "legacy.error.51e0cc2766ffd45d": {
     "other": "设置脱敏规则状态失败"
   },
   "legacy.error.524d45335891b7b9": {
     "other": "密码已过期，请先修改密码"
+  },
+  "legacy.error.52cece3fb0bc5c37": {
+    "other": "创建 BI 数据源失败"
   },
   "legacy.error.53392f5183414d58": {
     "other": "接口操作无效"
@@ -1577,6 +2027,9 @@
   "legacy.error.53d0c6eaf4e7a590": {
     "other": "数据库表字段不存在"
   },
+  "legacy.error.53e503c248312ca3": {
+    "other": "脚本名称重复"
+  },
   "legacy.error.53e7b4c1e2683778": {
     "other": "更新行政区域失败"
   },
@@ -1586,6 +2039,12 @@
   "legacy.error.53f8867d5b4a61c7": {
     "other": "只有默认租户可以维护项目目录"
   },
+  "legacy.error.53f89634cde5df00": {
+    "other": "流程未发布脚本快照，请重新启用流程"
+  },
+  "legacy.error.540259b5547228e3": {
+    "other": "撤回申请失败，申请不在审批中"
+  },
   "legacy.error.5422f80650ed6780": {
     "other": "幂等键对应的消息内容不一致"
   },
@@ -1594,6 +2053,9 @@
   },
   "legacy.error.543d0dbad6466e6c": {
     "other": "读取登录会话失败"
+  },
+  "legacy.error.54783416d1456174": {
+    "other": "读取来源查询失败"
   },
   "legacy.error.54942b049dcbe2eb": {
     "other": "删除备份配置失败"
@@ -1622,6 +2084,9 @@
   "legacy.error.556b8b82f553a15e": {
     "other": "三方登录状态已失效"
   },
+  "legacy.error.55e4ff7f51a5c57e": {
+    "other": "当前版本已经发布"
+  },
   "legacy.error.560e0de6b066f0c3": {
     "other": "日志压缩文件损坏"
   },
@@ -1649,6 +2114,9 @@
   "legacy.error.584c7fde024904c9": {
     "other": "批处理数量必须大于零"
   },
+  "legacy.error.58814f41ef0b63a7": {
+    "other": "记录脚本执行日志失败"
+  },
   "legacy.error.58d18dab90870673": {
     "other": "多因素认证未启用"
   },
@@ -1661,11 +2129,17 @@
   "legacy.error.59891e4d57598bea": {
     "other": "多因素认证恢复码错误"
   },
+  "legacy.error.59a504a8efe43caf": {
+    "other": "BI 过滤操作符不支持"
+  },
   "legacy.error.59c1df3bee807b31": {
     "other": "多因素认证策略要求重新登录"
   },
   "legacy.error.59cd5fcd2d88a55d": {
     "other": "授权主体类型无效"
+  },
+  "legacy.error.59d7e6022ca5603c": {
+    "other": "读取 BI 数据源密码失败"
   },
   "legacy.error.59f722f27a58f991": {
     "other": "查询项目失败"
@@ -1702,6 +2176,9 @@
   },
   "legacy.error.5b6b2552126d5785": {
     "other": "AI助手运行时未初始化"
+  },
+  "legacy.error.5bbaa6ecfe5e2c73": {
+    "other": "数据表不能重复选择"
   },
   "legacy.error.5c9ce1a293619574": {
     "other": "用户岗位与所属租户不一致"
@@ -1751,8 +2228,17 @@
   "legacy.error.5e49e05b84d732ea": {
     "other": "AI模型分类无效"
   },
+  "legacy.error.5e4af6477c9e57a5": {
+    "other": "查询流程实例详情失败"
+  },
+  "legacy.error.5e5c8fb800af8b31": {
+    "other": "执行配置数据源查询失败"
+  },
   "legacy.error.5e7ff218eaaae90c": {
     "other": "菜单不存在"
+  },
+  "legacy.error.5e89f6523591311d": {
+    "other": "不支持的卡片图表类型"
   },
   "legacy.error.5e9ba4ae7562922c": {
     "other": "已有密文的字段加密算法不允许直接修改"
@@ -1769,6 +2255,9 @@
   "legacy.error.5fe54f1b13aabace": {
     "other": "分类存在尚未完成的 Provider 投递，不能移除该 Provider"
   },
+  "legacy.error.6006ddbf35bdc480": {
+    "other": "查询脚本失败"
+  },
   "legacy.error.6061e1920b151aa7": {
     "other": "记录登录失败状态失败"
   },
@@ -1784,8 +2273,14 @@
   "legacy.error.617ff09dc5740ca9": {
     "other": "消息动作参数不能超过16KB"
   },
+  "legacy.error.61c6dd4d52d756c5": {
+    "other": "请选择服务端数据库客户端或填写独立数据库连接"
+  },
   "legacy.error.61e2b1a9dab094f9": {
     "other": "处理三方账号绑定回调失败"
+  },
+  "legacy.error.61ff02d11dad1cab": {
+    "other": "图表需要数值字段"
   },
   "legacy.error.6205508a57ad22fe": {
     "other": "定时任务不存在"
@@ -1793,8 +2288,14 @@
   "legacy.error.62520e3110ff37de": {
     "other": "查询行政区域树形列表失败"
   },
+  "legacy.error.627129d821b9a9ae": {
+    "other": "脚本状态无效"
+  },
   "legacy.error.62abf78cc507b4fd": {
     "other": "表单"
+  },
+  "legacy.error.62dbfe7b4ff85db4": {
+    "other": "最多收藏50张卡片，ID须为正数且不重复"
   },
   "legacy.error.62f6ab1e2687f26b": {
     "other": "MCP请求仅支持HTTP访问"
@@ -1804,6 +2305,9 @@
   },
   "legacy.error.63722cd0da2f0322": {
     "other": "只有平台管理员可以管理脱敏策略"
+  },
+  "legacy.error.638c570a0e485641": {
+    "other": "字段编码或物理列名不合法"
   },
   "legacy.error.63e1d2923d9a60ad": {
     "other": "设置项目状态失败"
@@ -1838,6 +2342,9 @@
   "legacy.error.675ce37f71759e76": {
     "other": "智能问数记录不存在"
   },
+  "legacy.error.67b714349038ef9a": {
+    "other": "生成数据源语义模型失败"
+  },
   "legacy.error.6809a6b85e22a0dd": {
     "other": "查询权限日志详情失败"
   },
@@ -1846,6 +2353,9 @@
   },
   "legacy.error.6875490152490a8a": {
     "other": "查询定时任务下拉列表失败"
+  },
+  "legacy.error.68c36a9a40ff17ea": {
+    "other": "重试工作流脚本失败"
   },
   "legacy.error.690a6b7f9c24cefa": {
     "other": "多因素认证失败次数过多"
@@ -1877,6 +2387,12 @@
   "legacy.error.6a57e7bb1fda230a": {
     "other": "该分类消息不允许删除"
   },
+  "legacy.error.6a915ace53145be1": {
+    "other": "保存 BI 数据源模型失败"
+  },
+  "legacy.error.6a96890d025d36c6": {
+    "other": "保存业务单据流程关联失败"
+  },
   "legacy.error.6a9d6064de67fa66": {
     "other": "消息分类没有启用的投递目标"
   },
@@ -1891,6 +2407,9 @@
   },
   "legacy.error.6b0a676728c4bb15": {
     "other": "消息正文格式无效"
+  },
+  "legacy.error.6b10f726d5abb4f2": {
+    "other": "只有默认租户可以使用服务端数据库客户端"
   },
   "legacy.error.6b2432fed138fe2c": {
     "other": "查询 API 访问日志分页列表失败"
@@ -1928,6 +2447,9 @@
   "legacy.error.6de8ebe104908a91": {
     "other": "初始化租户管理员角色失败"
   },
+  "legacy.error.6e274beea35914d0": {
+    "other": "创建脚本失败"
+  },
   "legacy.error.6e3c9cde7970ab77": {
     "other": "重新抽取文档文本失败"
   },
@@ -1964,8 +2486,17 @@
   "legacy.error.70010c1c5aff2874": {
     "other": "开放授权客户端不存在"
   },
+  "legacy.error.7035618678e0d941": {
+    "other": "BI 数据源表关系无效"
+  },
+  "legacy.error.7037d44d26f2fe7d": {
+    "other": "确认AI工具操作失败"
+  },
   "legacy.error.708625d074c0bc4a": {
     "other": "前端API文件必须位于所选业务模块目录且使用.ts扩展名"
+  },
+  "legacy.error.709fd6d34b5ab217": {
+    "other": "脚本语言无效"
   },
   "legacy.error.70be9f472ac29679": {
     "other": "校验本人会话失败"
@@ -2009,8 +2540,17 @@
   "legacy.error.7255193529b2fdb8": {
     "other": "文件下载失败"
   },
+  "legacy.error.72934aee38ddf99c": {
+    "other": "服务端数据库客户端不存在"
+  },
   "legacy.error.72aaa4285bec9431": {
     "other": "修改手机号失败"
+  },
+  "legacy.error.732403aa5b743865": {
+    "other": "宿主关联回写必须注册流程关联核验器"
+  },
+  "legacy.error.7347922dbc5dc781": {
+    "other": "关系图必须是以事实表为根的树"
   },
   "legacy.error.738ffa9d13b38867": {
     "other": "同一租户的岗位编号重复"
@@ -2023,6 +2563,9 @@
   },
   "legacy.error.742a08fb80e718ce": {
     "other": "恢复定时任务配置失败"
+  },
+  "legacy.error.743de39e211f2357": {
+    "other": "BI 过滤字段所属表无效"
   },
   "legacy.error.7457032f6280eb65": {
     "other": "三方登录票据创建失败"
@@ -2053,6 +2596,9 @@
   },
   "legacy.error.75291116767157b1": {
     "other": "上传文件格式错误"
+  },
+  "legacy.error.75703813c8b15887": {
+    "other": "当前图表需要分类或日期字段"
   },
   "legacy.error.757bdbb9cf9523eb": {
     "other": "查询在线用户失败"
@@ -2117,6 +2663,12 @@
   "legacy.error.77fc0ea919e34629": {
     "other": "用户组织关系与所属租户不一致"
   },
+  "legacy.error.7805ab41ec40269c": {
+    "other": "BI 问题不能为空"
+  },
+  "legacy.error.7849340589beebfc": {
+    "other": "工作台包含不可访问或未发布的仪表盘"
+  },
   "legacy.error.7871e907338a7317": {
     "other": "项目授权不存在"
   },
@@ -2138,8 +2690,14 @@
   "legacy.error.796a07cbf608a7c4": {
     "other": "消息动作目标校验未初始化"
   },
+  "legacy.error.7988a9c57b1e18af": {
+    "other": "流程编码与版本不可修改，请创建新版本"
+  },
   "legacy.error.798a355cd970d9df": {
     "other": "删除登录策略失败"
+  },
+  "legacy.error.799b4c56d12deb00": {
+    "other": "Agent工具未启用或执行能力被禁止"
   },
   "legacy.error.79a13181f8eb5390": {
     "other": "创建字典属性失败"
@@ -2150,6 +2708,9 @@
   "legacy.error.79c198d49f48c75c": {
     "other": "WebAuthn认证响应无效"
   },
+  "legacy.error.79c663c3b9bbbc6e": {
+    "other": "读取卡片查询配置失败"
+  },
   "legacy.error.7a155b68e77f7b3e": {
     "other": "删除消息失败"
   },
@@ -2158,6 +2719,9 @@
   },
   "legacy.error.7a38fa171e5f03d7": {
     "other": "三方登录票据已失效"
+  },
+  "legacy.error.7a82731cd9da4819": {
+    "other": "请填写有效的仪表盘名称和编码"
   },
   "legacy.error.7a9fd6329bd31acb": {
     "other": "文件内容不能为空且不能超过 20 MB"
@@ -2210,8 +2774,14 @@
   "legacy.error.7ddf413a97a025d8": {
     "other": "没有启用的验证码类型"
   },
+  "legacy.error.7e1cee01625c342f": {
+    "other": "脚本执行不属于当前流程"
+  },
   "legacy.error.7e4f51942b429272": {
     "other": "出库脱敏规则参数无效"
+  },
+  "legacy.error.7e7027a1d80c578d": {
+    "other": "不能查询其他租户的审批委托"
   },
   "legacy.error.7f22e0bfb634eb2f": {
     "other": "发送手机号验证码失败"
@@ -2221,6 +2791,9 @@
   },
   "legacy.error.800ad5e277d8f771": {
     "other": "限流规则参数不是有效JSON: %w"
+  },
+  "legacy.error.804ff47d9145111c": {
+    "other": "脚本ID无效"
   },
   "legacy.error.80628f11b01cfebd": {
     "other": "MFA设备免验证天数必须在零到90之间"
@@ -2240,6 +2813,9 @@
   "legacy.error.81e65e451284e06e": {
     "other": "同一租户的角色编码重复"
   },
+  "legacy.error.8216350b44fd8ba1": {
+    "other": "保存数据卡片失败"
+  },
   "legacy.error.82166f10832cd9cd": {
     "other": "capacity 必须在 1 到 %d 之间"
   },
@@ -2254,6 +2830,9 @@
   },
   "legacy.error.825560a606dfc1b4": {
     "other": "删除文件资产失败"
+  },
+  "legacy.error.826af7ec0498f9b7": {
+    "other": "执行卡片查询失败"
   },
   "legacy.error.827e959fee2fe159": {
     "other": "查询数据访问日志分页列表失败"
@@ -2273,8 +2852,14 @@
   "legacy.error.8356e20f232d281c": {
     "other": "文档原始文件上传失败"
   },
+  "legacy.error.8358173c19c8b805": {
+    "other": "删除流程定义失败"
+  },
   "legacy.error.8378c73fbc6061ca": {
     "other": "查询岗位分页列表失败"
+  },
+  "legacy.error.83c152306e3a4a8e": {
+    "other": "新增租户审批表单无效"
   },
   "legacy.error.83e43a4951d784c2": {
     "other": "上级行政区域不能是自身"
@@ -2285,14 +2870,29 @@
   "legacy.error.84092786aefc8d28": {
     "other": "创建会话状态失败"
   },
+  "legacy.error.840a1544b634b15c": {
+    "other": "遍历数据库表结构失败"
+  },
+  "legacy.error.844039c078368bf3": {
+    "other": "工具请求契约不存在"
+  },
   "legacy.error.84697e6aff32c8d5": {
     "other": "删除系统配置失败"
   },
   "legacy.error.84971dcea61616b1": {
     "other": "创建菜单失败"
   },
+  "legacy.error.84c684cce9bedfe9": {
+    "other": "设置审批委托失败"
+  },
   "legacy.error.84cd4e2b6e6c7236": {
     "other": "消费多因素认证恢复码失败"
+  },
+  "legacy.error.8509eb2948308ef5": {
+    "other": "BI 查询结果超过大小限制，请缩小查询范围"
+  },
+  "legacy.error.855a3a4a1e73873b": {
+    "other": "设置脚本状态失败"
   },
   "legacy.error.858a0795c30a4a9b": {
     "other": "多因素认证失败"
@@ -2327,6 +2927,9 @@
   "legacy.error.888f5179fe310cd6": {
     "other": "限流维度无效"
   },
+  "legacy.error.88a331bc22b0dbe9": {
+    "other": "请先完成数据源表结构和语义模型配置"
+  },
   "legacy.error.89150fa5235640aa": {
     "other": "调用目标重复"
   },
@@ -2335,6 +2938,12 @@
   },
   "legacy.error.8933d9e974b3a27d": {
     "other": "删除文件对象失败"
+  },
+  "legacy.error.894efd50d81b01bc": {
+    "other": "BI 时间维度所属表无效"
+  },
+  "legacy.error.895609297b4cc810": {
+    "other": "MySQL兼容数据源连接信息不完整"
   },
   "legacy.error.89948745c30efa6b": {
     "other": "客户端令牌身份不匹配"
@@ -2357,8 +2966,17 @@
   "legacy.error.8b14be98bee08880": {
     "other": "查询数据库字段失败"
   },
+  "legacy.error.8b1e46dc72244e15": {
+    "other": "BI 问数生成失败"
+  },
   "legacy.error.8b413a6a6b9c51f1": {
     "other": "查询多因素认证状态失败"
+  },
+  "legacy.error.8b442bce74de76e9": {
+    "other": "请选择1到8张数据表并指定事实表"
+  },
+  "legacy.error.8b5a995b29d45525": {
+    "other": "PostgreSQL数据源连接信息不完整"
   },
   "legacy.error.8b7757274fb40557": {
     "other": "读取联网搜索响应失败"
@@ -2381,6 +2999,9 @@
   "legacy.error.8c54cb0c3d38941a": {
     "other": "消息 Provider 状态无效"
   },
+  "legacy.error.8c6af8b20cd52f9c": {
+    "other": "只有默认租户可以执行新增租户审批动作"
+  },
   "legacy.error.8ca5b7bd020f0d44": {
     "other": "生成文件已被修改，无法安全还原"
   },
@@ -2392,6 +3013,9 @@
   },
   "legacy.error.8d4c7687edb51962": {
     "other": "必须设置符合安全策略的新密码"
+  },
+  "legacy.error.8d5c3940aba9dd25": {
+    "other": "同一用户只能设置一条审批委托"
   },
   "legacy.error.8dcfb2899db4e48a": {
     "other": "已有数据使用该入库脱敏策略，不能停用或删除"
@@ -2420,8 +3044,14 @@
   "legacy.error.8edf13ac398ac3e4": {
     "other": "选项接口字段不存在"
   },
+  "legacy.error.8f08aae578d818eb": {
+    "other": "流程定义不存在"
+  },
   "legacy.error.8f09ccc849c9e2b7": {
     "other": "菜单编号已变化，请重新生成"
+  },
+  "legacy.error.8f0c281936a2dd93": {
+    "other": "创建流程定义失败"
   },
   "legacy.error.8f0dd34554f01d20": {
     "other": "备份恢复模式无效"
@@ -2429,17 +3059,32 @@
   "legacy.error.8f5b2aa071f02c06": {
     "other": "读取多因素认证方式失败"
   },
+  "legacy.error.8f6f571bc90e07de": {
+    "other": "当前图表需要两个分类字段和一个数值字段"
+  },
   "legacy.error.9001727fa93c4597": {
     "other": "所属租户不存在或已停用"
   },
+  "legacy.error.903b4ffba1164834": {
+    "other": "连接 BI 数据源失败"
+  },
   "legacy.error.907ce95f5cb163dc": {
     "other": "绑定租户不存在"
+  },
+  "legacy.error.908123a7527b5ef3": {
+    "other": "读取查询结果快照失败"
+  },
+  "legacy.error.90ae3d4b3b701aa1": {
+    "other": "可配置数据源暂不支持项目范围查询"
   },
   "legacy.error.90b019d1c34bcf63": {
     "other": "登录策略作用域类型无效"
   },
   "legacy.error.90fb3173fc11c767": {
     "other": "创建脱敏规则失败"
+  },
+  "legacy.error.910c3bb2daa5b9eb": {
+    "other": "查询 BI 数据源详情失败"
   },
   "legacy.error.9169c767f06efb26": {
     "other": "构造联网搜索请求失败"
@@ -2455,6 +3100,9 @@
   },
   "legacy.error.9265669d517e320e": {
     "other": "解析Provider个性化配置失败"
+  },
+  "legacy.error.92a83b190694e02b": {
+    "other": "预览 BI 查询失败"
   },
   "legacy.error.92c25f13b0fa3691": {
     "other": "查询 API 访问日志详情失败"
@@ -2492,6 +3140,12 @@
   "legacy.error.94a4acd52ee779cb": {
     "other": "查询归档配置失败"
   },
+  "legacy.error.94c872f75369c921": {
+    "other": "工具参数无效"
+  },
+  "legacy.error.94dc7cfc60980a69": {
+    "other": "删除流程定义失败，仍有流程实例引用该定义"
+  },
   "legacy.error.94f40163f02c3e7b": {
     "other": "查询OAuth登录方式失败"
   },
@@ -2500,6 +3154,12 @@
   },
   "legacy.error.951405540e9a38f3": {
     "other": "入库脱敏策略状态无效"
+  },
+  "legacy.error.9578a4511b3382df": {
+    "other": "申请表单数据必须是JSON对象"
+  },
+  "legacy.error.95e9cd0948335c3d": {
+    "other": "仪表盘布局格式无效"
   },
   "legacy.error.95ea0e3927a9039c": {
     "other": "Proto接口配置顺序或类型不正确"
@@ -2525,6 +3185,12 @@
   "legacy.error.9798ae7fa191abd0": {
     "other": "创建角色失败，不能使用内置角色编码"
   },
+  "legacy.error.97a011fa2c37581c": {
+    "other": "引用脚本不存在或未启用"
+  },
+  "legacy.error.97e1866d4aeb1c8a": {
+    "other": "不能引用其他租户、项目或私有卡片"
+  },
   "legacy.error.9828341ae3541d3d": {
     "other": "查询用户角色失败"
   },
@@ -2533,6 +3199,9 @@
   },
   "legacy.error.998d00125d42ac70": {
     "other": "查询策略评估日志详情失败"
+  },
+  "legacy.error.998ef42f3f8bbb63": {
+    "other": "读取来源查询结果失败"
   },
   "legacy.error.99b5db83c5f70d13": {
     "other": "保存 WebAuthn 配置失败"
@@ -2558,6 +3227,9 @@
   "legacy.error.9bdd7318cefbaaad": {
     "other": "不能创建其他租户的项目"
   },
+  "legacy.error.9cafc0f70e08d227": {
+    "other": "请在管理端确认业务写入操作"
+  },
   "legacy.error.9cd44a5bdb014fb1": {
     "other": "业务表已被代码生成表配置选择"
   },
@@ -2576,6 +3248,9 @@
   "legacy.error.9df84549ee5d2e6d": {
     "other": "当前客户端不支持 WebAuthn，请使用支持 Passkey 的客户端完成绑定"
   },
+  "legacy.error.9e1aa3fd7def6722": {
+    "other": "BI 数据源配置不能为空"
+  },
   "legacy.error.9e70775a28707b73": {
     "other": "文件内容不能超过 20 MB"
   },
@@ -2587,6 +3262,12 @@
   },
   "legacy.error.9ef530183c578b4d": {
     "other": "查询用户失败"
+  },
+  "legacy.error.9f01df24feb10b4f": {
+    "other": "当前用户拥有多个项目范围，请选择单个项目后查询 BI"
+  },
+  "legacy.error.9f0c49cefeac73e1": {
+    "other": "引用ID须为正数且不重复"
   },
   "legacy.error.9f2257503116e08f": {
     "other": "入库脱敏策略不存在"
@@ -2624,6 +3305,9 @@
   "legacy.error.a238c49d0e37d9f2": {
     "other": "AI会话不存在"
   },
+  "legacy.error.a29ca3d4464b4117": {
+    "other": "查询脚本分页列表失败"
+  },
   "legacy.error.a2a94e08e6ca92ab": {
     "other": "创建行政区域失败"
   },
@@ -2647,6 +3331,9 @@
   },
   "legacy.error.a4c906a269af199d": {
     "other": "业务表名只能包含小写字母、数字和下划线，且必须以字母开头"
+  },
+  "legacy.error.a4ec9260f17d6542": {
+    "other": "仪表盘不存在"
   },
   "legacy.error.a51c8475a6465475": {
     "other": "新密码不能与当前密码相同"
@@ -2684,8 +3371,17 @@
   "legacy.error.a74130d81445b0bd": {
     "other": "embedding模型所属供应商未启用"
   },
+  "legacy.error.a767a15e48da0a92": {
+    "other": "维度表关联字段必须唯一且与事实表字段类型兼容"
+  },
   "legacy.error.a793ed4ba92639ed": {
     "other": "创建多因素认证绑定票据失败"
+  },
+  "legacy.error.a7beabf5ecc07c42": {
+    "other": "业务单据关联尚未确认，请稍后撤回"
+  },
+  "legacy.error.a7c58b6438e3489e": {
+    "other": "多指标图表需要数值字段"
   },
   "legacy.error.a7cd9211d767ce6e": {
     "other": "业务模块字典不存在"
@@ -2708,17 +3404,44 @@
   "legacy.error.a8cecf08b4c03297": {
     "other": "该配置编码必须使用表单类型"
   },
+  "legacy.error.a8d8de8491bac522": {
+    "other": "指标必须映射到事实表字段"
+  },
   "legacy.error.a904f86e15f80686": {
     "other": "查询可授权接口失败"
+  },
+  "legacy.error.a922fa8d9aefc4b3": {
+    "other": "流程定义未启用"
+  },
+  "legacy.error.a934ff7ee33d8ab2": {
+    "other": "工具接口契约无效"
   },
   "legacy.error.a9a6a83a7d22e27e": {
     "other": "用户名或密码错误"
   },
+  "legacy.error.aa3f19b0635bde95": {
+    "other": "BI 查询至少需要一个维度或指标"
+  },
   "legacy.error.ab10b5713ba93cbd": {
     "other": "删除岗位失败"
   },
+  "legacy.error.ac01bb67bb88f719": {
+    "other": "当前图表类型只支持一个指标"
+  },
   "legacy.error.ac1dcca2468c6eea": {
     "other": "查询消息详情失败"
+  },
+  "legacy.error.ac1dfc62a1e129c384": {
+    "other": "查询脚本执行日志详情失败"
+  },
+  "legacy.error.ac1dfc62f18f680": {
+    "other": "查询脚本执行日志详情失败"
+  },
+  "legacy.error.ac1dfc62f18f6808": {
+    "other": "查询脚本执行日志详情失败"
+  },
+  "legacy.error.ac6310ee83bcf7f9": {
+    "other": "只有流程参与者或管理员可以重试脚本"
   },
   "legacy.error.ad3e7934969052c3": {
     "other": "删除消息模板失败"
@@ -2741,6 +3464,9 @@
   "legacy.error.ae506e54c847f000": {
     "other": "消息 Provider 已被消息模板使用"
   },
+  "legacy.error.ae56de2ccc009ae3": {
+    "other": "发布 BI 仪表盘失败"
+  },
   "legacy.error.ae5dda772496d1bc": {
     "other": "滑动窗口日志 limit 不能超过 %d"
   },
@@ -2759,11 +3485,20 @@
   "legacy.error.af8be8010133e43a": {
     "other": "代码生成任务ID不能为空"
   },
+  "legacy.error.afac2a2e5bf769d4": {
+    "other": "审批动作无效"
+  },
+  "legacy.error.afdf4126e6dda456": {
+    "other": "数据源语义模型不能为空"
+  },
   "legacy.error.b000629d3e4c6e0a": {
     "other": "接口不属于所选服务"
   },
   "legacy.error.b0080b8ef47b6b2f": {
     "other": "更新岗位失败"
+  },
+  "legacy.error.b008ba1ac3fb0652": {
+    "other": "执行租约已被其他任务接管"
   },
   "legacy.error.b033407527df7ba3": {
     "other": "设置国际化自定义翻译状态失败"
@@ -2789,6 +3524,9 @@
   "legacy.error.b2d510c3c58db1c0": {
     "other": "查询字典属性失败"
   },
+  "legacy.error.b2df4070287d940b": {
+    "other": "查询我的审批任务失败"
+  },
   "legacy.error.b2e4129625950cdc": {
     "other": "消息动作类型无效"
   },
@@ -2804,11 +3542,17 @@
   "legacy.error.b374f825d226968f": {
     "other": "查询行政区域失败"
   },
+  "legacy.error.b38130d20d8764ce": {
+    "other": "读取数据库字段结构失败"
+  },
   "legacy.error.b3ca26ba26ec1779": {
     "other": "租户已被禁用"
   },
   "legacy.error.b3cb89fc0a8251e4": {
     "other": "解析AI模型分类配置失败"
+  },
+  "legacy.error.b3d876f3488c1138": {
+    "other": "读取卡片查询失败"
   },
   "legacy.error.b3ff67b25874179f": {
     "other": "删除代码生成表配置失败"
@@ -2837,6 +3581,9 @@
   "legacy.error.b51de7ac39752753": {
     "other": "不支持的AI Provider"
   },
+  "legacy.error.b55bf245bac9ce6e": {
+    "other": "删除流程定义失败，流程定义不存在"
+  },
   "legacy.error.b57fd83489726ea9": {
     "other": "入库脱敏策略不能为空"
   },
@@ -2846,14 +3593,26 @@
   "legacy.error.b59718ffeaef06c5": {
     "other": "设置接口限流策略状态失败"
   },
+  "legacy.error.b599662b6305b1cd": {
+    "other": "读取数据库唯一键失败"
+  },
   "legacy.error.b5f1440999896065": {
     "other": "查询出库脱敏策略详情失败"
+  },
+  "legacy.error.b6454ff77812a329": {
+    "other": "工作台包含无权访问的卡片"
+  },
+  "legacy.error.b698dd181813542e": {
+    "other": "不能查询其他租户的流程实例"
   },
   "legacy.error.b6a5cd0e0d7bc920": {
     "other": "创建接口限流策略失败"
   },
   "legacy.error.b6aa14aecfe74975": {
     "other": "解析消息 Provider 配置失败"
+  },
+  "legacy.error.b6b3d6b633e2277b": {
+    "other": "请输入卡片名称"
   },
   "legacy.error.b6b95db507adde81": {
     "other": "会话令牌管理器未配置"
@@ -2879,6 +3638,9 @@
   "legacy.error.b7d44d24f66dbda1": {
     "other": "查询项目树失败"
   },
+  "legacy.error.b7dfaaed47b862eb": {
+    "other": "删除审批委托失败，委托不存在"
+  },
   "legacy.error.b7fdba770862e9ff": {
     "other": "删除岗位失败，仍有用户使用该岗位"
   },
@@ -2891,6 +3653,9 @@
   "legacy.error.b8895d5db253e184": {
     "other": "第三方应用密钥不能为空"
   },
+  "legacy.error.b88bad52eb5ea941": {
+    "other": "用户已禁用"
+  },
   "legacy.error.b89055c6f7498238": {
     "other": "限流规则不存在"
   },
@@ -2900,17 +3665,35 @@
   "legacy.error.ba2694f62e4fbbaf": {
     "other": "删除消息失败，消息不存在"
   },
+  "legacy.error.ba58b9c5fcfc4e35": {
+    "other": "只能查看已发布的仪表盘版本"
+  },
+  "legacy.error.ba653419d73d2ec8": {
+    "other": "撤回审批申请失败"
+  },
   "legacy.error.ba92dfedf01811fc": {
     "other": "更新消息模板失败"
   },
   "legacy.error.baabf07429595997": {
     "other": "登录 MAC 命中黑名单"
   },
+  "legacy.error.bb1268519f752fa3": {
+    "other": "保存个人工作台失败"
+  },
   "legacy.error.bb1bb5f6a2dbba8b": {
     "other": "WebAuthn禁用挑战已失效"
   },
   "legacy.error.bb1c9703d51a4ead": {
     "other": "用户部门不存在"
+  },
+  "legacy.error.bb42bc14719faff4": {
+    "other": "查询流程脚本失败"
+  },
+  "legacy.error.bbe870a05f49a123": {
+    "other": "独立数据库连接的主机、端口、数据库名和用户名不能为空"
+  },
+  "legacy.error.bbf6b13e90ad673c": {
+    "other": "流程节点状态异常"
   },
   "legacy.error.bc003ab52dc05e95": {
     "other": "消息角色受众无效"
@@ -2939,6 +3722,9 @@
   "legacy.error.bce2683b3efef155": {
     "other": "保存初始化密码失败"
   },
+  "legacy.error.bd716eafd672c746": {
+    "other": "更新流程定义失败"
+  },
   "legacy.error.bd71a5a12e6c406b": {
     "other": "创建项目失败"
   },
@@ -2953,6 +3739,9 @@
   },
   "legacy.error.be74ce92a610e199": {
     "other": "消息受众不能重复"
+  },
+  "legacy.error.bef4cc844929c21e": {
+    "other": "查询条件已变化，请重新预览后保存卡片"
   },
   "legacy.error.bf136ecb202be363": {
     "other": "字典项不存在"
@@ -2981,6 +3770,9 @@
   "legacy.error.c0ee4b6fcd75f376": {
     "other": "读取 WebAuthn 凭据失败"
   },
+  "legacy.error.c17f8b1c11e357cf": {
+    "other": "工作台最多50张卡片，ID须为正数且不重复"
+  },
   "legacy.error.c1927bc6a20fa3ca": {
     "other": "入库策略ID不能为空"
   },
@@ -2993,6 +3785,9 @@
   "legacy.error.c21174eeb0d483ee": {
     "other": "遍历查询结果失败"
   },
+  "legacy.error.c21640c2f2bf1181": {
+    "other": "发布节点图配置不能超过 1MiB"
+  },
   "legacy.error.c22152f4419d1c0c": {
     "other": "请选择租户"
   },
@@ -3001,6 +3796,9 @@
   },
   "legacy.error.c269746cd8542461": {
     "other": "三方账号唯一标识为空"
+  },
+  "legacy.error.c27f086ce508006d": {
+    "other": "所有维度表都必须从事实表连通"
   },
   "legacy.error.c285fcfc099f9c92": {
     "other": "查询菜单树形列表失败"
@@ -3020,6 +3818,9 @@
   "legacy.error.c33ecf4a6ac4f509": {
     "other": "分支锚点消息编号不合法"
   },
+  "legacy.error.c343976847d80363": {
+    "other": "删除脚本失败"
+  },
   "legacy.error.c3dd71d006f793b2": {
     "other": "关闭文件扫描临时文件失败"
   },
@@ -3031,6 +3832,9 @@
   },
   "legacy.error.c465c61d1876cee8": {
     "other": "多因素认证方式配置无效"
+  },
+  "legacy.error.c48643c9d6f06c71": {
+    "other": "列表类型无效"
   },
   "legacy.error.c49d8684e46fea65": {
     "other": "接口不存在"
@@ -3046,6 +3850,9 @@
   },
   "legacy.error.c59404a173ecf4a6": {
     "other": "解绑三方账号失败"
+  },
+  "legacy.error.c5c1f6bacfa7c53d": {
+    "other": "仪表盘引用的卡片不存在"
   },
   "legacy.error.c5eae1dd2dfe44e7": {
     "other": "客户端来源 IP 未授权"
@@ -3089,6 +3896,9 @@
   "legacy.error.c8fa8bc4e8f159d9": {
     "other": "登录失败次数过多，请稍后再试"
   },
+  "legacy.error.c916f58aa90099af": {
+    "other": "流程定义状态无效"
+  },
   "legacy.error.ca07a343943ddc8b": {
     "other": "请选择已初始化的数据源"
   },
@@ -3100,6 +3910,9 @@
   },
   "legacy.error.cab371e60fe459f7": {
     "other": "更新AI助手消息失败"
+  },
+  "legacy.error.cad1411b8d349a41": {
+    "other": "查询 BI 仪表盘失败"
   },
   "legacy.error.cb2e9ab2acc9d9c4": {
     "other": "更新开放授权客户端失败"
@@ -3119,8 +3932,23 @@
   "legacy.error.cc009e22bbd2e9c2": {
     "other": "删除字典失败"
   },
+  "legacy.error.cc09b1c30b456fcf": {
+    "other": "提交审批申请失败"
+  },
   "legacy.error.cc20029c8818859c": {
     "other": "查询备份记录失败"
+  },
+  "legacy.error.cc29c4abdf48e2ab": {
+    "other": "BI 数据源表关系未覆盖所有选中表"
+  },
+  "legacy.error.cc45410da43fe027": {
+    "other": "BI 排序字段或方向不可用"
+  },
+  "legacy.error.cc9b2fc832c214dc": {
+    "other": "卡片布局超出画布范围"
+  },
+  "legacy.error.ccb9d64291a84b3d": {
+    "other": "遍历数据库字段结构失败"
   },
   "legacy.error.cccdd8c196015a7f": {
     "other": "查询备份恢复记录失败"
@@ -3134,8 +3962,17 @@
   "legacy.error.cd11548a9db9cf6c": {
     "other": "国际化自定义翻译状态无效"
   },
+  "legacy.error.cd88df3e47cfbfb1": {
+    "other": "仪表盘版本不存在"
+  },
   "legacy.error.cd897706bc0e32ed": {
     "other": "查询代码生成字段配置失败"
+  },
+  "legacy.error.cdb9882d7fd358ad": {
+    "other": "无权访问数据卡片"
+  },
+  "legacy.error.ce02e13c6e151681": {
+    "other": "语义字段编码不能重复"
   },
   "legacy.error.ce0667f6a9bd7e2e": {
     "other": "同一字典的属性值重复"
@@ -3143,14 +3980,41 @@
   "legacy.error.ce12956616b6dbc9": {
     "other": "入库脱敏策略创建后不允许修改租户、数据源、数据表或字段"
   },
+  "legacy.error.ce1a849baef38a91": {
+    "other": "流程实例不在审批中"
+  },
   "legacy.error.ce370f796e2dbeb4": {
     "other": "读取密码策略状态失败"
   },
   "legacy.error.ce521e068170e904": {
     "other": "查询字典分页列表失败"
   },
+  "legacy.error.ce842a9b36cba468": {
+    "other": "查询流程定义下拉列表失败"
+  },
+  "legacy.error.ce8ca5ddb89d3ccc": {
+    "other": "收藏包含无权访问的卡片"
+  },
+  "legacy.error.ce9dbb684165613c": {
+    "other": "刷新间隔应为0或30至86400秒"
+  },
+  "legacy.error.cea099cf600601cb": {
+    "other": "关闭数据库唯一键查询失败"
+  },
   "legacy.error.cea933528406f077": {
     "other": "开始强制绑定多因素认证失败"
+  },
+  "legacy.error.cebf0a62a661df9c": {
+    "other": "查询流程定义失败"
+  },
+  "legacy.error.cecfa12c95140940": {
+    "other": "不能查询其他租户的流程定义"
+  },
+  "legacy.error.cf0f0aa805d84ebc": {
+    "other": "BI 数据源语义模型未配置"
+  },
+  "legacy.error.cf4f6074437cb725": {
+    "other": "保存卡片查询配置失败"
   },
   "legacy.error.cfeffe783b239e18": {
     "other": "请选择已注册的系统配置表单"
@@ -3161,6 +4025,9 @@
   "legacy.error.d06655e996ae7326": {
     "other": "验证码已过期"
   },
+  "legacy.error.d06defa6f5c709be": {
+    "other": "删除数据卡片失败"
+  },
   "legacy.error.d07181150520a6b4": {
     "other": "归档记录不能为空"
   },
@@ -3170,11 +4037,23 @@
   "legacy.error.d1700e2d9ad8a545": {
     "other": "消息租户不能为空"
   },
+  "legacy.error.d194c776a0ee5e26": {
+    "other": "节点图配置无效: 缺少开始节点"
+  },
+  "legacy.error.d20fc8bcc8d8f5c7": {
+    "other": "新增项目审批表单无效"
+  },
   "legacy.error.d217a967bfd0bacd": {
     "other": "响应数据类型不存在"
   },
   "legacy.error.d22fd55ed8b53e3d": {
     "other": "消息不在定时发布状态"
+  },
+  "legacy.error.d2321b6e6cdb0b72": {
+    "other": "更新脚本失败"
+  },
+  "legacy.error.d23b49a800ec82fd": {
+    "other": "审批运行状态无效"
   },
   "legacy.error.d2426cb7f6161216": {
     "other": "删除角色失败，角色不存在"
@@ -3206,11 +4085,20 @@
   "legacy.error.d355679fc4c3684d": {
     "other": "代码生成还原快照已失效，请重新生成"
   },
+  "legacy.error.d36c66a9f8ccdb07": {
+    "other": "遍历数据库唯一键失败"
+  },
   "legacy.error.d420a6a3d117c876": {
     "other": "修改翻译信息失败"
   },
+  "legacy.error.d425221049b458d4": {
+    "other": "BI 查询计划不能为空"
+  },
   "legacy.error.d45ebaf3a56c5487": {
     "other": "标记站内信未读失败"
+  },
+  "legacy.error.d4d43cc0c8f5bd1d": {
+    "other": "BI 数据源密码解密服务未初始化"
   },
   "legacy.error.d5321efaf2f34345": {
     "other": "一级目录下只能创建目录、菜单或外链"
@@ -3236,6 +4124,9 @@
   "legacy.error.d6dad83238ab7270": {
     "other": "登录 IP 命中黑名单"
   },
+  "legacy.error.d70a3756d8dfe390": {
+    "other": "读取 BI 数据源目录失败"
+  },
   "legacy.error.d71ab292ad8174fb": {
     "other": "代码生成必须选择固定一级菜单下的父级菜单"
   },
@@ -3244,6 +4135,9 @@
   },
   "legacy.error.d75aac9c3ebbd04d": {
     "other": "查询登录日志分页列表失败"
+  },
+  "legacy.error.d7f37b45ffd41536": {
+    "other": "数据源状态无效"
   },
   "legacy.error.d819413726995a8b": {
     "other": "查询脱敏规则选项失败"
@@ -3263,11 +4157,17 @@
   "legacy.error.d940a40e5cc3a6b0": {
     "other": "设置基础用户应用端角色失败"
   },
+  "legacy.error.d9af671132576c58": {
+    "other": "试运行脚本失败"
+  },
   "legacy.error.d9afda138e42954e": {
     "other": "读取日志下载文件失败"
   },
   "legacy.error.d9c1bd13bb3c397d": {
     "other": "查询可出库脱敏字段失败"
+  },
+  "legacy.error.d9c4f018f338212d": {
+    "other": "只能撤回自己的申请"
   },
   "legacy.error.d9cf096b2b392d84": {
     "other": "设置备份配置状态失败"
@@ -3281,6 +4181,9 @@
   "legacy.error.da535200fe38b6f5": {
     "other": "目标资源ID不能为空"
   },
+  "legacy.error.da679537f3570aac": {
+    "other": "无权访问仪表盘所属项目"
+  },
   "legacy.error.da91ab378e9ac6a8": {
     "other": "生成多因素认证恢复码失败"
   },
@@ -3292,6 +4195,9 @@
   },
   "legacy.error.dac19e6ee2a6c448": {
     "other": "重试消息投递失败"
+  },
+  "legacy.error.db35c5c0de7472a2": {
+    "other": "不能操作其他租户的流程定义"
   },
   "legacy.error.db4781157e05e955": {
     "other": "部门已停用"
@@ -3317,6 +4223,9 @@
   "legacy.error.dc8885ca6a1d1de4": {
     "other": "脱敏规则模板参数无效"
   },
+  "legacy.error.dcad9e63f38f931c": {
+    "other": "流程尚未终结"
+  },
   "legacy.error.dcc73012bd9e3caa": {
     "other": "请选择Proto接口"
   },
@@ -3325,6 +4234,9 @@
   },
   "legacy.error.ddc0ea85e48cd84b": {
     "other": "前端页面无法安全合并"
+  },
+  "legacy.error.de21ca3c60efaa47": {
+    "other": "已发布卡片缺少查询快照"
   },
   "legacy.error.de32ab1c95072611": {
     "other": "文档原始文件校验失败（内容与上传时不一致），请删除后重新上传"
@@ -3347,17 +4259,35 @@
   "legacy.error.ded15f67c86763a2": {
     "other": "消息状态已变化，请刷新后重试"
   },
+  "legacy.error.df01b88a7a820bc8": {
+    "other": "租户隔离字段不属于选中的数据表"
+  },
+  "legacy.error.df1b47c8efd4d98a": {
+    "other": "卡片引用无效或重复"
+  },
   "legacy.error.df2269225d5069ee": {
     "other": "查询AI Provider模型选项失败"
   },
   "legacy.error.df5a442da0b21158": {
     "other": "更新登录会话失败"
   },
+  "legacy.error.df71b790be9d3aad": {
+    "other": "指标至少需要一个聚合函数"
+  },
   "legacy.error.df83b569b1e6c106": {
     "other": "文件安全扫描命令未配置"
   },
   "legacy.error.dfde1b4517c73c74": {
     "other": "备份记录、目标数据源和目标数据库不能为空"
+  },
+  "legacy.error.e02e13af31934679": {
+    "other": "只有失败的脚本可以重试"
+  },
+  "legacy.error.e05abb0c95c3230c": {
+    "other": "BI 查询维度、指标或过滤条件超出限制"
+  },
+  "legacy.error.e06cbcedf60f6b6a": {
+    "other": "请选择当前账号和项目下成功的智能问数记录"
   },
   "legacy.error.e0b8846e58dc6831": {
     "other": "保存 WebAuthn 登录挑战失败"
@@ -3395,17 +4325,26 @@
   "legacy.error.e2fd9e73043ee853": {
     "other": "设置状态失败，下面有部门"
   },
+  "legacy.error.e33217d61673a21c": {
+    "other": "当前用户没有可用项目范围"
+  },
   "legacy.error.e33fc0beeabb38dc": {
     "other": "更新归档配置失败"
   },
   "legacy.error.e3625317beb5819a": {
     "other": "保存多因素认证配置失败"
   },
+  "legacy.error.e3e3ceb5360f5b13": {
+    "other": "解析 BI 数据源语义配置失败"
+  },
   "legacy.error.e3f1b26b38842ada": {
     "other": "通用凭证密钥不能超过1024个字符"
   },
   "legacy.error.e4049241c07c1ec6": {
     "other": "代码生成表配置ID不能重复"
+  },
+  "legacy.error.e4113197ca2325fa": {
+    "other": "查询申请表单失败"
   },
   "legacy.error.e4343921c928a856": {
     "other": "登录失败"
@@ -3415,6 +4354,9 @@
   },
   "legacy.error.e443a571d38b6bfc": {
     "other": "上传AI知识库文档失败"
+  },
+  "legacy.error.e46eaf899f18a393": {
+    "other": "审批运行配置损坏"
   },
   "legacy.error.e47532d44611ae28": {
     "other": "重置密码失败，用户信息不存在"
@@ -3467,11 +4409,20 @@
   "legacy.error.e7c3fa9643b03f00": {
     "other": "删除OAuth登录方式失败"
   },
+  "legacy.error.e81dbd0ba4f7a963": {
+    "other": "不是您的待审批任务"
+  },
   "legacy.error.e8487c03570fcf89": {
     "other": "规则类型不允许修改"
   },
+  "legacy.error.e8515d62a9215e27": {
+    "other": "执行 BI 查询失败"
+  },
   "legacy.error.e86e1650b9bd4d21": {
     "other": "查询缓存条目失败"
+  },
+  "legacy.error.e870b4dcb0ded0c7": {
+    "other": "关闭数据库字段查询失败"
   },
   "legacy.error.e8cf0f814577dae5": {
     "other": "会话编号不合法"
@@ -3488,6 +4439,9 @@
   "legacy.error.eb0a5c7ed1c8c6e5": {
     "other": "下载历史日志文件失败"
   },
+  "legacy.error.eb1f4c524225068b": {
+    "other": "字段类型不支持"
+  },
   "legacy.error.eb66a4ab09cb7c2a": {
     "other": "不允许上传可执行或可嵌入脚本的文件"
   },
@@ -3497,14 +4451,23 @@
   "legacy.error.ebe9b8ff030be0c3": {
     "other": "登录策略ID不能为空"
   },
+  "legacy.error.ec066a971ee52c71": {
+    "other": "审批任务办理失败"
+  },
   "legacy.error.ec26152876002eb0": {
     "other": "限流算法无效"
   },
   "legacy.error.ec4f2818494c7f39": {
     "other": "查询定时任务日志分页列表失败"
   },
+  "legacy.error.ec72519ba8636a4c": {
+    "other": "表关联必须引用已选表中的有效字段"
+  },
   "legacy.error.eca1d6ff1327a5f3": {
     "other": "创建部门失败，更新路径错误"
+  },
+  "legacy.error.ed128739722f40db": {
+    "other": "只有默认租户可以申请新增租户"
   },
   "legacy.error.ed45c317af97625d": {
     "other": "查询数据库字段约束失败"
@@ -3539,8 +4502,17 @@
   "legacy.error.eef3f6effdfa7140": {
     "other": "获取个人资料失败"
   },
+  "legacy.error.ef1db3c37d699133": {
+    "other": "读取个人工作台失败"
+  },
+  "legacy.error.ef4d3b3aab09a01d": {
+    "other": "请先等待当前回复完成或处理待确认操作"
+  },
   "legacy.error.ef6146fd1b40b481": {
     "other": "当前会话已失效"
+  },
+  "legacy.error.ef81783f5a70a01a": {
+    "other": "设置流程定义状态失败"
   },
   "legacy.error.ef92f0344e85c0cc": {
     "other": "日志级别筛选无效"
@@ -3557,6 +4529,12 @@
   "legacy.error.f00d5a69188edf52": {
     "other": "AI模型分类配置无效"
   },
+  "legacy.error.f02efe29b89e5500": {
+    "other": "保存查询结果记录失败，请重试"
+  },
+  "legacy.error.f06bb6c5b5db84d9": {
+    "other": "只支持 inner 和 left 关联"
+  },
   "legacy.error.f07ad56b3295ef6f": {
     "other": "代码生成表配置ID不能为空"
   },
@@ -3572,8 +4550,17 @@
   "legacy.error.f0c321fa54e7e4ed": {
     "other": "查询登录策略详情失败"
   },
+  "legacy.error.f11c9913680e6b54": {
+    "other": "只能删除自己的审批委托"
+  },
+  "legacy.error.f11d68a2a74f06f9": {
+    "other": "工具不属于当前终端"
+  },
   "legacy.error.f12b6fa61a61b0c7": {
     "other": "客户端绑定租户已停用"
+  },
+  "legacy.error.f13315b882b89cac": {
+    "other": "测试 BI 数据源失败"
   },
   "legacy.error.f13713a56dd96cf3": {
     "other": "查询代码生成表配置失败"
@@ -3595,6 +4582,9 @@
   },
   "legacy.error.f1faed3a397b2a51": {
     "other": "下线在线用户失败"
+  },
+  "legacy.error.f26c80a1e129c384": {
+    "other": "查询 MQTT 消息记录失败"
   },
   "legacy.error.f28302cbc7d78366": {
     "other": "所选模型不是embedding模型"
@@ -3629,6 +4619,9 @@
   "legacy.error.f398b3676ef7459b": {
     "other": "AI知识库检索失败"
   },
+  "legacy.error.f3c60136f3fda7c6": {
+    "other": "每张维度表都必须与事实表建立一条关系"
+  },
   "legacy.error.f3e8e1b2e18b5f69": {
     "other": "查询启用验证码类型失败"
   },
@@ -3638,11 +4631,23 @@
   "legacy.error.f44979b473b17b86": {
     "other": "对象存储未配置"
   },
+  "legacy.error.f45d53f8c751e862": {
+    "other": "仪表盘版本无效或超过20张卡片"
+  },
+  "legacy.error.f464573b785f5f5e": {
+    "other": "通知动作需要标题、内容和1至100个本租户用户"
+  },
   "legacy.error.f4e3c1c7f6c7d220": {
     "other": "删除字典属性失败"
   },
+  "legacy.error.f4ea419d450e6aaa": {
+    "other": "数据源编码已被静态 Adapter 占用"
+  },
   "legacy.error.f4ec8b7116260176": {
     "other": "查询用户下拉选择失败"
+  },
+  "legacy.error.f524a54193edc7f4": {
+    "other": "读取 BI 数据源表结构失败"
   },
   "legacy.error.f54df649d4889afc": {
     "other": "验证码预校验失败"
@@ -3701,6 +4706,9 @@
   "legacy.error.f90d26546dedbee7": {
     "other": "MCP鉴权引擎未初始化"
   },
+  "legacy.error.f93a42e989ecd8af": {
+    "other": "校验项目审批来源失败"
+  },
   "legacy.error.f94fb6c1649757d9": {
     "other": "删除语言失败"
   },
@@ -3716,8 +4724,14 @@
   "legacy.error.fa1ec60338bc9604": {
     "other": "同一资源语言不能重复"
   },
+  "legacy.error.fa35c0fef4f8b1e2": {
+    "other": "散点图需要两个不同的数值字段"
+  },
   "legacy.error.fa4c8538024c9929": {
     "other": "出库策略ID不能为空"
+  },
+  "legacy.error.facfeed9ad7256a3": {
+    "other": "查询 BI 数据库客户端失败"
   },
   "legacy.error.fafae4160952738e": {
     "other": "查询父级菜单失败"
@@ -3740,8 +4754,20 @@
   "legacy.error.fc25e0d9642770e1": {
     "other": "删除字典失败，下面有属性"
   },
+  "legacy.error.fc4d92dd2ebc6782": {
+    "other": "正在执行的消息不能删除"
+  },
+  "legacy.error.fc746194ec482626": {
+    "other": "查询流程实例失败"
+  },
+  "legacy.error.fcdabb6237ef15d3": {
+    "other": "更新流程定义失败，仅草稿状态可编辑"
+  },
   "legacy.error.fd02eafe22a11946": {
     "other": "设置归档配置状态失败"
+  },
+  "legacy.error.fd5abf524a285cc7": {
+    "other": "至少配置一个语义指标"
   },
   "legacy.error.fd8a77425c196716": {
     "other": "记录客户端认证失败状态失败"
@@ -3757,6 +4783,9 @@
   },
   "legacy.error.fe2017ccb585fbd8": {
     "other": "创建用户失败"
+  },
+  "legacy.error.fe26a2c819b1e6c0": {
+    "other": "删除审批委托失败"
   },
   "legacy.error.fe97a3a85174448e": {
     "other": "读取日志文件信息失败"
@@ -3899,6 +4928,39 @@
   "openapi.admin.service.sse_base": {
     "other": "Base SSE服务"
   },
+  "openapi.ai.approval.0a50ca52d217eaa0": {
+    "other": "确认或拒绝当前用户的待执行工具调用。"
+  },
+  "openapi.ai.approval.25b37d5c985ea3be": {
+    "other": "操作说明"
+  },
+  "openapi.ai.approval.2a1e259212d00994": {
+    "other": "确认截止时间"
+  },
+  "openapi.ai.approval.6cedfb9ab50004c5": {
+    "other": "是否确认执行"
+  },
+  "openapi.ai.approval.79d325f8ec278ba6": {
+    "other": "一次性审批编号"
+  },
+  "openapi.ai.approval.907638a466d26ec4": {
+    "other": "AI 工具人工确认请求，实际工具和参数由服务端冻结。"
+  },
+  "openapi.ai.approval.aca86adff02160dc": {
+    "other": "待确认的工具和冻结参数"
+  },
+  "openapi.ai.approval.bc522e692aed7078": {
+    "other": "AI 工具人工确认信息。"
+  },
+  "openapi.ai.approval.c5953adda9d71bb8": {
+    "other": "AI 待确认工具调用。"
+  },
+  "openapi.ai.approval.c7fb3cb9b170ea8d": {
+    "other": "待执行工具的人工确认信息"
+  },
+  "openapi.ai.approval.e1de7de24c6aa692": {
+    "other": "待执行的冻结参数JSON"
+  },
   "openapi.ai_provider.test_models.duration": {
     "other": "测试耗时毫秒"
   },
@@ -3923,6 +4985,345 @@
   "openapi.ai_provider.test_models.summary": {
     "other": "测试AI供应商表单中的全部模型。"
   },
+  "openapi.bi.0103248c22d8dcd4": {
+    "other": "发布仪表盘草稿。"
+  },
+  "openapi.bi.01ad6995c1ea49ac": {
+    "other": "仪表盘ID"
+  },
+  "openapi.bi.0268468dd6709221": {
+    "other": "图表结果"
+  },
+  "openapi.bi.03ed4e4120d3a47e": {
+    "other": "范围终点"
+  },
+  "openapi.bi.0810fb953302bdf5": {
+    "other": "BI 结果列。"
+  },
+  "openapi.bi.09488c121409db9a": {
+    "other": "工作台仪表盘ID，最多50个且不重复"
+  },
+  "openapi.bi.099d61d496e67248": {
+    "other": "过滤值"
+  },
+  "openapi.bi.0be233e506fbd364": {
+    "other": "个人工作台仪表盘入口与卡片收藏。"
+  },
+  "openapi.bi.0c576f150772bfe7": {
+    "other": "语义最相近的切片"
+  },
+  "openapi.bi.0c5cbf0679840c2f": {
+    "other": "工作台中当前可见的已发布仪表盘"
+  },
+  "openapi.bi.0eca92161ae97faf": {
+    "other": "测试数据源连接是否可访问。"
+  },
+  "openapi.bi.0fbad2972dbe9857": {
+    "other": "租户隔离字段，为空表示连接级隔离或共享表"
+  },
+  "openapi.bi.11341fb1b9ac4163": {
+    "other": "保存经过校验的多表语义模型。"
+  },
+  "openapi.bi.16f3fdf2a0db9c9f": {
+    "other": "建议图表标题"
+  },
+  "openapi.bi.1acc96ed66933520": {
+    "other": "按列顺序排列的值"
+  },
+  "openapi.bi.1cc9bbc82b4b015d": {
+    "other": "语义模型中的表节点。"
+  },
+  "openapi.bi.1e6a7e9e2f54be30": {
+    "other": "排序方向：asc 或 desc"
+  },
+  "openapi.bi.216a851b633926aa": {
+    "other": "结果行数上限，默认100"
+  },
+  "openapi.bi.271b5cd26f78b0d1": {
+    "other": "租户列"
+  },
+  "openapi.bi.2c1fa65657702878": {
+    "other": "表结构标识"
+  },
+  "openapi.bi.2d8f5e93d88c3335": {
+    "other": "发布 BI 仪表盘请求。"
+  },
+  "openapi.bi.2dfeae3e5cc026ac": {
+    "other": "检索测试：返回与query语义最相近的切片。"
+  },
+  "openapi.bi.3811bd8090741ec3": {
+    "other": "分页查询当前用户的自然语言问数历史。"
+  },
+  "openapi.bi.39d39dea3a54de5e": {
+    "other": "删除 BI 仪表盘响应。"
+  },
+  "openapi.bi.39e3359b41f199b6": {
+    "other": "查询数据源表结构的响应。"
+  },
+  "openapi.bi.3d9018dfe69725bd": {
+    "other": "聚合函数"
+  },
+  "openapi.bi.3de01130c894c615": {
+    "other": "所属表标识"
+  },
+  "openapi.bi.4460c7852f7ebcf0": {
+    "other": "数据库表字段的结构信息。"
+  },
+  "openapi.bi.465df2d9cb365819": {
+    "other": "图表组件ID"
+  },
+  "openapi.bi.49a847dea0ddfb47": {
+    "other": "服务端数据库客户端列表"
+  },
+  "openapi.bi.4b15a4a26509ba6f": {
+    "other": "项目ID，0表示租户级"
+  },
+  "openapi.bi.4d17285b7085ca14": {
+    "other": "模型选中的表数量"
+  },
+  "openapi.bi.4d5fc5c9bc598a73": {
+    "other": "数据源语义维度。"
+  },
+  "openapi.bi.5208e07061c2574e": {
+    "other": "仪表盘列表"
+  },
+  "openapi.bi.5255137e65867265": {
+    "other": "数据源可用的表、关联关系和业务语义。"
+  },
+  "openapi.bi.52fde821a7d2cc07": {
+    "other": "是否允许过滤"
+  },
+  "openapi.bi.52fe98551232b10f": {
+    "other": "图表类型"
+  },
+  "openapi.bi.57c6e9e1226b3601": {
+    "other": "语义数据源编码"
+  },
+  "openapi.bi.5815b0d2d51325e0": {
+    "other": "查询服务端已配置的数据库客户端选项。"
+  },
+  "openapi.bi.5a38c50e4f51770d": {
+    "other": "测试 BI 数据源响应。"
+  },
+  "openapi.bi.5beab13eead85c84": {
+    "other": "分组维度编码"
+  },
+  "openapi.bi.5cb65a74a24ed0af": {
+    "other": "事实表标识"
+  },
+  "openapi.bi.5d3d9d2c10a8b7a8": {
+    "other": "仪表盘数据响应。"
+  },
+  "openapi.bi.5d4d9772a3880ed2": {
+    "other": "图表字段映射与样式配置JSON"
+  },
+  "openapi.bi.5e17fee906eaf32c": {
+    "other": "分页查询当前租户的数据源配置。"
+  },
+  "openapi.bi.5edacbc4c67164b1": {
+    "other": "服务端数据库客户端名称"
+  },
+  "openapi.bi.65077c9e6261bc77": {
+    "other": "BI 语义查询服务。"
+  },
+  "openapi.bi.68d814e180751e27": {
+    "other": "列名称"
+  },
+  "openapi.bi.6cb03435eab3fc6a": {
+    "other": "问数状态：枚举【BiQueryStatus】"
+  },
+  "openapi.bi.6ceed401c1289055": {
+    "other": "查询服务端数据库客户端响应。"
+  },
+  "openapi.bi.6d785eba090fc8db": {
+    "other": "数据源语义版本"
+  },
+  "openapi.bi.6e8d4f8835095e6c": {
+    "other": "分页查询当前用户可见的仪表盘。"
+  },
+  "openapi.bi.6f638acb24305376": {
+    "other": "单个图表查询结果。"
+  },
+  "openapi.bi.73a5e2dfcd62fddd": {
+    "other": "是否已配置语义模型"
+  },
+  "openapi.bi.749d2897b5ad02e7": {
+    "other": "表或视图名称"
+  },
+  "openapi.bi.76d0049562d89a5c": {
+    "other": "语义编码"
+  },
+  "openapi.bi.7dd00cf604a82d55": {
+    "other": "允许的聚合函数"
+  },
+  "openapi.bi.7e2f47a5925e1762": {
+    "other": "两张表之间经过确认的多对一关系。"
+  },
+  "openapi.bi.7e878318a1fe3292": {
+    "other": "语义版本"
+  },
+  "openapi.bi.81acfb00e43fabc2": {
+    "other": "数据库中的表或视图结构。"
+  },
+  "openapi.bi.85ae54b785a6078f": {
+    "other": "仪表盘名称"
+  },
+  "openapi.bi.876fb72d7a91beb3": {
+    "other": "表关联关系"
+  },
+  "openapi.bi.896d55b2e54903a1": {
+    "other": "是否因限制截断"
+  },
+  "openapi.bi.90996f5467d1c05a": {
+    "other": "语义指标"
+  },
+  "openapi.bi.91047ac58c9f6465": {
+    "other": "画布纵坐标"
+  },
+  "openapi.bi.97b3f90d49634007": {
+    "other": "数据库驱动"
+  },
+  "openapi.bi.99498a30d9ea8b33": {
+    "other": "BI 过滤条件。"
+  },
+  "openapi.bi.99b40288f02660b0": {
+    "other": "已连接表标识"
+  },
+  "openapi.bi.9a1f9679e24d878f": {
+    "other": "数据库表结构"
+  },
+  "openapi.bi.9d7bde6e09524d0e": {
+    "other": "建议图表类型"
+  },
+  "openapi.bi.9fb6e05824364a64": {
+    "other": "预览一个已经由前端配置的语义查询。"
+  },
+  "openapi.bi.a151ae5a789ce1b0": {
+    "other": "服务端数据库客户端选项。"
+  },
+  "openapi.bi.a274525e3befd414": {
+    "other": "数据库表或视图名称"
+  },
+  "openapi.bi.a30ee3c800a96364": {
+    "other": "保存 BI 仪表盘请求。"
+  },
+  "openapi.bi.a7e77b4e9e48b1dd": {
+    "other": "本次执行版本的仪表盘Schema JSON"
+  },
+  "openapi.bi.aa86a2bae571bb29": {
+    "other": "表或视图注释"
+  },
+  "openapi.bi.adcc73add9dc9b2b": {
+    "other": "列编码"
+  },
+  "openapi.bi.aeebfc1facd7ea41": {
+    "other": "画布横坐标"
+  },
+  "openapi.bi.b21441847b985723": {
+    "other": "可用维度"
+  },
+  "openapi.bi.b24d316b339eef5a": {
+    "other": "数据源语义指标。"
+  },
+  "openapi.bi.bbb4ee6f12dd4782": {
+    "other": "BI 仪表盘记录。"
+  },
+  "openapi.bi.bbc7b37007a0c75a": {
+    "other": "测试结果说明"
+  },
+  "openapi.bi.be3ffe82fd4dc8be": {
+    "other": "本次成功查询记录ID，可作为数据卡片来源"
+  },
+  "openapi.bi.be71f2c0683c4440": {
+    "other": "列类型"
+  },
+  "openapi.bi.bf7ec39bfb4c6062": {
+    "other": "BI 自然语言问数响应。"
+  },
+  "openapi.bi.bf8eb5e7200f667e": {
+    "other": "维度表唯一字段"
+  },
+  "openapi.bi.c3887a0552de2124": {
+    "other": "仪表盘编码"
+  },
+  "openapi.bi.c4692be754ad6605": {
+    "other": "语义维度"
+  },
+  "openapi.bi.c74465d0b8605899": {
+    "other": "数据库驱动：mysql、postgres、doris、tidb"
+  },
+  "openapi.bi.c97f16deca110110": {
+    "other": "过滤条件"
+  },
+  "openapi.bi.ca1fac81ad595f96": {
+    "other": "仪表盘说明"
+  },
+  "openapi.bi.caa1c875da04d875": {
+    "other": "仪表盘Schema JSON"
+  },
+  "openapi.bi.cf003aabe817631a": {
+    "other": "收藏卡片ID，最多50个且不重复"
+  },
+  "openapi.bi.cf6442adefd2c026": {
+    "other": "数据库端口"
+  },
+  "openapi.bi.d38817405fd0c250": {
+    "other": "BI 仪表盘分页响应。"
+  },
+  "openapi.bi.d8c7c51292be8501": {
+    "other": "执行已发布仪表盘中的全部图表查询。"
+  },
+  "openapi.bi.de84c084dfe40035": {
+    "other": "连接类型：inner或left"
+  },
+  "openapi.bi.e509306b797f1945": {
+    "other": "自然语言生成语义查询并返回预览结果。"
+  },
+  "openapi.bi.e587049c6dbb5e39": {
+    "other": "BI 自然语言问数请求。"
+  },
+  "openapi.bi.e67e7fb6c1265699": {
+    "other": "删除仪表盘。"
+  },
+  "openapi.bi.e7714726c397a39f": {
+    "other": "查询仪表盘及当前草稿内容。"
+  },
+  "openapi.bi.e87bb4422559c8fa": {
+    "other": "范围起点"
+  },
+  "openapi.bi.ed6a5b186d4567da": {
+    "other": "可用指标"
+  },
+  "openapi.bi.ed73166c7fc5e183": {
+    "other": "维度和指标语义配置 JSON"
+  },
+  "openapi.bi.f2b0e466b0b27866": {
+    "other": "已连接表字段"
+  },
+  "openapi.bi.f50cc6f9430629c8": {
+    "other": "结果列"
+  },
+  "openapi.bi.f84734045ce9b044": {
+    "other": "创建或保存仪表盘草稿。"
+  },
+  "openapi.bi.faa9ea9c61e35cb6": {
+    "other": "BI 仪表盘管理服务。"
+  },
+  "openapi.bi.faad29694548c077": {
+    "other": "发现已保存数据源中的表、字段和唯一键。"
+  },
+  "openapi.bi.fd06d32ccd1e33f4": {
+    "other": "是否有单列唯一约束"
+  },
+  "openapi.bi.fd6af30df91c4e20": {
+    "other": "工作台仪表盘ID，按展示顺序排列"
+  },
+  "openapi.bi.fe815a5cdd3ba638": {
+    "other": "BI 语义查询计划。"
+  },
+  "openapi.bi.fe9aab486818e87d": {
+    "other": "选中的表结构"
+  },
   "rag.admin.ai.knowledge.description.max_length": {
     "other": "描述不能超过500个字符"
   },
@@ -3937,6 +5338,9 @@
   },
   "rag.admin.ai.knowledge.doc.name.required": {
     "other": "请输入文档名称"
+  },
+  "rag.admin.ai.knowledge.doc.reextract.failed": {
+    "other": "重新抽取文档文本失败"
   },
   "rag.admin.ai.knowledge.name.required": {
     "other": "请输入知识库名称"
@@ -3988,6 +5392,9 @@
   },
   "system.admin.base.ai.model.model_name.required": {
     "other": "请输入模型名称"
+  },
+  "system.admin.base.ai.model.name.duplicated": {
+    "other": "AI模型名称重复: {{.Name}}"
   },
   "system.admin.base.ai.provider.base_url.max_length": {
     "other": "接口地址不能超过512个字符"
@@ -4556,6 +5963,27 @@
   "system.admin.base.role.update.id.required": {
     "other": "角色ID不能为空"
   },
+  "system.admin.base.script.delete.id.required": {
+    "other": "脚本ID列表不能为空"
+  },
+  "system.admin.base.script.entity.description.max_length": {
+    "other": "脚本说明不能超过512个字符"
+  },
+  "system.admin.base.script.entity.hook_point.max_length": {
+    "other": "钩子点不能超过160个字符"
+  },
+  "system.admin.base.script.entity.name.required": {
+    "other": "请输入脚本名称"
+  },
+  "system.admin.base.script.entity.source.required": {
+    "other": "请输入脚本源码"
+  },
+  "system.admin.base.script.test_run.context_json.max_length": {
+    "other": "上下文不能超过200000个字符"
+  },
+  "system.admin.base.script.test_run.source.max_length": {
+    "other": "脚本源码不能超过200000个字符"
+  },
   "system.admin.base.table.source.option.table.source_name.required": {
     "other": "数据源名称不能为空"
   },
@@ -4916,6 +6344,9 @@
   "system.admin.code.gen.table.update.id.required": {
     "other": "主键ID不能为空"
   },
+  "system.admin.mqtt_message.get.id.required": {
+    "other": "消息记录ID不能为空"
+  },
   "system.admin.oauth_client.delete.id.required": {
     "other": "客户端ID列表不能为空"
   },
@@ -5033,6 +6464,102 @@
   "system.admin.runtime_config.invalid_json": {
     "other": "系统配置内容无效"
   },
+  "system.admin.workflow.definition.apply_form.code.required": {
+    "other": "流程编码不能为空"
+  },
+  "system.admin.workflow.definition.apply_form.version.required": {
+    "other": "流程版本不能为空"
+  },
+  "system.admin.workflow.definition.delete.id.required": {
+    "other": "流程定义ID列表不能为空"
+  },
+  "system.admin.workflow.definition.entity.code.max_length": {
+    "other": "流程编码不能超过 100 个字符"
+  },
+  "system.admin.workflow.definition.entity.code.required": {
+    "other": "请输入流程编码"
+  },
+  "system.admin.workflow.definition.entity.form_schema.max_length": {
+    "other": "申请表单定义不能超过 65536 个字符"
+  },
+  "system.admin.workflow.definition.entity.name.max_length": {
+    "other": "流程名称不能超过 100 个字符"
+  },
+  "system.admin.workflow.definition.entity.name.required": {
+    "other": "请输入流程名称"
+  },
+  "system.admin.workflow.definition.entity.node_config.max_length": {
+    "other": "节点图配置不能超过 65536 个字符"
+  },
+  "system.admin.workflow.definition.entity.node_config.required": {
+    "other": "节点图配置不能为空"
+  },
+  "system.admin.workflow.definition.entity.remark.max_length": {
+    "other": "备注不能超过 500 个字符"
+  },
+  "system.admin.workflow.definition.entity.tenant_id.required": {
+    "other": "请选择所属租户"
+  },
+  "system.admin.workflow.definition.entity.version.required": {
+    "other": "流程版本必须大于 0"
+  },
+  "system.admin.workflow.definition.get.id.required": {
+    "other": "流程定义ID不能为空"
+  },
+  "system.admin.workflow.definition.script_test.script_id.required": {
+    "other": "脚本ID必须大于0"
+  },
+  "system.admin.workflow.definition.set_status.id.required": {
+    "other": "流程定义ID不能为空"
+  },
+  "system.admin.workflow.definition.update.id.required": {
+    "other": "流程定义ID不能为空"
+  },
+  "system.admin.workflow.delegation.delete.id.required": {
+    "other": "审批委托ID列表不能为空"
+  },
+  "system.admin.workflow.delegation.entity.delegate_user_id.required": {
+    "other": "请选择被委托人"
+  },
+  "system.admin.workflow.delegation.entity.remark.max_length": {
+    "other": "备注不能超过 500 个字符"
+  },
+  "system.admin.workflow.instance.get.id.required": {
+    "other": "流程实例ID不能为空"
+  },
+  "system.admin.workflow.instance.submit.business_type.max_length": {
+    "other": "业务单据类型不能超过 50 个字符"
+  },
+  "system.admin.workflow.instance.submit.code.required": {
+    "other": "流程编码不能为空"
+  },
+  "system.admin.workflow.instance.submit.form_data.max_length": {
+    "other": "申请表单数据不能超过 65536 个字符"
+  },
+  "system.admin.workflow.instance.submit.form_data.required": {
+    "other": "申请表单数据不能为空"
+  },
+  "system.admin.workflow.instance.submit.version.required": {
+    "other": "流程版本不能为空"
+  },
+  "system.admin.workflow.instance.withdraw.id.required": {
+    "other": "流程实例ID不能为空"
+  },
+  "system.admin.workflow.task.audit.comment.max_length": {
+    "other": "审批意见不能超过 500 个字符"
+  },
+  "system.admin.workflow.task.audit.task_id.required": {
+    "other": "审批任务ID不能为空"
+  },
+  "system.admin.workflow.task.get.id.required": {
+    "other": "审批任务ID不能为空"
+  },
+  "system.ai.chat.approval.expired": {
+    "other": "确认已过期，待确认的操作未执行。"
+  },
+  "system.ai.chat.approval.rejected": {
+    "other": "已拒绝，待确认的操作未执行。"
+  },
   "system.ai.chat.error.context_too_large": {
     "other": "对话输入（含历史与附件编码）超过 28 MiB，请减少附件或新建会话。"
   },
@@ -5041,6 +6568,9 @@
   },
   "system.ai.chat.error.fallback_reply.content": {
     "other": "已收到你的问题：{{.Content}}。但当前 AI 助手暂时不可用，无法生成完整回复，请稍后再试。"
+  },
+  "system.ai.chat.error.run_expired": {
+    "other": "生成已超时，本次请求不会自动恢复。重试前请核对业务结果。"
   },
   "system.ai.chat.error.tool_failed": {
     "other": "工具 {{.Name}} 执行失败，请查看服务日志。"
@@ -5081,75 +6611,6 @@
   "system.code.gen.error.batch.definition_conflict": {
     "other": "表{{.Previous}}与表{{.Current}}在{{.Key}}中的生成定义不一致"
   },
-  "system.code.gen.error.column_duplicate": {
-    "other": "字段 {{.Name}} 配置重复"
-  },
-  "system.code.gen.error.column_not_found": {
-    "other": "字段 {{.Name}} 不存在"
-  },
-  "system.code.gen.error.column_form_multiple_tree_only": {
-    "other": "字段 {{.Name}} 的表单多选仅支持树形选择"
-  },
-  "system.code.gen.error.column_form_multiple_json_only": {
-    "other": "字段 {{.Name}} 的表单多选仅支持JSON字段"
-  },
-  "system.code.gen.error.column_list_option_unnecessary": {
-    "other": "字段 {{.Name}} 的列表组件不需要选项配置"
-  },
-  "system.code.gen.error.column_list_select_incomplete": {
-    "other": "字段 {{.Name}} 的列表下拉选项配置不完整"
-  },
-  "system.code.gen.error.column_list_tree_incomplete": {
-    "other": "字段 {{.Name}} 的列表树形选项配置不完整"
-  },
-  "system.code.gen.error.column_list_component_unsupported": {
-    "other": "字段 {{.Name}} 的列表组件不支持"
-  },
-  "system.code.gen.error.column_form_dict_incomplete": {
-    "other": "字段 {{.Name}} 的表单字典选择配置不完整"
-  },
-  "system.code.gen.error.column_switch_incomplete": {
-    "other": "字段 {{.Name}} 的 {{.Scope}} 开关配置不完整"
-  },
-  "system.code.gen.error.column_switch_values_conflict": {
-    "other": "字段 {{.Name}} 的 {{.Scope}} 开关开启值和关闭值不能相同"
-  },
-  "system.code.gen.error.column_option_kind_empty": {
-    "other": "字段 {{.Name}} 的 {{.Scope}} 选项形态不能为空"
-  },
-  "system.code.gen.error.column_option_switch_value_forbidden": {
-    "other": "字段 {{.Name}} 的 {{.Scope}} 选项不能配置开关值"
-  },
-  "system.code.gen.error.column_option_lazy_only_tree": {
-    "other": "字段 {{.Name}} 的 {{.Scope}} 仅树形选项支持懒加载"
-  },
-  "system.code.gen.error.column_option_tree_table_only": {
-    "other": "字段 {{.Name}} 的 {{.Scope}} 树形选项只能使用数据表来源"
-  },
-  "system.code.gen.error.column_option_source_incomplete": {
-    "other": "字段 {{.Name}} 的 {{.Scope}} 选项来源配置不完整"
-  },
-  "system.code.gen.error.column_option_source_value_empty": {
-    "other": "字段 {{.Name}} 的 {{.Scope}} 选项来源值不能为空"
-  },
-  "system.code.gen.error.column_option_table_fields_incomplete": {
-    "other": "字段 {{.Name}} 的 {{.Scope}} 数据表选项字段配置不完整"
-  },
-  "system.code.gen.error.proto_api_kind_unsupported": {
-    "other": "Proto接口 {{.Method}} 的接口类型不支持"
-  },
-  "system.code.gen.error.proto_field_required": {
-    "other": "请选择Proto接口 {{.Method}} 的 {{.Label}}"
-  },
-  "system.code.gen.error.proto_field_not_in_table": {
-    "other": "Proto接口 {{.Method}} 的 {{.Label}} {{.Value}} 不属于目标表 {{.Table}}"
-  },
-  "system.admin.base.ai.model.name.duplicated": {
-    "other": "AI模型名称重复: {{.Name}}"
-  },
-  "rag.admin.ai.knowledge.doc.reextract.failed": {
-    "other": "重新抽取文档文本失败"
-  },
   "system.code.gen.error.batch.empty": {
     "other": "批量生成至少需要选择一张表"
   },
@@ -5171,6 +6632,60 @@
   "system.code.gen.error.batch.table_missing": {
     "other": "第{{.Index}}个批量生成项缺少表配置"
   },
+  "system.code.gen.error.column_duplicate": {
+    "other": "字段 {{.Name}} 配置重复"
+  },
+  "system.code.gen.error.column_form_dict_incomplete": {
+    "other": "字段 {{.Name}} 的表单字典选择配置不完整"
+  },
+  "system.code.gen.error.column_form_multiple_json_only": {
+    "other": "字段 {{.Name}} 的表单多选仅支持JSON字段"
+  },
+  "system.code.gen.error.column_form_multiple_tree_only": {
+    "other": "字段 {{.Name}} 的表单多选仅支持树形选择"
+  },
+  "system.code.gen.error.column_list_component_unsupported": {
+    "other": "字段 {{.Name}} 的列表组件不支持"
+  },
+  "system.code.gen.error.column_list_option_unnecessary": {
+    "other": "字段 {{.Name}} 的列表组件不需要选项配置"
+  },
+  "system.code.gen.error.column_list_select_incomplete": {
+    "other": "字段 {{.Name}} 的列表下拉选项配置不完整"
+  },
+  "system.code.gen.error.column_list_tree_incomplete": {
+    "other": "字段 {{.Name}} 的列表树形选项配置不完整"
+  },
+  "system.code.gen.error.column_not_found": {
+    "other": "字段 {{.Name}} 不存在"
+  },
+  "system.code.gen.error.column_option_kind_empty": {
+    "other": "字段 {{.Name}} 的 {{.Scope}} 选项形态不能为空"
+  },
+  "system.code.gen.error.column_option_lazy_only_tree": {
+    "other": "字段 {{.Name}} 的 {{.Scope}} 仅树形选项支持懒加载"
+  },
+  "system.code.gen.error.column_option_source_incomplete": {
+    "other": "字段 {{.Name}} 的 {{.Scope}} 选项来源配置不完整"
+  },
+  "system.code.gen.error.column_option_source_value_empty": {
+    "other": "字段 {{.Name}} 的 {{.Scope}} 选项来源值不能为空"
+  },
+  "system.code.gen.error.column_option_switch_value_forbidden": {
+    "other": "字段 {{.Name}} 的 {{.Scope}} 选项不能配置开关值"
+  },
+  "system.code.gen.error.column_option_table_fields_incomplete": {
+    "other": "字段 {{.Name}} 的 {{.Scope}} 数据表选项字段配置不完整"
+  },
+  "system.code.gen.error.column_option_tree_table_only": {
+    "other": "字段 {{.Name}} 的 {{.Scope}} 树形选项只能使用数据表来源"
+  },
+  "system.code.gen.error.column_switch_incomplete": {
+    "other": "字段 {{.Name}} 的 {{.Scope}} 开关配置不完整"
+  },
+  "system.code.gen.error.column_switch_values_conflict": {
+    "other": "字段 {{.Name}} 的 {{.Scope}} 开关开启值和关闭值不能相同"
+  },
   "system.code.gen.error.has_children": {
     "other": "删除{{.Parent}}失败，下面有{{.Child}}"
   },
@@ -5188,6 +6703,15 @@
   },
   "system.code.gen.error.path_duplicate": {
     "other": "{{.Current}}不能与{{.Previous}}使用相同路径"
+  },
+  "system.code.gen.error.proto_api_kind_unsupported": {
+    "other": "Proto接口 {{.Method}} 的接口类型不支持"
+  },
+  "system.code.gen.error.proto_field_not_in_table": {
+    "other": "Proto接口 {{.Method}} 的 {{.Label}} {{.Value}} 不属于目标表 {{.Table}}"
+  },
+  "system.code.gen.error.proto_field_required": {
+    "other": "请选择Proto接口 {{.Method}} 的 {{.Label}}"
   },
   "system.code.gen.error.route_duplicate": {
     "other": "生成接口{{.Method}} {{.HTTPMethod}} {{.Path}}与 base_api 中的{{.Operation}}重复"
@@ -5399,6 +6923,9 @@
   "system.mcp.tool_not_registered": {
     "other": "MCP工具{{.Name}}未注册"
   },
+  "system.notification.sender.system": {
+    "other": "系统"
+  },
   "system.oauth.crypto.error.client_token_invalid": {
     "other": "客户端访问令牌无效"
   },
@@ -5417,6 +6944,114 @@
   "system.oauth.crypto.error.response_too_large": {
     "other": "响应数据超过大小限制"
   },
+  "system.workflow.job.error.script_scan_failed": {
+    "other": "工作流脚本恢复扫描失败"
+  },
+  "system.workflow.job.result.scripts_scanned": {
+    "other": "工作流脚本恢复扫描完成：处理 {Count} 条"
+  },
+  "system.workflow.notification.content.approved": {
+    "other": "全部审批节点已通过"
+  },
+  "system.workflow.notification.content.definition_rejected": {
+    "other": "流程定义异常，请联系管理员"
+  },
+  "system.workflow.notification.content.escalated_applicant": {
+    "other": "当前审批节点办理人长时间未处理，系统已再次提醒对方。"
+  },
+  "system.workflow.notification.content.escalated_assignee": {
+    "other": "该任务已超时较久仍未处理，已同步提醒申请人关注进度。"
+  },
+  "system.workflow.notification.content.pending": {
+    "other": "请登录系统处理待审批事项"
+  },
+  "system.workflow.notification.content.rejected": {
+    "other": "请登录系统查看审批意见"
+  },
+  "system.workflow.notification.content.reminder": {
+    "other": "请尽快登录系统处理待审批事项，长时间未处理将同步提醒申请人。"
+  },
+  "system.workflow.notification.content.withdrawn": {
+    "other": "申请人已撤回该申请，无需继续处理"
+  },
+  "system.workflow.notification.title.added": {
+    "other": "您有被加签的审批任务"
+  },
+  "system.workflow.notification.title.approved": {
+    "other": "您的申请已通过"
+  },
+  "system.workflow.notification.title.definition_rejected": {
+    "other": "您的申请已被驳回"
+  },
+  "system.workflow.notification.title.escalated_applicant": {
+    "other": "您的申请审批超时"
+  },
+  "system.workflow.notification.title.escalated_assignee": {
+    "other": "您有待审批任务严重超时"
+  },
+  "system.workflow.notification.title.forwarded": {
+    "other": "您有被转办的审批任务"
+  },
+  "system.workflow.notification.title.pending": {
+    "other": "您有新的待审批任务"
+  },
+  "system.workflow.notification.title.rejected": {
+    "other": "您的申请已被驳回"
+  },
+  "system.workflow.notification.title.reminder": {
+    "other": "您有待审批任务超时未处理"
+  },
+  "system.workflow.notification.title.withdrawn": {
+    "other": "待审批申请已被撤回"
+  },
+  "system.workflow.openapi.script.context": {
+    "other": "初始上下文JSON，最大200KiB"
+  },
+  "system.workflow.openapi.script.context_short": {
+    "other": "初始上下文JSON"
+  },
+  "system.workflow.openapi.script.name": {
+    "other": "脚本名称快照"
+  },
+  "system.workflow.openapi.script.next_retry": {
+    "other": "下次重试时间"
+  },
+  "system.workflow.openapi.script.page": {
+    "other": "查询流程可用的已启用受限脚本"
+  },
+  "system.workflow.openapi.script.retry": {
+    "other": "重试失败的工作流脚本"
+  },
+  "system.workflow.openapi.script.retry_request": {
+    "other": "重试工作流脚本请求"
+  },
+  "system.workflow.openapi.script.run": {
+    "other": "脚本执行记录"
+  },
+  "system.workflow.openapi.script.run_id": {
+    "other": "脚本执行ID"
+  },
+  "system.workflow.openapi.script.runs": {
+    "other": "工作流脚本执行记录"
+  },
+  "system.workflow.openapi.script.saved_id": {
+    "other": "已保存脚本ID"
+  },
+  "system.workflow.openapi.script.snapshot": {
+    "other": "流程节点图快照（不含脚本源码）"
+  },
+  "system.workflow.openapi.script.stage": {
+    "other": "执行阶段"
+  },
+  "system.workflow.openapi.script.test": {
+    "other": "试运行已保存且启用的受限流程脚本，不接受客户端源码"
+  },
+  "system.workflow.openapi.script.test_request": {
+    "other": "流程脚本试运行参数，仅允许引用保存的脚本。"
+  },
+  "system.workflow.openapi.script.variables": {
+    "other": "流程变量JSON"
+  },
   "密码有效期天数，零表示长期有效": {
     "other": "密码有效期天数，零表示长期有效"
   },
@@ -5431,454 +7066,5 @@
   },
   "获取当前用户生效的密码策略": {
     "other": "获取当前用户生效的密码策略"
-  },
-  "legacy.error.26a98594498a94ca": {
-    "other": "租户编码不能为空"
-  },
-  "legacy.error.f26c80a1e129c384": {
-    "other": "查询 MQTT 消息记录失败"
-  },
-  "legacy.error.12ceb1313032276b": {
-    "other": "查询 MQTT 消息详情失败"
-  },
-  "system.admin.mqtt_message.get.id.required": {
-    "other": "消息记录ID不能为空"
-  },
-  "legacy.error.53e503c248312ca3": {"other": "脚本名称重复"},
-  "legacy.error.2eb4c634e73c7c20": {"other": "脚本ID列表不能为空"},
-  "legacy.error.627129d821b9a9ae": {"other": "脚本状态无效"},
-  "legacy.error.709fd6d34b5ab217": {"other": "脚本语言无效"},
-  "legacy.error.0c349c765bb1630c": {"other": "当前仅支持 JavaScript 脚本"},
-  "legacy.error.3198350bdf120177": {"other": "脚本源码不能为空"},
-  "legacy.error.58814f41ef0b63a7": {"other": "记录脚本执行日志失败"},
-  "legacy.error.804ff47d9145111c": {"other": "脚本ID无效"},
-  "legacy.error.154bb194d8d7704f": {"other": "查询脚本执行日志失败"},
-  "legacy.error.ac1dfc62a1e129c384": {"other": "查询脚本执行日志详情失败"},
-  "legacy.error.ac1dfc62f18f680": {"other": "查询脚本执行日志详情失败"},
-  "legacy.error.ac1dfc62f18f6808": {"other": "查询脚本执行日志详情失败"},
-  "legacy.error.a29ca3d4464b4117": {"other": "查询脚本分页列表失败"},
-  "legacy.error.6006ddbf35bdc480": {"other": "查询脚本失败"},
-  "legacy.error.6e274beea35914d0": {"other": "创建脚本失败"},
-  "legacy.error.d2321b6e6cdb0b72": {"other": "更新脚本失败"},
-  "legacy.error.c343976847d80363": {"other": "删除脚本失败"},
-  "legacy.error.855a3a4a1e73873b": {"other": "设置脚本状态失败"},
-  "legacy.error.d9af671132576c58": {"other": "试运行脚本失败"},
-  "system.admin.base.script.entity.name.required": {"other": "请输入脚本名称"},
-  "system.admin.base.script.entity.hook_point.max_length": {"other": "钩子点不能超过160个字符"},
-  "system.admin.base.script.entity.source.required": {"other": "请输入脚本源码"},
-  "system.admin.base.script.entity.description.max_length": {"other": "脚本说明不能超过512个字符"},
-  "system.admin.base.script.delete.id.required": {"other": "脚本ID列表不能为空"},
-  "system.admin.base.script.test_run.source.max_length": {"other": "脚本源码不能超过200000个字符"},
-  "system.admin.base.script.test_run.context_json.max_length": {"other": "上下文不能超过200000个字符"},
-  "legacy.error.0e953f80478aa9ed": {
-    "other": "同一租户的流程编码与版本重复"
-  },
-  "legacy.error.1456d3981707f770": {
-    "other": "删除流程定义失败，仅草稿状态可删除"
-  },
-  "legacy.error.1593dca0dfa86346": {
-    "other": "任务已被处理"
-  },
-  "legacy.error.2059cc6d984d24a6": {
-    "other": "被委托人无效"
-  },
-  "legacy.error.23b476d2ff5c6a0d": {
-    "other": "不是您的审批任务"
-  },
-  "legacy.error.279970960cdc7d86": {
-    "other": "未找到业务单据关联的流程实例"
-  },
-  "legacy.error.2bf0ca2e14dbf0a8": {
-    "other": "流程节点图配置异常"
-  },
-  "legacy.error.2ff36648250506aa": {
-    "other": "加签用户无效"
-  },
-  "legacy.error.44da1869e0376a29": {
-    "other": "转办目标用户无效"
-  },
-  "legacy.error.4608a748e161e339": {
-    "other": "查询审批任务详情失败"
-  },
-  "legacy.error.490b5cd41129c88f": {
-    "other": "查询审批委托失败"
-  },
-  "legacy.error.540259b5547228e3": {
-    "other": "撤回申请失败，申请不在审批中"
-  },
-  "legacy.error.5e4af6477c9e57a5": {
-    "other": "查询流程实例详情失败"
-  },
-  "legacy.error.7988a9c57b1e18af": {
-    "other": "流程编码与版本不可修改，请创建新版本"
-  },
-  "legacy.error.7e7027a1d80c578d": {
-    "other": "不能查询其他租户的审批委托"
-  },
-  "legacy.error.8358173c19c8b805": {
-    "other": "删除流程定义失败"
-  },
-  "legacy.error.84c684cce9bedfe9": {
-    "other": "设置审批委托失败"
-  },
-  "legacy.error.8d5c3940aba9dd25": {
-    "other": "同一用户只能设置一条审批委托"
-  },
-  "legacy.error.8f08aae578d818eb": {
-    "other": "流程定义不存在"
-  },
-  "legacy.error.8f0c281936a2dd93": {
-    "other": "创建流程定义失败"
-  },
-  "legacy.error.94dc7cfc60980a69": {
-    "other": "删除流程定义失败，仍有流程实例引用该定义"
-  },
-  "legacy.error.a922fa8d9aefc4b3": {
-    "other": "流程定义未启用"
-  },
-  "legacy.error.afac2a2e5bf769d4": {
-    "other": "审批动作无效"
-  },
-  "legacy.error.b2df4070287d940b": {
-    "other": "查询我的审批任务失败"
-  },
-  "legacy.error.b55bf245bac9ce6e": {
-    "other": "删除流程定义失败，流程定义不存在"
-  },
-  "legacy.error.b698dd181813542e": {
-    "other": "不能查询其他租户的流程实例"
-  },
-  "legacy.error.b7dfaaed47b862eb": {
-    "other": "删除审批委托失败，委托不存在"
-  },
-  "legacy.error.b88bad52eb5ea941": {
-    "other": "用户已禁用"
-  },
-  "legacy.error.ba653419d73d2ec8": {
-    "other": "撤回审批申请失败"
-  },
-  "legacy.error.bbf6b13e90ad673c": {
-    "other": "流程节点状态异常"
-  },
-  "legacy.error.bd716eafd672c746": {
-    "other": "更新流程定义失败"
-  },
-  "legacy.error.c48643c9d6f06c71": {
-    "other": "列表类型无效"
-  },
-  "legacy.error.c916f58aa90099af": {
-    "other": "流程定义状态无效"
-  },
-  "legacy.error.cc09b1c30b456fcf": {
-    "other": "提交审批申请失败"
-  },
-  "legacy.error.ce1a849baef38a91": {
-    "other": "流程实例不在审批中"
-  },
-  "legacy.error.ce842a9b36cba468": {
-    "other": "查询流程定义下拉列表失败"
-  },
-  "legacy.error.cebf0a62a661df9c": {
-    "other": "查询流程定义失败"
-  },
-  "legacy.error.cecfa12c95140940": {
-    "other": "不能查询其他租户的流程定义"
-  },
-  "legacy.error.d194c776a0ee5e26": {
-    "other": "节点图配置无效: 缺少开始节点"
-  },
-  "legacy.error.d9c4f018f338212d": {
-    "other": "只能撤回自己的申请"
-  },
-  "legacy.error.db35c5c0de7472a2": {
-    "other": "不能操作其他租户的流程定义"
-  },
-  "legacy.error.e4113197ca2325fa": {
-    "other": "查询申请表单失败"
-  },
-  "legacy.error.e81dbd0ba4f7a963": {
-    "other": "不是您的待审批任务"
-  },
-  "legacy.error.ec066a971ee52c71": {
-    "other": "审批任务办理失败"
-  },
-  "legacy.error.ef81783f5a70a01a": {
-    "other": "设置流程定义状态失败"
-  },
-  "legacy.error.f11c9913680e6b54": {
-    "other": "只能删除自己的审批委托"
-  },
-  "legacy.error.fc746194ec482626": {
-    "other": "查询流程实例失败"
-  },
-  "legacy.error.fcdabb6237ef15d3": {
-    "other": "更新流程定义失败，仅草稿状态可编辑"
-  },
-  "legacy.error.fe26a2c819b1e6c0": {
-    "other": "删除审批委托失败"
-  },
-  "system.admin.workflow.definition.apply_form.code.required": {
-    "other": "流程编码不能为空"
-  },
-  "system.admin.workflow.definition.apply_form.version.required": {
-    "other": "流程版本不能为空"
-  },
-  "system.admin.workflow.definition.delete.id.required": {
-    "other": "流程定义ID列表不能为空"
-  },
-  "system.admin.workflow.definition.entity.code.max_length": {
-    "other": "流程编码不能超过 100 个字符"
-  },
-  "system.admin.workflow.definition.entity.code.required": {
-    "other": "请输入流程编码"
-  },
-  "system.admin.workflow.definition.entity.form_schema.max_length": {
-    "other": "申请表单定义不能超过 65536 个字符"
-  },
-  "system.admin.workflow.definition.entity.name.max_length": {
-    "other": "流程名称不能超过 100 个字符"
-  },
-  "system.admin.workflow.definition.entity.name.required": {
-    "other": "请输入流程名称"
-  },
-  "system.admin.workflow.definition.entity.node_config.max_length": {
-    "other": "节点图配置不能超过 65536 个字符"
-  },
-  "system.admin.workflow.definition.entity.node_config.required": {
-    "other": "节点图配置不能为空"
-  },
-  "system.admin.workflow.definition.entity.remark.max_length": {
-    "other": "备注不能超过 500 个字符"
-  },
-  "system.admin.workflow.definition.entity.tenant_id.required": {
-    "other": "请选择所属租户"
-  },
-  "system.admin.workflow.definition.entity.version.required": {
-    "other": "流程版本必须大于 0"
-  },
-  "system.admin.workflow.definition.get.id.required": {
-    "other": "流程定义ID不能为空"
-  },
-  "system.admin.workflow.definition.set_status.id.required": {
-    "other": "流程定义ID不能为空"
-  },
-  "system.admin.workflow.definition.update.id.required": {
-    "other": "流程定义ID不能为空"
-  },
-  "system.admin.workflow.delegation.delete.id.required": {
-    "other": "审批委托ID列表不能为空"
-  },
-  "system.admin.workflow.delegation.entity.delegate_user_id.required": {
-    "other": "请选择被委托人"
-  },
-  "system.admin.workflow.delegation.entity.remark.max_length": {
-    "other": "备注不能超过 500 个字符"
-  },
-  "system.admin.workflow.instance.get.id.required": {
-    "other": "流程实例ID不能为空"
-  },
-  "system.admin.workflow.instance.submit.business_type.max_length": {
-    "other": "业务单据类型不能超过 50 个字符"
-  },
-  "system.admin.workflow.instance.submit.code.required": {
-    "other": "流程编码不能为空"
-  },
-  "system.admin.workflow.instance.submit.form_data.max_length": {
-    "other": "申请表单数据不能超过 65536 个字符"
-  },
-  "system.admin.workflow.instance.submit.form_data.required": {
-    "other": "申请表单数据不能为空"
-  },
-  "system.admin.workflow.instance.submit.version.required": {
-    "other": "流程版本不能为空"
-  },
-  "system.admin.workflow.instance.withdraw.id.required": {
-    "other": "流程实例ID不能为空"
-  },
-  "system.admin.workflow.task.audit.comment.max_length": {
-    "other": "审批意见不能超过 500 个字符"
-  },
-  "system.admin.workflow.task.audit.task_id.required": {
-    "other": "审批任务ID不能为空"
-  },
-  "system.admin.workflow.task.get.id.required": {
-    "other": "审批任务ID不能为空"
-  },
-  "legacy.error.6a96890d025d36c6": {
-    "other": "保存业务单据流程关联失败"
-  },
-  "legacy.error.07169436625cbd35": {
-    "other": "任务已被处理或转办"
-  },
-  "system.workflow.job.error.script_scan_failed": {
-    "other": "工作流脚本恢复扫描失败"
-  },
-  "system.workflow.job.result.scripts_scanned": {
-    "other": "工作流脚本恢复扫描完成：处理 {Count} 条"
-  },
-  "legacy.error.2f173bbdd8aabbbb": {"other": "实例流程快照无效"},
-  "legacy.error.067118c2b128c55f": {"other": "不能重试其他租户的脚本"},
-  "legacy.error.ac6310ee83bcf7f9": {"other": "只有流程参与者或管理员可以重试脚本"},
-  "legacy.error.7e1cee01625c342f": {"other": "脚本执行不属于当前流程"},
-  "legacy.error.e02e13af31934679": {"other": "只有失败的脚本可以重试"},
-  "legacy.error.2dcf0a202b5aa077": {"other": "脚本节点不存在"},
-  "legacy.error.9578a4511b3382df": {"other": "申请表单数据必须是JSON对象"},
-  "legacy.error.53f89634cde5df00": {"other": "流程未发布脚本快照，请重新启用流程"},
-  "legacy.error.b008ba1ac3fb0652": {"other": "执行租约已被其他任务接管"},
-  "legacy.error.dcad9e63f38f931c": {"other": "流程尚未终结"},
-  "legacy.error.17513f0b76033b88": {"other": "通知动作参数无效"},
-  "legacy.error.f464573b785f5f5e": {"other": "通知动作需要标题、内容和1至100个本租户用户"},
-  "legacy.error.424ef3bf19c0731c": {"other": "节点图配置无效"},
-  "legacy.error.97a011fa2c37581c": {"other": "引用脚本不存在或未启用"},
-  "legacy.error.c21640c2f2bf1181": {"other": "发布节点图配置不能超过 1MiB"},
-  "legacy.error.68c36a9a40ff17ea": {"other": "重试工作流脚本失败"},
-  "legacy.error.bb42bc14719faff4": {"other": "查询流程脚本失败"},
-  "legacy.error.1be13391c90d0c32": {"other": "试运行流程脚本失败"},
-  "system.admin.workflow.definition.script_test.script_id.required": {"other": "脚本ID必须大于0"},
-  "system.workflow.openapi.script.page": {"other": "查询流程可用的已启用受限脚本"},
-  "system.workflow.openapi.script.test": {"other": "试运行已保存且启用的受限流程脚本，不接受客户端源码"},
-  "system.workflow.openapi.script.retry": {"other": "重试失败的工作流脚本"},
-  "system.workflow.openapi.script.retry_request": {"other": "重试工作流脚本请求"},
-  "system.workflow.openapi.script.runs": {"other": "工作流脚本执行记录"},
-  "system.workflow.openapi.script.run": {"other": "脚本执行记录"},
-  "system.workflow.openapi.script.run_id": {"other": "脚本执行ID"},
-  "system.workflow.openapi.script.snapshot": {"other": "流程节点图快照（不含脚本源码）"},
-  "system.workflow.openapi.script.variables": {"other": "流程变量JSON"},
-  "system.workflow.openapi.script.name": {"other": "脚本名称快照"},
-  "system.workflow.openapi.script.test_request": {"other": "流程脚本试运行参数，仅允许引用保存的脚本。"},
-  "system.workflow.openapi.script.saved_id": {"other": "已保存脚本ID"},
-  "system.workflow.openapi.script.context": {"other": "初始上下文JSON，最大200KiB"},
-  "system.workflow.openapi.script.context_short": {"other": "初始上下文JSON"},
-  "system.workflow.openapi.script.stage": {"other": "执行阶段"},
-  "system.workflow.openapi.script.next_retry": {"other": "下次重试时间"},
-  "legacy.error.0b38823ed34c2c02": {"other": "流程仅支持 JavaScript 脚本"},
-  "legacy.error.732403aa5b743865": {"other": "宿主关联回写必须注册流程关联核验器"},
-  "legacy.error.a7beabf5ecc07c42": {"other": "业务单据关联尚未确认，请稍后撤回"},
-  "system.notification.sender.system": {"other": "系统"},
-  "system.workflow.notification.title.withdrawn": {"other": "待审批申请已被撤回"},
-  "system.workflow.notification.content.withdrawn": {"other": "申请人已撤回该申请，无需继续处理"},
-  "system.workflow.notification.title.rejected": {"other": "您的申请已被驳回"},
-  "system.workflow.notification.content.rejected": {"other": "请登录系统查看审批意见"},
-  "system.workflow.notification.title.forwarded": {"other": "您有被转办的审批任务"},
-  "system.workflow.notification.title.added": {"other": "您有被加签的审批任务"},
-  "system.workflow.notification.title.pending": {"other": "您有新的待审批任务"},
-  "system.workflow.notification.content.pending": {"other": "请登录系统处理待审批事项"},
-  "system.workflow.notification.title.approved": {"other": "您的申请已通过"},
-  "system.workflow.notification.content.approved": {"other": "全部审批节点已通过"},
-  "system.workflow.notification.title.definition_rejected": {"other": "您的申请已被驳回"},
-  "system.workflow.notification.content.definition_rejected": {"other": "流程定义异常，请联系管理员"},
-  "system.workflow.notification.title.escalated_assignee": {"other": "您有待审批任务严重超时"},
-  "system.workflow.notification.content.escalated_assignee": {"other": "该任务已超时较久仍未处理，已同步提醒申请人关注进度。"},
-  "system.workflow.notification.title.escalated_applicant": {"other": "您的申请审批超时"},
-  "system.workflow.notification.content.escalated_applicant": {"other": "当前审批节点办理人长时间未处理，系统已再次提醒对方。"},
-  "system.workflow.notification.title.reminder": {"other": "您有待审批任务超时未处理"},
-  "system.workflow.notification.content.reminder": {"other": "请尽快登录系统处理待审批事项，长时间未处理将同步提醒申请人。"},
-  "legacy.error.ed128739722f40db": {"other": "只有默认租户可以申请新增租户"},
-  "legacy.error.3da415f938fb011b": {"other": "校验租户审批来源失败"},
-  "legacy.error.8c6af8b20cd52f9c": {"other": "只有默认租户可以执行新增租户审批动作"},
-  "legacy.error.12880bf977139081": {"other": "校验租户审批关联失败"},
-  "legacy.error.488a83cdadc0d421": {"other": "新增租户审批业务关联无效"},
-  "legacy.error.83c152306e3a4a8e": {"other": "新增租户审批表单无效"},
-  "legacy.error.f93a42e989ecd8af": {"other": "校验项目审批来源失败"},
-  "legacy.error.4348feb419bc4342": {"other": "只有默认租户可以执行新增项目审批动作"},
-  "legacy.error.347070fc997f7568": {"other": "校验项目审批关联失败"},
-  "legacy.error.359210281db55f21": {"other": "新增项目审批业务关联无效"},
-  "legacy.error.d20fc8bcc8d8f5c7": {"other": "新增项目审批表单无效"},
-  "legacy.error.0224ce0d4c9763eb": {"other": "新增项目审批所属租户无效"},
-  "legacy.error.9cafc0f70e08d227": {
-    "other": "请在管理端确认业务写入操作"
-  },
-  "legacy.error.4d48785e7ebd39fb": {
-    "other": "审批已失效或已处理"
-  },
-  "legacy.error.e46eaf899f18a393": {
-    "other": "审批运行配置损坏"
-  },
-  "legacy.error.47a58292ae95d795": {
-    "other": "审批工具参数损坏"
-  },
-  "legacy.error.d23b49a800ec82fd": {
-    "other": "审批运行状态无效"
-  },
-  "legacy.error.0e01a87b0d86090d": {
-    "other": "AI运行状态已变化，不能保存审批"
-  },
-  "legacy.error.fc4d92dd2ebc6782": {
-    "other": "正在执行的消息不能删除"
-  },
-  "legacy.error.ef4d3b3aab09a01d": {
-    "other": "请先等待当前回复完成或处理待确认操作"
-  },
-  "legacy.error.f11d68a2a74f06f9": {
-    "other": "工具不属于当前终端"
-  },
-  "legacy.error.446c05bbcf853ae6": {
-    "other": "Agent工具未启用"
-  },
-  "legacy.error.799b4c56d12deb00": {
-    "other": "Agent工具未启用或执行能力被禁止"
-  },
-  "legacy.error.2e9e8485207551ae": {
-    "other": "工具接口契约不存在"
-  },
-  "legacy.error.a934ff7ee33d8ab2": {
-    "other": "工具接口契约无效"
-  },
-  "legacy.error.844039c078368bf3": {
-    "other": "工具请求契约不存在"
-  },
-  "legacy.error.94c872f75369c921": {
-    "other": "工具参数无效"
-  },
-  "legacy.error.7037d44d26f2fe7d": {
-    "other": "确认AI工具操作失败"
-  },
-  "openapi.ai.approval.0a50ca52d217eaa0": {
-    "other": "确认或拒绝当前用户的待执行工具调用。"
-  },
-  "openapi.ai.approval.907638a466d26ec4": {
-    "other": "AI 工具人工确认请求，实际工具和参数由服务端冻结。"
-  },
-  "openapi.ai.approval.79d325f8ec278ba6": {
-    "other": "一次性审批编号"
-  },
-  "openapi.ai.approval.6cedfb9ab50004c5": {
-    "other": "是否确认执行"
-  },
-  "openapi.ai.approval.c7fb3cb9b170ea8d": {
-    "other": "待执行工具的人工确认信息"
-  },
-  "openapi.ai.approval.bc522e692aed7078": {
-    "other": "AI 工具人工确认信息。"
-  },
-  "openapi.ai.approval.aca86adff02160dc": {
-    "other": "待确认的工具和冻结参数"
-  },
-  "openapi.ai.approval.2a1e259212d00994": {
-    "other": "确认截止时间"
-  },
-  "openapi.ai.approval.c5953adda9d71bb8": {
-    "other": "AI 待确认工具调用。"
-  },
-  "openapi.ai.approval.25b37d5c985ea3be": {
-    "other": "操作说明"
-  },
-  "openapi.ai.approval.e1de7de24c6aa692": {
-    "other": "待执行的冻结参数JSON"
-  },
-  "base.ai.approval.session_id.positive": {
-    "other": "会话编号不合法"
-  },
-  "base.ai.approval.message_id.positive": {
-    "other": "消息编号不合法"
-  },
-  "system.ai.chat.approval.expired": {
-    "other": "确认已过期，待确认的操作未执行。"
-  },
-  "system.ai.chat.approval.rejected": {
-    "other": "已拒绝，待确认的操作未执行。"
-  },
-  "system.ai.chat.error.run_expired": {
-    "other": "生成已超时，本次请求不会自动恢复。重试前请核对业务结果。"
   }
 }

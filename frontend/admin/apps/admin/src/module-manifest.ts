@@ -20,6 +20,10 @@ export const adminModuleManifest = [
   {
     packageName: "@liujitcn/kratos-admin-rag",
     load: async () => (await import("@liujitcn/kratos-admin-rag")).ragAdminModule
+  },
+  {
+    packageName: "@liujitcn/kratos-admin-bi",
+    load: async () => (await import("@liujitcn/kratos-admin-bi")).biAdminModule
   }
 ] satisfies AdminModuleManifestItem[];
 

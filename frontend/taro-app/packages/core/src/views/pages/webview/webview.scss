@@ -37,7 +37,7 @@
   width: 240px;
   height: 72px;
   line-height: 72px;
-  border-radius: 72px;
+  border-radius: var(--kratos-page-radius);
   background: linear-gradient(135deg, var(--kratos-color-primary-deep), var(--kratos-color-primary));
   color: var(--kratos-color-on-primary);
   font-size: 26px;

@@ -99,7 +99,7 @@ onLoad((query) => {
   overflow: hidden;
   padding: 40rpx 32rpx 56rpx;
   border: 1rpx solid var(--kratos-color-border);
-  border-radius: 24rpx;
+  border-radius: var(--kratos-page-radius);
   background-color: var(--kratos-color-surface);
   box-shadow: var(--kratos-glow-soft);
 }

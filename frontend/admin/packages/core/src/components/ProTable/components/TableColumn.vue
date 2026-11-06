@@ -228,7 +228,7 @@ const renderMoneyCell = (item: ColumnProps, scope: RenderScope<any>) => {
 };
 
 /**
- * 渲染操作按钮列，优先展示编辑、删除，超过三项时将其他操作折叠。
+ * 渲染操作按钮列，三项以内全部展示，超过三项保留两个并折叠其余操作。
  */
 const renderActionsCell = (item: ColumnProps, scope: RenderScope<any>) => {
   if (!item.actions?.length) return "--";
@@ -237,7 +237,9 @@ const renderActionsCell = (item: ColumnProps, scope: RenderScope<any>) => {
   const primaryLabels = [t("common.action.edit"), t("common.action.delete")];
   const primaryActions = primaryLabels.flatMap(label => visibleActions.filter(action => action.label === label));
   const otherActions = visibleActions.filter(action => !primaryLabels.includes(action.label));
-  const inlineActions = visibleActions.length > 3 ? primaryActions : [...primaryActions, ...otherActions];
+  const orderedActions = [...primaryActions, ...otherActions];
+  const inlineActions = visibleActions.length > 3 ? orderedActions.slice(0, 2) : orderedActions;
+  const moreActions = visibleActions.length > 3 ? orderedActions.slice(2) : [];
   const buttons = inlineActions.map((action: TableActionProps) => {
     const params = resolveColumnParams(action.params, scope);
     return h(
@@ -254,7 +256,7 @@ const renderActionsCell = (item: ColumnProps, scope: RenderScope<any>) => {
       { default: () => action.label }
     );
   });
-  if (visibleActions.length > 3 && otherActions.length)
+  if (moreActions.length)
     buttons.push(
       h(
         ElDropdown,
@@ -264,7 +266,7 @@ const renderActionsCell = (item: ColumnProps, scope: RenderScope<any>) => {
             h(ElButton, { type: "primary", link: true, size: "small", icon: ArrowDown }, () => t("common.action.more")),
           dropdown: () =>
             h(ElDropdownMenu, null, () =>
-              otherActions.map(action => {
+              moreActions.map(action => {
                 const disabled = getBooleanValue(action.disabled, scope);
                 const params = resolveColumnParams(action.params, scope);
                 return h(

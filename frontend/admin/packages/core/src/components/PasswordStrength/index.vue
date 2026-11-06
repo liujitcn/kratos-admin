@@ -132,7 +132,7 @@ onMounted(async () => {
 .password-strength__bar {
   height: 8px;
   background: #ebeef5;
-  border-radius: 999px;
+  border-radius: var(--admin-page-radius);
   transform: scaleX(0.92);
   transform-origin: left center;
   transition:

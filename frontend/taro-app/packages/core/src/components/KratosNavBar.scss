@@ -40,7 +40,7 @@
   width: 76px;
   height: 76px;
   border: 1PX solid var(--kratos-color-border);
-  border-radius: 24px;
+  border-radius: var(--kratos-page-radius);
   background: var(--kratos-color-surface);
   color: var(--kratos-color-text);
   line-height: 0;

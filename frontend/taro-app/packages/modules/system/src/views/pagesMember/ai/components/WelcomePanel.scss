@@ -185,7 +185,7 @@
   min-width: 350px;
   height: 96px;
   padding: 0 34px 0 78px;
-  border-radius: 18px;
+  border-radius: var(--kratos-page-radius);
   font-size: 30px;
   line-height: 96px;
 }
@@ -196,7 +196,7 @@
   min-height: 96px;
   margin-top: 30px;
   padding: 24px 28px;
-  border-radius: 18px;
+  border-radius: var(--kratos-page-radius);
   font-size: 29px;
   line-height: 44px;
 }
@@ -205,7 +205,7 @@
   margin-top: 34px;
   padding: 30px 28px 24px;
   border: 1PX solid var(--kratos-color-border-accent, rgba(120, 230, 215, 0.16));
-  border-radius: 16px;
+  border-radius: var(--kratos-page-radius);
   background: var(--kratos-color-surface, #fff);
   box-shadow: var(--kratos-glow-soft, none);
   box-sizing: border-box;
@@ -265,7 +265,7 @@
   width: 36px;
   height: 36px;
   margin-right: 24px;
-  border-radius: 8px;
+  border-radius: var(--kratos-page-radius);
   color: var(--kratos-color-primary, #28f0d4);
   font-size: 24px;
   font-weight: 700;

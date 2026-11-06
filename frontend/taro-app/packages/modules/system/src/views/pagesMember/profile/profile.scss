@@ -34,7 +34,7 @@
 .profile-av-img {
   width: 100%;
   height: 100%;
-  border-radius: 22px;
+  border-radius: var(--kratos-page-radius);
 }
 
 /* 表单卡 */
@@ -83,7 +83,7 @@
   margin: 0;
   padding: 0 24px;
   border: 1PX solid var(--kratos-color-border-accent);
-  border-radius: 999px;
+  border-radius: var(--kratos-page-radius);
   background: var(--kratos-color-primary-soft);
   color: var(--kratos-color-primary);
   font-size: 24px;

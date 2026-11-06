@@ -12,6 +12,7 @@ import (
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/ai"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
+	"github.com/liujitcn/kratos-admin/backend/pkg/agent"
 	"github.com/liujitcn/kratos-core/biz"
 	_const "github.com/liujitcn/kratos-core/const"
 	"github.com/liujitcn/kratos-core/errorsx"
@@ -97,7 +98,8 @@ func (h *McpCase) HandleMcp(ctx context.Context, req *basev1.HandleMcpRequest) (
 	if !ok || r == nil {
 		return nil, errorsx.InvalidArgument("MCP请求仅支持HTTP访问")
 	}
-	clonedRequest := r.Clone(context.WithValue(r.Context(), mcpTerminalContextKey{}, terminal))
+	ctx = agent.ContextWithTerminal(r.Context(), terminal)
+	clonedRequest := r.Clone(context.WithValue(ctx, mcpTerminalContextKey{}, terminal))
 	clonedRequest.Header = r.Header.Clone()
 	clonedRequest.Header.Set(mcpTerminalHeader, terminal)
 	urlCopy := *r.URL
@@ -362,12 +364,16 @@ func matchMcpToolPrefix(terminal, toolName string) bool {
 	return matchToolTerminal(terminal, toolName)
 }
 
-// matchToolTerminal 判断生成工具名中的 protobuf 终端段是否匹配当前终端。
+// matchToolTerminal 按终端筛选工具，并允许两端复用 BI 语义问数。
 func matchToolTerminal(terminal, toolName string) bool {
 	if toolName == "" {
 		return false
 	}
 	if terminal == "" {
+		return true
+	}
+	switch toolName {
+	case "bi_admin_v1_bi_query_service_ask_bi_query", "bi_admin_v1_bi_query_service_list_bi_sources", "bi_admin_v1_bi_query_service_preview_bi_query":
 		return true
 	}
 	return strings.HasPrefix(toolName, "base_") ||

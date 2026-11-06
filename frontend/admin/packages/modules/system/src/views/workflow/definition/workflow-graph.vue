@@ -250,12 +250,12 @@ defineExpose({ fitGraph });
   &.node-type-start {
     background: var(--el-color-success-light-9);
     border-color: var(--el-color-success);
-    border-radius: 32px;
+    border-radius: var(--admin-page-radius);
   }
   &.node-type-end {
     background: var(--el-color-info-light-9);
     border-color: var(--el-color-info);
-    border-radius: 32px;
+    border-radius: var(--admin-page-radius);
   }
   &.node-type-task {
     background: var(--el-color-primary-light-9);

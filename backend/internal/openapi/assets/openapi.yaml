@@ -320,60 +320,6 @@ paths:
                 "200":
                     description: OK
                     content: {}
-    /api/v1/admin/base/ai-query:
-        get:
-            tags:
-                - AiQueryService
-            description: 分页查询智能问数记录。
-            operationId: AiQueryService_PageAiQuery
-            parameters:
-                - name: question
-                  in: query
-                  schema:
-                    type: string
-                - name: status
-                  in: query
-                  schema:
-                    enum:
-                        - AI_QUERY_STATUS_UNSPECIFIED
-                        - AI_QUERY_STATUS_SUCCESS
-                        - AI_QUERY_STATUS_FAILED
-                    type: string
-                    format: enum
-                - name: page_num
-                  in: query
-                  schema:
-                    type: string
-                - name: page_size
-                  in: query
-                  schema:
-                    type: string
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/system.admin.v1.PageAiQueryResponse'
-    /api/v1/admin/base/ai-query/{id}:
-        get:
-            tags:
-                - AiQueryService
-            description: 查询智能问数记录详情。
-            operationId: AiQueryService_GetAiQuery
-            parameters:
-                - name: id
-                  in: path
-                  required: true
-                  schema:
-                    type: string
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/system.admin.v1.AiQueryRecord'
     /api/v1/admin/base/ai-session:
         get:
             tags:
@@ -6611,6 +6557,596 @@ paths:
                 "200":
                     description: OK
                     content: {}
+    /api/v1/admin/bi/card:
+        get:
+            tags:
+                - BiCardService
+            description: 分页查询当前用户可见的数据卡片。
+            operationId: BiCardService_PageBiCard
+            parameters:
+                - name: name
+                  in: query
+                  schema:
+                    type: string
+                - name: source_code
+                  in: query
+                  schema:
+                    type: string
+                - name: category
+                  in: query
+                  schema:
+                    type: string
+                - name: search_source_codes
+                  in: query
+                  schema:
+                    type: array
+                    items:
+                        type: string
+                - name: page_num
+                  in: query
+                  schema:
+                    type: string
+                - name: page_size
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/bi.admin.v1.PageBiCardResponse'
+        post:
+            tags:
+                - BiCardService
+            description: 创建或修改自己的数据卡片。
+            operationId: BiCardService_SaveBiCard
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/bi.admin.v1.SaveBiCardRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/bi.admin.v1.BiCard'
+    /api/v1/admin/bi/card/{id}:
+        delete:
+            tags:
+                - BiCardService
+            description: 删除自己的数据卡片。
+            operationId: BiCardService_DeleteBiCard
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/bi.admin.v1.DeleteBiCardResponse'
+    /api/v1/admin/bi/card/{id}/data:
+        get:
+            tags:
+                - BiCardService
+            description: 在当前用户权限范围内执行卡片查询。
+            operationId: BiCardService_GetBiCardData
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: range_days
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/bi.admin.v1.BiQueryResult'
+    /api/v1/admin/bi/dashboard:
+        get:
+            tags:
+                - BiDashboardService
+            description: 分页查询当前用户可见的仪表盘。
+            operationId: BiDashboardService_PageBiDashboard
+            parameters:
+                - name: name
+                  in: query
+                  schema:
+                    type: string
+                - name: page_num
+                  in: query
+                  schema:
+                    type: string
+                - name: page_size
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/bi.admin.v1.PageBiDashboardResponse'
+        post:
+            tags:
+                - BiDashboardService
+            description: 创建或保存仪表盘草稿。
+            operationId: BiDashboardService_SaveBiDashboard
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/bi.admin.v1.SaveBiDashboardRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/bi.admin.v1.BiDashboard'
+    /api/v1/admin/bi/dashboard/{id}:
+        get:
+            tags:
+                - BiDashboardService
+            description: 查询仪表盘及当前草稿内容。
+            operationId: BiDashboardService_GetBiDashboard
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/bi.admin.v1.BiDashboard'
+        delete:
+            tags:
+                - BiDashboardService
+            description: 删除仪表盘。
+            operationId: BiDashboardService_DeleteBiDashboard
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/bi.admin.v1.DeleteBiDashboardResponse'
+    /api/v1/admin/bi/dashboard/{id}/data:
+        get:
+            tags:
+                - BiDashboardService
+            description: 执行已发布仪表盘中的全部图表查询。
+            operationId: BiDashboardService_GetBiDashboardData
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: version
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/bi.admin.v1.BiDashboardDataResponse'
+    /api/v1/admin/bi/dashboard/{id}/publish:
+        post:
+            tags:
+                - BiDashboardService
+            description: 发布仪表盘草稿。
+            operationId: BiDashboardService_PublishBiDashboard
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/bi.admin.v1.PublishBiDashboardRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/bi.admin.v1.BiDashboard'
+    /api/v1/admin/bi/query-record:
+        get:
+            tags:
+                - BiQueryRecordService
+            description: 分页查询当前用户的自然语言问数历史。
+            operationId: BiQueryRecordService_PageBiQuery
+            parameters:
+                - name: question
+                  in: query
+                  schema:
+                    type: string
+                - name: status
+                  in: query
+                  schema:
+                    enum:
+                        - BI_QUERY_STATUS_UNSPECIFIED
+                        - BI_QUERY_STATUS_SUCCESS
+                        - BI_QUERY_STATUS_FAILED
+                    type: string
+                    format: enum
+                - name: source_code
+                  in: query
+                  schema:
+                    type: string
+                - name: page_num
+                  in: query
+                  schema:
+                    type: string
+                - name: page_size
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/bi.admin.v1.PageBiQueryResponse'
+    /api/v1/admin/bi/query-record/{id}:
+        get:
+            tags:
+                - BiQueryRecordService
+            description: 查询智能问数记录详情。
+            operationId: BiQueryRecordService_GetBiQuery
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/bi.admin.v1.BiQueryRecord'
+    /api/v1/admin/bi/query/ask:
+        post:
+            tags:
+                - BiQueryService
+            description: 自然语言生成语义查询并返回预览结果。
+            operationId: BiQueryService_AskBiQuery
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/bi.admin.v1.AskBiQueryRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/bi.admin.v1.AskBiQueryResponse'
+    /api/v1/admin/bi/query/preview:
+        post:
+            tags:
+                - BiQueryService
+            description: 预览一个已经由前端配置的语义查询。
+            operationId: BiQueryService_PreviewBiQuery
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/bi.admin.v1.PreviewBiQueryRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/bi.admin.v1.BiQueryResult'
+    /api/v1/admin/bi/source:
+        get:
+            tags:
+                - BiSourceService
+            description: 分页查询当前租户的数据源配置。
+            operationId: BiSourceService_PageBiSource
+            parameters:
+                - name: code
+                  in: query
+                  schema:
+                    type: string
+                - name: name
+                  in: query
+                  schema:
+                    type: string
+                - name: source_name
+                  in: query
+                  schema:
+                    type: string
+                - name: status
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+                - name: page_num
+                  in: query
+                  schema:
+                    type: string
+                - name: page_size
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/bi.admin.v1.PageBiSourceResponse'
+        post:
+            tags:
+                - BiSourceService
+            description: 创建数据源配置。
+            operationId: BiSourceService_CreateBiSource
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/bi.admin.v1.BiSourceForm'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/bi.admin.v1.BiSource'
+    /api/v1/admin/bi/source/options/databases:
+        get:
+            tags:
+                - BiSourceService
+            description: 查询服务端已配置的数据库客户端选项。
+            operationId: BiSourceService_OptionBiSourceDatabase
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/bi.admin.v1.OptionBiSourceDatabaseResponse'
+    /api/v1/admin/bi/source/test:
+        post:
+            tags:
+                - BiSourceService
+            description: 测试数据源连接是否可访问。
+            operationId: BiSourceService_TestBiSource
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/bi.admin.v1.BiSourceForm'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/bi.admin.v1.TestBiSourceResponse'
+    /api/v1/admin/bi/source/{id}:
+        get:
+            tags:
+                - BiSourceService
+            description: 查询数据源配置详情。
+            operationId: BiSourceService_GetBiSource
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/bi.admin.v1.BiSource'
+        delete:
+            tags:
+                - BiSourceService
+            description: 删除数据源配置。
+            operationId: BiSourceService_DeleteBiSource
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/bi.admin.v1.DeleteBiSourceResponse'
+    /api/v1/admin/bi/source/{id}/model:
+        put:
+            tags:
+                - BiSourceService
+            description: 保存经过校验的多表语义模型。
+            operationId: BiSourceService_SaveBiSourceModel
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/bi.admin.v1.BiSourceModel'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/bi.admin.v1.BiSource'
+    /api/v1/admin/bi/source/{id}/status:
+        put:
+            tags:
+                - BiSourceService
+            description: 修改数据源启用状态。
+            operationId: BiSourceService_SetBiSourceStatus
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/bi.admin.v1.SetBiSourceStatusRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/bi.admin.v1.BiSource'
+    /api/v1/admin/bi/source/{id}/tables:
+        get:
+            tags:
+                - BiSourceService
+            description: 发现已保存数据源中的表、字段和唯一键。
+            operationId: BiSourceService_ListBiSourceTables
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/bi.admin.v1.ListBiSourceTablesResponse'
+    /api/v1/admin/bi/source/{source.id}:
+        put:
+            tags:
+                - BiSourceService
+            description: 更新数据源配置。
+            operationId: BiSourceService_UpdateBiSource
+            parameters:
+                - name: source.id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/bi.admin.v1.BiSourceForm'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/bi.admin.v1.BiSource'
+    /api/v1/admin/bi/sources:
+        get:
+            tags:
+                - BiQueryService
+            description: 查询当前用户可用的数据源目录。
+            operationId: BiQueryService_ListBiSources
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/bi.admin.v1.ListBiSourcesResponse'
+    /api/v1/admin/bi/workbench:
+        get:
+            tags:
+                - BiCardService
+            description: 获取当前用户的工作台与收藏。
+            operationId: BiCardService_GetBiWorkbench
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/bi.admin.v1.BiWorkbench'
+        put:
+            tags:
+                - BiCardService
+            description: 保存当前用户的工作台顺序与收藏。
+            operationId: BiCardService_SaveBiWorkbench
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/bi.admin.v1.SaveBiWorkbenchRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/bi.admin.v1.BiWorkbench'
     /api/v1/admin/cache:
         get:
             tags:
@@ -8146,44 +8682,6 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/base.v1.ListAiProviderModelOptionsResponse'
-    /api/v1/base/ai/query/ask:
-        post:
-            tags:
-                - AiQueryService
-            description: 智能问数：将自然语言问题转换为只读 SQL 查询数据库并返回结构化结果
-            operationId: AiQueryService_AskAiQuery
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/base.v1.AskAiQueryRequest'
-                required: true
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/base.v1.AskAiQueryResponse'
-    /api/v1/base/ai/query/tables:
-        post:
-            tags:
-                - AiQueryService
-            description: 查询智能问数可用的数据表目录
-            operationId: AiQueryService_OptionAiQueryTable
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/base.v1.OptionAiQueryTableRequest'
-                required: true
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/base.v1.OptionAiQueryTableResponse'
     /api/v1/base/ai/search:
         post:
             tags:
@@ -9609,25 +10107,6 @@ components:
                         $ref: '#/components/schemas/base.v1.AiProviderModel'
                     description: 模型选项列表
             description: 已启用的AI Provider及其模型选项。
-        base.v1.AiQueryRow:
-            type: object
-            properties:
-                values:
-                    type: array
-                    items:
-                        type: string
-                    description: 与列名顺序对齐的单元格值
-            description: 智能问数结果行
-        base.v1.AiQueryTable:
-            type: object
-            properties:
-                name:
-                    type: string
-                    description: 表名
-                comment:
-                    type: string
-                    description: 表说明
-            description: 智能问数可用数据表
         base.v1.AiSession:
             type: object
             properties:
@@ -9764,40 +10243,6 @@ components:
                     type: string
                     description: 投递ID
             description: 归档消息请求。
-        base.v1.AskAiQueryRequest:
-            type: object
-            properties:
-                question:
-                    type: string
-                    description: 自然语言问题
-            description: 智能问数请求
-        base.v1.AskAiQueryResponse:
-            type: object
-            properties:
-                sql:
-                    type: string
-                    description: 生成的只读 SQL
-                columns:
-                    type: array
-                    items:
-                        type: string
-                    description: 结果列名
-                rows:
-                    type: array
-                    items:
-                        $ref: '#/components/schemas/base.v1.AiQueryRow'
-                    description: 结果行
-                row_count:
-                    type: integer
-                    description: 结果行数
-                    format: int32
-                truncated:
-                    type: boolean
-                    description: 结果是否因行数或体积上限被截断
-                elapsed_ms:
-                    type: string
-                    description: SQL 执行耗时（毫秒）
-            description: 智能问数响应
         base.v1.BeginMfaDisableRequest:
             type: object
             properties: {}
@@ -10750,19 +11195,6 @@ components:
                     type: object
                     description: Provider个性化配置JSON对象
             description: 三方登录方式信息
-        base.v1.OptionAiQueryTableRequest:
-            type: object
-            properties: {}
-            description: 智能问数表目录请求
-        base.v1.OptionAiQueryTableResponse:
-            type: object
-            properties:
-                tables:
-                    type: array
-                    items:
-                        $ref: '#/components/schemas/base.v1.AiQueryTable'
-                    description: 可用数据表列表
-            description: 智能问数表目录响应
         base.v1.OptionLanguageResponse:
             type: object
             properties:
@@ -11057,6 +11489,925 @@ components:
                     type: boolean
                     description: 是否记住当前设备
             description: 多因素认证校验请求。
+        bi.admin.v1.AskBiQueryRequest:
+            type: object
+            properties:
+                question:
+                    type: string
+                    description: 自然语言问题
+                provider_id:
+                    type: string
+                    description: 所选供应商ID；留空时使用首个可用模型
+                model_name:
+                    type: string
+                    description: 所选模型名称
+            description: BI 自然语言问数请求。
+        bi.admin.v1.AskBiQueryResponse:
+            type: object
+            properties:
+                query:
+                    $ref: '#/components/schemas/bi.admin.v1.BiQuerySpec'
+                result:
+                    $ref: '#/components/schemas/bi.admin.v1.BiQueryResult'
+                chart_type:
+                    type: string
+                    description: 建议图表类型
+                title:
+                    type: string
+                    description: 建议图表标题
+            description: BI 自然语言问数响应。
+        bi.admin.v1.BiCard:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 卡片ID
+                tenant_id:
+                    type: string
+                    description: 租户ID
+                project_id:
+                    type: string
+                    description: 项目ID，0表示租户级
+                owner_id:
+                    type: string
+                    description: 所有者用户ID，0表示系统内置
+                query_record_id:
+                    type: string
+                    description: 来源查询记录ID
+                name:
+                    type: string
+                    description: 卡片名称
+                source_code:
+                    type: string
+                    description: 语义数据源编码
+                query:
+                    $ref: '#/components/schemas/bi.admin.v1.BiQuerySpec'
+                chart_type:
+                    type: string
+                    description: 图表类型
+                chart_json:
+                    type: string
+                    description: 图表字段映射与样式配置JSON
+                refresh_seconds:
+                    type: integer
+                    description: 自动刷新间隔秒数，86400表示每日02:00
+                    format: int32
+                is_shared:
+                    type: boolean
+                    description: 是否共享
+                updated_at:
+                    type: string
+                    description: 更新时间
+                category:
+                    type: string
+                    description: 分类：system系统、mine自建、shared分享
+                can_edit:
+                    type: boolean
+                    description: 当前用户是否可编辑
+            description: 数据卡片记录。
+        bi.admin.v1.BiCardCounts:
+            type: object
+            properties:
+                all:
+                    type: string
+                    description: 全部卡片数量
+                system:
+                    type: string
+                    description: 系统卡片数量
+                mine:
+                    type: string
+                    description: 自己创建的卡片数量
+                favorite:
+                    type: string
+                    description: 收藏卡片数量
+                shared:
+                    type: string
+                    description: 他人分享的卡片数量
+            description: 数据卡片分类数量。
+        bi.admin.v1.BiCardForm:
+            type: object
+            properties:
+                name:
+                    type: string
+                    description: 卡片名称
+                query:
+                    $ref: '#/components/schemas/bi.admin.v1.BiQuerySpec'
+                chart_type:
+                    type: string
+                    description: 图表类型
+                query_record_id:
+                    type: string
+                    description: 来源成功查询记录ID
+                chart_json:
+                    type: string
+                    description: 图表字段映射与样式配置JSON
+                refresh_seconds:
+                    type: integer
+                    description: 自动刷新间隔秒数，0表示手动，86400表示每日02:00
+                    format: int32
+                is_shared:
+                    type: boolean
+                    description: 是否共享到当前项目范围
+            description: 数据卡片配置。
+        bi.admin.v1.BiDashboard:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 仪表盘ID
+                tenant_id:
+                    type: string
+                    description: 租户ID
+                project_id:
+                    type: string
+                    description: 项目ID，0表示租户级
+                code:
+                    type: string
+                    description: 仪表盘编码
+                name:
+                    type: string
+                    description: 仪表盘名称
+                description:
+                    type: string
+                    description: 仪表盘说明
+                owner_id:
+                    type: string
+                    description: 所有者用户ID
+                status:
+                    type: integer
+                    description: 状态：1草稿，2已发布，3停用
+                    format: int32
+                draft_version:
+                    type: string
+                    description: 草稿版本
+                published_version:
+                    type: string
+                    description: 已发布版本
+                schema_json:
+                    type: string
+                    description: 仪表盘Schema JSON
+                updated_at:
+                    type: string
+                    description: 更新时间
+                can_edit:
+                    type: boolean
+                    description: 当前用户是否可编辑
+            description: BI 仪表盘记录。
+        bi.admin.v1.BiDashboardCardResult:
+            type: object
+            properties:
+                item_id:
+                    type: string
+                    description: 图表组件ID
+                result:
+                    $ref: '#/components/schemas/bi.admin.v1.BiQueryResult'
+            description: 单个图表查询结果。
+        bi.admin.v1.BiDashboardDataResponse:
+            type: object
+            properties:
+                cards:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/bi.admin.v1.BiDashboardCardResult'
+                    description: 图表结果
+                schema_json:
+                    type: string
+                    description: 本次执行版本的仪表盘Schema JSON
+            description: 仪表盘数据响应。
+        bi.admin.v1.BiFieldDescriptor:
+            type: object
+            properties:
+                code:
+                    type: string
+                    description: 字段编码
+                name:
+                    type: string
+                    description: 字段名称
+                type:
+                    type: string
+                    description: 字段类型：string、number、date
+                filterable:
+                    type: boolean
+                    description: 是否允许过滤
+            description: BI 字段描述。
+        bi.admin.v1.BiFilterSpec:
+            type: object
+            properties:
+                field:
+                    type: string
+                    description: 字段编码
+                operator:
+                    type: string
+                    description: 操作符：eq、in、between、contains
+                values:
+                    type: array
+                    items:
+                        type: string
+                    description: 过滤值
+            description: BI 过滤条件。
+        bi.admin.v1.BiMeasureDescriptor:
+            type: object
+            properties:
+                code:
+                    type: string
+                    description: 指标编码
+                name:
+                    type: string
+                    description: 指标名称
+                type:
+                    type: string
+                    description: 指标类型
+                aggregations:
+                    type: array
+                    items:
+                        type: string
+                    description: 允许的聚合函数
+            description: BI 指标描述。
+        bi.admin.v1.BiMeasureSpec:
+            type: object
+            properties:
+                code:
+                    type: string
+                    description: 指标编码
+                aggregation:
+                    type: string
+                    description: 聚合函数
+            description: BI 指标查询项。
+        bi.admin.v1.BiOrderSpec:
+            type: object
+            properties:
+                field:
+                    type: string
+                    description: 已选择的维度或指标编码
+                direction:
+                    type: string
+                    description: 排序方向：asc 或 desc
+            description: BI 结果排序规则。
+        bi.admin.v1.BiQueryRecord:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 记录ID
+                tenant_id:
+                    type: string
+                    description: 租户ID
+                user_id:
+                    type: string
+                    description: 用户ID
+                project_id:
+                    type: string
+                    description: 项目ID
+                dashboard_id:
+                    type: string
+                    description: 仪表盘ID
+                dashboard_version:
+                    type: string
+                    description: 仪表盘版本
+                widget_id:
+                    type: string
+                    description: 图表组件ID
+                source_code:
+                    type: string
+                    description: 数据源编码
+                question:
+                    type: string
+                    description: 自然语言问题，非问数查询为空
+                query_json:
+                    type: string
+                    description: 语义查询计划JSON
+                query_hash:
+                    type: string
+                    description: 查询计划哈希
+                status:
+                    enum:
+                        - BI_QUERY_STATUS_UNSPECIFIED
+                        - BI_QUERY_STATUS_SUCCESS
+                        - BI_QUERY_STATUS_FAILED
+                    type: string
+                    description: 问数状态：枚举【BiQueryStatus】
+                    format: enum
+                row_count:
+                    type: integer
+                    description: 结果行数
+                    format: int32
+                truncated:
+                    type: integer
+                    description: 是否截断：0否，1是
+                    format: int32
+                elapsed_ms:
+                    type: string
+                    description: 查询耗时毫秒，问数包含模型生成耗时
+                error_msg:
+                    type: string
+                    description: 失败原因
+                created_at:
+                    type: string
+                    description: 创建时间
+                user_name:
+                    type: string
+                    description: 用户账号
+                result:
+                    $ref: '#/components/schemas/bi.admin.v1.BiQueryResult'
+            description: BI 查询记录。
+        bi.admin.v1.BiQueryResult:
+            type: object
+            properties:
+                columns:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/bi.admin.v1.BiResultColumn'
+                    description: 结果列
+                rows:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/bi.admin.v1.BiResultRow'
+                    description: 结果行
+                truncated:
+                    type: boolean
+                    description: 是否因限制截断
+                elapsed_ms:
+                    type: string
+                    description: 查询耗时毫秒
+                query_record_id:
+                    type: string
+                    description: 本次成功查询记录ID，可作为数据卡片来源
+            description: BI 查询结果。
+        bi.admin.v1.BiQuerySpec:
+            type: object
+            properties:
+                source_code:
+                    type: string
+                    description: 数据源编码
+                dimensions:
+                    type: array
+                    items:
+                        type: string
+                    description: 分组维度编码
+                measures:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/bi.admin.v1.BiMeasureSpec'
+                    description: 查询指标
+                filters:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/bi.admin.v1.BiFilterSpec'
+                    description: 过滤条件
+                limit:
+                    type: integer
+                    description: 结果行数上限，默认100
+                    format: int32
+                time_range:
+                    $ref: '#/components/schemas/bi.admin.v1.BiTimeRangeSpec'
+                orders:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/bi.admin.v1.BiOrderSpec'
+                    description: 结果排序规则
+            description: BI 语义查询计划。
+        bi.admin.v1.BiResultColumn:
+            type: object
+            properties:
+                code:
+                    type: string
+                    description: 列编码
+                name:
+                    type: string
+                    description: 列名称
+                type:
+                    type: string
+                    description: 列类型
+            description: BI 结果列。
+        bi.admin.v1.BiResultRow:
+            type: object
+            properties:
+                values:
+                    type: array
+                    items:
+                        type: string
+                    description: 按列顺序排列的值
+            description: BI 结果行。
+        bi.admin.v1.BiSource:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 数据源ID
+                tenant_id:
+                    type: string
+                    description: 租户ID
+                code:
+                    type: string
+                    description: 数据源编码
+                name:
+                    type: string
+                    description: 数据源名称
+                description:
+                    type: string
+                    description: 数据源说明
+                source_name:
+                    type: string
+                    description: 服务端数据库客户端名称
+                driver:
+                    type: string
+                    description: 数据库驱动
+                host:
+                    type: string
+                    description: 数据库主机
+                port:
+                    type: integer
+                    description: 数据库端口
+                    format: int32
+                database_name:
+                    type: string
+                    description: 数据库名称
+                username:
+                    type: string
+                    description: 数据库用户名
+                password_configured:
+                    type: boolean
+                    description: 是否已保存数据库密码
+                ssl_mode:
+                    type: string
+                    description: PostgreSQL SSL模式
+                schema_name:
+                    type: string
+                    description: 数据库 Schema
+                table_name:
+                    type: string
+                    description: 数据库表或视图名称
+                tenant_column:
+                    type: string
+                    description: 租户列
+                schema_json:
+                    type: string
+                    description: 维度和指标语义配置 JSON
+                status:
+                    type: integer
+                    description: 状态：1启用，2禁用
+                    format: int32
+                version:
+                    type: integer
+                    description: 语义版本
+                    format: int32
+                max_rows:
+                    type: integer
+                    description: 最大结果行数
+                    format: int32
+                created_at:
+                    type: string
+                    description: 创建时间
+                updated_at:
+                    type: string
+                    description: 更新时间
+                model_configured:
+                    type: boolean
+                    description: 是否已配置语义模型
+                table_count:
+                    type: integer
+                    description: 模型选中的表数量
+                    format: int32
+            description: BI 数据源配置。
+        bi.admin.v1.BiSourceDatabase:
+            type: object
+            properties:
+                name:
+                    type: string
+                    description: 客户端名称
+                driver:
+                    type: string
+                    description: 数据库驱动
+            description: 服务端数据库客户端选项。
+        bi.admin.v1.BiSourceDescriptor:
+            type: object
+            properties:
+                code:
+                    type: string
+                    description: 数据源编码
+                name:
+                    type: string
+                    description: 数据源名称
+                description:
+                    type: string
+                    description: 数据源说明
+                version:
+                    type: integer
+                    description: 数据源语义版本
+                    format: int32
+                dimensions:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/bi.admin.v1.BiFieldDescriptor'
+                    description: 可用维度
+                measures:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/bi.admin.v1.BiMeasureDescriptor'
+                    description: 可用指标
+                max_rows:
+                    type: integer
+                    description: 最大结果行数
+                    format: int32
+            description: BI 数据源描述。
+        bi.admin.v1.BiSourceDimension:
+            type: object
+            properties:
+                code:
+                    type: string
+                    description: 语义编码
+                name:
+                    type: string
+                    description: 展示名称
+                type:
+                    type: string
+                    description: BI字段类型
+                table:
+                    type: string
+                    description: 所属表标识
+                column:
+                    type: string
+                    description: 数据库字段
+                filterable:
+                    type: boolean
+                    description: 是否允许过滤
+            description: 数据源语义维度。
+        bi.admin.v1.BiSourceForm:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 数据源ID
+                code:
+                    type: string
+                    description: 数据源编码
+                name:
+                    type: string
+                    description: 数据源名称
+                description:
+                    type: string
+                    description: 数据源说明
+                source_name:
+                    type: string
+                    description: 服务端数据库客户端名称
+                driver:
+                    type: string
+                    description: 数据库驱动：mysql、postgres、doris、tidb
+                host:
+                    type: string
+                    description: 数据库主机
+                port:
+                    type: integer
+                    description: 数据库端口
+                    format: int32
+                database_name:
+                    type: string
+                    description: 数据库名称
+                username:
+                    type: string
+                    description: 数据库用户名
+                password:
+                    $ref: '#/components/schemas/common.v1.SecretCrypto'
+                ssl_mode:
+                    type: string
+                    description: PostgreSQL SSL模式
+                schema_name:
+                    type: string
+                    description: 数据库 Schema，可为空
+                max_rows:
+                    type: integer
+                    description: 最大结果行数
+                    format: int32
+                status:
+                    type: integer
+                    description: 状态：1启用，2禁用
+                    format: int32
+            description: BI 数据源配置表单。
+        bi.admin.v1.BiSourceMeasure:
+            type: object
+            properties:
+                code:
+                    type: string
+                    description: 语义编码
+                name:
+                    type: string
+                    description: 展示名称
+                type:
+                    type: string
+                    description: BI字段类型
+                table:
+                    type: string
+                    description: 所属表标识
+                column:
+                    type: string
+                    description: 数据库字段
+                aggregations:
+                    type: array
+                    items:
+                        type: string
+                    description: 允许的聚合函数
+            description: 数据源语义指标。
+        bi.admin.v1.BiSourceModel:
+            type: object
+            properties:
+                base_table:
+                    type: string
+                    description: 事实表标识
+                tables:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/bi.admin.v1.BiSourceModelTable'
+                    description: 选中的表结构
+                relations:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/bi.admin.v1.BiSourceRelation'
+                    description: 表关联关系
+                dimensions:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/bi.admin.v1.BiSourceDimension'
+                    description: 语义维度
+                measures:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/bi.admin.v1.BiSourceMeasure'
+                    description: 语义指标
+            description: 数据源可用的表、关联关系和业务语义。
+        bi.admin.v1.BiSourceModelTable:
+            type: object
+            properties:
+                key:
+                    type: string
+                    description: 表结构标识
+                tenant_column:
+                    type: string
+                    description: 租户隔离字段，为空表示连接级隔离或共享表
+                x:
+                    type: integer
+                    description: 画布横坐标
+                    format: int32
+                y:
+                    type: integer
+                    description: 画布纵坐标
+                    format: int32
+            description: 语义模型中的表节点。
+        bi.admin.v1.BiSourceRelation:
+            type: object
+            properties:
+                left_table:
+                    type: string
+                    description: 已连接表标识
+                left_column:
+                    type: string
+                    description: 已连接表字段
+                right_table:
+                    type: string
+                    description: 维度表标识
+                right_column:
+                    type: string
+                    description: 维度表唯一字段
+                join_type:
+                    type: string
+                    description: 连接类型：inner或left
+            description: 两张表之间经过确认的多对一关系。
+        bi.admin.v1.BiSourceSchemaColumn:
+            type: object
+            properties:
+                name:
+                    type: string
+                    description: 字段名称
+                data_type:
+                    type: string
+                    description: 数据库字段类型
+                nullable:
+                    type: boolean
+                    description: 是否允许为空
+                primary_key:
+                    type: boolean
+                    description: 是否为主键
+                unique:
+                    type: boolean
+                    description: 是否有单列唯一约束
+                comment:
+                    type: string
+                    description: 字段注释
+            description: 数据库表字段的结构信息。
+        bi.admin.v1.BiSourceSchemaTable:
+            type: object
+            properties:
+                key:
+                    type: string
+                    description: 表结构标识
+                schema_name:
+                    type: string
+                    description: 数据库Schema
+                name:
+                    type: string
+                    description: 表或视图名称
+                table_type:
+                    type: string
+                    description: 表类型
+                columns:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/bi.admin.v1.BiSourceSchemaColumn'
+                    description: 字段列表
+                comment:
+                    type: string
+                    description: 表或视图注释
+            description: 数据库中的表或视图结构。
+        bi.admin.v1.BiTimeRangeSpec:
+            type: object
+            properties:
+                field:
+                    type: string
+                    description: 时间维度编码
+                start:
+                    type: string
+                    description: 范围起点
+                end:
+                    type: string
+                    description: 范围终点
+            description: BI 时间范围。
+        bi.admin.v1.BiWorkbench:
+            type: object
+            properties:
+                dashboard_ids:
+                    type: array
+                    items:
+                        type: string
+                    description: 工作台仪表盘ID，按展示顺序排列
+                favorite_ids:
+                    type: array
+                    items:
+                        type: string
+                    description: 收藏卡片ID
+                dashboards:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/bi.admin.v1.BiDashboard'
+                    description: 工作台中当前可见的已发布仪表盘
+            description: 个人工作台仪表盘入口与卡片收藏。
+        bi.admin.v1.DeleteBiCardResponse:
+            type: object
+            properties: {}
+            description: 删除数据卡片响应。
+        bi.admin.v1.DeleteBiDashboardResponse:
+            type: object
+            properties: {}
+            description: 删除 BI 仪表盘响应。
+        bi.admin.v1.DeleteBiSourceResponse:
+            type: object
+            properties: {}
+            description: 删除 BI 数据源响应。
+        bi.admin.v1.ListBiSourceTablesResponse:
+            type: object
+            properties:
+                tables:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/bi.admin.v1.BiSourceSchemaTable'
+                    description: 数据库表结构
+            description: 查询数据源表结构的响应。
+        bi.admin.v1.ListBiSourcesResponse:
+            type: object
+            properties:
+                sources:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/bi.admin.v1.BiSourceDescriptor'
+                    description: 当前用户可用的数据源
+            description: BI 数据源目录响应。
+        bi.admin.v1.OptionBiSourceDatabaseResponse:
+            type: object
+            properties:
+                databases:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/bi.admin.v1.BiSourceDatabase'
+                    description: 服务端数据库客户端列表
+            description: 查询服务端数据库客户端响应。
+        bi.admin.v1.PageBiCardResponse:
+            type: object
+            properties:
+                cards:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/bi.admin.v1.BiCard'
+                    description: 数据卡片
+                total:
+                    type: integer
+                    description: 总数
+                    format: int32
+                counts:
+                    $ref: '#/components/schemas/bi.admin.v1.BiCardCounts'
+            description: 数据卡片分页结果。
+        bi.admin.v1.PageBiDashboardResponse:
+            type: object
+            properties:
+                dashboards:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/bi.admin.v1.BiDashboard'
+                    description: 仪表盘列表
+                total:
+                    type: integer
+                    description: 总数
+                    format: int32
+            description: BI 仪表盘分页响应。
+        bi.admin.v1.PageBiQueryResponse:
+            type: object
+            properties:
+                queries:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/bi.admin.v1.BiQueryRecord'
+                    description: 智能问数记录列表
+                total:
+                    type: integer
+                    description: 总数
+                    format: int32
+            description: 智能问数分页响应。
+        bi.admin.v1.PageBiSourceResponse:
+            type: object
+            properties:
+                sources:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/bi.admin.v1.BiSource'
+                    description: 数据源配置列表
+                total:
+                    type: integer
+                    description: 总数
+                    format: int32
+            description: BI 数据源分页响应。
+        bi.admin.v1.PreviewBiQueryRequest:
+            type: object
+            properties:
+                query:
+                    $ref: '#/components/schemas/bi.admin.v1.BiQuerySpec'
+            description: BI 查询预览请求。
+        bi.admin.v1.PublishBiDashboardRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 仪表盘ID
+                version:
+                    type: string
+                    description: 草稿版本
+            description: 发布 BI 仪表盘请求。
+        bi.admin.v1.SaveBiCardRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 卡片ID，0表示新建
+                card:
+                    $ref: '#/components/schemas/bi.admin.v1.BiCardForm'
+            description: 保存数据卡片请求。
+        bi.admin.v1.SaveBiDashboardRequest:
+            type: object
+            properties:
+                dashboard:
+                    $ref: '#/components/schemas/bi.admin.v1.BiDashboard'
+            description: 保存 BI 仪表盘请求。
+        bi.admin.v1.SaveBiWorkbenchRequest:
+            type: object
+            properties:
+                dashboard_ids:
+                    type: array
+                    items:
+                        type: string
+                    description: 工作台仪表盘ID，最多50个且不重复
+                favorite_ids:
+                    type: array
+                    items:
+                        type: string
+                    description: 收藏卡片ID，最多50个且不重复
+            description: 保存个人工作台请求。
+        bi.admin.v1.SetBiSourceStatusRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 数据源ID
+                status:
+                    type: integer
+                    description: 状态：1启用，2禁用
+                    format: int32
+            description: 修改 BI 数据源状态请求。
+        bi.admin.v1.TestBiSourceResponse:
+            type: object
+            properties:
+                success:
+                    type: boolean
+                    description: 是否可访问
+                message:
+                    type: string
+                    description: 测试结果说明
+            description: 测试 BI 数据源响应。
         common.v1.AppTreeOptionResponse_Option:
             type: object
             properties:
@@ -11537,68 +12888,6 @@ components:
                     type: string
                     description: Provider稳定标识
             description: AI供应商选项。
-        system.admin.v1.AiQueryRecord:
-            type: object
-            properties:
-                id:
-                    type: string
-                    description: 记录ID
-                tenant_id:
-                    type: string
-                    description: 租户ID
-                user_id:
-                    type: string
-                    description: 用户ID
-                user_name:
-                    type: string
-                    description: 用户账号
-                question:
-                    type: string
-                    description: 自然语言问题
-                sql:
-                    type: string
-                    description: 生成的只读SQL
-                status:
-                    enum:
-                        - AI_QUERY_STATUS_UNSPECIFIED
-                        - AI_QUERY_STATUS_SUCCESS
-                        - AI_QUERY_STATUS_FAILED
-                    type: string
-                    description: 问数状态：枚举【AiQueryStatus】
-                    format: enum
-                row_count:
-                    type: integer
-                    description: 结果行数
-                    format: int32
-                elapsed_ms:
-                    type: string
-                    description: SQL执行耗时毫秒
-                error_msg:
-                    type: string
-                    description: 失败原因
-                result_columns:
-                    type: array
-                    items:
-                        type: string
-                    description: 结果快照列名，仅详情返回
-                result_rows:
-                    type: array
-                    items:
-                        $ref: '#/components/schemas/system.admin.v1.AiQueryResultRow'
-                    description: 结果快照数据行，仅详情返回
-                created_at:
-                    type: string
-                    description: 创建时间
-            description: 智能问数记录。
-        system.admin.v1.AiQueryResultRow:
-            type: object
-            properties:
-                values:
-                    type: array
-                    items:
-                        type: string
-                    description: 行数据
-            description: 智能问数结果快照行。
         system.admin.v1.AiSessionMessageAttachment:
             type: object
             properties:
@@ -17343,19 +18632,6 @@ components:
                     description: 总数
                     format: int32
             description: AI供应商分页响应。
-        system.admin.v1.PageAiQueryResponse:
-            type: object
-            properties:
-                queries:
-                    type: array
-                    items:
-                        $ref: '#/components/schemas/system.admin.v1.AiQueryRecord'
-                    description: 智能问数记录列表
-                total:
-                    type: integer
-                    description: 总数
-                    format: int32
-            description: 智能问数分页响应。
         system.admin.v1.PageAiSessionMessageResponse:
             type: object
             properties:
@@ -19567,16 +20843,12 @@ tags:
       description: AI Provider 可选模型查询服务。
     - name: AiProviderService
       description: AI供应商管理服务。
-    - name: AiQueryService
-      description: 智能问数记录管理服务。
-    - name: AiQueryService
-      description: Base AI 助手智能问数服务
     - name: AiSearchService
       description: Base AI 助手联网搜索服务
     - name: AiSessionService
-      description: Base AI 助手会话服务
-    - name: AiSessionService
       description: AI会话管理服务。
+    - name: AiSessionService
+      description: Base AI 助手会话服务
     - name: AiToolService
       description: Base AI 助手工具服务
     - name: AuthService
@@ -19604,9 +20876,9 @@ tags:
     - name: BaseDictItemService
       description: Admin字典项服务
     - name: BaseDictService
-      description: App字典服务
-    - name: BaseDictService
       description: Admin字典服务
+    - name: BaseDictService
+      description: App字典服务
     - name: BaseFileService
       description: Admin文件资产管理服务。
     - name: BaseI18nCustomService
@@ -19626,9 +20898,9 @@ tags:
     - name: BaseLoginPolicyService
       description: Admin登录策略管理服务。
     - name: BaseMenuService
-      description: Admin菜单管理服务
-    - name: BaseMenuService
       description: App菜单服务
+    - name: BaseMenuService
+      description: Admin菜单管理服务
     - name: BaseMessageCategoryService
       description: Admin消息分类管理服务。
     - name: BaseMessageProviderService
@@ -19687,6 +20959,16 @@ tags:
       description: Admin租户管理服务
     - name: BaseUserService
       description: Admin用户管理服务
+    - name: BiCardService
+      description: BI 数据卡片与个人工作台服务。
+    - name: BiDashboardService
+      description: BI 仪表盘管理服务。
+    - name: BiQueryRecordService
+      description: BI 查询记录管理服务。
+    - name: BiQueryService
+      description: BI 语义查询服务。
+    - name: BiSourceService
+      description: BI 数据源配置管理服务。
     - name: CacheService
       description: Admin运行时缓存查询服务。
     - name: CodeGenColumnService
@@ -19714,9 +20996,9 @@ tags:
     - name: NotificationService
       description: Base站内信通知服务，提供当前用户的收件箱能力。
     - name: OauthClientService
-      description: Base开放授权客户端令牌服务。
-    - name: OauthClientService
       description: Admin开放授权客户端管理服务。
+    - name: OauthClientService
+      description: Base开放授权客户端令牌服务。
     - name: OauthService
       description: Base三方登录公共服务
     - name: OpsMonitoringService

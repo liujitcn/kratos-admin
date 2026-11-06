@@ -52,9 +52,11 @@ test("AI chat welcome copy and composer placeholder use the registered system lo
 });
 
 test("AI聊天模型选择器位于输入框操作区，空态和会话态共用", async () => {
-  const [chatPanel, sender] = await Promise.all([
+  const [chatPanel, sender, selector, styles] = await Promise.all([
     readSource("src/views/ai/chat/components/ChatPanel.vue"),
-    readSource("src/views/ai/chat/components/XSender.vue")
+    readSource("src/views/ai/chat/components/XSender.vue"),
+    readSource("src/components/AiModelSelector/index.vue"),
+    readSource("src/components/AiModelSelector/styles.scss")
   ]);
 
   assert.equal((chatPanel.match(/:model-providers="modelProviders"/g) ?? []).length, 2);
@@ -63,24 +65,24 @@ test("AI聊天模型选择器位于输入框操作区，空态和会话态共用
   assert.doesNotMatch(prefix, /agent-model-selector/);
   assert.match(
     sender,
-    /<template #action-list>[\s\S]*?class="agent-model-selector"[\s\S]*?system\.ai\.chat\.action\.voice_input/
+    /<template #action-list>[\s\S]*?<AiModelSelector[\s\S]*?system\.ai\.chat\.action\.voice_input/
   );
-  assert.match(sender, /<el-popover[\s\S]*?ref="modelPopoverRef"[\s\S]*?popper-class="agent-model-popper"/);
+  assert.match(selector, /<el-popover[\s\S]*?ref="modelPopoverRef"[\s\S]*?popper-class="agent-model-popper"/);
   assert.match(
-    sender,
+    selector,
     /class="agent-model-selector"[\s\S]*?selectedModelDisplayName \|\| t\("system\.ai\.model\.model_placeholder"\)/
   );
   assert.match(sender, /:clearable="true"/);
-  assert.match(sender, /displayName: model\.display_name \|\| fallbackModelDisplayName\(model\.model_name\)/);
-  assert.match(sender, /@click="handleModelSelect\(provider\.providerId, model\.name\)"/);
-  assert.match(sender, /v-else class="agent-model-panel agent-model-panel--empty"/);
-  assert.match(sender, /emit\("model-change", providerId, modelName\);[\s\S]*?modelPopoverRef\.value\?\.hide\(\)/);
-  assert.match(sender, /@click="openModelManage"/);
-  assert.match(sender, /\.agent-model-selector\s*\{[\s\S]*?height: 34px;[\s\S]*?border: 1px solid var\(--el-border-color\)/);
-  assert.match(sender, /\.agent-model-selector\s*\{[\s\S]*?width: clamp\(180px, 18vw, 220px\)/);
-  assert.match(sender, /\.agent-model-selector\s*\{[\s\S]*?width: clamp\(128px, calc\(100vw - 220px\), 180px\)/);
-  assert.match(sender, /&__label\s*\{[\s\S]*?font-size: 14px;[\s\S]*?font-weight: 500;/);
-  assert.match(sender, /function handleModelSelect\(providerId: number, modelName: string\)/);
+  assert.match(selector, /displayName: model\.display_name \|\| fallbackModelDisplayName\(model\.model_name\)/);
+  assert.match(selector, /@click="handleModelSelect\(provider\.providerId, model\.name\)"/);
+  assert.match(selector, /v-else class="agent-model-panel agent-model-panel--empty"/);
+  assert.match(selector, /emit\("change", providerId, modelName\);[\s\S]*?modelPopoverRef\.value\?\.hide\(\)/);
+  assert.match(selector, /@click="openModelManage"/);
+  assert.match(styles, /\.agent-model-selector\s*\{[\s\S]*?height: 34px;[\s\S]*?border: 1px solid var\(--el-border-color\)/);
+  assert.match(styles, /\.agent-model-selector\s*\{[\s\S]*?width: clamp\(180px, 18vw, 220px\)/);
+  assert.match(styles, /\.agent-model-selector\s*\{[\s\S]*?width: clamp\(128px, calc\(100vw - 220px\), 180px\)/);
+  assert.match(styles, /&__label\s*\{[\s\S]*?font-size: 14px;[\s\S]*?font-weight: 500;/);
+  assert.match(selector, /function handleModelSelect\(providerId: number, modelName: string\)/);
   assert.match(sender, /"model-change": \[providerId: number, modelName: string\]/);
 });
 

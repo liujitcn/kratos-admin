@@ -123,7 +123,7 @@ function handleSelect(providerId: number, modelName: string) {
   background: var(--kratos-color-surface-solid, #070d18);
   border: 1rpx solid var(--kratos-color-border-accent, rgba(120, 230, 215, 0.16));
   border-bottom: 0;
-  border-radius: 32rpx 32rpx 0 0;
+  border-radius: var(--kratos-page-radius) var(--kratos-page-radius) 0 0;
   box-shadow: 0 -24rpx 80rpx rgba(15, 23, 42, 0.16);
   box-sizing: border-box;
 }
@@ -134,7 +134,7 @@ function handleSelect(providerId: number, modelName: string) {
   height: 8rpx;
   margin: 16rpx auto 8rpx;
   background: var(--kratos-color-track, rgba(255, 255, 255, 0.06));
-  border-radius: 4rpx;
+  border-radius: var(--kratos-page-radius);
 }
 
 .model-picker__head {
@@ -197,7 +197,7 @@ function handleSelect(providerId: number, modelName: string) {
 
 .model-picker__body :deep(::-webkit-scrollbar-thumb) {
   background: var(--kratos-color-border, rgba(255, 255, 255, 0.08));
-  border-radius: 4rpx;
+  border-radius: var(--kratos-page-radius);
 }
 
 .model-picker__body :deep(::-webkit-scrollbar-track) {
@@ -220,7 +220,7 @@ function handleSelect(providerId: number, modelName: string) {
   padding: 16rpx 28rpx;
   margin-bottom: 12rpx;
   border: 1rpx solid var(--kratos-color-border, rgba(255, 255, 255, 0.08));
-  border-radius: 20rpx;
+  border-radius: var(--kratos-page-radius);
   background: var(--kratos-color-surface, rgba(255, 255, 255, 0.035));
   box-sizing: border-box;
 }

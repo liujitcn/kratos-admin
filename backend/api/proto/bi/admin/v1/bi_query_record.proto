@@ -1,0 +1,73 @@
+syntax = "proto3";
+
+package bi.admin.v1;
+
+import "bi/admin/v1/bi_query.proto";
+import "buf/validate/validate.proto";
+import "gnostic/openapi/v3/annotations.proto";
+import "google/api/annotations.proto";
+
+// BI 查询记录管理服务。
+service BiQueryRecordService {
+  // 分页查询当前用户的自然语言问数历史。
+  rpc PageBiQuery(PageBiQueryRequest) returns (PageBiQueryResponse) {
+    option (google.api.http) = {get: "/api/v1/admin/bi/query-record"};
+  }
+  // 查询智能问数记录详情。
+  rpc GetBiQuery(GetBiQueryRequest) returns (BiQueryRecord) {
+    option (google.api.http) = {get: "/api/v1/admin/bi/query-record/{id}"};
+  }
+}
+
+// 智能问数状态枚举。
+enum BiQueryStatus {
+  // 未指定智能问数状态。
+  BI_QUERY_STATUS_UNSPECIFIED = 0;
+  // 成功。
+  BI_QUERY_STATUS_SUCCESS = 1;
+  // 失败。
+  BI_QUERY_STATUS_FAILED = 2;
+}
+
+// 智能问数分页查询条件。
+message PageBiQueryRequest {
+  string question = 1 [(gnostic.openapi.v3.property) = {description: "问题内容"}]; // 问题内容
+  optional BiQueryStatus status = 2 [(gnostic.openapi.v3.property) = {description: "问数状态：枚举【BiQueryStatus】"}]; // 问数状态：枚举【BiQueryStatus】
+  string source_code = 3 [(gnostic.openapi.v3.property) = {description: "数据源编码"}]; // 数据源编码
+  int64 page_num = 101 [(gnostic.openapi.v3.property) = {description: "当前页码", default: {number: 1}}, (buf.validate.field).int64 = {gte: 1, lte: 1000000}]; // 当前页码
+  int64 page_size = 102 [(gnostic.openapi.v3.property) = {description: "每页行数", default: {number: 10}}, (buf.validate.field).int64 = {gte: 1, lte: 100}]; // 每页行数
+}
+
+// 智能问数分页响应。
+message PageBiQueryResponse {
+  repeated BiQueryRecord queries = 1 [(gnostic.openapi.v3.property) = {description: "智能问数记录列表"}]; // 智能问数记录列表
+  int32 total = 2 [(gnostic.openapi.v3.property) = {description: "总数"}]; // 总数
+}
+
+// 查询智能问数记录请求。
+message GetBiQueryRequest {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "记录ID"}, (buf.validate.field).int64 = {gt: 0}]; // 记录ID
+}
+
+// BI 查询记录。
+message BiQueryRecord {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "记录ID"}]; // 记录ID
+  int64 tenant_id = 2 [(gnostic.openapi.v3.property) = {description: "租户ID"}]; // 租户ID
+  int64 user_id = 3 [(gnostic.openapi.v3.property) = {description: "用户ID"}]; // 用户ID
+  int64 project_id = 4 [(gnostic.openapi.v3.property) = {description: "项目ID"}]; // 项目ID
+  int64 dashboard_id = 5 [(gnostic.openapi.v3.property) = {description: "仪表盘ID"}]; // 仪表盘ID
+  int64 dashboard_version = 6 [(gnostic.openapi.v3.property) = {description: "仪表盘版本"}]; // 仪表盘版本
+  string widget_id = 7 [(gnostic.openapi.v3.property) = {description: "图表组件ID"}]; // 图表组件ID
+  string source_code = 8 [(gnostic.openapi.v3.property) = {description: "数据源编码"}]; // 数据源编码
+  string question = 9 [(gnostic.openapi.v3.property) = {description: "自然语言问题，非问数查询为空"}]; // 自然语言问题，非问数查询为空
+  string query_json = 10 [(gnostic.openapi.v3.property) = {description: "语义查询计划JSON"}]; // 语义查询计划JSON
+  string query_hash = 11 [(gnostic.openapi.v3.property) = {description: "查询计划哈希"}]; // 查询计划哈希
+  BiQueryStatus status = 12 [(gnostic.openapi.v3.property) = {description: "问数状态：枚举【BiQueryStatus】"}]; // 问数状态：枚举【BiQueryStatus】
+  int32 row_count = 13 [(gnostic.openapi.v3.property) = {description: "结果行数"}]; // 结果行数
+  int32 truncated = 14 [(gnostic.openapi.v3.property) = {description: "是否截断：0否，1是"}]; // 是否截断：0否，1是
+  int64 elapsed_ms = 15 [(gnostic.openapi.v3.property) = {description: "查询耗时毫秒，问数包含模型生成耗时"}]; // 查询耗时毫秒，问数包含模型生成耗时
+  string error_msg = 16 [(gnostic.openapi.v3.property) = {description: "失败原因"}]; // 失败原因
+  string created_at = 17 [(gnostic.openapi.v3.property) = {description: "创建时间"}]; // 创建时间
+  string user_name = 18 [(gnostic.openapi.v3.property) = {description: "用户账号"}]; // 用户账号
+  BiQueryResult result = 19 [(gnostic.openapi.v3.property) = {description: "完整类型化查询结果，仅详情返回"}]; // 完整类型化查询结果，仅详情返回
+}

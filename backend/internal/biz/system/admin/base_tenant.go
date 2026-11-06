@@ -722,8 +722,10 @@ func (c *BaseTenantCase) deleteTenantData(ctx context.Context, tenantIDs []int64
 	if err != nil {
 		return err
 	}
-	if c.userToken != nil {
-		for _, client := range oauthClients {
+	oauthClientIDs := make([]int64, 0, len(oauthClients))
+	for _, client := range oauthClients {
+		oauthClientIDs = append(oauthClientIDs, client.ID)
+		if c.userToken != nil {
 			if err = c.userToken.RemoveToken(-client.ID); err != nil {
 				return errorsx.Internal("撤销租户开放授权令牌失败").WithCause(err)
 			}
@@ -733,7 +735,8 @@ func (c *BaseTenantCase) deleteTenantData(ctx context.Context, tenantIDs []int64
 	if err = c.baseFileRepo.Delete(ctx, repository.Where(fileQuery.TenantID.In(tenantIDs...))); err != nil {
 		return err
 	}
-	if err = c.oauthClientRepo.Delete(ctx, repository.Where(oauthQuery.TenantID.In(tenantIDs...))); err != nil {
+	// oauth_client 配置敏感字段旁表存储后，删除保护要求携带主键条件以联动清理旁表敏感值。
+	if err = c.oauthClientRepo.DeleteByIDs(ctx, oauthClientIDs); err != nil {
 		return err
 	}
 

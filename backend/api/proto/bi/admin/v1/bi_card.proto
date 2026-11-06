@@ -1,0 +1,236 @@
+syntax = "proto3";
+
+package bi.admin.v1;
+
+import "bi/admin/v1/bi_query.proto";
+import "bi/admin/v1/bi_dashboard.proto";
+import "buf/validate/validate.proto";
+import "gnostic/openapi/v3/annotations.proto";
+import "google/api/annotations.proto";
+
+// BI 数据卡片与个人工作台服务。
+service BiCardService {
+  // 分页查询当前用户可见的数据卡片。
+  rpc PageBiCard(PageBiCardRequest) returns (PageBiCardResponse) {
+    option (google.api.http) = {get: "/api/v1/admin/bi/card"};
+  }
+  // 创建或修改自己的数据卡片。
+  rpc SaveBiCard(SaveBiCardRequest) returns (BiCard) {
+    option (google.api.http) = {
+      post: "/api/v1/admin/bi/card"
+      body: "*"
+    };
+  }
+  // 删除自己的数据卡片。
+  rpc DeleteBiCard(DeleteBiCardRequest) returns (DeleteBiCardResponse) {
+    option (google.api.http) = {delete: "/api/v1/admin/bi/card/{id}"};
+  }
+  // 在当前用户权限范围内执行卡片查询。
+  rpc GetBiCardData(GetBiCardDataRequest) returns (BiQueryResult) {
+    option (google.api.http) = {get: "/api/v1/admin/bi/card/{id}/data"};
+  }
+  // 获取当前用户的工作台与收藏。
+  rpc GetBiWorkbench(GetBiWorkbenchRequest) returns (BiWorkbench) {
+    option (google.api.http) = {get: "/api/v1/admin/bi/workbench"};
+  }
+  // 保存当前用户的工作台顺序与收藏。
+  rpc SaveBiWorkbench(SaveBiWorkbenchRequest) returns (BiWorkbench) {
+    option (google.api.http) = {
+      put: "/api/v1/admin/bi/workbench"
+      body: "*"
+    };
+  }
+}
+
+// 数据卡片分页条件。
+message PageBiCardRequest {
+  string name = 1 [(gnostic.openapi.v3.property) = {description: "卡片名称"}]; // 卡片名称
+  string source_code = 2 [(gnostic.openapi.v3.property) = {description: "语义数据源编码"}]; // 语义数据源编码
+  string category = 3 [
+    (gnostic.openapi.v3.property) = {description: "分类：空为全部、system系统、mine自建、favorite收藏、shared分享"},
+    (buf.validate.field).string = {
+      in: [
+        "",
+        "system",
+        "mine",
+        "favorite",
+        "shared"
+      ]
+    }
+  ]; // 卡片分类
+  repeated string search_source_codes = 4 [
+    (gnostic.openapi.v3.property) = {description: "按来源名称匹配的语义来源编码"},
+    (buf.validate.field).repeated = {
+      max_items: 1000
+      items: {
+        string: {max_len: 128}
+      }
+    }
+  ]; // 来源名称匹配编码
+  int64 page_num = 101 [
+    (gnostic.openapi.v3.property) = {description: "页码"},
+    (buf.validate.field).int64 = {
+      gte: 1
+      lte: 1000000
+    }
+  ]; // 页码
+  int64 page_size = 102 [
+    (gnostic.openapi.v3.property) = {description: "每页数量"},
+    (buf.validate.field).int64 = {
+      gte: 1
+      lte: 100
+    }
+  ]; // 每页数量
+}
+
+// 数据卡片分页结果。
+message PageBiCardResponse {
+  repeated BiCard cards = 1 [(gnostic.openapi.v3.property) = {description: "数据卡片"}]; // 数据卡片
+  int32 total = 2 [(gnostic.openapi.v3.property) = {description: "总数"}]; // 总数
+  BiCardCounts counts = 3 [(gnostic.openapi.v3.property) = {description: "当前用户可见卡片的分类数量"}]; // 分类数量
+}
+
+// 数据卡片分类数量。
+message BiCardCounts {
+  int64 all = 1 [(gnostic.openapi.v3.property) = {description: "全部卡片数量"}]; // 全部卡片数量
+  int64 system = 2 [(gnostic.openapi.v3.property) = {description: "系统卡片数量"}]; // 系统卡片数量
+  int64 mine = 3 [(gnostic.openapi.v3.property) = {description: "自己创建的卡片数量"}]; // 自建卡片数量
+  int64 favorite = 4 [(gnostic.openapi.v3.property) = {description: "收藏卡片数量"}]; // 收藏卡片数量
+  int64 shared = 5 [(gnostic.openapi.v3.property) = {description: "他人分享的卡片数量"}]; // 分享卡片数量
+}
+
+// 数据卡片配置。
+message BiCardForm {
+  string name = 1 [
+    (gnostic.openapi.v3.property) = {description: "卡片名称"},
+    (buf.validate.field).cel = {
+      id: "bi_card.name.required"
+      message: "请输入卡片名称"
+      expression: "this.size() > 0 && this.size() <= 128"
+    }
+  ]; // 卡片名称
+  BiQuerySpec query = 2 [
+    (gnostic.openapi.v3.property) = {description: "语义查询配置"},
+    (buf.validate.field).required = true
+  ]; // 语义查询配置
+  string chart_type = 3 [
+    (gnostic.openapi.v3.property) = {description: "图表类型"},
+    (buf.validate.field).string = {
+      in: [
+        "bar",
+        "line",
+        "area",
+        "pie",
+        "donut",
+        "gauge",
+        "scatter",
+        "radar",
+        "funnel",
+        "treemap",
+        "sunburst",
+        "sankey",
+        "heatmap",
+        "metric"
+      ]
+    }
+  ]; // 图表类型
+  int64 query_record_id = 4 [(gnostic.openapi.v3.property) = {description: "来源成功查询记录ID"}, (buf.validate.field).int64.gt = 0]; // 来源成功查询记录ID
+  string chart_json = 5 [(gnostic.openapi.v3.property) = {description: "图表字段映射与样式配置JSON"}, (buf.validate.field).string.max_len = 16384]; // 图表字段映射与样式配置JSON
+  int32 refresh_seconds = 6 [
+    (gnostic.openapi.v3.property) = {description: "自动刷新间隔秒数，0表示手动，86400表示每日02:00"},
+    (buf.validate.field).cel = {
+      id: "bi_card.refresh_seconds.range"
+      message: "刷新间隔应为0或30至86400秒"
+      expression: "this == 0 || (this >= 30 && this <= 86400)"
+    }
+  ]; // 自动刷新间隔秒数
+  bool is_shared = 7 [(gnostic.openapi.v3.property) = {description: "是否共享到当前项目范围"}]; // 是否共享
+}
+
+// 保存数据卡片请求。
+message SaveBiCardRequest {
+  int64 id = 1 [
+    (gnostic.openapi.v3.property) = {description: "卡片ID，0表示新建"},
+    (buf.validate.field).int64.gte = 0
+  ]; // 卡片ID
+  BiCardForm card = 2 [
+    (gnostic.openapi.v3.property) = {description: "卡片配置"},
+    (buf.validate.field).required = true
+  ]; // 卡片配置
+}
+
+// 删除数据卡片请求。
+message DeleteBiCardRequest {
+  int64 id = 1 [
+    (gnostic.openapi.v3.property) = {description: "卡片ID"},
+    (buf.validate.field).int64.gt = 0
+  ]; // 卡片ID
+}
+
+// 删除数据卡片响应。
+message DeleteBiCardResponse {}
+
+// 查询数据卡片结果请求。
+message GetBiCardDataRequest {
+  int64 id = 1 [
+    (gnostic.openapi.v3.property) = {description: "卡片ID"},
+    (buf.validate.field).int64.gt = 0
+  ]; // 卡片ID
+  int32 range_days = 2 [
+    (gnostic.openapi.v3.property) = {description: "统计周期天数：0沿用卡片配置，7或30覆盖日期范围"},
+    (buf.validate.field).cel = {
+      id: "bi_card.range_days.valid"
+      message: "仅支持卡片配置、近7日或近30日"
+      expression: "this in [0, 7, 30]"
+    }
+  ]; // 统计周期天数
+}
+
+// 数据卡片记录。
+message BiCard {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "卡片ID"}]; // 卡片ID
+  int64 tenant_id = 2 [(gnostic.openapi.v3.property) = {description: "租户ID"}]; // 租户ID
+  int64 project_id = 3 [(gnostic.openapi.v3.property) = {description: "项目ID，0表示租户级"}]; // 项目ID
+  int64 owner_id = 4 [(gnostic.openapi.v3.property) = {description: "所有者用户ID，0表示系统内置"}]; // 所有者用户ID
+  int64 query_record_id = 5 [(gnostic.openapi.v3.property) = {description: "来源查询记录ID"}]; // 来源查询记录ID
+  string name = 6 [(gnostic.openapi.v3.property) = {description: "卡片名称"}]; // 卡片名称
+  string source_code = 7 [(gnostic.openapi.v3.property) = {description: "语义数据源编码"}]; // 语义数据源编码
+  BiQuerySpec query = 8 [(gnostic.openapi.v3.property) = {description: "语义查询配置"}]; // 语义查询配置
+  string chart_type = 9 [(gnostic.openapi.v3.property) = {description: "图表类型"}]; // 图表类型
+  string chart_json = 10 [(gnostic.openapi.v3.property) = {description: "图表字段映射与样式配置JSON"}]; // 图表字段映射与样式配置JSON
+  int32 refresh_seconds = 11 [(gnostic.openapi.v3.property) = {description: "自动刷新间隔秒数，86400表示每日02:00"}]; // 自动刷新间隔秒数
+  bool is_shared = 12 [(gnostic.openapi.v3.property) = {description: "是否共享"}]; // 是否共享
+  string updated_at = 13 [(gnostic.openapi.v3.property) = {description: "更新时间"}]; // 更新时间
+  string category = 14 [(gnostic.openapi.v3.property) = {description: "分类：system系统、mine自建、shared分享"}]; // 卡片分类
+  bool can_edit = 15 [(gnostic.openapi.v3.property) = {description: "当前用户是否可编辑"}]; // 当前用户是否可编辑
+}
+
+// 获取个人工作台请求。
+message GetBiWorkbenchRequest {}
+
+// 个人工作台仪表盘入口与卡片收藏。
+message BiWorkbench {
+  repeated int64 dashboard_ids = 1 [(gnostic.openapi.v3.property) = {description: "工作台仪表盘ID，按展示顺序排列"}]; // 工作台仪表盘ID
+  repeated int64 favorite_ids = 2 [(gnostic.openapi.v3.property) = {description: "收藏卡片ID"}]; // 收藏卡片ID
+  repeated BiDashboard dashboards = 3 [(gnostic.openapi.v3.property) = {description: "工作台中当前可见的已发布仪表盘"}]; // 可见仪表盘
+}
+
+// 保存个人工作台请求。
+message SaveBiWorkbenchRequest {
+  repeated int64 dashboard_ids = 1 [
+    (gnostic.openapi.v3.property) = {description: "工作台仪表盘ID，最多50个且不重复"},
+    (buf.validate.field).cel = {
+      id: "bi_workbench.dashboard_ids.valid"
+      message: "工作台最多50个仪表盘，ID须为正数且不重复"
+      expression: "this.size() <= 50 && this.unique() && this.all(id, id > 0)"
+    }
+  ]; // 工作台仪表盘ID
+  repeated int64 favorite_ids = 2 [
+    (gnostic.openapi.v3.property) = {description: "收藏卡片ID，最多50个且不重复"},
+    (buf.validate.field).cel = {
+      id: "bi_workbench.favorite_ids.valid"
+      message: "最多收藏50张卡片，ID须为正数且不重复"
+      expression: "this.size() <= 50 && this.unique() && this.all(id, id > 0)"
+    }
+  ]; // 收藏卡片ID
+}

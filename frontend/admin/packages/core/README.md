@@ -60,7 +60,7 @@ packages/core
 
 | 路径                                   | 作用                                                                           |
 | -------------------------------------- | ------------------------------------------------------------------------------ |
-| `src/index.ts`                         | npm 主入口，导出启动函数和模块 interface。                                     |
+| `src/index.ts`                         | npm 主入口，导出启动函数、模块 interface 和通用语音识别能力。                   |
 | `src/auth.ts`                          | 业务模块使用的按钮权限入口。                                                   |
 | `src/format.ts`                        | 业务模块使用的格式化入口。                                                     |
 | `src/navigation.ts`                    | 业务模块使用的路由与跳转入口。                                                 |
@@ -114,6 +114,7 @@ packages/core
 | `src/hooks/useHandleData.ts`           | 删除、状态变更等确认交互。                                                     |
 | `src/hooks/useOnline.ts`               | 网络在线状态监听。                                                             |
 | `src/hooks/useSelection.ts`            | 表格选择状态。                                                                 |
+| `src/hooks/useSpeechRecognition.ts`    | AI 助手与 BI 问数共用的浏览器语音识别，通过 npm 主入口导出。                     |
 | `src/hooks/useTable.ts`                | 表格请求、分页、搜索和加载状态。                                               |
 | `src/hooks/useTheme.ts`                | 主题初始化和切换。                                                             |
 | `src/hooks/useTime.ts`                 | 问候时间和时间展示。                                                           |
@@ -193,6 +194,6 @@ Dict 和 DictLabel 直接响应字典 Store 的文案变化。字典刷新成功
 
 纯表格 demo 的“所在城市”通过 `search.enum` 提供浙江、广东、四川的省市级联选项，选择城市后可筛选对应项目，清空或重置后恢复全部项目。
 
-ProTable 的 `cellType: "actions"` 操作列按当前行的 `hidden` 过滤按钮，优先展示使用 `common.action.edit`、`common.action.delete` 文案的编辑、删除操作；可见按钮超过三项时，其余操作收入“更多”菜单。未配置或无权限的编辑、删除不会补充显示，菜单保留图标、禁用状态和点击参数；自定义 render 或插槽不参与折叠。
+ProTable 的 `cellType: "actions"` 操作列按当前行的 `hidden` 过滤按钮，优先展示使用 `common.action.edit`、`common.action.delete` 文案的编辑、删除操作。可见操作不超过三项时全部展示；四项及以上时，行内固定展示两个操作和“更多”，其余进入菜单。编辑、删除不足两个时按配置顺序补足，不补充未配置或无权限的操作。例如四项操作展示为行内两项、菜单两项。菜单保留图标、禁用状态和点击参数；自定义 render 或插槽不参与折叠。
 
 操作列默认固定在右侧。配置式操作列（`cellType: "actions"`）根据当前页实际展示按钮和表头的最大宽度自适应，计入翻译文案、图标和间距，随语言、字体和行权限变化重新测量，最小宽度为 `80px`；折叠菜单内的按钮不参与测量。自定义 render 或插槽操作列仍默认 `160px`。页面可通过 `width` 或 `minWidth` 覆盖自动宽度，通过 `fixed: "left"` 调整固定位置，或通过 `fixed: false` 取消固定。

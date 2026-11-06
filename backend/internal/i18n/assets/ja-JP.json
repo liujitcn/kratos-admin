@@ -1,4 +1,10 @@
 {
+  "base.ai.approval.message_id.positive": {
+    "other": "メッセージ番号が不正です"
+  },
+  "base.ai.approval.session_id.positive": {
+    "other": "セッション番号が無効です"
+  },
   "base.ai.message.attachment_prompt": {
     "other": "添付された内容に基づいて分析を続けてください"
   },
@@ -344,6 +350,159 @@
   "base.v1.secret_crypto.reveal.resource.required": {
     "other": "リソース識別子は必須です"
   },
+  "bi.admin.source.code.required": {
+    "other": "データソースコードを入力してください"
+  },
+  "bi.admin.source.name.required": {
+    "other": "データソース名を入力してください"
+  },
+  "bi.query_record.description.dashboard_version": {
+    "other": "ダッシュボードのバージョン"
+  },
+  "bi.query_record.description.elapsed_ms": {
+    "other": "クエリの所要時間（ミリ秒）。自然言語クエリではモデルの生成時間を含む"
+  },
+  "bi.query_record.description.list": {
+    "other": "自然言語クエリ、プレビュー、カード、ダッシュボードの BI 実行記録をページ単位で取得します。"
+  },
+  "bi.query_record.description.query_hash": {
+    "other": "クエリ計画のハッシュ"
+  },
+  "bi.query_record.description.query_json": {
+    "other": "セマンティッククエリ計画の JSON"
+  },
+  "bi.query_record.description.question": {
+    "other": "自然言語の質問。その他のクエリでは空"
+  },
+  "bi.query_record.description.truncated": {
+    "other": "結果の切り詰め有無：0=なし、1=あり"
+  },
+  "bi_card.name.required": {
+    "other": "カード名を入力してください"
+  },
+  "bi_card.openapi.005aa123d25c": {
+    "other": "現在のプロジェクト内で共有するかどうか"
+  },
+  "bi_card.openapi.009744571b72": {
+    "other": "共有されたカード件数"
+  },
+  "bi_card.openapi.07331147707f": {
+    "other": "BIデータカードと個人ワークスペースのサービス。"
+  },
+  "bi_card.openapi.0dc3f431fb45": {
+    "other": "現在のユーザーが参照できるデータカードを一覧取得します。"
+  },
+  "bi_card.openapi.0de1b165b1e1": {
+    "other": "更新間隔（秒）。86400は毎日02:00"
+  },
+  "bi_card.openapi.1a4dfdc21e5f": {
+    "other": "データカードの保存リクエスト。"
+  },
+  "bi_card.openapi.1d28f61085fa": {
+    "other": "現在のユーザーが編集可能かどうか"
+  },
+  "bi_card.openapi.20e77a9e71a8": {
+    "other": "データカードの削除レスポンス。"
+  },
+  "bi_card.openapi.2134601b97c0": {
+    "other": "個人ワークスペースの設定と参照可能なカード。"
+  },
+  "bi_card.openapi.262e68e1d7bc": {
+    "other": "自分が作成したカード件数"
+  },
+  "bi_card.openapi.2a826bce2843": {
+    "other": "データカードの分類別件数。"
+  },
+  "bi_card.openapi.2ecd19ce97bb": {
+    "other": "すべてのカード件数"
+  },
+  "bi_card.openapi.3a25d9cc0660": {
+    "other": "データカードのページ検索結果。"
+  },
+  "bi_card.openapi.3a464134e806": {
+    "other": "カードID。0の場合は新規作成"
+  },
+  "bi_card.openapi.3e5bb084dafe": {
+    "other": "システムカード件数"
+  },
+  "bi_card.openapi.4c7e87f9cc5d": {
+    "other": "お気に入りのカードID"
+  },
+  "bi_card.openapi.580bce06b222": {
+    "other": "ワークスペースで現在参照可能なカード"
+  },
+  "bi_card.openapi.5f43e6d95395": {
+    "other": "データカード"
+  },
+  "bi_card.openapi.61654ee8cfec": {
+    "other": "個人ワークスペースの保存リクエスト。"
+  },
+  "bi_card.openapi.623e966e7555": {
+    "other": "所有ユーザーID。0はシステム組み込みカード"
+  },
+  "bi_card.openapi.6bccd87e0adf": {
+    "other": "カードID"
+  },
+  "bi_card.openapi.6fbb255e657c": {
+    "other": "データカード設定。"
+  },
+  "bi_card.openapi.79cda09042ff": {
+    "other": "表示順に並べたワークスペースのカードID"
+  },
+  "bi_card.openapi.81d834a8948c": {
+    "other": "更新間隔（秒）。0は手動、86400は毎日02:00"
+  },
+  "bi_card.openapi.905668622d44": {
+    "other": "現在のユーザーの権限範囲でカードのクエリを実行します。"
+  },
+  "bi_card.openapi.9ca189b4a720": {
+    "other": "現在のユーザーのカード表示順とお気に入りを保存します。"
+  },
+  "bi_card.openapi.a41ec76ecac2": {
+    "other": "カード名"
+  },
+  "bi_card.openapi.ae1df30215e7": {
+    "other": "ワークスペースのカードID。重複なし、最大50件"
+  },
+  "bi_card.openapi.b253c3e5ffbc": {
+    "other": "データカードレコード。"
+  },
+  "bi_card.openapi.b45c0ca52ac2": {
+    "other": "分類：systemシステム、mine自分が作成、shared共有"
+  },
+  "bi_card.openapi.ba08c496cd30": {
+    "other": "お気に入りのカード件数"
+  },
+  "bi_card.openapi.c779cc4cd584": {
+    "other": "現在のユーザーのワークスペースとお気に入りを取得します。"
+  },
+  "bi_card.openapi.cc2e617e0f66": {
+    "other": "お気に入りのカードID。重複なし、最大50件"
+  },
+  "bi_card.openapi.d5a10a84415d": {
+    "other": "自分のデータカードを削除します。"
+  },
+  "bi_card.openapi.d6da6a158b2a": {
+    "other": "共有するかどうか"
+  },
+  "bi_card.openapi.e8e62c6fa703": {
+    "other": "自分のデータカードを作成または更新します。"
+  },
+  "bi_card.range_days.valid": {
+    "other": "カード設定、直近7日、直近30日のいずれかを指定してください"
+  },
+  "bi_card.refresh_seconds.range": {
+    "other": "更新間隔は0または30〜86400秒にしてください"
+  },
+  "bi_workbench.card_ids.valid": {
+    "other": "ワークスペースは重複しない正数IDのカードを50件まで指定できます"
+  },
+  "bi_workbench.dashboard_ids.valid": {
+    "other": "ワークスペースは正の一意IDで最大50件です"
+  },
+  "bi_workbench.favorite_ids.valid": {
+    "other": "お気に入りは重複しない正数IDのカードを50件まで指定できます"
+  },
   "common.action.create_resource": {
     "other": "{resource} の追加"
   },
@@ -431,6 +590,9 @@
   "legacy.error.0196b093ca02959f": {
     "other": "ロールの更新に失敗しました。組み込みロールのコードは変更できません"
   },
+  "legacy.error.01c8029537c813fd": {
+    "other": "テーブル構造クエリを終了できませんでした"
+  },
   "legacy.error.01c9d0be20537d49": {
     "other": "ウェブ検索アドレスの設定が異常です"
   },
@@ -442,6 +604,9 @@
   },
   "legacy.error.020eaa6e9305844c": {
     "other": "現在の時刻はログインできません"
+  },
+  "legacy.error.0224ce0d4c9763eb": {
+    "other": "新しいプロジェクト承認の所属テナントが無効です"
   },
   "legacy.error.02f1a3ae0f4c961f": {
     "other": "選択した API には同じレート制限ディメンションのポリシーが既に存在します"
@@ -461,6 +626,9 @@
   "legacy.error.03e6e6dd32bbae1d": {
     "other": "モデル名は空にできず、200文字以内で入力してください"
   },
+  "legacy.error.046589dfdbb5d3cb": {
+    "other": "新しい個別接続にはパスワードが必要です"
+  },
   "legacy.error.04a6034f8c1bdf2e": {
     "other": "プロジェクト付与は安全な正の整数配列である必要があり、全許可は[0]のみ使用できます"
   },
@@ -473,8 +641,14 @@
   "legacy.error.04d0cca843621bab": {
     "other": "テスト前にモデル API キーを設定してください"
   },
+  "legacy.error.05150c4d72f90d46": {
+    "other": "フィールドコード、名前、物理列が必要です"
+  },
   "legacy.error.05b48898d3eb38b6": {
     "other": "データテーブルメタデータの読み取りに失敗しました"
+  },
+  "legacy.error.05db1e230bf8ee93": {
+    "other": "データベースドライバーに対応していません"
   },
   "legacy.error.0613b78ae7041646": {
     "other": "出力リダクションポリシーの削除に失敗しました"
@@ -482,14 +656,23 @@
   "legacy.error.066abfeb67fd7b94": {
     "other": "APIリストのページング照会に失敗しました"
   },
+  "legacy.error.067118c2b128c55f": {
+    "other": "他のテナントのスクリプトは再試行できません"
+  },
   "legacy.error.06c4f81359c8cccd": {
     "other": "上位部門を自身にすることはできません"
   },
   "legacy.error.06c5c603bfde8e01": {
     "other": "データベーステーブル名の形式が正しくありません"
   },
+  "legacy.error.06c61ec15c9666e6": {
+    "other": "現在のデータベース名の取得に失敗しました"
+  },
   "legacy.error.06d043cf0c992b56": {
     "other": "レート制限ルールは無効のため API ポリシーに使用できません"
+  },
+  "legacy.error.07169436625cbd35": {
+    "other": "タスクはすでに処理または転送されています"
   },
   "legacy.error.0761a956d76e9f97": {
     "other": "多要素認証登録チケットの有効期限が切れています"
@@ -557,8 +740,17 @@
   "legacy.error.0a7b29f34faeda2d": {
     "other": "認証コードの送信に失敗しました"
   },
+  "legacy.error.0a7fb1b3f8eaf265": {
+    "other": "BIデータベース接続の取得に失敗しました"
+  },
   "legacy.error.0ad5ac1b6de56f07": {
     "other": "ログインポリシーが存在しません"
+  },
+  "legacy.error.0af53829eb85ec21": {
+    "other": "BIデータソースの削除に失敗しました"
+  },
+  "legacy.error.0b38823ed34c2c02": {
+    "other": "フローは JavaScript スクリプトのみ対応しています"
   },
   "legacy.error.0b8c6c4bfc046e48": {
     "other": "ルールのステータスが無効です"
@@ -568,6 +760,9 @@
   },
   "legacy.error.0c3357178bf356f4": {
     "other": "APIレート制限ポリシーを更新できませんでした"
+  },
+  "legacy.error.0c349c765bb1630c": {
+    "other": "現在はJavaScriptスクリプトのみ対応しています"
   },
   "legacy.error.0c3f314f627082c1": {
     "other": "辞書項目のページング照会に失敗しました"
@@ -587,8 +782,14 @@
   "legacy.error.0d38b9f361e60e0e": {
     "other": "メッセージが他のユーザーによって変更されました。更新して再試行してください"
   },
+  "legacy.error.0dbf60614597b70f": {
+    "other": "選択したテーブルが存在しません。テーブル構造を再取得してください"
+  },
   "legacy.error.0dffb0e02ff26b50": {
     "other": "コード生成タスク進捗の照会に失敗しました"
+  },
+  "legacy.error.0e01a87b0d86090d": {
+    "other": "AI の実行状態が変わったため承認を保存できません"
   },
   "legacy.error.0e02ebd3b1522e8e": {
     "other": "メニューの更新に失敗しました"
@@ -605,6 +806,9 @@
   "legacy.error.0e578ecd3aeab2fd": {
     "other": "WebAuthn登録オプションのエンコードに失敗しました"
   },
+  "legacy.error.0e953f80478aa9ed": {
+    "other": "同一テナントのフローコードとバージョンが重複"
+  },
   "legacy.error.0f1a25c888980db7": {
     "other": "AIナレッジベースの作成に失敗しました"
   },
@@ -620,6 +824,9 @@
   "legacy.error.0fc85039279b8b71": {
     "other": "プロジェクトの削除に失敗しました"
   },
+  "legacy.error.1017884009a421be": {
+    "other": "集計関数とデータベースのフィールド型が一致しません"
+  },
   "legacy.error.10506d539567bc0d": {
     "other": "WebAuthn無効化チャレンジの作成に失敗しました"
   },
@@ -632,8 +839,14 @@
   "legacy.error.10c1ec9fad526657": {
     "other": "ユーザーログイントークンの失効に失敗しました"
   },
+  "legacy.error.110ac6a7d5ebc383": {
+    "other": "データカードが存在しません"
+  },
   "legacy.error.1120563ed5b635f4": {
     "other": "電話番号はすでに使用されています"
+  },
+  "legacy.error.11246289bb29a05e": {
+    "other": "セマンティックモデルがサイズ制限を超えています"
   },
   "legacy.error.119edf9016dac56b": {
     "other": "バックアップ復元の実行に失敗しました"
@@ -647,6 +860,12 @@
   "legacy.error.1252b0cf293d5df2": {
     "other": "MFA連携チケットの保存に失敗しました"
   },
+  "legacy.error.12880bf977139081": {
+    "other": "テナント承認関連付けの検証に失敗しました"
+  },
+  "legacy.error.12ceb1313032276b": {
+    "other": "MQTT メッセージ詳細の照会に失敗しました"
+  },
   "legacy.error.12d4e553e5368399": {
     "other": "プロバイダーのカスタム設定が無効です"
   },
@@ -658,6 +877,9 @@
   },
   "legacy.error.13d2e1e8985487d2": {
     "other": "現在の認証方式ではWebAuthn検証は不要です"
+  },
+  "legacy.error.13d9db4a12e72986": {
+    "other": "指標カードとゲージにはグループ化しないクエリ結果が必要です"
   },
   "legacy.error.13dc7c0d91a6fcaf": {
     "other": "AIデータ照会の記録の詳細を取得できませんでした"
@@ -674,6 +896,12 @@
   "legacy.error.14371b5324ef93e4": {
     "other": "プライマリ言語の設定に失敗しました"
   },
+  "legacy.error.143f1e9772b24277": {
+    "other": "ワークスペースとお気に入りはそれぞれ50件までです"
+  },
+  "legacy.error.1456d3981707f770": {
+    "other": "削除失敗、ドラフト状態のみ削除できます"
+  },
   "legacy.error.1464dd4a73b2a25b": {
     "other": "AI プロバイダーのカスタム設定の解析に失敗しました"
   },
@@ -686,14 +914,23 @@
   "legacy.error.14dc349eb32ebb06": {
     "other": "メッセージテンプレートを作成できませんでした"
   },
+  "legacy.error.14e9541958eaf29c": {
+    "other": "ダッシュボードが未公開です"
+  },
   "legacy.error.14eae20685387649": {
     "other": "メッセージアクションターゲットは255文字を超えることはできません"
   },
   "legacy.error.152a0d8516f025d6": {
     "other": "limit は 1 から %d の間で指定してください"
   },
+  "legacy.error.154bb194d8d7704f": {
+    "other": "スクリプト実行ログの照会に失敗しました"
+  },
   "legacy.error.1572896dd8ea2149": {
     "other": "ファイルメタデータリポジトリが未設定です"
+  },
+  "legacy.error.1593dca0dfa86346": {
+    "other": "タスクは処理済みです"
   },
   "legacy.error.15de1844824e8acf": {
     "other": "WeChatログイン資格情報が無効です"
@@ -713,11 +950,17 @@
   "legacy.error.168485da154caef3": {
     "other": "プロジェクト付与のページング照会に失敗しました"
   },
+  "legacy.error.1689611862abe259": {
+    "other": "数値カードにはグループ化のディメンションを指定できません"
+  },
   "legacy.error.1706c4959e58af6a": {
     "other": "プロジェクトの削除に失敗しました（プロジェクトが存在しません）"
   },
   "legacy.error.1708cff4d379a80e": {
     "other": "WebAuthn連携チケットの保存に失敗しました"
+  },
+  "legacy.error.170d7e87736e41ab": {
+    "other": "BIデータソースを開けませんでした"
   },
   "legacy.error.172798ff29ffcc90": {
     "other": "ロールの削除に失敗しました。デフォルトロールは削除できません"
@@ -730,6 +973,9 @@
   },
   "legacy.error.174453c31c654750": {
     "other": "メッセージ本文はサニタイズ後に空にすることはできません"
+  },
+  "legacy.error.17513f0b76033b88": {
+    "other": "通知アクションのパラメーターが無効です"
   },
   "legacy.error.175e2e193a614cee": {
     "other": "キャプチャトークンの消費に失敗しました"
@@ -764,6 +1010,9 @@
   "legacy.error.19803e49d77d7763": {
     "other": "ロールの更新に失敗しました。デフォルトロールの状態は変更できません"
   },
+  "legacy.error.19e303eaf75621aa": {
+    "other": "BIの期間を使用できません"
+  },
   "legacy.error.1a09a09d2d75fb94": {
     "other": "メニュー作成後の親変更は許可されていません"
   },
@@ -784,6 +1033,9 @@
   },
   "legacy.error.1b8c5c49d6878d19": {
     "other": "WeChatログイン設定の読み取りに失敗しました"
+  },
+  "legacy.error.1be13391c90d0c32": {
+    "other": "ワークフロースクリプトの試験実行に失敗しました"
   },
   "legacy.error.1bf41abcd3c3a692": {
     "other": "ドキュメントに元ファイルが保存されていないため再試行できません。削除して再アップロードしてください"
@@ -818,6 +1070,9 @@
   "legacy.error.1d5eca3ba22a1f89": {
     "other": "テナントユーザーの取得に失敗しました"
   },
+  "legacy.error.1d65089c82e93a8f": {
+    "other": "BIデータソースが存在しません"
+  },
   "legacy.error.1db7bf52e1db8bbc": {
     "other": "上位部門と所属テナントが一致しません"
   },
@@ -851,6 +1106,9 @@
   "legacy.error.202c0d21ae9faf03": {
     "other": "MFAキーの保護に失敗しました"
   },
+  "legacy.error.2059cc6d984d24a6": {
+    "other": "被委任者が無効です"
+  },
   "legacy.error.20da88183ea92106": {
     "other": "i18nカスタム翻訳の作成に失敗しました"
   },
@@ -866,11 +1124,17 @@
   "legacy.error.2128a7376d079312": {
     "other": "絶対パスは使用できません"
   },
+  "legacy.error.21a5509ce518ca64": {
+    "other": "BIデータソース一覧の生成に失敗しました"
+  },
   "legacy.error.21fa23c0f931e551": {
     "other": "MFAチャレンジの作成に失敗しました"
   },
   "legacy.error.2242abaaa50d1dc3": {
     "other": "アウトバウンド保護ポリシーが存在しません"
+  },
+  "legacy.error.224ee6da67e2c49e": {
+    "other": "ダッシュボードの下書きが変更されました。更新して再試行してください"
   },
   "legacy.error.2267986a1e381ebd": {
     "other": "ログインページのURLが無効です"
@@ -883,6 +1147,9 @@
   },
   "legacy.error.2339340aba3669da": {
     "other": "ユーザー情報の読み込みに失敗しました"
+  },
+  "legacy.error.233a1cb83044d300": {
+    "other": "BIデータソース一覧の取得に失敗しました"
   },
   "legacy.error.234c138d7e2973f8": {
     "other": "ログインポリシーのステータス読み取りに失敗しました"
@@ -899,11 +1166,20 @@
   "legacy.error.23a96f3371e92fc8": {
     "other": "リダクションルールの削除に失敗しました"
   },
+  "legacy.error.23b476d2ff5c6a0d": {
+    "other": "あなたの承認タスクではありません"
+  },
+  "legacy.error.23c256532945f3f2": {
+    "other": "BIのテーブル関連はファクトテーブルに接続する必要があります"
+  },
   "legacy.error.241051568bef8e2e": {
     "other": "フィールド暗号化アルゴリズムが無効です"
   },
   "legacy.error.2468b2acc984ef68": {
     "other": "機械翻訳の下書き機能が有効になっていません"
+  },
+  "legacy.error.246aed7b4eafe3bc": {
+    "other": "データベーススキーマが無効です"
   },
   "legacy.error.24d27137f8387e6f": {
     "other": "モバイルページにはページメニューのみ作成できます"
@@ -913,6 +1189,9 @@
   },
   "legacy.error.254cc892d3964cfb": {
     "other": "ログイン結果分布の照会に失敗しました"
+  },
+  "legacy.error.254f007cd9859a8b": {
+    "other": "ワークスペースとお気に入りはそれぞれ50件までです"
   },
   "legacy.error.25975f21342bc053": {
     "other": "複数ファイルのアップロードに失敗しました"
@@ -929,11 +1208,17 @@
   "legacy.error.25deb89aa8542274": {
     "other": "親メニューIDがメニュー番号の階層規則に適合しません"
   },
+  "legacy.error.2613784f837f2081": {
+    "other": "BIデータソースの取得に失敗しました"
+  },
   "legacy.error.26743666f680a06d": {
     "other": "レート制限ルール ID を空にすることはできません"
   },
   "legacy.error.26a80f169b515e97": {
     "other": "辞書の照会に失敗しました"
+  },
+  "legacy.error.26a98594498a94ca": {
+    "other": "テナント コードを空にすることはできません"
   },
   "legacy.error.2703b88803392bf3": {
     "other": "AIナレッジベースオプションの照会に失敗しました"
@@ -944,11 +1229,20 @@
   "legacy.error.27071404c9de8a94": {
     "other": "キャプチャトークンの保存に失敗しました"
   },
+  "legacy.error.2756cd89149303b6": {
+    "other": "セマンティックディメンションは選択済みテーブルの同じ型に対応させてください"
+  },
   "legacy.error.2791c0708e5e304c": {
     "other": "AIプロバイダーを取得できませんでした"
   },
+  "legacy.error.279970960cdc7d86": {
+    "other": "業務記録に関連するフローインスタンスが見つかりません"
+  },
   "legacy.error.27c12cba0463a64f": {
     "other": "ログイン地域がブラックリストに登録されています"
+  },
+  "legacy.error.2800470b2bba28f6": {
+    "other": "BIデータソースの更新に失敗しました"
   },
   "legacy.error.282efea07da3b268": {
     "other": "フォーム設定の場所、タイプ、コードは変更できません"
@@ -971,6 +1265,9 @@
   "legacy.error.291d427436dbaf83": {
     "other": "パスワードポリシーの取得に失敗しました"
   },
+  "legacy.error.29290718ec0b858f": {
+    "other": "現在のデータベーススキーマの取得に失敗しました"
+  },
   "legacy.error.2937cc9333bbb190": {
     "other": "読み取り専用トランザクションの開始に失敗しました"
   },
@@ -983,11 +1280,17 @@
   "legacy.error.29c2f394b38444b3": {
     "other": "有効な出力時マスキングポリシーがこのルールを参照しています。参照ポリシーを先に無効にしてください"
   },
+  "legacy.error.29df9b342346ad59": {
+    "other": "先にデータカードを1枚以上追加してください"
+  },
   "legacy.error.29ebf2e88f812e63": {
     "other": "サードパーティアカウントが連携されていません"
   },
   "legacy.error.29f371ada01e1053": {
     "other": "MFAリカバリーコードの保存に失敗しました"
+  },
+  "legacy.error.29f4637294cdc134": {
+    "other": "グラフがクエリ結果に存在しないフィールドを参照しています"
   },
   "legacy.error.29fe5b349e7c8101": {
     "other": "役職は無効化されているため選択できません"
@@ -1009,6 +1312,9 @@
   },
   "legacy.error.2bcdb4bb0f0550e6": {
     "other": "ロールのメニュー権限が上限を超えているため設定に失敗しました"
+  },
+  "legacy.error.2bf0ca2e14dbf0a8": {
+    "other": "フロー図設定に異常があります"
   },
   "legacy.error.2c1c5b8f80033e01": {
     "other": "パスワードポリシー設定の読み取りに失敗しました"
@@ -1037,11 +1343,17 @@
   "legacy.error.2d170c005d708f0e": {
     "other": "クライアント認証失敗状態の読み取りに失敗しました"
   },
+  "legacy.error.2d4f74e7a98cbdd3": {
+    "other": "BIデータソース設定IDが無効です"
+  },
   "legacy.error.2d98325ea8ebe8a4": {
     "other": "セッションが存在しません"
   },
   "legacy.error.2da97a9d0e6f12e4": {
     "other": "テナントIDを含むテーブルの照会に失敗しました"
+  },
+  "legacy.error.2dcf0a202b5aa077": {
+    "other": "スクリプトノードが存在しません"
   },
   "legacy.error.2de441703db096ce": {
     "other": "システム設定の内容が無効です"
@@ -1052,6 +1364,12 @@
   "legacy.error.2e1aa6824e89cd3e": {
     "other": "プロジェクトのページング照会に失敗しました"
   },
+  "legacy.error.2e9e8485207551ae": {
+    "other": "ツールの API 定義が見つかりません"
+  },
+  "legacy.error.2eb4c634e73c7c20": {
+    "other": "スクリプトID一覧を入力してください"
+  },
   "legacy.error.2ec2a0c6920bee1e": {
     "other": "リアルタイムコンソールチャンネルを空にすることはできません"
   },
@@ -1060,6 +1378,9 @@
   },
   "legacy.error.2f049ea5e2d27c12": {
     "other": "連携テナントの読み取りに失敗しました"
+  },
+  "legacy.error.2f173bbdd8aabbbb": {
+    "other": "ワークフローインスタンスのスナップショットが無効です"
   },
   "legacy.error.2f92c31da328aeba": {
     "other": "ユーザーの削除に失敗しました。組み込み管理者アカウントは削除できません"
@@ -1072,6 +1393,9 @@
   },
   "legacy.error.2fedf7ac89c458d3": {
     "other": "データテーブル列メタデータの読み取りに失敗しました"
+  },
+  "legacy.error.2ff36648250506aa": {
+    "other": "加簽ユーザーが無効です"
   },
   "legacy.error.2ffd8c27873e2d27": {
     "other": "AI プロバイダー識別子が無効です"
@@ -1096,6 +1420,9 @@
   },
   "legacy.error.31280f278d823685": {
     "other": "メニューパスが既に存在します"
+  },
+  "legacy.error.3198350bdf120177": {
+    "other": "スクリプトソースを入力してください"
   },
   "legacy.error.31b4abb95ec6dd56": {
     "other": "アーカイブモードが無効です"
@@ -1124,6 +1451,9 @@
   "legacy.error.326cefee542b4c0d": {
     "other": "AIモデルの状態が無効です"
   },
+  "legacy.error.32de8478e8559092": {
+    "other": "BIデータソースが存在しないか無効になっています"
+  },
   "legacy.error.330dd2d11fcdadbb": {
     "other": "AI モデルのテストに失敗しました"
   },
@@ -1135,6 +1465,12 @@
   },
   "legacy.error.3333e1755cbd096d": {
     "other": "データベースフィールドが存在しません"
+  },
+  "legacy.error.334c34185a2d0f07": {
+    "other": "公開スナップショットの保存に失敗しました"
+  },
+  "legacy.error.33b665911d371252": {
+    "other": "カード名またはクエリ設定が無効です"
   },
   "legacy.error.33cd4ce5ee01fa4c": {
     "other": "Protoインターフェース設定が現在のチェック結果にありません"
@@ -1148,11 +1484,17 @@
   "legacy.error.3469afe93c5e18c4": {
     "other": "出力リダクションポリシーのステータスが無効です"
   },
+  "legacy.error.347070fc997f7568": {
+    "other": "プロジェクト承認関連付けの検証に失敗しました"
+  },
   "legacy.error.35323e14c1481ad4": {
     "other": "OAuthログイン方式の設定の読み込みに失敗しました"
   },
   "legacy.error.35899c9b41798f9c": {
     "other": "メッセージカテゴリが存在しないため削除に失敗しました"
+  },
+  "legacy.error.359210281db55f21": {
+    "other": "新しいプロジェクト承認の業務関連付けが無効です"
   },
   "legacy.error.3645acb13cba03bc": {
     "other": "多要素認証チャレンジの有効期限が切れています"
@@ -1190,8 +1532,14 @@
   "legacy.error.39fef6385cd1e4ce": {
     "other": "他テナントのプロジェクト付与を照会できません"
   },
+  "legacy.error.3a0e3d1ee5791c6c": {
+    "other": "ダッシュボードの下書きバージョンが変更されました"
+  },
   "legacy.error.3a2fde07feec27e2": {
     "other": "ストリーミング応答はサポートされていません"
+  },
+  "legacy.error.3a48ba301b1a4d4c": {
+    "other": "設定済みデータソースの結果処理に失敗しました"
   },
   "legacy.error.3a64745b27f68327": {
     "other": "メニューパスの検証に失敗しました"
@@ -1213,6 +1561,9 @@
   },
   "legacy.error.3adfff798e9b6a1e": {
     "other": "テナントのデフォルト部門の初期化に失敗しました"
+  },
+  "legacy.error.3b20680a1792fa16": {
+    "other": "このテナントではデータソースコードが使用済みです"
   },
   "legacy.error.3b77b280d4265902": {
     "other": "AI会話を取得できませんでした"
@@ -1238,8 +1589,14 @@
   "legacy.error.3c2c77928163020e": {
     "other": "画像・辞書・ブール設定値は翻訳に対応していません"
   },
+  "legacy.error.3c68e430f00780ee": {
+    "other": "ダッシュボードのレイアウト保存に失敗しました"
+  },
   "legacy.error.3c6cd7a93b0d400a": {
     "other": "メッセージの有効期限は現在時刻より後である必要があります"
+  },
+  "legacy.error.3c717f1dd2b1eb26": {
+    "other": "接続設定でデータベーススキーマを指定してください"
   },
   "legacy.error.3c832fb81c6829ba": {
     "other": "グローバルポリシーでテナントまたはユーザーを指定することはできません"
@@ -1259,11 +1616,20 @@
   "legacy.error.3d7953d9d4128c4d": {
     "other": "アウトバウンド保護はGETリクエストのみサポートしています"
   },
+  "legacy.error.3da415f938fb011b": {
+    "other": "テナント承認元の検証に失敗しました"
+  },
+  "legacy.error.3daaf675f351d2bf": {
+    "other": "カード設定、直近7日、直近30日のいずれかを指定してください"
+  },
   "legacy.error.3de4efbfbc877881": {
     "other": "行政区域を自身または下位区域の親にすることはできません"
   },
   "legacy.error.3df67385ca02d8d9": {
     "other": "レート制限ルールの選択肢を取得できませんでした"
+  },
+  "legacy.error.3e2415e298964c24": {
+    "other": "グラフ設定の形式が無効です"
   },
   "legacy.error.3e26555b667f0ece": {
     "other": "出力マスキングポリシーがこのルールを参照しているため、削除できません"
@@ -1292,8 +1658,17 @@
   "legacy.error.3fcc79cd186820d6": {
     "other": "OpenAPIドキュメントオプションの照会に失敗しました"
   },
+  "legacy.error.4040fba6e5d004ad": {
+    "other": "クエリ条件が変更されました。AIに再質問してからカードを保存してください"
+  },
+  "legacy.error.4070e624fd8a26e8": {
+    "other": "グラフ設定の保存に失敗しました"
+  },
   "legacy.error.4081e8ae5ebee83d": {
     "other": "レート制限ルールを作成できませんでした"
+  },
+  "legacy.error.412e9898702f7499": {
+    "other": "BIダッシュボードの削除に失敗しました"
   },
   "legacy.error.415c70ceebc9339a": {
     "other": "パスワードの最小長は0より大きくしてください"
@@ -1312,6 +1687,9 @@
   },
   "legacy.error.424b444c31bcfe1f": {
     "other": "バッチ生成定義が競合しています"
+  },
+  "legacy.error.424ef3bf19c0731c": {
+    "other": "ノードグラフの設定が無効です"
   },
   "legacy.error.42531d74e8c7d2b7": {
     "other": "Protoインターフェース設定を空にすることはできません"
@@ -1340,14 +1718,23 @@
   "legacy.error.434234568b7ce4f4": {
     "other": "言語の更新に失敗しました"
   },
+  "legacy.error.4348feb419bc4342": {
+    "other": "デフォルトテナントのみ新しいプロジェクトの承認処理を実行できます"
+  },
   "legacy.error.435d2092fabb1d0c": {
     "other": "メッセージプロバイダー %d(%s) の構築に失敗しました: %w"
   },
   "legacy.error.43ac2c9a541832d6": {
     "other": "ストレージリダクション対象テーブルの照会に失敗しました"
   },
+  "legacy.error.43c19b4f281561f4": {
+    "other": "betweenフィルターには2つの値が必要です"
+  },
   "legacy.error.43c2f70a29b0150b": {
     "other": "tokens_per_second は %g から %g の間で指定してください"
+  },
+  "legacy.error.43ff9b33e2653511": {
+    "other": "BIダッシュボードのデータ取得に失敗しました"
   },
   "legacy.error.44542c22a668344a": {
     "other": "ファイルスキャン一時ファイルの権限設定に失敗しました"
@@ -1361,6 +1748,12 @@
   "legacy.error.44670a4145535bf4": {
     "other": "左ツリー設定の変換に失敗しました"
   },
+  "legacy.error.4469a9509ea2865a": {
+    "other": "BIデータソースのテーブルモデルが無効です"
+  },
+  "legacy.error.446c05bbcf853ae6": {
+    "other": "Agent ツールは無効です"
+  },
   "legacy.error.44885987e1e7fc05": {
     "other": "テナント番号は使い切りました"
   },
@@ -1369,6 +1762,12 @@
   },
   "legacy.error.44b45b049ae6f2a2": {
     "other": "OAuthクライアント資格情報の照会に失敗しました"
+  },
+  "legacy.error.44da1869e0376a29": {
+    "other": "転送先ユーザーが無効です"
+  },
+  "legacy.error.452e3daf17a58e96": {
+    "other": "個人ワークスペースを取得できませんでした"
   },
   "legacy.error.453122ec31407492": {
     "other": "OAuthスコープの設定が無効です"
@@ -1394,6 +1793,9 @@
   "legacy.error.45fd3e95d5189cee": {
     "other": "ユーザーのサードパーティアカウント識別子の照会に失敗しました"
   },
+  "legacy.error.4608a748e161e339": {
+    "other": "承認タスク詳細の検索に失敗"
+  },
   "legacy.error.4626b149e2036433": {
     "other": "ログ圧縮ストリームのクローズに失敗しました"
   },
@@ -1415,6 +1817,9 @@
   "legacy.error.477bb0945b48c9a0": {
     "other": "ログインログ詳細の照会に失敗しました"
   },
+  "legacy.error.47a58292ae95d795": {
+    "other": "承認のツール引数が無効です"
+  },
   "legacy.error.47bf6383bace0dfd": {
     "other": "ユーザーの更新に失敗しました"
   },
@@ -1433,6 +1838,9 @@
   "legacy.error.484f0d7c707f3db3": {
     "other": "コード生成結果の復元に失敗しました"
   },
+  "legacy.error.488a83cdadc0d421": {
+    "other": "新しいテナント承認の業務関連付けが無効です"
+  },
   "legacy.error.48aa6dc021aefeea": {
     "other": "ログインポリシーのステータスが無効です"
   },
@@ -1442,6 +1850,9 @@
   "legacy.error.4901070bdec3330a": {
     "other": "データアクセスログ詳細の照会に失敗しました"
   },
+  "legacy.error.490b5cd41129c88f": {
+    "other": "承認委任の検索に失敗"
+  },
   "legacy.error.49895dd434859396": {
     "other": "役職の作成に失敗しました"
   },
@@ -1450,6 +1861,9 @@
   },
   "legacy.error.499e50f8a502df9f": {
     "other": "ストレージリダクションポリシー詳細の照会に失敗しました"
+  },
+  "legacy.error.49b9ce570fb7f0e7": {
+    "other": "設定済みデータソースの結果取得に失敗しました"
   },
   "legacy.error.49e95fc46747e658": {
     "other": "強制MFA連携の確認に失敗しました"
@@ -1475,6 +1889,9 @@
   "legacy.error.4b161abdbb32e7d8": {
     "other": "統計の開始時刻が無効です"
   },
+  "legacy.error.4b22686799e196a2": {
+    "other": "BIデータソースの状態変更に失敗しました"
+  },
   "legacy.error.4b4740ead55343e1": {
     "other": "クライアント資格情報のローテーションに失敗しました"
   },
@@ -1496,8 +1913,14 @@
   "legacy.error.4c555c9a85f1bc09": {
     "other": "古いログインセッションのクリアに失敗しました"
   },
+  "legacy.error.4c65796a83996bb1": {
+    "other": "カードIDは重複しない正数にしてください"
+  },
   "legacy.error.4c7474b9aece0829": {
     "other": "AIプロバイダーを作成できませんでした"
+  },
+  "legacy.error.4c7c6936111e1e5d": {
+    "other": "BIダッシュボードの保存に失敗しました"
   },
   "legacy.error.4cd0aa2f83038a4d": {
     "other": "コード生成テーブル設定の更新に失敗しました"
@@ -1510,6 +1933,9 @@
   },
   "legacy.error.4d2311ea76ac1eff": {
     "other": "テーブルレベルのi18n設定形式が正しくありません"
+  },
+  "legacy.error.4d48785e7ebd39fb": {
+    "other": "承認が無効か、すでに処理されています"
   },
   "legacy.error.4d5562070c003b98": {
     "other": "i18nカスタム翻訳のページング照会に失敗しました"
@@ -1526,8 +1952,17 @@
   "legacy.error.4e29312694e6b8ba": {
     "other": "ロールの作成に失敗しました"
   },
+  "legacy.error.4e85ed12d1f85f75": {
+    "other": "現在のアカウントとプロジェクトの成功したクエリを選択してください"
+  },
+  "legacy.error.4e87b18fb42af3c4": {
+    "other": "BIの応答は有効なクエリ計画ではありません"
+  },
   "legacy.error.4eac7c4f6e499baa": {
     "other": "ロールの照会に失敗しました"
+  },
+  "legacy.error.4ebafd9f1ba3e747": {
+    "other": "ファクトテーブルを選択する必要があります"
   },
   "legacy.error.4ed8854ac5648878": {
     "other": "メッセージ送信元・冪等キー・送信者名の長さが無効です"
@@ -1541,6 +1976,9 @@
   "legacy.error.4f98589ed2ce7172": {
     "other": "言語コードは有効な言語コードである必要があります"
   },
+  "legacy.error.4fdff590d3a88345": {
+    "other": "データベースのテーブル構造の取得に失敗しました"
+  },
   "legacy.error.4ffe6a7d0728688a": {
     "other": "ワンタイムパスワード検証値の生成に失敗しました"
   },
@@ -1549,6 +1987,9 @@
   },
   "legacy.error.5046c2110be55873": {
     "other": "MFAポリシーの読み取りに失敗しました"
+  },
+  "legacy.error.508e0bd781aa07f1": {
+    "other": "ダッシュボードの下書きにアクセスできません"
   },
   "legacy.error.513deff78da44959": {
     "other": "同じ位置の設定キーが重複しています"
@@ -1562,11 +2003,20 @@
   "legacy.error.516db9f035cc5c99": {
     "other": "キャプチャタイプの保存に失敗しました"
   },
+  "legacy.error.51ab852fc75caab8": {
+    "other": "データカードの一覧を取得できませんでした"
+  },
+  "legacy.error.51c27a5266d7b445": {
+    "other": "BIの自然言語クエリに失敗しました"
+  },
   "legacy.error.51e0cc2766ffd45d": {
     "other": "リダクションルールのステータス設定に失敗しました"
   },
   "legacy.error.524d45335891b7b9": {
     "other": "パスワードの有効期限が切れました。先に変更してください"
+  },
+  "legacy.error.52cece3fb0bc5c37": {
+    "other": "BIデータソースの作成に失敗しました"
   },
   "legacy.error.53392f5183414d58": {
     "other": "API 操作が無効です"
@@ -1577,6 +2027,9 @@
   "legacy.error.53d0c6eaf4e7a590": {
     "other": "データベーステーブルのフィールドが存在しません"
   },
+  "legacy.error.53e503c248312ca3": {
+    "other": "スクリプト名が重複しています"
+  },
   "legacy.error.53e7b4c1e2683778": {
     "other": "行政区の更新に失敗しました"
   },
@@ -1586,6 +2039,12 @@
   "legacy.error.53f8867d5b4a61c7": {
     "other": "既定テナントのみプロジェクトディレクトリを保守できます"
   },
+  "legacy.error.53f89634cde5df00": {
+    "other": "公開済みスクリプトのスナップショットがありません。フローを再度有効にしてください"
+  },
+  "legacy.error.540259b5547228e3": {
+    "other": "取下げ失敗、申請は承認中ではありません"
+  },
   "legacy.error.5422f80650ed6780": {
     "other": "冪等キーに対応するメッセージ内容が一致しません"
   },
@@ -1594,6 +2053,9 @@
   },
   "legacy.error.543d0dbad6466e6c": {
     "other": "ログインセッションの読み取りに失敗しました"
+  },
+  "legacy.error.54783416d1456174": {
+    "other": "元のクエリの取得に失敗しました"
   },
   "legacy.error.54942b049dcbe2eb": {
     "other": "バックアップ設定の削除に失敗しました"
@@ -1622,6 +2084,9 @@
   "legacy.error.556b8b82f553a15e": {
     "other": "サードパーティログインの状態が無効です"
   },
+  "legacy.error.55e4ff7f51a5c57e": {
+    "other": "このバージョンは公開済みです"
+  },
   "legacy.error.560e0de6b066f0c3": {
     "other": "圧縮ログファイルが破損しています"
   },
@@ -1649,6 +2114,9 @@
   "legacy.error.584c7fde024904c9": {
     "other": "バッチサイズは0より大きい必要があります"
   },
+  "legacy.error.58814f41ef0b63a7": {
+    "other": "スクリプト実行ログの記録に失敗しました"
+  },
   "legacy.error.58d18dab90870673": {
     "other": "多要素認証が有効になっていません"
   },
@@ -1661,11 +2129,17 @@
   "legacy.error.59891e4d57598bea": {
     "other": "MFAリカバリーコードが正しくありません"
   },
+  "legacy.error.59a504a8efe43caf": {
+    "other": "BIフィルター演算子に対応していません"
+  },
   "legacy.error.59c1df3bee807b31": {
     "other": "多要素認証ポリシーにより、もう一度サインインする必要があります"
   },
   "legacy.error.59cd5fcd2d88a55d": {
     "other": "付与主体タイプが無効です"
+  },
+  "legacy.error.59d7e6022ca5603c": {
+    "other": "BIデータソースのパスワード取得に失敗しました"
   },
   "legacy.error.59f722f27a58f991": {
     "other": "プロジェクトの照会に失敗しました"
@@ -1702,6 +2176,9 @@
   },
   "legacy.error.5b6b2552126d5785": {
     "other": "AIアシスタントのランタイムが初期化されていません"
+  },
+  "legacy.error.5bbaa6ecfe5e2c73": {
+    "other": "同じテーブルを複数選択できません"
   },
   "legacy.error.5c9ce1a293619574": {
     "other": "ユーザーの役職が所属テナントと一致しません"
@@ -1751,8 +2228,17 @@
   "legacy.error.5e49e05b84d732ea": {
     "other": "AIモデルの分類が無効です"
   },
+  "legacy.error.5e4af6477c9e57a5": {
+    "other": "フローインスタンス詳細の検索に失敗"
+  },
+  "legacy.error.5e5c8fb800af8b31": {
+    "other": "設定済みデータソースのクエリ実行に失敗しました"
+  },
   "legacy.error.5e7ff218eaaae90c": {
     "other": "メニューが存在しません"
+  },
+  "legacy.error.5e89f6523591311d": {
+    "other": "未対応のカードのグラフ種類です"
   },
   "legacy.error.5e9ba4ae7562922c": {
     "other": "既に暗号文が存在する場合、フィールド暗号化アルゴリズムは直接変更できません"
@@ -1769,6 +2255,9 @@
   "legacy.error.5fe54f1b13aabace": {
     "other": "このカテゴリには未完了のプロバイダー配信があるため、プロバイダーを削除できません"
   },
+  "legacy.error.6006ddbf35bdc480": {
+    "other": "スクリプトの照会に失敗しました"
+  },
   "legacy.error.6061e1920b151aa7": {
     "other": "ログイン失敗状態の記録に失敗しました"
   },
@@ -1784,8 +2273,14 @@
   "legacy.error.617ff09dc5740ca9": {
     "other": "メッセージアクションパラメータは16KBを超えることはできません"
   },
+  "legacy.error.61c6dd4d52d756c5": {
+    "other": "サーバーのデータベースクライアントを選択するか個別接続を設定してください"
+  },
   "legacy.error.61e2b1a9dab094f9": {
     "other": "サードパーティアカウント連携コールバックの処理に失敗しました"
+  },
+  "legacy.error.61ff02d11dad1cab": {
+    "other": "グラフには数値フィールドが必要です"
   },
   "legacy.error.6205508a57ad22fe": {
     "other": "スケジュールタスクが存在しません"
@@ -1793,8 +2288,14 @@
   "legacy.error.62520e3110ff37de": {
     "other": "行政区ツリーリストの照会に失敗しました"
   },
+  "legacy.error.627129d821b9a9ae": {
+    "other": "スクリプト状態が無効です"
+  },
   "legacy.error.62abf78cc507b4fd": {
     "other": "フォーム"
+  },
+  "legacy.error.62dbfe7b4ff85db4": {
+    "other": "お気に入りは重複しない正数IDのカードを50件まで指定できます"
   },
   "legacy.error.62f6ab1e2687f26b": {
     "other": "MCPリクエストはHTTPアクセスのみ対応しています"
@@ -1804,6 +2305,9 @@
   },
   "legacy.error.63722cd0da2f0322": {
     "other": "プラットフォーム管理者のみリダクションポリシーを管理できます"
+  },
+  "legacy.error.638c570a0e485641": {
+    "other": "フィールドコードまたは物理列名が無効です"
   },
   "legacy.error.63e1d2923d9a60ad": {
     "other": "プロジェクトのステータス設定に失敗しました"
@@ -1838,6 +2342,9 @@
   "legacy.error.675ce37f71759e76": {
     "other": "スマート問い合わせ記録が存在しません"
   },
+  "legacy.error.67b714349038ef9a": {
+    "other": "データソースのセマンティックモデル生成に失敗しました"
+  },
   "legacy.error.6809a6b85e22a0dd": {
     "other": "権限ログ詳細の照会に失敗しました"
   },
@@ -1846,6 +2353,9 @@
   },
   "legacy.error.6875490152490a8a": {
     "other": "スケジュールタスクのドロップダウン照会に失敗しました"
+  },
+  "legacy.error.68c36a9a40ff17ea": {
+    "other": "ワークフロースクリプトの再試行に失敗しました"
   },
   "legacy.error.690a6b7f9c24cefa": {
     "other": "多要素認証の失敗回数が多すぎます"
@@ -1877,6 +2387,12 @@
   "legacy.error.6a57e7bb1fda230a": {
     "other": "このカテゴリのメッセージは削除できません"
   },
+  "legacy.error.6a915ace53145be1": {
+    "other": "BIデータソースモデルの保存に失敗しました"
+  },
+  "legacy.error.6a96890d025d36c6": {
+    "other": "業務伝票とワークフローの関連付けを保存できませんでした"
+  },
   "legacy.error.6a9d6064de67fa66": {
     "other": "メッセージカテゴリに有効な配信先がありません"
   },
@@ -1891,6 +2407,9 @@
   },
   "legacy.error.6b0a676728c4bb15": {
     "other": "メッセージ本文の形式が無効です"
+  },
+  "legacy.error.6b10f726d5abb4f2": {
+    "other": "サーバーのデータベースクライアントを使用できるのはデフォルトテナントのみです"
   },
   "legacy.error.6b2432fed138fe2c": {
     "other": "APIアクセスログのページング照会に失敗しました"
@@ -1928,6 +2447,9 @@
   "legacy.error.6de8ebe104908a91": {
     "other": "テナント管理者ロールの初期化に失敗しました"
   },
+  "legacy.error.6e274beea35914d0": {
+    "other": "スクリプトの作成に失敗しました"
+  },
   "legacy.error.6e3c9cde7970ab77": {
     "other": "ドキュメントテキストの再抽出に失敗しました"
   },
@@ -1964,8 +2486,17 @@
   "legacy.error.70010c1c5aff2874": {
     "other": "OAuthクライアントが存在しません"
   },
+  "legacy.error.7035618678e0d941": {
+    "other": "BIデータソースのテーブル関連が無効です"
+  },
+  "legacy.error.7037d44d26f2fe7d": {
+    "other": "AI ツールの承認処理に失敗しました"
+  },
   "legacy.error.708625d074c0bc4a": {
     "other": "フロントエンドAPIファイルは選択したビジネスモジュールディレクトリにあり、.ts拡張子である必要があります"
+  },
+  "legacy.error.709fd6d34b5ab217": {
+    "other": "スクリプト言語が無効です"
   },
   "legacy.error.70be9f472ac29679": {
     "other": "自分のセッションの検証に失敗しました"
@@ -2009,8 +2540,17 @@
   "legacy.error.7255193529b2fdb8": {
     "other": "ファイルのダウンロードに失敗しました"
   },
+  "legacy.error.72934aee38ddf99c": {
+    "other": "サーバーのデータベースクライアントが存在しません"
+  },
   "legacy.error.72aaa4285bec9431": {
     "other": "電話番号の変更に失敗しました"
+  },
+  "legacy.error.732403aa5b743865": {
+    "other": "ホストの関連付けコールバックにはワークフロー関連付け検証器の登録が必要です"
+  },
+  "legacy.error.7347922dbc5dc781": {
+    "other": "関連グラフはファクトテーブルを根とするツリーである必要があります"
   },
   "legacy.error.738ffa9d13b38867": {
     "other": "同じテナントに役職番号が重複しています"
@@ -2023,6 +2563,9 @@
   },
   "legacy.error.742a08fb80e718ce": {
     "other": "スケジュールタスク設定の復元に失敗しました"
+  },
+  "legacy.error.743de39e211f2357": {
+    "other": "BIのフィルターフィールドのテーブルが無効です"
   },
   "legacy.error.7457032f6280eb65": {
     "other": "サードパーティログインチケットの作成に失敗しました"
@@ -2053,6 +2596,9 @@
   },
   "legacy.error.75291116767157b1": {
     "other": "アップロードファイルの形式が正しくありません"
+  },
+  "legacy.error.75703813c8b15887": {
+    "other": "このグラフにはカテゴリまたは日付フィールドが必要です"
   },
   "legacy.error.757bdbb9cf9523eb": {
     "other": "オンラインユーザーの取得に失敗しました"
@@ -2117,6 +2663,12 @@
   "legacy.error.77fc0ea919e34629": {
     "other": "ユーザーの組織関係が所属テナントと一致しません"
   },
+  "legacy.error.7805ab41ec40269c": {
+    "other": "BIの質問を入力してください"
+  },
+  "legacy.error.7849340589beebfc": {
+    "other": "ワークスペースに未公開またはアクセスできないダッシュボードがあります"
+  },
   "legacy.error.7871e907338a7317": {
     "other": "プロジェクト付与が存在しません"
   },
@@ -2138,8 +2690,14 @@
   "legacy.error.796a07cbf608a7c4": {
     "other": "メッセージアクションターゲットの検証が初期化されていません"
   },
+  "legacy.error.7988a9c57b1e18af": {
+    "other": "コードとバージョンは変更できません、新バージョンを作成してください"
+  },
   "legacy.error.798a355cd970d9df": {
     "other": "ログインポリシーの削除に失敗しました"
+  },
+  "legacy.error.799b4c56d12deb00": {
+    "other": "Agent ツールが無効か、実行が禁止されています"
   },
   "legacy.error.79a13181f8eb5390": {
     "other": "辞書項目の作成に失敗しました"
@@ -2150,6 +2708,9 @@
   "legacy.error.79c198d49f48c75c": {
     "other": "WebAuthn認証レスポンスが無効です"
   },
+  "legacy.error.79c663c3b9bbbc6e": {
+    "other": "カードのクエリ設定を読み込めませんでした"
+  },
   "legacy.error.7a155b68e77f7b3e": {
     "other": "メッセージの削除に失敗しました"
   },
@@ -2158,6 +2719,9 @@
   },
   "legacy.error.7a38fa171e5f03d7": {
     "other": "サードパーティログインチケットの有効期限が切れています"
+  },
+  "legacy.error.7a82731cd9da4819": {
+    "other": "有効なダッシュボード名とコードを入力してください"
   },
   "legacy.error.7a9fd6329bd31acb": {
     "other": "ファイルの内容は空にできず、20 MBを超えることもできません"
@@ -2210,8 +2774,14 @@
   "legacy.error.7ddf413a97a025d8": {
     "other": "有効なCAPTCHAタイプがありません"
   },
+  "legacy.error.7e1cee01625c342f": {
+    "other": "スクリプト実行はこのフローに属していません"
+  },
   "legacy.error.7e4f51942b429272": {
     "other": "アウトバウンド保護ルールのパラメータが無効です"
+  },
+  "legacy.error.7e7027a1d80c578d": {
+    "other": "他テナントの承認委任を検索できません"
   },
   "legacy.error.7f22e0bfb634eb2f": {
     "other": "電話番号の認証コード送信に失敗しました"
@@ -2221,6 +2791,9 @@
   },
   "legacy.error.800ad5e277d8f771": {
     "other": "レート制限ルールのパラメータが有効な JSON ではありません: %w"
+  },
+  "legacy.error.804ff47d9145111c": {
+    "other": "スクリプトIDが無効です"
   },
   "legacy.error.80628f11b01cfebd": {
     "other": "MFAデバイスの認証スキップ日数は0から90の間で指定してください"
@@ -2240,6 +2813,9 @@
   "legacy.error.81e65e451284e06e": {
     "other": "同じテナントにロールコードが重複しています"
   },
+  "legacy.error.8216350b44fd8ba1": {
+    "other": "データカードの保存に失敗しました"
+  },
   "legacy.error.82166f10832cd9cd": {
     "other": "capacity は 1 から %d の間で指定してください"
   },
@@ -2254,6 +2830,9 @@
   },
   "legacy.error.825560a606dfc1b4": {
     "other": "ファイル資産の削除に失敗しました"
+  },
+  "legacy.error.826af7ec0498f9b7": {
+    "other": "カードのデータ取得に失敗しました"
   },
   "legacy.error.827e959fee2fe159": {
     "other": "データアクセスログのページング照会に失敗しました"
@@ -2273,8 +2852,14 @@
   "legacy.error.8356e20f232d281c": {
     "other": "ドキュメントの元ファイルのアップロードに失敗しました"
   },
+  "legacy.error.8358173c19c8b805": {
+    "other": "ワークフロー定義の削除に失敗"
+  },
   "legacy.error.8378c73fbc6061ca": {
     "other": "役職のページング照会に失敗しました"
+  },
+  "legacy.error.83c152306e3a4a8e": {
+    "other": "新しいテナント承認フォームが無効です"
   },
   "legacy.error.83e43a4951d784c2": {
     "other": "行政区域を自身の親にすることはできません"
@@ -2285,14 +2870,29 @@
   "legacy.error.84092786aefc8d28": {
     "other": "セッション状態の作成に失敗しました"
   },
+  "legacy.error.840a1544b634b15c": {
+    "other": "データベースのテーブル構造の処理に失敗しました"
+  },
+  "legacy.error.844039c078368bf3": {
+    "other": "ツールのリクエスト定義が見つかりません"
+  },
   "legacy.error.84697e6aff32c8d5": {
     "other": "システム設定の削除に失敗しました"
   },
   "legacy.error.84971dcea61616b1": {
     "other": "メニューの作成に失敗しました"
   },
+  "legacy.error.84c684cce9bedfe9": {
+    "other": "承認委任の設定に失敗"
+  },
   "legacy.error.84cd4e2b6e6c7236": {
     "other": "MFAリカバリーコードの消費に失敗しました"
+  },
+  "legacy.error.8509eb2948308ef5": {
+    "other": "BIの結果がサイズ制限を超えています。範囲を絞ってください"
+  },
+  "legacy.error.855a3a4a1e73873b": {
+    "other": "スクリプト状態の更新に失敗しました"
   },
   "legacy.error.858a0795c30a4a9b": {
     "other": "多要素認証に失敗しました"
@@ -2327,6 +2927,9 @@
   "legacy.error.888f5179fe310cd6": {
     "other": "レート制限ディメンションが無効です"
   },
+  "legacy.error.88a331bc22b0dbe9": {
+    "other": "先にデータソースのテーブル構造とセマンティックモデルを設定してください"
+  },
   "legacy.error.89150fa5235640aa": {
     "other": "呼び出しターゲットが重複しています"
   },
@@ -2335,6 +2938,12 @@
   },
   "legacy.error.8933d9e974b3a27d": {
     "other": "ファイルオブジェクトの削除に失敗しました"
+  },
+  "legacy.error.894efd50d81b01bc": {
+    "other": "BIの時間ディメンションのテーブルが無効です"
+  },
+  "legacy.error.895609297b4cc810": {
+    "other": "MySQL互換の接続設定が不足しています"
   },
   "legacy.error.89948745c30efa6b": {
     "other": "クライアントトークンの身元が一致しません"
@@ -2357,8 +2966,17 @@
   "legacy.error.8b14be98bee08880": {
     "other": "データベースフィールドの照会に失敗しました"
   },
+  "legacy.error.8b1e46dc72244e15": {
+    "other": "BIクエリの生成に失敗しました"
+  },
   "legacy.error.8b413a6a6b9c51f1": {
     "other": "MFAステータスの照会に失敗しました"
+  },
+  "legacy.error.8b442bce74de76e9": {
+    "other": "1〜8個のテーブルを選択しファクトテーブルを指定してください"
+  },
+  "legacy.error.8b5a995b29d45525": {
+    "other": "PostgreSQLの接続設定が不足しています"
   },
   "legacy.error.8b7757274fb40557": {
     "other": "ウェブ検索レスポンスの読み取りに失敗しました"
@@ -2381,6 +2999,9 @@
   "legacy.error.8c54cb0c3d38941a": {
     "other": "メッセージプロバイダーの状態が無効です"
   },
+  "legacy.error.8c6af8b20cd52f9c": {
+    "other": "デフォルトテナントのみ新しいテナントの承認処理を実行できます"
+  },
   "legacy.error.8ca5b7bd020f0d44": {
     "other": "生成ファイルが変更されているため、安全に復元できません"
   },
@@ -2392,6 +3013,9 @@
   },
   "legacy.error.8d4c7687edb51962": {
     "other": "セキュリティポリシーを満たすパスワードを設定してください"
+  },
+  "legacy.error.8d5c3940aba9dd25": {
+    "other": "一人のユーザーは一件の承認委任のみ設定できます"
   },
   "legacy.error.8dcfb2899db4e48a": {
     "other": "既存データがこの保存時マスキングポリシーを使用しているため、無効化または削除できません"
@@ -2420,8 +3044,14 @@
   "legacy.error.8edf13ac398ac3e4": {
     "other": "オプション API フィールドが存在しません"
   },
+  "legacy.error.8f08aae578d818eb": {
+    "other": "ワークフロー定義が存在しません"
+  },
   "legacy.error.8f09ccc849c9e2b7": {
     "other": "メニュー番号が変更されました。再生成してください"
+  },
+  "legacy.error.8f0c281936a2dd93": {
+    "other": "ワークフロー定義の作成に失敗"
   },
   "legacy.error.8f0dd34554f01d20": {
     "other": "バックアップ復元モードが無効です"
@@ -2429,17 +3059,32 @@
   "legacy.error.8f5b2aa071f02c06": {
     "other": "MFA方式の読み取りに失敗しました"
   },
+  "legacy.error.8f6f571bc90e07de": {
+    "other": "このグラフには2つのカテゴリと数値フィールドが必要です"
+  },
   "legacy.error.9001727fa93c4597": {
     "other": "所属テナントが存在しないか無効化されています"
   },
+  "legacy.error.903b4ffba1164834": {
+    "other": "BIデータソースへの接続に失敗しました"
+  },
   "legacy.error.907ce95f5cb163dc": {
     "other": "連携先テナントが存在しません"
+  },
+  "legacy.error.908123a7527b5ef3": {
+    "other": "クエリ結果のスナップショット取得に失敗しました"
+  },
+  "legacy.error.90ae3d4b3b701aa1": {
+    "other": "設定済みデータソースはプロジェクト範囲のクエリに対応していません"
   },
   "legacy.error.90b019d1c34bcf63": {
     "other": "ログインポリシーのスコープタイプが無効です"
   },
   "legacy.error.90fb3173fc11c767": {
     "other": "リダクションルールの作成に失敗しました"
+  },
+  "legacy.error.910c3bb2daa5b9eb": {
+    "other": "BIデータソース詳細の取得に失敗しました"
   },
   "legacy.error.9169c767f06efb26": {
     "other": "ウェブ検索リクエストの構築に失敗しました"
@@ -2455,6 +3100,9 @@
   },
   "legacy.error.9265669d517e320e": {
     "other": "プロバイダーのカスタム設定の解析に失敗しました"
+  },
+  "legacy.error.92a83b190694e02b": {
+    "other": "BIクエリのプレビューに失敗しました"
   },
   "legacy.error.92c25f13b0fa3691": {
     "other": "APIアクセスログ詳細の照会に失敗しました"
@@ -2492,6 +3140,12 @@
   "legacy.error.94a4acd52ee779cb": {
     "other": "アーカイブ設定の照会に失敗しました"
   },
+  "legacy.error.94c872f75369c921": {
+    "other": "ツール引数が無効です"
+  },
+  "legacy.error.94dc7cfc60980a69": {
+    "other": "削除失敗、この定義を参照するインスタンスが存在します"
+  },
   "legacy.error.94f40163f02c3e7b": {
     "other": "OAuthログイン方式を取得できませんでした"
   },
@@ -2500,6 +3154,12 @@
   },
   "legacy.error.951405540e9a38f3": {
     "other": "インバウンド保護ポリシーのステータスが無効です"
+  },
+  "legacy.error.9578a4511b3382df": {
+    "other": "申請フォームデータは JSON オブジェクトである必要があります"
+  },
+  "legacy.error.95e9cd0948335c3d": {
+    "other": "ダッシュボードのレイアウト形式が無効です"
   },
   "legacy.error.95ea0e3927a9039c": {
     "other": "Protoインターフェース設定の順序または種類が正しくありません"
@@ -2525,6 +3185,12 @@
   "legacy.error.9798ae7fa191abd0": {
     "other": "ロールの作成に失敗しました。組み込みロールのコードは使用できません"
   },
+  "legacy.error.97a011fa2c37581c": {
+    "other": "参照したスクリプトが存在しないか無効になっています"
+  },
+  "legacy.error.97e1866d4aeb1c8a": {
+    "other": "他のテナント、プロジェクト、非公開カードは参照できません"
+  },
   "legacy.error.9828341ae3541d3d": {
     "other": "ユーザーロールの照会に失敗しました"
   },
@@ -2533,6 +3199,9 @@
   },
   "legacy.error.998d00125d42ac70": {
     "other": "ポリシー評価ログ詳細の照会に失敗しました"
+  },
+  "legacy.error.998ef42f3f8bbb63": {
+    "other": "元のクエリ結果の取得に失敗しました"
   },
   "legacy.error.99b5db83c5f70d13": {
     "other": "WebAuthn設定の保存に失敗しました"
@@ -2558,6 +3227,9 @@
   "legacy.error.9bdd7318cefbaaad": {
     "other": "他テナントのプロジェクトを作成できません"
   },
+  "legacy.error.9cafc0f70e08d227": {
+    "other": "管理画面で書き込み操作を承認してください"
+  },
   "legacy.error.9cd44a5bdb014fb1": {
     "other": "そのテーブルは既にコード生成テーブル設定に選択されています"
   },
@@ -2576,6 +3248,9 @@
   "legacy.error.9df84549ee5d2e6d": {
     "other": "現在のクライアントはWebAuthnに対応していません。Passkey対応クライアントで連携を完了してください"
   },
+  "legacy.error.9e1aa3fd7def6722": {
+    "other": "BIデータソースの設定が必要です"
+  },
   "legacy.error.9e70775a28707b73": {
     "other": "ファイルの内容は20 MBを超えることができません"
   },
@@ -2587,6 +3262,12 @@
   },
   "legacy.error.9ef530183c578b4d": {
     "other": "ユーザーの照会に失敗しました"
+  },
+  "legacy.error.9f01df24feb10b4f": {
+    "other": "BIクエリの前にプロジェクトを1つ選択してください"
+  },
+  "legacy.error.9f0c49cefeac73e1": {
+    "other": "参照IDは正の数で重複しない値が必要です"
   },
   "legacy.error.9f2257503116e08f": {
     "other": "インバウンド保護ポリシーが存在しません"
@@ -2624,6 +3305,9 @@
   "legacy.error.a238c49d0e37d9f2": {
     "other": "AIセッションが存在しません"
   },
+  "legacy.error.a29ca3d4464b4117": {
+    "other": "スクリプト一覧の照会に失敗しました"
+  },
   "legacy.error.a2a94e08e6ca92ab": {
     "other": "行政区の作成に失敗しました"
   },
@@ -2647,6 +3331,9 @@
   },
   "legacy.error.a4c906a269af199d": {
     "other": "ビジネステーブル名は小文字・数字・アンダースコアのみを含み、文字で始まる必要があります"
+  },
+  "legacy.error.a4ec9260f17d6542": {
+    "other": "ダッシュボードが存在しません"
   },
   "legacy.error.a51c8475a6465475": {
     "other": "新しいパスワードを現在のパスワードと同じにすることはできません"
@@ -2684,8 +3371,17 @@
   "legacy.error.a74130d81445b0bd": {
     "other": "embeddingモデルのプロバイダーが有効になっていません"
   },
+  "legacy.error.a767a15e48da0a92": {
+    "other": "ディメンションの結合フィールドは一意でファクト側と型互換である必要があります"
+  },
   "legacy.error.a793ed4ba92639ed": {
     "other": "MFA連携チケットの作成に失敗しました"
+  },
+  "legacy.error.a7beabf5ecc07c42": {
+    "other": "業務伝票の関連付けが未確認です。後で取り下げてください"
+  },
+  "legacy.error.a7c58b6438e3489e": {
+    "other": "複数指標のグラフには数値フィールドが必要です"
   },
   "legacy.error.a7cd9211d767ce6e": {
     "other": "ビジネスモジュール辞書が存在しません"
@@ -2708,17 +3404,44 @@
   "legacy.error.a8cecf08b4c03297": {
     "other": "この設定コードではフォームタイプを使用する必要があります"
   },
+  "legacy.error.a8d8de8491bac522": {
+    "other": "指標はファクトテーブルのフィールドに対応させてください"
+  },
   "legacy.error.a904f86e15f80686": {
     "other": "認可可能なインターフェースの照会に失敗しました"
+  },
+  "legacy.error.a922fa8d9aefc4b3": {
+    "other": "ワークフロー定義が有効化されていません"
+  },
+  "legacy.error.a934ff7ee33d8ab2": {
+    "other": "ツールの API 定義が無効です"
   },
   "legacy.error.a9a6a83a7d22e27e": {
     "other": "ユーザー名またはパスワードが正しくありません"
   },
+  "legacy.error.aa3f19b0635bde95": {
+    "other": "BIクエリにはディメンションまたは指標が必要です"
+  },
   "legacy.error.ab10b5713ba93cbd": {
     "other": "役職の削除に失敗しました"
   },
+  "legacy.error.ac01bb67bb88f719": {
+    "other": "このグラフ種類はメジャーを1つだけ指定できます"
+  },
   "legacy.error.ac1dcca2468c6eea": {
     "other": "メッセージ詳細の照会に失敗しました"
+  },
+  "legacy.error.ac1dfc62a1e129c384": {
+    "other": "スクリプト実行ログ詳細の照会に失敗しました"
+  },
+  "legacy.error.ac1dfc62f18f680": {
+    "other": "スクリプト実行ログ詳細の照会に失敗しました"
+  },
+  "legacy.error.ac1dfc62f18f6808": {
+    "other": "スクリプト実行ログ詳細の照会に失敗しました"
+  },
+  "legacy.error.ac6310ee83bcf7f9": {
+    "other": "フローの参加者または管理者のみスクリプトを再試行できます"
   },
   "legacy.error.ad3e7934969052c3": {
     "other": "メッセージテンプレートを削除できませんでした"
@@ -2741,6 +3464,9 @@
   "legacy.error.ae506e54c847f000": {
     "other": "メッセージプロバイダーは既にメッセージテンプレートで使用されています"
   },
+  "legacy.error.ae56de2ccc009ae3": {
+    "other": "BIダッシュボードの公開に失敗しました"
+  },
   "legacy.error.ae5dda772496d1bc": {
     "other": "スライディングウィンドウログの limit は %d を超えることはできません"
   },
@@ -2759,11 +3485,20 @@
   "legacy.error.af8be8010133e43a": {
     "other": "コード生成タスクIDを空にすることはできません"
   },
+  "legacy.error.afac2a2e5bf769d4": {
+    "other": "承認操作が無効です"
+  },
+  "legacy.error.afdf4126e6dda456": {
+    "other": "データソースのセマンティックモデルが必要です"
+  },
   "legacy.error.b000629d3e4c6e0a": {
     "other": "インターフェースが選択したサービスに属していません"
   },
   "legacy.error.b0080b8ef47b6b2f": {
     "other": "役職の更新に失敗しました"
+  },
+  "legacy.error.b008ba1ac3fb0652": {
+    "other": "実行リースは他のタスクに引き継がれました"
   },
   "legacy.error.b033407527df7ba3": {
     "other": "i18nカスタム翻訳のステータス設定に失敗しました"
@@ -2789,6 +3524,9 @@
   "legacy.error.b2d510c3c58db1c0": {
     "other": "辞書項目の照会に失敗しました"
   },
+  "legacy.error.b2df4070287d940b": {
+    "other": "自分の承認タスクの検索に失敗"
+  },
   "legacy.error.b2e4129625950cdc": {
     "other": "メッセージアクションの種類が無効です"
   },
@@ -2804,11 +3542,17 @@
   "legacy.error.b374f825d226968f": {
     "other": "行政区の照会に失敗しました"
   },
+  "legacy.error.b38130d20d8764ce": {
+    "other": "データベースの列構造の取得に失敗しました"
+  },
   "legacy.error.b3ca26ba26ec1779": {
     "other": "テナントが無効になっています"
   },
   "legacy.error.b3cb89fc0a8251e4": {
     "other": "AIモデルの分類設定の解析に失敗しました"
+  },
+  "legacy.error.b3d876f3488c1138": {
+    "other": "カードのクエリ取得に失敗しました"
   },
   "legacy.error.b3ff67b25874179f": {
     "other": "コード生成テーブル設定の削除に失敗しました"
@@ -2837,6 +3581,9 @@
   "legacy.error.b51de7ac39752753": {
     "other": "未対応の AI プロバイダーです"
   },
+  "legacy.error.b55bf245bac9ce6e": {
+    "other": "削除失敗、定義が存在しません"
+  },
   "legacy.error.b57fd83489726ea9": {
     "other": "インバウンド保護ポリシーを空にすることはできません"
   },
@@ -2846,14 +3593,26 @@
   "legacy.error.b59718ffeaef06c5": {
     "other": "APIレート制限ポリシーの状態を変更できませんでした"
   },
+  "legacy.error.b599662b6305b1cd": {
+    "other": "データベースの一意キーの取得に失敗しました"
+  },
   "legacy.error.b5f1440999896065": {
     "other": "出力リダクションポリシー詳細の照会に失敗しました"
+  },
+  "legacy.error.b6454ff77812a329": {
+    "other": "アクセス権限のないカードが含まれています"
+  },
+  "legacy.error.b698dd181813542e": {
+    "other": "他テナントのフローインスタンスを検索できません"
   },
   "legacy.error.b6a5cd0e0d7bc920": {
     "other": "APIレート制限ポリシーを作成できませんでした"
   },
   "legacy.error.b6aa14aecfe74975": {
     "other": "メッセージプロバイダー設定の解析に失敗しました"
+  },
+  "legacy.error.b6b3d6b633e2277b": {
+    "other": "カード名を入力してください"
   },
   "legacy.error.b6b95db507adde81": {
     "other": "セッション トークン マネージャーが設定されていません"
@@ -2879,6 +3638,9 @@
   "legacy.error.b7d44d24f66dbda1": {
     "other": "プロジェクトツリーの照会に失敗しました"
   },
+  "legacy.error.b7dfaaed47b862eb": {
+    "other": "削除失敗、委任が存在しません"
+  },
   "legacy.error.b7fdba770862e9ff": {
     "other": "役職の削除に失敗しました。この役職を使用しているユーザーがまだいます"
   },
@@ -2891,6 +3653,9 @@
   "legacy.error.b8895d5db253e184": {
     "other": "サードパーティアプリのシークレットは空にできません"
   },
+  "legacy.error.b88bad52eb5ea941": {
+    "other": "ユーザーは無効化されています"
+  },
   "legacy.error.b89055c6f7498238": {
     "other": "レート制限ルールが見つかりません"
   },
@@ -2900,17 +3665,35 @@
   "legacy.error.ba2694f62e4fbbaf": {
     "other": "メッセージの削除に失敗しました（メッセージが存在しません）"
   },
+  "legacy.error.ba58b9c5fcfc4e35": {
+    "other": "公開済みのダッシュボードのみ閲覧できます"
+  },
+  "legacy.error.ba653419d73d2ec8": {
+    "other": "申請の取下げに失敗"
+  },
   "legacy.error.ba92dfedf01811fc": {
     "other": "メッセージテンプレートを更新できませんでした"
   },
   "legacy.error.baabf07429595997": {
     "other": "ログインMACアドレスがブラックリストに登録されています"
   },
+  "legacy.error.bb1268519f752fa3": {
+    "other": "個人ワークスペースの保存に失敗しました"
+  },
   "legacy.error.bb1bb5f6a2dbba8b": {
     "other": "WebAuthn無効化チャレンジが失効しました"
   },
   "legacy.error.bb1c9703d51a4ead": {
     "other": "ユーザーの部門が存在しません"
+  },
+  "legacy.error.bb42bc14719faff4": {
+    "other": "ワークフロースクリプトの取得に失敗しました"
+  },
+  "legacy.error.bbe870a05f49a123": {
+    "other": "個別接続にはホスト、ポート、データベース名、ユーザー名が必要です"
+  },
+  "legacy.error.bbf6b13e90ad673c": {
+    "other": "フローノード状態に異常があります"
   },
   "legacy.error.bc003ab52dc05e95": {
     "other": "メッセージのロール受信者が無効です"
@@ -2939,6 +3722,9 @@
   "legacy.error.bce2683b3efef155": {
     "other": "初期パスワードの保存に失敗しました"
   },
+  "legacy.error.bd716eafd672c746": {
+    "other": "ワークフロー定義の更新に失敗"
+  },
   "legacy.error.bd71a5a12e6c406b": {
     "other": "プロジェクトの作成に失敗しました"
   },
@@ -2953,6 +3739,9 @@
   },
   "legacy.error.be74ce92a610e199": {
     "other": "メッセージの受信者を重複させることはできません"
+  },
+  "legacy.error.bef4cc844929c21e": {
+    "other": "クエリ条件が変更されました。再度プレビューしてから保存してください"
   },
   "legacy.error.bf136ecb202be363": {
     "other": "辞書項目が存在しません"
@@ -2981,6 +3770,9 @@
   "legacy.error.c0ee4b6fcd75f376": {
     "other": "WebAuthn資格情報の読み取りに失敗しました"
   },
+  "legacy.error.c17f8b1c11e357cf": {
+    "other": "ワークスペースは重複しない正数IDのカードを50件まで指定できます"
+  },
   "legacy.error.c1927bc6a20fa3ca": {
     "other": "インバウンドポリシーIDを空にすることはできません"
   },
@@ -2993,6 +3785,9 @@
   "legacy.error.c21174eeb0d483ee": {
     "other": "クエリ結果の走査に失敗しました"
   },
+  "legacy.error.c21640c2f2bf1181": {
+    "other": "公開するノードグラフ設定は 1 MiB を超えてはいけません"
+  },
   "legacy.error.c22152f4419d1c0c": {
     "other": "テナントを選択してください"
   },
@@ -3001,6 +3796,9 @@
   },
   "legacy.error.c269746cd8542461": {
     "other": "サードパーティアカウントの一意IDが空です"
+  },
+  "legacy.error.c27f086ce508006d": {
+    "other": "すべてのディメンションテーブルをファクトテーブルから接続してください"
   },
   "legacy.error.c285fcfc099f9c92": {
     "other": "メニューツリーリストの照会に失敗しました"
@@ -3020,6 +3818,9 @@
   "legacy.error.c33ecf4a6ac4f509": {
     "other": "分岐アンカーメッセージ番号が不正です"
   },
+  "legacy.error.c343976847d80363": {
+    "other": "スクリプトの削除に失敗しました"
+  },
   "legacy.error.c3dd71d006f793b2": {
     "other": "ファイルスキャン一時ファイルのクローズに失敗しました"
   },
@@ -3031,6 +3832,9 @@
   },
   "legacy.error.c465c61d1876cee8": {
     "other": "MFA方式の設定が無効です"
+  },
+  "legacy.error.c48643c9d6f06c71": {
+    "other": "リストタイプが無効です"
   },
   "legacy.error.c49d8684e46fea65": {
     "other": "インターフェースが存在しません"
@@ -3046,6 +3850,9 @@
   },
   "legacy.error.c59404a173ecf4a6": {
     "other": "サードパーティアカウントの連携解除に失敗しました"
+  },
+  "legacy.error.c5c1f6bacfa7c53d": {
+    "other": "ダッシュボードが参照するカードが存在しません"
   },
   "legacy.error.c5eae1dd2dfe44e7": {
     "other": "クライアントの送信元IPは認可されていません"
@@ -3089,6 +3896,9 @@
   "legacy.error.c8fa8bc4e8f159d9": {
     "other": "サインインの失敗回数が多すぎます。しばらくしてから再試行してください"
   },
+  "legacy.error.c916f58aa90099af": {
+    "other": "ワークフロー定義の状態が無効です"
+  },
   "legacy.error.ca07a343943ddc8b": {
     "other": "初期化済みのデータソースを選択してください"
   },
@@ -3100,6 +3910,9 @@
   },
   "legacy.error.cab371e60fe459f7": {
     "other": "AIアシスタントメッセージの更新に失敗しました"
+  },
+  "legacy.error.cad1411b8d349a41": {
+    "other": "BIダッシュボードの取得に失敗しました"
   },
   "legacy.error.cb2e9ab2acc9d9c4": {
     "other": "OAuthクライアントの更新に失敗しました"
@@ -3119,8 +3932,23 @@
   "legacy.error.cc009e22bbd2e9c2": {
     "other": "辞書の削除に失敗しました"
   },
+  "legacy.error.cc09b1c30b456fcf": {
+    "other": "承認申請の提出に失敗"
+  },
   "legacy.error.cc20029c8818859c": {
     "other": "バックアップレコードの照会に失敗しました"
+  },
+  "legacy.error.cc29c4abdf48e2ab": {
+    "other": "BIの関連が選択したすべてのテーブルを含んでいません"
+  },
+  "legacy.error.cc45410da43fe027": {
+    "other": "BIの並べ替えフィールドまたは方向を使用できません"
+  },
+  "legacy.error.cc9b2fc832c214dc": {
+    "other": "カードの配置がキャンバスの範囲を超えています"
+  },
+  "legacy.error.ccb9d64291a84b3d": {
+    "other": "データベースの列構造の処理に失敗しました"
   },
   "legacy.error.cccdd8c196015a7f": {
     "other": "バックアップ復元レコードの照会に失敗しました"
@@ -3134,8 +3962,17 @@
   "legacy.error.cd11548a9db9cf6c": {
     "other": "カスタム翻訳のステータスが無効です"
   },
+  "legacy.error.cd88df3e47cfbfb1": {
+    "other": "ダッシュボードのバージョンが存在しません"
+  },
   "legacy.error.cd897706bc0e32ed": {
     "other": "コード生成のカラム設定の照会に失敗しました"
+  },
+  "legacy.error.cdb9882d7fd358ad": {
+    "other": "このデータカードへのアクセス権限がありません"
+  },
+  "legacy.error.ce02e13c6e151681": {
+    "other": "セマンティックフィールドコードは重複できません"
   },
   "legacy.error.ce0667f6a9bd7e2e": {
     "other": "同じ辞書に項目値が重複しています"
@@ -3143,14 +3980,41 @@
   "legacy.error.ce12956616b6dbc9": {
     "other": "保存時マスキングポリシー作成後は、テナント・データソース・テーブル・フィールドを変更できません"
   },
+  "legacy.error.ce1a849baef38a91": {
+    "other": "フローインスタンスは承認中ではありません"
+  },
   "legacy.error.ce370f796e2dbeb4": {
     "other": "パスワードポリシーのステータス読み取りに失敗しました"
   },
   "legacy.error.ce521e068170e904": {
     "other": "辞書のページング照会に失敗しました"
   },
+  "legacy.error.ce842a9b36cba468": {
+    "other": "ワークフロー定義選択肢の検索に失敗"
+  },
+  "legacy.error.ce8ca5ddb89d3ccc": {
+    "other": "お気に入りにアクセスできないカードがあります"
+  },
+  "legacy.error.ce9dbb684165613c": {
+    "other": "更新間隔は0または30〜86400秒にしてください"
+  },
+  "legacy.error.cea099cf600601cb": {
+    "other": "一意キークエリを終了できませんでした"
+  },
   "legacy.error.cea933528406f077": {
     "other": "強制MFA連携の開始に失敗しました"
+  },
+  "legacy.error.cebf0a62a661df9c": {
+    "other": "ワークフロー定義の検索に失敗"
+  },
+  "legacy.error.cecfa12c95140940": {
+    "other": "他テナントのワークフロー定義を検索できません"
+  },
+  "legacy.error.cf0f0aa805d84ebc": {
+    "other": "BIセマンティックモデルが未設定です"
+  },
+  "legacy.error.cf4f6074437cb725": {
+    "other": "カードのクエリ設定を保存できませんでした"
   },
   "legacy.error.cfeffe783b239e18": {
     "other": "登録済みのシステム設定フォームを選択してください"
@@ -3161,6 +4025,9 @@
   "legacy.error.d06655e996ae7326": {
     "other": "認証コードの有効期限が切れています"
   },
+  "legacy.error.d06defa6f5c709be": {
+    "other": "データカードの削除に失敗しました"
+  },
   "legacy.error.d07181150520a6b4": {
     "other": "アーカイブレコードを空にすることはできません"
   },
@@ -3170,11 +4037,23 @@
   "legacy.error.d1700e2d9ad8a545": {
     "other": "メッセージのテナントを空にすることはできません"
   },
+  "legacy.error.d194c776a0ee5e26": {
+    "other": "フロー図設定が無効：開始ノードがありません"
+  },
+  "legacy.error.d20fc8bcc8d8f5c7": {
+    "other": "新しいプロジェクト承認フォームが無効です"
+  },
   "legacy.error.d217a967bfd0bacd": {
     "other": "応答データタイプが存在しません"
   },
   "legacy.error.d22fd55ed8b53e3d": {
     "other": "メッセージが定期公開状態ではありません"
+  },
+  "legacy.error.d2321b6e6cdb0b72": {
+    "other": "スクリプトの更新に失敗しました"
+  },
+  "legacy.error.d23b49a800ec82fd": {
+    "other": "承認の実行状態が無効です"
   },
   "legacy.error.d2426cb7f6161216": {
     "other": "ロールが存在しないため削除に失敗しました"
@@ -3206,11 +4085,20 @@
   "legacy.error.d355679fc4c3684d": {
     "other": "コード生成の復元スナップショットは無効です。再生成してください"
   },
+  "legacy.error.d36c66a9f8ccdb07": {
+    "other": "データベースの一意キーの処理に失敗しました"
+  },
   "legacy.error.d420a6a3d117c876": {
     "other": "翻訳情報の更新に失敗しました"
   },
+  "legacy.error.d425221049b458d4": {
+    "other": "BIクエリ計画が必要です"
+  },
   "legacy.error.d45ebaf3a56c5487": {
     "other": "通知を未読にする操作に失敗しました"
+  },
+  "legacy.error.d4d43cc0c8f5bd1d": {
+    "other": "BIデータソースのパスワード復号が初期化されていません"
   },
   "legacy.error.d5321efaf2f34345": {
     "other": "第1階層のディレクトリには、ディレクトリ、メニュー、外部リンクのみ作成できます"
@@ -3236,6 +4124,9 @@
   "legacy.error.d6dad83238ab7270": {
     "other": "ログインIPがブラックリストに登録されています"
   },
+  "legacy.error.d70a3756d8dfe390": {
+    "other": "BIデータソース一覧の読み込みに失敗しました"
+  },
   "legacy.error.d71ab292ad8174fb": {
     "other": "コード生成では固定の第1階層メニュー配下の親メニューを選択する必要があります"
   },
@@ -3244,6 +4135,9 @@
   },
   "legacy.error.d75aac9c3ebbd04d": {
     "other": "ログインログのページング照会に失敗しました"
+  },
+  "legacy.error.d7f37b45ffd41536": {
+    "other": "データソースの状態が無効です"
   },
   "legacy.error.d819413726995a8b": {
     "other": "リダクションルールオプションの照会に失敗しました"
@@ -3263,11 +4157,17 @@
   "legacy.error.d940a40e5cc3a6b0": {
     "other": "基本ユーザーのアプリロール設定に失敗しました"
   },
+  "legacy.error.d9af671132576c58": {
+    "other": "スクリプトのテスト実行に失敗しました"
+  },
   "legacy.error.d9afda138e42954e": {
     "other": "ログダウンロードファイルの読み取りに失敗しました"
   },
   "legacy.error.d9c1bd13bb3c397d": {
     "other": "出力リダクション対象フィールドの照会に失敗しました"
+  },
+  "legacy.error.d9c4f018f338212d": {
+    "other": "自分の申請のみ取下げできます"
   },
   "legacy.error.d9cf096b2b392d84": {
     "other": "バックアップ設定のステータス設定に失敗しました"
@@ -3281,6 +4181,9 @@
   "legacy.error.da535200fe38b6f5": {
     "other": "対象リソースIDを空にすることはできません"
   },
+  "legacy.error.da679537f3570aac": {
+    "other": "ダッシュボードのプロジェクトにアクセスできません"
+  },
   "legacy.error.da91ab378e9ac6a8": {
     "other": "MFAリカバリーコードの生成に失敗しました"
   },
@@ -3292,6 +4195,9 @@
   },
   "legacy.error.dac19e6ee2a6c448": {
     "other": "メッセージ配信の再試行に失敗しました"
+  },
+  "legacy.error.db35c5c0de7472a2": {
+    "other": "他テナントのワークフロー定義を操作できません"
   },
   "legacy.error.db4781157e05e955": {
     "other": "部門は無効化されています"
@@ -3317,6 +4223,9 @@
   "legacy.error.dc8885ca6a1d1de4": {
     "other": "リダクションルールテンプレートパラメータが無効です"
   },
+  "legacy.error.dcad9e63f38f931c": {
+    "other": "フローはまだ終了していません"
+  },
   "legacy.error.dcc73012bd9e3caa": {
     "other": "Protoインターフェースを選択してください"
   },
@@ -3325,6 +4234,9 @@
   },
   "legacy.error.ddc0ea85e48cd84b": {
     "other": "フロントエンドページを安全にマージできません"
+  },
+  "legacy.error.de21ca3c60efaa47": {
+    "other": "公開済みカードにクエリスナップショットがありません"
   },
   "legacy.error.de32ab1c95072611": {
     "other": "ドキュメントの元ファイルの検証に失敗しました（内容がアップロード時と一致しません）。削除して再アップロードしてください"
@@ -3347,17 +4259,35 @@
   "legacy.error.ded15f67c86763a2": {
     "other": "メッセージ状態が変更されました。更新して再試行してください"
   },
+  "legacy.error.df01b88a7a820bc8": {
+    "other": "テナント分離フィールドが選択したテーブルにありません"
+  },
+  "legacy.error.df1b47c8efd4d98a": {
+    "other": "カード参照が無効または重複しています"
+  },
   "legacy.error.df2269225d5069ee": {
     "other": "AIプロバイダーのモデル選択肢を取得できませんでした"
   },
   "legacy.error.df5a442da0b21158": {
     "other": "ログインセッションの更新に失敗しました"
   },
+  "legacy.error.df71b790be9d3aad": {
+    "other": "各指標には集計関数が必要です"
+  },
   "legacy.error.df83b569b1e6c106": {
     "other": "ファイルのセキュリティスキャンコマンドが未設定です"
   },
   "legacy.error.dfde1b4517c73c74": {
     "other": "バックアップレコード・対象データソース・対象データベースを空にすることはできません"
+  },
+  "legacy.error.e02e13af31934679": {
+    "other": "失敗したスクリプトのみ再試行できます"
+  },
+  "legacy.error.e05abb0c95c3230c": {
+    "other": "BIのディメンション、指標、フィルターが制限を超えています"
+  },
+  "legacy.error.e06cbcedf60f6b6a": {
+    "other": "現在のアカウントとプロジェクトで成功したAIデータクエリを選択してください"
   },
   "legacy.error.e0b8846e58dc6831": {
     "other": "WebAuthnログインチャレンジの保存に失敗しました"
@@ -3395,17 +4325,26 @@
   "legacy.error.e2fd9e73043ee853": {
     "other": "状態の設定に失敗しました。配下に部門が存在します"
   },
+  "legacy.error.e33217d61673a21c": {
+    "other": "現在のユーザーに利用可能なプロジェクト範囲がありません"
+  },
   "legacy.error.e33fc0beeabb38dc": {
     "other": "アーカイブ設定の更新に失敗しました"
   },
   "legacy.error.e3625317beb5819a": {
     "other": "MFA設定の保存に失敗しました"
   },
+  "legacy.error.e3e3ceb5360f5b13": {
+    "other": "BIセマンティック設定の解析に失敗しました"
+  },
   "legacy.error.e3f1b26b38842ada": {
     "other": "共通資格キーは1024文字以内で入力してください"
   },
   "legacy.error.e4049241c07c1ec6": {
     "other": "コード生成テーブル設定IDを重複させることはできません"
+  },
+  "legacy.error.e4113197ca2325fa": {
+    "other": "申請フォームの検索に失敗"
   },
   "legacy.error.e4343921c928a856": {
     "other": "ログインに失敗しました"
@@ -3415,6 +4354,9 @@
   },
   "legacy.error.e443a571d38b6bfc": {
     "other": "AIナレッジベースのドキュメントアップロードに失敗しました"
+  },
+  "legacy.error.e46eaf899f18a393": {
+    "other": "承認の実行設定が無効です"
   },
   "legacy.error.e47532d44611ae28": {
     "other": "パスワードのリセットに失敗しました（ユーザー情報が存在しません）"
@@ -3467,11 +4409,20 @@
   "legacy.error.e7c3fa9643b03f00": {
     "other": "OAuthログイン方式を削除できませんでした"
   },
+  "legacy.error.e81dbd0ba4f7a963": {
+    "other": "あなたの承認待ちタスクではありません"
+  },
   "legacy.error.e8487c03570fcf89": {
     "other": "ルールタイプは変更できません"
   },
+  "legacy.error.e8515d62a9215e27": {
+    "other": "BIクエリの実行に失敗しました"
+  },
   "legacy.error.e86e1650b9bd4d21": {
     "other": "キャッシュエントリの照会に失敗しました"
+  },
+  "legacy.error.e870b4dcb0ded0c7": {
+    "other": "列クエリを終了できませんでした"
   },
   "legacy.error.e8cf0f814577dae5": {
     "other": "セッション番号が不正です"
@@ -3488,6 +4439,9 @@
   "legacy.error.eb0a5c7ed1c8c6e5": {
     "other": "履歴ログファイルのダウンロードに失敗しました"
   },
+  "legacy.error.eb1f4c524225068b": {
+    "other": "フィールド型に対応していません"
+  },
   "legacy.error.eb66a4ab09cb7c2a": {
     "other": "実行可能ファイルやスクリプトを埋め込めるファイルのアップロードは許可されていません"
   },
@@ -3497,14 +4451,23 @@
   "legacy.error.ebe9b8ff030be0c3": {
     "other": "ログインポリシーIDを空にすることはできません"
   },
+  "legacy.error.ec066a971ee52c71": {
+    "other": "承認タスクの処理に失敗"
+  },
   "legacy.error.ec26152876002eb0": {
     "other": "レート制限アルゴリズムが無効です"
   },
   "legacy.error.ec4f2818494c7f39": {
     "other": "スケジュールタスクログのページング照会に失敗しました"
   },
+  "legacy.error.ec72519ba8636a4c": {
+    "other": "関連は選択済みテーブルの有効なフィールドを参照する必要があります"
+  },
   "legacy.error.eca1d6ff1327a5f3": {
     "other": "パスの更新に失敗したため部門を作成できませんでした"
+  },
+  "legacy.error.ed128739722f40db": {
+    "other": "デフォルトテナントのみ新しいテナントを申請できます"
   },
   "legacy.error.ed45c317af97625d": {
     "other": "データベースフィールド制約の照会に失敗しました"
@@ -3539,8 +4502,17 @@
   "legacy.error.eef3f6effdfa7140": {
     "other": "個人プロフィールの読み込みに失敗しました"
   },
+  "legacy.error.ef1db3c37d699133": {
+    "other": "個人ワークスペースの読み込みに失敗しました"
+  },
+  "legacy.error.ef4d3b3aab09a01d": {
+    "other": "現在の応答が完了するまで待つか、保留中の操作を処理してください"
+  },
   "legacy.error.ef6146fd1b40b481": {
     "other": "現在のセッションは無効です"
+  },
+  "legacy.error.ef81783f5a70a01a": {
+    "other": "ワークフロー定義状態の設定に失敗"
   },
   "legacy.error.ef92f0344e85c0cc": {
     "other": "ログレベルフィルターが無効です"
@@ -3557,6 +4529,12 @@
   "legacy.error.f00d5a69188edf52": {
     "other": "AIモデルの分類設定が無効です"
   },
+  "legacy.error.f02efe29b89e5500": {
+    "other": "クエリ結果の保存に失敗しました。再試行してください"
+  },
+  "legacy.error.f06bb6c5b5db84d9": {
+    "other": "inner結合とleft結合のみ対応しています"
+  },
   "legacy.error.f07ad56b3295ef6f": {
     "other": "コード生成テーブル設定IDを空にすることはできません"
   },
@@ -3572,8 +4550,17 @@
   "legacy.error.f0c321fa54e7e4ed": {
     "other": "ログインポリシー詳細の照会に失敗しました"
   },
+  "legacy.error.f11c9913680e6b54": {
+    "other": "自分の承認委任のみ削除できます"
+  },
+  "legacy.error.f11d68a2a74f06f9": {
+    "other": "この端末ではツールを利用できません"
+  },
   "legacy.error.f12b6fa61a61b0c7": {
     "other": "クライアントが連携するテナントが無効化されています"
+  },
+  "legacy.error.f13315b882b89cac": {
+    "other": "BIデータソースのテストに失敗しました"
   },
   "legacy.error.f13713a56dd96cf3": {
     "other": "コード生成テーブル設定の照会に失敗しました"
@@ -3595,6 +4582,9 @@
   },
   "legacy.error.f1faed3a397b2a51": {
     "other": "オンラインユーザーのサインアウトに失敗しました"
+  },
+  "legacy.error.f26c80a1e129c384": {
+    "other": "MQTT メッセージ記録の照会に失敗しました"
   },
   "legacy.error.f28302cbc7d78366": {
     "other": "選択されたモデルはembeddingモデルではありません"
@@ -3629,6 +4619,9 @@
   "legacy.error.f398b3676ef7459b": {
     "other": "AIナレッジベースの検索に失敗しました"
   },
+  "legacy.error.f3c60136f3fda7c6": {
+    "other": "各ディメンションテーブルはファクトテーブルと関連付ける必要があります"
+  },
   "legacy.error.f3e8e1b2e18b5f69": {
     "other": "有効なキャプチャタイプの照会に失敗しました"
   },
@@ -3638,11 +4631,23 @@
   "legacy.error.f44979b473b17b86": {
     "other": "オブジェクトストレージが設定されていません"
   },
+  "legacy.error.f45d53f8c751e862": {
+    "other": "レイアウトのバージョンが無効か、カードが20枚を超えています"
+  },
+  "legacy.error.f464573b785f5f5e": {
+    "other": "通知アクションにはタイトル、内容、および同じテナントの1〜100人のユーザーが必要です"
+  },
   "legacy.error.f4e3c1c7f6c7d220": {
     "other": "辞書項目の削除に失敗しました"
   },
+  "legacy.error.f4ea419d450e6aaa": {
+    "other": "データソースコードは静的アダプターで使用されています"
+  },
   "legacy.error.f4ec8b7116260176": {
     "other": "ユーザードロップダウンの照会に失敗しました"
+  },
+  "legacy.error.f524a54193edc7f4": {
+    "other": "BIデータソースのテーブル構造取得に失敗しました"
   },
   "legacy.error.f54df649d4889afc": {
     "other": "キャプチャの事前検証に失敗しました"
@@ -3701,6 +4706,9 @@
   "legacy.error.f90d26546dedbee7": {
     "other": "MCP認可エンジンが初期化されていません"
   },
+  "legacy.error.f93a42e989ecd8af": {
+    "other": "プロジェクト承認元の検証に失敗しました"
+  },
   "legacy.error.f94fb6c1649757d9": {
     "other": "言語の削除に失敗しました"
   },
@@ -3716,8 +4724,14 @@
   "legacy.error.fa1ec60338bc9604": {
     "other": "同じリソースと言語を重複して登録することはできません"
   },
+  "legacy.error.fa35c0fef4f8b1e2": {
+    "other": "散布図には異なる2つの数値フィールドが必要です"
+  },
   "legacy.error.fa4c8538024c9929": {
     "other": "アウトバウンドポリシーIDを空にすることはできません"
+  },
+  "legacy.error.facfeed9ad7256a3": {
+    "other": "BIデータベースクライアントの取得に失敗しました"
   },
   "legacy.error.fafae4160952738e": {
     "other": "親メニューの照会に失敗しました"
@@ -3740,8 +4754,20 @@
   "legacy.error.fc25e0d9642770e1": {
     "other": "辞書の削除に失敗しました。配下に項目が存在します"
   },
+  "legacy.error.fc4d92dd2ebc6782": {
+    "other": "実行中のメッセージは削除できません"
+  },
+  "legacy.error.fc746194ec482626": {
+    "other": "フローインスタンスの検索に失敗"
+  },
+  "legacy.error.fcdabb6237ef15d3": {
+    "other": "更新失敗、ドラフト状態のみ編集できます"
+  },
   "legacy.error.fd02eafe22a11946": {
     "other": "アーカイブ設定のステータス設定に失敗しました"
+  },
+  "legacy.error.fd5abf524a285cc7": {
+    "other": "セマンティック指標を1つ以上設定してください"
   },
   "legacy.error.fd8a77425c196716": {
     "other": "クライアント認証失敗状態の記録に失敗しました"
@@ -3757,6 +4783,9 @@
   },
   "legacy.error.fe2017ccb585fbd8": {
     "other": "ユーザーの作成に失敗しました"
+  },
+  "legacy.error.fe26a2c819b1e6c0": {
+    "other": "承認委任の削除に失敗"
   },
   "legacy.error.fe97a3a85174448e": {
     "other": "ログファイル情報の読み取りに失敗しました"
@@ -3899,6 +4928,39 @@
   "openapi.admin.service.sse_base": {
     "other": "Base SSE サービス"
   },
+  "openapi.ai.approval.0a50ca52d217eaa0": {
+    "other": "現在のユーザーの保留中ツール呼び出しを承認または拒否します。"
+  },
+  "openapi.ai.approval.25b37d5c985ea3be": {
+    "other": "操作の説明"
+  },
+  "openapi.ai.approval.2a1e259212d00994": {
+    "other": "承認期限"
+  },
+  "openapi.ai.approval.6cedfb9ab50004c5": {
+    "other": "実行を承認するか"
+  },
+  "openapi.ai.approval.79d325f8ec278ba6": {
+    "other": "一度限りの承認 ID"
+  },
+  "openapi.ai.approval.907638a466d26ec4": {
+    "other": "AI ツールの承認リクエスト。ツールと引数はサーバーで固定します。"
+  },
+  "openapi.ai.approval.aca86adff02160dc": {
+    "other": "承認待ちのツールと固定された引数"
+  },
+  "openapi.ai.approval.bc522e692aed7078": {
+    "other": "AI ツールの承認情報。"
+  },
+  "openapi.ai.approval.c5953adda9d71bb8": {
+    "other": "承認待ちの AI ツール呼び出し。"
+  },
+  "openapi.ai.approval.c7fb3cb9b170ea8d": {
+    "other": "保留中ツールの承認情報"
+  },
+  "openapi.ai.approval.e1de7de24c6aa692": {
+    "other": "実行する固定引数の JSON"
+  },
   "openapi.ai_provider.test_models.duration": {
     "other": "テスト所要時間（ミリ秒）"
   },
@@ -3923,6 +4985,345 @@
   "openapi.ai_provider.test_models.summary": {
     "other": "AI プロバイダーフォーム内のすべてのモデルをテストします。"
   },
+  "openapi.bi.0103248c22d8dcd4": {
+    "other": "ダッシュボードの下書きを公開します。"
+  },
+  "openapi.bi.01ad6995c1ea49ac": {
+    "other": "ダッシュボードID"
+  },
+  "openapi.bi.0268468dd6709221": {
+    "other": "カードの結果"
+  },
+  "openapi.bi.03ed4e4120d3a47e": {
+    "other": "範囲の終了"
+  },
+  "openapi.bi.0810fb953302bdf5": {
+    "other": "BIの結果列。"
+  },
+  "openapi.bi.09488c121409db9a": {
+    "other": "ワークスペースのダッシュボードID。重複なしで最大50件"
+  },
+  "openapi.bi.099d61d496e67248": {
+    "other": "フィルター値"
+  },
+  "openapi.bi.0be233e506fbd364": {
+    "other": "個人用ダッシュボードのショートカットとカードのお気に入り。"
+  },
+  "openapi.bi.0c576f150772bfe7": {
+    "other": "意味が最も近いチャンク"
+  },
+  "openapi.bi.0c5cbf0679840c2f": {
+    "other": "ワークスペースで現在閲覧できる公開済みダッシュボード"
+  },
+  "openapi.bi.0eca92161ae97faf": {
+    "other": "データソースへの接続をテストします。"
+  },
+  "openapi.bi.0fbad2972dbe9857": {
+    "other": "テナント分離フィールド。接続単位の分離または共有テーブルの場合は空"
+  },
+  "openapi.bi.11341fb1b9ac4163": {
+    "other": "検証済みの複数テーブルのセマンティックモデルを保存します。"
+  },
+  "openapi.bi.16f3fdf2a0db9c9f": {
+    "other": "推奨グラフタイトル"
+  },
+  "openapi.bi.1acc96ed66933520": {
+    "other": "列順に並んだ値"
+  },
+  "openapi.bi.1cc9bbc82b4b015d": {
+    "other": "セマンティックモデルのテーブルノード。"
+  },
+  "openapi.bi.1e6a7e9e2f54be30": {
+    "other": "並べ替え方向：ascまたはdesc"
+  },
+  "openapi.bi.216a851b633926aa": {
+    "other": "結果行数の上限。既定値は100"
+  },
+  "openapi.bi.271b5cd26f78b0d1": {
+    "other": "テナント列"
+  },
+  "openapi.bi.2c1fa65657702878": {
+    "other": "テーブル構造の識別子"
+  },
+  "openapi.bi.2d8f5e93d88c3335": {
+    "other": "BIダッシュボード公開のリクエスト。"
+  },
+  "openapi.bi.2dfeae3e5cc026ac": {
+    "other": "検索テスト：クエリの意味に最も近いチャンクを返します。"
+  },
+  "openapi.bi.3811bd8090741ec3": {
+    "other": "現在のユーザーの自然言語クエリ履歴をページ単位で取得します。"
+  },
+  "openapi.bi.39d39dea3a54de5e": {
+    "other": "BIダッシュボード削除のレスポンス。"
+  },
+  "openapi.bi.39e3359b41f199b6": {
+    "other": "データソースのテーブル構造レスポンス。"
+  },
+  "openapi.bi.3d9018dfe69725bd": {
+    "other": "集計関数"
+  },
+  "openapi.bi.3de01130c894c615": {
+    "other": "所属テーブルの識別子"
+  },
+  "openapi.bi.4460c7852f7ebcf0": {
+    "other": "データベース列の構造情報。"
+  },
+  "openapi.bi.465df2d9cb365819": {
+    "other": "グラフ項目ID"
+  },
+  "openapi.bi.49a847dea0ddfb47": {
+    "other": "サーバーデータベースクライアント一覧"
+  },
+  "openapi.bi.4b15a4a26509ba6f": {
+    "other": "プロジェクトID。0はテナント全体"
+  },
+  "openapi.bi.4d17285b7085ca14": {
+    "other": "モデルで選択したテーブル数"
+  },
+  "openapi.bi.4d5fc5c9bc598a73": {
+    "other": "データソースのセマンティックディメンション。"
+  },
+  "openapi.bi.5208e07061c2574e": {
+    "other": "ダッシュボード一覧"
+  },
+  "openapi.bi.5255137e65867265": {
+    "other": "データソースで使用可能なテーブル、関連、業務セマンティクス。"
+  },
+  "openapi.bi.52fde821a7d2cc07": {
+    "other": "フィルター可能かどうか"
+  },
+  "openapi.bi.52fe98551232b10f": {
+    "other": "グラフの種類"
+  },
+  "openapi.bi.57c6e9e1226b3601": {
+    "other": "セマンティックデータソースコード"
+  },
+  "openapi.bi.5815b0d2d51325e0": {
+    "other": "設定済みのサーバーデータベースクライアントを取得します。"
+  },
+  "openapi.bi.5a38c50e4f51770d": {
+    "other": "BIデータソーステストのレスポンス。"
+  },
+  "openapi.bi.5beab13eead85c84": {
+    "other": "グループ化ディメンションコード"
+  },
+  "openapi.bi.5cb65a74a24ed0af": {
+    "other": "ファクトテーブルの識別子"
+  },
+  "openapi.bi.5d3d9d2c10a8b7a8": {
+    "other": "ダッシュボードデータのレスポンス。"
+  },
+  "openapi.bi.5d4d9772a3880ed2": {
+    "other": "グラフのフィールド対応とスタイル設定JSON"
+  },
+  "openapi.bi.5e17fee906eaf32c": {
+    "other": "現在のテナントのデータソース設定をページ単位で取得します。"
+  },
+  "openapi.bi.5edacbc4c67164b1": {
+    "other": "サーバーデータベースクライアント名"
+  },
+  "openapi.bi.65077c9e6261bc77": {
+    "other": "BIセマンティッククエリサービス。"
+  },
+  "openapi.bi.68d814e180751e27": {
+    "other": "列名"
+  },
+  "openapi.bi.6cb03435eab3fc6a": {
+    "other": "クエリ状態：BiQueryStatus列挙型"
+  },
+  "openapi.bi.6ceed401c1289055": {
+    "other": "サーバーデータベースクライアント一覧のレスポンス。"
+  },
+  "openapi.bi.6d785eba090fc8db": {
+    "other": "データソースのセマンティックバージョン"
+  },
+  "openapi.bi.6e8d4f8835095e6c": {
+    "other": "閲覧可能なダッシュボードをページ単位で取得します。"
+  },
+  "openapi.bi.6f638acb24305376": {
+    "other": "1枚のカードのクエリ結果。"
+  },
+  "openapi.bi.73a5e2dfcd62fddd": {
+    "other": "セマンティックモデルが設定済みか"
+  },
+  "openapi.bi.749d2897b5ad02e7": {
+    "other": "テーブルまたはビュー名"
+  },
+  "openapi.bi.76d0049562d89a5c": {
+    "other": "セマンティックコード"
+  },
+  "openapi.bi.7dd00cf604a82d55": {
+    "other": "使用可能な集計関数"
+  },
+  "openapi.bi.7e2f47a5925e1762": {
+    "other": "2つのテーブル間で検証済みの多対一の関連。"
+  },
+  "openapi.bi.7e878318a1fe3292": {
+    "other": "セマンティックバージョン"
+  },
+  "openapi.bi.81acfb00e43fabc2": {
+    "other": "データベースのテーブルまたはビュー構造。"
+  },
+  "openapi.bi.85ae54b785a6078f": {
+    "other": "ダッシュボード名"
+  },
+  "openapi.bi.876fb72d7a91beb3": {
+    "other": "テーブルの関連"
+  },
+  "openapi.bi.896d55b2e54903a1": {
+    "other": "制限により結果が切り詰められたか"
+  },
+  "openapi.bi.90996f5467d1c05a": {
+    "other": "セマンティック指標"
+  },
+  "openapi.bi.91047ac58c9f6465": {
+    "other": "キャンバスの縦位置"
+  },
+  "openapi.bi.97b3f90d49634007": {
+    "other": "データベースドライバー"
+  },
+  "openapi.bi.99498a30d9ea8b33": {
+    "other": "BIフィルター条件。"
+  },
+  "openapi.bi.99b40288f02660b0": {
+    "other": "結合先テーブルの識別子"
+  },
+  "openapi.bi.9a1f9679e24d878f": {
+    "other": "データベースのテーブル構造"
+  },
+  "openapi.bi.9d7bde6e09524d0e": {
+    "other": "推奨グラフの種類"
+  },
+  "openapi.bi.9fb6e05824364a64": {
+    "other": "クライアントで設定したセマンティッククエリをプレビューします。"
+  },
+  "openapi.bi.a151ae5a789ce1b0": {
+    "other": "サーバーデータベースクライアントの選択肢。"
+  },
+  "openapi.bi.a274525e3befd414": {
+    "other": "データベースのテーブルまたはビュー名"
+  },
+  "openapi.bi.a30ee3c800a96364": {
+    "other": "BIダッシュボード保存のリクエスト。"
+  },
+  "openapi.bi.a7e77b4e9e48b1dd": {
+    "other": "実行したバージョンのダッシュボードスキーマJSON"
+  },
+  "openapi.bi.aa86a2bae571bb29": {
+    "other": "テーブルまたはビューのコメント"
+  },
+  "openapi.bi.adcc73add9dc9b2b": {
+    "other": "列コード"
+  },
+  "openapi.bi.aeebfc1facd7ea41": {
+    "other": "キャンバスの横位置"
+  },
+  "openapi.bi.b21441847b985723": {
+    "other": "使用可能なディメンション"
+  },
+  "openapi.bi.b24d316b339eef5a": {
+    "other": "データソースのセマンティック指標。"
+  },
+  "openapi.bi.bbb4ee6f12dd4782": {
+    "other": "BIダッシュボードのレコード。"
+  },
+  "openapi.bi.bbc7b37007a0c75a": {
+    "other": "テスト結果の説明"
+  },
+  "openapi.bi.be3ffe82fd4dc8be": {
+    "other": "成功したクエリのID。カードの元データとして使用可能"
+  },
+  "openapi.bi.be71f2c0683c4440": {
+    "other": "列の型"
+  },
+  "openapi.bi.bf7ec39bfb4c6062": {
+    "other": "BI自然言語クエリのレスポンス。"
+  },
+  "openapi.bi.bf8eb5e7200f667e": {
+    "other": "ディメンションテーブルの一意フィールド"
+  },
+  "openapi.bi.c3887a0552de2124": {
+    "other": "ダッシュボードコード"
+  },
+  "openapi.bi.c4692be754ad6605": {
+    "other": "セマンティックディメンション"
+  },
+  "openapi.bi.c74465d0b8605899": {
+    "other": "データベースドライバー：mysql、postgres、doris、tidb"
+  },
+  "openapi.bi.c97f16deca110110": {
+    "other": "フィルター条件"
+  },
+  "openapi.bi.ca1fac81ad595f96": {
+    "other": "ダッシュボードの説明"
+  },
+  "openapi.bi.caa1c875da04d875": {
+    "other": "ダッシュボードスキーマJSON"
+  },
+  "openapi.bi.cf003aabe817631a": {
+    "other": "お気に入りカードID。重複なしで最大50件"
+  },
+  "openapi.bi.cf6442adefd2c026": {
+    "other": "データベースのポート"
+  },
+  "openapi.bi.d38817405fd0c250": {
+    "other": "BIダッシュボードのページレスポンス。"
+  },
+  "openapi.bi.d8c7c51292be8501": {
+    "other": "公開済みダッシュボードの全カードクエリを実行します。"
+  },
+  "openapi.bi.de84c084dfe40035": {
+    "other": "結合の種類：innerまたはleft"
+  },
+  "openapi.bi.e509306b797f1945": {
+    "other": "自然言語からセマンティッククエリを生成し結果をプレビューします。"
+  },
+  "openapi.bi.e587049c6dbb5e39": {
+    "other": "BI自然言語クエリのリクエスト。"
+  },
+  "openapi.bi.e67e7fb6c1265699": {
+    "other": "ダッシュボードを削除します。"
+  },
+  "openapi.bi.e7714726c397a39f": {
+    "other": "ダッシュボードと現在の下書きを取得します。"
+  },
+  "openapi.bi.e87bb4422559c8fa": {
+    "other": "範囲の開始"
+  },
+  "openapi.bi.ed6a5b186d4567da": {
+    "other": "使用可能な指標"
+  },
+  "openapi.bi.ed73166c7fc5e183": {
+    "other": "ディメンションと指標のセマンティック設定JSON"
+  },
+  "openapi.bi.f2b0e466b0b27866": {
+    "other": "結合先テーブルのフィールド"
+  },
+  "openapi.bi.f50cc6f9430629c8": {
+    "other": "結果の列"
+  },
+  "openapi.bi.f84734045ce9b044": {
+    "other": "ダッシュボードの下書きを作成または保存します。"
+  },
+  "openapi.bi.faa9ea9c61e35cb6": {
+    "other": "BIダッシュボード管理サービス。"
+  },
+  "openapi.bi.faad29694548c077": {
+    "other": "保存済みデータソースのテーブル、列、一意キーを取得します。"
+  },
+  "openapi.bi.fd06d32ccd1e33f4": {
+    "other": "単一列の一意制約があるか"
+  },
+  "openapi.bi.fd6af30df91c4e20": {
+    "other": "表示順に並んだワークスペースのダッシュボードID"
+  },
+  "openapi.bi.fe815a5cdd3ba638": {
+    "other": "BIセマンティッククエリ計画。"
+  },
+  "openapi.bi.fe9aab486818e87d": {
+    "other": "選択したテーブル構造"
+  },
   "rag.admin.ai.knowledge.description.max_length": {
     "other": "説明は500文字以内で入力してください"
   },
@@ -3937,6 +5338,9 @@
   },
   "rag.admin.ai.knowledge.doc.name.required": {
     "other": "ドキュメント名を入力してください"
+  },
+  "rag.admin.ai.knowledge.doc.reextract.failed": {
+    "other": "ドキュメントテキストの再抽出に失敗しました"
   },
   "rag.admin.ai.knowledge.name.required": {
     "other": "ナレッジベース名を入力してください"
@@ -3988,6 +5392,9 @@
   },
   "system.admin.base.ai.model.model_name.required": {
     "other": "モデル名を入力してください"
+  },
+  "system.admin.base.ai.model.name.duplicated": {
+    "other": "AIモデル名が重複しています: {{.Name}}"
   },
   "system.admin.base.ai.provider.base_url.max_length": {
     "other": "API URLは512文字以内で入力してください"
@@ -4556,6 +5963,27 @@
   "system.admin.base.role.update.id.required": {
     "other": "ロール ID を空にすることはできません"
   },
+  "system.admin.base.script.delete.id.required": {
+    "other": "スクリプトID一覧を入力してください"
+  },
+  "system.admin.base.script.entity.description.max_length": {
+    "other": "説明は512文字以内で入力してください"
+  },
+  "system.admin.base.script.entity.hook_point.max_length": {
+    "other": "フックポイントは160文字以内で入力してください"
+  },
+  "system.admin.base.script.entity.name.required": {
+    "other": "スクリプト名を入力してください"
+  },
+  "system.admin.base.script.entity.source.required": {
+    "other": "スクリプトソースを入力してください"
+  },
+  "system.admin.base.script.test_run.context_json.max_length": {
+    "other": "コンテキストは200000文字以内で入力してください"
+  },
+  "system.admin.base.script.test_run.source.max_length": {
+    "other": "スクリプトソースは200000文字以内で入力してください"
+  },
   "system.admin.base.table.source.option.table.source_name.required": {
     "other": "データソース名を空にすることはできません"
   },
@@ -4916,6 +6344,9 @@
   "system.admin.code.gen.table.update.id.required": {
     "other": "主キー ID を空にすることはできません"
   },
+  "system.admin.mqtt_message.get.id.required": {
+    "other": "メッセージ記録IDを入力してください"
+  },
   "system.admin.oauth_client.delete.id.required": {
     "other": "クライアントIDリストを空にすることはできません"
   },
@@ -5033,6 +6464,102 @@
   "system.admin.runtime_config.invalid_json": {
     "other": "システム設定の内容が無効です"
   },
+  "system.admin.workflow.definition.apply_form.code.required": {
+    "other": "フローコードは必須です"
+  },
+  "system.admin.workflow.definition.apply_form.version.required": {
+    "other": "フローバージョンは必須です"
+  },
+  "system.admin.workflow.definition.delete.id.required": {
+    "other": "ワークフロー定義IDリストは必須です"
+  },
+  "system.admin.workflow.definition.entity.code.max_length": {
+    "other": "フローコードは100文字以内です"
+  },
+  "system.admin.workflow.definition.entity.code.required": {
+    "other": "フローコードを入力してください"
+  },
+  "system.admin.workflow.definition.entity.form_schema.max_length": {
+    "other": "フォーム定義は65536文字以内です"
+  },
+  "system.admin.workflow.definition.entity.name.max_length": {
+    "other": "フロー名は100文字以内です"
+  },
+  "system.admin.workflow.definition.entity.name.required": {
+    "other": "フロー名を入力してください"
+  },
+  "system.admin.workflow.definition.entity.node_config.max_length": {
+    "other": "フロー図設定は65536文字以内です"
+  },
+  "system.admin.workflow.definition.entity.node_config.required": {
+    "other": "フロー図設定は必須です"
+  },
+  "system.admin.workflow.definition.entity.remark.max_length": {
+    "other": "備考は500文字以内です"
+  },
+  "system.admin.workflow.definition.entity.tenant_id.required": {
+    "other": "テナントを選択してください"
+  },
+  "system.admin.workflow.definition.entity.version.required": {
+    "other": "バージョンは0より大きい必要があります"
+  },
+  "system.admin.workflow.definition.get.id.required": {
+    "other": "ワークフロー定義IDは必須です"
+  },
+  "system.admin.workflow.definition.script_test.script_id.required": {
+    "other": "スクリプト ID は0より大きい必要があります"
+  },
+  "system.admin.workflow.definition.set_status.id.required": {
+    "other": "ワークフロー定義IDは必須です"
+  },
+  "system.admin.workflow.definition.update.id.required": {
+    "other": "ワークフロー定義IDは必須です"
+  },
+  "system.admin.workflow.delegation.delete.id.required": {
+    "other": "承認委任IDリストは必須です"
+  },
+  "system.admin.workflow.delegation.entity.delegate_user_id.required": {
+    "other": "被委任者を選択してください"
+  },
+  "system.admin.workflow.delegation.entity.remark.max_length": {
+    "other": "備考は500文字以内です"
+  },
+  "system.admin.workflow.instance.get.id.required": {
+    "other": "フローインスタンスIDは必須です"
+  },
+  "system.admin.workflow.instance.submit.business_type.max_length": {
+    "other": "業務種別は50文字以内です"
+  },
+  "system.admin.workflow.instance.submit.code.required": {
+    "other": "フローコードは必須です"
+  },
+  "system.admin.workflow.instance.submit.form_data.max_length": {
+    "other": "申請フォームデータは65536文字以内です"
+  },
+  "system.admin.workflow.instance.submit.form_data.required": {
+    "other": "申請フォームデータは必須です"
+  },
+  "system.admin.workflow.instance.submit.version.required": {
+    "other": "フローバージョンは必須です"
+  },
+  "system.admin.workflow.instance.withdraw.id.required": {
+    "other": "フローインスタンスIDは必須です"
+  },
+  "system.admin.workflow.task.audit.comment.max_length": {
+    "other": "承認意見は500文字以内です"
+  },
+  "system.admin.workflow.task.audit.task_id.required": {
+    "other": "承認タスクIDは必須です"
+  },
+  "system.admin.workflow.task.get.id.required": {
+    "other": "承認タスクIDは必須です"
+  },
+  "system.ai.chat.approval.expired": {
+    "other": "承認期限が切れました。保留中の操作は実行されていません。"
+  },
+  "system.ai.chat.approval.rejected": {
+    "other": "拒否しました。保留中の操作は実行されていません。"
+  },
   "system.ai.chat.error.context_too_large": {
     "other": "履歴と添付ファイルのエンコードを含む会話入力が28 MiBを超えています。添付ファイルを減らすか、新しい会話を開始してください。"
   },
@@ -5041,6 +6568,9 @@
   },
   "system.ai.chat.error.fallback_reply.content": {
     "other": "質問：{{.Content}} を受け取りましたが、AIアシスタントは現在利用できず、完全な回答を生成できません。しばらくしてからもう一度お試しください。"
+  },
+  "system.ai.chat.error.run_expired": {
+    "other": "生成がタイムアウトしました。このリクエストは自動再開されません。再試行の前に業務の処理結果を確認してください。"
   },
   "system.ai.chat.error.tool_failed": {
     "other": "ツール {{.Name}} の実行に失敗しました。サービスログを確認してください。"
@@ -5081,75 +6611,6 @@
   "system.code.gen.error.batch.definition_conflict": {
     "other": "テーブル{{.Previous}}と{{.Current}}の{{.Key}}定義が一致しません"
   },
-  "system.code.gen.error.column_duplicate": {
-    "other": "カラム {{.Name}} の設定が重複しています"
-  },
-  "system.code.gen.error.column_not_found": {
-    "other": "カラム {{.Name}} は存在しません"
-  },
-  "system.code.gen.error.column_form_multiple_tree_only": {
-    "other": "カラム {{.Name}} のフォーム複数選択はツリー選択のみ対応しています"
-  },
-  "system.code.gen.error.column_form_multiple_json_only": {
-    "other": "カラム {{.Name}} のフォーム複数選択はJSONカラムのみ対応しています"
-  },
-  "system.code.gen.error.column_list_option_unnecessary": {
-    "other": "カラム {{.Name}} のリストコンポーネントにオプション設定は不要です"
-  },
-  "system.code.gen.error.column_list_select_incomplete": {
-    "other": "カラム {{.Name}} のリスト用ドロップダウン設定が不完全です"
-  },
-  "system.code.gen.error.column_list_tree_incomplete": {
-    "other": "カラム {{.Name}} のリスト用ツリー設定が不完全です"
-  },
-  "system.code.gen.error.column_list_component_unsupported": {
-    "other": "カラム {{.Name}} のリストコンポーネントは対応していません"
-  },
-  "system.code.gen.error.column_form_dict_incomplete": {
-    "other": "カラム {{.Name}} のフォーム用辞書選択設定が不完全です"
-  },
-  "system.code.gen.error.column_switch_incomplete": {
-    "other": "カラム {{.Name}} のスイッチ設定が不完全です（{{.Scope}}）"
-  },
-  "system.code.gen.error.column_switch_values_conflict": {
-    "other": "カラム {{.Name}} のスイッチのON値とOFF値は同じにできません（{{.Scope}}）"
-  },
-  "system.code.gen.error.column_option_kind_empty": {
-    "other": "カラム {{.Name}} のオプション種別は空にできません（{{.Scope}}）"
-  },
-  "system.code.gen.error.column_option_switch_value_forbidden": {
-    "other": "カラム {{.Name}} のオプションにスイッチ値は設定できません（{{.Scope}}）"
-  },
-  "system.code.gen.error.column_option_lazy_only_tree": {
-    "other": "カラム {{.Name}} で遅延読み込みはツリーオプションのみ対応しています（{{.Scope}}）"
-  },
-  "system.code.gen.error.column_option_tree_table_only": {
-    "other": "カラム {{.Name}} のツリーオプションはテーブルソースのみ利用できます（{{.Scope}}）"
-  },
-  "system.code.gen.error.column_option_source_incomplete": {
-    "other": "カラム {{.Name}} のオプションソース設定が不完全です（{{.Scope}}）"
-  },
-  "system.code.gen.error.column_option_source_value_empty": {
-    "other": "カラム {{.Name}} のオプションソース値は空にできません（{{.Scope}}）"
-  },
-  "system.code.gen.error.column_option_table_fields_incomplete": {
-    "other": "カラム {{.Name}} のテーブルオプションフィールド設定が不完全です（{{.Scope}}）"
-  },
-  "system.code.gen.error.proto_api_kind_unsupported": {
-    "other": "Proto API {{.Method}} のAPI種別は対応していません"
-  },
-  "system.code.gen.error.proto_field_required": {
-    "other": "Proto API {{.Method}} の {{.Label}} を選択してください"
-  },
-  "system.code.gen.error.proto_field_not_in_table": {
-    "other": "Proto API {{.Method}} の {{.Label}} {{.Value}} は対象テーブル {{.Table}} に属しません"
-  },
-  "system.admin.base.ai.model.name.duplicated": {
-    "other": "AIモデル名が重複しています: {{.Name}}"
-  },
-  "rag.admin.ai.knowledge.doc.reextract.failed": {
-    "other": "ドキュメントテキストの再抽出に失敗しました"
-  },
   "system.code.gen.error.batch.empty": {
     "other": "一括生成するテーブルを1つ以上選択してください"
   },
@@ -5171,6 +6632,60 @@
   "system.code.gen.error.batch.table_missing": {
     "other": "一括生成項目{{.Index}}にテーブル設定がありません"
   },
+  "system.code.gen.error.column_duplicate": {
+    "other": "カラム {{.Name}} の設定が重複しています"
+  },
+  "system.code.gen.error.column_form_dict_incomplete": {
+    "other": "カラム {{.Name}} のフォーム用辞書選択設定が不完全です"
+  },
+  "system.code.gen.error.column_form_multiple_json_only": {
+    "other": "カラム {{.Name}} のフォーム複数選択はJSONカラムのみ対応しています"
+  },
+  "system.code.gen.error.column_form_multiple_tree_only": {
+    "other": "カラム {{.Name}} のフォーム複数選択はツリー選択のみ対応しています"
+  },
+  "system.code.gen.error.column_list_component_unsupported": {
+    "other": "カラム {{.Name}} のリストコンポーネントは対応していません"
+  },
+  "system.code.gen.error.column_list_option_unnecessary": {
+    "other": "カラム {{.Name}} のリストコンポーネントにオプション設定は不要です"
+  },
+  "system.code.gen.error.column_list_select_incomplete": {
+    "other": "カラム {{.Name}} のリスト用ドロップダウン設定が不完全です"
+  },
+  "system.code.gen.error.column_list_tree_incomplete": {
+    "other": "カラム {{.Name}} のリスト用ツリー設定が不完全です"
+  },
+  "system.code.gen.error.column_not_found": {
+    "other": "カラム {{.Name}} は存在しません"
+  },
+  "system.code.gen.error.column_option_kind_empty": {
+    "other": "カラム {{.Name}} のオプション種別は空にできません（{{.Scope}}）"
+  },
+  "system.code.gen.error.column_option_lazy_only_tree": {
+    "other": "カラム {{.Name}} で遅延読み込みはツリーオプションのみ対応しています（{{.Scope}}）"
+  },
+  "system.code.gen.error.column_option_source_incomplete": {
+    "other": "カラム {{.Name}} のオプションソース設定が不完全です（{{.Scope}}）"
+  },
+  "system.code.gen.error.column_option_source_value_empty": {
+    "other": "カラム {{.Name}} のオプションソース値は空にできません（{{.Scope}}）"
+  },
+  "system.code.gen.error.column_option_switch_value_forbidden": {
+    "other": "カラム {{.Name}} のオプションにスイッチ値は設定できません（{{.Scope}}）"
+  },
+  "system.code.gen.error.column_option_table_fields_incomplete": {
+    "other": "カラム {{.Name}} のテーブルオプションフィールド設定が不完全です（{{.Scope}}）"
+  },
+  "system.code.gen.error.column_option_tree_table_only": {
+    "other": "カラム {{.Name}} のツリーオプションはテーブルソースのみ利用できます（{{.Scope}}）"
+  },
+  "system.code.gen.error.column_switch_incomplete": {
+    "other": "カラム {{.Name}} のスイッチ設定が不完全です（{{.Scope}}）"
+  },
+  "system.code.gen.error.column_switch_values_conflict": {
+    "other": "カラム {{.Name}} のスイッチのON値とOFF値は同じにできません（{{.Scope}}）"
+  },
   "system.code.gen.error.has_children": {
     "other": "{{.Parent}}を削除できません。配下に{{.Child}}が残っています。"
   },
@@ -5188,6 +6703,15 @@
   },
   "system.code.gen.error.path_duplicate": {
     "other": "{{.Current}}は{{.Previous}}と同じパスを使用できません"
+  },
+  "system.code.gen.error.proto_api_kind_unsupported": {
+    "other": "Proto API {{.Method}} のAPI種別は対応していません"
+  },
+  "system.code.gen.error.proto_field_not_in_table": {
+    "other": "Proto API {{.Method}} の {{.Label}} {{.Value}} は対象テーブル {{.Table}} に属しません"
+  },
+  "system.code.gen.error.proto_field_required": {
+    "other": "Proto API {{.Method}} の {{.Label}} を選択してください"
   },
   "system.code.gen.error.route_duplicate": {
     "other": "生成されたルート{{.Method}} {{.HTTPMethod}} {{.Path}}はbase_apiの{{.Operation}}と重複しています"
@@ -5399,6 +6923,9 @@
   "system.mcp.tool_not_registered": {
     "other": "MCPツール {{.Name}} は登録されていません。"
   },
+  "system.notification.sender.system": {
+    "other": "システム"
+  },
   "system.oauth.crypto.error.client_token_invalid": {
     "other": "クライアントアクセストークンが無効です"
   },
@@ -5417,6 +6944,114 @@
   "system.oauth.crypto.error.response_too_large": {
     "other": "レスポンスサイズが上限を超えています"
   },
+  "system.workflow.job.error.script_scan_failed": {
+    "other": "ワークフロースクリプトの復旧スキャンに失敗しました"
+  },
+  "system.workflow.job.result.scripts_scanned": {
+    "other": "ワークフロースクリプトの復旧スキャン完了：{Count} 件を処理"
+  },
+  "system.workflow.notification.content.approved": {
+    "other": "すべての承認ステップが完了しました"
+  },
+  "system.workflow.notification.content.definition_rejected": {
+    "other": "ワークフロー定義に異常があります。管理者に連絡してください"
+  },
+  "system.workflow.notification.content.escalated_applicant": {
+    "other": "現在の承認者が長時間タスクを処理していないため、再通知しました"
+  },
+  "system.workflow.notification.content.escalated_assignee": {
+    "other": "タスクが長時間処理されていないため、申請者にも通知しました"
+  },
+  "system.workflow.notification.content.pending": {
+    "other": "ログインして承認待ちのタスクを処理してください"
+  },
+  "system.workflow.notification.content.rejected": {
+    "other": "ログインして承認コメントを確認してください"
+  },
+  "system.workflow.notification.content.reminder": {
+    "other": "ログインして承認待ちのタスクを処理してください。未処理の場合は申請者にも通知されます"
+  },
+  "system.workflow.notification.content.withdrawn": {
+    "other": "申請者が申請を取り下げたため、これ以上の対応は不要です"
+  },
+  "system.workflow.notification.title.added": {
+    "other": "承認タスクが追加されました"
+  },
+  "system.workflow.notification.title.approved": {
+    "other": "申請が承認されました"
+  },
+  "system.workflow.notification.title.definition_rejected": {
+    "other": "申請が却下されました"
+  },
+  "system.workflow.notification.title.escalated_applicant": {
+    "other": "申請の承認が期限超過しています"
+  },
+  "system.workflow.notification.title.escalated_assignee": {
+    "other": "承認待ちタスクが大幅に期限超過しています"
+  },
+  "system.workflow.notification.title.forwarded": {
+    "other": "承認タスクが転送されました"
+  },
+  "system.workflow.notification.title.pending": {
+    "other": "新しい承認タスクがあります"
+  },
+  "system.workflow.notification.title.rejected": {
+    "other": "申請が却下されました"
+  },
+  "system.workflow.notification.title.reminder": {
+    "other": "承認待ちタスクが期限超過しています"
+  },
+  "system.workflow.notification.title.withdrawn": {
+    "other": "承認待ちの申請が取り下げられました"
+  },
+  "system.workflow.openapi.script.context": {
+    "other": "初期コンテキスト JSON、最大200 KiB"
+  },
+  "system.workflow.openapi.script.context_short": {
+    "other": "初期コンテキスト JSON"
+  },
+  "system.workflow.openapi.script.name": {
+    "other": "スクリプト名のスナップショット"
+  },
+  "system.workflow.openapi.script.next_retry": {
+    "other": "次回の再試行時刻"
+  },
+  "system.workflow.openapi.script.page": {
+    "other": "ワークフローで利用可能な有効な制限付きスクリプトを取得します"
+  },
+  "system.workflow.openapi.script.retry": {
+    "other": "失敗したワークフロースクリプトを再試行します"
+  },
+  "system.workflow.openapi.script.retry_request": {
+    "other": "ワークフロースクリプト再試行リクエスト"
+  },
+  "system.workflow.openapi.script.run": {
+    "other": "スクリプト実行履歴"
+  },
+  "system.workflow.openapi.script.run_id": {
+    "other": "スクリプト実行 ID"
+  },
+  "system.workflow.openapi.script.runs": {
+    "other": "ワークフロースクリプト実行履歴"
+  },
+  "system.workflow.openapi.script.saved_id": {
+    "other": "保存済みスクリプト ID"
+  },
+  "system.workflow.openapi.script.snapshot": {
+    "other": "スクリプトソースを含まないワークフローグラフのスナップショット"
+  },
+  "system.workflow.openapi.script.stage": {
+    "other": "実行段階"
+  },
+  "system.workflow.openapi.script.test": {
+    "other": "保存済みかつ有効な制限付きワークフロースクリプトを試験実行します。クライアントのソースは受け付けません"
+  },
+  "system.workflow.openapi.script.test_request": {
+    "other": "ワークフロースクリプトの試験実行パラメーター。保存済みスクリプトのみ参照できます。"
+  },
+  "system.workflow.openapi.script.variables": {
+    "other": "ワークフロー変数 JSON"
+  },
   "密码有效期天数，零表示长期有效": {
     "other": "パスワードの有効日数。0 の場合は無期限"
   },
@@ -5431,454 +7066,5 @@
   },
   "获取当前用户生效的密码策略": {
     "other": "現在のユーザーに適用されるパスワードポリシーを取得"
-  },
-  "legacy.error.26a98594498a94ca": {
-    "other": "テナント コードを空にすることはできません"
-  },
-  "legacy.error.f26c80a1e129c384": {
-    "other": "MQTT メッセージ記録の照会に失敗しました"
-  },
-  "legacy.error.12ceb1313032276b": {
-    "other": "MQTT メッセージ詳細の照会に失敗しました"
-  },
-  "system.admin.mqtt_message.get.id.required": {
-    "other": "メッセージ記録IDを入力してください"
-  },
-  "legacy.error.53e503c248312ca3": {"other": "スクリプト名が重複しています"},
-  "legacy.error.2eb4c634e73c7c20": {"other": "スクリプトID一覧を入力してください"},
-  "legacy.error.627129d821b9a9ae": {"other": "スクリプト状態が無効です"},
-  "legacy.error.709fd6d34b5ab217": {"other": "スクリプト言語が無効です"},
-  "legacy.error.0c349c765bb1630c": {"other": "現在はJavaScriptスクリプトのみ対応しています"},
-  "legacy.error.3198350bdf120177": {"other": "スクリプトソースを入力してください"},
-  "legacy.error.58814f41ef0b63a7": {"other": "スクリプト実行ログの記録に失敗しました"},
-  "legacy.error.804ff47d9145111c": {"other": "スクリプトIDが無効です"},
-  "legacy.error.154bb194d8d7704f": {"other": "スクリプト実行ログの照会に失敗しました"},
-  "legacy.error.ac1dfc62a1e129c384": {"other": "スクリプト実行ログ詳細の照会に失敗しました"},
-  "legacy.error.ac1dfc62f18f680": {"other": "スクリプト実行ログ詳細の照会に失敗しました"},
-  "legacy.error.ac1dfc62f18f6808": {"other": "スクリプト実行ログ詳細の照会に失敗しました"},
-  "legacy.error.a29ca3d4464b4117": {"other": "スクリプト一覧の照会に失敗しました"},
-  "legacy.error.6006ddbf35bdc480": {"other": "スクリプトの照会に失敗しました"},
-  "legacy.error.6e274beea35914d0": {"other": "スクリプトの作成に失敗しました"},
-  "legacy.error.d2321b6e6cdb0b72": {"other": "スクリプトの更新に失敗しました"},
-  "legacy.error.c343976847d80363": {"other": "スクリプトの削除に失敗しました"},
-  "legacy.error.855a3a4a1e73873b": {"other": "スクリプト状態の更新に失敗しました"},
-  "legacy.error.d9af671132576c58": {"other": "スクリプトのテスト実行に失敗しました"},
-  "system.admin.base.script.entity.name.required": {"other": "スクリプト名を入力してください"},
-  "system.admin.base.script.entity.hook_point.max_length": {"other": "フックポイントは160文字以内で入力してください"},
-  "system.admin.base.script.entity.source.required": {"other": "スクリプトソースを入力してください"},
-  "system.admin.base.script.entity.description.max_length": {"other": "説明は512文字以内で入力してください"},
-  "system.admin.base.script.delete.id.required": {"other": "スクリプトID一覧を入力してください"},
-  "system.admin.base.script.test_run.source.max_length": {"other": "スクリプトソースは200000文字以内で入力してください"},
-  "system.admin.base.script.test_run.context_json.max_length": {"other": "コンテキストは200000文字以内で入力してください"},
-  "legacy.error.0e953f80478aa9ed": {
-    "other": "同一テナントのフローコードとバージョンが重複"
-  },
-  "legacy.error.1456d3981707f770": {
-    "other": "削除失敗、ドラフト状態のみ削除できます"
-  },
-  "legacy.error.1593dca0dfa86346": {
-    "other": "タスクは処理済みです"
-  },
-  "legacy.error.2059cc6d984d24a6": {
-    "other": "被委任者が無効です"
-  },
-  "legacy.error.23b476d2ff5c6a0d": {
-    "other": "あなたの承認タスクではありません"
-  },
-  "legacy.error.279970960cdc7d86": {
-    "other": "業務記録に関連するフローインスタンスが見つかりません"
-  },
-  "legacy.error.2bf0ca2e14dbf0a8": {
-    "other": "フロー図設定に異常があります"
-  },
-  "legacy.error.2ff36648250506aa": {
-    "other": "加簽ユーザーが無効です"
-  },
-  "legacy.error.44da1869e0376a29": {
-    "other": "転送先ユーザーが無効です"
-  },
-  "legacy.error.4608a748e161e339": {
-    "other": "承認タスク詳細の検索に失敗"
-  },
-  "legacy.error.490b5cd41129c88f": {
-    "other": "承認委任の検索に失敗"
-  },
-  "legacy.error.540259b5547228e3": {
-    "other": "取下げ失敗、申請は承認中ではありません"
-  },
-  "legacy.error.5e4af6477c9e57a5": {
-    "other": "フローインスタンス詳細の検索に失敗"
-  },
-  "legacy.error.7988a9c57b1e18af": {
-    "other": "コードとバージョンは変更できません、新バージョンを作成してください"
-  },
-  "legacy.error.7e7027a1d80c578d": {
-    "other": "他テナントの承認委任を検索できません"
-  },
-  "legacy.error.8358173c19c8b805": {
-    "other": "ワークフロー定義の削除に失敗"
-  },
-  "legacy.error.84c684cce9bedfe9": {
-    "other": "承認委任の設定に失敗"
-  },
-  "legacy.error.8d5c3940aba9dd25": {
-    "other": "一人のユーザーは一件の承認委任のみ設定できます"
-  },
-  "legacy.error.8f08aae578d818eb": {
-    "other": "ワークフロー定義が存在しません"
-  },
-  "legacy.error.8f0c281936a2dd93": {
-    "other": "ワークフロー定義の作成に失敗"
-  },
-  "legacy.error.94dc7cfc60980a69": {
-    "other": "削除失敗、この定義を参照するインスタンスが存在します"
-  },
-  "legacy.error.a922fa8d9aefc4b3": {
-    "other": "ワークフロー定義が有効化されていません"
-  },
-  "legacy.error.afac2a2e5bf769d4": {
-    "other": "承認操作が無効です"
-  },
-  "legacy.error.b2df4070287d940b": {
-    "other": "自分の承認タスクの検索に失敗"
-  },
-  "legacy.error.b55bf245bac9ce6e": {
-    "other": "削除失敗、定義が存在しません"
-  },
-  "legacy.error.b698dd181813542e": {
-    "other": "他テナントのフローインスタンスを検索できません"
-  },
-  "legacy.error.b7dfaaed47b862eb": {
-    "other": "削除失敗、委任が存在しません"
-  },
-  "legacy.error.b88bad52eb5ea941": {
-    "other": "ユーザーは無効化されています"
-  },
-  "legacy.error.ba653419d73d2ec8": {
-    "other": "申請の取下げに失敗"
-  },
-  "legacy.error.bbf6b13e90ad673c": {
-    "other": "フローノード状態に異常があります"
-  },
-  "legacy.error.bd716eafd672c746": {
-    "other": "ワークフロー定義の更新に失敗"
-  },
-  "legacy.error.c48643c9d6f06c71": {
-    "other": "リストタイプが無効です"
-  },
-  "legacy.error.c916f58aa90099af": {
-    "other": "ワークフロー定義の状態が無効です"
-  },
-  "legacy.error.cc09b1c30b456fcf": {
-    "other": "承認申請の提出に失敗"
-  },
-  "legacy.error.ce1a849baef38a91": {
-    "other": "フローインスタンスは承認中ではありません"
-  },
-  "legacy.error.ce842a9b36cba468": {
-    "other": "ワークフロー定義選択肢の検索に失敗"
-  },
-  "legacy.error.cebf0a62a661df9c": {
-    "other": "ワークフロー定義の検索に失敗"
-  },
-  "legacy.error.cecfa12c95140940": {
-    "other": "他テナントのワークフロー定義を検索できません"
-  },
-  "legacy.error.d194c776a0ee5e26": {
-    "other": "フロー図設定が無効：開始ノードがありません"
-  },
-  "legacy.error.d9c4f018f338212d": {
-    "other": "自分の申請のみ取下げできます"
-  },
-  "legacy.error.db35c5c0de7472a2": {
-    "other": "他テナントのワークフロー定義を操作できません"
-  },
-  "legacy.error.e4113197ca2325fa": {
-    "other": "申請フォームの検索に失敗"
-  },
-  "legacy.error.e81dbd0ba4f7a963": {
-    "other": "あなたの承認待ちタスクではありません"
-  },
-  "legacy.error.ec066a971ee52c71": {
-    "other": "承認タスクの処理に失敗"
-  },
-  "legacy.error.ef81783f5a70a01a": {
-    "other": "ワークフロー定義状態の設定に失敗"
-  },
-  "legacy.error.f11c9913680e6b54": {
-    "other": "自分の承認委任のみ削除できます"
-  },
-  "legacy.error.fc746194ec482626": {
-    "other": "フローインスタンスの検索に失敗"
-  },
-  "legacy.error.fcdabb6237ef15d3": {
-    "other": "更新失敗、ドラフト状態のみ編集できます"
-  },
-  "legacy.error.fe26a2c819b1e6c0": {
-    "other": "承認委任の削除に失敗"
-  },
-  "system.admin.workflow.definition.apply_form.code.required": {
-    "other": "フローコードは必須です"
-  },
-  "system.admin.workflow.definition.apply_form.version.required": {
-    "other": "フローバージョンは必須です"
-  },
-  "system.admin.workflow.definition.delete.id.required": {
-    "other": "ワークフロー定義IDリストは必須です"
-  },
-  "system.admin.workflow.definition.entity.code.max_length": {
-    "other": "フローコードは100文字以内です"
-  },
-  "system.admin.workflow.definition.entity.code.required": {
-    "other": "フローコードを入力してください"
-  },
-  "system.admin.workflow.definition.entity.form_schema.max_length": {
-    "other": "フォーム定義は65536文字以内です"
-  },
-  "system.admin.workflow.definition.entity.name.max_length": {
-    "other": "フロー名は100文字以内です"
-  },
-  "system.admin.workflow.definition.entity.name.required": {
-    "other": "フロー名を入力してください"
-  },
-  "system.admin.workflow.definition.entity.node_config.max_length": {
-    "other": "フロー図設定は65536文字以内です"
-  },
-  "system.admin.workflow.definition.entity.node_config.required": {
-    "other": "フロー図設定は必須です"
-  },
-  "system.admin.workflow.definition.entity.remark.max_length": {
-    "other": "備考は500文字以内です"
-  },
-  "system.admin.workflow.definition.entity.tenant_id.required": {
-    "other": "テナントを選択してください"
-  },
-  "system.admin.workflow.definition.entity.version.required": {
-    "other": "バージョンは0より大きい必要があります"
-  },
-  "system.admin.workflow.definition.get.id.required": {
-    "other": "ワークフロー定義IDは必須です"
-  },
-  "system.admin.workflow.definition.set_status.id.required": {
-    "other": "ワークフロー定義IDは必須です"
-  },
-  "system.admin.workflow.definition.update.id.required": {
-    "other": "ワークフロー定義IDは必須です"
-  },
-  "system.admin.workflow.delegation.delete.id.required": {
-    "other": "承認委任IDリストは必須です"
-  },
-  "system.admin.workflow.delegation.entity.delegate_user_id.required": {
-    "other": "被委任者を選択してください"
-  },
-  "system.admin.workflow.delegation.entity.remark.max_length": {
-    "other": "備考は500文字以内です"
-  },
-  "system.admin.workflow.instance.get.id.required": {
-    "other": "フローインスタンスIDは必須です"
-  },
-  "system.admin.workflow.instance.submit.business_type.max_length": {
-    "other": "業務種別は50文字以内です"
-  },
-  "system.admin.workflow.instance.submit.code.required": {
-    "other": "フローコードは必須です"
-  },
-  "system.admin.workflow.instance.submit.form_data.max_length": {
-    "other": "申請フォームデータは65536文字以内です"
-  },
-  "system.admin.workflow.instance.submit.form_data.required": {
-    "other": "申請フォームデータは必須です"
-  },
-  "system.admin.workflow.instance.submit.version.required": {
-    "other": "フローバージョンは必須です"
-  },
-  "system.admin.workflow.instance.withdraw.id.required": {
-    "other": "フローインスタンスIDは必須です"
-  },
-  "system.admin.workflow.task.audit.comment.max_length": {
-    "other": "承認意見は500文字以内です"
-  },
-  "system.admin.workflow.task.audit.task_id.required": {
-    "other": "承認タスクIDは必須です"
-  },
-  "system.admin.workflow.task.get.id.required": {
-    "other": "承認タスクIDは必須です"
-  },
-  "legacy.error.6a96890d025d36c6": {
-    "other": "業務伝票とワークフローの関連付けを保存できませんでした"
-  },
-  "legacy.error.07169436625cbd35": {
-    "other": "タスクはすでに処理または転送されています"
-  },
-  "system.workflow.job.error.script_scan_failed": {
-    "other": "ワークフロースクリプトの復旧スキャンに失敗しました"
-  },
-  "system.workflow.job.result.scripts_scanned": {
-    "other": "ワークフロースクリプトの復旧スキャン完了：{Count} 件を処理"
-  },
-  "legacy.error.2f173bbdd8aabbbb": {"other": "ワークフローインスタンスのスナップショットが無効です"},
-  "legacy.error.067118c2b128c55f": {"other": "他のテナントのスクリプトは再試行できません"},
-  "legacy.error.ac6310ee83bcf7f9": {"other": "フローの参加者または管理者のみスクリプトを再試行できます"},
-  "legacy.error.7e1cee01625c342f": {"other": "スクリプト実行はこのフローに属していません"},
-  "legacy.error.e02e13af31934679": {"other": "失敗したスクリプトのみ再試行できます"},
-  "legacy.error.2dcf0a202b5aa077": {"other": "スクリプトノードが存在しません"},
-  "legacy.error.9578a4511b3382df": {"other": "申請フォームデータは JSON オブジェクトである必要があります"},
-  "legacy.error.53f89634cde5df00": {"other": "公開済みスクリプトのスナップショットがありません。フローを再度有効にしてください"},
-  "legacy.error.b008ba1ac3fb0652": {"other": "実行リースは他のタスクに引き継がれました"},
-  "legacy.error.dcad9e63f38f931c": {"other": "フローはまだ終了していません"},
-  "legacy.error.17513f0b76033b88": {"other": "通知アクションのパラメーターが無効です"},
-  "legacy.error.f464573b785f5f5e": {"other": "通知アクションにはタイトル、内容、および同じテナントの1〜100人のユーザーが必要です"},
-  "legacy.error.424ef3bf19c0731c": {"other": "ノードグラフの設定が無効です"},
-  "legacy.error.97a011fa2c37581c": {"other": "参照したスクリプトが存在しないか無効になっています"},
-  "legacy.error.c21640c2f2bf1181": {"other": "公開するノードグラフ設定は 1 MiB を超えてはいけません"},
-  "legacy.error.68c36a9a40ff17ea": {"other": "ワークフロースクリプトの再試行に失敗しました"},
-  "legacy.error.bb42bc14719faff4": {"other": "ワークフロースクリプトの取得に失敗しました"},
-  "legacy.error.1be13391c90d0c32": {"other": "ワークフロースクリプトの試験実行に失敗しました"},
-  "system.admin.workflow.definition.script_test.script_id.required": {"other": "スクリプト ID は0より大きい必要があります"},
-  "system.workflow.openapi.script.page": {"other": "ワークフローで利用可能な有効な制限付きスクリプトを取得します"},
-  "system.workflow.openapi.script.test": {"other": "保存済みかつ有効な制限付きワークフロースクリプトを試験実行します。クライアントのソースは受け付けません"},
-  "system.workflow.openapi.script.retry": {"other": "失敗したワークフロースクリプトを再試行します"},
-  "system.workflow.openapi.script.retry_request": {"other": "ワークフロースクリプト再試行リクエスト"},
-  "system.workflow.openapi.script.runs": {"other": "ワークフロースクリプト実行履歴"},
-  "system.workflow.openapi.script.run": {"other": "スクリプト実行履歴"},
-  "system.workflow.openapi.script.run_id": {"other": "スクリプト実行 ID"},
-  "system.workflow.openapi.script.snapshot": {"other": "スクリプトソースを含まないワークフローグラフのスナップショット"},
-  "system.workflow.openapi.script.variables": {"other": "ワークフロー変数 JSON"},
-  "system.workflow.openapi.script.name": {"other": "スクリプト名のスナップショット"},
-  "system.workflow.openapi.script.test_request": {"other": "ワークフロースクリプトの試験実行パラメーター。保存済みスクリプトのみ参照できます。"},
-  "system.workflow.openapi.script.saved_id": {"other": "保存済みスクリプト ID"},
-  "system.workflow.openapi.script.context": {"other": "初期コンテキスト JSON、最大200 KiB"},
-  "system.workflow.openapi.script.context_short": {"other": "初期コンテキスト JSON"},
-  "system.workflow.openapi.script.stage": {"other": "実行段階"},
-  "system.workflow.openapi.script.next_retry": {"other": "次回の再試行時刻"},
-  "legacy.error.0b38823ed34c2c02": {"other": "フローは JavaScript スクリプトのみ対応しています"},
-  "legacy.error.732403aa5b743865": {"other": "ホストの関連付けコールバックにはワークフロー関連付け検証器の登録が必要です"},
-  "legacy.error.a7beabf5ecc07c42": {"other": "業務伝票の関連付けが未確認です。後で取り下げてください"},
-  "system.notification.sender.system": {"other": "システム"},
-  "system.workflow.notification.title.withdrawn": {"other": "承認待ちの申請が取り下げられました"},
-  "system.workflow.notification.content.withdrawn": {"other": "申請者が申請を取り下げたため、これ以上の対応は不要です"},
-  "system.workflow.notification.title.rejected": {"other": "申請が却下されました"},
-  "system.workflow.notification.content.rejected": {"other": "ログインして承認コメントを確認してください"},
-  "system.workflow.notification.title.forwarded": {"other": "承認タスクが転送されました"},
-  "system.workflow.notification.title.added": {"other": "承認タスクが追加されました"},
-  "system.workflow.notification.title.pending": {"other": "新しい承認タスクがあります"},
-  "system.workflow.notification.content.pending": {"other": "ログインして承認待ちのタスクを処理してください"},
-  "system.workflow.notification.title.approved": {"other": "申請が承認されました"},
-  "system.workflow.notification.content.approved": {"other": "すべての承認ステップが完了しました"},
-  "system.workflow.notification.title.definition_rejected": {"other": "申請が却下されました"},
-  "system.workflow.notification.content.definition_rejected": {"other": "ワークフロー定義に異常があります。管理者に連絡してください"},
-  "system.workflow.notification.title.escalated_assignee": {"other": "承認待ちタスクが大幅に期限超過しています"},
-  "system.workflow.notification.content.escalated_assignee": {"other": "タスクが長時間処理されていないため、申請者にも通知しました"},
-  "system.workflow.notification.title.escalated_applicant": {"other": "申請の承認が期限超過しています"},
-  "system.workflow.notification.content.escalated_applicant": {"other": "現在の承認者が長時間タスクを処理していないため、再通知しました"},
-  "system.workflow.notification.title.reminder": {"other": "承認待ちタスクが期限超過しています"},
-  "system.workflow.notification.content.reminder": {"other": "ログインして承認待ちのタスクを処理してください。未処理の場合は申請者にも通知されます"},
-  "legacy.error.ed128739722f40db": {"other": "デフォルトテナントのみ新しいテナントを申請できます"},
-  "legacy.error.3da415f938fb011b": {"other": "テナント承認元の検証に失敗しました"},
-  "legacy.error.8c6af8b20cd52f9c": {"other": "デフォルトテナントのみ新しいテナントの承認処理を実行できます"},
-  "legacy.error.12880bf977139081": {"other": "テナント承認関連付けの検証に失敗しました"},
-  "legacy.error.488a83cdadc0d421": {"other": "新しいテナント承認の業務関連付けが無効です"},
-  "legacy.error.83c152306e3a4a8e": {"other": "新しいテナント承認フォームが無効です"},
-  "legacy.error.f93a42e989ecd8af": {"other": "プロジェクト承認元の検証に失敗しました"},
-  "legacy.error.4348feb419bc4342": {"other": "デフォルトテナントのみ新しいプロジェクトの承認処理を実行できます"},
-  "legacy.error.347070fc997f7568": {"other": "プロジェクト承認関連付けの検証に失敗しました"},
-  "legacy.error.359210281db55f21": {"other": "新しいプロジェクト承認の業務関連付けが無効です"},
-  "legacy.error.d20fc8bcc8d8f5c7": {"other": "新しいプロジェクト承認フォームが無効です"},
-  "legacy.error.0224ce0d4c9763eb": {"other": "新しいプロジェクト承認の所属テナントが無効です"},
-  "legacy.error.9cafc0f70e08d227": {
-    "other": "管理画面で書き込み操作を承認してください"
-  },
-  "legacy.error.4d48785e7ebd39fb": {
-    "other": "承認が無効か、すでに処理されています"
-  },
-  "legacy.error.e46eaf899f18a393": {
-    "other": "承認の実行設定が無効です"
-  },
-  "legacy.error.47a58292ae95d795": {
-    "other": "承認のツール引数が無効です"
-  },
-  "legacy.error.d23b49a800ec82fd": {
-    "other": "承認の実行状態が無効です"
-  },
-  "legacy.error.0e01a87b0d86090d": {
-    "other": "AI の実行状態が変わったため承認を保存できません"
-  },
-  "legacy.error.fc4d92dd2ebc6782": {
-    "other": "実行中のメッセージは削除できません"
-  },
-  "legacy.error.ef4d3b3aab09a01d": {
-    "other": "現在の応答が完了するまで待つか、保留中の操作を処理してください"
-  },
-  "legacy.error.f11d68a2a74f06f9": {
-    "other": "この端末ではツールを利用できません"
-  },
-  "legacy.error.446c05bbcf853ae6": {
-    "other": "Agent ツールは無効です"
-  },
-  "legacy.error.799b4c56d12deb00": {
-    "other": "Agent ツールが無効か、実行が禁止されています"
-  },
-  "legacy.error.2e9e8485207551ae": {
-    "other": "ツールの API 定義が見つかりません"
-  },
-  "legacy.error.a934ff7ee33d8ab2": {
-    "other": "ツールの API 定義が無効です"
-  },
-  "legacy.error.844039c078368bf3": {
-    "other": "ツールのリクエスト定義が見つかりません"
-  },
-  "legacy.error.94c872f75369c921": {
-    "other": "ツール引数が無効です"
-  },
-  "legacy.error.7037d44d26f2fe7d": {
-    "other": "AI ツールの承認処理に失敗しました"
-  },
-  "openapi.ai.approval.0a50ca52d217eaa0": {
-    "other": "現在のユーザーの保留中ツール呼び出しを承認または拒否します。"
-  },
-  "openapi.ai.approval.907638a466d26ec4": {
-    "other": "AI ツールの承認リクエスト。ツールと引数はサーバーで固定します。"
-  },
-  "openapi.ai.approval.79d325f8ec278ba6": {
-    "other": "一度限りの承認 ID"
-  },
-  "openapi.ai.approval.6cedfb9ab50004c5": {
-    "other": "実行を承認するか"
-  },
-  "openapi.ai.approval.c7fb3cb9b170ea8d": {
-    "other": "保留中ツールの承認情報"
-  },
-  "openapi.ai.approval.bc522e692aed7078": {
-    "other": "AI ツールの承認情報。"
-  },
-  "openapi.ai.approval.aca86adff02160dc": {
-    "other": "承認待ちのツールと固定された引数"
-  },
-  "openapi.ai.approval.2a1e259212d00994": {
-    "other": "承認期限"
-  },
-  "openapi.ai.approval.c5953adda9d71bb8": {
-    "other": "承認待ちの AI ツール呼び出し。"
-  },
-  "openapi.ai.approval.25b37d5c985ea3be": {
-    "other": "操作の説明"
-  },
-  "openapi.ai.approval.e1de7de24c6aa692": {
-    "other": "実行する固定引数の JSON"
-  },
-  "base.ai.approval.session_id.positive": {
-    "other": "セッション番号が無効です"
-  },
-  "base.ai.approval.message_id.positive": {
-    "other": "メッセージ番号が不正です"
-  },
-  "system.ai.chat.approval.expired": {
-    "other": "承認期限が切れました。保留中の操作は実行されていません。"
-  },
-  "system.ai.chat.approval.rejected": {
-    "other": "拒否しました。保留中の操作は実行されていません。"
-  },
-  "system.ai.chat.error.run_expired": {
-    "other": "生成がタイムアウトしました。このリクエストは自動再開されません。再試行の前に業務の処理結果を確認してください。"
   }
 }

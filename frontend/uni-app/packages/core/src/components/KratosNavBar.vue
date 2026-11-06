@@ -120,7 +120,7 @@ function goBack() {
   width: 76rpx;
   height: 76rpx;
   border: 1px solid var(--kratos-color-border);
-  border-radius: 24rpx;
+  border-radius: var(--kratos-page-radius);
   background: var(--kratos-color-surface);
   color: var(--kratos-color-text);
   line-height: 0;

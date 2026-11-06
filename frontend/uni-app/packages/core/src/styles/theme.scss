@@ -3,6 +3,14 @@
  * 变量挂在页面根类 .theme-dark / .theme-light 上，页面样式只消费变量。
  * ============================================================ */
 
+/* 普通矩形控件共用圆角，375 逻辑宽度下约为 6px。 */
+:root,
+page,
+.theme-light,
+.theme-dark {
+  --kratos-page-radius: 12rpx;
+}
+
 /* 暗黑主题：深色数据驾驶舱 */
 .theme-dark {
   --kratos-color-background: #060a12;

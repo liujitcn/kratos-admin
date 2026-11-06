@@ -381,10 +381,6 @@ func (c *BaseUserCase) GetBaseUser(ctx context.Context, id int64) (*adminv1.Base
 	if err != nil {
 		return nil, err
 	}
-	err = c.validateUserManagementTarget(ctx, baseUser)
-	if err != nil {
-		return nil, err
-	}
 	return c.formMapper.ToDTO(baseUser), nil
 }
 

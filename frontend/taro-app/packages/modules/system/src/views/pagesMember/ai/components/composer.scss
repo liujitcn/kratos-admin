@@ -32,7 +32,7 @@
   color: var(--kratos-color-text, #102232);
   background: var(--kratos-color-surface, #fff);
   border: 1PX solid var(--kratos-color-border-accent, rgba(0, 150, 134, 0.28));
-  border-radius: 28px;
+  border-radius: var(--kratos-page-radius);
   box-sizing: border-box;
 }
 
@@ -65,7 +65,7 @@
   min-height: 124px;
   padding: 22px 18px;
   border: 1PX solid var(--kratos-color-border, #e3eaf2);
-  border-radius: 24px;
+  border-radius: var(--kratos-page-radius);
   background: var(--kratos-color-surface, #fff);
   box-sizing: border-box;
 }
@@ -95,7 +95,7 @@
   min-height: 72px;
   padding: 0 12px 0 28px;
   border: 1PX solid var(--kratos-color-border, #e3eaf2);
-  border-radius: 38px;
+  border-radius: var(--kratos-page-radius);
   background: var(--kratos-color-surface-2, #eef4fa);
   box-shadow: none;
   box-sizing: border-box;
@@ -116,7 +116,7 @@
   white-space: nowrap;
   padding: 6px 12px;
   border: 1PX solid var(--kratos-color-primary-edge, rgba(0, 150, 134, 0.3));
-  border-radius: 8px;
+  border-radius: var(--kratos-page-radius);
   color: var(--kratos-color-primary, #039e8c);
   font-size: 20px;
   line-height: 28px;

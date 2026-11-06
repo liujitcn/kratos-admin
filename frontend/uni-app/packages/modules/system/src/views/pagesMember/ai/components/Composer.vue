@@ -218,7 +218,7 @@ function handleKnowledgeToggle(knowledgeId: number) {
   min-height: 124rpx;
   padding: 22rpx 18rpx;
   border: 1rpx solid var(--kratos-color-border, #e3eaf2);
-  border-radius: 24rpx;
+  border-radius: var(--kratos-page-radius);
   background: var(--kratos-color-surface, #fff);
   box-sizing: border-box;
 }
@@ -234,7 +234,7 @@ function handleKnowledgeToggle(knowledgeId: number) {
   color: var(--kratos-color-text, #102232);
   background: var(--kratos-color-surface, #fff);
   border: 1rpx solid var(--kratos-color-border-accent, rgba(0, 150, 134, 0.28));
-  border-radius: 28rpx;
+  border-radius: var(--kratos-page-radius);
   box-sizing: border-box;
 }
 
@@ -285,7 +285,7 @@ function handleKnowledgeToggle(knowledgeId: number) {
   min-height: 72rpx;
   padding: 0 12rpx 0 28rpx;
   border: 1rpx solid var(--kratos-color-border, #e3eaf2);
-  border-radius: 38rpx;
+  border-radius: var(--kratos-page-radius);
   background: var(--kratos-color-surface-2, #eef4fa);
   box-shadow: none;
   box-sizing: border-box;
@@ -306,7 +306,7 @@ function handleKnowledgeToggle(knowledgeId: number) {
   white-space: nowrap;
   padding: 6rpx 12rpx;
   border: 1rpx solid var(--kratos-color-primary-edge, rgba(0, 150, 134, 0.3));
-  border-radius: 8rpx;
+  border-radius: var(--kratos-page-radius);
   color: var(--kratos-color-primary, #039e8c);
   font-size: 20rpx;
   line-height: 28rpx;

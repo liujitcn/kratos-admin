@@ -1,0 +1,298 @@
+syntax = "proto3";
+
+package bi.admin.v1;
+
+import "buf/validate/validate.proto";
+import "gnostic/openapi/v3/annotations.proto";
+import "google/api/annotations.proto";
+
+// BI 语义查询服务。
+service BiQueryService {
+  // 查询当前用户可用的数据源目录。
+  rpc ListBiSources(ListBiSourcesRequest) returns (ListBiSourcesResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/admin/bi/sources"
+    };
+  }
+
+  // 预览一个已经由前端配置的语义查询。
+  rpc PreviewBiQuery(PreviewBiQueryRequest) returns (BiQueryResult) {
+    option (google.api.http) = {
+      post: "/api/v1/admin/bi/query/preview"
+      body: "*"
+    };
+  }
+
+  // 自然语言生成语义查询并返回预览结果。
+  rpc AskBiQuery(AskBiQueryRequest) returns (AskBiQueryResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/admin/bi/query/ask"
+      body: "*"
+    };
+  }
+}
+
+// BI 数据源目录查询条件。
+message ListBiSourcesRequest {}
+
+// BI 数据源目录响应。
+message ListBiSourcesResponse {
+  repeated BiSourceDescriptor sources = 1 [
+    (gnostic.openapi.v3.property) = {description: "当前用户可用的数据源"}
+  ]; // 当前用户可用的数据源
+}
+
+// BI 数据源描述。
+message BiSourceDescriptor {
+  string code = 1 [
+    (gnostic.openapi.v3.property) = {description: "数据源编码"}
+  ]; // 数据源编码
+
+  string name = 2 [
+    (gnostic.openapi.v3.property) = {description: "数据源名称"}
+  ]; // 数据源名称
+
+  string description = 3 [
+    (gnostic.openapi.v3.property) = {description: "数据源说明"}
+  ]; // 数据源说明
+
+  int32 version = 4 [
+    (gnostic.openapi.v3.property) = {description: "数据源语义版本"}
+  ]; // 数据源语义版本
+
+  repeated BiFieldDescriptor dimensions = 5 [
+    (gnostic.openapi.v3.property) = {description: "可用维度"}
+  ]; // 可用维度
+
+  repeated BiMeasureDescriptor measures = 6 [
+    (gnostic.openapi.v3.property) = {description: "可用指标"}
+  ]; // 可用指标
+
+  int32 max_rows = 7 [
+    json_name = "maxRows",
+    (gnostic.openapi.v3.property) = {description: "最大结果行数"}
+  ]; // 最大结果行数
+}
+
+// BI 字段描述。
+message BiFieldDescriptor {
+  string code = 1 [
+    (gnostic.openapi.v3.property) = {description: "字段编码"}
+  ]; // 字段编码
+
+  string name = 2 [
+    (gnostic.openapi.v3.property) = {description: "字段名称"}
+  ]; // 字段名称
+
+  string type = 3 [
+    (gnostic.openapi.v3.property) = {description: "字段类型：string、number、date"}
+  ]; // 字段类型
+
+  bool filterable = 4 [
+    (gnostic.openapi.v3.property) = {description: "是否允许过滤"}
+  ]; // 是否允许过滤
+}
+
+// BI 指标描述。
+message BiMeasureDescriptor {
+  string code = 1 [
+    (gnostic.openapi.v3.property) = {description: "指标编码"}
+  ]; // 指标编码
+
+  string name = 2 [
+    (gnostic.openapi.v3.property) = {description: "指标名称"}
+  ]; // 指标名称
+
+  string type = 3 [
+    (gnostic.openapi.v3.property) = {description: "指标类型"}
+  ]; // 指标类型
+
+  repeated string aggregations = 4 [
+    (gnostic.openapi.v3.property) = {description: "允许的聚合函数"}
+  ]; // 允许的聚合函数
+}
+
+// BI 查询预览请求。
+message PreviewBiQueryRequest {
+  BiQuerySpec query = 1 [
+    (gnostic.openapi.v3.property) = {description: "语义查询计划"},
+    (buf.validate.field).required = true
+  ]; // 语义查询计划
+}
+
+// BI 语义查询计划。
+message BiQuerySpec {
+  string source_code = 1 [
+    json_name = "sourceCode",
+    (gnostic.openapi.v3.property) = {description: "数据源编码"},
+    (buf.validate.field).string = {min_len: 1, max_len: 128}
+  ]; // 数据源编码
+
+  repeated string dimensions = 2 [
+    (gnostic.openapi.v3.property) = {description: "分组维度编码"}
+  ]; // 分组维度编码
+
+  repeated BiMeasureSpec measures = 3 [
+    (gnostic.openapi.v3.property) = {description: "查询指标"}
+  ]; // 查询指标
+
+  repeated BiFilterSpec filters = 4 [
+    (gnostic.openapi.v3.property) = {description: "过滤条件"}
+  ]; // 过滤条件
+
+  int32 limit = 5 [
+    (gnostic.openapi.v3.property) = {description: "结果行数上限，默认100"},
+    (buf.validate.field).int32 = {gte: 0, lte: 1000}
+  ]; // 结果行数上限，默认100
+
+  BiTimeRangeSpec time_range = 6 [
+    json_name = "timeRange",
+    (gnostic.openapi.v3.property) = {description: "时间范围"}
+  ]; // 时间范围
+
+  repeated BiOrderSpec orders = 7 [
+    (gnostic.openapi.v3.property) = {description: "结果排序规则"}
+  ]; // 结果排序规则
+}
+
+// BI 时间范围。
+message BiTimeRangeSpec {
+  string field = 1 [
+    (gnostic.openapi.v3.property) = {description: "时间维度编码"},
+    (buf.validate.field).string = {min_len: 1, max_len: 128}
+  ]; // 时间维度编码
+
+  string start = 2 [
+    (gnostic.openapi.v3.property) = {description: "范围起点"},
+    (buf.validate.field).string = {min_len: 1, max_len: 64}
+  ]; // 范围起点
+
+  string end = 3 [
+    (gnostic.openapi.v3.property) = {description: "范围终点"},
+    (buf.validate.field).string = {min_len: 1, max_len: 64}
+  ]; // 范围终点
+}
+
+// BI 结果排序规则。
+message BiOrderSpec {
+  string field = 1 [
+    (gnostic.openapi.v3.property) = {description: "已选择的维度或指标编码"},
+    (buf.validate.field).string = {min_len: 1, max_len: 128}
+  ]; // 已选择的维度或指标编码
+
+  string direction = 2 [
+    (gnostic.openapi.v3.property) = {description: "排序方向：asc 或 desc"},
+    (buf.validate.field).string = {min_len: 1, max_len: 4}
+  ]; // 排序方向
+}
+
+// BI 指标查询项。
+message BiMeasureSpec {
+  string code = 1 [
+    (gnostic.openapi.v3.property) = {description: "指标编码"},
+    (buf.validate.field).string = {min_len: 1, max_len: 128}
+  ]; // 指标编码
+
+  string aggregation = 2 [
+    (gnostic.openapi.v3.property) = {description: "聚合函数"},
+    (buf.validate.field).string = {min_len: 1, max_len: 32}
+  ]; // 聚合函数
+}
+
+// BI 过滤条件。
+message BiFilterSpec {
+  string field = 1 [
+    (gnostic.openapi.v3.property) = {description: "字段编码"},
+    (buf.validate.field).string = {min_len: 1, max_len: 128}
+  ]; // 字段编码
+
+  string operator = 2 [
+    (gnostic.openapi.v3.property) = {description: "操作符：eq、in、between、contains"},
+    (buf.validate.field).string = {min_len: 1, max_len: 32}
+  ]; // 操作符
+
+  repeated string values = 3 [
+    (gnostic.openapi.v3.property) = {description: "过滤值"}
+  ]; // 过滤值
+}
+
+// BI 查询结果。
+message BiQueryResult {
+  repeated BiResultColumn columns = 1 [
+    (gnostic.openapi.v3.property) = {description: "结果列"}
+  ]; // 结果列
+
+  repeated BiResultRow rows = 2 [
+    (gnostic.openapi.v3.property) = {description: "结果行"}
+  ]; // 结果行
+
+  bool truncated = 3 [
+    (gnostic.openapi.v3.property) = {description: "是否因限制截断"}
+  ]; // 是否因限制截断
+
+  int64 elapsed_ms = 4 [
+    json_name = "elapsedMs",
+    (gnostic.openapi.v3.property) = {description: "查询耗时毫秒"}
+  ]; // 查询耗时毫秒
+
+  int64 query_record_id = 5 [(gnostic.openapi.v3.property) = {description: "本次成功查询记录ID，可作为数据卡片来源"}]; // 本次成功查询记录ID
+}
+
+// BI 结果列。
+message BiResultColumn {
+  string code = 1 [
+    (gnostic.openapi.v3.property) = {description: "列编码"}
+  ]; // 列编码
+
+  string name = 2 [
+    (gnostic.openapi.v3.property) = {description: "列名称"}
+  ]; // 列名称
+
+  string type = 3 [
+    (gnostic.openapi.v3.property) = {description: "列类型"}
+  ]; // 列类型
+}
+
+// BI 结果行。
+message BiResultRow {
+  repeated string values = 1 [
+    (gnostic.openapi.v3.property) = {description: "按列顺序排列的值"}
+  ]; // 按列顺序排列的值
+}
+
+// BI 自然语言问数请求。
+message AskBiQueryRequest {
+  string question = 1 [
+    (gnostic.openapi.v3.property) = {description: "自然语言问题"},
+    (buf.validate.field).string = {min_len: 1, max_len: 500}
+  ]; // 自然语言问题
+
+  int64 provider_id = 2 [
+    (gnostic.openapi.v3.property) = {description: "所选供应商ID；留空时使用首个可用模型"},
+    (buf.validate.field).int64 = {gte: 0}
+  ]; // 所选供应商ID；留空时使用首个可用模型
+
+  string model_name = 3 [
+    (gnostic.openapi.v3.property) = {description: "所选模型名称"}
+  ]; // 所选模型名称
+}
+
+// BI 自然语言问数响应。
+message AskBiQueryResponse {
+  BiQuerySpec query = 1 [
+    (gnostic.openapi.v3.property) = {description: "模型生成并校验后的查询计划"}
+  ]; // 模型生成并校验后的查询计划
+
+  BiQueryResult result = 2 [
+    (gnostic.openapi.v3.property) = {description: "查询结果"}
+  ]; // 查询结果
+
+  string chart_type = 3 [
+    json_name = "chartType",
+    (gnostic.openapi.v3.property) = {description: "建议图表类型"}
+  ]; // 建议图表类型
+
+  string title = 4 [
+    (gnostic.openapi.v3.property) = {description: "建议图表标题"}
+  ]; // 建议图表标题
+}

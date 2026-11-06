@@ -63,7 +63,7 @@ const count = computed(() => props.groups.reduce((total, group) => total + group
     max-height: min(320px, 35vh);
     overflow: auto;
     border: 1px solid var(--el-border-color-lighter);
-    border-radius: 8px;
+    border-radius: var(--admin-page-radius);
     scrollbar-gutter: stable;
   }
   details + details {
@@ -94,7 +94,7 @@ const count = computed(() => props.groups.reduce((total, group) => total + group
     line-height: 20px;
     color: var(--el-color-warning);
     background: var(--el-color-warning-light-9);
-    border-radius: 10px;
+    border-radius: var(--admin-page-radius);
   }
   ul {
     padding: 4px 16px;

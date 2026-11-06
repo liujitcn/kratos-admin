@@ -185,14 +185,14 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
-.yaml-editor { display: flex; flex-direction: column; width: 100%; overflow: hidden; background: var(--el-fill-color-blank); border: 1px solid var(--el-border-color); border-radius: 4px; }
+.yaml-editor { display: flex; flex-direction: column; width: 100%; overflow: hidden; background: var(--el-fill-color-blank); border: 1px solid var(--el-border-color); border-radius: var(--admin-page-radius); }
 .yaml-editor.is-bounded { max-height: v-bind(maxHeight); }
 .yaml-editor:focus-within { border-color: var(--el-color-primary); }
 .yaml-editor.is-invalid { border-color: var(--el-color-danger); }
 .yaml-editor__toolbar { display: flex; align-items: center; justify-content: space-between; min-height: 32px; padding: 2px 8px; background: var(--el-fill-color-light); border-bottom: 1px solid var(--el-border-color-lighter); }
 .yaml-editor__lang { display: inline-flex; gap: 5px; align-items: center; color: var(--el-text-color-secondary); font-size: 12px; font-weight: 600; letter-spacing: 0.5px; }
 .yaml-editor__actions { display: inline-flex; gap: 2px; }
-.yaml-editor__action { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; padding: 0; color: var(--el-text-color-secondary); cursor: pointer; background: transparent; border: none; border-radius: 4px; transition: color 0.15s ease, background-color 0.15s ease; }
+.yaml-editor__action { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; padding: 0; color: var(--el-text-color-secondary); cursor: pointer; background: transparent; border: none; border-radius: var(--admin-page-radius); transition: color 0.15s ease, background-color 0.15s ease; }
 .yaml-editor__action:hover, .yaml-editor__action:focus-visible { color: var(--el-color-primary); background: var(--el-fill-color); outline: none; }
 .yaml-editor__action.is-active { color: var(--el-color-primary); }
 .yaml-editor__host { flex: 1 1 auto; min-height: 0; }

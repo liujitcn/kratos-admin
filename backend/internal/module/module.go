@@ -20,6 +20,7 @@ import (
 	mqttdata "github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 	"github.com/liujitcn/kratos-admin/backend/internal/server/base/v1"
+	"github.com/liujitcn/kratos-admin/backend/internal/server/bi/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/server/middleware/conflictmessage"
 	logmiddleware "github.com/liujitcn/kratos-admin/backend/internal/server/middleware/log"
 	serverlogstream "github.com/liujitcn/kratos-admin/backend/internal/server/middleware/logstream"
@@ -31,6 +32,7 @@ import (
 	"github.com/liujitcn/kratos-admin/backend/internal/server/system/admin/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/server/system/app/v1"
 	"github.com/liujitcn/kratos-admin/backend/pkg/agent"
+	pkgbi "github.com/liujitcn/kratos-admin/backend/pkg/bi"
 	"github.com/liujitcn/kratos-core/module"
 	"github.com/liujitcn/kratos-core/queue"
 	"github.com/liujitcn/kratos-core/resource/i18n"
@@ -48,6 +50,8 @@ type Module struct {
 	adminServices *admin.Services
 	appServices   *app.Services
 	ragServices   *rag.Services
+	biServices    *bi.Services
+	biRegistry    *pkgbi.Registry
 	aiRuntime     *ai.Runtime
 	catalog       *i18n.I18n
 }
@@ -60,6 +64,8 @@ func NewModules(
 	adminServices *admin.Services,
 	appServices *app.Services,
 	ragServices *rag.Services,
+	biServices *bi.Services,
+	biRegistry *pkgbi.Registry,
 	aiRuntime *ai.Runtime,
 	catalog *i18n.I18n,
 	baseConfigCase *biz.BaseConfigCase,
@@ -120,10 +126,22 @@ func NewModules(
 			adminServices: adminServices,
 			appServices:   appServices,
 			ragServices:   ragServices,
+			biServices:    biServices,
+			biRegistry:    biRegistry,
 			aiRuntime:     aiRuntime,
 			catalog:       catalog,
 		},
 	}, nil
+}
+
+// RegisterBiSourceAdapters 注册宿主业务提供的 BI 数据源 Adapter。
+func (m *Module) RegisterBiSourceAdapters(adapters ...pkgbi.SourceAdapter) error {
+	for _, adapter := range adapters {
+		if err := m.biRegistry.Register(adapter); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 // RegisterAgentTools 将宿主业务工具注册到 Admin AI 运行时。
@@ -201,6 +219,7 @@ func (m *Module) RegisterGRPC(registrar grpc.ServiceRegistrar) {
 	m.adminServices.RegisterGRPC(registrar)
 	m.appServices.RegisterGRPC(registrar)
 	m.ragServices.RegisterGRPC(registrar)
+	m.biServices.RegisterGRPC(registrar)
 }
 
 // RegisterHTTP 注册 Admin 的全部 HTTP 服务，并把根路径重定向到管理端 SPA 入口。
@@ -211,6 +230,7 @@ func (m *Module) RegisterHTTP(server *http.Server) {
 	m.adminServices.RegisterHTTP(server)
 	m.appServices.RegisterHTTP(server)
 	m.ragServices.RegisterHTTP(server)
+	m.biServices.RegisterHTTP(server)
 	policyMiddleware := passwordpolicy.NewMiddleware(m.adminServices.BaseUserRepository, m.adminServices.BaseCase.Cache)
 	sessionMiddleware := sessionpolicy.NewMiddleware(m.adminServices.BaseCase, m.adminServices.UserToken)
 	// Kratos matcher 对同一 selector 是整体替换而非追加，全局链必须一次性注册完整，
@@ -265,4 +285,5 @@ func (m *Module) RegisterMCP(server *mcp.Server) {
 	m.adminServices.RegisterMCP(server)
 	m.appServices.RegisterMCP(server)
 	m.ragServices.RegisterMCP(server)
+	m.biServices.RegisterMCP(server)
 }

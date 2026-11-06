@@ -326,7 +326,7 @@ const mutedIconColor = computed(() => themeStore.colors.aiTextDim)
   min-width: 350rpx;
   height: 96rpx;
   padding: 0 34rpx 0 78rpx;
-  border-radius: 18rpx;
+  border-radius: var(--kratos-page-radius);
   font-size: 30rpx;
   line-height: 96rpx;
 }
@@ -337,7 +337,7 @@ const mutedIconColor = computed(() => themeStore.colors.aiTextDim)
   min-height: 96rpx;
   margin-top: 30rpx;
   padding: 24rpx 28rpx;
-  border-radius: 18rpx;
+  border-radius: var(--kratos-page-radius);
   font-size: 29rpx;
   line-height: 44rpx;
 }
@@ -346,7 +346,7 @@ const mutedIconColor = computed(() => themeStore.colors.aiTextDim)
   margin-top: 34rpx;
   padding: 30rpx 28rpx 24rpx;
   border: 1rpx solid var(--kratos-color-border-accent, rgba(120, 230, 215, 0.16));
-  border-radius: 16rpx;
+  border-radius: var(--kratos-page-radius);
   background: var(--kratos-color-surface, #fff);
   box-shadow: var(--kratos-glow-soft, none);
   box-sizing: border-box;
@@ -415,7 +415,7 @@ const mutedIconColor = computed(() => themeStore.colors.aiTextDim)
   height: 36rpx;
   margin-right: 24rpx;
   border: 1rpx solid var(--kratos-color-primary-edge, rgba(40, 240, 212, 0.3));
-  border-radius: 10rpx;
+  border-radius: var(--kratos-page-radius);
   color: var(--kratos-color-primary, #28f0d4);
   font-size: 24rpx;
   font-weight: 700;

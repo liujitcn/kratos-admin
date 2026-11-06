@@ -20,7 +20,7 @@ import (
 	"github.com/liujitcn/go-utils/mapper"
 	"github.com/liujitcn/gorm-kit/repository"
 	"github.com/liujitcn/kratos-kit/auth/authn/engine"
-	authData "github.com/liujitcn/kratos-kit/auth/data"
+	"github.com/liujitcn/kratos-kit/auth/data"
 	kitgorm "github.com/liujitcn/kratos-kit/database/gorm"
 	"github.com/liujitcn/kratos-kit/oauth"
 	"github.com/liujitcn/kratos-kit/oauth/provider"
@@ -225,7 +225,7 @@ func (c *AuthCase) BindUserPhone(ctx context.Context, req *appv1.BindUserPhoneRe
 
 // selfServiceContext 基于登录用户信息构建豁免角色数据范围的上下文。
 // 个人资料仅按令牌身份读写本人数据，"仅本人"范围会把这些查询错误过滤为资源不存在。
-func selfServiceContext(ctx context.Context, authInfo *authData.UserTokenPayload) context.Context {
+func selfServiceContext(ctx context.Context, authInfo *data.UserTokenPayload) context.Context {
 	selfAuthInfo := *authInfo
 	selfAuthInfo.DataScope = kitgorm.DataScopeAll
 	return engine.ContextWithAuthClaims(ctx, selfAuthInfo.MakeAuthClaims())

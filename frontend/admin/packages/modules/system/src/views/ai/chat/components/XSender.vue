@@ -53,79 +53,13 @@
 
       <template #action-list>
         <div class="agent-sender-actions">
-          <el-popover
-            ref="modelPopoverRef"
-            placement="top-start"
-            :width="324"
-            trigger="click"
-            :show-arrow="false"
-            :persistent="false"
-            popper-class="agent-model-popper"
-          >
-            <template #reference>
-              <button
-                class="agent-model-selector"
-                :class="{ 'is-disabled': sending || !modelOptions.length }"
-                type="button"
-                :disabled="sending || !modelOptions.length"
-                :aria-label="t('system.ai.model.title')"
-              >
-                <el-icon class="agent-model-selector__spark"><MagicStick /></el-icon>
-                <span class="agent-model-selector__label">{{
-                  selectedModelDisplayName || t("system.ai.model.model_placeholder")
-                }}</span>
-                <el-icon class="agent-model-selector__arrow"><ArrowDown /></el-icon>
-              </button>
-            </template>
-            <div v-if="modelOptions.length" class="agent-model-panel">
-              <div class="agent-model-panel__head">
-                <span class="agent-model-panel__title">{{ t("system.ai.model.title") }}</span>
-                <span class="agent-model-panel__meta">{{
-                  t("system.ai.model.provider_model_count", {
-                    providers: modelOptions.length,
-                    models: modelOptionCount
-                  })
-                }}</span>
-              </div>
-              <div class="agent-model-panel__list">
-                <template v-for="provider in modelOptions" :key="provider.providerId">
-                  <div class="agent-model-panel__group">{{ provider.label }}</div>
-                  <button
-                    v-for="model in provider.models"
-                    :key="model.name"
-                    class="agent-model-row"
-                    :class="{ 'is-selected': isModelSelected(provider.providerId, model.name) }"
-                    type="button"
-                    @click="handleModelSelect(provider.providerId, model.name)"
-                  >
-                    <span class="agent-model-row__name">{{ model.displayName }}</span>
-                    <span v-if="model.displayName !== model.name" class="agent-model-row__raw">{{
-                      model.name
-                    }}</span>
-                    <el-icon
-                      v-if="isModelSelected(provider.providerId, model.name)"
-                      class="agent-model-row__check"
-                    >
-                      <Check />
-                    </el-icon>
-                  </button>
-                </template>
-              </div>
-              <button
-                v-if="aiProviderRoute"
-                class="agent-model-panel__manage"
-                type="button"
-                @click="openModelManage"
-              >
-                <el-icon><Setting /></el-icon>
-                <span>{{ t("system.ai.model.manage") }}</span>
-                <el-icon class="agent-model-panel__manage-arrow"><ArrowRight /></el-icon>
-              </button>
-            </div>
-            <div v-else class="agent-model-panel agent-model-panel--empty">
-              {{ t("system.ai.model.empty") }}
-            </div>
-          </el-popover>
+          <AiModelSelector
+            :model-providers="modelProviders"
+            :provider-id="providerId"
+            :model-name="modelName"
+            :disabled="sending"
+            @change="(providerId, modelName) => emit('model-change', providerId, modelName)"
+          />
           <el-popover
             ref="knowledgePopoverRef"
             placement="top-start"
@@ -250,14 +184,14 @@ import {
   Check,
   Collection,
   Loading,
-  MagicStick,
   Microphone,
   Paperclip,
   Promotion,
   Setting
 } from "@element-plus/icons-vue";
 import { ElMessage, ElPopover } from "element-plus";
-import { t } from "@liujitcn/kratos-admin-core";
+import { t, useSpeechRecognition } from "@liujitcn/kratos-admin-core";
+import type { SpeechRecognitionError } from "@liujitcn/kratos-admin-core";
 import { navigateTo } from "@liujitcn/kratos-admin-core/navigation";
 import { useAuthStore } from "@liujitcn/kratos-admin-core/stores/runtime";
 import { defFileService } from "@liujitcn/kratos-admin-core/api/base/v1/file";
@@ -266,9 +200,7 @@ import type { AiProviderModelOption } from "@liujitcn/kratos-admin-system/rpc/ba
 import type { AiKnowledgeOption } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_knowledge";
 import type { SubmitPayload } from "../types";
 import { buildAIAttachmentFileCard } from "../attachment";
-import { fallbackModelDisplayName } from "../modelDisplay";
-import { useSpeechRecognition } from "./speech-recognition";
-import type { SpeechRecognitionError } from "./speech-recognition";
+import AiModelSelector from "@liujitcn/kratos-admin-system/components/AiModelSelector/index.vue";
 
 const props = defineProps<{
   /** 消息发送加载状态。 */
@@ -296,34 +228,10 @@ const emit = defineEmits<{
 
 const senderRef = ref<InstanceType<typeof BaseXSender>>();
 const fileInputRef = ref<HTMLInputElement>();
-const modelPopoverRef = ref<InstanceType<typeof ElPopover>>();
 const router = useRouter();
 const authStore = useAuthStore();
 const inputText = ref("");
 const selectedAttachments = ref<AiAttachment[]>([]);
-const modelOptions = computed(() =>
-  props.modelProviders.map(provider => ({
-    providerId: provider.provider_id,
-    label: provider.name,
-    models: provider.models.map(model => ({
-      name: model.model_name,
-      displayName: model.display_name || fallbackModelDisplayName(model.model_name)
-    }))
-  }))
-);
-const modelOptionCount = computed(() =>
-  modelOptions.value.reduce((total, provider) => total + provider.models.length, 0)
-);
-const selectedModelDisplayName = computed(() => {
-  const provider = modelOptions.value.find(item => item.providerId === props.providerId);
-  return (
-    provider?.models.find(model => model.name === props.modelName)?.displayName ??
-    fallbackModelDisplayName(props.modelName)
-  );
-});
-const aiProviderRoute = computed(() =>
-  authStore.flatMenuListGet.find(item => item.name === "AiProvider" && item.path)
-);
 const aiKnowledgeRoute = computed(() =>
   authStore.flatMenuListGet.find(item => item.name === "AiKnowledge" && item.path)
 );
@@ -356,7 +264,9 @@ const {
   onStart: () => {
     voiceBaseText.value = inputText.value.trim();
   },
-  onEnd: handleRecordEnd,
+  onEnd: () => {
+    voiceBaseText.value = "";
+  },
   onResult: setRecordText,
   onError: handleRecordError
 });
@@ -382,24 +292,6 @@ const attachmentItems = computed<FilesCardProps[]>(() =>
 const isSubmitDisabled = computed(() => {
   return uploading.value || (!inputText.value.trim() && selectedAttachments.value.length === 0);
 });
-
-/** 判断指定供应商与模型是否为当前选择。 */
-function isModelSelected(providerId: number, modelName: string) {
-  return props.providerId === providerId && props.modelName === modelName;
-}
-
-/** 选中模型并关闭选择面板。 */
-function handleModelSelect(providerId: number, modelName: string) {
-  emit("model-change", providerId, modelName);
-  modelPopoverRef.value?.hide();
-}
-
-/** 跳转到 AI 供应商配置页。 */
-async function openModelManage() {
-  if (!aiProviderRoute.value?.path) return;
-  modelPopoverRef.value?.hide();
-  await navigateTo(router, aiProviderRoute.value.path);
-}
 
 const knowledgePopoverRef = ref<InstanceType<typeof ElPopover>>();
 
@@ -454,24 +346,18 @@ function handleToggleRecord() {
   startRecord();
 }
 
-/** 语音识别结束后保留当前识别文本。 */
-function handleRecordEnd(result: string) {
-  setRecordText(result);
-  voiceBaseText.value = "";
-}
-
 /** 处理语音识别失败，提示浏览器不支持或麦克风授权异常。 */
 function handleRecordError(error: SpeechRecognitionError) {
   const message = resolveRecordErrorMessage(error);
   ElMessage.warning(message);
 }
 
-/** 将识别文本与识别前内容合并后写回输入器。 */
+/** 使用完整文本重置输入器，避免按光标追加造成语音结果重复。 */
 function setRecordText(recordText: string) {
   const normalizedRecordText = normalizeRecordText(recordText);
   if (!normalizedRecordText) return;
   const nextText = [voiceBaseText.value, normalizedRecordText].filter(Boolean).join(" ");
-  senderRef.value?.setText(nextText);
+  void senderRef.value?.getSender()?.reset({ chatNode: [[{ type: "Write", text: nextText }]] });
   inputText.value = nextText;
 }
 
@@ -610,7 +496,7 @@ function resetFileInput() {
   width: 100%;
 }
 .agent-sender {
-  :deep(.elx-x-sender) {
+  &.elx-x-sender {
     background: var(--admin-page-card-bg);
     border-radius: var(--admin-page-radius);
     box-shadow: none;
@@ -670,55 +556,6 @@ function resetFileInput() {
   align-items: center;
   width: 100%;
   min-height: 36px;
-}
-.agent-model-selector {
-  display: inline-flex;
-  flex: 0 1 auto;
-  align-items: center;
-  gap: 6px;
-  width: clamp(180px, 18vw, 220px);
-  min-width: 0;
-  height: 34px;
-  padding: 0 10px;
-  overflow: hidden;
-  box-sizing: border-box;
-  color: var(--admin-page-text-secondary);
-  cursor: pointer;
-  background: var(--admin-page-card-bg);
-  border: 1px solid var(--el-border-color);
-  border-radius: var(--admin-page-radius);
-  transition:
-    color 0.2s ease,
-    border-color 0.2s ease,
-    background-color 0.2s ease;
-  &:hover {
-    color: var(--el-color-primary);
-    background: var(--el-color-primary-light-9);
-    border-color: var(--el-color-primary-light-5);
-  }
-  &:disabled {
-    cursor: not-allowed;
-    opacity: 0.55;
-  }
-  &__spark {
-    flex-shrink: 0;
-    font-size: 15px;
-  }
-  &__label {
-    flex: 1;
-    min-width: 0;
-    overflow: hidden;
-    font-size: 14px;
-    font-weight: 500;
-    line-height: 20px;
-    text-align: left;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-  &__arrow {
-    flex-shrink: 0;
-    font-size: 14px;
-  }
 }
 .agent-sender-actions {
   display: inline-flex;
@@ -810,119 +647,10 @@ function resetFileInput() {
 :global(.agent-sender-popover.el-popover) {
   box-shadow: 0 14px 36px rgb(15 23 42 / 10%);
 }
-:global(.agent-model-popper.el-popover) {
-  padding: 0 !important;
-  border-radius: var(--admin-page-radius) !important;
-  box-shadow: 0 14px 36px rgb(15 23 42 / 16%) !important;
-}
-.agent-model-panel {
-  padding: 10px;
-  &__list {
-    max-height: min(52vh, 420px);
-    overflow-y: auto;
-    scrollbar-width: thin;
-    scrollbar-color: var(--el-border-color-darker) transparent;
-  }
-  &__head {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    padding: 4px 6px 10px;
-  }
-  &__title {
-    font-size: 14px;
-    font-weight: 700;
-    color: var(--admin-page-text-primary);
-  }
-  &__meta {
-    font-size: 11px;
-    color: var(--el-text-color-placeholder);
-  }
-  &__group {
-    padding: 8px 6px 6px;
-    font-size: 12px;
-    color: var(--admin-page-text-secondary);
-  }
-  &__manage {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    width: 100%;
-    height: 36px;
-    margin-top: 6px;
-    padding: 0 6px;
-    font-size: 12.5px;
-    font-weight: 600;
-    color: var(--el-color-primary);
-    cursor: pointer;
-    background: transparent;
-    border: 0;
-    border-top: 1px solid var(--el-border-color-lighter);
-    border-radius: 0;
-    &:hover {
-      color: var(--el-color-primary-light-3);
-    }
-  }
-  &__manage-arrow {
-    margin-left: auto;
-  }
-  &--empty {
-    padding: 20px 10px;
-    font-size: 13px;
-    color: var(--admin-page-text-secondary);
-    text-align: center;
-  }
-}
-.agent-model-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  width: 100%;
-  height: 42px;
-  margin-bottom: 2px;
-  padding: 0 10px;
-  font-size: 13.5px;
-  color: var(--admin-page-text-primary);
-  text-align: left;
-  cursor: pointer;
-  background: transparent;
-  border: 0;
-  border-radius: var(--admin-page-radius);
-  &:hover {
-    background: var(--el-fill-color-light);
-  }
-  &.is-selected {
-    font-weight: 600;
-    color: var(--el-color-primary);
-    background: var(--el-color-primary-light-9);
-  }
-  &__name {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-  &__raw {
-    flex: 1;
-    min-width: 0;
-    overflow: hidden;
-    font-size: 12px;
-    font-weight: 400;
-    color: var(--el-text-color-placeholder);
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-  &__check {
-    flex-shrink: 0;
-    font-size: 15px;
-  }
-}
 
 @media screen and (width <= 768px) {
   .agent-prefix-actions {
     gap: 8px;
-  }
-  .agent-model-selector {
-    width: clamp(128px, calc(100vw - 220px), 180px);
   }
   .agent-action-text {
     display: none;

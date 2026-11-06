@@ -1,0 +1,352 @@
+syntax = "proto3";
+
+package bi.admin.v1;
+
+import "buf/validate/validate.proto";
+import "common/v1/types.proto";
+import "gnostic/openapi/v3/annotations.proto";
+import "google/api/annotations.proto";
+
+// BI 数据源配置管理服务。
+service BiSourceService {
+  // 分页查询当前租户的数据源配置。
+  rpc PageBiSource(PageBiSourceRequest) returns (PageBiSourceResponse) {
+    option (google.api.http) = {get: "/api/v1/admin/bi/source"};
+  }
+
+  // 查询数据源配置详情。
+  rpc GetBiSource(GetBiSourceRequest) returns (BiSource) {
+    option (google.api.http) = {get: "/api/v1/admin/bi/source/{id}"};
+  }
+
+  // 创建数据源配置。
+  rpc CreateBiSource(CreateBiSourceRequest) returns (BiSource) {
+    option (google.api.http) = {
+      post: "/api/v1/admin/bi/source"
+      body: "source"
+    };
+  }
+
+  // 更新数据源配置。
+  rpc UpdateBiSource(UpdateBiSourceRequest) returns (BiSource) {
+    option (google.api.http) = {
+      put: "/api/v1/admin/bi/source/{source.id}"
+      body: "source"
+    };
+  }
+
+  // 删除数据源配置。
+  rpc DeleteBiSource(DeleteBiSourceRequest) returns (DeleteBiSourceResponse) {
+    option (google.api.http) = {delete: "/api/v1/admin/bi/source/{id}"};
+  }
+
+  // 修改数据源启用状态。
+  rpc SetBiSourceStatus(SetBiSourceStatusRequest) returns (BiSource) {
+    option (google.api.http) = {
+      put: "/api/v1/admin/bi/source/{id}/status"
+      body: "*"
+    };
+  }
+
+  // 查询服务端已配置的数据库客户端选项。
+  rpc OptionBiSourceDatabase(OptionBiSourceDatabaseRequest) returns (OptionBiSourceDatabaseResponse) {
+    option (google.api.http) = {get: "/api/v1/admin/bi/source/options/databases"};
+  }
+
+  // 测试数据源连接是否可访问。
+  rpc TestBiSource(TestBiSourceRequest) returns (TestBiSourceResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/admin/bi/source/test"
+      body: "source"
+    };
+  }
+
+  // 发现已保存数据源中的表、字段和唯一键。
+  rpc ListBiSourceTables(ListBiSourceTablesRequest) returns (ListBiSourceTablesResponse) {
+    option (google.api.http) = {get: "/api/v1/admin/bi/source/{id}/tables"};
+  }
+
+  // 保存经过校验的多表语义模型。
+  rpc SaveBiSourceModel(SaveBiSourceModelRequest) returns (BiSource) {
+    option (google.api.http) = {
+      put: "/api/v1/admin/bi/source/{id}/model"
+      body: "model"
+    };
+  }
+}
+
+// BI 数据源分页查询条件。
+message PageBiSourceRequest {
+  string code = 1 [(gnostic.openapi.v3.property) = {description: "数据源编码"}]; // 数据源编码
+  string name = 2 [(gnostic.openapi.v3.property) = {description: "数据源名称"}]; // 数据源名称
+  string source_name = 3 [
+    json_name = "sourceName",
+    (gnostic.openapi.v3.property) = {description: "服务端数据库客户端名称"}
+  ]; // 服务端数据库客户端名称
+  optional int32 status = 4 [(gnostic.openapi.v3.property) = {description: "状态：1启用，2禁用"}]; // 状态：1启用，2禁用
+  int64 page_num = 101 [
+    (gnostic.openapi.v3.property) = {description: "页码", default: {number: 1}},
+    (buf.validate.field).int64 = {gte: 1, lte: 1000000}
+  ]; // 页码
+  int64 page_size = 102 [
+    (gnostic.openapi.v3.property) = {description: "每页数量", default: {number: 10}},
+    (buf.validate.field).int64 = {gte: 1, lte: 100}
+  ]; // 每页数量
+}
+
+// BI 数据源分页响应。
+message PageBiSourceResponse {
+  repeated BiSource sources = 1 [(gnostic.openapi.v3.property) = {description: "数据源配置列表"}]; // 数据源配置列表
+  int32 total = 2 [(gnostic.openapi.v3.property) = {description: "总数"}]; // 总数
+}
+
+// 查询 BI 数据源请求。
+message GetBiSourceRequest {
+  int64 id = 1 [
+    (gnostic.openapi.v3.property) = {description: "数据源ID"},
+    (buf.validate.field).int64 = {gt: 0}
+  ]; // 数据源ID
+}
+
+// 创建 BI 数据源请求。
+message CreateBiSourceRequest {
+  BiSourceForm source = 1 [
+    (gnostic.openapi.v3.property) = {description: "数据源配置"},
+    (buf.validate.field).required = true
+  ]; // 数据源配置
+}
+
+// 更新 BI 数据源请求。
+message UpdateBiSourceRequest {
+  BiSourceForm source = 1 [
+    (gnostic.openapi.v3.property) = {description: "数据源配置"},
+    (buf.validate.field).required = true
+  ]; // 数据源配置
+}
+
+// 删除 BI 数据源请求。
+message DeleteBiSourceRequest {
+  int64 id = 1 [
+    (gnostic.openapi.v3.property) = {description: "数据源ID"},
+    (buf.validate.field).int64 = {gt: 0}
+  ]; // 数据源ID
+}
+
+// 删除 BI 数据源响应。
+message DeleteBiSourceResponse {}
+
+// 修改 BI 数据源状态请求。
+message SetBiSourceStatusRequest {
+  int64 id = 1 [
+    (gnostic.openapi.v3.property) = {description: "数据源ID"},
+    (buf.validate.field).int64 = {gt: 0}
+  ]; // 数据源ID
+  int32 status = 2 [
+    (gnostic.openapi.v3.property) = {description: "状态：1启用，2禁用"},
+    (buf.validate.field).int32 = {in: [1, 2]}
+  ]; // 状态：1启用，2禁用
+}
+
+// 查询服务端数据库客户端请求。
+message OptionBiSourceDatabaseRequest {}
+
+// 查询服务端数据库客户端响应。
+message OptionBiSourceDatabaseResponse {
+  repeated BiSourceDatabase databases = 1 [
+    (gnostic.openapi.v3.property) = {description: "服务端数据库客户端列表"}
+  ]; // 服务端数据库客户端列表
+}
+
+// 服务端数据库客户端选项。
+message BiSourceDatabase {
+  string name = 1 [(gnostic.openapi.v3.property) = {description: "客户端名称"}]; // 客户端名称
+  string driver = 2 [(gnostic.openapi.v3.property) = {description: "数据库驱动"}]; // 数据库驱动
+}
+
+// 测试 BI 数据源请求。
+message TestBiSourceRequest {
+  BiSourceForm source = 1 [
+    (gnostic.openapi.v3.property) = {description: "待测试数据源"},
+    (buf.validate.field).required = true
+  ]; // 待测试数据源
+}
+
+// 测试 BI 数据源响应。
+message TestBiSourceResponse {
+  bool success = 1 [(gnostic.openapi.v3.property) = {description: "是否可访问"}]; // 是否可访问
+  string message = 2 [(gnostic.openapi.v3.property) = {description: "测试结果说明"}]; // 测试结果说明
+}
+
+// 查询数据源数据库表结构的请求。
+message ListBiSourceTablesRequest {
+  int64 id = 1 [
+    (gnostic.openapi.v3.property) = {description: "数据源ID"},
+    (buf.validate.field).int64 = {gt: 0}
+  ]; // 数据源ID
+}
+
+// 数据库表字段的结构信息。
+message BiSourceSchemaColumn {
+  string name = 1 [(gnostic.openapi.v3.property) = {description: "字段名称"}]; // 字段名称
+  string data_type = 2 [(gnostic.openapi.v3.property) = {description: "数据库字段类型"}]; // 数据库字段类型
+  bool nullable = 3 [(gnostic.openapi.v3.property) = {description: "是否允许为空"}]; // 是否允许为空
+  bool primary_key = 4 [(gnostic.openapi.v3.property) = {description: "是否为主键"}]; // 是否为主键
+  bool unique = 5 [(gnostic.openapi.v3.property) = {description: "是否有单列唯一约束"}]; // 是否有单列唯一约束
+  string comment = 6 [(gnostic.openapi.v3.property) = {description: "字段注释"}]; // 字段注释
+}
+
+// 数据库中的表或视图结构。
+message BiSourceSchemaTable {
+  string key = 1 [(gnostic.openapi.v3.property) = {description: "表结构标识"}]; // 表结构标识
+  string schema_name = 2 [json_name = "schemaName", (gnostic.openapi.v3.property) = {description: "数据库Schema"}]; // 数据库Schema
+  string name = 3 [(gnostic.openapi.v3.property) = {description: "表或视图名称"}]; // 表或视图名称
+  string table_type = 4 [json_name = "tableType", (gnostic.openapi.v3.property) = {description: "表类型"}]; // 表类型
+  repeated BiSourceSchemaColumn columns = 5 [(gnostic.openapi.v3.property) = {description: "字段列表"}]; // 字段列表
+  string comment = 6 [(gnostic.openapi.v3.property) = {description: "表或视图注释"}]; // 表或视图注释
+}
+
+// 查询数据源表结构的响应。
+message ListBiSourceTablesResponse {
+  repeated BiSourceSchemaTable tables = 1 [(gnostic.openapi.v3.property) = {description: "数据库表结构"}]; // 数据库表结构
+}
+
+// 保存数据源语义模型的请求。
+message SaveBiSourceModelRequest {
+  int64 id = 1 [
+    (gnostic.openapi.v3.property) = {description: "数据源ID"},
+    (buf.validate.field).int64 = {gt: 0}
+  ]; // 数据源ID
+  BiSourceModel model = 2 [
+    (gnostic.openapi.v3.property) = {description: "数据源语义模型"},
+    (buf.validate.field).required = true
+  ]; // 数据源语义模型
+}
+
+// 数据源可用的表、关联关系和业务语义。
+message BiSourceModel {
+  string base_table = 1 [
+    json_name = "baseTable",
+    (gnostic.openapi.v3.property) = {description: "事实表标识"},
+    (buf.validate.field).string = {min_len: 1, max_len: 512}
+  ]; // 事实表标识
+  repeated BiSourceModelTable tables = 2 [(gnostic.openapi.v3.property) = {description: "选中的表结构"}]; // 选中的表结构
+  repeated BiSourceRelation relations = 3 [(gnostic.openapi.v3.property) = {description: "表关联关系"}]; // 表关联关系
+  repeated BiSourceDimension dimensions = 4 [(gnostic.openapi.v3.property) = {description: "语义维度"}]; // 语义维度
+  repeated BiSourceMeasure measures = 5 [(gnostic.openapi.v3.property) = {description: "语义指标"}]; // 语义指标
+}
+
+// 语义模型中的表节点。
+message BiSourceModelTable {
+  string key = 1 [(gnostic.openapi.v3.property) = {description: "表结构标识"}]; // 表结构标识
+  string tenant_column = 2 [
+    json_name = "tenantColumn",
+    (gnostic.openapi.v3.property) = {description: "租户隔离字段，为空表示连接级隔离或共享表"}
+  ]; // 租户隔离字段，为空表示连接级隔离或共享表
+  int32 x = 3 [(gnostic.openapi.v3.property) = {description: "画布横坐标"}]; // 画布横坐标
+  int32 y = 4 [(gnostic.openapi.v3.property) = {description: "画布纵坐标"}]; // 画布纵坐标
+}
+
+// 两张表之间经过确认的多对一关系。
+message BiSourceRelation {
+  string left_table = 1 [json_name = "leftTable", (gnostic.openapi.v3.property) = {description: "已连接表标识"}]; // 已连接表标识
+  string left_column = 2 [json_name = "leftColumn", (gnostic.openapi.v3.property) = {description: "已连接表字段"}]; // 已连接表字段
+  string right_table = 3 [json_name = "rightTable", (gnostic.openapi.v3.property) = {description: "维度表标识"}]; // 维度表标识
+  string right_column = 4 [json_name = "rightColumn", (gnostic.openapi.v3.property) = {description: "维度表唯一字段"}]; // 维度表唯一字段
+  string join_type = 5 [
+    json_name = "joinType",
+    (gnostic.openapi.v3.property) = {description: "连接类型：inner或left"},
+    (buf.validate.field).string = {in: ["inner", "left"]}
+  ]; // 连接类型
+}
+
+// 数据源语义维度。
+message BiSourceDimension {
+  string code = 1 [(gnostic.openapi.v3.property) = {description: "语义编码"}]; // 语义编码
+  string name = 2 [(gnostic.openapi.v3.property) = {description: "展示名称"}]; // 展示名称
+  string type = 3 [(gnostic.openapi.v3.property) = {description: "BI字段类型"}]; // BI字段类型
+  string table = 4 [(gnostic.openapi.v3.property) = {description: "所属表标识"}]; // 所属表标识
+  string column = 5 [(gnostic.openapi.v3.property) = {description: "数据库字段"}]; // 数据库字段
+  bool filterable = 6 [(gnostic.openapi.v3.property) = {description: "是否允许过滤"}]; // 是否允许过滤
+}
+
+// 数据源语义指标。
+message BiSourceMeasure {
+  string code = 1 [(gnostic.openapi.v3.property) = {description: "语义编码"}]; // 语义编码
+  string name = 2 [(gnostic.openapi.v3.property) = {description: "展示名称"}]; // 展示名称
+  string type = 3 [(gnostic.openapi.v3.property) = {description: "BI字段类型"}]; // BI字段类型
+  string table = 4 [(gnostic.openapi.v3.property) = {description: "所属表标识"}]; // 所属表标识
+  string column = 5 [(gnostic.openapi.v3.property) = {description: "数据库字段"}]; // 数据库字段
+  repeated string aggregations = 6 [(gnostic.openapi.v3.property) = {description: "允许的聚合函数"}]; // 允许的聚合函数
+}
+
+// BI 数据源配置表单。
+message BiSourceForm {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "数据源ID"}]; // 数据源ID
+  string code = 2 [
+    (gnostic.openapi.v3.property) = {description: "数据源编码"},
+    (buf.validate.field).cel = {id: "bi.admin.source.code.required" message: "数据源编码不能为空" expression: "this.size() > 0 && this.size() <= 128"},
+    (buf.validate.field).string.pattern = "^[a-z][a-z0-9_.-]*$"
+  ]; // 数据源编码
+  string name = 3 [
+    (gnostic.openapi.v3.property) = {description: "数据源名称"},
+    (buf.validate.field).cel = {id: "bi.admin.source.name.required" message: "数据源名称不能为空" expression: "this.size() > 0 && this.size() <= 128"}
+  ]; // 数据源名称
+  string description = 4 [
+    (gnostic.openapi.v3.property) = {description: "数据源说明"},
+    (buf.validate.field).string.max_len = 500
+  ]; // 数据源说明
+  string source_name = 5 [
+    json_name = "sourceName",
+    (gnostic.openapi.v3.property) = {description: "服务端数据库客户端名称"},
+    (buf.validate.field).string.max_len = 64
+  ]; // 服务端数据库客户端名称
+  string driver = 6 [(gnostic.openapi.v3.property) = {description: "数据库驱动：mysql、postgres、doris、tidb"}]; // 数据库驱动
+  string host = 7 [(gnostic.openapi.v3.property) = {description: "数据库主机"}]; // 数据库主机
+  int32 port = 8 [(gnostic.openapi.v3.property) = {description: "数据库端口"}]; // 数据库端口
+  string database_name = 9 [json_name = "databaseName", (gnostic.openapi.v3.property) = {description: "数据库名称"}]; // 数据库名称
+  string username = 10 [(gnostic.openapi.v3.property) = {description: "数据库用户名"}]; // 数据库用户名
+  .common.v1.SecretCrypto password = 11 [(gnostic.openapi.v3.property) = {description: "数据库密码密文，更新时不传表示保留现有密码"}]; // 数据库密码密文
+  string ssl_mode = 12 [json_name = "sslMode", (gnostic.openapi.v3.property) = {description: "PostgreSQL SSL模式"}]; // PostgreSQL SSL模式
+  string schema_name = 13 [
+    json_name = "schemaName",
+    (gnostic.openapi.v3.property) = {description: "数据库 Schema，可为空"},
+    (buf.validate.field).string.max_len = 128
+  ]; // 数据库 Schema
+  int32 max_rows = 14 [
+    json_name = "maxRows",
+    (gnostic.openapi.v3.property) = {description: "最大结果行数"},
+    (buf.validate.field).int32 = {gte: 1, lte: 1000}
+  ]; // 最大结果行数
+  int32 status = 15 [
+    (gnostic.openapi.v3.property) = {description: "状态：1启用，2禁用"},
+    (buf.validate.field).int32 = {in: [1, 2]}
+  ]; // 状态：1启用，2禁用
+}
+
+// BI 数据源配置。
+message BiSource {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "数据源ID"}]; // 数据源ID
+  int64 tenant_id = 2 [(gnostic.openapi.v3.property) = {description: "租户ID"}]; // 租户ID
+  string code = 3 [(gnostic.openapi.v3.property) = {description: "数据源编码"}]; // 数据源编码
+  string name = 4 [(gnostic.openapi.v3.property) = {description: "数据源名称"}]; // 数据源名称
+  string description = 5 [(gnostic.openapi.v3.property) = {description: "数据源说明"}]; // 数据源说明
+  string source_name = 6 [json_name = "sourceName", (gnostic.openapi.v3.property) = {description: "服务端数据库客户端名称"}]; // 服务端数据库客户端名称
+  string driver = 7 [(gnostic.openapi.v3.property) = {description: "数据库驱动"}]; // 数据库驱动
+  string host = 8 [(gnostic.openapi.v3.property) = {description: "数据库主机"}]; // 数据库主机
+  int32 port = 9 [(gnostic.openapi.v3.property) = {description: "数据库端口"}]; // 数据库端口
+  string database_name = 10 [json_name = "databaseName", (gnostic.openapi.v3.property) = {description: "数据库名称"}]; // 数据库名称
+  string username = 11 [(gnostic.openapi.v3.property) = {description: "数据库用户名"}]; // 数据库用户名
+  bool password_configured = 12 [json_name = "passwordConfigured", (gnostic.openapi.v3.property) = {description: "是否已保存数据库密码"}]; // 是否已保存数据库密码
+  string ssl_mode = 13 [json_name = "sslMode", (gnostic.openapi.v3.property) = {description: "PostgreSQL SSL模式"}]; // PostgreSQL SSL模式
+  string schema_name = 14 [json_name = "schemaName", (gnostic.openapi.v3.property) = {description: "数据库 Schema"}]; // 数据库 Schema
+  string table_name = 15 [json_name = "tableName", (gnostic.openapi.v3.property) = {description: "数据库表或视图名称"}]; // 数据库表或视图名称
+  string tenant_column = 16 [json_name = "tenantColumn", (gnostic.openapi.v3.property) = {description: "租户列"}]; // 租户列
+  string schema_json = 17 [json_name = "schemaJson", (gnostic.openapi.v3.property) = {description: "维度和指标语义配置 JSON"}]; // 维度和指标语义配置 JSON
+  int32 status = 18 [(gnostic.openapi.v3.property) = {description: "状态：1启用，2禁用"}]; // 状态：1启用，2禁用
+  int32 version = 19 [(gnostic.openapi.v3.property) = {description: "语义版本"}]; // 语义版本
+  int32 max_rows = 20 [json_name = "maxRows", (gnostic.openapi.v3.property) = {description: "最大结果行数"}]; // 最大结果行数
+  string created_at = 21 [json_name = "createdAt", (gnostic.openapi.v3.property) = {description: "创建时间"}]; // 创建时间
+  string updated_at = 22 [json_name = "updatedAt", (gnostic.openapi.v3.property) = {description: "更新时间"}]; // 更新时间
+  bool model_configured = 23 [json_name = "modelConfigured", (gnostic.openapi.v3.property) = {description: "是否已配置语义模型"}]; // 是否已配置语义模型
+  int32 table_count = 24 [json_name = "tableCount", (gnostic.openapi.v3.property) = {description: "模型选中的表数量"}]; // 模型选中的表数量
+}

@@ -1433,7 +1433,7 @@ function showError(error: unknown, fallback: string) {
 .bubble {
   max-width: 86%;
   padding: 20rpx 24rpx;
-  border-radius: 18rpx;
+  border-radius: var(--kratos-page-radius);
   box-sizing: border-box;
   word-break: break-word;
 }
@@ -1445,7 +1445,6 @@ function showError(error: unknown, fallback: string) {
     var(--kratos-color-primary-deep) 0%,
     var(--kratos-color-primary) 100%
   );
-  border-bottom-right-radius: 6rpx;
   box-shadow: var(--kratos-glow);
 }
 
@@ -1453,7 +1452,6 @@ function showError(error: unknown, fallback: string) {
   color: var(--kratos-color-text);
   background: var(--kratos-color-surface);
   border: 1rpx solid var(--kratos-color-border);
-  border-bottom-left-radius: 6rpx;
 }
 
 .bubble.is-streaming {
@@ -1492,7 +1490,7 @@ function showError(error: unknown, fallback: string) {
   padding: 12rpx;
   margin-top: 8rpx;
   border: 1rpx solid var(--kratos-color-border);
-  border-radius: 12rpx;
+  border-radius: var(--kratos-page-radius);
   background: var(--kratos-color-surface-2);
   box-sizing: border-box;
 }
@@ -1501,7 +1499,7 @@ function showError(error: unknown, fallback: string) {
   flex-shrink: 0;
   width: 48rpx;
   height: 48rpx;
-  border-radius: 10rpx;
+  border-radius: var(--kratos-page-radius);
   color: var(--kratos-color-primary);
   font-size: 20rpx;
   line-height: 46rpx;

@@ -4,6 +4,14 @@
  * 页面根节点绑定 .theme-light 或 .theme-dark 后变量随主题生效。
  * ============================================================ */
 
+/* 普通矩形控件共用圆角，375 逻辑宽度下约为 6px。 */
+:root,
+page,
+.theme-light,
+.theme-dark {
+  --kratos-page-radius: 12px;
+}
+
 :root,
 page,
 .theme-light {
@@ -53,7 +61,7 @@ page,
   --nutui-color-background: #eef3f8;
   --nutui-color-title: #102232;
   --nutui-color-text-help: #5a7083;
-  --nutui-button-border-radius: 6px;
+  --nutui-button-border-radius: var(--kratos-page-radius);
 }
 
 /* 暗黑主题：深色数据驾驶舱 */

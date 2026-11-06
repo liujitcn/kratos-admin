@@ -637,7 +637,7 @@ onMounted(() => {
   white-space: nowrap;
   background: var(--admin-page-card-bg-soft);
   border: 1px solid var(--admin-page-card-border-soft);
-  border-radius: 999px;
+  border-radius: var(--admin-page-radius);
 }
 .code-gen-proto-toolbar__table-name {
   max-width: 220px;

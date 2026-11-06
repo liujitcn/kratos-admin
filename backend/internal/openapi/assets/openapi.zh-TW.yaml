@@ -320,60 +320,6 @@ paths:
                 "200":
                     description: OK
                     content: {}
-    /api/v1/admin/base/ai-query:
-        get:
-            tags:
-                - AiQueryService
-            description: 分頁查詢智慧問數記錄。
-            operationId: AiQueryService_PageAiQuery
-            parameters:
-                - name: question
-                  in: query
-                  schema:
-                    type: string
-                - name: status
-                  in: query
-                  schema:
-                    enum:
-                        - AI_QUERY_STATUS_UNSPECIFIED
-                        - AI_QUERY_STATUS_SUCCESS
-                        - AI_QUERY_STATUS_FAILED
-                    type: string
-                    format: enum
-                - name: page_num
-                  in: query
-                  schema:
-                    type: string
-                - name: page_size
-                  in: query
-                  schema:
-                    type: string
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/system.admin.v1.PageAiQueryResponse'
-    /api/v1/admin/base/ai-query/{id}:
-        get:
-            tags:
-                - AiQueryService
-            description: 查詢智慧問數記錄詳情。
-            operationId: AiQueryService_GetAiQuery
-            parameters:
-                - name: id
-                  in: path
-                  required: true
-                  schema:
-                    type: string
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/system.admin.v1.AiQueryRecord'
     /api/v1/admin/base/ai-session:
         get:
             tags:
@@ -6611,6 +6557,596 @@ paths:
                 "200":
                     description: OK
                     content: {}
+    /api/v1/admin/bi/card:
+        get:
+            tags:
+                - BiCardService
+            description: 分頁查詢當前使用者可見的資料卡片。
+            operationId: BiCardService_PageBiCard
+            parameters:
+                - name: name
+                  in: query
+                  schema:
+                    type: string
+                - name: source_code
+                  in: query
+                  schema:
+                    type: string
+                - name: category
+                  in: query
+                  schema:
+                    type: string
+                - name: search_source_codes
+                  in: query
+                  schema:
+                    type: array
+                    items:
+                        type: string
+                - name: page_num
+                  in: query
+                  schema:
+                    type: string
+                - name: page_size
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/bi.admin.v1.PageBiCardResponse'
+        post:
+            tags:
+                - BiCardService
+            description: 建立或修改自己的資料卡片。
+            operationId: BiCardService_SaveBiCard
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/bi.admin.v1.SaveBiCardRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/bi.admin.v1.BiCard'
+    /api/v1/admin/bi/card/{id}:
+        delete:
+            tags:
+                - BiCardService
+            description: 刪除自己的資料卡片。
+            operationId: BiCardService_DeleteBiCard
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/bi.admin.v1.DeleteBiCardResponse'
+    /api/v1/admin/bi/card/{id}/data:
+        get:
+            tags:
+                - BiCardService
+            description: 在當前使用者許可權範圍內執行卡片查詢。
+            operationId: BiCardService_GetBiCardData
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: range_days
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/bi.admin.v1.BiQueryResult'
+    /api/v1/admin/bi/dashboard:
+        get:
+            tags:
+                - BiDashboardService
+            description: 分頁查詢當前用戶可見的儀表板。
+            operationId: BiDashboardService_PageBiDashboard
+            parameters:
+                - name: name
+                  in: query
+                  schema:
+                    type: string
+                - name: page_num
+                  in: query
+                  schema:
+                    type: string
+                - name: page_size
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/bi.admin.v1.PageBiDashboardResponse'
+        post:
+            tags:
+                - BiDashboardService
+            description: 創建或保存儀表板草稿。
+            operationId: BiDashboardService_SaveBiDashboard
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/bi.admin.v1.SaveBiDashboardRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/bi.admin.v1.BiDashboard'
+    /api/v1/admin/bi/dashboard/{id}:
+        get:
+            tags:
+                - BiDashboardService
+            description: 查詢儀表板及當前草稿內容。
+            operationId: BiDashboardService_GetBiDashboard
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/bi.admin.v1.BiDashboard'
+        delete:
+            tags:
+                - BiDashboardService
+            description: 刪除儀表板。
+            operationId: BiDashboardService_DeleteBiDashboard
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/bi.admin.v1.DeleteBiDashboardResponse'
+    /api/v1/admin/bi/dashboard/{id}/data:
+        get:
+            tags:
+                - BiDashboardService
+            description: 執行已發佈儀表板中的全部圖表查詢。
+            operationId: BiDashboardService_GetBiDashboardData
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: version
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/bi.admin.v1.BiDashboardDataResponse'
+    /api/v1/admin/bi/dashboard/{id}/publish:
+        post:
+            tags:
+                - BiDashboardService
+            description: 發佈儀表板草稿。
+            operationId: BiDashboardService_PublishBiDashboard
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/bi.admin.v1.PublishBiDashboardRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/bi.admin.v1.BiDashboard'
+    /api/v1/admin/bi/query-record:
+        get:
+            tags:
+                - BiQueryRecordService
+            description: 分頁查詢當前用戶的自然語言問數歷史。
+            operationId: BiQueryRecordService_PageBiQuery
+            parameters:
+                - name: question
+                  in: query
+                  schema:
+                    type: string
+                - name: status
+                  in: query
+                  schema:
+                    enum:
+                        - BI_QUERY_STATUS_UNSPECIFIED
+                        - BI_QUERY_STATUS_SUCCESS
+                        - BI_QUERY_STATUS_FAILED
+                    type: string
+                    format: enum
+                - name: source_code
+                  in: query
+                  schema:
+                    type: string
+                - name: page_num
+                  in: query
+                  schema:
+                    type: string
+                - name: page_size
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/bi.admin.v1.PageBiQueryResponse'
+    /api/v1/admin/bi/query-record/{id}:
+        get:
+            tags:
+                - BiQueryRecordService
+            description: 查詢智慧問數記錄詳情。
+            operationId: BiQueryRecordService_GetBiQuery
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/bi.admin.v1.BiQueryRecord'
+    /api/v1/admin/bi/query/ask:
+        post:
+            tags:
+                - BiQueryService
+            description: 自然語言生成語義查詢並返回預覽結果。
+            operationId: BiQueryService_AskBiQuery
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/bi.admin.v1.AskBiQueryRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/bi.admin.v1.AskBiQueryResponse'
+    /api/v1/admin/bi/query/preview:
+        post:
+            tags:
+                - BiQueryService
+            description: 預覽一個已經由前端配置的語義查詢。
+            operationId: BiQueryService_PreviewBiQuery
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/bi.admin.v1.PreviewBiQueryRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/bi.admin.v1.BiQueryResult'
+    /api/v1/admin/bi/source:
+        get:
+            tags:
+                - BiSourceService
+            description: 分頁查詢當前租戶的數據源配置。
+            operationId: BiSourceService_PageBiSource
+            parameters:
+                - name: code
+                  in: query
+                  schema:
+                    type: string
+                - name: name
+                  in: query
+                  schema:
+                    type: string
+                - name: source_name
+                  in: query
+                  schema:
+                    type: string
+                - name: status
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+                - name: page_num
+                  in: query
+                  schema:
+                    type: string
+                - name: page_size
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/bi.admin.v1.PageBiSourceResponse'
+        post:
+            tags:
+                - BiSourceService
+            description: 建立資料來源配置。
+            operationId: BiSourceService_CreateBiSource
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/bi.admin.v1.BiSourceForm'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/bi.admin.v1.BiSource'
+    /api/v1/admin/bi/source/options/databases:
+        get:
+            tags:
+                - BiSourceService
+            description: 查詢服務端已配置的數據庫客戶端選項。
+            operationId: BiSourceService_OptionBiSourceDatabase
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/bi.admin.v1.OptionBiSourceDatabaseResponse'
+    /api/v1/admin/bi/source/test:
+        post:
+            tags:
+                - BiSourceService
+            description: 測試數據源連接是否可訪問。
+            operationId: BiSourceService_TestBiSource
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/bi.admin.v1.BiSourceForm'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/bi.admin.v1.TestBiSourceResponse'
+    /api/v1/admin/bi/source/{id}:
+        get:
+            tags:
+                - BiSourceService
+            description: 查詢資料來源配置詳情。
+            operationId: BiSourceService_GetBiSource
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/bi.admin.v1.BiSource'
+        delete:
+            tags:
+                - BiSourceService
+            description: 刪除資料來源配置。
+            operationId: BiSourceService_DeleteBiSource
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/bi.admin.v1.DeleteBiSourceResponse'
+    /api/v1/admin/bi/source/{id}/model:
+        put:
+            tags:
+                - BiSourceService
+            description: 保存經過校驗的多表語義模型。
+            operationId: BiSourceService_SaveBiSourceModel
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/bi.admin.v1.BiSourceModel'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/bi.admin.v1.BiSource'
+    /api/v1/admin/bi/source/{id}/status:
+        put:
+            tags:
+                - BiSourceService
+            description: 修改資料來源啟用狀態。
+            operationId: BiSourceService_SetBiSourceStatus
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/bi.admin.v1.SetBiSourceStatusRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/bi.admin.v1.BiSource'
+    /api/v1/admin/bi/source/{id}/tables:
+        get:
+            tags:
+                - BiSourceService
+            description: 發現已保存數據源中的表、字段和唯一鍵。
+            operationId: BiSourceService_ListBiSourceTables
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/bi.admin.v1.ListBiSourceTablesResponse'
+    /api/v1/admin/bi/source/{source.id}:
+        put:
+            tags:
+                - BiSourceService
+            description: 更新資料來源配置。
+            operationId: BiSourceService_UpdateBiSource
+            parameters:
+                - name: source.id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/bi.admin.v1.BiSourceForm'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/bi.admin.v1.BiSource'
+    /api/v1/admin/bi/sources:
+        get:
+            tags:
+                - BiQueryService
+            description: 查詢當前使用者可用的資料來源目錄。
+            operationId: BiQueryService_ListBiSources
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/bi.admin.v1.ListBiSourcesResponse'
+    /api/v1/admin/bi/workbench:
+        get:
+            tags:
+                - BiCardService
+            description: 獲取當前使用者的工作臺與收藏。
+            operationId: BiCardService_GetBiWorkbench
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/bi.admin.v1.BiWorkbench'
+        put:
+            tags:
+                - BiCardService
+            description: 儲存當前使用者的工作臺順序與收藏。
+            operationId: BiCardService_SaveBiWorkbench
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/bi.admin.v1.SaveBiWorkbenchRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/bi.admin.v1.BiWorkbench'
     /api/v1/admin/cache:
         get:
             tags:
@@ -8146,44 +8682,6 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/base.v1.ListAiProviderModelOptionsResponse'
-    /api/v1/base/ai/query/ask:
-        post:
-            tags:
-                - AiQueryService
-            description: 智慧問數：將自然語言問題轉換為只讀 SQL 查詢資料庫並返回結構化結果
-            operationId: AiQueryService_AskAiQuery
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/base.v1.AskAiQueryRequest'
-                required: true
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/base.v1.AskAiQueryResponse'
-    /api/v1/base/ai/query/tables:
-        post:
-            tags:
-                - AiQueryService
-            description: 查詢智慧問數可用的資料表目錄
-            operationId: AiQueryService_OptionAiQueryTable
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/base.v1.OptionAiQueryTableRequest'
-                required: true
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/base.v1.OptionAiQueryTableResponse'
     /api/v1/base/ai/search:
         post:
             tags:
@@ -9609,25 +10107,6 @@ components:
                         $ref: '#/components/schemas/base.v1.AiProviderModel'
                     description: 模型選項列表
             description: 已啟用的AI Provider及其模型選項。
-        base.v1.AiQueryRow:
-            type: object
-            properties:
-                values:
-                    type: array
-                    items:
-                        type: string
-                    description: 與列名順序對齊的單元格值
-            description: 智慧問數結果行
-        base.v1.AiQueryTable:
-            type: object
-            properties:
-                name:
-                    type: string
-                    description: 表名
-                comment:
-                    type: string
-                    description: 表說明
-            description: 智慧問數可用資料表
         base.v1.AiSession:
             type: object
             properties:
@@ -9764,40 +10243,6 @@ components:
                     type: string
                     description: 投遞ID
             description: 歸檔訊息請求。
-        base.v1.AskAiQueryRequest:
-            type: object
-            properties:
-                question:
-                    type: string
-                    description: 自然語言問題
-            description: 智慧問數請求
-        base.v1.AskAiQueryResponse:
-            type: object
-            properties:
-                sql:
-                    type: string
-                    description: 生成的只讀 SQL
-                columns:
-                    type: array
-                    items:
-                        type: string
-                    description: 結果列名
-                rows:
-                    type: array
-                    items:
-                        $ref: '#/components/schemas/base.v1.AiQueryRow'
-                    description: 結果行
-                row_count:
-                    type: integer
-                    description: 結果行數
-                    format: int32
-                truncated:
-                    type: boolean
-                    description: 結果是否因行數或體積上限被截斷
-                elapsed_ms:
-                    type: string
-                    description: SQL 執行耗時（毫秒）
-            description: 智慧問數響應
         base.v1.BeginMfaDisableRequest:
             type: object
             properties: {}
@@ -10750,19 +11195,6 @@ components:
                     type: object
                     description: Provider個性化配置JSON物件
             description: 三方登入方式資訊
-        base.v1.OptionAiQueryTableRequest:
-            type: object
-            properties: {}
-            description: 智慧問數表目錄請求
-        base.v1.OptionAiQueryTableResponse:
-            type: object
-            properties:
-                tables:
-                    type: array
-                    items:
-                        $ref: '#/components/schemas/base.v1.AiQueryTable'
-                    description: 可用資料表列表
-            description: 智慧問數表目錄響應
         base.v1.OptionLanguageResponse:
             type: object
             properties:
@@ -11057,6 +11489,925 @@ components:
                     type: boolean
                     description: 是否記住當前裝置
             description: 多因素認證校驗請求。
+        bi.admin.v1.AskBiQueryRequest:
+            type: object
+            properties:
+                question:
+                    type: string
+                    description: 自然語言問題
+                provider_id:
+                    type: string
+                    description: 所選供應商ID；留空時使用首個可用模型
+                model_name:
+                    type: string
+                    description: 所選模型名稱
+            description: BI 自然語言問數請求。
+        bi.admin.v1.AskBiQueryResponse:
+            type: object
+            properties:
+                query:
+                    $ref: '#/components/schemas/bi.admin.v1.BiQuerySpec'
+                result:
+                    $ref: '#/components/schemas/bi.admin.v1.BiQueryResult'
+                chart_type:
+                    type: string
+                    description: 建議圖表類型
+                title:
+                    type: string
+                    description: 建議圖表標題
+            description: BI 自然語言問數響應。
+        bi.admin.v1.BiCard:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 卡片ID
+                tenant_id:
+                    type: string
+                    description: 租戶ID
+                project_id:
+                    type: string
+                    description: 項目ID，0表示租戶級
+                owner_id:
+                    type: string
+                    description: 所有者使用者ID，0表示系統內建
+                query_record_id:
+                    type: string
+                    description: 來源查詢記錄ID
+                name:
+                    type: string
+                    description: 卡片名稱
+                source_code:
+                    type: string
+                    description: 語義數據源編碼
+                query:
+                    $ref: '#/components/schemas/bi.admin.v1.BiQuerySpec'
+                chart_type:
+                    type: string
+                    description: 圖表類型
+                chart_json:
+                    type: string
+                    description: 圖表字段映射與樣式配置JSON
+                refresh_seconds:
+                    type: integer
+                    description: 自動重新整理間隔秒數，86400表示每日02:00
+                    format: int32
+                is_shared:
+                    type: boolean
+                    description: 是否共享
+                updated_at:
+                    type: string
+                    description: 更新時間
+                category:
+                    type: string
+                    description: 分類：system系統、mine自建、shared分享
+                can_edit:
+                    type: boolean
+                    description: 當前使用者是否可編輯
+            description: 資料卡片記錄。
+        bi.admin.v1.BiCardCounts:
+            type: object
+            properties:
+                all:
+                    type: string
+                    description: 全部卡片數量
+                system:
+                    type: string
+                    description: 系統卡片數量
+                mine:
+                    type: string
+                    description: 自己建立的卡片數量
+                favorite:
+                    type: string
+                    description: 收藏卡片數量
+                shared:
+                    type: string
+                    description: 他人分享的卡片數量
+            description: 資料卡片分類數量。
+        bi.admin.v1.BiCardForm:
+            type: object
+            properties:
+                name:
+                    type: string
+                    description: 卡片名稱
+                query:
+                    $ref: '#/components/schemas/bi.admin.v1.BiQuerySpec'
+                chart_type:
+                    type: string
+                    description: 圖表類型
+                query_record_id:
+                    type: string
+                    description: 來源成功查詢記錄ID
+                chart_json:
+                    type: string
+                    description: 圖表字段映射與樣式配置JSON
+                refresh_seconds:
+                    type: integer
+                    description: 自動重新整理間隔秒數，0表示手動，86400表示每日02:00
+                    format: int32
+                is_shared:
+                    type: boolean
+                    description: 是否共享到當前專案範圍
+            description: 資料卡片配置。
+        bi.admin.v1.BiDashboard:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 儀表板ID
+                tenant_id:
+                    type: string
+                    description: 租戶ID
+                project_id:
+                    type: string
+                    description: 項目ID，0表示租戶級
+                code:
+                    type: string
+                    description: 儀表板編碼
+                name:
+                    type: string
+                    description: 儀表板名稱
+                description:
+                    type: string
+                    description: 儀表板說明
+                owner_id:
+                    type: string
+                    description: 所有者使用者ID
+                status:
+                    type: integer
+                    description: 狀態：1草稿，2已釋出，3停用
+                    format: int32
+                draft_version:
+                    type: string
+                    description: 草稿版本
+                published_version:
+                    type: string
+                    description: 已釋出版本
+                schema_json:
+                    type: string
+                    description: 儀表板Schema JSON
+                updated_at:
+                    type: string
+                    description: 更新時間
+                can_edit:
+                    type: boolean
+                    description: 當前使用者是否可編輯
+            description: BI 儀表板記錄。
+        bi.admin.v1.BiDashboardCardResult:
+            type: object
+            properties:
+                item_id:
+                    type: string
+                    description: 圖表組件ID
+                result:
+                    $ref: '#/components/schemas/bi.admin.v1.BiQueryResult'
+            description: 單個圖表查詢結果。
+        bi.admin.v1.BiDashboardDataResponse:
+            type: object
+            properties:
+                cards:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/bi.admin.v1.BiDashboardCardResult'
+                    description: 圖表結果
+                schema_json:
+                    type: string
+                    description: 本次執行版本的儀表板Schema JSON
+            description: 儀表板數據響應。
+        bi.admin.v1.BiFieldDescriptor:
+            type: object
+            properties:
+                code:
+                    type: string
+                    description: 欄位編碼
+                name:
+                    type: string
+                    description: 欄位名稱
+                type:
+                    type: string
+                    description: 欄位型別：string、number、date
+                filterable:
+                    type: boolean
+                    description: 是否允許過濾
+            description: BI 欄位描述。
+        bi.admin.v1.BiFilterSpec:
+            type: object
+            properties:
+                field:
+                    type: string
+                    description: 欄位編碼
+                operator:
+                    type: string
+                    description: 運算子：eq、in、between、contains
+                values:
+                    type: array
+                    items:
+                        type: string
+                    description: 過濾值
+            description: BI 過濾條件。
+        bi.admin.v1.BiMeasureDescriptor:
+            type: object
+            properties:
+                code:
+                    type: string
+                    description: 指標編碼
+                name:
+                    type: string
+                    description: 指標名稱
+                type:
+                    type: string
+                    description: 指標型別
+                aggregations:
+                    type: array
+                    items:
+                        type: string
+                    description: 允許的聚合函數
+            description: BI 指標描述。
+        bi.admin.v1.BiMeasureSpec:
+            type: object
+            properties:
+                code:
+                    type: string
+                    description: 指標編碼
+                aggregation:
+                    type: string
+                    description: 聚合函數
+            description: BI 指標查詢項。
+        bi.admin.v1.BiOrderSpec:
+            type: object
+            properties:
+                field:
+                    type: string
+                    description: 已選擇的維度或指標編碼
+                direction:
+                    type: string
+                    description: 排序方向：asc 或 desc
+            description: BI 結果排序規則。
+        bi.admin.v1.BiQueryRecord:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 記錄ID
+                tenant_id:
+                    type: string
+                    description: 租戶ID
+                user_id:
+                    type: string
+                    description: 使用者ID
+                project_id:
+                    type: string
+                    description: 專案ID
+                dashboard_id:
+                    type: string
+                    description: 儀表板ID
+                dashboard_version:
+                    type: string
+                    description: 儀表板版本
+                widget_id:
+                    type: string
+                    description: 圖表組件ID
+                source_code:
+                    type: string
+                    description: 資料來源編碼
+                question:
+                    type: string
+                    description: 自然語言問題，非問數查詢為空
+                query_json:
+                    type: string
+                    description: 語義查詢計畫JSON
+                query_hash:
+                    type: string
+                    description: 查詢計畫雜湊
+                status:
+                    enum:
+                        - BI_QUERY_STATUS_UNSPECIFIED
+                        - BI_QUERY_STATUS_SUCCESS
+                        - BI_QUERY_STATUS_FAILED
+                    type: string
+                    description: 問數狀態：枚舉【BiQueryStatus】
+                    format: enum
+                row_count:
+                    type: integer
+                    description: 結果行數
+                    format: int32
+                truncated:
+                    type: integer
+                    description: 是否截斷：0否，1是
+                    format: int32
+                elapsed_ms:
+                    type: string
+                    description: 查詢耗時毫秒，問數包含模型生成耗時
+                error_msg:
+                    type: string
+                    description: 失敗原因
+                created_at:
+                    type: string
+                    description: 建立時間
+                user_name:
+                    type: string
+                    description: 使用者賬號
+                result:
+                    $ref: '#/components/schemas/bi.admin.v1.BiQueryResult'
+            description: BI 查詢記錄。
+        bi.admin.v1.BiQueryResult:
+            type: object
+            properties:
+                columns:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/bi.admin.v1.BiResultColumn'
+                    description: 結果列
+                rows:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/bi.admin.v1.BiResultRow'
+                    description: 結果行
+                truncated:
+                    type: boolean
+                    description: 是否因限制截斷
+                elapsed_ms:
+                    type: string
+                    description: 查詢耗時毫秒
+                query_record_id:
+                    type: string
+                    description: 本次成功查詢記錄ID，可作爲數據卡片來源
+            description: BI 查詢結果。
+        bi.admin.v1.BiQuerySpec:
+            type: object
+            properties:
+                source_code:
+                    type: string
+                    description: 資料來源編碼
+                dimensions:
+                    type: array
+                    items:
+                        type: string
+                    description: 分組維度編碼
+                measures:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/bi.admin.v1.BiMeasureSpec'
+                    description: 查詢指標
+                filters:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/bi.admin.v1.BiFilterSpec'
+                    description: 過濾條件
+                limit:
+                    type: integer
+                    description: 結果行數上限，默認100
+                    format: int32
+                time_range:
+                    $ref: '#/components/schemas/bi.admin.v1.BiTimeRangeSpec'
+                orders:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/bi.admin.v1.BiOrderSpec'
+                    description: 結果排序規則
+            description: BI 語義查詢計劃。
+        bi.admin.v1.BiResultColumn:
+            type: object
+            properties:
+                code:
+                    type: string
+                    description: 列編碼
+                name:
+                    type: string
+                    description: 列名稱
+                type:
+                    type: string
+                    description: 列類型
+            description: BI 結果列。
+        bi.admin.v1.BiResultRow:
+            type: object
+            properties:
+                values:
+                    type: array
+                    items:
+                        type: string
+                    description: 按列順序排列的值
+            description: BI 結果行。
+        bi.admin.v1.BiSource:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 資料來源ID
+                tenant_id:
+                    type: string
+                    description: 租戶ID
+                code:
+                    type: string
+                    description: 資料來源編碼
+                name:
+                    type: string
+                    description: 資料來源名稱
+                description:
+                    type: string
+                    description: 資料來源說明
+                source_name:
+                    type: string
+                    description: 服務端數據庫客戶端名稱
+                driver:
+                    type: string
+                    description: 數據庫驅動
+                host:
+                    type: string
+                    description: 資料庫主機
+                port:
+                    type: integer
+                    description: 數據庫端口
+                    format: int32
+                database_name:
+                    type: string
+                    description: 資料庫名稱
+                username:
+                    type: string
+                    description: 資料庫使用者名稱
+                password_configured:
+                    type: boolean
+                    description: 是否已儲存資料庫密碼
+                ssl_mode:
+                    type: string
+                    description: PostgreSQL SSL模式
+                schema_name:
+                    type: string
+                    description: 資料庫 Schema
+                table_name:
+                    type: string
+                    description: 數據庫表或視圖名稱
+                tenant_column:
+                    type: string
+                    description: 租戶列
+                schema_json:
+                    type: string
+                    description: 維度和指標語義配置 JSON
+                status:
+                    type: integer
+                    description: 狀態：1啟用，2禁用
+                    format: int32
+                version:
+                    type: integer
+                    description: 語義版本
+                    format: int32
+                max_rows:
+                    type: integer
+                    description: 最大結果行數
+                    format: int32
+                created_at:
+                    type: string
+                    description: 建立時間
+                updated_at:
+                    type: string
+                    description: 更新時間
+                model_configured:
+                    type: boolean
+                    description: 是否已配置語義模型
+                table_count:
+                    type: integer
+                    description: 模型選中的表數量
+                    format: int32
+            description: BI 資料來源配置。
+        bi.admin.v1.BiSourceDatabase:
+            type: object
+            properties:
+                name:
+                    type: string
+                    description: 客戶端名稱
+                driver:
+                    type: string
+                    description: 數據庫驅動
+            description: 服務端數據庫客戶端選項。
+        bi.admin.v1.BiSourceDescriptor:
+            type: object
+            properties:
+                code:
+                    type: string
+                    description: 資料來源編碼
+                name:
+                    type: string
+                    description: 資料來源名稱
+                description:
+                    type: string
+                    description: 資料來源說明
+                version:
+                    type: integer
+                    description: 數據源語義版本
+                    format: int32
+                dimensions:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/bi.admin.v1.BiFieldDescriptor'
+                    description: 可用維度
+                measures:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/bi.admin.v1.BiMeasureDescriptor'
+                    description: 可用指標
+                max_rows:
+                    type: integer
+                    description: 最大結果行數
+                    format: int32
+            description: BI 資料來源描述。
+        bi.admin.v1.BiSourceDimension:
+            type: object
+            properties:
+                code:
+                    type: string
+                    description: 語義編碼
+                name:
+                    type: string
+                    description: 展示名稱
+                type:
+                    type: string
+                    description: BI欄位型別
+                table:
+                    type: string
+                    description: 所屬表標識
+                column:
+                    type: string
+                    description: 資料庫欄位
+                filterable:
+                    type: boolean
+                    description: 是否允許過濾
+            description: 數據源語義維度。
+        bi.admin.v1.BiSourceForm:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 資料來源ID
+                code:
+                    type: string
+                    description: 資料來源編碼
+                name:
+                    type: string
+                    description: 資料來源名稱
+                description:
+                    type: string
+                    description: 資料來源說明
+                source_name:
+                    type: string
+                    description: 服務端數據庫客戶端名稱
+                driver:
+                    type: string
+                    description: 數據庫驅動：mysql、postgres、doris、tidb
+                host:
+                    type: string
+                    description: 資料庫主機
+                port:
+                    type: integer
+                    description: 數據庫端口
+                    format: int32
+                database_name:
+                    type: string
+                    description: 資料庫名稱
+                username:
+                    type: string
+                    description: 資料庫使用者名稱
+                password:
+                    $ref: '#/components/schemas/common.v1.SecretCrypto'
+                ssl_mode:
+                    type: string
+                    description: PostgreSQL SSL模式
+                schema_name:
+                    type: string
+                    description: 資料庫 Schema，可為空
+                max_rows:
+                    type: integer
+                    description: 最大結果行數
+                    format: int32
+                status:
+                    type: integer
+                    description: 狀態：1啟用，2禁用
+                    format: int32
+            description: BI 資料來源配置表單。
+        bi.admin.v1.BiSourceMeasure:
+            type: object
+            properties:
+                code:
+                    type: string
+                    description: 語義編碼
+                name:
+                    type: string
+                    description: 展示名稱
+                type:
+                    type: string
+                    description: BI欄位型別
+                table:
+                    type: string
+                    description: 所屬表標識
+                column:
+                    type: string
+                    description: 資料庫欄位
+                aggregations:
+                    type: array
+                    items:
+                        type: string
+                    description: 允許的聚合函數
+            description: 數據源語義指標。
+        bi.admin.v1.BiSourceModel:
+            type: object
+            properties:
+                base_table:
+                    type: string
+                    description: 事實表標識
+                tables:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/bi.admin.v1.BiSourceModelTable'
+                    description: 選中的表結構
+                relations:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/bi.admin.v1.BiSourceRelation'
+                    description: 表關聯關係
+                dimensions:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/bi.admin.v1.BiSourceDimension'
+                    description: 語義維度
+                measures:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/bi.admin.v1.BiSourceMeasure'
+                    description: 語義指標
+            description: 數據源可用的表、關聯關係和業務語義。
+        bi.admin.v1.BiSourceModelTable:
+            type: object
+            properties:
+                key:
+                    type: string
+                    description: 表結構標識
+                tenant_column:
+                    type: string
+                    description: 租戶隔離字段，爲空表示連接級隔離或共享表
+                x:
+                    type: integer
+                    description: 畫布橫座標
+                    format: int32
+                y:
+                    type: integer
+                    description: 畫布縱座標
+                    format: int32
+            description: 語義模型中的表節點。
+        bi.admin.v1.BiSourceRelation:
+            type: object
+            properties:
+                left_table:
+                    type: string
+                    description: 已連接表標識
+                left_column:
+                    type: string
+                    description: 已連接表字段
+                right_table:
+                    type: string
+                    description: 維度表標識
+                right_column:
+                    type: string
+                    description: 維度表唯一字段
+                join_type:
+                    type: string
+                    description: 連接類型：inner或left
+            description: 兩張表之間經過確認的多對一關係。
+        bi.admin.v1.BiSourceSchemaColumn:
+            type: object
+            properties:
+                name:
+                    type: string
+                    description: 欄位名稱
+                data_type:
+                    type: string
+                    description: 資料庫欄位型別
+                nullable:
+                    type: boolean
+                    description: 是否允許為空
+                primary_key:
+                    type: boolean
+                    description: 是否為主鍵
+                unique:
+                    type: boolean
+                    description: 是否有單列唯一約束
+                comment:
+                    type: string
+                    description: 欄位註釋
+            description: 數據庫表字段的結構信息。
+        bi.admin.v1.BiSourceSchemaTable:
+            type: object
+            properties:
+                key:
+                    type: string
+                    description: 表結構標識
+                schema_name:
+                    type: string
+                    description: 資料庫Schema
+                name:
+                    type: string
+                    description: 表或視圖名稱
+                table_type:
+                    type: string
+                    description: 表型別
+                columns:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/bi.admin.v1.BiSourceSchemaColumn'
+                    description: 欄位列表
+                comment:
+                    type: string
+                    description: 表或視圖註釋
+            description: 數據庫中的表或視圖結構。
+        bi.admin.v1.BiTimeRangeSpec:
+            type: object
+            properties:
+                field:
+                    type: string
+                    description: 時間維度編碼
+                start:
+                    type: string
+                    description: 範圍起點
+                end:
+                    type: string
+                    description: 範圍終點
+            description: BI 時間範圍。
+        bi.admin.v1.BiWorkbench:
+            type: object
+            properties:
+                dashboard_ids:
+                    type: array
+                    items:
+                        type: string
+                    description: 工作臺儀表板ID，按展示順序排列
+                favorite_ids:
+                    type: array
+                    items:
+                        type: string
+                    description: 收藏卡片ID
+                dashboards:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/bi.admin.v1.BiDashboard'
+                    description: 工作臺中當前可見的已發佈儀表板
+            description: 個人工作臺儀表板入口與卡片收藏。
+        bi.admin.v1.DeleteBiCardResponse:
+            type: object
+            properties: {}
+            description: 刪除資料卡片響應。
+        bi.admin.v1.DeleteBiDashboardResponse:
+            type: object
+            properties: {}
+            description: 刪除 BI 儀表板響應。
+        bi.admin.v1.DeleteBiSourceResponse:
+            type: object
+            properties: {}
+            description: 刪除 BI 資料來源響應。
+        bi.admin.v1.ListBiSourceTablesResponse:
+            type: object
+            properties:
+                tables:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/bi.admin.v1.BiSourceSchemaTable'
+                    description: 數據庫表結構
+            description: 查詢數據源表結構的響應。
+        bi.admin.v1.ListBiSourcesResponse:
+            type: object
+            properties:
+                sources:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/bi.admin.v1.BiSourceDescriptor'
+                    description: 當前使用者可用的資料來源
+            description: BI 資料來源目錄響應。
+        bi.admin.v1.OptionBiSourceDatabaseResponse:
+            type: object
+            properties:
+                databases:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/bi.admin.v1.BiSourceDatabase'
+                    description: 服務端數據庫客戶端列表
+            description: 查詢服務端數據庫客戶端響應。
+        bi.admin.v1.PageBiCardResponse:
+            type: object
+            properties:
+                cards:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/bi.admin.v1.BiCard'
+                    description: 資料卡片
+                total:
+                    type: integer
+                    description: 總數
+                    format: int32
+                counts:
+                    $ref: '#/components/schemas/bi.admin.v1.BiCardCounts'
+            description: 資料卡片分頁結果。
+        bi.admin.v1.PageBiDashboardResponse:
+            type: object
+            properties:
+                dashboards:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/bi.admin.v1.BiDashboard'
+                    description: 儀表板列表
+                total:
+                    type: integer
+                    description: 總數
+                    format: int32
+            description: BI 儀表板分頁響應。
+        bi.admin.v1.PageBiQueryResponse:
+            type: object
+            properties:
+                queries:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/bi.admin.v1.BiQueryRecord'
+                    description: 智慧問數記錄列表
+                total:
+                    type: integer
+                    description: 總數
+                    format: int32
+            description: 智慧問數分頁響應。
+        bi.admin.v1.PageBiSourceResponse:
+            type: object
+            properties:
+                sources:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/bi.admin.v1.BiSource'
+                    description: 資料來源配置列表
+                total:
+                    type: integer
+                    description: 總數
+                    format: int32
+            description: BI 資料來源分頁響應。
+        bi.admin.v1.PreviewBiQueryRequest:
+            type: object
+            properties:
+                query:
+                    $ref: '#/components/schemas/bi.admin.v1.BiQuerySpec'
+            description: BI 查詢預覽請求。
+        bi.admin.v1.PublishBiDashboardRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 儀表板ID
+                version:
+                    type: string
+                    description: 草稿版本
+            description: 發佈 BI 儀表板請求。
+        bi.admin.v1.SaveBiCardRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 卡片ID，0表示新建
+                card:
+                    $ref: '#/components/schemas/bi.admin.v1.BiCardForm'
+            description: 儲存資料卡片請求。
+        bi.admin.v1.SaveBiDashboardRequest:
+            type: object
+            properties:
+                dashboard:
+                    $ref: '#/components/schemas/bi.admin.v1.BiDashboard'
+            description: 保存 BI 儀表板請求。
+        bi.admin.v1.SaveBiWorkbenchRequest:
+            type: object
+            properties:
+                dashboard_ids:
+                    type: array
+                    items:
+                        type: string
+                    description: 工作臺儀表板ID，最多50個且不重複
+                favorite_ids:
+                    type: array
+                    items:
+                        type: string
+                    description: 收藏卡片ID，最多50個且不重複
+            description: 儲存個人工作臺請求。
+        bi.admin.v1.SetBiSourceStatusRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 資料來源ID
+                status:
+                    type: integer
+                    description: 狀態：1啟用，2禁用
+                    format: int32
+            description: 修改 BI 資料來源狀態請求。
+        bi.admin.v1.TestBiSourceResponse:
+            type: object
+            properties:
+                success:
+                    type: boolean
+                    description: 是否可訪問
+                message:
+                    type: string
+                    description: 測試結果說明
+            description: 測試 BI 數據源響應。
         common.v1.AppTreeOptionResponse_Option:
             type: object
             properties:
@@ -11537,68 +12888,6 @@ components:
                     type: string
                     description: Provider穩定標識
             description: AI供應商選項。
-        system.admin.v1.AiQueryRecord:
-            type: object
-            properties:
-                id:
-                    type: string
-                    description: 記錄ID
-                tenant_id:
-                    type: string
-                    description: 租戶ID
-                user_id:
-                    type: string
-                    description: 使用者ID
-                user_name:
-                    type: string
-                    description: 使用者賬號
-                question:
-                    type: string
-                    description: 自然語言問題
-                sql:
-                    type: string
-                    description: 生成的只讀SQL
-                status:
-                    enum:
-                        - AI_QUERY_STATUS_UNSPECIFIED
-                        - AI_QUERY_STATUS_SUCCESS
-                        - AI_QUERY_STATUS_FAILED
-                    type: string
-                    description: 問數狀態：列舉【AiQueryStatus】
-                    format: enum
-                row_count:
-                    type: integer
-                    description: 結果行數
-                    format: int32
-                elapsed_ms:
-                    type: string
-                    description: SQL執行耗時毫秒
-                error_msg:
-                    type: string
-                    description: 失敗原因
-                result_columns:
-                    type: array
-                    items:
-                        type: string
-                    description: 結果快照列名，僅詳情返回
-                result_rows:
-                    type: array
-                    items:
-                        $ref: '#/components/schemas/system.admin.v1.AiQueryResultRow'
-                    description: 結果快照資料行，僅詳情返回
-                created_at:
-                    type: string
-                    description: 建立時間
-            description: 智慧問數記錄。
-        system.admin.v1.AiQueryResultRow:
-            type: object
-            properties:
-                values:
-                    type: array
-                    items:
-                        type: string
-                    description: 行資料
-            description: 智慧問數結果快照行。
         system.admin.v1.AiSessionMessageAttachment:
             type: object
             properties:
@@ -17343,19 +18632,6 @@ components:
                     description: 總數
                     format: int32
             description: AI供應商分頁響應。
-        system.admin.v1.PageAiQueryResponse:
-            type: object
-            properties:
-                queries:
-                    type: array
-                    items:
-                        $ref: '#/components/schemas/system.admin.v1.AiQueryRecord'
-                    description: 智慧問數記錄列表
-                total:
-                    type: integer
-                    description: 總數
-                    format: int32
-            description: 智慧問數分頁響應。
         system.admin.v1.PageAiSessionMessageResponse:
             type: object
             properties:
@@ -19567,16 +20843,12 @@ tags:
       description: AI Provider 可選模型查詢服務。
     - name: AiProviderService
       description: AI供應商管理服務。
-    - name: AiQueryService
-      description: 智慧問數記錄管理服務。
-    - name: AiQueryService
-      description: Base AI 助手智慧問數服務
     - name: AiSearchService
       description: Base AI 助手聯網搜尋服務
     - name: AiSessionService
-      description: Base AI 助手會話服務
-    - name: AiSessionService
       description: AI會話管理服務。
+    - name: AiSessionService
+      description: Base AI 助手會話服務
     - name: AiToolService
       description: Base AI 助手工具服務
     - name: AuthService
@@ -19604,9 +20876,9 @@ tags:
     - name: BaseDictItemService
       description: Admin字典項服務
     - name: BaseDictService
-      description: App 字典服務
-    - name: BaseDictService
       description: Admin 字典服務
+    - name: BaseDictService
+      description: App 字典服務
     - name: BaseFileService
       description: Admin檔案資產管理服務。
     - name: BaseI18nCustomService
@@ -19626,9 +20898,9 @@ tags:
     - name: BaseLoginPolicyService
       description: Admin登入策略管理服務。
     - name: BaseMenuService
-      description: Admin 選單管理服務
-    - name: BaseMenuService
       description: App 選單服務
+    - name: BaseMenuService
+      description: Admin 選單管理服務
     - name: BaseMessageCategoryService
       description: Admin訊息分類管理服務。
     - name: BaseMessageProviderService
@@ -19687,6 +20959,16 @@ tags:
       description: Admin 租戶管理服務
     - name: BaseUserService
       description: Admin 使用者管理服務
+    - name: BiCardService
+      description: BI 資料卡片與個人工作臺服務。
+    - name: BiDashboardService
+      description: BI 儀表板管理服務。
+    - name: BiQueryRecordService
+      description: BI 查詢記錄管理服務。
+    - name: BiQueryService
+      description: BI 語義查詢服務。
+    - name: BiSourceService
+      description: BI 資料來源配置管理服務。
     - name: CacheService
       description: Admin執行時快取查詢服務。
     - name: CodeGenColumnService
@@ -19714,9 +20996,9 @@ tags:
     - name: NotificationService
       description: Base站內信通知服務，提供當前使用者的收件箱能力。
     - name: OauthClientService
-      description: Base開放授權客戶端令牌服務。
-    - name: OauthClientService
       description: Admin開放授權客戶端管理服務。
+    - name: OauthClientService
+      description: Base開放授權客戶端令牌服務。
     - name: OauthService
       description: Base 第三方登入公共服務
     - name: OpsMonitoringService

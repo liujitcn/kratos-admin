@@ -10,7 +10,7 @@
   position: relative;
   overflow: hidden;
   border: 1PX solid var(--kratos-color-border);
-  border-radius: 26px;
+  border-radius: var(--kratos-page-radius);
   background: var(--kratos-color-surface);
   box-shadow: inset 0 1PX 0 rgba(255, 255, 255, 0.05);
 }
@@ -56,7 +56,7 @@
   width: 6px;
   height: 26px;
   margin-right: 16px;
-  border-radius: 4px;
+  border-radius: var(--kratos-page-radius);
   background: var(--kratos-color-primary);
   box-shadow: 0 0 8PX var(--kratos-color-primary-edge);
 }
@@ -96,7 +96,7 @@
   justify-content: center;
   height: 96px;
   margin-top: 36px;
-  border-radius: 20px;
+  border-radius: var(--kratos-page-radius);
   background: linear-gradient(135deg, var(--kratos-color-primary-deep), var(--kratos-color-primary));
   color: var(--kratos-color-on-primary);
   font-size: 30px;
@@ -113,7 +113,7 @@
   justify-content: center;
   width: 76px;
   height: 76px;
-  border-radius: 24px;
+  border-radius: var(--kratos-page-radius);
   background: var(--kratos-color-surface);
   border: 1PX solid var(--kratos-color-border);
   color: var(--kratos-color-text);
@@ -129,7 +129,7 @@
   min-width: 34px;
   height: 34px;
   padding: 0 8px;
-  border-radius: 18px;
+  border-radius: var(--kratos-page-radius);
   background: var(--kratos-color-danger);
   color: #fff;
   font-size: 21px;
@@ -171,7 +171,7 @@
   display: inline-flex;
   align-items: center;
   padding: 8px 20px;
-  border-radius: 999px;
+  border-radius: var(--kratos-page-radius);
   background: var(--kratos-color-primary-soft-2);
   border: 1PX solid var(--kratos-color-border-accent);
   color: var(--kratos-color-primary);
@@ -184,13 +184,13 @@
   display: inline-flex;
   gap: 8px;
   padding: 6px;
-  border-radius: 22px;
+  border-radius: var(--kratos-page-radius);
   background: var(--kratos-color-track);
   border: 1PX solid var(--kratos-color-border);
 }
 .k-pills__item {
   padding: 12px 24px;
-  border-radius: 16px;
+  border-radius: var(--kratos-page-radius);
   color: var(--kratos-color-text-muted);
   font-size: 22px;
   font-family: var(--kratos-font-mono);
@@ -223,7 +223,7 @@
   align-items: center;
   gap: 12px;
   padding: 14px 24px;
-  border-radius: 999px;
+  border-radius: var(--kratos-page-radius);
   background: var(--kratos-color-surface);
   border: 1PX solid var(--kratos-color-border);
   color: var(--kratos-color-text-muted);
@@ -253,7 +253,7 @@
   align-items: center;
   gap: 12px;
   padding: 12px 24px;
-  border-radius: 999px;
+  border-radius: var(--kratos-page-radius);
   background: var(--kratos-color-surface);
   border: 1PX solid var(--kratos-color-border);
   color: var(--kratos-color-text-muted);
@@ -268,7 +268,7 @@
   width: 148px;
   height: 148px;
   margin: 0 auto;
-  border-radius: 30px;
+  border-radius: var(--kratos-page-radius);
   background: linear-gradient(135deg, var(--kratos-color-primary-deep), var(--kratos-color-info));
   color: var(--kratos-color-on-primary);
   font-size: 48px;
@@ -283,7 +283,7 @@
   bottom: -12px;
   left: -12px;
   border: 1PX solid var(--kratos-color-border-accent);
-  border-radius: 38px;
+  border-radius: var(--kratos-page-radius);
   opacity: 0.55;
 }
 .k-lg-title {
@@ -306,7 +306,7 @@
   height: 100px;
   padding: 0 28px;
   margin-top: 24px;
-  border-radius: 20px;
+  border-radius: var(--kratos-page-radius);
   background: var(--kratos-color-surface);
   border: 1PX solid var(--kratos-color-border);
 }
@@ -325,7 +325,7 @@
   flex-shrink: 0;
   width: 180px;
   height: 72px;
-  border-radius: 16px;
+  border-radius: var(--kratos-page-radius);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -346,7 +346,7 @@
   width: 100%;
   height: 100px;
   margin-top: 36px;
-  border-radius: 20px;
+  border-radius: var(--kratos-page-radius);
   font-size: 30px;
   font-weight: 800;
 }
@@ -393,7 +393,7 @@
   justify-content: center;
   width: 32px;
   height: 32px;
-  border-radius: 10px;
+  border-radius: var(--kratos-page-radius);
   border: 3px solid var(--kratos-color-primary);
   color: var(--kratos-color-primary);
   font-size: 22px;
@@ -422,7 +422,7 @@
   justify-content: center;
   width: 112px;
   height: 112px;
-  border-radius: 22px;
+  border-radius: var(--kratos-page-radius);
   background: linear-gradient(135deg, var(--kratos-color-primary-deep), var(--kratos-color-info));
   color: var(--kratos-color-on-primary);
   font-size: 44px;
@@ -443,7 +443,7 @@
 .k-pfx__ent {
   flex-shrink: 0;
   padding: 14px 22px;
-  border-radius: 999px;
+  border-radius: var(--kratos-page-radius);
   background: var(--kratos-color-primary-soft);
   border: 1PX solid var(--kratos-color-border-accent);
   color: var(--kratos-color-primary);
@@ -455,7 +455,7 @@
   align-items: center;
   gap: 26px;
   padding: 30px;
-  border-radius: 24px;
+  border-radius: var(--kratos-page-radius);
   background: linear-gradient(135deg, var(--kratos-color-primary-soft-2), var(--kratos-color-primary-soft));
   border: 1PX solid var(--kratos-color-border-accent);
 }
@@ -466,7 +466,7 @@
   justify-content: center;
   width: 92px;
   height: 92px;
-  border-radius: 20px;
+  border-radius: var(--kratos-page-radius);
   background: linear-gradient(135deg, var(--kratos-color-violet), var(--kratos-color-info));
   color: #fff;
   font-size: 30px;
@@ -486,7 +486,7 @@
 .k-aix__b {
   flex-shrink: 0;
   padding: 14px 24px;
-  border-radius: 999px;
+  border-radius: var(--kratos-page-radius);
   background: var(--kratos-color-primary-soft-2);
   border: 1PX solid var(--kratos-color-border-accent);
   color: var(--kratos-color-primary);
@@ -511,7 +511,7 @@
   justify-content: center;
   width: 92px;
   height: 92px;
-  border-radius: 20px;
+  border-radius: var(--kratos-page-radius);
   border: 1PX solid var(--kratos-color-border);
   color: var(--kratos-color-primary);
   background: var(--kratos-color-primary-soft);
@@ -538,7 +538,7 @@
   gap: 24px;
   padding: 28px 30px;
   margin-bottom: 20px;
-  border-radius: 20px;
+  border-radius: var(--kratos-page-radius);
   background: var(--kratos-color-surface);
   border: 1PX solid var(--kratos-color-border);
 }
@@ -564,7 +564,7 @@
   justify-content: center;
   width: 76px;
   height: 76px;
-  border-radius: 22px;
+  border-radius: var(--kratos-page-radius);
   border: 1PX solid var(--kratos-color-border);
   color: var(--kratos-color-primary);
 }
@@ -588,7 +588,7 @@
   justify-content: center;
   height: 100px;
   margin-top: 44px;
-  border-radius: 20px;
+  border-radius: var(--kratos-page-radius);
   color: var(--kratos-color-danger);
   background: var(--kratos-color-danger-soft);
   border: 1PX solid var(--kratos-color-danger);
@@ -608,7 +608,7 @@
   position: relative;
   overflow: hidden;
   padding: 26px 28px;
-  border-radius: 20px;
+  border-radius: var(--kratos-page-radius);
   background: var(--kratos-color-surface);
   border: 1PX solid var(--kratos-color-border);
 }
@@ -634,7 +634,7 @@
   justify-content: center;
   width: 76px;
   height: 76px;
-  border-radius: 22px;
+  border-radius: var(--kratos-page-radius);
   border: 1PX solid var(--kratos-color-border);
   color: var(--kratos-color-primary);
   background: var(--kratos-color-primary-soft);
@@ -700,7 +700,7 @@
   justify-content: center;
   width: 112px;
   height: 112px;
-  border-radius: 26px;
+  border-radius: var(--kratos-page-radius);
   border: 1PX solid var(--kratos-color-border-accent);
   background: var(--kratos-color-primary-soft-2);
   color: var(--kratos-color-primary);
@@ -722,7 +722,7 @@
 .k-empty__act {
   margin-top: 32px;
   padding: 16px 40px;
-  border-radius: 999px;
+  border-radius: var(--kratos-page-radius);
   border: 1PX solid var(--kratos-color-border-accent);
   background: var(--kratos-color-primary-soft-2);
   color: var(--kratos-color-primary);

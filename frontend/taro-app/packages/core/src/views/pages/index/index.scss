@@ -29,7 +29,7 @@ page {
   flex: 0 0 auto;
   width: 104px;
   height: 104px;
-  border-radius: 26px;
+  border-radius: var(--kratos-page-radius);
   border: 1PX solid var(--kratos-color-border-accent);
   background: var(--kratos-color-surface-2);
 }
@@ -81,7 +81,7 @@ page {
   flex: 0 0 auto;
   width: 48px;
   height: 48px;
-  border-radius: 14px;
+  border-radius: var(--kratos-page-radius);
   background: var(--kratos-color-primary-soft);
   border: 1PX solid var(--kratos-color-primary-edge);
   color: var(--kratos-color-primary);

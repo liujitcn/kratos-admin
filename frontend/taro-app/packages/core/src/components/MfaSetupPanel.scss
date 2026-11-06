@@ -33,7 +33,7 @@
   color: var(--kratos-color-primary);
   background: var(--kratos-color-primary-soft);
   border: 0;
-  border-radius: 8px;
+  border-radius: var(--kratos-page-radius);
 }
 
 .mfa-setup-panel__copy::after {

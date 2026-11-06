@@ -18,11 +18,6 @@ func (*AiProvider) TableComment() string {
 }
 
 // TableComment 返回表注释。
-func (*AiQuery) TableComment() string {
-	return "智能问数记录"
-}
-
-// TableComment 返回表注释。
 func (*AiSession) TableComment() string {
 	return "AI助手会话"
 }
@@ -305,6 +300,36 @@ func (*BaseUserMFATotp) TableComment() string {
 // TableComment 返回表注释。
 func (*BaseUserMFAWebauthn) TableComment() string {
 	return "用户WebAuthn多因素认证配置"
+}
+
+// TableComment 返回表注释。
+func (*BiCard) TableComment() string {
+	return "BI数据卡片"
+}
+
+// TableComment 返回表注释。
+func (*BiDashboard) TableComment() string {
+	return "BI仪表盘"
+}
+
+// TableComment 返回表注释。
+func (*BiDashboardVersion) TableComment() string {
+	return "BI仪表盘版本"
+}
+
+// TableComment 返回表注释。
+func (*BiQuery) TableComment() string {
+	return "BI查询记录"
+}
+
+// TableComment 返回表注释。
+func (*BiSource) TableComment() string {
+	return "BI可配置数据源"
+}
+
+// TableComment 返回表注释。
+func (*BiWorkbench) TableComment() string {
+	return "BI个人工作台"
 }
 
 // TableComment 返回表注释。

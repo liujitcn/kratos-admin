@@ -227,14 +227,14 @@ async function handleSubmit() {
   color: var(--kratos-color-text);
   font-size: 30rpx;
   border: 1rpx solid var(--kratos-color-border);
-  border-radius: 8rpx;
+  border-radius: var(--kratos-page-radius);
   background: var(--kratos-color-surface-2);
 }
 .change-password-strength {
   margin-top: 20rpx;
   padding: 18rpx 20rpx;
   border: 1rpx solid var(--kratos-color-border);
-  border-radius: 10rpx;
+  border-radius: var(--kratos-page-radius);
   background: var(--kratos-color-surface-2);
 }
 .change-password-strength__header {
@@ -263,7 +263,7 @@ async function handleSubmit() {
 .change-password-strength__bar {
   flex: 1;
   height: 10rpx;
-  border-radius: 6rpx;
+  border-radius: var(--kratos-page-radius);
   background: var(--kratos-color-border);
 }
 .change-password-strength__bar--low {

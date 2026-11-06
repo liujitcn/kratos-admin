@@ -7,11 +7,11 @@ require (
 	github.com/cloudwego/eino v0.9.22
 	github.com/go-kratos/kratos/v3 v3.0.0
 	github.com/google/gnostic v0.7.1
-	github.com/liujitcn/kratos-core/api v0.0.6
+	github.com/liujitcn/kratos-core/api v0.0.7
 	github.com/liujitcn/kratos-kit/redact v0.0.17
 	github.com/modelcontextprotocol/go-sdk v1.7.0
 	google.golang.org/genproto/googleapis/api v0.0.0-20260819154853-08b0e4226688
-	google.golang.org/grpc v1.84.0
+	google.golang.org/grpc v1.85.0-dev.0.20260825072537-93e31b48545e
 	google.golang.org/protobuf v1.36.12
 )
 

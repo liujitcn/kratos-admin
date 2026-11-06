@@ -103,7 +103,7 @@ async function loadDetail(id: number) {
   display: block;
   padding: 28rpx;
   border: 1px solid var(--kratos-color-border);
-  border-radius: 20rpx;
+  border-radius: var(--kratos-page-radius);
   background: var(--kratos-color-surface);
   color: var(--kratos-color-text);
   font-size: 30rpx;
@@ -115,7 +115,7 @@ async function loadDetail(id: number) {
   display: block;
   padding: 28rpx;
   border: 1rpx solid var(--kratos-color-border);
-  border-radius: 20rpx;
+  border-radius: var(--kratos-page-radius);
   background: var(--kratos-color-surface);
   color: var(--kratos-color-text);
   font-size: 30rpx;

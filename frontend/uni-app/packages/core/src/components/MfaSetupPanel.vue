@@ -106,7 +106,7 @@ onBeforeUnmount(() => {
   color: var(--kratos-color-primary);
   background: var(--kratos-color-primary-soft);
   border: 0;
-  border-radius: 8rpx;
+  border-radius: var(--kratos-page-radius);
 }
 
 .mfa-setup-panel__copy::after {

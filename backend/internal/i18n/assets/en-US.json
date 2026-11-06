@@ -1,4 +1,10 @@
 {
+  "base.ai.approval.message_id.positive": {
+    "other": "The message number is invalid"
+  },
+  "base.ai.approval.session_id.positive": {
+    "other": "The session number is invalid"
+  },
   "base.ai.message.attachment_prompt": {
     "other": "Please continue analyzing the attached content"
   },
@@ -344,6 +350,159 @@
   "base.v1.secret_crypto.reveal.resource.required": {
     "other": "Resource identifier is required"
   },
+  "bi.admin.source.code.required": {
+    "other": "Enter a data source code"
+  },
+  "bi.admin.source.name.required": {
+    "other": "Enter a data source name"
+  },
+  "bi.query_record.description.dashboard_version": {
+    "other": "Dashboard version"
+  },
+  "bi.query_record.description.elapsed_ms": {
+    "other": "Query duration in milliseconds, including model generation for natural language queries"
+  },
+  "bi.query_record.description.list": {
+    "other": "List BI query records for natural language questions, previews, cards, and dashboards."
+  },
+  "bi.query_record.description.query_hash": {
+    "other": "Query plan hash"
+  },
+  "bi.query_record.description.query_json": {
+    "other": "Semantic query plan in JSON"
+  },
+  "bi.query_record.description.question": {
+    "other": "Natural language question; empty for other queries"
+  },
+  "bi.query_record.description.truncated": {
+    "other": "Whether results were truncated: 0=no, 1=yes"
+  },
+  "bi_card.name.required": {
+    "other": "Enter a card name"
+  },
+  "bi_card.openapi.005aa123d25c": {
+    "other": "Whether shared within the current project"
+  },
+  "bi_card.openapi.009744571b72": {
+    "other": "Shared card count"
+  },
+  "bi_card.openapi.07331147707f": {
+    "other": "BI data card and personal workspace service."
+  },
+  "bi_card.openapi.0dc3f431fb45": {
+    "other": "List data cards visible to the current user."
+  },
+  "bi_card.openapi.0de1b165b1e1": {
+    "other": "Refresh interval in seconds; 86400 means daily at 02:00"
+  },
+  "bi_card.openapi.1a4dfdc21e5f": {
+    "other": "Save data card request."
+  },
+  "bi_card.openapi.1d28f61085fa": {
+    "other": "Whether the current user can edit"
+  },
+  "bi_card.openapi.20e77a9e71a8": {
+    "other": "Delete data card response."
+  },
+  "bi_card.openapi.2134601b97c0": {
+    "other": "Personal workspace settings and visible cards."
+  },
+  "bi_card.openapi.262e68e1d7bc": {
+    "other": "Owned card count"
+  },
+  "bi_card.openapi.2a826bce2843": {
+    "other": "Data card category counts."
+  },
+  "bi_card.openapi.2ecd19ce97bb": {
+    "other": "All card count"
+  },
+  "bi_card.openapi.3a25d9cc0660": {
+    "other": "Data card page results."
+  },
+  "bi_card.openapi.3a464134e806": {
+    "other": "Card ID; zero creates a card"
+  },
+  "bi_card.openapi.3e5bb084dafe": {
+    "other": "Built-in card count"
+  },
+  "bi_card.openapi.4c7e87f9cc5d": {
+    "other": "Favorite card IDs"
+  },
+  "bi_card.openapi.580bce06b222": {
+    "other": "Cards currently visible in the workspace"
+  },
+  "bi_card.openapi.5f43e6d95395": {
+    "other": "Data cards"
+  },
+  "bi_card.openapi.61654ee8cfec": {
+    "other": "Save personal workspace request."
+  },
+  "bi_card.openapi.623e966e7555": {
+    "other": "Owner user ID; zero indicates a built-in card"
+  },
+  "bi_card.openapi.6bccd87e0adf": {
+    "other": "Card ID"
+  },
+  "bi_card.openapi.6fbb255e657c": {
+    "other": "Data card settings."
+  },
+  "bi_card.openapi.79cda09042ff": {
+    "other": "Workspace card IDs in display order"
+  },
+  "bi_card.openapi.81d834a8948c": {
+    "other": "Refresh interval in seconds: zero is manual; 86400 means daily at 02:00"
+  },
+  "bi_card.openapi.905668622d44": {
+    "other": "Query card data within the current user permissions."
+  },
+  "bi_card.openapi.9ca189b4a720": {
+    "other": "Save the current user card order and favorites."
+  },
+  "bi_card.openapi.a41ec76ecac2": {
+    "other": "Card name"
+  },
+  "bi_card.openapi.ae1df30215e7": {
+    "other": "Up to 50 unique workspace card IDs"
+  },
+  "bi_card.openapi.b253c3e5ffbc": {
+    "other": "Data card record."
+  },
+  "bi_card.openapi.b45c0ca52ac2": {
+    "other": "Category: system, mine or shared"
+  },
+  "bi_card.openapi.ba08c496cd30": {
+    "other": "Favorite card count"
+  },
+  "bi_card.openapi.c779cc4cd584": {
+    "other": "Get the current user workspace and favorites."
+  },
+  "bi_card.openapi.cc2e617e0f66": {
+    "other": "Up to 50 unique favorite card IDs"
+  },
+  "bi_card.openapi.d5a10a84415d": {
+    "other": "Delete an owned data card."
+  },
+  "bi_card.openapi.d6da6a158b2a": {
+    "other": "Whether shared"
+  },
+  "bi_card.openapi.e8e62c6fa703": {
+    "other": "Create or update an owned data card."
+  },
+  "bi_card.range_days.valid": {
+    "other": "Use card settings, the last 7 days or the last 30 days"
+  },
+  "bi_card.refresh_seconds.range": {
+    "other": "Refresh interval must be zero or between 30 and 86400 seconds"
+  },
+  "bi_workbench.card_ids.valid": {
+    "other": "A workspace allows up to 50 cards with positive unique IDs"
+  },
+  "bi_workbench.dashboard_ids.valid": {
+    "other": "The workbench supports up to 50 dashboards with positive unique IDs"
+  },
+  "bi_workbench.favorite_ids.valid": {
+    "other": "Favorites allow up to 50 cards with positive unique IDs"
+  },
   "common.action.create_resource": {
     "other": "Create {resource}"
   },
@@ -431,6 +590,9 @@
   "legacy.error.0196b093ca02959f": {
     "other": "Failed to update the role: built-in role codes cannot be modified"
   },
+  "legacy.error.01c8029537c813fd": {
+    "other": "Failed to close the table structure query"
+  },
   "legacy.error.01c9d0be20537d49": {
     "other": "Web search address configuration is abnormal"
   },
@@ -442,6 +604,9 @@
   },
   "legacy.error.020eaa6e9305844c": {
     "other": "Login is not allowed at this time"
+  },
+  "legacy.error.0224ce0d4c9763eb": {
+    "other": "The tenant for the new project approval is invalid"
   },
   "legacy.error.02f1a3ae0f4c961f": {
     "other": "The selected API already has a policy with the same rate limit dimension"
@@ -461,6 +626,9 @@
   "legacy.error.03e6e6dd32bbae1d": {
     "other": "Model name cannot be empty and cannot exceed 200 characters"
   },
+  "legacy.error.046589dfdbb5d3cb": {
+    "other": "A password is required for a new separate connection"
+  },
   "legacy.error.04a6034f8c1bdf2e": {
     "other": "Project grant must be a safe positive integer array; full grant can only use [0]"
   },
@@ -473,8 +641,14 @@
   "legacy.error.04d0cca843621bab": {
     "other": "Please configure the model API key before testing"
   },
+  "legacy.error.05150c4d72f90d46": {
+    "other": "Field code, name and physical column are required"
+  },
   "legacy.error.05b48898d3eb38b6": {
     "other": "Failed to read data table metadata"
+  },
+  "legacy.error.05db1e230bf8ee93": {
+    "other": "The database driver is not supported"
   },
   "legacy.error.0613b78ae7041646": {
     "other": "Failed to delete output redaction policy"
@@ -482,14 +656,23 @@
   "legacy.error.066abfeb67fd7b94": {
     "other": "Failed to page API list"
   },
+  "legacy.error.067118c2b128c55f": {
+    "other": "Cannot retry scripts belonging to another tenant"
+  },
   "legacy.error.06c4f81359c8cccd": {
     "other": "A department cannot be its own parent"
   },
   "legacy.error.06c5c603bfde8e01": {
     "other": "Database table name format is invalid"
   },
+  "legacy.error.06c61ec15c9666e6": {
+    "other": "Failed to read the current database name"
+  },
   "legacy.error.06d043cf0c992b56": {
     "other": "The rate limit rule is disabled and cannot be used in an API policy"
+  },
+  "legacy.error.07169436625cbd35": {
+    "other": "The task has already been processed or reassigned"
   },
   "legacy.error.0761a956d76e9f97": {
     "other": "The multi-factor authentication enrollment ticket has expired"
@@ -557,8 +740,17 @@
   "legacy.error.0a7b29f34faeda2d": {
     "other": "Failed to send the verification code"
   },
+  "legacy.error.0a7fb1b3f8eaf265": {
+    "other": "Failed to obtain the BI database connection"
+  },
   "legacy.error.0ad5ac1b6de56f07": {
     "other": "The login policy does not exist"
+  },
+  "legacy.error.0af53829eb85ec21": {
+    "other": "Failed to delete the BI data source"
+  },
+  "legacy.error.0b38823ed34c2c02": {
+    "other": "Workflows support only JavaScript scripts"
   },
   "legacy.error.0b8c6c4bfc046e48": {
     "other": "The rule status is invalid"
@@ -568,6 +760,9 @@
   },
   "legacy.error.0c3357178bf356f4": {
     "other": "Failed to update the API rate limit policy"
+  },
+  "legacy.error.0c349c765bb1630c": {
+    "other": "Only JavaScript scripts are supported"
   },
   "legacy.error.0c3f314f627082c1": {
     "other": "Failed to page dictionary items"
@@ -587,8 +782,14 @@
   "legacy.error.0d38b9f361e60e0e": {
     "other": "The message was modified by someone else. Please refresh and try again"
   },
+  "legacy.error.0dbf60614597b70f": {
+    "other": "A selected table no longer exists. Discover the tables again"
+  },
   "legacy.error.0dffb0e02ff26b50": {
     "other": "Failed to query code generation task progress"
+  },
+  "legacy.error.0e01a87b0d86090d": {
+    "other": "AI run state changed; approval cannot be saved"
   },
   "legacy.error.0e02ebd3b1522e8e": {
     "other": "Failed to update menu"
@@ -605,6 +806,9 @@
   "legacy.error.0e578ecd3aeab2fd": {
     "other": "Failed to encode WebAuthn registration options"
   },
+  "legacy.error.0e953f80478aa9ed": {
+    "other": "Workflow code and version duplicated in the tenant"
+  },
   "legacy.error.0f1a25c888980db7": {
     "other": "Failed to create AI knowledge base"
   },
@@ -620,6 +824,9 @@
   "legacy.error.0fc85039279b8b71": {
     "other": "Failed to delete project"
   },
+  "legacy.error.1017884009a421be": {
+    "other": "The aggregation function does not match the column type"
+  },
   "legacy.error.10506d539567bc0d": {
     "other": "Failed to create WebAuthn disable challenge"
   },
@@ -632,8 +839,14 @@
   "legacy.error.10c1ec9fad526657": {
     "other": "Failed to revoke user login token"
   },
+  "legacy.error.110ac6a7d5ebc383": {
+    "other": "Data card does not exist"
+  },
   "legacy.error.1120563ed5b635f4": {
     "other": "The phone number is already in use"
+  },
+  "legacy.error.11246289bb29a05e": {
+    "other": "The semantic model exceeds the size limit"
   },
   "legacy.error.119edf9016dac56b": {
     "other": "Failed to execute backup restore"
@@ -647,6 +860,12 @@
   "legacy.error.1252b0cf293d5df2": {
     "other": "Failed to save MFA binding ticket"
   },
+  "legacy.error.12880bf977139081": {
+    "other": "Failed to validate the tenant approval association"
+  },
+  "legacy.error.12ceb1313032276b": {
+    "other": "Failed to query MQTT message details"
+  },
   "legacy.error.12d4e553e5368399": {
     "other": "The provider custom configuration is invalid"
   },
@@ -658,6 +877,9 @@
   },
   "legacy.error.13d2e1e8985487d2": {
     "other": "Current authentication method does not require WebAuthn verification"
+  },
+  "legacy.error.13d9db4a12e72986": {
+    "other": "Metric and gauge cards need ungrouped query results"
   },
   "legacy.error.13dc7c0d91a6fcaf": {
     "other": "Failed to retrieve AI data query record details"
@@ -674,6 +896,12 @@
   "legacy.error.14371b5324ef93e4": {
     "other": "Failed to set primary language"
   },
+  "legacy.error.143f1e9772b24277": {
+    "other": "The workspace and favorites each allow up to 50 cards"
+  },
+  "legacy.error.1456d3981707f770": {
+    "other": "Cannot delete workflow definition: only draft can be deleted"
+  },
   "legacy.error.1464dd4a73b2a25b": {
     "other": "Failed to parse AI provider custom config"
   },
@@ -686,14 +914,23 @@
   "legacy.error.14dc349eb32ebb06": {
     "other": "Failed to create the message template"
   },
+  "legacy.error.14e9541958eaf29c": {
+    "other": "The dashboard is not published"
+  },
   "legacy.error.14eae20685387649": {
     "other": "Message action target cannot exceed 255 characters"
   },
   "legacy.error.152a0d8516f025d6": {
     "other": "Limit must be between 1 and %d"
   },
+  "legacy.error.154bb194d8d7704f": {
+    "other": "Failed to query script execution logs"
+  },
   "legacy.error.1572896dd8ea2149": {
     "other": "File metadata repository is not configured"
+  },
+  "legacy.error.1593dca0dfa86346": {
+    "other": "Task already handled"
   },
   "legacy.error.15de1844824e8acf": {
     "other": "WeChat login credentials are invalid"
@@ -713,11 +950,17 @@
   "legacy.error.168485da154caef3": {
     "other": "Failed to page project grants"
   },
+  "legacy.error.1689611862abe259": {
+    "other": "Metric cards cannot use grouping dimensions"
+  },
   "legacy.error.1706c4959e58af6a": {
     "other": "Failed to delete project: project does not exist"
   },
   "legacy.error.1708cff4d379a80e": {
     "other": "Failed to save WebAuthn binding ticket"
+  },
+  "legacy.error.170d7e87736e41ab": {
+    "other": "Failed to open the BI data source"
   },
   "legacy.error.172798ff29ffcc90": {
     "other": "Failed to delete the role: the default role cannot be deleted"
@@ -730,6 +973,9 @@
   },
   "legacy.error.174453c31c654750": {
     "other": "Message body cannot be empty after sanitization"
+  },
+  "legacy.error.17513f0b76033b88": {
+    "other": "Invalid notification action parameters"
   },
   "legacy.error.175e2e193a614cee": {
     "other": "Failed to consume captcha token"
@@ -764,6 +1010,9 @@
   "legacy.error.19803e49d77d7763": {
     "other": "Failed to update the role: the default role status cannot be modified"
   },
+  "legacy.error.19e303eaf75621aa": {
+    "other": "The BI time range is unavailable"
+  },
   "legacy.error.1a09a09d2d75fb94": {
     "other": "The parent menu cannot be changed after creation"
   },
@@ -784,6 +1033,9 @@
   },
   "legacy.error.1b8c5c49d6878d19": {
     "other": "Failed to read WeChat login configuration"
+  },
+  "legacy.error.1be13391c90d0c32": {
+    "other": "Failed to test workflow script"
   },
   "legacy.error.1bf41abcd3c3a692": {
     "other": "The document has no stored source file and cannot be retried; delete and upload it again"
@@ -818,6 +1070,9 @@
   "legacy.error.1d5eca3ba22a1f89": {
     "other": "Failed to query tenant users"
   },
+  "legacy.error.1d65089c82e93a8f": {
+    "other": "The BI data source does not exist"
+  },
   "legacy.error.1db7bf52e1db8bbc": {
     "other": "The parent department and tenant do not match"
   },
@@ -851,6 +1106,9 @@
   "legacy.error.202c0d21ae9faf03": {
     "other": "Failed to protect MFA key"
   },
+  "legacy.error.2059cc6d984d24a6": {
+    "other": "Invalid delegate user"
+  },
   "legacy.error.20da88183ea92106": {
     "other": "Failed to create i18n custom translation"
   },
@@ -866,11 +1124,17 @@
   "legacy.error.2128a7376d079312": {
     "other": "Absolute file paths are not allowed"
   },
+  "legacy.error.21a5509ce518ca64": {
+    "other": "Failed to build the BI source catalog"
+  },
   "legacy.error.21fa23c0f931e551": {
     "other": "Failed to create MFA challenge"
   },
   "legacy.error.2242abaaa50d1dc3": {
     "other": "The outbound redaction policy does not exist"
+  },
+  "legacy.error.224ee6da67e2c49e": {
+    "other": "The dashboard draft changed. Refresh and retry"
   },
   "legacy.error.2267986a1e381ebd": {
     "other": "The sign-in page URL is invalid"
@@ -883,6 +1147,9 @@
   },
   "legacy.error.2339340aba3669da": {
     "other": "Failed to load user information"
+  },
+  "legacy.error.233a1cb83044d300": {
+    "other": "Failed to query the BI source catalog"
   },
   "legacy.error.234c138d7e2973f8": {
     "other": "Failed to read login policy status"
@@ -899,11 +1166,20 @@
   "legacy.error.23a96f3371e92fc8": {
     "other": "Failed to delete redaction rule"
   },
+  "legacy.error.23b476d2ff5c6a0d": {
+    "other": "Not your approval task"
+  },
+  "legacy.error.23c256532945f3f2": {
+    "other": "BI table relationships must connect to the fact table"
+  },
   "legacy.error.241051568bef8e2e": {
     "other": "The field encryption algorithm is invalid"
   },
   "legacy.error.2468b2acc984ef68": {
     "other": "Machine translation draft feature is not enabled"
+  },
+  "legacy.error.246aed7b4eafe3bc": {
+    "other": "The database schema is invalid"
   },
   "legacy.error.24d27137f8387e6f": {
     "other": "Only page menus can be created under a mobile page"
@@ -913,6 +1189,9 @@
   },
   "legacy.error.254cc892d3964cfb": {
     "other": "Failed to query login result distribution"
+  },
+  "legacy.error.254f007cd9859a8b": {
+    "other": "The workbench and favorites each allow up to 50 items"
   },
   "legacy.error.25975f21342bc053": {
     "other": "Multiple file upload failed"
@@ -929,11 +1208,17 @@
   "legacy.error.25deb89aa8542274": {
     "other": "Parent menu ID does not conform to menu numbering hierarchy rules"
   },
+  "legacy.error.2613784f837f2081": {
+    "other": "Failed to list BI data sources"
+  },
   "legacy.error.26743666f680a06d": {
     "other": "Rate limit rule ID cannot be empty"
   },
   "legacy.error.26a80f169b515e97": {
     "other": "Failed to query dictionary"
+  },
+  "legacy.error.26a98594498a94ca": {
+    "other": "Tenant code cannot be empty"
   },
   "legacy.error.2703b88803392bf3": {
     "other": "Failed to query AI knowledge base options"
@@ -944,11 +1229,20 @@
   "legacy.error.27071404c9de8a94": {
     "other": "Failed to save captcha token"
   },
+  "legacy.error.2756cd89149303b6": {
+    "other": "Semantic dimensions must map to same-type fields in selected tables"
+  },
   "legacy.error.2791c0708e5e304c": {
     "other": "Failed to retrieve AI providers"
   },
+  "legacy.error.279970960cdc7d86": {
+    "other": "No workflow instance linked to the business record"
+  },
   "legacy.error.27c12cba0463a64f": {
     "other": "The login region is on the denylist"
+  },
+  "legacy.error.2800470b2bba28f6": {
+    "other": "Failed to update the BI data source"
   },
   "legacy.error.282efea07da3b268": {
     "other": "The location, type, and code of a form configuration cannot be changed"
@@ -971,6 +1265,9 @@
   "legacy.error.291d427436dbaf83": {
     "other": "Failed to get password policy"
   },
+  "legacy.error.29290718ec0b858f": {
+    "other": "Failed to read the current database schema"
+  },
   "legacy.error.2937cc9333bbb190": {
     "other": "Failed to start read-only transaction"
   },
@@ -983,11 +1280,17 @@
   "legacy.error.29c2f394b38444b3": {
     "other": "An enabled output redaction policy references this rule; disable the referencing policy first"
   },
+  "legacy.error.29df9b342346ad59": {
+    "other": "Add at least one data card first"
+  },
   "legacy.error.29ebf2e88f812e63": {
     "other": "The third-party account is not bound"
   },
   "legacy.error.29f371ada01e1053": {
     "other": "Failed to save MFA recovery codes"
+  },
+  "legacy.error.29f4637294cdc134": {
+    "other": "The chart references a field absent from the query result"
   },
   "legacy.error.29fe5b349e7c8101": {
     "other": "Post is disabled and cannot be selected"
@@ -1009,6 +1312,9 @@
   },
   "legacy.error.2bcdb4bb0f0550e6": {
     "other": "Failed to set role menu permissions because they exceed the permission limit"
+  },
+  "legacy.error.2bf0ca2e14dbf0a8": {
+    "other": "Workflow graph config corrupted"
   },
   "legacy.error.2c1c5b8f80033e01": {
     "other": "Failed to read password policy configuration"
@@ -1037,11 +1343,17 @@
   "legacy.error.2d170c005d708f0e": {
     "other": "Failed to read client auth failure state"
   },
+  "legacy.error.2d4f74e7a98cbdd3": {
+    "other": "The BI data source configuration ID is invalid"
+  },
   "legacy.error.2d98325ea8ebe8a4": {
     "other": "Session does not exist"
   },
   "legacy.error.2da97a9d0e6f12e4": {
     "other": "Failed to query tables containing tenant ID"
+  },
+  "legacy.error.2dcf0a202b5aa077": {
+    "other": "Script node does not exist"
   },
   "legacy.error.2de441703db096ce": {
     "other": "The system configuration content is invalid"
@@ -1052,6 +1364,12 @@
   "legacy.error.2e1aa6824e89cd3e": {
     "other": "Failed to page projects"
   },
+  "legacy.error.2e9e8485207551ae": {
+    "other": "Tool API contract was not found"
+  },
+  "legacy.error.2eb4c634e73c7c20": {
+    "other": "Script ID list cannot be empty"
+  },
   "legacy.error.2ec2a0c6920bee1e": {
     "other": "Realtime console channel cannot be empty"
   },
@@ -1060,6 +1378,9 @@
   },
   "legacy.error.2f049ea5e2d27c12": {
     "other": "Failed to read bound tenant"
+  },
+  "legacy.error.2f173bbdd8aabbbb": {
+    "other": "Invalid workflow instance snapshot"
   },
   "legacy.error.2f92c31da328aeba": {
     "other": "Failed to delete the user: the built-in administrator account cannot be deleted"
@@ -1072,6 +1393,9 @@
   },
   "legacy.error.2fedf7ac89c458d3": {
     "other": "Failed to read data table column metadata"
+  },
+  "legacy.error.2ff36648250506aa": {
+    "other": "Invalid additional approver"
   },
   "legacy.error.2ffd8c27873e2d27": {
     "other": "Invalid AI provider identifier"
@@ -1096,6 +1420,9 @@
   },
   "legacy.error.31280f278d823685": {
     "other": "The menu path already exists"
+  },
+  "legacy.error.3198350bdf120177": {
+    "other": "Script source cannot be empty"
   },
   "legacy.error.31b4abb95ec6dd56": {
     "other": "The archive mode is invalid"
@@ -1124,6 +1451,9 @@
   "legacy.error.326cefee542b4c0d": {
     "other": "Invalid AI model status"
   },
+  "legacy.error.32de8478e8559092": {
+    "other": "The BI data source does not exist or is disabled"
+  },
   "legacy.error.330dd2d11fcdadbb": {
     "other": "Failed to test AI models"
   },
@@ -1135,6 +1465,12 @@
   },
   "legacy.error.3333e1755cbd096d": {
     "other": "The database field does not exist"
+  },
+  "legacy.error.334c34185a2d0f07": {
+    "other": "Failed to save the publication snapshot"
+  },
+  "legacy.error.33b665911d371252": {
+    "other": "Invalid card name or query settings"
   },
   "legacy.error.33cd4ce5ee01fa4c": {
     "other": "Proto interface config is not in the current check results"
@@ -1148,11 +1484,17 @@
   "legacy.error.3469afe93c5e18c4": {
     "other": "Output redaction policy status is invalid"
   },
+  "legacy.error.347070fc997f7568": {
+    "other": "Failed to validate the project approval association"
+  },
   "legacy.error.35323e14c1481ad4": {
     "other": "Failed to load the OAuth login provider configuration"
   },
   "legacy.error.35899c9b41798f9c": {
     "other": "Failed to delete the message category because it does not exist"
+  },
+  "legacy.error.359210281db55f21": {
+    "other": "The new project approval business association is invalid"
   },
   "legacy.error.3645acb13cba03bc": {
     "other": "The multi-factor authentication challenge has expired"
@@ -1190,8 +1532,14 @@
   "legacy.error.39fef6385cd1e4ce": {
     "other": "Cannot query project grants of other tenants"
   },
+  "legacy.error.3a0e3d1ee5791c6c": {
+    "other": "The dashboard draft version changed"
+  },
   "legacy.error.3a2fde07feec27e2": {
     "other": "Streaming response is not supported"
+  },
+  "legacy.error.3a48ba301b1a4d4c": {
+    "other": "Failed to iterate the configured source result"
   },
   "legacy.error.3a64745b27f68327": {
     "other": "Failed to validate the menu path"
@@ -1213,6 +1561,9 @@
   },
   "legacy.error.3adfff798e9b6a1e": {
     "other": "Failed to initialize the tenant default department"
+  },
+  "legacy.error.3b20680a1792fa16": {
+    "other": "This tenant already has the source code"
   },
   "legacy.error.3b77b280d4265902": {
     "other": "Failed to retrieve AI conversations"
@@ -1238,8 +1589,14 @@
   "legacy.error.3c2c77928163020e": {
     "other": "Image, dictionary and boolean config values do not support translation"
   },
+  "legacy.error.3c68e430f00780ee": {
+    "other": "Failed to save the dashboard layout"
+  },
   "legacy.error.3c6cd7a93b0d400a": {
     "other": "Message expiry time must be later than the current time"
+  },
+  "legacy.error.3c717f1dd2b1eb26": {
+    "other": "Specify the database schema in the connection settings"
   },
   "legacy.error.3c832fb81c6829ba": {
     "other": "A global policy cannot target a tenant or user"
@@ -1259,11 +1616,20 @@
   "legacy.error.3d7953d9d4128c4d": {
     "other": "Outbound redaction only supports GET requests"
   },
+  "legacy.error.3da415f938fb011b": {
+    "other": "Failed to validate the tenant approval source"
+  },
+  "legacy.error.3daaf675f351d2bf": {
+    "other": "Use card settings, the last 7 days or the last 30 days"
+  },
   "legacy.error.3de4efbfbc877881": {
     "other": "An administrative area cannot be its own parent or descendant"
   },
   "legacy.error.3df67385ca02d8d9": {
     "other": "Failed to retrieve rate limit rule options"
+  },
+  "legacy.error.3e2415e298964c24": {
+    "other": "The chart configuration format is invalid"
   },
   "legacy.error.3e26555b667f0ece": {
     "other": "The rule is referenced by output redaction policies and cannot be deleted"
@@ -1292,8 +1658,17 @@
   "legacy.error.3fcc79cd186820d6": {
     "other": "Failed to query OpenAPI document options"
   },
+  "legacy.error.4040fba6e5d004ad": {
+    "other": "Query conditions changed. Ask the AI again before saving the card"
+  },
+  "legacy.error.4070e624fd8a26e8": {
+    "other": "Failed to save the chart configuration"
+  },
   "legacy.error.4081e8ae5ebee83d": {
     "other": "Failed to create the rate limit rule"
+  },
+  "legacy.error.412e9898702f7499": {
+    "other": "Failed to delete the BI dashboard"
   },
   "legacy.error.415c70ceebc9339a": {
     "other": "The minimum password length must be greater than zero"
@@ -1312,6 +1687,9 @@
   },
   "legacy.error.424b444c31bcfe1f": {
     "other": "Batch generation definition conflict"
+  },
+  "legacy.error.424ef3bf19c0731c": {
+    "other": "Invalid node graph configuration"
   },
   "legacy.error.42531d74e8c7d2b7": {
     "other": "Proto interface config cannot be empty"
@@ -1340,14 +1718,23 @@
   "legacy.error.434234568b7ce4f4": {
     "other": "Failed to update language"
   },
+  "legacy.error.4348feb419bc4342": {
+    "other": "Only the default tenant can execute the new project approval action"
+  },
   "legacy.error.435d2092fabb1d0c": {
     "other": "Failed to build message provider %d(%s): %w"
   },
   "legacy.error.43ac2c9a541832d6": {
     "other": "Failed to query storage-redactable tables"
   },
+  "legacy.error.43c19b4f281561f4": {
+    "other": "The between filter needs two values"
+  },
   "legacy.error.43c2f70a29b0150b": {
     "other": "Tokens_per_second must be between %g and %g"
+  },
+  "legacy.error.43ff9b33e2653511": {
+    "other": "Failed to query BI dashboard data"
   },
   "legacy.error.44542c22a668344a": {
     "other": "Failed to set file scan temp file permissions"
@@ -1361,6 +1748,12 @@
   "legacy.error.44670a4145535bf4": {
     "other": "Failed to convert left-tree configuration"
   },
+  "legacy.error.4469a9509ea2865a": {
+    "other": "The BI source table model is invalid"
+  },
+  "legacy.error.446c05bbcf853ae6": {
+    "other": "Agent tool is disabled"
+  },
   "legacy.error.44885987e1e7fc05": {
     "other": "Tenant numbers are exhausted"
   },
@@ -1369,6 +1762,12 @@
   },
   "legacy.error.44b45b049ae6f2a2": {
     "other": "Failed to query OAuth client credentials"
+  },
+  "legacy.error.44da1869e0376a29": {
+    "other": "Invalid forward target user"
+  },
+  "legacy.error.452e3daf17a58e96": {
+    "other": "Failed to get workspace settings"
   },
   "legacy.error.453122ec31407492": {
     "other": "The OAuth scope configuration is invalid"
@@ -1394,6 +1793,9 @@
   "legacy.error.45fd3e95d5189cee": {
     "other": "Failed to query user third-party account identifier"
   },
+  "legacy.error.4608a748e161e339": {
+    "other": "Failed to query approval task detail"
+  },
   "legacy.error.4626b149e2036433": {
     "other": "Failed to close log compression stream"
   },
@@ -1415,6 +1817,9 @@
   "legacy.error.477bb0945b48c9a0": {
     "other": "Failed to query login log detail"
   },
+  "legacy.error.47a58292ae95d795": {
+    "other": "Approval tool arguments are invalid"
+  },
   "legacy.error.47bf6383bace0dfd": {
     "other": "Failed to update user"
   },
@@ -1433,6 +1838,9 @@
   "legacy.error.484f0d7c707f3db3": {
     "other": "Failed to restore code generation result"
   },
+  "legacy.error.488a83cdadc0d421": {
+    "other": "The new tenant approval business association is invalid"
+  },
   "legacy.error.48aa6dc021aefeea": {
     "other": "The login policy status is invalid"
   },
@@ -1442,6 +1850,9 @@
   "legacy.error.4901070bdec3330a": {
     "other": "Failed to query data access log detail"
   },
+  "legacy.error.490b5cd41129c88f": {
+    "other": "Failed to query approval delegation"
+  },
   "legacy.error.49895dd434859396": {
     "other": "Failed to create post"
   },
@@ -1450,6 +1861,9 @@
   },
   "legacy.error.499e50f8a502df9f": {
     "other": "Failed to query storage redaction policy detail"
+  },
+  "legacy.error.49b9ce570fb7f0e7": {
+    "other": "Failed to read the configured source result"
   },
   "legacy.error.49e95fc46747e658": {
     "other": "Failed to confirm forced MFA binding"
@@ -1475,6 +1889,9 @@
   "legacy.error.4b161abdbb32e7d8": {
     "other": "Statistics start time is invalid"
   },
+  "legacy.error.4b22686799e196a2": {
+    "other": "Failed to change BI source status"
+  },
   "legacy.error.4b4740ead55343e1": {
     "other": "Failed to rotate the client credentials"
   },
@@ -1496,8 +1913,14 @@
   "legacy.error.4c555c9a85f1bc09": {
     "other": "Failed to clear old login sessions"
   },
+  "legacy.error.4c65796a83996bb1": {
+    "other": "Card IDs must be positive and unique"
+  },
   "legacy.error.4c7474b9aece0829": {
     "other": "Failed to create the AI provider"
+  },
+  "legacy.error.4c7c6936111e1e5d": {
+    "other": "Failed to save the BI dashboard"
   },
   "legacy.error.4cd0aa2f83038a4d": {
     "other": "Failed to update code generation table config"
@@ -1510,6 +1933,9 @@
   },
   "legacy.error.4d2311ea76ac1eff": {
     "other": "Table-level i18n configuration format is invalid"
+  },
+  "legacy.error.4d48785e7ebd39fb": {
+    "other": "Approval expired or was already processed"
   },
   "legacy.error.4d5562070c003b98": {
     "other": "Failed to page i18n custom translations"
@@ -1526,8 +1952,17 @@
   "legacy.error.4e29312694e6b8ba": {
     "other": "Failed to create role"
   },
+  "legacy.error.4e85ed12d1f85f75": {
+    "other": "Select a successful query record from this account and project"
+  },
+  "legacy.error.4e87b18fb42af3c4": {
+    "other": "The BI response is not a valid query plan"
+  },
   "legacy.error.4eac7c4f6e499baa": {
     "other": "Failed to query role"
+  },
+  "legacy.error.4ebafd9f1ba3e747": {
+    "other": "The fact table must be selected"
   },
   "legacy.error.4ed8854ac5648878": {
     "other": "Message source, idempotency key or sender name length is invalid"
@@ -1541,6 +1976,9 @@
   "legacy.error.4f98589ed2ce7172": {
     "other": "The language code must be a valid language code"
   },
+  "legacy.error.4fdff590d3a88345": {
+    "other": "Failed to read database table structures"
+  },
   "legacy.error.4ffe6a7d0728688a": {
     "other": "Failed to generate one-time password verification value"
   },
@@ -1549,6 +1987,9 @@
   },
   "legacy.error.5046c2110be55873": {
     "other": "Failed to read MFA policy"
+  },
+  "legacy.error.508e0bd781aa07f1": {
+    "other": "No access to the dashboard draft"
   },
   "legacy.error.513deff78da44959": {
     "other": "The configuration key already exists in the same location"
@@ -1562,11 +2003,20 @@
   "legacy.error.516db9f035cc5c99": {
     "other": "Failed to save captcha type"
   },
+  "legacy.error.51ab852fc75caab8": {
+    "other": "Failed to list data cards"
+  },
+  "legacy.error.51c27a5266d7b445": {
+    "other": "BI natural-language query failed"
+  },
   "legacy.error.51e0cc2766ffd45d": {
     "other": "Failed to set redaction rule status"
   },
   "legacy.error.524d45335891b7b9": {
     "other": "Password has expired, please change it first"
+  },
+  "legacy.error.52cece3fb0bc5c37": {
+    "other": "Failed to create the BI data source"
   },
   "legacy.error.53392f5183414d58": {
     "other": "Invalid API operation"
@@ -1577,6 +2027,9 @@
   "legacy.error.53d0c6eaf4e7a590": {
     "other": "Database table field does not exist"
   },
+  "legacy.error.53e503c248312ca3": {
+    "other": "Script name already exists"
+  },
   "legacy.error.53e7b4c1e2683778": {
     "other": "Failed to update administrative area"
   },
@@ -1586,6 +2039,12 @@
   "legacy.error.53f8867d5b4a61c7": {
     "other": "Only the default tenant can maintain project directories"
   },
+  "legacy.error.53f89634cde5df00": {
+    "other": "Workflow has no published script snapshots; enable it again"
+  },
+  "legacy.error.540259b5547228e3": {
+    "other": "Cannot withdraw: application not pending"
+  },
   "legacy.error.5422f80650ed6780": {
     "other": "Message content does not match the idempotency key"
   },
@@ -1594,6 +2053,9 @@
   },
   "legacy.error.543d0dbad6466e6c": {
     "other": "Failed to read login session"
+  },
+  "legacy.error.54783416d1456174": {
+    "other": "Failed to read the source query"
   },
   "legacy.error.54942b049dcbe2eb": {
     "other": "Failed to delete backup config"
@@ -1622,6 +2084,9 @@
   "legacy.error.556b8b82f553a15e": {
     "other": "The third-party sign-in state has expired"
   },
+  "legacy.error.55e4ff7f51a5c57e": {
+    "other": "This version is already published"
+  },
   "legacy.error.560e0de6b066f0c3": {
     "other": "The compressed log file is corrupted"
   },
@@ -1649,6 +2114,9 @@
   "legacy.error.584c7fde024904c9": {
     "other": "Batch size must be greater than zero"
   },
+  "legacy.error.58814f41ef0b63a7": {
+    "other": "Failed to record script execution log"
+  },
   "legacy.error.58d18dab90870673": {
     "other": "Multi-factor authentication is not enabled"
   },
@@ -1661,11 +2129,17 @@
   "legacy.error.59891e4d57598bea": {
     "other": "MFA recovery code is incorrect"
   },
+  "legacy.error.59a504a8efe43caf": {
+    "other": "The BI filter operator is not supported"
+  },
   "legacy.error.59c1df3bee807b31": {
     "other": "The multi-factor authentication policy requires you to sign in again"
   },
   "legacy.error.59cd5fcd2d88a55d": {
     "other": "Grant subject type is invalid"
+  },
+  "legacy.error.59d7e6022ca5603c": {
+    "other": "Failed to read the BI source password"
   },
   "legacy.error.59f722f27a58f991": {
     "other": "Failed to query project"
@@ -1702,6 +2176,9 @@
   },
   "legacy.error.5b6b2552126d5785": {
     "other": "AI assistant runtime is not initialized"
+  },
+  "legacy.error.5bbaa6ecfe5e2c73": {
+    "other": "Tables cannot be selected more than once"
   },
   "legacy.error.5c9ce1a293619574": {
     "other": "User post does not match the tenant"
@@ -1751,8 +2228,17 @@
   "legacy.error.5e49e05b84d732ea": {
     "other": "Invalid AI model category"
   },
+  "legacy.error.5e4af6477c9e57a5": {
+    "other": "Failed to query workflow instance detail"
+  },
+  "legacy.error.5e5c8fb800af8b31": {
+    "other": "Failed to execute the configured source query"
+  },
   "legacy.error.5e7ff218eaaae90c": {
     "other": "The menu does not exist"
+  },
+  "legacy.error.5e89f6523591311d": {
+    "other": "Unsupported card chart type"
   },
   "legacy.error.5e9ba4ae7562922c": {
     "other": "The field encryption algorithm cannot be modified directly when ciphertext already exists"
@@ -1769,6 +2255,9 @@
   "legacy.error.5fe54f1b13aabace": {
     "other": "The category has pending provider deliveries; the provider cannot be removed"
   },
+  "legacy.error.6006ddbf35bdc480": {
+    "other": "Failed to query script"
+  },
   "legacy.error.6061e1920b151aa7": {
     "other": "Failed to record login failure state"
   },
@@ -1784,8 +2273,14 @@
   "legacy.error.617ff09dc5740ca9": {
     "other": "Message action parameter cannot exceed 16KB"
   },
+  "legacy.error.61c6dd4d52d756c5": {
+    "other": "Select a server database client or configure a separate connection"
+  },
   "legacy.error.61e2b1a9dab094f9": {
     "other": "Failed to process third-party account binding callback"
+  },
+  "legacy.error.61ff02d11dad1cab": {
+    "other": "The chart requires a numeric field"
   },
   "legacy.error.6205508a57ad22fe": {
     "other": "Scheduled task does not exist"
@@ -1793,8 +2288,14 @@
   "legacy.error.62520e3110ff37de": {
     "other": "Failed to query administrative area tree list"
   },
+  "legacy.error.627129d821b9a9ae": {
+    "other": "Invalid script status"
+  },
   "legacy.error.62abf78cc507b4fd": {
     "other": "Form"
+  },
+  "legacy.error.62dbfe7b4ff85db4": {
+    "other": "Favorites allow up to 50 cards with positive unique IDs"
   },
   "legacy.error.62f6ab1e2687f26b": {
     "other": "MCP requests only support HTTP access"
@@ -1804,6 +2305,9 @@
   },
   "legacy.error.63722cd0da2f0322": {
     "other": "Only platform administrators can manage redaction policies"
+  },
+  "legacy.error.638c570a0e485641": {
+    "other": "The field code or physical column name is invalid"
   },
   "legacy.error.63e1d2923d9a60ad": {
     "other": "Failed to set project status"
@@ -1838,6 +2342,9 @@
   "legacy.error.675ce37f71759e76": {
     "other": "Smart query record not found"
   },
+  "legacy.error.67b714349038ef9a": {
+    "other": "Failed to generate the source semantic model"
+  },
   "legacy.error.6809a6b85e22a0dd": {
     "other": "Failed to query permission log detail"
   },
@@ -1846,6 +2353,9 @@
   },
   "legacy.error.6875490152490a8a": {
     "other": "Failed to query scheduled task dropdown"
+  },
+  "legacy.error.68c36a9a40ff17ea": {
+    "other": "Failed to retry workflow script"
   },
   "legacy.error.690a6b7f9c24cefa": {
     "other": "Too many MFA failures"
@@ -1877,6 +2387,12 @@
   "legacy.error.6a57e7bb1fda230a": {
     "other": "Messages in this category cannot be deleted"
   },
+  "legacy.error.6a915ace53145be1": {
+    "other": "Failed to save the BI source model"
+  },
+  "legacy.error.6a96890d025d36c6": {
+    "other": "Failed to save the business document's workflow association"
+  },
   "legacy.error.6a9d6064de67fa66": {
     "other": "The message category has no enabled delivery targets"
   },
@@ -1891,6 +2407,9 @@
   },
   "legacy.error.6b0a676728c4bb15": {
     "other": "The message body format is invalid"
+  },
+  "legacy.error.6b10f726d5abb4f2": {
+    "other": "Only the default tenant can use server database clients"
   },
   "legacy.error.6b2432fed138fe2c": {
     "other": "Failed to page API access logs"
@@ -1928,6 +2447,9 @@
   "legacy.error.6de8ebe104908a91": {
     "other": "Failed to initialize the tenant administrator role"
   },
+  "legacy.error.6e274beea35914d0": {
+    "other": "Failed to create script"
+  },
   "legacy.error.6e3c9cde7970ab77": {
     "other": "Failed to re-extract document text"
   },
@@ -1964,8 +2486,17 @@
   "legacy.error.70010c1c5aff2874": {
     "other": "The OAuth client does not exist"
   },
+  "legacy.error.7035618678e0d941": {
+    "other": "The BI source table relationships are invalid"
+  },
+  "legacy.error.7037d44d26f2fe7d": {
+    "other": "Failed to process AI tool approval"
+  },
   "legacy.error.708625d074c0bc4a": {
     "other": "Frontend API file must be in the selected business module directory and use the .ts extension"
+  },
+  "legacy.error.709fd6d34b5ab217": {
+    "other": "Invalid script language"
   },
   "legacy.error.70be9f472ac29679": {
     "other": "Failed to validate your session"
@@ -2009,8 +2540,17 @@
   "legacy.error.7255193529b2fdb8": {
     "other": "File download failed"
   },
+  "legacy.error.72934aee38ddf99c": {
+    "other": "The server database client does not exist"
+  },
   "legacy.error.72aaa4285bec9431": {
     "other": "Failed to change the phone number"
+  },
+  "legacy.error.732403aa5b743865": {
+    "other": "A workflow binding verifier must be registered for host binding callbacks"
+  },
+  "legacy.error.7347922dbc5dc781": {
+    "other": "The relationship graph must be a tree rooted at the fact table"
   },
   "legacy.error.738ffa9d13b38867": {
     "other": "The post number already exists in the same tenant"
@@ -2023,6 +2563,9 @@
   },
   "legacy.error.742a08fb80e718ce": {
     "other": "Failed to restore scheduled task config"
+  },
+  "legacy.error.743de39e211f2357": {
+    "other": "The BI filter field table is invalid"
   },
   "legacy.error.7457032f6280eb65": {
     "other": "Failed to create third-party login ticket"
@@ -2053,6 +2596,9 @@
   },
   "legacy.error.75291116767157b1": {
     "other": "Uploaded file format is invalid"
+  },
+  "legacy.error.75703813c8b15887": {
+    "other": "This chart needs a category or date field"
   },
   "legacy.error.757bdbb9cf9523eb": {
     "other": "Failed to query online users"
@@ -2117,6 +2663,12 @@
   "legacy.error.77fc0ea919e34629": {
     "other": "User organization does not match the tenant"
   },
+  "legacy.error.7805ab41ec40269c": {
+    "other": "A BI question is required"
+  },
+  "legacy.error.7849340589beebfc": {
+    "other": "The workbench contains an inaccessible or unpublished dashboard"
+  },
   "legacy.error.7871e907338a7317": {
     "other": "Project grant does not exist"
   },
@@ -2138,8 +2690,14 @@
   "legacy.error.796a07cbf608a7c4": {
     "other": "Message action target validation is not initialized"
   },
+  "legacy.error.7988a9c57b1e18af": {
+    "other": "Code and version cannot be changed; create a new version"
+  },
   "legacy.error.798a355cd970d9df": {
     "other": "Failed to delete login policy"
+  },
+  "legacy.error.799b4c56d12deb00": {
+    "other": "Agent tool is disabled or execution is prohibited"
   },
   "legacy.error.79a13181f8eb5390": {
     "other": "Failed to create dictionary item"
@@ -2150,6 +2708,9 @@
   "legacy.error.79c198d49f48c75c": {
     "other": "WebAuthn authentication response is invalid"
   },
+  "legacy.error.79c663c3b9bbbc6e": {
+    "other": "Failed to read card query settings"
+  },
   "legacy.error.7a155b68e77f7b3e": {
     "other": "Failed to delete message"
   },
@@ -2158,6 +2719,9 @@
   },
   "legacy.error.7a38fa171e5f03d7": {
     "other": "The third-party sign-in ticket has expired"
+  },
+  "legacy.error.7a82731cd9da4819": {
+    "other": "Enter a valid dashboard name and code"
   },
   "legacy.error.7a9fd6329bd31acb": {
     "other": "File content cannot be empty or exceed 20 MB"
@@ -2210,8 +2774,14 @@
   "legacy.error.7ddf413a97a025d8": {
     "other": "No captcha type is enabled"
   },
+  "legacy.error.7e1cee01625c342f": {
+    "other": "Script run does not belong to this workflow"
+  },
   "legacy.error.7e4f51942b429272": {
     "other": "The outbound redaction rule parameters are invalid"
+  },
+  "legacy.error.7e7027a1d80c578d": {
+    "other": "Cannot query other tenants' delegations"
   },
   "legacy.error.7f22e0bfb634eb2f": {
     "other": "Failed to send phone verification code"
@@ -2221,6 +2791,9 @@
   },
   "legacy.error.800ad5e277d8f771": {
     "other": "Rate limit rule parameters are not valid JSON: %w"
+  },
+  "legacy.error.804ff47d9145111c": {
+    "other": "Invalid script ID"
   },
   "legacy.error.80628f11b01cfebd": {
     "other": "MFA device remember-days must be between 0 and 90"
@@ -2240,6 +2813,9 @@
   "legacy.error.81e65e451284e06e": {
     "other": "The role code already exists in the same tenant"
   },
+  "legacy.error.8216350b44fd8ba1": {
+    "other": "Failed to save data card"
+  },
   "legacy.error.82166f10832cd9cd": {
     "other": "Capacity must be between 1 and %d"
   },
@@ -2254,6 +2830,9 @@
   },
   "legacy.error.825560a606dfc1b4": {
     "other": "Failed to delete file asset"
+  },
+  "legacy.error.826af7ec0498f9b7": {
+    "other": "Failed to query card data"
   },
   "legacy.error.827e959fee2fe159": {
     "other": "Failed to page data access logs"
@@ -2273,8 +2852,14 @@
   "legacy.error.8356e20f232d281c": {
     "other": "Failed to upload the document source file"
   },
+  "legacy.error.8358173c19c8b805": {
+    "other": "Failed to delete workflow definition"
+  },
   "legacy.error.8378c73fbc6061ca": {
     "other": "Failed to page posts"
+  },
+  "legacy.error.83c152306e3a4a8e": {
+    "other": "The new tenant approval form is invalid"
   },
   "legacy.error.83e43a4951d784c2": {
     "other": "An administrative area cannot be its own parent"
@@ -2285,14 +2870,29 @@
   "legacy.error.84092786aefc8d28": {
     "other": "Failed to create session state"
   },
+  "legacy.error.840a1544b634b15c": {
+    "other": "Failed to iterate database table structures"
+  },
+  "legacy.error.844039c078368bf3": {
+    "other": "Tool request contract was not found"
+  },
   "legacy.error.84697e6aff32c8d5": {
     "other": "Failed to delete system config"
   },
   "legacy.error.84971dcea61616b1": {
     "other": "Failed to create menu"
   },
+  "legacy.error.84c684cce9bedfe9": {
+    "other": "Failed to set approval delegation"
+  },
   "legacy.error.84cd4e2b6e6c7236": {
     "other": "Failed to consume MFA recovery code"
+  },
+  "legacy.error.8509eb2948308ef5": {
+    "other": "The BI result exceeds the size limit. Narrow the query"
+  },
+  "legacy.error.855a3a4a1e73873b": {
+    "other": "Failed to update script status"
   },
   "legacy.error.858a0795c30a4a9b": {
     "other": "Multi-factor authentication failed"
@@ -2327,6 +2927,9 @@
   "legacy.error.888f5179fe310cd6": {
     "other": "Invalid rate limit dimension"
   },
+  "legacy.error.88a331bc22b0dbe9": {
+    "other": "Configure the source tables and semantic model first"
+  },
   "legacy.error.89150fa5235640aa": {
     "other": "The invoke target already exists"
   },
@@ -2335,6 +2938,12 @@
   },
   "legacy.error.8933d9e974b3a27d": {
     "other": "Failed to delete file object"
+  },
+  "legacy.error.894efd50d81b01bc": {
+    "other": "The BI time dimension table is invalid"
+  },
+  "legacy.error.895609297b4cc810": {
+    "other": "MySQL-compatible connection settings are incomplete"
   },
   "legacy.error.89948745c30efa6b": {
     "other": "Client token identity does not match"
@@ -2357,8 +2966,17 @@
   "legacy.error.8b14be98bee08880": {
     "other": "Failed to query database fields"
   },
+  "legacy.error.8b1e46dc72244e15": {
+    "other": "Failed to generate the BI query"
+  },
   "legacy.error.8b413a6a6b9c51f1": {
     "other": "Failed to query MFA status"
+  },
+  "legacy.error.8b442bce74de76e9": {
+    "other": "Select 1 to 8 tables and specify the fact table"
+  },
+  "legacy.error.8b5a995b29d45525": {
+    "other": "PostgreSQL connection settings are incomplete"
   },
   "legacy.error.8b7757274fb40557": {
     "other": "Failed to read web search response"
@@ -2381,6 +2999,9 @@
   "legacy.error.8c54cb0c3d38941a": {
     "other": "Invalid message provider status"
   },
+  "legacy.error.8c6af8b20cd52f9c": {
+    "other": "Only the default tenant can execute the new tenant approval action"
+  },
   "legacy.error.8ca5b7bd020f0d44": {
     "other": "The generated file has been modified and cannot be restored safely"
   },
@@ -2392,6 +3013,9 @@
   },
   "legacy.error.8d4c7687edb51962": {
     "other": "A password that meets the security policy must be set"
+  },
+  "legacy.error.8d5c3940aba9dd25": {
+    "other": "One user can only set one delegation"
   },
   "legacy.error.8dcfb2899db4e48a": {
     "other": "The storage redaction policy is in use by existing data and cannot be disabled or deleted"
@@ -2420,8 +3044,14 @@
   "legacy.error.8edf13ac398ac3e4": {
     "other": "The option API field does not exist"
   },
+  "legacy.error.8f08aae578d818eb": {
+    "other": "Workflow definition not found"
+  },
   "legacy.error.8f09ccc849c9e2b7": {
     "other": "Menu numbering has changed, please regenerate"
+  },
+  "legacy.error.8f0c281936a2dd93": {
+    "other": "Failed to create workflow definition"
   },
   "legacy.error.8f0dd34554f01d20": {
     "other": "Backup restore mode is invalid"
@@ -2429,17 +3059,32 @@
   "legacy.error.8f5b2aa071f02c06": {
     "other": "Failed to read MFA method"
   },
+  "legacy.error.8f6f571bc90e07de": {
+    "other": "This chart needs two category fields and a numeric field"
+  },
   "legacy.error.9001727fa93c4597": {
     "other": "Tenant does not exist or is disabled"
   },
+  "legacy.error.903b4ffba1164834": {
+    "other": "Failed to connect to the BI data source"
+  },
   "legacy.error.907ce95f5cb163dc": {
     "other": "The bound tenant does not exist"
+  },
+  "legacy.error.908123a7527b5ef3": {
+    "other": "Failed to read the query result snapshot"
+  },
+  "legacy.error.90ae3d4b3b701aa1": {
+    "other": "Configured data sources do not support queries for an individual project"
   },
   "legacy.error.90b019d1c34bcf63": {
     "other": "The login policy scope type is invalid"
   },
   "legacy.error.90fb3173fc11c767": {
     "other": "Failed to create redaction rule"
+  },
+  "legacy.error.910c3bb2daa5b9eb": {
+    "other": "Failed to get BI data source details"
   },
   "legacy.error.9169c767f06efb26": {
     "other": "Failed to construct web search request"
@@ -2455,6 +3100,9 @@
   },
   "legacy.error.9265669d517e320e": {
     "other": "Failed to parse the provider custom configuration"
+  },
+  "legacy.error.92a83b190694e02b": {
+    "other": "Failed to preview the BI query"
   },
   "legacy.error.92c25f13b0fa3691": {
     "other": "Failed to query API access log detail"
@@ -2492,6 +3140,12 @@
   "legacy.error.94a4acd52ee779cb": {
     "other": "Failed to query archive config"
   },
+  "legacy.error.94c872f75369c921": {
+    "other": "Tool arguments are invalid"
+  },
+  "legacy.error.94dc7cfc60980a69": {
+    "other": "Cannot delete: instances still reference the definition"
+  },
   "legacy.error.94f40163f02c3e7b": {
     "other": "Failed to retrieve OAuth login providers"
   },
@@ -2500,6 +3154,12 @@
   },
   "legacy.error.951405540e9a38f3": {
     "other": "The inbound redaction policy status is invalid"
+  },
+  "legacy.error.9578a4511b3382df": {
+    "other": "Application form data must be a JSON object"
+  },
+  "legacy.error.95e9cd0948335c3d": {
+    "other": "The dashboard layout format is invalid"
   },
   "legacy.error.95ea0e3927a9039c": {
     "other": "Proto interface config order or type is incorrect"
@@ -2525,6 +3185,12 @@
   "legacy.error.9798ae7fa191abd0": {
     "other": "Failed to create the role: built-in role codes cannot be used"
   },
+  "legacy.error.97a011fa2c37581c": {
+    "other": "Referenced script does not exist or is disabled"
+  },
+  "legacy.error.97e1866d4aeb1c8a": {
+    "other": "Cards from other tenants, projects or private owners cannot be referenced"
+  },
   "legacy.error.9828341ae3541d3d": {
     "other": "Failed to query user role"
   },
@@ -2533,6 +3199,9 @@
   },
   "legacy.error.998d00125d42ac70": {
     "other": "Failed to query policy evaluation log detail"
+  },
+  "legacy.error.998ef42f3f8bbb63": {
+    "other": "Failed to read the source query result"
   },
   "legacy.error.99b5db83c5f70d13": {
     "other": "Failed to save WebAuthn configuration"
@@ -2558,6 +3227,9 @@
   "legacy.error.9bdd7318cefbaaad": {
     "other": "Cannot create projects for other tenants"
   },
+  "legacy.error.9cafc0f70e08d227": {
+    "other": "Confirm business writes in the admin console"
+  },
   "legacy.error.9cd44a5bdb014fb1": {
     "other": "The table is already selected by a code generation table configuration"
   },
@@ -2576,6 +3248,9 @@
   "legacy.error.9df84549ee5d2e6d": {
     "other": "Current client does not support WebAuthn, please use a Passkey-capable client to complete binding"
   },
+  "legacy.error.9e1aa3fd7def6722": {
+    "other": "BI data source settings are required"
+  },
   "legacy.error.9e70775a28707b73": {
     "other": "File content cannot exceed 20 MB"
   },
@@ -2587,6 +3262,12 @@
   },
   "legacy.error.9ef530183c578b4d": {
     "other": "Failed to query user"
+  },
+  "legacy.error.9f01df24feb10b4f": {
+    "other": "Select one project before querying BI"
+  },
+  "legacy.error.9f0c49cefeac73e1": {
+    "other": "Reference IDs must be positive and unique"
   },
   "legacy.error.9f2257503116e08f": {
     "other": "The inbound redaction policy does not exist"
@@ -2624,6 +3305,9 @@
   "legacy.error.a238c49d0e37d9f2": {
     "other": "AI session not found"
   },
+  "legacy.error.a29ca3d4464b4117": {
+    "other": "Failed to query script page"
+  },
   "legacy.error.a2a94e08e6ca92ab": {
     "other": "Failed to create administrative area"
   },
@@ -2647,6 +3331,9 @@
   },
   "legacy.error.a4c906a269af199d": {
     "other": "Business table name can only contain lowercase letters, numbers and underscores, and must start with a letter"
+  },
+  "legacy.error.a4ec9260f17d6542": {
+    "other": "The dashboard does not exist"
   },
   "legacy.error.a51c8475a6465475": {
     "other": "The new password cannot be the same as the current password"
@@ -2684,8 +3371,17 @@
   "legacy.error.a74130d81445b0bd": {
     "other": "The provider of the embedding model is not enabled"
   },
+  "legacy.error.a767a15e48da0a92": {
+    "other": "Dimension join fields must be unique and type-compatible with the fact field"
+  },
   "legacy.error.a793ed4ba92639ed": {
     "other": "Failed to create MFA binding ticket"
+  },
+  "legacy.error.a7beabf5ecc07c42": {
+    "other": "Business document binding is not confirmed; try withdrawing later"
+  },
+  "legacy.error.a7c58b6438e3489e": {
+    "other": "Multi-measure charts require numeric fields"
   },
   "legacy.error.a7cd9211d767ce6e": {
     "other": "Business module dictionary does not exist"
@@ -2708,17 +3404,44 @@
   "legacy.error.a8cecf08b4c03297": {
     "other": "This configuration code must use the form type"
   },
+  "legacy.error.a8d8de8491bac522": {
+    "other": "Measures must map to fact table fields"
+  },
   "legacy.error.a904f86e15f80686": {
     "other": "Failed to query authorizable interfaces"
+  },
+  "legacy.error.a922fa8d9aefc4b3": {
+    "other": "Workflow definition not enabled"
+  },
+  "legacy.error.a934ff7ee33d8ab2": {
+    "other": "Tool API contract is invalid"
   },
   "legacy.error.a9a6a83a7d22e27e": {
     "other": "The username or password is incorrect"
   },
+  "legacy.error.aa3f19b0635bde95": {
+    "other": "The BI query needs at least one dimension or measure"
+  },
   "legacy.error.ab10b5713ba93cbd": {
     "other": "Failed to delete post"
   },
+  "legacy.error.ac01bb67bb88f719": {
+    "other": "This chart type supports only one measure"
+  },
   "legacy.error.ac1dcca2468c6eea": {
     "other": "Failed to query message detail"
+  },
+  "legacy.error.ac1dfc62a1e129c384": {
+    "other": "Failed to query script execution log details"
+  },
+  "legacy.error.ac1dfc62f18f680": {
+    "other": "Failed to query script execution log details"
+  },
+  "legacy.error.ac1dfc62f18f6808": {
+    "other": "Failed to query script execution log details"
+  },
+  "legacy.error.ac6310ee83bcf7f9": {
+    "other": "Only workflow participants or administrators can retry scripts"
   },
   "legacy.error.ad3e7934969052c3": {
     "other": "Failed to delete the message template"
@@ -2741,6 +3464,9 @@
   "legacy.error.ae506e54c847f000": {
     "other": "The message provider is already used by a message template"
   },
+  "legacy.error.ae56de2ccc009ae3": {
+    "other": "Failed to publish the BI dashboard"
+  },
   "legacy.error.ae5dda772496d1bc": {
     "other": "Sliding window log limit cannot exceed %d"
   },
@@ -2759,11 +3485,20 @@
   "legacy.error.af8be8010133e43a": {
     "other": "Code generation task ID cannot be empty"
   },
+  "legacy.error.afac2a2e5bf769d4": {
+    "other": "Invalid audit action"
+  },
+  "legacy.error.afdf4126e6dda456": {
+    "other": "The source semantic model is required"
+  },
   "legacy.error.b000629d3e4c6e0a": {
     "other": "Interface does not belong to the selected service"
   },
   "legacy.error.b0080b8ef47b6b2f": {
     "other": "Failed to update post"
+  },
+  "legacy.error.b008ba1ac3fb0652": {
+    "other": "The execution lease has been acquired by another task"
   },
   "legacy.error.b033407527df7ba3": {
     "other": "Failed to set i18n custom translation status"
@@ -2789,6 +3524,9 @@
   "legacy.error.b2d510c3c58db1c0": {
     "other": "Failed to query dictionary item"
   },
+  "legacy.error.b2df4070287d940b": {
+    "other": "Failed to query my approval tasks"
+  },
   "legacy.error.b2e4129625950cdc": {
     "other": "The message action type is invalid"
   },
@@ -2804,11 +3542,17 @@
   "legacy.error.b374f825d226968f": {
     "other": "Failed to query administrative area"
   },
+  "legacy.error.b38130d20d8764ce": {
+    "other": "Failed to read database column structures"
+  },
   "legacy.error.b3ca26ba26ec1779": {
     "other": "The tenant has been disabled"
   },
   "legacy.error.b3cb89fc0a8251e4": {
     "other": "Failed to parse the AI model category configuration"
+  },
+  "legacy.error.b3d876f3488c1138": {
+    "other": "Failed to read the card query"
   },
   "legacy.error.b3ff67b25874179f": {
     "other": "Failed to delete code generation table config"
@@ -2837,6 +3581,9 @@
   "legacy.error.b51de7ac39752753": {
     "other": "Unsupported AI provider"
   },
+  "legacy.error.b55bf245bac9ce6e": {
+    "other": "Cannot delete: definition not found"
+  },
   "legacy.error.b57fd83489726ea9": {
     "other": "The inbound redaction policy cannot be empty"
   },
@@ -2846,14 +3593,26 @@
   "legacy.error.b59718ffeaef06c5": {
     "other": "Failed to change the API rate limit policy status"
   },
+  "legacy.error.b599662b6305b1cd": {
+    "other": "Failed to read database unique keys"
+  },
   "legacy.error.b5f1440999896065": {
     "other": "Failed to query output redaction policy detail"
+  },
+  "legacy.error.b6454ff77812a329": {
+    "other": "The workspace contains cards you cannot access"
+  },
+  "legacy.error.b698dd181813542e": {
+    "other": "Cannot query other tenants' instances"
   },
   "legacy.error.b6a5cd0e0d7bc920": {
     "other": "Failed to create the API rate limit policy"
   },
   "legacy.error.b6aa14aecfe74975": {
     "other": "Failed to parse message provider config"
+  },
+  "legacy.error.b6b3d6b633e2277b": {
+    "other": "Enter a card name"
   },
   "legacy.error.b6b95db507adde81": {
     "other": "The session token manager is not configured"
@@ -2879,6 +3638,9 @@
   "legacy.error.b7d44d24f66dbda1": {
     "other": "Failed to query project tree"
   },
+  "legacy.error.b7dfaaed47b862eb": {
+    "other": "Cannot delete: delegation not found"
+  },
   "legacy.error.b7fdba770862e9ff": {
     "other": "Failed to delete the post: users are still assigned to it"
   },
@@ -2891,6 +3653,9 @@
   "legacy.error.b8895d5db253e184": {
     "other": "The third-party application secret cannot be empty"
   },
+  "legacy.error.b88bad52eb5ea941": {
+    "other": "User disabled"
+  },
   "legacy.error.b89055c6f7498238": {
     "other": "Rate limit rule not found"
   },
@@ -2900,17 +3665,35 @@
   "legacy.error.ba2694f62e4fbbaf": {
     "other": "Failed to delete message: message does not exist"
   },
+  "legacy.error.ba58b9c5fcfc4e35": {
+    "other": "Only published dashboard versions can be viewed"
+  },
+  "legacy.error.ba653419d73d2ec8": {
+    "other": "Failed to withdraw application"
+  },
   "legacy.error.ba92dfedf01811fc": {
     "other": "Failed to update the message template"
   },
   "legacy.error.baabf07429595997": {
     "other": "The login MAC address is on the denylist"
   },
+  "legacy.error.bb1268519f752fa3": {
+    "other": "Failed to save workspace settings"
+  },
   "legacy.error.bb1bb5f6a2dbba8b": {
     "other": "WebAuthn disable challenge has expired"
   },
   "legacy.error.bb1c9703d51a4ead": {
     "other": "The user department does not exist"
+  },
+  "legacy.error.bb42bc14719faff4": {
+    "other": "Failed to query workflow scripts"
+  },
+  "legacy.error.bbe870a05f49a123": {
+    "other": "A separate connection needs a host, port, database and username"
+  },
+  "legacy.error.bbf6b13e90ad673c": {
+    "other": "Workflow node state corrupted"
   },
   "legacy.error.bc003ab52dc05e95": {
     "other": "Message role audience is invalid"
@@ -2939,6 +3722,9 @@
   "legacy.error.bce2683b3efef155": {
     "other": "Failed to save initial password"
   },
+  "legacy.error.bd716eafd672c746": {
+    "other": "Failed to update workflow definition"
+  },
   "legacy.error.bd71a5a12e6c406b": {
     "other": "Failed to create project"
   },
@@ -2953,6 +3739,9 @@
   },
   "legacy.error.be74ce92a610e199": {
     "other": "Message audience cannot be duplicated"
+  },
+  "legacy.error.bef4cc844929c21e": {
+    "other": "Query conditions changed. Preview again before saving the card"
   },
   "legacy.error.bf136ecb202be363": {
     "other": "The dictionary item does not exist"
@@ -2981,6 +3770,9 @@
   "legacy.error.c0ee4b6fcd75f376": {
     "other": "Failed to read WebAuthn credentials"
   },
+  "legacy.error.c17f8b1c11e357cf": {
+    "other": "A workspace allows up to 50 cards with positive unique IDs"
+  },
   "legacy.error.c1927bc6a20fa3ca": {
     "other": "The inbound policy ID cannot be empty"
   },
@@ -2993,6 +3785,9 @@
   "legacy.error.c21174eeb0d483ee": {
     "other": "Failed to iterate query results"
   },
+  "legacy.error.c21640c2f2bf1181": {
+    "other": "Published node graph configuration must not exceed 1 MiB"
+  },
   "legacy.error.c22152f4419d1c0c": {
     "other": "Please select a tenant"
   },
@@ -3001,6 +3796,9 @@
   },
   "legacy.error.c269746cd8542461": {
     "other": "Third-party account unique identifier is empty"
+  },
+  "legacy.error.c27f086ce508006d": {
+    "other": "All dimension tables must be reachable from the fact table"
   },
   "legacy.error.c285fcfc099f9c92": {
     "other": "Failed to query menu tree list"
@@ -3020,6 +3818,9 @@
   "legacy.error.c33ecf4a6ac4f509": {
     "other": "Branch anchor message ID is invalid"
   },
+  "legacy.error.c343976847d80363": {
+    "other": "Failed to delete script"
+  },
   "legacy.error.c3dd71d006f793b2": {
     "other": "Failed to close file scan temp file"
   },
@@ -3031,6 +3832,9 @@
   },
   "legacy.error.c465c61d1876cee8": {
     "other": "MFA method configuration is invalid"
+  },
+  "legacy.error.c48643c9d6f06c71": {
+    "other": "Invalid list type"
   },
   "legacy.error.c49d8684e46fea65": {
     "other": "Interface does not exist"
@@ -3046,6 +3850,9 @@
   },
   "legacy.error.c59404a173ecf4a6": {
     "other": "Failed to unbind third-party account"
+  },
+  "legacy.error.c5c1f6bacfa7c53d": {
+    "other": "A card referenced by the dashboard does not exist"
   },
   "legacy.error.c5eae1dd2dfe44e7": {
     "other": "Client source IP is not authorized"
@@ -3089,6 +3896,9 @@
   "legacy.error.c8fa8bc4e8f159d9": {
     "other": "Too many failed sign-in attempts. Please try again later"
   },
+  "legacy.error.c916f58aa90099af": {
+    "other": "Invalid workflow definition status"
+  },
   "legacy.error.ca07a343943ddc8b": {
     "other": "Please select an initialized data source"
   },
@@ -3100,6 +3910,9 @@
   },
   "legacy.error.cab371e60fe459f7": {
     "other": "Failed to update AI assistant message"
+  },
+  "legacy.error.cad1411b8d349a41": {
+    "other": "Failed to get the BI dashboard"
   },
   "legacy.error.cb2e9ab2acc9d9c4": {
     "other": "Failed to update OAuth client"
@@ -3119,8 +3932,23 @@
   "legacy.error.cc009e22bbd2e9c2": {
     "other": "Failed to delete the dictionary"
   },
+  "legacy.error.cc09b1c30b456fcf": {
+    "other": "Failed to submit application"
+  },
   "legacy.error.cc20029c8818859c": {
     "other": "Failed to query backup records"
+  },
+  "legacy.error.cc29c4abdf48e2ab": {
+    "other": "BI relationships do not cover all selected tables"
+  },
+  "legacy.error.cc45410da43fe027": {
+    "other": "The BI sort field or direction is unavailable"
+  },
+  "legacy.error.cc9b2fc832c214dc": {
+    "other": "The card layout exceeds the canvas bounds"
+  },
+  "legacy.error.ccb9d64291a84b3d": {
+    "other": "Failed to iterate database column structures"
   },
   "legacy.error.cccdd8c196015a7f": {
     "other": "Failed to query backup restore records"
@@ -3134,8 +3962,17 @@
   "legacy.error.cd11548a9db9cf6c": {
     "other": "The custom translation status is invalid"
   },
+  "legacy.error.cd88df3e47cfbfb1": {
+    "other": "The dashboard version does not exist"
+  },
   "legacy.error.cd897706bc0e32ed": {
     "other": "Failed to query code generation column config"
+  },
+  "legacy.error.cdb9882d7fd358ad": {
+    "other": "You do not have access to this card"
+  },
+  "legacy.error.ce02e13c6e151681": {
+    "other": "Semantic field codes must be unique"
   },
   "legacy.error.ce0667f6a9bd7e2e": {
     "other": "The dictionary item value already exists in the same dictionary"
@@ -3143,14 +3980,41 @@
   "legacy.error.ce12956616b6dbc9": {
     "other": "The tenant, data source, table and field cannot be modified after a storage redaction policy is created"
   },
+  "legacy.error.ce1a849baef38a91": {
+    "other": "Workflow instance not pending"
+  },
   "legacy.error.ce370f796e2dbeb4": {
     "other": "Failed to read password policy status"
   },
   "legacy.error.ce521e068170e904": {
     "other": "Failed to page dictionaries"
   },
+  "legacy.error.ce842a9b36cba468": {
+    "other": "Failed to query workflow definition options"
+  },
+  "legacy.error.ce8ca5ddb89d3ccc": {
+    "other": "Favorites contain an inaccessible card"
+  },
+  "legacy.error.ce9dbb684165613c": {
+    "other": "Refresh interval must be zero or between 30 and 86400 seconds"
+  },
+  "legacy.error.cea099cf600601cb": {
+    "other": "Failed to close the unique key query"
+  },
   "legacy.error.cea933528406f077": {
     "other": "Failed to start forced MFA binding"
+  },
+  "legacy.error.cebf0a62a661df9c": {
+    "other": "Failed to query workflow definition"
+  },
+  "legacy.error.cecfa12c95140940": {
+    "other": "Cannot query other tenants' definitions"
+  },
+  "legacy.error.cf0f0aa805d84ebc": {
+    "other": "The BI semantic model is not configured"
+  },
+  "legacy.error.cf4f6074437cb725": {
+    "other": "Failed to save card query settings"
   },
   "legacy.error.cfeffe783b239e18": {
     "other": "Please select a registered system configuration form"
@@ -3161,6 +4025,9 @@
   "legacy.error.d06655e996ae7326": {
     "other": "The verification code has expired"
   },
+  "legacy.error.d06defa6f5c709be": {
+    "other": "Failed to delete data card"
+  },
   "legacy.error.d07181150520a6b4": {
     "other": "The archive record cannot be empty"
   },
@@ -3170,11 +4037,23 @@
   "legacy.error.d1700e2d9ad8a545": {
     "other": "The message tenant cannot be empty"
   },
+  "legacy.error.d194c776a0ee5e26": {
+    "other": "Invalid graph config: missing start node"
+  },
+  "legacy.error.d20fc8bcc8d8f5c7": {
+    "other": "The new project approval form is invalid"
+  },
   "legacy.error.d217a967bfd0bacd": {
     "other": "The response data type does not exist"
   },
   "legacy.error.d22fd55ed8b53e3d": {
     "other": "Message is not in scheduled publishing state"
+  },
+  "legacy.error.d2321b6e6cdb0b72": {
+    "other": "Failed to update script"
+  },
+  "legacy.error.d23b49a800ec82fd": {
+    "other": "Approval runtime state is invalid"
   },
   "legacy.error.d2426cb7f6161216": {
     "other": "Failed to delete the role because the role does not exist"
@@ -3206,11 +4085,20 @@
   "legacy.error.d355679fc4c3684d": {
     "other": "The code generation restore snapshot has expired. Generate again"
   },
+  "legacy.error.d36c66a9f8ccdb07": {
+    "other": "Failed to iterate database unique keys"
+  },
   "legacy.error.d420a6a3d117c876": {
     "other": "Failed to update translation info"
   },
+  "legacy.error.d425221049b458d4": {
+    "other": "A BI query plan is required"
+  },
   "legacy.error.d45ebaf3a56c5487": {
     "other": "Failed to mark notification as unread"
+  },
+  "legacy.error.d4d43cc0c8f5bd1d": {
+    "other": "BI source password decryption is not initialized"
   },
   "legacy.error.d5321efaf2f34345": {
     "other": "Only directories, menus, or external links can be created under a level-one directory"
@@ -3236,6 +4124,9 @@
   "legacy.error.d6dad83238ab7270": {
     "other": "The login IP address is on the denylist"
   },
+  "legacy.error.d70a3756d8dfe390": {
+    "other": "Failed to read the BI source catalog"
+  },
   "legacy.error.d71ab292ad8174fb": {
     "other": "Code generation must select a parent menu under a fixed first-level menu"
   },
@@ -3244,6 +4135,9 @@
   },
   "legacy.error.d75aac9c3ebbd04d": {
     "other": "Failed to page login logs"
+  },
+  "legacy.error.d7f37b45ffd41536": {
+    "other": "The data source status is invalid"
   },
   "legacy.error.d819413726995a8b": {
     "other": "Failed to query redaction rule options"
@@ -3263,11 +4157,17 @@
   "legacy.error.d940a40e5cc3a6b0": {
     "other": "Failed to set basic user app role"
   },
+  "legacy.error.d9af671132576c58": {
+    "other": "Failed to test run script"
+  },
   "legacy.error.d9afda138e42954e": {
     "other": "Failed to read the log download file"
   },
   "legacy.error.d9c1bd13bb3c397d": {
     "other": "Failed to query output-redactable fields"
+  },
+  "legacy.error.d9c4f018f338212d": {
+    "other": "Can only withdraw your own application"
   },
   "legacy.error.d9cf096b2b392d84": {
     "other": "Failed to set backup config status"
@@ -3281,6 +4181,9 @@
   "legacy.error.da535200fe38b6f5": {
     "other": "The target resource ID cannot be empty"
   },
+  "legacy.error.da679537f3570aac": {
+    "other": "No access to the dashboard project"
+  },
   "legacy.error.da91ab378e9ac6a8": {
     "other": "Failed to generate MFA recovery codes"
   },
@@ -3292,6 +4195,9 @@
   },
   "legacy.error.dac19e6ee2a6c448": {
     "other": "Failed to retry message delivery"
+  },
+  "legacy.error.db35c5c0de7472a2": {
+    "other": "Cannot operate other tenants' definitions"
   },
   "legacy.error.db4781157e05e955": {
     "other": "Department is disabled"
@@ -3317,6 +4223,9 @@
   "legacy.error.dc8885ca6a1d1de4": {
     "other": "Redaction rule template parameter is invalid"
   },
+  "legacy.error.dcad9e63f38f931c": {
+    "other": "Workflow has not ended"
+  },
   "legacy.error.dcc73012bd9e3caa": {
     "other": "Please select a Proto interface"
   },
@@ -3325,6 +4234,9 @@
   },
   "legacy.error.ddc0ea85e48cd84b": {
     "other": "Frontend pages cannot be safely merged"
+  },
+  "legacy.error.de21ca3c60efaa47": {
+    "other": "The published card has no query snapshot"
   },
   "legacy.error.de32ab1c95072611": {
     "other": "Document source file verification failed (content differs from the upload); delete and upload it again"
@@ -3347,17 +4259,35 @@
   "legacy.error.ded15f67c86763a2": {
     "other": "Message status has changed, please refresh and retry"
   },
+  "legacy.error.df01b88a7a820bc8": {
+    "other": "The tenant isolation field is not in the selected tables"
+  },
+  "legacy.error.df1b47c8efd4d98a": {
+    "other": "A card reference is invalid or duplicated"
+  },
   "legacy.error.df2269225d5069ee": {
     "other": "Failed to retrieve AI provider model options"
   },
   "legacy.error.df5a442da0b21158": {
     "other": "Failed to update login session"
   },
+  "legacy.error.df71b790be9d3aad": {
+    "other": "Each measure needs an aggregation function"
+  },
   "legacy.error.df83b569b1e6c106": {
     "other": "File security scan command is not configured"
   },
   "legacy.error.dfde1b4517c73c74": {
     "other": "Backup record, target data source and target database cannot be empty"
+  },
+  "legacy.error.e02e13af31934679": {
+    "other": "Only failed scripts can be retried"
+  },
+  "legacy.error.e05abb0c95c3230c": {
+    "other": "BI dimensions, measures or filters exceed the limit"
+  },
+  "legacy.error.e06cbcedf60f6b6a": {
+    "other": "Select a successful AI query from the current account and project"
   },
   "legacy.error.e0b8846e58dc6831": {
     "other": "Failed to save WebAuthn login challenge"
@@ -3395,17 +4325,26 @@
   "legacy.error.e2fd9e73043ee853": {
     "other": "Failed to set the status: sub-departments exist"
   },
+  "legacy.error.e33217d61673a21c": {
+    "other": "No project scope is available for the current user"
+  },
   "legacy.error.e33fc0beeabb38dc": {
     "other": "Failed to update archive config"
   },
   "legacy.error.e3625317beb5819a": {
     "other": "Failed to save MFA configuration"
   },
+  "legacy.error.e3e3ceb5360f5b13": {
+    "other": "Failed to parse the BI semantic configuration"
+  },
   "legacy.error.e3f1b26b38842ada": {
     "other": "The provider secret must not exceed 1024 characters"
   },
   "legacy.error.e4049241c07c1ec6": {
     "other": "Code generation table config ID cannot be duplicated"
+  },
+  "legacy.error.e4113197ca2325fa": {
+    "other": "Failed to query apply form"
   },
   "legacy.error.e4343921c928a856": {
     "other": "Login failed"
@@ -3415,6 +4354,9 @@
   },
   "legacy.error.e443a571d38b6bfc": {
     "other": "Failed to upload AI knowledge base document"
+  },
+  "legacy.error.e46eaf899f18a393": {
+    "other": "Approval runtime configuration is invalid"
   },
   "legacy.error.e47532d44611ae28": {
     "other": "Failed to reset password: user info does not exist"
@@ -3467,11 +4409,20 @@
   "legacy.error.e7c3fa9643b03f00": {
     "other": "Failed to delete the OAuth login provider"
   },
+  "legacy.error.e81dbd0ba4f7a963": {
+    "other": "Not your pending task"
+  },
   "legacy.error.e8487c03570fcf89": {
     "other": "Rule type cannot be modified"
   },
+  "legacy.error.e8515d62a9215e27": {
+    "other": "Failed to execute the BI query"
+  },
   "legacy.error.e86e1650b9bd4d21": {
     "other": "Failed to query cache entries"
+  },
+  "legacy.error.e870b4dcb0ded0c7": {
+    "other": "Failed to close the column query"
   },
   "legacy.error.e8cf0f814577dae5": {
     "other": "Session ID is invalid"
@@ -3488,6 +4439,9 @@
   "legacy.error.eb0a5c7ed1c8c6e5": {
     "other": "Failed to download historical log file"
   },
+  "legacy.error.eb1f4c524225068b": {
+    "other": "The field type is not supported"
+  },
   "legacy.error.eb66a4ab09cb7c2a": {
     "other": "Executable or script-embeddable files are not allowed to be uploaded"
   },
@@ -3497,14 +4451,23 @@
   "legacy.error.ebe9b8ff030be0c3": {
     "other": "The login policy ID cannot be empty"
   },
+  "legacy.error.ec066a971ee52c71": {
+    "other": "Failed to audit task"
+  },
   "legacy.error.ec26152876002eb0": {
     "other": "Invalid rate limit algorithm"
   },
   "legacy.error.ec4f2818494c7f39": {
     "other": "Failed to page scheduled task logs"
   },
+  "legacy.error.ec72519ba8636a4c": {
+    "other": "Relationships must reference valid fields in selected tables"
+  },
   "legacy.error.eca1d6ff1327a5f3": {
     "other": "Failed to create the department because the path update failed"
+  },
+  "legacy.error.ed128739722f40db": {
+    "other": "Only the default tenant can request a new tenant"
   },
   "legacy.error.ed45c317af97625d": {
     "other": "Failed to query database field constraints"
@@ -3539,8 +4502,17 @@
   "legacy.error.eef3f6effdfa7140": {
     "other": "Failed to load the personal profile"
   },
+  "legacy.error.ef1db3c37d699133": {
+    "other": "Failed to read workspace settings"
+  },
+  "legacy.error.ef4d3b3aab09a01d": {
+    "other": "Wait for the current reply or process pending operations first"
+  },
   "legacy.error.ef6146fd1b40b481": {
     "other": "The current session is no longer valid"
+  },
+  "legacy.error.ef81783f5a70a01a": {
+    "other": "Failed to set workflow definition status"
   },
   "legacy.error.ef92f0344e85c0cc": {
     "other": "The log level filter is invalid"
@@ -3557,6 +4529,12 @@
   "legacy.error.f00d5a69188edf52": {
     "other": "Invalid AI model category configuration"
   },
+  "legacy.error.f02efe29b89e5500": {
+    "other": "Failed to save the query result record. Please retry"
+  },
+  "legacy.error.f06bb6c5b5db84d9": {
+    "other": "Only inner and left joins are supported"
+  },
   "legacy.error.f07ad56b3295ef6f": {
     "other": "Code generation table config ID cannot be empty"
   },
@@ -3572,8 +4550,17 @@
   "legacy.error.f0c321fa54e7e4ed": {
     "other": "Failed to query login policy detail"
   },
+  "legacy.error.f11c9913680e6b54": {
+    "other": "Can only delete your own delegation"
+  },
+  "legacy.error.f11d68a2a74f06f9": {
+    "other": "Tool is unavailable for this client"
+  },
   "legacy.error.f12b6fa61a61b0c7": {
     "other": "Client bound tenant is disabled"
+  },
+  "legacy.error.f13315b882b89cac": {
+    "other": "Failed to test the BI data source"
   },
   "legacy.error.f13713a56dd96cf3": {
     "other": "Failed to query code generation table config"
@@ -3595,6 +4582,9 @@
   },
   "legacy.error.f1faed3a397b2a51": {
     "other": "Failed to sign the online user out"
+  },
+  "legacy.error.f26c80a1e129c384": {
+    "other": "Failed to query MQTT message records"
   },
   "legacy.error.f28302cbc7d78366": {
     "other": "The selected model is not an embedding model"
@@ -3629,6 +4619,9 @@
   "legacy.error.f398b3676ef7459b": {
     "other": "AI knowledge base retrieval failed"
   },
+  "legacy.error.f3c60136f3fda7c6": {
+    "other": "Each dimension table must have a relationship to the fact table"
+  },
   "legacy.error.f3e8e1b2e18b5f69": {
     "other": "Failed to query enabled captcha types"
   },
@@ -3638,11 +4631,23 @@
   "legacy.error.f44979b473b17b86": {
     "other": "Object storage is not configured"
   },
+  "legacy.error.f45d53f8c751e862": {
+    "other": "The layout version is invalid or has more than 20 cards"
+  },
+  "legacy.error.f464573b785f5f5e": {
+    "other": "Notification actions require a title, content and 1 to 100 users in this tenant"
+  },
   "legacy.error.f4e3c1c7f6c7d220": {
     "other": "Failed to delete dictionary item"
   },
+  "legacy.error.f4ea419d450e6aaa": {
+    "other": "The source code is reserved by a static adapter"
+  },
   "legacy.error.f4ec8b7116260176": {
     "other": "Failed to query user dropdown"
+  },
+  "legacy.error.f524a54193edc7f4": {
+    "other": "Failed to read BI source table structures"
   },
   "legacy.error.f54df649d4889afc": {
     "other": "Captcha pre-validation failed"
@@ -3701,6 +4706,9 @@
   "legacy.error.f90d26546dedbee7": {
     "other": "MCP authorization engine is not initialized"
   },
+  "legacy.error.f93a42e989ecd8af": {
+    "other": "Failed to validate the project approval source"
+  },
   "legacy.error.f94fb6c1649757d9": {
     "other": "Failed to delete language"
   },
@@ -3716,8 +4724,14 @@
   "legacy.error.fa1ec60338bc9604": {
     "other": "The same resource and locale cannot be duplicated"
   },
+  "legacy.error.fa35c0fef4f8b1e2": {
+    "other": "Scatter charts require two distinct numeric fields"
+  },
   "legacy.error.fa4c8538024c9929": {
     "other": "The outbound policy ID cannot be empty"
+  },
+  "legacy.error.facfeed9ad7256a3": {
+    "other": "Failed to list BI database clients"
   },
   "legacy.error.fafae4160952738e": {
     "other": "Failed to query parent menu"
@@ -3740,8 +4754,20 @@
   "legacy.error.fc25e0d9642770e1": {
     "other": "Failed to delete the dictionary: dictionary items exist"
   },
+  "legacy.error.fc4d92dd2ebc6782": {
+    "other": "A running message cannot be deleted"
+  },
+  "legacy.error.fc746194ec482626": {
+    "other": "Failed to query workflow instances"
+  },
+  "legacy.error.fcdabb6237ef15d3": {
+    "other": "Cannot update: only draft can be edited"
+  },
   "legacy.error.fd02eafe22a11946": {
     "other": "Failed to set archive config status"
+  },
+  "legacy.error.fd5abf524a285cc7": {
+    "other": "Configure at least one semantic measure"
   },
   "legacy.error.fd8a77425c196716": {
     "other": "Failed to record client auth failure state"
@@ -3757,6 +4783,9 @@
   },
   "legacy.error.fe2017ccb585fbd8": {
     "other": "Failed to create user"
+  },
+  "legacy.error.fe26a2c819b1e6c0": {
+    "other": "Failed to delete approval delegation"
   },
   "legacy.error.fe97a3a85174448e": {
     "other": "Failed to read log file info"
@@ -3899,6 +4928,39 @@
   "openapi.admin.service.sse_base": {
     "other": "Base SSE service"
   },
+  "openapi.ai.approval.0a50ca52d217eaa0": {
+    "other": "Confirm or reject the current user's pending tool calls."
+  },
+  "openapi.ai.approval.25b37d5c985ea3be": {
+    "other": "Operation description"
+  },
+  "openapi.ai.approval.2a1e259212d00994": {
+    "other": "Approval deadline"
+  },
+  "openapi.ai.approval.6cedfb9ab50004c5": {
+    "other": "Whether execution is approved"
+  },
+  "openapi.ai.approval.79d325f8ec278ba6": {
+    "other": "Single-use approval ID"
+  },
+  "openapi.ai.approval.907638a466d26ec4": {
+    "other": "AI tool approval request; the server freezes the tools and arguments."
+  },
+  "openapi.ai.approval.aca86adff02160dc": {
+    "other": "Pending tools and frozen arguments"
+  },
+  "openapi.ai.approval.bc522e692aed7078": {
+    "other": "AI tool approval information."
+  },
+  "openapi.ai.approval.c5953adda9d71bb8": {
+    "other": "AI tool call pending approval."
+  },
+  "openapi.ai.approval.c7fb3cb9b170ea8d": {
+    "other": "Approval information for pending tools"
+  },
+  "openapi.ai.approval.e1de7de24c6aa692": {
+    "other": "Frozen arguments JSON to execute"
+  },
   "openapi.ai_provider.test_models.duration": {
     "other": "Test duration in milliseconds"
   },
@@ -3923,6 +4985,345 @@
   "openapi.ai_provider.test_models.summary": {
     "other": "Test all models in the AI provider form."
   },
+  "openapi.bi.0103248c22d8dcd4": {
+    "other": "Publish a dashboard draft."
+  },
+  "openapi.bi.01ad6995c1ea49ac": {
+    "other": "Dashboard ID"
+  },
+  "openapi.bi.0268468dd6709221": {
+    "other": "Card results"
+  },
+  "openapi.bi.03ed4e4120d3a47e": {
+    "other": "Range end"
+  },
+  "openapi.bi.0810fb953302bdf5": {
+    "other": "BI result column."
+  },
+  "openapi.bi.09488c121409db9a": {
+    "other": "Workbench dashboard IDs; at most 50 unique IDs"
+  },
+  "openapi.bi.099d61d496e67248": {
+    "other": "Filter values"
+  },
+  "openapi.bi.0be233e506fbd364": {
+    "other": "Personal dashboard shortcuts and card favorites."
+  },
+  "openapi.bi.0c576f150772bfe7": {
+    "other": "Chunks with the closest semantic match"
+  },
+  "openapi.bi.0c5cbf0679840c2f": {
+    "other": "Published dashboards currently visible in the workbench"
+  },
+  "openapi.bi.0eca92161ae97faf": {
+    "other": "Test data source connectivity."
+  },
+  "openapi.bi.0fbad2972dbe9857": {
+    "other": "Tenant isolation field; empty for connection isolation or shared tables"
+  },
+  "openapi.bi.11341fb1b9ac4163": {
+    "other": "Save a validated multi-table semantic model."
+  },
+  "openapi.bi.16f3fdf2a0db9c9f": {
+    "other": "Suggested chart title"
+  },
+  "openapi.bi.1acc96ed66933520": {
+    "other": "Values in column order"
+  },
+  "openapi.bi.1cc9bbc82b4b015d": {
+    "other": "Table node in the semantic model."
+  },
+  "openapi.bi.1e6a7e9e2f54be30": {
+    "other": "Sort direction: asc or desc"
+  },
+  "openapi.bi.216a851b633926aa": {
+    "other": "Result row limit; defaults to 100"
+  },
+  "openapi.bi.271b5cd26f78b0d1": {
+    "other": "Tenant column"
+  },
+  "openapi.bi.2c1fa65657702878": {
+    "other": "Table structure identifier"
+  },
+  "openapi.bi.2d8f5e93d88c3335": {
+    "other": "Publish BI dashboard request."
+  },
+  "openapi.bi.2dfeae3e5cc026ac": {
+    "other": "Test retrieval: return chunks closest in meaning to the query."
+  },
+  "openapi.bi.3811bd8090741ec3": {
+    "other": "List the current user's natural-language query history."
+  },
+  "openapi.bi.39d39dea3a54de5e": {
+    "other": "Delete BI dashboard response."
+  },
+  "openapi.bi.39e3359b41f199b6": {
+    "other": "Data source table structure response."
+  },
+  "openapi.bi.3d9018dfe69725bd": {
+    "other": "Aggregation function"
+  },
+  "openapi.bi.3de01130c894c615": {
+    "other": "Owning table identifier"
+  },
+  "openapi.bi.4460c7852f7ebcf0": {
+    "other": "Database column structure."
+  },
+  "openapi.bi.465df2d9cb365819": {
+    "other": "Chart item ID"
+  },
+  "openapi.bi.49a847dea0ddfb47": {
+    "other": "Server database client list"
+  },
+  "openapi.bi.4b15a4a26509ba6f": {
+    "other": "Project ID; zero means tenant-wide"
+  },
+  "openapi.bi.4d17285b7085ca14": {
+    "other": "Number of tables selected in the model"
+  },
+  "openapi.bi.4d5fc5c9bc598a73": {
+    "other": "Data source semantic dimension."
+  },
+  "openapi.bi.5208e07061c2574e": {
+    "other": "Dashboard list"
+  },
+  "openapi.bi.5255137e65867265": {
+    "other": "Tables, relationships and business semantics available in the source."
+  },
+  "openapi.bi.52fde821a7d2cc07": {
+    "other": "Whether filtering is allowed"
+  },
+  "openapi.bi.52fe98551232b10f": {
+    "other": "Chart type"
+  },
+  "openapi.bi.57c6e9e1226b3601": {
+    "other": "Semantic data source code"
+  },
+  "openapi.bi.5815b0d2d51325e0": {
+    "other": "List configured server database clients."
+  },
+  "openapi.bi.5a38c50e4f51770d": {
+    "other": "Test BI data source response."
+  },
+  "openapi.bi.5beab13eead85c84": {
+    "other": "Grouping dimension codes"
+  },
+  "openapi.bi.5cb65a74a24ed0af": {
+    "other": "Fact table identifier"
+  },
+  "openapi.bi.5d3d9d2c10a8b7a8": {
+    "other": "Dashboard data response."
+  },
+  "openapi.bi.5d4d9772a3880ed2": {
+    "other": "Chart field mapping and style configuration JSON"
+  },
+  "openapi.bi.5e17fee906eaf32c": {
+    "other": "List data source settings for the current tenant."
+  },
+  "openapi.bi.5edacbc4c67164b1": {
+    "other": "Server database client name"
+  },
+  "openapi.bi.65077c9e6261bc77": {
+    "other": "BI semantic query service."
+  },
+  "openapi.bi.68d814e180751e27": {
+    "other": "Column name"
+  },
+  "openapi.bi.6cb03435eab3fc6a": {
+    "other": "Query status: BiQueryStatus enum"
+  },
+  "openapi.bi.6ceed401c1289055": {
+    "other": "Server database client list response."
+  },
+  "openapi.bi.6d785eba090fc8db": {
+    "other": "Data source semantic version"
+  },
+  "openapi.bi.6e8d4f8835095e6c": {
+    "other": "List dashboards accessible to the current user."
+  },
+  "openapi.bi.6f638acb24305376": {
+    "other": "Query result for one card."
+  },
+  "openapi.bi.73a5e2dfcd62fddd": {
+    "other": "Whether the semantic model is configured"
+  },
+  "openapi.bi.749d2897b5ad02e7": {
+    "other": "Table or view name"
+  },
+  "openapi.bi.76d0049562d89a5c": {
+    "other": "Semantic code"
+  },
+  "openapi.bi.7dd00cf604a82d55": {
+    "other": "Allowed aggregation functions"
+  },
+  "openapi.bi.7e2f47a5925e1762": {
+    "other": "Validated many-to-one relationship between two tables."
+  },
+  "openapi.bi.7e878318a1fe3292": {
+    "other": "Semantic version"
+  },
+  "openapi.bi.81acfb00e43fabc2": {
+    "other": "Table or view structure in the database."
+  },
+  "openapi.bi.85ae54b785a6078f": {
+    "other": "Dashboard name"
+  },
+  "openapi.bi.876fb72d7a91beb3": {
+    "other": "Table relationships"
+  },
+  "openapi.bi.896d55b2e54903a1": {
+    "other": "Whether the result was truncated by a limit"
+  },
+  "openapi.bi.90996f5467d1c05a": {
+    "other": "Semantic measures"
+  },
+  "openapi.bi.91047ac58c9f6465": {
+    "other": "Canvas vertical position"
+  },
+  "openapi.bi.97b3f90d49634007": {
+    "other": "Database driver"
+  },
+  "openapi.bi.99498a30d9ea8b33": {
+    "other": "BI filter condition."
+  },
+  "openapi.bi.99b40288f02660b0": {
+    "other": "Joined table identifier"
+  },
+  "openapi.bi.9a1f9679e24d878f": {
+    "other": "Database table structures"
+  },
+  "openapi.bi.9d7bde6e09524d0e": {
+    "other": "Suggested chart type"
+  },
+  "openapi.bi.9fb6e05824364a64": {
+    "other": "Preview a semantic query configured by the client."
+  },
+  "openapi.bi.a151ae5a789ce1b0": {
+    "other": "Server database client option."
+  },
+  "openapi.bi.a274525e3befd414": {
+    "other": "Database table or view name"
+  },
+  "openapi.bi.a30ee3c800a96364": {
+    "other": "Save BI dashboard request."
+  },
+  "openapi.bi.a7e77b4e9e48b1dd": {
+    "other": "Dashboard schema JSON for the executed version"
+  },
+  "openapi.bi.aa86a2bae571bb29": {
+    "other": "Table or view comment"
+  },
+  "openapi.bi.adcc73add9dc9b2b": {
+    "other": "Column code"
+  },
+  "openapi.bi.aeebfc1facd7ea41": {
+    "other": "Canvas horizontal position"
+  },
+  "openapi.bi.b21441847b985723": {
+    "other": "Available dimensions"
+  },
+  "openapi.bi.b24d316b339eef5a": {
+    "other": "Data source semantic measure."
+  },
+  "openapi.bi.bbb4ee6f12dd4782": {
+    "other": "BI dashboard record."
+  },
+  "openapi.bi.bbc7b37007a0c75a": {
+    "other": "Test result description"
+  },
+  "openapi.bi.be3ffe82fd4dc8be": {
+    "other": "Successful query record ID, usable as a card source"
+  },
+  "openapi.bi.be71f2c0683c4440": {
+    "other": "Column type"
+  },
+  "openapi.bi.bf7ec39bfb4c6062": {
+    "other": "BI natural-language query response."
+  },
+  "openapi.bi.bf8eb5e7200f667e": {
+    "other": "Unique dimension table field"
+  },
+  "openapi.bi.c3887a0552de2124": {
+    "other": "Dashboard code"
+  },
+  "openapi.bi.c4692be754ad6605": {
+    "other": "Semantic dimensions"
+  },
+  "openapi.bi.c74465d0b8605899": {
+    "other": "Database driver: mysql, postgres, doris or tidb"
+  },
+  "openapi.bi.c97f16deca110110": {
+    "other": "Filter conditions"
+  },
+  "openapi.bi.ca1fac81ad595f96": {
+    "other": "Dashboard description"
+  },
+  "openapi.bi.caa1c875da04d875": {
+    "other": "Dashboard schema JSON"
+  },
+  "openapi.bi.cf003aabe817631a": {
+    "other": "Favorite card IDs; at most 50 unique IDs"
+  },
+  "openapi.bi.cf6442adefd2c026": {
+    "other": "Database port"
+  },
+  "openapi.bi.d38817405fd0c250": {
+    "other": "BI dashboard page response."
+  },
+  "openapi.bi.d8c7c51292be8501": {
+    "other": "Execute all card queries in a published dashboard."
+  },
+  "openapi.bi.de84c084dfe40035": {
+    "other": "Join type: inner or left"
+  },
+  "openapi.bi.e509306b797f1945": {
+    "other": "Generate a semantic query from natural language and preview its result."
+  },
+  "openapi.bi.e587049c6dbb5e39": {
+    "other": "BI natural-language query request."
+  },
+  "openapi.bi.e67e7fb6c1265699": {
+    "other": "Delete a dashboard."
+  },
+  "openapi.bi.e7714726c397a39f": {
+    "other": "Get a dashboard and its current draft."
+  },
+  "openapi.bi.e87bb4422559c8fa": {
+    "other": "Range start"
+  },
+  "openapi.bi.ed6a5b186d4567da": {
+    "other": "Available measures"
+  },
+  "openapi.bi.ed73166c7fc5e183": {
+    "other": "Semantic dimension and measure configuration JSON"
+  },
+  "openapi.bi.f2b0e466b0b27866": {
+    "other": "Joined table field"
+  },
+  "openapi.bi.f50cc6f9430629c8": {
+    "other": "Result columns"
+  },
+  "openapi.bi.f84734045ce9b044": {
+    "other": "Create or save a dashboard draft."
+  },
+  "openapi.bi.faa9ea9c61e35cb6": {
+    "other": "BI dashboard management service."
+  },
+  "openapi.bi.faad29694548c077": {
+    "other": "Discover tables, columns and unique keys in a saved source."
+  },
+  "openapi.bi.fd06d32ccd1e33f4": {
+    "other": "Whether the column has a single-column unique constraint"
+  },
+  "openapi.bi.fd6af30df91c4e20": {
+    "other": "Workbench dashboard IDs in display order"
+  },
+  "openapi.bi.fe815a5cdd3ba638": {
+    "other": "BI semantic query plan."
+  },
+  "openapi.bi.fe9aab486818e87d": {
+    "other": "Selected table structures"
+  },
   "rag.admin.ai.knowledge.description.max_length": {
     "other": "Description must not exceed 500 characters"
   },
@@ -3937,6 +5338,9 @@
   },
   "rag.admin.ai.knowledge.doc.name.required": {
     "other": "Please enter document name"
+  },
+  "rag.admin.ai.knowledge.doc.reextract.failed": {
+    "other": "Failed to re-extract document text"
   },
   "rag.admin.ai.knowledge.name.required": {
     "other": "Please enter knowledge base name"
@@ -3988,6 +5392,9 @@
   },
   "system.admin.base.ai.model.model_name.required": {
     "other": "Please enter a model name"
+  },
+  "system.admin.base.ai.model.name.duplicated": {
+    "other": "Duplicate AI model name: {{.Name}}"
   },
   "system.admin.base.ai.provider.base_url.max_length": {
     "other": "The API URL must not exceed 512 characters"
@@ -4556,6 +5963,27 @@
   "system.admin.base.role.update.id.required": {
     "other": "Role ID cannot be empty"
   },
+  "system.admin.base.script.delete.id.required": {
+    "other": "Script ID list cannot be empty"
+  },
+  "system.admin.base.script.entity.description.max_length": {
+    "other": "Description cannot exceed 512 characters"
+  },
+  "system.admin.base.script.entity.hook_point.max_length": {
+    "other": "Hook point cannot exceed 160 characters"
+  },
+  "system.admin.base.script.entity.name.required": {
+    "other": "Enter a script name"
+  },
+  "system.admin.base.script.entity.source.required": {
+    "other": "Enter script source"
+  },
+  "system.admin.base.script.test_run.context_json.max_length": {
+    "other": "Context cannot exceed 200000 characters"
+  },
+  "system.admin.base.script.test_run.source.max_length": {
+    "other": "Script source cannot exceed 200000 characters"
+  },
   "system.admin.base.table.source.option.table.source_name.required": {
     "other": "Data source name cannot be empty"
   },
@@ -4916,6 +6344,9 @@
   "system.admin.code.gen.table.update.id.required": {
     "other": "Primary key ID cannot be empty"
   },
+  "system.admin.mqtt_message.get.id.required": {
+    "other": "Message record ID cannot be empty"
+  },
   "system.admin.oauth_client.delete.id.required": {
     "other": "Client ID list cannot be empty"
   },
@@ -5033,6 +6464,102 @@
   "system.admin.runtime_config.invalid_json": {
     "other": "The system configuration is invalid"
   },
+  "system.admin.workflow.definition.apply_form.code.required": {
+    "other": "Workflow code required"
+  },
+  "system.admin.workflow.definition.apply_form.version.required": {
+    "other": "Workflow version required"
+  },
+  "system.admin.workflow.definition.delete.id.required": {
+    "other": "Workflow definition ID list required"
+  },
+  "system.admin.workflow.definition.entity.code.max_length": {
+    "other": "Workflow code cannot exceed 100 characters"
+  },
+  "system.admin.workflow.definition.entity.code.required": {
+    "other": "Enter workflow code"
+  },
+  "system.admin.workflow.definition.entity.form_schema.max_length": {
+    "other": "Form schema cannot exceed 65536 characters"
+  },
+  "system.admin.workflow.definition.entity.name.max_length": {
+    "other": "Workflow name cannot exceed 100 characters"
+  },
+  "system.admin.workflow.definition.entity.name.required": {
+    "other": "Enter workflow name"
+  },
+  "system.admin.workflow.definition.entity.node_config.max_length": {
+    "other": "Graph config cannot exceed 65536 characters"
+  },
+  "system.admin.workflow.definition.entity.node_config.required": {
+    "other": "Graph config required"
+  },
+  "system.admin.workflow.definition.entity.remark.max_length": {
+    "other": "Remark cannot exceed 500 characters"
+  },
+  "system.admin.workflow.definition.entity.tenant_id.required": {
+    "other": "Select a tenant"
+  },
+  "system.admin.workflow.definition.entity.version.required": {
+    "other": "Version must be greater than 0"
+  },
+  "system.admin.workflow.definition.get.id.required": {
+    "other": "Workflow definition ID required"
+  },
+  "system.admin.workflow.definition.script_test.script_id.required": {
+    "other": "Script ID must be greater than zero"
+  },
+  "system.admin.workflow.definition.set_status.id.required": {
+    "other": "Workflow definition ID required"
+  },
+  "system.admin.workflow.definition.update.id.required": {
+    "other": "Workflow definition ID required"
+  },
+  "system.admin.workflow.delegation.delete.id.required": {
+    "other": "Delegation ID list required"
+  },
+  "system.admin.workflow.delegation.entity.delegate_user_id.required": {
+    "other": "Select a delegate user"
+  },
+  "system.admin.workflow.delegation.entity.remark.max_length": {
+    "other": "Remark cannot exceed 500 characters"
+  },
+  "system.admin.workflow.instance.get.id.required": {
+    "other": "Workflow instance ID required"
+  },
+  "system.admin.workflow.instance.submit.business_type.max_length": {
+    "other": "Business type cannot exceed 50 characters"
+  },
+  "system.admin.workflow.instance.submit.code.required": {
+    "other": "Workflow code required"
+  },
+  "system.admin.workflow.instance.submit.form_data.max_length": {
+    "other": "Form data cannot exceed 65536 characters"
+  },
+  "system.admin.workflow.instance.submit.form_data.required": {
+    "other": "Form data required"
+  },
+  "system.admin.workflow.instance.submit.version.required": {
+    "other": "Workflow version required"
+  },
+  "system.admin.workflow.instance.withdraw.id.required": {
+    "other": "Workflow instance ID required"
+  },
+  "system.admin.workflow.task.audit.comment.max_length": {
+    "other": "Comment cannot exceed 500 characters"
+  },
+  "system.admin.workflow.task.audit.task_id.required": {
+    "other": "Approval task ID required"
+  },
+  "system.admin.workflow.task.get.id.required": {
+    "other": "Approval task ID required"
+  },
+  "system.ai.chat.approval.expired": {
+    "other": "Approval expired. No pending operation was executed."
+  },
+  "system.ai.chat.approval.rejected": {
+    "other": "Rejected. No pending operation was executed."
+  },
   "system.ai.chat.error.context_too_large": {
     "other": "Conversation input including encoded attachments exceeds 28 MiB. Reduce attachments or start a new conversation."
   },
@@ -5041,6 +6568,9 @@
   },
   "system.ai.chat.error.fallback_reply.content": {
     "other": "Your question was received: {{.Content}}. However, the AI assistant is currently unavailable and cannot generate a complete reply. Please try again later."
+  },
+  "system.ai.chat.error.run_expired": {
+    "other": "Generation expired. This request will not resume automatically. Check the business result before retrying."
   },
   "system.ai.chat.error.tool_failed": {
     "other": "Tool {{.Name}} failed. Check the service logs."
@@ -5081,75 +6611,6 @@
   "system.code.gen.error.batch.definition_conflict": {
     "other": "Tables {{.Previous}} and {{.Current}} define different content for {{.Key}}"
   },
-  "system.code.gen.error.column_duplicate": {
-    "other": "Duplicate configuration for column {{.Name}}"
-  },
-  "system.code.gen.error.column_not_found": {
-    "other": "Column {{.Name}} does not exist"
-  },
-  "system.code.gen.error.column_form_multiple_tree_only": {
-    "other": "Multiple selection for column {{.Name}} only supports tree select"
-  },
-  "system.code.gen.error.column_form_multiple_json_only": {
-    "other": "Multiple selection for column {{.Name}} only supports JSON columns"
-  },
-  "system.code.gen.error.column_list_option_unnecessary": {
-    "other": "The list component for column {{.Name}} does not need option configuration"
-  },
-  "system.code.gen.error.column_list_select_incomplete": {
-    "other": "Incomplete dropdown option configuration for column {{.Name}} in list view"
-  },
-  "system.code.gen.error.column_list_tree_incomplete": {
-    "other": "Incomplete tree option configuration for column {{.Name}} in list view"
-  },
-  "system.code.gen.error.column_list_component_unsupported": {
-    "other": "Unsupported list component for column {{.Name}}"
-  },
-  "system.code.gen.error.column_form_dict_incomplete": {
-    "other": "Incomplete dictionary selection configuration for column {{.Name}} in form view"
-  },
-  "system.code.gen.error.column_switch_incomplete": {
-    "other": "Incomplete switch configuration for column {{.Name}} ({{.Scope}})"
-  },
-  "system.code.gen.error.column_switch_values_conflict": {
-    "other": "The active and inactive values of the switch for column {{.Name}} ({{.Scope}}) cannot be the same"
-  },
-  "system.code.gen.error.column_option_kind_empty": {
-    "other": "The option kind for column {{.Name}} ({{.Scope}}) cannot be empty"
-  },
-  "system.code.gen.error.column_option_switch_value_forbidden": {
-    "other": "Options for column {{.Name}} ({{.Scope}}) cannot configure switch values"
-  },
-  "system.code.gen.error.column_option_lazy_only_tree": {
-    "other": "Lazy loading for column {{.Name}} ({{.Scope}}) only supports tree options"
-  },
-  "system.code.gen.error.column_option_tree_table_only": {
-    "other": "Tree options for column {{.Name}} ({{.Scope}}) only support table source"
-  },
-  "system.code.gen.error.column_option_source_incomplete": {
-    "other": "Incomplete option source configuration for column {{.Name}} ({{.Scope}})"
-  },
-  "system.code.gen.error.column_option_source_value_empty": {
-    "other": "The option source value for column {{.Name}} ({{.Scope}}) cannot be empty"
-  },
-  "system.code.gen.error.column_option_table_fields_incomplete": {
-    "other": "Incomplete table option fields for column {{.Name}} ({{.Scope}})"
-  },
-  "system.code.gen.error.proto_api_kind_unsupported": {
-    "other": "Unsupported API kind for Proto API {{.Method}}"
-  },
-  "system.code.gen.error.proto_field_required": {
-    "other": "Please select {{.Label}} for Proto API {{.Method}}"
-  },
-  "system.code.gen.error.proto_field_not_in_table": {
-    "other": "The {{.Label}} {{.Value}} of Proto API {{.Method}} does not belong to target table {{.Table}}"
-  },
-  "system.admin.base.ai.model.name.duplicated": {
-    "other": "Duplicate AI model name: {{.Name}}"
-  },
-  "rag.admin.ai.knowledge.doc.reextract.failed": {
-    "other": "Failed to re-extract document text"
-  },
   "system.code.gen.error.batch.empty": {
     "other": "Select at least one table for batch generation"
   },
@@ -5171,6 +6632,60 @@
   "system.code.gen.error.batch.table_missing": {
     "other": "Generation item {{.Index}} is missing its table configuration"
   },
+  "system.code.gen.error.column_duplicate": {
+    "other": "Duplicate configuration for column {{.Name}}"
+  },
+  "system.code.gen.error.column_form_dict_incomplete": {
+    "other": "Incomplete dictionary selection configuration for column {{.Name}} in form view"
+  },
+  "system.code.gen.error.column_form_multiple_json_only": {
+    "other": "Multiple selection for column {{.Name}} only supports JSON columns"
+  },
+  "system.code.gen.error.column_form_multiple_tree_only": {
+    "other": "Multiple selection for column {{.Name}} only supports tree select"
+  },
+  "system.code.gen.error.column_list_component_unsupported": {
+    "other": "Unsupported list component for column {{.Name}}"
+  },
+  "system.code.gen.error.column_list_option_unnecessary": {
+    "other": "The list component for column {{.Name}} does not need option configuration"
+  },
+  "system.code.gen.error.column_list_select_incomplete": {
+    "other": "Incomplete dropdown option configuration for column {{.Name}} in list view"
+  },
+  "system.code.gen.error.column_list_tree_incomplete": {
+    "other": "Incomplete tree option configuration for column {{.Name}} in list view"
+  },
+  "system.code.gen.error.column_not_found": {
+    "other": "Column {{.Name}} does not exist"
+  },
+  "system.code.gen.error.column_option_kind_empty": {
+    "other": "The option kind for column {{.Name}} ({{.Scope}}) cannot be empty"
+  },
+  "system.code.gen.error.column_option_lazy_only_tree": {
+    "other": "Lazy loading for column {{.Name}} ({{.Scope}}) only supports tree options"
+  },
+  "system.code.gen.error.column_option_source_incomplete": {
+    "other": "Incomplete option source configuration for column {{.Name}} ({{.Scope}})"
+  },
+  "system.code.gen.error.column_option_source_value_empty": {
+    "other": "The option source value for column {{.Name}} ({{.Scope}}) cannot be empty"
+  },
+  "system.code.gen.error.column_option_switch_value_forbidden": {
+    "other": "Options for column {{.Name}} ({{.Scope}}) cannot configure switch values"
+  },
+  "system.code.gen.error.column_option_table_fields_incomplete": {
+    "other": "Incomplete table option fields for column {{.Name}} ({{.Scope}})"
+  },
+  "system.code.gen.error.column_option_tree_table_only": {
+    "other": "Tree options for column {{.Name}} ({{.Scope}}) only support table source"
+  },
+  "system.code.gen.error.column_switch_incomplete": {
+    "other": "Incomplete switch configuration for column {{.Name}} ({{.Scope}})"
+  },
+  "system.code.gen.error.column_switch_values_conflict": {
+    "other": "The active and inactive values of the switch for column {{.Name}} ({{.Scope}}) cannot be the same"
+  },
   "system.code.gen.error.has_children": {
     "other": "Cannot delete {{.Parent}} because it still contains {{.Child}} records."
   },
@@ -5188,6 +6703,15 @@
   },
   "system.code.gen.error.path_duplicate": {
     "other": "{{.Current}} cannot use the same path as {{.Previous}}"
+  },
+  "system.code.gen.error.proto_api_kind_unsupported": {
+    "other": "Unsupported API kind for Proto API {{.Method}}"
+  },
+  "system.code.gen.error.proto_field_not_in_table": {
+    "other": "The {{.Label}} {{.Value}} of Proto API {{.Method}} does not belong to target table {{.Table}}"
+  },
+  "system.code.gen.error.proto_field_required": {
+    "other": "Please select {{.Label}} for Proto API {{.Method}}"
   },
   "system.code.gen.error.route_duplicate": {
     "other": "Generated route {{.Method}} {{.HTTPMethod}} {{.Path}} duplicates {{.Operation}} in base_api"
@@ -5399,6 +6923,9 @@
   "system.mcp.tool_not_registered": {
     "other": "MCP tool {{.Name}} is not registered."
   },
+  "system.notification.sender.system": {
+    "other": "System"
+  },
   "system.oauth.crypto.error.client_token_invalid": {
     "other": "The client access token is invalid"
   },
@@ -5417,6 +6944,114 @@
   "system.oauth.crypto.error.response_too_large": {
     "other": "The response exceeds the size limit"
   },
+  "system.workflow.job.error.script_scan_failed": {
+    "other": "Workflow script recovery scan failed"
+  },
+  "system.workflow.job.result.scripts_scanned": {
+    "other": "Workflow script recovery scan finished: processed {Count} runs"
+  },
+  "system.workflow.notification.content.approved": {
+    "other": "All approval steps have been completed"
+  },
+  "system.workflow.notification.content.definition_rejected": {
+    "other": "The workflow definition is invalid. Contact an administrator"
+  },
+  "system.workflow.notification.content.escalated_applicant": {
+    "other": "The current approver has not processed the task for a long time; they have been reminded"
+  },
+  "system.workflow.notification.content.escalated_assignee": {
+    "other": "This task has remained unprocessed for a long time; the applicant has been notified"
+  },
+  "system.workflow.notification.content.pending": {
+    "other": "Sign in to process the pending approval task"
+  },
+  "system.workflow.notification.content.rejected": {
+    "other": "Sign in to review the approval comments"
+  },
+  "system.workflow.notification.content.reminder": {
+    "other": "Please sign in to process the pending approval task; the applicant will be notified if it remains unresolved"
+  },
+  "system.workflow.notification.content.withdrawn": {
+    "other": "The applicant withdrew this request; no further action is needed"
+  },
+  "system.workflow.notification.title.added": {
+    "other": "An approval task was added for you"
+  },
+  "system.workflow.notification.title.approved": {
+    "other": "Your request was approved"
+  },
+  "system.workflow.notification.title.definition_rejected": {
+    "other": "Your request was rejected"
+  },
+  "system.workflow.notification.title.escalated_applicant": {
+    "other": "Your approval request is overdue"
+  },
+  "system.workflow.notification.title.escalated_assignee": {
+    "other": "Your pending approval task is severely overdue"
+  },
+  "system.workflow.notification.title.forwarded": {
+    "other": "An approval task was forwarded to you"
+  },
+  "system.workflow.notification.title.pending": {
+    "other": "You have a new approval task"
+  },
+  "system.workflow.notification.title.rejected": {
+    "other": "Your request was rejected"
+  },
+  "system.workflow.notification.title.reminder": {
+    "other": "Your pending approval task is overdue"
+  },
+  "system.workflow.notification.title.withdrawn": {
+    "other": "Pending approval request withdrawn"
+  },
+  "system.workflow.openapi.script.context": {
+    "other": "Initial context JSON, up to 200 KiB"
+  },
+  "system.workflow.openapi.script.context_short": {
+    "other": "Initial context JSON"
+  },
+  "system.workflow.openapi.script.name": {
+    "other": "Script name snapshot"
+  },
+  "system.workflow.openapi.script.next_retry": {
+    "other": "Next retry time"
+  },
+  "system.workflow.openapi.script.page": {
+    "other": "List enabled restricted scripts available for workflows"
+  },
+  "system.workflow.openapi.script.retry": {
+    "other": "Retry a failed workflow script"
+  },
+  "system.workflow.openapi.script.retry_request": {
+    "other": "Workflow script retry request"
+  },
+  "system.workflow.openapi.script.run": {
+    "other": "Script execution records"
+  },
+  "system.workflow.openapi.script.run_id": {
+    "other": "Script run ID"
+  },
+  "system.workflow.openapi.script.runs": {
+    "other": "Workflow script execution record"
+  },
+  "system.workflow.openapi.script.saved_id": {
+    "other": "Saved script ID"
+  },
+  "system.workflow.openapi.script.snapshot": {
+    "other": "Workflow graph snapshot without script source"
+  },
+  "system.workflow.openapi.script.stage": {
+    "other": "Execution stage"
+  },
+  "system.workflow.openapi.script.test": {
+    "other": "Test a saved and enabled restricted workflow script without accepting client source code"
+  },
+  "system.workflow.openapi.script.test_request": {
+    "other": "Workflow script test parameters; only saved scripts may be referenced."
+  },
+  "system.workflow.openapi.script.variables": {
+    "other": "Workflow variables JSON"
+  },
   "密码有效期天数，零表示长期有效": {
     "other": "Password validity period in days; zero means the password does not expire"
   },
@@ -5431,454 +7066,5 @@
   },
   "获取当前用户生效的密码策略": {
     "other": "Get the password policy effective for the current user"
-  },
-  "legacy.error.26a98594498a94ca": {
-    "other": "Tenant code cannot be empty"
-  },
-  "legacy.error.f26c80a1e129c384": {
-    "other": "Failed to query MQTT message records"
-  },
-  "legacy.error.12ceb1313032276b": {
-    "other": "Failed to query MQTT message details"
-  },
-  "system.admin.mqtt_message.get.id.required": {
-    "other": "Message record ID cannot be empty"
-  },
-  "legacy.error.53e503c248312ca3": {"other": "Script name already exists"},
-  "legacy.error.2eb4c634e73c7c20": {"other": "Script ID list cannot be empty"},
-  "legacy.error.627129d821b9a9ae": {"other": "Invalid script status"},
-  "legacy.error.709fd6d34b5ab217": {"other": "Invalid script language"},
-  "legacy.error.0c349c765bb1630c": {"other": "Only JavaScript scripts are supported"},
-  "legacy.error.3198350bdf120177": {"other": "Script source cannot be empty"},
-  "legacy.error.58814f41ef0b63a7": {"other": "Failed to record script execution log"},
-  "legacy.error.804ff47d9145111c": {"other": "Invalid script ID"},
-  "legacy.error.154bb194d8d7704f": {"other": "Failed to query script execution logs"},
-  "legacy.error.ac1dfc62a1e129c384": {"other": "Failed to query script execution log details"},
-  "legacy.error.ac1dfc62f18f680": {"other": "Failed to query script execution log details"},
-  "legacy.error.ac1dfc62f18f6808": {"other": "Failed to query script execution log details"},
-  "legacy.error.a29ca3d4464b4117": {"other": "Failed to query script page"},
-  "legacy.error.6006ddbf35bdc480": {"other": "Failed to query script"},
-  "legacy.error.6e274beea35914d0": {"other": "Failed to create script"},
-  "legacy.error.d2321b6e6cdb0b72": {"other": "Failed to update script"},
-  "legacy.error.c343976847d80363": {"other": "Failed to delete script"},
-  "legacy.error.855a3a4a1e73873b": {"other": "Failed to update script status"},
-  "legacy.error.d9af671132576c58": {"other": "Failed to test run script"},
-  "system.admin.base.script.entity.name.required": {"other": "Enter a script name"},
-  "system.admin.base.script.entity.hook_point.max_length": {"other": "Hook point cannot exceed 160 characters"},
-  "system.admin.base.script.entity.source.required": {"other": "Enter script source"},
-  "system.admin.base.script.entity.description.max_length": {"other": "Description cannot exceed 512 characters"},
-  "system.admin.base.script.delete.id.required": {"other": "Script ID list cannot be empty"},
-  "system.admin.base.script.test_run.source.max_length": {"other": "Script source cannot exceed 200000 characters"},
-  "system.admin.base.script.test_run.context_json.max_length": {"other": "Context cannot exceed 200000 characters"},
-  "legacy.error.0e953f80478aa9ed": {
-    "other": "Workflow code and version duplicated in the tenant"
-  },
-  "legacy.error.1456d3981707f770": {
-    "other": "Cannot delete workflow definition: only draft can be deleted"
-  },
-  "legacy.error.1593dca0dfa86346": {
-    "other": "Task already handled"
-  },
-  "legacy.error.2059cc6d984d24a6": {
-    "other": "Invalid delegate user"
-  },
-  "legacy.error.23b476d2ff5c6a0d": {
-    "other": "Not your approval task"
-  },
-  "legacy.error.279970960cdc7d86": {
-    "other": "No workflow instance linked to the business record"
-  },
-  "legacy.error.2bf0ca2e14dbf0a8": {
-    "other": "Workflow graph config corrupted"
-  },
-  "legacy.error.2ff36648250506aa": {
-    "other": "Invalid additional approver"
-  },
-  "legacy.error.44da1869e0376a29": {
-    "other": "Invalid forward target user"
-  },
-  "legacy.error.4608a748e161e339": {
-    "other": "Failed to query approval task detail"
-  },
-  "legacy.error.490b5cd41129c88f": {
-    "other": "Failed to query approval delegation"
-  },
-  "legacy.error.540259b5547228e3": {
-    "other": "Cannot withdraw: application not pending"
-  },
-  "legacy.error.5e4af6477c9e57a5": {
-    "other": "Failed to query workflow instance detail"
-  },
-  "legacy.error.7988a9c57b1e18af": {
-    "other": "Code and version cannot be changed; create a new version"
-  },
-  "legacy.error.7e7027a1d80c578d": {
-    "other": "Cannot query other tenants' delegations"
-  },
-  "legacy.error.8358173c19c8b805": {
-    "other": "Failed to delete workflow definition"
-  },
-  "legacy.error.84c684cce9bedfe9": {
-    "other": "Failed to set approval delegation"
-  },
-  "legacy.error.8d5c3940aba9dd25": {
-    "other": "One user can only set one delegation"
-  },
-  "legacy.error.8f08aae578d818eb": {
-    "other": "Workflow definition not found"
-  },
-  "legacy.error.8f0c281936a2dd93": {
-    "other": "Failed to create workflow definition"
-  },
-  "legacy.error.94dc7cfc60980a69": {
-    "other": "Cannot delete: instances still reference the definition"
-  },
-  "legacy.error.a922fa8d9aefc4b3": {
-    "other": "Workflow definition not enabled"
-  },
-  "legacy.error.afac2a2e5bf769d4": {
-    "other": "Invalid audit action"
-  },
-  "legacy.error.b2df4070287d940b": {
-    "other": "Failed to query my approval tasks"
-  },
-  "legacy.error.b55bf245bac9ce6e": {
-    "other": "Cannot delete: definition not found"
-  },
-  "legacy.error.b698dd181813542e": {
-    "other": "Cannot query other tenants' instances"
-  },
-  "legacy.error.b7dfaaed47b862eb": {
-    "other": "Cannot delete: delegation not found"
-  },
-  "legacy.error.b88bad52eb5ea941": {
-    "other": "User disabled"
-  },
-  "legacy.error.ba653419d73d2ec8": {
-    "other": "Failed to withdraw application"
-  },
-  "legacy.error.bbf6b13e90ad673c": {
-    "other": "Workflow node state corrupted"
-  },
-  "legacy.error.bd716eafd672c746": {
-    "other": "Failed to update workflow definition"
-  },
-  "legacy.error.c48643c9d6f06c71": {
-    "other": "Invalid list type"
-  },
-  "legacy.error.c916f58aa90099af": {
-    "other": "Invalid workflow definition status"
-  },
-  "legacy.error.cc09b1c30b456fcf": {
-    "other": "Failed to submit application"
-  },
-  "legacy.error.ce1a849baef38a91": {
-    "other": "Workflow instance not pending"
-  },
-  "legacy.error.ce842a9b36cba468": {
-    "other": "Failed to query workflow definition options"
-  },
-  "legacy.error.cebf0a62a661df9c": {
-    "other": "Failed to query workflow definition"
-  },
-  "legacy.error.cecfa12c95140940": {
-    "other": "Cannot query other tenants' definitions"
-  },
-  "legacy.error.d194c776a0ee5e26": {
-    "other": "Invalid graph config: missing start node"
-  },
-  "legacy.error.d9c4f018f338212d": {
-    "other": "Can only withdraw your own application"
-  },
-  "legacy.error.db35c5c0de7472a2": {
-    "other": "Cannot operate other tenants' definitions"
-  },
-  "legacy.error.e4113197ca2325fa": {
-    "other": "Failed to query apply form"
-  },
-  "legacy.error.e81dbd0ba4f7a963": {
-    "other": "Not your pending task"
-  },
-  "legacy.error.ec066a971ee52c71": {
-    "other": "Failed to audit task"
-  },
-  "legacy.error.ef81783f5a70a01a": {
-    "other": "Failed to set workflow definition status"
-  },
-  "legacy.error.f11c9913680e6b54": {
-    "other": "Can only delete your own delegation"
-  },
-  "legacy.error.fc746194ec482626": {
-    "other": "Failed to query workflow instances"
-  },
-  "legacy.error.fcdabb6237ef15d3": {
-    "other": "Cannot update: only draft can be edited"
-  },
-  "legacy.error.fe26a2c819b1e6c0": {
-    "other": "Failed to delete approval delegation"
-  },
-  "system.admin.workflow.definition.apply_form.code.required": {
-    "other": "Workflow code required"
-  },
-  "system.admin.workflow.definition.apply_form.version.required": {
-    "other": "Workflow version required"
-  },
-  "system.admin.workflow.definition.delete.id.required": {
-    "other": "Workflow definition ID list required"
-  },
-  "system.admin.workflow.definition.entity.code.max_length": {
-    "other": "Workflow code cannot exceed 100 characters"
-  },
-  "system.admin.workflow.definition.entity.code.required": {
-    "other": "Enter workflow code"
-  },
-  "system.admin.workflow.definition.entity.form_schema.max_length": {
-    "other": "Form schema cannot exceed 65536 characters"
-  },
-  "system.admin.workflow.definition.entity.name.max_length": {
-    "other": "Workflow name cannot exceed 100 characters"
-  },
-  "system.admin.workflow.definition.entity.name.required": {
-    "other": "Enter workflow name"
-  },
-  "system.admin.workflow.definition.entity.node_config.max_length": {
-    "other": "Graph config cannot exceed 65536 characters"
-  },
-  "system.admin.workflow.definition.entity.node_config.required": {
-    "other": "Graph config required"
-  },
-  "system.admin.workflow.definition.entity.remark.max_length": {
-    "other": "Remark cannot exceed 500 characters"
-  },
-  "system.admin.workflow.definition.entity.tenant_id.required": {
-    "other": "Select a tenant"
-  },
-  "system.admin.workflow.definition.entity.version.required": {
-    "other": "Version must be greater than 0"
-  },
-  "system.admin.workflow.definition.get.id.required": {
-    "other": "Workflow definition ID required"
-  },
-  "system.admin.workflow.definition.set_status.id.required": {
-    "other": "Workflow definition ID required"
-  },
-  "system.admin.workflow.definition.update.id.required": {
-    "other": "Workflow definition ID required"
-  },
-  "system.admin.workflow.delegation.delete.id.required": {
-    "other": "Delegation ID list required"
-  },
-  "system.admin.workflow.delegation.entity.delegate_user_id.required": {
-    "other": "Select a delegate user"
-  },
-  "system.admin.workflow.delegation.entity.remark.max_length": {
-    "other": "Remark cannot exceed 500 characters"
-  },
-  "system.admin.workflow.instance.get.id.required": {
-    "other": "Workflow instance ID required"
-  },
-  "system.admin.workflow.instance.submit.business_type.max_length": {
-    "other": "Business type cannot exceed 50 characters"
-  },
-  "system.admin.workflow.instance.submit.code.required": {
-    "other": "Workflow code required"
-  },
-  "system.admin.workflow.instance.submit.form_data.max_length": {
-    "other": "Form data cannot exceed 65536 characters"
-  },
-  "system.admin.workflow.instance.submit.form_data.required": {
-    "other": "Form data required"
-  },
-  "system.admin.workflow.instance.submit.version.required": {
-    "other": "Workflow version required"
-  },
-  "system.admin.workflow.instance.withdraw.id.required": {
-    "other": "Workflow instance ID required"
-  },
-  "system.admin.workflow.task.audit.comment.max_length": {
-    "other": "Comment cannot exceed 500 characters"
-  },
-  "system.admin.workflow.task.audit.task_id.required": {
-    "other": "Approval task ID required"
-  },
-  "system.admin.workflow.task.get.id.required": {
-    "other": "Approval task ID required"
-  },
-  "legacy.error.6a96890d025d36c6": {
-    "other": "Failed to save the business document's workflow association"
-  },
-  "legacy.error.07169436625cbd35": {
-    "other": "The task has already been processed or reassigned"
-  },
-  "system.workflow.job.error.script_scan_failed": {
-    "other": "Workflow script recovery scan failed"
-  },
-  "system.workflow.job.result.scripts_scanned": {
-    "other": "Workflow script recovery scan finished: processed {Count} runs"
-  },
-  "legacy.error.2f173bbdd8aabbbb": {"other": "Invalid workflow instance snapshot"},
-  "legacy.error.067118c2b128c55f": {"other": "Cannot retry scripts belonging to another tenant"},
-  "legacy.error.ac6310ee83bcf7f9": {"other": "Only workflow participants or administrators can retry scripts"},
-  "legacy.error.7e1cee01625c342f": {"other": "Script run does not belong to this workflow"},
-  "legacy.error.e02e13af31934679": {"other": "Only failed scripts can be retried"},
-  "legacy.error.2dcf0a202b5aa077": {"other": "Script node does not exist"},
-  "legacy.error.9578a4511b3382df": {"other": "Application form data must be a JSON object"},
-  "legacy.error.53f89634cde5df00": {"other": "Workflow has no published script snapshots; enable it again"},
-  "legacy.error.b008ba1ac3fb0652": {"other": "The execution lease has been acquired by another task"},
-  "legacy.error.dcad9e63f38f931c": {"other": "Workflow has not ended"},
-  "legacy.error.17513f0b76033b88": {"other": "Invalid notification action parameters"},
-  "legacy.error.f464573b785f5f5e": {"other": "Notification actions require a title, content and 1 to 100 users in this tenant"},
-  "legacy.error.424ef3bf19c0731c": {"other": "Invalid node graph configuration"},
-  "legacy.error.97a011fa2c37581c": {"other": "Referenced script does not exist or is disabled"},
-  "legacy.error.c21640c2f2bf1181": {"other": "Published node graph configuration must not exceed 1 MiB"},
-  "legacy.error.68c36a9a40ff17ea": {"other": "Failed to retry workflow script"},
-  "legacy.error.bb42bc14719faff4": {"other": "Failed to query workflow scripts"},
-  "legacy.error.1be13391c90d0c32": {"other": "Failed to test workflow script"},
-  "system.admin.workflow.definition.script_test.script_id.required": {"other": "Script ID must be greater than zero"},
-  "system.workflow.openapi.script.page": {"other": "List enabled restricted scripts available for workflows"},
-  "system.workflow.openapi.script.test": {"other": "Test a saved and enabled restricted workflow script without accepting client source code"},
-  "system.workflow.openapi.script.retry": {"other": "Retry a failed workflow script"},
-  "system.workflow.openapi.script.retry_request": {"other": "Workflow script retry request"},
-  "system.workflow.openapi.script.runs": {"other": "Workflow script execution record"},
-  "system.workflow.openapi.script.run": {"other": "Script execution records"},
-  "system.workflow.openapi.script.run_id": {"other": "Script run ID"},
-  "system.workflow.openapi.script.snapshot": {"other": "Workflow graph snapshot without script source"},
-  "system.workflow.openapi.script.variables": {"other": "Workflow variables JSON"},
-  "system.workflow.openapi.script.name": {"other": "Script name snapshot"},
-  "system.workflow.openapi.script.test_request": {"other": "Workflow script test parameters; only saved scripts may be referenced."},
-  "system.workflow.openapi.script.saved_id": {"other": "Saved script ID"},
-  "system.workflow.openapi.script.context": {"other": "Initial context JSON, up to 200 KiB"},
-  "system.workflow.openapi.script.context_short": {"other": "Initial context JSON"},
-  "system.workflow.openapi.script.stage": {"other": "Execution stage"},
-  "system.workflow.openapi.script.next_retry": {"other": "Next retry time"},
-  "legacy.error.0b38823ed34c2c02": {"other": "Workflows support only JavaScript scripts"},
-  "legacy.error.732403aa5b743865": {"other": "A workflow binding verifier must be registered for host binding callbacks"},
-  "legacy.error.a7beabf5ecc07c42": {"other": "Business document binding is not confirmed; try withdrawing later"},
-  "system.notification.sender.system": {"other": "System"},
-  "system.workflow.notification.title.withdrawn": {"other": "Pending approval request withdrawn"},
-  "system.workflow.notification.content.withdrawn": {"other": "The applicant withdrew this request; no further action is needed"},
-  "system.workflow.notification.title.rejected": {"other": "Your request was rejected"},
-  "system.workflow.notification.content.rejected": {"other": "Sign in to review the approval comments"},
-  "system.workflow.notification.title.forwarded": {"other": "An approval task was forwarded to you"},
-  "system.workflow.notification.title.added": {"other": "An approval task was added for you"},
-  "system.workflow.notification.title.pending": {"other": "You have a new approval task"},
-  "system.workflow.notification.content.pending": {"other": "Sign in to process the pending approval task"},
-  "system.workflow.notification.title.approved": {"other": "Your request was approved"},
-  "system.workflow.notification.content.approved": {"other": "All approval steps have been completed"},
-  "system.workflow.notification.title.definition_rejected": {"other": "Your request was rejected"},
-  "system.workflow.notification.content.definition_rejected": {"other": "The workflow definition is invalid. Contact an administrator"},
-  "system.workflow.notification.title.escalated_assignee": {"other": "Your pending approval task is severely overdue"},
-  "system.workflow.notification.content.escalated_assignee": {"other": "This task has remained unprocessed for a long time; the applicant has been notified"},
-  "system.workflow.notification.title.escalated_applicant": {"other": "Your approval request is overdue"},
-  "system.workflow.notification.content.escalated_applicant": {"other": "The current approver has not processed the task for a long time; they have been reminded"},
-  "system.workflow.notification.title.reminder": {"other": "Your pending approval task is overdue"},
-  "system.workflow.notification.content.reminder": {"other": "Please sign in to process the pending approval task; the applicant will be notified if it remains unresolved"},
-  "legacy.error.ed128739722f40db": {"other": "Only the default tenant can request a new tenant"},
-  "legacy.error.3da415f938fb011b": {"other": "Failed to validate the tenant approval source"},
-  "legacy.error.8c6af8b20cd52f9c": {"other": "Only the default tenant can execute the new tenant approval action"},
-  "legacy.error.12880bf977139081": {"other": "Failed to validate the tenant approval association"},
-  "legacy.error.488a83cdadc0d421": {"other": "The new tenant approval business association is invalid"},
-  "legacy.error.83c152306e3a4a8e": {"other": "The new tenant approval form is invalid"},
-  "legacy.error.f93a42e989ecd8af": {"other": "Failed to validate the project approval source"},
-  "legacy.error.4348feb419bc4342": {"other": "Only the default tenant can execute the new project approval action"},
-  "legacy.error.347070fc997f7568": {"other": "Failed to validate the project approval association"},
-  "legacy.error.359210281db55f21": {"other": "The new project approval business association is invalid"},
-  "legacy.error.d20fc8bcc8d8f5c7": {"other": "The new project approval form is invalid"},
-  "legacy.error.0224ce0d4c9763eb": {"other": "The tenant for the new project approval is invalid"},
-  "legacy.error.9cafc0f70e08d227": {
-    "other": "Confirm business writes in the admin console"
-  },
-  "legacy.error.4d48785e7ebd39fb": {
-    "other": "Approval expired or was already processed"
-  },
-  "legacy.error.e46eaf899f18a393": {
-    "other": "Approval runtime configuration is invalid"
-  },
-  "legacy.error.47a58292ae95d795": {
-    "other": "Approval tool arguments are invalid"
-  },
-  "legacy.error.d23b49a800ec82fd": {
-    "other": "Approval runtime state is invalid"
-  },
-  "legacy.error.0e01a87b0d86090d": {
-    "other": "AI run state changed; approval cannot be saved"
-  },
-  "legacy.error.fc4d92dd2ebc6782": {
-    "other": "A running message cannot be deleted"
-  },
-  "legacy.error.ef4d3b3aab09a01d": {
-    "other": "Wait for the current reply or process pending operations first"
-  },
-  "legacy.error.f11d68a2a74f06f9": {
-    "other": "Tool is unavailable for this client"
-  },
-  "legacy.error.446c05bbcf853ae6": {
-    "other": "Agent tool is disabled"
-  },
-  "legacy.error.799b4c56d12deb00": {
-    "other": "Agent tool is disabled or execution is prohibited"
-  },
-  "legacy.error.2e9e8485207551ae": {
-    "other": "Tool API contract was not found"
-  },
-  "legacy.error.a934ff7ee33d8ab2": {
-    "other": "Tool API contract is invalid"
-  },
-  "legacy.error.844039c078368bf3": {
-    "other": "Tool request contract was not found"
-  },
-  "legacy.error.94c872f75369c921": {
-    "other": "Tool arguments are invalid"
-  },
-  "legacy.error.7037d44d26f2fe7d": {
-    "other": "Failed to process AI tool approval"
-  },
-  "openapi.ai.approval.0a50ca52d217eaa0": {
-    "other": "Confirm or reject the current user's pending tool calls."
-  },
-  "openapi.ai.approval.907638a466d26ec4": {
-    "other": "AI tool approval request; the server freezes the tools and arguments."
-  },
-  "openapi.ai.approval.79d325f8ec278ba6": {
-    "other": "Single-use approval ID"
-  },
-  "openapi.ai.approval.6cedfb9ab50004c5": {
-    "other": "Whether execution is approved"
-  },
-  "openapi.ai.approval.c7fb3cb9b170ea8d": {
-    "other": "Approval information for pending tools"
-  },
-  "openapi.ai.approval.bc522e692aed7078": {
-    "other": "AI tool approval information."
-  },
-  "openapi.ai.approval.aca86adff02160dc": {
-    "other": "Pending tools and frozen arguments"
-  },
-  "openapi.ai.approval.2a1e259212d00994": {
-    "other": "Approval deadline"
-  },
-  "openapi.ai.approval.c5953adda9d71bb8": {
-    "other": "AI tool call pending approval."
-  },
-  "openapi.ai.approval.25b37d5c985ea3be": {
-    "other": "Operation description"
-  },
-  "openapi.ai.approval.e1de7de24c6aa692": {
-    "other": "Frozen arguments JSON to execute"
-  },
-  "base.ai.approval.session_id.positive": {
-    "other": "The session number is invalid"
-  },
-  "base.ai.approval.message_id.positive": {
-    "other": "The message number is invalid"
-  },
-  "system.ai.chat.approval.expired": {
-    "other": "Approval expired. No pending operation was executed."
-  },
-  "system.ai.chat.approval.rejected": {
-    "other": "Rejected. No pending operation was executed."
-  },
-  "system.ai.chat.error.run_expired": {
-    "other": "Generation expired. This request will not resume automatically. Check the business result before retrying."
   }
 }

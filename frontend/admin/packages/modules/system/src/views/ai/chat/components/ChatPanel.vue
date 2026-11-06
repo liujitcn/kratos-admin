@@ -399,7 +399,7 @@ import type { AiKnowledgeOption } from "@liujitcn/kratos-admin-system/rpc/base/v
 import type { AiShortcut, AiToolCall } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_tool";
 import { AiMessageStatus } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_session";
 import { resolvePersistedMessage } from "../../../../utils/persisted-message";
-import { resolveModelDisplayName } from "../modelDisplay";
+import { resolveModelDisplayName } from "@liujitcn/kratos-admin-system/components/AiModelSelector/modelDisplay";
 import XSender from "./XSender.vue";
 import { resolveTimestamp } from "../message";
 

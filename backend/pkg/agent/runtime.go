@@ -97,6 +97,7 @@ func (r *Runtime) InvokeTool(ctx context.Context, terminal string, name string, 
 	if r == nil {
 		return nil, errors.New("AI assistant runtime is not initialized")
 	}
+	ctx = ContextWithTerminal(ctx, terminal)
 	input := RuntimeInput{Terminal: terminal, Content: name}
 	infos := r.enabledToolInfos(ctx, input, r.allToolInfos(ctx, input))
 	result := tool.ExecuteCall(ctx, r.toolMap(ctx, input), infos, tool.Call{
@@ -316,6 +317,8 @@ func (r *Runtime) runADK(
 	stream bool,
 	onDelta func(string),
 ) (*adk.Result, *callback.Recorder, error) {
+	ctx = ContextWithTerminal(ctx, input.Terminal)
+	ctx = ContextWithAssistantClient(ctx, client)
 	recorder := &callback.Recorder{}
 	// Responses 协议才支持服务端工具（联网搜索等），聊天补全协议使用同名 function 工具替代。
 	serverTools := client.SupportsResponsesServerTools() && !internalToolMatched

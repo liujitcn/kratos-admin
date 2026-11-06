@@ -90,7 +90,7 @@ function handleToggle(knowledgeId: number) {
   padding: 40rpx 80rpx calc(80rpx + env(safe-area-inset-bottom));
   overflow: hidden;
   background: var(--kratos-color-surface-solid, #070d18);
-  border-radius: 40rpx 40rpx 0 0;
+  border-radius: var(--kratos-page-radius) var(--kratos-page-radius) 0 0;
   box-sizing: border-box;
 }
 
@@ -100,7 +100,7 @@ function handleToggle(knowledgeId: number) {
   height: 8rpx;
   margin: 0 auto 20rpx;
   background: var(--kratos-color-track, rgba(255, 255, 255, 0.06));
-  border-radius: 4rpx;
+  border-radius: var(--kratos-page-radius);
 }
 
 .knowledge-picker__head {

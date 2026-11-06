@@ -138,7 +138,7 @@ function createMarkdownHeadingId({ text, index }: Parameters<MdHeadingId>[0]) {
   --md-theme-table-td-border-color: var(--admin-page-card-border-soft);
   --md-theme-code-inline-color: var(--admin-page-accent-soft-text);
   --md-theme-code-inline-bg-color: var(--admin-page-card-bg-muted);
-  --md-theme-code-inline-radius: 4px;
+  --md-theme-code-inline-radius: var(--admin-page-radius);
   --md-theme-code-block-color: var(--admin-page-text-primary);
   --md-theme-code-block-bg-color: var(--admin-page-card-bg-muted);
   --md-theme-code-before-bg-color: var(--admin-page-card-bg-muted);

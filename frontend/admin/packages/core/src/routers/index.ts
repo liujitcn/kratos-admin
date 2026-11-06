@@ -93,14 +93,23 @@ router.beforeEach(async to => {
   // 5.如果没有菜单列表，就重新请求菜单列表并添加动态路由
   if (!authStore.authMenuListGet.length) {
     await userStore.getUserInfo();
-    await initDynamicRouter();
+    try {
+      await initDynamicRouter();
+    } catch {
+      // 无菜单权限账号保留登录态并引导到 403 页，避免踢回登录页后因会话有效被弹回。
+      return { path: "/403", replace: true };
+    }
     if (isUnmatchedRoute(router, to.path)) return getFirstAccessibleRoutePath();
     return { ...to, replace: true };
   }
 
   // 5.1 菜单已恢复但路由实例尚未重新挂载时，补跑一次动态路由注册，避免刷新或登录首跳直接命中 404。
   if (isUnmatchedRoute(router, to.path)) {
-    await initDynamicRouter();
+    try {
+      await initDynamicRouter();
+    } catch {
+      return { path: "/403", replace: true };
+    }
     if (isUnmatchedRoute(router, to.path)) return getFirstAccessibleRoutePath();
     return { ...to, replace: true };
   }

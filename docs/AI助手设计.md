@@ -20,9 +20,9 @@ AI 助手是管理端、uni-app 和 Taro 应用端共用的会话能力。三个
 | Provider 模型选项 | `backend/api/proto/base/v1/ai_provider.proto` | `/api/v1/base/ai/provider-models` |
 | 会话 | `ai_session.proto` | `/api/v1/base/ai/session` |
 | 消息 | `ai_message.proto` | `/api/v1/base/ai/session/{session_id}/message` |
-| 智能问数 | `ai_query.proto` | `/api/v1/base/ai/query/ask`、`/api/v1/base/ai/query/tables` |
+| 智能问数 | `backend/api/proto/bi/admin/v1/bi_query.proto` | `/api/v1/admin/bi/query/ask`、`/api/v1/admin/bi/sources` |
 
-数据持久化到 `ai_session` 和 `ai_message`。一轮消息保存输入、输出、附件、工具、Token、耗时、状态和可选结构化流程内容。动作必须携带当前最新成功消息的 `source_message_id`、`action_id` 和 `flow_version`。智能问数每次调用（含失败）都会在 `ai_query` 表留痕：提问内容、生成的 SQL、状态、结果行数、SQL 执行耗时和失败原因。
+数据持久化到 `ai_session` 和 `ai_message`。一轮消息保存输入、输出、附件、工具、Token、耗时、状态和可选结构化流程内容。动作必须携带当前最新成功消息的 `source_message_id`、`action_id` 和 `flow_version`。智能问数每次调用（含失败）都会在 `bi_query` 表留痕：提问内容、语义查询计划、数据源、项目、状态、结果行数、总耗时和失败原因。
 
 发送消息的 HTTP handler 直接返回 `text/event-stream`，不使用通用 `/events/{stream}` 订阅。流结束时 `finish` 事件返回最终消息和更新后的会话。
 
@@ -44,18 +44,17 @@ Agent Tool 来自生成代码，`agent_status` 控制是否可被 AI 使用；`m
 
 ## 智能问数
 
-智能问数以 Agent Tool 形态接入会话：模型在对话中判定用户在做数据统计类提问时调用 `base_v1_ai_query_service_ask_ai_query`，必要时先用 `base_v1_ai_query_service_option_ai_query_table` 查看可用表目录，工具返回结构化结果后由模型组织自然语言回答，天然支持多轮追问。核心逻辑在 `backend/internal/biz/base/ai_query.go`。
+智能问数统一使用 `bi.admin.v1.BiQueryService`。管理端和应用端对话都调用 `bi_admin_v1_bi_query_service_ask_bi_query`，可先用 `bi_admin_v1_bi_query_service_list_bi_sources` 读取可见数据源；已有查询计划可调用 `bi_admin_v1_bi_query_service_preview_bi_query`。核心逻辑在 `backend/internal/biz/bi/admin/bi_query.go`，BI 页面与 AI 对话复用同一套实现。AI 对话调用问数时，运行时通过上下文传入本轮已选的模型客户端，BI 内部继续使用该模型生成查询计划。
 
 一次问数链路：
 
-1. 从 `information_schema` 读取白名单表结构（表注释、字段、类型），白名单在 `aiQueryTableWhitelist` 中显式登记；
-2. 把表结构字典、规则和 few-shot 注入提示词，调用当前默认模型生成 SQL（模型只写 `tenant_id = -1` 占位条件）；
-3. 确定性护栏：只允许 `SELECT`/`WITH`、拒绝危险关键字与多语句、引用表逐一到白名单校验（含逗号连接与子查询内部表）、引用租户表时强制存在 `tenant_id` 等值条件并重写为当前租户、`LIMIT` 钳制到 50 行；
-4. 在只读事务（`TxOptions{ReadOnly: true}`）中执行，15 秒超时，结果按 50 行与 48KB 双重截断后以 `{sql, columns, rows, row_count, truncated, elapsed_ms}` 返回。
+1. 根据当前认证身份读取租户和项目范围内可见的数据源目录；
+2. 模型根据目录生成 `BiQuerySpec` 和图表建议；
+3. 服务端校验数据源、维度、指标、过滤、排序、时间范围和行数上限；
+4. 通过统一的数据源执行入口查询，使用超时和结果大小限制；
+5. 将问题、查询计划、运行指标和结果快照统一写入 `bi_query`，一次问数只保存一条记录；模型生成失败和查询取消也保存失败原因。
 
-安全边界全部在确定性代码中，不依赖模型承诺；白名单表可在 `aiQueryTableWhitelist` 按部署调整。两个问数工具的开箱启用种子位于 `backend/migration/assets/v0.0.1/mysql/default_data.up.sql`（`agent_status` 启用、`mcp_status` 禁用），也可在管理端“接口管理”中调整。
-
-`ai_query` 留痕表由 GORM 自动迁移创建（模型注册在 `internal/data/gen/data` 的 `Models()`），生成 SQL 无论成功与否都落库（失败时 `status=2` 并记录 `error_msg`，护栏拒绝的 SQL 也会留痕便于调优）。新表需同步登记 `backend/Makefile` 的 `GORM_TABLE` 后执行 `make gorm-gen`。
+预览、数据卡片和仪表盘执行同样写入 `bi_query`，自然语言问题为空。仪表盘执行额外保存仪表盘 ID、版本和组件 ID。工具仍受接口开关、用户权限和可信数据范围约束；查询记录的列表和详情按租户、项目范围过滤。
 
 ## 管理端
 
@@ -70,7 +69,7 @@ Agent Tool 来自生成代码，`agent_status` 控制是否可被 AI 使用；`m
 | `components/AiMarkdown.vue` | Markdown 与代码内容。 |
 | `stream.ts`、`message.ts` | SSE 解析和消息状态归一化。 |
 
-AI 助手目录下另有管理页面：`views/base/ai-provider`（AI 供应商）、`views/ai/session`（AI 会话）和 `views/ai/query`（智能问数留痕列表，分页查看每次问数的问题、生成 SQL、状态、行数与耗时，通过 `system.admin.v1.AiQueryService` 查询 `ai_query` 表）。AI 知识库在独立模块 `frontend/admin/packages/modules/rag`（`@liujitcn/kratos-admin-rag`），页面为该包的 `views/ai-knowledge`。
+AI 助手目录下另有管理页面：`views/base/ai-provider`（AI 供应商）和 `views/ai/session`（AI 会话）。查询记录页属于 BI 模块的 `views/query-record`，通过 `bi.admin.v1.BiQueryRecordService` 查询 `bi_query`，展示问题、数据源、语义查询计划、状态、行数、耗时与结果快照。AI 知识库在独立模块 `frontend/admin/packages/modules/rag`（`@liujitcn/kratos-admin-rag`），页面为该包的 `views/ai-knowledge`。
 
 System 模块还把 AI 图标注册为顶部工具。结构化流程块组件不是内置固定实现；其他业务模块可通过 `ADMIN_AI_EXTENSION` 提供 `flowBlocks` 扩展。
 

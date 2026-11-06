@@ -142,7 +142,7 @@ const handleMessage = () => {}
   width: 240rpx;
   height: 72rpx;
   line-height: 72rpx;
-  border-radius: 72rpx;
+  border-radius: var(--kratos-page-radius);
   background: linear-gradient(
     135deg,
     var(--kratos-color-primary-deep),

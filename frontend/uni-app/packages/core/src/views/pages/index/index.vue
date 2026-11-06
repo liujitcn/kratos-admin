@@ -142,7 +142,7 @@ onLoad(() => {
   flex: 0 0 auto;
   width: 104rpx;
   height: 104rpx;
-  border-radius: 26rpx;
+  border-radius: var(--kratos-page-radius);
   border: 1px solid var(--kratos-color-border-accent);
   background: var(--kratos-color-surface-2);
 }
@@ -194,7 +194,7 @@ onLoad(() => {
   flex: 0 0 auto;
   width: 48rpx;
   height: 48rpx;
-  border-radius: 14rpx;
+  border-radius: var(--kratos-page-radius);
   background: var(--kratos-color-primary-soft);
   border: 1px solid var(--kratos-color-primary-edge);
   color: var(--kratos-color-primary);

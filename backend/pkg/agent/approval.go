@@ -10,7 +10,7 @@ import (
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/agent/tool"
 )
 
-// Resume 恢复指定运行的原始工具调用，当前权限与工具开关仍在执行入口重新检查。
+// Resume 沿用原始终端和模型上下文恢复工具调用，并在执行入口重新检查当前权限与工具开关。
 func (r *Runtime) Resume(ctx context.Context, checkpointID string, state RunState, calls []ApprovalCall, approved bool) (*Response, error) {
 	input := RuntimeInput{CheckPointID: checkpointID, Terminal: state.Terminal, ProviderID: state.ProviderID, ModelName: state.ModelName}
 	client, err := r.resolveAssistantClient(input)
@@ -20,6 +20,8 @@ func (r *Runtime) Resume(ctx context.Context, checkpointID string, state RunStat
 	if r.checkPointStore == nil || len(calls) == 0 {
 		return nil, fmt.Errorf("agent approval state is unavailable")
 	}
+	ctx = ContextWithTerminal(ctx, input.Terminal)
+	ctx = ContextWithAssistantClient(ctx, client)
 	allowed := make(map[string]bool, len(state.ToolNames))
 	for _, name := range state.ToolNames {
 		allowed[name] = true

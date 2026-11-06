@@ -1,0 +1,19 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@liujitcn/kratos-admin-bi": ["src/index.ts"],
+      "@liujitcn/kratos-admin-bi/api/*": ["src/api/*"],
+      "@liujitcn/kratos-admin-bi/rpc/*": ["src/rpc/*"],
+      "@liujitcn/kratos-admin-bi/views/*": ["src/views/*"],
+      "@liujitcn/kratos-admin-bi/package.json": ["package.json"]
+    },
+    "rootDir": ".",
+    "noEmit": false,
+    "declaration": true,
+    "declarationMap": false,
+    "outDir": "./dist/declarations",
+    "declarationDir": "./dist/declarations"
+  }
+}

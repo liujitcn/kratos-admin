@@ -72,7 +72,7 @@ import type { AiShortcut } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_to
 import { AiMessageStatus } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_session";
 import { Terminal } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_tool";
 import ChatPanel from "./components/ChatPanel.vue";
-import SessionPanel from "./components/SessionPanel.vue";
+import SessionPanel from "@liujitcn/kratos-admin-system/components/AiSessionPanel/index.vue";
 import {
   appendStreamingDelta,
   createLocalUserMessage,
@@ -91,7 +91,7 @@ import {
   sortMessages
 } from "./message";
 import { readAiEventStream } from "./stream";
-import { loadStoredModelSelection, saveModelSelection } from "./modelSelection";
+import { resolveModelSelection, saveModelSelection } from "@liujitcn/kratos-admin-system/components/AiModelSelector/modelSelection";
 import type {
   AiStreamEvent,
   AiStreamPayload,
@@ -719,20 +719,9 @@ async function loadAiShortcuts() {
 
 /** 优先恢复本地缓存的模型选择，缓存失效时回退到首个可用模型。 */
 function applyModelSelection() {
-  const stored = loadStoredModelSelection();
-  const provider = stored
-    ? modelProviders.value.find(
-        item => item.provider_id === stored.provider_id && item.models.some(model => model.model_name === stored.model_name)
-      )
-    : undefined;
-  if (provider && stored) {
-    selectedProviderId.value = provider.provider_id;
-    selectedModelName.value = stored.model_name;
-    return;
-  }
-  const firstProvider = modelProviders.value[0];
-  selectedProviderId.value = firstProvider?.provider_id ?? 0;
-  selectedModelName.value = firstProvider?.models[0]?.model_name ?? "";
+  const selection = resolveModelSelection(modelProviders.value);
+  selectedProviderId.value = selection.provider_id;
+  selectedModelName.value = selection.model_name;
 }
 
 /** 更新当前聊天使用的供应商与模型并持久化到本地缓存。 */

@@ -110,6 +110,8 @@ ts-admin: types-admin
 		PATH="$(TS_PROTO_BIN_DIR):$(GO_BIN_DIR):$$PATH" buf generate --template buf.admin.core.typescript.gen.yaml --exclude-path proto/system/app
 	@cd "$(API_DIR)" && \
 		PATH="$(TS_PROTO_BIN_DIR):$(GO_BIN_DIR):$$PATH" buf generate --template buf.admin.rag.typescript.gen.yaml
+	@cd "$(API_DIR)" && \
+		PATH="$(TS_PROTO_BIN_DIR):$(GO_BIN_DIR):$$PATH" buf generate --template buf.admin.bi.typescript.gen.yaml
 	@echo "==> 管理端 TypeScript RPC 代码生成完成"
 
 # 统一生成管理端 API 与组件自动导入声明。
@@ -299,7 +301,7 @@ package-admin:
 	@echo "==> 开始打包管理端 npm 包"
 	@$(MAKE) check-admin
 	@$(MAKE) build-package
-	@for package_dir in admin/packages/core admin/packages/modules/system admin/packages/modules/rag admin/packages/cli; do \
+	@for package_dir in admin/packages/core admin/packages/modules/system admin/packages/modules/rag admin/packages/modules/bi admin/packages/cli; do \
 		(cd "$$package_dir" && $(PNPM_PACK) --pack-destination "$(NPM_PACK_DEST)") || exit 1; \
 		done
 	@echo "==> 管理端 npm 包打包完成"
@@ -330,7 +332,7 @@ package:
 # 检查、打包并发布管理后台 npm 包
 publish-admin:
 	@$(MAKE) package-admin
-	@$(NPM_PUBLISH_ENV) bash scripts/publish_packages.sh admin/packages/core admin/packages/modules/system admin/packages/modules/rag admin/packages/cli
+	@$(NPM_PUBLISH_ENV) bash scripts/publish_packages.sh admin/packages/core admin/packages/modules/system admin/packages/modules/rag admin/packages/modules/bi admin/packages/cli
 
 # 检查、打包并发布 uni-app npm 包
 publish-uni-app:
@@ -344,7 +346,7 @@ publish-taro-app:
 
 # 发布已经检查并构建的全部 npm 包
 publish-only:
-	@$(NPM_PUBLISH_ENV) bash scripts/publish_packages.sh admin/packages/core admin/packages/modules/system admin/packages/modules/rag admin/packages/cli uni-app/packages/core uni-app/packages/modules/system uni-app/packages/cli taro-app/packages/core taro-app/packages/ui taro-app/packages/modules/system taro-app/packages/cli
+	@$(NPM_PUBLISH_ENV) bash scripts/publish_packages.sh admin/packages/core admin/packages/modules/system admin/packages/modules/rag admin/packages/modules/bi admin/packages/cli uni-app/packages/core uni-app/packages/modules/system uni-app/packages/cli taro-app/packages/core taro-app/packages/ui taro-app/packages/modules/system taro-app/packages/cli
 
 # 按打包、发布的顺序发布全部 npm 包
 publish:

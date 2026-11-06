@@ -35,7 +35,7 @@ page {
 .bubble {
   max-width: 86%;
   padding: 20px 24px;
-  border-radius: 18px;
+  border-radius: var(--kratos-page-radius);
   box-sizing: border-box;
   word-break: break-word;
 }
@@ -43,14 +43,12 @@ page {
 .user-bubble {
   color: var(--kratos-color-on-primary);
   background: linear-gradient(135deg, var(--kratos-color-primary-deep) 0%, var(--kratos-color-primary) 100%);
-  border-bottom-right-radius: 6px;
   box-shadow: var(--kratos-glow);
 }
 .ai-bubble {
   color: var(--kratos-color-text);
   background: var(--kratos-color-surface);
   border: 1PX solid var(--kratos-color-border);
-  border-bottom-left-radius: 6px;
 }
 .bubble.is-streaming { opacity: 0.72; }
 .bubble-content { white-space: pre-wrap; font-size: 28px; line-height: 1.65; }
@@ -76,7 +74,7 @@ page {
   padding: 12px;
   margin-top: 8px;
   border: 1PX solid var(--kratos-color-border);
-  border-radius: 12px;
+  border-radius: var(--kratos-page-radius);
   background: var(--kratos-color-surface-2);
   box-sizing: border-box;
 }
@@ -86,7 +84,7 @@ page {
   width: 48px;
   height: 48px;
   border: 1PX solid var(--kratos-color-primary-edge);
-  border-radius: 10px;
+  border-radius: var(--kratos-page-radius);
   color: var(--kratos-color-primary);
   font-size: 20px;
   line-height: 46px;

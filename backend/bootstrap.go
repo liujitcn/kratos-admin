@@ -7,6 +7,7 @@ import (
 	"os"
 
 	"github.com/liujitcn/kratos-admin/backend/pkg/agent"
+	"github.com/liujitcn/kratos-admin/backend/pkg/bi"
 	"github.com/liujitcn/kratos-admin/backend/pkg/mqtt"
 	"github.com/liujitcn/kratos-admin/backend/pkg/projectaccess"
 
@@ -55,6 +56,20 @@ func (modules AdminModules) RegisterAgentTools(terminal string, tools ...agent.T
 		return registrar.RegisterAgentTools(terminal, tools...)
 	}
 	return errors.New("Admin AI 运行时模块未注册")
+}
+
+// RegisterBiSourceAdapters 注册宿主业务提供的 BI 数据源 Adapter。
+func (modules AdminModules) RegisterBiSourceAdapters(adapters ...bi.SourceAdapter) error {
+	for _, item := range modules {
+		registrar, ok := item.(interface {
+			RegisterBiSourceAdapters(...bi.SourceAdapter) error
+		})
+		if !ok {
+			continue
+		}
+		return registrar.RegisterBiSourceAdapters(adapters...)
+	}
+	return errors.New("Admin BI 模块未注册")
 }
 
 // AdminTasks 表示 Admin 提供的定时任务集合。

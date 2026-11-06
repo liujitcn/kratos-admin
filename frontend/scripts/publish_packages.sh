@@ -21,6 +21,7 @@ if [[ "$#" -eq 0 ]]; then
     admin/packages/core \
     admin/packages/modules/system \
     admin/packages/modules/rag \
+    admin/packages/modules/bi \
     admin/packages/cli \
     uni-app/packages/core \
     uni-app/packages/modules/system \

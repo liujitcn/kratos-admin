@@ -586,7 +586,13 @@ const finishLogin = async (mustChangePassword = false) => {
   }
 
   // 3.添加动态路由
-  await initDynamicRouter();
+  try {
+    await initDynamicRouter();
+  } catch {
+    // 无菜单权限账号保留登录态并引导到 403 页，不再继续欢迎流程。
+    await router.replace("/403");
+    return;
+  }
 
   // 4.清空 tabs、keepAlive 数据
   tabsStore.setTabs([]);
@@ -1086,7 +1092,7 @@ watch(
 :global(.behavior-captcha-dialog .go-captcha .gc-drag-line) {
   height: 12px;
   margin-top: -6px;
-  border-radius: 999px;
+  border-radius: var(--admin-page-radius);
 }
 
 :global(.behavior-captcha-dialog .go-captcha .gc-drag-block) {

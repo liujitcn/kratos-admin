@@ -198,7 +198,7 @@ function formatSessionTime(session: AiSession) {
   width: 112rpx;
   height: 52rpx;
   border: 1rpx solid var(--kratos-color-primary-edge, rgba(40, 240, 212, 0.3));
-  border-radius: 12rpx;
+  border-radius: var(--kratos-page-radius);
   color: var(--kratos-color-primary, #28f0d4);
   font-size: 24rpx;
   line-height: 50rpx;
@@ -214,7 +214,7 @@ function formatSessionTime(session: AiSession) {
   padding: 0 18rpx;
   margin-bottom: 18rpx;
   border: 1rpx solid var(--kratos-color-border, rgba(255, 255, 255, 0.08));
-  border-radius: 12rpx;
+  border-radius: var(--kratos-page-radius);
   background: var(--kratos-color-surface-2, rgba(255, 255, 255, 0.06));
   box-sizing: border-box;
 }
@@ -241,7 +241,7 @@ function formatSessionTime(session: AiSession) {
   gap: 12rpx;
   padding: 22rpx 16rpx 22rpx 22rpx;
   border: 1rpx solid var(--kratos-color-border, rgba(255, 255, 255, 0.08));
-  border-radius: 14rpx;
+  border-radius: var(--kratos-page-radius);
   background: var(--kratos-color-surface, rgba(255, 255, 255, 0.035));
 }
 

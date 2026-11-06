@@ -19,7 +19,6 @@ func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 		AiMessage:               newAiMessage(db, opts...),
 		AiModel:                 newAiModel(db, opts...),
 		AiProvider:              newAiProvider(db, opts...),
-		AiQuery:                 newAiQuery(db, opts...),
 		AiSession:               newAiSession(db, opts...),
 		AiToolApproval:          newAiToolApproval(db, opts...),
 		BaseAPI:                 newBaseAPI(db, opts...),
@@ -77,6 +76,12 @@ func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 		BaseUserMFARecovery:     newBaseUserMFARecovery(db, opts...),
 		BaseUserMFATotp:         newBaseUserMFATotp(db, opts...),
 		BaseUserMFAWebauthn:     newBaseUserMFAWebauthn(db, opts...),
+		BiCard:                  newBiCard(db, opts...),
+		BiDashboard:             newBiDashboard(db, opts...),
+		BiDashboardVersion:      newBiDashboardVersion(db, opts...),
+		BiQuery:                 newBiQuery(db, opts...),
+		BiSource:                newBiSource(db, opts...),
+		BiWorkbench:             newBiWorkbench(db, opts...),
 		CasbinRule:              newCasbinRule(db, opts...),
 		CodeGenColumn:           newCodeGenColumn(db, opts...),
 		CodeGenProto:            newCodeGenProto(db, opts...),
@@ -99,7 +104,6 @@ type Query struct {
 	AiMessage               aiMessage
 	AiModel                 aiModel
 	AiProvider              aiProvider
-	AiQuery                 aiQuery
 	AiSession               aiSession
 	AiToolApproval          aiToolApproval
 	BaseAPI                 baseAPI
@@ -157,6 +161,12 @@ type Query struct {
 	BaseUserMFARecovery     baseUserMFARecovery
 	BaseUserMFATotp         baseUserMFATotp
 	BaseUserMFAWebauthn     baseUserMFAWebauthn
+	BiCard                  biCard
+	BiDashboard             biDashboard
+	BiDashboardVersion      biDashboardVersion
+	BiQuery                 biQuery
+	BiSource                biSource
+	BiWorkbench             biWorkbench
 	CasbinRule              casbinRule
 	CodeGenColumn           codeGenColumn
 	CodeGenProto            codeGenProto
@@ -181,7 +191,6 @@ func (q *Query) clone(db *gorm.DB) *Query {
 		AiMessage:               q.AiMessage.clone(db),
 		AiModel:                 q.AiModel.clone(db),
 		AiProvider:              q.AiProvider.clone(db),
-		AiQuery:                 q.AiQuery.clone(db),
 		AiSession:               q.AiSession.clone(db),
 		AiToolApproval:          q.AiToolApproval.clone(db),
 		BaseAPI:                 q.BaseAPI.clone(db),
@@ -239,6 +248,12 @@ func (q *Query) clone(db *gorm.DB) *Query {
 		BaseUserMFARecovery:     q.BaseUserMFARecovery.clone(db),
 		BaseUserMFATotp:         q.BaseUserMFATotp.clone(db),
 		BaseUserMFAWebauthn:     q.BaseUserMFAWebauthn.clone(db),
+		BiCard:                  q.BiCard.clone(db),
+		BiDashboard:             q.BiDashboard.clone(db),
+		BiDashboardVersion:      q.BiDashboardVersion.clone(db),
+		BiQuery:                 q.BiQuery.clone(db),
+		BiSource:                q.BiSource.clone(db),
+		BiWorkbench:             q.BiWorkbench.clone(db),
 		CasbinRule:              q.CasbinRule.clone(db),
 		CodeGenColumn:           q.CodeGenColumn.clone(db),
 		CodeGenProto:            q.CodeGenProto.clone(db),
@@ -270,7 +285,6 @@ func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 		AiMessage:               q.AiMessage.replaceDB(db),
 		AiModel:                 q.AiModel.replaceDB(db),
 		AiProvider:              q.AiProvider.replaceDB(db),
-		AiQuery:                 q.AiQuery.replaceDB(db),
 		AiSession:               q.AiSession.replaceDB(db),
 		AiToolApproval:          q.AiToolApproval.replaceDB(db),
 		BaseAPI:                 q.BaseAPI.replaceDB(db),
@@ -328,6 +342,12 @@ func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 		BaseUserMFARecovery:     q.BaseUserMFARecovery.replaceDB(db),
 		BaseUserMFATotp:         q.BaseUserMFATotp.replaceDB(db),
 		BaseUserMFAWebauthn:     q.BaseUserMFAWebauthn.replaceDB(db),
+		BiCard:                  q.BiCard.replaceDB(db),
+		BiDashboard:             q.BiDashboard.replaceDB(db),
+		BiDashboardVersion:      q.BiDashboardVersion.replaceDB(db),
+		BiQuery:                 q.BiQuery.replaceDB(db),
+		BiSource:                q.BiSource.replaceDB(db),
+		BiWorkbench:             q.BiWorkbench.replaceDB(db),
 		CasbinRule:              q.CasbinRule.replaceDB(db),
 		CodeGenColumn:           q.CodeGenColumn.replaceDB(db),
 		CodeGenProto:            q.CodeGenProto.replaceDB(db),
@@ -349,7 +369,6 @@ type queryCtx struct {
 	AiMessage               *aiMessageDo
 	AiModel                 *aiModelDo
 	AiProvider              *aiProviderDo
-	AiQuery                 *aiQueryDo
 	AiSession               *aiSessionDo
 	AiToolApproval          *aiToolApprovalDo
 	BaseAPI                 *baseAPIDo
@@ -407,6 +426,12 @@ type queryCtx struct {
 	BaseUserMFARecovery     *baseUserMFARecoveryDo
 	BaseUserMFATotp         *baseUserMFATotpDo
 	BaseUserMFAWebauthn     *baseUserMFAWebauthnDo
+	BiCard                  *biCardDo
+	BiDashboard             *biDashboardDo
+	BiDashboardVersion      *biDashboardVersionDo
+	BiQuery                 *biQueryDo
+	BiSource                *biSourceDo
+	BiWorkbench             *biWorkbenchDo
 	CasbinRule              *casbinRuleDo
 	CodeGenColumn           *codeGenColumnDo
 	CodeGenProto            *codeGenProtoDo
@@ -428,7 +453,6 @@ func (q *Query) WithContext(ctx context.Context) *queryCtx {
 		AiMessage:               q.AiMessage.WithContext(ctx),
 		AiModel:                 q.AiModel.WithContext(ctx),
 		AiProvider:              q.AiProvider.WithContext(ctx),
-		AiQuery:                 q.AiQuery.WithContext(ctx),
 		AiSession:               q.AiSession.WithContext(ctx),
 		AiToolApproval:          q.AiToolApproval.WithContext(ctx),
 		BaseAPI:                 q.BaseAPI.WithContext(ctx),
@@ -486,6 +510,12 @@ func (q *Query) WithContext(ctx context.Context) *queryCtx {
 		BaseUserMFARecovery:     q.BaseUserMFARecovery.WithContext(ctx),
 		BaseUserMFATotp:         q.BaseUserMFATotp.WithContext(ctx),
 		BaseUserMFAWebauthn:     q.BaseUserMFAWebauthn.WithContext(ctx),
+		BiCard:                  q.BiCard.WithContext(ctx),
+		BiDashboard:             q.BiDashboard.WithContext(ctx),
+		BiDashboardVersion:      q.BiDashboardVersion.WithContext(ctx),
+		BiQuery:                 q.BiQuery.WithContext(ctx),
+		BiSource:                q.BiSource.WithContext(ctx),
+		BiWorkbench:             q.BiWorkbench.WithContext(ctx),
 		CasbinRule:              q.CasbinRule.WithContext(ctx),
 		CodeGenColumn:           q.CodeGenColumn.WithContext(ctx),
 		CodeGenProto:            q.CodeGenProto.WithContext(ctx),

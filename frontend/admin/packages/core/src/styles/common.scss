@@ -98,7 +98,7 @@
 }
 ::-webkit-scrollbar-thumb {
   background-color: var(--el-border-color-darker);
-  border-radius: 20px;
+  border-radius: var(--admin-page-radius);
 }
 
 /* nprogress */

@@ -5,6 +5,7 @@ import (
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/agent/model"
 	biz "github.com/liujitcn/kratos-admin/backend/internal/biz/base"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/ai"
+	"github.com/liujitcn/kratos-admin/backend/internal/biz/bi/admin"
 	ragBiz "github.com/liujitcn/kratos-admin/backend/internal/biz/rag/admin"
 	adminBiz "github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin"
 	appBiz "github.com/liujitcn/kratos-admin/backend/internal/biz/system/app"
@@ -18,6 +19,7 @@ var ProviderSet = wire.NewSet(
 	adminBiz.ProviderSet,
 	appBiz.ProviderSet,
 	ragBiz.ProviderSet,
+	admin.ProviderSet,
 )
 
 // MessageProviderSet 汇总站内信专用业务依赖。

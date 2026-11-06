@@ -266,7 +266,7 @@ const emptyHintKey = computed(() => {
   margin-top: 24rpx;
   padding: 0 24rpx;
   border: 1px solid var(--kratos-color-border);
-  border-radius: 16rpx;
+  border-radius: var(--kratos-page-radius);
   background: var(--kratos-color-surface-2);
   color: var(--kratos-color-text);
   font-size: 26rpx;

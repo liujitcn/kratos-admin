@@ -15,3 +15,9 @@
 ```
 
 业务代码只从本包公开入口引用图标。不要直接依赖 NutUI 的内部路径；按需加载细节由本包统一维护。
+
+## 统一圆角
+
+主题提供 `--kratos-page-radius: 12px`（Taro 设计稿单位），按 750 设计宽度转换，与 uni-app 的 `12rpx` 对齐，在 375 逻辑宽度下约为 6px。普通卡片、按钮、输入框、消息气泡和弹窗统一使用 `var(--kratos-page-radius)`；底部面板使用 `var(--kratos-page-radius) var(--kratos-page-radius) 0 0`。NutUI 按钮圆角也映射到此变量。
+
+圆形元素使用 `50%`，直角使用 `0`；CSS 绘制的图标和 AI 头像保留造型所需圆角。宿主可以在全局主题引入后，通过 `page`、`.theme-light` 和 `.theme-dark` 覆盖统一圆角，业务页面继续消费变量。

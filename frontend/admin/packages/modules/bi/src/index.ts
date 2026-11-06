@@ -1,0 +1,1 @@
+export { biAdminModule } from "./module";

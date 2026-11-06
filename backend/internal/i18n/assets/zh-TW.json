@@ -1,4 +1,10 @@
 {
+  "base.ai.approval.message_id.positive": {
+    "other": "訊息編號不合法"
+  },
+  "base.ai.approval.session_id.positive": {
+    "other": "會話編號不合法"
+  },
   "base.ai.message.attachment_prompt": {
     "other": "請結合附件內容繼續分析"
   },
@@ -344,6 +350,159 @@
   "base.v1.secret_crypto.reveal.resource.required": {
     "other": "資源標識不能為空"
   },
+  "bi.admin.source.code.required": {
+    "other": "請輸入數據源編碼"
+  },
+  "bi.admin.source.name.required": {
+    "other": "請輸入數據源名稱"
+  },
+  "bi.query_record.description.dashboard_version": {
+    "other": "儀表板版本"
+  },
+  "bi.query_record.description.elapsed_ms": {
+    "other": "查詢耗時毫秒，問數包含模型生成耗時"
+  },
+  "bi.query_record.description.list": {
+    "other": "分頁查詢 BI 問數、預覽、卡片及儀表板執行記錄。"
+  },
+  "bi.query_record.description.query_hash": {
+    "other": "查詢計畫雜湊"
+  },
+  "bi.query_record.description.query_json": {
+    "other": "語義查詢計畫JSON"
+  },
+  "bi.query_record.description.question": {
+    "other": "自然語言問題，非問數查詢為空"
+  },
+  "bi.query_record.description.truncated": {
+    "other": "是否截斷：0否，1是"
+  },
+  "bi_card.name.required": {
+    "other": "請輸入卡片名稱"
+  },
+  "bi_card.openapi.005aa123d25c": {
+    "other": "是否共享到當前專案範圍"
+  },
+  "bi_card.openapi.009744571b72": {
+    "other": "他人分享的卡片數量"
+  },
+  "bi_card.openapi.07331147707f": {
+    "other": "BI 資料卡片與個人工作臺服務。"
+  },
+  "bi_card.openapi.0dc3f431fb45": {
+    "other": "分頁查詢當前使用者可見的資料卡片。"
+  },
+  "bi_card.openapi.0de1b165b1e1": {
+    "other": "自動重新整理間隔秒數，86400表示每日02:00"
+  },
+  "bi_card.openapi.1a4dfdc21e5f": {
+    "other": "儲存資料卡片請求。"
+  },
+  "bi_card.openapi.1d28f61085fa": {
+    "other": "當前使用者是否可編輯"
+  },
+  "bi_card.openapi.20e77a9e71a8": {
+    "other": "刪除資料卡片響應。"
+  },
+  "bi_card.openapi.2134601b97c0": {
+    "other": "個人工作臺配置與可見卡片。"
+  },
+  "bi_card.openapi.262e68e1d7bc": {
+    "other": "自己建立的卡片數量"
+  },
+  "bi_card.openapi.2a826bce2843": {
+    "other": "資料卡片分類數量。"
+  },
+  "bi_card.openapi.2ecd19ce97bb": {
+    "other": "全部卡片數量"
+  },
+  "bi_card.openapi.3a25d9cc0660": {
+    "other": "資料卡片分頁結果。"
+  },
+  "bi_card.openapi.3a464134e806": {
+    "other": "卡片ID，0表示新建"
+  },
+  "bi_card.openapi.3e5bb084dafe": {
+    "other": "系統卡片數量"
+  },
+  "bi_card.openapi.4c7e87f9cc5d": {
+    "other": "收藏卡片ID"
+  },
+  "bi_card.openapi.580bce06b222": {
+    "other": "工作臺中當前可見的卡片"
+  },
+  "bi_card.openapi.5f43e6d95395": {
+    "other": "資料卡片"
+  },
+  "bi_card.openapi.61654ee8cfec": {
+    "other": "儲存個人工作臺請求。"
+  },
+  "bi_card.openapi.623e966e7555": {
+    "other": "所有者使用者ID，0表示系統內建"
+  },
+  "bi_card.openapi.6bccd87e0adf": {
+    "other": "卡片ID"
+  },
+  "bi_card.openapi.6fbb255e657c": {
+    "other": "資料卡片配置。"
+  },
+  "bi_card.openapi.79cda09042ff": {
+    "other": "工作臺卡片ID，按展示順序排列"
+  },
+  "bi_card.openapi.81d834a8948c": {
+    "other": "自動重新整理間隔秒數，0表示手動，86400表示每日02:00"
+  },
+  "bi_card.openapi.905668622d44": {
+    "other": "在當前使用者許可權範圍內執行卡片查詢。"
+  },
+  "bi_card.openapi.9ca189b4a720": {
+    "other": "儲存當前使用者的工作臺順序與收藏。"
+  },
+  "bi_card.openapi.a41ec76ecac2": {
+    "other": "卡片名稱"
+  },
+  "bi_card.openapi.ae1df30215e7": {
+    "other": "工作臺卡片ID，最多50張且不重複"
+  },
+  "bi_card.openapi.b253c3e5ffbc": {
+    "other": "資料卡片記錄。"
+  },
+  "bi_card.openapi.b45c0ca52ac2": {
+    "other": "分類：system系統、mine自建、shared分享"
+  },
+  "bi_card.openapi.ba08c496cd30": {
+    "other": "收藏卡片數量"
+  },
+  "bi_card.openapi.c779cc4cd584": {
+    "other": "獲取當前使用者的工作臺與收藏。"
+  },
+  "bi_card.openapi.cc2e617e0f66": {
+    "other": "收藏卡片ID，最多50張且不重複"
+  },
+  "bi_card.openapi.d5a10a84415d": {
+    "other": "刪除自己的資料卡片。"
+  },
+  "bi_card.openapi.d6da6a158b2a": {
+    "other": "是否共享"
+  },
+  "bi_card.openapi.e8e62c6fa703": {
+    "other": "建立或修改自己的資料卡片。"
+  },
+  "bi_card.range_days.valid": {
+    "other": "僅支援卡片配置、近7日或近30日"
+  },
+  "bi_card.refresh_seconds.range": {
+    "other": "重新整理間隔應為0或30至86400秒"
+  },
+  "bi_workbench.card_ids.valid": {
+    "other": "工作臺最多50張卡片，ID須為正數且不重複"
+  },
+  "bi_workbench.dashboard_ids.valid": {
+    "other": "工作臺最多50個儀表盤，ID須爲正數且不重複"
+  },
+  "bi_workbench.favorite_ids.valid": {
+    "other": "最多收藏50張卡片，ID須為正數且不重複"
+  },
   "common.action.create_resource": {
     "other": "新增{resource}"
   },
@@ -431,6 +590,9 @@
   "legacy.error.0196b093ca02959f": {
     "other": "更新角色失敗，不能修改內建角色編碼"
   },
+  "legacy.error.01c8029537c813fd": {
+    "other": "關閉數據庫表結構查詢失敗"
+  },
   "legacy.error.01c9d0be20537d49": {
     "other": "聯網搜尋地址設定異常"
   },
@@ -442,6 +604,9 @@
   },
   "legacy.error.020eaa6e9305844c": {
     "other": "目前時間不允許登入"
+  },
+  "legacy.error.0224ce0d4c9763eb": {
+    "other": "新增專案審批所屬租戶無效"
   },
   "legacy.error.02f1a3ae0f4c961f": {
     "other": "所選介面與已有策略存在相同限流維度"
@@ -461,6 +626,9 @@
   "legacy.error.03e6e6dd32bbae1d": {
     "other": "模型名稱不能為空且不能超過200個字符"
   },
+  "legacy.error.046589dfdbb5d3cb": {
+    "other": "新建獨立數據庫連接時密碼不能爲空"
+  },
   "legacy.error.04a6034f8c1bdf2e": {
     "other": "專案授權必須為安全正整數陣列，全部授權只能使用[0]"
   },
@@ -473,8 +641,14 @@
   "legacy.error.04d0cca843621bab": {
     "other": "請配置模型 API 金鑰後再測試"
   },
+  "legacy.error.05150c4d72f90d46": {
+    "other": "字段編碼、名稱和物理列不能爲空"
+  },
   "legacy.error.05b48898d3eb38b6": {
     "other": "讀取資料表元資料失敗"
+  },
+  "legacy.error.05db1e230bf8ee93": {
+    "other": "數據庫驅動不支持"
   },
   "legacy.error.0613b78ae7041646": {
     "other": "刪除出庫脫敏策略失敗"
@@ -482,14 +656,23 @@
   "legacy.error.066abfeb67fd7b94": {
     "other": "分頁查詢API列表失敗"
   },
+  "legacy.error.067118c2b128c55f": {
+    "other": "不能重試其他租戶的腳本"
+  },
   "legacy.error.06c4f81359c8cccd": {
     "other": "上級部門不能是自身"
   },
   "legacy.error.06c5c603bfde8e01": {
     "other": "資料庫表名格式不正確"
   },
+  "legacy.error.06c61ec15c9666e6": {
+    "other": "讀取當前數據庫名稱失敗"
+  },
   "legacy.error.06d043cf0c992b56": {
     "other": "限流規則已停用，不能用於介面策略"
+  },
+  "legacy.error.07169436625cbd35": {
+    "other": "任務已被處理或轉辦"
   },
   "legacy.error.0761a956d76e9f97": {
     "other": "多因素驗證繫結票據已失效"
@@ -557,8 +740,17 @@
   "legacy.error.0a7b29f34faeda2d": {
     "other": "傳送驗證碼失敗"
   },
+  "legacy.error.0a7fb1b3f8eaf265": {
+    "other": "獲取 BI 數據庫連接失敗"
+  },
   "legacy.error.0ad5ac1b6de56f07": {
     "other": "登入策略不存在"
+  },
+  "legacy.error.0af53829eb85ec21": {
+    "other": "刪除 BI 數據源失敗"
+  },
+  "legacy.error.0b38823ed34c2c02": {
+    "other": "流程僅支援 JavaScript 腳本"
   },
   "legacy.error.0b8c6c4bfc046e48": {
     "other": "規則狀態無效"
@@ -568,6 +760,9 @@
   },
   "legacy.error.0c3357178bf356f4": {
     "other": "更新介面限流策略失敗"
+  },
+  "legacy.error.0c349c765bb1630c": {
+    "other": "目前僅支援 JavaScript 腳本"
   },
   "legacy.error.0c3f314f627082c1": {
     "other": "查詢字典屬性分頁列表失敗"
@@ -587,8 +782,14 @@
   "legacy.error.0d38b9f361e60e0e": {
     "other": "訊息已被其他人修改，請重新整理後重試"
   },
+  "legacy.error.0dbf60614597b70f": {
+    "other": "選中的數據表已不存在，請重新發現表結構"
+  },
   "legacy.error.0dffb0e02ff26b50": {
     "other": "查詢程式碼生成任務進度失敗"
+  },
+  "legacy.error.0e01a87b0d86090d": {
+    "other": "AI執行狀態已變更，無法儲存審批"
   },
   "legacy.error.0e02ebd3b1522e8e": {
     "other": "更新選單失敗"
@@ -605,6 +806,9 @@
   "legacy.error.0e578ecd3aeab2fd": {
     "other": "編碼 WebAuthn 註冊選項失敗"
   },
+  "legacy.error.0e953f80478aa9ed": {
+    "other": "同一租戶的流程編碼與版本重複"
+  },
   "legacy.error.0f1a25c888980db7": {
     "other": "建立AI知識庫失敗"
   },
@@ -620,6 +824,9 @@
   "legacy.error.0fc85039279b8b71": {
     "other": "刪除專案失敗"
   },
+  "legacy.error.1017884009a421be": {
+    "other": "指標聚合函數與數據庫字段類型不匹配"
+  },
   "legacy.error.10506d539567bc0d": {
     "other": "建立 WebAuthn 停用挑戰失敗"
   },
@@ -632,8 +839,14 @@
   "legacy.error.10c1ec9fad526657": {
     "other": "撤銷使用者登入權杖失敗"
   },
+  "legacy.error.110ac6a7d5ebc383": {
+    "other": "資料卡片不存在"
+  },
   "legacy.error.1120563ed5b635f4": {
     "other": "手機號已被佔用"
+  },
+  "legacy.error.11246289bb29a05e": {
+    "other": "數據源語義模型超過大小限制"
   },
   "legacy.error.119edf9016dac56b": {
     "other": "執行備份還原失敗"
@@ -647,6 +860,12 @@
   "legacy.error.1252b0cf293d5df2": {
     "other": "儲存多因素認證綁定票據失敗"
   },
+  "legacy.error.12880bf977139081": {
+    "other": "驗證租戶審批關聯失敗"
+  },
+  "legacy.error.12ceb1313032276b": {
+    "other": "查詢 MQTT 訊息詳情失敗"
+  },
   "legacy.error.12d4e553e5368399": {
     "other": "Provider個性化配置無效"
   },
@@ -658,6 +877,9 @@
   },
   "legacy.error.13d2e1e8985487d2": {
     "other": "目前認證方式不需要 WebAuthn 驗證"
+  },
+  "legacy.error.13d9db4a12e72986": {
+    "other": "指標卡和儀表圖需要不分組的查詢結果"
   },
   "legacy.error.13dc7c0d91a6fcaf": {
     "other": "查詢智慧問數紀錄詳情失敗"
@@ -674,6 +896,12 @@
   "legacy.error.14371b5324ef93e4": {
     "other": "設定主語言失敗"
   },
+  "legacy.error.143f1e9772b24277": {
+    "other": "工作臺和收藏分別最多50張卡片"
+  },
+  "legacy.error.1456d3981707f770": {
+    "other": "刪除流程定義失敗，僅草稿狀態可刪除"
+  },
   "legacy.error.1464dd4a73b2a25b": {
     "other": "解析 AI Provider 個性化配置失敗"
   },
@@ -686,14 +914,23 @@
   "legacy.error.14dc349eb32ebb06": {
     "other": "建立訊息範本失敗"
   },
+  "legacy.error.14e9541958eaf29c": {
+    "other": "儀表板尚未發佈"
+  },
   "legacy.error.14eae20685387649": {
     "other": "訊息動作目標不能超過255個字元"
   },
   "legacy.error.152a0d8516f025d6": {
     "other": "limit 必須在 1 到 %d 之間"
   },
+  "legacy.error.154bb194d8d7704f": {
+    "other": "查詢腳本執行日誌失敗"
+  },
   "legacy.error.1572896dd8ea2149": {
     "other": "檔案中繼資料倉儲未設定"
+  },
+  "legacy.error.1593dca0dfa86346": {
+    "other": "任務已被處理"
   },
   "legacy.error.15de1844824e8acf": {
     "other": "微信登入憑證無效"
@@ -713,11 +950,17 @@
   "legacy.error.168485da154caef3": {
     "other": "查詢專案授權分頁列表失敗"
   },
+  "legacy.error.1689611862abe259": {
+    "other": "指標卡不能選擇分組維度"
+  },
   "legacy.error.1706c4959e58af6a": {
     "other": "刪除專案失敗，專案不存在"
   },
   "legacy.error.1708cff4d379a80e": {
     "other": "儲存 WebAuthn 綁定票據失敗"
+  },
+  "legacy.error.170d7e87736e41ab": {
+    "other": "打開 BI 數據源失敗"
   },
   "legacy.error.172798ff29ffcc90": {
     "other": "刪除角色失敗，不能刪除預設角色"
@@ -730,6 +973,9 @@
   },
   "legacy.error.174453c31c654750": {
     "other": "訊息正文清洗後不能為空"
+  },
+  "legacy.error.17513f0b76033b88": {
+    "other": "通知動作參數無效"
   },
   "legacy.error.175e2e193a614cee": {
     "other": "驗證碼權杖消費失敗"
@@ -764,6 +1010,9 @@
   "legacy.error.19803e49d77d7763": {
     "other": "更新角色失敗，不能修改預設角色狀態"
   },
+  "legacy.error.19e303eaf75621aa": {
+    "other": "BI 時間範圍不可用"
+  },
   "legacy.error.1a09a09d2d75fb94": {
     "other": "選單建立後不允許更換父級"
   },
@@ -784,6 +1033,9 @@
   },
   "legacy.error.1b8c5c49d6878d19": {
     "other": "讀取微信登入設定失敗"
+  },
+  "legacy.error.1be13391c90d0c32": {
+    "other": "試執行流程腳本失敗"
   },
   "legacy.error.1bf41abcd3c3a692": {
     "other": "文件未儲存原始檔案，無法重試，請刪除後重新上傳"
@@ -818,6 +1070,9 @@
   "legacy.error.1d5eca3ba22a1f89": {
     "other": "查詢租戶使用者失敗"
   },
+  "legacy.error.1d65089c82e93a8f": {
+    "other": "BI 數據源不存在"
+  },
   "legacy.error.1db7bf52e1db8bbc": {
     "other": "上級部門與所屬租戶不一致"
   },
@@ -851,6 +1106,9 @@
   "legacy.error.202c0d21ae9faf03": {
     "other": "保護多因素認證金鑰失敗"
   },
+  "legacy.error.2059cc6d984d24a6": {
+    "other": "被委託人無效"
+  },
   "legacy.error.20da88183ea92106": {
     "other": "建立國際化自訂翻譯失敗"
   },
@@ -866,11 +1124,17 @@
   "legacy.error.2128a7376d079312": {
     "other": "檔案路徑不允許使用絕對路徑"
   },
+  "legacy.error.21a5509ce518ca64": {
+    "other": "生成 BI 數據源目錄失敗"
+  },
   "legacy.error.21fa23c0f931e551": {
     "other": "建立多因素認證挑戰失敗"
   },
   "legacy.error.2242abaaa50d1dc3": {
     "other": "出庫脫敏策略不存在"
+  },
+  "legacy.error.224ee6da67e2c49e": {
+    "other": "儀表板草稿版本已變化，請刷新後重試"
   },
   "legacy.error.2267986a1e381ebd": {
     "other": "登入頁地址無效"
@@ -883,6 +1147,9 @@
   },
   "legacy.error.2339340aba3669da": {
     "other": "取得使用者資訊失敗"
+  },
+  "legacy.error.233a1cb83044d300": {
+    "other": "查詢 BI 數據源目錄失敗"
   },
   "legacy.error.234c138d7e2973f8": {
     "other": "讀取登入策略狀態失敗"
@@ -899,11 +1166,20 @@
   "legacy.error.23a96f3371e92fc8": {
     "other": "刪除脫敏規則失敗"
   },
+  "legacy.error.23b476d2ff5c6a0d": {
+    "other": "不是您的審批任務"
+  },
+  "legacy.error.23c256532945f3f2": {
+    "other": "BI 數據源表關係未從事實表連通"
+  },
   "legacy.error.241051568bef8e2e": {
     "other": "欄位加密演算法無效"
   },
   "legacy.error.2468b2acc984ef68": {
     "other": "機器翻譯草稿功能未啟用"
+  },
+  "legacy.error.246aed7b4eafe3bc": {
+    "other": "數據庫 Schema 不合法"
   },
   "legacy.error.24d27137f8387e6f": {
     "other": "行動端頁面下只能建立頁面選單"
@@ -913,6 +1189,9 @@
   },
   "legacy.error.254cc892d3964cfb": {
     "other": "查詢登入結果分佈失敗"
+  },
+  "legacy.error.254f007cd9859a8b": {
+    "other": "工作臺和收藏分別最多50項"
   },
   "legacy.error.25975f21342bc053": {
     "other": "多個檔案上傳失敗"
@@ -929,11 +1208,17 @@
   "legacy.error.25deb89aa8542274": {
     "other": "父級選單ID不符合選單編號層級規則"
   },
+  "legacy.error.2613784f837f2081": {
+    "other": "查詢 BI 數據源失敗"
+  },
   "legacy.error.26743666f680a06d": {
     "other": "限流規則 ID 不能為空"
   },
   "legacy.error.26a80f169b515e97": {
     "other": "查詢字典失敗"
+  },
+  "legacy.error.26a98594498a94ca": {
+    "other": "租戶編碼不能為空"
   },
   "legacy.error.2703b88803392bf3": {
     "other": "查詢AI知識庫選項失敗"
@@ -944,11 +1229,20 @@
   "legacy.error.27071404c9de8a94": {
     "other": "驗證碼權杖儲存失敗"
   },
+  "legacy.error.2756cd89149303b6": {
+    "other": "語義維度必須映射到已選表中的同類型字段"
+  },
   "legacy.error.2791c0708e5e304c": {
     "other": "查詢 AI 供應商失敗"
   },
+  "legacy.error.279970960cdc7d86": {
+    "other": "未找到業務單據關聯的流程實例"
+  },
   "legacy.error.27c12cba0463a64f": {
     "other": "登入地區命中黑名單"
+  },
+  "legacy.error.2800470b2bba28f6": {
+    "other": "更新 BI 數據源失敗"
   },
   "legacy.error.282efea07da3b268": {
     "other": "表單設定的位置、型別和編碼不可修改"
@@ -971,6 +1265,9 @@
   "legacy.error.291d427436dbaf83": {
     "other": "取得密碼策略失敗"
   },
+  "legacy.error.29290718ec0b858f": {
+    "other": "讀取當前數據庫 Schema 失敗"
+  },
   "legacy.error.2937cc9333bbb190": {
     "other": "開啟唯讀交易失敗"
   },
@@ -983,11 +1280,17 @@
   "legacy.error.29c2f394b38444b3": {
     "other": "已有啟用的出庫脫敏策略引用該規則，請先停用引用策略"
   },
+  "legacy.error.29df9b342346ad59": {
+    "other": "請先加入至少一張數據卡片"
+  },
   "legacy.error.29ebf2e88f812e63": {
     "other": "第三方帳號未繫結"
   },
   "legacy.error.29f371ada01e1053": {
     "other": "儲存多因素認證恢復碼失敗"
+  },
+  "legacy.error.29f4637294cdc134": {
+    "other": "圖表引用了查詢結果不存在的字段"
   },
   "legacy.error.29fe5b349e7c8101": {
     "other": "崗位已被停用，不能選擇"
@@ -1009,6 +1312,9 @@
   },
   "legacy.error.2bcdb4bb0f0550e6": {
     "other": "設定角色選單權限失敗，不能分配超出權限上限的選單權限"
+  },
+  "legacy.error.2bf0ca2e14dbf0a8": {
+    "other": "流程節點圖配置異常"
   },
   "legacy.error.2c1c5b8f80033e01": {
     "other": "讀取密碼策略設定失敗"
@@ -1037,11 +1343,17 @@
   "legacy.error.2d170c005d708f0e": {
     "other": "讀取用戶端認證失敗狀態失敗"
   },
+  "legacy.error.2d4f74e7a98cbdd3": {
+    "other": "BI 數據源配置ID無效"
+  },
   "legacy.error.2d98325ea8ebe8a4": {
     "other": "會話不存在"
   },
   "legacy.error.2da97a9d0e6f12e4": {
     "other": "查詢包含租戶ID的資料表失敗"
+  },
+  "legacy.error.2dcf0a202b5aa077": {
+    "other": "腳本節點不存在"
   },
   "legacy.error.2de441703db096ce": {
     "other": "系統設定內容無效"
@@ -1052,6 +1364,12 @@
   "legacy.error.2e1aa6824e89cd3e": {
     "other": "查詢專案分頁列表失敗"
   },
+  "legacy.error.2e9e8485207551ae": {
+    "other": "找不到工具介面契約"
+  },
+  "legacy.error.2eb4c634e73c7c20": {
+    "other": "腳本 ID 清單不能為空"
+  },
   "legacy.error.2ec2a0c6920bee1e": {
     "other": "即時控制台頻道不能為空"
   },
@@ -1060,6 +1378,9 @@
   },
   "legacy.error.2f049ea5e2d27c12": {
     "other": "讀取綁定租戶失敗"
+  },
+  "legacy.error.2f173bbdd8aabbbb": {
+    "other": "實例流程快照無效"
   },
   "legacy.error.2f92c31da328aeba": {
     "other": "刪除使用者失敗，不能刪除內建管理員帳號"
@@ -1072,6 +1393,9 @@
   },
   "legacy.error.2fedf7ac89c458d3": {
     "other": "讀取資料表欄位元資料失敗"
+  },
+  "legacy.error.2ff36648250506aa": {
+    "other": "加簽用戶無效"
   },
   "legacy.error.2ffd8c27873e2d27": {
     "other": "AI Provider 標識無效"
@@ -1096,6 +1420,9 @@
   },
   "legacy.error.31280f278d823685": {
     "other": "選單路徑已存在"
+  },
+  "legacy.error.3198350bdf120177": {
+    "other": "腳本原始碼不能為空"
   },
   "legacy.error.31b4abb95ec6dd56": {
     "other": "歸檔模式無效"
@@ -1124,6 +1451,9 @@
   "legacy.error.326cefee542b4c0d": {
     "other": "AI模型狀態無效"
   },
+  "legacy.error.32de8478e8559092": {
+    "other": "BI 數據源不存在或未啓用"
+  },
   "legacy.error.330dd2d11fcdadbb": {
     "other": "測試 AI 模型失敗"
   },
@@ -1135,6 +1465,12 @@
   },
   "legacy.error.3333e1755cbd096d": {
     "other": "資料庫欄位不存在"
+  },
+  "legacy.error.334c34185a2d0f07": {
+    "other": "保存發佈快照失敗"
+  },
+  "legacy.error.33b665911d371252": {
+    "other": "卡片名稱和查詢配置無效"
   },
   "legacy.error.33cd4ce5ee01fa4c": {
     "other": "Proto 介面設定不在目前檢查結果中"
@@ -1148,11 +1484,17 @@
   "legacy.error.3469afe93c5e18c4": {
     "other": "出庫脫敏策略狀態無效"
   },
+  "legacy.error.347070fc997f7568": {
+    "other": "驗證專案審批關聯失敗"
+  },
   "legacy.error.35323e14c1481ad4": {
     "other": "載入OAuth登入方式配置失敗"
   },
   "legacy.error.35899c9b41798f9c": {
     "other": "刪除訊息分類失敗，分類不存在"
+  },
+  "legacy.error.359210281db55f21": {
+    "other": "新增專案審批業務關聯無效"
   },
   "legacy.error.3645acb13cba03bc": {
     "other": "多因素驗證挑戰已失效"
@@ -1190,8 +1532,14 @@
   "legacy.error.39fef6385cd1e4ce": {
     "other": "不能查詢其他租戶的專案授權"
   },
+  "legacy.error.3a0e3d1ee5791c6c": {
+    "other": "儀表板草稿版本已變化"
+  },
   "legacy.error.3a2fde07feec27e2": {
     "other": "串流回應不支援"
+  },
+  "legacy.error.3a48ba301b1a4d4c": {
+    "other": "遍歷配置數據源結果失敗"
   },
   "legacy.error.3a64745b27f68327": {
     "other": "校驗選單路徑失敗"
@@ -1213,6 +1561,9 @@
   },
   "legacy.error.3adfff798e9b6a1e": {
     "other": "初始化租戶預設部門失敗"
+  },
+  "legacy.error.3b20680a1792fa16": {
+    "other": "當前租戶的數據源編碼已存在"
   },
   "legacy.error.3b77b280d4265902": {
     "other": "查詢 AI 會話失敗"
@@ -1238,8 +1589,14 @@
   "legacy.error.3c2c77928163020e": {
     "other": "圖片、字典和布林設定值不支援翻譯"
   },
+  "legacy.error.3c68e430f00780ee": {
+    "other": "保存儀表板佈局失敗"
+  },
   "legacy.error.3c6cd7a93b0d400a": {
     "other": "訊息過期時間必須晚於目前時間"
+  },
+  "legacy.error.3c717f1dd2b1eb26": {
+    "other": "無法確定數據庫 Schema，請在連接配置中填寫"
   },
   "legacy.error.3c832fb81c6829ba": {
     "other": "全域策略不能設定租戶或使用者"
@@ -1259,11 +1616,20 @@
   "legacy.error.3d7953d9d4128c4d": {
     "other": "出庫脫敏只支援 GET 介面"
   },
+  "legacy.error.3da415f938fb011b": {
+    "other": "驗證租戶審批來源失敗"
+  },
+  "legacy.error.3daaf675f351d2bf": {
+    "other": "僅支援卡片配置、近7日或近30日"
+  },
   "legacy.error.3de4efbfbc877881": {
     "other": "上級行政區域不能是自身或其下級"
   },
   "legacy.error.3df67385ca02d8d9": {
     "other": "查詢限流規則選項失敗"
+  },
+  "legacy.error.3e2415e298964c24": {
+    "other": "圖表配置格式無效"
   },
   "legacy.error.3e26555b667f0ece": {
     "other": "已有出庫脫敏策略引用該規則，不能刪除"
@@ -1292,8 +1658,17 @@
   "legacy.error.3fcc79cd186820d6": {
     "other": "查詢OpenAPI文件選項列表失敗"
   },
+  "legacy.error.4040fba6e5d004ad": {
+    "other": "查詢條件已變更，請重新問數後儲存卡片"
+  },
+  "legacy.error.4070e624fd8a26e8": {
+    "other": "保存圖表配置失敗"
+  },
   "legacy.error.4081e8ae5ebee83d": {
     "other": "建立限流規則失敗"
+  },
+  "legacy.error.412e9898702f7499": {
+    "other": "刪除 BI 儀表板失敗"
   },
   "legacy.error.415c70ceebc9339a": {
     "other": "密碼最小長度必須大於零"
@@ -1312,6 +1687,9 @@
   },
   "legacy.error.424b444c31bcfe1f": {
     "other": "批量生成定義衝突"
+  },
+  "legacy.error.424ef3bf19c0731c": {
+    "other": "節點圖設定無效"
   },
   "legacy.error.42531d74e8c7d2b7": {
     "other": "Proto 介面設定不能為空"
@@ -1340,14 +1718,23 @@
   "legacy.error.434234568b7ce4f4": {
     "other": "更新語言失敗"
   },
+  "legacy.error.4348feb419bc4342": {
+    "other": "只有預設租戶可以執行新增專案審批動作"
+  },
   "legacy.error.435d2092fabb1d0c": {
     "other": "構造訊息 Provider %d(%s) 失敗: %w"
   },
   "legacy.error.43ac2c9a541832d6": {
     "other": "查詢可入庫脫敏資料表失敗"
   },
+  "legacy.error.43c19b4f281561f4": {
+    "other": "between過濾條件需要兩個值"
+  },
   "legacy.error.43c2f70a29b0150b": {
     "other": "tokens_per_second 必須在 %g 到 %g 之間"
+  },
+  "legacy.error.43ff9b33e2653511": {
+    "other": "查詢 BI 儀表板數據失敗"
   },
   "legacy.error.44542c22a668344a": {
     "other": "設定檔案掃描暫存檔權限失敗"
@@ -1361,6 +1748,12 @@
   "legacy.error.44670a4145535bf4": {
     "other": "轉換左樹設定失敗"
   },
+  "legacy.error.4469a9509ea2865a": {
+    "other": "BI 數據源表模型無效"
+  },
+  "legacy.error.446c05bbcf853ae6": {
+    "other": "Agent工具未啟用"
+  },
   "legacy.error.44885987e1e7fc05": {
     "other": "租戶編號已用完"
   },
@@ -1369,6 +1762,12 @@
   },
   "legacy.error.44b45b049ae6f2a2": {
     "other": "查詢開放授權用戶端憑證失敗"
+  },
+  "legacy.error.44da1869e0376a29": {
+    "other": "轉辦目標用戶無效"
+  },
+  "legacy.error.452e3daf17a58e96": {
+    "other": "獲取個人工作臺失敗"
   },
   "legacy.error.453122ec31407492": {
     "other": "OAuth Scope配置無效"
@@ -1394,6 +1793,9 @@
   "legacy.error.45fd3e95d5189cee": {
     "other": "查詢使用者第三方帳號標識失敗"
   },
+  "legacy.error.4608a748e161e339": {
+    "other": "查詢審批任務詳情失敗"
+  },
   "legacy.error.4626b149e2036433": {
     "other": "關閉日誌壓縮流失敗"
   },
@@ -1415,6 +1817,9 @@
   "legacy.error.477bb0945b48c9a0": {
     "other": "查詢登入日誌詳情失敗"
   },
+  "legacy.error.47a58292ae95d795": {
+    "other": "審批工具參數損壞"
+  },
   "legacy.error.47bf6383bace0dfd": {
     "other": "更新使用者失敗"
   },
@@ -1433,6 +1838,9 @@
   "legacy.error.484f0d7c707f3db3": {
     "other": "還原程式碼生成結果失敗"
   },
+  "legacy.error.488a83cdadc0d421": {
+    "other": "新增租戶審批業務關聯無效"
+  },
   "legacy.error.48aa6dc021aefeea": {
     "other": "登入策略狀態無效"
   },
@@ -1442,6 +1850,9 @@
   "legacy.error.4901070bdec3330a": {
     "other": "查詢資料存取日誌詳情失敗"
   },
+  "legacy.error.490b5cd41129c88f": {
+    "other": "查詢審批委託失敗"
+  },
   "legacy.error.49895dd434859396": {
     "other": "建立崗位失敗"
   },
@@ -1450,6 +1861,9 @@
   },
   "legacy.error.499e50f8a502df9f": {
     "other": "查詢入庫脫敏策略詳情失敗"
+  },
+  "legacy.error.49b9ce570fb7f0e7": {
+    "other": "讀取配置數據源結果失敗"
   },
   "legacy.error.49e95fc46747e658": {
     "other": "確認強制綁定多因素認證失敗"
@@ -1475,6 +1889,9 @@
   "legacy.error.4b161abdbb32e7d8": {
     "other": "統計開始時間無效"
   },
+  "legacy.error.4b22686799e196a2": {
+    "other": "修改 BI 數據源狀態失敗"
+  },
   "legacy.error.4b4740ead55343e1": {
     "other": "輪換用戶端憑據失敗"
   },
@@ -1496,8 +1913,14 @@
   "legacy.error.4c555c9a85f1bc09": {
     "other": "清理舊登入會話失敗"
   },
+  "legacy.error.4c65796a83996bb1": {
+    "other": "卡片ID須為正數且不重複"
+  },
   "legacy.error.4c7474b9aece0829": {
     "other": "建立 AI 供應商失敗"
+  },
+  "legacy.error.4c7c6936111e1e5d": {
+    "other": "保存 BI 儀表板失敗"
   },
   "legacy.error.4cd0aa2f83038a4d": {
     "other": "更新程式碼生成表設定失敗"
@@ -1510,6 +1933,9 @@
   },
   "legacy.error.4d2311ea76ac1eff": {
     "other": "表級國際化設定格式錯誤"
+  },
+  "legacy.error.4d48785e7ebd39fb": {
+    "other": "審批已失效或已處理"
   },
   "legacy.error.4d5562070c003b98": {
     "other": "查詢國際化自訂翻譯分頁列表失敗"
@@ -1526,8 +1952,17 @@
   "legacy.error.4e29312694e6b8ba": {
     "other": "建立角色失敗"
   },
+  "legacy.error.4e85ed12d1f85f75": {
+    "other": "請選擇當前賬號和項目下成功的查詢記錄"
+  },
+  "legacy.error.4e87b18fb42af3c4": {
+    "other": "BI 問數結果不是有效查詢計劃"
+  },
   "legacy.error.4eac7c4f6e499baa": {
     "other": "查詢角色失敗"
+  },
+  "legacy.error.4ebafd9f1ba3e747": {
+    "other": "事實表必須包含在選中的數據表中"
   },
   "legacy.error.4ed8854ac5648878": {
     "other": "訊息來源、冪等鍵或傳送者名稱長度無效"
@@ -1541,6 +1976,9 @@
   "legacy.error.4f98589ed2ce7172": {
     "other": "語言代碼必須是有效的語言代碼"
   },
+  "legacy.error.4fdff590d3a88345": {
+    "other": "讀取數據庫表結構失敗"
+  },
   "legacy.error.4ffe6a7d0728688a": {
     "other": "產生動態口令校驗值失敗"
   },
@@ -1549,6 +1987,9 @@
   },
   "legacy.error.5046c2110be55873": {
     "other": "讀取多因素認證策略失敗"
+  },
+  "legacy.error.508e0bd781aa07f1": {
+    "other": "無權訪問儀表板草稿"
   },
   "legacy.error.513deff78da44959": {
     "other": "同一位置的配置鍵重複"
@@ -1562,11 +2003,20 @@
   "legacy.error.516db9f035cc5c99": {
     "other": "驗證碼型別儲存失敗"
   },
+  "legacy.error.51ab852fc75caab8": {
+    "other": "分頁查詢資料卡片失敗"
+  },
+  "legacy.error.51c27a5266d7b445": {
+    "other": "BI 智能問數失敗"
+  },
   "legacy.error.51e0cc2766ffd45d": {
     "other": "設定脫敏規則狀態失敗"
   },
   "legacy.error.524d45335891b7b9": {
     "other": "密碼已過期，請先修改密碼"
+  },
+  "legacy.error.52cece3fb0bc5c37": {
+    "other": "創建 BI 數據源失敗"
   },
   "legacy.error.53392f5183414d58": {
     "other": "介面操作無效"
@@ -1577,6 +2027,9 @@
   "legacy.error.53d0c6eaf4e7a590": {
     "other": "資料庫表欄位不存在"
   },
+  "legacy.error.53e503c248312ca3": {
+    "other": "腳本名稱重複"
+  },
   "legacy.error.53e7b4c1e2683778": {
     "other": "更新行政區域失敗"
   },
@@ -1586,6 +2039,12 @@
   "legacy.error.53f8867d5b4a61c7": {
     "other": "只有預設租戶可以維護專案目錄"
   },
+  "legacy.error.53f89634cde5df00": {
+    "other": "流程未發布腳本快照，請重新啟用流程"
+  },
+  "legacy.error.540259b5547228e3": {
+    "other": "撤回申請失敗，申請不在審批中"
+  },
   "legacy.error.5422f80650ed6780": {
     "other": "冪等鍵對應的訊息內容不一致"
   },
@@ -1594,6 +2053,9 @@
   },
   "legacy.error.543d0dbad6466e6c": {
     "other": "讀取登入會話失敗"
+  },
+  "legacy.error.54783416d1456174": {
+    "other": "讀取來源查詢失敗"
   },
   "legacy.error.54942b049dcbe2eb": {
     "other": "刪除備份設定失敗"
@@ -1622,6 +2084,9 @@
   "legacy.error.556b8b82f553a15e": {
     "other": "第三方登入狀態已失效"
   },
+  "legacy.error.55e4ff7f51a5c57e": {
+    "other": "當前版本已經發布"
+  },
   "legacy.error.560e0de6b066f0c3": {
     "other": "日誌壓縮檔損壞"
   },
@@ -1649,6 +2114,9 @@
   "legacy.error.584c7fde024904c9": {
     "other": "批處理數量必須大於零"
   },
+  "legacy.error.58814f41ef0b63a7": {
+    "other": "記錄腳本執行日誌失敗"
+  },
   "legacy.error.58d18dab90870673": {
     "other": "多因素驗證未啟用"
   },
@@ -1661,11 +2129,17 @@
   "legacy.error.59891e4d57598bea": {
     "other": "多因素認證恢復碼錯誤"
   },
+  "legacy.error.59a504a8efe43caf": {
+    "other": "BI 過濾操作符不支持"
+  },
   "legacy.error.59c1df3bee807b31": {
     "other": "多因素驗證策略要求重新登入"
   },
   "legacy.error.59cd5fcd2d88a55d": {
     "other": "授權主體型別無效"
+  },
+  "legacy.error.59d7e6022ca5603c": {
+    "other": "讀取 BI 數據源密碼失敗"
   },
   "legacy.error.59f722f27a58f991": {
     "other": "查詢專案失敗"
@@ -1702,6 +2176,9 @@
   },
   "legacy.error.5b6b2552126d5785": {
     "other": "AI 助手執行環境未初始化"
+  },
+  "legacy.error.5bbaa6ecfe5e2c73": {
+    "other": "數據表不能重複選擇"
   },
   "legacy.error.5c9ce1a293619574": {
     "other": "使用者崗位與所屬租戶不一致"
@@ -1751,8 +2228,17 @@
   "legacy.error.5e49e05b84d732ea": {
     "other": "AI模型分類無效"
   },
+  "legacy.error.5e4af6477c9e57a5": {
+    "other": "查詢流程實例詳情失敗"
+  },
+  "legacy.error.5e5c8fb800af8b31": {
+    "other": "執行配置數據源查詢失敗"
+  },
   "legacy.error.5e7ff218eaaae90c": {
     "other": "選單不存在"
+  },
+  "legacy.error.5e89f6523591311d": {
+    "other": "不支援的卡片圖表型別"
   },
   "legacy.error.5e9ba4ae7562922c": {
     "other": "已有密文的欄位加密演算法不允許直接修改"
@@ -1769,6 +2255,9 @@
   "legacy.error.5fe54f1b13aabace": {
     "other": "分類存在尚未完成的 Provider 投遞，不能移除該 Provider"
   },
+  "legacy.error.6006ddbf35bdc480": {
+    "other": "查詢腳本失敗"
+  },
   "legacy.error.6061e1920b151aa7": {
     "other": "記錄登入失敗狀態失敗"
   },
@@ -1784,8 +2273,14 @@
   "legacy.error.617ff09dc5740ca9": {
     "other": "訊息動作參數不能超過16KB"
   },
+  "legacy.error.61c6dd4d52d756c5": {
+    "other": "請選擇服務端數據庫客戶端或填寫獨立數據庫連接"
+  },
   "legacy.error.61e2b1a9dab094f9": {
     "other": "處理第三方帳號綁定回呼失敗"
+  },
+  "legacy.error.61ff02d11dad1cab": {
+    "other": "圖表需要數值字段"
   },
   "legacy.error.6205508a57ad22fe": {
     "other": "定時任務不存在"
@@ -1793,8 +2288,14 @@
   "legacy.error.62520e3110ff37de": {
     "other": "查詢行政區域樹形列表失敗"
   },
+  "legacy.error.627129d821b9a9ae": {
+    "other": "腳本狀態無效"
+  },
   "legacy.error.62abf78cc507b4fd": {
     "other": "表單"
+  },
+  "legacy.error.62dbfe7b4ff85db4": {
+    "other": "最多收藏50張卡片，ID須為正數且不重複"
   },
   "legacy.error.62f6ab1e2687f26b": {
     "other": "MCP 請求僅支援 HTTP 存取"
@@ -1804,6 +2305,9 @@
   },
   "legacy.error.63722cd0da2f0322": {
     "other": "只有平台管理員可以管理脫敏策略"
+  },
+  "legacy.error.638c570a0e485641": {
+    "other": "字段編碼或物理列名不合法"
   },
   "legacy.error.63e1d2923d9a60ad": {
     "other": "設定專案狀態失敗"
@@ -1838,6 +2342,9 @@
   "legacy.error.675ce37f71759e76": {
     "other": "智能問數記錄不存在"
   },
+  "legacy.error.67b714349038ef9a": {
+    "other": "生成數據源語義模型失敗"
+  },
   "legacy.error.6809a6b85e22a0dd": {
     "other": "查詢權限日誌詳情失敗"
   },
@@ -1846,6 +2353,9 @@
   },
   "legacy.error.6875490152490a8a": {
     "other": "查詢定時任務下拉列表失敗"
+  },
+  "legacy.error.68c36a9a40ff17ea": {
+    "other": "重試工作流腳本失敗"
   },
   "legacy.error.690a6b7f9c24cefa": {
     "other": "多因素認證失敗次數過多"
@@ -1877,6 +2387,12 @@
   "legacy.error.6a57e7bb1fda230a": {
     "other": "該分類訊息不允許刪除"
   },
+  "legacy.error.6a915ace53145be1": {
+    "other": "保存 BI 數據源模型失敗"
+  },
+  "legacy.error.6a96890d025d36c6": {
+    "other": "儲存業務單據流程關聯失敗"
+  },
   "legacy.error.6a9d6064de67fa66": {
     "other": "訊息分類沒有啟用的投遞目標"
   },
@@ -1891,6 +2407,9 @@
   },
   "legacy.error.6b0a676728c4bb15": {
     "other": "訊息正文格式無效"
+  },
+  "legacy.error.6b10f726d5abb4f2": {
+    "other": "只有預設租戶可以使用伺服器資料庫用戶端"
   },
   "legacy.error.6b2432fed138fe2c": {
     "other": "查詢 API 存取日誌分頁列表失敗"
@@ -1928,6 +2447,9 @@
   "legacy.error.6de8ebe104908a91": {
     "other": "初始化租戶管理員角色失敗"
   },
+  "legacy.error.6e274beea35914d0": {
+    "other": "建立腳本失敗"
+  },
   "legacy.error.6e3c9cde7970ab77": {
     "other": "重新擷取文件文字失敗"
   },
@@ -1964,8 +2486,17 @@
   "legacy.error.70010c1c5aff2874": {
     "other": "開放授權用戶端不存在"
   },
+  "legacy.error.7035618678e0d941": {
+    "other": "BI 數據源表關係無效"
+  },
+  "legacy.error.7037d44d26f2fe7d": {
+    "other": "確認AI工具操作失敗"
+  },
   "legacy.error.708625d074c0bc4a": {
     "other": "前端API檔案必須位於所選業務模組目錄且使用.ts副檔名"
+  },
+  "legacy.error.709fd6d34b5ab217": {
+    "other": "腳本語言無效"
   },
   "legacy.error.70be9f472ac29679": {
     "other": "驗證本人工作階段失敗"
@@ -2009,8 +2540,17 @@
   "legacy.error.7255193529b2fdb8": {
     "other": "檔案下載失敗"
   },
+  "legacy.error.72934aee38ddf99c": {
+    "other": "服務端數據庫客戶端不存在"
+  },
   "legacy.error.72aaa4285bec9431": {
     "other": "修改手機號失敗"
+  },
+  "legacy.error.732403aa5b743865": {
+    "other": "宿主關聯回寫必須註冊流程關聯核驗器"
+  },
+  "legacy.error.7347922dbc5dc781": {
+    "other": "關係圖必須是以事實表爲根的樹"
   },
   "legacy.error.738ffa9d13b38867": {
     "other": "同一租戶的崗位編號重複"
@@ -2023,6 +2563,9 @@
   },
   "legacy.error.742a08fb80e718ce": {
     "other": "還原定時任務設定失敗"
+  },
+  "legacy.error.743de39e211f2357": {
+    "other": "BI 過濾字段所屬表無效"
   },
   "legacy.error.7457032f6280eb65": {
     "other": "第三方登入票據建立失敗"
@@ -2053,6 +2596,9 @@
   },
   "legacy.error.75291116767157b1": {
     "other": "上傳檔案格式錯誤"
+  },
+  "legacy.error.75703813c8b15887": {
+    "other": "當前圖表需要分類或日期字段"
   },
   "legacy.error.757bdbb9cf9523eb": {
     "other": "查詢線上使用者失敗"
@@ -2117,6 +2663,12 @@
   "legacy.error.77fc0ea919e34629": {
     "other": "使用者組織關係與所屬租戶不一致"
   },
+  "legacy.error.7805ab41ec40269c": {
+    "other": "BI 問題不能爲空"
+  },
+  "legacy.error.7849340589beebfc": {
+    "other": "工作臺包含不可訪問或未發佈的儀表板"
+  },
   "legacy.error.7871e907338a7317": {
     "other": "專案授權不存在"
   },
@@ -2138,8 +2690,14 @@
   "legacy.error.796a07cbf608a7c4": {
     "other": "訊息動作目標校驗未初始化"
   },
+  "legacy.error.7988a9c57b1e18af": {
+    "other": "流程編碼與版本不可修改，請創建新版本"
+  },
   "legacy.error.798a355cd970d9df": {
     "other": "刪除登入策略失敗"
+  },
+  "legacy.error.799b4c56d12deb00": {
+    "other": "Agent工具未啟用或執行功能遭禁止"
   },
   "legacy.error.79a13181f8eb5390": {
     "other": "建立字典屬性失敗"
@@ -2150,6 +2708,9 @@
   "legacy.error.79c198d49f48c75c": {
     "other": "WebAuthn 認證回應無效"
   },
+  "legacy.error.79c663c3b9bbbc6e": {
+    "other": "讀取卡片查詢配置失敗"
+  },
   "legacy.error.7a155b68e77f7b3e": {
     "other": "刪除訊息失敗"
   },
@@ -2158,6 +2719,9 @@
   },
   "legacy.error.7a38fa171e5f03d7": {
     "other": "第三方登入票據已失效"
+  },
+  "legacy.error.7a82731cd9da4819": {
+    "other": "請填寫有效的儀表板名稱和編碼"
   },
   "legacy.error.7a9fd6329bd31acb": {
     "other": "檔案內容不能為空且不能超過 20 MB"
@@ -2210,8 +2774,14 @@
   "legacy.error.7ddf413a97a025d8": {
     "other": "沒有啟用的驗證碼型別"
   },
+  "legacy.error.7e1cee01625c342f": {
+    "other": "腳本執行不屬於目前流程"
+  },
   "legacy.error.7e4f51942b429272": {
     "other": "出庫脫敏規則參數無效"
+  },
+  "legacy.error.7e7027a1d80c578d": {
+    "other": "不能查詢其他租戶的審批委託"
   },
   "legacy.error.7f22e0bfb634eb2f": {
     "other": "傳送手機號驗證碼失敗"
@@ -2221,6 +2791,9 @@
   },
   "legacy.error.800ad5e277d8f771": {
     "other": "限流規則參數不是有效 JSON: %w"
+  },
+  "legacy.error.804ff47d9145111c": {
+    "other": "腳本 ID 無效"
   },
   "legacy.error.80628f11b01cfebd": {
     "other": "MFA 裝置免驗證天數必須介於 0 到 90 之間"
@@ -2240,6 +2813,9 @@
   "legacy.error.81e65e451284e06e": {
     "other": "同一租戶的角色編碼重複"
   },
+  "legacy.error.8216350b44fd8ba1": {
+    "other": "儲存資料卡片失敗"
+  },
   "legacy.error.82166f10832cd9cd": {
     "other": "capacity 必須在 1 到 %d 之間"
   },
@@ -2254,6 +2830,9 @@
   },
   "legacy.error.825560a606dfc1b4": {
     "other": "刪除檔案資產失敗"
+  },
+  "legacy.error.826af7ec0498f9b7": {
+    "other": "執行卡片查詢失敗"
   },
   "legacy.error.827e959fee2fe159": {
     "other": "查詢資料存取日誌分頁列表失敗"
@@ -2273,8 +2852,14 @@
   "legacy.error.8356e20f232d281c": {
     "other": "文件原始檔案上傳失敗"
   },
+  "legacy.error.8358173c19c8b805": {
+    "other": "刪除流程定義失敗"
+  },
   "legacy.error.8378c73fbc6061ca": {
     "other": "查詢崗位分頁列表失敗"
+  },
+  "legacy.error.83c152306e3a4a8e": {
+    "other": "新增租戶審批表單無效"
   },
   "legacy.error.83e43a4951d784c2": {
     "other": "上級行政區域不能是自身"
@@ -2285,14 +2870,29 @@
   "legacy.error.84092786aefc8d28": {
     "other": "建立會話狀態失敗"
   },
+  "legacy.error.840a1544b634b15c": {
+    "other": "遍歷數據庫表結構失敗"
+  },
+  "legacy.error.844039c078368bf3": {
+    "other": "找不到工具請求契約"
+  },
   "legacy.error.84697e6aff32c8d5": {
     "other": "刪除系統設定失敗"
   },
   "legacy.error.84971dcea61616b1": {
     "other": "建立選單失敗"
   },
+  "legacy.error.84c684cce9bedfe9": {
+    "other": "設置審批委託失敗"
+  },
   "legacy.error.84cd4e2b6e6c7236": {
     "other": "消費多因素認證恢復碼失敗"
+  },
+  "legacy.error.8509eb2948308ef5": {
+    "other": "BI 查詢結果超過大小限制，請縮小查詢範圍"
+  },
+  "legacy.error.855a3a4a1e73873b": {
+    "other": "設定腳本狀態失敗"
   },
   "legacy.error.858a0795c30a4a9b": {
     "other": "多因素驗證失敗"
@@ -2327,6 +2927,9 @@
   "legacy.error.888f5179fe310cd6": {
     "other": "限流維度無效"
   },
+  "legacy.error.88a331bc22b0dbe9": {
+    "other": "請先完成數據源表結構和語義模型配置"
+  },
   "legacy.error.89150fa5235640aa": {
     "other": "呼叫目標重複"
   },
@@ -2335,6 +2938,12 @@
   },
   "legacy.error.8933d9e974b3a27d": {
     "other": "刪除檔案物件失敗"
+  },
+  "legacy.error.894efd50d81b01bc": {
+    "other": "BI 時間維度所屬表無效"
+  },
+  "legacy.error.895609297b4cc810": {
+    "other": "MySQL兼容數據源連接信息不完整"
   },
   "legacy.error.89948745c30efa6b": {
     "other": "用戶端權杖身份不匹配"
@@ -2357,8 +2966,17 @@
   "legacy.error.8b14be98bee08880": {
     "other": "查詢資料庫欄位失敗"
   },
+  "legacy.error.8b1e46dc72244e15": {
+    "other": "BI 問數生成失敗"
+  },
   "legacy.error.8b413a6a6b9c51f1": {
     "other": "查詢多因素認證狀態失敗"
+  },
+  "legacy.error.8b442bce74de76e9": {
+    "other": "請選擇1到8張數據表並指定事實表"
+  },
+  "legacy.error.8b5a995b29d45525": {
+    "other": "PostgreSQL數據源連接信息不完整"
   },
   "legacy.error.8b7757274fb40557": {
     "other": "讀取聯網搜尋回應失敗"
@@ -2381,6 +2999,9 @@
   "legacy.error.8c54cb0c3d38941a": {
     "other": "訊息 Provider 狀態無效"
   },
+  "legacy.error.8c6af8b20cd52f9c": {
+    "other": "只有預設租戶可以執行新增租戶審批動作"
+  },
   "legacy.error.8ca5b7bd020f0d44": {
     "other": "生成檔案已被修改，無法安全還原"
   },
@@ -2392,6 +3013,9 @@
   },
   "legacy.error.8d4c7687edb51962": {
     "other": "必須設定符合安全策略的新密碼"
+  },
+  "legacy.error.8d5c3940aba9dd25": {
+    "other": "同一用戶只能設置一條審批委託"
   },
   "legacy.error.8dcfb2899db4e48a": {
     "other": "已有資料使用該入庫脫敏策略，不能停用或刪除"
@@ -2420,8 +3044,14 @@
   "legacy.error.8edf13ac398ac3e4": {
     "other": "選項介面欄位不存在"
   },
+  "legacy.error.8f08aae578d818eb": {
+    "other": "流程定義不存在"
+  },
   "legacy.error.8f09ccc849c9e2b7": {
     "other": "選單編號已變化，請重新產生"
+  },
+  "legacy.error.8f0c281936a2dd93": {
+    "other": "創建流程定義失敗"
   },
   "legacy.error.8f0dd34554f01d20": {
     "other": "備份還原模式無效"
@@ -2429,17 +3059,32 @@
   "legacy.error.8f5b2aa071f02c06": {
     "other": "讀取多因素認證方式失敗"
   },
+  "legacy.error.8f6f571bc90e07de": {
+    "other": "當前圖表需要兩個分類字段和一個數值字段"
+  },
   "legacy.error.9001727fa93c4597": {
     "other": "所屬租戶不存在或已停用"
   },
+  "legacy.error.903b4ffba1164834": {
+    "other": "連接 BI 數據源失敗"
+  },
   "legacy.error.907ce95f5cb163dc": {
     "other": "繫結租戶不存在"
+  },
+  "legacy.error.908123a7527b5ef3": {
+    "other": "讀取查詢結果快照失敗"
+  },
+  "legacy.error.90ae3d4b3b701aa1": {
+    "other": "可設定資料來源暫不支援專案範圍查詢"
   },
   "legacy.error.90b019d1c34bcf63": {
     "other": "登入策略範圍型別無效"
   },
   "legacy.error.90fb3173fc11c767": {
     "other": "建立脫敏規則失敗"
+  },
+  "legacy.error.910c3bb2daa5b9eb": {
+    "other": "查詢 BI 數據源詳情失敗"
   },
   "legacy.error.9169c767f06efb26": {
     "other": "建構聯網搜尋請求失敗"
@@ -2455,6 +3100,9 @@
   },
   "legacy.error.9265669d517e320e": {
     "other": "解析Provider個性化配置失敗"
+  },
+  "legacy.error.92a83b190694e02b": {
+    "other": "預覽 BI 查詢失敗"
   },
   "legacy.error.92c25f13b0fa3691": {
     "other": "查詢 API 存取日誌詳情失敗"
@@ -2492,6 +3140,12 @@
   "legacy.error.94a4acd52ee779cb": {
     "other": "查詢封存設定失敗"
   },
+  "legacy.error.94c872f75369c921": {
+    "other": "工具參數無效"
+  },
+  "legacy.error.94dc7cfc60980a69": {
+    "other": "刪除流程定義失敗，仍有流程實例引用該定義"
+  },
   "legacy.error.94f40163f02c3e7b": {
     "other": "查詢 OAuth 登入方式失敗"
   },
@@ -2500,6 +3154,12 @@
   },
   "legacy.error.951405540e9a38f3": {
     "other": "入庫脫敏策略狀態無效"
+  },
+  "legacy.error.9578a4511b3382df": {
+    "other": "申請表單資料必須是JSON物件"
+  },
+  "legacy.error.95e9cd0948335c3d": {
+    "other": "儀表板佈局格式無效"
   },
   "legacy.error.95ea0e3927a9039c": {
     "other": "Proto 介面設定順序或型別不正確"
@@ -2525,6 +3185,12 @@
   "legacy.error.9798ae7fa191abd0": {
     "other": "建立角色失敗，不能使用內建角色編碼"
   },
+  "legacy.error.97a011fa2c37581c": {
+    "other": "引用腳本不存在或未啟用"
+  },
+  "legacy.error.97e1866d4aeb1c8a": {
+    "other": "不能引用其他租戶、項目或私有卡片"
+  },
   "legacy.error.9828341ae3541d3d": {
     "other": "查詢使用者角色失敗"
   },
@@ -2533,6 +3199,9 @@
   },
   "legacy.error.998d00125d42ac70": {
     "other": "查詢策略評估日誌詳情失敗"
+  },
+  "legacy.error.998ef42f3f8bbb63": {
+    "other": "讀取來源查詢結果失敗"
   },
   "legacy.error.99b5db83c5f70d13": {
     "other": "儲存 WebAuthn 設定失敗"
@@ -2558,6 +3227,9 @@
   "legacy.error.9bdd7318cefbaaad": {
     "other": "不能建立其他租戶的專案"
   },
+  "legacy.error.9cafc0f70e08d227": {
+    "other": "請在管理端確認業務寫入操作"
+  },
   "legacy.error.9cd44a5bdb014fb1": {
     "other": "業務表已被程式碼生成表配置選擇"
   },
@@ -2576,6 +3248,9 @@
   "legacy.error.9df84549ee5d2e6d": {
     "other": "目前用戶端不支援 WebAuthn，請使用支援 Passkey 的用戶端完成綁定"
   },
+  "legacy.error.9e1aa3fd7def6722": {
+    "other": "BI 數據源配置不能爲空"
+  },
   "legacy.error.9e70775a28707b73": {
     "other": "檔案內容不能超過 20 MB"
   },
@@ -2587,6 +3262,12 @@
   },
   "legacy.error.9ef530183c578b4d": {
     "other": "查詢使用者失敗"
+  },
+  "legacy.error.9f01df24feb10b4f": {
+    "other": "當前用戶擁有多個項目範圍，請選擇單個項目後查詢 BI"
+  },
+  "legacy.error.9f0c49cefeac73e1": {
+    "other": "引用ID須爲正數且不重複"
   },
   "legacy.error.9f2257503116e08f": {
     "other": "入庫脫敏策略不存在"
@@ -2624,6 +3305,9 @@
   "legacy.error.a238c49d0e37d9f2": {
     "other": "AI會話不存在"
   },
+  "legacy.error.a29ca3d4464b4117": {
+    "other": "查詢腳本列表失敗"
+  },
   "legacy.error.a2a94e08e6ca92ab": {
     "other": "建立行政區域失敗"
   },
@@ -2647,6 +3331,9 @@
   },
   "legacy.error.a4c906a269af199d": {
     "other": "業務表名只能包含小寫字母、數字和底線，且必須以字母開頭"
+  },
+  "legacy.error.a4ec9260f17d6542": {
+    "other": "儀表板不存在"
   },
   "legacy.error.a51c8475a6465475": {
     "other": "新密碼不能與目前密碼相同"
@@ -2684,8 +3371,17 @@
   "legacy.error.a74130d81445b0bd": {
     "other": "embedding模型所屬供應商未啟用"
   },
+  "legacy.error.a767a15e48da0a92": {
+    "other": "維度表關聯字段必須唯一且與事實表字段類型兼容"
+  },
   "legacy.error.a793ed4ba92639ed": {
     "other": "建立多因素認證綁定票據失敗"
+  },
+  "legacy.error.a7beabf5ecc07c42": {
+    "other": "業務單據關聯尚未確認，請稍後撤回"
+  },
+  "legacy.error.a7c58b6438e3489e": {
+    "other": "多指標圖表需要數值字段"
   },
   "legacy.error.a7cd9211d767ce6e": {
     "other": "業務模組字典不存在"
@@ -2708,17 +3404,44 @@
   "legacy.error.a8cecf08b4c03297": {
     "other": "該設定編碼必須使用表單型別"
   },
+  "legacy.error.a8d8de8491bac522": {
+    "other": "指標必須映射到事實表字段"
+  },
   "legacy.error.a904f86e15f80686": {
     "other": "查詢可授權介面失敗"
+  },
+  "legacy.error.a922fa8d9aefc4b3": {
+    "other": "流程定義未啟用"
+  },
+  "legacy.error.a934ff7ee33d8ab2": {
+    "other": "工具介面契約無效"
   },
   "legacy.error.a9a6a83a7d22e27e": {
     "other": "使用者名稱或密碼錯誤"
   },
+  "legacy.error.aa3f19b0635bde95": {
+    "other": "BI 查詢至少需要一個維度或指標"
+  },
   "legacy.error.ab10b5713ba93cbd": {
     "other": "刪除崗位失敗"
   },
+  "legacy.error.ac01bb67bb88f719": {
+    "other": "當前圖表型別只支援一個指標"
+  },
   "legacy.error.ac1dcca2468c6eea": {
     "other": "查詢訊息詳情失敗"
+  },
+  "legacy.error.ac1dfc62a1e129c384": {
+    "other": "查詢腳本執行日誌詳情失敗"
+  },
+  "legacy.error.ac1dfc62f18f680": {
+    "other": "查詢腳本執行日誌詳情失敗"
+  },
+  "legacy.error.ac1dfc62f18f6808": {
+    "other": "查詢腳本執行日誌詳情失敗"
+  },
+  "legacy.error.ac6310ee83bcf7f9": {
+    "other": "只有流程參與者或管理員可以重試腳本"
   },
   "legacy.error.ad3e7934969052c3": {
     "other": "刪除訊息範本失敗"
@@ -2741,6 +3464,9 @@
   "legacy.error.ae506e54c847f000": {
     "other": "訊息 Provider 已被訊息範本使用"
   },
+  "legacy.error.ae56de2ccc009ae3": {
+    "other": "發佈 BI 儀表板失敗"
+  },
   "legacy.error.ae5dda772496d1bc": {
     "other": "滑動視窗日誌 limit 不能超過 %d"
   },
@@ -2759,11 +3485,20 @@
   "legacy.error.af8be8010133e43a": {
     "other": "程式碼生成任務ID不能為空"
   },
+  "legacy.error.afac2a2e5bf769d4": {
+    "other": "審批動作無效"
+  },
+  "legacy.error.afdf4126e6dda456": {
+    "other": "數據源語義模型不能爲空"
+  },
   "legacy.error.b000629d3e4c6e0a": {
     "other": "介面不屬於所選服務"
   },
   "legacy.error.b0080b8ef47b6b2f": {
     "other": "更新崗位失敗"
+  },
+  "legacy.error.b008ba1ac3fb0652": {
+    "other": "執行租約已被其他任務接管"
   },
   "legacy.error.b033407527df7ba3": {
     "other": "設定國際化自訂翻譯狀態失敗"
@@ -2789,6 +3524,9 @@
   "legacy.error.b2d510c3c58db1c0": {
     "other": "查詢字典屬性失敗"
   },
+  "legacy.error.b2df4070287d940b": {
+    "other": "查詢我的審批任務失敗"
+  },
   "legacy.error.b2e4129625950cdc": {
     "other": "訊息動作型別無效"
   },
@@ -2804,11 +3542,17 @@
   "legacy.error.b374f825d226968f": {
     "other": "查詢行政區域失敗"
   },
+  "legacy.error.b38130d20d8764ce": {
+    "other": "讀取數據庫字段結構失敗"
+  },
   "legacy.error.b3ca26ba26ec1779": {
     "other": "租戶已停用"
   },
   "legacy.error.b3cb89fc0a8251e4": {
     "other": "解析AI模型分類設定失敗"
+  },
+  "legacy.error.b3d876f3488c1138": {
+    "other": "讀取卡片查詢失敗"
   },
   "legacy.error.b3ff67b25874179f": {
     "other": "刪除程式碼生成表設定失敗"
@@ -2837,6 +3581,9 @@
   "legacy.error.b51de7ac39752753": {
     "other": "不支援的 AI Provider"
   },
+  "legacy.error.b55bf245bac9ce6e": {
+    "other": "刪除流程定義失敗，流程定義不存在"
+  },
   "legacy.error.b57fd83489726ea9": {
     "other": "入庫脫敏策略不能為空"
   },
@@ -2846,14 +3593,26 @@
   "legacy.error.b59718ffeaef06c5": {
     "other": "設定介面限流策略狀態失敗"
   },
+  "legacy.error.b599662b6305b1cd": {
+    "other": "讀取數據庫唯一鍵失敗"
+  },
   "legacy.error.b5f1440999896065": {
     "other": "查詢出庫脫敏策略詳情失敗"
+  },
+  "legacy.error.b6454ff77812a329": {
+    "other": "工作臺包含無權訪問的卡片"
+  },
+  "legacy.error.b698dd181813542e": {
+    "other": "不能查詢其他租戶的流程實例"
   },
   "legacy.error.b6a5cd0e0d7bc920": {
     "other": "建立介面限流策略失敗"
   },
   "legacy.error.b6aa14aecfe74975": {
     "other": "解析訊息 Provider 配置失敗"
+  },
+  "legacy.error.b6b3d6b633e2277b": {
+    "other": "請輸入卡片名稱"
   },
   "legacy.error.b6b95db507adde81": {
     "other": "工作階段令牌管理器未設定"
@@ -2879,6 +3638,9 @@
   "legacy.error.b7d44d24f66dbda1": {
     "other": "查詢專案樹失敗"
   },
+  "legacy.error.b7dfaaed47b862eb": {
+    "other": "刪除審批委託失敗，委託不存在"
+  },
   "legacy.error.b7fdba770862e9ff": {
     "other": "刪除崗位失敗，仍有使用者使用該崗位"
   },
@@ -2891,6 +3653,9 @@
   "legacy.error.b8895d5db253e184": {
     "other": "第三方應用金鑰不能為空"
   },
+  "legacy.error.b88bad52eb5ea941": {
+    "other": "用戶已禁用"
+  },
   "legacy.error.b89055c6f7498238": {
     "other": "限流規則不存在"
   },
@@ -2900,17 +3665,35 @@
   "legacy.error.ba2694f62e4fbbaf": {
     "other": "刪除訊息失敗，訊息不存在"
   },
+  "legacy.error.ba58b9c5fcfc4e35": {
+    "other": "只能查看已發佈的儀表板版本"
+  },
+  "legacy.error.ba653419d73d2ec8": {
+    "other": "撤回審批申請失敗"
+  },
   "legacy.error.ba92dfedf01811fc": {
     "other": "更新訊息範本失敗"
   },
   "legacy.error.baabf07429595997": {
     "other": "登入 MAC 命中黑名單"
   },
+  "legacy.error.bb1268519f752fa3": {
+    "other": "儲存個人工作臺失敗"
+  },
   "legacy.error.bb1bb5f6a2dbba8b": {
     "other": "WebAuthn 停用挑戰已失效"
   },
   "legacy.error.bb1c9703d51a4ead": {
     "other": "使用者部門不存在"
+  },
+  "legacy.error.bb42bc14719faff4": {
+    "other": "查詢流程腳本失敗"
+  },
+  "legacy.error.bbe870a05f49a123": {
+    "other": "獨立數據庫連接的主機、端口、數據庫名和用戶名不能爲空"
+  },
+  "legacy.error.bbf6b13e90ad673c": {
+    "other": "流程節點狀態異常"
   },
   "legacy.error.bc003ab52dc05e95": {
     "other": "訊息角色受眾無效"
@@ -2939,6 +3722,9 @@
   "legacy.error.bce2683b3efef155": {
     "other": "儲存初始化密碼失敗"
   },
+  "legacy.error.bd716eafd672c746": {
+    "other": "更新流程定義失敗"
+  },
   "legacy.error.bd71a5a12e6c406b": {
     "other": "建立專案失敗"
   },
@@ -2953,6 +3739,9 @@
   },
   "legacy.error.be74ce92a610e199": {
     "other": "訊息受眾不能重複"
+  },
+  "legacy.error.bef4cc844929c21e": {
+    "other": "查詢條件已變化，請重新預覽後保存卡片"
   },
   "legacy.error.bf136ecb202be363": {
     "other": "字典項不存在"
@@ -2981,6 +3770,9 @@
   "legacy.error.c0ee4b6fcd75f376": {
     "other": "讀取 WebAuthn 憑證失敗"
   },
+  "legacy.error.c17f8b1c11e357cf": {
+    "other": "工作臺最多50張卡片，ID須為正數且不重複"
+  },
   "legacy.error.c1927bc6a20fa3ca": {
     "other": "入庫策略 ID 不能為空"
   },
@@ -2993,6 +3785,9 @@
   "legacy.error.c21174eeb0d483ee": {
     "other": "遍歷查詢結果失敗"
   },
+  "legacy.error.c21640c2f2bf1181": {
+    "other": "發布節點圖設定不能超過 1MiB"
+  },
   "legacy.error.c22152f4419d1c0c": {
     "other": "請選擇租戶"
   },
@@ -3001,6 +3796,9 @@
   },
   "legacy.error.c269746cd8542461": {
     "other": "第三方帳號唯一標識為空"
+  },
+  "legacy.error.c27f086ce508006d": {
+    "other": "所有維度表都必須從事實表連通"
   },
   "legacy.error.c285fcfc099f9c92": {
     "other": "查詢選單樹形列表失敗"
@@ -3020,6 +3818,9 @@
   "legacy.error.c33ecf4a6ac4f509": {
     "other": "分支錨點訊息編號不合法"
   },
+  "legacy.error.c343976847d80363": {
+    "other": "刪除腳本失敗"
+  },
   "legacy.error.c3dd71d006f793b2": {
     "other": "關閉檔案掃描暫存檔失敗"
   },
@@ -3031,6 +3832,9 @@
   },
   "legacy.error.c465c61d1876cee8": {
     "other": "多因素認證方式設定無效"
+  },
+  "legacy.error.c48643c9d6f06c71": {
+    "other": "列表類型無效"
   },
   "legacy.error.c49d8684e46fea65": {
     "other": "介面不存在"
@@ -3046,6 +3850,9 @@
   },
   "legacy.error.c59404a173ecf4a6": {
     "other": "解除綁定第三方帳號失敗"
+  },
+  "legacy.error.c5c1f6bacfa7c53d": {
+    "other": "儀表板引用的卡片不存在"
   },
   "legacy.error.c5eae1dd2dfe44e7": {
     "other": "用戶端來源 IP 未授權"
@@ -3089,6 +3896,9 @@
   "legacy.error.c8fa8bc4e8f159d9": {
     "other": "登入失敗次數過多，請稍後再試"
   },
+  "legacy.error.c916f58aa90099af": {
+    "other": "流程定義狀態無效"
+  },
   "legacy.error.ca07a343943ddc8b": {
     "other": "請選擇已初始化的資料來源"
   },
@@ -3100,6 +3910,9 @@
   },
   "legacy.error.cab371e60fe459f7": {
     "other": "更新AI助手訊息失敗"
+  },
+  "legacy.error.cad1411b8d349a41": {
+    "other": "查詢 BI 儀表板失敗"
   },
   "legacy.error.cb2e9ab2acc9d9c4": {
     "other": "更新開放授權用戶端失敗"
@@ -3119,8 +3932,23 @@
   "legacy.error.cc009e22bbd2e9c2": {
     "other": "刪除字典失敗"
   },
+  "legacy.error.cc09b1c30b456fcf": {
+    "other": "提交審批申請失敗"
+  },
   "legacy.error.cc20029c8818859c": {
     "other": "查詢備份記錄失敗"
+  },
+  "legacy.error.cc29c4abdf48e2ab": {
+    "other": "BI 數據源表關係未覆蓋所有選中表"
+  },
+  "legacy.error.cc45410da43fe027": {
+    "other": "BI 排序字段或方向不可用"
+  },
+  "legacy.error.cc9b2fc832c214dc": {
+    "other": "卡片佈局超出畫布範圍"
+  },
+  "legacy.error.ccb9d64291a84b3d": {
+    "other": "遍歷數據庫字段結構失敗"
   },
   "legacy.error.cccdd8c196015a7f": {
     "other": "查詢備份還原記錄失敗"
@@ -3134,8 +3962,17 @@
   "legacy.error.cd11548a9db9cf6c": {
     "other": "國際化自訂翻譯狀態無效"
   },
+  "legacy.error.cd88df3e47cfbfb1": {
+    "other": "儀表板版本不存在"
+  },
   "legacy.error.cd897706bc0e32ed": {
     "other": "查詢程式碼生成欄位設定失敗"
+  },
+  "legacy.error.cdb9882d7fd358ad": {
+    "other": "無權訪問資料卡片"
+  },
+  "legacy.error.ce02e13c6e151681": {
+    "other": "語義字段編碼不能重複"
   },
   "legacy.error.ce0667f6a9bd7e2e": {
     "other": "同一字典的屬性值重複"
@@ -3143,14 +3980,41 @@
   "legacy.error.ce12956616b6dbc9": {
     "other": "入庫脫敏策略建立後不允許修改租戶、資料來源、資料表或欄位"
   },
+  "legacy.error.ce1a849baef38a91": {
+    "other": "流程實例不在審批中"
+  },
   "legacy.error.ce370f796e2dbeb4": {
     "other": "讀取密碼策略狀態失敗"
   },
   "legacy.error.ce521e068170e904": {
     "other": "查詢字典分頁列表失敗"
   },
+  "legacy.error.ce842a9b36cba468": {
+    "other": "查詢流程定義下拉列表失敗"
+  },
+  "legacy.error.ce8ca5ddb89d3ccc": {
+    "other": "收藏包含無權訪問的卡片"
+  },
+  "legacy.error.ce9dbb684165613c": {
+    "other": "重新整理間隔應為0或30至86400秒"
+  },
+  "legacy.error.cea099cf600601cb": {
+    "other": "關閉數據庫唯一鍵查詢失敗"
+  },
   "legacy.error.cea933528406f077": {
     "other": "開始強制綁定多因素認證失敗"
+  },
+  "legacy.error.cebf0a62a661df9c": {
+    "other": "查詢流程定義失敗"
+  },
+  "legacy.error.cecfa12c95140940": {
+    "other": "不能查詢其他租戶的流程定義"
+  },
+  "legacy.error.cf0f0aa805d84ebc": {
+    "other": "BI 數據源語義模型未配置"
+  },
+  "legacy.error.cf4f6074437cb725": {
+    "other": "儲存卡片查詢配置失敗"
   },
   "legacy.error.cfeffe783b239e18": {
     "other": "請選擇已註冊的系統設定表單"
@@ -3161,6 +4025,9 @@
   "legacy.error.d06655e996ae7326": {
     "other": "驗證碼已過期"
   },
+  "legacy.error.d06defa6f5c709be": {
+    "other": "刪除資料卡片失敗"
+  },
   "legacy.error.d07181150520a6b4": {
     "other": "封存記錄不能為空"
   },
@@ -3170,11 +4037,23 @@
   "legacy.error.d1700e2d9ad8a545": {
     "other": "訊息租戶不能為空"
   },
+  "legacy.error.d194c776a0ee5e26": {
+    "other": "節點圖配置無效: 缺少開始節點"
+  },
+  "legacy.error.d20fc8bcc8d8f5c7": {
+    "other": "新增專案審批表單無效"
+  },
   "legacy.error.d217a967bfd0bacd": {
     "other": "回應資料型別不存在"
   },
   "legacy.error.d22fd55ed8b53e3d": {
     "other": "訊息不在定時發佈狀態"
+  },
+  "legacy.error.d2321b6e6cdb0b72": {
+    "other": "更新腳本失敗"
+  },
+  "legacy.error.d23b49a800ec82fd": {
+    "other": "審批執行狀態無效"
   },
   "legacy.error.d2426cb7f6161216": {
     "other": "刪除角色失敗，角色不存在"
@@ -3206,11 +4085,20 @@
   "legacy.error.d355679fc4c3684d": {
     "other": "程式碼生成還原快照已失效，請重新生成"
   },
+  "legacy.error.d36c66a9f8ccdb07": {
+    "other": "遍歷數據庫唯一鍵失敗"
+  },
   "legacy.error.d420a6a3d117c876": {
     "other": "修改翻譯資訊失敗"
   },
+  "legacy.error.d425221049b458d4": {
+    "other": "BI 查詢計劃不能爲空"
+  },
   "legacy.error.d45ebaf3a56c5487": {
     "other": "標記站內信未讀失敗"
+  },
+  "legacy.error.d4d43cc0c8f5bd1d": {
+    "other": "BI 數據源密碼解密服務未初始化"
   },
   "legacy.error.d5321efaf2f34345": {
     "other": "一級目錄下只能建立目錄、選單或外鏈"
@@ -3236,6 +4124,9 @@
   "legacy.error.d6dad83238ab7270": {
     "other": "登入 IP 命中黑名單"
   },
+  "legacy.error.d70a3756d8dfe390": {
+    "other": "讀取 BI 數據源目錄失敗"
+  },
   "legacy.error.d71ab292ad8174fb": {
     "other": "程式碼生成必須選擇固定一級選單下的父級選單"
   },
@@ -3244,6 +4135,9 @@
   },
   "legacy.error.d75aac9c3ebbd04d": {
     "other": "查詢登入日誌分頁列表失敗"
+  },
+  "legacy.error.d7f37b45ffd41536": {
+    "other": "數據源狀態無效"
   },
   "legacy.error.d819413726995a8b": {
     "other": "查詢脫敏規則選項失敗"
@@ -3263,11 +4157,17 @@
   "legacy.error.d940a40e5cc3a6b0": {
     "other": "設定基礎使用者應用端角色失敗"
   },
+  "legacy.error.d9af671132576c58": {
+    "other": "試執行腳本失敗"
+  },
   "legacy.error.d9afda138e42954e": {
     "other": "讀取日誌下載檔案失敗"
   },
   "legacy.error.d9c1bd13bb3c397d": {
     "other": "查詢可出庫脫敏欄位失敗"
+  },
+  "legacy.error.d9c4f018f338212d": {
+    "other": "只能撤回自己的申請"
   },
   "legacy.error.d9cf096b2b392d84": {
     "other": "設定備份設定狀態失敗"
@@ -3281,6 +4181,9 @@
   "legacy.error.da535200fe38b6f5": {
     "other": "目標資源 ID 不能為空"
   },
+  "legacy.error.da679537f3570aac": {
+    "other": "無權訪問儀表板所屬項目"
+  },
   "legacy.error.da91ab378e9ac6a8": {
     "other": "產生多因素認證恢復碼失敗"
   },
@@ -3292,6 +4195,9 @@
   },
   "legacy.error.dac19e6ee2a6c448": {
     "other": "重試訊息投遞失敗"
+  },
+  "legacy.error.db35c5c0de7472a2": {
+    "other": "不能操作其他租戶的流程定義"
   },
   "legacy.error.db4781157e05e955": {
     "other": "部門已停用"
@@ -3317,6 +4223,9 @@
   "legacy.error.dc8885ca6a1d1de4": {
     "other": "脫敏規則範本參數無效"
   },
+  "legacy.error.dcad9e63f38f931c": {
+    "other": "流程尚未終結"
+  },
   "legacy.error.dcc73012bd9e3caa": {
     "other": "請選擇Proto介面"
   },
@@ -3325,6 +4234,9 @@
   },
   "legacy.error.ddc0ea85e48cd84b": {
     "other": "前端頁面無法安全合併"
+  },
+  "legacy.error.de21ca3c60efaa47": {
+    "other": "已發佈卡片缺少查詢快照"
   },
   "legacy.error.de32ab1c95072611": {
     "other": "文件原始檔案校驗失敗（內容與上傳時不一致），請刪除後重新上傳"
@@ -3347,17 +4259,35 @@
   "legacy.error.ded15f67c86763a2": {
     "other": "訊息狀態已變化，請重新整理後重試"
   },
+  "legacy.error.df01b88a7a820bc8": {
+    "other": "租戶隔離字段不屬於選中的數據表"
+  },
+  "legacy.error.df1b47c8efd4d98a": {
+    "other": "卡片引用無效或重複"
+  },
   "legacy.error.df2269225d5069ee": {
     "other": "查詢 AI Provider 模型選項失敗"
   },
   "legacy.error.df5a442da0b21158": {
     "other": "更新登入會話失敗"
   },
+  "legacy.error.df71b790be9d3aad": {
+    "other": "指標至少需要一個聚合函數"
+  },
   "legacy.error.df83b569b1e6c106": {
     "other": "檔案安全掃描指令未設定"
   },
   "legacy.error.dfde1b4517c73c74": {
     "other": "備份記錄、目標資料來源和目標資料庫不能為空"
+  },
+  "legacy.error.e02e13af31934679": {
+    "other": "只有失敗的腳本可以重試"
+  },
+  "legacy.error.e05abb0c95c3230c": {
+    "other": "BI 查詢維度、指標或過濾條件超出限制"
+  },
+  "legacy.error.e06cbcedf60f6b6a": {
+    "other": "請選擇目前帳號與專案下成功的智慧問數記錄"
   },
   "legacy.error.e0b8846e58dc6831": {
     "other": "儲存 WebAuthn 登入挑戰失敗"
@@ -3395,17 +4325,26 @@
   "legacy.error.e2fd9e73043ee853": {
     "other": "設定狀態失敗，下面有部門"
   },
+  "legacy.error.e33217d61673a21c": {
+    "other": "當前用戶沒有可用項目範圍"
+  },
   "legacy.error.e33fc0beeabb38dc": {
     "other": "更新封存設定失敗"
   },
   "legacy.error.e3625317beb5819a": {
     "other": "儲存多因素認證設定失敗"
   },
+  "legacy.error.e3e3ceb5360f5b13": {
+    "other": "解析 BI 數據源語義配置失敗"
+  },
   "legacy.error.e3f1b26b38842ada": {
     "other": "通用憑證密鑰不能超過1024個字符"
   },
   "legacy.error.e4049241c07c1ec6": {
     "other": "程式碼生成表設定ID不能重複"
+  },
+  "legacy.error.e4113197ca2325fa": {
+    "other": "查詢申請表單失敗"
   },
   "legacy.error.e4343921c928a856": {
     "other": "登入失敗"
@@ -3415,6 +4354,9 @@
   },
   "legacy.error.e443a571d38b6bfc": {
     "other": "上傳AI知識庫文件失敗"
+  },
+  "legacy.error.e46eaf899f18a393": {
+    "other": "審批執行設定損壞"
   },
   "legacy.error.e47532d44611ae28": {
     "other": "重設密碼失敗，使用者資訊不存在"
@@ -3467,11 +4409,20 @@
   "legacy.error.e7c3fa9643b03f00": {
     "other": "刪除 OAuth 登入方式失敗"
   },
+  "legacy.error.e81dbd0ba4f7a963": {
+    "other": "不是您的待審批任務"
+  },
   "legacy.error.e8487c03570fcf89": {
     "other": "規則型別不允許修改"
   },
+  "legacy.error.e8515d62a9215e27": {
+    "other": "執行 BI 查詢失敗"
+  },
   "legacy.error.e86e1650b9bd4d21": {
     "other": "查詢快取條目失敗"
+  },
+  "legacy.error.e870b4dcb0ded0c7": {
+    "other": "關閉數據庫字段查詢失敗"
   },
   "legacy.error.e8cf0f814577dae5": {
     "other": "會話編號不合法"
@@ -3488,6 +4439,9 @@
   "legacy.error.eb0a5c7ed1c8c6e5": {
     "other": "下載歷史日誌檔案失敗"
   },
+  "legacy.error.eb1f4c524225068b": {
+    "other": "字段類型不支持"
+  },
   "legacy.error.eb66a4ab09cb7c2a": {
     "other": "不允許上傳可執行或可嵌入指令碼的檔案"
   },
@@ -3497,14 +4451,23 @@
   "legacy.error.ebe9b8ff030be0c3": {
     "other": "登入策略 ID 不能為空"
   },
+  "legacy.error.ec066a971ee52c71": {
+    "other": "審批任務辦理失敗"
+  },
   "legacy.error.ec26152876002eb0": {
     "other": "限流演算法無效"
   },
   "legacy.error.ec4f2818494c7f39": {
     "other": "查詢定時任務日誌分頁列表失敗"
   },
+  "legacy.error.ec72519ba8636a4c": {
+    "other": "表關聯必須引用已選表中的有效字段"
+  },
   "legacy.error.eca1d6ff1327a5f3": {
     "other": "建立部門失敗，更新路徑錯誤"
+  },
+  "legacy.error.ed128739722f40db": {
+    "other": "只有預設租戶可以申請新增租戶"
   },
   "legacy.error.ed45c317af97625d": {
     "other": "查詢資料庫欄位約束失敗"
@@ -3539,8 +4502,17 @@
   "legacy.error.eef3f6effdfa7140": {
     "other": "取得個人資料失敗"
   },
+  "legacy.error.ef1db3c37d699133": {
+    "other": "讀取個人工作臺失敗"
+  },
+  "legacy.error.ef4d3b3aab09a01d": {
+    "other": "請先等待目前回覆完成或處理待確認操作"
+  },
   "legacy.error.ef6146fd1b40b481": {
     "other": "目前工作階段已失效"
+  },
+  "legacy.error.ef81783f5a70a01a": {
+    "other": "設置流程定義狀態失敗"
   },
   "legacy.error.ef92f0344e85c0cc": {
     "other": "日誌層級篩選無效"
@@ -3557,6 +4529,12 @@
   "legacy.error.f00d5a69188edf52": {
     "other": "AI模型分類設定無效"
   },
+  "legacy.error.f02efe29b89e5500": {
+    "other": "保存查詢結果記錄失敗，請重試"
+  },
+  "legacy.error.f06bb6c5b5db84d9": {
+    "other": "只支持 inner 和 left 關聯"
+  },
   "legacy.error.f07ad56b3295ef6f": {
     "other": "程式碼生成表設定ID不能為空"
   },
@@ -3572,8 +4550,17 @@
   "legacy.error.f0c321fa54e7e4ed": {
     "other": "查詢登入策略詳情失敗"
   },
+  "legacy.error.f11c9913680e6b54": {
+    "other": "只能刪除自己的審批委託"
+  },
+  "legacy.error.f11d68a2a74f06f9": {
+    "other": "工具不屬於目前終端"
+  },
   "legacy.error.f12b6fa61a61b0c7": {
     "other": "用戶端綁定租戶已停用"
+  },
+  "legacy.error.f13315b882b89cac": {
+    "other": "測試 BI 數據源失敗"
   },
   "legacy.error.f13713a56dd96cf3": {
     "other": "查詢程式碼生成表設定失敗"
@@ -3595,6 +4582,9 @@
   },
   "legacy.error.f1faed3a397b2a51": {
     "other": "讓線上使用者下線失敗"
+  },
+  "legacy.error.f26c80a1e129c384": {
+    "other": "查詢 MQTT 訊息記錄失敗"
   },
   "legacy.error.f28302cbc7d78366": {
     "other": "所選模型不是embedding模型"
@@ -3629,6 +4619,9 @@
   "legacy.error.f398b3676ef7459b": {
     "other": "AI知識庫檢索失敗"
   },
+  "legacy.error.f3c60136f3fda7c6": {
+    "other": "每張維度表都必須與事實表建立一條關係"
+  },
   "legacy.error.f3e8e1b2e18b5f69": {
     "other": "查詢啟用驗證碼型別失敗"
   },
@@ -3638,11 +4631,23 @@
   "legacy.error.f44979b473b17b86": {
     "other": "物件儲存未設定"
   },
+  "legacy.error.f45d53f8c751e862": {
+    "other": "儀表板版本無效或超過20張卡片"
+  },
+  "legacy.error.f464573b785f5f5e": {
+    "other": "通知動作需要標題、內容和1至100個本租戶使用者"
+  },
   "legacy.error.f4e3c1c7f6c7d220": {
     "other": "刪除字典屬性失敗"
   },
+  "legacy.error.f4ea419d450e6aaa": {
+    "other": "數據源編碼已被靜態 Adapter 佔用"
+  },
   "legacy.error.f4ec8b7116260176": {
     "other": "查詢使用者下拉選擇失敗"
+  },
+  "legacy.error.f524a54193edc7f4": {
+    "other": "讀取 BI 數據源表結構失敗"
   },
   "legacy.error.f54df649d4889afc": {
     "other": "驗證碼預校驗失敗"
@@ -3701,6 +4706,9 @@
   "legacy.error.f90d26546dedbee7": {
     "other": "MCP 鑑權引擎未初始化"
   },
+  "legacy.error.f93a42e989ecd8af": {
+    "other": "驗證專案審批來源失敗"
+  },
   "legacy.error.f94fb6c1649757d9": {
     "other": "刪除語言失敗"
   },
@@ -3716,8 +4724,14 @@
   "legacy.error.fa1ec60338bc9604": {
     "other": "同一資源語言不能重複"
   },
+  "legacy.error.fa35c0fef4f8b1e2": {
+    "other": "散點圖需要兩個不同的數值字段"
+  },
   "legacy.error.fa4c8538024c9929": {
     "other": "出庫策略 ID 不能為空"
+  },
+  "legacy.error.facfeed9ad7256a3": {
+    "other": "查詢 BI 數據庫客戶端失敗"
   },
   "legacy.error.fafae4160952738e": {
     "other": "查詢父級選單失敗"
@@ -3740,8 +4754,20 @@
   "legacy.error.fc25e0d9642770e1": {
     "other": "刪除字典失敗，下面有屬性"
   },
+  "legacy.error.fc4d92dd2ebc6782": {
+    "other": "正在執行的訊息無法刪除"
+  },
+  "legacy.error.fc746194ec482626": {
+    "other": "查詢流程實例失敗"
+  },
+  "legacy.error.fcdabb6237ef15d3": {
+    "other": "更新流程定義失敗，僅草稿狀態可編輯"
+  },
   "legacy.error.fd02eafe22a11946": {
     "other": "設定封存設定狀態失敗"
+  },
+  "legacy.error.fd5abf524a285cc7": {
+    "other": "至少配置一個語義指標"
   },
   "legacy.error.fd8a77425c196716": {
     "other": "記錄用戶端認證失敗狀態失敗"
@@ -3757,6 +4783,9 @@
   },
   "legacy.error.fe2017ccb585fbd8": {
     "other": "建立使用者失敗"
+  },
+  "legacy.error.fe26a2c819b1e6c0": {
+    "other": "刪除審批委託失敗"
   },
   "legacy.error.fe97a3a85174448e": {
     "other": "讀取日誌檔案資訊失敗"
@@ -3899,6 +4928,39 @@
   "openapi.admin.service.sse_base": {
     "other": "Base SSE 服務"
   },
+  "openapi.ai.approval.0a50ca52d217eaa0": {
+    "other": "確認或拒絕目前使用者待執行的工具呼叫。"
+  },
+  "openapi.ai.approval.25b37d5c985ea3be": {
+    "other": "操作說明"
+  },
+  "openapi.ai.approval.2a1e259212d00994": {
+    "other": "確認截止時間"
+  },
+  "openapi.ai.approval.6cedfb9ab50004c5": {
+    "other": "是否確認執行"
+  },
+  "openapi.ai.approval.79d325f8ec278ba6": {
+    "other": "一次性審批編號"
+  },
+  "openapi.ai.approval.907638a466d26ec4": {
+    "other": "AI 工具人工確認請求，實際工具與參數由伺服器端凍結。"
+  },
+  "openapi.ai.approval.aca86adff02160dc": {
+    "other": "待確認的工具與凍結參數"
+  },
+  "openapi.ai.approval.bc522e692aed7078": {
+    "other": "AI 工具人工確認資訊。"
+  },
+  "openapi.ai.approval.c5953adda9d71bb8": {
+    "other": "AI 待確認工具呼叫。"
+  },
+  "openapi.ai.approval.c7fb3cb9b170ea8d": {
+    "other": "待執行工具的人工確認資訊"
+  },
+  "openapi.ai.approval.e1de7de24c6aa692": {
+    "other": "待執行的凍結參數JSON"
+  },
   "openapi.ai_provider.test_models.duration": {
     "other": "測試耗時毫秒"
   },
@@ -3923,6 +4985,345 @@
   "openapi.ai_provider.test_models.summary": {
     "other": "測試 AI 供應商表單中的全部模型。"
   },
+  "openapi.bi.0103248c22d8dcd4": {
+    "other": "發佈儀表板草稿。"
+  },
+  "openapi.bi.01ad6995c1ea49ac": {
+    "other": "儀表板ID"
+  },
+  "openapi.bi.0268468dd6709221": {
+    "other": "圖表結果"
+  },
+  "openapi.bi.03ed4e4120d3a47e": {
+    "other": "範圍終點"
+  },
+  "openapi.bi.0810fb953302bdf5": {
+    "other": "BI 結果列。"
+  },
+  "openapi.bi.09488c121409db9a": {
+    "other": "工作臺儀表板ID，最多50個且不重複"
+  },
+  "openapi.bi.099d61d496e67248": {
+    "other": "過濾值"
+  },
+  "openapi.bi.0be233e506fbd364": {
+    "other": "個人工作臺儀表板入口與卡片收藏。"
+  },
+  "openapi.bi.0c576f150772bfe7": {
+    "other": "語義最相近的切片"
+  },
+  "openapi.bi.0c5cbf0679840c2f": {
+    "other": "工作臺中當前可見的已發佈儀表板"
+  },
+  "openapi.bi.0eca92161ae97faf": {
+    "other": "測試數據源連接是否可訪問。"
+  },
+  "openapi.bi.0fbad2972dbe9857": {
+    "other": "租戶隔離字段，爲空表示連接級隔離或共享表"
+  },
+  "openapi.bi.11341fb1b9ac4163": {
+    "other": "保存經過校驗的多表語義模型。"
+  },
+  "openapi.bi.16f3fdf2a0db9c9f": {
+    "other": "建議圖表標題"
+  },
+  "openapi.bi.1acc96ed66933520": {
+    "other": "按列順序排列的值"
+  },
+  "openapi.bi.1cc9bbc82b4b015d": {
+    "other": "語義模型中的表節點。"
+  },
+  "openapi.bi.1e6a7e9e2f54be30": {
+    "other": "排序方向：asc 或 desc"
+  },
+  "openapi.bi.216a851b633926aa": {
+    "other": "結果行數上限，默認100"
+  },
+  "openapi.bi.271b5cd26f78b0d1": {
+    "other": "租戶列"
+  },
+  "openapi.bi.2c1fa65657702878": {
+    "other": "表結構標識"
+  },
+  "openapi.bi.2d8f5e93d88c3335": {
+    "other": "發佈 BI 儀表板請求。"
+  },
+  "openapi.bi.2dfeae3e5cc026ac": {
+    "other": "檢索測試：返回與query語義最相近的切片。"
+  },
+  "openapi.bi.3811bd8090741ec3": {
+    "other": "分頁查詢當前用戶的自然語言問數歷史。"
+  },
+  "openapi.bi.39d39dea3a54de5e": {
+    "other": "刪除 BI 儀表板響應。"
+  },
+  "openapi.bi.39e3359b41f199b6": {
+    "other": "查詢數據源表結構的響應。"
+  },
+  "openapi.bi.3d9018dfe69725bd": {
+    "other": "聚合函數"
+  },
+  "openapi.bi.3de01130c894c615": {
+    "other": "所屬表標識"
+  },
+  "openapi.bi.4460c7852f7ebcf0": {
+    "other": "數據庫表字段的結構信息。"
+  },
+  "openapi.bi.465df2d9cb365819": {
+    "other": "圖表組件ID"
+  },
+  "openapi.bi.49a847dea0ddfb47": {
+    "other": "服務端數據庫客戶端列表"
+  },
+  "openapi.bi.4b15a4a26509ba6f": {
+    "other": "項目ID，0表示租戶級"
+  },
+  "openapi.bi.4d17285b7085ca14": {
+    "other": "模型選中的表數量"
+  },
+  "openapi.bi.4d5fc5c9bc598a73": {
+    "other": "數據源語義維度。"
+  },
+  "openapi.bi.5208e07061c2574e": {
+    "other": "儀表板列表"
+  },
+  "openapi.bi.5255137e65867265": {
+    "other": "數據源可用的表、關聯關係和業務語義。"
+  },
+  "openapi.bi.52fde821a7d2cc07": {
+    "other": "是否允許過濾"
+  },
+  "openapi.bi.52fe98551232b10f": {
+    "other": "圖表類型"
+  },
+  "openapi.bi.57c6e9e1226b3601": {
+    "other": "語義數據源編碼"
+  },
+  "openapi.bi.5815b0d2d51325e0": {
+    "other": "查詢服務端已配置的數據庫客戶端選項。"
+  },
+  "openapi.bi.5a38c50e4f51770d": {
+    "other": "測試 BI 數據源響應。"
+  },
+  "openapi.bi.5beab13eead85c84": {
+    "other": "分組維度編碼"
+  },
+  "openapi.bi.5cb65a74a24ed0af": {
+    "other": "事實表標識"
+  },
+  "openapi.bi.5d3d9d2c10a8b7a8": {
+    "other": "儀表板數據響應。"
+  },
+  "openapi.bi.5d4d9772a3880ed2": {
+    "other": "圖表字段映射與樣式配置JSON"
+  },
+  "openapi.bi.5e17fee906eaf32c": {
+    "other": "分頁查詢當前租戶的數據源配置。"
+  },
+  "openapi.bi.5edacbc4c67164b1": {
+    "other": "服務端數據庫客戶端名稱"
+  },
+  "openapi.bi.65077c9e6261bc77": {
+    "other": "BI 語義查詢服務。"
+  },
+  "openapi.bi.68d814e180751e27": {
+    "other": "列名稱"
+  },
+  "openapi.bi.6cb03435eab3fc6a": {
+    "other": "問數狀態：枚舉【BiQueryStatus】"
+  },
+  "openapi.bi.6ceed401c1289055": {
+    "other": "查詢服務端數據庫客戶端響應。"
+  },
+  "openapi.bi.6d785eba090fc8db": {
+    "other": "數據源語義版本"
+  },
+  "openapi.bi.6e8d4f8835095e6c": {
+    "other": "分頁查詢當前用戶可見的儀表板。"
+  },
+  "openapi.bi.6f638acb24305376": {
+    "other": "單個圖表查詢結果。"
+  },
+  "openapi.bi.73a5e2dfcd62fddd": {
+    "other": "是否已配置語義模型"
+  },
+  "openapi.bi.749d2897b5ad02e7": {
+    "other": "表或視圖名稱"
+  },
+  "openapi.bi.76d0049562d89a5c": {
+    "other": "語義編碼"
+  },
+  "openapi.bi.7dd00cf604a82d55": {
+    "other": "允許的聚合函數"
+  },
+  "openapi.bi.7e2f47a5925e1762": {
+    "other": "兩張表之間經過確認的多對一關係。"
+  },
+  "openapi.bi.7e878318a1fe3292": {
+    "other": "語義版本"
+  },
+  "openapi.bi.81acfb00e43fabc2": {
+    "other": "數據庫中的表或視圖結構。"
+  },
+  "openapi.bi.85ae54b785a6078f": {
+    "other": "儀表板名稱"
+  },
+  "openapi.bi.876fb72d7a91beb3": {
+    "other": "表關聯關係"
+  },
+  "openapi.bi.896d55b2e54903a1": {
+    "other": "是否因限制截斷"
+  },
+  "openapi.bi.90996f5467d1c05a": {
+    "other": "語義指標"
+  },
+  "openapi.bi.91047ac58c9f6465": {
+    "other": "畫布縱座標"
+  },
+  "openapi.bi.97b3f90d49634007": {
+    "other": "數據庫驅動"
+  },
+  "openapi.bi.99498a30d9ea8b33": {
+    "other": "BI 過濾條件。"
+  },
+  "openapi.bi.99b40288f02660b0": {
+    "other": "已連接表標識"
+  },
+  "openapi.bi.9a1f9679e24d878f": {
+    "other": "數據庫表結構"
+  },
+  "openapi.bi.9d7bde6e09524d0e": {
+    "other": "建議圖表類型"
+  },
+  "openapi.bi.9fb6e05824364a64": {
+    "other": "預覽一個已經由前端配置的語義查詢。"
+  },
+  "openapi.bi.a151ae5a789ce1b0": {
+    "other": "服務端數據庫客戶端選項。"
+  },
+  "openapi.bi.a274525e3befd414": {
+    "other": "數據庫表或視圖名稱"
+  },
+  "openapi.bi.a30ee3c800a96364": {
+    "other": "保存 BI 儀表板請求。"
+  },
+  "openapi.bi.a7e77b4e9e48b1dd": {
+    "other": "本次執行版本的儀表板Schema JSON"
+  },
+  "openapi.bi.aa86a2bae571bb29": {
+    "other": "表或視圖註釋"
+  },
+  "openapi.bi.adcc73add9dc9b2b": {
+    "other": "列編碼"
+  },
+  "openapi.bi.aeebfc1facd7ea41": {
+    "other": "畫布橫座標"
+  },
+  "openapi.bi.b21441847b985723": {
+    "other": "可用維度"
+  },
+  "openapi.bi.b24d316b339eef5a": {
+    "other": "數據源語義指標。"
+  },
+  "openapi.bi.bbb4ee6f12dd4782": {
+    "other": "BI 儀表板記錄。"
+  },
+  "openapi.bi.bbc7b37007a0c75a": {
+    "other": "測試結果說明"
+  },
+  "openapi.bi.be3ffe82fd4dc8be": {
+    "other": "本次成功查詢記錄ID，可作爲數據卡片來源"
+  },
+  "openapi.bi.be71f2c0683c4440": {
+    "other": "列類型"
+  },
+  "openapi.bi.bf7ec39bfb4c6062": {
+    "other": "BI 自然語言問數響應。"
+  },
+  "openapi.bi.bf8eb5e7200f667e": {
+    "other": "維度表唯一字段"
+  },
+  "openapi.bi.c3887a0552de2124": {
+    "other": "儀表板編碼"
+  },
+  "openapi.bi.c4692be754ad6605": {
+    "other": "語義維度"
+  },
+  "openapi.bi.c74465d0b8605899": {
+    "other": "數據庫驅動：mysql、postgres、doris、tidb"
+  },
+  "openapi.bi.c97f16deca110110": {
+    "other": "過濾條件"
+  },
+  "openapi.bi.ca1fac81ad595f96": {
+    "other": "儀表板說明"
+  },
+  "openapi.bi.caa1c875da04d875": {
+    "other": "儀表板Schema JSON"
+  },
+  "openapi.bi.cf003aabe817631a": {
+    "other": "收藏卡片ID，最多50個且不重複"
+  },
+  "openapi.bi.cf6442adefd2c026": {
+    "other": "數據庫端口"
+  },
+  "openapi.bi.d38817405fd0c250": {
+    "other": "BI 儀表板分頁響應。"
+  },
+  "openapi.bi.d8c7c51292be8501": {
+    "other": "執行已發佈儀表板中的全部圖表查詢。"
+  },
+  "openapi.bi.de84c084dfe40035": {
+    "other": "連接類型：inner或left"
+  },
+  "openapi.bi.e509306b797f1945": {
+    "other": "自然語言生成語義查詢並返回預覽結果。"
+  },
+  "openapi.bi.e587049c6dbb5e39": {
+    "other": "BI 自然語言問數請求。"
+  },
+  "openapi.bi.e67e7fb6c1265699": {
+    "other": "刪除儀表板。"
+  },
+  "openapi.bi.e7714726c397a39f": {
+    "other": "查詢儀表板及當前草稿內容。"
+  },
+  "openapi.bi.e87bb4422559c8fa": {
+    "other": "範圍起點"
+  },
+  "openapi.bi.ed6a5b186d4567da": {
+    "other": "可用指標"
+  },
+  "openapi.bi.ed73166c7fc5e183": {
+    "other": "維度和指標語義配置 JSON"
+  },
+  "openapi.bi.f2b0e466b0b27866": {
+    "other": "已連接表字段"
+  },
+  "openapi.bi.f50cc6f9430629c8": {
+    "other": "結果列"
+  },
+  "openapi.bi.f84734045ce9b044": {
+    "other": "創建或保存儀表板草稿。"
+  },
+  "openapi.bi.faa9ea9c61e35cb6": {
+    "other": "BI 儀表板管理服務。"
+  },
+  "openapi.bi.faad29694548c077": {
+    "other": "發現已保存數據源中的表、字段和唯一鍵。"
+  },
+  "openapi.bi.fd06d32ccd1e33f4": {
+    "other": "是否有單列唯一約束"
+  },
+  "openapi.bi.fd6af30df91c4e20": {
+    "other": "工作臺儀表板ID，按展示順序排列"
+  },
+  "openapi.bi.fe815a5cdd3ba638": {
+    "other": "BI 語義查詢計劃。"
+  },
+  "openapi.bi.fe9aab486818e87d": {
+    "other": "選中的表結構"
+  },
   "rag.admin.ai.knowledge.description.max_length": {
     "other": "描述不能超過500個字元"
   },
@@ -3937,6 +5338,9 @@
   },
   "rag.admin.ai.knowledge.doc.name.required": {
     "other": "請輸入文檔名稱"
+  },
+  "rag.admin.ai.knowledge.doc.reextract.failed": {
+    "other": "重新擷取文件文字失敗"
   },
   "rag.admin.ai.knowledge.name.required": {
     "other": "請輸入知識庫名稱"
@@ -3988,6 +5392,9 @@
   },
   "system.admin.base.ai.model.model_name.required": {
     "other": "請輸入模型名稱"
+  },
+  "system.admin.base.ai.model.name.duplicated": {
+    "other": "AI模型名稱重複: {{.Name}}"
   },
   "system.admin.base.ai.provider.base_url.max_length": {
     "other": "介面地址不得超過512個字元"
@@ -4556,6 +5963,27 @@
   "system.admin.base.role.update.id.required": {
     "other": "角色ID不能為空"
   },
+  "system.admin.base.script.delete.id.required": {
+    "other": "腳本 ID 清單不能為空"
+  },
+  "system.admin.base.script.entity.description.max_length": {
+    "other": "腳本說明不能超過512個字元"
+  },
+  "system.admin.base.script.entity.hook_point.max_length": {
+    "other": "鉤子點不能超過160個字元"
+  },
+  "system.admin.base.script.entity.name.required": {
+    "other": "請輸入腳本名稱"
+  },
+  "system.admin.base.script.entity.source.required": {
+    "other": "請輸入腳本原始碼"
+  },
+  "system.admin.base.script.test_run.context_json.max_length": {
+    "other": "上下文不能超過200000個字元"
+  },
+  "system.admin.base.script.test_run.source.max_length": {
+    "other": "腳本原始碼不能超過200000個字元"
+  },
   "system.admin.base.table.source.option.table.source_name.required": {
     "other": "數據源名稱不能為空"
   },
@@ -4916,6 +6344,9 @@
   "system.admin.code.gen.table.update.id.required": {
     "other": "主鍵ID不能為空"
   },
+  "system.admin.mqtt_message.get.id.required": {
+    "other": "訊息記錄 ID 不能為空"
+  },
   "system.admin.oauth_client.delete.id.required": {
     "other": "客戶端ID列表不能為空"
   },
@@ -5033,6 +6464,102 @@
   "system.admin.runtime_config.invalid_json": {
     "other": "系統配置內容無效"
   },
+  "system.admin.workflow.definition.apply_form.code.required": {
+    "other": "流程編碼不能為空"
+  },
+  "system.admin.workflow.definition.apply_form.version.required": {
+    "other": "流程版本不能為空"
+  },
+  "system.admin.workflow.definition.delete.id.required": {
+    "other": "流程定義ID列表不能為空"
+  },
+  "system.admin.workflow.definition.entity.code.max_length": {
+    "other": "流程編碼不能超過 100 個字符"
+  },
+  "system.admin.workflow.definition.entity.code.required": {
+    "other": "請輸入流程編碼"
+  },
+  "system.admin.workflow.definition.entity.form_schema.max_length": {
+    "other": "申請表單定義不能超過 65536 個字符"
+  },
+  "system.admin.workflow.definition.entity.name.max_length": {
+    "other": "流程名稱不能超過 100 個字符"
+  },
+  "system.admin.workflow.definition.entity.name.required": {
+    "other": "請輸入流程名稱"
+  },
+  "system.admin.workflow.definition.entity.node_config.max_length": {
+    "other": "節點圖配置不能超過 65536 個字符"
+  },
+  "system.admin.workflow.definition.entity.node_config.required": {
+    "other": "節點圖配置不能為空"
+  },
+  "system.admin.workflow.definition.entity.remark.max_length": {
+    "other": "備註不能超過 500 個字符"
+  },
+  "system.admin.workflow.definition.entity.tenant_id.required": {
+    "other": "請選擇所屬租戶"
+  },
+  "system.admin.workflow.definition.entity.version.required": {
+    "other": "流程版本必須大於 0"
+  },
+  "system.admin.workflow.definition.get.id.required": {
+    "other": "流程定義ID不能為空"
+  },
+  "system.admin.workflow.definition.script_test.script_id.required": {
+    "other": "腳本ID必須大於0"
+  },
+  "system.admin.workflow.definition.set_status.id.required": {
+    "other": "流程定義ID不能為空"
+  },
+  "system.admin.workflow.definition.update.id.required": {
+    "other": "流程定義ID不能為空"
+  },
+  "system.admin.workflow.delegation.delete.id.required": {
+    "other": "審批委託ID列表不能為空"
+  },
+  "system.admin.workflow.delegation.entity.delegate_user_id.required": {
+    "other": "請選擇被委託人"
+  },
+  "system.admin.workflow.delegation.entity.remark.max_length": {
+    "other": "備註不能超過 500 個字符"
+  },
+  "system.admin.workflow.instance.get.id.required": {
+    "other": "流程實例ID不能為空"
+  },
+  "system.admin.workflow.instance.submit.business_type.max_length": {
+    "other": "業務單據類型不能超過 50 個字符"
+  },
+  "system.admin.workflow.instance.submit.code.required": {
+    "other": "流程編碼不能為空"
+  },
+  "system.admin.workflow.instance.submit.form_data.max_length": {
+    "other": "申請表單數據不能超過 65536 個字符"
+  },
+  "system.admin.workflow.instance.submit.form_data.required": {
+    "other": "申請表單數據不能為空"
+  },
+  "system.admin.workflow.instance.submit.version.required": {
+    "other": "流程版本不能為空"
+  },
+  "system.admin.workflow.instance.withdraw.id.required": {
+    "other": "流程實例ID不能為空"
+  },
+  "system.admin.workflow.task.audit.comment.max_length": {
+    "other": "審批意見不能超過 500 個字符"
+  },
+  "system.admin.workflow.task.audit.task_id.required": {
+    "other": "審批任務ID不能為空"
+  },
+  "system.admin.workflow.task.get.id.required": {
+    "other": "審批任務ID不能為空"
+  },
+  "system.ai.chat.approval.expired": {
+    "other": "確認已過期，待確認的操作未執行。"
+  },
+  "system.ai.chat.approval.rejected": {
+    "other": "已拒絕，待確認的操作未執行。"
+  },
   "system.ai.chat.error.context_too_large": {
     "other": "對話輸入（含歷史與附件編碼）超過 28 MiB，請減少附件或建立新對話。"
   },
@@ -5041,6 +6568,9 @@
   },
   "system.ai.chat.error.fallback_reply.content": {
     "other": "已收到您的問題：{{.Content}}。但目前 AI 助理暫時無法使用，無法產生完整回覆，請稍後再試。"
+  },
+  "system.ai.chat.error.run_expired": {
+    "other": "生成已逾時，本次請求不會自動恢復。重試前請核對業務結果。"
   },
   "system.ai.chat.error.tool_failed": {
     "other": "工具 {{.Name}} 執行失敗，請查看服務日誌。"
@@ -5081,75 +6611,6 @@
   "system.code.gen.error.batch.definition_conflict": {
     "other": "資料表{{.Previous}}與資料表{{.Current}}在{{.Key}}中的生成定義不一致"
   },
-  "system.code.gen.error.column_duplicate": {
-    "other": "欄位 {{.Name}} 配置重複"
-  },
-  "system.code.gen.error.column_not_found": {
-    "other": "欄位 {{.Name}} 不存在"
-  },
-  "system.code.gen.error.column_form_multiple_tree_only": {
-    "other": "欄位 {{.Name}} 的表單多選僅支援樹形選擇"
-  },
-  "system.code.gen.error.column_form_multiple_json_only": {
-    "other": "欄位 {{.Name}} 的表單多選僅支援JSON欄位"
-  },
-  "system.code.gen.error.column_list_option_unnecessary": {
-    "other": "欄位 {{.Name}} 的列表元件不需要選項配置"
-  },
-  "system.code.gen.error.column_list_select_incomplete": {
-    "other": "欄位 {{.Name}} 的列表下拉選項配置不完整"
-  },
-  "system.code.gen.error.column_list_tree_incomplete": {
-    "other": "欄位 {{.Name}} 的列表樹形選項配置不完整"
-  },
-  "system.code.gen.error.column_list_component_unsupported": {
-    "other": "欄位 {{.Name}} 的列表元件不支援"
-  },
-  "system.code.gen.error.column_form_dict_incomplete": {
-    "other": "欄位 {{.Name}} 的表單字典選擇配置不完整"
-  },
-  "system.code.gen.error.column_switch_incomplete": {
-    "other": "欄位 {{.Name}} 的 {{.Scope}} 開關配置不完整"
-  },
-  "system.code.gen.error.column_switch_values_conflict": {
-    "other": "欄位 {{.Name}} 的 {{.Scope}} 開關開啟值和關閉值不能相同"
-  },
-  "system.code.gen.error.column_option_kind_empty": {
-    "other": "欄位 {{.Name}} 的 {{.Scope}} 選項形態不能為空"
-  },
-  "system.code.gen.error.column_option_switch_value_forbidden": {
-    "other": "欄位 {{.Name}} 的 {{.Scope}} 選項不能配置開關值"
-  },
-  "system.code.gen.error.column_option_lazy_only_tree": {
-    "other": "欄位 {{.Name}} 的 {{.Scope}} 僅樹形選項支援懶加載"
-  },
-  "system.code.gen.error.column_option_tree_table_only": {
-    "other": "欄位 {{.Name}} 的 {{.Scope}} 樹形選項只能使用資料表來源"
-  },
-  "system.code.gen.error.column_option_source_incomplete": {
-    "other": "欄位 {{.Name}} 的 {{.Scope}} 選項來源配置不完整"
-  },
-  "system.code.gen.error.column_option_source_value_empty": {
-    "other": "欄位 {{.Name}} 的 {{.Scope}} 選項來源值不能為空"
-  },
-  "system.code.gen.error.column_option_table_fields_incomplete": {
-    "other": "欄位 {{.Name}} 的 {{.Scope}} 資料表選項欄位配置不完整"
-  },
-  "system.code.gen.error.proto_api_kind_unsupported": {
-    "other": "Proto介面 {{.Method}} 的介面類型不支援"
-  },
-  "system.code.gen.error.proto_field_required": {
-    "other": "請選擇Proto介面 {{.Method}} 的 {{.Label}}"
-  },
-  "system.code.gen.error.proto_field_not_in_table": {
-    "other": "Proto介面 {{.Method}} 的 {{.Label}} {{.Value}} 不屬於目標表 {{.Table}}"
-  },
-  "system.admin.base.ai.model.name.duplicated": {
-    "other": "AI模型名稱重複: {{.Name}}"
-  },
-  "rag.admin.ai.knowledge.doc.reextract.failed": {
-    "other": "重新擷取文件文字失敗"
-  },
   "system.code.gen.error.batch.empty": {
     "other": "批次生成至少需要選擇一張資料表"
   },
@@ -5171,6 +6632,60 @@
   "system.code.gen.error.batch.table_missing": {
     "other": "第{{.Index}}個批次生成項目缺少資料表配置"
   },
+  "system.code.gen.error.column_duplicate": {
+    "other": "欄位 {{.Name}} 配置重複"
+  },
+  "system.code.gen.error.column_form_dict_incomplete": {
+    "other": "欄位 {{.Name}} 的表單字典選擇配置不完整"
+  },
+  "system.code.gen.error.column_form_multiple_json_only": {
+    "other": "欄位 {{.Name}} 的表單多選僅支援JSON欄位"
+  },
+  "system.code.gen.error.column_form_multiple_tree_only": {
+    "other": "欄位 {{.Name}} 的表單多選僅支援樹形選擇"
+  },
+  "system.code.gen.error.column_list_component_unsupported": {
+    "other": "欄位 {{.Name}} 的列表元件不支援"
+  },
+  "system.code.gen.error.column_list_option_unnecessary": {
+    "other": "欄位 {{.Name}} 的列表元件不需要選項配置"
+  },
+  "system.code.gen.error.column_list_select_incomplete": {
+    "other": "欄位 {{.Name}} 的列表下拉選項配置不完整"
+  },
+  "system.code.gen.error.column_list_tree_incomplete": {
+    "other": "欄位 {{.Name}} 的列表樹形選項配置不完整"
+  },
+  "system.code.gen.error.column_not_found": {
+    "other": "欄位 {{.Name}} 不存在"
+  },
+  "system.code.gen.error.column_option_kind_empty": {
+    "other": "欄位 {{.Name}} 的 {{.Scope}} 選項形態不能為空"
+  },
+  "system.code.gen.error.column_option_lazy_only_tree": {
+    "other": "欄位 {{.Name}} 的 {{.Scope}} 僅樹形選項支援懶加載"
+  },
+  "system.code.gen.error.column_option_source_incomplete": {
+    "other": "欄位 {{.Name}} 的 {{.Scope}} 選項來源配置不完整"
+  },
+  "system.code.gen.error.column_option_source_value_empty": {
+    "other": "欄位 {{.Name}} 的 {{.Scope}} 選項來源值不能為空"
+  },
+  "system.code.gen.error.column_option_switch_value_forbidden": {
+    "other": "欄位 {{.Name}} 的 {{.Scope}} 選項不能配置開關值"
+  },
+  "system.code.gen.error.column_option_table_fields_incomplete": {
+    "other": "欄位 {{.Name}} 的 {{.Scope}} 資料表選項欄位配置不完整"
+  },
+  "system.code.gen.error.column_option_tree_table_only": {
+    "other": "欄位 {{.Name}} 的 {{.Scope}} 樹形選項只能使用資料表來源"
+  },
+  "system.code.gen.error.column_switch_incomplete": {
+    "other": "欄位 {{.Name}} 的 {{.Scope}} 開關配置不完整"
+  },
+  "system.code.gen.error.column_switch_values_conflict": {
+    "other": "欄位 {{.Name}} 的 {{.Scope}} 開關開啟值和關閉值不能相同"
+  },
   "system.code.gen.error.has_children": {
     "other": "刪除{{.Parent}}失敗，其下仍有{{.Child}}。"
   },
@@ -5188,6 +6703,15 @@
   },
   "system.code.gen.error.path_duplicate": {
     "other": "{{.Current}}不能與{{.Previous}}使用相同路徑"
+  },
+  "system.code.gen.error.proto_api_kind_unsupported": {
+    "other": "Proto介面 {{.Method}} 的介面類型不支援"
+  },
+  "system.code.gen.error.proto_field_not_in_table": {
+    "other": "Proto介面 {{.Method}} 的 {{.Label}} {{.Value}} 不屬於目標表 {{.Table}}"
+  },
+  "system.code.gen.error.proto_field_required": {
+    "other": "請選擇Proto介面 {{.Method}} 的 {{.Label}}"
   },
   "system.code.gen.error.route_duplicate": {
     "other": "產生介面{{.Method}} {{.HTTPMethod}} {{.Path}}與 base_api 中的{{.Operation}}重複"
@@ -5399,6 +6923,9 @@
   "system.mcp.tool_not_registered": {
     "other": "MCP工具{{.Name}}未註冊"
   },
+  "system.notification.sender.system": {
+    "other": "系統"
+  },
   "system.oauth.crypto.error.client_token_invalid": {
     "other": "客戶端存取權杖無效"
   },
@@ -5417,6 +6944,114 @@
   "system.oauth.crypto.error.response_too_large": {
     "other": "回應資料超過大小限制"
   },
+  "system.workflow.job.error.script_scan_failed": {
+    "other": "工作流腳本恢復掃描失敗"
+  },
+  "system.workflow.job.result.scripts_scanned": {
+    "other": "工作流腳本恢復掃描完成：處理 {Count} 筆"
+  },
+  "system.workflow.notification.content.approved": {
+    "other": "全部審批節點已通過"
+  },
+  "system.workflow.notification.content.definition_rejected": {
+    "other": "流程定義異常，請聯絡管理員"
+  },
+  "system.workflow.notification.content.escalated_applicant": {
+    "other": "目前審批節點辦理人長時間未處理，系統已再次提醒對方。"
+  },
+  "system.workflow.notification.content.escalated_assignee": {
+    "other": "該任務已超時較久仍未處理，已同步提醒申請人關注進度。"
+  },
+  "system.workflow.notification.content.pending": {
+    "other": "請登入系統處理待審批事項"
+  },
+  "system.workflow.notification.content.rejected": {
+    "other": "請登入系統查看審批意見"
+  },
+  "system.workflow.notification.content.reminder": {
+    "other": "請盡快登入系統處理待審批事項，長時間未處理將同步提醒申請人。"
+  },
+  "system.workflow.notification.content.withdrawn": {
+    "other": "申請人已撤回該申請，無需繼續處理"
+  },
+  "system.workflow.notification.title.added": {
+    "other": "您有被加簽的審批任務"
+  },
+  "system.workflow.notification.title.approved": {
+    "other": "您的申請已通過"
+  },
+  "system.workflow.notification.title.definition_rejected": {
+    "other": "您的申請已被駁回"
+  },
+  "system.workflow.notification.title.escalated_applicant": {
+    "other": "您的申請審批超時"
+  },
+  "system.workflow.notification.title.escalated_assignee": {
+    "other": "您有待審批任務嚴重超時"
+  },
+  "system.workflow.notification.title.forwarded": {
+    "other": "您有被轉辦的審批任務"
+  },
+  "system.workflow.notification.title.pending": {
+    "other": "您有新的待審批任務"
+  },
+  "system.workflow.notification.title.rejected": {
+    "other": "您的申請已被駁回"
+  },
+  "system.workflow.notification.title.reminder": {
+    "other": "您有待審批任務超時未處理"
+  },
+  "system.workflow.notification.title.withdrawn": {
+    "other": "待審批申請已被撤回"
+  },
+  "system.workflow.openapi.script.context": {
+    "other": "初始上下文JSON，最大200KiB"
+  },
+  "system.workflow.openapi.script.context_short": {
+    "other": "初始上下文JSON"
+  },
+  "system.workflow.openapi.script.name": {
+    "other": "腳本名稱快照"
+  },
+  "system.workflow.openapi.script.next_retry": {
+    "other": "下次重試時間"
+  },
+  "system.workflow.openapi.script.page": {
+    "other": "查詢流程可用的已啟用受限腳本"
+  },
+  "system.workflow.openapi.script.retry": {
+    "other": "重試失敗的工作流腳本"
+  },
+  "system.workflow.openapi.script.retry_request": {
+    "other": "重試工作流腳本請求"
+  },
+  "system.workflow.openapi.script.run": {
+    "other": "腳本執行紀錄"
+  },
+  "system.workflow.openapi.script.run_id": {
+    "other": "腳本執行ID"
+  },
+  "system.workflow.openapi.script.runs": {
+    "other": "工作流腳本執行紀錄"
+  },
+  "system.workflow.openapi.script.saved_id": {
+    "other": "已儲存腳本ID"
+  },
+  "system.workflow.openapi.script.snapshot": {
+    "other": "流程節點圖快照（不含腳本原始碼）"
+  },
+  "system.workflow.openapi.script.stage": {
+    "other": "執行階段"
+  },
+  "system.workflow.openapi.script.test": {
+    "other": "試執行已儲存且啟用的受限流程腳本，不接受用戶端原始碼"
+  },
+  "system.workflow.openapi.script.test_request": {
+    "other": "流程腳本試執行參數，僅允許引用儲存的腳本。"
+  },
+  "system.workflow.openapi.script.variables": {
+    "other": "流程變數JSON"
+  },
   "密码有效期天数，零表示长期有效": {
     "other": "密碼有效期天數，零表示長期有效"
   },
@@ -5431,454 +7066,5 @@
   },
   "获取当前用户生效的密码策略": {
     "other": "取得目前使用者生效的密碼策略"
-  },
-  "legacy.error.26a98594498a94ca": {
-    "other": "租戶編碼不能為空"
-  },
-  "legacy.error.f26c80a1e129c384": {
-    "other": "查詢 MQTT 訊息記錄失敗"
-  },
-  "legacy.error.12ceb1313032276b": {
-    "other": "查詢 MQTT 訊息詳情失敗"
-  },
-  "system.admin.mqtt_message.get.id.required": {
-    "other": "訊息記錄 ID 不能為空"
-  },
-  "legacy.error.53e503c248312ca3": {"other": "腳本名稱重複"},
-  "legacy.error.2eb4c634e73c7c20": {"other": "腳本 ID 清單不能為空"},
-  "legacy.error.627129d821b9a9ae": {"other": "腳本狀態無效"},
-  "legacy.error.709fd6d34b5ab217": {"other": "腳本語言無效"},
-  "legacy.error.0c349c765bb1630c": {"other": "目前僅支援 JavaScript 腳本"},
-  "legacy.error.3198350bdf120177": {"other": "腳本原始碼不能為空"},
-  "legacy.error.58814f41ef0b63a7": {"other": "記錄腳本執行日誌失敗"},
-  "legacy.error.804ff47d9145111c": {"other": "腳本 ID 無效"},
-  "legacy.error.154bb194d8d7704f": {"other": "查詢腳本執行日誌失敗"},
-  "legacy.error.ac1dfc62a1e129c384": {"other": "查詢腳本執行日誌詳情失敗"},
-  "legacy.error.ac1dfc62f18f680": {"other": "查詢腳本執行日誌詳情失敗"},
-  "legacy.error.ac1dfc62f18f6808": {"other": "查詢腳本執行日誌詳情失敗"},
-  "legacy.error.a29ca3d4464b4117": {"other": "查詢腳本列表失敗"},
-  "legacy.error.6006ddbf35bdc480": {"other": "查詢腳本失敗"},
-  "legacy.error.6e274beea35914d0": {"other": "建立腳本失敗"},
-  "legacy.error.d2321b6e6cdb0b72": {"other": "更新腳本失敗"},
-  "legacy.error.c343976847d80363": {"other": "刪除腳本失敗"},
-  "legacy.error.855a3a4a1e73873b": {"other": "設定腳本狀態失敗"},
-  "legacy.error.d9af671132576c58": {"other": "試執行腳本失敗"},
-  "system.admin.base.script.entity.name.required": {"other": "請輸入腳本名稱"},
-  "system.admin.base.script.entity.hook_point.max_length": {"other": "鉤子點不能超過160個字元"},
-  "system.admin.base.script.entity.source.required": {"other": "請輸入腳本原始碼"},
-  "system.admin.base.script.entity.description.max_length": {"other": "腳本說明不能超過512個字元"},
-  "system.admin.base.script.delete.id.required": {"other": "腳本 ID 清單不能為空"},
-  "system.admin.base.script.test_run.source.max_length": {"other": "腳本原始碼不能超過200000個字元"},
-  "system.admin.base.script.test_run.context_json.max_length": {"other": "上下文不能超過200000個字元"},
-  "legacy.error.0e953f80478aa9ed": {
-    "other": "同一租戶的流程編碼與版本重複"
-  },
-  "legacy.error.1456d3981707f770": {
-    "other": "刪除流程定義失敗，僅草稿狀態可刪除"
-  },
-  "legacy.error.1593dca0dfa86346": {
-    "other": "任務已被處理"
-  },
-  "legacy.error.2059cc6d984d24a6": {
-    "other": "被委託人無效"
-  },
-  "legacy.error.23b476d2ff5c6a0d": {
-    "other": "不是您的審批任務"
-  },
-  "legacy.error.279970960cdc7d86": {
-    "other": "未找到業務單據關聯的流程實例"
-  },
-  "legacy.error.2bf0ca2e14dbf0a8": {
-    "other": "流程節點圖配置異常"
-  },
-  "legacy.error.2ff36648250506aa": {
-    "other": "加簽用戶無效"
-  },
-  "legacy.error.44da1869e0376a29": {
-    "other": "轉辦目標用戶無效"
-  },
-  "legacy.error.4608a748e161e339": {
-    "other": "查詢審批任務詳情失敗"
-  },
-  "legacy.error.490b5cd41129c88f": {
-    "other": "查詢審批委託失敗"
-  },
-  "legacy.error.540259b5547228e3": {
-    "other": "撤回申請失敗，申請不在審批中"
-  },
-  "legacy.error.5e4af6477c9e57a5": {
-    "other": "查詢流程實例詳情失敗"
-  },
-  "legacy.error.7988a9c57b1e18af": {
-    "other": "流程編碼與版本不可修改，請創建新版本"
-  },
-  "legacy.error.7e7027a1d80c578d": {
-    "other": "不能查詢其他租戶的審批委託"
-  },
-  "legacy.error.8358173c19c8b805": {
-    "other": "刪除流程定義失敗"
-  },
-  "legacy.error.84c684cce9bedfe9": {
-    "other": "設置審批委託失敗"
-  },
-  "legacy.error.8d5c3940aba9dd25": {
-    "other": "同一用戶只能設置一條審批委託"
-  },
-  "legacy.error.8f08aae578d818eb": {
-    "other": "流程定義不存在"
-  },
-  "legacy.error.8f0c281936a2dd93": {
-    "other": "創建流程定義失敗"
-  },
-  "legacy.error.94dc7cfc60980a69": {
-    "other": "刪除流程定義失敗，仍有流程實例引用該定義"
-  },
-  "legacy.error.a922fa8d9aefc4b3": {
-    "other": "流程定義未啟用"
-  },
-  "legacy.error.afac2a2e5bf769d4": {
-    "other": "審批動作無效"
-  },
-  "legacy.error.b2df4070287d940b": {
-    "other": "查詢我的審批任務失敗"
-  },
-  "legacy.error.b55bf245bac9ce6e": {
-    "other": "刪除流程定義失敗，流程定義不存在"
-  },
-  "legacy.error.b698dd181813542e": {
-    "other": "不能查詢其他租戶的流程實例"
-  },
-  "legacy.error.b7dfaaed47b862eb": {
-    "other": "刪除審批委託失敗，委託不存在"
-  },
-  "legacy.error.b88bad52eb5ea941": {
-    "other": "用戶已禁用"
-  },
-  "legacy.error.ba653419d73d2ec8": {
-    "other": "撤回審批申請失敗"
-  },
-  "legacy.error.bbf6b13e90ad673c": {
-    "other": "流程節點狀態異常"
-  },
-  "legacy.error.bd716eafd672c746": {
-    "other": "更新流程定義失敗"
-  },
-  "legacy.error.c48643c9d6f06c71": {
-    "other": "列表類型無效"
-  },
-  "legacy.error.c916f58aa90099af": {
-    "other": "流程定義狀態無效"
-  },
-  "legacy.error.cc09b1c30b456fcf": {
-    "other": "提交審批申請失敗"
-  },
-  "legacy.error.ce1a849baef38a91": {
-    "other": "流程實例不在審批中"
-  },
-  "legacy.error.ce842a9b36cba468": {
-    "other": "查詢流程定義下拉列表失敗"
-  },
-  "legacy.error.cebf0a62a661df9c": {
-    "other": "查詢流程定義失敗"
-  },
-  "legacy.error.cecfa12c95140940": {
-    "other": "不能查詢其他租戶的流程定義"
-  },
-  "legacy.error.d194c776a0ee5e26": {
-    "other": "節點圖配置無效: 缺少開始節點"
-  },
-  "legacy.error.d9c4f018f338212d": {
-    "other": "只能撤回自己的申請"
-  },
-  "legacy.error.db35c5c0de7472a2": {
-    "other": "不能操作其他租戶的流程定義"
-  },
-  "legacy.error.e4113197ca2325fa": {
-    "other": "查詢申請表單失敗"
-  },
-  "legacy.error.e81dbd0ba4f7a963": {
-    "other": "不是您的待審批任務"
-  },
-  "legacy.error.ec066a971ee52c71": {
-    "other": "審批任務辦理失敗"
-  },
-  "legacy.error.ef81783f5a70a01a": {
-    "other": "設置流程定義狀態失敗"
-  },
-  "legacy.error.f11c9913680e6b54": {
-    "other": "只能刪除自己的審批委託"
-  },
-  "legacy.error.fc746194ec482626": {
-    "other": "查詢流程實例失敗"
-  },
-  "legacy.error.fcdabb6237ef15d3": {
-    "other": "更新流程定義失敗，僅草稿狀態可編輯"
-  },
-  "legacy.error.fe26a2c819b1e6c0": {
-    "other": "刪除審批委託失敗"
-  },
-  "system.admin.workflow.definition.apply_form.code.required": {
-    "other": "流程編碼不能為空"
-  },
-  "system.admin.workflow.definition.apply_form.version.required": {
-    "other": "流程版本不能為空"
-  },
-  "system.admin.workflow.definition.delete.id.required": {
-    "other": "流程定義ID列表不能為空"
-  },
-  "system.admin.workflow.definition.entity.code.max_length": {
-    "other": "流程編碼不能超過 100 個字符"
-  },
-  "system.admin.workflow.definition.entity.code.required": {
-    "other": "請輸入流程編碼"
-  },
-  "system.admin.workflow.definition.entity.form_schema.max_length": {
-    "other": "申請表單定義不能超過 65536 個字符"
-  },
-  "system.admin.workflow.definition.entity.name.max_length": {
-    "other": "流程名稱不能超過 100 個字符"
-  },
-  "system.admin.workflow.definition.entity.name.required": {
-    "other": "請輸入流程名稱"
-  },
-  "system.admin.workflow.definition.entity.node_config.max_length": {
-    "other": "節點圖配置不能超過 65536 個字符"
-  },
-  "system.admin.workflow.definition.entity.node_config.required": {
-    "other": "節點圖配置不能為空"
-  },
-  "system.admin.workflow.definition.entity.remark.max_length": {
-    "other": "備註不能超過 500 個字符"
-  },
-  "system.admin.workflow.definition.entity.tenant_id.required": {
-    "other": "請選擇所屬租戶"
-  },
-  "system.admin.workflow.definition.entity.version.required": {
-    "other": "流程版本必須大於 0"
-  },
-  "system.admin.workflow.definition.get.id.required": {
-    "other": "流程定義ID不能為空"
-  },
-  "system.admin.workflow.definition.set_status.id.required": {
-    "other": "流程定義ID不能為空"
-  },
-  "system.admin.workflow.definition.update.id.required": {
-    "other": "流程定義ID不能為空"
-  },
-  "system.admin.workflow.delegation.delete.id.required": {
-    "other": "審批委託ID列表不能為空"
-  },
-  "system.admin.workflow.delegation.entity.delegate_user_id.required": {
-    "other": "請選擇被委託人"
-  },
-  "system.admin.workflow.delegation.entity.remark.max_length": {
-    "other": "備註不能超過 500 個字符"
-  },
-  "system.admin.workflow.instance.get.id.required": {
-    "other": "流程實例ID不能為空"
-  },
-  "system.admin.workflow.instance.submit.business_type.max_length": {
-    "other": "業務單據類型不能超過 50 個字符"
-  },
-  "system.admin.workflow.instance.submit.code.required": {
-    "other": "流程編碼不能為空"
-  },
-  "system.admin.workflow.instance.submit.form_data.max_length": {
-    "other": "申請表單數據不能超過 65536 個字符"
-  },
-  "system.admin.workflow.instance.submit.form_data.required": {
-    "other": "申請表單數據不能為空"
-  },
-  "system.admin.workflow.instance.submit.version.required": {
-    "other": "流程版本不能為空"
-  },
-  "system.admin.workflow.instance.withdraw.id.required": {
-    "other": "流程實例ID不能為空"
-  },
-  "system.admin.workflow.task.audit.comment.max_length": {
-    "other": "審批意見不能超過 500 個字符"
-  },
-  "system.admin.workflow.task.audit.task_id.required": {
-    "other": "審批任務ID不能為空"
-  },
-  "system.admin.workflow.task.get.id.required": {
-    "other": "審批任務ID不能為空"
-  },
-  "legacy.error.6a96890d025d36c6": {
-    "other": "儲存業務單據流程關聯失敗"
-  },
-  "legacy.error.07169436625cbd35": {
-    "other": "任務已被處理或轉辦"
-  },
-  "system.workflow.job.error.script_scan_failed": {
-    "other": "工作流腳本恢復掃描失敗"
-  },
-  "system.workflow.job.result.scripts_scanned": {
-    "other": "工作流腳本恢復掃描完成：處理 {Count} 筆"
-  },
-  "legacy.error.2f173bbdd8aabbbb": {"other": "實例流程快照無效"},
-  "legacy.error.067118c2b128c55f": {"other": "不能重試其他租戶的腳本"},
-  "legacy.error.ac6310ee83bcf7f9": {"other": "只有流程參與者或管理員可以重試腳本"},
-  "legacy.error.7e1cee01625c342f": {"other": "腳本執行不屬於目前流程"},
-  "legacy.error.e02e13af31934679": {"other": "只有失敗的腳本可以重試"},
-  "legacy.error.2dcf0a202b5aa077": {"other": "腳本節點不存在"},
-  "legacy.error.9578a4511b3382df": {"other": "申請表單資料必須是JSON物件"},
-  "legacy.error.53f89634cde5df00": {"other": "流程未發布腳本快照，請重新啟用流程"},
-  "legacy.error.b008ba1ac3fb0652": {"other": "執行租約已被其他任務接管"},
-  "legacy.error.dcad9e63f38f931c": {"other": "流程尚未終結"},
-  "legacy.error.17513f0b76033b88": {"other": "通知動作參數無效"},
-  "legacy.error.f464573b785f5f5e": {"other": "通知動作需要標題、內容和1至100個本租戶使用者"},
-  "legacy.error.424ef3bf19c0731c": {"other": "節點圖設定無效"},
-  "legacy.error.97a011fa2c37581c": {"other": "引用腳本不存在或未啟用"},
-  "legacy.error.c21640c2f2bf1181": {"other": "發布節點圖設定不能超過 1MiB"},
-  "legacy.error.68c36a9a40ff17ea": {"other": "重試工作流腳本失敗"},
-  "legacy.error.bb42bc14719faff4": {"other": "查詢流程腳本失敗"},
-  "legacy.error.1be13391c90d0c32": {"other": "試執行流程腳本失敗"},
-  "system.admin.workflow.definition.script_test.script_id.required": {"other": "腳本ID必須大於0"},
-  "system.workflow.openapi.script.page": {"other": "查詢流程可用的已啟用受限腳本"},
-  "system.workflow.openapi.script.test": {"other": "試執行已儲存且啟用的受限流程腳本，不接受用戶端原始碼"},
-  "system.workflow.openapi.script.retry": {"other": "重試失敗的工作流腳本"},
-  "system.workflow.openapi.script.retry_request": {"other": "重試工作流腳本請求"},
-  "system.workflow.openapi.script.runs": {"other": "工作流腳本執行紀錄"},
-  "system.workflow.openapi.script.run": {"other": "腳本執行紀錄"},
-  "system.workflow.openapi.script.run_id": {"other": "腳本執行ID"},
-  "system.workflow.openapi.script.snapshot": {"other": "流程節點圖快照（不含腳本原始碼）"},
-  "system.workflow.openapi.script.variables": {"other": "流程變數JSON"},
-  "system.workflow.openapi.script.name": {"other": "腳本名稱快照"},
-  "system.workflow.openapi.script.test_request": {"other": "流程腳本試執行參數，僅允許引用儲存的腳本。"},
-  "system.workflow.openapi.script.saved_id": {"other": "已儲存腳本ID"},
-  "system.workflow.openapi.script.context": {"other": "初始上下文JSON，最大200KiB"},
-  "system.workflow.openapi.script.context_short": {"other": "初始上下文JSON"},
-  "system.workflow.openapi.script.stage": {"other": "執行階段"},
-  "system.workflow.openapi.script.next_retry": {"other": "下次重試時間"},
-  "legacy.error.0b38823ed34c2c02": {"other": "流程僅支援 JavaScript 腳本"},
-  "legacy.error.732403aa5b743865": {"other": "宿主關聯回寫必須註冊流程關聯核驗器"},
-  "legacy.error.a7beabf5ecc07c42": {"other": "業務單據關聯尚未確認，請稍後撤回"},
-  "system.notification.sender.system": {"other": "系統"},
-  "system.workflow.notification.title.withdrawn": {"other": "待審批申請已被撤回"},
-  "system.workflow.notification.content.withdrawn": {"other": "申請人已撤回該申請，無需繼續處理"},
-  "system.workflow.notification.title.rejected": {"other": "您的申請已被駁回"},
-  "system.workflow.notification.content.rejected": {"other": "請登入系統查看審批意見"},
-  "system.workflow.notification.title.forwarded": {"other": "您有被轉辦的審批任務"},
-  "system.workflow.notification.title.added": {"other": "您有被加簽的審批任務"},
-  "system.workflow.notification.title.pending": {"other": "您有新的待審批任務"},
-  "system.workflow.notification.content.pending": {"other": "請登入系統處理待審批事項"},
-  "system.workflow.notification.title.approved": {"other": "您的申請已通過"},
-  "system.workflow.notification.content.approved": {"other": "全部審批節點已通過"},
-  "system.workflow.notification.title.definition_rejected": {"other": "您的申請已被駁回"},
-  "system.workflow.notification.content.definition_rejected": {"other": "流程定義異常，請聯絡管理員"},
-  "system.workflow.notification.title.escalated_assignee": {"other": "您有待審批任務嚴重超時"},
-  "system.workflow.notification.content.escalated_assignee": {"other": "該任務已超時較久仍未處理，已同步提醒申請人關注進度。"},
-  "system.workflow.notification.title.escalated_applicant": {"other": "您的申請審批超時"},
-  "system.workflow.notification.content.escalated_applicant": {"other": "目前審批節點辦理人長時間未處理，系統已再次提醒對方。"},
-  "system.workflow.notification.title.reminder": {"other": "您有待審批任務超時未處理"},
-  "system.workflow.notification.content.reminder": {"other": "請盡快登入系統處理待審批事項，長時間未處理將同步提醒申請人。"},
-  "legacy.error.ed128739722f40db": {"other": "只有預設租戶可以申請新增租戶"},
-  "legacy.error.3da415f938fb011b": {"other": "驗證租戶審批來源失敗"},
-  "legacy.error.8c6af8b20cd52f9c": {"other": "只有預設租戶可以執行新增租戶審批動作"},
-  "legacy.error.12880bf977139081": {"other": "驗證租戶審批關聯失敗"},
-  "legacy.error.488a83cdadc0d421": {"other": "新增租戶審批業務關聯無效"},
-  "legacy.error.83c152306e3a4a8e": {"other": "新增租戶審批表單無效"},
-  "legacy.error.f93a42e989ecd8af": {"other": "驗證專案審批來源失敗"},
-  "legacy.error.4348feb419bc4342": {"other": "只有預設租戶可以執行新增專案審批動作"},
-  "legacy.error.347070fc997f7568": {"other": "驗證專案審批關聯失敗"},
-  "legacy.error.359210281db55f21": {"other": "新增專案審批業務關聯無效"},
-  "legacy.error.d20fc8bcc8d8f5c7": {"other": "新增專案審批表單無效"},
-  "legacy.error.0224ce0d4c9763eb": {"other": "新增專案審批所屬租戶無效"},
-  "legacy.error.9cafc0f70e08d227": {
-    "other": "請在管理端確認業務寫入操作"
-  },
-  "legacy.error.4d48785e7ebd39fb": {
-    "other": "審批已失效或已處理"
-  },
-  "legacy.error.e46eaf899f18a393": {
-    "other": "審批執行設定損壞"
-  },
-  "legacy.error.47a58292ae95d795": {
-    "other": "審批工具參數損壞"
-  },
-  "legacy.error.d23b49a800ec82fd": {
-    "other": "審批執行狀態無效"
-  },
-  "legacy.error.0e01a87b0d86090d": {
-    "other": "AI執行狀態已變更，無法儲存審批"
-  },
-  "legacy.error.fc4d92dd2ebc6782": {
-    "other": "正在執行的訊息無法刪除"
-  },
-  "legacy.error.ef4d3b3aab09a01d": {
-    "other": "請先等待目前回覆完成或處理待確認操作"
-  },
-  "legacy.error.f11d68a2a74f06f9": {
-    "other": "工具不屬於目前終端"
-  },
-  "legacy.error.446c05bbcf853ae6": {
-    "other": "Agent工具未啟用"
-  },
-  "legacy.error.799b4c56d12deb00": {
-    "other": "Agent工具未啟用或執行功能遭禁止"
-  },
-  "legacy.error.2e9e8485207551ae": {
-    "other": "找不到工具介面契約"
-  },
-  "legacy.error.a934ff7ee33d8ab2": {
-    "other": "工具介面契約無效"
-  },
-  "legacy.error.844039c078368bf3": {
-    "other": "找不到工具請求契約"
-  },
-  "legacy.error.94c872f75369c921": {
-    "other": "工具參數無效"
-  },
-  "legacy.error.7037d44d26f2fe7d": {
-    "other": "確認AI工具操作失敗"
-  },
-  "openapi.ai.approval.0a50ca52d217eaa0": {
-    "other": "確認或拒絕目前使用者待執行的工具呼叫。"
-  },
-  "openapi.ai.approval.907638a466d26ec4": {
-    "other": "AI 工具人工確認請求，實際工具與參數由伺服器端凍結。"
-  },
-  "openapi.ai.approval.79d325f8ec278ba6": {
-    "other": "一次性審批編號"
-  },
-  "openapi.ai.approval.6cedfb9ab50004c5": {
-    "other": "是否確認執行"
-  },
-  "openapi.ai.approval.c7fb3cb9b170ea8d": {
-    "other": "待執行工具的人工確認資訊"
-  },
-  "openapi.ai.approval.bc522e692aed7078": {
-    "other": "AI 工具人工確認資訊。"
-  },
-  "openapi.ai.approval.aca86adff02160dc": {
-    "other": "待確認的工具與凍結參數"
-  },
-  "openapi.ai.approval.2a1e259212d00994": {
-    "other": "確認截止時間"
-  },
-  "openapi.ai.approval.c5953adda9d71bb8": {
-    "other": "AI 待確認工具呼叫。"
-  },
-  "openapi.ai.approval.25b37d5c985ea3be": {
-    "other": "操作說明"
-  },
-  "openapi.ai.approval.e1de7de24c6aa692": {
-    "other": "待執行的凍結參數JSON"
-  },
-  "base.ai.approval.session_id.positive": {
-    "other": "會話編號不合法"
-  },
-  "base.ai.approval.message_id.positive": {
-    "other": "訊息編號不合法"
-  },
-  "system.ai.chat.approval.expired": {
-    "other": "確認已過期，待確認的操作未執行。"
-  },
-  "system.ai.chat.approval.rejected": {
-    "other": "已拒絕，待確認的操作未執行。"
-  },
-  "system.ai.chat.error.run_expired": {
-    "other": "生成已逾時，本次請求不會自動恢復。重試前請核對業務結果。"
   }
 }

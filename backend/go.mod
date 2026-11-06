@@ -17,6 +17,7 @@ require (
 	github.com/jackc/pgx/v5 v5.11.0
 	github.com/klauspost/compress v1.20.1
 	github.com/ledongthuc/pdf v0.0.0-20220302134840-0c2507a12d80
+	github.com/lib/pq v1.12.3
 	github.com/liujitcn/go-scripts v0.0.1
 	github.com/liujitcn/go-scripts/cel v0.0.1
 	github.com/liujitcn/go-scripts/expr v0.0.1
@@ -31,9 +32,9 @@ require (
 	github.com/liujitcn/go-utils/crypto v0.0.18
 	github.com/liujitcn/go-utils/http v0.0.9
 	github.com/liujitcn/go-utils/translator v0.0.6
-	github.com/liujitcn/gorm-kit v0.0.37
+	github.com/liujitcn/gorm-kit v0.0.39
 	github.com/liujitcn/kratos-admin/backend/api v0.0.30
-	github.com/liujitcn/kratos-core v0.0.52
+	github.com/liujitcn/kratos-core v0.0.53
 	github.com/liujitcn/kratos-core/api v0.0.7
 	github.com/liujitcn/kratos-kit v0.0.97
 	github.com/liujitcn/kratos-kit/ai/model v0.0.8
@@ -48,6 +49,7 @@ require (
 	github.com/liujitcn/kratos-kit/captcha v0.0.26
 	github.com/liujitcn/kratos-kit/config v0.0.42
 	github.com/liujitcn/kratos-kit/database/gorm v0.0.59
+	github.com/liujitcn/kratos-kit/database/gorm/driver v0.0.24
 	github.com/liujitcn/kratos-kit/database/gorm/driver/mysql v0.0.29
 	github.com/liujitcn/kratos-kit/database/gorm/driver/postgres v0.0.25
 	github.com/liujitcn/kratos-kit/database/gorm/migration v0.0.21
@@ -68,6 +70,7 @@ require (
 	github.com/liujitcn/kratos-kit/transport/queue v0.0.9
 	github.com/liujitcn/kratos-kit/transport/sse v0.0.18
 	github.com/liujitcn/kratos-kit/utils v0.0.28
+	github.com/mattn/go-sqlite3 v1.14.52
 	github.com/microcosm-cc/bluemonday v1.0.27
 	github.com/modelcontextprotocol/go-sdk v1.8.0
 	github.com/openai/openai-go/v3 v3.44.0
@@ -82,6 +85,7 @@ require (
 	google.golang.org/grpc v1.86.0-dev
 	google.golang.org/protobuf v1.36.12
 	gorm.io/driver/mysql v1.6.0
+	gorm.io/driver/sqlite v1.6.0
 	gorm.io/gen v0.3.29
 	gorm.io/gorm v1.31.2
 	gorm.io/plugin/dbresolver v1.6.2
@@ -256,7 +260,6 @@ require (
 	github.com/klauspost/cpuid/v2 v2.4.0 // indirect
 	github.com/klauspost/crc32 v1.3.0 // indirect
 	github.com/kylelemons/godebug v1.1.0 // indirect
-	github.com/lib/pq v1.12.3 // indirect
 	github.com/liujitcn/go-utils/geoip v0.0.6 // indirect
 	github.com/liujitcn/go-utils/translator/alibaba v0.0.6 // indirect
 	github.com/liujitcn/go-utils/translator/baidu v0.0.6 // indirect
@@ -266,7 +269,6 @@ require (
 	github.com/liujitcn/kratos-kit/auth/authn/middleware v0.0.24 // indirect
 	github.com/liujitcn/kratos-kit/auth/authz/middleware v0.0.23 // indirect
 	github.com/liujitcn/kratos-kit/broker/mqtt v0.0.2 // indirect
-	github.com/liujitcn/kratos-kit/database/gorm/driver v0.0.24 // indirect
 	github.com/liujitcn/kratos-kit/key v0.0.11 // indirect
 	github.com/liujitcn/kratos-kit/logger v0.0.37 // indirect
 	github.com/liujitcn/kratos-kit/oss/s3 v0.0.5 // indirect
@@ -287,7 +289,6 @@ require (
 	github.com/mattn/go-colorable v0.1.16 // indirect
 	github.com/mattn/go-isatty v0.0.24 // indirect
 	github.com/mattn/go-runewidth v0.0.31 // indirect
-	github.com/mattn/go-sqlite3 v1.14.52 // indirect
 	github.com/meguminnnnnnnnn/go-openai v0.1.6 // indirect
 	github.com/minio/crc64nvme v1.1.1 // indirect
 	github.com/minio/md5-simd v1.1.2 // indirect
@@ -425,3 +426,5 @@ require (
 	sigs.k8s.io/structured-merge-diff/v6 v6.4.2 // indirect
 	sigs.k8s.io/yaml v1.6.0 // indirect
 )
+
+replace github.com/liujitcn/kratos-admin/backend/api => ./api

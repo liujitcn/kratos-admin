@@ -16,7 +16,6 @@ var ProviderSet = wire.NewSet(
 	NewAiMessageCase,
 	NewAiToolCase,
 	NewAiSearchCase,
-	NewAiQueryCase,
 	NewAiKnowledgeCase,
 	ai.NewKnowledgeEngine,
 	ai.NewModelTranslator,

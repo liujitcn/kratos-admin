@@ -271,7 +271,7 @@ onBeforeUnmount(() => window.removeEventListener("theme-change", refreshChartThe
   width: 34px;
   height: 34px;
   place-items: center;
-  border-radius: 10px;
+  border-radius: var(--admin-page-radius);
   color: var(--metric-color);
   background: var(--metric-bg);
 }

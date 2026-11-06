@@ -16,11 +16,13 @@ declare global {
   const Calendar: typeof import('@element-plus/icons-vue').Calendar
   const Camera: typeof import('@element-plus/icons-vue').Camera
   const ChatDotRound: typeof import('@element-plus/icons-vue').ChatDotRound
+  const Check: typeof import('@element-plus/icons-vue').Check
   const CircleCheck: typeof import('@element-plus/icons-vue').CircleCheck
   const CircleCheckFilled: typeof import('@element-plus/icons-vue').CircleCheckFilled
   const CircleClose: typeof import('@element-plus/icons-vue').CircleClose
   const CirclePlus: typeof import('@element-plus/icons-vue').CirclePlus
   const Close: typeof import('@element-plus/icons-vue').Close
+  const Coin: typeof import('@element-plus/icons-vue').Coin
   const CollectionTag: typeof import('@element-plus/icons-vue').CollectionTag
   const CopyDocument: typeof import('@element-plus/icons-vue').CopyDocument
   const DataAnalysis: typeof import('@element-plus/icons-vue').DataAnalysis
@@ -46,23 +48,30 @@ declare global {
   const Fold: typeof import('@element-plus/icons-vue').Fold
   const Folder: typeof import('@element-plus/icons-vue').Folder
   const Goods: typeof import('@element-plus/icons-vue').Goods
+  const Grid: typeof import('@element-plus/icons-vue').Grid
   const InfoFilled: typeof import('@element-plus/icons-vue').InfoFilled
   const List: typeof import('@element-plus/icons-vue').List
+  const Loading: typeof import('@element-plus/icons-vue').Loading
   const Lock: typeof import('@element-plus/icons-vue').Lock
   const Male: typeof import('@element-plus/icons-vue').Male
   const Message: typeof import('@element-plus/icons-vue').Message
+  const Microphone: typeof import('@element-plus/icons-vue').Microphone
   const Moon: typeof import('@element-plus/icons-vue').Moon
+  const MoreFilled: typeof import('@element-plus/icons-vue').MoreFilled
   const Operation: typeof import('@element-plus/icons-vue').Operation
   const Phone: typeof import('@element-plus/icons-vue').Phone
   const Plus: typeof import('@element-plus/icons-vue').Plus
   const Position: typeof import('@element-plus/icons-vue').Position
   const Promotion: typeof import('@element-plus/icons-vue').Promotion
   const QuestionFilled: typeof import('@element-plus/icons-vue').QuestionFilled
+  const Rank: typeof import('@element-plus/icons-vue').Rank
   const Refresh: typeof import('@element-plus/icons-vue').Refresh
   const RefreshLeft: typeof import('@element-plus/icons-vue').RefreshLeft
   const RefreshRight: typeof import('@element-plus/icons-vue').RefreshRight
   const Search: typeof import('@element-plus/icons-vue').Search
   const Setting: typeof import('@element-plus/icons-vue').Setting
+  const Star: typeof import('@element-plus/icons-vue').Star
+  const StarFilled: typeof import('@element-plus/icons-vue').StarFilled
   const Sunny: typeof import('@element-plus/icons-vue').Sunny
   const Switch: typeof import('@element-plus/icons-vue').Switch
   const SwitchButton: typeof import('@element-plus/icons-vue').SwitchButton

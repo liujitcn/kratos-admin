@@ -10,7 +10,6 @@ var ProviderSet = wire.NewSet(
 	NewBaseApiRateLimitPolicyService,
 	NewAiProviderService,
 	NewAiSessionService,
-	NewAiQueryService,
 	NewBaseConfigService,
 	NewBaseDeptService,
 	NewBaseDictService,

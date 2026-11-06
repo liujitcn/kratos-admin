@@ -13,7 +13,7 @@
   width: min(100%, 640px);
   overflow: hidden;
   background-color: var(--kratos-color-surface-solid);
-  border-radius: 16px;
+  border-radius: var(--kratos-page-radius);
   box-shadow: 0 20px 64px rgb(0 0 0 / 20%);
 }
 
@@ -43,7 +43,7 @@
   line-height: 1.6;
   border: 1PX solid var(--kratos-color-border);
   background-color: var(--kratos-color-surface-2);
-  border-radius: 8px;
+  border-radius: var(--kratos-page-radius);
   overflow-wrap: anywhere;
   white-space: pre-wrap;
 }
@@ -59,7 +59,7 @@
   line-height: 58px;
   background-color: var(--kratos-color-primary-soft);
   border: 0;
-  border-radius: 8px;
+  border-radius: var(--kratos-page-radius);
 }
 
 .mfa-recovery-dialog__copy::after,
@@ -91,5 +91,5 @@
   line-height: 72px;
   background-color: var(--kratos-color-primary);
   border: 0;
-  border-radius: 8px;
+  border-radius: var(--kratos-page-radius);
 }

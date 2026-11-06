@@ -42,5 +42,15 @@ const headerTools = getAdminHeaderTools();
   :deep(.el-dropdown) {
     margin-left: 18px;
   }
+
+  @media screen and (width <= 600px) {
+    .header-icon > * {
+      margin-left: 8px;
+    }
+
+    :deep(.el-dropdown) {
+      margin-left: 8px;
+    }
+  }
 }
 </style>

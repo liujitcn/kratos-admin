@@ -1306,7 +1306,7 @@ onUnload(() => {
   padding: 36rpx;
   background: var(--kratos-color-surface-solid);
   border: 1rpx solid var(--kratos-color-border-accent);
-  border-radius: 24rpx;
+  border-radius: var(--kratos-page-radius);
   box-sizing: border-box;
 }
 .mfa-title {
@@ -1339,7 +1339,7 @@ onUnload(() => {
   font-size: 28rpx;
   background: var(--kratos-color-surface-2);
   border: 1rpx solid var(--kratos-color-border);
-  border-radius: 20rpx;
+  border-radius: var(--kratos-page-radius);
   box-sizing: border-box;
 }
 
@@ -1356,7 +1356,7 @@ onUnload(() => {
   font-weight: 800;
   background: transparent;
   border: 0;
-  border-radius: 20rpx;
+  border-radius: var(--kratos-page-radius);
   box-shadow: 0 0 40rpx rgba(40, 240, 212, 0.35);
 }
 
@@ -1392,7 +1392,7 @@ onUnload(() => {
   width: auto;
   max-width: 100%;
   padding: 24rpx;
-  border-radius: 24rpx;
+  border-radius: var(--kratos-page-radius);
   background: #fff;
   box-shadow: 0 24rpx 70rpx rgba(15, 23, 42, 0.18);
   box-sizing: border-box;
@@ -1410,7 +1410,7 @@ onUnload(() => {
   text-align: center;
   color: #28bb9c;
   background: rgba(255, 255, 255, 0.9);
-  border-radius: 999rpx;
+  border-radius: var(--kratos-page-radius);
 }
 
 .login-behavior-panel .go-captcha .gc-header {
@@ -1428,7 +1428,7 @@ onUnload(() => {
 
 .login-behavior-panel .go-captcha .gc-body {
   margin-top: 0;
-  border-radius: 18rpx;
+  border-radius: var(--kratos-page-radius);
 }
 
 .login-behavior-panel .go-captcha .gc-footer {
@@ -1442,7 +1442,7 @@ onUnload(() => {
 .login-behavior-panel .go-captcha .gc-drag-line {
   height: 18rpx;
   background: #dbe7e3;
-  border-radius: 999rpx;
+  border-radius: var(--kratos-page-radius);
 }
 
 .login-behavior-panel .go-captcha .gc-drag-block {
@@ -1454,7 +1454,7 @@ onUnload(() => {
     var(--kratos-color-primary-deep) 0%,
     var(--kratos-color-primary) 100%
   );
-  border-radius: 999rpx;
+  border-radius: var(--kratos-page-radius);
   box-shadow: 0 14rpx 28rpx rgba(40, 240, 212, 0.28);
   color: var(--kratos-color-on-primary);
   fill: var(--kratos-color-on-primary);

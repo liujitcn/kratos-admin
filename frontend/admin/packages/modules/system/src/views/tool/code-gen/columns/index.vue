@@ -1345,7 +1345,7 @@ onBeforeUnmount(() => {
   white-space: nowrap;
   background: var(--admin-page-card-bg);
   border: 1px solid var(--admin-page-card-border-soft);
-  border-radius: 999px;
+  border-radius: var(--admin-page-radius);
 }
 .code-gen-column-toolbar__table-name {
   max-width: 220px;
