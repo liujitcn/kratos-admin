@@ -78,7 +78,7 @@ require (
 	github.com/pquerna/otp v1.5.0
 	github.com/redis/go-redis/v9 v9.23.0
 	github.com/sashabaranov/go-openai v1.43.0
-	github.com/shirou/gopsutil/v4 v4.26.9
+	github.com/shirou/gopsutil/v4 v4.26.10
 	github.com/tjfoc/gmsm v1.4.1
 	github.com/yuin/goldmark v1.8.7
 	golang.org/x/sys v0.49.0
@@ -175,7 +175,7 @@ require (
 	github.com/dlclark/regexp2/v2 v2.9.1 // indirect
 	github.com/dop251/goja_nodejs v0.0.0-20260918173711-b481721df8a2 // indirect
 	github.com/dustin/go-humanize v1.1.0 // indirect
-	github.com/ebitengine/purego v0.11.1 // indirect
+	github.com/ebitengine/purego v0.11.2 // indirect
 	github.com/eclipse/paho.golang v0.10.0 // indirect
 	github.com/eino-contrib/jsonschema v1.0.3 // indirect
 	github.com/emicklei/go-restful/v3 v3.14.0 // indirect
