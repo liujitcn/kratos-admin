@@ -26,6 +26,8 @@ const OperationAiMessageServiceUpdateAiMessage = "/base.v1.AiMessageService/Upda
 
 // AiMessageServiceHTTPServer 定义 AI 助手消息发送 HTTP 服务。
 type AiMessageServiceHTTPServer interface {
+	// DecideAiToolApproval 确认或拒绝当前用户的待执行工具调用。
+	DecideAiToolApproval(context.Context, *basev1.DecideAiToolApprovalRequest) (*basev1.SendAiMessageResponse, error)
 	// DeleteAiMessage 删除 AI 助手消息。
 	DeleteAiMessage(context.Context, *basev1.DeleteAiMessageRequest) (*basev1.DeleteAiMessageResponse, error)
 	// RegenerateAiMessage 重新生成 AI 助手输出。
@@ -41,11 +43,41 @@ type AiMessageServiceHTTPServer interface {
 // RegisterAiMessageServiceHTTPServer 注册 AI 助手消息发送 HTTP 接口。
 func RegisterAiMessageServiceHTTPServer(s *kratosHTTP.Server, srv AiMessageServiceHTTPServer) {
 	r := s.Route("/")
+	r.POST("/api/v1/base/ai/session/{session_id}/message/{message_id}/approval", _AiMessageService_DecideAiToolApproval0_HTTP_Handler(srv))
 	r.POST("/api/v1/base/ai/session/{session_id}/message", _AiMessageService_SendAiMessage0_HTTP_Handler(srv))
 	r.DELETE("/api/v1/base/ai/session/{session_id}/message/{message_id}", _AiMessageService_DeleteAiMessage0_HTTP_Handler(srv))
 	r.PUT("/api/v1/base/ai/session/{session_id}/message/{message_id}", _AiMessageService_UpdateAiMessage0_HTTP_Handler(srv))
 	r.POST("/api/v1/base/ai/session/{session_id}/message/{message_id}/retry", _AiMessageService_RetryAiUserMessage0_HTTP_Handler(srv))
 	r.POST("/api/v1/base/ai/session/{session_id}/message/{message_id}/regeneration", _AiMessageService_RegenerateAiMessage0_HTTP_Handler(srv))
+}
+
+// _AiMessageService_DecideAiToolApproval0_HTTP_Handler 保留工具确认的普通 JSON 请求和权限操作标识。
+func _AiMessageService_DecideAiToolApproval0_HTTP_Handler(srv AiMessageServiceHTTPServer) func(ctx kratosHTTP.Context) error {
+	return func(ctx kratosHTTP.Context) error {
+		var in basev1.DecideAiToolApprovalRequest
+		err := ctx.Bind(&in)
+		if err != nil {
+			return err
+		}
+		err = ctx.BindQuery(&in)
+		if err != nil {
+			return err
+		}
+		err = ctx.BindVars(&in)
+		if err != nil {
+			return err
+		}
+		kratosHTTP.SetOperation(ctx, basev1.OperationAiMessageServiceDecideAiToolApproval)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.DecideAiToolApproval(ctx, req.(*basev1.DecideAiToolApprovalRequest))
+		})
+		var out interface{}
+		out, err = h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		return ctx.Result(http.StatusOK, out.(*basev1.SendAiMessageResponse))
+	}
 }
 
 // EmitAiStream 写入单条 AI 助手 SSE 事件。

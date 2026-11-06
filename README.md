@@ -23,6 +23,7 @@ AI 助手已接入 Eino 人工确认：读取接口自动执行，业务写接�
 - 消息分类、租户内定向/全员站内信、收件箱已读/归档、Redis 投递恢复和 Admin/uni-app/Taro 消息中心。
 - Proto 驱动的 HTTP、gRPC、OpenAPI、Agent Tool、MCP Tool 和 TypeScript RPC 生成。
 - AI 会话、流式消息、附件、工具调用、重试、再生成和分支会话。
+- 管理端 AI 助手可根据当前对话生成 HTML/PDF 报告，沿用工具写操作确认；报告登记到文件管理，下载需要登录。
 - AI 供应商与模型管理：供应商弹窗内维护模型子列表、`chat` 到 `audio` 分类枚举、模型连通性测试；AI 知识库使用独立 PostgreSQL 存储，支持文档上传、切片、embedding 入库与检索增强对话。
 - BI 分析与智能问数：先保存数据库连接，再发现并勾选表结构，通过关系画布配置多表语义模型；查询仍使用受控维度、指标和服务端租户范围；AI 对话与 BI 页面统一使用语义问数，问数、预览、卡片和仪表盘执行统一记录到 `bi_query`。BI 前端依赖 System 的共享模型选择与历史记录组件，问数使用当前选择的模型。详见 [BI 与智能问数设计](docs/BI与智能问数设计.md)。
 - 敏感字段全链路加密：前端以 SecretCrypto 临时公钥加密提交，服务端解密后对 API Key、OAuth/消息 Provider 凭据等列信封加密落库，管理端通过“眼睛”按需查看明文。
@@ -172,6 +173,8 @@ make docker-stop IMAGE=kratos-admin
 ```
 
 Docker 镜像 `TAG` 默认读取 `backend/internal/const/project.go` 中的服务版本，也可以通过命令行显式覆盖。`docker-build` 使用 Docker Buildx 同时构建 `linux/amd64` 和 `linux/arm64`，默认使用 Docker media types、关闭 provenance 附件，并将双架构镜像写入本地容器镜像存储；可用 `DOCKER_PLATFORMS` 和 `DOCKER_LOCAL_OUTPUT` 覆盖平台及输出方式。`docker-push` 将本地镜像按相同 `TAG` 标记为 `DOCKER_PUSH_IMAGE` 并推送，默认目标为 `swr.cn-north-4.myhuaweicloud.com/newcapec/$(IMAGE)`。Docker 内的 Go 模块下载默认继承宿主机 `go env GOPROXY`，宿主机没有 Go 时回退到官方代理，也可通过 `DOCKER_GOPROXY` 显式覆盖。构建命令先检查 Docker，再重新构建管理后台、uni-app H5、Taro H5，后端程序由 Docker 多阶段构建按目标架构编译。三个 H5 构建会并行执行；Dockerfile 会复用项目独立的 Go 模块和编译缓存。运行命令发布宿主机 `7001/6001` 端口，将 `backend/data`、`backend/logs`、`backend/backups` 和 `backend/configs` 分别映射到容器的 `/app/data`、`/app/logs`、`/app/backups` 和 `/app/configs`。镜像内包含默认 `configs` 和三端静态资源；容器启动时仅将镜像中的缺失配置补充到宿主机的 `backend/configs`，不会覆盖宿主机已修改的配置，再使用该目录启动服务。静态站点启动时补充到 `backend/data`，已有上传文件不会被清空；后端根据 `oss.root_directory` 将本地对象统一映射到 `/data/`。完整构建参数和运行示例见本节。
+
+正式 Docker 镜像内置 Chromium 和完整的 Noto Sans SC TrueType 中文字体。`make docker-run` 使用 `--init` 和 `backend/scripts/chromium-seccomp.json` 支持普通用户的 Chromium 沙箱；自定义 Docker/Compose 部署需带上相同配置，保持沙箱开启。本机直接启动后端时需另行安装 Chromium 与该字体。报告用法见 [AI 助手报告生成](docs/AI助手设计.md#报告生成)。
 
 `I18N_LOCALES` 使用逗号分隔的 BCP 47 语言代码列表（默认从后端语言包自动发现，排除主语言），控制 OpenAPI 的目标语言。`make i18n` 生成 OpenAPI 多语言 YAML。离线生成使用 `I18N_OFFLINE=1 make i18n`。
 

@@ -116,6 +116,12 @@
   "base.ai.query.question.required": {
     "other": "質問の内容が不正です"
   },
+  "base.ai.report.content.length": {
+    "other": "レポートの本文は 1～50000 文字にしてください"
+  },
+  "base.ai.report.title.length": {
+    "other": "レポートのタイトルは 1～100 文字にしてください"
+  },
   "base.ai.search.http_status": {
     "other": "ウェブ検索サービスが予期しないステータスを返しました: {{.Status}}"
   },
@@ -1175,6 +1181,9 @@
   "legacy.error.241051568bef8e2e": {
     "other": "フィールド暗号化アルゴリズムが無効です"
   },
+  "legacy.error.24346199bc3c7688": {
+    "other": "AI レポートの生成に失敗しました"
+  },
   "legacy.error.2468b2acc984ef68": {
     "other": "機械翻訳の下書き機能が有効になっていません"
   },
@@ -1186,6 +1195,9 @@
   },
   "legacy.error.2506e634c4563331": {
     "other": "データベーステーブルのフィールドリスト照会に失敗しました"
+  },
+  "legacy.error.2520df43a2831159": {
+    "other": "生成するレポートファイルは 20 MB 以下にしてください"
   },
   "legacy.error.254cc892d3964cfb": {
     "other": "ログイン結果分布の照会に失敗しました"
@@ -3173,6 +3185,9 @@
   "legacy.error.96e08944f72d6ab7": {
     "other": "プロジェクト付与詳細の照会に失敗しました"
   },
+  "legacy.error.975269a5864147a2": {
+    "other": "レポートファイルの保存に失敗しました"
+  },
   "legacy.error.975dc005fdfef059": {
     "other": "下書きメッセージのみ削除できます"
   },
@@ -3860,6 +3875,9 @@
   "legacy.error.c612447adeb48ee2": {
     "other": "他テナントのプロジェクト付与を管理できません"
   },
+  "legacy.error.c631b22edf47aad3": {
+    "other": "HTML レポートの生成に失敗しました"
+  },
   "legacy.error.c64f9c3cf819c81c": {
     "other": "メッセージ番号が不正です"
   },
@@ -4447,6 +4465,9 @@
   },
   "legacy.error.eb7376c11e576e01": {
     "other": "部門の作成に失敗しました"
+  },
+  "legacy.error.eb9f0f314fabcb05": {
+    "other": "PDF レポートの生成に失敗しました"
   },
   "legacy.error.ebe9b8ff030be0c3": {
     "other": "ログインポリシーIDを空にすることはできません"

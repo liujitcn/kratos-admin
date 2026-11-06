@@ -4,6 +4,7 @@ go 1.27.2
 
 require (
 	buf.build/go/protovalidate v1.4.0
+	github.com/chromedp/chromedp v0.23.0
 	github.com/cloudwego/eino v0.9.22
 	github.com/cloudwego/eino-ext/components/model/agenticopenai v0.2.5-0.20261019121619-eee37f63ff95
 	github.com/dop251/goja v0.0.0-20261022125820-07c4b9d6265b
@@ -79,6 +80,7 @@ require (
 	github.com/sashabaranov/go-openai v1.43.0
 	github.com/shirou/gopsutil/v4 v4.26.9
 	github.com/tjfoc/gmsm v1.4.1
+	github.com/yuin/goldmark v1.8.7
 	golang.org/x/sys v0.49.0
 	golang.org/x/text v0.43.0
 	google.golang.org/genproto/googleapis/api v0.0.0-20261019180522-ce908d29299b
@@ -163,6 +165,7 @@ require (
 	github.com/cenkalti/backoff/v4 v4.3.0 // indirect
 	github.com/cenkalti/backoff/v5 v5.0.3 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
+	github.com/chromedp/cdproto v0.159.0 // indirect
 	github.com/clbanning/mxj/v2 v2.7.0 // indirect
 	github.com/clipperhouse/displaywidth v0.11.0 // indirect
 	github.com/clipperhouse/uax29/v2 v2.7.0 // indirect
@@ -184,6 +187,7 @@ require (
 	github.com/go-faster/city v1.0.1 // indirect
 	github.com/go-faster/errors v0.8.0 // indirect
 	github.com/go-jose/go-jose/v4 v4.1.5 // indirect
+	github.com/go-json-experiment/json v0.0.0-20260213210345-44df1a37e875 // indirect
 	github.com/go-logr/logr v1.4.4 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/go-ole/go-ole v1.3.0 // indirect

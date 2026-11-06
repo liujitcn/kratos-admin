@@ -8682,6 +8682,25 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/base.v1.ListAiProviderModelOptionsResponse'
+    /api/v1/base/ai/report:
+        post:
+            tags:
+                - AiReportService
+            description: 將當前對話的資料和分析整理成 Markdown，生成可下載的 HTML 和 PDF 報告；僅在使用者要求生成報告時呼叫，返回後使用真實檔案地址提供下載連結，不得編造資料或下載地址。
+            operationId: AiReportService_GenerateAiReport
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/base.v1.GenerateAiReportRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.GenerateAiReportResponse'
     /api/v1/base/ai/search:
         post:
             tags:
@@ -10688,6 +10707,24 @@ components:
                     type: string
                     description: 副檔名
             description: File資訊
+        base.v1.GenerateAiReportRequest:
+            type: object
+            properties:
+                title:
+                    type: string
+                    description: 報告標題，不包含副檔名
+                content:
+                    type: string
+                    description: 根據當前對話整理的完整 Markdown 正文，可包含標題、分析、建議和資料表格；不得傳入 HTML、指令碼或編造事實
+            description: AI 助手報告生成請求。
+        base.v1.GenerateAiReportResponse:
+            type: object
+            properties:
+                html:
+                    $ref: '#/components/schemas/base.v1.FileInfo'
+                pdf:
+                    $ref: '#/components/schemas/base.v1.FileInfo'
+            description: AI 助手報告生成結果。
         base.v1.GetConfigResponse:
             type: object
             properties:
@@ -20843,6 +20880,8 @@ tags:
       description: AI Provider 可選模型查詢服務。
     - name: AiProviderService
       description: AI供應商管理服務。
+    - name: AiReportService
+      description: AI 助手報告服務。
     - name: AiSearchService
       description: Base AI 助手聯網搜尋服務
     - name: AiSessionService
@@ -20862,9 +20901,9 @@ tags:
     - name: BaseApiService
       description: Admin API 服務
     - name: BaseAreaService
-      description: Admin 行政區域服務
-    - name: BaseAreaService
       description: App 行政區域服務
+    - name: BaseAreaService
+      description: Admin 行政區域服務
     - name: BaseConfigService
       description: Admin 系統設定服務
     - name: BaseDashboardService
@@ -20876,9 +20915,9 @@ tags:
     - name: BaseDictItemService
       description: Admin字典項服務
     - name: BaseDictService
-      description: Admin 字典服務
-    - name: BaseDictService
       description: App 字典服務
+    - name: BaseDictService
+      description: Admin 字典服務
     - name: BaseFileService
       description: Admin檔案資產管理服務。
     - name: BaseI18nCustomService
@@ -20996,9 +21035,9 @@ tags:
     - name: NotificationService
       description: Base站內信通知服務，提供當前使用者的收件箱能力。
     - name: OauthClientService
-      description: Admin開放授權客戶端管理服務。
-    - name: OauthClientService
       description: Base開放授權客戶端令牌服務。
+    - name: OauthClientService
+      description: Admin開放授權客戶端管理服務。
     - name: OauthService
       description: Base 第三方登入公共服務
     - name: OpsMonitoringService

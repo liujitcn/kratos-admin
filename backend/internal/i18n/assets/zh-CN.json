@@ -116,6 +116,12 @@
   "base.ai.query.question.required": {
     "other": "问题内容不合法"
   },
+  "base.ai.report.content.length": {
+    "other": "报告正文须为1至50000个字符"
+  },
+  "base.ai.report.title.length": {
+    "other": "报告标题须为1至100个字符"
+  },
   "base.ai.search.http_status": {
     "other": "联网搜索服务返回异常状态：{{.Status}}"
   },
@@ -1175,6 +1181,9 @@
   "legacy.error.241051568bef8e2e": {
     "other": "字段加密算法无效"
   },
+  "legacy.error.24346199bc3c7688": {
+    "other": "生成AI报告失败"
+  },
   "legacy.error.2468b2acc984ef68": {
     "other": "机器翻译草稿功能未启用"
   },
@@ -1186,6 +1195,9 @@
   },
   "legacy.error.2506e634c4563331": {
     "other": "查询数据库表字段列表失败"
+  },
+  "legacy.error.2520df43a2831159": {
+    "other": "生成的报告文件不能超过 20 MB"
   },
   "legacy.error.254cc892d3964cfb": {
     "other": "查询登录结果分布失败"
@@ -3173,6 +3185,9 @@
   "legacy.error.96e08944f72d6ab7": {
     "other": "查询项目授权详情失败"
   },
+  "legacy.error.975269a5864147a2": {
+    "other": "保存报告文件失败"
+  },
   "legacy.error.975dc005fdfef059": {
     "other": "只有草稿消息可以删除"
   },
@@ -3860,6 +3875,9 @@
   "legacy.error.c612447adeb48ee2": {
     "other": "不能管理其他租户的项目授权"
   },
+  "legacy.error.c631b22edf47aad3": {
+    "other": "生成报告 HTML 失败"
+  },
   "legacy.error.c64f9c3cf819c81c": {
     "other": "消息编号不合法"
   },
@@ -4447,6 +4465,9 @@
   },
   "legacy.error.eb7376c11e576e01": {
     "other": "创建部门失败"
+  },
+  "legacy.error.eb9f0f314fabcb05": {
+    "other": "生成报告 PDF 失败"
   },
   "legacy.error.ebe9b8ff030be0c3": {
     "other": "登录策略ID不能为空"

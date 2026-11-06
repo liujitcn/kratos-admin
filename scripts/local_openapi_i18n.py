@@ -6,6 +6,14 @@ import re
 
 
 EN_EXACT = {
+    "AI 助手报告服务。": "AI assistant report service.",
+    "将当前对话的数据和分析整理成 Markdown，生成可下载的 HTML 和 PDF 报告；仅在用户要求生成报告时调用，返回后使用真实文件地址提供下载链接，不得编造数据或下载地址。": "Compile the current conversation data and analysis into Markdown and generate downloadable HTML and PDF reports. Call only when the user requests a report. Return download links using the actual file URLs; never invent data or URLs.",
+    "报告标题，不包含文件扩展名": "Report title without a file extension",
+    "根据当前对话整理的完整 Markdown 正文，可包含标题、分析、建议和数据表格；不得传入 HTML、脚本或编造事实": "Complete Markdown body based on the current conversation, including headings, analysis, recommendations and data tables. Do not include HTML, scripts or fabricated facts.",
+    "AI 助手报告生成请求。": "AI assistant report generation request.",
+    "AI 助手报告生成结果。": "AI assistant report generation result.",
+    "HTML 报告文件，下载需要当前用户登录": "HTML report file; authentication is required to download",
+    "PDF 报告文件，下载需要当前用户登录": "PDF report file; authentication is required to download",
     "是否确认执行": "Whether execution is approved",
     "列表视角": "List view",
     "Admin脚本执行日志服务。": "Admin script execution log service.",
@@ -586,6 +594,14 @@ EN_EXACT = {
 
 
 JA_EXACT = {
+    "AI 助手报告服务。": "AI アシスタントのレポートサービス。",
+    "将当前对话的数据和分析整理成 Markdown，生成可下载的 HTML 和 PDF 报告；仅在用户要求生成报告时调用，返回后使用真实文件地址提供下载链接，不得编造数据或下载地址。": "現在の会話のデータと分析を Markdown にまとめ、ダウンロード可能な HTML と PDF レポートを生成します。ユーザーがレポートを要求した場合のみ呼び出してください。実際のファイル URL を使ってダウンロードリンクを提示し、データや URL を捏造しないでください。",
+    "报告标题，不包含文件扩展名": "ファイル拡張子を含まないレポートタイトル",
+    "根据当前对话整理的完整 Markdown 正文，可包含标题、分析、建议和数据表格；不得传入 HTML、脚本或编造事实": "現在の会話に基づく完全な Markdown 本文。見出し、分析、提案、データ表を含められます。HTML、スクリプト、捏造した事実を含めないでください。",
+    "AI 助手报告生成请求。": "AI アシスタントのレポート生成リクエスト。",
+    "AI 助手报告生成结果。": "AI アシスタントのレポート生成結果。",
+    "HTML 报告文件，下载需要当前用户登录": "HTML レポートファイル。ダウンロードにはログインが必要です",
+    "PDF 报告文件，下载需要当前用户登录": "PDF レポートファイル。ダウンロードにはログインが必要です",
     "是否确认执行": "実行を承認するか",
     "列表视角": "一覧表示",
     "Admin脚本执行日志服务。": "Adminスクリプト実行ログサービス。",

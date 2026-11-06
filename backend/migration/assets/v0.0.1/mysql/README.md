@@ -17,3 +17,5 @@ AI 工具人工确认表 `ai_tool_approval` 由已注册的 `AiToolApproval` Mod
 `checkpoint_data` 使用 LONGBLOB 保存 zstd 压缩快照；MySQL `max_allowed_packet` 至少为 64 MiB。运行时将编码后的上下文输入限制为 28 MiB，并限制未压缩/压缩快照为 192/48 MiB，保存失败不会生成可执行审批。
 
 存量库启用 `enable_migrate` 后会自动补齐注册模型的表结构，但不会自动重放本版本的初始化数据；菜单权限、字典数据仍需按开发环境流程重建或补齐。脚本和执行型工具由运行时硬性封闭，不受 `agent_status` 开关绕过。
+
+管理端 AI 对话菜单同时授予 `/base.v1.AiReportService/GenerateAiReport`（`POST /api/v1/base/ai/report`），工具在确认后生成 HTML/PDF 并登记到现有 `base_file`。不新增表；存量库需追加菜单权限并刷新角色授权，修改初始化脚本不会自动重放。

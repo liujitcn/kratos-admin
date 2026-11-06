@@ -116,6 +116,12 @@
   "base.ai.query.question.required": {
     "other": "問題內容不合法"
   },
+  "base.ai.report.content.length": {
+    "other": "報告內文須為 1 至 50000 個字元"
+  },
+  "base.ai.report.title.length": {
+    "other": "報告標題須為 1 至 100 個字元"
+  },
   "base.ai.search.http_status": {
     "other": "網路搜尋服務返回異常狀態：{{.Status}}"
   },
@@ -1175,6 +1181,9 @@
   "legacy.error.241051568bef8e2e": {
     "other": "欄位加密演算法無效"
   },
+  "legacy.error.24346199bc3c7688": {
+    "other": "產生 AI 報告失敗"
+  },
   "legacy.error.2468b2acc984ef68": {
     "other": "機器翻譯草稿功能未啟用"
   },
@@ -1186,6 +1195,9 @@
   },
   "legacy.error.2506e634c4563331": {
     "other": "查詢資料庫表欄位列表失敗"
+  },
+  "legacy.error.2520df43a2831159": {
+    "other": "產生的報告檔案不能超過 20 MB"
   },
   "legacy.error.254cc892d3964cfb": {
     "other": "查詢登入結果分佈失敗"
@@ -3173,6 +3185,9 @@
   "legacy.error.96e08944f72d6ab7": {
     "other": "查詢專案授權詳情失敗"
   },
+  "legacy.error.975269a5864147a2": {
+    "other": "儲存報告檔案失敗"
+  },
   "legacy.error.975dc005fdfef059": {
     "other": "只有草稿訊息可以刪除"
   },
@@ -3860,6 +3875,9 @@
   "legacy.error.c612447adeb48ee2": {
     "other": "不能管理其他租戶的專案授權"
   },
+  "legacy.error.c631b22edf47aad3": {
+    "other": "產生 HTML 報告失敗"
+  },
   "legacy.error.c64f9c3cf819c81c": {
     "other": "訊息編號不合法"
   },
@@ -4447,6 +4465,9 @@
   },
   "legacy.error.eb7376c11e576e01": {
     "other": "建立部門失敗"
+  },
+  "legacy.error.eb9f0f314fabcb05": {
+    "other": "產生 PDF 報告失敗"
   },
   "legacy.error.ebe9b8ff030be0c3": {
     "other": "登入策略 ID 不能為空"

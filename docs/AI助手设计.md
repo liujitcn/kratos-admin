@@ -56,6 +56,20 @@ Agent Tool 来自生成代码，`agent_status` 控制是否可被 AI 使用；`m
 
 预览、数据卡片和仪表盘执行同样写入 `bi_query`，自然语言问题为空。仪表盘执行额外保存仪表盘 ID、版本和组件 ID。工具仍受接口开关、用户权限和可信数据范围约束；查询记录的列表和详情按租户、项目范围过滤。
 
+## 报告生成
+
+管理端用户在查询和分析后，可以继续说“把上面的数据和分析生成报告”。模型调用 `base_v1_ai_report_service_generate_ai_report`，提交报告标题和完整 Markdown 正文，后端生成 HTML 和 PDF，并返回真实下载地址。该工具沿用权限筛选和写操作人工确认，不是固定 flow；用户确认冻结的报告内容后才开始渲染。
+
+`POST /api/v1/base/ai/report` 属于 `base.v1.AiReportService`。服务端禁用 Markdown 原始 HTML，输出 CSP 禁止脚本与外部资源；报告仅支持文字、列表和表格。容器内用开启沙箱的 Chromium 和完整 Noto Sans SC 静态 TrueType 字体打印 A4，正文约 12pt，网页自适应宽度，保留表格分隔线。每个进程最多同时渲染两份，等待和渲染共用 60 秒超时。
+
+两种文件保存到 `ai/reports/{tenant_id}/{user_id}/`，使用已有 OSS 和 `base_file` 管理，以同一事务登记元数据；失败时清理已写入的对象。文件默认需要登录并按现有租户文件权限访问。对话保存工具返回值，刷新或重新打开会话仍可找到下载链接；文件管理中也能查询生成的报告。普通上传接口仍禁止任意 HTML 上传。
+
+数据库事务只覆盖两条文件记录，OSS 使用失败补偿删除；如果对象存储同时无法删除，日志会记录残留对象路径，需要恢复存储后人工清理。首版不增加持久化清理任务，不保证数据库与 OSS 跨系统原子提交。
+
+正式镜像安装 Chromium 和字体，`make docker-run` 携带 `--init` 和 `backend/scripts/chromium-seccomp.json`。直接用 Docker/Compose 启动时应保留这些参数及 `kratos` 普通用户，不能通过关闭浏览器沙箱解决启动问题。字体构建脚本固定官方来源和 SHA256，字体许可证随镜像保留。本机运行后端需自行安装 Chromium 和 Noto Sans SC TrueType。
+
+新增权限 `/base.v1.AiReportService/GenerateAiReport` 归入管理端 AI 对话菜单；`base_api` 的 HTTP 路径在启动时由协议同步。旧库需在已有 AI 对话菜单追加该权限并刷新角色授权，或按开发环境流程使用全新数据库。移动端暂不注册生成工具，沿用现有读取工具策略。
+
 ## 管理端
 
 管理端位于 `frontend/admin/packages/modules/system/src/views/ai/chat`：

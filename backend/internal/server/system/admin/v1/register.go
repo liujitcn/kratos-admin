@@ -104,6 +104,7 @@ type Services struct {
 	BaseApiRateLimitPolicy  *admin.BaseApiRateLimitPolicyService
 	AiSearch                *base.AiSearchService
 	BiQuery                 *bi.BiQueryService
+	AiReport                *base.AiReportService
 }
 
 // RegisterGRPC 注册 system.admin.v1 的 gRPC 服务。
@@ -426,6 +427,9 @@ func (s Services) AgentTools() ([]tool.Invokable, error) {
 		},
 		func() ([]tool.Invokable, error) {
 			return biv1.NewBiQueryServiceAgentTools(s.BiQuery)
+		},
+		func() ([]tool.Invokable, error) {
+			return basev1.NewAiReportServiceAgentTools(s.AiReport)
 		},
 	}
 	tools := make([]tool.Invokable, 0)

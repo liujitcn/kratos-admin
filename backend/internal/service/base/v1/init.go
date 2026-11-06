@@ -10,6 +10,7 @@ var ProviderSet = wire.NewSet(
 	NewAiToolService,
 	NewAiMessageService,
 	NewAiSearchService,
+	NewAiReportService,
 	NewAiKnowledgeService,
 	NewConfigService,
 	NewLanguageService,

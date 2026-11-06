@@ -1,5 +1,12 @@
 # syntax=docker/dockerfile:1
 
+FROM --platform=$BUILDPLATFORM alpine:3.22 AS report-fonts
+
+RUN apk add --no-cache ca-certificates py3-fonttools
+COPY scripts/build-report-fonts.py scripts/report-fonts.OFL.txt /tmp/
+RUN python3 /tmp/build-report-fonts.py \
+    && cp /tmp/report-fonts.OFL.txt /fonts/OFL.txt
+
 FROM --platform=$BUILDPLATFORM golang:1.27.2-alpine AS backend-builder
 
 ARG TARGETOS
@@ -29,7 +36,7 @@ FROM alpine:3.22
 
 ENV TZ=Asia/Shanghai
 
-RUN apk add --no-cache ca-certificates gzip mysql-client openssl tzdata \
+RUN apk add --no-cache ca-certificates chromium fontconfig gzip mysql-client openssl tzdata \
     && ln -sf /usr/share/zoneinfo/$TZ /etc/localtime \
     && echo $TZ > /etc/timezone \
     && addgroup -S kratos \
@@ -38,6 +45,9 @@ RUN apk add --no-cache ca-certificates gzip mysql-client openssl tzdata \
     && chown -R kratos:kratos /app /opt/kratos
 
 WORKDIR /app
+
+COPY --from=report-fonts /fonts/ /usr/local/share/fonts/report/
+RUN fc-cache -f
 
 COPY --from=backend-builder --chown=kratos:kratos /out/server ./server
 COPY --chown=kratos:kratos configs ./configs

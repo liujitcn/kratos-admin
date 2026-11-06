@@ -71,3 +71,5 @@
 流程定义页授予 `PageWorkflowScript`，新增/编辑按钮授予 `TestWorkflowScript`。专用接口只列出可用于工作流的 JavaScript 启用脚本且不返回源码；试运行仅接受已保存脚本 ID 与上下文，不授予共享脚本任意源码执行权限。输入为 form/variables/workflow/node/idempotency_key；提交校验输出 allowed/message/variables，节点输出 variables，审批人输出 user_ids，终态输出 variables/actions。共享脚本管理仍维护原有九种语言。
 
 启动恢复记录使用 `START` 阶段及 `script_id=0`，不执行脚本、不写共享脚本日志。无 `OnCreated` 或关联已确认可扫描恢复；有 `OnCreated` 必须注册 `RegisterBindingVerifier` 读取宿主持久化关联。扫描及人工重试遇到未确认关联先核验，true 才恢复，false/错误将 START 记为 FAILED 并退避，实例保持 PENDING，不触发业务动作。不得因确认未落库或超时关闭申请；只有 `OnCreated` 明确返回错误才中止且不触发业务动作。
+
+管理端 AI 对话菜单同时授予 `/base.v1.AiReportService/GenerateAiReport`（`POST /api/v1/base/ai/report`），工具在确认后生成 HTML/PDF 并登记到现有 `base_file`。不新增表；存量库需追加菜单权限并刷新角色授权，修改初始化脚本不会自动重放。

@@ -116,6 +116,12 @@
   "base.ai.query.question.required": {
     "other": "The question content is invalid"
   },
+  "base.ai.report.content.length": {
+    "other": "The report body must contain 1 to 50000 characters"
+  },
+  "base.ai.report.title.length": {
+    "other": "The report title must contain 1 to 100 characters"
+  },
   "base.ai.search.http_status": {
     "other": "The web search service returned an unexpected status: {{.Status}}"
   },
@@ -1175,6 +1181,9 @@
   "legacy.error.241051568bef8e2e": {
     "other": "The field encryption algorithm is invalid"
   },
+  "legacy.error.24346199bc3c7688": {
+    "other": "Failed to generate the AI report"
+  },
   "legacy.error.2468b2acc984ef68": {
     "other": "Machine translation draft feature is not enabled"
   },
@@ -1186,6 +1195,9 @@
   },
   "legacy.error.2506e634c4563331": {
     "other": "Failed to query database table field list"
+  },
+  "legacy.error.2520df43a2831159": {
+    "other": "Generated report files must not exceed 20 MB"
   },
   "legacy.error.254cc892d3964cfb": {
     "other": "Failed to query login result distribution"
@@ -3173,6 +3185,9 @@
   "legacy.error.96e08944f72d6ab7": {
     "other": "Failed to query project grant detail"
   },
+  "legacy.error.975269a5864147a2": {
+    "other": "Failed to save report files"
+  },
   "legacy.error.975dc005fdfef059": {
     "other": "Only draft messages can be deleted"
   },
@@ -3860,6 +3875,9 @@
   "legacy.error.c612447adeb48ee2": {
     "other": "Cannot manage project grants of other tenants"
   },
+  "legacy.error.c631b22edf47aad3": {
+    "other": "Failed to generate the HTML report"
+  },
   "legacy.error.c64f9c3cf819c81c": {
     "other": "Message ID is invalid"
   },
@@ -4447,6 +4465,9 @@
   },
   "legacy.error.eb7376c11e576e01": {
     "other": "Failed to create department"
+  },
+  "legacy.error.eb9f0f314fabcb05": {
+    "other": "Failed to generate the PDF report"
   },
   "legacy.error.ebe9b8ff030be0c3": {
     "other": "The login policy ID cannot be empty"

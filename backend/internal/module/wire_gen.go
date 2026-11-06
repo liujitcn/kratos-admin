@@ -312,6 +312,8 @@ func BuildModules(migrations *migration.Migration, config2 *configv1.Bootstrap, 
 	biQueryRepository := data2.NewBiQueryRepository(dataData)
 	biQueryCase := admin2.NewBiQueryCase(baseCase, biSourceCase, registry, biQueryRepository)
 	biQueryService := admin3.NewBiQueryService(biQueryCase)
+	aiReportCase := biz2.NewAiReportCase(baseCase, transaction, fileCase)
+	aiReportService := base.NewAiReportService(aiReportCase)
 	services := admin4.Services{
 		Auth:                    authService,
 		BaseAPI:                 baseApiService,
@@ -389,6 +391,7 @@ func BuildModules(migrations *migration.Migration, config2 *configv1.Bootstrap, 
 		BaseApiRateLimitPolicy:  baseApiRateLimitPolicyService,
 		AiSearch:                aiSearchService,
 		BiQuery:                 biQueryService,
+		AiReport:                aiReportService,
 	}
 	adminTools, err := ParseAdminAgentTools(services)
 	if err != nil {
@@ -475,6 +478,7 @@ func BuildModules(migrations *migration.Migration, config2 *configv1.Bootstrap, 
 		AiTool:       aiToolService,
 		AiMessage:    aiMessageService,
 		AiSearch:     aiSearchService,
+		AiReport:     aiReportService,
 		AiKnowledge:  aiKnowledgeService,
 		Config:       configService,
 		Language:     languageService,
@@ -566,6 +570,7 @@ func BuildModules(migrations *migration.Migration, config2 *configv1.Bootstrap, 
 		BaseApiRateLimitPolicy:  baseApiRateLimitPolicyService,
 		AiSearch:                aiSearchService,
 		BiQuery:                 biQueryService,
+		AiReport:                aiReportService,
 	}
 	services2 := &app2.Services{
 		Auth:     appAuthService,

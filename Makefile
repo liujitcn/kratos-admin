@@ -257,6 +257,8 @@ docker-run: docker-check docker-config
 	fi
 	@"$(DOCKER)" run -d \
 		--name "$(CONTAINER_NAME)" \
+		--init \
+		--security-opt "seccomp=$(abspath $(BACKEND_DIR)/scripts/chromium-seccomp.json)" \
 		--restart unless-stopped \
 		--network "$(DOCKER_NETWORK)" \
 		--add-host "host.docker.internal:host-gateway" \

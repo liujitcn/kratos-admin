@@ -1,0 +1,31 @@
+syntax = "proto3";
+
+package base.v1;
+
+import "base/v1/file.proto";
+import "buf/validate/validate.proto";
+import "gnostic/openapi/v3/annotations.proto";
+import "google/api/annotations.proto";
+
+// AI 助手报告服务。
+service AiReportService {
+  // 将当前对话的数据和分析整理成 Markdown，生成可下载的 HTML 和 PDF 报告；仅在用户要求生成报告时调用，返回后使用真实文件地址提供下载链接，不得编造数据或下载地址。
+  rpc GenerateAiReport(GenerateAiReportRequest) returns (GenerateAiReportResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/base/ai/report"
+      body: "*"
+    };
+  }
+}
+
+// AI 助手报告生成请求。
+message GenerateAiReportRequest {
+  string title = 1 [(gnostic.openapi.v3.property) = {description: "报告标题，不包含文件扩展名"}, (buf.validate.field).cel = {id: "base.ai.report.title.length" message: "报告标题须为1至100个字符" expression: "this.size() > 0 && this.size() <= 100"}]; // 报告标题，不包含文件扩展名
+  string content = 2 [(gnostic.openapi.v3.property) = {description: "根据当前对话整理的完整 Markdown 正文，可包含标题、分析、建议和数据表格；不得传入 HTML、脚本或编造事实"}, (buf.validate.field).cel = {id: "base.ai.report.content.length" message: "报告正文须为1至50000个字符" expression: "this.size() > 0 && this.size() <= 50000"}]; // 根据当前对话整理的完整 Markdown 正文，可包含标题、分析、建议和数据表格；不得传入 HTML、脚本或编造事实
+}
+
+// AI 助手报告生成结果。
+message GenerateAiReportResponse {
+  FileInfo html = 1 [(gnostic.openapi.v3.property) = {description: "HTML 报告文件，下载需要当前用户登录"}]; // HTML 报告文件，下载需要当前用户登录
+  FileInfo pdf = 2 [(gnostic.openapi.v3.property) = {description: "PDF 报告文件，下载需要当前用户登录"}]; // PDF 报告文件，下载需要当前用户登录
+}

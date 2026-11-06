@@ -8682,6 +8682,25 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/base.v1.ListAiProviderModelOptionsResponse'
+    /api/v1/base/ai/report:
+        post:
+            tags:
+                - AiReportService
+            description: 現在の会話のデータと分析を Markdown にまとめ、ダウンロード可能な HTML と PDF レポートを生成します。ユーザーがレポートを要求した場合のみ呼び出してください。実際のファイル URL を使ってダウンロードリンクを提示し、データや URL を捏造しないでください。
+            operationId: AiReportService_GenerateAiReport
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/base.v1.GenerateAiReportRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.GenerateAiReportResponse'
     /api/v1/base/ai/search:
         post:
             tags:
@@ -10688,6 +10707,24 @@ components:
                     type: string
                     description: ファイル拡張子
             description: File 情報
+        base.v1.GenerateAiReportRequest:
+            type: object
+            properties:
+                title:
+                    type: string
+                    description: ファイル拡張子を含まないレポートタイトル
+                content:
+                    type: string
+                    description: 現在の会話に基づく完全な Markdown 本文。見出し、分析、提案、データ表を含められます。HTML、スクリプト、捏造した事実を含めないでください。
+            description: AI アシスタントのレポート生成リクエスト。
+        base.v1.GenerateAiReportResponse:
+            type: object
+            properties:
+                html:
+                    $ref: '#/components/schemas/base.v1.FileInfo'
+                pdf:
+                    $ref: '#/components/schemas/base.v1.FileInfo'
+            description: AI アシスタントのレポート生成結果。
         base.v1.GetConfigResponse:
             type: object
             properties:
@@ -20843,6 +20880,8 @@ tags:
       description: AI Provider モデル選択サービス。
     - name: AiProviderService
       description: AIプロバイダー管理サービス。
+    - name: AiReportService
+      description: AI アシスタントのレポートサービス。
     - name: AiSearchService
       description: Base AI アシスタントWeb検索サービス
     - name: AiSessionService
@@ -20862,9 +20901,9 @@ tags:
     - name: BaseApiService
       description: AdminAPIサービス
     - name: BaseAreaService
-      description: Admin行政地域サービス
-    - name: BaseAreaService
       description: App行政地域サービス
+    - name: BaseAreaService
+      description: Admin行政地域サービス
     - name: BaseConfigService
       description: Adminシステム設定サービス
     - name: BaseDashboardService
@@ -20876,9 +20915,9 @@ tags:
     - name: BaseDictItemService
       description: Admin辞書項目サービス
     - name: BaseDictService
-      description: Admin辞書サービス
-    - name: BaseDictService
       description: App辞書サービス
+    - name: BaseDictService
+      description: Admin辞書サービス
     - name: BaseFileService
       description: Adminファイル資産管理サービス。
     - name: BaseI18nCustomService
@@ -20996,9 +21035,9 @@ tags:
     - name: NotificationService
       description: Base通知サービス。現在のユーザーの受信トレイを提供します。
     - name: OauthClientService
-      description: Admin OAuthクライアント管理サービス。
-    - name: OauthClientService
       description: Base OAuthクライアントトークンサービス。
+    - name: OauthClientService
+      description: Admin OAuthクライアント管理サービス。
     - name: OauthService
       description: Baseサードパーティーログイン共通サービス
     - name: OpsMonitoringService
