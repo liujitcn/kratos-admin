@@ -7,6 +7,7 @@ import (
 
 	"github.com/cloudwego/eino/adk"
 	"github.com/cloudwego/eino/components/tool"
+	"github.com/cloudwego/eino/compose"
 	"github.com/cloudwego/eino/schema"
 	"github.com/go-kratos/kratos/v3/log"
 
@@ -131,6 +132,9 @@ func (h *ToolMetricsHandler) WrapInvokableToolCall(
 	return func(ctx context.Context, argumentsInJSON string, opts ...tool.Option) (string, error) {
 		startedAt := time.Now()
 		output, err := endpoint(ctx, argumentsInJSON, opts...)
+		if _, interrupted := compose.IsInterruptRerunError(err); interrupted {
+			return output, err
+		}
 		name := toolContextName(tCtx)
 		call := callback.ToolCall{
 			Type:     "function",

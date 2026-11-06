@@ -56,3 +56,13 @@ err = runner.Generate(ctx, instruction, []*agent.Part{
 	agent.ImageURLPart(imageURL),
 }, schema, &result)
 ```
+
+## 人工确认
+
+宿主的 `Checker.PrepareToolCall` 必须在实际执行前重新授权、补全租户并按 Proto 校验参数，返回是否需要人工确认。配置 `RuntimeConfig.CheckPointStore`，并给 `RuntimeInput.CheckPointID` 分配服务端运行编号后，写调用会通过 Eino `StatefulInterrupt` 返回 `Response.Pending`。已配置 Checker 的受保护 Runtime 会拒绝没有持久化上下文的直接 `InvokeTool` 写调用；未配置 Checker 的 SDK 宿主须自行提供工具授权和审批边界。
+
+宿主负责持久化 `Pending.State` 和全部 `Pending.Calls`，绑定用户、租户、会话、消息、一次性确认编号与有效期。确认接口必须先原子领取执行权，再调用 `Runtime.Resume`；不得允许客户端提交工具名称、参数或 Eino 中断地址。恢复后仍会校验最新权限和冻结参数，新的写调用需要再次确认。当前管理端的拒绝操作直接结束该轮，不再调用模型。
+
+`CheckPointStore` 本身不提供业务幂等；不得自动重放执行中的运行。附件随 checkpoint 保存，此模式使用内联图片；PDF 在 Responses 协议下内联传入，Chat Completions 协议使用业务层提取的 `Attachment.Content` 文本。模型供应商须支持对应输入格式。未经沙箱隔离的 shell、Python 等执行类工具禁止注册到业务 Agent。
+
+持久化模式在调用模型前限制 JSON 编码后的输入为 28 MiB（包括系统提示、历史、正文和附件编码）。当前数据库适配器使用现有 zstd 依赖压缩重复上下文，未压缩快照上限 192 MiB，压缩后上限 48 MiB；要求 LONGBLOB 与至少 64 MiB 的 MySQL `max_allowed_packet`。管理端附件合计上限为 20 MiB，文本和历史仍占用输入额度。

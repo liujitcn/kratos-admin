@@ -562,6 +562,13 @@ function filterUploadFiles(files: File[]) {
     }
     return true;
   });
+  const totalSize =
+    selectedAttachments.value.reduce((total, item) => total + Number(item.size || 0), 0) +
+    validFiles.slice(0, remainingCount).reduce((total, item) => total + item.size, 0);
+  if (totalSize > maxAttachmentSize) {
+    ElMessage.warning(t("system.ai.chat.message.attachment_total_too_large", { size: maxAttachmentSizeMB }));
+    return [];
+  }
   if (validFiles.length > remainingCount) {
     ElMessage.warning(t("system.ai.chat.message.attachment_remaining", { count: remainingCount }));
   }

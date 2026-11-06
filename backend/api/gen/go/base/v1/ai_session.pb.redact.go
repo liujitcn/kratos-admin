@@ -367,6 +367,8 @@ func (x *AiOutputContent) Redact() {
 	// Safe field: Step
 
 	// Safe field: BlocksJson
+
+	// Safe field: Approval
 }
 
 // Ensure AiToken implements the Redactor interface at compile time.

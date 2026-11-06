@@ -18,6 +18,7 @@ var _ = new(context.Context)
 
 const _ = http.SupportPackageIsVersion3
 
+const OperationAiMessageServiceDecideAiToolApproval = "/base.v1.AiMessageService/DecideAiToolApproval"
 const OperationAiMessageServiceDeleteAiMessage = "/base.v1.AiMessageService/DeleteAiMessage"
 const OperationAiMessageServiceRegenerateAiMessage = "/base.v1.AiMessageService/RegenerateAiMessage"
 const OperationAiMessageServiceRetryAiUserMessage = "/base.v1.AiMessageService/RetryAiUserMessage"
@@ -25,6 +26,8 @@ const OperationAiMessageServiceSendAiMessage = "/base.v1.AiMessageService/SendAi
 const OperationAiMessageServiceUpdateAiMessage = "/base.v1.AiMessageService/UpdateAiMessage"
 
 type AiMessageServiceHTTPServer interface {
+	// DecideAiToolApproval 确认或拒绝当前用户的待执行工具调用。
+	DecideAiToolApproval(context.Context, *DecideAiToolApprovalRequest) (*SendAiMessageResponse, error)
 	// DeleteAiMessage 删除 AI 助手消息
 	DeleteAiMessage(context.Context, *DeleteAiMessageRequest) (*DeleteAiMessageResponse, error)
 	// RegenerateAiMessage 重新生成 AI 助手输出
@@ -39,11 +42,34 @@ type AiMessageServiceHTTPServer interface {
 
 func RegisterAiMessageServiceHTTPServer(s *http.Server, srv AiMessageServiceHTTPServer) {
 	r := s.Route("/")
+	r.Handle("POST", "/api/v1/base/ai/session/{session_id}/message/{message_id}/approval", _AiMessageService_DecideAiToolApproval0_HTTP_Handler(srv))
 	r.Handle("PUT", "/api/v1/base/ai/session/{session_id}/message/{message_id}", _AiMessageService_UpdateAiMessage0_HTTP_Handler(srv))
 	r.Handle("DELETE", "/api/v1/base/ai/session/{session_id}/message/{message_id}", _AiMessageService_DeleteAiMessage0_HTTP_Handler(srv))
 	r.Handle("POST", "/api/v1/base/ai/session/{session_id}/message", _AiMessageService_SendAiMessage0_HTTP_Handler(srv))
 	r.Handle("POST", "/api/v1/base/ai/session/{session_id}/message/{message_id}/retry", _AiMessageService_RetryAiUserMessage0_HTTP_Handler(srv))
 	r.Handle("POST", "/api/v1/base/ai/session/{session_id}/message/{message_id}/regeneration", _AiMessageService_RegenerateAiMessage0_HTTP_Handler(srv))
+}
+
+func _AiMessageService_DecideAiToolApproval0_HTTP_Handler(srv AiMessageServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in DecideAiToolApprovalRequest
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindVars(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationAiMessageServiceDecideAiToolApproval)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.DecideAiToolApproval(ctx, req.(*DecideAiToolApprovalRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*SendAiMessageResponse)
+		return ctx.Result(200, reply)
+	}
 }
 
 func _AiMessageService_UpdateAiMessage0_HTTP_Handler(srv AiMessageServiceHTTPServer) func(ctx http.Context) error {
@@ -157,6 +183,8 @@ func _AiMessageService_RegenerateAiMessage0_HTTP_Handler(srv AiMessageServiceHTT
 }
 
 type AiMessageServiceHTTPClient interface {
+	// DecideAiToolApproval 确认或拒绝当前用户的待执行工具调用。
+	DecideAiToolApproval(ctx context.Context, req *DecideAiToolApprovalRequest, opts ...http.CallOption) (rsp *SendAiMessageResponse, err error)
 	// DeleteAiMessage 删除 AI 助手消息
 	DeleteAiMessage(ctx context.Context, req *DeleteAiMessageRequest, opts ...http.CallOption) (rsp *DeleteAiMessageResponse, err error)
 	// RegenerateAiMessage 重新生成 AI 助手输出
@@ -175,6 +203,24 @@ type AiMessageServiceHTTPClientImpl struct {
 
 func NewAiMessageServiceHTTPClient(client *http.Client) AiMessageServiceHTTPClient {
 	return &AiMessageServiceHTTPClientImpl{client}
+}
+
+// DecideAiToolApproval 确认或拒绝当前用户的待执行工具调用。
+func (c *AiMessageServiceHTTPClientImpl) DecideAiToolApproval(ctx context.Context, in *DecideAiToolApprovalRequest, opts ...http.CallOption) (*SendAiMessageResponse, error) {
+	var out SendAiMessageResponse
+	pattern := "/api/v1/base/ai/session/{session_id}/message/{message_id}/approval"
+	path := http.BuildPath(pattern, in)
+	opts = append([]http.CallOption{
+		http.Accept("application/protojson"),
+		http.ContentType("application/protojson"),
+		http.Operation(OperationAiMessageServiceDecideAiToolApproval),
+		http.PathTemplate(pattern),
+	}, opts...)
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
 }
 
 // DeleteAiMessage 删除 AI 助手消息

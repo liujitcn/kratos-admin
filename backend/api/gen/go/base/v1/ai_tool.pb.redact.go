@@ -10,6 +10,7 @@ import (
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
+	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -19,6 +20,7 @@ var (
 	_ redact.Redactor
 	_ codes.Code
 	_ status.Status
+	_ timestamppb.Timestamp
 )
 
 // RegisterRedactedAiToolServiceServer wraps the AiToolServiceServer with the redacted server and registers the service in GRPC
@@ -58,6 +60,38 @@ func (s *redactedAiToolServiceServer) ListAiShortcut(ctx context.Context, in *Li
 		redact.ApplyWith(redact.WithDirection(redact.WithOperation(ctx, "/base.v1.AiToolService/ListAiShortcut"), redact.DirectionResponse), nil, res)
 	}
 	return res, err
+}
+
+// Ensure AiToolApproval implements the Redactor interface at compile time.
+var _ redact.Redactor = (*AiToolApproval)(nil)
+
+// Redact method implementation for AiToolApproval
+func (x *AiToolApproval) Redact() {
+	if x == nil {
+		return
+	}
+
+	// Safe field: Id
+
+	// Safe field: Calls
+
+	// Safe field: ExpiresAt
+}
+
+// Ensure AiApprovalTool implements the Redactor interface at compile time.
+var _ redact.Redactor = (*AiApprovalTool)(nil)
+
+// Redact method implementation for AiApprovalTool
+func (x *AiApprovalTool) Redact() {
+	if x == nil {
+		return
+	}
+
+	// Safe field: Name
+
+	// Safe field: Title
+
+	// Safe field: Arguments
 }
 
 // Ensure ListAiShortcutRequest implements the Redactor interface at compile time.

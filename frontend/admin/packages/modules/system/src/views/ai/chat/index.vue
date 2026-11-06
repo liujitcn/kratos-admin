@@ -37,6 +37,7 @@
       @knowledge-change="handleKnowledgeChange"
       @message-action="handleMessageAction"
       @message-edit="handleEditMessage"
+      @approval-decision="handleApprovalDecision"
     >
       <template #flow-blocks="{ message, activeFlowMessageId }">
         <component
@@ -210,6 +211,10 @@ async function sendAiPayload(payload: SubmitPayload) {
   }
   // 同一个会话内仍然串行发送，避免历史上下文和消息顺序被并发请求打乱。
   if (isSessionSending(sessionID)) return false;
+  if ((messages.value[sessionID] ?? []).some(item => item.status === AiMessageStatus.AI_MESSAGE_STATUS_WAITING_APPROVAL)) {
+    ElMessage.warning(t("system.ai.chat.approval.pending"));
+    return false;
+  }
 
   // 使该会话仍在途的消息列表请求失效，避免其晚到后整体覆盖刚发送的本地气泡。
   invalidateLoadMessages(sessionID);
@@ -336,6 +341,30 @@ async function handleEditMessage(payload: ChatMessageEditPayload) {
     await loadMessages(sessionID, { force: true });
     const message = error instanceof Error ? error.message : t("system.ai.chat.message.update_failed");
     ElMessage.error(message);
+  } finally {
+    setSessionSending(sessionID, false);
+  }
+}
+
+/** 提交当前用户的审批决定，并用恢复结果替换原消息。 */
+async function handleApprovalDecision(item: ChatMessageItem, approved: boolean) {
+  const sessionID = activeSessionID.value;
+  const approvalID = item.output_content?.approval?.id;
+  if (!sessionID || !approvalID || isSessionSending(sessionID)) return;
+  setSessionSending(sessionID, true);
+  invalidateLoadMessages(sessionID);
+  try {
+    const response = await defAiMessageService.DecideAiToolApproval({
+      session_id: sessionID,
+      message_id: item.id,
+      approval_id: approvalID,
+      approved
+    });
+    messages.value[sessionID] = replacePendingMessages(messages.value[sessionID] ?? [], normalizeMessageList(response.messages));
+    if (response.session) upsertSession(normalizeSession(response.session));
+  } catch (error) {
+    await loadMessages(sessionID, { force: true });
+    ElMessage.error(error instanceof Error ? error.message : t("system.ai.chat.approval.failed"));
   } finally {
     setSessionSending(sessionID, false);
   }
@@ -596,6 +625,7 @@ function handleAiStreamEvent(event: AiStreamEvent, task?: AiStreamTask) {
       handleAiDelta(event.payload);
       break;
     case "finish":
+    case "approval_required":
       handleAiFinish(event.payload, task);
       break;
     case "error":
@@ -674,9 +704,7 @@ async function loadAiShortcuts() {
     modelProviders.value = providerResponse.providers ?? [];
     knowledgeOptions.value = knowledgeResponse.options ?? [];
     // 知识库可能已被删除，剔除无效选择。
-    selectedKnowledgeIds.value = selectedKnowledgeIds.value.filter(id =>
-      knowledgeOptions.value.some(option => option.id === id)
-    );
+    selectedKnowledgeIds.value = selectedKnowledgeIds.value.filter(id => knowledgeOptions.value.some(option => option.id === id));
     applyModelSelection();
   } catch {
     starterShortcuts.value = [];
@@ -694,9 +722,7 @@ function applyModelSelection() {
   const stored = loadStoredModelSelection();
   const provider = stored
     ? modelProviders.value.find(
-        item =>
-          item.provider_id === stored.provider_id &&
-          item.models.some(model => model.model_name === stored.model_name)
+        item => item.provider_id === stored.provider_id && item.models.some(model => model.model_name === stored.model_name)
       )
     : undefined;
   if (provider && stored) {

@@ -17,6 +17,7 @@ import (
 	einoMessage "github.com/liujitcn/kratos-admin/backend/internal/biz/agent/message"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/agent/model"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/agent/tool"
+	modelconfig "github.com/liujitcn/kratos-kit/ai/model"
 )
 
 const (
@@ -36,6 +37,7 @@ const fallbackAIInstruction = "You are a general-purpose AI assistant. Answer na
 // Runtime 只负责把业务层准备好的输入组装为 Eino 消息并交给模型执行，不直接处理数据库、
 // OSS、鉴权或前端协议。这样 AI 助手链路可以把“业务准备”和“模型运行”分开维护。
 type Runtime struct {
+	checkPointStore CheckPointStore
 	toolsMu         sync.RWMutex
 	client          *model.AssistantClient
 	clientResolver  model.AssistantClientResolver
@@ -153,14 +155,7 @@ func (r *Runtime) Run(ctx context.Context, input RuntimeInput) (*Response, error
 	if err != nil {
 		return nil, err
 	}
-	var output *einoMessage.AgenticMessage
-	var token TokenUsage
-	var tools []ToolUsage
-	output, token, tools, err = r.runGenerate(ctx, input, client)
-	if err != nil {
-		return nil, err
-	}
-	return r.buildResponse(output, token, tools, client.Name()), nil
+	return r.runGenerate(ctx, input, client)
 }
 
 // RunStream 使用流式模式运行助手。
@@ -183,14 +178,14 @@ func (r *Runtime) RunStream(ctx context.Context, input RuntimeInput, onDelta fun
 	if cleanup != nil {
 		defer cleanup()
 	}
-	messages := r.buildMessages(ctx, preparedInput)
+	messages := r.buildMessages(ctx, preparedInput, client)
 	var result *adk.Result
 	var recorder *callback.Recorder
 	result, recorder, err = r.runADK(ctx, preparedInput, client, messages, toolInfos, internalToolMatched, true, onDelta)
 	if err != nil {
 		return nil, err
 	}
-	return r.buildResponse(result.Message, tokenFromCallback(result.Token), toolsFromRecorder(recorder), client.Name()), nil
+	return r.responseFromRun(input, client, toolInfos, internalToolMatched, result, recorder), nil
 }
 
 // prepareAttachments 为支持的 Responses 客户端上传图片和 PDF，并返回请求结束后的清理函数。
@@ -199,7 +194,8 @@ func (r *Runtime) prepareAttachments(ctx context.Context, input RuntimeInput, cl
 	for index := range input.Attachments {
 		input.Attachments[index].FileID = ""
 	}
-	if !client.SupportsFileUpload() {
+	// 审批可能跨请求和进程恢复，直接把附件内容存入 checkpoint，避免引用已删除的供应商临时文件。
+	if input.CheckPointID != "" || !client.SupportsFileUpload() {
 		return input, nil
 	}
 
@@ -253,21 +249,21 @@ type disabledToolCall struct {
 }
 
 // runGenerate 执行非流式模型调用，并在需要时继续执行工具回填。
-func (r *Runtime) runGenerate(ctx context.Context, input RuntimeInput, client *model.AssistantClient) (*einoMessage.AgenticMessage, TokenUsage, []ToolUsage, error) {
+func (r *Runtime) runGenerate(ctx context.Context, input RuntimeInput, client *model.AssistantClient) (*Response, error) {
 	toolInfos, internalToolMatched := r.toolInfos(ctx, input)
 	if disabledCall := r.disabledToolCall(ctx, input, toolInfos); disabledCall != nil {
-		return einoMessage.AIText(disabledCall.Content), TokenUsage{}, []ToolUsage{disabledCall.Usage}, nil
+		return r.buildResponse(einoMessage.AIText(disabledCall.Content), TokenUsage{}, []ToolUsage{disabledCall.Usage}, client.Name()), nil
 	}
 	preparedInput, cleanup := r.prepareAttachments(ctx, input, client)
 	if cleanup != nil {
 		defer cleanup()
 	}
-	messages := r.buildMessages(ctx, preparedInput)
+	messages := r.buildMessages(ctx, preparedInput, client)
 	result, recorder, err := r.runADK(ctx, preparedInput, client, messages, toolInfos, internalToolMatched, false, nil)
 	if err != nil {
-		return nil, TokenUsage{}, nil, err
+		return nil, err
 	}
-	return result.Message, tokenFromCallback(result.Token), toolsFromRecorder(recorder), nil
+	return r.responseFromRun(input, client, toolInfos, internalToolMatched, result, recorder), nil
 }
 
 // disabledToolCall 在本轮命中已禁用工具时构造明确错误回复。
@@ -325,12 +321,14 @@ func (r *Runtime) runADK(
 	serverTools := client.SupportsResponsesServerTools() && !internalToolMatched
 	description := r.localizePrompt(ctx, "base.ai.prompt.assistant_description", nil, "Admin AI assistant for conversation, internal tools, and web search.")
 	runner := adk.NewRunner(adk.Config{
-		Model:       client.AgenticModel,
-		Name:        "admin_ai",
-		Description: description,
-		ServerTools: serverTools,
+		CheckPointStore: r.checkPointStore,
+		Model:           client.AgenticModel,
+		Name:            "admin_ai",
+		Description:     description,
+		ServerTools:     serverTools,
 	})
 	result, err := runner.Run(ctx, adk.Request{
+		CheckPointID:    input.CheckPointID,
 		Messages:        append([]*einoMessage.AgenticMessage(nil), messages...),
 		Tools:           r.runnerTools(ctx, input),
 		ToolInfos:       toolInfos,
@@ -411,6 +409,12 @@ func (r *Runtime) toolMap(ctx context.Context, input RuntimeInput) map[string]to
 		if !enabledNames[info.Name] {
 			continue
 		}
+		if r.toolGate != nil {
+			name := info.Name
+			item = tool.NewGuardedTool(item, func(callCtx context.Context, arguments string) (string, bool, error) {
+				return r.toolGate.PrepareToolCall(callCtx, input.Terminal, name, arguments)
+			}, r.checkPointStore != nil && input.CheckPointID != "")
+		}
 		result[info.Name] = item
 	}
 	catalogTool := r.newAgentToolCatalogTool(ctx, input.Terminal, registeredInfos, enabledInfos, maxModelToolsPerRequest)
@@ -422,8 +426,8 @@ func (r *Runtime) toolMap(ctx context.Context, input RuntimeInput) map[string]to
 	return result
 }
 
-// buildMessages 构建当前轮次发送给 Eino 模型的消息列表。
-func (r *Runtime) buildMessages(ctx context.Context, input RuntimeInput) []*einoMessage.AgenticMessage {
+// buildMessages 按当前所选模型协议构建发送给 Eino 的消息列表。
+func (r *Runtime) buildMessages(ctx context.Context, input RuntimeInput, client *model.AssistantClient) []*einoMessage.AgenticMessage {
 	messages := []*einoMessage.AgenticMessage{einoMessage.SystemText(r.resolvePrompt(ctx, input))}
 	enabledNames := tool.NameSet(r.enabledToolInfos(ctx, input, r.allToolInfos(ctx, input)))
 	for _, item := range input.History {
@@ -440,7 +444,7 @@ func (r *Runtime) buildMessages(ctx context.Context, input RuntimeInput) []*eino
 			messages = append(messages, einoMessage.SystemText(toolContext))
 		}
 	}
-	messages = append(messages, r.buildUserMessage(ctx, input))
+	messages = append(messages, r.buildUserMessage(ctx, input, client))
 	return messages
 }
 
@@ -584,8 +588,8 @@ func (r *Runtime) localizePrompt(ctx context.Context, key string, args map[strin
 	return fallback
 }
 
-// buildUserMessage 构建当前轮次发送给模型的用户消息。
-func (r *Runtime) buildUserMessage(ctx context.Context, input RuntimeInput) *einoMessage.AgenticMessage {
+// buildUserMessage 按模型协议选择附件文件输入或已提取文本。
+func (r *Runtime) buildUserMessage(ctx context.Context, input RuntimeInput, client *model.AssistantClient) *einoMessage.AgenticMessage {
 	content := input.Content
 	attachmentLines := make([]string, 0, len(input.Attachments)*2)
 	images := make([]einoMessage.ImageData, 0, len(input.Attachments))
@@ -613,9 +617,9 @@ func (r *Runtime) buildUserMessage(ctx context.Context, input RuntimeInput) *ein
 			images = append(images, einoMessage.ImageData{Bytes: item.Bytes, MIMEType: cleanMIMEType})
 			continue
 		}
-		if cleanMIMEType == "application/pdf" && item.FileID != "" {
+		if client.APIType() == modelconfig.APITypeResponses && cleanMIMEType == "application/pdf" && (item.FileID != "" || len(item.Bytes) > 0) {
 			attachmentLines = append(attachmentLines, r.localizePrompt(ctx, "base.ai.prompt.file_attachment", map[string]any{"Name": name}, "File attachment {{.Name}} is provided as file input."))
-			files = append(files, einoMessage.FileData{FileID: item.FileID, MIMEType: cleanMIMEType, Name: name})
+			files = append(files, einoMessage.FileData{FileID: item.FileID, Bytes: item.Bytes, MIMEType: cleanMIMEType, Name: name})
 			continue
 		}
 

@@ -51,6 +51,17 @@ type redactedAiMessageServiceServer struct {
 	bypass redact.Bypass
 }
 
+// DecideAiToolApproval is the redacted wrapper for the actual AiMessageServiceServer.DecideAiToolApproval method
+// Unary RPC
+func (s *redactedAiMessageServiceServer) DecideAiToolApproval(ctx context.Context, in *DecideAiToolApprovalRequest) (*SendAiMessageResponse, error) {
+	res, err := s.srv.DecideAiToolApproval(ctx, in)
+	if !s.bypass.CheckInternal(ctx) {
+		// Apply redaction to the response
+		redact.ApplyWith(redact.WithDirection(redact.WithOperation(ctx, "/base.v1.AiMessageService/DecideAiToolApproval"), redact.DirectionResponse), nil, res)
+	}
+	return res, err
+}
+
 // UpdateAiMessage is the redacted wrapper for the actual AiMessageServiceServer.UpdateAiMessage method
 // Unary RPC
 func (s *redactedAiMessageServiceServer) UpdateAiMessage(ctx context.Context, in *UpdateAiMessageRequest) (*SendAiMessageResponse, error) {
@@ -104,6 +115,24 @@ func (s *redactedAiMessageServiceServer) RegenerateAiMessage(ctx context.Context
 		redact.ApplyWith(redact.WithDirection(redact.WithOperation(ctx, "/base.v1.AiMessageService/RegenerateAiMessage"), redact.DirectionResponse), nil, res)
 	}
 	return res, err
+}
+
+// Ensure DecideAiToolApprovalRequest implements the Redactor interface at compile time.
+var _ redact.Redactor = (*DecideAiToolApprovalRequest)(nil)
+
+// Redact method implementation for DecideAiToolApprovalRequest
+func (x *DecideAiToolApprovalRequest) Redact() {
+	if x == nil {
+		return
+	}
+
+	// Safe field: SessionId
+
+	// Safe field: MessageId
+
+	// Safe field: ApprovalId
+
+	// Safe field: Approved
 }
 
 // Ensure UpdateAiMessageRequest implements the Redactor interface at compile time.

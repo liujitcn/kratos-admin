@@ -138,6 +138,39 @@
                   </div>
                 </el-collapse-item>
               </el-collapse>
+              <section
+                v-if="
+                  item.role !== 'user' &&
+                  item.status === AiMessageStatus.AI_MESSAGE_STATUS_WAITING_APPROVAL &&
+                  item.output_content?.approval
+                "
+                class="agent-approval"
+                role="region"
+                :aria-label="t('system.ai.chat.approval.title')"
+              >
+                <strong>{{ t("system.ai.chat.approval.title") }}</strong>
+                <p>{{ t("system.ai.chat.approval.description") }}</p>
+                <div v-for="(call, index) in item.output_content.approval.calls" :key="index" class="agent-approval__call">
+                  <strong>{{ call.title || call.name }}</strong>
+                  <div>{{ call.name }}</div>
+                  <pre>{{ formatToolPayload(call.arguments) }}</pre>
+                </div>
+                <p>
+                  {{
+                    t("system.ai.chat.approval.expires_at", {
+                      time: formatDateTime(resolveTimestamp(item.output_content.approval.expires_at))
+                    })
+                  }}
+                </p>
+                <div class="agent-approval__actions">
+                  <el-button type="danger" :loading="sending" @click="emit('approvalDecision', item, true)">
+                    {{ t("system.ai.chat.approval.confirm") }}
+                  </el-button>
+                  <el-button :disabled="sending" @click="emit('approvalDecision', item, false)">
+                    {{ t("system.ai.chat.approval.reject") }}
+                  </el-button>
+                </div>
+              </section>
               <div
                 class="agent-message-content"
                 :class="{
@@ -368,6 +401,7 @@ import { AiMessageStatus } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_se
 import { resolvePersistedMessage } from "../../../../utils/persisted-message";
 import { resolveModelDisplayName } from "../modelDisplay";
 import XSender from "./XSender.vue";
+import { resolveTimestamp } from "../message";
 
 // AI Markdown 渲染器依赖较重，仅在真正出现助手消息时再加载。
 const AiMarkdown = defineAsyncComponent(() => import("./AiMarkdown.vue"));
@@ -525,6 +559,8 @@ const emit = defineEmits<{
   messageAction: [payload: { action: ChatMessageAction; item: ChatMessageItem }];
   /** 提交当前用户消息的文本编辑。 */
   messageEdit: [payload: ChatMessageEditPayload];
+  /** 确认或拒绝冻结的工具调用。 */
+  approvalDecision: [item: ChatMessageItem, approved: boolean];
 }>();
 
 const isEmptyState = computed(() => props.messages.length === 0);
@@ -735,10 +771,12 @@ function resolveMessageActions(item: ChatMessageItem) {
     icon: CopyDocument
   };
   const deleteAction: MessageActionOption = { key: "delete" as const, label: t("common.action.delete"), icon: Delete };
+  if (item.status === AiMessageStatus.AI_MESSAGE_STATUS_WAITING_APPROVAL) return [deleteAction];
+  const isLatest = String(item.id) === String(props.messages.at(-1)?.id);
   const editAction: MessageActionOption = { key: "edit" as const, label: t("common.action.edit"), icon: EditPen };
   if (item.role === "user") {
     const actions = isLastEditableUserMessage(item) ? [editAction, copyAction, deleteAction] : [copyAction, deleteAction];
-    if (item.status === AiMessageStatus.AI_MESSAGE_STATUS_FAILED) {
+    if (isLatest && item.status === AiMessageStatus.AI_MESSAGE_STATUS_FAILED) {
       return item.localOnly
         ? [{ key: "retry" as const, label: t("system.ai.chat.action.resend"), icon: Refresh }, copyAction, deleteAction]
         : [{ key: "retry" as const, label: t("system.ai.chat.action.resend"), icon: Refresh }, ...actions];
@@ -746,7 +784,9 @@ function resolveMessageActions(item: ChatMessageItem) {
     return item.localOnly ? [copyAction, deleteAction] : actions;
   }
 
-  const actions: MessageActionOption[] = [{ key: "retry" as const, label: t("system.ai.chat.action.regenerate"), icon: Refresh }];
+  const actions: MessageActionOption[] = isLatest
+    ? [{ key: "retry" as const, label: t("system.ai.chat.action.regenerate"), icon: Refresh }]
+    : [];
   if (item.status === AiMessageStatus.AI_MESSAGE_STATUS_SUCCESS) {
     actions.push({ key: "branch" as const, label: t("system.ai.chat.action.create_branch"), icon: BranchActionIcon });
     actions.push({
@@ -1024,6 +1064,33 @@ function buildMessageAttachmentItems(attachments: AiAttachment[]): FilesCardProp
 </script>
 
 <style scoped lang="scss">
+.agent-approval {
+  margin: 12px 0;
+  padding: 16px;
+  border: 1px solid var(--el-color-warning);
+  border-radius: 8px;
+  background: var(--el-fill-color-light);
+  color: var(--el-text-color-primary);
+
+  p {
+    margin: 8px 0;
+  }
+  pre {
+    overflow: auto;
+    max-height: 320px;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+  &__call {
+    margin: 12px 0;
+  }
+  &__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+}
+
 .agent-chat-panel {
   position: relative;
   box-sizing: border-box;

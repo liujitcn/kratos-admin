@@ -3,6 +3,7 @@ import { getLocaleRequestHeaders, t } from "@liujitcn/kratos-admin-core";
 import type { ListAiMessageRequest, ListAiMessageResponse } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_session";
 import type {
   AiMessageService,
+  DecideAiToolApprovalRequest,
   DeleteAiMessageRequest,
   DeleteAiMessageResponse,
   RegenerateAiMessageRequest,
@@ -71,6 +72,15 @@ export async function SendAiMessageStream(request: SendAiMessageRequest, options
 
 /** AI 助手消息服务。 */
 export class AiMessageServiceImpl implements AiMessageService {
+  /** 确认或拒绝服务端冻结的工具调用。 */
+  DecideAiToolApproval(request: DecideAiToolApprovalRequest): Promise<SendAiMessageResponse> {
+    return service<DecideAiToolApprovalRequest, SendAiMessageResponse>({
+      url: `${AI_SESSION_URL}/${request.session_id}/message/${request.message_id}/approval`,
+      method: "post",
+      data: request
+    });
+  }
+
   /** 查询 AI 助手消息列表。 */
   ListAiMessage(request: ListAiMessageRequest): Promise<ListAiMessageResponse> {
     return service<ListAiMessageRequest, ListAiMessageResponse>({

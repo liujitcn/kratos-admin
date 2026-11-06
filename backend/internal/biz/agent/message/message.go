@@ -38,6 +38,8 @@ type ImageData struct {
 
 // FileData 表示附件文件编号输入。
 type FileData struct {
+	// Bytes 是需要随 checkpoint 保存的附件原始字节。
+	Bytes []byte
 	// FileID 文件在模型供应商处的编号。
 	FileID string
 	// MIMEType 附件 MIME 类型。
@@ -102,6 +104,10 @@ func UserTextWithMedia(content string, textSections []string, images []ImageData
 		}
 	}
 	for _, file := range files {
+		if file.FileID == "" && len(file.Bytes) > 0 {
+			blocks = append(blocks, schema.NewContentBlock(&schema.UserInputFile{Base64Data: base64.StdEncoding.EncodeToString(file.Bytes), MIMEType: file.MIMEType, Name: file.Name}))
+			continue
+		}
 		if file.FileID == "" {
 			continue
 		}

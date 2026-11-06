@@ -96,6 +96,7 @@ INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('b
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_dict_item.label', 10001, 'en-US', 'Generating') ON CONFLICT DO NOTHING;
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_dict_item.label', 10002, 'en-US', 'Success') ON CONFLICT DO NOTHING;
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_dict_item.label', 10003, 'en-US', 'Failure') ON CONFLICT DO NOTHING;
+INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_dict_item.label', 10004, 'en-US', 'Awaiting approval') ON CONFLICT DO NOTHING;
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_dict_item.label', 10101, 'en-US', 'Built-in') ON CONFLICT DO NOTHING;
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_dict_item.label', 10102, 'en-US', 'Admin Console') ON CONFLICT DO NOTHING;
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_dict_item.label', 10103, 'en-US', 'Mobile') ON CONFLICT DO NOTHING;

@@ -5033,6 +5033,9 @@
   "system.admin.runtime_config.invalid_json": {
     "other": "システム設定の内容が無効です"
   },
+  "system.ai.chat.error.context_too_large": {
+    "other": "履歴と添付ファイルのエンコードを含む会話入力が28 MiBを超えています。添付ファイルを減らすか、新しい会話を開始してください。"
+  },
   "system.ai.chat.error.fallback_reply.attachments": {
     "other": "質問と添付ファイル{{.Count}}件を受け取りましたが、AIアシスタントは現在利用できず、完全な回答を生成できません。しばらくしてからもう一度お試しください。"
   },
@@ -5781,5 +5784,101 @@
   "legacy.error.347070fc997f7568": {"other": "プロジェクト承認関連付けの検証に失敗しました"},
   "legacy.error.359210281db55f21": {"other": "新しいプロジェクト承認の業務関連付けが無効です"},
   "legacy.error.d20fc8bcc8d8f5c7": {"other": "新しいプロジェクト承認フォームが無効です"},
-  "legacy.error.0224ce0d4c9763eb": {"other": "新しいプロジェクト承認の所属テナントが無効です"}
+  "legacy.error.0224ce0d4c9763eb": {"other": "新しいプロジェクト承認の所属テナントが無効です"},
+  "legacy.error.9cafc0f70e08d227": {
+    "other": "管理画面で書き込み操作を承認してください"
+  },
+  "legacy.error.4d48785e7ebd39fb": {
+    "other": "承認が無効か、すでに処理されています"
+  },
+  "legacy.error.e46eaf899f18a393": {
+    "other": "承認の実行設定が無効です"
+  },
+  "legacy.error.47a58292ae95d795": {
+    "other": "承認のツール引数が無効です"
+  },
+  "legacy.error.d23b49a800ec82fd": {
+    "other": "承認の実行状態が無効です"
+  },
+  "legacy.error.0e01a87b0d86090d": {
+    "other": "AI の実行状態が変わったため承認を保存できません"
+  },
+  "legacy.error.fc4d92dd2ebc6782": {
+    "other": "実行中のメッセージは削除できません"
+  },
+  "legacy.error.ef4d3b3aab09a01d": {
+    "other": "現在の応答が完了するまで待つか、保留中の操作を処理してください"
+  },
+  "legacy.error.f11d68a2a74f06f9": {
+    "other": "この端末ではツールを利用できません"
+  },
+  "legacy.error.446c05bbcf853ae6": {
+    "other": "Agent ツールは無効です"
+  },
+  "legacy.error.799b4c56d12deb00": {
+    "other": "Agent ツールが無効か、実行が禁止されています"
+  },
+  "legacy.error.2e9e8485207551ae": {
+    "other": "ツールの API 定義が見つかりません"
+  },
+  "legacy.error.a934ff7ee33d8ab2": {
+    "other": "ツールの API 定義が無効です"
+  },
+  "legacy.error.844039c078368bf3": {
+    "other": "ツールのリクエスト定義が見つかりません"
+  },
+  "legacy.error.94c872f75369c921": {
+    "other": "ツール引数が無効です"
+  },
+  "legacy.error.7037d44d26f2fe7d": {
+    "other": "AI ツールの承認処理に失敗しました"
+  },
+  "openapi.ai.approval.0a50ca52d217eaa0": {
+    "other": "現在のユーザーの保留中ツール呼び出しを承認または拒否します。"
+  },
+  "openapi.ai.approval.907638a466d26ec4": {
+    "other": "AI ツールの承認リクエスト。ツールと引数はサーバーで固定します。"
+  },
+  "openapi.ai.approval.79d325f8ec278ba6": {
+    "other": "一度限りの承認 ID"
+  },
+  "openapi.ai.approval.6cedfb9ab50004c5": {
+    "other": "実行を承認するか"
+  },
+  "openapi.ai.approval.c7fb3cb9b170ea8d": {
+    "other": "保留中ツールの承認情報"
+  },
+  "openapi.ai.approval.bc522e692aed7078": {
+    "other": "AI ツールの承認情報。"
+  },
+  "openapi.ai.approval.aca86adff02160dc": {
+    "other": "承認待ちのツールと固定された引数"
+  },
+  "openapi.ai.approval.2a1e259212d00994": {
+    "other": "承認期限"
+  },
+  "openapi.ai.approval.c5953adda9d71bb8": {
+    "other": "承認待ちの AI ツール呼び出し。"
+  },
+  "openapi.ai.approval.25b37d5c985ea3be": {
+    "other": "操作の説明"
+  },
+  "openapi.ai.approval.e1de7de24c6aa692": {
+    "other": "実行する固定引数の JSON"
+  },
+  "base.ai.approval.session_id.positive": {
+    "other": "セッション番号が無効です"
+  },
+  "base.ai.approval.message_id.positive": {
+    "other": "メッセージ番号が不正です"
+  },
+  "system.ai.chat.approval.expired": {
+    "other": "承認期限が切れました。保留中の操作は実行されていません。"
+  },
+  "system.ai.chat.approval.rejected": {
+    "other": "拒否しました。保留中の操作は実行されていません。"
+  },
+  "system.ai.chat.error.run_expired": {
+    "other": "生成がタイムアウトしました。このリクエストは自動再開されません。再試行の前に業務の処理結果を確認してください。"
+  }
 }

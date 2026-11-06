@@ -5,6 +5,7 @@ import (
 	"errors"
 
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/agent/model"
+	"github.com/liujitcn/kratos-admin/backend/internal/data"
 	"github.com/liujitcn/kratos-admin/backend/pkg/agent"
 	"github.com/liujitcn/kratos-core/biz"
 	"github.com/liujitcn/kratos-core/resource/i18n"
@@ -27,12 +28,14 @@ func NewRuntime(
 	adminTools AdminTools,
 	appTools AppTools,
 	catalog *i18n.I18n,
+	checkPointStore *data.AiCheckPointStore,
 ) *Runtime {
 	localizeMessage := func(ctx context.Context, key string, args map[string]any, fallback string) string {
 		return catalog.Localize(biz.LocaleFromContext(ctx), "", key, args, fallback)
 	}
 	return &Runtime{
 		Runtime: agent.NewRuntime(agent.RuntimeConfig{
+			CheckPointStore: checkPointStore,
 			ClientResolver:  modelRegistry,
 			Checker:         checker,
 			AdminTools:      adminTools,

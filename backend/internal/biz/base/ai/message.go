@@ -26,6 +26,8 @@ type InputContentPayload struct {
 
 // OutputContentPayload 表示 AI 助手输出内容 JSON 结构。
 type OutputContentPayload struct {
+	// Approval 保存刷新后仍需展示的人工确认信息。
+	Approval *Approval `json:"approval,omitempty"`
 	// Kind 输出内容类型。
 	Kind string `json:"kind"`
 	// Content 输出正文。
@@ -179,6 +181,7 @@ func MarshalReplyContent(response *Response) string {
 		return ""
 	}
 	payload := OutputContentPayload{
+		Approval:       response.Approval,
 		Kind:           KindText,
 		Content:        response.Content,
 		ReplySource:    response.Source,

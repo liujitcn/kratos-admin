@@ -5033,6 +5033,9 @@
   "system.admin.runtime_config.invalid_json": {
     "other": "系统配置内容无效"
   },
+  "system.ai.chat.error.context_too_large": {
+    "other": "对话输入（含历史与附件编码）超过 28 MiB，请减少附件或新建会话。"
+  },
   "system.ai.chat.error.fallback_reply.attachments": {
     "other": "已收到你的问题和 {{.Count}} 个附件，但当前 AI 助手暂时不可用，无法生成完整回复，请稍后再试。"
   },
@@ -5781,5 +5784,101 @@
   "legacy.error.347070fc997f7568": {"other": "校验项目审批关联失败"},
   "legacy.error.359210281db55f21": {"other": "新增项目审批业务关联无效"},
   "legacy.error.d20fc8bcc8d8f5c7": {"other": "新增项目审批表单无效"},
-  "legacy.error.0224ce0d4c9763eb": {"other": "新增项目审批所属租户无效"}
+  "legacy.error.0224ce0d4c9763eb": {"other": "新增项目审批所属租户无效"},
+  "legacy.error.9cafc0f70e08d227": {
+    "other": "请在管理端确认业务写入操作"
+  },
+  "legacy.error.4d48785e7ebd39fb": {
+    "other": "审批已失效或已处理"
+  },
+  "legacy.error.e46eaf899f18a393": {
+    "other": "审批运行配置损坏"
+  },
+  "legacy.error.47a58292ae95d795": {
+    "other": "审批工具参数损坏"
+  },
+  "legacy.error.d23b49a800ec82fd": {
+    "other": "审批运行状态无效"
+  },
+  "legacy.error.0e01a87b0d86090d": {
+    "other": "AI运行状态已变化，不能保存审批"
+  },
+  "legacy.error.fc4d92dd2ebc6782": {
+    "other": "正在执行的消息不能删除"
+  },
+  "legacy.error.ef4d3b3aab09a01d": {
+    "other": "请先等待当前回复完成或处理待确认操作"
+  },
+  "legacy.error.f11d68a2a74f06f9": {
+    "other": "工具不属于当前终端"
+  },
+  "legacy.error.446c05bbcf853ae6": {
+    "other": "Agent工具未启用"
+  },
+  "legacy.error.799b4c56d12deb00": {
+    "other": "Agent工具未启用或执行能力被禁止"
+  },
+  "legacy.error.2e9e8485207551ae": {
+    "other": "工具接口契约不存在"
+  },
+  "legacy.error.a934ff7ee33d8ab2": {
+    "other": "工具接口契约无效"
+  },
+  "legacy.error.844039c078368bf3": {
+    "other": "工具请求契约不存在"
+  },
+  "legacy.error.94c872f75369c921": {
+    "other": "工具参数无效"
+  },
+  "legacy.error.7037d44d26f2fe7d": {
+    "other": "确认AI工具操作失败"
+  },
+  "openapi.ai.approval.0a50ca52d217eaa0": {
+    "other": "确认或拒绝当前用户的待执行工具调用。"
+  },
+  "openapi.ai.approval.907638a466d26ec4": {
+    "other": "AI 工具人工确认请求，实际工具和参数由服务端冻结。"
+  },
+  "openapi.ai.approval.79d325f8ec278ba6": {
+    "other": "一次性审批编号"
+  },
+  "openapi.ai.approval.6cedfb9ab50004c5": {
+    "other": "是否确认执行"
+  },
+  "openapi.ai.approval.c7fb3cb9b170ea8d": {
+    "other": "待执行工具的人工确认信息"
+  },
+  "openapi.ai.approval.bc522e692aed7078": {
+    "other": "AI 工具人工确认信息。"
+  },
+  "openapi.ai.approval.aca86adff02160dc": {
+    "other": "待确认的工具和冻结参数"
+  },
+  "openapi.ai.approval.2a1e259212d00994": {
+    "other": "确认截止时间"
+  },
+  "openapi.ai.approval.c5953adda9d71bb8": {
+    "other": "AI 待确认工具调用。"
+  },
+  "openapi.ai.approval.25b37d5c985ea3be": {
+    "other": "操作说明"
+  },
+  "openapi.ai.approval.e1de7de24c6aa692": {
+    "other": "待执行的冻结参数JSON"
+  },
+  "base.ai.approval.session_id.positive": {
+    "other": "会话编号不合法"
+  },
+  "base.ai.approval.message_id.positive": {
+    "other": "消息编号不合法"
+  },
+  "system.ai.chat.approval.expired": {
+    "other": "确认已过期，待确认的操作未执行。"
+  },
+  "system.ai.chat.approval.rejected": {
+    "other": "已拒绝，待确认的操作未执行。"
+  },
+  "system.ai.chat.error.run_expired": {
+    "other": "生成已超时，本次请求不会自动恢复。重试前请核对业务结果。"
+  }
 }

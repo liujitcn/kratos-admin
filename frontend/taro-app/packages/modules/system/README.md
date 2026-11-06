@@ -54,3 +54,6 @@ pnpm test
 pnpm build:h5
 pnpm build:mp-weixin
 ```
+
+AI 共用 RPC 同步人工确认消息类型；应用端会话仅开放读取工具，写操作确认由管理端完成。
+AI 仅对最新且已结束的助手消息提供重新生成入口，历史消息仍可复制或删除。

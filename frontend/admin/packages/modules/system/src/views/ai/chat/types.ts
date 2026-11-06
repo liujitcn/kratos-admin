@@ -101,7 +101,7 @@ export type ChatMessageItem = AiMessage & {
 };
 
 /** AI 助手 direct stream SSE 事件名称。 */
-export type AiStreamEventName = "delta" | "finish" | "error";
+export type AiStreamEventName = "delta" | "finish" | "approval_required" | "error";
 
 /** AI 助手 direct stream 事件负载。 */
 export type AiStreamPayload = {

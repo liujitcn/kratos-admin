@@ -15,6 +15,7 @@ import (
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 )
 
 const (
@@ -77,6 +78,128 @@ func (Terminal) EnumDescriptor() ([]byte, []int) {
 	return file_base_v1_ai_tool_proto_rawDescGZIP(), []int{0}
 }
 
+// AI 工具人工确认信息。
+type AiToolApproval struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`                                // 一次性审批编号
+	Calls         []*AiApprovalTool      `protobuf:"bytes,2,rep,name=calls,proto3" json:"calls,omitempty"`                          // 待确认的工具和冻结参数
+	ExpiresAt     *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=expires_at,json=expiresAt,proto3" json:"expires_at,omitempty"` // 确认截止时间
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AiToolApproval) Reset() {
+	*x = AiToolApproval{}
+	mi := &file_base_v1_ai_tool_proto_msgTypes[0]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AiToolApproval) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AiToolApproval) ProtoMessage() {}
+
+func (x *AiToolApproval) ProtoReflect() protoreflect.Message {
+	mi := &file_base_v1_ai_tool_proto_msgTypes[0]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AiToolApproval.ProtoReflect.Descriptor instead.
+func (*AiToolApproval) Descriptor() ([]byte, []int) {
+	return file_base_v1_ai_tool_proto_rawDescGZIP(), []int{0}
+}
+
+func (x *AiToolApproval) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *AiToolApproval) GetCalls() []*AiApprovalTool {
+	if x != nil {
+		return x.Calls
+	}
+	return nil
+}
+
+func (x *AiToolApproval) GetExpiresAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.ExpiresAt
+	}
+	return nil
+}
+
+// AI 待确认工具调用。
+type AiApprovalTool struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`           // 工具名称
+	Title         string                 `protobuf:"bytes,2,opt,name=title,proto3" json:"title,omitempty"`         // 操作说明
+	Arguments     string                 `protobuf:"bytes,3,opt,name=arguments,proto3" json:"arguments,omitempty"` // 待执行的冻结参数JSON
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AiApprovalTool) Reset() {
+	*x = AiApprovalTool{}
+	mi := &file_base_v1_ai_tool_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AiApprovalTool) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AiApprovalTool) ProtoMessage() {}
+
+func (x *AiApprovalTool) ProtoReflect() protoreflect.Message {
+	mi := &file_base_v1_ai_tool_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AiApprovalTool.ProtoReflect.Descriptor instead.
+func (*AiApprovalTool) Descriptor() ([]byte, []int) {
+	return file_base_v1_ai_tool_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *AiApprovalTool) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *AiApprovalTool) GetTitle() string {
+	if x != nil {
+		return x.Title
+	}
+	return ""
+}
+
+func (x *AiApprovalTool) GetArguments() string {
+	if x != nil {
+		return x.Arguments
+	}
+	return ""
+}
+
 // AI 助手快捷入口列表查询条件
 type ListAiShortcutRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -87,7 +210,7 @@ type ListAiShortcutRequest struct {
 
 func (x *ListAiShortcutRequest) Reset() {
 	*x = ListAiShortcutRequest{}
-	mi := &file_base_v1_ai_tool_proto_msgTypes[0]
+	mi := &file_base_v1_ai_tool_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -99,7 +222,7 @@ func (x *ListAiShortcutRequest) String() string {
 func (*ListAiShortcutRequest) ProtoMessage() {}
 
 func (x *ListAiShortcutRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_base_v1_ai_tool_proto_msgTypes[0]
+	mi := &file_base_v1_ai_tool_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -112,7 +235,7 @@ func (x *ListAiShortcutRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListAiShortcutRequest.ProtoReflect.Descriptor instead.
 func (*ListAiShortcutRequest) Descriptor() ([]byte, []int) {
-	return file_base_v1_ai_tool_proto_rawDescGZIP(), []int{0}
+	return file_base_v1_ai_tool_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *ListAiShortcutRequest) GetTerminal() Terminal {
@@ -132,7 +255,7 @@ type ListAiShortcutResponse struct {
 
 func (x *ListAiShortcutResponse) Reset() {
 	*x = ListAiShortcutResponse{}
-	mi := &file_base_v1_ai_tool_proto_msgTypes[1]
+	mi := &file_base_v1_ai_tool_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -144,7 +267,7 @@ func (x *ListAiShortcutResponse) String() string {
 func (*ListAiShortcutResponse) ProtoMessage() {}
 
 func (x *ListAiShortcutResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_base_v1_ai_tool_proto_msgTypes[1]
+	mi := &file_base_v1_ai_tool_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -157,7 +280,7 @@ func (x *ListAiShortcutResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListAiShortcutResponse.ProtoReflect.Descriptor instead.
 func (*ListAiShortcutResponse) Descriptor() ([]byte, []int) {
-	return file_base_v1_ai_tool_proto_rawDescGZIP(), []int{1}
+	return file_base_v1_ai_tool_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *ListAiShortcutResponse) GetShortcuts() []*AiShortcut {
@@ -183,7 +306,7 @@ type AiShortcut struct {
 
 func (x *AiShortcut) Reset() {
 	*x = AiShortcut{}
-	mi := &file_base_v1_ai_tool_proto_msgTypes[2]
+	mi := &file_base_v1_ai_tool_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -195,7 +318,7 @@ func (x *AiShortcut) String() string {
 func (*AiShortcut) ProtoMessage() {}
 
 func (x *AiShortcut) ProtoReflect() protoreflect.Message {
-	mi := &file_base_v1_ai_tool_proto_msgTypes[2]
+	mi := &file_base_v1_ai_tool_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -208,7 +331,7 @@ func (x *AiShortcut) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AiShortcut.ProtoReflect.Descriptor instead.
 func (*AiShortcut) Descriptor() ([]byte, []int) {
-	return file_base_v1_ai_tool_proto_rawDescGZIP(), []int{2}
+	return file_base_v1_ai_tool_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *AiShortcut) GetKey() string {
@@ -273,7 +396,7 @@ type AiShortcutAction struct {
 
 func (x *AiShortcutAction) Reset() {
 	*x = AiShortcutAction{}
-	mi := &file_base_v1_ai_tool_proto_msgTypes[3]
+	mi := &file_base_v1_ai_tool_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -285,7 +408,7 @@ func (x *AiShortcutAction) String() string {
 func (*AiShortcutAction) ProtoMessage() {}
 
 func (x *AiShortcutAction) ProtoReflect() protoreflect.Message {
-	mi := &file_base_v1_ai_tool_proto_msgTypes[3]
+	mi := &file_base_v1_ai_tool_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -298,7 +421,7 @@ func (x *AiShortcutAction) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AiShortcutAction.ProtoReflect.Descriptor instead.
 func (*AiShortcutAction) Descriptor() ([]byte, []int) {
-	return file_base_v1_ai_tool_proto_rawDescGZIP(), []int{3}
+	return file_base_v1_ai_tool_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *AiShortcutAction) GetFlow() string {
@@ -344,7 +467,7 @@ type AiToolCall struct {
 
 func (x *AiToolCall) Reset() {
 	*x = AiToolCall{}
-	mi := &file_base_v1_ai_tool_proto_msgTypes[4]
+	mi := &file_base_v1_ai_tool_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -356,7 +479,7 @@ func (x *AiToolCall) String() string {
 func (*AiToolCall) ProtoMessage() {}
 
 func (x *AiToolCall) ProtoReflect() protoreflect.Message {
-	mi := &file_base_v1_ai_tool_proto_msgTypes[4]
+	mi := &file_base_v1_ai_tool_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -369,7 +492,7 @@ func (x *AiToolCall) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AiToolCall.ProtoReflect.Descriptor instead.
 func (*AiToolCall) Descriptor() ([]byte, []int) {
-	return file_base_v1_ai_tool_proto_rawDescGZIP(), []int{4}
+	return file_base_v1_ai_tool_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *AiToolCall) GetType() string {
@@ -418,7 +541,16 @@ var File_base_v1_ai_tool_proto protoreflect.FileDescriptor
 
 const file_base_v1_ai_tool_proto_rawDesc = "" +
 	"\n" +
-	"\x15base/v1/ai_tool.proto\x12\abase.v1\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\"q\n" +
+	"\x15base/v1/ai_tool.proto\x12\abase.v1\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xea\x01\n" +
+	"\x0eAiToolApproval\x12+\n" +
+	"\x02id\x18\x01 \x01(\tB\x1b\xbaG\x18\x92\x02\x15一次性审批编号R\x02id\x12V\n" +
+	"\x05calls\x18\x02 \x03(\v2\x17.base.v1.AiApprovalToolB'\xbaG$\x92\x02!待确认的工具和冻结参数R\x05calls\x12S\n" +
+	"\n" +
+	"expires_at\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampB\x18\xbaG\x15\x92\x02\x12确认截止时间R\texpiresAt\"\xa4\x01\n" +
+	"\x0eAiApprovalTool\x12&\n" +
+	"\x04name\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f工具名称R\x04name\x12(\n" +
+	"\x05title\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f操作说明R\x05title\x12@\n" +
+	"\targuments\x18\x03 \x01(\tB\"\xbaG\x1f\x92\x02\x1c待执行的冻结参数JSONR\targuments\"q\n" +
 	"\x15ListAiShortcutRequest\x12X\n" +
 	"\bterminal\x18\x01 \x01(\x0e2\x11.base.v1.TerminalB)\xbaG&\x92\x02#终端类型：枚举【Terminal】R\bterminal\"e\n" +
 	"\x16ListAiShortcutResponse\x12K\n" +
@@ -466,26 +598,31 @@ func file_base_v1_ai_tool_proto_rawDescGZIP() []byte {
 }
 
 var file_base_v1_ai_tool_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_base_v1_ai_tool_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
+var file_base_v1_ai_tool_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
 var file_base_v1_ai_tool_proto_goTypes = []any{
 	(Terminal)(0),                  // 0: base.v1.Terminal
-	(*ListAiShortcutRequest)(nil),  // 1: base.v1.ListAiShortcutRequest
-	(*ListAiShortcutResponse)(nil), // 2: base.v1.ListAiShortcutResponse
-	(*AiShortcut)(nil),             // 3: base.v1.AiShortcut
-	(*AiShortcutAction)(nil),       // 4: base.v1.AiShortcutAction
-	(*AiToolCall)(nil),             // 5: base.v1.AiToolCall
+	(*AiToolApproval)(nil),         // 1: base.v1.AiToolApproval
+	(*AiApprovalTool)(nil),         // 2: base.v1.AiApprovalTool
+	(*ListAiShortcutRequest)(nil),  // 3: base.v1.ListAiShortcutRequest
+	(*ListAiShortcutResponse)(nil), // 4: base.v1.ListAiShortcutResponse
+	(*AiShortcut)(nil),             // 5: base.v1.AiShortcut
+	(*AiShortcutAction)(nil),       // 6: base.v1.AiShortcutAction
+	(*AiToolCall)(nil),             // 7: base.v1.AiToolCall
+	(*timestamppb.Timestamp)(nil),  // 8: google.protobuf.Timestamp
 }
 var file_base_v1_ai_tool_proto_depIdxs = []int32{
-	0, // 0: base.v1.ListAiShortcutRequest.terminal:type_name -> base.v1.Terminal
-	3, // 1: base.v1.ListAiShortcutResponse.shortcuts:type_name -> base.v1.AiShortcut
-	4, // 2: base.v1.AiShortcut.action:type_name -> base.v1.AiShortcutAction
-	1, // 3: base.v1.AiToolService.ListAiShortcut:input_type -> base.v1.ListAiShortcutRequest
-	2, // 4: base.v1.AiToolService.ListAiShortcut:output_type -> base.v1.ListAiShortcutResponse
-	4, // [4:5] is the sub-list for method output_type
-	3, // [3:4] is the sub-list for method input_type
-	3, // [3:3] is the sub-list for extension type_name
-	3, // [3:3] is the sub-list for extension extendee
-	0, // [0:3] is the sub-list for field type_name
+	2, // 0: base.v1.AiToolApproval.calls:type_name -> base.v1.AiApprovalTool
+	8, // 1: base.v1.AiToolApproval.expires_at:type_name -> google.protobuf.Timestamp
+	0, // 2: base.v1.ListAiShortcutRequest.terminal:type_name -> base.v1.Terminal
+	5, // 3: base.v1.ListAiShortcutResponse.shortcuts:type_name -> base.v1.AiShortcut
+	6, // 4: base.v1.AiShortcut.action:type_name -> base.v1.AiShortcutAction
+	3, // 5: base.v1.AiToolService.ListAiShortcut:input_type -> base.v1.ListAiShortcutRequest
+	4, // 6: base.v1.AiToolService.ListAiShortcut:output_type -> base.v1.ListAiShortcutResponse
+	6, // [6:7] is the sub-list for method output_type
+	5, // [5:6] is the sub-list for method input_type
+	5, // [5:5] is the sub-list for extension type_name
+	5, // [5:5] is the sub-list for extension extendee
+	0, // [0:5] is the sub-list for field type_name
 }
 
 func init() { file_base_v1_ai_tool_proto_init() }
@@ -499,7 +636,7 @@ func file_base_v1_ai_tool_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_base_v1_ai_tool_proto_rawDesc), len(file_base_v1_ai_tool_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   5,
+			NumMessages:   7,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

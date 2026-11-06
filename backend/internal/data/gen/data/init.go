@@ -13,6 +13,7 @@ var ProviderSet = wire.NewSet(
 	NewAiProviderRepository,
 	NewAiQueryRepository,
 	NewAiSessionRepository,
+	NewAiToolApprovalRepository,
 	NewBaseAPIRepository,
 	NewBaseAPII18NRepository,
 	NewBaseAPILogRepository,

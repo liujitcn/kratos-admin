@@ -96,6 +96,7 @@ INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('b
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_dict_item.label', 10001, 'zh-TW', '生成中') ON CONFLICT DO NOTHING;
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_dict_item.label', 10002, 'zh-TW', '成功') ON CONFLICT DO NOTHING;
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_dict_item.label', 10003, 'zh-TW', '失敗') ON CONFLICT DO NOTHING;
+INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_dict_item.label', 10004, 'zh-TW', '等待確認') ON CONFLICT DO NOTHING;
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_dict_item.label', 10101, 'zh-TW', '系統內建') ON CONFLICT DO NOTHING;
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_dict_item.label', 10102, 'zh-TW', '管理端') ON CONFLICT DO NOTHING;
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_dict_item.label', 10103, 'zh-TW', '移動端') ON CONFLICT DO NOTHING;

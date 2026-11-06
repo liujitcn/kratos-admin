@@ -20,11 +20,12 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	AiMessageService_UpdateAiMessage_FullMethodName     = "/base.v1.AiMessageService/UpdateAiMessage"
-	AiMessageService_DeleteAiMessage_FullMethodName     = "/base.v1.AiMessageService/DeleteAiMessage"
-	AiMessageService_SendAiMessage_FullMethodName       = "/base.v1.AiMessageService/SendAiMessage"
-	AiMessageService_RetryAiUserMessage_FullMethodName  = "/base.v1.AiMessageService/RetryAiUserMessage"
-	AiMessageService_RegenerateAiMessage_FullMethodName = "/base.v1.AiMessageService/RegenerateAiMessage"
+	AiMessageService_DecideAiToolApproval_FullMethodName = "/base.v1.AiMessageService/DecideAiToolApproval"
+	AiMessageService_UpdateAiMessage_FullMethodName      = "/base.v1.AiMessageService/UpdateAiMessage"
+	AiMessageService_DeleteAiMessage_FullMethodName      = "/base.v1.AiMessageService/DeleteAiMessage"
+	AiMessageService_SendAiMessage_FullMethodName        = "/base.v1.AiMessageService/SendAiMessage"
+	AiMessageService_RetryAiUserMessage_FullMethodName   = "/base.v1.AiMessageService/RetryAiUserMessage"
+	AiMessageService_RegenerateAiMessage_FullMethodName  = "/base.v1.AiMessageService/RegenerateAiMessage"
 )
 
 // AiMessageServiceClient is the client API for AiMessageService service.
@@ -33,6 +34,8 @@ const (
 //
 // Base AI 助手消息服务
 type AiMessageServiceClient interface {
+	// 确认或拒绝当前用户的待执行工具调用。
+	DecideAiToolApproval(ctx context.Context, in *DecideAiToolApprovalRequest, opts ...grpc.CallOption) (*SendAiMessageResponse, error)
 	// 更新 AI 助手消息并重新生成输出
 	UpdateAiMessage(ctx context.Context, in *UpdateAiMessageRequest, opts ...grpc.CallOption) (*SendAiMessageResponse, error)
 	// 删除 AI 助手消息
@@ -51,6 +54,16 @@ type aiMessageServiceClient struct {
 
 func NewAiMessageServiceClient(cc grpc.ClientConnInterface) AiMessageServiceClient {
 	return &aiMessageServiceClient{cc}
+}
+
+func (c *aiMessageServiceClient) DecideAiToolApproval(ctx context.Context, in *DecideAiToolApprovalRequest, opts ...grpc.CallOption) (*SendAiMessageResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(SendAiMessageResponse)
+	err := c.cc.Invoke(ctx, AiMessageService_DecideAiToolApproval_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
 func (c *aiMessageServiceClient) UpdateAiMessage(ctx context.Context, in *UpdateAiMessageRequest, opts ...grpc.CallOption) (*SendAiMessageResponse, error) {
@@ -109,6 +122,8 @@ func (c *aiMessageServiceClient) RegenerateAiMessage(ctx context.Context, in *Re
 //
 // Base AI 助手消息服务
 type AiMessageServiceServer interface {
+	// 确认或拒绝当前用户的待执行工具调用。
+	DecideAiToolApproval(context.Context, *DecideAiToolApprovalRequest) (*SendAiMessageResponse, error)
 	// 更新 AI 助手消息并重新生成输出
 	UpdateAiMessage(context.Context, *UpdateAiMessageRequest) (*SendAiMessageResponse, error)
 	// 删除 AI 助手消息
@@ -129,6 +144,9 @@ type AiMessageServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedAiMessageServiceServer struct{}
 
+func (UnimplementedAiMessageServiceServer) DecideAiToolApproval(context.Context, *DecideAiToolApprovalRequest) (*SendAiMessageResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method DecideAiToolApproval not implemented")
+}
 func (UnimplementedAiMessageServiceServer) UpdateAiMessage(context.Context, *UpdateAiMessageRequest) (*SendAiMessageResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method UpdateAiMessage not implemented")
 }
@@ -163,6 +181,24 @@ func RegisterAiMessageServiceServer(s grpc.ServiceRegistrar, srv AiMessageServic
 		t.testEmbeddedByValue()
 	}
 	s.RegisterService(&AiMessageService_ServiceDesc, srv)
+}
+
+func _AiMessageService_DecideAiToolApproval_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DecideAiToolApprovalRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AiMessageServiceServer).DecideAiToolApproval(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AiMessageService_DecideAiToolApproval_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AiMessageServiceServer).DecideAiToolApproval(ctx, req.(*DecideAiToolApprovalRequest))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 func _AiMessageService_UpdateAiMessage_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -262,6 +298,10 @@ var AiMessageService_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "base.v1.AiMessageService",
 	HandlerType: (*AiMessageServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "DecideAiToolApproval",
+			Handler:    _AiMessageService_DecideAiToolApproval_Handler,
+		},
 		{
 			MethodName: "UpdateAiMessage",
 			Handler:    _AiMessageService_UpdateAiMessage_Handler,

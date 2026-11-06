@@ -25,6 +25,16 @@ func NewAiMessageService(aiMessageCase *biz.AiMessageCase) *AiMessageService {
 	}
 }
 
+// DecideAiToolApproval 确认或拒绝当前用户的待执行工具。
+func (s *AiMessageService) DecideAiToolApproval(ctx context.Context, req *basev1.DecideAiToolApprovalRequest) (*basev1.SendAiMessageResponse, error) {
+	res, err := s.aiMessageCase.DecideAiToolApproval(ctx, req)
+	if err != nil {
+		log.Error(fmt.Sprintf("DecideAiToolApproval %v", err))
+		return nil, errorsx.WrapInternal(err, "确认AI工具操作失败")
+	}
+	return res, nil
+}
+
 // UpdateAiMessage 更新 AI 助手消息并重新生成输出。
 func (s *AiMessageService) UpdateAiMessage(ctx context.Context, req *basev1.UpdateAiMessageRequest) (*basev1.SendAiMessageResponse, error) {
 	res, err := s.aiMessageCase.UpdateAiMessage(ctx, req)

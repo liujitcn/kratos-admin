@@ -21,6 +21,7 @@ func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 		AiProvider:              newAiProvider(db, opts...),
 		AiQuery:                 newAiQuery(db, opts...),
 		AiSession:               newAiSession(db, opts...),
+		AiToolApproval:          newAiToolApproval(db, opts...),
 		BaseAPI:                 newBaseAPI(db, opts...),
 		BaseAPII18N:             newBaseAPII18N(db, opts...),
 		BaseAPILog:              newBaseAPILog(db, opts...),
@@ -100,6 +101,7 @@ type Query struct {
 	AiProvider              aiProvider
 	AiQuery                 aiQuery
 	AiSession               aiSession
+	AiToolApproval          aiToolApproval
 	BaseAPI                 baseAPI
 	BaseAPII18N             baseAPII18N
 	BaseAPILog              baseAPILog
@@ -181,6 +183,7 @@ func (q *Query) clone(db *gorm.DB) *Query {
 		AiProvider:              q.AiProvider.clone(db),
 		AiQuery:                 q.AiQuery.clone(db),
 		AiSession:               q.AiSession.clone(db),
+		AiToolApproval:          q.AiToolApproval.clone(db),
 		BaseAPI:                 q.BaseAPI.clone(db),
 		BaseAPII18N:             q.BaseAPII18N.clone(db),
 		BaseAPILog:              q.BaseAPILog.clone(db),
@@ -269,6 +272,7 @@ func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 		AiProvider:              q.AiProvider.replaceDB(db),
 		AiQuery:                 q.AiQuery.replaceDB(db),
 		AiSession:               q.AiSession.replaceDB(db),
+		AiToolApproval:          q.AiToolApproval.replaceDB(db),
 		BaseAPI:                 q.BaseAPI.replaceDB(db),
 		BaseAPII18N:             q.BaseAPII18N.replaceDB(db),
 		BaseAPILog:              q.BaseAPILog.replaceDB(db),
@@ -347,6 +351,7 @@ type queryCtx struct {
 	AiProvider              *aiProviderDo
 	AiQuery                 *aiQueryDo
 	AiSession               *aiSessionDo
+	AiToolApproval          *aiToolApprovalDo
 	BaseAPI                 *baseAPIDo
 	BaseAPII18N             *baseAPII18NDo
 	BaseAPILog              *baseAPILogDo
@@ -425,6 +430,7 @@ func (q *Query) WithContext(ctx context.Context) *queryCtx {
 		AiProvider:              q.AiProvider.WithContext(ctx),
 		AiQuery:                 q.AiQuery.WithContext(ctx),
 		AiSession:               q.AiSession.WithContext(ctx),
+		AiToolApproval:          q.AiToolApproval.WithContext(ctx),
 		BaseAPI:                 q.BaseAPI.WithContext(ctx),
 		BaseAPII18N:             q.BaseAPII18N.WithContext(ctx),
 		BaseAPILog:              q.BaseAPILog.WithContext(ctx),

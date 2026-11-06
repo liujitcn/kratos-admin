@@ -14,11 +14,33 @@ import (
 
 // RegisterAiMessageServiceMCPTools 注册Base AI 助手消息服务的 MCP Tool。
 func RegisterAiMessageServiceMCPTools(mcpServer *mcp.Server, aiMessageServiceServer AiMessageServiceServer) {
+	RegisterAiMessageServiceDecideAiToolApprovalMCPTool(mcpServer, aiMessageServiceServer)
 	RegisterAiMessageServiceUpdateAiMessageMCPTool(mcpServer, aiMessageServiceServer)
 	RegisterAiMessageServiceDeleteAiMessageMCPTool(mcpServer, aiMessageServiceServer)
 	RegisterAiMessageServiceSendAiMessageMCPTool(mcpServer, aiMessageServiceServer)
 	RegisterAiMessageServiceRetryAiUserMessageMCPTool(mcpServer, aiMessageServiceServer)
 	RegisterAiMessageServiceRegenerateAiMessageMCPTool(mcpServer, aiMessageServiceServer)
+}
+
+// RegisterAiMessageServiceDecideAiToolApprovalMCPTool 注册确认或拒绝当前用户的待执行工具调用的 MCP Tool。
+func RegisterAiMessageServiceDecideAiToolApprovalMCPTool(mcpServer *mcp.Server, aiMessageServiceServer AiMessageServiceServer) {
+	mcp.AddTool[*DecideAiToolApprovalRequest, *SendAiMessageResponse](
+		mcpServer,
+		&mcp.Tool{
+			Name:        "base_v1_ai_message_service_decide_ai_tool_approval",
+			Description: "确认或拒绝当前用户的待执行工具调用。",
+		},
+		func(ctx context.Context, request *mcp.CallToolRequest, input *DecideAiToolApprovalRequest) (*mcp.CallToolResult, *SendAiMessageResponse, error) {
+			if input == nil {
+				input = &DecideAiToolApprovalRequest{}
+			}
+			reply, err := aiMessageServiceServer.DecideAiToolApproval(ctx, input)
+			if err != nil {
+				return nil, nil, err
+			}
+			return nil, reply, nil
+		},
+	)
 }
 
 // RegisterAiMessageServiceUpdateAiMessageMCPTool 注册更新 AI 助手消息并重新生成输出的 MCP Tool。

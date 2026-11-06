@@ -19,16 +19,18 @@ import (
 	"google.golang.org/protobuf/types/known/emptypb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 // AiSessionCase 管理 AI 助手会话数据。
 type AiSessionCase struct {
 	*biz.BaseCase
 	*data.AiSessionRepository
-	tx            data.Transaction
-	aiMessageRepo *data.AiMessageRepository
-	catalog       *i18n.I18n
-	mapper        *mapper.CopierMapper[basev1.AiSession, models.AiSession]
+	tx             data.Transaction
+	aiMessageRepo  *data.AiMessageRepository
+	aiApprovalRepo *data.AiToolApprovalRepository
+	catalog        *i18n.I18n
+	mapper         *mapper.CopierMapper[basev1.AiSession, models.AiSession]
 }
 
 // NewAiSessionCase 创建 AI 助手会话业务实例。
@@ -37,6 +39,7 @@ func NewAiSessionCase(
 	tx data.Transaction,
 	aiSessionRepo *data.AiSessionRepository,
 	aiMessageRepo *data.AiMessageRepository,
+	aiApprovalRepo *data.AiToolApprovalRepository,
 	catalog *i18n.I18n,
 ) *AiSessionCase {
 	return &AiSessionCase{
@@ -44,6 +47,7 @@ func NewAiSessionCase(
 		AiSessionRepository: aiSessionRepo,
 		tx:                  tx,
 		aiMessageRepo:       aiMessageRepo,
+		aiApprovalRepo:      aiApprovalRepo,
 		catalog:             catalog,
 		mapper:              mapper.NewCopierMapper[basev1.AiSession, models.AiSession](),
 	}
@@ -243,20 +247,45 @@ func (c *AiSessionCase) UpdateSessionSummary(ctx context.Context, session *model
 	return nil
 }
 
-// DeleteAiSession 删除当前用户的会话。
+// DeleteAiSession 在会话锁内作废未完成运行、清空全部审批快照并删除当前用户的会话。
 func (c *AiSessionCase) DeleteAiSession(ctx context.Context, req *basev1.DeleteAiSessionRequest) (*emptypb.Empty, error) {
 	session, err := c.FindCurrentUserSessionByRawID(ctx, req.GetId())
 	if err != nil {
 		return nil, err
 	}
-	query := c.Query(ctx).AiSession
-	opts := make([]repository.QueryOption, 0, 2)
-	opts = append(opts, repository.Where(query.TenantID.Eq(session.TenantID)))
-	opts = append(opts, repository.Where(query.ID.Eq(session.ID)))
-	if err = c.Delete(ctx, opts...); err != nil {
+	err = c.tx.Transaction(ctx, func(txCtx context.Context) error {
+		if err = c.lockAiSession(txCtx, session); err != nil {
+			return err
+		}
+		approval := c.aiApprovalRepo.Query(txCtx).AiToolApproval
+		runs := approval.WithContext(txCtx).Where(approval.TenantID.Eq(session.TenantID), approval.SessionID.Eq(session.ID), approval.UserID.Eq(session.UserID))
+		_, err = runs.WithContext(txCtx).Where(approval.Status.In(aiRunRunning, aiRunPending)).UpdateSimple(approval.Status.Value(aiRunRejected))
+		if err != nil {
+			return err
+		}
+		_, err = runs.WithContext(txCtx).UpdateSimple(approval.CheckpointData.Value([]byte{}))
+		if err != nil {
+			return err
+		}
+		query := c.Query(txCtx).AiSession
+		opts := []repository.QueryOption{
+			repository.Where(query.TenantID.Eq(session.TenantID)),
+			repository.Where(query.ID.Eq(session.ID)),
+			repository.Where(query.UserID.Eq(session.UserID)),
+		}
+		return c.Delete(txCtx, opts...)
+	})
+	if err != nil {
 		return nil, err
 	}
 	return &emptypb.Empty{}, nil
+}
+
+// lockAiSession 串行化会话内的消息、审批和删除操作，调用方须位于事务中。
+func (c *AiSessionCase) lockAiSession(ctx context.Context, session *models.AiSession) error {
+	query := c.Query(ctx).AiSession
+	_, err := query.WithContext(ctx).Where(query.ID.Eq(session.ID), query.TenantID.Eq(session.TenantID), query.UserID.Eq(session.UserID)).Clauses(clause.Locking{Strength: "UPDATE"}).First()
+	return err
 }
 
 // FindCurrentUserSessionByRawID 按当前用户与字符串会话编号查询会话。

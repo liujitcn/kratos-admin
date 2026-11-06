@@ -19,6 +19,7 @@ func Models() []interface{} {
 		new(models.AiProvider),
 		new(models.AiQuery),
 		new(models.AiSession),
+		new(models.AiToolApproval),
 		new(models.BaseAPI),
 		new(models.BaseAPII18N),
 		new(models.BaseAPILog),

@@ -20,6 +20,8 @@ type MessageLocalizer func(ctx context.Context, key string, args map[string]any,
 
 // RuntimeConfig 是公开 Runtime 的初始化配置。
 type RuntimeConfig struct {
+	// CheckPointStore 保存需要人工确认的执行状态。
+	CheckPointStore CheckPointStore
 	// Client 是 AI 助手模型客户端。
 	Client *AssistantClient
 	// ClientResolver 根据请求选择数据库配置的模型客户端。
@@ -36,7 +38,9 @@ type RuntimeConfig struct {
 
 // NewRuntime 创建可被外部模块复用的 AI Runtime。
 func NewRuntime(config RuntimeConfig) *Runtime {
-	return newRuntime(config.Client, config.ClientResolver, config.Checker, config.AdminTools, config.AppTools, config.LocalizeMessage)
+	runtime := newRuntime(config.Client, config.ClientResolver, config.Checker, config.AdminTools, config.AppTools, config.LocalizeMessage)
+	runtime.checkPointStore = config.CheckPointStore
+	return runtime
 }
 
 // NewRuntimeWithTools 创建只使用管理端工具集合的 Runtime。

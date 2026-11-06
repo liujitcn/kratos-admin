@@ -54,3 +54,6 @@ import KratosMyPage from '@liujitcn/kratos-uni-app-system/components/KratosMyPag
 当前页面保留空的 `extensions` 插槽，宿主可以在本仓库的模块清单中装配业务内容；公共页面、顶部入口和导航逻辑仍由 System 维护。需要登录态、用户资料或导航时，通过 core 的公开 store 与导航 API 获取。
 
 模块装配与动态导航约定见 [workspace 文档](../../../README.md)。
+
+AI 共用 RPC 同步人工确认消息类型；应用端会话仅开放读取工具，写操作确认由管理端完成。
+AI 仅对最新且已结束的助手消息提供重新生成入口，历史消息仍可复制或删除。

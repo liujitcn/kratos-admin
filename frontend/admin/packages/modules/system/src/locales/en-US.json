@@ -43,6 +43,7 @@
   "system.ai.chat.message.attachment_limit": "You can upload up to {count} attachments",
   "system.ai.chat.message.attachment_remaining": "Only {count} more attachments can be selected; the list was truncated",
   "system.ai.chat.message.attachment_too_large": "Attachment '{name}' exceeds {size}MB and was skipped",
+  "system.ai.chat.message.attachment_total_too_large": "Total attachment size cannot exceed {size}MB. Send files in separate messages.",
   "system.ai.chat.message.attachment_unsupported": "Attachment '{name}' is not supported and was skipped",
   "system.ai.chat.message.attachment_upload_failed": "Failed to upload attachments",
   "system.ai.chat.message.attachments_uploaded": "Uploaded {count} attachments",
@@ -2063,5 +2064,14 @@
   "system.workflow.script.help": "Workflows support saved JavaScript scripts only. Input includes form, variables, workflow, node and idempotency_key. Validation returns allowed/message/variables; nodes return variables; approver scripts return user_ids; terminal hooks return variables/actions. Test runs do not advance workflows.",
   "system.workflow.job.error.script_scan_failed": "Workflow script recovery scan failed",
   "system.workflow.job.result.scripts_scanned": "Workflow script recovery scan finished: processed {Count} runs",
-  "system.workflow.script.stage.START": "Workflow startup"
+  "system.workflow.script.stage.START": "Workflow startup",
+  "system.ai.chat.approval.confirm": "Confirm execution",
+  "system.ai.chat.approval.description": "Review the operations and arguments below. Confirming executes every listed call.",
+  "system.ai.chat.approval.expired": "Approval expired. No pending operation was executed.",
+  "system.ai.chat.approval.expires_at": "Confirm by: {time}",
+  "system.ai.chat.approval.failed": "Failed to process approval",
+  "system.ai.chat.approval.pending": "Confirm, reject, or delete the pending operations first",
+  "system.ai.chat.approval.reject": "Reject",
+  "system.ai.chat.approval.rejected": "Rejected. No pending operation was executed.",
+  "system.ai.chat.approval.title": "Confirmation required"
 }

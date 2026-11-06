@@ -4,6 +4,21 @@ package base.v1;
 
 import "gnostic/openapi/v3/annotations.proto";
 import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
+
+// AI 工具人工确认信息。
+message AiToolApproval {
+  string id = 1 [(gnostic.openapi.v3.property) = {description: "一次性审批编号"}]; // 一次性审批编号
+  repeated AiApprovalTool calls = 2 [(gnostic.openapi.v3.property) = {description: "待确认的工具和冻结参数"}]; // 待确认的工具和冻结参数
+  google.protobuf.Timestamp expires_at = 3 [(gnostic.openapi.v3.property) = {description: "确认截止时间"}]; // 确认截止时间
+}
+
+// AI 待确认工具调用。
+message AiApprovalTool {
+  string name = 1 [(gnostic.openapi.v3.property) = {description: "工具名称"}]; // 工具名称
+  string title = 2 [(gnostic.openapi.v3.property) = {description: "操作说明"}]; // 操作说明
+  string arguments = 3 [(gnostic.openapi.v3.property) = {description: "待执行的冻结参数JSON"}]; // 待执行的冻结参数JSON
+}
 
 // Base AI 助手工具服务
 service AiToolService {

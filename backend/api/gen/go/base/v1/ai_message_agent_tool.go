@@ -17,6 +17,12 @@ import (
 func NewAiMessageServiceAgentTools(aiMessageServiceServer AiMessageServiceServer) ([]tool.InvokableTool, error) {
 	var ts []tool.InvokableTool
 	var err error
+	var decideAiToolApprovalTool tool.InvokableTool
+	decideAiToolApprovalTool, err = NewAiMessageServiceDecideAiToolApprovalAgentTool(aiMessageServiceServer)
+	if err != nil {
+		return nil, err
+	}
+	ts = append(ts, decideAiToolApprovalTool)
 	var updateAiMessageTool tool.InvokableTool
 	updateAiMessageTool, err = NewAiMessageServiceUpdateAiMessageAgentTool(aiMessageServiceServer)
 	if err != nil {
@@ -48,6 +54,20 @@ func NewAiMessageServiceAgentTools(aiMessageServiceServer AiMessageServiceServer
 	}
 	ts = append(ts, regenerateAiMessageTool)
 	return ts, nil
+}
+
+// NewAiMessageServiceDecideAiToolApprovalAgentTool 创建确认或拒绝当前用户的待执行工具调用的 Agent Tool。
+func NewAiMessageServiceDecideAiToolApprovalAgentTool(aiMessageServiceServer AiMessageServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*DecideAiToolApprovalRequest, *SendAiMessageResponse](
+		"base_v1_ai_message_service_decide_ai_tool_approval",
+		"确认或拒绝当前用户的待执行工具调用。",
+		func(ctx context.Context, req *DecideAiToolApprovalRequest) (*SendAiMessageResponse, error) {
+			if req == nil {
+				req = &DecideAiToolApprovalRequest{}
+			}
+			return aiMessageServiceServer.DecideAiToolApproval(ctx, req)
+		},
+	)
 }
 
 // NewAiMessageServiceUpdateAiMessageAgentTool 创建更新 AI 助手消息并重新生成输出的 Agent Tool。

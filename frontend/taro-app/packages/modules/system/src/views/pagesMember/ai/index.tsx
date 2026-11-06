@@ -626,9 +626,17 @@ export default function AiPage() {
     }
   }
 
+  const canRegenerateMessage = (item: ChatMessageItem) => {
+    const current = messagesRef.current[activeSessionIDRef.current] ?? []
+    return item.role === 'ai' && !item.localOnly && !isSessionSending(activeSessionIDRef.current)
+      && item.status !== AiMessageStatus.AI_MESSAGE_STATUS_GENERATING
+      && item.status !== AiMessageStatus.AI_MESSAGE_STATUS_WAITING_APPROVAL
+      && current[current.length - 1]?.messageID === item.messageID
+  }
+
   const regenerateMessage = async (item: ChatMessageItem) => {
     const sessionID = activeSessionIDRef.current
-    if (item.role !== 'ai' || item.localOnly || isSessionSending(sessionID)) return
+    if (!canRegenerateMessage(item)) return
     setSessionSending(sessionID, true)
     try {
       const response = await defAiMessageService.RegenerateAiMessage({ session_id: sessionID, message_id: item.messageID })
@@ -643,7 +651,7 @@ export default function AiPage() {
 
   const handleMessageAction = async (item: ChatMessageItem) => {
     try {
-      const itemList = item.role === 'ai'
+      const itemList = canRegenerateMessage(item)
         ? [t('system.ai.action.copy'), t('common.action.delete'), t('system.ai.action.regenerate')]
         : [t('system.ai.action.copy'), t('common.action.delete')]
       const { tapIndex } = await Taro.showActionSheet({ itemList })
@@ -889,6 +897,7 @@ function mapMessageItem(message: AiMessage, role: ChatRole): ChatMessageItem {
     flow: message.output_content?.flow ?? '',
     step: message.output_content?.step ?? '',
     blocks_json: message.output_content?.blocks_json ?? '',
+    approval: message.output_content?.approval,
   }
   const status = Number(message.status ?? AiMessageStatus.AI_MESSAGE_STATUS_SUCCESS)
   return {
@@ -949,7 +958,7 @@ function createThinkingMessage(options?: { sessionID?: string; messageID?: strin
       input_content: undefined,
     output_content: {
       kind: 'text', content: t('system.ai.thinking'), reply_source: '', model: '', fallback: false,
-      fallback_reason: '', flow: '', step: '', blocks_json: '',
+      fallback_reason: '', flow: '', step: '', blocks_json: '', approval: undefined,
     },
     attachments: [],
     created_at: { seconds: Math.floor(now / 1000), nanos: (now % 1000) * 1_000_000 },

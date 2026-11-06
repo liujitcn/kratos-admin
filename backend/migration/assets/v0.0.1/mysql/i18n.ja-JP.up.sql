@@ -96,6 +96,7 @@ INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VAL
 INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_dict_item.label', 10001, 'ja-JP', '生成中');
 INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_dict_item.label', 10002, 'ja-JP', '成功');
 INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_dict_item.label', 10003, 'ja-JP', '失敗しました');
+INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_dict_item.label', 10004, 'ja-JP', '承認待ち');
 INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_dict_item.label', 10101, 'ja-JP', '内蔵システム');
 INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_dict_item.label', 10102, 'ja-JP', '運営側');
 INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_dict_item.label', 10103, 'ja-JP', 'モバイル');

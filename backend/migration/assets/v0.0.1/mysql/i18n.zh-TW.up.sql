@@ -96,6 +96,7 @@ INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VAL
 INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_dict_item.label', 10001, 'zh-TW', '生成中');
 INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_dict_item.label', 10002, 'zh-TW', '成功');
 INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_dict_item.label', 10003, 'zh-TW', '失敗');
+INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_dict_item.label', 10004, 'zh-TW', '等待確認');
 INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_dict_item.label', 10101, 'zh-TW', '系統內建');
 INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_dict_item.label', 10102, 'zh-TW', '管理端');
 INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_dict_item.label', 10103, 'zh-TW', '移動端');

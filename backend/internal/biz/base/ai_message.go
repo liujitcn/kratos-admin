@@ -21,16 +21,21 @@ import (
 	"github.com/go-kratos/kratos/v3/log"
 	"github.com/liujitcn/gorm-kit/repository"
 	"google.golang.org/protobuf/types/known/timestamppb"
+	"gorm.io/gen"
 	"gorm.io/gorm"
 )
 
-const aiHistorySize = 12
+const (
+	aiHistorySize           = 12
+	aiMessagePersistTimeout = 30 * time.Second
+)
 
 // AiMessageCase 管理 AI 助手消息数据。
 type AiMessageCase struct {
 	*biz.BaseCase
 	tx                data.Transaction
 	aiMessageRepo     *data.AiMessageRepository
+	aiApprovalRepo    *data.AiToolApprovalRepository
 	aiSessionCase     *AiSessionCase
 	baseUserCase      *BaseUserCase
 	aiRuntime         *ai.Runtime
@@ -42,6 +47,7 @@ func NewAiMessageCase(
 	baseCase *biz.BaseCase,
 	tx data.Transaction,
 	aiMessageRepo *data.AiMessageRepository,
+	aiApprovalRepo *data.AiToolApprovalRepository,
 	aiSessionCase *AiSessionCase,
 	baseUserCase *BaseUserCase,
 	aiRuntime *ai.Runtime,
@@ -51,6 +57,7 @@ func NewAiMessageCase(
 		BaseCase:          baseCase,
 		tx:                tx,
 		aiMessageRepo:     aiMessageRepo,
+		aiApprovalRepo:    aiApprovalRepo,
 		aiSessionCase:     aiSessionCase,
 		baseUserCase:      baseUserCase,
 		aiRuntime:         aiRuntime,
@@ -59,10 +66,13 @@ func NewAiMessageCase(
 	return c
 }
 
-// ListAiMessage 查询指定会话的消息列表。
+// ListAiMessage 终止过期生成后查询指定会话的消息列表。
 func (c *AiMessageCase) ListAiMessage(ctx context.Context, req *basev1.ListAiMessageRequest) (*basev1.ListAiMessageResponse, error) {
 	session, err := c.aiSessionCase.FindCurrentUserSessionByRawID(ctx, req.GetSessionId())
 	if err != nil {
+		return nil, err
+	}
+	if err = c.expireAiGeneratingMessages(ctx, session); err != nil {
 		return nil, err
 	}
 
@@ -98,7 +108,7 @@ func (c *AiMessageCase) UpdateAiMessage(ctx context.Context, req *basev1.UpdateA
 	if err != nil {
 		return nil, err
 	}
-	if message.Status == int32(basev1.AiMessageStatus_AI_MESSAGE_STATUS_GENERATING) {
+	if message.Status == int32(basev1.AiMessageStatus_AI_MESSAGE_STATUS_GENERATING) || message.Status == int32(basev1.AiMessageStatus_AI_MESSAGE_STATUS_WAITING_APPROVAL) {
 		return nil, errorsx.StateConflict("助手回复仍在生成中", "ai_message", strconv.Itoa(int(message.Status)), strconv.Itoa(int(basev1.AiMessageStatus_AI_MESSAGE_STATUS_SUCCESS)))
 	}
 	return c.regenerateAiMessageWithContent(ctx, session, message, content)
@@ -106,15 +116,28 @@ func (c *AiMessageCase) UpdateAiMessage(ctx context.Context, req *basev1.UpdateA
 
 // DeleteAiMessage 删除当前用户当前会话下的单轮消息。
 func (c *AiMessageCase) DeleteAiMessage(ctx context.Context, req *basev1.DeleteAiMessageRequest) error {
-	message, _, err := c.findCurrentUserMessage(ctx, req.GetSessionId(), req.GetMessageId())
+	message, session, err := c.findCurrentUserMessage(ctx, req.GetSessionId(), req.GetMessageId())
 	if err != nil {
 		return err
 	}
-	query := c.aiMessageRepo.Query(ctx).AiMessage
-	opts := make([]repository.QueryOption, 0, 2)
-	opts = append(opts, repository.Where(query.TenantID.Eq(message.TenantID)))
-	opts = append(opts, repository.Where(query.ID.Eq(message.ID)))
-	return c.aiMessageRepo.Delete(ctx, opts...)
+	return c.tx.Transaction(ctx, func(txCtx context.Context) error {
+		var txErr error
+		if txErr = c.aiSessionCase.lockAiSession(txCtx, session); txErr != nil {
+			return txErr
+		}
+		query := c.aiMessageRepo.Query(txCtx).AiMessage
+		var result gen.ResultInfo
+		result, txErr = query.WithContext(txCtx).Where(query.TenantID.Eq(message.TenantID), query.ID.Eq(message.ID), query.Status.Neq(int32(basev1.AiMessageStatus_AI_MESSAGE_STATUS_GENERATING))).Delete()
+		if txErr != nil {
+			return txErr
+		}
+		if result.RowsAffected != 1 {
+			return errorsx.Conflict("正在执行的消息不能删除")
+		}
+		approval := c.aiApprovalRepo.Query(txCtx).AiToolApproval
+		_, txErr = approval.WithContext(txCtx).Where(approval.MessageID.Eq(message.ID), approval.Status.Eq(aiRunPending)).UpdateSimple(approval.Status.Value(aiRunRejected), approval.CheckpointData.Value([]byte{}), approval.UpdatedAt.Value(time.Now()))
+		return txErr
+	})
 }
 
 // SendAiMessage 发送用户消息并生成 AI 助手回复。
@@ -127,7 +150,7 @@ func (c *AiMessageCase) SendAiMessage(ctx context.Context, req *basev1.SendAiMes
 	startAt := time.Now()
 	input := ai.ParseInputContent(message.InputContent)
 	var reply *ai.Response
-	reply, err = c.generateAiReply(ctx, session, userName, content, input.ProviderID, input.ProviderName, input.ModelName, req.GetAction(), attachments, aiAttachments, history, req.GetKnowledgeBaseIds(), nil)
+	reply, err = c.generateAiReply(ctx, session, message.ID, userName, content, input.ProviderID, input.ProviderName, input.ModelName, req.GetAction(), attachments, aiAttachments, history, req.GetKnowledgeBaseIds(), nil)
 	finishAt := time.Now()
 	durationMs := durationMilliseconds(startAt, finishAt)
 	firstTokenMs := durationMs
@@ -167,7 +190,7 @@ func (c *AiMessageCase) StreamAiMessage(ctx context.Context, req *basev1.SendAiM
 	startAt := time.Now()
 	input := ai.ParseInputContent(message.InputContent)
 	var firstTokenMs int32
-	reply, runErr := c.generateAiReply(ctx, session, userName, content, input.ProviderID, input.ProviderName, input.ModelName, req.GetAction(), attachments, aiAttachments, history, req.GetKnowledgeBaseIds(), func(delta string) {
+	reply, runErr := c.generateAiReply(ctx, session, message.ID, userName, content, input.ProviderID, input.ProviderName, input.ModelName, req.GetAction(), attachments, aiAttachments, history, req.GetKnowledgeBaseIds(), func(delta string) {
 		if delta == "" {
 			return
 		}
@@ -206,7 +229,11 @@ func (c *AiMessageCase) StreamAiMessage(ctx context.Context, req *basev1.SendAiM
 		return nil
 	}
 
-	emitErr := emitter.EmitAiStream(dto.AiStreamEventFinish, dto.AiStreamPayload{
+	event := dto.AiStreamEventFinish
+	if message.Status == int32(basev1.AiMessageStatus_AI_MESSAGE_STATUS_WAITING_APPROVAL) {
+		event = dto.AiStreamEventApprovalRequired
+	}
+	emitErr := emitter.EmitAiStream(event, dto.AiStreamPayload{
 		SessionID: req.GetSessionId(),
 		MessageID: messageID,
 		Messages:  []*basev1.AiMessage{c.ToDTO(message)},
@@ -236,7 +263,7 @@ func (c *AiMessageCase) RegenerateAiMessage(ctx context.Context, req *basev1.Reg
 	if err != nil {
 		return nil, err
 	}
-	if message.Status == int32(basev1.AiMessageStatus_AI_MESSAGE_STATUS_GENERATING) {
+	if message.Status == int32(basev1.AiMessageStatus_AI_MESSAGE_STATUS_GENERATING) || message.Status == int32(basev1.AiMessageStatus_AI_MESSAGE_STATUS_WAITING_APPROVAL) {
 		return nil, errorsx.StateConflict("助手回复仍在生成中", "ai_message", strconv.Itoa(int(message.Status)), strconv.Itoa(int(basev1.AiMessageStatus_AI_MESSAGE_STATUS_SUCCESS)))
 	}
 	return c.regenerateAiMessage(ctx, session, message)
@@ -251,10 +278,13 @@ func (c *AiMessageCase) ToDTO(model *models.AiMessage) *basev1.AiMessage {
 	return toAiMessageDTO(model)
 }
 
-// prepareNewAiMessage 校验请求并创建生成中的消息记录。
+// prepareNewAiMessage 清理过期生成，校验请求并创建新一轮消息记录。
 func (c *AiMessageCase) prepareNewAiMessage(ctx context.Context, req *basev1.SendAiMessageRequest) (*models.AiSession, *models.AiMessage, string, []*basev1.AiAttachment, []ai.Attachment, []ai.Message, string, error) {
 	session, err := c.aiSessionCase.FindCurrentUserSessionByRawID(ctx, req.GetSessionId())
 	if err != nil {
+		return nil, nil, "", nil, nil, nil, "", err
+	}
+	if err = c.expireAiGeneratingMessages(ctx, session); err != nil {
 		return nil, nil, "", nil, nil, nil, "", err
 	}
 
@@ -317,8 +347,19 @@ func (c *AiMessageCase) prepareNewAiMessage(ctx context.Context, req *basev1.Sen
 		UpdatedAt:     now,
 	}
 	err = c.tx.Transaction(ctx, func(txCtx context.Context) error {
-		if createErr := c.aiMessageRepo.Create(txCtx, message); createErr != nil {
-			return createErr
+		var txErr error
+		if txErr = c.aiSessionCase.lockAiSession(txCtx, session); txErr != nil {
+			return txErr
+		}
+		if txErr = c.ensureAiSessionIdle(txCtx, session.TenantID, session.ID); txErr != nil {
+			return txErr
+		}
+		// 与数据库 datetime(3) 精度一致，更新时间同时用于阻止旧请求回填。
+		now = time.Now().Truncate(time.Millisecond)
+		message.CreatedAt = now
+		message.UpdatedAt = now
+		if txErr = c.aiMessageRepo.Create(txCtx, message); txErr != nil {
+			return txErr
 		}
 		defaultSummary := c.aiRuntime.LocalizeMessage(ctx, "base.ai.session.default_summary", nil, "New conversation")
 		attachmentSummary := c.aiRuntime.LocalizeMessage(ctx, "base.ai.session.attachment_summary", map[string]any{"Count": len(attachments)}, fmt.Sprintf("%d attachment(s)", len(attachments)))
@@ -329,6 +370,19 @@ func (c *AiMessageCase) prepareNewAiMessage(ctx context.Context, req *basev1.Sen
 		return nil, nil, "", nil, nil, nil, "", err
 	}
 	return session, message, content, attachments, aiAttachments, history, userName, nil
+}
+
+// ensureAiSessionIdle 确认会话没有正在生成或等待确认的消息，调用方须持有会话锁。
+func (c *AiMessageCase) ensureAiSessionIdle(ctx context.Context, tenantID int64, sessionID int64) error {
+	query := c.aiMessageRepo.Query(ctx).AiMessage
+	active, err := query.WithContext(ctx).Where(query.TenantID.Eq(tenantID), query.SessionID.Eq(sessionID), query.Status.In(int32(basev1.AiMessageStatus_AI_MESSAGE_STATUS_GENERATING), int32(basev1.AiMessageStatus_AI_MESSAGE_STATUS_WAITING_APPROVAL))).Count()
+	if err != nil {
+		return err
+	}
+	if active > 0 {
+		return errorsx.Conflict("请先等待当前回复完成或处理待确认操作")
+	}
+	return nil
 }
 
 // buildHistory 构造问答历史上下文。
@@ -378,12 +432,12 @@ func (c *AiMessageCase) regenerateAiMessageWithContent(ctx context.Context, sess
 
 	now := time.Now()
 	input.Content = ai.BuildUserContent(content, attachments, c.localizedAttachmentPrompt(ctx))
-	if err = c.markAiMessageGenerating(ctx, message, input, now); err != nil {
+	if err = c.markAiMessageGenerating(ctx, session, message, input, now); err != nil {
 		return nil, err
 	}
 	startAt := time.Now()
 	var reply *ai.Response
-	reply, err = c.generateAiReply(ctx, session, userName, content, input.ProviderID, input.ProviderName, input.ModelName, nil, attachments, aiAttachments, history, input.KnowledgeBaseIDs, nil)
+	reply, err = c.generateAiReply(ctx, session, message.ID, userName, content, input.ProviderID, input.ProviderName, input.ModelName, nil, attachments, aiAttachments, history, input.KnowledgeBaseIDs, nil)
 	finishAt := time.Now()
 	durationMs := durationMilliseconds(startAt, finishAt)
 	firstTokenMs := durationMs
@@ -473,6 +527,7 @@ func (c *AiMessageCase) buildHistoryBeforeMessage(ctx context.Context, tenantID 
 func (c *AiMessageCase) generateAiReply(
 	ctx context.Context,
 	session *models.AiSession,
+	messageID int64,
 	userName string,
 	content string,
 	providerID int64,
@@ -518,18 +573,18 @@ func (c *AiMessageCase) generateAiReply(
 		}
 		var response *ai.Response
 		if onDelta != nil {
-			response, err = c.aiRuntime.RunStream(ctx, input, onDelta)
+			response, err = c.runAiRuntime(ctx, session, messageID, input, onDelta)
 			if err == nil {
 				return response, nil
 			}
 			return c.buildAiFallbackResponse(ctx, content, attachments, err, providerName, modelName), err
 		}
-		response, err = c.aiRuntime.Run(ctx, input)
+		response, err = c.runAiRuntime(ctx, session, messageID, input, nil)
 		if err == nil {
 			return response, nil
 		}
 		log.Error(fmt.Sprintf("AI reply generation failed: %v", err))
-		return c.buildAiFallbackResponse(ctx, content, attachments, err, providerName, modelName), nil
+		return c.buildAiFallbackResponse(ctx, content, attachments, err, providerName, modelName), err
 	}
 	err = errorsx.Internal("AI助手运行时未初始化")
 	return c.buildAiFallbackResponse(ctx, content, attachments, err, providerName, modelName), err
@@ -592,7 +647,7 @@ func (c *AiMessageCase) buildAiFallbackResponse(
 	}
 }
 
-// finishAiMessage 回填当前轮次输出、工具、token 与耗时。
+// finishAiMessage 在客户端断开后按本轮生成版本回填结果，拒绝过期请求覆盖新状态。
 func (c *AiMessageCase) finishAiMessage(
 	ctx context.Context,
 	session *models.AiSession,
@@ -603,6 +658,13 @@ func (c *AiMessageCase) finishAiMessage(
 	durationMs int32,
 	status int32,
 ) error {
+	var cancel context.CancelFunc
+	ctx, cancel = context.WithTimeout(context.WithoutCancel(ctx), aiMessagePersistTimeout)
+	defer cancel()
+	now = now.Truncate(time.Millisecond)
+	if reply != nil && reply.Approval != nil {
+		status = int32(basev1.AiMessageStatus_AI_MESSAGE_STATUS_WAITING_APPROVAL)
+	}
 	injectAiActionState(reply, message.ID)
 	outputContent := ai.MarshalReplyContent(reply)
 	tools := ai.MarshalTools(nil)
@@ -612,10 +674,15 @@ func (c *AiMessageCase) finishAiMessage(
 		token = ai.MarshalTokenUsage(reply.Token)
 	}
 	err := c.tx.Transaction(ctx, func(txCtx context.Context) error {
+		var updateErr error
+		if updateErr = c.aiSessionCase.lockAiSession(txCtx, session); updateErr != nil {
+			return updateErr
+		}
 		query := c.aiMessageRepo.Query(txCtx).AiMessage
-		_, updateErr := query.WithContext(txCtx).
-			Where(query.TenantID.Eq(message.TenantID), query.ID.Eq(message.ID)).
-			UpdateSimple(
+		var result gen.ResultInfo
+		result, updateErr = query.WithContext(txCtx).
+			Where(query.TenantID.Eq(message.TenantID), query.ID.Eq(message.ID), query.Status.Eq(int32(basev1.AiMessageStatus_AI_MESSAGE_STATUS_GENERATING)), query.UpdatedAt.Eq(message.UpdatedAt)).
+			UpdateColumnSimple(
 				query.OutputContent.Value(outputContent),
 				query.Tools.Value(tools),
 				query.Token.Value(token),
@@ -626,6 +693,9 @@ func (c *AiMessageCase) finishAiMessage(
 			)
 		if updateErr != nil {
 			return updateErr
+		}
+		if result.RowsAffected != 1 {
+			return errorsx.Conflict("消息状态已变化，请刷新后重试")
 		}
 		return c.aiSessionCase.RefreshSessionUpdatedAt(txCtx, session, now)
 	})
@@ -697,22 +767,43 @@ func (c *AiMessageCase) findLatestAiMessage(ctx context.Context, tenantID int64,
 	return message, nil
 }
 
-// markAiMessageGenerating 标记消息进入生成中。
-func (c *AiMessageCase) markAiMessageGenerating(ctx context.Context, message *models.AiMessage, input ai.InputContentPayload, now time.Time) error {
+// markAiMessageGenerating 在会话锁内领取最新消息的新一轮生成版本。
+func (c *AiMessageCase) markAiMessageGenerating(ctx context.Context, session *models.AiSession, message *models.AiMessage, input ai.InputContentPayload, now time.Time) error {
+	now = now.Truncate(time.Millisecond)
 	inputContent := ai.MarshalInputContentPayload(input)
-	query := c.aiMessageRepo.Query(ctx).AiMessage
-	_, err := query.WithContext(ctx).
-		Where(query.TenantID.Eq(message.TenantID), query.ID.Eq(message.ID)).
-		UpdateSimple(
-			query.InputContent.Value(inputContent),
-			query.OutputContent.Value(ai.MarshalEmptyOutputContent()),
-			query.Tools.Value("[]"),
-			query.Token.Value(ai.MarshalTokenUsage(ai.TokenUsage{})),
-			query.FirstTokenMs.Value(0),
-			query.DurationMs.Value(0),
-			query.Status.Value(int32(basev1.AiMessageStatus_AI_MESSAGE_STATUS_GENERATING)),
-			query.UpdatedAt.Value(now),
-		)
+	err := c.tx.Transaction(ctx, func(txCtx context.Context) error {
+		var txErr error
+		if txErr = c.aiSessionCase.lockAiSession(txCtx, session); txErr != nil {
+			return txErr
+		}
+		if txErr = c.ensureLastAiMessage(txCtx, session.TenantID, session.ID, message.ID); txErr != nil {
+			return txErr
+		}
+		if txErr = c.ensureAiSessionIdle(txCtx, session.TenantID, session.ID); txErr != nil {
+			return txErr
+		}
+		query := c.aiMessageRepo.Query(txCtx).AiMessage
+		var result gen.ResultInfo
+		result, txErr = query.WithContext(txCtx).
+			Where(query.TenantID.Eq(message.TenantID), query.ID.Eq(message.ID), query.Status.Eq(message.Status)).
+			UpdateColumnSimple(
+				query.InputContent.Value(inputContent),
+				query.OutputContent.Value(ai.MarshalEmptyOutputContent()),
+				query.Tools.Value("[]"),
+				query.Token.Value(ai.MarshalTokenUsage(ai.TokenUsage{})),
+				query.FirstTokenMs.Value(0),
+				query.DurationMs.Value(0),
+				query.Status.Value(int32(basev1.AiMessageStatus_AI_MESSAGE_STATUS_GENERATING)),
+				query.UpdatedAt.Value(now),
+			)
+		if txErr != nil {
+			return txErr
+		}
+		if result.RowsAffected != 1 {
+			return errorsx.Conflict("消息状态已变化，请刷新后重试")
+		}
+		return nil
+	})
 	if err != nil {
 		return err
 	}
@@ -732,10 +823,13 @@ func (c *AiMessageCase) localizedAttachmentPrompt(ctx context.Context) string {
 	return c.aiRuntime.LocalizeMessage(ctx, "base.ai.message.attachment_prompt", nil, "Please analyze the attached content.")
 }
 
-// findCurrentUserMessage 查询当前用户当前会话下的消息。
+// findCurrentUserMessage 终止过期生成后查询当前用户当前会话下的消息。
 func (c *AiMessageCase) findCurrentUserMessage(ctx context.Context, rawSessionID string, rawMessageID string) (*models.AiMessage, *models.AiSession, error) {
 	session, err := c.aiSessionCase.FindCurrentUserSessionByRawID(ctx, rawSessionID)
 	if err != nil {
+		return nil, nil, err
+	}
+	if err = c.expireAiGeneratingMessages(ctx, session); err != nil {
 		return nil, nil, err
 	}
 	var messageID int64
@@ -943,7 +1037,7 @@ func toAiInputContent(value ai.InputContentPayload) *basev1.AiInputContent {
 
 // toAiOutputContent 转换输出内容 JSON 为接口对象。
 func toAiOutputContent(value ai.OutputContentPayload) *basev1.AiOutputContent {
-	return &basev1.AiOutputContent{
+	output := &basev1.AiOutputContent{
 		Kind:           value.Kind,
 		Content:        value.Content,
 		ReplySource:    value.ReplySource,
@@ -954,6 +1048,13 @@ func toAiOutputContent(value ai.OutputContentPayload) *basev1.AiOutputContent {
 		Step:           value.Step,
 		BlocksJson:     value.BlocksJSON,
 	}
+	if value.Approval != nil {
+		output.Approval = &basev1.AiToolApproval{Id: value.Approval.ID, ExpiresAt: timestamppb.New(value.Approval.ExpiresAt)}
+		for _, call := range value.Approval.Calls {
+			output.Approval.Calls = append(output.Approval.Calls, &basev1.AiApprovalTool{Name: call.Name, Title: call.Title, Arguments: call.Arguments})
+		}
+	}
+	return output
 }
 
 // toAiToken 转换 token 统计为接口对象。

@@ -28,6 +28,11 @@ func (*AiSession) TableComment() string {
 }
 
 // TableComment 返回表注释。
+func (*AiToolApproval) TableComment() string {
+	return "AI工具人工确认"
+}
+
+// TableComment 返回表注释。
 func (*BaseAPI) TableComment() string {
 	return "API信息"
 }

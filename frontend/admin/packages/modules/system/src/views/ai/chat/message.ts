@@ -104,7 +104,8 @@ function normalizeOutputContent(content?: AiOutputContent): AiOutputContent {
     fallback_reason: String(content?.fallback_reason ?? ""),
     flow: String(content?.flow ?? ""),
     step: String(content?.step ?? ""),
-    blocks_json: String(content?.blocks_json ?? "")
+    blocks_json: String(content?.blocks_json ?? ""),
+    approval: content?.approval
   };
 }
 
@@ -257,7 +258,8 @@ export function createThinkingMessage(options?: { sessionID?: string; messageID?
         fallback_reason: "",
         flow: "",
         step: "",
-        blocks_json: ""
+        blocks_json: "",
+        approval: undefined
       },
       attachments: [],
       created_at: {

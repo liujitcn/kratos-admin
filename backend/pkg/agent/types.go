@@ -1,6 +1,53 @@
 package agent
 
-import "context"
+import (
+	"context"
+	"time"
+
+	"github.com/cloudwego/eino/compose"
+	"github.com/liujitcn/kratos-admin/backend/internal/biz/agent/tool"
+)
+
+// CheckPointStore 保存 Eino 运行快照。
+type CheckPointStore = compose.CheckPointStore
+
+// ApprovalInfo 表示待确认工具与实际执行参数。
+type ApprovalInfo = tool.ApprovalInfo
+
+// ApprovalCall 表示待恢复的工具中断点。
+type ApprovalCall = tool.ApprovalCall
+
+// Approval 是可持久化、可由当前用户确认的工具调用清单。
+type Approval struct {
+	// ID 是一次性确认编号。
+	ID string `json:"id"`
+	// Calls 是本次需要明确确认的全部调用。
+	Calls []ApprovalInfo `json:"calls"`
+	// ExpiresAt 是确认截止时间。
+	ExpiresAt time.Time `json:"expires_at"`
+}
+
+// RunState 保存恢复时必须沿用的模型和工具集合。
+type RunState struct {
+	// Terminal 是发起运行的终端。
+	Terminal string `json:"terminal"`
+	// ProviderID 是原始模型供应商。
+	ProviderID int64 `json:"provider_id"`
+	// ModelName 是原始模型名称。
+	ModelName string `json:"model_name"`
+	// ToolNames 是原始候选工具集合。
+	ToolNames []string `json:"tool_names"`
+	// ServerTools 记录原始服务端工具开关。
+	ServerTools bool `json:"server_tools"`
+}
+
+// PendingApproval 是仅供服务端持久化与恢复的中断信息。
+type PendingApproval struct {
+	// State 保存原始运行配置。
+	State RunState
+	// Calls 保存 Eino 中断地址与冻结参数。
+	Calls []ApprovalCall
+}
 
 const (
 	// RoleUser 表示用户消息角色。
@@ -51,6 +98,10 @@ type Attachment struct {
 // 该结构同时承载模型原始回复与本地降级回复。落库时会被序列化为包含正文和元信息的
 // JSON，返回前端时再拆回正文、来源、模型名称和降级原因。
 type Response struct {
+	// Approval 是向当前用户展示的人工确认清单。
+	Approval *Approval `json:"approval,omitempty"`
+	// Pending 保存 Eino 中断地址和恢复配置，不向客户端输出。
+	Pending *PendingApproval `json:"-"`
 	// Content 回复正文，面向前端展示。
 	Content string `json:"content"`
 	// Token 本次调用 token 消耗。
@@ -105,6 +156,8 @@ type ToolUsage struct {
 type ToolAccessChecker interface {
 	// ToolConfigs 返回当前终端允许暴露给 Agent 的工具配置。
 	ToolConfigs(ctx context.Context, terminal string, names []string) (map[string]ToolConfig, error)
+	// PrepareToolCall 在执行前重新授权并返回经过租户补全和校验的参数。
+	PrepareToolCall(ctx context.Context, terminal string, name string, arguments string) (string, bool, error)
 }
 
 // ToolConfig 表示 Agent 工具运行时配置。
@@ -120,6 +173,8 @@ type ToolConfig struct {
 // 业务层在进入 Runtime 前完成鉴权、会话归属、附件读取、历史消息查询等工作；
 // Runtime 只负责将这些输入组装成 Eino 消息和当前轮用户消息。
 type RuntimeInput struct {
+	// CheckPointID 由业务层分配，不接受模型或客户端指定。
+	CheckPointID string
 	// Terminal 终端标识，例如 admin 或 app，会注入到系统提示词。
 	Terminal string
 	// UserName 当前用户展示名称，会注入到系统提示词供模型理解上下文。

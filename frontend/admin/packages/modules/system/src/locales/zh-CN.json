@@ -43,6 +43,7 @@
   "system.ai.chat.message.attachment_limit": "最多上传 {count} 个附件",
   "system.ai.chat.message.attachment_remaining": "最多还能选择 {count} 个附件，已自动截取",
   "system.ai.chat.message.attachment_too_large": "附件「{name}」超过 {size}MB，已跳过",
+  "system.ai.chat.message.attachment_total_too_large": "附件总大小不能超过 {size}MB，请分批发送",
   "system.ai.chat.message.attachment_unsupported": "附件「{name}」暂不支持，已跳过",
   "system.ai.chat.message.attachment_upload_failed": "附件上传失败",
   "system.ai.chat.message.attachments_uploaded": "已上传 {count} 个附件",
@@ -2063,5 +2064,14 @@
   "system.workflow.script.help": "工作流仅支持 JavaScript 已保存脚本。输入包含 form、variables、workflow、node、idempotency_key；提交校验输出 allowed/message/variables，节点输出 variables，审批人输出 user_ids，终态输出 variables/actions。试运行不会推进流程。",
   "system.workflow.job.error.script_scan_failed": "工作流脚本恢复扫描失败",
   "system.workflow.job.result.scripts_scanned": "工作流脚本恢复扫描完成：处理 {Count} 条",
-  "system.workflow.script.stage.START": "流程启动"
+  "system.workflow.script.stage.START": "流程启动",
+  "system.ai.chat.approval.confirm": "确认执行",
+  "system.ai.chat.approval.description": "请核对以下操作和参数。确认后将执行全部列出的调用。",
+  "system.ai.chat.approval.expired": "确认已过期，待确认的操作未执行。",
+  "system.ai.chat.approval.expires_at": "确认截止时间：{time}",
+  "system.ai.chat.approval.failed": "处理审批失败",
+  "system.ai.chat.approval.pending": "请先确认、拒绝或删除待处理操作",
+  "system.ai.chat.approval.reject": "拒绝执行",
+  "system.ai.chat.approval.rejected": "已拒绝，待确认的操作未执行。",
+  "system.ai.chat.approval.title": "执行前需要确认"
 }

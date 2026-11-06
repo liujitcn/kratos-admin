@@ -8383,6 +8383,36 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/base.v1.DeleteAiMessageResponse'
+    /api/v1/base/ai/session/{session_id}/message/{message_id}/approval:
+        post:
+            tags:
+                - AiMessageService
+            description: Confirm or reject the current user's pending tool calls.
+            operationId: AiMessageService_DecideAiToolApproval
+            parameters:
+                - name: session_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: message_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/base.v1.DecideAiToolApprovalRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.SendAiMessageResponse'
     /api/v1/base/ai/session/{session_id}/message/{message_id}/regeneration:
         post:
             tags:
@@ -9417,6 +9447,19 @@ components:
                     type: string
                     description: flow status version
             description: AI assistant action
+        base.v1.AiApprovalTool:
+            type: object
+            properties:
+                name:
+                    type: string
+                    description: tool name
+                title:
+                    type: string
+                    description: Operation description
+                arguments:
+                    type: string
+                    description: Frozen arguments JSON to execute
+            description: AI tool call pending approval.
         base.v1.AiAttachment:
             type: object
             properties:
@@ -9488,6 +9531,7 @@ components:
                         - AI_MESSAGE_STATUS_GENERATING
                         - AI_MESSAGE_STATUS_SUCCESS
                         - AI_MESSAGE_STATUS_FAILED
+                        - AI_MESSAGE_STATUS_WAITING_APPROVAL
                     type: string
                     description: "Message generation status: enum [AiMessageStatus]"
                     format: enum
@@ -9537,6 +9581,8 @@ components:
                 blocks_json:
                     type: string
                     description: structured mobile content JSON
+                approval:
+                    $ref: '#/components/schemas/base.v1.AiToolApproval'
             description: AI assistant output content
         base.v1.AiProviderModel:
             type: object
@@ -9673,6 +9719,22 @@ components:
                     description: total token count
                     format: int32
             description: AI assistant token statistics
+        base.v1.AiToolApproval:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: one-time approval number
+                calls:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/base.v1.AiApprovalTool'
+                    description: Pending tools and frozen arguments
+                expires_at:
+                    type: string
+                    description: Confirm cutoff time
+                    format: date-time
+            description: AI tool approval information.
         base.v1.AiToolCall:
             type: object
             properties:
@@ -10073,6 +10135,22 @@ components:
                     description: Password validity period in days; zero means the password does not expire
                     format: int32
             description: Password policy effective for the current user.
+        base.v1.DecideAiToolApprovalRequest:
+            type: object
+            properties:
+                session_id:
+                    type: string
+                    description: session ID
+                message_id:
+                    type: string
+                    description: message ID
+                approval_id:
+                    type: string
+                    description: one-time approval number
+                approved:
+                    type: boolean
+                    description: Whether execution is approved
+            description: AI tool approval request; the server freezes the tools and arguments.
         base.v1.DeleteAiMessageResponse:
             type: object
             properties: {}
@@ -11558,6 +11636,7 @@ components:
                         - AI_MESSAGE_STATUS_GENERATING
                         - AI_MESSAGE_STATUS_SUCCESS
                         - AI_MESSAGE_STATUS_FAILED
+                        - AI_MESSAGE_STATUS_WAITING_APPROVAL
                     type: string
                     description: "Message generation status: enum [AiMessageStatus]"
                     format: enum

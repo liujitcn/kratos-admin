@@ -10,6 +10,8 @@ const (
 	AiStreamEventDelta AiStreamEvent = "delta"
 	// AiStreamEventFinish 表示助手回复完成。
 	AiStreamEventFinish AiStreamEvent = "finish"
+	// AiStreamEventApprovalRequired 表示工具等待当前用户确认。
+	AiStreamEventApprovalRequired AiStreamEvent = "approval_required"
 	// AiStreamEventError 表示助手回复异常。
 	AiStreamEventError AiStreamEvent = "error"
 )

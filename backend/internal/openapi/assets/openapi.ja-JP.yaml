@@ -8383,6 +8383,36 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/base.v1.DeleteAiMessageResponse'
+    /api/v1/base/ai/session/{session_id}/message/{message_id}/approval:
+        post:
+            tags:
+                - AiMessageService
+            description: 确认または拒绝現在のユーザーの待実行ツール呼び出し。
+            operationId: AiMessageService_DecideAiToolApproval
+            parameters:
+                - name: session_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: message_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/base.v1.DecideAiToolApprovalRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.SendAiMessageResponse'
     /api/v1/base/ai/session/{session_id}/message/{message_id}/regeneration:
         post:
             tags:
@@ -9417,6 +9447,19 @@ components:
                     type: string
                     description: 流程ステータスバージョン
             description: AI アシスタント动作
+        base.v1.AiApprovalTool:
+            type: object
+            properties:
+                name:
+                    type: string
+                    description: ツール名
+                title:
+                    type: string
+                    description: 操作説明
+                arguments:
+                    type: string
+                    description: 待実行の冻结パラメータJSON
+            description: AI 待确认ツール呼び出し。
         base.v1.AiAttachment:
             type: object
             properties:
@@ -9488,6 +9531,7 @@ components:
                         - AI_MESSAGE_STATUS_GENERATING
                         - AI_MESSAGE_STATUS_SUCCESS
                         - AI_MESSAGE_STATUS_FAILED
+                        - AI_MESSAGE_STATUS_WAITING_APPROVAL
                     type: string
                     description: "メッセージ生成ステータス: enum [AiMessageStatus]"
                     format: enum
@@ -9537,6 +9581,8 @@ components:
                 blocks_json:
                     type: string
                     description: モバイル構造化内容JSON
+                approval:
+                    $ref: '#/components/schemas/base.v1.AiToolApproval'
             description: AI アシスタント出力内容
         base.v1.AiProviderModel:
             type: object
@@ -9673,6 +9719,22 @@ components:
                     description: 合計 トークン 数
                     format: int32
             description: AI アシスタント トークン 統計
+        base.v1.AiToolApproval:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: ワンタイム承認编号
+                calls:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/base.v1.AiApprovalTool'
+                    description: 待确认の工具和冻结パラメータ
+                expires_at:
+                    type: string
+                    description: 确认締切時刻
+                    format: date-time
+            description: AI 工具人工确认情報。
         base.v1.AiToolCall:
             type: object
             properties:
@@ -10073,6 +10135,22 @@ components:
                     description: パスワード有効期間日数，零表示长期有效
                     format: int32
             description: 現在のユーザーに適用されるパスワードポリシー。
+        base.v1.DecideAiToolApprovalRequest:
+            type: object
+            properties:
+                session_id:
+                    type: string
+                    description: セッション ID
+                message_id:
+                    type: string
+                    description: メッセージ ID
+                approval_id:
+                    type: string
+                    description: ワンタイム承認编号
+                approved:
+                    type: boolean
+                    description: 実行を承認するか
+            description: AI 工具人工确认リクエスト，実際の工具和パラメータ由サービス端冻结。
         base.v1.DeleteAiMessageResponse:
             type: object
             properties: {}
@@ -11558,6 +11636,7 @@ components:
                         - AI_MESSAGE_STATUS_GENERATING
                         - AI_MESSAGE_STATUS_SUCCESS
                         - AI_MESSAGE_STATUS_FAILED
+                        - AI_MESSAGE_STATUS_WAITING_APPROVAL
                     type: string
                     description: "メッセージ生成ステータス: enum [AiMessageStatus]"
                     format: enum

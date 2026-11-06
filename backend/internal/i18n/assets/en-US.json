@@ -5033,6 +5033,9 @@
   "system.admin.runtime_config.invalid_json": {
     "other": "The system configuration is invalid"
   },
+  "system.ai.chat.error.context_too_large": {
+    "other": "Conversation input including encoded attachments exceeds 28 MiB. Reduce attachments or start a new conversation."
+  },
   "system.ai.chat.error.fallback_reply.attachments": {
     "other": "Your question was received with {{.Count}} attachment(s), but the AI assistant is currently unavailable and cannot generate a complete reply. Please try again later."
   },
@@ -5781,5 +5784,101 @@
   "legacy.error.347070fc997f7568": {"other": "Failed to validate the project approval association"},
   "legacy.error.359210281db55f21": {"other": "The new project approval business association is invalid"},
   "legacy.error.d20fc8bcc8d8f5c7": {"other": "The new project approval form is invalid"},
-  "legacy.error.0224ce0d4c9763eb": {"other": "The tenant for the new project approval is invalid"}
+  "legacy.error.0224ce0d4c9763eb": {"other": "The tenant for the new project approval is invalid"},
+  "legacy.error.9cafc0f70e08d227": {
+    "other": "Confirm business writes in the admin console"
+  },
+  "legacy.error.4d48785e7ebd39fb": {
+    "other": "Approval expired or was already processed"
+  },
+  "legacy.error.e46eaf899f18a393": {
+    "other": "Approval runtime configuration is invalid"
+  },
+  "legacy.error.47a58292ae95d795": {
+    "other": "Approval tool arguments are invalid"
+  },
+  "legacy.error.d23b49a800ec82fd": {
+    "other": "Approval runtime state is invalid"
+  },
+  "legacy.error.0e01a87b0d86090d": {
+    "other": "AI run state changed; approval cannot be saved"
+  },
+  "legacy.error.fc4d92dd2ebc6782": {
+    "other": "A running message cannot be deleted"
+  },
+  "legacy.error.ef4d3b3aab09a01d": {
+    "other": "Wait for the current reply or process pending operations first"
+  },
+  "legacy.error.f11d68a2a74f06f9": {
+    "other": "Tool is unavailable for this client"
+  },
+  "legacy.error.446c05bbcf853ae6": {
+    "other": "Agent tool is disabled"
+  },
+  "legacy.error.799b4c56d12deb00": {
+    "other": "Agent tool is disabled or execution is prohibited"
+  },
+  "legacy.error.2e9e8485207551ae": {
+    "other": "Tool API contract was not found"
+  },
+  "legacy.error.a934ff7ee33d8ab2": {
+    "other": "Tool API contract is invalid"
+  },
+  "legacy.error.844039c078368bf3": {
+    "other": "Tool request contract was not found"
+  },
+  "legacy.error.94c872f75369c921": {
+    "other": "Tool arguments are invalid"
+  },
+  "legacy.error.7037d44d26f2fe7d": {
+    "other": "Failed to process AI tool approval"
+  },
+  "openapi.ai.approval.0a50ca52d217eaa0": {
+    "other": "Confirm or reject the current user's pending tool calls."
+  },
+  "openapi.ai.approval.907638a466d26ec4": {
+    "other": "AI tool approval request; the server freezes the tools and arguments."
+  },
+  "openapi.ai.approval.79d325f8ec278ba6": {
+    "other": "Single-use approval ID"
+  },
+  "openapi.ai.approval.6cedfb9ab50004c5": {
+    "other": "Whether execution is approved"
+  },
+  "openapi.ai.approval.c7fb3cb9b170ea8d": {
+    "other": "Approval information for pending tools"
+  },
+  "openapi.ai.approval.bc522e692aed7078": {
+    "other": "AI tool approval information."
+  },
+  "openapi.ai.approval.aca86adff02160dc": {
+    "other": "Pending tools and frozen arguments"
+  },
+  "openapi.ai.approval.2a1e259212d00994": {
+    "other": "Approval deadline"
+  },
+  "openapi.ai.approval.c5953adda9d71bb8": {
+    "other": "AI tool call pending approval."
+  },
+  "openapi.ai.approval.25b37d5c985ea3be": {
+    "other": "Operation description"
+  },
+  "openapi.ai.approval.e1de7de24c6aa692": {
+    "other": "Frozen arguments JSON to execute"
+  },
+  "base.ai.approval.session_id.positive": {
+    "other": "The session number is invalid"
+  },
+  "base.ai.approval.message_id.positive": {
+    "other": "The message number is invalid"
+  },
+  "system.ai.chat.approval.expired": {
+    "other": "Approval expired. No pending operation was executed."
+  },
+  "system.ai.chat.approval.rejected": {
+    "other": "Rejected. No pending operation was executed."
+  },
+  "system.ai.chat.error.run_expired": {
+    "other": "Generation expired. This request will not resume automatically. Check the business result before retrying."
+  }
 }

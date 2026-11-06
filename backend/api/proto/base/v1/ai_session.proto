@@ -66,6 +66,8 @@ enum AiMessageStatus {
   AI_MESSAGE_STATUS_SUCCESS = 2;
   // 失败。
   AI_MESSAGE_STATUS_FAILED = 3;
+  // 等待用户确认工具调用。
+  AI_MESSAGE_STATUS_WAITING_APPROVAL = 4;
 }
 
 // AI 助手消息列表查询条件
@@ -204,6 +206,8 @@ message AiOutputContent {
   string step = 8 [(gnostic.openapi.v3.property) = {description: "流程步骤"}]; // 流程步骤
 
   string blocks_json = 9 [(gnostic.openapi.v3.property) = {description: "移动端结构化内容JSON"}]; // 移动端结构化内容JSON
+
+  AiToolApproval approval = 10 [(gnostic.openapi.v3.property) = {description: "待执行工具的人工确认信息"}]; // 待执行工具的人工确认信息
 }
 
 // AI 助手 Token 统计

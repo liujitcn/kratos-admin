@@ -25,6 +25,75 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// AI 工具人工确认请求，实际工具和参数由服务端冻结。
+type DecideAiToolApprovalRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	SessionId     string                 `protobuf:"bytes,1,opt,name=session_id,json=sessionId,proto3" json:"session_id,omitempty"`    // 会话ID
+	MessageId     string                 `protobuf:"bytes,2,opt,name=message_id,json=messageId,proto3" json:"message_id,omitempty"`    // 消息ID
+	ApprovalId    string                 `protobuf:"bytes,3,opt,name=approval_id,json=approvalId,proto3" json:"approval_id,omitempty"` // 一次性审批编号
+	Approved      bool                   `protobuf:"varint,4,opt,name=approved,proto3" json:"approved,omitempty"`                      // 是否确认执行
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DecideAiToolApprovalRequest) Reset() {
+	*x = DecideAiToolApprovalRequest{}
+	mi := &file_base_v1_ai_message_proto_msgTypes[0]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DecideAiToolApprovalRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DecideAiToolApprovalRequest) ProtoMessage() {}
+
+func (x *DecideAiToolApprovalRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_base_v1_ai_message_proto_msgTypes[0]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DecideAiToolApprovalRequest.ProtoReflect.Descriptor instead.
+func (*DecideAiToolApprovalRequest) Descriptor() ([]byte, []int) {
+	return file_base_v1_ai_message_proto_rawDescGZIP(), []int{0}
+}
+
+func (x *DecideAiToolApprovalRequest) GetSessionId() string {
+	if x != nil {
+		return x.SessionId
+	}
+	return ""
+}
+
+func (x *DecideAiToolApprovalRequest) GetMessageId() string {
+	if x != nil {
+		return x.MessageId
+	}
+	return ""
+}
+
+func (x *DecideAiToolApprovalRequest) GetApprovalId() string {
+	if x != nil {
+		return x.ApprovalId
+	}
+	return ""
+}
+
+func (x *DecideAiToolApprovalRequest) GetApproved() bool {
+	if x != nil {
+		return x.Approved
+	}
+	return false
+}
+
 // AI 助手消息更新请求
 type UpdateAiMessageRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -37,7 +106,7 @@ type UpdateAiMessageRequest struct {
 
 func (x *UpdateAiMessageRequest) Reset() {
 	*x = UpdateAiMessageRequest{}
-	mi := &file_base_v1_ai_message_proto_msgTypes[0]
+	mi := &file_base_v1_ai_message_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -49,7 +118,7 @@ func (x *UpdateAiMessageRequest) String() string {
 func (*UpdateAiMessageRequest) ProtoMessage() {}
 
 func (x *UpdateAiMessageRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_base_v1_ai_message_proto_msgTypes[0]
+	mi := &file_base_v1_ai_message_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -62,7 +131,7 @@ func (x *UpdateAiMessageRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateAiMessageRequest.ProtoReflect.Descriptor instead.
 func (*UpdateAiMessageRequest) Descriptor() ([]byte, []int) {
-	return file_base_v1_ai_message_proto_rawDescGZIP(), []int{0}
+	return file_base_v1_ai_message_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *UpdateAiMessageRequest) GetSessionId() string {
@@ -97,7 +166,7 @@ type SendAiMessageResponse struct {
 
 func (x *SendAiMessageResponse) Reset() {
 	*x = SendAiMessageResponse{}
-	mi := &file_base_v1_ai_message_proto_msgTypes[1]
+	mi := &file_base_v1_ai_message_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -109,7 +178,7 @@ func (x *SendAiMessageResponse) String() string {
 func (*SendAiMessageResponse) ProtoMessage() {}
 
 func (x *SendAiMessageResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_base_v1_ai_message_proto_msgTypes[1]
+	mi := &file_base_v1_ai_message_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -122,7 +191,7 @@ func (x *SendAiMessageResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SendAiMessageResponse.ProtoReflect.Descriptor instead.
 func (*SendAiMessageResponse) Descriptor() ([]byte, []int) {
-	return file_base_v1_ai_message_proto_rawDescGZIP(), []int{1}
+	return file_base_v1_ai_message_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *SendAiMessageResponse) GetMessages() []*AiMessage {
@@ -150,7 +219,7 @@ type DeleteAiMessageRequest struct {
 
 func (x *DeleteAiMessageRequest) Reset() {
 	*x = DeleteAiMessageRequest{}
-	mi := &file_base_v1_ai_message_proto_msgTypes[2]
+	mi := &file_base_v1_ai_message_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -162,7 +231,7 @@ func (x *DeleteAiMessageRequest) String() string {
 func (*DeleteAiMessageRequest) ProtoMessage() {}
 
 func (x *DeleteAiMessageRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_base_v1_ai_message_proto_msgTypes[2]
+	mi := &file_base_v1_ai_message_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -175,7 +244,7 @@ func (x *DeleteAiMessageRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteAiMessageRequest.ProtoReflect.Descriptor instead.
 func (*DeleteAiMessageRequest) Descriptor() ([]byte, []int) {
-	return file_base_v1_ai_message_proto_rawDescGZIP(), []int{2}
+	return file_base_v1_ai_message_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *DeleteAiMessageRequest) GetSessionId() string {
@@ -201,7 +270,7 @@ type DeleteAiMessageResponse struct {
 
 func (x *DeleteAiMessageResponse) Reset() {
 	*x = DeleteAiMessageResponse{}
-	mi := &file_base_v1_ai_message_proto_msgTypes[3]
+	mi := &file_base_v1_ai_message_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -213,7 +282,7 @@ func (x *DeleteAiMessageResponse) String() string {
 func (*DeleteAiMessageResponse) ProtoMessage() {}
 
 func (x *DeleteAiMessageResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_base_v1_ai_message_proto_msgTypes[3]
+	mi := &file_base_v1_ai_message_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -226,7 +295,7 @@ func (x *DeleteAiMessageResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteAiMessageResponse.ProtoReflect.Descriptor instead.
 func (*DeleteAiMessageResponse) Descriptor() ([]byte, []int) {
-	return file_base_v1_ai_message_proto_rawDescGZIP(), []int{3}
+	return file_base_v1_ai_message_proto_rawDescGZIP(), []int{4}
 }
 
 // AI 助手消息发送请求
@@ -245,7 +314,7 @@ type SendAiMessageRequest struct {
 
 func (x *SendAiMessageRequest) Reset() {
 	*x = SendAiMessageRequest{}
-	mi := &file_base_v1_ai_message_proto_msgTypes[4]
+	mi := &file_base_v1_ai_message_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -257,7 +326,7 @@ func (x *SendAiMessageRequest) String() string {
 func (*SendAiMessageRequest) ProtoMessage() {}
 
 func (x *SendAiMessageRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_base_v1_ai_message_proto_msgTypes[4]
+	mi := &file_base_v1_ai_message_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -270,7 +339,7 @@ func (x *SendAiMessageRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SendAiMessageRequest.ProtoReflect.Descriptor instead.
 func (*SendAiMessageRequest) Descriptor() ([]byte, []int) {
-	return file_base_v1_ai_message_proto_rawDescGZIP(), []int{4}
+	return file_base_v1_ai_message_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *SendAiMessageRequest) GetSessionId() string {
@@ -333,7 +402,7 @@ type RetryAiUserMessageRequest struct {
 
 func (x *RetryAiUserMessageRequest) Reset() {
 	*x = RetryAiUserMessageRequest{}
-	mi := &file_base_v1_ai_message_proto_msgTypes[5]
+	mi := &file_base_v1_ai_message_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -345,7 +414,7 @@ func (x *RetryAiUserMessageRequest) String() string {
 func (*RetryAiUserMessageRequest) ProtoMessage() {}
 
 func (x *RetryAiUserMessageRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_base_v1_ai_message_proto_msgTypes[5]
+	mi := &file_base_v1_ai_message_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -358,7 +427,7 @@ func (x *RetryAiUserMessageRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RetryAiUserMessageRequest.ProtoReflect.Descriptor instead.
 func (*RetryAiUserMessageRequest) Descriptor() ([]byte, []int) {
-	return file_base_v1_ai_message_proto_rawDescGZIP(), []int{5}
+	return file_base_v1_ai_message_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *RetryAiUserMessageRequest) GetSessionId() string {
@@ -386,7 +455,7 @@ type RegenerateAiMessageRequest struct {
 
 func (x *RegenerateAiMessageRequest) Reset() {
 	*x = RegenerateAiMessageRequest{}
-	mi := &file_base_v1_ai_message_proto_msgTypes[6]
+	mi := &file_base_v1_ai_message_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -398,7 +467,7 @@ func (x *RegenerateAiMessageRequest) String() string {
 func (*RegenerateAiMessageRequest) ProtoMessage() {}
 
 func (x *RegenerateAiMessageRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_base_v1_ai_message_proto_msgTypes[6]
+	mi := &file_base_v1_ai_message_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -411,7 +480,7 @@ func (x *RegenerateAiMessageRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RegenerateAiMessageRequest.ProtoReflect.Descriptor instead.
 func (*RegenerateAiMessageRequest) Descriptor() ([]byte, []int) {
-	return file_base_v1_ai_message_proto_rawDescGZIP(), []int{6}
+	return file_base_v1_ai_message_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *RegenerateAiMessageRequest) GetSessionId() string {
@@ -444,7 +513,7 @@ type AiAction struct {
 
 func (x *AiAction) Reset() {
 	*x = AiAction{}
-	mi := &file_base_v1_ai_message_proto_msgTypes[7]
+	mi := &file_base_v1_ai_message_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -456,7 +525,7 @@ func (x *AiAction) String() string {
 func (*AiAction) ProtoMessage() {}
 
 func (x *AiAction) ProtoReflect() protoreflect.Message {
-	mi := &file_base_v1_ai_message_proto_msgTypes[7]
+	mi := &file_base_v1_ai_message_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -469,7 +538,7 @@ func (x *AiAction) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AiAction.ProtoReflect.Descriptor instead.
 func (*AiAction) Descriptor() ([]byte, []int) {
-	return file_base_v1_ai_message_proto_rawDescGZIP(), []int{7}
+	return file_base_v1_ai_message_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *AiAction) GetFlow() string {
@@ -525,7 +594,17 @@ var File_base_v1_ai_message_proto protoreflect.FileDescriptor
 
 const file_base_v1_ai_message_proto_rawDesc = "" +
 	"\n" +
-	"\x18base/v1/ai_message.proto\x12\abase.v1\x1a\x18base/v1/ai_session.proto\x1a\x1bbuf/validate/validate.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\"\xdd\x03\n" +
+	"\x18base/v1/ai_message.proto\x12\abase.v1\x1a\x18base/v1/ai_session.proto\x1a\x1bbuf/validate/validate.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\"\xbd\x03\n" +
+	"\x1bDecideAiToolApprovalRequest\x12\x8f\x01\n" +
+	"\n" +
+	"session_id\x18\x01 \x01(\tBp\xbaG\v\x92\x02\b会话ID\xbaH_\xba\x01\\\n" +
+	"$base.ai.approval.session_id.positive\x12\x15会话编号不合法\x1a\x1dthis.matches('^[1-9][0-9]*$')R\tsessionId\x12\x8f\x01\n" +
+	"\n" +
+	"message_id\x18\x02 \x01(\tBp\xbaG\v\x92\x02\b消息ID\xbaH_\xba\x01\\\n" +
+	"$base.ai.approval.message_id.positive\x12\x15消息编号不合法\x1a\x1dthis.matches('^[1-9][0-9]*$')R\tmessageId\x12D\n" +
+	"\vapproval_id\x18\x03 \x01(\tB#\xbaG\x18\x92\x02\x15一次性审批编号\xbaH\x05r\x03\xb0\x01\x01R\n" +
+	"approvalId\x124\n" +
+	"\bapproved\x18\x04 \x01(\bB\x18\xbaG\x15\x92\x02\x12是否确认执行R\bapproved\"\xdd\x03\n" +
 	"\x16UpdateAiMessageRequest\x12\x95\x01\n" +
 	"\n" +
 	"session_id\x18\x01 \x01(\tBv\xbaG\v\x92\x02\b会话ID\xbaHe\xba\x01b\n" +
@@ -579,8 +658,9 @@ const file_base_v1_ai_message_proto_rawDesc = "" +
 	"\fpayload_json\x18\x04 \x01(\tB\x16\xbaG\x13\x92\x02\x10动作负载JSONR\vpayloadJson\x12F\n" +
 	"\x11source_message_id\x18\x05 \x01(\tB\x1a\xbaG\x17\x92\x02\x14动作来源消息IDR\x0fsourceMessageId\x121\n" +
 	"\taction_id\x18\x06 \x01(\tB\x14\xbaG\x11\x92\x02\x0e动作唯一IDR\bactionId\x12;\n" +
-	"\fflow_version\x18\a \x01(\x03B\x18\xbaG\x15\x92\x02\x12流程状态版本R\vflowVersion2\xa8\x06\n" +
-	"\x10AiMessageService\x12\x98\x01\n" +
+	"\fflow_version\x18\a \x01(\x03B\x18\xbaG\x15\x92\x02\x12流程状态版本R\vflowVersion2\xd6\a\n" +
+	"\x10AiMessageService\x12\xab\x01\n" +
+	"\x14DecideAiToolApproval\x12$.base.v1.DecideAiToolApprovalRequest\x1a\x1e.base.v1.SendAiMessageResponse\"M\x82\xd3\xe4\x93\x02G:\x01*\"B/api/v1/base/ai/session/{session_id}/message/{message_id}/approval\x12\x98\x01\n" +
 	"\x0fUpdateAiMessage\x12\x1f.base.v1.UpdateAiMessageRequest\x1a\x1e.base.v1.SendAiMessageResponse\"D\x82\xd3\xe4\x93\x02>:\x01*\x1a9/api/v1/base/ai/session/{session_id}/message/{message_id}\x12\x97\x01\n" +
 	"\x0fDeleteAiMessage\x12\x1f.base.v1.DeleteAiMessageRequest\x1a .base.v1.DeleteAiMessageResponse\"A\x82\xd3\xe4\x93\x02;*9/api/v1/base/ai/session/{session_id}/message/{message_id}\x12\x87\x01\n" +
 	"\rSendAiMessage\x12\x1d.base.v1.SendAiMessageRequest\x1a\x1e.base.v1.SendAiMessageResponse\"7\x82\xd3\xe4\x93\x021:\x01*\",/api/v1/base/ai/session/{session_id}/message\x12\xa4\x01\n" +
@@ -600,37 +680,40 @@ func file_base_v1_ai_message_proto_rawDescGZIP() []byte {
 	return file_base_v1_ai_message_proto_rawDescData
 }
 
-var file_base_v1_ai_message_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
+var file_base_v1_ai_message_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
 var file_base_v1_ai_message_proto_goTypes = []any{
-	(*UpdateAiMessageRequest)(nil),     // 0: base.v1.UpdateAiMessageRequest
-	(*SendAiMessageResponse)(nil),      // 1: base.v1.SendAiMessageResponse
-	(*DeleteAiMessageRequest)(nil),     // 2: base.v1.DeleteAiMessageRequest
-	(*DeleteAiMessageResponse)(nil),    // 3: base.v1.DeleteAiMessageResponse
-	(*SendAiMessageRequest)(nil),       // 4: base.v1.SendAiMessageRequest
-	(*RetryAiUserMessageRequest)(nil),  // 5: base.v1.RetryAiUserMessageRequest
-	(*RegenerateAiMessageRequest)(nil), // 6: base.v1.RegenerateAiMessageRequest
-	(*AiAction)(nil),                   // 7: base.v1.AiAction
-	(*AiMessage)(nil),                  // 8: base.v1.AiMessage
-	(*AiSession)(nil),                  // 9: base.v1.AiSession
-	(*AiAttachment)(nil),               // 10: base.v1.AiAttachment
+	(*DecideAiToolApprovalRequest)(nil), // 0: base.v1.DecideAiToolApprovalRequest
+	(*UpdateAiMessageRequest)(nil),      // 1: base.v1.UpdateAiMessageRequest
+	(*SendAiMessageResponse)(nil),       // 2: base.v1.SendAiMessageResponse
+	(*DeleteAiMessageRequest)(nil),      // 3: base.v1.DeleteAiMessageRequest
+	(*DeleteAiMessageResponse)(nil),     // 4: base.v1.DeleteAiMessageResponse
+	(*SendAiMessageRequest)(nil),        // 5: base.v1.SendAiMessageRequest
+	(*RetryAiUserMessageRequest)(nil),   // 6: base.v1.RetryAiUserMessageRequest
+	(*RegenerateAiMessageRequest)(nil),  // 7: base.v1.RegenerateAiMessageRequest
+	(*AiAction)(nil),                    // 8: base.v1.AiAction
+	(*AiMessage)(nil),                   // 9: base.v1.AiMessage
+	(*AiSession)(nil),                   // 10: base.v1.AiSession
+	(*AiAttachment)(nil),                // 11: base.v1.AiAttachment
 }
 var file_base_v1_ai_message_proto_depIdxs = []int32{
-	8,  // 0: base.v1.SendAiMessageResponse.messages:type_name -> base.v1.AiMessage
-	9,  // 1: base.v1.SendAiMessageResponse.session:type_name -> base.v1.AiSession
-	10, // 2: base.v1.SendAiMessageRequest.attachments:type_name -> base.v1.AiAttachment
-	7,  // 3: base.v1.SendAiMessageRequest.action:type_name -> base.v1.AiAction
-	0,  // 4: base.v1.AiMessageService.UpdateAiMessage:input_type -> base.v1.UpdateAiMessageRequest
-	2,  // 5: base.v1.AiMessageService.DeleteAiMessage:input_type -> base.v1.DeleteAiMessageRequest
-	4,  // 6: base.v1.AiMessageService.SendAiMessage:input_type -> base.v1.SendAiMessageRequest
-	5,  // 7: base.v1.AiMessageService.RetryAiUserMessage:input_type -> base.v1.RetryAiUserMessageRequest
-	6,  // 8: base.v1.AiMessageService.RegenerateAiMessage:input_type -> base.v1.RegenerateAiMessageRequest
-	1,  // 9: base.v1.AiMessageService.UpdateAiMessage:output_type -> base.v1.SendAiMessageResponse
-	3,  // 10: base.v1.AiMessageService.DeleteAiMessage:output_type -> base.v1.DeleteAiMessageResponse
-	1,  // 11: base.v1.AiMessageService.SendAiMessage:output_type -> base.v1.SendAiMessageResponse
-	1,  // 12: base.v1.AiMessageService.RetryAiUserMessage:output_type -> base.v1.SendAiMessageResponse
-	1,  // 13: base.v1.AiMessageService.RegenerateAiMessage:output_type -> base.v1.SendAiMessageResponse
-	9,  // [9:14] is the sub-list for method output_type
-	4,  // [4:9] is the sub-list for method input_type
+	9,  // 0: base.v1.SendAiMessageResponse.messages:type_name -> base.v1.AiMessage
+	10, // 1: base.v1.SendAiMessageResponse.session:type_name -> base.v1.AiSession
+	11, // 2: base.v1.SendAiMessageRequest.attachments:type_name -> base.v1.AiAttachment
+	8,  // 3: base.v1.SendAiMessageRequest.action:type_name -> base.v1.AiAction
+	0,  // 4: base.v1.AiMessageService.DecideAiToolApproval:input_type -> base.v1.DecideAiToolApprovalRequest
+	1,  // 5: base.v1.AiMessageService.UpdateAiMessage:input_type -> base.v1.UpdateAiMessageRequest
+	3,  // 6: base.v1.AiMessageService.DeleteAiMessage:input_type -> base.v1.DeleteAiMessageRequest
+	5,  // 7: base.v1.AiMessageService.SendAiMessage:input_type -> base.v1.SendAiMessageRequest
+	6,  // 8: base.v1.AiMessageService.RetryAiUserMessage:input_type -> base.v1.RetryAiUserMessageRequest
+	7,  // 9: base.v1.AiMessageService.RegenerateAiMessage:input_type -> base.v1.RegenerateAiMessageRequest
+	2,  // 10: base.v1.AiMessageService.DecideAiToolApproval:output_type -> base.v1.SendAiMessageResponse
+	2,  // 11: base.v1.AiMessageService.UpdateAiMessage:output_type -> base.v1.SendAiMessageResponse
+	4,  // 12: base.v1.AiMessageService.DeleteAiMessage:output_type -> base.v1.DeleteAiMessageResponse
+	2,  // 13: base.v1.AiMessageService.SendAiMessage:output_type -> base.v1.SendAiMessageResponse
+	2,  // 14: base.v1.AiMessageService.RetryAiUserMessage:output_type -> base.v1.SendAiMessageResponse
+	2,  // 15: base.v1.AiMessageService.RegenerateAiMessage:output_type -> base.v1.SendAiMessageResponse
+	10, // [10:16] is the sub-list for method output_type
+	4,  // [4:10] is the sub-list for method input_type
 	4,  // [4:4] is the sub-list for extension type_name
 	4,  // [4:4] is the sub-list for extension extendee
 	0,  // [0:4] is the sub-list for field type_name
@@ -648,7 +731,7 @@ func file_base_v1_ai_message_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_base_v1_ai_message_proto_rawDesc), len(file_base_v1_ai_message_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   8,
+			NumMessages:   9,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

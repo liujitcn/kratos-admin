@@ -2,6 +2,7 @@ package adk
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -16,21 +17,28 @@ import (
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/agent/message"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/agent/middleware"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/agent/model"
+	agenttool "github.com/liujitcn/kratos-admin/backend/internal/biz/agent/tool"
 )
 
 // defaultMaxIterations 限制单轮 Agent 的模型与工具循环次数，避免工具调用链异常时拖垮请求。
 const defaultMaxIterations = 4
 
+// maxCheckpointInputBytes 为快照重复保存上下文及模型、工具输出预留空间。
+const maxCheckpointInputBytes = 28 * 1024 * 1024
+
 // Runner 基于 Eino ADK ChatModelAgent 运行 AgenticMessage 对话。
 type Runner struct {
-	model       model.AgenticModel
-	name        string
-	description string
-	serverTools bool
+	checkPointStore compose.CheckPointStore
+	model           model.AgenticModel
+	name            string
+	description     string
+	serverTools     bool
 }
 
 // Config 表示 ADK Runner 初始化配置。
 type Config struct {
+	// CheckPointStore 保存人工确认中断时的运行状态。
+	CheckPointStore compose.CheckPointStore
 	// Model 当前 Agent 使用的模型。
 	Model model.AgenticModel
 	// Name Agent 名称。
@@ -43,6 +51,10 @@ type Config struct {
 
 // Request 表示单轮 ADK 执行输入。
 type Request struct {
+	// CheckPointID 是由业务层分配的运行编号。
+	CheckPointID string
+	// Decisions 只允许受信业务入口传入定向审批决定。
+	Decisions map[string]any
 	// Messages 已构造好的会话消息。
 	Messages []*message.AgenticMessage
 	// Tools 当前终端可执行的工具。
@@ -61,6 +73,8 @@ type Request struct {
 
 // Result 表示 ADK 执行后的最终输出。
 type Result struct {
+	// Pending 是需要用户明确决策的工具调用。
+	Pending []agenttool.ApprovalCall
 	// Message 最终助手消息。
 	Message *message.AgenticMessage
 	// Token 累计 token 消耗。
@@ -70,10 +84,11 @@ type Result struct {
 // NewRunner 创建 ADK Runner。
 func NewRunner(config Config) *Runner {
 	return &Runner{
-		model:       config.Model,
-		name:        config.Name,
-		description: config.Description,
-		serverTools: config.ServerTools,
+		checkPointStore: config.CheckPointStore,
+		model:           config.Model,
+		name:            config.Name,
+		description:     config.Description,
+		serverTools:     config.ServerTools,
 	}
 }
 
@@ -83,38 +98,64 @@ func (r *Runner) Run(ctx context.Context, request Request) (*Result, error) {
 	if r == nil || r.model == nil {
 		return nil, fmt.Errorf("adk runner model is not configured")
 	}
+	var err error
+	if r.checkPointStore != nil && request.CheckPointID != "" && request.Decisions == nil {
+		var input []byte
+		input, err = json.Marshal(request.Messages)
+		if err != nil {
+			return nil, fmt.Errorf("encode agent checkpoint input: %w", err)
+		}
+		if len(input) > maxCheckpointInputBytes {
+			hint := "Conversation input including encoded attachments exceeds 28 MiB. Reduce attachments or start a new conversation."
+			if request.LocalizeMessage != nil {
+				hint = request.LocalizeMessage(ctx, "system.ai.chat.error.context_too_large", nil, hint)
+			}
+			return nil, errors.New(hint)
+		}
+	}
 	recorder := request.Recorder
 	// 调用方未传 recorder 时仍创建一份，保证模型与工具统计逻辑可以统一写入 context。
 	if recorder == nil {
 		recorder = &callback.Recorder{}
 	}
 	ctx = callback.WithRecorder(ctx, recorder)
-	agent, err := r.newAgent(ctx, request)
+	var agent *adk.TypedChatModelAgent[*schema.AgenticMessage]
+	agent, err = r.newAgent(ctx, request)
 	if err != nil {
 		return nil, err
 	}
 	runner := adk.NewTypedRunner(adk.TypedRunnerConfig[*schema.AgenticMessage]{
-		Agent: agent,
+		Agent:           agent,
+		CheckPointStore: r.checkPointStore,
 		// Responses 的服务端工具事件与文本块可能混合返回，统一由 Runner 消费事件，避免
 		// ADK 自动合并时丢失工具事件。
 		EnableStreaming: false,
 	})
-	iter := runner.Run(ctx, request.Messages, adk.WithCallbacks(callback.NewHandler()))
+	var iter *adk.AsyncIterator[*adk.TypedAgentEvent[*schema.AgenticMessage]]
+	if request.Decisions != nil {
+		iter, err = runner.ResumeWithParams(ctx, request.CheckPointID, &adk.ResumeParams{Targets: request.Decisions}, adk.WithCallbacks(callback.NewHandler()))
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		iter = runner.Run(ctx, request.Messages, adk.WithCheckPointID(request.CheckPointID), adk.WithCallbacks(callback.NewHandler()))
+	}
 	var messageValue *schema.AgenticMessage
-	messageValue, err = consumeEvents(iter, request.OnDelta, request.Stream)
+	var pending []agenttool.ApprovalCall
+	messageValue, pending, err = consumeEvents(iter, request.OnDelta, request.Stream)
 	if err != nil {
 		return nil, err
 	}
 	// ADK 事件全部消费后仍没有助手消息，说明模型没有产出可落库的最终回复。
-	if messageValue == nil {
+	if messageValue == nil && len(pending) == 0 {
 		return nil, fmt.Errorf("ai ai response is empty")
 	}
 	token := recorder.TotalToken()
 	// 部分模型或中间件链路不会触发统计回调，此时直接从最终消息上兜底提取 token。
-	if token == (callback.TokenUsage{}) {
+	if token == (callback.TokenUsage{}) && messageValue != nil {
 		token = callback.TokenFromMessage(messageValue)
 	}
-	return &Result{Message: messageValue, Token: token}, nil
+	return &Result{Message: messageValue, Token: token, Pending: pending}, nil
 }
 
 // newAgent 创建带项目中间件的 Eino ChatModelAgent。
@@ -144,8 +185,9 @@ func (r *Runner) newAgent(ctx context.Context, request Request) (*adk.TypedChatM
 }
 
 // consumeEvents 消费 ADK 事件流，返回本轮最终助手消息。
-func consumeEvents(iter *adk.AsyncIterator[*adk.TypedAgentEvent[*schema.AgenticMessage]], onDelta func(string), stream bool) (*schema.AgenticMessage, error) {
+func consumeEvents(iter *adk.AsyncIterator[*adk.TypedAgentEvent[*schema.AgenticMessage]], onDelta func(string), stream bool) (*schema.AgenticMessage, []agenttool.ApprovalCall, error) {
 	var finalMessage *schema.AgenticMessage
+	var pending []agenttool.ApprovalCall
 	var streamText strings.Builder
 	for {
 		event, ok := iter.Next()
@@ -159,7 +201,18 @@ func consumeEvents(iter *adk.AsyncIterator[*adk.TypedAgentEvent[*schema.AgenticM
 		}
 		// 事件携带错误时需要立即终止，避免把不完整回复误当成最终结果。
 		if event.Err != nil {
-			return nil, event.Err
+			return nil, nil, event.Err
+		}
+		if event.Action != nil && event.Action.Interrupted != nil {
+			for _, interrupted := range event.Action.Interrupted.InterruptContexts {
+				info, ok := interrupted.Info.(agenttool.ApprovalInfo)
+				if ok {
+					pending = append(pending, agenttool.ApprovalCall{ApprovalInfo: info, InterruptID: interrupted.ID})
+				}
+			}
+			if len(pending) == 0 {
+				return nil, nil, fmt.Errorf("unsupported agent interruption")
+			}
 		}
 		// 只处理模型消息输出事件，工具节点等其他事件由 callback 中间件记录。
 		if event.Output == nil || event.Output.MessageOutput == nil {
@@ -170,7 +223,7 @@ func consumeEvents(iter *adk.AsyncIterator[*adk.TypedAgentEvent[*schema.AgenticM
 		if messageOutput.IsStreaming {
 			currentMessage, err := consumeMessageStream(messageOutput.MessageStream, onDelta, stream, &streamText)
 			if err != nil {
-				return nil, err
+				return nil, nil, err
 			}
 			// 流式片段合并成功后，作为当前可用的最终助手消息候选。
 			if currentMessage != nil {
@@ -199,7 +252,7 @@ func consumeEvents(iter *adk.AsyncIterator[*adk.TypedAgentEvent[*schema.AgenticM
 	if finalMessage == nil && streamText.Len() > 0 {
 		finalMessage = message.AIText(streamText.String())
 	}
-	return finalMessage, nil
+	return finalMessage, pending, nil
 }
 
 // consumeMessageStream 消费单个模型流并返回合并后的助手消息。

@@ -6,6 +6,7 @@ import re
 
 
 EN_EXACT = {
+    "是否确认执行": "Whether execution is approved",
     "列表视角": "List view",
     "Admin脚本执行日志服务。": "Admin script execution log service.",
     "消息方向：枚举【MqttMessageDirection】，字典【mqtt_message_direction】": "Message direction: enum [MqttMessageDirection], dictionary [mqtt_message_direction]",
@@ -585,6 +586,7 @@ EN_EXACT = {
 
 
 JA_EXACT = {
+    "是否确认执行": "実行を承認するか",
     "列表视角": "一覧表示",
     "Admin脚本执行日志服务。": "Adminスクリプト実行ログサービス。",
     "消息方向：枚举【MqttMessageDirection】，字典【mqtt_message_direction】": "メッセージの方向: enum [MqttMessageDirection], dictionary [mqtt_message_direction]",

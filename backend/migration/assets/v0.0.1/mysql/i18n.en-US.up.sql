@@ -96,6 +96,7 @@ INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VAL
 INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_dict_item.label', 10001, 'en-US', 'Generating');
 INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_dict_item.label', 10002, 'en-US', 'Success');
 INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_dict_item.label', 10003, 'en-US', 'Failure');
+INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_dict_item.label', 10004, 'en-US', 'Awaiting approval');
 INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_dict_item.label', 10101, 'en-US', 'Built-in');
 INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_dict_item.label', 10102, 'en-US', 'Admin Console');
 INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_dict_item.label', 10103, 'en-US', 'Mobile');

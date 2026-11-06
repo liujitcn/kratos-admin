@@ -63,7 +63,8 @@ func BuildModules(migrations *migration.Migration, config2 *configv1.Bootstrap, 
 	transaction := data2.NewTransaction(dataData)
 	aiSessionRepository := data2.NewAiSessionRepository(dataData)
 	aiMessageRepository := data2.NewAiMessageRepository(dataData)
-	aiSessionCase := biz2.NewAiSessionCase(baseCase, transaction, aiSessionRepository, aiMessageRepository, catalog)
+	aiToolApprovalRepository := data2.NewAiToolApprovalRepository(dataData)
+	aiSessionCase := biz2.NewAiSessionCase(baseCase, transaction, aiSessionRepository, aiMessageRepository, aiToolApprovalRepository, catalog)
 	baseUserRepository := data2.NewBaseUserRepository(dataData)
 	baseUserCase := biz2.NewBaseUserCase(baseCase, baseUserRepository)
 	registry := model.NewRegistry()
@@ -413,14 +414,19 @@ func BuildModules(migrations *migration.Migration, config2 *configv1.Bootstrap, 
 		cleanup()
 		return nil, nil, err
 	}
-	aiRuntime := ai.NewRuntime(registry, mcpCase, adminTools, appTools, catalog)
+	aiCheckPointStore, err := data3.NewAiCheckPointStore(aiToolApprovalRepository)
+	if err != nil {
+		cleanup()
+		return nil, nil, err
+	}
+	aiRuntime := ai.NewRuntime(registry, mcpCase, adminTools, appTools, catalog, aiCheckPointStore)
 	data5, err := data4.NewData(databases)
 	if err != nil {
 		cleanup()
 		return nil, nil, err
 	}
 	knowledgeEngine := ai.NewKnowledgeEngine(databases, data5, aiProviderRepository, aiModelRepository)
-	aiMessageCase := biz2.NewAiMessageCase(baseCase, transaction, aiMessageRepository, aiSessionCase, baseUserCase, aiRuntime, knowledgeEngine)
+	aiMessageCase := biz2.NewAiMessageCase(baseCase, transaction, aiMessageRepository, aiToolApprovalRepository, aiSessionCase, baseUserCase, aiRuntime, knowledgeEngine)
 	baseAiSessionService := base.NewAiSessionService(aiSessionCase, aiMessageCase)
 	bizAiModelCase := biz2.NewAiModelCase(baseCase, aiRuntime)
 	aiModelService := base.NewAiModelService(bizAiModelCase)

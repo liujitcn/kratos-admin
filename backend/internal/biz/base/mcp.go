@@ -135,7 +135,14 @@ func (h *McpCase) ToolConfigs(ctx context.Context, terminal string, names []stri
 	promptsByName := make(map[string][]string, len(filteredNames))
 	for _, item := range list {
 		totalByName[item.ToolName]++
-		if item.AgentStatus == _const.STATUS_STATUS_ENABLE {
+		if !agentToolBlocked(item) && item.AgentStatus == _const.STATUS_STATUS_ENABLE && (terminal != "app" || agentToolReadOnly(item)) {
+			err = h.authorizeToolCall(ctx, item)
+			if err != nil {
+				if kratosErrors.FromError(err).Code == http.StatusForbidden || kratosErrors.FromError(err).Code == http.StatusUnauthorized {
+					continue
+				}
+				return nil, err
+			}
 			enabledByName[item.ToolName]++
 		}
 		if len(promptsByName[item.ToolName]) == 0 {
@@ -255,6 +262,9 @@ func (h *McpCase) filterToolCall(ctx context.Context, req mcp.Request, next mcp.
 	}
 	if err = h.authorizeToolCall(ctx, baseAPI); err != nil {
 		return newMcpToolResultError(h.localizeMcpError(ctx, err)), nil
+	}
+	if agentToolBlocked(baseAPI) || !agentToolReadOnly(baseAPI) {
+		return newMcpToolResultError("写入操作须通过 AI 助手人工确认，执行类工具暂不开放"), nil
 	}
 	return next(ctx, mcpMethodCallTool, req)
 }

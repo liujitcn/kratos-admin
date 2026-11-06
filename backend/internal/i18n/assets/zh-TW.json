@@ -5033,6 +5033,9 @@
   "system.admin.runtime_config.invalid_json": {
     "other": "系統配置內容無效"
   },
+  "system.ai.chat.error.context_too_large": {
+    "other": "對話輸入（含歷史與附件編碼）超過 28 MiB，請減少附件或建立新對話。"
+  },
   "system.ai.chat.error.fallback_reply.attachments": {
     "other": "已收到您的問題和 {{.Count}} 個附件，但目前 AI 助理暫時無法使用，無法產生完整回覆，請稍後再試。"
   },
@@ -5781,5 +5784,101 @@
   "legacy.error.347070fc997f7568": {"other": "驗證專案審批關聯失敗"},
   "legacy.error.359210281db55f21": {"other": "新增專案審批業務關聯無效"},
   "legacy.error.d20fc8bcc8d8f5c7": {"other": "新增專案審批表單無效"},
-  "legacy.error.0224ce0d4c9763eb": {"other": "新增專案審批所屬租戶無效"}
+  "legacy.error.0224ce0d4c9763eb": {"other": "新增專案審批所屬租戶無效"},
+  "legacy.error.9cafc0f70e08d227": {
+    "other": "請在管理端確認業務寫入操作"
+  },
+  "legacy.error.4d48785e7ebd39fb": {
+    "other": "審批已失效或已處理"
+  },
+  "legacy.error.e46eaf899f18a393": {
+    "other": "審批執行設定損壞"
+  },
+  "legacy.error.47a58292ae95d795": {
+    "other": "審批工具參數損壞"
+  },
+  "legacy.error.d23b49a800ec82fd": {
+    "other": "審批執行狀態無效"
+  },
+  "legacy.error.0e01a87b0d86090d": {
+    "other": "AI執行狀態已變更，無法儲存審批"
+  },
+  "legacy.error.fc4d92dd2ebc6782": {
+    "other": "正在執行的訊息無法刪除"
+  },
+  "legacy.error.ef4d3b3aab09a01d": {
+    "other": "請先等待目前回覆完成或處理待確認操作"
+  },
+  "legacy.error.f11d68a2a74f06f9": {
+    "other": "工具不屬於目前終端"
+  },
+  "legacy.error.446c05bbcf853ae6": {
+    "other": "Agent工具未啟用"
+  },
+  "legacy.error.799b4c56d12deb00": {
+    "other": "Agent工具未啟用或執行功能遭禁止"
+  },
+  "legacy.error.2e9e8485207551ae": {
+    "other": "找不到工具介面契約"
+  },
+  "legacy.error.a934ff7ee33d8ab2": {
+    "other": "工具介面契約無效"
+  },
+  "legacy.error.844039c078368bf3": {
+    "other": "找不到工具請求契約"
+  },
+  "legacy.error.94c872f75369c921": {
+    "other": "工具參數無效"
+  },
+  "legacy.error.7037d44d26f2fe7d": {
+    "other": "確認AI工具操作失敗"
+  },
+  "openapi.ai.approval.0a50ca52d217eaa0": {
+    "other": "確認或拒絕目前使用者待執行的工具呼叫。"
+  },
+  "openapi.ai.approval.907638a466d26ec4": {
+    "other": "AI 工具人工確認請求，實際工具與參數由伺服器端凍結。"
+  },
+  "openapi.ai.approval.79d325f8ec278ba6": {
+    "other": "一次性審批編號"
+  },
+  "openapi.ai.approval.6cedfb9ab50004c5": {
+    "other": "是否確認執行"
+  },
+  "openapi.ai.approval.c7fb3cb9b170ea8d": {
+    "other": "待執行工具的人工確認資訊"
+  },
+  "openapi.ai.approval.bc522e692aed7078": {
+    "other": "AI 工具人工確認資訊。"
+  },
+  "openapi.ai.approval.aca86adff02160dc": {
+    "other": "待確認的工具與凍結參數"
+  },
+  "openapi.ai.approval.2a1e259212d00994": {
+    "other": "確認截止時間"
+  },
+  "openapi.ai.approval.c5953adda9d71bb8": {
+    "other": "AI 待確認工具呼叫。"
+  },
+  "openapi.ai.approval.25b37d5c985ea3be": {
+    "other": "操作說明"
+  },
+  "openapi.ai.approval.e1de7de24c6aa692": {
+    "other": "待執行的凍結參數JSON"
+  },
+  "base.ai.approval.session_id.positive": {
+    "other": "會話編號不合法"
+  },
+  "base.ai.approval.message_id.positive": {
+    "other": "訊息編號不合法"
+  },
+  "system.ai.chat.approval.expired": {
+    "other": "確認已過期，待確認的操作未執行。"
+  },
+  "system.ai.chat.approval.rejected": {
+    "other": "已拒絕，待確認的操作未執行。"
+  },
+  "system.ai.chat.error.run_expired": {
+    "other": "生成已逾時，本次請求不會自動恢復。重試前請核對業務結果。"
+  }
 }

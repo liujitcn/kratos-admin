@@ -22,7 +22,7 @@ var (
 	_ codes.Code
 	_ status.Status
 	_ basev1.ListAiMessageRequest
-	_ basev1.ListAiShortcutRequest
+	_ basev1.AiToolApproval
 	_ validate.Rule
 )
 

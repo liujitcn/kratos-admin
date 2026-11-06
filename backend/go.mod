@@ -15,6 +15,7 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/google/wire v0.7.0
 	github.com/jackc/pgx/v5 v5.11.0
+	github.com/klauspost/compress v1.20.1
 	github.com/ledongthuc/pdf v0.0.0-20220302134840-0c2507a12d80
 	github.com/liujitcn/go-scripts v0.0.1
 	github.com/liujitcn/go-scripts/cel v0.0.1
@@ -80,6 +81,7 @@ require (
 	google.golang.org/genproto/googleapis/api v0.0.0-20261019180522-ce908d29299b
 	google.golang.org/grpc v1.86.0-dev
 	google.golang.org/protobuf v1.36.12
+	gorm.io/driver/mysql v1.6.0
 	gorm.io/gen v0.3.29
 	gorm.io/gorm v1.31.2
 	gorm.io/plugin/dbresolver v1.6.2
@@ -251,7 +253,6 @@ require (
 	github.com/jlaffaye/ftp v0.2.4 // indirect
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
 	github.com/json-iterator/go v1.1.13-0.20220915233716-71ac16282d12 // indirect
-	github.com/klauspost/compress v1.20.1 // indirect
 	github.com/klauspost/cpuid/v2 v2.4.0 // indirect
 	github.com/klauspost/crc32 v1.3.0 // indirect
 	github.com/kylelemons/godebug v1.1.0 // indirect
@@ -402,7 +403,6 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	gorm.io/datatypes v1.2.7 // indirect
 	gorm.io/driver/clickhouse v0.7.0 // indirect
-	gorm.io/driver/mysql v1.6.0 // indirect
 	gorm.io/driver/postgres v1.6.3 // indirect
 	gorm.io/hints v1.1.2 // indirect
 	gorm.io/plugin/opentelemetry v0.1.16 // indirect

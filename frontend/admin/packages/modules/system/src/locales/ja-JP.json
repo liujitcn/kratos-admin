@@ -43,6 +43,7 @@
   "system.ai.chat.message.attachment_limit": "最大 {count} 個の添付ファイルをアップロードします",
   "system.ai.chat.message.attachment_remaining": "自動的に傍受された最大 {count} 個の添付ファイルを選択できます",
   "system.ai.chat.message.attachment_too_large": "添付ファイル「{name}」は {size}MB を超えているため、スキップされました",
+  "system.ai.chat.message.attachment_total_too_large": "添付ファイルの合計サイズは{size}MB以下にしてください。複数回に分けて送信してください。",
   "system.ai.chat.message.attachment_unsupported": "添付ファイル「{name}」はまだサポートされていないため、スキップされました",
   "system.ai.chat.message.attachment_upload_failed": "添付ファイルのアップロードに失敗しました",
   "system.ai.chat.message.attachments_uploaded": "が {count} 個の添付ファイルをアップロードしました",
@@ -2063,5 +2064,14 @@
   "system.workflow.script.help": "ワークフローでは保存済みの JavaScript スクリプトのみ利用できます。入力は form、variables、workflow、node、idempotency_key。申請検証は allowed/message/variables、ノードは variables、承認者決定は user_ids、終了フックは variables/actions を返します。試験実行でフローは進行しません。",
   "system.workflow.job.error.script_scan_failed": "ワークフロースクリプトの復旧スキャンに失敗しました",
   "system.workflow.job.result.scripts_scanned": "ワークフロースクリプトの復旧スキャン完了：{Count} 件を処理",
-  "system.workflow.script.stage.START": "ワークフロー開始"
+  "system.workflow.script.stage.START": "ワークフロー開始",
+  "system.ai.chat.approval.confirm": "実行を承認",
+  "system.ai.chat.approval.description": "以下の操作と引数を確認してください。承認すると、一覧のすべての呼び出しを実行します。",
+  "system.ai.chat.approval.expired": "承認期限が切れました。保留中の操作は実行されていません。",
+  "system.ai.chat.approval.expires_at": "承認期限：{time}",
+  "system.ai.chat.approval.failed": "承認の処理に失敗しました",
+  "system.ai.chat.approval.pending": "先に保留中の操作を承認、拒否、または削除してください",
+  "system.ai.chat.approval.reject": "拒否",
+  "system.ai.chat.approval.rejected": "拒否しました。保留中の操作は実行されていません。",
+  "system.ai.chat.approval.title": "実行前の確認が必要です"
 }

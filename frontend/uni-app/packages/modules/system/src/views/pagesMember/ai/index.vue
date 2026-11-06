@@ -320,8 +320,16 @@ const deleteMessage = async (item: ChatMessageItem) => {
   }
 }
 
+const canRegenerateMessage = (item: ChatMessageItem) =>
+  item.role === 'ai' &&
+  !item.localOnly &&
+  !currentSessionSending.value &&
+  item.status !== AiMessageStatus.AI_MESSAGE_STATUS_GENERATING &&
+  item.status !== AiMessageStatus.AI_MESSAGE_STATUS_WAITING_APPROVAL &&
+  currentMessages.value[currentMessages.value.length - 1]?.messageID === item.messageID
+
 const regenerateMessage = async (item: ChatMessageItem) => {
-  if (item.role !== 'ai' || item.localOnly || currentSessionSending.value) {
+  if (!canRegenerateMessage(item)) {
     return
   }
   setSessionSending(activeSessionID.value, true)
@@ -342,10 +350,9 @@ const regenerateMessage = async (item: ChatMessageItem) => {
 }
 
 const handleMessageAction = (item: ChatMessageItem) => {
-  const itemList =
-    item.role === 'ai'
-      ? [t('system.ai.action.copy'), t('common.action.delete'), t('system.ai.action.regenerate')]
-      : [t('system.ai.action.copy'), t('common.action.delete')]
+  const itemList = canRegenerateMessage(item)
+    ? [t('system.ai.action.copy'), t('common.action.delete'), t('system.ai.action.regenerate')]
+    : [t('system.ai.action.copy'), t('common.action.delete')]
   uni.showActionSheet({
     itemList,
     success: ({ tapIndex }) => {
@@ -1018,6 +1025,7 @@ function mapMessageItem(message: AiMessage, role: ChatRole): ChatMessageItem {
     flow: message.output_content?.flow ?? '',
     step: message.output_content?.step ?? '',
     blocks_json: message.output_content?.blocks_json ?? '',
+    approval: message.output_content?.approval,
   }
   const status = Number(message.status ?? AiMessageStatus.AI_MESSAGE_STATUS_SUCCESS)
   return {
@@ -1093,6 +1101,7 @@ function createThinkingMessage(options?: { sessionID?: string; messageID?: strin
         flow: '',
         step: '',
         blocks_json: '',
+        approval: undefined,
       },
       attachments: [],
       created_at: {

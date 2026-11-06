@@ -51,6 +51,15 @@ type ToolConfig = agent.ToolConfig
 // RuntimeInput 表示 AI 助手运行时输入。
 type RuntimeInput = agent.RuntimeInput
 
+// Approval 表示向当前用户展示的工具确认信息。
+type Approval = agent.Approval
+
+// RunState 表示恢复时必须沿用的模型和工具集合。
+type RunState = agent.RunState
+
+// ApprovalCall 表示数据库保存的工具中断点。
+type ApprovalCall = agent.ApprovalCall
+
 // AdminTools 表示管理端 AI 工具集合。
 type AdminTools []tool.Invokable
 

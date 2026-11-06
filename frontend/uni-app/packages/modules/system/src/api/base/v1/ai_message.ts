@@ -9,6 +9,7 @@ import {
 import type { ListAiMessageRequest, ListAiMessageResponse } from '../../../rpc/base/v1/ai_session'
 import type {
   AiMessageService,
+  DecideAiToolApprovalRequest,
   DeleteAiMessageRequest,
   DeleteAiMessageResponse,
   RegenerateAiMessageRequest,
@@ -200,6 +201,15 @@ export function StreamAiMessageByChunkedRequest(
 
 /** AI 助手消息服务。 */
 export class AiMessageServiceImpl implements AiMessageService {
+  /** 共用契约的审批入口；移动端会话由服务端拒绝写入审批。 */
+  DecideAiToolApproval(request: DecideAiToolApprovalRequest): Promise<SendAiMessageResponse> {
+    return http<SendAiMessageResponse>({
+      url: `${AI_SESSION_URL}/${request.session_id}/message/${request.message_id}/approval`,
+      method: 'POST',
+      data: request,
+    })
+  }
+
   /** 查询 AI 助手消息列表。 */
   ListAiMessage(request: ListAiMessageRequest): Promise<ListAiMessageResponse> {
     return http<ListAiMessageResponse>({

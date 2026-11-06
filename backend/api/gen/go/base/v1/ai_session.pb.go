@@ -38,6 +38,8 @@ const (
 	AiMessageStatus_AI_MESSAGE_STATUS_SUCCESS AiMessageStatus = 2
 	// 失败。
 	AiMessageStatus_AI_MESSAGE_STATUS_FAILED AiMessageStatus = 3
+	// 等待用户确认工具调用。
+	AiMessageStatus_AI_MESSAGE_STATUS_WAITING_APPROVAL AiMessageStatus = 4
 )
 
 // Enum value maps for AiMessageStatus.
@@ -47,12 +49,14 @@ var (
 		1: "AI_MESSAGE_STATUS_GENERATING",
 		2: "AI_MESSAGE_STATUS_SUCCESS",
 		3: "AI_MESSAGE_STATUS_FAILED",
+		4: "AI_MESSAGE_STATUS_WAITING_APPROVAL",
 	}
 	AiMessageStatus_value = map[string]int32{
-		"AI_MESSAGE_STATUS_UNSPECIFIED": 0,
-		"AI_MESSAGE_STATUS_GENERATING":  1,
-		"AI_MESSAGE_STATUS_SUCCESS":     2,
-		"AI_MESSAGE_STATUS_FAILED":      3,
+		"AI_MESSAGE_STATUS_UNSPECIFIED":      0,
+		"AI_MESSAGE_STATUS_GENERATING":       1,
+		"AI_MESSAGE_STATUS_SUCCESS":          2,
+		"AI_MESSAGE_STATUS_FAILED":           3,
+		"AI_MESSAGE_STATUS_WAITING_APPROVAL": 4,
 	}
 )
 
@@ -938,6 +942,7 @@ type AiOutputContent struct {
 	Flow           string                 `protobuf:"bytes,7,opt,name=flow,proto3" json:"flow,omitempty"`                                           // 流程标识
 	Step           string                 `protobuf:"bytes,8,opt,name=step,proto3" json:"step,omitempty"`                                           // 流程步骤
 	BlocksJson     string                 `protobuf:"bytes,9,opt,name=blocks_json,json=blocksJson,proto3" json:"blocks_json,omitempty"`             // 移动端结构化内容JSON
+	Approval       *AiToolApproval        `protobuf:"bytes,10,opt,name=approval,proto3" json:"approval,omitempty"`                                  // 待执行工具的人工确认信息
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
@@ -1033,6 +1038,13 @@ func (x *AiOutputContent) GetBlocksJson() string {
 		return x.BlocksJson
 	}
 	return ""
+}
+
+func (x *AiOutputContent) GetApproval() *AiToolApproval {
+	if x != nil {
+		return x.Approval
+	}
+	return nil
 }
 
 // AI 助手 Token 统计
@@ -1248,7 +1260,7 @@ const file_base_v1_ai_session_proto_rawDesc = "" +
 	"durationMs\"f\n" +
 	"\x0eAiInputContent\x12&\n" +
 	"\x04kind\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f内容类型R\x04kind\x12,\n" +
-	"\acontent\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f内容正文R\acontent\"\xf1\x03\n" +
+	"\acontent\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f内容正文R\acontent\"\xd2\x04\n" +
 	"\x0fAiOutputContent\x12&\n" +
 	"\x04kind\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f内容类型R\x04kind\x12,\n" +
 	"\acontent\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f内容正文R\acontent\x12D\n" +
@@ -1259,7 +1271,9 @@ const file_base_v1_ai_session_proto_rawDesc = "" +
 	"\x04flow\x18\a \x01(\tB\x12\xbaG\x0f\x92\x02\f流程标识R\x04flow\x12&\n" +
 	"\x04step\x18\b \x01(\tB\x12\xbaG\x0f\x92\x02\f流程步骤R\x04step\x12C\n" +
 	"\vblocks_json\x18\t \x01(\tB\"\xbaG\x1f\x92\x02\x1c移动端结构化内容JSONR\n" +
-	"blocksJson\"\xc0\x01\n" +
+	"blocksJson\x12_\n" +
+	"\bapproval\x18\n" +
+	" \x01(\v2\x17.base.v1.AiToolApprovalB*\xbaG'\x92\x02$待执行工具的人工确认信息R\bapproval\"\xc0\x01\n" +
 	"\aAiToken\x12,\n" +
 	"\x05input\x18\x01 \x01(\x05B\x16\xbaG\x13\x92\x02\x10输入 Token 数R\x05input\x12.\n" +
 	"\x06output\x18\x02 \x01(\x05B\x16\xbaG\x13\x92\x02\x10输出 Token 数R\x06output\x12,\n" +
@@ -1270,12 +1284,13 @@ const file_base_v1_ai_session_proto_rawDesc = "" +
 	"\x04name\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f附件名称R\x04name\x12&\n" +
 	"\x04size\x18\x03 \x01(\x03B\x12\xbaG\x0f\x92\x02\f附件大小R\x04size\x12$\n" +
 	"\x03url\x18\x04 \x01(\tB\x12\xbaG\x0f\x92\x02\f附件地址R\x03url\x125\n" +
-	"\tmime_type\x18\x05 \x01(\tB\x18\xbaG\x15\x92\x02\x12附件 MIME 类型R\bmimeType*\x93\x01\n" +
+	"\tmime_type\x18\x05 \x01(\tB\x18\xbaG\x15\x92\x02\x12附件 MIME 类型R\bmimeType*\xbb\x01\n" +
 	"\x0fAiMessageStatus\x12!\n" +
 	"\x1dAI_MESSAGE_STATUS_UNSPECIFIED\x10\x00\x12 \n" +
 	"\x1cAI_MESSAGE_STATUS_GENERATING\x10\x01\x12\x1d\n" +
 	"\x19AI_MESSAGE_STATUS_SUCCESS\x10\x02\x12\x1c\n" +
-	"\x18AI_MESSAGE_STATUS_FAILED\x10\x032\xa7\x06\n" +
+	"\x18AI_MESSAGE_STATUS_FAILED\x10\x03\x12&\n" +
+	"\"AI_MESSAGE_STATUS_WAITING_APPROVAL\x10\x042\xa7\x06\n" +
 	"\x10AiSessionService\x12\x84\x01\n" +
 	"\rListAiMessage\x12\x1d.base.v1.ListAiMessageRequest\x1a\x1e.base.v1.ListAiMessageResponse\"4\x82\xd3\xe4\x93\x02.\x12,/api/v1/base/ai/session/{session_id}/message\x12o\n" +
 	"\rListAiSession\x12\x1d.base.v1.ListAiSessionRequest\x1a\x1e.base.v1.ListAiSessionResponse\"\x1f\x82\xd3\xe4\x93\x02\x19\x12\x17/api/v1/base/ai/session\x12x\n" +
@@ -1322,6 +1337,7 @@ var file_base_v1_ai_session_proto_goTypes = []any{
 	(Terminal)(0),                         // 19: base.v1.Terminal
 	(*timestamppb.Timestamp)(nil),         // 20: google.protobuf.Timestamp
 	(*AiToolCall)(nil),                    // 21: base.v1.AiToolCall
+	(*AiToolApproval)(nil),                // 22: base.v1.AiToolApproval
 }
 var file_base_v1_ai_session_proto_depIdxs = []int32{
 	14, // 0: base.v1.ListAiMessageResponse.messages:type_name -> base.v1.AiMessage
@@ -1342,23 +1358,24 @@ var file_base_v1_ai_session_proto_depIdxs = []int32{
 	0,  // 15: base.v1.AiMessage.status:type_name -> base.v1.AiMessageStatus
 	17, // 16: base.v1.AiMessage.token:type_name -> base.v1.AiToken
 	21, // 17: base.v1.AiMessage.tools:type_name -> base.v1.AiToolCall
-	1,  // 18: base.v1.AiSessionService.ListAiMessage:input_type -> base.v1.ListAiMessageRequest
-	3,  // 19: base.v1.AiSessionService.ListAiSession:input_type -> base.v1.ListAiSessionRequest
-	5,  // 20: base.v1.AiSessionService.CreateAiSession:input_type -> base.v1.CreateAiSessionRequest
-	7,  // 21: base.v1.AiSessionService.CreateAiSessionBranch:input_type -> base.v1.CreateAiSessionBranchRequest
-	9,  // 22: base.v1.AiSessionService.UpdateAiSession:input_type -> base.v1.UpdateAiSessionRequest
-	11, // 23: base.v1.AiSessionService.DeleteAiSession:input_type -> base.v1.DeleteAiSessionRequest
-	2,  // 24: base.v1.AiSessionService.ListAiMessage:output_type -> base.v1.ListAiMessageResponse
-	4,  // 25: base.v1.AiSessionService.ListAiSession:output_type -> base.v1.ListAiSessionResponse
-	6,  // 26: base.v1.AiSessionService.CreateAiSession:output_type -> base.v1.CreateAiSessionResponse
-	8,  // 27: base.v1.AiSessionService.CreateAiSessionBranch:output_type -> base.v1.CreateAiSessionBranchResponse
-	10, // 28: base.v1.AiSessionService.UpdateAiSession:output_type -> base.v1.UpdateAiSessionResponse
-	12, // 29: base.v1.AiSessionService.DeleteAiSession:output_type -> base.v1.DeleteAiSessionResponse
-	24, // [24:30] is the sub-list for method output_type
-	18, // [18:24] is the sub-list for method input_type
-	18, // [18:18] is the sub-list for extension type_name
-	18, // [18:18] is the sub-list for extension extendee
-	0,  // [0:18] is the sub-list for field type_name
+	22, // 18: base.v1.AiOutputContent.approval:type_name -> base.v1.AiToolApproval
+	1,  // 19: base.v1.AiSessionService.ListAiMessage:input_type -> base.v1.ListAiMessageRequest
+	3,  // 20: base.v1.AiSessionService.ListAiSession:input_type -> base.v1.ListAiSessionRequest
+	5,  // 21: base.v1.AiSessionService.CreateAiSession:input_type -> base.v1.CreateAiSessionRequest
+	7,  // 22: base.v1.AiSessionService.CreateAiSessionBranch:input_type -> base.v1.CreateAiSessionBranchRequest
+	9,  // 23: base.v1.AiSessionService.UpdateAiSession:input_type -> base.v1.UpdateAiSessionRequest
+	11, // 24: base.v1.AiSessionService.DeleteAiSession:input_type -> base.v1.DeleteAiSessionRequest
+	2,  // 25: base.v1.AiSessionService.ListAiMessage:output_type -> base.v1.ListAiMessageResponse
+	4,  // 26: base.v1.AiSessionService.ListAiSession:output_type -> base.v1.ListAiSessionResponse
+	6,  // 27: base.v1.AiSessionService.CreateAiSession:output_type -> base.v1.CreateAiSessionResponse
+	8,  // 28: base.v1.AiSessionService.CreateAiSessionBranch:output_type -> base.v1.CreateAiSessionBranchResponse
+	10, // 29: base.v1.AiSessionService.UpdateAiSession:output_type -> base.v1.UpdateAiSessionResponse
+	12, // 30: base.v1.AiSessionService.DeleteAiSession:output_type -> base.v1.DeleteAiSessionResponse
+	25, // [25:31] is the sub-list for method output_type
+	19, // [19:25] is the sub-list for method input_type
+	19, // [19:19] is the sub-list for extension type_name
+	19, // [19:19] is the sub-list for extension extendee
+	0,  // [0:19] is the sub-list for field type_name
 }
 
 func init() { file_base_v1_ai_session_proto_init() }
