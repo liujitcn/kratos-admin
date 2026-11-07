@@ -98,3 +98,17 @@ func (s *LoginService) Login(ctx context.Context, req *basev1.LoginRequest) (*ba
 	}
 	return res, nil
 }
+
+// AdminLogin 校验管理端独立协议后登录，并沿用认证 Cookie 处理。
+func (s *LoginService) AdminLogin(ctx context.Context, req *basev1.LoginRequest) (*basev1.LoginResponse, error) {
+	res, err := s.loginCase.AdminLogin(ctx, req)
+	if err != nil {
+		log.Error(fmt.Sprintf("AdminLogin %v", err))
+		return nil, errorsx.WrapInternal(err, "登录失败")
+	}
+	authcookie.Set(ctx, res.GetAccessToken(), res.GetExpiresIn(), res.GetRefreshToken(), s.loginCase.RefreshTokenExpiresIn())
+	if authcookie.HideRefreshTokenFromResponse(ctx) {
+		res.RefreshToken = ""
+	}
+	return res, nil
+}

@@ -1,6 +1,7 @@
 <template>
   <div class="footer flx-center">
     <a :href="icpLink" target="_blank" rel="noopener noreferrer">{{ footerText }}</a>
+    <span v-if="configStore.version" class="footer-version">v{{ configStore.version }}</span>
   </div>
 </template>
 

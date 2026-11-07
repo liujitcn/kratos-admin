@@ -452,5 +452,14 @@
   "core.demo.form.tenant.main": "Demo main tenant",
   "core.demo.form.tenant.sub": "Demo sub-tenant",
   "core.demo.form.leader_title": "{name} Lead",
-  "core.demo.tree.new_dir": "Demo directory {id}"
+  "core.demo.tree.new_dir": "Demo directory {id}",
+  "core.login.admin_agreement_read_accept": "I have read and agree to",
+  "core.login.admin_agreement_service": "Admin Terms of Service",
+  "core.login.admin_agreement_privacy": "Admin Privacy Policy",
+  "core.login.admin_agreement_and": "and",
+  "core.login.admin_agreement_required": "Please read and agree to the admin Terms of Service and Privacy Policy",
+  "core.login.admin_agreement_unavailable": "Admin agreements are unavailable. Please contact your administrator",
+  "core.login.admin_agreement_version": "Version: {version}",
+  "core.login.admin_agreement_back": "Back to sign in",
+  "core.login.admin_agreement_open_page": "Read in a new page"
 }

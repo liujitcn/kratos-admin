@@ -4,6 +4,9 @@
 
 `kratos-admin` 是一個前後端分離的管理系統儲存庫，包含 Go + Kratos 後端、Vue 管理後台、uni-app 應用底座、React/Taro 應用底座、版本化資料庫遷移與模組腳手架。
 
+
+安全整改包含指令碼語言限制、保留帳號驗證、業務稽核及獨立管理端協議。管理端協議使用 site=2（1191–1194），與應用端 site=3 分離，登入前須主動同意；頁尾顯示宿主服務版本。既有資料庫與部署處理見 [漏洞整改記錄](docs/漏洞整改记录.md)。
+
 ## 已實作能力
 
 - 帳號密碼、驗證碼、OAuth、TOTP/WebAuthn 多因素驗證、JWT 更新、租戶與 Casbin 權限。
@@ -125,7 +128,7 @@ make -C backend run-only APP_ENV=https
 
 管理端開發代理需要在本機環境檔案中將 `VITE_PROXY` 的後端位址改為 `https://127.0.0.1:7001`；Taro 與 uni-app H5 需要在各自 `.env.development-h5.local` 中將 `VITE_APP_API_URL` 改為 `https://127.0.0.1:7001`。三端開發代理都會略過自簽憑證驗證。
 
-預設遷移提供開發帳號 `super / 112233` 與 `admin / 112233`。部署前必須修改預設密碼、JWT 金鑰、資料庫與 Redis 憑據。
+預設遷移提供開發帳號 `super / 112233` 與 `opsmaint / 112233`。部署前必須修改預設密碼、JWT 金鑰、資料庫與 Redis 憑據。
 
 ## 產生與檢查
 

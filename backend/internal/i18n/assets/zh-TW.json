@@ -7087,5 +7087,95 @@
   },
   "获取当前用户生效的密码策略": {
     "other": "取得目前使用者生效的密碼策略"
+  },
+  "legacy.error.7e79f52aa653d1b8": {
+    "other": "試執行必須指定已儲存指令碼ID"
+  },
+  "legacy.error.ceecc6449946be7b": {
+    "other": "試執行不允許提交指令碼語言或原始碼"
+  },
+  "legacy.error.6493e816e4c9c2d0": {
+    "other": "僅支援 JavaScript、CEL、Expr 指令碼"
+  },
+  "legacy.error.1c08d373771aeda2": {
+    "other": "儲存管理端協議確認失敗"
+  },
+  "legacy.error.6d921f101bc0ff13": {
+    "other": "管理端協議確認已失效"
+  },
+  "legacy.error.fef5bd08859ffc56": {
+    "other": "請先閱讀並同意管理端服務協議和隱私政策"
+  },
+  "legacy.error.472a58536bbdff20": {
+    "other": "讀取管理端協議失敗"
+  },
+  "legacy.error.6212bf4ffb06e780": {
+    "other": "讀取管理端協議確認失敗"
+  },
+  "legacy.error.c99c6abf8e80560f": {
+    "other": "只有平台管理員可以查看供應商金鑰"
+  },
+  "legacy.error.ad9307b4a2ef5b11": {
+    "other": "管理端服務協議和隱私政策尚未設定"
+  },
+  "legacy.error.e7e3feb58bbc6b7d": {
+    "other": "管理端協議已更新，請重新閱讀並同意"
+  },
+  "legacy.error.395f5690bc43a8fc": {
+    "other": "使用者帳號不能使用保留名稱"
+  },
+  "legacy.error.f1e0b071d4b26aab": {
+    "other": "使用者帳號首尾不能包含空白字元"
+  },
+  "system.admin.base.script.entity.language.supported": {
+    "other": "僅支援 JavaScript、CEL、Expr 指令碼"
+  },
+  "system.admin.base.script.test_run.draft.rejected": {
+    "other": "試執行不允許提交指令碼語言或原始碼"
+  },
+  "system.admin.base.script.test_run.id.required": {
+    "other": "試執行必須指定已儲存指令碼ID"
+  },
+  "base.login.admin_agreement.service_version.max_len": {
+    "other": "管理端服務協議版本不能超過128個字元"
+  },
+  "base.login.admin_agreement.privacy_version.max_len": {
+    "other": "管理端隱私政策版本不能超過128個字元"
+  },
+  "legacy.error.6ac5d5e128e56199": {
+    "other": "讀取第三方登入身分失敗"
+  },
+  "security.openapi.6ae82bf2717c": {
+    "other": "建立管理端第三方登入授權網址，必須主動確認目前管理端協議"
+  },
+  "security.openapi.d9f7d122bc06": {
+    "other": "管理端登入，必須主動確認目前管理端服務協議和隱私政策"
+  },
+  "security.openapi.d9fba822b01c": {
+    "other": "是否主動同意目前管理端協議"
+  },
+  "security.openapi.c60ce905500a": {
+    "other": "已閱讀的管理端服務協議版本"
+  },
+  "security.openapi.67b17b10dbb3": {
+    "other": "已閱讀的管理端隱私政策版本"
+  },
+  "security.openapi.185a51453e19": {
+    "other": "管理端專屬服務協議和隱私政策的主動確認。"
+  },
+  "security.openapi.29013e430935": {
+    "other": "目前後端服務版本"
+  },
+  "security.openapi.20c8279602b9": {
+    "other": "受限指令碼語言，僅支援 JavaScript、CEL、Expr"
+  },
+  "security.openapi.cf9a8f985505": {
+    "other": "必須指定已儲存指令碼ID"
+  },
+  "security.openapi.cf612e8849dd": {
+    "other": "禁止傳入指令碼語言"
+  },
+  "security.openapi.b1f7e42d136d": {
+    "other": "禁止傳入指令碼原始碼"
   }
 }

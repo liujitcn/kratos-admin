@@ -9,11 +9,11 @@ logger:
         filepath: ./logs
         # 最低日志级别，例如 debug、info、warn、error。
         level: debug
-        # 单个日志文件最大大小，具体单位由日志实现约定，通常为 MB。
-        max_age: 30
         # 日志文件保留天数。
-        max_backups: 5
-        # 最大保留日志文件数量。
+        max_age: 365
+        # 不按文件数量提前删除，磁盘容量和外部归档需按一年留存配置。
+        max_backups: 0
+        # 单个日志文件最大大小，单位 MB。
         max_size: 1
     aliyun:
         # 阿里云日志服务访问密钥 ID。
@@ -43,9 +43,9 @@ logger:
         # 单个日志文件最大大小，单位 MB。
         max_size: 1
         # 日志文件保留天数。
-        max_age: 30
-        # 最大保留日志文件数量。
-        max_backups: 5
+        max_age: 365
+        # 不按文件数量提前删除，磁盘容量和外部归档需按一年留存配置。
+        max_backups: 0
         # 文件输出时是否同时输出到控制台。
         enable_console: true
     tencent:
@@ -75,8 +75,8 @@ logger:
         # 单个日志文件最大大小，单位 MB。
         max_size: 1
         # 日志文件保留天数。
-        max_age: 30
-        # 最大保留日志文件数量。
-        max_backups: 5
+        max_age: 365
+        # 不按文件数量提前删除，磁盘容量和外部归档需按一年留存配置。
+        max_backups: 0
         # 文件输出时是否同时输出到控制台。
         enable_console: true

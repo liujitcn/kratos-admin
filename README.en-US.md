@@ -4,6 +4,9 @@
 
 `kratos-admin` is a full-stack separated administration system repository containing a Go + Kratos backend, Vue administration console, uni-app application foundation, React/Taro application foundation, versioned database migrations, and module scaffolding.
 
+
+Security updates restrict script languages, reject reserved account names, extend business auditing, and add separate admin agreements. Admin agreements use site=2 (1191–1194), independent of app site=3, and require active consent before admin sign-in. The footer shows the host service version. See the [remediation record](docs/漏洞整改记录.md) for existing databases, script migration, and deployment requirements.
+
 ## Implemented Capabilities
 
 - Account/password, captcha, OAuth, TOTP/WebAuthn multi-factor authentication, JWT refresh, tenant, and Casbin authorization.
@@ -125,7 +128,7 @@ make -C backend run-only APP_ENV=https
 
 The administration proxy must set `VITE_PROXY` in a local environment file to `https://127.0.0.1:7001`; Taro and uni-app H5 must set `VITE_APP_API_URL` in their respective `.env.development-h5.local` files to `https://127.0.0.1:7001`. All three development proxies skip self-signed certificate verification.
 
-The default migration provides development accounts `super / 112233` and `admin / 112233`. Change the default passwords, JWT key, database credentials, and Redis credentials before deployment.
+The default migration provides development accounts `super / 112233` and `opsmaint / 112233`. Change the default passwords, JWT key, database credentials, and Redis credentials before deployment.
 
 ## Generation and Checks
 

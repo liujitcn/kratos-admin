@@ -1,5 +1,6 @@
 <template>
   <div class="table-box">
+    <el-alert class="script-hint" type="info" :title="t('system.base.script.message.sandbox')" :closable="false" show-icon />
     <ProTable ref="proTable" row-key="id" :columns="columns" :header-actions="headerActions" :request-api="requestBaseScriptTable" />
 
     <FormDialog
@@ -17,9 +18,6 @@
     >
       <template #source>
         <CodeEditor v-model="formData.source" :language="editorLanguage" height="360px" />
-        <div v-if="formData.language === BaseScriptLanguage.BASE_SCRIPT_LANGUAGE_WASM" class="source-hint">
-          {{ t("system.base.script.placeholder.wasm_source") }}
-        </div>
       </template>
     </FormDialog>
 
@@ -85,21 +83,14 @@ const testResult = ref<TestRunBaseScriptResponse>();
 const defaultSource = "function execute(ctx) {\n  return ctx;\n}\n\nexecute(ctx);";
 const sourceTemplates: Partial<Record<BaseScriptLanguage, string>> = {
   [BaseScriptLanguage.BASE_SCRIPT_LANGUAGE_JAVASCRIPT]: defaultSource,
-  [BaseScriptLanguage.BASE_SCRIPT_LANGUAGE_LUA]: "return ctx",
-	[BaseScriptLanguage.BASE_SCRIPT_LANGUAGE_PYTHON]: "1 + 1",
-	[BaseScriptLanguage.BASE_SCRIPT_LANGUAGE_GO]: "1 + 1",
   [BaseScriptLanguage.BASE_SCRIPT_LANGUAGE_CEL]: "ctx",
-  [BaseScriptLanguage.BASE_SCRIPT_LANGUAGE_EXPR]: "ctx",
-  [BaseScriptLanguage.BASE_SCRIPT_LANGUAGE_STARLARK]: "ctx",
-	[BaseScriptLanguage.BASE_SCRIPT_LANGUAGE_TCL]: "expr {1 + 1}"
+  [BaseScriptLanguage.BASE_SCRIPT_LANGUAGE_EXPR]: "ctx"
 };
-const monacoLanguageMap: Partial<Record<BaseScriptLanguage, string>> = {
-  [BaseScriptLanguage.BASE_SCRIPT_LANGUAGE_JAVASCRIPT]: "javascript",
-  [BaseScriptLanguage.BASE_SCRIPT_LANGUAGE_LUA]: "lua",
-  [BaseScriptLanguage.BASE_SCRIPT_LANGUAGE_PYTHON]: "python",
-  [BaseScriptLanguage.BASE_SCRIPT_LANGUAGE_GO]: "go",
-  [BaseScriptLanguage.BASE_SCRIPT_LANGUAGE_STARLARK]: "python"
-};
+const languageOptions: ProFormOption[] = [
+  { label: "JavaScript", value: BaseScriptLanguage.BASE_SCRIPT_LANGUAGE_JAVASCRIPT },
+  { label: "CEL", value: BaseScriptLanguage.BASE_SCRIPT_LANGUAGE_CEL },
+  { label: "Expr", value: BaseScriptLanguage.BASE_SCRIPT_LANGUAGE_EXPR }
+];
 
 const dialog = reactive({ visible: false, editing: false });
 const testDialog = reactive({ visible: false });
@@ -115,7 +106,7 @@ const formData = reactive<BaseScriptForm>({
   status: Status.STATUS_ENABLE
 });
 
-const editorLanguage = computed(() => monacoLanguageMap[formData.language] ?? "plaintext");
+const editorLanguage = computed(() => formData.language === BaseScriptLanguage.BASE_SCRIPT_LANGUAGE_JAVASCRIPT ? "javascript" : "plaintext");
 
 watch(
   () => formData.language,
@@ -139,7 +130,7 @@ const statusOptions = computed<ProFormOption[]>(() => [
 
 const formFields = computed<ProFormField[]>(() => [
   { prop: "name", label: t("system.base.script.field.name"), component: "input", props: { maxlength: 100, showWordLimit: true } },
-  { prop: "language", label: t("system.base.script.field.language"), component: "dict", props: { code: "base_script_language", codeType: "number", style: { width: "100%" } } },
+  { prop: "language", label: t("system.base.script.field.language"), component: "select", options: languageOptions, props: { style: { width: "100%" } } },
   { prop: "hook_point", label: t("system.base.script.field.hook_point"), component: "input", props: { maxlength: 160, placeholder: t("system.base.script.placeholder.hook_point") } },
   { prop: "priority", label: t("system.base.script.field.priority"), component: "input-number", props: { min: 0, max: 1000, precision: 0 } },
   { prop: "description", label: t("system.base.script.field.description"), component: "textarea", props: { maxlength: 512, rows: 2, showWordLimit: true } },
@@ -158,7 +149,7 @@ const columns = computed<ColumnProps[]>(() => [
   { prop: "updated_at", label: t("common.field.updated_at"), minWidth: 180, align: "center" },
   { prop: "operation", label: t("common.field.action"), cellType: "actions", actions: [
     { label: t("common.action.edit"), type: "primary", link: true, icon: EditPen, hidden: () => !BUTTONS.value["base:script:update"], onClick: scope => handleOpenDialog((scope.row as BaseScript).id) },
-    { label: t("system.base.script.action.run"), type: "success", link: true, icon: Promotion, hidden: () => !BUTTONS.value["base:script:test-run"], onClick: scope => openTestRun(scope.row as BaseScript) },
+    { label: t("system.base.script.action.run"), type: "success", link: true, icon: Promotion, hidden: () => !BUTTONS.value["base:script:test-run"], disabled: scope => !sourceTemplates[(scope.row as BaseScript).language], onClick: scope => openTestRun(scope.row as BaseScript) },
     { label: t("system.base.script.action.log"), type: "info", link: true, icon: Tickets, hidden: () => !BUTTONS.value["base:script:log"], onClick: scope => openLogs(scope.row as BaseScript) },
     { label: t("common.action.delete"), type: "danger", link: true, icon: Delete, hidden: () => !BUTTONS.value["base:script:delete"], onClick: scope => handleDelete(scope.row as BaseScript) }
   ] }
@@ -233,7 +224,7 @@ async function handleTestRun() {
   if (!testScript.value) return;
   testLoading.value = true;
   try {
-    testResult.value = await defBaseScriptService.TestRunBaseScript({ id: testScript.value.id, language: testScript.value.language, source: "", context_json: testContext.value });
+    testResult.value = await defBaseScriptService.TestRunBaseScript({ id: testScript.value.id, context_json: testContext.value });
   } finally {
     testLoading.value = false;
   }
@@ -246,7 +237,7 @@ function openLogs(row: BaseScript) {
 
 <style scoped>
 .test-form { margin-top: 16px; }
+.script-hint { margin-bottom: 16px; }
 .result-title { margin-top: 16px; font-weight: 600; }
 .result-block { max-height: 260px; padding: 12px; margin: 8px 0 0; overflow: auto; background: var(--el-fill-color-light); border-radius: var(--admin-page-radius); white-space: pre-wrap; }
-.source-hint { margin-top: 8px; color: var(--el-text-color-secondary); font-size: 12px; }
 </style>

@@ -36,6 +36,12 @@ func NewOauthServiceAgentTools(oauthServiceServer OauthServiceServer) ([]tool.In
 		return nil, err
 	}
 	ts = append(ts, createOauthAuthorizationTool)
+	var createAdminOauthAuthorizationTool tool.InvokableTool
+	createAdminOauthAuthorizationTool, err = NewOauthServiceCreateAdminOauthAuthorizationAgentTool(oauthServiceServer)
+	if err != nil {
+		return nil, err
+	}
+	ts = append(ts, createAdminOauthAuthorizationTool)
 	var createOauthBindingAuthorizationTool tool.InvokableTool
 	createOauthBindingAuthorizationTool, err = NewOauthServiceCreateOauthBindingAuthorizationAgentTool(oauthServiceServer)
 	if err != nil {
@@ -127,6 +133,20 @@ func NewOauthServiceCreateOauthAuthorizationAgentTool(oauthServiceServer OauthSe
 				req = &CreateOauthAuthorizationRequest{}
 			}
 			return oauthServiceServer.CreateOauthAuthorization(ctx, req)
+		},
+	)
+}
+
+// NewOauthServiceCreateAdminOauthAuthorizationAgentTool 创建创建管理端三方登录授权地址，必须主动确认当前管理端协议的 Agent Tool。
+func NewOauthServiceCreateAdminOauthAuthorizationAgentTool(oauthServiceServer OauthServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*CreateOauthAuthorizationRequest, *CreateOauthAuthorizationResponse](
+		"base_v1_oauth_service_create_admin_oauth_authorization",
+		"创建管理端三方登录授权地址，必须主动确认当前管理端协议",
+		func(ctx context.Context, req *CreateOauthAuthorizationRequest) (*CreateOauthAuthorizationResponse, error) {
+			if req == nil {
+				req = &CreateOauthAuthorizationRequest{}
+			}
+			return oauthServiceServer.CreateAdminOauthAuthorization(ctx, req)
 		},
 	)
 }

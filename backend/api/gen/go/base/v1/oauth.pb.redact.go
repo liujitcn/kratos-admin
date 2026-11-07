@@ -90,6 +90,17 @@ func (s *redactedOauthServiceServer) CreateOauthAuthorization(ctx context.Contex
 	return res, err
 }
 
+// CreateAdminOauthAuthorization is the redacted wrapper for the actual OauthServiceServer.CreateAdminOauthAuthorization method
+// Unary RPC
+func (s *redactedOauthServiceServer) CreateAdminOauthAuthorization(ctx context.Context, in *CreateOauthAuthorizationRequest) (*CreateOauthAuthorizationResponse, error) {
+	res, err := s.srv.CreateAdminOauthAuthorization(ctx, in)
+	if !s.bypass.CheckInternal(ctx) {
+		// Apply redaction to the response
+		redact.ApplyWith(redact.WithDirection(redact.WithOperation(ctx, "/base.v1.OauthService/CreateAdminOauthAuthorization"), redact.DirectionResponse), nil, res)
+	}
+	return res, err
+}
+
 // CreateOauthBindingAuthorization is the redacted wrapper for the actual OauthServiceServer.CreateOauthBindingAuthorization method
 // Unary RPC
 func (s *redactedOauthServiceServer) CreateOauthBindingAuthorization(ctx context.Context, in *CreateOauthBindingAuthorizationRequest) (*CreateOauthBindingAuthorizationResponse, error) {
@@ -223,6 +234,8 @@ func (x *CreateOauthAuthorizationRequest) Redact() {
 	// Safe field: Provider
 
 	// Safe field: RedirectUrl
+
+	// Safe field: AdminAgreement
 }
 
 // Ensure CreateOauthAuthorizationResponse implements the Redactor interface at compile time.

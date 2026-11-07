@@ -13,6 +13,7 @@ import (
 	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
 	"github.com/liujitcn/kratos-core/biz"
 	"github.com/liujitcn/kratos-core/errorsx"
+	authData "github.com/liujitcn/kratos-kit/auth/data"
 )
 
 // BaseScriptCase 脚本管理业务实例。
@@ -143,44 +144,38 @@ func (c *BaseScriptCase) SetBaseScriptStatus(ctx context.Context, req *adminv1.S
 	return c.UpdateByID(ctx, &models.BaseScript{ID: req.GetId(), Status: int32(req.GetStatus())})
 }
 
-// TestRunBaseScript 在隔离运行时执行已保存脚本或草稿源码。
+// TestRunBaseScript 在无宿主能力的运行时中试运行已保存脚本。
 func (c *BaseScriptCase) TestRunBaseScript(ctx context.Context, req *adminv1.TestRunBaseScriptRequest) (*adminv1.TestRunBaseScriptResponse, error) {
 	return c.testRunBaseScript(ctx, req, false)
 }
 
-// testRunBaseScript 复用保存脚本读取与审计，流程调用选择无宿主能力的专用执行器。
+// testRunBaseScript 拒绝草稿参数，读取已保存脚本并记录受限执行结果。
 func (c *BaseScriptCase) testRunBaseScript(ctx context.Context, req *adminv1.TestRunBaseScriptRequest, workflowOnly bool) (*adminv1.TestRunBaseScriptResponse, error) {
-	var scriptID int64
-	var scriptName string
-	var language string
-	var source string
-	var version int32
-	if req.GetId() > 0 {
-		item, err := c.FindByID(ctx, req.GetId())
-		if err != nil {
-			return nil, err
-		}
-		scriptID = item.ID
-		scriptName = item.Name
-		language = item.Language
-		source = item.Source
-		version = item.Version
-	} else {
-		scriptName = "draft"
-		language = scriptLanguageString(req.GetLanguage())
-		source = req.GetSource()
+	if req.GetId() <= 0 {
+		return nil, errorsx.InvalidArgument("试运行必须指定已保存脚本ID")
 	}
+	if req.Language != nil || req.Source != nil {
+		return nil, errorsx.InvalidArgument("试运行不允许提交脚本语言或源码")
+	}
+	item, err := c.FindByID(ctx, req.GetId())
+	if err != nil {
+		return nil, err
+	}
+	language := item.Language
+	source := item.Source
 	if language == "" {
 		return nil, errorsx.InvalidArgument("脚本语言无效")
 	}
 	if source == "" {
 		return nil, errorsx.InvalidArgument("脚本源码不能为空")
 	}
-	input, err := scripting.ParseContext(req.GetContextJson())
+	var input map[string]any
+	input, err = scripting.ParseContext(req.GetContextJson())
 	if err != nil {
 		return nil, errorsx.InvalidArgument(err.Error())
 	}
-	authInfo, err := c.GetAuthInfo(ctx)
+	var authInfo *authData.UserTokenPayload
+	authInfo, err = c.GetAuthInfo(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -204,19 +199,19 @@ func (c *BaseScriptCase) testRunBaseScript(ctx context.Context, req *adminv1.Tes
 	}
 	response.DurationMs = time.Since(started).Milliseconds()
 	logItem := &models.BaseScriptLog{
-		ScriptID:    scriptID,
-		ScriptName:  scriptName,
+		ScriptID:    item.ID,
+		ScriptName:  item.Name,
 		Language:    language,
 		TriggerType: "test_run",
-		Version:     version,
+		Version:     item.Version,
 		Success:     boolToInt32(response.Success),
 		DurationMs:  response.DurationMs,
 		Error:       response.Error,
 		TenantID:    authInfo.TenantId,
 		UserID:      authInfo.UserId,
 	}
-	if logErr := c.baseScriptLog.Record(ctx, logItem); logErr != nil {
-		return nil, errorsx.WrapInternal(logErr, "记录脚本执行日志失败")
+	if err = c.baseScriptLog.Record(ctx, logItem); err != nil {
+		return nil, errorsx.WrapInternal(err, "记录脚本执行日志失败")
 	}
 	return response, nil
 }
@@ -226,8 +221,8 @@ func validateScriptForm(req *adminv1.BaseScriptForm) error {
 	if req.GetId() < 0 {
 		return errorsx.InvalidArgument("脚本ID无效")
 	}
-	if scriptLanguageString(req.GetLanguage()) == "" {
-		return errorsx.InvalidArgument("脚本语言无效")
+	if !scripting.LanguageSupported(scriptLanguageString(req.GetLanguage())) {
+		return errorsx.InvalidArgument("仅支持 JavaScript、CEL、Expr 脚本")
 	}
 	if !scriptStatusValid(int32(req.GetStatus())) {
 		return errorsx.InvalidArgument("脚本状态无效")

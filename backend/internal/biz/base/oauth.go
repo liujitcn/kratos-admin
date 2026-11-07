@@ -14,7 +14,9 @@ import (
 	"time"
 
 	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
+	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/adminagreement"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/dto"
+	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/loginaudit"
 	_const "github.com/liujitcn/kratos-admin/backend/internal/const"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
@@ -27,6 +29,7 @@ import (
 	kratosHTTP "github.com/go-kratos/kratos/v3/transport/http"
 	"github.com/liujitcn/go-utils/id"
 	"github.com/liujitcn/gorm-kit/repository"
+	authData "github.com/liujitcn/kratos-kit/auth/data"
 	"github.com/liujitcn/kratos-kit/oauth"
 	"github.com/liujitcn/kratos-kit/oauth/provider"
 	"google.golang.org/protobuf/types/known/structpb"
@@ -34,6 +37,7 @@ import (
 )
 
 const oauthSceneAdminLogin = "admin_login"
+const oauthSceneAdminAgreementLogin = "admin_agreement_login"
 const oauthSceneAdminBind = "admin_bind"
 const oauthLoginTicketKeyPrefix = "admin:oauth:login:ticket"
 const oauthLoginTicketExpire = 2 * time.Minute
@@ -199,7 +203,16 @@ func (c *OauthCase) oauthProviderI18nMap(ctx context.Context, targetKey string, 
 	return result, nil
 }
 
-// CreateOauthAuthorization 创建三方登录授权地址。
+// CreateAdminOauthAuthorization 校验管理端协议并将确认绑定到服务端 OAuth state。
+func (c *OauthCase) CreateAdminOauthAuthorization(ctx context.Context, req *basev1.CreateOauthAuthorizationRequest) (*basev1.CreateOauthAuthorizationResponse, error) {
+	receipt, err := c.loginCase.ConfirmAdminAgreement(ctx, req.GetAdminAgreement())
+	if err != nil {
+		return nil, err
+	}
+	return c.CreateOauthAuthorization(adminagreement.WithReceipt(ctx, receipt), req)
+}
+
+// CreateOauthAuthorization 复用公共 OAuth 授权，在管理端上下文中保留专属协议确认。
 func (c *OauthCase) CreateOauthAuthorization(ctx context.Context, req *basev1.CreateOauthAuthorizationRequest) (*basev1.CreateOauthAuthorizationResponse, error) {
 	var err error
 	var redirectURL string
@@ -214,12 +227,24 @@ func (c *OauthCase) CreateOauthAuthorization(ctx context.Context, req *basev1.Cr
 	if err != nil {
 		return nil, errorsx.InvalidArgument("登录方式不支持").WithCause(err)
 	}
+	scene := oauthSceneAdminLogin
+	var extra map[string]string
+	if receipt, ok := adminagreement.ReceiptFromContext(ctx); ok {
+		var body []byte
+		body, err = json.Marshal(receipt)
+		if err != nil {
+			return nil, errorsx.Internal("保存管理端协议确认失败").WithCause(err)
+		}
+		scene = oauthSceneAdminAgreementLogin
+		extra = map[string]string{"admin_agreement": string(body)}
+	}
 	var state string
 	var pkce provider.PKCEChallenge
 	state, pkce, err = oauth.NewStateWithPKCE(c.Cache, oauth.StatePayload{
 		Provider:    oauthType,
-		Scene:       oauthSceneAdminLogin,
+		Scene:       scene,
 		RedirectURL: redirectURL,
+		Extra:       extra,
 	}, 0)
 	if err != nil {
 		return nil, errorsx.Internal("创建三方登录授权失败").WithCause(err)
@@ -397,7 +422,7 @@ func (c *OauthCase) BindOauthSession(ctx context.Context, req *basev1.BindOauthS
 	}, nil
 }
 
-// HandleOauthCallback 处理三方登录回调并跳回管理端登录页。
+// HandleOauthCallback 处理三方登录回调，并在管理端流程中复验 state 保存的协议确认。
 func (c *OauthCase) HandleOauthCallback(ctx context.Context, req *basev1.HandleOauthCallbackRequest) (*basev1.HandleOauthCallbackResponse, error) {
 	payload, err := oauth.VerifyState(c.Cache, req.GetState())
 	if err != nil {
@@ -406,8 +431,19 @@ func (c *OauthCase) HandleOauthCallback(ctx context.Context, req *basev1.HandleO
 	if payload.Scene == oauthSceneAdminBind {
 		return nil, c.handleOauthBindingCallback(ctx, payload, req.GetProvider(), req.GetCode(), req.GetError())
 	}
-	if payload.Scene != oauthSceneAdminLogin {
+	if payload.Scene != oauthSceneAdminLogin && payload.Scene != oauthSceneAdminAgreementLogin {
 		return nil, c.oauthRedirectPayload(ctx, payload, "", newOauthCallbackError("base.oauth.callback.state_invalid", "三方登录状态无效"))
+	}
+	if payload.Scene == oauthSceneAdminAgreementLogin {
+		var receipt adminagreement.Receipt
+		err = json.Unmarshal([]byte(payload.Extra["admin_agreement"]), &receipt)
+		if err != nil {
+			return nil, c.oauthRedirectPayload(ctx, payload, "", errorsx.InvalidArgument("管理端协议确认已失效"))
+		}
+		if err = c.loginCase.ValidateAdminAgreement(ctx, receipt); err != nil {
+			return nil, c.oauthRedirectPayload(ctx, payload, "", err)
+		}
+		ctx = adminagreement.WithReceipt(ctx, receipt)
 	}
 
 	oauthType := oauth.Type(req.GetProvider())
@@ -463,7 +499,7 @@ func (c *OauthCase) HandleOauthCallback(ctx context.Context, req *basev1.HandleO
 	}
 
 	var ticket string
-	ticket, err = c.createOauthLoginTicket(loginRes)
+	ticket, err = c.createOauthLoginTicket(ctx, loginRes)
 	if err != nil {
 		return nil, c.oauthRedirectPayload(ctx, payload, "", newOauthCallbackError("base.oauth.callback.login_failed", "三方账号登录失败"))
 	}
@@ -479,7 +515,7 @@ func (c *OauthCase) HandleOauthBindingCallback(ctx context.Context, req *basev1.
 	return c.handleOauthBindingCallback(ctx, payload, req.GetProvider(), req.GetCode(), req.GetError())
 }
 
-// ExchangeOauthTicket 兑换三方登录一次性票据。
+// ExchangeOauthTicket 兑换一次性票据，并在成功交付管理端令牌时提交协议确认审计。
 func (c *OauthCase) ExchangeOauthTicket(ctx context.Context, req *basev1.ExchangeOauthTicketRequest) (*basev1.ExchangeOauthTicketResponse, error) {
 	value, err := c.consumeOauthLoginTicket(req.GetTicket())
 	if err != nil {
@@ -490,6 +526,28 @@ func (c *OauthCase) ExchangeOauthTicket(ctx context.Context, req *basev1.Exchang
 	err = json.Unmarshal([]byte(value), &payload)
 	if err != nil {
 		return nil, errorsx.Unauthenticated("三方登录票据无效").WithCause(err)
+	}
+	if payload.AdminLogin {
+		if payload.AdminAgreement == nil {
+			return nil, errorsx.PermissionDenied("管理端协议确认已失效")
+		}
+		if err = c.loginCase.ValidateAdminAgreement(ctx, *payload.AdminAgreement); err != nil {
+			return nil, err
+		}
+		if payload.AccessToken != "" {
+			var rawIdentity string
+			rawIdentity, err = c.Cache.Get(refreshTokenAuthKey(payload.RefreshToken))
+			if err != nil {
+				return nil, errorsx.Unauthenticated("三方登录票据已失效").WithCause(err)
+			}
+			var identity authData.UserTokenPayload
+			err = json.Unmarshal([]byte(rawIdentity), &identity)
+			if err != nil {
+				return nil, errorsx.Internal("读取三方登录身份失败").WithCause(err)
+			}
+			loginaudit.Record(ctx, &identity)
+			adminagreement.Record(adminagreement.WithReceipt(ctx, *payload.AdminAgreement))
+		}
 	}
 	return &basev1.ExchangeOauthTicketResponse{
 		AccessToken:            payload.AccessToken,
@@ -729,8 +787,8 @@ func (c *OauthCase) fetchOauthUser(ctx context.Context, oauthType oauth.Type, co
 	return oauthUser, nil
 }
 
-// createOauthLoginTicket 缓存三方登录结果并返回一次性票据。
-func (c *OauthCase) createOauthLoginTicket(loginRes *basev1.LoginResponse) (string, error) {
+// createOauthLoginTicket 缓存三方登录结果与管理端协议确认并返回一次性票据。
+func (c *OauthCase) createOauthLoginTicket(ctx context.Context, loginRes *basev1.LoginResponse) (string, error) {
 	payload := dto.OauthLoginTicketPayload{
 		AccessToken:     loginRes.GetAccessToken(),
 		RefreshToken:    loginRes.GetRefreshToken(),
@@ -743,6 +801,10 @@ func (c *OauthCase) createOauthLoginTicket(loginRes *basev1.LoginResponse) (stri
 		MfaMethod:       loginRes.GetMfaMethod(),
 		MfaWebAuthnJSON: loginRes.GetMfaWebauthnOptionsJson(),
 		MfaRememberDays: loginRes.GetMfaRememberDays(),
+	}
+	if receipt, ok := adminagreement.ReceiptFromContext(ctx); ok {
+		payload.AdminLogin = true
+		payload.AdminAgreement = &receipt
 	}
 	body, err := json.Marshal(payload)
 	if err != nil {

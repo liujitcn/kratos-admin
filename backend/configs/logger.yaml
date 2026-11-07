@@ -4,3 +4,6 @@ logger:
     filepath: ./logs
     level: debug
     enable_console: true
+    # 保留一年，避免按文件数量在高峰期提前清理。
+    max_age: 365
+    max_backups: 0

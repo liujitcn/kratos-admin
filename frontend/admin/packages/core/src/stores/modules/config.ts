@@ -78,8 +78,10 @@ function buildConfigMap(configs: Array<{ key?: string; value?: string }>) {
 
 export const useConfigStore = defineStore("admin-config", {
   state: (): SiteConfigState => ({
+    version: "",
     display: { ...DEFAULT_SITE_DISPLAY_CONFIG },
     captcha: { ...DEFAULT_LOGIN_CAPTCHA_CONFIG },
+    agreements: { service: "", serviceVersion: "", privacy: "", privacyVersion: "" },
     showTenantCode: true,
     i18nDraftEnabled: false,
     aiEnabled: false
@@ -105,8 +107,10 @@ export const useConfigStore = defineStore("admin-config", {
      * 重置为默认站点展示配置。
      */
     resetDisplayConfig() {
+      this.version = "";
       this.display = { ...DEFAULT_SITE_DISPLAY_CONFIG };
       this.captcha = { ...DEFAULT_LOGIN_CAPTCHA_CONFIG };
+      this.agreements = { service: "", serviceVersion: "", privacy: "", privacyVersion: "" };
       this.i18nDraftEnabled = false;
       // 避免登出或切换租户后沿用上一租户的 AI 菜单显隐状态。
       this.aiEnabled = false;
@@ -120,8 +124,15 @@ export const useConfigStore = defineStore("admin-config", {
       });
       const configMap = buildConfigMap(configResponse.configs ?? []);
 
+      this.version = configResponse.version ?? "";
       this.setDisplayConfig(normalizeSiteDisplayConfig(configMap));
       this.setLoginCaptchaConfig(normalizeLoginCaptchaConfig(configMap));
+      this.agreements = {
+        service: configMap.adminServiceProtocol ?? "",
+        serviceVersion: configMap.adminServiceProtocolVersion ?? "",
+        privacy: configMap.adminPrivacyProtocol ?? "",
+        privacyVersion: configMap.adminPrivacyProtocolVersion ?? ""
+      };
       this.showTenantCode = !["false", "0"].includes((configMap[SHOW_TENANT_CODE_KEY] ?? "true").toLowerCase());
       this.i18nDraftEnabled = configMap[I18N_DRAFT_ENABLED_KEY] === "true";
       this.aiEnabled = configResponse.ai_enabled === true;

@@ -454,14 +454,15 @@ func (x *RefreshTokenResponse) GetExpiresIn() int64 {
 
 // 登录请求参数
 type LoginRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	TenantCode    string                 `protobuf:"bytes,1,opt,name=tenant_code,json=tenantCode,proto3" json:"tenant_code,omitempty"`    // 租户编码
-	UserName      string                 `protobuf:"bytes,2,opt,name=user_name,json=userName,proto3" json:"user_name,omitempty"`          // 用户名，必选项。
-	Password      *commonv1.SecretCrypto `protobuf:"bytes,3,opt,name=password,proto3" json:"password,omitempty"`                          // 用户的密码，必选项。
-	CaptchaCode   string                 `protobuf:"bytes,4,opt,name=captcha_code,json=captchaCode,proto3" json:"captcha_code,omitempty"` // 验证码
-	CaptchaId     string                 `protobuf:"bytes,5,opt,name=captcha_id,json=captchaId,proto3" json:"captcha_id,omitempty"`       // 验证码Id
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	TenantCode     string                 `protobuf:"bytes,1,opt,name=tenant_code,json=tenantCode,proto3" json:"tenant_code,omitempty"`             // 租户编码
+	UserName       string                 `protobuf:"bytes,2,opt,name=user_name,json=userName,proto3" json:"user_name,omitempty"`                   // 用户名，必选项。
+	Password       *commonv1.SecretCrypto `protobuf:"bytes,3,opt,name=password,proto3" json:"password,omitempty"`                                   // 用户的密码，必选项。
+	CaptchaCode    string                 `protobuf:"bytes,4,opt,name=captcha_code,json=captchaCode,proto3" json:"captcha_code,omitempty"`          // 验证码
+	CaptchaId      string                 `protobuf:"bytes,5,opt,name=captcha_id,json=captchaId,proto3" json:"captcha_id,omitempty"`                // 验证码Id
+	AdminAgreement *AdminAgreementConsent `protobuf:"bytes,6,opt,name=admin_agreement,json=adminAgreement,proto3" json:"admin_agreement,omitempty"` // 管理端专属协议确认，仅管理端登录入口校验
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
 }
 
 func (x *LoginRequest) Reset() {
@@ -529,6 +530,74 @@ func (x *LoginRequest) GetCaptchaId() string {
 	return ""
 }
 
+func (x *LoginRequest) GetAdminAgreement() *AdminAgreementConsent {
+	if x != nil {
+		return x.AdminAgreement
+	}
+	return nil
+}
+
+// 管理端专属的服务协议和隐私政策主动确认。
+type AdminAgreementConsent struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	Accepted       bool                   `protobuf:"varint,1,opt,name=accepted,proto3" json:"accepted,omitempty"`                                  // 是否主动同意当前管理端协议
+	ServiceVersion string                 `protobuf:"bytes,2,opt,name=service_version,json=serviceVersion,proto3" json:"service_version,omitempty"` // 已阅读的管理端服务协议版本
+	PrivacyVersion string                 `protobuf:"bytes,3,opt,name=privacy_version,json=privacyVersion,proto3" json:"privacy_version,omitempty"` // 已阅读的管理端隐私政策版本
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *AdminAgreementConsent) Reset() {
+	*x = AdminAgreementConsent{}
+	mi := &file_base_v1_login_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AdminAgreementConsent) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AdminAgreementConsent) ProtoMessage() {}
+
+func (x *AdminAgreementConsent) ProtoReflect() protoreflect.Message {
+	mi := &file_base_v1_login_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AdminAgreementConsent.ProtoReflect.Descriptor instead.
+func (*AdminAgreementConsent) Descriptor() ([]byte, []int) {
+	return file_base_v1_login_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *AdminAgreementConsent) GetAccepted() bool {
+	if x != nil {
+		return x.Accepted
+	}
+	return false
+}
+
+func (x *AdminAgreementConsent) GetServiceVersion() string {
+	if x != nil {
+		return x.ServiceVersion
+	}
+	return ""
+}
+
+func (x *AdminAgreementConsent) GetPrivacyVersion() string {
+	if x != nil {
+		return x.PrivacyVersion
+	}
+	return ""
+}
+
 // 登录响应
 type LoginResponse struct {
 	state                  protoimpl.MessageState `protogen:"open.v1"`
@@ -549,7 +618,7 @@ type LoginResponse struct {
 
 func (x *LoginResponse) Reset() {
 	*x = LoginResponse{}
-	mi := &file_base_v1_login_proto_msgTypes[8]
+	mi := &file_base_v1_login_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -561,7 +630,7 @@ func (x *LoginResponse) String() string {
 func (*LoginResponse) ProtoMessage() {}
 
 func (x *LoginResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_base_v1_login_proto_msgTypes[8]
+	mi := &file_base_v1_login_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -574,7 +643,7 @@ func (x *LoginResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use LoginResponse.ProtoReflect.Descriptor instead.
 func (*LoginResponse) Descriptor() ([]byte, []int) {
-	return file_base_v1_login_proto_rawDescGZIP(), []int{8}
+	return file_base_v1_login_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *LoginResponse) GetAccessToken() string {
@@ -686,7 +755,7 @@ const file_base_v1_login_proto_rawDesc = "" +
 	"\n" +
 	"token_type\x18\x03 \x01(\tB\x94\x01\xbaG\x90\x01\x8a\x02\b\x1a\x06Bearer\x92\x02\x81\x01令牌的类型，该值大小写不敏感，必选项，可以是bearer类型或mac类型，通常只是字符串“Bearer”。R\ttokenType\x12\xdc\x01\n" +
 	"\n" +
-	"expires_in\x18\x04 \x01(\x03B\xbc\x01\xbaG\xb8\x01\x92\x02\xb4\x01令牌有效时间，单位为秒。如果访问令牌过期，服务器应回复授予访问令牌的持续时间。如果省略该参数，必须其他方式设置过期时间。R\texpiresIn\"\xcb\x05\n" +
+	"expires_in\x18\x04 \x01(\x03B\xbc\x01\xbaG\xb8\x01\x92\x02\xb4\x01令牌有效时间，单位为秒。如果访问令牌过期，服务器应回复授予访问令牌的持续时间。如果省略该参数，必须其他方式设置过期时间。R\texpiresIn\"\xd9\x06\n" +
 	"\fLoginRequest\x12\x8b\x01\n" +
 	"\vtenant_code\x18\x01 \x01(\tBj\xbaG\x0f\x92\x02\f租户编码\xbaHU\xba\x01R\n" +
 	"%base.login.login.tenant_code.required\x12\x18租户编码不能为空\x1a\x0fthis.size() > 0R\n" +
@@ -698,8 +767,15 @@ const file_base_v1_login_proto_rawDesc = "" +
 	"&base.login.login.captcha_code.required\x12\x15验证码不能为空\x1a\x0fthis.size() > 0R\vcaptchaCode\x12\x84\x01\n" +
 	"\n" +
 	"captcha_id\x18\x05 \x01(\tBe\xbaG\x0e\x92\x02\v验证码Id\xbaHQ\xba\x01N\n" +
-	"$base.login.login.captcha_id.required\x12\x15验证码不能为空\x1a\x0fthis.size() > 0R\tcaptchaId:Q\xbaHN\x1aL\n" +
-	"\"base.login.login.password.required\x12\x12密码不能为空\x1a\x12has(this.password)\"\x85\n" +
+	"$base.login.login.captcha_id.required\x12\x15验证码不能为空\x1a\x0fthis.size() > 0R\tcaptchaId\x12\x8b\x01\n" +
+	"\x0fadmin_agreement\x18\x06 \x01(\v2\x1e.base.v1.AdminAgreementConsentBB\xbaG?\x92\x02<管理端专属协议确认，仅管理端登录入口校验R\x0eadminAgreement:Q\xbaHN\x1aL\n" +
+	"\"base.login.login.password.required\x12\x12密码不能为空\x1a\x12has(this.password)\"\x9e\x04\n" +
+	"\x15AdminAgreementConsent\x12I\n" +
+	"\baccepted\x18\x01 \x01(\bB-\xbaG*\x92\x02'是否主动同意当前管理端协议R\baccepted\x12\xdb\x01\n" +
+	"\x0fservice_version\x18\x02 \x01(\tB\xb1\x01\xbaG*\x92\x02'已阅读的管理端服务协议版本\xbaH\x80\x01\xba\x01}\n" +
+	"2base.login.admin_agreement.service_version.max_len\x123管理端服务协议版本不能超过128个字符\x1a\x12this.size() <= 128R\x0eserviceVersion\x12\xdb\x01\n" +
+	"\x0fprivacy_version\x18\x03 \x01(\tB\xb1\x01\xbaG*\x92\x02'已阅读的管理端隐私政策版本\xbaH\x80\x01\xba\x01}\n" +
+	"2base.login.admin_agreement.privacy_version.max_len\x123管理端隐私政策版本不能超过128个字符\x1a\x12this.size() <= 128R\x0eprivacyVersion\"\x85\n" +
 	"\n" +
 	"\rLoginResponse\x12t\n" +
 	"\faccess_token\x18\x01 \x01(\tBQ\xbaGN\x92\x02K访问令牌，必选项。授权服务器颁发的访问令牌字符串。R\vaccessToken\x12\x89\x01\n" +
@@ -722,13 +798,15 @@ const file_base_v1_login_proto_rawDesc = "" +
 	"\x1aLOGIN_STATUS_AUTHENTICATED\x10\x01\x12\x1d\n" +
 	"\x19LOGIN_STATUS_MFA_REQUIRED\x10\x02\x12(\n" +
 	"$LOGIN_STATUS_MFA_ENROLLMENT_REQUIRED\x10\x03\x12)\n" +
-	"%LOGIN_STATUS_PASSWORD_CHANGE_REQUIRED\x10\x042\xff\x03\n" +
+	"%LOGIN_STATUS_PASSWORD_CHANGE_REQUIRED\x10\x042\xe3\x04\n" +
 	"\fLoginService\x12Z\n" +
 	"\aCaptcha\x12\x17.base.v1.CaptchaRequest\x1a\x18.base.v1.CaptchaResponse\"\x1c\x82\xd3\xe4\x93\x02\x16\x12\x14/api/v1/base/captcha\x12v\n" +
 	"\rVerifyCaptcha\x12\x1d.base.v1.VerifyCaptchaRequest\x1a\x1e.base.v1.VerifyCaptchaResponse\"&\x82\xd3\xe4\x93\x02 :\x01*\"\x1b/api/v1/base/captcha/verify\x12V\n" +
 	"\x06Logout\x12\x16.base.v1.LogoutRequest\x1a\x16.google.protobuf.Empty\"\x1c\x82\xd3\xe4\x93\x02\x16*\x14/api/v1/base/session\x12j\n" +
 	"\fRefreshToken\x12\x1c.base.v1.RefreshTokenRequest\x1a\x1d.base.v1.RefreshTokenResponse\"\x1d\x82\xd3\xe4\x93\x02\x17:\x01*\"\x12/api/v1/base/token\x12W\n" +
-	"\x05Login\x12\x15.base.v1.LoginRequest\x1a\x16.base.v1.LoginResponse\"\x1f\x82\xd3\xe4\x93\x02\x19:\x01*\"\x14/api/v1/base/sessionB\x9a\x01\n" +
+	"\x05Login\x12\x15.base.v1.LoginRequest\x1a\x16.base.v1.LoginResponse\"\x1f\x82\xd3\xe4\x93\x02\x19:\x01*\"\x14/api/v1/base/session\x12b\n" +
+	"\n" +
+	"AdminLogin\x12\x15.base.v1.LoginRequest\x1a\x16.base.v1.LoginResponse\"%\x82\xd3\xe4\x93\x02\x1f:\x01*\"\x1a/api/v1/admin/base/sessionB\x9a\x01\n" +
 	"\vcom.base.v1B\n" +
 	"LoginProtoP\x01ZBgithub.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1;basev1\xa2\x02\x03BXX\xaa\x02\aBase.V1\xca\x02\aBase\\V1\xe2\x02\x13Base\\V1\\GPBMetadata\xea\x02\bBase::V1b\x06proto3"
 
@@ -745,7 +823,7 @@ func file_base_v1_login_proto_rawDescGZIP() []byte {
 }
 
 var file_base_v1_login_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_base_v1_login_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
+var file_base_v1_login_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
 var file_base_v1_login_proto_goTypes = []any{
 	(LoginStatus)(0),              // 0: base.v1.LoginStatus
 	(*CaptchaRequest)(nil),        // 1: base.v1.CaptchaRequest
@@ -756,28 +834,32 @@ var file_base_v1_login_proto_goTypes = []any{
 	(*RefreshTokenRequest)(nil),   // 6: base.v1.RefreshTokenRequest
 	(*RefreshTokenResponse)(nil),  // 7: base.v1.RefreshTokenResponse
 	(*LoginRequest)(nil),          // 8: base.v1.LoginRequest
-	(*LoginResponse)(nil),         // 9: base.v1.LoginResponse
-	(*commonv1.SecretCrypto)(nil), // 10: common.v1.SecretCrypto
-	(*emptypb.Empty)(nil),         // 11: google.protobuf.Empty
+	(*AdminAgreementConsent)(nil), // 9: base.v1.AdminAgreementConsent
+	(*LoginResponse)(nil),         // 10: base.v1.LoginResponse
+	(*commonv1.SecretCrypto)(nil), // 11: common.v1.SecretCrypto
+	(*emptypb.Empty)(nil),         // 12: google.protobuf.Empty
 }
 var file_base_v1_login_proto_depIdxs = []int32{
-	10, // 0: base.v1.LoginRequest.password:type_name -> common.v1.SecretCrypto
-	0,  // 1: base.v1.LoginResponse.status:type_name -> base.v1.LoginStatus
-	1,  // 2: base.v1.LoginService.Captcha:input_type -> base.v1.CaptchaRequest
-	4,  // 3: base.v1.LoginService.VerifyCaptcha:input_type -> base.v1.VerifyCaptchaRequest
-	2,  // 4: base.v1.LoginService.Logout:input_type -> base.v1.LogoutRequest
-	6,  // 5: base.v1.LoginService.RefreshToken:input_type -> base.v1.RefreshTokenRequest
-	8,  // 6: base.v1.LoginService.Login:input_type -> base.v1.LoginRequest
-	3,  // 7: base.v1.LoginService.Captcha:output_type -> base.v1.CaptchaResponse
-	5,  // 8: base.v1.LoginService.VerifyCaptcha:output_type -> base.v1.VerifyCaptchaResponse
-	11, // 9: base.v1.LoginService.Logout:output_type -> google.protobuf.Empty
-	7,  // 10: base.v1.LoginService.RefreshToken:output_type -> base.v1.RefreshTokenResponse
-	9,  // 11: base.v1.LoginService.Login:output_type -> base.v1.LoginResponse
-	7,  // [7:12] is the sub-list for method output_type
-	2,  // [2:7] is the sub-list for method input_type
-	2,  // [2:2] is the sub-list for extension type_name
-	2,  // [2:2] is the sub-list for extension extendee
-	0,  // [0:2] is the sub-list for field type_name
+	11, // 0: base.v1.LoginRequest.password:type_name -> common.v1.SecretCrypto
+	9,  // 1: base.v1.LoginRequest.admin_agreement:type_name -> base.v1.AdminAgreementConsent
+	0,  // 2: base.v1.LoginResponse.status:type_name -> base.v1.LoginStatus
+	1,  // 3: base.v1.LoginService.Captcha:input_type -> base.v1.CaptchaRequest
+	4,  // 4: base.v1.LoginService.VerifyCaptcha:input_type -> base.v1.VerifyCaptchaRequest
+	2,  // 5: base.v1.LoginService.Logout:input_type -> base.v1.LogoutRequest
+	6,  // 6: base.v1.LoginService.RefreshToken:input_type -> base.v1.RefreshTokenRequest
+	8,  // 7: base.v1.LoginService.Login:input_type -> base.v1.LoginRequest
+	8,  // 8: base.v1.LoginService.AdminLogin:input_type -> base.v1.LoginRequest
+	3,  // 9: base.v1.LoginService.Captcha:output_type -> base.v1.CaptchaResponse
+	5,  // 10: base.v1.LoginService.VerifyCaptcha:output_type -> base.v1.VerifyCaptchaResponse
+	12, // 11: base.v1.LoginService.Logout:output_type -> google.protobuf.Empty
+	7,  // 12: base.v1.LoginService.RefreshToken:output_type -> base.v1.RefreshTokenResponse
+	10, // 13: base.v1.LoginService.Login:output_type -> base.v1.LoginResponse
+	10, // 14: base.v1.LoginService.AdminLogin:output_type -> base.v1.LoginResponse
+	9,  // [9:15] is the sub-list for method output_type
+	3,  // [3:9] is the sub-list for method input_type
+	3,  // [3:3] is the sub-list for extension type_name
+	3,  // [3:3] is the sub-list for extension extendee
+	0,  // [0:3] is the sub-list for field type_name
 }
 
 func init() { file_base_v1_login_proto_init() }
@@ -792,7 +874,7 @@ func file_base_v1_login_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_base_v1_login_proto_rawDesc), len(file_base_v1_login_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   9,
+			NumMessages:   10,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

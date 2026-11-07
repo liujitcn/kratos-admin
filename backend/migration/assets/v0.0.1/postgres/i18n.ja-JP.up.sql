@@ -25,6 +25,10 @@ INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('b
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_config.name', 1170, 'ja-JP', 'ログイン認証コードの種類') ON CONFLICT DO NOTHING;
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_config.name', 1180, 'ja-JP', '多要素認証戦略') ON CONFLICT DO NOTHING;
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_config.name', 1190, 'ja-JP', '多要素認証方式') ON CONFLICT DO NOTHING;
+INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_config.name', 1191, 'ja-JP', '管理画面利用規約') ON CONFLICT DO NOTHING;
+INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_config.name', 1192, 'ja-JP', '管理画面利用規約のバージョン') ON CONFLICT DO NOTHING;
+INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_config.name', 1193, 'ja-JP', '管理画面プライバシーポリシー') ON CONFLICT DO NOTHING;
+INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_config.name', 1194, 'ja-JP', '管理画面プライバシーポリシーのバージョン') ON CONFLICT DO NOTHING;
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_config.name', 1200, 'ja-JP', 'メインタイトル') ON CONFLICT DO NOTHING;
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_config.name', 1210, 'ja-JP', '字幕') ON CONFLICT DO NOTHING;
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_config.name', 1220, 'ja-JP', 'ロゴを適用') ON CONFLICT DO NOTHING;

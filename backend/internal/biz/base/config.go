@@ -64,7 +64,7 @@ func (c *ConfigCase) GetConfig(ctx context.Context, req *basev1.GetConfigRequest
 			if err != nil {
 				return nil, err
 			}
-			return &basev1.GetConfigResponse{Configs: appendI18nRuntimeConfig(localized, translatorEnabled)}, nil
+			return &basev1.GetConfigResponse{Configs: appendI18nRuntimeConfig(localized, translatorEnabled), Version: c.GetAppInfo().GetVersion()}, nil
 		}
 	}
 
@@ -94,6 +94,7 @@ func (c *ConfigCase) GetConfig(ctx context.Context, req *basev1.GetConfigRequest
 	}
 	response := &basev1.GetConfigResponse{
 		Configs: appendI18nRuntimeConfig(localized, translatorEnabled),
+		Version: c.GetAppInfo().GetVersion(),
 	}
 	var payload []byte
 	payload, err = json.Marshal(configs)

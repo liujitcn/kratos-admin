@@ -34,6 +34,16 @@ export class OauthServiceImpl {
     });
   }
 
+  /** 创建管理端三方授权，同时提交管理端专属协议确认。 */
+  CreateAdminOauthAuthorization(request: CreateOauthAuthorizationRequest): Promise<CreateOauthAuthorizationResponse> {
+    return service<CreateOauthAuthorizationRequest, CreateOauthAuthorizationResponse>({
+      url: "/v1/admin/base/oauth/authorization",
+      method: "post",
+      data: request,
+      headers: { Authorization: "no-auth" }
+    });
+  }
+
   /** 兑换三方登录票据 */
   ExchangeOauthTicket(request: ExchangeOauthTicketRequest): Promise<ExchangeOauthTicketResponse> {
     return service<ExchangeOauthTicketRequest, ExchangeOauthTicketResponse>({

@@ -40,6 +40,8 @@ export interface GetConfigResponse {
   configs: ConfigItem[];
   /** AI 助手是否可用 */
   ai_enabled: boolean;
+  /** 当前后端服务版本 */
+  version: string;
 }
 
 /** 当前租户自定义国际化覆盖项查询条件。 */

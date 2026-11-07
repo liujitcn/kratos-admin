@@ -12,6 +12,7 @@ import (
 
 	"github.com/go-kratos/kratos/v3/log"
 	"github.com/liujitcn/go-utils/crypto"
+	"github.com/liujitcn/go-utils/id"
 	"github.com/liujitcn/go-utils/mapper"
 	_string "github.com/liujitcn/go-utils/string"
 	"github.com/liujitcn/gorm-kit/repository"
@@ -36,7 +37,6 @@ import (
 )
 
 const (
-	baseTenantAdminUserName      = "admin"
 	baseTenantDefaultDeptPath    = "/0/%d"
 	baseTenantDefaultDeptSort    = int32(0)
 	baseTenantInitialCode        = int64(1000)
@@ -273,19 +273,31 @@ func (c *BaseTenantCase) createTenantPlaceholder(ctx context.Context, req *admin
 	return result, err
 }
 
-// completeTenantCreation 审批通过后初始化租户默认资源并按申请状态启用租户。
+// completeTenantCreation 审批后按管理员角色识别初始化状态，避免依赖固定账号名称。
 func (c *BaseTenantCase) completeTenantCreation(ctx context.Context, tenantID, notificationTenantID, applicantUserID, instanceID int64, requestedStatus int32, idempotencyKey string) (*adminv1.CreateBaseTenantResponse, error) {
 	var response *adminv1.CreateBaseTenantResponse
-	err := c.tx.Transaction(ctx, func(ctx context.Context) error {
-		baseTenant, err := c.FindByID(ctx, tenantID)
+	var err error
+	err = c.tx.Transaction(ctx, func(ctx context.Context) error {
+		var baseTenant *models.BaseTenant
+		baseTenant, err = c.FindByID(ctx, tenantID)
 		if err != nil {
 			return err
 		}
 		if baseTenant.Status == coreconst.STATUS_STATUS_ENABLE {
 			return nil
 		}
-		userQuery := c.baseUserRepo.Query(ctx).BaseUser
-		_, err = c.baseUserRepo.Find(ctx, repository.Where(userQuery.TenantID.Eq(tenantID)), repository.Where(userQuery.UserName.Eq(baseTenantAdminUserName)))
+		roleQuery := c.baseRoleRepo.Query(ctx).BaseRole
+		roleOpts := []repository.QueryOption{repository.Select(roleQuery.ID), repository.Where(roleQuery.TenantID.Eq(tenantID)), repository.Where(roleQuery.Code.Eq(coreconst.BASE_ROLE_CODE_TENANT))}
+		var adminRole *models.BaseRole
+		adminRole, err = c.baseRoleRepo.Find(ctx, roleOpts...)
+		if err != nil && !errors.Is(err, gormdb.ErrRecordNotFound) {
+			return err
+		}
+		if err == nil {
+			userQuery := c.baseUserRepo.Query(ctx).BaseUser
+			userOpts := []repository.QueryOption{repository.Select(userQuery.ID), repository.Where(userQuery.TenantID.Eq(tenantID)), repository.Where(userQuery.RoleID.Eq(adminRole.ID))}
+			_, err = c.baseUserRepo.Find(ctx, userOpts...)
+		}
 		if err == nil {
 			if requestedStatus != coreconst.STATUS_STATUS_DISABLE {
 				requestedStatus = coreconst.STATUS_STATUS_ENABLE
@@ -600,10 +612,11 @@ func (c *BaseTenantCase) initTenantDefaults(ctx context.Context, baseTenant *mod
 		return nil, errorsx.Internal("初始化租户管理员账号失败").WithCause(err)
 	}
 
+	adminUserName := id.NewShortUUID()
 	baseUser := &models.BaseUser{
 		TenantID:           baseTenant.ID,
-		UserName:           baseTenantAdminUserName,
-		UserCode:           baseTenantAdminUserName,
+		UserName:           adminUserName,
+		UserCode:           adminUserName,
 		NickName:           c.localizeTenantDefault(locale, "system.base.tenant.default_admin_nickname", "Administrator"),
 		RoleID:             baseRole.ID,
 		DeptID:             baseDept.ID,
@@ -629,7 +642,7 @@ func (c *BaseTenantCase) initTenantDefaults(ctx context.Context, baseTenant *mod
 		return nil, errorsx.Internal("初始化租户管理员角色权限失败").WithCause(err)
 	}
 	return &adminv1.CreateBaseTenantResponse{
-		AdminUserName:   baseTenantAdminUserName,
+		AdminUserName:   adminUserName,
 		InitialPassword: initialPassword,
 		TenantCode:      baseTenant.Code,
 	}, nil

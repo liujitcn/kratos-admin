@@ -3687,6 +3687,25 @@ paths:
                 "200":
                     description: OK
                     content: {}
+    /api/v1/admin/base/oauth/authorization:
+        post:
+            tags:
+                - OauthService
+            description: 建立管理端第三方登入授權網址，必須主動確認目前管理端協議
+            operationId: OauthService_CreateAdminOauthAuthorization
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/base.v1.CreateOauthAuthorizationRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.CreateOauthAuthorizationResponse'
     /api/v1/admin/base/operation-log:
         get:
             tags:
@@ -5155,6 +5174,25 @@ paths:
                 "200":
                     description: OK
                     content: {}
+    /api/v1/admin/base/session:
+        post:
+            tags:
+                - LoginService
+            description: 管理端登入，必須主動確認目前管理端服務協議和隱私政策
+            operationId: LoginService_AdminLogin
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/base.v1.LoginRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.LoginResponse'
     /api/v1/admin/base/session/current:
         get:
             tags:
@@ -9939,6 +9977,19 @@ paths:
                     content: {}
 components:
     schemas:
+        base.v1.AdminAgreementConsent:
+            type: object
+            properties:
+                accepted:
+                    type: boolean
+                    description: 是否主動同意目前管理端協議
+                service_version:
+                    type: string
+                    description: 已閱讀的管理端服務協議版本
+                privacy_version:
+                    type: string
+                    description: 已閱讀的管理端隱私政策版本
+            description: 管理端專屬服務協議和隱私政策的主動確認。
         base.v1.AiAction:
             type: object
             properties:
@@ -10495,6 +10546,8 @@ components:
                 redirect_url:
                     type: string
                     description: 三方登入完成後的前端接收地址
+                admin_agreement:
+                    $ref: '#/components/schemas/base.v1.AdminAgreementConsent'
             description: 三方登入授權地址建立條件
         base.v1.CreateOauthAuthorizationResponse:
             type: object
@@ -10736,6 +10789,9 @@ components:
                 ai_enabled:
                     type: boolean
                     description: AI assistant availability
+                version:
+                    type: string
+                    description: 目前後端服務版本
             description: 系統配置查詢結果
         base.v1.GetI18nCustomResponse:
             type: object
@@ -10920,6 +10976,8 @@ components:
                 captcha_id:
                     type: string
                     description: 驗證碼Id
+                admin_agreement:
+                    $ref: '#/components/schemas/base.v1.AdminAgreementConsent'
             description: 登入請求引數
         base.v1.LoginResponse:
             type: object
@@ -16315,7 +16373,7 @@ components:
                         - BASE_SCRIPT_LANGUAGE_STARLARK
                         - BASE_SCRIPT_LANGUAGE_TCL
                     type: string
-                    description: 指令碼語言
+                    description: 受限指令碼語言，僅支援 JavaScript、CEL、Expr
                     format: enum
                 hook_point:
                     type: string
@@ -20099,7 +20157,7 @@ components:
             properties:
                 id:
                     type: string
-                    description: 已儲存指令碼ID，為0時執行草稿
+                    description: 必須指定已儲存指令碼ID
                 language:
                     enum:
                         - BASE_SCRIPT_LANGUAGE_UNSPECIFIED
@@ -20113,11 +20171,11 @@ components:
                         - BASE_SCRIPT_LANGUAGE_STARLARK
                         - BASE_SCRIPT_LANGUAGE_TCL
                     type: string
-                    description: 草稿指令碼語言
+                    description: 禁止傳入指令碼語言
                     format: enum
                 source:
                     type: string
-                    description: 草稿指令碼原始碼
+                    description: 禁止傳入指令碼原始碼
                 context_json:
                     type: string
                     description: 初始上下文JSON

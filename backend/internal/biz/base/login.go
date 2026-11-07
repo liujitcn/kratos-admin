@@ -19,6 +19,8 @@ import (
 	"github.com/liujitcn/kratos-core/errorsx"
 
 	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
+	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/adminagreement"
+	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/dto"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/loginaudit"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/loginpolicy"
 	passwordPolicy "github.com/liujitcn/kratos-admin/backend/internal/biz/base/password"
@@ -67,6 +69,7 @@ type LoginCase struct {
 	baseTenantRepo   *data.BaseTenantRepository
 	baseDictRepo     *data.BaseDictRepository
 	baseDictItemRepo *data.BaseDictItemRepository
+	baseConfigRepo   *data.BaseConfigRepository
 	mfaCase          *MfaCase
 	userToken        *authData.UserToken
 	loginPolicyMu    sync.Mutex
@@ -82,6 +85,7 @@ func NewLoginCase(
 	baseTenantRepo *data.BaseTenantRepository,
 	baseDictRepo *data.BaseDictRepository,
 	baseDictItemRepo *data.BaseDictItemRepository,
+	baseConfigRepo *data.BaseConfigRepository,
 	mfaCase *MfaCase,
 	userToken *authData.UserToken,
 	loginLocker locker.Locker,
@@ -94,6 +98,7 @@ func NewLoginCase(
 		baseTenantRepo:   baseTenantRepo,
 		baseDictRepo:     baseDictRepo,
 		baseDictItemRepo: baseDictItemRepo,
+		baseConfigRepo:   baseConfigRepo,
 		mfaCase:          mfaCase,
 		userToken:        userToken,
 		loginLocker:      loginLocker,
@@ -268,7 +273,66 @@ func (c *LoginCase) RefreshToken(ctx context.Context, req *basev1.RefreshTokenRe
 	}, nil
 }
 
-// Login 执行登录。
+// AdminLogin 校验管理端专属协议确认后复用公共密码认证。
+func (c *LoginCase) AdminLogin(ctx context.Context, req *basev1.LoginRequest) (*basev1.LoginResponse, error) {
+	receipt, err := c.ConfirmAdminAgreement(ctx, req.GetAdminAgreement())
+	if err != nil {
+		return nil, err
+	}
+	return c.Login(adminagreement.WithReceipt(ctx, receipt), req)
+}
+
+// ConfirmAdminAgreement 校验管理端当前协议并记录服务端确认时间。
+func (c *LoginCase) ConfirmAdminAgreement(ctx context.Context, consent *basev1.AdminAgreementConsent) (adminagreement.Receipt, error) {
+	if !consent.GetAccepted() {
+		return adminagreement.Receipt{}, errorsx.InvalidArgument("请先阅读并同意管理端服务协议和隐私政策")
+	}
+	policy, err := c.loadAdminAgreementPolicy(ctx)
+	if err != nil {
+		return adminagreement.Receipt{}, err
+	}
+	return adminagreement.Confirm(policy, consent.GetAccepted(), consent.GetServiceVersion(), consent.GetPrivacyVersion(), time.Now())
+}
+
+// ValidateAdminAgreement 继续管理端 OAuth 或 MFA 认证前核对协议正文和版本。
+func (c *LoginCase) ValidateAdminAgreement(ctx context.Context, receipt adminagreement.Receipt) error {
+	policy, err := c.loadAdminAgreementPolicy(ctx)
+	if err != nil {
+		return err
+	}
+	return adminagreement.Validate(policy, receipt)
+}
+
+// loadAdminAgreementPolicy 仅从管理端启用配置读取协议，不回退到应用端。
+func (c *LoginCase) loadAdminAgreementPolicy(ctx context.Context) (adminagreement.Policy, error) {
+	query := c.baseConfigRepo.Query(ctx).BaseConfig
+	opts := []repository.QueryOption{
+		repository.Where(query.Site.Eq(adminconst.BASE_CONFIG_SITE_ADMIN)),
+		repository.Where(query.Status.Eq(_const.STATUS_STATUS_ENABLE)),
+		repository.Where(query.Key.In(
+			adminconst.BASE_CONFIG_KEY_ADMIN_SERVICE_PROTOCOL,
+			adminconst.BASE_CONFIG_KEY_ADMIN_SERVICE_PROTOCOL_VERSION,
+			adminconst.BASE_CONFIG_KEY_ADMIN_PRIVACY_PROTOCOL,
+			adminconst.BASE_CONFIG_KEY_ADMIN_PRIVACY_PROTOCOL_VERSION,
+		)),
+	}
+	list, err := c.baseConfigRepo.List(ctx, opts...)
+	if err != nil {
+		return adminagreement.Policy{}, errorsx.Internal("读取管理端协议失败").WithCause(err)
+	}
+	values := make(map[string]string, len(list))
+	for _, item := range list {
+		values[item.Key] = item.Value
+	}
+	return adminagreement.Policy{
+		Service:        values[adminconst.BASE_CONFIG_KEY_ADMIN_SERVICE_PROTOCOL],
+		ServiceVersion: values[adminconst.BASE_CONFIG_KEY_ADMIN_SERVICE_PROTOCOL_VERSION],
+		Privacy:        values[adminconst.BASE_CONFIG_KEY_ADMIN_PRIVACY_PROTOCOL],
+		PrivacyVersion: values[adminconst.BASE_CONFIG_KEY_ADMIN_PRIVACY_PROTOCOL_VERSION],
+	}, nil
+}
+
+// Login 执行公共密码认证；管理端由 AdminLogin 提供独立协议校验。
 func (c *LoginCase) Login(ctx context.Context, req *basev1.LoginRequest) (*basev1.LoginResponse, error) {
 	err := c.verifyLoginCaptcha(ctx, req.GetCaptchaId(), req.GetCaptchaCode())
 	if err != nil {
@@ -364,9 +428,24 @@ func (c *LoginCase) ValidateExternalLogin(ctx context.Context, user *models.Base
 	return nil
 }
 
-// VerifyMfa 校验登录阶段的 TOTP 或恢复码并签发正式令牌。
+// VerifyMfa 校验登录阶段的 MFA，并在管理端流程中复验之前确认的协议。
 func (c *LoginCase) VerifyMfa(ctx context.Context, req *basev1.VerifyMfaRequest) (*basev1.LoginResponse, error) {
-	user, err := c.mfaCase.VerifyLoginChallenge(ctx, req)
+	var challenge dto.MfaLoginChallenge
+	err := c.mfaCase.loadJSON(mfaLoginChallengeKey(req.GetChallengeId()), &challenge)
+	if err != nil {
+		return nil, errorsx.Unauthenticated("多因素认证挑战已失效").WithCause(err)
+	}
+	if challenge.AdminLogin {
+		if challenge.AdminAgreement == nil {
+			return nil, errorsx.PermissionDenied("管理端协议确认已失效")
+		}
+		if err = c.ValidateAdminAgreement(ctx, *challenge.AdminAgreement); err != nil {
+			return nil, err
+		}
+		ctx = adminagreement.WithReceipt(ctx, *challenge.AdminAgreement)
+	}
+	var user *models.BaseUser
+	user, err = c.mfaCase.VerifyLoginChallenge(ctx, req)
 	if err != nil {
 		return nil, err
 	}
@@ -465,8 +544,13 @@ func (c *LoginCase) FindUserByPassword(ctx context.Context, tenantCode string, u
 	return user, nil
 }
 
-// IssueUserToken 校验用户关联状态并签发后台访问令牌。
+// IssueUserToken 校验关联状态与管理端当前协议后签发访问令牌。
 func (c *LoginCase) IssueUserToken(ctx context.Context, user *models.BaseUser) (response *basev1.LoginResponse, err error) {
+	if receipt, ok := adminagreement.ReceiptFromContext(ctx); ok {
+		if err = c.ValidateAdminAgreement(ctx, receipt); err != nil {
+			return nil, err
+		}
+	}
 	var lease locker.Lease
 	lease, err = c.loginLocker.Acquire(ctx, fmt.Sprintf("shared:auth:login:lock:%d", user.ID), 5*time.Minute)
 	if err != nil {
@@ -545,6 +629,7 @@ func (c *LoginCase) IssueUserToken(ctx context.Context, user *models.BaseUser) (
 		status = basev1.LoginStatus_LOGIN_STATUS_PASSWORD_CHANGE_REQUIRED
 	}
 	loginaudit.Record(ctx, authInfo)
+	adminagreement.Record(ctx)
 	return &basev1.LoginResponse{
 		TokenType:    engine.BearerWord,
 		AccessToken:  accessToken,

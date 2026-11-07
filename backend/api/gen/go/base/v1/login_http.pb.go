@@ -19,6 +19,7 @@ var _ = new(context.Context)
 
 const _ = http.SupportPackageIsVersion3
 
+const OperationLoginServiceAdminLogin = "/base.v1.LoginService/AdminLogin"
 const OperationLoginServiceCaptcha = "/base.v1.LoginService/Captcha"
 const OperationLoginServiceLogin = "/base.v1.LoginService/Login"
 const OperationLoginServiceLogout = "/base.v1.LoginService/Logout"
@@ -26,6 +27,8 @@ const OperationLoginServiceRefreshToken = "/base.v1.LoginService/RefreshToken"
 const OperationLoginServiceVerifyCaptcha = "/base.v1.LoginService/VerifyCaptcha"
 
 type LoginServiceHTTPServer interface {
+	// AdminLogin 管理端登录，必须主动确认当前管理端服务协议和隐私政策
+	AdminLogin(context.Context, *LoginRequest) (*LoginResponse, error)
 	// Captcha 验证码
 	Captcha(context.Context, *CaptchaRequest) (*CaptchaResponse, error)
 	// Login 登录
@@ -45,6 +48,7 @@ func RegisterLoginServiceHTTPServer(s *http.Server, srv LoginServiceHTTPServer) 
 	r.Handle("DELETE", "/api/v1/base/session", _LoginService_Logout0_HTTP_Handler(srv))
 	r.Handle("POST", "/api/v1/base/token", _LoginService_RefreshToken0_HTTP_Handler(srv))
 	r.Handle("POST", "/api/v1/base/session", _LoginService_Login0_HTTP_Handler(srv))
+	r.Handle("POST", "/api/v1/admin/base/session", _LoginService_AdminLogin0_HTTP_Handler(srv))
 }
 
 func _LoginService_Captcha0_HTTP_Handler(srv LoginServiceHTTPServer) func(ctx http.Context) error {
@@ -142,7 +146,28 @@ func _LoginService_Login0_HTTP_Handler(srv LoginServiceHTTPServer) func(ctx http
 	}
 }
 
+func _LoginService_AdminLogin0_HTTP_Handler(srv LoginServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in LoginRequest
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationLoginServiceAdminLogin)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.AdminLogin(ctx, req.(*LoginRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*LoginResponse)
+		return ctx.Result(200, reply)
+	}
+}
+
 type LoginServiceHTTPClient interface {
+	// AdminLogin 管理端登录，必须主动确认当前管理端服务协议和隐私政策
+	AdminLogin(ctx context.Context, req *LoginRequest, opts ...http.CallOption) (rsp *LoginResponse, err error)
 	// Captcha 验证码
 	Captcha(ctx context.Context, req *CaptchaRequest, opts ...http.CallOption) (rsp *CaptchaResponse, err error)
 	// Login 登录
@@ -161,6 +186,24 @@ type LoginServiceHTTPClientImpl struct {
 
 func NewLoginServiceHTTPClient(client *http.Client) LoginServiceHTTPClient {
 	return &LoginServiceHTTPClientImpl{client}
+}
+
+// AdminLogin 管理端登录，必须主动确认当前管理端服务协议和隐私政策
+func (c *LoginServiceHTTPClientImpl) AdminLogin(ctx context.Context, in *LoginRequest, opts ...http.CallOption) (*LoginResponse, error) {
+	var out LoginResponse
+	pattern := "/api/v1/admin/base/session"
+	path := http.BuildPath(pattern, in)
+	opts = append([]http.CallOption{
+		http.Accept("application/protojson"),
+		http.ContentType("application/protojson"),
+		http.Operation(OperationLoginServiceAdminLogin),
+		http.PathTemplate(pattern),
+	}, opts...)
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
 }
 
 // Captcha 验证码

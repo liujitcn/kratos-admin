@@ -10,6 +10,7 @@ import (
 
 	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
 	baseBiz "github.com/liujitcn/kratos-admin/backend/internal/biz/base"
+	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/username"
 	_const "github.com/liujitcn/kratos-admin/backend/internal/const"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
@@ -401,7 +402,7 @@ func (c *AuthCase) UpdateUserPhone(ctx context.Context, req *adminv1.UserPhoneFo
 	return nil
 }
 
-// UpdateUserProfile 更新用户资料
+// UpdateUserProfile 更新用户资料，并在改名时校验账号保留名称。
 func (c *AuthCase) UpdateUserProfile(ctx context.Context, req *adminv1.UserProfileForm) error {
 	authInfo, err := c.GetAuthInfo(ctx)
 	if err != nil {
@@ -411,13 +412,20 @@ func (c *AuthCase) UpdateUserProfile(ctx context.Context, req *adminv1.UserProfi
 
 	userQuery := c.baseUserCase.Query(ctx).BaseUser
 	userOpts := []repository.QueryOption{
-		repository.Select(userQuery.TenantID, userQuery.Avatar),
+		repository.Select(userQuery.TenantID, userQuery.UserName, userQuery.Avatar),
 		repository.Where(userQuery.ID.Eq(authInfo.UserId)),
 	}
 	var oldBaseUser *models.BaseUser
 	oldBaseUser, err = c.baseUserCase.Find(ctx, userOpts...)
 	if err != nil {
 		return errorsx.ResourceNotFound("用户不存在").WithCause(err)
+	}
+	// 存量保留账号仍可维护资料，只有实际改名时应用新账号规则。
+	if req.GetUserName() != oldBaseUser.UserName {
+		err = username.Validate(req.GetUserName())
+		if err != nil {
+			return err
+		}
 	}
 	baseUser := models.BaseUser{
 		ID:       authInfo.UserId,

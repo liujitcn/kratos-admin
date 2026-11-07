@@ -20,6 +20,7 @@ import (
 	basebiz "github.com/liujitcn/kratos-admin/backend/internal/biz/base"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/loginpolicy"
 	passwordPolicy "github.com/liujitcn/kratos-admin/backend/internal/biz/base/password"
+	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/username"
 	adminconst "github.com/liujitcn/kratos-admin/backend/internal/const"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
@@ -384,9 +385,13 @@ func (c *BaseUserCase) GetBaseUser(ctx context.Context, id int64) (*adminv1.Base
 	return c.formMapper.ToDTO(baseUser), nil
 }
 
-// CreateBaseUser 创建用户
+// CreateBaseUser 校验账号保留名称后创建用户。
 func (c *BaseUserCase) CreateBaseUser(ctx context.Context, req *adminv1.BaseUserForm) error {
 	var err error
+	err = username.Validate(req.GetUserName())
+	if err != nil {
+		return err
+	}
 	targetTenantID := req.GetTenantId()
 	var baseRole *models.BaseRole
 	roleQuery := c.baseRoleCase.Query(ctx).BaseRole

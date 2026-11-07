@@ -7087,5 +7087,95 @@
   },
   "获取当前用户生效的密码策略": {
     "other": "現在のユーザーに適用されるパスワードポリシーを取得"
+  },
+  "legacy.error.7e79f52aa653d1b8": {
+    "other": "試行には保存済みスクリプトIDを指定してください"
+  },
+  "legacy.error.ceecc6449946be7b": {
+    "other": "試行時にスクリプトの言語やソースは指定できません"
+  },
+  "legacy.error.6493e816e4c9c2d0": {
+    "other": "JavaScript、CEL、Expr スクリプトのみ対応しています"
+  },
+  "legacy.error.1c08d373771aeda2": {
+    "other": "管理画面の規約への同意を保存できませんでした"
+  },
+  "legacy.error.6d921f101bc0ff13": {
+    "other": "管理画面の規約への同意が失効しました"
+  },
+  "legacy.error.fef5bd08859ffc56": {
+    "other": "管理画面の利用規約とプライバシーポリシーを読み、同意してください"
+  },
+  "legacy.error.472a58536bbdff20": {
+    "other": "管理画面の規約を読み込めませんでした"
+  },
+  "legacy.error.6212bf4ffb06e780": {
+    "other": "管理画面の規約への同意を読み込めませんでした"
+  },
+  "legacy.error.c99c6abf8e80560f": {
+    "other": "プラットフォーム管理者のみがプロバイダーの秘密情報を表示できます"
+  },
+  "legacy.error.ad9307b4a2ef5b11": {
+    "other": "管理画面の利用規約とプライバシーポリシーが未設定です"
+  },
+  "legacy.error.e7e3feb58bbc6b7d": {
+    "other": "管理画面の規約が更新されました。再度読み、同意してください"
+  },
+  "legacy.error.395f5690bc43a8fc": {
+    "other": "ユーザーアカウントに予約済みの名前は使用できません"
+  },
+  "legacy.error.f1e0b071d4b26aab": {
+    "other": "ユーザーアカウントの先頭と末尾に空白は使用できません"
+  },
+  "system.admin.base.script.entity.language.supported": {
+    "other": "JavaScript、CEL、Expr スクリプトのみ対応しています"
+  },
+  "system.admin.base.script.test_run.draft.rejected": {
+    "other": "試行時にスクリプトの言語やソースは指定できません"
+  },
+  "system.admin.base.script.test_run.id.required": {
+    "other": "試行には保存済みスクリプトIDを指定してください"
+  },
+  "base.login.admin_agreement.service_version.max_len": {
+    "other": "管理画面利用規約のバージョンは128文字以内で入力してください"
+  },
+  "base.login.admin_agreement.privacy_version.max_len": {
+    "other": "管理画面プライバシーポリシーのバージョンは128文字以内で入力してください"
+  },
+  "legacy.error.6ac5d5e128e56199": {
+    "other": "OAuthログインIDを読み込めませんでした"
+  },
+  "security.openapi.6ae82bf2717c": {
+    "other": "現行の管理画面規約への明示的同意後にOAuth認証URLを作成します"
+  },
+  "security.openapi.d9f7d122bc06": {
+    "other": "現行の管理画面利用規約とプライバシーポリシーへの明示的同意後にログインします"
+  },
+  "security.openapi.d9fba822b01c": {
+    "other": "現行の管理画面規約への明示的な同意の有無"
+  },
+  "security.openapi.c60ce905500a": {
+    "other": "閲覧した管理画面利用規約のバージョン"
+  },
+  "security.openapi.67b17b10dbb3": {
+    "other": "閲覧した管理画面プライバシーポリシーのバージョン"
+  },
+  "security.openapi.185a51453e19": {
+    "other": "管理画面専用の利用規約とプライバシーポリシーへの明示的な同意。"
+  },
+  "security.openapi.29013e430935": {
+    "other": "現在のバックエンドサービスのバージョン"
+  },
+  "security.openapi.20c8279602b9": {
+    "other": "制限付きスクリプト言語：JavaScript、CEL、Expr のみ"
+  },
+  "security.openapi.cf9a8f985505": {
+    "other": "保存済みスクリプトIDを指定してください"
+  },
+  "security.openapi.cf612e8849dd": {
+    "other": "スクリプトの言語は指定できません"
+  },
+  "security.openapi.b1f7e42d136d": {
+    "other": "スクリプトのソースは指定できません"
   }
 }

@@ -47,6 +47,14 @@ service LoginService {
       body: "*"
     };
   }
+
+  // 管理端登录，必须主动确认当前管理端服务协议和隐私政策
+  rpc AdminLogin(LoginRequest) returns (LoginResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/admin/base/session"
+      body: "*"
+    };
+  }
 }
 
 // LoginStatus 表示登录请求当前所处的认证阶段。
@@ -131,6 +139,17 @@ message LoginRequest {
   string captcha_code = 4 [(gnostic.openapi.v3.property) = {description: "验证码"}, (buf.validate.field).cel = {id: "base.login.login.captcha_code.required" message: "验证码不能为空" expression: "this.size() > 0"}]; // 验证码
 
   string captcha_id = 5 [(gnostic.openapi.v3.property) = {description: "验证码Id"}, (buf.validate.field).cel = {id: "base.login.login.captcha_id.required" message: "验证码不能为空" expression: "this.size() > 0"}]; // 验证码Id
+
+  AdminAgreementConsent admin_agreement = 6 [(gnostic.openapi.v3.property) = {description: "管理端专属协议确认，仅管理端登录入口校验"}]; // 管理端专属协议确认，仅管理端登录入口校验
+}
+
+// 管理端专属的服务协议和隐私政策主动确认。
+message AdminAgreementConsent {
+  bool accepted = 1 [(gnostic.openapi.v3.property) = {description: "是否主动同意当前管理端协议"}]; // 是否主动同意当前管理端协议
+
+  string service_version = 2 [(gnostic.openapi.v3.property) = {description: "已阅读的管理端服务协议版本"}, (buf.validate.field).cel = {id: "base.login.admin_agreement.service_version.max_len" message: "管理端服务协议版本不能超过128个字符" expression: "this.size() <= 128"}]; // 已阅读的管理端服务协议版本
+
+  string privacy_version = 3 [(gnostic.openapi.v3.property) = {description: "已阅读的管理端隐私政策版本"}, (buf.validate.field).cel = {id: "base.login.admin_agreement.privacy_version.max_len" message: "管理端隐私政策版本不能超过128个字符" expression: "this.size() <= 128"}]; // 已阅读的管理端隐私政策版本
 }
 
 // 登录响应

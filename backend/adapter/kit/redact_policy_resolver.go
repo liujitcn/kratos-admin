@@ -13,11 +13,11 @@ import (
 	"github.com/liujitcn/kratos-admin/backend/internal/config"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
+	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/query"
 	_const "github.com/liujitcn/kratos-core/const"
 	kitgorm "github.com/liujitcn/kratos-kit/database/gorm"
 	"github.com/liujitcn/kratos-kit/redact"
 	"gorm.io/gorm"
-	"gorm.io/gorm/clause"
 )
 
 const policyCacheTTL = time.Minute
@@ -378,21 +378,34 @@ func buildOutputPolicies(rows []*models.BaseRedactOutputPolicy, rules map[int64]
 // ErrUnprotectedStorageField 表示字段未配置直接加密入库策略，不能通过受控接口查看明文。
 var ErrUnprotectedStorageField = errors.New("敏感字段未配置直接加密入库策略")
 
-// RevealStorageField 读取默认数据源受保护表的直接加密字段明文，仅供受控查询接口使用。
-// 未配置直接加密策略、旁表脱敏字段和跨数据源字段一律拒绝。
+// RevealStorageField 仅读取管理页面允许显式查看的供应商密钥，禁止扩展到认证器和租户凭据。
 func (r *RedactPolicyResolver) RevealStorageField(ctx context.Context, tableName, columnName string, recordID int64) (string, error) {
 	if r == nil || r.defaultDB == nil || r.fieldCipher == nil {
 		return "", fmt.Errorf("脱敏策略解析器未初始化")
+	}
+	switch tableName + "." + columnName {
+	case "ai_provider.api_key", "base_oauth_provider.client_secret", "base_message_provider.client_secret":
+	default:
+		return "", ErrUnprotectedStorageField
 	}
 	algorithm, ok := r.directEncryptionAlgorithm(kitgorm.DefaultClientName, tableName, columnName)
 	if !ok {
 		return "", ErrUnprotectedStorageField
 	}
 	var text string
-	db := r.defaultDB.WithContext(ctx)
-	err := db.Table(tableName).
-		Select(db.Statement.Quote(clause.Column{Name: columnName})).
-		Where("id = ?", recordID).Row().Scan(&text)
+	var err error
+	query := query.Use(r.defaultDB)
+	switch tableName {
+	case "ai_provider":
+		table := query.AiProvider
+		err = table.WithContext(ctx).Select(table.APIKey).Where(table.ID.Eq(recordID)).Row().Scan(&text)
+	case "base_oauth_provider":
+		table := query.BaseOauthProvider
+		err = table.WithContext(ctx).Select(table.ClientSecret).Where(table.ID.Eq(recordID)).Row().Scan(&text)
+	case "base_message_provider":
+		table := query.BaseMessageProvider
+		err = table.WithContext(ctx).Select(table.ClientSecret).Where(table.ID.Eq(recordID)).Row().Scan(&text)
+	}
 	if err != nil {
 		return "", fmt.Errorf("读取敏感字段失败: %w", err)
 	}
@@ -407,19 +420,13 @@ func (r *RedactPolicyResolver) RevealStorageField(ctx context.Context, tableName
 	return plaintext, nil
 }
 
-// directEncryptionAlgorithm 判断默认数据源物理表字段是否配置了直接加密策略，返回加密算法。
+// directEncryptionAlgorithm 只接受默认租户的平台表直接加密策略，不借用其他租户策略。
 func (r *RedactPolicyResolver) directEncryptionAlgorithm(sourceName, tableName, columnName string) (string, bool) {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
-	for key, policies := range r.storagePolicies {
-		parts := strings.SplitN(key, "\x00", 3)
-		if len(parts) != 3 || parts[1] != sourceName || parts[2] != tableName {
-			continue
-		}
-		for _, policy := range policies {
-			if strings.EqualFold(policy.ColumnName, columnName) && isDirectEncryptionPolicy(policy) {
-				return policy.Rule.EncryptAlgorithm, true
-			}
+	for _, policy := range r.storagePolicies[storagePolicyKey(defaultTenantID, sourceName, tableName)] {
+		if policy.ColumnName == columnName && isDirectEncryptionPolicy(policy) {
+			return policy.Rule.EncryptAlgorithm, true
 		}
 	}
 	return "", false
@@ -443,6 +450,7 @@ func authenticationResponseOperation(operation string) bool {
 	switch operation {
 	case "/base.v1.LoginService/VerifyCaptcha",
 		"/base.v1.LoginService/Login",
+		"/base.v1.LoginService/AdminLogin",
 		"/base.v1.LoginService/RefreshToken",
 		"/base.v1.MfaService/VerifyMfa",
 		"/base.v1.OauthService/CreateOauthSession",

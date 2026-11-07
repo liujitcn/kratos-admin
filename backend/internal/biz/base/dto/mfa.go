@@ -1,16 +1,21 @@
 package dto
 
-import webauthn "github.com/go-webauthn/webauthn/webauthn"
+import (
+	webauthn "github.com/go-webauthn/webauthn/webauthn"
+	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/adminagreement"
+)
 
 // MfaLoginChallenge 表示登录阶段暂存的多因素认证挑战。
 // 挑战仅用于短期缓存，不包含口令明文；Attempts 由独立的原子计数键维护。
 type MfaLoginChallenge struct {
-	UserID    int64                 `json:"user_id"`            // 发起挑战的用户编号。
-	TenantID  int64                 `json:"tenant_id"`          // 用户所属租户编号。
-	ExpiresAt int64                 `json:"expires_at"`         // 挑战过期时间，Unix 秒。
-	Method    string                `json:"method"`             // 因子类型，例如 totp 或 webauthn。
-	MFAID     int64                 `json:"mfa_id"`             // 绑定的 MFA 配置编号。
-	WebAuthn  *webauthn.SessionData `json:"webauthn,omitempty"` // WebAuthn 服务端会话数据。
+	UserID         int64                   `json:"user_id"`                   // 发起挑战的用户编号。
+	TenantID       int64                   `json:"tenant_id"`                 // 用户所属租户编号。
+	ExpiresAt      int64                   `json:"expires_at"`                // 挑战过期时间，Unix 秒。
+	Method         string                  `json:"method"`                    // 因子类型，例如 totp 或 webauthn。
+	MFAID          int64                   `json:"mfa_id"`                    // 绑定的 MFA 配置编号。
+	WebAuthn       *webauthn.SessionData   `json:"webauthn,omitempty"`        // WebAuthn 服务端会话数据。
+	AdminLogin     bool                    `json:"admin_login,omitempty"`     // 是否由管理端独立登录入口创建。
+	AdminAgreement *adminagreement.Receipt `json:"admin_agreement,omitempty"` // 与挑战一同保存的管理端协议确认。
 }
 
 // MfaDisableChallenge 表示禁用 WebAuthn 时暂存的认证挑战。

@@ -7087,5 +7087,95 @@
   },
   "获取当前用户生效的密码策略": {
     "other": "Get the password policy effective for the current user"
+  },
+  "legacy.error.7e79f52aa653d1b8": {
+    "other": "Specify a saved script ID for test runs"
+  },
+  "legacy.error.ceecc6449946be7b": {
+    "other": "Test runs must not include a script language or source"
+  },
+  "legacy.error.6493e816e4c9c2d0": {
+    "other": "Only JavaScript, CEL, and Expr scripts are supported"
+  },
+  "legacy.error.1c08d373771aeda2": {
+    "other": "Failed to save admin agreement confirmation"
+  },
+  "legacy.error.6d921f101bc0ff13": {
+    "other": "Admin agreement confirmation has expired"
+  },
+  "legacy.error.fef5bd08859ffc56": {
+    "other": "Please read and agree to the admin Terms of Service and Privacy Policy"
+  },
+  "legacy.error.472a58536bbdff20": {
+    "other": "Failed to load admin agreements"
+  },
+  "legacy.error.6212bf4ffb06e780": {
+    "other": "Failed to load admin agreement confirmation"
+  },
+  "legacy.error.c99c6abf8e80560f": {
+    "other": "Only platform administrators can reveal provider secrets"
+  },
+  "legacy.error.ad9307b4a2ef5b11": {
+    "other": "The admin Terms of Service and Privacy Policy are not configured"
+  },
+  "legacy.error.e7e3feb58bbc6b7d": {
+    "other": "Admin agreements have changed. Please read and agree again"
+  },
+  "legacy.error.395f5690bc43a8fc": {
+    "other": "User accounts must not use reserved names"
+  },
+  "legacy.error.f1e0b071d4b26aab": {
+    "other": "User accounts must not start or end with whitespace"
+  },
+  "system.admin.base.script.entity.language.supported": {
+    "other": "Only JavaScript, CEL, and Expr scripts are supported"
+  },
+  "system.admin.base.script.test_run.draft.rejected": {
+    "other": "Test runs must not include a script language or source"
+  },
+  "system.admin.base.script.test_run.id.required": {
+    "other": "Specify a saved script ID for test runs"
+  },
+  "base.login.admin_agreement.service_version.max_len": {
+    "other": "Admin Terms of Service version must not exceed 128 characters"
+  },
+  "base.login.admin_agreement.privacy_version.max_len": {
+    "other": "Admin Privacy Policy version must not exceed 128 characters"
+  },
+  "legacy.error.6ac5d5e128e56199": {
+    "other": "Failed to load the OAuth sign-in identity"
+  },
+  "security.openapi.6ae82bf2717c": {
+    "other": "Create an admin OAuth authorization URL after explicit consent to the current admin agreements"
+  },
+  "security.openapi.d9f7d122bc06": {
+    "other": "Sign in to the admin portal after explicit consent to its current terms and privacy policy"
+  },
+  "security.openapi.d9fba822b01c": {
+    "other": "Whether the user explicitly agrees to the current admin agreements"
+  },
+  "security.openapi.c60ce905500a": {
+    "other": "Version of the admin Terms of Service the user has read"
+  },
+  "security.openapi.67b17b10dbb3": {
+    "other": "Version of the admin Privacy Policy the user has read"
+  },
+  "security.openapi.185a51453e19": {
+    "other": "Explicit consent to the separate admin Terms of Service and Privacy Policy."
+  },
+  "security.openapi.29013e430935": {
+    "other": "Current backend service version"
+  },
+  "security.openapi.20c8279602b9": {
+    "other": "Restricted script language: JavaScript, CEL, or Expr only"
+  },
+  "security.openapi.cf9a8f985505": {
+    "other": "A saved script ID is required"
+  },
+  "security.openapi.cf612e8849dd": {
+    "other": "Do not provide a script language"
+  },
+  "security.openapi.b1f7e42d136d": {
+    "other": "Do not provide script source code"
   }
 }

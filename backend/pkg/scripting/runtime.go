@@ -2,7 +2,6 @@ package scripting
 
 import (
 	"context"
-	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -15,13 +14,6 @@ import (
 	script_engine "github.com/liujitcn/go-scripts"
 	_ "github.com/liujitcn/go-scripts/cel"
 	_ "github.com/liujitcn/go-scripts/expr"
-	_ "github.com/liujitcn/go-scripts/gpython"
-	_ "github.com/liujitcn/go-scripts/javascript"
-	_ "github.com/liujitcn/go-scripts/lua"
-	_ "github.com/liujitcn/go-scripts/starlark"
-	_ "github.com/liujitcn/go-scripts/tcl"
-	_ "github.com/liujitcn/go-scripts/wazero"
-	_ "github.com/liujitcn/go-scripts/yaegi"
 )
 
 // ProviderSet 提供脚本运行时的依赖注入集合。
@@ -46,7 +38,7 @@ const (
 	StarlarkLanguage = "STARLARK"
 	// TclLanguage 是脚本表中 TCL 的稳定语言标识。
 	TclLanguage = "TCL"
-	// DefaultTimeout 是单次脚本执行的最大耗时。
+	// DefaultTimeout 是单次脚本执行的默认时间预算。
 	DefaultTimeout = 5 * time.Second
 	// MaxContextBytes 是单次脚本上下文允许的最大 JSON 大小。
 	MaxContextBytes = 200 * 1024
@@ -62,31 +54,43 @@ func NewRuntime() *Runtime {
 	return &Runtime{timeout: DefaultTimeout}
 }
 
-// Execute 执行一段指定语言的源码并返回脚本输出。
-// 输入按 JSON 深拷贝隔离；支持结构化全局变量的引擎通过 ctx 读取上下文。
-// 超时依赖引擎支持取消；GPython、Starlark、TCL 等现有适配器不保证硬中断。
-func (r *Runtime) Execute(ctx context.Context, language string, source string, input map[string]any) (any, error) {
+// Execute 仅执行无宿主能力的 JavaScript 和 JSON 数据表达式。
+// CEL、Expr 不注册函数或模块；只接收 JSON 深拷贝，不能反射调用宿主对象。
+func (r *Runtime) Execute(ctx context.Context, language string, source string, input map[string]any) (result any, err error) {
+	if !LanguageSupported(language) {
+		return nil, fmt.Errorf("不支持的脚本语言: %s，仅支持 JavaScript、CEL、Expr", language)
+	}
+	if language == JavaScriptLanguage {
+		return r.ExecuteWorkflow(ctx, language, source, input)
+	}
 	if r == nil {
 		return nil, errors.New("脚本运行时未初始化")
-	}
-	if ctx == nil {
-		ctx = context.Background()
 	}
 	if source == "" {
 		return nil, errors.New("脚本源码不能为空")
 	}
-	if input == nil {
-		input = make(map[string]any)
+	if len(source) > MaxContextBytes {
+		return nil, fmt.Errorf("脚本源码不能超过 %d 字节", MaxContextBytes)
 	}
-
+	if ctx == nil {
+		ctx = context.Background()
+	}
 	timeout := r.timeout
-	if timeout <= 0 {
+	if timeout <= 0 || timeout > DefaultTimeout {
 		timeout = DefaultTimeout
 	}
 	var cancel context.CancelFunc
 	ctx, cancel = context.WithTimeout(ctx, timeout)
 	defer cancel()
-	rawInput, err := MarshalOutput(input)
+	// shortcut: CEL/Expr 适配器仅支持执行前后检查取消，强制中断需升级支持执行预算的引擎。
+	if err = ctx.Err(); err != nil {
+		return nil, fmt.Errorf("执行脚本失败: %w", err)
+	}
+	if input == nil {
+		input = map[string]any{}
+	}
+	var rawInput string
+	rawInput, err = MarshalOutput(input)
 	if err != nil {
 		return nil, fmt.Errorf("脚本输入无效: %w", err)
 	}
@@ -95,75 +99,41 @@ func (r *Runtime) Execute(ctx context.Context, language string, source string, i
 	if err != nil {
 		return nil, fmt.Errorf("脚本输入无效: %w", err)
 	}
-	var typ script_engine.Type
-	typ, err = scriptLanguageType(language)
-	if err != nil {
-		return nil, err
+	typ := script_engine.CELType
+	if language == ExprLanguage {
+		typ = script_engine.ExprType
 	}
-	contextGlobalName := "ctx"
-	if language == GoLanguage {
-		contextGlobalName = "Ctx"
-	}
-	if language == WasmLanguage {
-		var decoded []byte
-		decoded, err = base64.StdEncoding.DecodeString(source)
-		if err != nil {
-			return nil, fmt.Errorf("WASM 源码必须是有效的 Base64: %w", err)
-		}
-		source = string(decoded)
-	}
-
 	var engine script_engine.Engine
 	engine, err = script_engine.NewScriptEngine(typ)
 	if err != nil {
 		return nil, fmt.Errorf("创建 %s 引擎失败: %w", language, err)
 	}
-	defer engine.Close()
 	if err = engine.Init(ctx); err != nil {
 		return nil, fmt.Errorf("初始化 %s 引擎失败: %w", language, err)
 	}
-
-	quota := script_engine.AsQuotaController(engine)
-	if quota != nil {
-		quota.SetQuota(script_engine.Quota{Timeout: timeout})
+	defer func() {
+		closeErr := engine.Close()
+		if closeErr != nil {
+			err = errors.Join(err, fmt.Errorf("关闭脚本引擎失败: %w", closeErr))
+		}
+	}()
+	if err = engine.RegisterGlobal("ctx", isolatedInput); err != nil {
+		return nil, fmt.Errorf("注入脚本上下文失败: %w", err)
 	}
-	globalAccessor := script_engine.AsGlobalAccessor(engine)
-	if globalAccessor != nil {
-		if err = globalAccessor.RegisterGlobal(contextGlobalName, isolatedInput); err != nil {
-			return nil, fmt.Errorf("注入脚本上下文失败: %w", err)
-		}
-	}
-
-	var result any
-	loader := script_engine.AsLoader(engine)
-	syncExecutor := script_engine.AsSyncExecutor(engine)
-	if loader != nil && syncExecutor != nil {
-		if err = loader.LoadString(ctx, "base_script", source); err != nil {
-			return nil, fmt.Errorf("加载脚本失败: %w", err)
-		}
-		result, err = syncExecutor.ExecuteSync(ctx)
-		if values, ok := result.([]any); ok && len(values) > 0 {
-			result = values[len(values)-1]
-		}
-	} else {
-		executor := script_engine.AsExecutor(engine)
-		if executor == nil {
-			return nil, errors.New("脚本引擎不支持执行能力")
-		}
-		result, err = executor.ExecuteString(ctx, "base_script", source)
-	}
+	result, err = engine.ExecuteString(ctx, "base_script", source)
 	if err != nil {
 		return nil, fmt.Errorf("执行脚本失败: %w", err)
 	}
-	if result != nil || language == WasmLanguage || language == GoLanguage || globalAccessor == nil {
-		return result, nil
+	if err = ctx.Err(); err != nil {
+		return nil, fmt.Errorf("执行脚本失败: %w", err)
 	}
-	var value any
-	value, err = globalAccessor.GetGlobal(contextGlobalName)
-	if err != nil {
-		return nil, fmt.Errorf("读取脚本上下文失败: %w", err)
+	if result == nil {
+		result = isolatedInput
 	}
-	return value, nil
+	if _, err = MarshalOutput(result); err != nil {
+		return nil, err
+	}
+	return result, nil
 }
 
 // ExecuteWorkflow 使用不注册宿主模块的纯 JavaScript VM 执行流程脚本。
@@ -177,6 +147,9 @@ func (r *Runtime) ExecuteWorkflow(ctx context.Context, language string, source s
 	}
 	if source == "" {
 		return nil, errors.New("脚本源码不能为空")
+	}
+	if len(source) > MaxContextBytes {
+		return nil, fmt.Errorf("脚本源码不能超过 %d 字节", MaxContextBytes)
 	}
 	if ctx == nil {
 		ctx = context.Background()
@@ -273,24 +246,9 @@ func (r *Runtime) ExecuteWorkflow(ctx context.Context, language string, source s
 	return output, nil
 }
 
-// scriptLanguageType 将数据库语言标识转换为 go-scripts 引擎类型。
-func scriptLanguageType(language string) (script_engine.Type, error) {
-	types := map[string]script_engine.Type{
-		JavaScriptLanguage: script_engine.JavaScriptType,
-		LuaLanguage:        script_engine.LuaType,
-		PythonLanguage:     script_engine.GPythonType,
-		GoLanguage:         script_engine.YaegiType,
-		WasmLanguage:       script_engine.WazeroType,
-		CELLanguage:        script_engine.CELType,
-		ExprLanguage:       script_engine.ExprType,
-		StarlarkLanguage:   script_engine.StarlarkType,
-		TclLanguage:        script_engine.TclType,
-	}
-	typ, ok := types[language]
-	if !ok {
-		return script_engine.UnknownType, fmt.Errorf("不支持的脚本语言: %s", language)
-	}
-	return typ, nil
+// LanguageSupported 判断语言是否具有不注册宿主模块的受限执行入口。
+func LanguageSupported(language string) bool {
+	return language == JavaScriptLanguage || language == CELLanguage || language == ExprLanguage
 }
 
 // ParseContext 将 JSON 上下文解析为脚本可用的对象。

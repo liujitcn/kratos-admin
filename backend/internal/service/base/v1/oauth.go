@@ -57,6 +57,16 @@ func (s *OauthService) CreateOauthAuthorization(ctx context.Context, req *basev1
 	return res, nil
 }
 
+// CreateAdminOauthAuthorization 校验当前管理端协议后创建三方登录授权地址。
+func (s *OauthService) CreateAdminOauthAuthorization(ctx context.Context, req *basev1.CreateOauthAuthorizationRequest) (*basev1.CreateOauthAuthorizationResponse, error) {
+	res, err := s.oauthCase.CreateAdminOauthAuthorization(ctx, req)
+	if err != nil {
+		log.Error(fmt.Sprintf("CreateAdminOauthAuthorization %v", err))
+		return nil, errorsx.WrapInternal(err, "创建三方登录授权失败")
+	}
+	return res, nil
+}
+
 // CreateOauthBindingAuthorization 创建个人中心三方账号绑定授权地址。
 func (s *OauthService) CreateOauthBindingAuthorization(ctx context.Context, req *basev1.CreateOauthBindingAuthorizationRequest) (*basev1.CreateOauthBindingAuthorizationResponse, error) {
 	res, err := s.oauthCase.CreateOauthBindingAuthorization(ctx, req)

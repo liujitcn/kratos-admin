@@ -452,5 +452,14 @@
   "core.demo.form.tenant.main": "Demoメインテナント",
   "core.demo.form.tenant.sub": "Demoサブテナント",
   "core.demo.form.leader_title": "{name}リーダー",
-  "core.demo.tree.new_dir": "Demoディレクトリ {id}"
+  "core.demo.tree.new_dir": "Demoディレクトリ {id}",
+  "core.login.admin_agreement_read_accept": "次の内容を読み、同意します",
+  "core.login.admin_agreement_service": "管理画面利用規約",
+  "core.login.admin_agreement_privacy": "管理画面プライバシーポリシー",
+  "core.login.admin_agreement_and": "および",
+  "core.login.admin_agreement_required": "管理画面の利用規約とプライバシーポリシーを読み、同意してください",
+  "core.login.admin_agreement_unavailable": "管理画面の規約が未設定です。管理者にお問い合わせください",
+  "core.login.admin_agreement_version": "バージョン：{version}",
+  "core.login.admin_agreement_back": "ログインに戻る",
+  "core.login.admin_agreement_open_page": "新しいページで読む"
 }

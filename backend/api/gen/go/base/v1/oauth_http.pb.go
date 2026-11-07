@@ -20,6 +20,7 @@ var _ = new(context.Context)
 const _ = http.SupportPackageIsVersion3
 
 const OperationOauthServiceBindOauthSession = "/base.v1.OauthService/BindOauthSession"
+const OperationOauthServiceCreateAdminOauthAuthorization = "/base.v1.OauthService/CreateAdminOauthAuthorization"
 const OperationOauthServiceCreateOauthAuthorization = "/base.v1.OauthService/CreateOauthAuthorization"
 const OperationOauthServiceCreateOauthBindingAuthorization = "/base.v1.OauthService/CreateOauthBindingAuthorization"
 const OperationOauthServiceCreateOauthSession = "/base.v1.OauthService/CreateOauthSession"
@@ -33,6 +34,8 @@ const OperationOauthServiceUnbindOauthAccount = "/base.v1.OauthService/UnbindOau
 type OauthServiceHTTPServer interface {
 	// BindOauthSession 绑定已有账号并创建三方登录会话
 	BindOauthSession(context.Context, *BindOauthSessionRequest) (*CreateOauthSessionResponse, error)
+	// CreateAdminOauthAuthorization 创建管理端三方登录授权地址，必须主动确认当前管理端协议
+	CreateAdminOauthAuthorization(context.Context, *CreateOauthAuthorizationRequest) (*CreateOauthAuthorizationResponse, error)
 	// CreateOauthAuthorization 创建三方登录授权地址
 	CreateOauthAuthorization(context.Context, *CreateOauthAuthorizationRequest) (*CreateOauthAuthorizationResponse, error)
 	// CreateOauthBindingAuthorization 创建个人中心三方账号绑定授权地址
@@ -58,6 +61,7 @@ func RegisterOauthServiceHTTPServer(s *http.Server, srv OauthServiceHTTPServer) 
 	r.Handle("GET", "/api/v1/base/oauth/binding", _OauthService_ListOauthBinding0_HTTP_Handler(srv))
 	r.Handle("GET", "/api/v1/base/oauth/provider", _OauthService_ListOauthProvider0_HTTP_Handler(srv))
 	r.Handle("POST", "/api/v1/base/oauth/authorization", _OauthService_CreateOauthAuthorization0_HTTP_Handler(srv))
+	r.Handle("POST", "/api/v1/admin/base/oauth/authorization", _OauthService_CreateAdminOauthAuthorization0_HTTP_Handler(srv))
 	r.Handle("POST", "/api/v1/base/oauth/binding/authorization", _OauthService_CreateOauthBindingAuthorization0_HTTP_Handler(srv))
 	r.Handle("POST", "/api/v1/base/oauth/session", _OauthService_CreateOauthSession0_HTTP_Handler(srv))
 	r.Handle("POST", "/api/v1/base/oauth/binding/session", _OauthService_BindOauthSession0_HTTP_Handler(srv))
@@ -114,6 +118,25 @@ func _OauthService_CreateOauthAuthorization0_HTTP_Handler(srv OauthServiceHTTPSe
 		http.SetOperation(ctx, OperationOauthServiceCreateOauthAuthorization)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
 			return srv.CreateOauthAuthorization(ctx, req.(*CreateOauthAuthorizationRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*CreateOauthAuthorizationResponse)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _OauthService_CreateAdminOauthAuthorization0_HTTP_Handler(srv OauthServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in CreateOauthAuthorizationRequest
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationOauthServiceCreateAdminOauthAuthorization)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.CreateAdminOauthAuthorization(ctx, req.(*CreateOauthAuthorizationRequest))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
@@ -269,6 +292,8 @@ func _OauthService_UnbindOauthAccount0_HTTP_Handler(srv OauthServiceHTTPServer) 
 type OauthServiceHTTPClient interface {
 	// BindOauthSession 绑定已有账号并创建三方登录会话
 	BindOauthSession(ctx context.Context, req *BindOauthSessionRequest, opts ...http.CallOption) (rsp *CreateOauthSessionResponse, err error)
+	// CreateAdminOauthAuthorization 创建管理端三方登录授权地址，必须主动确认当前管理端协议
+	CreateAdminOauthAuthorization(ctx context.Context, req *CreateOauthAuthorizationRequest, opts ...http.CallOption) (rsp *CreateOauthAuthorizationResponse, err error)
 	// CreateOauthAuthorization 创建三方登录授权地址
 	CreateOauthAuthorization(ctx context.Context, req *CreateOauthAuthorizationRequest, opts ...http.CallOption) (rsp *CreateOauthAuthorizationResponse, err error)
 	// CreateOauthBindingAuthorization 创建个人中心三方账号绑定授权地址
@@ -306,6 +331,24 @@ func (c *OauthServiceHTTPClientImpl) BindOauthSession(ctx context.Context, in *B
 		http.Accept("application/protojson"),
 		http.ContentType("application/protojson"),
 		http.Operation(OperationOauthServiceBindOauthSession),
+		http.PathTemplate(pattern),
+	}, opts...)
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+// CreateAdminOauthAuthorization 创建管理端三方登录授权地址，必须主动确认当前管理端协议
+func (c *OauthServiceHTTPClientImpl) CreateAdminOauthAuthorization(ctx context.Context, in *CreateOauthAuthorizationRequest, opts ...http.CallOption) (*CreateOauthAuthorizationResponse, error) {
+	var out CreateOauthAuthorizationResponse
+	pattern := "/api/v1/admin/base/oauth/authorization"
+	path := http.BuildPath(pattern, in)
+	opts = append([]http.CallOption{
+		http.Accept("application/protojson"),
+		http.ContentType("application/protojson"),
+		http.Operation(OperationOauthServiceCreateAdminOauthAuthorization),
 		http.PathTemplate(pattern),
 	}, opts...)
 	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)

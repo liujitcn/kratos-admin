@@ -34,6 +34,14 @@ service OauthService {
     };
   }
 
+  // 创建管理端三方登录授权地址，必须主动确认当前管理端协议
+  rpc CreateAdminOauthAuthorization(CreateOauthAuthorizationRequest) returns (CreateOauthAuthorizationResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/admin/base/oauth/authorization"
+      body: "*"
+    };
+  }
+
   // 创建个人中心三方账号绑定授权地址
   rpc CreateOauthBindingAuthorization(CreateOauthBindingAuthorizationRequest) returns (CreateOauthBindingAuthorizationResponse) {
     option (google.api.http) = {
@@ -109,6 +117,8 @@ message CreateOauthAuthorizationRequest {
   string provider = 1 [(gnostic.openapi.v3.property) = {description: "登录方式标识"}, (buf.validate.field).cel = {id: "base.oauth.create_authorization.provider.required" message: "登录方式标识不能为空" expression: "this.size() > 0"}]; // 登录方式标识
 
   string redirect_url = 2 [(gnostic.openapi.v3.property) = {description: "三方登录完成后的前端接收地址"}, (buf.validate.field).cel = {id: "base.oauth.create_authorization.redirect_url.required" message: "登录页地址不能为空" expression: "this.size() > 0"}]; // 三方登录完成后的前端接收地址
+
+  AdminAgreementConsent admin_agreement = 3 [(gnostic.openapi.v3.property) = {description: "管理端专属协议确认，仅管理端授权入口校验"}]; // 管理端专属协议确认，仅管理端授权入口校验
 }
 
 // 三方登录授权地址创建结果

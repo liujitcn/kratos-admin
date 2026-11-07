@@ -3687,6 +3687,25 @@ paths:
                 "200":
                     description: OK
                     content: {}
+    /api/v1/admin/base/oauth/authorization:
+        post:
+            tags:
+                - OauthService
+            description: 创建管理端三方登录授权地址，必须主动确认当前管理端协议
+            operationId: OauthService_CreateAdminOauthAuthorization
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/base.v1.CreateOauthAuthorizationRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.CreateOauthAuthorizationResponse'
     /api/v1/admin/base/operation-log:
         get:
             tags:
@@ -5155,6 +5174,25 @@ paths:
                 "200":
                     description: OK
                     content: {}
+    /api/v1/admin/base/session:
+        post:
+            tags:
+                - LoginService
+            description: 管理端登录，必须主动确认当前管理端服务协议和隐私政策
+            operationId: LoginService_AdminLogin
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/base.v1.LoginRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.LoginResponse'
     /api/v1/admin/base/session/current:
         get:
             tags:
@@ -9939,6 +9977,19 @@ paths:
                     content: {}
 components:
     schemas:
+        base.v1.AdminAgreementConsent:
+            type: object
+            properties:
+                accepted:
+                    type: boolean
+                    description: 是否主动同意当前管理端协议
+                service_version:
+                    type: string
+                    description: 已阅读的管理端服务协议版本
+                privacy_version:
+                    type: string
+                    description: 已阅读的管理端隐私政策版本
+            description: 管理端专属的服务协议和隐私政策主动确认。
         base.v1.AiAction:
             type: object
             properties:
@@ -10495,6 +10546,8 @@ components:
                 redirect_url:
                     type: string
                     description: 三方登录完成后的前端接收地址
+                admin_agreement:
+                    $ref: '#/components/schemas/base.v1.AdminAgreementConsent'
             description: 三方登录授权地址创建条件
         base.v1.CreateOauthAuthorizationResponse:
             type: object
@@ -10736,6 +10789,9 @@ components:
                 ai_enabled:
                     type: boolean
                     description: AI assistant availability
+                version:
+                    type: string
+                    description: 当前后端服务版本
             description: 系统配置查询结果
         base.v1.GetI18nCustomResponse:
             type: object
@@ -10920,6 +10976,8 @@ components:
                 captcha_id:
                     type: string
                     description: 验证码Id
+                admin_agreement:
+                    $ref: '#/components/schemas/base.v1.AdminAgreementConsent'
             description: 登录请求参数
         base.v1.LoginResponse:
             type: object
@@ -16315,7 +16373,7 @@ components:
                         - BASE_SCRIPT_LANGUAGE_STARLARK
                         - BASE_SCRIPT_LANGUAGE_TCL
                     type: string
-                    description: 脚本语言
+                    description: 受限脚本语言，仅支持 JavaScript、CEL、Expr
                     format: enum
                 hook_point:
                     type: string
@@ -20099,7 +20157,7 @@ components:
             properties:
                 id:
                     type: string
-                    description: 已保存脚本ID，为0时执行草稿
+                    description: 必须指定已保存脚本ID
                 language:
                     enum:
                         - BASE_SCRIPT_LANGUAGE_UNSPECIFIED
@@ -20113,11 +20171,11 @@ components:
                         - BASE_SCRIPT_LANGUAGE_STARLARK
                         - BASE_SCRIPT_LANGUAGE_TCL
                     type: string
-                    description: 草稿脚本语言
+                    description: 禁止传入脚本语言
                     format: enum
                 source:
                     type: string
-                    description: 草稿脚本源码
+                    description: 禁止传入脚本源码
                 context_json:
                     type: string
                     description: 初始上下文JSON

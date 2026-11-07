@@ -3687,6 +3687,25 @@ paths:
                 "200":
                     description: OK
                     content: {}
+    /api/v1/admin/base/oauth/authorization:
+        post:
+            tags:
+                - OauthService
+            description: Create an admin OAuth authorization URL after explicit consent to the current admin agreements
+            operationId: OauthService_CreateAdminOauthAuthorization
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/base.v1.CreateOauthAuthorizationRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.CreateOauthAuthorizationResponse'
     /api/v1/admin/base/operation-log:
         get:
             tags:
@@ -5155,6 +5174,25 @@ paths:
                 "200":
                     description: OK
                     content: {}
+    /api/v1/admin/base/session:
+        post:
+            tags:
+                - LoginService
+            description: Sign in to the admin portal after explicit consent to its current terms and privacy policy
+            operationId: LoginService_AdminLogin
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/base.v1.LoginRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.LoginResponse'
     /api/v1/admin/base/session/current:
         get:
             tags:
@@ -9939,6 +9977,19 @@ paths:
                     content: {}
 components:
     schemas:
+        base.v1.AdminAgreementConsent:
+            type: object
+            properties:
+                accepted:
+                    type: boolean
+                    description: Whether the user explicitly agrees to the current admin agreements
+                service_version:
+                    type: string
+                    description: Version of the admin Terms of Service the user has read
+                privacy_version:
+                    type: string
+                    description: Version of the admin Privacy Policy the user has read
+            description: Explicit consent to the separate admin Terms of Service and Privacy Policy.
         base.v1.AiAction:
             type: object
             properties:
@@ -10495,6 +10546,8 @@ components:
                 redirect_url:
                     type: string
                     description: frontend callback URL after third-party login completes
+                admin_agreement:
+                    $ref: '#/components/schemas/base.v1.AdminAgreementConsent'
             description: third-party login authorization url create condition
         base.v1.CreateOauthAuthorizationResponse:
             type: object
@@ -10736,6 +10789,9 @@ components:
                 ai_enabled:
                     type: boolean
                     description: AI assistant availability
+                version:
+                    type: string
+                    description: current backend service version
             description: system configuration query result
         base.v1.GetI18nCustomResponse:
             type: object
@@ -10920,6 +10976,8 @@ components:
                 captcha_id:
                     type: string
                     description: captcha Id
+                admin_agreement:
+                    $ref: '#/components/schemas/base.v1.AdminAgreementConsent'
             description: login request parameters
         base.v1.LoginResponse:
             type: object
@@ -16315,7 +16373,7 @@ components:
                         - BASE_SCRIPT_LANGUAGE_STARLARK
                         - BASE_SCRIPT_LANGUAGE_TCL
                     type: string
-                    description: Script language
+                    description: "Restricted script language: JavaScript, CEL, or Expr only"
                     format: enum
                 hook_point:
                     type: string
@@ -20099,7 +20157,7 @@ components:
             properties:
                 id:
                     type: string
-                    description: Saved script ID; zero runs the draft
+                    description: A saved script ID is required
                 language:
                     enum:
                         - BASE_SCRIPT_LANGUAGE_UNSPECIFIED
@@ -20113,11 +20171,11 @@ components:
                         - BASE_SCRIPT_LANGUAGE_STARLARK
                         - BASE_SCRIPT_LANGUAGE_TCL
                     type: string
-                    description: Draft script language
+                    description: Do not provide a script language
                     format: enum
                 source:
                     type: string
-                    description: Draft script source
+                    description: Do not provide script source code
                 context_json:
                     type: string
                     description: Initial context JSON

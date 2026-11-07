@@ -29,6 +29,14 @@ export interface LoginCaptchaConfig {
   type: string;
 }
 
+/** 管理端独立的服务协议、隐私政策及其版本。 */
+export interface AdminAgreementConfig {
+  service: string;
+  serviceVersion: string;
+  privacy: string;
+  privacyVersion: string;
+}
+
 /** 全局 UI 偏好和布局状态。 */
 export interface GlobalState {
   layout: LayoutType;
@@ -114,10 +122,14 @@ export interface DictState {
 
 /** 站点配置状态 */
 export interface SiteConfigState {
+  /** 服务端实际构建版本。 */
+  version: string;
   /** 当前站点展示配置 */
   display: SiteDisplayConfig;
   /** 当前登录验证码配置 */
   captcha: LoginCaptchaConfig;
+  /** 管理端协议配置，不读取应用端协议。 */
+  agreements: AdminAgreementConfig;
   /** 是否在登录页显示租户编码输入框。 */
   showTenantCode: boolean;
   /** 是否允许显式生成机器翻译草稿。 */

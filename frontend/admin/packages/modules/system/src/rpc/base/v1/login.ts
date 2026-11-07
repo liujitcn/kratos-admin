@@ -93,6 +93,18 @@ export interface LoginRequest {
   captcha_code: string;
   /** 验证码Id */
   captcha_id: string;
+  /** 管理端专属协议确认，仅管理端登录入口校验 */
+  admin_agreement: AdminAgreementConsent | undefined;
+}
+
+/** 管理端专属的服务协议和隐私政策主动确认。 */
+export interface AdminAgreementConsent {
+  /** 是否主动同意当前管理端协议 */
+  accepted: boolean;
+  /** 已阅读的管理端服务协议版本 */
+  service_version: string;
+  /** 已阅读的管理端隐私政策版本 */
+  privacy_version: string;
 }
 
 /** 登录响应 */
@@ -133,4 +145,6 @@ export interface LoginService {
   RefreshToken(request: RefreshTokenRequest): Promise<RefreshTokenResponse>;
   /** 登录 */
   Login(request: LoginRequest): Promise<LoginResponse>;
+  /** 管理端登录，必须主动确认当前管理端服务协议和隐私政策 */
+  AdminLogin(request: LoginRequest): Promise<LoginResponse>;
 }

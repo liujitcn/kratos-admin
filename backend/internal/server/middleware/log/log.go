@@ -24,7 +24,9 @@ import (
 	"github.com/go-kratos/kratos/v3/transport"
 	httpTransport "github.com/go-kratos/kratos/v3/transport/http"
 	"github.com/liujitcn/go-utils/id"
+	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
 	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
+	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/adminagreement"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/loginaudit"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/runtimeconfig"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
@@ -113,19 +115,38 @@ func NewMiddleware(baseCase *biz.BaseCase) (middleware.Middleware, func()) {
 	return logMiddleware.Handle, logMiddleware.close
 }
 
-// NewConsumer 创建 Admin 业务审计事件消费者并写入对应日志表。
+// NewConsumer 创建审计消费者，写库失败时先持久回退再确认队列消息。
 func NewConsumer(
 	loginLogRepo *data.BaseLoginLogRepository,
 	operationLogRepo *data.BaseOperationLogRepository,
 	dataAccessLogRepo *data.BaseDataAccessLogRepository,
 	permissionLogRepo *data.BasePermissionLogRepository,
 ) queueData.ConsumerFunc {
+	fallback := &Middleware{configCache: sdk.Runtime.GetCache()}
 	return func(message queueData.Message) error {
 		rawValue, ok := message.Values["data"].(string)
 		if !ok || rawValue == "" {
 			return fmt.Errorf("Admin 审计事件消息体为空")
 		}
-		return ReplayAdminEvent(context.Background(), message.ID, []byte(rawValue), loginLogRepo, operationLogRepo, dataAccessLogRepo, permissionLogRepo)
+		replayErr := ReplayAdminEvent(context.Background(), message.ID, []byte(rawValue), loginLogRepo, operationLogRepo, dataAccessLogRepo, permissionLogRepo)
+		if replayErr == nil {
+			return nil
+		}
+		var event adminEvent
+		err := json.Unmarshal([]byte(rawValue), &event)
+		if err != nil {
+			return fmt.Errorf("审计事件无法持久回退: %w", err)
+		}
+		// 旧队列事件没有自带编号时，回退重放仍沿用首次写库使用的编号。
+		if event.EventID == "" {
+			event.EventID = message.ID
+		}
+		log.Error("Admin 审计事件写库失败，转入持久回退", "error", replayErr, "kind", event.Kind)
+		err = fallback.writeBaseLogFallback("consumer_failed", event.Kind, "", event)
+		if err != nil {
+			return fmt.Errorf("审计事件写库失败 (%v)，持久回退失败: %w", replayErr, err)
+		}
+		return nil
 	}
 }
 
@@ -203,21 +224,24 @@ func (m *Middleware) Handle(next middleware.Handler) middleware.Handler {
 		if isOperation(request) {
 			snapshot = m.captureResourceSnapshot(ctx, request, req)
 		}
-		ctx = loginaudit.WithCapture(ctx)
+		ctx = adminagreement.WithCapture(loginaudit.WithCapture(ctx))
 		reply, err = next(ctx, req)
 		result, reasonCode, reason := resultInfo(err)
 		request.Result = result
 		request.ReasonCode = reasonCode
 		request.Reason = reason
 		request.OccurredAt = startedAt
+		if identity := loginaudit.FromContext(ctx); err == nil && identity != nil {
+			request.UserID = identity.UserId
+			request.UserName = identity.UserName
+			request.TenantID = identity.TenantId
+			request.TenantCode = identity.TenantCode
+		}
 		if _, ok := loginType(request.Operation); ok {
-			if identity := loginaudit.FromContext(ctx); err == nil && identity != nil {
-				request.UserID = identity.UserId
-				request.UserName = identity.UserName
-				request.TenantID = identity.TenantId
-				request.TenantCode = identity.TenantCode
-			}
 			m.enqueue(adminTask{Kind: "login", Request: request, Payload: req})
+		}
+		if receipt := adminagreement.FromContext(ctx); err == nil && receipt != nil {
+			m.enqueue(adminTask{Kind: "agreement", Request: request, Payload: receipt})
 		}
 		permissionOperation := isPermissionOperation(request)
 		if isOperation(request) && !permissionOperation {
@@ -300,9 +324,10 @@ func (m *Middleware) close() {
 	m.worker.Wait()
 }
 
-// buildEvent 构造包含登录设备标识的脱敏 Admin 审计事件。
+// buildEvent 构造脱敏审计事件，密钥查看仅保留请求目标，协议确认独立留痕。
 func (m *Middleware) buildEvent(task adminTask) (adminEvent, bool, error) {
 	info := task.Request
+	var err error
 	var item interface{}
 	switch task.Kind {
 	case "login":
@@ -352,10 +377,31 @@ func (m *Middleware) buildEvent(task adminTask) (adminEvent, bool, error) {
 			Action: int32(operationAction(info)), Result: info.Result, ReasonCode: info.ReasonCode, Reason: info.Reason,
 			OccurredAt: info.OccurredAt,
 		}
+	case "agreement":
+		receipt := task.Payload.(*adminagreement.Receipt)
+		afterData, changedFields := logSnapshot(receipt)
+		item = &models.BaseOperationLog{
+			TenantID: info.TenantID, TenantCode: info.TenantCode, UserID: info.UserID, UserName: info.UserName,
+			RequestID: info.RequestID, TraceID: info.TraceID, ResourceType: "admin_agreement",
+			ResourceID: receipt.ServiceVersion + "|" + receipt.PrivacyVersion, ResourceName: "管理端协议确认",
+			ChangedFields: changedFields, BeforeData: "{}", AfterData: afterData,
+			Action: int32(adminv1.BaseOperationAction_BASE_OPERATION_ACTION_CREATE), Result: info.Result, OccurredAt: info.OccurredAt,
+		}
 	case "data_access":
 		fieldScope, affectedRows, sensitive := logResponseMetadata(task.Reply)
 		resourceID, _ := logResource(task.Payload)
 		resourceTypeValue := resourceType(info.Operation)
+		if reveal, ok := task.Payload.(*basev1.RevealSecretFieldRequest); ok {
+			var fields []byte
+			fields, err = json.Marshal([]string{reveal.GetField()})
+			if err != nil {
+				return adminEvent{}, false, fmt.Errorf("序列化密钥查看字段范围失败: %w", err)
+			}
+			resourceTypeValue = reveal.GetResource()
+			resourceID = strconv.FormatInt(reveal.GetId(), 10)
+			fieldScope = string(fields)
+			sensitive = true
+		}
 		item = &models.BaseDataAccessLog{
 			TenantID: info.TenantID, TenantCode: info.TenantCode, UserID: info.UserID, UserName: info.UserName, RequestID: info.RequestID, TraceID: info.TraceID,
 			ResourceType: resourceTypeValue, ResourceID: resourceID, AccessType: int32(accessType(info)), DataSource: gorm.DefaultClientName,
@@ -385,11 +431,16 @@ func (m *Middleware) buildEvent(task adminTask) (adminEvent, bool, error) {
 	default:
 		return adminEvent{}, false, fmt.Errorf("未知 Admin 审计事件类型: %s", task.Kind)
 	}
-	payload, err := json.Marshal(item)
+	var payload []byte
+	payload, err = json.Marshal(item)
 	if err != nil {
 		return adminEvent{}, false, fmt.Errorf("序列化 Admin 审计事件失败: %w", err)
 	}
-	return adminEvent{EventID: task.EventID, Kind: task.Kind, Payload: payload}, true, nil
+	kind := task.Kind
+	if kind == "agreement" {
+		kind = "operation"
+	}
+	return adminEvent{EventID: task.EventID, Kind: kind, Payload: payload}, true, nil
 }
 
 // request 汇总一次 HTTP 或 gRPC 请求的审计上下文。
@@ -555,7 +606,8 @@ func logSnapshot(value interface{}) (string, string) {
 		return "{}", "[]"
 	}
 	payload = redactLogValue(payload)
-	encoded, err := json.Marshal(payload)
+	var encoded []byte
+	encoded, err = json.Marshal(payload)
 	if err != nil {
 		return "{}", "[]"
 	}
@@ -566,7 +618,8 @@ func logSnapshot(value interface{}) (string, string) {
 		}
 		sort.Strings(fields)
 	}
-	fieldJSON, err := json.Marshal(fields)
+	var fieldJSON []byte
+	fieldJSON, err = json.Marshal(fields)
 	if err != nil {
 		return string(encoded), "[]"
 	}
@@ -594,16 +647,14 @@ func redactLogValue(value interface{}) interface{} {
 
 // isSensitiveLogField 判断字段名是否包含不应进入审计快照的敏感值。
 func isSensitiveLogField(key string) bool {
-	normalized := strings.ToLower(strings.ReplaceAll(key, "-", "_"))
-	if normalized == "api_key" || strings.HasSuffix(normalized, "_api_key") {
-		return true
-	}
-	for _, marker := range []string{"password", "old_pwd", "new_pwd", "pwd", "client_secret", "crypto_key", "encrypted_key", "ciphertext", "nonce", "access_token", "refresh_token", "authorization", "captcha_code", "verification_code", "private_key", "content", "action_params", "phone", "mobile", "email", "id_card", "identity_number"} {
+	// 同时覆盖 Proto 的下划线字段和宿主业务的驼峰字段。
+	normalized := strings.ToLower(strings.NewReplacer("-", "", "_", "").Replace(key))
+	for _, marker := range []string{"password", "pwd", "secret", "token", "credential", "apikey", "cryptokey", "encryptedkey", "ciphertext", "nonce", "authorization", "cookie", "captchacode", "verificationcode", "recoverycode", "totpcode", "privatekey", "content", "actionparams", "phone", "mobile", "email", "idcard", "identitynumber"} {
 		if strings.Contains(normalized, marker) {
 			return true
 		}
 	}
-	return normalized == "iv" || strings.HasSuffix(normalized, "_iv")
+	return normalized == "iv" || strings.HasSuffix(strings.ToLower(key), "_iv")
 }
 
 // logResource 从请求快照中提取资源编号和名称，便于审计人员定位对象。
@@ -923,7 +974,7 @@ func (m *Middleware) loadBaseLogFallbackConfig() string {
 // loginType 判断认证操作类型。
 func loginType(operation string) (adminv1.BaseLoginLogType, bool) {
 	switch {
-	case strings.Contains(operation, "LoginService/Login"):
+	case strings.Contains(operation, "LoginService/Login"), strings.Contains(operation, "LoginService/AdminLogin"):
 		return adminv1.BaseLoginLogType_BASE_LOGIN_LOG_TYPE_PASSWORD, true
 	case strings.Contains(operation, "MfaService/"):
 		return adminv1.BaseLoginLogType_BASE_LOGIN_LOG_TYPE_MFA, true
@@ -940,46 +991,61 @@ func loginType(operation string) (adminv1.BaseLoginLogType, bool) {
 	}
 }
 
-// isOperation 判断请求是否属于业务变更操作。
+// isOperation 排除已知查询后记录业务操作，未知 RPC 保守纳入审计。
 func isOperation(info request) bool {
-	if !strings.HasPrefix(info.Operation, "/system.admin.v1.") {
+	methodName, audited := auditMethod(info.Operation)
+	if !audited {
 		return false
 	}
-	if strings.Contains(info.Operation, "LogService/") || strings.Contains(info.Operation, "MigrationService/") {
-		return false
-	}
-	if info.Method == "RPC" {
-		methodName := info.Operation
-		if index := strings.LastIndex(methodName, "/"); index >= 0 {
-			methodName = methodName[index+1:]
+	for _, action := range []string{"Export", "Download", "Import"} {
+		if strings.HasPrefix(methodName, action) {
+			return true
 		}
-		for _, action := range []string{"Create", "Update", "Delete", "Set", "Reset", "Revoke", "Rotate", "Mark", "Archive", "Restore", "Send", "Confirm", "Disable", "Enable", "Publish", "Reveal"} {
-			if strings.Contains(info.Operation, "/"+action) || strings.HasSuffix(methodName, action) {
-				return true
-			}
-		}
-		return false
 	}
-	return info.Method == http.MethodPost || info.Method == http.MethodPut || info.Method == http.MethodPatch || info.Method == http.MethodDelete
+	for _, action := range []string{"Get", "List", "Page", "Option", "Summary", "Tree", "Count", "Preview", "Query", "Search", "Read", "Describe", "Inspect", "Fetch", "Reveal"} {
+		if strings.HasPrefix(methodName, action) {
+			return false
+		}
+	}
+	if info.Method != "RPC" {
+		return info.Method == http.MethodPost || info.Method == http.MethodPut || info.Method == http.MethodPatch || info.Method == http.MethodDelete
+	}
+	return true
 }
 
 // isDataAccess 判断请求是否产生数据访问事实。
 func isDataAccess(info request) bool {
-	if info.Operation == "" {
+	methodName, audited := auditMethod(info.Operation)
+	if !audited {
 		return false
 	}
-	if strings.Contains(info.Operation, "LogService/") || strings.Contains(info.Operation, "MigrationService/") {
-		return false
-	}
-	if info.Method == "RPC" {
-		for _, action := range []string{"Get", "List", "Page", "Option", "Summary", "Tree", "Count", "Preview"} {
-			if strings.Contains(info.Operation, "/"+action) {
-				return true
-			}
+	for _, action := range []string{"Get", "List", "Page", "Option", "Summary", "Tree", "Count", "Preview", "Query", "Search", "Read", "Describe", "Inspect", "Fetch", "Reveal", "Export", "Download", "Import"} {
+		if strings.HasPrefix(methodName, action) {
+			return true
 		}
-		return false
 	}
-	return info.Method == http.MethodGet || strings.Contains(info.Operation, "Export") || strings.Contains(info.Operation, "Download") || strings.Contains(info.Operation, "Import")
+	return info.Method == http.MethodGet
+}
+
+// auditMethod 排除认证、日志自查询和流式订阅，返回可审计的业务方法名。
+func auditMethod(operation string) (string, bool) {
+	index := strings.LastIndex(operation, "/")
+	if index < 0 || index == len(operation)-1 {
+		return "", false
+	}
+	if strings.Contains(operation, "LogService/") || strings.Contains(operation, "MigrationService/") || strings.Contains(operation, "LoginService/") {
+		return "", false
+	}
+	if _, login := loginType(operation); login {
+		return "", false
+	}
+	methodName := operation[index+1:]
+	for _, action := range []string{"Stream", "Subscribe", "Watch", "Listen"} {
+		if strings.HasPrefix(methodName, action) {
+			return "", false
+		}
+	}
+	return methodName, true
 }
 
 // isPermissionOperation 判断请求是否属于权限对象或权限规则变更。

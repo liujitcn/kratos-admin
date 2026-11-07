@@ -25,6 +25,10 @@ INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('b
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_config.name', 1170, 'en-US', 'Login CAPTCHA Type') ON CONFLICT DO NOTHING;
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_config.name', 1180, 'en-US', 'Multi-factor Authentication Policy') ON CONFLICT DO NOTHING;
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_config.name', 1190, 'en-US', 'Multi-factor Authentication Method') ON CONFLICT DO NOTHING;
+INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_config.name', 1191, 'en-US', 'Admin Terms of Service') ON CONFLICT DO NOTHING;
+INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_config.name', 1192, 'en-US', 'Admin Terms of Service version') ON CONFLICT DO NOTHING;
+INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_config.name', 1193, 'en-US', 'Admin Privacy Policy') ON CONFLICT DO NOTHING;
+INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_config.name', 1194, 'en-US', 'Admin Privacy Policy version') ON CONFLICT DO NOTHING;
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_config.name', 1200, 'en-US', 'Main Title') ON CONFLICT DO NOTHING;
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_config.name', 1210, 'en-US', 'Subtitle') ON CONFLICT DO NOTHING;
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_config.name', 1220, 'en-US', 'Application Logo') ON CONFLICT DO NOTHING;

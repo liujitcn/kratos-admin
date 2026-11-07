@@ -47,6 +47,15 @@ export class LoginServiceImpl implements LoginService {
       headers: { Authorization: "no-auth" }
     });
   }
+  /** 管理端登录，提交当前管理端协议的主动确认。 */
+  AdminLogin(request: LoginRequest): Promise<LoginResponse> {
+    return service<LoginRequest, LoginResponse>({
+      url: "/v1/admin/base/session",
+      method: "post",
+      data: request,
+      headers: { Authorization: "no-auth" }
+    });
+  }
   /** 登出 */
   Logout(request: LogoutRequest): Promise<Empty> {
     return service<LogoutRequest, Empty>({

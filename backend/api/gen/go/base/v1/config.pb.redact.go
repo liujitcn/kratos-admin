@@ -113,6 +113,8 @@ func (x *GetConfigResponse) Redact() {
 	// Safe field: Configs
 
 	// Safe field: AiEnabled
+
+	// Safe field: Version
 }
 
 // Ensure GetI18nCustomRequest implements the Redactor interface at compile time.

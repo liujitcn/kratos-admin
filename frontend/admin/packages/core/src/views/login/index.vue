@@ -1,26 +1,15 @@
 <template>
-  <div class="login-container flx-center">
+  <AdminAgreementPage v-if="protocolKind" :protocol="protocolKind" />
+  <div v-else class="login-container flx-center">
     <div class="login-box">
       <SwitchDark class="dark" />
       <LocaleSwitch v-if="languageOptions.length > 1" class="locale" />
       <div class="login-left">
-        <img
-          class="login-left-img"
-          :src="backgroundUrl"
-          :alt="t('core.login.background_alt')"
-          @error="handleBackgroundError"
-        />
+        <img class="login-left-img" :src="backgroundUrl" :alt="t('core.login.background_alt')" @error="handleBackgroundError" />
       </div>
       <div ref="loginFormRef" class="login-form">
         <div ref="loginLogoRef" class="login-logo">
-          <img
-            v-show="showLogoIcon"
-            ref="logoIconRef"
-            class="login-icon"
-            :src="logoUrl"
-            alt=""
-            @error="handleLogoError"
-          />
+          <img v-show="showLogoIcon" ref="logoIconRef" class="login-icon" :src="logoUrl" alt="" @error="handleLogoError" />
           <h2 ref="logoTextRef" class="logo-text" :style="{ fontSize: `${logoFontSize}px` }">{{ projectName }}</h2>
         </div>
         <LoginForm :dialog-anchor="loginFormRef" />
@@ -31,7 +20,9 @@
 
 <script setup lang="ts" name="Login">
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from "vue";
+import { useRoute } from "vue-router";
 import LoginForm from "./components/LoginForm.vue";
+import AdminAgreementPage from "./AdminAgreementPage.vue";
 import SwitchDark from "@/components/SwitchDark/index.vue";
 import LocaleSwitch from "@/components/LocaleSwitch/index.vue";
 import { useConfigStore } from "@/stores/modules/config";
@@ -41,6 +32,10 @@ import { useLogoUrl } from "@/hooks/useLogoUrl";
 import { useImageUrl } from "@/hooks/useImageUrl";
 
 const configStore = useConfigStore();
+const route = useRoute();
+const protocolKind = computed(() =>
+  route.query.protocol === "service" || route.query.protocol === "privacy" ? route.query.protocol : undefined
+);
 const { t, languageOptions } = useLocaleStore();
 const projectName = computed(() => configStore.display.sysName || import.meta.env.VITE_GLOB_APP_TITLE);
 const configuredLogoUrl = computed(() => configStore.display.adminLogo);
@@ -123,8 +118,13 @@ onBeforeUnmount(() => {
   logoResizeObserver = null;
 });
 
-watch([projectName, logoUrl], () => {
+watch([projectName, logoUrl, protocolKind], () => {
   updateLogoLayout();
+});
+
+watch(loginLogoRef, element => {
+  logoResizeObserver?.disconnect();
+  if (element) logoResizeObserver?.observe(element);
 });
 </script>
 

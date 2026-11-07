@@ -2060,5 +2060,6 @@
   "system.ai.chat.approval.pending": "请先确认、拒绝或删除待处理操作",
   "system.ai.chat.approval.reject": "拒绝执行",
   "system.ai.chat.approval.rejected": "已拒绝，待确认的操作未执行。",
-  "system.ai.chat.approval.title": "执行前需要确认"
+  "system.ai.chat.approval.title": "执行前需要确认",
+  "system.base.script.message.sandbox": "仅支持 JavaScript、CEL、Expr；脚本不能访问进程、文件或网络。试运行仅执行已保存版本，其他语言脚本需迁移。"
 }

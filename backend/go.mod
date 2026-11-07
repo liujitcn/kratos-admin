@@ -22,13 +22,6 @@ require (
 	github.com/liujitcn/go-scripts v0.0.1
 	github.com/liujitcn/go-scripts/cel v0.0.1
 	github.com/liujitcn/go-scripts/expr v0.0.1
-	github.com/liujitcn/go-scripts/gpython v0.0.1
-	github.com/liujitcn/go-scripts/javascript v0.0.1
-	github.com/liujitcn/go-scripts/lua v0.0.1
-	github.com/liujitcn/go-scripts/starlark v0.0.1
-	github.com/liujitcn/go-scripts/tcl v0.0.2
-	github.com/liujitcn/go-scripts/wazero v0.0.1
-	github.com/liujitcn/go-scripts/yaegi v0.0.1
 	github.com/liujitcn/go-utils v0.0.43
 	github.com/liujitcn/go-utils/crypto v0.0.18
 	github.com/liujitcn/go-utils/http v0.0.9
@@ -54,6 +47,7 @@ require (
 	github.com/liujitcn/kratos-kit/database/gorm/driver/mysql v0.0.29
 	github.com/liujitcn/kratos-kit/database/gorm/driver/postgres v0.0.25
 	github.com/liujitcn/kratos-kit/database/gorm/migration v0.0.21
+	github.com/liujitcn/kratos-kit/key v0.0.11
 	github.com/liujitcn/kratos-kit/locker v0.0.25
 	github.com/liujitcn/kratos-kit/logger/zap v0.0.23
 	github.com/liujitcn/kratos-kit/notify v0.0.5
@@ -128,7 +122,6 @@ require (
 	github.com/aliyun/credentials-go v1.4.13 // indirect
 	github.com/andybalholm/brotli v1.2.6 // indirect
 	github.com/antlr4-go/antlr/v4 v4.13.1 // indirect
-	github.com/aws/aws-sdk-go v1.55.8 // indirect
 	github.com/aws/aws-sdk-go-v2 v1.47.3 // indirect
 	github.com/aws/aws-sdk-go-v2/aws/protocol/eventstream v1.7.22 // indirect
 	github.com/aws/aws-sdk-go-v2/config v1.33.9 // indirect
@@ -161,7 +154,6 @@ require (
 	github.com/bytedance/sonic/loader v0.5.2 // indirect
 	github.com/casbin/casbin/v2 v2.135.0 // indirect
 	github.com/casbin/govaluate v1.10.0 // indirect
-	github.com/cbroglie/mustache v1.4.0 // indirect
 	github.com/cenkalti/backoff/v4 v4.3.0 // indirect
 	github.com/cenkalti/backoff/v5 v5.0.3 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
@@ -173,7 +165,6 @@ require (
 	github.com/cloudwego/eino-ext/libs/acl/openai v0.1.18-0.20260924031408-10df7cac3f6d // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/dlclark/regexp2/v2 v2.9.1 // indirect
-	github.com/dop251/goja_nodejs v0.0.0-20260918173711-b481721df8a2 // indirect
 	github.com/dustin/go-humanize v1.1.0 // indirect
 	github.com/ebitengine/purego v0.11.1 // indirect
 	github.com/eclipse/paho.golang v0.10.0 // indirect
@@ -206,7 +197,6 @@ require (
 	github.com/go-openapi/swag/typeutils v0.29.2 // indirect
 	github.com/go-openapi/swag/yamlutils v0.29.2 // indirect
 	github.com/go-playground/form/v4 v4.5.0 // indirect
-	github.com/go-python/gpython v0.2.0 // indirect
 	github.com/go-sourcemap/sourcemap v2.1.4+incompatible // indirect
 	github.com/go-viper/mapstructure/v2 v2.5.0 // indirect
 	github.com/go-webauthn/x v0.3.1 // indirect
@@ -259,7 +249,6 @@ require (
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/jlaffaye/ftp v0.2.4 // indirect
-	github.com/jmespath/go-jmespath v0.4.0 // indirect
 	github.com/json-iterator/go v1.1.13-0.20220915233716-71ac16282d12 // indirect
 	github.com/klauspost/cpuid/v2 v2.4.0 // indirect
 	github.com/klauspost/crc32 v1.3.0 // indirect
@@ -273,7 +262,6 @@ require (
 	github.com/liujitcn/kratos-kit/auth/authn/middleware v0.0.24 // indirect
 	github.com/liujitcn/kratos-kit/auth/authz/middleware v0.0.23 // indirect
 	github.com/liujitcn/kratos-kit/broker/mqtt v0.0.2 // indirect
-	github.com/liujitcn/kratos-kit/key v0.0.11 // indirect
 	github.com/liujitcn/kratos-kit/logger v0.0.37 // indirect
 	github.com/liujitcn/kratos-kit/oss/s3 v0.0.5 // indirect
 	github.com/liujitcn/kratos-kit/queue/redisqueue v0.0.19 // indirect
@@ -324,7 +312,6 @@ require (
 	github.com/prometheus/procfs v0.22.0 // indirect
 	github.com/redis/go-redis/extra/rediscmd/v9 v9.23.0 // indirect
 	github.com/redis/go-redis/extra/redisotel/v9 v9.23.0 // indirect
-	github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec // indirect
 	github.com/robfig/cron/v3 v3.0.1 // indirect
 	github.com/rs/xid v1.6.0 // indirect
 	github.com/ryanuber/go-glob v1.0.0 // indirect
@@ -336,11 +323,8 @@ require (
 	github.com/spf13/cobra v1.10.2 // indirect
 	github.com/spf13/pflag v1.0.10 // indirect
 	github.com/swaggest/swgui v1.8.9 // indirect
-	github.com/technoweenie/multipartstreamer v1.0.1 // indirect
 	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common v1.3.192 // indirect
 	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/sms v1.3.172 // indirect
-	github.com/tengattack/gluacrypto v0.0.0-20240324200146-54b58c95c255 // indirect
-	github.com/tetratelabs/wazero v1.12.0 // indirect
 	github.com/tidwall/gjson v1.18.0 // indirect
 	github.com/tidwall/match v1.1.1 // indirect
 	github.com/tidwall/pretty v1.2.1 // indirect
@@ -348,9 +332,7 @@ require (
 	github.com/tinylib/msgp v1.6.5 // indirect
 	github.com/tklauser/go-sysconf v0.4.0 // indirect
 	github.com/tklauser/numcpus v0.12.0 // indirect
-	github.com/traefik/yaegi v0.16.1 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
-	github.com/vadv/gopher-lua-libs v0.8.0 // indirect
 	github.com/vearutop/statigz v1.5.0 // indirect
 	github.com/volcengine/volc-sdk-golang v1.0.257 // indirect
 	github.com/wenlng/go-captcha-assets v1.0.7 // indirect
@@ -359,8 +341,6 @@ require (
 	github.com/x448/float16 v0.8.4 // indirect
 	github.com/yargevad/filepathx v1.0.0 // indirect
 	github.com/yosida95/uritemplate/v3 v3.0.2 // indirect
-	github.com/yuin/gluamapper v0.0.0-20150323120927-d836955830e7 // indirect
-	github.com/yuin/gopher-lua v1.1.2 // indirect
 	github.com/yusufpapurcu/wmi v1.2.4 // indirect
 	github.com/zeebo/xxh3 v1.1.0 // indirect
 	go.mongodb.org/mongo-driver v1.17.10 // indirect
@@ -378,7 +358,6 @@ require (
 	go.opentelemetry.io/otel/sdk v1.47.0 // indirect
 	go.opentelemetry.io/otel/trace v1.47.0 // indirect
 	go.opentelemetry.io/proto/otlp v1.11.1 // indirect
-	go.starlark.net v0.0.0-20261021141710-4f4267fb140d // indirect
 	go.uber.org/atomic v1.12.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	go.uber.org/zap v1.28.0 // indirect
@@ -403,8 +382,6 @@ require (
 	gopkg.in/inf.v0 v0.9.1 // indirect
 	gopkg.in/ini.v1 v1.67.3 // indirect
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1 // indirect
-	gopkg.in/xmlpath.v2 v2.0.0-20150820204837-860cbeca3ebc // indirect
-	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	gorm.io/datatypes v1.2.7 // indirect
 	gorm.io/driver/clickhouse v0.7.0 // indirect
@@ -418,13 +395,6 @@ require (
 	k8s.io/klog/v2 v2.140.0 // indirect
 	k8s.io/kube-openapi v0.0.0-20260721132016-d427ff9ee9ad // indirect
 	k8s.io/utils v0.0.0-20260707023825-cf1189d6abe3 // indirect
-	layeh.com/gopher-luar v1.0.11 // indirect
-	modernc.org/httpfs v1.0.6 // indirect
-	modernc.org/libc v1.29.0 // indirect
-	modernc.org/mathutil v1.7.1 // indirect
-	modernc.org/memory v1.12.1 // indirect
-	modernc.org/tcl v1.15.3 // indirect
-	modernc.org/z v1.7.4 // indirect
 	sigs.k8s.io/json v0.0.0-20260909141634-11ed52e25bc5 // indirect
 	sigs.k8s.io/randfill v1.0.0 // indirect
 	sigs.k8s.io/structured-merge-diff/v6 v6.4.2 // indirect

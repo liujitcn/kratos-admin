@@ -26,6 +26,7 @@ import (
 	"github.com/liujitcn/go-utils/id"
 	"github.com/liujitcn/gorm-kit/repository"
 	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
+	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/adminagreement"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/dto"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/loginpolicy"
 	_const "github.com/liujitcn/kratos-admin/backend/internal/const"
@@ -168,7 +169,7 @@ func NewMfaCase(
 	}
 }
 
-// PrepareLogin 根据全局策略和用户 MFA 状态准备登录结果。
+// PrepareLogin 根据用户 MFA 状态准备登录结果，并将管理端协议确认保存在同一挑战中。
 func (c *MfaCase) PrepareLogin(ctx context.Context, user *models.BaseUser) (*basev1.LoginResponse, error) {
 	var err error
 	var policy string
@@ -200,13 +201,15 @@ func (c *MfaCase) PrepareLogin(ctx context.Context, user *models.BaseUser) (*bas
 	if policy == mfaPolicyOptional && !enabled {
 		return nil, nil
 	}
-	policySet, err := loginpolicy.LoadFromCacheStrict(c.Cache)
+	var policySet loginpolicy.PolicySet
+	policySet, err = loginpolicy.LoadFromCacheStrict(c.Cache)
 	if err != nil {
 		return nil, errorsx.Internal("读取登录策略失败").WithCause(err)
 	}
 	rememberDays := policySet.MfaRememberDaysFor(user.TenantID, user.ID)
 	if enabled {
-		trusted, err := c.isTrustedDevice(user.ID, rememberDays, loginDevice(ctx))
+		var trusted bool
+		trusted, err = c.isTrustedDevice(user.ID, rememberDays, loginDevice(ctx))
 		if err != nil {
 			return nil, errorsx.Internal("读取 MFA 信任设备失败").WithCause(err)
 		}
@@ -222,11 +225,11 @@ func (c *MfaCase) PrepareLogin(ctx context.Context, user *models.BaseUser) (*bas
 				if err != nil {
 					return nil, errorsx.Internal("查询 WebAuthn 多因素认证配置失败").WithCause(err)
 				}
-				return c.beginMfaLoginChallenge(user, method, mfa.ID, rememberDays)
+				return c.beginMfaLoginChallenge(ctx, user, method, mfa.ID, rememberDays)
 			}
 			return c.beginWebAuthnLogin(ctx, user, rememberDays)
 		}
-		return c.beginMfaLoginChallenge(user, method, 0, rememberDays)
+		return c.beginMfaLoginChallenge(ctx, user, method, 0, rememberDays)
 	}
 	if policy == mfaPolicyAllRequired {
 		setupTicket := id.NewGUIDv4NoHyphen()
@@ -244,8 +247,8 @@ func (c *MfaCase) PrepareLogin(ctx context.Context, user *models.BaseUser) (*bas
 	return nil, nil
 }
 
-// beginMfaLoginChallenge 创建 TOTP 或恢复码登录挑战。
-func (c *MfaCase) beginMfaLoginChallenge(user *models.BaseUser, method string, mfaID int64, rememberDays int32) (*basev1.LoginResponse, error) {
+// beginMfaLoginChallenge 创建 TOTP 或恢复码挑战，并原子保存管理端协议确认。
+func (c *MfaCase) beginMfaLoginChallenge(ctx context.Context, user *models.BaseUser, method string, mfaID int64, rememberDays int32) (*basev1.LoginResponse, error) {
 	challengeID := id.NewGUIDv4NoHyphen()
 	payload := dto.MfaLoginChallenge{
 		UserID:    user.ID,
@@ -253,6 +256,10 @@ func (c *MfaCase) beginMfaLoginChallenge(user *models.BaseUser, method string, m
 		ExpiresAt: time.Now().Add(c.runtimeConfig.loginChallengeExpire).Unix(),
 		Method:    method,
 		MFAID:     mfaID,
+	}
+	if receipt, ok := adminagreement.ReceiptFromContext(ctx); ok {
+		payload.AdminLogin = true
+		payload.AdminAgreement = &receipt
 	}
 	if err := c.saveJSON(mfaLoginChallengeKey(challengeID), payload, c.runtimeConfig.loginChallengeExpire); err != nil {
 		return nil, errorsx.Internal("创建多因素认证挑战失败").WithCause(err)
@@ -316,7 +323,7 @@ func (c *MfaCase) resolveEnabledMethod(ctx context.Context, userID int64, config
 	return configured, nil
 }
 
-// beginWebAuthnLogin 创建 WebAuthn 登录挑战并保存服务端会话数据。
+// beginWebAuthnLogin 创建 WebAuthn 挑战，将会话与管理端协议确认一同保存。
 func (c *MfaCase) beginWebAuthnLogin(ctx context.Context, user *models.BaseUser, rememberDays int32) (*basev1.LoginResponse, error) {
 	if c.webAuthnErr != nil || c.webAuthn == nil {
 		return nil, errorsx.Internal("WebAuthn 配置无效").WithCause(c.webAuthnErr)
@@ -351,6 +358,10 @@ func (c *MfaCase) beginWebAuthnLogin(ctx context.Context, user *models.BaseUser,
 		Method:    mfaMethodWebAuthn,
 		MFAID:     mfa.ID,
 		WebAuthn:  session,
+	}
+	if receipt, ok := adminagreement.ReceiptFromContext(ctx); ok {
+		payload.AdminLogin = true
+		payload.AdminAgreement = &receipt
 	}
 	if err = c.saveJSON(mfaLoginChallengeKey(challengeID), payload, c.runtimeConfig.loginChallengeExpire); err != nil {
 		return nil, errorsx.Internal("保存 WebAuthn 登录挑战失败").WithCause(err)

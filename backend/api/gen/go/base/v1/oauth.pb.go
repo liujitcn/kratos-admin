@@ -194,11 +194,12 @@ func (x *ListOauthProviderResponse) GetProviders() []*OauthProvider {
 
 // 三方登录授权地址创建条件
 type CreateOauthAuthorizationRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Provider      string                 `protobuf:"bytes,1,opt,name=provider,proto3" json:"provider,omitempty"`                          // 登录方式标识
-	RedirectUrl   string                 `protobuf:"bytes,2,opt,name=redirect_url,json=redirectUrl,proto3" json:"redirect_url,omitempty"` // 三方登录完成后的前端接收地址
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	Provider       string                 `protobuf:"bytes,1,opt,name=provider,proto3" json:"provider,omitempty"`                                   // 登录方式标识
+	RedirectUrl    string                 `protobuf:"bytes,2,opt,name=redirect_url,json=redirectUrl,proto3" json:"redirect_url,omitempty"`          // 三方登录完成后的前端接收地址
+	AdminAgreement *AdminAgreementConsent `protobuf:"bytes,3,opt,name=admin_agreement,json=adminAgreement,proto3" json:"admin_agreement,omitempty"` // 管理端专属协议确认，仅管理端授权入口校验
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
 }
 
 func (x *CreateOauthAuthorizationRequest) Reset() {
@@ -243,6 +244,13 @@ func (x *CreateOauthAuthorizationRequest) GetRedirectUrl() string {
 		return x.RedirectUrl
 	}
 	return ""
+}
+
+func (x *CreateOauthAuthorizationRequest) GetAdminAgreement() *AdminAgreementConsent {
+	if x != nil {
+		return x.AdminAgreement
+	}
+	return nil
 }
 
 // 三方登录授权地址创建结果
@@ -1282,12 +1290,13 @@ const file_base_v1_oauth_proto_rawDesc = "" +
 	"\bbindings\x18\x01 \x03(\v2\x15.base.v1.OauthBindingB\x1e\xbaG\x1b\x92\x02\x18三方账号绑定列表R\bbindings\"\x1a\n" +
 	"\x18ListOauthProviderRequest\"q\n" +
 	"\x19ListOauthProviderResponse\x12T\n" +
-	"\tproviders\x18\x01 \x03(\v2\x16.base.v1.OauthProviderB\x1e\xbaG\x1b\x92\x02\x18三方登录方式列表R\tproviders\"\x85\x03\n" +
+	"\tproviders\x18\x01 \x03(\v2\x16.base.v1.OauthProviderB\x1e\xbaG\x1b\x92\x02\x18三方登录方式列表R\tproviders\"\x93\x04\n" +
 	"\x1fCreateOauthAuthorizationRequest\x12\x9f\x01\n" +
 	"\bprovider\x18\x01 \x01(\tB\x82\x01\xbaG\x15\x92\x02\x12登录方式标识\xbaHg\xba\x01d\n" +
 	"1base.oauth.create_authorization.provider.required\x12\x1e登录方式标识不能为空\x1a\x0fthis.size() > 0R\bprovider\x12\xbf\x01\n" +
 	"\fredirect_url\x18\x02 \x01(\tB\x9b\x01\xbaG-\x92\x02*三方登录完成后的前端接收地址\xbaHh\xba\x01e\n" +
-	"5base.oauth.create_authorization.redirect_url.required\x12\x1b登录页地址不能为空\x1a\x0fthis.size() > 0R\vredirectUrl\"i\n" +
+	"5base.oauth.create_authorization.redirect_url.required\x12\x1b登录页地址不能为空\x1a\x0fthis.size() > 0R\vredirectUrl\x12\x8b\x01\n" +
+	"\x0fadmin_agreement\x18\x03 \x01(\v2\x1e.base.v1.AdminAgreementConsentBB\xbaG?\x92\x02<管理端专属协议确认，仅管理端授权入口校验R\x0eadminAgreement\"i\n" +
 	" CreateOauthAuthorizationResponse\x12E\n" +
 	"\x11authorization_url\x18\x01 \x01(\tB\x18\xbaG\x15\x92\x02\x12三方授权地址R\x10authorizationUrl\"\x99\x03\n" +
 	"&CreateOauthBindingAuthorizationRequest\x12\xa7\x01\n" +
@@ -1390,11 +1399,12 @@ const file_base_v1_oauth_proto_rawDesc = "" +
 	"\vdescription\x18\x03 \x01(\tB\x1b\xbaG\x18\x92\x02\x15登录方式提示语R\vdescription\x12+\n" +
 	"\x05bound\x18\x04 \x01(\bB\x15\xbaG\x12\x92\x02\x0f是否已绑定R\x05bound\x122\n" +
 	"\x04icon\x18\x05 \x01(\tB\x1e\xbaG\x1b\x92\x02\x18图标键或图片地址R\x04icon\x12X\n" +
-	"\x06config\x18\x06 \x01(\v2\x17.google.protobuf.StructB'\xbaG$\x92\x02!Provider个性化配置JSON对象R\x06config2\xc6\v\n" +
+	"\x06config\x18\x06 \x01(\v2\x17.google.protobuf.StructB'\xbaG$\x92\x02!Provider个性化配置JSON对象R\x06config2\xf0\f\n" +
 	"\fOauthService\x12{\n" +
 	"\x10ListOauthBinding\x12 .base.v1.ListOauthBindingRequest\x1a!.base.v1.ListOauthBindingResponse\"\"\x82\xd3\xe4\x93\x02\x1c\x12\x1a/api/v1/base/oauth/binding\x12\x7f\n" +
 	"\x11ListOauthProvider\x12!.base.v1.ListOauthProviderRequest\x1a\".base.v1.ListOauthProviderResponse\"#\x82\xd3\xe4\x93\x02\x1d\x12\x1b/api/v1/base/oauth/provider\x12\x9c\x01\n" +
-	"\x18CreateOauthAuthorization\x12(.base.v1.CreateOauthAuthorizationRequest\x1a).base.v1.CreateOauthAuthorizationResponse\"+\x82\xd3\xe4\x93\x02%:\x01*\" /api/v1/base/oauth/authorization\x12\xb9\x01\n" +
+	"\x18CreateOauthAuthorization\x12(.base.v1.CreateOauthAuthorizationRequest\x1a).base.v1.CreateOauthAuthorizationResponse\"+\x82\xd3\xe4\x93\x02%:\x01*\" /api/v1/base/oauth/authorization\x12\xa7\x01\n" +
+	"\x1dCreateAdminOauthAuthorization\x12(.base.v1.CreateOauthAuthorizationRequest\x1a).base.v1.CreateOauthAuthorizationResponse\"1\x82\xd3\xe4\x93\x02+:\x01*\"&/api/v1/admin/base/oauth/authorization\x12\xb9\x01\n" +
 	"\x1fCreateOauthBindingAuthorization\x12/.base.v1.CreateOauthBindingAuthorizationRequest\x1a0.base.v1.CreateOauthBindingAuthorizationResponse\"3\x82\xd3\xe4\x93\x02-:\x01*\"(/api/v1/base/oauth/binding/authorization\x12\x84\x01\n" +
 	"\x12CreateOauthSession\x12\".base.v1.CreateOauthSessionRequest\x1a#.base.v1.CreateOauthSessionResponse\"%\x82\xd3\xe4\x93\x02\x1f:\x01*\"\x1a/api/v1/base/oauth/session\x12\x88\x01\n" +
 	"\x10BindOauthSession\x12 .base.v1.BindOauthSessionRequest\x1a#.base.v1.CreateOauthSessionResponse\"-\x82\xd3\xe4\x93\x02':\x01*\"\"/api/v1/base/oauth/binding/session\x12\x90\x01\n" +
@@ -1439,44 +1449,48 @@ var file_base_v1_oauth_proto_goTypes = []any{
 	(*UnbindOauthAccountRequest)(nil),               // 17: base.v1.UnbindOauthAccountRequest
 	(*OauthProvider)(nil),                           // 18: base.v1.OauthProvider
 	(*OauthBinding)(nil),                            // 19: base.v1.OauthBinding
-	(*commonv1.SecretCrypto)(nil),                   // 20: common.v1.SecretCrypto
-	(LoginStatus)(0),                                // 21: base.v1.LoginStatus
-	(*structpb.Struct)(nil),                         // 22: google.protobuf.Struct
-	(*emptypb.Empty)(nil),                           // 23: google.protobuf.Empty
+	(*AdminAgreementConsent)(nil),                   // 20: base.v1.AdminAgreementConsent
+	(*commonv1.SecretCrypto)(nil),                   // 21: common.v1.SecretCrypto
+	(LoginStatus)(0),                                // 22: base.v1.LoginStatus
+	(*structpb.Struct)(nil),                         // 23: google.protobuf.Struct
+	(*emptypb.Empty)(nil),                           // 24: google.protobuf.Empty
 }
 var file_base_v1_oauth_proto_depIdxs = []int32{
 	19, // 0: base.v1.ListOauthBindingResponse.bindings:type_name -> base.v1.OauthBinding
 	18, // 1: base.v1.ListOauthProviderResponse.providers:type_name -> base.v1.OauthProvider
-	20, // 2: base.v1.BindOauthSessionRequest.password:type_name -> common.v1.SecretCrypto
-	21, // 3: base.v1.CreateOauthSessionResponse.status:type_name -> base.v1.LoginStatus
-	21, // 4: base.v1.ExchangeOauthTicketResponse.status:type_name -> base.v1.LoginStatus
-	22, // 5: base.v1.OauthProvider.config:type_name -> google.protobuf.Struct
-	22, // 6: base.v1.OauthBinding.config:type_name -> google.protobuf.Struct
-	0,  // 7: base.v1.OauthService.ListOauthBinding:input_type -> base.v1.ListOauthBindingRequest
-	2,  // 8: base.v1.OauthService.ListOauthProvider:input_type -> base.v1.ListOauthProviderRequest
-	4,  // 9: base.v1.OauthService.CreateOauthAuthorization:input_type -> base.v1.CreateOauthAuthorizationRequest
-	6,  // 10: base.v1.OauthService.CreateOauthBindingAuthorization:input_type -> base.v1.CreateOauthBindingAuthorizationRequest
-	8,  // 11: base.v1.OauthService.CreateOauthSession:input_type -> base.v1.CreateOauthSessionRequest
-	9,  // 12: base.v1.OauthService.BindOauthSession:input_type -> base.v1.BindOauthSessionRequest
-	11, // 13: base.v1.OauthService.HandleOauthCallback:input_type -> base.v1.HandleOauthCallbackRequest
-	13, // 14: base.v1.OauthService.ExchangeOauthTicket:input_type -> base.v1.ExchangeOauthTicketRequest
-	15, // 15: base.v1.OauthService.HandleOauthBindingCallback:input_type -> base.v1.HandleOauthBindingCallbackRequest
-	17, // 16: base.v1.OauthService.UnbindOauthAccount:input_type -> base.v1.UnbindOauthAccountRequest
-	1,  // 17: base.v1.OauthService.ListOauthBinding:output_type -> base.v1.ListOauthBindingResponse
-	3,  // 18: base.v1.OauthService.ListOauthProvider:output_type -> base.v1.ListOauthProviderResponse
-	5,  // 19: base.v1.OauthService.CreateOauthAuthorization:output_type -> base.v1.CreateOauthAuthorizationResponse
-	7,  // 20: base.v1.OauthService.CreateOauthBindingAuthorization:output_type -> base.v1.CreateOauthBindingAuthorizationResponse
-	10, // 21: base.v1.OauthService.CreateOauthSession:output_type -> base.v1.CreateOauthSessionResponse
-	10, // 22: base.v1.OauthService.BindOauthSession:output_type -> base.v1.CreateOauthSessionResponse
-	12, // 23: base.v1.OauthService.HandleOauthCallback:output_type -> base.v1.HandleOauthCallbackResponse
-	14, // 24: base.v1.OauthService.ExchangeOauthTicket:output_type -> base.v1.ExchangeOauthTicketResponse
-	16, // 25: base.v1.OauthService.HandleOauthBindingCallback:output_type -> base.v1.HandleOauthBindingCallbackResponse
-	23, // 26: base.v1.OauthService.UnbindOauthAccount:output_type -> google.protobuf.Empty
-	17, // [17:27] is the sub-list for method output_type
-	7,  // [7:17] is the sub-list for method input_type
-	7,  // [7:7] is the sub-list for extension type_name
-	7,  // [7:7] is the sub-list for extension extendee
-	0,  // [0:7] is the sub-list for field type_name
+	20, // 2: base.v1.CreateOauthAuthorizationRequest.admin_agreement:type_name -> base.v1.AdminAgreementConsent
+	21, // 3: base.v1.BindOauthSessionRequest.password:type_name -> common.v1.SecretCrypto
+	22, // 4: base.v1.CreateOauthSessionResponse.status:type_name -> base.v1.LoginStatus
+	22, // 5: base.v1.ExchangeOauthTicketResponse.status:type_name -> base.v1.LoginStatus
+	23, // 6: base.v1.OauthProvider.config:type_name -> google.protobuf.Struct
+	23, // 7: base.v1.OauthBinding.config:type_name -> google.protobuf.Struct
+	0,  // 8: base.v1.OauthService.ListOauthBinding:input_type -> base.v1.ListOauthBindingRequest
+	2,  // 9: base.v1.OauthService.ListOauthProvider:input_type -> base.v1.ListOauthProviderRequest
+	4,  // 10: base.v1.OauthService.CreateOauthAuthorization:input_type -> base.v1.CreateOauthAuthorizationRequest
+	4,  // 11: base.v1.OauthService.CreateAdminOauthAuthorization:input_type -> base.v1.CreateOauthAuthorizationRequest
+	6,  // 12: base.v1.OauthService.CreateOauthBindingAuthorization:input_type -> base.v1.CreateOauthBindingAuthorizationRequest
+	8,  // 13: base.v1.OauthService.CreateOauthSession:input_type -> base.v1.CreateOauthSessionRequest
+	9,  // 14: base.v1.OauthService.BindOauthSession:input_type -> base.v1.BindOauthSessionRequest
+	11, // 15: base.v1.OauthService.HandleOauthCallback:input_type -> base.v1.HandleOauthCallbackRequest
+	13, // 16: base.v1.OauthService.ExchangeOauthTicket:input_type -> base.v1.ExchangeOauthTicketRequest
+	15, // 17: base.v1.OauthService.HandleOauthBindingCallback:input_type -> base.v1.HandleOauthBindingCallbackRequest
+	17, // 18: base.v1.OauthService.UnbindOauthAccount:input_type -> base.v1.UnbindOauthAccountRequest
+	1,  // 19: base.v1.OauthService.ListOauthBinding:output_type -> base.v1.ListOauthBindingResponse
+	3,  // 20: base.v1.OauthService.ListOauthProvider:output_type -> base.v1.ListOauthProviderResponse
+	5,  // 21: base.v1.OauthService.CreateOauthAuthorization:output_type -> base.v1.CreateOauthAuthorizationResponse
+	5,  // 22: base.v1.OauthService.CreateAdminOauthAuthorization:output_type -> base.v1.CreateOauthAuthorizationResponse
+	7,  // 23: base.v1.OauthService.CreateOauthBindingAuthorization:output_type -> base.v1.CreateOauthBindingAuthorizationResponse
+	10, // 24: base.v1.OauthService.CreateOauthSession:output_type -> base.v1.CreateOauthSessionResponse
+	10, // 25: base.v1.OauthService.BindOauthSession:output_type -> base.v1.CreateOauthSessionResponse
+	12, // 26: base.v1.OauthService.HandleOauthCallback:output_type -> base.v1.HandleOauthCallbackResponse
+	14, // 27: base.v1.OauthService.ExchangeOauthTicket:output_type -> base.v1.ExchangeOauthTicketResponse
+	16, // 28: base.v1.OauthService.HandleOauthBindingCallback:output_type -> base.v1.HandleOauthBindingCallbackResponse
+	24, // 29: base.v1.OauthService.UnbindOauthAccount:output_type -> google.protobuf.Empty
+	19, // [19:30] is the sub-list for method output_type
+	8,  // [8:19] is the sub-list for method input_type
+	8,  // [8:8] is the sub-list for extension type_name
+	8,  // [8:8] is the sub-list for extension extendee
+	0,  // [0:8] is the sub-list for field type_name
 }
 
 func init() { file_base_v1_oauth_proto_init() }

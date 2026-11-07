@@ -455,10 +455,10 @@ func BuildModules(migrations *migration.Migration, config2 *configv1.Bootstrap, 
 		cleanup()
 		return nil, nil, err
 	}
-	loginCase := biz2.NewLoginCase(baseCase, bizBaseDeptCase, bizBaseRoleCase, baseUserCase, baseTenantRepository, baseDictRepository, baseDictItemRepository, mfaCase, userToken, v)
+	loginCase := biz2.NewLoginCase(baseCase, bizBaseDeptCase, bizBaseRoleCase, baseUserCase, baseTenantRepository, baseDictRepository, baseDictItemRepository, baseConfigRepository, mfaCase, userToken, v)
 	loginService := base.NewLoginService(loginCase)
 	service := biz2.NewSecretCryptoService(baseCase)
-	secretCryptoCase := biz2.NewSecretCryptoCase(service, redactResolver)
+	secretCryptoCase := biz2.NewSecretCryptoCase(baseCase, service, redactResolver)
 	secretCryptoService := base.NewSecretCryptoService(secretCryptoCase)
 	mfaService := base.NewMfaService(loginCase, mfaCase)
 	oauthCase := biz2.NewOauthCase(baseCase, transaction, baseThirdAccountCase, baseUserCase, bizBaseRoleCase, bizBaseDeptCase, loginCase, configCase, baseOauthProviderRepository, baseI18NRepository, catalog, manager)

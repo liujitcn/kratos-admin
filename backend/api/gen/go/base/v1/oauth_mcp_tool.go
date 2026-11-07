@@ -18,6 +18,7 @@ func RegisterOauthServiceMCPTools(mcpServer *mcp.Server, oauthServiceServer Oaut
 	RegisterOauthServiceListOauthBindingMCPTool(mcpServer, oauthServiceServer)
 	RegisterOauthServiceListOauthProviderMCPTool(mcpServer, oauthServiceServer)
 	RegisterOauthServiceCreateOauthAuthorizationMCPTool(mcpServer, oauthServiceServer)
+	RegisterOauthServiceCreateAdminOauthAuthorizationMCPTool(mcpServer, oauthServiceServer)
 	RegisterOauthServiceCreateOauthBindingAuthorizationMCPTool(mcpServer, oauthServiceServer)
 	RegisterOauthServiceCreateOauthSessionMCPTool(mcpServer, oauthServiceServer)
 	RegisterOauthServiceBindOauthSessionMCPTool(mcpServer, oauthServiceServer)
@@ -82,6 +83,27 @@ func RegisterOauthServiceCreateOauthAuthorizationMCPTool(mcpServer *mcp.Server, 
 				input = &CreateOauthAuthorizationRequest{}
 			}
 			reply, err := oauthServiceServer.CreateOauthAuthorization(ctx, input)
+			if err != nil {
+				return nil, nil, err
+			}
+			return nil, reply, nil
+		},
+	)
+}
+
+// RegisterOauthServiceCreateAdminOauthAuthorizationMCPTool 注册创建管理端三方登录授权地址，必须主动确认当前管理端协议的 MCP Tool。
+func RegisterOauthServiceCreateAdminOauthAuthorizationMCPTool(mcpServer *mcp.Server, oauthServiceServer OauthServiceServer) {
+	mcp.AddTool[*CreateOauthAuthorizationRequest, *CreateOauthAuthorizationResponse](
+		mcpServer,
+		&mcp.Tool{
+			Name:        "base_v1_oauth_service_create_admin_oauth_authorization",
+			Description: "创建管理端三方登录授权地址，必须主动确认当前管理端协议",
+		},
+		func(ctx context.Context, request *mcp.CallToolRequest, input *CreateOauthAuthorizationRequest) (*mcp.CallToolResult, *CreateOauthAuthorizationResponse, error) {
+			if input == nil {
+				input = &CreateOauthAuthorizationRequest{}
+			}
+			reply, err := oauthServiceServer.CreateAdminOauthAuthorization(ctx, input)
 			if err != nil {
 				return nil, nil, err
 			}

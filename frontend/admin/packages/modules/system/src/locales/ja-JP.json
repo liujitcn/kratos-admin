@@ -2060,5 +2060,6 @@
   "system.ai.chat.approval.pending": "先に保留中の操作を承認、拒否、または削除してください",
   "system.ai.chat.approval.reject": "拒否",
   "system.ai.chat.approval.rejected": "拒否しました。保留中の操作は実行されていません。",
-  "system.ai.chat.approval.title": "実行前の確認が必要です"
+  "system.ai.chat.approval.title": "実行前の確認が必要です",
+  "system.base.script.message.sandbox": "JavaScript、CEL、Expr のみ対応し、プロセス・ファイル・ネットワークにはアクセスできません。試行は保存済みの内容を使用します。他の言語のスクリプトは移行してください。"
 }

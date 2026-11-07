@@ -24,6 +24,7 @@ const (
 	OauthService_ListOauthBinding_FullMethodName                = "/base.v1.OauthService/ListOauthBinding"
 	OauthService_ListOauthProvider_FullMethodName               = "/base.v1.OauthService/ListOauthProvider"
 	OauthService_CreateOauthAuthorization_FullMethodName        = "/base.v1.OauthService/CreateOauthAuthorization"
+	OauthService_CreateAdminOauthAuthorization_FullMethodName   = "/base.v1.OauthService/CreateAdminOauthAuthorization"
 	OauthService_CreateOauthBindingAuthorization_FullMethodName = "/base.v1.OauthService/CreateOauthBindingAuthorization"
 	OauthService_CreateOauthSession_FullMethodName              = "/base.v1.OauthService/CreateOauthSession"
 	OauthService_BindOauthSession_FullMethodName                = "/base.v1.OauthService/BindOauthSession"
@@ -45,6 +46,8 @@ type OauthServiceClient interface {
 	ListOauthProvider(ctx context.Context, in *ListOauthProviderRequest, opts ...grpc.CallOption) (*ListOauthProviderResponse, error)
 	// 创建三方登录授权地址
 	CreateOauthAuthorization(ctx context.Context, in *CreateOauthAuthorizationRequest, opts ...grpc.CallOption) (*CreateOauthAuthorizationResponse, error)
+	// 创建管理端三方登录授权地址，必须主动确认当前管理端协议
+	CreateAdminOauthAuthorization(ctx context.Context, in *CreateOauthAuthorizationRequest, opts ...grpc.CallOption) (*CreateOauthAuthorizationResponse, error)
 	// 创建个人中心三方账号绑定授权地址
 	CreateOauthBindingAuthorization(ctx context.Context, in *CreateOauthBindingAuthorizationRequest, opts ...grpc.CallOption) (*CreateOauthBindingAuthorizationResponse, error)
 	// 创建三方登录会话
@@ -93,6 +96,16 @@ func (c *oauthServiceClient) CreateOauthAuthorization(ctx context.Context, in *C
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(CreateOauthAuthorizationResponse)
 	err := c.cc.Invoke(ctx, OauthService_CreateOauthAuthorization_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *oauthServiceClient) CreateAdminOauthAuthorization(ctx context.Context, in *CreateOauthAuthorizationRequest, opts ...grpc.CallOption) (*CreateOauthAuthorizationResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CreateOauthAuthorizationResponse)
+	err := c.cc.Invoke(ctx, OauthService_CreateAdminOauthAuthorization_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -181,6 +194,8 @@ type OauthServiceServer interface {
 	ListOauthProvider(context.Context, *ListOauthProviderRequest) (*ListOauthProviderResponse, error)
 	// 创建三方登录授权地址
 	CreateOauthAuthorization(context.Context, *CreateOauthAuthorizationRequest) (*CreateOauthAuthorizationResponse, error)
+	// 创建管理端三方登录授权地址，必须主动确认当前管理端协议
+	CreateAdminOauthAuthorization(context.Context, *CreateOauthAuthorizationRequest) (*CreateOauthAuthorizationResponse, error)
 	// 创建个人中心三方账号绑定授权地址
 	CreateOauthBindingAuthorization(context.Context, *CreateOauthBindingAuthorizationRequest) (*CreateOauthBindingAuthorizationResponse, error)
 	// 创建三方登录会话
@@ -213,6 +228,9 @@ func (UnimplementedOauthServiceServer) ListOauthProvider(context.Context, *ListO
 }
 func (UnimplementedOauthServiceServer) CreateOauthAuthorization(context.Context, *CreateOauthAuthorizationRequest) (*CreateOauthAuthorizationResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method CreateOauthAuthorization not implemented")
+}
+func (UnimplementedOauthServiceServer) CreateAdminOauthAuthorization(context.Context, *CreateOauthAuthorizationRequest) (*CreateOauthAuthorizationResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method CreateAdminOauthAuthorization not implemented")
 }
 func (UnimplementedOauthServiceServer) CreateOauthBindingAuthorization(context.Context, *CreateOauthBindingAuthorizationRequest) (*CreateOauthBindingAuthorizationResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method CreateOauthBindingAuthorization not implemented")
@@ -306,6 +324,24 @@ func _OauthService_CreateOauthAuthorization_Handler(srv interface{}, ctx context
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(OauthServiceServer).CreateOauthAuthorization(ctx, req.(*CreateOauthAuthorizationRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _OauthService_CreateAdminOauthAuthorization_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateOauthAuthorizationRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OauthServiceServer).CreateAdminOauthAuthorization(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: OauthService_CreateAdminOauthAuthorization_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OauthServiceServer).CreateAdminOauthAuthorization(ctx, req.(*CreateOauthAuthorizationRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -454,6 +490,10 @@ var OauthService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CreateOauthAuthorization",
 			Handler:    _OauthService_CreateOauthAuthorization_Handler,
+		},
+		{
+			MethodName: "CreateAdminOauthAuthorization",
+			Handler:    _OauthService_CreateAdminOauthAuthorization_Handler,
 		},
 		{
 			MethodName: "CreateOauthBindingAuthorization",

@@ -2060,5 +2060,6 @@
   "system.ai.chat.approval.pending": "Confirm, reject, or delete the pending operations first",
   "system.ai.chat.approval.reject": "Reject",
   "system.ai.chat.approval.rejected": "Rejected. No pending operation was executed.",
-  "system.ai.chat.approval.title": "Confirmation required"
+  "system.ai.chat.approval.title": "Confirmation required",
+  "system.base.script.message.sandbox": "Only JavaScript, CEL, and Expr are supported, with no process, file, or network access. Test runs use saved versions. Migrate scripts in other languages."
 }

@@ -54,6 +54,8 @@ message GetConfigResponse {
   repeated ConfigItem configs = 1 [(gnostic.openapi.v3.property) = {description: "系统配置列表"}]; // 系统配置列表
 
   bool ai_enabled = 2 [(gnostic.openapi.v3.property) = {description: "AI assistant availability"}]; // AI 助手是否可用
+
+  string version = 3 [(gnostic.openapi.v3.property) = {description: "当前后端服务版本"}]; // 当前后端服务版本
 }
 
 // 当前租户自定义国际化覆盖项查询条件。

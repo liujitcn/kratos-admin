@@ -13,6 +13,7 @@ const apiBasePath = import.meta.env.VITE_APP_BASE_API || "";
 const apiTargetUrl = import.meta.env.VITE_API_URL || import.meta.env.VITE_APP_API_URL || "";
 export const requestBaseURL = `${apiTargetUrl}${apiBasePath}`;
 const SESSION_URL = "/v1/base/session";
+const ADMIN_SESSION_URL = "/v1/admin/base/session";
 const TOKEN_URL = "/v1/base/token";
 const REFRESH_EXPIRY_COOKIE = "kratos_refresh_exp";
 const REFRESH_TOKEN_TRANSPORT_HEADER = "X-Refresh-Token-Transport";
@@ -25,6 +26,7 @@ const LANGUAGE_URL = "/v1/base/language";
 const SECRET_PUBLIC_KEY_URL = "/v1/base/secret-public-key";
 const OAUTH_PROVIDER_URL = "/v1/base/oauth/provider";
 const OAUTH_AUTHORIZATION_URL = "/v1/base/oauth/authorization";
+const ADMIN_OAUTH_AUTHORIZATION_URL = "/v1/admin/base/oauth/authorization";
 const OAUTH_TICKET_URL = "/v1/base/oauth/ticket";
 const MFA_VERIFY_URL = "/v1/base/mfa/verify";
 const MFA_ENROLLMENT_URL = "/v1/base/mfa/enrollment";
@@ -32,6 +34,7 @@ const MFA_ENROLLMENT_CONFIRM_URL = "/v1/base/mfa/enrollment/confirm";
 // 认证公共接口不携带访问令牌。
 const NO_AUTH_URL_SET = new Set([
   SESSION_URL,
+  ADMIN_SESSION_URL,
   TOKEN_URL,
   CAPTCHA_URL,
   CONFIG_URL,
@@ -39,6 +42,7 @@ const NO_AUTH_URL_SET = new Set([
   SECRET_PUBLIC_KEY_URL,
   OAUTH_PROVIDER_URL,
   OAUTH_AUTHORIZATION_URL,
+  ADMIN_OAUTH_AUTHORIZATION_URL,
   OAUTH_TICKET_URL,
   MFA_VERIFY_URL,
   MFA_ENROLLMENT_URL,
@@ -46,6 +50,7 @@ const NO_AUTH_URL_SET = new Set([
 ]);
 const AUTH_EXPIRED_EXCLUDED_URL_SET = new Set([
   SESSION_URL,
+  ADMIN_SESSION_URL,
   TOKEN_URL,
   CAPTCHA_URL,
   CONFIG_URL,
@@ -53,6 +58,7 @@ const AUTH_EXPIRED_EXCLUDED_URL_SET = new Set([
   SECRET_PUBLIC_KEY_URL,
   OAUTH_PROVIDER_URL,
   OAUTH_AUTHORIZATION_URL,
+  ADMIN_OAUTH_AUTHORIZATION_URL,
   OAUTH_TICKET_URL,
   MFA_VERIFY_URL,
   MFA_ENROLLMENT_URL,

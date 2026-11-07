@@ -7,7 +7,7 @@
 /* eslint-disable */
 import type { SecretCrypto } from "../../common/v1/types";
 import type { Empty } from "../../google/protobuf/empty";
-import type { LoginStatus } from "./login";
+import type { AdminAgreementConsent, LoginStatus } from "./login";
 
 /** 个人中心三方账号绑定列表查询条件 */
 export interface ListOauthBindingRequest {
@@ -35,6 +35,8 @@ export interface CreateOauthAuthorizationRequest {
   provider: string;
   /** 三方登录完成后的前端接收地址 */
   redirect_url: string;
+  /** 管理端专属协议确认，仅管理端授权入口校验 */
+  admin_agreement: AdminAgreementConsent | undefined;
 }
 
 /** 三方登录授权地址创建结果 */
@@ -225,6 +227,8 @@ export interface OauthService {
   ListOauthProvider(request: ListOauthProviderRequest): Promise<ListOauthProviderResponse>;
   /** 创建三方登录授权地址 */
   CreateOauthAuthorization(request: CreateOauthAuthorizationRequest): Promise<CreateOauthAuthorizationResponse>;
+  /** 创建管理端三方登录授权地址，必须主动确认当前管理端协议 */
+  CreateAdminOauthAuthorization(request: CreateOauthAuthorizationRequest): Promise<CreateOauthAuthorizationResponse>;
   /** 创建个人中心三方账号绑定授权地址 */
   CreateOauthBindingAuthorization(
     request: CreateOauthBindingAuthorizationRequest,

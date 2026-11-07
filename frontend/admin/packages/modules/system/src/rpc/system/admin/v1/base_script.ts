@@ -14,21 +14,21 @@ export enum BaseScriptLanguage {
   BASE_SCRIPT_LANGUAGE_UNSPECIFIED = 0,
   /** BASE_SCRIPT_LANGUAGE_JAVASCRIPT - JavaScript脚本。 */
   BASE_SCRIPT_LANGUAGE_JAVASCRIPT = 1,
-  /** BASE_SCRIPT_LANGUAGE_LUA - Lua脚本。 */
+  /** BASE_SCRIPT_LANGUAGE_LUA - Lua脚本，已停用。 */
   BASE_SCRIPT_LANGUAGE_LUA = 2,
-  /** BASE_SCRIPT_LANGUAGE_PYTHON - Python脚本。 */
+  /** BASE_SCRIPT_LANGUAGE_PYTHON - Python脚本，已停用。 */
   BASE_SCRIPT_LANGUAGE_PYTHON = 3,
-  /** BASE_SCRIPT_LANGUAGE_GO - Go脚本。 */
+  /** BASE_SCRIPT_LANGUAGE_GO - Go脚本，已停用。 */
   BASE_SCRIPT_LANGUAGE_GO = 4,
-  /** BASE_SCRIPT_LANGUAGE_WASM - WebAssembly脚本。 */
+  /** BASE_SCRIPT_LANGUAGE_WASM - WebAssembly脚本，已停用。 */
   BASE_SCRIPT_LANGUAGE_WASM = 5,
   /** BASE_SCRIPT_LANGUAGE_CEL - CEL表达式。 */
   BASE_SCRIPT_LANGUAGE_CEL = 6,
   /** BASE_SCRIPT_LANGUAGE_EXPR - Expr表达式。 */
   BASE_SCRIPT_LANGUAGE_EXPR = 7,
-  /** BASE_SCRIPT_LANGUAGE_STARLARK - Starlark脚本。 */
+  /** BASE_SCRIPT_LANGUAGE_STARLARK - Starlark脚本，已停用。 */
   BASE_SCRIPT_LANGUAGE_STARLARK = 8,
-  /** BASE_SCRIPT_LANGUAGE_TCL - TCL脚本。 */
+  /** BASE_SCRIPT_LANGUAGE_TCL - TCL脚本，已停用。 */
   BASE_SCRIPT_LANGUAGE_TCL = 9,
 }
 
@@ -72,7 +72,7 @@ export interface BaseScriptForm {
   id: number;
   /** 脚本名称 */
   name: string;
-  /** 脚本语言 */
+  /** 受限脚本语言，仅支持 JavaScript、CEL、Expr */
   language: BaseScriptLanguage;
   /** 挂载钩子点 */
   hook_point: string;
@@ -116,12 +116,16 @@ export interface SetBaseScriptStatusRequest {
 
 /** 脚本试运行请求参数。 */
 export interface TestRunBaseScriptRequest {
-  /** 已保存脚本ID */
+  /** 必须指定已保存脚本ID */
   id: number;
-  /** 草稿脚本语言 */
-  language: BaseScriptLanguage;
-  /** 草稿脚本源码 */
-  source: string;
+  /** 禁止传入脚本语言 */
+  language?:
+    | BaseScriptLanguage
+    | undefined;
+  /** 禁止传入脚本源码 */
+  source?:
+    | string
+    | undefined;
   /** 初始上下文JSON */
   context_json: string;
 }

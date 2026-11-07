@@ -452,5 +452,14 @@
   "core.demo.form.tenant.main": "Demo 總租戶",
   "core.demo.form.tenant.sub": "Demo 子租戶",
   "core.demo.form.leader_title": "{name}負責人",
-  "core.demo.tree.new_dir": "Demo 目錄 {id}"
+  "core.demo.tree.new_dir": "Demo 目錄 {id}",
+  "core.login.admin_agreement_read_accept": "我已閱讀並同意",
+  "core.login.admin_agreement_service": "管理端服務協議",
+  "core.login.admin_agreement_privacy": "管理端隱私政策",
+  "core.login.admin_agreement_and": "與",
+  "core.login.admin_agreement_required": "請先閱讀並同意管理端服務協議和隱私政策",
+  "core.login.admin_agreement_unavailable": "管理端協議尚未設定，請聯絡管理員",
+  "core.login.admin_agreement_version": "版本：{version}",
+  "core.login.admin_agreement_back": "返回登入",
+  "core.login.admin_agreement_open_page": "在新頁面閱讀"
 }

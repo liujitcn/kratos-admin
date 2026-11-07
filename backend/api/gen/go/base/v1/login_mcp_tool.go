@@ -20,6 +20,7 @@ func RegisterLoginServiceMCPTools(mcpServer *mcp.Server, loginServiceServer Logi
 	RegisterLoginServiceLogoutMCPTool(mcpServer, loginServiceServer)
 	RegisterLoginServiceRefreshTokenMCPTool(mcpServer, loginServiceServer)
 	RegisterLoginServiceLoginMCPTool(mcpServer, loginServiceServer)
+	RegisterLoginServiceAdminLoginMCPTool(mcpServer, loginServiceServer)
 }
 
 // RegisterLoginServiceCaptchaMCPTool 注册验证码的 MCP Tool。
@@ -119,6 +120,27 @@ func RegisterLoginServiceLoginMCPTool(mcpServer *mcp.Server, loginServiceServer 
 				input = &LoginRequest{}
 			}
 			reply, err := loginServiceServer.Login(ctx, input)
+			if err != nil {
+				return nil, nil, err
+			}
+			return nil, reply, nil
+		},
+	)
+}
+
+// RegisterLoginServiceAdminLoginMCPTool 注册管理端登录，必须主动确认当前管理端服务协议和隐私政策的 MCP Tool。
+func RegisterLoginServiceAdminLoginMCPTool(mcpServer *mcp.Server, loginServiceServer LoginServiceServer) {
+	mcp.AddTool[*LoginRequest, *LoginResponse](
+		mcpServer,
+		&mcp.Tool{
+			Name:        "base_v1_login_service_admin_login",
+			Description: "管理端登录，必须主动确认当前管理端服务协议和隐私政策",
+		},
+		func(ctx context.Context, request *mcp.CallToolRequest, input *LoginRequest) (*mcp.CallToolResult, *LoginResponse, error) {
+			if input == nil {
+				input = &LoginRequest{}
+			}
+			reply, err := loginServiceServer.AdminLogin(ctx, input)
 			if err != nil {
 				return nil, nil, err
 			}

@@ -7087,5 +7087,95 @@
   },
   "获取当前用户生效的密码策略": {
     "other": "获取当前用户生效的密码策略"
+  },
+  "legacy.error.7e79f52aa653d1b8": {
+    "other": "试运行必须指定已保存脚本ID"
+  },
+  "legacy.error.ceecc6449946be7b": {
+    "other": "试运行不允许提交脚本语言或源码"
+  },
+  "legacy.error.6493e816e4c9c2d0": {
+    "other": "仅支持 JavaScript、CEL、Expr 脚本"
+  },
+  "legacy.error.1c08d373771aeda2": {
+    "other": "保存管理端协议确认失败"
+  },
+  "legacy.error.6d921f101bc0ff13": {
+    "other": "管理端协议确认已失效"
+  },
+  "legacy.error.fef5bd08859ffc56": {
+    "other": "请先阅读并同意管理端服务协议和隐私政策"
+  },
+  "legacy.error.472a58536bbdff20": {
+    "other": "读取管理端协议失败"
+  },
+  "legacy.error.6212bf4ffb06e780": {
+    "other": "读取管理端协议确认失败"
+  },
+  "legacy.error.c99c6abf8e80560f": {
+    "other": "只有平台管理员可以查看供应商密钥"
+  },
+  "legacy.error.ad9307b4a2ef5b11": {
+    "other": "管理端服务协议和隐私政策尚未配置"
+  },
+  "legacy.error.e7e3feb58bbc6b7d": {
+    "other": "管理端协议已更新，请重新阅读并同意"
+  },
+  "legacy.error.395f5690bc43a8fc": {
+    "other": "用户账号不能使用保留名称"
+  },
+  "legacy.error.f1e0b071d4b26aab": {
+    "other": "用户账号首尾不能包含空白字符"
+  },
+  "system.admin.base.script.entity.language.supported": {
+    "other": "仅支持 JavaScript、CEL、Expr 脚本"
+  },
+  "system.admin.base.script.test_run.draft.rejected": {
+    "other": "试运行不允许提交脚本语言或源码"
+  },
+  "system.admin.base.script.test_run.id.required": {
+    "other": "试运行必须指定已保存脚本ID"
+  },
+  "base.login.admin_agreement.service_version.max_len": {
+    "other": "管理端服务协议版本不能超过128个字符"
+  },
+  "base.login.admin_agreement.privacy_version.max_len": {
+    "other": "管理端隐私政策版本不能超过128个字符"
+  },
+  "legacy.error.6ac5d5e128e56199": {
+    "other": "读取三方登录身份失败"
+  },
+  "security.openapi.6ae82bf2717c": {
+    "other": "创建管理端三方登录授权地址，必须主动确认当前管理端协议"
+  },
+  "security.openapi.d9f7d122bc06": {
+    "other": "管理端登录，必须主动确认当前管理端服务协议和隐私政策"
+  },
+  "security.openapi.d9fba822b01c": {
+    "other": "是否主动同意当前管理端协议"
+  },
+  "security.openapi.c60ce905500a": {
+    "other": "已阅读的管理端服务协议版本"
+  },
+  "security.openapi.67b17b10dbb3": {
+    "other": "已阅读的管理端隐私政策版本"
+  },
+  "security.openapi.185a51453e19": {
+    "other": "管理端专属的服务协议和隐私政策主动确认。"
+  },
+  "security.openapi.29013e430935": {
+    "other": "当前后端服务版本"
+  },
+  "security.openapi.20c8279602b9": {
+    "other": "受限脚本语言，仅支持 JavaScript、CEL、Expr"
+  },
+  "security.openapi.cf9a8f985505": {
+    "other": "必须指定已保存脚本ID"
+  },
+  "security.openapi.cf612e8849dd": {
+    "other": "禁止传入脚本语言"
+  },
+  "security.openapi.b1f7e42d136d": {
+    "other": "禁止传入脚本源码"
   }
 }

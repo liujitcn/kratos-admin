@@ -452,5 +452,14 @@
   "core.demo.form.tenant.main": "Demo 总租户",
   "core.demo.form.tenant.sub": "Demo 子租户",
   "core.demo.form.leader_title": "{name}负责人",
-  "core.demo.tree.new_dir": "Demo 目录 {id}"
+  "core.demo.tree.new_dir": "Demo 目录 {id}",
+  "core.login.admin_agreement_read_accept": "我已阅读并同意",
+  "core.login.admin_agreement_service": "管理端服务协议",
+  "core.login.admin_agreement_privacy": "管理端隐私政策",
+  "core.login.admin_agreement_and": "与",
+  "core.login.admin_agreement_required": "请先阅读并同意管理端服务协议和隐私政策",
+  "core.login.admin_agreement_unavailable": "管理端协议尚未配置，请联系管理员",
+  "core.login.admin_agreement_version": "版本：{version}",
+  "core.login.admin_agreement_back": "返回登录",
+  "core.login.admin_agreement_open_page": "在新页面阅读"
 }

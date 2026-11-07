@@ -25,6 +25,10 @@ INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VAL
 INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_config.name', 1170, 'en-US', 'Login CAPTCHA Type');
 INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_config.name', 1180, 'en-US', 'Multi-factor Authentication Policy');
 INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_config.name', 1190, 'en-US', 'Multi-factor Authentication Method');
+INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_config.name', 1191, 'en-US', 'Admin Terms of Service');
+INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_config.name', 1192, 'en-US', 'Admin Terms of Service version');
+INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_config.name', 1193, 'en-US', 'Admin Privacy Policy');
+INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_config.name', 1194, 'en-US', 'Admin Privacy Policy version');
 INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_config.name', 1200, 'en-US', 'Main Title');
 INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_config.name', 1210, 'en-US', 'Subtitle');
 INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_config.name', 1220, 'en-US', 'Application Logo');

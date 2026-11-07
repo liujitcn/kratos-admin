@@ -65,21 +65,21 @@ enum BaseScriptLanguage {
   BASE_SCRIPT_LANGUAGE_UNSPECIFIED = 0;
   // JavaScript脚本。
   BASE_SCRIPT_LANGUAGE_JAVASCRIPT = 1;
-  // Lua脚本。
+  // Lua脚本，已停用。
   BASE_SCRIPT_LANGUAGE_LUA = 2;
-  // Python脚本。
+  // Python脚本，已停用。
   BASE_SCRIPT_LANGUAGE_PYTHON = 3;
-  // Go脚本。
+  // Go脚本，已停用。
   BASE_SCRIPT_LANGUAGE_GO = 4;
-  // WebAssembly脚本。
+  // WebAssembly脚本，已停用。
   BASE_SCRIPT_LANGUAGE_WASM = 5;
   // CEL表达式。
   BASE_SCRIPT_LANGUAGE_CEL = 6;
   // Expr表达式。
   BASE_SCRIPT_LANGUAGE_EXPR = 7;
-  // Starlark脚本。
+  // Starlark脚本，已停用。
   BASE_SCRIPT_LANGUAGE_STARLARK = 8;
-  // TCL脚本。
+  // TCL脚本，已停用。
   BASE_SCRIPT_LANGUAGE_TCL = 9;
 }
 
@@ -108,7 +108,7 @@ message GetBaseScriptRequest {
 message BaseScriptForm {
   int64 id = 1 [(gnostic.openapi.v3.property) = {description: "脚本ID"}]; // 脚本ID
   string name = 2 [(gnostic.openapi.v3.property) = {description: "脚本名称"}, (buf.validate.field).cel = {id: "system.admin.base.script.entity.name.required" message: "请输入脚本名称" expression: "this.size() > 0 && this.size() <= 100"}, (buf.validate.field).string.pattern = "^[A-Za-z][A-Za-z0-9_.-]*$"]; // 脚本名称
-  BaseScriptLanguage language = 3 [(gnostic.openapi.v3.property) = {description: "脚本语言"}, (buf.validate.field).enum = {defined_only: true}]; // 脚本语言
+  BaseScriptLanguage language = 3 [(gnostic.openapi.v3.property) = {description: "受限脚本语言，仅支持 JavaScript、CEL、Expr"}, (buf.validate.field).enum = {defined_only: true}, (buf.validate.field).cel = {id: "system.admin.base.script.entity.language.supported" message: "仅支持 JavaScript、CEL、Expr 脚本" expression: "this in [1, 6, 7]"}]; // 受限脚本语言，仅支持 JavaScript、CEL、Expr
   string hook_point = 4 [(gnostic.openapi.v3.property) = {description: "挂载钩子点"}, (buf.validate.field).cel = {id: "system.admin.base.script.entity.hook_point.max_length" message: "钩子点不能超过160个字符" expression: "this.size() <= 160"}]; // 挂载钩子点
   string source = 5 [(gnostic.openapi.v3.property) = {description: "脚本源码"}, (buf.validate.field).cel = {id: "system.admin.base.script.entity.source.required" message: "请输入脚本源码" expression: "this.size() > 0 && this.size() <= 200000"}]; // 脚本源码
   int32 priority = 6 [(gnostic.openapi.v3.property) = {description: "执行优先级"}, (buf.validate.field).int32 = {gte: 0, lte: 1000}]; // 执行优先级
@@ -140,9 +140,14 @@ message SetBaseScriptStatusRequest {
 
 // 脚本试运行请求参数。
 message TestRunBaseScriptRequest {
-  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "已保存脚本ID，为0时执行草稿"}]; // 已保存脚本ID
-  BaseScriptLanguage language = 2 [(gnostic.openapi.v3.property) = {description: "草稿脚本语言"}, (buf.validate.field).enum = {defined_only: true}]; // 草稿脚本语言
-  string source = 3 [(gnostic.openapi.v3.property) = {description: "草稿脚本源码"}, (buf.validate.field).cel = {id: "system.admin.base.script.test_run.source.max_length" message: "脚本源码不能超过200000个字符" expression: "this.size() <= 200000"}]; // 草稿脚本源码
+  option (buf.validate.message).cel = {
+    id: "system.admin.base.script.test_run.draft.rejected"
+    message: "试运行不允许提交脚本语言或源码"
+    expression: "!has(this.language) && !has(this.source)"
+  };
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "必须指定已保存脚本ID"}, (buf.validate.field).cel = {id: "system.admin.base.script.test_run.id.required" message: "试运行必须指定已保存脚本ID" expression: "this > 0"}]; // 必须指定已保存脚本ID
+  optional BaseScriptLanguage language = 2 [(gnostic.openapi.v3.property) = {description: "禁止传入脚本语言"}]; // 禁止传入脚本语言
+  optional string source = 3 [(gnostic.openapi.v3.property) = {description: "禁止传入脚本源码"}]; // 禁止传入脚本源码
   string context_json = 4 [(gnostic.openapi.v3.property) = {description: "初始上下文JSON"}, (buf.validate.field).cel = {id: "system.admin.base.script.test_run.context_json.max_length" message: "上下文不能超过200000个字符" expression: "this.size() <= 200000"}]; // 初始上下文JSON
 }
 

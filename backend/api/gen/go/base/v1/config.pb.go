@@ -193,6 +193,7 @@ type GetConfigResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Configs       []*ConfigItem          `protobuf:"bytes,1,rep,name=configs,proto3" json:"configs,omitempty"`                       // 系统配置列表
 	AiEnabled     bool                   `protobuf:"varint,2,opt,name=ai_enabled,json=aiEnabled,proto3" json:"ai_enabled,omitempty"` // AI 助手是否可用
+	Version       string                 `protobuf:"bytes,3,opt,name=version,proto3" json:"version,omitempty"`                       // 当前后端服务版本
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -239,6 +240,13 @@ func (x *GetConfigResponse) GetAiEnabled() bool {
 		return x.AiEnabled
 	}
 	return false
+}
+
+func (x *GetConfigResponse) GetVersion() string {
+	if x != nil {
+		return x.Version
+	}
+	return ""
 }
 
 // 当前租户自定义国际化覆盖项查询条件。
@@ -405,11 +413,12 @@ const file_base_v1_config_proto_rawDesc = "" +
 	"ConfigItem\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b配置IDR\x02id\x12!\n" +
 	"\x03key\x18\x02 \x01(\tB\x0f\xbaG\f\x92\x02\t配置keyR\x03key\x12'\n" +
-	"\x05value\x18\x03 \x01(\tB\x11\xbaG\x0e\x92\x02\v配置valueR\x05value\"\x9c\x01\n" +
+	"\x05value\x18\x03 \x01(\tB\x11\xbaG\x0e\x92\x02\v配置valueR\x05value\"\xd6\x01\n" +
 	"\x11GetConfigResponse\x12G\n" +
 	"\aconfigs\x18\x01 \x03(\v2\x13.base.v1.ConfigItemB\x18\xbaG\x15\x92\x02\x12系统配置列表R\aconfigs\x12>\n" +
 	"\n" +
-	"ai_enabled\x18\x02 \x01(\bB\x1f\xbaG\x1c\x92\x02\x19AI assistant availabilityR\taiEnabled\"\xc4\x01\n" +
+	"ai_enabled\x18\x02 \x01(\bB\x1f\xbaG\x1c\x92\x02\x19AI assistant availabilityR\taiEnabled\x128\n" +
+	"\aversion\x18\x03 \x01(\tB\x1e\xbaG\x1b\x92\x02\x18当前后端服务版本R\aversion\"\xc4\x01\n" +
 	"\x14GetI18nCustomRequest\x12\xab\x01\n" +
 	"\x04site\x18\x01 \x01(\x0e2\x17.base.v1.BaseConfigSiteB~\xbaG&\x92\x02#位置：枚举【BaseConfigSite】\xbaHR\xba\x01J\n" +
 	")base.config.get_i18n_custom.site.required\x12\x12位置不能为空\x1a\tthis != 0\x82\x01\x02\x10\x01R\x04site\"x\n" +

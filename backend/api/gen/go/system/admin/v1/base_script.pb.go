@@ -35,21 +35,21 @@ const (
 	BaseScriptLanguage_BASE_SCRIPT_LANGUAGE_UNSPECIFIED BaseScriptLanguage = 0
 	// JavaScript脚本。
 	BaseScriptLanguage_BASE_SCRIPT_LANGUAGE_JAVASCRIPT BaseScriptLanguage = 1
-	// Lua脚本。
+	// Lua脚本，已停用。
 	BaseScriptLanguage_BASE_SCRIPT_LANGUAGE_LUA BaseScriptLanguage = 2
-	// Python脚本。
+	// Python脚本，已停用。
 	BaseScriptLanguage_BASE_SCRIPT_LANGUAGE_PYTHON BaseScriptLanguage = 3
-	// Go脚本。
+	// Go脚本，已停用。
 	BaseScriptLanguage_BASE_SCRIPT_LANGUAGE_GO BaseScriptLanguage = 4
-	// WebAssembly脚本。
+	// WebAssembly脚本，已停用。
 	BaseScriptLanguage_BASE_SCRIPT_LANGUAGE_WASM BaseScriptLanguage = 5
 	// CEL表达式。
 	BaseScriptLanguage_BASE_SCRIPT_LANGUAGE_CEL BaseScriptLanguage = 6
 	// Expr表达式。
 	BaseScriptLanguage_BASE_SCRIPT_LANGUAGE_EXPR BaseScriptLanguage = 7
-	// Starlark脚本。
+	// Starlark脚本，已停用。
 	BaseScriptLanguage_BASE_SCRIPT_LANGUAGE_STARLARK BaseScriptLanguage = 8
-	// TCL脚本。
+	// TCL脚本，已停用。
 	BaseScriptLanguage_BASE_SCRIPT_LANGUAGE_TCL BaseScriptLanguage = 9
 )
 
@@ -296,7 +296,7 @@ type BaseScriptForm struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                                     // 脚本ID
 	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`                                                  // 脚本名称
-	Language      BaseScriptLanguage     `protobuf:"varint,3,opt,name=language,proto3,enum=system.admin.v1.BaseScriptLanguage" json:"language,omitempty"` // 脚本语言
+	Language      BaseScriptLanguage     `protobuf:"varint,3,opt,name=language,proto3,enum=system.admin.v1.BaseScriptLanguage" json:"language,omitempty"` // 受限脚本语言，仅支持 JavaScript、CEL、Expr
 	HookPoint     string                 `protobuf:"bytes,4,opt,name=hook_point,json=hookPoint,proto3" json:"hook_point,omitempty"`                       // 挂载钩子点
 	Source        string                 `protobuf:"bytes,5,opt,name=source,proto3" json:"source,omitempty"`                                              // 脚本源码
 	Priority      int32                  `protobuf:"varint,6,opt,name=priority,proto3" json:"priority,omitempty"`                                         // 执行优先级
@@ -591,10 +591,10 @@ func (x *SetBaseScriptStatusRequest) GetStatus() commonv1.Status {
 // 脚本试运行请求参数。
 type TestRunBaseScriptRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                                     // 已保存脚本ID
-	Language      BaseScriptLanguage     `protobuf:"varint,2,opt,name=language,proto3,enum=system.admin.v1.BaseScriptLanguage" json:"language,omitempty"` // 草稿脚本语言
-	Source        string                 `protobuf:"bytes,3,opt,name=source,proto3" json:"source,omitempty"`                                              // 草稿脚本源码
-	ContextJson   string                 `protobuf:"bytes,4,opt,name=context_json,json=contextJson,proto3" json:"context_json,omitempty"`                 // 初始上下文JSON
+	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                                           // 必须指定已保存脚本ID
+	Language      *BaseScriptLanguage    `protobuf:"varint,2,opt,name=language,proto3,enum=system.admin.v1.BaseScriptLanguage,oneof" json:"language,omitempty"` // 禁止传入脚本语言
+	Source        *string                `protobuf:"bytes,3,opt,name=source,proto3,oneof" json:"source,omitempty"`                                              // 禁止传入脚本源码
+	ContextJson   string                 `protobuf:"bytes,4,opt,name=context_json,json=contextJson,proto3" json:"context_json,omitempty"`                       // 初始上下文JSON
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -637,15 +637,15 @@ func (x *TestRunBaseScriptRequest) GetId() int64 {
 }
 
 func (x *TestRunBaseScriptRequest) GetLanguage() BaseScriptLanguage {
-	if x != nil {
-		return x.Language
+	if x != nil && x.Language != nil {
+		return *x.Language
 	}
 	return BaseScriptLanguage_BASE_SCRIPT_LANGUAGE_UNSPECIFIED
 }
 
 func (x *TestRunBaseScriptRequest) GetSource() string {
-	if x != nil {
-		return x.Source
+	if x != nil && x.Source != nil {
+		return *x.Source
 	}
 	return ""
 }
@@ -870,12 +870,13 @@ const file_system_admin_v1_base_script_proto_rawDesc = "" +
 	"\fbase_scripts\x18\x01 \x03(\v2\x1b.system.admin.v1.BaseScriptB\x12\xbaG\x0f\x92\x02\f分页数据R\vbaseScripts\x12\"\n" +
 	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\"=\n" +
 	"\x14GetBaseScriptRequest\x12%\n" +
-	"\x02id\x18\x01 \x01(\x03B\x15\xbaG\v\x92\x02\b脚本ID\xbaH\x04\"\x02 \x00R\x02id\"\xfe\a\n" +
+	"\x02id\x18\x01 \x01(\x03B\x15\xbaG\v\x92\x02\b脚本ID\xbaH\x04\"\x02 \x00R\x02id\"\x9e\t\n" +
 	"\x0eBaseScriptForm\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b脚本IDR\x02id\x12\xb8\x01\n" +
 	"\x04name\x18\x02 \x01(\tB\xa3\x01\xbaG\x0f\x92\x02\f脚本名称\xbaH\x8d\x01\xba\x01m\n" +
-	"-system.admin.base.script.entity.name.required\x12\x15请输入脚本名称\x1a%this.size() > 0 && this.size() <= 100r\x1b2\x19^[A-Za-z][A-Za-z0-9_.-]*$R\x04name\x12[\n" +
-	"\blanguage\x18\x03 \x01(\x0e2#.system.admin.v1.BaseScriptLanguageB\x1a\xbaG\x0f\x92\x02\f脚本语言\xbaH\x05\x82\x01\x02\x10\x01R\blanguage\x12\xa9\x01\n" +
+	"-system.admin.base.script.entity.name.required\x12\x15请输入脚本名称\x1a%this.size() > 0 && this.size() <= 100r\x1b2\x19^[A-Za-z][A-Za-z0-9_.-]*$R\x04name\x12\xfa\x01\n" +
+	"\blanguage\x18\x03 \x01(\x0e2#.system.admin.v1.BaseScriptLanguageB\xb8\x01\xbaG9\x92\x026受限脚本语言，仅支持 JavaScript、CEL、Expr\xbaHy\xba\x01q\n" +
+	"2system.admin.base.script.entity.language.supported\x12(仅支持 JavaScript、CEL、Expr 脚本\x1a\x11this in [1, 6, 7]\x82\x01\x02\x10\x01R\blanguage\x12\xa9\x01\n" +
 	"\n" +
 	"hook_point\x18\x04 \x01(\tB\x89\x01\xbaG\x12\x92\x02\x0f挂载钩子点\xbaHq\xba\x01n\n" +
 	"5system.admin.base.script.entity.hook_point.max_length\x12!钩子点不能超过160个字符\x1a\x12this.size() <= 160R\thookPoint\x12\xa3\x01\n" +
@@ -897,14 +898,17 @@ const file_system_admin_v1_base_script_proto_rawDesc = "" +
 	"+system.admin.base.script.delete.id.required\x12\x1a脚本ID列表不能为空\x1a\x0fthis.size() > 0R\x02id\"\x84\x01\n" +
 	"\x1aSetBaseScriptStatusRequest\x12%\n" +
 	"\x02id\x18\x01 \x01(\x03B\x15\xbaG\v\x92\x02\b脚本ID\xbaH\x04\"\x02 \x00R\x02id\x12?\n" +
-	"\x06status\x18\x02 \x01(\x0e2\x11.common.v1.StatusB\x14\xbaG\t\x92\x02\x06状态\xbaH\x05\x82\x01\x02\x10\x01R\x06status\"\xa9\x04\n" +
-	"\x18TestRunBaseScriptRequest\x12=\n" +
-	"\x02id\x18\x01 \x01(\x03B-\xbaG*\x92\x02'已保存脚本ID，为0时执行草稿R\x02id\x12a\n" +
-	"\blanguage\x18\x02 \x01(\x0e2#.system.admin.v1.BaseScriptLanguageB \xbaG\x15\x92\x02\x12草稿脚本语言\xbaH\x05\x82\x01\x02\x10\x01R\blanguage\x12\xac\x01\n" +
-	"\x06source\x18\x03 \x01(\tB\x93\x01\xbaG\x15\x92\x02\x12草稿脚本源码\xbaHx\xba\x01u\n" +
-	"3system.admin.base.script.test_run.source.max_length\x12'脚本源码不能超过200000个字符\x1a\x15this.size() <= 200000R\x06source\x12\xbb\x01\n" +
+	"\x06status\x18\x02 \x01(\x0e2\x11.common.v1.StatusB\x14\xbaG\t\x92\x02\x06状态\xbaH\x05\x82\x01\x02\x10\x01R\x06status\"\xc6\x05\n" +
+	"\x18TestRunBaseScriptRequest\x12\x9b\x01\n" +
+	"\x02id\x18\x01 \x01(\x03B\x8a\x01\xbaG \x92\x02\x1d必须指定已保存脚本ID\xbaHd\xba\x01a\n" +
+	"-system.admin.base.script.test_run.id.required\x12&试运行必须指定已保存脚本ID\x1a\bthis > 0R\x02id\x12d\n" +
+	"\blanguage\x18\x02 \x01(\x0e2#.system.admin.v1.BaseScriptLanguageB\x1e\xbaG\x1b\x92\x02\x18禁止传入脚本语言H\x00R\blanguage\x88\x01\x01\x12;\n" +
+	"\x06source\x18\x03 \x01(\tB\x1e\xbaG\x1b\x92\x02\x18禁止传入脚本源码H\x01R\x06source\x88\x01\x01\x12\xbb\x01\n" +
 	"\fcontext_json\x18\x04 \x01(\tB\x97\x01\xbaG\x16\x92\x02\x13初始上下文JSON\xbaH{\xba\x01x\n" +
-	"9system.admin.base.script.test_run.context_json.max_length\x12$上下文不能超过200000个字符\x1a\x15this.size() <= 200000R\vcontextJson\"\xe1\x01\n" +
+	"9system.admin.base.script.test_run.context_json.max_length\x12$上下文不能超过200000个字符\x1a\x15this.size() <= 200000R\vcontextJson:\x92\x01\xbaH\x8e\x01\x1a\x8b\x01\n" +
+	"0system.admin.base.script.test_run.draft.rejected\x12-试运行不允许提交脚本语言或源码\x1a(!has(this.language) && !has(this.source)B\v\n" +
+	"\t_languageB\t\n" +
+	"\a_source\"\xe1\x01\n" +
 	"\x19TestRunBaseScriptResponse\x12,\n" +
 	"\asuccess\x18\x01 \x01(\bB\x12\xbaG\x0f\x92\x02\f是否成功R\asuccess\x12(\n" +
 	"\x05error\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f错误信息R\x05error\x127\n" +
@@ -1018,6 +1022,7 @@ func file_system_admin_v1_base_script_proto_init() {
 		return
 	}
 	file_system_admin_v1_base_script_proto_msgTypes[0].OneofWrappers = []any{}
+	file_system_admin_v1_base_script_proto_msgTypes[8].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{

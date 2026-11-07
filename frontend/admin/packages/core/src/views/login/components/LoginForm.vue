@@ -58,6 +58,15 @@
       </div>
     </el-form-item>
   </el-form>
+  <div class="admin-agreement-consent">
+    <el-checkbox v-model="agreementAccepted" :disabled="!agreementsReady">
+      {{ t("core.login.admin_agreement_read_accept") }}
+    </el-checkbox>
+    <el-button link type="primary" @click="openAgreement('service')">{{ t("core.login.admin_agreement_service") }}</el-button>
+    <span>{{ t("core.login.admin_agreement_and") }}</span>
+    <el-button link type="primary" @click="openAgreement('privacy')">{{ t("core.login.admin_agreement_privacy") }}</el-button>
+    <p v-if="!agreementsReady" role="status">{{ t("core.login.admin_agreement_unavailable") }}</p>
+  </div>
   <div class="login-btn">
     <el-button round size="large" @click="resetForm(loginFormRef)">
       <el-icon><CircleClose /></el-icon>
@@ -93,6 +102,25 @@
       </el-tooltip>
     </div>
   </div>
+  <ProDialog
+    v-model="agreementDialogVisible"
+    :title="t(agreementKind === 'service' ? 'core.login.admin_agreement_service' : 'core.login.admin_agreement_privacy')"
+    width="760px"
+    append-to-body
+  >
+    <AdminAgreementContent :protocol="agreementKind" />
+    <template #footer>
+      <el-link
+        :href="resolveFrontendRouteURL(router, { path: '/login', query: { protocol: agreementKind } })"
+        target="_blank"
+        rel="noopener noreferrer"
+        type="primary"
+      >
+        {{ t("core.login.admin_agreement_open_page") }}
+      </el-link>
+      <el-button @click="agreementDialogVisible = false">{{ t("common.action.confirm") }}</el-button>
+    </template>
+  </ProDialog>
   <ProDialog
     v-model="behaviorDialogVisible"
     width="364px"
@@ -223,6 +251,8 @@ import { Click as GoCaptchaClick, Rotate as GoCaptchaRotate, Slide as GoCaptchaS
 import "go-captcha-vue/dist/style.css";
 import { useLocaleStore } from "@/locales";
 import { clearPasswordChangeRequired, handlePasswordChangeRequired } from "@/utils/request";
+import AdminAgreementContent from "./AdminAgreementContent.vue";
+import { useAdminAgreementConsent, type AdminAgreementKind } from "../agreement";
 
 /** 登录表单属性，验证弹窗以外层登录卡片的中心定位。 */
 interface LoginFormProps {
@@ -245,6 +275,26 @@ const dictStore = useDictStore();
 const tabsStore = useTabsStore();
 const keepAliveStore = useKeepAliveStore();
 const { t } = useLocaleStore();
+const {
+  accepted: agreementAccepted,
+  ready: agreementsReady,
+  confirmation: adminAgreementConfirmation
+} = useAdminAgreementConsent(() => configStore.agreements);
+const agreementDialogVisible = ref(false);
+const agreementKind = ref<AdminAgreementKind>("service");
+
+/** 打开当前管理端协议，正文统一经过安全富文本预览。 */
+const openAgreement = (kind: AdminAgreementKind) => {
+  agreementKind.value = kind;
+  agreementDialogVisible.value = true;
+};
+
+/** 密码与 OAuth 入口均要求用户主动确认完整的管理端协议。 */
+const requireAdminAgreement = () => {
+  if (adminAgreementConfirmation.value) return true;
+  ElMessage.warning(t(agreementsReady.value ? "core.login.admin_agreement_required" : "core.login.admin_agreement_unavailable"));
+  return false;
+};
 
 /** 登录表单实例类型。 */
 type FormInstance = InstanceType<typeof ElForm>;
@@ -560,16 +610,19 @@ const loadOauthProviders = async () => {
 /** 发起三方登录授权跳转。 */
 const handleOauthLogin = async (provider: LoginOauthProvider) => {
   // 授权地址创建期间锁定当前按钮，避免同一个 provider 重复创建 state。
-  if (oauthLoadingProvider.value) return;
+  if (oauthLoadingProvider.value || !requireAdminAgreement()) return;
   oauthLoadingProvider.value = provider.provider;
   try {
-    const result = await defOauthService.CreateOauthAuthorization({
+    const result = await defOauthService.CreateAdminOauthAuthorization({
       provider: provider.provider,
-      redirect_url: getOauthLoginRedirectURL()
+      redirect_url: getOauthLoginRedirectURL(),
+      admin_agreement: adminAgreementConfirmation.value
     });
     if (result.authorization_url) {
       window.location.href = result.authorization_url;
     }
+  } catch {
+    await configStore.loadDisplayConfig();
   } finally {
     oauthLoadingProvider.value = "";
   }
@@ -801,6 +854,7 @@ const verifyCaptchaToken = async (captchaCode: string) => {
 
 /** 执行真正的账号登录流程。 */
 const submitLogin = async (captchaToken: string) => {
+  if (!requireAdminAgreement()) return;
   loading.value = true;
   try {
     const password = await encryptPassword(loginForm.password);
@@ -809,16 +863,17 @@ const submitLogin = async (captchaToken: string) => {
       user_name: loginForm.user_name,
       password,
       captcha_code: captchaToken,
-      captcha_id: loginForm.captcha_id
+      captcha_id: loginForm.captcha_id,
+      admin_agreement: adminAgreementConfirmation.value
     };
     // 1.执行登录接口，挑战态不保存令牌，等待 MFA 完成。
-    const result = await userStore.login(loginRequest);
+    const result = await defLoginService.AdminLogin(loginRequest);
     await handleLoginResponse(result);
   } catch (error) {
     if (error instanceof Error && error.message === t("core.password.crypto_secure_context")) {
       ElMessage.error(error.message);
     }
-    await loadPageCaptcha();
+    await Promise.all([loadPageCaptcha(), configStore.loadDisplayConfig()]);
   } finally {
     loading.value = false;
   }
@@ -859,7 +914,7 @@ const openBehaviorCaptcha = async () => {
 /** 登录 */
 const handleLogin = (formEl: FormInstance | undefined) => {
   // 登录请求执行期间直接拦截重复提交，避免回车或连续点击导致重复登录。
-  if (!formEl || loading.value) return;
+  if (!formEl || loading.value || !requireAdminAgreement()) return;
   formEl.validate(async valid => {
     if (!valid) return;
     if (isBehaviorCaptcha.value) {
@@ -879,6 +934,7 @@ const handleLogin = (formEl: FormInstance | undefined) => {
 const resetForm = (formEl: FormInstance | undefined) => {
   if (!formEl) return;
   formEl.resetFields();
+  agreementAccepted.value = false;
   void loadPageCaptcha();
 };
 
@@ -907,6 +963,31 @@ watch(
   .el-input {
     flex: 1;
     min-width: 0;
+  }
+}
+.admin-agreement-consent {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  margin: 12px 0;
+  font-size: 13px;
+
+  .el-checkbox {
+    height: auto;
+    margin-right: 0;
+  }
+
+  .el-button {
+    margin-left: 0;
+    font-size: inherit;
+    white-space: normal;
+  }
+
+  p {
+    width: 100%;
+    margin: 4px 0 0;
+    color: var(--el-color-warning);
   }
 }
 .captcha-image {

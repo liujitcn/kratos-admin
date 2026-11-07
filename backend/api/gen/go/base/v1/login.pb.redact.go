@@ -110,6 +110,17 @@ func (s *redactedLoginServiceServer) Login(ctx context.Context, in *LoginRequest
 	return res, err
 }
 
+// AdminLogin is the redacted wrapper for the actual LoginServiceServer.AdminLogin method
+// Unary RPC
+func (s *redactedLoginServiceServer) AdminLogin(ctx context.Context, in *LoginRequest) (*LoginResponse, error) {
+	res, err := s.srv.AdminLogin(ctx, in)
+	if !s.bypass.CheckInternal(ctx) {
+		// Apply redaction to the response
+		redact.ApplyWith(redact.WithDirection(redact.WithOperation(ctx, "/base.v1.LoginService/AdminLogin"), redact.DirectionResponse), nil, res)
+	}
+	return res, err
+}
+
 // Ensure CaptchaRequest implements the Redactor interface at compile time.
 var _ redact.Redactor = (*CaptchaRequest)(nil)
 
@@ -224,6 +235,24 @@ func (x *LoginRequest) Redact() {
 	// Safe field: CaptchaCode
 
 	// Safe field: CaptchaId
+
+	// Safe field: AdminAgreement
+}
+
+// Ensure AdminAgreementConsent implements the Redactor interface at compile time.
+var _ redact.Redactor = (*AdminAgreementConsent)(nil)
+
+// Redact method implementation for AdminAgreementConsent
+func (x *AdminAgreementConsent) Redact() {
+	if x == nil {
+		return
+	}
+
+	// Safe field: Accepted
+
+	// Safe field: ServiceVersion
+
+	// Safe field: PrivacyVersion
 }
 
 // Ensure LoginResponse implements the Redactor interface at compile time.

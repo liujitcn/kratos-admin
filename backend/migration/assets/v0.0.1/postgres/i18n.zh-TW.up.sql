@@ -25,6 +25,10 @@ INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('b
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_config.name', 1170, 'zh-TW', '登入驗證碼型別') ON CONFLICT DO NOTHING;
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_config.name', 1180, 'zh-TW', '多因素認證策略') ON CONFLICT DO NOTHING;
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_config.name', 1190, 'zh-TW', '多因素認證方式') ON CONFLICT DO NOTHING;
+INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_config.name', 1191, 'zh-TW', '管理端服務協議') ON CONFLICT DO NOTHING;
+INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_config.name', 1192, 'zh-TW', '管理端服務協議版本') ON CONFLICT DO NOTHING;
+INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_config.name', 1193, 'zh-TW', '管理端隱私政策') ON CONFLICT DO NOTHING;
+INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_config.name', 1194, 'zh-TW', '管理端隱私政策版本') ON CONFLICT DO NOTHING;
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_config.name', 1200, 'zh-TW', '主標題') ON CONFLICT DO NOTHING;
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_config.name', 1210, 'zh-TW', '副標題') ON CONFLICT DO NOTHING;
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_config.name', 1220, 'zh-TW', '應用LOGO') ON CONFLICT DO NOTHING;

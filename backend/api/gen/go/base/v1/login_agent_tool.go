@@ -48,6 +48,12 @@ func NewLoginServiceAgentTools(loginServiceServer LoginServiceServer) ([]tool.In
 		return nil, err
 	}
 	ts = append(ts, loginTool)
+	var adminLoginTool tool.InvokableTool
+	adminLoginTool, err = NewLoginServiceAdminLoginAgentTool(loginServiceServer)
+	if err != nil {
+		return nil, err
+	}
+	ts = append(ts, adminLoginTool)
 	return ts, nil
 }
 
@@ -117,6 +123,20 @@ func NewLoginServiceLoginAgentTool(loginServiceServer LoginServiceServer) (tool.
 				req = &LoginRequest{}
 			}
 			return loginServiceServer.Login(ctx, req)
+		},
+	)
+}
+
+// NewLoginServiceAdminLoginAgentTool 创建管理端登录，必须主动确认当前管理端服务协议和隐私政策的 Agent Tool。
+func NewLoginServiceAdminLoginAgentTool(loginServiceServer LoginServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*LoginRequest, *LoginResponse](
+		"base_v1_login_service_admin_login",
+		"管理端登录，必须主动确认当前管理端服务协议和隐私政策",
+		func(ctx context.Context, req *LoginRequest) (*LoginResponse, error) {
+			if req == nil {
+				req = &LoginRequest{}
+			}
+			return loginServiceServer.AdminLogin(ctx, req)
 		},
 	)
 }
