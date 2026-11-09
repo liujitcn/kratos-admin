@@ -7,7 +7,7 @@ COPY scripts/build-report-fonts.py scripts/report-fonts.OFL.txt /tmp/
 RUN python3 /tmp/build-report-fonts.py \
     && cp /tmp/report-fonts.OFL.txt /fonts/OFL.txt
 
-FROM --platform=$BUILDPLATFORM golang:1.27.2-alpine AS backend-builder
+FROM --platform=$BUILDPLATFORM golang:1.27.3-alpine AS backend-builder
 
 ARG TARGETOS
 ARG TARGETARCH

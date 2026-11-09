@@ -1,6 +1,6 @@
 module github.com/liujitcn/kratos-admin/backend
 
-go 1.27.2
+go 1.27.3
 
 require (
 	buf.build/go/protovalidate v1.4.0
@@ -16,7 +16,7 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/google/wire v0.7.0
 	github.com/jackc/pgx/v5 v5.11.0
-	github.com/klauspost/compress v1.20.1
+	github.com/klauspost/compress v1.20.2
 	github.com/ledongthuc/pdf v0.0.0-20220302134840-0c2507a12d80
 	github.com/lib/pq v1.12.3
 	github.com/liujitcn/go-scripts v0.0.2
@@ -34,7 +34,7 @@ require (
 	github.com/liujitcn/go-utils/http v0.0.10
 	github.com/liujitcn/go-utils/translator v0.0.7
 	github.com/liujitcn/gorm-kit v0.0.39
-	github.com/liujitcn/kratos-admin/backend/api v0.0.31
+	github.com/liujitcn/kratos-admin/backend/api v0.0.32
 	github.com/liujitcn/kratos-core v0.0.55
 	github.com/liujitcn/kratos-core/api v0.0.7
 	github.com/liujitcn/kratos-kit v0.0.99
@@ -127,7 +127,7 @@ require (
 	github.com/alibabacloud-go/tea-utils/v2 v2.0.9 // indirect
 	github.com/aliyun/aliyun-oss-go-sdk v3.0.2+incompatible // indirect
 	github.com/aliyun/credentials-go v1.4.13 // indirect
-	github.com/andybalholm/brotli v1.2.6 // indirect
+	github.com/andybalholm/brotli v1.2.7 // indirect
 	github.com/antlr4-go/antlr/v4 v4.13.1 // indirect
 	github.com/aws/aws-sdk-go v1.55.8 // indirect
 	github.com/aws/aws-sdk-go-v2 v1.47.3 // indirect
@@ -187,7 +187,7 @@ require (
 	github.com/fxamacker/cbor/v2 v2.9.6 // indirect
 	github.com/go-faster/city v1.0.1 // indirect
 	github.com/go-faster/errors v0.8.0 // indirect
-	github.com/go-jose/go-jose/v4 v4.1.5 // indirect
+	github.com/go-jose/go-jose/v4 v4.1.6 // indirect
 	github.com/go-json-experiment/json v0.0.0-20260213210345-44df1a37e875 // indirect
 	github.com/go-logr/logr v1.4.4 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
@@ -390,7 +390,7 @@ require (
 	golang.org/x/exp v0.0.0-20261014143641-f0251eb4aa3e // indirect
 	golang.org/x/image v0.47.0 // indirect
 	golang.org/x/mod v0.42.0 // indirect
-	golang.org/x/net v0.61.0 // indirect
+	golang.org/x/net v0.62.0 // indirect
 	golang.org/x/oauth2 v0.37.0 // indirect
 	golang.org/x/sync v0.24.0 // indirect
 	golang.org/x/term v0.47.0 // indirect
