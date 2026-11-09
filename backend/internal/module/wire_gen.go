@@ -112,7 +112,7 @@ func BuildModules(migrations *migration.Migration, config2 *configv1.Bootstrap, 
 	baseUserMFARecoveryRepository := data2.NewBaseUserMFARecoveryRepository(dataData)
 	baseUserMFAWebauthnRepository := data2.NewBaseUserMFAWebauthnRepository(dataData)
 	eventRegistry := workflow.DefaultEventRegistry()
-	baseTenantCase := biz3.NewBaseTenantCase(baseCase, transaction, baseTenantRepository, baseDeptRepository, baseRoleRepository, baseUserRepository, baseMessageRepository, baseMessageDispatchRepository, baseMessageDeliveryRepository, oauthClientRepository, baseFileRepository, baseThirdAccountRepository, baseUserMFARepository, baseUserMFATotpRepository, baseUserMFARecoveryRepository, baseUserMFAWebauthnRepository, userToken, casbinRuleRepository, casbinRuleCase, catalog, eventRegistry)
+	baseTenantCase := biz3.NewBaseTenantCase(baseCase, redactResolver, transaction, baseTenantRepository, baseDeptRepository, baseRoleRepository, baseUserRepository, baseMessageRepository, baseMessageDispatchRepository, baseMessageDeliveryRepository, oauthClientRepository, baseFileRepository, baseThirdAccountRepository, baseUserMFARepository, baseUserMFATotpRepository, baseUserMFARecoveryRepository, baseUserMFAWebauthnRepository, userToken, casbinRuleRepository, casbinRuleCase, catalog, eventRegistry)
 	fileCase := biz2.NewFileCase(baseCase, baseFileRepository)
 	authCase := biz3.NewAuthCase(baseCase, bizBaseUserCase, baseRoleCase, baseDeptCase, baseTenantCase, baseMenuCase, fileCase)
 	authService := admin.NewAuthService(authCase)
@@ -609,7 +609,7 @@ func BuildModules(migrations *migration.Migration, config2 *configv1.Bootstrap, 
 		BiQueryRecord: biQueryRecordService,
 		BiDashboard:   biDashboardService,
 	}
-	modules, err := NewModules(baseServices, adminServices, services2, ragServices, biServices, biRegistry, aiRuntime, catalog, baseConfigCase, aiProviderCase, aiModelCase, baseLoginPolicyCase, baseOauthProviderCase, redactResolver, rateLimitResolver, secretFieldRuntime, mfaCase)
+	modules, err := NewModules(baseServices, adminServices, services2, ragServices, biServices, biRegistry, aiRuntime, catalog, baseConfigCase, aiProviderCase, aiModelCase, baseLoginPolicyCase, bizBaseUserCase, baseTenantProjectGrantCase, baseOauthProviderCase, redactResolver, rateLimitResolver, secretFieldRuntime, mfaCase)
 	if err != nil {
 		cleanup2()
 		cleanup()

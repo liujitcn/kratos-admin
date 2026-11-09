@@ -12,12 +12,6 @@ import (
 	"github.com/liujitcn/kratos-admin/backend/pkg/projectaccess"
 
 	"github.com/google/wire"
-	"github.com/liujitcn/kratos-admin/backend/adapter/core"
-	"github.com/liujitcn/kratos-admin/backend/adapter/kit"
-	mqttbiz "github.com/liujitcn/kratos-admin/backend/internal/biz/mqtt"
-	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/codegen"
-	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/logstream"
-	adminModule "github.com/liujitcn/kratos-admin/backend/internal/module"
 	"github.com/liujitcn/kratos-core/biz"
 	"github.com/liujitcn/kratos-core/job"
 	"github.com/liujitcn/kratos-core/module"
@@ -33,6 +27,13 @@ import (
 	"github.com/liujitcn/kratos-kit/broker"
 	"github.com/liujitcn/kratos-kit/database/gorm"
 	mqtttransport "github.com/liujitcn/kratos-kit/transport/mqtt"
+
+	"github.com/liujitcn/kratos-admin/backend/adapter/core"
+	"github.com/liujitcn/kratos-admin/backend/adapter/kit"
+	mqttbiz "github.com/liujitcn/kratos-admin/backend/internal/biz/mqtt"
+	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/codegen"
+	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/logstream"
+	adminModule "github.com/liujitcn/kratos-admin/backend/internal/module"
 )
 
 // CodeGenManager 表示宿主内服务与 SSE 共享的代码生成任务管理器。
@@ -70,6 +71,18 @@ func (modules AdminModules) RegisterBiSourceAdapters(adapters ...bi.SourceAdapte
 		return registrar.RegisterBiSourceAdapters(adapters...)
 	}
 	return errors.New("Admin BI 模块未注册")
+}
+
+// InitializeSensitiveStorage 在受控启动阶段为宿主模型补齐存量加密，沿用 Admin 的策略和密钥。
+func (modules AdminModules) InitializeSensitiveStorage(ctx context.Context, models ...any) error {
+	for _, item := range modules {
+		if initializer, ok := item.(interface {
+			InitializeSensitiveStorage(context.Context, ...any) error
+		}); ok {
+			return initializer.InitializeSensitiveStorage(ctx, models...)
+		}
+	}
+	return errors.New("敏感字段运行时模块未注册")
 }
 
 // AdminTasks 表示 Admin 提供的定时任务集合。

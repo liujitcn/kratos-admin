@@ -36,12 +36,7 @@
           <span class="tenant-credentials-label">{{ t("system.base.tenant.field.code") }}</span>
           <span class="tenant-credentials-value">{{ credentialsDialog.tenant_code }}</span>
           <el-tooltip :content="t('system.base.tenant.tooltip.copy_credentials')" placement="top">
-            <el-button
-              text
-              circle
-              :aria-label="t('system.base.tenant.tooltip.copy_credentials')"
-              @click="handleCopyCredentials"
-            >
+            <el-button text circle :aria-label="t('system.base.tenant.tooltip.copy_credentials')" @click="handleCopyCredentials">
               <el-icon><CopyDocument /></el-icon>
             </el-button>
           </el-tooltip>
@@ -129,6 +124,8 @@ const credentialsDialog = reactive({
   passwordVisible: false
 });
 
+const originalContactPhone = ref("");
+
 const formData = reactive<BaseTenantForm>({
   /** 租户ID */
   id: 0,
@@ -173,7 +170,13 @@ const rules = computed(() => ({
       message: t("common.validation.max_length", { field: t("system.base.tenant.field.contact_phone"), max: 20 }),
       trigger: "blur"
     },
-    { pattern: /^1[3-9]\d{9}$/, message: t("system.base.tenant.message.phone_invalid"), trigger: "blur" }
+    {
+      validator: async (_rule: unknown, value: string) => {
+        if (!value || value === originalContactPhone.value || /^1[3-9]\d{9}$/.test(value)) return;
+        throw new Error(t("system.base.tenant.message.phone_invalid"));
+      },
+      trigger: "blur"
+    }
   ],
   status: [
     {
@@ -333,7 +336,10 @@ async function handleOpenDialog(tenantId?: number) {
   await formDialogRef.value?.open({
     load: () => (tenantId ? defBaseTenantService.GetBaseTenant({ id: tenantId }) : undefined),
     commit: data => {
-      if (data) Object.assign(formData, data);
+      if (data) {
+        Object.assign(formData, data);
+        originalContactPhone.value = data.contact_phone ?? "";
+      }
     }
   });
 }
@@ -357,6 +363,7 @@ function resetForm() {
   formData.name = "";
   formData.contact_name = "";
   formData.contact_phone = "";
+  originalContactPhone.value = "";
   formData.status = Status.STATUS_ENABLE;
   formData.remark = "";
 }

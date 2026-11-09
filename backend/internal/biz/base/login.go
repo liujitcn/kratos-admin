@@ -7,16 +7,21 @@ import (
 	"errors"
 	"fmt"
 	"math/rand/v2"
-	"net"
 	"strings"
 	"sync"
 	"time"
 
+	"github.com/liujitcn/kratos-kit/transport/clientip"
+
 	"github.com/go-kratos/kratos/v3/transport"
 	"github.com/go-kratos/kratos/v3/transport/http"
-	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-core/biz"
 	"github.com/liujitcn/kratos-core/errorsx"
+
+	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
+
+	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
+	_const "github.com/liujitcn/kratos-core/const"
 
 	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/loginaudit"
@@ -26,8 +31,6 @@ import (
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/sessionstate"
 	adminconst "github.com/liujitcn/kratos-admin/backend/internal/const"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
-	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
-	_const "github.com/liujitcn/kratos-core/const"
 
 	"github.com/liujitcn/go-utils/crypto"
 	"github.com/liujitcn/go-utils/id"
@@ -872,7 +875,7 @@ func isLoginCacheMiss(err error) bool {
 	return strings.Contains(message, "key not found") || strings.Contains(message, "key expired") || strings.Contains(message, "not found")
 }
 
-// loginClientIP 从服务端请求上下文读取对端地址，不信任可伪造的转发请求头。
+// loginClientIP 与审计日志共用受信代理解析，防止伪造来源绕过登录限制。
 func loginClientIP(ctx context.Context) string {
 	transportValue, ok := transport.FromServerContext(ctx)
 	if !ok {
@@ -882,11 +885,7 @@ func loginClientIP(ctx context.Context) string {
 	if !ok || httpValue.Request() == nil {
 		return ""
 	}
-	clientIP, _, err := net.SplitHostPort(httpValue.Request().RemoteAddr)
-	if err != nil {
-		return httpValue.Request().RemoteAddr
-	}
-	return clientIP
+	return clientip.FromRequest(httpValue.Request())
 }
 
 // loginDevice 从请求头提取设备标识，优先使用客户端显式设备标识并回退到 User-Agent。

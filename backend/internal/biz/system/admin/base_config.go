@@ -363,7 +363,11 @@ func (c *BaseConfigCase) deleteBaseI18n(ctx context.Context, ids []int64) error 
 func (c *BaseConfigCase) refreshBaseConfigSite(ctx context.Context, site int32) error {
 	query := c.Query(ctx).BaseConfig
 	opts := make([]repository.QueryOption, 0, 4)
-	opts = append(opts, repository.Where(query.Site.Eq(site)))
+	if site == int32(basev1.BaseConfigSite_BASE_CONFIG_SITE_ADMIN) {
+		opts = append(opts, repository.Where(field.Or(query.Site.Eq(site), field.And(query.Site.Eq(int32(basev1.BaseConfigSite_BASE_CONFIG_SITE_APP)), query.Key.In("privacyProtocol", "serviceProtocol")))))
+	} else {
+		opts = append(opts, repository.Where(query.Site.Eq(site)))
+	}
 	opts = append(opts, repository.Where(query.Type.Neq(int32(adminv1.BaseConfigType_BASE_CONFIG_TYPE_FORM))))
 	opts = append(opts, repository.Where(query.Status.Eq(coreconst.STATUS_STATUS_ENABLE)))
 	opts = append(opts, repository.Order(query.ID.Asc()))
@@ -388,6 +392,12 @@ func (c *BaseConfigCase) refreshBaseConfigSite(ctx context.Context, site int32) 
 	err = c.Cache.Set(_const.BaseConfigCacheKey(site), string(payload), _const.BASE_CONFIG_CACHE_EXPIRE)
 	if err != nil {
 		return err
+	}
+	if site == int32(basev1.BaseConfigSite_BASE_CONFIG_SITE_APP) {
+		err = c.Cache.Del(_const.BaseConfigCacheKey(int32(basev1.BaseConfigSite_BASE_CONFIG_SITE_ADMIN)))
+		if err != nil {
+			return err
+		}
 	}
 	if site == _const.BASE_CONFIG_SITE_SYSTEM {
 		return c.refreshFormBaseConfig(ctx)

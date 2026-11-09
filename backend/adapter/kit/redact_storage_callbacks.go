@@ -161,6 +161,7 @@ func queryFieldSelected(selects []string, columnName string) bool {
 
 // prepareStorageEntity 处理单个实体并记录待保存或删除的旁表值。
 func (r *storageRuntime) prepareStorageEntity(ctx context.Context, policies []redact.StorageFieldPolicy, entity any, db *gorm.DB, creating bool) (preparedEntity, error) {
+	ctx = context.WithValue(ctx, storageTransactionKey{}, db)
 	selectedPolicies := make([]redact.StorageFieldPolicy, 0, len(policies))
 	deletePolicies := make([]redact.StorageFieldPolicy, 0)
 	accessor := gormEntityFieldAccessor{}
@@ -203,7 +204,12 @@ func (r *storageRuntime) prepareStorageEntity(ctx context.Context, policies []re
 		selectedPolicies = append(selectedPolicies, policy)
 	}
 	var values map[int64]*redact.StorageValue
-	values, err = r.storage.PrepareEntityWithPolicies(ctx, entity, selectedPolicies)
+	var recordID int64
+	recordID, err = entityPrimaryID(ctx, db, entity)
+	if err != nil {
+		return preparedEntity{}, err
+	}
+	values, err = r.storage.PrepareEntityWithPolicies(ctx, recordID, entity, selectedPolicies)
 	if err != nil {
 		return preparedEntity{}, err
 	}
@@ -337,6 +343,9 @@ func (r *storageRuntime) deleteStorageValues(db *gorm.DB) {
 
 // materializeStorageResponse 在业务查询完成后恢复主表敏感字段原文。
 func (r *storageRuntime) materializeStorageResponse(db *gorm.DB) {
+	if raw, _ := db.Statement.Context.Value(rawStorageReadKey{}).(bool); raw {
+		return
+	}
 	if db.Error != nil {
 		return
 	}
@@ -396,6 +405,13 @@ func (r *storageRuntime) materializeStorageResponse(db *gorm.DB) {
 // storageTenantID 返回实体租户；租户为零的实体由策略解析回退默认租户（全局）策略，
 // 平台表没有租户字段时使用该表唯一策略租户。
 func (r *storageRuntime) storageTenantID(ctx context.Context, entity any, tableName string) (int64, error) {
+	if tableName == "base_tenant" {
+		value, _, err := (gormEntityFieldAccessor{}).ValueOf(ctx, entity, "id")
+		if err != nil {
+			return 0, err
+		}
+		return integerValue(value, "id")
+	}
 	tenantID, err := entityTenantID(ctx, entity)
 	// 实体自带租户字段时以字段为准，零值由策略解析回退默认租户策略。
 	if err == nil {

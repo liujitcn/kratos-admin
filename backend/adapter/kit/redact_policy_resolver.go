@@ -4,20 +4,27 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"reflect"
+	"slices"
 	"strings"
 	"sync"
 	"time"
 
+	"github.com/liujitcn/kratos-core/errorsx"
+	"github.com/liujitcn/kratos-kit/auth"
+	"gorm.io/gorm/schema"
+
 	"github.com/go-kratos/kratos/v3/log"
 	"github.com/liujitcn/gorm-kit/repository"
-	"github.com/liujitcn/kratos-admin/backend/internal/config"
-	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
-	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 	_const "github.com/liujitcn/kratos-core/const"
 	kitgorm "github.com/liujitcn/kratos-kit/database/gorm"
 	"github.com/liujitcn/kratos-kit/redact"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
+
+	"github.com/liujitcn/kratos-admin/backend/internal/config"
+	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
+	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 )
 
 const policyCacheTTL = time.Minute
@@ -44,6 +51,8 @@ type RedactPolicyResolver struct {
 	mu                      sync.RWMutex
 	outputPolicies          map[string]redact.FieldPolicy
 	storagePolicies         map[string][]redact.StorageFieldPolicy
+	storageModels           map[string]reflect.Type
+	projectScopeLoader      kitgorm.ProjectScopeLoader
 	loadedAt                time.Time
 	refreshAttemptedAt      time.Time
 }
@@ -59,7 +68,7 @@ func NewRedactPolicyResolver(databases map[string]*kitgorm.Client) (*RedactPolic
 	if err != nil {
 		return nil, err
 	}
-	return &RedactPolicyResolver{
+	resolver := &RedactPolicyResolver{
 		defaultDB:               databases[kitgorm.DefaultClientName].DB,
 		store:                   store,
 		storagePolicyRepository: data.NewBaseRedactStoragePolicyRepository(d),
@@ -67,7 +76,43 @@ func NewRedactPolicyResolver(databases map[string]*kitgorm.Client) (*RedactPolic
 		ruleRepository:          data.NewBaseRedactRuleRepository(d),
 		outputPolicies:          make(map[string]redact.FieldPolicy),
 		storagePolicies:         make(map[string][]redact.StorageFieldPolicy),
-	}, nil
+		storageModels:           make(map[string]reflect.Type),
+	}
+	err = resolver.RegisterStorageModels(context.Background(), data.Models()...)
+	if err != nil {
+		return nil, err
+	}
+	return resolver, nil
+}
+
+// RegisterStorageModels 注册宿主编译模型，受控原文查看不能通过请求指定任意表或复用可变实体。
+func (r *RedactPolicyResolver) RegisterStorageModels(ctx context.Context, models ...any) error {
+	registered := make(map[string]reflect.Type, len(models))
+	for _, model := range models {
+		_, modelSchema, err := parseEntity(ctx, model)
+		if err != nil {
+			return err
+		}
+		registered[modelSchema.Table] = reflect.TypeOf(model).Elem()
+	}
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	for table, model := range registered {
+		if existing, found := r.storageModels[table]; found && existing != model {
+			return fmt.Errorf("敏感字段模型重复: %s", table)
+		}
+	}
+	for table, model := range registered {
+		r.storageModels[table] = model
+	}
+	return nil
+}
+
+// SetProjectScopeLoader 接入平台已有的实时项目授权，原文查看与业务资源访问使用同一范围。
+func (r *RedactPolicyResolver) SetProjectScopeLoader(loader kitgorm.ProjectScopeLoader) {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	r.projectScopeLoader = loader
 }
 
 // Initialize 在迁移和密钥初始化完成后、数据库开始处理业务请求前加载策略并绑定回调。
@@ -375,54 +420,99 @@ func buildOutputPolicies(rows []*models.BaseRedactOutputPolicy, rules map[int64]
 	return result, nil
 }
 
-// ErrUnprotectedStorageField 表示字段未配置直接加密入库策略，不能通过受控接口查看明文。
-var ErrUnprotectedStorageField = errors.New("敏感字段未配置直接加密入库策略")
+// ErrUnprotectedStorageField 表示字段未注册或未配置保护策略，不能通过受控接口查看原文。
+var ErrUnprotectedStorageField = errors.New("敏感字段未注册或未配置保护策略")
 
-// RevealStorageField 读取默认数据源受保护表的直接加密字段明文，仅供受控查询接口使用。
-// 未配置直接加密策略、旁表脱敏字段和跨数据源字段一律拒绝。
+// RevealStorageField 在字段策略和模型数据范围内查看原文，支持直接加密及旁表保护字段。
 func (r *RedactPolicyResolver) RevealStorageField(ctx context.Context, tableName, columnName string, recordID int64) (string, error) {
-	if r == nil || r.defaultDB == nil || r.fieldCipher == nil {
-		return "", fmt.Errorf("脱敏策略解析器未初始化")
+	identity, err := auth.FromContext(ctx)
+	if err != nil || identity.UserId <= 0 {
+		return "", errorsx.Unauthenticated("查看敏感字段需要有效身份")
 	}
-	algorithm, ok := r.directEncryptionAlgorithm(kitgorm.DefaultClientName, tableName, columnName)
-	if !ok {
+	if r.runtime == nil {
+		return "", fmt.Errorf("敏感字段运行时未初始化")
+	}
+	r.mu.RLock()
+	modelType, registered := r.storageModels[tableName]
+	r.mu.RUnlock()
+	if !registered {
 		return "", ErrUnprotectedStorageField
 	}
-	var text string
-	db := r.defaultDB.WithContext(ctx)
-	err := db.Table(tableName).
-		Select(db.Statement.Quote(clause.Column{Name: columnName})).
-		Where("id = ?", recordID).Row().Scan(&text)
+	model := reflect.New(modelType).Interface()
+	var modelSchema *schema.Schema
+	var modelValue reflect.Value
+	modelValue, modelSchema, err = parseEntity(ctx, model)
 	if err != nil {
-		return "", fmt.Errorf("读取敏感字段失败: %w", err)
+		return "", err
 	}
-	if text == "" {
-		return text, nil
+	field := modelSchema.LookUpField(columnName)
+	if field == nil || field.DBName != columnName || modelSchema.PrioritizedPrimaryField == nil {
+		return "", ErrUnprotectedStorageField
 	}
-	plaintext, err := r.fieldCipher.Decrypt(algorithm, text)
+	rawContext := context.WithValue(ctx, rawStorageReadKey{}, true)
+	// 使用已注册的类型化模型，让租户和部门数据权限回调继续生效。
+	err = r.defaultDB.WithContext(rawContext).Model(model).
+		Where(clause.Eq{Column: clause.Column{Name: modelSchema.PrioritizedPrimaryField.DBName}, Value: recordID}).Take(model).Error
 	if err != nil {
-		// 存量旧格式或明文按原值返回，等待下次保存时经策略转为策略密文。
-		return text, nil
+		return "", err
 	}
-	return plaintext, nil
-}
-
-// directEncryptionAlgorithm 判断默认数据源物理表字段是否配置了直接加密策略，返回加密算法。
-func (r *RedactPolicyResolver) directEncryptionAlgorithm(sourceName, tableName, columnName string) (string, bool) {
-	r.mu.RLock()
-	defer r.mu.RUnlock()
-	for key, policies := range r.storagePolicies {
-		parts := strings.SplitN(key, "\x00", 3)
-		if len(parts) != 3 || parts[1] != sourceName || parts[2] != tableName {
-			continue
+	var tenantID int64
+	tenantID, err = r.runtime.storageTenantID(ctx, model, tableName)
+	if err != nil {
+		return "", err
+	}
+	platformScope := identity.TenantCode == kitgorm.DefaultTenantCode && (identity.RoleCode == _const.BASE_ROLE_CODE_SUPER || identity.RoleCode == _const.BASE_ROLE_CODE_ADMIN || identity.DataScope == kitgorm.DataScopeAll)
+	projectScoped := false
+	if projectField := modelSchema.LookUpField("project_id"); projectField != nil {
+		value, _ := projectField.ValueOf(ctx, modelValue)
+		var projectID int64
+		projectID, err = integerValue(value, "project_id")
+		if err != nil {
+			return "", err
 		}
-		for _, policy := range policies {
-			if strings.EqualFold(policy.ColumnName, columnName) && isDirectEncryptionPolicy(policy) {
-				return policy.Rule.EncryptAlgorithm, true
+		if projectID > 0 {
+			r.mu.RLock()
+			loader := r.projectScopeLoader
+			r.mu.RUnlock()
+			if loader == nil {
+				return "", errorsx.PermissionDenied("敏感字段项目授权未初始化")
+			}
+			var scope kitgorm.ProjectScope
+			scope, err = loader(ctx)
+			if err != nil {
+				return "", err
+			}
+			projectScoped = scope.System || slices.Contains(scope.Tenants[tenantID], int64(0)) || slices.Contains(scope.Tenants[tenantID], projectID)
+			if !projectScoped {
+				return "", errorsx.PermissionDenied("无权查看目标项目的敏感字段")
 			}
 		}
 	}
-	return "", false
+	if tenantID != identity.TenantId && !platformScope && !projectScoped {
+		return "", errorsx.PermissionDenied("无权查看其他租户的敏感字段")
+	}
+	for _, policy := range r.ListStoragePolicies(ctx, tenantID, tableName) {
+		if policy.ColumnName != columnName {
+			continue
+		}
+		if !isDirectEncryptionPolicy(policy) {
+			return r.runtime.storage.ReadValue(ctx, policy, recordID)
+		}
+		var value any
+		value, _, err = (gormEntityFieldAccessor{}).ValueOf(ctx, model, columnName)
+		if err != nil {
+			return "", err
+		}
+		if value == nil || value == "" {
+			return "", nil
+		}
+		text, ok := value.(string)
+		if !ok {
+			return "", fmt.Errorf("敏感字段必须为字符串")
+		}
+		return r.fieldCipher.Decrypt(policy.Rule.EncryptAlgorithm, text)
+	}
+	return "", ErrUnprotectedStorageField
 }
 
 // storagePolicyKey 返回数据源和物理表组成的策略键。

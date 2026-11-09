@@ -111,6 +111,7 @@ const httpInterceptor = {
       ...options.header,
       'source-client': sourceClient,
       ...getLocaleRequestHeaders(),
+      ...getLoginAgreementHeaders(),
     }
     // 4. 添加 token 请求头标识
     const accessToken = getToken()
@@ -187,7 +188,10 @@ export const http = <T>(options: HttpRequestOptions) => {
   return new Promise<T>((resolve, reject) => {
     const sendRequest = async (retriedAsAnonymous = false) => {
       try {
-        const requestOptions: HttpRequestOptions = { ...options, header: { ...options.header } }
+        const requestOptions: HttpRequestOptions = {
+          ...options,
+          header: { ...options.header, ...getLoginAgreementHeaders() },
+        }
         const requestUrl = String(requestOptions.url)
         const authMode = resolveAuthMode(requestOptions, requestUrl)
         requestOptions.authMode = retriedAsAnonymous && authMode === 'optional' ? 'none' : authMode
@@ -489,4 +493,28 @@ async function clearUserData() {
       uni.redirectTo({ url: '/pages/login/login?redirect=1' })
     },
   })
+}
+
+/** 当前登录流程主动确认的协议摘要，完成认证后清除。 */
+let acceptedAgreementVersion = ''
+let agreementAcceptedAt = 0
+
+/** 由已通过现有协议确认的用户事件记录摘要，不改变页面勾选状态。 */
+export function setLoginAgreement(version: string) {
+  acceptedAgreementVersion = version
+  agreementAcceptedAt = Date.now()
+}
+
+/** 仅为有效的本次确认提供审计请求头。 */
+function getLoginAgreementHeaders(): Record<string, string> {
+  if (
+    !/^[a-f0-9]{64}$/.test(acceptedAgreementVersion) ||
+    Date.now() - agreementAcceptedAt > 10 * 60 * 1000
+  )
+    return {}
+  return {
+    'X-Agreement-Accepted': 'true',
+    'X-Agreement-Version': acceptedAgreementVersion,
+    'X-Agreement-Site': '3',
+  }
 }

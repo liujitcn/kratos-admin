@@ -2,9 +2,17 @@ package biz
 
 import (
 	"context"
+	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"strconv"
+
+	"gorm.io/gen/field"
+
+	"github.com/liujitcn/kratos-core/biz"
+	coreconst "github.com/liujitcn/kratos-core/const"
+	"github.com/liujitcn/kratos-kit/database/gorm"
 
 	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
 	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
@@ -12,9 +20,6 @@ import (
 	_const "github.com/liujitcn/kratos-admin/backend/internal/const"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
-	"github.com/liujitcn/kratos-core/biz"
-	coreconst "github.com/liujitcn/kratos-core/const"
-	"github.com/liujitcn/kratos-kit/database/gorm"
 
 	"github.com/go-kratos/kratos/v3/log"
 	"google.golang.org/protobuf/proto"
@@ -60,17 +65,21 @@ func (c *ConfigCase) GetConfig(ctx context.Context, req *basev1.GetConfigRequest
 		err = json.Unmarshal([]byte(cached), &configs)
 		if err == nil && runtimeConfigIDsPresent(configs) {
 			var localized []*basev1.ConfigItem
-			localized, err = c.localizeRuntimeConfigValues(ctx, configs)
+			localized, err = c.localizeRuntimeConfigValues(ctx, c.appendRuntimeConfig(configs, translatorEnabled))
 			if err != nil {
 				return nil, err
 			}
-			return &basev1.GetConfigResponse{Configs: appendI18nRuntimeConfig(localized, translatorEnabled)}, nil
+			return &basev1.GetConfigResponse{Configs: localized}, nil
 		}
 	}
 
 	query := c.Query(ctx).BaseConfig
 	opts := make([]repository.QueryOption, 0, 4)
-	opts = append(opts, repository.Where(query.Site.Eq(site)))
+	if req.GetSite() == basev1.BaseConfigSite_BASE_CONFIG_SITE_ADMIN {
+		opts = append(opts, repository.Where(field.Or(query.Site.Eq(site), field.And(query.Site.Eq(int32(basev1.BaseConfigSite_BASE_CONFIG_SITE_APP)), query.Key.In("privacyProtocol", "serviceProtocol")))))
+	} else {
+		opts = append(opts, repository.Where(query.Site.Eq(site)))
+	}
 	opts = append(opts, repository.Where(query.Type.Neq(int32(adminv1.BaseConfigType_BASE_CONFIG_TYPE_FORM))))
 	opts = append(opts, repository.Where(query.Status.Eq(coreconst.STATUS_STATUS_ENABLE)))
 	opts = append(opts, repository.Order(query.ID.Asc()))
@@ -88,12 +97,12 @@ func (c *ConfigCase) GetConfig(ctx context.Context, req *basev1.GetConfigRequest
 		})
 	}
 	var localized []*basev1.ConfigItem
-	localized, err = c.localizeRuntimeConfigValues(ctx, configs)
+	localized, err = c.localizeRuntimeConfigValues(ctx, c.appendRuntimeConfig(configs, translatorEnabled))
 	if err != nil {
 		return nil, err
 	}
 	response := &basev1.GetConfigResponse{
-		Configs: appendI18nRuntimeConfig(localized, translatorEnabled),
+		Configs: localized,
 	}
 	var payload []byte
 	payload, err = json.Marshal(configs)
@@ -269,23 +278,47 @@ func (c *ConfigCase) primaryLocale(ctx context.Context) (string, error) {
 	return "", nil
 }
 
-// runtimeConfigIDsPresent 判断缓存是否包含配置主键，不完整时回源刷新。
+// runtimeConfigIDsPresent 判断缓存包含主键及协议正文，旧版缺少协议的缓存必须回源。
 func runtimeConfigIDsPresent(configs []*basev1.ConfigItem) bool {
+	var privacy, service bool
 	for _, item := range configs {
 		if item.GetId() == 0 {
 			return false
 		}
+		privacy = privacy || item.GetKey() == "privacyProtocol"
+		service = service || item.GetKey() == "serviceProtocol"
 	}
-	return true
+	return privacy && service
 }
 
-// appendI18nRuntimeConfig 将部署级翻译草稿开关附加到公共配置结果。
-func appendI18nRuntimeConfig(configs []*basev1.ConfigItem, enabled bool) []*basev1.ConfigItem {
-	result := make([]*basev1.ConfigItem, 0, len(configs)+1)
+// appendRuntimeConfig 附加宿主版本和原始协议摘要，缓存及翻译不能改写发布版本或同意记录的依据。
+func (c *ConfigCase) appendRuntimeConfig(configs []*basev1.ConfigItem, enabled bool) []*basev1.ConfigItem {
+	result := make([]*basev1.ConfigItem, 0, len(configs)+3)
+	var privacy, service string
+	seen := make(map[string]bool)
 	for _, item := range configs {
-		if item.GetKey() != _const.I18N_DRAFT_CONFIG_KEY {
-			result = append(result, item)
+		if item.GetKey() == _const.I18N_DRAFT_CONFIG_KEY || item.GetKey() == "version" || item.GetKey() == "agreementVersion" || seen[item.GetKey()] {
+			continue
+		}
+		seen[item.GetKey()] = true
+		result = append(result, item)
+		if item.GetKey() == "privacyProtocol" {
+			privacy = item.GetValue()
+		}
+		if item.GetKey() == "serviceProtocol" {
+			service = item.GetValue()
 		}
 	}
-	return append(result, &basev1.ConfigItem{Key: _const.I18N_DRAFT_CONFIG_KEY, Value: strconv.FormatBool(enabled)})
+	version := _const.Version
+	if c.Context != nil {
+		if info := c.GetAppInfo(); info != nil && info.GetVersion() != "" {
+			version = info.GetVersion()
+		}
+	}
+	digest := sha256.Sum256([]byte(privacy + "\x00" + service))
+	return append(result,
+		&basev1.ConfigItem{Key: _const.I18N_DRAFT_CONFIG_KEY, Value: strconv.FormatBool(enabled)},
+		&basev1.ConfigItem{Key: "version", Value: version},
+		&basev1.ConfigItem{Key: "agreementVersion", Value: hex.EncodeToString(digest[:])},
+	)
 }

@@ -78,6 +78,10 @@ function buildConfigMap(configs: Array<{ key?: string; value?: string }>) {
 
 export const useConfigStore = defineStore("admin-config", {
   state: (): SiteConfigState => ({
+    version: "",
+    serviceProtocol: "",
+    privacyProtocol: "",
+    agreementVersion: "",
     display: { ...DEFAULT_SITE_DISPLAY_CONFIG },
     captcha: { ...DEFAULT_LOGIN_CAPTCHA_CONFIG },
     showTenantCode: true,
@@ -119,6 +123,10 @@ export const useConfigStore = defineStore("admin-config", {
         site: BaseConfigSite.BASE_CONFIG_SITE_ADMIN
       });
       const configMap = buildConfigMap(configResponse.configs ?? []);
+      this.version = configMap.version ?? "";
+      this.serviceProtocol = configMap.serviceProtocol ?? "";
+      this.privacyProtocol = configMap.privacyProtocol ?? "";
+      this.agreementVersion = configMap.agreementVersion ?? "";
 
       this.setDisplayConfig(normalizeSiteDisplayConfig(configMap));
       this.setLoginCaptchaConfig(normalizeLoginCaptchaConfig(configMap));

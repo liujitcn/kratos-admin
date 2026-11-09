@@ -140,6 +140,7 @@ async function sendRequest<T>(
         ...options.header,
         'source-client': sourceClient,
         ...getLocaleRequestHeaders(),
+        ...getLoginAgreementHeaders(),
         ...(accessToken ? { Authorization: accessToken } : {}),
       },
     })
@@ -333,4 +334,20 @@ function silentClearAuthData(): void {
   clearToken()
   Taro.removeStorageSync('user')
   Taro.eventCenter.trigger(AUTH_SILENT_LOGOUT_EVENT)
+}
+
+/** 当前登录流程主动确认的协议摘要，完成认证后清除。 */
+let acceptedAgreementVersion = ''
+let agreementAcceptedAt = 0
+
+/** 由已通过现有协议确认的用户事件记录摘要，不改变页面勾选状态。 */
+export function setLoginAgreement(version: string) {
+  acceptedAgreementVersion = version
+  agreementAcceptedAt = Date.now()
+}
+
+/** 仅为有效的本次确认提供审计请求头。 */
+function getLoginAgreementHeaders(): Record<string, string> {
+  if (!/^[a-f0-9]{64}$/.test(acceptedAgreementVersion) || Date.now() - agreementAcceptedAt > 10 * 60 * 1000) return {}
+  return { 'X-Agreement-Accepted': 'true', 'X-Agreement-Version': acceptedAgreementVersion, 'X-Agreement-Site': '3' }
 }

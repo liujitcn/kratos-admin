@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"net/http"
 	"strconv"
 	"time"
 
@@ -17,7 +18,8 @@ import (
 	_ "github.com/liujitcn/go-scripts/expr"
 	_ "github.com/liujitcn/go-scripts/gpython"
 	_ "github.com/liujitcn/go-scripts/javascript"
-	_ "github.com/liujitcn/go-scripts/lua"
+	scriptlua "github.com/liujitcn/go-scripts/lua"
+	"github.com/liujitcn/go-scripts/sandbox"
 	_ "github.com/liujitcn/go-scripts/starlark"
 	_ "github.com/liujitcn/go-scripts/tcl"
 	_ "github.com/liujitcn/go-scripts/wazero"
@@ -78,6 +80,9 @@ func (r *Runtime) Execute(ctx context.Context, language string, source string, i
 	if input == nil {
 		input = make(map[string]any)
 	}
+	if !sandbox.IsWorker() {
+		return r.executeIsolated(ctx, false, language, source, input)
+	}
 
 	timeout := r.timeout
 	if timeout <= 0 {
@@ -119,6 +124,17 @@ func (r *Runtime) Execute(ctx context.Context, language string, source string, i
 		return nil, fmt.Errorf("创建 %s 引擎失败: %w", language, err)
 	}
 	defer engine.Close()
+	if configurator, ok := engine.(interface{ SetHTTPClient(*http.Client) }); ok {
+		configurator.SetHTTPClient(&http.Client{Transport: http.DefaultTransport})
+	}
+	// 文件、命令和 HTTP 能力只在操作系统沙箱内恢复，实际资源由宿主策略限制。
+	if configurator := script_engine.AsSandboxConfigurator(engine); configurator != nil {
+		if language == LuaLanguage {
+			configurator.SetOpenLibs(scriptlua.AllowedLibBase, scriptlua.AllowedLibTab, scriptlua.AllowedLibStr, scriptlua.AllowedLibMath, scriptlua.AllowedLibCoroutine, scriptlua.AllowedLibOs, scriptlua.AllowedLibIo, scriptlua.AllowedLibLoad, scriptlua.AllowedLibHTTP, scriptlua.AllowedLibCrypto)
+		} else if language == TclLanguage {
+			configurator.SetOpenLibs("exec", "open", "file", "cd", "source", "load", "socket")
+		}
+	}
 	if err = engine.Init(ctx); err != nil {
 		return nil, fmt.Errorf("初始化 %s 引擎失败: %w", language, err)
 	}
@@ -190,6 +206,9 @@ func (r *Runtime) ExecuteWorkflow(ctx context.Context, language string, source s
 	defer cancel()
 	if input == nil {
 		input = map[string]any{}
+	}
+	if !sandbox.IsWorker() {
+		return r.executeIsolated(ctx, true, language, source, input)
 	}
 	raw, err := MarshalOutput(input)
 	if err != nil {

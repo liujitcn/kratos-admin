@@ -3,9 +3,9 @@ data:
     debug: true
     driver: mysql
     enable_migrate: true
-    source: root:112233@tcp(192.168.60.52:3306)/kratos_admin?charset=utf8mb4&parseTime=True&loc=Local&timeout=1000ms
+    source: "${DATABASE_DSN}"
   redis:
     addr:
       - 192.168.60.52:6379
     db: 0
-    password: '112233'
+    password: "${REDIS_PASSWORD}"

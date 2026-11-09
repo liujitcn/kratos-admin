@@ -7,8 +7,15 @@ import (
 	"errors"
 	"fmt"
 	"math/big"
+	"regexp"
 	"strconv"
 	"time"
+
+	"github.com/liujitcn/kratos-kit/redact"
+	"google.golang.org/protobuf/proto"
+
+	"github.com/liujitcn/kratos-admin/backend/adapter/kit"
+	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/username"
 
 	"github.com/go-kratos/kratos/v3/log"
 	"github.com/liujitcn/go-utils/crypto"
@@ -16,6 +23,14 @@ import (
 	_string "github.com/liujitcn/go-utils/string"
 	"github.com/liujitcn/gorm-kit/repository"
 	"github.com/liujitcn/kratos-kit/database/gorm"
+
+	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
+	"github.com/liujitcn/kratos-core/biz"
+	coreconst "github.com/liujitcn/kratos-core/const"
+	"github.com/liujitcn/kratos-core/errorsx"
+	"github.com/liujitcn/kratos-core/resource/i18n"
+	authData "github.com/liujitcn/kratos-kit/auth/data"
+	gormdb "gorm.io/gorm"
 
 	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
 	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
@@ -26,18 +41,10 @@ import (
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 	"github.com/liujitcn/kratos-admin/backend/pkg/notification"
 	"github.com/liujitcn/kratos-admin/backend/pkg/workflow"
-	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
-	"github.com/liujitcn/kratos-core/biz"
-	coreconst "github.com/liujitcn/kratos-core/const"
-	"github.com/liujitcn/kratos-core/errorsx"
-	"github.com/liujitcn/kratos-core/resource/i18n"
-	authData "github.com/liujitcn/kratos-kit/auth/data"
-	"google.golang.org/protobuf/proto"
-	gormdb "gorm.io/gorm"
 )
 
 const (
-	baseTenantAdminUserName      = "admin"
+	baseTenantAdminUserName      = username.TenantAdministrator
 	baseTenantDefaultDeptPath    = "/0/%d"
 	baseTenantDefaultDeptSort    = int32(0)
 	baseTenantInitialCode        = int64(1000)
@@ -50,6 +57,7 @@ const (
 
 // BaseTenantCase 租户业务实例。
 type BaseTenantCase struct {
+	redactResolver *kit.RedactPolicyResolver
 	*biz.BaseCase
 	tx data.Transaction
 	*data.BaseTenantRepository
@@ -78,6 +86,7 @@ type BaseTenantCase struct {
 // NewBaseTenantCase 创建租户业务实例。
 func NewBaseTenantCase(
 	baseCase *biz.BaseCase,
+	redactResolver *kit.RedactPolicyResolver,
 	tx data.Transaction,
 	baseTenantRepo *data.BaseTenantRepository,
 	baseDeptRepo *data.BaseDeptRepository,
@@ -100,6 +109,7 @@ func NewBaseTenantCase(
 	eventRegistry *workflow.EventRegistry,
 ) *BaseTenantCase {
 	caseValue := &BaseTenantCase{
+		redactResolver:          redactResolver,
 		BaseCase:                baseCase,
 		tx:                      tx,
 		BaseTenantRepository:    baseTenantRepo,
@@ -213,6 +223,10 @@ func (c *BaseTenantCase) GetBaseTenant(ctx context.Context, id int64) (*adminv1.
 
 // CreateBaseTenant 创建租户并返回租户管理员的一次性初始凭据。
 func (c *BaseTenantCase) CreateBaseTenant(ctx context.Context, req *adminv1.BaseTenantForm) (*adminv1.CreateBaseTenantResponse, error) {
+	err := validateTenantContactPhone(req.GetContactPhone())
+	if err != nil {
+		return nil, err
+	}
 	return c.submitTenantApproval(ctx, req)
 }
 
@@ -420,7 +434,21 @@ func (c *BaseTenantCase) UpdateBaseTenant(ctx context.Context, req *adminv1.Base
 		return err
 	}
 
-	baseTenant := c.formMapper.ToEntity(req)
+	form := proto.Clone(req).(*adminv1.BaseTenantForm)
+	displayContext := redact.WithDirection(redact.WithOperation(ctx, "/system.admin.v1.BaseTenantService/GetBaseTenant"), redact.DirectionResponse)
+	namePolicy, nameProtected := c.redactResolver.Resolve(displayContext, "system.admin.v1.BaseTenantForm.contact_name")
+	if nameProtected && namePolicy.Apply(oldBaseTenant.ContactName) == form.ContactName {
+		form.ContactName = oldBaseTenant.ContactName
+	}
+	phonePolicy, phoneProtected := c.redactResolver.Resolve(displayContext, "system.admin.v1.BaseTenantForm.contact_phone")
+	if phoneProtected && phonePolicy.Apply(oldBaseTenant.ContactPhone) == form.ContactPhone {
+		form.ContactPhone = oldBaseTenant.ContactPhone
+	}
+	err = validateTenantContactPhone(form.ContactPhone)
+	if err != nil {
+		return err
+	}
+	baseTenant := c.formMapper.ToEntity(form)
 	// 更新租户时沿用数据库中的原始编码，忽略客户端传入的 code。
 	baseTenant.Code = oldBaseTenant.Code
 	err = c.UpdateByID(ctx, baseTenant)
@@ -862,4 +890,14 @@ func randomTenantAdminPasswordChar(charset string) (byte, error) {
 		return 0, err
 	}
 	return charset[randomIndex.Int64()], nil
+}
+
+var tenantContactPhonePattern = regexp.MustCompile(`^1[3-9][0-9]{9}$`)
+
+// validateTenantContactPhone 校验实际新号码，占位掩码必须先由业务层核对并还原。
+func validateTenantContactPhone(phone string) error {
+	if phone != "" && !tenantContactPhonePattern.MatchString(phone) {
+		return errorsx.InvalidArgument("请输入正确的联系电话")
+	}
+	return nil
 }

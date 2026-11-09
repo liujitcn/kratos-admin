@@ -1,3 +1,4 @@
+import { getLoginAgreementHeaders } from "@/utils/loginAgreement";
 import axios, { type InternalAxiosRequestConfig, type AxiosResponse, type AxiosError, type AxiosRequestConfig } from "axios";
 import qs from "qs";
 import { reactive } from "vue";
@@ -65,7 +66,11 @@ function compactTenantProjectQueryParams(value: unknown): unknown {
   if (!value || typeof value !== "object") return value;
   const result: Record<string, unknown> = {};
   for (const [key, nested] of Object.entries(value as Record<string, unknown>)) {
-    if ((key === "tenant_id" || key === "project_id" || key.endsWith(".tenant_id") || key.endsWith(".project_id")) && nested === 0) continue;
+    if (
+      (key === "tenant_id" || key === "project_id" || key.endsWith(".tenant_id") || key.endsWith(".project_id")) &&
+      nested === 0
+    )
+      continue;
     result[key] = compactTenantProjectQueryParams(nested);
   }
   return result;
@@ -206,10 +211,7 @@ function persistPasswordChangeState() {
 
   try {
     if (passwordChangeState.required) {
-      window.localStorage.setItem(
-        PASSWORD_CHANGE_STATE_STORAGE_KEY,
-        JSON.stringify({ message: passwordChangeState.message })
-      );
+      window.localStorage.setItem(PASSWORD_CHANGE_STATE_STORAGE_KEY, JSON.stringify({ message: passwordChangeState.message }));
     } else {
       window.localStorage.removeItem(PASSWORD_CHANGE_STATE_STORAGE_KEY);
     }
@@ -333,7 +335,7 @@ service.interceptors.request.use(
     }
 
     const accessToken = skipAuth ? "" : await getRequestAccessToken();
-    Object.assign(config.headers, getLocaleRequestHeaders());
+    Object.assign(config.headers, getLocaleRequestHeaders(), getLoginAgreementHeaders());
     config.headers[REFRESH_TOKEN_TRANSPORT_HEADER] = REFRESH_TOKEN_TRANSPORT_COOKIE;
     // 登录、验证码、刷新令牌接口不携带访问令牌，避免请求头污染。
     if (!skipAuth && accessToken) {
@@ -359,7 +361,11 @@ service.interceptors.response.use(
       return response.data;
     }
 
-    const message = formatConflictMessage(resolveStructuredErrorMessage(responseData, key => t(key)), responseData, t);
+    const message = formatConflictMessage(
+      resolveStructuredErrorMessage(responseData, key => t(key)),
+      responseData,
+      t
+    );
 
     if (isPasswordChangeRequired(responseData)) {
       handlePasswordChangeRequired(message || t("common.message.system_error"));
@@ -377,7 +383,11 @@ service.interceptors.response.use(
     const data = error.response?.data as ErrorResponseData | undefined;
     const code = data?.code;
     const message = data
-      ? formatConflictMessage(resolveStructuredErrorMessage(data, key => t(key)), data, t)
+      ? formatConflictMessage(
+          resolveStructuredErrorMessage(data, key => t(key)),
+          data,
+          t
+        )
       : undefined;
     const requestConfig = error.config as RetryableRequestConfig | undefined;
 
@@ -391,7 +401,13 @@ service.interceptors.response.use(
     const isUnauthorized = status === 401 || code === 401;
     if (isUnauthorized && !shouldSkipAuthExpiredPrompt(requestConfig)) {
       const userStore = getUserStore();
-      if (requestConfig && !requestConfig._authRetried && !userStore.isLoggingOut && !userStore.authInvalidated && hasRefreshCookieHint()) {
+      if (
+        requestConfig &&
+        !requestConfig._authRetried &&
+        !userStore.isLoggingOut &&
+        !userStore.authInvalidated &&
+        hasRefreshCookieHint()
+      ) {
         requestConfig._authRetried = true;
         try {
           await handleTokenRefresh(false);

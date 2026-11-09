@@ -11,7 +11,7 @@ registry:
         # Consul 访问协议，例如 http 或 https。
         scheme: http
         # Consul ACL 访问令牌。
-        token: 03e92c67-5da7-3f4f-6659-8fb2d137aaa5
+        token: "${REGISTRY_TOKEN}"
     etcd:
         # Etcd 服务端地址列表。
         endpoints: []

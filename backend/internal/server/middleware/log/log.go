@@ -8,15 +8,19 @@ import (
 	"encoding/json"
 	"fmt"
 	"math"
-	"net"
 	"net/http"
 	"os"
 	"path/filepath"
+	"regexp"
 	"sort"
 	"strconv"
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/liujitcn/kratos-kit/transport/clientip"
+
+	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
 
 	"github.com/go-kratos/kratos/v3/errors"
 	"github.com/go-kratos/kratos/v3/log"
@@ -24,13 +28,8 @@ import (
 	"github.com/go-kratos/kratos/v3/transport"
 	httpTransport "github.com/go-kratos/kratos/v3/transport/http"
 	"github.com/liujitcn/go-utils/id"
-	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
-	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/loginaudit"
-	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/runtimeconfig"
-	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
-	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
-	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/query"
 	"github.com/liujitcn/kratos-core/biz"
+	"github.com/liujitcn/kratos-core/errorsx"
 	"github.com/liujitcn/kratos-core/server/requestmeta"
 	"github.com/liujitcn/kratos-kit/auth"
 	"github.com/liujitcn/kratos-kit/cache"
@@ -41,6 +40,13 @@ import (
 	queueTransport "github.com/liujitcn/kratos-kit/transport/queue"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/reflect/protoreflect"
+
+	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
+	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/loginaudit"
+	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/runtimeconfig"
+	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
+	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
+	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/query"
 )
 
 const (
@@ -204,7 +210,12 @@ func (m *Middleware) Handle(next middleware.Handler) middleware.Handler {
 			snapshot = m.captureResourceSnapshot(ctx, request, req)
 		}
 		ctx = loginaudit.WithCapture(ctx)
-		reply, err = next(ctx, req)
+		if _, login := loginType(request.Operation); login && request.AgreementAccepted {
+			err = m.validateAgreement(ctx, request)
+		}
+		if err == nil {
+			reply, err = next(ctx, req)
+		}
 		result, reasonCode, reason := resultInfo(err)
 		request.Result = result
 		request.ReasonCode = reasonCode
@@ -219,6 +230,9 @@ func (m *Middleware) Handle(next middleware.Handler) middleware.Handler {
 			}
 			m.enqueue(adminTask{Kind: "login", Request: request, Payload: req})
 		}
+		if response, ok := reply.(interface{ GetStatus() basev1.LoginStatus }); ok && err == nil && (response.GetStatus() == basev1.LoginStatus_LOGIN_STATUS_AUTHENTICATED || response.GetStatus() == basev1.LoginStatus_LOGIN_STATUS_PASSWORD_CHANGE_REQUIRED) && request.UserID > 0 && request.AgreementAccepted {
+			m.enqueue(adminTask{Kind: "consent", Request: request})
+		}
 		permissionOperation := isPermissionOperation(request)
 		if isOperation(request) && !permissionOperation {
 			m.enqueue(adminTask{Kind: "operation", Request: request, Payload: req, Snapshot: snapshot})
@@ -231,6 +245,38 @@ func (m *Middleware) Handle(next middleware.Handler) middleware.Handler {
 		}
 		return reply, err
 	}
+}
+
+// validateAgreement 将客户端声明与当前启用的协议原文核对，过期或伪造摘要不能记作有效确认。
+func (m *Middleware) validateAgreement(ctx context.Context, info request) error {
+	if m.logQuery == nil {
+		return errorsx.Internal("协议版本校验未初始化")
+	}
+	table := m.logQuery.BaseConfig
+	var sites []int32
+	if info.AgreementSite == "2" {
+		sites = []int32{2, 3}
+	} else {
+		sites = []int32{3}
+	}
+	rows, err := table.WithContext(ctx).Where(table.Site.In(sites...), table.Key.In("privacyProtocol", "serviceProtocol"), table.Status.Eq(1)).Order(table.ID.Asc()).Find()
+	if err != nil {
+		return errorsx.Internal("读取协议版本失败").WithCause(err)
+	}
+	content := make(map[string]string, 2)
+	for _, row := range rows {
+		if _, exists := content[row.Key]; !exists {
+			content[row.Key] = row.Value
+		}
+	}
+	if content["privacyProtocol"] == "" || content["serviceProtocol"] == "" {
+		return errorsx.Internal("协议正文尚未配置")
+	}
+	digest := sha256.Sum256([]byte(content["privacyProtocol"] + "\x00" + content["serviceProtocol"]))
+	if info.AgreementVersion != hex.EncodeToString(digest[:]) {
+		return errorsx.InvalidArgument("协议内容已更新，请刷新并重新确认")
+	}
+	return nil
 }
 
 // enqueue 将 Admin 审计任务非阻塞写入进程内缓冲。
@@ -303,8 +349,20 @@ func (m *Middleware) close() {
 // buildEvent 构造包含登录设备标识的脱敏 Admin 审计事件。
 func (m *Middleware) buildEvent(task adminTask) (adminEvent, bool, error) {
 	info := task.Request
-	var item interface{}
+	var item any
+	var err error
 	switch task.Kind {
+	case "consent":
+		var snapshot []byte
+		snapshot, err = json.Marshal(map[string]any{"agreement_version": info.AgreementVersion, "site": info.AgreementSite, "accepted": true, "client_ip": info.ClientIP, "user_agent": info.UserAgent})
+		if err != nil {
+			return adminEvent{}, false, err
+		}
+		item = &models.BaseOperationLog{
+			TenantID: info.TenantID, TenantCode: info.TenantCode, UserID: info.UserID, UserName: info.UserName,
+			RequestID: info.RequestID, TraceID: info.TraceID, ResourceType: "user_consent", ResourceID: strconv.FormatInt(info.UserID, 10), ResourceName: info.UserName,
+			AfterData: string(snapshot), Action: int32(adminv1.BaseOperationAction_BASE_OPERATION_ACTION_CREATE), Result: info.Result, OccurredAt: info.OccurredAt,
+		}
 	case "login":
 		loginTypeValue, ok := loginType(info.Operation)
 		if !ok {
@@ -385,32 +443,40 @@ func (m *Middleware) buildEvent(task adminTask) (adminEvent, bool, error) {
 	default:
 		return adminEvent{}, false, fmt.Errorf("未知 Admin 审计事件类型: %s", task.Kind)
 	}
-	payload, err := json.Marshal(item)
+	var payload []byte
+	payload, err = json.Marshal(item)
 	if err != nil {
 		return adminEvent{}, false, fmt.Errorf("序列化 Admin 审计事件失败: %w", err)
 	}
-	return adminEvent{EventID: task.EventID, Kind: task.Kind, Payload: payload}, true, nil
+	kind := task.Kind
+	if kind == "consent" {
+		kind = "operation"
+	}
+	return adminEvent{EventID: task.EventID, Kind: kind, Payload: payload}, true, nil
 }
 
 // request 汇总一次 HTTP 或 gRPC 请求的审计上下文。
 // 该结构只在中间件生命周期内使用，最终会被转换为具体审计日志模型。
 type request struct {
-	Operation  string    // Kratos operation 标识。
-	Method     string    // HTTP 方法或 RPC 标识。
-	Path       string    // HTTP 路径模板。
-	RequestID  string    // 请求追踪编号。
-	TraceID    string    // 分布式链路追踪编号。
-	TenantID   int64     // 当前租户编号。
-	TenantCode string    // 当前租户编码。
-	UserID     int64     // 当前用户编号。
-	UserName   string    // 当前用户账号。
-	ClientIP   string    // 对端 IP 地址。
-	UserAgent  string    // 客户端 User-Agent。
-	DeviceID   string    // 客户端设备标识，未提供时使用 User-Agent。
-	Result     int32     // 审计结果枚举值。
-	ReasonCode string    // 稳定错误原因码。
-	Reason     string    // 脱敏后的错误描述。
-	OccurredAt time.Time // 请求开始时间。
+	AgreementVersion  string    // 用户确认的协议原文摘要。
+	AgreementSite     string    // 协议所属终端。
+	AgreementAccepted bool      // 当前认证流程是否携带主动确认。
+	Operation         string    // Kratos operation 标识。
+	Method            string    // HTTP 方法或 RPC 标识。
+	Path              string    // HTTP 路径模板。
+	RequestID         string    // 请求追踪编号。
+	TraceID           string    // 分布式链路追踪编号。
+	TenantID          int64     // 当前租户编号。
+	TenantCode        string    // 当前租户编码。
+	UserID            int64     // 当前用户编号。
+	UserName          string    // 当前用户账号。
+	ClientIP          string    // 对端 IP 地址。
+	UserAgent         string    // 客户端 User-Agent。
+	DeviceID          string    // 客户端设备标识，未提供时使用 User-Agent。
+	Result            int32     // 审计结果枚举值。
+	ReasonCode        string    // 稳定错误原因码。
+	Reason            string    // 脱敏后的错误描述。
+	OccurredAt        time.Time // 请求开始时间。
 }
 
 // requestInfo 从服务端传输和认证上下文提取审计字段及登录设备标识。
@@ -427,6 +493,9 @@ func requestInfo(ctx context.Context) request {
 			info.Path = htr.PathTemplate()
 			info.ClientIP = clientIP(httpRequest)
 			info.UserAgent = httpRequest.UserAgent()
+			info.AgreementVersion = httpRequest.Header.Get("X-Agreement-Version")
+			info.AgreementSite = httpRequest.Header.Get("X-Agreement-Site")
+			info.AgreementAccepted = httpRequest.Header.Get("X-Agreement-Accepted") == "true" && agreementDigestPattern.MatchString(info.AgreementVersion) && (info.AgreementSite == "2" || info.AgreementSite == "3")
 			info.DeviceID = httpRequest.Header.Get("X-Device-ID")
 			if info.DeviceID == "" {
 				info.DeviceID = info.UserAgent
@@ -595,10 +664,13 @@ func redactLogValue(value interface{}) interface{} {
 // isSensitiveLogField 判断字段名是否包含不应进入审计快照的敏感值。
 func isSensitiveLogField(key string) bool {
 	normalized := strings.ToLower(strings.ReplaceAll(key, "-", "_"))
+	if normalized == "source" || normalized == "context_json" || normalized == "output_json" {
+		return true
+	}
 	if normalized == "api_key" || strings.HasSuffix(normalized, "_api_key") {
 		return true
 	}
-	for _, marker := range []string{"password", "old_pwd", "new_pwd", "pwd", "client_secret", "crypto_key", "encrypted_key", "ciphertext", "nonce", "access_token", "refresh_token", "authorization", "captcha_code", "verification_code", "private_key", "content", "action_params", "phone", "mobile", "email", "id_card", "identity_number"} {
+	for _, marker := range []string{"password", "old_pwd", "new_pwd", "pwd", "client_secret", "crypto_key", "encrypted_key", "ciphertext", "nonce", "access_token", "refresh_token", "authorization", "captcha_code", "verification_code", "private_key", "content", "action_params", "phone", "mobile", "email", "id_card", "id_code", "identity_number", "kubeconfig", "recovery_code", "totp_secret"} {
 		if strings.Contains(normalized, marker) {
 			return true
 		}
@@ -942,10 +1014,10 @@ func loginType(operation string) (adminv1.BaseLoginLogType, bool) {
 
 // isOperation 判断请求是否属于业务变更操作。
 func isOperation(info request) bool {
-	if !strings.HasPrefix(info.Operation, "/system.admin.v1.") {
+	if info.UserID <= 0 {
 		return false
 	}
-	if strings.Contains(info.Operation, "LogService/") || strings.Contains(info.Operation, "MigrationService/") {
+	if (strings.Contains(info.Operation, "LogService/") || strings.Contains(info.Operation, "MigrationService/")) && !strings.Contains(info.Operation, "/Download") && !strings.Contains(info.Operation, "/Export") {
 		return false
 	}
 	if info.Method == "RPC" {
@@ -953,7 +1025,7 @@ func isOperation(info request) bool {
 		if index := strings.LastIndex(methodName, "/"); index >= 0 {
 			methodName = methodName[index+1:]
 		}
-		for _, action := range []string{"Create", "Update", "Delete", "Set", "Reset", "Revoke", "Rotate", "Mark", "Archive", "Restore", "Send", "Confirm", "Disable", "Enable", "Publish", "Reveal"} {
+		for _, action := range []string{"Create", "Update", "Delete", "Set", "Reset", "Revoke", "Rotate", "Mark", "Archive", "Restore", "Send", "Confirm", "Disable", "Enable", "Publish", "Reveal", "Bind", "Unbind", "TestRun", "Test", "Decide"} {
 			if strings.Contains(info.Operation, "/"+action) || strings.HasSuffix(methodName, action) {
 				return true
 			}
@@ -965,14 +1037,17 @@ func isOperation(info request) bool {
 
 // isDataAccess 判断请求是否产生数据访问事实。
 func isDataAccess(info request) bool {
+	if strings.Contains(info.Operation, "/Reveal") {
+		return true
+	}
 	if info.Operation == "" {
 		return false
 	}
-	if strings.Contains(info.Operation, "LogService/") || strings.Contains(info.Operation, "MigrationService/") {
+	if (strings.Contains(info.Operation, "LogService/") || strings.Contains(info.Operation, "MigrationService/")) && !strings.Contains(info.Operation, "/Download") && !strings.Contains(info.Operation, "/Export") {
 		return false
 	}
 	if info.Method == "RPC" {
-		for _, action := range []string{"Get", "List", "Page", "Option", "Summary", "Tree", "Count", "Preview"} {
+		for _, action := range []string{"Get", "List", "Page", "Option", "Summary", "Tree", "Count", "Preview", "Reveal", "Export", "Download"} {
 			if strings.Contains(info.Operation, "/"+action) {
 				return true
 			}
@@ -1106,14 +1181,9 @@ func permissionAction(info request) adminv1.BasePermissionAction {
 	}
 }
 
-// clientIP 提取客户端地址并去掉端口。
+// clientIP 使用受信代理规则，与访问日志和登录策略保持同一来源地址。
 func clientIP(req *http.Request) string {
-	// 只记录 TCP 对端地址；未经可信代理校验的转发头可由客户端伪造。
-	host, _, err := net.SplitHostPort(req.RemoteAddr)
-	if err == nil {
-		return host
-	}
-	return req.RemoteAddr
+	return clientip.FromRequest(req)
 }
 
 // newMiddleware 创建并启动 Admin 审计后台工作协程。
@@ -1144,3 +1214,5 @@ func createLogRecord[T any](ctx context.Context, id int64, item *T, create func(
 	}
 	return err
 }
+
+var agreementDigestPattern = regexp.MustCompile(`^[a-f0-9]{64}$`)

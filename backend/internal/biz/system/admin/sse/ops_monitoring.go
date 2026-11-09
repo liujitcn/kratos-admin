@@ -5,10 +5,16 @@ import (
 	"sync"
 	"time"
 
+	_const "github.com/liujitcn/kratos-core/const"
+	"github.com/liujitcn/kratos-core/errorsx"
+	authdata "github.com/liujitcn/kratos-kit/auth/data"
+	"github.com/liujitcn/kratos-kit/database/gorm"
+
+	"github.com/liujitcn/kratos-kit/transport/sse"
+
 	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
 	biz "github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/codegen"
-	"github.com/liujitcn/kratos-kit/transport/sse"
 )
 
 var _ sse.SSEStream = (*OpsMonitoring)(nil)
@@ -47,6 +53,14 @@ func (o *OpsMonitoring) SetPublisher(publisher codegen.Publisher) {
 // ID 返回运维监控 SSE 流标识。
 func (*OpsMonitoring) ID() string {
 	return opsMonitoringStreamID
+}
+
+// ResolveContext 在可信身份下校验订阅权限，保留原有频道与任务归属校验。
+func (o *OpsMonitoring) ResolveContext(_ context.Context, channelID string, identity *authdata.UserTokenPayload) (string, error) {
+	if identity.TenantCode != gorm.DefaultTenantCode || (identity.RoleCode != _const.BASE_ROLE_CODE_SUPER && identity.RoleCode != _const.BASE_ROLE_CODE_ADMIN) {
+		return "", errorsx.PermissionDenied("只有平台管理员可以订阅运维实时数据")
+	}
+	return o.Resolve(channelID, identity.UserId)
 }
 
 // Resolve 返回固定的运维监控传输流标识。

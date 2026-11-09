@@ -15,6 +15,7 @@ import (
 
 	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/dto"
+	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/loginaudit"
 	_const "github.com/liujitcn/kratos-admin/backend/internal/const"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
@@ -463,7 +464,7 @@ func (c *OauthCase) HandleOauthCallback(ctx context.Context, req *basev1.HandleO
 	}
 
 	var ticket string
-	ticket, err = c.createOauthLoginTicket(loginRes)
+	ticket, err = c.createOauthLoginTicket(ctx, loginRes)
 	if err != nil {
 		return nil, c.oauthRedirectPayload(ctx, payload, "", newOauthCallbackError("base.oauth.callback.login_failed", "三方账号登录失败"))
 	}
@@ -490,6 +491,9 @@ func (c *OauthCase) ExchangeOauthTicket(ctx context.Context, req *basev1.Exchang
 	err = json.Unmarshal([]byte(value), &payload)
 	if err != nil {
 		return nil, errorsx.Unauthenticated("三方登录票据无效").WithCause(err)
+	}
+	if payload.Identity != nil {
+		loginaudit.Record(ctx, payload.Identity)
 	}
 	return &basev1.ExchangeOauthTicketResponse{
 		AccessToken:            payload.AccessToken,
@@ -730,8 +734,9 @@ func (c *OauthCase) fetchOauthUser(ctx context.Context, oauthType oauth.Type, co
 }
 
 // createOauthLoginTicket 缓存三方登录结果并返回一次性票据。
-func (c *OauthCase) createOauthLoginTicket(loginRes *basev1.LoginResponse) (string, error) {
+func (c *OauthCase) createOauthLoginTicket(ctx context.Context, loginRes *basev1.LoginResponse) (string, error) {
 	payload := dto.OauthLoginTicketPayload{
+		Identity:        loginaudit.FromContext(ctx),
 		AccessToken:     loginRes.GetAccessToken(),
 		RefreshToken:    loginRes.GetRefreshToken(),
 		TokenType:       loginRes.GetTokenType(),

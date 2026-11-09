@@ -26,7 +26,7 @@ data:
     # Prometheus 指标 HTTP 端口；0 表示不单独监听。
     prometheus_http_port: 0
     # 数据库 DSN，按所选驱动的连接字符串格式填写。
-    source: root:112233@tcp(127.0.0.1:3306)/kratos_admin?charset=utf8mb4&parseTime=True&loc=Local&timeout=1000ms
+    source: "${DATABASE_DSN}"
 
   # 按名称区分的多数据库配置；名称由业务或数据访问层引用。
   # 示例：AI 知识库（RAG）独立数据源，按生成模型自动建表；删除该段则回退默认数据源（主库），启动仅记录告警。
@@ -36,7 +36,7 @@ data:
       # 数据库驱动名称。
       driver: postgres
       # 数据库 DSN。
-      source: host=127.0.0.1 port=5432 user=postgres password=your_password dbname=kratos_admin sslmode=disable
+      source: "${DATABASE_2_DSN}"
       # 是否打印 SQL 调试日志。
       debug: false
       # 是否执行该数据库迁移；知识库表结构按 gorm-gen 生成模型自动创建。
@@ -67,7 +67,7 @@ data:
     # Redis 逻辑数据库编号。
     db: 1
     # Redis 密码。
-    password: '112233'
+    password: "${REDIS_PASSWORD}"
     # 建立 Redis 连接的超时时间。
     dial_timeout: 5s
     # Redis 读取超时时间。

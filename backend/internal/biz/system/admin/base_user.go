@@ -2,9 +2,14 @@ package biz
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
+	"os"
+	"strconv"
 	"strings"
 	"time"
+
+	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/username"
 
 	"github.com/go-kratos/kratos/v3/transport"
 	"github.com/go-sql-driver/mysql"
@@ -16,13 +21,6 @@ import (
 	"github.com/liujitcn/kratos-kit/auth/authn/engine"
 	"github.com/liujitcn/kratos-kit/database/gorm"
 
-	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
-	basebiz "github.com/liujitcn/kratos-admin/backend/internal/biz/base"
-	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/loginpolicy"
-	passwordPolicy "github.com/liujitcn/kratos-admin/backend/internal/biz/base/password"
-	adminconst "github.com/liujitcn/kratos-admin/backend/internal/const"
-	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
-	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
 	"github.com/liujitcn/kratos-core/biz"
 	_const "github.com/liujitcn/kratos-core/const"
@@ -30,6 +28,14 @@ import (
 	authData "github.com/liujitcn/kratos-kit/auth/data"
 	"gorm.io/gen"
 	"gorm.io/gen/field"
+
+	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
+	basebiz "github.com/liujitcn/kratos-admin/backend/internal/biz/base"
+	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/loginpolicy"
+	passwordPolicy "github.com/liujitcn/kratos-admin/backend/internal/biz/base/password"
+	adminconst "github.com/liujitcn/kratos-admin/backend/internal/const"
+	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
+	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 )
 
 // BaseUserCase 用户业务实例
@@ -75,6 +81,63 @@ func NewBaseUserCase(
 		formMapper:         mapper.NewCopierMapper[adminv1.BaseUserForm, models.BaseUser](),
 		mapper:             mapper.NewCopierMapper[adminv1.BaseUser, models.BaseUser](),
 	}
+}
+
+// RenameReservedUsers 按部署确认的 ID 清单更名，保持身份、权限、组织及历史日志关联不变。
+func (c *BaseUserCase) RenameReservedUsers(ctx context.Context) error {
+	value := os.Getenv("SECURITY_ACCOUNT_RENAMES")
+	if value == "" {
+		return nil
+	}
+	var requested map[string]string
+	err := json.Unmarshal([]byte(value), &requested)
+	if err != nil {
+		return errorsx.InvalidArgument("存量账号更名清单无效").WithCause(err)
+	}
+	names := make(map[int64]string, len(requested))
+	for text, name := range requested {
+		var userID int64
+		userID, err = strconv.ParseInt(text, 10, 64)
+		if err != nil || userID <= 0 {
+			return errorsx.InvalidArgument("存量账号更名清单包含无效编号")
+		}
+		err = username.Validate(name)
+		if err != nil {
+			return err
+		}
+		names[userID] = name
+	}
+	err = c.tx.Transaction(ctx, func(transactionContext context.Context) error {
+		for userID, name := range names {
+			var row *models.BaseUser
+			row, err = c.FindByID(transactionContext, userID)
+			if err != nil {
+				return err
+			}
+			if row.UserName == name {
+				continue
+			}
+			if username.Validate(row.UserName) == nil {
+				return errorsx.InvalidArgument("更名清单只能处理系统保留名称账号")
+			}
+			err = c.UpdateByID(transactionContext, &models.BaseUser{ID: userID, UserName: name})
+			if err != nil {
+				return baseUserUniqueConflict(err)
+			}
+		}
+		return nil
+	})
+	if err != nil {
+		return err
+	}
+	// 令牌撤销失败时可以按同一清单重试，不因数据库已更名而跳过收尾。
+	for userID := range names {
+		err = c.revokeUserToken(userID)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 // OptionBaseUser 查询用户选项
@@ -386,7 +449,10 @@ func (c *BaseUserCase) GetBaseUser(ctx context.Context, id int64) (*adminv1.Base
 
 // CreateBaseUser 创建用户
 func (c *BaseUserCase) CreateBaseUser(ctx context.Context, req *adminv1.BaseUserForm) error {
-	var err error
+	err := username.Validate(req.GetUserName())
+	if err != nil {
+		return err
+	}
 	targetTenantID := req.GetTenantId()
 	var baseRole *models.BaseRole
 	roleQuery := c.baseRoleCase.Query(ctx).BaseRole
@@ -750,6 +816,7 @@ func (c *BaseUserCase) roleProtectionQueryContext(ctx context.Context) (context.
 	if err != nil {
 		return nil, err
 	}
+
 	roleAuthInfo := *authInfo
 	roleAuthInfo.DataScope = gorm.DataScopeAll
 	return engine.ContextWithAuthClaims(ctx, roleAuthInfo.MakeAuthClaims()), nil

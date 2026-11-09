@@ -17,7 +17,7 @@ logger:
         max_size: 1
     aliyun:
         # 阿里云日志服务访问密钥 ID。
-        access_key: "<access_key>"
+        access_key: "${LOGGER_ACCESS_KEY}"
         # 阿里云日志服务访问密钥。
         access_secret: "<access_secret>"
         # 阿里云日志服务接入地址。
@@ -50,7 +50,7 @@ logger:
         enable_console: true
     tencent:
         # 腾讯云日志服务访问密钥 ID。
-        access_key: "<access_key>"
+        access_key: "${LOGGER_ACCESS_KEY}"
         # 腾讯云日志服务访问密钥。
         access_secret: "<access_secret>"
         # 腾讯云日志服务接入地址。

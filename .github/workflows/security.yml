@@ -32,6 +32,12 @@ jobs:
           go-version-file: backend/go.mod
           cache-dependency-path: backend/go.sum
       - run: go mod edit -replace=github.com/liujitcn/go-utils/crypto=../go-utils/crypto
+      - name: 脚本系统沙箱回归
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y bubblewrap
+          sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
+          go test -count=1 ./pkg/scripting
       - run: go install golang.org/x/vuln/cmd/govulncheck@latest
       - name: 安装兼容 Go 1.27 的 Gosec
         # v2.29.0 默认的 x/tools 不能读取 Go 1.27 的 export data v5。

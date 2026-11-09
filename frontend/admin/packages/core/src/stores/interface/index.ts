@@ -114,6 +114,14 @@ export interface DictState {
 
 /** 站点配置状态 */
 export interface SiteConfigState {
+  /** 宿主产品的发布版本。 */
+  version: string;
+  /** 当前用户协议正文。 */
+  serviceProtocol: string;
+  /** 当前隐私政策正文。 */
+  privacyProtocol: string;
+  /** 服务端计算的协议原文摘要。 */
+  agreementVersion: string;
   /** 当前站点展示配置 */
   display: SiteDisplayConfig;
   /** 当前登录验证码配置 */

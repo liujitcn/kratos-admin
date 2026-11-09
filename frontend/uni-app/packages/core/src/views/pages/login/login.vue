@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { setLoginAgreement } from '../../../utils/http'
 import { useSettingStore, useThemeStore, useUserStore } from '../../../stores'
 import type { LoginRequest } from '../../../rpc/base/v1/login'
 import { LoginStatus, type LoginResponse } from '../../../rpc/base/v1/login'
@@ -786,6 +787,7 @@ const onSubmit = async () => {
 // #endif
 /** 完成用户资料加载并替换到本次登录目标，直接登录默认进入首页。 */
 const loginSuccess = async () => {
+  setLoginAgreement('')
   await userStore.getUserProfile()
   // 成功提示
   await uni.showToast({ icon: 'success', title: t('core.login.login_success') })
@@ -808,6 +810,7 @@ const checkedAgreePrivacy = async () => {
   }
 
   if (isAgreePrivacy.value) {
+    setLoginAgreement(settingStore.getData('agreementVersion') || '')
     return true
   }
 
@@ -824,6 +827,7 @@ const checkedAgreePrivacy = async () => {
       success: ({ confirm }) => {
         if (confirm) {
           isAgreePrivacy.value = true
+          setLoginAgreement(settingStore.getData('agreementVersion') || '')
           resolve(true)
           return
         }

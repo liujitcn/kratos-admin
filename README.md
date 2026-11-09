@@ -1,5 +1,7 @@
 # kratos-admin
 
+安全部署需要配置环境凭据、脚本操作系统沙箱及授权资源。升级前按 [安全部署与存量修复](docs/安全部署与存量修复.md) 处理保留账号更名、主旁表加密回填、日志留存和协议正文；一次性修复变量在验收后移除。
+
 [简体中文](README.md) | [繁體中文](README.zh-TW.md) | [English](README.en-US.md) | [日本語](README.ja-JP.md)
 
 `kratos-admin` 是一个前后端分离的管理系统仓库，包含 Go + Kratos 后端、Vue 管理后台、uni-app 应用底座、React/Taro 应用底座、版本化数据库迁移和模块脚手架。

@@ -8,6 +8,7 @@ import { navigateAppRoute } from '../../../navigation'
 import { LoginStatus, type LoginRequest, type LoginResponse } from '../../../rpc/base/v1/login'
 import { useSettingStore, useThemeStore, useUserStore } from '../../../stores'
 import { formatSrc } from '../../../utils'
+import { setLoginAgreement } from '../../../utils/http'
 import { prepareLoginPage, restoreLoginRedirect, returnFromLogin } from '../../../utils/navigation'
 import { encryptPassword } from '../../../utils/secretCrypto'
 import { createWebAuthnCredential, getWebAuthnAssertion } from '../../../utils/webauthn'
@@ -298,7 +299,7 @@ export default function LoginPage() {
       await Taro.showToast({ icon: 'none', title: t('core.login.protocol_missing') })
       return false
     }
-    if (agreed) return true
+    if (agreed) { setLoginAgreement(currentSettings.getData('agreementVersion') || ''); return true }
     setShake(true)
     if (shakeTimerRef.current) clearTimeout(shakeTimerRef.current)
     shakeTimerRef.current = setTimeout(() => {
@@ -313,12 +314,13 @@ export default function LoginPage() {
       confirmColor: themeStore.colors.primary,
       cancelColor: themeStore.colors.textMuted,
     })
-    if (result.confirm) setAgreed(true)
+    if (result.confirm) { setAgreed(true); setLoginAgreement(currentSettings.getData('agreementVersion') || '') }
     return result.confirm
   }
 
   /** 完成用户资料加载并恢复登录前页面。 */
   const loginSuccess = async () => {
+    setLoginAgreement('')
     await userStore.getUserProfile()
     await Taro.showToast({ icon: 'success', title: t('core.login.login_success') })
     await new Promise<void>((resolve) => setTimeout(resolve, 500))

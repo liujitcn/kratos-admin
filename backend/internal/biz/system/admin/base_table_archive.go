@@ -3,18 +3,20 @@ package biz
 import (
 	"context"
 	"regexp"
+	"slices"
 	"strings"
 	"time"
 
 	_string "github.com/liujitcn/go-utils/string"
 	"github.com/liujitcn/gorm-kit/repository"
-	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
-	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
-	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
 	"github.com/liujitcn/kratos-core/biz"
 	_const "github.com/liujitcn/kratos-core/const"
 	"github.com/liujitcn/kratos-core/errorsx"
+
+	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
+	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
+	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 )
 
 var tableNamePattern = regexp.MustCompile(`^[A-Za-z0-9_]+$`)
@@ -148,6 +150,12 @@ func validateTableArchiveForm(baseCase *biz.BaseCase, req *adminv1.BaseTableArch
 	if req.GetOnlineRetentionDays() <= 0 {
 		return errorsx.InvalidArgument("在线保留天数必须大于零")
 	}
+	securityLog := slices.Contains([]string{"base_login_log", "base_api_log", "base_operation_log", "base_data_access_log", "base_permission_log", "base_policy_evaluation_log"}, req.GetTableName())
+	// 6 个自然月最长 184 天；校验总可恢复期限，不强制所有业务表在线保存半年。
+	if securityLog && req.GetOnlineRetentionDays()+req.GetArchiveRetentionDays() < 184 {
+		return errorsx.InvalidArgument("安全审计日志总保留期限不得少于六个月")
+	}
+
 	return nil
 }
 

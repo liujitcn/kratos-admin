@@ -452,5 +452,10 @@
   "core.demo.form.tenant.main": "Demoメインテナント",
   "core.demo.form.tenant.sub": "Demoサブテナント",
   "core.demo.form.leader_title": "{name}リーダー",
-  "core.demo.tree.new_dir": "Demoディレクトリ {id}"
+  "core.demo.tree.new_dir": "Demoディレクトリ {id}",
+  "core.login.agreement_accept": "内容を確認して同意します",
+  "core.login.service_protocol": "利用規約",
+  "core.login.privacy_protocol": "プライバシーポリシー",
+  "core.login.agreement_and": "および",
+  "core.login.agreement_required": "利用規約とプライバシーポリシーを確認して同意してください"
 }

@@ -452,5 +452,10 @@
   "core.demo.form.tenant.main": "Demo 總租戶",
   "core.demo.form.tenant.sub": "Demo 子租戶",
   "core.demo.form.leader_title": "{name}負責人",
-  "core.demo.tree.new_dir": "Demo 目錄 {id}"
+  "core.demo.tree.new_dir": "Demo 目錄 {id}",
+  "core.login.agreement_accept": "我已閱讀並同意",
+  "core.login.service_protocol": "使用者協議",
+  "core.login.privacy_protocol": "隱私權政策",
+  "core.login.agreement_and": "及",
+  "core.login.agreement_required": "請先閱讀並同意使用者協議與隱私權政策"
 }

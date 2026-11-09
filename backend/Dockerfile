@@ -36,7 +36,7 @@ FROM alpine:3.22
 
 ENV TZ=Asia/Shanghai
 
-RUN apk add --no-cache ca-certificates chromium fontconfig gzip mysql-client openssl tzdata \
+RUN apk add --no-cache bubblewrap iana-etc ca-certificates chromium fontconfig gzip mysql-client openssl tzdata \
     && ln -sf /usr/share/zoneinfo/$TZ /etc/localtime \
     && echo $TZ > /etc/timezone \
     && addgroup -S kratos \

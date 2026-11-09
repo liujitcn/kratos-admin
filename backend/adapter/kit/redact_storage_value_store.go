@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 
-	"github.com/liujitcn/gorm-kit/repository"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 	query "github.com/liujitcn/kratos-admin/backend/internal/data/gen/query"
@@ -34,12 +33,12 @@ func (s *StorageValueStore) Find(ctx context.Context, tenantID, storagePolicyID,
 	if s == nil || s.repository == nil {
 		return nil, errors.New("敏感字段旁表仓储未初始化")
 	}
-	query := s.repository.Query(ctx).BaseRedactStorageValue
-	value, err := s.repository.Find(ctx,
-		repository.Where(query.TenantID.Eq(tenantID)),
-		repository.Where(query.StoragePolicyID.Eq(storagePolicyID)),
-		repository.Where(query.RecordID.Eq(recordID)),
-	)
+	query := s.queryFor(ctx).BaseRedactStorageValue
+	value, err := query.WithContext(ctx).Where(
+		query.TenantID.Eq(tenantID),
+		query.StoragePolicyID.Eq(storagePolicyID),
+		query.RecordID.Eq(recordID),
+	).First()
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, redact.ErrStorageValueNotFound
 	}
@@ -57,12 +56,12 @@ func (s *StorageValueStore) ListByRecords(ctx context.Context, tenantID, storage
 	if len(recordIDs) == 0 {
 		return []*redact.StorageValue{}, nil
 	}
-	query := s.repository.Query(ctx).BaseRedactStorageValue
-	values, err := s.repository.List(ctx,
-		repository.Where(query.TenantID.Eq(tenantID)),
-		repository.Where(query.StoragePolicyID.Eq(storagePolicyID)),
-		repository.Where(query.RecordID.In(recordIDs...)),
-	)
+	query := s.queryFor(ctx).BaseRedactStorageValue
+	values, err := query.WithContext(ctx).Where(
+		query.TenantID.Eq(tenantID),
+		query.StoragePolicyID.Eq(storagePolicyID),
+		query.RecordID.In(recordIDs...),
+	).Find()
 	if err != nil {
 		return nil, err
 	}
@@ -74,12 +73,12 @@ func (s *StorageValueStore) ListByDigest(ctx context.Context, tenantID, storageP
 	if s == nil || s.repository == nil {
 		return nil, errors.New("敏感字段旁表仓储未初始化")
 	}
-	query := s.repository.Query(ctx).BaseRedactStorageValue
-	values, err := s.repository.List(ctx,
-		repository.Where(query.TenantID.Eq(tenantID)),
-		repository.Where(query.StoragePolicyID.Eq(storagePolicyID)),
-		repository.Where(query.Digest.Eq(digest)),
-	)
+	query := s.queryFor(ctx).BaseRedactStorageValue
+	values, err := query.WithContext(ctx).Where(
+		query.TenantID.Eq(tenantID),
+		query.StoragePolicyID.Eq(storagePolicyID),
+		query.Digest.Eq(digest),
+	).Find()
 	if err != nil {
 		return nil, err
 	}
@@ -94,21 +93,17 @@ func (s *StorageValueStore) Save(ctx context.Context, value *redact.StorageValue
 	if value == nil {
 		return nil
 	}
-	query := s.repository.Query(ctx).BaseRedactStorageValue
-	existing, err := s.repository.Find(ctx,
-		repository.Where(query.TenantID.Eq(value.TenantID)),
-		repository.Where(query.StoragePolicyID.Eq(value.StoragePolicyID)),
-		repository.Where(query.RecordID.Eq(value.RecordID)),
-	)
+	base := s.queryFor(ctx).BaseRedactStorageValue
+	existing, err := base.WithContext(ctx).Where(base.TenantID.Eq(value.TenantID), base.StoragePolicyID.Eq(value.StoragePolicyID), base.RecordID.Eq(value.RecordID)).First()
 	if errors.Is(err, gorm.ErrRecordNotFound) {
-		return s.repository.Create(ctx, toStorageValueModel(value))
+		return base.WithContext(ctx).Create(toStorageValueModel(value))
 	}
 	if err != nil {
 		return err
 	}
 	model := toStorageValueModel(value)
 	model.ID = existing.ID
-	return s.repository.UpdateByID(ctx, model)
+	return base.WithContext(ctx).Save(model)
 }
 
 // Delete 物理删除旁表敏感值。
@@ -119,7 +114,7 @@ func (s *StorageValueStore) Delete(ctx context.Context, value *redact.StorageVal
 	if value == nil {
 		return nil
 	}
-	result, err := s.repository.Query(ctx).BaseRedactStorageValue.WithContext(ctx).Unscoped().Delete(toStorageValueModel(value))
+	result, err := s.queryFor(ctx).BaseRedactStorageValue.WithContext(ctx).Unscoped().Delete(toStorageValueModel(value))
 	if err != nil {
 		return err
 	}
@@ -179,7 +174,8 @@ func (s *StorageValueStore) DeleteWithDB(ctx context.Context, db *gorm.DB, tenan
 func queryForDB(db *gorm.DB) *query.Query {
 	// Model 会先实例化 NewDB 会话，避免 gorm/gen 的 UseDB 再次克隆回主表 Statement。
 	storageDB := db.Session(&gorm.Session{NewDB: true}).Model(&models.BaseRedactStorageValue{})
-	return query.Use(storageDB)
+	// 旁表按策略所属租户存储（全局策略可保护其他租户）；上层先授权主记录，再按策略、记录编号精确读取。
+	return query.Use(kitgorm.SkipDataIsolation(storageDB))
 }
 
 // toStorageValues 将 Admin 模型列表转换为通用敏感值列表。
@@ -219,4 +215,15 @@ func toStorageValueModel(value *redact.StorageValue) *models.BaseRedactStorageVa
 		Ciphertext:      value.Ciphertext,
 		Digest:          value.Digest,
 	}
+}
+
+// storageTransactionKey 在回调和回填中携带真实事务连接，旁表读取不能跳出主表事务。
+type storageTransactionKey struct{}
+
+// queryFor 在事务内共用同一连接，普通查询沿用生成仓储的默认入口。
+func (s *StorageValueStore) queryFor(ctx context.Context) *query.Query {
+	if transaction, ok := ctx.Value(storageTransactionKey{}).(*gorm.DB); ok {
+		return queryForDB(transaction)
+	}
+	return queryForDB(s.repository.Query(ctx).BaseRedactStorageValue.WithContext(ctx).UnderlyingDB()) //nolint:forbidigo // 旁表按策略租户读取，需保留事务并单独移除隔离回调；上层先授权主记录。
 }

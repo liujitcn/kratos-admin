@@ -452,5 +452,10 @@
   "core.demo.form.tenant.main": "Demo main tenant",
   "core.demo.form.tenant.sub": "Demo sub-tenant",
   "core.demo.form.leader_title": "{name} Lead",
-  "core.demo.tree.new_dir": "Demo directory {id}"
+  "core.demo.tree.new_dir": "Demo directory {id}",
+  "core.login.agreement_accept": "I have read and agree to the",
+  "core.login.service_protocol": "Terms of Service",
+  "core.login.privacy_protocol": "Privacy Policy",
+  "core.login.agreement_and": "and",
+  "core.login.agreement_required": "Please read and accept the terms and privacy policy first"
 }

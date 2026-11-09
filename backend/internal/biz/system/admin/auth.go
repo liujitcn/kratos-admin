@@ -8,15 +8,18 @@ import (
 	"math/rand/v2"
 	"time"
 
-	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
-	baseBiz "github.com/liujitcn/kratos-admin/backend/internal/biz/base"
-	_const "github.com/liujitcn/kratos-admin/backend/internal/const"
-	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
+	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/username"
+
 	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
 	"github.com/liujitcn/kratos-core/biz"
 	coreconst "github.com/liujitcn/kratos-core/const"
 	"github.com/liujitcn/kratos-core/errorsx"
 	"github.com/liujitcn/kratos-kit/auth/data"
+
+	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
+	baseBiz "github.com/liujitcn/kratos-admin/backend/internal/biz/base"
+	_const "github.com/liujitcn/kratos-admin/backend/internal/const"
+	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 
 	"github.com/go-kratos/kratos/v3/log"
 	"github.com/liujitcn/go-utils/mapper"
@@ -411,7 +414,7 @@ func (c *AuthCase) UpdateUserProfile(ctx context.Context, req *adminv1.UserProfi
 
 	userQuery := c.baseUserCase.Query(ctx).BaseUser
 	userOpts := []repository.QueryOption{
-		repository.Select(userQuery.TenantID, userQuery.Avatar),
+		repository.Select(userQuery.TenantID, userQuery.UserName, userQuery.Avatar),
 		repository.Where(userQuery.ID.Eq(authInfo.UserId)),
 	}
 	var oldBaseUser *models.BaseUser
@@ -419,10 +422,20 @@ func (c *AuthCase) UpdateUserProfile(ctx context.Context, req *adminv1.UserProfi
 	if err != nil {
 		return errorsx.ResourceNotFound("用户不存在").WithCause(err)
 	}
+	userName := req.GetUserName()
+	if userName == "" {
+		userName = oldBaseUser.UserName
+	}
+	if userName != oldBaseUser.UserName {
+		err = username.Validate(userName)
+		if err != nil {
+			return err
+		}
+	}
 	baseUser := models.BaseUser{
 		ID:       authInfo.UserId,
 		TenantID: oldBaseUser.TenantID,
-		UserName: req.GetUserName(),
+		UserName: userName,
 		NickName: req.GetNickName(),
 		Avatar:   req.GetAvatar(),
 		Gender:   req.GetGender(),
@@ -432,7 +445,7 @@ func (c *AuthCase) UpdateUserProfile(ctx context.Context, req *adminv1.UserProfi
 	}
 	err = c.baseUserCase.UpdateByID(ctx, &baseUser)
 	if err != nil {
-		return errorsx.Internal("修改个人中心用户信息失败").WithCause(err)
+		return errorsx.WrapInternal(baseUserUniqueConflict(err), "修改个人中心用户信息失败")
 	}
 	// 删除图片
 	c.fileCase.DeleteFile(oldBaseUser.Avatar, baseUser.Avatar)

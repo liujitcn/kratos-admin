@@ -1,9 +1,13 @@
 package sse
 
 import (
-	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/codegen"
+	"context"
+
 	"github.com/liujitcn/kratos-core/errorsx"
+	authdata "github.com/liujitcn/kratos-kit/auth/data"
 	"github.com/liujitcn/kratos-kit/transport/sse"
+
+	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/codegen"
 )
 
 var _ sse.SSEStream = (*Codegen)(nil)
@@ -21,6 +25,11 @@ func NewCodegen(manager *codegen.Manager) *Codegen {
 // ID 返回代码生成 SSE 流标识。
 func (c *Codegen) ID() string {
 	return codegen.SSEStreamCodeGen
+}
+
+// ResolveContext 在可信身份下校验订阅权限，保留原有频道与任务归属校验。
+func (c *Codegen) ResolveContext(_ context.Context, channelID string, identity *authdata.UserTokenPayload) (string, error) {
+	return c.Resolve(channelID, identity.UserId)
 }
 
 // Resolve 校验任务归属后返回隔离的传输流标识。

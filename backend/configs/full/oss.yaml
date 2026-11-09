@@ -16,13 +16,13 @@ oss:
         endpoint: https://oss-cn-beijing.aliyuncs.com
     minio:
         # MinIO 访问密钥。
-        access_key: minioadmin
+        access_key: "${OSS_ACCESS_KEY}"
         # MinIO Bucket 名称。
         bucket_name: kratos-admin
         # MinIO 服务地址。
         endpoint: http://127.0.0.1:9000
         # MinIO 秘密密钥。
-        secret_key: minioadmin
+        secret_key: "${OSS_SECRET_KEY}"
         # 临时访问令牌；无临时令牌时留空。
         token: ''
         # 是否通过 HTTPS 访问 MinIO。
@@ -36,7 +36,7 @@ oss:
         user_pwd: ''
     s3:
         # S3 或兼容服务地址；AWS 官方服务可留空。
-        access_key: minioadmin
+        access_key: "${OSS_ACCESS_KEY}"
         # S3 Bucket 名称。
         bucket_name: kratos-admin
         # 自定义 S3 服务地址。
@@ -46,7 +46,7 @@ oss:
         # AWS 或兼容服务地域。
         region: us-east-1
         # S3 秘密密钥。
-        secret_key: minioadmin
+        secret_key: "${OSS_SECRET_KEY}"
         # 临时访问令牌。
         token: ''
         # 是否使用 HTTPS。

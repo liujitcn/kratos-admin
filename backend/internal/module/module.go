@@ -8,9 +8,23 @@ import (
 	"strings"
 	"time"
 
+	"github.com/go-kratos/kratos/v3/log"
+
+	admindata "github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
+
 	"github.com/go-kratos/kratos/v3/middleware"
 	kratosGRPC "github.com/go-kratos/kratos/v3/transport/grpc"
 	"github.com/go-kratos/kratos/v3/transport/http"
+	"github.com/liujitcn/kratos-core/module"
+	"github.com/liujitcn/kratos-core/queue"
+	"github.com/liujitcn/kratos-core/resource/i18n"
+	kitgorm "github.com/liujitcn/kratos-kit/database/gorm"
+	"github.com/liujitcn/kratos-kit/queue/data"
+	"github.com/liujitcn/kratos-kit/secretcrypto"
+	"github.com/liujitcn/kratos-kit/transport/mcp"
+	"github.com/liujitcn/kratos-kit/transport/mqtt"
+	"google.golang.org/grpc"
+
 	"github.com/liujitcn/kratos-admin/backend/adapter/kit"
 	basemfa "github.com/liujitcn/kratos-admin/backend/internal/biz/base"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/ai"
@@ -33,27 +47,20 @@ import (
 	"github.com/liujitcn/kratos-admin/backend/internal/server/system/app/v1"
 	"github.com/liujitcn/kratos-admin/backend/pkg/agent"
 	pkgbi "github.com/liujitcn/kratos-admin/backend/pkg/bi"
-	"github.com/liujitcn/kratos-core/module"
-	"github.com/liujitcn/kratos-core/queue"
-	"github.com/liujitcn/kratos-core/resource/i18n"
-	"github.com/liujitcn/kratos-kit/queue/data"
-	"github.com/liujitcn/kratos-kit/secretcrypto"
-	"github.com/liujitcn/kratos-kit/transport/mcp"
-	"github.com/liujitcn/kratos-kit/transport/mqtt"
-	"google.golang.org/grpc"
 )
 
 // Module 聚合 Admin 注册到 Core 宿主的协议服务。
 type Module struct {
-	secretCrypto  *secretcrypto.Service
-	baseServices  *base.Services
-	adminServices *admin.Services
-	appServices   *app.Services
-	ragServices   *rag.Services
-	biServices    *bi.Services
-	biRegistry    *pkgbi.Registry
-	aiRuntime     *ai.Runtime
-	catalog       *i18n.I18n
+	secretCrypto   *secretcrypto.Service
+	redactResolver *kit.RedactPolicyResolver
+	baseServices   *base.Services
+	adminServices  *admin.Services
+	appServices    *app.Services
+	ragServices    *rag.Services
+	biServices     *bi.Services
+	biRegistry     *pkgbi.Registry
+	aiRuntime      *ai.Runtime
+	catalog        *i18n.I18n
 }
 
 var _ module.Module = (*Module)(nil)
@@ -72,6 +79,8 @@ func NewModules(
 	aiProviderCase *biz.AiProviderCase,
 	aiModelCase *biz.AiModelCase,
 	baseLoginPolicyCase *biz.BaseLoginPolicyCase,
+	baseUserCase *biz.BaseUserCase,
+	projectGrantCase *biz.BaseTenantProjectGrantCase,
 	baseOauthProviderCase *biz.BaseOauthProviderCase,
 	redactResolver *kit.RedactPolicyResolver,
 	rateLimitResolver *kit.RateLimitPolicyResolver,
@@ -81,6 +90,14 @@ func NewModules(
 	// 迁移可能新增系统配置，模块启动前刷新缓存，避免认证策略沿用旧快照。
 	var err error
 	err = redactResolver.Initialize(context.Background())
+	if err != nil {
+		return nil, err
+	}
+	redactResolver.SetProjectScopeLoader(func(ctx context.Context) (kitgorm.ProjectScope, error) {
+		tenants, err := projectGrantCase.EffectiveProjects(ctx)
+		return kitgorm.ProjectScope{Tenants: tenants}, err
+	})
+	err = baseUserCase.RenameReservedUsers(context.Background())
 	if err != nil {
 		return nil, err
 	}
@@ -119,19 +136,41 @@ func NewModules(
 	if err != nil {
 		_, _ = fmt.Fprintf(os.Stderr, "启动运行日志采集失败: %v\n", err)
 	}
-	return module.Modules{
-		&Module{
-			secretCrypto:  secretCryptoService,
-			baseServices:  baseServices,
-			adminServices: adminServices,
-			appServices:   appServices,
-			ragServices:   ragServices,
-			biServices:    biServices,
-			biRegistry:    biRegistry,
-			aiRuntime:     aiRuntime,
-			catalog:       catalog,
-		},
-	}, nil
+	instance := &Module{
+		redactResolver: redactResolver,
+		secretCrypto:   secretCryptoService,
+		baseServices:   baseServices,
+		adminServices:  adminServices,
+		appServices:    appServices,
+		ragServices:    ragServices,
+		biServices:     biServices,
+		biRegistry:     biRegistry,
+		aiRuntime:      aiRuntime,
+		catalog:        catalog,
+	}
+	err = instance.InitializeSensitiveStorage(context.Background(), admindata.Models()...)
+	if err != nil {
+		return nil, err
+	}
+	return module.Modules{instance}, nil
+}
+
+// InitializeSensitiveStorage 注册宿主模型，并仅在部署显式启用时回填历史敏感数据。
+func (m *Module) InitializeSensitiveStorage(ctx context.Context, models ...any) error {
+	err := m.redactResolver.RegisterStorageModels(ctx, models...)
+	if err != nil {
+		return err
+	}
+	if os.Getenv("SECURITY_BACKFILL_SENSITIVE_DATA") != "1" {
+		return nil
+	}
+	var count int64
+	count, err = m.redactResolver.Backfill(ctx, models...)
+	if err != nil {
+		return err
+	}
+	log.Info("敏感字段回填完成", "records", count)
+	return nil
 }
 
 // RegisterBiSourceAdapters 注册宿主业务提供的 BI 数据源 Adapter。

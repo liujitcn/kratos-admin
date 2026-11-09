@@ -10,7 +10,11 @@ import { useConfigStore } from "@/stores/modules/config";
 
 const configStore = useConfigStore();
 const footerText = computed(() => {
-  const footerTextList = [configStore.display.copyright, configStore.display.icp].filter(Boolean);
+  const footerTextList = [
+    configStore.display.copyright,
+    configStore.display.icp,
+    configStore.version ? `V${configStore.version}` : ""
+  ].filter(Boolean);
   return footerTextList.join(" ");
 });
 const icpLink = computed(() => (configStore.display.icp ? "https://beian.miit.gov.cn/" : "/"));

@@ -58,6 +58,16 @@
       </div>
     </el-form-item>
   </el-form>
+  <div class="login-agreement">
+    <el-checkbox v-model="agreementAccepted">{{ t("core.login.agreement_accept") }}</el-checkbox>
+    <el-link type="primary" @click="openAgreement('service')">{{ t("core.login.service_protocol") }}</el-link>
+    <span>{{ t("core.login.agreement_and") }}</span>
+    <el-link type="primary" @click="openAgreement('privacy')">{{ t("core.login.privacy_protocol") }}</el-link>
+  </div>
+  <div v-if="configStore.version" class="login-version">V{{ configStore.version }}</div>
+  <ProDialog v-model="agreementDialog.visible" :title="agreementDialog.title" width="min(760px, calc(100vw - 32px))">
+    <RichTextPreview :model-value="agreementDialog.content" class="login-agreement-content" />
+  </ProDialog>
   <div class="login-btn">
     <el-button round size="large" @click="resetForm(loginFormRef)">
       <el-icon><CircleClose /></el-icon>
@@ -202,6 +212,8 @@ import { defLoginService } from "@/api/base/v1/login";
 import { defMfaService } from "@/api/base/v1/mfa";
 import { defOauthService } from "@/api/base/v1/oauth";
 import { createWebAuthnCredential, getWebAuthnAssertion } from "@/security";
+import RichTextPreview from "@/components/RichTextPreview/index.vue";
+import { acceptLoginAgreement, clearLoginAgreement, getLoginAgreementHeaders } from "@/utils/loginAgreement";
 import ProDialog from "@/components/Dialog/ProDialog.vue";
 import ProForm from "@/components/ProForm/index.vue";
 import MfaSetupPanel from "@/components/Mfa/MfaSetupPanel.vue";
@@ -241,6 +253,26 @@ const router = useRouter();
 const route = useRoute();
 const userStore = useUserStore();
 const configStore = useConfigStore();
+const agreementAccepted = ref(false);
+const agreementDialog = reactive({ visible: false, title: "", content: "" });
+
+/** 展示服务端协议正文，复用已有富文本安全预览。 */
+function openAgreement(kind: "service" | "privacy") {
+  agreementDialog.title = t(kind === "service" ? "core.login.service_protocol" : "core.login.privacy_protocol");
+  agreementDialog.content = kind === "service" ? configStore.serviceProtocol : configStore.privacyProtocol;
+  agreementDialog.visible = true;
+}
+
+/** 只接受本次用户主动勾选，摘要随 OAuth 和 MFA 流程携带到认证审计。 */
+function confirmAgreement() {
+  if (!agreementAccepted.value || !configStore.agreementVersion) {
+    ElMessage.warning(t("core.login.agreement_required"));
+    return false;
+  }
+  acceptLoginAgreement(configStore.agreementVersion);
+  return true;
+}
+
 const dictStore = useDictStore();
 const tabsStore = useTabsStore();
 const keepAliveStore = useKeepAliveStore();
@@ -559,6 +591,7 @@ const loadOauthProviders = async () => {
 
 /** 发起三方登录授权跳转。 */
 const handleOauthLogin = async (provider: LoginOauthProvider) => {
+  if (!confirmAgreement()) return;
   // 授权地址创建期间锁定当前按钮，避免同一个 provider 重复创建 state。
   if (oauthLoadingProvider.value) return;
   oauthLoadingProvider.value = provider.provider;
@@ -577,6 +610,7 @@ const handleOauthLogin = async (provider: LoginOauthProvider) => {
 
 /** 完成登录后的用户信息、字典与动态路由初始化。 */
 const finishLogin = async (mustChangePassword = false) => {
+  clearLoginAgreement();
   // 1.获取用户信息
   await userStore.getUserInfo();
 
@@ -722,7 +756,7 @@ const consumeOauthTicket = async () => {
   }
 
   const ticket = route.query.oauth_ticket;
-  if (typeof ticket !== "string" || !ticket) return;
+  if (typeof ticket !== "string" || !ticket || !getLoginAgreementHeaders()["X-Agreement-Version"]) return;
 
   oauthTicketLoading.value = true;
   try {
@@ -860,6 +894,11 @@ const openBehaviorCaptcha = async () => {
 const handleLogin = (formEl: FormInstance | undefined) => {
   // 登录请求执行期间直接拦截重复提交，避免回车或连续点击导致重复登录。
   if (!formEl || loading.value) return;
+  if (!confirmAgreement()) return;
+  if (typeof route.query.oauth_ticket === "string") {
+    void consumeOauthTicket();
+    return;
+  }
   formEl.validate(async valid => {
     if (!valid) return;
     if (isBehaviorCaptcha.value) {
@@ -877,6 +916,8 @@ const handleLogin = (formEl: FormInstance | undefined) => {
 
 /** 重置表单 */
 const resetForm = (formEl: FormInstance | undefined) => {
+  agreementAccepted.value = false;
+  clearLoginAgreement();
   if (!formEl) return;
   formEl.resetFields();
   void loadPageCaptcha();
@@ -1128,5 +1169,25 @@ watch(
   font-weight: 600;
   border-width: 2px;
   box-shadow: 0 3px 9px rgb(0 0 0 / 16%);
+}
+</style>
+
+<style scoped lang="scss">
+.login-agreement {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  color: var(--el-text-color-regular);
+}
+.login-version {
+  margin-top: 8px;
+  text-align: right;
+  color: var(--el-text-color-secondary);
+  font-size: 12px;
+}
+.login-agreement-content {
+  max-height: 65vh;
+  overflow: auto;
 }
 </style>

@@ -1,5 +1,7 @@
 # frontend/uni-app
 
+登录保留主动协议确认与正文查看，确认摘要通过公共请求层随本次登录和 MFA 请求发送，成功后清除；确认框不自动恢复为勾选。
+
 账号密码、OAuth 票据兑换和微信登录统一返回 `mfa_remember_days`，表示当前登录策略允许的 MFA 设备免验证天数；为 `0` 时不提供记住设备选项。
 
 `frontend/uni-app` 是独立的 pnpm workspace，提供可直接运行的 uni-app 宿主、可发布应用底座、system 业务模块和项目脚手架。技术栈为 `uni-app + Vue 3 + TypeScript + Vite + Pinia + Sass`，当前支持 H5 和微信小程序。

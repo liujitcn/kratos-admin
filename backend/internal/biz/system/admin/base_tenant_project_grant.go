@@ -7,10 +7,6 @@ import (
 	"fmt"
 
 	"github.com/liujitcn/gorm-kit/repository"
-	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
-	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/projectauth"
-	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
-	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 	"github.com/liujitcn/kratos-core/biz"
 	_const "github.com/liujitcn/kratos-core/const"
 	"github.com/liujitcn/kratos-core/errorsx"
@@ -18,6 +14,11 @@ import (
 	"gorm.io/gen/field"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
+
+	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
+	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/projectauth"
+	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
+	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 )
 
 // BaseTenantProjectGrantCase 管理岗位、角色、部门和用户在目标租户下的项目授权。
@@ -226,8 +227,8 @@ func (c *BaseTenantProjectGrantCase) EffectiveProjects(ctx context.Context) (map
 	if role.TenantID != user.TenantID || dept.TenantID != user.TenantID {
 		return nil, errorsx.PermissionDenied("用户组织关系与所属租户不一致")
 	}
-	// 默认租户负责维护全局项目目录，普通租户仅按四维授权合并项目范围。
-	if identity.TenantCode == databasegorm.DefaultTenantCode {
+	// 平台管理员可管理全部项目；默认租户中的普通账号仍按四维授权计算范围。
+	if identity.TenantCode == databasegorm.DefaultTenantCode && (role.Code == _const.BASE_ROLE_CODE_SUPER || role.Code == _const.BASE_ROLE_CODE_ADMIN) {
 		var tenants []*models.BaseTenant
 		tenants, err = query.BaseTenant.WithContext(ctx).Where(query.BaseTenant.Status.Eq(_const.STATUS_STATUS_ENABLE)).Find()
 		if err != nil {

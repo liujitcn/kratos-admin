@@ -1,9 +1,15 @@
 package sse
 
 import (
-	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/logstream"
+	"context"
+
+	_const "github.com/liujitcn/kratos-core/const"
 	"github.com/liujitcn/kratos-core/errorsx"
+	authdata "github.com/liujitcn/kratos-kit/auth/data"
+	"github.com/liujitcn/kratos-kit/database/gorm"
 	"github.com/liujitcn/kratos-kit/transport/sse"
+
+	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/logstream"
 )
 
 var _ sse.SSEStream = (*RuntimeConsole)(nil)
@@ -21,6 +27,14 @@ func NewRuntimeConsole(hub *logstream.Hub) *RuntimeConsole {
 // ID 返回实时控制台 SSE 流标识。
 func (*RuntimeConsole) ID() string {
 	return logstream.SSEStreamRuntimeConsole
+}
+
+// ResolveContext 在可信身份下校验订阅权限，保留原有频道与任务归属校验。
+func (r *RuntimeConsole) ResolveContext(_ context.Context, channelID string, identity *authdata.UserTokenPayload) (string, error) {
+	if identity.TenantCode != gorm.DefaultTenantCode || (identity.RoleCode != _const.BASE_ROLE_CODE_SUPER && identity.RoleCode != _const.BASE_ROLE_CODE_ADMIN) {
+		return "", errorsx.PermissionDenied("只有平台管理员可以订阅实时控制台")
+	}
+	return r.Resolve(channelID, identity.UserId)
 }
 
 // Resolve 校验频道归属后返回隔离的底层传输流标识。

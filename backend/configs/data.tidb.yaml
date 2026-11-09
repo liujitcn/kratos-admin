@@ -3,4 +3,4 @@ data:
     debug: true
     driver: tidb
     enable_migrate: true
-    source: root:112233@tcp(127.0.0.1:4000)/kratos_admin?charset=utf8mb4&parseTime=True&loc=Local&timeout=1000ms
+    source: "${TIDB_DSN}"
