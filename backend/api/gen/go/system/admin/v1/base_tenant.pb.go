@@ -762,7 +762,7 @@ const file_system_admin_v1_base_tenant_proto_rawDesc = "" +
 	"created_at\x18\xc8\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f创建时间R\tcreatedAt\x122\n" +
 	"\n" +
 	"updated_at\x18\xc9\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f更新时间R\tupdatedAt\x12N\n" +
-	"\fis_protected\x18\xac\x02 \x01(\bB*\xbaG'\x92\x02$是否禁止通过租户管理操作R\visProtected\"\x9f\b\n" +
+	"\fis_protected\x18\xac\x02 \x01(\bB*\xbaG'\x92\x02$是否禁止通过租户管理操作R\visProtected\"\x90\a\n" +
 	"\x0eBaseTenantForm\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDR\x02id\x12&\n" +
 	"\x04code\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f租户编号R\x04code\x12\xf5\x01\n" +
@@ -770,10 +770,9 @@ const file_system_admin_v1_base_tenant_proto_rawDesc = "" +
 	"-system.admin.base.tenant.entity.name.required\x12\x15请输入租户名称\x1a\x0fthis.size() > 0\xba\x01m\n" +
 	"/system.admin.base.tenant.entity.name.max_length\x12&租户名称不能超过 100 个字符\x1a\x12this.size() <= 100R\x04name\x12\xa9\x01\n" +
 	"\fcontact_name\x18\x04 \x01(\tB\x85\x01\xbaG\f\x92\x02\t联系人\xbaHs\xba\x01p\n" +
-	"7system.admin.base.tenant.entity.contact_name.max_length\x12\"联系人不能超过 50 个字符\x1a\x11this.size() <= 50R\vcontactName\x12\xc1\x02\n" +
-	"\rcontact_phone\x18\x05 \x01(\tB\x9b\x02\xbaG\x0f\x92\x02\f联系电话\xbaH\x85\x02\xba\x01t\n" +
-	"8system.admin.base.tenant.entity.contact_phone.max_length\x12%联系电话不能超过 20 个字符\x1a\x11this.size() <= 20\xba\x01\x8a\x01\n" +
-	"4system.admin.base.tenant.entity.contact_phone.format\x12\x1e请输入正确的联系电话\x1a2this.size() == 0 || this.matches('^1[3-9]\\\\d{9}$')R\fcontactPhone\x12<\n" +
+	"7system.admin.base.tenant.entity.contact_name.max_length\x12\"联系人不能超过 50 个字符\x1a\x11this.size() <= 50R\vcontactName\x12\xb2\x01\n" +
+	"\rcontact_phone\x18\x05 \x01(\tB\x8c\x01\xbaG\x0f\x92\x02\f联系电话\xbaHw\xba\x01t\n" +
+	"8system.admin.base.tenant.entity.contact_phone.max_length\x12%联系电话不能超过 20 个字符\x1a\x11this.size() <= 20R\fcontactPhone\x12<\n" +
 	"\x06status\x18d \x01(\x0e2\x11.common.v1.StatusB\f\xbaG\t\x92\x02\x06状态H\x00R\x06status\x88\x01\x01\x12\x93\x01\n" +
 	"\x06remark\x18e \x01(\tB{\xbaG\t\x92\x02\x06备注\xbaHl\xba\x01i\n" +
 	"1system.admin.base.tenant.entity.remark.max_length\x12 备注不能超过 500 个字符\x1a\x12this.size() <= 500R\x06remarkB\t\n" +
