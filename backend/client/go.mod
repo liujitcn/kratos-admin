@@ -4,7 +4,7 @@ go 1.27.2
 
 require (
 	github.com/go-kratos/kratos/v3 v3.0.0
-	github.com/liujitcn/kratos-admin/backend/api v0.0.30
+	github.com/liujitcn/kratos-admin/backend/api v0.0.31
 	github.com/liujitcn/kratos-core/client v0.0.17
 	github.com/liujitcn/kratos-kit/api v0.0.44
 )
@@ -123,10 +123,10 @@ require (
 	github.com/klauspost/cpuid/v2 v2.4.0 // indirect
 	github.com/klauspost/crc32 v1.3.0 // indirect
 	github.com/kylelemons/godebug v1.1.0 // indirect
-	github.com/liujitcn/go-utils v0.0.43 // indirect
-	github.com/liujitcn/go-utils/translator v0.0.6 // indirect
+	github.com/liujitcn/go-utils v0.0.44 // indirect
+	github.com/liujitcn/go-utils/translator v0.0.7 // indirect
 	github.com/liujitcn/kratos-core/api v0.0.7 // indirect
-	github.com/liujitcn/kratos-kit v0.0.97 // indirect
+	github.com/liujitcn/kratos-kit v0.0.99 // indirect
 	github.com/liujitcn/kratos-kit/auth v0.0.35 // indirect
 	github.com/liujitcn/kratos-kit/auth/authn v0.0.27 // indirect
 	github.com/liujitcn/kratos-kit/auth/authn/engine/jwt v0.0.23 // indirect
@@ -147,20 +147,20 @@ require (
 	github.com/liujitcn/kratos-kit/queue/redisqueue v0.0.19 // indirect
 	github.com/liujitcn/kratos-kit/ratelimit v0.0.2 // indirect
 	github.com/liujitcn/kratos-kit/ratelimit/tokenbucket v0.0.4 // indirect
-	github.com/liujitcn/kratos-kit/redact v0.0.17 // indirect
+	github.com/liujitcn/kratos-kit/redact v0.0.19 // indirect
 	github.com/liujitcn/kratos-kit/retry v0.0.3 // indirect
 	github.com/liujitcn/kratos-kit/tracing v0.0.15 // indirect
-	github.com/liujitcn/kratos-kit/transport v0.0.28 // indirect
+	github.com/liujitcn/kratos-kit/transport v0.0.30 // indirect
 	github.com/liujitcn/kratos-kit/transport/hptimer v0.0.10 // indirect
 	github.com/liujitcn/kratos-kit/transport/keepalive v0.0.17 // indirect
 	github.com/liujitcn/kratos-kit/utils v0.0.28 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
+	github.com/mark3labs/mcp-go v1.5.0 // indirect
 	github.com/minio/crc64nvme v1.1.1 // indirect
 	github.com/minio/md5-simd v1.1.2 // indirect
 	github.com/minio/minio-go/v7 v7.3.0 // indirect
 	github.com/mitchellh/go-homedir v1.1.0 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
-	github.com/modelcontextprotocol/go-sdk v1.7.0 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.3-0.20250322232337-35a7c28c31ee // indirect
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
@@ -181,11 +181,12 @@ require (
 	github.com/redis/go-redis/v9 v9.23.0 // indirect
 	github.com/rs/xid v1.6.0 // indirect
 	github.com/ryanuber/go-glob v1.0.0 // indirect
+	github.com/santhosh-tekuri/jsonschema/v6 v6.0.2 // indirect
 	github.com/segmentio/asm v1.2.1 // indirect
-	github.com/segmentio/encoding v0.5.4 // indirect
 	github.com/shopspring/decimal v1.5.0 // indirect
 	github.com/sirupsen/logrus v1.9.4 // indirect
 	github.com/slongfield/pyfmt v0.0.0-20220222012616-ea85ff4c361f // indirect
+	github.com/spf13/cast v1.7.1 // indirect
 	github.com/tinylib/msgp v1.6.5 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/wk8/go-ordered-map/v2 v2.1.8 // indirect
