@@ -791,6 +791,9 @@
   "legacy.error.0dbf60614597b70f": {
     "other": "A selected table no longer exists. Discover the tables again"
   },
+  "legacy.error.0def64a58e395fe8": {
+    "other": "Only platform administrators can subscribe to the live console"
+  },
   "legacy.error.0dffb0e02ff26b50": {
     "other": "Failed to query code generation task progress"
   },
@@ -853,6 +856,9 @@
   },
   "legacy.error.11246289bb29a05e": {
     "other": "The semantic model exceeds the size limit"
+  },
+  "legacy.error.11577a6349894494": {
+    "other": "Only accounts with reserved names can be renamed using this list"
   },
   "legacy.error.119edf9016dac56b": {
     "other": "Failed to execute backup restore"
@@ -1499,6 +1505,9 @@
   "legacy.error.347070fc997f7568": {
     "other": "Failed to validate the project approval association"
   },
+  "legacy.error.34f0cbffc256f7c6": {
+    "other": "The agreement text has not been configured"
+  },
   "legacy.error.35323e14c1481ad4": {
     "other": "Failed to load the OAuth login provider configuration"
   },
@@ -1507,6 +1516,9 @@
   },
   "legacy.error.359210281db55f21": {
     "other": "The new project approval business association is invalid"
+  },
+  "legacy.error.3640cfef0a80242a": {
+    "other": "The existing account rename list is invalid"
   },
   "legacy.error.3645acb13cba03bc": {
     "other": "The multi-factor authentication challenge has expired"
@@ -1889,6 +1901,9 @@
   "legacy.error.4acac868b13d25a3": {
     "other": "Failed to generate verification code"
   },
+  "legacy.error.4ada59d02435ba64": {
+    "other": "The existing account rename list contains an invalid ID"
+  },
   "legacy.error.4adc578dcde7d694": {
     "other": "Failed to start task"
   },
@@ -2113,6 +2128,9 @@
   },
   "legacy.error.5743ba47c58f47a9": {
     "other": "Failed to page policy evaluation logs"
+  },
+  "legacy.error.578a359e4b6c0de8": {
+    "other": "Project authorization for sensitive fields is not initialized"
   },
   "legacy.error.578f778acd3d1fb7": {
     "other": "Window_seconds must be between 1 and %d"
@@ -2840,6 +2858,9 @@
   "legacy.error.823c3d4bc9a94573": {
     "other": "Only response data containing tenant ID can be selected"
   },
+  "legacy.error.824dfedba6cc4b7e": {
+    "other": "Security audit logs must remain recoverable for at least six months"
+  },
   "legacy.error.825560a606dfc1b4": {
     "other": "Failed to delete file asset"
   },
@@ -3170,6 +3191,9 @@
   "legacy.error.9578a4511b3382df": {
     "other": "Application form data must be a JSON object"
   },
+  "legacy.error.95b1fc9ee4730a79": {
+    "other": "The agreement has changed. Please refresh and confirm it again"
+  },
   "legacy.error.95e9cd0948335c3d": {
     "other": "The dashboard layout format is invalid"
   },
@@ -3184,6 +3208,9 @@
   },
   "legacy.error.96e08944f72d6ab7": {
     "other": "Failed to query project grant detail"
+  },
+  "legacy.error.972b258d6fcae08f": {
+    "other": "The username is required and must not exceed 50 characters"
   },
   "legacy.error.975269a5864147a2": {
     "other": "Failed to save report files"
@@ -3241,6 +3268,9 @@
   },
   "legacy.error.9bdd7318cefbaaad": {
     "other": "Cannot create projects for other tenants"
+  },
+  "legacy.error.9ca637e033648441": {
+    "other": "Please enter a valid contact phone number"
   },
   "legacy.error.9cafc0f70e08d227": {
     "other": "Confirm business writes in the admin console"
@@ -3439,6 +3469,9 @@
   },
   "legacy.error.ab10b5713ba93cbd": {
     "other": "Failed to delete post"
+  },
+  "legacy.error.ab6434d2cdda6ee7": {
+    "other": "Agreement version verification is not initialized"
   },
   "legacy.error.ac01bb67bb88f719": {
     "other": "This chart type supports only one measure"
@@ -3911,6 +3944,9 @@
   "legacy.error.c8a52b66651d294c": {
     "other": "Failed to log out"
   },
+  "legacy.error.c8d9589ec3ec7607": {
+    "other": "Failed to read the agreement version"
+  },
   "legacy.error.c8fa8bc4e8f159d9": {
     "other": "Too many failed sign-in attempts. Please try again later"
   },
@@ -4117,6 +4153,9 @@
   },
   "legacy.error.d4d43cc0c8f5bd1d": {
     "other": "BI source password decryption is not initialized"
+  },
+  "legacy.error.d4d4481eb1e4bfeb": {
+    "other": "A valid identity is required to view sensitive fields"
   },
   "legacy.error.d5321efaf2f34345": {
     "other": "Only directories, menus, or external links can be created under a level-one directory"
@@ -4331,6 +4370,9 @@
   "legacy.error.e24b5e3e1851e3e3": {
     "other": "Failed to delete tenant"
   },
+  "legacy.error.e275633a459ac002": {
+    "other": "The username must not use a reserved system name"
+  },
   "legacy.error.e290b0c149b371b4": {
     "other": "The real-time log service is not initialized"
   },
@@ -4444,6 +4486,9 @@
   },
   "legacy.error.e8cf0f814577dae5": {
     "other": "Session ID is invalid"
+  },
+  "legacy.error.e90c95c33b3164fe": {
+    "other": "You do not have permission to view sensitive fields of another tenant"
   },
   "legacy.error.e99cd8d50d6e7bac": {
     "other": "Third-party authorization failed"
@@ -4780,6 +4825,9 @@
   },
   "legacy.error.fc746194ec482626": {
     "other": "Failed to query workflow instances"
+  },
+  "legacy.error.fc83d565eeb1a3c6": {
+    "other": "You do not have permission to view sensitive fields in this project"
   },
   "legacy.error.fcdabb6237ef15d3": {
     "other": "Cannot update: only draft can be edited"

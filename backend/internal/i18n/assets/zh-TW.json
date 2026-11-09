@@ -791,6 +791,9 @@
   "legacy.error.0dbf60614597b70f": {
     "other": "選中的數據表已不存在，請重新發現表結構"
   },
+  "legacy.error.0def64a58e395fe8": {
+    "other": "只有平台管理員可以訂閱即時主控台"
+  },
   "legacy.error.0dffb0e02ff26b50": {
     "other": "查詢程式碼生成任務進度失敗"
   },
@@ -853,6 +856,9 @@
   },
   "legacy.error.11246289bb29a05e": {
     "other": "數據源語義模型超過大小限制"
+  },
+  "legacy.error.11577a6349894494": {
+    "other": "更名清單只能處理系統保留名稱帳號"
   },
   "legacy.error.119edf9016dac56b": {
     "other": "執行備份還原失敗"
@@ -1499,6 +1505,9 @@
   "legacy.error.347070fc997f7568": {
     "other": "驗證專案審批關聯失敗"
   },
+  "legacy.error.34f0cbffc256f7c6": {
+    "other": "協議正文尚未設定"
+  },
   "legacy.error.35323e14c1481ad4": {
     "other": "載入OAuth登入方式配置失敗"
   },
@@ -1507,6 +1516,9 @@
   },
   "legacy.error.359210281db55f21": {
     "other": "新增專案審批業務關聯無效"
+  },
+  "legacy.error.3640cfef0a80242a": {
+    "other": "現有帳號更名清單無效"
   },
   "legacy.error.3645acb13cba03bc": {
     "other": "多因素驗證挑戰已失效"
@@ -1889,6 +1901,9 @@
   "legacy.error.4acac868b13d25a3": {
     "other": "產生驗證碼失敗"
   },
+  "legacy.error.4ada59d02435ba64": {
+    "other": "現有帳號更名清單包含無效編號"
+  },
   "legacy.error.4adc578dcde7d694": {
     "other": "啟動任務失敗"
   },
@@ -2113,6 +2128,9 @@
   },
   "legacy.error.5743ba47c58f47a9": {
     "other": "查詢策略評估日誌分頁列表失敗"
+  },
+  "legacy.error.578a359e4b6c0de8": {
+    "other": "敏感欄位的專案授權尚未初始化"
   },
   "legacy.error.578f778acd3d1fb7": {
     "other": "window_seconds 必須在 1 到 %d 之間"
@@ -2840,6 +2858,9 @@
   "legacy.error.823c3d4bc9a94573": {
     "other": "只能選擇包含租戶ID的回應資料"
   },
+  "legacy.error.824dfedba6cc4b7e": {
+    "other": "安全稽核日誌的總保留期限不得少於六個月"
+  },
   "legacy.error.825560a606dfc1b4": {
     "other": "刪除檔案資產失敗"
   },
@@ -3170,6 +3191,9 @@
   "legacy.error.9578a4511b3382df": {
     "other": "申請表單資料必須是JSON物件"
   },
+  "legacy.error.95b1fc9ee4730a79": {
+    "other": "協議內容已更新，請重新整理並再次確認"
+  },
   "legacy.error.95e9cd0948335c3d": {
     "other": "儀表板佈局格式無效"
   },
@@ -3184,6 +3208,9 @@
   },
   "legacy.error.96e08944f72d6ab7": {
     "other": "查詢專案授權詳情失敗"
+  },
+  "legacy.error.972b258d6fcae08f": {
+    "other": "使用者帳號不可為空且不得超過50個字元"
   },
   "legacy.error.975269a5864147a2": {
     "other": "儲存報告檔案失敗"
@@ -3241,6 +3268,9 @@
   },
   "legacy.error.9bdd7318cefbaaad": {
     "other": "不能建立其他租戶的專案"
+  },
+  "legacy.error.9ca637e033648441": {
+    "other": "請輸入正確的聯絡電話"
   },
   "legacy.error.9cafc0f70e08d227": {
     "other": "請在管理端確認業務寫入操作"
@@ -3439,6 +3469,9 @@
   },
   "legacy.error.ab10b5713ba93cbd": {
     "other": "刪除崗位失敗"
+  },
+  "legacy.error.ab6434d2cdda6ee7": {
+    "other": "協議版本驗證尚未初始化"
   },
   "legacy.error.ac01bb67bb88f719": {
     "other": "當前圖表型別只支援一個指標"
@@ -3911,6 +3944,9 @@
   "legacy.error.c8a52b66651d294c": {
     "other": "退出登入失敗"
   },
+  "legacy.error.c8d9589ec3ec7607": {
+    "other": "讀取協議版本失敗"
+  },
   "legacy.error.c8fa8bc4e8f159d9": {
     "other": "登入失敗次數過多，請稍後再試"
   },
@@ -4117,6 +4153,9 @@
   },
   "legacy.error.d4d43cc0c8f5bd1d": {
     "other": "BI 數據源密碼解密服務未初始化"
+  },
+  "legacy.error.d4d4481eb1e4bfeb": {
+    "other": "查看敏感欄位需要有效身分"
   },
   "legacy.error.d5321efaf2f34345": {
     "other": "一級目錄下只能建立目錄、選單或外鏈"
@@ -4331,6 +4370,9 @@
   "legacy.error.e24b5e3e1851e3e3": {
     "other": "刪除租戶失敗"
   },
+  "legacy.error.e275633a459ac002": {
+    "other": "使用者帳號不得使用系統保留名稱"
+  },
   "legacy.error.e290b0c149b371b4": {
     "other": "即時日誌服務未初始化"
   },
@@ -4444,6 +4486,9 @@
   },
   "legacy.error.e8cf0f814577dae5": {
     "other": "會話編號不合法"
+  },
+  "legacy.error.e90c95c33b3164fe": {
+    "other": "無權查看其他租戶的敏感欄位"
   },
   "legacy.error.e99cd8d50d6e7bac": {
     "other": "第三方授權失敗"
@@ -4780,6 +4825,9 @@
   },
   "legacy.error.fc746194ec482626": {
     "other": "查詢流程實例失敗"
+  },
+  "legacy.error.fc83d565eeb1a3c6": {
+    "other": "無權查看目標專案的敏感欄位"
   },
   "legacy.error.fcdabb6237ef15d3": {
     "other": "更新流程定義失敗，僅草稿狀態可編輯"
