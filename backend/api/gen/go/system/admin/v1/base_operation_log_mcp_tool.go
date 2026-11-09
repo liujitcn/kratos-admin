@@ -9,53 +9,60 @@ package adminv1
 import (
 	context "context"
 
-	mcp "github.com/modelcontextprotocol/go-sdk/mcp"
+	mcp "github.com/mark3labs/mcp-go/mcp"
+	server "github.com/mark3labs/mcp-go/server"
 )
 
 // RegisterBaseOperationLogServiceMCPTools 注册Admin业务操作日志服务的 MCP Tool。
-func RegisterBaseOperationLogServiceMCPTools(mcpServer *mcp.Server, baseOperationLogServiceServer BaseOperationLogServiceServer) {
+func RegisterBaseOperationLogServiceMCPTools(mcpServer *server.MCPServer, baseOperationLogServiceServer BaseOperationLogServiceServer) {
 	RegisterBaseOperationLogServicePageBaseOperationLogMCPTool(mcpServer, baseOperationLogServiceServer)
 	RegisterBaseOperationLogServiceGetBaseOperationLogMCPTool(mcpServer, baseOperationLogServiceServer)
 }
 
 // RegisterBaseOperationLogServicePageBaseOperationLogMCPTool 注册分页查询业务操作日志的 MCP Tool。
-func RegisterBaseOperationLogServicePageBaseOperationLogMCPTool(mcpServer *mcp.Server, baseOperationLogServiceServer BaseOperationLogServiceServer) {
-	mcp.AddTool[*PageBaseOperationLogRequest, *PageBaseOperationLogResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_operation_log_service_page_base_operation_log",
-			Description: "分页查询业务操作日志。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *PageBaseOperationLogRequest) (*mcp.CallToolResult, *PageBaseOperationLogResponse, error) {
-			if input == nil {
-				input = &PageBaseOperationLogRequest{}
-			}
-			reply, err := baseOperationLogServiceServer.PageBaseOperationLog(ctx, input)
+func RegisterBaseOperationLogServicePageBaseOperationLogMCPTool(mcpServer *server.MCPServer, baseOperationLogServiceServer BaseOperationLogServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_operation_log_service_page_base_operation_log",
+			mcp.WithDescription("分页查询业务操作日志。"),
+			mcp.WithInputSchema[*PageBaseOperationLogRequest](),
+			mcp.WithOutputSchema[*PageBaseOperationLogResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &PageBaseOperationLogRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *PageBaseOperationLogResponse
+			reply, err = baseOperationLogServiceServer.PageBaseOperationLog(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseOperationLogServiceGetBaseOperationLogMCPTool 注册查询业务操作日志详情的 MCP Tool。
-func RegisterBaseOperationLogServiceGetBaseOperationLogMCPTool(mcpServer *mcp.Server, baseOperationLogServiceServer BaseOperationLogServiceServer) {
-	mcp.AddTool[*GetBaseOperationLogRequest, *BaseOperationLog](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_operation_log_service_get_base_operation_log",
-			Description: "查询业务操作日志详情。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *GetBaseOperationLogRequest) (*mcp.CallToolResult, *BaseOperationLog, error) {
-			if input == nil {
-				input = &GetBaseOperationLogRequest{}
-			}
-			reply, err := baseOperationLogServiceServer.GetBaseOperationLog(ctx, input)
+func RegisterBaseOperationLogServiceGetBaseOperationLogMCPTool(mcpServer *server.MCPServer, baseOperationLogServiceServer BaseOperationLogServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_operation_log_service_get_base_operation_log",
+			mcp.WithDescription("查询业务操作日志详情。"),
+			mcp.WithInputSchema[*GetBaseOperationLogRequest](),
+			mcp.WithOutputSchema[*BaseOperationLog](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &GetBaseOperationLogRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *BaseOperationLog
+			reply, err = baseOperationLogServiceServer.GetBaseOperationLog(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }

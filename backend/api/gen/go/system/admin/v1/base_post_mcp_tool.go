@@ -10,12 +10,13 @@ import (
 	context "context"
 
 	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
-	mcp "github.com/modelcontextprotocol/go-sdk/mcp"
+	mcp "github.com/mark3labs/mcp-go/mcp"
+	server "github.com/mark3labs/mcp-go/server"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // RegisterBasePostServiceMCPTools 注册Admin岗位管理服务的 MCP Tool。
-func RegisterBasePostServiceMCPTools(mcpServer *mcp.Server, basePostServiceServer BasePostServiceServer) {
+func RegisterBasePostServiceMCPTools(mcpServer *server.MCPServer, basePostServiceServer BasePostServiceServer) {
 	RegisterBasePostServiceOptionBasePostMCPTool(mcpServer, basePostServiceServer)
 	RegisterBasePostServicePageBasePostMCPTool(mcpServer, basePostServiceServer)
 	RegisterBasePostServiceGetBasePostMCPTool(mcpServer, basePostServiceServer)
@@ -26,148 +27,169 @@ func RegisterBasePostServiceMCPTools(mcpServer *mcp.Server, basePostServiceServe
 }
 
 // RegisterBasePostServiceOptionBasePostMCPTool 注册查询岗位下拉选择的 MCP Tool。
-func RegisterBasePostServiceOptionBasePostMCPTool(mcpServer *mcp.Server, basePostServiceServer BasePostServiceServer) {
-	mcp.AddTool[*OptionBasePostRequest, *commonv1.SelectOptionResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_post_service_option_base_post",
-			Description: "查询岗位下拉选择",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *OptionBasePostRequest) (*mcp.CallToolResult, *commonv1.SelectOptionResponse, error) {
-			if input == nil {
-				input = &OptionBasePostRequest{}
-			}
-			reply, err := basePostServiceServer.OptionBasePost(ctx, input)
+func RegisterBasePostServiceOptionBasePostMCPTool(mcpServer *server.MCPServer, basePostServiceServer BasePostServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_post_service_option_base_post",
+			mcp.WithDescription("查询岗位下拉选择"),
+			mcp.WithInputSchema[*OptionBasePostRequest](),
+			mcp.WithOutputSchema[*commonv1.SelectOptionResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &OptionBasePostRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *commonv1.SelectOptionResponse
+			reply, err = basePostServiceServer.OptionBasePost(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBasePostServicePageBasePostMCPTool 注册查询岗位分页列表的 MCP Tool。
-func RegisterBasePostServicePageBasePostMCPTool(mcpServer *mcp.Server, basePostServiceServer BasePostServiceServer) {
-	mcp.AddTool[*PageBasePostRequest, *PageBasePostResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_post_service_page_base_post",
-			Description: "查询岗位分页列表",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *PageBasePostRequest) (*mcp.CallToolResult, *PageBasePostResponse, error) {
-			if input == nil {
-				input = &PageBasePostRequest{}
-			}
-			reply, err := basePostServiceServer.PageBasePost(ctx, input)
+func RegisterBasePostServicePageBasePostMCPTool(mcpServer *server.MCPServer, basePostServiceServer BasePostServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_post_service_page_base_post",
+			mcp.WithDescription("查询岗位分页列表"),
+			mcp.WithInputSchema[*PageBasePostRequest](),
+			mcp.WithOutputSchema[*PageBasePostResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &PageBasePostRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *PageBasePostResponse
+			reply, err = basePostServiceServer.PageBasePost(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBasePostServiceGetBasePostMCPTool 注册查询岗位的 MCP Tool。
-func RegisterBasePostServiceGetBasePostMCPTool(mcpServer *mcp.Server, basePostServiceServer BasePostServiceServer) {
-	mcp.AddTool[*GetBasePostRequest, *BasePostForm](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_post_service_get_base_post",
-			Description: "查询岗位",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *GetBasePostRequest) (*mcp.CallToolResult, *BasePostForm, error) {
-			if input == nil {
-				input = &GetBasePostRequest{}
-			}
-			reply, err := basePostServiceServer.GetBasePost(ctx, input)
+func RegisterBasePostServiceGetBasePostMCPTool(mcpServer *server.MCPServer, basePostServiceServer BasePostServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_post_service_get_base_post",
+			mcp.WithDescription("查询岗位"),
+			mcp.WithInputSchema[*GetBasePostRequest](),
+			mcp.WithOutputSchema[*BasePostForm](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &GetBasePostRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *BasePostForm
+			reply, err = basePostServiceServer.GetBasePost(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBasePostServiceCreateBasePostMCPTool 注册创建岗位的 MCP Tool。
-func RegisterBasePostServiceCreateBasePostMCPTool(mcpServer *mcp.Server, basePostServiceServer BasePostServiceServer) {
-	mcp.AddTool[*CreateBasePostRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_post_service_create_base_post",
-			Description: "创建岗位",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *CreateBasePostRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &CreateBasePostRequest{}
-			}
-			reply, err := basePostServiceServer.CreateBasePost(ctx, input)
+func RegisterBasePostServiceCreateBasePostMCPTool(mcpServer *server.MCPServer, basePostServiceServer BasePostServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_post_service_create_base_post",
+			mcp.WithDescription("创建岗位"),
+			mcp.WithInputSchema[*CreateBasePostRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &CreateBasePostRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = basePostServiceServer.CreateBasePost(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBasePostServiceUpdateBasePostMCPTool 注册更新岗位的 MCP Tool。
-func RegisterBasePostServiceUpdateBasePostMCPTool(mcpServer *mcp.Server, basePostServiceServer BasePostServiceServer) {
-	mcp.AddTool[*UpdateBasePostRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_post_service_update_base_post",
-			Description: "更新岗位",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *UpdateBasePostRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &UpdateBasePostRequest{}
-			}
-			reply, err := basePostServiceServer.UpdateBasePost(ctx, input)
+func RegisterBasePostServiceUpdateBasePostMCPTool(mcpServer *server.MCPServer, basePostServiceServer BasePostServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_post_service_update_base_post",
+			mcp.WithDescription("更新岗位"),
+			mcp.WithInputSchema[*UpdateBasePostRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &UpdateBasePostRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = basePostServiceServer.UpdateBasePost(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBasePostServiceDeleteBasePostMCPTool 注册删除岗位的 MCP Tool。
-func RegisterBasePostServiceDeleteBasePostMCPTool(mcpServer *mcp.Server, basePostServiceServer BasePostServiceServer) {
-	mcp.AddTool[*DeleteBasePostRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_post_service_delete_base_post",
-			Description: "删除岗位",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *DeleteBasePostRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &DeleteBasePostRequest{}
-			}
-			reply, err := basePostServiceServer.DeleteBasePost(ctx, input)
+func RegisterBasePostServiceDeleteBasePostMCPTool(mcpServer *server.MCPServer, basePostServiceServer BasePostServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_post_service_delete_base_post",
+			mcp.WithDescription("删除岗位"),
+			mcp.WithInputSchema[*DeleteBasePostRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &DeleteBasePostRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = basePostServiceServer.DeleteBasePost(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBasePostServiceSetBasePostStatusMCPTool 注册设置岗位状态的 MCP Tool。
-func RegisterBasePostServiceSetBasePostStatusMCPTool(mcpServer *mcp.Server, basePostServiceServer BasePostServiceServer) {
-	mcp.AddTool[*SetBasePostStatusRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_post_service_set_base_post_status",
-			Description: "设置岗位状态",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *SetBasePostStatusRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &SetBasePostStatusRequest{}
-			}
-			reply, err := basePostServiceServer.SetBasePostStatus(ctx, input)
+func RegisterBasePostServiceSetBasePostStatusMCPTool(mcpServer *server.MCPServer, basePostServiceServer BasePostServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_post_service_set_base_post_status",
+			mcp.WithDescription("设置岗位状态"),
+			mcp.WithInputSchema[*SetBasePostStatusRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &SetBasePostStatusRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = basePostServiceServer.SetBasePostStatus(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }

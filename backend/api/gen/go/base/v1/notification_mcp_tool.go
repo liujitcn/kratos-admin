@@ -9,12 +9,13 @@ package basev1
 import (
 	context "context"
 
-	mcp "github.com/modelcontextprotocol/go-sdk/mcp"
+	mcp "github.com/mark3labs/mcp-go/mcp"
+	server "github.com/mark3labs/mcp-go/server"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // RegisterNotificationServiceMCPTools 注册Base站内信通知服务，提供当前用户的收件箱能力的 MCP Tool。
-func RegisterNotificationServiceMCPTools(mcpServer *mcp.Server, notificationServiceServer NotificationServiceServer) {
+func RegisterNotificationServiceMCPTools(mcpServer *server.MCPServer, notificationServiceServer NotificationServiceServer) {
 	RegisterNotificationServicePageNotificationMCPTool(mcpServer, notificationServiceServer)
 	RegisterNotificationServiceListNotificationCategoriesMCPTool(mcpServer, notificationServiceServer)
 	RegisterNotificationServiceGetNotificationSummaryMCPTool(mcpServer, notificationServiceServer)
@@ -28,211 +29,241 @@ func RegisterNotificationServiceMCPTools(mcpServer *mcp.Server, notificationServ
 }
 
 // RegisterNotificationServicePageNotificationMCPTool 注册分页查询当前用户收件箱的 MCP Tool。
-func RegisterNotificationServicePageNotificationMCPTool(mcpServer *mcp.Server, notificationServiceServer NotificationServiceServer) {
-	mcp.AddTool[*PageNotificationRequest, *PageNotificationResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "base_v1_notification_service_page_notification",
-			Description: "分页查询当前用户收件箱。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *PageNotificationRequest) (*mcp.CallToolResult, *PageNotificationResponse, error) {
-			if input == nil {
-				input = &PageNotificationRequest{}
-			}
-			reply, err := notificationServiceServer.PageNotification(ctx, input)
+func RegisterNotificationServicePageNotificationMCPTool(mcpServer *server.MCPServer, notificationServiceServer NotificationServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("base_v1_notification_service_page_notification",
+			mcp.WithDescription("分页查询当前用户收件箱。"),
+			mcp.WithInputSchema[*PageNotificationRequest](),
+			mcp.WithOutputSchema[*PageNotificationResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &PageNotificationRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *PageNotificationResponse
+			reply, err = notificationServiceServer.PageNotification(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterNotificationServiceListNotificationCategoriesMCPTool 注册查询消息分类列表的 MCP Tool。
-func RegisterNotificationServiceListNotificationCategoriesMCPTool(mcpServer *mcp.Server, notificationServiceServer NotificationServiceServer) {
-	mcp.AddTool[*ListNotificationCategoriesRequest, *ListNotificationCategoriesResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "base_v1_notification_service_list_notification_categories",
-			Description: "查询消息分类列表。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *ListNotificationCategoriesRequest) (*mcp.CallToolResult, *ListNotificationCategoriesResponse, error) {
-			if input == nil {
-				input = &ListNotificationCategoriesRequest{}
-			}
-			reply, err := notificationServiceServer.ListNotificationCategories(ctx, input)
+func RegisterNotificationServiceListNotificationCategoriesMCPTool(mcpServer *server.MCPServer, notificationServiceServer NotificationServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("base_v1_notification_service_list_notification_categories",
+			mcp.WithDescription("查询消息分类列表。"),
+			mcp.WithInputSchema[*ListNotificationCategoriesRequest](),
+			mcp.WithOutputSchema[*ListNotificationCategoriesResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &ListNotificationCategoriesRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *ListNotificationCategoriesResponse
+			reply, err = notificationServiceServer.ListNotificationCategories(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterNotificationServiceGetNotificationSummaryMCPTool 注册查询当前用户未读汇总的 MCP Tool。
-func RegisterNotificationServiceGetNotificationSummaryMCPTool(mcpServer *mcp.Server, notificationServiceServer NotificationServiceServer) {
-	mcp.AddTool[*GetNotificationSummaryRequest, *NotificationSummary](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "base_v1_notification_service_get_notification_summary",
-			Description: "查询当前用户未读汇总。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *GetNotificationSummaryRequest) (*mcp.CallToolResult, *NotificationSummary, error) {
-			if input == nil {
-				input = &GetNotificationSummaryRequest{}
-			}
-			reply, err := notificationServiceServer.GetNotificationSummary(ctx, input)
+func RegisterNotificationServiceGetNotificationSummaryMCPTool(mcpServer *server.MCPServer, notificationServiceServer NotificationServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("base_v1_notification_service_get_notification_summary",
+			mcp.WithDescription("查询当前用户未读汇总。"),
+			mcp.WithInputSchema[*GetNotificationSummaryRequest](),
+			mcp.WithOutputSchema[*NotificationSummary](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &GetNotificationSummaryRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *NotificationSummary
+			reply, err = notificationServiceServer.GetNotificationSummary(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterNotificationServiceGetNotificationMCPTool 注册查询当前用户消息详情的 MCP Tool。
-func RegisterNotificationServiceGetNotificationMCPTool(mcpServer *mcp.Server, notificationServiceServer NotificationServiceServer) {
-	mcp.AddTool[*GetNotificationRequest, *NotificationDetail](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "base_v1_notification_service_get_notification",
-			Description: "查询当前用户消息详情。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *GetNotificationRequest) (*mcp.CallToolResult, *NotificationDetail, error) {
-			if input == nil {
-				input = &GetNotificationRequest{}
-			}
-			reply, err := notificationServiceServer.GetNotification(ctx, input)
+func RegisterNotificationServiceGetNotificationMCPTool(mcpServer *server.MCPServer, notificationServiceServer NotificationServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("base_v1_notification_service_get_notification",
+			mcp.WithDescription("查询当前用户消息详情。"),
+			mcp.WithInputSchema[*GetNotificationRequest](),
+			mcp.WithOutputSchema[*NotificationDetail](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &GetNotificationRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *NotificationDetail
+			reply, err = notificationServiceServer.GetNotification(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterNotificationServiceMarkNotificationReadMCPTool 注册标记消息为已读的 MCP Tool。
-func RegisterNotificationServiceMarkNotificationReadMCPTool(mcpServer *mcp.Server, notificationServiceServer NotificationServiceServer) {
-	mcp.AddTool[*MarkNotificationReadRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "base_v1_notification_service_mark_notification_read",
-			Description: "标记消息为已读。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *MarkNotificationReadRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &MarkNotificationReadRequest{}
-			}
-			reply, err := notificationServiceServer.MarkNotificationRead(ctx, input)
+func RegisterNotificationServiceMarkNotificationReadMCPTool(mcpServer *server.MCPServer, notificationServiceServer NotificationServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("base_v1_notification_service_mark_notification_read",
+			mcp.WithDescription("标记消息为已读。"),
+			mcp.WithInputSchema[*MarkNotificationReadRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &MarkNotificationReadRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = notificationServiceServer.MarkNotificationRead(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterNotificationServiceMarkNotificationUnreadMCPTool 注册标记消息为未读的 MCP Tool。
-func RegisterNotificationServiceMarkNotificationUnreadMCPTool(mcpServer *mcp.Server, notificationServiceServer NotificationServiceServer) {
-	mcp.AddTool[*MarkNotificationUnreadRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "base_v1_notification_service_mark_notification_unread",
-			Description: "标记消息为未读。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *MarkNotificationUnreadRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &MarkNotificationUnreadRequest{}
-			}
-			reply, err := notificationServiceServer.MarkNotificationUnread(ctx, input)
+func RegisterNotificationServiceMarkNotificationUnreadMCPTool(mcpServer *server.MCPServer, notificationServiceServer NotificationServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("base_v1_notification_service_mark_notification_unread",
+			mcp.WithDescription("标记消息为未读。"),
+			mcp.WithInputSchema[*MarkNotificationUnreadRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &MarkNotificationUnreadRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = notificationServiceServer.MarkNotificationUnread(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterNotificationServiceMarkAllNotificationReadMCPTool 注册标记水位线之前的全部消息为已读的 MCP Tool。
-func RegisterNotificationServiceMarkAllNotificationReadMCPTool(mcpServer *mcp.Server, notificationServiceServer NotificationServiceServer) {
-	mcp.AddTool[*MarkAllNotificationReadRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "base_v1_notification_service_mark_all_notification_read",
-			Description: "标记水位线之前的全部消息为已读。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *MarkAllNotificationReadRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &MarkAllNotificationReadRequest{}
-			}
-			reply, err := notificationServiceServer.MarkAllNotificationRead(ctx, input)
+func RegisterNotificationServiceMarkAllNotificationReadMCPTool(mcpServer *server.MCPServer, notificationServiceServer NotificationServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("base_v1_notification_service_mark_all_notification_read",
+			mcp.WithDescription("标记水位线之前的全部消息为已读。"),
+			mcp.WithInputSchema[*MarkAllNotificationReadRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &MarkAllNotificationReadRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = notificationServiceServer.MarkAllNotificationRead(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterNotificationServiceArchiveNotificationMCPTool 注册归档消息的 MCP Tool。
-func RegisterNotificationServiceArchiveNotificationMCPTool(mcpServer *mcp.Server, notificationServiceServer NotificationServiceServer) {
-	mcp.AddTool[*ArchiveNotificationRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "base_v1_notification_service_archive_notification",
-			Description: "归档消息。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *ArchiveNotificationRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &ArchiveNotificationRequest{}
-			}
-			reply, err := notificationServiceServer.ArchiveNotification(ctx, input)
+func RegisterNotificationServiceArchiveNotificationMCPTool(mcpServer *server.MCPServer, notificationServiceServer NotificationServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("base_v1_notification_service_archive_notification",
+			mcp.WithDescription("归档消息。"),
+			mcp.WithInputSchema[*ArchiveNotificationRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &ArchiveNotificationRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = notificationServiceServer.ArchiveNotification(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterNotificationServiceRestoreNotificationMCPTool 注册恢复已归档消息的 MCP Tool。
-func RegisterNotificationServiceRestoreNotificationMCPTool(mcpServer *mcp.Server, notificationServiceServer NotificationServiceServer) {
-	mcp.AddTool[*RestoreNotificationRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "base_v1_notification_service_restore_notification",
-			Description: "恢复已归档消息。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *RestoreNotificationRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &RestoreNotificationRequest{}
-			}
-			reply, err := notificationServiceServer.RestoreNotification(ctx, input)
+func RegisterNotificationServiceRestoreNotificationMCPTool(mcpServer *server.MCPServer, notificationServiceServer NotificationServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("base_v1_notification_service_restore_notification",
+			mcp.WithDescription("恢复已归档消息。"),
+			mcp.WithInputSchema[*RestoreNotificationRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &RestoreNotificationRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = notificationServiceServer.RestoreNotification(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterNotificationServiceDeleteNotificationMCPTool 注册从个人收件箱删除消息的 MCP Tool。
-func RegisterNotificationServiceDeleteNotificationMCPTool(mcpServer *mcp.Server, notificationServiceServer NotificationServiceServer) {
-	mcp.AddTool[*DeleteNotificationRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "base_v1_notification_service_delete_notification",
-			Description: "从个人收件箱删除消息。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *DeleteNotificationRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &DeleteNotificationRequest{}
-			}
-			reply, err := notificationServiceServer.DeleteNotification(ctx, input)
+func RegisterNotificationServiceDeleteNotificationMCPTool(mcpServer *server.MCPServer, notificationServiceServer NotificationServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("base_v1_notification_service_delete_notification",
+			mcp.WithDescription("从个人收件箱删除消息。"),
+			mcp.WithInputSchema[*DeleteNotificationRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &DeleteNotificationRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = notificationServiceServer.DeleteNotification(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }

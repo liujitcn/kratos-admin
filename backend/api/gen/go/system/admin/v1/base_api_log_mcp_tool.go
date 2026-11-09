@@ -9,53 +9,60 @@ package adminv1
 import (
 	context "context"
 
-	mcp "github.com/modelcontextprotocol/go-sdk/mcp"
+	mcp "github.com/mark3labs/mcp-go/mcp"
+	server "github.com/mark3labs/mcp-go/server"
 )
 
 // RegisterBaseApiLogServiceMCPTools 注册Admin API访问日志服务的 MCP Tool。
-func RegisterBaseApiLogServiceMCPTools(mcpServer *mcp.Server, baseApiLogServiceServer BaseApiLogServiceServer) {
+func RegisterBaseApiLogServiceMCPTools(mcpServer *server.MCPServer, baseApiLogServiceServer BaseApiLogServiceServer) {
 	RegisterBaseApiLogServicePageBaseApiLogMCPTool(mcpServer, baseApiLogServiceServer)
 	RegisterBaseApiLogServiceGetBaseApiLogMCPTool(mcpServer, baseApiLogServiceServer)
 }
 
 // RegisterBaseApiLogServicePageBaseApiLogMCPTool 注册分页查询 API 访问日志的 MCP Tool。
-func RegisterBaseApiLogServicePageBaseApiLogMCPTool(mcpServer *mcp.Server, baseApiLogServiceServer BaseApiLogServiceServer) {
-	mcp.AddTool[*PageBaseApiLogRequest, *PageBaseApiLogResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_api_log_service_page_base_api_log",
-			Description: "分页查询 API 访问日志。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *PageBaseApiLogRequest) (*mcp.CallToolResult, *PageBaseApiLogResponse, error) {
-			if input == nil {
-				input = &PageBaseApiLogRequest{}
-			}
-			reply, err := baseApiLogServiceServer.PageBaseApiLog(ctx, input)
+func RegisterBaseApiLogServicePageBaseApiLogMCPTool(mcpServer *server.MCPServer, baseApiLogServiceServer BaseApiLogServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_api_log_service_page_base_api_log",
+			mcp.WithDescription("分页查询 API 访问日志。"),
+			mcp.WithInputSchema[*PageBaseApiLogRequest](),
+			mcp.WithOutputSchema[*PageBaseApiLogResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &PageBaseApiLogRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *PageBaseApiLogResponse
+			reply, err = baseApiLogServiceServer.PageBaseApiLog(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseApiLogServiceGetBaseApiLogMCPTool 注册查询 API 访问日志详情的 MCP Tool。
-func RegisterBaseApiLogServiceGetBaseApiLogMCPTool(mcpServer *mcp.Server, baseApiLogServiceServer BaseApiLogServiceServer) {
-	mcp.AddTool[*GetBaseApiLogRequest, *BaseApiLog](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_api_log_service_get_base_api_log",
-			Description: "查询 API 访问日志详情。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *GetBaseApiLogRequest) (*mcp.CallToolResult, *BaseApiLog, error) {
-			if input == nil {
-				input = &GetBaseApiLogRequest{}
-			}
-			reply, err := baseApiLogServiceServer.GetBaseApiLog(ctx, input)
+func RegisterBaseApiLogServiceGetBaseApiLogMCPTool(mcpServer *server.MCPServer, baseApiLogServiceServer BaseApiLogServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_api_log_service_get_base_api_log",
+			mcp.WithDescription("查询 API 访问日志详情。"),
+			mcp.WithInputSchema[*GetBaseApiLogRequest](),
+			mcp.WithOutputSchema[*BaseApiLog](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &GetBaseApiLogRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *BaseApiLog
+			reply, err = baseApiLogServiceServer.GetBaseApiLog(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }

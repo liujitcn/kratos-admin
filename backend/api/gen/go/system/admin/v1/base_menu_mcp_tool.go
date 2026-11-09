@@ -9,12 +9,14 @@ package adminv1
 import (
 	context "context"
 
-	mcp "github.com/modelcontextprotocol/go-sdk/mcp"
+	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
+	mcp "github.com/mark3labs/mcp-go/mcp"
+	server "github.com/mark3labs/mcp-go/server"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // RegisterBaseMenuServiceMCPTools 注册Admin菜单管理服务的 MCP Tool。
-func RegisterBaseMenuServiceMCPTools(mcpServer *mcp.Server, baseMenuServiceServer BaseMenuServiceServer) {
+func RegisterBaseMenuServiceMCPTools(mcpServer *server.MCPServer, baseMenuServiceServer BaseMenuServiceServer) {
 	RegisterBaseMenuServiceOptionBaseMenuMCPTool(mcpServer, baseMenuServiceServer)
 	RegisterBaseMenuServiceTreeBaseMenuMCPTool(mcpServer, baseMenuServiceServer)
 	RegisterBaseMenuServiceGetBaseMenuMCPTool(mcpServer, baseMenuServiceServer)
@@ -25,148 +27,167 @@ func RegisterBaseMenuServiceMCPTools(mcpServer *mcp.Server, baseMenuServiceServe
 }
 
 // RegisterBaseMenuServiceOptionBaseMenuMCPTool 注册查询菜单树形选择的 MCP Tool。
-func RegisterBaseMenuServiceOptionBaseMenuMCPTool(mcpServer *mcp.Server, baseMenuServiceServer BaseMenuServiceServer) {
-	mcp.AddTool[*OptionBaseMenuRequest, any](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_menu_service_option_base_menu",
-			Description: "查询菜单树形选择",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *OptionBaseMenuRequest) (*mcp.CallToolResult, any, error) {
-			if input == nil {
-				input = &OptionBaseMenuRequest{}
-			}
-			reply, err := baseMenuServiceServer.OptionBaseMenu(ctx, input)
+func RegisterBaseMenuServiceOptionBaseMenuMCPTool(mcpServer *server.MCPServer, baseMenuServiceServer BaseMenuServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_menu_service_option_base_menu",
+			mcp.WithDescription("查询菜单树形选择"),
+			mcp.WithInputSchema[*OptionBaseMenuRequest](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &OptionBaseMenuRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *commonv1.TreeOptionResponse
+			reply, err = baseMenuServiceServer.OptionBaseMenu(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseMenuServiceTreeBaseMenuMCPTool 注册查询菜单树形列表的 MCP Tool。
-func RegisterBaseMenuServiceTreeBaseMenuMCPTool(mcpServer *mcp.Server, baseMenuServiceServer BaseMenuServiceServer) {
-	mcp.AddTool[*TreeBaseMenuRequest, any](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_menu_service_tree_base_menu",
-			Description: "查询菜单树形列表",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *TreeBaseMenuRequest) (*mcp.CallToolResult, any, error) {
-			if input == nil {
-				input = &TreeBaseMenuRequest{}
-			}
-			reply, err := baseMenuServiceServer.TreeBaseMenu(ctx, input)
+func RegisterBaseMenuServiceTreeBaseMenuMCPTool(mcpServer *server.MCPServer, baseMenuServiceServer BaseMenuServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_menu_service_tree_base_menu",
+			mcp.WithDescription("查询菜单树形列表"),
+			mcp.WithInputSchema[*TreeBaseMenuRequest](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &TreeBaseMenuRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *TreeBaseMenuResponse
+			reply, err = baseMenuServiceServer.TreeBaseMenu(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseMenuServiceGetBaseMenuMCPTool 注册查询菜单的 MCP Tool。
-func RegisterBaseMenuServiceGetBaseMenuMCPTool(mcpServer *mcp.Server, baseMenuServiceServer BaseMenuServiceServer) {
-	mcp.AddTool[*GetBaseMenuRequest, *BaseMenuForm](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_menu_service_get_base_menu",
-			Description: "查询菜单",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *GetBaseMenuRequest) (*mcp.CallToolResult, *BaseMenuForm, error) {
-			if input == nil {
-				input = &GetBaseMenuRequest{}
-			}
-			reply, err := baseMenuServiceServer.GetBaseMenu(ctx, input)
+func RegisterBaseMenuServiceGetBaseMenuMCPTool(mcpServer *server.MCPServer, baseMenuServiceServer BaseMenuServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_menu_service_get_base_menu",
+			mcp.WithDescription("查询菜单"),
+			mcp.WithInputSchema[*GetBaseMenuRequest](),
+			mcp.WithOutputSchema[*BaseMenuForm](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &GetBaseMenuRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *BaseMenuForm
+			reply, err = baseMenuServiceServer.GetBaseMenu(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseMenuServiceCreateBaseMenuMCPTool 注册创建菜单的 MCP Tool。
-func RegisterBaseMenuServiceCreateBaseMenuMCPTool(mcpServer *mcp.Server, baseMenuServiceServer BaseMenuServiceServer) {
-	mcp.AddTool[*CreateBaseMenuRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_menu_service_create_base_menu",
-			Description: "创建菜单",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *CreateBaseMenuRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &CreateBaseMenuRequest{}
-			}
-			reply, err := baseMenuServiceServer.CreateBaseMenu(ctx, input)
+func RegisterBaseMenuServiceCreateBaseMenuMCPTool(mcpServer *server.MCPServer, baseMenuServiceServer BaseMenuServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_menu_service_create_base_menu",
+			mcp.WithDescription("创建菜单"),
+			mcp.WithInputSchema[*CreateBaseMenuRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &CreateBaseMenuRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = baseMenuServiceServer.CreateBaseMenu(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseMenuServiceUpdateBaseMenuMCPTool 注册更新菜单的 MCP Tool。
-func RegisterBaseMenuServiceUpdateBaseMenuMCPTool(mcpServer *mcp.Server, baseMenuServiceServer BaseMenuServiceServer) {
-	mcp.AddTool[*UpdateBaseMenuRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_menu_service_update_base_menu",
-			Description: "更新菜单",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *UpdateBaseMenuRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &UpdateBaseMenuRequest{}
-			}
-			reply, err := baseMenuServiceServer.UpdateBaseMenu(ctx, input)
+func RegisterBaseMenuServiceUpdateBaseMenuMCPTool(mcpServer *server.MCPServer, baseMenuServiceServer BaseMenuServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_menu_service_update_base_menu",
+			mcp.WithDescription("更新菜单"),
+			mcp.WithInputSchema[*UpdateBaseMenuRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &UpdateBaseMenuRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = baseMenuServiceServer.UpdateBaseMenu(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseMenuServiceDeleteBaseMenuMCPTool 注册删除菜单的 MCP Tool。
-func RegisterBaseMenuServiceDeleteBaseMenuMCPTool(mcpServer *mcp.Server, baseMenuServiceServer BaseMenuServiceServer) {
-	mcp.AddTool[*DeleteBaseMenuRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_menu_service_delete_base_menu",
-			Description: "删除菜单",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *DeleteBaseMenuRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &DeleteBaseMenuRequest{}
-			}
-			reply, err := baseMenuServiceServer.DeleteBaseMenu(ctx, input)
+func RegisterBaseMenuServiceDeleteBaseMenuMCPTool(mcpServer *server.MCPServer, baseMenuServiceServer BaseMenuServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_menu_service_delete_base_menu",
+			mcp.WithDescription("删除菜单"),
+			mcp.WithInputSchema[*DeleteBaseMenuRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &DeleteBaseMenuRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = baseMenuServiceServer.DeleteBaseMenu(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseMenuServiceSetBaseMenuStatusMCPTool 注册设置状态的 MCP Tool。
-func RegisterBaseMenuServiceSetBaseMenuStatusMCPTool(mcpServer *mcp.Server, baseMenuServiceServer BaseMenuServiceServer) {
-	mcp.AddTool[*SetBaseMenuStatusRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_menu_service_set_base_menu_status",
-			Description: "设置状态",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *SetBaseMenuStatusRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &SetBaseMenuStatusRequest{}
-			}
-			reply, err := baseMenuServiceServer.SetBaseMenuStatus(ctx, input)
+func RegisterBaseMenuServiceSetBaseMenuStatusMCPTool(mcpServer *server.MCPServer, baseMenuServiceServer BaseMenuServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_menu_service_set_base_menu_status",
+			mcp.WithDescription("设置状态"),
+			mcp.WithInputSchema[*SetBaseMenuStatusRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &SetBaseMenuStatusRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = baseMenuServiceServer.SetBaseMenuStatus(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }

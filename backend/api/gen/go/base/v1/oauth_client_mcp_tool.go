@@ -9,31 +9,35 @@ package basev1
 import (
 	context "context"
 
-	mcp "github.com/modelcontextprotocol/go-sdk/mcp"
+	mcp "github.com/mark3labs/mcp-go/mcp"
+	server "github.com/mark3labs/mcp-go/server"
 )
 
 // RegisterOauthClientServiceMCPTools 注册Base开放授权客户端令牌服务的 MCP Tool。
-func RegisterOauthClientServiceMCPTools(mcpServer *mcp.Server, oauthClientServiceServer OauthClientServiceServer) {
+func RegisterOauthClientServiceMCPTools(mcpServer *server.MCPServer, oauthClientServiceServer OauthClientServiceServer) {
 	RegisterOauthClientServiceIssueOauthClientTokenMCPTool(mcpServer, oauthClientServiceServer)
 }
 
 // RegisterOauthClientServiceIssueOauthClientTokenMCPTool 注册使用客户端凭据换取访问令牌的 MCP Tool。
-func RegisterOauthClientServiceIssueOauthClientTokenMCPTool(mcpServer *mcp.Server, oauthClientServiceServer OauthClientServiceServer) {
-	mcp.AddTool[*IssueOauthClientTokenRequest, *IssueOauthClientTokenResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "base_v1_oauth_client_service_issue_oauth_client_token",
-			Description: "使用客户端凭据换取访问令牌。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *IssueOauthClientTokenRequest) (*mcp.CallToolResult, *IssueOauthClientTokenResponse, error) {
-			if input == nil {
-				input = &IssueOauthClientTokenRequest{}
-			}
-			reply, err := oauthClientServiceServer.IssueOauthClientToken(ctx, input)
+func RegisterOauthClientServiceIssueOauthClientTokenMCPTool(mcpServer *server.MCPServer, oauthClientServiceServer OauthClientServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("base_v1_oauth_client_service_issue_oauth_client_token",
+			mcp.WithDescription("使用客户端凭据换取访问令牌。"),
+			mcp.WithInputSchema[*IssueOauthClientTokenRequest](),
+			mcp.WithOutputSchema[*IssueOauthClientTokenResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &IssueOauthClientTokenRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *IssueOauthClientTokenResponse
+			reply, err = oauthClientServiceServer.IssueOauthClientToken(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }

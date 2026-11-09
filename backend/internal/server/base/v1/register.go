@@ -82,8 +82,9 @@ func (s Services) RegisterHTTP(srv *http.Server) {
 	basev1.RegisterAccountServiceHTTPServer(srv, basev1.RedactedAccountServiceServer(s.Account))
 }
 
-// RegisterMCP 注册 base.v1 的 MCP 工具。
+// RegisterMCP 绑定 MCP 访问控制并注册 base.v1 的工具。
 func (s Services) RegisterMCP(server *mcp.Server) {
+	s.Mcp.RegisterMCP(server)
 	mcpSrv := server.MCPServer()
 	basev1.RegisterAiSessionServiceMCPTools(mcpSrv, s.AiSession)
 	basev1.RegisterAiModelServiceMCPTools(mcpSrv, s.AiModel)

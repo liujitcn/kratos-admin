@@ -3,7 +3,6 @@ package biz
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"net/http"
 	"strings"
@@ -25,14 +24,13 @@ import (
 	kratosHTTP "github.com/go-kratos/kratos/v3/transport/http"
 	"github.com/liujitcn/gorm-kit/repository"
 	mcpserver "github.com/liujitcn/kratos-kit/transport/mcp"
-	"github.com/modelcontextprotocol/go-sdk/mcp"
+	"github.com/mark3labs/mcp-go/mcp"
+	"github.com/mark3labs/mcp-go/server"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 const (
 	mcpDefaultEndpointPath = "/mcp"
-	mcpMethodCallTool      = "tools/call"
-	mcpMethodListTools     = "tools/list"
 	mcpTerminalHeader      = "X-Admin-Mcp-Terminal"
 )
 
@@ -75,7 +73,13 @@ func (h *McpCase) RegisterMCP(mcpSrv *mcpserver.Server) {
 	if h == nil || mcpSrv == nil {
 		return
 	}
-	mcpSrv.MCPServer().AddReceivingMiddleware(h.filterToolsMiddleware)
+	hooks := mcpSrv.MCPServer().GetHooks()
+	if hooks == nil {
+		hooks = &server.Hooks{}
+		server.WithHooks(hooks)(mcpSrv.MCPServer())
+	}
+	hooks.AddAfterListTools(h.filterToolList)
+	mcpSrv.MCPServer().Use(h.filterToolCall)
 	handler, err := mcpSrv.HTTPHandler()
 	if err != nil {
 		panic(fmt.Sprintf("创建 MCP HTTP 处理器失败: %v", err))
@@ -98,7 +102,8 @@ func (h *McpCase) HandleMcp(ctx context.Context, req *basev1.HandleMcpRequest) (
 	if !ok || r == nil {
 		return nil, errorsx.InvalidArgument("MCP请求仅支持HTTP访问")
 	}
-	ctx = agent.ContextWithTerminal(r.Context(), terminal)
+	// 保留 Kratos 中间件已注入的认证、租户和语言信息。
+	ctx = agent.ContextWithTerminal(ctx, terminal)
 	clonedRequest := r.Clone(context.WithValue(ctx, mcpTerminalContextKey{}, terminal))
 	clonedRequest.Header = r.Header.Clone()
 	clonedRequest.Header.Set(mcpTerminalHeader, terminal)
@@ -159,64 +164,36 @@ func (h *McpCase) ToolConfigs(ctx context.Context, terminal string, names []stri
 	return result, nil
 }
 
-// filterToolsMiddleware 在官方 MCP SDK 接收链路中校验工具调用权限。
-func (h *McpCase) filterToolsMiddleware(next mcp.MethodHandler) mcp.MethodHandler {
-	return func(ctx context.Context, method string, req mcp.Request) (mcp.Result, error) {
-		if method == mcpMethodCallTool {
-			return h.filterToolCall(ctx, req, next)
-		}
-		if method == mcpMethodListTools {
-			return h.filterToolList(ctx, req, next)
-		}
-		return next(ctx, method, req)
-	}
-}
-
 // filterToolList 按当前服务关键字返回已注册工具。
-func (h *McpCase) filterToolList(ctx context.Context, req mcp.Request, next mcp.MethodHandler) (mcp.Result, error) {
-	result, err := next(ctx, mcpMethodListTools, req)
-	if err != nil {
-		return nil, err
-	}
-	listResult, ok := result.(*mcp.ListToolsResult)
-	if !ok || listResult == nil {
-		return result, nil
-	}
-	terminal := mcpTerminal(ctx, req)
-	tools := h.filterMcpToolsByTerminal(terminal, listResult.Tools)
-	listResult.Tools = tools
-	err = h.applyMcpToolPrompts(ctx, tools)
+func (h *McpCase) filterToolList(ctx context.Context, _ any, req *mcp.ListToolsRequest, result *mcp.ListToolsResult) {
+	terminal := mcpTerminal(ctx, req.Header)
+	result.Tools = h.filterMcpToolsByTerminal(terminal, result.Tools)
+	err := h.applyMcpToolPrompts(ctx, result.Tools)
 	if err != nil {
 		log.Error(fmt.Sprintf("查询 MCP 工具提示词失败 err=%v", err))
-		return listResult, nil
 	}
-	return listResult, nil
 }
 
 // filterMcpToolsByTerminal 按当前服务关键字筛选 MCP 工具。
-func (h *McpCase) filterMcpToolsByTerminal(terminal string, values []*mcp.Tool) []*mcp.Tool {
-	tools := make([]*mcp.Tool, 0, len(values))
+func (h *McpCase) filterMcpToolsByTerminal(terminal string, values []mcp.Tool) []mcp.Tool {
+	tools := make([]mcp.Tool, 0, len(values))
 	for _, tool := range values {
-		if tool == nil {
-			continue
-		}
 		if !matchMcpToolPrefix(terminal, tool.Name) {
 			continue
 		}
-		toolCopy := *tool
-		tools = append(tools, &toolCopy)
+		tools = append(tools, tool)
 	}
 	return tools
 }
 
 // applyMcpToolPrompts 使用 base_api.tool_prompts 覆盖 MCP 工具描述。
-func (h *McpCase) applyMcpToolPrompts(ctx context.Context, tools []*mcp.Tool) error {
+func (h *McpCase) applyMcpToolPrompts(ctx context.Context, tools []mcp.Tool) error {
 	if h == nil || h.baseAPIRepo == nil || len(tools) == 0 {
 		return nil
 	}
 	toolNames := make([]string, 0, len(tools))
 	for _, tool := range tools {
-		if tool == nil || tool.Name == "" {
+		if tool.Name == "" {
 			continue
 		}
 		toolNames = append(toolNames, tool.Name)
@@ -238,58 +215,56 @@ func (h *McpCase) applyMcpToolPrompts(ctx context.Context, tools []*mcp.Tool) er
 		}
 		promptDescByName[item.ToolName] = toolPromptsDescription(item.ToolPrompts)
 	}
-	for _, tool := range tools {
-		if tool == nil || promptDescByName[tool.Name] == "" {
+	for i := range tools {
+		if promptDescByName[tools[i].Name] == "" {
 			continue
 		}
-		tool.Description = promptDescByName[tool.Name]
+		tools[i].Description = promptDescByName[tools[i].Name]
 	}
 	return nil
 }
 
-// filterToolCall 拦截未启用或不属于当前终端的工具调用。
-func (h *McpCase) filterToolCall(ctx context.Context, req mcp.Request, next mcp.MethodHandler) (mcp.Result, error) {
-	callReq, ok := req.(*mcp.CallToolRequest)
-	if !ok || callReq == nil || callReq.Params == nil {
-		return next(ctx, mcpMethodCallTool, req)
+// filterToolCall 在 mcp-go 执行链路中校验工具状态、终端、登录权限和只读限制。
+func (h *McpCase) filterToolCall(next server.ToolHandlerFunc) server.ToolHandlerFunc {
+	return func(ctx context.Context, req mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+		baseAPI, err := h.findEnabledBaseAPI(ctx, req, req.Params.Name)
+		if err != nil {
+			log.Error(fmt.Sprintf("查询 MCP 工具状态失败 err=%v", err))
+			return mcp.NewToolResultError(h.localizeMcpError(ctx, err)), nil
+		}
+		if baseAPI == nil {
+			message := h.localizeMcpMessage(ctx, "system.mcp.tool_not_registered", map[string]any{"Name": req.Params.Name}, "MCP tool {{.Name}} is not registered.")
+			return mcp.NewToolResultError(message), nil
+		}
+		if err = h.authorizeToolCall(ctx, baseAPI); err != nil {
+			return mcp.NewToolResultError(h.localizeMcpError(ctx, err)), nil
+		}
+		if agentToolBlocked(baseAPI) || !agentToolReadOnly(baseAPI) {
+			return mcp.NewToolResultError("写入操作须通过 AI 助手人工确认，执行类工具暂不开放"), nil
+		}
+		return next(ctx, req)
 	}
-	baseAPI, err := h.findEnabledBaseAPI(ctx, req, callReq.Params.Name)
-	if err != nil {
-		log.Error(fmt.Sprintf("查询 MCP 工具状态失败 err=%v", err))
-		return newMcpToolResultError(h.localizeMcpError(ctx, err)), nil
-	}
-	if baseAPI == nil {
-		message := h.localizeMcpMessage(ctx, "system.mcp.tool_not_registered", map[string]any{"Name": callReq.Params.Name}, "MCP tool {{.Name}} is not registered.")
-		return newMcpToolResultError(message), nil
-	}
-	if err = h.authorizeToolCall(ctx, baseAPI); err != nil {
-		return newMcpToolResultError(h.localizeMcpError(ctx, err)), nil
-	}
-	if agentToolBlocked(baseAPI) || !agentToolReadOnly(baseAPI) {
-		return newMcpToolResultError("写入操作须通过 AI 助手人工确认，执行类工具暂不开放"), nil
-	}
-	return next(ctx, mcpMethodCallTool, req)
 }
 
-// localizeMcpError 将 MCP 工具鉴权和状态错误按当前请求语言本地化。
-func (h *McpCase) localizeMcpError(ctx context.Context, err error) string {
-	if h.catalog == nil || h.catalog.Empty() {
-		return "MCP tool execution failed. Check the service logs."
+// findEnabledBaseAPI 查询当前工具是否允许调用。
+func (h *McpCase) findEnabledBaseAPI(ctx context.Context, req mcp.CallToolRequest, toolName string) (*models.BaseAPI, error) {
+	if h == nil || h.baseAPIRepo == nil {
+		return nil, errorsx.Internal("MCP权限仓储未初始化")
 	}
-	localized := i18n.LocalizeError(h.catalog, biz.LocaleFromContext(ctx), "zh-CN", err)
-	structured := kratosErrors.FromError(localized)
-	if structured == nil || structured.Message == "" {
-		return h.localizeMcpMessage(ctx, "system.mcp.tool_check_failed", nil, "Could not verify MCP tool access. Check the service logs.")
+	terminal := mcpTerminal(ctx, req.Header)
+	if !matchMcpToolPrefix(terminal, toolName) {
+		return nil, nil
 	}
-	return structured.Message
-}
-
-// localizeMcpMessage 从统一国际化目录读取 MCP 工具提示。
-func (h *McpCase) localizeMcpMessage(ctx context.Context, key string, args map[string]any, fallback string) string {
-	if h.catalog == nil || h.catalog.Empty() {
-		return fallback
+	query := h.baseAPIRepo.Query(ctx).BaseAPI
+	opts := make([]repository.QueryOption, 0, 3)
+	opts = append(opts, repository.Where(query.McpStatus.Eq(_const.STATUS_STATUS_ENABLE)))
+	opts = append(opts, repository.Where(query.ToolName.Eq(toolName)))
+	opts = append(opts, repository.Limit(1))
+	list, err := h.baseAPIRepo.List(ctx, opts...)
+	if err != nil || len(list) == 0 {
+		return nil, err
 	}
-	return h.catalog.Localize(biz.LocaleFromContext(ctx), "zh-CN", key, args, fallback)
+	return list[0], nil
 }
 
 // authorizeToolCall 按当前登录主体重新校验 MCP 工具对应的 API 权限。
@@ -314,25 +289,25 @@ func (h *McpCase) authorizeToolCall(ctx context.Context, api *models.BaseAPI) er
 	return nil
 }
 
-// findEnabledBaseAPI 查询当前工具是否允许调用。
-func (h *McpCase) findEnabledBaseAPI(ctx context.Context, req mcp.Request, toolName string) (*models.BaseAPI, error) {
-	if h == nil || h.baseAPIRepo == nil {
-		return nil, errorsx.Internal("MCP权限仓储未初始化")
+// localizeMcpError 将 MCP 工具鉴权和状态错误按当前请求语言本地化。
+func (h *McpCase) localizeMcpError(ctx context.Context, err error) string {
+	if h.catalog == nil || h.catalog.Empty() {
+		return "MCP tool execution failed. Check the service logs."
 	}
-	terminal := mcpTerminal(ctx, req)
-	if !matchMcpToolPrefix(terminal, toolName) {
-		return nil, nil
+	localized := i18n.LocalizeError(h.catalog, biz.LocaleFromContext(ctx), "zh-CN", err)
+	structured := kratosErrors.FromError(localized)
+	if structured == nil || structured.Message == "" {
+		return h.localizeMcpMessage(ctx, "system.mcp.tool_check_failed", nil, "Could not verify MCP tool access. Check the service logs.")
 	}
-	query := h.baseAPIRepo.Query(ctx).BaseAPI
-	opts := make([]repository.QueryOption, 0, 3)
-	opts = append(opts, repository.Where(query.McpStatus.Eq(_const.STATUS_STATUS_ENABLE)))
-	opts = append(opts, repository.Where(query.ToolName.Eq(toolName)))
-	opts = append(opts, repository.Limit(1))
-	list, err := h.baseAPIRepo.List(ctx, opts...)
-	if err != nil || len(list) == 0 {
-		return nil, err
+	return structured.Message
+}
+
+// localizeMcpMessage 从统一国际化目录读取 MCP 工具提示。
+func (h *McpCase) localizeMcpMessage(ctx context.Context, key string, args map[string]any, fallback string) string {
+	if h.catalog == nil || h.catalog.Empty() {
+		return fallback
 	}
-	return list[0], nil
+	return h.catalog.Localize(biz.LocaleFromContext(ctx), "zh-CN", key, args, fallback)
 }
 
 // toolPromptsDescription 将多条工具提示词合并为运行时工具描述。
@@ -382,17 +357,10 @@ func matchToolTerminal(terminal, toolName string) bool {
 }
 
 // mcpTerminal 获取当前 MCP 请求的服务筛选关键字。
-func mcpTerminal(ctx context.Context, req mcp.Request) string {
-	if req != nil && req.GetExtra() != nil {
-		return req.GetExtra().Header.Get(mcpTerminalHeader)
+func mcpTerminal(ctx context.Context, header http.Header) string {
+	if terminal := header.Get(mcpTerminalHeader); terminal != "" {
+		return terminal
 	}
 	terminal, _ := ctx.Value(mcpTerminalContextKey{}).(string)
 	return terminal
-}
-
-// newMcpToolResultError 构造 MCP 工具级错误结果，避免返回协议级错误。
-func newMcpToolResultError(message string) *mcp.CallToolResult {
-	result := &mcp.CallToolResult{}
-	result.SetError(errors.New(message))
-	return result
 }

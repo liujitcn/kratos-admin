@@ -9,53 +9,60 @@ package adminv1
 import (
 	context "context"
 
-	mcp "github.com/modelcontextprotocol/go-sdk/mcp"
+	mcp "github.com/mark3labs/mcp-go/mcp"
+	server "github.com/mark3labs/mcp-go/server"
 )
 
 // RegisterBaseDataAccessLogServiceMCPTools 注册Admin数据访问日志服务的 MCP Tool。
-func RegisterBaseDataAccessLogServiceMCPTools(mcpServer *mcp.Server, baseDataAccessLogServiceServer BaseDataAccessLogServiceServer) {
+func RegisterBaseDataAccessLogServiceMCPTools(mcpServer *server.MCPServer, baseDataAccessLogServiceServer BaseDataAccessLogServiceServer) {
 	RegisterBaseDataAccessLogServicePageBaseDataAccessLogMCPTool(mcpServer, baseDataAccessLogServiceServer)
 	RegisterBaseDataAccessLogServiceGetBaseDataAccessLogMCPTool(mcpServer, baseDataAccessLogServiceServer)
 }
 
 // RegisterBaseDataAccessLogServicePageBaseDataAccessLogMCPTool 注册分页查询数据访问日志的 MCP Tool。
-func RegisterBaseDataAccessLogServicePageBaseDataAccessLogMCPTool(mcpServer *mcp.Server, baseDataAccessLogServiceServer BaseDataAccessLogServiceServer) {
-	mcp.AddTool[*PageBaseDataAccessLogRequest, *PageBaseDataAccessLogResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_data_access_log_service_page_base_data_access_log",
-			Description: "分页查询数据访问日志。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *PageBaseDataAccessLogRequest) (*mcp.CallToolResult, *PageBaseDataAccessLogResponse, error) {
-			if input == nil {
-				input = &PageBaseDataAccessLogRequest{}
-			}
-			reply, err := baseDataAccessLogServiceServer.PageBaseDataAccessLog(ctx, input)
+func RegisterBaseDataAccessLogServicePageBaseDataAccessLogMCPTool(mcpServer *server.MCPServer, baseDataAccessLogServiceServer BaseDataAccessLogServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_data_access_log_service_page_base_data_access_log",
+			mcp.WithDescription("分页查询数据访问日志。"),
+			mcp.WithInputSchema[*PageBaseDataAccessLogRequest](),
+			mcp.WithOutputSchema[*PageBaseDataAccessLogResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &PageBaseDataAccessLogRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *PageBaseDataAccessLogResponse
+			reply, err = baseDataAccessLogServiceServer.PageBaseDataAccessLog(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseDataAccessLogServiceGetBaseDataAccessLogMCPTool 注册查询数据访问日志详情的 MCP Tool。
-func RegisterBaseDataAccessLogServiceGetBaseDataAccessLogMCPTool(mcpServer *mcp.Server, baseDataAccessLogServiceServer BaseDataAccessLogServiceServer) {
-	mcp.AddTool[*GetBaseDataAccessLogRequest, *BaseDataAccessLog](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_data_access_log_service_get_base_data_access_log",
-			Description: "查询数据访问日志详情。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *GetBaseDataAccessLogRequest) (*mcp.CallToolResult, *BaseDataAccessLog, error) {
-			if input == nil {
-				input = &GetBaseDataAccessLogRequest{}
-			}
-			reply, err := baseDataAccessLogServiceServer.GetBaseDataAccessLog(ctx, input)
+func RegisterBaseDataAccessLogServiceGetBaseDataAccessLogMCPTool(mcpServer *server.MCPServer, baseDataAccessLogServiceServer BaseDataAccessLogServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_data_access_log_service_get_base_data_access_log",
+			mcp.WithDescription("查询数据访问日志详情。"),
+			mcp.WithInputSchema[*GetBaseDataAccessLogRequest](),
+			mcp.WithOutputSchema[*BaseDataAccessLog](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &GetBaseDataAccessLogRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *BaseDataAccessLog
+			reply, err = baseDataAccessLogServiceServer.GetBaseDataAccessLog(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }

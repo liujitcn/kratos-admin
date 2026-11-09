@@ -9,12 +9,13 @@ package adminv1
 import (
 	context "context"
 
-	mcp "github.com/modelcontextprotocol/go-sdk/mcp"
+	mcp "github.com/mark3labs/mcp-go/mcp"
+	server "github.com/mark3labs/mcp-go/server"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // RegisterCodeGenTableServiceMCPTools 注册Admin代码生成表配置服务的 MCP Tool。
-func RegisterCodeGenTableServiceMCPTools(mcpServer *mcp.Server, codeGenTableServiceServer CodeGenTableServiceServer) {
+func RegisterCodeGenTableServiceMCPTools(mcpServer *server.MCPServer, codeGenTableServiceServer CodeGenTableServiceServer) {
 	RegisterCodeGenTableServicePageCodeGenTableMCPTool(mcpServer, codeGenTableServiceServer)
 	RegisterCodeGenTableServiceListCodeGenDatabaseTableMCPTool(mcpServer, codeGenTableServiceServer)
 	RegisterCodeGenTableServiceGetCodeGenTableMCPTool(mcpServer, codeGenTableServiceServer)
@@ -24,127 +25,145 @@ func RegisterCodeGenTableServiceMCPTools(mcpServer *mcp.Server, codeGenTableServ
 }
 
 // RegisterCodeGenTableServicePageCodeGenTableMCPTool 注册分页查询代码生成表配置的 MCP Tool。
-func RegisterCodeGenTableServicePageCodeGenTableMCPTool(mcpServer *mcp.Server, codeGenTableServiceServer CodeGenTableServiceServer) {
-	mcp.AddTool[*PageCodeGenTableRequest, *PageCodeGenTableResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_code_gen_table_service_page_code_gen_table",
-			Description: "分页查询代码生成表配置",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *PageCodeGenTableRequest) (*mcp.CallToolResult, *PageCodeGenTableResponse, error) {
-			if input == nil {
-				input = &PageCodeGenTableRequest{}
-			}
-			reply, err := codeGenTableServiceServer.PageCodeGenTable(ctx, input)
+func RegisterCodeGenTableServicePageCodeGenTableMCPTool(mcpServer *server.MCPServer, codeGenTableServiceServer CodeGenTableServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_code_gen_table_service_page_code_gen_table",
+			mcp.WithDescription("分页查询代码生成表配置"),
+			mcp.WithInputSchema[*PageCodeGenTableRequest](),
+			mcp.WithOutputSchema[*PageCodeGenTableResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &PageCodeGenTableRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *PageCodeGenTableResponse
+			reply, err = codeGenTableServiceServer.PageCodeGenTable(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterCodeGenTableServiceListCodeGenDatabaseTableMCPTool 注册查询数据库表列表的 MCP Tool。
-func RegisterCodeGenTableServiceListCodeGenDatabaseTableMCPTool(mcpServer *mcp.Server, codeGenTableServiceServer CodeGenTableServiceServer) {
-	mcp.AddTool[*ListCodeGenDatabaseTableRequest, *ListCodeGenDatabaseTableResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_code_gen_table_service_list_code_gen_database_table",
-			Description: "查询数据库表列表",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *ListCodeGenDatabaseTableRequest) (*mcp.CallToolResult, *ListCodeGenDatabaseTableResponse, error) {
-			if input == nil {
-				input = &ListCodeGenDatabaseTableRequest{}
-			}
-			reply, err := codeGenTableServiceServer.ListCodeGenDatabaseTable(ctx, input)
+func RegisterCodeGenTableServiceListCodeGenDatabaseTableMCPTool(mcpServer *server.MCPServer, codeGenTableServiceServer CodeGenTableServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_code_gen_table_service_list_code_gen_database_table",
+			mcp.WithDescription("查询数据库表列表"),
+			mcp.WithInputSchema[*ListCodeGenDatabaseTableRequest](),
+			mcp.WithOutputSchema[*ListCodeGenDatabaseTableResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &ListCodeGenDatabaseTableRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *ListCodeGenDatabaseTableResponse
+			reply, err = codeGenTableServiceServer.ListCodeGenDatabaseTable(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterCodeGenTableServiceGetCodeGenTableMCPTool 注册查询代码生成表配置的 MCP Tool。
-func RegisterCodeGenTableServiceGetCodeGenTableMCPTool(mcpServer *mcp.Server, codeGenTableServiceServer CodeGenTableServiceServer) {
-	mcp.AddTool[*GetCodeGenTableRequest, *CodeGenTableForm](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_code_gen_table_service_get_code_gen_table",
-			Description: "查询代码生成表配置",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *GetCodeGenTableRequest) (*mcp.CallToolResult, *CodeGenTableForm, error) {
-			if input == nil {
-				input = &GetCodeGenTableRequest{}
-			}
-			reply, err := codeGenTableServiceServer.GetCodeGenTable(ctx, input)
+func RegisterCodeGenTableServiceGetCodeGenTableMCPTool(mcpServer *server.MCPServer, codeGenTableServiceServer CodeGenTableServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_code_gen_table_service_get_code_gen_table",
+			mcp.WithDescription("查询代码生成表配置"),
+			mcp.WithInputSchema[*GetCodeGenTableRequest](),
+			mcp.WithOutputSchema[*CodeGenTableForm](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &GetCodeGenTableRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *CodeGenTableForm
+			reply, err = codeGenTableServiceServer.GetCodeGenTable(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterCodeGenTableServiceCreateCodeGenTableMCPTool 注册创建代码生成表配置的 MCP Tool。
-func RegisterCodeGenTableServiceCreateCodeGenTableMCPTool(mcpServer *mcp.Server, codeGenTableServiceServer CodeGenTableServiceServer) {
-	mcp.AddTool[*CreateCodeGenTableRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_code_gen_table_service_create_code_gen_table",
-			Description: "创建代码生成表配置",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *CreateCodeGenTableRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &CreateCodeGenTableRequest{}
-			}
-			reply, err := codeGenTableServiceServer.CreateCodeGenTable(ctx, input)
+func RegisterCodeGenTableServiceCreateCodeGenTableMCPTool(mcpServer *server.MCPServer, codeGenTableServiceServer CodeGenTableServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_code_gen_table_service_create_code_gen_table",
+			mcp.WithDescription("创建代码生成表配置"),
+			mcp.WithInputSchema[*CreateCodeGenTableRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &CreateCodeGenTableRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = codeGenTableServiceServer.CreateCodeGenTable(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterCodeGenTableServiceUpdateCodeGenTableMCPTool 注册更新代码生成表配置的 MCP Tool。
-func RegisterCodeGenTableServiceUpdateCodeGenTableMCPTool(mcpServer *mcp.Server, codeGenTableServiceServer CodeGenTableServiceServer) {
-	mcp.AddTool[*UpdateCodeGenTableRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_code_gen_table_service_update_code_gen_table",
-			Description: "更新代码生成表配置",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *UpdateCodeGenTableRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &UpdateCodeGenTableRequest{}
-			}
-			reply, err := codeGenTableServiceServer.UpdateCodeGenTable(ctx, input)
+func RegisterCodeGenTableServiceUpdateCodeGenTableMCPTool(mcpServer *server.MCPServer, codeGenTableServiceServer CodeGenTableServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_code_gen_table_service_update_code_gen_table",
+			mcp.WithDescription("更新代码生成表配置"),
+			mcp.WithInputSchema[*UpdateCodeGenTableRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &UpdateCodeGenTableRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = codeGenTableServiceServer.UpdateCodeGenTable(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterCodeGenTableServiceDeleteCodeGenTableMCPTool 注册删除代码生成表配置的 MCP Tool。
-func RegisterCodeGenTableServiceDeleteCodeGenTableMCPTool(mcpServer *mcp.Server, codeGenTableServiceServer CodeGenTableServiceServer) {
-	mcp.AddTool[*DeleteCodeGenTableRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_code_gen_table_service_delete_code_gen_table",
-			Description: "删除代码生成表配置",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *DeleteCodeGenTableRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &DeleteCodeGenTableRequest{}
-			}
-			reply, err := codeGenTableServiceServer.DeleteCodeGenTable(ctx, input)
+func RegisterCodeGenTableServiceDeleteCodeGenTableMCPTool(mcpServer *server.MCPServer, codeGenTableServiceServer CodeGenTableServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_code_gen_table_service_delete_code_gen_table",
+			mcp.WithDescription("删除代码生成表配置"),
+			mcp.WithInputSchema[*DeleteCodeGenTableRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &DeleteCodeGenTableRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = codeGenTableServiceServer.DeleteCodeGenTable(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }

@@ -9,12 +9,13 @@ package basev1
 import (
 	context "context"
 
-	mcp "github.com/modelcontextprotocol/go-sdk/mcp"
+	mcp "github.com/mark3labs/mcp-go/mcp"
+	server "github.com/mark3labs/mcp-go/server"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // RegisterLoginServiceMCPTools 注册Base登录公共服务的 MCP Tool。
-func RegisterLoginServiceMCPTools(mcpServer *mcp.Server, loginServiceServer LoginServiceServer) {
+func RegisterLoginServiceMCPTools(mcpServer *server.MCPServer, loginServiceServer LoginServiceServer) {
 	RegisterLoginServiceCaptchaMCPTool(mcpServer, loginServiceServer)
 	RegisterLoginServiceVerifyCaptchaMCPTool(mcpServer, loginServiceServer)
 	RegisterLoginServiceLogoutMCPTool(mcpServer, loginServiceServer)
@@ -23,106 +24,121 @@ func RegisterLoginServiceMCPTools(mcpServer *mcp.Server, loginServiceServer Logi
 }
 
 // RegisterLoginServiceCaptchaMCPTool 注册验证码的 MCP Tool。
-func RegisterLoginServiceCaptchaMCPTool(mcpServer *mcp.Server, loginServiceServer LoginServiceServer) {
-	mcp.AddTool[*CaptchaRequest, *CaptchaResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "base_v1_login_service_captcha",
-			Description: "验证码",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *CaptchaRequest) (*mcp.CallToolResult, *CaptchaResponse, error) {
-			if input == nil {
-				input = &CaptchaRequest{}
-			}
-			reply, err := loginServiceServer.Captcha(ctx, input)
+func RegisterLoginServiceCaptchaMCPTool(mcpServer *server.MCPServer, loginServiceServer LoginServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("base_v1_login_service_captcha",
+			mcp.WithDescription("验证码"),
+			mcp.WithInputSchema[*CaptchaRequest](),
+			mcp.WithOutputSchema[*CaptchaResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &CaptchaRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *CaptchaResponse
+			reply, err = loginServiceServer.Captcha(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterLoginServiceVerifyCaptchaMCPTool 注册验证码预校验的 MCP Tool。
-func RegisterLoginServiceVerifyCaptchaMCPTool(mcpServer *mcp.Server, loginServiceServer LoginServiceServer) {
-	mcp.AddTool[*VerifyCaptchaRequest, *VerifyCaptchaResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "base_v1_login_service_verify_captcha",
-			Description: "验证码预校验",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *VerifyCaptchaRequest) (*mcp.CallToolResult, *VerifyCaptchaResponse, error) {
-			if input == nil {
-				input = &VerifyCaptchaRequest{}
-			}
-			reply, err := loginServiceServer.VerifyCaptcha(ctx, input)
+func RegisterLoginServiceVerifyCaptchaMCPTool(mcpServer *server.MCPServer, loginServiceServer LoginServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("base_v1_login_service_verify_captcha",
+			mcp.WithDescription("验证码预校验"),
+			mcp.WithInputSchema[*VerifyCaptchaRequest](),
+			mcp.WithOutputSchema[*VerifyCaptchaResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &VerifyCaptchaRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *VerifyCaptchaResponse
+			reply, err = loginServiceServer.VerifyCaptcha(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterLoginServiceLogoutMCPTool 注册登出的 MCP Tool。
-func RegisterLoginServiceLogoutMCPTool(mcpServer *mcp.Server, loginServiceServer LoginServiceServer) {
-	mcp.AddTool[*LogoutRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "base_v1_login_service_logout",
-			Description: "登出",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *LogoutRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &LogoutRequest{}
-			}
-			reply, err := loginServiceServer.Logout(ctx, input)
+func RegisterLoginServiceLogoutMCPTool(mcpServer *server.MCPServer, loginServiceServer LoginServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("base_v1_login_service_logout",
+			mcp.WithDescription("登出"),
+			mcp.WithInputSchema[*LogoutRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &LogoutRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = loginServiceServer.Logout(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterLoginServiceRefreshTokenMCPTool 注册刷新认证令牌的 MCP Tool。
-func RegisterLoginServiceRefreshTokenMCPTool(mcpServer *mcp.Server, loginServiceServer LoginServiceServer) {
-	mcp.AddTool[*RefreshTokenRequest, *RefreshTokenResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "base_v1_login_service_refresh_token",
-			Description: "刷新认证令牌",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *RefreshTokenRequest) (*mcp.CallToolResult, *RefreshTokenResponse, error) {
-			if input == nil {
-				input = &RefreshTokenRequest{}
-			}
-			reply, err := loginServiceServer.RefreshToken(ctx, input)
+func RegisterLoginServiceRefreshTokenMCPTool(mcpServer *server.MCPServer, loginServiceServer LoginServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("base_v1_login_service_refresh_token",
+			mcp.WithDescription("刷新认证令牌"),
+			mcp.WithInputSchema[*RefreshTokenRequest](),
+			mcp.WithOutputSchema[*RefreshTokenResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &RefreshTokenRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *RefreshTokenResponse
+			reply, err = loginServiceServer.RefreshToken(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterLoginServiceLoginMCPTool 注册登录的 MCP Tool。
-func RegisterLoginServiceLoginMCPTool(mcpServer *mcp.Server, loginServiceServer LoginServiceServer) {
-	mcp.AddTool[*LoginRequest, *LoginResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "base_v1_login_service_login",
-			Description: "登录",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *LoginRequest) (*mcp.CallToolResult, *LoginResponse, error) {
-			if input == nil {
-				input = &LoginRequest{}
-			}
-			reply, err := loginServiceServer.Login(ctx, input)
+func RegisterLoginServiceLoginMCPTool(mcpServer *server.MCPServer, loginServiceServer LoginServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("base_v1_login_service_login",
+			mcp.WithDescription("登录"),
+			mcp.WithInputSchema[*LoginRequest](),
+			mcp.WithOutputSchema[*LoginResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &LoginRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *LoginResponse
+			reply, err = loginServiceServer.Login(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }

@@ -9,31 +9,35 @@ package basev1
 import (
 	context "context"
 
-	mcp "github.com/modelcontextprotocol/go-sdk/mcp"
+	mcp "github.com/mark3labs/mcp-go/mcp"
+	server "github.com/mark3labs/mcp-go/server"
 )
 
 // RegisterLanguageServiceMCPTools 注册Base语言公共服务的 MCP Tool。
-func RegisterLanguageServiceMCPTools(mcpServer *mcp.Server, languageServiceServer LanguageServiceServer) {
+func RegisterLanguageServiceMCPTools(mcpServer *server.MCPServer, languageServiceServer LanguageServiceServer) {
 	RegisterLanguageServiceOptionLanguageMCPTool(mcpServer, languageServiceServer)
 }
 
 // RegisterLanguageServiceOptionLanguageMCPTool 注册查询当前支持的语言选项的 MCP Tool。
-func RegisterLanguageServiceOptionLanguageMCPTool(mcpServer *mcp.Server, languageServiceServer LanguageServiceServer) {
-	mcp.AddTool[*OptionLanguageRequest, *OptionLanguageResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "base_v1_language_service_option_language",
-			Description: "查询当前支持的语言选项。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *OptionLanguageRequest) (*mcp.CallToolResult, *OptionLanguageResponse, error) {
-			if input == nil {
-				input = &OptionLanguageRequest{}
-			}
-			reply, err := languageServiceServer.OptionLanguage(ctx, input)
+func RegisterLanguageServiceOptionLanguageMCPTool(mcpServer *server.MCPServer, languageServiceServer LanguageServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("base_v1_language_service_option_language",
+			mcp.WithDescription("查询当前支持的语言选项。"),
+			mcp.WithInputSchema[*OptionLanguageRequest](),
+			mcp.WithOutputSchema[*OptionLanguageResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &OptionLanguageRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *OptionLanguageResponse
+			reply, err = languageServiceServer.OptionLanguage(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }

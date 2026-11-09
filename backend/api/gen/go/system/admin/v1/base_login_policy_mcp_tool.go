@@ -9,12 +9,13 @@ package adminv1
 import (
 	context "context"
 
-	mcp "github.com/modelcontextprotocol/go-sdk/mcp"
+	mcp "github.com/mark3labs/mcp-go/mcp"
+	server "github.com/mark3labs/mcp-go/server"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // RegisterBaseLoginPolicyServiceMCPTools 注册Admin登录策略管理服务的 MCP Tool。
-func RegisterBaseLoginPolicyServiceMCPTools(mcpServer *mcp.Server, baseLoginPolicyServiceServer BaseLoginPolicyServiceServer) {
+func RegisterBaseLoginPolicyServiceMCPTools(mcpServer *server.MCPServer, baseLoginPolicyServiceServer BaseLoginPolicyServiceServer) {
 	RegisterBaseLoginPolicyServicePageBaseLoginPolicyMCPTool(mcpServer, baseLoginPolicyServiceServer)
 	RegisterBaseLoginPolicyServiceGetBaseLoginPolicyMCPTool(mcpServer, baseLoginPolicyServiceServer)
 	RegisterBaseLoginPolicyServiceCreateBaseLoginPolicyMCPTool(mcpServer, baseLoginPolicyServiceServer)
@@ -24,127 +25,145 @@ func RegisterBaseLoginPolicyServiceMCPTools(mcpServer *mcp.Server, baseLoginPoli
 }
 
 // RegisterBaseLoginPolicyServicePageBaseLoginPolicyMCPTool 注册分页查询登录策略的 MCP Tool。
-func RegisterBaseLoginPolicyServicePageBaseLoginPolicyMCPTool(mcpServer *mcp.Server, baseLoginPolicyServiceServer BaseLoginPolicyServiceServer) {
-	mcp.AddTool[*PageBaseLoginPolicyRequest, *PageBaseLoginPolicyResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_login_policy_service_page_base_login_policy",
-			Description: "分页查询登录策略。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *PageBaseLoginPolicyRequest) (*mcp.CallToolResult, *PageBaseLoginPolicyResponse, error) {
-			if input == nil {
-				input = &PageBaseLoginPolicyRequest{}
-			}
-			reply, err := baseLoginPolicyServiceServer.PageBaseLoginPolicy(ctx, input)
+func RegisterBaseLoginPolicyServicePageBaseLoginPolicyMCPTool(mcpServer *server.MCPServer, baseLoginPolicyServiceServer BaseLoginPolicyServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_login_policy_service_page_base_login_policy",
+			mcp.WithDescription("分页查询登录策略。"),
+			mcp.WithInputSchema[*PageBaseLoginPolicyRequest](),
+			mcp.WithOutputSchema[*PageBaseLoginPolicyResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &PageBaseLoginPolicyRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *PageBaseLoginPolicyResponse
+			reply, err = baseLoginPolicyServiceServer.PageBaseLoginPolicy(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseLoginPolicyServiceGetBaseLoginPolicyMCPTool 注册查询登录策略详情的 MCP Tool。
-func RegisterBaseLoginPolicyServiceGetBaseLoginPolicyMCPTool(mcpServer *mcp.Server, baseLoginPolicyServiceServer BaseLoginPolicyServiceServer) {
-	mcp.AddTool[*GetBaseLoginPolicyRequest, *BaseLoginPolicyForm](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_login_policy_service_get_base_login_policy",
-			Description: "查询登录策略详情。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *GetBaseLoginPolicyRequest) (*mcp.CallToolResult, *BaseLoginPolicyForm, error) {
-			if input == nil {
-				input = &GetBaseLoginPolicyRequest{}
-			}
-			reply, err := baseLoginPolicyServiceServer.GetBaseLoginPolicy(ctx, input)
+func RegisterBaseLoginPolicyServiceGetBaseLoginPolicyMCPTool(mcpServer *server.MCPServer, baseLoginPolicyServiceServer BaseLoginPolicyServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_login_policy_service_get_base_login_policy",
+			mcp.WithDescription("查询登录策略详情。"),
+			mcp.WithInputSchema[*GetBaseLoginPolicyRequest](),
+			mcp.WithOutputSchema[*BaseLoginPolicyForm](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &GetBaseLoginPolicyRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *BaseLoginPolicyForm
+			reply, err = baseLoginPolicyServiceServer.GetBaseLoginPolicy(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseLoginPolicyServiceCreateBaseLoginPolicyMCPTool 注册创建登录策略的 MCP Tool。
-func RegisterBaseLoginPolicyServiceCreateBaseLoginPolicyMCPTool(mcpServer *mcp.Server, baseLoginPolicyServiceServer BaseLoginPolicyServiceServer) {
-	mcp.AddTool[*CreateBaseLoginPolicyRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_login_policy_service_create_base_login_policy",
-			Description: "创建登录策略。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *CreateBaseLoginPolicyRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &CreateBaseLoginPolicyRequest{}
-			}
-			reply, err := baseLoginPolicyServiceServer.CreateBaseLoginPolicy(ctx, input)
+func RegisterBaseLoginPolicyServiceCreateBaseLoginPolicyMCPTool(mcpServer *server.MCPServer, baseLoginPolicyServiceServer BaseLoginPolicyServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_login_policy_service_create_base_login_policy",
+			mcp.WithDescription("创建登录策略。"),
+			mcp.WithInputSchema[*CreateBaseLoginPolicyRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &CreateBaseLoginPolicyRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = baseLoginPolicyServiceServer.CreateBaseLoginPolicy(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseLoginPolicyServiceUpdateBaseLoginPolicyMCPTool 注册更新登录策略的 MCP Tool。
-func RegisterBaseLoginPolicyServiceUpdateBaseLoginPolicyMCPTool(mcpServer *mcp.Server, baseLoginPolicyServiceServer BaseLoginPolicyServiceServer) {
-	mcp.AddTool[*UpdateBaseLoginPolicyRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_login_policy_service_update_base_login_policy",
-			Description: "更新登录策略。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *UpdateBaseLoginPolicyRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &UpdateBaseLoginPolicyRequest{}
-			}
-			reply, err := baseLoginPolicyServiceServer.UpdateBaseLoginPolicy(ctx, input)
+func RegisterBaseLoginPolicyServiceUpdateBaseLoginPolicyMCPTool(mcpServer *server.MCPServer, baseLoginPolicyServiceServer BaseLoginPolicyServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_login_policy_service_update_base_login_policy",
+			mcp.WithDescription("更新登录策略。"),
+			mcp.WithInputSchema[*UpdateBaseLoginPolicyRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &UpdateBaseLoginPolicyRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = baseLoginPolicyServiceServer.UpdateBaseLoginPolicy(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseLoginPolicyServiceDeleteBaseLoginPolicyMCPTool 注册删除登录策略的 MCP Tool。
-func RegisterBaseLoginPolicyServiceDeleteBaseLoginPolicyMCPTool(mcpServer *mcp.Server, baseLoginPolicyServiceServer BaseLoginPolicyServiceServer) {
-	mcp.AddTool[*DeleteBaseLoginPolicyRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_login_policy_service_delete_base_login_policy",
-			Description: "删除登录策略。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *DeleteBaseLoginPolicyRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &DeleteBaseLoginPolicyRequest{}
-			}
-			reply, err := baseLoginPolicyServiceServer.DeleteBaseLoginPolicy(ctx, input)
+func RegisterBaseLoginPolicyServiceDeleteBaseLoginPolicyMCPTool(mcpServer *server.MCPServer, baseLoginPolicyServiceServer BaseLoginPolicyServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_login_policy_service_delete_base_login_policy",
+			mcp.WithDescription("删除登录策略。"),
+			mcp.WithInputSchema[*DeleteBaseLoginPolicyRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &DeleteBaseLoginPolicyRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = baseLoginPolicyServiceServer.DeleteBaseLoginPolicy(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseLoginPolicyServiceSetBaseLoginPolicyStatusMCPTool 注册设置登录策略状态的 MCP Tool。
-func RegisterBaseLoginPolicyServiceSetBaseLoginPolicyStatusMCPTool(mcpServer *mcp.Server, baseLoginPolicyServiceServer BaseLoginPolicyServiceServer) {
-	mcp.AddTool[*SetBaseLoginPolicyStatusRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_login_policy_service_set_base_login_policy_status",
-			Description: "设置登录策略状态。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *SetBaseLoginPolicyStatusRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &SetBaseLoginPolicyStatusRequest{}
-			}
-			reply, err := baseLoginPolicyServiceServer.SetBaseLoginPolicyStatus(ctx, input)
+func RegisterBaseLoginPolicyServiceSetBaseLoginPolicyStatusMCPTool(mcpServer *server.MCPServer, baseLoginPolicyServiceServer BaseLoginPolicyServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_login_policy_service_set_base_login_policy_status",
+			mcp.WithDescription("设置登录策略状态。"),
+			mcp.WithInputSchema[*SetBaseLoginPolicyStatusRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &SetBaseLoginPolicyStatusRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = baseLoginPolicyServiceServer.SetBaseLoginPolicyStatus(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }

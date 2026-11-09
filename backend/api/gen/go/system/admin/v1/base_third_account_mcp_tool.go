@@ -9,31 +9,35 @@ package adminv1
 import (
 	context "context"
 
-	mcp "github.com/modelcontextprotocol/go-sdk/mcp"
+	mcp "github.com/mark3labs/mcp-go/mcp"
+	server "github.com/mark3labs/mcp-go/server"
 )
 
 // RegisterBaseThirdAccountServiceMCPTools 注册Admin用户三方账号服务的 MCP Tool。
-func RegisterBaseThirdAccountServiceMCPTools(mcpServer *mcp.Server, baseThirdAccountServiceServer BaseThirdAccountServiceServer) {
+func RegisterBaseThirdAccountServiceMCPTools(mcpServer *server.MCPServer, baseThirdAccountServiceServer BaseThirdAccountServiceServer) {
 	RegisterBaseThirdAccountServiceGetBaseThirdAccountIdentifierMCPTool(mcpServer, baseThirdAccountServiceServer)
 }
 
 // RegisterBaseThirdAccountServiceGetBaseThirdAccountIdentifierMCPTool 注册查询用户三方账号标识的 MCP Tool。
-func RegisterBaseThirdAccountServiceGetBaseThirdAccountIdentifierMCPTool(mcpServer *mcp.Server, baseThirdAccountServiceServer BaseThirdAccountServiceServer) {
-	mcp.AddTool[*GetBaseThirdAccountIdentifierRequest, *GetBaseThirdAccountIdentifierResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_third_account_service_get_base_third_account_identifier",
-			Description: "查询用户三方账号标识",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *GetBaseThirdAccountIdentifierRequest) (*mcp.CallToolResult, *GetBaseThirdAccountIdentifierResponse, error) {
-			if input == nil {
-				input = &GetBaseThirdAccountIdentifierRequest{}
-			}
-			reply, err := baseThirdAccountServiceServer.GetBaseThirdAccountIdentifier(ctx, input)
+func RegisterBaseThirdAccountServiceGetBaseThirdAccountIdentifierMCPTool(mcpServer *server.MCPServer, baseThirdAccountServiceServer BaseThirdAccountServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_third_account_service_get_base_third_account_identifier",
+			mcp.WithDescription("查询用户三方账号标识"),
+			mcp.WithInputSchema[*GetBaseThirdAccountIdentifierRequest](),
+			mcp.WithOutputSchema[*GetBaseThirdAccountIdentifierResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &GetBaseThirdAccountIdentifierRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *GetBaseThirdAccountIdentifierResponse
+			reply, err = baseThirdAccountServiceServer.GetBaseThirdAccountIdentifier(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }

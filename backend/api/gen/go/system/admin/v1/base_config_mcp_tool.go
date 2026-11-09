@@ -9,12 +9,13 @@ package adminv1
 import (
 	context "context"
 
-	mcp "github.com/modelcontextprotocol/go-sdk/mcp"
+	mcp "github.com/mark3labs/mcp-go/mcp"
+	server "github.com/mark3labs/mcp-go/server"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // RegisterBaseConfigServiceMCPTools 注册Admin系统配置服务的 MCP Tool。
-func RegisterBaseConfigServiceMCPTools(mcpServer *mcp.Server, baseConfigServiceServer BaseConfigServiceServer) {
+func RegisterBaseConfigServiceMCPTools(mcpServer *server.MCPServer, baseConfigServiceServer BaseConfigServiceServer) {
 	RegisterBaseConfigServiceRefreshBaseConfigCacheMCPTool(mcpServer, baseConfigServiceServer)
 	RegisterBaseConfigServicePageBaseConfigMCPTool(mcpServer, baseConfigServiceServer)
 	RegisterBaseConfigServiceGetBaseConfigMCPTool(mcpServer, baseConfigServiceServer)
@@ -25,148 +26,169 @@ func RegisterBaseConfigServiceMCPTools(mcpServer *mcp.Server, baseConfigServiceS
 }
 
 // RegisterBaseConfigServiceRefreshBaseConfigCacheMCPTool 注册刷新缓存的 MCP Tool。
-func RegisterBaseConfigServiceRefreshBaseConfigCacheMCPTool(mcpServer *mcp.Server, baseConfigServiceServer BaseConfigServiceServer) {
-	mcp.AddTool[*RefreshBaseConfigCacheRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_config_service_refresh_base_config_cache",
-			Description: "刷新缓存",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *RefreshBaseConfigCacheRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &RefreshBaseConfigCacheRequest{}
-			}
-			reply, err := baseConfigServiceServer.RefreshBaseConfigCache(ctx, input)
+func RegisterBaseConfigServiceRefreshBaseConfigCacheMCPTool(mcpServer *server.MCPServer, baseConfigServiceServer BaseConfigServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_config_service_refresh_base_config_cache",
+			mcp.WithDescription("刷新缓存"),
+			mcp.WithInputSchema[*RefreshBaseConfigCacheRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &RefreshBaseConfigCacheRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = baseConfigServiceServer.RefreshBaseConfigCache(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseConfigServicePageBaseConfigMCPTool 注册查询系统配置分页列表的 MCP Tool。
-func RegisterBaseConfigServicePageBaseConfigMCPTool(mcpServer *mcp.Server, baseConfigServiceServer BaseConfigServiceServer) {
-	mcp.AddTool[*PageBaseConfigRequest, *PageBaseConfigResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_config_service_page_base_config",
-			Description: "查询系统配置分页列表",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *PageBaseConfigRequest) (*mcp.CallToolResult, *PageBaseConfigResponse, error) {
-			if input == nil {
-				input = &PageBaseConfigRequest{}
-			}
-			reply, err := baseConfigServiceServer.PageBaseConfig(ctx, input)
+func RegisterBaseConfigServicePageBaseConfigMCPTool(mcpServer *server.MCPServer, baseConfigServiceServer BaseConfigServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_config_service_page_base_config",
+			mcp.WithDescription("查询系统配置分页列表"),
+			mcp.WithInputSchema[*PageBaseConfigRequest](),
+			mcp.WithOutputSchema[*PageBaseConfigResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &PageBaseConfigRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *PageBaseConfigResponse
+			reply, err = baseConfigServiceServer.PageBaseConfig(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseConfigServiceGetBaseConfigMCPTool 注册查询系统配置的 MCP Tool。
-func RegisterBaseConfigServiceGetBaseConfigMCPTool(mcpServer *mcp.Server, baseConfigServiceServer BaseConfigServiceServer) {
-	mcp.AddTool[*GetBaseConfigRequest, *BaseConfigForm](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_config_service_get_base_config",
-			Description: "查询系统配置",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *GetBaseConfigRequest) (*mcp.CallToolResult, *BaseConfigForm, error) {
-			if input == nil {
-				input = &GetBaseConfigRequest{}
-			}
-			reply, err := baseConfigServiceServer.GetBaseConfig(ctx, input)
+func RegisterBaseConfigServiceGetBaseConfigMCPTool(mcpServer *server.MCPServer, baseConfigServiceServer BaseConfigServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_config_service_get_base_config",
+			mcp.WithDescription("查询系统配置"),
+			mcp.WithInputSchema[*GetBaseConfigRequest](),
+			mcp.WithOutputSchema[*BaseConfigForm](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &GetBaseConfigRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *BaseConfigForm
+			reply, err = baseConfigServiceServer.GetBaseConfig(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseConfigServiceCreateBaseConfigMCPTool 注册创建系统配置的 MCP Tool。
-func RegisterBaseConfigServiceCreateBaseConfigMCPTool(mcpServer *mcp.Server, baseConfigServiceServer BaseConfigServiceServer) {
-	mcp.AddTool[*CreateBaseConfigRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_config_service_create_base_config",
-			Description: "创建系统配置",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *CreateBaseConfigRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &CreateBaseConfigRequest{}
-			}
-			reply, err := baseConfigServiceServer.CreateBaseConfig(ctx, input)
+func RegisterBaseConfigServiceCreateBaseConfigMCPTool(mcpServer *server.MCPServer, baseConfigServiceServer BaseConfigServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_config_service_create_base_config",
+			mcp.WithDescription("创建系统配置"),
+			mcp.WithInputSchema[*CreateBaseConfigRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &CreateBaseConfigRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = baseConfigServiceServer.CreateBaseConfig(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseConfigServiceUpdateBaseConfigMCPTool 注册更新系统配置的 MCP Tool。
-func RegisterBaseConfigServiceUpdateBaseConfigMCPTool(mcpServer *mcp.Server, baseConfigServiceServer BaseConfigServiceServer) {
-	mcp.AddTool[*UpdateBaseConfigRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_config_service_update_base_config",
-			Description: "更新系统配置",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *UpdateBaseConfigRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &UpdateBaseConfigRequest{}
-			}
-			reply, err := baseConfigServiceServer.UpdateBaseConfig(ctx, input)
+func RegisterBaseConfigServiceUpdateBaseConfigMCPTool(mcpServer *server.MCPServer, baseConfigServiceServer BaseConfigServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_config_service_update_base_config",
+			mcp.WithDescription("更新系统配置"),
+			mcp.WithInputSchema[*UpdateBaseConfigRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &UpdateBaseConfigRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = baseConfigServiceServer.UpdateBaseConfig(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseConfigServiceDeleteBaseConfigMCPTool 注册删除系统配置的 MCP Tool。
-func RegisterBaseConfigServiceDeleteBaseConfigMCPTool(mcpServer *mcp.Server, baseConfigServiceServer BaseConfigServiceServer) {
-	mcp.AddTool[*DeleteBaseConfigRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_config_service_delete_base_config",
-			Description: "删除系统配置",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *DeleteBaseConfigRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &DeleteBaseConfigRequest{}
-			}
-			reply, err := baseConfigServiceServer.DeleteBaseConfig(ctx, input)
+func RegisterBaseConfigServiceDeleteBaseConfigMCPTool(mcpServer *server.MCPServer, baseConfigServiceServer BaseConfigServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_config_service_delete_base_config",
+			mcp.WithDescription("删除系统配置"),
+			mcp.WithInputSchema[*DeleteBaseConfigRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &DeleteBaseConfigRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = baseConfigServiceServer.DeleteBaseConfig(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseConfigServiceSetBaseConfigStatusMCPTool 注册设置状态的 MCP Tool。
-func RegisterBaseConfigServiceSetBaseConfigStatusMCPTool(mcpServer *mcp.Server, baseConfigServiceServer BaseConfigServiceServer) {
-	mcp.AddTool[*SetBaseConfigStatusRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_config_service_set_base_config_status",
-			Description: "设置状态",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *SetBaseConfigStatusRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &SetBaseConfigStatusRequest{}
-			}
-			reply, err := baseConfigServiceServer.SetBaseConfigStatus(ctx, input)
+func RegisterBaseConfigServiceSetBaseConfigStatusMCPTool(mcpServer *server.MCPServer, baseConfigServiceServer BaseConfigServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_config_service_set_base_config_status",
+			mcp.WithDescription("设置状态"),
+			mcp.WithInputSchema[*SetBaseConfigStatusRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &SetBaseConfigStatusRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = baseConfigServiceServer.SetBaseConfigStatus(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }

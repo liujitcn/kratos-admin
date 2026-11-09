@@ -8,14 +8,14 @@ package adminv1
 
 import (
 	context "context"
-	json "encoding/json"
 
-	mcp "github.com/modelcontextprotocol/go-sdk/mcp"
+	mcp "github.com/mark3labs/mcp-go/mcp"
+	server "github.com/mark3labs/mcp-go/server"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // RegisterBaseOauthProviderServiceMCPTools 注册Admin OAuth第三方登录方式管理服务的 MCP Tool。
-func RegisterBaseOauthProviderServiceMCPTools(mcpServer *mcp.Server, baseOauthProviderServiceServer BaseOauthProviderServiceServer) {
+func RegisterBaseOauthProviderServiceMCPTools(mcpServer *server.MCPServer, baseOauthProviderServiceServer BaseOauthProviderServiceServer) {
 	RegisterBaseOauthProviderServicePageBaseOauthProviderMCPTool(mcpServer, baseOauthProviderServiceServer)
 	RegisterBaseOauthProviderServiceGetBaseOauthProviderMCPTool(mcpServer, baseOauthProviderServiceServer)
 	RegisterBaseOauthProviderServiceCreateBaseOauthProviderMCPTool(mcpServer, baseOauthProviderServiceServer)
@@ -25,141 +25,141 @@ func RegisterBaseOauthProviderServiceMCPTools(mcpServer *mcp.Server, baseOauthPr
 }
 
 // RegisterBaseOauthProviderServicePageBaseOauthProviderMCPTool 注册分页查询OAuth登录方式的 MCP Tool。
-func RegisterBaseOauthProviderServicePageBaseOauthProviderMCPTool(mcpServer *mcp.Server, baseOauthProviderServiceServer BaseOauthProviderServiceServer) {
-	mcp.AddTool[*PageBaseOauthProviderRequest, any](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_oauth_provider_service_page_base_oauth_provider",
-			Description: "分页查询OAuth登录方式。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *PageBaseOauthProviderRequest) (*mcp.CallToolResult, any, error) {
-			if input == nil {
-				input = &PageBaseOauthProviderRequest{}
-			}
-			reply, err := baseOauthProviderServiceServer.PageBaseOauthProvider(ctx, input)
+func RegisterBaseOauthProviderServicePageBaseOauthProviderMCPTool(mcpServer *server.MCPServer, baseOauthProviderServiceServer BaseOauthProviderServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_oauth_provider_service_page_base_oauth_provider",
+			mcp.WithDescription("分页查询OAuth登录方式。"),
+			mcp.WithInputSchema[*PageBaseOauthProviderRequest](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &PageBaseOauthProviderRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *PageBaseOauthProviderResponse
+			reply, err = baseOauthProviderServiceServer.PageBaseOauthProvider(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseOauthProviderServiceGetBaseOauthProviderMCPTool 注册查询OAuth登录方式详情的 MCP Tool。
-func RegisterBaseOauthProviderServiceGetBaseOauthProviderMCPTool(mcpServer *mcp.Server, baseOauthProviderServiceServer BaseOauthProviderServiceServer) {
-	mcp.AddTool[*GetBaseOauthProviderRequest, any](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_oauth_provider_service_get_base_oauth_provider",
-			Description: "查询OAuth登录方式详情。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *GetBaseOauthProviderRequest) (*mcp.CallToolResult, any, error) {
-			if input == nil {
-				input = &GetBaseOauthProviderRequest{}
-			}
-			reply, err := baseOauthProviderServiceServer.GetBaseOauthProvider(ctx, input)
+func RegisterBaseOauthProviderServiceGetBaseOauthProviderMCPTool(mcpServer *server.MCPServer, baseOauthProviderServiceServer BaseOauthProviderServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_oauth_provider_service_get_base_oauth_provider",
+			mcp.WithDescription("查询OAuth登录方式详情。"),
+			mcp.WithInputSchema[*GetBaseOauthProviderRequest](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &GetBaseOauthProviderRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *BaseOauthProviderForm
+			reply, err = baseOauthProviderServiceServer.GetBaseOauthProvider(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseOauthProviderServiceCreateBaseOauthProviderMCPTool 注册创建OAuth登录方式的 MCP Tool。
-func RegisterBaseOauthProviderServiceCreateBaseOauthProviderMCPTool(mcpServer *mcp.Server, baseOauthProviderServiceServer BaseOauthProviderServiceServer) {
-	mcp.AddTool[any, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_oauth_provider_service_create_base_oauth_provider",
-			Description: "创建OAuth登录方式。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input any) (*mcp.CallToolResult, *emptypb.Empty, error) {
+func RegisterBaseOauthProviderServiceCreateBaseOauthProviderMCPTool(mcpServer *server.MCPServer, baseOauthProviderServiceServer BaseOauthProviderServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_oauth_provider_service_create_base_oauth_provider",
+			mcp.WithDescription("创建OAuth登录方式。"),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
 			req := &CreateBaseOauthProviderRequest{}
-			if input != nil {
-				inputBytes, err := json.Marshal(input)
-				if err != nil {
-					return nil, nil, err
-				}
-				if err = json.Unmarshal(inputBytes, req); err != nil {
-					return nil, nil, err
-				}
-			}
-			reply, err := baseOauthProviderServiceServer.CreateBaseOauthProvider(ctx, req)
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = baseOauthProviderServiceServer.CreateBaseOauthProvider(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseOauthProviderServiceUpdateBaseOauthProviderMCPTool 注册更新OAuth登录方式的 MCP Tool。
-func RegisterBaseOauthProviderServiceUpdateBaseOauthProviderMCPTool(mcpServer *mcp.Server, baseOauthProviderServiceServer BaseOauthProviderServiceServer) {
-	mcp.AddTool[any, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_oauth_provider_service_update_base_oauth_provider",
-			Description: "更新OAuth登录方式。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input any) (*mcp.CallToolResult, *emptypb.Empty, error) {
+func RegisterBaseOauthProviderServiceUpdateBaseOauthProviderMCPTool(mcpServer *server.MCPServer, baseOauthProviderServiceServer BaseOauthProviderServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_oauth_provider_service_update_base_oauth_provider",
+			mcp.WithDescription("更新OAuth登录方式。"),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
 			req := &UpdateBaseOauthProviderRequest{}
-			if input != nil {
-				inputBytes, err := json.Marshal(input)
-				if err != nil {
-					return nil, nil, err
-				}
-				if err = json.Unmarshal(inputBytes, req); err != nil {
-					return nil, nil, err
-				}
-			}
-			reply, err := baseOauthProviderServiceServer.UpdateBaseOauthProvider(ctx, req)
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = baseOauthProviderServiceServer.UpdateBaseOauthProvider(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseOauthProviderServiceDeleteBaseOauthProviderMCPTool 注册删除OAuth登录方式的 MCP Tool。
-func RegisterBaseOauthProviderServiceDeleteBaseOauthProviderMCPTool(mcpServer *mcp.Server, baseOauthProviderServiceServer BaseOauthProviderServiceServer) {
-	mcp.AddTool[*DeleteBaseOauthProviderRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_oauth_provider_service_delete_base_oauth_provider",
-			Description: "删除OAuth登录方式。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *DeleteBaseOauthProviderRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &DeleteBaseOauthProviderRequest{}
-			}
-			reply, err := baseOauthProviderServiceServer.DeleteBaseOauthProvider(ctx, input)
+func RegisterBaseOauthProviderServiceDeleteBaseOauthProviderMCPTool(mcpServer *server.MCPServer, baseOauthProviderServiceServer BaseOauthProviderServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_oauth_provider_service_delete_base_oauth_provider",
+			mcp.WithDescription("删除OAuth登录方式。"),
+			mcp.WithInputSchema[*DeleteBaseOauthProviderRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &DeleteBaseOauthProviderRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = baseOauthProviderServiceServer.DeleteBaseOauthProvider(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseOauthProviderServiceSetBaseOauthProviderStatusMCPTool 注册设置OAuth登录方式状态的 MCP Tool。
-func RegisterBaseOauthProviderServiceSetBaseOauthProviderStatusMCPTool(mcpServer *mcp.Server, baseOauthProviderServiceServer BaseOauthProviderServiceServer) {
-	mcp.AddTool[*SetBaseOauthProviderStatusRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_oauth_provider_service_set_base_oauth_provider_status",
-			Description: "设置OAuth登录方式状态。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *SetBaseOauthProviderStatusRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &SetBaseOauthProviderStatusRequest{}
-			}
-			reply, err := baseOauthProviderServiceServer.SetBaseOauthProviderStatus(ctx, input)
+func RegisterBaseOauthProviderServiceSetBaseOauthProviderStatusMCPTool(mcpServer *server.MCPServer, baseOauthProviderServiceServer BaseOauthProviderServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_oauth_provider_service_set_base_oauth_provider_status",
+			mcp.WithDescription("设置OAuth登录方式状态。"),
+			mcp.WithInputSchema[*SetBaseOauthProviderStatusRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &SetBaseOauthProviderStatusRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = baseOauthProviderServiceServer.SetBaseOauthProviderStatus(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }

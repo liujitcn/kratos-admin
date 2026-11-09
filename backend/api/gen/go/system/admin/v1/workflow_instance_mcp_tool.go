@@ -9,12 +9,13 @@ package adminv1
 import (
 	context "context"
 
-	mcp "github.com/modelcontextprotocol/go-sdk/mcp"
+	mcp "github.com/mark3labs/mcp-go/mcp"
+	server "github.com/mark3labs/mcp-go/server"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // RegisterWorkflowInstanceServiceMCPTools 注册Admin工作流流程实例服务的 MCP Tool。
-func RegisterWorkflowInstanceServiceMCPTools(mcpServer *mcp.Server, workflowInstanceServiceServer WorkflowInstanceServiceServer) {
+func RegisterWorkflowInstanceServiceMCPTools(mcpServer *server.MCPServer, workflowInstanceServiceServer WorkflowInstanceServiceServer) {
 	RegisterWorkflowInstanceServiceRetryWorkflowScriptMCPTool(mcpServer, workflowInstanceServiceServer)
 	RegisterWorkflowInstanceServiceSubmitWorkflowInstanceMCPTool(mcpServer, workflowInstanceServiceServer)
 	RegisterWorkflowInstanceServiceWithdrawWorkflowInstanceMCPTool(mcpServer, workflowInstanceServiceServer)
@@ -23,106 +24,121 @@ func RegisterWorkflowInstanceServiceMCPTools(mcpServer *mcp.Server, workflowInst
 }
 
 // RegisterWorkflowInstanceServiceRetryWorkflowScriptMCPTool 注册重试失败的工作流脚本的 MCP Tool。
-func RegisterWorkflowInstanceServiceRetryWorkflowScriptMCPTool(mcpServer *mcp.Server, workflowInstanceServiceServer WorkflowInstanceServiceServer) {
-	mcp.AddTool[*RetryWorkflowScriptRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_workflow_instance_service_retry_workflow_script",
-			Description: "重试失败的工作流脚本",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *RetryWorkflowScriptRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &RetryWorkflowScriptRequest{}
-			}
-			reply, err := workflowInstanceServiceServer.RetryWorkflowScript(ctx, input)
+func RegisterWorkflowInstanceServiceRetryWorkflowScriptMCPTool(mcpServer *server.MCPServer, workflowInstanceServiceServer WorkflowInstanceServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_workflow_instance_service_retry_workflow_script",
+			mcp.WithDescription("重试失败的工作流脚本"),
+			mcp.WithInputSchema[*RetryWorkflowScriptRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &RetryWorkflowScriptRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = workflowInstanceServiceServer.RetryWorkflowScript(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterWorkflowInstanceServiceSubmitWorkflowInstanceMCPTool 注册提交审批申请的 MCP Tool。
-func RegisterWorkflowInstanceServiceSubmitWorkflowInstanceMCPTool(mcpServer *mcp.Server, workflowInstanceServiceServer WorkflowInstanceServiceServer) {
-	mcp.AddTool[*SubmitWorkflowInstanceRequest, *SubmitWorkflowInstanceResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_workflow_instance_service_submit_workflow_instance",
-			Description: "提交审批申请",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *SubmitWorkflowInstanceRequest) (*mcp.CallToolResult, *SubmitWorkflowInstanceResponse, error) {
-			if input == nil {
-				input = &SubmitWorkflowInstanceRequest{}
-			}
-			reply, err := workflowInstanceServiceServer.SubmitWorkflowInstance(ctx, input)
+func RegisterWorkflowInstanceServiceSubmitWorkflowInstanceMCPTool(mcpServer *server.MCPServer, workflowInstanceServiceServer WorkflowInstanceServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_workflow_instance_service_submit_workflow_instance",
+			mcp.WithDescription("提交审批申请"),
+			mcp.WithInputSchema[*SubmitWorkflowInstanceRequest](),
+			mcp.WithOutputSchema[*SubmitWorkflowInstanceResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &SubmitWorkflowInstanceRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *SubmitWorkflowInstanceResponse
+			reply, err = workflowInstanceServiceServer.SubmitWorkflowInstance(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterWorkflowInstanceServiceWithdrawWorkflowInstanceMCPTool 注册撤回审批申请的 MCP Tool。
-func RegisterWorkflowInstanceServiceWithdrawWorkflowInstanceMCPTool(mcpServer *mcp.Server, workflowInstanceServiceServer WorkflowInstanceServiceServer) {
-	mcp.AddTool[*WithdrawWorkflowInstanceRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_workflow_instance_service_withdraw_workflow_instance",
-			Description: "撤回审批申请",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *WithdrawWorkflowInstanceRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &WithdrawWorkflowInstanceRequest{}
-			}
-			reply, err := workflowInstanceServiceServer.WithdrawWorkflowInstance(ctx, input)
+func RegisterWorkflowInstanceServiceWithdrawWorkflowInstanceMCPTool(mcpServer *server.MCPServer, workflowInstanceServiceServer WorkflowInstanceServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_workflow_instance_service_withdraw_workflow_instance",
+			mcp.WithDescription("撤回审批申请"),
+			mcp.WithInputSchema[*WithdrawWorkflowInstanceRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &WithdrawWorkflowInstanceRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = workflowInstanceServiceServer.WithdrawWorkflowInstance(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterWorkflowInstanceServicePageWorkflowInstanceMCPTool 注册查询流程实例分页列表的 MCP Tool。
-func RegisterWorkflowInstanceServicePageWorkflowInstanceMCPTool(mcpServer *mcp.Server, workflowInstanceServiceServer WorkflowInstanceServiceServer) {
-	mcp.AddTool[*PageWorkflowInstanceRequest, *PageWorkflowInstanceResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_workflow_instance_service_page_workflow_instance",
-			Description: "查询流程实例分页列表",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *PageWorkflowInstanceRequest) (*mcp.CallToolResult, *PageWorkflowInstanceResponse, error) {
-			if input == nil {
-				input = &PageWorkflowInstanceRequest{}
-			}
-			reply, err := workflowInstanceServiceServer.PageWorkflowInstance(ctx, input)
+func RegisterWorkflowInstanceServicePageWorkflowInstanceMCPTool(mcpServer *server.MCPServer, workflowInstanceServiceServer WorkflowInstanceServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_workflow_instance_service_page_workflow_instance",
+			mcp.WithDescription("查询流程实例分页列表"),
+			mcp.WithInputSchema[*PageWorkflowInstanceRequest](),
+			mcp.WithOutputSchema[*PageWorkflowInstanceResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &PageWorkflowInstanceRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *PageWorkflowInstanceResponse
+			reply, err = workflowInstanceServiceServer.PageWorkflowInstance(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterWorkflowInstanceServiceGetWorkflowInstanceMCPTool 注册查询流程实例详情的 MCP Tool。
-func RegisterWorkflowInstanceServiceGetWorkflowInstanceMCPTool(mcpServer *mcp.Server, workflowInstanceServiceServer WorkflowInstanceServiceServer) {
-	mcp.AddTool[*GetWorkflowInstanceRequest, *GetWorkflowInstanceResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_workflow_instance_service_get_workflow_instance",
-			Description: "查询流程实例详情",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *GetWorkflowInstanceRequest) (*mcp.CallToolResult, *GetWorkflowInstanceResponse, error) {
-			if input == nil {
-				input = &GetWorkflowInstanceRequest{}
-			}
-			reply, err := workflowInstanceServiceServer.GetWorkflowInstance(ctx, input)
+func RegisterWorkflowInstanceServiceGetWorkflowInstanceMCPTool(mcpServer *server.MCPServer, workflowInstanceServiceServer WorkflowInstanceServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_workflow_instance_service_get_workflow_instance",
+			mcp.WithDescription("查询流程实例详情"),
+			mcp.WithInputSchema[*GetWorkflowInstanceRequest](),
+			mcp.WithOutputSchema[*GetWorkflowInstanceResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &GetWorkflowInstanceRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *GetWorkflowInstanceResponse
+			reply, err = workflowInstanceServiceServer.GetWorkflowInstance(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }

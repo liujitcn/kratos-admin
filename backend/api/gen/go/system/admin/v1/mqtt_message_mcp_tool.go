@@ -9,53 +9,60 @@ package adminv1
 import (
 	context "context"
 
-	mcp "github.com/modelcontextprotocol/go-sdk/mcp"
+	mcp "github.com/mark3labs/mcp-go/mcp"
+	server "github.com/mark3labs/mcp-go/server"
 )
 
 // RegisterMqttMessageServiceMCPTools 注册Admin MQTT 消息记录查询服务的 MCP Tool。
-func RegisterMqttMessageServiceMCPTools(mcpServer *mcp.Server, mqttMessageServiceServer MqttMessageServiceServer) {
+func RegisterMqttMessageServiceMCPTools(mcpServer *server.MCPServer, mqttMessageServiceServer MqttMessageServiceServer) {
 	RegisterMqttMessageServicePageMqttMessageMCPTool(mcpServer, mqttMessageServiceServer)
 	RegisterMqttMessageServiceGetMqttMessageMCPTool(mcpServer, mqttMessageServiceServer)
 }
 
 // RegisterMqttMessageServicePageMqttMessageMCPTool 注册分页查询 MQTT 消息记录的 MCP Tool。
-func RegisterMqttMessageServicePageMqttMessageMCPTool(mcpServer *mcp.Server, mqttMessageServiceServer MqttMessageServiceServer) {
-	mcp.AddTool[*PageMqttMessageRequest, *PageMqttMessageResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_mqtt_message_service_page_mqtt_message",
-			Description: "分页查询 MQTT 消息记录。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *PageMqttMessageRequest) (*mcp.CallToolResult, *PageMqttMessageResponse, error) {
-			if input == nil {
-				input = &PageMqttMessageRequest{}
-			}
-			reply, err := mqttMessageServiceServer.PageMqttMessage(ctx, input)
+func RegisterMqttMessageServicePageMqttMessageMCPTool(mcpServer *server.MCPServer, mqttMessageServiceServer MqttMessageServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_mqtt_message_service_page_mqtt_message",
+			mcp.WithDescription("分页查询 MQTT 消息记录。"),
+			mcp.WithInputSchema[*PageMqttMessageRequest](),
+			mcp.WithOutputSchema[*PageMqttMessageResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &PageMqttMessageRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *PageMqttMessageResponse
+			reply, err = mqttMessageServiceServer.PageMqttMessage(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterMqttMessageServiceGetMqttMessageMCPTool 注册查询 MQTT 消息记录详情的 MCP Tool。
-func RegisterMqttMessageServiceGetMqttMessageMCPTool(mcpServer *mcp.Server, mqttMessageServiceServer MqttMessageServiceServer) {
-	mcp.AddTool[*GetMqttMessageRequest, *MqttMessageDetail](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_mqtt_message_service_get_mqtt_message",
-			Description: "查询 MQTT 消息记录详情。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *GetMqttMessageRequest) (*mcp.CallToolResult, *MqttMessageDetail, error) {
-			if input == nil {
-				input = &GetMqttMessageRequest{}
-			}
-			reply, err := mqttMessageServiceServer.GetMqttMessage(ctx, input)
+func RegisterMqttMessageServiceGetMqttMessageMCPTool(mcpServer *server.MCPServer, mqttMessageServiceServer MqttMessageServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_mqtt_message_service_get_mqtt_message",
+			mcp.WithDescription("查询 MQTT 消息记录详情。"),
+			mcp.WithInputSchema[*GetMqttMessageRequest](),
+			mcp.WithOutputSchema[*MqttMessageDetail](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &GetMqttMessageRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *MqttMessageDetail
+			reply, err = mqttMessageServiceServer.GetMqttMessage(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }

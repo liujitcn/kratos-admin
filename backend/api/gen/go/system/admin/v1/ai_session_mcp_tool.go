@@ -9,53 +9,60 @@ package adminv1
 import (
 	context "context"
 
-	mcp "github.com/modelcontextprotocol/go-sdk/mcp"
+	mcp "github.com/mark3labs/mcp-go/mcp"
+	server "github.com/mark3labs/mcp-go/server"
 )
 
 // RegisterAiSessionServiceMCPTools 注册AI会话管理服务的 MCP Tool。
-func RegisterAiSessionServiceMCPTools(mcpServer *mcp.Server, aiSessionServiceServer AiSessionServiceServer) {
+func RegisterAiSessionServiceMCPTools(mcpServer *server.MCPServer, aiSessionServiceServer AiSessionServiceServer) {
 	RegisterAiSessionServicePageAiSessionMCPTool(mcpServer, aiSessionServiceServer)
 	RegisterAiSessionServicePageAiSessionMessageMCPTool(mcpServer, aiSessionServiceServer)
 }
 
 // RegisterAiSessionServicePageAiSessionMCPTool 注册分页查询AI会话的 MCP Tool。
-func RegisterAiSessionServicePageAiSessionMCPTool(mcpServer *mcp.Server, aiSessionServiceServer AiSessionServiceServer) {
-	mcp.AddTool[*PageAiSessionRequest, *PageAiSessionResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_ai_session_service_page_ai_session",
-			Description: "分页查询AI会话。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *PageAiSessionRequest) (*mcp.CallToolResult, *PageAiSessionResponse, error) {
-			if input == nil {
-				input = &PageAiSessionRequest{}
-			}
-			reply, err := aiSessionServiceServer.PageAiSession(ctx, input)
+func RegisterAiSessionServicePageAiSessionMCPTool(mcpServer *server.MCPServer, aiSessionServiceServer AiSessionServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_ai_session_service_page_ai_session",
+			mcp.WithDescription("分页查询AI会话。"),
+			mcp.WithInputSchema[*PageAiSessionRequest](),
+			mcp.WithOutputSchema[*PageAiSessionResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &PageAiSessionRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *PageAiSessionResponse
+			reply, err = aiSessionServiceServer.PageAiSession(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterAiSessionServicePageAiSessionMessageMCPTool 注册分页查询AI会话消息的 MCP Tool。
-func RegisterAiSessionServicePageAiSessionMessageMCPTool(mcpServer *mcp.Server, aiSessionServiceServer AiSessionServiceServer) {
-	mcp.AddTool[*PageAiSessionMessageRequest, *PageAiSessionMessageResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_ai_session_service_page_ai_session_message",
-			Description: "分页查询AI会话消息。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *PageAiSessionMessageRequest) (*mcp.CallToolResult, *PageAiSessionMessageResponse, error) {
-			if input == nil {
-				input = &PageAiSessionMessageRequest{}
-			}
-			reply, err := aiSessionServiceServer.PageAiSessionMessage(ctx, input)
+func RegisterAiSessionServicePageAiSessionMessageMCPTool(mcpServer *server.MCPServer, aiSessionServiceServer AiSessionServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_ai_session_service_page_ai_session_message",
+			mcp.WithDescription("分页查询AI会话消息。"),
+			mcp.WithInputSchema[*PageAiSessionMessageRequest](),
+			mcp.WithOutputSchema[*PageAiSessionMessageResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &PageAiSessionMessageRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *PageAiSessionMessageResponse
+			reply, err = aiSessionServiceServer.PageAiSessionMessage(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }

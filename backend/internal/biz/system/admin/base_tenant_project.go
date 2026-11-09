@@ -25,6 +25,7 @@ import (
 	_string "github.com/liujitcn/go-utils/string"
 	"github.com/liujitcn/gorm-kit/repository"
 	"github.com/liujitcn/kratos-kit/database/gorm"
+	"google.golang.org/protobuf/proto"
 	gormdb "gorm.io/gorm"
 )
 
@@ -224,22 +225,26 @@ func (c *BaseTenantProjectCase) submitTenantProjectApproval(ctx context.Context,
 	if req.GetId() != 0 {
 		return 0, errorsx.InvalidArgument("新增项目不能指定ID")
 	}
-	tenantID, err := c.resolveTenantID(ctx, req.GetTenantId())
+	var tenantID int64
+	tenantID, err = c.resolveTenantID(ctx, req.GetTenantId())
 	if err != nil {
 		return 0, err
 	}
-	project, err := c.createProjectPlaceholder(ctx, req, tenantID)
+	var project *models.BaseTenantProject
+	project, err = c.createProjectPlaceholder(ctx, req, tenantID)
 	if err != nil {
 		return 0, err
 	}
-	formDataValue := *req
+	formDataValue := proto.CloneOf(req)
 	formDataValue.Id = 0
 	formDataValue.TenantId = project.TenantID
-	formData, err := json.Marshal(&formDataValue)
+	var formData []byte
+	formData, err = json.Marshal(formDataValue)
 	if err != nil {
 		return 0, err
 	}
-	instanceID, err := workflow.Submit(ctx, workflow.SubmitParams{
+	var instanceID int64
+	instanceID, err = workflow.Submit(ctx, workflow.SubmitParams{
 		Code:         baseTenantProjectCreateWorkflowCode,
 		Version:      1,
 		FormData:     string(formData),

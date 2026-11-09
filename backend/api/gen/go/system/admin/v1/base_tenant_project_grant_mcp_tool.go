@@ -9,12 +9,13 @@ package adminv1
 import (
 	context "context"
 
-	mcp "github.com/modelcontextprotocol/go-sdk/mcp"
+	mcp "github.com/mark3labs/mcp-go/mcp"
+	server "github.com/mark3labs/mcp-go/server"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // RegisterBaseTenantProjectGrantServiceMCPTools 注册Admin项目授权服务的 MCP Tool。
-func RegisterBaseTenantProjectGrantServiceMCPTools(mcpServer *mcp.Server, baseTenantProjectGrantServiceServer BaseTenantProjectGrantServiceServer) {
+func RegisterBaseTenantProjectGrantServiceMCPTools(mcpServer *server.MCPServer, baseTenantProjectGrantServiceServer BaseTenantProjectGrantServiceServer) {
 	RegisterBaseTenantProjectGrantServicePageBaseTenantProjectGrantMCPTool(mcpServer, baseTenantProjectGrantServiceServer)
 	RegisterBaseTenantProjectGrantServiceGetBaseTenantProjectGrantMCPTool(mcpServer, baseTenantProjectGrantServiceServer)
 	RegisterBaseTenantProjectGrantServiceCreateBaseTenantProjectGrantMCPTool(mcpServer, baseTenantProjectGrantServiceServer)
@@ -23,106 +24,121 @@ func RegisterBaseTenantProjectGrantServiceMCPTools(mcpServer *mcp.Server, baseTe
 }
 
 // RegisterBaseTenantProjectGrantServicePageBaseTenantProjectGrantMCPTool 注册查询项目授权分页列表的 MCP Tool。
-func RegisterBaseTenantProjectGrantServicePageBaseTenantProjectGrantMCPTool(mcpServer *mcp.Server, baseTenantProjectGrantServiceServer BaseTenantProjectGrantServiceServer) {
-	mcp.AddTool[*PageBaseTenantProjectGrantRequest, *PageBaseTenantProjectGrantResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_tenant_project_grant_service_page_base_tenant_project_grant",
-			Description: "查询项目授权分页列表。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *PageBaseTenantProjectGrantRequest) (*mcp.CallToolResult, *PageBaseTenantProjectGrantResponse, error) {
-			if input == nil {
-				input = &PageBaseTenantProjectGrantRequest{}
-			}
-			reply, err := baseTenantProjectGrantServiceServer.PageBaseTenantProjectGrant(ctx, input)
+func RegisterBaseTenantProjectGrantServicePageBaseTenantProjectGrantMCPTool(mcpServer *server.MCPServer, baseTenantProjectGrantServiceServer BaseTenantProjectGrantServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_tenant_project_grant_service_page_base_tenant_project_grant",
+			mcp.WithDescription("查询项目授权分页列表。"),
+			mcp.WithInputSchema[*PageBaseTenantProjectGrantRequest](),
+			mcp.WithOutputSchema[*PageBaseTenantProjectGrantResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &PageBaseTenantProjectGrantRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *PageBaseTenantProjectGrantResponse
+			reply, err = baseTenantProjectGrantServiceServer.PageBaseTenantProjectGrant(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseTenantProjectGrantServiceGetBaseTenantProjectGrantMCPTool 注册查询项目授权详情的 MCP Tool。
-func RegisterBaseTenantProjectGrantServiceGetBaseTenantProjectGrantMCPTool(mcpServer *mcp.Server, baseTenantProjectGrantServiceServer BaseTenantProjectGrantServiceServer) {
-	mcp.AddTool[*GetBaseTenantProjectGrantRequest, *BaseTenantProjectGrant](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_tenant_project_grant_service_get_base_tenant_project_grant",
-			Description: "查询项目授权详情。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *GetBaseTenantProjectGrantRequest) (*mcp.CallToolResult, *BaseTenantProjectGrant, error) {
-			if input == nil {
-				input = &GetBaseTenantProjectGrantRequest{}
-			}
-			reply, err := baseTenantProjectGrantServiceServer.GetBaseTenantProjectGrant(ctx, input)
+func RegisterBaseTenantProjectGrantServiceGetBaseTenantProjectGrantMCPTool(mcpServer *server.MCPServer, baseTenantProjectGrantServiceServer BaseTenantProjectGrantServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_tenant_project_grant_service_get_base_tenant_project_grant",
+			mcp.WithDescription("查询项目授权详情。"),
+			mcp.WithInputSchema[*GetBaseTenantProjectGrantRequest](),
+			mcp.WithOutputSchema[*BaseTenantProjectGrant](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &GetBaseTenantProjectGrantRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *BaseTenantProjectGrant
+			reply, err = baseTenantProjectGrantServiceServer.GetBaseTenantProjectGrant(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseTenantProjectGrantServiceCreateBaseTenantProjectGrantMCPTool 注册新增项目授权的 MCP Tool。
-func RegisterBaseTenantProjectGrantServiceCreateBaseTenantProjectGrantMCPTool(mcpServer *mcp.Server, baseTenantProjectGrantServiceServer BaseTenantProjectGrantServiceServer) {
-	mcp.AddTool[*CreateBaseTenantProjectGrantRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_tenant_project_grant_service_create_base_tenant_project_grant",
-			Description: "新增项目授权。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *CreateBaseTenantProjectGrantRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &CreateBaseTenantProjectGrantRequest{}
-			}
-			reply, err := baseTenantProjectGrantServiceServer.CreateBaseTenantProjectGrant(ctx, input)
+func RegisterBaseTenantProjectGrantServiceCreateBaseTenantProjectGrantMCPTool(mcpServer *server.MCPServer, baseTenantProjectGrantServiceServer BaseTenantProjectGrantServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_tenant_project_grant_service_create_base_tenant_project_grant",
+			mcp.WithDescription("新增项目授权。"),
+			mcp.WithInputSchema[*CreateBaseTenantProjectGrantRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &CreateBaseTenantProjectGrantRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = baseTenantProjectGrantServiceServer.CreateBaseTenantProjectGrant(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseTenantProjectGrantServiceUpdateBaseTenantProjectGrantMCPTool 注册更新项目授权，只修改项目范围，授权主体联合键不可变更的 MCP Tool。
-func RegisterBaseTenantProjectGrantServiceUpdateBaseTenantProjectGrantMCPTool(mcpServer *mcp.Server, baseTenantProjectGrantServiceServer BaseTenantProjectGrantServiceServer) {
-	mcp.AddTool[*UpdateBaseTenantProjectGrantRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_tenant_project_grant_service_update_base_tenant_project_grant",
-			Description: "更新项目授权，只修改项目范围，授权主体联合键不可变更。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *UpdateBaseTenantProjectGrantRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &UpdateBaseTenantProjectGrantRequest{}
-			}
-			reply, err := baseTenantProjectGrantServiceServer.UpdateBaseTenantProjectGrant(ctx, input)
+func RegisterBaseTenantProjectGrantServiceUpdateBaseTenantProjectGrantMCPTool(mcpServer *server.MCPServer, baseTenantProjectGrantServiceServer BaseTenantProjectGrantServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_tenant_project_grant_service_update_base_tenant_project_grant",
+			mcp.WithDescription("更新项目授权，只修改项目范围，授权主体联合键不可变更。"),
+			mcp.WithInputSchema[*UpdateBaseTenantProjectGrantRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &UpdateBaseTenantProjectGrantRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = baseTenantProjectGrantServiceServer.UpdateBaseTenantProjectGrant(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseTenantProjectGrantServiceDeleteBaseTenantProjectGrantMCPTool 注册删除项目授权的 MCP Tool。
-func RegisterBaseTenantProjectGrantServiceDeleteBaseTenantProjectGrantMCPTool(mcpServer *mcp.Server, baseTenantProjectGrantServiceServer BaseTenantProjectGrantServiceServer) {
-	mcp.AddTool[*DeleteBaseTenantProjectGrantRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_tenant_project_grant_service_delete_base_tenant_project_grant",
-			Description: "删除项目授权。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *DeleteBaseTenantProjectGrantRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &DeleteBaseTenantProjectGrantRequest{}
-			}
-			reply, err := baseTenantProjectGrantServiceServer.DeleteBaseTenantProjectGrant(ctx, input)
+func RegisterBaseTenantProjectGrantServiceDeleteBaseTenantProjectGrantMCPTool(mcpServer *server.MCPServer, baseTenantProjectGrantServiceServer BaseTenantProjectGrantServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_tenant_project_grant_service_delete_base_tenant_project_grant",
+			mcp.WithDescription("删除项目授权。"),
+			mcp.WithInputSchema[*DeleteBaseTenantProjectGrantRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &DeleteBaseTenantProjectGrantRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = baseTenantProjectGrantServiceServer.DeleteBaseTenantProjectGrant(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }

@@ -10,53 +10,60 @@ import (
 	context "context"
 
 	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
-	mcp "github.com/modelcontextprotocol/go-sdk/mcp"
+	mcp "github.com/mark3labs/mcp-go/mcp"
+	server "github.com/mark3labs/mcp-go/server"
 )
 
 // RegisterBaseTableSourceServiceMCPTools 注册Admin数据源元数据服务，提供数据备份、数据归档和代码生成共用的数据源信息的 MCP Tool。
-func RegisterBaseTableSourceServiceMCPTools(mcpServer *mcp.Server, baseTableSourceServiceServer BaseTableSourceServiceServer) {
+func RegisterBaseTableSourceServiceMCPTools(mcpServer *server.MCPServer, baseTableSourceServiceServer BaseTableSourceServiceServer) {
 	RegisterBaseTableSourceServiceOptionBaseTableSourceMCPTool(mcpServer, baseTableSourceServiceServer)
 	RegisterBaseTableSourceServiceOptionBaseTableMCPTool(mcpServer, baseTableSourceServiceServer)
 }
 
 // RegisterBaseTableSourceServiceOptionBaseTableSourceMCPTool 注册查询已初始化的数据源名称的 MCP Tool。
-func RegisterBaseTableSourceServiceOptionBaseTableSourceMCPTool(mcpServer *mcp.Server, baseTableSourceServiceServer BaseTableSourceServiceServer) {
-	mcp.AddTool[*OptionBaseTableSourceRequest, *commonv1.StringValues](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_table_source_service_option_base_table_source",
-			Description: "查询已初始化的数据源名称。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *OptionBaseTableSourceRequest) (*mcp.CallToolResult, *commonv1.StringValues, error) {
-			if input == nil {
-				input = &OptionBaseTableSourceRequest{}
-			}
-			reply, err := baseTableSourceServiceServer.OptionBaseTableSource(ctx, input)
+func RegisterBaseTableSourceServiceOptionBaseTableSourceMCPTool(mcpServer *server.MCPServer, baseTableSourceServiceServer BaseTableSourceServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_table_source_service_option_base_table_source",
+			mcp.WithDescription("查询已初始化的数据源名称。"),
+			mcp.WithInputSchema[*OptionBaseTableSourceRequest](),
+			mcp.WithOutputSchema[*commonv1.StringValues](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &OptionBaseTableSourceRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *commonv1.StringValues
+			reply, err = baseTableSourceServiceServer.OptionBaseTableSource(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseTableSourceServiceOptionBaseTableMCPTool 注册查询指定数据源中的数据库表选项的 MCP Tool。
-func RegisterBaseTableSourceServiceOptionBaseTableMCPTool(mcpServer *mcp.Server, baseTableSourceServiceServer BaseTableSourceServiceServer) {
-	mcp.AddTool[*OptionBaseTableRequest, *OptionBaseTableResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_table_source_service_option_base_table",
-			Description: "查询指定数据源中的数据库表选项。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *OptionBaseTableRequest) (*mcp.CallToolResult, *OptionBaseTableResponse, error) {
-			if input == nil {
-				input = &OptionBaseTableRequest{}
-			}
-			reply, err := baseTableSourceServiceServer.OptionBaseTable(ctx, input)
+func RegisterBaseTableSourceServiceOptionBaseTableMCPTool(mcpServer *server.MCPServer, baseTableSourceServiceServer BaseTableSourceServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_table_source_service_option_base_table",
+			mcp.WithDescription("查询指定数据源中的数据库表选项。"),
+			mcp.WithInputSchema[*OptionBaseTableRequest](),
+			mcp.WithOutputSchema[*OptionBaseTableResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &OptionBaseTableRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *OptionBaseTableResponse
+			reply, err = baseTableSourceServiceServer.OptionBaseTable(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }

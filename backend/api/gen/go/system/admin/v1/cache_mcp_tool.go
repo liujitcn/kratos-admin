@@ -9,31 +9,35 @@ package adminv1
 import (
 	context "context"
 
-	mcp "github.com/modelcontextprotocol/go-sdk/mcp"
+	mcp "github.com/mark3labs/mcp-go/mcp"
+	server "github.com/mark3labs/mcp-go/server"
 )
 
 // RegisterCacheServiceMCPTools 注册Admin运行时缓存查询服务的 MCP Tool。
-func RegisterCacheServiceMCPTools(mcpServer *mcp.Server, cacheServiceServer CacheServiceServer) {
+func RegisterCacheServiceMCPTools(mcpServer *server.MCPServer, cacheServiceServer CacheServiceServer) {
 	RegisterCacheServicePageCacheMCPTool(mcpServer, cacheServiceServer)
 }
 
 // RegisterCacheServicePageCacheMCPTool 注册分页查询当前进程已观测到的缓存条目的 MCP Tool。
-func RegisterCacheServicePageCacheMCPTool(mcpServer *mcp.Server, cacheServiceServer CacheServiceServer) {
-	mcp.AddTool[*PageCacheRequest, *PageCacheResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_cache_service_page_cache",
-			Description: "分页查询当前进程已观测到的缓存条目。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *PageCacheRequest) (*mcp.CallToolResult, *PageCacheResponse, error) {
-			if input == nil {
-				input = &PageCacheRequest{}
-			}
-			reply, err := cacheServiceServer.PageCache(ctx, input)
+func RegisterCacheServicePageCacheMCPTool(mcpServer *server.MCPServer, cacheServiceServer CacheServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_cache_service_page_cache",
+			mcp.WithDescription("分页查询当前进程已观测到的缓存条目。"),
+			mcp.WithInputSchema[*PageCacheRequest](),
+			mcp.WithOutputSchema[*PageCacheResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &PageCacheRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *PageCacheResponse
+			reply, err = cacheServiceServer.PageCache(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }

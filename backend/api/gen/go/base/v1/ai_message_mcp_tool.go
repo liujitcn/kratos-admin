@@ -9,11 +9,12 @@ package basev1
 import (
 	context "context"
 
-	mcp "github.com/modelcontextprotocol/go-sdk/mcp"
+	mcp "github.com/mark3labs/mcp-go/mcp"
+	server "github.com/mark3labs/mcp-go/server"
 )
 
 // RegisterAiMessageServiceMCPTools 注册Base AI 助手消息服务的 MCP Tool。
-func RegisterAiMessageServiceMCPTools(mcpServer *mcp.Server, aiMessageServiceServer AiMessageServiceServer) {
+func RegisterAiMessageServiceMCPTools(mcpServer *server.MCPServer, aiMessageServiceServer AiMessageServiceServer) {
 	RegisterAiMessageServiceDecideAiToolApprovalMCPTool(mcpServer, aiMessageServiceServer)
 	RegisterAiMessageServiceUpdateAiMessageMCPTool(mcpServer, aiMessageServiceServer)
 	RegisterAiMessageServiceDeleteAiMessageMCPTool(mcpServer, aiMessageServiceServer)
@@ -23,127 +24,145 @@ func RegisterAiMessageServiceMCPTools(mcpServer *mcp.Server, aiMessageServiceSer
 }
 
 // RegisterAiMessageServiceDecideAiToolApprovalMCPTool 注册确认或拒绝当前用户的待执行工具调用的 MCP Tool。
-func RegisterAiMessageServiceDecideAiToolApprovalMCPTool(mcpServer *mcp.Server, aiMessageServiceServer AiMessageServiceServer) {
-	mcp.AddTool[*DecideAiToolApprovalRequest, *SendAiMessageResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "base_v1_ai_message_service_decide_ai_tool_approval",
-			Description: "确认或拒绝当前用户的待执行工具调用。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *DecideAiToolApprovalRequest) (*mcp.CallToolResult, *SendAiMessageResponse, error) {
-			if input == nil {
-				input = &DecideAiToolApprovalRequest{}
-			}
-			reply, err := aiMessageServiceServer.DecideAiToolApproval(ctx, input)
+func RegisterAiMessageServiceDecideAiToolApprovalMCPTool(mcpServer *server.MCPServer, aiMessageServiceServer AiMessageServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("base_v1_ai_message_service_decide_ai_tool_approval",
+			mcp.WithDescription("确认或拒绝当前用户的待执行工具调用。"),
+			mcp.WithInputSchema[*DecideAiToolApprovalRequest](),
+			mcp.WithOutputSchema[*SendAiMessageResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &DecideAiToolApprovalRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *SendAiMessageResponse
+			reply, err = aiMessageServiceServer.DecideAiToolApproval(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterAiMessageServiceUpdateAiMessageMCPTool 注册更新 AI 助手消息并重新生成输出的 MCP Tool。
-func RegisterAiMessageServiceUpdateAiMessageMCPTool(mcpServer *mcp.Server, aiMessageServiceServer AiMessageServiceServer) {
-	mcp.AddTool[*UpdateAiMessageRequest, *SendAiMessageResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "base_v1_ai_message_service_update_ai_message",
-			Description: "更新 AI 助手消息并重新生成输出",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *UpdateAiMessageRequest) (*mcp.CallToolResult, *SendAiMessageResponse, error) {
-			if input == nil {
-				input = &UpdateAiMessageRequest{}
-			}
-			reply, err := aiMessageServiceServer.UpdateAiMessage(ctx, input)
+func RegisterAiMessageServiceUpdateAiMessageMCPTool(mcpServer *server.MCPServer, aiMessageServiceServer AiMessageServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("base_v1_ai_message_service_update_ai_message",
+			mcp.WithDescription("更新 AI 助手消息并重新生成输出"),
+			mcp.WithInputSchema[*UpdateAiMessageRequest](),
+			mcp.WithOutputSchema[*SendAiMessageResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &UpdateAiMessageRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *SendAiMessageResponse
+			reply, err = aiMessageServiceServer.UpdateAiMessage(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterAiMessageServiceDeleteAiMessageMCPTool 注册删除 AI 助手消息的 MCP Tool。
-func RegisterAiMessageServiceDeleteAiMessageMCPTool(mcpServer *mcp.Server, aiMessageServiceServer AiMessageServiceServer) {
-	mcp.AddTool[*DeleteAiMessageRequest, *DeleteAiMessageResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "base_v1_ai_message_service_delete_ai_message",
-			Description: "删除 AI 助手消息",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *DeleteAiMessageRequest) (*mcp.CallToolResult, *DeleteAiMessageResponse, error) {
-			if input == nil {
-				input = &DeleteAiMessageRequest{}
-			}
-			reply, err := aiMessageServiceServer.DeleteAiMessage(ctx, input)
+func RegisterAiMessageServiceDeleteAiMessageMCPTool(mcpServer *server.MCPServer, aiMessageServiceServer AiMessageServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("base_v1_ai_message_service_delete_ai_message",
+			mcp.WithDescription("删除 AI 助手消息"),
+			mcp.WithInputSchema[*DeleteAiMessageRequest](),
+			mcp.WithOutputSchema[*DeleteAiMessageResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &DeleteAiMessageRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *DeleteAiMessageResponse
+			reply, err = aiMessageServiceServer.DeleteAiMessage(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterAiMessageServiceSendAiMessageMCPTool 注册发送 AI 助手消息的 MCP Tool。
-func RegisterAiMessageServiceSendAiMessageMCPTool(mcpServer *mcp.Server, aiMessageServiceServer AiMessageServiceServer) {
-	mcp.AddTool[*SendAiMessageRequest, *SendAiMessageResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "base_v1_ai_message_service_send_ai_message",
-			Description: "发送 AI 助手消息",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *SendAiMessageRequest) (*mcp.CallToolResult, *SendAiMessageResponse, error) {
-			if input == nil {
-				input = &SendAiMessageRequest{}
-			}
-			reply, err := aiMessageServiceServer.SendAiMessage(ctx, input)
+func RegisterAiMessageServiceSendAiMessageMCPTool(mcpServer *server.MCPServer, aiMessageServiceServer AiMessageServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("base_v1_ai_message_service_send_ai_message",
+			mcp.WithDescription("发送 AI 助手消息"),
+			mcp.WithInputSchema[*SendAiMessageRequest](),
+			mcp.WithOutputSchema[*SendAiMessageResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &SendAiMessageRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *SendAiMessageResponse
+			reply, err = aiMessageServiceServer.SendAiMessage(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterAiMessageServiceRetryAiUserMessageMCPTool 注册重试失败的 AI 助手消息的 MCP Tool。
-func RegisterAiMessageServiceRetryAiUserMessageMCPTool(mcpServer *mcp.Server, aiMessageServiceServer AiMessageServiceServer) {
-	mcp.AddTool[*RetryAiUserMessageRequest, *SendAiMessageResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "base_v1_ai_message_service_retry_ai_user_message",
-			Description: "重试失败的 AI 助手消息",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *RetryAiUserMessageRequest) (*mcp.CallToolResult, *SendAiMessageResponse, error) {
-			if input == nil {
-				input = &RetryAiUserMessageRequest{}
-			}
-			reply, err := aiMessageServiceServer.RetryAiUserMessage(ctx, input)
+func RegisterAiMessageServiceRetryAiUserMessageMCPTool(mcpServer *server.MCPServer, aiMessageServiceServer AiMessageServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("base_v1_ai_message_service_retry_ai_user_message",
+			mcp.WithDescription("重试失败的 AI 助手消息"),
+			mcp.WithInputSchema[*RetryAiUserMessageRequest](),
+			mcp.WithOutputSchema[*SendAiMessageResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &RetryAiUserMessageRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *SendAiMessageResponse
+			reply, err = aiMessageServiceServer.RetryAiUserMessage(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterAiMessageServiceRegenerateAiMessageMCPTool 注册重新生成 AI 助手输出的 MCP Tool。
-func RegisterAiMessageServiceRegenerateAiMessageMCPTool(mcpServer *mcp.Server, aiMessageServiceServer AiMessageServiceServer) {
-	mcp.AddTool[*RegenerateAiMessageRequest, *SendAiMessageResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "base_v1_ai_message_service_regenerate_ai_message",
-			Description: "重新生成 AI 助手输出",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *RegenerateAiMessageRequest) (*mcp.CallToolResult, *SendAiMessageResponse, error) {
-			if input == nil {
-				input = &RegenerateAiMessageRequest{}
-			}
-			reply, err := aiMessageServiceServer.RegenerateAiMessage(ctx, input)
+func RegisterAiMessageServiceRegenerateAiMessageMCPTool(mcpServer *server.MCPServer, aiMessageServiceServer AiMessageServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("base_v1_ai_message_service_regenerate_ai_message",
+			mcp.WithDescription("重新生成 AI 助手输出"),
+			mcp.WithInputSchema[*RegenerateAiMessageRequest](),
+			mcp.WithOutputSchema[*SendAiMessageResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &RegenerateAiMessageRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *SendAiMessageResponse
+			reply, err = aiMessageServiceServer.RegenerateAiMessage(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }

@@ -9,31 +9,35 @@ package appv1
 import (
 	context "context"
 
-	mcp "github.com/modelcontextprotocol/go-sdk/mcp"
+	mcp "github.com/mark3labs/mcp-go/mcp"
+	server "github.com/mark3labs/mcp-go/server"
 )
 
 // RegisterBaseMenuServiceMCPTools 注册App菜单服务的 MCP Tool。
-func RegisterBaseMenuServiceMCPTools(mcpServer *mcp.Server, baseMenuServiceServer BaseMenuServiceServer) {
+func RegisterBaseMenuServiceMCPTools(mcpServer *server.MCPServer, baseMenuServiceServer BaseMenuServiceServer) {
 	RegisterBaseMenuServiceListBaseMenuMCPTool(mcpServer, baseMenuServiceServer)
 }
 
 // RegisterBaseMenuServiceListBaseMenuMCPTool 注册查询移动端菜单的 MCP Tool。
-func RegisterBaseMenuServiceListBaseMenuMCPTool(mcpServer *mcp.Server, baseMenuServiceServer BaseMenuServiceServer) {
-	mcp.AddTool[*ListBaseMenuRequest, *ListBaseMenuResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_app_v1_base_menu_service_list_base_menu",
-			Description: "查询移动端菜单",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *ListBaseMenuRequest) (*mcp.CallToolResult, *ListBaseMenuResponse, error) {
-			if input == nil {
-				input = &ListBaseMenuRequest{}
-			}
-			reply, err := baseMenuServiceServer.ListBaseMenu(ctx, input)
+func RegisterBaseMenuServiceListBaseMenuMCPTool(mcpServer *server.MCPServer, baseMenuServiceServer BaseMenuServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_app_v1_base_menu_service_list_base_menu",
+			mcp.WithDescription("查询移动端菜单"),
+			mcp.WithInputSchema[*ListBaseMenuRequest](),
+			mcp.WithOutputSchema[*ListBaseMenuResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &ListBaseMenuRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *ListBaseMenuResponse
+			reply, err = baseMenuServiceServer.ListBaseMenu(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }

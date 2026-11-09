@@ -8,14 +8,14 @@ package adminv1
 
 import (
 	context "context"
-	json "encoding/json"
 
-	mcp "github.com/modelcontextprotocol/go-sdk/mcp"
+	mcp "github.com/mark3labs/mcp-go/mcp"
+	server "github.com/mark3labs/mcp-go/server"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // RegisterBaseMessageTemplateServiceMCPTools 注册Admin消息 Provider 模板管理服务的 MCP Tool。
-func RegisterBaseMessageTemplateServiceMCPTools(mcpServer *mcp.Server, baseMessageTemplateServiceServer BaseMessageTemplateServiceServer) {
+func RegisterBaseMessageTemplateServiceMCPTools(mcpServer *server.MCPServer, baseMessageTemplateServiceServer BaseMessageTemplateServiceServer) {
 	RegisterBaseMessageTemplateServicePageBaseMessageTemplateMCPTool(mcpServer, baseMessageTemplateServiceServer)
 	RegisterBaseMessageTemplateServiceGetBaseMessageTemplateMCPTool(mcpServer, baseMessageTemplateServiceServer)
 	RegisterBaseMessageTemplateServiceCreateBaseMessageTemplateMCPTool(mcpServer, baseMessageTemplateServiceServer)
@@ -24,120 +24,117 @@ func RegisterBaseMessageTemplateServiceMCPTools(mcpServer *mcp.Server, baseMessa
 }
 
 // RegisterBaseMessageTemplateServicePageBaseMessageTemplateMCPTool 注册分页查询消息 Provider 模板的 MCP Tool。
-func RegisterBaseMessageTemplateServicePageBaseMessageTemplateMCPTool(mcpServer *mcp.Server, baseMessageTemplateServiceServer BaseMessageTemplateServiceServer) {
-	mcp.AddTool[*PageBaseMessageTemplateRequest, any](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_message_template_service_page_base_message_template",
-			Description: "分页查询消息 Provider 模板。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *PageBaseMessageTemplateRequest) (*mcp.CallToolResult, any, error) {
-			if input == nil {
-				input = &PageBaseMessageTemplateRequest{}
-			}
-			reply, err := baseMessageTemplateServiceServer.PageBaseMessageTemplate(ctx, input)
+func RegisterBaseMessageTemplateServicePageBaseMessageTemplateMCPTool(mcpServer *server.MCPServer, baseMessageTemplateServiceServer BaseMessageTemplateServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_message_template_service_page_base_message_template",
+			mcp.WithDescription("分页查询消息 Provider 模板。"),
+			mcp.WithInputSchema[*PageBaseMessageTemplateRequest](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &PageBaseMessageTemplateRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *PageBaseMessageTemplateResponse
+			reply, err = baseMessageTemplateServiceServer.PageBaseMessageTemplate(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseMessageTemplateServiceGetBaseMessageTemplateMCPTool 注册查询消息 Provider 模板详情的 MCP Tool。
-func RegisterBaseMessageTemplateServiceGetBaseMessageTemplateMCPTool(mcpServer *mcp.Server, baseMessageTemplateServiceServer BaseMessageTemplateServiceServer) {
-	mcp.AddTool[*GetBaseMessageTemplateRequest, any](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_message_template_service_get_base_message_template",
-			Description: "查询消息 Provider 模板详情。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *GetBaseMessageTemplateRequest) (*mcp.CallToolResult, any, error) {
-			if input == nil {
-				input = &GetBaseMessageTemplateRequest{}
-			}
-			reply, err := baseMessageTemplateServiceServer.GetBaseMessageTemplate(ctx, input)
+func RegisterBaseMessageTemplateServiceGetBaseMessageTemplateMCPTool(mcpServer *server.MCPServer, baseMessageTemplateServiceServer BaseMessageTemplateServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_message_template_service_get_base_message_template",
+			mcp.WithDescription("查询消息 Provider 模板详情。"),
+			mcp.WithInputSchema[*GetBaseMessageTemplateRequest](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &GetBaseMessageTemplateRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *BaseMessageTemplateForm
+			reply, err = baseMessageTemplateServiceServer.GetBaseMessageTemplate(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseMessageTemplateServiceCreateBaseMessageTemplateMCPTool 注册创建消息 Provider 模板的 MCP Tool。
-func RegisterBaseMessageTemplateServiceCreateBaseMessageTemplateMCPTool(mcpServer *mcp.Server, baseMessageTemplateServiceServer BaseMessageTemplateServiceServer) {
-	mcp.AddTool[any, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_message_template_service_create_base_message_template",
-			Description: "创建消息 Provider 模板。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input any) (*mcp.CallToolResult, *emptypb.Empty, error) {
+func RegisterBaseMessageTemplateServiceCreateBaseMessageTemplateMCPTool(mcpServer *server.MCPServer, baseMessageTemplateServiceServer BaseMessageTemplateServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_message_template_service_create_base_message_template",
+			mcp.WithDescription("创建消息 Provider 模板。"),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
 			req := &CreateBaseMessageTemplateRequest{}
-			if input != nil {
-				inputBytes, err := json.Marshal(input)
-				if err != nil {
-					return nil, nil, err
-				}
-				if err = json.Unmarshal(inputBytes, req); err != nil {
-					return nil, nil, err
-				}
-			}
-			reply, err := baseMessageTemplateServiceServer.CreateBaseMessageTemplate(ctx, req)
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = baseMessageTemplateServiceServer.CreateBaseMessageTemplate(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseMessageTemplateServiceUpdateBaseMessageTemplateMCPTool 注册更新消息 Provider 模板的 MCP Tool。
-func RegisterBaseMessageTemplateServiceUpdateBaseMessageTemplateMCPTool(mcpServer *mcp.Server, baseMessageTemplateServiceServer BaseMessageTemplateServiceServer) {
-	mcp.AddTool[any, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_message_template_service_update_base_message_template",
-			Description: "更新消息 Provider 模板。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input any) (*mcp.CallToolResult, *emptypb.Empty, error) {
+func RegisterBaseMessageTemplateServiceUpdateBaseMessageTemplateMCPTool(mcpServer *server.MCPServer, baseMessageTemplateServiceServer BaseMessageTemplateServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_message_template_service_update_base_message_template",
+			mcp.WithDescription("更新消息 Provider 模板。"),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
 			req := &UpdateBaseMessageTemplateRequest{}
-			if input != nil {
-				inputBytes, err := json.Marshal(input)
-				if err != nil {
-					return nil, nil, err
-				}
-				if err = json.Unmarshal(inputBytes, req); err != nil {
-					return nil, nil, err
-				}
-			}
-			reply, err := baseMessageTemplateServiceServer.UpdateBaseMessageTemplate(ctx, req)
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = baseMessageTemplateServiceServer.UpdateBaseMessageTemplate(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseMessageTemplateServiceDeleteBaseMessageTemplateMCPTool 注册删除消息 Provider 模板的 MCP Tool。
-func RegisterBaseMessageTemplateServiceDeleteBaseMessageTemplateMCPTool(mcpServer *mcp.Server, baseMessageTemplateServiceServer BaseMessageTemplateServiceServer) {
-	mcp.AddTool[*DeleteBaseMessageTemplateRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_message_template_service_delete_base_message_template",
-			Description: "删除消息 Provider 模板。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *DeleteBaseMessageTemplateRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &DeleteBaseMessageTemplateRequest{}
-			}
-			reply, err := baseMessageTemplateServiceServer.DeleteBaseMessageTemplate(ctx, input)
+func RegisterBaseMessageTemplateServiceDeleteBaseMessageTemplateMCPTool(mcpServer *server.MCPServer, baseMessageTemplateServiceServer BaseMessageTemplateServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_message_template_service_delete_base_message_template",
+			mcp.WithDescription("删除消息 Provider 模板。"),
+			mcp.WithInputSchema[*DeleteBaseMessageTemplateRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &DeleteBaseMessageTemplateRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = baseMessageTemplateServiceServer.DeleteBaseMessageTemplate(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }

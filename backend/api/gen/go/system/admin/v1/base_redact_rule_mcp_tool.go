@@ -10,12 +10,13 @@ import (
 	context "context"
 
 	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
-	mcp "github.com/modelcontextprotocol/go-sdk/mcp"
+	mcp "github.com/mark3labs/mcp-go/mcp"
+	server "github.com/mark3labs/mcp-go/server"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // RegisterBaseRedactRuleServiceMCPTools 注册Admin脱敏规则模板服务的 MCP Tool。
-func RegisterBaseRedactRuleServiceMCPTools(mcpServer *mcp.Server, baseRedactRuleServiceServer BaseRedactRuleServiceServer) {
+func RegisterBaseRedactRuleServiceMCPTools(mcpServer *server.MCPServer, baseRedactRuleServiceServer BaseRedactRuleServiceServer) {
 	RegisterBaseRedactRuleServiceOptionBaseRedactRuleMCPTool(mcpServer, baseRedactRuleServiceServer)
 	RegisterBaseRedactRuleServicePageBaseRedactRuleMCPTool(mcpServer, baseRedactRuleServiceServer)
 	RegisterBaseRedactRuleServiceGetBaseRedactRuleMCPTool(mcpServer, baseRedactRuleServiceServer)
@@ -26,148 +27,169 @@ func RegisterBaseRedactRuleServiceMCPTools(mcpServer *mcp.Server, baseRedactRule
 }
 
 // RegisterBaseRedactRuleServiceOptionBaseRedactRuleMCPTool 注册查询脱敏规则选项的 MCP Tool。
-func RegisterBaseRedactRuleServiceOptionBaseRedactRuleMCPTool(mcpServer *mcp.Server, baseRedactRuleServiceServer BaseRedactRuleServiceServer) {
-	mcp.AddTool[*OptionBaseRedactRuleRequest, *commonv1.SelectOptionResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_redact_rule_service_option_base_redact_rule",
-			Description: "查询脱敏规则选项。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *OptionBaseRedactRuleRequest) (*mcp.CallToolResult, *commonv1.SelectOptionResponse, error) {
-			if input == nil {
-				input = &OptionBaseRedactRuleRequest{}
-			}
-			reply, err := baseRedactRuleServiceServer.OptionBaseRedactRule(ctx, input)
+func RegisterBaseRedactRuleServiceOptionBaseRedactRuleMCPTool(mcpServer *server.MCPServer, baseRedactRuleServiceServer BaseRedactRuleServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_redact_rule_service_option_base_redact_rule",
+			mcp.WithDescription("查询脱敏规则选项。"),
+			mcp.WithInputSchema[*OptionBaseRedactRuleRequest](),
+			mcp.WithOutputSchema[*commonv1.SelectOptionResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &OptionBaseRedactRuleRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *commonv1.SelectOptionResponse
+			reply, err = baseRedactRuleServiceServer.OptionBaseRedactRule(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseRedactRuleServicePageBaseRedactRuleMCPTool 注册查询脱敏规则分页列表的 MCP Tool。
-func RegisterBaseRedactRuleServicePageBaseRedactRuleMCPTool(mcpServer *mcp.Server, baseRedactRuleServiceServer BaseRedactRuleServiceServer) {
-	mcp.AddTool[*PageBaseRedactRuleRequest, *PageBaseRedactRuleResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_redact_rule_service_page_base_redact_rule",
-			Description: "查询脱敏规则分页列表。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *PageBaseRedactRuleRequest) (*mcp.CallToolResult, *PageBaseRedactRuleResponse, error) {
-			if input == nil {
-				input = &PageBaseRedactRuleRequest{}
-			}
-			reply, err := baseRedactRuleServiceServer.PageBaseRedactRule(ctx, input)
+func RegisterBaseRedactRuleServicePageBaseRedactRuleMCPTool(mcpServer *server.MCPServer, baseRedactRuleServiceServer BaseRedactRuleServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_redact_rule_service_page_base_redact_rule",
+			mcp.WithDescription("查询脱敏规则分页列表。"),
+			mcp.WithInputSchema[*PageBaseRedactRuleRequest](),
+			mcp.WithOutputSchema[*PageBaseRedactRuleResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &PageBaseRedactRuleRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *PageBaseRedactRuleResponse
+			reply, err = baseRedactRuleServiceServer.PageBaseRedactRule(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseRedactRuleServiceGetBaseRedactRuleMCPTool 注册查询脱敏规则详情的 MCP Tool。
-func RegisterBaseRedactRuleServiceGetBaseRedactRuleMCPTool(mcpServer *mcp.Server, baseRedactRuleServiceServer BaseRedactRuleServiceServer) {
-	mcp.AddTool[*GetBaseRedactRuleRequest, *BaseRedactRuleForm](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_redact_rule_service_get_base_redact_rule",
-			Description: "查询脱敏规则详情。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *GetBaseRedactRuleRequest) (*mcp.CallToolResult, *BaseRedactRuleForm, error) {
-			if input == nil {
-				input = &GetBaseRedactRuleRequest{}
-			}
-			reply, err := baseRedactRuleServiceServer.GetBaseRedactRule(ctx, input)
+func RegisterBaseRedactRuleServiceGetBaseRedactRuleMCPTool(mcpServer *server.MCPServer, baseRedactRuleServiceServer BaseRedactRuleServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_redact_rule_service_get_base_redact_rule",
+			mcp.WithDescription("查询脱敏规则详情。"),
+			mcp.WithInputSchema[*GetBaseRedactRuleRequest](),
+			mcp.WithOutputSchema[*BaseRedactRuleForm](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &GetBaseRedactRuleRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *BaseRedactRuleForm
+			reply, err = baseRedactRuleServiceServer.GetBaseRedactRule(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseRedactRuleServiceCreateBaseRedactRuleMCPTool 注册创建脱敏规则的 MCP Tool。
-func RegisterBaseRedactRuleServiceCreateBaseRedactRuleMCPTool(mcpServer *mcp.Server, baseRedactRuleServiceServer BaseRedactRuleServiceServer) {
-	mcp.AddTool[*CreateBaseRedactRuleRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_redact_rule_service_create_base_redact_rule",
-			Description: "创建脱敏规则。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *CreateBaseRedactRuleRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &CreateBaseRedactRuleRequest{}
-			}
-			reply, err := baseRedactRuleServiceServer.CreateBaseRedactRule(ctx, input)
+func RegisterBaseRedactRuleServiceCreateBaseRedactRuleMCPTool(mcpServer *server.MCPServer, baseRedactRuleServiceServer BaseRedactRuleServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_redact_rule_service_create_base_redact_rule",
+			mcp.WithDescription("创建脱敏规则。"),
+			mcp.WithInputSchema[*CreateBaseRedactRuleRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &CreateBaseRedactRuleRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = baseRedactRuleServiceServer.CreateBaseRedactRule(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseRedactRuleServiceUpdateBaseRedactRuleMCPTool 注册更新脱敏规则的 MCP Tool。
-func RegisterBaseRedactRuleServiceUpdateBaseRedactRuleMCPTool(mcpServer *mcp.Server, baseRedactRuleServiceServer BaseRedactRuleServiceServer) {
-	mcp.AddTool[*UpdateBaseRedactRuleRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_redact_rule_service_update_base_redact_rule",
-			Description: "更新脱敏规则。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *UpdateBaseRedactRuleRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &UpdateBaseRedactRuleRequest{}
-			}
-			reply, err := baseRedactRuleServiceServer.UpdateBaseRedactRule(ctx, input)
+func RegisterBaseRedactRuleServiceUpdateBaseRedactRuleMCPTool(mcpServer *server.MCPServer, baseRedactRuleServiceServer BaseRedactRuleServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_redact_rule_service_update_base_redact_rule",
+			mcp.WithDescription("更新脱敏规则。"),
+			mcp.WithInputSchema[*UpdateBaseRedactRuleRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &UpdateBaseRedactRuleRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = baseRedactRuleServiceServer.UpdateBaseRedactRule(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseRedactRuleServiceDeleteBaseRedactRuleMCPTool 注册删除脱敏规则的 MCP Tool。
-func RegisterBaseRedactRuleServiceDeleteBaseRedactRuleMCPTool(mcpServer *mcp.Server, baseRedactRuleServiceServer BaseRedactRuleServiceServer) {
-	mcp.AddTool[*DeleteBaseRedactRuleRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_redact_rule_service_delete_base_redact_rule",
-			Description: "删除脱敏规则。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *DeleteBaseRedactRuleRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &DeleteBaseRedactRuleRequest{}
-			}
-			reply, err := baseRedactRuleServiceServer.DeleteBaseRedactRule(ctx, input)
+func RegisterBaseRedactRuleServiceDeleteBaseRedactRuleMCPTool(mcpServer *server.MCPServer, baseRedactRuleServiceServer BaseRedactRuleServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_redact_rule_service_delete_base_redact_rule",
+			mcp.WithDescription("删除脱敏规则。"),
+			mcp.WithInputSchema[*DeleteBaseRedactRuleRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &DeleteBaseRedactRuleRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = baseRedactRuleServiceServer.DeleteBaseRedactRule(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseRedactRuleServiceSetBaseRedactRuleStatusMCPTool 注册设置脱敏规则状态的 MCP Tool。
-func RegisterBaseRedactRuleServiceSetBaseRedactRuleStatusMCPTool(mcpServer *mcp.Server, baseRedactRuleServiceServer BaseRedactRuleServiceServer) {
-	mcp.AddTool[*SetBaseRedactRuleStatusRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_redact_rule_service_set_base_redact_rule_status",
-			Description: "设置脱敏规则状态。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *SetBaseRedactRuleStatusRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &SetBaseRedactRuleStatusRequest{}
-			}
-			reply, err := baseRedactRuleServiceServer.SetBaseRedactRuleStatus(ctx, input)
+func RegisterBaseRedactRuleServiceSetBaseRedactRuleStatusMCPTool(mcpServer *server.MCPServer, baseRedactRuleServiceServer BaseRedactRuleServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_redact_rule_service_set_base_redact_rule_status",
+			mcp.WithDescription("设置脱敏规则状态。"),
+			mcp.WithInputSchema[*SetBaseRedactRuleStatusRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &SetBaseRedactRuleStatusRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = baseRedactRuleServiceServer.SetBaseRedactRuleStatus(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }

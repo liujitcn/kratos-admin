@@ -9,11 +9,12 @@ package adminv1
 import (
 	context "context"
 
-	mcp "github.com/modelcontextprotocol/go-sdk/mcp"
+	mcp "github.com/mark3labs/mcp-go/mcp"
+	server "github.com/mark3labs/mcp-go/server"
 )
 
 // RegisterOpsMonitoringServiceMCPTools 注册Admin运维监控服务的 MCP Tool。
-func RegisterOpsMonitoringServiceMCPTools(mcpServer *mcp.Server, opsMonitoringServiceServer OpsMonitoringServiceServer) {
+func RegisterOpsMonitoringServiceMCPTools(mcpServer *server.MCPServer, opsMonitoringServiceServer OpsMonitoringServiceServer) {
 	RegisterOpsMonitoringServiceGetOpsRuntimeMCPTool(mcpServer, opsMonitoringServiceServer)
 	RegisterOpsMonitoringServiceGetOpsTrafficMCPTool(mcpServer, opsMonitoringServiceServer)
 	RegisterOpsMonitoringServiceGetOpsServicesMCPTool(mcpServer, opsMonitoringServiceServer)
@@ -24,148 +25,169 @@ func RegisterOpsMonitoringServiceMCPTools(mcpServer *mcp.Server, opsMonitoringSe
 }
 
 // RegisterOpsMonitoringServiceGetOpsRuntimeMCPTool 注册查询当前进程运行信息的 MCP Tool。
-func RegisterOpsMonitoringServiceGetOpsRuntimeMCPTool(mcpServer *mcp.Server, opsMonitoringServiceServer OpsMonitoringServiceServer) {
-	mcp.AddTool[*GetOpsRuntimeRequest, *OpsRuntime](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_ops_monitoring_service_get_ops_runtime",
-			Description: "查询当前进程运行信息。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *GetOpsRuntimeRequest) (*mcp.CallToolResult, *OpsRuntime, error) {
-			if input == nil {
-				input = &GetOpsRuntimeRequest{}
-			}
-			reply, err := opsMonitoringServiceServer.GetOpsRuntime(ctx, input)
+func RegisterOpsMonitoringServiceGetOpsRuntimeMCPTool(mcpServer *server.MCPServer, opsMonitoringServiceServer OpsMonitoringServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_ops_monitoring_service_get_ops_runtime",
+			mcp.WithDescription("查询当前进程运行信息。"),
+			mcp.WithInputSchema[*GetOpsRuntimeRequest](),
+			mcp.WithOutputSchema[*OpsRuntime](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &GetOpsRuntimeRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *OpsRuntime
+			reply, err = opsMonitoringServiceServer.GetOpsRuntime(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterOpsMonitoringServiceGetOpsTrafficMCPTool 注册查询请求流量与延迟趋势的 MCP Tool。
-func RegisterOpsMonitoringServiceGetOpsTrafficMCPTool(mcpServer *mcp.Server, opsMonitoringServiceServer OpsMonitoringServiceServer) {
-	mcp.AddTool[*GetOpsTrafficRequest, *OpsTrafficResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_ops_monitoring_service_get_ops_traffic",
-			Description: "查询请求流量与延迟趋势。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *GetOpsTrafficRequest) (*mcp.CallToolResult, *OpsTrafficResponse, error) {
-			if input == nil {
-				input = &GetOpsTrafficRequest{}
-			}
-			reply, err := opsMonitoringServiceServer.GetOpsTraffic(ctx, input)
+func RegisterOpsMonitoringServiceGetOpsTrafficMCPTool(mcpServer *server.MCPServer, opsMonitoringServiceServer OpsMonitoringServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_ops_monitoring_service_get_ops_traffic",
+			mcp.WithDescription("查询请求流量与延迟趋势。"),
+			mcp.WithInputSchema[*GetOpsTrafficRequest](),
+			mcp.WithOutputSchema[*OpsTrafficResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &GetOpsTrafficRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *OpsTrafficResponse
+			reply, err = opsMonitoringServiceServer.GetOpsTraffic(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterOpsMonitoringServiceGetOpsServicesMCPTool 注册查询服务和外部依赖状态的 MCP Tool。
-func RegisterOpsMonitoringServiceGetOpsServicesMCPTool(mcpServer *mcp.Server, opsMonitoringServiceServer OpsMonitoringServiceServer) {
-	mcp.AddTool[*GetOpsServicesRequest, *OpsServicesResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_ops_monitoring_service_get_ops_services",
-			Description: "查询服务和外部依赖状态。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *GetOpsServicesRequest) (*mcp.CallToolResult, *OpsServicesResponse, error) {
-			if input == nil {
-				input = &GetOpsServicesRequest{}
-			}
-			reply, err := opsMonitoringServiceServer.GetOpsServices(ctx, input)
+func RegisterOpsMonitoringServiceGetOpsServicesMCPTool(mcpServer *server.MCPServer, opsMonitoringServiceServer OpsMonitoringServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_ops_monitoring_service_get_ops_services",
+			mcp.WithDescription("查询服务和外部依赖状态。"),
+			mcp.WithInputSchema[*GetOpsServicesRequest](),
+			mcp.WithOutputSchema[*OpsServicesResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &GetOpsServicesRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *OpsServicesResponse
+			reply, err = opsMonitoringServiceServer.GetOpsServices(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterOpsMonitoringServiceGetOpsStorageMCPTool 注册查询数据库和缓存状态的 MCP Tool。
-func RegisterOpsMonitoringServiceGetOpsStorageMCPTool(mcpServer *mcp.Server, opsMonitoringServiceServer OpsMonitoringServiceServer) {
-	mcp.AddTool[*GetOpsStorageRequest, *OpsStorageResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_ops_monitoring_service_get_ops_storage",
-			Description: "查询数据库和缓存状态。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *GetOpsStorageRequest) (*mcp.CallToolResult, *OpsStorageResponse, error) {
-			if input == nil {
-				input = &GetOpsStorageRequest{}
-			}
-			reply, err := opsMonitoringServiceServer.GetOpsStorage(ctx, input)
+func RegisterOpsMonitoringServiceGetOpsStorageMCPTool(mcpServer *server.MCPServer, opsMonitoringServiceServer OpsMonitoringServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_ops_monitoring_service_get_ops_storage",
+			mcp.WithDescription("查询数据库和缓存状态。"),
+			mcp.WithInputSchema[*GetOpsStorageRequest](),
+			mcp.WithOutputSchema[*OpsStorageResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &GetOpsStorageRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *OpsStorageResponse
+			reply, err = opsMonitoringServiceServer.GetOpsStorage(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterOpsMonitoringServiceGetOpsEndpointsMCPTool 注册查询接口请求摘要的 MCP Tool。
-func RegisterOpsMonitoringServiceGetOpsEndpointsMCPTool(mcpServer *mcp.Server, opsMonitoringServiceServer OpsMonitoringServiceServer) {
-	mcp.AddTool[*GetOpsEndpointsRequest, *OpsEndpointsResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_ops_monitoring_service_get_ops_endpoints",
-			Description: "查询接口请求摘要。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *GetOpsEndpointsRequest) (*mcp.CallToolResult, *OpsEndpointsResponse, error) {
-			if input == nil {
-				input = &GetOpsEndpointsRequest{}
-			}
-			reply, err := opsMonitoringServiceServer.GetOpsEndpoints(ctx, input)
+func RegisterOpsMonitoringServiceGetOpsEndpointsMCPTool(mcpServer *server.MCPServer, opsMonitoringServiceServer OpsMonitoringServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_ops_monitoring_service_get_ops_endpoints",
+			mcp.WithDescription("查询接口请求摘要。"),
+			mcp.WithInputSchema[*GetOpsEndpointsRequest](),
+			mcp.WithOutputSchema[*OpsEndpointsResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &GetOpsEndpointsRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *OpsEndpointsResponse
+			reply, err = opsMonitoringServiceServer.GetOpsEndpoints(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterOpsMonitoringServiceGetOpsNodesMCPTool 注册查询实例资源状态的 MCP Tool。
-func RegisterOpsMonitoringServiceGetOpsNodesMCPTool(mcpServer *mcp.Server, opsMonitoringServiceServer OpsMonitoringServiceServer) {
-	mcp.AddTool[*GetOpsNodesRequest, *OpsNodesResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_ops_monitoring_service_get_ops_nodes",
-			Description: "查询实例资源状态。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *GetOpsNodesRequest) (*mcp.CallToolResult, *OpsNodesResponse, error) {
-			if input == nil {
-				input = &GetOpsNodesRequest{}
-			}
-			reply, err := opsMonitoringServiceServer.GetOpsNodes(ctx, input)
+func RegisterOpsMonitoringServiceGetOpsNodesMCPTool(mcpServer *server.MCPServer, opsMonitoringServiceServer OpsMonitoringServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_ops_monitoring_service_get_ops_nodes",
+			mcp.WithDescription("查询实例资源状态。"),
+			mcp.WithInputSchema[*GetOpsNodesRequest](),
+			mcp.WithOutputSchema[*OpsNodesResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &GetOpsNodesRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *OpsNodesResponse
+			reply, err = opsMonitoringServiceServer.GetOpsNodes(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterOpsMonitoringServiceGetOpsAlertsMCPTool 注册查询窗口内告警事件的 MCP Tool。
-func RegisterOpsMonitoringServiceGetOpsAlertsMCPTool(mcpServer *mcp.Server, opsMonitoringServiceServer OpsMonitoringServiceServer) {
-	mcp.AddTool[*GetOpsAlertsRequest, *OpsAlertsResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_ops_monitoring_service_get_ops_alerts",
-			Description: "查询窗口内告警事件。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *GetOpsAlertsRequest) (*mcp.CallToolResult, *OpsAlertsResponse, error) {
-			if input == nil {
-				input = &GetOpsAlertsRequest{}
-			}
-			reply, err := opsMonitoringServiceServer.GetOpsAlerts(ctx, input)
+func RegisterOpsMonitoringServiceGetOpsAlertsMCPTool(mcpServer *server.MCPServer, opsMonitoringServiceServer OpsMonitoringServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_ops_monitoring_service_get_ops_alerts",
+			mcp.WithDescription("查询窗口内告警事件。"),
+			mcp.WithInputSchema[*GetOpsAlertsRequest](),
+			mcp.WithOutputSchema[*OpsAlertsResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &GetOpsAlertsRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *OpsAlertsResponse
+			reply, err = opsMonitoringServiceServer.GetOpsAlerts(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }

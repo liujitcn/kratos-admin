@@ -9,53 +9,60 @@ package adminv1
 import (
 	context "context"
 
-	mcp "github.com/modelcontextprotocol/go-sdk/mcp"
+	mcp "github.com/mark3labs/mcp-go/mcp"
+	server "github.com/mark3labs/mcp-go/server"
 )
 
 // RegisterBiQueryRecordServiceMCPTools 注册BI 查询记录管理服务的 MCP Tool。
-func RegisterBiQueryRecordServiceMCPTools(mcpServer *mcp.Server, biQueryRecordServiceServer BiQueryRecordServiceServer) {
+func RegisterBiQueryRecordServiceMCPTools(mcpServer *server.MCPServer, biQueryRecordServiceServer BiQueryRecordServiceServer) {
 	RegisterBiQueryRecordServicePageBiQueryMCPTool(mcpServer, biQueryRecordServiceServer)
 	RegisterBiQueryRecordServiceGetBiQueryMCPTool(mcpServer, biQueryRecordServiceServer)
 }
 
 // RegisterBiQueryRecordServicePageBiQueryMCPTool 注册分页查询当前用户的自然语言问数历史的 MCP Tool。
-func RegisterBiQueryRecordServicePageBiQueryMCPTool(mcpServer *mcp.Server, biQueryRecordServiceServer BiQueryRecordServiceServer) {
-	mcp.AddTool[*PageBiQueryRequest, *PageBiQueryResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "bi_admin_v1_bi_query_record_service_page_bi_query",
-			Description: "分页查询当前用户的自然语言问数历史。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *PageBiQueryRequest) (*mcp.CallToolResult, *PageBiQueryResponse, error) {
-			if input == nil {
-				input = &PageBiQueryRequest{}
-			}
-			reply, err := biQueryRecordServiceServer.PageBiQuery(ctx, input)
+func RegisterBiQueryRecordServicePageBiQueryMCPTool(mcpServer *server.MCPServer, biQueryRecordServiceServer BiQueryRecordServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("bi_admin_v1_bi_query_record_service_page_bi_query",
+			mcp.WithDescription("分页查询当前用户的自然语言问数历史。"),
+			mcp.WithInputSchema[*PageBiQueryRequest](),
+			mcp.WithOutputSchema[*PageBiQueryResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &PageBiQueryRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *PageBiQueryResponse
+			reply, err = biQueryRecordServiceServer.PageBiQuery(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBiQueryRecordServiceGetBiQueryMCPTool 注册查询智能问数记录详情的 MCP Tool。
-func RegisterBiQueryRecordServiceGetBiQueryMCPTool(mcpServer *mcp.Server, biQueryRecordServiceServer BiQueryRecordServiceServer) {
-	mcp.AddTool[*GetBiQueryRequest, *BiQueryRecord](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "bi_admin_v1_bi_query_record_service_get_bi_query",
-			Description: "查询智能问数记录详情。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *GetBiQueryRequest) (*mcp.CallToolResult, *BiQueryRecord, error) {
-			if input == nil {
-				input = &GetBiQueryRequest{}
-			}
-			reply, err := biQueryRecordServiceServer.GetBiQuery(ctx, input)
+func RegisterBiQueryRecordServiceGetBiQueryMCPTool(mcpServer *server.MCPServer, biQueryRecordServiceServer BiQueryRecordServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("bi_admin_v1_bi_query_record_service_get_bi_query",
+			mcp.WithDescription("查询智能问数记录详情。"),
+			mcp.WithInputSchema[*GetBiQueryRequest](),
+			mcp.WithOutputSchema[*BiQueryRecord](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &GetBiQueryRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *BiQueryRecord
+			reply, err = biQueryRecordServiceServer.GetBiQuery(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }

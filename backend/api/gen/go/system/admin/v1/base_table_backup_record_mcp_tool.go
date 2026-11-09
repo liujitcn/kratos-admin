@@ -9,53 +9,60 @@ package adminv1
 import (
 	context "context"
 
-	mcp "github.com/modelcontextprotocol/go-sdk/mcp"
+	mcp "github.com/mark3labs/mcp-go/mcp"
+	server "github.com/mark3labs/mcp-go/server"
 )
 
 // RegisterBaseTableBackupRecordServiceMCPTools 注册Admin数据库备份执行记录服务的 MCP Tool。
-func RegisterBaseTableBackupRecordServiceMCPTools(mcpServer *mcp.Server, baseTableBackupRecordServiceServer BaseTableBackupRecordServiceServer) {
+func RegisterBaseTableBackupRecordServiceMCPTools(mcpServer *server.MCPServer, baseTableBackupRecordServiceServer BaseTableBackupRecordServiceServer) {
 	RegisterBaseTableBackupRecordServicePageBaseTableBackupRecordMCPTool(mcpServer, baseTableBackupRecordServiceServer)
 	RegisterBaseTableBackupRecordServiceGetBaseTableBackupRecordMCPTool(mcpServer, baseTableBackupRecordServiceServer)
 }
 
 // RegisterBaseTableBackupRecordServicePageBaseTableBackupRecordMCPTool 注册查询数据库备份记录分页列表的 MCP Tool。
-func RegisterBaseTableBackupRecordServicePageBaseTableBackupRecordMCPTool(mcpServer *mcp.Server, baseTableBackupRecordServiceServer BaseTableBackupRecordServiceServer) {
-	mcp.AddTool[*PageBaseTableBackupRecordRequest, *PageBaseTableBackupRecordResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_table_backup_record_service_page_base_table_backup_record",
-			Description: "查询数据库备份记录分页列表。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *PageBaseTableBackupRecordRequest) (*mcp.CallToolResult, *PageBaseTableBackupRecordResponse, error) {
-			if input == nil {
-				input = &PageBaseTableBackupRecordRequest{}
-			}
-			reply, err := baseTableBackupRecordServiceServer.PageBaseTableBackupRecord(ctx, input)
+func RegisterBaseTableBackupRecordServicePageBaseTableBackupRecordMCPTool(mcpServer *server.MCPServer, baseTableBackupRecordServiceServer BaseTableBackupRecordServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_table_backup_record_service_page_base_table_backup_record",
+			mcp.WithDescription("查询数据库备份记录分页列表。"),
+			mcp.WithInputSchema[*PageBaseTableBackupRecordRequest](),
+			mcp.WithOutputSchema[*PageBaseTableBackupRecordResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &PageBaseTableBackupRecordRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *PageBaseTableBackupRecordResponse
+			reply, err = baseTableBackupRecordServiceServer.PageBaseTableBackupRecord(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseTableBackupRecordServiceGetBaseTableBackupRecordMCPTool 注册查询数据库备份记录的 MCP Tool。
-func RegisterBaseTableBackupRecordServiceGetBaseTableBackupRecordMCPTool(mcpServer *mcp.Server, baseTableBackupRecordServiceServer BaseTableBackupRecordServiceServer) {
-	mcp.AddTool[*GetBaseTableBackupRecordRequest, *BaseTableBackupRecord](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_table_backup_record_service_get_base_table_backup_record",
-			Description: "查询数据库备份记录。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *GetBaseTableBackupRecordRequest) (*mcp.CallToolResult, *BaseTableBackupRecord, error) {
-			if input == nil {
-				input = &GetBaseTableBackupRecordRequest{}
-			}
-			reply, err := baseTableBackupRecordServiceServer.GetBaseTableBackupRecord(ctx, input)
+func RegisterBaseTableBackupRecordServiceGetBaseTableBackupRecordMCPTool(mcpServer *server.MCPServer, baseTableBackupRecordServiceServer BaseTableBackupRecordServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_table_backup_record_service_get_base_table_backup_record",
+			mcp.WithDescription("查询数据库备份记录。"),
+			mcp.WithInputSchema[*GetBaseTableBackupRecordRequest](),
+			mcp.WithOutputSchema[*BaseTableBackupRecord](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &GetBaseTableBackupRecordRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *BaseTableBackupRecord
+			reply, err = baseTableBackupRecordServiceServer.GetBaseTableBackupRecord(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }

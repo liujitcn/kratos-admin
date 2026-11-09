@@ -8,14 +8,14 @@ package adminv1
 
 import (
 	context "context"
-	json "encoding/json"
 
-	mcp "github.com/modelcontextprotocol/go-sdk/mcp"
+	mcp "github.com/mark3labs/mcp-go/mcp"
+	server "github.com/mark3labs/mcp-go/server"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // RegisterAiProviderServiceMCPTools 注册AI供应商管理服务的 MCP Tool。
-func RegisterAiProviderServiceMCPTools(mcpServer *mcp.Server, aiProviderServiceServer AiProviderServiceServer) {
+func RegisterAiProviderServiceMCPTools(mcpServer *server.MCPServer, aiProviderServiceServer AiProviderServiceServer) {
 	RegisterAiProviderServicePageAiProviderMCPTool(mcpServer, aiProviderServiceServer)
 	RegisterAiProviderServiceListAiProviderOptionsMCPTool(mcpServer, aiProviderServiceServer)
 	RegisterAiProviderServiceGetAiProviderMCPTool(mcpServer, aiProviderServiceServer)
@@ -27,190 +27,189 @@ func RegisterAiProviderServiceMCPTools(mcpServer *mcp.Server, aiProviderServiceS
 }
 
 // RegisterAiProviderServicePageAiProviderMCPTool 注册分页查询AI供应商的 MCP Tool。
-func RegisterAiProviderServicePageAiProviderMCPTool(mcpServer *mcp.Server, aiProviderServiceServer AiProviderServiceServer) {
-	mcp.AddTool[*PageAiProviderRequest, *PageAiProviderResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_ai_provider_service_page_ai_provider",
-			Description: "分页查询AI供应商。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *PageAiProviderRequest) (*mcp.CallToolResult, *PageAiProviderResponse, error) {
-			if input == nil {
-				input = &PageAiProviderRequest{}
-			}
-			reply, err := aiProviderServiceServer.PageAiProvider(ctx, input)
+func RegisterAiProviderServicePageAiProviderMCPTool(mcpServer *server.MCPServer, aiProviderServiceServer AiProviderServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_ai_provider_service_page_ai_provider",
+			mcp.WithDescription("分页查询AI供应商。"),
+			mcp.WithInputSchema[*PageAiProviderRequest](),
+			mcp.WithOutputSchema[*PageAiProviderResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &PageAiProviderRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *PageAiProviderResponse
+			reply, err = aiProviderServiceServer.PageAiProvider(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterAiProviderServiceListAiProviderOptionsMCPTool 注册查询已启用的AI供应商选项。 字面路径必须先于 /{id} 声明：gorilla mux 按注册顺序匹配，否则会被 {id} 路由抢占的 MCP Tool。
-func RegisterAiProviderServiceListAiProviderOptionsMCPTool(mcpServer *mcp.Server, aiProviderServiceServer AiProviderServiceServer) {
-	mcp.AddTool[*ListAiProviderOptionsRequest, *ListAiProviderOptionsResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_ai_provider_service_list_ai_provider_options",
-			Description: "查询已启用的AI供应商选项。 字面路径必须先于 /{id} 声明：gorilla mux 按注册顺序匹配，否则会被 {id} 路由抢占。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *ListAiProviderOptionsRequest) (*mcp.CallToolResult, *ListAiProviderOptionsResponse, error) {
-			if input == nil {
-				input = &ListAiProviderOptionsRequest{}
-			}
-			reply, err := aiProviderServiceServer.ListAiProviderOptions(ctx, input)
+func RegisterAiProviderServiceListAiProviderOptionsMCPTool(mcpServer *server.MCPServer, aiProviderServiceServer AiProviderServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_ai_provider_service_list_ai_provider_options",
+			mcp.WithDescription("查询已启用的AI供应商选项。 字面路径必须先于 /{id} 声明：gorilla mux 按注册顺序匹配，否则会被 {id} 路由抢占。"),
+			mcp.WithInputSchema[*ListAiProviderOptionsRequest](),
+			mcp.WithOutputSchema[*ListAiProviderOptionsResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &ListAiProviderOptionsRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *ListAiProviderOptionsResponse
+			reply, err = aiProviderServiceServer.ListAiProviderOptions(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterAiProviderServiceGetAiProviderMCPTool 注册查询AI供应商表单的 MCP Tool。
-func RegisterAiProviderServiceGetAiProviderMCPTool(mcpServer *mcp.Server, aiProviderServiceServer AiProviderServiceServer) {
-	mcp.AddTool[*GetAiProviderRequest, any](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_ai_provider_service_get_ai_provider",
-			Description: "查询AI供应商表单。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *GetAiProviderRequest) (*mcp.CallToolResult, any, error) {
-			if input == nil {
-				input = &GetAiProviderRequest{}
-			}
-			reply, err := aiProviderServiceServer.GetAiProvider(ctx, input)
+func RegisterAiProviderServiceGetAiProviderMCPTool(mcpServer *server.MCPServer, aiProviderServiceServer AiProviderServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_ai_provider_service_get_ai_provider",
+			mcp.WithDescription("查询AI供应商表单。"),
+			mcp.WithInputSchema[*GetAiProviderRequest](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &GetAiProviderRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *AiProviderForm
+			reply, err = aiProviderServiceServer.GetAiProvider(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterAiProviderServiceCreateAiProviderMCPTool 注册创建AI供应商的 MCP Tool。
-func RegisterAiProviderServiceCreateAiProviderMCPTool(mcpServer *mcp.Server, aiProviderServiceServer AiProviderServiceServer) {
-	mcp.AddTool[any, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_ai_provider_service_create_ai_provider",
-			Description: "创建AI供应商。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input any) (*mcp.CallToolResult, *emptypb.Empty, error) {
+func RegisterAiProviderServiceCreateAiProviderMCPTool(mcpServer *server.MCPServer, aiProviderServiceServer AiProviderServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_ai_provider_service_create_ai_provider",
+			mcp.WithDescription("创建AI供应商。"),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
 			req := &CreateAiProviderRequest{}
-			if input != nil {
-				inputBytes, err := json.Marshal(input)
-				if err != nil {
-					return nil, nil, err
-				}
-				if err = json.Unmarshal(inputBytes, req); err != nil {
-					return nil, nil, err
-				}
-			}
-			reply, err := aiProviderServiceServer.CreateAiProvider(ctx, req)
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = aiProviderServiceServer.CreateAiProvider(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterAiProviderServiceUpdateAiProviderMCPTool 注册更新AI供应商的 MCP Tool。
-func RegisterAiProviderServiceUpdateAiProviderMCPTool(mcpServer *mcp.Server, aiProviderServiceServer AiProviderServiceServer) {
-	mcp.AddTool[any, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_ai_provider_service_update_ai_provider",
-			Description: "更新AI供应商。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input any) (*mcp.CallToolResult, *emptypb.Empty, error) {
+func RegisterAiProviderServiceUpdateAiProviderMCPTool(mcpServer *server.MCPServer, aiProviderServiceServer AiProviderServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_ai_provider_service_update_ai_provider",
+			mcp.WithDescription("更新AI供应商。"),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
 			req := &UpdateAiProviderRequest{}
-			if input != nil {
-				inputBytes, err := json.Marshal(input)
-				if err != nil {
-					return nil, nil, err
-				}
-				if err = json.Unmarshal(inputBytes, req); err != nil {
-					return nil, nil, err
-				}
-			}
-			reply, err := aiProviderServiceServer.UpdateAiProvider(ctx, req)
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = aiProviderServiceServer.UpdateAiProvider(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterAiProviderServiceTestAiProviderModelsMCPTool 注册测试AI供应商表单中的全部模型的 MCP Tool。
-func RegisterAiProviderServiceTestAiProviderModelsMCPTool(mcpServer *mcp.Server, aiProviderServiceServer AiProviderServiceServer) {
-	mcp.AddTool[any, *TestAiProviderModelsResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_ai_provider_service_test_ai_provider_models",
-			Description: "测试AI供应商表单中的全部模型。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input any) (*mcp.CallToolResult, *TestAiProviderModelsResponse, error) {
+func RegisterAiProviderServiceTestAiProviderModelsMCPTool(mcpServer *server.MCPServer, aiProviderServiceServer AiProviderServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_ai_provider_service_test_ai_provider_models",
+			mcp.WithDescription("测试AI供应商表单中的全部模型。"),
+			mcp.WithOutputSchema[*TestAiProviderModelsResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
 			req := &TestAiProviderModelsRequest{}
-			if input != nil {
-				inputBytes, err := json.Marshal(input)
-				if err != nil {
-					return nil, nil, err
-				}
-				if err = json.Unmarshal(inputBytes, req); err != nil {
-					return nil, nil, err
-				}
-			}
-			reply, err := aiProviderServiceServer.TestAiProviderModels(ctx, req)
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *TestAiProviderModelsResponse
+			reply, err = aiProviderServiceServer.TestAiProviderModels(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterAiProviderServiceDeleteAiProviderMCPTool 注册删除AI供应商的 MCP Tool。
-func RegisterAiProviderServiceDeleteAiProviderMCPTool(mcpServer *mcp.Server, aiProviderServiceServer AiProviderServiceServer) {
-	mcp.AddTool[*DeleteAiProviderRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_ai_provider_service_delete_ai_provider",
-			Description: "删除AI供应商。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *DeleteAiProviderRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &DeleteAiProviderRequest{}
-			}
-			reply, err := aiProviderServiceServer.DeleteAiProvider(ctx, input)
+func RegisterAiProviderServiceDeleteAiProviderMCPTool(mcpServer *server.MCPServer, aiProviderServiceServer AiProviderServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_ai_provider_service_delete_ai_provider",
+			mcp.WithDescription("删除AI供应商。"),
+			mcp.WithInputSchema[*DeleteAiProviderRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &DeleteAiProviderRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = aiProviderServiceServer.DeleteAiProvider(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterAiProviderServiceSetAiProviderStatusMCPTool 注册设置AI供应商状态的 MCP Tool。
-func RegisterAiProviderServiceSetAiProviderStatusMCPTool(mcpServer *mcp.Server, aiProviderServiceServer AiProviderServiceServer) {
-	mcp.AddTool[*SetAiProviderStatusRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_ai_provider_service_set_ai_provider_status",
-			Description: "设置AI供应商状态。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *SetAiProviderStatusRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &SetAiProviderStatusRequest{}
-			}
-			reply, err := aiProviderServiceServer.SetAiProviderStatus(ctx, input)
+func RegisterAiProviderServiceSetAiProviderStatusMCPTool(mcpServer *server.MCPServer, aiProviderServiceServer AiProviderServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_ai_provider_service_set_ai_provider_status",
+			mcp.WithDescription("设置AI供应商状态。"),
+			mcp.WithInputSchema[*SetAiProviderStatusRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &SetAiProviderStatusRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = aiProviderServiceServer.SetAiProviderStatus(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }

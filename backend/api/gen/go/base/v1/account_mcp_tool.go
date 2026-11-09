@@ -9,54 +9,61 @@ package basev1
 import (
 	context "context"
 
-	mcp "github.com/modelcontextprotocol/go-sdk/mcp"
+	mcp "github.com/mark3labs/mcp-go/mcp"
+	server "github.com/mark3labs/mcp-go/server"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // RegisterAccountServiceMCPTools 注册Base 账户安全服务的 MCP Tool。
-func RegisterAccountServiceMCPTools(mcpServer *mcp.Server, accountServiceServer AccountServiceServer) {
+func RegisterAccountServiceMCPTools(mcpServer *server.MCPServer, accountServiceServer AccountServiceServer) {
 	RegisterAccountServiceGetCurrentPasswordPolicyMCPTool(mcpServer, accountServiceServer)
 	RegisterAccountServiceUpdateUserPasswordMCPTool(mcpServer, accountServiceServer)
 }
 
 // RegisterAccountServiceGetCurrentPasswordPolicyMCPTool 注册获取当前用户生效的密码策略的 MCP Tool。
-func RegisterAccountServiceGetCurrentPasswordPolicyMCPTool(mcpServer *mcp.Server, accountServiceServer AccountServiceServer) {
-	mcp.AddTool[*GetCurrentPasswordPolicyRequest, *CurrentPasswordPolicy](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "base_v1_account_service_get_current_password_policy",
-			Description: "获取当前用户生效的密码策略。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *GetCurrentPasswordPolicyRequest) (*mcp.CallToolResult, *CurrentPasswordPolicy, error) {
-			if input == nil {
-				input = &GetCurrentPasswordPolicyRequest{}
-			}
-			reply, err := accountServiceServer.GetCurrentPasswordPolicy(ctx, input)
+func RegisterAccountServiceGetCurrentPasswordPolicyMCPTool(mcpServer *server.MCPServer, accountServiceServer AccountServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("base_v1_account_service_get_current_password_policy",
+			mcp.WithDescription("获取当前用户生效的密码策略。"),
+			mcp.WithInputSchema[*GetCurrentPasswordPolicyRequest](),
+			mcp.WithOutputSchema[*CurrentPasswordPolicy](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &GetCurrentPasswordPolicyRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *CurrentPasswordPolicy
+			reply, err = accountServiceServer.GetCurrentPasswordPolicy(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterAccountServiceUpdateUserPasswordMCPTool 注册修改当前用户密码的 MCP Tool。
-func RegisterAccountServiceUpdateUserPasswordMCPTool(mcpServer *mcp.Server, accountServiceServer AccountServiceServer) {
-	mcp.AddTool[*UpdateUserPasswordRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "base_v1_account_service_update_user_password",
-			Description: "修改当前用户密码。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *UpdateUserPasswordRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &UpdateUserPasswordRequest{}
-			}
-			reply, err := accountServiceServer.UpdateUserPassword(ctx, input)
+func RegisterAccountServiceUpdateUserPasswordMCPTool(mcpServer *server.MCPServer, accountServiceServer AccountServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("base_v1_account_service_update_user_password",
+			mcp.WithDescription("修改当前用户密码。"),
+			mcp.WithInputSchema[*UpdateUserPasswordRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &UpdateUserPasswordRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = accountServiceServer.UpdateUserPassword(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }

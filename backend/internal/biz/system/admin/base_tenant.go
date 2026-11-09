@@ -32,6 +32,7 @@ import (
 	"github.com/liujitcn/kratos-core/errorsx"
 	"github.com/liujitcn/kratos-core/resource/i18n"
 	authData "github.com/liujitcn/kratos-kit/auth/data"
+	"google.golang.org/protobuf/proto"
 	gormdb "gorm.io/gorm"
 )
 
@@ -224,14 +225,16 @@ func (c *BaseTenantCase) submitTenantApproval(ctx context.Context, req *adminv1.
 	if authInfo.TenantCode != gorm.DefaultTenantCode {
 		return nil, errorsx.PermissionDenied("只有默认租户可以申请新增租户")
 	}
-	baseTenant, err := c.createTenantPlaceholder(ctx, req)
+	var baseTenant *models.BaseTenant
+	baseTenant, err = c.createTenantPlaceholder(ctx, req)
 	if err != nil {
 		return nil, err
 	}
-	formDataValue := *req
+	formDataValue := proto.CloneOf(req)
 	formDataValue.Id = 0
 	formDataValue.Code = baseTenant.Code
-	formData, err := json.Marshal(&formDataValue)
+	var formData []byte
+	formData, err = json.Marshal(formDataValue)
 	if err != nil {
 		return nil, err
 	}
@@ -792,10 +795,7 @@ func buildTenantAdminCredentials(config loginpolicy.PasswordConfig) (string, str
 		return config.InitialPasswordHash, "", nil
 	}
 
-	passwordLength := int(config.MinLength)
-	if passwordLength < int(loginpolicy.DefaultPasswordMinLength) {
-		passwordLength = int(loginpolicy.DefaultPasswordMinLength)
-	}
+	passwordLength := max(int(config.MinLength), int(loginpolicy.DefaultPasswordMinLength))
 	complexityClasses := int(config.MinComplexityClasses)
 	if complexityClasses <= 0 {
 		complexityClasses = int(loginpolicy.DefaultPasswordMinComplexityClasses)
@@ -803,10 +803,8 @@ func buildTenantAdminCredentials(config loginpolicy.PasswordConfig) (string, str
 	if complexityClasses > 4 {
 		complexityClasses = 4
 	}
-	if passwordLength < complexityClasses {
-		passwordLength = complexityClasses
-	}
-	for attempt := 0; attempt < 10; attempt++ {
+	passwordLength = max(passwordLength, complexityClasses)
+	for range 10 {
 		initialPassword, err := generateTenantAdminPassword(passwordLength, complexityClasses)
 		if err != nil {
 			return "", "", err
@@ -833,7 +831,7 @@ func generateTenantAdminPassword(length, complexityClasses int) (string, error) 
 	}
 	allChars := "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*"
 	password := make([]byte, length)
-	for index := 0; index < complexityClasses; index++ {
+	for index := range complexityClasses {
 		char, err := randomTenantAdminPasswordChar(charsets[index])
 		if err != nil {
 			return "", err

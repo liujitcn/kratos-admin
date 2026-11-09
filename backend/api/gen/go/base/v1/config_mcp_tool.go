@@ -9,53 +9,60 @@ package basev1
 import (
 	context "context"
 
-	mcp "github.com/modelcontextprotocol/go-sdk/mcp"
+	mcp "github.com/mark3labs/mcp-go/mcp"
+	server "github.com/mark3labs/mcp-go/server"
 )
 
 // RegisterConfigServiceMCPTools 注册Base系统配置公共服务的 MCP Tool。
-func RegisterConfigServiceMCPTools(mcpServer *mcp.Server, configServiceServer ConfigServiceServer) {
+func RegisterConfigServiceMCPTools(mcpServer *server.MCPServer, configServiceServer ConfigServiceServer) {
 	RegisterConfigServiceGetConfigMCPTool(mcpServer, configServiceServer)
 	RegisterConfigServiceGetI18nCustomMCPTool(mcpServer, configServiceServer)
 }
 
 // RegisterConfigServiceGetConfigMCPTool 注册获取系统配置的 MCP Tool。
-func RegisterConfigServiceGetConfigMCPTool(mcpServer *mcp.Server, configServiceServer ConfigServiceServer) {
-	mcp.AddTool[*GetConfigRequest, *GetConfigResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "base_v1_config_service_get_config",
-			Description: "获取系统配置",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *GetConfigRequest) (*mcp.CallToolResult, *GetConfigResponse, error) {
-			if input == nil {
-				input = &GetConfigRequest{}
-			}
-			reply, err := configServiceServer.GetConfig(ctx, input)
+func RegisterConfigServiceGetConfigMCPTool(mcpServer *server.MCPServer, configServiceServer ConfigServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("base_v1_config_service_get_config",
+			mcp.WithDescription("获取系统配置"),
+			mcp.WithInputSchema[*GetConfigRequest](),
+			mcp.WithOutputSchema[*GetConfigResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &GetConfigRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *GetConfigResponse
+			reply, err = configServiceServer.GetConfig(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterConfigServiceGetI18nCustomMCPTool 注册获取当前租户的自定义国际化覆盖项的 MCP Tool。
-func RegisterConfigServiceGetI18nCustomMCPTool(mcpServer *mcp.Server, configServiceServer ConfigServiceServer) {
-	mcp.AddTool[*GetI18nCustomRequest, *GetI18nCustomResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "base_v1_config_service_get_i18_n_custom",
-			Description: "获取当前租户的自定义国际化覆盖项",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *GetI18nCustomRequest) (*mcp.CallToolResult, *GetI18nCustomResponse, error) {
-			if input == nil {
-				input = &GetI18nCustomRequest{}
-			}
-			reply, err := configServiceServer.GetI18nCustom(ctx, input)
+func RegisterConfigServiceGetI18nCustomMCPTool(mcpServer *server.MCPServer, configServiceServer ConfigServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("base_v1_config_service_get_i18_n_custom",
+			mcp.WithDescription("获取当前租户的自定义国际化覆盖项"),
+			mcp.WithInputSchema[*GetI18nCustomRequest](),
+			mcp.WithOutputSchema[*GetI18nCustomResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &GetI18nCustomRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *GetI18nCustomResponse
+			reply, err = configServiceServer.GetI18nCustom(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }

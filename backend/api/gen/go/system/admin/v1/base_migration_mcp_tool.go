@@ -9,53 +9,60 @@ package adminv1
 import (
 	context "context"
 
-	mcp "github.com/modelcontextprotocol/go-sdk/mcp"
+	mcp "github.com/mark3labs/mcp-go/mcp"
+	server "github.com/mark3labs/mcp-go/server"
 )
 
 // RegisterBaseMigrationServiceMCPTools 注册Admin数据库迁移服务的 MCP Tool。
-func RegisterBaseMigrationServiceMCPTools(mcpServer *mcp.Server, baseMigrationServiceServer BaseMigrationServiceServer) {
+func RegisterBaseMigrationServiceMCPTools(mcpServer *server.MCPServer, baseMigrationServiceServer BaseMigrationServiceServer) {
 	RegisterBaseMigrationServicePageBaseMigrationMCPTool(mcpServer, baseMigrationServiceServer)
 	RegisterBaseMigrationServiceGetBaseMigrationMCPTool(mcpServer, baseMigrationServiceServer)
 }
 
 // RegisterBaseMigrationServicePageBaseMigrationMCPTool 注册分页查询数据库升级历史的 MCP Tool。
-func RegisterBaseMigrationServicePageBaseMigrationMCPTool(mcpServer *mcp.Server, baseMigrationServiceServer BaseMigrationServiceServer) {
-	mcp.AddTool[*PageBaseMigrationRequest, *PageBaseMigrationResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_migration_service_page_base_migration",
-			Description: "分页查询数据库升级历史",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *PageBaseMigrationRequest) (*mcp.CallToolResult, *PageBaseMigrationResponse, error) {
-			if input == nil {
-				input = &PageBaseMigrationRequest{}
-			}
-			reply, err := baseMigrationServiceServer.PageBaseMigration(ctx, input)
+func RegisterBaseMigrationServicePageBaseMigrationMCPTool(mcpServer *server.MCPServer, baseMigrationServiceServer BaseMigrationServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_migration_service_page_base_migration",
+			mcp.WithDescription("分页查询数据库升级历史"),
+			mcp.WithInputSchema[*PageBaseMigrationRequest](),
+			mcp.WithOutputSchema[*PageBaseMigrationResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &PageBaseMigrationRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *PageBaseMigrationResponse
+			reply, err = baseMigrationServiceServer.PageBaseMigration(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseMigrationServiceGetBaseMigrationMCPTool 注册查询数据库迁移记录详情的 MCP Tool。
-func RegisterBaseMigrationServiceGetBaseMigrationMCPTool(mcpServer *mcp.Server, baseMigrationServiceServer BaseMigrationServiceServer) {
-	mcp.AddTool[*GetBaseMigrationRequest, *BaseMigration](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_migration_service_get_base_migration",
-			Description: "查询数据库迁移记录详情",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *GetBaseMigrationRequest) (*mcp.CallToolResult, *BaseMigration, error) {
-			if input == nil {
-				input = &GetBaseMigrationRequest{}
-			}
-			reply, err := baseMigrationServiceServer.GetBaseMigration(ctx, input)
+func RegisterBaseMigrationServiceGetBaseMigrationMCPTool(mcpServer *server.MCPServer, baseMigrationServiceServer BaseMigrationServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_migration_service_get_base_migration",
+			mcp.WithDescription("查询数据库迁移记录详情"),
+			mcp.WithInputSchema[*GetBaseMigrationRequest](),
+			mcp.WithOutputSchema[*BaseMigration](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &GetBaseMigrationRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *BaseMigration
+			reply, err = baseMigrationServiceServer.GetBaseMigration(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }

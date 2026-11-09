@@ -9,12 +9,13 @@ package adminv1
 import (
 	context "context"
 
-	mcp "github.com/modelcontextprotocol/go-sdk/mcp"
+	mcp "github.com/mark3labs/mcp-go/mcp"
+	server "github.com/mark3labs/mcp-go/server"
 	httpbody "google.golang.org/genproto/googleapis/api/httpbody"
 )
 
 // RegisterRuntimeLogServiceMCPTools 注册Admin运行日志服务的 MCP Tool。
-func RegisterRuntimeLogServiceMCPTools(mcpServer *mcp.Server, runtimeLogServiceServer RuntimeLogServiceServer) {
+func RegisterRuntimeLogServiceMCPTools(mcpServer *server.MCPServer, runtimeLogServiceServer RuntimeLogServiceServer) {
 	RegisterRuntimeLogServiceListRuntimeLogFilesMCPTool(mcpServer, runtimeLogServiceServer)
 	RegisterRuntimeLogServiceReadRuntimeLogFileMCPTool(mcpServer, runtimeLogServiceServer)
 	RegisterRuntimeLogServiceOpenRuntimeConsoleMCPTool(mcpServer, runtimeLogServiceServer)
@@ -22,85 +23,97 @@ func RegisterRuntimeLogServiceMCPTools(mcpServer *mcp.Server, runtimeLogServiceS
 }
 
 // RegisterRuntimeLogServiceListRuntimeLogFilesMCPTool 注册查询可访问的历史日志文件的 MCP Tool。
-func RegisterRuntimeLogServiceListRuntimeLogFilesMCPTool(mcpServer *mcp.Server, runtimeLogServiceServer RuntimeLogServiceServer) {
-	mcp.AddTool[*ListRuntimeLogFilesRequest, *ListRuntimeLogFilesResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_runtime_log_service_list_runtime_log_files",
-			Description: "查询可访问的历史日志文件。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *ListRuntimeLogFilesRequest) (*mcp.CallToolResult, *ListRuntimeLogFilesResponse, error) {
-			if input == nil {
-				input = &ListRuntimeLogFilesRequest{}
-			}
-			reply, err := runtimeLogServiceServer.ListRuntimeLogFiles(ctx, input)
+func RegisterRuntimeLogServiceListRuntimeLogFilesMCPTool(mcpServer *server.MCPServer, runtimeLogServiceServer RuntimeLogServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_runtime_log_service_list_runtime_log_files",
+			mcp.WithDescription("查询可访问的历史日志文件。"),
+			mcp.WithInputSchema[*ListRuntimeLogFilesRequest](),
+			mcp.WithOutputSchema[*ListRuntimeLogFilesResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &ListRuntimeLogFilesRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *ListRuntimeLogFilesResponse
+			reply, err = runtimeLogServiceServer.ListRuntimeLogFiles(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterRuntimeLogServiceReadRuntimeLogFileMCPTool 注册分页读取历史日志文件内容的 MCP Tool。
-func RegisterRuntimeLogServiceReadRuntimeLogFileMCPTool(mcpServer *mcp.Server, runtimeLogServiceServer RuntimeLogServiceServer) {
-	mcp.AddTool[*ReadRuntimeLogFileRequest, *ReadRuntimeLogFileResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_runtime_log_service_read_runtime_log_file",
-			Description: "分页读取历史日志文件内容。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *ReadRuntimeLogFileRequest) (*mcp.CallToolResult, *ReadRuntimeLogFileResponse, error) {
-			if input == nil {
-				input = &ReadRuntimeLogFileRequest{}
-			}
-			reply, err := runtimeLogServiceServer.ReadRuntimeLogFile(ctx, input)
+func RegisterRuntimeLogServiceReadRuntimeLogFileMCPTool(mcpServer *server.MCPServer, runtimeLogServiceServer RuntimeLogServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_runtime_log_service_read_runtime_log_file",
+			mcp.WithDescription("分页读取历史日志文件内容。"),
+			mcp.WithInputSchema[*ReadRuntimeLogFileRequest](),
+			mcp.WithOutputSchema[*ReadRuntimeLogFileResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &ReadRuntimeLogFileRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *ReadRuntimeLogFileResponse
+			reply, err = runtimeLogServiceServer.ReadRuntimeLogFile(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterRuntimeLogServiceOpenRuntimeConsoleMCPTool 注册创建当前用户的实时控制台频道的 MCP Tool。
-func RegisterRuntimeLogServiceOpenRuntimeConsoleMCPTool(mcpServer *mcp.Server, runtimeLogServiceServer RuntimeLogServiceServer) {
-	mcp.AddTool[*OpenRuntimeConsoleRequest, *OpenRuntimeConsoleResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_runtime_log_service_open_runtime_console",
-			Description: "创建当前用户的实时控制台频道。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *OpenRuntimeConsoleRequest) (*mcp.CallToolResult, *OpenRuntimeConsoleResponse, error) {
-			if input == nil {
-				input = &OpenRuntimeConsoleRequest{}
-			}
-			reply, err := runtimeLogServiceServer.OpenRuntimeConsole(ctx, input)
+func RegisterRuntimeLogServiceOpenRuntimeConsoleMCPTool(mcpServer *server.MCPServer, runtimeLogServiceServer RuntimeLogServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_runtime_log_service_open_runtime_console",
+			mcp.WithDescription("创建当前用户的实时控制台频道。"),
+			mcp.WithInputSchema[*OpenRuntimeConsoleRequest](),
+			mcp.WithOutputSchema[*OpenRuntimeConsoleResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &OpenRuntimeConsoleRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *OpenRuntimeConsoleResponse
+			reply, err = runtimeLogServiceServer.OpenRuntimeConsole(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterRuntimeLogServiceDownloadRuntimeLogFileMCPTool 注册下载历史日志原文件的 MCP Tool。
-func RegisterRuntimeLogServiceDownloadRuntimeLogFileMCPTool(mcpServer *mcp.Server, runtimeLogServiceServer RuntimeLogServiceServer) {
-	mcp.AddTool[*DownloadRuntimeLogFileRequest, *httpbody.HttpBody](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_runtime_log_service_download_runtime_log_file",
-			Description: "下载历史日志原文件。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *DownloadRuntimeLogFileRequest) (*mcp.CallToolResult, *httpbody.HttpBody, error) {
-			if input == nil {
-				input = &DownloadRuntimeLogFileRequest{}
-			}
-			reply, err := runtimeLogServiceServer.DownloadRuntimeLogFile(ctx, input)
+func RegisterRuntimeLogServiceDownloadRuntimeLogFileMCPTool(mcpServer *server.MCPServer, runtimeLogServiceServer RuntimeLogServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_runtime_log_service_download_runtime_log_file",
+			mcp.WithDescription("下载历史日志原文件。"),
+			mcp.WithInputSchema[*DownloadRuntimeLogFileRequest](),
+			mcp.WithOutputSchema[*httpbody.HttpBody](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &DownloadRuntimeLogFileRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *httpbody.HttpBody
+			reply, err = runtimeLogServiceServer.DownloadRuntimeLogFile(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }

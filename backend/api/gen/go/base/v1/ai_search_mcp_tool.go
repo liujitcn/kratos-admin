@@ -9,31 +9,35 @@ package basev1
 import (
 	context "context"
 
-	mcp "github.com/modelcontextprotocol/go-sdk/mcp"
+	mcp "github.com/mark3labs/mcp-go/mcp"
+	server "github.com/mark3labs/mcp-go/server"
 )
 
 // RegisterAiSearchServiceMCPTools 注册Base AI 助手联网搜索服务的 MCP Tool。
-func RegisterAiSearchServiceMCPTools(mcpServer *mcp.Server, aiSearchServiceServer AiSearchServiceServer) {
+func RegisterAiSearchServiceMCPTools(mcpServer *server.MCPServer, aiSearchServiceServer AiSearchServiceServer) {
 	RegisterAiSearchServiceSearchAiWebMCPTool(mcpServer, aiSearchServiceServer)
 }
 
 // RegisterAiSearchServiceSearchAiWebMCPTool 注册联网搜索公开信息并返回结果摘要的 MCP Tool。
-func RegisterAiSearchServiceSearchAiWebMCPTool(mcpServer *mcp.Server, aiSearchServiceServer AiSearchServiceServer) {
-	mcp.AddTool[*SearchAiWebRequest, *SearchAiWebResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "base_v1_ai_search_service_search_ai_web",
-			Description: "联网搜索公开信息并返回结果摘要",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *SearchAiWebRequest) (*mcp.CallToolResult, *SearchAiWebResponse, error) {
-			if input == nil {
-				input = &SearchAiWebRequest{}
-			}
-			reply, err := aiSearchServiceServer.SearchAiWeb(ctx, input)
+func RegisterAiSearchServiceSearchAiWebMCPTool(mcpServer *server.MCPServer, aiSearchServiceServer AiSearchServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("base_v1_ai_search_service_search_ai_web",
+			mcp.WithDescription("联网搜索公开信息并返回结果摘要"),
+			mcp.WithInputSchema[*SearchAiWebRequest](),
+			mcp.WithOutputSchema[*SearchAiWebResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &SearchAiWebRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *SearchAiWebResponse
+			reply, err = aiSearchServiceServer.SearchAiWeb(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }

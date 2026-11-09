@@ -9,11 +9,12 @@ package adminv1
 import (
 	context "context"
 
-	mcp "github.com/modelcontextprotocol/go-sdk/mcp"
+	mcp "github.com/mark3labs/mcp-go/mcp"
+	server "github.com/mark3labs/mcp-go/server"
 )
 
 // RegisterBaseDashboardServiceMCPTools 注册Admin首页业务统计服务的 MCP Tool。
-func RegisterBaseDashboardServiceMCPTools(mcpServer *mcp.Server, baseDashboardServiceServer BaseDashboardServiceServer) {
+func RegisterBaseDashboardServiceMCPTools(mcpServer *server.MCPServer, baseDashboardServiceServer BaseDashboardServiceServer) {
 	RegisterBaseDashboardServiceGetBaseDashboardOverviewMCPTool(mcpServer, baseDashboardServiceServer)
 	RegisterBaseDashboardServiceGetBaseDashboardLoginTrendMCPTool(mcpServer, baseDashboardServiceServer)
 	RegisterBaseDashboardServiceGetBaseDashboardOperationDistributionMCPTool(mcpServer, baseDashboardServiceServer)
@@ -21,85 +22,97 @@ func RegisterBaseDashboardServiceMCPTools(mcpServer *mcp.Server, baseDashboardSe
 }
 
 // RegisterBaseDashboardServiceGetBaseDashboardOverviewMCPTool 注册查询首页概览统计的 MCP Tool。
-func RegisterBaseDashboardServiceGetBaseDashboardOverviewMCPTool(mcpServer *mcp.Server, baseDashboardServiceServer BaseDashboardServiceServer) {
-	mcp.AddTool[*GetBaseDashboardOverviewRequest, *BaseDashboardOverview](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_dashboard_service_get_base_dashboard_overview",
-			Description: "查询首页概览统计。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *GetBaseDashboardOverviewRequest) (*mcp.CallToolResult, *BaseDashboardOverview, error) {
-			if input == nil {
-				input = &GetBaseDashboardOverviewRequest{}
-			}
-			reply, err := baseDashboardServiceServer.GetBaseDashboardOverview(ctx, input)
+func RegisterBaseDashboardServiceGetBaseDashboardOverviewMCPTool(mcpServer *server.MCPServer, baseDashboardServiceServer BaseDashboardServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_dashboard_service_get_base_dashboard_overview",
+			mcp.WithDescription("查询首页概览统计。"),
+			mcp.WithInputSchema[*GetBaseDashboardOverviewRequest](),
+			mcp.WithOutputSchema[*BaseDashboardOverview](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &GetBaseDashboardOverviewRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *BaseDashboardOverview
+			reply, err = baseDashboardServiceServer.GetBaseDashboardOverview(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseDashboardServiceGetBaseDashboardLoginTrendMCPTool 注册查询登录趋势的 MCP Tool。
-func RegisterBaseDashboardServiceGetBaseDashboardLoginTrendMCPTool(mcpServer *mcp.Server, baseDashboardServiceServer BaseDashboardServiceServer) {
-	mcp.AddTool[*GetBaseDashboardLoginTrendRequest, *BaseDashboardTrendResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_dashboard_service_get_base_dashboard_login_trend",
-			Description: "查询登录趋势。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *GetBaseDashboardLoginTrendRequest) (*mcp.CallToolResult, *BaseDashboardTrendResponse, error) {
-			if input == nil {
-				input = &GetBaseDashboardLoginTrendRequest{}
-			}
-			reply, err := baseDashboardServiceServer.GetBaseDashboardLoginTrend(ctx, input)
+func RegisterBaseDashboardServiceGetBaseDashboardLoginTrendMCPTool(mcpServer *server.MCPServer, baseDashboardServiceServer BaseDashboardServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_dashboard_service_get_base_dashboard_login_trend",
+			mcp.WithDescription("查询登录趋势。"),
+			mcp.WithInputSchema[*GetBaseDashboardLoginTrendRequest](),
+			mcp.WithOutputSchema[*BaseDashboardTrendResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &GetBaseDashboardLoginTrendRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *BaseDashboardTrendResponse
+			reply, err = baseDashboardServiceServer.GetBaseDashboardLoginTrend(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseDashboardServiceGetBaseDashboardOperationDistributionMCPTool 注册查询操作动作分布的 MCP Tool。
-func RegisterBaseDashboardServiceGetBaseDashboardOperationDistributionMCPTool(mcpServer *mcp.Server, baseDashboardServiceServer BaseDashboardServiceServer) {
-	mcp.AddTool[*GetBaseDashboardOperationDistributionRequest, *BaseDashboardDistributionResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_dashboard_service_get_base_dashboard_operation_distribution",
-			Description: "查询操作动作分布。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *GetBaseDashboardOperationDistributionRequest) (*mcp.CallToolResult, *BaseDashboardDistributionResponse, error) {
-			if input == nil {
-				input = &GetBaseDashboardOperationDistributionRequest{}
-			}
-			reply, err := baseDashboardServiceServer.GetBaseDashboardOperationDistribution(ctx, input)
+func RegisterBaseDashboardServiceGetBaseDashboardOperationDistributionMCPTool(mcpServer *server.MCPServer, baseDashboardServiceServer BaseDashboardServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_dashboard_service_get_base_dashboard_operation_distribution",
+			mcp.WithDescription("查询操作动作分布。"),
+			mcp.WithInputSchema[*GetBaseDashboardOperationDistributionRequest](),
+			mcp.WithOutputSchema[*BaseDashboardDistributionResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &GetBaseDashboardOperationDistributionRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *BaseDashboardDistributionResponse
+			reply, err = baseDashboardServiceServer.GetBaseDashboardOperationDistribution(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseDashboardServiceGetBaseDashboardLoginDistributionMCPTool 注册查询登录结果分布的 MCP Tool。
-func RegisterBaseDashboardServiceGetBaseDashboardLoginDistributionMCPTool(mcpServer *mcp.Server, baseDashboardServiceServer BaseDashboardServiceServer) {
-	mcp.AddTool[*GetBaseDashboardLoginDistributionRequest, *BaseDashboardDistributionResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_dashboard_service_get_base_dashboard_login_distribution",
-			Description: "查询登录结果分布。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *GetBaseDashboardLoginDistributionRequest) (*mcp.CallToolResult, *BaseDashboardDistributionResponse, error) {
-			if input == nil {
-				input = &GetBaseDashboardLoginDistributionRequest{}
-			}
-			reply, err := baseDashboardServiceServer.GetBaseDashboardLoginDistribution(ctx, input)
+func RegisterBaseDashboardServiceGetBaseDashboardLoginDistributionMCPTool(mcpServer *server.MCPServer, baseDashboardServiceServer BaseDashboardServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_dashboard_service_get_base_dashboard_login_distribution",
+			mcp.WithDescription("查询登录结果分布。"),
+			mcp.WithInputSchema[*GetBaseDashboardLoginDistributionRequest](),
+			mcp.WithOutputSchema[*BaseDashboardDistributionResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &GetBaseDashboardLoginDistributionRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *BaseDashboardDistributionResponse
+			reply, err = baseDashboardServiceServer.GetBaseDashboardLoginDistribution(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }

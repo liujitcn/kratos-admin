@@ -9,76 +9,86 @@ package adminv1
 import (
 	context "context"
 
-	mcp "github.com/modelcontextprotocol/go-sdk/mcp"
+	mcp "github.com/mark3labs/mcp-go/mcp"
+	server "github.com/mark3labs/mcp-go/server"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // RegisterBaseTableArchiveRestoreServiceMCPTools 注册Admin归档数据恢复服务的 MCP Tool。
-func RegisterBaseTableArchiveRestoreServiceMCPTools(mcpServer *mcp.Server, baseTableArchiveRestoreServiceServer BaseTableArchiveRestoreServiceServer) {
+func RegisterBaseTableArchiveRestoreServiceMCPTools(mcpServer *server.MCPServer, baseTableArchiveRestoreServiceServer BaseTableArchiveRestoreServiceServer) {
 	RegisterBaseTableArchiveRestoreServicePageBaseTableArchiveRestoreMCPTool(mcpServer, baseTableArchiveRestoreServiceServer)
 	RegisterBaseTableArchiveRestoreServiceGetBaseTableArchiveRestoreMCPTool(mcpServer, baseTableArchiveRestoreServiceServer)
 	RegisterBaseTableArchiveRestoreServiceExecuteBaseTableArchiveRestoreMCPTool(mcpServer, baseTableArchiveRestoreServiceServer)
 }
 
 // RegisterBaseTableArchiveRestoreServicePageBaseTableArchiveRestoreMCPTool 注册查询归档恢复记录分页列表的 MCP Tool。
-func RegisterBaseTableArchiveRestoreServicePageBaseTableArchiveRestoreMCPTool(mcpServer *mcp.Server, baseTableArchiveRestoreServiceServer BaseTableArchiveRestoreServiceServer) {
-	mcp.AddTool[*PageBaseTableArchiveRestoreRequest, *PageBaseTableArchiveRestoreResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_table_archive_restore_service_page_base_table_archive_restore",
-			Description: "查询归档恢复记录分页列表。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *PageBaseTableArchiveRestoreRequest) (*mcp.CallToolResult, *PageBaseTableArchiveRestoreResponse, error) {
-			if input == nil {
-				input = &PageBaseTableArchiveRestoreRequest{}
-			}
-			reply, err := baseTableArchiveRestoreServiceServer.PageBaseTableArchiveRestore(ctx, input)
+func RegisterBaseTableArchiveRestoreServicePageBaseTableArchiveRestoreMCPTool(mcpServer *server.MCPServer, baseTableArchiveRestoreServiceServer BaseTableArchiveRestoreServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_table_archive_restore_service_page_base_table_archive_restore",
+			mcp.WithDescription("查询归档恢复记录分页列表。"),
+			mcp.WithInputSchema[*PageBaseTableArchiveRestoreRequest](),
+			mcp.WithOutputSchema[*PageBaseTableArchiveRestoreResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &PageBaseTableArchiveRestoreRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *PageBaseTableArchiveRestoreResponse
+			reply, err = baseTableArchiveRestoreServiceServer.PageBaseTableArchiveRestore(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseTableArchiveRestoreServiceGetBaseTableArchiveRestoreMCPTool 注册查询归档恢复记录的 MCP Tool。
-func RegisterBaseTableArchiveRestoreServiceGetBaseTableArchiveRestoreMCPTool(mcpServer *mcp.Server, baseTableArchiveRestoreServiceServer BaseTableArchiveRestoreServiceServer) {
-	mcp.AddTool[*GetBaseTableArchiveRestoreRequest, *BaseTableArchiveRestore](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_table_archive_restore_service_get_base_table_archive_restore",
-			Description: "查询归档恢复记录。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *GetBaseTableArchiveRestoreRequest) (*mcp.CallToolResult, *BaseTableArchiveRestore, error) {
-			if input == nil {
-				input = &GetBaseTableArchiveRestoreRequest{}
-			}
-			reply, err := baseTableArchiveRestoreServiceServer.GetBaseTableArchiveRestore(ctx, input)
+func RegisterBaseTableArchiveRestoreServiceGetBaseTableArchiveRestoreMCPTool(mcpServer *server.MCPServer, baseTableArchiveRestoreServiceServer BaseTableArchiveRestoreServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_table_archive_restore_service_get_base_table_archive_restore",
+			mcp.WithDescription("查询归档恢复记录。"),
+			mcp.WithInputSchema[*GetBaseTableArchiveRestoreRequest](),
+			mcp.WithOutputSchema[*BaseTableArchiveRestore](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &GetBaseTableArchiveRestoreRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *BaseTableArchiveRestore
+			reply, err = baseTableArchiveRestoreServiceServer.GetBaseTableArchiveRestore(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseTableArchiveRestoreServiceExecuteBaseTableArchiveRestoreMCPTool 注册手工执行归档恢复的 MCP Tool。
-func RegisterBaseTableArchiveRestoreServiceExecuteBaseTableArchiveRestoreMCPTool(mcpServer *mcp.Server, baseTableArchiveRestoreServiceServer BaseTableArchiveRestoreServiceServer) {
-	mcp.AddTool[*ExecuteBaseTableArchiveRestoreRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_table_archive_restore_service_execute_base_table_archive_restore",
-			Description: "手工执行归档恢复。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *ExecuteBaseTableArchiveRestoreRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &ExecuteBaseTableArchiveRestoreRequest{}
-			}
-			reply, err := baseTableArchiveRestoreServiceServer.ExecuteBaseTableArchiveRestore(ctx, input)
+func RegisterBaseTableArchiveRestoreServiceExecuteBaseTableArchiveRestoreMCPTool(mcpServer *server.MCPServer, baseTableArchiveRestoreServiceServer BaseTableArchiveRestoreServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_table_archive_restore_service_execute_base_table_archive_restore",
+			mcp.WithDescription("手工执行归档恢复。"),
+			mcp.WithInputSchema[*ExecuteBaseTableArchiveRestoreRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &ExecuteBaseTableArchiveRestoreRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = baseTableArchiveRestoreServiceServer.ExecuteBaseTableArchiveRestore(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }

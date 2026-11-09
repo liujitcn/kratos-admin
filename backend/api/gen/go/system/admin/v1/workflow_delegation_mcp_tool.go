@@ -9,76 +9,86 @@ package adminv1
 import (
 	context "context"
 
-	mcp "github.com/modelcontextprotocol/go-sdk/mcp"
+	mcp "github.com/mark3labs/mcp-go/mcp"
+	server "github.com/mark3labs/mcp-go/server"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // RegisterWorkflowDelegationServiceMCPTools 注册Admin工作流审批委托服务的 MCP Tool。
-func RegisterWorkflowDelegationServiceMCPTools(mcpServer *mcp.Server, workflowDelegationServiceServer WorkflowDelegationServiceServer) {
+func RegisterWorkflowDelegationServiceMCPTools(mcpServer *server.MCPServer, workflowDelegationServiceServer WorkflowDelegationServiceServer) {
 	RegisterWorkflowDelegationServicePageWorkflowDelegationMCPTool(mcpServer, workflowDelegationServiceServer)
 	RegisterWorkflowDelegationServiceSetWorkflowDelegationMCPTool(mcpServer, workflowDelegationServiceServer)
 	RegisterWorkflowDelegationServiceDeleteWorkflowDelegationMCPTool(mcpServer, workflowDelegationServiceServer)
 }
 
 // RegisterWorkflowDelegationServicePageWorkflowDelegationMCPTool 注册查询审批委托分页列表的 MCP Tool。
-func RegisterWorkflowDelegationServicePageWorkflowDelegationMCPTool(mcpServer *mcp.Server, workflowDelegationServiceServer WorkflowDelegationServiceServer) {
-	mcp.AddTool[*PageWorkflowDelegationRequest, *PageWorkflowDelegationResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_workflow_delegation_service_page_workflow_delegation",
-			Description: "查询审批委托分页列表",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *PageWorkflowDelegationRequest) (*mcp.CallToolResult, *PageWorkflowDelegationResponse, error) {
-			if input == nil {
-				input = &PageWorkflowDelegationRequest{}
-			}
-			reply, err := workflowDelegationServiceServer.PageWorkflowDelegation(ctx, input)
+func RegisterWorkflowDelegationServicePageWorkflowDelegationMCPTool(mcpServer *server.MCPServer, workflowDelegationServiceServer WorkflowDelegationServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_workflow_delegation_service_page_workflow_delegation",
+			mcp.WithDescription("查询审批委托分页列表"),
+			mcp.WithInputSchema[*PageWorkflowDelegationRequest](),
+			mcp.WithOutputSchema[*PageWorkflowDelegationResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &PageWorkflowDelegationRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *PageWorkflowDelegationResponse
+			reply, err = workflowDelegationServiceServer.PageWorkflowDelegation(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterWorkflowDelegationServiceSetWorkflowDelegationMCPTool 注册设置我的审批委托的 MCP Tool。
-func RegisterWorkflowDelegationServiceSetWorkflowDelegationMCPTool(mcpServer *mcp.Server, workflowDelegationServiceServer WorkflowDelegationServiceServer) {
-	mcp.AddTool[*SetWorkflowDelegationRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_workflow_delegation_service_set_workflow_delegation",
-			Description: "设置我的审批委托",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *SetWorkflowDelegationRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &SetWorkflowDelegationRequest{}
-			}
-			reply, err := workflowDelegationServiceServer.SetWorkflowDelegation(ctx, input)
+func RegisterWorkflowDelegationServiceSetWorkflowDelegationMCPTool(mcpServer *server.MCPServer, workflowDelegationServiceServer WorkflowDelegationServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_workflow_delegation_service_set_workflow_delegation",
+			mcp.WithDescription("设置我的审批委托"),
+			mcp.WithInputSchema[*SetWorkflowDelegationRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &SetWorkflowDelegationRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = workflowDelegationServiceServer.SetWorkflowDelegation(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterWorkflowDelegationServiceDeleteWorkflowDelegationMCPTool 注册删除审批委托的 MCP Tool。
-func RegisterWorkflowDelegationServiceDeleteWorkflowDelegationMCPTool(mcpServer *mcp.Server, workflowDelegationServiceServer WorkflowDelegationServiceServer) {
-	mcp.AddTool[*DeleteWorkflowDelegationRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_workflow_delegation_service_delete_workflow_delegation",
-			Description: "删除审批委托",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *DeleteWorkflowDelegationRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &DeleteWorkflowDelegationRequest{}
-			}
-			reply, err := workflowDelegationServiceServer.DeleteWorkflowDelegation(ctx, input)
+func RegisterWorkflowDelegationServiceDeleteWorkflowDelegationMCPTool(mcpServer *server.MCPServer, workflowDelegationServiceServer WorkflowDelegationServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_workflow_delegation_service_delete_workflow_delegation",
+			mcp.WithDescription("删除审批委托"),
+			mcp.WithInputSchema[*DeleteWorkflowDelegationRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &DeleteWorkflowDelegationRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = workflowDelegationServiceServer.DeleteWorkflowDelegation(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }

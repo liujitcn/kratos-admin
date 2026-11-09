@@ -9,76 +9,86 @@ package basev1
 import (
 	context "context"
 
-	mcp "github.com/modelcontextprotocol/go-sdk/mcp"
+	mcp "github.com/mark3labs/mcp-go/mcp"
+	server "github.com/mark3labs/mcp-go/server"
 	wrapperspb "google.golang.org/protobuf/types/known/wrapperspb"
 )
 
 // RegisterFileServiceMCPTools 注册Base文件服务的 MCP Tool。
-func RegisterFileServiceMCPTools(mcpServer *mcp.Server, fileServiceServer FileServiceServer) {
+func RegisterFileServiceMCPTools(mcpServer *server.MCPServer, fileServiceServer FileServiceServer) {
 	RegisterFileServiceMultiUploadFileMCPTool(mcpServer, fileServiceServer)
 	RegisterFileServiceUploadFileMCPTool(mcpServer, fileServiceServer)
 	RegisterFileServiceDownloadFileMCPTool(mcpServer, fileServiceServer)
 }
 
 // RegisterFileServiceMultiUploadFileMCPTool 注册多个文件上传的 MCP Tool。
-func RegisterFileServiceMultiUploadFileMCPTool(mcpServer *mcp.Server, fileServiceServer FileServiceServer) {
-	mcp.AddTool[*MultiUploadFileRequest, *MultiUploadFileResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "base_v1_file_service_multi_upload_file",
-			Description: "多个文件上传",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *MultiUploadFileRequest) (*mcp.CallToolResult, *MultiUploadFileResponse, error) {
-			if input == nil {
-				input = &MultiUploadFileRequest{}
-			}
-			reply, err := fileServiceServer.MultiUploadFile(ctx, input)
+func RegisterFileServiceMultiUploadFileMCPTool(mcpServer *server.MCPServer, fileServiceServer FileServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("base_v1_file_service_multi_upload_file",
+			mcp.WithDescription("多个文件上传"),
+			mcp.WithInputSchema[*MultiUploadFileRequest](),
+			mcp.WithOutputSchema[*MultiUploadFileResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &MultiUploadFileRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *MultiUploadFileResponse
+			reply, err = fileServiceServer.MultiUploadFile(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterFileServiceUploadFileMCPTool 注册单个文件上传的 MCP Tool。
-func RegisterFileServiceUploadFileMCPTool(mcpServer *mcp.Server, fileServiceServer FileServiceServer) {
-	mcp.AddTool[*UploadFileRequest, *FileInfo](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "base_v1_file_service_upload_file",
-			Description: "单个文件上传",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *UploadFileRequest) (*mcp.CallToolResult, *FileInfo, error) {
-			if input == nil {
-				input = &UploadFileRequest{}
-			}
-			reply, err := fileServiceServer.UploadFile(ctx, input)
+func RegisterFileServiceUploadFileMCPTool(mcpServer *server.MCPServer, fileServiceServer FileServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("base_v1_file_service_upload_file",
+			mcp.WithDescription("单个文件上传"),
+			mcp.WithInputSchema[*UploadFileRequest](),
+			mcp.WithOutputSchema[*FileInfo](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &UploadFileRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *FileInfo
+			reply, err = fileServiceServer.UploadFile(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterFileServiceDownloadFileMCPTool 注册下载文件的 MCP Tool。
-func RegisterFileServiceDownloadFileMCPTool(mcpServer *mcp.Server, fileServiceServer FileServiceServer) {
-	mcp.AddTool[*DownloadFileRequest, *wrapperspb.BytesValue](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "base_v1_file_service_download_file",
-			Description: "下载文件",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *DownloadFileRequest) (*mcp.CallToolResult, *wrapperspb.BytesValue, error) {
-			if input == nil {
-				input = &DownloadFileRequest{}
-			}
-			reply, err := fileServiceServer.DownloadFile(ctx, input)
+func RegisterFileServiceDownloadFileMCPTool(mcpServer *server.MCPServer, fileServiceServer FileServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("base_v1_file_service_download_file",
+			mcp.WithDescription("下载文件"),
+			mcp.WithInputSchema[*DownloadFileRequest](),
+			mcp.WithOutputSchema[*wrapperspb.BytesValue](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &DownloadFileRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *wrapperspb.BytesValue
+			reply, err = fileServiceServer.DownloadFile(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }

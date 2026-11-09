@@ -9,12 +9,13 @@ package adminv1
 import (
 	context "context"
 
-	mcp "github.com/modelcontextprotocol/go-sdk/mcp"
+	mcp "github.com/mark3labs/mcp-go/mcp"
+	server "github.com/mark3labs/mcp-go/server"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // RegisterCodeGenServiceMCPTools 注册Admin代码生成服务的 MCP Tool。
-func RegisterCodeGenServiceMCPTools(mcpServer *mcp.Server, codeGenServiceServer CodeGenServiceServer) {
+func RegisterCodeGenServiceMCPTools(mcpServer *server.MCPServer, codeGenServiceServer CodeGenServiceServer) {
 	RegisterCodeGenServiceGetCodeGenTaskMCPTool(mcpServer, codeGenServiceServer)
 	RegisterCodeGenServicePreviewCodeGenMCPTool(mcpServer, codeGenServiceServer)
 	RegisterCodeGenServiceStartCodeGenTaskMCPTool(mcpServer, codeGenServiceServer)
@@ -22,85 +23,97 @@ func RegisterCodeGenServiceMCPTools(mcpServer *mcp.Server, codeGenServiceServer 
 }
 
 // RegisterCodeGenServiceGetCodeGenTaskMCPTool 注册查询代码生成任务进度的 MCP Tool。
-func RegisterCodeGenServiceGetCodeGenTaskMCPTool(mcpServer *mcp.Server, codeGenServiceServer CodeGenServiceServer) {
-	mcp.AddTool[*GetCodeGenTaskRequest, *CodeGenTask](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_code_gen_service_get_code_gen_task",
-			Description: "查询代码生成任务进度",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *GetCodeGenTaskRequest) (*mcp.CallToolResult, *CodeGenTask, error) {
-			if input == nil {
-				input = &GetCodeGenTaskRequest{}
-			}
-			reply, err := codeGenServiceServer.GetCodeGenTask(ctx, input)
+func RegisterCodeGenServiceGetCodeGenTaskMCPTool(mcpServer *server.MCPServer, codeGenServiceServer CodeGenServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_code_gen_service_get_code_gen_task",
+			mcp.WithDescription("查询代码生成任务进度"),
+			mcp.WithInputSchema[*GetCodeGenTaskRequest](),
+			mcp.WithOutputSchema[*CodeGenTask](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &GetCodeGenTaskRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *CodeGenTask
+			reply, err = codeGenServiceServer.GetCodeGenTask(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterCodeGenServicePreviewCodeGenMCPTool 注册预览代码生成文件的 MCP Tool。
-func RegisterCodeGenServicePreviewCodeGenMCPTool(mcpServer *mcp.Server, codeGenServiceServer CodeGenServiceServer) {
-	mcp.AddTool[*PreviewCodeGenRequest, *PreviewCodeGenResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_code_gen_service_preview_code_gen",
-			Description: "预览代码生成文件",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *PreviewCodeGenRequest) (*mcp.CallToolResult, *PreviewCodeGenResponse, error) {
-			if input == nil {
-				input = &PreviewCodeGenRequest{}
-			}
-			reply, err := codeGenServiceServer.PreviewCodeGen(ctx, input)
+func RegisterCodeGenServicePreviewCodeGenMCPTool(mcpServer *server.MCPServer, codeGenServiceServer CodeGenServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_code_gen_service_preview_code_gen",
+			mcp.WithDescription("预览代码生成文件"),
+			mcp.WithInputSchema[*PreviewCodeGenRequest](),
+			mcp.WithOutputSchema[*PreviewCodeGenResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &PreviewCodeGenRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *PreviewCodeGenResponse
+			reply, err = codeGenServiceServer.PreviewCodeGen(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterCodeGenServiceStartCodeGenTaskMCPTool 注册启动代码生成任务的 MCP Tool。
-func RegisterCodeGenServiceStartCodeGenTaskMCPTool(mcpServer *mcp.Server, codeGenServiceServer CodeGenServiceServer) {
-	mcp.AddTool[*StartCodeGenTaskRequest, *StartCodeGenTaskResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_code_gen_service_start_code_gen_task",
-			Description: "启动代码生成任务",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *StartCodeGenTaskRequest) (*mcp.CallToolResult, *StartCodeGenTaskResponse, error) {
-			if input == nil {
-				input = &StartCodeGenTaskRequest{}
-			}
-			reply, err := codeGenServiceServer.StartCodeGenTask(ctx, input)
+func RegisterCodeGenServiceStartCodeGenTaskMCPTool(mcpServer *server.MCPServer, codeGenServiceServer CodeGenServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_code_gen_service_start_code_gen_task",
+			mcp.WithDescription("启动代码生成任务"),
+			mcp.WithInputSchema[*StartCodeGenTaskRequest](),
+			mcp.WithOutputSchema[*StartCodeGenTaskResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &StartCodeGenTaskRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *StartCodeGenTaskResponse
+			reply, err = codeGenServiceServer.StartCodeGenTask(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterCodeGenServiceRestoreCodeGenMCPTool 注册还原代码生成结果的 MCP Tool。
-func RegisterCodeGenServiceRestoreCodeGenMCPTool(mcpServer *mcp.Server, codeGenServiceServer CodeGenServiceServer) {
-	mcp.AddTool[*RestoreCodeGenRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_code_gen_service_restore_code_gen",
-			Description: "还原代码生成结果",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *RestoreCodeGenRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &RestoreCodeGenRequest{}
-			}
-			reply, err := codeGenServiceServer.RestoreCodeGen(ctx, input)
+func RegisterCodeGenServiceRestoreCodeGenMCPTool(mcpServer *server.MCPServer, codeGenServiceServer CodeGenServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_code_gen_service_restore_code_gen",
+			mcp.WithDescription("还原代码生成结果"),
+			mcp.WithInputSchema[*RestoreCodeGenRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &RestoreCodeGenRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = codeGenServiceServer.RestoreCodeGen(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }

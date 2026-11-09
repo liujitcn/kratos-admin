@@ -9,31 +9,35 @@ package basev1
 import (
 	context "context"
 
-	mcp "github.com/modelcontextprotocol/go-sdk/mcp"
+	mcp "github.com/mark3labs/mcp-go/mcp"
+	server "github.com/mark3labs/mcp-go/server"
 )
 
 // RegisterAiToolServiceMCPTools 注册Base AI 助手工具服务的 MCP Tool。
-func RegisterAiToolServiceMCPTools(mcpServer *mcp.Server, aiToolServiceServer AiToolServiceServer) {
+func RegisterAiToolServiceMCPTools(mcpServer *server.MCPServer, aiToolServiceServer AiToolServiceServer) {
 	RegisterAiToolServiceListAiShortcutMCPTool(mcpServer, aiToolServiceServer)
 }
 
 // RegisterAiToolServiceListAiShortcutMCPTool 注册查询 AI 助手快捷入口列表的 MCP Tool。
-func RegisterAiToolServiceListAiShortcutMCPTool(mcpServer *mcp.Server, aiToolServiceServer AiToolServiceServer) {
-	mcp.AddTool[*ListAiShortcutRequest, *ListAiShortcutResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "base_v1_ai_tool_service_list_ai_shortcut",
-			Description: "查询 AI 助手快捷入口列表",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *ListAiShortcutRequest) (*mcp.CallToolResult, *ListAiShortcutResponse, error) {
-			if input == nil {
-				input = &ListAiShortcutRequest{}
-			}
-			reply, err := aiToolServiceServer.ListAiShortcut(ctx, input)
+func RegisterAiToolServiceListAiShortcutMCPTool(mcpServer *server.MCPServer, aiToolServiceServer AiToolServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("base_v1_ai_tool_service_list_ai_shortcut",
+			mcp.WithDescription("查询 AI 助手快捷入口列表"),
+			mcp.WithInputSchema[*ListAiShortcutRequest](),
+			mcp.WithOutputSchema[*ListAiShortcutResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &ListAiShortcutRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *ListAiShortcutResponse
+			reply, err = aiToolServiceServer.ListAiShortcut(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }

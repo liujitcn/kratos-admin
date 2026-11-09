@@ -10,12 +10,13 @@ import (
 	context "context"
 
 	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
-	mcp "github.com/modelcontextprotocol/go-sdk/mcp"
+	mcp "github.com/mark3labs/mcp-go/mcp"
+	server "github.com/mark3labs/mcp-go/server"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // RegisterBaseRoleServiceMCPTools 注册Admin角色管理服务的 MCP Tool。
-func RegisterBaseRoleServiceMCPTools(mcpServer *mcp.Server, baseRoleServiceServer BaseRoleServiceServer) {
+func RegisterBaseRoleServiceMCPTools(mcpServer *server.MCPServer, baseRoleServiceServer BaseRoleServiceServer) {
 	RegisterBaseRoleServiceOptionBaseRoleMCPTool(mcpServer, baseRoleServiceServer)
 	RegisterBaseRoleServicePageBaseRoleMCPTool(mcpServer, baseRoleServiceServer)
 	RegisterBaseRoleServiceGetBaseRoleMCPTool(mcpServer, baseRoleServiceServer)
@@ -27,169 +28,193 @@ func RegisterBaseRoleServiceMCPTools(mcpServer *mcp.Server, baseRoleServiceServe
 }
 
 // RegisterBaseRoleServiceOptionBaseRoleMCPTool 注册查询角色下拉选择的 MCP Tool。
-func RegisterBaseRoleServiceOptionBaseRoleMCPTool(mcpServer *mcp.Server, baseRoleServiceServer BaseRoleServiceServer) {
-	mcp.AddTool[*OptionBaseRoleRequest, *commonv1.SelectOptionResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_role_service_option_base_role",
-			Description: "查询角色下拉选择",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *OptionBaseRoleRequest) (*mcp.CallToolResult, *commonv1.SelectOptionResponse, error) {
-			if input == nil {
-				input = &OptionBaseRoleRequest{}
-			}
-			reply, err := baseRoleServiceServer.OptionBaseRole(ctx, input)
+func RegisterBaseRoleServiceOptionBaseRoleMCPTool(mcpServer *server.MCPServer, baseRoleServiceServer BaseRoleServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_role_service_option_base_role",
+			mcp.WithDescription("查询角色下拉选择"),
+			mcp.WithInputSchema[*OptionBaseRoleRequest](),
+			mcp.WithOutputSchema[*commonv1.SelectOptionResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &OptionBaseRoleRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *commonv1.SelectOptionResponse
+			reply, err = baseRoleServiceServer.OptionBaseRole(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseRoleServicePageBaseRoleMCPTool 注册查询角色分页列表的 MCP Tool。
-func RegisterBaseRoleServicePageBaseRoleMCPTool(mcpServer *mcp.Server, baseRoleServiceServer BaseRoleServiceServer) {
-	mcp.AddTool[*PageBaseRoleRequest, *PageBaseRoleResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_role_service_page_base_role",
-			Description: "查询角色分页列表",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *PageBaseRoleRequest) (*mcp.CallToolResult, *PageBaseRoleResponse, error) {
-			if input == nil {
-				input = &PageBaseRoleRequest{}
-			}
-			reply, err := baseRoleServiceServer.PageBaseRole(ctx, input)
+func RegisterBaseRoleServicePageBaseRoleMCPTool(mcpServer *server.MCPServer, baseRoleServiceServer BaseRoleServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_role_service_page_base_role",
+			mcp.WithDescription("查询角色分页列表"),
+			mcp.WithInputSchema[*PageBaseRoleRequest](),
+			mcp.WithOutputSchema[*PageBaseRoleResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &PageBaseRoleRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *PageBaseRoleResponse
+			reply, err = baseRoleServiceServer.PageBaseRole(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseRoleServiceGetBaseRoleMCPTool 注册查询角色的 MCP Tool。
-func RegisterBaseRoleServiceGetBaseRoleMCPTool(mcpServer *mcp.Server, baseRoleServiceServer BaseRoleServiceServer) {
-	mcp.AddTool[*GetBaseRoleRequest, *BaseRoleForm](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_role_service_get_base_role",
-			Description: "查询角色",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *GetBaseRoleRequest) (*mcp.CallToolResult, *BaseRoleForm, error) {
-			if input == nil {
-				input = &GetBaseRoleRequest{}
-			}
-			reply, err := baseRoleServiceServer.GetBaseRole(ctx, input)
+func RegisterBaseRoleServiceGetBaseRoleMCPTool(mcpServer *server.MCPServer, baseRoleServiceServer BaseRoleServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_role_service_get_base_role",
+			mcp.WithDescription("查询角色"),
+			mcp.WithInputSchema[*GetBaseRoleRequest](),
+			mcp.WithOutputSchema[*BaseRoleForm](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &GetBaseRoleRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *BaseRoleForm
+			reply, err = baseRoleServiceServer.GetBaseRole(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseRoleServiceCreateBaseRoleMCPTool 注册创建角色的 MCP Tool。
-func RegisterBaseRoleServiceCreateBaseRoleMCPTool(mcpServer *mcp.Server, baseRoleServiceServer BaseRoleServiceServer) {
-	mcp.AddTool[*CreateBaseRoleRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_role_service_create_base_role",
-			Description: "创建角色",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *CreateBaseRoleRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &CreateBaseRoleRequest{}
-			}
-			reply, err := baseRoleServiceServer.CreateBaseRole(ctx, input)
+func RegisterBaseRoleServiceCreateBaseRoleMCPTool(mcpServer *server.MCPServer, baseRoleServiceServer BaseRoleServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_role_service_create_base_role",
+			mcp.WithDescription("创建角色"),
+			mcp.WithInputSchema[*CreateBaseRoleRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &CreateBaseRoleRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = baseRoleServiceServer.CreateBaseRole(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseRoleServiceUpdateBaseRoleMCPTool 注册更新角色的 MCP Tool。
-func RegisterBaseRoleServiceUpdateBaseRoleMCPTool(mcpServer *mcp.Server, baseRoleServiceServer BaseRoleServiceServer) {
-	mcp.AddTool[*UpdateBaseRoleRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_role_service_update_base_role",
-			Description: "更新角色",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *UpdateBaseRoleRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &UpdateBaseRoleRequest{}
-			}
-			reply, err := baseRoleServiceServer.UpdateBaseRole(ctx, input)
+func RegisterBaseRoleServiceUpdateBaseRoleMCPTool(mcpServer *server.MCPServer, baseRoleServiceServer BaseRoleServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_role_service_update_base_role",
+			mcp.WithDescription("更新角色"),
+			mcp.WithInputSchema[*UpdateBaseRoleRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &UpdateBaseRoleRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = baseRoleServiceServer.UpdateBaseRole(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseRoleServiceDeleteBaseRoleMCPTool 注册删除角色的 MCP Tool。
-func RegisterBaseRoleServiceDeleteBaseRoleMCPTool(mcpServer *mcp.Server, baseRoleServiceServer BaseRoleServiceServer) {
-	mcp.AddTool[*DeleteBaseRoleRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_role_service_delete_base_role",
-			Description: "删除角色",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *DeleteBaseRoleRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &DeleteBaseRoleRequest{}
-			}
-			reply, err := baseRoleServiceServer.DeleteBaseRole(ctx, input)
+func RegisterBaseRoleServiceDeleteBaseRoleMCPTool(mcpServer *server.MCPServer, baseRoleServiceServer BaseRoleServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_role_service_delete_base_role",
+			mcp.WithDescription("删除角色"),
+			mcp.WithInputSchema[*DeleteBaseRoleRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &DeleteBaseRoleRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = baseRoleServiceServer.DeleteBaseRole(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseRoleServiceSetBaseRoleStatusMCPTool 注册设置状态的 MCP Tool。
-func RegisterBaseRoleServiceSetBaseRoleStatusMCPTool(mcpServer *mcp.Server, baseRoleServiceServer BaseRoleServiceServer) {
-	mcp.AddTool[*SetBaseRoleStatusRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_role_service_set_base_role_status",
-			Description: "设置状态",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *SetBaseRoleStatusRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &SetBaseRoleStatusRequest{}
-			}
-			reply, err := baseRoleServiceServer.SetBaseRoleStatus(ctx, input)
+func RegisterBaseRoleServiceSetBaseRoleStatusMCPTool(mcpServer *server.MCPServer, baseRoleServiceServer BaseRoleServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_role_service_set_base_role_status",
+			mcp.WithDescription("设置状态"),
+			mcp.WithInputSchema[*SetBaseRoleStatusRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &SetBaseRoleStatusRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = baseRoleServiceServer.SetBaseRoleStatus(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseRoleServiceSetBaseRoleMenuMCPTool 注册设置角色菜单权限的 MCP Tool。
-func RegisterBaseRoleServiceSetBaseRoleMenuMCPTool(mcpServer *mcp.Server, baseRoleServiceServer BaseRoleServiceServer) {
-	mcp.AddTool[*SetBaseRoleMenuRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_role_service_set_base_role_menu",
-			Description: "设置角色菜单权限",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *SetBaseRoleMenuRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &SetBaseRoleMenuRequest{}
-			}
-			reply, err := baseRoleServiceServer.SetBaseRoleMenu(ctx, input)
+func RegisterBaseRoleServiceSetBaseRoleMenuMCPTool(mcpServer *server.MCPServer, baseRoleServiceServer BaseRoleServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_role_service_set_base_role_menu",
+			mcp.WithDescription("设置角色菜单权限"),
+			mcp.WithInputSchema[*SetBaseRoleMenuRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &SetBaseRoleMenuRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = baseRoleServiceServer.SetBaseRoleMenu(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }

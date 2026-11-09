@@ -9,12 +9,13 @@ package basev1
 import (
 	context "context"
 
-	mcp "github.com/modelcontextprotocol/go-sdk/mcp"
+	mcp "github.com/mark3labs/mcp-go/mcp"
+	server "github.com/mark3labs/mcp-go/server"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // RegisterMfaServiceMCPTools 注册Base 多因素认证公共服务的 MCP Tool。
-func RegisterMfaServiceMCPTools(mcpServer *mcp.Server, mfaServiceServer MfaServiceServer) {
+func RegisterMfaServiceMCPTools(mcpServer *server.MCPServer, mfaServiceServer MfaServiceServer) {
 	RegisterMfaServiceVerifyMfaMCPTool(mcpServer, mfaServiceServer)
 	RegisterMfaServiceBeginMfaEnrollmentMCPTool(mcpServer, mfaServiceServer)
 	RegisterMfaServiceConfirmMfaEnrollmentMCPTool(mcpServer, mfaServiceServer)
@@ -27,190 +28,217 @@ func RegisterMfaServiceMCPTools(mcpServer *mcp.Server, mfaServiceServer MfaServi
 }
 
 // RegisterMfaServiceVerifyMfaMCPTool 注册校验多因素认证的 MCP Tool。
-func RegisterMfaServiceVerifyMfaMCPTool(mcpServer *mcp.Server, mfaServiceServer MfaServiceServer) {
-	mcp.AddTool[*VerifyMfaRequest, *LoginResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "base_v1_mfa_service_verify_mfa",
-			Description: "校验多因素认证",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *VerifyMfaRequest) (*mcp.CallToolResult, *LoginResponse, error) {
-			if input == nil {
-				input = &VerifyMfaRequest{}
-			}
-			reply, err := mfaServiceServer.VerifyMfa(ctx, input)
+func RegisterMfaServiceVerifyMfaMCPTool(mcpServer *server.MCPServer, mfaServiceServer MfaServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("base_v1_mfa_service_verify_mfa",
+			mcp.WithDescription("校验多因素认证"),
+			mcp.WithInputSchema[*VerifyMfaRequest](),
+			mcp.WithOutputSchema[*LoginResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &VerifyMfaRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *LoginResponse
+			reply, err = mfaServiceServer.VerifyMfa(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterMfaServiceBeginMfaEnrollmentMCPTool 注册开始登录强制绑定配置的 MFA 方式的 MCP Tool。
-func RegisterMfaServiceBeginMfaEnrollmentMCPTool(mcpServer *mcp.Server, mfaServiceServer MfaServiceServer) {
-	mcp.AddTool[*BeginMfaEnrollmentRequest, *BeginMfaEnrollmentResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "base_v1_mfa_service_begin_mfa_enrollment",
-			Description: "开始登录强制绑定配置的 MFA 方式",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *BeginMfaEnrollmentRequest) (*mcp.CallToolResult, *BeginMfaEnrollmentResponse, error) {
-			if input == nil {
-				input = &BeginMfaEnrollmentRequest{}
-			}
-			reply, err := mfaServiceServer.BeginMfaEnrollment(ctx, input)
+func RegisterMfaServiceBeginMfaEnrollmentMCPTool(mcpServer *server.MCPServer, mfaServiceServer MfaServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("base_v1_mfa_service_begin_mfa_enrollment",
+			mcp.WithDescription("开始登录强制绑定配置的 MFA 方式"),
+			mcp.WithInputSchema[*BeginMfaEnrollmentRequest](),
+			mcp.WithOutputSchema[*BeginMfaEnrollmentResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &BeginMfaEnrollmentRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *BeginMfaEnrollmentResponse
+			reply, err = mfaServiceServer.BeginMfaEnrollment(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterMfaServiceConfirmMfaEnrollmentMCPTool 注册确认登录强制绑定配置的 MFA 方式的 MCP Tool。
-func RegisterMfaServiceConfirmMfaEnrollmentMCPTool(mcpServer *mcp.Server, mfaServiceServer MfaServiceServer) {
-	mcp.AddTool[*ConfirmMfaEnrollmentRequest, *ConfirmMfaEnrollmentResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "base_v1_mfa_service_confirm_mfa_enrollment",
-			Description: "确认登录强制绑定配置的 MFA 方式",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *ConfirmMfaEnrollmentRequest) (*mcp.CallToolResult, *ConfirmMfaEnrollmentResponse, error) {
-			if input == nil {
-				input = &ConfirmMfaEnrollmentRequest{}
-			}
-			reply, err := mfaServiceServer.ConfirmMfaEnrollment(ctx, input)
+func RegisterMfaServiceConfirmMfaEnrollmentMCPTool(mcpServer *server.MCPServer, mfaServiceServer MfaServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("base_v1_mfa_service_confirm_mfa_enrollment",
+			mcp.WithDescription("确认登录强制绑定配置的 MFA 方式"),
+			mcp.WithInputSchema[*ConfirmMfaEnrollmentRequest](),
+			mcp.WithOutputSchema[*ConfirmMfaEnrollmentResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &ConfirmMfaEnrollmentRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *ConfirmMfaEnrollmentResponse
+			reply, err = mfaServiceServer.ConfirmMfaEnrollment(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterMfaServiceGetMfaStatusMCPTool 注册查询当前用户多因素认证状态的 MCP Tool。
-func RegisterMfaServiceGetMfaStatusMCPTool(mcpServer *mcp.Server, mfaServiceServer MfaServiceServer) {
-	mcp.AddTool[*GetMfaStatusRequest, *MfaStatusResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "base_v1_mfa_service_get_mfa_status",
-			Description: "查询当前用户多因素认证状态。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *GetMfaStatusRequest) (*mcp.CallToolResult, *MfaStatusResponse, error) {
-			if input == nil {
-				input = &GetMfaStatusRequest{}
-			}
-			reply, err := mfaServiceServer.GetMfaStatus(ctx, input)
+func RegisterMfaServiceGetMfaStatusMCPTool(mcpServer *server.MCPServer, mfaServiceServer MfaServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("base_v1_mfa_service_get_mfa_status",
+			mcp.WithDescription("查询当前用户多因素认证状态。"),
+			mcp.WithInputSchema[*GetMfaStatusRequest](),
+			mcp.WithOutputSchema[*MfaStatusResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &GetMfaStatusRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *MfaStatusResponse
+			reply, err = mfaServiceServer.GetMfaStatus(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterMfaServiceBeginMfaSetupMCPTool 注册开始绑定当前用户的多因素认证方式的 MCP Tool。
-func RegisterMfaServiceBeginMfaSetupMCPTool(mcpServer *mcp.Server, mfaServiceServer MfaServiceServer) {
-	mcp.AddTool[*BeginMfaSetupRequest, *BeginMfaSetupResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "base_v1_mfa_service_begin_mfa_setup",
-			Description: "开始绑定当前用户的多因素认证方式。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *BeginMfaSetupRequest) (*mcp.CallToolResult, *BeginMfaSetupResponse, error) {
-			if input == nil {
-				input = &BeginMfaSetupRequest{}
-			}
-			reply, err := mfaServiceServer.BeginMfaSetup(ctx, input)
+func RegisterMfaServiceBeginMfaSetupMCPTool(mcpServer *server.MCPServer, mfaServiceServer MfaServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("base_v1_mfa_service_begin_mfa_setup",
+			mcp.WithDescription("开始绑定当前用户的多因素认证方式。"),
+			mcp.WithInputSchema[*BeginMfaSetupRequest](),
+			mcp.WithOutputSchema[*BeginMfaSetupResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &BeginMfaSetupRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *BeginMfaSetupResponse
+			reply, err = mfaServiceServer.BeginMfaSetup(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterMfaServiceConfirmMfaSetupMCPTool 注册确认绑定当前用户的多因素认证方式的 MCP Tool。
-func RegisterMfaServiceConfirmMfaSetupMCPTool(mcpServer *mcp.Server, mfaServiceServer MfaServiceServer) {
-	mcp.AddTool[*ConfirmMfaSetupRequest, *ConfirmMfaSetupResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "base_v1_mfa_service_confirm_mfa_setup",
-			Description: "确认绑定当前用户的多因素认证方式。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *ConfirmMfaSetupRequest) (*mcp.CallToolResult, *ConfirmMfaSetupResponse, error) {
-			if input == nil {
-				input = &ConfirmMfaSetupRequest{}
-			}
-			reply, err := mfaServiceServer.ConfirmMfaSetup(ctx, input)
+func RegisterMfaServiceConfirmMfaSetupMCPTool(mcpServer *server.MCPServer, mfaServiceServer MfaServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("base_v1_mfa_service_confirm_mfa_setup",
+			mcp.WithDescription("确认绑定当前用户的多因素认证方式。"),
+			mcp.WithInputSchema[*ConfirmMfaSetupRequest](),
+			mcp.WithOutputSchema[*ConfirmMfaSetupResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &ConfirmMfaSetupRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *ConfirmMfaSetupResponse
+			reply, err = mfaServiceServer.ConfirmMfaSetup(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterMfaServiceBeginMfaDisableMCPTool 注册开始禁用 WebAuthn 多因素认证的 Passkey 验证的 MCP Tool。
-func RegisterMfaServiceBeginMfaDisableMCPTool(mcpServer *mcp.Server, mfaServiceServer MfaServiceServer) {
-	mcp.AddTool[*BeginMfaDisableRequest, *BeginMfaDisableResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "base_v1_mfa_service_begin_mfa_disable",
-			Description: "开始禁用 WebAuthn 多因素认证的 Passkey 验证。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *BeginMfaDisableRequest) (*mcp.CallToolResult, *BeginMfaDisableResponse, error) {
-			if input == nil {
-				input = &BeginMfaDisableRequest{}
-			}
-			reply, err := mfaServiceServer.BeginMfaDisable(ctx, input)
+func RegisterMfaServiceBeginMfaDisableMCPTool(mcpServer *server.MCPServer, mfaServiceServer MfaServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("base_v1_mfa_service_begin_mfa_disable",
+			mcp.WithDescription("开始禁用 WebAuthn 多因素认证的 Passkey 验证。"),
+			mcp.WithInputSchema[*BeginMfaDisableRequest](),
+			mcp.WithOutputSchema[*BeginMfaDisableResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &BeginMfaDisableRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *BeginMfaDisableResponse
+			reply, err = mfaServiceServer.BeginMfaDisable(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterMfaServiceDisableMfaMCPTool 注册禁用当前用户的多因素认证的 MCP Tool。
-func RegisterMfaServiceDisableMfaMCPTool(mcpServer *mcp.Server, mfaServiceServer MfaServiceServer) {
-	mcp.AddTool[*DisableMfaRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "base_v1_mfa_service_disable_mfa",
-			Description: "禁用当前用户的多因素认证。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *DisableMfaRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &DisableMfaRequest{}
-			}
-			reply, err := mfaServiceServer.DisableMfa(ctx, input)
+func RegisterMfaServiceDisableMfaMCPTool(mcpServer *server.MCPServer, mfaServiceServer MfaServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("base_v1_mfa_service_disable_mfa",
+			mcp.WithDescription("禁用当前用户的多因素认证。"),
+			mcp.WithInputSchema[*DisableMfaRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &DisableMfaRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = mfaServiceServer.DisableMfa(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterMfaServiceRegenerateMfaRecoveryCodesMCPTool 注册重新生成当前用户的多因素认证恢复码的 MCP Tool。
-func RegisterMfaServiceRegenerateMfaRecoveryCodesMCPTool(mcpServer *mcp.Server, mfaServiceServer MfaServiceServer) {
-	mcp.AddTool[*RegenerateMfaRecoveryCodesRequest, *RecoveryCodesResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "base_v1_mfa_service_regenerate_mfa_recovery_codes",
-			Description: "重新生成当前用户的多因素认证恢复码。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *RegenerateMfaRecoveryCodesRequest) (*mcp.CallToolResult, *RecoveryCodesResponse, error) {
-			if input == nil {
-				input = &RegenerateMfaRecoveryCodesRequest{}
-			}
-			reply, err := mfaServiceServer.RegenerateMfaRecoveryCodes(ctx, input)
+func RegisterMfaServiceRegenerateMfaRecoveryCodesMCPTool(mcpServer *server.MCPServer, mfaServiceServer MfaServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("base_v1_mfa_service_regenerate_mfa_recovery_codes",
+			mcp.WithDescription("重新生成当前用户的多因素认证恢复码。"),
+			mcp.WithInputSchema[*RegenerateMfaRecoveryCodesRequest](),
+			mcp.WithOutputSchema[*RecoveryCodesResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &RegenerateMfaRecoveryCodesRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *RecoveryCodesResponse
+			reply, err = mfaServiceServer.RegenerateMfaRecoveryCodes(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }

@@ -9,31 +9,35 @@ package basev1
 import (
 	context "context"
 
-	mcp "github.com/modelcontextprotocol/go-sdk/mcp"
+	mcp "github.com/mark3labs/mcp-go/mcp"
+	server "github.com/mark3labs/mcp-go/server"
 )
 
 // RegisterAiModelServiceMCPTools 注册AI Provider 可选模型查询服务的 MCP Tool。
-func RegisterAiModelServiceMCPTools(mcpServer *mcp.Server, aiModelServiceServer AiModelServiceServer) {
+func RegisterAiModelServiceMCPTools(mcpServer *server.MCPServer, aiModelServiceServer AiModelServiceServer) {
 	RegisterAiModelServiceListAiProviderModelOptionsMCPTool(mcpServer, aiModelServiceServer)
 }
 
 // RegisterAiModelServiceListAiProviderModelOptionsMCPTool 注册查询已启用的AI Provider及其可用模型的 MCP Tool。
-func RegisterAiModelServiceListAiProviderModelOptionsMCPTool(mcpServer *mcp.Server, aiModelServiceServer AiModelServiceServer) {
-	mcp.AddTool[*ListAiProviderModelOptionsRequest, *ListAiProviderModelOptionsResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "base_v1_ai_model_service_list_ai_provider_model_options",
-			Description: "查询已启用的AI Provider及其可用模型。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *ListAiProviderModelOptionsRequest) (*mcp.CallToolResult, *ListAiProviderModelOptionsResponse, error) {
-			if input == nil {
-				input = &ListAiProviderModelOptionsRequest{}
-			}
-			reply, err := aiModelServiceServer.ListAiProviderModelOptions(ctx, input)
+func RegisterAiModelServiceListAiProviderModelOptionsMCPTool(mcpServer *server.MCPServer, aiModelServiceServer AiModelServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("base_v1_ai_model_service_list_ai_provider_model_options",
+			mcp.WithDescription("查询已启用的AI Provider及其可用模型。"),
+			mcp.WithInputSchema[*ListAiProviderModelOptionsRequest](),
+			mcp.WithOutputSchema[*ListAiProviderModelOptionsResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &ListAiProviderModelOptionsRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *ListAiProviderModelOptionsResponse
+			reply, err = aiModelServiceServer.ListAiProviderModelOptions(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }

@@ -9,12 +9,13 @@ package adminv1
 import (
 	context "context"
 
-	mcp "github.com/modelcontextprotocol/go-sdk/mcp"
+	mcp "github.com/mark3labs/mcp-go/mcp"
+	server "github.com/mark3labs/mcp-go/server"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // RegisterBaseApiRateLimitPolicyServiceMCPTools 注册Admin接口限流策略服务的 MCP Tool。
-func RegisterBaseApiRateLimitPolicyServiceMCPTools(mcpServer *mcp.Server, baseApiRateLimitPolicyServiceServer BaseApiRateLimitPolicyServiceServer) {
+func RegisterBaseApiRateLimitPolicyServiceMCPTools(mcpServer *server.MCPServer, baseApiRateLimitPolicyServiceServer BaseApiRateLimitPolicyServiceServer) {
 	RegisterBaseApiRateLimitPolicyServicePageBaseApiRateLimitPolicyMCPTool(mcpServer, baseApiRateLimitPolicyServiceServer)
 	RegisterBaseApiRateLimitPolicyServiceGetBaseApiRateLimitPolicyMCPTool(mcpServer, baseApiRateLimitPolicyServiceServer)
 	RegisterBaseApiRateLimitPolicyServiceCreateBaseApiRateLimitPolicyMCPTool(mcpServer, baseApiRateLimitPolicyServiceServer)
@@ -24,127 +25,145 @@ func RegisterBaseApiRateLimitPolicyServiceMCPTools(mcpServer *mcp.Server, baseAp
 }
 
 // RegisterBaseApiRateLimitPolicyServicePageBaseApiRateLimitPolicyMCPTool 注册查询接口限流策略分页列表的 MCP Tool。
-func RegisterBaseApiRateLimitPolicyServicePageBaseApiRateLimitPolicyMCPTool(mcpServer *mcp.Server, baseApiRateLimitPolicyServiceServer BaseApiRateLimitPolicyServiceServer) {
-	mcp.AddTool[*PageBaseApiRateLimitPolicyRequest, *PageBaseApiRateLimitPolicyResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_api_rate_limit_policy_service_page_base_api_rate_limit_policy",
-			Description: "查询接口限流策略分页列表。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *PageBaseApiRateLimitPolicyRequest) (*mcp.CallToolResult, *PageBaseApiRateLimitPolicyResponse, error) {
-			if input == nil {
-				input = &PageBaseApiRateLimitPolicyRequest{}
-			}
-			reply, err := baseApiRateLimitPolicyServiceServer.PageBaseApiRateLimitPolicy(ctx, input)
+func RegisterBaseApiRateLimitPolicyServicePageBaseApiRateLimitPolicyMCPTool(mcpServer *server.MCPServer, baseApiRateLimitPolicyServiceServer BaseApiRateLimitPolicyServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_api_rate_limit_policy_service_page_base_api_rate_limit_policy",
+			mcp.WithDescription("查询接口限流策略分页列表。"),
+			mcp.WithInputSchema[*PageBaseApiRateLimitPolicyRequest](),
+			mcp.WithOutputSchema[*PageBaseApiRateLimitPolicyResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &PageBaseApiRateLimitPolicyRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *PageBaseApiRateLimitPolicyResponse
+			reply, err = baseApiRateLimitPolicyServiceServer.PageBaseApiRateLimitPolicy(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseApiRateLimitPolicyServiceGetBaseApiRateLimitPolicyMCPTool 注册查询接口限流策略详情的 MCP Tool。
-func RegisterBaseApiRateLimitPolicyServiceGetBaseApiRateLimitPolicyMCPTool(mcpServer *mcp.Server, baseApiRateLimitPolicyServiceServer BaseApiRateLimitPolicyServiceServer) {
-	mcp.AddTool[*GetBaseApiRateLimitPolicyRequest, *BaseApiRateLimitPolicyForm](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_api_rate_limit_policy_service_get_base_api_rate_limit_policy",
-			Description: "查询接口限流策略详情。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *GetBaseApiRateLimitPolicyRequest) (*mcp.CallToolResult, *BaseApiRateLimitPolicyForm, error) {
-			if input == nil {
-				input = &GetBaseApiRateLimitPolicyRequest{}
-			}
-			reply, err := baseApiRateLimitPolicyServiceServer.GetBaseApiRateLimitPolicy(ctx, input)
+func RegisterBaseApiRateLimitPolicyServiceGetBaseApiRateLimitPolicyMCPTool(mcpServer *server.MCPServer, baseApiRateLimitPolicyServiceServer BaseApiRateLimitPolicyServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_api_rate_limit_policy_service_get_base_api_rate_limit_policy",
+			mcp.WithDescription("查询接口限流策略详情。"),
+			mcp.WithInputSchema[*GetBaseApiRateLimitPolicyRequest](),
+			mcp.WithOutputSchema[*BaseApiRateLimitPolicyForm](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &GetBaseApiRateLimitPolicyRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *BaseApiRateLimitPolicyForm
+			reply, err = baseApiRateLimitPolicyServiceServer.GetBaseApiRateLimitPolicy(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseApiRateLimitPolicyServiceCreateBaseApiRateLimitPolicyMCPTool 注册创建接口限流策略的 MCP Tool。
-func RegisterBaseApiRateLimitPolicyServiceCreateBaseApiRateLimitPolicyMCPTool(mcpServer *mcp.Server, baseApiRateLimitPolicyServiceServer BaseApiRateLimitPolicyServiceServer) {
-	mcp.AddTool[*CreateBaseApiRateLimitPolicyRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_api_rate_limit_policy_service_create_base_api_rate_limit_policy",
-			Description: "创建接口限流策略。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *CreateBaseApiRateLimitPolicyRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &CreateBaseApiRateLimitPolicyRequest{}
-			}
-			reply, err := baseApiRateLimitPolicyServiceServer.CreateBaseApiRateLimitPolicy(ctx, input)
+func RegisterBaseApiRateLimitPolicyServiceCreateBaseApiRateLimitPolicyMCPTool(mcpServer *server.MCPServer, baseApiRateLimitPolicyServiceServer BaseApiRateLimitPolicyServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_api_rate_limit_policy_service_create_base_api_rate_limit_policy",
+			mcp.WithDescription("创建接口限流策略。"),
+			mcp.WithInputSchema[*CreateBaseApiRateLimitPolicyRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &CreateBaseApiRateLimitPolicyRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = baseApiRateLimitPolicyServiceServer.CreateBaseApiRateLimitPolicy(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseApiRateLimitPolicyServiceUpdateBaseApiRateLimitPolicyMCPTool 注册更新接口限流策略的 MCP Tool。
-func RegisterBaseApiRateLimitPolicyServiceUpdateBaseApiRateLimitPolicyMCPTool(mcpServer *mcp.Server, baseApiRateLimitPolicyServiceServer BaseApiRateLimitPolicyServiceServer) {
-	mcp.AddTool[*UpdateBaseApiRateLimitPolicyRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_api_rate_limit_policy_service_update_base_api_rate_limit_policy",
-			Description: "更新接口限流策略。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *UpdateBaseApiRateLimitPolicyRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &UpdateBaseApiRateLimitPolicyRequest{}
-			}
-			reply, err := baseApiRateLimitPolicyServiceServer.UpdateBaseApiRateLimitPolicy(ctx, input)
+func RegisterBaseApiRateLimitPolicyServiceUpdateBaseApiRateLimitPolicyMCPTool(mcpServer *server.MCPServer, baseApiRateLimitPolicyServiceServer BaseApiRateLimitPolicyServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_api_rate_limit_policy_service_update_base_api_rate_limit_policy",
+			mcp.WithDescription("更新接口限流策略。"),
+			mcp.WithInputSchema[*UpdateBaseApiRateLimitPolicyRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &UpdateBaseApiRateLimitPolicyRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = baseApiRateLimitPolicyServiceServer.UpdateBaseApiRateLimitPolicy(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseApiRateLimitPolicyServiceDeleteBaseApiRateLimitPolicyMCPTool 注册删除接口限流策略的 MCP Tool。
-func RegisterBaseApiRateLimitPolicyServiceDeleteBaseApiRateLimitPolicyMCPTool(mcpServer *mcp.Server, baseApiRateLimitPolicyServiceServer BaseApiRateLimitPolicyServiceServer) {
-	mcp.AddTool[*DeleteBaseApiRateLimitPolicyRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_api_rate_limit_policy_service_delete_base_api_rate_limit_policy",
-			Description: "删除接口限流策略。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *DeleteBaseApiRateLimitPolicyRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &DeleteBaseApiRateLimitPolicyRequest{}
-			}
-			reply, err := baseApiRateLimitPolicyServiceServer.DeleteBaseApiRateLimitPolicy(ctx, input)
+func RegisterBaseApiRateLimitPolicyServiceDeleteBaseApiRateLimitPolicyMCPTool(mcpServer *server.MCPServer, baseApiRateLimitPolicyServiceServer BaseApiRateLimitPolicyServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_api_rate_limit_policy_service_delete_base_api_rate_limit_policy",
+			mcp.WithDescription("删除接口限流策略。"),
+			mcp.WithInputSchema[*DeleteBaseApiRateLimitPolicyRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &DeleteBaseApiRateLimitPolicyRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = baseApiRateLimitPolicyServiceServer.DeleteBaseApiRateLimitPolicy(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseApiRateLimitPolicyServiceSetBaseApiRateLimitPolicyStatusMCPTool 注册设置接口限流策略状态的 MCP Tool。
-func RegisterBaseApiRateLimitPolicyServiceSetBaseApiRateLimitPolicyStatusMCPTool(mcpServer *mcp.Server, baseApiRateLimitPolicyServiceServer BaseApiRateLimitPolicyServiceServer) {
-	mcp.AddTool[*SetBaseApiRateLimitPolicyStatusRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_api_rate_limit_policy_service_set_base_api_rate_limit_policy_status",
-			Description: "设置接口限流策略状态。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *SetBaseApiRateLimitPolicyStatusRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &SetBaseApiRateLimitPolicyStatusRequest{}
-			}
-			reply, err := baseApiRateLimitPolicyServiceServer.SetBaseApiRateLimitPolicyStatus(ctx, input)
+func RegisterBaseApiRateLimitPolicyServiceSetBaseApiRateLimitPolicyStatusMCPTool(mcpServer *server.MCPServer, baseApiRateLimitPolicyServiceServer BaseApiRateLimitPolicyServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_api_rate_limit_policy_service_set_base_api_rate_limit_policy_status",
+			mcp.WithDescription("设置接口限流策略状态。"),
+			mcp.WithInputSchema[*SetBaseApiRateLimitPolicyStatusRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &SetBaseApiRateLimitPolicyStatusRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = baseApiRateLimitPolicyServiceServer.SetBaseApiRateLimitPolicyStatus(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }

@@ -9,31 +9,35 @@ package basev1
 import (
 	context "context"
 
-	mcp "github.com/modelcontextprotocol/go-sdk/mcp"
+	mcp "github.com/mark3labs/mcp-go/mcp"
+	server "github.com/mark3labs/mcp-go/server"
 )
 
 // RegisterAiKnowledgeServiceMCPTools 注册AI 知识库选项查询服务的 MCP Tool。
-func RegisterAiKnowledgeServiceMCPTools(mcpServer *mcp.Server, aiKnowledgeServiceServer AiKnowledgeServiceServer) {
+func RegisterAiKnowledgeServiceMCPTools(mcpServer *server.MCPServer, aiKnowledgeServiceServer AiKnowledgeServiceServer) {
 	RegisterAiKnowledgeServiceListAiKnowledgeOptionsMCPTool(mcpServer, aiKnowledgeServiceServer)
 }
 
 // RegisterAiKnowledgeServiceListAiKnowledgeOptionsMCPTool 注册查询可用的AI知识库选项的 MCP Tool。
-func RegisterAiKnowledgeServiceListAiKnowledgeOptionsMCPTool(mcpServer *mcp.Server, aiKnowledgeServiceServer AiKnowledgeServiceServer) {
-	mcp.AddTool[*ListAiKnowledgeOptionsRequest, *ListAiKnowledgeOptionsResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "base_v1_ai_knowledge_service_list_ai_knowledge_options",
-			Description: "查询可用的AI知识库选项。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *ListAiKnowledgeOptionsRequest) (*mcp.CallToolResult, *ListAiKnowledgeOptionsResponse, error) {
-			if input == nil {
-				input = &ListAiKnowledgeOptionsRequest{}
-			}
-			reply, err := aiKnowledgeServiceServer.ListAiKnowledgeOptions(ctx, input)
+func RegisterAiKnowledgeServiceListAiKnowledgeOptionsMCPTool(mcpServer *server.MCPServer, aiKnowledgeServiceServer AiKnowledgeServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("base_v1_ai_knowledge_service_list_ai_knowledge_options",
+			mcp.WithDescription("查询可用的AI知识库选项。"),
+			mcp.WithInputSchema[*ListAiKnowledgeOptionsRequest](),
+			mcp.WithOutputSchema[*ListAiKnowledgeOptionsResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &ListAiKnowledgeOptionsRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *ListAiKnowledgeOptionsResponse
+			reply, err = aiKnowledgeServiceServer.ListAiKnowledgeOptions(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }

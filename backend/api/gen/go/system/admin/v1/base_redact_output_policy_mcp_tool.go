@@ -9,12 +9,13 @@ package adminv1
 import (
 	context "context"
 
-	mcp "github.com/modelcontextprotocol/go-sdk/mcp"
+	mcp "github.com/mark3labs/mcp-go/mcp"
+	server "github.com/mark3labs/mcp-go/server"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // RegisterBaseRedactOutputPolicyServiceMCPTools 注册Admin出库脱敏策略服务的 MCP Tool。
-func RegisterBaseRedactOutputPolicyServiceMCPTools(mcpServer *mcp.Server, baseRedactOutputPolicyServiceServer BaseRedactOutputPolicyServiceServer) {
+func RegisterBaseRedactOutputPolicyServiceMCPTools(mcpServer *server.MCPServer, baseRedactOutputPolicyServiceServer BaseRedactOutputPolicyServiceServer) {
 	RegisterBaseRedactOutputPolicyServicePageBaseRedactOutputPolicyMCPTool(mcpServer, baseRedactOutputPolicyServiceServer)
 	RegisterBaseRedactOutputPolicyServiceGetBaseRedactOutputPolicyMCPTool(mcpServer, baseRedactOutputPolicyServiceServer)
 	RegisterBaseRedactOutputPolicyServiceCreateBaseRedactOutputPolicyMCPTool(mcpServer, baseRedactOutputPolicyServiceServer)
@@ -25,148 +26,168 @@ func RegisterBaseRedactOutputPolicyServiceMCPTools(mcpServer *mcp.Server, baseRe
 }
 
 // RegisterBaseRedactOutputPolicyServicePageBaseRedactOutputPolicyMCPTool 注册查询出库脱敏策略分页列表的 MCP Tool。
-func RegisterBaseRedactOutputPolicyServicePageBaseRedactOutputPolicyMCPTool(mcpServer *mcp.Server, baseRedactOutputPolicyServiceServer BaseRedactOutputPolicyServiceServer) {
-	mcp.AddTool[*PageBaseRedactOutputPolicyRequest, *PageBaseRedactOutputPolicyResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_redact_output_policy_service_page_base_redact_output_policy",
-			Description: "查询出库脱敏策略分页列表。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *PageBaseRedactOutputPolicyRequest) (*mcp.CallToolResult, *PageBaseRedactOutputPolicyResponse, error) {
-			if input == nil {
-				input = &PageBaseRedactOutputPolicyRequest{}
-			}
-			reply, err := baseRedactOutputPolicyServiceServer.PageBaseRedactOutputPolicy(ctx, input)
+func RegisterBaseRedactOutputPolicyServicePageBaseRedactOutputPolicyMCPTool(mcpServer *server.MCPServer, baseRedactOutputPolicyServiceServer BaseRedactOutputPolicyServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_redact_output_policy_service_page_base_redact_output_policy",
+			mcp.WithDescription("查询出库脱敏策略分页列表。"),
+			mcp.WithInputSchema[*PageBaseRedactOutputPolicyRequest](),
+			mcp.WithOutputSchema[*PageBaseRedactOutputPolicyResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &PageBaseRedactOutputPolicyRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *PageBaseRedactOutputPolicyResponse
+			reply, err = baseRedactOutputPolicyServiceServer.PageBaseRedactOutputPolicy(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseRedactOutputPolicyServiceGetBaseRedactOutputPolicyMCPTool 注册查询出库脱敏策略详情的 MCP Tool。
-func RegisterBaseRedactOutputPolicyServiceGetBaseRedactOutputPolicyMCPTool(mcpServer *mcp.Server, baseRedactOutputPolicyServiceServer BaseRedactOutputPolicyServiceServer) {
-	mcp.AddTool[*GetBaseRedactOutputPolicyRequest, *BaseRedactOutputPolicyForm](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_redact_output_policy_service_get_base_redact_output_policy",
-			Description: "查询出库脱敏策略详情。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *GetBaseRedactOutputPolicyRequest) (*mcp.CallToolResult, *BaseRedactOutputPolicyForm, error) {
-			if input == nil {
-				input = &GetBaseRedactOutputPolicyRequest{}
-			}
-			reply, err := baseRedactOutputPolicyServiceServer.GetBaseRedactOutputPolicy(ctx, input)
+func RegisterBaseRedactOutputPolicyServiceGetBaseRedactOutputPolicyMCPTool(mcpServer *server.MCPServer, baseRedactOutputPolicyServiceServer BaseRedactOutputPolicyServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_redact_output_policy_service_get_base_redact_output_policy",
+			mcp.WithDescription("查询出库脱敏策略详情。"),
+			mcp.WithInputSchema[*GetBaseRedactOutputPolicyRequest](),
+			mcp.WithOutputSchema[*BaseRedactOutputPolicyForm](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &GetBaseRedactOutputPolicyRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *BaseRedactOutputPolicyForm
+			reply, err = baseRedactOutputPolicyServiceServer.GetBaseRedactOutputPolicy(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseRedactOutputPolicyServiceCreateBaseRedactOutputPolicyMCPTool 注册批量创建出库脱敏策略的 MCP Tool。
-func RegisterBaseRedactOutputPolicyServiceCreateBaseRedactOutputPolicyMCPTool(mcpServer *mcp.Server, baseRedactOutputPolicyServiceServer BaseRedactOutputPolicyServiceServer) {
-	mcp.AddTool[*CreateBaseRedactOutputPolicyRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_redact_output_policy_service_create_base_redact_output_policy",
-			Description: "批量创建出库脱敏策略。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *CreateBaseRedactOutputPolicyRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &CreateBaseRedactOutputPolicyRequest{}
-			}
-			reply, err := baseRedactOutputPolicyServiceServer.CreateBaseRedactOutputPolicy(ctx, input)
+func RegisterBaseRedactOutputPolicyServiceCreateBaseRedactOutputPolicyMCPTool(mcpServer *server.MCPServer, baseRedactOutputPolicyServiceServer BaseRedactOutputPolicyServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_redact_output_policy_service_create_base_redact_output_policy",
+			mcp.WithDescription("批量创建出库脱敏策略。"),
+			mcp.WithInputSchema[*CreateBaseRedactOutputPolicyRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &CreateBaseRedactOutputPolicyRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = baseRedactOutputPolicyServiceServer.CreateBaseRedactOutputPolicy(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseRedactOutputPolicyServiceUpdateBaseRedactOutputPolicyMCPTool 注册批量更新出库脱敏策略的 MCP Tool。
-func RegisterBaseRedactOutputPolicyServiceUpdateBaseRedactOutputPolicyMCPTool(mcpServer *mcp.Server, baseRedactOutputPolicyServiceServer BaseRedactOutputPolicyServiceServer) {
-	mcp.AddTool[*UpdateBaseRedactOutputPolicyRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_redact_output_policy_service_update_base_redact_output_policy",
-			Description: "批量更新出库脱敏策略。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *UpdateBaseRedactOutputPolicyRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &UpdateBaseRedactOutputPolicyRequest{}
-			}
-			reply, err := baseRedactOutputPolicyServiceServer.UpdateBaseRedactOutputPolicy(ctx, input)
+func RegisterBaseRedactOutputPolicyServiceUpdateBaseRedactOutputPolicyMCPTool(mcpServer *server.MCPServer, baseRedactOutputPolicyServiceServer BaseRedactOutputPolicyServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_redact_output_policy_service_update_base_redact_output_policy",
+			mcp.WithDescription("批量更新出库脱敏策略。"),
+			mcp.WithInputSchema[*UpdateBaseRedactOutputPolicyRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &UpdateBaseRedactOutputPolicyRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = baseRedactOutputPolicyServiceServer.UpdateBaseRedactOutputPolicy(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseRedactOutputPolicyServiceDeleteBaseRedactOutputPolicyMCPTool 注册删除出库脱敏策略的 MCP Tool。
-func RegisterBaseRedactOutputPolicyServiceDeleteBaseRedactOutputPolicyMCPTool(mcpServer *mcp.Server, baseRedactOutputPolicyServiceServer BaseRedactOutputPolicyServiceServer) {
-	mcp.AddTool[*DeleteBaseRedactOutputPolicyRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_redact_output_policy_service_delete_base_redact_output_policy",
-			Description: "删除出库脱敏策略。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *DeleteBaseRedactOutputPolicyRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &DeleteBaseRedactOutputPolicyRequest{}
-			}
-			reply, err := baseRedactOutputPolicyServiceServer.DeleteBaseRedactOutputPolicy(ctx, input)
+func RegisterBaseRedactOutputPolicyServiceDeleteBaseRedactOutputPolicyMCPTool(mcpServer *server.MCPServer, baseRedactOutputPolicyServiceServer BaseRedactOutputPolicyServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_redact_output_policy_service_delete_base_redact_output_policy",
+			mcp.WithDescription("删除出库脱敏策略。"),
+			mcp.WithInputSchema[*DeleteBaseRedactOutputPolicyRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &DeleteBaseRedactOutputPolicyRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = baseRedactOutputPolicyServiceServer.DeleteBaseRedactOutputPolicy(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseRedactOutputPolicyServiceSetBaseRedactOutputPolicyStatusMCPTool 注册设置出库脱敏策略状态的 MCP Tool。
-func RegisterBaseRedactOutputPolicyServiceSetBaseRedactOutputPolicyStatusMCPTool(mcpServer *mcp.Server, baseRedactOutputPolicyServiceServer BaseRedactOutputPolicyServiceServer) {
-	mcp.AddTool[*SetBaseRedactOutputPolicyStatusRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_redact_output_policy_service_set_base_redact_output_policy_status",
-			Description: "设置出库脱敏策略状态。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *SetBaseRedactOutputPolicyStatusRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &SetBaseRedactOutputPolicyStatusRequest{}
-			}
-			reply, err := baseRedactOutputPolicyServiceServer.SetBaseRedactOutputPolicyStatus(ctx, input)
+func RegisterBaseRedactOutputPolicyServiceSetBaseRedactOutputPolicyStatusMCPTool(mcpServer *server.MCPServer, baseRedactOutputPolicyServiceServer BaseRedactOutputPolicyServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_redact_output_policy_service_set_base_redact_output_policy_status",
+			mcp.WithDescription("设置出库脱敏策略状态。"),
+			mcp.WithInputSchema[*SetBaseRedactOutputPolicyStatusRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &SetBaseRedactOutputPolicyStatusRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = baseRedactOutputPolicyServiceServer.SetBaseRedactOutputPolicyStatus(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseRedactOutputPolicyServiceGetBaseRedactOutputFieldDocMCPTool 注册查询可出库脱敏的响应字段文档的 MCP Tool。
-func RegisterBaseRedactOutputPolicyServiceGetBaseRedactOutputFieldDocMCPTool(mcpServer *mcp.Server, baseRedactOutputPolicyServiceServer BaseRedactOutputPolicyServiceServer) {
-	mcp.AddTool[*GetBaseRedactOutputFieldDocRequest, any](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_redact_output_policy_service_get_base_redact_output_field_doc",
-			Description: "查询可出库脱敏的响应字段文档。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *GetBaseRedactOutputFieldDocRequest) (*mcp.CallToolResult, any, error) {
-			if input == nil {
-				input = &GetBaseRedactOutputFieldDocRequest{}
-			}
-			reply, err := baseRedactOutputPolicyServiceServer.GetBaseRedactOutputFieldDoc(ctx, input)
+func RegisterBaseRedactOutputPolicyServiceGetBaseRedactOutputFieldDocMCPTool(mcpServer *server.MCPServer, baseRedactOutputPolicyServiceServer BaseRedactOutputPolicyServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_redact_output_policy_service_get_base_redact_output_field_doc",
+			mcp.WithDescription("查询可出库脱敏的响应字段文档。"),
+			mcp.WithInputSchema[*GetBaseRedactOutputFieldDocRequest](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &GetBaseRedactOutputFieldDocRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *BaseApiDoc
+			reply, err = baseRedactOutputPolicyServiceServer.GetBaseRedactOutputFieldDoc(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }

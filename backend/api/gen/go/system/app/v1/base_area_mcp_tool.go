@@ -9,31 +9,34 @@ package appv1
 import (
 	context "context"
 
-	mcp "github.com/modelcontextprotocol/go-sdk/mcp"
+	mcp "github.com/mark3labs/mcp-go/mcp"
+	server "github.com/mark3labs/mcp-go/server"
 )
 
 // RegisterBaseAreaServiceMCPTools 注册App行政区域服务的 MCP Tool。
-func RegisterBaseAreaServiceMCPTools(mcpServer *mcp.Server, baseAreaServiceServer BaseAreaServiceServer) {
+func RegisterBaseAreaServiceMCPTools(mcpServer *server.MCPServer, baseAreaServiceServer BaseAreaServiceServer) {
 	RegisterBaseAreaServiceTreeBaseAreaMCPTool(mcpServer, baseAreaServiceServer)
 }
 
 // RegisterBaseAreaServiceTreeBaseAreaMCPTool 注册查询行政区域树形列表的 MCP Tool。
-func RegisterBaseAreaServiceTreeBaseAreaMCPTool(mcpServer *mcp.Server, baseAreaServiceServer BaseAreaServiceServer) {
-	mcp.AddTool[*TreeBaseAreaRequest, any](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_app_v1_base_area_service_tree_base_area",
-			Description: "查询行政区域树形列表",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *TreeBaseAreaRequest) (*mcp.CallToolResult, any, error) {
-			if input == nil {
-				input = &TreeBaseAreaRequest{}
-			}
-			reply, err := baseAreaServiceServer.TreeBaseArea(ctx, input)
+func RegisterBaseAreaServiceTreeBaseAreaMCPTool(mcpServer *server.MCPServer, baseAreaServiceServer BaseAreaServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_app_v1_base_area_service_tree_base_area",
+			mcp.WithDescription("查询行政区域树形列表"),
+			mcp.WithInputSchema[*TreeBaseAreaRequest](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &TreeBaseAreaRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *TreeBaseAreaResponse
+			reply, err = baseAreaServiceServer.TreeBaseArea(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }

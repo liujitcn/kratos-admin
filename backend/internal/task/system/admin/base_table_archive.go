@@ -482,15 +482,15 @@ func countArchiveRows(ctx context.Context, client *gorm.Client, resource archive
 func listArchiveIDs(ctx context.Context, client *gorm.Client, resource archiveResourceDefinition, cutoff time.Time, batchSize int32, afterID int64) ([]int64, error) {
 	quotedID := biz.QuoteSQLIdentifier(client.Driver(), "id")
 	quotedTime := biz.QuoteSQLIdentifier(client.Driver(), resource.timeColumn)
-	//nolint:forbidigo // 表名和字段名来自受控归档资源定义，时间值和批量大小通过参数绑定。
 	query := "SELECT " + quotedID + " FROM " + biz.QuoteSQLIdentifier(client.Driver(), resource.tableName) + " WHERE " + quotedTime + " < ?"
-	args := []interface{}{cutoff}
+	args := []any{cutoff}
 	if afterID > 0 {
 		query += " AND " + quotedID + " > ?"
 		args = append(args, afterID)
 	}
 	query += " ORDER BY " + quotedID + " ASC LIMIT ?"
 	args = append(args, batchSize)
+	//nolint:forbidigo // 表名和字段名来自受控归档资源定义，时间值和批量大小通过参数绑定。
 	rows, err := client.DB.WithContext(ctx).Raw(query, args...).Rows()
 	if err != nil {
 		return nil, fmt.Errorf("查询待归档记录主键失败: %w", err)

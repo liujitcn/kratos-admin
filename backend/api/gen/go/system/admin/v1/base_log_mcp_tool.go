@@ -9,31 +9,35 @@ package adminv1
 import (
 	context "context"
 
-	mcp "github.com/modelcontextprotocol/go-sdk/mcp"
+	mcp "github.com/mark3labs/mcp-go/mcp"
+	server "github.com/mark3labs/mcp-go/server"
 )
 
 // RegisterBaseLogServiceMCPTools 注册Admin公共日志聚合查询服务的 MCP Tool。
-func RegisterBaseLogServiceMCPTools(mcpServer *mcp.Server, baseLogServiceServer BaseLogServiceServer) {
+func RegisterBaseLogServiceMCPTools(mcpServer *server.MCPServer, baseLogServiceServer BaseLogServiceServer) {
 	RegisterBaseLogServiceGetBaseLogTraceMCPTool(mcpServer, baseLogServiceServer)
 }
 
 // RegisterBaseLogServiceGetBaseLogTraceMCPTool 注册查询同一请求或链路关联的六类审计记录的 MCP Tool。
-func RegisterBaseLogServiceGetBaseLogTraceMCPTool(mcpServer *mcp.Server, baseLogServiceServer BaseLogServiceServer) {
-	mcp.AddTool[*GetBaseLogTraceRequest, *GetBaseLogTraceResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_log_service_get_base_log_trace",
-			Description: "查询同一请求或链路关联的六类审计记录。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *GetBaseLogTraceRequest) (*mcp.CallToolResult, *GetBaseLogTraceResponse, error) {
-			if input == nil {
-				input = &GetBaseLogTraceRequest{}
-			}
-			reply, err := baseLogServiceServer.GetBaseLogTrace(ctx, input)
+func RegisterBaseLogServiceGetBaseLogTraceMCPTool(mcpServer *server.MCPServer, baseLogServiceServer BaseLogServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_log_service_get_base_log_trace",
+			mcp.WithDescription("查询同一请求或链路关联的六类审计记录。"),
+			mcp.WithInputSchema[*GetBaseLogTraceRequest](),
+			mcp.WithOutputSchema[*GetBaseLogTraceResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &GetBaseLogTraceRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *GetBaseLogTraceResponse
+			reply, err = baseLogServiceServer.GetBaseLogTrace(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }

@@ -9,76 +9,86 @@ package adminv1
 import (
 	context "context"
 
-	mcp "github.com/modelcontextprotocol/go-sdk/mcp"
+	mcp "github.com/mark3labs/mcp-go/mcp"
+	server "github.com/mark3labs/mcp-go/server"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // RegisterWorkflowTaskServiceMCPTools 注册Admin工作流审批任务服务的 MCP Tool。
-func RegisterWorkflowTaskServiceMCPTools(mcpServer *mcp.Server, workflowTaskServiceServer WorkflowTaskServiceServer) {
+func RegisterWorkflowTaskServiceMCPTools(mcpServer *server.MCPServer, workflowTaskServiceServer WorkflowTaskServiceServer) {
 	RegisterWorkflowTaskServicePageMyWorkflowTaskMCPTool(mcpServer, workflowTaskServiceServer)
 	RegisterWorkflowTaskServiceGetWorkflowTaskMCPTool(mcpServer, workflowTaskServiceServer)
 	RegisterWorkflowTaskServiceAuditWorkflowTaskMCPTool(mcpServer, workflowTaskServiceServer)
 }
 
 // RegisterWorkflowTaskServicePageMyWorkflowTaskMCPTool 注册查询我的审批任务分页列表的 MCP Tool。
-func RegisterWorkflowTaskServicePageMyWorkflowTaskMCPTool(mcpServer *mcp.Server, workflowTaskServiceServer WorkflowTaskServiceServer) {
-	mcp.AddTool[*PageMyWorkflowTaskRequest, *PageMyWorkflowTaskResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_workflow_task_service_page_my_workflow_task",
-			Description: "查询我的审批任务分页列表",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *PageMyWorkflowTaskRequest) (*mcp.CallToolResult, *PageMyWorkflowTaskResponse, error) {
-			if input == nil {
-				input = &PageMyWorkflowTaskRequest{}
-			}
-			reply, err := workflowTaskServiceServer.PageMyWorkflowTask(ctx, input)
+func RegisterWorkflowTaskServicePageMyWorkflowTaskMCPTool(mcpServer *server.MCPServer, workflowTaskServiceServer WorkflowTaskServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_workflow_task_service_page_my_workflow_task",
+			mcp.WithDescription("查询我的审批任务分页列表"),
+			mcp.WithInputSchema[*PageMyWorkflowTaskRequest](),
+			mcp.WithOutputSchema[*PageMyWorkflowTaskResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &PageMyWorkflowTaskRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *PageMyWorkflowTaskResponse
+			reply, err = workflowTaskServiceServer.PageMyWorkflowTask(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterWorkflowTaskServiceGetWorkflowTaskMCPTool 注册查询审批任务详情的 MCP Tool。
-func RegisterWorkflowTaskServiceGetWorkflowTaskMCPTool(mcpServer *mcp.Server, workflowTaskServiceServer WorkflowTaskServiceServer) {
-	mcp.AddTool[*GetWorkflowTaskRequest, *GetWorkflowTaskResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_workflow_task_service_get_workflow_task",
-			Description: "查询审批任务详情",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *GetWorkflowTaskRequest) (*mcp.CallToolResult, *GetWorkflowTaskResponse, error) {
-			if input == nil {
-				input = &GetWorkflowTaskRequest{}
-			}
-			reply, err := workflowTaskServiceServer.GetWorkflowTask(ctx, input)
+func RegisterWorkflowTaskServiceGetWorkflowTaskMCPTool(mcpServer *server.MCPServer, workflowTaskServiceServer WorkflowTaskServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_workflow_task_service_get_workflow_task",
+			mcp.WithDescription("查询审批任务详情"),
+			mcp.WithInputSchema[*GetWorkflowTaskRequest](),
+			mcp.WithOutputSchema[*GetWorkflowTaskResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &GetWorkflowTaskRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *GetWorkflowTaskResponse
+			reply, err = workflowTaskServiceServer.GetWorkflowTask(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterWorkflowTaskServiceAuditWorkflowTaskMCPTool 注册审批任务办理的 MCP Tool。
-func RegisterWorkflowTaskServiceAuditWorkflowTaskMCPTool(mcpServer *mcp.Server, workflowTaskServiceServer WorkflowTaskServiceServer) {
-	mcp.AddTool[*AuditWorkflowTaskRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_workflow_task_service_audit_workflow_task",
-			Description: "审批任务办理",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *AuditWorkflowTaskRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &AuditWorkflowTaskRequest{}
-			}
-			reply, err := workflowTaskServiceServer.AuditWorkflowTask(ctx, input)
+func RegisterWorkflowTaskServiceAuditWorkflowTaskMCPTool(mcpServer *server.MCPServer, workflowTaskServiceServer WorkflowTaskServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_workflow_task_service_audit_workflow_task",
+			mcp.WithDescription("审批任务办理"),
+			mcp.WithInputSchema[*AuditWorkflowTaskRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &AuditWorkflowTaskRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = workflowTaskServiceServer.AuditWorkflowTask(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }

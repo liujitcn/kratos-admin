@@ -9,53 +9,60 @@ package adminv1
 import (
 	context "context"
 
-	mcp "github.com/modelcontextprotocol/go-sdk/mcp"
+	mcp "github.com/mark3labs/mcp-go/mcp"
+	server "github.com/mark3labs/mcp-go/server"
 )
 
 // RegisterBaseScriptLogServiceMCPTools 注册Admin脚本执行日志服务的 MCP Tool。
-func RegisterBaseScriptLogServiceMCPTools(mcpServer *mcp.Server, baseScriptLogServiceServer BaseScriptLogServiceServer) {
+func RegisterBaseScriptLogServiceMCPTools(mcpServer *server.MCPServer, baseScriptLogServiceServer BaseScriptLogServiceServer) {
 	RegisterBaseScriptLogServicePageBaseScriptLogMCPTool(mcpServer, baseScriptLogServiceServer)
 	RegisterBaseScriptLogServiceGetBaseScriptLogMCPTool(mcpServer, baseScriptLogServiceServer)
 }
 
 // RegisterBaseScriptLogServicePageBaseScriptLogMCPTool 注册查询脚本执行日志分页列表的 MCP Tool。
-func RegisterBaseScriptLogServicePageBaseScriptLogMCPTool(mcpServer *mcp.Server, baseScriptLogServiceServer BaseScriptLogServiceServer) {
-	mcp.AddTool[*PageBaseScriptLogRequest, *PageBaseScriptLogResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_script_log_service_page_base_script_log",
-			Description: "查询脚本执行日志分页列表。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *PageBaseScriptLogRequest) (*mcp.CallToolResult, *PageBaseScriptLogResponse, error) {
-			if input == nil {
-				input = &PageBaseScriptLogRequest{}
-			}
-			reply, err := baseScriptLogServiceServer.PageBaseScriptLog(ctx, input)
+func RegisterBaseScriptLogServicePageBaseScriptLogMCPTool(mcpServer *server.MCPServer, baseScriptLogServiceServer BaseScriptLogServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_script_log_service_page_base_script_log",
+			mcp.WithDescription("查询脚本执行日志分页列表。"),
+			mcp.WithInputSchema[*PageBaseScriptLogRequest](),
+			mcp.WithOutputSchema[*PageBaseScriptLogResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &PageBaseScriptLogRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *PageBaseScriptLogResponse
+			reply, err = baseScriptLogServiceServer.PageBaseScriptLog(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseScriptLogServiceGetBaseScriptLogMCPTool 注册查询脚本执行日志详情的 MCP Tool。
-func RegisterBaseScriptLogServiceGetBaseScriptLogMCPTool(mcpServer *mcp.Server, baseScriptLogServiceServer BaseScriptLogServiceServer) {
-	mcp.AddTool[*GetBaseScriptLogRequest, *BaseScriptLog](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_script_log_service_get_base_script_log",
-			Description: "查询脚本执行日志详情。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *GetBaseScriptLogRequest) (*mcp.CallToolResult, *BaseScriptLog, error) {
-			if input == nil {
-				input = &GetBaseScriptLogRequest{}
-			}
-			reply, err := baseScriptLogServiceServer.GetBaseScriptLog(ctx, input)
+func RegisterBaseScriptLogServiceGetBaseScriptLogMCPTool(mcpServer *server.MCPServer, baseScriptLogServiceServer BaseScriptLogServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_script_log_service_get_base_script_log",
+			mcp.WithDescription("查询脚本执行日志详情。"),
+			mcp.WithInputSchema[*GetBaseScriptLogRequest](),
+			mcp.WithOutputSchema[*BaseScriptLog](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &GetBaseScriptLogRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *BaseScriptLog
+			reply, err = baseScriptLogServiceServer.GetBaseScriptLog(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }

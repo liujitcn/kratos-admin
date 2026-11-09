@@ -9,12 +9,13 @@ package adminv1
 import (
 	context "context"
 
-	mcp "github.com/modelcontextprotocol/go-sdk/mcp"
+	mcp "github.com/mark3labs/mcp-go/mcp"
+	server "github.com/mark3labs/mcp-go/server"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // RegisterBaseSessionServiceMCPTools 注册Admin会话管理服务的 MCP Tool。
-func RegisterBaseSessionServiceMCPTools(mcpServer *mcp.Server, baseSessionServiceServer BaseSessionServiceServer) {
+func RegisterBaseSessionServiceMCPTools(mcpServer *server.MCPServer, baseSessionServiceServer BaseSessionServiceServer) {
 	RegisterBaseSessionServiceListCurrentBaseSessionsMCPTool(mcpServer, baseSessionServiceServer)
 	RegisterBaseSessionServiceGetCurrentBaseSessionMCPTool(mcpServer, baseSessionServiceServer)
 	RegisterBaseSessionServiceRevokeAllBaseSessionsMCPTool(mcpServer, baseSessionServiceServer)
@@ -23,106 +24,121 @@ func RegisterBaseSessionServiceMCPTools(mcpServer *mcp.Server, baseSessionServic
 }
 
 // RegisterBaseSessionServiceListCurrentBaseSessionsMCPTool 注册查询当前用户全部有效会话的 MCP Tool。
-func RegisterBaseSessionServiceListCurrentBaseSessionsMCPTool(mcpServer *mcp.Server, baseSessionServiceServer BaseSessionServiceServer) {
-	mcp.AddTool[*ListCurrentBaseSessionsRequest, *ListCurrentBaseSessionsResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_session_service_list_current_base_sessions",
-			Description: "查询当前用户全部有效会话。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *ListCurrentBaseSessionsRequest) (*mcp.CallToolResult, *ListCurrentBaseSessionsResponse, error) {
-			if input == nil {
-				input = &ListCurrentBaseSessionsRequest{}
-			}
-			reply, err := baseSessionServiceServer.ListCurrentBaseSessions(ctx, input)
+func RegisterBaseSessionServiceListCurrentBaseSessionsMCPTool(mcpServer *server.MCPServer, baseSessionServiceServer BaseSessionServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_session_service_list_current_base_sessions",
+			mcp.WithDescription("查询当前用户全部有效会话。"),
+			mcp.WithInputSchema[*ListCurrentBaseSessionsRequest](),
+			mcp.WithOutputSchema[*ListCurrentBaseSessionsResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &ListCurrentBaseSessionsRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *ListCurrentBaseSessionsResponse
+			reply, err = baseSessionServiceServer.ListCurrentBaseSessions(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseSessionServiceGetCurrentBaseSessionMCPTool 注册查询当前用户会话的 MCP Tool。
-func RegisterBaseSessionServiceGetCurrentBaseSessionMCPTool(mcpServer *mcp.Server, baseSessionServiceServer BaseSessionServiceServer) {
-	mcp.AddTool[*GetCurrentBaseSessionRequest, *BaseSession](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_session_service_get_current_base_session",
-			Description: "查询当前用户会话。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *GetCurrentBaseSessionRequest) (*mcp.CallToolResult, *BaseSession, error) {
-			if input == nil {
-				input = &GetCurrentBaseSessionRequest{}
-			}
-			reply, err := baseSessionServiceServer.GetCurrentBaseSession(ctx, input)
+func RegisterBaseSessionServiceGetCurrentBaseSessionMCPTool(mcpServer *server.MCPServer, baseSessionServiceServer BaseSessionServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_session_service_get_current_base_session",
+			mcp.WithDescription("查询当前用户会话。"),
+			mcp.WithInputSchema[*GetCurrentBaseSessionRequest](),
+			mcp.WithOutputSchema[*BaseSession](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &GetCurrentBaseSessionRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *BaseSession
+			reply, err = baseSessionServiceServer.GetCurrentBaseSession(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseSessionServiceRevokeAllBaseSessionsMCPTool 注册撤销当前用户全部会话的 MCP Tool。
-func RegisterBaseSessionServiceRevokeAllBaseSessionsMCPTool(mcpServer *mcp.Server, baseSessionServiceServer BaseSessionServiceServer) {
-	mcp.AddTool[*RevokeAllBaseSessionsRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_session_service_revoke_all_base_sessions",
-			Description: "撤销当前用户全部会话。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *RevokeAllBaseSessionsRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &RevokeAllBaseSessionsRequest{}
-			}
-			reply, err := baseSessionServiceServer.RevokeAllBaseSessions(ctx, input)
+func RegisterBaseSessionServiceRevokeAllBaseSessionsMCPTool(mcpServer *server.MCPServer, baseSessionServiceServer BaseSessionServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_session_service_revoke_all_base_sessions",
+			mcp.WithDescription("撤销当前用户全部会话。"),
+			mcp.WithInputSchema[*RevokeAllBaseSessionsRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &RevokeAllBaseSessionsRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = baseSessionServiceServer.RevokeAllBaseSessions(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseSessionServicePageOnlineBaseSessionsMCPTool 注册分页查询当前在线用户会话的 MCP Tool。
-func RegisterBaseSessionServicePageOnlineBaseSessionsMCPTool(mcpServer *mcp.Server, baseSessionServiceServer BaseSessionServiceServer) {
-	mcp.AddTool[*PageOnlineBaseSessionsRequest, *PageOnlineBaseSessionsResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_session_service_page_online_base_sessions",
-			Description: "分页查询当前在线用户会话。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *PageOnlineBaseSessionsRequest) (*mcp.CallToolResult, *PageOnlineBaseSessionsResponse, error) {
-			if input == nil {
-				input = &PageOnlineBaseSessionsRequest{}
-			}
-			reply, err := baseSessionServiceServer.PageOnlineBaseSessions(ctx, input)
+func RegisterBaseSessionServicePageOnlineBaseSessionsMCPTool(mcpServer *server.MCPServer, baseSessionServiceServer BaseSessionServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_session_service_page_online_base_sessions",
+			mcp.WithDescription("分页查询当前在线用户会话。"),
+			mcp.WithInputSchema[*PageOnlineBaseSessionsRequest](),
+			mcp.WithOutputSchema[*PageOnlineBaseSessionsResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &PageOnlineBaseSessionsRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *PageOnlineBaseSessionsResponse
+			reply, err = baseSessionServiceServer.PageOnlineBaseSessions(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseSessionServiceRevokeBaseSessionMCPTool 注册下线指定用户会话的 MCP Tool。
-func RegisterBaseSessionServiceRevokeBaseSessionMCPTool(mcpServer *mcp.Server, baseSessionServiceServer BaseSessionServiceServer) {
-	mcp.AddTool[*RevokeBaseSessionRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_session_service_revoke_base_session",
-			Description: "下线指定用户会话。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *RevokeBaseSessionRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &RevokeBaseSessionRequest{}
-			}
-			reply, err := baseSessionServiceServer.RevokeBaseSession(ctx, input)
+func RegisterBaseSessionServiceRevokeBaseSessionMCPTool(mcpServer *server.MCPServer, baseSessionServiceServer BaseSessionServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_session_service_revoke_base_session",
+			mcp.WithDescription("下线指定用户会话。"),
+			mcp.WithInputSchema[*RevokeBaseSessionRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &RevokeBaseSessionRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = baseSessionServiceServer.RevokeBaseSession(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }

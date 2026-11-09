@@ -9,76 +9,86 @@ package adminv1
 import (
 	context "context"
 
-	mcp "github.com/modelcontextprotocol/go-sdk/mcp"
+	mcp "github.com/mark3labs/mcp-go/mcp"
+	server "github.com/mark3labs/mcp-go/server"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // RegisterBaseFileServiceMCPTools 注册Admin文件资产管理服务的 MCP Tool。
-func RegisterBaseFileServiceMCPTools(mcpServer *mcp.Server, baseFileServiceServer BaseFileServiceServer) {
+func RegisterBaseFileServiceMCPTools(mcpServer *server.MCPServer, baseFileServiceServer BaseFileServiceServer) {
 	RegisterBaseFileServicePageBaseFileMCPTool(mcpServer, baseFileServiceServer)
 	RegisterBaseFileServiceGetBaseFileMCPTool(mcpServer, baseFileServiceServer)
 	RegisterBaseFileServiceDeleteBaseFileMCPTool(mcpServer, baseFileServiceServer)
 }
 
 // RegisterBaseFileServicePageBaseFileMCPTool 注册分页查询文件资产的 MCP Tool。
-func RegisterBaseFileServicePageBaseFileMCPTool(mcpServer *mcp.Server, baseFileServiceServer BaseFileServiceServer) {
-	mcp.AddTool[*PageBaseFileRequest, *PageBaseFileResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_file_service_page_base_file",
-			Description: "分页查询文件资产。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *PageBaseFileRequest) (*mcp.CallToolResult, *PageBaseFileResponse, error) {
-			if input == nil {
-				input = &PageBaseFileRequest{}
-			}
-			reply, err := baseFileServiceServer.PageBaseFile(ctx, input)
+func RegisterBaseFileServicePageBaseFileMCPTool(mcpServer *server.MCPServer, baseFileServiceServer BaseFileServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_file_service_page_base_file",
+			mcp.WithDescription("分页查询文件资产。"),
+			mcp.WithInputSchema[*PageBaseFileRequest](),
+			mcp.WithOutputSchema[*PageBaseFileResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &PageBaseFileRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *PageBaseFileResponse
+			reply, err = baseFileServiceServer.PageBaseFile(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseFileServiceGetBaseFileMCPTool 注册查询文件资产详情的 MCP Tool。
-func RegisterBaseFileServiceGetBaseFileMCPTool(mcpServer *mcp.Server, baseFileServiceServer BaseFileServiceServer) {
-	mcp.AddTool[*GetBaseFileRequest, *BaseFile](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_file_service_get_base_file",
-			Description: "查询文件资产详情。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *GetBaseFileRequest) (*mcp.CallToolResult, *BaseFile, error) {
-			if input == nil {
-				input = &GetBaseFileRequest{}
-			}
-			reply, err := baseFileServiceServer.GetBaseFile(ctx, input)
+func RegisterBaseFileServiceGetBaseFileMCPTool(mcpServer *server.MCPServer, baseFileServiceServer BaseFileServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_file_service_get_base_file",
+			mcp.WithDescription("查询文件资产详情。"),
+			mcp.WithInputSchema[*GetBaseFileRequest](),
+			mcp.WithOutputSchema[*BaseFile](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &GetBaseFileRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *BaseFile
+			reply, err = baseFileServiceServer.GetBaseFile(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseFileServiceDeleteBaseFileMCPTool 注册删除文件资产及其对象的 MCP Tool。
-func RegisterBaseFileServiceDeleteBaseFileMCPTool(mcpServer *mcp.Server, baseFileServiceServer BaseFileServiceServer) {
-	mcp.AddTool[*DeleteBaseFileRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_file_service_delete_base_file",
-			Description: "删除文件资产及其对象。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *DeleteBaseFileRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &DeleteBaseFileRequest{}
-			}
-			reply, err := baseFileServiceServer.DeleteBaseFile(ctx, input)
+func RegisterBaseFileServiceDeleteBaseFileMCPTool(mcpServer *server.MCPServer, baseFileServiceServer BaseFileServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_file_service_delete_base_file",
+			mcp.WithDescription("删除文件资产及其对象。"),
+			mcp.WithInputSchema[*DeleteBaseFileRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &DeleteBaseFileRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = baseFileServiceServer.DeleteBaseFile(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }

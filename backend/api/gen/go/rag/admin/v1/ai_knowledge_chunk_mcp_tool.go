@@ -9,31 +9,35 @@ package adminv1
 import (
 	context "context"
 
-	mcp "github.com/modelcontextprotocol/go-sdk/mcp"
+	mcp "github.com/mark3labs/mcp-go/mcp"
+	server "github.com/mark3labs/mcp-go/server"
 )
 
 // RegisterAiKnowledgeChunkServiceMCPTools 注册AI知识库切片检索服务的 MCP Tool。
-func RegisterAiKnowledgeChunkServiceMCPTools(mcpServer *mcp.Server, aiKnowledgeChunkServiceServer AiKnowledgeChunkServiceServer) {
+func RegisterAiKnowledgeChunkServiceMCPTools(mcpServer *server.MCPServer, aiKnowledgeChunkServiceServer AiKnowledgeChunkServiceServer) {
 	RegisterAiKnowledgeChunkServiceSearchAiKnowledgeMCPTool(mcpServer, aiKnowledgeChunkServiceServer)
 }
 
 // RegisterAiKnowledgeChunkServiceSearchAiKnowledgeMCPTool 注册检索测试：返回与query语义最相近的切片的 MCP Tool。
-func RegisterAiKnowledgeChunkServiceSearchAiKnowledgeMCPTool(mcpServer *mcp.Server, aiKnowledgeChunkServiceServer AiKnowledgeChunkServiceServer) {
-	mcp.AddTool[*SearchAiKnowledgeRequest, *SearchAiKnowledgeResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "rag_admin_v1_ai_knowledge_chunk_service_search_ai_knowledge",
-			Description: "检索测试：返回与query语义最相近的切片。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *SearchAiKnowledgeRequest) (*mcp.CallToolResult, *SearchAiKnowledgeResponse, error) {
-			if input == nil {
-				input = &SearchAiKnowledgeRequest{}
-			}
-			reply, err := aiKnowledgeChunkServiceServer.SearchAiKnowledge(ctx, input)
+func RegisterAiKnowledgeChunkServiceSearchAiKnowledgeMCPTool(mcpServer *server.MCPServer, aiKnowledgeChunkServiceServer AiKnowledgeChunkServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("rag_admin_v1_ai_knowledge_chunk_service_search_ai_knowledge",
+			mcp.WithDescription("检索测试：返回与query语义最相近的切片。"),
+			mcp.WithInputSchema[*SearchAiKnowledgeRequest](),
+			mcp.WithOutputSchema[*SearchAiKnowledgeResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &SearchAiKnowledgeRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *SearchAiKnowledgeResponse
+			reply, err = aiKnowledgeChunkServiceServer.SearchAiKnowledge(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }

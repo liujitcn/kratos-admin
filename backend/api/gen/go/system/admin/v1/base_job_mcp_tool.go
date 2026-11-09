@@ -10,12 +10,13 @@ import (
 	context "context"
 
 	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
-	mcp "github.com/modelcontextprotocol/go-sdk/mcp"
+	mcp "github.com/mark3labs/mcp-go/mcp"
+	server "github.com/mark3labs/mcp-go/server"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // RegisterBaseJobServiceMCPTools 注册Admin定时任务服务的 MCP Tool。
-func RegisterBaseJobServiceMCPTools(mcpServer *mcp.Server, baseJobServiceServer BaseJobServiceServer) {
+func RegisterBaseJobServiceMCPTools(mcpServer *server.MCPServer, baseJobServiceServer BaseJobServiceServer) {
 	RegisterBaseJobServiceOptionBaseJobMCPTool(mcpServer, baseJobServiceServer)
 	RegisterBaseJobServicePageBaseJobMCPTool(mcpServer, baseJobServiceServer)
 	RegisterBaseJobServiceGetBaseJobMCPTool(mcpServer, baseJobServiceServer)
@@ -29,211 +30,241 @@ func RegisterBaseJobServiceMCPTools(mcpServer *mcp.Server, baseJobServiceServer 
 }
 
 // RegisterBaseJobServiceOptionBaseJobMCPTool 注册查询定时任务下拉选择的 MCP Tool。
-func RegisterBaseJobServiceOptionBaseJobMCPTool(mcpServer *mcp.Server, baseJobServiceServer BaseJobServiceServer) {
-	mcp.AddTool[*OptionBaseJobRequest, *commonv1.SelectOptionResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_job_service_option_base_job",
-			Description: "查询定时任务下拉选择",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *OptionBaseJobRequest) (*mcp.CallToolResult, *commonv1.SelectOptionResponse, error) {
-			if input == nil {
-				input = &OptionBaseJobRequest{}
-			}
-			reply, err := baseJobServiceServer.OptionBaseJob(ctx, input)
+func RegisterBaseJobServiceOptionBaseJobMCPTool(mcpServer *server.MCPServer, baseJobServiceServer BaseJobServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_job_service_option_base_job",
+			mcp.WithDescription("查询定时任务下拉选择"),
+			mcp.WithInputSchema[*OptionBaseJobRequest](),
+			mcp.WithOutputSchema[*commonv1.SelectOptionResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &OptionBaseJobRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *commonv1.SelectOptionResponse
+			reply, err = baseJobServiceServer.OptionBaseJob(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseJobServicePageBaseJobMCPTool 注册查询定时任务分页列表的 MCP Tool。
-func RegisterBaseJobServicePageBaseJobMCPTool(mcpServer *mcp.Server, baseJobServiceServer BaseJobServiceServer) {
-	mcp.AddTool[*PageBaseJobRequest, *PageBaseJobResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_job_service_page_base_job",
-			Description: "查询定时任务分页列表",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *PageBaseJobRequest) (*mcp.CallToolResult, *PageBaseJobResponse, error) {
-			if input == nil {
-				input = &PageBaseJobRequest{}
-			}
-			reply, err := baseJobServiceServer.PageBaseJob(ctx, input)
+func RegisterBaseJobServicePageBaseJobMCPTool(mcpServer *server.MCPServer, baseJobServiceServer BaseJobServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_job_service_page_base_job",
+			mcp.WithDescription("查询定时任务分页列表"),
+			mcp.WithInputSchema[*PageBaseJobRequest](),
+			mcp.WithOutputSchema[*PageBaseJobResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &PageBaseJobRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *PageBaseJobResponse
+			reply, err = baseJobServiceServer.PageBaseJob(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseJobServiceGetBaseJobMCPTool 注册查询定时任务的 MCP Tool。
-func RegisterBaseJobServiceGetBaseJobMCPTool(mcpServer *mcp.Server, baseJobServiceServer BaseJobServiceServer) {
-	mcp.AddTool[*GetBaseJobRequest, *BaseJobForm](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_job_service_get_base_job",
-			Description: "查询定时任务",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *GetBaseJobRequest) (*mcp.CallToolResult, *BaseJobForm, error) {
-			if input == nil {
-				input = &GetBaseJobRequest{}
-			}
-			reply, err := baseJobServiceServer.GetBaseJob(ctx, input)
+func RegisterBaseJobServiceGetBaseJobMCPTool(mcpServer *server.MCPServer, baseJobServiceServer BaseJobServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_job_service_get_base_job",
+			mcp.WithDescription("查询定时任务"),
+			mcp.WithInputSchema[*GetBaseJobRequest](),
+			mcp.WithOutputSchema[*BaseJobForm](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &GetBaseJobRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *BaseJobForm
+			reply, err = baseJobServiceServer.GetBaseJob(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseJobServiceCreateBaseJobMCPTool 注册创建定时任务的 MCP Tool。
-func RegisterBaseJobServiceCreateBaseJobMCPTool(mcpServer *mcp.Server, baseJobServiceServer BaseJobServiceServer) {
-	mcp.AddTool[*CreateBaseJobRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_job_service_create_base_job",
-			Description: "创建定时任务",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *CreateBaseJobRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &CreateBaseJobRequest{}
-			}
-			reply, err := baseJobServiceServer.CreateBaseJob(ctx, input)
+func RegisterBaseJobServiceCreateBaseJobMCPTool(mcpServer *server.MCPServer, baseJobServiceServer BaseJobServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_job_service_create_base_job",
+			mcp.WithDescription("创建定时任务"),
+			mcp.WithInputSchema[*CreateBaseJobRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &CreateBaseJobRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = baseJobServiceServer.CreateBaseJob(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseJobServiceUpdateBaseJobMCPTool 注册更新定时任务的 MCP Tool。
-func RegisterBaseJobServiceUpdateBaseJobMCPTool(mcpServer *mcp.Server, baseJobServiceServer BaseJobServiceServer) {
-	mcp.AddTool[*UpdateBaseJobRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_job_service_update_base_job",
-			Description: "更新定时任务",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *UpdateBaseJobRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &UpdateBaseJobRequest{}
-			}
-			reply, err := baseJobServiceServer.UpdateBaseJob(ctx, input)
+func RegisterBaseJobServiceUpdateBaseJobMCPTool(mcpServer *server.MCPServer, baseJobServiceServer BaseJobServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_job_service_update_base_job",
+			mcp.WithDescription("更新定时任务"),
+			mcp.WithInputSchema[*UpdateBaseJobRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &UpdateBaseJobRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = baseJobServiceServer.UpdateBaseJob(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseJobServiceDeleteBaseJobMCPTool 注册删除定时任务的 MCP Tool。
-func RegisterBaseJobServiceDeleteBaseJobMCPTool(mcpServer *mcp.Server, baseJobServiceServer BaseJobServiceServer) {
-	mcp.AddTool[*DeleteBaseJobRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_job_service_delete_base_job",
-			Description: "删除定时任务",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *DeleteBaseJobRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &DeleteBaseJobRequest{}
-			}
-			reply, err := baseJobServiceServer.DeleteBaseJob(ctx, input)
+func RegisterBaseJobServiceDeleteBaseJobMCPTool(mcpServer *server.MCPServer, baseJobServiceServer BaseJobServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_job_service_delete_base_job",
+			mcp.WithDescription("删除定时任务"),
+			mcp.WithInputSchema[*DeleteBaseJobRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &DeleteBaseJobRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = baseJobServiceServer.DeleteBaseJob(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseJobServiceSetBaseJobStatusMCPTool 注册设置状态的 MCP Tool。
-func RegisterBaseJobServiceSetBaseJobStatusMCPTool(mcpServer *mcp.Server, baseJobServiceServer BaseJobServiceServer) {
-	mcp.AddTool[*SetBaseJobStatusRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_job_service_set_base_job_status",
-			Description: "设置状态",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *SetBaseJobStatusRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &SetBaseJobStatusRequest{}
-			}
-			reply, err := baseJobServiceServer.SetBaseJobStatus(ctx, input)
+func RegisterBaseJobServiceSetBaseJobStatusMCPTool(mcpServer *server.MCPServer, baseJobServiceServer BaseJobServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_job_service_set_base_job_status",
+			mcp.WithDescription("设置状态"),
+			mcp.WithInputSchema[*SetBaseJobStatusRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &SetBaseJobStatusRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = baseJobServiceServer.SetBaseJobStatus(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseJobServiceStartBaseJobMCPTool 注册启动任务的 MCP Tool。
-func RegisterBaseJobServiceStartBaseJobMCPTool(mcpServer *mcp.Server, baseJobServiceServer BaseJobServiceServer) {
-	mcp.AddTool[*StartBaseJobRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_job_service_start_base_job",
-			Description: "启动任务",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *StartBaseJobRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &StartBaseJobRequest{}
-			}
-			reply, err := baseJobServiceServer.StartBaseJob(ctx, input)
+func RegisterBaseJobServiceStartBaseJobMCPTool(mcpServer *server.MCPServer, baseJobServiceServer BaseJobServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_job_service_start_base_job",
+			mcp.WithDescription("启动任务"),
+			mcp.WithInputSchema[*StartBaseJobRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &StartBaseJobRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = baseJobServiceServer.StartBaseJob(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseJobServiceStopBaseJobMCPTool 注册停止任务的 MCP Tool。
-func RegisterBaseJobServiceStopBaseJobMCPTool(mcpServer *mcp.Server, baseJobServiceServer BaseJobServiceServer) {
-	mcp.AddTool[*StopBaseJobRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_job_service_stop_base_job",
-			Description: "停止任务",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *StopBaseJobRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &StopBaseJobRequest{}
-			}
-			reply, err := baseJobServiceServer.StopBaseJob(ctx, input)
+func RegisterBaseJobServiceStopBaseJobMCPTool(mcpServer *server.MCPServer, baseJobServiceServer BaseJobServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_job_service_stop_base_job",
+			mcp.WithDescription("停止任务"),
+			mcp.WithInputSchema[*StopBaseJobRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &StopBaseJobRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = baseJobServiceServer.StopBaseJob(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseJobServiceExecuteBaseJobMCPTool 注册执行任务的 MCP Tool。
-func RegisterBaseJobServiceExecuteBaseJobMCPTool(mcpServer *mcp.Server, baseJobServiceServer BaseJobServiceServer) {
-	mcp.AddTool[*ExecuteBaseJobRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_job_service_execute_base_job",
-			Description: "执行任务",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *ExecuteBaseJobRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &ExecuteBaseJobRequest{}
-			}
-			reply, err := baseJobServiceServer.ExecuteBaseJob(ctx, input)
+func RegisterBaseJobServiceExecuteBaseJobMCPTool(mcpServer *server.MCPServer, baseJobServiceServer BaseJobServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_job_service_execute_base_job",
+			mcp.WithDescription("执行任务"),
+			mcp.WithInputSchema[*ExecuteBaseJobRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &ExecuteBaseJobRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = baseJobServiceServer.ExecuteBaseJob(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }

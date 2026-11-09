@@ -8,15 +8,15 @@ package adminv1
 
 import (
 	context "context"
-	json "encoding/json"
 
 	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
-	mcp "github.com/modelcontextprotocol/go-sdk/mcp"
+	mcp "github.com/mark3labs/mcp-go/mcp"
+	server "github.com/mark3labs/mcp-go/server"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // RegisterBaseMessageProviderServiceMCPTools 注册Admin消息发送 Provider 管理服务的 MCP Tool。
-func RegisterBaseMessageProviderServiceMCPTools(mcpServer *mcp.Server, baseMessageProviderServiceServer BaseMessageProviderServiceServer) {
+func RegisterBaseMessageProviderServiceMCPTools(mcpServer *server.MCPServer, baseMessageProviderServiceServer BaseMessageProviderServiceServer) {
 	RegisterBaseMessageProviderServiceOptionBaseMessageProviderMCPTool(mcpServer, baseMessageProviderServiceServer)
 	RegisterBaseMessageProviderServicePageBaseMessageProviderMCPTool(mcpServer, baseMessageProviderServiceServer)
 	RegisterBaseMessageProviderServiceGetBaseMessageProviderMCPTool(mcpServer, baseMessageProviderServiceServer)
@@ -27,162 +27,165 @@ func RegisterBaseMessageProviderServiceMCPTools(mcpServer *mcp.Server, baseMessa
 }
 
 // RegisterBaseMessageProviderServiceOptionBaseMessageProviderMCPTool 注册查询消息发送 Provider 选项的 MCP Tool。
-func RegisterBaseMessageProviderServiceOptionBaseMessageProviderMCPTool(mcpServer *mcp.Server, baseMessageProviderServiceServer BaseMessageProviderServiceServer) {
-	mcp.AddTool[*OptionBaseMessageProviderRequest, *commonv1.SelectOptionResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_message_provider_service_option_base_message_provider",
-			Description: "查询消息发送 Provider 选项。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *OptionBaseMessageProviderRequest) (*mcp.CallToolResult, *commonv1.SelectOptionResponse, error) {
-			if input == nil {
-				input = &OptionBaseMessageProviderRequest{}
-			}
-			reply, err := baseMessageProviderServiceServer.OptionBaseMessageProvider(ctx, input)
+func RegisterBaseMessageProviderServiceOptionBaseMessageProviderMCPTool(mcpServer *server.MCPServer, baseMessageProviderServiceServer BaseMessageProviderServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_message_provider_service_option_base_message_provider",
+			mcp.WithDescription("查询消息发送 Provider 选项。"),
+			mcp.WithInputSchema[*OptionBaseMessageProviderRequest](),
+			mcp.WithOutputSchema[*commonv1.SelectOptionResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &OptionBaseMessageProviderRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *commonv1.SelectOptionResponse
+			reply, err = baseMessageProviderServiceServer.OptionBaseMessageProvider(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseMessageProviderServicePageBaseMessageProviderMCPTool 注册分页查询消息发送 Provider的 MCP Tool。
-func RegisterBaseMessageProviderServicePageBaseMessageProviderMCPTool(mcpServer *mcp.Server, baseMessageProviderServiceServer BaseMessageProviderServiceServer) {
-	mcp.AddTool[*PageBaseMessageProviderRequest, any](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_message_provider_service_page_base_message_provider",
-			Description: "分页查询消息发送 Provider。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *PageBaseMessageProviderRequest) (*mcp.CallToolResult, any, error) {
-			if input == nil {
-				input = &PageBaseMessageProviderRequest{}
-			}
-			reply, err := baseMessageProviderServiceServer.PageBaseMessageProvider(ctx, input)
+func RegisterBaseMessageProviderServicePageBaseMessageProviderMCPTool(mcpServer *server.MCPServer, baseMessageProviderServiceServer BaseMessageProviderServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_message_provider_service_page_base_message_provider",
+			mcp.WithDescription("分页查询消息发送 Provider。"),
+			mcp.WithInputSchema[*PageBaseMessageProviderRequest](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &PageBaseMessageProviderRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *PageBaseMessageProviderResponse
+			reply, err = baseMessageProviderServiceServer.PageBaseMessageProvider(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseMessageProviderServiceGetBaseMessageProviderMCPTool 注册查询消息发送 Provider 详情的 MCP Tool。
-func RegisterBaseMessageProviderServiceGetBaseMessageProviderMCPTool(mcpServer *mcp.Server, baseMessageProviderServiceServer BaseMessageProviderServiceServer) {
-	mcp.AddTool[*GetBaseMessageProviderRequest, any](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_message_provider_service_get_base_message_provider",
-			Description: "查询消息发送 Provider 详情。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *GetBaseMessageProviderRequest) (*mcp.CallToolResult, any, error) {
-			if input == nil {
-				input = &GetBaseMessageProviderRequest{}
-			}
-			reply, err := baseMessageProviderServiceServer.GetBaseMessageProvider(ctx, input)
+func RegisterBaseMessageProviderServiceGetBaseMessageProviderMCPTool(mcpServer *server.MCPServer, baseMessageProviderServiceServer BaseMessageProviderServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_message_provider_service_get_base_message_provider",
+			mcp.WithDescription("查询消息发送 Provider 详情。"),
+			mcp.WithInputSchema[*GetBaseMessageProviderRequest](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &GetBaseMessageProviderRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *BaseMessageProviderForm
+			reply, err = baseMessageProviderServiceServer.GetBaseMessageProvider(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseMessageProviderServiceCreateBaseMessageProviderMCPTool 注册创建消息发送 Provider的 MCP Tool。
-func RegisterBaseMessageProviderServiceCreateBaseMessageProviderMCPTool(mcpServer *mcp.Server, baseMessageProviderServiceServer BaseMessageProviderServiceServer) {
-	mcp.AddTool[any, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_message_provider_service_create_base_message_provider",
-			Description: "创建消息发送 Provider。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input any) (*mcp.CallToolResult, *emptypb.Empty, error) {
+func RegisterBaseMessageProviderServiceCreateBaseMessageProviderMCPTool(mcpServer *server.MCPServer, baseMessageProviderServiceServer BaseMessageProviderServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_message_provider_service_create_base_message_provider",
+			mcp.WithDescription("创建消息发送 Provider。"),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
 			req := &CreateBaseMessageProviderRequest{}
-			if input != nil {
-				inputBytes, err := json.Marshal(input)
-				if err != nil {
-					return nil, nil, err
-				}
-				if err = json.Unmarshal(inputBytes, req); err != nil {
-					return nil, nil, err
-				}
-			}
-			reply, err := baseMessageProviderServiceServer.CreateBaseMessageProvider(ctx, req)
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = baseMessageProviderServiceServer.CreateBaseMessageProvider(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseMessageProviderServiceUpdateBaseMessageProviderMCPTool 注册更新消息发送 Provider的 MCP Tool。
-func RegisterBaseMessageProviderServiceUpdateBaseMessageProviderMCPTool(mcpServer *mcp.Server, baseMessageProviderServiceServer BaseMessageProviderServiceServer) {
-	mcp.AddTool[any, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_message_provider_service_update_base_message_provider",
-			Description: "更新消息发送 Provider。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input any) (*mcp.CallToolResult, *emptypb.Empty, error) {
+func RegisterBaseMessageProviderServiceUpdateBaseMessageProviderMCPTool(mcpServer *server.MCPServer, baseMessageProviderServiceServer BaseMessageProviderServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_message_provider_service_update_base_message_provider",
+			mcp.WithDescription("更新消息发送 Provider。"),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
 			req := &UpdateBaseMessageProviderRequest{}
-			if input != nil {
-				inputBytes, err := json.Marshal(input)
-				if err != nil {
-					return nil, nil, err
-				}
-				if err = json.Unmarshal(inputBytes, req); err != nil {
-					return nil, nil, err
-				}
-			}
-			reply, err := baseMessageProviderServiceServer.UpdateBaseMessageProvider(ctx, req)
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = baseMessageProviderServiceServer.UpdateBaseMessageProvider(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseMessageProviderServiceDeleteBaseMessageProviderMCPTool 注册删除消息发送 Provider的 MCP Tool。
-func RegisterBaseMessageProviderServiceDeleteBaseMessageProviderMCPTool(mcpServer *mcp.Server, baseMessageProviderServiceServer BaseMessageProviderServiceServer) {
-	mcp.AddTool[*DeleteBaseMessageProviderRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_message_provider_service_delete_base_message_provider",
-			Description: "删除消息发送 Provider。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *DeleteBaseMessageProviderRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &DeleteBaseMessageProviderRequest{}
-			}
-			reply, err := baseMessageProviderServiceServer.DeleteBaseMessageProvider(ctx, input)
+func RegisterBaseMessageProviderServiceDeleteBaseMessageProviderMCPTool(mcpServer *server.MCPServer, baseMessageProviderServiceServer BaseMessageProviderServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_message_provider_service_delete_base_message_provider",
+			mcp.WithDescription("删除消息发送 Provider。"),
+			mcp.WithInputSchema[*DeleteBaseMessageProviderRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &DeleteBaseMessageProviderRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = baseMessageProviderServiceServer.DeleteBaseMessageProvider(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseMessageProviderServiceSetBaseMessageProviderStatusMCPTool 注册设置消息发送 Provider 状态的 MCP Tool。
-func RegisterBaseMessageProviderServiceSetBaseMessageProviderStatusMCPTool(mcpServer *mcp.Server, baseMessageProviderServiceServer BaseMessageProviderServiceServer) {
-	mcp.AddTool[*SetBaseMessageProviderStatusRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_message_provider_service_set_base_message_provider_status",
-			Description: "设置消息发送 Provider 状态。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *SetBaseMessageProviderStatusRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &SetBaseMessageProviderStatusRequest{}
-			}
-			reply, err := baseMessageProviderServiceServer.SetBaseMessageProviderStatus(ctx, input)
+func RegisterBaseMessageProviderServiceSetBaseMessageProviderStatusMCPTool(mcpServer *server.MCPServer, baseMessageProviderServiceServer BaseMessageProviderServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_message_provider_service_set_base_message_provider_status",
+			mcp.WithDescription("设置消息发送 Provider 状态。"),
+			mcp.WithInputSchema[*SetBaseMessageProviderStatusRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &SetBaseMessageProviderStatusRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = baseMessageProviderServiceServer.SetBaseMessageProviderStatus(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }

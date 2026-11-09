@@ -9,53 +9,60 @@ package adminv1
 import (
 	context "context"
 
-	mcp "github.com/modelcontextprotocol/go-sdk/mcp"
+	mcp "github.com/mark3labs/mcp-go/mcp"
+	server "github.com/mark3labs/mcp-go/server"
 )
 
 // RegisterBaseJobLogServiceMCPTools 注册Admin定时任务日志服务的 MCP Tool。
-func RegisterBaseJobLogServiceMCPTools(mcpServer *mcp.Server, baseJobLogServiceServer BaseJobLogServiceServer) {
+func RegisterBaseJobLogServiceMCPTools(mcpServer *server.MCPServer, baseJobLogServiceServer BaseJobLogServiceServer) {
 	RegisterBaseJobLogServicePageBaseJobLogMCPTool(mcpServer, baseJobLogServiceServer)
 	RegisterBaseJobLogServiceGetBaseJobLogMCPTool(mcpServer, baseJobLogServiceServer)
 }
 
 // RegisterBaseJobLogServicePageBaseJobLogMCPTool 注册查询定时任务日志分页列表的 MCP Tool。
-func RegisterBaseJobLogServicePageBaseJobLogMCPTool(mcpServer *mcp.Server, baseJobLogServiceServer BaseJobLogServiceServer) {
-	mcp.AddTool[*PageBaseJobLogRequest, *PageBaseJobLogResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_job_log_service_page_base_job_log",
-			Description: "查询定时任务日志分页列表",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *PageBaseJobLogRequest) (*mcp.CallToolResult, *PageBaseJobLogResponse, error) {
-			if input == nil {
-				input = &PageBaseJobLogRequest{}
-			}
-			reply, err := baseJobLogServiceServer.PageBaseJobLog(ctx, input)
+func RegisterBaseJobLogServicePageBaseJobLogMCPTool(mcpServer *server.MCPServer, baseJobLogServiceServer BaseJobLogServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_job_log_service_page_base_job_log",
+			mcp.WithDescription("查询定时任务日志分页列表"),
+			mcp.WithInputSchema[*PageBaseJobLogRequest](),
+			mcp.WithOutputSchema[*PageBaseJobLogResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &PageBaseJobLogRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *PageBaseJobLogResponse
+			reply, err = baseJobLogServiceServer.PageBaseJobLog(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseJobLogServiceGetBaseJobLogMCPTool 注册查询定时任务日志的 MCP Tool。
-func RegisterBaseJobLogServiceGetBaseJobLogMCPTool(mcpServer *mcp.Server, baseJobLogServiceServer BaseJobLogServiceServer) {
-	mcp.AddTool[*GetBaseJobLogRequest, *BaseJobLog](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_job_log_service_get_base_job_log",
-			Description: "查询定时任务日志",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *GetBaseJobLogRequest) (*mcp.CallToolResult, *BaseJobLog, error) {
-			if input == nil {
-				input = &GetBaseJobLogRequest{}
-			}
-			reply, err := baseJobLogServiceServer.GetBaseJobLog(ctx, input)
+func RegisterBaseJobLogServiceGetBaseJobLogMCPTool(mcpServer *server.MCPServer, baseJobLogServiceServer BaseJobLogServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_job_log_service_get_base_job_log",
+			mcp.WithDescription("查询定时任务日志"),
+			mcp.WithInputSchema[*GetBaseJobLogRequest](),
+			mcp.WithOutputSchema[*BaseJobLog](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &GetBaseJobLogRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *BaseJobLog
+			reply, err = baseJobLogServiceServer.GetBaseJobLog(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }

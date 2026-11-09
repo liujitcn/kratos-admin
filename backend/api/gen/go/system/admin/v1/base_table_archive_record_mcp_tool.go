@@ -9,53 +9,60 @@ package adminv1
 import (
 	context "context"
 
-	mcp "github.com/modelcontextprotocol/go-sdk/mcp"
+	mcp "github.com/mark3labs/mcp-go/mcp"
+	server "github.com/mark3labs/mcp-go/server"
 )
 
 // RegisterBaseTableArchiveRecordServiceMCPTools 注册Admin表归档执行记录服务的 MCP Tool。
-func RegisterBaseTableArchiveRecordServiceMCPTools(mcpServer *mcp.Server, baseTableArchiveRecordServiceServer BaseTableArchiveRecordServiceServer) {
+func RegisterBaseTableArchiveRecordServiceMCPTools(mcpServer *server.MCPServer, baseTableArchiveRecordServiceServer BaseTableArchiveRecordServiceServer) {
 	RegisterBaseTableArchiveRecordServicePageBaseTableArchiveRecordMCPTool(mcpServer, baseTableArchiveRecordServiceServer)
 	RegisterBaseTableArchiveRecordServiceGetBaseTableArchiveRecordMCPTool(mcpServer, baseTableArchiveRecordServiceServer)
 }
 
 // RegisterBaseTableArchiveRecordServicePageBaseTableArchiveRecordMCPTool 注册查询表归档记录分页列表的 MCP Tool。
-func RegisterBaseTableArchiveRecordServicePageBaseTableArchiveRecordMCPTool(mcpServer *mcp.Server, baseTableArchiveRecordServiceServer BaseTableArchiveRecordServiceServer) {
-	mcp.AddTool[*PageBaseTableArchiveRecordRequest, *PageBaseTableArchiveRecordResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_table_archive_record_service_page_base_table_archive_record",
-			Description: "查询表归档记录分页列表。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *PageBaseTableArchiveRecordRequest) (*mcp.CallToolResult, *PageBaseTableArchiveRecordResponse, error) {
-			if input == nil {
-				input = &PageBaseTableArchiveRecordRequest{}
-			}
-			reply, err := baseTableArchiveRecordServiceServer.PageBaseTableArchiveRecord(ctx, input)
+func RegisterBaseTableArchiveRecordServicePageBaseTableArchiveRecordMCPTool(mcpServer *server.MCPServer, baseTableArchiveRecordServiceServer BaseTableArchiveRecordServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_table_archive_record_service_page_base_table_archive_record",
+			mcp.WithDescription("查询表归档记录分页列表。"),
+			mcp.WithInputSchema[*PageBaseTableArchiveRecordRequest](),
+			mcp.WithOutputSchema[*PageBaseTableArchiveRecordResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &PageBaseTableArchiveRecordRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *PageBaseTableArchiveRecordResponse
+			reply, err = baseTableArchiveRecordServiceServer.PageBaseTableArchiveRecord(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseTableArchiveRecordServiceGetBaseTableArchiveRecordMCPTool 注册查询表归档记录的 MCP Tool。
-func RegisterBaseTableArchiveRecordServiceGetBaseTableArchiveRecordMCPTool(mcpServer *mcp.Server, baseTableArchiveRecordServiceServer BaseTableArchiveRecordServiceServer) {
-	mcp.AddTool[*GetBaseTableArchiveRecordRequest, *BaseTableArchiveRecord](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_table_archive_record_service_get_base_table_archive_record",
-			Description: "查询表归档记录。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *GetBaseTableArchiveRecordRequest) (*mcp.CallToolResult, *BaseTableArchiveRecord, error) {
-			if input == nil {
-				input = &GetBaseTableArchiveRecordRequest{}
-			}
-			reply, err := baseTableArchiveRecordServiceServer.GetBaseTableArchiveRecord(ctx, input)
+func RegisterBaseTableArchiveRecordServiceGetBaseTableArchiveRecordMCPTool(mcpServer *server.MCPServer, baseTableArchiveRecordServiceServer BaseTableArchiveRecordServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_table_archive_record_service_get_base_table_archive_record",
+			mcp.WithDescription("查询表归档记录。"),
+			mcp.WithInputSchema[*GetBaseTableArchiveRecordRequest](),
+			mcp.WithOutputSchema[*BaseTableArchiveRecord](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &GetBaseTableArchiveRecordRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *BaseTableArchiveRecord
+			reply, err = baseTableArchiveRecordServiceServer.GetBaseTableArchiveRecord(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }

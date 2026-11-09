@@ -9,12 +9,13 @@ package adminv1
 import (
 	context "context"
 
-	mcp "github.com/modelcontextprotocol/go-sdk/mcp"
+	mcp "github.com/mark3labs/mcp-go/mcp"
+	server "github.com/mark3labs/mcp-go/server"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // RegisterBaseTableBackupServiceMCPTools 注册Admin数据库备份配置服务的 MCP Tool。
-func RegisterBaseTableBackupServiceMCPTools(mcpServer *mcp.Server, baseTableBackupServiceServer BaseTableBackupServiceServer) {
+func RegisterBaseTableBackupServiceMCPTools(mcpServer *server.MCPServer, baseTableBackupServiceServer BaseTableBackupServiceServer) {
 	RegisterBaseTableBackupServicePageBaseTableBackupMCPTool(mcpServer, baseTableBackupServiceServer)
 	RegisterBaseTableBackupServiceGetBaseTableBackupMCPTool(mcpServer, baseTableBackupServiceServer)
 	RegisterBaseTableBackupServiceCreateBaseTableBackupMCPTool(mcpServer, baseTableBackupServiceServer)
@@ -24,127 +25,145 @@ func RegisterBaseTableBackupServiceMCPTools(mcpServer *mcp.Server, baseTableBack
 }
 
 // RegisterBaseTableBackupServicePageBaseTableBackupMCPTool 注册查询数据库备份配置分页列表的 MCP Tool。
-func RegisterBaseTableBackupServicePageBaseTableBackupMCPTool(mcpServer *mcp.Server, baseTableBackupServiceServer BaseTableBackupServiceServer) {
-	mcp.AddTool[*PageBaseTableBackupRequest, *PageBaseTableBackupResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_table_backup_service_page_base_table_backup",
-			Description: "查询数据库备份配置分页列表。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *PageBaseTableBackupRequest) (*mcp.CallToolResult, *PageBaseTableBackupResponse, error) {
-			if input == nil {
-				input = &PageBaseTableBackupRequest{}
-			}
-			reply, err := baseTableBackupServiceServer.PageBaseTableBackup(ctx, input)
+func RegisterBaseTableBackupServicePageBaseTableBackupMCPTool(mcpServer *server.MCPServer, baseTableBackupServiceServer BaseTableBackupServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_table_backup_service_page_base_table_backup",
+			mcp.WithDescription("查询数据库备份配置分页列表。"),
+			mcp.WithInputSchema[*PageBaseTableBackupRequest](),
+			mcp.WithOutputSchema[*PageBaseTableBackupResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &PageBaseTableBackupRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *PageBaseTableBackupResponse
+			reply, err = baseTableBackupServiceServer.PageBaseTableBackup(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseTableBackupServiceGetBaseTableBackupMCPTool 注册查询数据库备份配置的 MCP Tool。
-func RegisterBaseTableBackupServiceGetBaseTableBackupMCPTool(mcpServer *mcp.Server, baseTableBackupServiceServer BaseTableBackupServiceServer) {
-	mcp.AddTool[*GetBaseTableBackupRequest, *BaseTableBackupForm](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_table_backup_service_get_base_table_backup",
-			Description: "查询数据库备份配置。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *GetBaseTableBackupRequest) (*mcp.CallToolResult, *BaseTableBackupForm, error) {
-			if input == nil {
-				input = &GetBaseTableBackupRequest{}
-			}
-			reply, err := baseTableBackupServiceServer.GetBaseTableBackup(ctx, input)
+func RegisterBaseTableBackupServiceGetBaseTableBackupMCPTool(mcpServer *server.MCPServer, baseTableBackupServiceServer BaseTableBackupServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_table_backup_service_get_base_table_backup",
+			mcp.WithDescription("查询数据库备份配置。"),
+			mcp.WithInputSchema[*GetBaseTableBackupRequest](),
+			mcp.WithOutputSchema[*BaseTableBackupForm](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &GetBaseTableBackupRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *BaseTableBackupForm
+			reply, err = baseTableBackupServiceServer.GetBaseTableBackup(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseTableBackupServiceCreateBaseTableBackupMCPTool 注册创建数据库备份配置的 MCP Tool。
-func RegisterBaseTableBackupServiceCreateBaseTableBackupMCPTool(mcpServer *mcp.Server, baseTableBackupServiceServer BaseTableBackupServiceServer) {
-	mcp.AddTool[*CreateBaseTableBackupRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_table_backup_service_create_base_table_backup",
-			Description: "创建数据库备份配置。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *CreateBaseTableBackupRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &CreateBaseTableBackupRequest{}
-			}
-			reply, err := baseTableBackupServiceServer.CreateBaseTableBackup(ctx, input)
+func RegisterBaseTableBackupServiceCreateBaseTableBackupMCPTool(mcpServer *server.MCPServer, baseTableBackupServiceServer BaseTableBackupServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_table_backup_service_create_base_table_backup",
+			mcp.WithDescription("创建数据库备份配置。"),
+			mcp.WithInputSchema[*CreateBaseTableBackupRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &CreateBaseTableBackupRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = baseTableBackupServiceServer.CreateBaseTableBackup(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseTableBackupServiceUpdateBaseTableBackupMCPTool 注册更新数据库备份配置的 MCP Tool。
-func RegisterBaseTableBackupServiceUpdateBaseTableBackupMCPTool(mcpServer *mcp.Server, baseTableBackupServiceServer BaseTableBackupServiceServer) {
-	mcp.AddTool[*UpdateBaseTableBackupRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_table_backup_service_update_base_table_backup",
-			Description: "更新数据库备份配置。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *UpdateBaseTableBackupRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &UpdateBaseTableBackupRequest{}
-			}
-			reply, err := baseTableBackupServiceServer.UpdateBaseTableBackup(ctx, input)
+func RegisterBaseTableBackupServiceUpdateBaseTableBackupMCPTool(mcpServer *server.MCPServer, baseTableBackupServiceServer BaseTableBackupServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_table_backup_service_update_base_table_backup",
+			mcp.WithDescription("更新数据库备份配置。"),
+			mcp.WithInputSchema[*UpdateBaseTableBackupRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &UpdateBaseTableBackupRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = baseTableBackupServiceServer.UpdateBaseTableBackup(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseTableBackupServiceDeleteBaseTableBackupMCPTool 注册删除数据库备份配置的 MCP Tool。
-func RegisterBaseTableBackupServiceDeleteBaseTableBackupMCPTool(mcpServer *mcp.Server, baseTableBackupServiceServer BaseTableBackupServiceServer) {
-	mcp.AddTool[*DeleteBaseTableBackupRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_table_backup_service_delete_base_table_backup",
-			Description: "删除数据库备份配置。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *DeleteBaseTableBackupRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &DeleteBaseTableBackupRequest{}
-			}
-			reply, err := baseTableBackupServiceServer.DeleteBaseTableBackup(ctx, input)
+func RegisterBaseTableBackupServiceDeleteBaseTableBackupMCPTool(mcpServer *server.MCPServer, baseTableBackupServiceServer BaseTableBackupServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_table_backup_service_delete_base_table_backup",
+			mcp.WithDescription("删除数据库备份配置。"),
+			mcp.WithInputSchema[*DeleteBaseTableBackupRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &DeleteBaseTableBackupRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = baseTableBackupServiceServer.DeleteBaseTableBackup(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseTableBackupServiceSetBaseTableBackupStatusMCPTool 注册设置数据库备份配置状态的 MCP Tool。
-func RegisterBaseTableBackupServiceSetBaseTableBackupStatusMCPTool(mcpServer *mcp.Server, baseTableBackupServiceServer BaseTableBackupServiceServer) {
-	mcp.AddTool[*SetBaseTableBackupStatusRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_table_backup_service_set_base_table_backup_status",
-			Description: "设置数据库备份配置状态。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *SetBaseTableBackupStatusRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &SetBaseTableBackupStatusRequest{}
-			}
-			reply, err := baseTableBackupServiceServer.SetBaseTableBackupStatus(ctx, input)
+func RegisterBaseTableBackupServiceSetBaseTableBackupStatusMCPTool(mcpServer *server.MCPServer, baseTableBackupServiceServer BaseTableBackupServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_table_backup_service_set_base_table_backup_status",
+			mcp.WithDescription("设置数据库备份配置状态。"),
+			mcp.WithInputSchema[*SetBaseTableBackupStatusRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &SetBaseTableBackupStatusRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = baseTableBackupServiceServer.SetBaseTableBackupStatus(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }

@@ -9,12 +9,14 @@ package adminv1
 import (
 	context "context"
 
-	mcp "github.com/modelcontextprotocol/go-sdk/mcp"
+	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
+	mcp "github.com/mark3labs/mcp-go/mcp"
+	server "github.com/mark3labs/mcp-go/server"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // RegisterBaseAreaServiceMCPTools 注册Admin行政区域服务的 MCP Tool。
-func RegisterBaseAreaServiceMCPTools(mcpServer *mcp.Server, baseAreaServiceServer BaseAreaServiceServer) {
+func RegisterBaseAreaServiceMCPTools(mcpServer *server.MCPServer, baseAreaServiceServer BaseAreaServiceServer) {
 	RegisterBaseAreaServiceOptionBaseAreaMCPTool(mcpServer, baseAreaServiceServer)
 	RegisterBaseAreaServiceTreeBaseAreaMCPTool(mcpServer, baseAreaServiceServer)
 	RegisterBaseAreaServiceGetBaseAreaMCPTool(mcpServer, baseAreaServiceServer)
@@ -24,127 +26,143 @@ func RegisterBaseAreaServiceMCPTools(mcpServer *mcp.Server, baseAreaServiceServe
 }
 
 // RegisterBaseAreaServiceOptionBaseAreaMCPTool 注册查询行政区域树形选择的 MCP Tool。
-func RegisterBaseAreaServiceOptionBaseAreaMCPTool(mcpServer *mcp.Server, baseAreaServiceServer BaseAreaServiceServer) {
-	mcp.AddTool[*OptionBaseAreaRequest, any](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_area_service_option_base_area",
-			Description: "查询行政区域树形选择",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *OptionBaseAreaRequest) (*mcp.CallToolResult, any, error) {
-			if input == nil {
-				input = &OptionBaseAreaRequest{}
-			}
-			reply, err := baseAreaServiceServer.OptionBaseArea(ctx, input)
+func RegisterBaseAreaServiceOptionBaseAreaMCPTool(mcpServer *server.MCPServer, baseAreaServiceServer BaseAreaServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_area_service_option_base_area",
+			mcp.WithDescription("查询行政区域树形选择"),
+			mcp.WithInputSchema[*OptionBaseAreaRequest](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &OptionBaseAreaRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *commonv1.TreeOptionResponse
+			reply, err = baseAreaServiceServer.OptionBaseArea(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseAreaServiceTreeBaseAreaMCPTool 注册查询行政区域树形列表的 MCP Tool。
-func RegisterBaseAreaServiceTreeBaseAreaMCPTool(mcpServer *mcp.Server, baseAreaServiceServer BaseAreaServiceServer) {
-	mcp.AddTool[*TreeBaseAreaRequest, any](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_area_service_tree_base_area",
-			Description: "查询行政区域树形列表",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *TreeBaseAreaRequest) (*mcp.CallToolResult, any, error) {
-			if input == nil {
-				input = &TreeBaseAreaRequest{}
-			}
-			reply, err := baseAreaServiceServer.TreeBaseArea(ctx, input)
+func RegisterBaseAreaServiceTreeBaseAreaMCPTool(mcpServer *server.MCPServer, baseAreaServiceServer BaseAreaServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_area_service_tree_base_area",
+			mcp.WithDescription("查询行政区域树形列表"),
+			mcp.WithInputSchema[*TreeBaseAreaRequest](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &TreeBaseAreaRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *TreeBaseAreaResponse
+			reply, err = baseAreaServiceServer.TreeBaseArea(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseAreaServiceGetBaseAreaMCPTool 注册查询行政区域详情的 MCP Tool。
-func RegisterBaseAreaServiceGetBaseAreaMCPTool(mcpServer *mcp.Server, baseAreaServiceServer BaseAreaServiceServer) {
-	mcp.AddTool[*GetBaseAreaRequest, *BaseAreaForm](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_area_service_get_base_area",
-			Description: "查询行政区域详情",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *GetBaseAreaRequest) (*mcp.CallToolResult, *BaseAreaForm, error) {
-			if input == nil {
-				input = &GetBaseAreaRequest{}
-			}
-			reply, err := baseAreaServiceServer.GetBaseArea(ctx, input)
+func RegisterBaseAreaServiceGetBaseAreaMCPTool(mcpServer *server.MCPServer, baseAreaServiceServer BaseAreaServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_area_service_get_base_area",
+			mcp.WithDescription("查询行政区域详情"),
+			mcp.WithInputSchema[*GetBaseAreaRequest](),
+			mcp.WithOutputSchema[*BaseAreaForm](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &GetBaseAreaRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *BaseAreaForm
+			reply, err = baseAreaServiceServer.GetBaseArea(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseAreaServiceCreateBaseAreaMCPTool 注册创建行政区域的 MCP Tool。
-func RegisterBaseAreaServiceCreateBaseAreaMCPTool(mcpServer *mcp.Server, baseAreaServiceServer BaseAreaServiceServer) {
-	mcp.AddTool[*CreateBaseAreaRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_area_service_create_base_area",
-			Description: "创建行政区域",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *CreateBaseAreaRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &CreateBaseAreaRequest{}
-			}
-			reply, err := baseAreaServiceServer.CreateBaseArea(ctx, input)
+func RegisterBaseAreaServiceCreateBaseAreaMCPTool(mcpServer *server.MCPServer, baseAreaServiceServer BaseAreaServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_area_service_create_base_area",
+			mcp.WithDescription("创建行政区域"),
+			mcp.WithInputSchema[*CreateBaseAreaRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &CreateBaseAreaRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = baseAreaServiceServer.CreateBaseArea(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseAreaServiceUpdateBaseAreaMCPTool 注册更新行政区域的 MCP Tool。
-func RegisterBaseAreaServiceUpdateBaseAreaMCPTool(mcpServer *mcp.Server, baseAreaServiceServer BaseAreaServiceServer) {
-	mcp.AddTool[*UpdateBaseAreaRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_area_service_update_base_area",
-			Description: "更新行政区域",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *UpdateBaseAreaRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &UpdateBaseAreaRequest{}
-			}
-			reply, err := baseAreaServiceServer.UpdateBaseArea(ctx, input)
+func RegisterBaseAreaServiceUpdateBaseAreaMCPTool(mcpServer *server.MCPServer, baseAreaServiceServer BaseAreaServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_area_service_update_base_area",
+			mcp.WithDescription("更新行政区域"),
+			mcp.WithInputSchema[*UpdateBaseAreaRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &UpdateBaseAreaRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = baseAreaServiceServer.UpdateBaseArea(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseAreaServiceDeleteBaseAreaMCPTool 注册删除行政区域的 MCP Tool。
-func RegisterBaseAreaServiceDeleteBaseAreaMCPTool(mcpServer *mcp.Server, baseAreaServiceServer BaseAreaServiceServer) {
-	mcp.AddTool[*DeleteBaseAreaRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_area_service_delete_base_area",
-			Description: "删除行政区域",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *DeleteBaseAreaRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &DeleteBaseAreaRequest{}
-			}
-			reply, err := baseAreaServiceServer.DeleteBaseArea(ctx, input)
+func RegisterBaseAreaServiceDeleteBaseAreaMCPTool(mcpServer *server.MCPServer, baseAreaServiceServer BaseAreaServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_area_service_delete_base_area",
+			mcp.WithDescription("删除行政区域"),
+			mcp.WithInputSchema[*DeleteBaseAreaRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &DeleteBaseAreaRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = baseAreaServiceServer.DeleteBaseArea(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }

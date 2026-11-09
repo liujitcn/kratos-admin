@@ -9,12 +9,13 @@ package adminv1
 import (
 	context "context"
 
-	mcp "github.com/modelcontextprotocol/go-sdk/mcp"
+	mcp "github.com/mark3labs/mcp-go/mcp"
+	server "github.com/mark3labs/mcp-go/server"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // RegisterAiKnowledgeDocServiceMCPTools 注册AI知识库文档管理服务的 MCP Tool。
-func RegisterAiKnowledgeDocServiceMCPTools(mcpServer *mcp.Server, aiKnowledgeDocServiceServer AiKnowledgeDocServiceServer) {
+func RegisterAiKnowledgeDocServiceMCPTools(mcpServer *server.MCPServer, aiKnowledgeDocServiceServer AiKnowledgeDocServiceServer) {
 	RegisterAiKnowledgeDocServicePageAiKnowledgeDocMCPTool(mcpServer, aiKnowledgeDocServiceServer)
 	RegisterAiKnowledgeDocServiceUploadAiKnowledgeDocTextMCPTool(mcpServer, aiKnowledgeDocServiceServer)
 	RegisterAiKnowledgeDocServiceUploadAiKnowledgeDocFileMCPTool(mcpServer, aiKnowledgeDocServiceServer)
@@ -23,106 +24,121 @@ func RegisterAiKnowledgeDocServiceMCPTools(mcpServer *mcp.Server, aiKnowledgeDoc
 }
 
 // RegisterAiKnowledgeDocServicePageAiKnowledgeDocMCPTool 注册分页查询知识库下的文档的 MCP Tool。
-func RegisterAiKnowledgeDocServicePageAiKnowledgeDocMCPTool(mcpServer *mcp.Server, aiKnowledgeDocServiceServer AiKnowledgeDocServiceServer) {
-	mcp.AddTool[*PageAiKnowledgeDocRequest, *PageAiKnowledgeDocResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "rag_admin_v1_ai_knowledge_doc_service_page_ai_knowledge_doc",
-			Description: "分页查询知识库下的文档。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *PageAiKnowledgeDocRequest) (*mcp.CallToolResult, *PageAiKnowledgeDocResponse, error) {
-			if input == nil {
-				input = &PageAiKnowledgeDocRequest{}
-			}
-			reply, err := aiKnowledgeDocServiceServer.PageAiKnowledgeDoc(ctx, input)
+func RegisterAiKnowledgeDocServicePageAiKnowledgeDocMCPTool(mcpServer *server.MCPServer, aiKnowledgeDocServiceServer AiKnowledgeDocServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("rag_admin_v1_ai_knowledge_doc_service_page_ai_knowledge_doc",
+			mcp.WithDescription("分页查询知识库下的文档。"),
+			mcp.WithInputSchema[*PageAiKnowledgeDocRequest](),
+			mcp.WithOutputSchema[*PageAiKnowledgeDocResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &PageAiKnowledgeDocRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *PageAiKnowledgeDocResponse
+			reply, err = aiKnowledgeDocServiceServer.PageAiKnowledgeDoc(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterAiKnowledgeDocServiceUploadAiKnowledgeDocTextMCPTool 注册上传纯文本文档（切片 → 向量化 → 落库）的 MCP Tool。
-func RegisterAiKnowledgeDocServiceUploadAiKnowledgeDocTextMCPTool(mcpServer *mcp.Server, aiKnowledgeDocServiceServer AiKnowledgeDocServiceServer) {
-	mcp.AddTool[*UploadAiKnowledgeDocTextRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "rag_admin_v1_ai_knowledge_doc_service_upload_ai_knowledge_doc_text",
-			Description: "上传纯文本文档（切片 → 向量化 → 落库）。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *UploadAiKnowledgeDocTextRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &UploadAiKnowledgeDocTextRequest{}
-			}
-			reply, err := aiKnowledgeDocServiceServer.UploadAiKnowledgeDocText(ctx, input)
+func RegisterAiKnowledgeDocServiceUploadAiKnowledgeDocTextMCPTool(mcpServer *server.MCPServer, aiKnowledgeDocServiceServer AiKnowledgeDocServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("rag_admin_v1_ai_knowledge_doc_service_upload_ai_knowledge_doc_text",
+			mcp.WithDescription("上传纯文本文档（切片 → 向量化 → 落库）。"),
+			mcp.WithInputSchema[*UploadAiKnowledgeDocTextRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &UploadAiKnowledgeDocTextRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = aiKnowledgeDocServiceServer.UploadAiKnowledgeDocText(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterAiKnowledgeDocServiceUploadAiKnowledgeDocFileMCPTool 注册上传文档文件（txt/md/docx/pdf：抽取文本后走同一入库链）的 MCP Tool。
-func RegisterAiKnowledgeDocServiceUploadAiKnowledgeDocFileMCPTool(mcpServer *mcp.Server, aiKnowledgeDocServiceServer AiKnowledgeDocServiceServer) {
-	mcp.AddTool[*UploadAiKnowledgeDocFileRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "rag_admin_v1_ai_knowledge_doc_service_upload_ai_knowledge_doc_file",
-			Description: "上传文档文件（txt/md/docx/pdf：抽取文本后走同一入库链）。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *UploadAiKnowledgeDocFileRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &UploadAiKnowledgeDocFileRequest{}
-			}
-			reply, err := aiKnowledgeDocServiceServer.UploadAiKnowledgeDocFile(ctx, input)
+func RegisterAiKnowledgeDocServiceUploadAiKnowledgeDocFileMCPTool(mcpServer *server.MCPServer, aiKnowledgeDocServiceServer AiKnowledgeDocServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("rag_admin_v1_ai_knowledge_doc_service_upload_ai_knowledge_doc_file",
+			mcp.WithDescription("上传文档文件（txt/md/docx/pdf：抽取文本后走同一入库链）。"),
+			mcp.WithInputSchema[*UploadAiKnowledgeDocFileRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &UploadAiKnowledgeDocFileRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = aiKnowledgeDocServiceServer.UploadAiKnowledgeDocFile(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterAiKnowledgeDocServiceDeleteAiKnowledgeDocMCPTool 注册删除文档（级联删除切片）的 MCP Tool。
-func RegisterAiKnowledgeDocServiceDeleteAiKnowledgeDocMCPTool(mcpServer *mcp.Server, aiKnowledgeDocServiceServer AiKnowledgeDocServiceServer) {
-	mcp.AddTool[*DeleteAiKnowledgeDocRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "rag_admin_v1_ai_knowledge_doc_service_delete_ai_knowledge_doc",
-			Description: "删除文档（级联删除切片）。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *DeleteAiKnowledgeDocRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &DeleteAiKnowledgeDocRequest{}
-			}
-			reply, err := aiKnowledgeDocServiceServer.DeleteAiKnowledgeDoc(ctx, input)
+func RegisterAiKnowledgeDocServiceDeleteAiKnowledgeDocMCPTool(mcpServer *server.MCPServer, aiKnowledgeDocServiceServer AiKnowledgeDocServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("rag_admin_v1_ai_knowledge_doc_service_delete_ai_knowledge_doc",
+			mcp.WithDescription("删除文档（级联删除切片）。"),
+			mcp.WithInputSchema[*DeleteAiKnowledgeDocRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &DeleteAiKnowledgeDocRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = aiKnowledgeDocServiceServer.DeleteAiKnowledgeDoc(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterAiKnowledgeDocServiceReprocessAiKnowledgeDocMCPTool 注册重新处理失败的文档（按保存的原文重切片、重向量化）的 MCP Tool。
-func RegisterAiKnowledgeDocServiceReprocessAiKnowledgeDocMCPTool(mcpServer *mcp.Server, aiKnowledgeDocServiceServer AiKnowledgeDocServiceServer) {
-	mcp.AddTool[*ReprocessAiKnowledgeDocRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "rag_admin_v1_ai_knowledge_doc_service_reprocess_ai_knowledge_doc",
-			Description: "重新处理失败的文档（按保存的原文重切片、重向量化）。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *ReprocessAiKnowledgeDocRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &ReprocessAiKnowledgeDocRequest{}
-			}
-			reply, err := aiKnowledgeDocServiceServer.ReprocessAiKnowledgeDoc(ctx, input)
+func RegisterAiKnowledgeDocServiceReprocessAiKnowledgeDocMCPTool(mcpServer *server.MCPServer, aiKnowledgeDocServiceServer AiKnowledgeDocServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("rag_admin_v1_ai_knowledge_doc_service_reprocess_ai_knowledge_doc",
+			mcp.WithDescription("重新处理失败的文档（按保存的原文重切片、重向量化）。"),
+			mcp.WithInputSchema[*ReprocessAiKnowledgeDocRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &ReprocessAiKnowledgeDocRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = aiKnowledgeDocServiceServer.ReprocessAiKnowledgeDoc(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }

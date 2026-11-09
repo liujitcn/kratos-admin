@@ -9,75 +9,85 @@ package adminv1
 import (
 	context "context"
 
-	mcp "github.com/modelcontextprotocol/go-sdk/mcp"
+	mcp "github.com/mark3labs/mcp-go/mcp"
+	server "github.com/mark3labs/mcp-go/server"
 )
 
 // RegisterBaseLoginLogServiceMCPTools 注册Admin登录日志服务的 MCP Tool。
-func RegisterBaseLoginLogServiceMCPTools(mcpServer *mcp.Server, baseLoginLogServiceServer BaseLoginLogServiceServer) {
+func RegisterBaseLoginLogServiceMCPTools(mcpServer *server.MCPServer, baseLoginLogServiceServer BaseLoginLogServiceServer) {
 	RegisterBaseLoginLogServicePageCurrentUserLoginLogMCPTool(mcpServer, baseLoginLogServiceServer)
 	RegisterBaseLoginLogServicePageBaseLoginLogMCPTool(mcpServer, baseLoginLogServiceServer)
 	RegisterBaseLoginLogServiceGetBaseLoginLogMCPTool(mcpServer, baseLoginLogServiceServer)
 }
 
 // RegisterBaseLoginLogServicePageCurrentUserLoginLogMCPTool 注册分页查询当前登录用户本人的登录记录的 MCP Tool。
-func RegisterBaseLoginLogServicePageCurrentUserLoginLogMCPTool(mcpServer *mcp.Server, baseLoginLogServiceServer BaseLoginLogServiceServer) {
-	mcp.AddTool[*PageCurrentUserLoginLogRequest, *PageBaseLoginLogResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_login_log_service_page_current_user_login_log",
-			Description: "分页查询当前登录用户本人的登录记录。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *PageCurrentUserLoginLogRequest) (*mcp.CallToolResult, *PageBaseLoginLogResponse, error) {
-			if input == nil {
-				input = &PageCurrentUserLoginLogRequest{}
-			}
-			reply, err := baseLoginLogServiceServer.PageCurrentUserLoginLog(ctx, input)
+func RegisterBaseLoginLogServicePageCurrentUserLoginLogMCPTool(mcpServer *server.MCPServer, baseLoginLogServiceServer BaseLoginLogServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_login_log_service_page_current_user_login_log",
+			mcp.WithDescription("分页查询当前登录用户本人的登录记录。"),
+			mcp.WithInputSchema[*PageCurrentUserLoginLogRequest](),
+			mcp.WithOutputSchema[*PageBaseLoginLogResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &PageCurrentUserLoginLogRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *PageBaseLoginLogResponse
+			reply, err = baseLoginLogServiceServer.PageCurrentUserLoginLog(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseLoginLogServicePageBaseLoginLogMCPTool 注册分页查询登录日志的 MCP Tool。
-func RegisterBaseLoginLogServicePageBaseLoginLogMCPTool(mcpServer *mcp.Server, baseLoginLogServiceServer BaseLoginLogServiceServer) {
-	mcp.AddTool[*PageBaseLoginLogRequest, *PageBaseLoginLogResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_login_log_service_page_base_login_log",
-			Description: "分页查询登录日志。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *PageBaseLoginLogRequest) (*mcp.CallToolResult, *PageBaseLoginLogResponse, error) {
-			if input == nil {
-				input = &PageBaseLoginLogRequest{}
-			}
-			reply, err := baseLoginLogServiceServer.PageBaseLoginLog(ctx, input)
+func RegisterBaseLoginLogServicePageBaseLoginLogMCPTool(mcpServer *server.MCPServer, baseLoginLogServiceServer BaseLoginLogServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_login_log_service_page_base_login_log",
+			mcp.WithDescription("分页查询登录日志。"),
+			mcp.WithInputSchema[*PageBaseLoginLogRequest](),
+			mcp.WithOutputSchema[*PageBaseLoginLogResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &PageBaseLoginLogRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *PageBaseLoginLogResponse
+			reply, err = baseLoginLogServiceServer.PageBaseLoginLog(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseLoginLogServiceGetBaseLoginLogMCPTool 注册查询登录日志详情的 MCP Tool。
-func RegisterBaseLoginLogServiceGetBaseLoginLogMCPTool(mcpServer *mcp.Server, baseLoginLogServiceServer BaseLoginLogServiceServer) {
-	mcp.AddTool[*GetBaseLoginLogRequest, *BaseLoginLog](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_login_log_service_get_base_login_log",
-			Description: "查询登录日志详情。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *GetBaseLoginLogRequest) (*mcp.CallToolResult, *BaseLoginLog, error) {
-			if input == nil {
-				input = &GetBaseLoginLogRequest{}
-			}
-			reply, err := baseLoginLogServiceServer.GetBaseLoginLog(ctx, input)
+func RegisterBaseLoginLogServiceGetBaseLoginLogMCPTool(mcpServer *server.MCPServer, baseLoginLogServiceServer BaseLoginLogServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_login_log_service_get_base_login_log",
+			mcp.WithDescription("查询登录日志详情。"),
+			mcp.WithInputSchema[*GetBaseLoginLogRequest](),
+			mcp.WithOutputSchema[*BaseLoginLog](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &GetBaseLoginLogRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *BaseLoginLog
+			reply, err = baseLoginLogServiceServer.GetBaseLoginLog(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }

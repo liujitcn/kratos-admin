@@ -9,12 +9,13 @@ package adminv1
 import (
 	context "context"
 
-	mcp "github.com/modelcontextprotocol/go-sdk/mcp"
+	mcp "github.com/mark3labs/mcp-go/mcp"
+	server "github.com/mark3labs/mcp-go/server"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // RegisterBaseLanguageServiceMCPTools 注册Admin语言管理服务的 MCP Tool。
-func RegisterBaseLanguageServiceMCPTools(mcpServer *mcp.Server, baseLanguageServiceServer BaseLanguageServiceServer) {
+func RegisterBaseLanguageServiceMCPTools(mcpServer *server.MCPServer, baseLanguageServiceServer BaseLanguageServiceServer) {
 	RegisterBaseLanguageServiceOptionBaseLanguageMCPTool(mcpServer, baseLanguageServiceServer)
 	RegisterBaseLanguageServicePageBaseLanguageMCPTool(mcpServer, baseLanguageServiceServer)
 	RegisterBaseLanguageServiceGetBaseLanguageMCPTool(mcpServer, baseLanguageServiceServer)
@@ -26,169 +27,193 @@ func RegisterBaseLanguageServiceMCPTools(mcpServer *mcp.Server, baseLanguageServ
 }
 
 // RegisterBaseLanguageServiceOptionBaseLanguageMCPTool 注册查询启用语言选项的 MCP Tool。
-func RegisterBaseLanguageServiceOptionBaseLanguageMCPTool(mcpServer *mcp.Server, baseLanguageServiceServer BaseLanguageServiceServer) {
-	mcp.AddTool[*OptionBaseLanguageRequest, *OptionBaseLanguageResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_language_service_option_base_language",
-			Description: "查询启用语言选项",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *OptionBaseLanguageRequest) (*mcp.CallToolResult, *OptionBaseLanguageResponse, error) {
-			if input == nil {
-				input = &OptionBaseLanguageRequest{}
-			}
-			reply, err := baseLanguageServiceServer.OptionBaseLanguage(ctx, input)
+func RegisterBaseLanguageServiceOptionBaseLanguageMCPTool(mcpServer *server.MCPServer, baseLanguageServiceServer BaseLanguageServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_language_service_option_base_language",
+			mcp.WithDescription("查询启用语言选项"),
+			mcp.WithInputSchema[*OptionBaseLanguageRequest](),
+			mcp.WithOutputSchema[*OptionBaseLanguageResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &OptionBaseLanguageRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *OptionBaseLanguageResponse
+			reply, err = baseLanguageServiceServer.OptionBaseLanguage(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseLanguageServicePageBaseLanguageMCPTool 注册查询语言分页列表的 MCP Tool。
-func RegisterBaseLanguageServicePageBaseLanguageMCPTool(mcpServer *mcp.Server, baseLanguageServiceServer BaseLanguageServiceServer) {
-	mcp.AddTool[*PageBaseLanguageRequest, *PageBaseLanguageResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_language_service_page_base_language",
-			Description: "查询语言分页列表",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *PageBaseLanguageRequest) (*mcp.CallToolResult, *PageBaseLanguageResponse, error) {
-			if input == nil {
-				input = &PageBaseLanguageRequest{}
-			}
-			reply, err := baseLanguageServiceServer.PageBaseLanguage(ctx, input)
+func RegisterBaseLanguageServicePageBaseLanguageMCPTool(mcpServer *server.MCPServer, baseLanguageServiceServer BaseLanguageServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_language_service_page_base_language",
+			mcp.WithDescription("查询语言分页列表"),
+			mcp.WithInputSchema[*PageBaseLanguageRequest](),
+			mcp.WithOutputSchema[*PageBaseLanguageResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &PageBaseLanguageRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *PageBaseLanguageResponse
+			reply, err = baseLanguageServiceServer.PageBaseLanguage(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseLanguageServiceGetBaseLanguageMCPTool 注册查询语言详情的 MCP Tool。
-func RegisterBaseLanguageServiceGetBaseLanguageMCPTool(mcpServer *mcp.Server, baseLanguageServiceServer BaseLanguageServiceServer) {
-	mcp.AddTool[*GetBaseLanguageRequest, *BaseLanguageForm](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_language_service_get_base_language",
-			Description: "查询语言详情",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *GetBaseLanguageRequest) (*mcp.CallToolResult, *BaseLanguageForm, error) {
-			if input == nil {
-				input = &GetBaseLanguageRequest{}
-			}
-			reply, err := baseLanguageServiceServer.GetBaseLanguage(ctx, input)
+func RegisterBaseLanguageServiceGetBaseLanguageMCPTool(mcpServer *server.MCPServer, baseLanguageServiceServer BaseLanguageServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_language_service_get_base_language",
+			mcp.WithDescription("查询语言详情"),
+			mcp.WithInputSchema[*GetBaseLanguageRequest](),
+			mcp.WithOutputSchema[*BaseLanguageForm](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &GetBaseLanguageRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *BaseLanguageForm
+			reply, err = baseLanguageServiceServer.GetBaseLanguage(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseLanguageServiceCreateBaseLanguageMCPTool 注册创建语言的 MCP Tool。
-func RegisterBaseLanguageServiceCreateBaseLanguageMCPTool(mcpServer *mcp.Server, baseLanguageServiceServer BaseLanguageServiceServer) {
-	mcp.AddTool[*CreateBaseLanguageRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_language_service_create_base_language",
-			Description: "创建语言",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *CreateBaseLanguageRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &CreateBaseLanguageRequest{}
-			}
-			reply, err := baseLanguageServiceServer.CreateBaseLanguage(ctx, input)
+func RegisterBaseLanguageServiceCreateBaseLanguageMCPTool(mcpServer *server.MCPServer, baseLanguageServiceServer BaseLanguageServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_language_service_create_base_language",
+			mcp.WithDescription("创建语言"),
+			mcp.WithInputSchema[*CreateBaseLanguageRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &CreateBaseLanguageRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = baseLanguageServiceServer.CreateBaseLanguage(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseLanguageServiceUpdateBaseLanguageMCPTool 注册更新语言的 MCP Tool。
-func RegisterBaseLanguageServiceUpdateBaseLanguageMCPTool(mcpServer *mcp.Server, baseLanguageServiceServer BaseLanguageServiceServer) {
-	mcp.AddTool[*UpdateBaseLanguageRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_language_service_update_base_language",
-			Description: "更新语言",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *UpdateBaseLanguageRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &UpdateBaseLanguageRequest{}
-			}
-			reply, err := baseLanguageServiceServer.UpdateBaseLanguage(ctx, input)
+func RegisterBaseLanguageServiceUpdateBaseLanguageMCPTool(mcpServer *server.MCPServer, baseLanguageServiceServer BaseLanguageServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_language_service_update_base_language",
+			mcp.WithDescription("更新语言"),
+			mcp.WithInputSchema[*UpdateBaseLanguageRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &UpdateBaseLanguageRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = baseLanguageServiceServer.UpdateBaseLanguage(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseLanguageServiceDeleteBaseLanguageMCPTool 注册删除语言的 MCP Tool。
-func RegisterBaseLanguageServiceDeleteBaseLanguageMCPTool(mcpServer *mcp.Server, baseLanguageServiceServer BaseLanguageServiceServer) {
-	mcp.AddTool[*DeleteBaseLanguageRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_language_service_delete_base_language",
-			Description: "删除语言",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *DeleteBaseLanguageRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &DeleteBaseLanguageRequest{}
-			}
-			reply, err := baseLanguageServiceServer.DeleteBaseLanguage(ctx, input)
+func RegisterBaseLanguageServiceDeleteBaseLanguageMCPTool(mcpServer *server.MCPServer, baseLanguageServiceServer BaseLanguageServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_language_service_delete_base_language",
+			mcp.WithDescription("删除语言"),
+			mcp.WithInputSchema[*DeleteBaseLanguageRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &DeleteBaseLanguageRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = baseLanguageServiceServer.DeleteBaseLanguage(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseLanguageServiceSetBaseLanguageStatusMCPTool 注册设置语言状态的 MCP Tool。
-func RegisterBaseLanguageServiceSetBaseLanguageStatusMCPTool(mcpServer *mcp.Server, baseLanguageServiceServer BaseLanguageServiceServer) {
-	mcp.AddTool[*SetBaseLanguageStatusRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_language_service_set_base_language_status",
-			Description: "设置语言状态",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *SetBaseLanguageStatusRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &SetBaseLanguageStatusRequest{}
-			}
-			reply, err := baseLanguageServiceServer.SetBaseLanguageStatus(ctx, input)
+func RegisterBaseLanguageServiceSetBaseLanguageStatusMCPTool(mcpServer *server.MCPServer, baseLanguageServiceServer BaseLanguageServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_language_service_set_base_language_status",
+			mcp.WithDescription("设置语言状态"),
+			mcp.WithInputSchema[*SetBaseLanguageStatusRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &SetBaseLanguageStatusRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = baseLanguageServiceServer.SetBaseLanguageStatus(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseLanguageServiceSetBaseLanguagePrimaryMCPTool 注册设置主语言的 MCP Tool。
-func RegisterBaseLanguageServiceSetBaseLanguagePrimaryMCPTool(mcpServer *mcp.Server, baseLanguageServiceServer BaseLanguageServiceServer) {
-	mcp.AddTool[*SetBaseLanguagePrimaryRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_language_service_set_base_language_primary",
-			Description: "设置主语言",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *SetBaseLanguagePrimaryRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &SetBaseLanguagePrimaryRequest{}
-			}
-			reply, err := baseLanguageServiceServer.SetBaseLanguagePrimary(ctx, input)
+func RegisterBaseLanguageServiceSetBaseLanguagePrimaryMCPTool(mcpServer *server.MCPServer, baseLanguageServiceServer BaseLanguageServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_language_service_set_base_language_primary",
+			mcp.WithDescription("设置主语言"),
+			mcp.WithInputSchema[*SetBaseLanguagePrimaryRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &SetBaseLanguagePrimaryRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = baseLanguageServiceServer.SetBaseLanguagePrimary(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }

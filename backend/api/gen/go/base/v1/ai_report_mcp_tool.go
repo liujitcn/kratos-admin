@@ -9,31 +9,35 @@ package basev1
 import (
 	context "context"
 
-	mcp "github.com/modelcontextprotocol/go-sdk/mcp"
+	mcp "github.com/mark3labs/mcp-go/mcp"
+	server "github.com/mark3labs/mcp-go/server"
 )
 
 // RegisterAiReportServiceMCPTools 注册AI 助手报告服务的 MCP Tool。
-func RegisterAiReportServiceMCPTools(mcpServer *mcp.Server, aiReportServiceServer AiReportServiceServer) {
+func RegisterAiReportServiceMCPTools(mcpServer *server.MCPServer, aiReportServiceServer AiReportServiceServer) {
 	RegisterAiReportServiceGenerateAiReportMCPTool(mcpServer, aiReportServiceServer)
 }
 
 // RegisterAiReportServiceGenerateAiReportMCPTool 注册将当前对话的数据和分析整理成 Markdown，生成可下载的 HTML 和 PDF 报告；仅在用户要求生成报告时调用，返回后使用真实文件地址提供下载链接，不得编造数据或下载地址的 MCP Tool。
-func RegisterAiReportServiceGenerateAiReportMCPTool(mcpServer *mcp.Server, aiReportServiceServer AiReportServiceServer) {
-	mcp.AddTool[*GenerateAiReportRequest, *GenerateAiReportResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "base_v1_ai_report_service_generate_ai_report",
-			Description: "将当前对话的数据和分析整理成 Markdown，生成可下载的 HTML 和 PDF 报告；仅在用户要求生成报告时调用，返回后使用真实文件地址提供下载链接，不得编造数据或下载地址。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *GenerateAiReportRequest) (*mcp.CallToolResult, *GenerateAiReportResponse, error) {
-			if input == nil {
-				input = &GenerateAiReportRequest{}
-			}
-			reply, err := aiReportServiceServer.GenerateAiReport(ctx, input)
+func RegisterAiReportServiceGenerateAiReportMCPTool(mcpServer *server.MCPServer, aiReportServiceServer AiReportServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("base_v1_ai_report_service_generate_ai_report",
+			mcp.WithDescription("将当前对话的数据和分析整理成 Markdown，生成可下载的 HTML 和 PDF 报告；仅在用户要求生成报告时调用，返回后使用真实文件地址提供下载链接，不得编造数据或下载地址。"),
+			mcp.WithInputSchema[*GenerateAiReportRequest](),
+			mcp.WithOutputSchema[*GenerateAiReportResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &GenerateAiReportRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *GenerateAiReportResponse
+			reply, err = aiReportServiceServer.GenerateAiReport(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }

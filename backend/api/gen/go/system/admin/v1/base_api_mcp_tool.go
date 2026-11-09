@@ -9,12 +9,13 @@ package adminv1
 import (
 	context "context"
 
-	mcp "github.com/modelcontextprotocol/go-sdk/mcp"
+	mcp "github.com/mark3labs/mcp-go/mcp"
+	server "github.com/mark3labs/mcp-go/server"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // RegisterBaseApiServiceMCPTools 注册AdminAPI服务的 MCP Tool。
-func RegisterBaseApiServiceMCPTools(mcpServer *mcp.Server, baseApiServiceServer BaseApiServiceServer) {
+func RegisterBaseApiServiceMCPTools(mcpServer *server.MCPServer, baseApiServiceServer BaseApiServiceServer) {
 	RegisterBaseApiServiceOptionBaseApiMCPTool(mcpServer, baseApiServiceServer)
 	RegisterBaseApiServicePageBaseApiMCPTool(mcpServer, baseApiServiceServer)
 	RegisterBaseApiServiceGetBaseApiMCPTool(mcpServer, baseApiServiceServer)
@@ -26,169 +27,192 @@ func RegisterBaseApiServiceMCPTools(mcpServer *mcp.Server, baseApiServiceServer 
 }
 
 // RegisterBaseApiServiceOptionBaseApiMCPTool 注册查询菜单分配API选项列表的 MCP Tool。
-func RegisterBaseApiServiceOptionBaseApiMCPTool(mcpServer *mcp.Server, baseApiServiceServer BaseApiServiceServer) {
-	mcp.AddTool[*OptionBaseApiRequest, *OptionBaseApiResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_api_service_option_base_api",
-			Description: "查询菜单分配API选项列表",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *OptionBaseApiRequest) (*mcp.CallToolResult, *OptionBaseApiResponse, error) {
-			if input == nil {
-				input = &OptionBaseApiRequest{}
-			}
-			reply, err := baseApiServiceServer.OptionBaseApi(ctx, input)
+func RegisterBaseApiServiceOptionBaseApiMCPTool(mcpServer *server.MCPServer, baseApiServiceServer BaseApiServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_api_service_option_base_api",
+			mcp.WithDescription("查询菜单分配API选项列表"),
+			mcp.WithInputSchema[*OptionBaseApiRequest](),
+			mcp.WithOutputSchema[*OptionBaseApiResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &OptionBaseApiRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *OptionBaseApiResponse
+			reply, err = baseApiServiceServer.OptionBaseApi(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseApiServicePageBaseApiMCPTool 注册分页查询API列表的 MCP Tool。
-func RegisterBaseApiServicePageBaseApiMCPTool(mcpServer *mcp.Server, baseApiServiceServer BaseApiServiceServer) {
-	mcp.AddTool[*PageBaseApiRequest, *PageBaseApiResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_api_service_page_base_api",
-			Description: "分页查询API列表",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *PageBaseApiRequest) (*mcp.CallToolResult, *PageBaseApiResponse, error) {
-			if input == nil {
-				input = &PageBaseApiRequest{}
-			}
-			reply, err := baseApiServiceServer.PageBaseApi(ctx, input)
+func RegisterBaseApiServicePageBaseApiMCPTool(mcpServer *server.MCPServer, baseApiServiceServer BaseApiServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_api_service_page_base_api",
+			mcp.WithDescription("分页查询API列表"),
+			mcp.WithInputSchema[*PageBaseApiRequest](),
+			mcp.WithOutputSchema[*PageBaseApiResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &PageBaseApiRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *PageBaseApiResponse
+			reply, err = baseApiServiceServer.PageBaseApi(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseApiServiceGetBaseApiMCPTool 注册查询API详情的 MCP Tool。
-func RegisterBaseApiServiceGetBaseApiMCPTool(mcpServer *mcp.Server, baseApiServiceServer BaseApiServiceServer) {
-	mcp.AddTool[*GetBaseApiRequest, *BaseApi](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_api_service_get_base_api",
-			Description: "查询API详情",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *GetBaseApiRequest) (*mcp.CallToolResult, *BaseApi, error) {
-			if input == nil {
-				input = &GetBaseApiRequest{}
-			}
-			reply, err := baseApiServiceServer.GetBaseApi(ctx, input)
+func RegisterBaseApiServiceGetBaseApiMCPTool(mcpServer *server.MCPServer, baseApiServiceServer BaseApiServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_api_service_get_base_api",
+			mcp.WithDescription("查询API详情"),
+			mcp.WithInputSchema[*GetBaseApiRequest](),
+			mcp.WithOutputSchema[*BaseApi](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &GetBaseApiRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *BaseApi
+			reply, err = baseApiServiceServer.GetBaseApi(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseApiServiceGetBaseApiDocMCPTool 注册查询API文档的 MCP Tool。
-func RegisterBaseApiServiceGetBaseApiDocMCPTool(mcpServer *mcp.Server, baseApiServiceServer BaseApiServiceServer) {
-	mcp.AddTool[*GetBaseApiDocRequest, any](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_api_service_get_base_api_doc",
-			Description: "查询API文档",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *GetBaseApiDocRequest) (*mcp.CallToolResult, any, error) {
-			if input == nil {
-				input = &GetBaseApiDocRequest{}
-			}
-			reply, err := baseApiServiceServer.GetBaseApiDoc(ctx, input)
+func RegisterBaseApiServiceGetBaseApiDocMCPTool(mcpServer *server.MCPServer, baseApiServiceServer BaseApiServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_api_service_get_base_api_doc",
+			mcp.WithDescription("查询API文档"),
+			mcp.WithInputSchema[*GetBaseApiDocRequest](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &GetBaseApiDocRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *BaseApiDoc
+			reply, err = baseApiServiceServer.GetBaseApiDoc(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseApiServiceUpdateBaseApiMCPTool 注册更新API配置的 MCP Tool。
-func RegisterBaseApiServiceUpdateBaseApiMCPTool(mcpServer *mcp.Server, baseApiServiceServer BaseApiServiceServer) {
-	mcp.AddTool[*UpdateBaseApiRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_api_service_update_base_api",
-			Description: "更新API配置",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *UpdateBaseApiRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &UpdateBaseApiRequest{}
-			}
-			reply, err := baseApiServiceServer.UpdateBaseApi(ctx, input)
+func RegisterBaseApiServiceUpdateBaseApiMCPTool(mcpServer *server.MCPServer, baseApiServiceServer BaseApiServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_api_service_update_base_api",
+			mcp.WithDescription("更新API配置"),
+			mcp.WithInputSchema[*UpdateBaseApiRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &UpdateBaseApiRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = baseApiServiceServer.UpdateBaseApi(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseApiServiceSetBaseApiAgentStatusMCPTool 注册设置API Agent工具状态的 MCP Tool。
-func RegisterBaseApiServiceSetBaseApiAgentStatusMCPTool(mcpServer *mcp.Server, baseApiServiceServer BaseApiServiceServer) {
-	mcp.AddTool[*SetBaseApiAgentStatusRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_api_service_set_base_api_agent_status",
-			Description: "设置API Agent工具状态",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *SetBaseApiAgentStatusRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &SetBaseApiAgentStatusRequest{}
-			}
-			reply, err := baseApiServiceServer.SetBaseApiAgentStatus(ctx, input)
+func RegisterBaseApiServiceSetBaseApiAgentStatusMCPTool(mcpServer *server.MCPServer, baseApiServiceServer BaseApiServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_api_service_set_base_api_agent_status",
+			mcp.WithDescription("设置API Agent工具状态"),
+			mcp.WithInputSchema[*SetBaseApiAgentStatusRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &SetBaseApiAgentStatusRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = baseApiServiceServer.SetBaseApiAgentStatus(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseApiServiceSetBaseApiMcpStatusMCPTool 注册设置API MCP工具状态的 MCP Tool。
-func RegisterBaseApiServiceSetBaseApiMcpStatusMCPTool(mcpServer *mcp.Server, baseApiServiceServer BaseApiServiceServer) {
-	mcp.AddTool[*SetBaseApiMcpStatusRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_api_service_set_base_api_mcp_status",
-			Description: "设置API MCP工具状态",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *SetBaseApiMcpStatusRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &SetBaseApiMcpStatusRequest{}
-			}
-			reply, err := baseApiServiceServer.SetBaseApiMcpStatus(ctx, input)
+func RegisterBaseApiServiceSetBaseApiMcpStatusMCPTool(mcpServer *server.MCPServer, baseApiServiceServer BaseApiServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_api_service_set_base_api_mcp_status",
+			mcp.WithDescription("设置API MCP工具状态"),
+			mcp.WithInputSchema[*SetBaseApiMcpStatusRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &SetBaseApiMcpStatusRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = baseApiServiceServer.SetBaseApiMcpStatus(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseApiServiceOptionOpenApiServiceMCPTool 注册查询OpenAPI业务服务选项列表的 MCP Tool。
-func RegisterBaseApiServiceOptionOpenApiServiceMCPTool(mcpServer *mcp.Server, baseApiServiceServer BaseApiServiceServer) {
-	mcp.AddTool[*OptionOpenApiServiceRequest, *OptionOpenApiServiceResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_api_service_option_open_api_service",
-			Description: "查询OpenAPI业务服务选项列表",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *OptionOpenApiServiceRequest) (*mcp.CallToolResult, *OptionOpenApiServiceResponse, error) {
-			if input == nil {
-				input = &OptionOpenApiServiceRequest{}
-			}
-			reply, err := baseApiServiceServer.OptionOpenApiService(ctx, input)
+func RegisterBaseApiServiceOptionOpenApiServiceMCPTool(mcpServer *server.MCPServer, baseApiServiceServer BaseApiServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_api_service_option_open_api_service",
+			mcp.WithDescription("查询OpenAPI业务服务选项列表"),
+			mcp.WithInputSchema[*OptionOpenApiServiceRequest](),
+			mcp.WithOutputSchema[*OptionOpenApiServiceResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &OptionOpenApiServiceRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *OptionOpenApiServiceResponse
+			reply, err = baseApiServiceServer.OptionOpenApiService(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }

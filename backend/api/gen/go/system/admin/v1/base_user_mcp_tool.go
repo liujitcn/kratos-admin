@@ -10,12 +10,13 @@ import (
 	context "context"
 
 	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
-	mcp "github.com/modelcontextprotocol/go-sdk/mcp"
+	mcp "github.com/mark3labs/mcp-go/mcp"
+	server "github.com/mark3labs/mcp-go/server"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // RegisterBaseUserServiceMCPTools 注册Admin用户管理服务的 MCP Tool。
-func RegisterBaseUserServiceMCPTools(mcpServer *mcp.Server, baseUserServiceServer BaseUserServiceServer) {
+func RegisterBaseUserServiceMCPTools(mcpServer *server.MCPServer, baseUserServiceServer BaseUserServiceServer) {
 	RegisterBaseUserServiceOptionBaseUserMCPTool(mcpServer, baseUserServiceServer)
 	RegisterBaseUserServiceListBaseUserMCPTool(mcpServer, baseUserServiceServer)
 	RegisterBaseUserServicePageBaseUserMCPTool(mcpServer, baseUserServiceServer)
@@ -30,232 +31,265 @@ func RegisterBaseUserServiceMCPTools(mcpServer *mcp.Server, baseUserServiceServe
 }
 
 // RegisterBaseUserServiceOptionBaseUserMCPTool 注册查询用户下拉选择的 MCP Tool。
-func RegisterBaseUserServiceOptionBaseUserMCPTool(mcpServer *mcp.Server, baseUserServiceServer BaseUserServiceServer) {
-	mcp.AddTool[*OptionBaseUserRequest, *commonv1.SelectOptionResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_user_service_option_base_user",
-			Description: "查询用户下拉选择",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *OptionBaseUserRequest) (*mcp.CallToolResult, *commonv1.SelectOptionResponse, error) {
-			if input == nil {
-				input = &OptionBaseUserRequest{}
-			}
-			reply, err := baseUserServiceServer.OptionBaseUser(ctx, input)
+func RegisterBaseUserServiceOptionBaseUserMCPTool(mcpServer *server.MCPServer, baseUserServiceServer BaseUserServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_user_service_option_base_user",
+			mcp.WithDescription("查询用户下拉选择"),
+			mcp.WithInputSchema[*OptionBaseUserRequest](),
+			mcp.WithOutputSchema[*commonv1.SelectOptionResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &OptionBaseUserRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *commonv1.SelectOptionResponse
+			reply, err = baseUserServiceServer.OptionBaseUser(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseUserServiceListBaseUserMCPTool 注册查询用户列表的 MCP Tool。
-func RegisterBaseUserServiceListBaseUserMCPTool(mcpServer *mcp.Server, baseUserServiceServer BaseUserServiceServer) {
-	mcp.AddTool[*ListBaseUserRequest, *ListBaseUserResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_user_service_list_base_user",
-			Description: "查询用户列表",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *ListBaseUserRequest) (*mcp.CallToolResult, *ListBaseUserResponse, error) {
-			if input == nil {
-				input = &ListBaseUserRequest{}
-			}
-			reply, err := baseUserServiceServer.ListBaseUser(ctx, input)
+func RegisterBaseUserServiceListBaseUserMCPTool(mcpServer *server.MCPServer, baseUserServiceServer BaseUserServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_user_service_list_base_user",
+			mcp.WithDescription("查询用户列表"),
+			mcp.WithInputSchema[*ListBaseUserRequest](),
+			mcp.WithOutputSchema[*ListBaseUserResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &ListBaseUserRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *ListBaseUserResponse
+			reply, err = baseUserServiceServer.ListBaseUser(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseUserServicePageBaseUserMCPTool 注册查询用户分页列表的 MCP Tool。
-func RegisterBaseUserServicePageBaseUserMCPTool(mcpServer *mcp.Server, baseUserServiceServer BaseUserServiceServer) {
-	mcp.AddTool[*PageBaseUserRequest, *PageBaseUserResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_user_service_page_base_user",
-			Description: "查询用户分页列表",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *PageBaseUserRequest) (*mcp.CallToolResult, *PageBaseUserResponse, error) {
-			if input == nil {
-				input = &PageBaseUserRequest{}
-			}
-			reply, err := baseUserServiceServer.PageBaseUser(ctx, input)
+func RegisterBaseUserServicePageBaseUserMCPTool(mcpServer *server.MCPServer, baseUserServiceServer BaseUserServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_user_service_page_base_user",
+			mcp.WithDescription("查询用户分页列表"),
+			mcp.WithInputSchema[*PageBaseUserRequest](),
+			mcp.WithOutputSchema[*PageBaseUserResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &PageBaseUserRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *PageBaseUserResponse
+			reply, err = baseUserServiceServer.PageBaseUser(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseUserServiceGetBaseUserMCPTool 注册查询用户的 MCP Tool。
-func RegisterBaseUserServiceGetBaseUserMCPTool(mcpServer *mcp.Server, baseUserServiceServer BaseUserServiceServer) {
-	mcp.AddTool[*GetBaseUserRequest, *BaseUserForm](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_user_service_get_base_user",
-			Description: "查询用户",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *GetBaseUserRequest) (*mcp.CallToolResult, *BaseUserForm, error) {
-			if input == nil {
-				input = &GetBaseUserRequest{}
-			}
-			reply, err := baseUserServiceServer.GetBaseUser(ctx, input)
+func RegisterBaseUserServiceGetBaseUserMCPTool(mcpServer *server.MCPServer, baseUserServiceServer BaseUserServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_user_service_get_base_user",
+			mcp.WithDescription("查询用户"),
+			mcp.WithInputSchema[*GetBaseUserRequest](),
+			mcp.WithOutputSchema[*BaseUserForm](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &GetBaseUserRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *BaseUserForm
+			reply, err = baseUserServiceServer.GetBaseUser(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseUserServiceCreateBaseUserMCPTool 注册创建用户的 MCP Tool。
-func RegisterBaseUserServiceCreateBaseUserMCPTool(mcpServer *mcp.Server, baseUserServiceServer BaseUserServiceServer) {
-	mcp.AddTool[*CreateBaseUserRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_user_service_create_base_user",
-			Description: "创建用户",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *CreateBaseUserRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &CreateBaseUserRequest{}
-			}
-			reply, err := baseUserServiceServer.CreateBaseUser(ctx, input)
+func RegisterBaseUserServiceCreateBaseUserMCPTool(mcpServer *server.MCPServer, baseUserServiceServer BaseUserServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_user_service_create_base_user",
+			mcp.WithDescription("创建用户"),
+			mcp.WithInputSchema[*CreateBaseUserRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &CreateBaseUserRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = baseUserServiceServer.CreateBaseUser(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseUserServiceUpdateBaseUserMCPTool 注册更新用户的 MCP Tool。
-func RegisterBaseUserServiceUpdateBaseUserMCPTool(mcpServer *mcp.Server, baseUserServiceServer BaseUserServiceServer) {
-	mcp.AddTool[*UpdateBaseUserRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_user_service_update_base_user",
-			Description: "更新用户",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *UpdateBaseUserRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &UpdateBaseUserRequest{}
-			}
-			reply, err := baseUserServiceServer.UpdateBaseUser(ctx, input)
+func RegisterBaseUserServiceUpdateBaseUserMCPTool(mcpServer *server.MCPServer, baseUserServiceServer BaseUserServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_user_service_update_base_user",
+			mcp.WithDescription("更新用户"),
+			mcp.WithInputSchema[*UpdateBaseUserRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &UpdateBaseUserRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = baseUserServiceServer.UpdateBaseUser(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseUserServiceDeleteBaseUserMCPTool 注册删除用户的 MCP Tool。
-func RegisterBaseUserServiceDeleteBaseUserMCPTool(mcpServer *mcp.Server, baseUserServiceServer BaseUserServiceServer) {
-	mcp.AddTool[*DeleteBaseUserRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_user_service_delete_base_user",
-			Description: "删除用户",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *DeleteBaseUserRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &DeleteBaseUserRequest{}
-			}
-			reply, err := baseUserServiceServer.DeleteBaseUser(ctx, input)
+func RegisterBaseUserServiceDeleteBaseUserMCPTool(mcpServer *server.MCPServer, baseUserServiceServer BaseUserServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_user_service_delete_base_user",
+			mcp.WithDescription("删除用户"),
+			mcp.WithInputSchema[*DeleteBaseUserRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &DeleteBaseUserRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = baseUserServiceServer.DeleteBaseUser(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseUserServiceSetBaseUserStatusMCPTool 注册设置状态的 MCP Tool。
-func RegisterBaseUserServiceSetBaseUserStatusMCPTool(mcpServer *mcp.Server, baseUserServiceServer BaseUserServiceServer) {
-	mcp.AddTool[*SetBaseUserStatusRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_user_service_set_base_user_status",
-			Description: "设置状态",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *SetBaseUserStatusRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &SetBaseUserStatusRequest{}
-			}
-			reply, err := baseUserServiceServer.SetBaseUserStatus(ctx, input)
+func RegisterBaseUserServiceSetBaseUserStatusMCPTool(mcpServer *server.MCPServer, baseUserServiceServer BaseUserServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_user_service_set_base_user_status",
+			mcp.WithDescription("设置状态"),
+			mcp.WithInputSchema[*SetBaseUserStatusRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &SetBaseUserStatusRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = baseUserServiceServer.SetBaseUserStatus(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseUserServiceResetBaseUserPasswordMCPTool 注册重置密码的 MCP Tool。
-func RegisterBaseUserServiceResetBaseUserPasswordMCPTool(mcpServer *mcp.Server, baseUserServiceServer BaseUserServiceServer) {
-	mcp.AddTool[*ResetBaseUserPasswordRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_user_service_reset_base_user_password",
-			Description: "重置密码",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *ResetBaseUserPasswordRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &ResetBaseUserPasswordRequest{}
-			}
-			reply, err := baseUserServiceServer.ResetBaseUserPassword(ctx, input)
+func RegisterBaseUserServiceResetBaseUserPasswordMCPTool(mcpServer *server.MCPServer, baseUserServiceServer BaseUserServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_user_service_reset_base_user_password",
+			mcp.WithDescription("重置密码"),
+			mcp.WithInputSchema[*ResetBaseUserPasswordRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &ResetBaseUserPasswordRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = baseUserServiceServer.ResetBaseUserPassword(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseUserServiceSetBaseUserAppRoleMCPTool 注册设置基础用户应用端角色的 MCP Tool。
-func RegisterBaseUserServiceSetBaseUserAppRoleMCPTool(mcpServer *mcp.Server, baseUserServiceServer BaseUserServiceServer) {
-	mcp.AddTool[*SetBaseUserAppRoleRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_user_service_set_base_user_app_role",
-			Description: "设置基础用户应用端角色",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *SetBaseUserAppRoleRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &SetBaseUserAppRoleRequest{}
-			}
-			reply, err := baseUserServiceServer.SetBaseUserAppRole(ctx, input)
+func RegisterBaseUserServiceSetBaseUserAppRoleMCPTool(mcpServer *server.MCPServer, baseUserServiceServer BaseUserServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_user_service_set_base_user_app_role",
+			mcp.WithDescription("设置基础用户应用端角色"),
+			mcp.WithInputSchema[*SetBaseUserAppRoleRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &SetBaseUserAppRoleRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = baseUserServiceServer.SetBaseUserAppRole(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseUserServiceSummaryBaseUserMCPTool 注册汇总用户注册数据的 MCP Tool。
-func RegisterBaseUserServiceSummaryBaseUserMCPTool(mcpServer *mcp.Server, baseUserServiceServer BaseUserServiceServer) {
-	mcp.AddTool[*SummaryBaseUserRequest, *SummaryBaseUserResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_user_service_summary_base_user",
-			Description: "汇总用户注册数据",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *SummaryBaseUserRequest) (*mcp.CallToolResult, *SummaryBaseUserResponse, error) {
-			if input == nil {
-				input = &SummaryBaseUserRequest{}
-			}
-			reply, err := baseUserServiceServer.SummaryBaseUser(ctx, input)
+func RegisterBaseUserServiceSummaryBaseUserMCPTool(mcpServer *server.MCPServer, baseUserServiceServer BaseUserServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_user_service_summary_base_user",
+			mcp.WithDescription("汇总用户注册数据"),
+			mcp.WithInputSchema[*SummaryBaseUserRequest](),
+			mcp.WithOutputSchema[*SummaryBaseUserResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &SummaryBaseUserRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *SummaryBaseUserResponse
+			reply, err = baseUserServiceServer.SummaryBaseUser(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }

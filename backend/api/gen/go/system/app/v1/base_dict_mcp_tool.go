@@ -9,31 +9,35 @@ package appv1
 import (
 	context "context"
 
-	mcp "github.com/modelcontextprotocol/go-sdk/mcp"
+	mcp "github.com/mark3labs/mcp-go/mcp"
+	server "github.com/mark3labs/mcp-go/server"
 )
 
 // RegisterBaseDictServiceMCPTools 注册App字典服务的 MCP Tool。
-func RegisterBaseDictServiceMCPTools(mcpServer *mcp.Server, baseDictServiceServer BaseDictServiceServer) {
+func RegisterBaseDictServiceMCPTools(mcpServer *server.MCPServer, baseDictServiceServer BaseDictServiceServer) {
 	RegisterBaseDictServiceGetBaseDictMCPTool(mcpServer, baseDictServiceServer)
 }
 
 // RegisterBaseDictServiceGetBaseDictMCPTool 注册查询字典的 MCP Tool。
-func RegisterBaseDictServiceGetBaseDictMCPTool(mcpServer *mcp.Server, baseDictServiceServer BaseDictServiceServer) {
-	mcp.AddTool[*GetBaseDictRequest, *BaseDictForm](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_app_v1_base_dict_service_get_base_dict",
-			Description: "查询字典",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *GetBaseDictRequest) (*mcp.CallToolResult, *BaseDictForm, error) {
-			if input == nil {
-				input = &GetBaseDictRequest{}
-			}
-			reply, err := baseDictServiceServer.GetBaseDict(ctx, input)
+func RegisterBaseDictServiceGetBaseDictMCPTool(mcpServer *server.MCPServer, baseDictServiceServer BaseDictServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_app_v1_base_dict_service_get_base_dict",
+			mcp.WithDescription("查询字典"),
+			mcp.WithInputSchema[*GetBaseDictRequest](),
+			mcp.WithOutputSchema[*BaseDictForm](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &GetBaseDictRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *BaseDictForm
+			reply, err = baseDictServiceServer.GetBaseDict(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }

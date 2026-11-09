@@ -9,75 +9,85 @@ package adminv1
 import (
 	context "context"
 
-	mcp "github.com/modelcontextprotocol/go-sdk/mcp"
+	mcp "github.com/mark3labs/mcp-go/mcp"
+	server "github.com/mark3labs/mcp-go/server"
 )
 
 // RegisterBiQueryServiceMCPTools 注册BI 语义查询服务的 MCP Tool。
-func RegisterBiQueryServiceMCPTools(mcpServer *mcp.Server, biQueryServiceServer BiQueryServiceServer) {
+func RegisterBiQueryServiceMCPTools(mcpServer *server.MCPServer, biQueryServiceServer BiQueryServiceServer) {
 	RegisterBiQueryServiceListBiSourcesMCPTool(mcpServer, biQueryServiceServer)
 	RegisterBiQueryServicePreviewBiQueryMCPTool(mcpServer, biQueryServiceServer)
 	RegisterBiQueryServiceAskBiQueryMCPTool(mcpServer, biQueryServiceServer)
 }
 
 // RegisterBiQueryServiceListBiSourcesMCPTool 注册查询当前用户可用的数据源目录的 MCP Tool。
-func RegisterBiQueryServiceListBiSourcesMCPTool(mcpServer *mcp.Server, biQueryServiceServer BiQueryServiceServer) {
-	mcp.AddTool[*ListBiSourcesRequest, *ListBiSourcesResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "bi_admin_v1_bi_query_service_list_bi_sources",
-			Description: "查询当前用户可用的数据源目录。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *ListBiSourcesRequest) (*mcp.CallToolResult, *ListBiSourcesResponse, error) {
-			if input == nil {
-				input = &ListBiSourcesRequest{}
-			}
-			reply, err := biQueryServiceServer.ListBiSources(ctx, input)
+func RegisterBiQueryServiceListBiSourcesMCPTool(mcpServer *server.MCPServer, biQueryServiceServer BiQueryServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("bi_admin_v1_bi_query_service_list_bi_sources",
+			mcp.WithDescription("查询当前用户可用的数据源目录。"),
+			mcp.WithInputSchema[*ListBiSourcesRequest](),
+			mcp.WithOutputSchema[*ListBiSourcesResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &ListBiSourcesRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *ListBiSourcesResponse
+			reply, err = biQueryServiceServer.ListBiSources(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBiQueryServicePreviewBiQueryMCPTool 注册预览一个已经由前端配置的语义查询的 MCP Tool。
-func RegisterBiQueryServicePreviewBiQueryMCPTool(mcpServer *mcp.Server, biQueryServiceServer BiQueryServiceServer) {
-	mcp.AddTool[*PreviewBiQueryRequest, *BiQueryResult](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "bi_admin_v1_bi_query_service_preview_bi_query",
-			Description: "预览一个已经由前端配置的语义查询。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *PreviewBiQueryRequest) (*mcp.CallToolResult, *BiQueryResult, error) {
-			if input == nil {
-				input = &PreviewBiQueryRequest{}
-			}
-			reply, err := biQueryServiceServer.PreviewBiQuery(ctx, input)
+func RegisterBiQueryServicePreviewBiQueryMCPTool(mcpServer *server.MCPServer, biQueryServiceServer BiQueryServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("bi_admin_v1_bi_query_service_preview_bi_query",
+			mcp.WithDescription("预览一个已经由前端配置的语义查询。"),
+			mcp.WithInputSchema[*PreviewBiQueryRequest](),
+			mcp.WithOutputSchema[*BiQueryResult](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &PreviewBiQueryRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *BiQueryResult
+			reply, err = biQueryServiceServer.PreviewBiQuery(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBiQueryServiceAskBiQueryMCPTool 注册自然语言生成语义查询并返回预览结果的 MCP Tool。
-func RegisterBiQueryServiceAskBiQueryMCPTool(mcpServer *mcp.Server, biQueryServiceServer BiQueryServiceServer) {
-	mcp.AddTool[*AskBiQueryRequest, *AskBiQueryResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "bi_admin_v1_bi_query_service_ask_bi_query",
-			Description: "自然语言生成语义查询并返回预览结果。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *AskBiQueryRequest) (*mcp.CallToolResult, *AskBiQueryResponse, error) {
-			if input == nil {
-				input = &AskBiQueryRequest{}
-			}
-			reply, err := biQueryServiceServer.AskBiQuery(ctx, input)
+func RegisterBiQueryServiceAskBiQueryMCPTool(mcpServer *server.MCPServer, biQueryServiceServer BiQueryServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("bi_admin_v1_bi_query_service_ask_bi_query",
+			mcp.WithDescription("自然语言生成语义查询并返回预览结果。"),
+			mcp.WithInputSchema[*AskBiQueryRequest](),
+			mcp.WithOutputSchema[*AskBiQueryResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &AskBiQueryRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *AskBiQueryResponse
+			reply, err = biQueryServiceServer.AskBiQuery(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }

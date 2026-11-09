@@ -10,12 +10,13 @@ import (
 	context "context"
 
 	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
-	mcp "github.com/modelcontextprotocol/go-sdk/mcp"
+	mcp "github.com/mark3labs/mcp-go/mcp"
+	server "github.com/mark3labs/mcp-go/server"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // RegisterAuthServiceMCPTools 注册Admin用户登录认证服务的 MCP Tool。
-func RegisterAuthServiceMCPTools(mcpServer *mcp.Server, authServiceServer AuthServiceServer) {
+func RegisterAuthServiceMCPTools(mcpServer *server.MCPServer, authServiceServer AuthServiceServer) {
 	RegisterAuthServiceTreeUserMenuMCPTool(mcpServer, authServiceServer)
 	RegisterAuthServiceListUserButtonMCPTool(mcpServer, authServiceServer)
 	RegisterAuthServiceGetUserInfoMCPTool(mcpServer, authServiceServer)
@@ -26,148 +27,168 @@ func RegisterAuthServiceMCPTools(mcpServer *mcp.Server, authServiceServer AuthSe
 }
 
 // RegisterAuthServiceTreeUserMenuMCPTool 注册查询已经登录的用户菜单树的 MCP Tool。
-func RegisterAuthServiceTreeUserMenuMCPTool(mcpServer *mcp.Server, authServiceServer AuthServiceServer) {
-	mcp.AddTool[*TreeUserMenuRequest, any](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_auth_service_tree_user_menu",
-			Description: "查询已经登录的用户菜单树",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *TreeUserMenuRequest) (*mcp.CallToolResult, any, error) {
-			if input == nil {
-				input = &TreeUserMenuRequest{}
-			}
-			reply, err := authServiceServer.TreeUserMenu(ctx, input)
+func RegisterAuthServiceTreeUserMenuMCPTool(mcpServer *server.MCPServer, authServiceServer AuthServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_auth_service_tree_user_menu",
+			mcp.WithDescription("查询已经登录的用户菜单树"),
+			mcp.WithInputSchema[*TreeUserMenuRequest](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &TreeUserMenuRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *TreeRouteResponse
+			reply, err = authServiceServer.TreeUserMenu(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterAuthServiceListUserButtonMCPTool 注册查询已经登录的用户按钮列表的 MCP Tool。
-func RegisterAuthServiceListUserButtonMCPTool(mcpServer *mcp.Server, authServiceServer AuthServiceServer) {
-	mcp.AddTool[*ListUserButtonRequest, *commonv1.StringValues](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_auth_service_list_user_button",
-			Description: "查询已经登录的用户按钮列表",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *ListUserButtonRequest) (*mcp.CallToolResult, *commonv1.StringValues, error) {
-			if input == nil {
-				input = &ListUserButtonRequest{}
-			}
-			reply, err := authServiceServer.ListUserButton(ctx, input)
+func RegisterAuthServiceListUserButtonMCPTool(mcpServer *server.MCPServer, authServiceServer AuthServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_auth_service_list_user_button",
+			mcp.WithDescription("查询已经登录的用户按钮列表"),
+			mcp.WithInputSchema[*ListUserButtonRequest](),
+			mcp.WithOutputSchema[*commonv1.StringValues](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &ListUserButtonRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *commonv1.StringValues
+			reply, err = authServiceServer.ListUserButton(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterAuthServiceGetUserInfoMCPTool 注册获取已经登录的用户的数据的 MCP Tool。
-func RegisterAuthServiceGetUserInfoMCPTool(mcpServer *mcp.Server, authServiceServer AuthServiceServer) {
-	mcp.AddTool[*GetUserInfoRequest, *UserInfoForm](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_auth_service_get_user_info",
-			Description: "获取已经登录的用户的数据",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *GetUserInfoRequest) (*mcp.CallToolResult, *UserInfoForm, error) {
-			if input == nil {
-				input = &GetUserInfoRequest{}
-			}
-			reply, err := authServiceServer.GetUserInfo(ctx, input)
+func RegisterAuthServiceGetUserInfoMCPTool(mcpServer *server.MCPServer, authServiceServer AuthServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_auth_service_get_user_info",
+			mcp.WithDescription("获取已经登录的用户的数据"),
+			mcp.WithInputSchema[*GetUserInfoRequest](),
+			mcp.WithOutputSchema[*UserInfoForm](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &GetUserInfoRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *UserInfoForm
+			reply, err = authServiceServer.GetUserInfo(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterAuthServiceGetUserProfileMCPTool 注册获取个人中心用户信息的 MCP Tool。
-func RegisterAuthServiceGetUserProfileMCPTool(mcpServer *mcp.Server, authServiceServer AuthServiceServer) {
-	mcp.AddTool[*GetUserProfileRequest, *UserProfileForm](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_auth_service_get_user_profile",
-			Description: "获取个人中心用户信息",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *GetUserProfileRequest) (*mcp.CallToolResult, *UserProfileForm, error) {
-			if input == nil {
-				input = &GetUserProfileRequest{}
-			}
-			reply, err := authServiceServer.GetUserProfile(ctx, input)
+func RegisterAuthServiceGetUserProfileMCPTool(mcpServer *server.MCPServer, authServiceServer AuthServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_auth_service_get_user_profile",
+			mcp.WithDescription("获取个人中心用户信息"),
+			mcp.WithInputSchema[*GetUserProfileRequest](),
+			mcp.WithOutputSchema[*UserProfileForm](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &GetUserProfileRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *UserProfileForm
+			reply, err = authServiceServer.GetUserProfile(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterAuthServiceUpdateUserPhoneMCPTool 注册修改个人中心手机号的 MCP Tool。
-func RegisterAuthServiceUpdateUserPhoneMCPTool(mcpServer *mcp.Server, authServiceServer AuthServiceServer) {
-	mcp.AddTool[*UpdateUserPhoneRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_auth_service_update_user_phone",
-			Description: "修改个人中心手机号",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *UpdateUserPhoneRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &UpdateUserPhoneRequest{}
-			}
-			reply, err := authServiceServer.UpdateUserPhone(ctx, input)
+func RegisterAuthServiceUpdateUserPhoneMCPTool(mcpServer *server.MCPServer, authServiceServer AuthServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_auth_service_update_user_phone",
+			mcp.WithDescription("修改个人中心手机号"),
+			mcp.WithInputSchema[*UpdateUserPhoneRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &UpdateUserPhoneRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = authServiceServer.UpdateUserPhone(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterAuthServiceUpdateUserProfileMCPTool 注册修改个人中心用户信息的 MCP Tool。
-func RegisterAuthServiceUpdateUserProfileMCPTool(mcpServer *mcp.Server, authServiceServer AuthServiceServer) {
-	mcp.AddTool[*UpdateUserProfileRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_auth_service_update_user_profile",
-			Description: "修改个人中心用户信息",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *UpdateUserProfileRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &UpdateUserProfileRequest{}
-			}
-			reply, err := authServiceServer.UpdateUserProfile(ctx, input)
+func RegisterAuthServiceUpdateUserProfileMCPTool(mcpServer *server.MCPServer, authServiceServer AuthServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_auth_service_update_user_profile",
+			mcp.WithDescription("修改个人中心用户信息"),
+			mcp.WithInputSchema[*UpdateUserProfileRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &UpdateUserProfileRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = authServiceServer.UpdateUserProfile(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterAuthServiceSendPhoneCodeMCPTool 注册发送手机号验证码的 MCP Tool。
-func RegisterAuthServiceSendPhoneCodeMCPTool(mcpServer *mcp.Server, authServiceServer AuthServiceServer) {
-	mcp.AddTool[*SendPhoneCodeRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_auth_service_send_phone_code",
-			Description: "发送手机号验证码",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *SendPhoneCodeRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &SendPhoneCodeRequest{}
-			}
-			reply, err := authServiceServer.SendPhoneCode(ctx, input)
+func RegisterAuthServiceSendPhoneCodeMCPTool(mcpServer *server.MCPServer, authServiceServer AuthServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_auth_service_send_phone_code",
+			mcp.WithDescription("发送手机号验证码"),
+			mcp.WithInputSchema[*SendPhoneCodeRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &SendPhoneCodeRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = authServiceServer.SendPhoneCode(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }

@@ -9,11 +9,12 @@ package adminv1
 import (
 	context "context"
 
-	mcp "github.com/modelcontextprotocol/go-sdk/mcp"
+	mcp "github.com/mark3labs/mcp-go/mcp"
+	server "github.com/mark3labs/mcp-go/server"
 )
 
 // RegisterBiDashboardServiceMCPTools 注册BI 仪表盘管理服务的 MCP Tool。
-func RegisterBiDashboardServiceMCPTools(mcpServer *mcp.Server, biDashboardServiceServer BiDashboardServiceServer) {
+func RegisterBiDashboardServiceMCPTools(mcpServer *server.MCPServer, biDashboardServiceServer BiDashboardServiceServer) {
 	RegisterBiDashboardServicePageBiDashboardMCPTool(mcpServer, biDashboardServiceServer)
 	RegisterBiDashboardServiceGetBiDashboardMCPTool(mcpServer, biDashboardServiceServer)
 	RegisterBiDashboardServiceSaveBiDashboardMCPTool(mcpServer, biDashboardServiceServer)
@@ -23,127 +24,145 @@ func RegisterBiDashboardServiceMCPTools(mcpServer *mcp.Server, biDashboardServic
 }
 
 // RegisterBiDashboardServicePageBiDashboardMCPTool 注册分页查询当前用户可见的仪表盘的 MCP Tool。
-func RegisterBiDashboardServicePageBiDashboardMCPTool(mcpServer *mcp.Server, biDashboardServiceServer BiDashboardServiceServer) {
-	mcp.AddTool[*PageBiDashboardRequest, *PageBiDashboardResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "bi_admin_v1_bi_dashboard_service_page_bi_dashboard",
-			Description: "分页查询当前用户可见的仪表盘。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *PageBiDashboardRequest) (*mcp.CallToolResult, *PageBiDashboardResponse, error) {
-			if input == nil {
-				input = &PageBiDashboardRequest{}
-			}
-			reply, err := biDashboardServiceServer.PageBiDashboard(ctx, input)
+func RegisterBiDashboardServicePageBiDashboardMCPTool(mcpServer *server.MCPServer, biDashboardServiceServer BiDashboardServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("bi_admin_v1_bi_dashboard_service_page_bi_dashboard",
+			mcp.WithDescription("分页查询当前用户可见的仪表盘。"),
+			mcp.WithInputSchema[*PageBiDashboardRequest](),
+			mcp.WithOutputSchema[*PageBiDashboardResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &PageBiDashboardRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *PageBiDashboardResponse
+			reply, err = biDashboardServiceServer.PageBiDashboard(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBiDashboardServiceGetBiDashboardMCPTool 注册查询仪表盘及当前草稿内容的 MCP Tool。
-func RegisterBiDashboardServiceGetBiDashboardMCPTool(mcpServer *mcp.Server, biDashboardServiceServer BiDashboardServiceServer) {
-	mcp.AddTool[*GetBiDashboardRequest, *BiDashboard](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "bi_admin_v1_bi_dashboard_service_get_bi_dashboard",
-			Description: "查询仪表盘及当前草稿内容。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *GetBiDashboardRequest) (*mcp.CallToolResult, *BiDashboard, error) {
-			if input == nil {
-				input = &GetBiDashboardRequest{}
-			}
-			reply, err := biDashboardServiceServer.GetBiDashboard(ctx, input)
+func RegisterBiDashboardServiceGetBiDashboardMCPTool(mcpServer *server.MCPServer, biDashboardServiceServer BiDashboardServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("bi_admin_v1_bi_dashboard_service_get_bi_dashboard",
+			mcp.WithDescription("查询仪表盘及当前草稿内容。"),
+			mcp.WithInputSchema[*GetBiDashboardRequest](),
+			mcp.WithOutputSchema[*BiDashboard](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &GetBiDashboardRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *BiDashboard
+			reply, err = biDashboardServiceServer.GetBiDashboard(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBiDashboardServiceSaveBiDashboardMCPTool 注册创建或保存仪表盘草稿的 MCP Tool。
-func RegisterBiDashboardServiceSaveBiDashboardMCPTool(mcpServer *mcp.Server, biDashboardServiceServer BiDashboardServiceServer) {
-	mcp.AddTool[*SaveBiDashboardRequest, *BiDashboard](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "bi_admin_v1_bi_dashboard_service_save_bi_dashboard",
-			Description: "创建或保存仪表盘草稿。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *SaveBiDashboardRequest) (*mcp.CallToolResult, *BiDashboard, error) {
-			if input == nil {
-				input = &SaveBiDashboardRequest{}
-			}
-			reply, err := biDashboardServiceServer.SaveBiDashboard(ctx, input)
+func RegisterBiDashboardServiceSaveBiDashboardMCPTool(mcpServer *server.MCPServer, biDashboardServiceServer BiDashboardServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("bi_admin_v1_bi_dashboard_service_save_bi_dashboard",
+			mcp.WithDescription("创建或保存仪表盘草稿。"),
+			mcp.WithInputSchema[*SaveBiDashboardRequest](),
+			mcp.WithOutputSchema[*BiDashboard](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &SaveBiDashboardRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *BiDashboard
+			reply, err = biDashboardServiceServer.SaveBiDashboard(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBiDashboardServicePublishBiDashboardMCPTool 注册发布仪表盘草稿的 MCP Tool。
-func RegisterBiDashboardServicePublishBiDashboardMCPTool(mcpServer *mcp.Server, biDashboardServiceServer BiDashboardServiceServer) {
-	mcp.AddTool[*PublishBiDashboardRequest, *BiDashboard](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "bi_admin_v1_bi_dashboard_service_publish_bi_dashboard",
-			Description: "发布仪表盘草稿。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *PublishBiDashboardRequest) (*mcp.CallToolResult, *BiDashboard, error) {
-			if input == nil {
-				input = &PublishBiDashboardRequest{}
-			}
-			reply, err := biDashboardServiceServer.PublishBiDashboard(ctx, input)
+func RegisterBiDashboardServicePublishBiDashboardMCPTool(mcpServer *server.MCPServer, biDashboardServiceServer BiDashboardServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("bi_admin_v1_bi_dashboard_service_publish_bi_dashboard",
+			mcp.WithDescription("发布仪表盘草稿。"),
+			mcp.WithInputSchema[*PublishBiDashboardRequest](),
+			mcp.WithOutputSchema[*BiDashboard](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &PublishBiDashboardRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *BiDashboard
+			reply, err = biDashboardServiceServer.PublishBiDashboard(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBiDashboardServiceDeleteBiDashboardMCPTool 注册删除仪表盘的 MCP Tool。
-func RegisterBiDashboardServiceDeleteBiDashboardMCPTool(mcpServer *mcp.Server, biDashboardServiceServer BiDashboardServiceServer) {
-	mcp.AddTool[*DeleteBiDashboardRequest, *DeleteBiDashboardResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "bi_admin_v1_bi_dashboard_service_delete_bi_dashboard",
-			Description: "删除仪表盘。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *DeleteBiDashboardRequest) (*mcp.CallToolResult, *DeleteBiDashboardResponse, error) {
-			if input == nil {
-				input = &DeleteBiDashboardRequest{}
-			}
-			reply, err := biDashboardServiceServer.DeleteBiDashboard(ctx, input)
+func RegisterBiDashboardServiceDeleteBiDashboardMCPTool(mcpServer *server.MCPServer, biDashboardServiceServer BiDashboardServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("bi_admin_v1_bi_dashboard_service_delete_bi_dashboard",
+			mcp.WithDescription("删除仪表盘。"),
+			mcp.WithInputSchema[*DeleteBiDashboardRequest](),
+			mcp.WithOutputSchema[*DeleteBiDashboardResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &DeleteBiDashboardRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *DeleteBiDashboardResponse
+			reply, err = biDashboardServiceServer.DeleteBiDashboard(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBiDashboardServiceGetBiDashboardDataMCPTool 注册执行已发布仪表盘中的全部图表查询的 MCP Tool。
-func RegisterBiDashboardServiceGetBiDashboardDataMCPTool(mcpServer *mcp.Server, biDashboardServiceServer BiDashboardServiceServer) {
-	mcp.AddTool[*GetBiDashboardDataRequest, *BiDashboardDataResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "bi_admin_v1_bi_dashboard_service_get_bi_dashboard_data",
-			Description: "执行已发布仪表盘中的全部图表查询。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *GetBiDashboardDataRequest) (*mcp.CallToolResult, *BiDashboardDataResponse, error) {
-			if input == nil {
-				input = &GetBiDashboardDataRequest{}
-			}
-			reply, err := biDashboardServiceServer.GetBiDashboardData(ctx, input)
+func RegisterBiDashboardServiceGetBiDashboardDataMCPTool(mcpServer *server.MCPServer, biDashboardServiceServer BiDashboardServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("bi_admin_v1_bi_dashboard_service_get_bi_dashboard_data",
+			mcp.WithDescription("执行已发布仪表盘中的全部图表查询。"),
+			mcp.WithInputSchema[*GetBiDashboardDataRequest](),
+			mcp.WithOutputSchema[*BiDashboardDataResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &GetBiDashboardDataRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *BiDashboardDataResponse
+			reply, err = biDashboardServiceServer.GetBiDashboardData(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }

@@ -9,12 +9,13 @@ package adminv1
 import (
 	context "context"
 
-	mcp "github.com/modelcontextprotocol/go-sdk/mcp"
+	mcp "github.com/mark3labs/mcp-go/mcp"
+	server "github.com/mark3labs/mcp-go/server"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // RegisterBaseRedactStoragePolicyServiceMCPTools 注册Admin入库脱敏策略服务的 MCP Tool。
-func RegisterBaseRedactStoragePolicyServiceMCPTools(mcpServer *mcp.Server, baseRedactStoragePolicyServiceServer BaseRedactStoragePolicyServiceServer) {
+func RegisterBaseRedactStoragePolicyServiceMCPTools(mcpServer *server.MCPServer, baseRedactStoragePolicyServiceServer BaseRedactStoragePolicyServiceServer) {
 	RegisterBaseRedactStoragePolicyServicePageBaseRedactStoragePolicyMCPTool(mcpServer, baseRedactStoragePolicyServiceServer)
 	RegisterBaseRedactStoragePolicyServiceListBaseRedactStorageTableMCPTool(mcpServer, baseRedactStoragePolicyServiceServer)
 	RegisterBaseRedactStoragePolicyServiceListBaseRedactStorageColumnMCPTool(mcpServer, baseRedactStoragePolicyServiceServer)
@@ -26,169 +27,193 @@ func RegisterBaseRedactStoragePolicyServiceMCPTools(mcpServer *mcp.Server, baseR
 }
 
 // RegisterBaseRedactStoragePolicyServicePageBaseRedactStoragePolicyMCPTool 注册查询入库脱敏策略分页列表的 MCP Tool。
-func RegisterBaseRedactStoragePolicyServicePageBaseRedactStoragePolicyMCPTool(mcpServer *mcp.Server, baseRedactStoragePolicyServiceServer BaseRedactStoragePolicyServiceServer) {
-	mcp.AddTool[*PageBaseRedactStoragePolicyRequest, *PageBaseRedactStoragePolicyResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_redact_storage_policy_service_page_base_redact_storage_policy",
-			Description: "查询入库脱敏策略分页列表。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *PageBaseRedactStoragePolicyRequest) (*mcp.CallToolResult, *PageBaseRedactStoragePolicyResponse, error) {
-			if input == nil {
-				input = &PageBaseRedactStoragePolicyRequest{}
-			}
-			reply, err := baseRedactStoragePolicyServiceServer.PageBaseRedactStoragePolicy(ctx, input)
+func RegisterBaseRedactStoragePolicyServicePageBaseRedactStoragePolicyMCPTool(mcpServer *server.MCPServer, baseRedactStoragePolicyServiceServer BaseRedactStoragePolicyServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_redact_storage_policy_service_page_base_redact_storage_policy",
+			mcp.WithDescription("查询入库脱敏策略分页列表。"),
+			mcp.WithInputSchema[*PageBaseRedactStoragePolicyRequest](),
+			mcp.WithOutputSchema[*PageBaseRedactStoragePolicyResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &PageBaseRedactStoragePolicyRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *PageBaseRedactStoragePolicyResponse
+			reply, err = baseRedactStoragePolicyServiceServer.PageBaseRedactStoragePolicy(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseRedactStoragePolicyServiceListBaseRedactStorageTableMCPTool 注册查询包含租户ID字段的数据表列表的 MCP Tool。
-func RegisterBaseRedactStoragePolicyServiceListBaseRedactStorageTableMCPTool(mcpServer *mcp.Server, baseRedactStoragePolicyServiceServer BaseRedactStoragePolicyServiceServer) {
-	mcp.AddTool[*ListBaseRedactStorageTableRequest, *ListBaseRedactStorageTableResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_redact_storage_policy_service_list_base_redact_storage_table",
-			Description: "查询包含租户ID字段的数据表列表。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *ListBaseRedactStorageTableRequest) (*mcp.CallToolResult, *ListBaseRedactStorageTableResponse, error) {
-			if input == nil {
-				input = &ListBaseRedactStorageTableRequest{}
-			}
-			reply, err := baseRedactStoragePolicyServiceServer.ListBaseRedactStorageTable(ctx, input)
+func RegisterBaseRedactStoragePolicyServiceListBaseRedactStorageTableMCPTool(mcpServer *server.MCPServer, baseRedactStoragePolicyServiceServer BaseRedactStoragePolicyServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_redact_storage_policy_service_list_base_redact_storage_table",
+			mcp.WithDescription("查询包含租户ID字段的数据表列表。"),
+			mcp.WithInputSchema[*ListBaseRedactStorageTableRequest](),
+			mcp.WithOutputSchema[*ListBaseRedactStorageTableResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &ListBaseRedactStorageTableRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *ListBaseRedactStorageTableResponse
+			reply, err = baseRedactStoragePolicyServiceServer.ListBaseRedactStorageTable(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseRedactStoragePolicyServiceListBaseRedactStorageColumnMCPTool 注册查询可入库脱敏的字符串字段列表的 MCP Tool。
-func RegisterBaseRedactStoragePolicyServiceListBaseRedactStorageColumnMCPTool(mcpServer *mcp.Server, baseRedactStoragePolicyServiceServer BaseRedactStoragePolicyServiceServer) {
-	mcp.AddTool[*ListBaseRedactStorageColumnRequest, *ListBaseRedactStorageColumnResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_redact_storage_policy_service_list_base_redact_storage_column",
-			Description: "查询可入库脱敏的字符串字段列表。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *ListBaseRedactStorageColumnRequest) (*mcp.CallToolResult, *ListBaseRedactStorageColumnResponse, error) {
-			if input == nil {
-				input = &ListBaseRedactStorageColumnRequest{}
-			}
-			reply, err := baseRedactStoragePolicyServiceServer.ListBaseRedactStorageColumn(ctx, input)
+func RegisterBaseRedactStoragePolicyServiceListBaseRedactStorageColumnMCPTool(mcpServer *server.MCPServer, baseRedactStoragePolicyServiceServer BaseRedactStoragePolicyServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_redact_storage_policy_service_list_base_redact_storage_column",
+			mcp.WithDescription("查询可入库脱敏的字符串字段列表。"),
+			mcp.WithInputSchema[*ListBaseRedactStorageColumnRequest](),
+			mcp.WithOutputSchema[*ListBaseRedactStorageColumnResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &ListBaseRedactStorageColumnRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *ListBaseRedactStorageColumnResponse
+			reply, err = baseRedactStoragePolicyServiceServer.ListBaseRedactStorageColumn(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseRedactStoragePolicyServiceGetBaseRedactStoragePolicyMCPTool 注册查询入库脱敏策略详情的 MCP Tool。
-func RegisterBaseRedactStoragePolicyServiceGetBaseRedactStoragePolicyMCPTool(mcpServer *mcp.Server, baseRedactStoragePolicyServiceServer BaseRedactStoragePolicyServiceServer) {
-	mcp.AddTool[*GetBaseRedactStoragePolicyRequest, *BaseRedactStoragePolicyForm](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_redact_storage_policy_service_get_base_redact_storage_policy",
-			Description: "查询入库脱敏策略详情。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *GetBaseRedactStoragePolicyRequest) (*mcp.CallToolResult, *BaseRedactStoragePolicyForm, error) {
-			if input == nil {
-				input = &GetBaseRedactStoragePolicyRequest{}
-			}
-			reply, err := baseRedactStoragePolicyServiceServer.GetBaseRedactStoragePolicy(ctx, input)
+func RegisterBaseRedactStoragePolicyServiceGetBaseRedactStoragePolicyMCPTool(mcpServer *server.MCPServer, baseRedactStoragePolicyServiceServer BaseRedactStoragePolicyServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_redact_storage_policy_service_get_base_redact_storage_policy",
+			mcp.WithDescription("查询入库脱敏策略详情。"),
+			mcp.WithInputSchema[*GetBaseRedactStoragePolicyRequest](),
+			mcp.WithOutputSchema[*BaseRedactStoragePolicyForm](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &GetBaseRedactStoragePolicyRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *BaseRedactStoragePolicyForm
+			reply, err = baseRedactStoragePolicyServiceServer.GetBaseRedactStoragePolicy(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseRedactStoragePolicyServiceCreateBaseRedactStoragePolicyMCPTool 注册批量创建入库脱敏策略的 MCP Tool。
-func RegisterBaseRedactStoragePolicyServiceCreateBaseRedactStoragePolicyMCPTool(mcpServer *mcp.Server, baseRedactStoragePolicyServiceServer BaseRedactStoragePolicyServiceServer) {
-	mcp.AddTool[*CreateBaseRedactStoragePolicyRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_redact_storage_policy_service_create_base_redact_storage_policy",
-			Description: "批量创建入库脱敏策略。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *CreateBaseRedactStoragePolicyRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &CreateBaseRedactStoragePolicyRequest{}
-			}
-			reply, err := baseRedactStoragePolicyServiceServer.CreateBaseRedactStoragePolicy(ctx, input)
+func RegisterBaseRedactStoragePolicyServiceCreateBaseRedactStoragePolicyMCPTool(mcpServer *server.MCPServer, baseRedactStoragePolicyServiceServer BaseRedactStoragePolicyServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_redact_storage_policy_service_create_base_redact_storage_policy",
+			mcp.WithDescription("批量创建入库脱敏策略。"),
+			mcp.WithInputSchema[*CreateBaseRedactStoragePolicyRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &CreateBaseRedactStoragePolicyRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = baseRedactStoragePolicyServiceServer.CreateBaseRedactStoragePolicy(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseRedactStoragePolicyServiceUpdateBaseRedactStoragePolicyMCPTool 注册批量更新入库脱敏策略的 MCP Tool。
-func RegisterBaseRedactStoragePolicyServiceUpdateBaseRedactStoragePolicyMCPTool(mcpServer *mcp.Server, baseRedactStoragePolicyServiceServer BaseRedactStoragePolicyServiceServer) {
-	mcp.AddTool[*UpdateBaseRedactStoragePolicyRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_redact_storage_policy_service_update_base_redact_storage_policy",
-			Description: "批量更新入库脱敏策略。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *UpdateBaseRedactStoragePolicyRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &UpdateBaseRedactStoragePolicyRequest{}
-			}
-			reply, err := baseRedactStoragePolicyServiceServer.UpdateBaseRedactStoragePolicy(ctx, input)
+func RegisterBaseRedactStoragePolicyServiceUpdateBaseRedactStoragePolicyMCPTool(mcpServer *server.MCPServer, baseRedactStoragePolicyServiceServer BaseRedactStoragePolicyServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_redact_storage_policy_service_update_base_redact_storage_policy",
+			mcp.WithDescription("批量更新入库脱敏策略。"),
+			mcp.WithInputSchema[*UpdateBaseRedactStoragePolicyRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &UpdateBaseRedactStoragePolicyRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = baseRedactStoragePolicyServiceServer.UpdateBaseRedactStoragePolicy(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseRedactStoragePolicyServiceDeleteBaseRedactStoragePolicyMCPTool 注册删除入库脱敏策略的 MCP Tool。
-func RegisterBaseRedactStoragePolicyServiceDeleteBaseRedactStoragePolicyMCPTool(mcpServer *mcp.Server, baseRedactStoragePolicyServiceServer BaseRedactStoragePolicyServiceServer) {
-	mcp.AddTool[*DeleteBaseRedactStoragePolicyRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_redact_storage_policy_service_delete_base_redact_storage_policy",
-			Description: "删除入库脱敏策略。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *DeleteBaseRedactStoragePolicyRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &DeleteBaseRedactStoragePolicyRequest{}
-			}
-			reply, err := baseRedactStoragePolicyServiceServer.DeleteBaseRedactStoragePolicy(ctx, input)
+func RegisterBaseRedactStoragePolicyServiceDeleteBaseRedactStoragePolicyMCPTool(mcpServer *server.MCPServer, baseRedactStoragePolicyServiceServer BaseRedactStoragePolicyServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_redact_storage_policy_service_delete_base_redact_storage_policy",
+			mcp.WithDescription("删除入库脱敏策略。"),
+			mcp.WithInputSchema[*DeleteBaseRedactStoragePolicyRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &DeleteBaseRedactStoragePolicyRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = baseRedactStoragePolicyServiceServer.DeleteBaseRedactStoragePolicy(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseRedactStoragePolicyServiceSetBaseRedactStoragePolicyStatusMCPTool 注册设置入库脱敏策略状态的 MCP Tool。
-func RegisterBaseRedactStoragePolicyServiceSetBaseRedactStoragePolicyStatusMCPTool(mcpServer *mcp.Server, baseRedactStoragePolicyServiceServer BaseRedactStoragePolicyServiceServer) {
-	mcp.AddTool[*SetBaseRedactStoragePolicyStatusRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_redact_storage_policy_service_set_base_redact_storage_policy_status",
-			Description: "设置入库脱敏策略状态。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *SetBaseRedactStoragePolicyStatusRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &SetBaseRedactStoragePolicyStatusRequest{}
-			}
-			reply, err := baseRedactStoragePolicyServiceServer.SetBaseRedactStoragePolicyStatus(ctx, input)
+func RegisterBaseRedactStoragePolicyServiceSetBaseRedactStoragePolicyStatusMCPTool(mcpServer *server.MCPServer, baseRedactStoragePolicyServiceServer BaseRedactStoragePolicyServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_redact_storage_policy_service_set_base_redact_storage_policy_status",
+			mcp.WithDescription("设置入库脱敏策略状态。"),
+			mcp.WithInputSchema[*SetBaseRedactStoragePolicyStatusRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &SetBaseRedactStoragePolicyStatusRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = baseRedactStoragePolicyServiceServer.SetBaseRedactStoragePolicyStatus(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }

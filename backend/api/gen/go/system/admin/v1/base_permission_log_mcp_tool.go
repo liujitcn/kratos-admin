@@ -9,53 +9,60 @@ package adminv1
 import (
 	context "context"
 
-	mcp "github.com/modelcontextprotocol/go-sdk/mcp"
+	mcp "github.com/mark3labs/mcp-go/mcp"
+	server "github.com/mark3labs/mcp-go/server"
 )
 
 // RegisterBasePermissionLogServiceMCPTools 注册Admin权限日志服务的 MCP Tool。
-func RegisterBasePermissionLogServiceMCPTools(mcpServer *mcp.Server, basePermissionLogServiceServer BasePermissionLogServiceServer) {
+func RegisterBasePermissionLogServiceMCPTools(mcpServer *server.MCPServer, basePermissionLogServiceServer BasePermissionLogServiceServer) {
 	RegisterBasePermissionLogServicePageBasePermissionLogMCPTool(mcpServer, basePermissionLogServiceServer)
 	RegisterBasePermissionLogServiceGetBasePermissionLogMCPTool(mcpServer, basePermissionLogServiceServer)
 }
 
 // RegisterBasePermissionLogServicePageBasePermissionLogMCPTool 注册分页查询权限日志的 MCP Tool。
-func RegisterBasePermissionLogServicePageBasePermissionLogMCPTool(mcpServer *mcp.Server, basePermissionLogServiceServer BasePermissionLogServiceServer) {
-	mcp.AddTool[*PageBasePermissionLogRequest, *PageBasePermissionLogResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_permission_log_service_page_base_permission_log",
-			Description: "分页查询权限日志。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *PageBasePermissionLogRequest) (*mcp.CallToolResult, *PageBasePermissionLogResponse, error) {
-			if input == nil {
-				input = &PageBasePermissionLogRequest{}
-			}
-			reply, err := basePermissionLogServiceServer.PageBasePermissionLog(ctx, input)
+func RegisterBasePermissionLogServicePageBasePermissionLogMCPTool(mcpServer *server.MCPServer, basePermissionLogServiceServer BasePermissionLogServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_permission_log_service_page_base_permission_log",
+			mcp.WithDescription("分页查询权限日志。"),
+			mcp.WithInputSchema[*PageBasePermissionLogRequest](),
+			mcp.WithOutputSchema[*PageBasePermissionLogResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &PageBasePermissionLogRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *PageBasePermissionLogResponse
+			reply, err = basePermissionLogServiceServer.PageBasePermissionLog(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBasePermissionLogServiceGetBasePermissionLogMCPTool 注册查询权限日志详情的 MCP Tool。
-func RegisterBasePermissionLogServiceGetBasePermissionLogMCPTool(mcpServer *mcp.Server, basePermissionLogServiceServer BasePermissionLogServiceServer) {
-	mcp.AddTool[*GetBasePermissionLogRequest, *BasePermissionLog](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_permission_log_service_get_base_permission_log",
-			Description: "查询权限日志详情。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *GetBasePermissionLogRequest) (*mcp.CallToolResult, *BasePermissionLog, error) {
-			if input == nil {
-				input = &GetBasePermissionLogRequest{}
-			}
-			reply, err := basePermissionLogServiceServer.GetBasePermissionLog(ctx, input)
+func RegisterBasePermissionLogServiceGetBasePermissionLogMCPTool(mcpServer *server.MCPServer, basePermissionLogServiceServer BasePermissionLogServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_permission_log_service_get_base_permission_log",
+			mcp.WithDescription("查询权限日志详情。"),
+			mcp.WithInputSchema[*GetBasePermissionLogRequest](),
+			mcp.WithOutputSchema[*BasePermissionLog](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &GetBasePermissionLogRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *BasePermissionLog
+			reply, err = basePermissionLogServiceServer.GetBasePermissionLog(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }

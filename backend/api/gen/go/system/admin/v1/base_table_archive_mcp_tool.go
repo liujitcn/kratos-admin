@@ -9,12 +9,13 @@ package adminv1
 import (
 	context "context"
 
-	mcp "github.com/modelcontextprotocol/go-sdk/mcp"
+	mcp "github.com/mark3labs/mcp-go/mcp"
+	server "github.com/mark3labs/mcp-go/server"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // RegisterBaseTableArchiveServiceMCPTools 注册Admin数据库表归档配置服务的 MCP Tool。
-func RegisterBaseTableArchiveServiceMCPTools(mcpServer *mcp.Server, baseTableArchiveServiceServer BaseTableArchiveServiceServer) {
+func RegisterBaseTableArchiveServiceMCPTools(mcpServer *server.MCPServer, baseTableArchiveServiceServer BaseTableArchiveServiceServer) {
 	RegisterBaseTableArchiveServicePageBaseTableArchiveMCPTool(mcpServer, baseTableArchiveServiceServer)
 	RegisterBaseTableArchiveServiceGetBaseTableArchiveMCPTool(mcpServer, baseTableArchiveServiceServer)
 	RegisterBaseTableArchiveServiceCreateBaseTableArchiveMCPTool(mcpServer, baseTableArchiveServiceServer)
@@ -24,127 +25,145 @@ func RegisterBaseTableArchiveServiceMCPTools(mcpServer *mcp.Server, baseTableArc
 }
 
 // RegisterBaseTableArchiveServicePageBaseTableArchiveMCPTool 注册查询表归档配置分页列表的 MCP Tool。
-func RegisterBaseTableArchiveServicePageBaseTableArchiveMCPTool(mcpServer *mcp.Server, baseTableArchiveServiceServer BaseTableArchiveServiceServer) {
-	mcp.AddTool[*PageBaseTableArchiveRequest, *PageBaseTableArchiveResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_table_archive_service_page_base_table_archive",
-			Description: "查询表归档配置分页列表。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *PageBaseTableArchiveRequest) (*mcp.CallToolResult, *PageBaseTableArchiveResponse, error) {
-			if input == nil {
-				input = &PageBaseTableArchiveRequest{}
-			}
-			reply, err := baseTableArchiveServiceServer.PageBaseTableArchive(ctx, input)
+func RegisterBaseTableArchiveServicePageBaseTableArchiveMCPTool(mcpServer *server.MCPServer, baseTableArchiveServiceServer BaseTableArchiveServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_table_archive_service_page_base_table_archive",
+			mcp.WithDescription("查询表归档配置分页列表。"),
+			mcp.WithInputSchema[*PageBaseTableArchiveRequest](),
+			mcp.WithOutputSchema[*PageBaseTableArchiveResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &PageBaseTableArchiveRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *PageBaseTableArchiveResponse
+			reply, err = baseTableArchiveServiceServer.PageBaseTableArchive(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseTableArchiveServiceGetBaseTableArchiveMCPTool 注册查询表归档配置的 MCP Tool。
-func RegisterBaseTableArchiveServiceGetBaseTableArchiveMCPTool(mcpServer *mcp.Server, baseTableArchiveServiceServer BaseTableArchiveServiceServer) {
-	mcp.AddTool[*GetBaseTableArchiveRequest, *BaseTableArchiveForm](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_table_archive_service_get_base_table_archive",
-			Description: "查询表归档配置。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *GetBaseTableArchiveRequest) (*mcp.CallToolResult, *BaseTableArchiveForm, error) {
-			if input == nil {
-				input = &GetBaseTableArchiveRequest{}
-			}
-			reply, err := baseTableArchiveServiceServer.GetBaseTableArchive(ctx, input)
+func RegisterBaseTableArchiveServiceGetBaseTableArchiveMCPTool(mcpServer *server.MCPServer, baseTableArchiveServiceServer BaseTableArchiveServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_table_archive_service_get_base_table_archive",
+			mcp.WithDescription("查询表归档配置。"),
+			mcp.WithInputSchema[*GetBaseTableArchiveRequest](),
+			mcp.WithOutputSchema[*BaseTableArchiveForm](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &GetBaseTableArchiveRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *BaseTableArchiveForm
+			reply, err = baseTableArchiveServiceServer.GetBaseTableArchive(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseTableArchiveServiceCreateBaseTableArchiveMCPTool 注册创建表归档配置的 MCP Tool。
-func RegisterBaseTableArchiveServiceCreateBaseTableArchiveMCPTool(mcpServer *mcp.Server, baseTableArchiveServiceServer BaseTableArchiveServiceServer) {
-	mcp.AddTool[*CreateBaseTableArchiveRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_table_archive_service_create_base_table_archive",
-			Description: "创建表归档配置。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *CreateBaseTableArchiveRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &CreateBaseTableArchiveRequest{}
-			}
-			reply, err := baseTableArchiveServiceServer.CreateBaseTableArchive(ctx, input)
+func RegisterBaseTableArchiveServiceCreateBaseTableArchiveMCPTool(mcpServer *server.MCPServer, baseTableArchiveServiceServer BaseTableArchiveServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_table_archive_service_create_base_table_archive",
+			mcp.WithDescription("创建表归档配置。"),
+			mcp.WithInputSchema[*CreateBaseTableArchiveRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &CreateBaseTableArchiveRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = baseTableArchiveServiceServer.CreateBaseTableArchive(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseTableArchiveServiceUpdateBaseTableArchiveMCPTool 注册更新表归档配置的 MCP Tool。
-func RegisterBaseTableArchiveServiceUpdateBaseTableArchiveMCPTool(mcpServer *mcp.Server, baseTableArchiveServiceServer BaseTableArchiveServiceServer) {
-	mcp.AddTool[*UpdateBaseTableArchiveRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_table_archive_service_update_base_table_archive",
-			Description: "更新表归档配置。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *UpdateBaseTableArchiveRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &UpdateBaseTableArchiveRequest{}
-			}
-			reply, err := baseTableArchiveServiceServer.UpdateBaseTableArchive(ctx, input)
+func RegisterBaseTableArchiveServiceUpdateBaseTableArchiveMCPTool(mcpServer *server.MCPServer, baseTableArchiveServiceServer BaseTableArchiveServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_table_archive_service_update_base_table_archive",
+			mcp.WithDescription("更新表归档配置。"),
+			mcp.WithInputSchema[*UpdateBaseTableArchiveRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &UpdateBaseTableArchiveRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = baseTableArchiveServiceServer.UpdateBaseTableArchive(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseTableArchiveServiceDeleteBaseTableArchiveMCPTool 注册删除表归档配置的 MCP Tool。
-func RegisterBaseTableArchiveServiceDeleteBaseTableArchiveMCPTool(mcpServer *mcp.Server, baseTableArchiveServiceServer BaseTableArchiveServiceServer) {
-	mcp.AddTool[*DeleteBaseTableArchiveRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_table_archive_service_delete_base_table_archive",
-			Description: "删除表归档配置。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *DeleteBaseTableArchiveRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &DeleteBaseTableArchiveRequest{}
-			}
-			reply, err := baseTableArchiveServiceServer.DeleteBaseTableArchive(ctx, input)
+func RegisterBaseTableArchiveServiceDeleteBaseTableArchiveMCPTool(mcpServer *server.MCPServer, baseTableArchiveServiceServer BaseTableArchiveServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_table_archive_service_delete_base_table_archive",
+			mcp.WithDescription("删除表归档配置。"),
+			mcp.WithInputSchema[*DeleteBaseTableArchiveRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &DeleteBaseTableArchiveRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = baseTableArchiveServiceServer.DeleteBaseTableArchive(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseTableArchiveServiceSetBaseTableArchiveStatusMCPTool 注册设置表归档配置状态的 MCP Tool。
-func RegisterBaseTableArchiveServiceSetBaseTableArchiveStatusMCPTool(mcpServer *mcp.Server, baseTableArchiveServiceServer BaseTableArchiveServiceServer) {
-	mcp.AddTool[*SetBaseTableArchiveStatusRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_table_archive_service_set_base_table_archive_status",
-			Description: "设置表归档配置状态。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *SetBaseTableArchiveStatusRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &SetBaseTableArchiveStatusRequest{}
-			}
-			reply, err := baseTableArchiveServiceServer.SetBaseTableArchiveStatus(ctx, input)
+func RegisterBaseTableArchiveServiceSetBaseTableArchiveStatusMCPTool(mcpServer *server.MCPServer, baseTableArchiveServiceServer BaseTableArchiveServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_table_archive_service_set_base_table_archive_status",
+			mcp.WithDescription("设置表归档配置状态。"),
+			mcp.WithInputSchema[*SetBaseTableArchiveStatusRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &SetBaseTableArchiveStatusRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = baseTableArchiveServiceServer.SetBaseTableArchiveStatus(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }

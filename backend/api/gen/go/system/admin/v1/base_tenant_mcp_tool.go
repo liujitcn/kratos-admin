@@ -10,12 +10,13 @@ import (
 	context "context"
 
 	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
-	mcp "github.com/modelcontextprotocol/go-sdk/mcp"
+	mcp "github.com/mark3labs/mcp-go/mcp"
+	server "github.com/mark3labs/mcp-go/server"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // RegisterBaseTenantServiceMCPTools 注册Admin租户管理服务的 MCP Tool。
-func RegisterBaseTenantServiceMCPTools(mcpServer *mcp.Server, baseTenantServiceServer BaseTenantServiceServer) {
+func RegisterBaseTenantServiceMCPTools(mcpServer *server.MCPServer, baseTenantServiceServer BaseTenantServiceServer) {
 	RegisterBaseTenantServiceOptionBaseTenantMCPTool(mcpServer, baseTenantServiceServer)
 	RegisterBaseTenantServicePageBaseTenantMCPTool(mcpServer, baseTenantServiceServer)
 	RegisterBaseTenantServiceGetBaseTenantMCPTool(mcpServer, baseTenantServiceServer)
@@ -26,148 +27,169 @@ func RegisterBaseTenantServiceMCPTools(mcpServer *mcp.Server, baseTenantServiceS
 }
 
 // RegisterBaseTenantServiceOptionBaseTenantMCPTool 注册查询租户下拉选择的 MCP Tool。
-func RegisterBaseTenantServiceOptionBaseTenantMCPTool(mcpServer *mcp.Server, baseTenantServiceServer BaseTenantServiceServer) {
-	mcp.AddTool[*OptionBaseTenantRequest, *commonv1.SelectOptionResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_tenant_service_option_base_tenant",
-			Description: "查询租户下拉选择",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *OptionBaseTenantRequest) (*mcp.CallToolResult, *commonv1.SelectOptionResponse, error) {
-			if input == nil {
-				input = &OptionBaseTenantRequest{}
-			}
-			reply, err := baseTenantServiceServer.OptionBaseTenant(ctx, input)
+func RegisterBaseTenantServiceOptionBaseTenantMCPTool(mcpServer *server.MCPServer, baseTenantServiceServer BaseTenantServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_tenant_service_option_base_tenant",
+			mcp.WithDescription("查询租户下拉选择"),
+			mcp.WithInputSchema[*OptionBaseTenantRequest](),
+			mcp.WithOutputSchema[*commonv1.SelectOptionResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &OptionBaseTenantRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *commonv1.SelectOptionResponse
+			reply, err = baseTenantServiceServer.OptionBaseTenant(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseTenantServicePageBaseTenantMCPTool 注册查询租户分页列表的 MCP Tool。
-func RegisterBaseTenantServicePageBaseTenantMCPTool(mcpServer *mcp.Server, baseTenantServiceServer BaseTenantServiceServer) {
-	mcp.AddTool[*PageBaseTenantRequest, *PageBaseTenantResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_tenant_service_page_base_tenant",
-			Description: "查询租户分页列表",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *PageBaseTenantRequest) (*mcp.CallToolResult, *PageBaseTenantResponse, error) {
-			if input == nil {
-				input = &PageBaseTenantRequest{}
-			}
-			reply, err := baseTenantServiceServer.PageBaseTenant(ctx, input)
+func RegisterBaseTenantServicePageBaseTenantMCPTool(mcpServer *server.MCPServer, baseTenantServiceServer BaseTenantServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_tenant_service_page_base_tenant",
+			mcp.WithDescription("查询租户分页列表"),
+			mcp.WithInputSchema[*PageBaseTenantRequest](),
+			mcp.WithOutputSchema[*PageBaseTenantResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &PageBaseTenantRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *PageBaseTenantResponse
+			reply, err = baseTenantServiceServer.PageBaseTenant(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseTenantServiceGetBaseTenantMCPTool 注册查询租户的 MCP Tool。
-func RegisterBaseTenantServiceGetBaseTenantMCPTool(mcpServer *mcp.Server, baseTenantServiceServer BaseTenantServiceServer) {
-	mcp.AddTool[*GetBaseTenantRequest, *BaseTenantForm](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_tenant_service_get_base_tenant",
-			Description: "查询租户",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *GetBaseTenantRequest) (*mcp.CallToolResult, *BaseTenantForm, error) {
-			if input == nil {
-				input = &GetBaseTenantRequest{}
-			}
-			reply, err := baseTenantServiceServer.GetBaseTenant(ctx, input)
+func RegisterBaseTenantServiceGetBaseTenantMCPTool(mcpServer *server.MCPServer, baseTenantServiceServer BaseTenantServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_tenant_service_get_base_tenant",
+			mcp.WithDescription("查询租户"),
+			mcp.WithInputSchema[*GetBaseTenantRequest](),
+			mcp.WithOutputSchema[*BaseTenantForm](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &GetBaseTenantRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *BaseTenantForm
+			reply, err = baseTenantServiceServer.GetBaseTenant(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseTenantServiceCreateBaseTenantMCPTool 注册创建租户的 MCP Tool。
-func RegisterBaseTenantServiceCreateBaseTenantMCPTool(mcpServer *mcp.Server, baseTenantServiceServer BaseTenantServiceServer) {
-	mcp.AddTool[*CreateBaseTenantRequest, *CreateBaseTenantResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_tenant_service_create_base_tenant",
-			Description: "创建租户",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *CreateBaseTenantRequest) (*mcp.CallToolResult, *CreateBaseTenantResponse, error) {
-			if input == nil {
-				input = &CreateBaseTenantRequest{}
-			}
-			reply, err := baseTenantServiceServer.CreateBaseTenant(ctx, input)
+func RegisterBaseTenantServiceCreateBaseTenantMCPTool(mcpServer *server.MCPServer, baseTenantServiceServer BaseTenantServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_tenant_service_create_base_tenant",
+			mcp.WithDescription("创建租户"),
+			mcp.WithInputSchema[*CreateBaseTenantRequest](),
+			mcp.WithOutputSchema[*CreateBaseTenantResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &CreateBaseTenantRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *CreateBaseTenantResponse
+			reply, err = baseTenantServiceServer.CreateBaseTenant(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseTenantServiceUpdateBaseTenantMCPTool 注册更新租户的 MCP Tool。
-func RegisterBaseTenantServiceUpdateBaseTenantMCPTool(mcpServer *mcp.Server, baseTenantServiceServer BaseTenantServiceServer) {
-	mcp.AddTool[*UpdateBaseTenantRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_tenant_service_update_base_tenant",
-			Description: "更新租户",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *UpdateBaseTenantRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &UpdateBaseTenantRequest{}
-			}
-			reply, err := baseTenantServiceServer.UpdateBaseTenant(ctx, input)
+func RegisterBaseTenantServiceUpdateBaseTenantMCPTool(mcpServer *server.MCPServer, baseTenantServiceServer BaseTenantServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_tenant_service_update_base_tenant",
+			mcp.WithDescription("更新租户"),
+			mcp.WithInputSchema[*UpdateBaseTenantRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &UpdateBaseTenantRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = baseTenantServiceServer.UpdateBaseTenant(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseTenantServiceDeleteBaseTenantMCPTool 注册删除租户的 MCP Tool。
-func RegisterBaseTenantServiceDeleteBaseTenantMCPTool(mcpServer *mcp.Server, baseTenantServiceServer BaseTenantServiceServer) {
-	mcp.AddTool[*DeleteBaseTenantRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_tenant_service_delete_base_tenant",
-			Description: "删除租户",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *DeleteBaseTenantRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &DeleteBaseTenantRequest{}
-			}
-			reply, err := baseTenantServiceServer.DeleteBaseTenant(ctx, input)
+func RegisterBaseTenantServiceDeleteBaseTenantMCPTool(mcpServer *server.MCPServer, baseTenantServiceServer BaseTenantServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_tenant_service_delete_base_tenant",
+			mcp.WithDescription("删除租户"),
+			mcp.WithInputSchema[*DeleteBaseTenantRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &DeleteBaseTenantRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = baseTenantServiceServer.DeleteBaseTenant(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseTenantServiceSetBaseTenantStatusMCPTool 注册设置状态的 MCP Tool。
-func RegisterBaseTenantServiceSetBaseTenantStatusMCPTool(mcpServer *mcp.Server, baseTenantServiceServer BaseTenantServiceServer) {
-	mcp.AddTool[*SetBaseTenantStatusRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_tenant_service_set_base_tenant_status",
-			Description: "设置状态",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *SetBaseTenantStatusRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &SetBaseTenantStatusRequest{}
-			}
-			reply, err := baseTenantServiceServer.SetBaseTenantStatus(ctx, input)
+func RegisterBaseTenantServiceSetBaseTenantStatusMCPTool(mcpServer *server.MCPServer, baseTenantServiceServer BaseTenantServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_tenant_service_set_base_tenant_status",
+			mcp.WithDescription("设置状态"),
+			mcp.WithInputSchema[*SetBaseTenantStatusRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &SetBaseTenantStatusRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = baseTenantServiceServer.SetBaseTenantStatus(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }

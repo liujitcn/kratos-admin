@@ -9,12 +9,13 @@ package adminv1
 import (
 	context "context"
 
-	mcp "github.com/modelcontextprotocol/go-sdk/mcp"
+	mcp "github.com/mark3labs/mcp-go/mcp"
+	server "github.com/mark3labs/mcp-go/server"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // RegisterBaseMessageServiceMCPTools 注册Admin站内信管理服务的 MCP Tool。
-func RegisterBaseMessageServiceMCPTools(mcpServer *mcp.Server, baseMessageServiceServer BaseMessageServiceServer) {
+func RegisterBaseMessageServiceMCPTools(mcpServer *server.MCPServer, baseMessageServiceServer BaseMessageServiceServer) {
 	RegisterBaseMessageServicePageBaseMessageMCPTool(mcpServer, baseMessageServiceServer)
 	RegisterBaseMessageServiceGetBaseMessageMCPTool(mcpServer, baseMessageServiceServer)
 	RegisterBaseMessageServiceCreateBaseMessageMCPTool(mcpServer, baseMessageServiceServer)
@@ -27,190 +28,217 @@ func RegisterBaseMessageServiceMCPTools(mcpServer *mcp.Server, baseMessageServic
 }
 
 // RegisterBaseMessageServicePageBaseMessageMCPTool 注册分页查询消息的 MCP Tool。
-func RegisterBaseMessageServicePageBaseMessageMCPTool(mcpServer *mcp.Server, baseMessageServiceServer BaseMessageServiceServer) {
-	mcp.AddTool[*PageBaseMessageRequest, *PageBaseMessageResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_message_service_page_base_message",
-			Description: "分页查询消息。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *PageBaseMessageRequest) (*mcp.CallToolResult, *PageBaseMessageResponse, error) {
-			if input == nil {
-				input = &PageBaseMessageRequest{}
-			}
-			reply, err := baseMessageServiceServer.PageBaseMessage(ctx, input)
+func RegisterBaseMessageServicePageBaseMessageMCPTool(mcpServer *server.MCPServer, baseMessageServiceServer BaseMessageServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_message_service_page_base_message",
+			mcp.WithDescription("分页查询消息。"),
+			mcp.WithInputSchema[*PageBaseMessageRequest](),
+			mcp.WithOutputSchema[*PageBaseMessageResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &PageBaseMessageRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *PageBaseMessageResponse
+			reply, err = baseMessageServiceServer.PageBaseMessage(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseMessageServiceGetBaseMessageMCPTool 注册查询消息详情的 MCP Tool。
-func RegisterBaseMessageServiceGetBaseMessageMCPTool(mcpServer *mcp.Server, baseMessageServiceServer BaseMessageServiceServer) {
-	mcp.AddTool[*GetBaseMessageRequest, *BaseMessageDetail](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_message_service_get_base_message",
-			Description: "查询消息详情。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *GetBaseMessageRequest) (*mcp.CallToolResult, *BaseMessageDetail, error) {
-			if input == nil {
-				input = &GetBaseMessageRequest{}
-			}
-			reply, err := baseMessageServiceServer.GetBaseMessage(ctx, input)
+func RegisterBaseMessageServiceGetBaseMessageMCPTool(mcpServer *server.MCPServer, baseMessageServiceServer BaseMessageServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_message_service_get_base_message",
+			mcp.WithDescription("查询消息详情。"),
+			mcp.WithInputSchema[*GetBaseMessageRequest](),
+			mcp.WithOutputSchema[*BaseMessageDetail](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &GetBaseMessageRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *BaseMessageDetail
+			reply, err = baseMessageServiceServer.GetBaseMessage(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseMessageServiceCreateBaseMessageMCPTool 注册创建消息草稿的 MCP Tool。
-func RegisterBaseMessageServiceCreateBaseMessageMCPTool(mcpServer *mcp.Server, baseMessageServiceServer BaseMessageServiceServer) {
-	mcp.AddTool[*CreateBaseMessageRequest, *CreateBaseMessageResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_message_service_create_base_message",
-			Description: "创建消息草稿。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *CreateBaseMessageRequest) (*mcp.CallToolResult, *CreateBaseMessageResponse, error) {
-			if input == nil {
-				input = &CreateBaseMessageRequest{}
-			}
-			reply, err := baseMessageServiceServer.CreateBaseMessage(ctx, input)
+func RegisterBaseMessageServiceCreateBaseMessageMCPTool(mcpServer *server.MCPServer, baseMessageServiceServer BaseMessageServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_message_service_create_base_message",
+			mcp.WithDescription("创建消息草稿。"),
+			mcp.WithInputSchema[*CreateBaseMessageRequest](),
+			mcp.WithOutputSchema[*CreateBaseMessageResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &CreateBaseMessageRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *CreateBaseMessageResponse
+			reply, err = baseMessageServiceServer.CreateBaseMessage(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseMessageServiceUpdateBaseMessageMCPTool 注册更新消息草稿的 MCP Tool。
-func RegisterBaseMessageServiceUpdateBaseMessageMCPTool(mcpServer *mcp.Server, baseMessageServiceServer BaseMessageServiceServer) {
-	mcp.AddTool[*UpdateBaseMessageRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_message_service_update_base_message",
-			Description: "更新消息草稿。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *UpdateBaseMessageRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &UpdateBaseMessageRequest{}
-			}
-			reply, err := baseMessageServiceServer.UpdateBaseMessage(ctx, input)
+func RegisterBaseMessageServiceUpdateBaseMessageMCPTool(mcpServer *server.MCPServer, baseMessageServiceServer BaseMessageServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_message_service_update_base_message",
+			mcp.WithDescription("更新消息草稿。"),
+			mcp.WithInputSchema[*UpdateBaseMessageRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &UpdateBaseMessageRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = baseMessageServiceServer.UpdateBaseMessage(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseMessageServiceDeleteBaseMessageMCPTool 注册删除消息草稿的 MCP Tool。
-func RegisterBaseMessageServiceDeleteBaseMessageMCPTool(mcpServer *mcp.Server, baseMessageServiceServer BaseMessageServiceServer) {
-	mcp.AddTool[*DeleteBaseMessageRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_message_service_delete_base_message",
-			Description: "删除消息草稿。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *DeleteBaseMessageRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &DeleteBaseMessageRequest{}
-			}
-			reply, err := baseMessageServiceServer.DeleteBaseMessage(ctx, input)
+func RegisterBaseMessageServiceDeleteBaseMessageMCPTool(mcpServer *server.MCPServer, baseMessageServiceServer BaseMessageServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_message_service_delete_base_message",
+			mcp.WithDescription("删除消息草稿。"),
+			mcp.WithInputSchema[*DeleteBaseMessageRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &DeleteBaseMessageRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = baseMessageServiceServer.DeleteBaseMessage(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseMessageServicePublishBaseMessageMCPTool 注册发布消息的 MCP Tool。
-func RegisterBaseMessageServicePublishBaseMessageMCPTool(mcpServer *mcp.Server, baseMessageServiceServer BaseMessageServiceServer) {
-	mcp.AddTool[*PublishBaseMessageRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_message_service_publish_base_message",
-			Description: "发布消息。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *PublishBaseMessageRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &PublishBaseMessageRequest{}
-			}
-			reply, err := baseMessageServiceServer.PublishBaseMessage(ctx, input)
+func RegisterBaseMessageServicePublishBaseMessageMCPTool(mcpServer *server.MCPServer, baseMessageServiceServer BaseMessageServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_message_service_publish_base_message",
+			mcp.WithDescription("发布消息。"),
+			mcp.WithInputSchema[*PublishBaseMessageRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &PublishBaseMessageRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = baseMessageServiceServer.PublishBaseMessage(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseMessageServiceCancelBaseMessageScheduleMCPTool 注册取消定时发布的 MCP Tool。
-func RegisterBaseMessageServiceCancelBaseMessageScheduleMCPTool(mcpServer *mcp.Server, baseMessageServiceServer BaseMessageServiceServer) {
-	mcp.AddTool[*CancelBaseMessageScheduleRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_message_service_cancel_base_message_schedule",
-			Description: "取消定时发布。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *CancelBaseMessageScheduleRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &CancelBaseMessageScheduleRequest{}
-			}
-			reply, err := baseMessageServiceServer.CancelBaseMessageSchedule(ctx, input)
+func RegisterBaseMessageServiceCancelBaseMessageScheduleMCPTool(mcpServer *server.MCPServer, baseMessageServiceServer BaseMessageServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_message_service_cancel_base_message_schedule",
+			mcp.WithDescription("取消定时发布。"),
+			mcp.WithInputSchema[*CancelBaseMessageScheduleRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &CancelBaseMessageScheduleRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = baseMessageServiceServer.CancelBaseMessageSchedule(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseMessageServiceRevokeBaseMessageMCPTool 注册撤回消息的 MCP Tool。
-func RegisterBaseMessageServiceRevokeBaseMessageMCPTool(mcpServer *mcp.Server, baseMessageServiceServer BaseMessageServiceServer) {
-	mcp.AddTool[*RevokeBaseMessageRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_message_service_revoke_base_message",
-			Description: "撤回消息。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *RevokeBaseMessageRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &RevokeBaseMessageRequest{}
-			}
-			reply, err := baseMessageServiceServer.RevokeBaseMessage(ctx, input)
+func RegisterBaseMessageServiceRevokeBaseMessageMCPTool(mcpServer *server.MCPServer, baseMessageServiceServer BaseMessageServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_message_service_revoke_base_message",
+			mcp.WithDescription("撤回消息。"),
+			mcp.WithInputSchema[*RevokeBaseMessageRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &RevokeBaseMessageRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = baseMessageServiceServer.RevokeBaseMessage(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseMessageServiceRetryBaseMessageDispatchMCPTool 注册重试消息投递任务的 MCP Tool。
-func RegisterBaseMessageServiceRetryBaseMessageDispatchMCPTool(mcpServer *mcp.Server, baseMessageServiceServer BaseMessageServiceServer) {
-	mcp.AddTool[*RetryBaseMessageDispatchRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_message_service_retry_base_message_dispatch",
-			Description: "重试消息投递任务。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *RetryBaseMessageDispatchRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &RetryBaseMessageDispatchRequest{}
-			}
-			reply, err := baseMessageServiceServer.RetryBaseMessageDispatch(ctx, input)
+func RegisterBaseMessageServiceRetryBaseMessageDispatchMCPTool(mcpServer *server.MCPServer, baseMessageServiceServer BaseMessageServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_message_service_retry_base_message_dispatch",
+			mcp.WithDescription("重试消息投递任务。"),
+			mcp.WithInputSchema[*RetryBaseMessageDispatchRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &RetryBaseMessageDispatchRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = baseMessageServiceServer.RetryBaseMessageDispatch(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }

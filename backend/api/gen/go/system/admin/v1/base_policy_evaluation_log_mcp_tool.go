@@ -9,53 +9,60 @@ package adminv1
 import (
 	context "context"
 
-	mcp "github.com/modelcontextprotocol/go-sdk/mcp"
+	mcp "github.com/mark3labs/mcp-go/mcp"
+	server "github.com/mark3labs/mcp-go/server"
 )
 
 // RegisterBasePolicyEvaluationLogServiceMCPTools 注册Admin策略评估日志服务的 MCP Tool。
-func RegisterBasePolicyEvaluationLogServiceMCPTools(mcpServer *mcp.Server, basePolicyEvaluationLogServiceServer BasePolicyEvaluationLogServiceServer) {
+func RegisterBasePolicyEvaluationLogServiceMCPTools(mcpServer *server.MCPServer, basePolicyEvaluationLogServiceServer BasePolicyEvaluationLogServiceServer) {
 	RegisterBasePolicyEvaluationLogServicePageBasePolicyEvaluationLogMCPTool(mcpServer, basePolicyEvaluationLogServiceServer)
 	RegisterBasePolicyEvaluationLogServiceGetBasePolicyEvaluationLogMCPTool(mcpServer, basePolicyEvaluationLogServiceServer)
 }
 
 // RegisterBasePolicyEvaluationLogServicePageBasePolicyEvaluationLogMCPTool 注册分页查询策略评估日志的 MCP Tool。
-func RegisterBasePolicyEvaluationLogServicePageBasePolicyEvaluationLogMCPTool(mcpServer *mcp.Server, basePolicyEvaluationLogServiceServer BasePolicyEvaluationLogServiceServer) {
-	mcp.AddTool[*PageBasePolicyEvaluationLogRequest, *PageBasePolicyEvaluationLogResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_policy_evaluation_log_service_page_base_policy_evaluation_log",
-			Description: "分页查询策略评估日志。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *PageBasePolicyEvaluationLogRequest) (*mcp.CallToolResult, *PageBasePolicyEvaluationLogResponse, error) {
-			if input == nil {
-				input = &PageBasePolicyEvaluationLogRequest{}
-			}
-			reply, err := basePolicyEvaluationLogServiceServer.PageBasePolicyEvaluationLog(ctx, input)
+func RegisterBasePolicyEvaluationLogServicePageBasePolicyEvaluationLogMCPTool(mcpServer *server.MCPServer, basePolicyEvaluationLogServiceServer BasePolicyEvaluationLogServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_policy_evaluation_log_service_page_base_policy_evaluation_log",
+			mcp.WithDescription("分页查询策略评估日志。"),
+			mcp.WithInputSchema[*PageBasePolicyEvaluationLogRequest](),
+			mcp.WithOutputSchema[*PageBasePolicyEvaluationLogResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &PageBasePolicyEvaluationLogRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *PageBasePolicyEvaluationLogResponse
+			reply, err = basePolicyEvaluationLogServiceServer.PageBasePolicyEvaluationLog(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBasePolicyEvaluationLogServiceGetBasePolicyEvaluationLogMCPTool 注册查询策略评估日志详情的 MCP Tool。
-func RegisterBasePolicyEvaluationLogServiceGetBasePolicyEvaluationLogMCPTool(mcpServer *mcp.Server, basePolicyEvaluationLogServiceServer BasePolicyEvaluationLogServiceServer) {
-	mcp.AddTool[*GetBasePolicyEvaluationLogRequest, *BasePolicyEvaluationLog](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_policy_evaluation_log_service_get_base_policy_evaluation_log",
-			Description: "查询策略评估日志详情。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *GetBasePolicyEvaluationLogRequest) (*mcp.CallToolResult, *BasePolicyEvaluationLog, error) {
-			if input == nil {
-				input = &GetBasePolicyEvaluationLogRequest{}
-			}
-			reply, err := basePolicyEvaluationLogServiceServer.GetBasePolicyEvaluationLog(ctx, input)
+func RegisterBasePolicyEvaluationLogServiceGetBasePolicyEvaluationLogMCPTool(mcpServer *server.MCPServer, basePolicyEvaluationLogServiceServer BasePolicyEvaluationLogServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_policy_evaluation_log_service_get_base_policy_evaluation_log",
+			mcp.WithDescription("查询策略评估日志详情。"),
+			mcp.WithInputSchema[*GetBasePolicyEvaluationLogRequest](),
+			mcp.WithOutputSchema[*BasePolicyEvaluationLog](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &GetBasePolicyEvaluationLogRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *BasePolicyEvaluationLog
+			reply, err = basePolicyEvaluationLogServiceServer.GetBasePolicyEvaluationLog(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }

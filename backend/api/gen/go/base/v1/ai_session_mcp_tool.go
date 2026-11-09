@@ -9,11 +9,12 @@ package basev1
 import (
 	context "context"
 
-	mcp "github.com/modelcontextprotocol/go-sdk/mcp"
+	mcp "github.com/mark3labs/mcp-go/mcp"
+	server "github.com/mark3labs/mcp-go/server"
 )
 
 // RegisterAiSessionServiceMCPTools 注册Base AI 助手会话服务的 MCP Tool。
-func RegisterAiSessionServiceMCPTools(mcpServer *mcp.Server, aiSessionServiceServer AiSessionServiceServer) {
+func RegisterAiSessionServiceMCPTools(mcpServer *server.MCPServer, aiSessionServiceServer AiSessionServiceServer) {
 	RegisterAiSessionServiceListAiMessageMCPTool(mcpServer, aiSessionServiceServer)
 	RegisterAiSessionServiceListAiSessionMCPTool(mcpServer, aiSessionServiceServer)
 	RegisterAiSessionServiceCreateAiSessionMCPTool(mcpServer, aiSessionServiceServer)
@@ -23,127 +24,145 @@ func RegisterAiSessionServiceMCPTools(mcpServer *mcp.Server, aiSessionServiceSer
 }
 
 // RegisterAiSessionServiceListAiMessageMCPTool 注册查询 AI 助手消息列表的 MCP Tool。
-func RegisterAiSessionServiceListAiMessageMCPTool(mcpServer *mcp.Server, aiSessionServiceServer AiSessionServiceServer) {
-	mcp.AddTool[*ListAiMessageRequest, *ListAiMessageResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "base_v1_ai_session_service_list_ai_message",
-			Description: "查询 AI 助手消息列表",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *ListAiMessageRequest) (*mcp.CallToolResult, *ListAiMessageResponse, error) {
-			if input == nil {
-				input = &ListAiMessageRequest{}
-			}
-			reply, err := aiSessionServiceServer.ListAiMessage(ctx, input)
+func RegisterAiSessionServiceListAiMessageMCPTool(mcpServer *server.MCPServer, aiSessionServiceServer AiSessionServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("base_v1_ai_session_service_list_ai_message",
+			mcp.WithDescription("查询 AI 助手消息列表"),
+			mcp.WithInputSchema[*ListAiMessageRequest](),
+			mcp.WithOutputSchema[*ListAiMessageResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &ListAiMessageRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *ListAiMessageResponse
+			reply, err = aiSessionServiceServer.ListAiMessage(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterAiSessionServiceListAiSessionMCPTool 注册查询 AI 助手会话列表的 MCP Tool。
-func RegisterAiSessionServiceListAiSessionMCPTool(mcpServer *mcp.Server, aiSessionServiceServer AiSessionServiceServer) {
-	mcp.AddTool[*ListAiSessionRequest, *ListAiSessionResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "base_v1_ai_session_service_list_ai_session",
-			Description: "查询 AI 助手会话列表",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *ListAiSessionRequest) (*mcp.CallToolResult, *ListAiSessionResponse, error) {
-			if input == nil {
-				input = &ListAiSessionRequest{}
-			}
-			reply, err := aiSessionServiceServer.ListAiSession(ctx, input)
+func RegisterAiSessionServiceListAiSessionMCPTool(mcpServer *server.MCPServer, aiSessionServiceServer AiSessionServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("base_v1_ai_session_service_list_ai_session",
+			mcp.WithDescription("查询 AI 助手会话列表"),
+			mcp.WithInputSchema[*ListAiSessionRequest](),
+			mcp.WithOutputSchema[*ListAiSessionResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &ListAiSessionRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *ListAiSessionResponse
+			reply, err = aiSessionServiceServer.ListAiSession(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterAiSessionServiceCreateAiSessionMCPTool 注册创建 AI 助手会话的 MCP Tool。
-func RegisterAiSessionServiceCreateAiSessionMCPTool(mcpServer *mcp.Server, aiSessionServiceServer AiSessionServiceServer) {
-	mcp.AddTool[*CreateAiSessionRequest, *CreateAiSessionResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "base_v1_ai_session_service_create_ai_session",
-			Description: "创建 AI 助手会话",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *CreateAiSessionRequest) (*mcp.CallToolResult, *CreateAiSessionResponse, error) {
-			if input == nil {
-				input = &CreateAiSessionRequest{}
-			}
-			reply, err := aiSessionServiceServer.CreateAiSession(ctx, input)
+func RegisterAiSessionServiceCreateAiSessionMCPTool(mcpServer *server.MCPServer, aiSessionServiceServer AiSessionServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("base_v1_ai_session_service_create_ai_session",
+			mcp.WithDescription("创建 AI 助手会话"),
+			mcp.WithInputSchema[*CreateAiSessionRequest](),
+			mcp.WithOutputSchema[*CreateAiSessionResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &CreateAiSessionRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *CreateAiSessionResponse
+			reply, err = aiSessionServiceServer.CreateAiSession(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterAiSessionServiceCreateAiSessionBranchMCPTool 注册从指定消息创建 AI 助手分支会话的 MCP Tool。
-func RegisterAiSessionServiceCreateAiSessionBranchMCPTool(mcpServer *mcp.Server, aiSessionServiceServer AiSessionServiceServer) {
-	mcp.AddTool[*CreateAiSessionBranchRequest, *CreateAiSessionBranchResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "base_v1_ai_session_service_create_ai_session_branch",
-			Description: "从指定消息创建 AI 助手分支会话",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *CreateAiSessionBranchRequest) (*mcp.CallToolResult, *CreateAiSessionBranchResponse, error) {
-			if input == nil {
-				input = &CreateAiSessionBranchRequest{}
-			}
-			reply, err := aiSessionServiceServer.CreateAiSessionBranch(ctx, input)
+func RegisterAiSessionServiceCreateAiSessionBranchMCPTool(mcpServer *server.MCPServer, aiSessionServiceServer AiSessionServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("base_v1_ai_session_service_create_ai_session_branch",
+			mcp.WithDescription("从指定消息创建 AI 助手分支会话"),
+			mcp.WithInputSchema[*CreateAiSessionBranchRequest](),
+			mcp.WithOutputSchema[*CreateAiSessionBranchResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &CreateAiSessionBranchRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *CreateAiSessionBranchResponse
+			reply, err = aiSessionServiceServer.CreateAiSessionBranch(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterAiSessionServiceUpdateAiSessionMCPTool 注册更新 AI 助手会话的 MCP Tool。
-func RegisterAiSessionServiceUpdateAiSessionMCPTool(mcpServer *mcp.Server, aiSessionServiceServer AiSessionServiceServer) {
-	mcp.AddTool[*UpdateAiSessionRequest, *UpdateAiSessionResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "base_v1_ai_session_service_update_ai_session",
-			Description: "更新 AI 助手会话",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *UpdateAiSessionRequest) (*mcp.CallToolResult, *UpdateAiSessionResponse, error) {
-			if input == nil {
-				input = &UpdateAiSessionRequest{}
-			}
-			reply, err := aiSessionServiceServer.UpdateAiSession(ctx, input)
+func RegisterAiSessionServiceUpdateAiSessionMCPTool(mcpServer *server.MCPServer, aiSessionServiceServer AiSessionServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("base_v1_ai_session_service_update_ai_session",
+			mcp.WithDescription("更新 AI 助手会话"),
+			mcp.WithInputSchema[*UpdateAiSessionRequest](),
+			mcp.WithOutputSchema[*UpdateAiSessionResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &UpdateAiSessionRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *UpdateAiSessionResponse
+			reply, err = aiSessionServiceServer.UpdateAiSession(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterAiSessionServiceDeleteAiSessionMCPTool 注册删除 AI 助手会话的 MCP Tool。
-func RegisterAiSessionServiceDeleteAiSessionMCPTool(mcpServer *mcp.Server, aiSessionServiceServer AiSessionServiceServer) {
-	mcp.AddTool[*DeleteAiSessionRequest, *DeleteAiSessionResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "base_v1_ai_session_service_delete_ai_session",
-			Description: "删除 AI 助手会话",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *DeleteAiSessionRequest) (*mcp.CallToolResult, *DeleteAiSessionResponse, error) {
-			if input == nil {
-				input = &DeleteAiSessionRequest{}
-			}
-			reply, err := aiSessionServiceServer.DeleteAiSession(ctx, input)
+func RegisterAiSessionServiceDeleteAiSessionMCPTool(mcpServer *server.MCPServer, aiSessionServiceServer AiSessionServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("base_v1_ai_session_service_delete_ai_session",
+			mcp.WithDescription("删除 AI 助手会话"),
+			mcp.WithInputSchema[*DeleteAiSessionRequest](),
+			mcp.WithOutputSchema[*DeleteAiSessionResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &DeleteAiSessionRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *DeleteAiSessionResponse
+			reply, err = aiSessionServiceServer.DeleteAiSession(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }

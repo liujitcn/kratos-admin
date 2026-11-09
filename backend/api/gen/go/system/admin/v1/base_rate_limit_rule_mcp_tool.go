@@ -9,12 +9,13 @@ package adminv1
 import (
 	context "context"
 
-	mcp "github.com/modelcontextprotocol/go-sdk/mcp"
+	mcp "github.com/mark3labs/mcp-go/mcp"
+	server "github.com/mark3labs/mcp-go/server"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // RegisterBaseRateLimitRuleServiceMCPTools 注册Admin限流规则模板服务的 MCP Tool。
-func RegisterBaseRateLimitRuleServiceMCPTools(mcpServer *mcp.Server, baseRateLimitRuleServiceServer BaseRateLimitRuleServiceServer) {
+func RegisterBaseRateLimitRuleServiceMCPTools(mcpServer *server.MCPServer, baseRateLimitRuleServiceServer BaseRateLimitRuleServiceServer) {
 	RegisterBaseRateLimitRuleServiceOptionBaseRateLimitRuleMCPTool(mcpServer, baseRateLimitRuleServiceServer)
 	RegisterBaseRateLimitRuleServicePageBaseRateLimitRuleMCPTool(mcpServer, baseRateLimitRuleServiceServer)
 	RegisterBaseRateLimitRuleServiceGetBaseRateLimitRuleMCPTool(mcpServer, baseRateLimitRuleServiceServer)
@@ -25,148 +26,169 @@ func RegisterBaseRateLimitRuleServiceMCPTools(mcpServer *mcp.Server, baseRateLim
 }
 
 // RegisterBaseRateLimitRuleServiceOptionBaseRateLimitRuleMCPTool 注册查询限流规则选项的 MCP Tool。
-func RegisterBaseRateLimitRuleServiceOptionBaseRateLimitRuleMCPTool(mcpServer *mcp.Server, baseRateLimitRuleServiceServer BaseRateLimitRuleServiceServer) {
-	mcp.AddTool[*OptionBaseRateLimitRuleRequest, *OptionBaseRateLimitRuleResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_rate_limit_rule_service_option_base_rate_limit_rule",
-			Description: "查询限流规则选项。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *OptionBaseRateLimitRuleRequest) (*mcp.CallToolResult, *OptionBaseRateLimitRuleResponse, error) {
-			if input == nil {
-				input = &OptionBaseRateLimitRuleRequest{}
-			}
-			reply, err := baseRateLimitRuleServiceServer.OptionBaseRateLimitRule(ctx, input)
+func RegisterBaseRateLimitRuleServiceOptionBaseRateLimitRuleMCPTool(mcpServer *server.MCPServer, baseRateLimitRuleServiceServer BaseRateLimitRuleServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_rate_limit_rule_service_option_base_rate_limit_rule",
+			mcp.WithDescription("查询限流规则选项。"),
+			mcp.WithInputSchema[*OptionBaseRateLimitRuleRequest](),
+			mcp.WithOutputSchema[*OptionBaseRateLimitRuleResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &OptionBaseRateLimitRuleRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *OptionBaseRateLimitRuleResponse
+			reply, err = baseRateLimitRuleServiceServer.OptionBaseRateLimitRule(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseRateLimitRuleServicePageBaseRateLimitRuleMCPTool 注册查询限流规则分页列表的 MCP Tool。
-func RegisterBaseRateLimitRuleServicePageBaseRateLimitRuleMCPTool(mcpServer *mcp.Server, baseRateLimitRuleServiceServer BaseRateLimitRuleServiceServer) {
-	mcp.AddTool[*PageBaseRateLimitRuleRequest, *PageBaseRateLimitRuleResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_rate_limit_rule_service_page_base_rate_limit_rule",
-			Description: "查询限流规则分页列表。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *PageBaseRateLimitRuleRequest) (*mcp.CallToolResult, *PageBaseRateLimitRuleResponse, error) {
-			if input == nil {
-				input = &PageBaseRateLimitRuleRequest{}
-			}
-			reply, err := baseRateLimitRuleServiceServer.PageBaseRateLimitRule(ctx, input)
+func RegisterBaseRateLimitRuleServicePageBaseRateLimitRuleMCPTool(mcpServer *server.MCPServer, baseRateLimitRuleServiceServer BaseRateLimitRuleServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_rate_limit_rule_service_page_base_rate_limit_rule",
+			mcp.WithDescription("查询限流规则分页列表。"),
+			mcp.WithInputSchema[*PageBaseRateLimitRuleRequest](),
+			mcp.WithOutputSchema[*PageBaseRateLimitRuleResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &PageBaseRateLimitRuleRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *PageBaseRateLimitRuleResponse
+			reply, err = baseRateLimitRuleServiceServer.PageBaseRateLimitRule(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseRateLimitRuleServiceGetBaseRateLimitRuleMCPTool 注册查询限流规则详情的 MCP Tool。
-func RegisterBaseRateLimitRuleServiceGetBaseRateLimitRuleMCPTool(mcpServer *mcp.Server, baseRateLimitRuleServiceServer BaseRateLimitRuleServiceServer) {
-	mcp.AddTool[*GetBaseRateLimitRuleRequest, *BaseRateLimitRuleForm](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_rate_limit_rule_service_get_base_rate_limit_rule",
-			Description: "查询限流规则详情。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *GetBaseRateLimitRuleRequest) (*mcp.CallToolResult, *BaseRateLimitRuleForm, error) {
-			if input == nil {
-				input = &GetBaseRateLimitRuleRequest{}
-			}
-			reply, err := baseRateLimitRuleServiceServer.GetBaseRateLimitRule(ctx, input)
+func RegisterBaseRateLimitRuleServiceGetBaseRateLimitRuleMCPTool(mcpServer *server.MCPServer, baseRateLimitRuleServiceServer BaseRateLimitRuleServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_rate_limit_rule_service_get_base_rate_limit_rule",
+			mcp.WithDescription("查询限流规则详情。"),
+			mcp.WithInputSchema[*GetBaseRateLimitRuleRequest](),
+			mcp.WithOutputSchema[*BaseRateLimitRuleForm](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &GetBaseRateLimitRuleRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *BaseRateLimitRuleForm
+			reply, err = baseRateLimitRuleServiceServer.GetBaseRateLimitRule(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseRateLimitRuleServiceCreateBaseRateLimitRuleMCPTool 注册创建限流规则的 MCP Tool。
-func RegisterBaseRateLimitRuleServiceCreateBaseRateLimitRuleMCPTool(mcpServer *mcp.Server, baseRateLimitRuleServiceServer BaseRateLimitRuleServiceServer) {
-	mcp.AddTool[*CreateBaseRateLimitRuleRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_rate_limit_rule_service_create_base_rate_limit_rule",
-			Description: "创建限流规则。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *CreateBaseRateLimitRuleRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &CreateBaseRateLimitRuleRequest{}
-			}
-			reply, err := baseRateLimitRuleServiceServer.CreateBaseRateLimitRule(ctx, input)
+func RegisterBaseRateLimitRuleServiceCreateBaseRateLimitRuleMCPTool(mcpServer *server.MCPServer, baseRateLimitRuleServiceServer BaseRateLimitRuleServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_rate_limit_rule_service_create_base_rate_limit_rule",
+			mcp.WithDescription("创建限流规则。"),
+			mcp.WithInputSchema[*CreateBaseRateLimitRuleRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &CreateBaseRateLimitRuleRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = baseRateLimitRuleServiceServer.CreateBaseRateLimitRule(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseRateLimitRuleServiceUpdateBaseRateLimitRuleMCPTool 注册更新限流规则的 MCP Tool。
-func RegisterBaseRateLimitRuleServiceUpdateBaseRateLimitRuleMCPTool(mcpServer *mcp.Server, baseRateLimitRuleServiceServer BaseRateLimitRuleServiceServer) {
-	mcp.AddTool[*UpdateBaseRateLimitRuleRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_rate_limit_rule_service_update_base_rate_limit_rule",
-			Description: "更新限流规则。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *UpdateBaseRateLimitRuleRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &UpdateBaseRateLimitRuleRequest{}
-			}
-			reply, err := baseRateLimitRuleServiceServer.UpdateBaseRateLimitRule(ctx, input)
+func RegisterBaseRateLimitRuleServiceUpdateBaseRateLimitRuleMCPTool(mcpServer *server.MCPServer, baseRateLimitRuleServiceServer BaseRateLimitRuleServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_rate_limit_rule_service_update_base_rate_limit_rule",
+			mcp.WithDescription("更新限流规则。"),
+			mcp.WithInputSchema[*UpdateBaseRateLimitRuleRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &UpdateBaseRateLimitRuleRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = baseRateLimitRuleServiceServer.UpdateBaseRateLimitRule(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseRateLimitRuleServiceDeleteBaseRateLimitRuleMCPTool 注册删除限流规则的 MCP Tool。
-func RegisterBaseRateLimitRuleServiceDeleteBaseRateLimitRuleMCPTool(mcpServer *mcp.Server, baseRateLimitRuleServiceServer BaseRateLimitRuleServiceServer) {
-	mcp.AddTool[*DeleteBaseRateLimitRuleRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_rate_limit_rule_service_delete_base_rate_limit_rule",
-			Description: "删除限流规则。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *DeleteBaseRateLimitRuleRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &DeleteBaseRateLimitRuleRequest{}
-			}
-			reply, err := baseRateLimitRuleServiceServer.DeleteBaseRateLimitRule(ctx, input)
+func RegisterBaseRateLimitRuleServiceDeleteBaseRateLimitRuleMCPTool(mcpServer *server.MCPServer, baseRateLimitRuleServiceServer BaseRateLimitRuleServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_rate_limit_rule_service_delete_base_rate_limit_rule",
+			mcp.WithDescription("删除限流规则。"),
+			mcp.WithInputSchema[*DeleteBaseRateLimitRuleRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &DeleteBaseRateLimitRuleRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = baseRateLimitRuleServiceServer.DeleteBaseRateLimitRule(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseRateLimitRuleServiceSetBaseRateLimitRuleStatusMCPTool 注册设置限流规则状态的 MCP Tool。
-func RegisterBaseRateLimitRuleServiceSetBaseRateLimitRuleStatusMCPTool(mcpServer *mcp.Server, baseRateLimitRuleServiceServer BaseRateLimitRuleServiceServer) {
-	mcp.AddTool[*SetBaseRateLimitRuleStatusRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_rate_limit_rule_service_set_base_rate_limit_rule_status",
-			Description: "设置限流规则状态。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *SetBaseRateLimitRuleStatusRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &SetBaseRateLimitRuleStatusRequest{}
-			}
-			reply, err := baseRateLimitRuleServiceServer.SetBaseRateLimitRuleStatus(ctx, input)
+func RegisterBaseRateLimitRuleServiceSetBaseRateLimitRuleStatusMCPTool(mcpServer *server.MCPServer, baseRateLimitRuleServiceServer BaseRateLimitRuleServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_rate_limit_rule_service_set_base_rate_limit_rule_status",
+			mcp.WithDescription("设置限流规则状态。"),
+			mcp.WithInputSchema[*SetBaseRateLimitRuleStatusRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &SetBaseRateLimitRuleStatusRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = baseRateLimitRuleServiceServer.SetBaseRateLimitRuleStatus(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }

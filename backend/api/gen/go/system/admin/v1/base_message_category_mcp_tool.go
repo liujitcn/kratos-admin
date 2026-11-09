@@ -10,12 +10,13 @@ import (
 	context "context"
 
 	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
-	mcp "github.com/modelcontextprotocol/go-sdk/mcp"
+	mcp "github.com/mark3labs/mcp-go/mcp"
+	server "github.com/mark3labs/mcp-go/server"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // RegisterBaseMessageCategoryServiceMCPTools 注册Admin消息分类管理服务的 MCP Tool。
-func RegisterBaseMessageCategoryServiceMCPTools(mcpServer *mcp.Server, baseMessageCategoryServiceServer BaseMessageCategoryServiceServer) {
+func RegisterBaseMessageCategoryServiceMCPTools(mcpServer *server.MCPServer, baseMessageCategoryServiceServer BaseMessageCategoryServiceServer) {
 	RegisterBaseMessageCategoryServiceOptionBaseMessageCategoryMCPTool(mcpServer, baseMessageCategoryServiceServer)
 	RegisterBaseMessageCategoryServicePageBaseMessageCategoryMCPTool(mcpServer, baseMessageCategoryServiceServer)
 	RegisterBaseMessageCategoryServiceGetBaseMessageCategoryMCPTool(mcpServer, baseMessageCategoryServiceServer)
@@ -26,148 +27,169 @@ func RegisterBaseMessageCategoryServiceMCPTools(mcpServer *mcp.Server, baseMessa
 }
 
 // RegisterBaseMessageCategoryServiceOptionBaseMessageCategoryMCPTool 注册查询消息分类选项的 MCP Tool。
-func RegisterBaseMessageCategoryServiceOptionBaseMessageCategoryMCPTool(mcpServer *mcp.Server, baseMessageCategoryServiceServer BaseMessageCategoryServiceServer) {
-	mcp.AddTool[*OptionBaseMessageCategoryRequest, *commonv1.SelectOptionResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_message_category_service_option_base_message_category",
-			Description: "查询消息分类选项。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *OptionBaseMessageCategoryRequest) (*mcp.CallToolResult, *commonv1.SelectOptionResponse, error) {
-			if input == nil {
-				input = &OptionBaseMessageCategoryRequest{}
-			}
-			reply, err := baseMessageCategoryServiceServer.OptionBaseMessageCategory(ctx, input)
+func RegisterBaseMessageCategoryServiceOptionBaseMessageCategoryMCPTool(mcpServer *server.MCPServer, baseMessageCategoryServiceServer BaseMessageCategoryServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_message_category_service_option_base_message_category",
+			mcp.WithDescription("查询消息分类选项。"),
+			mcp.WithInputSchema[*OptionBaseMessageCategoryRequest](),
+			mcp.WithOutputSchema[*commonv1.SelectOptionResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &OptionBaseMessageCategoryRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *commonv1.SelectOptionResponse
+			reply, err = baseMessageCategoryServiceServer.OptionBaseMessageCategory(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseMessageCategoryServicePageBaseMessageCategoryMCPTool 注册分页查询消息分类的 MCP Tool。
-func RegisterBaseMessageCategoryServicePageBaseMessageCategoryMCPTool(mcpServer *mcp.Server, baseMessageCategoryServiceServer BaseMessageCategoryServiceServer) {
-	mcp.AddTool[*PageBaseMessageCategoryRequest, *PageBaseMessageCategoryResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_message_category_service_page_base_message_category",
-			Description: "分页查询消息分类。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *PageBaseMessageCategoryRequest) (*mcp.CallToolResult, *PageBaseMessageCategoryResponse, error) {
-			if input == nil {
-				input = &PageBaseMessageCategoryRequest{}
-			}
-			reply, err := baseMessageCategoryServiceServer.PageBaseMessageCategory(ctx, input)
+func RegisterBaseMessageCategoryServicePageBaseMessageCategoryMCPTool(mcpServer *server.MCPServer, baseMessageCategoryServiceServer BaseMessageCategoryServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_message_category_service_page_base_message_category",
+			mcp.WithDescription("分页查询消息分类。"),
+			mcp.WithInputSchema[*PageBaseMessageCategoryRequest](),
+			mcp.WithOutputSchema[*PageBaseMessageCategoryResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &PageBaseMessageCategoryRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *PageBaseMessageCategoryResponse
+			reply, err = baseMessageCategoryServiceServer.PageBaseMessageCategory(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseMessageCategoryServiceGetBaseMessageCategoryMCPTool 注册查询消息分类详情的 MCP Tool。
-func RegisterBaseMessageCategoryServiceGetBaseMessageCategoryMCPTool(mcpServer *mcp.Server, baseMessageCategoryServiceServer BaseMessageCategoryServiceServer) {
-	mcp.AddTool[*GetBaseMessageCategoryRequest, *BaseMessageCategoryForm](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_message_category_service_get_base_message_category",
-			Description: "查询消息分类详情。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *GetBaseMessageCategoryRequest) (*mcp.CallToolResult, *BaseMessageCategoryForm, error) {
-			if input == nil {
-				input = &GetBaseMessageCategoryRequest{}
-			}
-			reply, err := baseMessageCategoryServiceServer.GetBaseMessageCategory(ctx, input)
+func RegisterBaseMessageCategoryServiceGetBaseMessageCategoryMCPTool(mcpServer *server.MCPServer, baseMessageCategoryServiceServer BaseMessageCategoryServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_message_category_service_get_base_message_category",
+			mcp.WithDescription("查询消息分类详情。"),
+			mcp.WithInputSchema[*GetBaseMessageCategoryRequest](),
+			mcp.WithOutputSchema[*BaseMessageCategoryForm](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &GetBaseMessageCategoryRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *BaseMessageCategoryForm
+			reply, err = baseMessageCategoryServiceServer.GetBaseMessageCategory(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseMessageCategoryServiceCreateBaseMessageCategoryMCPTool 注册创建消息分类的 MCP Tool。
-func RegisterBaseMessageCategoryServiceCreateBaseMessageCategoryMCPTool(mcpServer *mcp.Server, baseMessageCategoryServiceServer BaseMessageCategoryServiceServer) {
-	mcp.AddTool[*CreateBaseMessageCategoryRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_message_category_service_create_base_message_category",
-			Description: "创建消息分类。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *CreateBaseMessageCategoryRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &CreateBaseMessageCategoryRequest{}
-			}
-			reply, err := baseMessageCategoryServiceServer.CreateBaseMessageCategory(ctx, input)
+func RegisterBaseMessageCategoryServiceCreateBaseMessageCategoryMCPTool(mcpServer *server.MCPServer, baseMessageCategoryServiceServer BaseMessageCategoryServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_message_category_service_create_base_message_category",
+			mcp.WithDescription("创建消息分类。"),
+			mcp.WithInputSchema[*CreateBaseMessageCategoryRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &CreateBaseMessageCategoryRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = baseMessageCategoryServiceServer.CreateBaseMessageCategory(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseMessageCategoryServiceUpdateBaseMessageCategoryMCPTool 注册更新消息分类的 MCP Tool。
-func RegisterBaseMessageCategoryServiceUpdateBaseMessageCategoryMCPTool(mcpServer *mcp.Server, baseMessageCategoryServiceServer BaseMessageCategoryServiceServer) {
-	mcp.AddTool[*UpdateBaseMessageCategoryRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_message_category_service_update_base_message_category",
-			Description: "更新消息分类。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *UpdateBaseMessageCategoryRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &UpdateBaseMessageCategoryRequest{}
-			}
-			reply, err := baseMessageCategoryServiceServer.UpdateBaseMessageCategory(ctx, input)
+func RegisterBaseMessageCategoryServiceUpdateBaseMessageCategoryMCPTool(mcpServer *server.MCPServer, baseMessageCategoryServiceServer BaseMessageCategoryServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_message_category_service_update_base_message_category",
+			mcp.WithDescription("更新消息分类。"),
+			mcp.WithInputSchema[*UpdateBaseMessageCategoryRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &UpdateBaseMessageCategoryRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = baseMessageCategoryServiceServer.UpdateBaseMessageCategory(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseMessageCategoryServiceDeleteBaseMessageCategoryMCPTool 注册删除消息分类的 MCP Tool。
-func RegisterBaseMessageCategoryServiceDeleteBaseMessageCategoryMCPTool(mcpServer *mcp.Server, baseMessageCategoryServiceServer BaseMessageCategoryServiceServer) {
-	mcp.AddTool[*DeleteBaseMessageCategoryRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_message_category_service_delete_base_message_category",
-			Description: "删除消息分类。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *DeleteBaseMessageCategoryRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &DeleteBaseMessageCategoryRequest{}
-			}
-			reply, err := baseMessageCategoryServiceServer.DeleteBaseMessageCategory(ctx, input)
+func RegisterBaseMessageCategoryServiceDeleteBaseMessageCategoryMCPTool(mcpServer *server.MCPServer, baseMessageCategoryServiceServer BaseMessageCategoryServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_message_category_service_delete_base_message_category",
+			mcp.WithDescription("删除消息分类。"),
+			mcp.WithInputSchema[*DeleteBaseMessageCategoryRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &DeleteBaseMessageCategoryRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = baseMessageCategoryServiceServer.DeleteBaseMessageCategory(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseMessageCategoryServiceSetBaseMessageCategoryStatusMCPTool 注册设置消息分类状态的 MCP Tool。
-func RegisterBaseMessageCategoryServiceSetBaseMessageCategoryStatusMCPTool(mcpServer *mcp.Server, baseMessageCategoryServiceServer BaseMessageCategoryServiceServer) {
-	mcp.AddTool[*SetBaseMessageCategoryStatusRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_message_category_service_set_base_message_category_status",
-			Description: "设置消息分类状态。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *SetBaseMessageCategoryStatusRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &SetBaseMessageCategoryStatusRequest{}
-			}
-			reply, err := baseMessageCategoryServiceServer.SetBaseMessageCategoryStatus(ctx, input)
+func RegisterBaseMessageCategoryServiceSetBaseMessageCategoryStatusMCPTool(mcpServer *server.MCPServer, baseMessageCategoryServiceServer BaseMessageCategoryServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_message_category_service_set_base_message_category_status",
+			mcp.WithDescription("设置消息分类状态。"),
+			mcp.WithInputSchema[*SetBaseMessageCategoryStatusRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &SetBaseMessageCategoryStatusRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = baseMessageCategoryServiceServer.SetBaseMessageCategoryStatus(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }

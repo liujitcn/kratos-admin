@@ -9,54 +9,61 @@ package adminv1
 import (
 	context "context"
 
-	mcp "github.com/modelcontextprotocol/go-sdk/mcp"
+	mcp "github.com/mark3labs/mcp-go/mcp"
+	server "github.com/mark3labs/mcp-go/server"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // RegisterBaseI18nServiceMCPTools 注册Admin国际化翻译信息服务的 MCP Tool。
-func RegisterBaseI18nServiceMCPTools(mcpServer *mcp.Server, baseI18nServiceServer BaseI18nServiceServer) {
+func RegisterBaseI18nServiceMCPTools(mcpServer *server.MCPServer, baseI18nServiceServer BaseI18nServiceServer) {
 	RegisterBaseI18nServiceDraftBaseI18nMCPTool(mcpServer, baseI18nServiceServer)
 	RegisterBaseI18nServiceUpdateBaseI18nMCPTool(mcpServer, baseI18nServiceServer)
 }
 
 // RegisterBaseI18nServiceDraftBaseI18nMCPTool 注册翻译单个文本的 MCP Tool。
-func RegisterBaseI18nServiceDraftBaseI18nMCPTool(mcpServer *mcp.Server, baseI18nServiceServer BaseI18nServiceServer) {
-	mcp.AddTool[*DraftBaseI18nRequest, *DraftBaseI18nResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_i18_n_service_draft_base_i18_n",
-			Description: "翻译单个文本。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *DraftBaseI18nRequest) (*mcp.CallToolResult, *DraftBaseI18nResponse, error) {
-			if input == nil {
-				input = &DraftBaseI18nRequest{}
-			}
-			reply, err := baseI18nServiceServer.DraftBaseI18n(ctx, input)
+func RegisterBaseI18nServiceDraftBaseI18nMCPTool(mcpServer *server.MCPServer, baseI18nServiceServer BaseI18nServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_i18_n_service_draft_base_i18_n",
+			mcp.WithDescription("翻译单个文本。"),
+			mcp.WithInputSchema[*DraftBaseI18nRequest](),
+			mcp.WithOutputSchema[*DraftBaseI18nResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &DraftBaseI18nRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *DraftBaseI18nResponse
+			reply, err = baseI18nServiceServer.DraftBaseI18n(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseI18nServiceUpdateBaseI18nMCPTool 注册修改国际化翻译信息的 MCP Tool。
-func RegisterBaseI18nServiceUpdateBaseI18nMCPTool(mcpServer *mcp.Server, baseI18nServiceServer BaseI18nServiceServer) {
-	mcp.AddTool[*UpdateBaseI18nRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_i18_n_service_update_base_i18_n",
-			Description: "修改国际化翻译信息",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *UpdateBaseI18nRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &UpdateBaseI18nRequest{}
-			}
-			reply, err := baseI18nServiceServer.UpdateBaseI18n(ctx, input)
+func RegisterBaseI18nServiceUpdateBaseI18nMCPTool(mcpServer *server.MCPServer, baseI18nServiceServer BaseI18nServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_i18_n_service_update_base_i18_n",
+			mcp.WithDescription("修改国际化翻译信息"),
+			mcp.WithInputSchema[*UpdateBaseI18nRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &UpdateBaseI18nRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = baseI18nServiceServer.UpdateBaseI18n(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }

@@ -9,12 +9,13 @@ package adminv1
 import (
 	context "context"
 
-	mcp "github.com/modelcontextprotocol/go-sdk/mcp"
+	mcp "github.com/mark3labs/mcp-go/mcp"
+	server "github.com/mark3labs/mcp-go/server"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // RegisterAiKnowledgeServiceMCPTools 注册AI知识库管理服务的 MCP Tool。
-func RegisterAiKnowledgeServiceMCPTools(mcpServer *mcp.Server, aiKnowledgeServiceServer AiKnowledgeServiceServer) {
+func RegisterAiKnowledgeServiceMCPTools(mcpServer *server.MCPServer, aiKnowledgeServiceServer AiKnowledgeServiceServer) {
 	RegisterAiKnowledgeServicePageAiKnowledgeMCPTool(mcpServer, aiKnowledgeServiceServer)
 	RegisterAiKnowledgeServiceListAiKnowledgeModelsMCPTool(mcpServer, aiKnowledgeServiceServer)
 	RegisterAiKnowledgeServiceGetAiKnowledgeMCPTool(mcpServer, aiKnowledgeServiceServer)
@@ -24,127 +25,145 @@ func RegisterAiKnowledgeServiceMCPTools(mcpServer *mcp.Server, aiKnowledgeServic
 }
 
 // RegisterAiKnowledgeServicePageAiKnowledgeMCPTool 注册分页查询AI知识库的 MCP Tool。
-func RegisterAiKnowledgeServicePageAiKnowledgeMCPTool(mcpServer *mcp.Server, aiKnowledgeServiceServer AiKnowledgeServiceServer) {
-	mcp.AddTool[*PageAiKnowledgeRequest, *PageAiKnowledgeResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "rag_admin_v1_ai_knowledge_service_page_ai_knowledge",
-			Description: "分页查询AI知识库。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *PageAiKnowledgeRequest) (*mcp.CallToolResult, *PageAiKnowledgeResponse, error) {
-			if input == nil {
-				input = &PageAiKnowledgeRequest{}
-			}
-			reply, err := aiKnowledgeServiceServer.PageAiKnowledge(ctx, input)
+func RegisterAiKnowledgeServicePageAiKnowledgeMCPTool(mcpServer *server.MCPServer, aiKnowledgeServiceServer AiKnowledgeServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("rag_admin_v1_ai_knowledge_service_page_ai_knowledge",
+			mcp.WithDescription("分页查询AI知识库。"),
+			mcp.WithInputSchema[*PageAiKnowledgeRequest](),
+			mcp.WithOutputSchema[*PageAiKnowledgeResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &PageAiKnowledgeRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *PageAiKnowledgeResponse
+			reply, err = aiKnowledgeServiceServer.PageAiKnowledge(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterAiKnowledgeServiceListAiKnowledgeModelsMCPTool 注册查询已启用的embedding模型选项（知识库向量化模型下拉）。 字面路径必须先于 /{id} 声明：gorilla mux 按注册顺序匹配，否则会被 {id} 路由抢占的 MCP Tool。
-func RegisterAiKnowledgeServiceListAiKnowledgeModelsMCPTool(mcpServer *mcp.Server, aiKnowledgeServiceServer AiKnowledgeServiceServer) {
-	mcp.AddTool[*ListAiKnowledgeModelsRequest, *ListAiKnowledgeModelsResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "rag_admin_v1_ai_knowledge_service_list_ai_knowledge_models",
-			Description: "查询已启用的embedding模型选项（知识库向量化模型下拉）。 字面路径必须先于 /{id} 声明：gorilla mux 按注册顺序匹配，否则会被 {id} 路由抢占。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *ListAiKnowledgeModelsRequest) (*mcp.CallToolResult, *ListAiKnowledgeModelsResponse, error) {
-			if input == nil {
-				input = &ListAiKnowledgeModelsRequest{}
-			}
-			reply, err := aiKnowledgeServiceServer.ListAiKnowledgeModels(ctx, input)
+func RegisterAiKnowledgeServiceListAiKnowledgeModelsMCPTool(mcpServer *server.MCPServer, aiKnowledgeServiceServer AiKnowledgeServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("rag_admin_v1_ai_knowledge_service_list_ai_knowledge_models",
+			mcp.WithDescription("查询已启用的embedding模型选项（知识库向量化模型下拉）。 字面路径必须先于 /{id} 声明：gorilla mux 按注册顺序匹配，否则会被 {id} 路由抢占。"),
+			mcp.WithInputSchema[*ListAiKnowledgeModelsRequest](),
+			mcp.WithOutputSchema[*ListAiKnowledgeModelsResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &ListAiKnowledgeModelsRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *ListAiKnowledgeModelsResponse
+			reply, err = aiKnowledgeServiceServer.ListAiKnowledgeModels(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterAiKnowledgeServiceGetAiKnowledgeMCPTool 注册查询AI知识库表单的 MCP Tool。
-func RegisterAiKnowledgeServiceGetAiKnowledgeMCPTool(mcpServer *mcp.Server, aiKnowledgeServiceServer AiKnowledgeServiceServer) {
-	mcp.AddTool[*GetAiKnowledgeRequest, *AiKnowledgeForm](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "rag_admin_v1_ai_knowledge_service_get_ai_knowledge",
-			Description: "查询AI知识库表单。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *GetAiKnowledgeRequest) (*mcp.CallToolResult, *AiKnowledgeForm, error) {
-			if input == nil {
-				input = &GetAiKnowledgeRequest{}
-			}
-			reply, err := aiKnowledgeServiceServer.GetAiKnowledge(ctx, input)
+func RegisterAiKnowledgeServiceGetAiKnowledgeMCPTool(mcpServer *server.MCPServer, aiKnowledgeServiceServer AiKnowledgeServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("rag_admin_v1_ai_knowledge_service_get_ai_knowledge",
+			mcp.WithDescription("查询AI知识库表单。"),
+			mcp.WithInputSchema[*GetAiKnowledgeRequest](),
+			mcp.WithOutputSchema[*AiKnowledgeForm](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &GetAiKnowledgeRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *AiKnowledgeForm
+			reply, err = aiKnowledgeServiceServer.GetAiKnowledge(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterAiKnowledgeServiceCreateAiKnowledgeMCPTool 注册创建AI知识库的 MCP Tool。
-func RegisterAiKnowledgeServiceCreateAiKnowledgeMCPTool(mcpServer *mcp.Server, aiKnowledgeServiceServer AiKnowledgeServiceServer) {
-	mcp.AddTool[*CreateAiKnowledgeRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "rag_admin_v1_ai_knowledge_service_create_ai_knowledge",
-			Description: "创建AI知识库。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *CreateAiKnowledgeRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &CreateAiKnowledgeRequest{}
-			}
-			reply, err := aiKnowledgeServiceServer.CreateAiKnowledge(ctx, input)
+func RegisterAiKnowledgeServiceCreateAiKnowledgeMCPTool(mcpServer *server.MCPServer, aiKnowledgeServiceServer AiKnowledgeServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("rag_admin_v1_ai_knowledge_service_create_ai_knowledge",
+			mcp.WithDescription("创建AI知识库。"),
+			mcp.WithInputSchema[*CreateAiKnowledgeRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &CreateAiKnowledgeRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = aiKnowledgeServiceServer.CreateAiKnowledge(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterAiKnowledgeServiceUpdateAiKnowledgeMCPTool 注册更新AI知识库的 MCP Tool。
-func RegisterAiKnowledgeServiceUpdateAiKnowledgeMCPTool(mcpServer *mcp.Server, aiKnowledgeServiceServer AiKnowledgeServiceServer) {
-	mcp.AddTool[*UpdateAiKnowledgeRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "rag_admin_v1_ai_knowledge_service_update_ai_knowledge",
-			Description: "更新AI知识库。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *UpdateAiKnowledgeRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &UpdateAiKnowledgeRequest{}
-			}
-			reply, err := aiKnowledgeServiceServer.UpdateAiKnowledge(ctx, input)
+func RegisterAiKnowledgeServiceUpdateAiKnowledgeMCPTool(mcpServer *server.MCPServer, aiKnowledgeServiceServer AiKnowledgeServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("rag_admin_v1_ai_knowledge_service_update_ai_knowledge",
+			mcp.WithDescription("更新AI知识库。"),
+			mcp.WithInputSchema[*UpdateAiKnowledgeRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &UpdateAiKnowledgeRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = aiKnowledgeServiceServer.UpdateAiKnowledge(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterAiKnowledgeServiceDeleteAiKnowledgeMCPTool 注册删除AI知识库（级联删除文档与切片）的 MCP Tool。
-func RegisterAiKnowledgeServiceDeleteAiKnowledgeMCPTool(mcpServer *mcp.Server, aiKnowledgeServiceServer AiKnowledgeServiceServer) {
-	mcp.AddTool[*DeleteAiKnowledgeRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "rag_admin_v1_ai_knowledge_service_delete_ai_knowledge",
-			Description: "删除AI知识库（级联删除文档与切片）。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *DeleteAiKnowledgeRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &DeleteAiKnowledgeRequest{}
-			}
-			reply, err := aiKnowledgeServiceServer.DeleteAiKnowledge(ctx, input)
+func RegisterAiKnowledgeServiceDeleteAiKnowledgeMCPTool(mcpServer *server.MCPServer, aiKnowledgeServiceServer AiKnowledgeServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("rag_admin_v1_ai_knowledge_service_delete_ai_knowledge",
+			mcp.WithDescription("删除AI知识库（级联删除文档与切片）。"),
+			mcp.WithInputSchema[*DeleteAiKnowledgeRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &DeleteAiKnowledgeRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = aiKnowledgeServiceServer.DeleteAiKnowledge(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }

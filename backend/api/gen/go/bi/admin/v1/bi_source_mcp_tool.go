@@ -9,11 +9,12 @@ package adminv1
 import (
 	context "context"
 
-	mcp "github.com/modelcontextprotocol/go-sdk/mcp"
+	mcp "github.com/mark3labs/mcp-go/mcp"
+	server "github.com/mark3labs/mcp-go/server"
 )
 
 // RegisterBiSourceServiceMCPTools 注册BI 数据源配置管理服务的 MCP Tool。
-func RegisterBiSourceServiceMCPTools(mcpServer *mcp.Server, biSourceServiceServer BiSourceServiceServer) {
+func RegisterBiSourceServiceMCPTools(mcpServer *server.MCPServer, biSourceServiceServer BiSourceServiceServer) {
 	RegisterBiSourceServicePageBiSourceMCPTool(mcpServer, biSourceServiceServer)
 	RegisterBiSourceServiceGetBiSourceMCPTool(mcpServer, biSourceServiceServer)
 	RegisterBiSourceServiceCreateBiSourceMCPTool(mcpServer, biSourceServiceServer)
@@ -27,211 +28,241 @@ func RegisterBiSourceServiceMCPTools(mcpServer *mcp.Server, biSourceServiceServe
 }
 
 // RegisterBiSourceServicePageBiSourceMCPTool 注册分页查询当前租户的数据源配置的 MCP Tool。
-func RegisterBiSourceServicePageBiSourceMCPTool(mcpServer *mcp.Server, biSourceServiceServer BiSourceServiceServer) {
-	mcp.AddTool[*PageBiSourceRequest, *PageBiSourceResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "bi_admin_v1_bi_source_service_page_bi_source",
-			Description: "分页查询当前租户的数据源配置。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *PageBiSourceRequest) (*mcp.CallToolResult, *PageBiSourceResponse, error) {
-			if input == nil {
-				input = &PageBiSourceRequest{}
-			}
-			reply, err := biSourceServiceServer.PageBiSource(ctx, input)
+func RegisterBiSourceServicePageBiSourceMCPTool(mcpServer *server.MCPServer, biSourceServiceServer BiSourceServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("bi_admin_v1_bi_source_service_page_bi_source",
+			mcp.WithDescription("分页查询当前租户的数据源配置。"),
+			mcp.WithInputSchema[*PageBiSourceRequest](),
+			mcp.WithOutputSchema[*PageBiSourceResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &PageBiSourceRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *PageBiSourceResponse
+			reply, err = biSourceServiceServer.PageBiSource(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBiSourceServiceGetBiSourceMCPTool 注册查询数据源配置详情的 MCP Tool。
-func RegisterBiSourceServiceGetBiSourceMCPTool(mcpServer *mcp.Server, biSourceServiceServer BiSourceServiceServer) {
-	mcp.AddTool[*GetBiSourceRequest, *BiSource](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "bi_admin_v1_bi_source_service_get_bi_source",
-			Description: "查询数据源配置详情。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *GetBiSourceRequest) (*mcp.CallToolResult, *BiSource, error) {
-			if input == nil {
-				input = &GetBiSourceRequest{}
-			}
-			reply, err := biSourceServiceServer.GetBiSource(ctx, input)
+func RegisterBiSourceServiceGetBiSourceMCPTool(mcpServer *server.MCPServer, biSourceServiceServer BiSourceServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("bi_admin_v1_bi_source_service_get_bi_source",
+			mcp.WithDescription("查询数据源配置详情。"),
+			mcp.WithInputSchema[*GetBiSourceRequest](),
+			mcp.WithOutputSchema[*BiSource](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &GetBiSourceRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *BiSource
+			reply, err = biSourceServiceServer.GetBiSource(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBiSourceServiceCreateBiSourceMCPTool 注册创建数据源配置的 MCP Tool。
-func RegisterBiSourceServiceCreateBiSourceMCPTool(mcpServer *mcp.Server, biSourceServiceServer BiSourceServiceServer) {
-	mcp.AddTool[*CreateBiSourceRequest, *BiSource](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "bi_admin_v1_bi_source_service_create_bi_source",
-			Description: "创建数据源配置。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *CreateBiSourceRequest) (*mcp.CallToolResult, *BiSource, error) {
-			if input == nil {
-				input = &CreateBiSourceRequest{}
-			}
-			reply, err := biSourceServiceServer.CreateBiSource(ctx, input)
+func RegisterBiSourceServiceCreateBiSourceMCPTool(mcpServer *server.MCPServer, biSourceServiceServer BiSourceServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("bi_admin_v1_bi_source_service_create_bi_source",
+			mcp.WithDescription("创建数据源配置。"),
+			mcp.WithInputSchema[*CreateBiSourceRequest](),
+			mcp.WithOutputSchema[*BiSource](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &CreateBiSourceRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *BiSource
+			reply, err = biSourceServiceServer.CreateBiSource(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBiSourceServiceUpdateBiSourceMCPTool 注册更新数据源配置的 MCP Tool。
-func RegisterBiSourceServiceUpdateBiSourceMCPTool(mcpServer *mcp.Server, biSourceServiceServer BiSourceServiceServer) {
-	mcp.AddTool[*UpdateBiSourceRequest, *BiSource](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "bi_admin_v1_bi_source_service_update_bi_source",
-			Description: "更新数据源配置。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *UpdateBiSourceRequest) (*mcp.CallToolResult, *BiSource, error) {
-			if input == nil {
-				input = &UpdateBiSourceRequest{}
-			}
-			reply, err := biSourceServiceServer.UpdateBiSource(ctx, input)
+func RegisterBiSourceServiceUpdateBiSourceMCPTool(mcpServer *server.MCPServer, biSourceServiceServer BiSourceServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("bi_admin_v1_bi_source_service_update_bi_source",
+			mcp.WithDescription("更新数据源配置。"),
+			mcp.WithInputSchema[*UpdateBiSourceRequest](),
+			mcp.WithOutputSchema[*BiSource](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &UpdateBiSourceRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *BiSource
+			reply, err = biSourceServiceServer.UpdateBiSource(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBiSourceServiceDeleteBiSourceMCPTool 注册删除数据源配置的 MCP Tool。
-func RegisterBiSourceServiceDeleteBiSourceMCPTool(mcpServer *mcp.Server, biSourceServiceServer BiSourceServiceServer) {
-	mcp.AddTool[*DeleteBiSourceRequest, *DeleteBiSourceResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "bi_admin_v1_bi_source_service_delete_bi_source",
-			Description: "删除数据源配置。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *DeleteBiSourceRequest) (*mcp.CallToolResult, *DeleteBiSourceResponse, error) {
-			if input == nil {
-				input = &DeleteBiSourceRequest{}
-			}
-			reply, err := biSourceServiceServer.DeleteBiSource(ctx, input)
+func RegisterBiSourceServiceDeleteBiSourceMCPTool(mcpServer *server.MCPServer, biSourceServiceServer BiSourceServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("bi_admin_v1_bi_source_service_delete_bi_source",
+			mcp.WithDescription("删除数据源配置。"),
+			mcp.WithInputSchema[*DeleteBiSourceRequest](),
+			mcp.WithOutputSchema[*DeleteBiSourceResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &DeleteBiSourceRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *DeleteBiSourceResponse
+			reply, err = biSourceServiceServer.DeleteBiSource(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBiSourceServiceSetBiSourceStatusMCPTool 注册修改数据源启用状态的 MCP Tool。
-func RegisterBiSourceServiceSetBiSourceStatusMCPTool(mcpServer *mcp.Server, biSourceServiceServer BiSourceServiceServer) {
-	mcp.AddTool[*SetBiSourceStatusRequest, *BiSource](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "bi_admin_v1_bi_source_service_set_bi_source_status",
-			Description: "修改数据源启用状态。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *SetBiSourceStatusRequest) (*mcp.CallToolResult, *BiSource, error) {
-			if input == nil {
-				input = &SetBiSourceStatusRequest{}
-			}
-			reply, err := biSourceServiceServer.SetBiSourceStatus(ctx, input)
+func RegisterBiSourceServiceSetBiSourceStatusMCPTool(mcpServer *server.MCPServer, biSourceServiceServer BiSourceServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("bi_admin_v1_bi_source_service_set_bi_source_status",
+			mcp.WithDescription("修改数据源启用状态。"),
+			mcp.WithInputSchema[*SetBiSourceStatusRequest](),
+			mcp.WithOutputSchema[*BiSource](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &SetBiSourceStatusRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *BiSource
+			reply, err = biSourceServiceServer.SetBiSourceStatus(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBiSourceServiceOptionBiSourceDatabaseMCPTool 注册查询服务端已配置的数据库客户端选项的 MCP Tool。
-func RegisterBiSourceServiceOptionBiSourceDatabaseMCPTool(mcpServer *mcp.Server, biSourceServiceServer BiSourceServiceServer) {
-	mcp.AddTool[*OptionBiSourceDatabaseRequest, *OptionBiSourceDatabaseResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "bi_admin_v1_bi_source_service_option_bi_source_database",
-			Description: "查询服务端已配置的数据库客户端选项。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *OptionBiSourceDatabaseRequest) (*mcp.CallToolResult, *OptionBiSourceDatabaseResponse, error) {
-			if input == nil {
-				input = &OptionBiSourceDatabaseRequest{}
-			}
-			reply, err := biSourceServiceServer.OptionBiSourceDatabase(ctx, input)
+func RegisterBiSourceServiceOptionBiSourceDatabaseMCPTool(mcpServer *server.MCPServer, biSourceServiceServer BiSourceServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("bi_admin_v1_bi_source_service_option_bi_source_database",
+			mcp.WithDescription("查询服务端已配置的数据库客户端选项。"),
+			mcp.WithInputSchema[*OptionBiSourceDatabaseRequest](),
+			mcp.WithOutputSchema[*OptionBiSourceDatabaseResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &OptionBiSourceDatabaseRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *OptionBiSourceDatabaseResponse
+			reply, err = biSourceServiceServer.OptionBiSourceDatabase(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBiSourceServiceTestBiSourceMCPTool 注册测试数据源连接是否可访问的 MCP Tool。
-func RegisterBiSourceServiceTestBiSourceMCPTool(mcpServer *mcp.Server, biSourceServiceServer BiSourceServiceServer) {
-	mcp.AddTool[*TestBiSourceRequest, *TestBiSourceResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "bi_admin_v1_bi_source_service_test_bi_source",
-			Description: "测试数据源连接是否可访问。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *TestBiSourceRequest) (*mcp.CallToolResult, *TestBiSourceResponse, error) {
-			if input == nil {
-				input = &TestBiSourceRequest{}
-			}
-			reply, err := biSourceServiceServer.TestBiSource(ctx, input)
+func RegisterBiSourceServiceTestBiSourceMCPTool(mcpServer *server.MCPServer, biSourceServiceServer BiSourceServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("bi_admin_v1_bi_source_service_test_bi_source",
+			mcp.WithDescription("测试数据源连接是否可访问。"),
+			mcp.WithInputSchema[*TestBiSourceRequest](),
+			mcp.WithOutputSchema[*TestBiSourceResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &TestBiSourceRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *TestBiSourceResponse
+			reply, err = biSourceServiceServer.TestBiSource(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBiSourceServiceListBiSourceTablesMCPTool 注册发现已保存数据源中的表、字段和唯一键的 MCP Tool。
-func RegisterBiSourceServiceListBiSourceTablesMCPTool(mcpServer *mcp.Server, biSourceServiceServer BiSourceServiceServer) {
-	mcp.AddTool[*ListBiSourceTablesRequest, *ListBiSourceTablesResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "bi_admin_v1_bi_source_service_list_bi_source_tables",
-			Description: "发现已保存数据源中的表、字段和唯一键。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *ListBiSourceTablesRequest) (*mcp.CallToolResult, *ListBiSourceTablesResponse, error) {
-			if input == nil {
-				input = &ListBiSourceTablesRequest{}
-			}
-			reply, err := biSourceServiceServer.ListBiSourceTables(ctx, input)
+func RegisterBiSourceServiceListBiSourceTablesMCPTool(mcpServer *server.MCPServer, biSourceServiceServer BiSourceServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("bi_admin_v1_bi_source_service_list_bi_source_tables",
+			mcp.WithDescription("发现已保存数据源中的表、字段和唯一键。"),
+			mcp.WithInputSchema[*ListBiSourceTablesRequest](),
+			mcp.WithOutputSchema[*ListBiSourceTablesResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &ListBiSourceTablesRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *ListBiSourceTablesResponse
+			reply, err = biSourceServiceServer.ListBiSourceTables(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBiSourceServiceSaveBiSourceModelMCPTool 注册保存经过校验的多表语义模型的 MCP Tool。
-func RegisterBiSourceServiceSaveBiSourceModelMCPTool(mcpServer *mcp.Server, biSourceServiceServer BiSourceServiceServer) {
-	mcp.AddTool[*SaveBiSourceModelRequest, *BiSource](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "bi_admin_v1_bi_source_service_save_bi_source_model",
-			Description: "保存经过校验的多表语义模型。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *SaveBiSourceModelRequest) (*mcp.CallToolResult, *BiSource, error) {
-			if input == nil {
-				input = &SaveBiSourceModelRequest{}
-			}
-			reply, err := biSourceServiceServer.SaveBiSourceModel(ctx, input)
+func RegisterBiSourceServiceSaveBiSourceModelMCPTool(mcpServer *server.MCPServer, biSourceServiceServer BiSourceServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("bi_admin_v1_bi_source_service_save_bi_source_model",
+			mcp.WithDescription("保存经过校验的多表语义模型。"),
+			mcp.WithInputSchema[*SaveBiSourceModelRequest](),
+			mcp.WithOutputSchema[*BiSource](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &SaveBiSourceModelRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *BiSource
+			reply, err = biSourceServiceServer.SaveBiSourceModel(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }

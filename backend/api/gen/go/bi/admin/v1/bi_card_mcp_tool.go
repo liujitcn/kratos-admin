@@ -9,11 +9,12 @@ package adminv1
 import (
 	context "context"
 
-	mcp "github.com/modelcontextprotocol/go-sdk/mcp"
+	mcp "github.com/mark3labs/mcp-go/mcp"
+	server "github.com/mark3labs/mcp-go/server"
 )
 
 // RegisterBiCardServiceMCPTools 注册BI 数据卡片与个人工作台服务的 MCP Tool。
-func RegisterBiCardServiceMCPTools(mcpServer *mcp.Server, biCardServiceServer BiCardServiceServer) {
+func RegisterBiCardServiceMCPTools(mcpServer *server.MCPServer, biCardServiceServer BiCardServiceServer) {
 	RegisterBiCardServicePageBiCardMCPTool(mcpServer, biCardServiceServer)
 	RegisterBiCardServiceSaveBiCardMCPTool(mcpServer, biCardServiceServer)
 	RegisterBiCardServiceDeleteBiCardMCPTool(mcpServer, biCardServiceServer)
@@ -23,127 +24,145 @@ func RegisterBiCardServiceMCPTools(mcpServer *mcp.Server, biCardServiceServer Bi
 }
 
 // RegisterBiCardServicePageBiCardMCPTool 注册分页查询当前用户可见的数据卡片的 MCP Tool。
-func RegisterBiCardServicePageBiCardMCPTool(mcpServer *mcp.Server, biCardServiceServer BiCardServiceServer) {
-	mcp.AddTool[*PageBiCardRequest, *PageBiCardResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "bi_admin_v1_bi_card_service_page_bi_card",
-			Description: "分页查询当前用户可见的数据卡片。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *PageBiCardRequest) (*mcp.CallToolResult, *PageBiCardResponse, error) {
-			if input == nil {
-				input = &PageBiCardRequest{}
-			}
-			reply, err := biCardServiceServer.PageBiCard(ctx, input)
+func RegisterBiCardServicePageBiCardMCPTool(mcpServer *server.MCPServer, biCardServiceServer BiCardServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("bi_admin_v1_bi_card_service_page_bi_card",
+			mcp.WithDescription("分页查询当前用户可见的数据卡片。"),
+			mcp.WithInputSchema[*PageBiCardRequest](),
+			mcp.WithOutputSchema[*PageBiCardResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &PageBiCardRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *PageBiCardResponse
+			reply, err = biCardServiceServer.PageBiCard(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBiCardServiceSaveBiCardMCPTool 注册创建或修改自己的数据卡片的 MCP Tool。
-func RegisterBiCardServiceSaveBiCardMCPTool(mcpServer *mcp.Server, biCardServiceServer BiCardServiceServer) {
-	mcp.AddTool[*SaveBiCardRequest, *BiCard](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "bi_admin_v1_bi_card_service_save_bi_card",
-			Description: "创建或修改自己的数据卡片。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *SaveBiCardRequest) (*mcp.CallToolResult, *BiCard, error) {
-			if input == nil {
-				input = &SaveBiCardRequest{}
-			}
-			reply, err := biCardServiceServer.SaveBiCard(ctx, input)
+func RegisterBiCardServiceSaveBiCardMCPTool(mcpServer *server.MCPServer, biCardServiceServer BiCardServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("bi_admin_v1_bi_card_service_save_bi_card",
+			mcp.WithDescription("创建或修改自己的数据卡片。"),
+			mcp.WithInputSchema[*SaveBiCardRequest](),
+			mcp.WithOutputSchema[*BiCard](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &SaveBiCardRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *BiCard
+			reply, err = biCardServiceServer.SaveBiCard(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBiCardServiceDeleteBiCardMCPTool 注册删除自己的数据卡片的 MCP Tool。
-func RegisterBiCardServiceDeleteBiCardMCPTool(mcpServer *mcp.Server, biCardServiceServer BiCardServiceServer) {
-	mcp.AddTool[*DeleteBiCardRequest, *DeleteBiCardResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "bi_admin_v1_bi_card_service_delete_bi_card",
-			Description: "删除自己的数据卡片。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *DeleteBiCardRequest) (*mcp.CallToolResult, *DeleteBiCardResponse, error) {
-			if input == nil {
-				input = &DeleteBiCardRequest{}
-			}
-			reply, err := biCardServiceServer.DeleteBiCard(ctx, input)
+func RegisterBiCardServiceDeleteBiCardMCPTool(mcpServer *server.MCPServer, biCardServiceServer BiCardServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("bi_admin_v1_bi_card_service_delete_bi_card",
+			mcp.WithDescription("删除自己的数据卡片。"),
+			mcp.WithInputSchema[*DeleteBiCardRequest](),
+			mcp.WithOutputSchema[*DeleteBiCardResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &DeleteBiCardRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *DeleteBiCardResponse
+			reply, err = biCardServiceServer.DeleteBiCard(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBiCardServiceGetBiCardDataMCPTool 注册在当前用户权限范围内执行卡片查询的 MCP Tool。
-func RegisterBiCardServiceGetBiCardDataMCPTool(mcpServer *mcp.Server, biCardServiceServer BiCardServiceServer) {
-	mcp.AddTool[*GetBiCardDataRequest, *BiQueryResult](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "bi_admin_v1_bi_card_service_get_bi_card_data",
-			Description: "在当前用户权限范围内执行卡片查询。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *GetBiCardDataRequest) (*mcp.CallToolResult, *BiQueryResult, error) {
-			if input == nil {
-				input = &GetBiCardDataRequest{}
-			}
-			reply, err := biCardServiceServer.GetBiCardData(ctx, input)
+func RegisterBiCardServiceGetBiCardDataMCPTool(mcpServer *server.MCPServer, biCardServiceServer BiCardServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("bi_admin_v1_bi_card_service_get_bi_card_data",
+			mcp.WithDescription("在当前用户权限范围内执行卡片查询。"),
+			mcp.WithInputSchema[*GetBiCardDataRequest](),
+			mcp.WithOutputSchema[*BiQueryResult](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &GetBiCardDataRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *BiQueryResult
+			reply, err = biCardServiceServer.GetBiCardData(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBiCardServiceGetBiWorkbenchMCPTool 注册获取当前用户的工作台与收藏的 MCP Tool。
-func RegisterBiCardServiceGetBiWorkbenchMCPTool(mcpServer *mcp.Server, biCardServiceServer BiCardServiceServer) {
-	mcp.AddTool[*GetBiWorkbenchRequest, *BiWorkbench](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "bi_admin_v1_bi_card_service_get_bi_workbench",
-			Description: "获取当前用户的工作台与收藏。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *GetBiWorkbenchRequest) (*mcp.CallToolResult, *BiWorkbench, error) {
-			if input == nil {
-				input = &GetBiWorkbenchRequest{}
-			}
-			reply, err := biCardServiceServer.GetBiWorkbench(ctx, input)
+func RegisterBiCardServiceGetBiWorkbenchMCPTool(mcpServer *server.MCPServer, biCardServiceServer BiCardServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("bi_admin_v1_bi_card_service_get_bi_workbench",
+			mcp.WithDescription("获取当前用户的工作台与收藏。"),
+			mcp.WithInputSchema[*GetBiWorkbenchRequest](),
+			mcp.WithOutputSchema[*BiWorkbench](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &GetBiWorkbenchRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *BiWorkbench
+			reply, err = biCardServiceServer.GetBiWorkbench(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBiCardServiceSaveBiWorkbenchMCPTool 注册保存当前用户的工作台顺序与收藏的 MCP Tool。
-func RegisterBiCardServiceSaveBiWorkbenchMCPTool(mcpServer *mcp.Server, biCardServiceServer BiCardServiceServer) {
-	mcp.AddTool[*SaveBiWorkbenchRequest, *BiWorkbench](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "bi_admin_v1_bi_card_service_save_bi_workbench",
-			Description: "保存当前用户的工作台顺序与收藏。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *SaveBiWorkbenchRequest) (*mcp.CallToolResult, *BiWorkbench, error) {
-			if input == nil {
-				input = &SaveBiWorkbenchRequest{}
-			}
-			reply, err := biCardServiceServer.SaveBiWorkbench(ctx, input)
+func RegisterBiCardServiceSaveBiWorkbenchMCPTool(mcpServer *server.MCPServer, biCardServiceServer BiCardServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("bi_admin_v1_bi_card_service_save_bi_workbench",
+			mcp.WithDescription("保存当前用户的工作台顺序与收藏。"),
+			mcp.WithInputSchema[*SaveBiWorkbenchRequest](),
+			mcp.WithOutputSchema[*BiWorkbench](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &SaveBiWorkbenchRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *BiWorkbench
+			reply, err = biCardServiceServer.SaveBiWorkbench(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }

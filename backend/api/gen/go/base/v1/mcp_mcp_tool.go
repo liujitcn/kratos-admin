@@ -9,32 +9,36 @@ package basev1
 import (
 	context "context"
 
-	mcp "github.com/modelcontextprotocol/go-sdk/mcp"
+	mcp "github.com/mark3labs/mcp-go/mcp"
+	server "github.com/mark3labs/mcp-go/server"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // RegisterMcpServiceMCPTools 注册Base MCP服务的 MCP Tool。
-func RegisterMcpServiceMCPTools(mcpServer *mcp.Server, mcpServiceServer McpServiceServer) {
+func RegisterMcpServiceMCPTools(mcpServer *server.MCPServer, mcpServiceServer McpServiceServer) {
 	RegisterMcpServiceHandleMcpMCPTool(mcpServer, mcpServiceServer)
 }
 
 // RegisterMcpServiceHandleMcpMCPTool 注册处理MCP Streamable HTTP请求的 MCP Tool。
-func RegisterMcpServiceHandleMcpMCPTool(mcpServer *mcp.Server, mcpServiceServer McpServiceServer) {
-	mcp.AddTool[*HandleMcpRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "base_v1_mcp_service_handle_mcp",
-			Description: "处理MCP Streamable HTTP请求",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *HandleMcpRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &HandleMcpRequest{}
-			}
-			reply, err := mcpServiceServer.HandleMcp(ctx, input)
+func RegisterMcpServiceHandleMcpMCPTool(mcpServer *server.MCPServer, mcpServiceServer McpServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("base_v1_mcp_service_handle_mcp",
+			mcp.WithDescription("处理MCP Streamable HTTP请求"),
+			mcp.WithInputSchema[*HandleMcpRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &HandleMcpRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = mcpServiceServer.HandleMcp(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }

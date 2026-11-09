@@ -13,6 +13,7 @@ import (
 
 	"github.com/liujitcn/go-utils/mapper"
 	"github.com/liujitcn/gorm-kit/repository"
+	"google.golang.org/protobuf/proto"
 	"gorm.io/gen/field"
 )
 
@@ -77,38 +78,35 @@ func (c *WorkflowTaskCase) PageMyWorkflowTask(ctx context.Context, req *adminv1.
 
 // pageMyAll 分页查询当前用户全部审批视角，并按最新活动时间合并排序。
 func (c *WorkflowTaskCase) pageMyAll(ctx context.Context, tenantID, userID int64, req *adminv1.PageMyWorkflowTaskRequest) ([]*adminv1.MyWorkflowTaskItem, int64, error) {
-	pageNum := req.GetPageNum()
-	if pageNum < 1 {
-		pageNum = 1
-	}
+	pageNum := max(req.GetPageNum(), 1)
 	pageSize := req.GetPageSize()
 	if pageSize < 1 {
 		pageSize = 10
 	}
 	limit := pageNum * pageSize
-	pageReq := *req
+	pageReq := proto.CloneOf(req)
 	pageReq.PageNum = 1
 	pageReq.PageSize = limit
 
-	pendingReq := pageReq
+	pendingReq := proto.CloneOf(pageReq)
 	pendingReq.ListType = adminv1.WorkflowListType_WORKFLOW_LIST_TYPE_PENDING
-	pendingItems, pendingTotal, err := c.pageMyPending(ctx, tenantID, userID, &pendingReq)
+	pendingItems, pendingTotal, err := c.pageMyPending(ctx, tenantID, userID, pendingReq)
 	if err != nil {
 		return nil, 0, err
 	}
-	doneReq := pageReq
+	doneReq := proto.CloneOf(pageReq)
 	doneReq.ListType = adminv1.WorkflowListType_WORKFLOW_LIST_TYPE_DONE
 	var doneItems []*adminv1.MyWorkflowTaskItem
 	var doneTotal int64
-	doneItems, doneTotal, err = c.pageMyDone(ctx, tenantID, userID, &doneReq)
+	doneItems, doneTotal, err = c.pageMyDone(ctx, tenantID, userID, doneReq)
 	if err != nil {
 		return nil, 0, err
 	}
-	submittedReq := pageReq
+	submittedReq := proto.CloneOf(pageReq)
 	submittedReq.ListType = adminv1.WorkflowListType_WORKFLOW_LIST_TYPE_SUBMITTED
 	var submittedItems []*adminv1.MyWorkflowTaskItem
 	var submittedTotal int64
-	submittedItems, submittedTotal, err = c.pageMySubmitted(ctx, tenantID, userID, &submittedReq)
+	submittedItems, submittedTotal, err = c.pageMySubmitted(ctx, tenantID, userID, submittedReq)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -129,10 +127,7 @@ func (c *WorkflowTaskCase) pageMyAll(ctx context.Context, tenantID, userID int64
 	if offset >= int64(len(items)) {
 		return make([]*adminv1.MyWorkflowTaskItem, 0), total, nil
 	}
-	end := offset + pageSize
-	if end > int64(len(items)) {
-		end = int64(len(items))
-	}
+	end := min(offset+pageSize, int64(len(items)))
 	return items[offset:end], total, nil
 }
 

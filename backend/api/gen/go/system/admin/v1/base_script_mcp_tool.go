@@ -9,12 +9,13 @@ package adminv1
 import (
 	context "context"
 
-	mcp "github.com/modelcontextprotocol/go-sdk/mcp"
+	mcp "github.com/mark3labs/mcp-go/mcp"
+	server "github.com/mark3labs/mcp-go/server"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // RegisterBaseScriptServiceMCPTools 注册Admin脚本管理服务的 MCP Tool。
-func RegisterBaseScriptServiceMCPTools(mcpServer *mcp.Server, baseScriptServiceServer BaseScriptServiceServer) {
+func RegisterBaseScriptServiceMCPTools(mcpServer *server.MCPServer, baseScriptServiceServer BaseScriptServiceServer) {
 	RegisterBaseScriptServicePageBaseScriptMCPTool(mcpServer, baseScriptServiceServer)
 	RegisterBaseScriptServiceGetBaseScriptMCPTool(mcpServer, baseScriptServiceServer)
 	RegisterBaseScriptServiceCreateBaseScriptMCPTool(mcpServer, baseScriptServiceServer)
@@ -25,148 +26,169 @@ func RegisterBaseScriptServiceMCPTools(mcpServer *mcp.Server, baseScriptServiceS
 }
 
 // RegisterBaseScriptServicePageBaseScriptMCPTool 注册查询脚本分页列表的 MCP Tool。
-func RegisterBaseScriptServicePageBaseScriptMCPTool(mcpServer *mcp.Server, baseScriptServiceServer BaseScriptServiceServer) {
-	mcp.AddTool[*PageBaseScriptRequest, *PageBaseScriptResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_script_service_page_base_script",
-			Description: "查询脚本分页列表。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *PageBaseScriptRequest) (*mcp.CallToolResult, *PageBaseScriptResponse, error) {
-			if input == nil {
-				input = &PageBaseScriptRequest{}
-			}
-			reply, err := baseScriptServiceServer.PageBaseScript(ctx, input)
+func RegisterBaseScriptServicePageBaseScriptMCPTool(mcpServer *server.MCPServer, baseScriptServiceServer BaseScriptServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_script_service_page_base_script",
+			mcp.WithDescription("查询脚本分页列表。"),
+			mcp.WithInputSchema[*PageBaseScriptRequest](),
+			mcp.WithOutputSchema[*PageBaseScriptResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &PageBaseScriptRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *PageBaseScriptResponse
+			reply, err = baseScriptServiceServer.PageBaseScript(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseScriptServiceGetBaseScriptMCPTool 注册查询脚本详情的 MCP Tool。
-func RegisterBaseScriptServiceGetBaseScriptMCPTool(mcpServer *mcp.Server, baseScriptServiceServer BaseScriptServiceServer) {
-	mcp.AddTool[*GetBaseScriptRequest, *BaseScriptForm](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_script_service_get_base_script",
-			Description: "查询脚本详情。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *GetBaseScriptRequest) (*mcp.CallToolResult, *BaseScriptForm, error) {
-			if input == nil {
-				input = &GetBaseScriptRequest{}
-			}
-			reply, err := baseScriptServiceServer.GetBaseScript(ctx, input)
+func RegisterBaseScriptServiceGetBaseScriptMCPTool(mcpServer *server.MCPServer, baseScriptServiceServer BaseScriptServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_script_service_get_base_script",
+			mcp.WithDescription("查询脚本详情。"),
+			mcp.WithInputSchema[*GetBaseScriptRequest](),
+			mcp.WithOutputSchema[*BaseScriptForm](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &GetBaseScriptRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *BaseScriptForm
+			reply, err = baseScriptServiceServer.GetBaseScript(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseScriptServiceCreateBaseScriptMCPTool 注册创建脚本的 MCP Tool。
-func RegisterBaseScriptServiceCreateBaseScriptMCPTool(mcpServer *mcp.Server, baseScriptServiceServer BaseScriptServiceServer) {
-	mcp.AddTool[*CreateBaseScriptRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_script_service_create_base_script",
-			Description: "创建脚本。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *CreateBaseScriptRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &CreateBaseScriptRequest{}
-			}
-			reply, err := baseScriptServiceServer.CreateBaseScript(ctx, input)
+func RegisterBaseScriptServiceCreateBaseScriptMCPTool(mcpServer *server.MCPServer, baseScriptServiceServer BaseScriptServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_script_service_create_base_script",
+			mcp.WithDescription("创建脚本。"),
+			mcp.WithInputSchema[*CreateBaseScriptRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &CreateBaseScriptRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = baseScriptServiceServer.CreateBaseScript(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseScriptServiceUpdateBaseScriptMCPTool 注册更新脚本的 MCP Tool。
-func RegisterBaseScriptServiceUpdateBaseScriptMCPTool(mcpServer *mcp.Server, baseScriptServiceServer BaseScriptServiceServer) {
-	mcp.AddTool[*UpdateBaseScriptRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_script_service_update_base_script",
-			Description: "更新脚本。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *UpdateBaseScriptRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &UpdateBaseScriptRequest{}
-			}
-			reply, err := baseScriptServiceServer.UpdateBaseScript(ctx, input)
+func RegisterBaseScriptServiceUpdateBaseScriptMCPTool(mcpServer *server.MCPServer, baseScriptServiceServer BaseScriptServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_script_service_update_base_script",
+			mcp.WithDescription("更新脚本。"),
+			mcp.WithInputSchema[*UpdateBaseScriptRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &UpdateBaseScriptRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = baseScriptServiceServer.UpdateBaseScript(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseScriptServiceDeleteBaseScriptMCPTool 注册删除脚本的 MCP Tool。
-func RegisterBaseScriptServiceDeleteBaseScriptMCPTool(mcpServer *mcp.Server, baseScriptServiceServer BaseScriptServiceServer) {
-	mcp.AddTool[*DeleteBaseScriptRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_script_service_delete_base_script",
-			Description: "删除脚本。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *DeleteBaseScriptRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &DeleteBaseScriptRequest{}
-			}
-			reply, err := baseScriptServiceServer.DeleteBaseScript(ctx, input)
+func RegisterBaseScriptServiceDeleteBaseScriptMCPTool(mcpServer *server.MCPServer, baseScriptServiceServer BaseScriptServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_script_service_delete_base_script",
+			mcp.WithDescription("删除脚本。"),
+			mcp.WithInputSchema[*DeleteBaseScriptRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &DeleteBaseScriptRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = baseScriptServiceServer.DeleteBaseScript(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseScriptServiceSetBaseScriptStatusMCPTool 注册设置脚本状态的 MCP Tool。
-func RegisterBaseScriptServiceSetBaseScriptStatusMCPTool(mcpServer *mcp.Server, baseScriptServiceServer BaseScriptServiceServer) {
-	mcp.AddTool[*SetBaseScriptStatusRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_script_service_set_base_script_status",
-			Description: "设置脚本状态。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *SetBaseScriptStatusRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &SetBaseScriptStatusRequest{}
-			}
-			reply, err := baseScriptServiceServer.SetBaseScriptStatus(ctx, input)
+func RegisterBaseScriptServiceSetBaseScriptStatusMCPTool(mcpServer *server.MCPServer, baseScriptServiceServer BaseScriptServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_script_service_set_base_script_status",
+			mcp.WithDescription("设置脚本状态。"),
+			mcp.WithInputSchema[*SetBaseScriptStatusRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &SetBaseScriptStatusRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = baseScriptServiceServer.SetBaseScriptStatus(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseScriptServiceTestRunBaseScriptMCPTool 注册试运行脚本的 MCP Tool。
-func RegisterBaseScriptServiceTestRunBaseScriptMCPTool(mcpServer *mcp.Server, baseScriptServiceServer BaseScriptServiceServer) {
-	mcp.AddTool[*TestRunBaseScriptRequest, *TestRunBaseScriptResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_script_service_test_run_base_script",
-			Description: "试运行脚本。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *TestRunBaseScriptRequest) (*mcp.CallToolResult, *TestRunBaseScriptResponse, error) {
-			if input == nil {
-				input = &TestRunBaseScriptRequest{}
-			}
-			reply, err := baseScriptServiceServer.TestRunBaseScript(ctx, input)
+func RegisterBaseScriptServiceTestRunBaseScriptMCPTool(mcpServer *server.MCPServer, baseScriptServiceServer BaseScriptServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_script_service_test_run_base_script",
+			mcp.WithDescription("试运行脚本。"),
+			mcp.WithInputSchema[*TestRunBaseScriptRequest](),
+			mcp.WithOutputSchema[*TestRunBaseScriptResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &TestRunBaseScriptRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *TestRunBaseScriptResponse
+			reply, err = baseScriptServiceServer.TestRunBaseScript(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }

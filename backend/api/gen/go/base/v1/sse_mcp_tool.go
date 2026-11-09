@@ -9,32 +9,36 @@ package basev1
 import (
 	context "context"
 
-	mcp "github.com/modelcontextprotocol/go-sdk/mcp"
+	mcp "github.com/mark3labs/mcp-go/mcp"
+	server "github.com/mark3labs/mcp-go/server"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // RegisterSseServiceMCPTools 注册Base SSE服务的 MCP Tool。
-func RegisterSseServiceMCPTools(mcpServer *mcp.Server, sseServiceServer SseServiceServer) {
+func RegisterSseServiceMCPTools(mcpServer *server.MCPServer, sseServiceServer SseServiceServer) {
 	RegisterSseServiceSubscribeSseMCPTool(mcpServer, sseServiceServer)
 }
 
 // RegisterSseServiceSubscribeSseMCPTool 注册订阅SSE事件流的 MCP Tool。
-func RegisterSseServiceSubscribeSseMCPTool(mcpServer *mcp.Server, sseServiceServer SseServiceServer) {
-	mcp.AddTool[*SubscribeSseRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "base_v1_sse_service_subscribe_sse",
-			Description: "订阅SSE事件流",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *SubscribeSseRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &SubscribeSseRequest{}
-			}
-			reply, err := sseServiceServer.SubscribeSse(ctx, input)
+func RegisterSseServiceSubscribeSseMCPTool(mcpServer *server.MCPServer, sseServiceServer SseServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("base_v1_sse_service_subscribe_sse",
+			mcp.WithDescription("订阅SSE事件流"),
+			mcp.WithInputSchema[*SubscribeSseRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &SubscribeSseRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = sseServiceServer.SubscribeSse(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }

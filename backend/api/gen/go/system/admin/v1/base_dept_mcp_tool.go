@@ -9,12 +9,14 @@ package adminv1
 import (
 	context "context"
 
-	mcp "github.com/modelcontextprotocol/go-sdk/mcp"
+	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
+	mcp "github.com/mark3labs/mcp-go/mcp"
+	server "github.com/mark3labs/mcp-go/server"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // RegisterBaseDeptServiceMCPTools 注册Admin部门服务的 MCP Tool。
-func RegisterBaseDeptServiceMCPTools(mcpServer *mcp.Server, baseDeptServiceServer BaseDeptServiceServer) {
+func RegisterBaseDeptServiceMCPTools(mcpServer *server.MCPServer, baseDeptServiceServer BaseDeptServiceServer) {
 	RegisterBaseDeptServiceOptionBaseDeptMCPTool(mcpServer, baseDeptServiceServer)
 	RegisterBaseDeptServiceTreeBaseDeptMCPTool(mcpServer, baseDeptServiceServer)
 	RegisterBaseDeptServiceGetBaseDeptMCPTool(mcpServer, baseDeptServiceServer)
@@ -25,148 +27,167 @@ func RegisterBaseDeptServiceMCPTools(mcpServer *mcp.Server, baseDeptServiceServe
 }
 
 // RegisterBaseDeptServiceOptionBaseDeptMCPTool 注册查询部门树形选择的 MCP Tool。
-func RegisterBaseDeptServiceOptionBaseDeptMCPTool(mcpServer *mcp.Server, baseDeptServiceServer BaseDeptServiceServer) {
-	mcp.AddTool[*OptionBaseDeptRequest, any](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_dept_service_option_base_dept",
-			Description: "查询部门树形选择",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *OptionBaseDeptRequest) (*mcp.CallToolResult, any, error) {
-			if input == nil {
-				input = &OptionBaseDeptRequest{}
-			}
-			reply, err := baseDeptServiceServer.OptionBaseDept(ctx, input)
+func RegisterBaseDeptServiceOptionBaseDeptMCPTool(mcpServer *server.MCPServer, baseDeptServiceServer BaseDeptServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_dept_service_option_base_dept",
+			mcp.WithDescription("查询部门树形选择"),
+			mcp.WithInputSchema[*OptionBaseDeptRequest](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &OptionBaseDeptRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *commonv1.TreeOptionResponse
+			reply, err = baseDeptServiceServer.OptionBaseDept(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseDeptServiceTreeBaseDeptMCPTool 注册查询部门树形列表的 MCP Tool。
-func RegisterBaseDeptServiceTreeBaseDeptMCPTool(mcpServer *mcp.Server, baseDeptServiceServer BaseDeptServiceServer) {
-	mcp.AddTool[*TreeBaseDeptRequest, any](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_dept_service_tree_base_dept",
-			Description: "查询部门树形列表",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *TreeBaseDeptRequest) (*mcp.CallToolResult, any, error) {
-			if input == nil {
-				input = &TreeBaseDeptRequest{}
-			}
-			reply, err := baseDeptServiceServer.TreeBaseDept(ctx, input)
+func RegisterBaseDeptServiceTreeBaseDeptMCPTool(mcpServer *server.MCPServer, baseDeptServiceServer BaseDeptServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_dept_service_tree_base_dept",
+			mcp.WithDescription("查询部门树形列表"),
+			mcp.WithInputSchema[*TreeBaseDeptRequest](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &TreeBaseDeptRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *TreeBaseDeptResponse
+			reply, err = baseDeptServiceServer.TreeBaseDept(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseDeptServiceGetBaseDeptMCPTool 注册查询部门的 MCP Tool。
-func RegisterBaseDeptServiceGetBaseDeptMCPTool(mcpServer *mcp.Server, baseDeptServiceServer BaseDeptServiceServer) {
-	mcp.AddTool[*GetBaseDeptRequest, *BaseDeptForm](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_dept_service_get_base_dept",
-			Description: "查询部门",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *GetBaseDeptRequest) (*mcp.CallToolResult, *BaseDeptForm, error) {
-			if input == nil {
-				input = &GetBaseDeptRequest{}
-			}
-			reply, err := baseDeptServiceServer.GetBaseDept(ctx, input)
+func RegisterBaseDeptServiceGetBaseDeptMCPTool(mcpServer *server.MCPServer, baseDeptServiceServer BaseDeptServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_dept_service_get_base_dept",
+			mcp.WithDescription("查询部门"),
+			mcp.WithInputSchema[*GetBaseDeptRequest](),
+			mcp.WithOutputSchema[*BaseDeptForm](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &GetBaseDeptRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *BaseDeptForm
+			reply, err = baseDeptServiceServer.GetBaseDept(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseDeptServiceCreateBaseDeptMCPTool 注册创建部门的 MCP Tool。
-func RegisterBaseDeptServiceCreateBaseDeptMCPTool(mcpServer *mcp.Server, baseDeptServiceServer BaseDeptServiceServer) {
-	mcp.AddTool[*CreateBaseDeptRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_dept_service_create_base_dept",
-			Description: "创建部门",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *CreateBaseDeptRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &CreateBaseDeptRequest{}
-			}
-			reply, err := baseDeptServiceServer.CreateBaseDept(ctx, input)
+func RegisterBaseDeptServiceCreateBaseDeptMCPTool(mcpServer *server.MCPServer, baseDeptServiceServer BaseDeptServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_dept_service_create_base_dept",
+			mcp.WithDescription("创建部门"),
+			mcp.WithInputSchema[*CreateBaseDeptRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &CreateBaseDeptRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = baseDeptServiceServer.CreateBaseDept(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseDeptServiceUpdateBaseDeptMCPTool 注册更新部门的 MCP Tool。
-func RegisterBaseDeptServiceUpdateBaseDeptMCPTool(mcpServer *mcp.Server, baseDeptServiceServer BaseDeptServiceServer) {
-	mcp.AddTool[*UpdateBaseDeptRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_dept_service_update_base_dept",
-			Description: "更新部门",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *UpdateBaseDeptRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &UpdateBaseDeptRequest{}
-			}
-			reply, err := baseDeptServiceServer.UpdateBaseDept(ctx, input)
+func RegisterBaseDeptServiceUpdateBaseDeptMCPTool(mcpServer *server.MCPServer, baseDeptServiceServer BaseDeptServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_dept_service_update_base_dept",
+			mcp.WithDescription("更新部门"),
+			mcp.WithInputSchema[*UpdateBaseDeptRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &UpdateBaseDeptRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = baseDeptServiceServer.UpdateBaseDept(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseDeptServiceDeleteBaseDeptMCPTool 注册删除部门的 MCP Tool。
-func RegisterBaseDeptServiceDeleteBaseDeptMCPTool(mcpServer *mcp.Server, baseDeptServiceServer BaseDeptServiceServer) {
-	mcp.AddTool[*DeleteBaseDeptRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_dept_service_delete_base_dept",
-			Description: "删除部门",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *DeleteBaseDeptRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &DeleteBaseDeptRequest{}
-			}
-			reply, err := baseDeptServiceServer.DeleteBaseDept(ctx, input)
+func RegisterBaseDeptServiceDeleteBaseDeptMCPTool(mcpServer *server.MCPServer, baseDeptServiceServer BaseDeptServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_dept_service_delete_base_dept",
+			mcp.WithDescription("删除部门"),
+			mcp.WithInputSchema[*DeleteBaseDeptRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &DeleteBaseDeptRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = baseDeptServiceServer.DeleteBaseDept(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterBaseDeptServiceSetBaseDeptStatusMCPTool 注册设置状态的 MCP Tool。
-func RegisterBaseDeptServiceSetBaseDeptStatusMCPTool(mcpServer *mcp.Server, baseDeptServiceServer BaseDeptServiceServer) {
-	mcp.AddTool[*SetBaseDeptStatusRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_dept_service_set_base_dept_status",
-			Description: "设置状态",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *SetBaseDeptStatusRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &SetBaseDeptStatusRequest{}
-			}
-			reply, err := baseDeptServiceServer.SetBaseDeptStatus(ctx, input)
+func RegisterBaseDeptServiceSetBaseDeptStatusMCPTool(mcpServer *server.MCPServer, baseDeptServiceServer BaseDeptServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_dept_service_set_base_dept_status",
+			mcp.WithDescription("设置状态"),
+			mcp.WithInputSchema[*SetBaseDeptStatusRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &SetBaseDeptStatusRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = baseDeptServiceServer.SetBaseDeptStatus(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }

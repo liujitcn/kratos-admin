@@ -10,12 +10,13 @@ import (
 	context "context"
 
 	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
-	mcp "github.com/modelcontextprotocol/go-sdk/mcp"
+	mcp "github.com/mark3labs/mcp-go/mcp"
+	server "github.com/mark3labs/mcp-go/server"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // RegisterWorkflowDefinitionServiceMCPTools 注册Admin工作流流程定义服务的 MCP Tool。
-func RegisterWorkflowDefinitionServiceMCPTools(mcpServer *mcp.Server, workflowDefinitionServiceServer WorkflowDefinitionServiceServer) {
+func RegisterWorkflowDefinitionServiceMCPTools(mcpServer *server.MCPServer, workflowDefinitionServiceServer WorkflowDefinitionServiceServer) {
 	RegisterWorkflowDefinitionServicePageWorkflowScriptMCPTool(mcpServer, workflowDefinitionServiceServer)
 	RegisterWorkflowDefinitionServiceTestWorkflowScriptMCPTool(mcpServer, workflowDefinitionServiceServer)
 	RegisterWorkflowDefinitionServiceOptionWorkflowDefinitionMCPTool(mcpServer, workflowDefinitionServiceServer)
@@ -29,211 +30,241 @@ func RegisterWorkflowDefinitionServiceMCPTools(mcpServer *mcp.Server, workflowDe
 }
 
 // RegisterWorkflowDefinitionServicePageWorkflowScriptMCPTool 注册查询流程可用的已启用受限脚本的 MCP Tool。
-func RegisterWorkflowDefinitionServicePageWorkflowScriptMCPTool(mcpServer *mcp.Server, workflowDefinitionServiceServer WorkflowDefinitionServiceServer) {
-	mcp.AddTool[*PageBaseScriptRequest, *PageBaseScriptResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_workflow_definition_service_page_workflow_script",
-			Description: "查询流程可用的已启用受限脚本",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *PageBaseScriptRequest) (*mcp.CallToolResult, *PageBaseScriptResponse, error) {
-			if input == nil {
-				input = &PageBaseScriptRequest{}
-			}
-			reply, err := workflowDefinitionServiceServer.PageWorkflowScript(ctx, input)
+func RegisterWorkflowDefinitionServicePageWorkflowScriptMCPTool(mcpServer *server.MCPServer, workflowDefinitionServiceServer WorkflowDefinitionServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_workflow_definition_service_page_workflow_script",
+			mcp.WithDescription("查询流程可用的已启用受限脚本"),
+			mcp.WithInputSchema[*PageBaseScriptRequest](),
+			mcp.WithOutputSchema[*PageBaseScriptResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &PageBaseScriptRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *PageBaseScriptResponse
+			reply, err = workflowDefinitionServiceServer.PageWorkflowScript(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterWorkflowDefinitionServiceTestWorkflowScriptMCPTool 注册试运行已保存且启用的受限流程脚本，不接受客户端源码的 MCP Tool。
-func RegisterWorkflowDefinitionServiceTestWorkflowScriptMCPTool(mcpServer *mcp.Server, workflowDefinitionServiceServer WorkflowDefinitionServiceServer) {
-	mcp.AddTool[*TestWorkflowScriptRequest, *TestRunBaseScriptResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_workflow_definition_service_test_workflow_script",
-			Description: "试运行已保存且启用的受限流程脚本，不接受客户端源码",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *TestWorkflowScriptRequest) (*mcp.CallToolResult, *TestRunBaseScriptResponse, error) {
-			if input == nil {
-				input = &TestWorkflowScriptRequest{}
-			}
-			reply, err := workflowDefinitionServiceServer.TestWorkflowScript(ctx, input)
+func RegisterWorkflowDefinitionServiceTestWorkflowScriptMCPTool(mcpServer *server.MCPServer, workflowDefinitionServiceServer WorkflowDefinitionServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_workflow_definition_service_test_workflow_script",
+			mcp.WithDescription("试运行已保存且启用的受限流程脚本，不接受客户端源码"),
+			mcp.WithInputSchema[*TestWorkflowScriptRequest](),
+			mcp.WithOutputSchema[*TestRunBaseScriptResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &TestWorkflowScriptRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *TestRunBaseScriptResponse
+			reply, err = workflowDefinitionServiceServer.TestWorkflowScript(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterWorkflowDefinitionServiceOptionWorkflowDefinitionMCPTool 注册查询启用流程定义下拉选择的 MCP Tool。
-func RegisterWorkflowDefinitionServiceOptionWorkflowDefinitionMCPTool(mcpServer *mcp.Server, workflowDefinitionServiceServer WorkflowDefinitionServiceServer) {
-	mcp.AddTool[*OptionWorkflowDefinitionRequest, *commonv1.SelectOptionResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_workflow_definition_service_option_workflow_definition",
-			Description: "查询启用流程定义下拉选择",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *OptionWorkflowDefinitionRequest) (*mcp.CallToolResult, *commonv1.SelectOptionResponse, error) {
-			if input == nil {
-				input = &OptionWorkflowDefinitionRequest{}
-			}
-			reply, err := workflowDefinitionServiceServer.OptionWorkflowDefinition(ctx, input)
+func RegisterWorkflowDefinitionServiceOptionWorkflowDefinitionMCPTool(mcpServer *server.MCPServer, workflowDefinitionServiceServer WorkflowDefinitionServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_workflow_definition_service_option_workflow_definition",
+			mcp.WithDescription("查询启用流程定义下拉选择"),
+			mcp.WithInputSchema[*OptionWorkflowDefinitionRequest](),
+			mcp.WithOutputSchema[*commonv1.SelectOptionResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &OptionWorkflowDefinitionRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *commonv1.SelectOptionResponse
+			reply, err = workflowDefinitionServiceServer.OptionWorkflowDefinition(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterWorkflowDefinitionServiceGetWorkflowApplyFormMCPTool 注册查询启用流程定义的申请表单的 MCP Tool。
-func RegisterWorkflowDefinitionServiceGetWorkflowApplyFormMCPTool(mcpServer *mcp.Server, workflowDefinitionServiceServer WorkflowDefinitionServiceServer) {
-	mcp.AddTool[*GetWorkflowApplyFormRequest, *GetWorkflowApplyFormResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_workflow_definition_service_get_workflow_apply_form",
-			Description: "查询启用流程定义的申请表单",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *GetWorkflowApplyFormRequest) (*mcp.CallToolResult, *GetWorkflowApplyFormResponse, error) {
-			if input == nil {
-				input = &GetWorkflowApplyFormRequest{}
-			}
-			reply, err := workflowDefinitionServiceServer.GetWorkflowApplyForm(ctx, input)
+func RegisterWorkflowDefinitionServiceGetWorkflowApplyFormMCPTool(mcpServer *server.MCPServer, workflowDefinitionServiceServer WorkflowDefinitionServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_workflow_definition_service_get_workflow_apply_form",
+			mcp.WithDescription("查询启用流程定义的申请表单"),
+			mcp.WithInputSchema[*GetWorkflowApplyFormRequest](),
+			mcp.WithOutputSchema[*GetWorkflowApplyFormResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &GetWorkflowApplyFormRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *GetWorkflowApplyFormResponse
+			reply, err = workflowDefinitionServiceServer.GetWorkflowApplyForm(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterWorkflowDefinitionServicePageWorkflowDefinitionMCPTool 注册查询流程定义分页列表的 MCP Tool。
-func RegisterWorkflowDefinitionServicePageWorkflowDefinitionMCPTool(mcpServer *mcp.Server, workflowDefinitionServiceServer WorkflowDefinitionServiceServer) {
-	mcp.AddTool[*PageWorkflowDefinitionRequest, *PageWorkflowDefinitionResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_workflow_definition_service_page_workflow_definition",
-			Description: "查询流程定义分页列表",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *PageWorkflowDefinitionRequest) (*mcp.CallToolResult, *PageWorkflowDefinitionResponse, error) {
-			if input == nil {
-				input = &PageWorkflowDefinitionRequest{}
-			}
-			reply, err := workflowDefinitionServiceServer.PageWorkflowDefinition(ctx, input)
+func RegisterWorkflowDefinitionServicePageWorkflowDefinitionMCPTool(mcpServer *server.MCPServer, workflowDefinitionServiceServer WorkflowDefinitionServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_workflow_definition_service_page_workflow_definition",
+			mcp.WithDescription("查询流程定义分页列表"),
+			mcp.WithInputSchema[*PageWorkflowDefinitionRequest](),
+			mcp.WithOutputSchema[*PageWorkflowDefinitionResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &PageWorkflowDefinitionRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *PageWorkflowDefinitionResponse
+			reply, err = workflowDefinitionServiceServer.PageWorkflowDefinition(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterWorkflowDefinitionServiceGetWorkflowDefinitionMCPTool 注册查询流程定义的 MCP Tool。
-func RegisterWorkflowDefinitionServiceGetWorkflowDefinitionMCPTool(mcpServer *mcp.Server, workflowDefinitionServiceServer WorkflowDefinitionServiceServer) {
-	mcp.AddTool[*GetWorkflowDefinitionRequest, *WorkflowDefinitionForm](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_workflow_definition_service_get_workflow_definition",
-			Description: "查询流程定义",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *GetWorkflowDefinitionRequest) (*mcp.CallToolResult, *WorkflowDefinitionForm, error) {
-			if input == nil {
-				input = &GetWorkflowDefinitionRequest{}
-			}
-			reply, err := workflowDefinitionServiceServer.GetWorkflowDefinition(ctx, input)
+func RegisterWorkflowDefinitionServiceGetWorkflowDefinitionMCPTool(mcpServer *server.MCPServer, workflowDefinitionServiceServer WorkflowDefinitionServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_workflow_definition_service_get_workflow_definition",
+			mcp.WithDescription("查询流程定义"),
+			mcp.WithInputSchema[*GetWorkflowDefinitionRequest](),
+			mcp.WithOutputSchema[*WorkflowDefinitionForm](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &GetWorkflowDefinitionRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *WorkflowDefinitionForm
+			reply, err = workflowDefinitionServiceServer.GetWorkflowDefinition(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterWorkflowDefinitionServiceCreateWorkflowDefinitionMCPTool 注册创建流程定义的 MCP Tool。
-func RegisterWorkflowDefinitionServiceCreateWorkflowDefinitionMCPTool(mcpServer *mcp.Server, workflowDefinitionServiceServer WorkflowDefinitionServiceServer) {
-	mcp.AddTool[*CreateWorkflowDefinitionRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_workflow_definition_service_create_workflow_definition",
-			Description: "创建流程定义",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *CreateWorkflowDefinitionRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &CreateWorkflowDefinitionRequest{}
-			}
-			reply, err := workflowDefinitionServiceServer.CreateWorkflowDefinition(ctx, input)
+func RegisterWorkflowDefinitionServiceCreateWorkflowDefinitionMCPTool(mcpServer *server.MCPServer, workflowDefinitionServiceServer WorkflowDefinitionServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_workflow_definition_service_create_workflow_definition",
+			mcp.WithDescription("创建流程定义"),
+			mcp.WithInputSchema[*CreateWorkflowDefinitionRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &CreateWorkflowDefinitionRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = workflowDefinitionServiceServer.CreateWorkflowDefinition(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterWorkflowDefinitionServiceUpdateWorkflowDefinitionMCPTool 注册更新流程定义的 MCP Tool。
-func RegisterWorkflowDefinitionServiceUpdateWorkflowDefinitionMCPTool(mcpServer *mcp.Server, workflowDefinitionServiceServer WorkflowDefinitionServiceServer) {
-	mcp.AddTool[*UpdateWorkflowDefinitionRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_workflow_definition_service_update_workflow_definition",
-			Description: "更新流程定义",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *UpdateWorkflowDefinitionRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &UpdateWorkflowDefinitionRequest{}
-			}
-			reply, err := workflowDefinitionServiceServer.UpdateWorkflowDefinition(ctx, input)
+func RegisterWorkflowDefinitionServiceUpdateWorkflowDefinitionMCPTool(mcpServer *server.MCPServer, workflowDefinitionServiceServer WorkflowDefinitionServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_workflow_definition_service_update_workflow_definition",
+			mcp.WithDescription("更新流程定义"),
+			mcp.WithInputSchema[*UpdateWorkflowDefinitionRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &UpdateWorkflowDefinitionRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = workflowDefinitionServiceServer.UpdateWorkflowDefinition(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterWorkflowDefinitionServiceDeleteWorkflowDefinitionMCPTool 注册删除流程定义的 MCP Tool。
-func RegisterWorkflowDefinitionServiceDeleteWorkflowDefinitionMCPTool(mcpServer *mcp.Server, workflowDefinitionServiceServer WorkflowDefinitionServiceServer) {
-	mcp.AddTool[*DeleteWorkflowDefinitionRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_workflow_definition_service_delete_workflow_definition",
-			Description: "删除流程定义",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *DeleteWorkflowDefinitionRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &DeleteWorkflowDefinitionRequest{}
-			}
-			reply, err := workflowDefinitionServiceServer.DeleteWorkflowDefinition(ctx, input)
+func RegisterWorkflowDefinitionServiceDeleteWorkflowDefinitionMCPTool(mcpServer *server.MCPServer, workflowDefinitionServiceServer WorkflowDefinitionServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_workflow_definition_service_delete_workflow_definition",
+			mcp.WithDescription("删除流程定义"),
+			mcp.WithInputSchema[*DeleteWorkflowDefinitionRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &DeleteWorkflowDefinitionRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = workflowDefinitionServiceServer.DeleteWorkflowDefinition(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterWorkflowDefinitionServiceSetWorkflowDefinitionStatusMCPTool 注册设置流程定义状态的 MCP Tool。
-func RegisterWorkflowDefinitionServiceSetWorkflowDefinitionStatusMCPTool(mcpServer *mcp.Server, workflowDefinitionServiceServer WorkflowDefinitionServiceServer) {
-	mcp.AddTool[*SetWorkflowDefinitionStatusRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_workflow_definition_service_set_workflow_definition_status",
-			Description: "设置流程定义状态",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *SetWorkflowDefinitionStatusRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &SetWorkflowDefinitionStatusRequest{}
-			}
-			reply, err := workflowDefinitionServiceServer.SetWorkflowDefinitionStatus(ctx, input)
+func RegisterWorkflowDefinitionServiceSetWorkflowDefinitionStatusMCPTool(mcpServer *server.MCPServer, workflowDefinitionServiceServer WorkflowDefinitionServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_workflow_definition_service_set_workflow_definition_status",
+			mcp.WithDescription("设置流程定义状态"),
+			mcp.WithInputSchema[*SetWorkflowDefinitionStatusRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &SetWorkflowDefinitionStatusRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = workflowDefinitionServiceServer.SetWorkflowDefinitionStatus(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }

@@ -9,12 +9,13 @@ package adminv1
 import (
 	context "context"
 
-	mcp "github.com/modelcontextprotocol/go-sdk/mcp"
+	mcp "github.com/mark3labs/mcp-go/mcp"
+	server "github.com/mark3labs/mcp-go/server"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // RegisterOauthClientServiceMCPTools 注册Admin开放授权客户端管理服务的 MCP Tool。
-func RegisterOauthClientServiceMCPTools(mcpServer *mcp.Server, oauthClientServiceServer OauthClientServiceServer) {
+func RegisterOauthClientServiceMCPTools(mcpServer *server.MCPServer, oauthClientServiceServer OauthClientServiceServer) {
 	RegisterOauthClientServiceOptionOauthClientApiMCPTool(mcpServer, oauthClientServiceServer)
 	RegisterOauthClientServicePageOauthClientMCPTool(mcpServer, oauthClientServiceServer)
 	RegisterOauthClientServiceGetOauthClientMCPTool(mcpServer, oauthClientServiceServer)
@@ -27,190 +28,217 @@ func RegisterOauthClientServiceMCPTools(mcpServer *mcp.Server, oauthClientServic
 }
 
 // RegisterOauthClientServiceOptionOauthClientApiMCPTool 注册查询可授权的开发接口选项的 MCP Tool。
-func RegisterOauthClientServiceOptionOauthClientApiMCPTool(mcpServer *mcp.Server, oauthClientServiceServer OauthClientServiceServer) {
-	mcp.AddTool[*OptionOauthClientApiRequest, *OptionOauthClientApiResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_oauth_client_service_option_oauth_client_api",
-			Description: "查询可授权的开发接口选项。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *OptionOauthClientApiRequest) (*mcp.CallToolResult, *OptionOauthClientApiResponse, error) {
-			if input == nil {
-				input = &OptionOauthClientApiRequest{}
-			}
-			reply, err := oauthClientServiceServer.OptionOauthClientApi(ctx, input)
+func RegisterOauthClientServiceOptionOauthClientApiMCPTool(mcpServer *server.MCPServer, oauthClientServiceServer OauthClientServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_oauth_client_service_option_oauth_client_api",
+			mcp.WithDescription("查询可授权的开发接口选项。"),
+			mcp.WithInputSchema[*OptionOauthClientApiRequest](),
+			mcp.WithOutputSchema[*OptionOauthClientApiResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &OptionOauthClientApiRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *OptionOauthClientApiResponse
+			reply, err = oauthClientServiceServer.OptionOauthClientApi(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterOauthClientServicePageOauthClientMCPTool 注册分页查询开放授权客户端的 MCP Tool。
-func RegisterOauthClientServicePageOauthClientMCPTool(mcpServer *mcp.Server, oauthClientServiceServer OauthClientServiceServer) {
-	mcp.AddTool[*PageOauthClientRequest, *PageOauthClientResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_oauth_client_service_page_oauth_client",
-			Description: "分页查询开放授权客户端。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *PageOauthClientRequest) (*mcp.CallToolResult, *PageOauthClientResponse, error) {
-			if input == nil {
-				input = &PageOauthClientRequest{}
-			}
-			reply, err := oauthClientServiceServer.PageOauthClient(ctx, input)
+func RegisterOauthClientServicePageOauthClientMCPTool(mcpServer *server.MCPServer, oauthClientServiceServer OauthClientServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_oauth_client_service_page_oauth_client",
+			mcp.WithDescription("分页查询开放授权客户端。"),
+			mcp.WithInputSchema[*PageOauthClientRequest](),
+			mcp.WithOutputSchema[*PageOauthClientResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &PageOauthClientRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *PageOauthClientResponse
+			reply, err = oauthClientServiceServer.PageOauthClient(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterOauthClientServiceGetOauthClientMCPTool 注册查询开放授权客户端详情的 MCP Tool。
-func RegisterOauthClientServiceGetOauthClientMCPTool(mcpServer *mcp.Server, oauthClientServiceServer OauthClientServiceServer) {
-	mcp.AddTool[*GetOauthClientRequest, *OauthClientForm](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_oauth_client_service_get_oauth_client",
-			Description: "查询开放授权客户端详情。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *GetOauthClientRequest) (*mcp.CallToolResult, *OauthClientForm, error) {
-			if input == nil {
-				input = &GetOauthClientRequest{}
-			}
-			reply, err := oauthClientServiceServer.GetOauthClient(ctx, input)
+func RegisterOauthClientServiceGetOauthClientMCPTool(mcpServer *server.MCPServer, oauthClientServiceServer OauthClientServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_oauth_client_service_get_oauth_client",
+			mcp.WithDescription("查询开放授权客户端详情。"),
+			mcp.WithInputSchema[*GetOauthClientRequest](),
+			mcp.WithOutputSchema[*OauthClientForm](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &GetOauthClientRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *OauthClientForm
+			reply, err = oauthClientServiceServer.GetOauthClient(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterOauthClientServiceGetOauthClientCredentialsMCPTool 注册查询客户端凭据元数据；客户端密钥和协议密钥不会通过接口回传的 MCP Tool。
-func RegisterOauthClientServiceGetOauthClientCredentialsMCPTool(mcpServer *mcp.Server, oauthClientServiceServer OauthClientServiceServer) {
-	mcp.AddTool[*GetOauthClientCredentialsRequest, *OauthClientCredentials](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_oauth_client_service_get_oauth_client_credentials",
-			Description: "查询客户端凭据元数据；客户端密钥和协议密钥不会通过接口回传。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *GetOauthClientCredentialsRequest) (*mcp.CallToolResult, *OauthClientCredentials, error) {
-			if input == nil {
-				input = &GetOauthClientCredentialsRequest{}
-			}
-			reply, err := oauthClientServiceServer.GetOauthClientCredentials(ctx, input)
+func RegisterOauthClientServiceGetOauthClientCredentialsMCPTool(mcpServer *server.MCPServer, oauthClientServiceServer OauthClientServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_oauth_client_service_get_oauth_client_credentials",
+			mcp.WithDescription("查询客户端凭据元数据；客户端密钥和协议密钥不会通过接口回传。"),
+			mcp.WithInputSchema[*GetOauthClientCredentialsRequest](),
+			mcp.WithOutputSchema[*OauthClientCredentials](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &GetOauthClientCredentialsRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *OauthClientCredentials
+			reply, err = oauthClientServiceServer.GetOauthClientCredentials(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterOauthClientServiceRotateOauthClientCredentialsMCPTool 注册轮换客户端密钥并一次性返回新凭据的 MCP Tool。
-func RegisterOauthClientServiceRotateOauthClientCredentialsMCPTool(mcpServer *mcp.Server, oauthClientServiceServer OauthClientServiceServer) {
-	mcp.AddTool[*RotateOauthClientCredentialsRequest, *OauthClientCredentials](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_oauth_client_service_rotate_oauth_client_credentials",
-			Description: "轮换客户端密钥并一次性返回新凭据。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *RotateOauthClientCredentialsRequest) (*mcp.CallToolResult, *OauthClientCredentials, error) {
-			if input == nil {
-				input = &RotateOauthClientCredentialsRequest{}
-			}
-			reply, err := oauthClientServiceServer.RotateOauthClientCredentials(ctx, input)
+func RegisterOauthClientServiceRotateOauthClientCredentialsMCPTool(mcpServer *server.MCPServer, oauthClientServiceServer OauthClientServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_oauth_client_service_rotate_oauth_client_credentials",
+			mcp.WithDescription("轮换客户端密钥并一次性返回新凭据。"),
+			mcp.WithInputSchema[*RotateOauthClientCredentialsRequest](),
+			mcp.WithOutputSchema[*OauthClientCredentials](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &RotateOauthClientCredentialsRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *OauthClientCredentials
+			reply, err = oauthClientServiceServer.RotateOauthClientCredentials(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterOauthClientServiceCreateOauthClientMCPTool 注册创建开放授权客户端的 MCP Tool。
-func RegisterOauthClientServiceCreateOauthClientMCPTool(mcpServer *mcp.Server, oauthClientServiceServer OauthClientServiceServer) {
-	mcp.AddTool[*CreateOauthClientRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_oauth_client_service_create_oauth_client",
-			Description: "创建开放授权客户端。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *CreateOauthClientRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &CreateOauthClientRequest{}
-			}
-			reply, err := oauthClientServiceServer.CreateOauthClient(ctx, input)
+func RegisterOauthClientServiceCreateOauthClientMCPTool(mcpServer *server.MCPServer, oauthClientServiceServer OauthClientServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_oauth_client_service_create_oauth_client",
+			mcp.WithDescription("创建开放授权客户端。"),
+			mcp.WithInputSchema[*CreateOauthClientRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &CreateOauthClientRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = oauthClientServiceServer.CreateOauthClient(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterOauthClientServiceUpdateOauthClientMCPTool 注册更新开放授权客户端的 MCP Tool。
-func RegisterOauthClientServiceUpdateOauthClientMCPTool(mcpServer *mcp.Server, oauthClientServiceServer OauthClientServiceServer) {
-	mcp.AddTool[*UpdateOauthClientRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_oauth_client_service_update_oauth_client",
-			Description: "更新开放授权客户端。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *UpdateOauthClientRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &UpdateOauthClientRequest{}
-			}
-			reply, err := oauthClientServiceServer.UpdateOauthClient(ctx, input)
+func RegisterOauthClientServiceUpdateOauthClientMCPTool(mcpServer *server.MCPServer, oauthClientServiceServer OauthClientServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_oauth_client_service_update_oauth_client",
+			mcp.WithDescription("更新开放授权客户端。"),
+			mcp.WithInputSchema[*UpdateOauthClientRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &UpdateOauthClientRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = oauthClientServiceServer.UpdateOauthClient(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterOauthClientServiceDeleteOauthClientMCPTool 注册删除开放授权客户端的 MCP Tool。
-func RegisterOauthClientServiceDeleteOauthClientMCPTool(mcpServer *mcp.Server, oauthClientServiceServer OauthClientServiceServer) {
-	mcp.AddTool[*DeleteOauthClientRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_oauth_client_service_delete_oauth_client",
-			Description: "删除开放授权客户端。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *DeleteOauthClientRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &DeleteOauthClientRequest{}
-			}
-			reply, err := oauthClientServiceServer.DeleteOauthClient(ctx, input)
+func RegisterOauthClientServiceDeleteOauthClientMCPTool(mcpServer *server.MCPServer, oauthClientServiceServer OauthClientServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_oauth_client_service_delete_oauth_client",
+			mcp.WithDescription("删除开放授权客户端。"),
+			mcp.WithInputSchema[*DeleteOauthClientRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &DeleteOauthClientRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = oauthClientServiceServer.DeleteOauthClient(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
 
 // RegisterOauthClientServiceSetOauthClientStatusMCPTool 注册设置开放授权客户端状态的 MCP Tool。
-func RegisterOauthClientServiceSetOauthClientStatusMCPTool(mcpServer *mcp.Server, oauthClientServiceServer OauthClientServiceServer) {
-	mcp.AddTool[*SetOauthClientStatusRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_oauth_client_service_set_oauth_client_status",
-			Description: "设置开放授权客户端状态。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *SetOauthClientStatusRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &SetOauthClientStatusRequest{}
-			}
-			reply, err := oauthClientServiceServer.SetOauthClientStatus(ctx, input)
+func RegisterOauthClientServiceSetOauthClientStatusMCPTool(mcpServer *server.MCPServer, oauthClientServiceServer OauthClientServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_oauth_client_service_set_oauth_client_status",
+			mcp.WithDescription("设置开放授权客户端状态。"),
+			mcp.WithInputSchema[*SetOauthClientStatusRequest](),
+			mcp.WithOutputSchema[*emptypb.Empty](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &SetOauthClientStatusRequest{}
+			err := request.BindArguments(req)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			return nil, reply, nil
+			var reply *emptypb.Empty
+			reply, err = oauthClientServiceServer.SetOauthClientStatus(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
 		},
 	)
 }
