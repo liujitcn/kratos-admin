@@ -1,7 +1,7 @@
 {
   "name": "@liujitcn/kratos-admin-bi",
   "private": false,
-  "version": "0.1.6",
+  "version": "0.1.10",
   "type": "module",
   "description": "kratos-admin BI analysis and semantic query module",
   "license": "MIT",
@@ -60,6 +60,12 @@
     },
     "./package.json": "./package.json"
   },
-  "files": ["dist/package", "package.json", "tsconfig.json"],
-  "publishConfig": {"access": "public"}
+  "files": [
+    "dist/package",
+    "package.json",
+    "tsconfig.json"
+  ],
+  "publishConfig": {
+    "access": "public"
+  }
 }
