@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"slices"
 	"strconv"
 	"time"
 
@@ -1089,8 +1090,7 @@ func toAiToolCalls(values []ai.ToolUsage) []*basev1.AiToolCall {
 // buildHistoryFromMessages 将一轮一行消息拆成模型需要的 user/ai 上下文。
 func buildHistoryFromMessages(list []*models.AiMessage) []ai.Message {
 	history := make([]ai.Message, 0, len(list)*2)
-	for index := len(list) - 1; index >= 0; index-- {
-		item := list[index]
+	for _, item := range slices.Backward(list) {
 		input := ai.ParseInputContent(item.InputContent)
 		if input.Content != "" {
 			history = append(history, ai.Message{

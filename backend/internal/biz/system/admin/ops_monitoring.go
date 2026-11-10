@@ -1,13 +1,14 @@
 package biz
 
 import (
+	"cmp"
 	"context"
 	"fmt"
 	"math"
 	"os"
 	"path/filepath"
 	"runtime"
-	"sort"
+	"slices"
 	"strconv"
 	"strings"
 	"time"
@@ -163,10 +164,7 @@ func (c *OpsMonitoringCase) runtimeInfo(now time.Time, locale string) *adminv1.O
 	startAt := now
 	if startTime != nil {
 		startAt = startTime.AsTime()
-		uptimeSeconds = int64(now.Sub(startAt).Seconds())
-		if uptimeSeconds < 0 {
-			uptimeSeconds = 0
-		}
+		uptimeSeconds = max(int64(now.Sub(startAt).Seconds()), 0)
 	}
 	return &adminv1.OpsRuntime{
 		ServiceName:      firstNonEmpty(appInfo.GetName(), appInfo.GetAppId(), monitoringText(c.catalog, locale, "unnamed_service")),
@@ -427,10 +425,10 @@ func (c *OpsMonitoringCase) redisStatus(ctx context.Context) (*adminv1.OpsServic
 // redisInfoValue 从 Redis INFO 文本中读取单个指标值。
 func redisInfoValue(info, key string) string {
 	prefix := key + ":"
-	for _, line := range strings.Split(info, "\n") {
+	for line := range strings.SplitSeq(info, "\n") {
 		line = strings.TrimSpace(line)
-		if strings.HasPrefix(line, prefix) {
-			return strings.TrimSpace(strings.TrimPrefix(line, prefix))
+		if after, ok := strings.CutPrefix(line, prefix); ok {
+			return strings.TrimSpace(after)
 		}
 	}
 	return ""
@@ -522,7 +520,7 @@ func summarizeEndpoints(logs []dto.OpsLogRecord, windowMinutes int, catalog *i18
 	for _, aggregate := range aggregates {
 		items = append(items, aggregate)
 	}
-	sort.Slice(items, func(left int, right int) bool { return items[left].Total > items[right].Total })
+	slices.SortFunc(items, func(left, right *dto.OpsEndpointAggregate) int { return cmp.Compare(right.Total, left.Total) })
 	if len(items) > 8 {
 		items = items[:8]
 	}
@@ -635,11 +633,8 @@ func percentile(values []int64, ratio float64) float64 {
 		return 0
 	}
 	values = append([]int64(nil), values...)
-	sort.Slice(values, func(left int, right int) bool { return values[left] < values[right] })
-	index := int(math.Ceil(float64(len(values))*ratio)) - 1
-	if index < 0 {
-		index = 0
-	}
+	slices.Sort(values)
+	index := max(int(math.Ceil(float64(len(values))*ratio))-1, 0)
 	if index >= len(values) {
 		index = len(values) - 1
 	}

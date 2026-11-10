@@ -20,6 +20,7 @@ type ProtoTarget struct {
 	Directory               string // Proto 根目录下的相对目录
 	PackageName             string // Proto package 名称
 	GoAlias                 string // Go 协议包别名
+	BackendModulePath       string // BackendModulePath 当前宿主的后端 Go module。
 	GoImportPath            string // Go 协议包导入路径
 	ServiceImportAlias      string // 后端服务包别名
 	BackendBizDirectory     string // 后端 Biz 模块目录
@@ -37,11 +38,16 @@ func ProtoTargetForBusinessModule(module string) (ProtoTarget, bool) {
 	if module == "." || module == "" || strings.Contains(module, "/") || strings.Contains(module, "\\") {
 		return ProtoTarget{}, false
 	}
+	modulePath := backendModulePath()
+	if modulePath == "" {
+		return ProtoTarget{}, false
+	}
 	return ProtoTarget{
 		Directory:               module + "/admin/v1",
 		PackageName:             module + ".admin.v1",
 		GoAlias:                 strings.ReplaceAll(module, "_", "") + "adminv1",
-		GoImportPath:            "github.com/liujitcn/kratos-admin/backend/api/gen/go/" + module + "/admin/v1",
+		BackendModulePath:       modulePath,
+		GoImportPath:            modulePath + "/api/gen/go/" + module + "/admin/v1",
 		ServiceImportAlias:      strings.ReplaceAll(module, "_", "") + "admin",
 		BackendBizDirectory:     "backend/internal/biz/" + module + "/admin",
 		BackendModuleDirectory:  "backend/internal/service/" + module + "/admin/v1",
@@ -102,7 +108,7 @@ func (t ProtoTarget) FrontendLocaleFilePath(localeValue string) string {
 
 // BackendBizImportPath 返回目标分组 Biz 包的 Go 导入路径。
 func (t ProtoTarget) BackendBizImportPath() string {
-	return "github.com/liujitcn/kratos-admin/backend/" + strings.TrimPrefix(filepath.ToSlash(t.BackendBizDirectory), "backend/")
+	return t.BackendModulePath + "/" + strings.TrimPrefix(filepath.ToSlash(t.BackendBizDirectory), "backend/")
 }
 
 // MenuSQLState 保存菜单编号预留状态及当前登录角色，供批次生成共享。
@@ -480,12 +486,4 @@ type CodeGenLeftTreeConfig struct {
 	ValueColumn string `json:"value_column"`
 	// Lazy 是否按节点懒加载子节点。
 	Lazy bool `json:"lazy"`
-}
-
-// frontendPackageNameForBusinessModule 根据业务模块名返回管理端模块包名。
-func frontendPackageNameForBusinessModule(module string) string {
-	if module == "system" {
-		return "@liujitcn/kratos-admin-system"
-	}
-	return "@" + module + "/admin-module"
 }

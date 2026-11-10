@@ -64,9 +64,9 @@ func TestRuntimePDFProtocol(t *testing.T) {
 				input := RuntimeInput{Content: "Read the report", CheckPointID: "run", Attachments: []Attachment{{Name: "report.pdf", MIMEType: "application/pdf", Bytes: []byte("%PDF report"), Content: "Revenue: 42"}}}
 				var err error
 				if stream {
-					_, err = runtime.RunStream(context.Background(), input, nil)
+					_, err = runtime.RunStream(t.Context(), input, nil)
 				} else {
-					_, err = runtime.Run(context.Background(), input)
+					_, err = runtime.Run(t.Context(), input)
 				}
 				if err != nil {
 					t.Fatal(err)

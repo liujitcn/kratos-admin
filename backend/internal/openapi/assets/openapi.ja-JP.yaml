@@ -11735,7 +11735,7 @@ components:
                     description: フィールドコード
                 operator:
                     type: string
-                    description: 操作符：eq、in、between、contains
+                    description: "演算子: eq、in、 between、contains"
                 values:
                     type: array
                     items:

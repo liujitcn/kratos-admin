@@ -369,15 +369,12 @@ func unmarshalVector(value string) ([]float32, error) {
 
 // cosineSimilarity 计算两个向量余弦相似度；维度不等时按较短长度截断。
 func cosineSimilarity(a, b []float32) float64 {
-	length := len(a)
-	if len(b) < length {
-		length = len(b)
-	}
+	length := min(len(b), len(a))
 	if length == 0 {
 		return 0
 	}
 	var dot, normA, normB float64
-	for i := 0; i < length; i++ {
+	for i := range length {
 		dot += float64(a[i]) * float64(b[i])
 		normA += float64(a[i]) * float64(a[i])
 		normB += float64(b[i]) * float64(b[i])

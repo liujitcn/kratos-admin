@@ -18,7 +18,7 @@ import (
 	_ "github.com/liujitcn/go-scripts/expr"
 	_ "github.com/liujitcn/go-scripts/gpython"
 	_ "github.com/liujitcn/go-scripts/javascript"
-	scriptlua "github.com/liujitcn/go-scripts/lua"
+	"github.com/liujitcn/go-scripts/lua"
 	"github.com/liujitcn/go-scripts/sandbox"
 	_ "github.com/liujitcn/go-scripts/starlark"
 	_ "github.com/liujitcn/go-scripts/tcl"
@@ -130,7 +130,7 @@ func (r *Runtime) Execute(ctx context.Context, language string, source string, i
 	// 文件、命令和 HTTP 能力只在操作系统沙箱内恢复，实际资源由宿主策略限制。
 	if configurator := script_engine.AsSandboxConfigurator(engine); configurator != nil {
 		if language == LuaLanguage {
-			configurator.SetOpenLibs(scriptlua.AllowedLibBase, scriptlua.AllowedLibTab, scriptlua.AllowedLibStr, scriptlua.AllowedLibMath, scriptlua.AllowedLibCoroutine, scriptlua.AllowedLibOs, scriptlua.AllowedLibIo, scriptlua.AllowedLibLoad, scriptlua.AllowedLibHTTP, scriptlua.AllowedLibCrypto)
+			configurator.SetOpenLibs(lua.AllowedLibBase, lua.AllowedLibTab, lua.AllowedLibStr, lua.AllowedLibMath, lua.AllowedLibCoroutine, lua.AllowedLibOs, lua.AllowedLibIo, lua.AllowedLibLoad, lua.AllowedLibHTTP, lua.AllowedLibCrypto)
 		} else if language == TclLanguage {
 			configurator.SetOpenLibs("exec", "open", "file", "cd", "source", "load", "socket")
 		}

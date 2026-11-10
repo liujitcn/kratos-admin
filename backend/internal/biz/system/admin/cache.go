@@ -3,6 +3,7 @@ package biz
 import (
 	"context"
 	"encoding/json"
+	"slices"
 	"sort"
 	"strings"
 	"time"
@@ -43,10 +44,7 @@ func (c *CacheCase) PageCache(_ context.Context, req *adminv1.PageCacheRequest) 
 			filtered = append(filtered, entry)
 		}
 	}
-	pageNum := req.GetPageNum()
-	if pageNum < 1 {
-		pageNum = 1
-	}
+	pageNum := max(req.GetPageNum(), 1)
 	pageSize := req.GetPageSize()
 	if pageSize < 1 {
 		pageSize = cacheQueryDefaultPageSize
@@ -60,10 +58,7 @@ func (c *CacheCase) PageCache(_ context.Context, req *adminv1.PageCacheRequest) 
 	if start >= total {
 		return &adminv1.PageCacheResponse{CacheEntries: []*adminv1.CacheEntry{}, Total: int32(total)}, nil
 	}
-	end := start + pageSize
-	if end > total {
-		end = total
-	}
+	end := min(start+pageSize, total)
 	items := make([]*adminv1.CacheEntry, 0, end-start)
 	for _, entry := range filtered[start:end] {
 		fields := make([]*adminv1.CacheField, 0, len(entry.Fields))
@@ -71,7 +66,7 @@ func (c *CacheCase) PageCache(_ context.Context, req *adminv1.PageCacheRequest) 
 		for fieldKey := range entry.Fields {
 			fieldKeys = append(fieldKeys, fieldKey)
 		}
-		sort.Strings(fieldKeys)
+		slices.Sort(fieldKeys)
 		for _, fieldKey := range fieldKeys {
 			fields = append(fields, &adminv1.CacheField{Key: strings.ToValidUTF8(fieldKey, "\uFFFD"), Value: strings.ToValidUTF8(sanitizeCacheValue(entry.Key, entry.Fields[fieldKey]), "\uFFFD")})
 		}

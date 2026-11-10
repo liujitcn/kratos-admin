@@ -26,6 +26,7 @@ func RegisterSseServiceHTTPServer(s *http.Server, srv SseServiceHTTPServer) {
 	r.GET("/events/{stream}", _SseService_SubscribeSse0_HTTP_Handler(srv))
 }
 
+// _SseService_SubscribeSse0_HTTP_Handler 适配 SSE 订阅请求并保留中间件上下文。
 func _SseService_SubscribeSse0_HTTP_Handler(srv SseServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in basev1.SubscribeSseRequest
@@ -36,7 +37,7 @@ func _SseService_SubscribeSse0_HTTP_Handler(srv SseServiceHTTPServer) func(ctx h
 			return err
 		}
 		http.SetOperation(ctx, OperationSseServiceSubscribeSse)
-		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+		h := ctx.Middleware(func(ctx context.Context, req any) (any, error) {
 			return srv.SubscribeSse(ctx, req.(*basev1.SubscribeSseRequest))
 		})
 		out, err := h(ctx, &in)

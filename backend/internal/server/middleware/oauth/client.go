@@ -29,7 +29,7 @@ const oauthDevelopmentPathPrefix = "/api/v1/oauth/"
 // 拦截器只依赖客户端仓储和 API Case，不注入完整的开放授权业务 Case。
 func NewClientMiddleware(clientRepo *data.OauthClientRepository, baseAPICase *biz.BaseAPICase) middleware.Middleware {
 	return func(handler middleware.Handler) middleware.Handler {
-		return func(ctx context.Context, req interface{}) (interface{}, error) {
+		return func(ctx context.Context, req any) (any, error) {
 			request, ok := kratosHTTP.RequestFromServerContext(ctx)
 			if !ok || request == nil {
 				return handler(ctx, req)

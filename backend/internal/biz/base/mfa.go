@@ -1453,7 +1453,7 @@ func (c *MfaCase) revokeUserSession(userID int64) error {
 }
 
 // saveJSON 保存带过期时间的 JSON 缓存值。
-func (c *MfaCase) saveJSON(key string, value interface{}, expire time.Duration) error {
+func (c *MfaCase) saveJSON(key string, value any, expire time.Duration) error {
 	payload, err := json.Marshal(value)
 	if err != nil {
 		return err
@@ -1462,7 +1462,7 @@ func (c *MfaCase) saveJSON(key string, value interface{}, expire time.Duration) 
 }
 
 // loadJSON 读取 JSON 缓存值。
-func (c *MfaCase) loadJSON(key string, value interface{}) error {
+func (c *MfaCase) loadJSON(key string, value any) error {
 	payload, err := c.Cache.Get(key)
 	if err != nil {
 		return err

@@ -70,7 +70,7 @@ func (s *approvalStore) Set(_ context.Context, key string, value []byte) error {
 func TestRunnerApproval(t *testing.T) {
 	for _, scenario := range []string{"approve", "reject", "tamper", "revoke", "checkpoint_error", "second_approval", "large_media", "oversized_input"} {
 		t.Run(scenario, func(t *testing.T) {
-			ctx := context.Background()
+			ctx := t.Context()
 			var executions atomic.Int32
 			value, err := utils.InferTool("write", "业务写入", func(context.Context, struct{}) (string, error) {
 				executions.Add(1)

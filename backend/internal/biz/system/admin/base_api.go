@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"regexp"
+	"slices"
 	"strings"
 
 	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
@@ -470,10 +471,7 @@ func pageBaseAPIRecords(list []*models.BaseAPI, pageNum, pageSize int64) []*mode
 	if start >= int64(len(list)) {
 		return []*models.BaseAPI{}
 	}
-	end := start + pageSize
-	if end > int64(len(list)) {
-		end = int64(len(list))
-	}
+	end := min(start+pageSize, int64(len(list)))
 	return list[start:end]
 }
 
@@ -699,15 +697,8 @@ func matchAuthWhiteList(whiteList *configv1.Authentication_Jwt_WhiteList, operat
 			return true
 		}
 	}
-	for _, path := range whiteList.GetPath() {
-		if path == operation {
-			return true
-		}
+	if slices.Contains(whiteList.GetPath(), operation) {
+		return true
 	}
-	for _, item := range whiteList.GetMatch() {
-		if item == operation {
-			return true
-		}
-	}
-	return false
+	return slices.Contains(whiteList.GetMatch(), operation)
 }

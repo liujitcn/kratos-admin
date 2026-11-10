@@ -18,7 +18,7 @@ import (
 	"github.com/liujitcn/kratos-core/module"
 	"github.com/liujitcn/kratos-core/queue"
 	"github.com/liujitcn/kratos-core/resource/i18n"
-	kitgorm "github.com/liujitcn/kratos-kit/database/gorm"
+	"github.com/liujitcn/kratos-kit/database/gorm"
 	"github.com/liujitcn/kratos-kit/queue/data"
 	"github.com/liujitcn/kratos-kit/secretcrypto"
 	"github.com/liujitcn/kratos-kit/transport/mcp"
@@ -93,9 +93,9 @@ func NewModules(
 	if err != nil {
 		return nil, err
 	}
-	redactResolver.SetProjectScopeLoader(func(ctx context.Context) (kitgorm.ProjectScope, error) {
+	redactResolver.SetProjectScopeLoader(func(ctx context.Context) (gorm.ProjectScope, error) {
 		tenants, err := projectGrantCase.EffectiveProjects(ctx)
-		return kitgorm.ProjectScope{Tenants: tenants}, err
+		return gorm.ProjectScope{Tenants: tenants}, err
 	})
 	err = baseUserCase.RenameReservedUsers(context.Background())
 	if err != nil {

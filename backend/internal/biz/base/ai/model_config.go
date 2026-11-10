@@ -28,10 +28,8 @@ func ResolveEmbeddingDimensions(declared int32, requested int32) (int32, error) 
 		}
 		return DefaultEmbeddingDimensions, nil
 	}
-	for _, option := range EmbeddingDimensionOptions(declared) {
-		if option == requested {
-			return requested, nil
-		}
+	if slices.Contains(EmbeddingDimensionOptions(declared), requested) {
+		return requested, nil
 	}
 	return 0, fmt.Errorf("向量维度 %d 不在当前模型可选范围内", requested)
 }

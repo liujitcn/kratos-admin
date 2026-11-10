@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"maps"
 	"reflect"
 	"slices"
 	"strings"
@@ -102,9 +103,7 @@ func (r *RedactPolicyResolver) RegisterStorageModels(ctx context.Context, models
 			return fmt.Errorf("敏感字段模型重复: %s", table)
 		}
 	}
-	for table, model := range registered {
-		r.storageModels[table] = model
-	}
+	maps.Copy(r.storageModels, registered)
 	return nil
 }
 

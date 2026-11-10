@@ -1031,7 +1031,7 @@ func dedupeProtoMessageBlocks(content string) string {
 // protoBraceDepthAt 返回指定位置之前的 Proto 大括号嵌套深度。
 func protoBraceDepthAt(content string, position int) int {
 	depth := 0
-	for i := 0; i < position; i++ {
+	for i := range position {
 		switch content[i] {
 		case '{':
 			depth++
@@ -1127,7 +1127,7 @@ func ensureTSNamedTypeNames(content string, importPath string, typeNames []strin
 		if len(match) < 4 {
 			continue
 		}
-		for _, item := range strings.Split(content[match[2]:match[3]], ",") {
+		for item := range strings.SplitSeq(content[match[2]:match[3]], ",") {
 			name := strings.TrimSpace(strings.TrimPrefix(strings.TrimSpace(item), "type "))
 			if name == "" {
 				continue

@@ -2,6 +2,7 @@ package biz
 
 import (
 	"context"
+	"slices"
 	"time"
 
 	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
@@ -230,10 +231,8 @@ func (c *BaseI18nCustomCase) validateLocale(ctx context.Context, locale string) 
 	if err != nil {
 		return err
 	}
-	for _, enabledLocale := range state.Enabled {
-		if enabledLocale == locale {
-			return nil
-		}
+	if slices.Contains(state.Enabled, locale) {
+		return nil
 	}
 	return errorsx.InvalidArgument("只能配置已启用的语言区域")
 }

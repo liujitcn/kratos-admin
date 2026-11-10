@@ -2,6 +2,7 @@ package codegen
 
 import (
 	"fmt"
+	"slices"
 	"strings"
 
 	"github.com/liujitcn/go-utils/stringcase"
@@ -162,6 +163,7 @@ func (c *%sCase) build%sTree(list []*models.%s, parentID int64) []*systemadminv1
 `, goMethodName(entity), table.BusinessName, entity, goMethodName(entity), entity, entity, entity, modelFieldName(parentField), entityVar, entityVar, goMethodName(entity), entityVar))
 	}
 	content := renderTemplate("backend_biz.tmpl", backendBizTemplateData{
+		PackageName:  backendPackageName(target.BackendBizDirectory, "biz"),
 		Entity:       entity,
 		EntityVar:    entityVar,
 		BusinessName: table.BusinessName,
@@ -314,10 +316,8 @@ func renderBackendErrorImport(tree bool) string {
 
 // renderBackendJSONImport 判断生成业务文件是否需要 JSON 标准库导入。
 func renderBackendJSONImport(columns []*CodeGenColumn) string {
-	for _, column := range columns {
-		if isGeneratedJSONScalar(column) {
-			return "\t\"encoding/json\""
-		}
+	if slices.ContainsFunc(columns, isGeneratedJSONScalar) {
+		return "\t\"encoding/json\""
 	}
 	return ""
 }
@@ -369,12 +369,13 @@ func (c *renderer) renderBackendServiceFile(table *Table, methods []*Proto) stri
 		methodsBuilder.WriteString(c.renderServiceMethod(table, statusMethod, entityVar, "empty", "设置状态失败"))
 	}
 	content := renderTemplate("backend_service.tmpl", backendServiceTemplateData{
+		PackageName:  backendPackageName(target.BackendModuleDirectory, "admin"),
 		Entity:       entity,
 		EntityVar:    entityVar,
 		BusinessName: table.BusinessName,
 		APIAlias:     target.GoAlias,
 		APIImport:    target.GoAlias + " \"" + target.GoImportPath + "\"",
-		BizImport:    "\t\"" + target.BackendBizImportPath() + "\"",
+		BizImport:    "\tbiz \"" + target.BackendBizImportPath() + "\"",
 		CommonImport: renderGoCommonImport(methodsByKinds(methods, APIKindOption, APIKindTree)),
 		Methods:      strings.ReplaceAll(methodsBuilder.String(), "systemadminv1.", target.GoAlias+"."),
 	})
@@ -398,13 +399,14 @@ func (c *renderer) appendExternalTargetBizMethods(content string, table *Table, 
 		return content
 	}
 	candidate := c.renderExternalTargetBizFile(table, missingMethods)
+	target := ProtoTargetForTable(table)
+	content, candidate = reuseGeneratedGoAPIImport(content, candidate, target)
 	methodNames := goReceiverMethodNames(candidate, generatedReceiver)
 	methodContent := strings.Join(extractGoMethods(candidate, methodNames), "\n\n")
 	if methodContent == "" {
 		return content
 	}
-	target := ProtoTargetForTable(table)
-	return mergeGeneratedGoReceiverMethods(content, methodContent, generatedReceiver, target.GoAlias+" \""+target.GoImportPath+"\"")
+	return mergeGeneratedGoReceiverMethods(content, methodContent, generatedReceiver)
 }
 
 // renderExternalTargetBizFile 渲染外部目标实体的最小业务文件。
@@ -414,6 +416,7 @@ func (c *renderer) renderExternalTargetBizFile(table *Table, methods []*Proto) s
 	repoField := entity + "Repository"
 	target := ProtoTargetForTable(table)
 	return renderTemplate("backend_external_biz.tmpl", backendBizTemplateData{
+		PackageName:  backendPackageName(target.BackendBizDirectory, "biz"),
 		Entity:       entity,
 		EntityVar:    entityVar,
 		BusinessName: table.BusinessName,
@@ -455,13 +458,14 @@ func (c *renderer) appendExternalTargetServiceMethods(content string, table *Tab
 		return content
 	}
 	candidate := c.renderExternalTargetServiceFile(table, missingMethods)
+	target := ProtoTargetForTable(table)
+	content, candidate = reuseGeneratedGoAPIImport(content, candidate, target)
 	methodNames := goReceiverMethodNames(candidate, generatedReceiver)
 	methodContent := strings.Join(extractGoMethods(candidate, methodNames), "\n\n")
 	if methodContent == "" {
 		return content
 	}
-	target := ProtoTargetForTable(table)
-	return mergeGeneratedGoReceiverMethods(content, methodContent, generatedReceiver, target.GoAlias+" \""+target.GoImportPath+"\"")
+	return mergeGeneratedGoReceiverMethods(content, methodContent, generatedReceiver)
 }
 
 // renderExternalTargetServiceFile 渲染外部目标实体的最小服务文件。
@@ -474,12 +478,13 @@ func (c *renderer) renderExternalTargetServiceFile(table *Table, methods []*Prot
 		methodsBuilder.WriteString(c.renderServiceMethod(table, method, entityVar, "option", "查询选项失败"))
 	}
 	return renderTemplate("backend_external_service.tmpl", backendServiceTemplateData{
+		PackageName:  backendPackageName(target.BackendModuleDirectory, "admin"),
 		Entity:       entity,
 		EntityVar:    entityVar,
 		BusinessName: table.BusinessName,
 		APIAlias:     target.GoAlias,
 		APIImport:    target.GoAlias + " \"" + target.GoImportPath + "\"",
-		BizImport:    "\t\"" + target.BackendBizImportPath() + "\"",
+		BizImport:    "\tbiz \"" + target.BackendBizImportPath() + "\"",
 		Methods:      strings.ReplaceAll(methodsBuilder.String(), "systemadminv1.", target.GoAlias+"."),
 	})
 }

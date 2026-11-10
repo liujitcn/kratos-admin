@@ -18,7 +18,7 @@ import (
 // NewMiddleware 创建服务端空闲超时和绝对生命周期拦截器。
 func NewMiddleware(baseCase *biz.BaseCase, userToken *data.UserToken) middleware.Middleware {
 	return func(handler middleware.Handler) middleware.Handler {
-		return func(ctx context.Context, req interface{}) (interface{}, error) {
+		return func(ctx context.Context, req any) (any, error) {
 			authInfo, err := auth.FromContext(ctx)
 			if err != nil || authInfo == nil || authInfo.UserId <= 0 {
 				return handler(ctx, req)

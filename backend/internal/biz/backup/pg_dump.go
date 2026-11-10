@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"io"
 	"math"
-	"sort"
+	"slices"
 	"strconv"
 	"strings"
 	"time"
@@ -129,8 +129,8 @@ func dumpPostgresTable(ctx context.Context, tx *sql.Tx, options PostgresDumpOpti
 	if err != nil {
 		return fmt.Errorf("读取 PostgreSQL 表 %s 字段类型失败: %w", tableName, err)
 	}
-	values := make([]interface{}, len(columns))
-	scanTargets := make([]interface{}, len(values))
+	values := make([]any, len(columns))
+	scanTargets := make([]any, len(values))
 	for index := range values {
 		scanTargets[index] = &values[index]
 	}
@@ -156,7 +156,7 @@ func dumpPostgresTable(ctx context.Context, tx *sql.Tx, options PostgresDumpOpti
 // listPostgresDumpTables 按名称序查询需要导出的表。
 func listPostgresDumpTables(ctx context.Context, tx *sql.Tx, options PostgresDumpOptions) ([]string, error) {
 	query := "SELECT table_name FROM information_schema.tables WHERE table_schema = $1 AND table_type = 'BASE TABLE'"
-	args := []interface{}{options.Schema}
+	args := []any{options.Schema}
 	if options.Table != "" {
 		query += " AND table_name = $2"
 		args = append(args, options.Table)
@@ -243,7 +243,7 @@ func buildPostgresTableSchema(ctx context.Context, tx *sql.Tx, schema, table str
 		definitions = append(definitions, "PRIMARY KEY ("+strings.Join(quotedColumns, ", ")+")")
 	}
 	createSQL := "CREATE TABLE " + qualifiedPostgresName(schema, table) + " (\n  " + strings.Join(definitions, ",\n  ") + "\n)"
-	sort.Strings(sequences)
+	slices.Sort(sequences)
 	return sequences, createSQL, nil
 }
 
@@ -367,7 +367,7 @@ func listPostgresColumns(ctx context.Context, tx *sql.Tx, schema, table string) 
 }
 
 // formatPostgresValue 将数据库驱动返回值编码为 SQL 字面量。
-func formatPostgresValue(value interface{}, dataType string) string {
+func formatPostgresValue(value any, dataType string) string {
 	if value == nil {
 		return "NULL"
 	}
@@ -435,14 +435,14 @@ func qualifiedPostgresName(schema, table string) string {
 
 // postgresSequenceName 从 nextval 默认值中提取序列限定名。
 func postgresSequenceName(columnDefault string) string {
-	start := strings.Index(columnDefault, "nextval('")
-	if start < 0 {
+	_, rest, ok := strings.Cut(columnDefault, "nextval('")
+	if !ok {
 		return ""
 	}
-	rest := columnDefault[start+len("nextval('"):]
-	end := strings.Index(rest, "'")
-	if end < 0 {
+	var name string
+	name, _, ok = strings.Cut(rest, "'")
+	if !ok {
 		return ""
 	}
-	return rest[:end]
+	return name
 }

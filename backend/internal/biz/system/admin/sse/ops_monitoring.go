@@ -7,7 +7,7 @@ import (
 
 	_const "github.com/liujitcn/kratos-core/const"
 	"github.com/liujitcn/kratos-core/errorsx"
-	authdata "github.com/liujitcn/kratos-kit/auth/data"
+	"github.com/liujitcn/kratos-kit/auth/data"
 	"github.com/liujitcn/kratos-kit/database/gorm"
 
 	"github.com/liujitcn/kratos-kit/transport/sse"
@@ -56,7 +56,7 @@ func (*OpsMonitoring) ID() string {
 }
 
 // ResolveContext 在可信身份下校验订阅权限，保留原有频道与任务归属校验。
-func (o *OpsMonitoring) ResolveContext(_ context.Context, channelID string, identity *authdata.UserTokenPayload) (string, error) {
+func (o *OpsMonitoring) ResolveContext(_ context.Context, channelID string, identity *data.UserTokenPayload) (string, error) {
 	if identity.TenantCode != gorm.DefaultTenantCode || (identity.RoleCode != _const.BASE_ROLE_CODE_SUPER && identity.RoleCode != _const.BASE_ROLE_CODE_ADMIN) {
 		return "", errorsx.PermissionDenied("只有平台管理员可以订阅运维实时数据")
 	}

@@ -712,7 +712,7 @@ func (c *BaseMessageCase) scheduleBaseMessage(ctx context.Context, entity *model
 	}
 	return delayed.Schedule(messageScheduleStream, queueData.Message{
 		ID:     scheduledMessageID(entity.ID),
-		Values: map[string]interface{}{"data": string(payload)},
+		Values: map[string]any{"data": string(payload)},
 	}, time.UnixMilli(entity.ScheduledAt))
 }
 
@@ -924,7 +924,7 @@ func (c *BaseMessageCase) EnqueueDispatch(ctx context.Context, dispatchID, tenan
 	if c.Queue == nil {
 		return errorsx.Internal("消息队列未初始化")
 	}
-	return c.Queue.Append(messageDispatchStream, queueData.Message{Values: map[string]interface{}{"data": string(payload)}})
+	return c.Queue.Append(messageDispatchStream, queueData.Message{Values: map[string]any{"data": string(payload)}})
 }
 
 // enqueuePendingDispatches 唤醒指定消息尚未完成的投递任务。
@@ -1577,7 +1577,7 @@ func validateMessageActionParams(raw string) error {
 	if len([]byte(raw)) > maxMessageActionParamsBytes {
 		return errorsx.InvalidArgument("消息动作参数不能超过16KB")
 	}
-	var value interface{}
+	var value any
 	var err error
 	err = json.Unmarshal([]byte(raw), &value)
 	if err != nil {
@@ -1587,10 +1587,10 @@ func validateMessageActionParams(raw string) error {
 }
 
 // validateMessageActionValue 递归校验动作参数对象的结构边界。
-func validateMessageActionValue(value interface{}, depth int) error {
+func validateMessageActionValue(value any, depth int) error {
 	var err error
 	switch item := value.(type) {
-	case map[string]interface{}:
+	case map[string]any:
 		if depth >= maxMessageActionDepth {
 			return errorsx.InvalidArgument("消息动作参数嵌套层级过深")
 		}
@@ -1603,7 +1603,7 @@ func validateMessageActionValue(value interface{}, depth int) error {
 				return err
 			}
 		}
-	case []interface{}:
+	case []any:
 		if depth >= maxMessageActionDepth {
 			return errorsx.InvalidArgument("消息动作参数嵌套层级过深")
 		}

@@ -322,6 +322,8 @@ func (c *renderer) appendMainBizMethods(content string, table *Table, columns []
 	if goReceiverType(content, "Case") != generatedReceiver {
 		return content
 	}
+	target := ProtoTargetForTable(table)
+	content, candidate = reuseGeneratedGoAPIImport(content, candidate, target)
 	// Mapper 已统一处理时间字段，清理旧模板生成的重复赋值。
 	content = redundantTimePattern.ReplaceAllString(content, "")
 	if !strings.Contains(content, "_time.") {
@@ -332,9 +334,8 @@ func (c *renderer) appendMainBizMethods(content string, table *Table, columns []
 	if methodContent == "" {
 		return content
 	}
-	target := ProtoTargetForTable(table)
 	content = mergeBizMapperDeclarations(content, candidate, generatedReceiver)
-	content = mergeGeneratedGoReceiverMethods(content, methodContent, generatedReceiver, target.GoAlias+" \""+target.GoImportPath+"\"")
+	content = mergeGeneratedGoReceiverMethods(content, methodContent, generatedReceiver)
 	if !strings.Contains(content, "_time.") {
 		content = strings.Replace(content, "\t_time \"github.com/liujitcn/go-utils/time\"\n", "", 1)
 	}
@@ -349,13 +350,14 @@ func (c *renderer) appendMainServiceMethods(content string, table *Table, method
 	if goReceiverType(content, "Service") != generatedReceiver {
 		return content
 	}
+	target := ProtoTargetForTable(table)
+	content, candidate = reuseGeneratedGoAPIImport(content, candidate, target)
 	methodNames := goReceiverMethodNames(candidate, generatedReceiver)
 	methodContent := strings.Join(extractGoMethods(candidate, methodNames), "\n\n")
 	if methodContent == "" {
 		return content
 	}
-	target := ProtoTargetForTable(table)
-	return mergeGeneratedGoReceiverMethods(content, methodContent, generatedReceiver, target.GoAlias+" \""+target.GoImportPath+"\"")
+	return mergeGeneratedGoReceiverMethods(content, methodContent, generatedReceiver)
 }
 
 // appendMainFrontendAPIMethods 根据最新配置替换前端服务类的固定生成方法。

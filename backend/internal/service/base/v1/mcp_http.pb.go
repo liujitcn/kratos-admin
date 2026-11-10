@@ -29,6 +29,7 @@ func RegisterMcpServiceHTTPServer(s *http.Server, srv McpServiceHTTPServer) {
 	r.POST("/mcp/{terminal}", _McpService_HandleMcp2_HTTP_Handler(srv))
 }
 
+// _McpService_HandleMcp0_HTTP_Handler 适配 MCP GET 请求并保留中间件上下文。
 func _McpService_HandleMcp0_HTTP_Handler(srv McpServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in basev1.HandleMcpRequest
@@ -39,7 +40,7 @@ func _McpService_HandleMcp0_HTTP_Handler(srv McpServiceHTTPServer) func(ctx http
 			return err
 		}
 		http.SetOperation(ctx, OperationMcpServiceHandleMcp)
-		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+		h := ctx.Middleware(func(ctx context.Context, req any) (any, error) {
 			return srv.HandleMcp(ctx, req.(*basev1.HandleMcpRequest))
 		})
 		out, err := h(ctx, &in)
@@ -51,6 +52,7 @@ func _McpService_HandleMcp0_HTTP_Handler(srv McpServiceHTTPServer) func(ctx http
 	}
 }
 
+// _McpService_HandleMcp1_HTTP_Handler 适配 MCP DELETE 请求并保留中间件上下文。
 func _McpService_HandleMcp1_HTTP_Handler(srv McpServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in basev1.HandleMcpRequest
@@ -61,7 +63,7 @@ func _McpService_HandleMcp1_HTTP_Handler(srv McpServiceHTTPServer) func(ctx http
 			return err
 		}
 		http.SetOperation(ctx, OperationMcpServiceHandleMcp)
-		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+		h := ctx.Middleware(func(ctx context.Context, req any) (any, error) {
 			return srv.HandleMcp(ctx, req.(*basev1.HandleMcpRequest))
 		})
 		out, err := h(ctx, &in)
@@ -73,6 +75,7 @@ func _McpService_HandleMcp1_HTTP_Handler(srv McpServiceHTTPServer) func(ctx http
 	}
 }
 
+// _McpService_HandleMcp2_HTTP_Handler 适配 MCP POST 请求并保留中间件上下文。
 func _McpService_HandleMcp2_HTTP_Handler(srv McpServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in basev1.HandleMcpRequest
@@ -83,7 +86,7 @@ func _McpService_HandleMcp2_HTTP_Handler(srv McpServiceHTTPServer) func(ctx http
 			return err
 		}
 		http.SetOperation(ctx, OperationMcpServiceHandleMcp)
-		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+		h := ctx.Middleware(func(ctx context.Context, req any) (any, error) {
 			return srv.HandleMcp(ctx, req.(*basev1.HandleMcpRequest))
 		})
 		out, err := h(ctx, &in)

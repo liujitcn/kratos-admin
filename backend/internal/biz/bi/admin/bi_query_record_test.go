@@ -63,6 +63,7 @@ func TestAskBiQueryPersistsRecords(t *testing.T) {
 			}
 			modelStore := model.NewRegistry()
 			if test.modelStatus != 0 {
+				t.Setenv("SECURITY_AI_ALLOWED_CIDRS", "127.0.0.1/32")
 				server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 					w.Header().Set("Content-Type", "application/json")
 					w.WriteHeader(test.modelStatus)
@@ -201,7 +202,7 @@ func TestBiQueryRecordsRespectScope(t *testing.T) {
 		{ID: 3, TenantID: 1, ProjectID: 43, UserID: 10, Question: "查询用户", SourceCode: "users"},
 		{ID: 4, TenantID: 1, ProjectID: 42, UserID: 10, Question: "查询日志", SourceCode: "logs"},
 	} {
-		err := queryRepo.Create(context.Background(), record)
+		err := queryRepo.Create(t.Context(), record)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -230,7 +231,7 @@ func TestBiQueryRecordsRespectScope(t *testing.T) {
 func newBiQueryRecordTestStore(t *testing.T) *data.Data {
 	t.Helper()
 	driver.Opens["bi-query-record-test-sqlite"] = sqlite.Open
-	modelList := []interface{}{&models.BiQuery{}, &models.BiSource{}, &models.BaseUser{}}
+	modelList := []any{&models.BiQuery{}, &models.BiSource{}, &models.BaseUser{}}
 	client, cleanup, err := databaseGorm.NewGormClient(&configv1.Data_Database{Driver: "bi-query-record-test-sqlite", Source: filepath.Join(t.TempDir(), "records.db")}, databaseGorm.WithMigrateModels(modelList...))
 	if err != nil {
 		t.Fatal(err)

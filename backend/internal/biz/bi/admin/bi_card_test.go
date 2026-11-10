@@ -104,7 +104,7 @@ func TestBiCardAllChartShapes(t *testing.T) {
 func newBiWorkflowTestCases(t *testing.T) (*BiCardCase, *BiDashboardCase) {
 	t.Helper()
 	driver.Opens["bi-workflow-sqlite"] = sqlite.Open
-	modelList := []interface{}{&models.BiCard{}, &models.BiWorkbench{}, &models.BiQuery{}, &models.BiDashboard{}, &models.BiDashboardVersion{}, &models.BiSource{}, &models.BaseUser{}}
+	modelList := []any{&models.BiCard{}, &models.BiWorkbench{}, &models.BiQuery{}, &models.BiDashboard{}, &models.BiDashboardVersion{}, &models.BiSource{}, &models.BaseUser{}}
 	client, cleanup, err := databaseGorm.NewGormClient(&configv1.Data_Database{Driver: "bi-workflow-sqlite", Source: filepath.Join(t.TempDir(), "workflow.db")}, databaseGorm.WithMigrateModels(modelList...))
 	if err != nil {
 		t.Fatal(err)
@@ -131,6 +131,7 @@ func newBiWorkflowTestCases(t *testing.T) (*BiCardCase, *BiDashboardCase) {
 	}
 	base := &biz.BaseCase{}
 	source := NewBiSourceCase(base, store, data.NewBiSourceRepository(store), registry, nil)
+	t.Setenv("SECURITY_AI_ALLOWED_CIDRS", "127.0.0.1/32")
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, request *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		encodeErr := json.NewEncoder(w).Encode(map[string]any{"choices": []any{map[string]any{"message": map[string]any{"role": "assistant", "content": `{"query":{"source_code":"test","measures":[{"code":"count","aggregation":"count"}],"limit":100},"chart_type":"metric","title":"用户数"}`}, "finish_reason": "stop"}}})

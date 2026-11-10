@@ -238,7 +238,7 @@ func validateFilePath(filePath string) error {
 	if normalized == "" || len(normalized) > 256 || strings.ContainsRune(normalized, 0) {
 		return errorsx.InvalidArgument("文件路径不合法")
 	}
-	for _, segment := range strings.Split(normalized, "/") {
+	for segment := range strings.SplitSeq(normalized, "/") {
 		if segment == ".." {
 			return errorsx.InvalidArgument("文件路径不合法")
 		}

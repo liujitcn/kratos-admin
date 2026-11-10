@@ -1105,8 +1105,9 @@ func (c *CodeGenCase) syncGeneratedMenus(ctx context.Context, table *codegen.Tab
 		return err
 	}
 	if table.MenuSQLState != nil {
+		// 还原产生的软删除菜单只占用历史编号，不参与当前菜单的一致性校验。
 		for _, planned := range table.MenuSQLState.Menus {
-			if planned.Type == pageMenu.Type && planned.Path == pageMenu.Path && planned.ID != pageMenu.ID {
+			if planned.DeletedAt == 0 && planned.Type == pageMenu.Type && planned.Path == pageMenu.Path && planned.ID != pageMenu.ID {
 				return errorsx.InvalidArgument("菜单编号已变化，请重新生成")
 			}
 		}
@@ -1123,7 +1124,7 @@ func (c *CodeGenCase) syncGeneratedMenus(ctx context.Context, table *codegen.Tab
 		}
 		if table.MenuSQLState != nil {
 			for _, planned := range table.MenuSQLState.Menus {
-				if planned.Type == buttonMenu.Type && planned.ParentID == buttonMenu.ParentID && planned.Path == buttonMenu.Path && planned.ID != buttonMenu.ID {
+				if planned.DeletedAt == 0 && planned.Type == buttonMenu.Type && planned.ParentID == buttonMenu.ParentID && planned.Path == buttonMenu.Path && planned.ID != buttonMenu.ID {
 					return errorsx.InvalidArgument("菜单编号已变化，请重新生成")
 				}
 			}
@@ -1557,8 +1558,8 @@ func (t *codeGenFileTransaction) rollback() error {
 		return nil
 	}
 	var rollbackErr error
-	for index := len(t.writtenPaths) - 1; index >= 0; index-- {
-		snapshot, exists := t.snapshots[t.writtenPaths[index]]
+	for _, path := range slices.Backward(t.writtenPaths) {
+		snapshot, exists := t.snapshots[path]
 		if !exists {
 			continue
 		}
@@ -2103,7 +2104,7 @@ func normalizeCodeGenTableIDs(tableIDs []int64) ([]int64, error) {
 	if len(ids) == 0 {
 		return nil, errorsx.InvalidArgument("请选择还原的代码生成表")
 	}
-	sort.Slice(ids, func(i, j int) bool { return ids[i] < ids[j] })
+	slices.Sort(ids)
 	return ids, nil
 }
 
@@ -2183,8 +2184,8 @@ func (t *codeGenRestoreTransaction) rollback() error {
 		return nil
 	}
 	var rollbackErr error
-	for index := len(t.writtenPaths) - 1; index >= 0; index-- {
-		snapshot := t.snapshots[t.writtenPaths[index]]
+	for _, path := range slices.Backward(t.writtenPaths) {
+		snapshot := t.snapshots[path]
 		var err error
 		if snapshot.exists {
 			err = writeGeneratedFileAtomically(snapshot.fullPath, snapshot.content, snapshot.mode, false)
@@ -2311,10 +2312,8 @@ func workspaceFilesEqual(left codeGenRestoreWorkspaceFile, right codeGenRestoreW
 
 // appendUniqueInt64 向 ID 切片追加未出现的值。
 func appendUniqueInt64(values []int64, value int64) []int64 {
-	for _, item := range values {
-		if item == value {
-			return values
-		}
+	if slices.Contains(values, value) {
+		return values
 	}
 	return append(values, value)
 }

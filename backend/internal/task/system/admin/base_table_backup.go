@@ -16,7 +16,7 @@ import (
 	"os/exec"
 	"path"
 	"path/filepath"
-	"sort"
+	"slices"
 	"strconv"
 	"strings"
 	"time"
@@ -241,6 +241,7 @@ func (t *TableBackupTask) failBackupRecord(ctx context.Context, record *models.B
 	return backupErr
 }
 
+// rotateBackupRecords 按保留数量标记并删除过期的成功备份记录。
 func (t *TableBackupTask) rotateBackupRecords(ctx context.Context, config *models.BaseTableBackup) error {
 	query := t.recordRepo.Query(ctx).BaseTableBackupRecord
 	records, err := t.recordRepo.List(ctx,
@@ -251,10 +252,7 @@ func (t *TableBackupTask) rotateBackupRecords(ctx context.Context, config *model
 	if err != nil {
 		return fmt.Errorf("查询历史备份记录失败: %w", err)
 	}
-	retention := int(config.RetentionCount)
-	if retention < 1 {
-		retention = 1
-	}
+	retention := max(int(config.RetentionCount), 1)
 	if retention >= len(records) {
 		return nil
 	}
@@ -407,6 +405,7 @@ func encryptBackup(ctx context.Context, encryptionKey, source, target string) er
 	return backup.EncryptFile(ctx, encryptionKey, source, target)
 }
 
+// rotateBackups 按文件名顺序删除超过保留数量的旧备份。
 func rotateBackups(directory string, retention int) error {
 	if retention < 1 {
 		return fmt.Errorf("备份保留数量必须大于零")
@@ -424,7 +423,7 @@ func rotateBackups(directory string, retention int) error {
 			paths = append(paths, filepath.Join(directory, entry.Name()))
 		}
 	}
-	sort.Strings(paths)
+	slices.Sort(paths)
 	for len(paths) > retention {
 		if err = os.Remove(paths[0]); err != nil {
 			return fmt.Errorf("删除过期备份失败: %w", err)

@@ -10,8 +10,8 @@ import (
 	kratoshttp "github.com/go-kratos/kratos/v3/transport/http"
 	biz "github.com/liujitcn/kratos-admin/backend/internal/biz/base"
 	"github.com/liujitcn/kratos-kit/auth"
-	authn "github.com/liujitcn/kratos-kit/auth/authn/engine"
-	authdata "github.com/liujitcn/kratos-kit/auth/data"
+	"github.com/liujitcn/kratos-kit/auth/authn/engine"
+	"github.com/liujitcn/kratos-kit/auth/data"
 )
 
 // TestMcpHTTPMiddlewareContext 验证 MCP 转发保留 Kratos 中间件注入的认证与请求上下文。
@@ -31,8 +31,8 @@ func TestMcpHTTPMiddlewareContext(t *testing.T) {
 	})}
 	server := kratoshttp.NewServer(kratoshttp.Middleware(func(next middleware.Handler) middleware.Handler {
 		return func(ctx context.Context, req any) (any, error) {
-			claims := (&authdata.UserTokenPayload{TenantId: 1, TenantCode: "tenant-a", UserId: 2, RoleCode: "reader"}).MakeAuthClaims()
-			ctx = authn.ContextWithAuthClaims(ctx, claims)
+			claims := (&data.UserTokenPayload{TenantId: 1, TenantCode: "tenant-a", UserId: 2, RoleCode: "reader"}).MakeAuthClaims()
+			ctx = engine.ContextWithAuthClaims(ctx, claims)
 			return next(context.WithValue(ctx, middlewareKey{}, "保留"), req)
 		}
 	}))

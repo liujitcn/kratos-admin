@@ -17,6 +17,7 @@ import (
 	"os"
 	"path/filepath"
 	"reflect"
+	"slices"
 	"sort"
 	"strings"
 	"time"
@@ -480,7 +481,7 @@ func runtimeLogFilterHash(keyword string, levels map[string]struct{}) string {
 	for level := range levels {
 		levelList = append(levelList, level)
 	}
-	sort.Strings(levelList)
+	slices.Sort(levelList)
 	digest := sha256.Sum256([]byte(strings.ToLower(keyword) + "\x00" + strings.Join(levelList, ",")))
 	return hex.EncodeToString(digest[:])
 }

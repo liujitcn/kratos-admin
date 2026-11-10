@@ -2,6 +2,7 @@ package biz
 
 import (
 	"context"
+	"slices"
 
 	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
 	adminconst "github.com/liujitcn/kratos-admin/backend/internal/const"
@@ -425,11 +426,11 @@ func (c *BaseJobCase) restoreBaseJob(ctx context.Context, previousJob *models.Ba
 // restoreBaseJobs 按逆序恢复一批被停止的定时任务调度。
 func (c *BaseJobCase) restoreBaseJobs(ctx context.Context, jobs []*models.BaseJob) error {
 	var err error
-	for index := len(jobs) - 1; index >= 0; index-- {
-		if jobs[index] == nil {
+	for _, job := range slices.Backward(jobs) {
+		if job == nil {
 			continue
 		}
-		err = c.restoreBaseJob(ctx, jobs[index])
+		err = c.restoreBaseJob(ctx, job)
 		if err != nil {
 			return err
 		}

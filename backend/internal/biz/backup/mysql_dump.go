@@ -99,7 +99,7 @@ func DumpMySQL(ctx context.Context, db *sql.DB, options MySQLDumpOptions, target
 // listDumpTables 查询需要导出的表和视图并保持稳定顺序。
 func listDumpTables(ctx context.Context, tx *sql.Tx, options MySQLDumpOptions) ([]mysqlDumpTable, error) {
 	query := "SELECT TABLE_NAME, TABLE_TYPE FROM information_schema.TABLES WHERE TABLE_SCHEMA = ? AND TABLE_TYPE IN ('BASE TABLE', 'VIEW')"
-	args := []interface{}{options.Database}
+	args := []any{options.Database}
 	if options.Table != "" {
 		query += " AND TABLE_NAME = ?"
 		args = append(args, options.Table)
@@ -184,8 +184,8 @@ func dumpMySQLRows(ctx context.Context, tx *sql.Tx, options MySQLDumpOptions, ta
 	if err != nil {
 		return fmt.Errorf("读取 MySQL 表 %s 字段类型失败: %w", tableName, err)
 	}
-	values := make([]interface{}, len(columns))
-	scanTargets := make([]interface{}, len(columns))
+	values := make([]any, len(columns))
+	scanTargets := make([]any, len(columns))
 	for index := range values {
 		scanTargets[index] = &values[index]
 	}
@@ -342,8 +342,8 @@ func showCreateSQL(ctx context.Context, tx *sql.Tx, database, name, objectType s
 		}
 		return "", fmt.Errorf("MySQL %s %s 定义为空", objectType, name)
 	}
-	values := make([]interface{}, len(columns))
-	targets := make([]interface{}, len(values))
+	values := make([]any, len(columns))
+	targets := make([]any, len(values))
 	for index := range values {
 		targets[index] = &values[index]
 	}
@@ -359,7 +359,7 @@ func showCreateSQL(ctx context.Context, tx *sql.Tx, database, name, objectType s
 }
 
 // formatMySQLValue 将数据库驱动返回值编码为 SQL 字面量。
-func formatMySQLValue(value interface{}, dataType string) (string, error) {
+func formatMySQLValue(value any, dataType string) (string, error) {
 	if value == nil {
 		return "NULL", nil
 	}
@@ -461,7 +461,7 @@ func writeSQL(target io.Writer, value string) error {
 }
 
 // stringValue 将数据库驱动返回值转换为定义文本。
-func stringValue(value interface{}) string {
+func stringValue(value any) string {
 	switch item := value.(type) {
 	case []byte:
 		return string(item)

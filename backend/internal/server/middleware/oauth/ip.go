@@ -21,7 +21,7 @@ type oauthClientContextKey struct{}
 // 请求来源地址与客户端白名单的匹配，并将已解析客户端传给后续 OAuth middleware。
 func NewIPMiddleware(clientRepo *data.OauthClientRepository) middleware.Middleware {
 	return func(handler middleware.Handler) middleware.Handler {
-		return func(ctx context.Context, req interface{}) (interface{}, error) {
+		return func(ctx context.Context, req any) (any, error) {
 			request, ok := http.RequestFromServerContext(ctx)
 			if !ok || request == nil {
 				return handler(ctx, req)
@@ -58,7 +58,7 @@ func MatchClientIP(ip string, whitelist string) bool {
 	if parsedIP == nil {
 		return false
 	}
-	for _, raw := range strings.Split(whitelist, ",") {
+	for raw := range strings.SplitSeq(whitelist, ",") {
 		entry := strings.TrimSpace(raw)
 		if entry == "" {
 			continue

@@ -2,6 +2,7 @@ package conflictmessage
 
 import (
 	"context"
+	"maps"
 
 	"github.com/go-kratos/kratos/v3/errors"
 	"github.com/go-kratos/kratos/v3/middleware"
@@ -28,9 +29,7 @@ func NewConflictMessageKeyMiddleware() middleware.Middleware {
 			if localized.Metadata[errorsx.METADATA_KEY_RESOURCE] == "" && localized.Metadata[errorsx.METADATA_KEY_CHILD_RESOURCE] == "" && localized.Metadata["operation"] == "" {
 				if transporter, ok := transport.FromServerContext(ctx); ok && transporter.Operation() != "" {
 					metadata := make(map[string]string, len(localized.Metadata)+1)
-					for key, value := range localized.Metadata {
-						metadata[key] = value
-					}
+					maps.Copy(metadata, localized.Metadata)
 					metadata["operation"] = transporter.Operation()
 					localized = localized.WithMetadata(metadata)
 				}

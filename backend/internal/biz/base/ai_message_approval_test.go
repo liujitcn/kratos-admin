@@ -88,15 +88,15 @@ func TestAiToolApprovalIntegration(t *testing.T) {
 			c := &AiMessageCase{BaseCase: &biz.BaseCase{}, tx: store, aiMessageRepo: messageRepo, aiApprovalRepo: approvalRepo, aiSessionCase: sessionCase, aiRuntime: runtime}
 			now := time.Now().Truncate(time.Millisecond)
 			session := &models.AiSession{TenantID: 7, UserID: 3, Terminal: ai.TerminalAdmin, CreatedAt: now, UpdatedAt: now}
-			if err = sessionCase.Create(context.Background(), session); err != nil {
+			if err = sessionCase.Create(t.Context(), session); err != nil {
 				t.Fatal(err)
 			}
 			item := &models.AiMessage{TenantID: 7, UserID: 3, SessionID: session.ID, InputContent: "{}", OutputContent: "{}", Attachments: "[]", Tools: "[]", Token: "{}", Status: int32(basev1.AiMessageStatus_AI_MESSAGE_STATUS_GENERATING), CreatedAt: now, UpdatedAt: now}
-			if err = messageRepo.Create(context.Background(), item); err != nil {
+			if err = messageRepo.Create(t.Context(), item); err != nil {
 				t.Fatal(err)
 			}
 			payload := &authdata.UserTokenPayload{TenantId: 7, TenantCode: "tenant7", UserId: 3, RoleCode: "role"}
-			ctx := engine.ContextWithAuthClaims(context.Background(), payload.MakeAuthClaims())
+			ctx := engine.ContextWithAuthClaims(t.Context(), payload.MakeAuthClaims())
 			var reply *ai.Response
 			input := ai.RuntimeInput{Terminal: "admin", Content: "write"}
 			if scenario == "large_attachment" {
@@ -288,7 +288,7 @@ func TestAiToolApprovalIntegration(t *testing.T) {
 			}
 			var accepted atomic.Int32
 			var group sync.WaitGroup
-			for i := 0; i < 4; i++ {
+			for range 4 {
 				group.Go(func() {
 					_, callErr := c.DecideAiToolApproval(ctx, req)
 					if callErr == nil {

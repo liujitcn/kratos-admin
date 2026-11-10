@@ -87,10 +87,10 @@ func _FileService_MultiUploadFile0_HTTP_Handler(srv FileServiceHTTPServer) func(
 				}
 			}
 		}
-		h := ctx.Middleware(func(requestCtx context.Context, req interface{}) (interface{}, error) {
+		h := ctx.Middleware(func(requestCtx context.Context, req any) (any, error) {
 			return srv.MultiUploadFile(requestCtx, req.(*basev1.MultiUploadFileRequest))
 		})
-		var out interface{}
+		var out any
 		out, err = h(ctx, &in)
 		if err != nil {
 			return err
@@ -124,10 +124,10 @@ func _FileService_UploadFile0_HTTP_Handler(srv FileServiceHTTPServer) func(ctx h
 		}
 		uploadFileInfo.AccessMode = accessMode
 		in.File = uploadFileInfo
-		h := ctx.Middleware(func(requestCtx context.Context, req interface{}) (interface{}, error) {
+		h := ctx.Middleware(func(requestCtx context.Context, req any) (any, error) {
 			return srv.UploadFile(requestCtx, req.(*basev1.UploadFileRequest))
 		})
-		var out interface{}
+		var out any
 		out, err = h(ctx, &in)
 		if err != nil {
 			return err
@@ -137,6 +137,7 @@ func _FileService_UploadFile0_HTTP_Handler(srv FileServiceHTTPServer) func(ctx h
 	}
 }
 
+// _FileService_DownloadFile0_HTTP_Handler 适配文件下载请求并写入下载响应头。
 func _FileService_DownloadFile0_HTTP_Handler(srv FileServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in basev1.DownloadFileRequest
@@ -144,7 +145,7 @@ func _FileService_DownloadFile0_HTTP_Handler(srv FileServiceHTTPServer) func(ctx
 			return err
 		}
 		http.SetOperation(ctx, OperationFileServiceDownloadFile)
-		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+		h := ctx.Middleware(func(ctx context.Context, req any) (any, error) {
 			return srv.DownloadFile(ctx, req.(*basev1.DownloadFileRequest))
 		})
 		out, err := h(ctx, &in)

@@ -5,7 +5,7 @@ import (
 
 	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/loginaudit"
-	corebiz "github.com/liujitcn/kratos-core/biz"
+	"github.com/liujitcn/kratos-core/biz"
 	"github.com/liujitcn/kratos-kit/auth/data"
 	"github.com/liujitcn/kratos-kit/cache/memory"
 )
@@ -17,7 +17,7 @@ func TestOauthTicketAuditIdentity(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer cleanup()
-	service := &OauthCase{BaseCase: &corebiz.BaseCase{Cache: cache}}
+	service := &OauthCase{BaseCase: &biz.BaseCase{Cache: cache}}
 	callback := loginaudit.WithCapture(t.Context())
 	loginaudit.Record(callback, &data.UserTokenPayload{UserId: 9, TenantId: 2, UserName: "operator"})
 	var ticket string

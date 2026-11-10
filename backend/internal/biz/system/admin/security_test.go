@@ -10,7 +10,7 @@ import (
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
-	corebiz "github.com/liujitcn/kratos-core/biz"
+	"github.com/liujitcn/kratos-core/biz"
 	"github.com/liujitcn/kratos-kit/auth/authn/engine"
 	authdata "github.com/liujitcn/kratos-kit/auth/data"
 	kitgorm "github.com/liujitcn/kratos-kit/database/gorm"
@@ -53,7 +53,7 @@ func TestTenantMaskedEdit(t *testing.T) {
 	}
 	identity := &authdata.UserTokenPayload{UserId: 1, TenantId: 1, TenantCode: kitgorm.DefaultTenantCode, RoleCode: "admin"}
 	ctx := redact.WithDirection(engine.ContextWithAuthClaims(t.Context(), identity.MakeAuthClaims()), redact.DirectionRequest)
-	service := &BaseTenantCase{BaseCase: &corebiz.BaseCase{}, BaseTenantRepository: data.NewBaseTenantRepository(database), redactResolver: resolver, formMapper: mapper.NewCopierMapper[adminv1.BaseTenantForm, models.BaseTenant]()}
+	service := &BaseTenantCase{BaseCase: &biz.BaseCase{}, BaseTenantRepository: data.NewBaseTenantRepository(database), redactResolver: resolver, formMapper: mapper.NewCopierMapper[adminv1.BaseTenantForm, models.BaseTenant]()}
 	form := &adminv1.BaseTenantForm{Id: 2, Code: "ignored", Name: "修改名称", ContactName: "张*", ContactPhone: "199****1111", Status: new(commonv1.Status_STATUS_ENABLE)}
 	err = service.UpdateBaseTenant(ctx, form)
 	if err != nil {
@@ -98,7 +98,7 @@ func TestDefaultTenantProjectScope(t *testing.T) {
 	}
 	identity := &authdata.UserTokenPayload{UserId: 9, TenantId: 1, TenantCode: kitgorm.DefaultTenantCode, RoleCode: "operator"}
 	ctx := engine.ContextWithAuthClaims(t.Context(), identity.MakeAuthClaims())
-	service := NewBaseTenantProjectGrantCase(&corebiz.BaseCase{}, data.NewTransaction(database), data.NewBaseTenantProjectGrantRepository(database))
+	service := NewBaseTenantProjectGrantCase(&biz.BaseCase{}, data.NewTransaction(database), data.NewBaseTenantProjectGrantRepository(database))
 	var allowed map[int64][]int64
 	allowed, err = service.EffectiveProjects(ctx)
 	if err != nil || len(allowed) != 1 || len(allowed[2]) != 1 || allowed[2][0] != 7 {

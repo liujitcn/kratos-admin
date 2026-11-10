@@ -1,7 +1,6 @@
 package admin
 
 import (
-	"context"
 	"database/sql"
 	"strings"
 	"testing"
@@ -44,7 +43,7 @@ func TestDiscoverSourceTablesComments(t *testing.T) {
 				}
 			}
 			var tables []*adminv1.BiSourceSchemaTable
-			tables, err = discoverSourceTables(context.Background(), &configuredDatabase{db: db, driver: driver}, &models.BiSource{SchemaName: "app"})
+			tables, err = discoverSourceTables(t.Context(), &configuredDatabase{db: db, driver: driver}, &models.BiSource{SchemaName: "app"})
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -100,7 +99,7 @@ func TestConfiguredSourceTruncation(t *testing.T) {
 		truncated      bool
 	}{{100, 2, 2, true}, {4, 4, 4, false}, {4, 0, 4, false}, {3, 100, 3, true}} {
 		var result bi.QueryResult
-		result, err = executeConfiguredSource(context.Background(), &configuredDatabase{db: db, driver: "mysql"}, &models.BiSource{MaxRows: test.maxRows}, testConfiguredSchema(), bi.Scope{TenantID: 7}, bi.QuerySpec{Dimensions: []string{"day"}, Measures: []bi.MeasureSpec{{Code: "amount", Aggregation: "sum"}}, Limit: test.limit})
+		result, err = executeConfiguredSource(t.Context(), &configuredDatabase{db: db, driver: "mysql"}, &models.BiSource{MaxRows: test.maxRows}, testConfiguredSchema(), bi.Scope{TenantID: 7}, bi.QuerySpec{Dimensions: []string{"day"}, Measures: []bi.MeasureSpec{{Code: "amount", Aggregation: "sum"}}, Limit: test.limit})
 		if err != nil || len(result.Rows) != test.rows || result.Truncated != test.truncated {
 			t.Fatalf("上限%d/请求%d: result=%v err=%v", test.maxRows, test.limit, result, err)
 		}

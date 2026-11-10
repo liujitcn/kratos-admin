@@ -3,6 +3,7 @@ package codegen
 import (
 	"bytes"
 	"embed"
+	"strings"
 	"text/template"
 )
 
@@ -18,6 +19,7 @@ var sourceTemplates = template.Must(
 
 // backendBizTemplateData 描述后端业务文件模板输入。
 type backendBizTemplateData struct {
+	PackageName  string // PackageName 目标目录的 Go 包名。
 	Entity       string
 	EntityVar    string
 	BusinessName string
@@ -34,6 +36,7 @@ type backendBizTemplateData struct {
 
 // backendServiceTemplateData 描述后端服务文件模板输入。
 type backendServiceTemplateData struct {
+	PackageName  string // PackageName 目标目录的 Go 包名。
 	Entity       string
 	EntityVar    string
 	BusinessName string
@@ -80,5 +83,5 @@ func renderTemplate(name string, data any) string {
 	if err := sourceTemplates.ExecuteTemplate(&content, name, data); err != nil {
 		panic(err)
 	}
-	return content.String()
+	return strings.ReplaceAll(content.String(), "github.com/liujitcn/kratos-admin/backend/internal/", backendModulePath()+"/internal/")
 }

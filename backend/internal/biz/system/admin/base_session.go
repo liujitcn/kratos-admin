@@ -120,14 +120,8 @@ func (c *BaseSessionCase) PageOnlineBaseSessions(ctx context.Context, req *admin
 	if pageSize <= 0 {
 		pageSize = 10
 	}
-	start := int((pageNum - 1) * pageSize)
-	if start > len(filtered) {
-		start = len(filtered)
-	}
-	end := start + int(pageSize)
-	if end > len(filtered) {
-		end = len(filtered)
-	}
+	start := min(int((pageNum-1)*pageSize), len(filtered))
+	end := min(start+int(pageSize), len(filtered))
 	items := make([]*adminv1.BaseSession, 0, end-start)
 	for _, record := range filtered[start:end] {
 		items = append(items, c.toBaseSession(record, false))

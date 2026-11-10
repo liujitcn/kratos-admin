@@ -1,8 +1,9 @@
 package biz
 
 import (
+	"cmp"
 	"context"
-	"sort"
+	"slices"
 
 	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
 	_const "github.com/liujitcn/kratos-admin/backend/internal/const"
@@ -90,8 +91,8 @@ func (c *BaseDictCase) OptionBaseDict(ctx context.Context) (*adminv1.OptionBaseD
 		dictItems, ok := dictItemMap[dict.ID]
 		// 当前字典存在子项时，按排序字段稳定输出字典项。
 		if ok {
-			sort.SliceStable(dictItems, func(i, j int) bool {
-				return dictItems[i].Sort < dictItems[j].Sort
+			slices.SortStableFunc(dictItems, func(left, right *models.BaseDictItem) int {
+				return cmp.Compare(left.Sort, right.Sort)
 			})
 			for _, dictItem := range dictItems {
 				label := dictItem.Label

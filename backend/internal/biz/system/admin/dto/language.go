@@ -1,5 +1,7 @@
 package dto
 
+import "slices"
+
 // LocaleState 描述当前请求可使用的运行时语言。
 type LocaleState struct {
 	// Current 是当前请求语言。
@@ -17,12 +19,7 @@ func (s *LocaleState) IsCurrentPrimary() bool {
 
 // IsEnabled 判断语言是否处于运行时启用列表。
 func (s *LocaleState) IsEnabled(locale string) bool {
-	for _, value := range s.Enabled {
-		if value == locale {
-			return true
-		}
-	}
-	return false
+	return slices.Contains(s.Enabled, locale)
 }
 
 // IsEditable 判断语言是否为启用的非主语言。

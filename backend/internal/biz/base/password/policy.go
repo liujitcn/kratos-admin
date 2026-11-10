@@ -80,10 +80,7 @@ func CheckHistoryJSON(raw, plain string, historyCount int32) error {
 	if err := json.Unmarshal([]byte(raw), &history); err != nil {
 		return fmt.Errorf("解析口令历史失败: %w", err)
 	}
-	limit := len(history)
-	if limit > int(historyCount) {
-		limit = int(historyCount)
-	}
+	limit := min(len(history), int(historyCount))
 	for _, hash := range history[:limit] {
 		if err := crypto.Verify(plain, hash); err == nil {
 			return errors.New("新口令不能与近期历史口令相同")

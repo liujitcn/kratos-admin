@@ -9,7 +9,7 @@ import (
 	"testing"
 
 	biz "github.com/liujitcn/kratos-admin/backend/internal/biz/base"
-	service "github.com/liujitcn/kratos-admin/backend/internal/service/base/v1"
+	"github.com/liujitcn/kratos-admin/backend/internal/service/base/v1"
 	kitmcp "github.com/liujitcn/kratos-kit/transport/mcp"
 	"github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
@@ -18,7 +18,7 @@ import (
 // TestRegisterMCPAccessControl 验证生产注册入口会绑定 HTTP 处理器，并在权限仓储缺失时拒绝执行工具。
 func TestRegisterMCPAccessControl(t *testing.T) {
 	h := &biz.McpCase{}
-	services := Services{Mcp: service.NewMcpService(h)}
+	services := Services{Mcp: base.NewMcpService(h)}
 	srv := kitmcp.NewHandler(kitmcp.WithJSONResponse(true), kitmcp.WithStreamableHTTPOptions(server.WithStateLess(true)))
 	t.Cleanup(func() {
 		if err := srv.Stop(context.Background()); err != nil {

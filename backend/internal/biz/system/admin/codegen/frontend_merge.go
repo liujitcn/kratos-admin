@@ -604,8 +604,7 @@ func mergeFrontendObject(candidate string, existing string) (string, bool) {
 	}
 	// 属性在旧页中的顺序可能不同，必须按候选源码偏移从后往前替换。
 	slices.SortFunc(replacements, func(left, right frontendReplacement) int { return left.start - right.start })
-	for index := len(replacements) - 1; index >= 0; index-- {
-		replacement := replacements[index]
+	for _, replacement := range slices.Backward(replacements) {
 		candidate = candidate[:replacement.start] + replacement.content + candidate[replacement.end:]
 	}
 	if len(extraProperties) == 0 {
@@ -872,11 +871,11 @@ func pruneFrontendImportBlock(block string, usage string) string {
 	if trimmed == "" || rendered == "" {
 		return rendered
 	}
-	prefixIndex := strings.Index(block, trimmed)
-	if prefixIndex < 0 {
+	before, _, ok := strings.Cut(block, trimmed)
+	if !ok {
 		return rendered
 	}
-	return block[:prefixIndex] + rendered
+	return before + rendered
 }
 
 // frontendIdentifierUsed 判断标识符是否仍在导入语句之外被引用。
@@ -902,7 +901,7 @@ func parseFrontendImport(content string) frontendImportSpec {
 	beforeFrom := strings.TrimSpace(code[len("import "):strings.Index(code, " from ")])
 	typeOnly := strings.HasPrefix(beforeFrom, "type ")
 	if match := frontendImportNamedPattern.FindStringSubmatch(beforeFrom); len(match) == 2 {
-		for _, item := range strings.Split(match[1], ",") {
+		for item := range strings.SplitSeq(match[1], ",") {
 			item = strings.TrimSpace(item)
 			if item != "" {
 				if typeOnly && !strings.HasPrefix(item, "type ") {
@@ -960,7 +959,7 @@ func frontendImportLocalName(spec string) string {
 // frontendIdentifierList 返回解构声明中的稳定标识符列表。
 func frontendIdentifierList(content string) []string {
 	list := make([]string, 0)
-	for _, item := range strings.Split(content, ",") {
+	for item := range strings.SplitSeq(content, ",") {
 		item = strings.TrimSpace(item)
 		if colonIndex := strings.Index(item, ":"); colonIndex >= 0 {
 			item = strings.TrimSpace(item[colonIndex+1:])

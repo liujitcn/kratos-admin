@@ -17,7 +17,7 @@ func TestInvokeToolCarriesAssistantClient(t *testing.T) {
 		t.Fatal(err)
 	}
 	runtime := NewRuntime(RuntimeConfig{AdminTools: []Tool{capture}})
-	ctx := ContextWithAssistantClient(context.Background(), client)
+	ctx := ContextWithAssistantClient(t.Context(), client)
 	if _, err = runtime.InvokeTool(ctx, "admin", "capture_model", "{}"); err != nil {
 		t.Fatal(err)
 	}
@@ -39,7 +39,7 @@ func TestInvokeToolCarriesTerminal(t *testing.T) {
 				t.Fatal(err)
 			}
 			runtime := NewRuntime(RuntimeConfig{AdminTools: []Tool{capture}, AppTools: []Tool{capture}})
-			if _, err = runtime.InvokeTool(context.Background(), terminal, "capture_terminal", "{}"); err != nil {
+			if _, err = runtime.InvokeTool(t.Context(), terminal, "capture_terminal", "{}"); err != nil {
 				t.Fatal(err)
 			}
 			if actual != terminal {
@@ -55,7 +55,7 @@ func TestResumeCarriesRuntimeContext(t *testing.T) {
 	client.AgenticModel = &pdfInputModel{}
 	store := &resumeContextStore{}
 	runtime := NewRuntime(RuntimeConfig{Client: client, CheckPointStore: store})
-	_, err := runtime.Resume(context.Background(), "context-run", RunState{Terminal: "admin"}, []ApprovalCall{{InterruptID: "pending"}}, true)
+	_, err := runtime.Resume(t.Context(), "context-run", RunState{Terminal: "admin"}, []ApprovalCall{{InterruptID: "pending"}}, true)
 	if err == nil {
 		t.Fatal("读取测试快照应返回取消错误")
 	}

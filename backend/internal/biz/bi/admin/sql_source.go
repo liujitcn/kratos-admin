@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net"
 	"net/url"
+	"slices"
 	"strconv"
 	"strings"
 	"time"
@@ -216,7 +217,7 @@ func discoverSourceTables(ctx context.Context, database *configuredDatabase, ite
 		if len(names) != 1 {
 			continue
 		}
-		tableName := strings.SplitN(key, ".", 2)[0]
+		tableName, _, _ := strings.Cut(key, ".")
 		column := columnsByName[tableName][names[0]]
 		if column == nil {
 			continue
@@ -346,7 +347,7 @@ func buildConfiguredQuery(driver string, item *models.BiSource, schema dto.Confi
 	}
 	for _, measureSpec := range spec.Measures {
 		measure, ok := measures[measureSpec.Code]
-		if !ok || measure.Table != schema.BaseTable || !contains(measure.Aggregations, strings.ToLower(measureSpec.Aggregation)) {
+		if !ok || measure.Table != schema.BaseTable || !slices.Contains(measure.Aggregations, strings.ToLower(measureSpec.Aggregation)) {
 			return "", nil, nil, errorsx.InvalidArgument("BI 指标或聚合函数不可用: " + measureSpec.Code)
 		}
 		aggregation := strings.ToUpper(measureSpec.Aggregation)

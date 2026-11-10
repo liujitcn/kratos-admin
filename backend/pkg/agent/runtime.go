@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"slices"
 	"sort"
 	"strings"
 	"sync"
@@ -887,10 +888,7 @@ func selectScoredToolInfos(infos []*tool.Info, terms []string) []*tool.Info {
 	if len(scoredTools) == 0 {
 		return nil
 	}
-	limit := maxModelToolsPerRequest
-	if len(scoredTools) < limit {
-		limit = len(scoredTools)
-	}
+	limit := min(len(scoredTools), maxModelToolsPerRequest)
 	result := make([]*tool.Info, 0, limit)
 	for _, item := range scoredTools[:limit] {
 		result = append(result, item.info)
@@ -941,8 +939,8 @@ func selectHistoryToolInfos(input RuntimeInput, infos []*tool.Info) []*tool.Info
 	}
 	result := make([]*tool.Info, 0, maxModelToolsPerRequest)
 	seen := make(map[string]struct{}, maxModelToolsPerRequest)
-	for index := len(input.History) - 1; index >= 0; index-- {
-		for _, item := range input.History[index].Tools {
+	for _, message := range slices.Backward(input.History) {
+		for _, item := range message.Tools {
 			info := infoMap[item.Name]
 			if info == nil {
 				continue

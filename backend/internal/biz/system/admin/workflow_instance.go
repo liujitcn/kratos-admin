@@ -6,7 +6,9 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"maps"
 	"math"
+	"slices"
 	"strconv"
 	"strings"
 	"time"
@@ -928,11 +930,8 @@ func (c *WorkflowInstanceCase) enterTaskNode(
 
 	autoApprove := len(others) == 0
 	if !autoApprove && node.IsAnyStrategy() {
-		for _, approver := range approvers {
-			if approver == instance.ApplicantUserID {
-				autoApprove = true
-				break
-			}
+		if slices.Contains(approvers, instance.ApplicantUserID) {
+			autoApprove = true
 		}
 	}
 	if autoApprove {
@@ -2105,9 +2104,7 @@ func (c *WorkflowInstanceCase) evaluateWorkflowScript(ctx context.Context, insta
 		if err != nil {
 			return output, err
 		}
-		for key, value := range result.Variables {
-			merged[key] = value
-		}
+		maps.Copy(merged, result.Variables)
 		var variables string
 		variables, err = scripting.MarshalOutput(merged)
 		if err != nil {
@@ -2199,9 +2196,7 @@ func (c *WorkflowInstanceCase) mergeScriptVariables(ctx context.Context, instanc
 	if err != nil {
 		return err
 	}
-	for key, value := range variables {
-		merged[key] = value
-	}
+	maps.Copy(merged, variables)
 	instance.Variables, err = scripting.MarshalOutput(merged)
 	if err != nil {
 		return err

@@ -1,7 +1,6 @@
 package admin
 
 import (
-	"context"
 	"testing"
 
 	"github.com/go-kratos/kratos/v3/errors"
@@ -60,7 +59,7 @@ func TestBiSourceHostClientAccess(t *testing.T) {
 			}
 		})
 	}
-	defaultCtx := engine.ContextWithAuthClaims(context.Background(), (&data.UserTokenPayload{TenantId: 1, TenantCode: gorm.DefaultTenantCode, UserId: 1, DataScope: gorm.DataScopeAll}).MakeAuthClaims())
+	defaultCtx := engine.ContextWithAuthClaims(t.Context(), (&data.UserTokenPayload{TenantId: 1, TenantCode: gorm.DefaultTenantCode, UserId: 1, DataScope: gorm.DataScopeAll}).MakeAuthClaims())
 	if _, err = c.OptionBiSourceDatabase(defaultCtx, &adminv1.OptionBiSourceDatabaseRequest{}); err != nil {
 		t.Fatal(err)
 	}

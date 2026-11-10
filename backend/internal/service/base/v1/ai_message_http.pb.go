@@ -68,10 +68,10 @@ func _AiMessageService_DecideAiToolApproval0_HTTP_Handler(srv AiMessageServiceHT
 			return err
 		}
 		kratosHTTP.SetOperation(ctx, basev1.OperationAiMessageServiceDecideAiToolApproval)
-		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+		h := ctx.Middleware(func(ctx context.Context, req any) (any, error) {
 			return srv.DecideAiToolApproval(ctx, req.(*basev1.DecideAiToolApprovalRequest))
 		})
-		var out interface{}
+		var out any
 		out, err = h(ctx, &in)
 		if err != nil {
 			return err
@@ -126,7 +126,7 @@ func _AiMessageService_SendAiMessage0_HTTP_Handler(srv AiMessageServiceHTTPServe
 			writer:  response,
 			flusher: flusher,
 		}
-		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+		h := ctx.Middleware(func(ctx context.Context, req any) (any, error) {
 			header := response.Header()
 			header.Set("Content-Type", "text/event-stream; charset=utf-8")
 			header.Set("Cache-Control", "no-cache")
@@ -150,7 +150,7 @@ func _AiMessageService_DeleteAiMessage0_HTTP_Handler(srv AiMessageServiceHTTPSer
 			return err
 		}
 		kratosHTTP.SetOperation(ctx, OperationAiMessageServiceDeleteAiMessage)
-		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+		h := ctx.Middleware(func(ctx context.Context, req any) (any, error) {
 			return srv.DeleteAiMessage(ctx, req.(*basev1.DeleteAiMessageRequest))
 		})
 		out, err := h(ctx, &in)
@@ -175,7 +175,7 @@ func _AiMessageService_UpdateAiMessage0_HTTP_Handler(srv AiMessageServiceHTTPSer
 			return err
 		}
 		kratosHTTP.SetOperation(ctx, OperationAiMessageServiceUpdateAiMessage)
-		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+		h := ctx.Middleware(func(ctx context.Context, req any) (any, error) {
 			return srv.UpdateAiMessage(ctx, req.(*basev1.UpdateAiMessageRequest))
 		})
 		out, err := h(ctx, &in)
@@ -200,7 +200,7 @@ func _AiMessageService_RetryAiUserMessage0_HTTP_Handler(srv AiMessageServiceHTTP
 			return err
 		}
 		kratosHTTP.SetOperation(ctx, OperationAiMessageServiceRetryAiUserMessage)
-		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+		h := ctx.Middleware(func(ctx context.Context, req any) (any, error) {
 			return srv.RetryAiUserMessage(ctx, req.(*basev1.RetryAiUserMessageRequest))
 		})
 		out, err := h(ctx, &in)
@@ -231,7 +231,7 @@ func _AiMessageService_RegenerateAiMessage0_HTTP_Handler(srv AiMessageServiceHTT
 			return err
 		}
 		kratosHTTP.SetOperation(ctx, OperationAiMessageServiceRegenerateAiMessage)
-		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+		h := ctx.Middleware(func(ctx context.Context, req any) (any, error) {
 			return srv.RegenerateAiMessage(ctx, req.(*basev1.RegenerateAiMessageRequest))
 		})
 		out, err := h(ctx, &in)

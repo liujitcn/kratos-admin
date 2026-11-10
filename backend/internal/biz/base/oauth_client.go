@@ -200,7 +200,7 @@ func oauthClientIPAllowed(ctx context.Context, whitelist string) bool {
 	if ip == nil {
 		return false
 	}
-	for _, raw := range strings.Split(whitelist, ",") {
+	for raw := range strings.SplitSeq(whitelist, ",") {
 		entry := strings.TrimSpace(raw)
 		if entry == "" {
 			continue

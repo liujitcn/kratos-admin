@@ -1,9 +1,10 @@
 package bi
 
 import (
+	"cmp"
 	"context"
 	"fmt"
-	"sort"
+	"slices"
 	"sync"
 )
 
@@ -205,7 +206,7 @@ func (r *Registry) List(ctx context.Context, scope Scope) ([]SourceDescriptor, e
 		adapters = append(adapters, adapter)
 	}
 	r.mu.RUnlock()
-	sort.Slice(adapters, func(i, j int) bool { return adapters[i].Code() < adapters[j].Code() })
+	slices.SortFunc(adapters, func(left, right SourceAdapter) int { return cmp.Compare(left.Code(), right.Code()) })
 	result := make([]SourceDescriptor, 0, len(adapters))
 	for _, adapter := range adapters {
 		descriptor, err := adapter.Descriptor(ctx, scope)

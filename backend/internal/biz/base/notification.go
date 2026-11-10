@@ -4,7 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"sort"
+	"slices"
 	"time"
 
 	"github.com/go-kratos/kratos/v3/log"
@@ -543,7 +543,7 @@ func (c *NotificationCase) categoryUnread(ctx context.Context, baseOpts []reposi
 	for categoryID := range counts {
 		categoryIDs = append(categoryIDs, categoryID)
 	}
-	sort.Slice(categoryIDs, func(i, j int) bool { return categoryIDs[i] < categoryIDs[j] })
+	slices.Sort(categoryIDs)
 	result := make([]*basev1.NotificationCategoryUnread, 0, len(categoryIDs))
 	for _, categoryID := range categoryIDs {
 		result = append(result, &basev1.NotificationCategoryUnread{CategoryId: categoryID, UnreadTotal: counts[categoryID]})

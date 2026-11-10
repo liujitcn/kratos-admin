@@ -156,7 +156,7 @@ func restoreInternalArchive(ctx context.Context, baseCase *biz.BaseCase, archive
 		return 0, err
 	}
 	var whereSQL string
-	var values []interface{}
+	var values []any
 	whereSQL, values, err = restoreRangeSQL(client.Driver(), mode, restoreRange)
 	if err != nil {
 		return 0, err
@@ -197,7 +197,8 @@ func restoreOSSArchive(ctx context.Context, baseCase *biz.BaseCase, archiveRecor
 	return importSQLBytes(ctx, databaseConfig, dataValue)
 }
 
-func restoreRangeSQL(driverName string, mode adminv1.BaseTableArchiveRestoreMode, restoreRange string) (string, []interface{}, error) {
+// restoreRangeSQL 校验选择性恢复范围并返回带参数的筛选条件。
+func restoreRangeSQL(driverName string, mode adminv1.BaseTableArchiveRestoreMode, restoreRange string) (string, []any, error) {
 	if mode == adminv1.BaseTableArchiveRestoreMode_BASE_TABLE_ARCHIVE_RESTORE_MODE_ALL {
 		return "", nil, nil
 	}
@@ -205,7 +206,7 @@ func restoreRangeSQL(driverName string, mode adminv1.BaseTableArchiveRestoreMode
 	if err := json.Unmarshal([]byte(restoreRange), &value); err != nil || value.StartID <= 0 || value.EndID < value.StartID {
 		return "", nil, fmt.Errorf("选择性恢复范围必须是有效的 start_id/end_id")
 	}
-	return " WHERE " + QuoteSQLIdentifier(driverName, "id") + " BETWEEN ? AND ?", []interface{}{value.StartID, value.EndID}, nil
+	return " WHERE " + QuoteSQLIdentifier(driverName, "id") + " BETWEEN ? AND ?", []any{value.StartID, value.EndID}, nil
 }
 
 // databaseConfigBySourceName 查询数据源原始配置。

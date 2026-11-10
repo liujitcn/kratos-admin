@@ -19,7 +19,7 @@ import (
 	"github.com/liujitcn/kratos-kit/auth"
 	"github.com/liujitcn/kratos-kit/auth/authz/engine"
 
-	kratosErrors "github.com/go-kratos/kratos/v3/errors"
+	"github.com/go-kratos/kratos/v3/errors"
 	"github.com/go-kratos/kratos/v3/log"
 	kratosHTTP "github.com/go-kratos/kratos/v3/transport/http"
 	"github.com/liujitcn/gorm-kit/repository"
@@ -145,7 +145,7 @@ func (h *McpCase) ToolConfigs(ctx context.Context, terminal string, names []stri
 		if !agentToolBlocked(item) && item.AgentStatus == _const.STATUS_STATUS_ENABLE && (terminal != "app" || agentToolReadOnly(item)) {
 			err = h.authorizeToolCall(ctx, item)
 			if err != nil {
-				if kratosErrors.FromError(err).Code == http.StatusForbidden || kratosErrors.FromError(err).Code == http.StatusUnauthorized {
+				if errors.FromError(err).Code == http.StatusForbidden || errors.FromError(err).Code == http.StatusUnauthorized {
 					continue
 				}
 				return nil, err
@@ -295,7 +295,7 @@ func (h *McpCase) localizeMcpError(ctx context.Context, err error) string {
 		return "MCP tool execution failed. Check the service logs."
 	}
 	localized := i18n.LocalizeError(h.catalog, biz.LocaleFromContext(ctx), "zh-CN", err)
-	structured := kratosErrors.FromError(localized)
+	structured := errors.FromError(localized)
 	if structured == nil || structured.Message == "" {
 		return h.localizeMcpMessage(ctx, "system.mcp.tool_check_failed", nil, "Could not verify MCP tool access. Check the service logs.")
 	}

@@ -7,6 +7,7 @@ import (
 	"database/sql"
 	"fmt"
 	"io"
+	"slices"
 	"strings"
 )
 
@@ -173,12 +174,12 @@ func (s *postgresSQLSplitter) flush(ctx context.Context, execute func(string) er
 // prevNonSpaceByte 返回缓冲区中最后一个非空白字节；缓冲为空时返回 0。
 func (s *postgresSQLSplitter) prevNonSpaceByte() byte {
 	value := s.statement.Bytes()
-	for index := len(value) - 1; index >= 0; index-- {
-		switch value[index] {
+	for _, char := range slices.Backward(value) {
+		switch char {
 		case ' ', '\t', '\n', '\r':
 			continue
 		default:
-			return value[index]
+			return char
 		}
 	}
 	return 0

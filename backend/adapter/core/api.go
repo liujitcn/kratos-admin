@@ -2,6 +2,7 @@ package core
 
 import (
 	"context"
+	"slices"
 	"strings"
 
 	"github.com/liujitcn/gorm-kit/repository"
@@ -151,12 +152,7 @@ func schemaContainsTenantMessage(schema *dto.OpenAPISchema) bool {
 			}
 		}
 	}
-	for _, child := range schema.Children {
-		if schemaContainsTenantMessage(child) {
-			return true
-		}
-	}
-	return false
+	return slices.ContainsFunc(schema.Children, schemaContainsTenantMessage)
 }
 
 // ReplaceAllTranslations 替换 API 多语言快照。

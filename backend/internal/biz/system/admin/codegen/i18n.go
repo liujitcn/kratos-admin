@@ -5,7 +5,8 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	"sort"
+	"maps"
+	"slices"
 	"strings"
 
 	"github.com/liujitcn/go-utils/stringcase"
@@ -78,7 +79,7 @@ func MissingI18nFields(table *Table, columns []*CodeGenColumn, state LocaleState
 			}
 		}
 	}
-	sort.Strings(missing)
+	slices.Sort(missing)
 	return missing
 }
 
@@ -160,9 +161,7 @@ func mergeFrontendLocaleMessages(content string, prefix string, owned map[string
 			delete(messages, key)
 		}
 	}
-	for key, value := range owned {
-		messages[key] = value
-	}
+	maps.Copy(messages, owned)
 	return renderFrontendLocaleMessages(messages)
 }
 

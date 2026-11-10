@@ -1,11 +1,13 @@
 package admin
 
 import (
+	"cmp"
 	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"regexp"
+	"slices"
 	"sort"
 	"strings"
 	"time"
@@ -306,7 +308,7 @@ func (c *BiSourceCase) OptionBiSourceDatabase(ctx context.Context, _ *adminv1.Op
 		}
 		items = append(items, &adminv1.BiSourceDatabase{Name: name, Driver: client.Driver()})
 	}
-	sort.Slice(items, func(i, j int) bool { return items[i].Name < items[j].Name })
+	slices.SortFunc(items, func(left, right *adminv1.BiSourceDatabase) int { return cmp.Compare(left.Name, right.Name) })
 	return &adminv1.OptionBiSourceDatabaseResponse{Databases: items}, nil
 }
 

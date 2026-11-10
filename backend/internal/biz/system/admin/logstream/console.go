@@ -65,15 +65,12 @@ func StartConsoleCapture(hub *Hub) error {
 	consoleCaptureStarted = true
 	consoleStdoutCapture = stdoutCapture
 	consoleStderrCapture = stderrCapture
-	consoleCaptureWG.Add(2)
-	go func() {
-		defer consoleCaptureWG.Done()
+	consoleCaptureWG.Go(func() {
 		relayConsoleOutput(stdoutCapture, hub)
-	}()
-	go func() {
-		defer consoleCaptureWG.Done()
+	})
+	consoleCaptureWG.Go(func() {
 		relayConsoleOutput(stderrCapture, hub)
-	}()
+	})
 	return nil
 }
 

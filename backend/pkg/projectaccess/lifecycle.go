@@ -70,8 +70,7 @@ func (l *Lifecycle) Change(ctx context.Context, keys []ProjectKey, apply func(co
 	}
 	l.mu.RUnlock()
 	next := apply
-	for index := len(guards) - 1; index >= 0; index-- {
-		guard := guards[index]
+	for _, guard := range slices.Backward(guards) {
 		inner := next
 		next = func(ctx context.Context) error { return guard(ctx, keys, inner) }
 	}

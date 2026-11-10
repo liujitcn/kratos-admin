@@ -12,7 +12,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
-	"sort"
+	"slices"
 	"strconv"
 	"strings"
 	"sync"
@@ -71,8 +71,8 @@ type adminTask struct {
 	EventID  string
 	Kind     string
 	Request  request
-	Payload  interface{}
-	Reply    interface{}
+	Payload  any
+	Reply    any
 	Snapshot resourceSnapshot
 }
 
@@ -202,7 +202,7 @@ func ReplayAdminEvent(
 
 // Handle 记录一次请求的登录、操作、数据访问和权限审计信息。
 func (m *Middleware) Handle(next middleware.Handler) middleware.Handler {
-	return func(ctx context.Context, req interface{}) (reply interface{}, err error) {
+	return func(ctx context.Context, req any) (reply any, err error) {
 		startedAt := time.Now()
 		request := requestInfo(ctx)
 		snapshot := resourceSnapshot{}
@@ -322,7 +322,6 @@ func (m *Middleware) writeBaseLogFallbackTask(stage string, task adminTask) {
 
 // run 在后台构造、脱敏并投递 Admin 业务审计事件。
 func (m *Middleware) run() {
-	defer m.worker.Done()
 	for task := range m.tasks {
 		event, ok, err := m.buildEvent(task)
 		if err != nil {
@@ -536,7 +535,7 @@ func resultInfo(err error) (int32, string, string) {
 }
 
 // logResponseMetadata 从真实 Proto 响应提取字段范围、返回行数和敏感字段触达标识。
-func logResponseMetadata(value interface{}) (string, int32, bool) {
+func logResponseMetadata(value any) (string, int32, bool) {
 	message, ok := value.(proto.Message)
 	if !ok || message == nil {
 		return "[]", 0, false
@@ -567,7 +566,7 @@ func logResponseMetadata(value interface{}) (string, int32, bool) {
 		}
 		return true
 	})
-	sort.Strings(fields)
+	slices.Sort(fields)
 	fieldScope, err := json.Marshal(fields)
 	if err != nil {
 		fieldScope = []byte("[]")
@@ -611,7 +610,7 @@ func boolToInt32(value bool) int32 {
 }
 
 // logSnapshot 将请求对象转换为脱敏 JSON，并提取顶层变更字段。
-func logSnapshot(value interface{}) (string, string) {
+func logSnapshot(value any) (string, string) {
 	if value == nil {
 		return "{}", "[]"
 	}
@@ -619,7 +618,7 @@ func logSnapshot(value interface{}) (string, string) {
 	if err != nil {
 		return "{}", "[]"
 	}
-	var payload interface{}
+	var payload any
 	if err = json.Unmarshal(raw, &payload); err != nil {
 		return "{}", "[]"
 	}
@@ -629,11 +628,11 @@ func logSnapshot(value interface{}) (string, string) {
 		return "{}", "[]"
 	}
 	fields := make([]string, 0)
-	if object, ok := payload.(map[string]interface{}); ok {
+	if object, ok := payload.(map[string]any); ok {
 		for field := range object {
 			fields = append(fields, field)
 		}
-		sort.Strings(fields)
+		slices.Sort(fields)
 	}
 	fieldJSON, err := json.Marshal(fields)
 	if err != nil {
@@ -643,9 +642,9 @@ func logSnapshot(value interface{}) (string, string) {
 }
 
 // redactLogValue 递归移除审计快照中的凭据、令牌和验证码。
-func redactLogValue(value interface{}) interface{} {
+func redactLogValue(value any) any {
 	switch item := value.(type) {
-	case map[string]interface{}:
+	case map[string]any:
 		for key, child := range item {
 			if isSensitiveLogField(key) || (key == "value" && item["key"] != nil && item["type"] != nil) {
 				item[key] = "[REDACTED]"
@@ -653,7 +652,7 @@ func redactLogValue(value interface{}) interface{} {
 			}
 			item[key] = redactLogValue(child)
 		}
-	case []interface{}:
+	case []any:
 		for index, child := range item {
 			item[index] = redactLogValue(child)
 		}
@@ -679,12 +678,12 @@ func isSensitiveLogField(key string) bool {
 }
 
 // logResource 从请求快照中提取资源编号和名称，便于审计人员定位对象。
-func logResource(value interface{}) (string, string) {
+func logResource(value any) (string, string) {
 	raw, err := json.Marshal(value)
 	if err != nil {
 		return "", ""
 	}
-	var payload interface{}
+	var payload any
 	if err = json.Unmarshal(raw, &payload); err != nil {
 		return "", ""
 	}
@@ -692,16 +691,16 @@ func logResource(value interface{}) (string, string) {
 }
 
 // findLogResource 递归查找请求或模型中的资源编号和可读名称。
-func findLogResource(value interface{}) (string, string) {
+func findLogResource(value any) (string, string) {
 	switch item := value.(type) {
-	case map[string]interface{}:
+	case map[string]any:
 		resourceID := firstLogMapValue(item, []string{"id", "resource_id", "target_id"})
 		resourceName := firstLogMapValue(item, []string{"name", "title", "label", "user_name", "nick_name", "code", "key", "file_name", "language_name", "native_name", "path", "target_name"})
 		keys := make([]string, 0, len(item))
 		for key := range item {
 			keys = append(keys, key)
 		}
-		sort.Strings(keys)
+		slices.Sort(keys)
 		for _, key := range keys {
 			childID, childName := findLogResource(item[key])
 			if resourceID == "" {
@@ -715,7 +714,7 @@ func findLogResource(value interface{}) (string, string) {
 			}
 		}
 		return resourceID, resourceName
-	case []interface{}:
+	case []any:
 		for _, child := range item {
 			resourceID, resourceName := findLogResource(child)
 			if resourceID != "" || resourceName != "" {
@@ -727,16 +726,16 @@ func findLogResource(value interface{}) (string, string) {
 }
 
 // firstLogMapValue 按业务字段优先级读取对象中的第一个非空标量值。
-func firstLogMapValue(object map[string]interface{}, keys []string) string {
+func firstLogMapValue(object map[string]any, keys []string) string {
 	for _, key := range keys {
 		value, ok := object[key]
 		if !ok || value == nil {
 			continue
 		}
-		if _, ok = value.(map[string]interface{}); ok {
+		if _, ok = value.(map[string]any); ok {
 			continue
 		}
-		if _, ok = value.([]interface{}); ok {
+		if _, ok = value.([]any); ok {
 			continue
 		}
 		text := fmt.Sprint(value)
@@ -749,7 +748,7 @@ func firstLogMapValue(object map[string]interface{}, keys []string) string {
 }
 
 // captureResourceSnapshot 在业务处理前读取可识别资源的旧状态。
-func (m *Middleware) captureResourceSnapshot(ctx context.Context, info request, payload interface{}) resourceSnapshot {
+func (m *Middleware) captureResourceSnapshot(ctx context.Context, info request, payload any) resourceSnapshot {
 	resourceID, resourceName := logResource(payload)
 	snapshot := resourceSnapshot{ResourceID: resourceID, ResourceName: resourceName}
 	if m.logQuery == nil || resourceID == "" {
@@ -759,7 +758,7 @@ func (m *Middleware) captureResourceSnapshot(ctx context.Context, info request, 
 	if err != nil || resourceIDValue <= 0 {
 		return snapshot
 	}
-	var record interface{}
+	var record any
 	switch resourceType(info.Operation) {
 	case "base_api":
 		record, err = m.logQuery.BaseAPI.WithContext(ctx).Where(m.logQuery.BaseAPI.ID.Eq(resourceIDValue)).First()
@@ -840,7 +839,7 @@ func (m *Middleware) captureResourceSnapshot(ctx context.Context, info request, 
 // firstResourceID 兼容批量删除请求，取第一个可解析的资源编号用于快照。
 func firstResourceID(resourceID string) string {
 	var err error
-	for _, item := range strings.Split(resourceID, ",") {
+	for item := range strings.SplitSeq(resourceID, ",") {
 		item = strings.TrimSpace(item)
 		_, err = strconv.ParseInt(item, 10, 64)
 		if err == nil && item != "0" {
@@ -905,7 +904,7 @@ func (m *Middleware) emitEvent(event adminEvent, operation string) {
 		}
 		return
 	}
-	err = eventQueue.Append(string(adminEventStream), queueData.Message{Values: map[string]interface{}{"data": string(rawBody)}})
+	err = eventQueue.Append(string(adminEventStream), queueData.Message{Values: map[string]any{"data": string(rawBody)}})
 	if err != nil {
 		log.Error("投递 Admin 审计事件失败", "error", err, "operation", operation, "kind", event.Kind)
 		if fallbackErr := m.writeBaseLogFallback("queue_append_failed", event.Kind, operation, json.RawMessage(rawBody)); fallbackErr != nil {
@@ -915,7 +914,7 @@ func (m *Middleware) emitEvent(event adminEvent, operation string) {
 }
 
 // writeBaseLogFallback 将单条失败事件追加到日志入库回退文件并同步落盘。
-func (m *Middleware) writeBaseLogFallback(stage, kind, operation string, payload interface{}) error {
+func (m *Middleware) writeBaseLogFallback(stage, kind, operation string, payload any) error {
 	payloadJSON, err := json.Marshal(payload)
 	if err != nil {
 		return fmt.Errorf("序列化日志入库回退载荷失败: %w", err)
@@ -1195,8 +1194,7 @@ func newMiddleware(queue kitQueue.Queue, configCache cache.Cache, baseCases ...*
 			logMiddleware.logQuery = query.Use(client.DB)
 		}
 	}
-	logMiddleware.worker.Add(1)
-	go logMiddleware.run()
+	logMiddleware.worker.Go(logMiddleware.run)
 	return logMiddleware
 }
 

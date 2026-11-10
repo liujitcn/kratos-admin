@@ -304,6 +304,7 @@ func (c *BiQueryCase) scope(ctx context.Context) (bi.Scope, error) {
 	return bi.Scope{TenantID: authInfo.TenantId, ProjectID: projectID, UserID: authInfo.UserId, Terminal: terminal}, nil
 }
 
+// validate 按可访问数据源的语义定义校验查询维度、指标和过滤条件。
 func (c *BiQueryCase) validate(ctx context.Context, scope bi.Scope, spec bi.QuerySpec) (bi.QuerySpec, bi.SourceDescriptor, error) {
 	if len(spec.Dimensions) > 2 || len(spec.Measures) == 0 || len(spec.Measures) > 5 || len(spec.Filters) > 10 || len(spec.Orders) > 2 {
 		return bi.QuerySpec{}, bi.SourceDescriptor{}, errorsx.InvalidArgument("BI 查询维度、指标或过滤条件超出限制")
@@ -346,7 +347,7 @@ func (c *BiQueryCase) validate(ctx context.Context, scope bi.Scope, spec bi.Quer
 	}
 	for _, item := range spec.Measures {
 		measure, ok := measures[item.Code]
-		if !ok || !contains(measure.Aggregations, item.Aggregation) {
+		if !ok || !slices.Contains(measure.Aggregations, item.Aggregation) {
 			return bi.QuerySpec{}, bi.SourceDescriptor{}, errorsx.InvalidArgument(fmt.Sprintf("BI 指标或聚合函数不可用: %s/%s", item.Code, item.Aggregation))
 		}
 	}
@@ -500,15 +501,6 @@ func extractJSON(value string) string {
 		return value[start : end+1]
 	}
 	return value
-}
-
-func contains(values []string, target string) bool {
-	for _, value := range values {
-		if value == target {
-			return true
-		}
-	}
-	return false
 }
 
 // projectIDForAuth 在认证范围明确只有一个项目时传递项目范围；无法表达有限多项目范围时拒绝执行。

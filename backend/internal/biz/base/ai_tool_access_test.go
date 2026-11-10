@@ -1,7 +1,6 @@
 package biz
 
 import (
-	"context"
 	"encoding/json"
 	"testing"
 
@@ -31,7 +30,7 @@ func TestAgentToolPolicy(t *testing.T) {
 // TestPrepareAgentToolArguments 验证动态工具入口使用真实 Proto 校验并补全和隔离租户。
 func TestPrepareAgentToolArguments(t *testing.T) {
 	payload := &data.UserTokenPayload{TenantId: 7, TenantCode: "tenant7", UserId: 3, RoleCode: "role"}
-	ctx := engine.ContextWithAuthClaims(context.Background(), payload.MakeAuthClaims())
+	ctx := engine.ContextWithAuthClaims(t.Context(), payload.MakeAuthClaims())
 	operation := "/system.admin.v1.BaseUserService/PageBaseUser"
 	value, err := prepareAgentToolArguments(ctx, operation, `{"page_num":1,"page_size":10}`)
 	if err != nil {

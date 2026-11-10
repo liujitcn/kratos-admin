@@ -443,8 +443,8 @@ function resetForm() {
 async function handleOpenDialog(__CODEGEN_OPEN_DIALOG_PARAMETERS__) {
   resetForm();
 %s  dialog.editing = Boolean(id);
-  dialog.visible = true;
 __CODEGEN_OPEN_DIALOG_DATA__
+  dialog.visible = true;
 }
 
 /**
@@ -621,35 +621,33 @@ func (c *renderer) renderFrontendOpenDialogParameters(table *Table, columns []*C
 	return "id?: number"
 }
 
-// renderFrontendOpenDialogData 渲染普通页面或树形页面的弹窗数据处理逻辑。
+// renderFrontendOpenDialogData 完成详情回填或新增默认值，随后由调用方显示弹窗。
 func (c *renderer) renderFrontendOpenDialogData(table *Table, columns []*CodeGenColumn) string {
 	entity := table.EntityName
 	passwordReset := renderFrontendPasswordReset(columns)
 	if !isTreePageType(table.PageType) {
-		return fmt.Sprintf(`  if (!id) return;
-
-  const data = await def%sService.Get%s({ id });
-  Object.assign(formData, data);
-%s`, entity, entity, passwordReset)
+		return fmt.Sprintf(`  if (id) {
+    const data = await def%sService.Get%s({ id });
+    Object.assign(formData, data);
+  %s
+  }`, entity, entity, strings.ReplaceAll(passwordReset, "\n", "\n  "))
 	}
 	parentColumn := DefaultString(table.ParentColumn, "parent_id")
 	content := fmt.Sprintf(`  if (id) {
     const data = await def%sService.Get%s({ id });
     Object.assign(formData, data);
-%s
-    return;
-  }
-
-  formData[%q] = parentId ?? 0;
-  treeCreateState.lockParent = parentId !== undefined;`, entity, entity, passwordReset, parentColumn)
+  %s
+  } else {
+    formData[%q] = parentId ?? 0;
+    treeCreateState.lockParent = parentId !== undefined;`, entity, entity, strings.ReplaceAll(passwordReset, "\n", "\n  "), parentColumn)
 	if tenantColumn := FindColumnByName(columns, "tenant_id"); tenantColumn != nil && generatedFormIncludesColumn(tenantColumn) {
 		content += `
-  if (tenantId !== undefined) {
-    formData["tenant_id"] = tenantId;
-  }
-  treeCreateState.lockTenant = parentId !== undefined;`
+    if (tenantId !== undefined) {
+      formData["tenant_id"] = tenantId;
+    }
+    treeCreateState.lockTenant = parentId !== undefined;`
 	}
-	return content
+	return content + "\n  }"
 }
 
 // renderFrontendPasswordUpdate 渲染编辑态删除密码字段的语句，避免空值覆盖原密码。
@@ -948,8 +946,8 @@ func (c *renderer) frontendResourcePath(table *Table) string {
 		return resourcePath
 	}
 	modulePrefix := strings.ReplaceAll(resourcePath, "/", "_") + "_"
-	if strings.HasPrefix(snakeEntity, modulePrefix) {
-		snakeEntity = strings.TrimPrefix(snakeEntity, modulePrefix)
+	if after, ok := strings.CutPrefix(snakeEntity, modulePrefix); ok {
+		snakeEntity = after
 	}
 	return resourcePath + "/" + snakeEntity
 }
@@ -1582,8 +1580,8 @@ func pluralize(value string) string {
 	if strings.HasSuffix(value, "s") {
 		return value + "es"
 	}
-	if strings.HasSuffix(value, "y") {
-		return strings.TrimSuffix(value, "y") + "ies"
+	if before, ok := strings.CutSuffix(value, "y"); ok {
+		return before + "ies"
 	}
 	return value + "s"
 }
@@ -1861,12 +1859,7 @@ func frontendQueryUsesOptions(column *CodeGenColumn) bool {
 
 // hasTenantQueryOption 判断当前生成对象是否配置了租户查询选项。
 func hasTenantQueryOption(columns []*CodeGenColumn) bool {
-	for _, column := range columns {
-		if isTenantQueryOption(column) {
-			return true
-		}
-	}
-	return false
+	return slices.ContainsFunc(columns, isTenantQueryOption)
 }
 
 // hasTenantListColumn 判断当前生成对象是否配置了租户列表列。

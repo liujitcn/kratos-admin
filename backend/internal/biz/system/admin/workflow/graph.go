@@ -4,7 +4,7 @@ package workflow
 import (
 	"encoding/json"
 	"fmt"
-	"sort"
+	"slices"
 	"strings"
 	"unicode/utf8"
 )
@@ -153,7 +153,7 @@ func (g *Graph) Marshal() (string, error) {
 		for id := range g.Nodes {
 			ids = append(ids, id)
 		}
-		sort.Strings(ids)
+		slices.Sort(ids)
 	}
 	for _, id := range ids {
 		node := g.Nodes[id]
@@ -187,7 +187,7 @@ func (g *Graph) ScriptIDs() []int64 {
 	for id := range seen {
 		ids = append(ids, id)
 	}
-	sort.Slice(ids, func(i, j int) bool { return ids[i] < ids[j] })
+	slices.Sort(ids)
 	return ids
 }
 

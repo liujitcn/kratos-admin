@@ -10,7 +10,7 @@ import (
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 	configv1 "github.com/liujitcn/kratos-kit/api/gen/go/config/v1"
 	"github.com/liujitcn/kratos-kit/auth/authn/engine"
-	authdata "github.com/liujitcn/kratos-kit/auth/data"
+	"github.com/liujitcn/kratos-kit/auth/data"
 	kitgorm "github.com/liujitcn/kratos-kit/database/gorm"
 	"github.com/liujitcn/kratos-kit/database/gorm/driver"
 	"github.com/liujitcn/kratos-kit/redact"
@@ -110,7 +110,7 @@ func TestBackfillRoundTrip(t *testing.T) {
 	if err != nil || stored.Phone != legacy.Phone {
 		t.Fatalf("正常业务无法读取原文: %v", err)
 	}
-	identity := &authdata.UserTokenPayload{UserId: 9, TenantId: 2, RoleCode: "operator"}
+	identity := &data.UserTokenPayload{UserId: 9, TenantId: 2, RoleCode: "operator"}
 	ctx := engine.ContextWithAuthClaims(t.Context(), identity.MakeAuthClaims())
 	var original string
 	original, err = resolver.RevealStorageField(ctx, "base_tenant", "contact_phone", 2)

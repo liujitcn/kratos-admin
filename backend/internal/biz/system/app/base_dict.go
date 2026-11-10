@@ -1,9 +1,10 @@
 package biz
 
 import (
+	"cmp"
 	"context"
 	"encoding/json"
-	"sort"
+	"slices"
 
 	"github.com/go-kratos/kratos/v3/log"
 	adminconst "github.com/liujitcn/kratos-admin/backend/internal/const"
@@ -80,8 +81,8 @@ func (c *BaseDictCase) GetBaseDict(ctx context.Context, code string) (*appv1.Bas
 	items := make([]*appv1.BaseDictForm_DictItem, 0)
 	// 命中字典项映射时，再按排序规则组装当前字典的子项。
 	if dictItems, ok := dictItemMap[baseDict.ID]; ok {
-		sort.SliceStable(dictItems, func(i, j int) bool {
-			return dictItems[i].Sort < dictItems[j].Sort
+		slices.SortStableFunc(dictItems, func(left, right *models.BaseDictItem) int {
+			return cmp.Compare(left.Sort, right.Sort)
 		})
 		for _, dictItem := range dictItems {
 			item := c.itemMapper.ToDTO(dictItem)

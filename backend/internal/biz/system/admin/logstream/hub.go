@@ -131,10 +131,7 @@ func (h *Hub) OpenSession(ownerID int64, backlogLimit int) Session {
 	h.mu.Lock()
 	h.pruneSessionsLocked(now)
 	h.sessions[channelID] = runtimeSession{ownerID: ownerID, expiresAt: expiresAt}
-	start := len(h.entries) - backlogLimit
-	if start < 0 {
-		start = 0
-	}
+	start := max(len(h.entries)-backlogLimit, 0)
 	entries := cloneEntries(h.entries[start:])
 	latestSequence := strconv.FormatUint(h.nextSequence, 10)
 	instanceID := h.instanceID

@@ -174,7 +174,7 @@ func (r *SecretFieldRuntime) encryptConfigWrite(db *gorm.DB) {
 	if r.configFields == nil && !r.hasSecretConfigKeys() {
 		return
 	}
-	if dest, ok := db.Statement.Dest.(map[string]interface{}); ok {
+	if dest, ok := db.Statement.Dest.(map[string]any); ok {
 		key, keyOK := dest[configKeyColumn].(string)
 		value, valueOK := dest[configValueColumn].(string)
 		if !keyOK || !valueOK || value == "" || isSecretFieldEnvelope(value) {
@@ -258,7 +258,7 @@ func (r *SecretFieldRuntime) walkConfigJSON(db *gorm.DB, key, value string, encr
 	if len(paths) == 0 {
 		return value, false
 	}
-	var payload map[string]interface{}
+	var payload map[string]any
 	if err := json.Unmarshal([]byte(value), &payload); err != nil {
 		return value, false
 	}
@@ -302,9 +302,9 @@ func (r *SecretFieldRuntime) walkConfigJSON(db *gorm.DB, key, value string, encr
 }
 
 // prepareConfigField 把敏感字段当前值规整为明文并生成信封密文。
-func (r *SecretFieldRuntime) prepareConfigField(db *gorm.DB, key, path string, current interface{}) (string, interface{}, bool) {
+func (r *SecretFieldRuntime) prepareConfigField(db *gorm.DB, key, path string, current any) (string, any, bool) {
 	switch item := current.(type) {
-	case map[string]interface{}:
+	case map[string]any:
 		cipher := configCipherFromJSON(item)
 		if cipher == nil {
 			return "", nil, false
@@ -339,7 +339,7 @@ func (r *SecretFieldRuntime) prepareConfigField(db *gorm.DB, key, path string, c
 }
 
 // configCipherFromJSON 从 JSON 字段值中识别 SecretCrypto 六字段对象。
-func configCipherFromJSON(item map[string]interface{}) *secretcrypto.Cipher {
+func configCipherFromJSON(item map[string]any) *secretcrypto.Cipher {
 	text, ok := item["text"].(string)
 	encryptedKey, ok2 := item["encrypted_key"].(string)
 	if !ok || !ok2 || text == "" || encryptedKey == "" {
@@ -360,11 +360,11 @@ func configCipherFromJSON(item map[string]interface{}) *secretcrypto.Cipher {
 }
 
 // configJSONField 按点路径读取 JSON 对象字段。
-func configJSONField(payload map[string]interface{}, path string) (interface{}, bool) {
-	current := interface{}(payload)
-	parts := strings.Split(path, ".")
-	for _, part := range parts {
-		branch, ok := current.(map[string]interface{})
+func configJSONField(payload map[string]any, path string) (any, bool) {
+	current := any(payload)
+	parts := strings.SplitSeq(path, ".")
+	for part := range parts {
+		branch, ok := current.(map[string]any)
 		if !ok {
 			return nil, false
 		}
@@ -376,13 +376,13 @@ func configJSONField(payload map[string]interface{}, path string) (interface{}, 
 }
 
 // setConfigJSONField 按点路径写入 JSON 对象字段。
-func setConfigJSONField(payload map[string]interface{}, path string, value interface{}) {
+func setConfigJSONField(payload map[string]any, path string, value any) {
 	parts := strings.Split(path, ".")
 	branch := payload
 	for _, part := range parts[:len(parts)-1] {
-		next, ok := branch[part].(map[string]interface{})
+		next, ok := branch[part].(map[string]any)
 		if !ok {
-			next = make(map[string]interface{})
+			next = make(map[string]any)
 			branch[part] = next
 		}
 		branch = next
@@ -405,7 +405,7 @@ func (r *SecretFieldRuntime) DecryptConfigEmbeddedCrypto(key, value string) (str
 	if len(paths) == 0 {
 		return value, nil
 	}
-	var payload map[string]interface{}
+	var payload map[string]any
 	if err := json.Unmarshal([]byte(value), &payload); err != nil {
 		return value, nil
 	}
@@ -415,7 +415,8 @@ func (r *SecretFieldRuntime) DecryptConfigEmbeddedCrypto(key, value string) (str
 		if !ok {
 			continue
 		}
-		branch, ok := current.(map[string]interface{})
+		var branch map[string]any
+		branch, ok = current.(map[string]any)
 		if !ok {
 			continue
 		}

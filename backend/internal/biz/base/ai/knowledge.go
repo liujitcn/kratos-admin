@@ -327,10 +327,7 @@ func chunkText(text string, size, overlap int) []string {
 	}
 	var chunks []string
 	for start := 0; start < len(runes); start += size - overlap {
-		end := start + size
-		if end > len(runes) {
-			end = len(runes)
-		}
+		end := min(start+size, len(runes))
 		chunk := strings.TrimSpace(string(runes[start:end]))
 		if chunk != "" {
 			chunks = append(chunks, chunk)

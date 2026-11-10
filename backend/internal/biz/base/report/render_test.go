@@ -29,7 +29,7 @@ func TestHTMLPreservesTablesAndBlocksActiveContent(t *testing.T) {
 
 // TestPDFHonorsCancellation 检查取消请求无需启动浏览器即可返回。
 func TestPDFHonorsCancellation(t *testing.T) {
-	ctx, cancel := context.WithCancel(context.Background())
+	ctx, cancel := context.WithCancel(t.Context())
 	cancel()
 	_, err := PDF(ctx, []byte("<p>取消</p>"))
 	if !errors.Is(err, context.Canceled) {

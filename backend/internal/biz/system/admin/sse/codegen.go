@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/liujitcn/kratos-core/errorsx"
-	authdata "github.com/liujitcn/kratos-kit/auth/data"
+	"github.com/liujitcn/kratos-kit/auth/data"
 	"github.com/liujitcn/kratos-kit/transport/sse"
 
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/codegen"
@@ -28,7 +28,7 @@ func (c *Codegen) ID() string {
 }
 
 // ResolveContext 在可信身份下校验订阅权限，保留原有频道与任务归属校验。
-func (c *Codegen) ResolveContext(_ context.Context, channelID string, identity *authdata.UserTokenPayload) (string, error) {
+func (c *Codegen) ResolveContext(_ context.Context, channelID string, identity *data.UserTokenPayload) (string, error) {
 	return c.Resolve(channelID, identity.UserId)
 }
 

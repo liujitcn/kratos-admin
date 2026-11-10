@@ -2,6 +2,7 @@ package passwordpolicy
 
 import (
 	"context"
+	"maps"
 	"time"
 
 	"github.com/go-kratos/kratos/v3/middleware"
@@ -24,7 +25,7 @@ const passwordChangeRequiredMetadataKey = "password_change_required"
 // 密码过期或被管理员标记为必须修改时，仅允许加载登录后初始化信息、退出登录和提交改密请求。
 func NewMiddleware(baseUserRepo *data.BaseUserRepository, policyCache cache.Cache) middleware.Middleware {
 	return func(handler middleware.Handler) middleware.Handler {
-		return func(ctx context.Context, req interface{}) (interface{}, error) {
+		return func(ctx context.Context, req any) (any, error) {
 			operation, ok := operationFromContext(ctx)
 			if !ok || operation == "" {
 				return handler(ctx, req)
@@ -60,9 +61,7 @@ func NewMiddleware(baseUserRepo *data.BaseUserRepository, policyCache cache.Cach
 			}
 			passwordError := errorsx.PermissionDenied("密码已过期，请先修改密码")
 			metadata := make(map[string]string, len(passwordError.Metadata)+1)
-			for key, value := range passwordError.Metadata {
-				metadata[key] = value
-			}
+			maps.Copy(metadata, passwordError.Metadata)
 			metadata[passwordChangeRequiredMetadataKey] = "true"
 			return nil, passwordError.WithMetadata(metadata)
 		}

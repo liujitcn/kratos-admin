@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"mime"
+	"net/http"
 	"path"
 	"time"
 
@@ -86,10 +87,16 @@ func NewAssistantClientWithName(modelCfg *modelconfig.ModelConfig, name string) 
 		if modelCfg.TimeoutSeconds > 0 {
 			requestTimeout = time.Duration(modelCfg.TimeoutSeconds) * time.Second
 		}
+		var httpClient *http.Client
+		httpClient, err = modelconfig.NewHTTPClient(requestTimeout)
+		if err != nil {
+			return client
+		}
 		fileClient := openai.NewClient(
 			option.WithAPIKey(modelCfg.ResolvedAPIKey()),
 			option.WithBaseURL(modelCfg.ResolvedBaseURL()),
 			option.WithRequestTimeout(requestTimeout),
+			option.WithHTTPClient(httpClient),
 			// 单次上传超时后不自动重试，避免已落盘但响应超时的文件被重复创建。
 			option.WithMaxRetries(0),
 		)
@@ -229,6 +236,11 @@ func newChatModel(ctx context.Context, cfg *modelconfig.ModelConfig, mutate func
 	if mutate != nil {
 		mutate(config)
 	}
+	httpClient, err := modelconfig.NewHTTPClient(time.Duration(cfg.TimeoutSeconds) * time.Second)
+	if err != nil {
+		return nil, err
+	}
+	config.HTTPClient = httpClient
 	return agenticopenai.NewChatModel(ctx, config)
 }
 
@@ -261,6 +273,11 @@ func newResponsesModel(ctx context.Context, cfg *modelconfig.ModelConfig) (model
 		value := int(cfg.MaxTokens)
 		config.MaxTokens = &value
 	}
+	httpClient, err := modelconfig.NewHTTPClient(time.Duration(cfg.TimeoutSeconds) * time.Second)
+	if err != nil {
+		return nil, err
+	}
+	config.HTTPClient = httpClient
 	return agenticopenai.NewResponsesModel(ctx, config)
 }
 

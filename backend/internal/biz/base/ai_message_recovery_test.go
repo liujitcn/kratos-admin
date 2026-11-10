@@ -1,7 +1,6 @@
 package biz
 
 import (
-	"context"
 	"os"
 	"strconv"
 	"testing"
@@ -43,15 +42,15 @@ func TestAiMessageRecoveryIntegration(t *testing.T) {
 				startedAt = now
 			}
 			session := &models.AiSession{TenantID: 7, UserID: 3, Terminal: ai.TerminalAdmin, CreatedAt: startedAt, UpdatedAt: startedAt}
-			if err = sessionCase.Create(context.Background(), session); err != nil {
+			if err = sessionCase.Create(t.Context(), session); err != nil {
 				t.Fatal(err)
 			}
 			item := &models.AiMessage{TenantID: 7, UserID: 3, SessionID: session.ID, InputContent: "{}", OutputContent: "{}", Attachments: "[]", Tools: "[]", Token: "{}", Status: int32(basev1.AiMessageStatus_AI_MESSAGE_STATUS_GENERATING), CreatedAt: startedAt, UpdatedAt: startedAt}
-			if err = messageRepo.Create(context.Background(), item); err != nil {
+			if err = messageRepo.Create(t.Context(), item); err != nil {
 				t.Fatal(err)
 			}
 			payload := &authdata.UserTokenPayload{TenantId: 7, UserId: 3}
-			ctx := engine.ContextWithAuthClaims(context.Background(), payload.MakeAuthClaims())
+			ctx := engine.ContextWithAuthClaims(t.Context(), payload.MakeAuthClaims())
 			var run *models.AiToolApproval
 			if scenario.runStatus >= 0 {
 				expiresAt := now.Add(-time.Minute)

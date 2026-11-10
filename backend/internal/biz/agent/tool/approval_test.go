@@ -20,7 +20,7 @@ func TestGuardedToolRequiresApproval(t *testing.T) {
 	}
 	prepare := func(_ context.Context, arguments string) (string, bool, error) { return arguments, true, nil }
 	guarded := NewGuardedTool(value, prepare, true)
-	_, err = guarded.InvokableRun(context.Background(), "{}")
+	_, err = guarded.InvokableRun(t.Context(), "{}")
 	if err == nil || calls != 0 {
 		t.Fatalf("未确认工具产生副作用: calls=%d err=%v", calls, err)
 	}
@@ -29,7 +29,7 @@ func TestGuardedToolRequiresApproval(t *testing.T) {
 		t.Fatalf("应当返回 Eino 中断: %v", err)
 	}
 	guarded = NewGuardedTool(value, prepare, false)
-	_, err = guarded.InvokableRun(context.Background(), "{}")
+	_, err = guarded.InvokableRun(t.Context(), "{}")
 	if err == nil || calls != 0 {
 		t.Fatalf("直接调用绕过审批: calls=%d err=%v", calls, err)
 	}

@@ -3,7 +3,7 @@ package biz
 import (
 	"context"
 	"fmt"
-	"sort"
+	"slices"
 
 	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
 	basebiz "github.com/liujitcn/kratos-admin/backend/internal/biz/base"
@@ -33,7 +33,7 @@ func (c *BaseTableSourceCase) OptionBaseTableSource(context.Context) (*commonv1.
 		}
 		names = append(names, name)
 	}
-	sort.Strings(names)
+	slices.Sort(names)
 	return &commonv1.StringValues{Value: names}, nil
 }
 

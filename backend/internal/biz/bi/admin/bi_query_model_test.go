@@ -36,6 +36,7 @@ func TestAskBiQueryUsesSelectedModel(t *testing.T) {
 		{name: "模型选择不完整", providerID: 1, wantError: true},
 	} {
 		t.Run(test.name, func(t *testing.T) {
+			t.Setenv("SECURITY_AI_ALLOWED_CIDRS", "127.0.0.1/32")
 			var calls [3]atomic.Int32
 			providers := []model.ProviderModel{
 				{ProviderID: 1, Config: &modelconfig.ModelConfig{ModelName: "model-a"}},

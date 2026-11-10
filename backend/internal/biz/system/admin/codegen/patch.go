@@ -138,7 +138,10 @@ func (c *renderer) newAdminRegistrationPreviewFiles(table *Table, methods []*Pro
 		}
 		groups[groupIndex].entities = append(groups[groupIndex].entities, target.Table.EntityName)
 	}
-	files := make([]*adminv1.CodeGenPreviewFile, 0, len(groups)*3)
+	files := make([]*adminv1.CodeGenPreviewFile, 0, len(groups)*3+1)
+	files = append(files, c.newExistingPatchedPreviewFile("backend/internal/data/init.go", func(content string) string {
+		return appendDataProviderRegistration(content, ProtoTargetForTable(table))
+	}))
 	for _, group := range groups {
 		for _, item := range []struct {
 			path  string
@@ -481,16 +484,21 @@ func extractGoMethods(content string, methodNames map[string]struct{}) []string 
 	return methods
 }
 
+// reuseGeneratedGoAPIImport 将候选文件的协议引用统一为已有文件中的导入别名。
+func reuseGeneratedGoAPIImport(content, candidate string, target ProtoTarget) (string, string) {
+	var alias string
+	content, alias = ensureRegistrationImport(content, target.GoImportPath, target.GoAlias, "adminv1")
+	candidate = strings.Replace(candidate, target.GoAlias+" \""+target.GoImportPath+"\"", alias+" \""+target.GoImportPath+"\"", 1)
+	return content, strings.ReplaceAll(candidate, target.GoAlias+".", alias+".")
+}
+
 // mergeGeneratedGoReceiverMethods 按候选顺序替换生成方法，并将已有扩展方法原样保留在生成方法之后。
-func mergeGeneratedGoReceiverMethods(content string, methodContent string, receiverName string, importLines ...string) string {
+func mergeGeneratedGoReceiverMethods(content string, methodContent string, receiverName string) string {
 	generatedBlocks := generatedGoReceiverMethodBlocks(methodContent, receiverName)
 	if len(generatedBlocks) == 0 {
 		return content
 	}
 	originalContent := content
-	for _, importLine := range importLines {
-		content = ensureGoImport(content, importLine)
-	}
 	content = ensureGeneratedGoImports(content, methodContent)
 	file, fileSet, err := parseGoSource(content)
 	if err != nil {
@@ -592,8 +600,8 @@ func mergeGeneratedGoReceiverMethods(content string, methodContent string, recei
 			ranges[index].end++
 		}
 	}
-	for index := len(ranges) - 1; index >= 0; index-- {
-		content = content[:ranges[index].start] + content[ranges[index].end:]
+	for _, rangeItem := range slices.Backward(ranges) {
+		content = content[:rangeItem.start] + content[rangeItem.end:]
 	}
 	separator := ""
 	if start < len(content) && content[start] != '\r' && content[start] != '\n' {
@@ -662,8 +670,7 @@ func removeGoReceiverMethods(content string, methodNames map[string]struct{}) st
 		}
 		ranges = append(ranges, sourceRange{start: start, end: fileSet.Position(function.End()).Offset})
 	}
-	for i := len(ranges) - 1; i >= 0; i-- {
-		item := ranges[i]
+	for _, item := range slices.Backward(ranges) {
 		if item.start >= 0 && item.end <= len(content) && item.start < item.end {
 			content = content[:item.start] + content[item.end:]
 		}
@@ -674,6 +681,39 @@ func removeGoReceiverMethods(content string, methodNames map[string]struct{}) st
 // appendBizProviderRegistration 向业务端 ProviderSet 追加业务构造函数。
 func appendBizProviderRegistration(content string, _ ProtoTarget, entity string) string {
 	return appendProviderSetItems(content, "New"+entity+"Case")
+}
+
+// appendDataProviderRegistration 接入生成数据包并保留宿主原有的模型注册。
+func appendDataProviderRegistration(content string, target ProtoTarget) string {
+	original := content
+	var alias string
+	content, alias = ensureRegistrationImport(content, target.BackendModulePath+"/internal/data/gen/data", "gendata", "data")
+	content = appendProviderSetItems(content, alias+".ProviderSet")
+	if !strings.Contains(content, "new("+alias+".QueryProvider)") {
+		content = insertGoProviderSetItem(content, "wire.Bind(new("+alias+".QueryProvider), new(*"+alias+".Data))")
+	}
+	file, positions, err := parseGoSource(content)
+	if err != nil {
+		return original
+	}
+	function := findGoFuncDecl(file, "Models")
+	if function == nil {
+		return original
+	}
+	for _, statement := range function.Body.List {
+		result, ok := statement.(*ast.ReturnStmt)
+		if !ok || len(result.Results) != 1 {
+			continue
+		}
+		start := positions.Position(result.Results[0].Pos()).Offset
+		end := positions.Position(result.Results[0].End()).Offset
+		expression := content[start:end]
+		if strings.Contains(expression, alias+".Models(") {
+			return content
+		}
+		return validGoPatch(original, content[:start]+"append("+expression+", "+alias+".Models()...)"+content[end:])
+	}
+	return original
 }
 
 // appendServiceProviderRegistration 向服务端 ProviderSet 追加服务构造函数。
@@ -697,12 +737,15 @@ func appendProtoServiceRegistration(content string, target ProtoTarget, entity s
 	grpcReceiver := goFuncReceiverName(content, "RegisterGRPC")
 	httpReceiver := goFuncReceiverName(content, "RegisterHTTP")
 	mcpReceiver := goFuncReceiverName(content, "RegisterMCP")
-	if grpcReceiver == "" || httpReceiver == "" || mcpReceiver == "" {
+	grpcServer := goFuncParameterName(content, "RegisterGRPC")
+	httpServer := goFuncParameterName(content, "RegisterHTTP")
+	mcpServer := goFuncParameterName(content, "RegisterMCP")
+	if grpcReceiver == "" || httpReceiver == "" || mcpReceiver == "" || grpcServer == "" || httpServer == "" || mcpServer == "" {
 		return content
 	}
 	content, target.GoAlias = ensureRegistrationImport(content, target.GoImportPath, target.GoAlias, "adminv1")
 	servicePath := strings.Replace(target.GoImportPath, "/api/gen/go/", "/internal/service/", 1)
-	content, target.ServiceImportAlias = ensureRegistrationImport(content, servicePath, target.ServiceImportAlias, "admin")
+	content, target.ServiceImportAlias = ensureRegistrationImport(content, servicePath, target.ServiceImportAlias, backendPackageName(target.BackendModuleDirectory, "admin"))
 	fieldName := goStructSelectorFieldName(content, "Services", target.ServiceImportAlias, entity+"Service")
 	if fieldName == "" {
 		fieldName = entity
@@ -711,15 +754,15 @@ func appendProtoServiceRegistration(content string, target ProtoTarget, entity s
 
 	grpcRegisterName := "Register" + entity + "ServiceServer"
 	if !goCallNameExists(content, target.GoAlias, grpcRegisterName) {
-		content = insertGoPackageCall(content, "RegisterGRPC", target.GoAlias, grpcRegisterName, "\t"+target.GoAlias+"."+grpcRegisterName+"(srv, "+grpcReceiver+"."+fieldName+")")
+		content = insertGoPackageCall(content, "RegisterGRPC", target.GoAlias, grpcRegisterName, "\t"+target.GoAlias+"."+grpcRegisterName+"("+grpcServer+", "+grpcReceiver+"."+fieldName+")")
 	}
 	httpRegisterName := "Register" + entity + "ServiceHTTPServer"
 	if !goCallNameExists(content, target.GoAlias, httpRegisterName) {
-		content = insertGoPackageCall(content, "RegisterHTTP", target.GoAlias, httpRegisterName, "\t"+target.GoAlias+"."+httpRegisterName+"(srv, "+httpReceiver+"."+fieldName+")")
+		content = insertGoPackageCall(content, "RegisterHTTP", target.GoAlias, httpRegisterName, "\t"+target.GoAlias+"."+httpRegisterName+"("+httpServer+", "+httpReceiver+"."+fieldName+")")
 	}
 	mcpRegisterName := "Register" + entity + "ServiceMCPTools"
 	if !goCallNameExists(content, target.GoAlias, mcpRegisterName) {
-		content = insertGoPackageCall(content, "RegisterMCP", target.GoAlias, mcpRegisterName, "\t"+target.GoAlias+"."+mcpRegisterName+"(mcpSrv, "+mcpReceiver+"."+fieldName+")")
+		content = insertGoPackageCall(content, "RegisterMCP", target.GoAlias, mcpRegisterName, "\t"+target.GoAlias+"."+mcpRegisterName+"("+mcpServer+".MCPServer(), "+mcpReceiver+"."+fieldName+")")
 	}
 	return content
 }
@@ -742,7 +785,7 @@ func ensureRegistrationImport(content, importPath, alias, packageName string) (s
 	return ensureGoImport(content, alias+" \""+importPath+"\""), alias
 }
 
-// insertGoProviderSetItem 在相同 ProviderSet 分组内按名称插入依赖提供者。
+// insertGoProviderSetItem 在相同 ProviderSet 分组内去重并按名称插入依赖提供者。
 func insertGoProviderSetItem(content string, providerName string) string {
 	file, fileSet, err := parseGoSource(content)
 	if err != nil {
@@ -781,6 +824,9 @@ func insertGoProviderSetItem(content string, providerName string) string {
 	offset := fileSet.Position(providerSet.Rparen).Offset
 	for _, argument := range providerSet.Args {
 		name := goQualifiedExpressionName(argument)
+		if name == providerName {
+			return content
+		}
 		if name == "" || strings.HasPrefix(name, "biz.") != isBizProvider {
 			continue
 		}
@@ -1016,6 +1062,19 @@ func goFuncReceiverName(content string, functionName string) string {
 	return receiver.Names[0].Name
 }
 
+// goFuncParameterName 返回注册方法首个服务端参数的实际名称。
+func goFuncParameterName(content string, functionName string) string {
+	file, _, err := parseGoSource(content)
+	if err != nil {
+		return ""
+	}
+	function := findGoFuncDecl(file, functionName)
+	if function == nil || len(function.Type.Params.List) == 0 || len(function.Type.Params.List[0].Names) == 0 {
+		return ""
+	}
+	return function.Type.Params.List[0].Names[0].Name
+}
+
 // insertGoLines 在源码偏移位置插入完整代码行。
 func insertGoLines(content string, offset int, lines string) string {
 	if offset < 0 || offset > len(content) || lines == "" {
@@ -1066,6 +1125,7 @@ func parseGoSource(content string) (*ast.File, *token.FileSet, error) {
 
 // ensureGeneratedGoImports 按追加的方法源码补齐必要导入。
 func ensureGeneratedGoImports(content string, methodContent string) string {
+	modelsPath := backendModulePath() + "/internal/data/gen/models"
 	imports := []struct {
 		marker     string
 		importLine string
@@ -1076,7 +1136,7 @@ func ensureGeneratedGoImports(content string, methodContent string) string {
 		{marker: "fmt.", importLine: `"fmt"`, importPath: "fmt"},
 		{marker: "commonv1.", importLine: `commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"`, importPath: "github.com/liujitcn/kratos-core/api/gen/go/common/v1"},
 		{marker: "errorsx.", importLine: `"github.com/liujitcn/kratos-core/errorsx"`, importPath: "github.com/liujitcn/kratos-core/errorsx"},
-		{marker: "models.", importLine: `"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"`, importPath: "github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"},
+		{marker: "models.", importLine: `"` + modelsPath + `"`, importPath: modelsPath},
 		{marker: "mapper.", importLine: `"github.com/liujitcn/go-utils/mapper"`, importPath: "github.com/liujitcn/go-utils/mapper"},
 		{marker: "_string.", importLine: `_string "github.com/liujitcn/go-utils/string"`, importPath: "github.com/liujitcn/go-utils/string"},
 		{marker: "_time.", importLine: `_time "github.com/liujitcn/go-utils/time"`, importPath: "github.com/liujitcn/go-utils/time"},

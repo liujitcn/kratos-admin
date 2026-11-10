@@ -669,8 +669,7 @@ func reorderGoReceiverMethods(content string, receiverName string) string {
 	for _, block := range blocks {
 		methodContents = append(methodContents, strings.Trim(block.Content, "\r\n"))
 	}
-	for i := len(ranges) - 1; i >= 0; i-- {
-		rangeItem := ranges[i]
+	for _, rangeItem := range slices.Backward(ranges) {
 		content = content[:rangeItem.start] + content[rangeItem.end:]
 	}
 	separator := ""
@@ -832,11 +831,8 @@ func firstTreeMethodByTrigger(methods []*Proto, triggerType string) *Proto {
 func methodsByKinds(methods []*Proto, kinds ...string) []*Proto {
 	list := make([]*Proto, 0, len(methods))
 	for _, method := range methods {
-		for _, kind := range kinds {
-			if method.APIKind == kind {
-				list = append(list, method)
-				break
-			}
+		if slices.Contains(kinds, method.APIKind) {
+			list = append(list, method)
 		}
 	}
 	return list
@@ -969,8 +965,8 @@ func modelFieldName(columnName string) string {
 	if columnName == "id" {
 		return "ID"
 	}
-	if strings.HasSuffix(columnName, "_id") {
-		return stringcase.ToGoPascalCase(strings.TrimSuffix(columnName, "_id")) + "ID"
+	if before, ok := strings.CutSuffix(columnName, "_id"); ok {
+		return stringcase.ToGoPascalCase(before) + "ID"
 	}
 	return stringcase.ToGoPascalCase(columnName)
 }
