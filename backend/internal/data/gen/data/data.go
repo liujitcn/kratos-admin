@@ -12,8 +12,8 @@ import (
 )
 
 // Models 返回当前数据源生成的全部迁移模型。
-func Models() []interface{} {
-	return []interface{}{
+func Models() []any {
+	return []any{
 		new(models.AiMessage),
 		new(models.AiModel),
 		new(models.AiProvider),

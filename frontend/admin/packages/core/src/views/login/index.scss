@@ -74,7 +74,10 @@
         }
         .logo-text {
           /* 标题始终保持单行，字号由脚本按容器宽度动态缩放。 */
+          display: flex;
+          align-items: baseline;
           flex: 1 1 auto;
+          gap: 6px;
           min-width: 0;
           padding: 0 0 0 16px;
           margin: 0;
@@ -83,15 +86,27 @@
           color: #34495e;
           white-space: nowrap;
         }
+        .login-version {
+          flex-shrink: 0;
+          font-size: 12px;
+          font-weight: 400;
+          line-height: 1.2;
+          color: var(--el-text-color-secondary);
+        }
       }
       .el-form-item {
         margin-bottom: 40px;
+
+        &:last-child {
+          /* 原有 40px 间距均分到协议行上下。 */
+          margin-bottom: 20px;
+        }
       }
       .login-btn {
         display: flex;
         justify-content: space-between;
         width: 100%;
-        margin-top: 40px;
+        margin-top: 20px;
         white-space: nowrap;
         .el-button {
           width: calc(50% - 6px);

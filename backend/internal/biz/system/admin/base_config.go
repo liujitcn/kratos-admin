@@ -359,18 +359,15 @@ func (c *BaseConfigCase) deleteBaseI18n(ctx context.Context, ids []int64) error 
 	return c.baseI18nCase.DeleteBaseI18n(ctx, _const.I18N_TARGET_KEY_BASE_CONFIG_VALUE, ids)
 }
 
-// refreshBaseConfigSite 查询并缓存指定站点的启用配置。
+// refreshBaseConfigSite 仅刷新指定站点的启用配置，协议正文和缓存均不跨站点共用。
 func (c *BaseConfigCase) refreshBaseConfigSite(ctx context.Context, site int32) error {
 	query := c.Query(ctx).BaseConfig
-	opts := make([]repository.QueryOption, 0, 4)
-	if site == int32(basev1.BaseConfigSite_BASE_CONFIG_SITE_ADMIN) {
-		opts = append(opts, repository.Where(field.Or(query.Site.Eq(site), field.And(query.Site.Eq(int32(basev1.BaseConfigSite_BASE_CONFIG_SITE_APP)), query.Key.In("privacyProtocol", "serviceProtocol")))))
-	} else {
-		opts = append(opts, repository.Where(query.Site.Eq(site)))
+	opts := []repository.QueryOption{
+		repository.Where(query.Site.Eq(site)),
+		repository.Where(query.Type.Neq(int32(adminv1.BaseConfigType_BASE_CONFIG_TYPE_FORM))),
+		repository.Where(query.Status.Eq(coreconst.STATUS_STATUS_ENABLE)),
+		repository.Order(query.ID.Asc()),
 	}
-	opts = append(opts, repository.Where(query.Type.Neq(int32(adminv1.BaseConfigType_BASE_CONFIG_TYPE_FORM))))
-	opts = append(opts, repository.Where(query.Status.Eq(coreconst.STATUS_STATUS_ENABLE)))
-	opts = append(opts, repository.Order(query.ID.Asc()))
 	list, err := c.List(ctx, opts...)
 	if err != nil {
 		return err
@@ -392,12 +389,6 @@ func (c *BaseConfigCase) refreshBaseConfigSite(ctx context.Context, site int32) 
 	err = c.Cache.Set(_const.BaseConfigCacheKey(site), string(payload), _const.BASE_CONFIG_CACHE_EXPIRE)
 	if err != nil {
 		return err
-	}
-	if site == int32(basev1.BaseConfigSite_BASE_CONFIG_SITE_APP) {
-		err = c.Cache.Del(_const.BaseConfigCacheKey(int32(basev1.BaseConfigSite_BASE_CONFIG_SITE_ADMIN)))
-		if err != nil {
-			return err
-		}
 	}
 	if site == _const.BASE_CONFIG_SITE_SYSTEM {
 		return c.refreshFormBaseConfig(ctx)

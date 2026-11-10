@@ -66,6 +66,8 @@ BI 统一为问数、数据卡片、仪表盘组合和工作台入口：卡片�
 - 启用 TOTP 绑定时，`mfa.encryption_key` 有显式值则使用该值，留空时由运行时密钥服务派生；启用 WebAuthn 时还要配置 `mfa.webauthn.rp_id` 与 `mfa.webauthn.rp_origins`。配置文件中的敏感值应使用 `ENC[...]` 保存。
 - Buf、protoc 插件、Wire 和 gorm-gen 只在重新生成代码时需要，可通过 `make -C backend init` 安装。
 
+`gorm-gen` 统一根据列元数据处理大文本容量和可空时间；更新生成器后先重新安装，再执行 `make -C backend gorm-gen`。
+
 直接执行 `make` 或 `make help` 查看仓库级命令；Backend 和 Frontend 的完整目标分别使用 `make -C backend help`、`make -C frontend help` 查看。
 
 ### 依赖中间件
@@ -264,6 +266,8 @@ make -C frontend publish
 
 创建业务项目时，三端 `packages/cli` 独立生成完整前端，包含语言注册、宿主生命周期及检查构建工具。脚手架只负责生成当前仓库约定的前端 workspace、模块清单和构建脚本。
 三端支持本地 `system`，无需临时模块名或生成后的文件补写。CLI 更新需先发布到 npm，Go 的精确版本调用才能使用新能力。
+
+代码生成器从当前项目的 `backend/go.mod`、目标目录包声明和前端业务模块 `package.json` 读取真实导入路径。外部宿主生成单表 CRUD 时，会同步接入数据层 ProviderSet、模型和服务注册，再执行 GORM、协议、RPC 与 Wire 生成命令。
 
 Backend 的 `NewModules` 与 `NewStreams` 共享宿主注入的 `*backend.CodeGenManager`；通过 `backend.ProviderSet` 自动装配，手动调用这两个入口时也需传入同一实例。修改内部依赖装配后执行 `make -C backend public-wire wire`。
 

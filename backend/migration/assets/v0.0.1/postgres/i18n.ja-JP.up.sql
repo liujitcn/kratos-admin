@@ -8,6 +8,8 @@
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_config.value', 1100, 'ja-JP', '著作権 © 2025 - 2030 管理者すべての権利予約。') ON CONFLICT DO NOTHING;
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_config.value', 1120, 'ja-JP', '管理者管理システム') ON CONFLICT DO NOTHING;
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_config.value', 1140, 'ja-JP', '管理者') ON CONFLICT DO NOTHING;
+INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_config.value', 1161, 'ja-JP', '<h2>プライバシーポリシー</h2><p>このアプリをご利用いただきありがとうございます。当社はお客様の個人情報を大切にして保護し、アカウントへのログイン、アプリケーション機能、および顧客サービスを提供するために必要な範囲内でのみ関連情報を処理します。 </p><h3> 1. 情報の利用について </h3><p> 当社は、お客様の情報を法令および本規約に従って利用し、それと関係のない目的には利用いたしません。 </p><h3> 2. お客様の権利 </h3><p> お客様は、法律に従って個人情報を照会、修正、削除するか、アプリケーションで公開されているチャネルを通じて当社に連絡することができます。 </p>') ON CONFLICT DO NOTHING;
+INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_config.value', 1162, 'ja-JP', '<h2>利用規約</h2><p>このアプリケーションへようこそ。本アプリケーションをご利用になる前に、本規約をよくお読みいただき、ご理解いただいた上でご利用ください。アプリケーション サービスの使用を開始すると、本契約および関連規則に従うことに同意したものとみなされます。 </p><h3> 1.サービスのご利用について </h3><p> 各種機能は法令・コンプライアンスを遵守し、ページの指示に従ってご利用ください。このアプリケーションを使用して、違法または他人の権利や利益を損なう活動に従事することはできません。 </p><h3> 2. 本規約の変更 </h3><p> 当社は、ビジネスおよび法令の変更に応じて本規約を更新し、更新された内容をアプリケーション内で表示します。 </p>') ON CONFLICT DO NOTHING;
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_config.value', 1200, 'ja-JP', 'アプリケーションホーム') ON CONFLICT DO NOTHING;
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_config.value', 1210, 'ja-JP', 'ユニバーサル ナビゲーションとパーソナル センター エクスペリエンスの維持') ON CONFLICT DO NOTHING;
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_config.value', 1230, 'ja-JP', '<h2>プライバシーポリシー</h2><p>このアプリをご利用いただきありがとうございます。当社はお客様の個人情報を大切にして保護し、アカウントへのログイン、アプリケーション機能、および顧客サービスを提供するために必要な範囲内でのみ関連情報を処理します。 </p><h3> 1. 情報の利用について </h3><p> 当社は、お客様の情報を法令および本規約に従って利用し、それと関係のない目的には利用いたしません。 </p><h3> 2. お客様の権利 </h3><p> お客様は、法律に従って個人情報を照会、修正、削除するか、アプリケーションで公開されているチャネルを通じて当社に連絡することができます。 </p>') ON CONFLICT DO NOTHING;
@@ -22,6 +24,8 @@ INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('b
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_config.name', 1140, 'ja-JP', 'ウォーターマーク') ON CONFLICT DO NOTHING;
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_config.name', 1150, 'ja-JP', '背景画像') ON CONFLICT DO NOTHING;
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_config.name', 1160, 'ja-JP', 'ログイン時にテナント番号を表示') ON CONFLICT DO NOTHING;
+INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_config.name', 1161, 'ja-JP', 'プライバシーポリシー') ON CONFLICT DO NOTHING;
+INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_config.name', 1162, 'ja-JP', '利用規約') ON CONFLICT DO NOTHING;
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_config.name', 1170, 'ja-JP', 'ログイン認証コードの種類') ON CONFLICT DO NOTHING;
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_config.name', 1180, 'ja-JP', '多要素認証戦略') ON CONFLICT DO NOTHING;
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_config.name', 1190, 'ja-JP', '多要素認証方式') ON CONFLICT DO NOTHING;

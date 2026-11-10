@@ -347,7 +347,7 @@ func (c *WorkflowTaskCase) assembleTaskItems(ctx context.Context, tasks []*model
 			item.ApplicantName = userMap[instance.ApplicantUserID]
 			item.BusinessType = instance.BusinessType
 			item.InstanceStatus = adminv1.WorkflowInstanceStatus(instance.Status)
-			item.SubmitAt = workflow.FormatTime(instance.SubmitAt)
+			item.SubmitAt = workflow.FormatOptionalTime(instance.SubmitAt)
 			if definition := definitionMap[instance.DefinitionID]; definition != nil {
 				item.DefinitionCode = definition.Code
 				item.DefinitionName = definition.Name
@@ -388,7 +388,7 @@ func (c *WorkflowTaskCase) assembleSubmittedItems(ctx context.Context, instances
 			BusinessType:    instance.BusinessType,
 			InstanceStatus:  adminv1.WorkflowInstanceStatus(instance.Status),
 			ListType:        adminv1.WorkflowListType_WORKFLOW_LIST_TYPE_SUBMITTED,
-			SubmitAt:        workflow.FormatTime(instance.SubmitAt),
+			SubmitAt:        workflow.FormatOptionalTime(instance.SubmitAt),
 		}
 		if definition := definitionMap[instance.DefinitionID]; definition != nil {
 			item.DefinitionCode = definition.Code

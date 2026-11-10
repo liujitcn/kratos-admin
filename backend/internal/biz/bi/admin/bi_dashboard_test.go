@@ -149,7 +149,7 @@ func TestDashboardPublicationCompareAndSwap(t *testing.T) {
 		t.Fatal(err)
 	}
 	version.Status = biDashboardVersionPublished
-	version.PublishedAt = time.Now()
+	version.PublishedAt = new(time.Now())
 	affected, err = dataAccess.PublishBiDashboardVersion(ctx, dashboards.versionRepo, version, biDashboardVersionDraft)
 	if err != nil || affected != 1 {
 		t.Fatalf("首次固定快照失败: affected=%d err=%v", affected, err)

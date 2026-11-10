@@ -12,17 +12,17 @@ const TableNameBiDashboardVersion = "bi_dashboard_version"
 
 // BiDashboardVersion BI仪表盘版本
 type BiDashboardVersion struct {
-	ID          int64     `gorm:"column:id;type:bigint;primaryKey;autoIncrement:true;comment:仪表盘版本ID" json:"id"`                                                                                                  // 仪表盘版本ID
-	DashboardID int64     `gorm:"column:dashboard_id;type:bigint;not null;uniqueIndex:unique_bi_dashboard_version,priority:1;index:idx_bi_dashboard_version_tenant,priority:2;comment:仪表盘ID" json:"dashboard_id"` // 仪表盘ID
-	TenantID    int64     `gorm:"column:tenant_id;type:bigint;not null;index:idx_bi_dashboard_version_tenant,priority:1;comment:租户ID" json:"tenant_id"`                                                           // 租户ID
-	Version     int64     `gorm:"column:version;type:bigint;not null;uniqueIndex:unique_bi_dashboard_version,priority:2;index:idx_bi_dashboard_version_tenant,priority:3;comment:版本号" json:"version"`             // 版本号
-	SchemaJSON  string    `gorm:"column:schema_json;type:text;not null;comment:仪表盘Schema JSON" json:"schema_json"`                                                                                                // 仪表盘Schema JSON
-	SchemaHash  string    `gorm:"column:schema_hash;type:varchar(64);not null;comment:Schema SHA256" json:"schema_hash"`                                                                                          // Schema SHA256
-	Status      int32     `gorm:"column:status;type:smallint;not null;comment:状态：1草稿，2已发布，3归档" json:"status"`                                                                                                     // 状态：1草稿，2已发布，3归档
-	CreatedBy   int64     `gorm:"column:created_by;type:bigint;not null;comment:创建人" json:"created_by"`                                                                                                           // 创建人
-	PublishedBy int64     `gorm:"column:published_by;type:bigint;not null;comment:发布人" json:"published_by"`                                                                                                       // 发布人
-	PublishedAt time.Time `gorm:"column:published_at;comment:发布时间" json:"published_at"`                                                                                                                           // 发布时间
-	CreatedAt   time.Time `gorm:"column:created_at;not null;comment:创建时间" json:"created_at"`                                                                                                                      // 创建时间
+	ID          int64      `gorm:"column:id;type:bigint;primaryKey;autoIncrement:true;comment:仪表盘版本ID" json:"id"`                                                                                                  // 仪表盘版本ID
+	DashboardID int64      `gorm:"column:dashboard_id;type:bigint;not null;uniqueIndex:unique_bi_dashboard_version,priority:1;index:idx_bi_dashboard_version_tenant,priority:2;comment:仪表盘ID" json:"dashboard_id"` // 仪表盘ID
+	TenantID    int64      `gorm:"column:tenant_id;type:bigint;not null;index:idx_bi_dashboard_version_tenant,priority:1;comment:租户ID" json:"tenant_id"`                                                           // 租户ID
+	Version     int64      `gorm:"column:version;type:bigint;not null;uniqueIndex:unique_bi_dashboard_version,priority:2;index:idx_bi_dashboard_version_tenant,priority:3;comment:版本号" json:"version"`             // 版本号
+	SchemaJSON  string     `gorm:"column:schema_json;type:text;not null;comment:仪表盘Schema JSON" json:"schema_json"`                                                                                                // 仪表盘Schema JSON
+	SchemaHash  string     `gorm:"column:schema_hash;type:varchar(64);not null;comment:Schema SHA256" json:"schema_hash"`                                                                                          // Schema SHA256
+	Status      int32      `gorm:"column:status;type:smallint;not null;comment:状态：1草稿，2已发布，3归档" json:"status"`                                                                                                     // 状态：1草稿，2已发布，3归档
+	CreatedBy   int64      `gorm:"column:created_by;type:bigint;not null;comment:创建人" json:"created_by"`                                                                                                           // 创建人
+	PublishedBy int64      `gorm:"column:published_by;type:bigint;not null;comment:发布人" json:"published_by"`                                                                                                       // 发布人
+	PublishedAt *time.Time `gorm:"column:published_at;comment:发布时间" json:"published_at"`                                                                                                                           // 发布时间
+	CreatedAt   time.Time  `gorm:"column:created_at;not null;comment:创建时间" json:"created_at"`                                                                                                                      // 创建时间
 }
 
 // TableName BiDashboardVersion's table name

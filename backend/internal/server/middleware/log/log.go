@@ -253,13 +253,12 @@ func (m *Middleware) validateAgreement(ctx context.Context, info request) error 
 		return errorsx.Internal("协议版本校验未初始化")
 	}
 	table := m.logQuery.BaseConfig
-	var sites []int32
+	// 协议正文按请求声明的终端独立取用，管理端不再借用移动端配置，与 GetConfig 下发边界一致。
+	site := int32(basev1.BaseConfigSite_BASE_CONFIG_SITE_APP)
 	if info.AgreementSite == "2" {
-		sites = []int32{2, 3}
-	} else {
-		sites = []int32{3}
+		site = int32(basev1.BaseConfigSite_BASE_CONFIG_SITE_ADMIN)
 	}
-	rows, err := table.WithContext(ctx).Where(table.Site.In(sites...), table.Key.In("privacyProtocol", "serviceProtocol"), table.Status.Eq(1)).Order(table.ID.Asc()).Find()
+	rows, err := table.WithContext(ctx).Where(table.Site.Eq(site), table.Key.In("privacyProtocol", "serviceProtocol"), table.Status.Eq(1)).Order(table.ID.Asc()).Find()
 	if err != nil {
 		return errorsx.Internal("读取协议版本失败").WithCause(err)
 	}

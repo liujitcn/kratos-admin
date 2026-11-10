@@ -6,6 +6,11 @@ html:root {
   --el-popover-border-radius: var(--admin-page-radius);
 }
 
+/* 复选框保持方形，避免跟随全局小尺寸圆角变量变成圆角。 */
+:root .el-checkbox {
+  --el-checkbox-border-radius: 0;
+}
+
 /* 组件局部变量和小尺寸派生值不会继承基础圆角，需要同步覆盖。 */
 :root .el-card {
   --el-card-border-radius: var(--admin-page-radius);

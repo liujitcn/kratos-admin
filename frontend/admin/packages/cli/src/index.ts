@@ -250,9 +250,12 @@ function createModuleTokens(moduleName: string, packageVersion: string): Record<
     locale, { ...baseSystemAdminModule.messages?.[locale], ...messages }
   ]))`
         : `name: "${moduleName}",\n  views: viewModules,\n  messages: LOCALE_MESSAGES`,
-    __MODULE_DEPENDENCIES__: JSON.stringify(
-      moduleName === "system" ? { "@liujitcn/kratos-admin-system": `^${packageVersion}` } : {}
-    )
+    __MODULE_DEPENDENCIES__: JSON.stringify({
+      "@element-plus/icons-vue": "^2.3.1",
+      dayjs: "^1.11.13",
+      "element-plus": "^2.14.5",
+      ...(moduleName === "system" ? { "@liujitcn/kratos-admin-system": `^${packageVersion}` } : {})
+    })
   };
 }
 

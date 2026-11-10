@@ -752,7 +752,7 @@ func (c *MfaCase) ConfirmMfaSetup(ctx context.Context, req *basev1.ConfirmMfaSet
 	var mfa *models.BaseUserMFA
 	mfa, err = c.findMFA(ctx, payload.UserID, mfaMethodTOTP)
 	if isRecordNotFound(err) {
-		mfa = &models.BaseUserMFA{TenantID: payload.TenantID, UserID: payload.UserID, Method: mfaMethodTOTP, Status: mfaStatusEnabled, ConfirmedAt: now, CreatedBy: payload.UserID, UpdatedBy: payload.UserID, CreatedAt: now, UpdatedAt: now}
+		mfa = &models.BaseUserMFA{TenantID: payload.TenantID, UserID: payload.UserID, Method: mfaMethodTOTP, Status: mfaStatusEnabled, ConfirmedAt: new(now), CreatedBy: payload.UserID, UpdatedBy: payload.UserID, CreatedAt: now, UpdatedAt: now}
 		err = c.tx.Transaction(ctx, func(txCtx context.Context) error {
 			if err = c.baseUserMFARepo.Create(txCtx, mfa); err != nil {
 				return err
@@ -764,7 +764,7 @@ func (c *MfaCase) ConfirmMfaSetup(ctx context.Context, req *basev1.ConfirmMfaSet
 		})
 	} else if err == nil {
 		mfa.Status = mfaStatusEnabled
-		mfa.ConfirmedAt = now
+		mfa.ConfirmedAt = new(now)
 		mfa.UpdatedBy = payload.UserID
 		mfa.UpdatedAt = now
 		err = c.tx.Transaction(ctx, func(txCtx context.Context) error {
@@ -944,7 +944,7 @@ func (c *MfaCase) confirmWebAuthnSetup(ctx context.Context, ticketKey string, pa
 	var mfa *models.BaseUserMFA
 	mfa, err = c.findMFA(ctx, payload.UserID, mfaMethodWebAuthn)
 	if isRecordNotFound(err) {
-		mfa = &models.BaseUserMFA{TenantID: payload.TenantID, UserID: payload.UserID, Method: mfaMethodWebAuthn, Status: mfaStatusEnabled, ConfirmedAt: now, CreatedBy: payload.UserID, UpdatedBy: payload.UserID, CreatedAt: now, UpdatedAt: now}
+		mfa = &models.BaseUserMFA{TenantID: payload.TenantID, UserID: payload.UserID, Method: mfaMethodWebAuthn, Status: mfaStatusEnabled, ConfirmedAt: new(now), CreatedBy: payload.UserID, UpdatedBy: payload.UserID, CreatedAt: now, UpdatedAt: now}
 		err = c.tx.Transaction(ctx, func(txCtx context.Context) error {
 			if err = c.baseUserMFARepo.Create(txCtx, mfa); err != nil {
 				return err
@@ -956,7 +956,7 @@ func (c *MfaCase) confirmWebAuthnSetup(ctx context.Context, ticketKey string, pa
 		})
 	} else if err == nil {
 		mfa.Status = mfaStatusEnabled
-		mfa.ConfirmedAt = now
+		mfa.ConfirmedAt = new(now)
 		mfa.UpdatedBy = payload.UserID
 		mfa.UpdatedAt = now
 		err = c.tx.Transaction(ctx, func(txCtx context.Context) error {

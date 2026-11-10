@@ -154,7 +154,6 @@ gorm-gen:
 	@test -x "$(GORM_GEN_BIN)" || (echo "未找到 gorm-gen，请先执行 make cli" && exit 1)
 	@$(GORM_GEN_BIN) -base_path=internal/data/gen -config='$(GORM_GEN_CONFIG)' -table='$(GORM_TABLE)'
 	@$(GORM_GEN_BIN) -base_path=internal/data/gen -config='$(GORM_GEN_CONFIG)' -database=rag -table='$(GORM_RAG_TABLE)'
-	@python3 scripts/fix-model-types.py
 	@PATH="$(GO_BIN_DIR):$$PATH" find internal/data/gen -type f -name '*.go' -exec goimports -w {} +
 	@find internal/data/gen -type f -name '*.go' -exec perl -pi -e 's/;default:[^;"`]+//gi' {} +
 	@echo "==> GORM 代码生成完成"

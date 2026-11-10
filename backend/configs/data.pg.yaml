@@ -3,4 +3,4 @@ data:
     debug: true
     driver: postgres
     enable_migrate: true
-    source: "${POSTGRES_DSN}"
+    source: host=192.168.60.52 port=5432 user=postgres password=ENC[c569l6ZuQjPiKfEZra4HPOpM1J3SepnM-moYbJBINW9Cxw] dbname=kratos_admin sslmode=disable

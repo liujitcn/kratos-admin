@@ -54,6 +54,8 @@ pnpm --filter @liujitcn/kratos-admin-cli test
 
 CLI 默认引入内置 System；指定本地 `system` 时由本地模块继承并替代运行时注册，构建仍扫描内置包。`--module` 可重复使用，也接受逗号分隔名称，并为每个名称创建独立 module 包；`--with` 接收逗号分隔的额外已发布 module 名称，只装配依赖而不生成源码。CLI 拒绝覆盖已有目录；渲染失败时会清理本次创建的不完整目标目录。
 
+业务模块显式声明生成页面直接使用的 Day.js、Element Plus 和图标依赖，可独立执行类型检查。
+
 生成结果遵守以下约束：
 
 - 宿主通过 `src/module-manifest.ts` 维护装配清单，`src/modules.ts` 默认导出当前全部 module。

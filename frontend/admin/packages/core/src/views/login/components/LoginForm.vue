@@ -60,11 +60,12 @@
   </el-form>
   <div class="login-agreement">
     <el-checkbox v-model="agreementAccepted">{{ t("core.login.agreement_accept") }}</el-checkbox>
-    <el-link type="primary" @click="openAgreement('service')">{{ t("core.login.service_protocol") }}</el-link>
-    <span>{{ t("core.login.agreement_and") }}</span>
-    <el-link type="primary" @click="openAgreement('privacy')">{{ t("core.login.privacy_protocol") }}</el-link>
+    <span class="login-agreement-links">
+      <el-link type="primary" @click="openAgreement('service')">{{ t("core.login.service_protocol") }}</el-link>
+      <span>{{ t("core.login.agreement_and") }}</span>
+      <el-link type="primary" @click="openAgreement('privacy')">{{ t("core.login.privacy_protocol") }}</el-link>
+    </span>
   </div>
-  <div v-if="configStore.version" class="login-version">V{{ configStore.version }}</div>
   <ProDialog v-model="agreementDialog.visible" :title="agreementDialog.title" width="min(760px, calc(100vw - 32px))">
     <RichTextPreview :model-value="agreementDialog.content" class="login-agreement-content" />
   </ProDialog>
@@ -1176,15 +1177,43 @@ watch(
 .login-agreement {
   display: flex;
   align-items: center;
-  flex-wrap: wrap;
-  gap: 6px;
+  justify-content: flex-start;
+  gap: 4px;
+  width: 100%;
   color: var(--el-text-color-regular);
+
+  .el-checkbox {
+    min-width: 0;
+    min-height: 32px;
+    height: auto;
+    margin-right: 0;
+
+    :deep(.el-checkbox__label) {
+      line-height: 20px;
+      white-space: normal;
+    }
+
+    :deep(.el-checkbox__input.is-checked .el-checkbox__inner) {
+      background-color: var(--el-checkbox-bg-color);
+      border-color: var(--el-border-color);
+    }
+
+    :deep(.el-checkbox__input.is-checked .el-checkbox__inner::after) {
+      border-color: var(--el-text-color-regular);
+    }
+
+    :deep(.el-checkbox__input.is-checked + .el-checkbox__label) {
+      color: var(--el-text-color-regular);
+    }
+  }
 }
-.login-version {
-  margin-top: 8px;
-  text-align: right;
-  color: var(--el-text-color-secondary);
-  font-size: 12px;
+.login-agreement-links {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-start;
+  column-gap: 4px;
+  line-height: 20px;
 }
 .login-agreement-content {
   max-height: 65vh;

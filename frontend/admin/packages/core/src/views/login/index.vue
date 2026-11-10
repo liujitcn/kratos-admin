@@ -4,24 +4,15 @@
       <SwitchDark class="dark" />
       <LocaleSwitch v-if="languageOptions.length > 1" class="locale" />
       <div class="login-left">
-        <img
-          class="login-left-img"
-          :src="backgroundUrl"
-          :alt="t('core.login.background_alt')"
-          @error="handleBackgroundError"
-        />
+        <img class="login-left-img" :src="backgroundUrl" :alt="t('core.login.background_alt')" @error="handleBackgroundError" />
       </div>
       <div ref="loginFormRef" class="login-form">
         <div ref="loginLogoRef" class="login-logo">
-          <img
-            v-show="showLogoIcon"
-            ref="logoIconRef"
-            class="login-icon"
-            :src="logoUrl"
-            alt=""
-            @error="handleLogoError"
-          />
-          <h2 ref="logoTextRef" class="logo-text" :style="{ fontSize: `${logoFontSize}px` }">{{ projectName }}</h2>
+          <img v-show="showLogoIcon" class="login-icon" :src="logoUrl" alt="" @error="handleLogoError" />
+          <h2 ref="logoTextRef" class="logo-text" :style="{ fontSize: `${logoFontSize}px` }">
+            <span>{{ projectName }}</span>
+            <span v-if="configStore.version" class="login-version">v{{ configStore.version }}</span>
+          </h2>
         </div>
         <LoginForm :dialog-anchor="loginFormRef" />
       </div>
@@ -52,13 +43,11 @@ const { imageUrl: backgroundUrl, handleImageError: handleBackgroundError } = use
 );
 
 const MAX_LOGO_FONT_SIZE = 42;
-const PREFERRED_MIN_LOGO_FONT_SIZE = 30;
+const PREFERRED_MIN_LOGO_FONT_SIZE = 26;
 const MIN_LOGO_FONT_SIZE = 8;
-const LOGO_TEXT_GAP = 16;
 
 const loginFormRef = ref<HTMLElement>();
 const loginLogoRef = ref<HTMLElement>();
-const logoIconRef = ref<HTMLImageElement>();
 const logoTextRef = ref<HTMLElement>();
 const logoFontSize = ref(MAX_LOGO_FONT_SIZE);
 const showLogoIcon = ref(true);
@@ -75,33 +64,28 @@ async function updateLogoLayout() {
   if (!logoTextElement) return;
 
   showLogoIcon.value = true;
-  await fitLogoText(true, PREFERRED_MIN_LOGO_FONT_SIZE);
+  await fitLogoText(PREFERRED_MIN_LOGO_FONT_SIZE);
 
   if (logoTextElement.scrollWidth <= logoTextElement.clientWidth) return;
 
   showLogoIcon.value = false;
-  await fitLogoText(false, MIN_LOGO_FONT_SIZE);
+  await fitLogoText(MIN_LOGO_FONT_SIZE);
 }
 
 /**
  * 在当前图标显示状态下，按可用宽度逐步收缩标题字号。
  */
-async function fitLogoText(withIcon: boolean, minFontSize: number) {
+async function fitLogoText(minFontSize: number) {
   await nextTick();
 
-  const loginLogoElement = loginLogoRef.value;
-  const logoIconElement = logoIconRef.value;
   const logoTextElement = logoTextRef.value;
-  if (!loginLogoElement || !logoTextElement) return;
-
-  const iconWidth = withIcon && logoIconElement ? logoIconElement.getBoundingClientRect().width : 0;
-  const availableWidth = Math.max(loginLogoElement.clientWidth - iconWidth - (withIcon ? LOGO_TEXT_GAP : 0), 0);
+  if (!logoTextElement) return;
 
   let nextFontSize = MAX_LOGO_FONT_SIZE;
   logoFontSize.value = nextFontSize;
   await nextTick();
 
-  while (nextFontSize > minFontSize && logoTextElement.scrollWidth > availableWidth) {
+  while (nextFontSize > minFontSize && logoTextElement.scrollWidth > logoTextElement.clientWidth) {
     nextFontSize -= 1;
     logoFontSize.value = nextFontSize;
     await nextTick();
@@ -123,7 +107,7 @@ onBeforeUnmount(() => {
   logoResizeObserver = null;
 });
 
-watch([projectName, logoUrl], () => {
+watch([projectName, logoUrl, () => configStore.version], () => {
   updateLogoLayout();
 });
 </script>

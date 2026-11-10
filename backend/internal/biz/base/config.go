@@ -8,8 +8,6 @@ import (
 	"fmt"
 	"strconv"
 
-	"gorm.io/gen/field"
-
 	"github.com/liujitcn/kratos-core/biz"
 	coreconst "github.com/liujitcn/kratos-core/const"
 	"github.com/liujitcn/kratos-kit/database/gorm"
@@ -51,7 +49,7 @@ func NewConfigCase(baseCase *biz.BaseCase, baseConfigRepo *data.BaseConfigReposi
 	}
 }
 
-// GetConfig 查询指定站点的启用运行时配置；系统内置站点由契约校验拒绝，不下发。
+// GetConfig 仅查询指定站点的启用运行时配置，管理端和移动端的协议正文独立下发。
 func (c *ConfigCase) GetConfig(ctx context.Context, req *basev1.GetConfigRequest) (*basev1.GetConfigResponse, error) {
 	translatorEnabled, err := c.translatorEnabled(ctx)
 	if err != nil {
@@ -74,15 +72,12 @@ func (c *ConfigCase) GetConfig(ctx context.Context, req *basev1.GetConfigRequest
 	}
 
 	query := c.Query(ctx).BaseConfig
-	opts := make([]repository.QueryOption, 0, 4)
-	if req.GetSite() == basev1.BaseConfigSite_BASE_CONFIG_SITE_ADMIN {
-		opts = append(opts, repository.Where(field.Or(query.Site.Eq(site), field.And(query.Site.Eq(int32(basev1.BaseConfigSite_BASE_CONFIG_SITE_APP)), query.Key.In("privacyProtocol", "serviceProtocol")))))
-	} else {
-		opts = append(opts, repository.Where(query.Site.Eq(site)))
+	opts := []repository.QueryOption{
+		repository.Where(query.Site.Eq(site)),
+		repository.Where(query.Type.Neq(int32(adminv1.BaseConfigType_BASE_CONFIG_TYPE_FORM))),
+		repository.Where(query.Status.Eq(coreconst.STATUS_STATUS_ENABLE)),
+		repository.Order(query.ID.Asc()),
 	}
-	opts = append(opts, repository.Where(query.Type.Neq(int32(adminv1.BaseConfigType_BASE_CONFIG_TYPE_FORM))))
-	opts = append(opts, repository.Where(query.Status.Eq(coreconst.STATUS_STATUS_ENABLE)))
-	opts = append(opts, repository.Order(query.ID.Asc()))
 	var list []*models.BaseConfig
 	list, err = c.List(ctx, opts...)
 	if err != nil {
@@ -278,20 +273,17 @@ func (c *ConfigCase) primaryLocale(ctx context.Context) (string, error) {
 	return "", nil
 }
 
-// runtimeConfigIDsPresent 判断缓存包含主键及协议正文，旧版缺少协议的缓存必须回源。
+// runtimeConfigIDsPresent 判断缓存是否包含翻译所需的主键，停用协议不影响缓存有效性。
 func runtimeConfigIDsPresent(configs []*basev1.ConfigItem) bool {
-	var privacy, service bool
 	for _, item := range configs {
 		if item.GetId() == 0 {
 			return false
 		}
-		privacy = privacy || item.GetKey() == "privacyProtocol"
-		service = service || item.GetKey() == "serviceProtocol"
 	}
-	return privacy && service
+	return true
 }
 
-// appendRuntimeConfig 附加宿主版本和原始协议摘要，缓存及翻译不能改写发布版本或同意记录的依据。
+// appendRuntimeConfig 仅从宿主上下文附加版本，并以原始协议计算摘要，防止缓存或翻译改写同意依据。
 func (c *ConfigCase) appendRuntimeConfig(configs []*basev1.ConfigItem, enabled bool) []*basev1.ConfigItem {
 	result := make([]*basev1.ConfigItem, 0, len(configs)+3)
 	var privacy, service string
@@ -309,11 +301,9 @@ func (c *ConfigCase) appendRuntimeConfig(configs []*basev1.ConfigItem, enabled b
 			service = item.GetValue()
 		}
 	}
-	version := _const.Version
+	var version string
 	if c.Context != nil {
-		if info := c.GetAppInfo(); info != nil && info.GetVersion() != "" {
-			version = info.GetVersion()
-		}
+		version = c.GetAppInfo().GetVersion()
 	}
 	digest := sha256.Sum256([]byte(privacy + "\x00" + service))
 	return append(result,

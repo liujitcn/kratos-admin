@@ -217,7 +217,7 @@ func (c *BiDashboardCase) PublishBiDashboard(ctx context.Context, req *adminv1.P
 		version.SchemaHash = hashSchema(schemaJSON)
 		version.Status = biDashboardVersionPublished
 		version.PublishedBy = authInfo.UserId
-		version.PublishedAt = time.Now()
+		version.PublishedAt = new(time.Now())
 		var affected int64
 		affected, err = dataAccess.PublishBiDashboardVersion(txCtx, c.versionRepo, version, biDashboardVersionDraft)
 		if err != nil {

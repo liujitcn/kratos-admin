@@ -51,17 +51,36 @@ func TestAgreementVersionValidation(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	for _, record := range []*models.BaseConfig{{ID: 1201, Site: 3, Key: "privacyProtocol", Value: "privacy", Status: 1}, {ID: 1202, Site: 3, Key: "serviceProtocol", Value: "service", Status: 1}} {
+	// 先只配置移动端协议：管理端缺自己的正文时校验失败，不借用移动端内容。
+	for _, record := range []*models.BaseConfig{{ID: 1201, Site: 3, Key: "privacyProtocol", Value: "app-privacy", Status: 1}, {ID: 1202, Site: 3, Key: "serviceProtocol", Value: "app-service", Status: 1}} {
 		err = db.Create(record).Error
 		if err != nil {
 			t.Fatal(err)
 		}
 	}
 	service := &Middleware{logQuery: query.Use(db)}
-	digest := sha256.Sum256([]byte("privacy\x00service"))
-	err = service.validateAgreement(t.Context(), request{AgreementSite: "2", AgreementVersion: hex.EncodeToString(digest[:])})
+	appDigest := sha256.Sum256([]byte("app-privacy\x00app-service"))
+	if service.validateAgreement(t.Context(), request{AgreementSite: "2", AgreementVersion: hex.EncodeToString(appDigest[:])}) == nil {
+		t.Fatal("管理端借用移动端协议正文")
+	}
+	// 补齐管理端协议后，各终端只认本站点正文，跨站点摘要与伪造摘要都不能通过。
+	for _, record := range []*models.BaseConfig{{ID: 1161, Site: 2, Key: "privacyProtocol", Value: "admin-privacy", Status: 1}, {ID: 1162, Site: 2, Key: "serviceProtocol", Value: "admin-service", Status: 1}} {
+		err = db.Create(record).Error
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+	adminDigest := sha256.Sum256([]byte("admin-privacy\x00admin-service"))
+	err = service.validateAgreement(t.Context(), request{AgreementSite: "2", AgreementVersion: hex.EncodeToString(adminDigest[:])})
 	if err != nil {
 		t.Fatal(err)
+	}
+	err = service.validateAgreement(t.Context(), request{AgreementSite: "3", AgreementVersion: hex.EncodeToString(appDigest[:])})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if service.validateAgreement(t.Context(), request{AgreementSite: "2", AgreementVersion: hex.EncodeToString(appDigest[:])}) == nil {
+		t.Fatal("管理端接受移动端协议摘要")
 	}
 	if service.validateAgreement(t.Context(), request{AgreementSite: "2", AgreementVersion: strings.Repeat("a", 64)}) == nil {
 		t.Fatal("过期协议摘要被接受")

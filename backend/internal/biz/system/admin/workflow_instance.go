@@ -184,7 +184,7 @@ func (c *WorkflowInstanceCase) submit(
 		BusinessType:    businessType,
 		BusinessID:      businessID,
 		Status:          workflowStatusInstancePending,
-		SubmitAt:        time.Now(),
+		SubmitAt:        new(time.Now()),
 	}
 	var beforeRun *models.WorkflowScriptRun
 	var startRun *models.WorkflowScriptRun
@@ -1874,7 +1874,7 @@ func (c *WorkflowInstanceCase) ScanWorkflowScripts(ctx context.Context, now time
 	}
 	completed := 0
 	for _, run := range runs {
-		if run.Status == scriptRunning && run.LockedUntil.After(now) {
+		if run.Status == scriptRunning && run.LockedUntil != nil && run.LockedUntil.After(now) {
 			continue
 		}
 		if err = c.retryScriptRun(workflowParticipantContext(ctx), run, false, now); err != nil {
@@ -1908,7 +1908,7 @@ func (c *WorkflowInstanceCase) retryScriptRun(ctx context.Context, run *models.W
 		if run.Status == scriptSucceeded || run.Status == scriptCanceled {
 			return nil
 		}
-		if !manual && (run.Attempts >= scriptMaxAttempts || run.NextRetryAt.After(now)) {
+		if !manual && (run.Attempts >= scriptMaxAttempts || (run.NextRetryAt != nil && run.NextRetryAt.After(now))) {
 			return nil
 		}
 		var graph *workflow.Graph
@@ -2015,7 +2015,7 @@ func (c *WorkflowInstanceCase) newScriptRun(ctx context.Context, instance *model
 		return nil, err
 	}
 	now := time.Now()
-	run := &models.WorkflowScriptRun{TenantID: instance.TenantID, InstanceID: instance.ID, NodeID: nodeID, Stage: stage, ScriptID: scriptID, ScriptName: snapshot.Name, Version: snapshot.Version, ExecutionKey: key, InputJSON: input, Status: scriptPending, NextRetryAt: now, LockedUntil: now}
+	run := &models.WorkflowScriptRun{TenantID: instance.TenantID, InstanceID: instance.ID, NodeID: nodeID, Stage: stage, ScriptID: scriptID, ScriptName: snapshot.Name, Version: snapshot.Version, ExecutionKey: key, InputJSON: input, Status: scriptPending, NextRetryAt: new(now), LockedUntil: new(now)}
 	if err = c.scriptRunRepo.Create(ctx, run); err != nil {
 		return nil, err
 	}
@@ -2141,7 +2141,7 @@ func (c *WorkflowInstanceCase) recordScriptAttempt(ctx context.Context, run *mod
 	if executionErr != nil {
 		run.Status = scriptFailed
 		run.LastError = executionErr.Error()
-		run.NextRetryAt = time.Now().Add(time.Minute * time.Duration(1<<min(run.Attempts-1, 8)))
+		run.NextRetryAt = new(time.Now().Add(time.Minute * time.Duration(1<<min(run.Attempts-1, 8))))
 	}
 	if err := c.saveScriptRun(ctx, run); err != nil {
 		return err
@@ -2287,7 +2287,7 @@ func (c *WorkflowInstanceCase) executeTerminalScript(ctx context.Context, run *m
 		if run.Status == scriptSucceeded || run.Status == scriptCanceled {
 			return nil
 		}
-		if run.Status == scriptRunning && run.LockedUntil.After(now) {
+		if run.Status == scriptRunning && run.LockedUntil != nil && run.LockedUntil.After(now) {
 			return nil
 		}
 		if !manual && run.Attempts >= scriptMaxAttempts {
@@ -2298,14 +2298,14 @@ func (c *WorkflowInstanceCase) executeTerminalScript(ctx context.Context, run *m
 			}
 			return nil
 		}
-		if !manual && run.NextRetryAt.After(now) {
+		if !manual && run.NextRetryAt != nil && run.NextRetryAt.After(now) {
 			return nil
 		}
 		if instance.Status == workflowStatusInstancePending {
 			return errorsx.InvalidArgument("流程尚未终结")
 		}
 		run.Status = scriptRunning
-		run.LockedUntil = now.Add(scriptLease)
+		run.LockedUntil = new(now.Add(scriptLease))
 		run.NextRetryAt = run.LockedUntil
 		run.Attempts++
 		claimed = true
@@ -2339,7 +2339,7 @@ func (c *WorkflowInstanceCase) executeTerminalScript(ctx context.Context, run *m
 	if executionErr != nil {
 		run.Status = scriptFailed
 		run.LastError = executionErr.Error()
-		run.NextRetryAt = time.Now().Add(time.Minute * time.Duration(1<<min(run.Attempts-1, 8)))
+		run.NextRetryAt = new(time.Now().Add(time.Minute * time.Duration(1<<min(run.Attempts-1, 8))))
 	}
 	// 请求或动作超时后仍需释放租约并记录失败，使用独立持久化上下文。
 	persistCtx := context.WithoutCancel(ctx)
@@ -2434,7 +2434,7 @@ func (c *WorkflowInstanceCase) listScriptRuns(ctx context.Context, tenantID, ins
 	result := make([]*adminv1.WorkflowScriptRun, 0, len(runs))
 	for _, run := range runs {
 		nextRetry := ""
-		if run.Status != scriptSucceeded && run.Status != scriptCanceled && run.Attempts < scriptMaxAttempts && !run.NextRetryAt.IsZero() {
+		if run.Status != scriptSucceeded && run.Status != scriptCanceled && run.Attempts < scriptMaxAttempts && run.NextRetryAt != nil && !run.NextRetryAt.IsZero() {
 			nextRetry = run.NextRetryAt.Format(time.DateTime)
 		}
 		result = append(result, &adminv1.WorkflowScriptRun{Id: run.ID, InstanceId: run.InstanceID, NodeId: run.NodeID, Stage: run.Stage, ScriptId: run.ScriptID, ScriptName: run.ScriptName, Version: run.Version, Status: run.Status, Attempts: run.Attempts, InputJson: run.InputJSON, OutputJson: run.OutputJSON, LastError: run.LastError, DurationMs: run.DurationMs, NextRetryAt: nextRetry, CreatedAt: run.CreatedAt.Format(time.DateTime), UpdatedAt: run.UpdatedAt.Format(time.DateTime)})
@@ -2463,10 +2463,10 @@ func (c *WorkflowInstanceCase) enqueueWorkflowStart(ctx context.Context, instanc
 		return nil, err
 	}
 	now := time.Now()
-	run := &models.WorkflowScriptRun{TenantID: instance.TenantID, InstanceID: instance.ID, NodeID: nodeID, Stage: "START", ExecutionKey: "START", ScriptName: "流程启动", Status: scriptPending, InputJSON: string(input), NextRetryAt: now, LockedUntil: now}
+	run := &models.WorkflowScriptRun{TenantID: instance.TenantID, InstanceID: instance.ID, NodeID: nodeID, Stage: "START", ExecutionKey: "START", ScriptName: "流程启动", Status: scriptPending, InputJSON: string(input), NextRetryAt: new(now), LockedUntil: new(now)}
 	if bindingRequired {
 		run.Status = scriptRunning
-		run.LockedUntil = now.Add(scriptLease)
+		run.LockedUntil = new(now.Add(scriptLease))
 		run.NextRetryAt = run.LockedUntil
 	}
 	if err = c.scriptRunRepo.Create(ctx, run); err != nil {
@@ -2501,7 +2501,7 @@ func (c *WorkflowInstanceCase) confirmWorkflowBinding(ctx context.Context, run *
 		}
 		run.InputJSON = string(raw)
 		run.Status = scriptPending
-		run.NextRetryAt = time.Now()
+		run.NextRetryAt = new(time.Now())
 		return c.saveScriptRun(ctx, run)
 	})
 }
@@ -2522,7 +2522,7 @@ func (c *WorkflowInstanceCase) resumeWorkflowStart(ctx context.Context, run *mod
 		if instance.Status != workflowStatusInstancePending {
 			return c.cancelNodeScripts(ctx, instance)
 		}
-		if run.Status == scriptSucceeded || run.Status == scriptCanceled || (!manual && (run.Attempts >= scriptMaxAttempts || run.NextRetryAt.After(now))) {
+		if run.Status == scriptSucceeded || run.Status == scriptCanceled || (!manual && (run.Attempts >= scriptMaxAttempts || (run.NextRetryAt != nil && run.NextRetryAt.After(now)))) {
 			return nil
 		}
 		var input dto.WorkflowStartInput
@@ -2581,7 +2581,7 @@ func (c *WorkflowInstanceCase) resumeWorkflowStart(ctx context.Context, run *mod
 		run.Status = scriptFailed
 		run.LastError = executionErr.Error()
 		run.Attempts++
-		run.NextRetryAt = time.Now().Add(time.Minute * time.Duration(1<<min(run.Attempts-1, 8)))
+		run.NextRetryAt = new(time.Now().Add(time.Minute * time.Duration(1<<min(run.Attempts-1, 8))))
 		return c.saveScriptRun(ctx, run)
 	})
 }

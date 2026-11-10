@@ -8,6 +8,8 @@ SET NAMES utf8mb4;
 INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_config.value', 1100, 'zh-TW', 'Copyright © 2025 - 2030 Admin All Rights Reserved.');
 INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_config.value', 1120, 'zh-TW', 'Admin 管理系統');
 INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_config.value', 1140, 'zh-TW', 'Admin');
+INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_config.value', 1161, 'zh-TW', '<h2>隱私政策</h2><p>感謝您使用本應用。我們重視並保護您的個人資訊，僅在提供賬號登入、應用功能和客戶服務所必需的範圍內處理相關資訊。</p><h3>一、資訊使用</h3><p>我們會按照法律法規和本協議約定使用您的資訊，不會將其用於無關目的。</p><h3>二、您的權利</h3><p>您可以依法查詢、更正、刪除個人資訊，或透過應用內公佈的渠道聯絡我們。</p>');
+INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_config.value', 1162, 'zh-TW', '<h2>服務條款</h2><p>歡迎使用本應用。使用本應用前，請您閱讀並理解本協議。您開始使用應用服務，即表示同意遵守本協議及相關規則。</p><h3>一、服務使用</h3><p>請您依法、合規並按照頁面提示使用各項功能，不得利用本應用從事違法或損害他人權益的活動。</p><h3>二、協議變更</h3><p>我們會根據業務和法律法規變化更新本協議，並在應用內向您展示更新後的內容。</p>');
 INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_config.value', 1200, 'zh-TW', '應用首頁');
 INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_config.value', 1210, 'zh-TW', '保留通用導航與個人中心體驗');
 INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_config.value', 1230, 'zh-TW', '<h2>隱私政策</h2><p>感謝您使用本應用。我們重視並保護您的個人資訊，僅在提供賬號登入、應用功能和客戶服務所必需的範圍內處理相關資訊。</p><h3>一、資訊使用</h3><p>我們會按照法律法規和本協議約定使用您的資訊，不會將其用於無關目的。</p><h3>二、您的權利</h3><p>您可以依法查詢、更正、刪除個人資訊，或透過應用內公佈的渠道聯絡我們。</p>');
@@ -22,6 +24,8 @@ INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VAL
 INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_config.name', 1140, 'zh-TW', '水印');
 INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_config.name', 1150, 'zh-TW', '背景圖');
 INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_config.name', 1160, 'zh-TW', '登入顯示租戶編號');
+INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_config.name', 1161, 'zh-TW', '隱私政策');
+INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_config.name', 1162, 'zh-TW', '服務條款');
 INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_config.name', 1170, 'zh-TW', '登入驗證碼型別');
 INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_config.name', 1180, 'zh-TW', '多因素認證策略');
 INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_config.name', 1190, 'zh-TW', '多因素認證方式');

@@ -113,6 +113,8 @@ make -C backend run-only APP_ENV=https
 
 生成文件位于 `api/gen`、`internal/data/gen`、`internal/openapi` 和 Wire 文件，不得手工修改。Proto 改动后按“生成 → Service/Biz → 前端 RPC → 初始化权限”的顺序完成。
 
+GORM 生成器依据列元数据统一保留大文本容量，并将可空时间列生成为 `*time.Time`，业务项目无需维护按表修正的补丁脚本。更新生成器源码后需重新安装 `gorm-gen` 再执行生成。
+
 ## 数据与迁移
 
 初始化资源统一位于 `migration/assets/v0.0.1/mysql`；TiDB 复用该目录，不需要复制 TiDB 专用 SQL：
