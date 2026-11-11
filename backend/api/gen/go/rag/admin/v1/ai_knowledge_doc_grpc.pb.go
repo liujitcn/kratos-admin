@@ -36,9 +36,9 @@ const (
 type AiKnowledgeDocServiceClient interface {
 	// 分页查询知识库下的文档。
 	PageAiKnowledgeDoc(ctx context.Context, in *PageAiKnowledgeDocRequest, opts ...grpc.CallOption) (*PageAiKnowledgeDocResponse, error)
-	// 上传纯文本文档（切片 → 向量化 → 落库）。
+	// 上传纯文本文档（由 Xberg MCP 抽取后切片、向量化并落库）。
 	UploadAiKnowledgeDocText(ctx context.Context, in *UploadAiKnowledgeDocTextRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	// 上传文档文件（txt/md/docx/pdf：抽取文本后走同一入库链）。
+	// 上传文档文件（由 Xberg MCP 抽取后切片、向量化并落库）。
 	UploadAiKnowledgeDocFile(ctx context.Context, in *UploadAiKnowledgeDocFileRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// 删除文档（级联删除切片）。
 	DeleteAiKnowledgeDoc(ctx context.Context, in *DeleteAiKnowledgeDocRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
@@ -112,9 +112,9 @@ func (c *aiKnowledgeDocServiceClient) ReprocessAiKnowledgeDoc(ctx context.Contex
 type AiKnowledgeDocServiceServer interface {
 	// 分页查询知识库下的文档。
 	PageAiKnowledgeDoc(context.Context, *PageAiKnowledgeDocRequest) (*PageAiKnowledgeDocResponse, error)
-	// 上传纯文本文档（切片 → 向量化 → 落库）。
+	// 上传纯文本文档（由 Xberg MCP 抽取后切片、向量化并落库）。
 	UploadAiKnowledgeDocText(context.Context, *UploadAiKnowledgeDocTextRequest) (*emptypb.Empty, error)
-	// 上传文档文件（txt/md/docx/pdf：抽取文本后走同一入库链）。
+	// 上传文档文件（由 Xberg MCP 抽取后切片、向量化并落库）。
 	UploadAiKnowledgeDocFile(context.Context, *UploadAiKnowledgeDocFileRequest) (*emptypb.Empty, error)
 	// 删除文档（级联删除切片）。
 	DeleteAiKnowledgeDoc(context.Context, *DeleteAiKnowledgeDocRequest) (*emptypb.Empty, error)

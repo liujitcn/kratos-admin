@@ -186,5 +186,12 @@
   "system.settings.theme_auto": "跟随系统",
   "system.settings.theme_dark": "暗黑",
   "system.settings.theme_light": "明亮",
-  "common.message.unknown": "未知"
+  "common.message.unknown": "未知",
+  "system.ai.workspace.frozen_result": "自动化结果 · 原始记录只读",
+  "system.ai.workspace.view_result": "查看结果",
+  "system.ai.workspace.needs_confirmation": "执行前需本人确认",
+  "system.ai.workspace.expires": "确认截止时间",
+  "system.ai.workspace.approval_expired": "确认已过期，请重新发起。",
+  "system.ai.workspace.approve": "确认执行",
+  "system.ai.workspace.reject": "拒绝"
 }

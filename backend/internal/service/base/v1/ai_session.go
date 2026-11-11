@@ -84,3 +84,13 @@ func (s *AiSessionService) DeleteAiSession(ctx context.Context, req *basev1.Dele
 	}
 	return &basev1.DeleteAiSessionResponse{}, nil
 }
+
+// SetAiSessionPlugins 保存本人空闲普通会话的插件选择。
+func (s *AiSessionService) SetAiSessionPlugins(ctx context.Context, req *basev1.SetAiSessionPluginsRequest) (*basev1.UpdateAiSessionResponse, error) {
+	response, err := s.aiSessionCase.SetAiSessionPlugins(ctx, req)
+	if err != nil {
+		log.Error("SetAiSessionPlugins", "error", err)
+		return nil, errorsx.WrapInternal(err, "保存会话插件选择失败")
+	}
+	return &basev1.UpdateAiSessionResponse{Session: response}, nil
+}

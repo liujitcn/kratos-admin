@@ -25,6 +25,7 @@ const (
 	AiSessionService_CreateAiSession_FullMethodName       = "/base.v1.AiSessionService/CreateAiSession"
 	AiSessionService_CreateAiSessionBranch_FullMethodName = "/base.v1.AiSessionService/CreateAiSessionBranch"
 	AiSessionService_UpdateAiSession_FullMethodName       = "/base.v1.AiSessionService/UpdateAiSession"
+	AiSessionService_SetAiSessionPlugins_FullMethodName   = "/base.v1.AiSessionService/SetAiSessionPlugins"
 	AiSessionService_DeleteAiSession_FullMethodName       = "/base.v1.AiSessionService/DeleteAiSession"
 )
 
@@ -44,6 +45,8 @@ type AiSessionServiceClient interface {
 	CreateAiSessionBranch(ctx context.Context, in *CreateAiSessionBranchRequest, opts ...grpc.CallOption) (*CreateAiSessionBranchResponse, error)
 	// 更新 AI 助手会话
 	UpdateAiSession(ctx context.Context, in *UpdateAiSessionRequest, opts ...grpc.CallOption) (*UpdateAiSessionResponse, error)
+	// 保存本人会话选用插件；不立即执行工具。
+	SetAiSessionPlugins(ctx context.Context, in *SetAiSessionPluginsRequest, opts ...grpc.CallOption) (*UpdateAiSessionResponse, error)
 	// 删除 AI 助手会话
 	DeleteAiSession(ctx context.Context, in *DeleteAiSessionRequest, opts ...grpc.CallOption) (*DeleteAiSessionResponse, error)
 }
@@ -106,6 +109,16 @@ func (c *aiSessionServiceClient) UpdateAiSession(ctx context.Context, in *Update
 	return out, nil
 }
 
+func (c *aiSessionServiceClient) SetAiSessionPlugins(ctx context.Context, in *SetAiSessionPluginsRequest, opts ...grpc.CallOption) (*UpdateAiSessionResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(UpdateAiSessionResponse)
+	err := c.cc.Invoke(ctx, AiSessionService_SetAiSessionPlugins_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *aiSessionServiceClient) DeleteAiSession(ctx context.Context, in *DeleteAiSessionRequest, opts ...grpc.CallOption) (*DeleteAiSessionResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(DeleteAiSessionResponse)
@@ -132,6 +145,8 @@ type AiSessionServiceServer interface {
 	CreateAiSessionBranch(context.Context, *CreateAiSessionBranchRequest) (*CreateAiSessionBranchResponse, error)
 	// 更新 AI 助手会话
 	UpdateAiSession(context.Context, *UpdateAiSessionRequest) (*UpdateAiSessionResponse, error)
+	// 保存本人会话选用插件；不立即执行工具。
+	SetAiSessionPlugins(context.Context, *SetAiSessionPluginsRequest) (*UpdateAiSessionResponse, error)
 	// 删除 AI 助手会话
 	DeleteAiSession(context.Context, *DeleteAiSessionRequest) (*DeleteAiSessionResponse, error)
 	mustEmbedUnimplementedAiSessionServiceServer()
@@ -158,6 +173,9 @@ func (UnimplementedAiSessionServiceServer) CreateAiSessionBranch(context.Context
 }
 func (UnimplementedAiSessionServiceServer) UpdateAiSession(context.Context, *UpdateAiSessionRequest) (*UpdateAiSessionResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method UpdateAiSession not implemented")
+}
+func (UnimplementedAiSessionServiceServer) SetAiSessionPlugins(context.Context, *SetAiSessionPluginsRequest) (*UpdateAiSessionResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method SetAiSessionPlugins not implemented")
 }
 func (UnimplementedAiSessionServiceServer) DeleteAiSession(context.Context, *DeleteAiSessionRequest) (*DeleteAiSessionResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method DeleteAiSession not implemented")
@@ -273,6 +291,24 @@ func _AiSessionService_UpdateAiSession_Handler(srv interface{}, ctx context.Cont
 	return interceptor(ctx, in, info, handler)
 }
 
+func _AiSessionService_SetAiSessionPlugins_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SetAiSessionPluginsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AiSessionServiceServer).SetAiSessionPlugins(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AiSessionService_SetAiSessionPlugins_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AiSessionServiceServer).SetAiSessionPlugins(ctx, req.(*SetAiSessionPluginsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _AiSessionService_DeleteAiSession_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(DeleteAiSessionRequest)
 	if err := dec(in); err != nil {
@@ -317,6 +353,10 @@ var AiSessionService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "UpdateAiSession",
 			Handler:    _AiSessionService_UpdateAiSession_Handler,
+		},
+		{
+			MethodName: "SetAiSessionPlugins",
+			Handler:    _AiSessionService_SetAiSessionPlugins_Handler,
 		},
 		{
 			MethodName: "DeleteAiSession",

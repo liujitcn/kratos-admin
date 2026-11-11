@@ -4,24 +4,6 @@ import type { AiSession } from '../../../../rpc/base/v1/ai_session'
 import { useI18n } from '@liujitcn/kratos-uni-app-core'
 import { useThemeStore } from '@liujitcn/kratos-uni-app-core/stores'
 
-type PressPoint = {
-  clientX?: number
-  clientY?: number
-  pageX?: number
-  pageY?: number
-  x?: number
-  y?: number
-}
-
-type PressEvent = {
-  detail?: {
-    x?: number
-    y?: number
-  }
-  touches?: PressPoint[]
-  changedTouches?: PressPoint[]
-}
-
 type InputEventValue = {
   detail: {
     value: string
@@ -41,7 +23,6 @@ const emit = defineEmits<{
   close: []
   create: []
   select: [sessionID: string]
-  action: [session: AiSession, event?: PressEvent]
   'update:keyword': [value: string]
 }>()
 const { t } = useI18n()
@@ -103,21 +84,17 @@ function formatSessionTime(session: AiSession) {
         class="session-item"
         :class="{ 'is-active': session.id === activeSessionId }"
         @tap="emit('select', session.id)"
-        @longpress="emit('action', session, $event)"
       >
         <view class="session-content">
           <view class="session-row">
-            <view class="session-title">{{ session.title }}</view>
+            <view class="session-title"
+              >{{ session.automation_run_id ? `${t('system.ai.workspace.automations')} · ` : ''
+              }}{{ session.title }}</view
+            >
             <view class="session-time">{{ formatSessionTime(session) }}</view>
           </view>
           <view class="session-summary">{{ session.summary || t('system.ai.no_summary') }}</view>
         </view>
-        <button class="session-more" hover-class="none" @tap.stop="emit('action', session, $event)">
-          <view class="session-more__dot"></view>
-          <view class="session-more__dot"></view>
-          <view class="session-more__dot"></view>
-          <view></view>
-        </button>
       </view>
       <view v-if="!loading && !sessions.length" class="session-empty">{{
         t('system.ai.no_matching_sessions')

@@ -108,6 +108,17 @@ func (s *redactedAiSessionServiceServer) UpdateAiSession(ctx context.Context, in
 	return res, err
 }
 
+// SetAiSessionPlugins is the redacted wrapper for the actual AiSessionServiceServer.SetAiSessionPlugins method
+// Unary RPC
+func (s *redactedAiSessionServiceServer) SetAiSessionPlugins(ctx context.Context, in *SetAiSessionPluginsRequest) (*UpdateAiSessionResponse, error) {
+	res, err := s.srv.SetAiSessionPlugins(ctx, in)
+	if !s.bypass.CheckInternal(ctx) {
+		// Apply redaction to the response
+		redact.ApplyWith(redact.WithDirection(redact.WithOperation(ctx, "/base.v1.AiSessionService/SetAiSessionPlugins"), redact.DirectionResponse), nil, res)
+	}
+	return res, err
+}
+
 // DeleteAiSession is the redacted wrapper for the actual AiSessionServiceServer.DeleteAiSession method
 // Unary RPC
 func (s *redactedAiSessionServiceServer) DeleteAiSession(ctx context.Context, in *DeleteAiSessionRequest) (*DeleteAiSessionResponse, error) {
@@ -151,8 +162,6 @@ func (x *ListAiSessionRequest) Redact() {
 	if x == nil {
 		return
 	}
-
-	// Safe field: Terminal
 }
 
 // Ensure ListAiSessionResponse implements the Redactor interface at compile time.
@@ -179,6 +188,8 @@ func (x *CreateAiSessionRequest) Redact() {
 	// Safe field: Title
 
 	// Safe field: Terminal
+
+	// Safe field: Plugins
 }
 
 // Ensure CreateAiSessionResponse implements the Redactor interface at compile time.
@@ -286,13 +297,21 @@ func (x *AiSession) Redact() {
 
 	// Safe field: TenantId
 
+	// Safe field: Terminal
+
 	// Safe field: Title
 
 	// Safe field: Summary
 
-	// Safe field: UpdatedAt
+	// Safe field: Plugins
 
-	// Safe field: Terminal
+	// Safe field: AutomationId
+
+	// Safe field: AutomationRunId
+
+	// Safe field: ReadOnly
+
+	// Safe field: UpdatedAt
 }
 
 // Ensure AiMessage implements the Redactor interface at compile time.
@@ -407,4 +426,18 @@ func (x *AiAttachment) Redact() {
 	// Safe field: Url
 
 	// Safe field: MimeType
+}
+
+// Ensure SetAiSessionPluginsRequest implements the Redactor interface at compile time.
+var _ redact.Redactor = (*SetAiSessionPluginsRequest)(nil)
+
+// Redact method implementation for SetAiSessionPluginsRequest
+func (x *SetAiSessionPluginsRequest) Redact() {
+	if x == nil {
+		return
+	}
+
+	// Safe field: Id
+
+	// Safe field: Plugins
 }

@@ -1,17 +1,30 @@
 <script setup lang="ts">
 import KratosNavBar from '@liujitcn/kratos-uni-app-core/components/KratosNavBar.vue'
 import { onLoad } from '@dcloudio/uni-app'
-import { ref } from 'vue'
-import { t } from '@liujitcn/kratos-uni-app-core'
+import { computed, ref } from 'vue'
+import { navigateAppView, t } from '@liujitcn/kratos-uni-app-core'
 import { useThemeStore } from '@liujitcn/kratos-uni-app-core/stores'
 import { defNotificationService } from '../../../api/base/v1/notification'
 import type { NotificationDetail } from '../../../rpc/base/v1/notification'
-import { MessageContentFormat } from '../../../rpc/base/v1/notification'
+import { MessageActionType, MessageContentFormat } from '../../../rpc/base/v1/notification'
 import { resolvePersistedMessage } from '../../../utils/persisted-message'
 import { resolveMessageCategoryIcon } from './icons'
+import { parseAiResultParams } from '../ai/resultLink'
 
 const themeStore = useThemeStore()
 const detail = ref<NotificationDetail>()
+const aiResultTarget = computed(() => {
+  if (
+    detail.value?.action_type !== MessageActionType.MESSAGE_ACTION_TYPE_VIEW_KEY ||
+    detail.value.action_target !== 'AI'
+  )
+    return undefined
+  try {
+    return parseAiResultParams(JSON.parse(detail.value.action_params))
+  } catch {
+    return undefined
+  }
+})
 
 onLoad((options) => {
   const id = Number(options?.id)
@@ -49,6 +62,9 @@ async function loadDetail(id: number) {
         :nodes="resolvePersistedMessage(detail.content)"
       />
       <text v-else class="detail-content">{{ resolvePersistedMessage(detail.content) }}</text>
+      <button v-if="aiResultTarget" @tap="navigateAppView('AI', aiResultTarget)">
+        {{ t('system.ai.workspace.view_result') }}
+      </button>
     </template>
     <view v-else class="detail-loading">{{ t('core.status.loading') }}</view>
   </view>

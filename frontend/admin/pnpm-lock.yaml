@@ -347,6 +347,9 @@ importers:
       '@liujitcn/kratos-admin-core':
         specifier: workspace:*
         version: link:../../core
+      '@liujitcn/kratos-admin-system':
+        specifier: workspace:*
+        version: link:../../system
       '@vueuse/core':
         specifier: 14.4.0
         version: 14.4.0(vue@3.5.42(typescript@6.0.3))

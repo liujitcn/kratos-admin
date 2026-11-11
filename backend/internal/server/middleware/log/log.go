@@ -174,6 +174,7 @@ func ReplayAdminEvent(
 		if err != nil {
 			return fmt.Errorf("解析 Admin 操作审计事件失败: %w", err)
 		}
+		normalizeAdminLogJSON(item)
 		item.ID = recordID
 		item.CreatedAt = time.Now()
 		return createLogRecord(ctx, item.ID, item, operationLogRepo.Create, operationLogRepo.FindByID)
@@ -183,6 +184,7 @@ func ReplayAdminEvent(
 		if err != nil {
 			return fmt.Errorf("解析 Admin 数据访问审计事件失败: %w", err)
 		}
+		normalizeAdminLogJSON(item)
 		item.ID = recordID
 		item.CreatedAt = time.Now()
 		return createLogRecord(ctx, item.ID, item, dataAccessLogRepo.Create, dataAccessLogRepo.FindByID)
@@ -192,6 +194,7 @@ func ReplayAdminEvent(
 		if err != nil {
 			return fmt.Errorf("解析 Admin 权限审计事件失败: %w", err)
 		}
+		normalizeAdminLogJSON(item)
 		item.ID = recordID
 		item.CreatedAt = time.Now()
 		return createLogRecord(ctx, item.ID, item, permissionLogRepo.Create, permissionLogRepo.FindByID)
@@ -359,7 +362,7 @@ func (m *Middleware) buildEvent(task adminTask) (adminEvent, bool, error) {
 		item = &models.BaseOperationLog{
 			TenantID: info.TenantID, TenantCode: info.TenantCode, UserID: info.UserID, UserName: info.UserName,
 			RequestID: info.RequestID, TraceID: info.TraceID, ResourceType: "user_consent", ResourceID: strconv.FormatInt(info.UserID, 10), ResourceName: info.UserName,
-			AfterData: string(snapshot), Action: int32(adminv1.BaseOperationAction_BASE_OPERATION_ACTION_CREATE), Result: info.Result, OccurredAt: info.OccurredAt,
+			ChangedFields: "[]", BeforeData: "{}", AfterData: string(snapshot), Action: int32(adminv1.BaseOperationAction_BASE_OPERATION_ACTION_CREATE), Result: info.Result, OccurredAt: info.OccurredAt,
 		}
 	case "login":
 		loginTypeValue, ok := loginType(info.Operation)
@@ -1210,6 +1213,33 @@ func createLogRecord[T any](ctx context.Context, id int64, item *T, create func(
 		return nil
 	}
 	return err
+}
+
+// normalizeAdminLogJSON 为历史审计载荷补齐可入库的空 JSON 默认值。
+func normalizeAdminLogJSON(value any) {
+	switch item := value.(type) {
+	case *models.BaseOperationLog:
+		if item.ChangedFields == "" {
+			item.ChangedFields = "[]"
+		}
+		if item.BeforeData == "" {
+			item.BeforeData = "{}"
+		}
+		if item.AfterData == "" {
+			item.AfterData = "{}"
+		}
+	case *models.BaseDataAccessLog:
+		if item.FieldScope == "" {
+			item.FieldScope = "[]"
+		}
+	case *models.BasePermissionLog:
+		if item.OldValue == "" {
+			item.OldValue = "{}"
+		}
+		if item.NewValue == "" {
+			item.NewValue = "{}"
+		}
+	}
 }
 
 var agreementDigestPattern = regexp.MustCompile(`^[a-f0-9]{64}$`)

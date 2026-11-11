@@ -1,0 +1,11 @@
+.panel-row { display: flex; align-items: center; flex-wrap: wrap; gap: 12rpx; margin: 12rpx 0; }
+.panel-row button { margin: 0; }
+.panel-title { font-weight: 600; font-size: 28rpx; }
+.panel-content { flex: 1; min-height: 0; }
+.panel-hint { color: var(--kratos-color-text-muted); font-size: 24rpx; line-height: 1.6; margin: 12rpx 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+.panel-error { color: var(--kratos-color-danger, #d04b4b); font-size: 24rpx; margin: 12rpx 0; white-space: pre-wrap; }
+.panel-card { padding: 24rpx; margin-bottom: 20rpx; border: 1rpx solid var(--kratos-color-border); border-radius: var(--kratos-page-radius); background: var(--kratos-color-surface); overflow-wrap: anywhere; }
+.panel-search { min-height: 64rpx; padding: 12rpx 20rpx; margin: 12rpx 0; border: 1rpx solid var(--kratos-color-border); border-radius: var(--kratos-page-radius); background: var(--kratos-color-surface); font-size: 26rpx; }
+.panel-link { color: var(--kratos-color-primary); font-size: 24rpx; margin: 12rpx 0; }
+
+.is-active { color: var(--kratos-color-on-primary); background: var(--kratos-color-primary); }

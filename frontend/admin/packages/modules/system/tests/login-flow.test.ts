@@ -14,14 +14,14 @@ test("强制改密弹窗挂载到 body，遮罩覆盖完整布局", async () => 
   assert.match(source, /:show-footer="false"/);
 });
 
-test("登录完成后使用统一回跳逻辑，不强制跳转个人信息页", async () => {
+test("密码过期时先进入个人中心密码页，避免加载受保护业务页", async () => {
   const source = await readSource("../../core/src/views/login/components/LoginForm.vue");
 
+  assert.match(source, /await navigateTo\(router, "\/profile", \{ tab: "password" \}\)/);
   assert.match(source, /await navigateTo\(router, getLoginRedirectPath\(\)\)/);
-  assert.doesNotMatch(source, /navigateTo\(router, ["']\/profile["']/);
 });
 
-test("登录成功后才加载当前租户自定义翻译", async () => {
+test("仅普通登录加载当前租户自定义翻译", async () => {
   const [loginSource, configSource] = await Promise.all([
     readSource("../../core/src/views/login/components/LoginForm.vue"),
     readSource("../../core/src/stores/modules/config.ts")
@@ -33,5 +33,6 @@ test("登录成功后才加载当前租户自定义翻译", async () => {
   assert.ok(displayConfigBlock, "缺少公开站点配置加载方法");
   assert.ok(loginResponseBlock.indexOf("updateTokenAuth") < loginResponseBlock.indexOf("loadI18nCustom"));
   assert.ok(loginResponseBlock.indexOf("loadI18nCustom") < loginResponseBlock.indexOf("finishLogin"));
+  assert.match(loginResponseBlock, /if \(!mustChangePassword\) \{[\s\S]*?await configStore\.loadI18nCustom\(\);/);
   assert.doesNotMatch(displayConfigBlock, /applyCustomLocaleMessages/);
 });

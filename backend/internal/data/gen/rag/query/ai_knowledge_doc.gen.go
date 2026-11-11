@@ -33,6 +33,7 @@ func newAiKnowledgeDoc(db *gorm.DB, opts ...gen.DOOption) aiKnowledgeDoc {
 	_aiKnowledgeDoc.ChunkCount = field.NewInt32(tableName, "chunk_count")
 	_aiKnowledgeDoc.FilePath = field.NewString(tableName, "file_path")
 	_aiKnowledgeDoc.FileHash = field.NewString(tableName, "file_hash")
+	_aiKnowledgeDoc.ExtractorConnectionID = field.NewInt64(tableName, "extractor_connection_id")
 	_aiKnowledgeDoc.Status = field.NewInt32(tableName, "status")
 	_aiKnowledgeDoc.ErrorMessage = field.NewString(tableName, "error_message")
 	_aiKnowledgeDoc.CreatedBy = field.NewInt64(tableName, "created_by")
@@ -49,19 +50,20 @@ func newAiKnowledgeDoc(db *gorm.DB, opts ...gen.DOOption) aiKnowledgeDoc {
 type aiKnowledgeDoc struct {
 	aiKnowledgeDocDo aiKnowledgeDocDo
 
-	ALL             field.Asterisk
-	ID              field.Int64  // AI知识库文档ID
-	KnowledgeBaseID field.Int64  // 所属知识库ID
-	Name            field.String // 文档名称
-	ChunkCount      field.Int32  // 切片数量
-	FilePath        field.String // 原始文件对象存储路径
-	FileHash        field.String // 原始文件SHA256哈希
-	Status          field.Int32  // 处理状态：枚举【AiKnowledgeDocStatus】
-	ErrorMessage    field.String // 处理失败原因
-	CreatedBy       field.Int64  // 创建人ID
-	CreatedAt       field.Time   // 创建时间
-	UpdatedAt       field.Time   // 更新时间
-	DeletedAt       field.Field  // 删除时间
+	ALL                   field.Asterisk
+	ID                    field.Int64  // AI知识库文档ID
+	KnowledgeBaseID       field.Int64  // 所属知识库ID
+	Name                  field.String // 文档名称
+	ChunkCount            field.Int32  // 切片数量
+	FilePath              field.String // 原始文件对象存储路径
+	FileHash              field.String // 原始文件SHA256哈希
+	ExtractorConnectionID field.Int64  // Xberg MCP抽取连接ID
+	Status                field.Int32  // 处理状态：枚举【AiKnowledgeDocStatus】
+	ErrorMessage          field.String // 处理失败原因
+	CreatedBy             field.Int64  // 创建人ID
+	CreatedAt             field.Time   // 创建时间
+	UpdatedAt             field.Time   // 更新时间
+	DeletedAt             field.Field  // 删除时间
 
 	fieldMap map[string]field.Expr
 }
@@ -84,6 +86,7 @@ func (a *aiKnowledgeDoc) updateTableName(table string) *aiKnowledgeDoc {
 	a.ChunkCount = field.NewInt32(table, "chunk_count")
 	a.FilePath = field.NewString(table, "file_path")
 	a.FileHash = field.NewString(table, "file_hash")
+	a.ExtractorConnectionID = field.NewInt64(table, "extractor_connection_id")
 	a.Status = field.NewInt32(table, "status")
 	a.ErrorMessage = field.NewString(table, "error_message")
 	a.CreatedBy = field.NewInt64(table, "created_by")
@@ -118,13 +121,14 @@ func (a *aiKnowledgeDoc) GetFieldByName(fieldName string) (field.OrderExpr, bool
 }
 
 func (a *aiKnowledgeDoc) fillFieldMap() {
-	a.fieldMap = make(map[string]field.Expr, 12)
+	a.fieldMap = make(map[string]field.Expr, 13)
 	a.fieldMap["id"] = a.ID
 	a.fieldMap["knowledge_base_id"] = a.KnowledgeBaseID
 	a.fieldMap["name"] = a.Name
 	a.fieldMap["chunk_count"] = a.ChunkCount
 	a.fieldMap["file_path"] = a.FilePath
 	a.fieldMap["file_hash"] = a.FileHash
+	a.fieldMap["extractor_connection_id"] = a.ExtractorConnectionID
 	a.fieldMap["status"] = a.Status
 	a.fieldMap["error_message"] = a.ErrorMessage
 	a.fieldMap["created_by"] = a.CreatedBy

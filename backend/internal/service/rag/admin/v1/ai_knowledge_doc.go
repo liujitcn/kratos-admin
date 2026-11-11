@@ -34,7 +34,7 @@ func (s *AiKnowledgeDocService) PageAiKnowledgeDoc(ctx context.Context, req *adm
 
 // UploadAiKnowledgeDocText 上传纯文本文档。
 func (s *AiKnowledgeDocService) UploadAiKnowledgeDocText(ctx context.Context, req *adminv1.UploadAiKnowledgeDocTextRequest) (*emptypb.Empty, error) {
-	err := s.aiKnowledgeDocCase.UploadAiKnowledgeDocText(ctx, req.GetId(), req.GetName(), req.GetContent())
+	err := s.aiKnowledgeDocCase.UploadAiKnowledgeDocText(ctx, req.GetId(), req.GetName(), req.GetContent(), req.GetExtractorConnectionId())
 	if err != nil {
 		log.Error(fmt.Sprintf("UploadAiKnowledgeDocText %v", err))
 		return nil, errorsx.WrapInternal(err, "上传AI知识库文档失败")
@@ -44,7 +44,7 @@ func (s *AiKnowledgeDocService) UploadAiKnowledgeDocText(ctx context.Context, re
 
 // UploadAiKnowledgeDocFile 上传文档文件。
 func (s *AiKnowledgeDocService) UploadAiKnowledgeDocFile(ctx context.Context, req *adminv1.UploadAiKnowledgeDocFileRequest) (*emptypb.Empty, error) {
-	err := s.aiKnowledgeDocCase.UploadAiKnowledgeDocFile(ctx, req.GetId(), req.GetFileName(), req.GetContentBase64(), req.GetDocName())
+	err := s.aiKnowledgeDocCase.UploadAiKnowledgeDocFile(ctx, req.GetId(), req.GetFileName(), req.GetContentBase64(), req.GetDocName(), req.GetExtractorConnectionId())
 	if err != nil {
 		log.Error(fmt.Sprintf("UploadAiKnowledgeDocFile %v", err))
 		return nil, errorsx.WrapInternal(err, "上传AI知识库文档失败")

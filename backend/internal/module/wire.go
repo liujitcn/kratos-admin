@@ -16,6 +16,7 @@ import (
 	logmiddleware "github.com/liujitcn/kratos-admin/backend/internal/server/middleware/log"
 	"github.com/liujitcn/kratos-admin/backend/internal/service"
 	"github.com/liujitcn/kratos-admin/backend/internal/task"
+	"github.com/liujitcn/kratos-admin/backend/pkg/aiautomation"
 	"github.com/liujitcn/kratos-admin/backend/pkg/bi"
 	"github.com/liujitcn/kratos-admin/backend/pkg/projectaccess"
 	"github.com/liujitcn/kratos-admin/backend/pkg/scripting"
@@ -37,6 +38,7 @@ import (
 
 // BuildModules 使用宿主共享的任务管理器装配 Admin 协议服务。
 func BuildModules(
+	dispatcher *aiautomation.Dispatcher,
 	migrations *migration.Migration,
 	config *configv1.Bootstrap,
 	databases map[string]*gorm.Client,
@@ -72,6 +74,7 @@ func BuildModules(
 
 // BuildTasks 通过最小依赖集合装配 Admin 定时任务。
 func BuildTasks(
+	dispatcher *aiautomation.Dispatcher,
 	databases map[string]*gorm.Client,
 	baseCase *coreBiz.BaseCase,
 	catalog *i18n.I18n,

@@ -47,6 +47,7 @@ service LoginService {
       body: "*"
     };
   }
+
 }
 
 // LoginStatus 表示登录请求当前所处的认证阶段。

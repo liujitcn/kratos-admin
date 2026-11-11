@@ -47,6 +47,12 @@ func NewAiSessionServiceAgentTools(aiSessionServiceServer AiSessionServiceServer
 		return nil, err
 	}
 	ts = append(ts, updateAiSessionTool)
+	var setAiSessionPluginsTool tool.InvokableTool
+	setAiSessionPluginsTool, err = NewAiSessionServiceSetAiSessionPluginsAgentTool(aiSessionServiceServer)
+	if err != nil {
+		return nil, err
+	}
+	ts = append(ts, setAiSessionPluginsTool)
 	var deleteAiSessionTool tool.InvokableTool
 	deleteAiSessionTool, err = NewAiSessionServiceDeleteAiSessionAgentTool(aiSessionServiceServer)
 	if err != nil {
@@ -122,6 +128,20 @@ func NewAiSessionServiceUpdateAiSessionAgentTool(aiSessionServiceServer AiSessio
 				req = &UpdateAiSessionRequest{}
 			}
 			return aiSessionServiceServer.UpdateAiSession(ctx, req)
+		},
+	)
+}
+
+// NewAiSessionServiceSetAiSessionPluginsAgentTool 创建保存本人会话选用插件；不立即执行工具的 Agent Tool。
+func NewAiSessionServiceSetAiSessionPluginsAgentTool(aiSessionServiceServer AiSessionServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*SetAiSessionPluginsRequest, *UpdateAiSessionResponse](
+		"base_v1_ai_session_service_set_ai_session_plugins",
+		"保存本人会话选用插件；不立即执行工具。",
+		func(ctx context.Context, req *SetAiSessionPluginsRequest) (*UpdateAiSessionResponse, error) {
+			if req == nil {
+				req = &SetAiSessionPluginsRequest{}
+			}
+			return aiSessionServiceServer.SetAiSessionPlugins(ctx, req)
 		},
 	)
 }

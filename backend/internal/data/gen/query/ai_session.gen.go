@@ -36,6 +36,10 @@ func newAiSession(db *gorm.DB, opts ...gen.DOOption) aiSession {
 	_aiSession.CreatedAt = field.NewTime(tableName, "created_at")
 	_aiSession.UpdatedAt = field.NewTime(tableName, "updated_at")
 	_aiSession.DeletedAt = field.NewField(tableName, "deleted_at")
+	_aiSession.Plugins = field.NewString(tableName, "plugins")
+	_aiSession.AutomationID = field.NewInt64(tableName, "automation_id")
+	_aiSession.AutomationRunID = field.NewInt64(tableName, "automation_run_id")
+	_aiSession.ResultReferenceID = field.NewInt64(tableName, "result_reference_id")
 
 	_aiSession.fillFieldMap()
 
@@ -46,16 +50,20 @@ func newAiSession(db *gorm.DB, opts ...gen.DOOption) aiSession {
 type aiSession struct {
 	aiSessionDo aiSessionDo
 
-	ALL       field.Asterisk
-	ID        field.Int64  // 会话ID
-	TenantID  field.Int64  // 租户ID
-	UserID    field.Int64  // 所属用户ID
-	Terminal  field.Int32  // 终端类型：枚举【Terminal】
-	Title     field.String // 会话标题
-	Summary   field.String // 会话摘要
-	CreatedAt field.Time   // 创建时间
-	UpdatedAt field.Time   // 更新时间
-	DeletedAt field.Field  // 删除时间
+	ALL               field.Asterisk
+	ID                field.Int64  // 会话ID
+	TenantID          field.Int64  // 租户ID
+	UserID            field.Int64  // 所属用户ID
+	Terminal          field.Int32  // 终端类型：枚举【Terminal】
+	Title             field.String // 会话标题
+	Summary           field.String // 会话摘要
+	CreatedAt         field.Time   // 创建时间
+	UpdatedAt         field.Time   // 更新时间
+	DeletedAt         field.Field  // 删除时间
+	Plugins           field.String // 选用插件与连接
+	AutomationID      field.Int64  // 来源自动化ID
+	AutomationRunID   field.Int64  // 来源执行ID
+	ResultReferenceID field.Int64  // 继续讨论的来源执行ID
 
 	fieldMap map[string]field.Expr
 }
@@ -81,6 +89,10 @@ func (a *aiSession) updateTableName(table string) *aiSession {
 	a.CreatedAt = field.NewTime(table, "created_at")
 	a.UpdatedAt = field.NewTime(table, "updated_at")
 	a.DeletedAt = field.NewField(table, "deleted_at")
+	a.Plugins = field.NewString(table, "plugins")
+	a.AutomationID = field.NewInt64(table, "automation_id")
+	a.AutomationRunID = field.NewInt64(table, "automation_run_id")
+	a.ResultReferenceID = field.NewInt64(table, "result_reference_id")
 
 	a.fillFieldMap()
 
@@ -107,7 +119,7 @@ func (a *aiSession) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (a *aiSession) fillFieldMap() {
-	a.fieldMap = make(map[string]field.Expr, 9)
+	a.fieldMap = make(map[string]field.Expr, 13)
 	a.fieldMap["id"] = a.ID
 	a.fieldMap["tenant_id"] = a.TenantID
 	a.fieldMap["user_id"] = a.UserID
@@ -117,6 +129,10 @@ func (a *aiSession) fillFieldMap() {
 	a.fieldMap["created_at"] = a.CreatedAt
 	a.fieldMap["updated_at"] = a.UpdatedAt
 	a.fieldMap["deleted_at"] = a.DeletedAt
+	a.fieldMap["plugins"] = a.Plugins
+	a.fieldMap["automation_id"] = a.AutomationID
+	a.fieldMap["automation_run_id"] = a.AutomationRunID
+	a.fieldMap["result_reference_id"] = a.ResultReferenceID
 }
 
 func (a aiSession) clone(db *gorm.DB) aiSession {

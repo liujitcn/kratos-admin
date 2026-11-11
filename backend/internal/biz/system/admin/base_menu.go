@@ -189,6 +189,7 @@ func (c *BaseMenuCase) GetBaseMenu(ctx context.Context, id int64) (*adminv1.Base
 // CreateBaseMenu 创建菜单
 func (c *BaseMenuCase) CreateBaseMenu(ctx context.Context, req *adminv1.BaseMenuForm) error {
 	baseMenu := c.formMapper.ToEntity(req)
+	normalizeBaseMenuJSON(baseMenu)
 	var err error
 	err = c.tx.Transaction(ctx, func(ctx context.Context) error {
 		err = c.createBaseMenu(ctx, baseMenu)
@@ -207,6 +208,7 @@ func (c *BaseMenuCase) CreateBaseMenu(ctx context.Context, req *adminv1.BaseMenu
 // UpdateBaseMenu 更新菜单
 func (c *BaseMenuCase) UpdateBaseMenu(ctx context.Context, req *adminv1.BaseMenuForm) error {
 	baseMenu := c.formMapper.ToEntity(req)
+	normalizeBaseMenuJSON(baseMenu)
 	var err error
 	err = c.tx.Transaction(ctx, func(ctx context.Context) error {
 		var currentMenu *models.BaseMenu
@@ -516,6 +518,9 @@ func (c *BaseMenuCase) saveBaseI18n(ctx context.Context, req *adminv1.BaseMenuFo
 		if err != nil {
 			return err
 		}
+		if metadata == nil {
+			metadata = make(map[string]any)
+		}
 		metadata["title"] = title
 		var payload []byte
 		payload, err = json.Marshal(metadata)
@@ -728,4 +733,14 @@ func baseMenuIDLevel(menuID int64) int {
 // isAppMenuID 判断菜单编号是否属于固定移动端菜单树。
 func isAppMenuID(menuID int64) bool {
 	return menuID >= _const.BASE_MENU_APP_ROOT_ID && menuID < _const.BASE_MENU_APP_ROOT_ID+1000000
+}
+
+// normalizeBaseMenuJSON 为菜单补齐可入库的 JSON 默认值。
+func normalizeBaseMenuJSON(item *models.BaseMenu) {
+	if item.Meta == "" || item.Meta == "null" {
+		item.Meta = "{}"
+	}
+	if item.API == "" || item.API == "null" {
+		item.API = "[]"
+	}
 }

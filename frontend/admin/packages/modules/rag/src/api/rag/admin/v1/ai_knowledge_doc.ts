@@ -21,7 +21,11 @@ export class AiKnowledgeDocServiceImpl implements AiKnowledgeDocService {
 
   /** 上传纯文本文档。 */
   UploadAiKnowledgeDocText(request: UploadAiKnowledgeDocTextRequest): Promise<Empty> {
-    return service({ url: `${AI_KNOWLEDGE_URL}/${request.id}/doc/text`, method: "post", data: { name: request.name, content: request.content } });
+    return service({
+      url: `${AI_KNOWLEDGE_URL}/${request.id}/doc/text`,
+      method: "post",
+      data: { name: request.name, content: request.content, extractor_connection_id: request.extractor_connection_id }
+    });
   }
 
   /** 上传文档文件。 */

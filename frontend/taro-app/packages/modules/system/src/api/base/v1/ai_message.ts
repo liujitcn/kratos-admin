@@ -203,11 +203,12 @@ export function StreamAiMessageByChunkedRequest(
 
 /** AI 助手消息服务。 */
 export class AiMessageServiceImpl implements AiMessageService {
-  /** 共用契约的审批入口；移动端会话由服务端拒绝写入审批。 */
+  /** 确认或拒绝本人待执行操作，执行权限由服务端逐次校验。 */
   DecideAiToolApproval(request: DecideAiToolApprovalRequest): Promise<SendAiMessageResponse> {
     return http<SendAiMessageResponse>({
       url: `${AI_SESSION_URL}/${request.session_id}/message/${request.message_id}/approval`,
       method: 'POST',
+      authMode: 'required',
       data: request,
     })
   }

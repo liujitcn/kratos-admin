@@ -49,6 +49,8 @@ export interface AiKnowledgeDoc {
   status: AiKnowledgeDocStatus;
   /** 失败原因 */
   error_message: string;
+  /** Xberg MCP抽取连接ID */
+  extractor_connection_id: number;
   /** 创建时间 */
   created_at: string;
 }
@@ -61,18 +63,22 @@ export interface UploadAiKnowledgeDocTextRequest {
   name: string;
   /** 文档文本内容 */
   content: string;
+  /** 已连接的Xberg MCP连接ID */
+  extractor_connection_id: number;
 }
 
 /** 上传文档文件请求。 */
 export interface UploadAiKnowledgeDocFileRequest {
   /** 知识库ID */
   id: number;
-  /** 原始文件名 */
+  /** 原始文件名（供Xberg MCP识别文件格式） */
   file_name: string;
   /** 文件内容（≤10MB） */
   content_base64: Uint8Array;
   /** 文档显示名 */
   doc_name: string;
+  /** 已连接的Xberg MCP连接ID */
+  extractor_connection_id: number;
 }
 
 /** 删除文档请求。 */
@@ -91,9 +97,9 @@ export interface ReprocessAiKnowledgeDocRequest {
 export interface AiKnowledgeDocService {
   /** 分页查询知识库下的文档。 */
   PageAiKnowledgeDoc(request: PageAiKnowledgeDocRequest): Promise<PageAiKnowledgeDocResponse>;
-  /** 上传纯文本文档（切片 → 向量化 → 落库）。 */
+  /** 上传纯文本文档（由 Xberg MCP 抽取后切片、向量化并落库）。 */
   UploadAiKnowledgeDocText(request: UploadAiKnowledgeDocTextRequest): Promise<Empty>;
-  /** 上传文档文件（txt/md/docx/pdf：抽取文本后走同一入库链）。 */
+  /** 上传文档文件（由 Xberg MCP 抽取后切片、向量化并落库）。 */
   UploadAiKnowledgeDocFile(request: UploadAiKnowledgeDocFileRequest): Promise<Empty>;
   /** 删除文档（级联删除切片）。 */
   DeleteAiKnowledgeDoc(request: DeleteAiKnowledgeDocRequest): Promise<Empty>;

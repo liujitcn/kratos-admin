@@ -1,0 +1,126 @@
+syntax = "proto3";
+
+package base.v1;
+
+import "buf/validate/validate.proto";
+import "gnostic/openapi/v3/annotations.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+
+// AI 助手文件服务，只管理当前租户的 AI 上传和生成文件。
+service AiFileService {
+  // 分页查询 AI 文件。
+  rpc PageAiFile(PageAiFileRequest) returns (PageAiFileResponse) {
+    option (google.api.http) = {get: "/api/v1/base/ai/file"};
+  }
+  // 重命名 AI 文件，只修改元数据。
+  rpc RenameAiFile(RenameAiFileRequest) returns (AiFile) {
+    option (google.api.http) = {put: "/api/v1/base/ai/file/{id}/name" body: "*"};
+  }
+  // 将 AI 文件移入回收站。
+  rpc TrashAiFile(TrashAiFileRequest) returns (AiFile) {
+    option (google.api.http) = {put: "/api/v1/base/ai/file/{id}/trash" body: "*"};
+  }
+  // 从回收站恢复 AI 文件。
+  rpc RestoreAiFile(RestoreAiFileRequest) returns (AiFile) {
+    option (google.api.http) = {put: "/api/v1/base/ai/file/{id}/restore" body: "*"};
+  }
+  // 彻底删除 AI 文件及其对象。
+  rpc DeleteAiFile(DeleteAiFileRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {delete: "/api/v1/base/ai/file/{id}"};
+  }
+}
+
+// AI 文件列表视图。
+enum AiFileView {
+  // 未指定视图，按全部活动文件处理。
+  AI_FILE_VIEW_UNSPECIFIED = 0;
+  // 全部活动文件。
+  AI_FILE_VIEW_ALL = 1;
+  // 上传材料。
+  AI_FILE_VIEW_UPLOADED = 2;
+  // 生成成果。
+  AI_FILE_VIEW_GENERATED = 3;
+  // 回收站文件。
+  AI_FILE_VIEW_TRASHED = 4;
+}
+
+// AI 文件分页查询条件。
+message PageAiFileRequest {
+  AiFileView view = 1 [
+    (gnostic.openapi.v3.property) = {description: "文件视图"},
+    (buf.validate.field).enum = {defined_only: true}
+  ]; // 文件视图
+  string keyword = 2 [
+    (gnostic.openapi.v3.property) = {description: "文件名关键字"},
+    (buf.validate.field).cel = {id: "base.ai.file.page.keyword.max_len" message: "文件名关键字不能超过100个字符" expression: "this.size() <= 100"}
+  ]; // 文件名关键字
+  int64 page_num = 101 [
+    (gnostic.openapi.v3.property) = {description: "当前页码", default: {number: 1}},
+    (buf.validate.field).cel = {id: "base.ai.file.page.page_num.positive" message: "页码必须大于0" expression: "this > 0"}
+  ]; // 当前页码
+  int64 page_size = 102 [
+    (gnostic.openapi.v3.property) = {description: "每页行数", default: {number: 20}},
+    (buf.validate.field).cel = {id: "base.ai.file.page.page_size.range" message: "每页行数必须在1到100之间" expression: "this > 0 && this <= 100"}
+  ]; // 每页行数
+}
+
+// AI 文件分页响应。
+message PageAiFileResponse {
+  repeated AiFile files = 1 [(gnostic.openapi.v3.property) = {description: "AI 文件列表"}]; // AI 文件列表
+  int64 total = 2 [(gnostic.openapi.v3.property) = {description: "总数"}]; // 总数
+}
+
+// AI 文件元数据。
+message AiFile {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "文件ID"}]; // 文件ID
+  int64 tenant_id = 2 [(gnostic.openapi.v3.property) = {description: "租户ID"}]; // 租户ID
+  string source_type = 3 [(gnostic.openapi.v3.property) = {description: "来源：upload、generated"}]; // 来源类型
+  string status = 4 [(gnostic.openapi.v3.property) = {description: "状态：active、trashed"}]; // 文件状态
+  string file_name = 5 [(gnostic.openapi.v3.property) = {description: "原始文件名"}]; // 原始文件名
+  string extension = 6 [(gnostic.openapi.v3.property) = {description: "文件扩展名"}]; // 文件扩展名
+  string mime_type = 7 [(gnostic.openapi.v3.property) = {description: "文件MIME类型"}]; // 文件MIME类型
+  int64 size = 8 [(gnostic.openapi.v3.property) = {description: "文件大小，单位字节"}]; // 文件大小
+  string link_url = 9 [(gnostic.openapi.v3.property) = {description: "文件访问地址"}]; // 文件访问地址
+  string content_hash = 10 [(gnostic.openapi.v3.property) = {description: "文件内容SHA-256哈希"}]; // 文件内容哈希
+  int32 access_mode = 11 [(gnostic.openapi.v3.property) = {description: "文件访问方式：1公开，2需要访问令牌"}]; // 文件访问方式
+  google.protobuf.Timestamp created_at = 12 [(gnostic.openapi.v3.property) = {description: "创建时间"}]; // 创建时间
+  google.protobuf.Timestamp updated_at = 13 [(gnostic.openapi.v3.property) = {description: "更新时间"}]; // 更新时间
+}
+
+// AI 文件重命名请求。
+message RenameAiFileRequest {
+  int64 id = 1 [
+    (gnostic.openapi.v3.property) = {description: "文件ID"},
+    (buf.validate.field).cel = {id: "base.ai.file.rename.id.positive" message: "文件ID必须大于0" expression: "this > 0"}
+  ]; // 文件ID
+  string file_name = 2 [
+    (gnostic.openapi.v3.property) = {description: "新的文件名"},
+    (buf.validate.field).cel = {id: "base.ai.file.rename.file_name.valid" message: "文件名不能为空且不能超过255个字符" expression: "this.size() > 0 && this.size() <= 255 && !this.matches('.*[\\r\\n].*')"}
+  ]; // 新的文件名
+}
+
+// AI 文件移入回收站请求。
+message TrashAiFileRequest {
+  int64 id = 1 [
+    (gnostic.openapi.v3.property) = {description: "文件ID"},
+    (buf.validate.field).cel = {id: "base.ai.file.trash.id.positive" message: "文件ID必须大于0" expression: "this > 0"}
+  ]; // 文件ID
+}
+
+// AI 文件恢复请求。
+message RestoreAiFileRequest {
+  int64 id = 1 [
+    (gnostic.openapi.v3.property) = {description: "文件ID"},
+    (buf.validate.field).cel = {id: "base.ai.file.restore.id.positive" message: "文件ID必须大于0" expression: "this > 0"}
+  ]; // 文件ID
+}
+
+// AI 文件彻底删除请求。
+message DeleteAiFileRequest {
+  int64 id = 1 [
+    (gnostic.openapi.v3.property) = {description: "文件ID"},
+    (buf.validate.field).cel = {id: "base.ai.file.delete.id.positive" message: "文件ID必须大于0" expression: "this > 0"}
+  ]; // 文件ID
+}

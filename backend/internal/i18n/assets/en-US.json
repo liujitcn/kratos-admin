@@ -1,4 +1,136 @@
 {
+  "ai.plugin.aipluginform.code": {
+    "other": "The stable code is invalid"
+  },
+  "ai.plugin.aipluginform.config_json": {
+    "other": "The platform-approved network and public OAuth configuration JSON is invalid"
+  },
+  "ai.plugin.aipluginform.description": {
+    "other": "The description is invalid"
+  },
+  "ai.plugin.aipluginform.endpoint": {
+    "other": "The MCP HTTPS URL is invalid"
+  },
+  "ai.plugin.aipluginform.name": {
+    "other": "The name is invalid"
+  },
+  "ai.plugin.aipluginform.source": {
+    "other": "The source is invalid"
+  },
+  "ai.plugin.aipluginform.visibility": {
+    "other": "The visibility scope is invalid"
+  },
+  "ai.plugin.aipluginselection.connection_id": {
+    "other": "The connection ID is invalid; leave it empty for local components"
+  },
+  "ai.plugin.aipluginselection.plugin_id": {
+    "other": "The plugin ID is invalid"
+  },
+  "ai.plugin.completeaipluginoauthrequest.code": {
+    "other": "The authorization code is invalid"
+  },
+  "ai.plugin.completeaipluginoauthrequest.error": {
+    "other": "The provider rejection reason is invalid"
+  },
+  "ai.plugin.completeaipluginoauthrequest.iss": {
+    "other": "The authorization issuer is invalid"
+  },
+  "ai.plugin.completeaipluginoauthrequest.state": {
+    "other": "The one-time authorization state is invalid"
+  },
+  "ai.plugin.createaipluginconnectionrequest.auth_type": {
+    "other": "The authentication method is invalid"
+  },
+  "ai.plugin.createaipluginconnectionrequest.label": {
+    "other": "The account label is invalid"
+  },
+  "ai.plugin.createaipluginconnectionrequest.plugin_id": {
+    "other": "The plugin ID is invalid"
+  },
+  "ai.plugin.deleteaipluginrequest.id": {
+    "other": "The plugin ID is invalid"
+  },
+  "ai.plugin.deleteaipluginrequest.revision": {
+    "other": "The current configuration revision is invalid"
+  },
+  "ai.plugin.disconnectaipluginconnectionrequest.id": {
+    "other": "The connection ID is invalid"
+  },
+  "ai.plugin.disconnectaipluginconnectionrequest.revision": {
+    "other": "The current revision number is invalid"
+  },
+  "ai.plugin.getaipluginrequest.id": {
+    "other": "The plugin ID is invalid"
+  },
+  "ai.plugin.listaipluginconnectionrequest.plugin_id": {
+    "other": "The plugin ID is invalid; leave it empty to include all plugins"
+  },
+  "ai.plugin.listaipluginrequest.keyword": {
+    "other": "The name or code filter is invalid"
+  },
+  "ai.plugin.listaiplugintoolrequest.plugin_id": {
+    "other": "The plugin ID is invalid"
+  },
+  "ai.plugin.reauthorize.id": {
+    "other": "The connection ID is invalid"
+  },
+  "ai.plugin.reauthorize.revision": {
+    "other": "The revision number is invalid"
+  },
+  "ai.plugin.refreshaipluginconnectionrequest.id": {
+    "other": "The connection ID is invalid"
+  },
+  "ai.plugin.refreshaipluginconnectionrequest.revision": {
+    "other": "The current revision number is invalid"
+  },
+  "ai.plugin.setaiplugininstallationrequest.plugin_id": {
+    "other": "The plugin ID is invalid"
+  },
+  "ai.plugin.setaiplugininstallationrequest.revision": {
+    "other": "The current revision number is invalid; use 0 for the initial request"
+  },
+  "ai.plugin.setaiplugininstallationrequest.terminals": {
+    "other": "The allowed clients are invalid"
+  },
+  "ai.plugin.setaiplugintoolpolicyrequest.contract_hash": {
+    "other": "The reviewed contract hash is invalid"
+  },
+  "ai.plugin.setaiplugintoolpolicyrequest.effect": {
+    "other": "The reviewed effect classification is invalid"
+  },
+  "ai.plugin.setaiplugintoolpolicyrequest.plugin_id": {
+    "other": "The plugin ID is invalid"
+  },
+  "ai.plugin.setaiplugintoolpolicyrequest.revision": {
+    "other": "The current policy revision is invalid; use 0 for the initial request"
+  },
+  "ai.plugin.setaiplugintoolpolicyrequest.tool_id": {
+    "other": "The tool ID is invalid"
+  },
+  "ai.plugin.sharing.id": {
+    "other": "The connection ID is invalid"
+  },
+  "ai.plugin.sharing.revision": {
+    "other": "The revision number is invalid"
+  },
+  "ai.plugin.sharing.scope": {
+    "other": "The sharing scope is invalid"
+  },
+  "ai.plugin.startaipluginoauthrequest.id": {
+    "other": "The connection ID is invalid"
+  },
+  "ai.plugin.startaipluginoauthrequest.revision": {
+    "other": "The current revision number is invalid"
+  },
+  "ai.plugin.tool.prompts": {
+    "other": "Provide at most 10 prompts, each no longer than 2,000 characters"
+  },
+  "ai.plugin.updateaipluginrequest.id": {
+    "other": "The plugin ID is invalid"
+  },
+  "ai.plugin.updateaipluginrequest.revision": {
+    "other": "The current configuration revision is invalid"
+  },
   "base.ai.approval.message_id.positive": {
     "other": "The message number is invalid"
   },
@@ -115,12 +247,6 @@
   },
   "base.ai.query.question.required": {
     "other": "The question content is invalid"
-  },
-  "base.ai.report.content.length": {
-    "other": "The report body must contain 1 to 50000 characters"
-  },
-  "base.ai.report.title.length": {
-    "other": "The report title must contain 1 to 100 characters"
   },
   "base.ai.search.http_status": {
     "other": "The web search service returned an unexpected status: {{.Status}}"
@@ -716,11 +842,17 @@
   "legacy.error.096862c5edb1fdf1": {
     "other": "The primary language cannot be deleted"
   },
+  "legacy.error.09a6ebd546ffb1ad": {
+    "other": "The built-in plugin ID does not match the initialization contract"
+  },
   "legacy.error.09ca476dad7eaf93": {
     "other": "The web search service returned an unexpected status"
   },
   "legacy.error.09ce61cf8bbd6ceb": {
     "other": "Failed to record password history"
+  },
+  "legacy.error.09dd8c87638bb6e8": {
+    "other": "Handle this operation from the original client"
   },
   "legacy.error.09f1b9c640191da8": {
     "other": "Failed to retrieve embedding models"
@@ -755,11 +887,17 @@
   "legacy.error.0af53829eb85ec21": {
     "other": "Failed to delete the BI data source"
   },
+  "legacy.error.0b06a9e4f1dcb805": {
+    "other": "The time zone is invalid"
+  },
   "legacy.error.0b38823ed34c2c02": {
     "other": "Workflows support only JavaScript scripts"
   },
   "legacy.error.0b8c6c4bfc046e48": {
     "other": "The rule status is invalid"
+  },
+  "legacy.error.0ba482d3cbbbf2d5": {
+    "other": "You do not have permission to access the plugin"
   },
   "legacy.error.0c182ab409f0a51d": {
     "other": "Message action parameter nesting is too deep"
@@ -772,6 +910,21 @@
   },
   "legacy.error.0c3f314f627082c1": {
     "other": "Failed to page dictionary items"
+  },
+  "legacy.error.0c8862df852bcd9a": {
+    "other": "The automation lease has expired. Results cannot be written back"
+  },
+  "legacy.error.0c9d4a75c7406bcf": {
+    "other": "Failed to retrieve the plugin catalog visible to your identity"
+  },
+  "legacy.error.0ce1e3726c3a856b": {
+    "other": "The schedule status is invalid"
+  },
+  "legacy.error.0ce4067c34d470c2": {
+    "other": "Plugin references cannot be empty"
+  },
+  "legacy.error.0ceaaf8bb64e110e": {
+    "other": "The connection configuration has changed"
   },
   "legacy.error.0cf67600c5317be5": {
     "other": "The task is already running on another instance"
@@ -787,6 +940,9 @@
   },
   "legacy.error.0d38b9f361e60e0e": {
     "other": "The message was modified by someone else. Please refresh and try again"
+  },
+  "legacy.error.0d8f1aae3ee55724": {
+    "other": "The discovery scope is invalid"
   },
   "legacy.error.0dbf60614597b70f": {
     "other": "A selected table no longer exists. Discover the tables again"
@@ -809,11 +965,17 @@
   "legacy.error.0e0d65e432f75240": {
     "other": "Failed to query archive records"
   },
+  "legacy.error.0e1ed5b5710e5e70": {
+    "other": "The plugin code already exists, or creation failed"
+  },
   "legacy.error.0e3c33d45f94d08a": {
     "other": "Failed to set status"
   },
   "legacy.error.0e578ecd3aeab2fd": {
     "other": "Failed to encode WebAuthn registration options"
+  },
+  "legacy.error.0e7c918f78272dfa": {
+    "other": "The tenant has not enabled this plugin"
   },
   "legacy.error.0e953f80478aa9ed": {
     "other": "Workflow code and version duplicated in the tenant"
@@ -869,6 +1031,9 @@
   "legacy.error.11bc2823ec42b680": {
     "other": "Verification code verification failed"
   },
+  "legacy.error.121efef24c578423": {
+    "other": "The run lease or state is no longer valid"
+  },
   "legacy.error.1252b0cf293d5df2": {
     "other": "Failed to save MFA binding ticket"
   },
@@ -889,6 +1054,9 @@
   },
   "legacy.error.13d2e1e8985487d2": {
     "other": "Current authentication method does not require WebAuthn verification"
+  },
+  "legacy.error.13d5a4f74f5f95ea": {
+    "other": "The tool contract has changed. Review it again"
   },
   "legacy.error.13d9db4a12e72986": {
     "other": "Metric and gauge cards need ungrouped query results"
@@ -940,6 +1108,9 @@
   },
   "legacy.error.1572896dd8ea2149": {
     "other": "File metadata repository is not configured"
+  },
+  "legacy.error.157c0da740d92de0": {
+    "other": "API tool switches are managed by platform administrators"
   },
   "legacy.error.1593dca0dfa86346": {
     "other": "Task already handled"
@@ -1007,6 +1178,9 @@
   "legacy.error.18f0b5e30636fefe": {
     "other": "Smart query execution failed"
   },
+  "legacy.error.191e089185824060": {
+    "other": "The execution client is invalid"
+  },
   "legacy.error.192d1d94040adba1": {
     "other": "Failed to delete the administrative area: child areas exist"
   },
@@ -1025,8 +1199,17 @@
   "legacy.error.19e303eaf75621aa": {
     "other": "The BI time range is unavailable"
   },
+  "legacy.error.19e59ded36bccdee": {
+    "other": "The automation is running or awaiting approval. Its result conversation cannot be deleted"
+  },
   "legacy.error.1a09a09d2d75fb94": {
     "other": "The parent menu cannot be changed after creation"
+  },
+  "legacy.error.1a623eae5ca1f817": {
+    "other": "Only platform administrators can manage API tool configuration"
+  },
+  "legacy.error.1a7e6c699d173555": {
+    "other": "The scheduled time is invalid"
   },
   "legacy.error.1a9a613e94941637": {
     "other": "Failed to query WebAuthn MFA configuration"
@@ -1085,6 +1268,9 @@
   "legacy.error.1d65089c82e93a8f": {
     "other": "The BI data source does not exist"
   },
+  "legacy.error.1d9e58fc4d11cc80": {
+    "other": "The plugin does not exist"
+  },
   "legacy.error.1db7bf52e1db8bbc": {
     "other": "The parent department and tenant do not match"
   },
@@ -1093,6 +1279,9 @@
   },
   "legacy.error.1e352cf078d9c4a3": {
     "other": "WebAuthn registration response is invalid"
+  },
+  "legacy.error.1ec6e14122f5cac8": {
+    "other": "The authorization connection is no longer valid"
   },
   "legacy.error.1ef959db9503eb93": {
     "other": "Invalid message template extension config"
@@ -1138,6 +1327,9 @@
   },
   "legacy.error.21a5509ce518ca64": {
     "other": "Failed to build the BI source catalog"
+  },
+  "legacy.error.21dd6a4606c4f3f5": {
+    "other": "The tool arguments do not match the reviewed contract"
   },
   "legacy.error.21fa23c0f931e551": {
     "other": "Failed to create MFA challenge"
@@ -1187,9 +1379,6 @@
   "legacy.error.241051568bef8e2e": {
     "other": "The field encryption algorithm is invalid"
   },
-  "legacy.error.24346199bc3c7688": {
-    "other": "Failed to generate the AI report"
-  },
   "legacy.error.2468b2acc984ef68": {
     "other": "Machine translation draft feature is not enabled"
   },
@@ -1199,11 +1388,11 @@
   "legacy.error.24d27137f8387e6f": {
     "other": "Only page menus can be created under a mobile page"
   },
+  "legacy.error.24fad270b49eda13": {
+    "other": "The one-time date and time are invalid"
+  },
   "legacy.error.2506e634c4563331": {
     "other": "Failed to query database table field list"
-  },
-  "legacy.error.2520df43a2831159": {
-    "other": "Generated report files must not exceed 20 MB"
   },
   "legacy.error.254cc892d3964cfb": {
     "other": "Failed to query login result distribution"
@@ -1228,6 +1417,9 @@
   },
   "legacy.error.2613784f837f2081": {
     "other": "Failed to list BI data sources"
+  },
+  "legacy.error.26681ccaaebd2109": {
+    "other": "This client is not allowed to use the plugin"
   },
   "legacy.error.26743666f680a06d": {
     "other": "Rate limit rule ID cannot be empty"
@@ -1259,6 +1451,9 @@
   "legacy.error.27c12cba0463a64f": {
     "other": "The login region is on the denylist"
   },
+  "legacy.error.27ee0269f2708ac3": {
+    "other": "Tool names conflict for this turn. Select one specific account"
+  },
   "legacy.error.2800470b2bba28f6": {
     "other": "Failed to update the BI data source"
   },
@@ -1277,11 +1472,17 @@
   "legacy.error.285bdb6267ffc7fa": {
     "other": "Redaction rule template status is invalid"
   },
+  "legacy.error.2873504bb9691115": {
+    "other": "Authorization is required again"
+  },
   "legacy.error.28e090f1a6d5560b": {
     "other": "Failed to query message category"
   },
   "legacy.error.291d427436dbaf83": {
     "other": "Failed to get password policy"
+  },
+  "legacy.error.291d8098f8aa6d60": {
+    "other": "The schedule's plugin configuration is corrupted"
   },
   "legacy.error.29290718ec0b858f": {
     "other": "Failed to read the current database schema"
@@ -1324,6 +1525,9 @@
   },
   "legacy.error.2b5d4a3158530cb3": {
     "other": "Top-level menus cannot be deleted"
+  },
+  "legacy.error.2b625f1ddf0290c4": {
+    "other": "The authorization configuration changed before execution. Start again"
   },
   "legacy.error.2bba60c6b758c7d3": {
     "other": "Failed to create message category"
@@ -1393,6 +1597,9 @@
   },
   "legacy.error.2ed0637018e6941b": {
     "other": "Failed to query user button permissions"
+  },
+  "legacy.error.2ef0c43e0a3fc9fc": {
+    "other": "The plugin code is already used by another source"
   },
   "legacy.error.2f049ea5e2d27c12": {
     "other": "Failed to read bound tenant"
@@ -1487,6 +1694,9 @@
   "legacy.error.334c34185a2d0f07": {
     "other": "Failed to save the publication snapshot"
   },
+  "legacy.error.336568c6020abcb0": {
+    "other": "The identity bound to the tool pool has changed"
+  },
   "legacy.error.33b665911d371252": {
     "other": "Invalid card name or query settings"
   },
@@ -1517,6 +1727,9 @@
   "legacy.error.359210281db55f21": {
     "other": "The new project approval business association is invalid"
   },
+  "legacy.error.35ca626f0ab8a34f": {
+    "other": "The plugin configuration or authorization has changed. Start again"
+  },
   "legacy.error.3640cfef0a80242a": {
     "other": "The existing account rename list is invalid"
   },
@@ -1535,11 +1748,17 @@
   "legacy.error.36f7d93a63d4c4ea": {
     "other": "Code generation restore snapshot format is invalid"
   },
+  "legacy.error.37054675ee5f62d2": {
+    "other": "Failed to start account authorization"
+  },
   "legacy.error.3772108e1c6666ab": {
     "other": "The session has expired. Please sign in again"
   },
   "legacy.error.380bffbcf0a41ea9": {
     "other": "Failed to retrieve message providers"
+  },
+  "legacy.error.3833c41ec5764cf1": {
+    "other": "Approve this tool operation from the original client"
   },
   "legacy.error.38575468bd5f4185": {
     "other": "The outbound redaction policy cannot be empty"
@@ -1553,11 +1772,17 @@
   "legacy.error.392d45d221ec37f3": {
     "other": "Failed to page OAuth clients"
   },
+  "legacy.error.3935144c289a6e9e": {
+    "other": "This schedule still has an active run or pending approvals"
+  },
   "legacy.error.39fef6385cd1e4ce": {
     "other": "Cannot query project grants of other tenants"
   },
   "legacy.error.3a0e3d1ee5791c6c": {
     "other": "The dashboard draft version changed"
+  },
+  "legacy.error.3a0e62b8f020a6c1": {
+    "other": "The plugin or installation policy changed during authorization"
   },
   "legacy.error.3a2fde07feec27e2": {
     "other": "Streaming response is not supported"
@@ -1606,6 +1831,9 @@
   },
   "legacy.error.3c17a593ba4eedf5": {
     "other": "Archive config does not exist"
+  },
+  "legacy.error.3c19dde545f44078": {
+    "other": "A trusted login client is required"
   },
   "legacy.error.3c1bfebde774c1d3": {
     "other": "The client identifier already exists"
@@ -1675,6 +1903,12 @@
   },
   "legacy.error.3efadf56e15bf357": {
     "other": "Failed to delete menu"
+  },
+  "legacy.error.3f810684fb05da18": {
+    "other": "The schedule name, instructions and pinned model are required"
+  },
+  "legacy.error.3f9bd2ccc494d3b0": {
+    "other": "Users cannot change the connection security policy"
   },
   "legacy.error.3fad14b659e4d7e0": {
     "other": "The inbound redaction policy list cannot be empty"
@@ -1751,6 +1985,9 @@
   "legacy.error.43ac2c9a541832d6": {
     "other": "Failed to query storage-redactable tables"
   },
+  "legacy.error.43bc679561c487cc": {
+    "other": "The pinned model is unavailable"
+  },
   "legacy.error.43c19b4f281561f4": {
     "other": "The between filter needs two values"
   },
@@ -1780,6 +2017,9 @@
   },
   "legacy.error.44885987e1e7fc05": {
     "other": "Tenant numbers are exhausted"
+  },
+  "legacy.error.449843339e6f62dc": {
+    "other": "The run owner's tenant has changed"
   },
   "legacy.error.449da1cde21dcfbd": {
     "other": "Failed to update dictionary item"
@@ -1838,6 +2078,9 @@
   "legacy.error.47322e911c919328": {
     "other": "Failed to read client authorized interfaces"
   },
+  "legacy.error.47756e0ad4ebc564": {
+    "other": "Only the owner can connect an account to a private plugin"
+  },
   "legacy.error.477bb0945b48c9a0": {
     "other": "Failed to query login log detail"
   },
@@ -1867,6 +2110,9 @@
   },
   "legacy.error.48aa6dc021aefeea": {
     "other": "The login policy status is invalid"
+  },
+  "legacy.error.48ee55a4cc3bc878": {
+    "other": "Failed to create your connection and verify tool discovery"
   },
   "legacy.error.48fb2e3cbfc3df7b": {
     "other": "The login IP address is not on the allowlist"
@@ -1997,6 +2243,9 @@
   "legacy.error.4ee0e7ff3bfe30c9": {
     "other": "Invalid rate limit rule parameters"
   },
+  "legacy.error.4f0edd75b52d93b5": {
+    "other": "The schedule has changed. Refresh and try again"
+  },
   "legacy.error.4f823857472087fe": {
     "other": "Verification code is incorrect"
   },
@@ -2015,8 +2264,14 @@
   "legacy.error.5046c2110be55873": {
     "other": "Failed to read MFA policy"
   },
+  "legacy.error.5062f38bec849412": {
+    "other": "This run has no result conversation"
+  },
   "legacy.error.508e0bd781aa07f1": {
     "other": "No access to the dashboard draft"
+  },
+  "legacy.error.5122a126fad7b798": {
+    "other": "The platform has not configured an OAuth client for this plugin"
   },
   "legacy.error.513deff78da44959": {
     "other": "The configuration key already exists in the same location"
@@ -2044,6 +2299,9 @@
   },
   "legacy.error.52cece3fb0bc5c37": {
     "other": "Failed to create the BI data source"
+  },
+  "legacy.error.52df2000e0d6202f": {
+    "other": "The connection has changed. Refresh its status"
   },
   "legacy.error.53392f5183414d58": {
     "other": "Invalid API operation"
@@ -2102,6 +2360,9 @@
   "legacy.error.54efbbf383a626a8": {
     "other": "Failed to query WebAuthn configuration"
   },
+  "legacy.error.550eca7bb0d80be9": {
+    "other": "This automation run has already been handled"
+  },
   "legacy.error.552d6ada849692a7": {
     "other": "WebAuthn registration response cannot be empty"
   },
@@ -2120,8 +2381,17 @@
   "legacy.error.564e6bae17ff3556": {
     "other": "Failed to query tenant dropdown"
   },
+  "legacy.error.566ae3ad109ec86d": {
+    "other": "Plugin selection cannot be changed in an automation result conversation"
+  },
   "legacy.error.56ab596a800279d6": {
     "other": "The language code already exists"
+  },
+  "legacy.error.56c49a59ecc26f52": {
+    "other": "Enter an API token"
+  },
+  "legacy.error.571c3c5727dbe45e": {
+    "other": "Automation results are read-only. Use Continue discussion"
   },
   "legacy.error.573f1ce3483d6b67": {
     "other": "The archive record is being restored. Please try again later"
@@ -2129,11 +2399,20 @@
   "legacy.error.5743ba47c58f47a9": {
     "other": "Failed to page policy evaluation logs"
   },
+  "legacy.error.574bc838380d747b": {
+    "other": "The run has stopped"
+  },
   "legacy.error.578a359e4b6c0de8": {
     "other": "Project authorization for sensitive fields is not initialized"
   },
   "legacy.error.578f778acd3d1fb7": {
     "other": "Window_seconds must be between 1 and %d"
+  },
+  "legacy.error.57a2444f2e6a208a": {
+    "other": "The automation configuration has changed"
+  },
+  "legacy.error.57ea342b782c0e6b": {
+    "other": "The conversation has an unfinished run. Plugin selection cannot be changed yet"
   },
   "legacy.error.57f76d1d57ee5abb": {
     "other": "Failed to query post dropdown"
@@ -2153,6 +2432,9 @@
   "legacy.error.58fc64a3049b34c2": {
     "other": "Failed to create third-party account binding authorization"
   },
+  "legacy.error.5964af53118e7681": {
+    "other": "The tool configuration or current user permissions have changed. Start again"
+  },
   "legacy.error.59809ca4382f9867": {
     "other": "Failed to set API Agent tool status"
   },
@@ -2161,6 +2443,9 @@
   },
   "legacy.error.59a504a8efe43caf": {
     "other": "The BI filter operator is not supported"
+  },
+  "legacy.error.59a8a825eb6569ba": {
+    "other": "Failed to retrieve your connections and authorized shared connections"
   },
   "legacy.error.59c1df3bee807b31": {
     "other": "The multi-factor authentication policy requires you to sign in again"
@@ -2186,6 +2471,9 @@
   "legacy.error.5a52838633580d82": {
     "other": "The tenant number already exists"
   },
+  "legacy.error.5a6fa1a82aa14517": {
+    "other": "The remote tool schema is unsupported. The complete snapshot was not updated"
+  },
   "legacy.error.5aee1db2ece6deb0": {
     "other": "The source text to translate cannot be empty"
   },
@@ -2201,8 +2489,14 @@
   "legacy.error.5b3002b9ecc91eb8": {
     "other": "The message category code cannot be empty"
   },
+  "legacy.error.5b497754bb573482": {
+    "other": "The login source is no longer valid. Sign in again"
+  },
   "legacy.error.5b59ffccc2a941e4": {
     "other": "Rule code cannot be modified"
+  },
+  "legacy.error.5b69da39e4d64c9c": {
+    "other": "The plugin configuration has changed"
   },
   "legacy.error.5b6b2552126d5785": {
     "other": "AI assistant runtime is not initialized"
@@ -2210,11 +2504,17 @@
   "legacy.error.5bbaa6ecfe5e2c73": {
     "other": "Tables cannot be selected more than once"
   },
+  "legacy.error.5c546733dbc2b6a5": {
+    "other": "Local components do not require account connections"
+  },
   "legacy.error.5c9ce1a293619574": {
     "other": "User post does not match the tenant"
   },
   "legacy.error.5cbfc403ab15d559": {
     "other": "No data table is configured for smart queries"
+  },
+  "legacy.error.5ccfd1d2f7a811f4": {
+    "other": "The tool policy has changed"
   },
   "legacy.error.5cec15fc1c4a7b5f": {
     "other": "Failed to delete AI assistant session"
@@ -2230,6 +2530,9 @@
   },
   "legacy.error.5d42cf37242f8db5": {
     "other": "File path cannot escape the repository directory"
+  },
+  "legacy.error.5d7f5a61aa672564": {
+    "other": "Tool discovery failed. Check the connection and try again"
   },
   "legacy.error.5d830192c40a3c28": {
     "other": "The authorized API operation cannot be empty"
@@ -2279,8 +2582,14 @@
   "legacy.error.5f2bea1131b1e985": {
     "other": "Message action parameter key name is too long"
   },
+  "legacy.error.5f6eb8beedd0087b": {
+    "other": "The tool snapshot does not exist"
+  },
   "legacy.error.5f947483457341be": {
     "other": "Batch generation table config missing"
+  },
+  "legacy.error.5fd8898323178eba": {
+    "other": "The request idempotency key is invalid"
   },
   "legacy.error.5fe54f1b13aabace": {
     "other": "The category has pending provider deliveries; the provider cannot be removed"
@@ -2336,6 +2645,9 @@
   "legacy.error.63722cd0da2f0322": {
     "other": "Only platform administrators can manage redaction policies"
   },
+  "legacy.error.63748d2fff8590d2": {
+    "other": "You do not have permission to access this account connection"
+  },
   "legacy.error.638c570a0e485641": {
     "other": "The field code or physical column name is invalid"
   },
@@ -2348,11 +2660,17 @@
   "legacy.error.64776e5a4ee45216": {
     "other": "Failed to page system configs"
   },
+  "legacy.error.649864c9d8a336b5": {
+    "other": "The conversation plugin configuration is corrupted"
+  },
   "legacy.error.64ed6f0e51042ae0": {
     "other": "The account has been disabled"
   },
   "legacy.error.6549d96b5b6ca2c1": {
     "other": "Only full backup is currently supported"
+  },
+  "legacy.error.6553b576148b1779": {
+    "other": "The tool snapshot does not belong to the current tenant"
   },
   "legacy.error.655c4fcde5cc992c": {
     "other": "Failed to query database table list"
@@ -2368,6 +2686,12 @@
   },
   "legacy.error.66baa7361e097f40": {
     "other": "Statistics time range cannot be empty"
+  },
+  "legacy.error.66e93755789521a6": {
+    "other": "At most 64 plugin accounts can be selected for a turn"
+  },
+  "legacy.error.672870e3dd86416c": {
+    "other": "Only the owner can use a private plugin"
   },
   "legacy.error.675ce37f71759e76": {
     "other": "Smart query record not found"
@@ -2429,8 +2753,14 @@
   "legacy.error.6aa6ed166bc618bf": {
     "other": "Failed to page output redaction policies"
   },
+  "legacy.error.6ac0da9d549ed947": {
+    "other": "The selected account does not match the plugin, or the connection is no longer valid"
+  },
   "legacy.error.6ac0f1b7aaec664d": {
     "other": "Failed to confirm MFA binding"
+  },
+  "legacy.error.6ad6f794952693b1": {
+    "other": "The connection token has been revoked"
   },
   "legacy.error.6b03488e3d0ac065": {
     "other": "Failed to query menu"
@@ -2447,6 +2777,12 @@
   "legacy.error.6b34220bae88cee7": {
     "other": "Failed to open uploaded file"
   },
+  "legacy.error.6b3f44de944805b3": {
+    "other": "Failed to review the tool contract and set the tenant policy"
+  },
+  "legacy.error.6b3f761fc591a986": {
+    "other": "The tool configuration or this client's permissions have changed. Start again from the original client"
+  },
   "legacy.error.6b58bda456acfba7": {
     "other": "Only failed documents can be retried"
   },
@@ -2455,6 +2791,9 @@
   },
   "legacy.error.6b64e214f43995d3": {
     "other": "Failed to read MFA key"
+  },
+  "legacy.error.6bf3dd8f902250e2": {
+    "other": "You do not have permission to modify the plugin catalog"
   },
   "legacy.error.6c6a75417d9b96f4": {
     "other": "The message category status is invalid"
@@ -2513,6 +2852,9 @@
   "legacy.error.6ff2055c334133ae": {
     "other": "Failed to release login lock"
   },
+  "legacy.error.6ff52e3aa53adc0d": {
+    "other": "The connection does not exist"
+  },
   "legacy.error.70010c1c5aff2874": {
     "other": "The OAuth client does not exist"
   },
@@ -2570,6 +2912,9 @@
   "legacy.error.7255193529b2fdb8": {
     "other": "File download failed"
   },
+  "legacy.error.727cc901fceb6302": {
+    "other": "The tool is outside the authorization scope for this turn"
+  },
   "legacy.error.72934aee38ddf99c": {
     "other": "The server database client does not exist"
   },
@@ -2584,6 +2929,12 @@
   },
   "legacy.error.738ffa9d13b38867": {
     "other": "The post number already exists in the same tenant"
+  },
+  "legacy.error.73dce3607e1b6756": {
+    "other": "The handshake or tool discovery failed"
+  },
+  "legacy.error.73fb30d1bd995373": {
+    "other": "The schedule or run is no longer valid"
   },
   "legacy.error.741e976fc2db03d1": {
     "other": "Recalled messages cannot be re-delivered"
@@ -2600,6 +2951,9 @@
   "legacy.error.7457032f6280eb65": {
     "other": "Failed to create third-party login ticket"
   },
+  "legacy.error.746b3c2a6aec040a": {
+    "other": "OAuth configuration is unavailable"
+  },
   "legacy.error.7491b8fddb896715": {
     "other": "Translation target key mismatch"
   },
@@ -2608,6 +2962,9 @@
   },
   "legacy.error.74b418ac4240d405": {
     "other": "The message provider is already bound to a message category"
+  },
+  "legacy.error.74d482520f3a5fba": {
+    "other": "The plugin ID is invalid"
   },
   "legacy.error.74f05fe9917a174f": {
     "other": "API rate limit policy not found"
@@ -2633,11 +2990,17 @@
   "legacy.error.757bdbb9cf9523eb": {
     "other": "Failed to query online users"
   },
+  "legacy.error.758348f74f1a6ac6": {
+    "other": "The automation frequency is invalid"
+  },
   "legacy.error.7597ef55c12b306b": {
     "other": "Database table name cannot be empty"
   },
   "legacy.error.75a3d64e90b89404": {
     "other": "Failed to change the password"
+  },
+  "legacy.error.760959fba003c781": {
+    "other": "The run was terminated by recovery"
   },
   "legacy.error.76370b3803a9f50e": {
     "other": "The login policy restriction rule already exists"
@@ -2666,11 +3029,17 @@
   "legacy.error.76ca2c845a375eed": {
     "other": "WeChat login configuration is incorrect"
   },
+  "legacy.error.76d3bdd07168a163": {
+    "other": "The login source is invalid. Sign in again"
+  },
   "legacy.error.76e780b7e84d7a14": {
     "other": "Failed to read log directory"
   },
   "legacy.error.771c738a3c8356ae": {
     "other": "Only buttons can be created under a page menu"
+  },
+  "legacy.error.774640a25143895e": {
+    "other": "The approval parameters are corrupted"
   },
   "legacy.error.77472bb2a160d55d": {
     "other": "A storage redaction policy already exists for the same table field"
@@ -2804,6 +3173,9 @@
   "legacy.error.7ddf413a97a025d8": {
     "other": "No captcha type is enabled"
   },
+  "legacy.error.7e0d0863dbdac0ce": {
+    "other": "Approve write operations from the desktop client"
+  },
   "legacy.error.7e1cee01625c342f": {
     "other": "Script run does not belong to this workflow"
   },
@@ -2836,6 +3208,9 @@
   },
   "legacy.error.80fb55ec83653bc4": {
     "other": "Failed to disable MFA"
+  },
+  "legacy.error.81159b5a2afb4d0c": {
+    "other": "Disable all tenant installations first"
   },
   "legacy.error.815660c688153283": {
     "other": "Unique index fields do not support storage redaction"
@@ -2891,8 +3266,14 @@
   "legacy.error.8378c73fbc6061ca": {
     "other": "Failed to page posts"
   },
+  "legacy.error.839b1c6e6038d523": {
+    "other": "The knowledge base is no longer available"
+  },
   "legacy.error.83c152306e3a4a8e": {
     "other": "The new tenant approval form is invalid"
+  },
+  "legacy.error.83c81855cbbcee4d": {
+    "other": "Automation result conversations cannot be renamed"
   },
   "legacy.error.83e43a4951d784c2": {
     "other": "An administrative area cannot be its own parent"
@@ -2981,6 +3362,9 @@
   "legacy.error.89948745c30efa6b": {
     "other": "Client token identity does not match"
   },
+  "legacy.error.89ecf571158b87ef": {
+    "other": "The encryption key for connection credentials has not been initialized"
+  },
   "legacy.error.89eda0c1fb16af48": {
     "other": "Failed to query API documentation"
   },
@@ -2996,11 +3380,20 @@
   "legacy.error.8aa52f265f3ade36": {
     "other": "Failed to update dictionary"
   },
+  "legacy.error.8af9a6b72cd88205": {
+    "other": "The connection has been revoked or modified"
+  },
+  "legacy.error.8b02b2d4950dbd6a": {
+    "other": "The connection has changed. Authorize again"
+  },
   "legacy.error.8b14be98bee08880": {
     "other": "Failed to query database fields"
   },
   "legacy.error.8b1e46dc72244e15": {
     "other": "Failed to generate the BI query"
+  },
+  "legacy.error.8b4129c122309dd6": {
+    "other": "Only the owner can use an account for a private plugin"
   },
   "legacy.error.8b413a6a6b9c51f1": {
     "other": "Failed to query MFA status"
@@ -3013,6 +3406,9 @@
   },
   "legacy.error.8b7757274fb40557": {
     "other": "Failed to read web search response"
+  },
+  "legacy.error.8b80f0a14fd2cdb9": {
+    "other": "The configuration changed during authorization. Authorize again"
   },
   "legacy.error.8b87a6c6d658c05b": {
     "other": "Tenant operation failed: the default tenant cannot be operated"
@@ -3119,6 +3515,9 @@
   "legacy.error.910c3bb2daa5b9eb": {
     "other": "Failed to get BI data source details"
   },
+  "legacy.error.911234d362f34f0a": {
+    "other": "Failed to retrieve tool discovery snapshots and review status"
+  },
   "legacy.error.9169c767f06efb26": {
     "other": "Failed to construct web search request"
   },
@@ -3130,6 +3529,9 @@
   },
   "legacy.error.91d8e5677d731bc9": {
     "other": "The dictionary does not exist"
+  },
+  "legacy.error.91f7b86658bf37bf": {
+    "other": "The platform or tenant revoked the endpoint, or its security configuration changed. Recreate the custom definition"
   },
   "legacy.error.9265669d517e320e": {
     "other": "Failed to parse the provider custom configuration"
@@ -3163,6 +3565,9 @@
   },
   "legacy.error.9405199c2964f7ab": {
     "other": "The outbound redaction policy list cannot be empty"
+  },
+  "legacy.error.940716542da56181": {
+    "other": "Wait for this run to finish before continuing the discussion"
   },
   "legacy.error.94214c40a9264d8a": {
     "other": "Failed to create system config"
@@ -3212,9 +3617,6 @@
   "legacy.error.972b258d6fcae08f": {
     "other": "The username is required and must not exceed 50 characters"
   },
-  "legacy.error.975269a5864147a2": {
-    "other": "Failed to save report files"
-  },
   "legacy.error.975dc005fdfef059": {
     "other": "Only draft messages can be deleted"
   },
@@ -3236,8 +3638,14 @@
   "legacy.error.9828341ae3541d3d": {
     "other": "Failed to query user role"
   },
+  "legacy.error.984be0679e801fd1": {
+    "other": "Connection authorization is no longer valid. Authorize again"
+  },
   "legacy.error.98607017b11fd268": {
     "other": "An API key must be configured before enabling an OpenAI-compatible provider"
+  },
+  "legacy.error.988c6bbc8a789ec2": {
+    "other": "You do not have permission to delete the plugin"
   },
   "legacy.error.998d00125d42ac70": {
     "other": "Failed to query policy evaluation log detail"
@@ -3314,6 +3722,9 @@
   "legacy.error.9f0c49cefeac73e1": {
     "other": "Reference IDs must be positive and unique"
   },
+  "legacy.error.9f0c55e550ff5195": {
+    "other": "Failed to update the plugin definition and increment its revision"
+  },
   "legacy.error.9f2257503116e08f": {
     "other": "The inbound redaction policy does not exist"
   },
@@ -3334,6 +3745,9 @@
   },
   "legacy.error.a11ae9f3169fdd9b": {
     "other": "The bound tenant is disabled"
+  },
+  "legacy.error.a129afe6bf38a422": {
+    "other": "The plugin configuration has changed. Refresh and try again"
   },
   "legacy.error.a14efca145af09f5": {
     "other": "A button or external link cannot be a parent menu"
@@ -3358,6 +3772,9 @@
   },
   "legacy.error.a2bfb226f0e00e12": {
     "other": "Failed to aggregate user registration data"
+  },
+  "legacy.error.a35fcb70f28d8d05": {
+    "other": "Failed to create the plugin definition"
   },
   "legacy.error.a38f393c01bf6ebe": {
     "other": "The log file does not exist"
@@ -3389,6 +3806,9 @@
   "legacy.error.a56aedde5f18183d": {
     "other": "Backup config status is invalid"
   },
+  "legacy.error.a577df26d1942267": {
+    "other": "OAuth token refresh failed. Please authorize again"
+  },
   "legacy.error.a6000e305f5d2fef": {
     "other": "Failed to revoke old client token"
   },
@@ -3398,11 +3818,17 @@
   "legacy.error.a62d052c0ac38b58": {
     "other": "Post and user tenant do not match"
   },
+  "legacy.error.a64b7e9cd14306de": {
+    "other": "This plan still has an active run or pending approval. Finish it before resuming"
+  },
   "legacy.error.a6abeab21b9c197c": {
     "other": "Current client does not support WebAuthn, please use a Passkey-capable client"
   },
   "legacy.error.a6cdc6d0a453ee88": {
     "other": "Failed to create message"
+  },
+  "legacy.error.a7122fac260ef83e": {
+    "other": "A trusted client is required"
   },
   "legacy.error.a72174780cc3a36d": {
     "other": "Grant subject of a normal tenant cannot obtain project permissions of other tenants"
@@ -3437,11 +3863,17 @@
   "legacy.error.a7df0cf102c5afb8": {
     "other": "API rate limit policy ID cannot be empty"
   },
+  "legacy.error.a8234e5efc2055dc": {
+    "other": "The schedule's knowledge base configuration is corrupted"
+  },
   "legacy.error.a82de572ccd7ebf0": {
     "other": "The user does not exist"
   },
   "legacy.error.a88b76417346c4f3": {
     "other": "Failed to set login policy status"
+  },
+  "legacy.error.a8c841b65c52731c": {
+    "other": "The request client source is invalid"
   },
   "legacy.error.a8c8e869d09e04d9": {
     "other": "The generated HTTP route is already used by another RPC"
@@ -3461,6 +3893,9 @@
   "legacy.error.a934ff7ee33d8ab2": {
     "other": "Tool API contract is invalid"
   },
+  "legacy.error.a937731e83d53b1f": {
+    "other": "The tool configuration has changed"
+  },
   "legacy.error.a9a6a83a7d22e27e": {
     "other": "The username or password is incorrect"
   },
@@ -3470,8 +3905,20 @@
   "legacy.error.ab10b5713ba93cbd": {
     "other": "Failed to delete post"
   },
+  "legacy.error.ab151b8a25ac50c7": {
+    "other": "The approval configuration is corrupted"
+  },
+  "legacy.error.ab4a80c590510b5c": {
+    "other": "Failed to consume the authorization state and exchange the token"
+  },
   "legacy.error.ab6434d2cdda6ee7": {
     "other": "Agreement version verification is not initialized"
+  },
+  "legacy.error.abdbf369f146b7a9": {
+    "other": "The run status has changed. Refresh and try again"
+  },
+  "legacy.error.abf50c9909aa13ab": {
+    "other": "The connection changed during tool discovery"
   },
   "legacy.error.ac01bb67bb88f719": {
     "other": "This chart type supports only one measure"
@@ -3521,6 +3968,9 @@
   "legacy.error.ae673166a2862514": {
     "other": "Failed to delete project grant"
   },
+  "legacy.error.ae7cf275416fb9f3": {
+    "other": "The pinned model has changed"
+  },
   "legacy.error.ae8453b3b0b6b5b9": {
     "other": "Failed to delete the rate limit rule"
   },
@@ -3554,11 +4004,17 @@
   "legacy.error.b04e457c7c50beec": {
     "other": "Failed to delete the position because it does not exist"
   },
+  "legacy.error.b083bf2906da95c5": {
+    "other": "Select at least one weekday"
+  },
   "legacy.error.b090926a1b808c30": {
     "other": "Generated API conflicts with an existing API"
   },
   "legacy.error.b0a0e7733febb2dc": {
     "other": "Failed to list rate limit rules"
+  },
+  "legacy.error.b0e7f76e15a755b8": {
+    "other": "The authorization state cache is unavailable"
   },
   "legacy.error.b0f28c5f3181d572": {
     "other": "The file extension does not match the actual content type"
@@ -3566,8 +4022,14 @@
   "legacy.error.b1c8a7126056d454": {
     "other": "Specified project does not exist or does not belong to the target tenant"
   },
+  "legacy.error.b1e39142dfe62698": {
+    "other": "The tenant has not allowed this custom endpoint"
+  },
   "legacy.error.b1f87289d41ad251": {
     "other": "Failed to read historical log file"
+  },
+  "legacy.error.b2119b0cf290f935": {
+    "other": "The time must use the HH:mm format"
   },
   "legacy.error.b2d510c3c58db1c0": {
     "other": "Failed to query dictionary item"
@@ -3575,11 +4037,17 @@
   "legacy.error.b2df4070287d940b": {
     "other": "Failed to query my approval tasks"
   },
+  "legacy.error.b2e0fb0e0c2ad8f7": {
+    "other": "The connection failed. Check the account and try again"
+  },
   "legacy.error.b2e4129625950cdc": {
     "other": "The message action type is invalid"
   },
   "legacy.error.b2f2e44fb3196a5b": {
     "other": "Failed to page users"
+  },
+  "legacy.error.b2f874c2a1e7f2c8": {
+    "other": "Failed to check the connection and fully refresh its tools"
   },
   "legacy.error.b2fbb90f787f4e6e": {
     "other": "Third-party login ticket is invalid"
@@ -3604,6 +4072,9 @@
   },
   "legacy.error.b3ff67b25874179f": {
     "other": "Failed to delete code generation table config"
+  },
+  "legacy.error.b417245975017fa2": {
+    "other": "Failed to set account sharing"
   },
   "legacy.error.b431e92a8c041282": {
     "other": "Failed to query data source"
@@ -3650,6 +4121,9 @@
   "legacy.error.b6454ff77812a329": {
     "other": "The workspace contains cards you cannot access"
   },
+  "legacy.error.b665196c6b79c678": {
+    "other": "Disconnect all connections first"
+  },
   "legacy.error.b698dd181813542e": {
     "other": "Cannot query other tenants' instances"
   },
@@ -3667,6 +4141,9 @@
   },
   "legacy.error.b6d869235b2177c7": {
     "other": "Failed to write file scan temp file"
+  },
+  "legacy.error.b6e4cd4d62d790ac": {
+    "other": "The run has stopped. No new approval requests can be created"
   },
   "legacy.error.b74cf37538de3767": {
     "other": "Only directories, menus, or external links can be created under a level-two directory"
@@ -3689,8 +4166,14 @@
   "legacy.error.b7dfaaed47b862eb": {
     "other": "Cannot delete: delegation not found"
   },
+  "legacy.error.b7e75d0977fdb54b": {
+    "other": "The requested client does not match the authenticated source"
+  },
   "legacy.error.b7fdba770862e9ff": {
     "other": "Failed to delete the post: users are still assigned to it"
+  },
+  "legacy.error.b7ffcbf24bfd2cbd": {
+    "other": "The schedule's time configuration is corrupted"
   },
   "legacy.error.b82f21bb47217337": {
     "other": "The tenant policy target is invalid"
@@ -3713,6 +4196,9 @@
   "legacy.error.ba2694f62e4fbbaf": {
     "other": "Failed to delete message: message does not exist"
   },
+  "legacy.error.ba4e05210cb76234": {
+    "other": "The connection ID is invalid"
+  },
   "legacy.error.ba58b9c5fcfc4e35": {
     "other": "Only published dashboard versions can be viewed"
   },
@@ -3724,6 +4210,9 @@
   },
   "legacy.error.baabf07429595997": {
     "other": "The login MAC address is on the denylist"
+  },
+  "legacy.error.bae36ca039489e27": {
+    "other": "The plugin has been disabled in the catalog"
   },
   "legacy.error.bb1268519f752fa3": {
     "other": "Failed to save workspace settings"
@@ -3737,8 +4226,14 @@
   "legacy.error.bb42bc14719faff4": {
     "other": "Failed to query workflow scripts"
   },
+  "legacy.error.bbac072f2692724a": {
+    "other": "Failed to delete the plugin definition with no active references"
+  },
   "legacy.error.bbe870a05f49a123": {
     "other": "A separate connection needs a host, port, database and username"
+  },
+  "legacy.error.bbf118d9d809973c": {
+    "other": "Tenant administrator permissions are required"
   },
   "legacy.error.bbf6b13e90ad673c": {
     "other": "Workflow node state corrupted"
@@ -3751,6 +4246,9 @@
   },
   "legacy.error.bc52216171131e30": {
     "other": "Authorized APIs cannot be duplicated"
+  },
+  "legacy.error.bc6a0bc189bc508f": {
+    "other": "Automation results are read-only. Delete the entire result conversation"
   },
   "legacy.error.bc6a7756bb24a8f5": {
     "other": "The file extension is not allowed"
@@ -3769,6 +4267,9 @@
   },
   "legacy.error.bce2683b3efef155": {
     "other": "Failed to save initial password"
+  },
+  "legacy.error.bd08be431bd18f0b": {
+    "other": "Automation results are read-only. Use Run once"
   },
   "legacy.error.bd716eafd672c746": {
     "other": "Failed to update workflow definition"
@@ -3812,8 +4313,14 @@
   "legacy.error.c04abdd20cec9b79": {
     "other": "Failed to start code generation task"
   },
+  "legacy.error.c09382006eddcbe1": {
+    "other": "A trusted execution client is required"
+  },
   "legacy.error.c0b3ef767a0f0bfb": {
     "other": "Failed to query API detail"
+  },
+  "legacy.error.c0ba9731f8f92968": {
+    "other": "Failed to save the conversation plugin selection"
   },
   "legacy.error.c0ee4b6fcd75f376": {
     "other": "Failed to read WebAuthn credentials"
@@ -3844,6 +4351,9 @@
   },
   "legacy.error.c269746cd8542461": {
     "other": "Third-party account unique identifier is empty"
+  },
+  "legacy.error.c27b34375fc4da92": {
+    "other": "Failed to revoke your connection and invalidate its previous permissions"
   },
   "legacy.error.c27f086ce508006d": {
     "other": "All dimension tables must be reachable from the fact table"
@@ -3884,6 +4394,9 @@
   "legacy.error.c48643c9d6f06c71": {
     "other": "Invalid list type"
   },
+  "legacy.error.c4996070349f8dca": {
+    "other": "The conversation is running or awaiting approval. Plugin selection cannot be changed yet"
+  },
   "legacy.error.c49d8684e46fea65": {
     "other": "Interface does not exist"
   },
@@ -3899,8 +4412,14 @@
   "legacy.error.c59404a173ecf4a6": {
     "other": "Failed to unbind third-party account"
   },
+  "legacy.error.c59e66d856edd7b2": {
+    "other": "A run is in progress. Stop it and wait for it to finish first"
+  },
   "legacy.error.c5c1f6bacfa7c53d": {
     "other": "A card referenced by the dashboard does not exist"
+  },
+  "legacy.error.c5dcece4bdb83fd2": {
+    "other": "The automation run has stopped or its lease has expired"
   },
   "legacy.error.c5eae1dd2dfe44e7": {
     "other": "Client source IP is not authorized"
@@ -3908,8 +4427,8 @@
   "legacy.error.c612447adeb48ee2": {
     "other": "Cannot manage project grants of other tenants"
   },
-  "legacy.error.c631b22edf47aad3": {
-    "other": "Failed to generate the HTML report"
+  "legacy.error.c623ea32414aab54": {
+    "other": "The conversation contains an invalid plugin reference"
   },
   "legacy.error.c64f9c3cf819c81c": {
     "other": "Message ID is invalid"
@@ -3935,6 +4454,9 @@
   "legacy.error.c7b529559300a291": {
     "other": "The user and tenant do not match"
   },
+  "legacy.error.c7f91946095928cf": {
+    "other": "The tool ID is invalid"
+  },
   "legacy.error.c81dce0cccf9278a": {
     "other": "Duplicate code generation table config ID"
   },
@@ -3943,6 +4465,9 @@
   },
   "legacy.error.c8a52b66651d294c": {
     "other": "Failed to log out"
+  },
+  "legacy.error.c8be540ffcc6a826": {
+    "other": "The remote operation's outcome is unknown. Check the external system; this system will not retry automatically"
   },
   "legacy.error.c8d9589ec3ec7607": {
     "other": "Failed to read the agreement version"
@@ -3956,6 +4481,9 @@
   "legacy.error.ca07a343943ddc8b": {
     "other": "Please select an initialized data source"
   },
+  "legacy.error.ca3e85149ccca153": {
+    "other": "Accounts for private plugins cannot be shared with the tenant"
+  },
   "legacy.error.ca4de5b792e75311": {
     "other": "Failed to query file asset detail"
   },
@@ -3964,6 +4492,9 @@
   },
   "legacy.error.cab371e60fe459f7": {
     "other": "Failed to update AI assistant message"
+  },
+  "legacy.error.cacc0d49d20eae27": {
+    "other": "Authorization is no longer valid. Connect again"
   },
   "legacy.error.cad1411b8d349a41": {
     "other": "Failed to get the BI dashboard"
@@ -4000,6 +4531,9 @@
   },
   "legacy.error.cc9b2fc832c214dc": {
     "other": "The card layout exceeds the canvas bounds"
+  },
+  "legacy.error.ccb7e9c72592c7b4": {
+    "other": "The connection type or configuration has changed"
   },
   "legacy.error.ccb9d64291a84b3d": {
     "other": "Failed to iterate database column structures"
@@ -4076,6 +4610,9 @@
   "legacy.error.d03847577dddb4e6": {
     "other": "The login policy format is invalid"
   },
+  "legacy.error.d04f2153da4a165d": {
+    "other": "The authorization state has expired or has already been used"
+  },
   "legacy.error.d06655e996ae7326": {
     "other": "The verification code has expired"
   },
@@ -4088,8 +4625,17 @@
   "legacy.error.d09a5d730f10b232": {
     "other": "Failed to change the OAuth login provider status"
   },
+  "legacy.error.d10dca63ec27b6dc": {
+    "other": "The sharing scope is invalid"
+  },
+  "legacy.error.d132998d88c706a1": {
+    "other": "The installation policy has changed"
+  },
   "legacy.error.d1700e2d9ad8a545": {
     "other": "The message tenant cannot be empty"
+  },
+  "legacy.error.d1904db091f0e5de": {
+    "other": "The AI automation operation failed"
   },
   "legacy.error.d194c776a0ee5e26": {
     "other": "Invalid graph config: missing start node"
@@ -4151,11 +4697,17 @@
   "legacy.error.d45ebaf3a56c5487": {
     "other": "Failed to mark notification as unread"
   },
+  "legacy.error.d4d0c7b711fe426e": {
+    "other": "The plugin source, visibility scope and stable code cannot be changed"
+  },
   "legacy.error.d4d43cc0c8f5bd1d": {
     "other": "BI source password decryption is not initialized"
   },
   "legacy.error.d4d4481eb1e4bfeb": {
     "other": "A valid identity is required to view sensitive fields"
+  },
+  "legacy.error.d50eb67cb68f5225": {
+    "other": "Change plugin selection from the conversation's original client"
   },
   "legacy.error.d5321efaf2f34345": {
     "other": "Only directories, menus, or external links can be created under a level-one directory"
@@ -4172,8 +4724,14 @@
   "legacy.error.d6139243cdbfb13f": {
     "other": "Failed to stream AI assistant message"
   },
+  "legacy.error.d62f97f290498db0": {
+    "other": "Approval for this automation run is no longer valid"
+  },
   "legacy.error.d6b948e91117f8b3": {
     "other": "Failed to process third-party login callback"
+  },
+  "legacy.error.d6bf1b4545524ca5": {
+    "other": "The one-time execution time must exist and be in the future"
   },
   "legacy.error.d6d84bf72bbdfccc": {
     "other": "You do not have permission to manage custom translations for another tenant"
@@ -4196,6 +4754,9 @@
   "legacy.error.d7f37b45ffd41536": {
     "other": "The data source status is invalid"
   },
+  "legacy.error.d80331d2b5780783": {
+    "other": "Tool argument validation differs between clients"
+  },
   "legacy.error.d819413726995a8b": {
     "other": "Failed to query redaction rule options"
   },
@@ -4204,6 +4765,9 @@
   },
   "legacy.error.d82554e826ddce2b": {
     "other": "Failed to page storage redaction policies"
+  },
+  "legacy.error.d828018e33550bad": {
+    "other": "Failed to replace the connection token"
   },
   "legacy.error.d91665d16fe86915": {
     "other": "Failed to create AI assistant session"
@@ -4277,14 +4841,23 @@
   "legacy.error.dba508e1212691b7": {
     "other": "Failed to redact the system configuration"
   },
+  "legacy.error.dc59b5d3f802f135": {
+    "other": "The execution identity's permissions have changed. Run again"
+  },
   "legacy.error.dc8885ca6a1d1de4": {
     "other": "Redaction rule template parameter is invalid"
+  },
+  "legacy.error.dc9059594f6426ff": {
+    "other": "A local plugin cannot specify a remote account"
   },
   "legacy.error.dcad9e63f38f931c": {
     "other": "Workflow has not ended"
   },
   "legacy.error.dcc73012bd9e3caa": {
     "other": "Please select a Proto interface"
+  },
+  "legacy.error.dcd549e52d683e82": {
+    "other": "Failed to set the current tenant's installation and client policy"
   },
   "legacy.error.dd7e588c5e1a5bd1": {
     "other": "Failed to query role dropdown"
@@ -4379,20 +4952,32 @@
   "legacy.error.e2ae144ee47e6f51": {
     "other": "Statistics end time is invalid"
   },
+  "legacy.error.e2d7cc564dd3ed76": {
+    "other": "The schedule cannot produce a valid future execution time"
+  },
   "legacy.error.e2f289e3e36cf455": {
     "other": "One-time password cannot be empty"
   },
   "legacy.error.e2fd9e73043ee853": {
     "other": "Failed to set the status: sub-departments exist"
   },
+  "legacy.error.e305302193a540e8": {
+    "other": "The platform has not configured an OAuth client"
+  },
   "legacy.error.e33217d61673a21c": {
     "other": "No project scope is available for the current user"
+  },
+  "legacy.error.e335b968cc1a1f4e": {
+    "other": "Automation results are frozen. Use Continue discussion to create a regular conversation"
   },
   "legacy.error.e33fc0beeabb38dc": {
     "other": "Failed to update archive config"
   },
   "legacy.error.e3625317beb5819a": {
     "other": "Failed to save MFA configuration"
+  },
+  "legacy.error.e3c10ddd63829dac": {
+    "other": "The run was claimed by another instance or has stopped"
   },
   "legacy.error.e3e3ceb5360f5b13": {
     "other": "Failed to parse the BI semantic configuration"
@@ -4421,6 +5006,9 @@
   "legacy.error.e47532d44611ae28": {
     "other": "Failed to reset password: user info does not exist"
   },
+  "legacy.error.e47cdc313aeb0aa9": {
+    "other": "Failed to retrieve plugin details"
+  },
   "legacy.error.e4b48c29340f693f": {
     "other": "Failed to query language options"
   },
@@ -4441,6 +5029,9 @@
   },
   "legacy.error.e56c3e39f7775e45": {
     "other": "Failed to revoke old login session"
+  },
+  "legacy.error.e59b522c6d224319": {
+    "other": "The run ID is invalid"
   },
   "legacy.error.e5f3ff7d0b2253c0": {
     "other": "Failed to query home overview statistics"
@@ -4484,6 +5075,9 @@
   "legacy.error.e870b4dcb0ded0c7": {
     "other": "Failed to close the column query"
   },
+  "legacy.error.e8898dac472aab91": {
+    "other": "Select a valid IANA time zone"
+  },
   "legacy.error.e8cf0f814577dae5": {
     "other": "Session ID is invalid"
   },
@@ -4511,11 +5105,11 @@
   "legacy.error.eb7376c11e576e01": {
     "other": "Failed to create department"
   },
-  "legacy.error.eb9f0f314fabcb05": {
-    "other": "Failed to generate the PDF report"
-  },
   "legacy.error.ebe9b8ff030be0c3": {
     "other": "The login policy ID cannot be empty"
+  },
+  "legacy.error.ebfd67f4d61e1bc7": {
+    "other": "The authorization state is invalid"
   },
   "legacy.error.ec066a971ee52c71": {
     "other": "Failed to audit task"
@@ -4559,6 +5153,9 @@
   "legacy.error.ee08d452f352173b": {
     "other": "Failed to page business operation logs"
   },
+  "legacy.error.ee100b158fba5e1d": {
+    "other": "Failed to initialize the tenant's built-in AI plugins"
+  },
   "legacy.error.ee51f88c960defb8": {
     "other": "Failed to issue client access token"
   },
@@ -4585,6 +5182,9 @@
   },
   "legacy.error.eface50a9bd64600": {
     "other": "The business module cannot be empty or malformed"
+  },
+  "legacy.error.efd7694cf341d242": {
+    "other": "The task ID is invalid"
   },
   "legacy.error.eff193fd9177f59e": {
     "other": "The initialization password length or complexity does not meet the security policy"
@@ -4616,6 +5216,9 @@
   "legacy.error.f0c321fa54e7e4ed": {
     "other": "Failed to query login policy detail"
   },
+  "legacy.error.f107a75fa6afd927": {
+    "other": "This client cannot use these plugins. Continue from the original client"
+  },
   "legacy.error.f11c9913680e6b54": {
     "other": "Can only delete your own delegation"
   },
@@ -4624,6 +5227,9 @@
   },
   "legacy.error.f12b6fa61a61b0c7": {
     "other": "Client bound tenant is disabled"
+  },
+  "legacy.error.f1312b9b6251a92b": {
+    "other": "The endpoint has not been approved by the platform"
   },
   "legacy.error.f13315b882b89cac": {
     "other": "Failed to test the BI data source"
@@ -4685,6 +5291,9 @@
   "legacy.error.f398b3676ef7459b": {
     "other": "AI knowledge base retrieval failed"
   },
+  "legacy.error.f3a2b242fc63f028": {
+    "other": "The run configuration is corrupted"
+  },
   "legacy.error.f3c60136f3fda7c6": {
     "other": "Each dimension table must have a relationship to the fact table"
   },
@@ -4712,8 +5321,14 @@
   "legacy.error.f4ec8b7116260176": {
     "other": "Failed to query user dropdown"
   },
+  "legacy.error.f51285c8dcf5cb8c": {
+    "other": "Manage plugins and automation from the desktop client"
+  },
   "legacy.error.f524a54193edc7f4": {
     "other": "Failed to read BI source table structures"
+  },
+  "legacy.error.f54a1f26b7c0b3a6": {
+    "other": "Private connection definitions can only use platform-approved endpoints"
   },
   "legacy.error.f54df649d4889afc": {
     "other": "Captcha pre-validation failed"
@@ -4727,8 +5342,14 @@
   "legacy.error.f6153db7a9372802": {
     "other": "Failed to query your session"
   },
+  "legacy.error.f68e8c79e579da4a": {
+    "other": "The automation has stopped. New approvals cannot be created"
+  },
   "legacy.error.f69ca1af9b15704d": {
     "other": "WebAuthn authentication response cannot be empty"
+  },
+  "legacy.error.f6c27ae667c650c6": {
+    "other": "The remote tool was removed or its contract changed. Refresh and review it again"
   },
   "legacy.error.f6cb4f54bd294d0a": {
     "other": "Failed to save WebAuthn disable challenge"
@@ -4744,6 +5365,9 @@
   },
   "legacy.error.f7565b983d27de0f": {
     "other": "Only string fields support inbound redaction"
+  },
+  "legacy.error.f75970fe9a8dddb5": {
+    "other": "The tenant has not installed the plugin"
   },
   "legacy.error.f7b2c64c1b37fe95": {
     "other": "Too many client authentication failures, please try again later"
@@ -4769,6 +5393,9 @@
   "legacy.error.f8d1041eb74a0324": {
     "other": "Invalid API rate limit parameters"
   },
+  "legacy.error.f8e3f5fc6cda56da": {
+    "other": "The execution client does not match the trusted entry point"
+  },
   "legacy.error.f90d26546dedbee7": {
     "other": "MCP authorization engine is not initialized"
   },
@@ -4789,6 +5416,9 @@
   },
   "legacy.error.fa1ec60338bc9604": {
     "other": "The same resource and locale cannot be duplicated"
+  },
+  "legacy.error.fa2a7b002f7991ea": {
+    "other": "Weekdays must be unique values from Monday through Sunday"
   },
   "legacy.error.fa35c0fef4f8b1e2": {
     "other": "Scatter charts require two distinct numeric fields"
@@ -4840,6 +5470,12 @@
   },
   "legacy.error.fd8a77425c196716": {
     "other": "Failed to record client auth failure state"
+  },
+  "legacy.error.fd8c8caf40c03faf": {
+    "other": "The run record does not exist"
+  },
+  "legacy.error.fd96ce6b1a709e3f": {
+    "other": "The automation schedule does not exist"
   },
   "legacy.error.fdbfb4336c489f42": {
     "other": "The translation target type is invalid"
@@ -7135,5 +7771,80 @@
   },
   "获取当前用户生效的密码策略": {
     "other": "Get the password policy effective for the current user"
+  },
+  "base.ai.file.page.keyword.max_len": {
+    "other": "File name keyword cannot exceed 100 characters"
+  },
+  "base.ai.file.page.page_num.positive": {
+    "other": "Page number must be greater than 0"
+  },
+  "base.ai.file.page.page_size.range": {
+    "other": "Page size must be between 1 and 100"
+  },
+  "base.ai.file.rename.id.positive": {
+    "other": "File ID must be greater than 0"
+  },
+  "base.ai.file.rename.file_name.valid": {
+    "other": "File name cannot be empty or exceed 255 characters"
+  },
+  "base.ai.file.trash.id.positive": {
+    "other": "File ID must be greater than 0"
+  },
+  "base.ai.file.restore.id.positive": {
+    "other": "File ID must be greater than 0"
+  },
+  "base.ai.file.delete.id.positive": {
+    "other": "File ID must be greater than 0"
+  },
+  "legacy.error.0bcc4cd098945869": {
+    "other": "The document is not bound to an Xberg MCP connection and cannot be retried"
+  },
+  "legacy.error.e54d74d9a4f84e95": {
+    "other": "The AI file metadata repository is not configured"
+  },
+  "legacy.error.882624c8cf932368": {
+    "other": "Failed to delete the AI file object"
+  },
+  "legacy.error.800715ced110fb33": {
+    "other": "Generated file metadata is incomplete"
+  },
+  "legacy.error.45dfba890e01f2b6": {
+    "other": "The AI file does not exist or you do not have access"
+  },
+  "legacy.error.e87cd6217bb74a9f": {
+    "other": "The Xberg connection ID is invalid"
+  },
+  "legacy.error.5a3df6dc5b931c17": {
+    "other": "The document file name and content cannot be empty"
+  },
+  "legacy.error.b6f75cf6cede5d4c": {
+    "other": "The Xberg MCP plugin is not initialized"
+  },
+  "legacy.error.c9556f01140f087f": {
+    "other": "The Xberg extract tool must be reviewed as read-only"
+  },
+  "legacy.error.1918b6a58243b070": {
+    "other": "The Xberg extract tool has duplicate snapshots"
+  },
+  "legacy.error.55cf4f9958084301": {
+    "other": "The current Xberg connection has not reviewed the extract tool"
+  },
+  "legacy.error.5093032b0010f3c1": {
+    "other": "The Xberg document extraction result is invalid"
+  },
+  "legacy.error.84317c7b0ad90e29": {
+    "other": "Failed to query AI files with pagination"
+  },
+  "legacy.error.ee43728499601770": {
+    "other": "Failed to rename the AI file"
+  },
+  "legacy.error.fb6ec860a2af1663": {
+    "other": "Failed to move the AI file to the recycle bin"
+  },
+  "legacy.error.d9052760af199a40": {
+    "other": "Failed to restore the AI file"
+  },
+  "legacy.error.1d8918d6b774c812": {
+    "other": "Failed to permanently delete the AI file"
   }
 }

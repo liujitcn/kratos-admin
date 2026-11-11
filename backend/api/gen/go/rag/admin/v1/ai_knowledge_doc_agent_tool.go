@@ -65,11 +65,11 @@ func NewAiKnowledgeDocServicePageAiKnowledgeDocAgentTool(aiKnowledgeDocServiceSe
 	)
 }
 
-// NewAiKnowledgeDocServiceUploadAiKnowledgeDocTextAgentTool 创建上传纯文本文档（切片 → 向量化 → 落库）的 Agent Tool。
+// NewAiKnowledgeDocServiceUploadAiKnowledgeDocTextAgentTool 创建上传纯文本文档（由 Xberg MCP 抽取后切片、向量化并落库）的 Agent Tool。
 func NewAiKnowledgeDocServiceUploadAiKnowledgeDocTextAgentTool(aiKnowledgeDocServiceServer AiKnowledgeDocServiceServer) (tool.InvokableTool, error) {
 	return utils.InferTool[*UploadAiKnowledgeDocTextRequest, *emptypb.Empty](
 		"rag_admin_v1_ai_knowledge_doc_service_upload_ai_knowledge_doc_text",
-		"上传纯文本文档（切片 → 向量化 → 落库）。",
+		"上传纯文本文档（由 Xberg MCP 抽取后切片、向量化并落库）。",
 		func(ctx context.Context, req *UploadAiKnowledgeDocTextRequest) (*emptypb.Empty, error) {
 			if req == nil {
 				req = &UploadAiKnowledgeDocTextRequest{}
@@ -79,11 +79,11 @@ func NewAiKnowledgeDocServiceUploadAiKnowledgeDocTextAgentTool(aiKnowledgeDocSer
 	)
 }
 
-// NewAiKnowledgeDocServiceUploadAiKnowledgeDocFileAgentTool 创建上传文档文件（txt/md/docx/pdf：抽取文本后走同一入库链）的 Agent Tool。
+// NewAiKnowledgeDocServiceUploadAiKnowledgeDocFileAgentTool 创建上传文档文件（由 Xberg MCP 抽取后切片、向量化并落库）的 Agent Tool。
 func NewAiKnowledgeDocServiceUploadAiKnowledgeDocFileAgentTool(aiKnowledgeDocServiceServer AiKnowledgeDocServiceServer) (tool.InvokableTool, error) {
 	return utils.InferTool[*UploadAiKnowledgeDocFileRequest, *emptypb.Empty](
 		"rag_admin_v1_ai_knowledge_doc_service_upload_ai_knowledge_doc_file",
-		"上传文档文件（txt/md/docx/pdf：抽取文本后走同一入库链）。",
+		"上传文档文件（由 Xberg MCP 抽取后切片、向量化并落库）。",
 		func(ctx context.Context, req *UploadAiKnowledgeDocFileRequest) (*emptypb.Empty, error) {
 			if req == nil {
 				req = &UploadAiKnowledgeDocFileRequest{}

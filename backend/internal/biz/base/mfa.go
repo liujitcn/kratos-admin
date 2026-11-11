@@ -365,7 +365,7 @@ func (c *MfaCase) beginWebAuthnLogin(ctx context.Context, user *models.BaseUser,
 	}, nil
 }
 
-// VerifyLoginChallenge 校验登录阶段的 TOTP 或恢复码并返回用户。
+// VerifyLoginChallenge 校验两端共用的登录挑战并返回已认证用户。
 func (c *MfaCase) VerifyLoginChallenge(ctx context.Context, req *basev1.VerifyMfaRequest) (*models.BaseUser, error) {
 	challengeKey := mfaLoginChallengeKey(req.GetChallengeId())
 	var challenge dto.MfaLoginChallenge

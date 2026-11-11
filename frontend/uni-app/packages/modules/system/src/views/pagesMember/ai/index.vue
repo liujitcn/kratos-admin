@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import KratosNavBar from '@liujitcn/kratos-uni-app-core/components/KratosNavBar.vue'
-import { onLoad } from '@dcloudio/uni-app'
+import { onHide, onLoad, onShow } from '@dcloudio/uni-app'
 import { computed, nextTick, onBeforeUnmount, ref, watch } from 'vue'
 import {
   defAiMessageService,
@@ -22,6 +22,12 @@ import { formatSrc } from '@liujitcn/kratos-uni-app-core/utils/index'
 import { isAuthExpiredError } from '@liujitcn/kratos-uni-app-core/utils/http'
 import Composer from './components/Composer.vue'
 import SessionDrawer from './components/SessionDrawer.vue'
+import PluginPanel from './components/PluginPanel.vue'
+import AutomationPanel from './components/AutomationPanel.vue'
+import { parseAiResultParams } from './resultLink'
+import { defAiAutomationService } from '../../../api/base/v1/ai_automation'
+import type { AiAutomationRun } from '../../../rpc/base/v1/ai_automation'
+import type { AiPluginSelection } from '../../../rpc/base/v1/ai_plugin'
 import WelcomePanel from './components/WelcomePanel.vue'
 import { useI18n } from '@liujitcn/kratos-uni-app-core'
 import { useThemeStore } from '@liujitcn/kratos-uni-app-core/stores'
@@ -85,7 +91,21 @@ const safeAreaBottom = Math.max(windowInfo.safeAreaInsets?.bottom || 0, 9)
 const windowHeight = windowInfo.windowHeight || windowInfo.screenHeight || 667
 const composerBottom = `${safeAreaBottom + 48}px`
 const drawerTopPadding = `${safeAreaTop + 12}px`
+const pickerTopPadding = `${safeAreaTop + 56}px`
+const functionMenuTop = `${safeAreaTop + 90}px`
 
+const functionOptions = ['chat', 'automations', 'plugins'] as const
+const functionIcons = { chat: 'chat', automations: 'calendar', plugins: 'link' }
+const activeFunction = ref<(typeof functionOptions)[number]>('chat')
+const pageVisible = ref(true)
+const showFunctionMenu = ref(false)
+const showPluginPicker = ref(false)
+const savingPlugins = ref(false)
+const approvalBusy = ref(false)
+const continuing = ref(false)
+const pendingCount = ref(0)
+const currentRun = ref<AiAutomationRun>()
+let resultRefreshTimer: ReturnType<typeof setInterval> | undefined
 const showSessionDrawer = ref(false)
 const activeSessionID = ref('')
 const inputText = ref('')
@@ -161,6 +181,11 @@ const filteredSessions = computed(() => {
 })
 
 const currentMessages = computed(() => messages.value[activeSessionID.value] ?? [])
+const currentSession = computed(() =>
+  sessions.value.find((session) => session.id === activeSessionID.value),
+)
+const currentSessionReadOnly = computed(() => Boolean(currentSession.value?.read_only))
+const currentPlugins = computed(() => currentSession.value?.plugins || [])
 const hasMessages = computed(() => currentMessages.value.length > 0)
 const currentSessionSending = computed(() => isSessionSending(activeSessionID.value))
 const starterPromptPageCount = computed(() => {
@@ -203,16 +228,51 @@ const composerPlaceholder = computed(() => {
 })
 const isSubmitDisabled = computed(
   () =>
+    currentSessionReadOnly.value ||
     uploadingAttachment.value ||
     currentSessionSending.value ||
     isRecording.value ||
     (!inputText.value.trim() && selectedAttachments.value.length === 0),
 )
 
-onLoad(() => {
+onLoad((options) => {
   void loadAiShortcuts()
-  void ensureSessionsLoaded()
+  void loadInitialTarget(options)
 })
+
+onShow(() => {
+  pageVisible.value = true
+  void refreshPendingCount()
+  if (resultRefreshTimer) clearInterval(resultRefreshTimer)
+  resultRefreshTimer = setInterval(() => {
+    if (
+      activeFunction.value === 'chat' &&
+      !currentSessionSending.value &&
+      !loadingSessionID.value &&
+      (currentSessionReadOnly.value ||
+        currentMessages.value.some(
+          (message) => message.status === AiMessageStatus.AI_MESSAGE_STATUS_WAITING_APPROVAL,
+        ))
+    ) {
+      void loadMessages(activeSessionID.value)
+      if (currentSession.value?.automation_run_id)
+        void refreshCurrentRun(currentSession.value.automation_run_id)
+    }
+  }, 5000)
+})
+onHide(() => {
+  pageVisible.value = false
+  if (resultRefreshTimer) clearInterval(resultRefreshTimer)
+})
+
+watch(
+  () => currentSession.value?.automation_run_id,
+  async (runID) => {
+    currentRun.value = undefined
+    if (!runID) return
+    await refreshCurrentRun(runID)
+  },
+)
 
 watch(locale, () => {
   starterShortcuts.value = createStarterShortcuts()
@@ -220,6 +280,7 @@ watch(locale, () => {
 })
 
 onBeforeUnmount(() => {
+  if (resultRefreshTimer) clearInterval(resultRefreshTimer)
   cancelAllStreamTasks()
   clearPendingDelta()
   activeSessionID.value = ''
@@ -230,6 +291,7 @@ const toggleSessionDrawer = () => {
 }
 
 const selectSession = (sessionID: string) => {
+  activeFunction.value = 'chat'
   activeSessionID.value = sessionID
   showSessionDrawer.value = false
   if (!messages.value[sessionID]?.length || !isSessionSending(sessionID)) {
@@ -245,6 +307,7 @@ const createSession = async () => {
     if (!sessionID) {
       return
     }
+    activeFunction.value = 'chat'
     activeSessionID.value = sessionID
     messages.value[sessionID] = []
     sessionKeyword.value = ''
@@ -252,45 +315,6 @@ const createSession = async () => {
   } catch (error) {
     showError(error, t('system.ai.create_session_failed'))
   }
-}
-
-const deleteSession = async (sessionID: string) => {
-  const session = sessions.value.find((item) => item.id === sessionID)
-  const result = await uni.showModal({
-    title: t('system.ai.delete_session'),
-    content: t('system.ai.delete_session_confirm', {
-      title: session?.title || t('system.ai.current_session'),
-    }),
-    confirmText: t('common.action.delete'),
-    confirmColor: themeStore.colors.aiDanger,
-    cancelColor: themeStore.colors.aiTextMuted,
-  })
-  if (!result.confirm) {
-    return
-  }
-
-  try {
-    await defAiSessionService.DeleteAiSession({ id: sessionID })
-    sessions.value = sessions.value.filter((item) => item.id !== sessionID)
-    delete messages.value[sessionID]
-    if (activeSessionID.value === sessionID) {
-      activeSessionID.value = ''
-      await ensureActiveSession()
-    }
-  } catch (error) {
-    showError(error, t('system.ai.delete_session_failed'))
-  }
-}
-
-const handleSessionAction = (session: AiSession) => {
-  uni.showActionSheet({
-    itemList: [t('system.ai.delete_session')],
-    success: ({ tapIndex }) => {
-      if (tapIndex === 0) {
-        void deleteSession(session.id)
-      }
-    },
-  })
 }
 
 const copyMessage = (item: ChatMessageItem) => {
@@ -302,7 +326,7 @@ const copyMessage = (item: ChatMessageItem) => {
 
 const deleteMessage = async (item: ChatMessageItem) => {
   const sessionID = activeSessionID.value
-  if (!sessionID) {
+  if (!sessionID || currentSessionReadOnly.value) {
     return
   }
   try {
@@ -321,6 +345,7 @@ const deleteMessage = async (item: ChatMessageItem) => {
 }
 
 const canRegenerateMessage = (item: ChatMessageItem) =>
+  !currentSessionReadOnly.value &&
   item.role === 'ai' &&
   !item.localOnly &&
   !currentSessionSending.value &&
@@ -350,9 +375,11 @@ const regenerateMessage = async (item: ChatMessageItem) => {
 }
 
 const handleMessageAction = (item: ChatMessageItem) => {
-  const itemList = canRegenerateMessage(item)
-    ? [t('system.ai.action.copy'), t('common.action.delete'), t('system.ai.action.regenerate')]
-    : [t('system.ai.action.copy'), t('common.action.delete')]
+  const itemList = currentSessionReadOnly.value
+    ? [t('system.ai.action.copy')]
+    : canRegenerateMessage(item)
+      ? [t('system.ai.action.copy'), t('common.action.delete'), t('system.ai.action.regenerate')]
+      : [t('system.ai.action.copy'), t('common.action.delete')]
   uni.showActionSheet({
     itemList,
     success: ({ tapIndex }) => {
@@ -379,7 +406,7 @@ const handleSend = async () => {
 }
 
 const handleStarterPrompt = async (shortcut: AiShortcut) => {
-  if (currentSessionSending.value || loadingSessions.value) {
+  if (currentSessionReadOnly.value || currentSessionSending.value || loadingSessions.value) {
     return
   }
   await sendAiPayload({
@@ -396,6 +423,7 @@ const refreshStarterPrompts = () => {
 }
 
 const handleToggleRecord = () => {
+  if (currentSessionReadOnly.value) return
   isRecording.value = !isRecording.value
   uni.showToast({
     icon: 'none',
@@ -404,7 +432,7 @@ const handleToggleRecord = () => {
 }
 
 const handleAttachment = () => {
-  if (uploadingAttachment.value || currentSessionSending.value) {
+  if (currentSessionReadOnly.value || uploadingAttachment.value || currentSessionSending.value) {
     return
   }
   if (selectedAttachments.value.length >= MAX_ATTACHMENT_COUNT) {
@@ -865,9 +893,7 @@ async function ensureSessionsLoaded() {
   }
   loadingSessions.value = true
   try {
-    const response = await defAiSessionService.ListAiSession({
-      terminal: AI_TERMINAL,
-    })
+    const response = await defAiSessionService.ListAiSession({})
     sessions.value = normalizeSessionList(response.sessions)
     await ensureActiveSession()
   } catch (error) {
@@ -901,6 +927,7 @@ async function createRemoteSession() {
   const response = await defAiSessionService.CreateAiSession({
     title: t('system.ai.new_session'),
     terminal: AI_TERMINAL,
+    plugins: [],
   })
   const session = response.session ? normalizeSession(response.session) : undefined
   if (!session) {
@@ -969,6 +996,10 @@ function normalizeSession(session?: Partial<AiSession> | null): AiSession {
     tenant_id: Number(session?.tenant_id ?? 0),
     title: String(session?.title ?? t('system.ai.new_session')),
     summary: String(session?.summary ?? ''),
+    plugins: session?.plugins || [],
+    automation_id: session?.automation_id || '',
+    automation_run_id: session?.automation_run_id || '',
+    read_only: Boolean(session?.read_only),
     updated_at: session?.updated_at,
     terminal: Number(session?.terminal ?? AI_TERMINAL),
   }
@@ -1265,6 +1296,164 @@ function formatTools(tools: AiToolCall[]) {
     .join(' · ')
 }
 
+function closeWorkspaceOverlays() {
+  showFunctionMenu.value = false
+  showPluginPicker.value = false
+}
+
+function selectFunction(feature: (typeof functionOptions)[number]) {
+  activeFunction.value = feature
+  showFunctionMenu.value = false
+}
+
+/** 保存当前会话的具体插件账号，选用本身不执行工具。 */
+async function savePlugins(plugins: AiPluginSelection[]) {
+  if (savingPlugins.value || currentSessionReadOnly.value || currentSessionSending.value) return
+  const previousSessionID = activeSessionID.value
+  savingPlugins.value = true
+  try {
+    const sessionID = activeSessionID.value || (await createRemoteSession())
+    if (!sessionID) return
+    const response = await defAiSessionService.SetAiSessionPlugins({ id: sessionID, plugins })
+    if (response.session) upsertSession(normalizeSession(response.session))
+    if (activeSessionID.value === previousSessionID) {
+      activeSessionID.value = sessionID
+      showPluginPicker.value = false
+    }
+  } catch (error) {
+    showError(error, t('system.ai.workspace.action_failed'))
+  } finally {
+    savingPlugins.value = false
+  }
+}
+
+/** 通知参数仅定位资源，先查询本人记录再打开结果。 */
+async function loadInitialTarget(options: unknown) {
+  await ensureSessionsLoaded()
+  const params = parseAiResultParams(options)
+  if (!params) return
+  try {
+    if (params.run_id) {
+      const run = await defAiAutomationService.GetAiAutomationRun({ id: params.run_id })
+      if (run.session_deleted || !run.session_id)
+        throw new Error(t('system.ai.workspace.result_deleted'))
+      openAutomationResult(run)
+      return
+    }
+    const session = sessions.value.find((item) => item.id === params.session_id)
+    if (!session) throw new Error(t('system.ai.load_messages_failed'))
+    selectSession(session.id)
+  } catch (error) {
+    showError(error, t('system.ai.load_messages_failed'))
+  }
+}
+
+/** 打开独立冻结结果，保留来源元数据并禁止消息变更。 */
+function openAutomationResult(run: AiAutomationRun) {
+  if (!run.session_id || run.session_deleted) return
+  upsertSession(
+    normalizeSession({
+      id: run.session_id,
+      title: run.configuration?.name,
+      plugins: run.configuration?.plugins || [],
+      automation_id: run.automation_id,
+      automation_run_id: run.id,
+      read_only: true,
+    }),
+  )
+  selectSession(run.session_id)
+  currentRun.value = run
+}
+
+/** 从服务端读取运行终态，避免将活动结果当作可继续讨论的终态。 */
+async function refreshCurrentRun(runID: string) {
+  try {
+    const run = await defAiAutomationService.GetAiAutomationRun({ id: runID })
+    if (currentSession.value?.automation_run_id === runID) currentRun.value = run
+  } catch (error) {
+    if (resultRefreshTimer) clearInterval(resultRefreshTimer)
+    showError(error, t('system.ai.workspace.load_failed'))
+  }
+}
+
+/** 从冻结结果创建普通会话，原结果仍保留。 */
+async function continueDiscussion() {
+  const runID = currentSession.value?.automation_run_id
+  if (
+    !runID ||
+    continuing.value ||
+    !currentRun.value ||
+    ['queued', 'running', 'waiting_approval'].includes(currentRun.value.status)
+  )
+    return
+  continuing.value = true
+  try {
+    const response = await defAiAutomationService.ContinueAiAutomationRun({ id: runID })
+    if (response.session) {
+      upsertSession(normalizeSession(response.session))
+      selectSession(response.session.id)
+    }
+  } catch (error) {
+    showError(error, t('system.ai.workspace.action_failed'))
+  } finally {
+    continuing.value = false
+  }
+}
+
+/** 仅提交本人确认决定，工具和参数均使用服务端冻结值。 */
+async function decideApproval(item: ChatMessageItem, approved: boolean) {
+  const approval = item.output_content?.approval
+  if (
+    !approval ||
+    approvalBusy.value ||
+    item.status !== AiMessageStatus.AI_MESSAGE_STATUS_WAITING_APPROVAL
+  )
+    return
+  const sessionID = activeSessionID.value
+  approvalBusy.value = true
+  try {
+    const response = await defAiMessageService.DecideAiToolApproval({
+      session_id: sessionID,
+      message_id: item.messageID,
+      approval_id: approval.id,
+      approved,
+    })
+    if (response.session) upsertSession(normalizeSession(response.session))
+    await loadMessages(sessionID)
+    await refreshPendingCount()
+    if (currentSession.value?.automation_run_id)
+      currentRun.value = await defAiAutomationService.GetAiAutomationRun({
+        id: currentSession.value.automation_run_id,
+      })
+  } catch (error) {
+    showError(error, t('system.ai.workspace.action_failed'))
+    await loadMessages(sessionID)
+  } finally {
+    approvalBusy.value = false
+  }
+}
+
+/** 刷新功能入口的本人待确认数量。 */
+async function refreshPendingCount() {
+  try {
+    pendingCount.value = (
+      await defAiAutomationService.ListAiAutomation({ status: '', keyword: '' })
+    ).pending_count
+  } catch (error) {
+    showError(error, t('system.ai.workspace.load_failed'))
+  }
+}
+
+function approvalExpired(item: ChatMessageItem) {
+  const expires = resolveTimestamp(item.output_content?.approval?.expires_at)
+  return Boolean(expires && expires <= Date.now())
+}
+
+function formatApprovalExpiry(item: ChatMessageItem) {
+  const expires = resolveTimestamp(item.output_content?.approval?.expires_at)
+  return expires ? new Date(expires).toLocaleString() : '—'
+}
+
 function showError(error: unknown, fallback: string) {
   // 登录态失效时请求层已弹窗引导重新登录，不再叠加失败提示。
   if (isAuthExpiredError(error)) return
@@ -1274,15 +1463,66 @@ function showError(error: unknown, fallback: string) {
 </script>
 
 <template>
-  <view class="ai-page" :class="themeStore.themeClass">
+  <view class="ai-page" :class="themeStore.themeClass" @keydown.esc="closeWorkspaceOverlays">
     <view class="ai-navbar">
-      <KratosNavBar
-        :title="t('system.ai.chat_title')"
-        :action="{ icon: 'history', label: t('system.ai.history'), onClick: toggleSessionDrawer }"
-      />
+      <KratosNavBar :title="t('system.ai.chat_title')" />
     </view>
 
+    <view class="workspace-toolbar">
+      <button size="mini" @tap="showFunctionMenu = !showFunctionMenu">
+        <uni-icons type="list" size="16" :color="themeStore.colors.aiPrimary" />
+        {{ t('system.ai.workspace.functions') }} ·
+        {{ t(`system.ai.workspace.${activeFunction}`) }} ▾
+      </button>
+      <button size="mini" @tap="toggleSessionDrawer">{{ t('system.ai.history') }}</button>
+      <button size="mini" @tap="createSession">{{ t('system.ai.new_session') }}</button>
+    </view>
+    <view v-if="showFunctionMenu" class="function-mask" @tap="showFunctionMenu = false">
+      <view class="function-menu" :style="{ top: functionMenuTop }" @tap.stop>
+        <button v-for="feature in functionOptions" :key="feature" @tap="selectFunction(feature)">
+          <uni-icons
+            :type="functionIcons[feature]"
+            size="18"
+            :color="themeStore.colors.aiPrimary"
+          />
+          {{ t(`system.ai.workspace.${feature}`)
+          }}<text v-if="feature === 'automations' && pendingCount"> · {{ pendingCount }}</text>
+        </button>
+      </view>
+    </view>
+    <AutomationPanel
+      v-show="activeFunction === 'automations'"
+      :active="pageVisible && activeFunction === 'automations'"
+      @result="openAutomationResult"
+      @pending="pendingCount = $event"
+    />
+    <PluginPanel
+      v-show="activeFunction === 'plugins'"
+      :active="pageVisible && activeFunction === 'plugins'"
+      :terminal="currentSession?.terminal ?? AI_TERMINAL"
+      :selected="currentPlugins"
+    />
+    <view v-if="activeFunction === 'chat' && currentSessionReadOnly" class="frozen-banner">
+      <text>{{ t('system.ai.workspace.frozen_result') }}</text>
+      <text v-if="currentRun">{{ t(`system.ai.workspace.${currentRun.status}`) }}</text>
+      <text v-if="currentRun?.result_unknown || currentRun?.status === 'unknown'">{{
+        t('system.ai.workspace.unknown_result')
+      }}</text>
+      <button
+        size="mini"
+        :loading="continuing"
+        :disabled="
+          continuing ||
+          !currentRun ||
+          ['queued', 'running', 'waiting_approval'].includes(currentRun.status)
+        "
+        @tap="continueDiscussion"
+      >
+        {{ t('system.ai.workspace.continue_discussion') }}
+      </button>
+    </view>
     <scroll-view
+      v-show="activeFunction === 'chat'"
       class="ai-body"
       scroll-y
       scroll-with-animation
@@ -1341,6 +1581,37 @@ function showError(error: unknown, fallback: string) {
                 </view>
               </view>
             </view>
+            <view v-if="item.role === 'ai' && item.output_content?.approval" class="approval-card">
+              <view>{{ t('system.ai.workspace.needs_confirmation') }}</view>
+              <view
+                v-for="call in item.output_content.approval.calls"
+                :key="call.name"
+                class="approval-call"
+              >
+                <view>{{ call.title || call.name }}</view>
+                <text selectable>{{ call.arguments }}</text>
+              </view>
+              <view>{{ t('system.ai.workspace.expires') }} · {{ formatApprovalExpiry(item) }}</view>
+              <view v-if="approvalExpired(item)">{{
+                t('system.ai.workspace.approval_expired')
+              }}</view>
+              <view
+                v-else-if="item.status === AiMessageStatus.AI_MESSAGE_STATUS_WAITING_APPROVAL"
+                class="workspace-toolbar"
+              >
+                <button
+                  size="mini"
+                  :disabled="approvalBusy"
+                  :loading="approvalBusy"
+                  @tap="decideApproval(item, true)"
+                >
+                  {{ t('system.ai.workspace.approve') }}
+                </button>
+                <button size="mini" :disabled="approvalBusy" @tap="decideApproval(item, false)">
+                  {{ t('system.ai.workspace.reject') }}
+                </button>
+              </view>
+            </view>
             <view v-if="item.tools.length" class="tool-row">{{
               t('system.ai.tool_called', { tools: formatTools(item.tools) })
             }}</view>
@@ -1354,6 +1625,7 @@ function showError(error: unknown, fallback: string) {
     </scroll-view>
 
     <Composer
+      v-show="activeFunction === 'chat' && !currentSessionReadOnly"
       v-model="inputText"
       :attachments="selectedAttachments"
       :model-providers="modelProviders"
@@ -1361,6 +1633,8 @@ function showError(error: unknown, fallback: string) {
       :model-name="selectedModelName"
       :knowledge-options="knowledgeOptions"
       :knowledge-ids="selectedKnowledgeIds"
+      :plugin-count="currentPlugins.length"
+      @plugins="showPluginPicker = true"
       :model-placeholder="t('system.ai.model.model_placeholder')"
       :placeholder="composerPlaceholder"
       :bottom="composerBottom"
@@ -1375,6 +1649,17 @@ function showError(error: unknown, fallback: string) {
       @remove-attachment="removeSelectedAttachment"
     />
 
+    <PluginPanel
+      v-if="showPluginPicker"
+      :active="showPluginPicker"
+      :terminal="currentSession?.terminal ?? AI_TERMINAL"
+      picker
+      :top-padding="pickerTopPadding"
+      :selected="currentPlugins"
+      :saving="savingPlugins"
+      @save="savePlugins"
+      @close="showPluginPicker = false"
+    />
     <SessionDrawer
       :open="showSessionDrawer"
       :top-padding="drawerTopPadding"
@@ -1385,13 +1670,61 @@ function showError(error: unknown, fallback: string) {
       @close="showSessionDrawer = false"
       @create="createSession"
       @select="selectSession"
-      @action="handleSessionAction"
       @update:keyword="sessionKeyword = $event"
     />
   </view>
 </template>
 
 <style lang="scss">
+.workspace-toolbar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10rpx;
+  padding: 12rpx 20rpx;
+}
+.workspace-toolbar button {
+  margin: 0;
+}
+.function-mask {
+  position: absolute;
+  inset: 0;
+  z-index: 1001;
+  background: var(--kratos-color-mask);
+}
+.function-menu {
+  position: absolute;
+  top: 180rpx;
+  left: 20rpx;
+  min-width: 300rpx;
+  padding: 16rpx;
+  background: var(--kratos-color-surface-solid);
+  border-radius: var(--kratos-page-radius);
+}
+.function-menu button {
+  margin: 12rpx 0;
+}
+.frozen-banner {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12rpx;
+  padding: 16rpx 24rpx;
+  color: var(--kratos-color-text-muted);
+  font-size: 24rpx;
+}
+.approval-card {
+  margin-top: 20rpx;
+  padding: 20rpx;
+  border: 1rpx solid var(--kratos-color-border-accent);
+  border-radius: var(--kratos-page-radius);
+  font-size: 24rpx;
+}
+.approval-call {
+  margin: 16rpx 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
 .ai-page {
   position: relative;
   display: flex;

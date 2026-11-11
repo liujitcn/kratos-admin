@@ -3,6 +3,21 @@
 package models
 
 // TableComment 返回表注释。
+func (*AiAutomation) TableComment() string {
+	return "AI助手自动化计划"
+}
+
+// TableComment 返回表注释。
+func (*AiAutomationRun) TableComment() string {
+	return "AI助手自动化执行审计"
+}
+
+// TableComment 返回表注释。
+func (*AiFile) TableComment() string {
+	return "AI助手文件元数据"
+}
+
+// TableComment 返回表注释。
 func (*AiMessage) TableComment() string {
 	return "AI助手消息"
 }
@@ -10,6 +25,31 @@ func (*AiMessage) TableComment() string {
 // TableComment 返回表注释。
 func (*AiModel) TableComment() string {
 	return "AI模型"
+}
+
+// TableComment 返回表注释。
+func (*AiPlugin) TableComment() string {
+	return "AI插件定义"
+}
+
+// TableComment 返回表注释。
+func (*AiPluginConnection) TableComment() string {
+	return "AI插件账号连接"
+}
+
+// TableComment 返回表注释。
+func (*AiPluginInstallation) TableComment() string {
+	return "AI插件租户安装"
+}
+
+// TableComment 返回表注释。
+func (*AiPluginTool) TableComment() string {
+	return "AI插件工具发现快照"
+}
+
+// TableComment 返回表注释。
+func (*AiPluginToolPolicy) TableComment() string {
+	return "AI插件租户工具审核策略"
 }
 
 // TableComment 返回表注释。

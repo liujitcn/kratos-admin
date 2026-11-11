@@ -257,6 +257,9 @@ function resize(id: string, value: Partial<DashboardCardLayout>) {
   min-height: 70px;
   height: auto;
 }
+.bi-designer__item :deep(.bi-data-card__footer .el-button) {
+  margin-left: 0;
+}
 .bi-designer__item.is-selected :deep(.bi-data-card) {
   border-color: var(--el-color-primary);
 }

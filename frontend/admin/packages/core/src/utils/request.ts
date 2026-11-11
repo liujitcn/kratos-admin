@@ -389,6 +389,8 @@ service.interceptors.response.use(
           t
         )
       : undefined;
+    const displayMessage = message || t("common.message.system_error");
+    error.message = displayMessage;
     const requestConfig = error.config as RetryableRequestConfig | undefined;
 
     // 退出或认证失效后，页面中的在途请求返回 401 属于预期结果，不再重复刷新令牌、弹窗或提示错误。
@@ -421,15 +423,13 @@ service.interceptors.response.use(
     } else if (data) {
       if (!shouldSkipErrorMessage(requestConfig)) {
         if (isPasswordChangeRequired(data)) {
-          handlePasswordChangeRequired(message || t("common.message.system_error"));
-        } else if (message) {
-          showRequestError(message);
+          handlePasswordChangeRequired(displayMessage);
         } else {
-          showRequestError(t("common.message.system_error"));
+          showRequestError(displayMessage);
         }
       }
     } else if (!shouldSkipErrorMessage(requestConfig)) {
-      showRequestError(error.message || t("common.message.system_error"));
+      showRequestError(displayMessage);
     }
     return Promise.reject(error);
   }

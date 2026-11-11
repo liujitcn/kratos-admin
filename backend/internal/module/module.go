@@ -46,6 +46,7 @@ import (
 	"github.com/liujitcn/kratos-admin/backend/internal/server/system/admin/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/server/system/app/v1"
 	"github.com/liujitcn/kratos-admin/backend/pkg/agent"
+	"github.com/liujitcn/kratos-admin/backend/pkg/aiautomation"
 	pkgbi "github.com/liujitcn/kratos-admin/backend/pkg/bi"
 )
 
@@ -61,12 +62,16 @@ type Module struct {
 	biRegistry     *pkgbi.Registry
 	aiRuntime      *ai.Runtime
 	catalog        *i18n.I18n
+	aiPluginCase   *basemfa.AiPluginCase
+	aiFileRepo     *mqttdata.AiFileRepository
 }
 
 var _ module.Module = (*Module)(nil)
 
 // NewModules 创建包含 Admin 服务的模块集合。
 func NewModules(
+	dispatcher *aiautomation.Dispatcher,
+	aiAutomationCase *basemfa.AiAutomationCase,
 	baseServices *base.Services,
 	adminServices *admin.Services,
 	appServices *app.Services,
@@ -82,10 +87,12 @@ func NewModules(
 	baseUserCase *biz.BaseUserCase,
 	projectGrantCase *biz.BaseTenantProjectGrantCase,
 	baseOauthProviderCase *biz.BaseOauthProviderCase,
+	aiFileRepo *mqttdata.AiFileRepository,
 	redactResolver *kit.RedactPolicyResolver,
 	rateLimitResolver *kit.RateLimitPolicyResolver,
 	secretFieldStorage *kit.SecretFieldRuntime,
 	mfaCase *basemfa.MfaCase,
+	aiPluginCase *basemfa.AiPluginCase,
 ) (module.Modules, error) {
 	// 迁移可能新增系统配置，模块启动前刷新缓存，避免认证策略沿用旧快照。
 	var err error
@@ -136,6 +143,11 @@ func NewModules(
 	if err != nil {
 		_, _ = fmt.Fprintf(os.Stderr, "启动运行日志采集失败: %v\n", err)
 	}
+	err = aiPluginCase.SyncBuiltinTools(context.Background())
+	if err != nil {
+		return nil, fmt.Errorf("同步内置AI工具失败: %w", err)
+	}
+	dispatcher.Bind(aiAutomationCase.Dispatch)
 	instance := &Module{
 		redactResolver: redactResolver,
 		secretCrypto:   secretCryptoService,
@@ -146,6 +158,8 @@ func NewModules(
 		biServices:     biServices,
 		biRegistry:     biRegistry,
 		aiRuntime:      aiRuntime,
+		aiPluginCase:   aiPluginCase,
+		aiFileRepo:     aiFileRepo,
 		catalog:        catalog,
 	}
 	err = instance.InitializeSensitiveStorage(context.Background(), admindata.Models()...)
@@ -185,7 +199,11 @@ func (m *Module) RegisterBiSourceAdapters(adapters ...pkgbi.SourceAdapter) error
 
 // RegisterAgentTools 将宿主业务工具注册到 Admin AI 运行时。
 func (m *Module) RegisterAgentTools(terminal string, tools ...agent.Tool) error {
-	return m.aiRuntime.RegisterTools(terminal, tools...)
+	err := m.aiRuntime.RegisterTools(terminal, tools...)
+	if err != nil {
+		return err
+	}
+	return m.aiPluginCase.SyncBuiltinTools(context.Background())
 }
 
 // NewQueueConsumers 提供 Admin 自身投递事件的队列消费者集合。
@@ -301,6 +319,7 @@ func (m *Module) RegisterHTTP(server *http.Server) {
 	)(protectStaticFileAccess(
 		blockStaticDirectoryListing(server.Server.Handler),
 		m.adminServices.BaseFileRepository,
+		m.aiFileRepo,
 		m.adminServices.BaseCase.OSS,
 		m.adminServices.Authenticator,
 		m.adminServices.UserToken,

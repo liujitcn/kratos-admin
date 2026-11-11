@@ -1,5 +1,11 @@
 <template>
   <main class="agent-chat-panel" :class="{ 'is-empty': isEmptyState, 'has-shortcuts': hasShortcutPanel }">
+    <div v-if="activeSession?.read_only" class="agent-result-banner">
+      <span>{{ t("system.ai.workspace.frozen_result") }}</span
+      ><el-button text type="primary" @click="emit('continueResult')">{{
+        t("system.ai.workspace.continue_discussion")
+      }}</el-button>
+    </div>
     <template v-if="isEmptyState">
       <div class="agent-chat-empty">
         <div class="agent-chat-empty__title">{{ welcomeTitle }}</div>
@@ -48,7 +54,10 @@
         </section>
         <div class="agent-chat-empty__sender">
           <XSender
+            v-if="!activeSession?.read_only"
             :key="senderKey"
+            :draft="draft"
+            @draft-change="emit('draftChange', $event)"
             :sending="sending"
             :model-providers="modelProviders"
             :provider-id="providerId"
@@ -367,7 +376,10 @@
           </div>
         </section>
         <XSender
+          v-if="!activeSession?.read_only"
           :key="senderKey"
+          :draft="draft"
+          @draft-change="emit('draftChange', $event)"
           :sending="sending"
           :model-providers="modelProviders"
           :provider-id="providerId"
@@ -546,11 +558,15 @@ const props = defineProps<{
   knowledgeOptions: AiKnowledgeOption[];
   /** 当前选择的知识库编号列表。 */
   knowledgeIds: number[];
+  /** 草稿由页面按会话保存。 */
+  draft?: SubmitPayload;
 }>();
 
 const emit = defineEmits<{
   /** 提交输入框内容。 */
   submit: [payload: SubmitPayload];
+  draftChange: [value: SubmitPayload];
+  continueResult: [];
   /** 更新当前选择的供应商和模型。 */
   modelChange: [providerId: number, modelName: string];
   /** 更新当前选择的知识库编号列表。 */
@@ -615,7 +631,9 @@ const shortcutVisibleList = computed(() => {
   return shortcutAllList.value.slice(start, start + SHORTCUT_BATCH_SIZE);
 });
 
-const hasShortcutPanel = computed(() => props.loadingShortcuts || shortcutVisibleList.value.length > 0);
+const hasShortcutPanel = computed(
+  () => !props.activeSession?.read_only && (props.loadingShortcuts || shortcutVisibleList.value.length > 0)
+);
 
 const canRefreshShortcutBatch = computed(() => shortcutAllList.value.length > SHORTCUT_BATCH_SIZE);
 
@@ -689,6 +707,7 @@ const vMessageFooterWidth: ObjectDirective<HTMLElement> = {
 
 /** 读取输入框内容并提交给父组件。 */
 function handleSubmit(payload: SubmitPayload) {
+  if (props.activeSession?.read_only) return;
   emit("submit", payload);
 }
 
@@ -704,6 +723,7 @@ function handleKnowledgeChange(knowledgeIds: number[]) {
 
 /** 点击快捷入口时提交对应入口动作。 */
 function handleShortcutClick(shortcut: AiShortcut) {
+  if (props.activeSession?.read_only) return;
   emit("submit", {
     text: shortcut.prompt || shortcut.title,
     attachments: [],
@@ -770,6 +790,7 @@ function resolveMessageActions(item: ChatMessageItem) {
     label: t("system.ai.chat.action.copy"),
     icon: CopyDocument
   };
+  if (props.activeSession?.read_only) return [copyAction];
   const deleteAction: MessageActionOption = { key: "delete" as const, label: t("common.action.delete"), icon: Delete };
   if (item.status === AiMessageStatus.AI_MESSAGE_STATUS_WAITING_APPROVAL) return [deleteAction];
   const isLatest = String(item.id) === String(props.messages.at(-1)?.id);
@@ -1064,6 +1085,15 @@ function buildMessageAttachmentItems(attachments: AiAttachment[]): FilesCardProp
 </script>
 
 <style scoped lang="scss">
+.agent-result-banner {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: center;
+  color: var(--admin-page-text-secondary);
+  font-size: 12px;
+  padding: 6px;
+}
 .agent-approval {
   margin: 12px 0;
   padding: 16px;

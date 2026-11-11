@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/cloudwego/eino/adk"
+	"github.com/cloudwego/eino/adk/middlewares/dynamictool/toolsearch"
 	"github.com/cloudwego/eino/components/tool"
 	"github.com/cloudwego/eino/compose"
 	"github.com/cloudwego/eino/schema"
@@ -61,6 +62,10 @@ type Request struct {
 	Tools []tool.BaseTool
 	// ToolInfos 本轮允许暴露给模型的工具定义。
 	ToolInfos []*schema.ToolInfo
+	// DynamicTools 使用框架动态发现，工具节点由中间件装入工具。
+	DynamicTools bool
+	// ResolveToolInfos 每次模型调用前重新读取有效权限。
+	ResolveToolInfos func(context.Context) []*schema.ToolInfo
 	// Recorder 调用记录器。
 	Recorder *callback.Recorder
 	// LocalizeMessage 按请求语言生成用户可见的错误文案。
@@ -160,21 +165,33 @@ func (r *Runner) Run(ctx context.Context, request Request) (*Result, error) {
 
 // newAgent 创建带项目中间件的 Eino ChatModelAgent。
 func (r *Runner) newAgent(ctx context.Context, request Request) (*adk.TypedChatModelAgent[*schema.AgenticMessage], error) {
-	handlers := []adk.TypedChatModelAgentMiddleware[*schema.AgenticMessage]{
-		middleware.NewToolFilterHandler(request.ToolInfos),
+	var handlers []adk.TypedChatModelAgentMiddleware[*schema.AgenticMessage]
+	tools := request.Tools
+	infos := append([]*schema.ToolInfo(nil), request.ToolInfos...)
+	if request.DynamicTools && len(tools) > 0 {
+		search, err := toolsearch.NewTyped[*schema.AgenticMessage](ctx, &toolsearch.Config{DynamicTools: tools, UseModelToolSearch: false})
+		if err != nil {
+			return nil, err
+		}
+		handlers = append(handlers, search)
+		tools = nil
+		infos = append(infos, &schema.ToolInfo{Name: "tool_search"})
 	}
-	// 服务端工具只在 Responses 协议下注入，聊天补全协议没有对应能力。
 	if r.serverTools {
 		handlers = append(handlers, middleware.NewResponsesServerToolHandler())
 	}
-	handlers = append(handlers, middleware.NewToolMetricsHandler(toolTitleResolver(request.ToolInfos), request.LocalizeMessage))
+	filter := middleware.NewToolFilterHandler(infos)
+	filter.BeforeModel = agenttool.CheckModelExecution
+	filter.ResolveToolInfos = request.ResolveToolInfos
+	filter.AllowToolSearch = request.DynamicTools && len(request.Tools) > 0
+	handlers = append(handlers, filter, middleware.NewToolMetricsHandler(toolTitleResolver(infos), request.LocalizeMessage))
 	return adk.NewTypedChatModelAgent(ctx, &adk.TypedChatModelAgentConfig[*schema.AgenticMessage]{
 		Name:        r.name,
 		Description: r.description,
 		Model:       r.model,
 		ToolsConfig: adk.ToolsConfig{
 			ToolsNodeConfig: compose.ToolsNodeConfig{
-				Tools:               request.Tools,
+				Tools:               tools,
 				ExecuteSequentially: true,
 			},
 		},

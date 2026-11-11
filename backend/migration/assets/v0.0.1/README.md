@@ -1,6 +1,6 @@
 # 默认初始化资源（各数据库类型公用）
 
-本文件维护 `v0.0.1` 的公用初始化说明，供各数据库类型（`mysql/`、`postgres/`）共用；数据源独有的说明放在对应目录内。脚本只写入默认数据，不包含建表语句；服务启动时由 GORM `AutoMigrate` 创建启用迁移的模型，再按文件名执行数据源目录中的 `.up.sql`。
+本文件维护 `v0.0.1` 的公用初始化说明，供各数据库类型（`mysql/`、`postgres/`）共用；数据源独有的说明放在对应目录内。服务启动时由 GORM `AutoMigrate` 创建启用迁移的模型，再按文件名执行数据源目录中的 `.up.sql`；SQL 脚本只写默认数据，不重复维护模型对应的建表定义。
 
 ## 文件职责
 
@@ -73,4 +73,8 @@
 
 启动恢复记录使用 `START` 阶段及 `script_id=0`，不执行脚本、不写共享脚本日志。无 `OnCreated` 或关联已确认可扫描恢复；有 `OnCreated` 必须注册 `RegisterBindingVerifier` 读取宿主持久化关联。扫描及人工重试遇到未确认关联先核验，true 才恢复，false/错误将 START 记为 FAILED 并退避，实例保持 PENDING，不触发业务动作。不得因确认未落库或超时关闭申请；只有 `OnCreated` 明确返回错误才中止且不触发业务动作。
 
-管理端 AI 对话菜单同时授予 `/base.v1.AiReportService/GenerateAiReport`（`POST /api/v1/base/ai/report`），工具在确认后生成 HTML/PDF 并登记到现有 `base_file`。不新增表；存量库需追加菜单权限并刷新角色授权，修改初始化脚本不会自动重放。
+AI 对话沿用管理菜单 `90990000` 与移动菜单 `99101000`，不增加独立插件或自动化菜单。管理端授予插件与自动化管理权限；移动端仅授予目录、账号和工具查询、本人计划与记录查询、运行一次、停止本次、结果继续讨论、插件选用和本人审批。报告由显式装配的插件工具生成，文件下载复用 `FileService/DownloadFile`；旧报告 HTTP 接口与对应权限已移除。
+
+插件五表 `ai_plugin`、`ai_plugin_installation`、`ai_plugin_tool`、`ai_plugin_tool_policy`、`ai_plugin_connection`、自动化两表 `ai_automation`、`ai_automation_run` 和 AI 文件表 `ai_file` 均已注册到默认数据源 Models，由模型自动创建。`default_data.up.sql` 插入内置、Xberg、Gotenberg 插件及已有租户的缺失安装。内置插件固定 ID `1`，Xberg 和 Gotenberg 分别固定 ID `2`、`3`；种子同时向前推进 PostgreSQL 自增序列，防止后续插件创建冲突；重复执行允许产生序列空洞。安装按稳定编码 `builtin`、`xberg`、`gotenberg` 关联；已有安装的停用状态和终端策略不会被覆盖。两个 MCP 端点使用 `192.168.60.52` 私网白名单和 `allow_private` 配置，Gotenberg Bearer Token 不写入初始化脚本，需在连接页面录入；关闭迁移时须事先补齐三项插件种子，运行期同步不再创建固定编号记录。
+
+唯一 AI 自动化扫描任务为 `1008`、`base.AiAutomationDispatch`、秒级 cron `0 * * * * *`，三个任务名称译文在 MySQL/PostgreSQL 同步维护；不为每条用户计划登记系统任务。消息分类 `6`、code `ai_automation` 仅启用 inbox，`provider_id=[]`；结果提醒跳转既有 `AI` 页面并由服务端校验本人权限。新库初始化或开发库重建后生效，已执行过本版本的数据库不会自动重放。

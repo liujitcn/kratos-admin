@@ -12,10 +12,12 @@ import (
 	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
 	agentmodel "github.com/liujitcn/kratos-admin/backend/internal/biz/agent/model"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/ai"
+	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/automation"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/dto"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 	"github.com/liujitcn/kratos-admin/backend/internal/i18n"
+	"github.com/liujitcn/kratos-admin/backend/pkg/agent"
 	"github.com/liujitcn/kratos-core/biz"
 	"github.com/liujitcn/kratos-core/errorsx"
 
@@ -40,6 +42,8 @@ type AiMessageCase struct {
 	aiSessionCase     *AiSessionCase
 	baseUserCase      *BaseUserCase
 	aiRuntime         *ai.Runtime
+	aiPluginCase      *AiPluginCase
+	automationCase    *AiAutomationCase
 	aiKnowledgeEngine *ai.KnowledgeEngine
 }
 
@@ -53,6 +57,7 @@ func NewAiMessageCase(
 	baseUserCase *BaseUserCase,
 	aiRuntime *ai.Runtime,
 	aiKnowledgeEngine *ai.KnowledgeEngine,
+	aiPluginCase *AiPluginCase,
 ) *AiMessageCase {
 	c := &AiMessageCase{
 		BaseCase:          baseCase,
@@ -63,6 +68,7 @@ func NewAiMessageCase(
 		baseUserCase:      baseUserCase,
 		aiRuntime:         aiRuntime,
 		aiKnowledgeEngine: aiKnowledgeEngine,
+		aiPluginCase:      aiPluginCase,
 	}
 	return c
 }
@@ -105,6 +111,9 @@ func (c *AiMessageCase) UpdateAiMessage(ctx context.Context, req *basev1.UpdateA
 	if err != nil {
 		return nil, err
 	}
+	if session.AutomationRunID > 0 {
+		return nil, errorsx.PermissionDenied("自动化结果只读，请使用继续讨论")
+	}
 	err = c.ensureLastAiMessage(ctx, session.TenantID, session.ID, message.ID)
 	if err != nil {
 		return nil, err
@@ -120,6 +129,9 @@ func (c *AiMessageCase) DeleteAiMessage(ctx context.Context, req *basev1.DeleteA
 	message, session, err := c.findCurrentUserMessage(ctx, req.GetSessionId(), req.GetMessageId())
 	if err != nil {
 		return err
+	}
+	if session.AutomationRunID > 0 {
+		return errorsx.PermissionDenied("自动化结果只读，请删除整个结果会话")
 	}
 	return c.tx.Transaction(ctx, func(txCtx context.Context) error {
 		var txErr error
@@ -285,6 +297,9 @@ func (c *AiMessageCase) prepareNewAiMessage(ctx context.Context, req *basev1.Sen
 	if err != nil {
 		return nil, nil, "", nil, nil, nil, "", err
 	}
+	if session.AutomationRunID > 0 && automation.ExecutionFromContext(ctx).RunID != session.AutomationRunID {
+		return nil, nil, "", nil, nil, nil, "", errorsx.PermissionDenied("自动化结果只读，请使用继续讨论")
+	}
 	if err = c.expireAiGeneratingMessages(ctx, session); err != nil {
 		return nil, nil, "", nil, nil, nil, "", err
 	}
@@ -411,6 +426,9 @@ func (c *AiMessageCase) regenerateAiMessage(ctx context.Context, session *models
 
 // regenerateAiMessageWithContent 使用指定输入内容重新生成当前轮次输出。
 func (c *AiMessageCase) regenerateAiMessageWithContent(ctx context.Context, session *models.AiSession, message *models.AiMessage, content string) (*basev1.SendAiMessageResponse, error) {
+	if session.AutomationRunID > 0 {
+		return nil, errorsx.PermissionDenied("自动化结果只读，请使用运行一次")
+	}
 	attachments := ai.ParseAttachments(message.Attachments)
 	input := ai.ParseInputContent(message.InputContent)
 
@@ -569,8 +587,15 @@ func (c *AiMessageCase) generateAiReply(
 		}
 		if len(knowledgeBaseIDs) > 0 && c.aiKnowledgeEngine != nil {
 			retrieveCtx, cancel := context.WithTimeout(ctx, 20*time.Second)
-			input.KnowledgeContext = c.aiKnowledgeEngine.Retrieve(retrieveCtx, knowledgeBaseIDs, content, 0)
+			if session.AutomationRunID > 0 {
+				input.KnowledgeContext, err = c.aiKnowledgeEngine.RetrieveStrict(retrieveCtx, knowledgeBaseIDs, content)
+			} else {
+				input.KnowledgeContext = c.aiKnowledgeEngine.Retrieve(retrieveCtx, knowledgeBaseIDs, content, 0)
+			}
 			cancel()
+			if err != nil {
+				return nil, err
+			}
 		}
 		var response *ai.Response
 		if onDelta != nil {
@@ -676,6 +701,11 @@ func (c *AiMessageCase) finishAiMessage(
 	}
 	err := c.tx.Transaction(ctx, func(txCtx context.Context) error {
 		var updateErr error
+		if execution := automation.ExecutionFromContext(txCtx); execution.RunID > 0 {
+			if updateErr = c.automationCase.lockAutomationExecution(txCtx, execution, reply != nil && reply.Approval != nil); updateErr != nil {
+				return updateErr
+			}
+		}
 		if updateErr = c.aiSessionCase.lockAiSession(txCtx, session); updateErr != nil {
 			return updateErr
 		}
@@ -1124,4 +1154,90 @@ func durationMilliseconds(start time.Time, end time.Time) int32 {
 		return int32(^uint32(0) >> 1)
 	}
 	return int32(ms)
+}
+
+// expireAiGeneratingMessages 在属主会话锁内终止过期生成，释放会话但不重放业务操作。
+func (c *AiMessageCase) expireAiGeneratingMessages(ctx context.Context, session *models.AiSession) error {
+	return c.tx.Transaction(ctx, func(txCtx context.Context) error {
+		var err error
+		if err = c.aiSessionCase.lockAiSession(txCtx, session); err != nil {
+			return err
+		}
+		now := time.Now().Truncate(time.Millisecond)
+		query := c.aiMessageRepo.Query(txCtx).AiMessage
+		var list []*models.AiMessage
+		list, err = query.WithContext(txCtx).Where(query.TenantID.Eq(session.TenantID), query.SessionID.Eq(session.ID), query.UserID.Eq(session.UserID), query.Status.Eq(int32(basev1.AiMessageStatus_AI_MESSAGE_STATUS_GENERATING)), query.UpdatedAt.Lte(now.Add(-aiApprovalLifetime))).Find()
+		if err != nil {
+			return err
+		}
+		approval := c.aiApprovalRepo.Query(txCtx).AiToolApproval
+		for _, item := range list {
+			runs := approval.WithContext(txCtx).Where(approval.TenantID.Eq(session.TenantID), approval.SessionID.Eq(session.ID), approval.UserID.Eq(session.UserID), approval.MessageID.Eq(item.ID), approval.Status.In(aiRunRunning, aiRunPending))
+			var active int64
+			active, err = runs.WithContext(txCtx).Where(approval.ExpiresAt.Gt(now)).Count()
+			if err != nil {
+				return err
+			}
+			if active > 0 {
+				continue
+			}
+			_, err = runs.WithContext(txCtx).Where(approval.ExpiresAt.Lte(now)).UpdateColumnSimple(approval.Status.Value(aiRunExpired), approval.CheckpointData.Value([]byte{}), approval.UpdatedAt.Value(now))
+			if err != nil {
+				return err
+			}
+			output := ai.MarshalReplyContent(&ai.Response{Content: c.aiRuntime.LocalizeMessage(ctx, "system.ai.chat.error.run_expired", nil, "Generation expired. This request will not resume automatically. Check the business result before retrying."), Fallback: true})
+			_, err = query.WithContext(txCtx).Where(query.ID.Eq(item.ID), query.Status.Eq(int32(basev1.AiMessageStatus_AI_MESSAGE_STATUS_GENERATING))).UpdateColumnSimple(query.Status.Value(int32(basev1.AiMessageStatus_AI_MESSAGE_STATUS_FAILED)), query.OutputContent.Value(output), query.UpdatedAt.Value(now))
+			if err != nil {
+				return err
+			}
+		}
+		return nil
+	})
+}
+
+// bindAiSessionTools 按共享会话的工具配置重建当前用户的请求池。
+func (c *AiMessageCase) bindAiSessionTools(ctx context.Context, session *models.AiSession) (context.Context, error) {
+	if c.aiPluginCase == nil {
+		return ctx, nil
+	}
+	selections, err := parseAiSessionPlugins(session.Plugins)
+	if err != nil {
+		return ctx, err
+	}
+	terminal := ai.NormalizeTerminalString(session.Terminal)
+	ctx = agent.ContextWithTerminal(ctx, terminal)
+	var pool agent.ToolPool
+	pool, err = c.aiPluginCase.ResolveToolPool(ctx, terminal, selections)
+	if err != nil {
+		return ctx, err
+	}
+	return agent.ContextWithToolPool(ctx, pool), nil
+}
+
+// validatePendingAiTools 在消费审批前重新验证当前用户权限和冻结配置，拒绝不消耗原许可。
+func (c *AiMessageCase) validatePendingAiTools(ctx context.Context, session *models.AiSession, message *models.AiMessage) error {
+	if c.aiPluginCase == nil {
+		return nil
+	}
+	output := ai.ParseOutputContent(message.OutputContent)
+	if output.Approval == nil {
+		return errorsx.Conflict("审批已失效或已处理")
+	}
+	query := c.aiApprovalRepo.Query(ctx).AiToolApproval
+	run, err := query.WithContext(ctx).Where(query.ApprovalID.Eq(output.Approval.ID), query.TenantID.Eq(session.TenantID), query.SessionID.Eq(session.ID), query.UserID.Eq(session.UserID), query.Status.Eq(aiRunPending)).First()
+	if err != nil {
+		return errorsx.Conflict("审批已失效或已处理").WithCause(err)
+	}
+	var state ai.RunState
+	var calls []ai.ApprovalCall
+	if err = json.Unmarshal([]byte(run.RuntimeState), &state); err != nil {
+		return errorsx.Internal("审批配置损坏").WithCause(err)
+	}
+	if err = json.Unmarshal([]byte(run.PendingCalls), &calls); err != nil {
+		return errorsx.Internal("审批参数损坏").WithCause(err)
+	}
+	if err = c.aiRuntime.ValidateApproval(ctx, state, calls); err != nil {
+		return errorsx.PermissionDenied("工具配置或当前用户权限已变化，请重新发起").WithCause(err)
+	}
+	return nil
 }

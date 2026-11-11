@@ -108,3 +108,13 @@ page {
 .tool-row { margin-top: 12px; }
 .loading-session { padding: 20px 0; text-align: center; }
 .chat-bottom { width: 2px; height: 2px; }
+
+.approval-card {
+  margin-top: 20px;
+  padding: 20px;
+  border: 1PX solid var(--kratos-color-border-accent);
+  border-radius: var(--kratos-page-radius);
+  font-size: 24px;
+}
+.approval-call { margin: 16px 0; white-space: pre-wrap; }
+.approval-actions { display: flex; gap: 16px; margin-top: 16px; }

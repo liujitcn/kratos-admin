@@ -89,9 +89,7 @@
             <div v-if="knowledgeOptions.length" class="agent-model-panel">
               <div class="agent-model-panel__head">
                 <span class="agent-model-panel__title">{{ t("system.ai.knowledge.title") }}</span>
-                <span class="agent-model-panel__meta">{{
-                  t("system.ai.knowledge.select_hint")
-                }}</span>
+                <span class="agent-model-panel__meta">{{ t("system.ai.knowledge.select_hint") }}</span>
               </div>
               <div class="agent-model-panel__list">
                 <button
@@ -112,12 +110,7 @@
                   </el-icon>
                 </button>
               </div>
-              <button
-                v-if="aiKnowledgeRoute"
-                class="agent-model-panel__manage"
-                type="button"
-                @click="openKnowledgeManage"
-              >
+              <button v-if="aiKnowledgeRoute" class="agent-model-panel__manage" type="button" @click="openKnowledgeManage">
                 <el-icon><Setting /></el-icon>
                 <span>{{ t("system.ai.knowledge.manage") }}</span>
                 <el-icon class="agent-model-panel__manage-arrow"><ArrowRight /></el-icon>
@@ -174,7 +167,7 @@
 </template>
 
 <script setup lang="ts" name="XSender">
-import { computed, ref } from "vue";
+import { computed, nextTick, onMounted, ref, watch } from "vue";
 import { useRouter } from "vue-router";
 import { Attachments, XSender as BaseXSender } from "vue-element-plus-x";
 import type { FilesCardProps } from "vue-element-plus-x/types/FilesCard";
@@ -215,6 +208,8 @@ const props = defineProps<{
   knowledgeOptions: AiKnowledgeOption[];
   /** 当前选择的知识库编号列表。 */
   knowledgeIds: number[];
+  /** 按会话保存的输入与附件。 */
+  draft?: SubmitPayload;
 }>();
 
 const emit = defineEmits<{
@@ -224,17 +219,26 @@ const emit = defineEmits<{
   "model-change": [providerId: number, modelName: string];
   /** 更新当前选择的知识库编号列表。 */
   "knowledge-change": [knowledgeIds: number[]];
+  "draft-change": [value: SubmitPayload];
 }>();
 
 const senderRef = ref<InstanceType<typeof BaseXSender>>();
+const inputText = ref(props.draft?.text ?? "");
+const selectedAttachments = ref<AiAttachment[]>([...(props.draft?.attachments ?? [])]);
+onMounted(() =>
+  nextTick(() => {
+    if (inputText.value) void senderRef.value?.getSender()?.reset({ chatNode: [[{ type: "Write", text: inputText.value }]] });
+  })
+);
+watch(
+  [inputText, selectedAttachments],
+  () => emit("draft-change", { text: inputText.value, attachments: [...selectedAttachments.value] }),
+  { deep: true }
+);
 const fileInputRef = ref<HTMLInputElement>();
 const router = useRouter();
 const authStore = useAuthStore();
-const inputText = ref("");
-const selectedAttachments = ref<AiAttachment[]>([]);
-const aiKnowledgeRoute = computed(() =>
-  authStore.flatMenuListGet.find(item => item.name === "AiKnowledge" && item.path)
-);
+const aiKnowledgeRoute = computed(() => authStore.flatMenuListGet.find(item => item.name === "AiKnowledge" && item.path));
 const uploading = ref(false);
 const maxAttachmentCount = 6;
 const maxAttachmentSizeMB = 20;
@@ -327,6 +331,7 @@ function handleSubmit() {
   const trimmedText = inputText.value.trim();
   if (!trimmedText && selectedAttachments.value.length === 0) return;
 
+  emit("draft-change", { text: "", attachments: [] });
   emit("submit", {
     text: trimmedText || t("system.ai.chat.value.analyze_attachments"),
     attachments: [...selectedAttachments.value]

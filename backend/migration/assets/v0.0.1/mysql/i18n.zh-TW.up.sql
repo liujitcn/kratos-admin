@@ -559,6 +559,7 @@ INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VAL
 INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_job.name', 1005, 'zh-TW', 'MQTT 訊息保留清理任務');
 INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_job.name', 1006, 'zh-TW', '工作流超時催辦任務');
 INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_job.name', 1007, 'zh-TW', '工作流腳本恢復任務');
+INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_job.name', 1008, 'zh-TW', 'AI自動化派發任務');
 
 -- OAuth 登录方式名称翻译。
 INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_oauth_provider.name', 1, 'zh-TW', '釘釘');

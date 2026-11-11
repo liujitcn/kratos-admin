@@ -16,6 +16,7 @@ authn:
         - /base.v1.MfaService/BeginMfaEnrollment
         - /base.v1.MfaService/ConfirmMfaEnrollment
         - /base.v1.LoginService/Login
+        - /base.v1.AiPluginService/CompleteAiPluginOAuth
         - /base.v1.OauthService/ListOauthProvider
         - /base.v1.OauthService/CreateOauthAuthorization
         - /base.v1.OauthService/HandleOauthCallback

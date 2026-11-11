@@ -559,6 +559,7 @@ INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VAL
 INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_job.name', 1005, 'ja-JP', 'MQTT メッセージ保持クリーンアップ');
 INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_job.name', 1006, 'ja-JP', 'ワークフロー時間超過催促');
 INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_job.name', 1007, 'ja-JP', 'ワークフロースクリプト復旧');
+INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_job.name', 1008, 'ja-JP', 'AI自動化ディスパッチ');
 
 -- OAuth 登录方式名称翻译。
 INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_oauth_provider.name', 1, 'ja-JP', 'DingTalk');

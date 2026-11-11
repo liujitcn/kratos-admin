@@ -51,32 +51,6 @@ type CallResult struct {
 	Output string
 }
 
-// CatalogOptions 表示工具目录工具配置。
-type CatalogOptions struct {
-	// Name 工具目录工具名。
-	Name string
-	// Description 工具目录工具描述。
-	Description string
-	// Terminal 当前终端。
-	Terminal string
-	// Infos 当前终端完整工具定义。
-	Infos []*Info
-	// EnabledInfos 当前终端已启用工具定义。
-	EnabledInfos []*Info
-	// ModelToolsPerTurn 每轮请求暴露给模型的工具数量。
-	ModelToolsPerTurn int
-}
-
-// catalogTool 是暴露给模型的内部工具目录查询工具。
-type catalogTool struct {
-	name              string
-	description       string
-	terminal          string
-	infos             []*Info
-	enabledNames      map[string]bool
-	modelToolsPerTurn int
-}
-
 // NameSet 将工具定义列表转换为按名称索引的集合。
 func NameSet(infos []*Info) map[string]bool {
 	result := make(map[string]bool, len(infos))
@@ -116,34 +90,22 @@ func Title(info *Info) string {
 }
 
 // InfoByTool 读取工具定义，过滤无效工具。
-func InfoByTool(ctx context.Context, value Invokable) (*Info, error) {
+func InfoByTool(ctx context.Context, value Base) (*Info, error) {
 	if value == nil {
 		return nil, nil
 	}
 	return value.Info(ctx)
 }
 
-// NewCatalogTool 创建工具目录查询工具。
-func NewCatalogTool(options CatalogOptions) Invokable {
-	return &catalogTool{
-		name:              options.Name,
-		description:       options.Description,
-		terminal:          options.Terminal,
-		infos:             append([]*Info(nil), options.Infos...),
-		enabledNames:      NameSet(options.EnabledInfos),
-		modelToolsPerTurn: options.ModelToolsPerTurn,
-	}
-}
-
 // ExecuteCall 执行单个函数工具调用并输出稳定记录字段。
-func ExecuteCall(ctx context.Context, toolMap map[string]Invokable, infos []*Info, call Call, options ...CallOption) CallResult {
+func ExecuteCall(ctx context.Context, toolMap map[string]Base, infos []*Info, call Call, options ...CallOption) CallResult {
 	config := callConfig{}
 	for _, option := range options {
 		option(&config)
 	}
 	result := newCallResult(infos, call)
-	// 除内置目录工具外，直接调用也必须受本轮已启用工具定义约束。
-	if call.Name != config.catalogName && !HasInfo(infos, call.Name) {
+	// 直接调用同样受当前已授权工具定义约束。
+	if !HasInfo(infos, call.Name) {
 		result.Status = "error"
 		result.Output = MarshalError(DisabledMessage(ctx, call.Name, config.localize))
 		return result.withContent(result.Output)
@@ -155,7 +117,26 @@ func ExecuteCall(ctx context.Context, toolMap map[string]Invokable, infos []*Inf
 		result.Output = MarshalError(localizeToolMessage(ctx, "system.ai.chat.error.tool_unavailable", call.Name, fmt.Sprintf("Tool %s is not available.", call.Name), config.localize))
 		return result.withContent(result.Output)
 	}
-	output, err := item.InvokableRun(ctx, call.Arguments)
+	var output string
+	var summary string
+	var err error
+	switch actual := item.(type) {
+	case tool.EnhancedInvokableTool:
+		var resultValue *schema.ToolResult
+		resultValue, err = actual.InvokableRun(ctx, &schema.ToolArgument{Text: call.Arguments})
+		if err == nil {
+			var raw []byte
+			raw, err = json.Marshal(resultValue)
+			output = string(raw)
+			if err == nil {
+				summary, err = middleware.ToolResultSummary(resultValue)
+			}
+		}
+	case Invokable:
+		output, err = actual.InvokableRun(ctx, call.Arguments)
+	default:
+		err = fmt.Errorf("tool %s has no invokable implementation", call.Name)
+	}
 	// 工具内部错误也转成 JSON 文本返回，保持直接调用与 ADK 调用协议一致。
 	if err != nil {
 		result.Status = "error"
@@ -167,14 +148,10 @@ func ExecuteCall(ctx context.Context, toolMap map[string]Invokable, infos []*Inf
 		output = "{}"
 	}
 	result.Output = output
-	return result.withContent(output)
-}
-
-// WithCatalogName 设置内置工具目录名称。
-func WithCatalogName(name string) CallOption {
-	return func(config *callConfig) {
-		config.catalogName = name
+	if summary != "" {
+		result.Output = summary
 	}
+	return result.withContent(output)
 }
 
 // MarshalError 将工具错误转换成稳定 JSON 文本。
@@ -186,8 +163,7 @@ func MarshalError(message string) string {
 type CallOption func(*callConfig)
 
 type callConfig struct {
-	catalogName string
-	localize    func(context.Context, string, map[string]any, string) string
+	localize func(context.Context, string, map[string]any, string) string
 }
 
 // WithMessageLocalizer 设置 Agent 工具用户消息的本地化回调。
@@ -204,50 +180,6 @@ func DisabledMessage(ctx context.Context, name string, localize func(context.Con
 		return fallback
 	}
 	return localize(ctx, "base.ai.tool.disabled", map[string]any{"Name": name}, fallback)
-}
-
-// Info 返回工具目录查询工具定义。
-func (t *catalogTool) Info(context.Context) (*Info, error) {
-	return &Info{
-		Name: t.name,
-		Desc: t.description,
-	}, nil
-}
-
-// InvokableRun 返回当前终端完整工具目录。
-func (t *catalogTool) InvokableRun(context.Context, string, ...Option) (string, error) {
-	items := make([]map[string]any, 0, len(t.infos))
-	enabledCount := 0
-	for _, info := range t.infos {
-		// 目录工具只展示有名称的工具，避免模型收到不可调用的条目。
-		if info == nil || info.Name == "" {
-			continue
-		}
-		enabled := t.enabledNames[info.Name]
-		if enabled {
-			enabledCount++
-		}
-		items = append(items, map[string]any{
-			"name":        info.Name,
-			"description": info.Desc,
-			"enabled":     enabled,
-		})
-	}
-	// payload 同时返回完整注册数和启用数，方便模型回答“有哪些工具”和排查禁用原因。
-	payload := map[string]any{
-		"terminal":                 t.terminal,
-		"registered_tool_count":    len(items),
-		"enabled_tool_count":       enabledCount,
-		"model_tools_per_request":  t.modelToolsPerTurn,
-		"catalog_tool_name":        t.name,
-		"catalog_tool_description": t.description,
-		"tools":                    items,
-	}
-	raw, err := json.MarshalIndent(payload, "", "  ")
-	if err != nil {
-		return "", err
-	}
-	return string(raw), nil
 }
 
 // withContent 写入供模型消费的工具结果文本。

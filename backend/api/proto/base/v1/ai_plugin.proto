@@ -1,0 +1,291 @@
+syntax = "proto3";
+
+package base.v1;
+
+import "buf/validate/validate.proto";
+import "base/v1/ai_tool.proto";
+import "common/v1/types.proto";
+import "gnostic/openapi/v3/annotations.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+
+// AI 插件目录、安装策略与本人账号连接服务；管理写操作不向模型暴露。
+service AiPluginService {
+  // 查询当前身份可见的插件目录。
+  rpc ListAiPlugin(ListAiPluginRequest) returns (ListAiPluginResponse) {
+    option (google.api.http) = { get: "/api/v1/base/ai/plugin" };
+  }
+  // 查询插件详情。
+  rpc GetAiPlugin(GetAiPluginRequest) returns (AiPlugin) {
+    option (google.api.http) = { get: "/api/v1/base/ai/plugin/{id}" };
+  }
+  // 创建插件定义。
+  rpc CreateAiPlugin(CreateAiPluginRequest) returns (AiPlugin) {
+    option (google.api.http) = { post: "/api/v1/base/ai/plugin" body: "*" };
+  }
+  // 更新插件定义并递增修订号。
+  rpc UpdateAiPlugin(UpdateAiPluginRequest) returns (AiPlugin) {
+    option (google.api.http) = { put: "/api/v1/base/ai/plugin/{id}" body: "*" };
+  }
+  // 删除无有效引用的插件定义。
+  rpc DeleteAiPlugin(DeleteAiPluginRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = { delete: "/api/v1/base/ai/plugin/{id}" };
+  }
+  // 设置当前租户安装和终端策略。
+  rpc SetAiPluginInstallation(SetAiPluginInstallationRequest) returns (AiPluginInstallation) {
+    option (google.api.http) = { put: "/api/v1/base/ai/plugin/{plugin_id}/installation" body: "*" };
+  }
+  // 查询工具发现快照和审核状态。
+  rpc ListAiPluginTool(ListAiPluginToolRequest) returns (ListAiPluginToolResponse) {
+    option (google.api.http) = { get: "/api/v1/base/ai/plugin/{plugin_id}/tool" };
+  }
+  // 审核工具契约并设置租户策略。
+  rpc SetAiPluginToolPolicy(SetAiPluginToolPolicyRequest) returns (AiPluginTool) {
+    option (google.api.http) = { put: "/api/v1/base/ai/plugin/{plugin_id}/tool/{tool_id}/policy" body: "*" };
+  }
+  // 查询本人及授权共享连接。
+  rpc ListAiPluginConnection(ListAiPluginConnectionRequest) returns (ListAiPluginConnectionResponse) {
+    option (google.api.http) = { get: "/api/v1/base/ai/plugin-connection" };
+  }
+  // 创建本人连接并验证工具发现。
+  rpc CreateAiPluginConnection(CreateAiPluginConnectionRequest) returns (AiPluginConnection) {
+    option (google.api.http) = { post: "/api/v1/base/ai/plugin-connection" body: "*" };
+  }
+  // 检测连接并完整刷新工具。
+  rpc RefreshAiPluginConnection(RefreshAiPluginConnectionRequest) returns (AiPluginConnection) {
+    option (google.api.http) = { post: "/api/v1/base/ai/plugin-connection/{id}/refresh" body: "*" };
+  }
+  // 撤销本人连接并立即使旧许可失效。
+  rpc DisconnectAiPluginConnection(DisconnectAiPluginConnectionRequest) returns (AiPluginConnection) {
+    option (google.api.http) = { delete: "/api/v1/base/ai/plugin-connection/{id}" };
+  }
+  // 开始账号授权。
+  rpc StartAiPluginOAuth(StartAiPluginOAuthRequest) returns (StartAiPluginOAuthResponse) {
+    option (google.api.http) = { post: "/api/v1/base/ai/plugin-connection/{id}/authorization" body: "*" };
+  }
+  // 一次性消费授权状态并交换令牌。
+  rpc CompleteAiPluginOAuth(CompleteAiPluginOAuthRequest) returns (AiPluginConnection) {
+    option (google.api.http) = { get: "/api/v1/base/ai/plugin-oauth/callback" };
+  }
+  // 原账号重新设置API令牌并重新检测；旧许可立即失效。
+  rpc ReauthorizeAiPluginConnection(ReauthorizeAiPluginConnectionRequest) returns (AiPluginConnection) {
+    option (google.api.http) = {put: "/api/v1/base/ai/plugin-connection/{id}/credential" body: "*"};
+  }
+  // 管理员显式授权或撤销本人账号的租户共享。
+  rpc SetAiPluginConnectionSharing(SetAiPluginConnectionSharingRequest) returns (AiPluginConnection) {
+    option (google.api.http) = {put: "/api/v1/base/ai/plugin-connection/{id}/sharing" body: "*"};
+  }
+
+}
+
+// 本轮选用的插件与确定连接。
+message AiPluginSelection {
+  string plugin_id = 1 [(gnostic.openapi.v3.property) = {description: "插件ID"}, (buf.validate.field).cel = {id: "ai.plugin.aipluginselection.plugin_id" message: "插件ID不合法" expression: "this.matches('^[1-9][0-9]*$')"}]; // 插件ID
+  string connection_id = 2 [(gnostic.openapi.v3.property) = {description: "连接ID；本地组件留空"}, (buf.validate.field).cel = {id: "ai.plugin.aipluginselection.connection_id" message: "连接ID；本地组件留空不合法" expression: "this == '' || this.matches('^[1-9][0-9]*$')"}]; // 连接ID；本地组件留空
+}
+
+// 插件定义及当前租户安装状态。
+message AiPlugin {
+  string id = 1 [(gnostic.openapi.v3.property) = {description: "插件ID"}]; // 插件ID
+  string code = 2 [(gnostic.openapi.v3.property) = {description: "稳定编码"}]; // 稳定编码
+  string name = 3 [(gnostic.openapi.v3.property) = {description: "名称"}]; // 名称
+  string description = 4 [(gnostic.openapi.v3.property) = {description: "说明"}]; // 说明
+  string source = 5 [(gnostic.openapi.v3.property) = {description: "来源：API、LOCAL、MCP"}]; // 来源：API、LOCAL、MCP
+  string visibility = 6 [(gnostic.openapi.v3.property) = {description: "范围：system、tenant、private"}]; // 范围：system、tenant、private
+  int64 tenant_id = 7 [(gnostic.openapi.v3.property) = {description: "所属租户ID"}]; // 所属租户ID
+  int64 owner_user_id = 8 [(gnostic.openapi.v3.property) = {description: "所属用户ID"}]; // 所属用户ID
+  bool enabled = 9 [(gnostic.openapi.v3.property) = {description: "目录是否可用"}]; // 目录是否可用
+  string endpoint = 10 [(gnostic.openapi.v3.property) = {description: "MCP HTTPS地址"}]; // MCP HTTPS地址
+  int64 revision = 11 [(gnostic.openapi.v3.property) = {description: "配置修订号"}]; // 配置修订号
+  bool assembled = 12 [(gnostic.openapi.v3.property) = {description: "本地组件是否已装配"}]; // 本地组件是否已装配
+  AiPluginInstallation installation = 13 [(gnostic.openapi.v3.property) = {description: "当前租户安装"}]; // 当前租户安装
+  string unavailable_reason = 14 [(gnostic.openapi.v3.property) = {description: "不可用原因"}]; // 不可用原因
+  bool can_manage = 15 [(gnostic.openapi.v3.property) = {description: "当前身份能否编辑本定义；安装和工具审查权限独立判断"}]; // 当前身份能否编辑本定义；安装和工具审查权限独立判断
+  string config_json = 16 [(gnostic.openapi.v3.property) = {description: "平台管理员可编辑的公开接入配置，不含凭据"}]; // 平台管理员可编辑的公开接入配置，不含凭据
+}
+
+// 插件定义表单；端点策略仅平台管理员可维护。
+message AiPluginForm {
+  string code = 1 [(gnostic.openapi.v3.property) = {description: "稳定编码"}, (buf.validate.field).cel = {id: "ai.plugin.aipluginform.code" message: "稳定编码不合法" expression: "this.matches('^[a-z][a-z0-9_-]{1,63}$')"}]; // 稳定编码
+  string name = 2 [(gnostic.openapi.v3.property) = {description: "名称"}, (buf.validate.field).cel = {id: "ai.plugin.aipluginform.name" message: "名称不合法" expression: "this.size() > 0 && this.size() <= 100"}]; // 名称
+  string description = 3 [(gnostic.openapi.v3.property) = {description: "说明"}, (buf.validate.field).cel = {id: "ai.plugin.aipluginform.description" message: "说明不合法" expression: "this.size() <= 2000"}]; // 说明
+  string source = 4 [(gnostic.openapi.v3.property) = {description: "来源"}, (buf.validate.field).cel = {id: "ai.plugin.aipluginform.source" message: "来源不合法" expression: "this in ['API','LOCAL','MCP']"}]; // 来源
+  string visibility = 5 [(gnostic.openapi.v3.property) = {description: "可见范围"}, (buf.validate.field).cel = {id: "ai.plugin.aipluginform.visibility" message: "可见范围不合法" expression: "this in ['system','tenant','private']"}]; // 可见范围
+  bool enabled = 6 [(gnostic.openapi.v3.property) = {description: "发布状态"}]; // 发布状态
+  string endpoint = 7 [(gnostic.openapi.v3.property) = {description: "MCP HTTPS地址"}, (buf.validate.field).cel = {id: "ai.plugin.aipluginform.endpoint" message: "MCP HTTPS地址不合法" expression: "this.size() <= 2000"}]; // MCP HTTPS地址
+  string config_json = 8 [(gnostic.openapi.v3.property) = {description: "平台批准的网络和OAuth公开配置JSON"}, (buf.validate.field).cel = {id: "ai.plugin.aipluginform.config_json" message: "平台批准的网络和OAuth公开配置JSON不合法" expression: "this.size() <= 16000"}]; // 平台批准的网络和OAuth公开配置JSON
+}
+
+// 租户插件安装策略。
+message AiPluginInstallation {
+  string id = 1 [(gnostic.openapi.v3.property) = {description: "安装ID"}]; // 安装ID
+  string plugin_id = 2 [(gnostic.openapi.v3.property) = {description: "插件ID"}]; // 插件ID
+  bool enabled = 3 [(gnostic.openapi.v3.property) = {description: "是否启用"}]; // 是否启用
+  repeated string terminals = 4 [(gnostic.openapi.v3.property) = {description: "允许终端"}]; // 允许终端
+  int64 revision = 5 [(gnostic.openapi.v3.property) = {description: "策略修订号"}]; // 策略修订号
+}
+
+// 工具快照与当前租户审核策略。
+message AiPluginTool {
+  string id = 1 [(gnostic.openapi.v3.property) = {description: "工具ID"}]; // 工具ID
+  string plugin_id = 2 [(gnostic.openapi.v3.property) = {description: "插件ID"}]; // 插件ID
+  string connection_id = 3 [(gnostic.openapi.v3.property) = {description: "发现连接ID；本地为空"}]; // 发现连接ID；本地为空
+  string source_name = 4 [(gnostic.openapi.v3.property) = {description: "原始工具名"}]; // 原始工具名
+  string description = 5 [(gnostic.openapi.v3.property) = {description: "工具说明"}]; // 工具说明
+  string input_schema = 6 [(gnostic.openapi.v3.property) = {description: "参数JSON Schema"}]; // 参数JSON Schema
+  string contract_hash = 7 [(gnostic.openapi.v3.property) = {description: "契约哈希"}]; // 契约哈希
+  string state = 8 [(gnostic.openapi.v3.property) = {description: "discovered、removed"}]; // discovered、removed
+  bool allowed = 9 [(gnostic.openapi.v3.property) = {description: "当前租户是否允许"}]; // 当前租户是否允许
+  string effect = 10 [(gnostic.openapi.v3.property) = {description: "审核效果：read、write、unknown"}]; // 审核效果：read、write、unknown
+  int64 revision = 11 [(gnostic.openapi.v3.property) = {description: "策略修订号"}]; // 策略修订号
+  repeated string prompts = 12 [(gnostic.openapi.v3.property) = {description: "业务提示词覆盖"}]; // 业务提示词覆盖
+  bool effective_enabled = 13 [(gnostic.openapi.v3.property) = {description: "当前身份和终端是否可执行"}]; // 当前身份和终端是否可执行
+  string unavailable_reason = 14 [(gnostic.openapi.v3.property) = {description: "不可用原因"}]; // 不可用原因
+}
+
+// 账号连接公开信息；不返回凭据或刷新令牌。
+message AiPluginConnection {
+  string id = 1 [(gnostic.openapi.v3.property) = {description: "连接ID"}]; // 连接ID
+  string plugin_id = 2 [(gnostic.openapi.v3.property) = {description: "插件ID"}]; // 插件ID
+  string label = 3 [(gnostic.openapi.v3.property) = {description: "账号标签"}]; // 账号标签
+  string auth_type = 4 [(gnostic.openapi.v3.property) = {description: "认证方式：none、token、oauth"}]; // 认证方式：none、token、oauth
+  string state = 5 [(gnostic.openapi.v3.property) = {description: "连接状态"}]; // 连接状态
+  string sharing = 6 [(gnostic.openapi.v3.property) = {description: "共享范围：private、tenant"}]; // 共享范围：private、tenant
+  string scopes = 7 [(gnostic.openapi.v3.property) = {description: "实际授权范围"}]; // 实际授权范围
+  int64 expires_at = 8 [(gnostic.openapi.v3.property) = {description: "授权过期Unix秒"}]; // 授权过期Unix秒
+  int64 revision = 9 [(gnostic.openapi.v3.property) = {description: "配置修订号"}]; // 配置修订号
+  string last_error = 10 [(gnostic.openapi.v3.property) = {description: "可展示的连接问题"}]; // 可展示的连接问题
+  bool can_manage = 11 [(gnostic.openapi.v3.property) = {description: "当前身份能否管理连接"}]; // 当前身份能否管理连接
+  int64 owner_user_id = 12 [(gnostic.openapi.v3.property) = {description: "连接所属用户ID"}]; // 连接所属用户ID
+}
+
+// 插件目录查询条件。
+message ListAiPluginRequest {
+  string keyword = 1 [(gnostic.openapi.v3.property) = {description: "名称或编码过滤"}, (buf.validate.field).cel = {id: "ai.plugin.listaipluginrequest.keyword" message: "名称或编码过滤不合法" expression: "this.size() <= 100"}]; // 名称或编码过滤
+  Terminal terminal = 2 [(gnostic.openapi.v3.property) = {description: "工具能力配置，不代表登录来源"}, (buf.validate.field).enum = {defined_only: true}]; // 工具能力配置，不代表登录来源
+}
+
+// 插件目录查询结果。
+message ListAiPluginResponse {
+  repeated AiPlugin plugins = 1 [(gnostic.openapi.v3.property) = {description: "可见插件列表"}]; // 可见插件列表
+  bool can_manage_tools = 2 [(gnostic.openapi.v3.property) = {description: "当前身份能否管理本租户工具策略"}]; // 当前身份能否管理本租户工具策略
+  bool can_manage_catalog = 3 [(gnostic.openapi.v3.property) = {description: "当前身份能否管理授权范围内目录"}]; // 当前身份能否管理授权范围内目录
+  bool can_create_private = 4 [(gnostic.openapi.v3.property) = {description: "本租户是否允许接入已批准的个人端点"}]; // 本租户是否允许接入已批准的个人端点
+}
+
+// 插件详情查询条件。
+message GetAiPluginRequest {
+  string id = 1 [(gnostic.openapi.v3.property) = {description: "插件ID"}, (buf.validate.field).cel = {id: "ai.plugin.getaipluginrequest.id" message: "插件ID不合法" expression: "this.matches('^[1-9][0-9]*$')"}]; // 插件ID
+}
+
+// 插件创建请求。
+message CreateAiPluginRequest {
+  AiPluginForm form = 1 [(gnostic.openapi.v3.property) = {description: "插件表单"}, (buf.validate.field).required = true]; // 插件表单
+}
+
+// 插件更新请求。
+message UpdateAiPluginRequest {
+  string id = 1 [(gnostic.openapi.v3.property) = {description: "插件ID"}, (buf.validate.field).cel = {id: "ai.plugin.updateaipluginrequest.id" message: "插件ID不合法" expression: "this.matches('^[1-9][0-9]*$')"}]; // 插件ID
+  int64 revision = 2 [(gnostic.openapi.v3.property) = {description: "当前配置修订号"}, (buf.validate.field).cel = {id: "ai.plugin.updateaipluginrequest.revision" message: "当前配置修订号不合法" expression: "this > 0"}]; // 当前配置修订号
+  AiPluginForm form = 3 [(gnostic.openapi.v3.property) = {description: "插件表单"}, (buf.validate.field).required = true]; // 插件表单
+}
+
+// 插件删除请求。
+message DeleteAiPluginRequest {
+  string id = 1 [(gnostic.openapi.v3.property) = {description: "插件ID"}, (buf.validate.field).cel = {id: "ai.plugin.deleteaipluginrequest.id" message: "插件ID不合法" expression: "this.matches('^[1-9][0-9]*$')"}]; // 插件ID
+  int64 revision = 2 [(gnostic.openapi.v3.property) = {description: "当前配置修订号"}, (buf.validate.field).cel = {id: "ai.plugin.deleteaipluginrequest.revision" message: "当前配置修订号不合法" expression: "this > 0"}]; // 当前配置修订号
+}
+
+// 当前租户安装策略设置请求。
+message SetAiPluginInstallationRequest {
+  string plugin_id = 1 [(gnostic.openapi.v3.property) = {description: "插件ID"}, (buf.validate.field).cel = {id: "ai.plugin.setaiplugininstallationrequest.plugin_id" message: "插件ID不合法" expression: "this.matches('^[1-9][0-9]*$')"}]; // 插件ID
+  bool enabled = 2 [(gnostic.openapi.v3.property) = {description: "是否启用"}]; // 是否启用
+  repeated string terminals = 3 [(gnostic.openapi.v3.property) = {description: "允许终端"}, (buf.validate.field).cel = {id: "ai.plugin.setaiplugininstallationrequest.terminals" message: "允许终端不合法" expression: "this.size() <= 2 && this.unique() && this.all(t, t in ['admin','app'])"}]; // 允许终端
+  int64 revision = 4 [(gnostic.openapi.v3.property) = {description: "当前修订号；首次为0"}, (buf.validate.field).cel = {id: "ai.plugin.setaiplugininstallationrequest.revision" message: "当前修订号；首次为0不合法" expression: "this >= 0"}]; // 当前修订号；首次为0
+}
+
+// 插件工具快照查询条件。
+message ListAiPluginToolRequest {
+  string plugin_id = 1 [(gnostic.openapi.v3.property) = {description: "插件ID"}, (buf.validate.field).cel = {id: "ai.plugin.listaiplugintoolrequest.plugin_id" message: "插件ID不合法" expression: "this.matches('^[1-9][0-9]*$')"}]; // 插件ID
+  Terminal terminal = 2 [(gnostic.openapi.v3.property) = {description: "工具能力配置，不代表登录来源"}, (buf.validate.field).enum = {defined_only: true}]; // 工具能力配置，不代表登录来源
+}
+
+// 插件工具查询结果。
+message ListAiPluginToolResponse {
+  repeated AiPluginTool tools = 1 [(gnostic.openapi.v3.property) = {description: "工具快照列表"}]; // 工具快照列表
+}
+
+// 租户工具契约审核请求。
+message SetAiPluginToolPolicyRequest {
+  string plugin_id = 1 [(gnostic.openapi.v3.property) = {description: "插件ID"}, (buf.validate.field).cel = {id: "ai.plugin.setaiplugintoolpolicyrequest.plugin_id" message: "插件ID不合法" expression: "this.matches('^[1-9][0-9]*$')"}]; // 插件ID
+  string tool_id = 2 [(gnostic.openapi.v3.property) = {description: "工具ID"}, (buf.validate.field).cel = {id: "ai.plugin.setaiplugintoolpolicyrequest.tool_id" message: "工具ID不合法" expression: "this.matches('^[1-9][0-9]*$')"}]; // 工具ID
+  string contract_hash = 3 [(gnostic.openapi.v3.property) = {description: "确认审核的契约哈希"}, (buf.validate.field).cel = {id: "ai.plugin.setaiplugintoolpolicyrequest.contract_hash" message: "确认审核的契约哈希不合法" expression: "this.matches('^[a-f0-9]{64}$')"}]; // 确认审核的契约哈希
+  bool allowed = 4 [(gnostic.openapi.v3.property) = {description: "是否允许"}]; // 是否允许
+  string effect = 5 [(gnostic.openapi.v3.property) = {description: "审核效果"}, (buf.validate.field).cel = {id: "ai.plugin.setaiplugintoolpolicyrequest.effect" message: "审核效果不合法" expression: "this in ['read','write','unknown']"}]; // 审核效果
+  int64 revision = 6 [(gnostic.openapi.v3.property) = {description: "当前策略修订号；首次为0"}, (buf.validate.field).cel = {id: "ai.plugin.setaiplugintoolpolicyrequest.revision" message: "当前策略修订号；首次为0不合法" expression: "this >= 0"}]; // 当前策略修订号；首次为0
+  repeated string prompts = 7 [(gnostic.openapi.v3.property) = {description: "业务提示词覆盖"}, (buf.validate.field).cel = {id: "ai.plugin.tool.prompts" message: "提示词最多10条且每条不超过2000字符" expression: "this.size() <= 10 && this.all(p, p.size() <= 2000)"}]; // 业务提示词覆盖
+}
+
+// 当前身份连接查询条件。
+message ListAiPluginConnectionRequest {
+  string plugin_id = 1 [(gnostic.openapi.v3.property) = {description: "插件ID；空表示全部"}, (buf.validate.field).cel = {id: "ai.plugin.listaipluginconnectionrequest.plugin_id" message: "插件ID；空表示全部不合法" expression: "this == '' || this.matches('^[1-9][0-9]*$')"}]; // 插件ID；空表示全部
+}
+
+// 当前身份连接列表。
+message ListAiPluginConnectionResponse {
+  repeated AiPluginConnection connections = 1 [(gnostic.openapi.v3.property) = {description: "连接列表"}]; // 连接列表
+}
+
+// 本人连接创建请求。
+message CreateAiPluginConnectionRequest {
+  string plugin_id = 1 [(gnostic.openapi.v3.property) = {description: "插件ID"}, (buf.validate.field).cel = {id: "ai.plugin.createaipluginconnectionrequest.plugin_id" message: "插件ID不合法" expression: "this.matches('^[1-9][0-9]*$')"}]; // 插件ID
+  string label = 2 [(gnostic.openapi.v3.property) = {description: "账号标签"}, (buf.validate.field).cel = {id: "ai.plugin.createaipluginconnectionrequest.label" message: "账号标签不合法" expression: "this.size() > 0 && this.size() <= 100"}]; // 账号标签
+  string auth_type = 3 [(gnostic.openapi.v3.property) = {description: "认证方式"}, (buf.validate.field).cel = {id: "ai.plugin.createaipluginconnectionrequest.auth_type" message: "认证方式不合法" expression: "this in ['none','token','oauth']"}]; // 认证方式
+  .common.v1.SecretCrypto token = 4 [(gnostic.openapi.v3.property) = {description: "API令牌临时密文；只在token方式提交"}]; // API令牌临时密文；只在token方式提交
+}
+
+// 检测并刷新连接请求。
+message RefreshAiPluginConnectionRequest {
+  string id = 1 [(gnostic.openapi.v3.property) = {description: "连接ID"}, (buf.validate.field).cel = {id: "ai.plugin.refreshaipluginconnectionrequest.id" message: "连接ID不合法" expression: "this.matches('^[1-9][0-9]*$')"}]; // 连接ID
+  int64 revision = 2 [(gnostic.openapi.v3.property) = {description: "当前修订号"}, (buf.validate.field).cel = {id: "ai.plugin.refreshaipluginconnectionrequest.revision" message: "当前修订号不合法" expression: "this > 0"}]; // 当前修订号
+}
+
+// 撤销连接请求。
+message DisconnectAiPluginConnectionRequest {
+  string id = 1 [(gnostic.openapi.v3.property) = {description: "连接ID"}, (buf.validate.field).cel = {id: "ai.plugin.disconnectaipluginconnectionrequest.id" message: "连接ID不合法" expression: "this.matches('^[1-9][0-9]*$')"}]; // 连接ID
+  int64 revision = 2 [(gnostic.openapi.v3.property) = {description: "当前修订号"}, (buf.validate.field).cel = {id: "ai.plugin.disconnectaipluginconnectionrequest.revision" message: "当前修订号不合法" expression: "this > 0"}]; // 当前修订号
+}
+
+// 连接授权发起请求。
+message StartAiPluginOAuthRequest {
+  string id = 1 [(gnostic.openapi.v3.property) = {description: "连接ID"}, (buf.validate.field).cel = {id: "ai.plugin.startaipluginoauthrequest.id" message: "连接ID不合法" expression: "this.matches('^[1-9][0-9]*$')"}]; // 连接ID
+  int64 revision = 2 [(gnostic.openapi.v3.property) = {description: "当前修订号"}, (buf.validate.field).cel = {id: "ai.plugin.startaipluginoauthrequest.revision" message: "当前修订号不合法" expression: "this > 0"}]; // 当前修订号
+}
+
+// 真实授权页面地址。
+message StartAiPluginOAuthResponse {
+  string authorization_url = 1 [(gnostic.openapi.v3.property) = {description: "授权页面地址"}]; // 授权页面地址
+}
+
+// 服务端OAuth回调参数。
+message CompleteAiPluginOAuthRequest {
+  string state = 1 [(gnostic.openapi.v3.property) = {description: "一次性授权状态"}, (buf.validate.field).cel = {id: "ai.plugin.completeaipluginoauthrequest.state" message: "一次性授权状态不合法" expression: "this.size() > 0 && this.size() <= 256"}]; // 一次性授权状态
+  string code = 2 [(gnostic.openapi.v3.property) = {description: "授权码"}, (buf.validate.field).cel = {id: "ai.plugin.completeaipluginoauthrequest.code" message: "授权码不合法" expression: "this.size() <= 4096"}]; // 授权码
+  string error = 3 [(gnostic.openapi.v3.property) = {description: "供应商拒绝原因"}, (buf.validate.field).cel = {id: "ai.plugin.completeaipluginoauthrequest.error" message: "供应商拒绝原因不合法" expression: "this.size() <= 256"}]; // 供应商拒绝原因
+  string iss = 4 [(gnostic.openapi.v3.property) = {description: "授权发行方"}, (buf.validate.field).cel = {id: "ai.plugin.completeaipluginoauthrequest.iss" message: "授权发行方不合法" expression: "this.size() <= 2000"}]; // 授权发行方
+}
+
+
+// 以原账号重新设置API令牌。
+message ReauthorizeAiPluginConnectionRequest {
+  string id = 1 [(gnostic.openapi.v3.property) = {description: "连接ID"}, (buf.validate.field).cel = {id: "ai.plugin.reauthorize.id" message: "连接编号不合法" expression: "this.matches('^[1-9][0-9]*$')"}]; // 连接ID
+  int64 revision = 2 [(gnostic.openapi.v3.property) = {description: "当前配置修订号"}, (buf.validate.field).cel = {id: "ai.plugin.reauthorize.revision" message: "修订号不合法" expression: "this > 0"}]; // 当前配置修订号
+  .common.v1.SecretCrypto token = 3 [(gnostic.openapi.v3.property) = {description: "API令牌临时密文"}, (buf.validate.field).required = true]; // API令牌临时密文
+}
+
+// 本人账号租户共享策略设置请求。
+message SetAiPluginConnectionSharingRequest {
+  string id = 1 [(gnostic.openapi.v3.property) = {description: "连接ID"}, (buf.validate.field).cel = {id: "ai.plugin.sharing.id" message: "连接编号不合法" expression: "this.matches('^[1-9][0-9]*$')"}]; // 连接ID
+  int64 revision = 2 [(gnostic.openapi.v3.property) = {description: "当前配置修订号"}, (buf.validate.field).cel = {id: "ai.plugin.sharing.revision" message: "修订号不合法" expression: "this > 0"}]; // 当前配置修订号
+  string sharing = 3 [(gnostic.openapi.v3.property) = {description: "共享范围：private或tenant"}, (buf.validate.field).cel = {id: "ai.plugin.sharing.scope" message: "共享范围不合法" expression: "this in ['private','tenant']"}]; // 共享范围：private或tenant
+}

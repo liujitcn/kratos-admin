@@ -1,0 +1,66 @@
+name: gotenberg-mcp
+
+services:
+  gotenberg:
+    image: gotenberg/gotenberg:9
+    container_name: gotenberg
+    environment:
+      LOG_LEVEL: "${GOTENBERG_LOG_LEVEL:-info}"
+    command:
+      - gotenberg
+      - --api-timeout=120s
+      - --chromium-deny-private-ips
+      - --libreoffice-deny-private-ips
+    ports:
+      - "192.168.60.52:3000:3000"
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:3000/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    restart: unless-stopped
+
+  mcp:
+    # No official Gotenberg MCP server was found. This active third-party server is pinned to a commit.
+    build:
+      context: https://github.com/avhulst/coolify-gotenberg-mcp.git#f0c12646c0b1baa30435e3d3541f340ba844a860
+      dockerfile: Dockerfile
+    image: gotenberg-mcp:avhulst-f0c1264
+    container_name: gotenberg-mcp
+    environment:
+      MCP_TRANSPORT: streamable-http
+      PUBLIC_BASE_URL: "${PUBLIC_BASE_URL:-http://192.168.60.52:8002}"
+      MCP_AUTH_TOKEN: "${MCP_AUTH_TOKEN:?MCP_AUTH_TOKEN must be set; use --env-file docker-compose/gotenberg/.env}"
+      FILE_SIGNING_KEY: "${FILE_SIGNING_KEY:-}"
+      ALLOWED_HOSTS: "${ALLOWED_HOSTS:-192.168.60.52:8002,192.168.60.52}"
+      GOTENBERG_URL: http://gotenberg:3000
+      GOTENBERG_TIMEOUT: "${GOTENBERG_TIMEOUT:-120}"
+      FILE_TTL_HOURS: "${FILE_TTL_HOURS:-24}"
+      MAX_INPUT_MB: "${MAX_INPUT_MB:-50}"
+      ALLOW_PRIVATE_URLS: "${ALLOW_PRIVATE_URLS:-false}"
+      MCP_LOG_LEVEL: "${MCP_LOG_LEVEL:-INFO}"
+      OAUTH_ENABLED: "${OAUTH_ENABLED:-false}"
+      HOST_DATA_DIR: "${HOST_DATA_DIR:-}"
+    ports:
+      - "192.168.60.52:8002:8000"
+    volumes:
+      - gotenberg-mcp-data:/data
+    depends_on:
+      gotenberg:
+        condition: service_healthy
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/healthz', timeout=4)"
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    restart: unless-stopped
+
+volumes:
+  gotenberg-mcp-data:
+    name: gotenberg-mcp_gotenberg-mcp-data

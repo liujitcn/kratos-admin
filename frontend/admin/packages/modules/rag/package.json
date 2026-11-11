@@ -18,7 +18,8 @@
     "prepack": "pnpm build:package"
   },
   "dependencies": {
-    "@liujitcn/kratos-admin-core": "workspace:*"
+    "@liujitcn/kratos-admin-core": "workspace:*",
+    "@liujitcn/kratos-admin-system": "workspace:*"
   },
   "peerDependencies": {
     "@element-plus/icons-vue": "^2.3.1",

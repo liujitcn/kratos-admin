@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"time"
 
@@ -20,8 +21,14 @@ type ToolTitleResolver func(name string) string
 // ToolFilterHandler 在模型调用前按本轮候选裁剪工具定义。
 type ToolFilterHandler struct {
 	*adk.TypedBaseChatModelAgentMiddleware[*schema.AgenticMessage]
-	allowedNames map[string]bool
-	enabled      bool
+	// BeforeModel 在模型调用前核实后台执行状态。
+	BeforeModel func(context.Context) error
+	// ResolveToolInfos 在模型前读取最新授权集合。
+	ResolveToolInfos func(context.Context) []*schema.ToolInfo
+	// AllowToolSearch 保留仅基于授权池创建的框架搜索工具。
+	AllowToolSearch bool
+	allowedNames    map[string]bool
+	enabled         bool
 }
 
 // NewToolFilterHandler 创建工具筛选中间件。
@@ -50,17 +57,35 @@ func NewToolMetricsHandler(titleResolver ToolTitleResolver, localizeMessage func
 	}
 }
 
-// BeforeModelRewriteState 将工具列表限制在当前轮允许暴露的集合内。
+// BeforeModelRewriteState 先核实后台执行状态，再限制当前轮允许暴露的工具。
 func (h *ToolFilterHandler) BeforeModelRewriteState(
 	ctx context.Context,
 	state *adk.TypedChatModelAgentState[*schema.AgenticMessage],
 	mc *adk.TypedModelContext[*schema.AgenticMessage],
 ) (context.Context, *adk.TypedChatModelAgentState[*schema.AgenticMessage], error) {
+	if h.BeforeModel != nil {
+		if err := h.BeforeModel(ctx); err != nil {
+			return ctx, state, err
+		}
+	}
 	// 未启用筛选或状态为空时保持 ADK 原始状态，避免影响无工具的普通问答。
 	if h == nil || !h.enabled || state == nil {
 		return ctx, state, nil
 	}
+	if h.ResolveToolInfos != nil {
+		current := make(map[string]bool)
+		for _, info := range h.ResolveToolInfos(ctx) {
+			if info != nil && h.allowedNames[info.Name] {
+				current[info.Name] = true
+			}
+		}
+		if h.AllowToolSearch {
+			current["tool_search"] = true
+		}
+		h.allowedNames = current
+	}
 	state.ToolInfos = h.filter(state.ToolInfos)
+	state.DeferredToolInfos = h.filter(state.DeferredToolInfos)
 	// TypedModelContext 中也有一份工具定义，必须同步裁剪，否则模型仍可能看到被禁用工具。
 	if mc != nil {
 		mc.Tools = h.filter(mc.Tools)
@@ -104,6 +129,7 @@ type ToolMetricsHandler struct {
 	localizeMessage func(context.Context, string, map[string]any, string) string
 }
 
+// filter 收紧普通和延迟工具定义。
 func (h *ToolFilterHandler) filter(infos []*schema.ToolInfo) []*schema.ToolInfo {
 	// 没有工具定义时直接返回原切片，减少无意义分配。
 	if len(infos) == 0 {
@@ -161,6 +187,45 @@ func (h *ToolMetricsHandler) WrapInvokableToolCall(
 		recordToolCall(ctx, call)
 		return call.Output, nil
 	}, nil
+}
+
+// WrapEnhancedInvokableToolCall 为结构化工具复用标准调用的错误处理和度量。
+func (h *ToolMetricsHandler) WrapEnhancedInvokableToolCall(ctx context.Context, endpoint adk.EnhancedInvokableToolCallEndpoint, tCtx *adk.ToolContext) (adk.EnhancedInvokableToolCallEndpoint, error) {
+	return func(ctx context.Context, arguments *schema.ToolArgument, opts ...tool.Option) (*schema.ToolResult, error) {
+		var result *schema.ToolResult
+		wrapped, err := h.WrapInvokableToolCall(ctx, func(callCtx context.Context, input string, options ...tool.Option) (output string, err error) {
+			result, err = endpoint(callCtx, &schema.ToolArgument{Text: input}, options...)
+			if err != nil {
+				result = nil
+				return "", err
+			}
+			return ToolResultSummary(result)
+		}, tCtx)
+		if err != nil {
+			return nil, err
+		}
+		var output string
+		output, err = wrapped(ctx, arguments.Text, opts...)
+		if err != nil {
+			return nil, err
+		}
+		if result == nil {
+			result = &schema.ToolResult{Parts: []schema.ToolOutputPart{{Type: schema.ToolPartTypeText, Text: output}}}
+		}
+		return result, nil
+	}, nil
+}
+
+// ToolResultSummary 只序列化文本摘要与媒体类型，避免审计重复保存二进制。
+func ToolResultSummary(result *schema.ToolResult) (string, error) {
+	var summary []schema.ToolOutputPart
+	if result != nil {
+		for _, part := range result.Parts {
+			summary = append(summary, schema.ToolOutputPart{Type: part.Type, Text: part.Text[:min(len(part.Text), 2000)]})
+		}
+	}
+	raw, err := json.Marshal(summary)
+	return string(raw), err
 }
 
 // toolTitle 返回工具调用展示标题。

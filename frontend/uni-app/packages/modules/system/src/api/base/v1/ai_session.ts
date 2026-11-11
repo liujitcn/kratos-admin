@@ -1,6 +1,7 @@
 import { http } from '@liujitcn/kratos-uni-app-core/utils/http'
 import type {
   AiSessionService,
+  SetAiSessionPluginsRequest,
   CreateAiSessionBranchRequest,
   CreateAiSessionBranchResponse,
   CreateAiSessionRequest,
@@ -43,6 +44,16 @@ export class AiSessionServiceImpl implements AiSessionService {
   UpdateAiSession(request: UpdateAiSessionRequest): Promise<UpdateAiSessionResponse> {
     return http<UpdateAiSessionResponse>({
       url: `${AI_SESSION_URL}/${request.id}`,
+      method: 'PUT',
+      authMode: 'required',
+      data: request,
+    })
+  }
+
+  /** 保存会话插件选择，不立即执行工具。 */
+  SetAiSessionPlugins(request: SetAiSessionPluginsRequest): Promise<UpdateAiSessionResponse> {
+    return http<UpdateAiSessionResponse>({
+      url: `${AI_SESSION_URL}/${request.id}/plugins`,
       method: 'PUT',
       authMode: 'required',
       data: request,

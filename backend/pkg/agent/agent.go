@@ -10,7 +10,7 @@ import (
 )
 
 // Tool 是 Eino 可执行工具接口。
-type Tool = tool.InvokableTool
+type Tool = tool.BaseTool
 
 // AssistantClient 是 AI 助手模型客户端，按配置选择 Chat Completions 或 Responses 协议。
 type AssistantClient = model.AssistantClient

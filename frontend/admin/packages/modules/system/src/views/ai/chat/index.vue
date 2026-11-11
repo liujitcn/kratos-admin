@@ -1,27 +1,24 @@
 <template>
   <div class="ai-page" :class="{ 'is-session-collapsed': sessionPanelCollapsed }">
-    <SessionPanel
-      v-if="!sessionPanelCollapsed"
-      v-model:active="activeSessionID"
+    <AssistantNavigation
       v-model:keyword="sessionKeyword"
+      :active="activeSessionID"
       :sessions="filteredSessions"
+      :collapsed="sessionPanelCollapsed"
+      :mobile="mobile"
+      :view="assistantView"
+      :pending="pendingAutomationCount"
+      @view="assistantView = $event"
       @change="handleSessionChange"
       @action="handleSessionAction"
       @create="handleCreateSession"
-      @toggle-collapse="toggleSessionPanel"
+      @toggle="toggleSessionPanel"
     />
-    <div v-else class="agent-session-collapsed">
-      <button
-        class="agent-session-collapsed__toggle"
-        type="button"
-        :aria-label="t('system.ai.chat.action.expand_sessions')"
-        @click="toggleSessionPanel"
-      >
-        <el-icon><DArrowRight /></el-icon>
-      </button>
-      <span class="agent-session-collapsed__label">{{ t("system.ai.chat.title.recent_conversations") }}</span>
-    </div>
     <ChatPanel
+      v-show="assistantView === 'chat'"
+      :draft="drafts[activeSessionID]"
+      @draft-change="handleDraftChange"
+      @continue-result="continueResult"
       :active-session="activeSession"
       :messages="currentMessages"
       :sending="currentSessionSending"
@@ -49,13 +46,44 @@
         />
       </template>
     </ChatPanel>
+    <AutomationPanel
+      ref="automationPanel"
+      v-show="assistantView === 'automations'"
+      :active="assistantView === 'automations'"
+      :mobile="mobile"
+      :model-providers="modelProviders"
+      :knowledge-options="knowledgeOptions"
+      :plugins="plugins"
+      :connections="connections"
+      :provider-id="selectedProviderId"
+      :model-name="selectedModelName"
+      :knowledge-ids="selectedKnowledgeIds"
+      :selected-plugins="activeSession?.plugins || []"
+      @pending="pendingAutomationCount = $event"
+      @result="openResultSession"
+      @session="openDiscussion"
+    />
+    <FilePanel v-show="assistantView === 'files'" />
+    <PluginPanel
+      v-show="assistantView === 'plugins'"
+      :plugins="plugins"
+      :connections="connections"
+      :mobile="mobile"
+      :loading="pluginsLoading"
+      :error="pluginsError"
+      :can-manage-tools="pluginCapabilities.can_manage_tools"
+      :can-manage-catalog="pluginCapabilities.can_manage_catalog"
+      :can-create-private="pluginCapabilities.can_create_private"
+      @refresh="loadPlugins"
+      @select="addSessionPlugin"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
 import "vue-element-plus-x/styles/index.css";
-import { computed, onBeforeUnmount, onMounted, ref } from "vue";
-import { DArrowRight } from "@element-plus/icons-vue";
+import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
+import { useRoute } from "vue-router";
 import { ElMessage, ElMessageBox } from "element-plus";
 import { getCurrentLocale, t } from "@liujitcn/kratos-admin-core";
 import { getAdminAiExtension } from "@liujitcn/kratos-admin-system";
@@ -72,7 +100,16 @@ import type { AiShortcut } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_to
 import { AiMessageStatus } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_session";
 import { Terminal } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_tool";
 import ChatPanel from "./components/ChatPanel.vue";
-import SessionPanel from "@liujitcn/kratos-admin-system/components/AiSessionPanel/index.vue";
+import { useMediaQuery } from "@vueuse/core";
+import { defAiPluginService } from "@liujitcn/kratos-admin-system/api/base/v1/ai_plugin";
+import { defAiAutomationService } from "@liujitcn/kratos-admin-system/api/base/v1/ai_automation";
+import type { AiPlugin, AiPluginConnection, AiPluginSelection } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_plugin";
+import AssistantNavigation from "./workspace/AssistantNavigation.vue";
+import AutomationPanel from "./workspace/AutomationPanel.vue";
+import FilePanel from "./workspace/FilePanel.vue";
+import PluginPanel from "./workspace/PluginPanel.vue";
+import { pluginSelectionKey } from "./workspace/state";
+import type { AssistantView } from "./workspace/state";
 import {
   appendStreamingDelta,
   createLocalUserMessage,
@@ -91,7 +128,10 @@ import {
   sortMessages
 } from "./message";
 import { readAiEventStream } from "./stream";
-import { resolveModelSelection, saveModelSelection } from "@liujitcn/kratos-admin-system/components/AiModelSelector/modelSelection";
+import {
+  resolveModelSelection,
+  saveModelSelection
+} from "@liujitcn/kratos-admin-system/components/AiModelSelector/modelSelection";
 import type {
   AiStreamEvent,
   AiStreamPayload,
@@ -105,6 +145,20 @@ import type {
 defineOptions({
   name: "AiChat"
 });
+
+const mobile = useMediaQuery("(max-width: 768px)");
+const route = useRoute();
+const assistantView = ref<AssistantView>("chat");
+const drafts = ref<Record<string, SubmitPayload>>({});
+const pendingAutomationCount = ref(0);
+const automationPanel = ref<InstanceType<typeof AutomationPanel>>();
+const plugins = ref<AiPlugin[]>([]),
+  connections = ref<AiPluginConnection[]>([]);
+const pluginCapabilities = ref({ can_manage_tools: false, can_manage_catalog: false, can_create_private: false });
+const pluginsLoading = ref(false),
+  pluginsError = ref("");
+const savingPlugins = ref(false),
+  pluginSelection = ref<AiPluginSelection[]>([]);
 
 const sessionKeyword = ref("");
 const activeSessionID = ref("");
@@ -128,6 +182,7 @@ const loadMessagesSeq = new Map<string, number>();
 let pendingDeltaFrame = 0;
 let speakingMessageID = "";
 let createSessionPromise: Promise<string | undefined> | undefined;
+let loadSessionsPromise: Promise<void> | undefined;
 
 /** 当前会话的流式任务状态。 */
 type AiStreamTask = {
@@ -143,7 +198,10 @@ const filteredSessions = computed(() => {
   return sessions.value.filter(item => item.title.includes(keyword) || item.summary.includes(keyword));
 });
 
-const activeSession = computed(() => sessions.value.find(item => item.id === activeSessionID.value) ?? sessions.value[0]);
+const activeSession = computed(() => sessions.value.find(item => item.id === activeSessionID.value));
+const pluginTerminal = computed(() => assistantView.value === "automations"
+  ? Terminal.TERMINAL_ADMIN
+  : activeSession.value?.terminal ?? Terminal.TERMINAL_ADMIN);
 
 const currentMessages = computed(() => messages.value[activeSessionID.value] ?? []);
 
@@ -153,6 +211,7 @@ const aiFlowBlocks = computed(() => getAdminAiExtension().flowBlocks);
 
 /** 切换会话时同步当前活动会话。 */
 function handleSessionChange(item: AiSession) {
+  assistantView.value = "chat";
   activeSessionID.value = item.id;
   if (isSessionSending(item.id) && messages.value[item.id]?.length) return;
   void loadMessages(item.id);
@@ -180,8 +239,9 @@ async function handleSessionAction(payload: { action: SessionAction; item: AiSes
 
 /** 主动创建新的会话，并切换到刚创建的会话。 */
 async function handleCreateSession() {
-  const sessionID = await createSession();
+  const sessionID = activeSessionID.value ? await createSession() : await ensureActiveSession();
   if (!sessionID) return;
+  assistantView.value = "chat";
   activeSessionID.value = sessionID;
   messages.value[sessionID] = [];
   ElMessage.success(t("system.ai.chat.message.conversation_created"));
@@ -210,7 +270,7 @@ async function sendAiPayload(payload: SubmitPayload) {
     return false;
   }
   // 同一个会话内仍然串行发送，避免历史上下文和消息顺序被并发请求打乱。
-  if (isSessionSending(sessionID)) return false;
+  if (isSessionSending(sessionID) || sessions.value.find(item => item.id === sessionID)?.read_only) return false;
   if ((messages.value[sessionID] ?? []).some(item => item.status === AiMessageStatus.AI_MESSAGE_STATUS_WAITING_APPROVAL)) {
     ElMessage.warning(t("system.ai.chat.approval.pending"));
     return false;
@@ -367,6 +427,7 @@ async function handleApprovalDecision(item: ChatMessageItem, approved: boolean) 
     ElMessage.error(error instanceof Error ? error.message : t("system.ai.chat.approval.failed"));
   } finally {
     setSessionSending(sessionID, false);
+    void automationPanel.value?.refresh();
   }
 }
 
@@ -673,20 +734,27 @@ function flushAiDelta() {
 }
 
 /** 首次打开时加载会话列表，并拉取当前会话消息。 */
-async function ensureSessionsLoaded() {
-  if (loadingSessions.value || sessions.value.length > 0) return;
-
-  loadingSessions.value = true;
+async function ensureSessionsLoaded(force = false) {
+  if (loadSessionsPromise) return loadSessionsPromise;
+  if (!force && sessions.value.length > 0) return;
+  loadSessionsPromise = (async () => {
+    loadingSessions.value = true;
+    try {
+      void loadAiShortcuts();
+      const response = await defAiSessionService.ListAiSession({});
+      sessions.value = normalizeSessionList(response?.sessions);
+      const sessionID = await ensureActiveSession();
+      if (sessionID) await loadMessages(sessionID);
+    } catch (error) {
+      ElMessage.error(error instanceof Error ? error.message : t("system.ai.workspace.failed"));
+    } finally {
+      loadingSessions.value = false;
+    }
+  })();
   try {
-    void loadAiShortcuts();
-    const response = await defAiSessionService.ListAiSession({ terminal: Terminal.TERMINAL_ADMIN });
-    sessions.value = normalizeSessionList(response?.sessions);
-    const sessionID = await ensureActiveSession();
-    if (sessionID) await loadMessages(sessionID);
-  } catch {
-    sessions.value = [];
+    await loadSessionsPromise;
   } finally {
-    loadingSessions.value = false;
+    loadSessionsPromise = undefined;
   }
 }
 
@@ -799,6 +867,7 @@ async function handleDeleteSession(item: AiSession) {
   cancelSessionStreamTask(item.id);
   sessions.value = sessions.value.filter(session => session.id !== item.id);
   delete messages.value[item.id];
+  delete drafts.value[item.id];
 
   if (activeSessionID.value === item.id) {
     activeSessionID.value = sessions.value[0]?.id ?? "";
@@ -811,12 +880,12 @@ async function handleDeleteSession(item: AiSession) {
 
 /** 保证当前存在可用会话；当列表为空时自动创建首个会话。 */
 async function ensureActiveSession() {
-  if (!activeSessionID.value && sessions.value.length > 0) {
-    activeSessionID.value = sessions.value[0].id;
-  }
   if (activeSessionID.value) return activeSessionID.value;
-
-  activeSessionID.value = (await createSession()) ?? "";
+  activeSessionID.value = sessions.value[0]?.id ?? (await createSession()) ?? "";
+  if (activeSessionID.value && drafts.value[""]) {
+    drafts.value[activeSessionID.value] = drafts.value[""];
+    delete drafts.value[""];
+  }
   return activeSessionID.value;
 }
 
@@ -826,7 +895,8 @@ async function createSession(options?: { title?: string }) {
   createSessionPromise = (async () => {
     const response = await defAiSessionService.CreateAiSession({
       title: options?.title || t("system.ai.chat.value.new_conversation"),
-      terminal: Terminal.TERMINAL_ADMIN
+      terminal: Terminal.TERMINAL_ADMIN,
+      plugins: []
     });
     const normalizedSession = normalizeSession(response.session);
     upsertSession(normalizedSession);
@@ -875,10 +945,117 @@ function upsertSession(session: AiSession) {
   });
 }
 
+/** 按聊天会话或自动化所需的工具能力读取目录与明确账号。 */
+async function loadPlugins() {
+  if (pluginsLoading.value) return;
+  const terminal = pluginTerminal.value;
+  pluginsLoading.value = true;
+  pluginsError.value = "";
+  plugins.value = [];
+  try {
+    const [catalog, accounts] = await Promise.all([
+      defAiPluginService.ListAiPlugin({ keyword: "", terminal }),
+      defAiPluginService.ListAiPluginConnection({ plugin_id: "" })
+    ]);
+    if (terminal !== pluginTerminal.value) return;
+    plugins.value = catalog.plugins ?? [];
+    connections.value = accounts.connections ?? [];
+    pluginCapabilities.value = {
+      can_manage_tools: catalog.can_manage_tools,
+      can_manage_catalog: catalog.can_manage_catalog,
+      can_create_private: catalog.can_create_private
+    };
+  } catch (error) {
+    pluginsError.value = error instanceof Error ? error.message : t("system.ai.workspace.failed");
+  } finally {
+    pluginsLoading.value = false;
+    if (terminal !== pluginTerminal.value) void loadPlugins();
+  }
+}
+
+watch(pluginTerminal, () => void loadPlugins());
+
+/** 草稿与已上传附件按会话保存，切换功能不会提交输入。 */
+function handleDraftChange(draft: SubmitPayload) {
+  drafts.value[activeSessionID.value] = draft;
+}
+
+/** 保存显式选择，空数组表示关闭所有插件。 */
+async function savePluginSelection() {
+  if (pluginsError.value || pluginsLoading.value || activeSession.value?.read_only) return;
+  savingPlugins.value = true;
+  try {
+    const id = await ensureActiveSession();
+    if (!id) return;
+    const response = await defAiSessionService.SetAiSessionPlugins({ id, plugins: pluginSelection.value });
+    if (response.session) upsertSession(normalizeSession(response.session));
+  } finally {
+    savingPlugins.value = false;
+  }
+}
+
+/** 从插件目录选用确定账号，其他已有选择继续保留。 */
+async function addSessionPlugin(selection: AiPluginSelection) {
+  if (activeSession.value?.read_only) return;
+  pluginSelection.value = [...(activeSession.value?.plugins ?? [])];
+  if (!pluginSelection.value.some(item => pluginSelectionKey(item) === pluginSelectionKey(selection)))
+    pluginSelection.value.push(selection);
+  await savePluginSelection();
+  assistantView.value = "chat";
+}
+
+/** 打开执行结果并保留其他会话的流式任务和草稿。 */
+async function openResultSession(id: string) {
+  if (!sessions.value.some(item => item.id === id)) await ensureSessionsLoaded(true);
+  const session = sessions.value.find(item => item.id === id);
+  if (!session) {
+    ElMessage.warning(t("system.ai.workspace.result_unavailable"));
+    return;
+  }
+  handleSessionChange(session);
+}
+
+/** 从执行结果继续讨论时切换到服务端新建的普通会话。 */
+function openDiscussion(session: AiSession) {
+  const normalized = normalizeSession(session);
+  upsertSession(normalized);
+  handleSessionChange(normalized);
+}
+
+/** 冻结结果只能通过服务端复制为普通讨论会话。 */
+async function continueResult() {
+  if (!activeSession.value?.automation_run_id) return;
+  const response = await defAiAutomationService.ContinueAiAutomationRun({ id: activeSession.value.automation_run_id });
+  if (response.session) openDiscussion(response.session);
+}
+
+/** 通知只提供执行编号，结果会话与归属以服务端查询为准。 */
+async function openNotificationResult(value: unknown) {
+  if (typeof value !== "string" || !/^[1-9]\d{0,18}$/.test(value)) return;
+  try {
+    const run = await defAiAutomationService.GetAiAutomationRun({ id: value });
+    if (route.query.run_id !== value) return;
+    if (!run.session_id || run.session_deleted) {
+      ElMessage.warning(t("system.ai.workspace.result_unavailable"));
+      return;
+    }
+    await openResultSession(run.session_id);
+  } catch (error) {
+    ElMessage.error(error instanceof Error ? error.message : t("system.ai.workspace.result_unavailable"));
+  }
+}
+
+watch(
+  () => route.query.run_id,
+  value => void openNotificationResult(value)
+);
+
 /** 页面加载后主动准备首个会话，避免进入菜单后仍需额外点击。 */
-onMounted(() => {
+onMounted(async () => {
+  void loadPlugins();
   void loadAiShortcuts();
-  void ensureSessionsLoaded();
+  await ensureSessionsLoaded();
+  await openNotificationResult(route.query.run_id);
 });
 
 onBeforeUnmount(() => {
@@ -908,41 +1085,12 @@ onBeforeUnmount(() => {
 .ai-page.is-session-collapsed {
   grid-template-columns: 44px minmax(0, 1fr);
 }
-.agent-session-collapsed {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  align-items: center;
-  min-height: 0;
-  padding: 16px 8px;
-  background: var(--admin-page-card-bg);
-  border-right: 1px solid var(--admin-page-divider-strong);
+.assistant-plugin-selection {
+  width: 100%;
 }
-.agent-session-collapsed__toggle {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  color: var(--admin-page-text-secondary);
-  cursor: pointer;
-  background: var(--el-fill-color-light);
-  border: 0;
-  border-radius: var(--admin-page-radius);
-  transition:
-    color 0.2s ease,
-    background-color 0.2s ease;
-  &:hover {
-    color: var(--el-color-primary);
-    background: var(--el-color-primary-light-9);
-  }
-}
-.agent-session-collapsed__label {
-  font-size: 12px;
-  line-height: 16px;
-  color: var(--admin-page-text-secondary);
-  user-select: none;
-  writing-mode: vertical-rl;
+.assistant-plugin-selection .el-select {
+  width: 100%;
+  margin: 10px 0;
 }
 
 @media screen and (width <= 1200px) {
@@ -956,12 +1104,13 @@ onBeforeUnmount(() => {
 
 @media screen and (width <= 768px) {
   .ai-page {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr);
     height: 100%;
     min-height: 0;
   }
-  .agent-session-collapsed {
-    display: none;
+  .ai-page.is-session-collapsed {
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 </style>

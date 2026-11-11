@@ -23,6 +23,7 @@ const OperationAiSessionServiceCreateAiSessionBranch = "/base.v1.AiSessionServic
 const OperationAiSessionServiceDeleteAiSession = "/base.v1.AiSessionService/DeleteAiSession"
 const OperationAiSessionServiceListAiMessage = "/base.v1.AiSessionService/ListAiMessage"
 const OperationAiSessionServiceListAiSession = "/base.v1.AiSessionService/ListAiSession"
+const OperationAiSessionServiceSetAiSessionPlugins = "/base.v1.AiSessionService/SetAiSessionPlugins"
 const OperationAiSessionServiceUpdateAiSession = "/base.v1.AiSessionService/UpdateAiSession"
 
 type AiSessionServiceHTTPServer interface {
@@ -36,6 +37,8 @@ type AiSessionServiceHTTPServer interface {
 	ListAiMessage(context.Context, *ListAiMessageRequest) (*ListAiMessageResponse, error)
 	// ListAiSession 查询 AI 助手会话列表
 	ListAiSession(context.Context, *ListAiSessionRequest) (*ListAiSessionResponse, error)
+	// SetAiSessionPlugins 保存本人会话选用插件；不立即执行工具。
+	SetAiSessionPlugins(context.Context, *SetAiSessionPluginsRequest) (*UpdateAiSessionResponse, error)
 	// UpdateAiSession 更新 AI 助手会话
 	UpdateAiSession(context.Context, *UpdateAiSessionRequest) (*UpdateAiSessionResponse, error)
 }
@@ -47,6 +50,7 @@ func RegisterAiSessionServiceHTTPServer(s *http.Server, srv AiSessionServiceHTTP
 	r.Handle("POST", "/api/v1/base/ai/session", _AiSessionService_CreateAiSession0_HTTP_Handler(srv))
 	r.Handle("POST", "/api/v1/base/ai/session/{source_session_id}/branch", _AiSessionService_CreateAiSessionBranch0_HTTP_Handler(srv))
 	r.Handle("PUT", "/api/v1/base/ai/session/{id}", _AiSessionService_UpdateAiSession0_HTTP_Handler(srv))
+	r.Handle("PUT", "/api/v1/base/ai/session/{id}/plugins", _AiSessionService_SetAiSessionPlugins0_HTTP_Handler(srv))
 	r.Handle("DELETE", "/api/v1/base/ai/session/{id}", _AiSessionService_DeleteAiSession0_HTTP_Handler(srv))
 }
 
@@ -154,6 +158,28 @@ func _AiSessionService_UpdateAiSession0_HTTP_Handler(srv AiSessionServiceHTTPSer
 	}
 }
 
+func _AiSessionService_SetAiSessionPlugins0_HTTP_Handler(srv AiSessionServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in SetAiSessionPluginsRequest
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindVars(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationAiSessionServiceSetAiSessionPlugins)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.SetAiSessionPlugins(ctx, req.(*SetAiSessionPluginsRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*UpdateAiSessionResponse)
+		return ctx.Result(200, reply)
+	}
+}
+
 func _AiSessionService_DeleteAiSession0_HTTP_Handler(srv AiSessionServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in DeleteAiSessionRequest
@@ -187,6 +213,8 @@ type AiSessionServiceHTTPClient interface {
 	ListAiMessage(ctx context.Context, req *ListAiMessageRequest, opts ...http.CallOption) (rsp *ListAiMessageResponse, err error)
 	// ListAiSession 查询 AI 助手会话列表
 	ListAiSession(ctx context.Context, req *ListAiSessionRequest, opts ...http.CallOption) (rsp *ListAiSessionResponse, err error)
+	// SetAiSessionPlugins 保存本人会话选用插件；不立即执行工具。
+	SetAiSessionPlugins(ctx context.Context, req *SetAiSessionPluginsRequest, opts ...http.CallOption) (rsp *UpdateAiSessionResponse, err error)
 	// UpdateAiSession 更新 AI 助手会话
 	UpdateAiSession(ctx context.Context, req *UpdateAiSessionRequest, opts ...http.CallOption) (rsp *UpdateAiSessionResponse, err error)
 }
@@ -280,6 +308,24 @@ func (c *AiSessionServiceHTTPClientImpl) ListAiSession(ctx context.Context, in *
 		http.PathTemplate(pattern),
 	}, opts...)
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+// SetAiSessionPlugins 保存本人会话选用插件；不立即执行工具。
+func (c *AiSessionServiceHTTPClientImpl) SetAiSessionPlugins(ctx context.Context, in *SetAiSessionPluginsRequest, opts ...http.CallOption) (*UpdateAiSessionResponse, error) {
+	var out UpdateAiSessionResponse
+	pattern := "/api/v1/base/ai/session/{id}/plugins"
+	path := http.BuildPath(pattern, in)
+	opts = append([]http.CallOption{
+		http.Accept("application/protojson"),
+		http.ContentType("application/protojson"),
+		http.Operation(OperationAiSessionServiceSetAiSessionPlugins),
+		http.PathTemplate(pattern),
+	}, opts...)
+	err := c.cc.Invoke(ctx, "PUT", path, in, &out, opts...)
 	if err != nil {
 		return nil, err
 	}

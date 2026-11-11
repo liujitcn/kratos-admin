@@ -8,31 +8,61 @@ import (
 	"net/http"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/liujitcn/gorm-kit/repository"
 	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
 	biz "github.com/liujitcn/kratos-admin/backend/internal/biz/base"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
-	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 	"github.com/liujitcn/kratos-kit/auth/authn/engine"
 	authData "github.com/liujitcn/kratos-kit/auth/data"
 	"github.com/liujitcn/kratos-kit/oss"
+	"gorm.io/gorm"
 )
 
 // protectStaticFileAccess 根据文件元数据保护并代理 /data/ 文件访问。
 func protectStaticFileAccess(
 	handler http.Handler,
 	baseFileRepo *data.BaseFileRepository,
+	aiFileRepo *data.AiFileRepository,
 	storage oss.OSS,
 	authenticator engine.TokenAuthenticator,
 	userToken *authData.UserToken,
 ) http.Handler {
-	findFile := func(ctx context.Context, objectPath string) (*models.BaseFile, error) {
-		if baseFileRepo == nil {
-			return nil, errStaticFileMetadataUnavailable
+	findFile := func(ctx context.Context, objectPath string) (*staticFileMetadata, error) {
+		findBaseFile := func() (*staticFileMetadata, error) {
+			if baseFileRepo == nil {
+				return nil, errStaticFileMetadataUnavailable
+			}
+			query := baseFileRepo.Query(ctx).BaseFile
+			file, err := baseFileRepo.Find(ctx, repository.Where(query.LinkURL.Eq(objectPath)))
+			if err != nil {
+				return nil, err
+			}
+			return &staticFileMetadata{TenantID: file.TenantID, FileName: file.FileName, MimeType: file.MimeType, AccessMode: file.AccessMode, CreatedAt: file.CreatedAt, UpdatedAt: file.UpdatedAt}, nil
 		}
-		query := baseFileRepo.Query(ctx).BaseFile
-		return baseFileRepo.Find(ctx, repository.Where(query.LinkURL.Eq(objectPath)))
+		findAiFile := func() (*staticFileMetadata, error) {
+			if aiFileRepo == nil {
+				return nil, errStaticFileMetadataUnavailable
+			}
+			query := aiFileRepo.Query(ctx).AiFile
+			file, err := aiFileRepo.Find(ctx, repository.Where(query.LinkURL.Eq(objectPath)), repository.Where(query.Status.Eq("active")))
+			if err != nil {
+				return nil, err
+			}
+			return &staticFileMetadata{TenantID: file.TenantID, FileName: file.FileName, MimeType: file.MimeType, AccessMode: file.AccessMode, CreatedAt: file.CreatedAt, UpdatedAt: file.UpdatedAt}, nil
+		}
+		if objectPath == "ai" || strings.HasPrefix(objectPath, "ai/") {
+			file, err := findAiFile()
+			if err == nil || !errors.Is(err, gorm.ErrRecordNotFound) {
+				return file, err
+			}
+		}
+		file, err := findBaseFile()
+		if err == nil || !errors.Is(err, gorm.ErrRecordNotFound) {
+			return file, err
+		}
+		return findAiFile()
 	}
 	readFile := func(objectPath string) ([]byte, error) {
 		if storage == nil {
@@ -43,10 +73,20 @@ func protectStaticFileAccess(
 	return newStaticFileAccessHandler(handler, findFile, readFile, authenticator, userToken)
 }
 
+// staticFileMetadata 表示静态文件代理所需的最小元数据。
+type staticFileMetadata struct {
+	TenantID   int64
+	FileName   string
+	MimeType   string
+	AccessMode int32
+	CreatedAt  time.Time
+	UpdatedAt  time.Time
+}
+
 // newStaticFileAccessHandler 创建可注入文件查询、读取和认证器的资源 Handler。
 func newStaticFileAccessHandler(
 	handler http.Handler,
-	findFile func(context.Context, string) (*models.BaseFile, error),
+	findFile func(context.Context, string) (*staticFileMetadata, error),
 	readFile func(string) ([]byte, error),
 	authenticator engine.TokenAuthenticator,
 	userToken *authData.UserToken,
@@ -106,7 +146,7 @@ func newStaticFileAccessHandler(
 // authorizeStaticFileRequest 校验授权文件的请求头或 Cookie 访问令牌和租户归属。
 func authorizeStaticFileRequest(
 	request *http.Request,
-	file *models.BaseFile,
+	file *staticFileMetadata,
 	authenticator engine.TokenAuthenticator,
 	userToken *authData.UserToken,
 ) bool {

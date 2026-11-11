@@ -7850,7 +7850,7 @@ paths:
         post:
             tags:
                 - AiKnowledgeDocService
-            description: 上傳文件檔案（txt/md/docx/pdf：抽取文字後走同一入庫鏈）。
+            description: 上傳文件檔案（由 Xberg MCP 抽取後切片、向量化並落庫）。
             operationId: AiKnowledgeDocService_UploadAiKnowledgeDocFile
             parameters:
                 - name: id
@@ -7872,7 +7872,7 @@ paths:
         post:
             tags:
                 - AiKnowledgeDocService
-            description: 上傳純文字文件（切片 → 向量化 → 落庫）。
+            description: 上傳純文字文件（由 Xberg MCP 抽取後切片、向量化並落庫）。
             operationId: AiKnowledgeDocService_UploadAiKnowledgeDocText
             parameters:
                 - name: id
@@ -8656,6 +8656,378 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/base.v1.CurrentPasswordPolicy'
+    /api/v1/base/ai/automation:
+        get:
+            tags:
+                - AiAutomationService
+            description: 查詢本人自動化計劃。
+            operationId: AiAutomationService_ListAiAutomation
+            parameters:
+                - name: status
+                  in: query
+                  schema:
+                    type: string
+                - name: keyword
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.ListAiAutomationResponse'
+        post:
+            tags:
+                - AiAutomationService
+            description: 建立本人自動化計劃。
+            operationId: AiAutomationService_CreateAiAutomation
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/base.v1.CreateAiAutomationRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.AiAutomation'
+    /api/v1/base/ai/automation-preview:
+        post:
+            tags:
+                - AiAutomationService
+            description: 預覽未來三次觸發時間。
+            operationId: AiAutomationService_PreviewAiAutomationSchedule
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/base.v1.PreviewAiAutomationScheduleRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.PreviewAiAutomationScheduleResponse'
+    /api/v1/base/ai/automation-run:
+        get:
+            tags:
+                - AiAutomationService
+            description: 查詢本人執行記錄。
+            operationId: AiAutomationService_ListAiAutomationRun
+            parameters:
+                - name: automation_id
+                  in: query
+                  schema:
+                    type: string
+                - name: limit
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.ListAiAutomationRunResponse'
+    /api/v1/base/ai/automation-run/{id}:
+        get:
+            tags:
+                - AiAutomationService
+            description: 查詢本人執行詳情。
+            operationId: AiAutomationService_GetAiAutomationRun
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.AiAutomationRun'
+    /api/v1/base/ai/automation-run/{id}/discussion:
+        post:
+            tags:
+                - AiAutomationService
+            description: 從凍結結果建立普通討論會話。
+            operationId: AiAutomationService_ContinueAiAutomationRun
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/base.v1.ContinueAiAutomationRunRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.CreateAiSessionResponse'
+    /api/v1/base/ai/automation-run/{id}/stop:
+        post:
+            tags:
+                - AiAutomationService
+            description: 停止本次執行。
+            operationId: AiAutomationService_StopAiAutomationRun
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/base.v1.StopAiAutomationRunRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.AiAutomationRun'
+    /api/v1/base/ai/automation/{id}:
+        get:
+            tags:
+                - AiAutomationService
+            description: 查詢本人自動化詳情。
+            operationId: AiAutomationService_GetAiAutomation
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.AiAutomation'
+        put:
+            tags:
+                - AiAutomationService
+            description: 按版本更新本人自動化計劃。
+            operationId: AiAutomationService_UpdateAiAutomation
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/base.v1.UpdateAiAutomationRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.AiAutomation'
+    /api/v1/base/ai/automation/{id}/run:
+        post:
+            tags:
+                - AiAutomationService
+            description: 冪等地執行一次已有任務。
+            operationId: AiAutomationService_RunAiAutomation
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/base.v1.RunAiAutomationRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.AiAutomationRun'
+    /api/v1/base/ai/automation/{id}/status:
+        put:
+            tags:
+                - AiAutomationService
+            description: 暫停、恢復或歸檔計劃。
+            operationId: AiAutomationService_SetAiAutomationStatus
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/base.v1.SetAiAutomationStatusRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.AiAutomation'
+    /api/v1/base/ai/file:
+        get:
+            tags:
+                - AiFileService
+            description: 分頁查詢 AI 檔案。
+            operationId: AiFileService_PageAiFile
+            parameters:
+                - name: view
+                  in: query
+                  schema:
+                    enum:
+                        - AI_FILE_VIEW_UNSPECIFIED
+                        - AI_FILE_VIEW_ALL
+                        - AI_FILE_VIEW_UPLOADED
+                        - AI_FILE_VIEW_GENERATED
+                        - AI_FILE_VIEW_TRASHED
+                    type: string
+                    format: enum
+                - name: keyword
+                  in: query
+                  schema:
+                    type: string
+                - name: page_num
+                  in: query
+                  schema:
+                    type: string
+                - name: page_size
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.PageAiFileResponse'
+    /api/v1/base/ai/file/{id}:
+        delete:
+            tags:
+                - AiFileService
+            description: 徹底刪除 AI 檔案及其物件。
+            operationId: AiFileService_DeleteAiFile
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/base/ai/file/{id}/name:
+        put:
+            tags:
+                - AiFileService
+            description: 重新命名 AI 檔案，只修改後設資料。
+            operationId: AiFileService_RenameAiFile
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/base.v1.RenameAiFileRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.AiFile'
+    /api/v1/base/ai/file/{id}/restore:
+        put:
+            tags:
+                - AiFileService
+            description: 從回收站恢復 AI 檔案。
+            operationId: AiFileService_RestoreAiFile
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/base.v1.RestoreAiFileRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.AiFile'
+    /api/v1/base/ai/file/{id}/trash:
+        put:
+            tags:
+                - AiFileService
+            description: 將 AI 檔案移入回收站。
+            operationId: AiFileService_TrashAiFile
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/base.v1.TrashAiFileRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.AiFile'
     /api/v1/base/ai/knowledge/options:
         get:
             tags:
@@ -8669,6 +9041,385 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/base.v1.ListAiKnowledgeOptionsResponse'
+    /api/v1/base/ai/plugin:
+        get:
+            tags:
+                - AiPluginService
+            description: 查詢當前身份可見的外掛目錄。
+            operationId: AiPluginService_ListAiPlugin
+            parameters:
+                - name: keyword
+                  in: query
+                  schema:
+                    type: string
+                - name: terminal
+                  in: query
+                  schema:
+                    enum:
+                        - TERMINAL_UNSPECIFIED
+                        - TERMINAL_APP
+                        - TERMINAL_ADMIN
+                    type: string
+                    format: enum
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.ListAiPluginResponse'
+        post:
+            tags:
+                - AiPluginService
+            description: 建立外掛定義。
+            operationId: AiPluginService_CreateAiPlugin
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/base.v1.CreateAiPluginRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.AiPlugin'
+    /api/v1/base/ai/plugin-connection:
+        get:
+            tags:
+                - AiPluginService
+            description: 查詢本人及授權共享連線。
+            operationId: AiPluginService_ListAiPluginConnection
+            parameters:
+                - name: plugin_id
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.ListAiPluginConnectionResponse'
+        post:
+            tags:
+                - AiPluginService
+            description: 建立本人連線並驗證工具發現。
+            operationId: AiPluginService_CreateAiPluginConnection
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/base.v1.CreateAiPluginConnectionRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.AiPluginConnection'
+    /api/v1/base/ai/plugin-connection/{id}:
+        delete:
+            tags:
+                - AiPluginService
+            description: 撤銷本人連線並立即使舊許可失效。
+            operationId: AiPluginService_DisconnectAiPluginConnection
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: revision
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.AiPluginConnection'
+    /api/v1/base/ai/plugin-connection/{id}/authorization:
+        post:
+            tags:
+                - AiPluginService
+            description: 開始賬號授權。
+            operationId: AiPluginService_StartAiPluginOAuth
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/base.v1.StartAiPluginOAuthRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.StartAiPluginOAuthResponse'
+    /api/v1/base/ai/plugin-connection/{id}/credential:
+        put:
+            tags:
+                - AiPluginService
+            description: 原賬號重新設定API令牌並重新檢測；舊許可立即失效。
+            operationId: AiPluginService_ReauthorizeAiPluginConnection
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/base.v1.ReauthorizeAiPluginConnectionRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.AiPluginConnection'
+    /api/v1/base/ai/plugin-connection/{id}/refresh:
+        post:
+            tags:
+                - AiPluginService
+            description: 檢測連線並完整重新整理工具。
+            operationId: AiPluginService_RefreshAiPluginConnection
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/base.v1.RefreshAiPluginConnectionRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.AiPluginConnection'
+    /api/v1/base/ai/plugin-connection/{id}/sharing:
+        put:
+            tags:
+                - AiPluginService
+            description: 管理員顯式授權或撤銷本人賬號的租戶共享。
+            operationId: AiPluginService_SetAiPluginConnectionSharing
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/base.v1.SetAiPluginConnectionSharingRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.AiPluginConnection'
+    /api/v1/base/ai/plugin-oauth/callback:
+        get:
+            tags:
+                - AiPluginService
+            description: 一次性消費授權狀態並交換令牌。
+            operationId: AiPluginService_CompleteAiPluginOAuth
+            parameters:
+                - name: state
+                  in: query
+                  schema:
+                    type: string
+                - name: code
+                  in: query
+                  schema:
+                    type: string
+                - name: error
+                  in: query
+                  schema:
+                    type: string
+                - name: iss
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.AiPluginConnection'
+    /api/v1/base/ai/plugin/{id}:
+        get:
+            tags:
+                - AiPluginService
+            description: 查詢外掛詳情。
+            operationId: AiPluginService_GetAiPlugin
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.AiPlugin'
+        put:
+            tags:
+                - AiPluginService
+            description: 更新外掛定義並遞增修訂號。
+            operationId: AiPluginService_UpdateAiPlugin
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/base.v1.UpdateAiPluginRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.AiPlugin'
+        delete:
+            tags:
+                - AiPluginService
+            description: 刪除無有效引用的外掛定義。
+            operationId: AiPluginService_DeleteAiPlugin
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: revision
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/base/ai/plugin/{plugin_id}/installation:
+        put:
+            tags:
+                - AiPluginService
+            description: 設定當前租戶安裝和終端策略。
+            operationId: AiPluginService_SetAiPluginInstallation
+            parameters:
+                - name: plugin_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/base.v1.SetAiPluginInstallationRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.AiPluginInstallation'
+    /api/v1/base/ai/plugin/{plugin_id}/tool:
+        get:
+            tags:
+                - AiPluginService
+            description: 查詢工具發現快照和稽核狀態。
+            operationId: AiPluginService_ListAiPluginTool
+            parameters:
+                - name: plugin_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: terminal
+                  in: query
+                  schema:
+                    enum:
+                        - TERMINAL_UNSPECIFIED
+                        - TERMINAL_APP
+                        - TERMINAL_ADMIN
+                    type: string
+                    format: enum
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.ListAiPluginToolResponse'
+    /api/v1/base/ai/plugin/{plugin_id}/tool/{tool_id}/policy:
+        put:
+            tags:
+                - AiPluginService
+            description: 稽核工具契約並設定租戶策略。
+            operationId: AiPluginService_SetAiPluginToolPolicy
+            parameters:
+                - name: plugin_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: tool_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/base.v1.SetAiPluginToolPolicyRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.AiPluginTool'
     /api/v1/base/ai/provider-models:
         get:
             tags:
@@ -8682,25 +9433,6 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/base.v1.ListAiProviderModelOptionsResponse'
-    /api/v1/base/ai/report:
-        post:
-            tags:
-                - AiReportService
-            description: 將當前對話的資料和分析整理成 Markdown，生成可下載的 HTML 和 PDF 報告；僅在使用者要求生成報告時呼叫，返回後使用真實檔案地址提供下載連結，不得編造資料或下載地址。
-            operationId: AiReportService_GenerateAiReport
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/base.v1.GenerateAiReportRequest'
-                required: true
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/base.v1.GenerateAiReportResponse'
     /api/v1/base/ai/search:
         post:
             tags:
@@ -8726,16 +9458,6 @@ paths:
                 - AiSessionService
             description: 查詢 AI 助手會話列表
             operationId: AiSessionService_ListAiSession
-            parameters:
-                - name: terminal
-                  in: query
-                  schema:
-                    enum:
-                        - TERMINAL_UNSPECIFIED
-                        - TERMINAL_APP
-                        - TERMINAL_ADMIN
-                    type: string
-                    format: enum
             responses:
                 "200":
                     description: OK
@@ -8804,6 +9526,31 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/base.v1.DeleteAiSessionResponse'
+    /api/v1/base/ai/session/{id}/plugins:
+        put:
+            tags:
+                - AiSessionService
+            description: 儲存本人會話選用外掛；不立即執行工具。
+            operationId: AiSessionService_SetAiSessionPlugins
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/base.v1.SetAiSessionPluginsRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.UpdateAiSessionResponse'
     /api/v1/base/ai/session/{session_id}/message:
         get:
             tags:
@@ -9996,6 +10743,195 @@ components:
                     type: string
                     description: 附件 MIME 型別
             description: AI 助手附件
+        base.v1.AiAutomation:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 任務ID
+                configuration:
+                    $ref: '#/components/schemas/base.v1.AiAutomationForm'
+                status:
+                    type: string
+                    description: active paused archived
+                revision:
+                    type: string
+                    description: 配置版本
+                next_fire_at:
+                    type: string
+                    description: 下次UTC時間
+                    format: date-time
+                active_run_id:
+                    type: string
+                    description: 當前活動執行
+                last_run:
+                    $ref: '#/components/schemas/base.v1.AiAutomationRun'
+                problem:
+                    type: string
+                    description: 需處理的依賴問題
+                created_at:
+                    type: string
+                    description: 建立時間
+                    format: date-time
+                updated_at:
+                    type: string
+                    description: 更新時間
+                    format: date-time
+            description: 本人自動化計劃。
+        base.v1.AiAutomationForm:
+            type: object
+            properties:
+                name:
+                    type: string
+                    description: 名稱
+                prompt:
+                    type: string
+                    description: 明確任務指令
+                schedule:
+                    $ref: '#/components/schemas/base.v1.AiAutomationSchedule'
+                provider_id:
+                    type: string
+                    description: 固定模型供應商
+                model_name:
+                    type: string
+                    description: 固定模型名稱
+                knowledge_base_ids:
+                    type: array
+                    items:
+                        type: string
+                    description: 知識庫引用
+                plugins:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/base.v1.AiPluginSelection'
+                    description: 選用外掛和確定賬號
+            description: 由使用者確認儲存的自動化配置。
+        base.v1.AiAutomationRun:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 執行ID
+                automation_id:
+                    type: string
+                    description: 任務ID
+                revision:
+                    type: string
+                    description: 凍結配置版本
+                configuration:
+                    $ref: '#/components/schemas/base.v1.AiAutomationForm'
+                terminal:
+                    type: string
+                    description: 執行終端
+                trigger:
+                    type: string
+                    description: scheduled manual
+                scheduled_for:
+                    type: string
+                    description: 定時時隙
+                    format: date-time
+                status:
+                    type: string
+                    description: 執行狀態
+                session_id:
+                    type: string
+                    description: 獨立結果會話
+                summary:
+                    type: string
+                    description: 安全結果摘要
+                error_code:
+                    type: string
+                    description: 錯誤原因
+                result_unknown:
+                    type: boolean
+                    description: 工具呼叫結果未知
+                session_deleted:
+                    type: boolean
+                    description: 結果會話已刪除
+                cancel_requested:
+                    type: boolean
+                    description: 已請求停止
+                started_at:
+                    type: string
+                    description: 開始時間
+                    format: date-time
+                finished_at:
+                    type: string
+                    description: 完成時間
+                    format: date-time
+                created_at:
+                    type: string
+                    description: 記錄時間
+                    format: date-time
+            description: 一次凍結配置的執行記錄。
+        base.v1.AiAutomationSchedule:
+            type: object
+            properties:
+                frequency:
+                    type: string
+                    description: daily weekdays weekly once
+                weekdays:
+                    type: array
+                    items:
+                        type: integer
+                        format: int32
+                    description: 每週指定星期；1週一至7週日
+                time:
+                    type: string
+                    description: 本地時間 HH:mm
+                once_at:
+                    type: string
+                    description: 單次本地日期時間 YYYY-MM-DDTHH:mm
+                timezone:
+                    type: string
+                    description: IANA 時區
+            description: 結構化本地時間計劃。
+        base.v1.AiFile:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 檔案ID
+                tenant_id:
+                    type: string
+                    description: 租戶ID
+                source_type:
+                    type: string
+                    description: 來源：upload、generated
+                status:
+                    type: string
+                    description: 狀態：active、trashed
+                file_name:
+                    type: string
+                    description: 原始檔名
+                extension:
+                    type: string
+                    description: 副檔名
+                mime_type:
+                    type: string
+                    description: 檔案MIME型別
+                size:
+                    type: string
+                    description: 檔案大小，單位位元組
+                link_url:
+                    type: string
+                    description: 檔案訪問地址
+                content_hash:
+                    type: string
+                    description: 檔案內容SHA-256雜湊
+                access_mode:
+                    type: integer
+                    description: 檔案訪問方式：1公開，2需要訪問令牌
+                    format: int32
+                created_at:
+                    type: string
+                    description: 建立時間
+                    format: date-time
+                updated_at:
+                    type: string
+                    description: 更新時間
+                    format: date-time
+            description: AI 檔案後設資料。
         base.v1.AiInputContent:
             type: object
             properties:
@@ -10101,6 +11037,204 @@ components:
                 approval:
                     $ref: '#/components/schemas/base.v1.AiToolApproval'
             description: AI 助手輸出內容
+        base.v1.AiPlugin:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 外掛ID
+                code:
+                    type: string
+                    description: 穩定編碼
+                name:
+                    type: string
+                    description: 名稱
+                description:
+                    type: string
+                    description: 說明
+                source:
+                    type: string
+                    description: 來源：API、LOCAL、MCP
+                visibility:
+                    type: string
+                    description: 範圍：system、tenant、private
+                tenant_id:
+                    type: string
+                    description: 所屬租戶ID
+                owner_user_id:
+                    type: string
+                    description: 所屬使用者ID
+                enabled:
+                    type: boolean
+                    description: 目錄是否可用
+                endpoint:
+                    type: string
+                    description: MCP HTTPS地址
+                revision:
+                    type: string
+                    description: 配置修訂號
+                assembled:
+                    type: boolean
+                    description: 本地元件是否已裝配
+                installation:
+                    $ref: '#/components/schemas/base.v1.AiPluginInstallation'
+                unavailable_reason:
+                    type: string
+                    description: 不可用原因
+                can_manage:
+                    type: boolean
+                    description: 當前身份能否編輯本定義；安裝和工具審查許可權獨立判斷
+                config_json:
+                    type: string
+                    description: 平臺管理員可編輯的公開接入配置，不含憑據
+            description: 外掛定義及當前租戶安裝狀態。
+        base.v1.AiPluginConnection:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 連線ID
+                plugin_id:
+                    type: string
+                    description: 外掛ID
+                label:
+                    type: string
+                    description: 賬號標籤
+                auth_type:
+                    type: string
+                    description: 認證方式：none、token、oauth
+                state:
+                    type: string
+                    description: 連線狀態
+                sharing:
+                    type: string
+                    description: 共享範圍：private、tenant
+                scopes:
+                    type: string
+                    description: 實際授權範圍
+                expires_at:
+                    type: string
+                    description: 授權過期Unix秒
+                revision:
+                    type: string
+                    description: 配置修訂號
+                last_error:
+                    type: string
+                    description: 可展示的連線問題
+                can_manage:
+                    type: boolean
+                    description: 當前身份能否管理連線
+                owner_user_id:
+                    type: string
+                    description: 連線所屬使用者ID
+            description: 賬號連線公開資訊；不返回憑據或重新整理令牌。
+        base.v1.AiPluginForm:
+            type: object
+            properties:
+                code:
+                    type: string
+                    description: 穩定編碼
+                name:
+                    type: string
+                    description: 名稱
+                description:
+                    type: string
+                    description: 說明
+                source:
+                    type: string
+                    description: 來源
+                visibility:
+                    type: string
+                    description: 可見範圍
+                enabled:
+                    type: boolean
+                    description: 釋出狀態
+                endpoint:
+                    type: string
+                    description: MCP HTTPS地址
+                config_json:
+                    type: string
+                    description: 平臺批准的網路和OAuth公開配置JSON
+            description: 外掛定義表單；端點策略僅平臺管理員可維護。
+        base.v1.AiPluginInstallation:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 安裝ID
+                plugin_id:
+                    type: string
+                    description: 外掛ID
+                enabled:
+                    type: boolean
+                    description: 是否啟用
+                terminals:
+                    type: array
+                    items:
+                        type: string
+                    description: 允許終端
+                revision:
+                    type: string
+                    description: 策略修訂號
+            description: 租戶外掛安裝策略。
+        base.v1.AiPluginSelection:
+            type: object
+            properties:
+                plugin_id:
+                    type: string
+                    description: 外掛ID
+                connection_id:
+                    type: string
+                    description: 連線ID；本地元件留空
+            description: 本輪選用的外掛與確定連線。
+        base.v1.AiPluginTool:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 工具ID
+                plugin_id:
+                    type: string
+                    description: 外掛ID
+                connection_id:
+                    type: string
+                    description: 發現連線ID；本地為空
+                source_name:
+                    type: string
+                    description: 原始工具名
+                description:
+                    type: string
+                    description: 工具說明
+                input_schema:
+                    type: string
+                    description: 引數JSON Schema
+                contract_hash:
+                    type: string
+                    description: 契約雜湊
+                state:
+                    type: string
+                    description: discovered、removed
+                allowed:
+                    type: boolean
+                    description: 當前租戶是否允許
+                effect:
+                    type: string
+                    description: 稽核效果：read、write、unknown
+                revision:
+                    type: string
+                    description: 策略修訂號
+                prompts:
+                    type: array
+                    items:
+                        type: string
+                    description: 業務提示詞覆蓋
+                effective_enabled:
+                    type: boolean
+                    description: 當前身份和終端是否可執行
+                unavailable_reason:
+                    type: string
+                    description: 不可用原因
+            description: 工具快照與當前租戶稽核策略。
         base.v1.AiProviderModel:
             type: object
             properties:
@@ -10135,24 +11269,38 @@ components:
                 tenant_id:
                     type: string
                     description: 租戶ID
-                title:
-                    type: string
-                    description: 會話標題
-                summary:
-                    type: string
-                    description: 會話摘要
-                updated_at:
-                    type: string
-                    description: 更新時間
-                    format: date-time
                 terminal:
                     enum:
                         - TERMINAL_UNSPECIFIED
                         - TERMINAL_APP
                         - TERMINAL_ADMIN
                     type: string
-                    description: 終端型別：列舉【Terminal】
+                    description: 終端型別
                     format: enum
+                title:
+                    type: string
+                    description: 會話標題
+                summary:
+                    type: string
+                    description: 會話摘要
+                plugins:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/base.v1.AiPluginSelection'
+                    description: 選用外掛及連線
+                automation_id:
+                    type: string
+                    description: 來源自動化ID
+                automation_run_id:
+                    type: string
+                    description: 來源執行ID
+                read_only:
+                    type: boolean
+                    description: 凍結結果會話
+                updated_at:
+                    type: string
+                    description: 更新時間
+                    format: date-time
             description: AI 助手會話
         base.v1.AiShortcut:
             type: object
@@ -10433,6 +11581,40 @@ components:
                         type: string
                     description: 一次性恢復碼，僅本次返回
             description: 確認繫結多因素認證響應。
+        base.v1.ContinueAiAutomationRunRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 編號
+            description: 從結果繼續討論請求。
+        base.v1.CreateAiAutomationRequest:
+            type: object
+            properties:
+                automation:
+                    $ref: '#/components/schemas/base.v1.AiAutomationForm'
+            description: 建立計劃請求。
+        base.v1.CreateAiPluginConnectionRequest:
+            type: object
+            properties:
+                plugin_id:
+                    type: string
+                    description: 外掛ID
+                label:
+                    type: string
+                    description: 賬號標籤
+                auth_type:
+                    type: string
+                    description: 認證方式
+                token:
+                    $ref: '#/components/schemas/common.v1.SecretCrypto'
+            description: 本人連線建立請求。
+        base.v1.CreateAiPluginRequest:
+            type: object
+            properties:
+                form:
+                    $ref: '#/components/schemas/base.v1.AiPluginForm'
+            description: 外掛建立請求。
         base.v1.CreateAiSessionBranchRequest:
             type: object
             properties:
@@ -10479,6 +11661,11 @@ components:
                     type: string
                     description: 終端型別：列舉【Terminal】
                     format: enum
+                plugins:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/base.v1.AiPluginSelection'
+                    description: 選用外掛；留空預設系統工具
             description: AI 助手會話建立請求
         base.v1.CreateAiSessionResponse:
             type: object
@@ -10707,24 +11894,6 @@ components:
                     type: string
                     description: 副檔名
             description: File資訊
-        base.v1.GenerateAiReportRequest:
-            type: object
-            properties:
-                title:
-                    type: string
-                    description: 報告標題，不包含副檔名
-                content:
-                    type: string
-                    description: 根據當前對話整理的完整 Markdown 正文，可包含標題、分析、建議和資料表格；不得傳入 HTML、指令碼或編造事實
-            description: AI 助手報告生成請求。
-        base.v1.GenerateAiReportResponse:
-            type: object
-            properties:
-                html:
-                    $ref: '#/components/schemas/base.v1.FileInfo'
-                pdf:
-                    $ref: '#/components/schemas/base.v1.FileInfo'
-            description: AI 助手報告生成結果。
         base.v1.GetConfigResponse:
             type: object
             properties:
@@ -10831,6 +12000,28 @@ components:
                     type: string
                     description: 本地語言名稱
             description: 語言選擇項。
+        base.v1.ListAiAutomationResponse:
+            type: object
+            properties:
+                automations:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/base.v1.AiAutomation'
+                    description: 本人任務
+                pending_count:
+                    type: integer
+                    description: 本人待確認執行數
+                    format: int32
+            description: 自動化列表。
+        base.v1.ListAiAutomationRunResponse:
+            type: object
+            properties:
+                runs:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/base.v1.AiAutomationRun'
+                    description: 本人執行記錄
+            description: 執行列表。
         base.v1.ListAiKnowledgeOptionsResponse:
             type: object
             properties:
@@ -10849,6 +12040,42 @@ components:
                         $ref: '#/components/schemas/base.v1.AiMessage'
                     description: 訊息列表
             description: AI 助手訊息列表響應
+        base.v1.ListAiPluginConnectionResponse:
+            type: object
+            properties:
+                connections:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/base.v1.AiPluginConnection'
+                    description: 連線列表
+            description: 當前身份連線列表。
+        base.v1.ListAiPluginResponse:
+            type: object
+            properties:
+                plugins:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/base.v1.AiPlugin'
+                    description: 可見外掛列表
+                can_manage_tools:
+                    type: boolean
+                    description: 當前身份能否管理本租戶工具策略
+                can_manage_catalog:
+                    type: boolean
+                    description: 當前身份能否管理授權範圍內目錄
+                can_create_private:
+                    type: boolean
+                    description: 本租戶是否允許接入已批准的個人端點
+            description: 外掛目錄查詢結果。
+        base.v1.ListAiPluginToolResponse:
+            type: object
+            properties:
+                tools:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/base.v1.AiPluginTool'
+                    description: 工具快照列表
+            description: 外掛工具查詢結果。
         base.v1.ListAiProviderModelOptionsResponse:
             type: object
             properties:
@@ -11241,6 +12468,18 @@ components:
                         $ref: '#/components/schemas/base.v1.LanguageItem'
                     description: 當前支援的語言列表
             description: 當前支援的語言選項查詢結果。
+        base.v1.PageAiFileResponse:
+            type: object
+            properties:
+                files:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/base.v1.AiFile'
+                    description: AI 檔案列表
+                total:
+                    type: string
+                    description: 總數
+            description: AI 檔案分頁響應。
         base.v1.PageNotificationResponse:
             type: object
             properties:
@@ -11260,6 +12499,37 @@ components:
                     type: boolean
                     description: 是否還有下一頁
             description: 當前使用者收件箱分頁響應。
+        base.v1.PreviewAiAutomationScheduleRequest:
+            type: object
+            properties:
+                schedule:
+                    $ref: '#/components/schemas/base.v1.AiAutomationSchedule'
+            description: 計劃預覽請求。
+        base.v1.PreviewAiAutomationScheduleResponse:
+            type: object
+            properties:
+                times:
+                    type: array
+                    items:
+                        type: string
+                        format: date-time
+                    description: 未來最多三次UTC時間
+                timezone:
+                    type: string
+                    description: 顯示時區
+            description: 統一時間演算法的預覽結果。
+        base.v1.ReauthorizeAiPluginConnectionRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 連線ID
+                revision:
+                    type: string
+                    description: 當前配置修訂號
+                token:
+                    $ref: '#/components/schemas/common.v1.SecretCrypto'
+            description: 以原賬號重新設定API令牌。
         base.v1.RecoveryCodesResponse:
             type: object
             properties:
@@ -11269,6 +12539,16 @@ components:
                         type: string
                     description: 一次性恢復碼，僅本次返回
             description: 恢復碼響應。
+        base.v1.RefreshAiPluginConnectionRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 連線ID
+                revision:
+                    type: string
+                    description: 當前修訂號
+            description: 檢測並重新整理連線請求。
         base.v1.RefreshTokenRequest:
             type: object
             properties:
@@ -11310,6 +12590,23 @@ components:
                     type: string
                     description: TOTP 動態口令
             description: 重新生成恢復碼請求。
+        base.v1.RenameAiFileRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 檔案ID
+                file_name:
+                    type: string
+                    description: 新的檔名
+            description: AI 檔案重新命名請求。
+        base.v1.RestoreAiFileRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 檔案ID
+            description: AI 檔案恢復請求。
         base.v1.RestoreNotificationRequest:
             type: object
             properties:
@@ -11347,6 +12644,19 @@ components:
                     type: string
                     description: 金鑰明文
             description: 金鑰欄位檢視響應
+        base.v1.RunAiAutomationRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 任務ID
+                revision:
+                    type: string
+                    description: 當前配置版本
+                request_key:
+                    type: string
+                    description: 本次操作冪等鍵
+            description: 冪等執行一次。
         base.v1.SearchAiWebItem:
             type: object
             properties:
@@ -11419,6 +12729,132 @@ components:
                 session:
                     $ref: '#/components/schemas/base.v1.AiSession'
             description: AI 助手訊息傳送響應
+        base.v1.SetAiAutomationStatusRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 任務ID
+                revision:
+                    type: string
+                    description: 當前配置版本
+                status:
+                    type: string
+                    description: 目標狀態
+            description: 設定計劃狀態。
+        base.v1.SetAiPluginConnectionSharingRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 連線ID
+                revision:
+                    type: string
+                    description: 當前配置修訂號
+                sharing:
+                    type: string
+                    description: 共享範圍：private或tenant
+            description: 本人賬號租戶共享策略設定請求。
+        base.v1.SetAiPluginInstallationRequest:
+            type: object
+            properties:
+                plugin_id:
+                    type: string
+                    description: 外掛ID
+                enabled:
+                    type: boolean
+                    description: 是否啟用
+                terminals:
+                    type: array
+                    items:
+                        type: string
+                    description: 允許終端
+                revision:
+                    type: string
+                    description: 當前修訂號；首次為0
+            description: 當前租戶安裝策略設定請求。
+        base.v1.SetAiPluginToolPolicyRequest:
+            type: object
+            properties:
+                plugin_id:
+                    type: string
+                    description: 外掛ID
+                tool_id:
+                    type: string
+                    description: 工具ID
+                contract_hash:
+                    type: string
+                    description: 確認稽核的契約雜湊
+                allowed:
+                    type: boolean
+                    description: 是否允許
+                effect:
+                    type: string
+                    description: 稽核效果
+                revision:
+                    type: string
+                    description: 當前策略修訂號；首次為0
+                prompts:
+                    type: array
+                    items:
+                        type: string
+                    description: 業務提示詞覆蓋
+            description: 租戶工具契約稽核請求。
+        base.v1.SetAiSessionPluginsRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 會話ID
+                plugins:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/base.v1.AiPluginSelection'
+                    description: 選用外掛；空列表清除選擇
+            description: 儲存本人會話外掛選擇請求。
+        base.v1.StartAiPluginOAuthRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 連線ID
+                revision:
+                    type: string
+                    description: 當前修訂號
+            description: 連線授權發起請求。
+        base.v1.StartAiPluginOAuthResponse:
+            type: object
+            properties:
+                authorization_url:
+                    type: string
+                    description: 授權頁面地址
+            description: 真實授權頁面地址。
+        base.v1.StopAiAutomationRunRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 編號
+            description: 停止本次請求。
+        base.v1.TrashAiFileRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 檔案ID
+            description: AI 檔案移入回收站請求。
+        base.v1.UpdateAiAutomationRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 任務ID
+                revision:
+                    type: string
+                    description: 當前配置版本
+                automation:
+                    $ref: '#/components/schemas/base.v1.AiAutomationForm'
+            description: 版本化更新計劃。
         base.v1.UpdateAiMessageRequest:
             type: object
             properties:
@@ -11432,6 +12868,18 @@ components:
                     type: string
                     description: 更新後的訊息內容
             description: AI 助手訊息更新請求
+        base.v1.UpdateAiPluginRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 外掛ID
+                revision:
+                    type: string
+                    description: 當前配置修訂號
+                form:
+                    $ref: '#/components/schemas/base.v1.AiPluginForm'
+            description: 外掛更新請求。
         base.v1.UpdateAiSessionRequest:
             type: object
             properties:
@@ -12632,6 +14080,9 @@ components:
                 error_message:
                     type: string
                     description: 失敗原因
+                extractor_connection_id:
+                    type: string
+                    description: Xberg MCP抽取連線ID
                 created_at:
                     type: string
                     description: 建立時間
@@ -12749,7 +14200,7 @@ components:
                     description: 知識庫ID
                 file_name:
                     type: string
-                    description: 原始檔名（副檔名決定抽取器）
+                    description: 原始檔名（供Xberg MCP識別檔案格式）
                 content_base64:
                     type: string
                     description: 檔案內容（≤10MB）
@@ -12757,6 +14208,9 @@ components:
                 doc_name:
                     type: string
                     description: 文件顯示名，預設取檔名去副檔名
+                extractor_connection_id:
+                    type: string
+                    description: 已連線的Xberg MCP連線ID
             description: 上傳文件檔案請求。
         rag.admin.v1.UploadAiKnowledgeDocTextRequest:
             type: object
@@ -12770,6 +14224,9 @@ components:
                 content:
                     type: string
                     description: 文件文字內容
+                extractor_connection_id:
+                    type: string
+                    description: 已連線的Xberg MCP連線ID
             description: 上傳純文字文件請求。
         system.admin.v1.AiProvider:
             type: object
@@ -20866,6 +22323,10 @@ components:
 tags:
     - name: AccountService
       description: Base 賬戶安全服務。
+    - name: AiAutomationService
+      description: AI 助手本人自動化計劃、執行記錄與結果服務。
+    - name: AiFileService
+      description: AI 助手檔案服務，只管理當前租戶的 AI 上傳和生成檔案。
     - name: AiKnowledgeChunkService
       description: AI知識庫切片檢索服務。
     - name: AiKnowledgeDocService
@@ -20878,10 +22339,10 @@ tags:
       description: Base AI 助手訊息服務
     - name: AiModelService
       description: AI Provider 可選模型查詢服務。
+    - name: AiPluginService
+      description: AI 外掛目錄、安裝策略與本人賬號連線服務；管理寫操作不向模型暴露。
     - name: AiProviderService
       description: AI供應商管理服務。
-    - name: AiReportService
-      description: AI 助手報告服務。
     - name: AiSearchService
       description: Base AI 助手聯網搜尋服務
     - name: AiSessionService
@@ -20915,9 +22376,9 @@ tags:
     - name: BaseDictItemService
       description: Admin字典項服務
     - name: BaseDictService
-      description: App 字典服務
-    - name: BaseDictService
       description: Admin 字典服務
+    - name: BaseDictService
+      description: App 字典服務
     - name: BaseFileService
       description: Admin檔案資產管理服務。
     - name: BaseI18nCustomService
@@ -20937,9 +22398,9 @@ tags:
     - name: BaseLoginPolicyService
       description: Admin登入策略管理服務。
     - name: BaseMenuService
-      description: App 選單服務
-    - name: BaseMenuService
       description: Admin 選單管理服務
+    - name: BaseMenuService
+      description: App 選單服務
     - name: BaseMessageCategoryService
       description: Admin訊息分類管理服務。
     - name: BaseMessageProviderService
@@ -21035,9 +22496,9 @@ tags:
     - name: NotificationService
       description: Base站內信通知服務，提供當前使用者的收件箱能力。
     - name: OauthClientService
-      description: Base開放授權客戶端令牌服務。
-    - name: OauthClientService
       description: Admin開放授權客戶端管理服務。
+    - name: OauthClientService
+      description: Base開放授權客戶端令牌服務。
     - name: OauthService
       description: Base 第三方登入公共服務
     - name: OpsMonitoringService

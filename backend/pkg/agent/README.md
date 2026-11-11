@@ -39,6 +39,21 @@ runtime.RegisterTool("admin", anotherTool)
 不接入权限系统时 `Checker` 保持 `nil`；需要按终端控制工具时实现
 `agent.ToolAccessChecker`。
 
+`agent.Tool` 是 Eino `tool.BaseTool`，支持标准字符串和增强结构化工具。工具发现使用 Eino 原生 `tool_search`，只检索当前已授权工具，不再维护固定数量的关键词候选。
+
+按请求选择插件或连接时，先解析工具和逐次授权器，然后绑定上下文：
+
+```go
+ctx = agent.ContextWithToolPool(ctx, agent.ToolPool{
+ Tools: selectedTools,
+ Checker: checker,
+ Revision: configurationRevision,
+})
+response, err := runtime.Run(ctx, input)
+```
+
+显式空 `Tools` 允许普通聊天；未绑定请求池时沿用静态登记和 `RuntimeConfig.Checker`。`RegisteredTools(terminal)` 返回静态工具切片副本，供宿主解析内置插件。`Revision` 必须绑定插件、安装策略、工具契约和连接修订，并在审批恢复前重算；变化会拒绝恢复，禁止重放旧确认。请求池中的执行器只绑定服务端已选连接，不能由模型替换。
+
 Runtime 会把调用终端写入工具上下文；工具通过 `agent.TerminalFromContext(ctx)` 读取 `admin` 或 `app`。其他受信工具入口可用 `agent.ContextWithTerminal` 传入终端，数据权限仍由认证身份和业务规则决定。
 
 ## 结构化输出

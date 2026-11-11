@@ -4,6 +4,8 @@
 
 账号密码、OAuth 票据兑换和微信登录统一返回 `mfa_remember_days`，表示当前登录策略允许的 MFA 设备免验证天数；为 `0` 时不提供记住设备选项。
 
+账号密码登录与管理端共用 `POST /api/v1/base/session`，三方跳转授权共用 `/api/v1/base/oauth/authorization`，认证、Token 权限和本人 AI 对话均共享，可跨端查看和继续。并发登录遵循现有登录策略：允许时可同时使用，禁止时后登录撤销已有会话。AI 对话继续使用已保存的工具配置，并校验当前权限与审批。
+
 `frontend/uni-app` 是独立的 pnpm workspace，提供可直接运行的 uni-app 宿主、可发布应用底座、system 业务模块和项目脚手架。技术栈为 `uni-app + Vue 3 + TypeScript + Vite + Pinia + Sass`，当前支持 H5 和微信小程序。
 
 应用端只复用管理端的分层思想，不依赖 `frontend/admin` 的源码或 workspace。当前保留首页、登录（含 TOTP/WebAuthn MFA）、协议、WebView、个人中心、设置（含 MFA 绑定）、个人资料、AI 助手和站内信收件箱，不包含商城、订单、支付或推荐业务。

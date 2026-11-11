@@ -35,6 +35,16 @@ test("HTTP 和结构化响应拦截器都使用限流提示回退", async () => 
   assert.match(source, /resolveStructuredErrorMessage\(data, key => t\(key\)\)/);
 });
 
+test("HTTP 错误回传本地化回退，不把 Axios 原始状态文案交给页面", async () => {
+  const source = await readFile(join(process.cwd(), "src/utils/request.ts"), "utf8");
+  const responseInterceptor = source.match(/service\.interceptors\.response\.use\([\s\S]*?\n\);/)?.[0];
+
+  assert.ok(responseInterceptor, "缺少响应拦截器");
+  assert.match(responseInterceptor, /const displayMessage = message \|\| t\("common\.message\.system_error"\)/);
+  assert.match(responseInterceptor, /error\.message = displayMessage/);
+  assert.match(responseInterceptor, /showRequestError\(displayMessage\)/);
+});
+
 test("查询数组使用重复字段序列化，兼容 Kratos 查询绑定", async () => {
   const source = await readFile(join(process.cwd(), "src/utils/request.ts"), "utf8");
   assert.match(source, /qs\.stringify\(compactTenantProjectQueryParams\(params\), \{ arrayFormat: "repeat" \}\)/);
@@ -48,7 +58,7 @@ test("公共认证接口返回 401 时展示后端业务错误", async () => {
   assert.match(responseInterceptor, /const isUnauthorized = status === 401 \|\| code === 401/);
   assert.match(
     responseInterceptor,
-    /if \(isUnauthorized && !shouldSkipAuthExpiredPrompt\(requestConfig\)\)[\s\S]*?handleAuthExpired\(\);[\s\S]*?else if \(data\)[\s\S]*?showRequestError\(message\)/
+    /if \(isUnauthorized && !shouldSkipAuthExpiredPrompt\(requestConfig\)\)[\s\S]*?handleAuthExpired\(\);[\s\S]*?else if \(data\)[\s\S]*?showRequestError\(displayMessage\)/
   );
 });
 

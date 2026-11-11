@@ -176,9 +176,9 @@ func NormalizePreview(content string) string {
 
 // MarshalReplyContent 序列化助手回复正文和元信息。
 func MarshalReplyContent(response *Response) string {
-	// nil 回复通常表示上游未生成内容，直接落空字符串避免 panic。
+	// nil 回复通常表示上游未生成内容，仍写入可解析的空输出对象。
 	if response == nil {
-		return ""
+		return MarshalEmptyOutputContent()
 	}
 	payload := OutputContentPayload{
 		Approval:       response.Approval,
@@ -193,9 +193,9 @@ func MarshalReplyContent(response *Response) string {
 		BlocksJSON:     response.BlocksJSON,
 	}
 	raw, err := json.Marshal(payload)
-	// 极端情况下 JSON 序列化失败时保留正文，避免用户完全看不到回复。
+	// 极端情况下只保留正文重试序列化，避免把非 JSON 文本写入 JSON 列。
 	if err != nil {
-		return response.Content
+		return MarshalOutputContentPayload(OutputContentPayload{Kind: KindText, Content: response.Content})
 	}
 	return string(raw)
 }

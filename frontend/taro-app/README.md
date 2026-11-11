@@ -4,6 +4,10 @@
 
 账号密码、OAuth 票据兑换和微信登录统一返回 `mfa_remember_days`，表示当前登录策略允许的 MFA 设备免验证天数；为 `0` 时不提供记住设备选项。
 
+账号密码登录与管理端共用 `POST /api/v1/base/session`，三方跳转授权共用 `/api/v1/base/oauth/authorization`，认证、Token 权限和本人 AI 对话均共享，可跨端查看和继续。并发登录遵循现有登录策略：允许时可同时使用，禁止时后登录撤销已有会话。AI 对话继续使用已保存的工具配置，并校验当前权限与审批。
+
+共享对话中的写操作在消息内展示冻结参数和截止时间，可确认执行或拒绝；决定提交后重新读取服务端消息，待确认时暂停继续发送。
+
 `frontend/taro-app` 是独立的 pnpm workspace，以 React 18 和 Taro 4 实现与 `frontend/uni-app` 相同的应用功能和视觉。当前支持 H5 与微信小程序，包含首页、登录（含 TOTP/WebAuthn MFA）、协议、WebView、个人中心、设置、个人资料、AI 助手和站内信收件箱，不包含商城、订单、支付或推荐业务。
 
 ## Workspace

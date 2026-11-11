@@ -294,8 +294,16 @@ func (c *CodeGenTableCase) codeGenTableFormToModel(ctx context.Context, req *adm
 	if item.PageType == "" {
 		item.PageType = codeGenPageTypeNormal
 	}
-	if req.GetLeftTreeConfig() == nil {
-		item.LeftTreeConfig = ""
-	}
+	normalizeCodeGenTableJSON(item)
 	return item, nil
+}
+
+// normalizeCodeGenTableJSON 为代码生成表补齐可入库的 JSON 默认值。
+func normalizeCodeGenTableJSON(item *models.CodeGenTable) {
+	if item.LeftTreeConfig == "" || item.LeftTreeConfig == "null" {
+		item.LeftTreeConfig = "{}"
+	}
+	if item.I18NConfig == "" || item.I18NConfig == "null" {
+		item.I18NConfig = "{}"
+	}
 }

@@ -7850,7 +7850,7 @@ paths:
         post:
             tags:
                 - AiKnowledgeDocService
-            description: Upload document file (txt/md/docx/pdf; text is extracted into the same pipeline).
+            description: Upload a document file; Xberg MCP extracts it, chunks it, embeds it and stores it.
             operationId: AiKnowledgeDocService_UploadAiKnowledgeDocFile
             parameters:
                 - name: id
@@ -7872,7 +7872,7 @@ paths:
         post:
             tags:
                 - AiKnowledgeDocService
-            description: Upload plain text document (chunk, embed and store).
+            description: Upload a plain-text document; Xberg MCP extracts it, chunks it, embeds it and stores it.
             operationId: AiKnowledgeDocService_UploadAiKnowledgeDocText
             parameters:
                 - name: id
@@ -8656,6 +8656,378 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/base.v1.CurrentPasswordPolicy'
+    /api/v1/base/ai/automation:
+        get:
+            tags:
+                - AiAutomationService
+            description: Retrieve your own automation schedules.
+            operationId: AiAutomationService_ListAiAutomation
+            parameters:
+                - name: status
+                  in: query
+                  schema:
+                    type: string
+                - name: keyword
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.ListAiAutomationResponse'
+        post:
+            tags:
+                - AiAutomationService
+            description: Create your own automation schedule.
+            operationId: AiAutomationService_CreateAiAutomation
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/base.v1.CreateAiAutomationRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.AiAutomation'
+    /api/v1/base/ai/automation-preview:
+        post:
+            tags:
+                - AiAutomationService
+            description: Preview the next three trigger times.
+            operationId: AiAutomationService_PreviewAiAutomationSchedule
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/base.v1.PreviewAiAutomationScheduleRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.PreviewAiAutomationScheduleResponse'
+    /api/v1/base/ai/automation-run:
+        get:
+            tags:
+                - AiAutomationService
+            description: Query self Execute record.
+            operationId: AiAutomationService_ListAiAutomationRun
+            parameters:
+                - name: automation_id
+                  in: query
+                  schema:
+                    type: string
+                - name: limit
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.ListAiAutomationRunResponse'
+    /api/v1/base/ai/automation-run/{id}:
+        get:
+            tags:
+                - AiAutomationService
+            description: Query self Execute details.
+            operationId: AiAutomationService_GetAiAutomationRun
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.AiAutomationRun'
+    /api/v1/base/ai/automation-run/{id}/discussion:
+        post:
+            tags:
+                - AiAutomationService
+            description: Create a regular discussion conversation from frozen results.
+            operationId: AiAutomationService_ContinueAiAutomationRun
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/base.v1.ContinueAiAutomationRunRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.CreateAiSessionResponse'
+    /api/v1/base/ai/automation-run/{id}/stop:
+        post:
+            tags:
+                - AiAutomationService
+            description: Stop this Execute .
+            operationId: AiAutomationService_StopAiAutomationRun
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/base.v1.StopAiAutomationRunRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.AiAutomationRun'
+    /api/v1/base/ai/automation/{id}:
+        get:
+            tags:
+                - AiAutomationService
+            description: Retrieve details of your own automation.
+            operationId: AiAutomationService_GetAiAutomation
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.AiAutomation'
+        put:
+            tags:
+                - AiAutomationService
+            description: Update your own automation schedule with revision checking.
+            operationId: AiAutomationService_UpdateAiAutomation
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/base.v1.UpdateAiAutomationRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.AiAutomation'
+    /api/v1/base/ai/automation/{id}/run:
+        post:
+            tags:
+                - AiAutomationService
+            description: Run an existing task once with idempotency protection.
+            operationId: AiAutomationService_RunAiAutomation
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/base.v1.RunAiAutomationRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.AiAutomationRun'
+    /api/v1/base/ai/automation/{id}/status:
+        put:
+            tags:
+                - AiAutomationService
+            description: Pause, resume or archive a schedule.
+            operationId: AiAutomationService_SetAiAutomationStatus
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/base.v1.SetAiAutomationStatusRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.AiAutomation'
+    /api/v1/base/ai/file:
+        get:
+            tags:
+                - AiFileService
+            description: Paginated query for  AI file.
+            operationId: AiFileService_PageAiFile
+            parameters:
+                - name: view
+                  in: query
+                  schema:
+                    enum:
+                        - AI_FILE_VIEW_UNSPECIFIED
+                        - AI_FILE_VIEW_ALL
+                        - AI_FILE_VIEW_UPLOADED
+                        - AI_FILE_VIEW_GENERATED
+                        - AI_FILE_VIEW_TRASHED
+                    type: string
+                    format: enum
+                - name: keyword
+                  in: query
+                  schema:
+                    type: string
+                - name: page_num
+                  in: query
+                  schema:
+                    type: string
+                - name: page_size
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.PageAiFileResponse'
+    /api/v1/base/ai/file/{id}:
+        delete:
+            tags:
+                - AiFileService
+            description: Permanently delete the AI file and its object.
+            operationId: AiFileService_DeleteAiFile
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/base/ai/file/{id}/name:
+        put:
+            tags:
+                - AiFileService
+            description: Rename the AI file; modify metadata only.
+            operationId: AiFileService_RenameAiFile
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/base.v1.RenameAiFileRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.AiFile'
+    /api/v1/base/ai/file/{id}/restore:
+        put:
+            tags:
+                - AiFileService
+            description: Restore the AI file from the recycle bin.
+            operationId: AiFileService_RestoreAiFile
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/base.v1.RestoreAiFileRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.AiFile'
+    /api/v1/base/ai/file/{id}/trash:
+        put:
+            tags:
+                - AiFileService
+            description: Move the AI file to the recycle bin.
+            operationId: AiFileService_TrashAiFile
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/base.v1.TrashAiFileRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.AiFile'
     /api/v1/base/ai/knowledge/options:
         get:
             tags:
@@ -8669,6 +9041,385 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/base.v1.ListAiKnowledgeOptionsResponse'
+    /api/v1/base/ai/plugin:
+        get:
+            tags:
+                - AiPluginService
+            description: Retrieve the plugin catalog visible to the current identity.
+            operationId: AiPluginService_ListAiPlugin
+            parameters:
+                - name: keyword
+                  in: query
+                  schema:
+                    type: string
+                - name: terminal
+                  in: query
+                  schema:
+                    enum:
+                        - TERMINAL_UNSPECIFIED
+                        - TERMINAL_APP
+                        - TERMINAL_ADMIN
+                    type: string
+                    format: enum
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.ListAiPluginResponse'
+        post:
+            tags:
+                - AiPluginService
+            description: Create a plugin definition.
+            operationId: AiPluginService_CreateAiPlugin
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/base.v1.CreateAiPluginRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.AiPlugin'
+    /api/v1/base/ai/plugin-connection:
+        get:
+            tags:
+                - AiPluginService
+            description: Retrieve your connections and authorized shared connections.
+            operationId: AiPluginService_ListAiPluginConnection
+            parameters:
+                - name: plugin_id
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.ListAiPluginConnectionResponse'
+        post:
+            tags:
+                - AiPluginService
+            description: Create your own connection and verify tool discovery.
+            operationId: AiPluginService_CreateAiPluginConnection
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/base.v1.CreateAiPluginConnectionRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.AiPluginConnection'
+    /api/v1/base/ai/plugin-connection/{id}:
+        delete:
+            tags:
+                - AiPluginService
+            description: Revoke your own connection and immediately invalidate previous permissions.
+            operationId: AiPluginService_DisconnectAiPluginConnection
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: revision
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.AiPluginConnection'
+    /api/v1/base/ai/plugin-connection/{id}/authorization:
+        post:
+            tags:
+                - AiPluginService
+            description: Start account authorization.
+            operationId: AiPluginService_StartAiPluginOAuth
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/base.v1.StartAiPluginOAuthRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.StartAiPluginOAuthResponse'
+    /api/v1/base/ai/plugin-connection/{id}/credential:
+        put:
+            tags:
+                - AiPluginService
+            description: Replace the existing account's API token and check it again; previous permissions are invalidated immediately.
+            operationId: AiPluginService_ReauthorizeAiPluginConnection
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/base.v1.ReauthorizeAiPluginConnectionRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.AiPluginConnection'
+    /api/v1/base/ai/plugin-connection/{id}/refresh:
+        post:
+            tags:
+                - AiPluginService
+            description: Check a connection and fully refresh its tools.
+            operationId: AiPluginService_RefreshAiPluginConnection
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/base.v1.RefreshAiPluginConnectionRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.AiPluginConnection'
+    /api/v1/base/ai/plugin-connection/{id}/sharing:
+        put:
+            tags:
+                - AiPluginService
+            description: An administrator explicitly grants or revokes tenant sharing of their own account.
+            operationId: AiPluginService_SetAiPluginConnectionSharing
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/base.v1.SetAiPluginConnectionSharingRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.AiPluginConnection'
+    /api/v1/base/ai/plugin-oauth/callback:
+        get:
+            tags:
+                - AiPluginService
+            description: Consume the one-time authorization state and exchange the token.
+            operationId: AiPluginService_CompleteAiPluginOAuth
+            parameters:
+                - name: state
+                  in: query
+                  schema:
+                    type: string
+                - name: code
+                  in: query
+                  schema:
+                    type: string
+                - name: error
+                  in: query
+                  schema:
+                    type: string
+                - name: iss
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.AiPluginConnection'
+    /api/v1/base/ai/plugin/{id}:
+        get:
+            tags:
+                - AiPluginService
+            description: Retrieve plugin details.
+            operationId: AiPluginService_GetAiPlugin
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.AiPlugin'
+        put:
+            tags:
+                - AiPluginService
+            description: Update the plugin definition and increment its revision.
+            operationId: AiPluginService_UpdateAiPlugin
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/base.v1.UpdateAiPluginRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.AiPlugin'
+        delete:
+            tags:
+                - AiPluginService
+            description: Delete a plugin definition with no active references.
+            operationId: AiPluginService_DeleteAiPlugin
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: revision
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/base/ai/plugin/{plugin_id}/installation:
+        put:
+            tags:
+                - AiPluginService
+            description: Set the current tenant's installation and client policies.
+            operationId: AiPluginService_SetAiPluginInstallation
+            parameters:
+                - name: plugin_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/base.v1.SetAiPluginInstallationRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.AiPluginInstallation'
+    /api/v1/base/ai/plugin/{plugin_id}/tool:
+        get:
+            tags:
+                - AiPluginService
+            description: Retrieve tool discovery snapshots and review status.
+            operationId: AiPluginService_ListAiPluginTool
+            parameters:
+                - name: plugin_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: terminal
+                  in: query
+                  schema:
+                    enum:
+                        - TERMINAL_UNSPECIFIED
+                        - TERMINAL_APP
+                        - TERMINAL_ADMIN
+                    type: string
+                    format: enum
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.ListAiPluginToolResponse'
+    /api/v1/base/ai/plugin/{plugin_id}/tool/{tool_id}/policy:
+        put:
+            tags:
+                - AiPluginService
+            description: Review a tool contract and set the tenant policy.
+            operationId: AiPluginService_SetAiPluginToolPolicy
+            parameters:
+                - name: plugin_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: tool_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/base.v1.SetAiPluginToolPolicyRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.AiPluginTool'
     /api/v1/base/ai/provider-models:
         get:
             tags:
@@ -8682,25 +9433,6 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/base.v1.ListAiProviderModelOptionsResponse'
-    /api/v1/base/ai/report:
-        post:
-            tags:
-                - AiReportService
-            description: Compile the current conversation data and analysis into Markdown and generate downloadable HTML and PDF reports. Call only when the user requests a report. Return download links using the actual file URLs; never invent data or URLs.
-            operationId: AiReportService_GenerateAiReport
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/base.v1.GenerateAiReportRequest'
-                required: true
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/base.v1.GenerateAiReportResponse'
     /api/v1/base/ai/search:
         post:
             tags:
@@ -8726,16 +9458,6 @@ paths:
                 - AiSessionService
             description: Query  AI assistant session list
             operationId: AiSessionService_ListAiSession
-            parameters:
-                - name: terminal
-                  in: query
-                  schema:
-                    enum:
-                        - TERMINAL_UNSPECIFIED
-                        - TERMINAL_APP
-                        - TERMINAL_ADMIN
-                    type: string
-                    format: enum
             responses:
                 "200":
                     description: OK
@@ -8804,6 +9526,31 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/base.v1.DeleteAiSessionResponse'
+    /api/v1/base/ai/session/{id}/plugins:
+        put:
+            tags:
+                - AiSessionService
+            description: Save the plugins selected for your conversation without executing tools.
+            operationId: AiSessionService_SetAiSessionPlugins
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/base.v1.SetAiSessionPluginsRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.UpdateAiSessionResponse'
     /api/v1/base/ai/session/{session_id}/message:
         get:
             tags:
@@ -9996,6 +10743,195 @@ components:
                     type: string
                     description: attachment MIME type
             description: AI assistant attachment
+        base.v1.AiAutomation:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: task ID
+                configuration:
+                    $ref: '#/components/schemas/base.v1.AiAutomationForm'
+                status:
+                    type: string
+                    description: active paused archived
+                revision:
+                    type: string
+                    description: configuration version
+                next_fire_at:
+                    type: string
+                    description: Next execution time in UTC
+                    format: date-time
+                active_run_id:
+                    type: string
+                    description: Current active run
+                last_run:
+                    $ref: '#/components/schemas/base.v1.AiAutomationRun'
+                problem:
+                    type: string
+                    description: Dependency issue requiring action
+                created_at:
+                    type: string
+                    description: Create time
+                    format: date-time
+                updated_at:
+                    type: string
+                    description: Update time
+                    format: date-time
+            description: Your own automation schedule.
+        base.v1.AiAutomationForm:
+            type: object
+            properties:
+                name:
+                    type: string
+                    description: name
+                prompt:
+                    type: string
+                    description: Explicit task instructions
+                schedule:
+                    $ref: '#/components/schemas/base.v1.AiAutomationSchedule'
+                provider_id:
+                    type: string
+                    description: Pinned model provider
+                model_name:
+                    type: string
+                    description: Pinned model name
+                knowledge_base_ids:
+                    type: array
+                    items:
+                        type: string
+                    description: Knowledge base references
+                plugins:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/base.v1.AiPluginSelection'
+                    description: Selected plugins and specific accounts
+            description: Automation configuration confirmed and saved by the user.
+        base.v1.AiAutomationRun:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: Execute ID
+                automation_id:
+                    type: string
+                    description: task ID
+                revision:
+                    type: string
+                    description: Frozen configuration version
+                configuration:
+                    $ref: '#/components/schemas/base.v1.AiAutomationForm'
+                terminal:
+                    type: string
+                    description: Execute terminal
+                trigger:
+                    type: string
+                    description: scheduled manual
+                scheduled_for:
+                    type: string
+                    description: Scheduled time slot
+                    format: date-time
+                status:
+                    type: string
+                    description: Execute status
+                session_id:
+                    type: string
+                    description: Separate result conversation
+                summary:
+                    type: string
+                    description: Result summary safe to display
+                error_code:
+                    type: string
+                    description: Error reason
+                result_unknown:
+                    type: boolean
+                    description: Whether the tool call outcome is unknown
+                session_deleted:
+                    type: boolean
+                    description: Whether the result conversation has been deleted
+                cancel_requested:
+                    type: boolean
+                    description: Whether stopping has been requested
+                started_at:
+                    type: string
+                    description: Start time
+                    format: date-time
+                finished_at:
+                    type: string
+                    description: completion time
+                    format: date-time
+                created_at:
+                    type: string
+                    description: record time
+                    format: date-time
+            description: Run record for a frozen configuration.
+        base.v1.AiAutomationSchedule:
+            type: object
+            properties:
+                frequency:
+                    type: string
+                    description: daily weekdays weekly once
+                weekdays:
+                    type: array
+                    items:
+                        type: integer
+                        format: int32
+                    description: Selected weekdays; 1 for Monday through 7 for Sunday
+                time:
+                    type: string
+                    description: Local time in HH:mm format
+                once_at:
+                    type: string
+                    description: One-time local date and time in YYYY-MM-DDTHH:mm format
+                timezone:
+                    type: string
+                    description: IANA time zone
+            description: Structured local-time schedule.
+        base.v1.AiFile:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: file ID
+                tenant_id:
+                    type: string
+                    description: tenant ID
+                source_type:
+                    type: string
+                    description: "source: upload、generated"
+                status:
+                    type: string
+                    description: "status: active、trashed"
+                file_name:
+                    type: string
+                    description: original file name
+                extension:
+                    type: string
+                    description: file extension
+                mime_type:
+                    type: string
+                    description: file MIMEtype
+                size:
+                    type: string
+                    description: "file size, Unit: bytes"
+                link_url:
+                    type: string
+                    description: file access address
+                content_hash:
+                    type: string
+                    description: SHA-256 hash of the file content
+                access_mode:
+                    type: integer
+                    description: "File access mode: 1 public, 2 access token required"
+                    format: int32
+                created_at:
+                    type: string
+                    description: Create time
+                    format: date-time
+                updated_at:
+                    type: string
+                    description: Update time
+                    format: date-time
+            description: AI file metadata.
         base.v1.AiInputContent:
             type: object
             properties:
@@ -10101,6 +11037,204 @@ components:
                 approval:
                     $ref: '#/components/schemas/base.v1.AiToolApproval'
             description: AI assistant output content
+        base.v1.AiPlugin:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: Plugin ID
+                code:
+                    type: string
+                    description: Stable code
+                name:
+                    type: string
+                    description: name
+                description:
+                    type: string
+                    description: description
+                source:
+                    type: string
+                    description: "source: API、LOCAL、MCP"
+                visibility:
+                    type: string
+                    description: "scope: system、tenant、private"
+                tenant_id:
+                    type: string
+                    description: Owning tenant ID
+                owner_user_id:
+                    type: string
+                    description: Owning user ID
+                enabled:
+                    type: boolean
+                    description: Whether the catalog entry is enabled
+                endpoint:
+                    type: string
+                    description: MCP HTTPSaddress
+                revision:
+                    type: string
+                    description: Configuration revision number
+                assembled:
+                    type: boolean
+                    description: Whether the local component is assembled
+                installation:
+                    $ref: '#/components/schemas/base.v1.AiPluginInstallation'
+                unavailable_reason:
+                    type: string
+                    description: Reason for unavailability
+                can_manage:
+                    type: boolean
+                    description: Whether the current identity can edit this definition; installation and tool review permissions are checked separately
+                config_json:
+                    type: string
+                    description: Public connection configuration editable by platform administrators; excludes credentials
+            description: Plugin definition and current tenant installation status.
+        base.v1.AiPluginConnection:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: Connection ID
+                plugin_id:
+                    type: string
+                    description: Plugin ID
+                label:
+                    type: string
+                    description: account label
+                auth_type:
+                    type: string
+                    description: "authentication method: none、token、oauth"
+                state:
+                    type: string
+                    description: Connection status
+                sharing:
+                    type: string
+                    description: "Sharing scope: private or tenant"
+                scopes:
+                    type: string
+                    description: actual authorization scope
+                expires_at:
+                    type: string
+                    description: Authorization expiry as Unix seconds
+                revision:
+                    type: string
+                    description: Configuration revision number
+                last_error:
+                    type: string
+                    description: Connection issue safe to display
+                can_manage:
+                    type: boolean
+                    description: Whether the current identity can manage the connection
+                owner_user_id:
+                    type: string
+                    description: Connection owner user ID
+            description: Public account connection information; credentials and refresh tokens are never returned.
+        base.v1.AiPluginForm:
+            type: object
+            properties:
+                code:
+                    type: string
+                    description: Stable code
+                name:
+                    type: string
+                    description: name
+                description:
+                    type: string
+                    description: description
+                source:
+                    type: string
+                    description: source
+                visibility:
+                    type: string
+                    description: Visibility scope
+                enabled:
+                    type: boolean
+                    description: Publish status
+                endpoint:
+                    type: string
+                    description: MCP HTTPSaddress
+                config_json:
+                    type: string
+                    description: Platform-approved network and public OAuth configuration JSON
+            description: Plugin definition form; only platform administrators can manage endpoint policies.
+        base.v1.AiPluginInstallation:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: Installation ID
+                plugin_id:
+                    type: string
+                    description: Plugin ID
+                enabled:
+                    type: boolean
+                    description: Whether enabled
+                terminals:
+                    type: array
+                    items:
+                        type: string
+                    description: Allowed clients
+                revision:
+                    type: string
+                    description: Policy revision number
+            description: Tenant plugin installation policy.
+        base.v1.AiPluginSelection:
+            type: object
+            properties:
+                plugin_id:
+                    type: string
+                    description: Plugin ID
+                connection_id:
+                    type: string
+                    description: Connection ID; empty for local components
+            description: Plugins and specific connections selected for this turn.
+        base.v1.AiPluginTool:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: tool ID
+                plugin_id:
+                    type: string
+                    description: Plugin ID
+                connection_id:
+                    type: string
+                    description: Discovery connection ID; empty for local tools
+                source_name:
+                    type: string
+                    description: Original tool name
+                description:
+                    type: string
+                    description: tool description
+                input_schema:
+                    type: string
+                    description: parameter JSON Schema
+                contract_hash:
+                    type: string
+                    description: Contract hash
+                state:
+                    type: string
+                    description: discovered、removed
+                allowed:
+                    type: boolean
+                    description: Whether the current tenant permits it
+                effect:
+                    type: string
+                    description: "Reviewed effect: read, write or unknown"
+                revision:
+                    type: string
+                    description: Policy revision number
+                prompts:
+                    type: array
+                    items:
+                        type: string
+                    description: Business prompt overrides
+                effective_enabled:
+                    type: boolean
+                    description: Whether the current identity and client can execute
+                unavailable_reason:
+                    type: string
+                    description: Reason for unavailability
+            description: Tool snapshot and the current tenant's review policy.
         base.v1.AiProviderModel:
             type: object
             properties:
@@ -10135,24 +11269,38 @@ components:
                 tenant_id:
                     type: string
                     description: tenant ID
-                title:
-                    type: string
-                    description: session title
-                summary:
-                    type: string
-                    description: session summary
-                updated_at:
-                    type: string
-                    description: Update time
-                    format: date-time
                 terminal:
                     enum:
                         - TERMINAL_UNSPECIFIED
                         - TERMINAL_APP
                         - TERMINAL_ADMIN
                     type: string
-                    description: "terminal type: enum【Terminal】"
+                    description: terminal type
                     format: enum
+                title:
+                    type: string
+                    description: session title
+                summary:
+                    type: string
+                    description: session summary
+                plugins:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/base.v1.AiPluginSelection'
+                    description: Selected plugins and connections
+                automation_id:
+                    type: string
+                    description: Source automation ID
+                automation_run_id:
+                    type: string
+                    description: source Execute ID
+                read_only:
+                    type: boolean
+                    description: Frozen result conversation
+                updated_at:
+                    type: string
+                    description: Update time
+                    format: date-time
             description: AI assistant session
         base.v1.AiShortcut:
             type: object
@@ -10433,6 +11581,40 @@ components:
                         type: string
                     description: one-time recovery code, returned only this time
             description: Confirm Bind multi-factor authentication response.
+        base.v1.ContinueAiAutomationRunRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: number
+            description: Request to continue a discussion from results.
+        base.v1.CreateAiAutomationRequest:
+            type: object
+            properties:
+                automation:
+                    $ref: '#/components/schemas/base.v1.AiAutomationForm'
+            description: Create schedule request.
+        base.v1.CreateAiPluginConnectionRequest:
+            type: object
+            properties:
+                plugin_id:
+                    type: string
+                    description: Plugin ID
+                label:
+                    type: string
+                    description: account label
+                auth_type:
+                    type: string
+                    description: authentication method
+                token:
+                    $ref: '#/components/schemas/common.v1.SecretCrypto'
+            description: Create personal connection request.
+        base.v1.CreateAiPluginRequest:
+            type: object
+            properties:
+                form:
+                    $ref: '#/components/schemas/base.v1.AiPluginForm'
+            description: Create plugin request.
         base.v1.CreateAiSessionBranchRequest:
             type: object
             properties:
@@ -10479,6 +11661,11 @@ components:
                     type: string
                     description: "terminal type: enum【Terminal】"
                     format: enum
+                plugins:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/base.v1.AiPluginSelection'
+                    description: Selected plugins; defaults to system tools when omitted
             description: AI assistant session Create request
         base.v1.CreateAiSessionResponse:
             type: object
@@ -10707,24 +11894,6 @@ components:
                     type: string
                     description: file extension
             description: File information
-        base.v1.GenerateAiReportRequest:
-            type: object
-            properties:
-                title:
-                    type: string
-                    description: Report title without a file extension
-                content:
-                    type: string
-                    description: Complete Markdown body based on the current conversation, including headings, analysis, recommendations and data tables. Do not include HTML, scripts or fabricated facts.
-            description: AI assistant report generation request.
-        base.v1.GenerateAiReportResponse:
-            type: object
-            properties:
-                html:
-                    $ref: '#/components/schemas/base.v1.FileInfo'
-                pdf:
-                    $ref: '#/components/schemas/base.v1.FileInfo'
-            description: AI assistant report generation result.
         base.v1.GetConfigResponse:
             type: object
             properties:
@@ -10831,6 +12000,28 @@ components:
                     type: string
                     description: Native language name
             description: language option.
+        base.v1.ListAiAutomationResponse:
+            type: object
+            properties:
+                automations:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/base.v1.AiAutomation'
+                    description: self task
+                pending_count:
+                    type: integer
+                    description: Number of your runs awaiting approval
+                    format: int32
+            description: Automation list.
+        base.v1.ListAiAutomationRunResponse:
+            type: object
+            properties:
+                runs:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/base.v1.AiAutomationRun'
+                    description: self Execute record
+            description: Execute list.
         base.v1.ListAiKnowledgeOptionsResponse:
             type: object
             properties:
@@ -10849,6 +12040,42 @@ components:
                         $ref: '#/components/schemas/base.v1.AiMessage'
                     description: message list
             description: AI assistant message list response
+        base.v1.ListAiPluginConnectionResponse:
+            type: object
+            properties:
+                connections:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/base.v1.AiPluginConnection'
+                    description: Connection list
+            description: Connection list for the current identity.
+        base.v1.ListAiPluginResponse:
+            type: object
+            properties:
+                plugins:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/base.v1.AiPlugin'
+                    description: Visible plugin list
+                can_manage_tools:
+                    type: boolean
+                    description: Whether the current identity can manage this tenant's tool policies
+                can_manage_catalog:
+                    type: boolean
+                    description: Whether the current identity can manage the catalog within its authorization scope
+                can_create_private:
+                    type: boolean
+                    description: Whether this tenant permits connecting approved private endpoints
+            description: Plugin catalog query result.
+        base.v1.ListAiPluginToolResponse:
+            type: object
+            properties:
+                tools:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/base.v1.AiPluginTool'
+                    description: Tool snapshot list
+            description: Plugin tool query result.
         base.v1.ListAiProviderModelOptionsResponse:
             type: object
             properties:
@@ -11241,6 +12468,18 @@ components:
                         $ref: '#/components/schemas/base.v1.LanguageItem'
                     description: list of currently supported languages
             description: currently supported language options query result.
+        base.v1.PageAiFileResponse:
+            type: object
+            properties:
+                files:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/base.v1.AiFile'
+                    description: AI file list
+                total:
+                    type: string
+                    description: total count
+            description: AI file paginated response.
         base.v1.PageNotificationResponse:
             type: object
             properties:
@@ -11260,6 +12499,37 @@ components:
                     type: boolean
                     description: whether another page exists
             description: paginated response for the current user's inbox.
+        base.v1.PreviewAiAutomationScheduleRequest:
+            type: object
+            properties:
+                schedule:
+                    $ref: '#/components/schemas/base.v1.AiAutomationSchedule'
+            description: Schedule preview request.
+        base.v1.PreviewAiAutomationScheduleResponse:
+            type: object
+            properties:
+                times:
+                    type: array
+                    items:
+                        type: string
+                        format: date-time
+                    description: Up to three upcoming execution times in UTC
+                timezone:
+                    type: string
+                    description: Display time zone
+            description: Preview results from the shared scheduling algorithm.
+        base.v1.ReauthorizeAiPluginConnectionRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: Connection ID
+                revision:
+                    type: string
+                    description: Current configuration revision
+                token:
+                    $ref: '#/components/schemas/common.v1.SecretCrypto'
+            description: Replace the API token for the existing account.
         base.v1.RecoveryCodesResponse:
             type: object
             properties:
@@ -11269,6 +12539,16 @@ components:
                         type: string
                     description: one-time recovery code, returned only this time
             description: recovery code response.
+        base.v1.RefreshAiPluginConnectionRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: Connection ID
+                revision:
+                    type: string
+                    description: Current revision number
+            description: Check and refresh connection request.
         base.v1.RefreshTokenRequest:
             type: object
             properties:
@@ -11310,6 +12590,23 @@ components:
                     type: string
                     description: TOTP one-time password
             description: Regenerate recovery code request.
+        base.v1.RenameAiFileRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: file ID
+                file_name:
+                    type: string
+                    description: newof file name
+            description: AI file rename request.
+        base.v1.RestoreAiFileRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: file ID
+            description: AI file restore request.
         base.v1.RestoreNotificationRequest:
             type: object
             properties:
@@ -11347,6 +12644,19 @@ components:
                     type: string
                     description: Revealed secret plaintext.
             description: Reveal secret field response.
+        base.v1.RunAiAutomationRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: task ID
+                revision:
+                    type: string
+                    description: current configuration version
+                request_key:
+                    type: string
+                    description: Idempotency key for this operation
+            description: Run once with idempotency protection.
         base.v1.SearchAiWebItem:
             type: object
             properties:
@@ -11419,6 +12729,132 @@ components:
                 session:
                     $ref: '#/components/schemas/base.v1.AiSession'
             description: AI assistant message Send response
+        base.v1.SetAiAutomationStatusRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: task ID
+                revision:
+                    type: string
+                    description: current configuration version
+                status:
+                    type: string
+                    description: target status
+            description: Set schedule status.
+        base.v1.SetAiPluginConnectionSharingRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: Connection ID
+                revision:
+                    type: string
+                    description: Current configuration revision
+                sharing:
+                    type: string
+                    description: "Sharing scope: private or tenant"
+            description: Set tenant sharing policy for your account request.
+        base.v1.SetAiPluginInstallationRequest:
+            type: object
+            properties:
+                plugin_id:
+                    type: string
+                    description: Plugin ID
+                enabled:
+                    type: boolean
+                    description: Whether enabled
+                terminals:
+                    type: array
+                    items:
+                        type: string
+                    description: Allowed clients
+                revision:
+                    type: string
+                    description: Current revision number; 0 for the initial request
+            description: Set current tenant installation policy request.
+        base.v1.SetAiPluginToolPolicyRequest:
+            type: object
+            properties:
+                plugin_id:
+                    type: string
+                    description: Plugin ID
+                tool_id:
+                    type: string
+                    description: tool ID
+                contract_hash:
+                    type: string
+                    description: Reviewed contract hash
+                allowed:
+                    type: boolean
+                    description: Whether it is allowed
+                effect:
+                    type: string
+                    description: Reviewed effect classification
+                revision:
+                    type: string
+                    description: Current policy revision; 0 for the initial request
+                prompts:
+                    type: array
+                    items:
+                        type: string
+                    description: Business prompt overrides
+            description: Tenant tool contract review request.
+        base.v1.SetAiSessionPluginsRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: session ID
+                plugins:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/base.v1.AiPluginSelection'
+                    description: Selected plugins; an empty list clears the selection
+            description: Save personal conversation plugin selection request.
+        base.v1.StartAiPluginOAuthRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: Connection ID
+                revision:
+                    type: string
+                    description: Current revision number
+            description: Start connection authorization request.
+        base.v1.StartAiPluginOAuthResponse:
+            type: object
+            properties:
+                authorization_url:
+                    type: string
+                    description: authorization page address
+            description: URL of the actual authorization page.
+        base.v1.StopAiAutomationRunRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: number
+            description: Stop this request.
+        base.v1.TrashAiFileRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: file ID
+            description: AI file move-to-recycle-bin request.
+        base.v1.UpdateAiAutomationRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: task ID
+                revision:
+                    type: string
+                    description: current configuration version
+                automation:
+                    $ref: '#/components/schemas/base.v1.AiAutomationForm'
+            description: Update a schedule with revision checking.
         base.v1.UpdateAiMessageRequest:
             type: object
             properties:
@@ -11432,6 +12868,18 @@ components:
                     type: string
                     description: Update after message content
             description: AI assistant message Update request
+        base.v1.UpdateAiPluginRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: Plugin ID
+                revision:
+                    type: string
+                    description: Current configuration revision
+                form:
+                    $ref: '#/components/schemas/base.v1.AiPluginForm'
+            description: Update plugin request.
         base.v1.UpdateAiSessionRequest:
             type: object
             properties:
@@ -12632,6 +14080,9 @@ components:
                 error_message:
                     type: string
                     description: Failure reason
+                extractor_connection_id:
+                    type: string
+                    description: Xberg MCP extraction connection ID
                 created_at:
                     type: string
                     description: Create time
@@ -12749,7 +14200,7 @@ components:
                     description: Knowledge base ID
                 file_name:
                     type: string
-                    description: Original file name (extension selects the extractor)
+                    description: Original file name; Xberg MCP uses it to identify the file format
                 content_base64:
                     type: string
                     description: File content (≤10MB)
@@ -12757,6 +14208,9 @@ components:
                 doc_name:
                     type: string
                     description: Document display name; defaults to the file name without extension
+                extractor_connection_id:
+                    type: string
+                    description: Connected Xberg MCP connection ID
             description: Upload document file request.
         rag.admin.v1.UploadAiKnowledgeDocTextRequest:
             type: object
@@ -12770,6 +14224,9 @@ components:
                 content:
                     type: string
                     description: Document text content
+                extractor_connection_id:
+                    type: string
+                    description: Connected Xberg MCP connection ID
             description: Upload plain text document request.
         system.admin.v1.AiProvider:
             type: object
@@ -20866,6 +22323,10 @@ components:
 tags:
     - name: AccountService
       description: Base account security service.
+    - name: AiAutomationService
+      description: AI assistant service for personal automation schedules, runs and results.
+    - name: AiFileService
+      description: AI assistant file service for the current tenant's uploaded and generated AI files.
     - name: AiKnowledgeChunkService
       description: AI knowledge base chunk retrieval service.
     - name: AiKnowledgeDocService
@@ -20878,10 +22339,10 @@ tags:
       description: Base AI assistant message service
     - name: AiModelService
       description: AI provider model options service.
+    - name: AiPluginService
+      description: AI plugin catalog, installation policies and personal account connections; administrative write operations are not exposed to models.
     - name: AiProviderService
       description: AI provider management service.
-    - name: AiReportService
-      description: AI assistant report service.
     - name: AiSearchService
       description: Base AI assistant web search service
     - name: AiSessionService
@@ -20915,9 +22376,9 @@ tags:
     - name: BaseDictItemService
       description: admin dictionary item service
     - name: BaseDictService
-      description: app dictionary service
-    - name: BaseDictService
       description: admin dictionary service
+    - name: BaseDictService
+      description: app dictionary service
     - name: BaseFileService
       description: admin file asset management service.
     - name: BaseI18nCustomService
@@ -20937,9 +22398,9 @@ tags:
     - name: BaseLoginPolicyService
       description: admin login policy management service.
     - name: BaseMenuService
-      description: app menu service
-    - name: BaseMenuService
       description: admin menu management service
+    - name: BaseMenuService
+      description: app menu service
     - name: BaseMessageCategoryService
       description: Admin message category management service.
     - name: BaseMessageProviderService
@@ -21035,9 +22496,9 @@ tags:
     - name: NotificationService
       description: Base notification service for the current user's inbox.
     - name: OauthClientService
-      description: Base OAuth client token service.
-    - name: OauthClientService
       description: Admin OAuth client management service.
+    - name: OauthClientService
+      description: Base OAuth client token service.
     - name: OauthService
       description: base third-party login shared service
     - name: OpsMonitoringService

@@ -6,15 +6,19 @@
 
 `kratos-admin` 是一个前后端分离的管理系统仓库，包含 Go + Kratos 后端、Vue 管理后台、uni-app 应用底座、React/Taro 应用底座、版本化数据库迁移和模块脚手架。
 
-仓库根目录的 `go.work` 连接 `backend`、`backend/api` 和 `backend/client`，本地生成协议后直接使用本地模块编译和测试；Docker 构建也使用源码内的本地 API 模块。对外发布仍需先发布 API 模块，再更新后端和客户端的 API 依赖版本。
+仓库根目录的 `go.work` 连接后端、API、客户端及可选的独立组件模块，具体清单以该文件为准；本地生成协议后直接使用本地模块编译和测试；Docker 构建也使用源码内的本地 API 模块。对外发布仍需先发布 API 模块，再更新后端和客户端的 API 依赖版本。
 
-AI 助手已接入 Eino 人工确认：读取接口自动执行，业务写接口先显示工具和冻结参数，由当前用户在管理端确认或拒绝；确认有效期为 10 分钟，执行前再次校验工具启用状态、角色权限和租户参数。移动端与 MCP 仅开放读取工具。脚本、代码生成执行、定时任务及工作流写入工具暂不开放；以后新增命令或代码执行工具必须先接入隔离沙箱。
+AI 助手通过 Eino 按当前会话选用的插件与具体账号发现工具；空选择可普通聊天。读取操作自动执行，写入或未知效果先显示冻结参数，由本人确认或拒绝；确认有效期为 10 分钟，执行前再次校验插件、账号、工具契约和当前权限。内置 API、本地组件的移动端工具及对外 MCP 保持只读；外部插件按获准的终端策略使用并逐次确认。脚本、代码生成执行、定时任务及工作流写入工具暂不开放；以后新增命令或代码执行工具必须先接入隔离沙箱。
 
 MCP 服务端和生成的工具注册代码统一使用 `github.com/mark3labs/mcp-go`，保留终端隔离、工具权限校验和只读限制。升级时需同步更新 Core，并通过 `make -C backend api` 重新生成 MCP 工具。
 
 人工确认状态与 checkpoint 保存在 `ai_tool_approval` 表，终止后清空快照。删除会话会在同一事务中作废未完成运行并清空该会话全部审批快照，迟到请求不能重新创建运行或写回快照；已经开始执行的业务调用无法撤销，已产生的业务副作用不会回滚。进程崩溃遗留的生成状态在 10 分钟后，访问消息列表、发送或操作消息时按需标为失败，清除过期运行快照并释放会话；仍有有效运行的消息不会被提前终止。该处理不自动重放业务调用，已产生业务副作用的调用不保证“恰好一次”；失败后重试前需核对业务结果。过期确认在处理或删除消息时失效；首版不提供定时清理过期快照的任务。审批表由已注册的 `AiToolApproval` Model 在启用 `enable_migrate` 时自动创建。存量数据库仍需给管理端 AI 对话菜单补充 `/base.v1.AiMessageService/DecideAiToolApproval` 权限，修改 `v0.0.1` 初始化脚本不会自动重放已有迁移。
 
 同一会话只允许重试或编辑最新消息，存在生成中或待确认消息时先处理该消息。客户端断开或请求取消后仍会保存已产生的结果状态，可刷新查看；此收尾操作独立于已取消请求，最多等待 30 秒。管理端每轮附件合计最多 20 MiB；含历史、正文和附件编码的上下文输入最多 28 MiB。快照压缩保存在 LONGBLOB 中，MySQL `max_allowed_packet` 至少配置为 64 MiB；超过限额会停止运行并禁止执行待确认写操作。
+
+管理端、uni-app 与 Taro 共用登录认证、Token 权限及本人 AI 对话，可跨端查看和继续。登录统一使用 `/api/v1/base/session` 与 `/api/v1/base/oauth/authorization`；并发登录遵循原登录策略，允许时可同时使用，禁止时后登录撤销已有会话。管理端可维护获准范围内的插件、账号和本人计划，移动端提供查看与使用界面；服务端统一校验角色/API 权限、租户、资源归属及审批。
+
+自动化由唯一内部任务 `base.AiAutomationDispatch` 每分钟唤醒，计划与独立执行记录持久化，浏览器关闭后仍可执行。每次执行保存冻结结果会话，结果只读；“继续讨论”创建普通会话。停止本次不改变后续计划，已发出的操作不能保证撤销，结果未知时先核对外部结果。默认通知分类 `ai_automation` 仅投递站内信，不绑定外部消息通道。新增默认任务、分类和菜单权限均归入 `v0.0.1`；存量数据库不会自动重放这些初始化记录。
 
 ## 已实现能力
 
@@ -27,7 +31,7 @@ MCP 服务端和生成的工具注册代码统一使用 `github.com/mark3labs/mc
 - 消息分类、租户内定向/全员站内信、收件箱已读/归档、Redis 投递恢复和 Admin/uni-app/Taro 消息中心。
 - Proto 驱动的 HTTP、gRPC、OpenAPI、Agent Tool、MCP Tool 和 TypeScript RPC 生成。
 - AI 会话、流式消息、附件、工具调用、重试、再生成和分支会话。
-- 管理端 AI 助手可根据当前对话生成 HTML/PDF 报告，沿用工具写操作确认；报告登记到文件管理，下载需要登录。
+- 显式装配可选报告模块后，管理端 AI 助手可生成 HTML/PDF 报告，沿用工具写操作确认；报告登记到文件管理，下载需要登录。
 - AI 供应商与模型管理：供应商弹窗内维护模型子列表、`chat` 到 `audio` 分类枚举、模型连通性测试；AI 知识库使用独立 PostgreSQL 存储，支持文档上传、切片、embedding 入库与检索增强对话。
 - BI 分析与智能问数：先保存数据库连接，再发现并勾选表结构，通过关系画布配置多表语义模型；查询仍使用受控维度、指标和服务端租户范围；AI 对话与 BI 页面统一使用语义问数，问数、预览、卡片和仪表盘执行统一记录到 `bi_query`。BI 前端依赖 System 的共享模型选择与历史记录组件，问数使用当前选择的模型。详见 [BI 与智能问数设计](docs/BI与智能问数设计.md)。
 - 敏感字段全链路加密：前端以 SecretCrypto 临时公钥加密提交，服务端解密后对 API Key、OAuth/消息 Provider 凭据等列信封加密落库，管理端通过“眼睛”按需查看明文。
@@ -180,7 +184,13 @@ make docker-stop IMAGE=kratos-admin
 
 Docker 镜像 `TAG` 默认读取 `backend/internal/const/project.go` 中的服务版本，也可以通过命令行显式覆盖。`docker-build` 使用 Docker Buildx 同时构建 `linux/amd64` 和 `linux/arm64`，默认使用 Docker media types、关闭 provenance 附件，并将双架构镜像写入本地容器镜像存储；可用 `DOCKER_PLATFORMS` 和 `DOCKER_LOCAL_OUTPUT` 覆盖平台及输出方式。`docker-push` 将本地镜像按相同 `TAG` 标记为 `DOCKER_PUSH_IMAGE` 并推送，默认目标为 `swr.cn-north-4.myhuaweicloud.com/newcapec/$(IMAGE)`。Docker 内的 Go 模块下载默认继承宿主机 `go env GOPROXY`，宿主机没有 Go 时回退到官方代理，也可通过 `DOCKER_GOPROXY` 显式覆盖。构建命令先检查 Docker，再重新构建管理后台、uni-app H5、Taro H5，后端程序由 Docker 多阶段构建按目标架构编译。三个 H5 构建会并行执行；Dockerfile 会复用项目独立的 Go 模块和编译缓存。运行命令发布宿主机 `7001/6001` 端口，将 `backend/data`、`backend/logs`、`backend/backups` 和 `backend/configs` 分别映射到容器的 `/app/data`、`/app/logs`、`/app/backups` 和 `/app/configs`。镜像内包含默认 `configs` 和三端静态资源；容器启动时仅将镜像中的缺失配置补充到宿主机的 `backend/configs`，不会覆盖宿主机已修改的配置，再使用该目录启动服务。静态站点启动时补充到 `backend/data`，已有上传文件不会被清空；后端根据 `oss.root_directory` 将本地对象统一映射到 `/data/`。完整构建参数和运行示例见本节。
 
-正式 Docker 镜像内置 Chromium 和完整的 Noto Sans SC TrueType 中文字体。`make docker-run` 使用 `--init` 和 `backend/scripts/chromium-seccomp.json` 支持普通用户的 Chromium 沙箱；自定义 Docker/Compose 部署需带上相同配置，保持沙箱开启。本机直接启动后端时需另行安装 Chromium 与该字体。报告用法见 [AI 助手报告生成](docs/AI助手设计.md#报告生成)。
+报告使用独立的 [Eino 报告组件](backend/components/report/README.md)。宿主需要时显式 import，传入 Gotenberg 服务基础地址和现有文件保存回调，并通过 `AdminModules.RegisterAIPlugin` 登记为 `LOCAL` 写工具。可选模块未装配时跳过接入，主服务正常启动。PDF 由独立 Gotenberg 9 服务转换，业务宿主与基础镜像均不安装 Chromium 或报告字体；本地地址为 `http://127.0.0.1:3000`，容器间通过同一 Docker 网络访问 `http://gotenberg:3000`。报告历史文件仍按宿主文件权限访问。
+
+Xberg MCP 使用 `docker compose -f docker-compose/xberg/docker-compose.yaml up -d` 启动，MCP HTTP 地址为 `http://192.168.60.52:8001/mcp`；该 Compose 文件只启动 MCP 服务，不影响现有的 Xberg REST 服务。
+
+Gotenberg 与第三方 MCP 适配器使用 `docker compose --env-file docker-compose/gotenberg/.env -f docker-compose/gotenberg/docker-compose.yaml up -d --build` 启动，Gotenberg 地址为 `http://192.168.60.52:3000`，MCP 地址为 `http://192.168.60.52:8002/mcp`。适配器源码固定在 `avhulst/coolify-gotenberg-mcp` 的提交 `f0c1264`；当前无官方 Gotenberg MCP 实现，且该第三方项目星数较低，令牌模板见 `docker-compose/gotenberg/.env.example`。
+
+需要同时启动两套 MCP 时，可使用聚合文件：`docker compose --env-file docker-compose/gotenberg/.env -f docker-compose/docker-compose.yaml up -d --build`。
 
 `I18N_LOCALES` 使用逗号分隔的 BCP 47 语言代码列表（默认从后端语言包自动发现，排除主语言），控制 OpenAPI 的目标语言。`make i18n` 生成 OpenAPI 多语言 YAML。离线生成使用 `I18N_OFFLINE=1 make i18n`。
 

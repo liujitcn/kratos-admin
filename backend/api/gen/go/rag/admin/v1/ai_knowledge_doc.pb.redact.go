@@ -159,6 +159,8 @@ func (x *AiKnowledgeDoc) Redact() {
 
 	// Safe field: ErrorMessage
 
+	// Safe field: ExtractorConnectionId
+
 	// Safe field: CreatedAt
 }
 
@@ -176,6 +178,8 @@ func (x *UploadAiKnowledgeDocTextRequest) Redact() {
 	// Safe field: Name
 
 	// Safe field: Content
+
+	// Safe field: ExtractorConnectionId
 }
 
 // Ensure UploadAiKnowledgeDocFileRequest implements the Redactor interface at compile time.
@@ -194,6 +198,8 @@ func (x *UploadAiKnowledgeDocFileRequest) Redact() {
 	// Safe field: ContentBase64
 
 	// Safe field: DocName
+
+	// Safe field: ExtractorConnectionId
 }
 
 // Ensure DeleteAiKnowledgeDocRequest implements the Redactor interface at compile time.

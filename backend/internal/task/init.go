@@ -3,12 +3,14 @@ package task
 import (
 	"github.com/google/wire"
 	biz "github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin"
+	"github.com/liujitcn/kratos-admin/backend/internal/task/base"
 	"github.com/liujitcn/kratos-admin/backend/internal/task/system/admin"
 	"github.com/liujitcn/kratos-core/job"
 )
 
 // ProviderSet 统一注册 Backend 全部任务执行器。
 var ProviderSet = wire.NewSet(
+	base.NewAiAutomationTask,
 	biz.ProviderSet,
 	admin.NewBaseI18nTask,
 	admin.NewMessageDispatchTask,
@@ -22,8 +24,9 @@ var ProviderSet = wire.NewSet(
 )
 
 // NewTask 收集 Backend 全部任务执行器。
-func NewTask(baseI18nTask *admin.BaseI18nTask, messageDispatchTask *admin.MessageDispatchTask, tableArchiveTask *admin.TableArchiveTask, baseLogFallbackTask *admin.BaseLogFallbackTask, tableBackupTask *admin.TableBackupTask, mqttMessageRetentionTask *admin.MqttMessageRetentionTask, workflowTimeoutTask *admin.WorkflowTimeoutTask, workflowScriptRetryTask *admin.WorkflowScriptRetryTask) job.Tasks {
+func NewTask(aiAutomationTask *base.AiAutomationTask, baseI18nTask *admin.BaseI18nTask, messageDispatchTask *admin.MessageDispatchTask, tableArchiveTask *admin.TableArchiveTask, baseLogFallbackTask *admin.BaseLogFallbackTask, tableBackupTask *admin.TableBackupTask, mqttMessageRetentionTask *admin.MqttMessageRetentionTask, workflowTimeoutTask *admin.WorkflowTimeoutTask, workflowScriptRetryTask *admin.WorkflowScriptRetryTask) job.Tasks {
 	return job.Tasks{
+		{Name: base.AiAutomationTaskName, Exec: aiAutomationTask},
 		{
 			Name: admin.BaseI18nTaskName,
 			Exec: baseI18nTask,

@@ -7,6 +7,8 @@ import (
 	"os"
 
 	"github.com/liujitcn/kratos-admin/backend/pkg/agent"
+	"github.com/liujitcn/kratos-admin/backend/pkg/aiautomation"
+	"github.com/liujitcn/kratos-admin/backend/pkg/aiplugin"
 	"github.com/liujitcn/kratos-admin/backend/pkg/bi"
 	"github.com/liujitcn/kratos-admin/backend/pkg/mqtt"
 	"github.com/liujitcn/kratos-admin/backend/pkg/projectaccess"
@@ -45,7 +47,7 @@ type AdminResources module.Resources
 // AdminModules 表示 Admin 提供的协议模块集合。
 type AdminModules module.Modules
 
-// RegisterAgentTools 将宿主业务工具注册到 Admin AI 运行时。
+// RegisterAgentTools 将宿主业务工具注册到 Admin AI 运行时，未装配运行时模块时跳过。
 func (modules AdminModules) RegisterAgentTools(terminal string, tools ...agent.Tool) error {
 	for _, item := range modules {
 		registrar, ok := item.(interface {
@@ -56,10 +58,21 @@ func (modules AdminModules) RegisterAgentTools(terminal string, tools ...agent.T
 		}
 		return registrar.RegisterAgentTools(terminal, tools...)
 	}
-	return errors.New("Admin AI 运行时模块未注册")
+	return nil
 }
 
-// RegisterBiSourceAdapters 注册宿主业务提供的 BI 数据源 Adapter。
+// RegisterAIPlugin 显式装配本地插件，未装配插件模块时跳过。
+func (modules AdminModules) RegisterAIPlugin(manifest aiplugin.Manifest) error {
+	for _, item := range modules {
+		registrar, ok := item.(interface{ RegisterAIPlugin(aiplugin.Manifest) error })
+		if ok {
+			return registrar.RegisterAIPlugin(manifest)
+		}
+	}
+	return nil
+}
+
+// RegisterBiSourceAdapters 注册宿主业务提供的 BI 数据源 Adapter，未装配 BI 模块时跳过。
 func (modules AdminModules) RegisterBiSourceAdapters(adapters ...bi.SourceAdapter) error {
 	for _, item := range modules {
 		registrar, ok := item.(interface {
@@ -70,7 +83,7 @@ func (modules AdminModules) RegisterBiSourceAdapters(adapters ...bi.SourceAdapte
 		}
 		return registrar.RegisterBiSourceAdapters(adapters...)
 	}
-	return errors.New("Admin BI 模块未注册")
+	return nil
 }
 
 // InitializeSensitiveStorage 在受控启动阶段为宿主模型补齐存量加密，沿用 Admin 的策略和密钥。
@@ -99,6 +112,7 @@ type AdminConsumers queue.Consumers
 // 外部项目将本集合与其他业务模块的具名贡献合并后，再交给 kratos-core.ProviderSet
 // 统一创建 HTTP、gRPC、MCP、SSE、队列、定时任务和 MQTT 运行时。
 var ProviderSet = wire.NewSet(
+	aiautomation.NewDispatcher,
 	core.ProviderSet,
 	kit.ProviderSet,
 	NewCodeGenManager,
@@ -125,6 +139,7 @@ func NewModuleResources() AdminResources {
 // Admin 提供脱敏与限流策略解析器，并在迁移完成后初始化。Admin 业务依赖
 // 在 Backend 内部完成装配，避免外部项目的生成代码引用 backend/internal 包。
 func NewModules(
+	dispatcher *aiautomation.Dispatcher,
 	migrations *migration.Migration,
 	config *configv1.Bootstrap,
 	databases map[string]*gorm.Client,
@@ -170,7 +185,7 @@ func NewModules(
 	}
 	var modules module.Modules
 	var cleanup func()
-	modules, cleanup, err = adminModule.BuildModules(migrations, config, databases, baseCase, authorizer, authenticator, userToken, jobRuntime, sseRuntime, catalog, openAPIRuntime, redactResolver, rateLimitResolver, progressManager, lifecycle, mqttServer)
+	modules, cleanup, err = adminModule.BuildModules(dispatcher, migrations, config, databases, baseCase, authorizer, authenticator, userToken, jobRuntime, sseRuntime, catalog, openAPIRuntime, redactResolver, rateLimitResolver, progressManager, lifecycle, mqttServer)
 	if err != nil {
 		mqtt.SetDefaultClient(nil)
 		stopErr := logstream.StopConsoleCapture()
@@ -195,12 +210,13 @@ func NewModules(
 
 // NewTasks 创建 Backend 提供给 Core 调度器的定时任务集合。
 func NewTasks(
+	dispatcher *aiautomation.Dispatcher,
 	databases map[string]*gorm.Client,
 	baseCase *biz.BaseCase,
 	catalog *i18n.I18n,
 	sseRuntime *sse.SSE,
 ) (AdminTasks, func(), error) {
-	tasks, cleanup, err := adminModule.BuildTasks(databases, baseCase, catalog, sseRuntime)
+	tasks, cleanup, err := adminModule.BuildTasks(dispatcher, databases, baseCase, catalog, sseRuntime)
 	return AdminTasks(tasks), cleanup, err
 }
 

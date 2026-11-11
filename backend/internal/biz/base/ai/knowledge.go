@@ -59,9 +59,9 @@ func NewKnowledgeEngine(databases map[string]*gorm.Client, base *ragdata.Data, a
 	}
 }
 
-// IngestText 将文本入库：创建文档记录（登记原始文件路径与hash）→ 切片 → embedding → 批量写切片。
+// IngestText 将 Xberg 抽取文本入库：创建文档记录（登记原始文件路径、hash和抽取连接）→ 切片 → embedding → 批量写切片。
 // 处理失败时文档状态置为失败并保留失败原因，原始文件留在对象存储供重试。
-func (e *KnowledgeEngine) IngestText(ctx context.Context, knowledgeBaseID int64, name, content, filePath, fileHash string, createdBy int64) (*Doc, error) {
+func (e *KnowledgeEngine) IngestText(ctx context.Context, knowledgeBaseID int64, name, content, filePath, fileHash string, extractorConnectionID, createdBy int64) (*Doc, error) {
 	if e == nil {
 		return nil, fmt.Errorf("AI知识库引擎未初始化")
 	}
@@ -72,18 +72,21 @@ func (e *KnowledgeEngine) IngestText(ctx context.Context, knowledgeBaseID int64,
 	if err != nil {
 		return nil, fmt.Errorf("AI知识库不存在: %w", err)
 	}
-	provider, aiModel, err := e.loadEmbeddingModel(ctx, knowledge.ModelID)
+	var provider *models.AiProvider
+	var aiModel *models.AiModel
+	provider, aiModel, err = e.loadEmbeddingModel(ctx, knowledge.ModelID)
 	if err != nil {
 		return nil, err
 	}
 
 	doc := &Doc{
-		KnowledgeBaseID: knowledgeBaseID,
-		Name:            name,
-		FilePath:        filePath,
-		FileHash:        fileHash,
-		Status:          DocStatusReady,
-		CreatedBy:       createdBy,
+		KnowledgeBaseID:       knowledgeBaseID,
+		Name:                  name,
+		FilePath:              filePath,
+		FileHash:              fileHash,
+		ExtractorConnectionID: extractorConnectionID,
+		Status:                DocStatusReady,
+		CreatedBy:             createdBy,
 	}
 	if err = e.CreateDoc(ctx, doc); err != nil {
 		return nil, fmt.Errorf("创建知识库文档失败: %w", err)

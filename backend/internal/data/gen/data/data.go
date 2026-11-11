@@ -14,8 +14,16 @@ import (
 // Models 返回当前数据源生成的全部迁移模型。
 func Models() []any {
 	return []any{
+		new(models.AiAutomation),
+		new(models.AiAutomationRun),
+		new(models.AiFile),
 		new(models.AiMessage),
 		new(models.AiModel),
+		new(models.AiPlugin),
+		new(models.AiPluginConnection),
+		new(models.AiPluginInstallation),
+		new(models.AiPluginTool),
+		new(models.AiPluginToolPolicy),
 		new(models.AiProvider),
 		new(models.AiSession),
 		new(models.AiToolApproval),

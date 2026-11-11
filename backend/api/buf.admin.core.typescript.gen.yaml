@@ -16,12 +16,14 @@ inputs:
   - directory: .
     paths:
       - proto/base/v1/ai_message.proto
-      - proto/base/v1/ai_report.proto
       - proto/base/v1/ai_search.proto
       - proto/base/v1/ai_session.proto
+      - proto/base/v1/ai_automation.proto
+      - proto/base/v1/ai_plugin.proto
       - proto/base/v1/ai_tool.proto
       - proto/base/v1/ai_provider.proto
       - proto/base/v1/ai_knowledge.proto
+      - proto/base/v1/ai_file.proto
       - proto/base/v1/oauth.proto
       - proto/base/v1/oauth_client.proto
       - proto/base/v1/notification.proto

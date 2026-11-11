@@ -35,6 +35,7 @@ import (
 )
 
 const oauthSceneAdminLogin = "admin_login"
+
 const oauthSceneAdminBind = "admin_bind"
 const oauthLoginTicketKeyPrefix = "admin:oauth:login:ticket"
 const oauthLoginTicketExpire = 2 * time.Minute
@@ -200,7 +201,7 @@ func (c *OauthCase) oauthProviderI18nMap(ctx context.Context, targetKey string, 
 	return result, nil
 }
 
-// CreateOauthAuthorization 创建三方登录授权地址。
+// CreateOauthAuthorization 为两端创建一次性三方登录授权状态。
 func (c *OauthCase) CreateOauthAuthorization(ctx context.Context, req *basev1.CreateOauthAuthorizationRequest) (*basev1.CreateOauthAuthorizationResponse, error) {
 	var err error
 	var redirectURL string
@@ -398,7 +399,7 @@ func (c *OauthCase) BindOauthSession(ctx context.Context, req *basev1.BindOauthS
 	}, nil
 }
 
-// HandleOauthCallback 处理三方登录回调并跳回管理端登录页。
+// HandleOauthCallback 校验一次性授权状态并回跳原登录页。
 func (c *OauthCase) HandleOauthCallback(ctx context.Context, req *basev1.HandleOauthCallbackRequest) (*basev1.HandleOauthCallbackResponse, error) {
 	payload, err := oauth.VerifyState(c.Cache, req.GetState())
 	if err != nil {

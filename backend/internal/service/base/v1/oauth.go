@@ -2,6 +2,7 @@ package base
 
 import (
 	"context"
+
 	"fmt"
 
 	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
@@ -47,7 +48,7 @@ func (s *OauthService) ListOauthProvider(ctx context.Context, req *basev1.ListOa
 	return res, nil
 }
 
-// CreateOauthAuthorization 创建三方登录授权地址。
+// CreateOauthAuthorization 为两端创建共用的三方登录授权地址。
 func (s *OauthService) CreateOauthAuthorization(ctx context.Context, req *basev1.CreateOauthAuthorizationRequest) (*basev1.CreateOauthAuthorizationResponse, error) {
 	res, err := s.oauthCase.CreateOauthAuthorization(ctx, req)
 	if err != nil {

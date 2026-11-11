@@ -38,11 +38,13 @@ var allowedFileExtensions = map[string]struct{}{
 type FileCase struct {
 	*biz.BaseCase
 	baseFileRepo *data.BaseFileRepository
+	aiFileRepo   *data.AiFileRepository
+	tx           data.Transaction
 }
 
 // NewFileCase 创建文件业务实例。
-func NewFileCase(baseCase *biz.BaseCase, baseFileRepo *data.BaseFileRepository) *FileCase {
-	return &FileCase{BaseCase: baseCase, baseFileRepo: baseFileRepo}
+func NewFileCase(baseCase *biz.BaseCase, baseFileRepo *data.BaseFileRepository, aiFileRepo *data.AiFileRepository, tx data.Transaction) *FileCase {
+	return &FileCase{BaseCase: baseCase, baseFileRepo: baseFileRepo, aiFileRepo: aiFileRepo, tx: tx}
 }
 
 // DeleteFile 删除单个旧文件。
@@ -163,11 +165,16 @@ func generateStoredFileName(fileName, extension string) string {
 	return fmt.Sprintf("%d%s", id.GenSnowflakeID(), extname)
 }
 
+// metadataStoreForObjectPath 根据对象目录选择文件元数据表。
+func metadataStoreForObjectPath(objectPath string) string {
+	if objectPath == "ai" || strings.HasPrefix(objectPath, "ai/") {
+		return "ai"
+	}
+	return "base"
+}
+
 // recordUploadedFile 保存上传成功后的文件元数据。
 func (c *FileCase) recordUploadedFile(ctx context.Context, tenantID int64, fileName, extension string, content []byte, objectPath string, requestedAccessMode basev1.BaseFileAccessMode) error {
-	if c.baseFileRepo == nil {
-		return errorsx.Internal("文件元数据仓储未配置")
-	}
 	var err error
 	objectPath, err = objectFilePath(objectPath)
 	if err != nil {
@@ -186,20 +193,45 @@ func (c *FileCase) recordUploadedFile(ctx context.Context, tenantID int64, fileN
 	if accessMode != basev1.BaseFileAccessMode_BASE_FILE_ACCESS_MODE_PUBLIC && accessMode != basev1.BaseFileAccessMode_BASE_FILE_ACCESS_MODE_AUTHORIZED {
 		return errorsx.InvalidArgument("文件访问方式不合法")
 	}
-	entity := &models.BaseFile{
-		TenantID:      tenantID,
-		FileDirectory: directory,
-		FileGUID:      id.NewGUIDv7NoHyphen(),
-		SaveFileName:  path.Base(cleanPath),
-		FileName:      fileName,
-		Extension:     extension,
-		MimeType:      http.DetectContentType(content),
-		Size:          int64(len(content)),
-		LinkURL:       objectPath,
-		AccessMode:    int32(accessMode),
-		ContentHash:   hex.EncodeToString(hash[:]),
+	if metadataStoreForObjectPath(objectPath) == "ai" {
+		if c.aiFileRepo == nil {
+			return errorsx.Internal("AI文件元数据仓储未配置")
+		}
+		entity := &models.AiFile{
+			TenantID:      tenantID,
+			SourceType:    "upload",
+			Status:        "active",
+			FileDirectory: directory,
+			FileGUID:      id.NewGUIDv7NoHyphen(),
+			SaveFileName:  path.Base(cleanPath),
+			FileName:      fileName,
+			Extension:     extension,
+			MimeType:      http.DetectContentType(content),
+			Size:          int64(len(content)),
+			LinkURL:       objectPath,
+			AccessMode:    int32(accessMode),
+			ContentHash:   hex.EncodeToString(hash[:]),
+		}
+		err = c.aiFileRepo.Create(ctx, entity)
+	} else {
+		if c.baseFileRepo == nil {
+			return errorsx.Internal("文件元数据仓储未配置")
+		}
+		entity := &models.BaseFile{
+			TenantID:      tenantID,
+			FileDirectory: directory,
+			FileGUID:      id.NewGUIDv7NoHyphen(),
+			SaveFileName:  path.Base(cleanPath),
+			FileName:      fileName,
+			Extension:     extension,
+			MimeType:      http.DetectContentType(content),
+			Size:          int64(len(content)),
+			LinkURL:       objectPath,
+			AccessMode:    int32(accessMode),
+			ContentHash:   hex.EncodeToString(hash[:]),
+		}
+		err = c.baseFileRepo.Create(ctx, entity)
 	}
-	err = c.baseFileRepo.Create(ctx, entity)
 	if err != nil {
 		return errorsx.Internal("保存文件元数据失败").WithCause(err)
 	}
@@ -208,7 +240,7 @@ func (c *FileCase) recordUploadedFile(ctx context.Context, tenantID int64, fileN
 
 // DownloadFile 下载文件内容。
 func (c *FileCase) DownloadFile(ctx context.Context, req *basev1.DownloadFileRequest) (*wrapperspb.BytesValue, error) {
-	_, err := c.GetAuthInfo(ctx)
+	authInfo, err := c.GetAuthInfo(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -217,12 +249,22 @@ func (c *FileCase) DownloadFile(ctx context.Context, req *basev1.DownloadFileReq
 	if err != nil {
 		return nil, err
 	}
-	if c.baseFileRepo == nil {
-		return nil, errorsx.Internal("文件元数据仓储未配置")
-	}
-	query := c.baseFileRepo.Query(ctx).BaseFile
-	if _, err = c.baseFileRepo.Find(ctx, repository.Where(query.LinkURL.Eq(objectPath))); err != nil {
-		return nil, errorsx.ResourceNotFound("文件不存在或无权访问").WithCause(err)
+	if metadataStoreForObjectPath(objectPath) == "ai" {
+		if c.aiFileRepo == nil {
+			return nil, errorsx.Internal("AI文件元数据仓储未配置")
+		}
+		query := c.aiFileRepo.Query(ctx).AiFile
+		if _, err = c.aiFileRepo.Find(ctx, repository.Where(query.TenantID.Eq(authInfo.TenantId)), repository.Where(query.LinkURL.Eq(objectPath)), repository.Where(query.Status.Eq("active"))); err != nil {
+			return nil, errorsx.ResourceNotFound("文件不存在或无权访问").WithCause(err)
+		}
+	} else {
+		if c.baseFileRepo == nil {
+			return nil, errorsx.Internal("文件元数据仓储未配置")
+		}
+		query := c.baseFileRepo.Query(ctx).BaseFile
+		if _, err = c.baseFileRepo.Find(ctx, repository.Where(query.LinkURL.Eq(objectPath))); err != nil {
+			return nil, errorsx.ResourceNotFound("文件不存在或无权访问").WithCause(err)
+		}
 	}
 	var fileByte []byte
 	fileByte, err = c.OSS.GetFileByte(objectPath)

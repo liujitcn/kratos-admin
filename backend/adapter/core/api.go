@@ -69,7 +69,7 @@ func (s *APIStoreAdapter) ReplaceAll(ctx context.Context, items []*coredata.APIR
 		record := &models.BaseAPI{
 			ID:             item.ID,
 			ToolName:       item.ToolName,
-			ToolPrompts:    item.ToolPrompts,
+			ToolPrompts:    normalizeJSONArray(item.ToolPrompts),
 			ServiceName:    item.ServiceName,
 			ServiceDesc:    item.ServiceDesc,
 			Desc:           item.Desc,
@@ -84,7 +84,7 @@ func (s *APIStoreAdapter) ReplaceAll(ctx context.Context, items []*coredata.APIR
 			record.ID = previous.ID
 			record.McpStatus = previous.McpStatus
 			record.AgentStatus = previous.AgentStatus
-			record.ToolPrompts = previous.ToolPrompts
+			record.ToolPrompts = normalizeJSONArray(previous.ToolPrompts)
 		}
 		records = append(records, record)
 	}
@@ -105,7 +105,7 @@ func (s *APIStoreAdapter) ReplaceAll(ctx context.Context, items []*coredata.APIR
 			sseRecord.ID = previous.ID
 			sseRecord.McpStatus = previous.McpStatus
 			sseRecord.AgentStatus = previous.AgentStatus
-			sseRecord.ToolPrompts = previous.ToolPrompts
+			sseRecord.ToolPrompts = normalizeJSONArray(previous.ToolPrompts)
 		}
 		records = append(records, sseRecord)
 	}
@@ -165,7 +165,7 @@ func (s *APIStoreAdapter) ReplaceAllTranslations(ctx context.Context, items []*c
 		records = append(records, &models.BaseAPII18N{
 			Operation:   item.Operation,
 			Locale:      item.Locale,
-			ToolPrompts: item.ToolPrompts,
+			ToolPrompts: normalizeJSONArray(item.ToolPrompts),
 			ServiceDesc: item.ServiceDesc,
 			Desc:        item.Desc,
 		})
@@ -195,3 +195,11 @@ func (s *APIStoreAdapter) ListForPolicy(ctx context.Context) ([]*coredata.APIPol
 }
 
 var _ coredata.APIStore = (*APIStoreAdapter)(nil)
+
+// normalizeJSONArray 为数组型 JSON 字段补齐空数组默认值。
+func normalizeJSONArray(raw string) string {
+	if raw == "" || raw == "null" {
+		return "[]"
+	}
+	return raw
+}

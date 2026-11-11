@@ -24,13 +24,22 @@ const viewKeyRoutes: Record<string, string> = {
 export function resolveNotificationAction(actionTarget?: string, actionParams?: string): NotificationActionLocation | undefined {
   const routeName = actionTarget ? viewKeyRoutes[actionTarget] : undefined;
   if (!routeName) return undefined;
-  if (routeName !== "NotificationInbox") return { name: routeName };
+  if (routeName !== "NotificationInbox" && routeName !== "AiChat") return { name: routeName };
 
   let parsed: unknown;
   try {
     parsed = JSON.parse(actionParams || "{}");
   } catch {
     return { name: routeName };
+  }
+  if (routeName === "AiChat") {
+    if (!isRecord(parsed)) return { name: routeName };
+    const query: Record<string, string> = {};
+    for (const key of ["automation_id", "run_id", "session_id"]) {
+      const value = parsed[key];
+      if (typeof value === "string" && /^[1-9]\d{0,18}$/.test(value)) query[key] = value;
+    }
+    return Object.keys(query).length ? { name: routeName, query } : { name: routeName };
   }
   if (!isRecord(parsed) || !isRecord(parsed.admin) || parsed.admin.route !== "WorkflowApproval") {
     return { name: routeName };

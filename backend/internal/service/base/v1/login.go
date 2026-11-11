@@ -85,7 +85,7 @@ func (s *LoginService) RefreshToken(ctx context.Context, req *basev1.RefreshToke
 	return res, nil
 }
 
-// Login 登录
+// Login 使用两端共享的认证流程登录。
 func (s *LoginService) Login(ctx context.Context, req *basev1.LoginRequest) (*basev1.LoginResponse, error) {
 	res, err := s.loginCase.Login(ctx, req)
 	if err != nil {

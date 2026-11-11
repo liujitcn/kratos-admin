@@ -32,9 +32,9 @@ type AiKnowledgeDocServiceHTTPServer interface {
 	PageAiKnowledgeDoc(context.Context, *PageAiKnowledgeDocRequest) (*PageAiKnowledgeDocResponse, error)
 	// ReprocessAiKnowledgeDoc 重新处理失败的文档（按保存的原文重切片、重向量化）。
 	ReprocessAiKnowledgeDoc(context.Context, *ReprocessAiKnowledgeDocRequest) (*emptypb.Empty, error)
-	// UploadAiKnowledgeDocFile 上传文档文件（txt/md/docx/pdf：抽取文本后走同一入库链）。
+	// UploadAiKnowledgeDocFile 上传文档文件（由 Xberg MCP 抽取后切片、向量化并落库）。
 	UploadAiKnowledgeDocFile(context.Context, *UploadAiKnowledgeDocFileRequest) (*emptypb.Empty, error)
-	// UploadAiKnowledgeDocText 上传纯文本文档（切片 → 向量化 → 落库）。
+	// UploadAiKnowledgeDocText 上传纯文本文档（由 Xberg MCP 抽取后切片、向量化并落库）。
 	UploadAiKnowledgeDocText(context.Context, *UploadAiKnowledgeDocTextRequest) (*emptypb.Empty, error)
 }
 
@@ -164,9 +164,9 @@ type AiKnowledgeDocServiceHTTPClient interface {
 	PageAiKnowledgeDoc(ctx context.Context, req *PageAiKnowledgeDocRequest, opts ...http.CallOption) (rsp *PageAiKnowledgeDocResponse, err error)
 	// ReprocessAiKnowledgeDoc 重新处理失败的文档（按保存的原文重切片、重向量化）。
 	ReprocessAiKnowledgeDoc(ctx context.Context, req *ReprocessAiKnowledgeDocRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
-	// UploadAiKnowledgeDocFile 上传文档文件（txt/md/docx/pdf：抽取文本后走同一入库链）。
+	// UploadAiKnowledgeDocFile 上传文档文件（由 Xberg MCP 抽取后切片、向量化并落库）。
 	UploadAiKnowledgeDocFile(ctx context.Context, req *UploadAiKnowledgeDocFileRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
-	// UploadAiKnowledgeDocText 上传纯文本文档（切片 → 向量化 → 落库）。
+	// UploadAiKnowledgeDocText 上传纯文本文档（由 Xberg MCP 抽取后切片、向量化并落库）。
 	UploadAiKnowledgeDocText(ctx context.Context, req *UploadAiKnowledgeDocTextRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 }
 
@@ -229,7 +229,7 @@ func (c *AiKnowledgeDocServiceHTTPClientImpl) ReprocessAiKnowledgeDoc(ctx contex
 	return &out, nil
 }
 
-// UploadAiKnowledgeDocFile 上传文档文件（txt/md/docx/pdf：抽取文本后走同一入库链）。
+// UploadAiKnowledgeDocFile 上传文档文件（由 Xberg MCP 抽取后切片、向量化并落库）。
 func (c *AiKnowledgeDocServiceHTTPClientImpl) UploadAiKnowledgeDocFile(ctx context.Context, in *UploadAiKnowledgeDocFileRequest, opts ...http.CallOption) (*emptypb.Empty, error) {
 	var out emptypb.Empty
 	pattern := "/api/v1/admin/rag/knowledge/{id}/doc/file"
@@ -247,7 +247,7 @@ func (c *AiKnowledgeDocServiceHTTPClientImpl) UploadAiKnowledgeDocFile(ctx conte
 	return &out, nil
 }
 
-// UploadAiKnowledgeDocText 上传纯文本文档（切片 → 向量化 → 落库）。
+// UploadAiKnowledgeDocText 上传纯文本文档（由 Xberg MCP 抽取后切片、向量化并落库）。
 func (c *AiKnowledgeDocServiceHTTPClientImpl) UploadAiKnowledgeDocText(ctx context.Context, in *UploadAiKnowledgeDocTextRequest, opts ...http.CallOption) (*emptypb.Empty, error) {
 	var out emptypb.Empty
 	pattern := "/api/v1/admin/rag/knowledge/{id}/doc/text"

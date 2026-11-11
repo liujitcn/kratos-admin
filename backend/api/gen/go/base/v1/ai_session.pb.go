@@ -180,7 +180,6 @@ func (x *ListAiMessageResponse) GetMessages() []*AiMessage {
 // AI 助手会话列表查询条件
 type ListAiSessionRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Terminal      Terminal               `protobuf:"varint,1,opt,name=terminal,proto3,enum=base.v1.Terminal" json:"terminal,omitempty"` // 终端类型：枚举【Terminal】
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -213,13 +212,6 @@ func (x *ListAiSessionRequest) ProtoReflect() protoreflect.Message {
 // Deprecated: Use ListAiSessionRequest.ProtoReflect.Descriptor instead.
 func (*ListAiSessionRequest) Descriptor() ([]byte, []int) {
 	return file_base_v1_ai_session_proto_rawDescGZIP(), []int{2}
-}
-
-func (x *ListAiSessionRequest) GetTerminal() Terminal {
-	if x != nil {
-		return x.Terminal
-	}
-	return Terminal_TERMINAL_UNSPECIFIED
 }
 
 // AI 助手会话列表响应
@@ -272,6 +264,7 @@ type CreateAiSessionRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Title         string                 `protobuf:"bytes,1,opt,name=title,proto3" json:"title,omitempty"`                              // 会话标题
 	Terminal      Terminal               `protobuf:"varint,2,opt,name=terminal,proto3,enum=base.v1.Terminal" json:"terminal,omitempty"` // 终端类型：枚举【Terminal】
+	Plugins       []*AiPluginSelection   `protobuf:"bytes,3,rep,name=plugins,proto3" json:"plugins,omitempty"`                          // 选用插件；留空默认系统工具
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -318,6 +311,13 @@ func (x *CreateAiSessionRequest) GetTerminal() Terminal {
 		return x.Terminal
 	}
 	return Terminal_TERMINAL_UNSPECIFIED
+}
+
+func (x *CreateAiSessionRequest) GetPlugins() []*AiPluginSelection {
+	if x != nil {
+		return x.Plugins
+	}
+	return nil
 }
 
 // AI 助手会话创建响应
@@ -669,15 +669,19 @@ func (*DeleteAiSessionResponse) Descriptor() ([]byte, []int) {
 
 // AI 助手会话
 type AiSession struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`                                    // 会话ID
-	TenantId      int64                  `protobuf:"varint,7,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`       // 租户ID
-	Title         string                 `protobuf:"bytes,2,opt,name=title,proto3" json:"title,omitempty"`                              // 会话标题
-	Summary       string                 `protobuf:"bytes,3,opt,name=summary,proto3" json:"summary,omitempty"`                          // 会话摘要
-	UpdatedAt     *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`     // 更新时间
-	Terminal      Terminal               `protobuf:"varint,6,opt,name=terminal,proto3,enum=base.v1.Terminal" json:"terminal,omitempty"` // 终端类型：枚举【Terminal】
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state           protoimpl.MessageState `protogen:"open.v1"`
+	Id              string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`                                                    // 会话ID
+	TenantId        int64                  `protobuf:"varint,2,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`                       // 租户ID
+	Terminal        Terminal               `protobuf:"varint,3,opt,name=terminal,proto3,enum=base.v1.Terminal" json:"terminal,omitempty"`                 // 终端类型
+	Title           string                 `protobuf:"bytes,4,opt,name=title,proto3" json:"title,omitempty"`                                              // 会话标题
+	Summary         string                 `protobuf:"bytes,5,opt,name=summary,proto3" json:"summary,omitempty"`                                          // 会话摘要
+	Plugins         []*AiPluginSelection   `protobuf:"bytes,6,rep,name=plugins,proto3" json:"plugins,omitempty"`                                          // 选用插件及连接
+	AutomationId    string                 `protobuf:"bytes,7,opt,name=automation_id,json=automationId,proto3" json:"automation_id,omitempty"`            // 来源自动化ID
+	AutomationRunId string                 `protobuf:"bytes,8,opt,name=automation_run_id,json=automationRunId,proto3" json:"automation_run_id,omitempty"` // 来源执行ID
+	ReadOnly        bool                   `protobuf:"varint,9,opt,name=read_only,json=readOnly,proto3" json:"read_only,omitempty"`                       // 冻结结果会话
+	UpdatedAt       *timestamppb.Timestamp `protobuf:"bytes,10,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`                    // 更新时间
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
 }
 
 func (x *AiSession) Reset() {
@@ -724,6 +728,13 @@ func (x *AiSession) GetTenantId() int64 {
 	return 0
 }
 
+func (x *AiSession) GetTerminal() Terminal {
+	if x != nil {
+		return x.Terminal
+	}
+	return Terminal_TERMINAL_UNSPECIFIED
+}
+
 func (x *AiSession) GetTitle() string {
 	if x != nil {
 		return x.Title
@@ -738,18 +749,39 @@ func (x *AiSession) GetSummary() string {
 	return ""
 }
 
+func (x *AiSession) GetPlugins() []*AiPluginSelection {
+	if x != nil {
+		return x.Plugins
+	}
+	return nil
+}
+
+func (x *AiSession) GetAutomationId() string {
+	if x != nil {
+		return x.AutomationId
+	}
+	return ""
+}
+
+func (x *AiSession) GetAutomationRunId() string {
+	if x != nil {
+		return x.AutomationRunId
+	}
+	return ""
+}
+
+func (x *AiSession) GetReadOnly() bool {
+	if x != nil {
+		return x.ReadOnly
+	}
+	return false
+}
+
 func (x *AiSession) GetUpdatedAt() *timestamppb.Timestamp {
 	if x != nil {
 		return x.UpdatedAt
 	}
 	return nil
-}
-
-func (x *AiSession) GetTerminal() Terminal {
-	if x != nil {
-		return x.Terminal
-	}
-	return Terminal_TERMINAL_UNSPECIFIED
 }
 
 // AI 助手消息
@@ -1193,24 +1225,77 @@ func (x *AiAttachment) GetMimeType() string {
 	return ""
 }
 
+// 保存本人会话插件选择请求。
+type SetAiSessionPluginsRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`           // 会话ID
+	Plugins       []*AiPluginSelection   `protobuf:"bytes,2,rep,name=plugins,proto3" json:"plugins,omitempty"` // 选用插件；空列表清除选择
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SetAiSessionPluginsRequest) Reset() {
+	*x = SetAiSessionPluginsRequest{}
+	mi := &file_base_v1_ai_session_proto_msgTypes[18]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SetAiSessionPluginsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SetAiSessionPluginsRequest) ProtoMessage() {}
+
+func (x *SetAiSessionPluginsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_base_v1_ai_session_proto_msgTypes[18]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SetAiSessionPluginsRequest.ProtoReflect.Descriptor instead.
+func (*SetAiSessionPluginsRequest) Descriptor() ([]byte, []int) {
+	return file_base_v1_ai_session_proto_rawDescGZIP(), []int{18}
+}
+
+func (x *SetAiSessionPluginsRequest) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *SetAiSessionPluginsRequest) GetPlugins() []*AiPluginSelection {
+	if x != nil {
+		return x.Plugins
+	}
+	return nil
+}
+
 var File_base_v1_ai_session_proto protoreflect.FileDescriptor
 
 const file_base_v1_ai_session_proto_rawDesc = "" +
 	"\n" +
-	"\x18base/v1/ai_session.proto\x12\abase.v1\x1a\x15base/v1/ai_tool.proto\x1a\x1bbuf/validate/validate.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xb4\x01\n" +
+	"\x18base/v1/ai_session.proto\x12\abase.v1\x1a\x15base/v1/ai_tool.proto\x1a\x17base/v1/ai_plugin.proto\x1a\x1bbuf/validate/validate.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xb4\x01\n" +
 	"\x14ListAiMessageRequest\x12\x9b\x01\n" +
 	"\n" +
 	"session_id\x18\x01 \x01(\tB|\xbaG\v\x92\x02\b会话ID\xbaHk\xba\x01h\n" +
 	"0base.ai.session.list_message.session_id.positive\x12\x15会话编号不合法\x1a\x1dthis.matches('^[1-9][0-9]*$')R\tsessionId\"[\n" +
 	"\x15ListAiMessageResponse\x12B\n" +
-	"\bmessages\x18\x01 \x03(\v2\x12.base.v1.AiMessageB\x12\xbaG\x0f\x92\x02\f消息列表R\bmessages\"p\n" +
-	"\x14ListAiSessionRequest\x12X\n" +
-	"\bterminal\x18\x01 \x01(\x0e2\x11.base.v1.TerminalB)\xbaG&\x92\x02#终端类型：枚举【Terminal】R\bterminal\"[\n" +
+	"\bmessages\x18\x01 \x03(\v2\x12.base.v1.AiMessageB\x12\xbaG\x0f\x92\x02\f消息列表R\bmessages\"\x16\n" +
+	"\x14ListAiSessionRequest\"[\n" +
 	"\x15ListAiSessionResponse\x12B\n" +
-	"\bsessions\x18\x01 \x03(\v2\x12.base.v1.AiSessionB\x12\xbaG\x0f\x92\x02\f会话列表R\bsessions\"\x9c\x01\n" +
+	"\bsessions\x18\x01 \x03(\v2\x12.base.v1.AiSessionB\x12\xbaG\x0f\x92\x02\f会话列表R\bsessions\"\x81\x02\n" +
 	"\x16CreateAiSessionRequest\x12(\n" +
 	"\x05title\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f会话标题R\x05title\x12X\n" +
-	"\bterminal\x18\x02 \x01(\x0e2\x11.base.v1.TerminalB)\xbaG&\x92\x02#终端类型：枚举【Terminal】R\bterminal\"[\n" +
+	"\bterminal\x18\x02 \x01(\x0e2\x11.base.v1.TerminalB)\xbaG&\x92\x02#终端类型：枚举【Terminal】R\bterminal\x12c\n" +
+	"\aplugins\x18\x03 \x03(\v2\x1a.base.v1.AiPluginSelectionB-\xbaG*\x92\x02'选用插件；留空默认系统工具R\aplugins\"[\n" +
 	"\x17CreateAiSessionResponse\x12@\n" +
 	"\asession\x18\x01 \x01(\v2\x12.base.v1.AiSessionB\x12\xbaG\x0f\x92\x02\f会话信息R\asession\"\x8e\x05\n" +
 	"\x1cCreateAiSessionBranchRequest\x12\xb7\x01\n" +
@@ -1234,15 +1319,20 @@ const file_base_v1_ai_session_proto_rawDesc = "" +
 	"\x16DeleteAiSessionRequest\x12~\n" +
 	"\x02id\x18\x01 \x01(\tBn\xbaG\v\x92\x02\b会话ID\xbaH]\xba\x01Z\n" +
 	"\"base.ai.session.delete.id.positive\x12\x15会话编号不合法\x1a\x1dthis.matches('^[1-9][0-9]*$')R\x02id\"\x19\n" +
-	"\x17DeleteAiSessionResponse\"\xd9\x02\n" +
+	"\x17DeleteAiSessionResponse\"\xcc\x04\n" +
 	"\tAiSession\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\tB\x0e\xbaG\v\x92\x02\b会话IDR\x02id\x12+\n" +
-	"\ttenant_id\x18\a \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDR\btenantId\x12(\n" +
-	"\x05title\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f会话标题R\x05title\x12,\n" +
-	"\asummary\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f会话摘要R\asummary\x12M\n" +
+	"\ttenant_id\x18\x02 \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDR\btenantId\x12A\n" +
+	"\bterminal\x18\x03 \x01(\x0e2\x11.base.v1.TerminalB\x12\xbaG\x0f\x92\x02\f终端类型R\bterminal\x12(\n" +
+	"\x05title\x18\x04 \x01(\tB\x12\xbaG\x0f\x92\x02\f会话标题R\x05title\x12,\n" +
+	"\asummary\x18\x05 \x01(\tB\x12\xbaG\x0f\x92\x02\f会话摘要R\asummary\x12Q\n" +
+	"\aplugins\x18\x06 \x03(\v2\x1a.base.v1.AiPluginSelectionB\x1b\xbaG\x18\x92\x02\x15选用插件及连接R\aplugins\x12<\n" +
+	"\rautomation_id\x18\a \x01(\tB\x17\xbaG\x14\x92\x02\x11来源自动化IDR\fautomationId\x12@\n" +
+	"\x11automation_run_id\x18\b \x01(\tB\x14\xbaG\x11\x92\x02\x0e来源执行IDR\x0fautomationRunId\x125\n" +
+	"\tread_only\x18\t \x01(\bB\x18\xbaG\x15\x92\x02\x12冻结结果会话R\breadOnly\x12M\n" +
 	"\n" +
-	"updated_at\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampB\x12\xbaG\x0f\x92\x02\f更新时间R\tupdatedAt\x12X\n" +
-	"\bterminal\x18\x06 \x01(\x0e2\x11.base.v1.TerminalB)\xbaG&\x92\x02#终端类型：枚举【Terminal】R\bterminal\"\x97\x06\n" +
+	"updated_at\x18\n" +
+	" \x01(\v2\x1a.google.protobuf.TimestampB\x12\xbaG\x0f\x92\x02\f更新时间R\tupdatedAt\"\x97\x06\n" +
 	"\tAiMessage\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\tB\x0e\xbaG\v\x92\x02\b消息IDR\x02id\x12+\n" +
 	"\ttenant_id\x18\v \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDR\btenantId\x12P\n" +
@@ -1284,19 +1374,23 @@ const file_base_v1_ai_session_proto_rawDesc = "" +
 	"\x04name\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f附件名称R\x04name\x12&\n" +
 	"\x04size\x18\x03 \x01(\x03B\x12\xbaG\x0f\x92\x02\f附件大小R\x04size\x12$\n" +
 	"\x03url\x18\x04 \x01(\tB\x12\xbaG\x0f\x92\x02\f附件地址R\x03url\x125\n" +
-	"\tmime_type\x18\x05 \x01(\tB\x18\xbaG\x15\x92\x02\x12附件 MIME 类型R\bmimeType*\xbb\x01\n" +
+	"\tmime_type\x18\x05 \x01(\tB\x18\xbaG\x15\x92\x02\x12附件 MIME 类型R\bmimeType\"\xb2\x01\n" +
+	"\x1aSetAiSessionPluginsRequest\x122\n" +
+	"\x02id\x18\x01 \x01(\tB\"\xbaG\v\x92\x02\b会话ID\xbaH\x11r\x0f2\r^[1-9][0-9]*$R\x02id\x12`\n" +
+	"\aplugins\x18\x02 \x03(\v2\x1a.base.v1.AiPluginSelectionB*\xbaG'\x92\x02$选用插件；空列表清除选择R\aplugins*\xbb\x01\n" +
 	"\x0fAiMessageStatus\x12!\n" +
 	"\x1dAI_MESSAGE_STATUS_UNSPECIFIED\x10\x00\x12 \n" +
 	"\x1cAI_MESSAGE_STATUS_GENERATING\x10\x01\x12\x1d\n" +
 	"\x19AI_MESSAGE_STATUS_SUCCESS\x10\x02\x12\x1c\n" +
 	"\x18AI_MESSAGE_STATUS_FAILED\x10\x03\x12&\n" +
-	"\"AI_MESSAGE_STATUS_WAITING_APPROVAL\x10\x042\xa7\x06\n" +
+	"\"AI_MESSAGE_STATUS_WAITING_APPROVAL\x10\x042\xb7\a\n" +
 	"\x10AiSessionService\x12\x84\x01\n" +
 	"\rListAiMessage\x12\x1d.base.v1.ListAiMessageRequest\x1a\x1e.base.v1.ListAiMessageResponse\"4\x82\xd3\xe4\x93\x02.\x12,/api/v1/base/ai/session/{session_id}/message\x12o\n" +
 	"\rListAiSession\x12\x1d.base.v1.ListAiSessionRequest\x1a\x1e.base.v1.ListAiSessionResponse\"\x1f\x82\xd3\xe4\x93\x02\x19\x12\x17/api/v1/base/ai/session\x12x\n" +
 	"\x0fCreateAiSession\x12\x1f.base.v1.CreateAiSessionRequest\x1a .base.v1.CreateAiSessionResponse\"\"\x82\xd3\xe4\x93\x02\x1c:\x01*\"\x17/api/v1/base/ai/session\x12\xa5\x01\n" +
 	"\x15CreateAiSessionBranch\x12%.base.v1.CreateAiSessionBranchRequest\x1a&.base.v1.CreateAiSessionBranchResponse\"=\x82\xd3\xe4\x93\x027:\x01*\"2/api/v1/base/ai/session/{source_session_id}/branch\x12}\n" +
-	"\x0fUpdateAiSession\x12\x1f.base.v1.UpdateAiSessionRequest\x1a .base.v1.UpdateAiSessionResponse\"'\x82\xd3\xe4\x93\x02!:\x01*\x1a\x1c/api/v1/base/ai/session/{id}\x12z\n" +
+	"\x0fUpdateAiSession\x12\x1f.base.v1.UpdateAiSessionRequest\x1a .base.v1.UpdateAiSessionResponse\"'\x82\xd3\xe4\x93\x02!:\x01*\x1a\x1c/api/v1/base/ai/session/{id}\x12\x8d\x01\n" +
+	"\x13SetAiSessionPlugins\x12#.base.v1.SetAiSessionPluginsRequest\x1a .base.v1.UpdateAiSessionResponse\"/\x82\xd3\xe4\x93\x02):\x01*\x1a$/api/v1/base/ai/session/{id}/plugins\x12z\n" +
 	"\x0fDeleteAiSession\x12\x1f.base.v1.DeleteAiSessionRequest\x1a .base.v1.DeleteAiSessionResponse\"$\x82\xd3\xe4\x93\x02\x1e*\x1c/api/v1/base/ai/session/{id}B\x9e\x01\n" +
 	"\vcom.base.v1B\x0eAiSessionProtoP\x01ZBgithub.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1;basev1\xa2\x02\x03BXX\xaa\x02\aBase.V1\xca\x02\aBase\\V1\xe2\x02\x13Base\\V1\\GPBMetadata\xea\x02\bBase::V1b\x06proto3"
 
@@ -1313,7 +1407,7 @@ func file_base_v1_ai_session_proto_rawDescGZIP() []byte {
 }
 
 var file_base_v1_ai_session_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_base_v1_ai_session_proto_msgTypes = make([]protoimpl.MessageInfo, 18)
+var file_base_v1_ai_session_proto_msgTypes = make([]protoimpl.MessageInfo, 19)
 var file_base_v1_ai_session_proto_goTypes = []any{
 	(AiMessageStatus)(0),                  // 0: base.v1.AiMessageStatus
 	(*ListAiMessageRequest)(nil),          // 1: base.v1.ListAiMessageRequest
@@ -1334,48 +1428,54 @@ var file_base_v1_ai_session_proto_goTypes = []any{
 	(*AiOutputContent)(nil),               // 16: base.v1.AiOutputContent
 	(*AiToken)(nil),                       // 17: base.v1.AiToken
 	(*AiAttachment)(nil),                  // 18: base.v1.AiAttachment
-	(Terminal)(0),                         // 19: base.v1.Terminal
-	(*timestamppb.Timestamp)(nil),         // 20: google.protobuf.Timestamp
-	(*AiToolCall)(nil),                    // 21: base.v1.AiToolCall
-	(*AiToolApproval)(nil),                // 22: base.v1.AiToolApproval
+	(*SetAiSessionPluginsRequest)(nil),    // 19: base.v1.SetAiSessionPluginsRequest
+	(Terminal)(0),                         // 20: base.v1.Terminal
+	(*AiPluginSelection)(nil),             // 21: base.v1.AiPluginSelection
+	(*timestamppb.Timestamp)(nil),         // 22: google.protobuf.Timestamp
+	(*AiToolCall)(nil),                    // 23: base.v1.AiToolCall
+	(*AiToolApproval)(nil),                // 24: base.v1.AiToolApproval
 }
 var file_base_v1_ai_session_proto_depIdxs = []int32{
 	14, // 0: base.v1.ListAiMessageResponse.messages:type_name -> base.v1.AiMessage
-	19, // 1: base.v1.ListAiSessionRequest.terminal:type_name -> base.v1.Terminal
-	13, // 2: base.v1.ListAiSessionResponse.sessions:type_name -> base.v1.AiSession
-	19, // 3: base.v1.CreateAiSessionRequest.terminal:type_name -> base.v1.Terminal
+	13, // 1: base.v1.ListAiSessionResponse.sessions:type_name -> base.v1.AiSession
+	20, // 2: base.v1.CreateAiSessionRequest.terminal:type_name -> base.v1.Terminal
+	21, // 3: base.v1.CreateAiSessionRequest.plugins:type_name -> base.v1.AiPluginSelection
 	13, // 4: base.v1.CreateAiSessionResponse.session:type_name -> base.v1.AiSession
-	19, // 5: base.v1.CreateAiSessionBranchRequest.terminal:type_name -> base.v1.Terminal
+	20, // 5: base.v1.CreateAiSessionBranchRequest.terminal:type_name -> base.v1.Terminal
 	13, // 6: base.v1.CreateAiSessionBranchResponse.session:type_name -> base.v1.AiSession
 	14, // 7: base.v1.CreateAiSessionBranchResponse.messages:type_name -> base.v1.AiMessage
 	13, // 8: base.v1.UpdateAiSessionResponse.session:type_name -> base.v1.AiSession
-	20, // 9: base.v1.AiSession.updated_at:type_name -> google.protobuf.Timestamp
-	19, // 10: base.v1.AiSession.terminal:type_name -> base.v1.Terminal
-	15, // 11: base.v1.AiMessage.input_content:type_name -> base.v1.AiInputContent
-	16, // 12: base.v1.AiMessage.output_content:type_name -> base.v1.AiOutputContent
-	18, // 13: base.v1.AiMessage.attachments:type_name -> base.v1.AiAttachment
-	20, // 14: base.v1.AiMessage.created_at:type_name -> google.protobuf.Timestamp
-	0,  // 15: base.v1.AiMessage.status:type_name -> base.v1.AiMessageStatus
-	17, // 16: base.v1.AiMessage.token:type_name -> base.v1.AiToken
-	21, // 17: base.v1.AiMessage.tools:type_name -> base.v1.AiToolCall
-	22, // 18: base.v1.AiOutputContent.approval:type_name -> base.v1.AiToolApproval
-	1,  // 19: base.v1.AiSessionService.ListAiMessage:input_type -> base.v1.ListAiMessageRequest
-	3,  // 20: base.v1.AiSessionService.ListAiSession:input_type -> base.v1.ListAiSessionRequest
-	5,  // 21: base.v1.AiSessionService.CreateAiSession:input_type -> base.v1.CreateAiSessionRequest
-	7,  // 22: base.v1.AiSessionService.CreateAiSessionBranch:input_type -> base.v1.CreateAiSessionBranchRequest
-	9,  // 23: base.v1.AiSessionService.UpdateAiSession:input_type -> base.v1.UpdateAiSessionRequest
-	11, // 24: base.v1.AiSessionService.DeleteAiSession:input_type -> base.v1.DeleteAiSessionRequest
-	2,  // 25: base.v1.AiSessionService.ListAiMessage:output_type -> base.v1.ListAiMessageResponse
-	4,  // 26: base.v1.AiSessionService.ListAiSession:output_type -> base.v1.ListAiSessionResponse
-	6,  // 27: base.v1.AiSessionService.CreateAiSession:output_type -> base.v1.CreateAiSessionResponse
-	8,  // 28: base.v1.AiSessionService.CreateAiSessionBranch:output_type -> base.v1.CreateAiSessionBranchResponse
-	10, // 29: base.v1.AiSessionService.UpdateAiSession:output_type -> base.v1.UpdateAiSessionResponse
-	12, // 30: base.v1.AiSessionService.DeleteAiSession:output_type -> base.v1.DeleteAiSessionResponse
-	25, // [25:31] is the sub-list for method output_type
-	19, // [19:25] is the sub-list for method input_type
-	19, // [19:19] is the sub-list for extension type_name
-	19, // [19:19] is the sub-list for extension extendee
-	0,  // [0:19] is the sub-list for field type_name
+	20, // 9: base.v1.AiSession.terminal:type_name -> base.v1.Terminal
+	21, // 10: base.v1.AiSession.plugins:type_name -> base.v1.AiPluginSelection
+	22, // 11: base.v1.AiSession.updated_at:type_name -> google.protobuf.Timestamp
+	15, // 12: base.v1.AiMessage.input_content:type_name -> base.v1.AiInputContent
+	16, // 13: base.v1.AiMessage.output_content:type_name -> base.v1.AiOutputContent
+	18, // 14: base.v1.AiMessage.attachments:type_name -> base.v1.AiAttachment
+	22, // 15: base.v1.AiMessage.created_at:type_name -> google.protobuf.Timestamp
+	0,  // 16: base.v1.AiMessage.status:type_name -> base.v1.AiMessageStatus
+	17, // 17: base.v1.AiMessage.token:type_name -> base.v1.AiToken
+	23, // 18: base.v1.AiMessage.tools:type_name -> base.v1.AiToolCall
+	24, // 19: base.v1.AiOutputContent.approval:type_name -> base.v1.AiToolApproval
+	21, // 20: base.v1.SetAiSessionPluginsRequest.plugins:type_name -> base.v1.AiPluginSelection
+	1,  // 21: base.v1.AiSessionService.ListAiMessage:input_type -> base.v1.ListAiMessageRequest
+	3,  // 22: base.v1.AiSessionService.ListAiSession:input_type -> base.v1.ListAiSessionRequest
+	5,  // 23: base.v1.AiSessionService.CreateAiSession:input_type -> base.v1.CreateAiSessionRequest
+	7,  // 24: base.v1.AiSessionService.CreateAiSessionBranch:input_type -> base.v1.CreateAiSessionBranchRequest
+	9,  // 25: base.v1.AiSessionService.UpdateAiSession:input_type -> base.v1.UpdateAiSessionRequest
+	19, // 26: base.v1.AiSessionService.SetAiSessionPlugins:input_type -> base.v1.SetAiSessionPluginsRequest
+	11, // 27: base.v1.AiSessionService.DeleteAiSession:input_type -> base.v1.DeleteAiSessionRequest
+	2,  // 28: base.v1.AiSessionService.ListAiMessage:output_type -> base.v1.ListAiMessageResponse
+	4,  // 29: base.v1.AiSessionService.ListAiSession:output_type -> base.v1.ListAiSessionResponse
+	6,  // 30: base.v1.AiSessionService.CreateAiSession:output_type -> base.v1.CreateAiSessionResponse
+	8,  // 31: base.v1.AiSessionService.CreateAiSessionBranch:output_type -> base.v1.CreateAiSessionBranchResponse
+	10, // 32: base.v1.AiSessionService.UpdateAiSession:output_type -> base.v1.UpdateAiSessionResponse
+	10, // 33: base.v1.AiSessionService.SetAiSessionPlugins:output_type -> base.v1.UpdateAiSessionResponse
+	12, // 34: base.v1.AiSessionService.DeleteAiSession:output_type -> base.v1.DeleteAiSessionResponse
+	28, // [28:35] is the sub-list for method output_type
+	21, // [21:28] is the sub-list for method input_type
+	21, // [21:21] is the sub-list for extension type_name
+	21, // [21:21] is the sub-list for extension extendee
+	0,  // [0:21] is the sub-list for field type_name
 }
 
 func init() { file_base_v1_ai_session_proto_init() }
@@ -1384,13 +1484,14 @@ func file_base_v1_ai_session_proto_init() {
 		return
 	}
 	file_base_v1_ai_tool_proto_init()
+	file_base_v1_ai_plugin_proto_init()
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_base_v1_ai_session_proto_rawDesc), len(file_base_v1_ai_session_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   18,
+			NumMessages:   19,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

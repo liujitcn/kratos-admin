@@ -7850,7 +7850,7 @@ paths:
         post:
             tags:
                 - AiKnowledgeDocService
-            description: ドキュメントファイルをアップロードします（txt/md/docx/pdf；テキスト抽出後に同じ処理へ）。
+            description: 上传ドキュメントファイル（由 Xberg MCP 抽取后切片、向量化并落库）。
             operationId: AiKnowledgeDocService_UploadAiKnowledgeDocFile
             parameters:
                 - name: id
@@ -7872,7 +7872,7 @@ paths:
         post:
             tags:
                 - AiKnowledgeDocService
-            description: プレーンテキストドキュメントをアップロードします（チャンク分割 → ベクトル化 → 保存）。
+            description: 上传纯テキストドキュメント（由 Xberg MCP 抽取后切片、向量化并落库）。
             operationId: AiKnowledgeDocService_UploadAiKnowledgeDocText
             parameters:
                 - name: id
@@ -8656,6 +8656,378 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/base.v1.CurrentPasswordPolicy'
+    /api/v1/base/ai/automation:
+        get:
+            tags:
+                - AiAutomationService
+            description: 本人の自動化スケジュールを取得します。
+            operationId: AiAutomationService_ListAiAutomation
+            parameters:
+                - name: status
+                  in: query
+                  schema:
+                    type: string
+                - name: keyword
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.ListAiAutomationResponse'
+        post:
+            tags:
+                - AiAutomationService
+            description: 本人の自動化スケジュールを作成します。
+            operationId: AiAutomationService_CreateAiAutomation
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/base.v1.CreateAiAutomationRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.AiAutomation'
+    /api/v1/base/ai/automation-preview:
+        post:
+            tags:
+                - AiAutomationService
+            description: 次の3回の実行予定日時をプレビューします。
+            operationId: AiAutomationService_PreviewAiAutomationSchedule
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/base.v1.PreviewAiAutomationScheduleRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.PreviewAiAutomationScheduleResponse'
+    /api/v1/base/ai/automation-run:
+        get:
+            tags:
+                - AiAutomationService
+            description: 検索本人実行記録。
+            operationId: AiAutomationService_ListAiAutomationRun
+            parameters:
+                - name: automation_id
+                  in: query
+                  schema:
+                    type: string
+                - name: limit
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.ListAiAutomationRunResponse'
+    /api/v1/base/ai/automation-run/{id}:
+        get:
+            tags:
+                - AiAutomationService
+            description: 検索本人実行詳細。
+            operationId: AiAutomationService_GetAiAutomationRun
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.AiAutomationRun'
+    /api/v1/base/ai/automation-run/{id}/discussion:
+        post:
+            tags:
+                - AiAutomationService
+            description: 固定された結果から通常の会話を作成します。
+            operationId: AiAutomationService_ContinueAiAutomationRun
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/base.v1.ContinueAiAutomationRunRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.CreateAiSessionResponse'
+    /api/v1/base/ai/automation-run/{id}/stop:
+        post:
+            tags:
+                - AiAutomationService
+            description: 停止今回の実行。
+            operationId: AiAutomationService_StopAiAutomationRun
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/base.v1.StopAiAutomationRunRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.AiAutomationRun'
+    /api/v1/base/ai/automation/{id}:
+        get:
+            tags:
+                - AiAutomationService
+            description: 本人の自動化の詳細を取得します。
+            operationId: AiAutomationService_GetAiAutomation
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.AiAutomation'
+        put:
+            tags:
+                - AiAutomationService
+            description: リビジョンを確認して本人の自動化スケジュールを更新します。
+            operationId: AiAutomationService_UpdateAiAutomation
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/base.v1.UpdateAiAutomationRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.AiAutomation'
+    /api/v1/base/ai/automation/{id}/run:
+        post:
+            tags:
+                - AiAutomationService
+            description: 冪等性を保証して既存のタスクを1回実行します。
+            operationId: AiAutomationService_RunAiAutomation
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/base.v1.RunAiAutomationRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.AiAutomationRun'
+    /api/v1/base/ai/automation/{id}/status:
+        put:
+            tags:
+                - AiAutomationService
+            description: スケジュールを一時停止、再開、またはアーカイブします。
+            operationId: AiAutomationService_SetAiAutomationStatus
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/base.v1.SetAiAutomationStatusRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.AiAutomation'
+    /api/v1/base/ai/file:
+        get:
+            tags:
+                - AiFileService
+            description: ページネーション検索 AI ファイル。
+            operationId: AiFileService_PageAiFile
+            parameters:
+                - name: view
+                  in: query
+                  schema:
+                    enum:
+                        - AI_FILE_VIEW_UNSPECIFIED
+                        - AI_FILE_VIEW_ALL
+                        - AI_FILE_VIEW_UPLOADED
+                        - AI_FILE_VIEW_GENERATED
+                        - AI_FILE_VIEW_TRASHED
+                    type: string
+                    format: enum
+                - name: keyword
+                  in: query
+                  schema:
+                    type: string
+                - name: page_num
+                  in: query
+                  schema:
+                    type: string
+                - name: page_size
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.PageAiFileResponse'
+    /api/v1/base/ai/file/{id}:
+        delete:
+            tags:
+                - AiFileService
+            description: 彻底削除 AI ファイルおよび其オブジェクト。
+            operationId: AiFileService_DeleteAiFile
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/base/ai/file/{id}/name:
+        put:
+            tags:
+                - AiFileService
+            description: 重命名 AI ファイル，只更新メタデータ。
+            operationId: AiFileService_RenameAiFile
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/base.v1.RenameAiFileRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.AiFile'
+    /api/v1/base/ai/file/{id}/restore:
+        put:
+            tags:
+                - AiFileService
+            description: 从回收站復元 AI ファイル。
+            operationId: AiFileService_RestoreAiFile
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/base.v1.RestoreAiFileRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.AiFile'
+    /api/v1/base/ai/file/{id}/trash:
+        put:
+            tags:
+                - AiFileService
+            description: 将 AI ファイル移入回收站。
+            operationId: AiFileService_TrashAiFile
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/base.v1.TrashAiFileRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.AiFile'
     /api/v1/base/ai/knowledge/options:
         get:
             tags:
@@ -8669,6 +9041,385 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/base.v1.ListAiKnowledgeOptionsResponse'
+    /api/v1/base/ai/plugin:
+        get:
+            tags:
+                - AiPluginService
+            description: 現在のユーザーが参照できるプラグインカタログを取得します。
+            operationId: AiPluginService_ListAiPlugin
+            parameters:
+                - name: keyword
+                  in: query
+                  schema:
+                    type: string
+                - name: terminal
+                  in: query
+                  schema:
+                    enum:
+                        - TERMINAL_UNSPECIFIED
+                        - TERMINAL_APP
+                        - TERMINAL_ADMIN
+                    type: string
+                    format: enum
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.ListAiPluginResponse'
+        post:
+            tags:
+                - AiPluginService
+            description: プラグイン定義を作成します。
+            operationId: AiPluginService_CreateAiPlugin
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/base.v1.CreateAiPluginRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.AiPlugin'
+    /api/v1/base/ai/plugin-connection:
+        get:
+            tags:
+                - AiPluginService
+            description: 本人の接続と利用を許可された共有接続を取得します。
+            operationId: AiPluginService_ListAiPluginConnection
+            parameters:
+                - name: plugin_id
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.ListAiPluginConnectionResponse'
+        post:
+            tags:
+                - AiPluginService
+            description: 本人の接続を作成し、ツール検出を検証します。
+            operationId: AiPluginService_CreateAiPluginConnection
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/base.v1.CreateAiPluginConnectionRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.AiPluginConnection'
+    /api/v1/base/ai/plugin-connection/{id}:
+        delete:
+            tags:
+                - AiPluginService
+            description: 本人の接続を取り消し、以前の許可を直ちに無効化します。
+            operationId: AiPluginService_DisconnectAiPluginConnection
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: revision
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.AiPluginConnection'
+    /api/v1/base/ai/plugin-connection/{id}/authorization:
+        post:
+            tags:
+                - AiPluginService
+            description: 开始账号認可。
+            operationId: AiPluginService_StartAiPluginOAuth
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/base.v1.StartAiPluginOAuthRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.StartAiPluginOAuthResponse'
+    /api/v1/base/ai/plugin-connection/{id}/credential:
+        put:
+            tags:
+                - AiPluginService
+            description: 既存アカウントのAPIトークンを再設定して再確認します。以前の許可は直ちに無効になります。
+            operationId: AiPluginService_ReauthorizeAiPluginConnection
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/base.v1.ReauthorizeAiPluginConnectionRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.AiPluginConnection'
+    /api/v1/base/ai/plugin-connection/{id}/refresh:
+        post:
+            tags:
+                - AiPluginService
+            description: 接続を確認し、ツール一覧を完全に更新します。
+            operationId: AiPluginService_RefreshAiPluginConnection
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/base.v1.RefreshAiPluginConnectionRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.AiPluginConnection'
+    /api/v1/base/ai/plugin-connection/{id}/sharing:
+        put:
+            tags:
+                - AiPluginService
+            description: 管理者が本人のアカウントのテナント共有を明示的に許可または取り消します。
+            operationId: AiPluginService_SetAiPluginConnectionSharing
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/base.v1.SetAiPluginConnectionSharingRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.AiPluginConnection'
+    /api/v1/base/ai/plugin-oauth/callback:
+        get:
+            tags:
+                - AiPluginService
+            description: 認可状態を一度だけ使用し、トークンを交換します。
+            operationId: AiPluginService_CompleteAiPluginOAuth
+            parameters:
+                - name: state
+                  in: query
+                  schema:
+                    type: string
+                - name: code
+                  in: query
+                  schema:
+                    type: string
+                - name: error
+                  in: query
+                  schema:
+                    type: string
+                - name: iss
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.AiPluginConnection'
+    /api/v1/base/ai/plugin/{id}:
+        get:
+            tags:
+                - AiPluginService
+            description: プラグインの詳細を取得します。
+            operationId: AiPluginService_GetAiPlugin
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.AiPlugin'
+        put:
+            tags:
+                - AiPluginService
+            description: プラグイン定義を更新し、リビジョンを増やします。
+            operationId: AiPluginService_UpdateAiPlugin
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/base.v1.UpdateAiPluginRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.AiPlugin'
+        delete:
+            tags:
+                - AiPluginService
+            description: 有効な参照のないプラグイン定義を削除します。
+            operationId: AiPluginService_DeleteAiPlugin
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: revision
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/base/ai/plugin/{plugin_id}/installation:
+        put:
+            tags:
+                - AiPluginService
+            description: 現在のテナントのインストール設定とクライアントポリシーを設定します。
+            operationId: AiPluginService_SetAiPluginInstallation
+            parameters:
+                - name: plugin_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/base.v1.SetAiPluginInstallationRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.AiPluginInstallation'
+    /api/v1/base/ai/plugin/{plugin_id}/tool:
+        get:
+            tags:
+                - AiPluginService
+            description: ツール検出のスナップショットと審査状態を取得します。
+            operationId: AiPluginService_ListAiPluginTool
+            parameters:
+                - name: plugin_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: terminal
+                  in: query
+                  schema:
+                    enum:
+                        - TERMINAL_UNSPECIFIED
+                        - TERMINAL_APP
+                        - TERMINAL_ADMIN
+                    type: string
+                    format: enum
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.ListAiPluginToolResponse'
+    /api/v1/base/ai/plugin/{plugin_id}/tool/{tool_id}/policy:
+        put:
+            tags:
+                - AiPluginService
+            description: ツール仕様を審査し、テナントポリシーを設定します。
+            operationId: AiPluginService_SetAiPluginToolPolicy
+            parameters:
+                - name: plugin_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: tool_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/base.v1.SetAiPluginToolPolicyRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.AiPluginTool'
     /api/v1/base/ai/provider-models:
         get:
             tags:
@@ -8682,25 +9433,6 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/base.v1.ListAiProviderModelOptionsResponse'
-    /api/v1/base/ai/report:
-        post:
-            tags:
-                - AiReportService
-            description: 現在の会話のデータと分析を Markdown にまとめ、ダウンロード可能な HTML と PDF レポートを生成します。ユーザーがレポートを要求した場合のみ呼び出してください。実際のファイル URL を使ってダウンロードリンクを提示し、データや URL を捏造しないでください。
-            operationId: AiReportService_GenerateAiReport
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/base.v1.GenerateAiReportRequest'
-                required: true
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/base.v1.GenerateAiReportResponse'
     /api/v1/base/ai/search:
         post:
             tags:
@@ -8726,16 +9458,6 @@ paths:
                 - AiSessionService
             description: 検索 AI アシスタントセッション一覧
             operationId: AiSessionService_ListAiSession
-            parameters:
-                - name: terminal
-                  in: query
-                  schema:
-                    enum:
-                        - TERMINAL_UNSPECIFIED
-                        - TERMINAL_APP
-                        - TERMINAL_ADMIN
-                    type: string
-                    format: enum
             responses:
                 "200":
                     description: OK
@@ -8804,6 +9526,31 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/base.v1.DeleteAiSessionResponse'
+    /api/v1/base/ai/session/{id}/plugins:
+        put:
+            tags:
+                - AiSessionService
+            description: 本人の会話で選択したプラグインを保存します。ツールは直ちに実行しません。
+            operationId: AiSessionService_SetAiSessionPlugins
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/base.v1.SetAiSessionPluginsRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.UpdateAiSessionResponse'
     /api/v1/base/ai/session/{session_id}/message:
         get:
             tags:
@@ -9996,6 +10743,195 @@ components:
                     type: string
                     description: 添付ファイル MIME 種類
             description: AI アシスタント添付ファイル
+        base.v1.AiAutomation:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: タスク ID
+                configuration:
+                    $ref: '#/components/schemas/base.v1.AiAutomationForm'
+                status:
+                    type: string
+                    description: active paused archived
+                revision:
+                    type: string
+                    description: 設定バージョン
+                next_fire_at:
+                    type: string
+                    description: 次回の実行日時（UTC）
+                    format: date-time
+                active_run_id:
+                    type: string
+                    description: 現在実行中の処理
+                last_run:
+                    $ref: '#/components/schemas/base.v1.AiAutomationRun'
+                problem:
+                    type: string
+                    description: 対応が必要な依存関係の問題
+                created_at:
+                    type: string
+                    description: 作成時刻
+                    format: date-time
+                updated_at:
+                    type: string
+                    description: 更新時刻
+                    format: date-time
+            description: 本人の自動化スケジュール。
+        base.v1.AiAutomationForm:
+            type: object
+            properties:
+                name:
+                    type: string
+                    description: 名前
+                prompt:
+                    type: string
+                    description: 明確なタスクの指示
+                schedule:
+                    $ref: '#/components/schemas/base.v1.AiAutomationSchedule'
+                provider_id:
+                    type: string
+                    description: 固定モデルのプロバイダー
+                model_name:
+                    type: string
+                    description: 固定モデル名
+                knowledge_base_ids:
+                    type: array
+                    items:
+                        type: string
+                    description: ナレッジベースの参照
+                plugins:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/base.v1.AiPluginSelection'
+                    description: 選択したプラグインと確定したアカウント
+            description: ユーザーが確認して保存した自動化設定。
+        base.v1.AiAutomationRun:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 実行ID
+                automation_id:
+                    type: string
+                    description: タスク ID
+                revision:
+                    type: string
+                    description: 固定された設定のバージョン
+                configuration:
+                    $ref: '#/components/schemas/base.v1.AiAutomationForm'
+                terminal:
+                    type: string
+                    description: 実行端末
+                trigger:
+                    type: string
+                    description: scheduled manual
+                scheduled_for:
+                    type: string
+                    description: スケジュールの実行枠
+                    format: date-time
+                status:
+                    type: string
+                    description: 実行ステータス
+                session_id:
+                    type: string
+                    description: 独立した結果の会話
+                summary:
+                    type: string
+                    description: 安全に表示できる結果の概要
+                error_code:
+                    type: string
+                    description: エラーの理由
+                result_unknown:
+                    type: boolean
+                    description: ツール呼び出しの結果が不明かどうか
+                session_deleted:
+                    type: boolean
+                    description: 結果の会話が削除済みかどうか
+                cancel_requested:
+                    type: boolean
+                    description: 停止が要求されているかどうか
+                started_at:
+                    type: string
+                    description: 开始時刻
+                    format: date-time
+                finished_at:
+                    type: string
+                    description: 完成時刻
+                    format: date-time
+                created_at:
+                    type: string
+                    description: 記録時刻
+                    format: date-time
+            description: 固定された設定に基づく実行記録。
+        base.v1.AiAutomationSchedule:
+            type: object
+            properties:
+                frequency:
+                    type: string
+                    description: daily weekdays weekly once
+                weekdays:
+                    type: array
+                    items:
+                        type: integer
+                        format: int32
+                    description: 毎週の実行曜日。1は月曜日、7は日曜日
+                time:
+                    type: string
+                    description: ローカル時刻。形式はHH:mm
+                once_at:
+                    type: string
+                    description: 一度限りのローカル実行日時。形式はYYYY-MM-DDTHH:mm
+                timezone:
+                    type: string
+                    description: IANAタイムゾーン
+            description: 構造化されたローカル時刻のスケジュール。
+        base.v1.AiFile:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: ファイル ID
+                tenant_id:
+                    type: string
+                    description: テナント ID
+                source_type:
+                    type: string
+                    description: ソース：upload、generated
+                status:
+                    type: string
+                    description: ステータス：active、trashed
+                file_name:
+                    type: string
+                    description: 元のファイル名
+                extension:
+                    type: string
+                    description: ファイル拡張子
+                mime_type:
+                    type: string
+                    description: ファイルMIME種類
+                size:
+                    type: string
+                    description: "ファイルサイズ，単位: バイト"
+                link_url:
+                    type: string
+                    description: ファイルアクセスアドレス
+                content_hash:
+                    type: string
+                    description: ファイル内容SHA-256ハッシュ
+                access_mode:
+                    type: integer
+                    description: ファイルアクセス方式：1 公開、2 アクセストークン必須
+                    format: int32
+                created_at:
+                    type: string
+                    description: 作成時刻
+                    format: date-time
+                updated_at:
+                    type: string
+                    description: 更新時刻
+                    format: date-time
+            description: AI ファイルメタデータ。
         base.v1.AiInputContent:
             type: object
             properties:
@@ -10101,6 +11037,204 @@ components:
                 approval:
                     $ref: '#/components/schemas/base.v1.AiToolApproval'
             description: AI アシスタント出力内容
+        base.v1.AiPlugin:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: プラグインID
+                code:
+                    type: string
+                    description: 固定コード
+                name:
+                    type: string
+                    description: 名前
+                description:
+                    type: string
+                    description: 説明
+                source:
+                    type: string
+                    description: ソース：API、LOCAL、MCP
+                visibility:
+                    type: string
+                    description: "スコープ: システム、テナント、プライベート"
+                tenant_id:
+                    type: string
+                    description: 所属テナントID
+                owner_user_id:
+                    type: string
+                    description: 所属ユーザーID
+                enabled:
+                    type: boolean
+                    description: カタログ項目が有効かどうか
+                endpoint:
+                    type: string
+                    description: MCP HTTPSアドレス
+                revision:
+                    type: string
+                    description: 設定のリビジョン番号
+                assembled:
+                    type: boolean
+                    description: ローカルコンポーネントが組み込み済みかどうか
+                installation:
+                    $ref: '#/components/schemas/base.v1.AiPluginInstallation'
+                unavailable_reason:
+                    type: string
+                    description: 利用できない理由
+                can_manage:
+                    type: boolean
+                    description: 現在のユーザーがこの定義を編集できるかどうか。インストールとツール審査の権限は個別に判定します
+                config_json:
+                    type: string
+                    description: プラットフォーム管理者が編集できる公開接続設定。資格情報は含みません
+            description: プラグイン定義と現在のテナントのインストール状態。
+        base.v1.AiPluginConnection:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 接続ID
+                plugin_id:
+                    type: string
+                    description: プラグインID
+                label:
+                    type: string
+                    description: 账号ラベル
+                auth_type:
+                    type: string
+                    description: 認証方式：none、token、oauth
+                state:
+                    type: string
+                    description: 接続状態
+                sharing:
+                    type: string
+                    description: 共有範囲：privateまたはtenant
+                scopes:
+                    type: string
+                    description: 実際の認可范围
+                expires_at:
+                    type: string
+                    description: 認可の有効期限（Unix秒）
+                revision:
+                    type: string
+                    description: 設定のリビジョン番号
+                last_error:
+                    type: string
+                    description: 表示可能な接続の問題
+                can_manage:
+                    type: boolean
+                    description: 現在のユーザーが接続を管理できるかどうか
+                owner_user_id:
+                    type: string
+                    description: 接続所有者のユーザーID
+            description: アカウント接続の公開情報。資格情報と更新トークンは返しません。
+        base.v1.AiPluginForm:
+            type: object
+            properties:
+                code:
+                    type: string
+                    description: 固定コード
+                name:
+                    type: string
+                    description: 名前
+                description:
+                    type: string
+                    description: 説明
+                source:
+                    type: string
+                    description: ソース
+                visibility:
+                    type: string
+                    description: 公開範囲
+                enabled:
+                    type: boolean
+                    description: 公開ステータス
+                endpoint:
+                    type: string
+                    description: MCP HTTPSアドレス
+                config_json:
+                    type: string
+                    description: プラットフォーム承認済みのネットワークおよびOAuth公開設定JSON
+            description: プラグイン定義のフォーム。エンドポイントポリシーはプラットフォーム管理者のみ変更できます。
+        base.v1.AiPluginInstallation:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: インストールID
+                plugin_id:
+                    type: string
+                    description: プラグインID
+                enabled:
+                    type: boolean
+                    description: 〜かどうか有効
+                terminals:
+                    type: array
+                    items:
+                        type: string
+                    description: 許可するクライアント
+                revision:
+                    type: string
+                    description: ポリシーのリビジョン番号
+            description: テナントのプラグインインストールポリシー。
+        base.v1.AiPluginSelection:
+            type: object
+            properties:
+                plugin_id:
+                    type: string
+                    description: プラグインID
+                connection_id:
+                    type: string
+                    description: 接続ID。ローカルコンポーネントでは空
+            description: 今回の処理で選択したプラグインと確定した接続。
+        base.v1.AiPluginTool:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: ツールID
+                plugin_id:
+                    type: string
+                    description: プラグインID
+                connection_id:
+                    type: string
+                    description: 検出元の接続ID。ローカルツールでは空
+                source_name:
+                    type: string
+                    description: 元のツール名
+                description:
+                    type: string
+                    description: 工具説明
+                input_schema:
+                    type: string
+                    description: パラメータJSON Schema
+                contract_hash:
+                    type: string
+                    description: 仕様のハッシュ
+                state:
+                    type: string
+                    description: discovered、removed
+                allowed:
+                    type: boolean
+                    description: 現在のテナントが許可しているかどうか
+                effect:
+                    type: string
+                    description: 審査済みの操作区分：read、write、unknown
+                revision:
+                    type: string
+                    description: ポリシーのリビジョン番号
+                prompts:
+                    type: array
+                    items:
+                        type: string
+                    description: 業務プロンプトの上書き
+                effective_enabled:
+                    type: boolean
+                    description: 現在のユーザーとクライアントで実行できるかどうか
+                unavailable_reason:
+                    type: string
+                    description: 利用できない理由
+            description: ツールのスナップショットと現在のテナントの審査ポリシー。
         base.v1.AiProviderModel:
             type: object
             properties:
@@ -10135,24 +11269,38 @@ components:
                 tenant_id:
                     type: string
                     description: テナント ID
-                title:
-                    type: string
-                    description: セッションタイトル
-                summary:
-                    type: string
-                    description: セッション概要
-                updated_at:
-                    type: string
-                    description: 更新時刻
-                    format: date-time
                 terminal:
                     enum:
                         - TERMINAL_UNSPECIFIED
                         - TERMINAL_APP
                         - TERMINAL_ADMIN
                     type: string
-                    description: 端末種類：enum【Terminal】
+                    description: 端末種類
                     format: enum
+                title:
+                    type: string
+                    description: セッションタイトル
+                summary:
+                    type: string
+                    description: セッション概要
+                plugins:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/base.v1.AiPluginSelection'
+                    description: 選択したプラグインと接続
+                automation_id:
+                    type: string
+                    description: 元の自動化ID
+                automation_run_id:
+                    type: string
+                    description: ソース実行ID
+                read_only:
+                    type: boolean
+                    description: 固定された結果の会話
+                updated_at:
+                    type: string
+                    description: 更新時刻
+                    format: date-time
             description: AI アシスタントセッション
         base.v1.AiShortcut:
             type: object
@@ -10433,6 +11581,40 @@ components:
                         type: string
                     description: ワンタイムリカバリーコード，仅今回の返却
             description: 确认バインド多要素認証レスポンス。
+        base.v1.ContinueAiAutomationRunRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 番号
+            description: 結果から会話を続けるリクエスト。
+        base.v1.CreateAiAutomationRequest:
+            type: object
+            properties:
+                automation:
+                    $ref: '#/components/schemas/base.v1.AiAutomationForm'
+            description: スケジュールの作成リクエスト。
+        base.v1.CreateAiPluginConnectionRequest:
+            type: object
+            properties:
+                plugin_id:
+                    type: string
+                    description: プラグインID
+                label:
+                    type: string
+                    description: 账号ラベル
+                auth_type:
+                    type: string
+                    description: 認証方式
+                token:
+                    $ref: '#/components/schemas/common.v1.SecretCrypto'
+            description: 本人の接続を作成するリクエスト。
+        base.v1.CreateAiPluginRequest:
+            type: object
+            properties:
+                form:
+                    $ref: '#/components/schemas/base.v1.AiPluginForm'
+            description: プラグインの作成リクエスト。
         base.v1.CreateAiSessionBranchRequest:
             type: object
             properties:
@@ -10479,6 +11661,11 @@ components:
                     type: string
                     description: 端末種類：enum【Terminal】
                     format: enum
+                plugins:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/base.v1.AiPluginSelection'
+                    description: 選択したプラグイン。未指定時はシステムツールを使用
             description: AI アシスタントセッション作成リクエスト
         base.v1.CreateAiSessionResponse:
             type: object
@@ -10707,24 +11894,6 @@ components:
                     type: string
                     description: ファイル拡張子
             description: File 情報
-        base.v1.GenerateAiReportRequest:
-            type: object
-            properties:
-                title:
-                    type: string
-                    description: ファイル拡張子を含まないレポートタイトル
-                content:
-                    type: string
-                    description: 現在の会話に基づく完全な Markdown 本文。見出し、分析、提案、データ表を含められます。HTML、スクリプト、捏造した事実を含めないでください。
-            description: AI アシスタントのレポート生成リクエスト。
-        base.v1.GenerateAiReportResponse:
-            type: object
-            properties:
-                html:
-                    $ref: '#/components/schemas/base.v1.FileInfo'
-                pdf:
-                    $ref: '#/components/schemas/base.v1.FileInfo'
-            description: AI アシスタントのレポート生成結果。
         base.v1.GetConfigResponse:
             type: object
             properties:
@@ -10831,6 +12000,28 @@ components:
                     type: string
                     description: ローカル言語名
             description: 言語オプション。
+        base.v1.ListAiAutomationResponse:
+            type: object
+            properties:
+                automations:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/base.v1.AiAutomation'
+                    description: 本人タスク
+                pending_count:
+                    type: integer
+                    description: 本人の承認待ち実行数
+                    format: int32
+            description: 自動化の一覧。
+        base.v1.ListAiAutomationRunResponse:
+            type: object
+            properties:
+                runs:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/base.v1.AiAutomationRun'
+                    description: 本人実行記録
+            description: 実行一覧。
         base.v1.ListAiKnowledgeOptionsResponse:
             type: object
             properties:
@@ -10849,6 +12040,42 @@ components:
                         $ref: '#/components/schemas/base.v1.AiMessage'
                     description: メッセージ一覧
             description: AI アシスタントメッセージ一覧レスポンス
+        base.v1.ListAiPluginConnectionResponse:
+            type: object
+            properties:
+                connections:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/base.v1.AiPluginConnection'
+                    description: 接続一覧
+            description: 現在のユーザーの接続一覧。
+        base.v1.ListAiPluginResponse:
+            type: object
+            properties:
+                plugins:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/base.v1.AiPlugin'
+                    description: 参照可能なプラグイン一覧
+                can_manage_tools:
+                    type: boolean
+                    description: 現在のユーザーがこのテナントのツールポリシーを管理できるかどうか
+                can_manage_catalog:
+                    type: boolean
+                    description: 現在のユーザーが認可範囲内のカタログを管理できるかどうか
+                can_create_private:
+                    type: boolean
+                    description: このテナントが承認済みの個人接続先を許可するかどうか
+            description: プラグインカタログの取得結果。
+        base.v1.ListAiPluginToolResponse:
+            type: object
+            properties:
+                tools:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/base.v1.AiPluginTool'
+                    description: ツールのスナップショット一覧
+            description: プラグインツールの取得結果。
         base.v1.ListAiProviderModelOptionsResponse:
             type: object
             properties:
@@ -11241,6 +12468,18 @@ components:
                         $ref: '#/components/schemas/base.v1.LanguageItem'
                     description: 現在の支持の言語一覧
             description: 現在の支持の言語オプション検索結果。
+        base.v1.PageAiFileResponse:
+            type: object
+            properties:
+                files:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/base.v1.AiFile'
+                    description: AI ファイル一覧
+                total:
+                    type: string
+                    description: 合計件数
+            description: AI ファイルページネーションレスポンス。
         base.v1.PageNotificationResponse:
             type: object
             properties:
@@ -11260,6 +12499,37 @@ components:
                     type: boolean
                     description: 次のページがあるかどうか
             description: 現在のユーザー收件箱ページネーションレスポンス。
+        base.v1.PreviewAiAutomationScheduleRequest:
+            type: object
+            properties:
+                schedule:
+                    $ref: '#/components/schemas/base.v1.AiAutomationSchedule'
+            description: スケジュールのプレビューリクエスト。
+        base.v1.PreviewAiAutomationScheduleResponse:
+            type: object
+            properties:
+                times:
+                    type: array
+                    items:
+                        type: string
+                        format: date-time
+                    description: 今後最大3回の実行日時（UTC）
+                timezone:
+                    type: string
+                    description: 表示用タイムゾーン
+            description: 共通の時刻算出処理によるプレビュー結果。
+        base.v1.ReauthorizeAiPluginConnectionRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 接続ID
+                revision:
+                    type: string
+                    description: 現在の設定リビジョン
+                token:
+                    $ref: '#/components/schemas/common.v1.SecretCrypto'
+            description: 既存アカウントのAPIトークンを再設定します。
         base.v1.RecoveryCodesResponse:
             type: object
             properties:
@@ -11269,6 +12539,16 @@ components:
                         type: string
                     description: ワンタイムリカバリーコード，仅今回の返却
             description: リカバリーコードレスポンス。
+        base.v1.RefreshAiPluginConnectionRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 接続ID
+                revision:
+                    type: string
+                    description: 現在のリビジョン番号
+            description: 接続の確認と更新のリクエスト。
         base.v1.RefreshTokenRequest:
             type: object
             properties:
@@ -11310,6 +12590,23 @@ components:
                     type: string
                     description: TOTP ワンタイムパスワード
             description: 再生成リカバリーコードリクエスト。
+        base.v1.RenameAiFileRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: ファイル ID
+                file_name:
+                    type: string
+                    description: 新しいのファイル名
+            description: AI ファイル重命名リクエスト。
+        base.v1.RestoreAiFileRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: ファイル ID
+            description: AI ファイル復元リクエスト。
         base.v1.RestoreNotificationRequest:
             type: object
             properties:
@@ -11347,6 +12644,19 @@ components:
                     type: string
                     description: キー明文
             description: キーフィールド查看レスポンス
+        base.v1.RunAiAutomationRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: タスク ID
+                revision:
+                    type: string
+                    description: 現在の設定バージョン
+                request_key:
+                    type: string
+                    description: 今回の操作の冪等キー
+            description: 冪等性を保証して1回実行します。
         base.v1.SearchAiWebItem:
             type: object
             properties:
@@ -11419,6 +12729,132 @@ components:
                 session:
                     $ref: '#/components/schemas/base.v1.AiSession'
             description: AI アシスタントメッセージ送信レスポンス
+        base.v1.SetAiAutomationStatusRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: タスク ID
+                revision:
+                    type: string
+                    description: 現在の設定バージョン
+                status:
+                    type: string
+                    description: 対象ステータス
+            description: スケジュールの状態を設定します。
+        base.v1.SetAiPluginConnectionSharingRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 接続ID
+                revision:
+                    type: string
+                    description: 現在の設定リビジョン
+                sharing:
+                    type: string
+                    description: 共有範囲：privateまたはtenant
+            description: 本人のアカウントのテナント共有ポリシーを設定するリクエスト。
+        base.v1.SetAiPluginInstallationRequest:
+            type: object
+            properties:
+                plugin_id:
+                    type: string
+                    description: プラグインID
+                enabled:
+                    type: boolean
+                    description: 〜かどうか有効
+                terminals:
+                    type: array
+                    items:
+                        type: string
+                    description: 許可するクライアント
+                revision:
+                    type: string
+                    description: 現在のリビジョン番号。初回は0
+            description: 現在のテナントのインストールポリシーを設定するリクエスト。
+        base.v1.SetAiPluginToolPolicyRequest:
+            type: object
+            properties:
+                plugin_id:
+                    type: string
+                    description: プラグインID
+                tool_id:
+                    type: string
+                    description: ツールID
+                contract_hash:
+                    type: string
+                    description: 審査対象の仕様ハッシュ
+                allowed:
+                    type: boolean
+                    description: 許可されているかどうか
+                effect:
+                    type: string
+                    description: 審査済みの操作区分
+                revision:
+                    type: string
+                    description: 現在のポリシーリビジョン。初回は0
+                prompts:
+                    type: array
+                    items:
+                        type: string
+                    description: 業務プロンプトの上書き
+            description: テナントのツール仕様の審査リクエスト。
+        base.v1.SetAiSessionPluginsRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: セッション ID
+                plugins:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/base.v1.AiPluginSelection'
+                    description: 選択したプラグイン。空の一覧で選択を解除
+            description: 本人の会話のプラグイン選択を保存するリクエスト。
+        base.v1.StartAiPluginOAuthRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 接続ID
+                revision:
+                    type: string
+                    description: 現在のリビジョン番号
+            description: 接続の認可を開始するリクエスト。
+        base.v1.StartAiPluginOAuthResponse:
+            type: object
+            properties:
+                authorization_url:
+                    type: string
+                    description: 認可ページアドレス
+            description: 実際の認可ページのURL。
+        base.v1.StopAiAutomationRunRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 番号
+            description: 停止今回のリクエスト。
+        base.v1.TrashAiFileRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: ファイル ID
+            description: AI ファイル移入回收站リクエスト。
+        base.v1.UpdateAiAutomationRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: タスク ID
+                revision:
+                    type: string
+                    description: 現在の設定バージョン
+                automation:
+                    $ref: '#/components/schemas/base.v1.AiAutomationForm'
+            description: リビジョンを確認してスケジュールを更新します。
         base.v1.UpdateAiMessageRequest:
             type: object
             properties:
@@ -11432,6 +12868,18 @@ components:
                     type: string
                     description: 更新后のメッセージ内容
             description: AI アシスタントメッセージ更新リクエスト
+        base.v1.UpdateAiPluginRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: プラグインID
+                revision:
+                    type: string
+                    description: 現在の設定リビジョン
+                form:
+                    $ref: '#/components/schemas/base.v1.AiPluginForm'
+            description: プラグインの更新リクエスト。
         base.v1.UpdateAiSessionRequest:
             type: object
             properties:
@@ -12632,6 +14080,9 @@ components:
                 error_message:
                     type: string
                     description: 失敗原因
+                extractor_connection_id:
+                    type: string
+                    description: Xberg MCP が接続 ID を抽出します
                 created_at:
                     type: string
                     description: 作成時刻
@@ -12749,7 +14200,7 @@ components:
                     description: ナレッジベース ID
                 file_name:
                     type: string
-                    description: 元のファイル名（拡張子で抽出器を決定）
+                    description: 元のファイル名（供Xberg MCP识别ファイル形式）
                 content_base64:
                     type: string
                     description: ファイル内容（10MB以下）
@@ -12757,6 +14208,9 @@ components:
                 doc_name:
                     type: string
                     description: ドキュメント表示名。未指定の場合はファイル名から拡張子を除いた名前
+                extractor_connection_id:
+                    type: string
+                    description: 已连接のXberg MCP连接ID
             description: ドキュメントファイルアップロードリクエスト。
         rag.admin.v1.UploadAiKnowledgeDocTextRequest:
             type: object
@@ -12770,6 +14224,9 @@ components:
                 content:
                     type: string
                     description: ドキュメントのテキスト内容
+                extractor_connection_id:
+                    type: string
+                    description: 已连接のXberg MCP连接ID
             description: プレーンテキストドキュメントアップロードリクエスト。
         system.admin.v1.AiProvider:
             type: object
@@ -20866,6 +22323,10 @@ components:
 tags:
     - name: AccountService
       description: Baseアカウントセキュリティサービス。
+    - name: AiAutomationService
+      description: AIアシスタントの本人用自動化スケジュール、実行記録、結果のサービス。
+    - name: AiFileService
+      description: AI アシスタントファイルサービス，只管理現在のテナントの AI 上传和生成ファイル。
     - name: AiKnowledgeChunkService
       description: AIナレッジベースチャンク検索サービス。
     - name: AiKnowledgeDocService
@@ -20878,10 +22339,10 @@ tags:
       description: Base AI アシスタントメッセージサービス
     - name: AiModelService
       description: AI Provider モデル選択サービス。
+    - name: AiPluginService
+      description: AIプラグインのカタログ、インストールポリシー、本人のアカウント接続サービス。管理用の書き込み操作はモデルに公開しません。
     - name: AiProviderService
       description: AIプロバイダー管理サービス。
-    - name: AiReportService
-      description: AI アシスタントのレポートサービス。
     - name: AiSearchService
       description: Base AI アシスタントWeb検索サービス
     - name: AiSessionService
@@ -20915,9 +22376,9 @@ tags:
     - name: BaseDictItemService
       description: Admin辞書項目サービス
     - name: BaseDictService
-      description: App辞書サービス
-    - name: BaseDictService
       description: Admin辞書サービス
+    - name: BaseDictService
+      description: App辞書サービス
     - name: BaseFileService
       description: Adminファイル資産管理サービス。
     - name: BaseI18nCustomService
@@ -20937,9 +22398,9 @@ tags:
     - name: BaseLoginPolicyService
       description: Adminログインポリシー管理サービス。
     - name: BaseMenuService
-      description: Appメニューサービス
-    - name: BaseMenuService
       description: Adminメニュー管理サービス
+    - name: BaseMenuService
+      description: Appメニューサービス
     - name: BaseMessageCategoryService
       description: Adminメッセージカテゴリ管理サービス。
     - name: BaseMessageProviderService
@@ -21035,9 +22496,9 @@ tags:
     - name: NotificationService
       description: Base通知サービス。現在のユーザーの受信トレイを提供します。
     - name: OauthClientService
-      description: Base OAuthクライアントトークンサービス。
-    - name: OauthClientService
       description: Admin OAuthクライアント管理サービス。
+    - name: OauthClientService
+      description: Base OAuthクライアントトークンサービス。
     - name: OauthService
       description: Baseサードパーティーログイン共通サービス
     - name: OpsMonitoringService

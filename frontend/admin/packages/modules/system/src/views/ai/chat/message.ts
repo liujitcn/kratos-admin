@@ -48,7 +48,11 @@ export function normalizeSession(session?: Partial<AiSession> | null): AiSession
     title: resolveSessionText(session?.title, true),
     summary: resolveSessionText(session?.summary, false),
     updated_at: session?.updated_at,
-    terminal: Number(session?.terminal ?? Terminal.TERMINAL_ADMIN)
+    terminal: Number(session?.terminal ?? Terminal.TERMINAL_ADMIN),
+    plugins: session?.plugins ?? [],
+    automation_id: session?.automation_id ?? "",
+    automation_run_id: session?.automation_run_id ?? "",
+    read_only: session?.read_only ?? false
   };
 }
 

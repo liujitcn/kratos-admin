@@ -23,7 +23,6 @@ import type {
 import type { Empty } from '../../../rpc/google/protobuf/empty'
 
 const OAUTH_PROVIDER_URL = '/v1/base/oauth/provider'
-const OAUTH_AUTHORIZATION_URL = '/v1/base/oauth/authorization'
 const OAUTH_CALLBACK_URL = '/v1/base/oauth'
 const OAUTH_TICKET_URL = '/v1/base/oauth/ticket'
 const OAUTH_SESSION_URL = '/v1/base/oauth/session'
@@ -43,12 +42,12 @@ export class OauthServiceImpl implements OauthService {
     })
   }
 
-  /** 创建三方登录授权地址 */
+  /** 创建两端共用的三方登录授权地址。 */
   CreateOauthAuthorization(
     request: CreateOauthAuthorizationRequest,
   ): Promise<CreateOauthAuthorizationResponse> {
     return http<CreateOauthAuthorizationResponse>({
-      url: `${OAUTH_AUTHORIZATION_URL}`,
+      url: '/v1/base/oauth/authorization',
       method: 'POST',
       authMode: 'none',
       data: request,

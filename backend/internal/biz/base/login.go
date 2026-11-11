@@ -15,10 +15,9 @@ import (
 
 	"github.com/go-kratos/kratos/v3/transport"
 	"github.com/go-kratos/kratos/v3/transport/http"
+	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-core/biz"
 	"github.com/liujitcn/kratos-core/errorsx"
-
-	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 
 	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
 	_const "github.com/liujitcn/kratos-core/const"
@@ -468,7 +467,7 @@ func (c *LoginCase) FindUserByPassword(ctx context.Context, tenantCode string, u
 	return user, nil
 }
 
-// IssueUserToken 校验用户关联状态并签发后台访问令牌。
+// IssueUserToken 校验账号关联状态，并按统一并发登录策略签发会话令牌。
 func (c *LoginCase) IssueUserToken(ctx context.Context, user *models.BaseUser) (response *basev1.LoginResponse, err error) {
 	var lease locker.Lease
 	lease, err = c.loginLocker.Acquire(ctx, fmt.Sprintf("shared:auth:login:lock:%d", user.ID), 5*time.Minute)

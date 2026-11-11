@@ -633,9 +633,13 @@ const finishLogin = async (mustChangePassword = false) => {
   tabsStore.setTabs([]);
   keepAliveStore.setKeepAliveName([]);
 
-  // 5.无论是否需要改密，都回到登录前页面；强制改密状态由布局中的全局弹窗展示。
-  // 统一走动态路由感知跳转，避免首次登录后目标页面尚未完成挂载时直接进入 404。
-  await navigateTo(router, getLoginRedirectPath());
+  // 5.强制改密时只进入允许的密码页，避免目标业务页同时发出被策略拦截的请求。
+  // 普通登录继续回到登录前页面，统一走动态路由感知跳转。
+  if (mustChangePassword) {
+    await navigateTo(router, "/profile", { tab: "password" });
+  } else {
+    await navigateTo(router, getLoginRedirectPath());
+  }
   ElNotification({
     title: getTimeState(),
     message: t("core.login.welcome"),
@@ -670,10 +674,12 @@ const handleLoginResponse = async (result: LoginResponse) => {
     clearPasswordChangeRequired();
   }
   userStore.updateTokenAuth(result.access_token, result.token_type ?? "", result.expires_in);
-  try {
-    await configStore.loadI18nCustom();
-  } catch {
-    configStore.resetI18nCustom();
+  if (!mustChangePassword) {
+    try {
+      await configStore.loadI18nCustom();
+    } catch {
+      configStore.resetI18nCustom();
+    }
   }
   await finishLogin(mustChangePassword);
 };

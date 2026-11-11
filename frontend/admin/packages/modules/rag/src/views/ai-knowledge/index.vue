@@ -45,16 +45,31 @@
         </div>
 
         <div class="rag-knowledge-docs__actions">
-          <el-button type="primary" plain :icon="Upload" :loading="uploading" @click="selectDocFile">
+          <el-select
+            v-model="selectedExtractorConnectionId"
+            class="rag-knowledge-docs__extractor"
+            clearable
+            :loading="loadingExtractors"
+            :placeholder="t('rag.knowledge.doc.extractor.placeholder')"
+            :disabled="loadingExtractors || !xbergConnections.length"
+          >
+            <el-option
+              v-for="connection in xbergConnections"
+              :key="connection.id"
+              :label="connection.label"
+              :value="Number(connection.id)"
+            />
+          </el-select>
+          <el-button type="primary" plain :icon="Upload" :loading="uploading" :disabled="uploading || !selectedExtractorConnectionId" @click="selectDocFile">
             {{ t("rag.knowledge.doc.action.upload_file") }}
           </el-button>
-          <el-button :icon="DocumentAdd" :disabled="uploading" @click="openTextDialog">
+          <el-button :icon="DocumentAdd" :disabled="uploading || !selectedExtractorConnectionId" @click="openTextDialog">
             {{ t("rag.knowledge.doc.action.upload_text") }}
           </el-button>
           <el-button :icon="Refresh" :loading="loadingDocs" @click="loadDocs">
             {{ t("common.action.refresh") }}
           </el-button>
-          <span class="rag-knowledge-docs__hint">{{ t("rag.knowledge.doc.upload.unsupported") }}: txt/md/csv/log/json/xml/yaml/html/docx/pdf</span>
+          <span class="rag-knowledge-docs__hint">{{ xbergConnections.length ? t("rag.knowledge.doc.upload.hint") : t("rag.knowledge.doc.extractor.empty") }}</span>
         </div>
 
         <div v-if="uploading" class="rag-knowledge-docs__progress">
@@ -143,7 +158,6 @@
       class="rag-knowledge-file-input"
       type="file"
       multiple
-      accept=".txt,.md,.markdown,.csv,.log,.json,.xml,.yml,.yaml,.html,.htm,.docx,.pdf"
       @change="handleDocFileChange"
     />
   </div>
@@ -165,6 +179,8 @@ import { t } from "@liujitcn/kratos-admin-core";
 import { defAiKnowledgeService } from "@liujitcn/kratos-admin-rag/api/rag/admin/v1/ai_knowledge";
 import { defAiKnowledgeDocService } from "@liujitcn/kratos-admin-rag/api/rag/admin/v1/ai_knowledge_doc";
 import { defAiKnowledgeChunkService } from "@liujitcn/kratos-admin-rag/api/rag/admin/v1/ai_knowledge_chunk";
+import { defAiPluginService } from "@liujitcn/kratos-admin-system/api/base/v1/ai_plugin";
+import { Terminal } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_tool";
 import type {
   AiKnowledge,
   AiKnowledgeForm,
@@ -174,10 +190,10 @@ import type {
 import type { AiKnowledgeDoc } from "@liujitcn/kratos-admin-rag/rpc/rag/admin/v1/ai_knowledge_doc";
 import { AiKnowledgeDocStatus } from "@liujitcn/kratos-admin-rag/rpc/rag/admin/v1/ai_knowledge_doc";
 import type { AiKnowledgeChunkHit } from "@liujitcn/kratos-admin-rag/rpc/rag/admin/v1/ai_knowledge_chunk";
+import type { AiPluginConnection } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_plugin";
 
 defineOptions({ name: "AiKnowledge", inheritAttrs: false });
 
-const SUPPORTED_EXTENSIONS = [".txt", ".md", ".markdown", ".csv", ".log", ".json", ".xml", ".yml", ".yaml", ".html", ".htm", ".docx", ".pdf"];
 const MAX_FILE_SIZE = 10 * 1024 * 1024;
 
 type AiKnowledgeFormState = Omit<AiKnowledgeForm, "model_id" | "embedding_dimensions"> & {
@@ -216,6 +232,9 @@ const docsDrawer = reactive<{ visible: boolean; knowledge: AiKnowledge | null }>
 const docList = ref<AiKnowledgeDoc[]>([]);
 const loadingDocs = ref(false);
 const uploading = ref(false);
+const xbergConnections = ref<AiPluginConnection[]>([]);
+const selectedExtractorConnectionId = ref<number | undefined>();
+const loadingExtractors = ref(false);
 const uploadProgress = reactive({ current: 0, total: 0, name: "" });
 const uploadPercentage = computed(() =>
   uploadProgress.total ? Math.round((uploadProgress.current / uploadProgress.total) * 100) : 0
@@ -374,7 +393,31 @@ async function openDocsDrawer(row: AiKnowledge) {
   searchQuery.value = "";
   searchHits.value = [];
   searched.value = false;
-  await loadDocs();
+  await Promise.all([loadDocs(), loadXbergConnections()]);
+}
+
+/** 加载当前身份已连接且已发现的 Xberg 账号。 */
+async function loadXbergConnections() {
+  loadingExtractors.value = true;
+  try {
+    const catalog = await defAiPluginService.ListAiPlugin({ keyword: "xberg", terminal: Terminal.TERMINAL_ADMIN });
+    const plugin = (catalog.plugins ?? []).find(item => item.code === "xberg");
+    if (!plugin) {
+      xbergConnections.value = [];
+      selectedExtractorConnectionId.value = undefined;
+      return;
+    }
+    const response = await defAiPluginService.ListAiPluginConnection({ plugin_id: plugin.id });
+    xbergConnections.value = (response.connections ?? []).filter(item => item.state === "connected");
+    if (!xbergConnections.value.some(item => Number(item.id) === selectedExtractorConnectionId.value)) {
+      selectedExtractorConnectionId.value = xbergConnections.value.length === 1 ? Number(xbergConnections.value[0].id) : undefined;
+    }
+  } catch {
+    xbergConnections.value = [];
+    selectedExtractorConnectionId.value = undefined;
+  } finally {
+    loadingExtractors.value = false;
+  }
 }
 
 /** 加载当前知识库的文档列表。 */
@@ -406,8 +449,7 @@ async function handleDocFileChange(event: Event) {
   const accepted: File[] = [];
   const rejected: string[] = [];
   for (const file of files) {
-    const extension = `.${file.name.split(".").pop()?.toLowerCase() ?? ""}`;
-    if (!SUPPORTED_EXTENSIONS.includes(extension) || file.size > MAX_FILE_SIZE) {
+    if (file.size > MAX_FILE_SIZE) {
       rejected.push(file.name);
       continue;
     }
@@ -418,6 +460,11 @@ async function handleDocFileChange(event: Event) {
   }
   if (!accepted.length) return;
   const knowledgeId = docsDrawer.knowledge.id;
+  const extractorConnectionId = selectedExtractorConnectionId.value;
+  if (!extractorConnectionId) {
+    ElMessage.warning(t("rag.knowledge.doc.extractor.required"));
+    return;
+  }
   uploading.value = true;
   uploadProgress.total = accepted.length;
   uploadProgress.current = 0;
@@ -438,7 +485,8 @@ async function handleDocFileChange(event: Event) {
           file_name: file.name,
           // bytes 字段线上按 base64 字符串传输，类型按生成声明适配。
           content_base64: contentBase64 as unknown as Uint8Array,
-          doc_name: ""
+          doc_name: "",
+          extractor_connection_id: extractorConnectionId
         });
         successCount++;
       } catch {
@@ -470,11 +518,17 @@ function openTextDialog() {
 /** 提交纯文本文档。 */
 async function submitTextDoc() {
   const valid = await textDialogRef.value?.validate();
+  const extractorConnectionId = selectedExtractorConnectionId.value;
   if (!valid || !docsDrawer.knowledge) return;
+  if (!extractorConnectionId) {
+    ElMessage.warning(t("rag.knowledge.doc.extractor.required"));
+    return;
+  }
   await defAiKnowledgeDocService.UploadAiKnowledgeDocText({
     id: docsDrawer.knowledge.id,
     name: textForm.name,
-    content: textForm.content
+    content: textForm.content,
+    extractor_connection_id: extractorConnectionId
   });
   ElMessage.success(t("rag.knowledge.doc.upload.success"));
   textDialog.visible = false;
@@ -592,6 +646,10 @@ loadModelOptions();
   align-items: center;
   flex-wrap: wrap;
   gap: 8px;
+}
+
+.rag-knowledge-docs__extractor {
+  width: min(300px, 100%);
 }
 
 .rag-knowledge-docs__hint {

@@ -6,6 +6,7 @@
 
 /* eslint-disable */
 import type { Timestamp } from "../../google/protobuf/timestamp";
+import type { AiPluginSelection } from "./ai_plugin";
 import type { AiToolApproval, AiToolCall, Terminal } from "./ai_tool";
 
 /** AI 助手消息状态。 */
@@ -36,8 +37,6 @@ export interface ListAiMessageResponse {
 
 /** AI 助手会话列表查询条件 */
 export interface ListAiSessionRequest {
-  /** 终端类型：枚举【Terminal】 */
-  terminal: Terminal;
 }
 
 /** AI 助手会话列表响应 */
@@ -52,6 +51,8 @@ export interface CreateAiSessionRequest {
   title: string;
   /** 终端类型：枚举【Terminal】 */
   terminal: Terminal;
+  /** 选用插件；留空默认系统工具 */
+  plugins: AiPluginSelection[];
 }
 
 /** AI 助手会话创建响应 */
@@ -112,16 +113,22 @@ export interface AiSession {
   id: string;
   /** 租户ID */
   tenant_id: number;
+  /** 终端类型 */
+  terminal: Terminal;
   /** 会话标题 */
   title: string;
   /** 会话摘要 */
   summary: string;
+  /** 选用插件及连接 */
+  plugins: AiPluginSelection[];
+  /** 来源自动化ID */
+  automation_id: string;
+  /** 来源执行ID */
+  automation_run_id: string;
+  /** 冻结结果会话 */
+  read_only: boolean;
   /** 更新时间 */
-  updated_at:
-    | Timestamp
-    | undefined;
-  /** 终端类型：枚举【Terminal】 */
-  terminal: Terminal;
+  updated_at: Timestamp | undefined;
 }
 
 /** AI 助手消息 */
@@ -216,6 +223,14 @@ export interface AiAttachment {
   mime_type: string;
 }
 
+/** 保存本人会话插件选择请求。 */
+export interface SetAiSessionPluginsRequest {
+  /** 会话ID */
+  id: string;
+  /** 选用插件；空列表清除选择 */
+  plugins: AiPluginSelection[];
+}
+
 /** Base AI 助手会话服务 */
 export interface AiSessionService {
   /** 查询 AI 助手消息列表 */
@@ -228,6 +243,8 @@ export interface AiSessionService {
   CreateAiSessionBranch(request: CreateAiSessionBranchRequest): Promise<CreateAiSessionBranchResponse>;
   /** 更新 AI 助手会话 */
   UpdateAiSession(request: UpdateAiSessionRequest): Promise<UpdateAiSessionResponse>;
+  /** 保存本人会话选用插件；不立即执行工具。 */
+  SetAiSessionPlugins(request: SetAiSessionPluginsRequest): Promise<UpdateAiSessionResponse>;
   /** 删除 AI 助手会话 */
   DeleteAiSession(request: DeleteAiSessionRequest): Promise<DeleteAiSessionResponse>;
 }

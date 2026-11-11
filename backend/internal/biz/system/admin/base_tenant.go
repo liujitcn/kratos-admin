@@ -61,26 +61,27 @@ type BaseTenantCase struct {
 	*biz.BaseCase
 	tx data.Transaction
 	*data.BaseTenantRepository
-	baseDeptRepo            *data.BaseDeptRepository
-	baseRoleRepo            *data.BaseRoleRepository
-	baseUserRepo            *data.BaseUserRepository
-	baseMessageRepo         *data.BaseMessageRepository
-	baseMessageDispatchRepo *data.BaseMessageDispatchRepository
-	baseMessageDeliveryRepo *data.BaseMessageDeliveryRepository
-	oauthClientRepo         *data.OauthClientRepository
-	baseFileRepo            *data.BaseFileRepository
-	baseThirdAccountRepo    *data.BaseThirdAccountRepository
-	baseUserMFARepo         *data.BaseUserMFARepository
-	baseUserMFATotpRepo     *data.BaseUserMFATotpRepository
-	baseUserMFARecoveryRepo *data.BaseUserMFARecoveryRepository
-	baseUserMFAWebauthnRepo *data.BaseUserMFAWebauthnRepository
-	userToken               *authData.UserToken
-	casbinRuleRepo          *data.CasbinRuleRepository
-	casbinRuleCase          *CasbinRuleCase
-	catalog                 *i18n.I18n
-	eventRegistry           *workflow.EventRegistry
-	formMapper              *mapper.CopierMapper[adminv1.BaseTenantForm, models.BaseTenant]
-	mapper                  *mapper.CopierMapper[adminv1.BaseTenant, models.BaseTenant]
+	baseDeptRepo             *data.BaseDeptRepository
+	aiPluginInstallationRepo *data.AiPluginInstallationRepository
+	baseRoleRepo             *data.BaseRoleRepository
+	baseUserRepo             *data.BaseUserRepository
+	baseMessageRepo          *data.BaseMessageRepository
+	baseMessageDispatchRepo  *data.BaseMessageDispatchRepository
+	baseMessageDeliveryRepo  *data.BaseMessageDeliveryRepository
+	oauthClientRepo          *data.OauthClientRepository
+	baseFileRepo             *data.BaseFileRepository
+	baseThirdAccountRepo     *data.BaseThirdAccountRepository
+	baseUserMFARepo          *data.BaseUserMFARepository
+	baseUserMFATotpRepo      *data.BaseUserMFATotpRepository
+	baseUserMFARecoveryRepo  *data.BaseUserMFARecoveryRepository
+	baseUserMFAWebauthnRepo  *data.BaseUserMFAWebauthnRepository
+	userToken                *authData.UserToken
+	casbinRuleRepo           *data.CasbinRuleRepository
+	casbinRuleCase           *CasbinRuleCase
+	catalog                  *i18n.I18n
+	eventRegistry            *workflow.EventRegistry
+	formMapper               *mapper.CopierMapper[adminv1.BaseTenantForm, models.BaseTenant]
+	mapper                   *mapper.CopierMapper[adminv1.BaseTenant, models.BaseTenant]
 }
 
 // NewBaseTenantCase 创建租户业务实例。
@@ -90,6 +91,7 @@ func NewBaseTenantCase(
 	tx data.Transaction,
 	baseTenantRepo *data.BaseTenantRepository,
 	baseDeptRepo *data.BaseDeptRepository,
+	aiPluginInstallationRepo *data.AiPluginInstallationRepository,
 	baseRoleRepo *data.BaseRoleRepository,
 	baseUserRepo *data.BaseUserRepository,
 	baseMessageRepo *data.BaseMessageRepository,
@@ -109,30 +111,31 @@ func NewBaseTenantCase(
 	eventRegistry *workflow.EventRegistry,
 ) *BaseTenantCase {
 	caseValue := &BaseTenantCase{
-		redactResolver:          redactResolver,
-		BaseCase:                baseCase,
-		tx:                      tx,
-		BaseTenantRepository:    baseTenantRepo,
-		baseDeptRepo:            baseDeptRepo,
-		baseRoleRepo:            baseRoleRepo,
-		baseUserRepo:            baseUserRepo,
-		baseMessageRepo:         baseMessageRepo,
-		baseMessageDispatchRepo: baseMessageDispatchRepo,
-		baseMessageDeliveryRepo: baseMessageDeliveryRepo,
-		oauthClientRepo:         oauthClientRepo,
-		baseFileRepo:            baseFileRepo,
-		baseThirdAccountRepo:    baseThirdAccountRepo,
-		baseUserMFARepo:         baseUserMFARepo,
-		baseUserMFATotpRepo:     baseUserMFATotpRepo,
-		baseUserMFARecoveryRepo: baseUserMFARecoveryRepo,
-		baseUserMFAWebauthnRepo: baseUserMFAWebauthnRepo,
-		userToken:               userToken,
-		casbinRuleRepo:          casbinRuleRepo,
-		casbinRuleCase:          casbinRuleCase,
-		catalog:                 catalog,
-		eventRegistry:           eventRegistry,
-		formMapper:              mapper.NewCopierMapper[adminv1.BaseTenantForm, models.BaseTenant](),
-		mapper:                  mapper.NewCopierMapper[adminv1.BaseTenant, models.BaseTenant](),
+		redactResolver:           redactResolver,
+		BaseCase:                 baseCase,
+		tx:                       tx,
+		BaseTenantRepository:     baseTenantRepo,
+		baseDeptRepo:             baseDeptRepo,
+		aiPluginInstallationRepo: aiPluginInstallationRepo,
+		baseRoleRepo:             baseRoleRepo,
+		baseUserRepo:             baseUserRepo,
+		baseMessageRepo:          baseMessageRepo,
+		baseMessageDispatchRepo:  baseMessageDispatchRepo,
+		baseMessageDeliveryRepo:  baseMessageDeliveryRepo,
+		oauthClientRepo:          oauthClientRepo,
+		baseFileRepo:             baseFileRepo,
+		baseThirdAccountRepo:     baseThirdAccountRepo,
+		baseUserMFARepo:          baseUserMFARepo,
+		baseUserMFATotpRepo:      baseUserMFATotpRepo,
+		baseUserMFARecoveryRepo:  baseUserMFARecoveryRepo,
+		baseUserMFAWebauthnRepo:  baseUserMFAWebauthnRepo,
+		userToken:                userToken,
+		casbinRuleRepo:           casbinRuleRepo,
+		casbinRuleCase:           casbinRuleCase,
+		catalog:                  catalog,
+		eventRegistry:            eventRegistry,
+		formMapper:               mapper.NewCopierMapper[adminv1.BaseTenantForm, models.BaseTenant](),
+		mapper:                   mapper.NewCopierMapper[adminv1.BaseTenant, models.BaseTenant](),
 	}
 	eventRegistry.Register(baseTenantCreateBusinessType, caseValue.handleTenantWorkflowEvent)
 	eventRegistry.RegisterAction(baseTenantCreateBusinessType, baseTenantCreateAction, caseValue.handleTenantWorkflowAction)
@@ -574,7 +577,7 @@ func (c *BaseTenantCase) getNextBaseTenantCode(ctx context.Context) (string, err
 	return fmt.Sprintf("%04d", maxCode+1), nil
 }
 
-// initTenantDefaults 初始化租户默认组织、角色和管理员账号。
+// initTenantDefaults 初始化租户默认组织、角色、管理员和内置AI插件安装。
 func (c *BaseTenantCase) initTenantDefaults(ctx context.Context, baseTenant *models.BaseTenant) (*adminv1.CreateBaseTenantResponse, error) {
 	locale := biz.LocaleFromContext(ctx)
 	baseDept := &models.BaseDept{
@@ -654,6 +657,10 @@ func (c *BaseTenantCase) initTenantDefaults(ctx context.Context, baseTenant *mod
 			return nil, baseUserUniqueConflict(err)
 		}
 		return nil, errorsx.Internal("初始化租户管理员账号失败").WithCause(err)
+	}
+	err = c.aiPluginInstallationRepo.Create(ctx, &models.AiPluginInstallation{TenantID: baseTenant.ID, PluginID: 1, Enabled: 1, Terminals: "admin,app", Revision: 1})
+	if err != nil {
+		return nil, errorsx.Internal("初始化租户内置AI插件失败").WithCause(err)
 	}
 	err = c.casbinRuleCase.RebuildCasbinRuleByRole(ctx, baseRole)
 	if err != nil {

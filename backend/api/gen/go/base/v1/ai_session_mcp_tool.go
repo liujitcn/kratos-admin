@@ -20,6 +20,7 @@ func RegisterAiSessionServiceMCPTools(mcpServer *server.MCPServer, aiSessionServ
 	RegisterAiSessionServiceCreateAiSessionMCPTool(mcpServer, aiSessionServiceServer)
 	RegisterAiSessionServiceCreateAiSessionBranchMCPTool(mcpServer, aiSessionServiceServer)
 	RegisterAiSessionServiceUpdateAiSessionMCPTool(mcpServer, aiSessionServiceServer)
+	RegisterAiSessionServiceSetAiSessionPluginsMCPTool(mcpServer, aiSessionServiceServer)
 	RegisterAiSessionServiceDeleteAiSessionMCPTool(mcpServer, aiSessionServiceServer)
 }
 
@@ -135,6 +136,30 @@ func RegisterAiSessionServiceUpdateAiSessionMCPTool(mcpServer *server.MCPServer,
 			}
 			var reply *UpdateAiSessionResponse
 			reply, err = aiSessionServiceServer.UpdateAiSession(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
+		},
+	)
+}
+
+// RegisterAiSessionServiceSetAiSessionPluginsMCPTool 注册保存本人会话选用插件；不立即执行工具的 MCP Tool。
+func RegisterAiSessionServiceSetAiSessionPluginsMCPTool(mcpServer *server.MCPServer, aiSessionServiceServer AiSessionServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("base_v1_ai_session_service_set_ai_session_plugins",
+			mcp.WithDescription("保存本人会话选用插件；不立即执行工具。"),
+			mcp.WithInputSchema[*SetAiSessionPluginsRequest](),
+			mcp.WithOutputSchema[*UpdateAiSessionResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &SetAiSessionPluginsRequest{}
+			err := request.BindArguments(req)
+			if err != nil {
+				return nil, err
+			}
+			var reply *UpdateAiSessionResponse
+			reply, err = aiSessionServiceServer.SetAiSessionPlugins(ctx, req)
 			if err != nil {
 				return mcp.NewToolResultError(err.Error()), nil
 			}

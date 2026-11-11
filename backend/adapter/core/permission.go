@@ -104,7 +104,7 @@ func (s *PermissionStoreAdapter) ListRolesByCode(ctx context.Context, code strin
 // UpdateRoleMenus 更新角色的菜单列表。
 func (s *PermissionStoreAdapter) UpdateRoleMenus(ctx context.Context, item coredata.RoleRecord) error {
 	query := s.roleRepository.Query(ctx).BaseRole
-	_, err := query.WithContext(ctx).Where(query.ID.Eq(item.ID)).UpdateSimple(query.Menus.Value(item.Menus))
+	_, err := query.WithContext(ctx).Where(query.ID.Eq(item.ID)).UpdateSimple(query.Menus.Value(normalizeJSONArray(item.Menus)))
 	return err
 }
 

@@ -38,8 +38,8 @@ func NewRuntime(
 			CheckPointStore: checkPointStore,
 			ClientResolver:  modelRegistry,
 			Checker:         checker,
-			AdminTools:      adminTools,
-			AppTools:        appTools,
+			AdminTools:      toRuntimeTools(adminTools),
+			AppTools:        toRuntimeTools(appTools),
 			LocalizeMessage: localizeMessage,
 		}),
 		modelRegistry:   modelRegistry,
@@ -97,4 +97,13 @@ func (r *Runtime) LocalizeMessage(ctx context.Context, key string, args map[stri
 		return fallback
 	}
 	return r.localizeMessage(ctx, key, args, fallback)
+}
+
+// toRuntimeTools 将生成的标准工具集合转换为可承载增强工具的公共接口。
+func toRuntimeTools[T agent.Tool](values []T) []agent.Tool {
+	tools := make([]agent.Tool, 0, len(values))
+	for _, value := range values {
+		tools = append(tools, value)
+	}
+	return tools
 }

@@ -1,6 +1,7 @@
 import service from "@liujitcn/kratos-admin-core/request";
 import type {
   AiSessionService,
+  SetAiSessionPluginsRequest,
   CreateAiSessionBranchRequest,
   CreateAiSessionBranchResponse,
   CreateAiSessionRequest,
@@ -25,6 +26,15 @@ export class AiSessionServiceImpl implements AiSessionService {
       url: `${AI_SESSION_URL}`,
       method: "get",
       params: request
+    });
+  }
+
+  /** 保存当前会话的明确插件与账号选择。 */
+  SetAiSessionPlugins(request: SetAiSessionPluginsRequest): Promise<UpdateAiSessionResponse> {
+    return service<SetAiSessionPluginsRequest, UpdateAiSessionResponse>({
+      url: `${AI_SESSION_URL}/${request.id}/plugins`,
+      method: "put",
+      data: request
     });
   }
 

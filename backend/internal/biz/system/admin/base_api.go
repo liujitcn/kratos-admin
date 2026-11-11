@@ -11,6 +11,7 @@ import (
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 	"github.com/liujitcn/kratos-core/biz"
+	"github.com/liujitcn/kratos-core/errorsx"
 	"github.com/liujitcn/kratos-core/resource/i18n"
 	"github.com/liujitcn/kratos-core/resource/openapi"
 	"github.com/liujitcn/kratos-core/resource/openapi/dto"
@@ -20,16 +21,20 @@ import (
 	"github.com/liujitcn/gorm-kit/repository"
 	"gorm.io/gen"
 	"gorm.io/gen/field"
+	"gorm.io/gorm/clause"
 )
 
 // BaseAPICase 接口业务实例
 type BaseAPICase struct {
 	*biz.BaseCase
 	*data.BaseAPIRepository
-	baseAPII18NRepo *data.BaseAPII18NRepository
-	catalog         *i18n.I18n
-	mapper          *mapper.CopierMapper[adminv1.BaseApi, models.BaseAPI]
-	openAPI         *openapi.OpenAPI
+	tx                       data.Transaction
+	aiPluginRepo             *data.AiPluginRepository
+	aiPluginInstallationRepo *data.AiPluginInstallationRepository
+	baseAPII18NRepo          *data.BaseAPII18NRepository
+	catalog                  *i18n.I18n
+	mapper                   *mapper.CopierMapper[adminv1.BaseApi, models.BaseAPI]
+	openAPI                  *openapi.OpenAPI
 }
 
 // NewBaseAPICase 创建接口业务实例
@@ -39,16 +44,22 @@ func NewBaseAPICase(
 	catalog *i18n.I18n,
 	baseAPIRepo *data.BaseAPIRepository,
 	baseAPII18NRepo *data.BaseAPII18NRepository,
+	tx data.Transaction,
+	aiPluginRepo *data.AiPluginRepository,
+	aiPluginInstallationRepo *data.AiPluginInstallationRepository,
 ) *BaseAPICase {
 	baseAPIMapper := mapper.NewCopierMapper[adminv1.BaseApi, models.BaseAPI]()
 	baseAPIMapper.AppendConverters(mapper.NewJSONTypeConverter[[]string]().NewConverterPair())
 	return &BaseAPICase{
-		BaseCase:          baseCase,
-		BaseAPIRepository: baseAPIRepo,
-		baseAPII18NRepo:   baseAPII18NRepo,
-		catalog:           catalog,
-		mapper:            baseAPIMapper,
-		openAPI:           openAPI,
+		BaseCase:                 baseCase,
+		BaseAPIRepository:        baseAPIRepo,
+		baseAPII18NRepo:          baseAPII18NRepo,
+		tx:                       tx,
+		aiPluginRepo:             aiPluginRepo,
+		aiPluginInstallationRepo: aiPluginInstallationRepo,
+		catalog:                  catalog,
+		mapper:                   baseAPIMapper,
+		openAPI:                  openAPI,
 	}
 }
 
@@ -265,60 +276,70 @@ func (c *BaseAPICase) localizeOpenAPIServiceName(ctx context.Context, name strin
 	return c.catalog.Localize(biz.LocaleFromContext(ctx), "", messageKey, nil, name)
 }
 
-// UpdateBaseAPI 更新接口 MCP、Agent 与工具提示词配置。
+// UpdateBaseAPI 仅允许受信桌面平台管理员更新接口工具配置，并使旧插件许可失效。
 func (c *BaseAPICase) UpdateBaseAPI(ctx context.Context, req *adminv1.UpdateBaseApiRequest) error {
 	query := c.Query(ctx).BaseAPI
-	conditions := make([]gen.Condition, 0, 2)
-	baseAPI, err := c.Find(ctx, repository.Where(query.ID.Eq(req.GetId())))
-	if err != nil {
-		return err
-	}
-	// 同名工具可能来自历史重复 API 记录，运行时配置需要同步到同一个工具名称。
-	if baseAPI.ToolName != "" {
-		conditions = append(conditions, query.ToolName.Eq(baseAPI.ToolName))
-	} else {
-		conditions = append(conditions, query.ID.Eq(req.GetId()))
-	}
-	toolPrompts := normalizeToolPrompts(req.GetToolPrompts())
-	_, err = query.WithContext(ctx).
-		Where(conditions...).
-		UpdateSimple(
-			query.ToolPrompts.Value(encodeToolPrompts(toolPrompts)),
-			query.McpStatus.Value(int32(req.GetMcpStatus())),
-			query.AgentStatus.Value(int32(req.GetAgentStatus())),
-		)
-	return err
+	return c.updateToolConfiguration(ctx, req.GetId(), true,
+		query.ToolPrompts.Value(encodeToolPrompts(normalizeToolPrompts(req.GetToolPrompts()))),
+		query.McpStatus.Value(int32(req.GetMcpStatus())),
+		query.AgentStatus.Value(int32(req.GetAgentStatus())),
+	)
 }
 
-// SetBaseAPIAgentStatus 设置接口 Agent 工具状态
+// SetBaseAPIAgentStatus 仅允许平台管理员设置Agent开关，关闭后再启用也不恢复旧许可。
 func (c *BaseAPICase) SetBaseAPIAgentStatus(ctx context.Context, req *adminv1.SetBaseApiAgentStatusRequest) error {
 	query := c.Query(ctx).BaseAPI
-	conditions := make([]gen.Condition, 0, 2)
-	baseAPI, err := c.Find(ctx, repository.Where(query.ID.Eq(req.GetId())))
+	return c.updateToolConfiguration(ctx, req.GetId(), true, query.AgentStatus.Value(int32(req.GetAgentStatus())))
+}
+
+// SetBaseAPIMcpStatus 仅允许平台管理员设置MCP开关并递增相关插件安装修订。
+func (c *BaseAPICase) SetBaseAPIMcpStatus(ctx context.Context, req *adminv1.SetBaseApiMcpStatusRequest) error {
+	query := c.Query(ctx).BaseAPI
+	return c.updateToolConfiguration(ctx, req.GetId(), false, query.McpStatus.Value(int32(req.GetMcpStatus())))
+}
+
+// updateToolConfiguration 将平台权限、API配置和API插件安装修订放在同一事务边界。
+func (c *BaseAPICase) updateToolConfiguration(ctx context.Context, id int64, syncToolName bool, assignments ...field.AssignExpr) error {
+	identity, err := c.GetAuthInfo(ctx)
 	if err != nil {
 		return err
 	}
-	// 同名工具可能来自历史重复 API 记录，状态需要同步到同一个 Agent Tool 名称。
-	if baseAPI.ToolName != "" {
-		conditions = append(conditions, query.ToolName.Eq(baseAPI.ToolName))
-	} else {
-		conditions = append(conditions, query.ID.Eq(req.GetId()))
+	if identity.TenantId != 1 || (identity.RoleCode != "super" && identity.RoleCode != "admin") {
+		return errorsx.PermissionDenied("API工具配置仅允许平台管理员维护")
 	}
-	_, err = query.WithContext(ctx).
-		Where(conditions...).
-		UpdateSimple(query.AgentStatus.Value(int32(req.GetAgentStatus())))
-	return err
-}
-
-// SetBaseAPIMcpStatus 设置接口 MCP 工具状态
-func (c *BaseAPICase) SetBaseAPIMcpStatus(ctx context.Context, req *adminv1.SetBaseApiMcpStatusRequest) error {
-	query := c.Query(ctx).BaseAPI
-	conditions := make([]gen.Condition, 0, 1)
-	conditions = append(conditions, query.ID.Eq(req.GetId()))
-	_, err := query.WithContext(ctx).
-		Where(conditions...).
-		UpdateSimple(query.McpStatus.Value(int32(req.GetMcpStatus())))
-	return err
+	return c.tx.Transaction(ctx, func(txCtx context.Context) error {
+		query := c.Query(txCtx).BaseAPI
+		var model *models.BaseAPI
+		model, err = c.Find(txCtx, repository.Where(query.ID.Eq(id)), repository.Clauses(clause.Locking{Strength: "UPDATE"}))
+		if err != nil {
+			return err
+		}
+		condition := query.ID.Eq(id)
+		if syncToolName && model.ToolName != "" {
+			// 历史重复API记录共享同一工具名，配置必须一起更新。
+			condition = query.ToolName.Eq(model.ToolName)
+		}
+		_, err = query.WithContext(txCtx).Where(condition).UpdateSimple(assignments...)
+		if err != nil {
+			return err
+		}
+		pluginQuery := c.aiPluginRepo.Query(txCtx).AiPlugin
+		var plugins []*models.AiPlugin
+		plugins, err = c.aiPluginRepo.List(txCtx, repository.Where(pluginQuery.Source.Eq("API")))
+		if err != nil {
+			return err
+		}
+		ids := make([]int64, 0, len(plugins))
+		for _, item := range plugins {
+			ids = append(ids, item.ID)
+		}
+		if len(ids) == 0 {
+			return nil
+		}
+		installation := c.aiPluginInstallationRepo.Query(txCtx).AiPluginInstallation
+		_, err = installation.WithContext(txCtx).Where(installation.PluginID.In(ids...)).UpdateSimple(installation.Revision.Add(1))
+		return err
+	})
 }
 
 // toBaseAPIDTO 转换接口数据并补充所属 OpenAPI 文档信息。

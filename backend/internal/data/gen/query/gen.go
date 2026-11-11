@@ -16,8 +16,16 @@ import (
 func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 	return &Query{
 		db:                      db,
+		AiAutomation:            newAiAutomation(db, opts...),
+		AiAutomationRun:         newAiAutomationRun(db, opts...),
+		AiFile:                  newAiFile(db, opts...),
 		AiMessage:               newAiMessage(db, opts...),
 		AiModel:                 newAiModel(db, opts...),
+		AiPlugin:                newAiPlugin(db, opts...),
+		AiPluginConnection:      newAiPluginConnection(db, opts...),
+		AiPluginInstallation:    newAiPluginInstallation(db, opts...),
+		AiPluginTool:            newAiPluginTool(db, opts...),
+		AiPluginToolPolicy:      newAiPluginToolPolicy(db, opts...),
 		AiProvider:              newAiProvider(db, opts...),
 		AiSession:               newAiSession(db, opts...),
 		AiToolApproval:          newAiToolApproval(db, opts...),
@@ -101,8 +109,16 @@ func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 
 type Query struct {
 	db                      *gorm.DB
+	AiAutomation            aiAutomation
+	AiAutomationRun         aiAutomationRun
+	AiFile                  aiFile
 	AiMessage               aiMessage
 	AiModel                 aiModel
+	AiPlugin                aiPlugin
+	AiPluginConnection      aiPluginConnection
+	AiPluginInstallation    aiPluginInstallation
+	AiPluginTool            aiPluginTool
+	AiPluginToolPolicy      aiPluginToolPolicy
 	AiProvider              aiProvider
 	AiSession               aiSession
 	AiToolApproval          aiToolApproval
@@ -188,8 +204,16 @@ func (q *Query) Available() bool { return q.db != nil }
 func (q *Query) clone(db *gorm.DB) *Query {
 	return &Query{
 		db:                      db,
+		AiAutomation:            q.AiAutomation.clone(db),
+		AiAutomationRun:         q.AiAutomationRun.clone(db),
+		AiFile:                  q.AiFile.clone(db),
 		AiMessage:               q.AiMessage.clone(db),
 		AiModel:                 q.AiModel.clone(db),
+		AiPlugin:                q.AiPlugin.clone(db),
+		AiPluginConnection:      q.AiPluginConnection.clone(db),
+		AiPluginInstallation:    q.AiPluginInstallation.clone(db),
+		AiPluginTool:            q.AiPluginTool.clone(db),
+		AiPluginToolPolicy:      q.AiPluginToolPolicy.clone(db),
 		AiProvider:              q.AiProvider.clone(db),
 		AiSession:               q.AiSession.clone(db),
 		AiToolApproval:          q.AiToolApproval.clone(db),
@@ -282,8 +306,16 @@ func (q *Query) WriteDB() *Query {
 func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 	return &Query{
 		db:                      db,
+		AiAutomation:            q.AiAutomation.replaceDB(db),
+		AiAutomationRun:         q.AiAutomationRun.replaceDB(db),
+		AiFile:                  q.AiFile.replaceDB(db),
 		AiMessage:               q.AiMessage.replaceDB(db),
 		AiModel:                 q.AiModel.replaceDB(db),
+		AiPlugin:                q.AiPlugin.replaceDB(db),
+		AiPluginConnection:      q.AiPluginConnection.replaceDB(db),
+		AiPluginInstallation:    q.AiPluginInstallation.replaceDB(db),
+		AiPluginTool:            q.AiPluginTool.replaceDB(db),
+		AiPluginToolPolicy:      q.AiPluginToolPolicy.replaceDB(db),
 		AiProvider:              q.AiProvider.replaceDB(db),
 		AiSession:               q.AiSession.replaceDB(db),
 		AiToolApproval:          q.AiToolApproval.replaceDB(db),
@@ -366,8 +398,16 @@ func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 }
 
 type queryCtx struct {
+	AiAutomation            *aiAutomationDo
+	AiAutomationRun         *aiAutomationRunDo
+	AiFile                  *aiFileDo
 	AiMessage               *aiMessageDo
 	AiModel                 *aiModelDo
+	AiPlugin                *aiPluginDo
+	AiPluginConnection      *aiPluginConnectionDo
+	AiPluginInstallation    *aiPluginInstallationDo
+	AiPluginTool            *aiPluginToolDo
+	AiPluginToolPolicy      *aiPluginToolPolicyDo
 	AiProvider              *aiProviderDo
 	AiSession               *aiSessionDo
 	AiToolApproval          *aiToolApprovalDo
@@ -450,8 +490,16 @@ type queryCtx struct {
 
 func (q *Query) WithContext(ctx context.Context) *queryCtx {
 	return &queryCtx{
+		AiAutomation:            q.AiAutomation.WithContext(ctx),
+		AiAutomationRun:         q.AiAutomationRun.WithContext(ctx),
+		AiFile:                  q.AiFile.WithContext(ctx),
 		AiMessage:               q.AiMessage.WithContext(ctx),
 		AiModel:                 q.AiModel.WithContext(ctx),
+		AiPlugin:                q.AiPlugin.WithContext(ctx),
+		AiPluginConnection:      q.AiPluginConnection.WithContext(ctx),
+		AiPluginInstallation:    q.AiPluginInstallation.WithContext(ctx),
+		AiPluginTool:            q.AiPluginTool.WithContext(ctx),
+		AiPluginToolPolicy:      q.AiPluginToolPolicy.WithContext(ctx),
 		AiProvider:              q.AiProvider.WithContext(ctx),
 		AiSession:               q.AiSession.WithContext(ctx),
 		AiToolApproval:          q.AiToolApproval.WithContext(ctx),

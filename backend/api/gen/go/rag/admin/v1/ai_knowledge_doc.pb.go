@@ -195,16 +195,17 @@ func (x *PageAiKnowledgeDocResponse) GetTotal() int32 {
 
 // AI知识库文档。
 type AiKnowledgeDoc struct {
-	state           protoimpl.MessageState `protogen:"open.v1"`
-	Id              int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                                    // 文档ID
-	KnowledgeBaseId int64                  `protobuf:"varint,2,opt,name=knowledge_base_id,json=knowledgeBaseId,proto3" json:"knowledge_base_id,omitempty"` // 知识库ID
-	Name            string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`                                                 // 文档名称
-	ChunkCount      int32                  `protobuf:"varint,4,opt,name=chunk_count,json=chunkCount,proto3" json:"chunk_count,omitempty"`                  // 切片数
-	Status          AiKnowledgeDocStatus   `protobuf:"varint,5,opt,name=status,proto3,enum=rag.admin.v1.AiKnowledgeDocStatus" json:"status,omitempty"`     // 处理状态：枚举【AiKnowledgeDocStatus】
-	ErrorMessage    string                 `protobuf:"bytes,6,opt,name=error_message,json=errorMessage,proto3" json:"error_message,omitempty"`             // 失败原因
-	CreatedAt       string                 `protobuf:"bytes,200,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`                    // 创建时间
-	unknownFields   protoimpl.UnknownFields
-	sizeCache       protoimpl.SizeCache
+	state                 protoimpl.MessageState `protogen:"open.v1"`
+	Id                    int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                                                      // 文档ID
+	KnowledgeBaseId       int64                  `protobuf:"varint,2,opt,name=knowledge_base_id,json=knowledgeBaseId,proto3" json:"knowledge_base_id,omitempty"`                   // 知识库ID
+	Name                  string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`                                                                   // 文档名称
+	ChunkCount            int32                  `protobuf:"varint,4,opt,name=chunk_count,json=chunkCount,proto3" json:"chunk_count,omitempty"`                                    // 切片数
+	Status                AiKnowledgeDocStatus   `protobuf:"varint,5,opt,name=status,proto3,enum=rag.admin.v1.AiKnowledgeDocStatus" json:"status,omitempty"`                       // 处理状态：枚举【AiKnowledgeDocStatus】
+	ErrorMessage          string                 `protobuf:"bytes,6,opt,name=error_message,json=errorMessage,proto3" json:"error_message,omitempty"`                               // 失败原因
+	ExtractorConnectionId int64                  `protobuf:"varint,7,opt,name=extractor_connection_id,json=extractorConnectionId,proto3" json:"extractor_connection_id,omitempty"` // Xberg MCP抽取连接ID
+	CreatedAt             string                 `protobuf:"bytes,200,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`                                      // 创建时间
+	unknownFields         protoimpl.UnknownFields
+	sizeCache             protoimpl.SizeCache
 }
 
 func (x *AiKnowledgeDoc) Reset() {
@@ -279,6 +280,13 @@ func (x *AiKnowledgeDoc) GetErrorMessage() string {
 	return ""
 }
 
+func (x *AiKnowledgeDoc) GetExtractorConnectionId() int64 {
+	if x != nil {
+		return x.ExtractorConnectionId
+	}
+	return 0
+}
+
 func (x *AiKnowledgeDoc) GetCreatedAt() string {
 	if x != nil {
 		return x.CreatedAt
@@ -288,12 +296,13 @@ func (x *AiKnowledgeDoc) GetCreatedAt() string {
 
 // 上传纯文本文档请求。
 type UploadAiKnowledgeDocTextRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`          // 知识库ID
-	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`       // 文档名称
-	Content       string                 `protobuf:"bytes,3,opt,name=content,proto3" json:"content,omitempty"` // 文档文本内容
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state                 protoimpl.MessageState `protogen:"open.v1"`
+	Id                    int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                                                      // 知识库ID
+	Name                  string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`                                                                   // 文档名称
+	Content               string                 `protobuf:"bytes,3,opt,name=content,proto3" json:"content,omitempty"`                                                             // 文档文本内容
+	ExtractorConnectionId int64                  `protobuf:"varint,4,opt,name=extractor_connection_id,json=extractorConnectionId,proto3" json:"extractor_connection_id,omitempty"` // 已连接的Xberg MCP连接ID
+	unknownFields         protoimpl.UnknownFields
+	sizeCache             protoimpl.SizeCache
 }
 
 func (x *UploadAiKnowledgeDocTextRequest) Reset() {
@@ -347,15 +356,23 @@ func (x *UploadAiKnowledgeDocTextRequest) GetContent() string {
 	return ""
 }
 
+func (x *UploadAiKnowledgeDocTextRequest) GetExtractorConnectionId() int64 {
+	if x != nil {
+		return x.ExtractorConnectionId
+	}
+	return 0
+}
+
 // 上传文档文件请求。
 type UploadAiKnowledgeDocFileRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                           // 知识库ID
-	FileName      string                 `protobuf:"bytes,2,opt,name=file_name,json=fileName,proto3" json:"file_name,omitempty"`                // 原始文件名
-	ContentBase64 []byte                 `protobuf:"bytes,3,opt,name=content_base64,json=contentBase64,proto3" json:"content_base64,omitempty"` // 文件内容（≤10MB）
-	DocName       string                 `protobuf:"bytes,4,opt,name=doc_name,json=docName,proto3" json:"doc_name,omitempty"`                   // 文档显示名
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state                 protoimpl.MessageState `protogen:"open.v1"`
+	Id                    int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                                                      // 知识库ID
+	FileName              string                 `protobuf:"bytes,2,opt,name=file_name,json=fileName,proto3" json:"file_name,omitempty"`                                           // 原始文件名（供Xberg MCP识别文件格式）
+	ContentBase64         []byte                 `protobuf:"bytes,3,opt,name=content_base64,json=contentBase64,proto3" json:"content_base64,omitempty"`                            // 文件内容（≤10MB）
+	DocName               string                 `protobuf:"bytes,4,opt,name=doc_name,json=docName,proto3" json:"doc_name,omitempty"`                                              // 文档显示名
+	ExtractorConnectionId int64                  `protobuf:"varint,5,opt,name=extractor_connection_id,json=extractorConnectionId,proto3" json:"extractor_connection_id,omitempty"` // 已连接的Xberg MCP连接ID
+	unknownFields         protoimpl.UnknownFields
+	sizeCache             protoimpl.SizeCache
 }
 
 func (x *UploadAiKnowledgeDocFileRequest) Reset() {
@@ -414,6 +431,13 @@ func (x *UploadAiKnowledgeDocFileRequest) GetDocName() string {
 		return x.DocName
 	}
 	return ""
+}
+
+func (x *UploadAiKnowledgeDocFileRequest) GetExtractorConnectionId() int64 {
+	if x != nil {
+		return x.ExtractorConnectionId
+	}
+	return 0
 }
 
 // 删除文档请求。
@@ -517,7 +541,7 @@ const file_rag_admin_v1_ai_knowledge_doc_proto_rawDesc = "" +
 	"\tpage_size\x18f \x01(\x03B'\xbaG\x1b\x8a\x02\t\t\x00\x00\x00\x00\x00\x00$@\x92\x02\f每页行数\xbaH\x06\"\x04\x18d(\x01R\bpageSize\"\x86\x01\n" +
 	"\x1aPageAiKnowledgeDocResponse\x12D\n" +
 	"\x04docs\x18\x01 \x03(\v2\x1c.rag.admin.v1.AiKnowledgeDocB\x12\xbaG\x0f\x92\x02\f文档列表R\x04docs\x12\"\n" +
-	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\"\xb1\x03\n" +
+	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\"\x88\x04\n" +
 	"\x0eAiKnowledgeDoc\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b文档IDR\x02id\x12=\n" +
 	"\x11knowledge_base_id\x18\x02 \x01(\x03B\x11\xbaG\x0e\x92\x02\v知识库IDR\x0fknowledgeBaseId\x12&\n" +
@@ -525,22 +549,25 @@ const file_rag_admin_v1_ai_knowledge_doc_proto_rawDesc = "" +
 	"\vchunk_count\x18\x04 \x01(\x05B\x0f\xbaG\f\x92\x02\t切片数R\n" +
 	"chunkCount\x12y\n" +
 	"\x06status\x18\x05 \x01(\x0e2\".rag.admin.v1.AiKnowledgeDocStatusB=\xbaG2\x92\x02/处理状态：枚举【AiKnowledgeDocStatus】\xbaH\x05\x82\x01\x02\x10\x01R\x06status\x127\n" +
-	"\rerror_message\x18\x06 \x01(\tB\x12\xbaG\x0f\x92\x02\f失败原因R\ferrorMessage\x122\n" +
+	"\rerror_message\x18\x06 \x01(\tB\x12\xbaG\x0f\x92\x02\f失败原因R\ferrorMessage\x12U\n" +
+	"\x17extractor_connection_id\x18\a \x01(\x03B\x1d\xbaG\x1a\x92\x02\x17Xberg MCP抽取连接IDR\x15extractorConnectionId\x122\n" +
 	"\n" +
-	"created_at\x18\xc8\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f创建时间R\tcreatedAt\"\x8e\x03\n" +
+	"created_at\x18\xc8\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f创建时间R\tcreatedAt\"\xf2\x03\n" +
 	"\x1fUploadAiKnowledgeDocTextRequest\x12(\n" +
 	"\x02id\x18\x01 \x01(\x03B\x18\xbaG\x0e\x92\x02\v知识库ID\xbaH\x04\"\x02 \x00R\x02id\x12\x95\x01\n" +
 	"\x04name\x18\x02 \x01(\tB\x80\x01\xbaG\x0f\x92\x02\f文档名称\xbaHk\xba\x01h\n" +
 	"(rag.admin.ai.knowledge.doc.name.required\x12\x15请输入文档名称\x1a%this.size() > 0 && this.size() <= 200R\x04name\x12\xa8\x01\n" +
 	"\acontent\x18\x03 \x01(\tB\x8d\x01\xbaG\x15\x92\x02\x12文档文本内容\xbaHr\xba\x01o\n" +
-	"+rag.admin.ai.knowledge.doc.content.required\x12\x15请输入文档内容\x1a)this.size() > 0 && this.size() <= 1000000R\acontent\"\xa4\x04\n" +
+	"+rag.admin.ai.knowledge.doc.content.required\x12\x15请输入文档内容\x1a)this.size() > 0 && this.size() <= 1000000R\acontent\x12b\n" +
+	"\x17extractor_connection_id\x18\x04 \x01(\x03B*\xbaG \x92\x02\x1d已连接的Xberg MCP连接ID\xbaH\x04\"\x02 \x00R\x15extractorConnectionId\"\x8e\x05\n" +
 	"\x1fUploadAiKnowledgeDocFileRequest\x12(\n" +
-	"\x02id\x18\x01 \x01(\x03B\x18\xbaG\x0e\x92\x02\v知识库ID\xbaH\x04\"\x02 \x00R\x02id\x12\xc1\x01\n" +
-	"\tfile_name\x18\x02 \x01(\tB\xa3\x01\xbaG0\x92\x02-原始文件名（扩展名决定抽取器）\xbaHm\xba\x01j\n" +
+	"\x02id\x18\x01 \x01(\x03B\x18\xbaG\x0e\x92\x02\v知识库ID\xbaH\x04\"\x02 \x00R\x02id\x12\xc7\x01\n" +
+	"\tfile_name\x18\x02 \x01(\tB\xa9\x01\xbaG6\x92\x023原始文件名（供Xberg MCP识别文件格式）\xbaHm\xba\x01j\n" +
 	"-rag.admin.ai.knowledge.doc.file_name.required\x12\x12请输入文件名\x1a%this.size() > 0 && this.size() <= 200R\bfileName\x12R\n" +
 	"\x0econtent_base64\x18\x03 \x01(\fB+\xbaG\x1c\x92\x02\x19文件内容（≤10MB）\xbaH\tz\a\x10\x01\x18\x80\x80\x80\x05R\rcontentBase64\x12\xbe\x01\n" +
 	"\bdoc_name\x18\x04 \x01(\tB\xa2\x01\xbaG3\x92\x020文档显示名，缺省取文件名去扩展名\xbaHi\xba\x01f\n" +
-	"*rag.admin.ai.knowledge.doc.name.max_length\x12$文档名称不能超过200个字符\x1a\x12this.size() <= 200R\adocName\"K\n" +
+	"*rag.admin.ai.knowledge.doc.name.max_length\x12$文档名称不能超过200个字符\x1a\x12this.size() <= 200R\adocName\x12b\n" +
+	"\x17extractor_connection_id\x18\x05 \x01(\x03B*\xbaG \x92\x02\x1d已连接的Xberg MCP连接ID\xbaH\x04\"\x02 \x00R\x15extractorConnectionId\"K\n" +
 	"\x1bDeleteAiKnowledgeDocRequest\x12,\n" +
 	"\x06doc_id\x18\x01 \x01(\x03B\x15\xbaG\v\x92\x02\b文档ID\xbaH\x04\"\x02 \x00R\x05docId\"N\n" +
 	"\x1eReprocessAiKnowledgeDocRequest\x12,\n" +

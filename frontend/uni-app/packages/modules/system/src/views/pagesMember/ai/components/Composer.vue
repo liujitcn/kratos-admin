@@ -29,6 +29,7 @@ const props = defineProps<{
   knowledgeOptions: AiKnowledgeOption[]
   /** 当前选择的知识库编号列表。 */
   knowledgeIds: number[]
+  pluginCount: number
   modelPlaceholder: string
   placeholder: string
   bottom: string
@@ -39,6 +40,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   'update:modelValue': [value: string]
+  plugins: []
   attach: []
   record: []
   send: []
@@ -122,6 +124,11 @@ function handleKnowledgeToggle(knowledgeId: number) {
       }}</text>
       <uni-icons type="down" size="12" :color="iconColor" />
     </view>
+    <button class="composer-model-chip" :disabled="sending" @tap="emit('plugins')">
+      <text class="composer-model-chip__label"
+        >{{ t('system.ai.workspace.plugins') }} · {{ pluginCount }}</text
+      >
+    </button>
     <view class="composer-main">
       <button class="attach-button" hover-class="none" @tap="emit('attach')">
         <uni-icons type="plusempty" size="30" :color="iconColor" />

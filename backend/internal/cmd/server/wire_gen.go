@@ -12,6 +12,7 @@ import (
 	"github.com/liujitcn/kratos-admin/backend"
 	"github.com/liujitcn/kratos-admin/backend/adapter/core"
 	"github.com/liujitcn/kratos-admin/backend/adapter/kit"
+	"github.com/liujitcn/kratos-admin/backend/pkg/aiautomation"
 	"github.com/liujitcn/kratos-admin/backend/pkg/projectaccess"
 	kratoscore "github.com/liujitcn/kratos-core"
 	biz2 "github.com/liujitcn/kratos-core/biz"
@@ -149,32 +150,38 @@ func NewApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 		return nil, nil, err
 	}
 	httpMiddlewares := server.NewHTTPMiddleware(ctx, authenticator, engine, userToken, authentication_Jwt, cacheCache, i18nI18n, rateLimitPolicyResolver)
+	dispatcher, cleanup3 := aiautomation.NewDispatcher()
 	configv1Pprof, err := config.ParsePprof(configv1Bootstrap)
 	if err != nil {
+		cleanup3()
 		cleanup2()
 		cleanup()
 		return nil, nil, err
 	}
 	pprofPprof, err := pprof.NewPprof(configv1Pprof)
 	if err != nil {
+		cleanup3()
 		cleanup2()
 		cleanup()
 		return nil, nil, err
 	}
 	data_Queue, err := config.ParseQueue(configv1Bootstrap)
 	if err != nil {
+		cleanup3()
 		cleanup2()
 		cleanup()
 		return nil, nil, err
 	}
-	queueQueue, cleanup3, err := queue.NewQueue(data_Redis, data_Queue)
+	queueQueue, cleanup4, err := queue.NewQueue(data_Redis, data_Queue)
 	if err != nil {
+		cleanup3()
 		cleanup2()
 		cleanup()
 		return nil, nil, err
 	}
 	configv1Oss, err := config.ParseOSS(configv1Bootstrap)
 	if err != nil {
+		cleanup4()
 		cleanup3()
 		cleanup2()
 		cleanup()
@@ -182,6 +189,7 @@ func NewApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 	}
 	ossOSS, err := oss.NewOSS(configv1Oss)
 	if err != nil {
+		cleanup4()
 		cleanup3()
 		cleanup2()
 		cleanup()
@@ -189,6 +197,7 @@ func NewApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 	}
 	configv1Translator, err := config.ParseTranslator(configv1Bootstrap)
 	if err != nil {
+		cleanup4()
 		cleanup3()
 		cleanup2()
 		cleanup()
@@ -196,14 +205,16 @@ func NewApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 	}
 	translatorTranslator, err := translator.NewTranslator(configv1Translator)
 	if err != nil {
+		cleanup4()
 		cleanup3()
 		cleanup2()
 		cleanup()
 		return nil, nil, err
 	}
-	baseCase, cleanup4 := biz2.NewBaseCase(ctx, pprofPprof, cacheCache, queueQueue, ossOSS, translatorTranslator, v2)
+	baseCase, cleanup5 := biz2.NewBaseCase(ctx, pprofPprof, cacheCache, queueQueue, ossOSS, translatorTranslator, v2)
 	jobStoreAdapter, err := core.NewJobStoreAdapter(v2)
 	if err != nil {
+		cleanup5()
 		cleanup4()
 		cleanup3()
 		cleanup2()
@@ -215,22 +226,14 @@ func NewApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 	v3 := backend.NewCodeGenManager()
 	mqttServer, err := mqtt.NewServer(configv1Bootstrap)
 	if err != nil {
+		cleanup5()
 		cleanup4()
 		cleanup3()
 		cleanup2()
 		cleanup()
 		return nil, nil, err
 	}
-	adminStreams, cleanup5, err := backend.NewStreams(v3, v2, baseCase, i18nI18n, mqttServer)
-	if err != nil {
-		cleanup4()
-		cleanup3()
-		cleanup2()
-		cleanup()
-		return nil, nil, err
-	}
-	streams := provideStreams(adminStreams)
-	sseServer, cleanup6, err := sse.NewServer(ctx, streamIDResolver, streams, sseRegistry)
+	adminStreams, cleanup6, err := backend.NewStreams(v3, v2, baseCase, i18nI18n, mqttServer)
 	if err != nil {
 		cleanup5()
 		cleanup4()
@@ -239,9 +242,21 @@ func NewApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	sseSSE, cleanup7 := sse.NewSSE(authenticator, userToken, sseRegistry, sseServer)
-	adminTasks, cleanup8, err := backend.NewTasks(v2, baseCase, i18nI18n, sseSSE)
+	streams := provideStreams(adminStreams)
+	sseServer, cleanup7, err := sse.NewServer(ctx, streamIDResolver, streams, sseRegistry)
 	if err != nil {
+		cleanup6()
+		cleanup5()
+		cleanup4()
+		cleanup3()
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
+	sseSSE, cleanup8 := sse.NewSSE(authenticator, userToken, sseRegistry, sseServer)
+	adminTasks, cleanup9, err := backend.NewTasks(dispatcher, v2, baseCase, i18nI18n, sseSSE)
+	if err != nil {
+		cleanup8()
 		cleanup7()
 		cleanup6()
 		cleanup5()
@@ -254,6 +269,7 @@ func NewApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 	tasks := provideTasks(adminTasks)
 	jobRegistry, err := job.NewRegistry(tasks)
 	if err != nil {
+		cleanup9()
 		cleanup8()
 		cleanup7()
 		cleanup6()
@@ -266,6 +282,7 @@ func NewApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 	}
 	executionLocker, err := job.NewExecutionLocker(data_Redis)
 	if err != nil {
+		cleanup9()
 		cleanup8()
 		cleanup7()
 		cleanup6()
@@ -280,6 +297,7 @@ func NewApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 	jobJob := job.NewJob(scheduler)
 	redactPolicyResolver, err := kit.NewRedactPolicyResolver(v2)
 	if err != nil {
+		cleanup9()
 		cleanup8()
 		cleanup7()
 		cleanup6()
@@ -291,8 +309,9 @@ func NewApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 		return nil, nil, err
 	}
 	lifecycle := projectaccess.NewLifecycle()
-	adminModules, cleanup9, err := backend.NewModules(migrationMigration, configv1Bootstrap, v2, baseCase, engine, authenticator, userToken, jobJob, sseSSE, i18nI18n, openapiOpenAPI, redactPolicyResolver, rateLimitPolicyResolver, v3, lifecycle, mqttServer)
+	adminModules, cleanup10, err := backend.NewModules(dispatcher, migrationMigration, configv1Bootstrap, v2, baseCase, engine, authenticator, userToken, jobJob, sseSSE, i18nI18n, openapiOpenAPI, redactPolicyResolver, rateLimitPolicyResolver, v3, lifecycle, mqttServer)
 	if err != nil {
+		cleanup9()
 		cleanup8()
 		cleanup7()
 		cleanup6()
@@ -304,8 +323,9 @@ func NewApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 		return nil, nil, err
 	}
 	modules := provideModules(adminModules)
-	mcpServer, cleanup10, err := mcp.NewServer(ctx, modules, redactPolicyResolver)
+	mcpServer, cleanup11, err := mcp.NewServer(ctx, modules, redactPolicyResolver)
 	if err != nil {
+		cleanup10()
 		cleanup9()
 		cleanup8()
 		cleanup7()
@@ -319,6 +339,7 @@ func NewApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 	}
 	transportServer, err := server.NewHTTPServer(ctx, appInfo, httpMiddlewares, modules, authenticator, userToken, registry, mcpServer, sseServer, redactPolicyResolver)
 	if err != nil {
+		cleanup11()
 		cleanup10()
 		cleanup9()
 		cleanup8()
@@ -334,6 +355,7 @@ func NewApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 	grpcMiddlewares := server.NewGRPCMiddleware(ctx, authenticator, engine, userToken, authentication_Jwt, cacheCache, i18nI18n, rateLimitPolicyResolver)
 	grpcServer, err := server.NewGRPCServer(ctx, grpcMiddlewares, modules, redactPolicyResolver)
 	if err != nil {
+		cleanup11()
 		cleanup10()
 		cleanup9()
 		cleanup8()
@@ -348,6 +370,7 @@ func NewApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 	}
 	logStoreAdapter, err := core.NewLogStoreAdapter(v2)
 	if err != nil {
+		cleanup11()
 		cleanup10()
 		cleanup9()
 		cleanup8()
@@ -360,9 +383,10 @@ func NewApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	logPipeline, cleanup11 := biz2.NewLogPipeline(queueQueue, logStoreAdapter)
-	adminConsumers, cleanup12, err := backend.NewQueueConsumers(v2, baseCase, sseSSE)
+	logPipeline, cleanup12 := biz2.NewLogPipeline(queueQueue, logStoreAdapter)
+	adminConsumers, cleanup13, err := backend.NewQueueConsumers(v2, baseCase, sseSSE)
 	if err != nil {
+		cleanup12()
 		cleanup11()
 		cleanup10()
 		cleanup9()
@@ -379,6 +403,7 @@ func NewApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 	consumers := provideConsumers(adminConsumers)
 	queueServer, err := queue2.NewServer(queueQueue, jobStoreAdapter, logPipeline, consumers)
 	if err != nil {
+		cleanup13()
 		cleanup12()
 		cleanup11()
 		cleanup10()
@@ -396,6 +421,7 @@ func NewApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 	jobServer := job.NewServer(scheduler)
 	app := kratoscore.NewApp(ctx, syncResult, transportServer, grpcServer, mcpServer, sseServer, queueServer, jobServer, mqttServer)
 	return app, func() {
+		cleanup13()
 		cleanup12()
 		cleanup11()
 		cleanup10()

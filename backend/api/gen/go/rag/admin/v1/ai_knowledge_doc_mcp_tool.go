@@ -47,11 +47,11 @@ func RegisterAiKnowledgeDocServicePageAiKnowledgeDocMCPTool(mcpServer *server.MC
 	)
 }
 
-// RegisterAiKnowledgeDocServiceUploadAiKnowledgeDocTextMCPTool 注册上传纯文本文档（切片 → 向量化 → 落库）的 MCP Tool。
+// RegisterAiKnowledgeDocServiceUploadAiKnowledgeDocTextMCPTool 注册上传纯文本文档（由 Xberg MCP 抽取后切片、向量化并落库）的 MCP Tool。
 func RegisterAiKnowledgeDocServiceUploadAiKnowledgeDocTextMCPTool(mcpServer *server.MCPServer, aiKnowledgeDocServiceServer AiKnowledgeDocServiceServer) {
 	mcpServer.AddTool(
 		mcp.NewTool("rag_admin_v1_ai_knowledge_doc_service_upload_ai_knowledge_doc_text",
-			mcp.WithDescription("上传纯文本文档（切片 → 向量化 → 落库）。"),
+			mcp.WithDescription("上传纯文本文档（由 Xberg MCP 抽取后切片、向量化并落库）。"),
 			mcp.WithInputSchema[*UploadAiKnowledgeDocTextRequest](),
 			mcp.WithOutputSchema[*emptypb.Empty](),
 		),
@@ -71,11 +71,11 @@ func RegisterAiKnowledgeDocServiceUploadAiKnowledgeDocTextMCPTool(mcpServer *ser
 	)
 }
 
-// RegisterAiKnowledgeDocServiceUploadAiKnowledgeDocFileMCPTool 注册上传文档文件（txt/md/docx/pdf：抽取文本后走同一入库链）的 MCP Tool。
+// RegisterAiKnowledgeDocServiceUploadAiKnowledgeDocFileMCPTool 注册上传文档文件（由 Xberg MCP 抽取后切片、向量化并落库）的 MCP Tool。
 func RegisterAiKnowledgeDocServiceUploadAiKnowledgeDocFileMCPTool(mcpServer *server.MCPServer, aiKnowledgeDocServiceServer AiKnowledgeDocServiceServer) {
 	mcpServer.AddTool(
 		mcp.NewTool("rag_admin_v1_ai_knowledge_doc_service_upload_ai_knowledge_doc_file",
-			mcp.WithDescription("上传文档文件（txt/md/docx/pdf：抽取文本后走同一入库链）。"),
+			mcp.WithDescription("上传文档文件（由 Xberg MCP 抽取后切片、向量化并落库）。"),
 			mcp.WithInputSchema[*UploadAiKnowledgeDocFileRequest](),
 			mcp.WithOutputSchema[*emptypb.Empty](),
 		),

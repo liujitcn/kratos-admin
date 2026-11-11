@@ -9,6 +9,7 @@ import (
 
 	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/ai"
+	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/automation"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 	"github.com/liujitcn/kratos-core/errorsx"
 
@@ -34,9 +35,25 @@ func (c *AiMessageCase) DecideAiToolApproval(ctx context.Context, req *basev1.De
 	if err != nil {
 		return nil, err
 	}
-	if session.Terminal != ai.TerminalAdmin {
-		return nil, errorsx.PermissionDenied("请在管理端确认业务写入操作")
+	if session.AutomationRunID > 0 {
+		var currentRun *models.AiAutomationRun
+		currentRun, err = c.automationCase.ownedAutomationRun(ctx, strconv.FormatInt(session.AutomationRunID, 10))
+		if err != nil {
+			return nil, err
+		}
+		ctx, err = c.automationCase.automationOwnerContext(ctx, currentRun)
+		if err != nil {
+			return nil, err
+		}
 	}
+	ctx, err = c.bindAiSessionTools(ctx, session)
+	if err != nil {
+		return nil, err
+	}
+	if err = c.validatePendingAiTools(ctx, session, message); err != nil {
+		return nil, err
+	}
+	var automationRun *models.AiAutomationRun
 	var run *models.AiToolApproval
 	var state ai.RunState
 	var calls []ai.ApprovalCall
@@ -44,6 +61,12 @@ func (c *AiMessageCase) DecideAiToolApproval(ctx context.Context, req *basev1.De
 	expired := false
 	err = c.tx.Transaction(ctx, func(txCtx context.Context) error {
 		var txErr error
+		if session.AutomationRunID > 0 {
+			automationRun, txErr = c.automationCase.claimAutomationApproval(txCtx, session)
+			if txErr != nil {
+				return txErr
+			}
+		}
 		if txErr = c.aiSessionCase.lockAiSession(txCtx, session); txErr != nil {
 			return txErr
 		}
@@ -72,7 +95,7 @@ func (c *AiMessageCase) DecideAiToolApproval(ctx context.Context, req *basev1.De
 		if txErr = json.Unmarshal([]byte(run.PendingCalls), &calls); txErr != nil {
 			return errorsx.Internal("审批工具参数损坏").WithCause(txErr)
 		}
-		if state.Terminal != "admin" || len(calls) == 0 {
+		if state.Terminal != ai.NormalizeTerminalString(session.Terminal) || len(calls) == 0 {
 			return errorsx.Conflict("审批运行状态无效")
 		}
 		now = time.Now().Truncate(time.Millisecond)
@@ -104,6 +127,11 @@ func (c *AiMessageCase) DecideAiToolApproval(ctx context.Context, req *basev1.De
 	}
 	message.Status = int32(basev1.AiMessageStatus_AI_MESSAGE_STATUS_GENERATING)
 	message.UpdatedAt = now
+	if automationRun != nil {
+		var stopApproval context.CancelFunc
+		ctx, stopApproval = c.automationCase.bindAutomationApproval(ctx, automationRun)
+		defer stopApproval()
+	}
 	startAt := time.Now()
 	var reply *ai.Response
 	status := int32(basev1.AiMessageStatus_AI_MESSAGE_STATUS_SUCCESS)
@@ -138,13 +166,30 @@ func (c *AiMessageCase) DecideAiToolApproval(ctx context.Context, req *basev1.De
 	if err != nil {
 		return nil, err
 	}
-	return &basev1.SendAiMessageResponse{Messages: []*basev1.AiMessage{c.ToDTO(message)}, Session: c.aiSessionCase.ToDTO(session)}, nil
+	response := &basev1.SendAiMessageResponse{Messages: []*basev1.AiMessage{c.ToDTO(message)}, Session: c.aiSessionCase.ToDTO(session)}
+	if automationRun != nil {
+		if expired {
+			err = c.automationCase.completeAutomationRun(context.WithoutCancel(ctx), automationRun, "expired", "本次确认已过期", "APPROVAL_EXPIRED", false, time.Now())
+		} else if !req.GetApproved() {
+			err = c.automationCase.completeAutomationRun(context.WithoutCancel(ctx), automationRun, "canceled", "本人已拒绝本次操作", "APPROVAL_REJECTED", false, time.Now())
+		} else {
+			err = c.automationCase.finishAutomationResponse(context.WithoutCancel(ctx), automationRun, response, nil)
+		}
+		if err != nil {
+			return nil, err
+		}
+	}
+	return response, nil
 }
 
 // runAiRuntime 在会话锁内创建持久化运行记录，防止会话删除后留下孤儿快照。
 func (c *AiMessageCase) runAiRuntime(ctx context.Context, session *models.AiSession, messageID int64, input ai.RuntimeInput, onDelta func(string)) (*ai.Response, error) {
 	var run *models.AiToolApproval
 	var err error
+	ctx, err = c.bindAiSessionTools(ctx, session)
+	if err != nil {
+		return nil, err
+	}
 	err = c.tx.Transaction(ctx, func(txCtx context.Context) error {
 		if err = c.aiSessionCase.lockAiSession(txCtx, session); err != nil {
 			return err
@@ -177,36 +222,44 @@ func (c *AiMessageCase) saveAiRuntime(ctx context.Context, run *models.AiToolApp
 	var cancel context.CancelFunc
 	ctx, cancel = context.WithTimeout(context.WithoutCancel(ctx), aiMessagePersistTimeout)
 	defer cancel()
-	query := c.aiApprovalRepo.Query(ctx).AiToolApproval
-	now := time.Now()
-	updates := []field.AssignExpr{query.Status.Value(status), query.CheckpointData.Value([]byte{}), query.UpdatedAt.Value(now)}
-	var err error
-	if reply != nil && reply.Pending != nil {
-		var state []byte
-		state, err = json.Marshal(reply.Pending.State)
+	return c.tx.Transaction(ctx, func(ctx context.Context) error {
+		if execution := automation.ExecutionFromContext(ctx); execution.RunID > 0 {
+			if err := c.automationCase.lockAutomationExecution(ctx, execution, reply != nil && reply.Pending != nil); err != nil {
+				return err
+			}
+		}
+
+		query := c.aiApprovalRepo.Query(ctx).AiToolApproval
+		now := time.Now()
+		updates := []field.AssignExpr{query.Status.Value(status), query.CheckpointData.Value([]byte{}), query.UpdatedAt.Value(now)}
+		var err error
+		if reply != nil && reply.Pending != nil {
+			var state []byte
+			state, err = json.Marshal(reply.Pending.State)
+			if err != nil {
+				return err
+			}
+			var calls []byte
+			calls, err = json.Marshal(reply.Pending.Calls)
+			if err != nil {
+				return err
+			}
+			run.ApprovalID = uuid.NewString()
+			run.ExpiresAt = now.Add(aiApprovalLifetime)
+			updates = []field.AssignExpr{query.Status.Value(aiRunPending), query.ApprovalID.Value(run.ApprovalID), query.RuntimeState.Value(string(state)), query.PendingCalls.Value(string(calls)), query.ExpiresAt.Value(run.ExpiresAt), query.UpdatedAt.Value(now)}
+			reply.Approval = &ai.Approval{ID: run.ApprovalID, ExpiresAt: run.ExpiresAt}
+			for _, call := range reply.Pending.Calls {
+				reply.Approval.Calls = append(reply.Approval.Calls, call.ApprovalInfo)
+			}
+		}
+		var result gen.ResultInfo
+		result, err = query.WithContext(ctx).Where(query.ID.Eq(run.ID), query.Status.Eq(aiRunRunning), query.ExpiresAt.Gt(now)).UpdateSimple(updates...)
 		if err != nil {
 			return err
 		}
-		var calls []byte
-		calls, err = json.Marshal(reply.Pending.Calls)
-		if err != nil {
-			return err
+		if result.RowsAffected != 1 {
+			return errorsx.Conflict("AI运行状态已变化，不能保存审批")
 		}
-		run.ApprovalID = uuid.NewString()
-		run.ExpiresAt = now.Add(aiApprovalLifetime)
-		updates = []field.AssignExpr{query.Status.Value(aiRunPending), query.ApprovalID.Value(run.ApprovalID), query.RuntimeState.Value(string(state)), query.PendingCalls.Value(string(calls)), query.ExpiresAt.Value(run.ExpiresAt), query.UpdatedAt.Value(now)}
-		reply.Approval = &ai.Approval{ID: run.ApprovalID, ExpiresAt: run.ExpiresAt}
-		for _, call := range reply.Pending.Calls {
-			reply.Approval.Calls = append(reply.Approval.Calls, call.ApprovalInfo)
-		}
-	}
-	var result gen.ResultInfo
-	result, err = query.WithContext(ctx).Where(query.ID.Eq(run.ID), query.Status.Eq(aiRunRunning), query.ExpiresAt.Gt(now)).UpdateSimple(updates...)
-	if err != nil {
-		return err
-	}
-	if result.RowsAffected != 1 {
-		return errorsx.Conflict("AI运行状态已变化，不能保存审批")
-	}
-	return nil
+		return nil
+	})
 }

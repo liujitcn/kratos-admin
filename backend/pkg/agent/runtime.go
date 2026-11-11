@@ -4,13 +4,9 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"slices"
-	"sort"
 	"strings"
 	"sync"
 	"time"
-	"unicode"
-	"unicode/utf8"
 
 	"github.com/go-kratos/kratos/v3/log"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/agent/adk"
@@ -22,13 +18,7 @@ import (
 )
 
 const (
-	maxModelToolsPerRequest    = 6
-	minToolMatchScore          = 4
-	maxShortFollowUpLength     = 8
-	maxToolQueryAttachmentText = 800
-	maxHistoryToolText         = 2000
-	agentToolCatalogName       = "internal_agent_tool_catalog"
-	aiWebSearchToolName        = "base_v1_ai_search_service_search_ai_web"
+	maxHistoryToolText = 2000
 )
 
 const fallbackAIInstruction = "You are a general-purpose AI assistant. Answer naturally, helpfully, and accurately. Use internal tools for private system data, do not fabricate results, and reply in the user's current language."
@@ -42,8 +32,8 @@ type Runtime struct {
 	toolsMu         sync.RWMutex
 	client          *model.AssistantClient
 	clientResolver  model.AssistantClientResolver
-	adminTools      []tool.Invokable
-	appTools        []tool.Invokable
+	adminTools      []tool.Base
+	appTools        []tool.Base
 	toolGate        ToolAccessChecker
 	localizeMessage MessageLocalizer
 }
@@ -60,8 +50,8 @@ func newRuntime(
 	return &Runtime{
 		client:          client,
 		clientResolver:  clientResolver,
-		adminTools:      append([]tool.Invokable(nil), adminTools...),
-		appTools:        append([]tool.Invokable(nil), appTools...),
+		adminTools:      append([]tool.Base(nil), adminTools...),
+		appTools:        append([]tool.Base(nil), appTools...),
 		toolGate:        checker,
 		localizeMessage: localizeMessage,
 	}
@@ -93,6 +83,19 @@ func (r *Runtime) RegisterTools(terminal string, values ...Tool) error {
 	return nil
 }
 
+// RegisteredTools 返回指定终端静态登记工具切片的副本。
+func (r *Runtime) RegisteredTools(terminal string) []tool.Base {
+	if r == nil {
+		return nil
+	}
+	r.toolsMu.RLock()
+	defer r.toolsMu.RUnlock()
+	if terminal == "app" {
+		return append([]tool.Base(nil), r.appTools...)
+	}
+	return append([]tool.Base(nil), r.adminTools...)
+}
+
 // InvokeTool 按工具名直接调用当前终端已启用的 Agent 工具。
 func (r *Runtime) InvokeTool(ctx context.Context, terminal string, name string, arguments string) (*ToolInvokeResult, error) {
 	if r == nil {
@@ -105,7 +108,7 @@ func (r *Runtime) InvokeTool(ctx context.Context, terminal string, name string, 
 		ID:        "direct_" + name,
 		Name:      name,
 		Arguments: arguments,
-	}, tool.WithCatalogName(agentToolCatalogName), tool.WithMessageLocalizer(r.localizeMessage))
+	}, tool.WithMessageLocalizer(r.localizeMessage))
 	usage := toolUsageFromCallResult(result)
 	if usage.Status != "success" {
 		return &ToolInvokeResult{Output: result.Content, Usage: usage}, errors.New(result.Content)
@@ -170,12 +173,6 @@ func (r *Runtime) RunStream(ctx context.Context, input RuntimeInput, onDelta fun
 		return nil, err
 	}
 	toolInfos, internalToolMatched := r.toolInfos(ctx, input)
-	if disabledCall := r.disabledToolCall(ctx, input, toolInfos); disabledCall != nil {
-		if onDelta != nil {
-			onDelta(disabledCall.Content)
-		}
-		return r.buildResponse(einoMessage.AIText(disabledCall.Content), TokenUsage{}, []ToolUsage{disabledCall.Usage}, client.Name()), nil
-	}
 	preparedInput, cleanup := r.prepareAttachments(ctx, input, client)
 	if cleanup != nil {
 		defer cleanup()
@@ -187,7 +184,7 @@ func (r *Runtime) RunStream(ctx context.Context, input RuntimeInput, onDelta fun
 	if err != nil {
 		return nil, err
 	}
-	return r.responseFromRun(input, client, toolInfos, internalToolMatched, result, recorder), nil
+	return r.responseFromRun(ctx, input, client, toolInfos, internalToolMatched, result, recorder), nil
 }
 
 // prepareAttachments 为支持的 Responses 客户端上传图片和 PDF，并返回请求结束后的清理函数。
@@ -242,20 +239,9 @@ type ToolInvokeResult struct {
 	Usage ToolUsage
 }
 
-// disabledToolCall 保存禁用工具命中后的回复与展示记录。
-type disabledToolCall struct {
-	// Content 面向用户展示的禁用原因。
-	Content string
-	// Usage 禁用工具对应的错误工具卡记录。
-	Usage ToolUsage
-}
-
-// runGenerate 执行非流式模型调用，并在需要时继续执行工具回填。
+// runGenerate 执行非流式模型调用并统一收集工具审批与调用记录。
 func (r *Runtime) runGenerate(ctx context.Context, input RuntimeInput, client *model.AssistantClient) (*Response, error) {
 	toolInfos, internalToolMatched := r.toolInfos(ctx, input)
-	if disabledCall := r.disabledToolCall(ctx, input, toolInfos); disabledCall != nil {
-		return r.buildResponse(einoMessage.AIText(disabledCall.Content), TokenUsage{}, []ToolUsage{disabledCall.Usage}, client.Name()), nil
-	}
 	preparedInput, cleanup := r.prepareAttachments(ctx, input, client)
 	if cleanup != nil {
 		defer cleanup()
@@ -265,46 +251,7 @@ func (r *Runtime) runGenerate(ctx context.Context, input RuntimeInput, client *m
 	if err != nil {
 		return nil, err
 	}
-	return r.responseFromRun(input, client, toolInfos, internalToolMatched, result, recorder), nil
-}
-
-// disabledToolCall 在本轮命中已禁用工具时构造明确错误回复。
-func (r *Runtime) disabledToolCall(ctx context.Context, input RuntimeInput, enabledCandidates []*tool.Info) *disabledToolCall {
-	registeredInfos := r.allToolInfos(ctx, input)
-	enabledInfos := r.enabledToolInfos(ctx, input, registeredInfos)
-	enabledNames := tool.NameSet(enabledInfos)
-	disabledInfos := make([]*tool.Info, 0, len(registeredInfos))
-	for _, info := range registeredInfos {
-		if info == nil || info.Name == "" || info.Name == agentToolCatalogName {
-			continue
-		}
-		if enabledNames[info.Name] {
-			continue
-		}
-		disabledInfos = append(disabledInfos, info)
-	}
-	if len(disabledInfos) == 0 {
-		return nil
-	}
-	if info := selectExplicitToolInfo(input, disabledInfos); info != nil {
-		return r.newDisabledToolCall(ctx, info)
-	}
-
-	terms := toolQueryTerms(input)
-	disabledMatches := scoredToolInfos(disabledInfos, terms)
-	enabledMatches := scoredToolInfos(enabledCandidates, terms)
-	if len(disabledMatches) > 0 && shouldReturnDisabledToolCall(disabledMatches[0], enabledMatches) {
-		return r.newDisabledToolCall(ctx, disabledMatches[0].info)
-	}
-
-	if len(disabledMatches) > 0 || len(enabledMatches) > 0 || !isHistoryToolFollowUp(input) {
-		return nil
-	}
-	matchedInfos := selectHistoryToolInfos(input, disabledInfos)
-	if len(matchedInfos) == 0 {
-		return nil
-	}
-	return r.newDisabledToolCall(ctx, matchedInfos[0])
+	return r.responseFromRun(ctx, input, client, toolInfos, internalToolMatched, result, recorder), nil
 }
 
 // runADK 通过 Eino ADK ChatModelAgent / Runner 执行模型和工具循环。
@@ -332,24 +279,27 @@ func (r *Runtime) runADK(
 		ServerTools:     serverTools,
 	})
 	result, err := runner.Run(ctx, adk.Request{
-		CheckPointID:    input.CheckPointID,
-		Messages:        append([]*einoMessage.AgenticMessage(nil), messages...),
-		Tools:           r.runnerTools(ctx, input),
-		ToolInfos:       toolInfos,
-		Recorder:        recorder,
-		LocalizeMessage: r.localizeMessage,
-		Stream:          stream,
-		OnDelta:         onDelta,
+		CheckPointID:     input.CheckPointID,
+		Messages:         append([]*einoMessage.AgenticMessage(nil), messages...),
+		Tools:            r.runnerTools(ctx, input, toolInfos),
+		ToolInfos:        toolInfos,
+		DynamicTools:     true,
+		ResolveToolInfos: func(callCtx context.Context) []*tool.Info { return r.enabledToolInfos(callCtx, input, toolInfos) },
+		Recorder:         recorder,
+		LocalizeMessage:  r.localizeMessage,
+		Stream:           stream,
+		OnDelta:          onDelta,
 	})
 	return result, recorder, err
 }
 
 // runnerTools 收集当前终端可由 ADK 执行的工具。
-func (r *Runtime) runnerTools(ctx context.Context, input RuntimeInput) []tool.Base {
+func (r *Runtime) runnerTools(ctx context.Context, input RuntimeInput, infos []*tool.Info) []tool.Base {
 	toolMap := r.toolMap(ctx, input)
+	allowed := tool.NameSet(infos)
 	tools := make([]tool.Base, 0, len(toolMap))
-	for _, item := range toolMap {
-		if item == nil {
+	for name, item := range toolMap {
+		if item == nil || !allowed[name] {
 			continue
 		}
 		tools = append(tools, item)
@@ -357,43 +307,19 @@ func (r *Runtime) runnerTools(ctx context.Context, input RuntimeInput) []tool.Ba
 	return tools
 }
 
-// toolInfos 收集可传给模型的工具定义，并保证目录工具每轮常驻暴露。
-//
-// 目录工具不参与关键词打分，只作为兜底路径追加在筛选结果之后：问题措辞与任何工具
-// 描述都对不上时，模型仍可通过目录工具查到完整工具清单并选择正确工具，而不是拿
-// 联网搜索或自身记忆回答内部业务数据问题。
+// toolInfos 收集当前请求完整授权工具池；相关性选择交给原生动态发现。
 func (r *Runtime) toolInfos(ctx context.Context, input RuntimeInput) ([]*tool.Info, bool) {
-	registeredInfos := r.allToolInfos(ctx, input)
-	infos := r.enabledToolInfos(ctx, input, registeredInfos)
-	catalogTool := r.newAgentToolCatalogTool(ctx, input.Terminal, registeredInfos, infos, maxModelToolsPerRequest)
-	catalogInfo, err := catalogTool.Info(ctx)
-	if err != nil || catalogInfo == nil {
-		return selectToolInfos(input, infos)
-	}
-	selected, matched := selectToolInfos(input, infos)
-	return appendCatalogInfo(selected, catalogInfo), matched
-}
-
-// appendCatalogInfo 将目录工具追加到本轮暴露列表，已存在时保持原列表不变。
-func appendCatalogInfo(infos []*tool.Info, catalogInfo *tool.Info) []*tool.Info {
-	if catalogInfo == nil {
-		return infos
-	}
-	for _, info := range infos {
-		if info != nil && info.Name == catalogInfo.Name {
-			return infos
-		}
-	}
-	return append(infos, catalogInfo)
+	return r.enabledToolInfos(ctx, input, r.allToolInfos(ctx, input)), false
 }
 
 // toolMap 按工具名构造本地执行索引。
-func (r *Runtime) toolMap(ctx context.Context, input RuntimeInput) map[string]tool.Invokable {
+func (r *Runtime) toolMap(ctx context.Context, input RuntimeInput) map[string]tool.Base {
 	registeredInfos := r.allToolInfos(ctx, input)
 	enabledInfos := r.enabledToolInfos(ctx, input, registeredInfos)
 	enabledNames := tool.NameSet(enabledInfos)
-	tools := r.terminalTools(input.Terminal)
-	result := make(map[string]tool.Invokable, len(enabledNames)+1)
+	pool := r.requestToolPool(ctx, input.Terminal)
+	tools := pool.Tools
+	result := make(map[string]tool.Base, len(enabledNames)+1)
 	var err error
 	if r == nil {
 		return result
@@ -413,20 +339,23 @@ func (r *Runtime) toolMap(ctx context.Context, input RuntimeInput) map[string]to
 		if !enabledNames[info.Name] {
 			continue
 		}
-		if r.toolGate != nil {
-			name := info.Name
-			item = tool.NewGuardedTool(item, func(callCtx context.Context, arguments string) (string, bool, error) {
-				return r.toolGate.PrepareToolCall(callCtx, input.Terminal, name, arguments)
-			}, r.checkPointStore != nil && input.CheckPointID != "")
+		name := info.Name
+		effectiveInfo := info
+		for _, enabledInfo := range enabledInfos {
+			if enabledInfo.Name == name {
+				effectiveInfo = enabledInfo
+				break
+			}
 		}
+		item = tool.NewGuardedBaseTool(item, func(callCtx context.Context, arguments string) (string, bool, error) {
+			if pool.Checker == nil {
+				return arguments, false, nil
+			}
+			return pool.Checker.PrepareToolCall(callCtx, input.Terminal, name, arguments)
+		}, r.checkPointStore != nil && input.CheckPointID != "", effectiveInfo)
 		result[info.Name] = item
 	}
-	catalogTool := r.newAgentToolCatalogTool(ctx, input.Terminal, registeredInfos, enabledInfos, maxModelToolsPerRequest)
-	var catalogInfo *tool.Info
-	catalogInfo, err = catalogTool.Info(ctx)
-	if err == nil && catalogInfo != nil && catalogInfo.Name != "" {
-		result[catalogInfo.Name] = catalogTool
-	}
+
 	return result
 }
 
@@ -454,7 +383,8 @@ func (r *Runtime) buildMessages(ctx context.Context, input RuntimeInput, client 
 
 // enabledToolInfos 按 base_api.agent_status 过滤当前终端可暴露给 Agent 的工具。
 func (r *Runtime) enabledToolInfos(ctx context.Context, input RuntimeInput, infos []*tool.Info) []*tool.Info {
-	if len(infos) == 0 || r == nil || r.toolGate == nil {
+	pool := r.requestToolPool(ctx, input.Terminal)
+	if len(infos) == 0 || pool.Checker == nil {
 		return infos
 	}
 	names := make([]string, 0, len(infos))
@@ -464,7 +394,7 @@ func (r *Runtime) enabledToolInfos(ctx context.Context, input RuntimeInput, info
 		}
 		names = append(names, info.Name)
 	}
-	toolConfigs, err := r.toolGate.ToolConfigs(ctx, input.Terminal, names)
+	toolConfigs, err := pool.Checker.ToolConfigs(ctx, input.Terminal, names)
 	if err != nil {
 		return nil
 	}
@@ -484,7 +414,8 @@ func (r *Runtime) enabledToolInfos(ctx context.Context, input RuntimeInput, info
 
 // allToolInfos 收集当前终端完整工具定义，不做本轮相关性筛选。
 func (r *Runtime) allToolInfos(ctx context.Context, input RuntimeInput) []*tool.Info {
-	tools := r.terminalTools(input.Terminal)
+	pool := r.requestToolPool(ctx, input.Terminal)
+	tools := pool.Tools
 	if len(tools) == 0 {
 		return nil
 	}
@@ -520,7 +451,8 @@ func (r *Runtime) allToolInfos(ctx context.Context, input RuntimeInput) []*tool.
 // toolInfoConfigs 查询当前终端完整工具配置。
 func (r *Runtime) toolInfoConfigs(ctx context.Context, input RuntimeInput, infos []*tool.Info) map[string]ToolConfig {
 	result := make(map[string]ToolConfig, len(infos))
-	if len(infos) == 0 || r == nil || r.toolGate == nil {
+	pool := r.requestToolPool(ctx, input.Terminal)
+	if len(infos) == 0 || pool.Checker == nil {
 		for _, info := range infos {
 			if info == nil || info.Name == "" {
 				continue
@@ -536,24 +468,11 @@ func (r *Runtime) toolInfoConfigs(ctx context.Context, input RuntimeInput, infos
 		}
 		names = append(names, info.Name)
 	}
-	toolConfigs, err := r.toolGate.ToolConfigs(ctx, input.Terminal, names)
+	toolConfigs, err := pool.Checker.ToolConfigs(ctx, input.Terminal, names)
 	if err != nil {
 		return result
 	}
 	return toolConfigs
-}
-
-// terminalTools 按终端选择当前智能体可用工具。
-func (r *Runtime) terminalTools(terminal string) []tool.Invokable {
-	if r == nil {
-		return nil
-	}
-	r.toolsMu.RLock()
-	defer r.toolsMu.RUnlock()
-	if terminal == "app" {
-		return append([]tool.Invokable(nil), r.appTools...)
-	}
-	return append([]tool.Invokable(nil), r.adminTools...)
 }
 
 // resolvePrompt 渲染 AI 助手提示词。
@@ -562,7 +481,7 @@ func (r *Runtime) resolvePrompt(ctx context.Context, input RuntimeInput) string 
 	lines := []string{
 		r.localizePrompt(ctx, "base.ai.prompt.instruction", nil, fallbackAIInstruction),
 		r.localizePrompt(ctx, "base.ai.prompt.tool_routing_rules", nil,
-			"Use internal tools for private project data. When an internal tool matches this request, answer only with internal tools and do not use web search. Follow tool descriptions and parameter defaults; do not add or remove query conditions without instruction. For a clarified follow-up, reuse the latest relevant tool and preserve other conditions, changing only the clarified condition. If no exposed tool matches a request about internal project data, call internal_agent_tool_catalog first to locate the correct internal tool; never answer such requests from memory or web search alone. Ask if the target or condition is ambiguous."),
+			"Use internal tools for private project data. When an internal tool matches this request, answer only with internal tools and do not use web search. Follow tool descriptions and parameter defaults; do not add or remove query conditions without instruction. For a clarified follow-up, reuse the latest relevant tool and preserve other conditions, changing only the clarified condition. If no exposed tool matches a request about internal project data, call tool_search first to locate the correct internal tool; never answer such requests from memory or web search alone. Ask if the target or condition is ambiguous."),
 		"",
 		r.localizePrompt(ctx, "base.ai.prompt.current_session", nil, "Current session:"),
 		r.localizePrompt(ctx, "base.ai.prompt.terminal", map[string]any{"Value": input.Terminal}, "- Terminal: {{.Value}}"),
@@ -685,118 +604,6 @@ func (r *Runtime) resolveAssistantClient(input RuntimeInput) (*model.AssistantCl
 	return r.client, nil
 }
 
-// newAgentToolCatalogTool 创建工具目录查询工具。
-func (r *Runtime) newAgentToolCatalogTool(ctx context.Context, terminal string, infos []*tool.Info, enabledInfos []*tool.Info, modelToolsPerTurn int) tool.Invokable {
-	return tool.NewCatalogTool(tool.CatalogOptions{
-		Name: agentToolCatalogName,
-		Description: r.localizePrompt(ctx, "base.ai.prompt.catalog_tool_description", nil,
-			"Query the complete internal Agent Tool catalog for the current terminal, including tool counts, names, and descriptions. Use when the user asks which tools or APIs are available, or when no other exposed tool matches the user's request and an internal tool may be needed."),
-		Terminal:          terminal,
-		Infos:             infos,
-		EnabledInfos:      enabledInfos,
-		ModelToolsPerTurn: modelToolsPerTurn,
-	})
-}
-
-// newDisabledToolCall 构造禁用工具对应的错误回复与工具卡。
-func (r *Runtime) newDisabledToolCall(ctx context.Context, info *tool.Info) *disabledToolCall {
-	content := tool.DisabledMessage(ctx, info.Name, r.localizeMessage)
-	return &disabledToolCall{
-		Content: content,
-		Usage: ToolUsage{
-			Type:   "function",
-			Name:   info.Name,
-			Title:  tool.Title(info),
-			Status: "error",
-			Output: tool.MarshalError(content),
-		},
-	}
-}
-
-// shouldReturnDisabledToolCall 判断禁用工具是否比当前启用候选更符合本轮问题。
-func shouldReturnDisabledToolCall(disabled scoredToolInfo, enabledMatches []scoredToolInfo) bool {
-	if disabled.info == nil || disabled.score <= 0 {
-		return false
-	}
-	if len(enabledMatches) == 0 {
-		return true
-	}
-	return disabled.score >= enabledMatches[0].score
-}
-
-// selectExplicitToolInfo 按用户本轮直接写出的工具名匹配工具。
-func selectExplicitToolInfo(input RuntimeInput, infos []*tool.Info) *tool.Info {
-	text := strings.ToLower(toolQueryText(input))
-	if text == "" {
-		return nil
-	}
-	for _, info := range infos {
-		if info == nil || info.Name == "" {
-			continue
-		}
-		if strings.Contains(text, strings.ToLower(info.Name)) {
-			return info
-		}
-	}
-	return nil
-}
-
-// isHistoryToolFollowUp 判断本轮是否像是在延续上一轮工具查询。
-func isHistoryToolFollowUp(input RuntimeInput) bool {
-	if len(input.Attachments) > 0 || !hasHistoryToolUsage(input.History) {
-		return false
-	}
-	text := strings.TrimSpace(input.Content)
-	return hasFollowUpReference(text) || hasPaginationReference(text)
-}
-
-// hasHistoryToolUsage 判断历史上下文中是否存在可延续的工具调用。
-func hasHistoryToolUsage(history []Message) bool {
-	for _, item := range history {
-		if len(item.Tools) > 0 {
-			return true
-		}
-	}
-	return false
-}
-
-// hasFollowUpReference 判断文本是否包含泛化的续查引用。
-func hasFollowUpReference(text string) bool {
-	text = strings.TrimSpace(text)
-	if text == "" {
-		return false
-	}
-	if hasFollowUpCue(text) {
-		return true
-	}
-	return len([]rune(text)) <= maxShortFollowUpLength
-}
-
-// hasFollowUpCue 判断文本是否包含明确的续查表达。
-func hasFollowUpCue(text string) bool {
-	lowerText := strings.ToLower(text)
-	for _, cue := range []string{"继续", "更多", "还有", "再", "下一", "上一", "刷新", "换一批", "next", "more"} {
-		if strings.Contains(lowerText, cue) {
-			return true
-		}
-	}
-	return false
-}
-
-// hasPaginationReference 判断文本是否包含泛化的分页引用。
-func hasPaginationReference(text string) bool {
-	lowerText := strings.ToLower(text)
-	if !strings.Contains(lowerText, "page") && !strings.Contains(text, "页") {
-		return false
-	}
-	for _, r := range text {
-		if unicode.IsDigit(r) {
-			return true
-		}
-	}
-	return false
-}
-
 // withToolInfoConfig 使用数据库中的工具配置覆盖生成工具描述。
 func withToolInfoConfig(info *tool.Info, config ToolConfig) *tool.Info {
 	if info == nil || len(config.Prompts) == 0 {
@@ -817,329 +624,6 @@ func toolPromptsDescription(prompts []string) string {
 		values = append(values, item)
 	}
 	return strings.Join(values, "\n")
-}
-
-// selectToolInfos 从当前终端完整工具池中挑选本轮请求相关工具。
-func selectToolInfos(input RuntimeInput, infos []*tool.Info) ([]*tool.Info, bool) {
-	terms := toolQueryTerms(input)
-	internalInfos := make([]*tool.Info, 0, len(infos))
-	for _, info := range infos {
-		if info == nil || info.Name == aiWebSearchToolName || info.Name == agentToolCatalogName {
-			continue
-		}
-		internalInfos = append(internalInfos, info)
-	}
-	if result := selectScoredToolInfos(internalInfos, terms); len(result) > 0 {
-		return result, true
-	}
-	if isHistoryToolFollowUp(input) {
-		historyInfos := selectHistoryToolInfos(input, internalInfos)
-		if len(historyInfos) > 0 {
-			queryMatchedHistoryTool := hasToolQueryTermMatch(historyInfos, terms)
-			if hasFollowUpCue(input.Content) || hasPaginationReference(input.Content) || queryMatchedHistoryTool {
-				return historyInfos, true
-			}
-			return selectHistoryToolInfosWithSearch(historyInfos, infos), false
-		}
-	}
-	if len(infos) <= maxModelToolsPerRequest {
-		return infos, false
-	}
-	result := selectScoredToolInfos(infos, terms)
-	if len(result) > 0 {
-		return result, false
-	}
-	if !isHistoryToolFollowUp(input) {
-		// 内部工具均不匹配时保底暴露联网搜索工具，避免模型无法处理公开实时信息类问题。
-		return selectFallbackToolInfos(infos), false
-	}
-	return selectHistoryToolInfosWithSearch(selectHistoryToolInfos(input, internalInfos), infos), false
-}
-
-// hasToolQueryTermMatch 判断短追问是否命中历史工具描述中的任意有效词项。
-func hasToolQueryTermMatch(infos []*tool.Info, terms []string) bool {
-	for _, info := range infos {
-		if info == nil {
-			continue
-		}
-		text := strings.ToLower(info.Name + " " + info.Desc)
-		for _, term := range terms {
-			if len([]rune(term)) >= 2 && strings.Contains(text, term) {
-				return true
-			}
-		}
-	}
-	return false
-}
-
-// selectFallbackToolInfos 内部工具不匹配时保底返回联网搜索工具。
-func selectFallbackToolInfos(infos []*tool.Info) []*tool.Info {
-	for _, info := range infos {
-		if info != nil && info.Name == aiWebSearchToolName {
-			return []*tool.Info{info}
-		}
-	}
-	return nil
-}
-
-// selectScoredToolInfos 按关键词从完整工具池中挑选本轮可暴露的工具。
-func selectScoredToolInfos(infos []*tool.Info, terms []string) []*tool.Info {
-	scoredTools := scoredToolInfos(infos, terms)
-	if len(scoredTools) == 0 {
-		return nil
-	}
-	limit := min(len(scoredTools), maxModelToolsPerRequest)
-	result := make([]*tool.Info, 0, limit)
-	for _, item := range scoredTools[:limit] {
-		result = append(result, item.info)
-	}
-	return result
-}
-
-// scoredToolInfos 按关键词为工具打分并按相关性排序。
-func scoredToolInfos(infos []*tool.Info, terms []string) []scoredToolInfo {
-	if len(terms) == 0 {
-		return nil
-	}
-	scoredTools := make([]scoredToolInfo, 0, len(infos))
-	for index, info := range infos {
-		score := scoreToolInfo(info, terms)
-		if score < minToolMatchScore {
-			continue
-		}
-		scoredTools = append(scoredTools, scoredToolInfo{
-			info:  info,
-			score: score,
-			index: index,
-		})
-	}
-	if len(scoredTools) == 0 {
-		return nil
-	}
-	sort.SliceStable(scoredTools, func(i, j int) bool {
-		if scoredTools[i].score == scoredTools[j].score {
-			return scoredTools[i].index < scoredTools[j].index
-		}
-		return scoredTools[i].score > scoredTools[j].score
-	})
-	return scoredTools
-}
-
-// selectHistoryToolInfos 在本轮未命中工具时，延续最近历史工具作为短追问候选。
-func selectHistoryToolInfos(input RuntimeInput, infos []*tool.Info) []*tool.Info {
-	infoMap := make(map[string]*tool.Info, len(infos))
-	for _, info := range infos {
-		if info == nil || info.Name == "" || info.Name == agentToolCatalogName {
-			continue
-		}
-		infoMap[info.Name] = info
-	}
-	if len(infoMap) == 0 {
-		return nil
-	}
-	result := make([]*tool.Info, 0, maxModelToolsPerRequest)
-	seen := make(map[string]struct{}, maxModelToolsPerRequest)
-	for _, message := range slices.Backward(input.History) {
-		for _, item := range message.Tools {
-			info := infoMap[item.Name]
-			if info == nil {
-				continue
-			}
-			if _, ok := seen[info.Name]; ok {
-				continue
-			}
-			seen[info.Name] = struct{}{}
-			result = append(result, info)
-			if len(result) >= maxModelToolsPerRequest {
-				return result
-			}
-		}
-	}
-	return result
-}
-
-// selectHistoryToolInfosWithSearch 为无法仅凭短追问确定意图的历史工具保留联网搜索候选。
-func selectHistoryToolInfosWithSearch(historyInfos, infos []*tool.Info) []*tool.Info {
-	searchInfos := selectFallbackToolInfos(infos)
-	if len(searchInfos) == 0 {
-		return historyInfos
-	}
-	if len(historyInfos) >= maxModelToolsPerRequest {
-		historyInfos = historyInfos[:maxModelToolsPerRequest-1]
-	}
-	return append(historyInfos, searchInfos...)
-}
-
-type scoredToolInfo struct {
-	info  *tool.Info
-	score int
-	index int
-}
-
-// toolQueryTerms 只提取本轮问题用于匹配工具名称和描述的关键词。
-func toolQueryTerms(input RuntimeInput) []string {
-	return splitUniqueToolQueryTerms(strings.ToLower(toolQueryText(input)))
-}
-
-// toolQueryText 汇总本轮内容用于工具匹配。
-func toolQueryText(input RuntimeInput) string {
-	textParts := []string{input.Content}
-	for _, item := range input.Attachments {
-		textParts = append(textParts, item.Name)
-		textParts = append(textParts, limitToolQueryAttachmentText(item.Content))
-	}
-	return strings.Join(textParts, " ")
-}
-
-// limitToolQueryAttachmentText 按字符数限制附件内容，避免截断中文或 emoji 的 UTF-8 字节。
-func limitToolQueryAttachmentText(content string) string {
-	runes := []rune(content)
-	if len(runes) <= maxToolQueryAttachmentText {
-		return content
-	}
-	return string(runes[:maxToolQueryAttachmentText])
-}
-
-// splitUniqueToolQueryTerms 将原始文本切词并去重。
-func splitUniqueToolQueryTerms(raw string) []string {
-	seen := map[string]struct{}{}
-	terms := make([]string, 0, 16)
-	for _, term := range splitToolQueryTerms(raw) {
-		if term == "" {
-			continue
-		}
-		if _, ok := seen[term]; ok {
-			continue
-		}
-		seen[term] = struct{}{}
-		terms = append(terms, term)
-	}
-	return terms
-}
-
-// splitToolQueryTerms 同时兼容中文短语和英文/数字工具名。
-func splitToolQueryTerms(raw string) []string {
-	values := make([]string, 0, 16)
-	var word strings.Builder
-	var hans strings.Builder
-	flushWord := func() {
-		if word.Len() == 0 {
-			return
-		}
-		if value := word.String(); len([]rune(value)) > 1 {
-			values = append(values, value)
-		}
-		word.Reset()
-	}
-	flushHans := func() {
-		if hans.Len() == 0 {
-			return
-		}
-		values = append(values, chineseNgrams(hans.String())...)
-		hans.Reset()
-	}
-	for _, r := range raw {
-		if unicode.Is(unicode.Han, r) {
-			flushWord()
-			hans.WriteRune(r)
-			continue
-		}
-		flushHans()
-		if unicode.IsLetter(r) || unicode.IsDigit(r) {
-			word.WriteRune(r)
-			continue
-		}
-		flushWord()
-	}
-	flushWord()
-	flushHans()
-	return values
-}
-
-// chineseNgrams 把连续中文切成短语，提升“商品列表”对“查询商品信息列表”的命中率。
-func chineseNgrams(value string) []string {
-	runes := []rune(value)
-	if len(runes) == 0 {
-		return nil
-	}
-	if len(runes) <= 2 {
-		return []string{value}
-	}
-	values := make([]string, 0, len(runes)*2)
-	if len(runes) <= 6 {
-		values = append(values, value)
-	}
-	for size := 2; size <= 4; size++ {
-		if len(runes) < size {
-			break
-		}
-		for i := 0; i+size <= len(runes); i++ {
-			values = append(values, string(runes[i:i+size]))
-		}
-	}
-	return values
-}
-
-// scoreToolInfo 计算工具与用户问题的相关性。
-func scoreToolInfo(info *tool.Info, terms []string) int {
-	if info == nil {
-		return 0
-	}
-	text := strings.ToLower(info.Name + " " + info.Desc)
-	score := 0
-	specificScore := 0
-	shortPositions := make([]int, 0, 4)
-	for _, term := range terms {
-		if !strings.Contains(text, term) {
-			continue
-		}
-		termScore := len([]rune(term))
-		score += termScore
-		if strings.Contains(info.Name, term) {
-			score += 3
-		}
-		if termScore >= 3 {
-			specificScore += termScore
-			continue
-		}
-		if termScore == 2 {
-			for start := 0; start < len(text); {
-				position := strings.Index(text[start:], term)
-				if position < 0 {
-					break
-				}
-				position += start
-				shortPositions = append(shortPositions, utf8.RuneCountInString(text[:position]))
-				start = position + len(term)
-			}
-		}
-	}
-	if specificScore == 0 && !hasNearbyShortToolTerms(shortPositions) {
-		return 0
-	}
-	return score
-}
-
-// hasNearbyShortToolTerms 判断多个短词是否在工具描述中足够接近。
-func hasNearbyShortToolTerms(positions []int) bool {
-	for i, left := range positions {
-		if left < 0 {
-			continue
-		}
-		for _, right := range positions[i+1:] {
-			if right < 0 {
-				continue
-			}
-			distance := left - right
-			if distance < 0 {
-				distance = -distance
-			}
-			if distance <= 18 {
-				return true
-			}
-		}
-	}
-	return false
 }
 
 // buildHistoryToolContext 构造当前仍启用工具的历史调用上下文。

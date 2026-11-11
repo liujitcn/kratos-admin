@@ -1,4 +1,136 @@
 {
+  "ai.plugin.aipluginform.code": {
+    "other": "穩定編碼不合法"
+  },
+  "ai.plugin.aipluginform.config_json": {
+    "other": "平台核准的網路和OAuth公開設定JSON不合法"
+  },
+  "ai.plugin.aipluginform.description": {
+    "other": "說明不合法"
+  },
+  "ai.plugin.aipluginform.endpoint": {
+    "other": "MCP HTTPS網址無效"
+  },
+  "ai.plugin.aipluginform.name": {
+    "other": "名稱不合法"
+  },
+  "ai.plugin.aipluginform.source": {
+    "other": "來源不合法"
+  },
+  "ai.plugin.aipluginform.visibility": {
+    "other": "可見範圍不合法"
+  },
+  "ai.plugin.aipluginselection.connection_id": {
+    "other": "連線ID無效；本機元件請留空"
+  },
+  "ai.plugin.aipluginselection.plugin_id": {
+    "other": "外掛ID不合法"
+  },
+  "ai.plugin.completeaipluginoauthrequest.code": {
+    "other": "授權碼不合法"
+  },
+  "ai.plugin.completeaipluginoauthrequest.error": {
+    "other": "供應商拒絕原因不合法"
+  },
+  "ai.plugin.completeaipluginoauthrequest.iss": {
+    "other": "授權發行方不合法"
+  },
+  "ai.plugin.completeaipluginoauthrequest.state": {
+    "other": "一次性授權狀態不合法"
+  },
+  "ai.plugin.createaipluginconnectionrequest.auth_type": {
+    "other": "認證方式不合法"
+  },
+  "ai.plugin.createaipluginconnectionrequest.label": {
+    "other": "帳號標籤不合法"
+  },
+  "ai.plugin.createaipluginconnectionrequest.plugin_id": {
+    "other": "外掛ID不合法"
+  },
+  "ai.plugin.deleteaipluginrequest.id": {
+    "other": "外掛ID不合法"
+  },
+  "ai.plugin.deleteaipluginrequest.revision": {
+    "other": "當前設定修訂號不合法"
+  },
+  "ai.plugin.disconnectaipluginconnectionrequest.id": {
+    "other": "連線ID不合法"
+  },
+  "ai.plugin.disconnectaipluginconnectionrequest.revision": {
+    "other": "當前修訂號不合法"
+  },
+  "ai.plugin.getaipluginrequest.id": {
+    "other": "外掛ID不合法"
+  },
+  "ai.plugin.listaipluginconnectionrequest.plugin_id": {
+    "other": "外掛ID無效；留空表示全部"
+  },
+  "ai.plugin.listaipluginrequest.keyword": {
+    "other": "名稱或編碼過濾不合法"
+  },
+  "ai.plugin.listaiplugintoolrequest.plugin_id": {
+    "other": "外掛ID不合法"
+  },
+  "ai.plugin.reauthorize.id": {
+    "other": "連線編號不合法"
+  },
+  "ai.plugin.reauthorize.revision": {
+    "other": "修訂號不合法"
+  },
+  "ai.plugin.refreshaipluginconnectionrequest.id": {
+    "other": "連線ID不合法"
+  },
+  "ai.plugin.refreshaipluginconnectionrequest.revision": {
+    "other": "當前修訂號不合法"
+  },
+  "ai.plugin.setaiplugininstallationrequest.plugin_id": {
+    "other": "外掛ID不合法"
+  },
+  "ai.plugin.setaiplugininstallationrequest.revision": {
+    "other": "目前修訂號無效；首次請填0"
+  },
+  "ai.plugin.setaiplugininstallationrequest.terminals": {
+    "other": "允許用戶端不合法"
+  },
+  "ai.plugin.setaiplugintoolpolicyrequest.contract_hash": {
+    "other": "確認稽核的契約雜湊不合法"
+  },
+  "ai.plugin.setaiplugintoolpolicyrequest.effect": {
+    "other": "稽核效果不合法"
+  },
+  "ai.plugin.setaiplugintoolpolicyrequest.plugin_id": {
+    "other": "外掛ID不合法"
+  },
+  "ai.plugin.setaiplugintoolpolicyrequest.revision": {
+    "other": "目前策略修訂號無效；首次請填0"
+  },
+  "ai.plugin.setaiplugintoolpolicyrequest.tool_id": {
+    "other": "工具ID不合法"
+  },
+  "ai.plugin.sharing.id": {
+    "other": "連線編號不合法"
+  },
+  "ai.plugin.sharing.revision": {
+    "other": "修訂號不合法"
+  },
+  "ai.plugin.sharing.scope": {
+    "other": "共享範圍不合法"
+  },
+  "ai.plugin.startaipluginoauthrequest.id": {
+    "other": "連線ID不合法"
+  },
+  "ai.plugin.startaipluginoauthrequest.revision": {
+    "other": "當前修訂號不合法"
+  },
+  "ai.plugin.tool.prompts": {
+    "other": "提示詞最多10條且每條不超過2000字元"
+  },
+  "ai.plugin.updateaipluginrequest.id": {
+    "other": "外掛ID不合法"
+  },
+  "ai.plugin.updateaipluginrequest.revision": {
+    "other": "當前設定修訂號不合法"
+  },
   "base.ai.approval.message_id.positive": {
     "other": "訊息編號不合法"
   },
@@ -115,12 +247,6 @@
   },
   "base.ai.query.question.required": {
     "other": "問題內容不合法"
-  },
-  "base.ai.report.content.length": {
-    "other": "報告內文須為 1 至 50000 個字元"
-  },
-  "base.ai.report.title.length": {
-    "other": "報告標題須為 1 至 100 個字元"
   },
   "base.ai.search.http_status": {
     "other": "網路搜尋服務返回異常狀態：{{.Status}}"
@@ -716,11 +842,17 @@
   "legacy.error.096862c5edb1fdf1": {
     "other": "主語言不允許刪除"
   },
+  "legacy.error.09a6ebd546ffb1ad": {
+    "other": "內建外掛編號不符合初始化契約"
+  },
   "legacy.error.09ca476dad7eaf93": {
     "other": "聯網搜尋服務返回異常狀態"
   },
   "legacy.error.09ce61cf8bbd6ceb": {
     "other": "記錄歷史密碼失敗"
+  },
+  "legacy.error.09dd8c87638bb6e8": {
+    "other": "請到原用戶端處理本次操作"
   },
   "legacy.error.09f1b9c640191da8": {
     "other": "查詢 embedding 模型失敗"
@@ -755,11 +887,17 @@
   "legacy.error.0af53829eb85ec21": {
     "other": "刪除 BI 數據源失敗"
   },
+  "legacy.error.0b06a9e4f1dcb805": {
+    "other": "時區不合法"
+  },
   "legacy.error.0b38823ed34c2c02": {
     "other": "流程僅支援 JavaScript 腳本"
   },
   "legacy.error.0b8c6c4bfc046e48": {
     "other": "規則狀態無效"
+  },
+  "legacy.error.0ba482d3cbbbf2d5": {
+    "other": "無權存取外掛"
   },
   "legacy.error.0c182ab409f0a51d": {
     "other": "訊息動作參數巢狀層級過深"
@@ -772,6 +910,21 @@
   },
   "legacy.error.0c3f314f627082c1": {
     "other": "查詢字典屬性分頁列表失敗"
+  },
+  "legacy.error.0c8862df852bcd9a": {
+    "other": "自動化租約已失效，不能回寫結果"
+  },
+  "legacy.error.0c9d4a75c7406bcf": {
+    "other": "查詢當前身分可見的外掛目錄失敗"
+  },
+  "legacy.error.0ce1e3726c3a856b": {
+    "other": "計畫狀態不合法"
+  },
+  "legacy.error.0ce4067c34d470c2": {
+    "other": "外掛引用不能為空"
+  },
+  "legacy.error.0ceaaf8bb64e110e": {
+    "other": "連線設定已變化"
   },
   "legacy.error.0cf67600c5317be5": {
     "other": "任務正在其他執行個體執行"
@@ -787,6 +940,9 @@
   },
   "legacy.error.0d38b9f361e60e0e": {
     "other": "訊息已被其他人修改，請重新整理後重試"
+  },
+  "legacy.error.0d8f1aae3ee55724": {
+    "other": "發現範圍不合法"
   },
   "legacy.error.0dbf60614597b70f": {
     "other": "選中的數據表已不存在，請重新發現表結構"
@@ -809,11 +965,17 @@
   "legacy.error.0e0d65e432f75240": {
     "other": "查詢封存記錄失敗"
   },
+  "legacy.error.0e1ed5b5710e5e70": {
+    "other": "外掛編碼已存在或建立失敗"
+  },
   "legacy.error.0e3c33d45f94d08a": {
     "other": "設定狀態失敗"
   },
   "legacy.error.0e578ecd3aeab2fd": {
     "other": "編碼 WebAuthn 註冊選項失敗"
+  },
+  "legacy.error.0e7c918f78272dfa": {
+    "other": "租戶未啟用此外掛"
   },
   "legacy.error.0e953f80478aa9ed": {
     "other": "同一租戶的流程編碼與版本重複"
@@ -869,6 +1031,9 @@
   "legacy.error.11bc2823ec42b680": {
     "other": "驗證碼校驗失敗"
   },
+  "legacy.error.121efef24c578423": {
+    "other": "執行租約或狀態已失效"
+  },
   "legacy.error.1252b0cf293d5df2": {
     "other": "儲存多因素認證綁定票據失敗"
   },
@@ -889,6 +1054,9 @@
   },
   "legacy.error.13d2e1e8985487d2": {
     "other": "目前認證方式不需要 WebAuthn 驗證"
+  },
+  "legacy.error.13d5a4f74f5f95ea": {
+    "other": "工具契約已變化，請重新審查"
   },
   "legacy.error.13d9db4a12e72986": {
     "other": "指標卡和儀表圖需要不分組的查詢結果"
@@ -940,6 +1108,9 @@
   },
   "legacy.error.1572896dd8ea2149": {
     "other": "檔案中繼資料倉儲未設定"
+  },
+  "legacy.error.157c0da740d92de0": {
+    "other": "API工具開關由平台管理員維護"
   },
   "legacy.error.1593dca0dfa86346": {
     "other": "任務已被處理"
@@ -1007,6 +1178,9 @@
   "legacy.error.18f0b5e30636fefe": {
     "other": "智能問數查詢執行失敗"
   },
+  "legacy.error.191e089185824060": {
+    "other": "執行用戶端無效"
+  },
   "legacy.error.192d1d94040adba1": {
     "other": "刪除行政區域失敗，下面有行政區域"
   },
@@ -1025,8 +1199,17 @@
   "legacy.error.19e303eaf75621aa": {
     "other": "BI 時間範圍不可用"
   },
+  "legacy.error.19e59ded36bccdee": {
+    "other": "自動化仍在執行或等待確認，不能刪除結果對話"
+  },
   "legacy.error.1a09a09d2d75fb94": {
     "other": "選單建立後不允許更換父級"
+  },
+  "legacy.error.1a623eae5ca1f817": {
+    "other": "API工具設定僅允許平台管理員維護"
+  },
+  "legacy.error.1a7e6c699d173555": {
+    "other": "計畫時間不合法"
   },
   "legacy.error.1a9a613e94941637": {
     "other": "查詢 WebAuthn 多因素認證設定失敗"
@@ -1085,6 +1268,9 @@
   "legacy.error.1d65089c82e93a8f": {
     "other": "BI 數據源不存在"
   },
+  "legacy.error.1d9e58fc4d11cc80": {
+    "other": "外掛不存在"
+  },
   "legacy.error.1db7bf52e1db8bbc": {
     "other": "上級部門與所屬租戶不一致"
   },
@@ -1093,6 +1279,9 @@
   },
   "legacy.error.1e352cf078d9c4a3": {
     "other": "WebAuthn 註冊回應無效"
+  },
+  "legacy.error.1ec6e14122f5cac8": {
+    "other": "授權連線已失效"
   },
   "legacy.error.1ef959db9503eb93": {
     "other": "訊息範本擴展配置無效"
@@ -1138,6 +1327,9 @@
   },
   "legacy.error.21a5509ce518ca64": {
     "other": "生成 BI 數據源目錄失敗"
+  },
+  "legacy.error.21dd6a4606c4f3f5": {
+    "other": "工具引數不符合已審查契約"
   },
   "legacy.error.21fa23c0f931e551": {
     "other": "建立多因素認證挑戰失敗"
@@ -1187,9 +1379,6 @@
   "legacy.error.241051568bef8e2e": {
     "other": "欄位加密演算法無效"
   },
-  "legacy.error.24346199bc3c7688": {
-    "other": "產生 AI 報告失敗"
-  },
   "legacy.error.2468b2acc984ef68": {
     "other": "機器翻譯草稿功能未啟用"
   },
@@ -1199,11 +1388,11 @@
   "legacy.error.24d27137f8387e6f": {
     "other": "行動端頁面下只能建立頁面選單"
   },
+  "legacy.error.24fad270b49eda13": {
+    "other": "單次日期時間不合法"
+  },
   "legacy.error.2506e634c4563331": {
     "other": "查詢資料庫表欄位列表失敗"
-  },
-  "legacy.error.2520df43a2831159": {
-    "other": "產生的報告檔案不能超過 20 MB"
   },
   "legacy.error.254cc892d3964cfb": {
     "other": "查詢登入結果分佈失敗"
@@ -1228,6 +1417,9 @@
   },
   "legacy.error.2613784f837f2081": {
     "other": "查詢 BI 數據源失敗"
+  },
+  "legacy.error.26681ccaaebd2109": {
+    "other": "當前用戶端不允許使用此外掛"
   },
   "legacy.error.26743666f680a06d": {
     "other": "限流規則 ID 不能為空"
@@ -1259,6 +1451,9 @@
   "legacy.error.27c12cba0463a64f": {
     "other": "登入地區命中黑名單"
   },
+  "legacy.error.27ee0269f2708ac3": {
+    "other": "本輪工具名稱重複，請只選擇一個確定帳號"
+  },
   "legacy.error.2800470b2bba28f6": {
     "other": "更新 BI 數據源失敗"
   },
@@ -1277,11 +1472,17 @@
   "legacy.error.285bdb6267ffc7fa": {
     "other": "脫敏規則範本狀態無效"
   },
+  "legacy.error.2873504bb9691115": {
+    "other": "需要重新授權"
+  },
   "legacy.error.28e090f1a6d5560b": {
     "other": "查詢訊息分類失敗"
   },
   "legacy.error.291d427436dbaf83": {
     "other": "取得密碼策略失敗"
+  },
+  "legacy.error.291d8098f8aa6d60": {
+    "other": "計畫外掛設定損壞"
   },
   "legacy.error.29290718ec0b858f": {
     "other": "讀取當前數據庫 Schema 失敗"
@@ -1324,6 +1525,9 @@
   },
   "legacy.error.2b5d4a3158530cb3": {
     "other": "一級選單不允許刪除"
+  },
+  "legacy.error.2b625f1ddf0290c4": {
+    "other": "執行前授權設定已變化，請重新發起"
   },
   "legacy.error.2bba60c6b758c7d3": {
     "other": "建立訊息分類失敗"
@@ -1393,6 +1597,9 @@
   },
   "legacy.error.2ed0637018e6941b": {
     "other": "查詢使用者按鈕權限失敗"
+  },
+  "legacy.error.2ef0c43e0a3fc9fc": {
+    "other": "外掛編碼已被其他來源佔用"
   },
   "legacy.error.2f049ea5e2d27c12": {
     "other": "讀取綁定租戶失敗"
@@ -1487,6 +1694,9 @@
   "legacy.error.334c34185a2d0f07": {
     "other": "保存發佈快照失敗"
   },
+  "legacy.error.336568c6020abcb0": {
+    "other": "工具池身分已變化"
+  },
   "legacy.error.33b665911d371252": {
     "other": "卡片名稱和查詢配置無效"
   },
@@ -1517,6 +1727,9 @@
   "legacy.error.359210281db55f21": {
     "other": "新增專案審批業務關聯無效"
   },
+  "legacy.error.35ca626f0ab8a34f": {
+    "other": "外掛設定或授權已變化，請重新發起"
+  },
   "legacy.error.3640cfef0a80242a": {
     "other": "現有帳號更名清單無效"
   },
@@ -1535,11 +1748,17 @@
   "legacy.error.36f7d93a63d4c4ea": {
     "other": "程式碼生成還原快照格式錯誤"
   },
+  "legacy.error.37054675ee5f62d2": {
+    "other": "開始帳號授權失敗"
+  },
   "legacy.error.3772108e1c6666ab": {
     "other": "工作階段已逾時，請重新登入"
   },
   "legacy.error.380bffbcf0a41ea9": {
     "other": "查詢訊息 Provider 失敗"
+  },
+  "legacy.error.3833c41ec5764cf1": {
+    "other": "請在原用戶端確認該工具操作"
   },
   "legacy.error.38575468bd5f4185": {
     "other": "出庫脫敏策略不能為空"
@@ -1553,11 +1772,17 @@
   "legacy.error.392d45d221ec37f3": {
     "other": "分頁查詢開放授權用戶端失敗"
   },
+  "legacy.error.3935144c289a6e9e": {
+    "other": "此計畫仍有執行或待確認事項"
+  },
   "legacy.error.39fef6385cd1e4ce": {
     "other": "不能查詢其他租戶的專案授權"
   },
   "legacy.error.3a0e3d1ee5791c6c": {
     "other": "儀表板草稿版本已變化"
+  },
+  "legacy.error.3a0e62b8f020a6c1": {
+    "other": "授權期間外掛或安裝策略已變化"
   },
   "legacy.error.3a2fde07feec27e2": {
     "other": "串流回應不支援"
@@ -1606,6 +1831,9 @@
   },
   "legacy.error.3c17a593ba4eedf5": {
     "other": "封存設定不存在"
+  },
+  "legacy.error.3c19dde545f44078": {
+    "other": "缺少可信登入用戶端"
   },
   "legacy.error.3c1bfebde774c1d3": {
     "other": "客戶端標識重複"
@@ -1675,6 +1903,12 @@
   },
   "legacy.error.3efadf56e15bf357": {
     "other": "刪除選單失敗"
+  },
+  "legacy.error.3f810684fb05da18": {
+    "other": "計畫名稱、指令和固定模型不能為空"
+  },
+  "legacy.error.3f9bd2ccc494d3b0": {
+    "other": "個人不能修改接入安全範圍"
   },
   "legacy.error.3fad14b659e4d7e0": {
     "other": "入庫脫敏策略清單不能為空"
@@ -1751,6 +1985,9 @@
   "legacy.error.43ac2c9a541832d6": {
     "other": "查詢可入庫脫敏資料表失敗"
   },
+  "legacy.error.43bc679561c487cc": {
+    "other": "固定模型不可用"
+  },
   "legacy.error.43c19b4f281561f4": {
     "other": "between過濾條件需要兩個值"
   },
@@ -1780,6 +2017,9 @@
   },
   "legacy.error.44885987e1e7fc05": {
     "other": "租戶編號已用完"
+  },
+  "legacy.error.449843339e6f62dc": {
+    "other": "執行所有者租戶已變化"
   },
   "legacy.error.449da1cde21dcfbd": {
     "other": "更新字典屬性失敗"
@@ -1838,6 +2078,9 @@
   "legacy.error.47322e911c919328": {
     "other": "讀取用戶端授權介面失敗"
   },
+  "legacy.error.47756e0ad4ebc564": {
+    "other": "個人外掛僅允許本人連線帳號"
+  },
   "legacy.error.477bb0945b48c9a0": {
     "other": "查詢登入日誌詳情失敗"
   },
@@ -1867,6 +2110,9 @@
   },
   "legacy.error.48aa6dc021aefeea": {
     "other": "登入策略狀態無效"
+  },
+  "legacy.error.48ee55a4cc3bc878": {
+    "other": "建立本人連線並驗證工具發現失敗"
   },
   "legacy.error.48fb2e3cbfc3df7b": {
     "other": "登入 IP 不在白名單"
@@ -1997,6 +2243,9 @@
   "legacy.error.4ee0e7ff3bfe30c9": {
     "other": "限流規則參數無效"
   },
+  "legacy.error.4f0edd75b52d93b5": {
+    "other": "計畫已變化，請重新整理後重試"
+  },
   "legacy.error.4f823857472087fe": {
     "other": "驗證碼錯誤"
   },
@@ -2015,8 +2264,14 @@
   "legacy.error.5046c2110be55873": {
     "other": "讀取多因素認證策略失敗"
   },
+  "legacy.error.5062f38bec849412": {
+    "other": "本次執行沒有結果對話"
+  },
   "legacy.error.508e0bd781aa07f1": {
     "other": "無權訪問儀表板草稿"
+  },
+  "legacy.error.5122a126fad7b798": {
+    "other": "平台尚未設定此外掛的OAuth用戶端"
   },
   "legacy.error.513deff78da44959": {
     "other": "同一位置的配置鍵重複"
@@ -2044,6 +2299,9 @@
   },
   "legacy.error.52cece3fb0bc5c37": {
     "other": "創建 BI 數據源失敗"
+  },
+  "legacy.error.52df2000e0d6202f": {
+    "other": "連線已變化，請重新整理狀態"
   },
   "legacy.error.53392f5183414d58": {
     "other": "介面操作無效"
@@ -2102,6 +2360,9 @@
   "legacy.error.54efbbf383a626a8": {
     "other": "查詢 WebAuthn 設定失敗"
   },
+  "legacy.error.550eca7bb0d80be9": {
+    "other": "本次自動化已被處理"
+  },
   "legacy.error.552d6ada849692a7": {
     "other": "WebAuthn 註冊回應不能為空"
   },
@@ -2120,8 +2381,17 @@
   "legacy.error.564e6bae17ff3556": {
     "other": "查詢租戶下拉選擇失敗"
   },
+  "legacy.error.566ae3ad109ec86d": {
+    "other": "自動化結果對話不允許修改外掛"
+  },
   "legacy.error.56ab596a800279d6": {
     "other": "語言程式碼重複"
+  },
+  "legacy.error.56c49a59ecc26f52": {
+    "other": "請輸入API權杖"
+  },
+  "legacy.error.571c3c5727dbe45e": {
+    "other": "自動化結果只讀，請使用繼續討論"
   },
   "legacy.error.573f1ce3483d6b67": {
     "other": "該封存記錄正在還原中，請稍後重試"
@@ -2129,11 +2399,20 @@
   "legacy.error.5743ba47c58f47a9": {
     "other": "查詢策略評估日誌分頁列表失敗"
   },
+  "legacy.error.574bc838380d747b": {
+    "other": "執行已停止"
+  },
   "legacy.error.578a359e4b6c0de8": {
     "other": "敏感欄位的專案授權尚未初始化"
   },
   "legacy.error.578f778acd3d1fb7": {
     "other": "window_seconds 必須在 1 到 %d 之間"
+  },
+  "legacy.error.57a2444f2e6a208a": {
+    "other": "自動化設定已變化"
+  },
+  "legacy.error.57ea342b782c0e6b": {
+    "other": "對話仍有未完成執行，暫不能修改外掛"
   },
   "legacy.error.57f76d1d57ee5abb": {
     "other": "查詢崗位下拉列表失敗"
@@ -2153,6 +2432,9 @@
   "legacy.error.58fc64a3049b34c2": {
     "other": "建立第三方帳號綁定授權失敗"
   },
+  "legacy.error.5964af53118e7681": {
+    "other": "工具設定或目前使用者權限已變更，請重新發起"
+  },
   "legacy.error.59809ca4382f9867": {
     "other": "設定API Agent工具狀態失敗"
   },
@@ -2161,6 +2443,9 @@
   },
   "legacy.error.59a504a8efe43caf": {
     "other": "BI 過濾操作符不支持"
+  },
+  "legacy.error.59a8a825eb6569ba": {
+    "other": "查詢本人及授權共享連線失敗"
   },
   "legacy.error.59c1df3bee807b31": {
     "other": "多因素驗證策略要求重新登入"
@@ -2186,6 +2471,9 @@
   "legacy.error.5a52838633580d82": {
     "other": "租戶編號重複"
   },
+  "legacy.error.5a6fa1a82aa14517": {
+    "other": "遠端工具Schema不支援，完整快照未更新"
+  },
   "legacy.error.5aee1db2ece6deb0": {
     "other": "待翻譯原文不能為空"
   },
@@ -2201,8 +2489,14 @@
   "legacy.error.5b3002b9ecc91eb8": {
     "other": "訊息分類編碼不能為空"
   },
+  "legacy.error.5b497754bb573482": {
+    "other": "登入來源已失效，請重新登入"
+  },
   "legacy.error.5b59ffccc2a941e4": {
     "other": "規則編碼不允許修改"
+  },
+  "legacy.error.5b69da39e4d64c9c": {
+    "other": "外掛設定已變化"
   },
   "legacy.error.5b6b2552126d5785": {
     "other": "AI 助手執行環境未初始化"
@@ -2210,11 +2504,17 @@
   "legacy.error.5bbaa6ecfe5e2c73": {
     "other": "數據表不能重複選擇"
   },
+  "legacy.error.5c546733dbc2b6a5": {
+    "other": "本地元件不需要帳號連線"
+  },
   "legacy.error.5c9ce1a293619574": {
     "other": "使用者崗位與所屬租戶不一致"
   },
   "legacy.error.5cbfc403ab15d559": {
     "other": "智能問數未配置可用資料表"
+  },
+  "legacy.error.5ccfd1d2f7a811f4": {
+    "other": "工具策略已變化"
   },
   "legacy.error.5cec15fc1c4a7b5f": {
     "other": "刪除AI助手會話失敗"
@@ -2230,6 +2530,9 @@
   },
   "legacy.error.5d42cf37242f8db5": {
     "other": "檔案路徑不允許跳出倉儲目錄"
+  },
+  "legacy.error.5d7f5a61aa672564": {
+    "other": "工具發現失敗，請檢測連線後重新發起"
   },
   "legacy.error.5d830192c40a3c28": {
     "other": "授權 API operation 不能為空"
@@ -2279,8 +2582,14 @@
   "legacy.error.5f2bea1131b1e985": {
     "other": "訊息動作參數鍵名過長"
   },
+  "legacy.error.5f6eb8beedd0087b": {
+    "other": "工具快照不存在"
+  },
   "legacy.error.5f947483457341be": {
     "other": "批次生成表配置遺失"
+  },
+  "legacy.error.5fd8898323178eba": {
+    "other": "請求冪等鍵不合法"
   },
   "legacy.error.5fe54f1b13aabace": {
     "other": "分類存在尚未完成的 Provider 投遞，不能移除該 Provider"
@@ -2336,6 +2645,9 @@
   "legacy.error.63722cd0da2f0322": {
     "other": "只有平台管理員可以管理脫敏策略"
   },
+  "legacy.error.63748d2fff8590d2": {
+    "other": "無權存取此帳號連線"
+  },
   "legacy.error.638c570a0e485641": {
     "other": "字段編碼或物理列名不合法"
   },
@@ -2348,11 +2660,17 @@
   "legacy.error.64776e5a4ee45216": {
     "other": "查詢系統設定分頁列表失敗"
   },
+  "legacy.error.649864c9d8a336b5": {
+    "other": "對話外掛設定損壞"
+  },
   "legacy.error.64ed6f0e51042ae0": {
     "other": "帳號已停用"
   },
   "legacy.error.6549d96b5b6ca2c1": {
     "other": "目前僅支援全量備份"
+  },
+  "legacy.error.6553b576148b1779": {
+    "other": "工具快照不屬於當前租戶"
   },
   "legacy.error.655c4fcde5cc992c": {
     "other": "查詢資料庫表列表失敗"
@@ -2368,6 +2686,12 @@
   },
   "legacy.error.66baa7361e097f40": {
     "other": "統計時間範圍不能為空"
+  },
+  "legacy.error.66e93755789521a6": {
+    "other": "本輪最多選用64個外掛帳號"
+  },
+  "legacy.error.672870e3dd86416c": {
+    "other": "個人外掛僅允許本人使用"
   },
   "legacy.error.675ce37f71759e76": {
     "other": "智能問數記錄不存在"
@@ -2429,8 +2753,14 @@
   "legacy.error.6aa6ed166bc618bf": {
     "other": "分頁查詢出庫脫敏策略失敗"
   },
+  "legacy.error.6ac0da9d549ed947": {
+    "other": "所選帳號與外掛不匹配或連線已失效"
+  },
   "legacy.error.6ac0f1b7aaec664d": {
     "other": "確認綁定多因素認證失敗"
+  },
+  "legacy.error.6ad6f794952693b1": {
+    "other": "連線權杖已撤銷"
   },
   "legacy.error.6b03488e3d0ac065": {
     "other": "查詢選單失敗"
@@ -2447,6 +2777,12 @@
   "legacy.error.6b34220bae88cee7": {
     "other": "上傳檔案開啟失敗"
   },
+  "legacy.error.6b3f44de944805b3": {
+    "other": "稽核工具契約並設定租戶策略失敗"
+  },
+  "legacy.error.6b3f761fc591a986": {
+    "other": "工具設定或本端許可權已變化，請到原用戶端重新發起"
+  },
   "legacy.error.6b58bda456acfba7": {
     "other": "僅處理失敗的文件支援重試"
   },
@@ -2455,6 +2791,9 @@
   },
   "legacy.error.6b64e214f43995d3": {
     "other": "讀取多因素認證金鑰失敗"
+  },
+  "legacy.error.6bf3dd8f902250e2": {
+    "other": "無權修改外掛目錄"
   },
   "legacy.error.6c6a75417d9b96f4": {
     "other": "訊息分類狀態無效"
@@ -2513,6 +2852,9 @@
   "legacy.error.6ff2055c334133ae": {
     "other": "釋放登入鎖失敗"
   },
+  "legacy.error.6ff52e3aa53adc0d": {
+    "other": "連線不存在"
+  },
   "legacy.error.70010c1c5aff2874": {
     "other": "開放授權用戶端不存在"
   },
@@ -2570,6 +2912,9 @@
   "legacy.error.7255193529b2fdb8": {
     "other": "檔案下載失敗"
   },
+  "legacy.error.727cc901fceb6302": {
+    "other": "工具未在本輪授權範圍內"
+  },
   "legacy.error.72934aee38ddf99c": {
     "other": "服務端數據庫客戶端不存在"
   },
@@ -2584,6 +2929,12 @@
   },
   "legacy.error.738ffa9d13b38867": {
     "other": "同一租戶的崗位編號重複"
+  },
+  "legacy.error.73dce3607e1b6756": {
+    "other": "握手或工具發現失敗"
+  },
+  "legacy.error.73fb30d1bd995373": {
+    "other": "計畫或執行已失效"
   },
   "legacy.error.741e976fc2db03d1": {
     "other": "已撤回訊息不能重試投遞"
@@ -2600,6 +2951,9 @@
   "legacy.error.7457032f6280eb65": {
     "other": "第三方登入票據建立失敗"
   },
+  "legacy.error.746b3c2a6aec040a": {
+    "other": "OAuth設定不可用"
+  },
   "legacy.error.7491b8fddb896715": {
     "other": "翻譯目標鍵不匹配"
   },
@@ -2608,6 +2962,9 @@
   },
   "legacy.error.74b418ac4240d405": {
     "other": "訊息 Provider 已被訊息分類綁定"
+  },
+  "legacy.error.74d482520f3a5fba": {
+    "other": "外掛編號不合法"
   },
   "legacy.error.74f05fe9917a174f": {
     "other": "介面限流策略不存在"
@@ -2633,11 +2990,17 @@
   "legacy.error.757bdbb9cf9523eb": {
     "other": "查詢線上使用者失敗"
   },
+  "legacy.error.758348f74f1a6ac6": {
+    "other": "自動化頻率不合法"
+  },
   "legacy.error.7597ef55c12b306b": {
     "other": "資料庫表名不能為空"
   },
   "legacy.error.75a3d64e90b89404": {
     "other": "修改密碼失敗"
+  },
+  "legacy.error.760959fba003c781": {
+    "other": "執行已被恢復流程終止"
   },
   "legacy.error.76370b3803a9f50e": {
     "other": "登入策略限制規則重複"
@@ -2666,11 +3029,17 @@
   "legacy.error.76ca2c845a375eed": {
     "other": "微信登入設定資訊錯誤"
   },
+  "legacy.error.76d3bdd07168a163": {
+    "other": "登入來源無效，請重新登入"
+  },
   "legacy.error.76e780b7e84d7a14": {
     "other": "讀取日誌目錄失敗"
   },
   "legacy.error.771c738a3c8356ae": {
     "other": "頁面選單下只能建立按鈕"
+  },
+  "legacy.error.774640a25143895e": {
+    "other": "審批引數損壞"
   },
   "legacy.error.77472bb2a160d55d": {
     "other": "同一資料表欄位的入庫脫敏策略已存在"
@@ -2804,6 +3173,9 @@
   "legacy.error.7ddf413a97a025d8": {
     "other": "沒有啟用的驗證碼型別"
   },
+  "legacy.error.7e0d0863dbdac0ce": {
+    "other": "請在電腦端確認寫入操作"
+  },
   "legacy.error.7e1cee01625c342f": {
     "other": "腳本執行不屬於目前流程"
   },
@@ -2836,6 +3208,9 @@
   },
   "legacy.error.80fb55ec83653bc4": {
     "other": "停用多因素認證失敗"
+  },
+  "legacy.error.81159b5a2afb4d0c": {
+    "other": "請先停用所有租戶安裝"
   },
   "legacy.error.815660c688153283": {
     "other": "唯一索引欄位不支援入庫脫敏"
@@ -2891,8 +3266,14 @@
   "legacy.error.8378c73fbc6061ca": {
     "other": "查詢崗位分頁列表失敗"
   },
+  "legacy.error.839b1c6e6038d523": {
+    "other": "知識庫已不可用"
+  },
   "legacy.error.83c152306e3a4a8e": {
     "other": "新增租戶審批表單無效"
+  },
+  "legacy.error.83c81855cbbcee4d": {
+    "other": "自動化結果對話不允許重新命名"
   },
   "legacy.error.83e43a4951d784c2": {
     "other": "上級行政區域不能是自身"
@@ -2981,6 +3362,9 @@
   "legacy.error.89948745c30efa6b": {
     "other": "用戶端權杖身份不匹配"
   },
+  "legacy.error.89ecf571158b87ef": {
+    "other": "連線憑據加密金鑰未初始化"
+  },
   "legacy.error.89eda0c1fb16af48": {
     "other": "查詢API文件失敗"
   },
@@ -2996,11 +3380,20 @@
   "legacy.error.8aa52f265f3ade36": {
     "other": "更新字典失敗"
   },
+  "legacy.error.8af9a6b72cd88205": {
+    "other": "連線已被撤銷或修改"
+  },
+  "legacy.error.8b02b2d4950dbd6a": {
+    "other": "連線已變化，請重新授權"
+  },
   "legacy.error.8b14be98bee08880": {
     "other": "查詢資料庫欄位失敗"
   },
   "legacy.error.8b1e46dc72244e15": {
     "other": "BI 問數生成失敗"
+  },
+  "legacy.error.8b4129c122309dd6": {
+    "other": "個人外掛帳號僅允許本人使用"
   },
   "legacy.error.8b413a6a6b9c51f1": {
     "other": "查詢多因素認證狀態失敗"
@@ -3013,6 +3406,9 @@
   },
   "legacy.error.8b7757274fb40557": {
     "other": "讀取聯網搜尋回應失敗"
+  },
+  "legacy.error.8b80f0a14fd2cdb9": {
+    "other": "授權期間設定已變化，請重新授權"
   },
   "legacy.error.8b87a6c6d658c05b": {
     "other": "操作租戶失敗，預設租戶不能操作"
@@ -3119,6 +3515,9 @@
   "legacy.error.910c3bb2daa5b9eb": {
     "other": "查詢 BI 數據源詳情失敗"
   },
+  "legacy.error.911234d362f34f0a": {
+    "other": "查詢工具發現快照和稽核狀態失敗"
+  },
   "legacy.error.9169c767f06efb26": {
     "other": "建構聯網搜尋請求失敗"
   },
@@ -3130,6 +3529,9 @@
   },
   "legacy.error.91d8e5677d731bc9": {
     "other": "字典不存在"
+  },
+  "legacy.error.91f7b86658bf37bf": {
+    "other": "平台或租戶已撤銷接入端點，或接入安全設定已變化，請重建自訂定義"
   },
   "legacy.error.9265669d517e320e": {
     "other": "解析Provider個性化配置失敗"
@@ -3163,6 +3565,9 @@
   },
   "legacy.error.9405199c2964f7ab": {
     "other": "出庫脫敏策略清單不能為空"
+  },
+  "legacy.error.940716542da56181": {
+    "other": "請等待本次執行結束後繼續討論"
   },
   "legacy.error.94214c40a9264d8a": {
     "other": "建立系統設定失敗"
@@ -3212,9 +3617,6 @@
   "legacy.error.972b258d6fcae08f": {
     "other": "使用者帳號不可為空且不得超過50個字元"
   },
-  "legacy.error.975269a5864147a2": {
-    "other": "儲存報告檔案失敗"
-  },
   "legacy.error.975dc005fdfef059": {
     "other": "只有草稿訊息可以刪除"
   },
@@ -3236,8 +3638,14 @@
   "legacy.error.9828341ae3541d3d": {
     "other": "查詢使用者角色失敗"
   },
+  "legacy.error.984be0679e801fd1": {
+    "other": "連線授權已失效，請重新授權"
+  },
   "legacy.error.98607017b11fd268": {
     "other": "啟用 OpenAI 相容 Provider 前必須配置 API 金鑰"
+  },
+  "legacy.error.988c6bbc8a789ec2": {
+    "other": "無權刪除外掛"
   },
   "legacy.error.998d00125d42ac70": {
     "other": "查詢策略評估日誌詳情失敗"
@@ -3314,6 +3722,9 @@
   "legacy.error.9f0c49cefeac73e1": {
     "other": "引用ID須爲正數且不重複"
   },
+  "legacy.error.9f0c55e550ff5195": {
+    "other": "更新外掛定義並遞增修訂號失敗"
+  },
   "legacy.error.9f2257503116e08f": {
     "other": "入庫脫敏策略不存在"
   },
@@ -3334,6 +3745,9 @@
   },
   "legacy.error.a11ae9f3169fdd9b": {
     "other": "繫結租戶已停用"
+  },
+  "legacy.error.a129afe6bf38a422": {
+    "other": "外掛設定已變化，請重新整理後重試"
   },
   "legacy.error.a14efca145af09f5": {
     "other": "按鈕或外鏈不能作為上級選單"
@@ -3358,6 +3772,9 @@
   },
   "legacy.error.a2bfb226f0e00e12": {
     "other": "彙總使用者註冊資料失敗"
+  },
+  "legacy.error.a35fcb70f28d8d05": {
+    "other": "建立外掛定義失敗"
   },
   "legacy.error.a38f393c01bf6ebe": {
     "other": "日誌檔案不存在"
@@ -3389,6 +3806,9 @@
   "legacy.error.a56aedde5f18183d": {
     "other": "備份設定狀態無效"
   },
+  "legacy.error.a577df26d1942267": {
+    "other": "OAuth續期失敗，請重新授權"
+  },
   "legacy.error.a6000e305f5d2fef": {
     "other": "撤銷舊用戶端權杖失敗"
   },
@@ -3398,11 +3818,17 @@
   "legacy.error.a62d052c0ac38b58": {
     "other": "崗位與使用者所屬租戶不一致"
   },
+  "legacy.error.a64b7e9cd14306de": {
+    "other": "此計畫仍有執行或待確認事項，請結束後再恢復"
+  },
   "legacy.error.a6abeab21b9c197c": {
     "other": "目前用戶端不支援 WebAuthn，請使用支援 Passkey 的用戶端"
   },
   "legacy.error.a6cdc6d0a453ee88": {
     "other": "建立訊息失敗"
+  },
+  "legacy.error.a7122fac260ef83e": {
+    "other": "缺少可信用戶端"
   },
   "legacy.error.a72174780cc3a36d": {
     "other": "普通租戶的授權主體不能獲得其他租戶專案權限"
@@ -3437,11 +3863,17 @@
   "legacy.error.a7df0cf102c5afb8": {
     "other": "介面限流策略 ID 不能為空"
   },
+  "legacy.error.a8234e5efc2055dc": {
+    "other": "計畫知識庫設定損壞"
+  },
   "legacy.error.a82de572ccd7ebf0": {
     "other": "使用者不存在"
   },
   "legacy.error.a88b76417346c4f3": {
     "other": "設定登入策略狀態失敗"
+  },
+  "legacy.error.a8c841b65c52731c": {
+    "other": "請求用戶端來源無效"
   },
   "legacy.error.a8c8e869d09e04d9": {
     "other": "生成的 HTTP 路由已被其他 RPC 使用"
@@ -3461,6 +3893,9 @@
   "legacy.error.a934ff7ee33d8ab2": {
     "other": "工具介面契約無效"
   },
+  "legacy.error.a937731e83d53b1f": {
+    "other": "工具設定已變化"
+  },
   "legacy.error.a9a6a83a7d22e27e": {
     "other": "使用者名稱或密碼錯誤"
   },
@@ -3470,8 +3905,20 @@
   "legacy.error.ab10b5713ba93cbd": {
     "other": "刪除崗位失敗"
   },
+  "legacy.error.ab151b8a25ac50c7": {
+    "other": "審批設定損壞"
+  },
+  "legacy.error.ab4a80c590510b5c": {
+    "other": "一次性消費授權狀態並交換權杖失敗"
+  },
   "legacy.error.ab6434d2cdda6ee7": {
     "other": "協議版本驗證尚未初始化"
+  },
+  "legacy.error.abdbf369f146b7a9": {
+    "other": "執行狀態已變更，請重新整理後再試"
+  },
+  "legacy.error.abf50c9909aa13ab": {
+    "other": "發現期間連線已變化"
   },
   "legacy.error.ac01bb67bb88f719": {
     "other": "當前圖表型別只支援一個指標"
@@ -3521,6 +3968,9 @@
   "legacy.error.ae673166a2862514": {
     "other": "刪除專案授權失敗"
   },
+  "legacy.error.ae7cf275416fb9f3": {
+    "other": "固定模型已變化"
+  },
   "legacy.error.ae8453b3b0b6b5b9": {
     "other": "刪除限流規則失敗"
   },
@@ -3554,11 +4004,17 @@
   "legacy.error.b04e457c7c50beec": {
     "other": "刪除崗位失敗，崗位不存在"
   },
+  "legacy.error.b083bf2906da95c5": {
+    "other": "至少選擇一個星期"
+  },
   "legacy.error.b090926a1b808c30": {
     "other": "生成介面與已有 API 重複"
   },
   "legacy.error.b0a0e7733febb2dc": {
     "other": "分頁查詢限流規則失敗"
+  },
+  "legacy.error.b0e7f76e15a755b8": {
+    "other": "授權狀態快取不可用"
   },
   "legacy.error.b0f28c5f3181d572": {
     "other": "檔案副檔名與實際內容型別不相符"
@@ -3566,8 +4022,14 @@
   "legacy.error.b1c8a7126056d454": {
     "other": "指定專案不存在或不屬於目標租戶"
   },
+  "legacy.error.b1e39142dfe62698": {
+    "other": "本租戶未允許該自訂接入端點"
+  },
   "legacy.error.b1f87289d41ad251": {
     "other": "讀取歷史日誌檔案失敗"
+  },
+  "legacy.error.b2119b0cf290f935": {
+    "other": "時間必須為 HH:mm"
   },
   "legacy.error.b2d510c3c58db1c0": {
     "other": "查詢字典屬性失敗"
@@ -3575,11 +4037,17 @@
   "legacy.error.b2df4070287d940b": {
     "other": "查詢我的審批任務失敗"
   },
+  "legacy.error.b2e0fb0e0c2ad8f7": {
+    "other": "連線失敗，請檢測帳號後重新發起"
+  },
   "legacy.error.b2e4129625950cdc": {
     "other": "訊息動作型別無效"
   },
   "legacy.error.b2f2e44fb3196a5b": {
     "other": "查詢使用者分頁列表失敗"
+  },
+  "legacy.error.b2f874c2a1e7f2c8": {
+    "other": "檢測連線並完整重新整理工具失敗"
   },
   "legacy.error.b2fbb90f787f4e6e": {
     "other": "第三方登入票據無效"
@@ -3604,6 +4072,9 @@
   },
   "legacy.error.b3ff67b25874179f": {
     "other": "刪除程式碼生成表設定失敗"
+  },
+  "legacy.error.b417245975017fa2": {
+    "other": "設定帳號共享失敗"
   },
   "legacy.error.b431e92a8c041282": {
     "other": "查詢資料來源失敗"
@@ -3650,6 +4121,9 @@
   "legacy.error.b6454ff77812a329": {
     "other": "工作臺包含無權訪問的卡片"
   },
+  "legacy.error.b665196c6b79c678": {
+    "other": "請先斷開全部連線"
+  },
   "legacy.error.b698dd181813542e": {
     "other": "不能查詢其他租戶的流程實例"
   },
@@ -3667,6 +4141,9 @@
   },
   "legacy.error.b6d869235b2177c7": {
     "other": "寫入檔案掃描暫存檔失敗"
+  },
+  "legacy.error.b6e4cd4d62d790ac": {
+    "other": "執行已停止，不能建立新的待確認事項"
   },
   "legacy.error.b74cf37538de3767": {
     "other": "二級目錄下只能建立目錄、選單或外鏈"
@@ -3689,8 +4166,14 @@
   "legacy.error.b7dfaaed47b862eb": {
     "other": "刪除審批委託失敗，委託不存在"
   },
+  "legacy.error.b7e75d0977fdb54b": {
+    "other": "請求用戶端與認證來源不一致"
+  },
   "legacy.error.b7fdba770862e9ff": {
     "other": "刪除崗位失敗，仍有使用者使用該崗位"
+  },
+  "legacy.error.b7ffcbf24bfd2cbd": {
+    "other": "計畫時間設定損壞"
   },
   "legacy.error.b82f21bb47217337": {
     "other": "租戶策略目標無效"
@@ -3713,6 +4196,9 @@
   "legacy.error.ba2694f62e4fbbaf": {
     "other": "刪除訊息失敗，訊息不存在"
   },
+  "legacy.error.ba4e05210cb76234": {
+    "other": "連線編號不合法"
+  },
   "legacy.error.ba58b9c5fcfc4e35": {
     "other": "只能查看已發佈的儀表板版本"
   },
@@ -3724,6 +4210,9 @@
   },
   "legacy.error.baabf07429595997": {
     "other": "登入 MAC 命中黑名單"
+  },
+  "legacy.error.bae36ca039489e27": {
+    "other": "外掛目錄已停用"
   },
   "legacy.error.bb1268519f752fa3": {
     "other": "儲存個人工作臺失敗"
@@ -3737,8 +4226,14 @@
   "legacy.error.bb42bc14719faff4": {
     "other": "查詢流程腳本失敗"
   },
+  "legacy.error.bbac072f2692724a": {
+    "other": "刪除無有效引用的外掛定義失敗"
+  },
   "legacy.error.bbe870a05f49a123": {
     "other": "獨立數據庫連接的主機、端口、數據庫名和用戶名不能爲空"
+  },
+  "legacy.error.bbf118d9d809973c": {
+    "other": "需要租戶管理許可權"
   },
   "legacy.error.bbf6b13e90ad673c": {
     "other": "流程節點狀態異常"
@@ -3751,6 +4246,9 @@
   },
   "legacy.error.bc52216171131e30": {
     "other": "授權 API 不能重複"
+  },
+  "legacy.error.bc6a0bc189bc508f": {
+    "other": "自動化結果只讀，請刪除整個結果對話"
   },
   "legacy.error.bc6a7756bb24a8f5": {
     "other": "檔案副檔名不在允許範圍內"
@@ -3769,6 +4267,9 @@
   },
   "legacy.error.bce2683b3efef155": {
     "other": "儲存初始化密碼失敗"
+  },
+  "legacy.error.bd08be431bd18f0b": {
+    "other": "自動化結果只讀，請使用執行一次"
   },
   "legacy.error.bd716eafd672c746": {
     "other": "更新流程定義失敗"
@@ -3812,8 +4313,14 @@
   "legacy.error.c04abdd20cec9b79": {
     "other": "啟動程式碼生成任務失敗"
   },
+  "legacy.error.c09382006eddcbe1": {
+    "other": "缺少可信執行用戶端"
+  },
   "legacy.error.c0b3ef767a0f0bfb": {
     "other": "查詢API詳情失敗"
+  },
+  "legacy.error.c0ba9731f8f92968": {
+    "other": "儲存對話外掛選擇失敗"
   },
   "legacy.error.c0ee4b6fcd75f376": {
     "other": "讀取 WebAuthn 憑證失敗"
@@ -3844,6 +4351,9 @@
   },
   "legacy.error.c269746cd8542461": {
     "other": "第三方帳號唯一標識為空"
+  },
+  "legacy.error.c27b34375fc4da92": {
+    "other": "撤銷本人連線並立即使舊許可失效失敗"
   },
   "legacy.error.c27f086ce508006d": {
     "other": "所有維度表都必須從事實表連通"
@@ -3884,6 +4394,9 @@
   "legacy.error.c48643c9d6f06c71": {
     "other": "列表類型無效"
   },
+  "legacy.error.c4996070349f8dca": {
+    "other": "對話仍在執行或等待確認，暫不能修改外掛"
+  },
   "legacy.error.c49d8684e46fea65": {
     "other": "介面不存在"
   },
@@ -3899,8 +4412,14 @@
   "legacy.error.c59404a173ecf4a6": {
     "other": "解除綁定第三方帳號失敗"
   },
+  "legacy.error.c59e66d856edd7b2": {
+    "other": "執行進行中，請先停止本次並等待結束"
+  },
   "legacy.error.c5c1f6bacfa7c53d": {
     "other": "儀表板引用的卡片不存在"
+  },
+  "legacy.error.c5dcece4bdb83fd2": {
+    "other": "自動化執行已停止或租約失效"
   },
   "legacy.error.c5eae1dd2dfe44e7": {
     "other": "用戶端來源 IP 未授權"
@@ -3908,8 +4427,8 @@
   "legacy.error.c612447adeb48ee2": {
     "other": "不能管理其他租戶的專案授權"
   },
-  "legacy.error.c631b22edf47aad3": {
-    "other": "產生 HTML 報告失敗"
+  "legacy.error.c623ea32414aab54": {
+    "other": "對話外掛引用無效"
   },
   "legacy.error.c64f9c3cf819c81c": {
     "other": "訊息編號不合法"
@@ -3935,6 +4454,9 @@
   "legacy.error.c7b529559300a291": {
     "other": "使用者與租戶不相符"
   },
+  "legacy.error.c7f91946095928cf": {
+    "other": "工具編號不合法"
+  },
   "legacy.error.c81dce0cccf9278a": {
     "other": "代碼生成表配置 ID 重複"
   },
@@ -3943,6 +4465,9 @@
   },
   "legacy.error.c8a52b66651d294c": {
     "other": "退出登入失敗"
+  },
+  "legacy.error.c8be540ffcc6a826": {
+    "other": "遠端操作結果未知，請核對外部系統；本系統不會自動重試"
   },
   "legacy.error.c8d9589ec3ec7607": {
     "other": "讀取協議版本失敗"
@@ -3956,6 +4481,9 @@
   "legacy.error.ca07a343943ddc8b": {
     "other": "請選擇已初始化的資料來源"
   },
+  "legacy.error.ca3e85149ccca153": {
+    "other": "個人外掛帳號不能共享給租戶"
+  },
   "legacy.error.ca4de5b792e75311": {
     "other": "查詢檔案資產詳情失敗"
   },
@@ -3964,6 +4492,9 @@
   },
   "legacy.error.cab371e60fe459f7": {
     "other": "更新AI助手訊息失敗"
+  },
+  "legacy.error.cacc0d49d20eae27": {
+    "other": "授權已失效，請重新連線"
   },
   "legacy.error.cad1411b8d349a41": {
     "other": "查詢 BI 儀表板失敗"
@@ -4000,6 +4531,9 @@
   },
   "legacy.error.cc9b2fc832c214dc": {
     "other": "卡片佈局超出畫布範圍"
+  },
+  "legacy.error.ccb7e9c72592c7b4": {
+    "other": "連線型別或設定已變化"
   },
   "legacy.error.ccb9d64291a84b3d": {
     "other": "遍歷數據庫字段結構失敗"
@@ -4076,6 +4610,9 @@
   "legacy.error.d03847577dddb4e6": {
     "other": "登入策略格式無效"
   },
+  "legacy.error.d04f2153da4a165d": {
+    "other": "授權狀態已過期或已使用"
+  },
   "legacy.error.d06655e996ae7326": {
     "other": "驗證碼已過期"
   },
@@ -4088,8 +4625,17 @@
   "legacy.error.d09a5d730f10b232": {
     "other": "設定 OAuth 登入方式狀態失敗"
   },
+  "legacy.error.d10dca63ec27b6dc": {
+    "other": "共享範圍不合法"
+  },
+  "legacy.error.d132998d88c706a1": {
+    "other": "安裝策略已變化"
+  },
   "legacy.error.d1700e2d9ad8a545": {
     "other": "訊息租戶不能為空"
+  },
+  "legacy.error.d1904db091f0e5de": {
+    "other": "AI自動化操作失敗"
   },
   "legacy.error.d194c776a0ee5e26": {
     "other": "節點圖配置無效: 缺少開始節點"
@@ -4151,11 +4697,17 @@
   "legacy.error.d45ebaf3a56c5487": {
     "other": "標記站內信未讀失敗"
   },
+  "legacy.error.d4d0c7b711fe426e": {
+    "other": "外掛來源、範圍和穩定編碼不可修改"
+  },
   "legacy.error.d4d43cc0c8f5bd1d": {
     "other": "BI 數據源密碼解密服務未初始化"
   },
   "legacy.error.d4d4481eb1e4bfeb": {
     "other": "查看敏感欄位需要有效身分"
+  },
+  "legacy.error.d50eb67cb68f5225": {
+    "other": "請在對話來源用戶端修改外掛選擇"
   },
   "legacy.error.d5321efaf2f34345": {
     "other": "一級目錄下只能建立目錄、選單或外鏈"
@@ -4172,8 +4724,14 @@
   "legacy.error.d6139243cdbfb13f": {
     "other": "串流傳送AI助手訊息失敗"
   },
+  "legacy.error.d62f97f290498db0": {
+    "other": "本次自動化確認已失效"
+  },
   "legacy.error.d6b948e91117f8b3": {
     "other": "處理第三方登入回呼失敗"
+  },
+  "legacy.error.d6bf1b4545524ca5": {
+    "other": "單次時間必須存在且晚於當前時間"
   },
   "legacy.error.d6d84bf72bbdfccc": {
     "other": "無權管理其他租戶的自訂翻譯"
@@ -4196,6 +4754,9 @@
   "legacy.error.d7f37b45ffd41536": {
     "other": "數據源狀態無效"
   },
+  "legacy.error.d80331d2b5780783": {
+    "other": "跨端工具引數校驗不一致"
+  },
   "legacy.error.d819413726995a8b": {
     "other": "查詢脫敏規則選項失敗"
   },
@@ -4204,6 +4765,9 @@
   },
   "legacy.error.d82554e826ddce2b": {
     "other": "分頁查詢入庫脫敏策略失敗"
+  },
+  "legacy.error.d828018e33550bad": {
+    "other": "重新設定連線權杖失敗"
   },
   "legacy.error.d91665d16fe86915": {
     "other": "建立AI助手會話失敗"
@@ -4277,14 +4841,23 @@
   "legacy.error.dba508e1212691b7": {
     "other": "脫敏系統設定失敗"
   },
+  "legacy.error.dc59b5d3f802f135": {
+    "other": "執行身分許可權已變化，請重新執行"
+  },
   "legacy.error.dc8885ca6a1d1de4": {
     "other": "脫敏規則範本參數無效"
+  },
+  "legacy.error.dc9059594f6426ff": {
+    "other": "本地外掛不能指定遠端帳號"
   },
   "legacy.error.dcad9e63f38f931c": {
     "other": "流程尚未終結"
   },
   "legacy.error.dcc73012bd9e3caa": {
     "other": "請選擇Proto介面"
+  },
+  "legacy.error.dcd549e52d683e82": {
+    "other": "設定當前租戶安裝和用戶端策略失敗"
   },
   "legacy.error.dd7e588c5e1a5bd1": {
     "other": "查詢角色下拉列表失敗"
@@ -4379,20 +4952,32 @@
   "legacy.error.e2ae144ee47e6f51": {
     "other": "統計結束時間無效"
   },
+  "legacy.error.e2d7cc564dd3ed76": {
+    "other": "計畫無法生成有效的未來時間"
+  },
   "legacy.error.e2f289e3e36cf455": {
     "other": "動態口令不能為空"
   },
   "legacy.error.e2fd9e73043ee853": {
     "other": "設定狀態失敗，下面有部門"
   },
+  "legacy.error.e305302193a540e8": {
+    "other": "平台尚未設定OAuth用戶端"
+  },
   "legacy.error.e33217d61673a21c": {
     "other": "當前用戶沒有可用項目範圍"
+  },
+  "legacy.error.e335b968cc1a1f4e": {
+    "other": "自動化結果已凍結，請使用繼續討論建立普通對話"
   },
   "legacy.error.e33fc0beeabb38dc": {
     "other": "更新封存設定失敗"
   },
   "legacy.error.e3625317beb5819a": {
     "other": "儲存多因素認證設定失敗"
+  },
+  "legacy.error.e3c10ddd63829dac": {
+    "other": "執行已由其他例項領取或停止"
   },
   "legacy.error.e3e3ceb5360f5b13": {
     "other": "解析 BI 數據源語義配置失敗"
@@ -4421,6 +5006,9 @@
   "legacy.error.e47532d44611ae28": {
     "other": "重設密碼失敗，使用者資訊不存在"
   },
+  "legacy.error.e47cdc313aeb0aa9": {
+    "other": "查詢外掛詳情失敗"
+  },
   "legacy.error.e4b48c29340f693f": {
     "other": "查詢語言選項失敗"
   },
@@ -4441,6 +5029,9 @@
   },
   "legacy.error.e56c3e39f7775e45": {
     "other": "撤銷舊登入會話失敗"
+  },
+  "legacy.error.e59b522c6d224319": {
+    "other": "執行編號不合法"
   },
   "legacy.error.e5f3ff7d0b2253c0": {
     "other": "查詢首頁概覽統計失敗"
@@ -4484,6 +5075,9 @@
   "legacy.error.e870b4dcb0ded0c7": {
     "other": "關閉數據庫字段查詢失敗"
   },
+  "legacy.error.e8898dac472aab91": {
+    "other": "請選擇有效的 IANA 時區"
+  },
   "legacy.error.e8cf0f814577dae5": {
     "other": "會話編號不合法"
   },
@@ -4511,11 +5105,11 @@
   "legacy.error.eb7376c11e576e01": {
     "other": "建立部門失敗"
   },
-  "legacy.error.eb9f0f314fabcb05": {
-    "other": "產生 PDF 報告失敗"
-  },
   "legacy.error.ebe9b8ff030be0c3": {
     "other": "登入策略 ID 不能為空"
+  },
+  "legacy.error.ebfd67f4d61e1bc7": {
+    "other": "授權狀態無效"
   },
   "legacy.error.ec066a971ee52c71": {
     "other": "審批任務辦理失敗"
@@ -4559,6 +5153,9 @@
   "legacy.error.ee08d452f352173b": {
     "other": "查詢業務操作日誌分頁列表失敗"
   },
+  "legacy.error.ee100b158fba5e1d": {
+    "other": "初始化租戶內建AI外掛失敗"
+  },
   "legacy.error.ee51f88c960defb8": {
     "other": "簽發用戶端存取權杖失敗"
   },
@@ -4585,6 +5182,9 @@
   },
   "legacy.error.eface50a9bd64600": {
     "other": "業務模組不能為空或格式不正確"
+  },
+  "legacy.error.efd7694cf341d242": {
+    "other": "任務編號不合法"
   },
   "legacy.error.eff193fd9177f59e": {
     "other": "初始化密碼長度或複雜度不符合安全策略"
@@ -4616,6 +5216,9 @@
   "legacy.error.f0c321fa54e7e4ed": {
     "other": "查詢登入策略詳情失敗"
   },
+  "legacy.error.f107a75fa6afd927": {
+    "other": "當前用戶端不能使用這些外掛，請到原用戶端處理"
+  },
   "legacy.error.f11c9913680e6b54": {
     "other": "只能刪除自己的審批委託"
   },
@@ -4624,6 +5227,9 @@
   },
   "legacy.error.f12b6fa61a61b0c7": {
     "other": "用戶端綁定租戶已停用"
+  },
+  "legacy.error.f1312b9b6251a92b": {
+    "other": "端點尚未經平台核准"
   },
   "legacy.error.f13315b882b89cac": {
     "other": "測試 BI 數據源失敗"
@@ -4685,6 +5291,9 @@
   "legacy.error.f398b3676ef7459b": {
     "other": "AI知識庫檢索失敗"
   },
+  "legacy.error.f3a2b242fc63f028": {
+    "other": "執行設定損壞"
+  },
   "legacy.error.f3c60136f3fda7c6": {
     "other": "每張維度表都必須與事實表建立一條關係"
   },
@@ -4712,8 +5321,14 @@
   "legacy.error.f4ec8b7116260176": {
     "other": "查詢使用者下拉選擇失敗"
   },
+  "legacy.error.f51285c8dcf5cb8c": {
+    "other": "請從電腦端管理外掛和自動化"
+  },
   "legacy.error.f524a54193edc7f4": {
     "other": "讀取 BI 數據源表結構失敗"
+  },
+  "legacy.error.f54a1f26b7c0b3a6": {
+    "other": "只能建立平台核准端點的個人連線定義"
   },
   "legacy.error.f54df649d4889afc": {
     "other": "驗證碼預校驗失敗"
@@ -4727,8 +5342,14 @@
   "legacy.error.f6153db7a9372802": {
     "other": "查詢本人工作階段失敗"
   },
+  "legacy.error.f68e8c79e579da4a": {
+    "other": "自動化已停止，不能建立新的確認"
+  },
   "legacy.error.f69ca1af9b15704d": {
     "other": "WebAuthn 認證回應不能為空"
+  },
+  "legacy.error.f6c27ae667c650c6": {
+    "other": "遠端工具已移除或契約變化，請重新整理並重新審查"
   },
   "legacy.error.f6cb4f54bd294d0a": {
     "other": "儲存 WebAuthn 停用挑戰失敗"
@@ -4744,6 +5365,9 @@
   },
   "legacy.error.f7565b983d27de0f": {
     "other": "只有字串欄位支援入庫脫敏"
+  },
+  "legacy.error.f75970fe9a8dddb5": {
+    "other": "租戶尚未安裝外掛"
   },
   "legacy.error.f7b2c64c1b37fe95": {
     "other": "用戶端認證失敗次數過多，請稍後再試"
@@ -4769,6 +5393,9 @@
   "legacy.error.f8d1041eb74a0324": {
     "other": "介面限流參數無效"
   },
+  "legacy.error.f8e3f5fc6cda56da": {
+    "other": "執行用戶端與可信入口不一致"
+  },
   "legacy.error.f90d26546dedbee7": {
     "other": "MCP 鑑權引擎未初始化"
   },
@@ -4789,6 +5416,9 @@
   },
   "legacy.error.fa1ec60338bc9604": {
     "other": "同一資源語言不能重複"
+  },
+  "legacy.error.fa2a7b002f7991ea": {
+    "other": "星期必須為不重複的週一至週日"
   },
   "legacy.error.fa35c0fef4f8b1e2": {
     "other": "散點圖需要兩個不同的數值字段"
@@ -4840,6 +5470,12 @@
   },
   "legacy.error.fd8a77425c196716": {
     "other": "記錄用戶端認證失敗狀態失敗"
+  },
+  "legacy.error.fd8c8caf40c03faf": {
+    "other": "執行記錄不存在"
+  },
+  "legacy.error.fd96ce6b1a709e3f": {
+    "other": "自動化計畫不存在"
   },
   "legacy.error.fdbfb4336c489f42": {
     "other": "翻譯目標型別無效"
@@ -7135,5 +7771,80 @@
   },
   "获取当前用户生效的密码策略": {
     "other": "取得目前使用者生效的密碼策略"
+  },
+  "base.ai.file.page.keyword.max_len": {
+    "other": "檔名關鍵字不可超過100個字元"
+  },
+  "base.ai.file.page.page_num.positive": {
+    "other": "頁碼必須大於0"
+  },
+  "base.ai.file.page.page_size.range": {
+    "other": "每頁行數必須介於1到100"
+  },
+  "base.ai.file.rename.id.positive": {
+    "other": "檔案ID必須大於0"
+  },
+  "base.ai.file.rename.file_name.valid": {
+    "other": "檔名不可為空且不可超過255個字元"
+  },
+  "base.ai.file.trash.id.positive": {
+    "other": "檔案ID必須大於0"
+  },
+  "base.ai.file.restore.id.positive": {
+    "other": "檔案ID必須大於0"
+  },
+  "base.ai.file.delete.id.positive": {
+    "other": "檔案ID必須大於0"
+  },
+  "legacy.error.0bcc4cd098945869": {
+    "other": "文件未綁定Xberg MCP連線，無法重試"
+  },
+  "legacy.error.e54d74d9a4f84e95": {
+    "other": "AI檔案中繼資料儲存庫未設定"
+  },
+  "legacy.error.882624c8cf932368": {
+    "other": "刪除AI檔案物件失敗"
+  },
+  "legacy.error.800715ced110fb33": {
+    "other": "產生檔案中繼資料不完整"
+  },
+  "legacy.error.45dfba890e01f2b6": {
+    "other": "AI檔案不存在或無權存取"
+  },
+  "legacy.error.e87cd6217bb74a9f": {
+    "other": "Xberg連線編號不合法"
+  },
+  "legacy.error.5a3df6dc5b931c17": {
+    "other": "文件檔名和內容不可為空"
+  },
+  "legacy.error.b6f75cf6cede5d4c": {
+    "other": "Xberg MCP外掛程式未初始化"
+  },
+  "legacy.error.c9556f01140f087f": {
+    "other": "Xberg extract工具必須審核為唯讀"
+  },
+  "legacy.error.1918b6a58243b070": {
+    "other": "Xberg extract工具存在重複快照"
+  },
+  "legacy.error.55cf4f9958084301": {
+    "other": "目前Xberg連線未審核extract工具"
+  },
+  "legacy.error.5093032b0010f3c1": {
+    "other": "Xberg文件擷取結果無效"
+  },
+  "legacy.error.84317c7b0ad90e29": {
+    "other": "分頁查詢AI檔案失敗"
+  },
+  "legacy.error.ee43728499601770": {
+    "other": "重新命名AI檔案失敗"
+  },
+  "legacy.error.fb6ec860a2af1663": {
+    "other": "將AI檔案移入回收筒失敗"
+  },
+  "legacy.error.d9052760af199a40": {
+    "other": "還原AI檔案失敗"
+  },
+  "legacy.error.1d8918d6b774c812": {
+    "other": "徹底刪除AI檔案失敗"
   }
 }

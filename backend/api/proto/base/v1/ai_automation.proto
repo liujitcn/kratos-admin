@@ -1,0 +1,193 @@
+syntax = "proto3";
+
+package base.v1;
+
+import "base/v1/ai_plugin.proto";
+import "base/v1/ai_session.proto";
+import "buf/validate/validate.proto";
+import "gnostic/openapi/v3/annotations.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
+
+// AI 助手本人自动化计划、执行记录与结果服务。
+service AiAutomationService {
+  // 查询本人自动化计划。
+  rpc ListAiAutomation(ListAiAutomationRequest) returns (ListAiAutomationResponse) {
+    option (google.api.http) = { get: "/api/v1/base/ai/automation" };
+  }
+  // 查询本人自动化详情。
+  rpc GetAiAutomation(GetAiAutomationRequest) returns (AiAutomation) {
+    option (google.api.http) = { get: "/api/v1/base/ai/automation/{id}" };
+  }
+  // 预览未来三次触发时间。
+  rpc PreviewAiAutomationSchedule(PreviewAiAutomationScheduleRequest) returns (PreviewAiAutomationScheduleResponse) {
+    option (google.api.http) = { post: "/api/v1/base/ai/automation-preview" body: "*" };
+  }
+  // 创建本人自动化计划。
+  rpc CreateAiAutomation(CreateAiAutomationRequest) returns (AiAutomation) {
+    option (google.api.http) = { post: "/api/v1/base/ai/automation" body: "*" };
+  }
+  // 按版本更新本人自动化计划。
+  rpc UpdateAiAutomation(UpdateAiAutomationRequest) returns (AiAutomation) {
+    option (google.api.http) = { put: "/api/v1/base/ai/automation/{id}" body: "*" };
+  }
+  // 暂停、恢复或归档计划。
+  rpc SetAiAutomationStatus(SetAiAutomationStatusRequest) returns (AiAutomation) {
+    option (google.api.http) = { put: "/api/v1/base/ai/automation/{id}/status" body: "*" };
+  }
+  // 幂等地运行一次已有任务。
+  rpc RunAiAutomation(RunAiAutomationRequest) returns (AiAutomationRun) {
+    option (google.api.http) = { post: "/api/v1/base/ai/automation/{id}/run" body: "*" };
+  }
+  // 查询本人执行记录。
+  rpc ListAiAutomationRun(ListAiAutomationRunRequest) returns (ListAiAutomationRunResponse) {
+    option (google.api.http) = { get: "/api/v1/base/ai/automation-run" };
+  }
+  // 查询本人执行详情。
+  rpc GetAiAutomationRun(GetAiAutomationRunRequest) returns (AiAutomationRun) {
+    option (google.api.http) = { get: "/api/v1/base/ai/automation-run/{id}" };
+  }
+  // 停止本次执行。
+  rpc StopAiAutomationRun(StopAiAutomationRunRequest) returns (AiAutomationRun) {
+    option (google.api.http) = { post: "/api/v1/base/ai/automation-run/{id}/stop" body: "*" };
+  }
+  // 从冻结结果创建普通讨论会话。
+  rpc ContinueAiAutomationRun(ContinueAiAutomationRunRequest) returns (CreateAiSessionResponse) {
+    option (google.api.http) = { post: "/api/v1/base/ai/automation-run/{id}/discussion" body: "*" };
+  }
+}
+
+// 结构化本地时间计划。
+message AiAutomationSchedule {
+  string frequency = 1 [(gnostic.openapi.v3.property) = {description: "daily weekdays weekly once"}, (buf.validate.field).string = {in: ["daily", "weekdays", "weekly", "once"]}]; // daily weekdays weekly once
+  repeated int32 weekdays = 2 [(gnostic.openapi.v3.property) = {description: "每周指定星期；1周一至7周日"}]; // 每周指定星期；1周一至7周日
+  string time = 3 [(gnostic.openapi.v3.property) = {description: "本地时间 HH:mm"}]; // 本地时间 HH:mm
+  string once_at = 4 [(gnostic.openapi.v3.property) = {description: "单次本地日期时间 YYYY-MM-DDTHH:mm"}]; // 单次本地日期时间 YYYY-MM-DDTHH:mm
+  string timezone = 5 [(gnostic.openapi.v3.property) = {description: "IANA 时区"}, (buf.validate.field).string = {min_len: 1, max_len: 100}]; // IANA 时区
+}
+
+// 由用户确认保存的自动化配置。
+message AiAutomationForm {
+  string name = 1 [(gnostic.openapi.v3.property) = {description: "名称"}, (buf.validate.field).string = {min_len: 1, max_len: 100}]; // 名称
+  string prompt = 2 [(gnostic.openapi.v3.property) = {description: "明确任务指令"}, (buf.validate.field).string = {min_len: 1, max_len: 16000}]; // 明确任务指令
+  AiAutomationSchedule schedule = 3 [(gnostic.openapi.v3.property) = {description: "结构化触发计划"}, (buf.validate.field).required = true]; // 结构化触发计划
+  int64 provider_id = 4 [(gnostic.openapi.v3.property) = {description: "固定模型供应商"}, (buf.validate.field).int64.gt = 0]; // 固定模型供应商
+  string model_name = 5 [(gnostic.openapi.v3.property) = {description: "固定模型名称"}, (buf.validate.field).string = {min_len: 1, max_len: 200}]; // 固定模型名称
+  repeated int64 knowledge_base_ids = 6 [(gnostic.openapi.v3.property) = {description: "知识库引用"}]; // 知识库引用
+  repeated AiPluginSelection plugins = 7 [(gnostic.openapi.v3.property) = {description: "选用插件和确定账号"}]; // 选用插件和确定账号
+}
+
+// 本人自动化计划。
+message AiAutomation {
+  string id = 1 [(gnostic.openapi.v3.property) = {description: "任务ID"}]; // 任务ID
+  AiAutomationForm configuration = 2 [(gnostic.openapi.v3.property) = {description: "计划配置"}]; // 计划配置
+  string status = 3 [(gnostic.openapi.v3.property) = {description: "active paused archived"}]; // active paused archived
+  int64 revision = 4 [(gnostic.openapi.v3.property) = {description: "配置版本"}]; // 配置版本
+  google.protobuf.Timestamp next_fire_at = 5 [(gnostic.openapi.v3.property) = {description: "下次UTC时间"}]; // 下次UTC时间
+  string active_run_id = 6 [(gnostic.openapi.v3.property) = {description: "当前活动执行"}]; // 当前活动执行
+  AiAutomationRun last_run = 7 [(gnostic.openapi.v3.property) = {description: "最近执行"}]; // 最近执行
+  string problem = 8 [(gnostic.openapi.v3.property) = {description: "需处理的依赖问题"}]; // 需处理的依赖问题
+  google.protobuf.Timestamp created_at = 9 [(gnostic.openapi.v3.property) = {description: "创建时间"}]; // 创建时间
+  google.protobuf.Timestamp updated_at = 10 [(gnostic.openapi.v3.property) = {description: "更新时间"}]; // 更新时间
+}
+
+// 一次冻结配置的执行记录。
+message AiAutomationRun {
+  string id = 1 [(gnostic.openapi.v3.property) = {description: "执行ID"}]; // 执行ID
+  string automation_id = 2 [(gnostic.openapi.v3.property) = {description: "任务ID"}]; // 任务ID
+  int64 revision = 3 [(gnostic.openapi.v3.property) = {description: "冻结配置版本"}]; // 冻结配置版本
+  AiAutomationForm configuration = 4 [(gnostic.openapi.v3.property) = {description: "冻结配置"}]; // 冻结配置
+  string terminal = 5 [(gnostic.openapi.v3.property) = {description: "执行终端"}]; // 执行终端
+  string trigger = 6 [(gnostic.openapi.v3.property) = {description: "scheduled manual"}]; // scheduled manual
+  google.protobuf.Timestamp scheduled_for = 7 [(gnostic.openapi.v3.property) = {description: "定时时隙"}]; // 定时时隙
+  string status = 8 [(gnostic.openapi.v3.property) = {description: "执行状态"}]; // 执行状态
+  string session_id = 9 [(gnostic.openapi.v3.property) = {description: "独立结果会话"}]; // 独立结果会话
+  string summary = 10 [(gnostic.openapi.v3.property) = {description: "安全结果摘要"}]; // 安全结果摘要
+  string error_code = 11 [(gnostic.openapi.v3.property) = {description: "错误原因"}]; // 错误原因
+  bool result_unknown = 12 [(gnostic.openapi.v3.property) = {description: "工具调用结果未知"}]; // 工具调用结果未知
+  bool session_deleted = 13 [(gnostic.openapi.v3.property) = {description: "结果会话已删除"}]; // 结果会话已删除
+  bool cancel_requested = 14 [(gnostic.openapi.v3.property) = {description: "已请求停止"}]; // 已请求停止
+  google.protobuf.Timestamp started_at = 15 [(gnostic.openapi.v3.property) = {description: "开始时间"}]; // 开始时间
+  google.protobuf.Timestamp finished_at = 16 [(gnostic.openapi.v3.property) = {description: "完成时间"}]; // 完成时间
+  google.protobuf.Timestamp created_at = 17 [(gnostic.openapi.v3.property) = {description: "记录时间"}]; // 记录时间
+}
+
+// 自动化筛选条件。
+message ListAiAutomationRequest {
+  string status = 1 [(gnostic.openapi.v3.property) = {description: "状态过滤；留空不含归档"}]; // 状态过滤；留空不含归档
+  string keyword = 2 [(gnostic.openapi.v3.property) = {description: "名称或指令搜索"}]; // 名称或指令搜索
+}
+
+// 自动化列表。
+message ListAiAutomationResponse {
+  repeated AiAutomation automations = 1 [(gnostic.openapi.v3.property) = {description: "本人任务"}]; // 本人任务
+  int32 pending_count = 2 [(gnostic.openapi.v3.property) = {description: "本人待确认执行数"}]; // 本人待确认执行数
+}
+
+// 任务查询。
+message GetAiAutomationRequest {
+  string id = 1 [(gnostic.openapi.v3.property) = {description: "编号"}, (buf.validate.field).string.pattern = "^[1-9][0-9]*$"]; // 编号
+}
+
+// 执行查询。
+message GetAiAutomationRunRequest {
+  string id = 1 [(gnostic.openapi.v3.property) = {description: "编号"}, (buf.validate.field).string.pattern = "^[1-9][0-9]*$"]; // 编号
+}
+
+// 停止本次请求。
+message StopAiAutomationRunRequest {
+  string id = 1 [(gnostic.openapi.v3.property) = {description: "编号"}, (buf.validate.field).string.pattern = "^[1-9][0-9]*$"]; // 编号
+}
+
+// 从结果继续讨论请求。
+message ContinueAiAutomationRunRequest {
+  string id = 1 [(gnostic.openapi.v3.property) = {description: "编号"}, (buf.validate.field).string.pattern = "^[1-9][0-9]*$"]; // 编号
+}
+
+// 计划预览请求。
+message PreviewAiAutomationScheduleRequest {
+  AiAutomationSchedule schedule = 1 [(gnostic.openapi.v3.property) = {description: "结构化触发计划"}, (buf.validate.field).required = true]; // 结构化触发计划
+}
+
+// 统一时间算法的预览结果。
+message PreviewAiAutomationScheduleResponse {
+  repeated google.protobuf.Timestamp times = 1 [(gnostic.openapi.v3.property) = {description: "未来最多三次UTC时间"}]; // 未来最多三次UTC时间
+  string timezone = 2 [(gnostic.openapi.v3.property) = {description: "显示时区"}]; // 显示时区
+}
+
+// 创建计划请求。
+message CreateAiAutomationRequest {
+  AiAutomationForm automation = 1 [(gnostic.openapi.v3.property) = {description: "待保存配置"}, (buf.validate.field).required = true]; // 待保存配置
+}
+
+// 版本化更新计划。
+message UpdateAiAutomationRequest {
+  string id = 1 [(gnostic.openapi.v3.property) = {description: "任务ID"}, (buf.validate.field).string.pattern = "^[1-9][0-9]*$"]; // 任务ID
+  int64 revision = 2 [(gnostic.openapi.v3.property) = {description: "当前配置版本"}, (buf.validate.field).int64.gt = 0]; // 当前配置版本
+  AiAutomationForm automation = 3 [(gnostic.openapi.v3.property) = {description: "更新配置"}, (buf.validate.field).required = true]; // 更新配置
+}
+
+// 设置计划状态。
+message SetAiAutomationStatusRequest {
+  string id = 1 [(gnostic.openapi.v3.property) = {description: "任务ID"}, (buf.validate.field).string.pattern = "^[1-9][0-9]*$"]; // 任务ID
+  int64 revision = 2 [(gnostic.openapi.v3.property) = {description: "当前配置版本"}, (buf.validate.field).int64.gt = 0]; // 当前配置版本
+  string status = 3 [(gnostic.openapi.v3.property) = {description: "目标状态"}, (buf.validate.field).string = {in: ["active", "paused", "archived"]}]; // 目标状态
+}
+
+// 幂等运行一次。
+message RunAiAutomationRequest {
+  string id = 1 [(gnostic.openapi.v3.property) = {description: "任务ID"}, (buf.validate.field).string.pattern = "^[1-9][0-9]*$"]; // 任务ID
+  int64 revision = 2 [(gnostic.openapi.v3.property) = {description: "当前配置版本"}, (buf.validate.field).int64.gt = 0]; // 当前配置版本
+  string request_key = 3 [(gnostic.openapi.v3.property) = {description: "本次操作幂等键"}, (buf.validate.field).string = {min_len: 1, max_len: 64}]; // 本次操作幂等键
+}
+
+// 执行记录筛选。
+message ListAiAutomationRunRequest {
+  string automation_id = 1 [(gnostic.openapi.v3.property) = {description: "任务ID；留空查询本人全部"}]; // 任务ID；留空查询本人全部
+  int32 limit = 2 [(gnostic.openapi.v3.property) = {description: "数量；默认50最多100"}, (buf.validate.field).int32 = {gte: 0, lte: 100}]; // 数量；默认50最多100
+}
+
+// 执行列表。
+message ListAiAutomationRunResponse {
+  repeated AiAutomationRun runs = 1 [(gnostic.openapi.v3.property) = {description: "本人执行记录"}]; // 本人执行记录
+}

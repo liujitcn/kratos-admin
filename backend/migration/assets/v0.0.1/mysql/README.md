@@ -20,4 +20,10 @@ AI 工具人工确认表 `ai_tool_approval` 由已注册的 `AiToolApproval` Mod
 
 存量库启用 `enable_migrate` 后会自动补齐注册模型的表结构，但不会自动重放本版本的初始化数据；菜单权限、字典数据仍需按开发环境流程重建或补齐。脚本和执行型工具由运行时硬性封闭，不受 `agent_status` 开关绕过。
 
-管理端 AI 对话菜单同时授予 `/base.v1.AiReportService/GenerateAiReport`（`POST /api/v1/base/ai/report`），工具在确认后生成 HTML/PDF 并登记到现有 `base_file`。不新增表；存量库需追加菜单权限并刷新角色授权，修改初始化脚本不会自动重放。
+AI 对话沿用管理菜单 `90990000` 与移动菜单 `99101000`，不增加独立插件或自动化菜单。管理端菜单授予 `AiPluginService`、`AiAutomationService` 和 `SetAiSessionPlugins`；移动端仅授予目录/账号/工具查询、本人任务与记录查询、运行一次、停止本次、结果继续讨论及本人审批，不授予插件或计划管理写操作。
+
+Models 自动创建 AI 插件、自动化和 AI 文件表；`default_data.up.sql` 维护内置、Xberg、Gotenberg 插件种子及默认租户安装。AI 文件对象存储目录继续复用 `ai/`，不与 `base_file` 双写；当前没有存量 AI 文件，不包含历史数据迁移。两个 MCP 端点使用 `192.168.60.52` 私网白名单和 `allow_private` 配置，Gotenberg Bearer Token 需在连接页面录入。`default_data.up.sql` 登记唯一 `base_job`：ID `1008`、`base.AiAutomationDispatch`、秒级 cron `0 * * * * *`；用户计划不逐条登记系统任务。调度读取持久化计划、租约和状态，浏览器无需保持在线。
+
+消息分类 ID `6`、code `ai_automation` 仅开启站内 inbox，`provider_id=[]`，不创建或启用任何外部 Provider。运行结果提醒由业务发布为 `VIEW_KEY` 到既有 `AI` 页面，携带 `automation_id`、`run_id`、`session_id`；不在初始化 SQL 写入真实运行或消息。分类只控制投递，结果归属与审批权限仍由服务端校验。
+
+管理端与应用端共用公开登录 `POST /api/v1/base/session` 和跳转授权 `POST /api/v1/base/oauth/authorization`，对应 operation 统一列入最小/完整认证白名单。`base_api` 仍统一由 Proto/OpenAPI 启动同步，公开登录不额外创建菜单权限或静态 API 种子。登录认证和本人 AI 对话跨端共享，并发登录由原策略控制；角色/API 权限、租户、资源归属和审批继续生效，本次不调整表结构或种子。

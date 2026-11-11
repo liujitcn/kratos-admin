@@ -1,19 +1,28 @@
 import { useLoad } from '@tarojs/taro'
-import { RichText, Text, View } from '@tarojs/components'
-import { useState } from 'react'
-import { KratosNavBar, t, useThemeStore } from '@liujitcn/kratos-taro-app-core'
+import { Button, RichText, Text, View } from '@tarojs/components'
+import { useMemo, useState } from 'react'
+import { KratosNavBar, navigateAppView, t, useThemeStore } from '@liujitcn/kratos-taro-app-core'
 import { UniIcon } from '@liujitcn/kratos-taro-app-ui'
 import { defNotificationService } from '../../../api/base/v1/notification'
 import type { NotificationDetail } from '../../../rpc/base/v1/notification'
-import { MessageContentFormat } from '../../../rpc/base/v1/notification'
+import { MessageActionType, MessageContentFormat } from '../../../rpc/base/v1/notification'
 import { resolvePersistedMessage } from '../../../utils/persisted-message'
 import { resolveMessageCategoryIcon } from './icons'
+import { parseAiResultParams } from '../ai/resultLink'
 import './message.scss'
 
 /** MessageDetailPage 展示站内信详情与通知操作。 */
 export default function MessageDetailPage() {
   const themeStore = useThemeStore()
   const [detail, setDetail] = useState<NotificationDetail>()
+  const aiResultTarget = useMemo(() => {
+    if (detail?.action_type !== MessageActionType.MESSAGE_ACTION_TYPE_VIEW_KEY || detail.action_target !== 'AI') return undefined
+    try {
+      return parseAiResultParams(JSON.parse(detail.action_params))
+    } catch {
+      return undefined
+    }
+  }, [detail])
 
   useLoad((options) => {
     const id = Number(options?.id)
@@ -52,6 +61,7 @@ export default function MessageDetailPage() {
           ) : (
             <Text className='detail-content'>{resolvePersistedMessage(detail.content)}</Text>
           )}
+          {aiResultTarget ? <Button onClick={() => navigateAppView('AI', aiResultTarget)}>{t('system.ai.workspace.view_result')}</Button> : null}
         </>
       ) : (
         <View className='detail-loading'>{t('core.status.loading')}</View>

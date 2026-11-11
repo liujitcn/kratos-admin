@@ -186,5 +186,12 @@
   "system.settings.theme_auto": "Follow System",
   "system.settings.theme_dark": "Dark",
   "system.settings.theme_light": "Light",
-  "common.message.unknown": "Unknown"
+  "common.message.unknown": "Unknown",
+  "system.ai.workspace.frozen_result": "Automation result · Original record is read only",
+  "system.ai.workspace.view_result": "View result",
+  "system.ai.workspace.needs_confirmation": "Your confirmation is required before execution.",
+  "system.ai.workspace.expires": "Approval expires",
+  "system.ai.workspace.approval_expired": "Approval expired. Start a new request.",
+  "system.ai.workspace.approve": "Approve execution",
+  "system.ai.workspace.reject": "Reject"
 }

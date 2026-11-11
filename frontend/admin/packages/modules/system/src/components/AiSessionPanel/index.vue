@@ -1,26 +1,30 @@
 <template>
   <aside class="agent-session-panel">
-    <el-input
-      :model-value="keyword"
-      :placeholder="searchPlaceholder || t('system.ai.chat.placeholder.search_conversation')"
-      clearable
-      :prefix-icon="Search"
-      @update:model-value="handleKeywordUpdate"
-    />
+    <div class="agent-session-search">
+      <el-input
+        :model-value="keyword"
+        :placeholder="searchPlaceholder || t('system.ai.chat.placeholder.search_conversation')"
+        clearable
+        :prefix-icon="Search"
+        @update:model-value="handleKeywordUpdate"
+      />
+      <el-tooltip :content="t('system.ai.chat.action.collapse_sessions')" placement="top">
+        <button
+          v-if="!hideCollapse"
+          class="agent-panel-icon"
+          type="button"
+          :aria-label="t('system.ai.chat.action.collapse_sessions')"
+          @click="$emit('toggleCollapse')"
+        >
+          <el-icon><DArrowLeft /></el-icon>
+        </button>
+      </el-tooltip>
+    </div>
+    <slot name="navigation" />
     <div class="agent-divider"></div>
     <div class="agent-panel-header">
       <div class="agent-panel-title">{{ title || t("system.ai.chat.title.recent_conversations") }}</div>
       <div class="agent-panel-actions">
-        <el-tooltip :content="t('system.ai.chat.action.collapse_sessions')" placement="top">
-          <button
-            class="agent-panel-icon"
-            type="button"
-            :aria-label="t('system.ai.chat.action.collapse_sessions')"
-            @click="$emit('toggleCollapse')"
-          >
-            <el-icon><DArrowLeft /></el-icon>
-          </button>
-        </el-tooltip>
         <button
           class="agent-panel-create"
           type="button"
@@ -48,7 +52,9 @@
         >
           <div class="agent-session-main">
             <div class="agent-session-name">{{ item.title }}</div>
-            <div class="agent-session-meta">{{ item.summary }}</div>
+            <div class="agent-session-meta">
+              <slot name="session-meta" :item="item">{{ item.summary }}</slot>
+            </div>
           </div>
         </button>
         <el-dropdown
@@ -91,6 +97,8 @@ const props = defineProps<{
   sessions: T[];
   /** 可隐藏记录编辑菜单，供只读问数历史复用。 */
   editable?: boolean;
+  /** 历史弹层不显示桌面折叠控件。 */
+  hideCollapse?: boolean;
   /** 复用列表时提供当前业务的标题和搜索提示。 */
   title?: string;
   searchPlaceholder?: string;
@@ -151,9 +159,15 @@ function handleCreateSession() {
     border-radius: var(--admin-page-radius);
     box-shadow: none;
   }
+}
+.agent-session-search {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  padding: 0 10px 0 14px;
   :deep(.el-input) {
-    width: calc(100% - 28px);
-    margin: 0 14px;
+    flex: 1;
+    min-width: 0;
   }
 }
 .agent-panel-icon {

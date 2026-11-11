@@ -2,10 +2,12 @@ package biz
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"strconv"
 	"time"
 
+	"github.com/go-kratos/kratos/v3/log"
 	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/ai"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
@@ -26,11 +28,13 @@ import (
 type AiSessionCase struct {
 	*biz.BaseCase
 	*data.AiSessionRepository
-	tx             data.Transaction
-	aiMessageRepo  *data.AiMessageRepository
-	aiApprovalRepo *data.AiToolApprovalRepository
-	catalog        *i18n.I18n
-	mapper         *mapper.CopierMapper[basev1.AiSession, models.AiSession]
+	tx                data.Transaction
+	aiMessageRepo     *data.AiMessageRepository
+	aiApprovalRepo    *data.AiToolApprovalRepository
+	aiPluginCase      *AiPluginCase
+	automationRunRepo *data.AiAutomationRunRepository
+	catalog           *i18n.I18n
+	mapper            *mapper.CopierMapper[basev1.AiSession, models.AiSession]
 }
 
 // NewAiSessionCase 创建 AI 助手会话业务实例。
@@ -41,6 +45,8 @@ func NewAiSessionCase(
 	aiMessageRepo *data.AiMessageRepository,
 	aiApprovalRepo *data.AiToolApprovalRepository,
 	catalog *i18n.I18n,
+	aiPluginCase *AiPluginCase,
+	automationRunRepo *data.AiAutomationRunRepository,
 ) *AiSessionCase {
 	return &AiSessionCase{
 		BaseCase:            baseCase,
@@ -48,24 +54,24 @@ func NewAiSessionCase(
 		tx:                  tx,
 		aiMessageRepo:       aiMessageRepo,
 		aiApprovalRepo:      aiApprovalRepo,
+		aiPluginCase:        aiPluginCase,
+		automationRunRepo:   automationRunRepo,
 		catalog:             catalog,
 		mapper:              mapper.NewCopierMapper[basev1.AiSession, models.AiSession](),
 	}
 }
 
-// ListAiSession 查询当前用户的 AI 助手会话列表。
+// ListAiSession 查询当前租户与用户在所有客户端共享的 AI 对话。
 func (c *AiSessionCase) ListAiSession(ctx context.Context, req *basev1.ListAiSessionRequest) (*basev1.ListAiSessionResponse, error) {
 	authInfo, err := c.GetAuthInfo(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	terminal := ai.NormalizeTerminal(req.GetTerminal())
 	query := c.Query(ctx).AiSession
 	opts := make([]repository.QueryOption, 0, 5)
 	opts = append(opts, repository.Where(query.TenantID.Eq(authInfo.TenantId)))
 	opts = append(opts, repository.Where(query.UserID.Eq(authInfo.UserId)))
-	opts = append(opts, repository.Where(query.Terminal.Eq(terminal)))
 	opts = append(opts, repository.Order(query.UpdatedAt.Desc(), query.ID.Desc()))
 	var list []*models.AiSession
 	list, err = c.List(ctx, opts...)
@@ -87,6 +93,21 @@ func (c *AiSessionCase) CreateAiSession(ctx context.Context, req *basev1.CreateA
 		return nil, err
 	}
 
+	terminal := ai.NormalizeTerminal(req.GetTerminal())
+	selections := req.Plugins
+	if selections == nil {
+		selections = []*basev1.AiPluginSelection{{PluginId: "1"}}
+	}
+	_, err = c.aiPluginCase.ResolveToolPool(ctx, ai.NormalizeTerminalString(terminal), selections)
+	if err != nil {
+		return nil, err
+	}
+	var raw []byte
+	raw, err = json.Marshal(selections)
+	if err != nil {
+		return nil, err
+	}
+
 	title := req.GetTitle()
 	if title == "" {
 		title = localizedAiSessionText(c.catalog, biz.LocaleFromContext(ctx), "base.ai.session.default_title", "New conversation")
@@ -96,7 +117,8 @@ func (c *AiSessionCase) CreateAiSession(ctx context.Context, req *basev1.CreateA
 	model := &models.AiSession{
 		TenantID:  authInfo.TenantId,
 		UserID:    authInfo.UserId,
-		Terminal:  ai.NormalizeTerminal(req.GetTerminal()),
+		Terminal:  terminal,
+		Plugins:   string(raw),
 		Title:     title,
 		Summary:   summary,
 		CreatedAt: now,
@@ -114,6 +136,20 @@ func (c *AiSessionCase) CreateAiSessionBranch(ctx context.Context, req *basev1.C
 	if err != nil {
 		return nil, err
 	}
+	if sourceSession.AutomationRunID > 0 {
+		return nil, errorsx.PermissionDenied("自动化结果已冻结，请使用继续讨论创建普通会话")
+	}
+	terminal := ai.NormalizeTerminal(req.GetTerminal())
+	var selections []*basev1.AiPluginSelection
+	selections, err = c.Plugins(sourceSession)
+	if err != nil {
+		return nil, err
+	}
+	_, err = c.aiPluginCase.ResolveToolPool(ctx, ai.NormalizeTerminalString(terminal), selections)
+	if err != nil {
+		return nil, err
+	}
+
 	var anchorMessageID int64
 	anchorMessageID, err = strconv.ParseInt(req.GetAnchorMessageId(), 10, 64)
 	if err != nil || anchorMessageID <= 0 {
@@ -156,10 +192,15 @@ func (c *AiSessionCase) CreateAiSessionBranch(ctx context.Context, req *basev1.C
 	if title == "" {
 		title = localizedAiSessionText(c.catalog, biz.LocaleFromContext(ctx), "base.ai.session.branch_title", "Branch conversation")
 	}
+	plugins := sourceSession.Plugins
+	if plugins == "" {
+		plugins = "null"
+	}
 	branchSession := &models.AiSession{
 		TenantID:  sourceSession.TenantID,
 		UserID:    sourceSession.UserID,
-		Terminal:  ai.NormalizeTerminal(req.GetTerminal()),
+		Terminal:  terminal,
+		Plugins:   plugins,
 		Title:     title,
 		Summary:   sourceSession.Summary,
 		CreatedAt: now,
@@ -167,8 +208,8 @@ func (c *AiSessionCase) CreateAiSessionBranch(ctx context.Context, req *basev1.C
 	}
 	branchMessages := make([]*models.AiMessage, 0, len(sourceMessages))
 	err = c.tx.Transaction(ctx, func(txCtx context.Context) error {
-		if createErr := c.Create(txCtx, branchSession); createErr != nil {
-			return createErr
+		if err = c.Create(txCtx, branchSession); err != nil {
+			return err
 		}
 		for _, item := range sourceMessages {
 			branchMessage := &models.AiMessage{
@@ -186,8 +227,9 @@ func (c *AiSessionCase) CreateAiSessionBranch(ctx context.Context, req *basev1.C
 				CreatedAt:     item.CreatedAt,
 				UpdatedAt:     now,
 			}
-			if createErr := c.aiMessageRepo.Create(txCtx, branchMessage); createErr != nil {
-				return createErr
+			normalizeAiMessageJSON(branchMessage)
+			if err = c.aiMessageRepo.Create(txCtx, branchMessage); err != nil {
+				return err
 			}
 			branchMessages = append(branchMessages, branchMessage)
 		}
@@ -214,6 +256,10 @@ func (c *AiSessionCase) UpdateAiSession(ctx context.Context, req *basev1.UpdateA
 	if err != nil {
 		return nil, err
 	}
+	if session.AutomationRunID > 0 {
+		return nil, errorsx.PermissionDenied("自动化结果会话不允许重命名")
+	}
+
 	now := time.Now()
 	query := c.Query(ctx).AiSession
 	_, err = query.WithContext(ctx).
@@ -253,10 +299,24 @@ func (c *AiSessionCase) DeleteAiSession(ctx context.Context, req *basev1.DeleteA
 	if err != nil {
 		return nil, err
 	}
+
 	err = c.tx.Transaction(ctx, func(txCtx context.Context) error {
 		if err = c.lockAiSession(txCtx, session); err != nil {
 			return err
 		}
+		if session.AutomationRunID > 0 {
+			query := c.automationRunRepo.Query(txCtx).AiAutomationRun
+			var count int64
+			count, err = c.automationRunRepo.Count(txCtx, repository.Where(query.ID.Eq(session.AutomationRunID)), repository.Where(query.TenantID.Eq(session.TenantID)), repository.Where(query.OwnerUserID.Eq(session.UserID)), repository.Where(query.Status.In("queued", "running", "waiting_approval")))
+			if err != nil {
+				return err
+			}
+			if count > 0 {
+				return errorsx.Conflict("自动化仍在执行或等待确认，不能删除结果会话")
+			}
+			return c.DeleteByID(txCtx, session.ID)
+		}
+
 		approval := c.aiApprovalRepo.Query(txCtx).AiToolApproval
 		runs := approval.WithContext(txCtx).Where(approval.TenantID.Eq(session.TenantID), approval.SessionID.Eq(session.ID), approval.UserID.Eq(session.UserID))
 		_, err = runs.WithContext(txCtx).Where(approval.Status.In(aiRunRunning, aiRunPending)).UpdateSimple(approval.Status.Value(aiRunRejected))
@@ -284,8 +344,12 @@ func (c *AiSessionCase) DeleteAiSession(ctx context.Context, req *basev1.DeleteA
 // lockAiSession 串行化会话内的消息、审批和删除操作，调用方须位于事务中。
 func (c *AiSessionCase) lockAiSession(ctx context.Context, session *models.AiSession) error {
 	query := c.Query(ctx).AiSession
-	_, err := query.WithContext(ctx).Where(query.ID.Eq(session.ID), query.TenantID.Eq(session.TenantID), query.UserID.Eq(session.UserID)).Clauses(clause.Locking{Strength: "UPDATE"}).First()
-	return err
+	locked, err := query.WithContext(ctx).Where(query.ID.Eq(session.ID), query.TenantID.Eq(session.TenantID), query.UserID.Eq(session.UserID)).Clauses(clause.Locking{Strength: "UPDATE"}).First()
+	if err != nil {
+		return err
+	}
+	*session = *locked
+	return nil
 }
 
 // FindCurrentUserSessionByRawID 按当前用户与字符串会话编号查询会话。
@@ -340,10 +404,123 @@ func (c *AiSessionCase) ToDTO(model *models.AiSession) *basev1.AiSession {
 	session.Id = strconv.FormatInt(model.ID, 10)
 	session.UpdatedAt = timestamppb.New(model.UpdatedAt)
 	session.Terminal = ai.NormalizeTerminalEnum(model.Terminal)
+	selections, err := c.Plugins(model)
+	if err != nil {
+		log.Error("读取会话插件配置失败", "session_id", model.ID, "error", err)
+		selections = []*basev1.AiPluginSelection{}
+	}
+	session.Plugins = selections
+	session.AutomationId = ""
+	if model.AutomationID > 0 {
+		session.AutomationId = strconv.FormatInt(model.AutomationID, 10)
+	}
+	session.AutomationRunId = ""
+	if model.AutomationRunID > 0 {
+		session.AutomationRunId = strconv.FormatInt(model.AutomationRunID, 10)
+	}
+	session.ReadOnly = model.AutomationRunID > 0
+
 	return session
+}
+
+// SetAiSessionPlugins 仅在本人普通会话空闲时保存明确选择；空列表明确禁用全部插件。
+func (c *AiSessionCase) SetAiSessionPlugins(ctx context.Context, req *basev1.SetAiSessionPluginsRequest) (*basev1.AiSession, error) {
+	session, err := c.FindCurrentUserSessionByRawID(ctx, req.Id)
+	if err != nil {
+		return nil, err
+	}
+	selections := req.Plugins
+	if selections == nil {
+		selections = []*basev1.AiPluginSelection{}
+	}
+	err = c.tx.Transaction(ctx, func(txCtx context.Context) error {
+		err = c.lockAiSession(txCtx, session)
+		if err != nil {
+			return err
+		}
+		if session.AutomationRunID > 0 {
+			return errorsx.PermissionDenied("自动化结果会话不允许修改插件")
+		}
+		query := c.aiMessageRepo.Query(txCtx).AiMessage
+		var count int64
+		count, err = c.aiMessageRepo.Count(txCtx, repository.Where(query.TenantID.Eq(session.TenantID)), repository.Where(query.SessionID.Eq(session.ID)), repository.Where(query.UserID.Eq(session.UserID)), repository.Where(query.Status.In(int32(basev1.AiMessageStatus_AI_MESSAGE_STATUS_GENERATING), int32(basev1.AiMessageStatus_AI_MESSAGE_STATUS_WAITING_APPROVAL))))
+		if err != nil {
+			return err
+		}
+		if count > 0 {
+			return errorsx.Conflict("会话仍在执行或等待确认，暂不能修改插件")
+		}
+		approvalQuery := c.aiApprovalRepo.Query(txCtx).AiToolApproval
+		count, err = c.aiApprovalRepo.Count(txCtx, repository.Where(approvalQuery.SessionID.Eq(session.ID)), repository.Where(approvalQuery.TenantID.Eq(session.TenantID)), repository.Where(approvalQuery.UserID.Eq(session.UserID)), repository.Where(approvalQuery.Status.In(aiRunRunning, aiRunPending)), repository.Where(approvalQuery.ExpiresAt.Gt(time.Now())))
+		if err != nil {
+			return err
+		}
+		if count > 0 {
+			return errorsx.Conflict("会话仍有未完成运行，暂不能修改插件")
+		}
+		_, err = c.aiPluginCase.ResolveToolPool(txCtx, ai.NormalizeTerminalString(session.Terminal), selections)
+		if err != nil {
+			return err
+		}
+		var raw []byte
+		raw, err = json.Marshal(selections)
+		if err != nil {
+			return err
+		}
+		session.Plugins = string(raw)
+		session.UpdatedAt = time.Now()
+		sessionQuery := c.Query(txCtx).AiSession
+		return c.Update(txCtx, session, repository.Where(sessionQuery.ID.Eq(session.ID)), repository.Select(sessionQuery.Plugins, sessionQuery.UpdatedAt))
+	})
+	if err != nil {
+		return nil, err
+	}
+	return c.ToDTO(session), nil
+}
+
+// Plugins 读取会话选择，旧NULL仅映射内置工具；显式空数组保持禁用全部。
+func (c *AiSessionCase) Plugins(session *models.AiSession) ([]*basev1.AiPluginSelection, error) {
+	return parseAiSessionPlugins(session.Plugins)
+}
+
+// parseAiSessionPlugins 对持久化JSON失败关闭，不把损坏配置回退为全部工具。
+func parseAiSessionPlugins(raw string) ([]*basev1.AiPluginSelection, error) {
+	if raw == "" || raw == "null" {
+		return []*basev1.AiPluginSelection{{PluginId: "1"}}, nil
+	}
+	selections := make([]*basev1.AiPluginSelection, 0)
+	err := json.Unmarshal([]byte(raw), &selections)
+	if err != nil {
+		return nil, errorsx.Internal("会话插件配置损坏").WithCause(err)
+	}
+	for _, selection := range selections {
+		if selection == nil {
+			return nil, errorsx.Internal("会话插件引用无效")
+		}
+	}
+	return selections, nil
 }
 
 // localizedAiSessionText 根据当前请求语言读取会话默认文案。
 func localizedAiSessionText(catalog *i18n.I18n, locale, key, fallback string) string {
 	return catalog.Localize(locale, "zh-CN", key, nil, fallback)
+}
+
+// normalizeAiMessageJSON 为分支复制的历史消息补齐可入库的 JSON 默认值。
+func normalizeAiMessageJSON(item *models.AiMessage) {
+	if item.InputContent == "" {
+		item.InputContent = ai.MarshalInputContentPayload(ai.InputContentPayload{Kind: ai.KindText})
+	}
+	if item.OutputContent == "" {
+		item.OutputContent = ai.MarshalEmptyOutputContent()
+	}
+	if item.Attachments == "" {
+		item.Attachments = "[]"
+	}
+	if item.Tools == "" {
+		item.Tools = "[]"
+	}
+	if item.Token == "" {
+		item.Token = ai.MarshalTokenUsage(ai.TokenUsage{})
+	}
 }

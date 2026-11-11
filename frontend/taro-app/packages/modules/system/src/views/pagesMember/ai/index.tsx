@@ -16,6 +16,8 @@ import { defAiSessionService } from '../../../api/base/v1/ai_session'
 import { defAiToolService } from '../../../api/base/v1/ai_tool'
 import { defAiModelService } from '../../../api/base/v1/ai_provider'
 import { defAiKnowledgeService } from '../../../api/base/v1/ai_knowledge'
+import { getAiAutomationRun } from '../../../api/base/v1/ai_automation'
+import { parseAiResultParams } from './resultLink'
 import type { AiAttachment, AiMessage, AiSession } from '../../../rpc/base/v1/ai_session'
 import type { AiProviderModelOption } from '../../../rpc/base/v1/ai_provider'
 import type { AiKnowledgeOption } from '../../../rpc/base/v1/ai_knowledge'
@@ -25,6 +27,7 @@ import { Terminal } from '../../../rpc/base/v1/ai_tool'
 import Composer from './components/Composer'
 import SessionDrawer from './components/SessionDrawer'
 import WelcomePanel from './components/WelcomePanel'
+import ApprovalCard from './components/ApprovalCard'
 import { resolveModelDisplayName } from './modelDisplay'
 import { loadStoredModelSelection, saveModelSelection } from './modelSelection'
 import {
@@ -124,6 +127,8 @@ export default function AiPage() {
     if (!keyword) return sessions
     return sessions.filter((item) => item.title.includes(keyword) || item.summary.includes(keyword))
   }, [sessionKeyword, sessions])
+  const currentSessionReadOnly = Boolean(sessions.find(session => session.id === activeSessionID)?.read_only)
+  const isSessionReadOnly = (id: string) => Boolean(sessionsRef.current.find(session => session.id === id)?.read_only)
   const currentMessages = messages[activeSessionID] ?? []
   const hasMessages = currentMessages.length > 0
   const currentSessionSending = Boolean(activeSessionID && sendingSessionMap[activeSessionID])
@@ -148,8 +153,10 @@ export default function AiPage() {
         ? t('system.ai.placeholder.continue')
         : t('system.ai.placeholder.default')
   const isSubmitDisabled =
+    currentSessionReadOnly ||
     uploadingAttachment ||
     currentSessionSending ||
+    currentMessages.some(item => item.status === AiMessageStatus.AI_MESSAGE_STATUS_WAITING_APPROVAL) ||
     isRecording ||
     (!inputText.trim() && selectedAttachments.length === 0)
 
@@ -302,6 +309,7 @@ export default function AiPage() {
     const response = await defAiSessionService.CreateAiSession({
       title: t('system.ai.new_session'),
       terminal: AI_TERMINAL,
+      plugins: [],
     })
     const session = response.session ? normalizeSession(response.session) : undefined
     if (!session) return ''
@@ -350,7 +358,7 @@ export default function AiPage() {
     if (loadingSessionsRef.current || sessionsRef.current.length > 0) return
     setLoadingSessions(true)
     try {
-      const response = await defAiSessionService.ListAiSession({ terminal: AI_TERMINAL })
+      const response = await defAiSessionService.ListAiSession({})
       setSessions(normalizeSessionList(response.sessions))
       await ensureActiveSession()
     } catch (error) {
@@ -512,7 +520,7 @@ export default function AiPage() {
 
   const sendAiPayload = async (payload: { text: string; attachments: AiAttachment[] }) => {
     const sessionID = await ensureActiveSession()
-    if (!sessionID || isSessionSending(sessionID)) return false
+    if (!sessionID || isSessionReadOnly(sessionID) || isSessionSending(sessionID)) return false
     // 发送前等待进行中的历史加载结束，避免本地消息与历史加载竞态。
     await waitForMessagesLoaded(sessionID)
     updateSessionMessages(sessionID, (current) =>
@@ -523,10 +531,33 @@ export default function AiPage() {
     return runAiTask(sessionID, payload)
   }
 
-  useLoad(() => {
+  useLoad((options) => {
     void loadAiShortcuts()
-    void ensureSessionsLoaded()
+    void loadInitialTarget(options)
   })
+
+  /** 通过本人查询接口解析站内提醒，链接不能提供会话归属或只读元数据。 */
+  async function loadInitialTarget(options: unknown) {
+    await ensureSessionsLoaded()
+    const params = parseAiResultParams(options)
+    if (!params) return
+    try {
+      if (params.run_id) {
+        const run = await getAiAutomationRun({ id: params.run_id })
+        if (run.session_deleted || !run.session_id) throw new Error(t('system.ai.load_messages_failed'))
+        upsertSession(normalizeSession({ id: run.session_id, title: run.configuration?.name, plugins: run.configuration?.plugins || [], automation_id: run.automation_id, automation_run_id: run.id, read_only: true }))
+        setActiveSessionID(run.session_id)
+        await loadMessages(run.session_id)
+        return
+      }
+      const session = sessionsRef.current.find(item => item.id === params.session_id)
+      if (!session) throw new Error(t('system.ai.load_messages_failed'))
+      setActiveSessionID(session.id)
+      await loadMessages(session.id)
+    } catch (error) {
+      showError(error, t('system.ai.load_messages_failed'))
+    }
+  }
 
   useEffect(() => {
     setStarterShortcuts(createDefaultShortcuts())
@@ -615,7 +646,7 @@ export default function AiPage() {
 
   const deleteMessage = async (item: ChatMessageItem) => {
     const sessionID = activeSessionIDRef.current
-    if (!sessionID) return
+    if (!sessionID || isSessionReadOnly(sessionID)) return
     try {
       if (!item.localOnly) {
         await defAiMessageService.DeleteAiMessage({ session_id: sessionID, message_id: item.messageID })
@@ -628,7 +659,7 @@ export default function AiPage() {
 
   const canRegenerateMessage = (item: ChatMessageItem) => {
     const current = messagesRef.current[activeSessionIDRef.current] ?? []
-    return item.role === 'ai' && !item.localOnly && !isSessionSending(activeSessionIDRef.current)
+    return !isSessionReadOnly(activeSessionIDRef.current) && item.role === 'ai' && !item.localOnly && !isSessionSending(activeSessionIDRef.current)
       && item.status !== AiMessageStatus.AI_MESSAGE_STATUS_GENERATING
       && item.status !== AiMessageStatus.AI_MESSAGE_STATUS_WAITING_APPROVAL
       && current[current.length - 1]?.messageID === item.messageID
@@ -651,7 +682,7 @@ export default function AiPage() {
 
   const handleMessageAction = async (item: ChatMessageItem) => {
     try {
-      const itemList = canRegenerateMessage(item)
+      const itemList = isSessionReadOnly(activeSessionIDRef.current) ? [t('system.ai.action.copy')] : canRegenerateMessage(item)
         ? [t('system.ai.action.copy'), t('common.action.delete'), t('system.ai.action.regenerate')]
         : [t('system.ai.action.copy'), t('common.action.delete')]
       const { tapIndex } = await Taro.showActionSheet({ itemList })
@@ -660,6 +691,28 @@ export default function AiPage() {
       else await regenerateMessage(item)
     } catch {
       // 用户取消操作无需提示。
+    }
+  }
+
+  /** decideApproval 仅提交一次性审批编号，参数与权限由服务端重新校验。 */
+  const decideApproval = async (sessionID: string, item: ChatMessageItem, approved: boolean) => {
+    const approval = item.output_content?.approval
+    if (!approval || sendingSessionMapRef.current[sessionID] || item.status !== AiMessageStatus.AI_MESSAGE_STATUS_WAITING_APPROVAL) return
+    setSessionSending(sessionID, true)
+    try {
+      const response = await defAiMessageService.DecideAiToolApproval({
+        session_id: sessionID,
+        message_id: item.messageID,
+        approval_id: approval.id,
+        approved,
+      })
+      if (response.session) upsertSession(normalizeSession(response.session))
+      updateSessionMessages(sessionID, current => replacePendingMessages(current, normalizeMessageList(response.messages)))
+    } catch (error) {
+      showError(error, t('system.ai.request_failed'))
+    } finally {
+      if (activeSessionIDRef.current === sessionID) await loadMessages(sessionID)
+      setSessionSending(sessionID, false)
     }
   }
 
@@ -673,7 +726,7 @@ export default function AiPage() {
   }
 
   const handleAttachment = async () => {
-    if (uploadingAttachment || currentSessionSending) return
+    if (currentSessionReadOnly || uploadingAttachment || currentSessionSending) return
     if (selectedAttachments.length >= MAX_ATTACHMENT_COUNT) {
       await Taro.showToast({
         icon: 'none',
@@ -727,6 +780,7 @@ export default function AiPage() {
           action={{ icon: 'history', label: t('system.ai.history'), onClick: () => setShowSessionDrawer((open) => !open) }}
         />
       </View>
+      {currentSessionReadOnly ? <View className='loading-session'>{t('system.ai.workspace.frozen_result')}</View> : null}
       <ScrollView
         className='ai-body'
         scrollY
@@ -763,6 +817,14 @@ export default function AiPage() {
                     <View className='reply-meta'><Text className='reply-tag'>{t('system.ai.model_reply')}</Text><Text className='reply-model'>{resolveModelDisplayName(modelProviders, item.model)}</Text></View>
                   ) : null}
                   <View className='bubble-content'>{item.content}</View>
+                  {item.role === 'ai' && item.output_content?.approval ? (
+                    <ApprovalCard
+                      approval={item.output_content.approval}
+                      status={item.status}
+                      busy={currentSessionSending}
+                      onDecision={(approved) => void decideApproval(activeSessionID, item, approved)}
+                    />
+                  ) : null}
                   {item.attachments.length ? (
                     <View className='attachment-list'>
                       {item.attachments.map((attachment) => (
@@ -789,7 +851,7 @@ export default function AiPage() {
         )}
         {loadingSessionID ? <View className='loading-session'>{t('system.ai.load_messages')}</View> : null}
       </ScrollView>
-      <Composer
+      {!currentSessionReadOnly ? <Composer
         value={inputText}
         attachments={selectedAttachments}
         modelProviders={modelProviders}
@@ -818,7 +880,7 @@ export default function AiPage() {
         onModelChange={handleModelChange}
         onKnowledgeChange={handleKnowledgeChange}
         onRemoveAttachment={(attachment) => setSelectedAttachments((current) => current.filter((item) => item !== attachment))}
-      />
+      /> : null}
       <SessionDrawer
         open={showSessionDrawer}
         topPadding={drawerTopPadding}
@@ -842,6 +904,10 @@ function normalizeSession(session?: Partial<AiSession> | null): AiSession {
     tenant_id: Number(session?.tenant_id ?? 0),
     title: String(session?.title ?? t('system.ai.new_session')),
     summary: String(session?.summary ?? ''),
+    plugins: session?.plugins || [],
+    automation_id: session?.automation_id || '',
+    automation_run_id: session?.automation_run_id || '',
+    read_only: Boolean(session?.read_only),
     updated_at: session?.updated_at,
     terminal: Number(session?.terminal ?? AI_TERMINAL),
   }

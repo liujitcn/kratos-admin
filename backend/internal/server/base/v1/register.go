@@ -11,12 +11,14 @@ import (
 
 // Services 汇总 base.v1 的服务实现。
 type Services struct {
+	AiAutomation *base.AiAutomationService
+	AiFile       *base.AiFileService
 	AiSession    *base.AiSessionService
 	AiModel      *base.AiModelService
+	AiPlugin     *base.AiPluginService
 	AiTool       *base.AiToolService
 	AiMessage    *base.AiMessageService
 	AiSearch     *base.AiSearchService
-	AiReport     *base.AiReportService
 	AiKnowledge  *base.AiKnowledgeService
 	Config       *base.ConfigService
 	Language     *base.LanguageService
@@ -34,12 +36,14 @@ type Services struct {
 
 // RegisterGRPC 注册 base.v1 的 gRPC 服务。
 func (s Services) RegisterGRPC(srv grpc.ServiceRegistrar) {
+	basev1.RegisterAiAutomationServiceServer(srv, basev1.RedactedAiAutomationServiceServer(s.AiAutomation))
+	basev1.RegisterAiFileServiceServer(srv, basev1.RedactedAiFileServiceServer(s.AiFile))
 	basev1.RegisterAiSessionServiceServer(srv, basev1.RedactedAiSessionServiceServer(s.AiSession))
 	basev1.RegisterAiModelServiceServer(srv, basev1.RedactedAiModelServiceServer(s.AiModel))
+	basev1.RegisterAiPluginServiceServer(srv, basev1.RedactedAiPluginServiceServer(s.AiPlugin))
 	basev1.RegisterAiToolServiceServer(srv, basev1.RedactedAiToolServiceServer(s.AiTool))
 	basev1.RegisterAiMessageServiceServer(srv, basev1.RedactedAiMessageServiceServer(s.AiMessage))
 	basev1.RegisterAiSearchServiceServer(srv, basev1.RedactedAiSearchServiceServer(s.AiSearch))
-	basev1.RegisterAiReportServiceServer(srv, basev1.RedactedAiReportServiceServer(s.AiReport))
 	basev1.RegisterAiKnowledgeServiceServer(srv, basev1.RedactedAiKnowledgeServiceServer(s.AiKnowledge))
 	basev1.RegisterConfigServiceServer(srv, basev1.RedactedConfigServiceServer(s.Config))
 	basev1.RegisterLanguageServiceServer(srv, basev1.RedactedLanguageServiceServer(s.Language))
@@ -57,13 +61,15 @@ func (s Services) RegisterGRPC(srv grpc.ServiceRegistrar) {
 
 // RegisterHTTP 注册 base.v1 的 HTTP 服务。
 func (s Services) RegisterHTTP(srv *http.Server) {
+	basev1.RegisterAiAutomationServiceHTTPServer(srv, basev1.RedactedAiAutomationServiceServer(s.AiAutomation))
+	basev1.RegisterAiFileServiceHTTPServer(srv, basev1.RedactedAiFileServiceServer(s.AiFile))
 	basev1.RegisterAiSessionServiceHTTPServer(srv, basev1.RedactedAiSessionServiceServer(s.AiSession))
 	basev1.RegisterAiModelServiceHTTPServer(srv, basev1.RedactedAiModelServiceServer(s.AiModel))
+	basev1.RegisterAiPluginServiceHTTPServer(srv, basev1.RedactedAiPluginServiceServer(s.AiPlugin))
 	basev1.RegisterAiToolServiceHTTPServer(srv, basev1.RedactedAiToolServiceServer(s.AiTool))
 	// AI 助手消息发送使用直连 SSE，避免占用工作台共用 /events 流。
 	base.RegisterAiMessageServiceHTTPServer(srv, s.AiMessage)
 	basev1.RegisterAiSearchServiceHTTPServer(srv, basev1.RedactedAiSearchServiceServer(s.AiSearch))
-	basev1.RegisterAiReportServiceHTTPServer(srv, basev1.RedactedAiReportServiceServer(s.AiReport))
 	basev1.RegisterAiKnowledgeServiceHTTPServer(srv, basev1.RedactedAiKnowledgeServiceServer(s.AiKnowledge))
 	basev1.RegisterConfigServiceHTTPServer(srv, basev1.RedactedConfigServiceServer(s.Config))
 	basev1.RegisterLanguageServiceHTTPServer(srv, basev1.RedactedLanguageServiceServer(s.Language))
@@ -87,11 +93,11 @@ func (s Services) RegisterMCP(server *mcp.Server) {
 	s.Mcp.RegisterMCP(server)
 	mcpSrv := server.MCPServer()
 	basev1.RegisterAiSessionServiceMCPTools(mcpSrv, s.AiSession)
+	basev1.RegisterAiFileServiceMCPTools(mcpSrv, s.AiFile)
 	basev1.RegisterAiModelServiceMCPTools(mcpSrv, s.AiModel)
 	basev1.RegisterAiToolServiceMCPTools(mcpSrv, s.AiTool)
 	basev1.RegisterAiMessageServiceMCPTools(mcpSrv, s.AiMessage)
 	basev1.RegisterAiSearchServiceMCPTools(mcpSrv, s.AiSearch)
-	basev1.RegisterAiReportServiceMCPTools(mcpSrv, s.AiReport)
 	basev1.RegisterAiKnowledgeServiceMCPTools(mcpSrv, s.AiKnowledge)
 	basev1.RegisterConfigServiceMCPTools(mcpSrv, s.Config)
 	basev1.RegisterLanguageServiceMCPTools(mcpSrv, s.Language)

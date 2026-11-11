@@ -186,5 +186,12 @@
   "system.settings.theme_auto": "システムに従う",
   "system.settings.theme_dark": "ダーク",
   "system.settings.theme_light": "ライト",
-  "common.message.unknown": "不明"
+  "common.message.unknown": "不明",
+  "system.ai.workspace.frozen_result": "自動化の結果 · 元の記録は読み取り専用",
+  "system.ai.workspace.view_result": "結果を表示",
+  "system.ai.workspace.needs_confirmation": "実行前に確認が必要です",
+  "system.ai.workspace.expires": "確認期限",
+  "system.ai.workspace.approval_expired": "確認期限が切れました。新しいリクエストを開始してください。",
+  "system.ai.workspace.approve": "実行を承認",
+  "system.ai.workspace.reject": "拒否"
 }

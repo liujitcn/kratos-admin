@@ -59,10 +59,10 @@ export class LoginServiceImpl implements LoginService {
       header: { Authorization: 'no-auth' },
     })
   }
-  /** 登录 */
+  /** 两端共用登录入口，并发会话由服务端登录策略控制。 */
   Login(request: LoginRequest): Promise<LoginResponse> {
     return http<LoginResponse>({
-      url: `${SESSION_URL}`,
+      url: SESSION_URL,
       method: 'POST',
       authMode: 'none',
       data: request,

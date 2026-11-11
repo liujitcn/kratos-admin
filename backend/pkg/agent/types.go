@@ -37,6 +37,8 @@ type RunState struct {
 	ModelName string `json:"model_name"`
 	// ToolNames 是原始候选工具集合。
 	ToolNames []string `json:"tool_names"`
+	// ToolRevision 是原始请求工具池的修订快照。
+	ToolRevision string `json:"tool_revision"`
 	// ServerTools 记录原始服务端工具开关。
 	ServerTools bool `json:"server_tools"`
 }

@@ -35,7 +35,9 @@ import (
 	"github.com/liujitcn/kratos-admin/backend/internal/service/system/admin/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/service/system/app/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/task"
+	base3 "github.com/liujitcn/kratos-admin/backend/internal/task/base"
 	admin6 "github.com/liujitcn/kratos-admin/backend/internal/task/system/admin"
+	"github.com/liujitcn/kratos-admin/backend/pkg/aiautomation"
 	"github.com/liujitcn/kratos-admin/backend/pkg/bi"
 	"github.com/liujitcn/kratos-admin/backend/pkg/projectaccess"
 	"github.com/liujitcn/kratos-admin/backend/pkg/scripting"
@@ -59,18 +61,24 @@ import (
 // Injectors from wire.go:
 
 // BuildModules 使用宿主共享的任务管理器装配 Admin 协议服务。
-func BuildModules(migrations *migration.Migration, config2 *configv1.Bootstrap, databases map[string]*gorm.Client, baseCase *biz.BaseCase, authorizer engine.Engine, authenticator engine2.Authenticator, userToken *data.UserToken, jobRuntime *job.Job, sseRuntime *sse.SSE, catalog *i18n.I18n, openAPIRuntime *openapi.OpenAPI, redactResolver *kit.RedactPolicyResolver, rateLimitResolver *kit.RateLimitPolicyResolver, progressManager *codegen.Manager, lifecycle *projectaccess.Lifecycle, mqttServer *mqtt.Server) (module.Modules, func(), error) {
+func BuildModules(dispatcher *aiautomation.Dispatcher, migrations *migration.Migration, config2 *configv1.Bootstrap, databases map[string]*gorm.Client, baseCase *biz.BaseCase, authorizer engine.Engine, authenticator engine2.Authenticator, userToken *data.UserToken, jobRuntime *job.Job, sseRuntime *sse.SSE, catalog *i18n.I18n, openAPIRuntime *openapi.OpenAPI, redactResolver *kit.RedactPolicyResolver, rateLimitResolver *kit.RateLimitPolicyResolver, progressManager *codegen.Manager, lifecycle *projectaccess.Lifecycle, mqttServer *mqtt.Server) (module.Modules, func(), error) {
 	dataData, err := data2.NewData(databases)
 	if err != nil {
 		return nil, nil, err
 	}
 	transaction := data2.NewTransaction(dataData)
+	aiAutomationRepository := data2.NewAiAutomationRepository(dataData)
+	aiAutomationRunRepository := data2.NewAiAutomationRunRepository(dataData)
+	baseUserRepository := data2.NewBaseUserRepository(dataData)
 	aiSessionRepository := data2.NewAiSessionRepository(dataData)
 	aiMessageRepository := data2.NewAiMessageRepository(dataData)
 	aiToolApprovalRepository := data2.NewAiToolApprovalRepository(dataData)
-	aiSessionCase := biz2.NewAiSessionCase(baseCase, transaction, aiSessionRepository, aiMessageRepository, aiToolApprovalRepository, catalog)
-	baseUserRepository := data2.NewBaseUserRepository(dataData)
-	baseUserCase := biz2.NewBaseUserCase(baseCase, baseUserRepository)
+	aiPluginRepository := data2.NewAiPluginRepository(dataData)
+	aiPluginInstallationRepository := data2.NewAiPluginInstallationRepository(dataData)
+	aiPluginToolRepository := data2.NewAiPluginToolRepository(dataData)
+	aiPluginToolPolicyRepository := data2.NewAiPluginToolPolicyRepository(dataData)
+	aiPluginConnectionRepository := data2.NewAiPluginConnectionRepository(dataData)
+	baseTenantRepository := data2.NewBaseTenantRepository(dataData)
 	registry := model.NewRegistry()
 	baseAPIRepository := data2.NewBaseAPIRepository(dataData)
 	mcpCase, err := biz2.NewMcpCase(baseCase, baseAPIRepository, authorizer, catalog)
@@ -80,11 +88,10 @@ func BuildModules(migrations *migration.Migration, config2 *configv1.Bootstrap, 
 	baseDeptRepository := data2.NewBaseDeptRepository(dataData)
 	basePostRepository := data2.NewBasePostRepository(dataData)
 	baseRoleRepository := data2.NewBaseRoleRepository(dataData)
-	baseTenantRepository := data2.NewBaseTenantRepository(dataData)
 	casbinRuleRepository := data2.NewCasbinRuleRepository(dataData)
 	baseMenuRepository := data2.NewBaseMenuRepository(dataData)
 	baseAPII18NRepository := data2.NewBaseAPII18NRepository(dataData)
-	baseAPICase := biz3.NewBaseAPICase(baseCase, openAPIRuntime, catalog, baseAPIRepository, baseAPII18NRepository)
+	baseAPICase := biz3.NewBaseAPICase(baseCase, openAPIRuntime, catalog, baseAPIRepository, baseAPII18NRepository, transaction, aiPluginRepository, aiPluginInstallationRepository)
 	casbinRuleCase, err := biz3.NewCasbinRuleCase(casbinRuleRepository, baseMenuRepository, baseRoleRepository, baseTenantRepository, baseAPICase, authorizer)
 	if err != nil {
 		return nil, nil, err
@@ -100,7 +107,7 @@ func BuildModules(migrations *migration.Migration, config2 *configv1.Bootstrap, 
 	baseI18nCase := biz3.NewBaseI18nCase(baseCase, baseI18NRepository, baseLanguageCase, modelTranslator)
 	baseMenuCase := biz3.NewBaseMenuCase(baseCase, transaction, baseMenuRepository, baseRoleRepository, casbinRuleCase, baseI18nCase)
 	bizBaseRoleCase := biz2.NewBaseRoleCase(baseCase, baseRoleRepository)
-	bizBaseUserCase := biz3.NewBaseUserCase(baseCase, transaction, baseUserRepository, baseDeptRepository, basePostRepository, baseRoleCase, baseDeptCase, baseMenuCase, bizBaseRoleCase, userToken)
+	baseUserCase := biz3.NewBaseUserCase(baseCase, transaction, baseUserRepository, baseDeptRepository, basePostRepository, baseRoleCase, baseDeptCase, baseMenuCase, bizBaseRoleCase, userToken)
 	baseMessageRepository := data2.NewBaseMessageRepository(dataData)
 	baseMessageDispatchRepository := data2.NewBaseMessageDispatchRepository(dataData)
 	baseMessageDeliveryRepository := data2.NewBaseMessageDeliveryRepository(dataData)
@@ -112,16 +119,17 @@ func BuildModules(migrations *migration.Migration, config2 *configv1.Bootstrap, 
 	baseUserMFARecoveryRepository := data2.NewBaseUserMFARecoveryRepository(dataData)
 	baseUserMFAWebauthnRepository := data2.NewBaseUserMFAWebauthnRepository(dataData)
 	eventRegistry := workflow.DefaultEventRegistry()
-	baseTenantCase := biz3.NewBaseTenantCase(baseCase, redactResolver, transaction, baseTenantRepository, baseDeptRepository, baseRoleRepository, baseUserRepository, baseMessageRepository, baseMessageDispatchRepository, baseMessageDeliveryRepository, oauthClientRepository, baseFileRepository, baseThirdAccountRepository, baseUserMFARepository, baseUserMFATotpRepository, baseUserMFARecoveryRepository, baseUserMFAWebauthnRepository, userToken, casbinRuleRepository, casbinRuleCase, catalog, eventRegistry)
-	fileCase := biz2.NewFileCase(baseCase, baseFileRepository)
-	authCase := biz3.NewAuthCase(baseCase, bizBaseUserCase, baseRoleCase, baseDeptCase, baseTenantCase, baseMenuCase, fileCase)
+	baseTenantCase := biz3.NewBaseTenantCase(baseCase, redactResolver, transaction, baseTenantRepository, baseDeptRepository, aiPluginInstallationRepository, baseRoleRepository, baseUserRepository, baseMessageRepository, baseMessageDispatchRepository, baseMessageDeliveryRepository, oauthClientRepository, baseFileRepository, baseThirdAccountRepository, baseUserMFARepository, baseUserMFATotpRepository, baseUserMFARecoveryRepository, baseUserMFAWebauthnRepository, userToken, casbinRuleRepository, casbinRuleCase, catalog, eventRegistry)
+	aiFileRepository := data2.NewAiFileRepository(dataData)
+	fileCase := biz2.NewFileCase(baseCase, baseFileRepository, aiFileRepository, transaction)
+	authCase := biz3.NewAuthCase(baseCase, baseUserCase, baseRoleCase, baseDeptCase, baseTenantCase, baseMenuCase, fileCase)
 	authService := admin.NewAuthService(authCase)
 	baseApiService := admin.NewBaseApiService(baseAPICase)
 	aiModelCase := biz3.NewAiModelCase(baseCase, transaction, aiModelRepository, aiProviderRepository, registry)
 	aiProviderCase := biz3.NewAiProviderCase(baseCase, transaction, aiProviderRepository, aiModelCase)
 	aiProviderService := admin.NewAiProviderService(aiProviderCase)
-	bizAiSessionCase := biz3.NewAiSessionCase(baseCase, aiSessionRepository, aiMessageRepository, baseUserRepository)
-	aiSessionService := admin.NewAiSessionService(bizAiSessionCase)
+	aiSessionCase := biz3.NewAiSessionCase(baseCase, aiSessionRepository, aiMessageRepository, baseUserRepository)
+	aiSessionService := admin.NewAiSessionService(aiSessionCase)
 	oauthClientCase := biz3.NewOauthClientCase(baseCase, transaction, oauthClientRepository, baseAPICase, baseTenantRepository, casbinRuleCase, userToken)
 	oauthClientService := admin.NewOauthClientService(oauthClientCase, authenticator)
 	middleware, cleanup := logmiddleware.NewMiddleware(baseCase)
@@ -233,7 +241,7 @@ func BuildModules(migrations *migration.Migration, config2 *configv1.Bootstrap, 
 	baseI18NCustomRepository := data2.NewBaseI18NCustomRepository(dataData)
 	baseI18nCustomCase := biz3.NewBaseI18nCustomCase(baseCase, transaction, baseI18NCustomRepository, baseLanguageCase)
 	baseI18nCustomService := admin.NewBaseI18nCustomService(baseI18nCustomCase)
-	baseUserService := admin.NewBaseUserService(bizBaseUserCase)
+	baseUserService := admin.NewBaseUserService(baseUserCase)
 	codeGenTableRepository := data2.NewCodeGenTableRepository(dataData)
 	codeGenColumnRepository := data2.NewCodeGenColumnRepository(dataData)
 	codeGenColumnCase := biz3.NewCodeGenColumnCase(baseCase, codeGenColumnRepository, transaction, baseDictRepository, codeGenTableRepository)
@@ -312,8 +320,6 @@ func BuildModules(migrations *migration.Migration, config2 *configv1.Bootstrap, 
 	biQueryRepository := data2.NewBiQueryRepository(dataData)
 	biQueryCase := admin2.NewBiQueryCase(baseCase, biSourceCase, registry, biQueryRepository)
 	biQueryService := admin3.NewBiQueryService(biQueryCase)
-	aiReportCase := biz2.NewAiReportCase(baseCase, transaction, fileCase)
-	aiReportService := base.NewAiReportService(aiReportCase)
 	services := admin4.Services{
 		Auth:                    authService,
 		BaseAPI:                 baseApiService,
@@ -391,15 +397,14 @@ func BuildModules(migrations *migration.Migration, config2 *configv1.Bootstrap, 
 		BaseApiRateLimitPolicy:  baseApiRateLimitPolicyService,
 		AiSearch:                aiSearchService,
 		BiQuery:                 biQueryService,
-		AiReport:                aiReportService,
 	}
 	adminTools, err := ParseAdminAgentTools(services)
 	if err != nil {
 		cleanup()
 		return nil, nil, err
 	}
-	baseUserCase2 := biz4.NewBaseUserCase(baseCase, baseUserRepository)
-	bizAuthCase := biz4.NewAuthCase(baseCase, baseUserCase2, manager)
+	bizBaseUserCase := biz4.NewBaseUserCase(baseCase, baseUserRepository)
+	bizAuthCase := biz4.NewAuthCase(baseCase, bizBaseUserCase, manager)
 	appAuthService := app.NewAuthService(bizAuthCase)
 	bizBaseAreaCase := biz4.NewBaseAreaCase(baseCase, baseAreaRepository)
 	appBaseAreaService := app.NewBaseAreaService(bizBaseAreaCase)
@@ -427,41 +432,49 @@ func BuildModules(migrations *migration.Migration, config2 *configv1.Bootstrap, 
 		return nil, nil, err
 	}
 	aiRuntime := ai.NewRuntime(registry, mcpCase, adminTools, appTools, catalog, aiCheckPointStore)
+	aiPluginCase := biz2.NewAiPluginCase(baseCase, transaction, aiPluginRepository, aiPluginInstallationRepository, aiPluginToolRepository, aiPluginToolPolicyRepository, aiPluginConnectionRepository, baseTenantRepository, aiRuntime, mcpCase)
+	bizAiSessionCase := biz2.NewAiSessionCase(baseCase, transaction, aiSessionRepository, aiMessageRepository, aiToolApprovalRepository, catalog, aiPluginCase, aiAutomationRunRepository)
+	baseUserCase2 := biz2.NewBaseUserCase(baseCase, baseUserRepository)
 	data5, err := data4.NewData(databases)
 	if err != nil {
 		cleanup()
 		return nil, nil, err
 	}
 	knowledgeEngine := ai.NewKnowledgeEngine(databases, data5, aiProviderRepository, aiModelRepository)
-	aiMessageCase := biz2.NewAiMessageCase(baseCase, transaction, aiMessageRepository, aiToolApprovalRepository, aiSessionCase, baseUserCase, aiRuntime, knowledgeEngine)
-	baseAiSessionService := base.NewAiSessionService(aiSessionCase, aiMessageCase)
-	bizAiModelCase := biz2.NewAiModelCase(baseCase, aiRuntime)
-	aiModelService := base.NewAiModelService(bizAiModelCase)
-	aiToolCase := biz2.NewAiToolCase(baseCase, aiRuntime)
-	aiToolService := base.NewAiToolService(aiToolCase)
-	aiMessageService := base.NewAiMessageService(aiMessageCase)
-	aiKnowledgeCase := biz2.NewAiKnowledgeCase(baseCase, knowledgeEngine)
-	aiKnowledgeService := base.NewAiKnowledgeService(aiKnowledgeCase)
-	configCase := biz2.NewConfigCase(baseCase, baseConfigRepository, baseI18NRepository, baseI18NCustomRepository, baseLanguageRepository, baseTenantRepository, modelTranslator)
-	configService := base.NewConfigService(configCase, registry)
-	languageCase := biz2.NewLanguageCase(baseCase, baseLanguageRepository)
-	languageService := base.NewLanguageService(languageCase)
-	fileService := base.NewFileService(fileCase)
+	aiMessageCase := biz2.NewAiMessageCase(baseCase, transaction, aiMessageRepository, aiToolApprovalRepository, bizAiSessionCase, baseUserCase2, aiRuntime, knowledgeEngine, aiPluginCase)
 	bizBaseDeptCase := biz2.NewBaseDeptCase(baseCase, baseDeptRepository)
+	configCase := biz2.NewConfigCase(baseCase, baseConfigRepository, baseI18NRepository, baseI18NCustomRepository, baseLanguageRepository, baseTenantRepository, modelTranslator)
 	mfa := config.ParseMfaConfig(config2)
-	mfaCase := biz2.NewMfaCase(baseCase, transaction, baseUserMFARepository, baseUserMFARecoveryRepository, baseUserMFATotpRepository, baseUserMFAWebauthnRepository, baseUserCase, configCase, userToken, mfa)
+	mfaCase := biz2.NewMfaCase(baseCase, transaction, baseUserMFARepository, baseUserMFARecoveryRepository, baseUserMFATotpRepository, baseUserMFAWebauthnRepository, baseUserCase2, configCase, userToken, mfa)
 	v, cleanup2, err := sessionregistry.NewLoginLocker(config2)
 	if err != nil {
 		cleanup()
 		return nil, nil, err
 	}
-	loginCase := biz2.NewLoginCase(baseCase, bizBaseDeptCase, bizBaseRoleCase, baseUserCase, baseTenantRepository, baseDictRepository, baseDictItemRepository, mfaCase, userToken, v)
+	loginCase := biz2.NewLoginCase(baseCase, bizBaseDeptCase, bizBaseRoleCase, baseUserCase2, baseTenantRepository, baseDictRepository, baseDictItemRepository, mfaCase, userToken, v)
+	aiAutomationCase := biz2.NewAiAutomationCase(baseCase, transaction, aiAutomationRepository, aiAutomationRunRepository, baseUserRepository, bizAiSessionCase, aiMessageCase, loginCase, aiPluginCase)
+	aiAutomationService := base.NewAiAutomationService(aiAutomationCase)
+	aiFileCase := biz2.NewAiFileCase(baseCase, aiFileRepository)
+	aiFileService := base.NewAiFileService(aiFileCase)
+	baseAiSessionService := base.NewAiSessionService(bizAiSessionCase, aiMessageCase)
+	bizAiModelCase := biz2.NewAiModelCase(baseCase, aiRuntime)
+	aiModelService := base.NewAiModelService(bizAiModelCase)
+	aiPluginService := base.NewAiPluginService(aiPluginCase)
+	aiToolCase := biz2.NewAiToolCase(baseCase, aiRuntime)
+	aiToolService := base.NewAiToolService(aiToolCase)
+	aiMessageService := base.NewAiMessageService(aiMessageCase)
+	aiKnowledgeCase := biz2.NewAiKnowledgeCase(baseCase, knowledgeEngine)
+	aiKnowledgeService := base.NewAiKnowledgeService(aiKnowledgeCase)
+	configService := base.NewConfigService(configCase, registry)
+	languageCase := biz2.NewLanguageCase(baseCase, baseLanguageRepository)
+	languageService := base.NewLanguageService(languageCase)
+	fileService := base.NewFileService(fileCase)
 	loginService := base.NewLoginService(loginCase)
 	service := biz2.NewSecretCryptoService(baseCase)
 	secretCryptoCase := biz2.NewSecretCryptoCase(service, redactResolver)
 	secretCryptoService := base.NewSecretCryptoService(secretCryptoCase)
 	mfaService := base.NewMfaService(loginCase, mfaCase)
-	oauthCase := biz2.NewOauthCase(baseCase, transaction, baseThirdAccountCase, baseUserCase, bizBaseRoleCase, bizBaseDeptCase, loginCase, configCase, baseOauthProviderRepository, baseI18NRepository, catalog, manager)
+	oauthCase := biz2.NewOauthCase(baseCase, transaction, baseThirdAccountCase, baseUserCase2, bizBaseRoleCase, bizBaseDeptCase, loginCase, configCase, baseOauthProviderRepository, baseI18NRepository, catalog, manager)
 	oauthService := base.NewOauthService(oauthCase)
 	oauthClientTokenCase := biz2.NewOauthClientTokenCase(baseCase, oauthClientRepository, baseTenantRepository, userToken)
 	baseOauthClientService := base.NewOauthClientService(oauthClientTokenCase)
@@ -473,12 +486,14 @@ func BuildModules(migrations *migration.Migration, config2 *configv1.Bootstrap, 
 	accountCase := biz2.NewAccountCase(baseCase, baseUserRepository, userToken)
 	accountService := base.NewAccountService(accountCase)
 	baseServices := &base2.Services{
+		AiAutomation: aiAutomationService,
+		AiFile:       aiFileService,
 		AiSession:    baseAiSessionService,
 		AiModel:      aiModelService,
+		AiPlugin:     aiPluginService,
 		AiTool:       aiToolService,
 		AiMessage:    aiMessageService,
 		AiSearch:     aiSearchService,
-		AiReport:     aiReportService,
 		AiKnowledge:  aiKnowledgeService,
 		Config:       configService,
 		Language:     languageService,
@@ -570,7 +585,6 @@ func BuildModules(migrations *migration.Migration, config2 *configv1.Bootstrap, 
 		BaseApiRateLimitPolicy:  baseApiRateLimitPolicyService,
 		AiSearch:                aiSearchService,
 		BiQuery:                 biQueryService,
-		AiReport:                aiReportService,
 	}
 	services2 := &app2.Services{
 		Auth:     appAuthService,
@@ -582,7 +596,7 @@ func BuildModules(migrations *migration.Migration, config2 *configv1.Bootstrap, 
 	}
 	bizAiKnowledgeCase := biz5.NewAiKnowledgeCase(baseCase, knowledgeEngine, aiModelRepository, aiProviderRepository)
 	adminAiKnowledgeService := admin5.NewAiKnowledgeService(bizAiKnowledgeCase)
-	aiKnowledgeDocCase := biz5.NewAiKnowledgeDocCase(baseCase, knowledgeEngine)
+	aiKnowledgeDocCase := biz5.NewAiKnowledgeDocCase(baseCase, knowledgeEngine, aiPluginCase)
 	aiKnowledgeDocService := admin5.NewAiKnowledgeDocService(aiKnowledgeDocCase)
 	aiKnowledgeChunkCase := biz5.NewAiKnowledgeChunkCase(baseCase, knowledgeEngine)
 	aiKnowledgeChunkService := admin5.NewAiKnowledgeChunkService(aiKnowledgeChunkCase)
@@ -609,7 +623,7 @@ func BuildModules(migrations *migration.Migration, config2 *configv1.Bootstrap, 
 		BiQueryRecord: biQueryRecordService,
 		BiDashboard:   biDashboardService,
 	}
-	modules, err := NewModules(baseServices, adminServices, services2, ragServices, biServices, biRegistry, aiRuntime, catalog, baseConfigCase, aiProviderCase, aiModelCase, baseLoginPolicyCase, bizBaseUserCase, baseTenantProjectGrantCase, baseOauthProviderCase, redactResolver, rateLimitResolver, secretFieldRuntime, mfaCase)
+	modules, err := NewModules(dispatcher, aiAutomationCase, baseServices, adminServices, services2, ragServices, biServices, biRegistry, aiRuntime, catalog, baseConfigCase, aiProviderCase, aiModelCase, baseLoginPolicyCase, baseUserCase, baseTenantProjectGrantCase, baseOauthProviderCase, aiFileRepository, redactResolver, rateLimitResolver, secretFieldRuntime, mfaCase, aiPluginCase)
 	if err != nil {
 		cleanup2()
 		cleanup()
@@ -622,7 +636,8 @@ func BuildModules(migrations *migration.Migration, config2 *configv1.Bootstrap, 
 }
 
 // BuildTasks 通过最小依赖集合装配 Admin 定时任务。
-func BuildTasks(databases map[string]*gorm.Client, baseCase *biz.BaseCase, catalog *i18n.I18n, sseRuntime *sse.SSE) (job.Tasks, func(), error) {
+func BuildTasks(dispatcher *aiautomation.Dispatcher, databases map[string]*gorm.Client, baseCase *biz.BaseCase, catalog *i18n.I18n, sseRuntime *sse.SSE) (job.Tasks, func(), error) {
+	aiAutomationTask := base3.NewAiAutomationTask(dispatcher)
 	dataData, err := data2.NewData(databases)
 	if err != nil {
 		return nil, nil, err
@@ -682,7 +697,7 @@ func BuildTasks(databases map[string]*gorm.Client, baseCase *biz.BaseCase, catal
 	workflowInstanceCase := biz3.NewWorkflowInstanceCase(baseCase, catalog, transaction, workflowInstanceRepository, workflowDefinitionRepository, workflowTaskRepository, workflowLogRepository, workflowJoinRepository, workflowDelegationRepository, baseUserRepository, eventRegistry, workflowScriptRunRepository, baseScriptLogRepository, runtime)
 	workflowTimeoutTask := admin6.NewWorkflowTimeoutTask(workflowInstanceCase)
 	workflowScriptRetryTask := admin6.NewWorkflowScriptRetryTask(workflowInstanceCase)
-	tasks := task.NewTask(baseI18nTask, messageDispatchTask, tableArchiveTask, baseLogFallbackTask, tableBackupTask, mqttMessageRetentionTask, workflowTimeoutTask, workflowScriptRetryTask)
+	tasks := task.NewTask(aiAutomationTask, baseI18nTask, messageDispatchTask, tableArchiveTask, baseLogFallbackTask, tableBackupTask, mqttMessageRetentionTask, workflowTimeoutTask, workflowScriptRetryTask)
 	return tasks, func() {
 	}, nil
 }
