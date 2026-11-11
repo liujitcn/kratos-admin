@@ -15,7 +15,7 @@ require (
 	github.com/google/jsonschema-go v0.4.3
 	github.com/google/uuid v1.6.0
 	github.com/google/wire v0.7.0
-	github.com/jackc/pgx/v5 v5.11.0
+	github.com/jackc/pgx/v5 v5.12.0
 	github.com/klauspost/compress v1.20.2
 	github.com/lib/pq v1.12.3
 	github.com/liujitcn/go-scripts v0.0.4
@@ -72,7 +72,6 @@ require (
 	github.com/liujitcn/kratos-kit/transport/sse v0.0.19
 	github.com/liujitcn/kratos-kit/utils v0.0.29
 	github.com/mark3labs/mcp-go v1.5.0
-	github.com/mattn/go-sqlite3 v1.14.52
 	github.com/microcosm-cc/bluemonday v1.0.27
 	github.com/modelcontextprotocol/go-sdk v1.7.0
 	github.com/openai/openai-go/v3 v3.44.0
@@ -291,6 +290,7 @@ require (
 	github.com/mattn/go-colorable v0.1.16 // indirect
 	github.com/mattn/go-isatty v0.0.24 // indirect
 	github.com/mattn/go-runewidth v0.0.31 // indirect
+	github.com/mattn/go-sqlite3 v1.14.52 // indirect
 	github.com/meguminnnnnnnnn/go-openai v0.1.6 // indirect
 	github.com/minio/crc64nvme v1.1.1 // indirect
 	github.com/minio/md5-simd v1.1.2 // indirect
