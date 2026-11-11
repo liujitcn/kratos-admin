@@ -13,6 +13,7 @@ import (
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/pkg/agent"
 	"github.com/liujitcn/kratos-admin/backend/pkg/bi"
+	"github.com/liujitcn/kratos-admin/backend/pkg/securityconfig"
 	"github.com/liujitcn/kratos-core/biz"
 	modelconfig "github.com/liujitcn/kratos-kit/ai/model"
 )
@@ -36,7 +37,10 @@ func TestAskBiQueryUsesSelectedModel(t *testing.T) {
 		{name: "模型选择不完整", providerID: 1, wantError: true},
 	} {
 		t.Run(test.name, func(t *testing.T) {
-			t.Setenv("SECURITY_AI_ALLOWED_CIDRS", "127.0.0.1/32")
+			securityRuntimeConfig := securityconfig.Current()
+			securityRuntimeConfig.AIAllowedCIDRs = []string{"127.0.0.1/32"}
+			securityconfig.Set(securityRuntimeConfig)
+			t.Cleanup(func() { securityconfig.Set(securityconfig.Default()) })
 			var calls [3]atomic.Int32
 			providers := []model.ProviderModel{
 				{ProviderID: 1, Config: &modelconfig.ModelConfig{ModelName: "model-a"}},

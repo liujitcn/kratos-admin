@@ -1,7 +1,7 @@
 package biz
 
 import (
-	"os"
+	"flag"
 	"strconv"
 	"testing"
 	"time"
@@ -20,6 +20,8 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 )
+
+var approvalTestDSNFlag = flag.String("approval-test-dsn", "", "独立审批集成测试数据库 DSN")
 
 // TestAiMessageRecoveryIntegration 验证过期生成可解除阻塞且旧运行不能覆盖新一轮结果。
 func TestAiMessageRecoveryIntegration(t *testing.T) {
@@ -137,9 +139,9 @@ func TestAiMessageRecoveryIntegration(t *testing.T) {
 // newAiApprovalTestData 在独立测试库内按生成模型准备审批与消息表。
 func newAiApprovalTestData(t *testing.T) *data.Data {
 	t.Helper()
-	dsn := os.Getenv("APPROVAL_TEST_DSN")
+	dsn := *approvalTestDSNFlag
 	if dsn == "" {
-		t.Skip("设置 APPROVAL_TEST_DSN 指向独立测试库以执行数据库集成测试")
+		t.Skip("使用 -args -approval-test-dsn=... 指向独立测试库以执行数据库集成测试")
 	}
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{Logger: logger.Default.LogMode(logger.Silent)})
 	if err != nil {

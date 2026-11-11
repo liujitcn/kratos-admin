@@ -962,6 +962,10 @@ paths:
                         - BASE_CONFIG_TYPE_DICT
                         - BASE_CONFIG_TYPE_BOOLEAN
                         - BASE_CONFIG_TYPE_FORM
+                        - BASE_CONFIG_TYPE_JSON
+                        - BASE_CONFIG_TYPE_DYNAMIC_LIST
+                        - BASE_CONFIG_TYPE_MULTI_TEXT
+                        - BASE_CONFIG_TYPE_FILE
                     type: string
                     format: enum
                 - name: key
@@ -13477,6 +13481,10 @@ components:
                         - BASE_CONFIG_TYPE_DICT
                         - BASE_CONFIG_TYPE_BOOLEAN
                         - BASE_CONFIG_TYPE_FORM
+                        - BASE_CONFIG_TYPE_JSON
+                        - BASE_CONFIG_TYPE_DYNAMIC_LIST
+                        - BASE_CONFIG_TYPE_MULTI_TEXT
+                        - BASE_CONFIG_TYPE_FILE
                     type: string
                     description: 配置类型：枚举【BaseConfigType】
                     format: enum
@@ -13533,8 +13541,12 @@ components:
                         - BASE_CONFIG_TYPE_DICT
                         - BASE_CONFIG_TYPE_BOOLEAN
                         - BASE_CONFIG_TYPE_FORM
+                        - BASE_CONFIG_TYPE_JSON
+                        - BASE_CONFIG_TYPE_DYNAMIC_LIST
+                        - BASE_CONFIG_TYPE_MULTI_TEXT
+                        - BASE_CONFIG_TYPE_FILE
                     type: string
-                    description: 配置类型：1、文本，2、图片，3、富文本，4、字典，5、布尔，6、表单
+                    description: 配置类型
                     format: enum
                 key:
                     type: string

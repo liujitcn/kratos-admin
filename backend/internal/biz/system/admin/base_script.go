@@ -150,6 +150,9 @@ func (c *BaseScriptCase) TestRunBaseScript(ctx context.Context, req *adminv1.Tes
 
 // testRunBaseScript 复用保存脚本读取与审计，流程调用选择无宿主能力的专用执行器。
 func (c *BaseScriptCase) testRunBaseScript(ctx context.Context, req *adminv1.TestRunBaseScriptRequest, workflowOnly bool) (*adminv1.TestRunBaseScriptResponse, error) {
+	if err := validateScriptRunRequest(req); err != nil {
+		return nil, err
+	}
 	var scriptID int64
 	var scriptName string
 	var language string
@@ -219,6 +222,17 @@ func (c *BaseScriptCase) testRunBaseScript(ctx context.Context, req *adminv1.Tes
 		return nil, errorsx.WrapInternal(logErr, "记录脚本执行日志失败")
 	}
 	return response, nil
+}
+
+// validateScriptRunRequest 要求试运行只引用服务端已保存的脚本，拒绝请求内联源码。
+func validateScriptRunRequest(req *adminv1.TestRunBaseScriptRequest) error {
+	if req.GetId() <= 0 {
+		return errorsx.InvalidArgument("脚本试运行必须引用已保存脚本")
+	}
+	if req.GetSource() != "" {
+		return errorsx.InvalidArgument("脚本试运行不能提交内联源码")
+	}
+	return nil
 }
 
 // validateScriptForm 校验脚本表单的业务边界。

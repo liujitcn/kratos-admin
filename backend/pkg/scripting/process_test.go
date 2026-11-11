@@ -10,6 +10,8 @@ import (
 	"strings"
 	"sync/atomic"
 	"testing"
+
+	"github.com/liujitcn/kratos-admin/backend/pkg/securityconfig"
 )
 
 // TestIsolatedLanguages 验证九种语言在真实隔离进程中仍可执行并返回可序列化结果。
@@ -47,7 +49,10 @@ func TestIsolatedFileAccess(t *testing.T) {
 			if err == nil {
 				t.Fatal("未授权文件可读")
 			}
-			t.Setenv("SECURITY_SCRIPT_READ_PATHS", path)
+			securityRuntimeConfig := securityconfig.Current()
+			securityRuntimeConfig.ScriptReadPaths = []string{path}
+			securityconfig.Set(securityRuntimeConfig)
+			t.Cleanup(func() { securityconfig.Set(securityconfig.Default()) })
 			var result any
 			result, err = runtime.Execute(t.Context(), language, source, map[string]any{"path": path})
 			encoded, marshalErr := MarshalOutput(result)
@@ -77,7 +82,10 @@ func TestIsolatedHTTP(t *testing.T) {
 	if err != nil && !strings.Contains(err.Error(), "未授权") && !strings.Contains(err.Error(), "connect") {
 		t.Fatalf("HTTP 能力未正常初始化: %v", err)
 	}
-	t.Setenv("SECURITY_SCRIPT_ALLOWED_CIDRS", "127.0.0.1/32")
+	securityRuntimeConfig := securityconfig.Current()
+	securityRuntimeConfig.ScriptAllowedCIDRs = []string{"127.0.0.1/32"}
+	securityconfig.Set(securityRuntimeConfig)
+	t.Cleanup(func() { securityconfig.Set(securityconfig.Default()) })
 	var result any
 	result, err = NewRuntime().Execute(t.Context(), LuaLanguage, source, map[string]any{"url": server.URL})
 	encoded, marshalErr := MarshalOutput(result)

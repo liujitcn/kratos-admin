@@ -11,6 +11,16 @@ import (
 const (
 	// BaseLogFallbackKey 表示日志入库回退配置键。
 	BaseLogFallbackKey = runtimeconfig.BaseLogFallbackKey
+	// SecurityProxyKey 表示反向代理安全配置键。
+	SecurityProxyKey = runtimeconfig.SecurityProxyKey
+	// SecurityScriptKey 表示脚本沙箱安全配置键。
+	SecurityScriptKey = runtimeconfig.SecurityScriptKey
+	// SecurityOutboundKey 表示出站网络安全配置键。
+	SecurityOutboundKey = runtimeconfig.SecurityOutboundKey
+	// SecurityIdentityKey 表示账号安全配置键。
+	SecurityIdentityKey = runtimeconfig.SecurityIdentityKey
+	// SecurityMigrationKey 表示一次性安全迁移配置键。
+	SecurityMigrationKey = runtimeconfig.SecurityMigrationKey
 	// CacheExpire 表示运行配置缓存有效期。
 	CacheExpire = runtimeconfig.CacheExpire
 	// BaseLogFallbackFileName 表示日志入库回退文件的固定文件名。
@@ -22,9 +32,52 @@ const (
 // BaseLogFallbackConfig 表示日志入库回退配置。
 type BaseLogFallbackConfig = runtimeconfig.BaseLogFallbackConfig
 
+// SecurityProxyConfig 表示反向代理安全配置。
+type SecurityProxyConfig = runtimeconfig.SecurityProxyConfig
+
+// SecurityScriptConfig 表示脚本沙箱资源和出站白名单配置。
+type SecurityScriptConfig = runtimeconfig.SecurityScriptConfig
+
+// SecurityOutboundConfig 表示公共和 AI 出站白名单配置。
+type SecurityOutboundConfig = runtimeconfig.SecurityOutboundConfig
+
+// SecurityKeyValue 表示安全配置中的键值项。
+type SecurityKeyValue = runtimeconfig.SecurityKeyValue
+
+// SecurityIdentityConfig 表示账号与保留用户名安全配置。
+type SecurityIdentityConfig = runtimeconfig.SecurityIdentityConfig
+
+// SecurityMigrationConfig 表示一次性安全迁移配置。
+type SecurityMigrationConfig = runtimeconfig.SecurityMigrationConfig
+
 // DefaultBaseLogFallbackConfig 返回日志入库回退配置默认值。
 func DefaultBaseLogFallbackConfig() BaseLogFallbackConfig {
 	return runtimeconfig.DefaultBaseLogFallbackConfig()
+}
+
+// DefaultSecurityProxyConfig 返回反向代理安全配置默认值。
+func DefaultSecurityProxyConfig() SecurityProxyConfig {
+	return runtimeconfig.DefaultSecurityProxyConfig()
+}
+
+// DefaultSecurityScriptConfig 返回脚本沙箱安全配置默认值。
+func DefaultSecurityScriptConfig() SecurityScriptConfig {
+	return runtimeconfig.DefaultSecurityScriptConfig()
+}
+
+// DefaultSecurityOutboundConfig 返回出站网络安全配置默认值。
+func DefaultSecurityOutboundConfig() SecurityOutboundConfig {
+	return runtimeconfig.DefaultSecurityOutboundConfig()
+}
+
+// DefaultSecurityIdentityConfig 返回账号安全配置默认值。
+func DefaultSecurityIdentityConfig() SecurityIdentityConfig {
+	return runtimeconfig.DefaultSecurityIdentityConfig()
+}
+
+// DefaultSecurityMigrationConfig 返回一次性安全迁移配置默认值。
+func DefaultSecurityMigrationConfig() SecurityMigrationConfig {
+	return runtimeconfig.DefaultSecurityMigrationConfig()
 }
 
 // ResolveBaseLogFallbackIntegrityKey 从运行时密钥服务派生日志回退完整性密钥。
@@ -60,6 +113,11 @@ func Keys() []string {
 // DefaultJSON 返回配置键对应的默认 JSON。
 func DefaultJSON(key string) (string, error) {
 	return runtimeconfig.DefaultJSON(key)
+}
+
+// CanonicalJSON 规范化指定配置键的 ProtoJSON。
+func CanonicalJSON(key, value string) (string, error) {
+	return runtimeconfig.CanonicalJSON(key, value)
 }
 
 // RedactJSON 将运行配置中的敏感字段替换为管理端占位值。

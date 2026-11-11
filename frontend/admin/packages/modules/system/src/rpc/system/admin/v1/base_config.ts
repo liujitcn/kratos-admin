@@ -27,6 +27,14 @@ export enum BaseConfigType {
   BASE_CONFIG_TYPE_BOOLEAN = 5,
   /** BASE_CONFIG_TYPE_FORM - 表单。 */
   BASE_CONFIG_TYPE_FORM = 6,
+  /** BASE_CONFIG_TYPE_JSON - JSON结构。 */
+  BASE_CONFIG_TYPE_JSON = 7,
+  /** BASE_CONFIG_TYPE_DYNAMIC_LIST - 动态字符串列表。 */
+  BASE_CONFIG_TYPE_DYNAMIC_LIST = 8,
+  /** BASE_CONFIG_TYPE_MULTI_TEXT - 多文本键值输入。 */
+  BASE_CONFIG_TYPE_MULTI_TEXT = 9,
+  /** BASE_CONFIG_TYPE_FILE - 文件。 */
+  BASE_CONFIG_TYPE_FILE = 10,
 }
 
 /** 系统配置分页查询条件 */
@@ -79,7 +87,7 @@ export interface BaseConfigForm {
   site: BaseConfigSite;
   /** 配置名称 */
   name: string;
-  /** 配置类型：1、文本，2、图片，3、富文本，4、字典，5、布尔，6、表单 */
+  /** 配置类型：枚举【BaseConfigType】 */
   type: BaseConfigType;
   /** 配置key */
   key: string;

@@ -962,6 +962,10 @@ paths:
                         - BASE_CONFIG_TYPE_DICT
                         - BASE_CONFIG_TYPE_BOOLEAN
                         - BASE_CONFIG_TYPE_FORM
+                        - BASE_CONFIG_TYPE_JSON
+                        - BASE_CONFIG_TYPE_DYNAMIC_LIST
+                        - BASE_CONFIG_TYPE_MULTI_TEXT
+                        - BASE_CONFIG_TYPE_FILE
                     type: string
                     format: enum
                 - name: key
@@ -11735,7 +11739,7 @@ components:
                     description: フィールドコード
                 operator:
                     type: string
-                    description: "演算子: eq、in、 between、contains"
+                    description: 操作符：eq、in、between、contains
                 values:
                     type: array
                     items:
@@ -13477,6 +13481,10 @@ components:
                         - BASE_CONFIG_TYPE_DICT
                         - BASE_CONFIG_TYPE_BOOLEAN
                         - BASE_CONFIG_TYPE_FORM
+                        - BASE_CONFIG_TYPE_JSON
+                        - BASE_CONFIG_TYPE_DYNAMIC_LIST
+                        - BASE_CONFIG_TYPE_MULTI_TEXT
+                        - BASE_CONFIG_TYPE_FILE
                     type: string
                     description: 設定種類：enum【BaseConfigType】
                     format: enum
@@ -13533,8 +13541,12 @@ components:
                         - BASE_CONFIG_TYPE_DICT
                         - BASE_CONFIG_TYPE_BOOLEAN
                         - BASE_CONFIG_TYPE_FORM
+                        - BASE_CONFIG_TYPE_JSON
+                        - BASE_CONFIG_TYPE_DYNAMIC_LIST
+                        - BASE_CONFIG_TYPE_MULTI_TEXT
+                        - BASE_CONFIG_TYPE_FILE
                     type: string
-                    description: 設定種類：1、テキスト，2、画像，3、リッチテキスト，4、辞書，5、ブール，6、フォーム
+                    description: 設定種類
                     format: enum
                 key:
                     type: string

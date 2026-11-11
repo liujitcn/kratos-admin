@@ -46,27 +46,43 @@ const (
 	BaseConfigType_BASE_CONFIG_TYPE_BOOLEAN BaseConfigType = 5
 	// 表单。
 	BaseConfigType_BASE_CONFIG_TYPE_FORM BaseConfigType = 6
+	// JSON结构。
+	BaseConfigType_BASE_CONFIG_TYPE_JSON BaseConfigType = 7
+	// 动态字符串列表。
+	BaseConfigType_BASE_CONFIG_TYPE_DYNAMIC_LIST BaseConfigType = 8
+	// 多文本键值输入。
+	BaseConfigType_BASE_CONFIG_TYPE_MULTI_TEXT BaseConfigType = 9
+	// 文件。
+	BaseConfigType_BASE_CONFIG_TYPE_FILE BaseConfigType = 10
 )
 
 // Enum value maps for BaseConfigType.
 var (
 	BaseConfigType_name = map[int32]string{
-		0: "BASE_CONFIG_TYPE_UNSPECIFIED",
-		1: "BASE_CONFIG_TYPE_TEXT",
-		2: "BASE_CONFIG_TYPE_IMAGE",
-		3: "BASE_CONFIG_TYPE_RICH_TEXT",
-		4: "BASE_CONFIG_TYPE_DICT",
-		5: "BASE_CONFIG_TYPE_BOOLEAN",
-		6: "BASE_CONFIG_TYPE_FORM",
+		0:  "BASE_CONFIG_TYPE_UNSPECIFIED",
+		1:  "BASE_CONFIG_TYPE_TEXT",
+		2:  "BASE_CONFIG_TYPE_IMAGE",
+		3:  "BASE_CONFIG_TYPE_RICH_TEXT",
+		4:  "BASE_CONFIG_TYPE_DICT",
+		5:  "BASE_CONFIG_TYPE_BOOLEAN",
+		6:  "BASE_CONFIG_TYPE_FORM",
+		7:  "BASE_CONFIG_TYPE_JSON",
+		8:  "BASE_CONFIG_TYPE_DYNAMIC_LIST",
+		9:  "BASE_CONFIG_TYPE_MULTI_TEXT",
+		10: "BASE_CONFIG_TYPE_FILE",
 	}
 	BaseConfigType_value = map[string]int32{
-		"BASE_CONFIG_TYPE_UNSPECIFIED": 0,
-		"BASE_CONFIG_TYPE_TEXT":        1,
-		"BASE_CONFIG_TYPE_IMAGE":       2,
-		"BASE_CONFIG_TYPE_RICH_TEXT":   3,
-		"BASE_CONFIG_TYPE_DICT":        4,
-		"BASE_CONFIG_TYPE_BOOLEAN":     5,
-		"BASE_CONFIG_TYPE_FORM":        6,
+		"BASE_CONFIG_TYPE_UNSPECIFIED":  0,
+		"BASE_CONFIG_TYPE_TEXT":         1,
+		"BASE_CONFIG_TYPE_IMAGE":        2,
+		"BASE_CONFIG_TYPE_RICH_TEXT":    3,
+		"BASE_CONFIG_TYPE_DICT":         4,
+		"BASE_CONFIG_TYPE_BOOLEAN":      5,
+		"BASE_CONFIG_TYPE_FORM":         6,
+		"BASE_CONFIG_TYPE_JSON":         7,
+		"BASE_CONFIG_TYPE_DYNAMIC_LIST": 8,
+		"BASE_CONFIG_TYPE_MULTI_TEXT":   9,
+		"BASE_CONFIG_TYPE_FILE":         10,
 	}
 )
 
@@ -294,7 +310,7 @@ type BaseConfigForm struct {
 	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                         // 配置ID
 	Site          basev1.BaseConfigSite  `protobuf:"varint,2,opt,name=site,proto3,enum=base.v1.BaseConfigSite" json:"site,omitempty"`         // 位置：枚举【BaseConfigSite】
 	Name          string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`                                      // 配置名称
-	Type          BaseConfigType         `protobuf:"varint,4,opt,name=type,proto3,enum=system.admin.v1.BaseConfigType" json:"type,omitempty"` // 配置类型：1、文本，2、图片，3、富文本，4、字典，5、布尔，6、表单
+	Type          BaseConfigType         `protobuf:"varint,4,opt,name=type,proto3,enum=system.admin.v1.BaseConfigType" json:"type,omitempty"` // 配置类型：枚举【BaseConfigType】
 	Key           string                 `protobuf:"bytes,5,opt,name=key,proto3" json:"key,omitempty"`                                        // 配置key
 	Value         *commonv1.SecretCrypto `protobuf:"bytes,6,opt,name=value,proto3,oneof" json:"value,omitempty"`                              // 配置value，前端统一加密提交，服务端统一解密
 	NameI18ns     []*BaseI18n            `protobuf:"bytes,7,rep,name=name_i18ns,json=nameI18ns,proto3" json:"name_i18ns,omitempty"`           // 配置名称多语言翻
@@ -762,15 +778,15 @@ const file_system_admin_v1_base_config_proto_rawDesc = "" +
 	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\"\x86\x01\n" +
 	"\x14GetBaseConfigRequest\x12n\n" +
 	"\x02id\x18\x01 \x01(\x03B^\xbaG\v\x92\x02\b配置ID\xbaHM\xba\x01J\n" +
-	"(system.admin.base.config.get.id.required\x12\x14配置ID不能为空\x1a\bthis > 0R\x02id\"\x90\v\n" +
+	"(system.admin.base.config.get.id.required\x12\x14配置ID不能为空\x1a\bthis > 0R\x02id\"\xd4\v\n" +
 	"\x0eBaseConfigForm\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b配置IDR\x02id\x12\xb9\x01\n" +
 	"\x04site\x18\x02 \x01(\x0e2\x17.base.v1.BaseConfigSiteB\x8b\x01\xbaG&\x92\x02#位置：枚举【BaseConfigSite】\xbaH_\xba\x01W\n" +
 	"-system.admin.base.config.entity.site.required\x12\x1b请选择系统配置位置\x1a\tthis != 0\x82\x01\x02\x10\x01R\x04site\x12\xf9\x01\n" +
 	"\x04name\x18\x03 \x01(\tB\xe4\x01\xbaG\x0f\x92\x02\f配置名称\xbaH\xce\x01\xba\x01]\n" +
 	"-system.admin.base.config.entity.name.required\x12\x1b请输入系统配置名称\x1a\x0fthis.size() > 0\xba\x01k\n" +
-	"/system.admin.base.config.entity.name.max_length\x12%配置名称不能超过 50 个字符\x1a\x11this.size() <= 50R\x04name\x12\xfb\x01\n" +
-	"\x04type\x18\x04 \x01(\x0e2\x1f.system.admin.v1.BaseConfigTypeB\xc5\x01\xbaG`\x92\x02]配置类型：1、文本，2、图片，3、富文本，4、字典，5、布尔，6、表单\xbaH_\xba\x01W\n" +
+	"/system.admin.base.config.entity.name.max_length\x12%配置名称不能超过 50 个字符\x1a\x11this.size() <= 50R\x04name\x12\xbf\x02\n" +
+	"\x04type\x18\x04 \x01(\x0e2\x1f.system.admin.v1.BaseConfigTypeB\x89\x02\xbaG\xa3\x01\x92\x02\x9f\x01配置类型：1、文本，2、图片，3、富文本，4、字典，5、布尔，6、表单，7、JSON结构，8、动态列表，9、多文本，10、文件\xbaH_\xba\x01W\n" +
 	"-system.admin.base.config.entity.type.required\x12\x1b请选择系统配置类型\x1a\tthis != 0\x82\x01\x02\x10\x01R\x04type\x12\xef\x01\n" +
 	"\x03key\x18\x05 \x01(\tB\xdc\x01\xbaG\f\x92\x02\t配置key\xbaH\xc9\x01\xba\x01\\\n" +
 	",system.admin.base.config.entity.key.required\x12\x1b请输入系统配置编码\x1a\x0fthis.size() > 0\xba\x01g\n" +
@@ -810,7 +826,7 @@ const file_system_admin_v1_base_config_proto_rawDesc = "" +
 	"created_at\x18\xc8\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f创建时间R\tcreatedAt\x122\n" +
 	"\n" +
 	"updated_at\x18\xc9\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f更新时间R\tupdatedAt\x12r\n" +
-	"\x05i18ns\x18\xca\x01 \x03(\v2\x19.system.admin.v1.BaseI18nB@\xbaG=\x92\x02:配置名称及文本/富文本配置值的多语言翻译R\x05i18ns*\xdd\x01\n" +
+	"\x05i18ns\x18\xca\x01 \x03(\v2\x19.system.admin.v1.BaseI18nB@\xbaG=\x92\x02:配置名称及文本/富文本配置值的多语言翻译R\x05i18ns*\xd7\x02\n" +
 	"\x0eBaseConfigType\x12 \n" +
 	"\x1cBASE_CONFIG_TYPE_UNSPECIFIED\x10\x00\x12\x19\n" +
 	"\x15BASE_CONFIG_TYPE_TEXT\x10\x01\x12\x1a\n" +
@@ -818,7 +834,12 @@ const file_system_admin_v1_base_config_proto_rawDesc = "" +
 	"\x1aBASE_CONFIG_TYPE_RICH_TEXT\x10\x03\x12\x19\n" +
 	"\x15BASE_CONFIG_TYPE_DICT\x10\x04\x12\x1c\n" +
 	"\x18BASE_CONFIG_TYPE_BOOLEAN\x10\x05\x12\x19\n" +
-	"\x15BASE_CONFIG_TYPE_FORM\x10\x062\xd6\a\n" +
+	"\x15BASE_CONFIG_TYPE_FORM\x10\x06\x12\x19\n" +
+	"\x15BASE_CONFIG_TYPE_JSON\x10\a\x12!\n" +
+	"\x1dBASE_CONFIG_TYPE_DYNAMIC_LIST\x10\b\x12\x1f\n" +
+	"\x1bBASE_CONFIG_TYPE_MULTI_TEXT\x10\t\x12\x19\n" +
+	"\x15BASE_CONFIG_TYPE_FILE\x10\n" +
+	"2\xd6\a\n" +
 	"\x11BaseConfigService\x12\x8c\x01\n" +
 	"\x16RefreshBaseConfigCache\x12..system.admin.v1.RefreshBaseConfigCacheRequest\x1a\x16.google.protobuf.Empty\"*\x82\xd3\xe4\x93\x02$:\x01*\x1a\x1f/api/v1/admin/base/config/cache\x12\x84\x01\n" +
 	"\x0ePageBaseConfig\x12&.system.admin.v1.PageBaseConfigRequest\x1a'.system.admin.v1.PageBaseConfigResponse\"!\x82\xd3\xe4\x93\x02\x1b\x12\x19/api/v1/admin/base/config\x12\x7f\n" +

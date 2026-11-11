@@ -17,6 +17,7 @@ import (
 
 	"github.com/go-kratos/kratos/v3/log"
 	"github.com/liujitcn/go-scripts/sandbox"
+	"github.com/liujitcn/kratos-admin/backend/pkg/securityconfig"
 	"github.com/liujitcn/kratos-kit/auth"
 	authdata "github.com/liujitcn/kratos-kit/auth/data"
 	"github.com/liujitcn/kratos-kit/transport/safehttp"
@@ -75,8 +76,16 @@ func (r *Runtime) executeIsolated(ctx context.Context, workflow bool, language, 
 		return nil, err
 	}
 	options := sandbox.Options{Directory: directory, MaxOutputBytes: 1024 * 1024}
-	for variable, target := range map[string]*[]string{"SECURITY_SCRIPT_READ_PATHS": &options.ReadOnlyPaths, "SECURITY_SCRIPT_WRITE_PATHS": &options.WritablePaths, "SECURITY_SCRIPT_COMMANDS": &options.Commands} {
-		for path := range strings.SplitSeq(os.Getenv(variable), ",") {
+	securityRuntimeConfig := securityconfig.Current()
+	for _, item := range []struct {
+		paths  []string
+		target *[]string
+	}{
+		{paths: securityRuntimeConfig.ScriptReadPaths, target: &options.ReadOnlyPaths},
+		{paths: securityRuntimeConfig.ScriptWritePaths, target: &options.WritablePaths},
+		{paths: securityRuntimeConfig.ScriptCommands, target: &options.Commands},
+	} {
+		for _, path := range item.paths {
 			// 路径来自部署配置，允许列表分隔符后的排版空白。
 			path = strings.TrimSpace(path)
 			if path == "" {
@@ -91,11 +100,11 @@ func (r *Runtime) executeIsolated(ctx context.Context, workflow bool, language, 
 				path = strings.ReplaceAll(path, "{tenant_id}", strconv.FormatInt(identity.TenantId, 10))
 				path = strings.ReplaceAll(path, "{user_id}", strconv.FormatInt(identity.UserId, 10))
 			}
-			*target = append(*target, path)
+			*item.target = append(*item.target, path)
 		}
 	}
 	var policy *safehttp.Policy
-	policy, err = safehttp.FromEnvironment("SCRIPT", false)
+	policy, err = securityRuntimeConfig.ScriptPolicy()
 	if err != nil {
 		return nil, err
 	}

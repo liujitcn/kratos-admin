@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
+	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
 	basebiz "github.com/liujitcn/kratos-admin/backend/internal/biz/base"
 	_const "github.com/liujitcn/kratos-admin/backend/internal/const"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
@@ -11,6 +12,30 @@ import (
 	"github.com/liujitcn/kratos-core/biz"
 	"github.com/liujitcn/kratos-kit/cache/memory"
 )
+
+// TestValidateBaseConfigValue 验证新增 JSON、动态列表和多文本配置的持久化结构。
+func TestValidateBaseConfigValue(t *testing.T) {
+	for _, test := range []struct {
+		name  string
+		typ   adminv1.BaseConfigType
+		value string
+		valid bool
+	}{
+		{name: "json", typ: adminv1.BaseConfigType_BASE_CONFIG_TYPE_JSON, value: `{"hosts":[]}`, valid: true},
+		{name: "dynamic list", typ: adminv1.BaseConfigType_BASE_CONFIG_TYPE_DYNAMIC_LIST, value: `["127.0.0.1/32"]`, valid: true},
+		{name: "multi text", typ: adminv1.BaseConfigType_BASE_CONFIG_TYPE_MULTI_TEXT, value: `[{"key":"name","value":"value"}]`, valid: true},
+		{name: "invalid json", typ: adminv1.BaseConfigType_BASE_CONFIG_TYPE_JSON, value: `{`, valid: false},
+		{name: "invalid list", typ: adminv1.BaseConfigType_BASE_CONFIG_TYPE_DYNAMIC_LIST, value: `{"value":"x"}`, valid: false},
+		{name: "empty multi text key", typ: adminv1.BaseConfigType_BASE_CONFIG_TYPE_MULTI_TEXT, value: `[{"key":"","value":"value"}]`, valid: false},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			err := validateBaseConfigValue(&models.BaseConfig{Type: int32(test.typ), Value: test.value})
+			if (err == nil) != test.valid {
+				t.Fatalf("校验结果 = %v, valid = %v", err, test.valid)
+			}
+		})
+	}
+}
 
 // TestAdminProtocolConfigIsolation 验证管理端协议独立下发、停用和刷新，移动端缓存互不影响。
 func TestAdminProtocolConfigIsolation(t *testing.T) {

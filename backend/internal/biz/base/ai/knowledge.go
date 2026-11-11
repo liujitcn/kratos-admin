@@ -8,6 +8,7 @@ package ai
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"strings"
 	"time"
 
@@ -16,6 +17,7 @@ import (
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 	ragdata "github.com/liujitcn/kratos-admin/backend/internal/data/gen/rag/data"
+	"github.com/liujitcn/kratos-admin/backend/pkg/securityconfig"
 	"github.com/liujitcn/kratos-kit/ai/model"
 	"github.com/liujitcn/kratos-kit/database/gorm"
 	"github.com/sashabaranov/go-openai"
@@ -272,7 +274,12 @@ func (e *KnowledgeEngine) embedText(ctx context.Context, provider *models.AiProv
 		APIKey:    provider.APIKey,
 		BaseURL:   provider.BaseURL,
 	}
-	client, err := model.NewClient(config)
+	var httpClient *http.Client
+	httpClient, err = securityconfig.Current().AIHTTPClient(time.Duration(embeddingConfig.TimeoutSeconds) * time.Second)
+	if err != nil {
+		return nil, fmt.Errorf("创建 embedding HTTP 客户端失败: %w", err)
+	}
+	client, err := model.NewClient(config, model.WithHTTPClient(httpClient))
 	if err != nil {
 		return nil, fmt.Errorf("创建embedding客户端失败: %w", err)
 	}

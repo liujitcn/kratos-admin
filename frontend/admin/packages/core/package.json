@@ -166,6 +166,14 @@
       "types": "./dist/package/declarations/src/components/ProForm/index.vue.d.ts",
       "default": "./dist/package/src/components/ProForm/index.vue"
     },
+    "./components/ProForm/components/DynamicList.vue": {
+      "types": "./dist/package/declarations/src/components/ProForm/components/DynamicList.vue.d.ts",
+      "default": "./dist/package/src/components/ProForm/components/DynamicList.vue"
+    },
+    "./components/ProForm/components/KvList.vue": {
+      "types": "./dist/package/declarations/src/components/ProForm/components/KvList.vue.d.ts",
+      "default": "./dist/package/src/components/ProForm/components/KvList.vue"
+    },
     "./components/ProForm/interface": {
       "types": "./dist/package/declarations/src/components/ProForm/interface/index.d.ts",
       "default": "./dist/package/src/components/ProForm/interface/index.ts"
@@ -201,6 +209,10 @@
     "./components/Upload/Img.vue": {
       "types": "./dist/package/declarations/src/components/Upload/Img.vue.d.ts",
       "default": "./dist/package/src/components/Upload/Img.vue"
+    },
+    "./components/Upload/File.vue": {
+      "types": "./dist/package/declarations/src/components/Upload/File.vue.d.ts",
+      "default": "./dist/package/src/components/Upload/File.vue"
     },
     "./components/WangEditor/index.vue": {
       "types": "./dist/package/declarations/src/components/WangEditor/index.vue.d.ts",

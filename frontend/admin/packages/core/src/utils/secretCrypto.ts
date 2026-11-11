@@ -44,9 +44,7 @@ function getByPath(model: Record<string, any>, path: string) {
 
 /** 使用已获取的临时公钥加密单个敏感值，供一次取钥加密多个字段的场景复用。 */
 export async function encryptWithPublicKey(publicKey: GetSecretPublicKeyResponse, value: string): Promise<SecretCrypto> {
-  if (!value) {
-    throw new Error(t("core.password.required"));
-  }
+  // 底层字段加密允许空字符串，系统配置使用它清除文件值；密码入口单独校验非空。
   const cryptoApi = globalThis.crypto;
   const isSecureContext = typeof window === "undefined" || window.isSecureContext;
   if (!cryptoApi?.subtle || !isSecureContext) {

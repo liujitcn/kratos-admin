@@ -13,6 +13,7 @@ import (
 	"github.com/cloudwego/eino-ext/components/model/agenticopenai"
 	"github.com/cloudwego/eino/components/model"
 	"github.com/cloudwego/eino/schema"
+	"github.com/liujitcn/kratos-admin/backend/pkg/securityconfig"
 	modelconfig "github.com/liujitcn/kratos-kit/ai/model"
 	"github.com/openai/openai-go/v3"
 	"github.com/openai/openai-go/v3/option"
@@ -88,7 +89,7 @@ func NewAssistantClientWithName(modelCfg *modelconfig.ModelConfig, name string) 
 			requestTimeout = time.Duration(modelCfg.TimeoutSeconds) * time.Second
 		}
 		var httpClient *http.Client
-		httpClient, err = modelconfig.NewHTTPClient(requestTimeout)
+		httpClient, err = securityconfig.Current().AIHTTPClient(requestTimeout)
 		if err != nil {
 			return client
 		}
@@ -236,7 +237,7 @@ func newChatModel(ctx context.Context, cfg *modelconfig.ModelConfig, mutate func
 	if mutate != nil {
 		mutate(config)
 	}
-	httpClient, err := modelconfig.NewHTTPClient(time.Duration(cfg.TimeoutSeconds) * time.Second)
+	httpClient, err := securityconfig.Current().AIHTTPClient(time.Duration(cfg.TimeoutSeconds) * time.Second)
 	if err != nil {
 		return nil, err
 	}
@@ -273,7 +274,7 @@ func newResponsesModel(ctx context.Context, cfg *modelconfig.ModelConfig) (model
 		value := int(cfg.MaxTokens)
 		config.MaxTokens = &value
 	}
-	httpClient, err := modelconfig.NewHTTPClient(time.Duration(cfg.TimeoutSeconds) * time.Second)
+	httpClient, err := securityconfig.Current().AIHTTPClient(time.Duration(cfg.TimeoutSeconds) * time.Second)
 	if err != nil {
 		return nil, err
 	}

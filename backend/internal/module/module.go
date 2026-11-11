@@ -31,6 +31,7 @@ import (
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/runtimeconfig"
 	biz "github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/logstream"
+	_const "github.com/liujitcn/kratos-admin/backend/internal/const"
 	mqttdata "github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 	"github.com/liujitcn/kratos-admin/backend/internal/server/base/v1"
@@ -47,11 +48,13 @@ import (
 	"github.com/liujitcn/kratos-admin/backend/internal/server/system/app/v1"
 	"github.com/liujitcn/kratos-admin/backend/pkg/agent"
 	pkgbi "github.com/liujitcn/kratos-admin/backend/pkg/bi"
+	"github.com/liujitcn/kratos-admin/backend/pkg/securityconfig"
 )
 
 // Module 聚合 Admin 注册到 Core 宿主的协议服务。
 type Module struct {
 	secretCrypto   *secretcrypto.Service
+	baseConfigCase *biz.BaseConfigCase
 	redactResolver *kit.RedactPolicyResolver
 	baseServices   *base.Services
 	adminServices  *admin.Services
@@ -97,6 +100,15 @@ func NewModules(
 		tenants, err := projectGrantCase.EffectiveProjects(ctx)
 		return gorm.ProjectScope{Tenants: tenants}, err
 	})
+	err = baseConfigCase.RefreshBaseConfig(context.Background())
+	if err != nil {
+		return nil, err
+	}
+	securityRuntimeConfig, err := loadSecurityConfig(baseConfigCase)
+	if err != nil {
+		return nil, err
+	}
+	securityconfig.Set(securityRuntimeConfig)
 	err = baseUserCase.RenameReservedUsers(context.Background())
 	if err != nil {
 		return nil, err
@@ -110,10 +122,6 @@ func NewModules(
 	}
 	// 把存量独立加密的 TOTP 密钥改写为明文，交由入库脱敏策略重新加密。
 	if err = mfaCase.BackfillLegacyTotpSecrets(context.Background()); err != nil {
-		return nil, err
-	}
-	err = baseConfigCase.RefreshBaseConfig(context.Background())
-	if err != nil {
 		return nil, err
 	}
 	err = aiModelCase.RefreshModels(context.Background())
@@ -137,6 +145,7 @@ func NewModules(
 		_, _ = fmt.Fprintf(os.Stderr, "启动运行日志采集失败: %v\n", err)
 	}
 	instance := &Module{
+		baseConfigCase: baseConfigCase,
 		redactResolver: redactResolver,
 		secretCrypto:   secretCryptoService,
 		baseServices:   baseServices,
@@ -161,7 +170,7 @@ func (m *Module) InitializeSensitiveStorage(ctx context.Context, models ...any) 
 	if err != nil {
 		return err
 	}
-	if os.Getenv("SECURITY_BACKFILL_SENSITIVE_DATA") != "1" {
+	if !securityconfig.Current().BackfillSensitiveData {
 		return nil
 	}
 	var count int64
@@ -169,6 +178,18 @@ func (m *Module) InitializeSensitiveStorage(ctx context.Context, models ...any) 
 	if err != nil {
 		return err
 	}
+	defaultMigration, err := runtimeconfig.DefaultJSON(runtimeconfig.SecurityMigrationKey)
+	if err != nil {
+		return err
+	}
+	err = m.baseConfigCase.SetConfigValue(ctx, _const.BASE_CONFIG_SITE_SYSTEM, runtimeconfig.SecurityMigrationKey, defaultMigration)
+	if err != nil {
+		return err
+	}
+	securityRuntimeConfig := securityconfig.Current()
+	securityRuntimeConfig.BackfillSensitiveData = false
+	securityRuntimeConfig.LegacyPlaintextManifest = ""
+	securityconfig.Set(securityRuntimeConfig)
 	log.Info("敏感字段回填完成", "records", count)
 	return nil
 }

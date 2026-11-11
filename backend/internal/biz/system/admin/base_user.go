@@ -4,12 +4,13 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"os"
 	"strconv"
 	"strings"
 	"time"
 
+	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/runtimeconfig"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/username"
+	"github.com/liujitcn/kratos-admin/backend/pkg/securityconfig"
 
 	"github.com/go-kratos/kratos/v3/transport"
 	"github.com/go-sql-driver/mysql"
@@ -26,6 +27,7 @@ import (
 	_const "github.com/liujitcn/kratos-core/const"
 	"github.com/liujitcn/kratos-core/errorsx"
 	authData "github.com/liujitcn/kratos-kit/auth/data"
+	"google.golang.org/protobuf/encoding/protojson"
 	"gorm.io/gen"
 	"gorm.io/gen/field"
 
@@ -43,6 +45,7 @@ type BaseUserCase struct {
 	*biz.BaseCase
 	tx data.Transaction
 	*data.BaseUserRepository
+	baseConfigCase  *BaseConfigCase
 	baseDeptRepo    *data.BaseDeptRepository
 	basePostRepo    *data.BasePostRepository
 	baseRoleCase    *BaseRoleCase
@@ -59,6 +62,7 @@ func NewBaseUserCase(
 	baseCase *biz.BaseCase,
 	tx data.Transaction,
 	baseUserRepo *data.BaseUserRepository,
+	baseConfigCase *BaseConfigCase,
 	baseDeptRepo *data.BaseDeptRepository,
 	basePostRepo *data.BasePostRepository,
 	baseRoleCase *BaseRoleCase,
@@ -71,6 +75,7 @@ func NewBaseUserCase(
 		BaseCase:           baseCase,
 		tx:                 tx,
 		BaseUserRepository: baseUserRepo,
+		baseConfigCase:     baseConfigCase,
 		baseDeptRepo:       baseDeptRepo,
 		basePostRepo:       basePostRepo,
 		baseRoleCase:       baseRoleCase,
@@ -85,23 +90,24 @@ func NewBaseUserCase(
 
 // RenameReservedUsers 按部署确认的 ID 清单更名，保持身份、权限、组织及历史日志关联不变。
 func (c *BaseUserCase) RenameReservedUsers(ctx context.Context) error {
-	value := os.Getenv("SECURITY_ACCOUNT_RENAMES")
-	if value == "" {
+	securityRuntimeConfig := securityconfig.Current()
+	if len(securityRuntimeConfig.AccountRenames) == 0 {
 		return nil
 	}
-	var requested map[string]string
-	err := json.Unmarshal([]byte(value), &requested)
+	var err error
+	names := make(map[int64]string, len(securityRuntimeConfig.AccountRenames))
+	var reservedValue string
+	reservedValue, err = c.loadReservedUsernames(ctx)
 	if err != nil {
-		return errorsx.InvalidArgument("存量账号更名清单无效").WithCause(err)
+		return err
 	}
-	names := make(map[int64]string, len(requested))
-	for text, name := range requested {
+	for text, name := range securityRuntimeConfig.AccountRenames {
 		var userID int64
 		userID, err = strconv.ParseInt(text, 10, 64)
 		if err != nil || userID <= 0 {
 			return errorsx.InvalidArgument("存量账号更名清单包含无效编号")
 		}
-		err = username.Validate(name)
+		err = username.Validate(name, reservedValue)
 		if err != nil {
 			return err
 		}
@@ -117,7 +123,7 @@ func (c *BaseUserCase) RenameReservedUsers(ctx context.Context) error {
 			if row.UserName == name {
 				continue
 			}
-			if username.Validate(row.UserName) == nil {
+			if username.Validate(row.UserName, reservedValue) == nil {
 				return errorsx.InvalidArgument("更名清单只能处理系统保留名称账号")
 			}
 			err = c.UpdateByID(transactionContext, &models.BaseUser{ID: userID, UserName: name})
@@ -137,7 +143,53 @@ func (c *BaseUserCase) RenameReservedUsers(ctx context.Context) error {
 			return err
 		}
 	}
+	identity := runtimeconfig.SecurityIdentityConfig{ReservedUsernames: securityRuntimeConfig.ReservedUsernames}
+	value, marshalErr := protojson.Marshal(&identity)
+	if marshalErr != nil {
+		return errorsx.Internal("生成账号安全配置失败").WithCause(marshalErr)
+	}
+	err = c.baseConfigCase.SetConfigValue(ctx, adminconst.BASE_CONFIG_SITE_SYSTEM, runtimeconfig.SecurityIdentityKey, string(value))
+	if err != nil {
+		return errorsx.Internal("清理存量账号更名配置失败").WithCause(err)
+	}
 	return nil
+}
+
+// loadReservedUsernames 读取启用中的系统保留用户名配置，配置缺失时拒绝继续校验。
+func (c *BaseUserCase) loadReservedUsernames(ctx context.Context) (string, error) {
+	value, err := c.baseConfigCase.GetConfigValue(ctx, adminconst.BASE_CONFIG_SITE_SYSTEM, runtimeconfig.SecurityIdentityKey)
+	if err != nil {
+		return "", errorsx.Internal("读取系统保留用户名配置失败").WithCause(err)
+	}
+	if strings.HasPrefix(strings.TrimSpace(value), "{") {
+		var identity runtimeconfig.SecurityIdentityConfig
+		err = protojson.Unmarshal([]byte(value), &identity)
+		if err != nil {
+			return "", errorsx.Internal("解析系统保留用户名配置失败").WithCause(err)
+		}
+		value = strings.Join(identity.GetReservedUsernames(), ",")
+	}
+	if strings.HasPrefix(strings.TrimSpace(value), "[") {
+		var names []string
+		err = json.Unmarshal([]byte(value), &names)
+		if err != nil {
+			return "", errorsx.Internal("解析系统保留用户名配置失败").WithCause(err)
+		}
+		value = strings.Join(names, ",")
+	}
+	if value == "" {
+		return "", errorsx.Internal("系统保留用户名配置不存在或未启用")
+	}
+	return value, nil
+}
+
+// validateUserName 根据数据库中的系统保留用户名配置校验账号。
+func (c *BaseUserCase) validateUserName(ctx context.Context, name string) error {
+	reservedValue, err := c.loadReservedUsernames(ctx)
+	if err != nil {
+		return err
+	}
+	return username.Validate(name, reservedValue)
 }
 
 // OptionBaseUser 查询用户选项
@@ -449,7 +501,7 @@ func (c *BaseUserCase) GetBaseUser(ctx context.Context, id int64) (*adminv1.Base
 
 // CreateBaseUser 创建用户
 func (c *BaseUserCase) CreateBaseUser(ctx context.Context, req *adminv1.BaseUserForm) error {
-	err := username.Validate(req.GetUserName())
+	err := c.validateUserName(ctx, req.GetUserName())
 	if err != nil {
 		return err
 	}

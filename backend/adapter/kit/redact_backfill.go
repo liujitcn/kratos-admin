@@ -5,11 +5,11 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"os"
 	"reflect"
 	"slices"
 	"strings"
 
+	"github.com/liujitcn/kratos-admin/backend/pkg/securityconfig"
 	"github.com/liujitcn/kratos-kit/redact"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
@@ -28,7 +28,7 @@ func (r *RedactPolicyResolver) Backfill(ctx context.Context, models ...any) (int
 	}
 	var legacy legacyPlaintextManifest
 	var err error
-	if manifest := os.Getenv("SECURITY_LEGACY_PLAINTEXT_MANIFEST"); manifest != "" {
+	if manifest := securityconfig.Current().LegacyPlaintextManifest; manifest != "" {
 		err = json.Unmarshal([]byte(manifest), &legacy)
 		if err != nil {
 			return 0, fmt.Errorf("历史明文清单无效: %w", err)

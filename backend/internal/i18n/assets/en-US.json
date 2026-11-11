@@ -2537,6 +2537,36 @@
   "legacy.error.70cd0f3093a0e441": {
     "other": "Failed to validate session state"
   },
+  "legacy.error.28febc070b420067": {
+    "other": "The key in a multiple-text configuration cannot be empty"
+  },
+  "legacy.error.47cdc5f24bd1a158": {
+    "other": "The configuration value has an invalid format"
+  },
+  "legacy.error.c5b8236066d773cb": {
+    "other": "Failed to generate identity security configuration"
+  },
+  "legacy.error.ebc50e1f7a35066f": {
+    "other": "Failed to clear the legacy account rename configuration"
+  },
+  "legacy.error.79e1ef64ed687e81": {
+    "other": "Failed to read the reserved username configuration"
+  },
+  "legacy.error.5e35c4b3830081f3": {
+    "other": "Failed to parse the reserved username configuration"
+  },
+  "legacy.error.d11630b62e6fedb8": {
+    "other": "The reserved username configuration is missing or disabled"
+  },
+  "legacy.error.91b8df65f0a75e4a": {
+    "other": "Script dry runs must reference a saved script"
+  },
+  "legacy.error.71167d40ba8f999c": {
+    "other": "Script dry runs cannot submit inline source"
+  },
+  "system.config.security.key_value.key.required": {
+    "other": "The security configuration key cannot be empty"
+  },
   "legacy.error.70e0900c1017d449": {
     "other": "AI assistant has no enabled model"
   },

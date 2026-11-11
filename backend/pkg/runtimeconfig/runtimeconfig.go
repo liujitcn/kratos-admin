@@ -23,6 +23,16 @@ import (
 const (
 	// BaseLogFallbackKey 表示日志入库回退配置键。
 	BaseLogFallbackKey = "baseLogFallback"
+	// SecurityProxyKey 表示反向代理安全配置键。
+	SecurityProxyKey = "securityProxy"
+	// SecurityScriptKey 表示脚本沙箱安全配置键。
+	SecurityScriptKey = "securityScript"
+	// SecurityOutboundKey 表示出站网络安全配置键。
+	SecurityOutboundKey = "securityOutbound"
+	// SecurityIdentityKey 表示账号安全配置键。
+	SecurityIdentityKey = "securityIdentity"
+	// SecurityMigrationKey 表示一次性安全迁移配置键。
+	SecurityMigrationKey = "securityMigration"
 	// CacheExpire 表示运行配置缓存有效期。
 	CacheExpire = 100 * 365 * 24 * time.Hour
 	// BaseLogFallbackFileName 表示日志入库回退文件的固定文件名。
@@ -35,6 +45,24 @@ const (
 
 // BaseLogFallbackConfig 表示日志入库回退配置。
 type BaseLogFallbackConfig = configv1.BaseLogFallbackConfig
+
+// SecurityProxyConfig 表示反向代理安全配置。
+type SecurityProxyConfig = configv1.SecurityProxyConfig
+
+// SecurityScriptConfig 表示脚本沙箱资源和出站白名单配置。
+type SecurityScriptConfig = configv1.SecurityScriptConfig
+
+// SecurityOutboundConfig 表示公共和 AI 出站白名单配置。
+type SecurityOutboundConfig = configv1.SecurityOutboundConfig
+
+// SecurityKeyValue 表示安全配置中的键值项。
+type SecurityKeyValue = configv1.SecurityKeyValue
+
+// SecurityIdentityConfig 表示账号与保留用户名安全配置。
+type SecurityIdentityConfig = configv1.SecurityIdentityConfig
+
+// SecurityMigrationConfig 表示一次性安全迁移配置。
+type SecurityMigrationConfig = configv1.SecurityMigrationConfig
 
 // ResolveBaseLogFallbackIntegrityKey 从运行时密钥服务派生日志回退完整性密钥。
 func ResolveBaseLogFallbackIntegrityKey() (string, error) {
@@ -351,6 +379,11 @@ func DefaultJSON(key string) (string, error) {
 	return defaultRegistry.DefaultJSON(key)
 }
 
+// CanonicalJSON 规范化指定配置键的 ProtoJSON。
+func CanonicalJSON(key, value string) (string, error) {
+	return defaultRegistry.CanonicalJSON(key, value)
+}
+
 // ValidateJSON 使用进程内默认注册表校验配置 ProtoJSON。
 func ValidateJSON(key, value string) error {
 	return defaultRegistry.ValidateJSON(key, value)
@@ -398,6 +431,31 @@ func MergeSensitiveJSON(key, current, incoming string) (string, error) {
 // DefaultBaseLogFallbackConfig 返回日志入库回退配置默认值。
 func DefaultBaseLogFallbackConfig() BaseLogFallbackConfig {
 	return BaseLogFallbackConfig{FilePath: "./logs/base-log-fallback"}
+}
+
+// DefaultSecurityProxyConfig 返回反向代理安全配置默认值。
+func DefaultSecurityProxyConfig() SecurityProxyConfig {
+	return SecurityProxyConfig{}
+}
+
+// DefaultSecurityScriptConfig 返回脚本沙箱安全配置默认值。
+func DefaultSecurityScriptConfig() SecurityScriptConfig {
+	return SecurityScriptConfig{}
+}
+
+// DefaultSecurityOutboundConfig 返回出站网络安全配置默认值。
+func DefaultSecurityOutboundConfig() SecurityOutboundConfig {
+	return SecurityOutboundConfig{}
+}
+
+// DefaultSecurityIdentityConfig 返回账号安全配置默认值。
+func DefaultSecurityIdentityConfig() SecurityIdentityConfig {
+	return SecurityIdentityConfig{}
+}
+
+// DefaultSecurityMigrationConfig 返回一次性安全迁移配置默认值。
+func DefaultSecurityMigrationConfig() SecurityMigrationConfig {
+	return SecurityMigrationConfig{}
 }
 
 func (r *Registry) decodeJSON(key, value string) (proto.Message, error) {
@@ -602,6 +660,46 @@ func builtinDefinitions() []Definition {
 			Owner:          "admin",
 			NameKey:        "system.base.runtime_config.base_log_fallback.title",
 			DescriptionKey: "system.base.runtime_config.base_log_fallback.description",
+		},
+		{
+			Key:            SecurityProxyKey,
+			New:            func() proto.Message { return new(SecurityProxyConfig) },
+			Default:        func() proto.Message { value := DefaultSecurityProxyConfig(); return &value },
+			Owner:          "admin",
+			NameKey:        "system.base.runtime_config.security_proxy.title",
+			DescriptionKey: "system.base.runtime_config.security_proxy.description",
+		},
+		{
+			Key:            SecurityScriptKey,
+			New:            func() proto.Message { return new(SecurityScriptConfig) },
+			Default:        func() proto.Message { value := DefaultSecurityScriptConfig(); return &value },
+			Owner:          "admin",
+			NameKey:        "system.base.runtime_config.security_script.title",
+			DescriptionKey: "system.base.runtime_config.security_script.description",
+		},
+		{
+			Key:            SecurityOutboundKey,
+			New:            func() proto.Message { return new(SecurityOutboundConfig) },
+			Default:        func() proto.Message { value := DefaultSecurityOutboundConfig(); return &value },
+			Owner:          "admin",
+			NameKey:        "system.base.runtime_config.security_outbound.title",
+			DescriptionKey: "system.base.runtime_config.security_outbound.description",
+		},
+		{
+			Key:            SecurityIdentityKey,
+			New:            func() proto.Message { return new(SecurityIdentityConfig) },
+			Default:        func() proto.Message { value := DefaultSecurityIdentityConfig(); return &value },
+			Owner:          "admin",
+			NameKey:        "system.base.runtime_config.security_identity.title",
+			DescriptionKey: "system.base.runtime_config.security_identity.description",
+		},
+		{
+			Key:            SecurityMigrationKey,
+			New:            func() proto.Message { return new(SecurityMigrationConfig) },
+			Default:        func() proto.Message { value := DefaultSecurityMigrationConfig(); return &value },
+			Owner:          "admin",
+			NameKey:        "system.base.runtime_config.security_migration.title",
+			DescriptionKey: "system.base.runtime_config.security_migration.description",
 		},
 	}
 }

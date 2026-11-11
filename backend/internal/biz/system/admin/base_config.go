@@ -187,6 +187,34 @@ func (c *BaseConfigCase) GetConfigValue(ctx context.Context, site int32, key str
 	return c.secretFields.DecryptConfigValue(list[0].Value)
 }
 
+// SetConfigValue 更新服务端消费的系统配置值并刷新对应站点缓存。
+func (c *BaseConfigCase) SetConfigValue(ctx context.Context, site int32, key, value string) error {
+	var err error
+	if runtimeconfig.IsSupportedKey(key) {
+		value, err = runtimeconfig.CanonicalJSON(key, value)
+		if err != nil {
+			return err
+		}
+	}
+	query := c.Query(ctx).BaseConfig
+	var list []*models.BaseConfig
+	list, err = c.List(ctx,
+		repository.Where(query.Site.Eq(site)),
+		repository.Where(query.Key.Eq(key)),
+	)
+	if err != nil {
+		return err
+	}
+	if len(list) == 0 {
+		return fmt.Errorf("系统配置不存在: %s", key)
+	}
+	err = c.UpdateByID(ctx, &models.BaseConfig{ID: list[0].ID, Value: value})
+	if err != nil {
+		return err
+	}
+	return c.refreshBaseConfigSite(ctx, site)
+}
+
 // CreateBaseConfig 创建配置并校验表单类型的结构和值域。
 func (c *BaseConfigCase) CreateBaseConfig(ctx context.Context, req *adminv1.BaseConfigForm) error {
 	entity := c.formMapper.ToEntity(req)
@@ -195,6 +223,9 @@ func (c *BaseConfigCase) CreateBaseConfig(ctx context.Context, req *adminv1.Base
 		return errorsx.InvalidArgument("配置值不能为空")
 	}
 	if err := validateFormConfig(entity, nil); err != nil {
+		return err
+	}
+	if err := validateBaseConfigValue(entity); err != nil {
 		return err
 	}
 	// 主记录与翻译写入同一事务，失败时不产生半成品；缓存刷新在事务提交后执行。
@@ -223,9 +254,9 @@ func (c *BaseConfigCase) UpdateBaseConfig(ctx context.Context, req *adminv1.Base
 
 	entity := c.formMapper.ToEntity(req)
 	entity.ID = req.GetId()
-	// 值留空表示保留现有值：敏感配置保留信封密文，普通配置保留原明文。
+	// 值留空表示保留现有值；文件类型允许用空值清除已上传文件。
 	entity.Value = req.GetValue().GetText()
-	if entity.Value == "" {
+	if entity.Value == "" && entity.Type != int32(adminv1.BaseConfigType_BASE_CONFIG_TYPE_FILE) {
 		entity.Value = oldConfig.Value
 	}
 	// 表单配置内嵌的 SecretCrypto 密文先解密为明文，再进入校验与合并。
@@ -234,6 +265,9 @@ func (c *BaseConfigCase) UpdateBaseConfig(ctx context.Context, req *adminv1.Base
 		return err
 	}
 	if err := validateFormConfig(entity, oldConfig); err != nil {
+		return err
+	}
+	if err := validateBaseConfigValue(entity); err != nil {
 		return err
 	}
 	// 主记录与翻译写入同一事务，失败时不产生半成品；缓存刷新在事务提交后执行。
@@ -505,6 +539,36 @@ func validateFormConfig(entity, previous *models.BaseConfig) error {
 	err = runtimeconfig.ValidateJSON(entity.Key, entity.Value)
 	if err != nil {
 		return wrapRuntimeConfigValidationError(err)
+	}
+	return nil
+}
+
+// validateBaseConfigValue 校验新增基础配置类型的持久化结构。
+func validateBaseConfigValue(entity *models.BaseConfig) error {
+	var value any
+	var err error
+	switch adminv1.BaseConfigType(entity.Type) {
+	case adminv1.BaseConfigType_BASE_CONFIG_TYPE_JSON:
+		err = json.Unmarshal([]byte(entity.Value), &value)
+	case adminv1.BaseConfigType_BASE_CONFIG_TYPE_DYNAMIC_LIST:
+		var items []string
+		err = json.Unmarshal([]byte(entity.Value), &items)
+	case adminv1.BaseConfigType_BASE_CONFIG_TYPE_MULTI_TEXT:
+		var items []struct {
+			Key   string `json:"key"`
+			Value string `json:"value"`
+		}
+		err = json.Unmarshal([]byte(entity.Value), &items)
+		if err == nil {
+			for _, item := range items {
+				if strings.TrimSpace(item.Key) == "" {
+					return errorsx.InvalidArgument("多文本配置的键不能为空")
+				}
+			}
+		}
+	}
+	if err != nil {
+		return errorsx.InvalidArgument("配置值格式无效").WithCause(err)
 	}
 	return nil
 }

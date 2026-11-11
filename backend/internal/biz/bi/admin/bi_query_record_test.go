@@ -16,6 +16,7 @@ import (
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 	"github.com/liujitcn/kratos-admin/backend/pkg/bi"
+	"github.com/liujitcn/kratos-admin/backend/pkg/securityconfig"
 	"github.com/liujitcn/kratos-core/biz"
 	modelconfig "github.com/liujitcn/kratos-kit/ai/model"
 	configv1 "github.com/liujitcn/kratos-kit/api/gen/go/config/v1"
@@ -63,7 +64,10 @@ func TestAskBiQueryPersistsRecords(t *testing.T) {
 			}
 			modelStore := model.NewRegistry()
 			if test.modelStatus != 0 {
-				t.Setenv("SECURITY_AI_ALLOWED_CIDRS", "127.0.0.1/32")
+				securityRuntimeConfig := securityconfig.Current()
+				securityRuntimeConfig.AIAllowedCIDRs = []string{"127.0.0.1/32"}
+				securityconfig.Set(securityRuntimeConfig)
+				t.Cleanup(func() { securityconfig.Set(securityconfig.Default()) })
 				server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 					w.Header().Set("Content-Type", "application/json")
 					w.WriteHeader(test.modelStatus)

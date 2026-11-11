@@ -2537,6 +2537,36 @@
   "legacy.error.70cd0f3093a0e441": {
     "other": "セッション状態の検証に失敗しました"
   },
+  "legacy.error.28febc070b420067": {
+    "other": "複数テキスト設定のキーを空にすることはできません"
+  },
+  "legacy.error.47cdc5f24bd1a158": {
+    "other": "設定値の形式が無効です"
+  },
+  "legacy.error.c5b8236066d773cb": {
+    "other": "アカウントセキュリティ設定の生成に失敗しました"
+  },
+  "legacy.error.ebc50e1f7a35066f": {
+    "other": "既存アカウント変更設定の消去に失敗しました"
+  },
+  "legacy.error.79e1ef64ed687e81": {
+    "other": "予約済みユーザー名設定の読み取りに失敗しました"
+  },
+  "legacy.error.5e35c4b3830081f3": {
+    "other": "予約済みユーザー名設定の解析に失敗しました"
+  },
+  "legacy.error.d11630b62e6fedb8": {
+    "other": "予約済みユーザー名設定が存在しないか無効です"
+  },
+  "legacy.error.91b8df65f0a75e4a": {
+    "other": "スクリプトの試行実行には保存済みスクリプトが必要です"
+  },
+  "legacy.error.71167d40ba8f999c": {
+    "other": "スクリプトの試行実行にインラインソースは指定できません"
+  },
+  "system.config.security.key_value.key.required": {
+    "other": "セキュリティ設定のキーを空にすることはできません"
+  },
   "legacy.error.70e0900c1017d449": {
     "other": "AIアシスタントに有効なモデルがありません"
   },
