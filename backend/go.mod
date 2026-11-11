@@ -18,16 +18,16 @@ require (
 	github.com/jackc/pgx/v5 v5.11.0
 	github.com/klauspost/compress v1.20.2
 	github.com/lib/pq v1.12.3
-	github.com/liujitcn/go-scripts v0.0.3
-	github.com/liujitcn/go-scripts/cel v0.0.1
-	github.com/liujitcn/go-scripts/expr v0.0.1
-	github.com/liujitcn/go-scripts/gpython v0.0.1
-	github.com/liujitcn/go-scripts/javascript v0.0.1
-	github.com/liujitcn/go-scripts/lua v0.0.2
-	github.com/liujitcn/go-scripts/starlark v0.0.1
-	github.com/liujitcn/go-scripts/tcl v0.0.3
-	github.com/liujitcn/go-scripts/wazero v0.0.1
-	github.com/liujitcn/go-scripts/yaegi v0.0.1
+	github.com/liujitcn/go-scripts v0.0.4
+	github.com/liujitcn/go-scripts/cel v0.0.2
+	github.com/liujitcn/go-scripts/expr v0.0.2
+	github.com/liujitcn/go-scripts/gpython v0.0.2
+	github.com/liujitcn/go-scripts/javascript v0.0.2
+	github.com/liujitcn/go-scripts/lua v0.0.3
+	github.com/liujitcn/go-scripts/starlark v0.0.2
+	github.com/liujitcn/go-scripts/tcl v0.0.4
+	github.com/liujitcn/go-scripts/wazero v0.0.2
+	github.com/liujitcn/go-scripts/yaegi v0.0.2
 	github.com/liujitcn/go-utils v0.0.44
 	github.com/liujitcn/go-utils/crypto v0.0.19
 	github.com/liujitcn/go-utils/http v0.0.10
@@ -36,14 +36,14 @@ require (
 	github.com/liujitcn/kratos-admin/backend/api v0.0.33
 	github.com/liujitcn/kratos-core v0.0.56
 	github.com/liujitcn/kratos-core/api v0.0.7
-	github.com/liujitcn/kratos-kit v0.0.99
-	github.com/liujitcn/kratos-kit/ai/model v0.0.10
+	github.com/liujitcn/kratos-kit v0.1.0
+	github.com/liujitcn/kratos-kit/ai/model v0.0.11
 	github.com/liujitcn/kratos-kit/api v0.0.44
 	github.com/liujitcn/kratos-kit/auth v0.0.36
 	github.com/liujitcn/kratos-kit/auth/authn v0.0.28
 	github.com/liujitcn/kratos-kit/auth/authz v0.0.27
 	github.com/liujitcn/kratos-kit/auth/authz/engine/casbin v0.0.26
-	github.com/liujitcn/kratos-kit/bootstrap v0.0.39
+	github.com/liujitcn/kratos-kit/bootstrap v0.0.40
 	github.com/liujitcn/kratos-kit/broker v0.0.16
 	github.com/liujitcn/kratos-kit/cache v0.0.30
 	github.com/liujitcn/kratos-kit/captcha v0.0.27
@@ -60,11 +60,11 @@ require (
 	github.com/liujitcn/kratos-kit/oss v0.0.26
 	github.com/liujitcn/kratos-kit/pprof v0.0.21
 	github.com/liujitcn/kratos-kit/queue v0.0.38
-	github.com/liujitcn/kratos-kit/redact v0.0.19
+	github.com/liujitcn/kratos-kit/redact v0.0.20
 	github.com/liujitcn/kratos-kit/registry/consul v0.0.13
 	github.com/liujitcn/kratos-kit/secretcrypto v0.0.7
 	github.com/liujitcn/kratos-kit/translator v0.0.13
-	github.com/liujitcn/kratos-kit/transport v0.0.30
+	github.com/liujitcn/kratos-kit/transport v0.0.31
 	github.com/liujitcn/kratos-kit/transport/cron v0.0.22
 	github.com/liujitcn/kratos-kit/transport/mcp v0.0.21
 	github.com/liujitcn/kratos-kit/transport/mqtt v0.0.3
@@ -285,7 +285,7 @@ require (
 	github.com/liujitcn/kratos-kit/tracer v0.0.24 // indirect
 	github.com/liujitcn/kratos-kit/tracing v0.0.16 // indirect
 	github.com/liujitcn/kratos-kit/transport/hptimer v0.0.11 // indirect
-	github.com/liujitcn/kratos-kit/transport/keepalive v0.0.18 // indirect
+	github.com/liujitcn/kratos-kit/transport/keepalive v0.0.19 // indirect
 	github.com/lufia/plan9stats v0.0.0-20260330125221-c963978e514e // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
 	github.com/mattn/go-colorable v0.1.16 // indirect

@@ -11,8 +11,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/liujitcn/kratos-kit/transport/clientip"
-
 	"github.com/go-kratos/kratos/v3/transport"
 	"github.com/go-kratos/kratos/v3/transport/http"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
@@ -30,6 +28,7 @@ import (
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/sessionstate"
 	adminconst "github.com/liujitcn/kratos-admin/backend/internal/const"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
+	"github.com/liujitcn/kratos-admin/backend/pkg/securityconfig"
 
 	"github.com/liujitcn/go-utils/crypto"
 	"github.com/liujitcn/go-utils/id"
@@ -884,7 +883,7 @@ func loginClientIP(ctx context.Context) string {
 	if !ok || httpValue.Request() == nil {
 		return ""
 	}
-	return clientip.FromRequest(httpValue.Request())
+	return securityconfig.Current().ClientIP(httpValue.Request())
 }
 
 // loginDevice 从请求头提取设备标识，优先使用客户端显式设备标识并回退到 User-Agent。

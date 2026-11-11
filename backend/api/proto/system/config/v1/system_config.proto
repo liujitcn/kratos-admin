@@ -17,3 +17,44 @@ message BaseLogFallbackConfig {
     }
   ]; // 日志入库回退目录路径
 }
+
+// SecurityProxyConfig 反向代理安全配置。
+message SecurityProxyConfig {
+  bool trust_proxy = 1 [(gnostic.openapi.v3.property) = {description: "是否信任反向代理上报的 HTTPS"}]; // 是否信任反向代理上报的 HTTPS
+  repeated string trusted_proxy_cidrs = 2 [(gnostic.openapi.v3.property) = {description: "受信反向代理网段"}]; // 受信反向代理网段
+}
+
+// SecurityScriptConfig 脚本沙箱资源和出站白名单配置。
+message SecurityScriptConfig {
+  repeated string read_only_paths = 1 [(gnostic.openapi.v3.property) = {description: "脚本只读路径"}]; // 脚本只读路径
+  repeated string writable_paths = 2 [(gnostic.openapi.v3.property) = {description: "脚本可写路径"}]; // 脚本可写路径
+  repeated string commands = 3 [(gnostic.openapi.v3.property) = {description: "脚本可执行命令"}]; // 脚本可执行命令
+  repeated string allowed_hosts = 4 [(gnostic.openapi.v3.property) = {description: "脚本出站主机白名单"}]; // 脚本出站主机白名单
+  repeated string allowed_cidrs = 5 [(gnostic.openapi.v3.property) = {description: "脚本出站网段白名单"}]; // 脚本出站网段白名单
+}
+
+// SecurityOutboundConfig 公共和 AI 出站白名单配置。
+message SecurityOutboundConfig {
+  repeated string allowed_hosts = 1 [(gnostic.openapi.v3.property) = {description: "公共出站主机白名单"}]; // 公共出站主机白名单
+  repeated string allowed_cidrs = 2 [(gnostic.openapi.v3.property) = {description: "公共出站网段白名单"}]; // 公共出站网段白名单
+  repeated string ai_allowed_hosts = 3 [(gnostic.openapi.v3.property) = {description: "AI 出站主机白名单"}]; // AI 出站主机白名单
+  repeated string ai_allowed_cidrs = 4 [(gnostic.openapi.v3.property) = {description: "AI 出站网段白名单"}]; // AI 出站网段白名单
+}
+
+// SecurityKeyValue 表示可编辑的键值对。
+message SecurityKeyValue {
+  string key = 1 [(gnostic.openapi.v3.property) = {description: "键"}, (buf.validate.field).cel = {id: "system.config.security.key_value.key.required" message: "键不能为空" expression: "this.size() > 0"}]; // 键
+  string value = 2 [(gnostic.openapi.v3.property) = {description: "值"}]; // 值
+}
+
+// SecurityIdentityConfig 账号与保留用户名安全配置。
+message SecurityIdentityConfig {
+  repeated string reserved_usernames = 1 [(gnostic.openapi.v3.property) = {description: "系统保留用户名"}]; // 系统保留用户名
+  repeated SecurityKeyValue account_renames = 2 [(gnostic.openapi.v3.property) = {description: "存量账号更名清单"}]; // 存量账号更名清单
+}
+
+// SecurityMigrationConfig 一次性安全迁移配置。
+message SecurityMigrationConfig {
+  bool backfill_sensitive_data = 1 [(gnostic.openapi.v3.property) = {description: "是否执行敏感数据回填"}]; // 是否执行敏感数据回填
+  string legacy_plaintext_manifest = 2 [(gnostic.openapi.v3.property) = {description: "历史明文清单 JSON"}]; // 历史明文清单 JSON
+}

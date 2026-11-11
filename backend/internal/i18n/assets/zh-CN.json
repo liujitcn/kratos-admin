@@ -2879,6 +2879,36 @@
   "legacy.error.70cd0f3093a0e441": {
     "other": "校验会话状态失败"
   },
+  "legacy.error.28febc070b420067": {
+    "other": "多文本配置的键不能为空"
+  },
+  "legacy.error.47cdc5f24bd1a158": {
+    "other": "配置值格式无效"
+  },
+  "legacy.error.c5b8236066d773cb": {
+    "other": "生成账号安全配置失败"
+  },
+  "legacy.error.ebc50e1f7a35066f": {
+    "other": "清理存量账号更名配置失败"
+  },
+  "legacy.error.79e1ef64ed687e81": {
+    "other": "读取系统保留用户名配置失败"
+  },
+  "legacy.error.5e35c4b3830081f3": {
+    "other": "解析系统保留用户名配置失败"
+  },
+  "legacy.error.d11630b62e6fedb8": {
+    "other": "系统保留用户名配置不存在或未启用"
+  },
+  "legacy.error.91b8df65f0a75e4a": {
+    "other": "脚本试运行必须引用已保存脚本"
+  },
+  "legacy.error.71167d40ba8f999c": {
+    "other": "脚本试运行不能提交内联源码"
+  },
+  "system.config.security.key_value.key.required": {
+    "other": "安全配置键不能为空"
+  },
   "legacy.error.70e0900c1017d449": {
     "other": "AI 助手没有已启用的模型"
   },

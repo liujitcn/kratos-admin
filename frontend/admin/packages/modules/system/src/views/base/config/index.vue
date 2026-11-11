@@ -77,6 +77,27 @@
                 inline-prompt
               />
             </template>
+            <template #jsonValue>
+              <el-input
+                v-model="formData.value"
+                type="textarea"
+                :rows="10"
+                :placeholder="t('system.base.config.placeholder.json')"
+              />
+            </template>
+            <template #dynamicListValue>
+              <DynamicList v-model="dynamicListValue" :input-props="{ placeholder: t('common.placeholder.input_content') }" />
+            </template>
+            <template #multiTextValue>
+              <KvList v-model="multiTextValue" />
+            </template>
+            <template #fileValue>
+              <UploadFile
+                v-model:file-info="fileInfo"
+                upload-type="config"
+                :access-mode="BaseFileAccessMode.BASE_FILE_ACCESS_MODE_AUTHORIZED"
+              />
+            </template>
             <template #nameI18ns>
               <DynamicI18nEditor v-model="nameI18nValues" :source="formData.name" :maxlength="100" />
             </template>
@@ -118,7 +139,7 @@
 <script setup lang="ts">
 import { computed, h, nextTick, reactive, ref, watch } from "vue";
 import { useDebounceFn } from "@vueuse/core";
-import type { FormItemRule } from "element-plus";
+import type { FormItemRule, UploadUserFile } from "element-plus";
 import type { ColumnProps, HeaderActionProps, ProTableInstance } from "@liujitcn/kratos-admin-core/components/ProTable/interface";
 import ProTable from "@liujitcn/kratos-admin-core/components/ProTable";
 import ProForm from "@liujitcn/kratos-admin-core/components/ProForm/index.vue";
@@ -128,6 +149,9 @@ import type { ProFormField, ProFormOption, ProFormInstance } from "@liujitcn/kra
 import DictLabel from "@liujitcn/kratos-admin-core/components/Dict/DictLabel.vue";
 import RichTextPreview from "@liujitcn/kratos-admin-core/components/RichTextPreview/index.vue";
 import UploadImg from "@liujitcn/kratos-admin-core/components/Upload/Img.vue";
+import UploadFile from "@liujitcn/kratos-admin-core/components/Upload/File.vue";
+import DynamicList from "@liujitcn/kratos-admin-core/components/ProForm/components/DynamicList.vue";
+import KvList from "@liujitcn/kratos-admin-core/components/ProForm/components/KvList.vue";
 import WangEditor from "@liujitcn/kratos-admin-core/components/WangEditor/index.vue";
 import { useAuthButtons } from "@liujitcn/kratos-admin-core/auth";
 import { defBaseConfigService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/base_config";
@@ -163,6 +187,12 @@ type BaseConfigFormState = Omit<BaseConfigForm, "site" | "type" | "value"> & {
   value: string;
 };
 
+/** 多文本配置编辑行。 */
+interface MultiTextItem {
+  key: string;
+  value: string;
+}
+
 defineOptions({
   name: "BaseConfig",
   inheritAttrs: false
@@ -177,6 +207,12 @@ const activeTab = ref("basic");
 const saving = ref(false);
 const valueFormRef = ref<ProFormInstance>();
 const formValue = ref<RuntimeConfigModel>({});
+/** 动态字符串列表类型的编辑值。 */
+const dynamicListValue = ref<string[]>([]);
+/** 多文本键值类型的编辑值。 */
+const multiTextValue = ref<MultiTextItem[]>([]);
+/** 文件类型的上传编辑值。 */
+const fileInfo = ref<UploadUserFile>();
 const formDefinition = computed(() => runtimeConfigDefinitions.find(item => item.key === formData.key));
 const localizedFormFields = computed<ProFormField[]>(() =>
   (formDefinition.value?.fields ?? []).map(field => ({
@@ -244,6 +280,7 @@ watch(
   () => formData.type,
   () => {
     activeTab.value = "basic";
+    loadTypedValue(formData.value);
   },
   { flush: "sync" }
 );
@@ -445,6 +482,37 @@ const formFields = computed<ProFormField[]>(() => [
     visible: model => model.type == BaseConfigType.BASE_CONFIG_TYPE_BOOLEAN
   },
   {
+    prop: "value",
+    label: t("system.base.config.field.value"),
+    component: "slot",
+    slotName: "jsonValue",
+    visible: model => model.type == BaseConfigType.BASE_CONFIG_TYPE_JSON,
+    colSpan: 24
+  },
+  {
+    prop: "value",
+    label: t("system.base.config.field.value"),
+    component: "slot",
+    slotName: "dynamicListValue",
+    visible: model => model.type == BaseConfigType.BASE_CONFIG_TYPE_DYNAMIC_LIST,
+    colSpan: 24
+  },
+  {
+    prop: "value",
+    label: t("system.base.config.field.value"),
+    component: "slot",
+    slotName: "multiTextValue",
+    visible: model => model.type == BaseConfigType.BASE_CONFIG_TYPE_MULTI_TEXT,
+    colSpan: 24
+  },
+  {
+    prop: "value",
+    label: t("system.base.config.field.value"),
+    component: "slot",
+    slotName: "fileValue",
+    visible: model => model.type == BaseConfigType.BASE_CONFIG_TYPE_FILE
+  },
+  {
     prop: "status",
     label: t("common.field.status"),
     component: "radio-group",
@@ -597,8 +665,27 @@ function renderConfigValuePreview(row: BaseConfig) {
       : h("span", { class: "config-value-preview" }, t("system.base.config.message.rich_text_missing"));
   }
 
+  if (row.type === BaseConfigType.BASE_CONFIG_TYPE_JSON) {
+    return h("pre", { class: "config-value-preview config-json-preview" }, formatJSONPreview(row.value));
+  }
+
+  if (row.type === BaseConfigType.BASE_CONFIG_TYPE_FILE) {
+    return row.value
+      ? h("a", { href: row.value, target: "_blank", rel: "noreferrer", class: "config-value-preview" }, row.value)
+      : h("span", { class: "config-value-preview" }, t("system.base.config.message.value_missing"));
+  }
+
   const value = row.value;
   return h("span", { class: "config-value-preview" }, value || t("system.base.config.message.value_missing"));
+}
+
+/** 格式化 JSON 配置预览，脏数据保留原文。 */
+function formatJSONPreview(value: string) {
+  try {
+    return JSON.stringify(JSON.parse(value), null, 2);
+  } catch {
+    return value;
+  }
 }
 
 /** 系统配置顶部按钮配置。 */
@@ -659,6 +746,7 @@ async function handleOpenDialog(configId?: number) {
         Object.assign(formData, data);
         // 契约中 value 为 SecretCrypto，编辑缓冲取解密后的明文或脱敏文本。
         formData.value = data.value?.text ?? "";
+        loadTypedValue(formData.value);
         if (formData.type === BaseConfigType.BASE_CONFIG_TYPE_FORM) loadFormValue(formData.value);
       }
       activeTab.value = configId && formData.type === BaseConfigType.BASE_CONFIG_TYPE_FORM ? "form" : "basic";
@@ -684,6 +772,37 @@ function parseJSONValue(value: string): unknown {
   } catch {
     return undefined;
   }
+}
+
+/** 将新类型的持久化值转换为对应编辑控件模型。 */
+function loadTypedValue(value: string) {
+  dynamicListValue.value = [];
+  multiTextValue.value = [];
+  fileInfo.value = undefined;
+  const parsed = parseJSONValue(value);
+  if (formData.type === BaseConfigType.BASE_CONFIG_TYPE_DYNAMIC_LIST) {
+    if (Array.isArray(parsed)) dynamicListValue.value = parsed.filter(item => typeof item === "string");
+    return;
+  }
+  if (formData.type === BaseConfigType.BASE_CONFIG_TYPE_MULTI_TEXT) {
+    if (Array.isArray(parsed)) {
+      multiTextValue.value = parsed.filter(isMultiTextItem).map(item => ({ key: item.key, value: item.value }));
+    }
+    return;
+  }
+  if (formData.type === BaseConfigType.BASE_CONFIG_TYPE_FILE && value) {
+    fileInfo.value = { name: value.split("/").pop() ?? "file", url: value };
+  }
+}
+
+/** 判断持久化的多文本项结构。 */
+function isMultiTextItem(value: unknown): value is MultiTextItem {
+  return Boolean(
+    value &&
+      typeof value === "object" &&
+      typeof (value as MultiTextItem).key === "string" &&
+      typeof (value as MultiTextItem).value === "string"
+  );
 }
 
 /** 判断运行配置 JSON 是否为可合并对象。 */
@@ -744,6 +863,9 @@ function resetForm() {
   formData.name_i18ns = [];
   formData.value_i18ns = [];
   formValue.value = {};
+  dynamicListValue.value = [];
+  multiTextValue.value = [];
+  fileInfo.value = undefined;
   valueFormRef.value?.clearValidate();
   formData.status = Status.STATUS_ENABLE;
 }
@@ -754,6 +876,21 @@ function resetForm() {
 async function handleSubmit() {
   if (formData.type === BaseConfigType.BASE_CONFIG_TYPE_BOOLEAN) {
     formData.value = formData.value === "true" ? "true" : "false";
+  }
+  if (formData.type === BaseConfigType.BASE_CONFIG_TYPE_JSON) {
+    if (!formData.value.trim() || parseJSONValue(formData.value) === undefined) {
+      ElMessage.error(t("system.base.config.message.json_invalid"));
+      return;
+    }
+  }
+  if (formData.type === BaseConfigType.BASE_CONFIG_TYPE_DYNAMIC_LIST) {
+    formData.value = JSON.stringify(dynamicListValue.value);
+  }
+  if (formData.type === BaseConfigType.BASE_CONFIG_TYPE_MULTI_TEXT) {
+    formData.value = JSON.stringify(multiTextValue.value);
+  }
+  if (formData.type === BaseConfigType.BASE_CONFIG_TYPE_FILE) {
+    formData.value = fileInfo.value?.url ?? "";
   }
   activeTab.value = "basic";
   await nextTick();
@@ -773,7 +910,9 @@ async function handleSubmit() {
   try {
     const submitData = JSON.parse(JSON.stringify(formData)) as BaseConfigForm;
     // 配置值统一密文提交，留空表示保留现有值。
-    submitData.value = formData.value.trim() !== "" ? await encryptSecret(formData.value) : undefined;
+    submitData.value = formData.value.trim() !== "" || submitData.type === BaseConfigType.BASE_CONFIG_TYPE_FILE
+      ? await encryptSecret(formData.value)
+      : undefined;
     submitData.name_i18ns = serializeDynamicI18ns(
       nameI18nValues.value,
       "base_config.name",
@@ -910,6 +1049,13 @@ function handleDelete(selected?: number | string | Array<number | string> | Base
   max-width: 380px;
   white-space: pre-wrap;
   word-break: break-word;
+}
+
+.config-json-preview {
+  max-height: 360px;
+  overflow: auto;
+  margin: 0;
+  font-family: var(--el-font-family-monospace);
 }
 
 .config-rich-text-preview {

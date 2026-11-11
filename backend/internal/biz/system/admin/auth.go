@@ -8,8 +8,6 @@ import (
 	"math/rand/v2"
 	"time"
 
-	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/username"
-
 	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
 	"github.com/liujitcn/kratos-core/biz"
 	coreconst "github.com/liujitcn/kratos-core/const"
@@ -427,7 +425,7 @@ func (c *AuthCase) UpdateUserProfile(ctx context.Context, req *adminv1.UserProfi
 		userName = oldBaseUser.UserName
 	}
 	if userName != oldBaseUser.UserName {
-		err = username.Validate(userName)
+		err = c.baseUserCase.validateUserName(ctx, userName)
 		if err != nil {
 			return err
 		}

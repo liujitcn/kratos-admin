@@ -14,3 +14,61 @@ export interface BaseLogFallbackConfig {
   /** 日志入库回退目录路径 */
   file_path: string;
 }
+
+/** SecurityProxyConfig 反向代理安全配置。 */
+export interface SecurityProxyConfig {
+  /** 是否信任反向代理上报的 HTTPS */
+  trust_proxy: boolean;
+  /** 受信反向代理网段 */
+  trusted_proxy_cidrs: string[];
+}
+
+/** SecurityScriptConfig 脚本沙箱资源和出站白名单配置。 */
+export interface SecurityScriptConfig {
+  /** 脚本只读路径 */
+  read_only_paths: string[];
+  /** 脚本可写路径 */
+  writable_paths: string[];
+  /** 脚本可执行命令 */
+  commands: string[];
+  /** 脚本出站主机白名单 */
+  allowed_hosts: string[];
+  /** 脚本出站网段白名单 */
+  allowed_cidrs: string[];
+}
+
+/** SecurityOutboundConfig 公共和 AI 出站白名单配置。 */
+export interface SecurityOutboundConfig {
+  /** 公共出站主机白名单 */
+  allowed_hosts: string[];
+  /** 公共出站网段白名单 */
+  allowed_cidrs: string[];
+  /** AI 出站主机白名单 */
+  ai_allowed_hosts: string[];
+  /** AI 出站网段白名单 */
+  ai_allowed_cidrs: string[];
+}
+
+/** SecurityKeyValue 表示可编辑的键值对。 */
+export interface SecurityKeyValue {
+  /** 键 */
+  key: string;
+  /** 值 */
+  value: string;
+}
+
+/** SecurityIdentityConfig 账号与保留用户名安全配置。 */
+export interface SecurityIdentityConfig {
+  /** 系统保留用户名 */
+  reserved_usernames: string[];
+  /** 存量账号更名清单 */
+  account_renames: SecurityKeyValue[];
+}
+
+/** SecurityMigrationConfig 一次性安全迁移配置。 */
+export interface SecurityMigrationConfig {
+  /** 是否执行敏感数据回填 */
+  backfill_sensitive_data: boolean;
+  /** 历史明文清单 JSON */
+  legacy_plaintext_manifest: string;
+}

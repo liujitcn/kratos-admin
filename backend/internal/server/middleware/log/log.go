@@ -18,8 +18,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/liujitcn/kratos-kit/transport/clientip"
-
 	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
 
 	"github.com/go-kratos/kratos/v3/errors"
@@ -47,6 +45,7 @@ import (
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/query"
+	"github.com/liujitcn/kratos-admin/backend/pkg/securityconfig"
 )
 
 const (
@@ -1184,7 +1183,7 @@ func permissionAction(info request) adminv1.BasePermissionAction {
 
 // clientIP 使用受信代理规则，与访问日志和登录策略保持同一来源地址。
 func clientIP(req *http.Request) string {
-	return clientip.FromRequest(req)
+	return securityconfig.Current().ClientIP(req)
 }
 
 // newMiddleware 创建并启动 Admin 审计后台工作协程。

@@ -70,6 +70,364 @@ func (x *BaseLogFallbackConfig) GetFilePath() string {
 	return ""
 }
 
+// SecurityProxyConfig 反向代理安全配置。
+type SecurityProxyConfig struct {
+	state             protoimpl.MessageState `protogen:"open.v1"`
+	TrustProxy        bool                   `protobuf:"varint,1,opt,name=trust_proxy,json=trustProxy,proto3" json:"trust_proxy,omitempty"`                       // 是否信任反向代理上报的 HTTPS
+	TrustedProxyCidrs []string               `protobuf:"bytes,2,rep,name=trusted_proxy_cidrs,json=trustedProxyCidrs,proto3" json:"trusted_proxy_cidrs,omitempty"` // 受信反向代理网段
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
+}
+
+func (x *SecurityProxyConfig) Reset() {
+	*x = SecurityProxyConfig{}
+	mi := &file_system_config_v1_system_config_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SecurityProxyConfig) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SecurityProxyConfig) ProtoMessage() {}
+
+func (x *SecurityProxyConfig) ProtoReflect() protoreflect.Message {
+	mi := &file_system_config_v1_system_config_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SecurityProxyConfig.ProtoReflect.Descriptor instead.
+func (*SecurityProxyConfig) Descriptor() ([]byte, []int) {
+	return file_system_config_v1_system_config_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *SecurityProxyConfig) GetTrustProxy() bool {
+	if x != nil {
+		return x.TrustProxy
+	}
+	return false
+}
+
+func (x *SecurityProxyConfig) GetTrustedProxyCidrs() []string {
+	if x != nil {
+		return x.TrustedProxyCidrs
+	}
+	return nil
+}
+
+// SecurityScriptConfig 脚本沙箱资源和出站白名单配置。
+type SecurityScriptConfig struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ReadOnlyPaths []string               `protobuf:"bytes,1,rep,name=read_only_paths,json=readOnlyPaths,proto3" json:"read_only_paths,omitempty"` // 脚本只读路径
+	WritablePaths []string               `protobuf:"bytes,2,rep,name=writable_paths,json=writablePaths,proto3" json:"writable_paths,omitempty"`   // 脚本可写路径
+	Commands      []string               `protobuf:"bytes,3,rep,name=commands,proto3" json:"commands,omitempty"`                                  // 脚本可执行命令
+	AllowedHosts  []string               `protobuf:"bytes,4,rep,name=allowed_hosts,json=allowedHosts,proto3" json:"allowed_hosts,omitempty"`      // 脚本出站主机白名单
+	AllowedCidrs  []string               `protobuf:"bytes,5,rep,name=allowed_cidrs,json=allowedCidrs,proto3" json:"allowed_cidrs,omitempty"`      // 脚本出站网段白名单
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SecurityScriptConfig) Reset() {
+	*x = SecurityScriptConfig{}
+	mi := &file_system_config_v1_system_config_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SecurityScriptConfig) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SecurityScriptConfig) ProtoMessage() {}
+
+func (x *SecurityScriptConfig) ProtoReflect() protoreflect.Message {
+	mi := &file_system_config_v1_system_config_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SecurityScriptConfig.ProtoReflect.Descriptor instead.
+func (*SecurityScriptConfig) Descriptor() ([]byte, []int) {
+	return file_system_config_v1_system_config_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *SecurityScriptConfig) GetReadOnlyPaths() []string {
+	if x != nil {
+		return x.ReadOnlyPaths
+	}
+	return nil
+}
+
+func (x *SecurityScriptConfig) GetWritablePaths() []string {
+	if x != nil {
+		return x.WritablePaths
+	}
+	return nil
+}
+
+func (x *SecurityScriptConfig) GetCommands() []string {
+	if x != nil {
+		return x.Commands
+	}
+	return nil
+}
+
+func (x *SecurityScriptConfig) GetAllowedHosts() []string {
+	if x != nil {
+		return x.AllowedHosts
+	}
+	return nil
+}
+
+func (x *SecurityScriptConfig) GetAllowedCidrs() []string {
+	if x != nil {
+		return x.AllowedCidrs
+	}
+	return nil
+}
+
+// SecurityOutboundConfig 公共和 AI 出站白名单配置。
+type SecurityOutboundConfig struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	AllowedHosts   []string               `protobuf:"bytes,1,rep,name=allowed_hosts,json=allowedHosts,proto3" json:"allowed_hosts,omitempty"`         // 公共出站主机白名单
+	AllowedCidrs   []string               `protobuf:"bytes,2,rep,name=allowed_cidrs,json=allowedCidrs,proto3" json:"allowed_cidrs,omitempty"`         // 公共出站网段白名单
+	AiAllowedHosts []string               `protobuf:"bytes,3,rep,name=ai_allowed_hosts,json=aiAllowedHosts,proto3" json:"ai_allowed_hosts,omitempty"` // AI 出站主机白名单
+	AiAllowedCidrs []string               `protobuf:"bytes,4,rep,name=ai_allowed_cidrs,json=aiAllowedCidrs,proto3" json:"ai_allowed_cidrs,omitempty"` // AI 出站网段白名单
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *SecurityOutboundConfig) Reset() {
+	*x = SecurityOutboundConfig{}
+	mi := &file_system_config_v1_system_config_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SecurityOutboundConfig) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SecurityOutboundConfig) ProtoMessage() {}
+
+func (x *SecurityOutboundConfig) ProtoReflect() protoreflect.Message {
+	mi := &file_system_config_v1_system_config_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SecurityOutboundConfig.ProtoReflect.Descriptor instead.
+func (*SecurityOutboundConfig) Descriptor() ([]byte, []int) {
+	return file_system_config_v1_system_config_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *SecurityOutboundConfig) GetAllowedHosts() []string {
+	if x != nil {
+		return x.AllowedHosts
+	}
+	return nil
+}
+
+func (x *SecurityOutboundConfig) GetAllowedCidrs() []string {
+	if x != nil {
+		return x.AllowedCidrs
+	}
+	return nil
+}
+
+func (x *SecurityOutboundConfig) GetAiAllowedHosts() []string {
+	if x != nil {
+		return x.AiAllowedHosts
+	}
+	return nil
+}
+
+func (x *SecurityOutboundConfig) GetAiAllowedCidrs() []string {
+	if x != nil {
+		return x.AiAllowedCidrs
+	}
+	return nil
+}
+
+// SecurityKeyValue 表示可编辑的键值对。
+type SecurityKeyValue struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Key           string                 `protobuf:"bytes,1,opt,name=key,proto3" json:"key,omitempty"`     // 键
+	Value         string                 `protobuf:"bytes,2,opt,name=value,proto3" json:"value,omitempty"` // 值
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SecurityKeyValue) Reset() {
+	*x = SecurityKeyValue{}
+	mi := &file_system_config_v1_system_config_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SecurityKeyValue) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SecurityKeyValue) ProtoMessage() {}
+
+func (x *SecurityKeyValue) ProtoReflect() protoreflect.Message {
+	mi := &file_system_config_v1_system_config_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SecurityKeyValue.ProtoReflect.Descriptor instead.
+func (*SecurityKeyValue) Descriptor() ([]byte, []int) {
+	return file_system_config_v1_system_config_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *SecurityKeyValue) GetKey() string {
+	if x != nil {
+		return x.Key
+	}
+	return ""
+}
+
+func (x *SecurityKeyValue) GetValue() string {
+	if x != nil {
+		return x.Value
+	}
+	return ""
+}
+
+// SecurityIdentityConfig 账号与保留用户名安全配置。
+type SecurityIdentityConfig struct {
+	state             protoimpl.MessageState `protogen:"open.v1"`
+	ReservedUsernames []string               `protobuf:"bytes,1,rep,name=reserved_usernames,json=reservedUsernames,proto3" json:"reserved_usernames,omitempty"` // 系统保留用户名
+	AccountRenames    []*SecurityKeyValue    `protobuf:"bytes,2,rep,name=account_renames,json=accountRenames,proto3" json:"account_renames,omitempty"`          // 存量账号更名清单
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
+}
+
+func (x *SecurityIdentityConfig) Reset() {
+	*x = SecurityIdentityConfig{}
+	mi := &file_system_config_v1_system_config_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SecurityIdentityConfig) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SecurityIdentityConfig) ProtoMessage() {}
+
+func (x *SecurityIdentityConfig) ProtoReflect() protoreflect.Message {
+	mi := &file_system_config_v1_system_config_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SecurityIdentityConfig.ProtoReflect.Descriptor instead.
+func (*SecurityIdentityConfig) Descriptor() ([]byte, []int) {
+	return file_system_config_v1_system_config_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *SecurityIdentityConfig) GetReservedUsernames() []string {
+	if x != nil {
+		return x.ReservedUsernames
+	}
+	return nil
+}
+
+func (x *SecurityIdentityConfig) GetAccountRenames() []*SecurityKeyValue {
+	if x != nil {
+		return x.AccountRenames
+	}
+	return nil
+}
+
+// SecurityMigrationConfig 一次性安全迁移配置。
+type SecurityMigrationConfig struct {
+	state                   protoimpl.MessageState `protogen:"open.v1"`
+	BackfillSensitiveData   bool                   `protobuf:"varint,1,opt,name=backfill_sensitive_data,json=backfillSensitiveData,proto3" json:"backfill_sensitive_data,omitempty"`      // 是否执行敏感数据回填
+	LegacyPlaintextManifest string                 `protobuf:"bytes,2,opt,name=legacy_plaintext_manifest,json=legacyPlaintextManifest,proto3" json:"legacy_plaintext_manifest,omitempty"` // 历史明文清单 JSON
+	unknownFields           protoimpl.UnknownFields
+	sizeCache               protoimpl.SizeCache
+}
+
+func (x *SecurityMigrationConfig) Reset() {
+	*x = SecurityMigrationConfig{}
+	mi := &file_system_config_v1_system_config_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SecurityMigrationConfig) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SecurityMigrationConfig) ProtoMessage() {}
+
+func (x *SecurityMigrationConfig) ProtoReflect() protoreflect.Message {
+	mi := &file_system_config_v1_system_config_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SecurityMigrationConfig.ProtoReflect.Descriptor instead.
+func (*SecurityMigrationConfig) Descriptor() ([]byte, []int) {
+	return file_system_config_v1_system_config_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *SecurityMigrationConfig) GetBackfillSensitiveData() bool {
+	if x != nil {
+		return x.BackfillSensitiveData
+	}
+	return false
+}
+
+func (x *SecurityMigrationConfig) GetLegacyPlaintextManifest() string {
+	if x != nil {
+		return x.LegacyPlaintextManifest
+	}
+	return ""
+}
+
 var File_system_config_v1_system_config_proto protoreflect.FileDescriptor
 
 const file_system_config_v1_system_config_proto_rawDesc = "" +
@@ -77,7 +435,32 @@ const file_system_config_v1_system_config_proto_rawDesc = "" +
 	"$system/config/v1/system_config.proto\x12\x10system.config.v1\x1a\x1bbuf/validate/validate.proto\x1a$gnostic/openapi/v3/annotations.proto\"\xda\x01\n" +
 	"\x15BaseLogFallbackConfig\x12\xc0\x01\n" +
 	"\tfile_path\x18\x01 \x01(\tB\xa2\x01\xbaG!\x92\x02\x1e日志入库回退目录路径\xbaH{\xba\x01x\n" +
-	"9system.admin.runtime.base_log_fallback.file_path.required\x12*日志入库回退目录路径不能为空\x1a\x0fthis.size() > 0R\bfilePathB\xda\x01\n" +
+	"9system.admin.runtime.base_log_fallback.file_path.required\x12*日志入库回退目录路径不能为空\x1a\x0fthis.size() > 0R\bfilePath\"\xb5\x01\n" +
+	"\x13SecurityProxyConfig\x12N\n" +
+	"\vtrust_proxy\x18\x01 \x01(\bB-\xbaG*\x92\x02'是否信任反向代理上报的 HTTPSR\n" +
+	"trustProxy\x12N\n" +
+	"\x13trusted_proxy_cidrs\x18\x02 \x03(\tB\x1e\xbaG\x1b\x92\x02\x18受信反向代理网段R\x11trustedProxyCidrs\"\xe2\x02\n" +
+	"\x14SecurityScriptConfig\x12@\n" +
+	"\x0fread_only_paths\x18\x01 \x03(\tB\x18\xbaG\x15\x92\x02\x12脚本只读路径R\rreadOnlyPaths\x12?\n" +
+	"\x0ewritable_paths\x18\x02 \x03(\tB\x18\xbaG\x15\x92\x02\x12脚本可写路径R\rwritablePaths\x127\n" +
+	"\bcommands\x18\x03 \x03(\tB\x1b\xbaG\x18\x92\x02\x15脚本可执行命令R\bcommands\x12F\n" +
+	"\rallowed_hosts\x18\x04 \x03(\tB!\xbaG\x1e\x92\x02\x1b脚本出站主机白名单R\fallowedHosts\x12F\n" +
+	"\rallowed_cidrs\x18\x05 \x03(\tB!\xbaG\x1e\x92\x02\x1b脚本出站网段白名单R\fallowedCidrs\"\xbc\x02\n" +
+	"\x16SecurityOutboundConfig\x12F\n" +
+	"\rallowed_hosts\x18\x01 \x03(\tB!\xbaG\x1e\x92\x02\x1b公共出站主机白名单R\fallowedHosts\x12F\n" +
+	"\rallowed_cidrs\x18\x02 \x03(\tB!\xbaG\x1e\x92\x02\x1b公共出站网段白名单R\fallowedCidrs\x12H\n" +
+	"\x10ai_allowed_hosts\x18\x03 \x03(\tB\x1e\xbaG\x1b\x92\x02\x18AI 出站主机白名单R\x0eaiAllowedHosts\x12H\n" +
+	"\x10ai_allowed_cidrs\x18\x04 \x03(\tB\x1e\xbaG\x1b\x92\x02\x18AI 出站网段白名单R\x0eaiAllowedCidrs\"\xa7\x01\n" +
+	"\x10SecurityKeyValue\x12r\n" +
+	"\x03key\x18\x01 \x01(\tB`\xbaG\x06\x92\x02\x03键\xbaHT\xba\x01Q\n" +
+	"-system.config.security.key_value.key.required\x12\x0f键不能为空\x1a\x0fthis.size() > 0R\x03key\x12\x1f\n" +
+	"\x05value\x18\x02 \x01(\tB\t\xbaG\x06\x92\x02\x03值R\x05value\"\xd1\x01\n" +
+	"\x16SecurityIdentityConfig\x12J\n" +
+	"\x12reserved_usernames\x18\x01 \x03(\tB\x1b\xbaG\x18\x92\x02\x15系统保留用户名R\x11reservedUsernames\x12k\n" +
+	"\x0faccount_renames\x18\x02 \x03(\v2\".system.config.v1.SecurityKeyValueB\x1e\xbaG\x1b\x92\x02\x18存量账号更名清单R\x0eaccountRenames\"\xd2\x01\n" +
+	"\x17SecurityMigrationConfig\x12\\\n" +
+	"\x17backfill_sensitive_data\x18\x01 \x01(\bB$\xbaG!\x92\x02\x1e是否执行敏感数据回填R\x15backfillSensitiveData\x12Y\n" +
+	"\x19legacy_plaintext_manifest\x18\x02 \x01(\tB\x1d\xbaG\x1a\x92\x02\x17历史明文清单 JSONR\x17legacyPlaintextManifestB\xda\x01\n" +
 	"\x14com.system.config.v1B\x11SystemConfigProtoP\x01ZMgithub.com/liujitcn/kratos-admin/backend/api/gen/go/system/config/v1;configv1\xa2\x02\x03SCX\xaa\x02\x10System.Config.V1\xca\x02\x10System\\Config\\V1\xe2\x02\x1cSystem\\Config\\V1\\GPBMetadata\xea\x02\x12System::Config::V1b\x06proto3"
 
 var (
@@ -92,16 +475,23 @@ func file_system_config_v1_system_config_proto_rawDescGZIP() []byte {
 	return file_system_config_v1_system_config_proto_rawDescData
 }
 
-var file_system_config_v1_system_config_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
+var file_system_config_v1_system_config_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
 var file_system_config_v1_system_config_proto_goTypes = []any{
-	(*BaseLogFallbackConfig)(nil), // 0: system.config.v1.BaseLogFallbackConfig
+	(*BaseLogFallbackConfig)(nil),   // 0: system.config.v1.BaseLogFallbackConfig
+	(*SecurityProxyConfig)(nil),     // 1: system.config.v1.SecurityProxyConfig
+	(*SecurityScriptConfig)(nil),    // 2: system.config.v1.SecurityScriptConfig
+	(*SecurityOutboundConfig)(nil),  // 3: system.config.v1.SecurityOutboundConfig
+	(*SecurityKeyValue)(nil),        // 4: system.config.v1.SecurityKeyValue
+	(*SecurityIdentityConfig)(nil),  // 5: system.config.v1.SecurityIdentityConfig
+	(*SecurityMigrationConfig)(nil), // 6: system.config.v1.SecurityMigrationConfig
 }
 var file_system_config_v1_system_config_proto_depIdxs = []int32{
-	0, // [0:0] is the sub-list for method output_type
-	0, // [0:0] is the sub-list for method input_type
-	0, // [0:0] is the sub-list for extension type_name
-	0, // [0:0] is the sub-list for extension extendee
-	0, // [0:0] is the sub-list for field type_name
+	4, // 0: system.config.v1.SecurityIdentityConfig.account_renames:type_name -> system.config.v1.SecurityKeyValue
+	1, // [1:1] is the sub-list for method output_type
+	1, // [1:1] is the sub-list for method input_type
+	1, // [1:1] is the sub-list for extension type_name
+	1, // [1:1] is the sub-list for extension extendee
+	0, // [0:1] is the sub-list for field type_name
 }
 
 func init() { file_system_config_v1_system_config_proto_init() }
@@ -115,7 +505,7 @@ func file_system_config_v1_system_config_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_system_config_v1_system_config_proto_rawDesc), len(file_system_config_v1_system_config_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   1,
+			NumMessages:   7,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

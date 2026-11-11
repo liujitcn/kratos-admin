@@ -2879,6 +2879,36 @@
   "legacy.error.70cd0f3093a0e441": {
     "other": "校驗會話狀態失敗"
   },
+  "legacy.error.28febc070b420067": {
+    "other": "多文字配置的鍵不能為空"
+  },
+  "legacy.error.47cdc5f24bd1a158": {
+    "other": "配置值格式無效"
+  },
+  "legacy.error.c5b8236066d773cb": {
+    "other": "生成帳號安全配置失敗"
+  },
+  "legacy.error.ebc50e1f7a35066f": {
+    "other": "清理存量帳號更名配置失敗"
+  },
+  "legacy.error.79e1ef64ed687e81": {
+    "other": "讀取系統保留使用者名稱配置失敗"
+  },
+  "legacy.error.5e35c4b3830081f3": {
+    "other": "解析系統保留使用者名稱配置失敗"
+  },
+  "legacy.error.d11630b62e6fedb8": {
+    "other": "系統保留使用者名稱配置不存在或未啟用"
+  },
+  "legacy.error.91b8df65f0a75e4a": {
+    "other": "腳本試執行必須引用已儲存腳本"
+  },
+  "legacy.error.71167d40ba8f999c": {
+    "other": "腳本試執行不能提交內聯原始碼"
+  },
+  "system.config.security.key_value.key.required": {
+    "other": "安全配置鍵不能為空"
+  },
   "legacy.error.70e0900c1017d449": {
     "other": "AI 助手沒有已啟用的模型"
   },

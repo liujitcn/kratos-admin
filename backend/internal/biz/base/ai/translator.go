@@ -3,6 +3,7 @@ package ai
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"strings"
 	"time"
 
@@ -11,6 +12,7 @@ import (
 	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
+	"github.com/liujitcn/kratos-admin/backend/pkg/securityconfig"
 	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
 	"github.com/liujitcn/kratos-core/errorsx"
 	"github.com/liujitcn/kratos-kit/ai/model"
@@ -65,10 +67,15 @@ func (t *ModelTranslator) Translate(ctx context.Context, source, sourceLang, tar
 	if err != nil {
 		return "", fmt.Errorf("解析翻译模型配置失败: %w", err)
 	}
+	var httpClient *http.Client
+	httpClient, err = securityconfig.Current().AIHTTPClient(time.Duration(config.TimeoutSeconds) * time.Second)
+	if err != nil {
+		return "", fmt.Errorf("创建翻译模型 HTTP 客户端失败: %w", err)
+	}
 	client, err := model.NewClient(&model.ModelConfig{
 		Provider: model.Provider(provider.Provider), ModelName: aiModel.ModelName, APIKey: provider.APIKey,
 		BaseURL: provider.BaseURL, TimeoutSeconds: config.TimeoutSeconds, MaxRetries: config.MaxRetries,
-	})
+	}, model.WithHTTPClient(httpClient))
 	if err != nil {
 		return "", fmt.Errorf("创建翻译模型客户端失败: %w", err)
 	}

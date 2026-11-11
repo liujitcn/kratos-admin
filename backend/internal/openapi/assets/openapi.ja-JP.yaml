@@ -962,6 +962,10 @@ paths:
                         - BASE_CONFIG_TYPE_DICT
                         - BASE_CONFIG_TYPE_BOOLEAN
                         - BASE_CONFIG_TYPE_FORM
+                        - BASE_CONFIG_TYPE_JSON
+                        - BASE_CONFIG_TYPE_DYNAMIC_LIST
+                        - BASE_CONFIG_TYPE_MULTI_TEXT
+                        - BASE_CONFIG_TYPE_FILE
                     type: string
                     format: enum
                 - name: key
@@ -10783,7 +10787,7 @@ components:
             properties:
                 name:
                     type: string
-                    description: 名前
+                    description: 名称
                 prompt:
                     type: string
                     description: 明確なタスクの指示
@@ -11048,7 +11052,7 @@ components:
                     description: 固定コード
                 name:
                     type: string
-                    description: 名前
+                    description: 名称
                 description:
                     type: string
                     description: 説明
@@ -11057,7 +11061,7 @@ components:
                     description: ソース：API、LOCAL、MCP
                 visibility:
                     type: string
-                    description: "スコープ: システム、テナント、プライベート"
+                    description: 范围：system、tenant、private
                 tenant_id:
                     type: string
                     description: 所属テナントID
@@ -11136,7 +11140,7 @@ components:
                     description: 固定コード
                 name:
                     type: string
-                    description: 名前
+                    description: 名称
                 description:
                     type: string
                     description: 説明
@@ -11192,7 +11196,7 @@ components:
             properties:
                 id:
                     type: string
-                    description: ツールID
+                    description: 工具ID
                 plugin_id:
                     type: string
                     description: プラグインID
@@ -11586,7 +11590,7 @@ components:
             properties:
                 id:
                     type: string
-                    description: 番号
+                    description: 编号
             description: 結果から会話を続けるリクエスト。
         base.v1.CreateAiAutomationRequest:
             type: object
@@ -12781,7 +12785,7 @@ components:
                     description: プラグインID
                 tool_id:
                     type: string
-                    description: ツールID
+                    description: 工具ID
                 contract_hash:
                     type: string
                     description: 審査対象の仕様ハッシュ
@@ -12834,7 +12838,7 @@ components:
             properties:
                 id:
                     type: string
-                    description: 番号
+                    description: 编号
             description: 停止今回のリクエスト。
         base.v1.TrashAiFileRequest:
             type: object
@@ -13183,7 +13187,7 @@ components:
                     description: フィールドコード
                 operator:
                     type: string
-                    description: "演算子: eq、in、 between、contains"
+                    description: 操作符：eq、in、between、contains
                 values:
                     type: array
                     items:
@@ -14082,7 +14086,7 @@ components:
                     description: 失敗原因
                 extractor_connection_id:
                     type: string
-                    description: Xberg MCP が接続 ID を抽出します
+                    description: Xberg MCP抽取连接ID
                 created_at:
                     type: string
                     description: 作成時刻
@@ -14934,6 +14938,10 @@ components:
                         - BASE_CONFIG_TYPE_DICT
                         - BASE_CONFIG_TYPE_BOOLEAN
                         - BASE_CONFIG_TYPE_FORM
+                        - BASE_CONFIG_TYPE_JSON
+                        - BASE_CONFIG_TYPE_DYNAMIC_LIST
+                        - BASE_CONFIG_TYPE_MULTI_TEXT
+                        - BASE_CONFIG_TYPE_FILE
                     type: string
                     description: 設定種類：enum【BaseConfigType】
                     format: enum
@@ -14990,8 +14998,12 @@ components:
                         - BASE_CONFIG_TYPE_DICT
                         - BASE_CONFIG_TYPE_BOOLEAN
                         - BASE_CONFIG_TYPE_FORM
+                        - BASE_CONFIG_TYPE_JSON
+                        - BASE_CONFIG_TYPE_DYNAMIC_LIST
+                        - BASE_CONFIG_TYPE_MULTI_TEXT
+                        - BASE_CONFIG_TYPE_FILE
                     type: string
-                    description: 設定種類：1、テキスト，2、画像，3、リッチテキスト，4、辞書，5、ブール，6、フォーム
+                    description: 設定種類
                     format: enum
                 key:
                     type: string

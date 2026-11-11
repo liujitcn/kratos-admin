@@ -126,7 +126,7 @@ require (
 	github.com/liujitcn/go-utils v0.0.44 // indirect
 	github.com/liujitcn/go-utils/translator v0.0.7 // indirect
 	github.com/liujitcn/kratos-core/api v0.0.7 // indirect
-	github.com/liujitcn/kratos-kit v0.0.99 // indirect
+	github.com/liujitcn/kratos-kit v0.1.0 // indirect
 	github.com/liujitcn/kratos-kit/auth v0.0.36 // indirect
 	github.com/liujitcn/kratos-kit/auth/authn v0.0.28 // indirect
 	github.com/liujitcn/kratos-kit/auth/authn/engine/jwt v0.0.24 // indirect
@@ -147,12 +147,12 @@ require (
 	github.com/liujitcn/kratos-kit/queue/redisqueue v0.0.20 // indirect
 	github.com/liujitcn/kratos-kit/ratelimit v0.0.3 // indirect
 	github.com/liujitcn/kratos-kit/ratelimit/tokenbucket v0.0.4 // indirect
-	github.com/liujitcn/kratos-kit/redact v0.0.19 // indirect
+	github.com/liujitcn/kratos-kit/redact v0.0.20 // indirect
 	github.com/liujitcn/kratos-kit/retry v0.0.4 // indirect
 	github.com/liujitcn/kratos-kit/tracing v0.0.16 // indirect
-	github.com/liujitcn/kratos-kit/transport v0.0.30 // indirect
+	github.com/liujitcn/kratos-kit/transport v0.0.31 // indirect
 	github.com/liujitcn/kratos-kit/transport/hptimer v0.0.11 // indirect
-	github.com/liujitcn/kratos-kit/transport/keepalive v0.0.18 // indirect
+	github.com/liujitcn/kratos-kit/transport/keepalive v0.0.19 // indirect
 	github.com/liujitcn/kratos-kit/utils v0.0.29 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
 	github.com/mark3labs/mcp-go v1.5.0 // indirect

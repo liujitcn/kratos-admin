@@ -85,6 +85,19 @@ func BuildModules(dispatcher *aiautomation.Dispatcher, migrations *migration.Mig
 	if err != nil {
 		return nil, nil, err
 	}
+	baseConfigRepository := data2.NewBaseConfigRepository(dataData)
+	baseI18NRepository := data2.NewBaseI18NRepository(dataData)
+	baseLanguageRepository := data2.NewBaseLanguageRepository(dataData)
+	baseLanguageCase := biz3.NewBaseLanguageCase(baseCase, transaction, baseLanguageRepository)
+	aiProviderRepository := data2.NewAiProviderRepository(dataData)
+	aiModelRepository := data2.NewAiModelRepository(dataData)
+	modelTranslator := ai.NewModelTranslator(aiProviderRepository, aiModelRepository)
+	baseI18nCase := biz3.NewBaseI18nCase(baseCase, baseI18NRepository, baseLanguageCase, modelTranslator)
+	secretFieldRuntime, err := data3.NewSecretFieldStorage(databases)
+	if err != nil {
+		return nil, nil, err
+	}
+	baseConfigCase := biz3.NewBaseConfigCase(baseCase, transaction, baseConfigRepository, baseI18nCase, secretFieldRuntime)
 	baseDeptRepository := data2.NewBaseDeptRepository(dataData)
 	basePostRepository := data2.NewBasePostRepository(dataData)
 	baseRoleRepository := data2.NewBaseRoleRepository(dataData)
@@ -98,16 +111,9 @@ func BuildModules(dispatcher *aiautomation.Dispatcher, migrations *migration.Mig
 	}
 	baseRoleCase := biz3.NewBaseRoleCase(baseCase, transaction, baseRoleRepository, baseTenantRepository, casbinRuleCase)
 	baseDeptCase := biz3.NewBaseDeptCase(baseCase, transaction, baseDeptRepository)
-	baseI18NRepository := data2.NewBaseI18NRepository(dataData)
-	baseLanguageRepository := data2.NewBaseLanguageRepository(dataData)
-	baseLanguageCase := biz3.NewBaseLanguageCase(baseCase, transaction, baseLanguageRepository)
-	aiProviderRepository := data2.NewAiProviderRepository(dataData)
-	aiModelRepository := data2.NewAiModelRepository(dataData)
-	modelTranslator := ai.NewModelTranslator(aiProviderRepository, aiModelRepository)
-	baseI18nCase := biz3.NewBaseI18nCase(baseCase, baseI18NRepository, baseLanguageCase, modelTranslator)
 	baseMenuCase := biz3.NewBaseMenuCase(baseCase, transaction, baseMenuRepository, baseRoleRepository, casbinRuleCase, baseI18nCase)
 	bizBaseRoleCase := biz2.NewBaseRoleCase(baseCase, baseRoleRepository)
-	baseUserCase := biz3.NewBaseUserCase(baseCase, transaction, baseUserRepository, baseDeptRepository, basePostRepository, baseRoleCase, baseDeptCase, baseMenuCase, bizBaseRoleCase, userToken)
+	baseUserCase := biz3.NewBaseUserCase(baseCase, transaction, baseUserRepository, baseConfigCase, baseDeptRepository, basePostRepository, baseRoleCase, baseDeptCase, baseMenuCase, bizBaseRoleCase, userToken)
 	baseMessageRepository := data2.NewBaseMessageRepository(dataData)
 	baseMessageDispatchRepository := data2.NewBaseMessageDispatchRepository(dataData)
 	baseMessageDeliveryRepository := data2.NewBaseMessageDeliveryRepository(dataData)
@@ -136,13 +142,6 @@ func BuildModules(dispatcher *aiautomation.Dispatcher, migrations *migration.Mig
 	baseAreaRepository := data2.NewBaseAreaRepository(dataData)
 	baseAreaCase := biz3.NewBaseAreaCase(baseCase, baseAreaRepository)
 	baseAreaService := admin.NewBaseAreaService(baseAreaCase)
-	baseConfigRepository := data2.NewBaseConfigRepository(dataData)
-	secretFieldRuntime, err := data3.NewSecretFieldStorage(databases)
-	if err != nil {
-		cleanup()
-		return nil, nil, err
-	}
-	baseConfigCase := biz3.NewBaseConfigCase(baseCase, transaction, baseConfigRepository, baseI18nCase, secretFieldRuntime)
 	baseConfigService := admin.NewBaseConfigService(baseConfigCase)
 	baseDeptService := admin.NewBaseDeptService(baseDeptCase)
 	baseDictRepository := data2.NewBaseDictRepository(dataData)

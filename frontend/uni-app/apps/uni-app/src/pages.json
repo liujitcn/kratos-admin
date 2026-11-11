@@ -102,13 +102,6 @@
             "navigationStyle": "custom",
             "navigationBarTitleText": ""
           }
-        },
-        {
-          "path": "password/password",
-          "style": {
-            "navigationStyle": "custom",
-            "navigationBarTitleText": ""
-          }
         }
       ]
     }
