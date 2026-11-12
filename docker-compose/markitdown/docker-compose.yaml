@@ -1,0 +1,28 @@
+services:
+  markitdown-mcp:
+    build:
+      context: https://github.com/microsoft/markitdown.git#ed178952a6672abdfd35b5f9e76a80b6cefc086e:packages/markitdown-mcp
+      dockerfile: Dockerfile
+    image: markitdown-mcp:microsoft-ed17895
+    container_name: markitdown-mcp
+    command:
+      - --http
+      - --host
+      - 0.0.0.0
+      - --port
+      - "8000"
+    ports:
+      - "192.168.60.52:8003:8000"
+    volumes:
+      - ./data:/workdir
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - import markitdown, markitdown_mcp
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped

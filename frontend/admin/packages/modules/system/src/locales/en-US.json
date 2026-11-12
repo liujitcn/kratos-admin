@@ -39,7 +39,7 @@
   "system.ai.chat.field.total_duration": "Total duration",
   "system.ai.chat.field.total_tokens": "Total",
   "system.ai.chat.message.action_canceled": "Action canceled",
-  "system.ai.chat.message.attachment_hint": "Add image or text attachments for analysis with this question.",
+  "system.ai.chat.message.attachment_hint": "Supports TXT, MD, MARKDOWN, LOG, JSON, XML, CSV, PDF (when the selected model supports file input), and PNG/JPG/JPEG/GIF/WEBP images; each file must be no larger than 20MB.",
   "system.ai.chat.message.attachment_limit": "You can upload up to {count} attachments",
   "system.ai.chat.message.attachment_remaining": "Only {count} more attachments can be selected; the list was truncated",
   "system.ai.chat.message.attachment_too_large": "Attachment '{name}' exceeds {size}MB and was skipped",

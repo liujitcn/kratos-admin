@@ -1,7 +1,8 @@
-# 本地服务聚合：同时启动 Gotenberg MCP 和 Xberg MCP。
+# 本地服务聚合：同时启动 MarkItDown、Gotenberg 和 Xberg MCP。
 # 各子目录也可单独启停。
 name: kratos-admin-local
 
 include:
+  - ./markitdown/docker-compose.yaml
   - ./gotenberg/docker-compose.yaml
   - ./xberg/docker-compose.yaml

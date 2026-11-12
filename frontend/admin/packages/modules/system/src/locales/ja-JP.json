@@ -39,7 +39,7 @@
   "system.ai.chat.field.total_duration": "合計所要時間",
   "system.ai.chat.field.total_tokens": "合計",
   "system.ai.chat.message.action_canceled": "操作がキャンセルされました",
-  "system.ai.chat.message.attachment_hint": "画像またはテキストの添付ファイルを追加でき、送信後の問題分析に使用されます。",
+  "system.ai.chat.message.attachment_hint": "TXT、MD、MARKDOWN、LOG、JSON、XML、CSV、PDF（選択したモデルがファイル入力に対応している場合）、および PNG/JPG/JPEG/GIF/WEBP 画像に対応しています。1ファイル20MB以内です。",
   "system.ai.chat.message.attachment_limit": "最大 {count} 個の添付ファイルをアップロードします",
   "system.ai.chat.message.attachment_remaining": "自動的に傍受された最大 {count} 個の添付ファイルを選択できます",
   "system.ai.chat.message.attachment_too_large": "添付ファイル「{name}」は {size}MB を超えているため、スキップされました",

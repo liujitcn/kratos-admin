@@ -674,14 +674,16 @@ INSERT IGNORE INTO `base_redact_rule` (`id`, `code`, `name`, `rule_type`, `defau
 -- base_login_policy：初始化全局登录策略。
 INSERT IGNORE INTO `base_login_policy` (`id`, `scope_type`, `tenant_id`, `user_id`, `max_failed_attempts`, `lock_duration_minutes`, `allow_concurrent_login`, `password_min_length`, `password_history_count`, `password_min_complexity_classes`, `password_max_age_days`, `mfa_remember_days`, `initial_password_hash`, `status`, `created_by`, `updated_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (1, 1, 0, 0, 5, 15, 1, 8, 3, 3, 90, 7, '', 1, 1, 1, '2026-09-09 19:08:53', '2026-09-09 19:08:53', 0);
 
--- ai_plugin：内置工具与平台批准的 MCP 工具固定关联 ID 1-3。
+-- ai_plugin：内置工具与平台批准的 MCP 工具固定关联 ID 1-4。
 INSERT IGNORE INTO `ai_plugin` (`id`,`code`,`name`,`description`,`source`,`visibility`,`tenant_id`,`owner_user_id`,`enabled`,`endpoint`,`config_json`,`revision`) VALUES (1,'builtin','内置业务工具','遵循现有API权限的业务工具','API','system',0,0,1,'','{}',1);
 INSERT IGNORE INTO `ai_plugin` (`id`,`code`,`name`,`description`,`source`,`visibility`,`tenant_id`,`owner_user_id`,`enabled`,`endpoint`,`config_json`,`revision`) VALUES (2,'xberg','Xberg MCP','Xberg 文档解析与处理工具','MCP','system',0,0,1,'http://192.168.60.52:8001/mcp','{"allowed_hosts":["192.168.60.52"],"allow_private":true}',1);
 INSERT IGNORE INTO `ai_plugin` (`id`,`code`,`name`,`description`,`source`,`visibility`,`tenant_id`,`owner_user_id`,`enabled`,`endpoint`,`config_json`,`revision`) VALUES (3,'gotenberg','Gotenberg MCP','Gotenberg 文档转换工具','MCP','system',0,0,1,'http://192.168.60.52:8002/mcp','{"allowed_hosts":["192.168.60.52"],"allow_private":true}',1);
+INSERT IGNORE INTO `ai_plugin` (`id`,`code`,`name`,`description`,`source`,`visibility`,`tenant_id`,`owner_user_id`,`enabled`,`endpoint`,`config_json`,`revision`) VALUES (4,'markitdown','MarkItDown MCP','MarkItDown 文档转 Markdown 工具','MCP','system',0,0,1,'http://192.168.60.52:8003/mcp','{"allowed_hosts":["192.168.60.52"],"allow_private":true}',1);
 
--- ai_plugin_installation：补齐默认租户的三项系统插件安装。
+-- ai_plugin_installation：补齐默认租户的四项系统插件安装。
 INSERT IGNORE INTO `ai_plugin_installation` (`tenant_id`, `plugin_id`, `enabled`, `terminals`, `revision`) VALUES (1, 1, 1, 'admin,app', 1);
 INSERT IGNORE INTO `ai_plugin_installation` (`tenant_id`, `plugin_id`, `enabled`, `terminals`, `revision`) VALUES (1, 2, 1, 'admin,app', 1);
 INSERT IGNORE INTO `ai_plugin_installation` (`tenant_id`, `plugin_id`, `enabled`, `terminals`, `revision`) VALUES (1, 3, 1, 'admin,app', 1);
+INSERT IGNORE INTO `ai_plugin_installation` (`tenant_id`, `plugin_id`, `enabled`, `terminals`, `revision`) VALUES (1, 4, 1, 'admin,app', 1);
 
 SET FOREIGN_KEY_CHECKS = @old_foreign_key_checks;

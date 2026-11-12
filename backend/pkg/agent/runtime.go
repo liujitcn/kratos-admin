@@ -552,7 +552,7 @@ func (r *Runtime) buildUserMessage(ctx context.Context, input RuntimeInput, clie
 			images = append(images, einoMessage.ImageData{Bytes: item.Bytes, MIMEType: cleanMIMEType})
 			continue
 		}
-		if client.APIType() == modelconfig.APITypeResponses && cleanMIMEType == "application/pdf" && (item.FileID != "" || len(item.Bytes) > 0) {
+		if client.APIType() == modelconfig.APITypeResponses && cleanMIMEType == "application/pdf" && item.FileID != "" {
 			attachmentLines = append(attachmentLines, r.localizePrompt(ctx, "base.ai.prompt.file_attachment", map[string]any{"Name": name}, "File attachment {{.Name}} is provided as file input."))
 			files = append(files, einoMessage.FileData{FileID: item.FileID, Bytes: item.Bytes, MIMEType: cleanMIMEType, Name: name})
 			continue

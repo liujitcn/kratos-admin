@@ -4,7 +4,7 @@ oss:
   minio:
     endpoint: 192.168.60.52:9000
     access_key: minioadmin
-    secret_key: ENC(11223388)
+    secret_key: ENC[vm0Lo-udHMpVFBTZxJEkgDVnmhQzQw2ciIkGIkpD8Wyjq7Ri]
     token: ''
     bucket_name: kratos-admin
     use_ssl: false
@@ -12,7 +12,7 @@ oss:
     endpoint: http://192.168.60.52:9000
     region: us-east-1
     access_key: minioadmin
-    secret_key: ENC(11223388)
+    secret_key: ENC[zK-ye5qZAVl6ssOPWMe_4vuku8nK_MgEjfZ0z1mpFFCx71G6]
     token: ''
     bucket_name: kratos-admin
     use_ssl: false

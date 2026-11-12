@@ -86,6 +86,23 @@ test("AI聊天模型选择器位于输入框操作区，空态和会话态共用
   assert.match(sender, /"model-change": \[providerId: number, modelName: string\]/);
 });
 
+test("AI附件选择器允许后端支持的PDF文件", async () => {
+  const [sender, zhCN] = await Promise.all([
+    readSource("src/views/ai/chat/components/XSender.vue"),
+    readSource("src/locales/zh-CN.json")
+  ]);
+
+  assert.match(sender, /"\.pdf"/);
+  assert.match(zhCN, /system\.ai\.chat\.message\.attachment_hint[^\n]*PDF/);
+});
+
+test("AI附件上传失败时保留后端错误提示", async () => {
+  const sender = await readSource("src/views/ai/chat/components/XSender.vue");
+
+  assert.match(sender, /catch \(error\)/);
+  assert.match(sender, /resolveRequestErrorMessage\(error/);
+});
+
 test("scheduled job failure markers resolve through every registered system locale", async () => {
   const [logPage, persistedMessages] = await Promise.all([
     readSource("src/views/base/job/log.vue"),

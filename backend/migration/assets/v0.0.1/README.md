@@ -75,6 +75,6 @@
 
 AI 对话沿用管理菜单 `90990000` 与移动菜单 `99101000`，不增加独立插件或自动化菜单。管理端授予插件与自动化管理权限；移动端仅授予目录、账号和工具查询、本人计划与记录查询、运行一次、停止本次、结果继续讨论、插件选用和本人审批。报告由显式装配的插件工具生成，文件下载复用 `FileService/DownloadFile`；旧报告 HTTP 接口与对应权限已移除。
 
-插件五表 `ai_plugin`、`ai_plugin_installation`、`ai_plugin_tool`、`ai_plugin_tool_policy`、`ai_plugin_connection`、自动化两表 `ai_automation`、`ai_automation_run` 和 AI 文件表 `ai_file` 均已注册到默认数据源 Models，由模型自动创建。`default_data.up.sql` 插入内置、Xberg、Gotenberg 插件及已有租户的缺失安装。内置插件固定 ID `1`，Xberg 和 Gotenberg 分别固定 ID `2`、`3`；种子同时向前推进 PostgreSQL 自增序列，防止后续插件创建冲突；重复执行允许产生序列空洞。安装按稳定编码 `builtin`、`xberg`、`gotenberg` 关联；已有安装的停用状态和终端策略不会被覆盖。两个 MCP 端点使用 `192.168.60.52` 私网白名单和 `allow_private` 配置，Gotenberg Bearer Token 不写入初始化脚本，需在连接页面录入；关闭迁移时须事先补齐三项插件种子，运行期同步不再创建固定编号记录。
+插件五表 `ai_plugin`、`ai_plugin_installation`、`ai_plugin_tool`、`ai_plugin_tool_policy`、`ai_plugin_connection`、自动化两表 `ai_automation`、`ai_automation_run` 和 AI 文件表 `ai_file` 均已注册到默认数据源 Models，由模型自动创建。`default_data.up.sql` 插入内置、Xberg、Gotenberg、MarkItDown 插件及已有租户的缺失安装。内置插件固定 ID `1`，Xberg、Gotenberg、MarkItDown 分别固定 ID `2`、`3`、`4`；种子同时向前推进 PostgreSQL 自增序列，防止后续插件创建冲突；重复执行允许产生序列空洞。安装按稳定编码 `builtin`、`xberg`、`gotenberg`、`markitdown` 关联；已有安装的停用状态和终端策略不会被覆盖。三个 MCP 端点使用 `192.168.60.52` 私网白名单和 `allow_private` 配置，Gotenberg Bearer Token 不写入初始化脚本，需在连接页面录入；关闭迁移时须事先补齐四项插件种子，运行期同步不再创建固定编号记录。
 
 唯一 AI 自动化扫描任务为 `1008`、`base.AiAutomationDispatch`、秒级 cron `0 * * * * *`，三个任务名称译文在 MySQL/PostgreSQL 同步维护；不为每条用户计划登记系统任务。消息分类 `6`、code `ai_automation` 仅启用 inbox，`provider_id=[]`；结果提醒跳转既有 `AI` 页面并由服务端校验本人权限。新库初始化或开发库重建后生效，已执行过本版本的数据库不会自动重放。

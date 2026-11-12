@@ -18,7 +18,7 @@
       v-model="textDialog.visible"
       ref="textDialogRef"
       :title="t('rag.knowledge.doc.action.upload_text')"
-      width="min(720px, calc(100vw - 32px))"
+      width="min(960px, calc(100vw - 32px))"
       label-width="10em"
       :model="textForm"
       :fields="textFields"

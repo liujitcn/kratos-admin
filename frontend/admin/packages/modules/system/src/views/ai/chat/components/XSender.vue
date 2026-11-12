@@ -183,7 +183,7 @@ import {
   Setting
 } from "@element-plus/icons-vue";
 import { ElMessage, ElPopover } from "element-plus";
-import { t, useSpeechRecognition } from "@liujitcn/kratos-admin-core";
+import { resolveRequestErrorMessage, t, useSpeechRecognition } from "@liujitcn/kratos-admin-core";
 import type { SpeechRecognitionError } from "@liujitcn/kratos-admin-core";
 import { navigateTo } from "@liujitcn/kratos-admin-core/navigation";
 import { useAuthStore } from "@liujitcn/kratos-admin-core/stores/runtime";
@@ -251,6 +251,7 @@ const acceptedAttachmentExtensions = [
   ".json",
   ".xml",
   ".csv",
+  ".pdf",
   ".png",
   ".jpg",
   ".jpeg",
@@ -427,8 +428,8 @@ async function uploadAttachments(files: File[]) {
     if (response?.files?.length) {
       ElMessage.success(t("system.ai.chat.message.attachments_uploaded", { count: response.files.length }));
     }
-  } catch {
-    ElMessage.error(t("system.ai.chat.message.attachment_upload_failed"));
+  } catch (error) {
+    ElMessage.error(resolveRequestErrorMessage(error, t("system.ai.chat.message.attachment_upload_failed")));
   } finally {
     uploading.value = false;
     resetFileInput();

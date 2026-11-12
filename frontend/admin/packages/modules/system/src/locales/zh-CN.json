@@ -39,7 +39,7 @@
   "system.ai.chat.field.total_duration": "总耗时",
   "system.ai.chat.field.total_tokens": "总计",
   "system.ai.chat.message.action_canceled": "已取消操作",
-  "system.ai.chat.message.attachment_hint": "可补充图片或文本类附件，发送后用于当前问题分析。",
+  "system.ai.chat.message.attachment_hint": "支持 TXT、MD、MARKDOWN、LOG、JSON、XML、CSV、PDF（需模型支持文件输入），以及 PNG/JPG/JPEG/GIF/WEBP 图片；单个文件不超过 20MB。",
   "system.ai.chat.message.attachment_limit": "最多上传 {count} 个附件",
   "system.ai.chat.message.attachment_remaining": "最多还能选择 {count} 个附件，已自动截取",
   "system.ai.chat.message.attachment_too_large": "附件「{name}」超过 {size}MB，已跳过",

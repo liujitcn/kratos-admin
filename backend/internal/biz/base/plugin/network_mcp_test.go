@@ -2,12 +2,13 @@ package plugin
 
 import "testing"
 
-// TestNetworkPolicyAllowsConfiguredPrivateHTTPMCP 验证平台批准的两个私网 MCP HTTP 端点可通过校验。
+// TestNetworkPolicyAllowsConfiguredPrivateHTTPMCP 验证平台批准的三个私网 MCP HTTP 端点可通过校验。
 func TestNetworkPolicyAllowsConfiguredPrivateHTTPMCP(t *testing.T) {
 	policy := NetworkPolicy{AllowedHosts: []string{"192.168.60.52"}, AllowPrivate: true}
 	for _, endpoint := range []string{
 		"http://192.168.60.52:8001/mcp",
 		"http://192.168.60.52:8002/mcp",
+		"http://192.168.60.52:8003/mcp",
 	} {
 		_, err := policy.ValidateURL(endpoint)
 		if err != nil {
