@@ -13,3 +13,4 @@ export { bootstrapAdminApp } from "./bootstrap";
 export { refreshAdminRuntimeConfig } from "./stores/modules/config";
 export { useSpeechRecognition } from "./hooks/useSpeechRecognition";
 export type { SpeechRecognitionError } from "./hooks/useSpeechRecognition";
+export { resolveRequestErrorMessage } from "./utils/request-response";

@@ -8,7 +8,7 @@ import pinia from "@/stores";
 import { useUserStore } from "@/stores/modules/user";
 import { getLocaleRequestHeaders, t } from "@/locales";
 import { formatConflictMessage } from "./conflict-message";
-import { hasStructuredErrorCode, resolveStructuredErrorMessage } from "./request-response";
+import { hasStructuredErrorCode, resolveRequestErrorMessage, resolveStructuredErrorMessage } from "./request-response";
 
 const apiBasePath = import.meta.env.VITE_APP_BASE_API || "";
 const apiTargetUrl = import.meta.env.VITE_API_URL || import.meta.env.VITE_APP_API_URL || "";
@@ -389,7 +389,7 @@ service.interceptors.response.use(
           t
         )
       : undefined;
-    const displayMessage = message || t("common.message.system_error");
+    const displayMessage = resolveRequestErrorMessage(message || t("common.message.system_error"), t("common.message.request_error"));
     error.message = displayMessage;
     const requestConfig = error.config as RetryableRequestConfig | undefined;
 

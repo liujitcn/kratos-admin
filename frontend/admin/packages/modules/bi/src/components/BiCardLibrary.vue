@@ -17,6 +17,7 @@
         <el-button type="primary" :icon="icons.Search" :loading="loading" @click="search">{{
           t("common.action.search")
         }}</el-button>
+        <el-button type="primary" plain :icon="icons.Plus" @click="router.push('/bi/query')">{{ t("bi.card.ask_create") }}</el-button>
         <span>{{ t("bi.card.total", { count: total }) }}</span>
       </div>
     </el-card>
@@ -101,7 +102,7 @@ import { defBiDashboardService } from "../api/bi/admin/v1/bi_dashboard";
 import { parseDashboardLayout, reflowDashboardCards } from "../bi-dashboard-schema";
 import BiDataCard from "./BiDataCard.vue";
 import BiCardFormDialog from "./BiCardFormDialog.vue";
-const icons = { Star, StarFilled, Search };
+const icons = { Star, StarFilled, Search, Plus };
 const router = useRouter(),
   cards = ref<BiCard[]>([]),
   sources = ref<BiSourceDescriptor[]>([]),

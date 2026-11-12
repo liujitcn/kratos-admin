@@ -4,6 +4,7 @@ import { BaseMenuType } from "@/rpc/system/admin/v1/common";
 import { t } from "@/locales";
 
 export { getRouteMenuKey } from "./menuKey";
+export { resolveRequestErrorMessage } from "./request-response";
 
 const mode = import.meta.env.VITE_ROUTER_MODE;
 

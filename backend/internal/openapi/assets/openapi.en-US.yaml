@@ -11091,6 +11091,11 @@ components:
                 config_json:
                     type: string
                     description: Public connection configuration editable by platform administrators; excludes credentials
+                tools:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/base.v1.AiPluginTool'
+                    description: Tool snapshot list
             description: Plugin definition and current tenant installation status.
         base.v1.AiPluginConnection:
             type: object

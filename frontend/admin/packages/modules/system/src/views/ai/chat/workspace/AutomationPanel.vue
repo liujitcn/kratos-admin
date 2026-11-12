@@ -302,6 +302,9 @@ async function openForm(item?: AiAutomation) {
   const latest = item ? await api.GetAiAutomation({ id: item.id }) : undefined;
   editing.value = latest;
   form.value = latest?.configuration ? structuredClone(latest.configuration) : defaultForm();
+  // protojson 会省略空数组，编辑回填兜底，避免 PluginPicker 对 undefined 调 map 崩溃。
+  form.value.plugins ??= [];
+  form.value.knowledge_base_ids ??= [];
   formOpen.value = true;
   await previewSchedule();
 }

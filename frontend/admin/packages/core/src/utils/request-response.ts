@@ -12,3 +12,12 @@ export function resolveStructuredErrorMessage(
   if (value.reason === "RATE_LIMITED") return translate("common.error.rate_limited");
   return "";
 }
+
+/** 过滤 Axios 和浏览器网络层的技术错误，避免原始英文文案直接展示给用户。 */
+export function resolveRequestErrorMessage(value: unknown, fallback: string): string {
+  const message = typeof value === "string" ? value.trim() : "";
+  if (!message) return fallback;
+  if (/^(?:axioserror:\s*)?request failed with status code \d+(?:\s|:|$|[（(])/i.test(message)) return fallback;
+  if (/^network error$/i.test(message) || /^axioserror(?::|$)/i.test(message) || /^err_[a-z_]+$/i.test(message)) return fallback;
+  return message;
+}

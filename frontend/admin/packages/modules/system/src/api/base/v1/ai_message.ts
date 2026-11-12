@@ -1,5 +1,5 @@
 import service, { getRequestAccessToken, handleAuthExpired, requestBaseURL } from "@liujitcn/kratos-admin-core/request";
-import { getLocaleRequestHeaders, t } from "@liujitcn/kratos-admin-core";
+import { getLocaleRequestHeaders, resolveRequestErrorMessage, t } from "@liujitcn/kratos-admin-core";
 import type { ListAiMessageRequest, ListAiMessageResponse } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_session";
 import type {
   AiMessageService,
@@ -28,14 +28,14 @@ async function resolveStreamErrorMessage(response: Response): Promise<string> {
   if (contentType.includes("application/json")) {
     try {
       const payload = await response.json();
-      return String(payload?.message || payload?.error || fallbackMessage);
+      return resolveRequestErrorMessage(payload?.message || payload?.error, fallbackMessage);
     } catch {
       return fallbackMessage;
     }
   }
   try {
     const text = (await response.text()).trim();
-    return text || fallbackMessage;
+    return resolveRequestErrorMessage(text, fallbackMessage);
   } catch {
     return fallbackMessage;
   }

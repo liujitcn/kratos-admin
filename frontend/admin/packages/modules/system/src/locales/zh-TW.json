@@ -2221,6 +2221,7 @@
   "system.ai.workspace.select_plugins": "目前對話的外掛和帳號",
   "system.ai.workspace.selection_hint": "確認只儲存選擇，不會立即呼叫工具。全部取消將停用本對話所有外掛。",
   "system.ai.workspace.result_unavailable": "結果對話不可用或已刪除",
+  "system.ai.workspace.readonly_session": "結果對話唯讀，請先「繼續討論」或新建對話",
   "system.ai.workspace.frozen_result": "這是自動化結果，指令和訊息已凍結。",
   "system.ai.workspace.run_queued": "排隊中",
   "system.ai.workspace.run_running": "執行中",

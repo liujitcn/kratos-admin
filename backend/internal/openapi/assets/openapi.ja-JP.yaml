@@ -10787,7 +10787,7 @@ components:
             properties:
                 name:
                     type: string
-                    description: 名称
+                    description: 名前
                 prompt:
                     type: string
                     description: 明確なタスクの指示
@@ -11052,7 +11052,7 @@ components:
                     description: 固定コード
                 name:
                     type: string
-                    description: 名称
+                    description: 名前
                 description:
                     type: string
                     description: 説明
@@ -11061,7 +11061,7 @@ components:
                     description: ソース：API、LOCAL、MCP
                 visibility:
                     type: string
-                    description: 范围：system、tenant、private
+                    description: "スコープ: システム、テナント、プライベート"
                 tenant_id:
                     type: string
                     description: 所属テナントID
@@ -11091,6 +11091,11 @@ components:
                 config_json:
                     type: string
                     description: プラットフォーム管理者が編集できる公開接続設定。資格情報は含みません
+                tools:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/base.v1.AiPluginTool'
+                    description: ツールのスナップショット一覧
             description: プラグイン定義と現在のテナントのインストール状態。
         base.v1.AiPluginConnection:
             type: object
@@ -11140,7 +11145,7 @@ components:
                     description: 固定コード
                 name:
                     type: string
-                    description: 名称
+                    description: 名前
                 description:
                     type: string
                     description: 説明
@@ -11196,7 +11201,7 @@ components:
             properties:
                 id:
                     type: string
-                    description: 工具ID
+                    description: ツールID
                 plugin_id:
                     type: string
                     description: プラグインID
@@ -11590,7 +11595,7 @@ components:
             properties:
                 id:
                     type: string
-                    description: 编号
+                    description: シリアルナンバー
             description: 結果から会話を続けるリクエスト。
         base.v1.CreateAiAutomationRequest:
             type: object
@@ -12785,7 +12790,7 @@ components:
                     description: プラグインID
                 tool_id:
                     type: string
-                    description: 工具ID
+                    description: ツールID
                 contract_hash:
                     type: string
                     description: 審査対象の仕様ハッシュ
@@ -12838,7 +12843,7 @@ components:
             properties:
                 id:
                     type: string
-                    description: 编号
+                    description: シリアルナンバー
             description: 停止今回のリクエスト。
         base.v1.TrashAiFileRequest:
             type: object
@@ -13187,7 +13192,7 @@ components:
                     description: フィールドコード
                 operator:
                     type: string
-                    description: 操作符：eq、in、between、contains
+                    description: "演算子: eq、in、 between、contains"
                 values:
                     type: array
                     items:

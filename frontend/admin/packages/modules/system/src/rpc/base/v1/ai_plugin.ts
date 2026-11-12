@@ -53,6 +53,8 @@ export interface AiPlugin {
   can_manage: boolean;
   /** 平台管理员可编辑的公开接入配置，不含凭据 */
   config_json: string;
+  /** 详情中的工具快照 */
+  tools: AiPluginTool[];
 }
 
 /** 插件定义表单；端点策略仅平台管理员可维护。 */

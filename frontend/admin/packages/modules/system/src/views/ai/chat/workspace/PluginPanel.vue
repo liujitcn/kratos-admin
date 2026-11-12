@@ -44,10 +44,10 @@
             >
             <el-button
               v-else-if="!mobile"
-              :disabled="!plugin.enabled || !plugin.installation?.enabled"
+              :disabled="!plugin.enabled || !plugin.installation?.enabled || connectedPluginIDs.has(plugin.id)"
               type="primary"
               @click="openConnection(plugin)"
-              >{{ t("system.ai.workspace.connect") }}</el-button
+              >{{ connectedPluginIDs.has(plugin.id) ? t("system.ai.workspace.connection_connected") : t("system.ai.workspace.connect") }}</el-button
             >
             <el-button v-if="!mobile && canManageTools" @click="openInstallation(plugin)">{{
               t("system.ai.workspace.installation")
@@ -75,10 +75,16 @@
       <ProTable row-key="id" :columns="toolColumns" :data="visibleTools" :pagination="false" :tool-button="false" />
     </div>
     <ProDialog v-model="detailOpen" :title="detail?.name" :show-footer="false" width="min(700px, 96vw)">
+      <div v-if="detail" class="plugin-detail-meta">
+        <span>{{ t("system.ai.workspace.code") }}：{{ detail.code }}</span>
+        <span>{{ t("system.ai.workspace.endpoint") }}：{{ detail.endpoint || "-" }}</span>
+        <span>{{ t("system.ai.workspace.tools") }}：{{ detail.tools?.length ?? 0 }}</span>
+      </div>
       <p>{{ detail?.description }}</p>
       <el-alert v-if="detail?.unavailable_reason" :title="detail.unavailable_reason" type="warning" :closable="false" />
       <div v-loading="toolsLoading">
-        <article v-for="item in tools" :key="item.id" class="tool-detail">
+        <el-empty v-if="!toolsLoading && !detail?.tools?.length" :description="t('system.ai.workspace.no_matches')" />
+        <article v-for="item in detail?.tools ?? []" :key="item.id" class="tool-detail">
           <strong>{{ item.source_name }}</strong
           ><el-tag size="small">{{
             item.effect === "read" ? t("system.ai.workspace.read") : t("system.ai.workspace.requires_confirmation")
@@ -109,6 +115,7 @@
 </template>
 <script setup lang="ts">
 import { computed, onBeforeUnmount, ref, watch } from "vue";
+import { ChatDotRound, Key, Refresh, Share, SwitchButton, View } from "@element-plus/icons-vue";
 import { t } from "@liujitcn/kratos-admin-core";
 import { encryptSecret } from "@liujitcn/kratos-admin-core/security";
 import ProTable from "@liujitcn/kratos-admin-core/components/ProTable";
@@ -125,7 +132,7 @@ import type {
   AiPluginSelection,
   AiPluginTool
 } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_plugin";
-import { canConfigureAssistant } from "./state";
+import { canConfigureAssistant, hasConnectedPluginConnection } from "./state";
 const props = defineProps<{
   plugins: AiPlugin[];
   connections: AiPluginConnection[];
@@ -144,6 +151,9 @@ const tab = ref("catalog"),
   scope = ref("");
 const managedPlugins = computed(() => props.plugins);
 const canManage = computed(() => canConfigureAssistant(props.mobile, props.canManageTools));
+const connectedPluginIDs = computed(
+  () => new Set(props.plugins.filter(plugin => hasConnectedPluginConnection(plugin.id, props.connections)).map(plugin => plugin.id))
+);
 const visiblePlugins = computed(() =>
   props.plugins.filter(
     item =>
@@ -198,32 +208,38 @@ const connectionColumns = computed<ColumnProps[]>(() => [
     actions: [
       {
         label: t("system.ai.workspace.use_chat"),
-        disabled: ({ row }) => row.state !== "connected",
+        icon: ChatDotRound,
+        hidden: ({ row }) => row.state !== "connected",
         onClick: ({ row }) => emit("select", { plugin_id: row.plugin_id, connection_id: row.id })
       },
       {
         label: t("system.ai.workspace.refresh_tools"),
+        icon: Refresh,
         hidden: ({ row }) => props.mobile || !row.can_manage,
         onClick: ({ row }) => refreshConnection(row as AiPluginConnection)
       },
       {
         label: t("system.ai.workspace.authorize"),
+        icon: Key,
         hidden: ({ row }) => props.mobile || !row.can_manage || !["oauth", "token"].includes(row.auth_type),
         onClick: ({ row }) =>
           row.auth_type === "oauth" ? authorize(row as AiPluginConnection) : openCredential(row as AiPluginConnection)
       },
       {
         label: t("system.ai.workspace.share"),
+        icon: Share,
         hidden: ({ row }) => props.mobile || !props.canManageTools || !row.can_manage || row.sharing === "tenant",
         onClick: ({ row }) => setSharing(row as AiPluginConnection, "tenant")
       },
       {
         label: t("system.ai.workspace.unshare"),
+        icon: Share,
         hidden: ({ row }) => props.mobile || !props.canManageTools || !row.can_manage || row.sharing !== "tenant",
         onClick: ({ row }) => setSharing(row as AiPluginConnection, "private")
       },
       {
         label: t("system.ai.workspace.disconnect"),
+        icon: SwitchButton,
         type: "danger",
         hidden: ({ row }) => props.mobile || !row.can_manage,
         onClick: ({ row }) => disconnect(row as AiPluginConnection)
@@ -253,7 +269,7 @@ const toolColumns = computed<ColumnProps[]>(() => [
   {
     cellType: "actions",
     label: t("common.field.operation"),
-    actions: [{ label: t("system.ai.workspace.review"), onClick: ({ row }) => openPolicy(row as AiPluginTool) }]
+    actions: [{ label: t("system.ai.workspace.review"), icon: View, onClick: ({ row }) => openPolicy(row as AiPluginTool) }]
   }
 ]);
 const fields = computed<ProFormField[]>(() => {
@@ -364,12 +380,12 @@ async function loadTools() {
 async function openDetail(plugin: AiPlugin) {
   detail.value = await api.GetAiPlugin({ id: plugin.id });
   toolPluginID.value = plugin.id;
+  tools.value = detail.value.tools ?? [];
   detailOpen.value = true;
-  await loadTools();
 }
-/** 打开本人账号连接表单。 */
+/** 打开本人账号连接表单，已有连接时不重复打开。 */
 function openConnection(plugin: AiPlugin) {
-  if (props.mobile) return;
+  if (props.mobile || connectedPluginIDs.value.has(plugin.id)) return;
   editingPlugin.value = plugin;
   kind.value = "connection";
   form.value = { label: "", auth_type: "none", token: "" };
@@ -667,6 +683,13 @@ p {
 .tool-detail {
   border-bottom: 1px solid var(--el-border-color);
   padding: 14px 0;
+}
+.plugin-detail-meta {
+  display: grid;
+  gap: 8px;
+  margin: 14px 0;
+  color: var(--admin-page-text-secondary);
+  overflow-wrap: anywhere;
 }
 .tool-detail .el-tag {
   margin-left: 8px;

@@ -203,7 +203,18 @@ func (c *AiPluginCase) GetAiPlugin(ctx context.Context, req *basev1.GetAiPluginR
 	if err != nil {
 		return nil, err
 	}
-	return c.pluginDTO(ctx, row, identity.TenantId, "admin")
+	var result *basev1.AiPlugin
+	result, err = c.pluginDTO(ctx, row, identity.TenantId, "admin")
+	if err != nil {
+		return nil, err
+	}
+	var toolResult *basev1.ListAiPluginToolResponse
+	toolResult, err = c.ListAiPluginTool(ctx, &basev1.ListAiPluginToolRequest{PluginId: req.Id, Terminal: basev1.Terminal_TERMINAL_ADMIN})
+	if err != nil {
+		return nil, err
+	}
+	result.Tools = toolResult.Tools
+	return result, nil
 }
 
 // CreateAiPlugin 创建平台定义或复用平台批准端点的个人定义。

@@ -25,7 +25,16 @@
       :rules="textRules"
       @confirm="submitTextDoc"
       @close="resetTextForm"
-    />
+    >
+      <template #content>
+        <MarkdownEditor
+          v-model="textForm.content"
+          :is-dark="globalStore.isDark"
+          :max-length="1000000"
+          :placeholder="t('rag.knowledge.doc.placeholder.content')"
+        />
+      </template>
+    </FormDialog>
 
     <el-drawer
       v-model="docsDrawer.visible"
@@ -170,11 +179,13 @@ import type { FormRules } from "element-plus";
 import { CirclePlus, Delete, DocumentAdd, EditPen, Refresh, Search, Upload } from "@element-plus/icons-vue";
 import ProTable from "@liujitcn/kratos-admin-core/components/ProTable";
 import FormDialog from "@liujitcn/kratos-admin-core/components/Dialog/FormDialog.vue";
+import MarkdownEditor from "@liujitcn/kratos-admin-core/components/MarkdownEditor/index.vue";
 import type { ColumnProps, HeaderActionProps, ProTableInstance } from "@liujitcn/kratos-admin-core/components/ProTable/interface";
 import type { ProFormField, ProFormOption } from "@liujitcn/kratos-admin-core/components/ProForm/interface";
 import { useAuthButtons } from "@liujitcn/kratos-admin-core/auth";
 import { buildPageRequest, normalizeSelectedIds } from "@liujitcn/kratos-admin-core/table";
 import { useTenantScope } from "@liujitcn/kratos-admin-core/tenant";
+import { useGlobalStore } from "@liujitcn/kratos-admin-core/stores/runtime";
 import { t } from "@liujitcn/kratos-admin-core";
 import { defAiKnowledgeService } from "@liujitcn/kratos-admin-rag/api/rag/admin/v1/ai_knowledge";
 import { defAiKnowledgeDocService } from "@liujitcn/kratos-admin-rag/api/rag/admin/v1/ai_knowledge_doc";
@@ -203,6 +214,7 @@ type AiKnowledgeFormState = Omit<AiKnowledgeForm, "model_id" | "embedding_dimens
 
 const { BUTTONS } = useAuthButtons();
 const { isDefaultTenant } = useTenantScope();
+const globalStore = useGlobalStore();
 const table = ref<ProTableInstance>();
 const dialogRef = ref<InstanceType<typeof FormDialog>>();
 const textDialogRef = ref<InstanceType<typeof FormDialog>>();
@@ -278,7 +290,7 @@ watch(
 
 const textFields = computed<ProFormField[]>(() => [
   { prop: "name", label: t("rag.knowledge.doc.field.name"), component: "input", colSpan: 24, props: { maxlength: 200 } },
-  { prop: "content", label: t("rag.knowledge.doc.field.content"), component: "textarea", colSpan: 24, props: { rows: 12, maxlength: 1000000, placeholder: t("rag.knowledge.doc.placeholder.content") } }
+  { prop: "content", label: t("rag.knowledge.doc.field.content"), component: "slot", slotName: "content", colSpan: 24 }
 ]);
 
 const rules = computed<FormRules>(() => ({

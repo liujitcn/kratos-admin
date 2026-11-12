@@ -622,8 +622,9 @@ func (c *AiMessageCase) buildAiFailedReply(ctx context.Context, reply *ai.Respon
 	if failedReply == nil {
 		failedReply = c.buildAiFallbackResponse(ctx, "", nil, cause, providerName, modelName)
 	}
+	// 优先保留上游已记录的真实错误摘要，仅在完全缺失时兜底通用文案。
 	reason := failedReply.FallbackReason
-	if cause != nil || reason != "" {
+	if reason == "" {
 		reason = i18n.EncodeMessage("system.ai.chat.error.details_unavailable", nil)
 	}
 	return &ai.Response{
@@ -648,7 +649,8 @@ func (c *AiMessageCase) buildAiFallbackResponse(
 ) *ai.Response {
 	fallbackReason := ""
 	if err != nil {
-		fallbackReason = i18n.EncodeMessage("system.ai.chat.error.details_unavailable", nil)
+		// 错误详情落真实摘要供「错误详情」排障，截断防止整段堆栈入库。
+		fallbackReason = truncateAiErrorDetail(err.Error())
 	}
 	modelLabel := ""
 	if c != nil && c.aiRuntime != nil {
@@ -1154,6 +1156,16 @@ func durationMilliseconds(start time.Time, end time.Time) int32 {
 		return int32(^uint32(0) >> 1)
 	}
 	return int32(ms)
+}
+
+// truncateAiErrorDetail 按字符截断降级原因摘要，避免整段堆栈入库。
+func truncateAiErrorDetail(detail string) string {
+	const maxRunes = 500
+	runes := []rune(detail)
+	if len(runes) <= maxRunes {
+		return detail
+	}
+	return string(runes[:maxRunes]) + "…"
 }
 
 // expireAiGeneratingMessages 在属主会话锁内终止过期生成，释放会话但不重放业务操作。

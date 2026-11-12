@@ -142,6 +142,10 @@
       "types": "./dist/package/declarations/src/components/MarkdownPreview/index.vue.d.ts",
       "default": "./dist/package/src/components/MarkdownPreview/index.vue"
     },
+    "./components/MarkdownEditor/index.vue": {
+      "types": "./dist/package/declarations/src/components/MarkdownEditor/index.vue.d.ts",
+      "default": "./dist/package/src/components/MarkdownEditor/index.vue"
+    },
     "./components/ECharts/index.vue": {
       "types": "./dist/package/declarations/src/components/ECharts/index.vue.d.ts",
       "default": "./dist/package/src/components/ECharts/index.vue"

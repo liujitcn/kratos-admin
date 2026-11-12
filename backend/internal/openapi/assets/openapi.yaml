@@ -11091,6 +11091,11 @@ components:
                 config_json:
                     type: string
                     description: 平台管理员可编辑的公开接入配置，不含凭据
+                tools:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/base.v1.AiPluginTool'
+                    description: 工具快照列表
             description: 插件定义及当前租户安装状态。
         base.v1.AiPluginConnection:
             type: object

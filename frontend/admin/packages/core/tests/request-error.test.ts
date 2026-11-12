@@ -3,7 +3,7 @@ import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import test from "node:test";
 import { formatConflictMessage } from "../src/utils/conflict-message.js";
-import { hasStructuredErrorCode, resolveStructuredErrorMessage } from "../src/utils/request-response.js";
+import { hasStructuredErrorCode, resolveRequestErrorMessage, resolveStructuredErrorMessage } from "../src/utils/request-response.js";
 
 test("成功业务响应的字符串 code 不会被识别为结构化错误码", () => {
   assert.equal(hasStructuredErrorCode({ code: "SYSTEM", name: "系统消息" }), false);
@@ -40,9 +40,17 @@ test("HTTP 错误回传本地化回退，不把 Axios 原始状态文案交给�
   const responseInterceptor = source.match(/service\.interceptors\.response\.use\([\s\S]*?\n\);/)?.[0];
 
   assert.ok(responseInterceptor, "缺少响应拦截器");
-  assert.match(responseInterceptor, /const displayMessage = message \|\| t\("common\.message\.system_error"\)/);
+  assert.match(responseInterceptor, /resolveRequestErrorMessage\(message \|\| t\("common\.message\.system_error"\)/);
   assert.match(responseInterceptor, /error\.message = displayMessage/);
   assert.match(responseInterceptor, /showRequestError\(displayMessage\)/);
+});
+
+test("请求错误过滤 Axios 技术文案并保留业务提示", () => {
+  const fallback = "请求失败";
+  assert.equal(resolveRequestErrorMessage("Request failed with status code 400", fallback), fallback);
+  assert.equal(resolveRequestErrorMessage("Network Error", fallback), fallback);
+  assert.equal(resolveRequestErrorMessage("AxiosError: Request failed with status code 400", fallback), fallback);
+  assert.equal(resolveRequestErrorMessage("保存失败：请检查表单填写", fallback), "保存失败：请检查表单填写");
 });
 
 test("查询数组使用重复字段序列化，兼容 Kratos 查询绑定", async () => {

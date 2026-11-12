@@ -13,9 +13,18 @@ export function canConfigureAssistant(mobile: boolean, permitted: boolean): bool
   return !mobile && permitted;
 }
 
+/** 判断插件是否已有已连接账号，避免重复发起连接。 */
+export function hasConnectedPluginConnection(
+  pluginID: string,
+  connections: readonly { plugin_id: string; state: string; can_manage: boolean }[]
+): boolean {
+  return connections.some(item => item.plugin_id === pluginID && item.can_manage && item.state === "connected");
+}
+
 /** 用字符串编码确定插件及账号，不把雪花ID转为数字。 */
 export function pluginSelectionKey(selection: AiPluginSelection): string {
-  return `${selection.plugin_id}:${selection.connection_id}`;
+  // protojson 会省略空连接字段，归一化 undefined 避免出现 "1:undefined" 标签。
+  return `${selection.plugin_id}:${selection.connection_id ?? ""}`;
 }
 
 /** 还原组件选择值，插件ID与连接ID均保留原字符串。 */

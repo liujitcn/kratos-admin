@@ -285,6 +285,8 @@ func (x *AiPlugin) Redact() {
 	// Safe field: CanManage
 
 	// Safe field: ConfigJson
+
+	// Safe field: Tools
 }
 
 // Ensure AiPluginForm implements the Redactor interface at compile time.

@@ -102,6 +102,7 @@ message AiPlugin {
   string unavailable_reason = 14 [(gnostic.openapi.v3.property) = {description: "不可用原因"}]; // 不可用原因
   bool can_manage = 15 [(gnostic.openapi.v3.property) = {description: "当前身份能否编辑本定义；安装和工具审查权限独立判断"}]; // 当前身份能否编辑本定义；安装和工具审查权限独立判断
   string config_json = 16 [(gnostic.openapi.v3.property) = {description: "平台管理员可编辑的公开接入配置，不含凭据"}]; // 平台管理员可编辑的公开接入配置，不含凭据
+  repeated AiPluginTool tools = 17 [(gnostic.openapi.v3.property) = {description: "工具快照列表"}]; // 详情中的工具快照列表
 }
 
 // 插件定义表单；端点策略仅平台管理员可维护。

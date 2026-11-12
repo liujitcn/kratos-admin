@@ -1,84 +1,34 @@
 <template>
   <section class="ai-file-panel">
-    <div class="file-toolbar">
-      <el-tabs v-model="activeView" class="file-tabs" :aria-label="t('system.ai.workspace.file_views')" @tab-change="changeView">
-        <el-tab-pane v-for="tab in tabs" :key="tab.view" :name="tab.view">
-          <template #label>
-            <span class="file-tab-label">
-              <span>{{ tab.label }}</span>
-              <span v-if="totals[tab.view] !== undefined" class="file-tab-count">{{ totals[tab.view] }}</span>
-            </span>
-          </template>
-        </el-tab-pane>
-      </el-tabs>
-      <el-input
-        v-model="keyword"
-        class="file-search"
-        clearable
-        :placeholder="t('system.ai.workspace.search_files')"
-        @keyup.enter="search"
-        @clear="search"
-      >
-        <template #prefix
-          ><el-icon><Search /></el-icon
-        ></template>
-      </el-input>
-    </div>
+    <el-tabs v-model="activeView" :aria-label="t('system.ai.workspace.file_views')" @tab-change="changeView">
+      <el-tab-pane v-for="tab in tabs" :key="tab.view" :name="tab.view">
+        <template #label>
+          <span class="file-tab-label">
+            <span>{{ tab.label }}</span>
+            <span v-if="totals[tab.view] !== undefined" class="file-tab-count">{{ totals[tab.view] }}</span>
+          </span>
+        </template>
+      </el-tab-pane>
+    </el-tabs>
 
     <el-alert v-if="error" class="file-error" :title="error" type="error" :closable="false" show-icon />
-    <div v-loading="loading" class="file-list">
-      <div class="file-list-head">
-        <span>{{ t("system.ai.workspace.file_name") }}</span>
-        <span>{{ t("system.ai.workspace.file_space") }}</span>
-        <span>{{ t("system.ai.workspace.file_size") }}</span>
-        <span />
-      </div>
-      <el-empty v-if="!loading && !files.length" :description="t('system.ai.workspace.no_files')" />
-      <div v-for="file in files" :key="file.id" class="file-row">
-        <div class="file-name-cell">
-          <span class="file-type-icon" :class="fileTypeClass(file)"
-            ><el-icon><component :is="fileIcon(file)" /></el-icon
-          ></span>
-          <span class="file-name-content">
-            <strong :title="file.file_name">{{ file.file_name }}</strong>
-            <small>{{ sourceLabel(file) }}</small>
-          </span>
-        </div>
-        <span class="file-space">{{ t("system.ai.workspace.personal_space") }}</span>
-        <span class="file-size">{{ formatFileSize(file.size) }}</span>
-        <div class="file-actions">
-          <el-tooltip
-            v-if="activeView !== AiFileView.AI_FILE_VIEW_TRASHED"
-            :content="t('common.action.download')"
-            placement="top"
+    <div v-loading="loading" class="file-table">
+      <ProTable row-key="id" :columns="columns" :data="files" :pagination="false" :tool-button="false">
+        <template #toolButton>
+          <el-input
+            v-model="keyword"
+            class="file-search"
+            clearable
+            :placeholder="t('system.ai.workspace.search_files')"
+            @keyup.enter="search"
+            @clear="search"
           >
-            <el-button text circle :aria-label="t('common.action.download')" @click="downloadFile(file)">
-              <el-icon><Download /></el-icon>
-            </el-button>
-          </el-tooltip>
-          <el-dropdown trigger="click" @command="command => handleCommand(command, file)">
-            <el-button text circle :aria-label="t('system.ai.workspace.file_more_actions')">
-              <el-icon><MoreFilled /></el-icon>
-            </el-button>
-            <template #dropdown>
-              <el-dropdown-menu>
-                <el-dropdown-item v-if="activeView !== AiFileView.AI_FILE_VIEW_TRASHED" command="rename" :icon="EditPen">
-                  {{ t("system.ai.workspace.rename_file") }}
-                </el-dropdown-item>
-                <el-dropdown-item v-if="activeView !== AiFileView.AI_FILE_VIEW_TRASHED" command="trash" :icon="Delete">
-                  {{ t("system.ai.workspace.move_to_trash") }}
-                </el-dropdown-item>
-                <el-dropdown-item v-else command="restore" :icon="RefreshLeft">
-                  {{ t("system.ai.workspace.restore_file") }}
-                </el-dropdown-item>
-                <el-dropdown-item v-if="activeView === AiFileView.AI_FILE_VIEW_TRASHED" command="delete" :icon="Delete" divided>
-                  {{ t("system.ai.workspace.delete_permanently") }}
-                </el-dropdown-item>
-              </el-dropdown-menu>
-            </template>
-          </el-dropdown>
-        </div>
-      </div>
+            <template #prefix
+              ><el-icon><Search /></el-icon
+            ></template>
+          </el-input>
+        </template>
+      </ProTable>
     </div>
 
     <el-pagination
@@ -94,21 +44,12 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from "vue";
-import { ElMessage, ElMessageBox } from "element-plus";
-import {
-  Delete,
-  Document,
-  Download,
-  EditPen,
-  Headset,
-  MoreFilled,
-  Picture,
-  RefreshLeft,
-  Search,
-  VideoCamera
-} from "@element-plus/icons-vue";
+import { computed, h, onMounted, ref } from "vue";
+import { ElIcon, ElMessage, ElMessageBox } from "element-plus";
+import { Delete, Document, Download, EditPen, Headset, Picture, RefreshLeft, Search, VideoCamera } from "@element-plus/icons-vue";
 import { t } from "@liujitcn/kratos-admin-core";
+import ProTable from "@liujitcn/kratos-admin-core/components/ProTable";
+import type { ColumnProps } from "@liujitcn/kratos-admin-core/components/ProTable/interface";
 import { defFileService } from "@liujitcn/kratos-admin-core/api/base/v1/file";
 import { defAiFileService } from "@liujitcn/kratos-admin-system/api/base/v1/ai_file";
 import { AiFileView, type AiFile } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_file";
@@ -129,6 +70,75 @@ const tabs = computed(() => [
   { view: AiFileView.AI_FILE_VIEW_UPLOADED, label: t("system.ai.workspace.uploaded_files") },
   { view: AiFileView.AI_FILE_VIEW_GENERATED, label: t("system.ai.workspace.generated_files") },
   { view: AiFileView.AI_FILE_VIEW_TRASHED, label: t("system.ai.workspace.trash") }
+]);
+const columns = computed<ColumnProps[]>(() => [
+  {
+    prop: "file_name",
+    label: t("system.ai.workspace.file_name"),
+    minWidth: 280,
+    render: ({ row }) => {
+      const file = row as AiFile;
+      return h("div", { class: "file-name-cell" }, [
+        h("span", { class: ["file-type-icon", fileTypeClass(file)] }, [h(ElIcon, null, { default: () => h(fileIcon(file)) })]),
+        h("span", { class: "file-name-content" }, [
+          h("strong", { title: file.file_name }, file.file_name),
+          h("small", null, sourceLabel(file))
+        ])
+      ]);
+    }
+  },
+  {
+    prop: "space",
+    label: t("system.ai.workspace.file_space"),
+    width: 160,
+    render: () => t("system.ai.workspace.personal_space")
+  },
+  {
+    prop: "size",
+    label: t("system.ai.workspace.file_size"),
+    width: 120,
+    align: "right",
+    render: ({ row }) => formatFileSize((row as AiFile).size)
+  },
+  {
+    prop: "operation",
+    label: t("common.field.operation"),
+    cellType: "actions",
+    actions: [
+      {
+        label: t("common.action.download"),
+        icon: Download,
+        hidden: () => activeView.value === AiFileView.AI_FILE_VIEW_TRASHED,
+        onClick: ({ row }) => downloadFile(row as AiFile)
+      },
+      {
+        label: t("system.ai.workspace.rename_file"),
+        icon: EditPen,
+        hidden: () => activeView.value === AiFileView.AI_FILE_VIEW_TRASHED,
+        onClick: ({ row }) => handleCommand("rename", row as AiFile)
+      },
+      {
+        label: t("system.ai.workspace.move_to_trash"),
+        icon: Delete,
+        type: "danger",
+        hidden: () => activeView.value === AiFileView.AI_FILE_VIEW_TRASHED,
+        onClick: ({ row }) => handleCommand("trash", row as AiFile)
+      },
+      {
+        label: t("system.ai.workspace.restore_file"),
+        icon: RefreshLeft,
+        hidden: () => activeView.value !== AiFileView.AI_FILE_VIEW_TRASHED,
+        onClick: ({ row }) => handleCommand("restore", row as AiFile)
+      },
+      {
+        label: t("system.ai.workspace.delete_permanently"),
+        icon: Delete,
+        type: "danger",
+        hidden: () => activeView.value !== AiFileView.AI_FILE_VIEW_TRASHED,
+        onClick: ({ row }) => handleCommand("delete", row as AiFile)
+      }
+    ]
+  }
 ]);
 
 onMounted(() => {
@@ -282,28 +292,13 @@ function formatFileSize(size: number) {
 .ai-file-panel {
   display: flex;
   flex: 1;
+  box-sizing: border-box;
   min-width: 0;
   min-height: 0;
   flex-direction: column;
+  padding: 20px;
   overflow: auto;
   color: var(--admin-page-text-primary);
-}
-
-.file-toolbar {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 24px;
-  margin: 0 32px;
-}
-
-.file-tabs {
-  flex: 1;
-  min-width: 0;
-}
-
-.file-tabs :deep(.el-tabs__header) {
-  margin-bottom: 0;
 }
 
 .file-tab-label {
@@ -322,53 +317,25 @@ function formatFileSize(size: number) {
 
 .file-search {
   width: min(360px, 35vw);
-  margin-bottom: 10px;
 }
 
 .file-error {
-  margin: 16px 32px 0;
+  margin: 0 0 16px;
 }
 
-.file-list {
+.file-table {
   flex: 1;
-  min-height: 240px;
-  margin: 16px 32px 0;
+  min-height: 0;
 }
 
-.file-list-head,
-.file-row {
-  display: grid;
-  grid-template-columns: minmax(260px, 1.7fr) minmax(120px, 1fr) 120px 88px;
-  align-items: center;
-  gap: 16px;
-}
-
-.file-list-head {
-  min-height: 48px;
-  padding: 0 16px;
-  color: var(--admin-page-text-secondary);
-  background: var(--el-fill-color-lighter);
-  border-bottom: 1px solid var(--admin-page-divider-strong);
-}
-
-.file-row {
-  min-height: 84px;
-  padding: 0 16px;
-  border-bottom: 1px solid var(--admin-page-divider);
-}
-
-.file-row:hover {
-  background: var(--el-fill-color-lighter);
-}
-
-.file-name-cell {
+:deep(.file-name-cell) {
   display: flex;
   align-items: center;
   min-width: 0;
   gap: 14px;
 }
 
-.file-type-icon {
+:deep(.file-type-icon) {
   display: grid;
   width: 32px;
   height: 38px;
@@ -380,43 +347,36 @@ function formatFileSize(size: number) {
   font-size: 20px;
 }
 
-.file-type-icon.is-image {
+:deep(.file-type-icon.is-image) {
   color: var(--el-color-success);
   background: var(--el-color-success-light-9);
 }
 
-.file-type-icon.is-video {
+:deep(.file-type-icon.is-video) {
   color: var(--el-color-warning);
   background: var(--el-color-warning-light-9);
 }
 
-.file-type-icon.is-audio {
+:deep(.file-type-icon.is-audio) {
   color: var(--el-color-danger);
   background: var(--el-color-danger-light-9);
 }
 
-.file-name-content {
+:deep(.file-name-content) {
   display: grid;
   min-width: 0;
   gap: 6px;
 }
 
-.file-name-content strong {
+:deep(.file-name-content strong) {
   overflow: hidden;
   font-weight: 500;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.file-name-content small,
-.file-space,
-.file-size {
+:deep(.file-name-content small) {
   color: var(--admin-page-text-secondary);
-}
-
-.file-actions {
-  display: flex;
-  justify-content: flex-end;
 }
 
 .file-pagination {
@@ -425,45 +385,12 @@ function formatFileSize(size: number) {
 }
 
 @media (max-width: 768px) {
-  .file-toolbar {
-    display: grid;
-    gap: 8px;
-    margin: 0 16px;
+  .ai-file-panel {
+    padding: 12px;
   }
 
   .file-search {
     width: 100%;
-    margin: 0 0 10px;
-  }
-
-  .file-list {
-    margin: 12px 16px 0;
-  }
-
-  .file-list-head {
-    display: none;
-  }
-
-  .file-row {
-    grid-template-columns: minmax(0, 1fr) auto;
-    min-height: 72px;
-    padding: 10px 0;
-  }
-
-  .file-space {
-    display: none;
-  }
-
-  .file-size {
-    grid-column: 1;
-    grid-row: 2;
-    margin-left: 46px;
-    font-size: 12px;
-  }
-
-  .file-actions {
-    grid-column: 2;
-    grid-row: 1 / span 2;
   }
 }
 </style>

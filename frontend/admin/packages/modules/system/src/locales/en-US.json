@@ -2221,6 +2221,7 @@
   "system.ai.workspace.select_plugins": "Plugins and accounts for this chat",
   "system.ai.workspace.selection_hint": "Confirming saves the selection without calling tools. Clearing it disables all plugins in this chat.",
   "system.ai.workspace.result_unavailable": "Result chat is unavailable or deleted",
+  "system.ai.workspace.readonly_session": "The result session is read-only; continue the discussion or create a new chat first",
   "system.ai.workspace.frozen_result": "This automation result has frozen instructions and messages.",
   "system.ai.workspace.run_queued": "Queued",
   "system.ai.workspace.run_running": "Running",

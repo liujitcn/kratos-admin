@@ -4,6 +4,7 @@ import { join } from "node:path";
 import test from "node:test";
 import {
   canConfigureAssistant,
+  hasConnectedPluginConnection,
   isAssistantView,
   pluginSelectionKey,
   selectionFromKey,
@@ -21,12 +22,35 @@ test("手机管理员也不能配置助手", () => {
   assert.equal(canConfigureAssistant(false, true), true);
 });
 
+test("已连接的 MCP 插件不能重复连接", () => {
+  assert.equal(hasConnectedPluginConnection("1", [{ plugin_id: "1", state: "connected", can_manage: true }]), true);
+  assert.equal(hasConnectedPluginConnection("1", [{ plugin_id: "1", state: "connected", can_manage: false }]), false);
+  assert.equal(hasConnectedPluginConnection("1", [{ plugin_id: "1", state: "disconnected", can_manage: true }]), false);
+  assert.equal(hasConnectedPluginConnection("1", [{ plugin_id: "2", state: "connected", can_manage: true }]), false);
+});
+
 test("工具页在插件列表就绪后自动选择并加载首个插件", async () => {
   const source = await readFile(join(process.cwd(), "src/views/ai/chat/workspace/PluginPanel.vue"), "utf8");
   assert.match(source, /watch\(\s*\[tab, managedPlugins\]/);
   assert.match(source, /const selectedPluginID = [\s\S]*plugins\[0\]\.id/);
   assert.match(source, /toolPluginID\.value = selectedPluginID/);
   assert.match(source, /void loadTools\(\)/);
+});
+
+test("连接和工具操作列的按钮带图标并保留点击处理", async () => {
+  const source = await readFile(join(process.cwd(), "src/views/ai/chat/workspace/PluginPanel.vue"), "utf8");
+
+  const iconImport = source.match(/import \{[^}]+\} from "@element-plus\/icons-vue"/)?.[0] ?? "";
+  for (const icon of ["ChatDotRound", "Refresh", "Key", "Share", "SwitchButton", "View"]) assert.match(iconImport, new RegExp(icon));
+  const connectionActions = source.slice(source.indexOf("const connectionColumns"), source.indexOf("const toolColumns"));
+  assert.match(connectionActions, /label: t\("system\.ai\.workspace\.use_chat"\),\s*icon: ChatDotRound,\s*hidden: \(\{ row \}\) => row\.state !== "connected",[\s\S]*onClick:/);
+  assert.match(connectionActions, /label: t\("system\.ai\.workspace\.refresh_tools"\),\s*icon: Refresh,[\s\S]*onClick:/);
+  assert.match(connectionActions, /label: t\("system\.ai\.workspace\.authorize"\),\s*icon: Key,[\s\S]*onClick:/);
+  assert.match(connectionActions, /label: t\("system\.ai\.workspace\.share"\),\s*icon: Share,[\s\S]*onClick:/);
+  assert.match(connectionActions, /label: t\("system\.ai\.workspace\.unshare"\),\s*icon: Share,[\s\S]*onClick:/);
+  assert.match(connectionActions, /label: t\("system\.ai\.workspace\.disconnect"\),\s*icon: SwitchButton,[\s\S]*onClick:/);
+  const toolActions = source.slice(source.indexOf("const toolColumns"), source.indexOf("const fields"));
+  assert.match(toolActions, /label: t\("system\.ai\.workspace\.review"\),\s*icon: View,[\s\S]*onClick:/);
 });
 
 test("插件选择保留字符串ID与指定连接，不丢失大整数精度", () => {

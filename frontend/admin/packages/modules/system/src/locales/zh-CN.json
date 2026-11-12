@@ -2221,6 +2221,7 @@
   "system.ai.workspace.select_plugins": "当前会话的插件和账号",
   "system.ai.workspace.selection_hint": "确认只保存选择，不会立即调用工具。全部取消将停用本会话所有插件。",
   "system.ai.workspace.result_unavailable": "结果会话不可用或已删除",
+  "system.ai.workspace.readonly_session": "结果会话只读，请先「继续讨论」或新建会话",
   "system.ai.workspace.frozen_result": "这是自动化结果，指令和消息已冻结。",
   "system.ai.workspace.run_queued": "排队中",
   "system.ai.workspace.run_running": "执行中",

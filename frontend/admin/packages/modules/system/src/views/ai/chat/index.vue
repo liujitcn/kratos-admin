@@ -996,7 +996,10 @@ async function savePluginSelection() {
 
 /** 从插件目录选用确定账号，其他已有选择继续保留。 */
 async function addSessionPlugin(selection: AiPluginSelection) {
-  if (activeSession.value?.read_only) return;
+  if (activeSession.value?.read_only) {
+    ElMessage.warning(t("system.ai.workspace.readonly_session"));
+    return;
+  }
   pluginSelection.value = [...(activeSession.value?.plugins ?? [])];
   if (!pluginSelection.value.some(item => pluginSelectionKey(item) === pluginSelectionKey(selection)))
     pluginSelection.value.push(selection);

@@ -35,6 +35,9 @@
       "@liujitcn/kratos-admin-core/components/MarkdownPreview/index.vue": [
         "packages/core/src/components/MarkdownPreview/index.vue"
       ],
+      "@liujitcn/kratos-admin-core/components/MarkdownEditor/index.vue": [
+        "packages/core/src/components/MarkdownEditor/index.vue"
+      ],
       "@liujitcn/kratos-admin-core/components/RichTextPreview/index.vue": [
         "packages/core/src/components/RichTextPreview/index.vue"
       ],

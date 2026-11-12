@@ -99,6 +99,7 @@ type AiPlugin struct {
 	UnavailableReason string                 `protobuf:"bytes,14,opt,name=unavailable_reason,json=unavailableReason,proto3" json:"unavailable_reason,omitempty"` // 不可用原因
 	CanManage         bool                   `protobuf:"varint,15,opt,name=can_manage,json=canManage,proto3" json:"can_manage,omitempty"`                        // 当前身份能否编辑本定义；安装和工具审查权限独立判断
 	ConfigJson        string                 `protobuf:"bytes,16,opt,name=config_json,json=configJson,proto3" json:"config_json,omitempty"`                      // 平台管理员可编辑的公开接入配置，不含凭据
+	Tools             []*AiPluginTool        `protobuf:"bytes,17,rep,name=tools,proto3" json:"tools,omitempty"`                                                  // 详情中的工具快照列表
 	unknownFields     protoimpl.UnknownFields
 	sizeCache         protoimpl.SizeCache
 }
@@ -243,6 +244,13 @@ func (x *AiPlugin) GetConfigJson() string {
 		return x.ConfigJson
 	}
 	return ""
+}
+
+func (x *AiPlugin) GetTools() []*AiPluginTool {
+	if x != nil {
+		return x.Tools
+	}
+	return nil
 }
 
 // 插件定义表单；端点策略仅平台管理员可维护。
@@ -1854,7 +1862,7 @@ const file_base_v1_ai_plugin_proto_rawDesc = "" +
 	"\tplugin_id\x18\x01 \x01(\tBm\xbaG\v\x92\x02\b插件ID\xbaH\\\xba\x01Y\n" +
 	"%ai.plugin.aipluginselection.plugin_id\x12\x11插件ID不合法\x1a\x1dthis.matches('^[1-9][0-9]*$')R\bpluginId\x12\xd1\x01\n" +
 	"\rconnection_id\x18\x02 \x01(\tB\xab\x01\xbaG \x92\x02\x1d连接ID；本地组件留空\xbaH\x84\x01\xba\x01\x80\x01\n" +
-	")ai.plugin.aipluginselection.connection_id\x12&连接ID；本地组件留空不合法\x1a+this == '' || this.matches('^[1-9][0-9]*$')R\fconnectionId\"\xea\a\n" +
+	")ai.plugin.aipluginselection.connection_id\x12&连接ID；本地组件留空不合法\x1a+this == '' || this.matches('^[1-9][0-9]*$')R\fconnectionId\"\xb1\b\n" +
 	"\bAiPlugin\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\tB\x0e\xbaG\v\x92\x02\b插件IDR\x02id\x12&\n" +
 	"\x04code\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f稳定编码R\x04code\x12 \n" +
@@ -1876,7 +1884,8 @@ const file_base_v1_ai_plugin_proto_rawDesc = "" +
 	"\n" +
 	"can_manage\x18\x0f \x01(\bBQ\xbaGN\x92\x02K当前身份能否编辑本定义；安装和工具审查权限独立判断R\tcanManage\x12c\n" +
 	"\vconfig_json\x18\x10 \x01(\tBB\xbaG?\x92\x02<平台管理员可编辑的公开接入配置，不含凭据R\n" +
-	"configJson\"\xb6\b\n" +
+	"configJson\x12E\n" +
+	"\x05tools\x18\x11 \x03(\v2\x15.base.v1.AiPluginToolB\x18\xbaG\x15\x92\x02\x12工具快照列表R\x05tools\"\xb6\b\n" +
 	"\fAiPluginForm\x12\x89\x01\n" +
 	"\x04code\x18\x01 \x01(\tBu\xbaG\x0f\x92\x02\f稳定编码\xbaH`\xba\x01]\n" +
 	"\x1bai.plugin.aipluginform.code\x12\x15稳定编码不合法\x1a'this.matches('^[a-z][a-z0-9_-]{1,63}$')R\x04code\x12{\n" +
@@ -2106,52 +2115,53 @@ var file_base_v1_ai_plugin_proto_goTypes = []any{
 }
 var file_base_v1_ai_plugin_proto_depIdxs = []int32{
 	3,  // 0: base.v1.AiPlugin.installation:type_name -> base.v1.AiPluginInstallation
-	26, // 1: base.v1.ListAiPluginRequest.terminal:type_name -> base.v1.Terminal
-	1,  // 2: base.v1.ListAiPluginResponse.plugins:type_name -> base.v1.AiPlugin
-	2,  // 3: base.v1.CreateAiPluginRequest.form:type_name -> base.v1.AiPluginForm
-	2,  // 4: base.v1.UpdateAiPluginRequest.form:type_name -> base.v1.AiPluginForm
-	26, // 5: base.v1.ListAiPluginToolRequest.terminal:type_name -> base.v1.Terminal
-	4,  // 6: base.v1.ListAiPluginToolResponse.tools:type_name -> base.v1.AiPluginTool
-	5,  // 7: base.v1.ListAiPluginConnectionResponse.connections:type_name -> base.v1.AiPluginConnection
-	27, // 8: base.v1.CreateAiPluginConnectionRequest.token:type_name -> common.v1.SecretCrypto
-	27, // 9: base.v1.ReauthorizeAiPluginConnectionRequest.token:type_name -> common.v1.SecretCrypto
-	6,  // 10: base.v1.AiPluginService.ListAiPlugin:input_type -> base.v1.ListAiPluginRequest
-	8,  // 11: base.v1.AiPluginService.GetAiPlugin:input_type -> base.v1.GetAiPluginRequest
-	9,  // 12: base.v1.AiPluginService.CreateAiPlugin:input_type -> base.v1.CreateAiPluginRequest
-	10, // 13: base.v1.AiPluginService.UpdateAiPlugin:input_type -> base.v1.UpdateAiPluginRequest
-	11, // 14: base.v1.AiPluginService.DeleteAiPlugin:input_type -> base.v1.DeleteAiPluginRequest
-	12, // 15: base.v1.AiPluginService.SetAiPluginInstallation:input_type -> base.v1.SetAiPluginInstallationRequest
-	13, // 16: base.v1.AiPluginService.ListAiPluginTool:input_type -> base.v1.ListAiPluginToolRequest
-	15, // 17: base.v1.AiPluginService.SetAiPluginToolPolicy:input_type -> base.v1.SetAiPluginToolPolicyRequest
-	16, // 18: base.v1.AiPluginService.ListAiPluginConnection:input_type -> base.v1.ListAiPluginConnectionRequest
-	18, // 19: base.v1.AiPluginService.CreateAiPluginConnection:input_type -> base.v1.CreateAiPluginConnectionRequest
-	19, // 20: base.v1.AiPluginService.RefreshAiPluginConnection:input_type -> base.v1.RefreshAiPluginConnectionRequest
-	20, // 21: base.v1.AiPluginService.DisconnectAiPluginConnection:input_type -> base.v1.DisconnectAiPluginConnectionRequest
-	21, // 22: base.v1.AiPluginService.StartAiPluginOAuth:input_type -> base.v1.StartAiPluginOAuthRequest
-	23, // 23: base.v1.AiPluginService.CompleteAiPluginOAuth:input_type -> base.v1.CompleteAiPluginOAuthRequest
-	24, // 24: base.v1.AiPluginService.ReauthorizeAiPluginConnection:input_type -> base.v1.ReauthorizeAiPluginConnectionRequest
-	25, // 25: base.v1.AiPluginService.SetAiPluginConnectionSharing:input_type -> base.v1.SetAiPluginConnectionSharingRequest
-	7,  // 26: base.v1.AiPluginService.ListAiPlugin:output_type -> base.v1.ListAiPluginResponse
-	1,  // 27: base.v1.AiPluginService.GetAiPlugin:output_type -> base.v1.AiPlugin
-	1,  // 28: base.v1.AiPluginService.CreateAiPlugin:output_type -> base.v1.AiPlugin
-	1,  // 29: base.v1.AiPluginService.UpdateAiPlugin:output_type -> base.v1.AiPlugin
-	28, // 30: base.v1.AiPluginService.DeleteAiPlugin:output_type -> google.protobuf.Empty
-	3,  // 31: base.v1.AiPluginService.SetAiPluginInstallation:output_type -> base.v1.AiPluginInstallation
-	14, // 32: base.v1.AiPluginService.ListAiPluginTool:output_type -> base.v1.ListAiPluginToolResponse
-	4,  // 33: base.v1.AiPluginService.SetAiPluginToolPolicy:output_type -> base.v1.AiPluginTool
-	17, // 34: base.v1.AiPluginService.ListAiPluginConnection:output_type -> base.v1.ListAiPluginConnectionResponse
-	5,  // 35: base.v1.AiPluginService.CreateAiPluginConnection:output_type -> base.v1.AiPluginConnection
-	5,  // 36: base.v1.AiPluginService.RefreshAiPluginConnection:output_type -> base.v1.AiPluginConnection
-	5,  // 37: base.v1.AiPluginService.DisconnectAiPluginConnection:output_type -> base.v1.AiPluginConnection
-	22, // 38: base.v1.AiPluginService.StartAiPluginOAuth:output_type -> base.v1.StartAiPluginOAuthResponse
-	5,  // 39: base.v1.AiPluginService.CompleteAiPluginOAuth:output_type -> base.v1.AiPluginConnection
-	5,  // 40: base.v1.AiPluginService.ReauthorizeAiPluginConnection:output_type -> base.v1.AiPluginConnection
-	5,  // 41: base.v1.AiPluginService.SetAiPluginConnectionSharing:output_type -> base.v1.AiPluginConnection
-	26, // [26:42] is the sub-list for method output_type
-	10, // [10:26] is the sub-list for method input_type
-	10, // [10:10] is the sub-list for extension type_name
-	10, // [10:10] is the sub-list for extension extendee
-	0,  // [0:10] is the sub-list for field type_name
+	4,  // 1: base.v1.AiPlugin.tools:type_name -> base.v1.AiPluginTool
+	26, // 2: base.v1.ListAiPluginRequest.terminal:type_name -> base.v1.Terminal
+	1,  // 3: base.v1.ListAiPluginResponse.plugins:type_name -> base.v1.AiPlugin
+	2,  // 4: base.v1.CreateAiPluginRequest.form:type_name -> base.v1.AiPluginForm
+	2,  // 5: base.v1.UpdateAiPluginRequest.form:type_name -> base.v1.AiPluginForm
+	26, // 6: base.v1.ListAiPluginToolRequest.terminal:type_name -> base.v1.Terminal
+	4,  // 7: base.v1.ListAiPluginToolResponse.tools:type_name -> base.v1.AiPluginTool
+	5,  // 8: base.v1.ListAiPluginConnectionResponse.connections:type_name -> base.v1.AiPluginConnection
+	27, // 9: base.v1.CreateAiPluginConnectionRequest.token:type_name -> common.v1.SecretCrypto
+	27, // 10: base.v1.ReauthorizeAiPluginConnectionRequest.token:type_name -> common.v1.SecretCrypto
+	6,  // 11: base.v1.AiPluginService.ListAiPlugin:input_type -> base.v1.ListAiPluginRequest
+	8,  // 12: base.v1.AiPluginService.GetAiPlugin:input_type -> base.v1.GetAiPluginRequest
+	9,  // 13: base.v1.AiPluginService.CreateAiPlugin:input_type -> base.v1.CreateAiPluginRequest
+	10, // 14: base.v1.AiPluginService.UpdateAiPlugin:input_type -> base.v1.UpdateAiPluginRequest
+	11, // 15: base.v1.AiPluginService.DeleteAiPlugin:input_type -> base.v1.DeleteAiPluginRequest
+	12, // 16: base.v1.AiPluginService.SetAiPluginInstallation:input_type -> base.v1.SetAiPluginInstallationRequest
+	13, // 17: base.v1.AiPluginService.ListAiPluginTool:input_type -> base.v1.ListAiPluginToolRequest
+	15, // 18: base.v1.AiPluginService.SetAiPluginToolPolicy:input_type -> base.v1.SetAiPluginToolPolicyRequest
+	16, // 19: base.v1.AiPluginService.ListAiPluginConnection:input_type -> base.v1.ListAiPluginConnectionRequest
+	18, // 20: base.v1.AiPluginService.CreateAiPluginConnection:input_type -> base.v1.CreateAiPluginConnectionRequest
+	19, // 21: base.v1.AiPluginService.RefreshAiPluginConnection:input_type -> base.v1.RefreshAiPluginConnectionRequest
+	20, // 22: base.v1.AiPluginService.DisconnectAiPluginConnection:input_type -> base.v1.DisconnectAiPluginConnectionRequest
+	21, // 23: base.v1.AiPluginService.StartAiPluginOAuth:input_type -> base.v1.StartAiPluginOAuthRequest
+	23, // 24: base.v1.AiPluginService.CompleteAiPluginOAuth:input_type -> base.v1.CompleteAiPluginOAuthRequest
+	24, // 25: base.v1.AiPluginService.ReauthorizeAiPluginConnection:input_type -> base.v1.ReauthorizeAiPluginConnectionRequest
+	25, // 26: base.v1.AiPluginService.SetAiPluginConnectionSharing:input_type -> base.v1.SetAiPluginConnectionSharingRequest
+	7,  // 27: base.v1.AiPluginService.ListAiPlugin:output_type -> base.v1.ListAiPluginResponse
+	1,  // 28: base.v1.AiPluginService.GetAiPlugin:output_type -> base.v1.AiPlugin
+	1,  // 29: base.v1.AiPluginService.CreateAiPlugin:output_type -> base.v1.AiPlugin
+	1,  // 30: base.v1.AiPluginService.UpdateAiPlugin:output_type -> base.v1.AiPlugin
+	28, // 31: base.v1.AiPluginService.DeleteAiPlugin:output_type -> google.protobuf.Empty
+	3,  // 32: base.v1.AiPluginService.SetAiPluginInstallation:output_type -> base.v1.AiPluginInstallation
+	14, // 33: base.v1.AiPluginService.ListAiPluginTool:output_type -> base.v1.ListAiPluginToolResponse
+	4,  // 34: base.v1.AiPluginService.SetAiPluginToolPolicy:output_type -> base.v1.AiPluginTool
+	17, // 35: base.v1.AiPluginService.ListAiPluginConnection:output_type -> base.v1.ListAiPluginConnectionResponse
+	5,  // 36: base.v1.AiPluginService.CreateAiPluginConnection:output_type -> base.v1.AiPluginConnection
+	5,  // 37: base.v1.AiPluginService.RefreshAiPluginConnection:output_type -> base.v1.AiPluginConnection
+	5,  // 38: base.v1.AiPluginService.DisconnectAiPluginConnection:output_type -> base.v1.AiPluginConnection
+	22, // 39: base.v1.AiPluginService.StartAiPluginOAuth:output_type -> base.v1.StartAiPluginOAuthResponse
+	5,  // 40: base.v1.AiPluginService.CompleteAiPluginOAuth:output_type -> base.v1.AiPluginConnection
+	5,  // 41: base.v1.AiPluginService.ReauthorizeAiPluginConnection:output_type -> base.v1.AiPluginConnection
+	5,  // 42: base.v1.AiPluginService.SetAiPluginConnectionSharing:output_type -> base.v1.AiPluginConnection
+	27, // [27:43] is the sub-list for method output_type
+	11, // [11:27] is the sub-list for method input_type
+	11, // [11:11] is the sub-list for extension type_name
+	11, // [11:11] is the sub-list for extension extendee
+	0,  // [0:11] is the sub-list for field type_name
 }
 
 func init() { file_base_v1_ai_plugin_proto_init() }

@@ -2221,6 +2221,7 @@
   "system.ai.workspace.select_plugins": "このチャットのプラグインとアカウント",
   "system.ai.workspace.selection_hint": "確定してもツールは呼び出されません。選択をすべて解除すると、このチャットの全プラグインが無効になります。",
   "system.ai.workspace.result_unavailable": "結果のチャットは利用できないか削除されています",
+  "system.ai.workspace.readonly_session": "結果セッションは読み取り専用です。先に「討論を続ける」か新しいチャットを作成してください",
   "system.ai.workspace.frozen_result": "これは自動化の結果です。指示とメッセージは固定されています。",
   "system.ai.workspace.run_queued": "待機中",
   "system.ai.workspace.run_running": "実行中",
