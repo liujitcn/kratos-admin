@@ -72,7 +72,6 @@ require (
 	github.com/liujitcn/kratos-kit/transport/sse v0.0.19
 	github.com/liujitcn/kratos-kit/utils v0.0.29
 	github.com/mark3labs/mcp-go v1.5.0
-	github.com/mattn/go-sqlite3 v1.14.52
 	github.com/microcosm-cc/bluemonday v1.0.27
 	github.com/modelcontextprotocol/go-sdk v1.7.0
 	github.com/openai/openai-go/v3 v3.44.0
@@ -84,7 +83,7 @@ require (
 	golang.org/x/mod v0.42.0
 	golang.org/x/oauth2 v0.37.0
 	golang.org/x/sys v0.49.0
-	golang.org/x/text v0.43.0
+	golang.org/x/text v0.44.0
 	google.golang.org/genproto/googleapis/api v0.0.0-20261019180522-ce908d29299b
 	google.golang.org/grpc v1.86.0-dev
 	google.golang.org/protobuf v1.36.12
@@ -291,6 +290,7 @@ require (
 	github.com/mattn/go-colorable v0.1.16 // indirect
 	github.com/mattn/go-isatty v0.0.24 // indirect
 	github.com/mattn/go-runewidth v0.0.31 // indirect
+	github.com/mattn/go-sqlite3 v1.14.52 // indirect
 	github.com/meguminnnnnnnnn/go-openai v0.1.6 // indirect
 	github.com/minio/crc64nvme v1.1.1 // indirect
 	github.com/minio/md5-simd v1.1.2 // indirect
@@ -389,7 +389,7 @@ require (
 	golang.org/x/exp v0.0.0-20261014143641-f0251eb4aa3e // indirect
 	golang.org/x/image v0.47.0 // indirect
 	golang.org/x/net v0.62.0 // indirect
-	golang.org/x/sync v0.24.0 // indirect
+	golang.org/x/sync v0.25.0 // indirect
 	golang.org/x/term v0.47.0 // indirect
 	golang.org/x/time v0.16.0 // indirect
 	golang.org/x/tools v0.52.0 // indirect
