@@ -4,4 +4,4 @@ pprof:
     application_name: kratos-admin
     server_address: http://192.168.60.52:4040
     basic_auth_user: pyroscope
-    basic_auth_password: "${PPROF_PASSWORD}"
+    basic_auth_password: ENC(11223388)
