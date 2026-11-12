@@ -20,12 +20,22 @@
       "cache": false,
       "outputs": []
     },
+    "build:app": {
+      "dependsOn": ["^build:entries"],
+      "cache": false,
+      "outputs": []
+    },
     "dev:h5": {
       "dependsOn": ["^build:entries"],
       "cache": false,
       "persistent": true
     },
     "dev:mp-weixin": {
+      "dependsOn": ["^build:entries"],
+      "cache": false,
+      "persistent": true
+    },
+    "dev:app": {
       "dependsOn": ["^build:entries"],
       "cache": false,
       "persistent": true

@@ -157,15 +157,23 @@ func (h *ToolMetricsHandler) WrapInvokableToolCall(
 ) (adk.InvokableToolCallEndpoint, error) {
 	return func(ctx context.Context, argumentsInJSON string, opts ...tool.Option) (string, error) {
 		startedAt := time.Now()
+		name := toolContextName(tCtx)
+		title := h.toolTitle(name)
+		callback.EmitActivity(ctx, callback.Activity{
+			ID:        toolActivityID(tCtx, name),
+			Phase:     "tool",
+			Status:    "running",
+			ToolName:  name,
+			ToolTitle: title,
+		})
 		output, err := endpoint(ctx, argumentsInJSON, opts...)
 		if _, interrupted := compose.IsInterruptRerunError(err); interrupted {
 			return output, err
 		}
-		name := toolContextName(tCtx)
 		call := callback.ToolCall{
 			Type:     "function",
 			Name:     name,
-			Title:    h.toolTitle(name),
+			Title:    title,
 			Status:   "success",
 			Input:    argumentsInJSON,
 			Output:   output,
@@ -177,6 +185,14 @@ func (h *ToolMetricsHandler) WrapInvokableToolCall(
 			log.Error(fmt.Sprintf("Agent tool execution failed name=%s err=%v", name, err))
 			call.Error = toolFailureMessage(ctx, name, h.localizeMessage)
 			call.Output = MarshalToolError(call.Error)
+			callback.EmitActivity(ctx, callback.Activity{
+				ID:        toolActivityID(tCtx, name),
+				Phase:     "tool",
+				Status:    "failed",
+				Summary:   call.Error,
+				ToolName:  name,
+				ToolTitle: title,
+			})
 			recordToolCall(ctx, call)
 			return call.Output, nil
 		}
@@ -184,6 +200,13 @@ func (h *ToolMetricsHandler) WrapInvokableToolCall(
 		if call.Output == "" {
 			call.Output = "{}"
 		}
+		callback.EmitActivity(ctx, callback.Activity{
+			ID:        toolActivityID(tCtx, name),
+			Phase:     "tool",
+			Status:    "completed",
+			ToolName:  name,
+			ToolTitle: title,
+		})
 		recordToolCall(ctx, call)
 		return call.Output, nil
 	}, nil
@@ -262,4 +285,12 @@ func toolContextName(tCtx *adk.ToolContext) string {
 		return ""
 	}
 	return tCtx.Name
+}
+
+// toolActivityID 返回工具活动的稳定编号。
+func toolActivityID(tCtx *adk.ToolContext, name string) string {
+	if tCtx != nil && tCtx.CallID != "" {
+		return tCtx.CallID
+	}
+	return "tool:" + name
 }

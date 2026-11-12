@@ -1,20 +1,20 @@
 # Codex 规则（frontend/uni-app）
 
 ## 项目概览
-- 技术栈：`uni-app + Vue 3 + TypeScript + Vite + Pinia + Sass`，独立 pnpm workspace，当前支持 H5 和微信小程序。
+- 技术栈：`uni-app x + Vue 3 + TypeScript + Vite + Pinia + Sass`，独立 pnpm workspace，支持 H5、微信小程序和 x App。
 - 依赖方向固定为 `apps/uni-app -> packages/modules/* -> packages/core`；宿主只负责组合和启动，core 不依赖业务模块。
 
 ## 目录与职责
-- `apps/uni-app` 是私有薄宿主，只维护入口、manifest、模块清单、固定 bootstrap 页面和 Vite 配置。
-- `packages/core` 是可发布底座，维护启动、认证、请求、状态、动态导航、基础页面、公共静态资源和构建插件。
+- `apps/uni-app` 是私有 x 宿主，使用根目录项目结构，维护入口、manifest、模块清单、`pages/`、`pagesMember/` 和 Vite 配置。
+- `packages/core` 是可发布底座，维护启动、认证、请求、状态、动态导航、基础页面和公共静态资源。
 - `packages/modules/system` 是可发布业务模块，维护个人中心、资料、设置和 AI 的 API、RPC 与页面。
-- `packages/cli` 是可发布脚手架，负责创建同结构的独立 uni-app workspace。
+- `packages/cli` 是可发布脚手架，负责创建同结构的独立 uni-app x workspace。
 - 页面放在所属包的 `src/views`；页面私有组件放页面目录下 `components`，至少两处复用才提升为包级公共组件。
 
 ## 页面与模块
 - 每个模块通过 `defineKratosAppModule()` 声明 `pages`、`views` 和 `icons`；新增页面同时更新所属包的 `pages.ts` 和模块 `views` 映射。
-- `apps/uni-app/src/module-manifest.ts` 是宿主唯一模块清单，顺序决定静态页面和 `viewKey` 的覆盖优先级。
-- 宿主 `pages.json` 只提交固定 bootstrap 页面；模块页面 wrapper 和 static 由 core Vite 插件临时生成，禁止提交临时事务文件或手工维护生成页。
+- `apps/uni-app/module-manifest.ts` 是宿主唯一模块清单，顺序决定静态页面和 `viewKey` 的覆盖优先级。
+- 宿主使用 x 根目录 `pages/`、`pagesMember/` 和 `.uvue` 页面；`scripts/generate-pages.mjs` 是唯一页面生成入口，开发和构建前执行 `prepare:x`。
 - 动态菜单使用稳定 `viewKey`，接口不能直接下发任意组件路径；tabBar 使用 core 自绘组件，不配置原生 tabBar。
 
 ## 接口与状态
@@ -26,13 +26,13 @@
 
 ## RPC 生成
 - Buf 配置统一位于 `backend/api`，frontend 下不维护第二份生成模板。
-- uni-app RPC 统一执行 `pnpm generate:rpc` 或 `make -C frontend ts-uni-app`，分别生成 core 与 system 的 `src/rpc`。
+- uni-app x RPC 统一执行 `pnpm generate:rpc` 或 `make -C frontend ts-uni-app`，分别生成 core 与 system 的 `src/rpc`。
 - 生成产物只能通过项目命令更新，不手写或复制等价类型。
 
 ## 样式与多端兼容
 - 全局样式和 Sass 变量统一复用 core 的 `src/styles/base.scss` 与 `src/uni.scss`。
-- 平台差异显式使用 `#ifdef`/`#ifndef` 条件编译；修改登录、路由、存储、上传和图片预览时同时检查 `MP-WEIXIN` 与 `H5`。
-- 页面样式优先保证微信小程序可用，同时兼顾 H5，不在单页发明第二套全局视觉规则。
+- 平台差异显式使用 `#ifdef`/`#ifndef` 条件编译；x App 使用 `APP`、`APP-ANDROID`、`APP-IOS`、`APP-HARMONY`，修改登录、路由、存储、上传和图片预览时同时检查 Web、微信和 App。
+- 页面样式遵循 uni-app x CSS 子集，优先保证微信小程序和 x App 可用，同时兼顾 H5，不在单页发明第二套全局视觉规则。
 
 ## 校验与文档
 - 本次任务全部改动完成后统一执行一次 `pnpm lint` 与 `pnpm tsc`；涉及模块协议、构建插件、CLI 或包边界时，同时执行 `pnpm test`、`pnpm check:exports` 和对应构建命令。

@@ -6,7 +6,7 @@
 
 ```text
 __PROJECT_NAME__
-├── apps/uni-app          # Private uni-app host
+├── apps/uni-app          # Private uni-app x host
 ├── packages/modules     # Local workspace business modules
 ├── package.json         # Shared commands and development dependencies
 ├── pnpm-workspace.yaml  # Workspace package patterns
@@ -27,6 +27,6 @@ pnpm build:mp-weixin
 
 To access H5 over a LAN IP, run `bash scripts/generate-dev-cert.sh 192.168.1.100` from the repository root, then set `VITE_APP_HTTPS=true` in `.env.development-h5.local`. If the backend uses HTTPS, also set `VITE_APP_API_URL=https://127.0.0.1:7001`.
 
-The module assembly entry is `apps/uni-app/src/module-manifest.ts`. Keep it in sync when adding, removing, or changing modules, and document page and API responsibilities in each module README.
+The module assembly entry is `apps/uni-app/module-manifest.ts`. Keep it in sync when adding, removing, or changing modules, and document page and API responsibilities in each module README.
 
 Before a production build, set the real API and static asset URLs in `.env.production`. That file is intentionally blank by default and should not contain localhost addresses.

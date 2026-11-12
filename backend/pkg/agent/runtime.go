@@ -278,6 +278,10 @@ func (r *Runtime) runADK(
 		Description:     description,
 		ServerTools:     serverTools,
 	})
+	modelOptions := []model.Option(nil)
+	if client.SupportsResponsesServerTools() {
+		modelOptions = model.ResponsesReasoningOptions()
+	}
 	result, err := runner.Run(ctx, adk.Request{
 		CheckPointID:     input.CheckPointID,
 		Messages:         append([]*einoMessage.AgenticMessage(nil), messages...),
@@ -287,6 +291,7 @@ func (r *Runtime) runADK(
 		ResolveToolInfos: func(callCtx context.Context) []*tool.Info { return r.enabledToolInfos(callCtx, input, toolInfos) },
 		Recorder:         recorder,
 		LocalizeMessage:  r.localizeMessage,
+		ModelOptions:     modelOptions,
 		Stream:           stream,
 		OnDelta:          onDelta,
 	})

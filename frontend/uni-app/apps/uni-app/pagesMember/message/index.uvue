@@ -1,0 +1,14 @@
+<script setup lang="ts">
+import { onShow } from '@dcloudio/uni-app'
+import { setAppPageTitle } from '@liujitcn/kratos-uni-app-core'
+import KratosPage from '@liujitcn/kratos-uni-app-system/views/pagesMember/message/index.uvue'
+import KratosTabBar from '@liujitcn/kratos-uni-app-core/components/KratosTabBar.uvue'
+
+defineOptions({ inheritAttrs: false })
+onShow(() => setAppPageTitle('pagesMember/message/index'))
+</script>
+
+<template>
+  <KratosPage v-bind="$attrs" />
+  <KratosTabBar route="pagesMember/message/index" />
+</template>

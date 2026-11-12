@@ -25,7 +25,8 @@ export function scaffoldKratosApp(targetPath, options = {}) {
   const packages = [...new Set(options.packages ?? [])]
   modules.forEach(validateModuleName)
   packages.forEach(validatePackageName)
-  mkdirSync(resolve(target, 'apps/uni-app/src/pages/bootstrap'), { recursive: true })
+  mkdirSync(resolve(target, 'apps/uni-app/pages/bootstrap'), { recursive: true })
+  mkdirSync(resolve(target, 'apps/uni-app/scripts'), { recursive: true })
   modules.forEach((name) =>
     mkdirSync(resolve(target, `packages/modules/${name}/src/views`), { recursive: true }),
   )
@@ -53,6 +54,7 @@ export function scaffoldKratosApp(targetPath, options = {}) {
     '@dcloudio/uni-mp-weixin': '3.0.0-alpha-5030320261021002',
     '@dcloudio/uni-ui': '^1.4.28',
     '@dcloudio/vite-plugin-uni': '3.0.0-alpha-5030320261021002',
+    '@dcloudio/uni-uts-v1': '3.0.0-alpha-5030320261021002',
     'asmcrypto.js': '^2.3.2',
     'go-captcha-uni': '1.0.6',
     pinia: '^2.0.27',
@@ -61,6 +63,9 @@ export function scaffoldKratosApp(targetPath, options = {}) {
     sass: '1.77.8',
     vite: '5.2.8',
     vue: '^3.4.21',
+    '@dcloudio/types': '^3.4.8',
+    'miniprogram-api-typings': '^4.0.5',
+    'vue-demi': '^0.14.10',
     ...Object.fromEntries(modules.map((name) => [`@local/${name}`, 'workspace:*'])),
     ...Object.fromEntries(packages.map((name) => [name, 'latest'])),
   }
@@ -69,18 +74,23 @@ export function scaffoldKratosApp(targetPath, options = {}) {
     'apps/uni-app/package.json',
     json({
       name: '@liujitcn/kratos-uni-app',
-      description: `Private uni-app host for ${projectName}.`,
+      description: `Private uni-app x host for ${projectName}.`,
       version: '0.0.1',
       private: true,
       type: 'module',
       scripts: {
-        'recover:pages':
-          'node -e "import(\'@liujitcn/kratos-uni-app-core/vite\').then(({ recoverStalePageTransaction }) => recoverStalePageTransaction())"',
-        'dev:h5': 'pnpm run recover:pages && uni --mode development-h5',
-        'dev:mp-weixin': 'pnpm run recover:pages && uni -p mp-weixin --mode development',
-        'build:h5': `pnpm run recover:pages && UNI_OUTPUT_DIR=${options.kratosProject ? '../../../../backend/web/uni-app' : 'dist/build/h5'} uni build --mode production-h5`,
-        'build:mp-weixin': 'pnpm run recover:pages && uni build -p mp-weixin --mode production',
-        tsc: 'vue-tsc --noEmit -p tsconfig.json',
+        'prepare:x': 'node scripts/generate-pages.mjs',
+        'dev:h5': 'pnpm run prepare:x && UNI_INPUT_DIR=. uni --mode development-h5',
+        'dev:mp-weixin':
+          'pnpm run prepare:x && UNI_INPUT_DIR=. uni -p mp-weixin --mode development',
+        'dev:app':
+          'pnpm run prepare:x && UNI_INPUT_DIR=. UNI_APP_X_VAPOR=true uni -p app --mode development',
+        'build:h5': `pnpm run prepare:x && UNI_INPUT_DIR=. UNI_OUTPUT_DIR=${options.kratosProject ? '../../../../backend/web/uni-app' : 'dist/build/h5'} uni build --mode production-h5`,
+        'build:mp-weixin':
+          'pnpm run prepare:x && UNI_INPUT_DIR=. uni build -p mp-weixin --mode production',
+        'build:app':
+          'pnpm run prepare:x && UNI_INPUT_DIR=. UNI_APP_X_VAPOR=true uni build -p app --mode production',
+        tsc: 'vue-tsc --noEmit -p tsconfig.tsc.json',
       },
       dependencies,
     }),
@@ -104,12 +114,12 @@ export function scaffoldKratosApp(targetPath, options = {}) {
   ]
   write(
     target,
-    'apps/uni-app/src/module-manifest.ts',
+    'apps/uni-app/module-manifest.ts',
     `${imports.join('\n')}\n\nexport const moduleManifest = [${members.join(', ')}]\n`,
   )
   write(
     target,
-    'apps/uni-app/src/pages.json',
+    'apps/uni-app/pages.json',
     json({
       pages: [
         {
@@ -121,7 +131,7 @@ export function scaffoldKratosApp(targetPath, options = {}) {
   )
   write(
     target,
-    'apps/uni-app/src/theme.json',
+    'apps/uni-app/theme.json',
     json({
       light: { navBgColor: '#f4f9fd', navTextStyle: 'black', pageBgColor: '#f4f9fd' },
       dark: { navBgColor: '#060a12', navTextStyle: 'white', pageBgColor: '#060a12' },
@@ -129,7 +139,7 @@ export function scaffoldKratosApp(targetPath, options = {}) {
   )
   write(
     target,
-    'apps/uni-app/src/pages/bootstrap/index.vue',
+    'apps/uni-app/pages/bootstrap/index.uvue',
     `<script setup lang="ts">
 import { onLoad } from '@dcloudio/uni-app'
 import { resolveStaticView } from '@liujitcn/kratos-uni-app-core'
@@ -142,16 +152,17 @@ onLoad((options) => {
 <template><view /></template>
 `,
   )
-  write(target, 'apps/uni-app/src/uni.scss', "@forward '@liujitcn/kratos-uni-app-core/uni.scss';\n")
+  write(target, 'apps/uni-app/uni.scss', "@forward '@liujitcn/kratos-uni-app-core/uni.scss';\n")
   write(
     target,
-    'apps/uni-app/src/manifest.json',
+    'apps/uni-app/manifest.json',
     json({
       name: projectName,
       appid: '__UNI__KRATOS_APP',
       versionName: '1.0.0',
       versionCode: '100',
       transformPx: false,
+      'uni-app-x': { styleIsolationVersion: 2 },
       'mp-weixin': {
         appid: '',
         darkmode: true,
@@ -166,7 +177,7 @@ onLoad((options) => {
     'apps/uni-app/index.html',
     `<!doctype html>
 <html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><link rel="icon" href="./favicon.ico"><title>${projectName}</title></head>
-<body><div id="app"><!--app-html--></div><script type="module" src="/src/main.ts"></script></body></html>
+<body><div id="app"><!--app-html--></div><script type="module" src="/main.ts"></script></body></html>
 `,
   )
   write(
@@ -178,13 +189,11 @@ import { fileURLToPath } from 'node:url'
 import {
   createKratosUniPlugin,
   defineConfig,
-  kratosApp,
   loadEnv,
   viteMessage,
   type ConfigEnv,
   type UserConfig,
 } from '@liujitcn/kratos-uni-app-core/vite'
-import { moduleManifest } from './src/module-manifest'
 const workspaceRoot = resolve(dirname(fileURLToPath(import.meta.url)), '../..')
 const coreRoot = resolve(workspaceRoot, 'node_modules/@liujitcn/kratos-uni-app-core')
 const systemRoot = resolve(workspaceRoot, 'node_modules/@liujitcn/kratos-uni-app-system')
@@ -245,7 +254,7 @@ export default defineConfig(({ mode }) => {
       ...(process.env.UNI_OUTPUT_DIR ? { outDir: process.env.UNI_OUTPUT_DIR, emptyOutDir: true } : {}),
       sourcemap: process.env.NODE_ENV === 'development',
     },
-    plugins: [kratosApp({ modules: moduleManifest }), createKratosUniPlugin()],
+    plugins: [createKratosUniPlugin()],
   }
 })
 `,
@@ -257,11 +266,23 @@ export default defineConfig(({ mode }) => {
       extends: '@vue/tsconfig/tsconfig.json',
       compilerOptions: {
         allowJs: true,
+        noEmit: true,
+        allowImportingTsExtensions: false,
         moduleResolution: 'Bundler',
         skipLibCheck: true,
         types: ['@dcloudio/types', 'miniprogram-api-typings'],
       },
-      include: ['apps/**/*.ts', 'apps/**/*.vue', 'packages/**/*.ts'],
+      include: ['apps/**/*.ts', 'apps/**/*.uvue', 'packages/**/*.ts', 'packages/**/*.uvue'],
+    }),
+  )
+  write(
+    target,
+    'apps/uni-app/tsconfig.tsc.json',
+    json({
+      extends: './tsconfig.json',
+      compilerOptions: {
+        types: ['@dcloudio/types', 'miniprogram-api-typings'],
+      },
     }),
   )
   modules.forEach((name) => {

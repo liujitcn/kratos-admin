@@ -1,12 +1,14 @@
 import pluginVue from 'eslint-plugin-vue'
+import tsParser from '@typescript-eslint/parser'
 import prettier from '@vue/eslint-config-prettier'
+import vueParser from 'vue-eslint-parser'
 import {
   configureVueProject,
   defineConfigWithVueTs,
   vueTsConfigs,
 } from '@vue/eslint-config-typescript'
 
-const projectFiles = ['**/*.{vue,js,jsx,cjs,mjs,ts,tsx,cts,mts}']
+const projectFiles = ['**/*.{vue,uvue,js,jsx,cjs,mjs,ts,tsx,cts,mts}']
 
 configureVueProject({
   scriptLangs: ['ts', 'js'],
@@ -29,9 +31,8 @@ export default defineConfigWithVueTs(
       '*.local',
       '.eslintrc.cjs',
       '**/src/rpc/**',
-      'apps/uni-app/src/pages/**',
-      '!apps/uni-app/src/pages/bootstrap/**',
-      'apps/uni-app/src/pagesMember/**',
+      'apps/uni-app/pages/**',
+      'apps/uni-app/pagesMember/**',
       'packages/core/src/module.mjs',
       'packages/core/src/vite.mjs',
       'packages/modules/system/src/index.mjs',
@@ -41,9 +42,22 @@ export default defineConfigWithVueTs(
   vueTsConfigs.recommended,
   prettier,
   {
+    files: ['**/*.uvue'],
+    languageOptions: {
+      parser: vueParser,
+      parserOptions: {
+        parser: tsParser,
+        extraFileExtensions: ['.uvue'],
+      },
+    },
+  },
+  {
     files: projectFiles,
     languageOptions: {
       ecmaVersion: 'latest',
+      parserOptions: {
+        extraFileExtensions: ['.uvue'],
+      },
       globals: {
         uni: 'readonly',
         wx: 'readonly',
@@ -72,6 +86,12 @@ export default defineConfigWithVueTs(
       '@typescript-eslint/no-unused-vars': 'off',
       '@typescript-eslint/no-explicit-any': 'off',
       '@typescript-eslint/no-empty-object-type': 'off',
+    },
+  },
+  {
+    files: ['**/*.uvue'],
+    rules: {
+      'prettier/prettier': 'off',
     },
   },
 )

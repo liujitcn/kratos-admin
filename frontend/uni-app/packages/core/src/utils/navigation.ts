@@ -40,7 +40,7 @@ const getCurrentRouteUrl = () => {
   query = miniProgramPage.options || {}
   // #endif
 
-  // #ifdef H5 || APP-PLUS
+  // #ifdef H5 || APP
   query = routePage.$vm?.$route?.query || {}
   // #endif
 

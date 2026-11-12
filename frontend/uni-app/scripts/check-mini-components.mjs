@@ -14,7 +14,9 @@ for (const templateFile of collectTemplates(outputRoot)) {
   const template = readFileSync(templateFile, 'utf8')
   const tags = new Set([...template.matchAll(/<(kratos-[\w-]+)\b/g)].map((match) => match[1]))
   if (!tags.size) continue
-  const config = JSON.parse(readFileSync(templateFile.replace(/\.wxml$/, '.json'), 'utf8'))
+  const configFile = templateFile.replace(/\.wxml$/, '.json')
+  if (!existsSync(configFile)) continue
+  const config = JSON.parse(readFileSync(configFile, 'utf8'))
   const components = { ...app.usingComponents, ...config.usingComponents }
   for (const tag of tags) {
     checked++
@@ -26,7 +28,10 @@ for (const templateFile of collectTemplates(outputRoot)) {
     const componentPath = target.startsWith('/')
       ? resolve(outputRoot, target.slice(1))
       : resolve(dirname(templateFile), target)
-    if (!existsSync(`${componentPath}.wxml`) || !existsSync(`${componentPath}.json`)) {
+    if (
+      !componentOutputExists(outputRoot, componentPath, '.wxml') ||
+      !componentOutputExists(outputRoot, componentPath, '.json')
+    ) {
       violations.push(`${relative(outputRoot, templateFile)}: ${tag} 的组件产物不存在`)
     }
   }
@@ -47,4 +52,20 @@ function collectTemplates(directory) {
     else if (entry.name.endsWith('.wxml')) templates.push(path)
   }
   return templates
+}
+
+function componentOutputExists(outputRoot, componentPath, extension) {
+  if (existsSync(`${componentPath}${extension}`)) return true
+  const marker = `${componentPath.split('/src/').at(-1)}${extension}`
+  return collectFiles(outputRoot).some((file) => file.endsWith(marker))
+}
+
+function collectFiles(directory) {
+  const files = []
+  for (const entry of readdirSync(directory, { withFileTypes: true })) {
+    const path = resolve(directory, entry.name)
+    if (entry.isDirectory()) files.push(...collectFiles(path))
+    else files.push(path)
+  }
+  return files
 }

@@ -1,27 +1,28 @@
 # @liujitcn/kratos-uni-app
 
-`@liujitcn/kratos-uni-app` 是不发布的私有 uni-app 宿主，负责把 core 和业务模块装配成可运行的 H5、微信小程序应用。宿主只保留平台入口和固定 bootstrap 页面，不承载可复用业务实现。
+`@liujitcn/kratos-uni-app` 是不发布的私有 uni-app x 宿主，负责把 core 和业务模块装配成可运行的 H5、微信小程序和 App 应用。宿主只保留平台入口和页面生成入口，不承载可复用业务实现。
 
 ## 目录结构
 
 ```text
 apps/uni-app
-├── src
-│   ├── pages/bootstrap        # 唯一固定页面，启动后进入动态导航
-│   ├── App.vue                # 应用根组件和全局样式入口
-│   ├── main.ts                # Vue、Pinia 与模块启动入口
-│   ├── manifest.json          # uni-app 多端配置
-│   ├── module-manifest.ts     # 宿主唯一模块清单
-│   ├── pages.json             # 仅提交 bootstrap 固定路由
-│   └── uni.scss               # 转发 core 的全局 Sass 变量
+├── App.uvue                    # 应用根组件和全局样式入口
+├── main.ts                     # Vue、Pinia 与模块启动入口
+├── manifest.json               # uni-app x 配置
+├── module-manifest.ts          # 宿主唯一模块清单
+├── pages                       # x 页面 wrapper
+├── pagesMember                 # x 分包页面 wrapper
+├── scripts/generate-pages.mjs  # 页面和静态资源生成器
+├── pages.json                  # x 页面路由
+├── uni.scss                    # 转发 core 的全局 Sass 变量
 ├── favicon.ico                # H5 宿主浏览器图标
 ├── index.html                 # H5 HTML 入口
-├── vite.config.ts             # 页面装配插件和 uni-app 插件
+├── vite.config.ts             # uni-app x 页面生成器和 uni-app 插件
 ├── tsconfig.json              # 宿主类型检查配置
 └── package.json
 ```
 
-构建期间，core 的 Vite 插件会扫描模块页面，临时生成页面 wrapper、合并 `pages.json` 并复制静态资源；构建或开发服务退出后会恢复宿主。不要把生成页面当作宿主源码提交。
+运行和构建前执行 `pnpm run prepare:x`，生成 x 页面 wrapper、`pages.json` 和静态资源。页面位于 x 宿主根目录，不再使用旧 `src` 输入目录和临时页面事务。
 
 ## 功能
 
@@ -39,6 +40,8 @@ pnpm dev:h5
 pnpm dev:mp-weixin
 pnpm build:h5
 pnpm build:mp-weixin
+pnpm --filter @liujitcn/kratos-uni-app dev:app
+pnpm --filter @liujitcn/kratos-uni-app build:app
 ```
 
 通过局域网 IP 访问 H5 时，可复用仓库根 `certs` 下的共享证书，并在 `.env.development-h5.local` 中设置 `VITE_APP_HTTPS=true`；后端使用 HTTPS 时同步设置 `VITE_APP_API_URL=https://127.0.0.1:7001`。

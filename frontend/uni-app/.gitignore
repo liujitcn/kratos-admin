@@ -15,10 +15,5 @@ dist
 .kratos-uni-app-pages-state.*
 apps/uni-app/.kratos-uni-app-pages-state.json
 apps/uni-app/.kratos-uni-app-pages-state.json.*
-apps/uni-app/src/static
-apps/uni-app/src/pages/*
-!apps/uni-app/src/pages/bootstrap/
-!apps/uni-app/src/pages/bootstrap/**
-apps/uni-app/src/pages?*/
 !bin/
 !bin/uni.mjs

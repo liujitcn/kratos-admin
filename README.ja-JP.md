@@ -32,7 +32,7 @@
 | --- | --- | --- |
 | `backend` | Kratos サービス、Proto、GORM、マイグレーション、ジョブ、静的リソース。 | [backend/README.md](backend/README.md) |
 | `frontend/admin` | デフォルトホスト、core、System、CLI を含む管理画面 workspace。 | [frontend/admin/README.md](frontend/admin/README.md) |
-| `frontend/uni-app` | デフォルトホスト、core、system、CLI を含む uni-app workspace。 | [frontend/uni-app/README.md](frontend/uni-app/README.md) |
+| `frontend/uni-app` | デフォルトホスト、core、system、CLI を含む uni-app x workspace。 | [frontend/uni-app/README.md](frontend/uni-app/README.md) |
 | `frontend/taro-app` | デフォルトホスト、core、UI、system、CLI を含む React/Taro workspace。 | [frontend/taro-app/README.md](frontend/taro-app/README.md) |
 | `docs` | 現在のアーキテクチャ、運用手順、テーマ別ドキュメント。 | [docs/README.md](docs/README.md) |
 
@@ -109,7 +109,7 @@ cd ../taro-app && pnpm dev:h5
 | バックエンド HTTPS（`APP_ENV=https`） | `https://127.0.0.1:7001` |
 | バックエンド gRPC | `localhost:6001` |
 | 管理画面 | `http://localhost:8848` |
-| uni-app H5 | `http://localhost:5004` |
+| uni-app x H5 | `http://localhost:5004` |
 | Taro H5 | `http://localhost:5002` |
 
 Taro の開発成果物は `frontend/taro-app/apps/taro-app/dist/dev/<platform>`、WeChat ミニプログラムの本番成果物は `dist/build/mp-weixin` にあります。H5 の本番成果物は引き続き `backend/web/taro-app` に出力されます。WeChat 開発者ツールはデフォルトで開発ディレクトリを使用し、リリース時は本番ディレクトリをインポートしてください。
@@ -123,7 +123,7 @@ bash scripts/generate-dev-cert.sh 192.168.1.100
 make -C backend run-only APP_ENV=https
 ```
 
-管理画面の開発プロキシはローカル環境ファイルで `VITE_PROXY` のバックエンドアドレスを `https://127.0.0.1:7001` に変更します。Taro と uni-app H5 はそれぞれの `.env.development-h5.local` で `VITE_APP_API_URL` を `https://127.0.0.1:7001` に変更します。3 端末の開発プロキシはいずれも自己署名証明書の検証をスキップします。
+管理画面の開発プロキシはローカル環境ファイルで `VITE_PROXY` のバックエンドアドレスを `https://127.0.0.1:7001` に変更します。Taro と uni-app x H5 はそれぞれの `.env.development-h5.local` で `VITE_APP_API_URL` を `https://127.0.0.1:7001` に変更します。3 端末の開発プロキシはいずれも自己署名証明書の検証をスキップします。
 
 デフォルトのマイグレーションには開発アカウント `super / 112233` と `admin / 112233` が含まれます。デプロイ前にデフォルトパスワード、JWT キー、データベース、Redis の認証情報を変更してください。
 
@@ -151,7 +151,7 @@ make docker-run IMAGE=kratos-admin TAG=latest
 make docker-stop IMAGE=kratos-admin TAG=latest
 ```
 
-`docker-build` は Docker Buildx で `linux/amd64` と `linux/arm64` をデフォルトで同時にビルドし、Docker media types を使用して provenance 添付を無効にし、マルチプラットフォームイメージをローカルのコンテナイメージストアへ書き込みます。`DOCKER_PLATFORMS` と `DOCKER_LOCAL_OUTPUT` でプラットフォームと出力方法を上書きできます。`docker-push` はローカルイメージを同じ `TAG` で `DOCKER_PUSH_IMAGE` としてタグ付けしてプッシュします。デフォルトの宛先は `swr.cn-north-4.myhuaweicloud.com/newcapec/$(IMAGE)` です。Docker 内の Go モジュールダウンロードはホストの `go env GOPROXY` を継承し、ホストに Go がない場合は公式プロキシへフォールバックします。`DOCKER_GOPROXY` で明示的に上書きできます。ビルドコマンドは最初に Docker を確認してから、管理画面、uni-app H5、Taro H5 を再ビルドし、バックエンドは Docker のマルチステージビルドで各対象アーキテクチャ向けにコンパイルします。3つの H5 ビルドは並列実行され、Dockerfile はプロジェクト専用の Go モジュールキャッシュとコンパイルキャッシュを再利用します。実行コマンドはホストの `7001/6001` ポートを公開し、`backend/data`、`backend/logs`、`backend/backups`、`backend/configs` をそれぞれ `/app/data`、`/app/logs`、`/app/backups`、`/app/configs` にマッピングします。イメージにはデフォルト設定と 3 端末分の静的リソースが含まれ、起動時はイメージ内の不足設定だけをホストの `backend/configs` に補充し、変更済み設定は上書きしません。その後、そのディレクトリを使用してサービスを起動します。静的サイトは既存のアップロードファイルを消去せずに `backend/data` へ補充され、Core は `oss.root_directory` に従ってローカルオブジェクトを `/data/` へ統一的にマッピングします。完全なビルドパラメータと実行例は本節を参照してください。
+`docker-build` は Docker Buildx で `linux/amd64` と `linux/arm64` をデフォルトで同時にビルドし、Docker media types を使用して provenance 添付を無効にし、マルチプラットフォームイメージをローカルのコンテナイメージストアへ書き込みます。`DOCKER_PLATFORMS` と `DOCKER_LOCAL_OUTPUT` でプラットフォームと出力方法を上書きできます。`docker-push` はローカルイメージを同じ `TAG` で `DOCKER_PUSH_IMAGE` としてタグ付けしてプッシュします。デフォルトの宛先は `swr.cn-north-4.myhuaweicloud.com/newcapec/$(IMAGE)` です。Docker 内の Go モジュールダウンロードはホストの `go env GOPROXY` を継承し、ホストに Go がない場合は公式プロキシへフォールバックします。`DOCKER_GOPROXY` で明示的に上書きできます。ビルドコマンドは最初に Docker を確認してから、管理画面、uni-app x H5、Taro H5 を再ビルドし、バックエンドは Docker のマルチステージビルドで各対象アーキテクチャ向けにコンパイルします。3つの H5 ビルドは並列実行され、Dockerfile はプロジェクト専用の Go モジュールキャッシュとコンパイルキャッシュを再利用します。実行コマンドはホストの `7001/6001` ポートを公開し、`backend/data`、`backend/logs`、`backend/backups`、`backend/configs` をそれぞれ `/app/data`、`/app/logs`、`/app/backups`、`/app/configs` にマッピングします。イメージにはデフォルト設定と 3 端末分の静的リソースが含まれ、起動時はイメージ内の不足設定だけをホストの `backend/configs` に補充し、変更済み設定は上書きしません。その後、そのディレクトリを使用してサービスを起動します。静的サイトは既存のアップロードファイルを消去せずに `backend/data` へ補充され、Core は `oss.root_directory` に従ってローカルオブジェクトを `/data/` へ統一的にマッピングします。完全なビルドパラメータと実行例は本節を参照してください。
 
 `I18N_LOCALES` はカンマ区切りの BCP 47 言語コード一覧です（デフォルトではバックエンド言語パッケージから主言語を除いて自動検出されます）。OpenAPI の対象言語を制御します。`make i18n` で OpenAPI の多言語 YAML を生成できます。オフライン生成には `I18N_OFFLINE=1 make i18n` を使用してください。
 

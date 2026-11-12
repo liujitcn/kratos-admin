@@ -6,7 +6,7 @@
 
 ```text
 __PROJECT_NAME__
-├── apps/uni-app          # 私有 uni-app 宿主
+├── apps/uni-app          # 私有 uni-app x 宿主
 ├── packages/modules     # workspace 内本地业务模块
 ├── package.json         # 公共命令和开发依赖
 ├── pnpm-workspace.yaml  # workspace 包范围
@@ -27,6 +27,6 @@ pnpm build:mp-weixin
 
 H5 通过局域网 IP 访问时，先在仓库根目录运行 `bash scripts/generate-dev-cert.sh 192.168.1.100` 生成证书，再在 `.env.development-h5.local` 中设置 `VITE_APP_HTTPS=true`；后端使用 HTTPS 时同时设置 `VITE_APP_API_URL=https://127.0.0.1:7001`。
 
-模块装配入口是 `apps/uni-app/src/module-manifest.ts`。新增、删除或调整模块时同步维护该清单，并在模块自己的 README 中记录页面和接口职责。
+模块装配入口是 `apps/uni-app/module-manifest.ts`。新增、删除或调整模块时同步维护该清单，并在模块自己的 README 中记录页面和接口职责。
 
 生产构建前请在 `.env.production` 中填写实际 API 和静态资源地址；该文件默认留空，不应使用本机地址。

@@ -1,6 +1,6 @@
 # frontend/uni-app
 
-`frontend/uni-app` は独立した pnpm workspace で、実行可能な uni-app ホスト、公開可能なアプリ基盤、system 業務モジュール、プロジェクト CLI を提供します。技術スタックは `uni-app + Vue 3 + TypeScript + Vite + Pinia + Sass` で、H5 と WeChat ミニプログラムに対応します。
+`frontend/uni-app` は独立した pnpm workspace で、実行可能な uni-app x ホスト、公開可能なアプリ基盤、system 業務モジュール、プロジェクト CLI を提供します。技術スタックは `uni-app x + Vue 3 + TypeScript + Vite + Pinia + Sass` で、H5、WeChat ミニプログラム、x App に対応します。
 
 管理端末のレイヤー思想だけを再利用し、`frontend/admin` のソースや workspace には依存しません。ホーム、ログイン（TOTP/WebAuthn MFA を含む）、規約、WebView、個人センター、設定、プロフィール、AI アシスタント、アプリ内メッセージ受信トレイを提供し、ショップ、注文、決済、推薦は含みません。
 
@@ -19,15 +19,15 @@ frontend/uni-app
 └── turbo.json
 ```
 
-依存方向は `apps/uni-app -> packages/modules/system -> packages/core` に固定します。core は認証、リクエスト、設定、Pinia、共通設定ページ、基盤ページ、状態ページ、動的ナビゲーション、ビルドプラグインを担当します。system は個人センター、プロフィール、設定 wrapper、AI を担当し、core の公開 exports だけを再利用します。ホストは入口、manifest、モジュール一覧、bootstrap、Vite 設定だけを管理します。workspace ルートには旧単体アプリの `src` や空テンプレートを残しません。
+依存方向は `apps/uni-app -> packages/modules/system -> packages/core` に固定します。core は認証、リクエスト、設定、Pinia、共通設定ページ、基盤ページ、状態ページ、動的ナビゲーションを担当します。system は個人センター、プロフィール、設定 wrapper、AI を担当し、core の公開 exports だけを再利用します。ホストは x ルートのエントリ、manifest、モジュール一覧、`pages/`、`pagesMember/`、Vite 設定を管理します。
 
 各パッケージの詳細は [ホスト](apps/uni-app/README.md)、[アプリ基盤](packages/core/README.md)、[system](packages/modules/system/README.md)、[CLI](packages/cli/README.md) を参照してください。
 
 ## ページの組み立て
 
-ホストは `apps/uni-app/src/module-manifest.ts` で唯一のモジュール一覧を管理します。登録順が静的ビューの上書き優先度を決めます。各モジュールは `defineKratosAppModule()` を使用し、`pages`、`views`、`icons` を宣言します。`pages` はページ設定、`views` は安定 `viewKey` と物理ページの対応、`icons` は動的ナビゲーションのアイコンを表します。
+ホストは `apps/uni-app/module-manifest.ts` で唯一のモジュール一覧を管理します。登録順が静的ビューの上書き優先度を決めます。各モジュールは `defineKratosAppModule()` を使用し、`pages`、`views`、`icons` を宣言します。`pages` はページ設定、`views` は安定 `viewKey` と物理ページの対応、`icons` は動的ナビゲーションのアイコンを表します。
 
-ビルドプラグインは各モジュールの `src/views/**/*.vue` を走査し、`components` を除外します。後から登録されたモジュールは同じ物理ルートまたは `viewKey` を置き換えられます。ホストの `pages.json` は固定 bootstrap ページだけを保持し、開発・ビルド時に wrapper、ページ設定、静的資産を一時生成して統合します。通常終了時は復元し、強制終了後は `.kratos-uni-app-pages-state.json` から復旧します。同じホストで H5 とミニプログラムのプロセスを同時に実行する場合、ページ装配トランザクションを占有できるのは 1 プロセスです。
+`prepare:x` は各モジュールの `src/views/**/*.uvue` を走査し、x 宿主の `pages/`、`pagesMember/`、`pages.json` と静的資産を生成します。後から登録されたモジュールは同じ物理ルートまたは `viewKey` を置き換えられます。
 
 ## 動的ナビゲーション
 
@@ -45,7 +45,7 @@ GET /api/v1/app/base/menu
 
 ## 国際化
 
-uni-app の対応言語は core と System の JSON パックから自動検出し、モジュール登録時にキーとプレースホルダーを検証します。ログイン、ホーム、状態ページ、WebView、個人センター、設定、プロフィール、AI は `t(key)` を使用します。言語設定は `kratos-app:locale` に保存し、安定ルートと業務フィールドは変更しません。
+uni-app x の対応言語は core と System の JSON パックから自動検出し、モジュール登録時にキーとプレースホルダーを検証します。ログイン、ホーム、状態ページ、WebView、個人センター、設定、プロフィール、AI は `t(key)` を使用します。言語設定は `kratos-app:locale` に保存し、安定ルートと業務フィールドは変更しません。
 
 すべての `uni.request`、ファイルアップロード、SSE は `Accept-Language` を送信します。動的メニューはバックエンドのタイトルを使用し、訳がない場合は主言語へフォールバックします。言語追加時はバックエンドと 3 workspace の言語パックを同期し、ルートで `make i18n` を実行します。
 

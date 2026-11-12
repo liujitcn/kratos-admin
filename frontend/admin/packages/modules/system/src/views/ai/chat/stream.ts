@@ -1,6 +1,6 @@
 import type { AiStreamEvent, AiStreamEventName, AiStreamPayload } from "./types";
 
-const STREAM_EVENT_NAMES = new Set<AiStreamEventName>(["delta", "finish", "approval_required", "error"]);
+const STREAM_EVENT_NAMES = new Set<AiStreamEventName>(["delta", "activity", "finish", "approval_required", "error"]);
 
 /** 读取到的原始 SSE 字段结构。 */
 type SseOutput = Partial<Record<"data" | "event" | "id" | "retry", unknown>>;

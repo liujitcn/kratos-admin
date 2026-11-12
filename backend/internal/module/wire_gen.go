@@ -440,7 +440,8 @@ func BuildModules(dispatcher *aiautomation.Dispatcher, migrations *migration.Mig
 		return nil, nil, err
 	}
 	knowledgeEngine := ai.NewKnowledgeEngine(databases, data5, aiProviderRepository, aiModelRepository)
-	aiMessageCase := biz2.NewAiMessageCase(baseCase, transaction, aiMessageRepository, aiToolApprovalRepository, bizAiSessionCase, baseUserCase2, aiRuntime, knowledgeEngine, aiPluginCase)
+	aiFileCase := biz2.NewAiFileCase(baseCase, aiFileRepository)
+	aiMessageCase := biz2.NewAiMessageCase(baseCase, transaction, aiMessageRepository, aiToolApprovalRepository, bizAiSessionCase, baseUserCase2, aiRuntime, knowledgeEngine, aiPluginCase, aiFileCase)
 	bizBaseDeptCase := biz2.NewBaseDeptCase(baseCase, baseDeptRepository)
 	configCase := biz2.NewConfigCase(baseCase, baseConfigRepository, baseI18NRepository, baseI18NCustomRepository, baseLanguageRepository, baseTenantRepository, modelTranslator)
 	mfa := config.ParseMfaConfig(config2)
@@ -453,7 +454,6 @@ func BuildModules(dispatcher *aiautomation.Dispatcher, migrations *migration.Mig
 	loginCase := biz2.NewLoginCase(baseCase, bizBaseDeptCase, bizBaseRoleCase, baseUserCase2, baseTenantRepository, baseDictRepository, baseDictItemRepository, mfaCase, userToken, v)
 	aiAutomationCase := biz2.NewAiAutomationCase(baseCase, transaction, aiAutomationRepository, aiAutomationRunRepository, baseUserRepository, bizAiSessionCase, aiMessageCase, loginCase, aiPluginCase)
 	aiAutomationService := base.NewAiAutomationService(aiAutomationCase)
-	aiFileCase := biz2.NewAiFileCase(baseCase, aiFileRepository)
 	aiFileService := base.NewAiFileService(aiFileCase)
 	baseAiSessionService := base.NewAiSessionService(bizAiSessionCase, aiMessageCase)
 	bizAiModelCase := biz2.NewAiModelCase(baseCase, aiRuntime)

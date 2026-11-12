@@ -35,13 +35,13 @@ packages/modules/system
 
 公共组件 `KratosMyPage` 保留顶部标题与设置、个人信息和 AI 助手入口；AI 卡片继续由应用的 `aiEnabled` 配置控制显隐。唯一业务插槽 `extensions` 位于这些固定内容之后，与它们共用滚动区域、主题和卡片间距。未传入内容时不增加容器或留白，业务卡片、数据请求和权限由项目模块维护。
 
-内置 [我的页面](src/views/pages/my/my.vue) 已使用该组件，并在插槽中挂载 [MyExtensions 空实现](src/views/pages/my/components/MyExtensions.vue)。空实现保留一个 `view` 作为业务内容容器，不显示占位卡片；项目可以按这个结构组织自己的业务内容。
+内置 [我的页面](src/views/pages/my/my.uvue) 已使用该组件，并在插槽中挂载 [MyExtensions 空实现](src/views/pages/my/components/MyExtensions.uvue)。空实现保留一个 `view` 作为业务内容容器，不显示占位卡片；项目可以按这个结构组织自己的业务内容。
 
-当前模块的 `pages/my/my.vue` 通过公开组件入口装配个人中心：
+当前模块的 `pages/my/my.uvue` 通过公开组件入口装配个人中心：
 
 ```vue
 <script setup lang="ts">
-import KratosMyPage from '@liujitcn/kratos-uni-app-system/components/KratosMyPage.vue'
+import KratosMyPage from '@liujitcn/kratos-uni-app-system/components/KratosMyPage.uvue'
 </script>
 
 <template>

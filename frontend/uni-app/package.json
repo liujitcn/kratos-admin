@@ -1,14 +1,16 @@
 {
   "name": "kratos-uni-app-workspace",
-  "description": "Independent pnpm workspace for the Kratos uni-app application.",
+  "description": "Independent pnpm workspace for the Kratos uni-app x application.",
   "private": true,
   "packageManager": "pnpm@10.33.4",
   "scripts": {
     "prepare:modules": "turbo run build:entries --filter=@liujitcn/kratos-uni-app-system --ui=stream --log-order=grouped --log-prefix=none --no-color --output-logs=errors-only",
     "dev:h5": "turbo run dev:h5 --filter=@liujitcn/kratos-uni-app --ui=stream --log-order=stream --log-prefix=task --no-color",
     "dev:mp-weixin": "turbo run dev:mp-weixin --filter=@liujitcn/kratos-uni-app --ui=stream --log-order=stream --log-prefix=task --no-color",
+    "dev:app": "turbo run dev:app --filter=@liujitcn/kratos-uni-app --ui=stream --log-order=stream --log-prefix=task --no-color",
     "build:h5": "turbo run build:h5 --filter=@liujitcn/kratos-uni-app --ui=stream --log-order=grouped --log-prefix=none --no-color --output-logs=errors-only",
     "build:mp-weixin": "turbo run build:mp-weixin --filter=@liujitcn/kratos-uni-app --ui=stream --log-order=grouped --log-prefix=none --no-color --output-logs=errors-only && node scripts/check-mini-components.mjs",
+    "build:app": "turbo run build:app --filter=@liujitcn/kratos-uni-app --ui=stream --log-order=grouped --log-prefix=none --no-color --output-logs=errors-only",
     "build:packages": "turbo run build --concurrency=1 --filter=@liujitcn/kratos-uni-app-core --filter=@liujitcn/kratos-uni-app-system --filter=@liujitcn/kratos-uni-app-cli --ui=stream --log-order=grouped --log-prefix=none --no-color --output-logs=errors-only",
     "generate:rpc": "make -C .. ts-uni-app",
     "check:exports": "pnpm run prepare:modules && node scripts/check-package-exports.mjs",
@@ -19,6 +21,7 @@
   "devDependencies": {
     "@dcloudio/types": "^3.4.8",
     "@rushstack/eslint-patch": "^1.1.4",
+    "@typescript-eslint/parser": "^8.69.0",
     "@uni-helper/uni-app-types": "1.0.0-alpha.6",
     "@uni-helper/uni-ui-types": "1.0.0-alpha.6",
     "@vue/compiler-sfc": "3.4.21",
@@ -32,6 +35,7 @@
     "ts-proto": "^2.7.7",
     "turbo": "^2.10.7",
     "typescript": "5.4.5",
+    "vue-eslint-parser": "^10.4.1",
     "vue-tsc": "^1.8.8"
   },
   "pnpm": {

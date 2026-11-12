@@ -146,6 +146,52 @@ html.theme-dark .uni-sample-toast {
   color: #e9f4f6;
 }
 
+/* H5 原生 picker 不读取页面主题，单独覆盖选择弹层的浅色默认值。 */
+html.theme-dark .uni-picker-container .uni-picker-custom,
+html.theme-dark .uni-picker-container .uni-picker-content,
+html.theme-dark .uni-picker-container .uni-picker-select {
+  background-color: var(--kratos-color-surface-solid, #070d18);
+  color: var(--kratos-color-text, #e9f4f6);
+}
+
+html.theme-dark .uni-picker-container .uni-picker-header::after {
+  border-color: var(--kratos-color-border, rgba(255, 255, 255, 0.08));
+  color: var(--kratos-color-border, rgba(255, 255, 255, 0.08));
+}
+
+html.theme-dark .uni-picker-container .uni-picker-action-cancel {
+  color: var(--kratos-color-text-muted, #8aa0b4);
+}
+
+html.theme-dark .uni-picker-container .uni-picker-action-confirm {
+  color: var(--kratos-color-primary, #28f0d4);
+}
+
+html.theme-dark .uni-picker-container .uni-picker-item {
+  color: var(--kratos-color-text, #e9f4f6);
+}
+
+html.theme-dark .uni-picker-container .uni-picker-item:hover {
+  background-color: var(--kratos-color-surface-2, #121b2a);
+}
+
+html.theme-dark .uni-picker-container .uni-picker-item.selected {
+  color: var(--kratos-color-primary, #28f0d4);
+  background-color: var(--kratos-color-primary-soft, rgba(40, 240, 212, 0.08));
+}
+
+html.theme-dark .uni-picker-container .uni-picker-view-mask {
+  background-image:
+    linear-gradient(180deg, rgba(7, 13, 24, 0.95), rgba(7, 13, 24, 0.6)),
+    linear-gradient(0deg, rgba(7, 13, 24, 0.95), rgba(7, 13, 24, 0.6));
+}
+
+html.theme-dark .uni-picker-container .uni-picker-view-indicator::before,
+html.theme-dark .uni-picker-container .uni-picker-view-indicator::after {
+  border-color: var(--kratos-color-border, rgba(255, 255, 255, 0.08));
+  color: var(--kratos-color-border, rgba(255, 255, 255, 0.08));
+}
+
 /* Chrome 密码自动填充默认涂浅蓝底，用不透明内阴影盖回主题色 */
 html.theme-dark .uni-input-input:-webkit-autofill {
   -webkit-box-shadow: 0 0 0 1000px #121b2a inset;

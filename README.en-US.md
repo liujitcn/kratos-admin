@@ -32,7 +32,7 @@ The repository does not include commerce, order, payment, or recommendation modu
 | --- | --- | --- |
 | `backend` | Kratos services, Proto, GORM, migrations, jobs, and static asset hosting. | [backend/README.md](backend/README.md) |
 | `frontend/admin` | Administration workspace containing the default host, core, System, and CLI. | [frontend/admin/README.md](frontend/admin/README.md) |
-| `frontend/uni-app` | uni-app workspace containing the default host, core, system, and CLI. | [frontend/uni-app/README.md](frontend/uni-app/README.md) |
+| `frontend/uni-app` | uni-app x workspace containing the default host, core, system, and CLI. | [frontend/uni-app/README.md](frontend/uni-app/README.md) |
 | `frontend/taro-app` | React/Taro workspace containing the default host, core, UI, system, and CLI. | [frontend/taro-app/README.md](frontend/taro-app/README.md) |
 | `docs` | Current architecture, operating procedures, and topic documentation. | [docs/README.md](docs/README.md) |
 
@@ -109,7 +109,7 @@ cd ../taro-app && pnpm dev:h5
 | Backend HTTPS (`APP_ENV=https`) | `https://127.0.0.1:7001` |
 | Backend gRPC | `localhost:6001` |
 | Administration console | `http://localhost:8848` |
-| uni-app H5 | `http://localhost:5004` |
+| uni-app x H5 | `http://localhost:5004` |
 | Taro H5 | `http://localhost:5002` |
 
 Taro development output is located at `frontend/taro-app/apps/taro-app/dist/dev/<platform>`, WeChat Mini Program production output is located at `dist/build/mp-weixin`, and H5 production output remains in `backend/web/taro-app`. WeChat DevTools uses the development directory by default; import the production directory for releases.
@@ -123,7 +123,7 @@ bash scripts/generate-dev-cert.sh 192.168.1.100
 make -C backend run-only APP_ENV=https
 ```
 
-The administration proxy must set `VITE_PROXY` in a local environment file to `https://127.0.0.1:7001`; Taro and uni-app H5 must set `VITE_APP_API_URL` in their respective `.env.development-h5.local` files to `https://127.0.0.1:7001`. All three development proxies skip self-signed certificate verification.
+The administration proxy must set `VITE_PROXY` in a local environment file to `https://127.0.0.1:7001`; Taro and uni-app x H5 must set `VITE_APP_API_URL` in their respective `.env.development-h5.local` files to `https://127.0.0.1:7001`. All three development proxies skip self-signed certificate verification.
 
 The default migration provides development accounts `super / 112233` and `admin / 112233`. Change the default passwords, JWT key, database credentials, and Redis credentials before deployment.
 
@@ -151,7 +151,7 @@ make docker-run IMAGE=kratos-admin TAG=latest
 make docker-stop IMAGE=kratos-admin TAG=latest
 ```
 
-`docker-build` uses Docker Buildx to build `linux/amd64` and `linux/arm64` together by default, uses Docker media types with provenance disabled, and writes the multi-platform image to the local container image store. Override the platforms and local output with `DOCKER_PLATFORMS` and `DOCKER_LOCAL_OUTPUT`. `docker-push` tags the local image with the same `TAG` as `DOCKER_PUSH_IMAGE` and pushes it; the default target is `swr.cn-north-4.myhuaweicloud.com/newcapec/$(IMAGE)`. Go module downloads inside Docker inherit the host's `go env GOPROXY` value, fall back to the official proxy when Go is unavailable on the host, and can be overridden with `DOCKER_GOPROXY`. The build command checks Docker first, then rebuilds the administration console, uni-app H5, and Taro H5, and compiles the backend for each target architecture through a Docker multi-stage build. The three H5 builds run in parallel; the Dockerfile reuses project-specific Go module and compilation caches. The run command publishes host ports `7001/6001`, mapping `backend/data`, `backend/logs`, `backend/backups`, and `backend/configs` to `/app/data`, `/app/logs`, `/app/backups`, and `/app/configs`. The image contains default configs and static assets for all three clients; startup only supplements missing image configs into the host's `backend/configs` and does not overwrite modified host configs, then starts the service with that directory. Static sites are supplemented into `backend/data` without clearing existing uploads; Core maps local objects uniformly to `/data/` according to `oss.root_directory`. See this section for complete build parameters and examples.
+`docker-build` uses Docker Buildx to build `linux/amd64` and `linux/arm64` together by default, uses Docker media types with provenance disabled, and writes the multi-platform image to the local container image store. Override the platforms and local output with `DOCKER_PLATFORMS` and `DOCKER_LOCAL_OUTPUT`. `docker-push` tags the local image with the same `TAG` as `DOCKER_PUSH_IMAGE` and pushes it; the default target is `swr.cn-north-4.myhuaweicloud.com/newcapec/$(IMAGE)`. Go module downloads inside Docker inherit the host's `go env GOPROXY` value, fall back to the official proxy when Go is unavailable on the host, and can be overridden with `DOCKER_GOPROXY`. The build command checks Docker first, then rebuilds the administration console, uni-app x H5, and Taro H5, and compiles the backend for each target architecture through a Docker multi-stage build. The three H5 builds run in parallel; the Dockerfile reuses project-specific Go module and compilation caches. The run command publishes host ports `7001/6001`, mapping `backend/data`, `backend/logs`, `backend/backups`, and `backend/configs` to `/app/data`, `/app/logs`, `/app/backups`, and `/app/configs`. The image contains default configs and static assets for all three clients; startup only supplements missing image configs into the host's `backend/configs` and does not overwrite modified host configs, then starts the service with that directory. Static sites are supplemented into `backend/data` without clearing existing uploads; Core maps local objects uniformly to `/data/` according to `oss.root_directory`. See this section for complete build parameters and examples.
 
 `I18N_LOCALES` is a comma-separated list of BCP 47 language codes (discovered from backend language packages by default, excluding the primary language) and controls OpenAPI target languages. `make i18n` generates multilingual OpenAPI YAML. For offline generation, use `I18N_OFFLINE=1 make i18n`.
 

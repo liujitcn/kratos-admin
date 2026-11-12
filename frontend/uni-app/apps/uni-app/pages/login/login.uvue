@@ -1,0 +1,14 @@
+<script setup lang="ts">
+import { onShow } from '@dcloudio/uni-app'
+import { setAppPageTitle } from '@liujitcn/kratos-uni-app-core'
+import KratosPage from '@liujitcn/kratos-uni-app-core/views/pages/login/login.uvue'
+import KratosTabBar from '@liujitcn/kratos-uni-app-core/components/KratosTabBar.uvue'
+
+defineOptions({ inheritAttrs: false })
+onShow(() => setAppPageTitle('pages/login/login'))
+</script>
+
+<template>
+  <KratosPage v-bind="$attrs" />
+  <KratosTabBar route="pages/login/login" />
+</template>

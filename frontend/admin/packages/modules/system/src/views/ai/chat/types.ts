@@ -46,6 +46,28 @@ export type AIFlowBlock = {
 /** 消息进度状态，用于控制气泡加载、失败和常规展示。 */
 export type MessageProgressState = "idle" | "streaming" | "failed";
 
+/** AI 助手运行活动阶段。 */
+export type AiActivityPhase = "reasoning" | "tool" | "answering";
+
+/** AI 助手运行活动状态。 */
+export type AiActivityStatus = "running" | "completed" | "failed" | "waiting_approval";
+
+/** AI 助手运行活动，在消息气泡内按 ID 增量更新。 */
+export type AiActivityItem = {
+  /** 活动稳定编号。 */
+  id: string;
+  /** 活动阶段。 */
+  phase: AiActivityPhase;
+  /** 活动状态。 */
+  status: AiActivityStatus;
+  /** 面向用户的摘要。 */
+  summary?: string;
+  /** 工具内部名称。 */
+  tool_name?: string;
+  /** 工具展示名称。 */
+  tool_title?: string;
+};
+
 /** 回复来源标签配置。 */
 export type ReplySourceTag = {
   /** 标签文本。 */
@@ -98,10 +120,12 @@ export type ChatMessageItem = AiMessage & {
   streamKey?: string;
   /** 是否正在朗读当前消息。 */
   speaking?: boolean;
+  /** 当前轮次的运行活动时间线。 */
+  activities?: AiActivityItem[];
 };
 
 /** AI 助手 direct stream SSE 事件名称。 */
-export type AiStreamEventName = "delta" | "finish" | "approval_required" | "error";
+export type AiStreamEventName = "delta" | "activity" | "finish" | "approval_required" | "error";
 
 /** AI 助手 direct stream 事件负载。 */
 export type AiStreamPayload = {
@@ -111,6 +135,8 @@ export type AiStreamPayload = {
   message_id: string;
   /** 本次新增文本分片。 */
   delta?: string;
+  /** 本次运行活动更新。 */
+  activity?: AiActivityItem;
   /** 流式完成后的最终消息列表。 */
   messages?: AiMessage[];
   /** 流式完成后的最新会话。 */

@@ -22,7 +22,7 @@
       "default": "./dist/module.mjs"
     },
     "./api/*": "./src/api/*.ts",
-    "./components/*.vue": "./src/components/*.vue",
+    "./components/*.uvue": "./src/components/*.uvue",
     "./rpc/*": "./src/rpc/*",
     "./stores": "./src/stores/index.ts",
     "./navigation": "./src/navigation.ts",

@@ -25,3 +25,13 @@ func ResponsesServerToolOptions() []Option {
 		}),
 	}
 }
+
+// ResponsesReasoningOptions 构造仅返回推理摘要的 Responses 请求选项。
+func ResponsesReasoningOptions() []Option {
+	return []Option{
+		agenticopenai.WithResponsesReasoning(&responses.ReasoningParam{
+			Effort:  responses.ReasoningEffortLow,
+			Summary: responses.ReasoningSummaryDetailed,
+		}),
+	}
+}

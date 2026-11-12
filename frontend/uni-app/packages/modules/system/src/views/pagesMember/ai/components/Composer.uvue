@@ -1,0 +1,377 @@
+<script setup lang="ts">
+import { computed, ref } from 'vue'
+import { useI18n } from '@liujitcn/kratos-uni-app-core'
+import { useThemeStore } from '@liujitcn/kratos-uni-app-core/stores'
+import type { AiAttachment } from '../../../../rpc/base/v1/ai_session'
+import type { AiProviderModelOption } from '../../../../rpc/base/v1/ai_provider'
+import type { AiKnowledgeOption } from '../../../../rpc/base/v1/ai_knowledge'
+import { fallbackModelDisplayName } from '../modelDisplay'
+import ModelPicker from './ModelPicker.uvue'
+import KnowledgePicker from './KnowledgePicker.uvue'
+
+const { t } = useI18n()
+
+type InputEventValue = {
+  detail: {
+    value: string
+  }
+}
+
+const props = defineProps<{
+  modelValue: string
+  attachments: AiAttachment[]
+  /** 当前可供选择的供应商与模型。 */
+  modelProviders: AiProviderModelOption[]
+  /** 当前选中的供应商编号和模型名称。 */
+  providerId: number
+  modelName: string
+  /** 当前可供选择的知识库。 */
+  knowledgeOptions: AiKnowledgeOption[]
+  /** 当前选择的知识库编号列表。 */
+  knowledgeIds: number[]
+  pluginCount: number
+  modelPlaceholder: string
+  placeholder: string
+  bottom: string
+  recording: boolean
+  sending: boolean
+  disabled: boolean
+}>()
+
+const emit = defineEmits<{
+  'update:modelValue': [value: string]
+  plugins: []
+  attach: []
+  record: []
+  send: []
+  'remove-attachment': [attachment: AiAttachment]
+  'model-change': [providerId: number, modelName: string]
+  'knowledge-change': [knowledgeIds: number[]]
+}>()
+
+const showModelPicker = ref(false)
+const showKnowledgePicker = ref(false)
+const themeStore = useThemeStore()
+const iconColor = computed(() => themeStore.colors.aiTextMuted)
+const primaryIconColor = computed(() => themeStore.colors.aiPrimary)
+
+const selectedModelDisplayName = computed(() => {
+  const provider = props.modelProviders.find((item) => item.provider_id === props.providerId)
+  const matched = provider?.models.find((model) => model.model_name === props.modelName)
+  return matched?.display_name || fallbackModelDisplayName(props.modelName)
+})
+
+function handleInput(event: Event) {
+  emit('update:modelValue', ((event as unknown as InputEventValue).detail?.value || '').toString())
+}
+
+function openModelPicker() {
+  if (props.sending || !props.modelProviders.length) {
+    return
+  }
+  showModelPicker.value = true
+}
+
+function handleModelSelect(providerId: number, modelName: string) {
+  showModelPicker.value = false
+  emit('model-change', providerId, modelName)
+}
+
+function openKnowledgePicker() {
+  if (props.sending || !props.knowledgeOptions.length) {
+    return
+  }
+  showKnowledgePicker.value = true
+}
+
+function handleKnowledgeToggle(knowledgeId: number) {
+  const current = new Set(props.knowledgeIds)
+  if (current.has(knowledgeId)) {
+    current.delete(knowledgeId)
+  } else {
+    current.add(knowledgeId)
+  }
+  emit('knowledge-change', [...current])
+}
+</script>
+
+<template>
+  <view class="composer" :style="{ paddingBottom: bottom }">
+    <view
+      class="composer-model-chip"
+      :class="{ 'is-disabled': sending || !modelProviders.length }"
+      @tap="openModelPicker"
+    >
+      <text class="composer-model-chip__spark">✦</text>
+      <text class="composer-model-chip__label">{{
+        selectedModelDisplayName || modelPlaceholder
+      }}</text>
+      <uni-icons type="down" size="12" :color="iconColor" />
+    </view>
+    <view
+      class="composer-model-chip"
+      :class="{
+        'is-disabled': sending || !knowledgeOptions.length,
+        'is-selected': knowledgeIds.length > 0,
+      }"
+      @tap="openKnowledgePicker"
+    >
+      <text class="composer-model-chip__spark">📚</text>
+      <text class="composer-model-chip__label">{{
+        knowledgeIds.length > 0
+          ? t('system.ai.knowledge.selected_count', { count: knowledgeIds.length })
+          : t('system.ai.knowledge.title')
+      }}</text>
+      <uni-icons type="down" size="12" :color="iconColor" />
+    </view>
+    <button class="composer-model-chip" :disabled="sending" @tap="emit('plugins')">
+      <text class="composer-model-chip__label"
+        >{{ t('system.ai.workspace.plugins') }} · {{ pluginCount }}</text
+      >
+    </button>
+    <view class="composer-main">
+      <button class="attach-button" hover-class="none" @tap="emit('attach')">
+        <uni-icons type="plusempty" size="30" :color="iconColor" />
+      </button>
+      <view class="composer-card">
+        <view v-if="attachments.length" class="composer-attachments">
+          <view
+            v-for="attachment in attachments"
+            :key="attachment.id || attachment.url || attachment.name"
+            class="composer-attachment"
+            @tap="emit('remove-attachment', attachment)"
+          >
+            {{ attachment.name }} ×
+          </view>
+        </view>
+        <textarea
+          class="composer-input"
+          auto-height
+          :maxlength="500"
+          :value="modelValue"
+          :placeholder="placeholder"
+          placeholder-class="composer-placeholder"
+          @input="handleInput"
+        />
+        <button
+          class="voice-button"
+          :class="{ active: recording }"
+          hover-class="none"
+          @tap="emit('record')"
+        >
+          <uni-icons type="mic" size="28" :color="recording ? primaryIconColor : iconColor" />
+        </button>
+      </view>
+      <button
+        class="send-button"
+        :class="{ 'is-disabled': disabled, 'is-sending': sending }"
+        :disabled="disabled"
+        hover-class="none"
+        @tap="emit('send')"
+      >
+        <uni-icons type="paperplane" size="28" :color="disabled ? iconColor : primaryIconColor" />
+      </button>
+    </view>
+
+    <ModelPicker
+      v-if="showModelPicker"
+      :providers="modelProviders"
+      :provider-id="providerId"
+      :model-name="modelName"
+      @select="handleModelSelect"
+      @close="showModelPicker = false"
+    />
+
+    <KnowledgePicker
+      v-if="showKnowledgePicker"
+      :options="knowledgeOptions"
+      :selected-ids="knowledgeIds"
+      @toggle="handleKnowledgeToggle"
+      @close="showKnowledgePicker = false"
+    />
+  </view>
+</template>
+
+<style lang="scss" scoped>
+.attach-button,
+.voice-button,
+.send-button {
+  padding: 0;
+  margin: 0;
+  border-radius: 0;
+  background: transparent;
+  line-height: normal;
+
+}
+
+.composer {
+  flex-shrink: 0;
+  width: 100%;
+  margin-bottom: var(--kratos-tab-bar-space, calc(104rpx + env(safe-area-inset-bottom)));
+  padding: 14rpx 24rpx 18rpx;
+  overflow: hidden;
+  background: var(--kratos-color-surface, #fff);
+  border-top: 1rpx solid var(--kratos-color-border-accent, rgba(120, 230, 215, 0.16));
+  box-sizing: border-box;
+}
+
+.composer-main {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 16rpx;
+  min-height: 124rpx;
+  padding: 22rpx 18rpx;
+  border: 1rpx solid var(--kratos-color-border, #e3eaf2);
+  border-radius: var(--kratos-page-radius);
+  background: var(--kratos-color-surface, #fff);
+  box-sizing: border-box;
+}
+
+.composer-model-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 10rpx;
+  max-width: 100%;
+  height: 56rpx;
+  padding: 0 24rpx;
+  margin: 0 8rpx 12rpx;
+  color: var(--kratos-color-text, #102232);
+  background: var(--kratos-color-surface, #fff);
+  border: 1rpx solid var(--kratos-color-border-accent, rgba(0, 150, 134, 0.28));
+  border-radius: var(--kratos-page-radius);
+  box-sizing: border-box;
+}
+
+.composer-model-chip.is-disabled {
+  opacity: 0.55;
+}
+
+.composer-model-chip__spark {
+  flex-shrink: 0;
+  color: var(--kratos-color-primary, #039e8c);
+  font-size: 26rpx;
+  line-height: 26rpx;
+}
+
+.composer-model-chip__label {
+  max-width: 320rpx;
+  overflow: hidden;
+  color: inherit;
+  font-size: 24rpx;
+  font-weight: 500;
+  line-height: 34rpx;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.attach-button {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  width: 72rpx;
+  height: 72rpx;
+  border: 1rpx solid var(--kratos-color-border, #e3eaf2);
+  border-radius: 50%;
+  background: var(--kratos-color-surface, #fff);
+  color: var(--kratos-color-text-muted, #5a7083);
+  box-shadow: none;
+  box-sizing: border-box;
+}
+
+.composer-card {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10rpx;
+  min-height: 72rpx;
+  padding: 0 12rpx 0 28rpx;
+  border: 1rpx solid var(--kratos-color-border, #e3eaf2);
+  border-radius: var(--kratos-page-radius);
+  background: var(--kratos-color-surface-2, #eef4fa);
+  box-shadow: none;
+  box-sizing: border-box;
+}
+
+.composer-attachments {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 8rpx;
+  width: 100%;
+  padding-top: 4rpx;
+}
+
+.composer-attachment {
+  max-width: 240rpx;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding: 6rpx 12rpx;
+  border: 1rpx solid var(--kratos-color-primary-edge, rgba(0, 150, 134, 0.3));
+  border-radius: var(--kratos-page-radius);
+  color: var(--kratos-color-primary, #039e8c);
+  font-size: 20rpx;
+  line-height: 28rpx;
+  background: var(--kratos-color-primary-soft, rgba(3, 158, 140, 0.08));
+}
+
+.composer-input {
+  flex: 1;
+  min-width: 0;
+  min-height: 42rpx;
+  max-height: 126rpx;
+  padding: 14rpx 0;
+  box-sizing: border-box;
+  color: var(--kratos-color-text, #102232);
+  font-size: 29rpx;
+  line-height: 42rpx;
+  overflow-y: auto;
+  background: transparent;
+}
+
+.composer-placeholder {
+  color: var(--kratos-color-text-dim, #9aabbb);
+  font-size: 29rpx;
+}
+
+.voice-button,
+.send-button {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
+
+.voice-button {
+  width: 60rpx;
+  height: 60rpx;
+  background: transparent;
+}
+
+.voice-button.active {
+  background: var(--kratos-color-primary-soft, rgba(3, 158, 140, 0.08));
+}
+
+.send-button {
+  width: 74rpx;
+  height: 74rpx;
+  background: var(--kratos-color-track, #e8eef5);
+}
+
+.send-button.is-disabled {
+  background: var(--kratos-color-track, #e8eef5);
+}
+
+.send-button:not(.is-disabled) {
+  background: var(--kratos-color-primary-soft-2, rgba(3, 158, 140, 0.1));
+  border: 1rpx solid var(--kratos-color-primary-edge, rgba(0, 150, 134, 0.3));
+}
+</style>

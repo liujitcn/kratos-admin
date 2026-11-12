@@ -1,0 +1,14 @@
+<script setup lang="ts">
+import { onShow } from '@dcloudio/uni-app'
+import { setAppPageTitle } from '@liujitcn/kratos-uni-app-core'
+import KratosPage from '@liujitcn/kratos-uni-app-core/views/pages/webview/webview.uvue'
+import KratosTabBar from '@liujitcn/kratos-uni-app-core/components/KratosTabBar.uvue'
+
+defineOptions({ inheritAttrs: false })
+onShow(() => setAppPageTitle('pages/webview/webview'))
+</script>
+
+<template>
+  <KratosPage v-bind="$attrs" />
+  <KratosTabBar route="pages/webview/webview" />
+</template>

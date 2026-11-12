@@ -4,13 +4,11 @@ import { fileURLToPath } from 'node:url'
 import {
   createKratosUniPlugin,
   defineConfig,
-  kratosApp,
   loadEnv,
   viteMessage,
   type ConfigEnv,
   type UserConfig,
 } from '@liujitcn/kratos-uni-app-core/vite'
-import { moduleManifest } from './src/module-manifest'
 
 const workspaceRoot = resolve(dirname(fileURLToPath(import.meta.url)), '../..')
 
@@ -45,6 +43,7 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
     envDir: workspaceRoot,
     resolve: {
       preserveSymlinks: true,
+      dedupe: ['vue', 'pinia', '@liujitcn/kratos-uni-app-core'],
       alias: [
         { find: '@', replacement: resolve(workspaceRoot, 'packages/core/src') },
         { find: '@system', replacement: resolve(workspaceRoot, 'packages/modules/system/src') },
@@ -59,6 +58,9 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
       'import.meta.env.VITE_APP_API_URL': JSON.stringify(env.VITE_APP_API_URL || ''),
       'import.meta.env.VITE_APP_STATIC_API': JSON.stringify(env.VITE_APP_STATIC_API || ''),
       'import.meta.env.VITE_APP_STATIC_URL': JSON.stringify(env.VITE_APP_STATIC_URL || ''),
+    },
+    optimizeDeps: {
+      exclude: ['@liujitcn/kratos-uni-app-core', '@liujitcn/kratos-uni-app-system'],
     },
     server: {
       host: '0.0.0.0',
@@ -89,6 +91,6 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
         : {}),
       sourcemap: process.env.NODE_ENV === 'development',
     },
-    plugins: [kratosApp({ modules: moduleManifest }), createKratosUniPlugin()],
+    plugins: [createKratosUniPlugin()],
   }
 })

@@ -4,10 +4,10 @@ export * from './locales'
 export * from './navigation'
 export type { KratosNavBarAction, KratosNavBarProps } from './types/nav-bar'
 /** KratosSettingsPage 可通过顶部插槽扩展业务内容的公共设置页。 */
-export { default as KratosSettingsPage } from './components/KratosSettingsPage.vue'
-export { default as KratosTabBar } from './components/KratosTabBar.vue'
+export { default as KratosSettingsPage } from './components/KratosSettingsPage.uvue'
+export { default as KratosTabBar } from './components/KratosTabBar.uvue'
 /** KratosEmpty 标准空态组件，支持自定义图标、主文案与提示文案。 */
-export { default as KratosEmpty } from './components/KratosEmpty.vue'
+export { default as KratosEmpty } from './components/KratosEmpty.uvue'
 export { default as pinia } from './stores'
 export * from './stores'
 export * from './utils/secretCrypto'

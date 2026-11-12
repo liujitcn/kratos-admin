@@ -70,6 +70,8 @@ type Request struct {
 	Recorder *callback.Recorder
 	// LocalizeMessage 按请求语言生成用户可见的错误文案。
 	LocalizeMessage func(context.Context, string, map[string]any, string) string
+	// ModelOptions 是传给底层 Eino 模型的请求选项。
+	ModelOptions []model.Option
 	// Stream 是否启用模型流式输出。
 	Stream bool
 	// OnDelta 用户可见文本增量回调。
@@ -134,22 +136,36 @@ func (r *Runner) Run(ctx context.Context, request Request) (*Result, error) {
 		CheckPointStore: r.checkPointStore,
 		// Responses 的服务端工具事件与文本块可能混合返回，统一由 Runner 消费事件，避免
 		// ADK 自动合并时丢失工具事件。
-		EnableStreaming: false,
+		EnableStreaming: request.Stream,
 	})
+	runOptions := []adk.AgentRunOption{adk.WithCallbacks(callback.NewHandler())}
+	if len(request.ModelOptions) > 0 {
+		runOptions = append(runOptions, adk.WithChatModelOptions(request.ModelOptions))
+	}
 	var iter *adk.AsyncIterator[*adk.TypedAgentEvent[*schema.AgenticMessage]]
 	if request.Decisions != nil {
-		iter, err = runner.ResumeWithParams(ctx, request.CheckPointID, &adk.ResumeParams{Targets: request.Decisions}, adk.WithCallbacks(callback.NewHandler()))
+		iter, err = runner.ResumeWithParams(ctx, request.CheckPointID, &adk.ResumeParams{Targets: request.Decisions}, runOptions...)
 		if err != nil {
 			return nil, err
 		}
 	} else {
-		iter = runner.Run(ctx, request.Messages, adk.WithCheckPointID(request.CheckPointID), adk.WithCallbacks(callback.NewHandler()))
+		runOptions = append(runOptions, adk.WithCheckPointID(request.CheckPointID))
+		iter = runner.Run(ctx, request.Messages, runOptions...)
 	}
 	var messageValue *schema.AgenticMessage
 	var pending []agenttool.ApprovalCall
-	messageValue, pending, err = consumeEvents(iter, request.OnDelta, request.Stream)
+	messageValue, pending, err = consumeEvents(ctx, iter, request.OnDelta, request.Stream)
 	if err != nil {
 		return nil, err
+	}
+	for _, call := range pending {
+		callback.EmitActivity(ctx, callback.Activity{
+			ID:        call.InterruptID,
+			Phase:     "tool",
+			Status:    "waiting_approval",
+			ToolName:  call.Name,
+			ToolTitle: call.Title,
+		})
 	}
 	// ADK 事件全部消费后仍没有助手消息，说明模型没有产出可落库的最终回复。
 	if messageValue == nil && len(pending) == 0 {
@@ -202,7 +218,7 @@ func (r *Runner) newAgent(ctx context.Context, request Request) (*adk.TypedChatM
 }
 
 // consumeEvents 消费 ADK 事件流，返回本轮最终助手消息。
-func consumeEvents(iter *adk.AsyncIterator[*adk.TypedAgentEvent[*schema.AgenticMessage]], onDelta func(string), stream bool) (*schema.AgenticMessage, []agenttool.ApprovalCall, error) {
+func consumeEvents(ctx context.Context, iter *adk.AsyncIterator[*adk.TypedAgentEvent[*schema.AgenticMessage]], onDelta func(string), stream bool) (*schema.AgenticMessage, []agenttool.ApprovalCall, error) {
 	var finalMessage *schema.AgenticMessage
 	var pending []agenttool.ApprovalCall
 	var streamText strings.Builder
@@ -238,12 +254,12 @@ func consumeEvents(iter *adk.AsyncIterator[*adk.TypedAgentEvent[*schema.AgenticM
 		messageOutput := event.Output.MessageOutput
 		// 流式输出需要逐 chunk 消费，并在消费过程中透传文本增量给 SSE。
 		if messageOutput.IsStreaming {
-			currentMessage, err := consumeMessageStream(messageOutput.MessageStream, onDelta, stream, &streamText)
+			currentMessage, err := consumeMessageStream(ctx, messageOutput.MessageStream, onDelta, stream, &streamText)
 			if err != nil {
 				return nil, nil, err
 			}
-			// 流式片段合并成功后，作为当前可用的最终助手消息候选。
-			if currentMessage != nil {
+			// 流式片段合并成功后，作为当前可用的最终助手消息候选；空助手事件不能覆盖已有文本。
+			if currentMessage != nil && (message.AITextOnly(currentMessage) != "" || finalMessage == nil) {
 				finalMessage = currentMessage
 			}
 			continue
@@ -253,6 +269,8 @@ func consumeEvents(iter *adk.AsyncIterator[*adk.TypedAgentEvent[*schema.AgenticM
 		if currentMessage == nil {
 			continue
 		}
+		emitToolActivities(ctx, currentMessage)
+		emitReasoningSummary(ctx, currentMessage, nil)
 		// 非流式事件也可能携带助手文本；只有尚未通过 chunk 透传过文本时才推给前端，避免 SSE 重复显示最终消息。
 		if stream && onDelta != nil && streamText.Len() == 0 && messageOutput.AgenticRole == schema.AgenticRoleTypeAssistant && !hasToolCall(currentMessage) {
 			if text := message.AITextOnly(currentMessage); text != "" {
@@ -261,12 +279,12 @@ func consumeEvents(iter *adk.AsyncIterator[*adk.TypedAgentEvent[*schema.AgenticM
 			}
 		}
 		// 只有助手角色可以作为本轮最终回复；工具结果消息仅作为中间上下文。
-		if currentMessage.Role == schema.AgenticRoleTypeAssistant {
+		if currentMessage.Role == schema.AgenticRoleTypeAssistant && (message.AITextOnly(currentMessage) != "" || finalMessage == nil) {
 			finalMessage = currentMessage
 		}
 	}
-	// 个别流式模型只返回 chunk，没有最终 message 事件，此时用已透传文本拼出最终回复。
-	if finalMessage == nil && streamText.Len() > 0 {
+	// 个别流式模型只返回 chunk，或最终事件为空，此时用已透传文本拼出最终回复。
+	if streamText.Len() > 0 && message.AITextOnly(finalMessage) == "" {
 		finalMessage = message.AIText(streamText.String())
 	}
 	return finalMessage, pending, nil
@@ -274,6 +292,7 @@ func consumeEvents(iter *adk.AsyncIterator[*adk.TypedAgentEvent[*schema.AgenticM
 
 // consumeMessageStream 消费单个模型流并返回合并后的助手消息。
 func consumeMessageStream(
+	ctx context.Context,
 	reader *schema.StreamReader[*schema.AgenticMessage],
 	onDelta func(string),
 	stream bool,
@@ -285,6 +304,8 @@ func consumeMessageStream(
 	}
 	defer reader.Close()
 	chunks := make([]*schema.AgenticMessage, 0)
+	reasoningText := make(map[int]string)
+	answerStarted := false
 	for {
 		chunk, err := reader.Recv()
 		// io.EOF 是正常流结束信号，不应作为模型调用错误返回。
@@ -304,6 +325,8 @@ func consumeMessageStream(
 			continue
 		}
 		chunks = append(chunks, chunk)
+		emitToolActivities(ctx, chunk)
+		emitReasoningSummary(ctx, chunk, reasoningText)
 		// 只有处于 SSE 模式、chunk 属于助手文本且不包含工具调用时，才向前端透传。
 		if !stream || onDelta == nil || chunk.Role != schema.AgenticRoleTypeAssistant || hasToolCall(chunk) {
 			continue
@@ -313,6 +336,10 @@ func consumeMessageStream(
 		if text == "" {
 			continue
 		}
+		if !answerStarted {
+			answerStarted = true
+			callback.EmitActivity(ctx, callback.Activity{ID: "answer", Phase: "answering", Status: "running"})
+		}
 		streamText.WriteString(text)
 		onDelta(text)
 	}
@@ -321,6 +348,92 @@ func consumeMessageStream(
 		return nil, nil
 	}
 	return message.Concat(chunks)
+}
+
+// emitReasoningSummary 将 Eino 推理摘要转换为可展示活动，原始推理扩展不会进入摘要字段。
+func emitReasoningSummary(ctx context.Context, value *schema.AgenticMessage, accumulated map[int]string) {
+	for _, part := range message.ReasoningSummaries(value) {
+		text := part.Text
+		if accumulated != nil {
+			accumulated[part.Index] += part.Text
+			text = accumulated[part.Index]
+		}
+		callback.EmitActivity(ctx, callback.Activity{
+			ID:      fmt.Sprintf("reasoning:%d", part.Index),
+			Phase:   "reasoning",
+			Status:  "running",
+			Summary: text,
+		})
+	}
+}
+
+// emitToolActivities 将模型侧服务端工具和 MCP 工具事件转换为活动，不携带原始参数和结果。
+func emitToolActivities(ctx context.Context, value *schema.AgenticMessage) {
+	if value == nil {
+		return
+	}
+	for _, block := range value.ContentBlocks {
+		if block == nil {
+			continue
+		}
+		if call := block.ServerToolCall; call != nil && call.Name != "" {
+			callback.EmitActivity(ctx, callback.Activity{
+				ID:        activityID(call.CallID, "server:"+call.Name),
+				Phase:     "tool",
+				Status:    "running",
+				ToolName:  call.Name,
+				ToolTitle: call.Name,
+			})
+		}
+		if result := block.ServerToolResult; result != nil && result.Name != "" {
+			callback.EmitActivity(ctx, callback.Activity{
+				ID:        activityID(result.CallID, "server:"+result.Name),
+				Phase:     "tool",
+				Status:    "completed",
+				ToolName:  result.Name,
+				ToolTitle: result.Name,
+			})
+		}
+		if call := block.MCPToolCall; call != nil && call.Name != "" {
+			callback.EmitActivity(ctx, callback.Activity{
+				ID:        activityID(call.CallID, "mcp:"+call.Name),
+				Phase:     "tool",
+				Status:    "running",
+				ToolName:  call.Name,
+				ToolTitle: call.Name,
+			})
+		}
+		if result := block.MCPToolResult; result != nil && result.Name != "" {
+			status := "completed"
+			if result.Error != nil {
+				status = "failed"
+			}
+			callback.EmitActivity(ctx, callback.Activity{
+				ID:        activityID(result.CallID, "mcp:"+result.Name),
+				Phase:     "tool",
+				Status:    status,
+				Summary:   mcpToolError(result.Error),
+				ToolName:  result.Name,
+				ToolTitle: result.Name,
+			})
+		}
+	}
+}
+
+// activityID 返回模型工具活动的稳定编号。
+func activityID(callID string, fallback string) string {
+	if callID != "" {
+		return callID
+	}
+	return fallback
+}
+
+// mcpToolError 返回 MCP 工具失败的用户可见摘要。
+func mcpToolError(value *schema.MCPToolCallError) string {
+	if value == nil {
+		return ""
+	}
+	return value.Message
 }
 
 // hasCompletedOpenAIResponse 判断流中是否已收到 OpenAI Responses 的完成状态。

@@ -63,7 +63,7 @@
       @result="openResultSession"
       @session="openDiscussion"
     />
-    <FilePanel v-show="assistantView === 'files'" />
+    <FilePanel ref="filePanelRef" v-show="assistantView === 'files'" />
     <PluginPanel
       v-show="assistantView === 'plugins'"
       :plugins="plugins"
@@ -112,6 +112,7 @@ import { pluginSelectionKey } from "./workspace/state";
 import type { AssistantView } from "./workspace/state";
 import {
   appendStreamingDelta,
+  completeStreamingActivities,
   createLocalUserMessage,
   createThinkingMessage,
   ensureStreamingMessage,
@@ -125,7 +126,8 @@ import {
   normalizeSessionList,
   resolveTimestamp,
   replacePendingMessages,
-  sortMessages
+  sortMessages,
+  upsertStreamingActivity
 } from "./message";
 import { readAiEventStream } from "./stream";
 import {
@@ -149,6 +151,7 @@ defineOptions({
 const mobile = useMediaQuery("(max-width: 768px)");
 const route = useRoute();
 const assistantView = ref<AssistantView>("chat");
+const filePanelRef = ref<InstanceType<typeof FilePanel>>();
 const drafts = ref<Record<string, SubmitPayload>>({});
 const pendingAutomationCount = ref(0);
 const automationPanel = ref<InstanceType<typeof AutomationPanel>>();
@@ -653,7 +656,7 @@ function handleAiFinish(payload: AiStreamPayload, task?: AiStreamTask) {
   if (task) task.finished = true;
   flushAiDelta();
   const nextMessages = normalizeMessageList(payload.messages as never[]);
-  const current = messages.value[sessionID] ?? [];
+  const current = completeStreamingActivities(messages.value[sessionID] ?? [], payload);
   const messageID = String(payload.message_id ?? "");
   const streamKey = messageID ? `${sessionID}:${messageID}` : "";
   const hasLocalStreamingMessages = current.some(item => item.streamKey === streamKey && item.localOnly);
@@ -662,6 +665,14 @@ function handleAiFinish(payload: AiStreamPayload, task?: AiStreamTask) {
   if (payload.session) {
     upsertSession(normalizeSession(payload.session as AiSession));
   }
+}
+
+/** 处理 AI 助手运行活动事件。 */
+function handleAiActivity(payload: AiStreamPayload) {
+  const sessionID = String(payload.session_id ?? "");
+  if (!sessionID || !payload.activity) return;
+  const streamingMessages = ensureStreamingMessage(messages.value[sessionID] ?? [], payload);
+  messages.value[sessionID] = upsertStreamingActivity(streamingMessages, payload);
 }
 
 /** 处理 AI 助手流式异常事件。 */
@@ -684,6 +695,9 @@ function handleAiStreamEvent(event: AiStreamEvent, task?: AiStreamTask) {
   switch (event.event) {
     case "delta":
       handleAiDelta(event.payload);
+      break;
+    case "activity":
+      handleAiActivity(event.payload);
       break;
     case "finish":
     case "approval_required":
@@ -1052,6 +1066,11 @@ watch(
   () => route.query.run_id,
   value => void openNotificationResult(value)
 );
+
+// 切到文件面板时刷新列表，保证刚生成的文件立即可见。
+watch(assistantView, view => {
+  if (view === "files") filePanelRef.value?.reload();
+});
 
 /** 页面加载后主动准备首个会话，避免进入菜单后仍需额外点击。 */
 onMounted(async () => {

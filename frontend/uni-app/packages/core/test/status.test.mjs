@@ -4,7 +4,7 @@ import { resolve } from 'node:path'
 import test from 'node:test'
 
 const statusPage = readFileSync(
-  resolve(import.meta.dirname, '../src/views/pages/status/index.vue'),
+  resolve(import.meta.dirname, '../src/views/pages/status/index.uvue'),
   'utf8',
 )
 

@@ -6,7 +6,7 @@ import { parse } from '@vue/compiler-sfc'
 
 test('设置页把 extensions 插槽直接放在公共设置之前', async () => {
   const source = await readFile(
-    resolve(import.meta.dirname, '../src/components/KratosSettingsPage.vue'),
+    resolve(import.meta.dirname, '../src/components/KratosSettingsPage.uvue'),
     'utf8',
   )
   const { descriptor } = parse(source)

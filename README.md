@@ -4,7 +4,7 @@
 
 [简体中文](README.md) | [繁體中文](README.zh-TW.md) | [English](README.en-US.md) | [日本語](README.ja-JP.md)
 
-`kratos-admin` 是一个前后端分离的管理系统仓库，包含 Go + Kratos 后端、Vue 管理后台、uni-app 应用底座、React/Taro 应用底座、版本化数据库迁移和模块脚手架。
+`kratos-admin` 是一个前后端分离的管理系统仓库，包含 Go + Kratos 后端、Vue 管理后台、uni-app x 应用底座、React/Taro 应用底座、版本化数据库迁移和模块脚手架。
 
 仓库根目录的 `go.work` 连接后端、API、客户端及可选的独立组件模块，具体清单以该文件为准；本地生成协议后直接使用本地模块编译和测试；Docker 构建也使用源码内的本地 API 模块。对外发布仍需先发布 API 模块，再更新后端和客户端的 API 依赖版本。
 
@@ -52,7 +52,7 @@ BI 统一为问数、数据卡片、仪表盘组合和工作台入口：卡片�
 | --- | --- | --- |
 | `backend` | Kratos 服务、Proto、GORM、迁移、任务和静态资源托管。 | [backend/README.md](backend/README.md) |
 | `frontend/admin` | 管理端 workspace，包含默认宿主、core、System 和 CLI。 | [frontend/admin/README.md](frontend/admin/README.md) |
-| `frontend/uni-app` | uni-app workspace，包含默认宿主、core、system 和 CLI。 | [frontend/uni-app/README.md](frontend/uni-app/README.md) |
+| `frontend/uni-app` | uni-app x workspace，包含默认宿主、core、system 和 CLI。 | [frontend/uni-app/README.md](frontend/uni-app/README.md) |
 | `frontend/taro-app` | React/Taro workspace，包含默认宿主、core、UI、system 和 CLI。 | [frontend/taro-app/README.md](frontend/taro-app/README.md) |
 | `docs` | 当前架构、操作流程和专题说明。 | [docs/README.md](docs/README.md) |
 
@@ -135,14 +135,14 @@ cd ../taro-app && pnpm dev:h5
 | 后端 HTTPS（`APP_ENV=https`） | `https://127.0.0.1:7001` |
 | 后端 gRPC | `localhost:6001` |
 | 管理后台 | `http://localhost:8848` |
-| uni-app H5 | `http://localhost:5004` |
+| uni-app x H5 | `http://localhost:5004` |
 | Taro H5 | `http://localhost:5002` |
 
 Taro 开发产物位于 `frontend/taro-app/apps/taro-app/dist/dev/<平台>`，微信小程序生产产物位于 `dist/build/mp-weixin`；H5 生产产物仍输出到 `backend/web/taro-app`。微信开发者工具默认使用开发目录，发布时导入生产目录。
 
-uni-app 微信小程序通过 `frontend/uni-app` 的 `pnpm build:mp-weixin` 构建，产物位于 `apps/uni-app/dist/build/mp-weixin`；构建完成后会检查自定义组件在小程序配置中的注册，避免页面引用了组件却未渲染。
+uni-app x 微信小程序通过 `frontend/uni-app` 的 `pnpm build:mp-weixin` 构建，产物位于 `apps/uni-app/dist/build/mp-weixin`；构建完成后会检查自定义组件在小程序配置中的注册，避免页面引用了组件却未渲染。
 
-uni-app 和 Taro H5 默认分别使用 `5004` 与 `5002`，可以同时启动。局域网设备访问 uni-app 时，将 `localhost` 替换为开发机局域网 IP。
+uni-app x 和 Taro H5 默认分别使用 `5004` 与 `5002`，可以同时启动。局域网设备访问 uni-app 时，将 `localhost` 替换为开发机局域网 IP。
 
 局域网 HTTPS 联调时，在仓库根目录生成共享证书，并让后端使用 HTTPS 环境：
 
@@ -151,7 +151,7 @@ bash scripts/generate-dev-cert.sh 192.168.1.100
 make -C backend run-only APP_ENV=https
 ```
 
-管理端开发代理需要在本地环境文件中将 `VITE_PROXY` 的后端地址改为 `https://127.0.0.1:7001`；Taro 和 uni-app H5 需要在各自 `.env.development-h5.local` 中将 `VITE_APP_API_URL` 改为 `https://127.0.0.1:7001`。三端开发代理都会跳过自签名证书校验。
+管理端开发代理需要在本地环境文件中将 `VITE_PROXY` 的后端地址改为 `https://127.0.0.1:7001`；Taro 和 uni-app x H5 需要在各自 `.env.development-h5.local` 中将 `VITE_APP_API_URL` 改为 `https://127.0.0.1:7001`。三端开发代理都会跳过自签名证书校验。
 
 默认迁移提供开发账号 `super / 112233` 和 `admin / 112233`。部署前必须修改默认密码、JWT 密钥、数据库和 Redis 凭据。
 
@@ -182,7 +182,7 @@ make docker-run IMAGE=kratos-admin
 make docker-stop IMAGE=kratos-admin
 ```
 
-Docker 镜像 `TAG` 默认读取 `backend/internal/const/project.go` 中的服务版本，也可以通过命令行显式覆盖。`docker-build` 使用 Docker Buildx 同时构建 `linux/amd64` 和 `linux/arm64`，默认使用 Docker media types、关闭 provenance 附件，并将双架构镜像写入本地容器镜像存储；可用 `DOCKER_PLATFORMS` 和 `DOCKER_LOCAL_OUTPUT` 覆盖平台及输出方式。`docker-push` 将本地镜像按相同 `TAG` 标记为 `DOCKER_PUSH_IMAGE` 并推送，默认目标为 `swr.cn-north-4.myhuaweicloud.com/newcapec/$(IMAGE)`。Docker 内的 Go 模块下载默认继承宿主机 `go env GOPROXY`，宿主机没有 Go 时回退到官方代理，也可通过 `DOCKER_GOPROXY` 显式覆盖。构建命令先检查 Docker，再重新构建管理后台、uni-app H5、Taro H5，后端程序由 Docker 多阶段构建按目标架构编译。三个 H5 构建会并行执行；Dockerfile 会复用项目独立的 Go 模块和编译缓存。运行命令发布宿主机 `7001/6001` 端口，将 `backend/data`、`backend/logs`、`backend/backups` 和 `backend/configs` 分别映射到容器的 `/app/data`、`/app/logs`、`/app/backups` 和 `/app/configs`。镜像内包含默认 `configs` 和三端静态资源；容器启动时仅将镜像中的缺失配置补充到宿主机的 `backend/configs`，不会覆盖宿主机已修改的配置，再使用该目录启动服务。静态站点启动时补充到 `backend/data`，已有上传文件不会被清空；后端根据 `oss.root_directory` 将本地对象统一映射到 `/data/`。完整构建参数和运行示例见本节。
+Docker 镜像 `TAG` 默认读取 `backend/internal/const/project.go` 中的服务版本，也可以通过命令行显式覆盖。`docker-build` 使用 Docker Buildx 同时构建 `linux/amd64` 和 `linux/arm64`，默认使用 Docker media types、关闭 provenance 附件，并将双架构镜像写入本地容器镜像存储；可用 `DOCKER_PLATFORMS` 和 `DOCKER_LOCAL_OUTPUT` 覆盖平台及输出方式。`docker-push` 将本地镜像按相同 `TAG` 标记为 `DOCKER_PUSH_IMAGE` 并推送，默认目标为 `swr.cn-north-4.myhuaweicloud.com/newcapec/$(IMAGE)`。Docker 内的 Go 模块下载默认继承宿主机 `go env GOPROXY`，宿主机没有 Go 时回退到官方代理，也可通过 `DOCKER_GOPROXY` 显式覆盖。构建命令先检查 Docker，再重新构建管理后台、uni-app x H5、Taro H5，后端程序由 Docker 多阶段构建按目标架构编译。三个 H5 构建会并行执行；Dockerfile 会复用项目独立的 Go 模块和编译缓存。运行命令发布宿主机 `7001/6001` 端口，将 `backend/data`、`backend/logs`、`backend/backups` 和 `backend/configs` 分别映射到容器的 `/app/data`、`/app/logs`、`/app/backups` 和 `/app/configs`。镜像内包含默认 `configs` 和三端静态资源；容器启动时仅将镜像中的缺失配置补充到宿主机的 `backend/configs`，不会覆盖宿主机已修改的配置，再使用该目录启动服务。静态站点启动时补充到 `backend/data`，已有上传文件不会被清空；后端根据 `oss.root_directory` 将本地对象统一映射到 `/data/`。完整构建参数和运行示例见本节。
 
 报告使用独立的 [Eino 报告组件](backend/components/report/README.md)。宿主需要时显式 import，传入 Gotenberg 服务基础地址和现有文件保存回调，并通过 `AdminModules.RegisterAIPlugin` 登记为 `LOCAL` 写工具。可选模块未装配时跳过接入，主服务正常启动。PDF 由独立 Gotenberg 9 服务转换，业务宿主与基础镜像均不安装 Chromium 或报告字体；本地地址为 `http://127.0.0.1:3000`，容器间通过同一 Docker 网络访问 `http://gotenberg:3000`。报告历史文件仍按宿主文件权限访问。
 

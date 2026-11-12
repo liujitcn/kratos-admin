@@ -10,7 +10,7 @@ import type { AiAction } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_mess
 import { AiMessageStatus } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_session";
 import { Terminal } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_tool";
 import { t } from "@liujitcn/kratos-admin-core";
-import type { AiStreamPayload, AIFlowBlock, ChatMessageItem, ReplySourceTag } from "./types";
+import type { AiActivityItem, AiStreamPayload, AIFlowBlock, ChatMessageItem, ReplySourceTag } from "./types";
 
 const THINKING_MESSAGE_ID_PREFIX = "ai-thinking";
 const LOCAL_USER_MESSAGE_ID_PREFIX = "ai-user-local";
@@ -188,6 +188,7 @@ export function mapMessageItem(message: AiMessage, role: "user" | "ai"): ChatMes
     status: Number(message.status ?? AiMessageStatus.AI_MESSAGE_STATUS_SUCCESS),
     token: normalizeToken(message.token),
     tools: Array.isArray(message.tools) ? message.tools : [],
+    activities: [],
     variant: role === "user" ? "filled" : "borderless",
     shape: "corner",
     progressState:
@@ -344,6 +345,9 @@ export function replacePendingMessages(current: ChatMessageItem[], nextMessages:
   const sessionID = String(payload?.session_id ?? "");
   const streamKey = payload && buildStreamMessageKey(sessionID, String(payload.message_id ?? ""));
   const pendingStreamKey = payload?.message_id && sessionID ? buildPendingStreamMessageKey(sessionID) : "";
+  const activityHistory = streamKey
+    ? current.find(item => item.role === "ai" && item.streamKey === streamKey)?.activities ?? []
+    : [];
   const stableMessages = current.filter(item => {
     if (!item.localOnly) return true;
     if (payload?.message_id && item.role === "user") {
@@ -358,7 +362,8 @@ export function replacePendingMessages(current: ChatMessageItem[], nextMessages:
     messageMap.set(String(item.key ?? `${item.id}:${item.role}`), item);
   }
   for (const item of nextMessages) {
-    messageMap.set(String(item.key ?? `${item.id}:${item.role}`), item);
+    const nextItem = item.role === "ai" && activityHistory.length > 0 ? { ...item, activities: activityHistory } : item;
+    messageMap.set(String(nextItem.key ?? `${nextItem.id}:${nextItem.role}`), nextItem);
   }
 
   return sortMessages(Array.from(messageMap.values()));
@@ -383,7 +388,10 @@ export function markThinkingMessageFailed(current: ChatMessageItem[], options?: 
       progressState: "failed",
       status: AiMessageStatus.AI_MESSAGE_STATUS_FAILED,
       content: t("system.ai.chat.message.reply_failed"),
-      replySourceTag: { text: t("system.ai.chat.status.send_failed"), tone: "warning" }
+      replySourceTag: { text: t("system.ai.chat.status.send_failed"), tone: "warning" },
+      activities: item.activities?.map(activity =>
+        activity.status === "running" ? { ...activity, status: "failed" as const } : activity
+      )
     };
   });
 }
@@ -410,6 +418,46 @@ export function appendStreamingDelta(current: ChatMessageItem[], payload: AiStre
   });
 }
 
+/** 按活动编号更新当前流式助手消息的运行时间线。 */
+export function upsertStreamingActivity(current: ChatMessageItem[], payload: AiStreamPayload) {
+  const activity = payload.activity;
+  if (!activity?.id) return current;
+  const streamKey = buildStreamMessageKey(String(payload.session_id ?? ""), String(payload.message_id ?? ""));
+  return current.map<ChatMessageItem>(item => {
+    if (item.role === "user" || item.streamKey !== streamKey) return item;
+    const activities = [...(item.activities ?? [])];
+    const nextActivity: AiActivityItem = {
+      id: String(activity.id),
+      phase: activity.phase,
+      status: activity.status,
+      summary: activity.summary,
+      tool_name: activity.tool_name,
+      tool_title: activity.tool_title
+    };
+    let index = activities.findIndex(currentActivity => currentActivity.id === nextActivity.id);
+    if (index < 0 && nextActivity.phase === "reasoning") {
+      index = activities.findIndex(currentActivity => currentActivity.phase === "reasoning" && !currentActivity.summary);
+    }
+    if (index >= 0) activities[index] = nextActivity;
+    else activities.push(nextActivity);
+    return { ...item, activities };
+  });
+}
+
+/** 在当前轮次结束时收束仍处于运行中的活动。 */
+export function completeStreamingActivities(current: ChatMessageItem[], payload: AiStreamPayload) {
+  const streamKey = buildStreamMessageKey(String(payload.session_id ?? ""), String(payload.message_id ?? ""));
+  return current.map<ChatMessageItem>(item => {
+    if (item.role === "user" || item.streamKey !== streamKey || !item.activities?.length) return item;
+    return {
+      ...item,
+      activities: item.activities.map(activity =>
+        activity.status === "running" ? { ...activity, status: "completed" as const } : activity
+      )
+    };
+  });
+}
+
 /** 根据流式异常事件更新本地占位消息。 */
 export function markStreamingError(current: ChatMessageItem[], payload: AiStreamPayload) {
   const messageID = String(payload.message_id ?? "");
@@ -422,7 +470,10 @@ export function markStreamingError(current: ChatMessageItem[], payload: AiStream
       progressState: "failed",
       status: AiMessageStatus.AI_MESSAGE_STATUS_FAILED,
       content: t("system.ai.chat.message.reply_failed"),
-      replySourceTag: { text: t("system.ai.chat.status.send_failed"), tone: "warning" }
+      replySourceTag: { text: t("system.ai.chat.status.send_failed"), tone: "warning" },
+      activities: item.activities?.map(activity =>
+        activity.status === "running" ? { ...activity, status: "failed" as const } : activity
+      )
     };
   });
 }

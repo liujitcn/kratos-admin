@@ -46,8 +46,9 @@
 <script setup lang="ts">
 import { computed, h, onMounted, ref } from "vue";
 import { ElIcon, ElMessage, ElMessageBox } from "element-plus";
-import { Delete, Document, Download, EditPen, Headset, Picture, RefreshLeft, Search, VideoCamera } from "@element-plus/icons-vue";
+import { Delete, Document, Download, EditPen, Headset, Picture, RefreshLeft, Search, VideoCamera, View } from "@element-plus/icons-vue";
 import { t } from "@liujitcn/kratos-admin-core";
+import { formatSrc } from "@liujitcn/kratos-admin-core/format";
 import ProTable from "@liujitcn/kratos-admin-core/components/ProTable";
 import type { ColumnProps } from "@liujitcn/kratos-admin-core/components/ProTable/interface";
 import { defFileService } from "@liujitcn/kratos-admin-core/api/base/v1/file";
@@ -105,6 +106,12 @@ const columns = computed<ColumnProps[]>(() => [
     label: t("common.field.operation"),
     cellType: "actions",
     actions: [
+      {
+        label: t("system.ai.workspace.open_file"),
+        icon: View,
+        hidden: () => activeView.value === AiFileView.AI_FILE_VIEW_TRASHED,
+        onClick: ({ row }) => openFile(row as AiFile)
+      },
       {
         label: t("common.action.download"),
         icon: Download,
@@ -250,6 +257,20 @@ async function handleCommand(command: string | number | object, file: AiFile) {
 async function downloadFile(file: AiFile) {
   await defFileService.DownloadFile(file.link_url, file.file_name);
 }
+
+/** 在新标签页在线打开 AI 文件，交由浏览器按类型预览。 */
+function openFile(file: AiFile) {
+  const url = formatSrc(file.link_url);
+  if (url) window.open(url, "_blank", "noopener");
+}
+
+/** 刷新当前分类与各分类总数，供宿主在生成文件落库后触发。 */
+function reload() {
+  page.value = 1;
+  void Promise.all([loadFiles(), loadTotals()]);
+}
+
+defineExpose({ reload });
 
 /** 返回文件来源文案。 */
 function sourceLabel(file: AiFile) {

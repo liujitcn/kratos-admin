@@ -74,3 +74,17 @@ test("专用OAuth回调保留issuer和拒绝原因，不消费普通登录OAuth�
     iss: ""
   });
 });
+
+test("AI聊天展示流式运行活动并在完成后保留时间线", async () => {
+  const [types, stream, message, chatPanel] = await Promise.all([
+    readFile(join(process.cwd(), "src/views/ai/chat/types.ts"), "utf8"),
+    readFile(join(process.cwd(), "src/views/ai/chat/stream.ts"), "utf8"),
+    readFile(join(process.cwd(), "src/views/ai/chat/message.ts"), "utf8"),
+    readFile(join(process.cwd(), "src/views/ai/chat/components/ChatPanel.vue"), "utf8")
+  ]);
+  assert.match(types, /AiActivityItem/);
+  assert.match(stream, /"activity"/);
+  assert.match(message, /upsertStreamingActivity/);
+  assert.match(message, /completeStreamingActivities/);
+  assert.match(chatPanel, /agent-message-activity/);
+});

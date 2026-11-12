@@ -15,7 +15,6 @@ export const corePages: Record<string, KratosAppPageConfig> = {
   'pages/webview/webview': {
     style: {
       navigationBarTitleText: '',
-      'app-plus': { titleNView: false },
     },
   },
   'pages/status/index': {

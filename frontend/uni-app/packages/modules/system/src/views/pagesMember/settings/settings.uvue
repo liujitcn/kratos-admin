@@ -1,0 +1,16 @@
+<script setup lang="ts">
+import KratosSettingsPage from '@liujitcn/kratos-uni-app-core/components/KratosSettingsPage.uvue'
+// #ifdef H5
+import ChangePasswordEntry from './components/ChangePasswordEntry.uvue'
+// #endif
+</script>
+
+<template>
+  <KratosSettingsPage>
+    <!-- #ifdef H5 -->
+    <template #security>
+      <ChangePasswordEntry />
+    </template>
+    <!-- #endif -->
+  </KratosSettingsPage>
+</template>

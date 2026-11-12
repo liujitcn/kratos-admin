@@ -5,20 +5,20 @@ import test from 'node:test'
 
 test('修改密码入口只在 H5 装配并调用 Base 账户安全接口', async () => {
   const settings = await readFile(
-    resolve(import.meta.dirname, '../src/views/pagesMember/settings/settings.vue'),
+    resolve(import.meta.dirname, '../src/views/pagesMember/settings/settings.uvue'),
     'utf8',
   )
   const component = await readFile(
     resolve(
       import.meta.dirname,
-      '../src/views/pagesMember/settings/components/ChangePasswordEntry.vue',
+      '../src/views/pagesMember/settings/components/ChangePasswordEntry.uvue',
     ),
     'utf8',
   )
   const page = await readFile(
     resolve(
       import.meta.dirname,
-      '../src/views/pagesMember/password/components/ChangePasswordPage.vue',
+      '../src/views/pagesMember/password/components/ChangePasswordPage.uvue',
     ),
     'utf8',
   )

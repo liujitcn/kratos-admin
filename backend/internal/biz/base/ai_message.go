@@ -2,14 +2,24 @@ package biz
 
 import (
 	"context"
+	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
+	"mime"
+	"net/http"
+	"path"
+	"regexp"
 	"slices"
 	"strconv"
+	"strings"
 	"time"
 
+	"github.com/liujitcn/go-utils/id"
 	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
+	"github.com/liujitcn/kratos-admin/backend/internal/biz/agent/callback"
 	agentmodel "github.com/liujitcn/kratos-admin/backend/internal/biz/agent/model"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/ai"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/automation"
@@ -25,12 +35,15 @@ import (
 	"github.com/liujitcn/gorm-kit/repository"
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"gorm.io/gen"
+	"gorm.io/gen/field"
 	"gorm.io/gorm"
 )
 
 const (
-	aiHistorySize           = 12
-	aiMessagePersistTimeout = 30 * time.Second
+	aiHistorySize            = 12
+	aiMessagePersistTimeout  = 30 * time.Second
+	aiGeneratedFileDirectory = "ai/generated"
+	aiGeneratedFileMaxSize   = 20 << 20
 )
 
 // AiMessageCase 管理 AI 助手消息数据。
@@ -43,6 +56,7 @@ type AiMessageCase struct {
 	baseUserCase      *BaseUserCase
 	aiRuntime         *ai.Runtime
 	aiPluginCase      *AiPluginCase
+	aiFileCase        *AiFileCase
 	automationCase    *AiAutomationCase
 	aiKnowledgeEngine *ai.KnowledgeEngine
 }
@@ -58,6 +72,7 @@ func NewAiMessageCase(
 	aiRuntime *ai.Runtime,
 	aiKnowledgeEngine *ai.KnowledgeEngine,
 	aiPluginCase *AiPluginCase,
+	aiFileCase *AiFileCase,
 ) *AiMessageCase {
 	c := &AiMessageCase{
 		BaseCase:          baseCase,
@@ -69,6 +84,7 @@ func NewAiMessageCase(
 		aiRuntime:         aiRuntime,
 		aiKnowledgeEngine: aiKnowledgeEngine,
 		aiPluginCase:      aiPluginCase,
+		aiFileCase:        aiFileCase,
 	}
 	return c
 }
@@ -200,8 +216,27 @@ func (c *AiMessageCase) StreamAiMessage(ctx context.Context, req *basev1.SendAiM
 	}
 
 	messageID := strconv.FormatInt(message.ID, 10)
+	ctx = callback.WithActivityEmitter(ctx, func(activity callback.Activity) {
+		activityErr := emitter.EmitAiStream(dto.AiStreamEventActivity, dto.AiStreamPayload{
+			SessionID: req.GetSessionId(),
+			MessageID: messageID,
+			Activity: &dto.AiStreamActivity{
+				ID:        activity.ID,
+				Phase:     activity.Phase,
+				Status:    activity.Status,
+				Summary:   activity.Summary,
+				ToolName:  activity.ToolName,
+				ToolTitle: activity.ToolTitle,
+			},
+		})
+		if activityErr != nil {
+			log.Error(fmt.Sprintf("StreamAiMessage EmitActivity %v", activityErr))
+		}
+	})
+	callback.EmitActivity(ctx, callback.Activity{ID: "reasoning:0", Phase: "reasoning", Status: "running"})
 	startAt := time.Now()
 	input := ai.ParseInputContent(message.InputContent)
+	answerStarted := false
 	var firstTokenMs int32
 	reply, runErr := c.generateAiReply(ctx, session, message.ID, userName, content, input.ProviderID, input.ProviderName, input.ModelName, req.GetAction(), attachments, aiAttachments, history, req.GetKnowledgeBaseIds(), func(delta string) {
 		if delta == "" {
@@ -209,6 +244,10 @@ func (c *AiMessageCase) StreamAiMessage(ctx context.Context, req *basev1.SendAiM
 		}
 		if firstTokenMs == 0 {
 			firstTokenMs = durationMilliseconds(startAt, time.Now())
+		}
+		if !answerStarted {
+			answerStarted = true
+			callback.EmitActivity(ctx, callback.Activity{ID: "answer", Phase: "answering", Status: "running"})
 		}
 		emitErr := emitter.EmitAiStream(dto.AiStreamEventDelta, dto.AiStreamPayload{
 			SessionID: req.GetSessionId(),
@@ -694,12 +733,18 @@ func (c *AiMessageCase) finishAiMessage(
 		status = int32(basev1.AiMessageStatus_AI_MESSAGE_STATUS_WAITING_APPROVAL)
 	}
 	injectAiActionState(reply, message.ID)
+	c.persistGeneratedToolFiles(ctx, message.TenantID, reply)
 	outputContent := ai.MarshalReplyContent(reply)
 	tools := ai.MarshalTools(nil)
 	token := ai.MarshalTokenUsage(ai.TokenUsage{})
+	attachmentsJSON := ""
 	if reply != nil {
 		tools = ai.MarshalTools(reply.Tools)
 		token = ai.MarshalTokenUsage(reply.Token)
+		if len(reply.Attachments) > 0 {
+			// 生成附件追加在用户输入附件之后，保持同一条消息内附件完整可见。
+			attachmentsJSON = ai.MarshalAttachments(slices.Concat(ai.ParseAttachments(message.Attachments), reply.Attachments))
+		}
 	}
 	err := c.tx.Transaction(ctx, func(txCtx context.Context) error {
 		var updateErr error
@@ -712,18 +757,23 @@ func (c *AiMessageCase) finishAiMessage(
 			return updateErr
 		}
 		query := c.aiMessageRepo.Query(txCtx).AiMessage
+		// 助手回复默认不改写附件列，避免覆盖用户发送消息时记录的输入附件。
+		columns := []field.AssignExpr{
+			query.OutputContent.Value(outputContent),
+			query.Tools.Value(tools),
+			query.Token.Value(token),
+			query.FirstTokenMs.Value(firstTokenMs),
+			query.DurationMs.Value(durationMs),
+			query.Status.Value(status),
+			query.UpdatedAt.Value(now),
+		}
+		if attachmentsJSON != "" {
+			columns = append(columns, query.Attachments.Value(attachmentsJSON))
+		}
 		var result gen.ResultInfo
 		result, updateErr = query.WithContext(txCtx).
 			Where(query.TenantID.Eq(message.TenantID), query.ID.Eq(message.ID), query.Status.Eq(int32(basev1.AiMessageStatus_AI_MESSAGE_STATUS_GENERATING)), query.UpdatedAt.Eq(message.UpdatedAt)).
-			UpdateColumnSimple(
-				query.OutputContent.Value(outputContent),
-				query.Tools.Value(tools),
-				query.Token.Value(token),
-				query.FirstTokenMs.Value(firstTokenMs),
-				query.DurationMs.Value(durationMs),
-				query.Status.Value(status),
-				query.UpdatedAt.Value(now),
-			)
+			UpdateColumnSimple(columns...)
 		if updateErr != nil {
 			return updateErr
 		}
@@ -742,7 +792,170 @@ func (c *AiMessageCase) finishAiMessage(
 	message.DurationMs = durationMs
 	message.Status = status
 	message.UpdatedAt = now
+	if attachmentsJSON != "" {
+		message.Attachments = attachmentsJSON
+	}
 	return nil
+}
+
+// generatedFileExtensions 表示允许转存的工具产物文档扩展名。
+var generatedFileExtensions = map[string]bool{
+	".pdf": true, ".doc": true, ".docx": true, ".xls": true, ".xlsx": true,
+	".ppt": true, ".pptx": true, ".csv": true, ".txt": true, ".md": true,
+	".zip": true, ".png": true, ".jpg": true, ".jpeg": true, ".webp": true,
+}
+
+// generatedFileURLPattern 匹配工具输出中的文件链接文本。
+var generatedFileURLPattern = regexp.MustCompile(`https?://[^\s"'<>\\]+`)
+
+// generatedFileClient 拉取外部生成文件的 HTTP 客户端。
+var generatedFileClient = &http.Client{Timeout: 30 * time.Second}
+
+// persistGeneratedToolFiles 识别工具输出中的文档产物并转存为系统持久文件。
+// 外部转换服务的签名链接存在有效期，回复落库前把产物拉取到对象存储并登记为生成文件；
+// 单个文件失败只记录日志并保留原始链接，不阻断回复落库。
+func (c *AiMessageCase) persistGeneratedToolFiles(ctx context.Context, tenantID int64, reply *ai.Response) {
+	if reply == nil || len(reply.Tools) == 0 || c.aiFileCase == nil || c.OSS == nil {
+		return
+	}
+	for _, product := range collectGeneratedProducts(reply.Tools) {
+		rawURL := product.downloadURL
+		content, err := fetchGeneratedFile(ctx, rawURL)
+		if err != nil {
+			log.Warn("拉取AI生成文件失败，保留原始链接", "url", rawURL, "error", err)
+			continue
+		}
+		fileName := product.filename
+		extension := strings.ToLower(path.Ext(fileName))
+		mimeType := http.DetectContentType(content)
+		// 检测结果可能是通用二进制类型，按扩展名兜底修正为更准确的文档 MIME。
+		if inferred := mime.TypeByExtension(extension); inferred != "" {
+			mimeType = inferred
+		}
+		directory := path.Join(aiGeneratedFileDirectory, time.Now().Format("2006/01/02"))
+		storedName := fmt.Sprintf("%d%s", id.GenSnowflakeID(), extension)
+		if _, err = c.OSS.UploadByByte(storedName, directory, content); err != nil {
+			log.Warn("转存AI生成文件失败，保留原始链接", "url", rawURL, "error", err)
+			continue
+		}
+		objectPath := path.Join(directory, storedName)
+		hash := sha256.Sum256(content)
+		if err = c.aiFileCase.RegisterGeneratedFile(ctx, &models.AiFile{
+			TenantID:    tenantID,
+			FileName:    fileName,
+			Extension:   strings.TrimPrefix(extension, "."),
+			MimeType:    mimeType,
+			Size:        int64(len(content)),
+			LinkURL:     objectPath,
+			ContentHash: hex.EncodeToString(hash[:]),
+		}); err != nil {
+			log.Warn("登记AI生成文件失败", "url", rawURL, "error", err)
+			continue
+		}
+		persistentURL := publicFileURL(objectPath)
+		reply.Attachments = append(reply.Attachments, &basev1.AiAttachment{
+			Id:       id.NewGUIDv7NoHyphen(),
+			Name:     fileName,
+			Size:     int64(len(content)),
+			Url:      persistentURL,
+			MimeType: mimeType,
+		})
+		// 正文里的临时签名链接一并替换为持久地址，避免过期后无法访问。
+		reply.Content = strings.ReplaceAll(reply.Content, rawURL, persistentURL)
+	}
+}
+
+// generatedProduct 表示工具输出的单个文件产物。
+type generatedProduct struct {
+	downloadURL string
+	filename    string
+}
+
+// collectGeneratedProducts 汇总工具输出里的文件产物并去重。
+// 优先读取结构化产物 JSON（含 download_url/filename，如 Gotenberg 的无后缀签名链接），
+// 再兜底扫描正文中带文档后缀的裸链接，拦截任意接口地址被误当文件拉取。
+func collectGeneratedProducts(tools []agent.ToolUsage) []generatedProduct {
+	seen := make(map[string]bool)
+	products := make([]generatedProduct, 0, len(tools))
+	add := func(rawURL, filename string) {
+		cleanURL := trimGeneratedFileURL(rawURL)
+		if cleanURL == "" || seen[cleanURL] {
+			return
+		}
+		filename = path.Base(strings.ReplaceAll(filename, `\`, "/"))
+		if filename == "" || filename == "." || filename == "/" {
+			filename = "生成文件"
+		}
+		extension := strings.ToLower(path.Ext(filename))
+		if !generatedFileExtensions[extension] {
+			return
+		}
+		seen[cleanURL] = true
+		products = append(products, generatedProduct{downloadURL: cleanURL, filename: filename})
+	}
+	for _, item := range tools {
+		var parts []struct {
+			Text string `json:"text"`
+		}
+		// 工具输出是 content parts 数组；解析失败时按纯文本整体处理。
+		texts := []string{item.Output}
+		if err := json.Unmarshal([]byte(item.Output), &parts); err == nil {
+			texts = texts[:0]
+			for _, part := range parts {
+				texts = append(texts, part.Text)
+			}
+		}
+		for _, text := range texts {
+			var produced struct {
+				DownloadURL string `json:"download_url"`
+				Filename    string `json:"filename"`
+			}
+			if err := json.Unmarshal([]byte(text), &produced); err == nil && produced.DownloadURL != "" {
+				add(produced.DownloadURL, produced.Filename)
+				continue
+			}
+			for _, rawURL := range generatedFileURLPattern.FindAllString(text, -1) {
+				base := trimGeneratedFileURL(rawURL)
+				if query := strings.IndexByte(base, '?'); query >= 0 {
+					base = base[:query]
+				}
+				add(rawURL, path.Base(base))
+			}
+		}
+	}
+	return products
+}
+
+// trimGeneratedFileURL 去掉链接尾部粘连的标点与引号。
+func trimGeneratedFileURL(rawURL string) string {
+	return strings.TrimRight(strings.TrimSpace(rawURL), ".,;，。）)】]'\"")
+}
+
+// fetchGeneratedFile 拉取外部生成文件字节，限制大小防止异常产物拖垮内存。
+func fetchGeneratedFile(ctx context.Context, rawURL string) ([]byte, error) {
+	request, err := http.NewRequestWithContext(ctx, http.MethodGet, rawURL, nil)
+	if err != nil {
+		return nil, err
+	}
+	response, err := generatedFileClient.Do(request)
+	if err != nil {
+		return nil, err
+	}
+	defer response.Body.Close()
+	if response.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("拉取生成文件返回状态 %d", response.StatusCode)
+	}
+	content, err := io.ReadAll(io.LimitReader(response.Body, aiGeneratedFileMaxSize+1))
+	if err != nil {
+		return nil, err
+	}
+	if len(content) > aiGeneratedFileMaxSize {
+		return nil, errors.New("生成文件超过转存大小限制")
+	}
+	if len(content) == 0 {
+		return nil, errors.New("生成文件内容为空")
+	}
+	return content, nil
 }
 
 // ensureAiActionCurrent 确认流程动作来自当前会话最新消息。

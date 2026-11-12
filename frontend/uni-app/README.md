@@ -6,7 +6,7 @@
 
 账号密码登录与管理端共用 `POST /api/v1/base/session`，三方跳转授权共用 `/api/v1/base/oauth/authorization`，认证、Token 权限和本人 AI 对话均共享，可跨端查看和继续。并发登录遵循现有登录策略：允许时可同时使用，禁止时后登录撤销已有会话。AI 对话继续使用已保存的工具配置，并校验当前权限与审批。
 
-`frontend/uni-app` 是独立的 pnpm workspace，提供可直接运行的 uni-app 宿主、可发布应用底座、system 业务模块和项目脚手架。技术栈为 `uni-app + Vue 3 + TypeScript + Vite + Pinia + Sass`，当前支持 H5 和微信小程序。
+`frontend/uni-app` 是独立的 pnpm workspace，提供可直接运行的 uni-app x 宿主、可发布应用底座、system 业务模块和项目脚手架。技术栈为 `uni-app x + Vue 3 + TypeScript + Vite + Pinia + Sass`，当前支持 H5、微信小程序和 x App 构建。
 
 应用端只复用管理端的分层思想，不依赖 `frontend/admin` 的源码或 workspace。当前保留首页、登录（含 TOTP/WebAuthn MFA）、协议、WebView、个人中心、设置（含 MFA 绑定）、个人资料、AI 助手和站内信收件箱，不包含商城、订单、支付或推荐业务。
 
@@ -16,16 +16,19 @@
 frontend/uni-app
 ├── apps
 │   └── uni-app                # @liujitcn/kratos-uni-app，默认宿主，不发布
-│       ├── src
-│       │   ├── pages/bootstrap
-│       │   ├── module-manifest.ts
-│       │   ├── manifest.json
-│       │   └── pages.json
+│       ├── App.uvue
+│       ├── main.ts
+│       ├── pages
+│       ├── pagesMember
+│       ├── scripts/generate-pages.mjs
+│       ├── module-manifest.ts
+│       ├── manifest.json
+│       ├── pages.json
 │       ├── README.md
 │       └── package.json
 ├── packages
 │   ├── core                   # @liujitcn/kratos-uni-app-core v0.0.55
-│   │   ├── src                # 底座运行时、页面、状态和构建插件
+│   │   ├── src                # 底座运行时、页面、状态和 x 运行入口
 │   │   ├── test
 │   │   ├── README.md
 │   │   └── package.json
@@ -55,9 +58,9 @@ frontend/uni-app
   -> @liujitcn/kratos-uni-app-core
 ```
 
-- `core` 负责认证、请求、配置、Pinia、公共设置页、基础页面、状态页、动态导航和构建插件。
+- `core` 负责认证、请求、配置、Pinia、公共设置页、基础页面、状态页、动态导航和 uni-app x 页面生成器。
 - `system` 负责个人中心、资料、默认设置包装和 AI 页面，只通过 `core` 的公开 exports 复用底座能力。
-- `apps/uni-app` 只维护宿主入口、manifest、模块清单、bootstrap 页面和 Vite 配置。
+- `apps/uni-app` 只维护宿主入口、manifest、模块清单、x 页面生成器和 Vite 配置。
 - `cli` 创建同结构的独立 pnpm workspace。
 
 各包的目录边界、功能和公开入口见：
@@ -71,9 +74,13 @@ workspace 根目录不再保留旧单体应用的 `src`、`bin` 或空模板目�
 
 普通矩形控件统一使用 `--kratos-page-radius`（默认 `12rpx`），由 core 全局主题维护；页面不再单独设置圆角数值，使用规则见 [应用底座](packages/core/README.md#统一圆角)。
 
+## 其他 workspace 迁移
+
+`cloud-scp`、`kratos-shop` 等引用本 workspace 公共包的项目统一按 x 迁移：宿主改为根目录 `App.uvue`、`main.ts`、`pages/`、`pagesMember/` 和 `manifest.json`，业务页面与公共组件统一使用 `.uvue`，Vite 只接入 `createKratosUniPlugin()`，页面由各自的 `prepare:x` 生成器写入。公共包名和 CLI 名保持不变，但不保留旧 `.vue` 入口；迁移顺序是先升级 core/system，再迁移业务模块，最后切换宿主构建命令。
+
 ## 页面装配
 
-宿主在 `apps/uni-app/src/module-manifest.ts` 维护唯一模块清单，顺序决定静态视图覆盖优先级：
+宿主在 `apps/uni-app/module-manifest.ts` 维护唯一模块清单，顺序决定静态视图覆盖优先级：
 
 ```ts
 export const moduleManifest = [coreModule, systemModule]
@@ -85,7 +92,7 @@ export const moduleManifest = [coreModule, systemModule]
 - `views`：稳定 `viewKey` 到物理页面的映射。
 - `icons`：动态导航可引用的模块内图标。
 
-构建插件自动扫描各模块的 `src/views/**/*.vue`，忽略任意层级的 `components` 目录。后注册模块可以用相同物理路由或 `viewKey` 替换前面模块的静态页面。
+`pnpm run prepare:x` 扫描各模块的 `src/views/**/*.uvue`，把页面 wrapper、`pages.json` 和静态资源生成到 x 宿主根目录；开发和构建命令都会先执行该步骤。后注册模块可以用相同物理路由或 `viewKey` 替换前面模块的静态页面。
 
 自定义顶部导航统一使用 core 的 `KratosNavBar`：普通页、tabBar 页和有无操作按钮共用相同标题栏高度，组件负责安全区、返回行为、按钮尺寸与微信胶囊避让。新页面只传标题和操作，外层不要重复添加顶部安全区或导航栏高度；具体用法见 [通用顶部导航](packages/core/README.md#通用顶部导航)。
 
@@ -93,7 +100,7 @@ System 的 `KratosMyPage` 负责个人信息、AI 助手和顶部设置入口；
 
 公共设置页通过 `KratosSettingsPage` 的 `extensions` 和 `security` 插槽扩展页面顶部与账户安全分组；System 的修改密码入口仅在 H5 装配，并调用 Base 账户安全服务。
 
-宿主 `pages.json` 只提交固定 bootstrap 页面。开发或构建期间，插件会临时生成页面 wrapper、合并页面配置，并把模块 static 逐文件合并到宿主；同名宿主文件优先，事务只记录和清理插件实际写入的文件。正常退出后自动恢复。若进程被强制结束，下次启动会先根据 `.kratos-uni-app-pages-state.json` 恢复上一次事务。同一宿主同时只允许一个 H5 或小程序开发/构建进程持有页面事务，切换平台前需要先停止当前进程。
+宿主按 uni-app x 根目录组织源码：页面位于 `pages/` 和 `pagesMember/`，组件和业务实现位于公开 package。页面生成是显式的 `prepare:x` 步骤，不再依赖临时改写 `pages.json` 的旧页面事务。
 
 ## 动态导航
 
@@ -122,7 +129,7 @@ GET /api/v1/app/base/menu
 
 ## 国际化
 
-uni-app 支持的语言由 core 和 System JSON 语言包自动发现，模块注册时校验 key 与占位符集合；登录、首页、状态页、WebView、个人中心、设置、资料和 AI 页面都通过 `t(key)` 使用固定文案。语言偏好保存为 `kratos-app:locale`，切换后不改变稳定路由和业务字段。
+uni-app x 支持的语言由 core 和 System JSON 语言包自动发现，模块注册时校验 key 与占位符集合；登录、首页、状态页、WebView、个人中心、设置、资料和 AI 页面都通过 `t(key)` 使用固定文案。语言偏好保存为 `kratos-app:locale`，切换后不改变稳定路由和业务字段。
 
 所有 `uni.request`、文件上传和 SSE 请求统一发送 `Accept-Language`。动态菜单沿用后端解析后的标题，缺少当前语言译文时回退主语言；新增语言需要同步后端国际化目录、三个 workspace 的六个前端语言包目录，再执行仓库根目录的 `make i18n`。具体流程见 [国际化设计与语言扩展](../../docs/国际化设计与语言扩展.md)。
 
@@ -130,7 +137,7 @@ uni-app 支持的语言由 core 和 System JSON 语言包自动发现，模块�
 
 H5 和微信端自绘底部 tab 都优先使用 `redirectTo` 替换当前页面，微信端仅在替换失败时回退到页面栈复用。tab 切换不使用 `switchTab` 或 `reLaunch`，避免原生 tab 配置冲突和页面入栈/出栈动画造成闪烁。普通页面仍优先使用 `navigateTo`。
 
-上述策略由可发布的 core 包统一提供，业务模块可以覆盖 `HOME` 的物理页面或扩展至 2–5 个 tab。构建插件在编译配置中移除宿主已有的原生 `tabBar`，结束后恢复宿主原文件；引用项目升级 core 后无需单独修改导航实现。
+上述策略由可发布的 core 包统一提供，业务模块可以覆盖 `HOME` 的物理页面或扩展至 2–5 个 tab。宿主通过 `prepare:x` 生成页面 wrapper 和静态资源，运行时继续使用自绘 `tabBar`；引用项目升级 core 后重新执行页面生成器。
 
 ## 开发与构建
 
@@ -140,6 +147,7 @@ pnpm install
 
 pnpm dev:h5
 pnpm dev:mp-weixin
+pnpm --filter @liujitcn/kratos-uni-app dev:app
 ```
 
 H5 通过局域网 IP 访问时，先在仓库根目录运行 `bash scripts/generate-dev-cert.sh 192.168.1.100` 生成共享证书，再在 `.env.development-h5.local` 中设置 `VITE_APP_HTTPS=true`；后端使用 `APP_ENV=https` 时同时将 `VITE_APP_API_URL` 改为 `https://127.0.0.1:7001`。证书默认读取仓库根 `certs/dev-key.pem` 和 `certs/dev-cert.pem`。
@@ -148,8 +156,10 @@ H5 通过局域网 IP 访问时，先在仓库根目录运行 `bash scripts/gene
 
 ```bash
 make -C .. run-uni-app      # 微信小程序开发
+make -C .. run-uni-app-app  # uni-app x App 开发
 make -C .. check-uni-app
 make -C .. build-uni-app    # H5 构建
+make -C .. build-uni-app-app # uni-app x App 构建
 make -C .. package-uni-app
 ```
 
@@ -163,6 +173,7 @@ system 的运行入口，命令名称和产物目录保持不变。
 ```bash
 pnpm build:h5
 pnpm build:mp-weixin
+pnpm --filter @liujitcn/kratos-uni-app build:app
 ```
 
 - H5 产物写入 `backend/web/uni-app`，后端通过 `/uni-app/` 挂载。
@@ -170,7 +181,7 @@ pnpm build:mp-weixin
 
 ## RPC 生成
 
-uni-app 与 admin 一样，由 backend API 契约目录统一维护 Buf 生成范围：
+uni-app x 与 admin 一样，由 backend API 契约目录统一维护 Buf 生成范围：
 
 - `backend/api/buf.app.typescript.gen.yaml` 生成 core RPC。
 - `backend/api/buf.app.core.typescript.gen.yaml` 生成 system RPC。

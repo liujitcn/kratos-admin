@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/cloudwego/eino/compose"
+	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/agent/tool"
 )
 
@@ -124,6 +125,8 @@ type Response struct {
 	Step string `json:"step"`
 	// BlocksJSON 记录模块定义的结构化内容 JSON。
 	BlocksJSON string `json:"blocksJson"`
+	// Attachments 是本轮回复产出的文件附件，来源于工具生成的持久化文件。
+	Attachments []*basev1.AiAttachment `json:"attachments,omitempty"`
 }
 
 // TokenUsage 表示 AI 助手单轮真实 token 使用量。

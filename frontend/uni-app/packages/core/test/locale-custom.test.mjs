@@ -56,3 +56,24 @@ test('自定义文案按语言与 key 覆盖，保留插值并在删除后恢复
   assert.equal(runtime.t('core.test.title', { name: 'C' }), 'zh-CN C')
   delete globalThis.uni
 })
+
+test('启动初始化不在 uni-app 实例挂载前同步原生语言', () => {
+  const runtime = loadLocales()
+  globalThis.uni = {
+    getStorageSync() {
+      return undefined
+    },
+    getSystemInfoSync() {
+      return { language: 'en-US' }
+    },
+    setLocale() {
+      throw new Error('uni-app instance is not mounted')
+    },
+  }
+  try {
+    assert.doesNotThrow(() => runtime.initializeLocale())
+    assert.equal(runtime.getCurrentLocale(), 'en-US')
+  } finally {
+    delete globalThis.uni
+  }
+})

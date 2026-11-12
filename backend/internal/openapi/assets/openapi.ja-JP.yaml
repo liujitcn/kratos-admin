@@ -11595,7 +11595,7 @@ components:
             properties:
                 id:
                     type: string
-                    description: シリアルナンバー
+                    description: 番号
             description: 結果から会話を続けるリクエスト。
         base.v1.CreateAiAutomationRequest:
             type: object
@@ -12843,7 +12843,7 @@ components:
             properties:
                 id:
                     type: string
-                    description: シリアルナンバー
+                    description: 番号
             description: 停止今回のリクエスト。
         base.v1.TrashAiFileRequest:
             type: object
@@ -14091,7 +14091,7 @@ components:
                     description: 失敗原因
                 extractor_connection_id:
                     type: string
-                    description: Xberg MCP抽取连接ID
+                    description: Xberg MCP が接続 ID を抽出します
                 created_at:
                     type: string
                     description: 作成時刻

@@ -26,6 +26,14 @@ type ToolCall = schema.ToolCall
 // FunctionCall 表示 Eino 函数工具调用参数。
 type FunctionCall = schema.FunctionCall
 
+// ReasoningSummaryPart 表示一段模型生成的推理摘要。
+type ReasoningSummaryPart struct {
+	// Index 是推理块在流中的稳定位置。
+	Index int
+	// Text 是模型返回的摘要文本。
+	Text string
+}
+
 // ImageData 表示图片字节或供应商文件编号输入。
 type ImageData struct {
 	// Bytes 图片原始字节。
@@ -293,6 +301,25 @@ func AITextOnly(value *AgenticMessage) string {
 		parts = append(parts, item.AssistantGenText.Text)
 	}
 	return strings.Join(parts, "")
+}
+
+// ReasoningSummaries 提取 Eino Agentic 消息中的推理摘要，不读取原始推理扩展内容。
+func ReasoningSummaries(value *AgenticMessage) []ReasoningSummaryPart {
+	if value == nil {
+		return nil
+	}
+	parts := make([]ReasoningSummaryPart, 0)
+	for _, block := range value.ContentBlocks {
+		if block == nil || block.Reasoning == nil || block.Reasoning.Text == "" {
+			continue
+		}
+		index := 0
+		if block.StreamingMeta != nil {
+			index = block.StreamingMeta.Index
+		}
+		parts = append(parts, ReasoningSummaryPart{Index: index, Text: block.Reasoning.Text})
+	}
+	return parts
 }
 
 // ToolCalls 从 Agentic 消息中提取函数工具调用。

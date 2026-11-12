@@ -17,7 +17,7 @@ import { defLanguageService } from './api/base/v1/language'
 export interface KratosAppBootstrapOptions {
   /** 宿主根组件。 */
   app: Component
-  /** uni-app 宿主入口导入的 Vue SSR app 工厂。 */
+  /** uni-app x 宿主入口导入的 Vue SSR app 工厂。 */
   createSSRApp: (rootComponent: Component) => App
   /** 宿主 Pinia。 */
   pinia: Pinia

@@ -8,7 +8,7 @@ import { build } from 'esbuild'
 
 async function loadNavigationRuntime(state) {
   const manifest = JSON.parse(
-    readFileSync(resolve(import.meta.dirname, '../../../apps/uni-app/src/pages.json'), 'utf8'),
+    readFileSync(resolve(import.meta.dirname, '../../../apps/uni-app/pages.json'), 'utf8'),
   )
   const nativeTabRoutes = new Set(manifest.tabBar?.list.map((item) => `/${item.pagePath}`))
   const root = mkdtempSync(resolve(tmpdir(), 'kratos-uni-tabs-'))
@@ -226,7 +226,7 @@ test('微信端 tab 切换替换当前页面，避免页面入栈动画闪烁', 
 
 test('自绘 tab 页面不声明缺少 custom-tab-bar 组件的原生 tabBar', () => {
   const manifest = JSON.parse(
-    readFileSync(resolve(import.meta.dirname, '../../../apps/uni-app/src/pages.json'), 'utf8'),
+    readFileSync(resolve(import.meta.dirname, '../../../apps/uni-app/pages.json'), 'utf8'),
   )
 
   assert.equal(manifest.tabBar, undefined)

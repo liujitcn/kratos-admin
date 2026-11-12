@@ -4,7 +4,7 @@
 
 `Login` 与 `CreateOauthAuthorization` 使用管理端共用入口，登录认证和权限跨端共享；并发登录由服务端现有登录策略控制。
 
-`@liujitcn/kratos-uni-app-core` 是应用底座包，提供模块协议、启动流程、动态导航、认证与请求、MFA 校验、共享状态、基础页面和构建期页面装配能力。业务模块只能通过本包公开 exports 使用这些能力。
+`@liujitcn/kratos-uni-app-core` 是 uni-app x 应用底座包，提供模块协议、启动流程、动态导航、认证与请求、MFA 校验、共享状态和基础页面能力。业务模块只能通过本包公开 exports 使用这些能力。
 
 ## 目录结构
 
@@ -24,7 +24,7 @@ packages/core
 │   ├── module.ts              # 模块定义与注册表
 │   ├── navigation.ts          # base-menu 导航解析与缓存
 │   ├── pages.ts               # core 页面声明
-│   └── vite.ts                # 自动页面装配插件
+│   └── vite.ts                # uni-app x 官方 Vite 插件入口
 ├── test                       # 导航匹配和 Vite 装配测试
 ├── tsconfig.json
 └── package.json
@@ -37,13 +37,13 @@ packages/core
 - 定义 `KratosAppModule`、`viewKey`、静态页面覆盖和模块图标协议。
 - 从 `/v1/app/base/menu` 加载 `99000000` 下的扁平菜单，按 `parent_id` 构建树，以二级页面生成 tabBar，并原子更新动态路由和层级导航。
 - tabBar 统一自绘，宿主不声明原生 `tabBar`；H5 和微信端优先替换当前路由，微信端替换失败时再复用普通页面栈，避免页面入栈/出栈动画。
-- 页面装配插件在编译配置中移除宿主的原生 `tabBar`，退出后恢复宿主原文件。导航按模块注册的 `viewKey` 解析物理页面，支持业务模块覆盖首页和扩展 tab；引用项目升级 core 包后即可使用相同策略。
+- 宿主的 `prepare:x` 生成 x 页面 wrapper 和静态资源；导航按模块注册的 `viewKey` 解析物理页面，支持业务模块覆盖首页和扩展 tab。
 - 按匿名态、登录态缓存导航，并在远端不可用时回退到最近缓存或默认菜单。
 - 统一认证、token、MFA、HTTP、上传、配置、Pinia 和基础页面能力。
 - 提供可复用的 `KratosSettingsPage`，统一账户安全、语言、主题外观、MFA、微信设置和退出登录，并允许产品在最上方或账户安全分组追加业务设置。
 - 公开通用密码弹窗、MFA 绑定面板与恢复码弹窗，供登录页和业务模块复用同一套绑定界面。
 - 登录阶段支持 TOTP、WebAuthn 和一次性恢复码校验；WebAuthn 编解码封装在 `src/utils/webauthn.ts`。
-- 构建时扫描模块 `src/views/**/*.vue`，逐文件合并模块 static，生成宿主页并在退出时按事务精确恢复。
+- 宿主的 `prepare:x` 扫描模块 `src/views/**/*.uvue`，输出 x 根目录页面 wrapper、`pages.json` 和静态资源。
 
 主题 store 公开 `themeStore.colors` 和 `registerThemeColors`。页面脚本使用语义颜色（例如 `colors.primary`、`colors.textMuted`），业务模块可以在初始化时传入 `light`、`dark` 的局部字段覆盖 Core 默认值；未传入的字段保持默认值，覆盖会立即作用于当前主题。
 
@@ -68,8 +68,8 @@ registerThemeColors({
 
 - `@liujitcn/kratos-uni-app-core`：运行时、导航、store 和组件。
 - `@liujitcn/kratos-uni-app-core/module`：模块协议和 core 模块。
-- `@liujitcn/kratos-uni-app-core/vite`：Vite 配置、页面装配插件和构建错误文案格式化器。
-- `@liujitcn/kratos-uni-app-core/api/*`、`components/*.vue`、`utils/*`、`views/*`：白名单子路径。
+- `@liujitcn/kratos-uni-app-core/vite`：Vite 配置、uni-app x 页面生成器和构建错误文案格式化器。
+- `@liujitcn/kratos-uni-app-core/api/*`、`components/*.uvue`、`utils/*`、`views/*`：白名单子路径。
 
 ## 通用顶部导航
 
@@ -77,7 +77,7 @@ registerThemeColors({
 
 ```vue
 <script setup lang="ts">
-import KratosNavBar from '@liujitcn/kratos-uni-app-core/components/KratosNavBar.vue'
+import KratosNavBar from '@liujitcn/kratos-uni-app-core/components/KratosNavBar.uvue'
 </script>
 
 <template>
@@ -93,7 +93,7 @@ import KratosNavBar from '@liujitcn/kratos-uni-app-core/components/KratosNavBar.
 </template>
 ```
 
-`back` 可显式控制返回按钮，`onBack` 可覆盖默认返回操作。`action` 包含 `label`、可选 `icon`、可选 `display` 和 `onClick`；`display` 支持 `icon`（纯图标）、`text`（纯文字）和 `both`（图标加文字），默认有图标时显示图标，否则显示文字。图标支持内置 `settings`、`read-all`、`history`，以及自定义图片地址。不传 `action` 时不渲染操作按钮。三种按钮形式共用相同高度；纯图标保持方形，文字与组合按钮按内容增宽，空间不足时省略文字。组件通过公开的 `components/KratosNavBar.vue` 子路径导入；`KratosNavBarProps`、`KratosNavBarAction` 类型从包根公开导出。小程序的 Vue 组件必须直接导入 `.vue` 文件，避免经 TypeScript 入口重导出导致编译产物漏登记 `usingComponents`；业务模块应传入翻译后的标题和按钮名称。
+`back` 可显式控制返回按钮，`onBack` 可覆盖默认返回操作。`action` 包含 `label`、可选 `icon`、可选 `display` 和 `onClick`；`display` 支持 `icon`（纯图标）、`text`（纯文字）和 `both`（图标加文字），默认有图标时显示图标，否则显示文字。图标支持内置 `settings`、`read-all`、`history`，以及自定义图片地址。不传 `action` 时不渲染操作按钮。三种按钮形式共用相同高度；纯图标保持方形，文字与组合按钮按内容增宽，空间不足时省略文字。组件通过公开的 `components/KratosNavBar.uvue` 子路径导入；`KratosNavBarProps`、`KratosNavBarAction` 类型从包根公开导出。小程序的 Vue 组件必须直接导入 `.uvue` 文件，避免经 TypeScript 入口重导出导致编译产物漏登记 `usingComponents`；业务模块应传入翻译后的标题和按钮名称。
 
 ```ts
 import type { KratosNavBarAction } from '@liujitcn/kratos-uni-app-core'
@@ -112,7 +112,7 @@ const combinedAction: KratosNavBarAction = { icon: 'history', label: '历史', d
 
 ```vue
 <script setup lang="ts">
-import KratosSettingsPage from '@liujitcn/kratos-uni-app-core/components/KratosSettingsPage.vue'
+import KratosSettingsPage from '@liujitcn/kratos-uni-app-core/components/KratosSettingsPage.uvue'
 </script>
 
 <template>

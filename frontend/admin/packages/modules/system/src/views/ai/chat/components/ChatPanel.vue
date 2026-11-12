@@ -97,6 +97,37 @@
                   resolveMessageReplyTime(item)
                 }}</span>
               </div>
+              <section
+                v-if="item.role !== 'user' && item.activities?.length"
+                class="agent-message-activity"
+                :aria-label="t('system.ai.chat.title.activity')"
+              >
+                <button
+                  class="agent-message-activity__summary"
+                  type="button"
+                  :aria-expanded="isActivityExpanded(item)"
+                  @click="toggleActivity(item)"
+                >
+                  <span class="agent-message-activity__summary-icon">
+                    <el-icon :class="{ 'is-loading': hasRunningActivity(item) }"><Loading v-if="hasRunningActivity(item)" /><Check v-else /></el-icon>
+                  </span>
+                  <span class="agent-message-activity__summary-text">{{ resolveActivitySummary(item) }}</span>
+                  <el-icon class="agent-message-activity__summary-arrow" :class="{ 'is-expanded': isActivityExpanded(item) }">
+                    <ArrowDown />
+                  </el-icon>
+                </button>
+                <div v-if="isActivityExpanded(item)" class="agent-message-activity__list">
+                  <div v-for="activity in item.activities" :key="activity.id" class="agent-message-activity__item">
+                    <span class="agent-message-activity__item-icon" :class="resolveActivityStatusClass(activity.status)">
+                      <el-icon :class="{ 'is-loading': activity.status === 'running' }"><Loading v-if="activity.status === 'running'" /><Check v-else /></el-icon>
+                    </span>
+                    <span class="agent-message-activity__item-content">
+                      <span class="agent-message-activity__item-title">{{ resolveActivityTitle(activity) }}</span>
+                      <span v-if="activity.summary" class="agent-message-activity__item-summary">{{ activity.summary }}</span>
+                    </span>
+                  </div>
+                </div>
+              </section>
               <el-collapse
                 v-if="item.role !== 'user' && resolveVisibleTools(item).length"
                 class="agent-message-tools"
@@ -209,8 +240,33 @@
                 <span v-else>{{ item.content }}</span>
                 <span v-if="item.progressState === 'streaming'" class="agent-thinking-dots"> <i></i><i></i><i></i> </span>
               </div>
-              <div v-if="item.attachments?.length" class="agent-message-attachments">
+              <div v-if="item.attachments?.length && item.role === 'user'" class="agent-message-attachments">
                 <Attachments :items="buildMessageAttachmentItems(item.attachments)" overflow="wrap" :hide-upload="true" />
+              </div>
+              <div v-else-if="item.attachments?.length" class="agent-generated-files">
+                <div
+                  v-for="file in resolveGeneratedAttachments(item.attachments)"
+                  :key="file.id || file.url"
+                  class="agent-generated-file"
+                  @click="openGeneratedFile(file)"
+                >
+                  <a
+                    class="agent-generated-file__name"
+                    :href="resolveAIAttachmentUrl(file.url)"
+                    target="_blank"
+                    rel="noopener"
+                    @click.prevent="openGeneratedFile(file)"
+                  >{{ file.name }}</a>
+                  <span class="agent-generated-file__size">{{ formatAttachmentSize(file.size) }}</span>
+                  <span class="agent-generated-file__actions">
+                    <el-button link type="primary" @click.stop="openGeneratedFile(file)">
+                      {{ t("system.ai.chat.file.open") }}
+                    </el-button>
+                    <el-button link type="primary" @click.stop="downloadGeneratedFile(file)">
+                      {{ t("system.ai.chat.file.download") }}
+                    </el-button>
+                  </span>
+                </div>
               </div>
             </div>
           </template>
@@ -400,7 +456,7 @@ import { computed, defineAsyncComponent, h, nextTick, ref } from "vue";
 import type { Component, ObjectDirective } from "vue";
 import { Attachments, BubbleList } from "vue-element-plus-x";
 import type { FilesCardProps } from "vue-element-plus-x/types/FilesCard";
-import { Check, CopyDocument, DataAnalysis, Delete, EditPen, Link, Memo, PieChart, Refresh, User } from "@element-plus/icons-vue";
+import { ArrowDown, Check, CopyDocument, DataAnalysis, Delete, EditPen, Link, Loading, Memo, PieChart, Refresh, User } from "@element-plus/icons-vue";
 import { ElMessage } from "element-plus";
 import { getCurrentLocale, t } from "@liujitcn/kratos-admin-core";
 import { formatDateTime } from "@liujitcn/kratos-admin-core/format";
@@ -417,8 +473,9 @@ import { resolveTimestamp } from "../message";
 
 // AI Markdown 渲染器依赖较重，仅在真正出现助手消息时再加载。
 const AiMarkdown = defineAsyncComponent(() => import("./AiMarkdown.vue"));
-import { buildAIAttachmentFileCard } from "../attachment";
-import type { ChatMessageAction, ChatMessageEditPayload, ChatMessageItem, ReplySourceTag, SubmitPayload } from "../types";
+import { buildAIAttachmentFileCard, resolveAIAttachmentUrl } from "../attachment";
+import { defFileService } from "@liujitcn/kratos-admin-core/api/base/v1/file";
+import type { AiActivityItem, ChatMessageAction, ChatMessageEditPayload, ChatMessageItem, ReplySourceTag, SubmitPayload } from "../types";
 
 /** 消息操作按钮配置。 */
 type MessageActionOption = {
@@ -443,6 +500,7 @@ type ToolCollapseValue = string | number | Array<string | number>;
 
 const messageFooterWidthStateMap = new WeakMap<HTMLElement, MessageFooterWidthState>();
 const activeToolKeyMap = ref<Record<string, string[]>>({});
+const activeActivityKeyMap = ref<Record<string, boolean>>({});
 const editingMessageKey = ref("");
 const editingContent = ref("");
 /** 助手消息最小阅读宽度，保证底部操作和运行信息不互相遮挡。 */
@@ -875,6 +933,62 @@ function formatNumber(value?: number) {
   return new Intl.NumberFormat(getCurrentLocale()).format(Number(value ?? 0));
 }
 
+/** 返回活动时间线是否展开，流式消息默认展开、完成消息默认收起。 */
+function isActivityExpanded(item: ChatMessageItem) {
+  const key = resolveToolCollapseMessageKey(item);
+  return activeActivityKeyMap.value[key] ?? item.progressState === "streaming";
+}
+
+/** 切换消息活动时间线展开状态。 */
+function toggleActivity(item: ChatMessageItem) {
+  const key = resolveToolCollapseMessageKey(item);
+  activeActivityKeyMap.value = { ...activeActivityKeyMap.value, [key]: !isActivityExpanded(item) };
+}
+
+/** 判断消息是否仍有进行中的活动。 */
+function hasRunningActivity(item: ChatMessageItem) {
+  return (item.activities ?? []).some(activity => activity.status === "running");
+}
+
+/** 返回活动时间线顶部摘要。 */
+function resolveActivitySummary(item: ChatMessageItem) {
+  const activities = item.activities ?? [];
+  const current = [...activities].reverse().find(activity => activity.status === "running") ?? activities[activities.length - 1];
+  if (!current) return t("system.ai.chat.status.completed");
+  if (!hasRunningActivity(item)) {
+    if (current.status === "failed") return t("system.ai.chat.status.failed");
+    if (current.status === "waiting_approval") return t("system.ai.chat.approval.title");
+    return t("system.ai.chat.status.completed");
+  }
+  if (current.phase === "reasoning") return current.summary || t("system.ai.chat.status.thinking");
+  if (current.phase === "tool") {
+    return t("system.ai.chat.status.running_tool", { tool: resolveActivityToolTitle(current) });
+  }
+  if (current.phase === "answering") return t("system.ai.chat.status.answering");
+  return t("system.ai.chat.status.completed");
+}
+
+/** 返回活动条目的标题。 */
+function resolveActivityTitle(activity: AiActivityItem) {
+  if (activity.phase === "reasoning") return activity.summary || t("system.ai.chat.status.thinking");
+  if (activity.phase === "tool") return resolveActivityToolTitle(activity);
+  return t("system.ai.chat.status.answering");
+}
+
+/** 返回活动中的本地化工具展示名称。 */
+function resolveActivityToolTitle(activity: AiActivityItem) {
+  if (activity.tool_name === "web_search") return t("system.ai.chat.value.web_search");
+  return activity.tool_title || activity.tool_name || t("system.ai.chat.value.tool");
+}
+
+/** 返回活动状态的视觉样式。 */
+function resolveActivityStatusClass(status: AiActivityItem["status"]) {
+  if (status === "failed") return "is-error";
+  if (status === "waiting_approval") return "is-warning";
+  if (status === "completed") return "is-success";
+  return "is-running";
+}
+
 /** 生成工具标签稳定键。 */
 function resolveToolKey(tool: AiToolCall, index?: number) {
   return `${tool.type || "tool"}:${tool.name || tool.title}:${index ?? 0}`;
@@ -1081,6 +1195,35 @@ function buildMessageAttachmentItems(attachments: AiAttachment[]): FilesCardProp
       maxWidth: "240px"
     })
   );
+}
+
+/** AI 生成附件的持久链接路径标记，用于区分用户上传附件与工具产物。 */
+const GENERATED_ATTACHMENT_PATH = "/data/ai/generated/";
+
+/** 过滤出本轮 AI 回复转存产出的文件附件。 */
+function resolveGeneratedAttachments(attachments: AiAttachment[]): AiAttachment[] {
+  return attachments.filter(file => resolveAIAttachmentUrl(file.url).includes(GENERATED_ATTACHMENT_PATH));
+}
+
+/** 新标签页在线打开生成文件，交由浏览器原生预览。 */
+function openGeneratedFile(file: AiAttachment) {
+  const url = resolveAIAttachmentUrl(file.url);
+  if (!url) return;
+  window.open(url, "_blank", "noopener");
+}
+
+/** 通过鉴权下载接口保存生成文件，保持与文件面板一致。 */
+async function downloadGeneratedFile(file: AiAttachment) {
+  await defFileService.DownloadFile(resolveAIAttachmentUrl(file.url), file.name);
+}
+
+/** 格式化附件大小展示文本。 */
+function formatAttachmentSize(size?: number): string {
+  const bytes = Number(size ?? 0);
+  if (!Number.isFinite(bytes) || bytes <= 0) return "";
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / 1024 / 1024).toFixed(1)} MB`;
 }
 </script>
 
@@ -1465,6 +1608,95 @@ function buildMessageAttachmentItems(attachments: AiAttachment[]): FilesCardProp
 .agent-message-meta__time {
   opacity: 0.85;
 }
+.agent-message-activity {
+  width: 100%;
+  max-width: 720px;
+  margin-top: 8px;
+  color: var(--admin-page-text-secondary);
+  border-top: 1px solid var(--el-border-color-lighter);
+}
+.agent-message-activity__summary {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  width: 100%;
+  min-height: 32px;
+  padding: 4px 0;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  background: transparent;
+  border: 0;
+}
+.agent-message-activity__summary:hover {
+  color: var(--el-color-primary);
+}
+.agent-message-activity__summary-icon,
+.agent-message-activity__item-icon {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+}
+.agent-message-activity__summary-icon {
+  color: var(--el-color-primary);
+}
+.agent-message-activity__summary-text {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.agent-message-activity__summary-arrow {
+  flex: 0 0 auto;
+  margin-left: auto;
+  transition: transform 0.2s ease;
+}
+.agent-message-activity__summary-arrow.is-expanded {
+  transform: rotate(180deg);
+}
+.agent-message-activity__list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 4px 0 8px 26px;
+}
+.agent-message-activity__item {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  min-width: 0;
+  font-size: 12px;
+  line-height: 18px;
+}
+.agent-message-activity__item-icon.is-running {
+  color: var(--el-color-primary);
+}
+.agent-message-activity__item-icon.is-success {
+  color: var(--el-color-success);
+}
+.agent-message-activity__item-icon.is-warning {
+  color: var(--el-color-warning);
+}
+.agent-message-activity__item-icon.is-error {
+  color: var(--el-color-danger);
+}
+.agent-message-activity__item-content {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.agent-message-activity__item-title {
+  color: var(--admin-page-text-regular);
+  overflow-wrap: anywhere;
+}
+.agent-message-activity__item-summary {
+  color: var(--admin-page-text-secondary);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
 .agent-message-error {
   box-sizing: border-box;
   width: 100%;
@@ -1550,6 +1782,51 @@ function buildMessageAttachmentItems(attachments: AiAttachment[]): FilesCardProp
   :deep(.elx-files-card__image-preview),
   :deep(.elx-files-card-delete-icon) {
     border-radius: var(--admin-page-radius);
+  }
+}
+
+.agent-generated-files {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 8px;
+
+  .agent-generated-file {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    border: 1px solid var(--el-border-color-light);
+    border-radius: var(--admin-page-radius);
+    background: var(--el-fill-color-extra-light);
+    cursor: pointer;
+    transition: border-color 0.2s;
+
+    &:hover {
+      border-color: var(--el-color-primary-light-5);
+    }
+
+    .agent-generated-file__name {
+      flex: 1;
+      min-width: 0;
+      overflow: hidden;
+      color: var(--el-color-primary);
+      font-size: 13px;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .agent-generated-file__size {
+      flex-shrink: 0;
+      color: var(--admin-page-text-secondary);
+      font-size: 12px;
+    }
+
+    .agent-generated-file__actions {
+      display: flex;
+      flex-shrink: 0;
+      gap: 4px;
+    }
   }
 }
 .agent-message-tools {

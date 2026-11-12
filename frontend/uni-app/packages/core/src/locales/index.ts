@@ -64,7 +64,6 @@ export function initializeLocale(): SupportedLocale {
   const stored = uni.getStorageSync(LOCALE_STORAGE_KEY) as string | undefined
   const systemLanguage = uni.getSystemInfoSync().language
   mutableLocaleState.value = normalizeLocale(stored || systemLanguage)
-  if (typeof uni.setLocale === 'function') uni.setLocale(mutableLocaleState.value)
   return mutableLocaleState.value
 }
 

@@ -10,9 +10,9 @@
 
 .PHONY: help init reinstall pnpm-admin pnpm-uni-app pnpm-taro-app \
 	ts types-admin ts-admin ts-uni-app ts-taro-app \
-	run run-all run-h5 run-mp-weixin run-admin run-uni-app run-uni-app-h5 run-uni-app-mp-weixin run-taro-app run-taro-app-h5 run-taro-app-mp-weixin \
+	run run-all run-h5 run-mp-weixin run-admin run-uni-app run-uni-app-h5 run-uni-app-mp-weixin run-uni-app-app run-taro-app run-taro-app-h5 run-taro-app-mp-weixin \
 	check check-admin check-uni-app check-taro-app \
-	build build-h5 build-mp-weixin build-admin build-uni-app build-uni-app-h5 build-uni-app-mp-weixin build-taro-app build-taro-app-h5 build-taro-app-mp-weixin build-package \
+	build build-h5 build-mp-weixin build-admin build-uni-app build-uni-app-h5 build-uni-app-mp-weixin build-uni-app-app build-taro-app build-taro-app-h5 build-taro-app-mp-weixin build-package \
 	package package-admin package-uni-app package-taro-app \
 	publish publish-only publish-admin publish-uni-app publish-taro-app \
 	clean clean-before
@@ -183,6 +183,10 @@ run-uni-app-h5: clean-before
 run-uni-app-mp-weixin: clean-before
 	@cd uni-app && $(PNPM_RUN) dev:mp-weixin
 
+# 启动 uni-app x App 开发服务
+run-uni-app-app: clean-before
+	@cd uni-app && $(PNPM_RUN) dev:app
+
 # 启动 Taro 微信小程序开发服务
 run-taro-app:
 	@$(MAKE) run-taro-app-mp-weixin
@@ -262,6 +266,12 @@ build-uni-app-mp-weixin: clean-before
 	@echo "==> 开始构建：uni-app · 微信小程序"
 	@cd uni-app && $(PNPM_RUN) build:mp-weixin
 	@echo "==> 构建完成：uni-app · 微信小程序"
+
+# 构建 uni-app x App 产物
+build-uni-app-app: clean-before
+	@echo "==> 开始构建：uni-app x · App"
+	@cd uni-app && $(PNPM_RUN) build:app
+	@echo "==> 构建完成：uni-app x · App"
 
 # 构建 Taro H5 静态资源
 build-taro-app:
@@ -407,6 +417,7 @@ help:
 	@echo "  make run-mp-weixin"
 	@echo "  make run-uni-app"
 	@echo "  make run-uni-app-h5"
+	@echo "  make run-uni-app-app"
 	@echo "  make check-taro-app"
 	@echo "  make publish NPM_REGISTRY=https://registry.npmjs.org/ NPM_TAG=next"
 
