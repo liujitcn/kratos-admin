@@ -177,6 +177,45 @@ html.theme-dark .taro__actionSheet .taro-actionsheet__cell::after {
   border-color: var(--kratos-color-border);
 }
 
+html.theme-dark .weui-picker {
+  background-color: var(--kratos-color-surface-solid) !important;
+  color: var(--kratos-color-text) !important;
+}
+
+html.theme-dark .weui-picker__hd,
+html.theme-dark .weui-picker__bd {
+  background-color: var(--kratos-color-surface-solid) !important;
+}
+
+html.theme-dark .weui-picker__hd::after,
+html.theme-dark .weui-picker__indicator::before,
+html.theme-dark .weui-picker__indicator::after {
+  border-color: var(--kratos-color-border) !important;
+  color: var(--kratos-color-border) !important;
+}
+
+html.theme-dark .weui-picker__action {
+  color: var(--kratos-color-primary) !important;
+}
+
+html.theme-dark .weui-picker__action:first-child {
+  color: var(--kratos-color-text-muted) !important;
+}
+
+html.theme-dark .weui-picker__item {
+  color: var(--kratos-color-text) !important;
+}
+
+html.theme-dark .weui-picker__item_disabled {
+  color: var(--kratos-color-text-dim) !important;
+}
+
+html.theme-dark .weui-picker__mask {
+  background:
+    linear-gradient(rgba(7, 13, 24, 0.95), rgba(7, 13, 24, 0.6)) center top / 100% 102px no-repeat,
+    linear-gradient(rgba(7, 13, 24, 0.6), rgba(7, 13, 24, 0.95)) center bottom !important;
+}
+
 html.theme-dark .taro__toast > div:last-child {
   background: rgba(10, 18, 30, 0.9) !important;
   color: var(--kratos-color-text) !important;
