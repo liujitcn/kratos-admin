@@ -14,8 +14,8 @@ import (
 	"github.com/liujitcn/kratos-kit/cache/memory"
 )
 
-// TestRefreshFormBaseConfigUsesDescriptionName 验证表单配置名称使用文字描述，并修正历史键名。
-func TestRefreshFormBaseConfigUsesDescriptionName(t *testing.T) {
+// TestRefreshFormBaseConfigPreservesDatabaseName 验证刷新表单配置时保留数据库名称。
+func TestRefreshFormBaseConfigPreservesDatabaseName(t *testing.T) {
 	client, database := newSecurityData(t, new(models.BaseConfig))
 	cache, cleanup, err := memory.NewMemory()
 	if err != nil {
@@ -28,7 +28,7 @@ func TestRefreshFormBaseConfigUsesDescriptionName(t *testing.T) {
 	}
 	err = client.DB.Create(&models.BaseConfig{
 		Site:   _const.BASE_CONFIG_SITE_SYSTEM,
-		Name:   runtimeconfig.SecurityScriptKey,
+		Name:   "数据库中的名称",
 		Type:   int32(adminv1.BaseConfigType_BASE_CONFIG_TYPE_FORM),
 		Key:    runtimeconfig.SecurityScriptKey,
 		Value:  value,
@@ -52,8 +52,8 @@ func TestRefreshFormBaseConfigUsesDescriptionName(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if item.Name != "脚本沙箱配置" {
-		t.Fatalf("表单配置名称 = %q，期望文字描述", item.Name)
+	if item.Name != "数据库中的名称" {
+		t.Fatalf("表单配置名称 = %q，期望保留数据库名称", item.Name)
 	}
 }
 
