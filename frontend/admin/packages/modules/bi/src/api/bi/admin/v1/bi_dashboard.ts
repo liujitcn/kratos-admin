@@ -1,4 +1,5 @@
 import service from "@liujitcn/kratos-admin-core/request";
+import { normalizeBiDashboardPage } from "../../../../bi-response";
 import type {
   BiDashboard,
   BiDashboardService,
@@ -19,7 +20,7 @@ const BI_DASHBOARD_URL = "/v1/admin/bi/dashboard";
 export class BiDashboardServiceImpl implements BiDashboardService {
   /** 分页查询仪表盘。 */
   PageBiDashboard(request: PageBiDashboardRequest): Promise<PageBiDashboardResponse> {
-    return service({url: BI_DASHBOARD_URL, method: "get", params: request});
+    return service<PageBiDashboardRequest, PageBiDashboardResponse>({url: BI_DASHBOARD_URL, method: "get", params: request}).then(normalizeBiDashboardPage);
   }
 
   /** 查询仪表盘详情。 */

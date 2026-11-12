@@ -212,8 +212,9 @@ async function pickDashboard(card: BiCard) {
     let current = 1;
     while (true) {
       const data = await defBiDashboardService.PageBiDashboard({ name: "", page_num: current, page_size: 100 });
-      result.push(...data.dashboards.filter(item => item.can_edit));
-      if (current * 100 >= data.total || !data.dashboards.length) break;
+      const items = data.dashboards ?? [];
+      result.push(...items.filter(item => item.can_edit));
+      if (current * 100 >= (data.total ?? 0) || !items.length) break;
       current++;
     }
     if (!result.length) {

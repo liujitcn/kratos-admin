@@ -16,6 +16,7 @@ import (
 	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/bi/admin/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/agent/message"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/agent/model"
+	"github.com/liujitcn/kratos-admin/backend/internal/biz/agent/structured"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/bi/admin/dto"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
@@ -139,7 +140,7 @@ chart_type 只支持 bar、line、area、pie、donut、scatter、radar、gauge�
 		return nil, errorsx.Internal("BI 问数生成失败").WithCause(err)
 	}
 	var output dto.AskOutput
-	if err = json.Unmarshal([]byte(extractJSON(message.Text(response))), &output); err != nil {
+	if err = structured.DecodeContent(message.Text(response), &output); err != nil {
 		return nil, errorsx.InvalidArgument("BI 问数结果不是有效查询计划").WithCause(err)
 	}
 	// 模型判定问题无法回答时返回 error 字段，应直接透传拒绝原因而不是当作空查询计划校验。
@@ -490,17 +491,6 @@ func toProtoQueryResult(value bi.QueryResult) *adminv1.BiQueryResult {
 		rows = append(rows, &adminv1.BiResultRow{Values: item})
 	}
 	return &adminv1.BiQueryResult{Columns: columns, Rows: rows, Truncated: value.Truncated, ElapsedMs: value.ElapsedMS, QueryRecordId: value.QueryRecordID}
-}
-
-func extractJSON(value string) string {
-	value = strings.TrimSpace(strings.TrimPrefix(value, "```json"))
-	value = strings.TrimSpace(strings.TrimSuffix(value, "```"))
-	start := strings.Index(value, "{")
-	end := strings.LastIndex(value, "}")
-	if start >= 0 && end > start {
-		return value[start : end+1]
-	}
-	return value
 }
 
 // projectIDForAuth 在认证范围明确只有一个项目时传递项目范围；无法表达有限多项目范围时拒绝执行。

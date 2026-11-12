@@ -290,7 +290,19 @@ func (r *Runtime) runADK(
 		Stream:           stream,
 		OnDelta:          onDelta,
 	})
+	if err == nil && result != nil && len(result.Pending) == 0 && len(einoMessage.ToolCalls(result.Message)) == 0 && hasUnparsedToolCall(result.Message) {
+		return nil, recorder, fmt.Errorf("model returned an unparsed tool call")
+	}
 	return result, recorder, err
+}
+
+// hasUnparsedToolCall 判断模型是否把工具调用当作普通文本返回。
+func hasUnparsedToolCall(value *einoMessage.AgenticMessage) bool {
+	content := strings.ToLower(einoMessage.Text(value))
+	return strings.Contains(content, "<tool_calls>") ||
+		strings.Contains(content, "<tool_call>") ||
+		strings.Contains(content, "<|tool_calls|") ||
+		strings.Contains(content, "<｜tool")
 }
 
 // runnerTools 收集当前终端可由 ADK 执行的工具。

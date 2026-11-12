@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { normalizeBiCard, normalizeBiWorkbench, normalizeBiQueryResult } from "../src/bi-response.ts";
+import { normalizeBiCard, normalizeBiWorkbench, normalizeBiDashboardPage, normalizeBiQueryResult } from "../src/bi-response.ts";
 import { buildCardChart } from "../src/card-schema.ts";
 
 test("HTTP省略空集合时，新账号与清空后的工作台仍能渲染", () => {
@@ -10,6 +10,10 @@ test("HTTP省略空集合时，新账号与清空后的工作台仍能渲染", (
   const card = normalizeBiCard({ id: 1, chart_type: "metric", query: { source_code: "test" } });
   assert.equal(buildCardChart(card, result).metrics[0].value, "—");
   assert.deepEqual(card.query.dimensions, []);
+});
+
+test("HTTP省略仪表盘分页集合时仍可安全遍历", () => {
+  assert.deepEqual(normalizeBiDashboardPage({}), { dashboards: [], total: 0 });
 });
 
 test("响应补全保留原查询与结果，不改写输入或数值精度", () => {
