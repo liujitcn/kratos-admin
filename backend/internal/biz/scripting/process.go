@@ -17,7 +17,7 @@ import (
 
 	"github.com/go-kratos/kratos/v3/log"
 	"github.com/liujitcn/go-scripts/sandbox"
-	"github.com/liujitcn/kratos-admin/backend/pkg/securityconfig"
+	"github.com/liujitcn/kratos-admin/backend/internal/biz/securityconfig"
 	"github.com/liujitcn/kratos-kit/auth"
 	authdata "github.com/liujitcn/kratos-kit/auth/data"
 	"github.com/liujitcn/kratos-kit/transport/safehttp"

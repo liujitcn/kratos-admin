@@ -11,7 +11,7 @@ import (
 	"sync/atomic"
 	"testing"
 
-	"github.com/liujitcn/kratos-admin/backend/pkg/securityconfig"
+	"github.com/liujitcn/kratos-admin/backend/internal/biz/securityconfig"
 )
 
 // TestIsolatedLanguages 验证九种语言在真实隔离进程中仍可执行并返回可序列化结果。

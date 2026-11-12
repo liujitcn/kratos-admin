@@ -29,6 +29,7 @@ import (
 	basemfa "github.com/liujitcn/kratos-admin/backend/internal/biz/base"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/ai"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/runtimeconfig"
+	"github.com/liujitcn/kratos-admin/backend/internal/biz/securityconfig"
 	biz "github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/logstream"
 	_const "github.com/liujitcn/kratos-admin/backend/internal/const"
@@ -49,7 +50,6 @@ import (
 	"github.com/liujitcn/kratos-admin/backend/pkg/agent"
 	"github.com/liujitcn/kratos-admin/backend/pkg/aiautomation"
 	pkgbi "github.com/liujitcn/kratos-admin/backend/pkg/bi"
-	"github.com/liujitcn/kratos-admin/backend/pkg/securityconfig"
 )
 
 // Module 聚合 Admin 注册到 Core 宿主的协议服务。

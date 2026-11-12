@@ -10,10 +10,10 @@ import (
 
 	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/bi/admin/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/agent/model"
+	"github.com/liujitcn/kratos-admin/backend/internal/biz/securityconfig"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/pkg/agent"
 	"github.com/liujitcn/kratos-admin/backend/pkg/bi"
-	"github.com/liujitcn/kratos-admin/backend/pkg/securityconfig"
 	"github.com/liujitcn/kratos-core/biz"
 	modelconfig "github.com/liujitcn/kratos-kit/ai/model"
 )

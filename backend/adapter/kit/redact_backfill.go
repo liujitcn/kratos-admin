@@ -9,7 +9,7 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/liujitcn/kratos-admin/backend/pkg/securityconfig"
+	"github.com/liujitcn/kratos-admin/backend/internal/biz/securityconfig"
 	"github.com/liujitcn/kratos-kit/redact"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"

@@ -5,8 +5,8 @@ import (
 	"strings"
 
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/runtimeconfig"
+	"github.com/liujitcn/kratos-admin/backend/internal/biz/securityconfig"
 	biz "github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin"
-	"github.com/liujitcn/kratos-admin/backend/pkg/securityconfig"
 )
 
 // loadSecurityConfig 从分组的运行配置表单加载安全配置快照。

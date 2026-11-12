@@ -26,9 +26,9 @@ import (
 	passwordPolicy "github.com/liujitcn/kratos-admin/backend/internal/biz/base/password"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/sessionregistry"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/sessionstate"
+	"github.com/liujitcn/kratos-admin/backend/internal/biz/securityconfig"
 	adminconst "github.com/liujitcn/kratos-admin/backend/internal/const"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
-	"github.com/liujitcn/kratos-admin/backend/pkg/securityconfig"
 
 	"github.com/liujitcn/go-utils/crypto"
 	"github.com/liujitcn/go-utils/id"

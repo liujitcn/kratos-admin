@@ -10,7 +10,7 @@ import (
 
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/runtimeconfig"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/username"
-	"github.com/liujitcn/kratos-admin/backend/pkg/securityconfig"
+	"github.com/liujitcn/kratos-admin/backend/internal/biz/securityconfig"
 
 	"github.com/go-kratos/kratos/v3/transport"
 	"github.com/go-sql-driver/mysql"

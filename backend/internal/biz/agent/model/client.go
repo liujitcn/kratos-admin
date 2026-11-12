@@ -13,7 +13,7 @@ import (
 	"github.com/cloudwego/eino-ext/components/model/agenticopenai"
 	"github.com/cloudwego/eino/components/model"
 	"github.com/cloudwego/eino/schema"
-	"github.com/liujitcn/kratos-admin/backend/pkg/securityconfig"
+	"github.com/liujitcn/kratos-admin/backend/internal/biz/securityconfig"
 	modelconfig "github.com/liujitcn/kratos-kit/ai/model"
 	"github.com/openai/openai-go/v3"
 	"github.com/openai/openai-go/v3/option"

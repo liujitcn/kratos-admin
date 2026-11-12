@@ -14,10 +14,10 @@ import (
 
 	"github.com/go-kratos/kratos/v3/log"
 	"github.com/liujitcn/gorm-kit/repository"
+	"github.com/liujitcn/kratos-admin/backend/internal/biz/securityconfig"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 	ragdata "github.com/liujitcn/kratos-admin/backend/internal/data/gen/rag/data"
-	"github.com/liujitcn/kratos-admin/backend/pkg/securityconfig"
 	"github.com/liujitcn/kratos-kit/ai/model"
 	"github.com/liujitcn/kratos-kit/database/gorm"
 	"github.com/sashabaranov/go-openai"
