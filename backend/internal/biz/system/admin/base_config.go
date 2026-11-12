@@ -435,6 +435,11 @@ func (c *BaseConfigCase) refreshFormBaseConfig(ctx context.Context) error {
 	query := c.Query(ctx).BaseConfig
 	var err error
 	for _, key := range runtimeconfig.Keys() {
+		var name string
+		name, err = runtimeconfig.Name(key)
+		if err != nil {
+			return err
+		}
 		var list []*models.BaseConfig
 		list, err = c.List(ctx,
 			repository.Where(query.Site.Eq(_const.BASE_CONFIG_SITE_SYSTEM)),
@@ -452,7 +457,7 @@ func (c *BaseConfigCase) refreshFormBaseConfig(ctx context.Context) error {
 			}
 			entity = &models.BaseConfig{
 				Site:   _const.BASE_CONFIG_SITE_SYSTEM,
-				Name:   key,
+				Name:   name,
 				Type:   int32(adminv1.BaseConfigType_BASE_CONFIG_TYPE_FORM),
 				Key:    key,
 				Value:  value,
@@ -464,6 +469,13 @@ func (c *BaseConfigCase) refreshFormBaseConfig(ctx context.Context) error {
 			}
 		} else {
 			entity = list[0]
+			if entity.Name == key {
+				err = c.UpdateByID(ctx, &models.BaseConfig{ID: entity.ID, Name: name})
+				if err != nil {
+					return fmt.Errorf("修正表单系统配置名称失败: %w", err)
+				}
+				entity.Name = name
+			}
 		}
 		if entity.Type != int32(adminv1.BaseConfigType_BASE_CONFIG_TYPE_FORM) {
 			return fmt.Errorf("系统配置 %s 未标记为表单配置", key)

@@ -110,6 +110,11 @@ func Keys() []string {
 	return runtimeconfig.Keys()
 }
 
+// Name 返回指定运行配置的默认名称。
+func Name(key string) (string, error) {
+	return runtimeconfig.Name(key)
+}
+
 // DefaultJSON 返回配置键对应的默认 JSON。
 func DefaultJSON(key string) (string, error) {
 	return runtimeconfig.DefaultJSON(key)

@@ -86,6 +86,8 @@ func BaseLogFallbackFilePath(filePath string) string {
 type Definition struct {
 	// Key 是配置在数据库和缓存中的稳定键。
 	Key string
+	// Name 是新建配置记录的默认名称。
+	Name string
 	// New 创建一个不带默认值的 Proto 配置消息。
 	New func() proto.Message
 	// Default 创建一个带业务默认值的 Proto 配置消息。
@@ -404,6 +406,18 @@ func Keys() []string {
 	return defaultRegistry.Keys()
 }
 
+// Name 返回指定运行配置的默认名称。
+func Name(key string) (string, error) {
+	definition, err := defaultRegistry.Definition(key)
+	if err != nil {
+		return "", err
+	}
+	if definition.Name == "" {
+		return "", fmt.Errorf("运行配置 %s 未配置默认名称", key)
+	}
+	return definition.Name, nil
+}
+
 // IsSupportedKey 判断配置键是否由进程内默认注册表管理。
 func IsSupportedKey(key string) bool {
 	return defaultRegistry.IsSupportedKey(key)
@@ -655,6 +669,7 @@ func builtinDefinitions() []Definition {
 	return []Definition{
 		{
 			Key:            BaseLogFallbackKey,
+			Name:           "日志入库回退配置",
 			New:            func() proto.Message { return new(BaseLogFallbackConfig) },
 			Default:        func() proto.Message { value := DefaultBaseLogFallbackConfig(); return &value },
 			Owner:          "admin",
@@ -663,6 +678,7 @@ func builtinDefinitions() []Definition {
 		},
 		{
 			Key:            SecurityProxyKey,
+			Name:           "反向代理安全配置",
 			New:            func() proto.Message { return new(SecurityProxyConfig) },
 			Default:        func() proto.Message { value := DefaultSecurityProxyConfig(); return &value },
 			Owner:          "admin",
@@ -671,6 +687,7 @@ func builtinDefinitions() []Definition {
 		},
 		{
 			Key:            SecurityScriptKey,
+			Name:           "脚本沙箱配置",
 			New:            func() proto.Message { return new(SecurityScriptConfig) },
 			Default:        func() proto.Message { value := DefaultSecurityScriptConfig(); return &value },
 			Owner:          "admin",
@@ -679,6 +696,7 @@ func builtinDefinitions() []Definition {
 		},
 		{
 			Key:            SecurityOutboundKey,
+			Name:           "出站网络配置",
 			New:            func() proto.Message { return new(SecurityOutboundConfig) },
 			Default:        func() proto.Message { value := DefaultSecurityOutboundConfig(); return &value },
 			Owner:          "admin",
@@ -687,6 +705,7 @@ func builtinDefinitions() []Definition {
 		},
 		{
 			Key:            SecurityIdentityKey,
+			Name:           "账号安全配置",
 			New:            func() proto.Message { return new(SecurityIdentityConfig) },
 			Default:        func() proto.Message { value := DefaultSecurityIdentityConfig(); return &value },
 			Owner:          "admin",
@@ -695,6 +714,7 @@ func builtinDefinitions() []Definition {
 		},
 		{
 			Key:            SecurityMigrationKey,
+			Name:           "安全迁移配置",
 			New:            func() proto.Message { return new(SecurityMigrationConfig) },
 			Default:        func() proto.Message { value := DefaultSecurityMigrationConfig(); return &value },
 			Owner:          "admin",

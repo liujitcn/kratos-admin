@@ -6,12 +6,56 @@ import (
 	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
 	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
 	basebiz "github.com/liujitcn/kratos-admin/backend/internal/biz/base"
+	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/runtimeconfig"
 	_const "github.com/liujitcn/kratos-admin/backend/internal/const"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 	"github.com/liujitcn/kratos-core/biz"
 	"github.com/liujitcn/kratos-kit/cache/memory"
 )
+
+// TestRefreshFormBaseConfigUsesDescriptionName 验证表单配置名称使用文字描述，并修正历史键名。
+func TestRefreshFormBaseConfigUsesDescriptionName(t *testing.T) {
+	client, database := newSecurityData(t, new(models.BaseConfig))
+	cache, cleanup, err := memory.NewMemory()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer cleanup()
+	value, err := runtimeconfig.DefaultJSON(runtimeconfig.SecurityScriptKey)
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = client.DB.Create(&models.BaseConfig{
+		Site:   _const.BASE_CONFIG_SITE_SYSTEM,
+		Name:   runtimeconfig.SecurityScriptKey,
+		Type:   int32(adminv1.BaseConfigType_BASE_CONFIG_TYPE_FORM),
+		Key:    runtimeconfig.SecurityScriptKey,
+		Value:  value,
+		Status: 1,
+	}).Error
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	configCase := &BaseConfigCase{
+		BaseCase:             &biz.BaseCase{Cache: cache},
+		BaseConfigRepository: data.NewBaseConfigRepository(database),
+	}
+	err = configCase.refreshFormBaseConfig(t.Context())
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	query := database.Query(t.Context()).BaseConfig
+	item, err := query.WithContext(t.Context()).Where(query.Key.Eq(runtimeconfig.SecurityScriptKey)).First()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if item.Name != "脚本沙箱配置" {
+		t.Fatalf("表单配置名称 = %q，期望文字描述", item.Name)
+	}
+}
 
 // TestValidateBaseConfigValue 验证新增 JSON、动态列表和多文本配置的持久化结构。
 func TestValidateBaseConfigValue(t *testing.T) {
