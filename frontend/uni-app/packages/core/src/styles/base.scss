@@ -119,8 +119,70 @@ html .uni-modal__btn_default {
   color: var(--kratos-color-text-muted, #5a7083) !important;
 }
 
+/* uni-app x H5 弹窗使用 uni-modal-dialog 结构，仅同步主题，不覆盖运行时默认尺寸。 */
+html .uni-modal-mask {
+  background-color: var(--kratos-color-mask, rgba(16, 34, 50, 0.45)) !important;
+}
+
+html .uni-modal-dialog {
+  border-radius: var(--kratos-page-radius, 12rpx) !important;
+  background-color: var(--kratos-color-surface-solid, #ffffff) !important;
+}
+
+html .uni-modal-dialog__inner {
+  border-radius: var(--kratos-page-radius, 12rpx) !important;
+  background-color: var(--kratos-color-surface-solid, #ffffff) !important;
+}
+
+html .uni-modal-dialog__title {
+  color: var(--kratos-color-text, #102232) !important;
+}
+
+html .uni-modal-dialog__message {
+  color: var(--kratos-color-text-muted, #5a7083) !important;
+}
+
+html .uni-modal-dialog__divider,
+html .uni-modal-dialog__split {
+  background-color: var(--kratos-color-border, #e3eaf2) !important;
+}
+
+html .uni-modal-dialog__action-text {
+  color: var(--kratos-color-text-muted, #5a7083) !important;
+}
+
+html .uni-modal-dialog__action-text--confirm {
+  color: var(--kratos-color-primary, #039e8c) !important;
+}
+
 html.theme-dark .uni-modal {
   background-color: #070d18;
+}
+
+html.theme-dark .uni-modal-dialog,
+html.theme-dark .uni-modal-dialog__inner {
+  background-color: var(--kratos-color-surface-solid, #070d18) !important;
+}
+
+html.theme-dark .uni-modal-dialog__title {
+  color: var(--kratos-color-text, #e9f4f6) !important;
+}
+
+html.theme-dark .uni-modal-dialog__message {
+  color: var(--kratos-color-text-muted, #8aa0b4) !important;
+}
+
+html.theme-dark .uni-modal-dialog__divider,
+html.theme-dark .uni-modal-dialog__split {
+  background-color: var(--kratos-color-border, rgba(255, 255, 255, 0.08)) !important;
+}
+
+html.theme-dark .uni-modal-dialog__action-text {
+  color: var(--kratos-color-text-muted, #8aa0b4) !important;
+}
+
+html.theme-dark .uni-modal-dialog__action-text--confirm {
+  color: var(--kratos-color-primary, #28f0d4) !important;
 }
 
 html.theme-dark .uni-modal__title {

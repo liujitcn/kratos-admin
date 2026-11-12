@@ -230,6 +230,7 @@ function handleKnowledgeToggle(knowledgeId: number) {
 
 .composer-model-chip {
   display: inline-flex;
+  flex-direction: row;
   align-items: center;
   gap: 10rpx;
   max-width: 100%;

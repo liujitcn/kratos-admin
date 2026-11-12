@@ -1182,9 +1182,17 @@ onUnload(() => {
   flex-direction: column;
   justify-content: center;
   min-height: 100vh;
-  padding: 48rpx 20rpx calc(56rpx + env(safe-area-inset-bottom));
+  padding: 48rpx 20rpx calc(var(--kratos-tab-bar-space, 104rpx) + 20rpx);
+  overflow-y: auto;
   background: var(--kratos-bg-gradient);
   box-sizing: border-box;
+}
+
+/* 矮屏下内容高度可能超过视口，顶部对齐后由页面滚动查看底部协议。 */
+@media screen and (max-height: 720px) {
+  .login-page {
+    justify-content: flex-start;
+  }
 }
 
 /* 自绘头部：左返回（复用 k-ic）、右上角语言（复用 k-lg-lang），替代原生导航栏 */

@@ -117,12 +117,12 @@ function goBack() {
 .kratos-nav-bar__button {
   display: flex;
   flex-direction: row;
-  flex: 0 0 76rpx;
+  flex: 0 0 var(--kratos-control-height, 56rpx);
   align-items: center;
   justify-content: center;
   box-sizing: border-box;
-  width: 76rpx;
-  height: 76rpx;
+  width: var(--kratos-control-height, 56rpx);
+  height: var(--kratos-control-height, 56rpx);
   border: 1px solid var(--kratos-color-border);
   border-radius: var(--kratos-page-radius);
   background: var(--kratos-color-surface);
@@ -146,7 +146,7 @@ function goBack() {
 .kratos-nav-bar__action--label {
   flex: 0 1 auto;
   gap: 10rpx;
-  min-width: 76rpx;
+  min-width: var(--kratos-control-height, 56rpx);
   max-width: calc(50% - 48rpx);
   width: auto;
   padding: 0 20rpx;

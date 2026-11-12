@@ -1,0 +1,1703 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>AI 助手对话原型</title>
+    <style>
+      :root {
+        --kratos-color-background: #eef3f8;
+        --kratos-bg-gradient: linear-gradient(180deg, #f4f9fd 0%, #e9f1f8 60%);
+        --kratos-color-surface: #f4f9fd;
+        --kratos-color-surface-2: #eef4fa;
+        --kratos-color-surface-solid: #ffffff;
+        --kratos-color-border: #e3eaf2;
+        --kratos-color-border-accent: rgba(0, 150, 134, 0.28);
+        --kratos-color-primary: #039e8c;
+        --kratos-color-primary-deep: #00b3a0;
+        --kratos-color-on-primary: #ffffff;
+        --kratos-color-primary-soft: rgba(3, 158, 140, 0.08);
+        --kratos-color-primary-soft-2: rgba(3, 158, 140, 0.1);
+        --kratos-color-primary-edge: rgba(3, 158, 140, 0.3);
+        --kratos-color-text: #102232;
+        --kratos-color-text-muted: #5a7083;
+        --kratos-color-text-dim: #9aabbb;
+        --kratos-color-track: #e8eef5;
+        --kratos-glow: 0 10px 26px rgba(0, 120, 110, 0.14);
+        --ink: var(--kratos-color-text);
+        --ink-soft: var(--kratos-color-text-muted);
+        --muted: var(--kratos-color-text-dim);
+        --line: var(--kratos-color-border);
+        --line-strong: var(--kratos-color-border-accent);
+        --canvas: var(--kratos-color-background);
+        --surface: var(--kratos-color-surface-solid);
+        --surface-soft: var(--kratos-color-surface);
+        --accent: var(--kratos-color-primary);
+        --accent-dark: var(--kratos-color-primary-deep);
+        --accent-soft: var(--kratos-color-primary-soft);
+        --warm: var(--kratos-color-surface-2);
+        --warm-text: var(--kratos-color-text-muted);
+        --warm-accent: var(--kratos-color-primary);
+        --shadow: var(--kratos-glow);
+        --radius-lg: 24px;
+        --radius-md: 12px;
+        --radius-sm: 8px;
+      }
+
+      .theme-dark {
+        --kratos-color-background: #060a12;
+        --kratos-bg-gradient: linear-gradient(180deg, #081120 0%, #060a12 40%);
+        --kratos-color-surface: rgba(255, 255, 255, 0.035);
+        --kratos-color-surface-2: rgba(255, 255, 255, 0.06);
+        --kratos-color-surface-solid: #070d18;
+        --kratos-color-border: rgba(255, 255, 255, 0.08);
+        --kratos-color-border-accent: rgba(120, 230, 215, 0.16);
+        --kratos-color-primary: #28f0d4;
+        --kratos-color-primary-deep: #13c7b4;
+        --kratos-color-on-primary: #031513;
+        --kratos-color-primary-soft: rgba(40, 240, 212, 0.08);
+        --kratos-color-primary-soft-2: rgba(40, 240, 212, 0.1);
+        --kratos-color-primary-edge: rgba(40, 240, 212, 0.3);
+        --kratos-color-text: #e9f4f6;
+        --kratos-color-text-muted: #8aa0b4;
+        --kratos-color-text-dim: #4e6378;
+        --kratos-color-track: rgba(255, 255, 255, 0.06);
+        --kratos-glow: 0 0 24px rgba(40, 240, 212, 0.35);
+        --warm-text: var(--kratos-color-text-muted);
+        --warm-accent: var(--kratos-color-primary);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        min-height: 100%;
+        margin: 0;
+      }
+
+      body {
+        color: var(--ink);
+        background: var(--canvas);
+        font-family:
+          Inter, "PingFang SC", "Microsoft YaHei", system-ui, -apple-system, BlinkMacSystemFont,
+          sans-serif;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      button,
+      textarea {
+        font: inherit;
+      }
+
+      button {
+        border: 0;
+        cursor: pointer;
+      }
+
+      .prototype-shell {
+        min-height: 100vh;
+        padding: 22px;
+      }
+
+      .prototype-note {
+        width: min(1400px, 100%);
+        margin: 0 auto 12px;
+        color: var(--muted);
+        font-size: 12px;
+        letter-spacing: 0.04em;
+        text-align: right;
+      }
+
+      .app {
+        display: grid;
+        grid-template-columns: 258px minmax(0, 1fr);
+        width: min(1400px, 100%);
+        min-height: 780px;
+        margin: 0 auto;
+        overflow: hidden;
+        border: 1px solid var(--line);
+        border-radius: var(--radius-lg);
+        background: var(--surface);
+        box-shadow: var(--shadow);
+      }
+
+      .session-rail {
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+        padding: 24px 18px;
+        border-right: 1px solid var(--line);
+        background: var(--surface-soft);
+      }
+
+      .workspace-nav {
+        display: grid;
+        gap: 4px;
+        margin: 0 0 18px;
+      }
+
+      .workspace-nav button {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        min-height: 38px;
+        padding: 0 10px;
+        border: 1px solid transparent;
+        border-radius: var(--radius-sm);
+        color: var(--ink-soft);
+        background: transparent;
+        font-size: 12px;
+        text-align: left;
+      }
+
+      .workspace-nav button:hover,
+      .workspace-nav button.is-active {
+        border-color: var(--line-strong);
+        color: var(--accent-dark);
+        background: var(--accent-soft);
+      }
+
+      .workspace-nav button span:nth-child(2) {
+        flex: 1;
+      }
+
+      .workspace-nav__icon {
+        display: grid;
+        width: 22px;
+        height: 22px;
+        place-items: center;
+        border-radius: 7px;
+        color: var(--accent-dark);
+        background: var(--accent-soft);
+        font-size: 13px;
+      }
+
+      .workspace-nav em {
+        min-width: 19px;
+        height: 19px;
+        padding: 0 5px;
+        border-radius: 999px;
+        color: var(--accent-dark);
+        background: var(--accent-soft);
+        font-size: 10px;
+        font-style: normal;
+        line-height: 19px;
+        text-align: center;
+      }
+
+      .drawer-divider {
+        height: 1px;
+        margin: 7px 0 17px;
+        background: var(--line);
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin: 0 8px 28px;
+      }
+
+      .brand-mark {
+        display: grid;
+        width: 34px;
+        height: 34px;
+        place-items: center;
+        border-radius: 11px;
+        color: #fff;
+        background: var(--accent);
+        font-size: 19px;
+      }
+
+      .brand-copy strong,
+      .brand-copy span {
+        display: block;
+      }
+
+      .brand-copy strong {
+        font-size: 15px;
+        line-height: 1.2;
+      }
+
+      .brand-copy span {
+        margin-top: 3px;
+        color: var(--muted);
+        font-size: 11px;
+      }
+
+      .new-chat {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        width: 100%;
+        min-height: 42px;
+        margin-bottom: 22px;
+        border: 1px solid var(--line-strong);
+        border-radius: var(--radius-sm);
+        color: var(--accent-dark);
+        background: var(--surface);
+        font-size: 13px;
+        font-weight: 650;
+      }
+
+      .new-chat:hover,
+      .rail-action:hover {
+        border-color: var(--accent);
+        background: var(--accent-soft);
+      }
+
+      .rail-label {
+        margin: 0 10px 9px;
+        color: var(--muted);
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .session-list {
+        display: grid;
+        gap: 5px;
+      }
+
+      .session-item {
+        display: grid;
+        gap: 4px;
+        padding: 11px 12px;
+        border: 1px solid transparent;
+        border-radius: var(--radius-sm);
+        color: var(--ink-soft);
+        background: transparent;
+        text-align: left;
+      }
+
+      .session-item:hover,
+      .session-item.is-active {
+        border-color: #cde8e3;
+        background: var(--accent-soft);
+      }
+
+      .session-item strong {
+        overflow: hidden;
+        color: var(--ink);
+        font-size: 13px;
+        font-weight: 650;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .session-item span {
+        overflow: hidden;
+        color: var(--muted);
+        font-size: 11px;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .rail-spacer {
+        flex: 1;
+      }
+
+      .rail-action {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        min-height: 38px;
+        padding: 0 11px;
+        border: 1px solid transparent;
+        border-radius: var(--radius-sm);
+        color: var(--ink-soft);
+        background: transparent;
+        font-size: 12px;
+        text-align: left;
+      }
+
+      .chat-stage {
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+        min-height: 0;
+        background: var(--surface);
+      }
+
+      .topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        min-height: 78px;
+        padding: 0 34px;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .topbar-title {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        min-width: 0;
+      }
+
+      .topbar-title h1 {
+        margin: 0;
+        font-size: 20px;
+        line-height: 1.2;
+      }
+
+      .topbar-title p {
+        margin: 4px 0 0;
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      .topbar-mark {
+        display: grid;
+        width: 38px;
+        height: 38px;
+        place-items: center;
+        border: 1px solid #bce1da;
+        border-radius: 13px;
+        color: var(--accent-dark);
+        background: var(--accent-soft);
+        font-size: 20px;
+      }
+
+      .topbar-actions {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .nav-toggle {
+        display: none;
+      }
+
+      .theme-toggle {
+        flex: 0 0 auto;
+      }
+
+      .nav-mask {
+        position: fixed;
+        z-index: 20;
+        inset: 0;
+        background: var(--kratos-color-mask, rgba(16, 34, 50, 0.45));
+      }
+
+      .nav-drawer {
+        display: flex;
+        flex-direction: column;
+        width: min(320px, calc(100% - 42px));
+        height: 100%;
+        padding: 20px 18px;
+        border-right: 1px solid var(--line);
+        background: var(--surface);
+        box-shadow: 18px 0 44px rgba(16, 34, 50, 0.15);
+      }
+
+      .drawer-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 18px;
+      }
+
+      .drawer-head .brand {
+        margin: 0;
+      }
+
+      .drawer-new-chat {
+        margin-top: auto;
+        margin-bottom: 0;
+      }
+
+      .quiet-button {
+        min-height: 36px;
+        padding: 0 12px;
+        border: 1px solid var(--line);
+        border-radius: var(--radius-sm);
+        color: var(--ink-soft);
+        background: var(--surface);
+        font-size: 12px;
+      }
+
+      .quiet-button:hover {
+        border-color: var(--accent);
+        color: var(--accent-dark);
+        background: var(--accent-soft);
+      }
+
+      .auto-status {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        width: min(980px, calc(100% - 68px));
+        margin: 18px auto 0;
+        padding: 10px 12px;
+        border: 1px solid #d3e9e5;
+        border-radius: var(--radius-sm);
+        color: var(--accent-dark);
+        background: #f4fbf9;
+        font-size: 12px;
+      }
+
+      .auto-status__main,
+      .auto-status__main span {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+      }
+
+      .auto-status__dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: var(--accent);
+        box-shadow: 0 0 0 4px #d8f1eb;
+      }
+
+      .auto-status button {
+        padding: 0;
+        color: var(--accent-dark);
+        background: transparent;
+        font-size: 12px;
+        text-decoration: underline;
+        text-underline-offset: 3px;
+      }
+
+      .conversation {
+        display: flex;
+        flex: 1;
+        flex-direction: column;
+        width: min(980px, calc(100% - 68px));
+        min-height: 0;
+        margin: 0 auto;
+        padding: 44px 0 30px;
+        overflow: auto;
+      }
+
+      .empty-view {
+        display: flex;
+        flex: 1;
+        flex-direction: column;
+        justify-content: center;
+        min-height: 430px;
+      }
+
+      .welcome-kicker {
+        margin-bottom: 14px;
+        color: var(--accent-dark);
+        font-size: 11px;
+        font-weight: 750;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+      }
+
+      .welcome-title {
+        max-width: 670px;
+        margin: 0;
+        font-size: clamp(30px, 4vw, 48px);
+        font-weight: 720;
+        letter-spacing: -0.02em;
+        line-height: 1.13;
+      }
+
+      .welcome-description {
+        max-width: 620px;
+        margin: 18px 0 0;
+        color: var(--ink-soft);
+        font-size: 16px;
+        line-height: 1.7;
+      }
+
+      .welcome-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 20px;
+      }
+
+      .welcome-tag {
+        padding: 7px 10px;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        color: var(--muted);
+        background: var(--surface);
+        font-size: 12px;
+      }
+
+      .prompt-panel {
+        margin-top: 42px;
+      }
+
+      .prompt-heading {
+        display: flex;
+        align-items: end;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 13px;
+      }
+
+      .prompt-heading strong {
+        font-size: 15px;
+      }
+
+      .prompt-heading span {
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      .prompt-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 12px;
+      }
+
+      .prompt-card {
+        display: flex;
+        flex-direction: column;
+        min-height: 136px;
+        padding: 16px;
+        border: 1px solid var(--line);
+        border-radius: var(--radius-md);
+        color: var(--ink);
+        background: var(--surface);
+        text-align: left;
+        transition:
+          border-color 160ms ease,
+          transform 160ms ease,
+          box-shadow 160ms ease;
+      }
+
+      .prompt-card:hover {
+        border-color: #a8d5cd;
+        box-shadow: 0 8px 24px rgba(25, 90, 84, 0.08);
+        transform: translateY(-2px);
+      }
+
+      .prompt-icon {
+        display: grid;
+        width: 31px;
+        height: 31px;
+        margin-bottom: 18px;
+        place-items: center;
+        border-radius: 10px;
+        color: var(--accent-dark);
+        background: var(--accent-soft);
+        font-size: 15px;
+      }
+
+      .prompt-card strong {
+        font-size: 14px;
+        line-height: 1.45;
+      }
+
+      .prompt-card span {
+        margin-top: auto;
+        color: var(--muted);
+        font-size: 11px;
+        line-height: 1.4;
+      }
+
+      .task-overview {
+        display: grid;
+        grid-template-columns: minmax(0, 1.5fr) minmax(210px, 0.8fr);
+        gap: 24px;
+        align-items: start;
+      }
+
+      .task-panel,
+      .task-side-note {
+        border: 1px solid var(--line);
+        border-radius: var(--radius-md);
+        background: var(--surface);
+      }
+
+      .task-panel {
+        padding: 22px;
+      }
+
+      .task-panel__heading {
+        margin: 0;
+        font-size: 18px;
+      }
+
+      .task-panel__subheading {
+        margin: 8px 0 22px;
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.6;
+      }
+
+      .task-step {
+        display: grid;
+        grid-template-columns: 30px minmax(0, 1fr);
+        gap: 12px;
+        padding: 14px 0;
+        border-top: 1px solid var(--line);
+      }
+
+      .task-step__number {
+        display: grid;
+        width: 28px;
+        height: 28px;
+        place-items: center;
+        border-radius: 9px;
+        color: var(--accent-dark);
+        background: var(--accent-soft);
+        font-size: 12px;
+        font-weight: 700;
+      }
+
+      .task-step strong,
+      .task-step span {
+        display: block;
+      }
+
+      .task-step strong {
+        font-size: 13px;
+      }
+
+      .task-step span {
+        margin-top: 4px;
+        color: var(--muted);
+        font-size: 12px;
+        line-height: 1.5;
+      }
+
+      .task-side-note {
+        padding: 20px;
+        background: var(--warm);
+      }
+
+      .task-side-note__eyebrow {
+        color: #987d5b;
+        font-size: 11px;
+        font-weight: 750;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .task-side-note h3 {
+        margin: 13px 0 8px;
+        font-size: 17px;
+      }
+
+      .task-side-note p {
+        margin: 0;
+        color: #756650;
+        font-size: 12px;
+        line-height: 1.7;
+      }
+
+      .minimal-view {
+        display: flex;
+        flex: 1;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        min-height: 480px;
+        text-align: center;
+      }
+
+      .minimal-view .welcome-title {
+        max-width: 580px;
+      }
+
+      .minimal-view .welcome-description {
+        max-width: 490px;
+        margin-top: 14px;
+        font-size: 14px;
+      }
+
+      .minimal-prompts {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 8px;
+        margin-top: 28px;
+      }
+
+      .minimal-prompt {
+        padding: 9px 12px;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        color: var(--ink-soft);
+        background: var(--surface);
+        font-size: 12px;
+      }
+
+      .minimal-prompt:hover {
+        border-color: #a8d5cd;
+        color: var(--accent-dark);
+        background: var(--accent-soft);
+      }
+
+      .message-list {
+        display: grid;
+        gap: 25px;
+        margin-top: auto;
+      }
+
+      .message-row {
+        display: flex;
+        gap: 12px;
+        align-items: flex-start;
+      }
+
+      .message-row.is-user {
+        justify-content: flex-end;
+      }
+
+      .message-avatar {
+        display: grid;
+        flex: 0 0 auto;
+        width: 32px;
+        height: 32px;
+        place-items: center;
+        border-radius: 11px;
+        color: var(--accent-dark);
+        background: var(--accent-soft);
+        font-size: 15px;
+      }
+
+      .message-bubble {
+        max-width: min(720px, 82%);
+        padding: 14px 16px;
+        border: 1px solid var(--line);
+        border-radius: 15px;
+        color: var(--ink);
+        background: var(--surface);
+        font-size: 14px;
+        line-height: 1.7;
+        white-space: pre-wrap;
+      }
+
+      .message-row.is-user .message-bubble {
+        border-color: #b8e1d9;
+        color: #0d574f;
+        background: var(--accent-soft);
+      }
+
+      .message-context {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin: 0 0 7px;
+        color: var(--muted);
+        font-size: 11px;
+      }
+
+      .message-context strong {
+        color: var(--accent-dark);
+        font-weight: 700;
+      }
+
+      .message-context button {
+        padding: 0;
+        color: var(--accent-dark);
+        background: transparent;
+        font-size: 11px;
+        text-decoration: underline;
+        text-underline-offset: 3px;
+      }
+
+      .composer-area {
+        width: min(980px, calc(100% - 68px));
+        margin: 0 auto;
+        padding: 14px 0 24px;
+      }
+
+      .composer {
+        overflow: hidden;
+        border: 1px solid var(--line-strong);
+        border-radius: var(--radius-md);
+        background: var(--surface);
+        box-shadow: 0 10px 26px rgba(28, 64, 79, 0.06);
+      }
+
+      .composer textarea {
+        display: block;
+        width: 100%;
+        min-height: 68px;
+        padding: 17px 18px 7px;
+        resize: vertical;
+        border: 0;
+        outline: 0;
+        color: var(--ink);
+        background: transparent;
+        font-size: 14px;
+        line-height: 1.6;
+      }
+
+      .composer textarea::placeholder {
+        color: #9aabb5;
+      }
+
+      .composer-toolbar {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        min-height: 52px;
+        padding: 7px 10px 10px;
+      }
+
+      .composer-toolbar__left,
+      .composer-toolbar__right {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+      }
+
+      .composer-toolbar__right {
+        margin-left: auto;
+      }
+
+      .attach-button,
+      .tool-pill,
+      .icon-button,
+      .send-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 32px;
+        border-radius: 9px;
+        font-size: 11px;
+      }
+
+      .attach-button {
+        padding: 0 9px;
+        color: var(--ink-soft);
+        background: var(--surface-soft);
+      }
+
+      .attach-button:hover {
+        color: var(--accent-dark);
+        background: var(--accent-soft);
+      }
+
+      .tool-pill {
+        gap: 5px;
+        padding: 0 9px;
+        border: 1px solid var(--line);
+        color: var(--ink-soft);
+        background: var(--surface);
+      }
+
+      .tool-pill.is-auto {
+        border-color: #cde8e3;
+        color: var(--accent-dark);
+        background: #f2fbf8;
+      }
+
+      .icon-button {
+        width: 32px;
+        padding: 0;
+        color: var(--muted);
+        background: transparent;
+      }
+
+      .icon-button:hover {
+        color: var(--accent-dark);
+        background: var(--accent-soft);
+      }
+
+      .send-button {
+        width: 34px;
+        color: #fff;
+        background: var(--accent);
+        font-size: 17px;
+        font-weight: 700;
+      }
+
+      .send-button:hover {
+        background: var(--accent-dark);
+      }
+
+      .send-button:disabled {
+        cursor: default;
+        opacity: 0.42;
+      }
+
+      .composer-footnote {
+        margin: 9px 0 0;
+        color: var(--muted);
+        font-size: 11px;
+        text-align: center;
+      }
+
+      .variant-switcher {
+        position: fixed;
+        z-index: 5;
+        right: 24px;
+        bottom: 18px;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        padding: 5px;
+        border: 1px solid var(--line-strong);
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.96);
+        box-shadow: 0 10px 30px rgba(25, 53, 68, 0.14);
+        backdrop-filter: blur(12px);
+      }
+
+      .variant-switcher button {
+        min-height: 29px;
+        padding: 0 9px;
+        border-radius: 999px;
+        color: var(--muted);
+        background: transparent;
+        font-size: 11px;
+      }
+
+      .variant-switcher button.is-active {
+        color: #fff;
+        background: var(--ink);
+      }
+
+      .variant-switcher button:hover:not(.is-active) {
+        color: var(--accent-dark);
+        background: var(--accent-soft);
+      }
+
+      .toast {
+        position: fixed;
+        z-index: 10;
+        left: 50%;
+        bottom: 74px;
+        max-width: min(420px, calc(100% - 36px));
+        padding: 11px 14px;
+        border: 1px solid #b9ded7;
+        border-radius: 10px;
+        color: #0b5e54;
+        background: #f1fbf8;
+        box-shadow: 0 12px 32px rgba(18, 65, 64, 0.14);
+        font-size: 12px;
+        opacity: 0;
+        pointer-events: none;
+        transform: translate(-50%, 10px);
+        transition:
+          opacity 160ms ease,
+          transform 160ms ease;
+      }
+
+      .toast.is-visible {
+        opacity: 1;
+        transform: translate(-50%, 0);
+      }
+
+      .app[data-variant="B"] .conversation,
+      .app[data-variant="B"] .composer-area,
+      .app[data-variant="B"] .auto-status {
+        width: min(1040px, calc(100% - 68px));
+      }
+
+      .app[data-variant="B"] .topbar-mark {
+        border-color: #ead8bb;
+        color: #967851;
+        background: var(--warm);
+      }
+
+      .app[data-variant="B"] .auto-status {
+        border-color: #eadfce;
+        color: #806b4e;
+        background: #fdf9f3;
+      }
+
+      .app[data-variant="B"] .auto-status__dot {
+        background: #c79b5d;
+        box-shadow: 0 0 0 4px #f5eadb;
+      }
+
+      .app[data-variant="B"] .auto-status button {
+        color: #806b4e;
+      }
+
+      .app[data-variant="C"] {
+        grid-template-columns: 1fr;
+      }
+
+      .app[data-variant="C"] .session-rail {
+        display: none;
+      }
+
+      .app[data-variant="C"] .chat-stage {
+        width: min(920px, 100%);
+        margin: 0 auto;
+      }
+
+      .app[data-variant="C"] .topbar {
+        border-bottom: 0;
+      }
+
+      .app[data-variant="C"] .auto-status {
+        width: min(760px, calc(100% - 68px));
+      }
+
+      .app[data-variant="C"] .conversation,
+      .app[data-variant="C"] .composer-area {
+        width: min(760px, calc(100% - 68px));
+      }
+
+      /* 默认按手机画布评审；?desktop=1 只用于查看宽屏布局。 */
+      body.mobile-preview {
+        background: #e8eff0;
+      }
+
+      body.mobile-preview .prototype-shell {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+      }
+
+      body.mobile-preview .prototype-note {
+        width: min(390px, 100%);
+        margin-bottom: 10px;
+        text-align: center;
+      }
+
+      body.mobile-preview .app {
+        display: flex;
+        flex-direction: column;
+        width: min(390px, 100%);
+        height: min(844px, calc(100vh - 78px));
+        min-height: min(844px, calc(100vh - 78px));
+        border-radius: 28px;
+      }
+
+      body.mobile-preview .session-rail {
+        display: none;
+      }
+
+      body.mobile-preview .topbar {
+        min-height: 70px;
+        padding: 0 17px;
+      }
+
+      body.mobile-preview .topbar-title h1 {
+        font-size: 17px;
+      }
+
+      body.mobile-preview .topbar-title p {
+        max-width: 180px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      body.mobile-preview .topbar-mark {
+        width: 34px;
+        height: 34px;
+        border-radius: 11px;
+      }
+
+      body.mobile-preview .topbar-actions .quiet-button:first-child {
+        display: none;
+      }
+
+      body.mobile-preview .auto-status,
+      body.mobile-preview .app[data-variant="B"] .auto-status,
+      body.mobile-preview .app[data-variant="C"] .auto-status {
+        width: calc(100% - 34px);
+        margin-top: 12px;
+      }
+
+      body.mobile-preview .conversation,
+      body.mobile-preview .app[data-variant="B"] .conversation,
+      body.mobile-preview .app[data-variant="C"] .conversation {
+        width: calc(100% - 34px);
+        padding-top: 30px;
+      }
+
+      body.mobile-preview .empty-view,
+      body.mobile-preview .minimal-view {
+        min-height: 420px;
+        justify-content: flex-start;
+        padding-top: 30px;
+      }
+
+      body.mobile-preview .welcome-title {
+        font-size: 28px;
+      }
+
+      body.mobile-preview .welcome-description {
+        font-size: 14px;
+      }
+
+      body.mobile-preview .welcome-tags {
+        display: none;
+      }
+
+      body.mobile-preview .prompt-panel {
+        margin-top: 24px;
+      }
+
+      body.mobile-preview .prompt-grid {
+        grid-template-columns: 1fr;
+      }
+
+      body.mobile-preview .prompt-card {
+        display: grid;
+        grid-template-columns: 32px minmax(0, 1fr);
+        grid-template-rows: auto auto;
+        column-gap: 10px;
+        min-height: 54px;
+        padding: 8px 10px;
+      }
+
+      body.mobile-preview .prompt-icon {
+        grid-row: 1 / 3;
+        width: 28px;
+        height: 28px;
+        margin: 0;
+      }
+
+      body.mobile-preview .prompt-card span {
+        margin-top: 2px;
+      }
+
+      body.mobile-preview .task-overview {
+        grid-template-columns: 1fr;
+      }
+
+      body.mobile-preview .task-side-note {
+        display: none;
+      }
+
+      body.mobile-preview .composer-area,
+      body.mobile-preview .app[data-variant="B"] .composer-area,
+      body.mobile-preview .app[data-variant="C"] .composer-area {
+        width: calc(100% - 34px);
+        margin-bottom: 46px;
+        padding-bottom: 70px;
+      }
+
+      body.mobile-preview .composer-toolbar {
+        flex-wrap: wrap;
+      }
+
+      body.mobile-preview .composer-toolbar__right {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 32px 34px;
+        width: 100%;
+        margin-left: 0;
+      }
+
+      body.mobile-preview .composer-toolbar__right .tool-pill:first-child {
+        display: none;
+      }
+
+      body.mobile-preview .composer-toolbar__right .tool-pill {
+        min-width: 0;
+        padding: 0 6px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      body.mobile-preview .composer-footnote {
+        display: none;
+      }
+
+      body.mobile-preview .variant-switcher {
+        right: 50%;
+        bottom: max(10px, calc((100vh - 844px) / 2 + 12px));
+        transform: translateX(50%);
+      }
+
+      @media (max-width: 820px) {
+        .prototype-shell {
+          padding: 0;
+        }
+
+        .prototype-note {
+          padding: 8px 14px;
+          margin: 0;
+          background: var(--canvas);
+          font-size: 10px;
+          text-align: center;
+        }
+
+        .app,
+        .app[data-variant="C"] {
+          display: flex;
+          min-height: calc(100vh - 29px);
+          border: 0;
+          border-radius: 0;
+          box-shadow: none;
+        }
+
+        .session-rail {
+          display: none;
+        }
+
+        .topbar {
+          min-height: 68px;
+          padding: 0 17px;
+        }
+
+        .topbar-title h1 {
+          font-size: 17px;
+        }
+
+        .topbar-title p {
+          max-width: 180px;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+
+        .topbar-mark {
+          width: 34px;
+          height: 34px;
+          border-radius: 11px;
+        }
+
+        .topbar-actions .quiet-button:first-child {
+          display: none;
+        }
+
+        .auto-status,
+        .app[data-variant="B"] .auto-status,
+        .app[data-variant="C"] .auto-status {
+          width: calc(100% - 34px);
+          margin-top: 12px;
+        }
+
+        .conversation,
+        .app[data-variant="B"] .conversation,
+        .app[data-variant="C"] .conversation {
+          width: calc(100% - 34px);
+          padding-top: 30px;
+        }
+
+        .empty-view,
+        .minimal-view {
+          min-height: 420px;
+          justify-content: flex-start;
+          padding-top: 36px;
+        }
+
+        .welcome-title {
+          font-size: 31px;
+        }
+
+        .welcome-description {
+          font-size: 14px;
+        }
+
+        .prompt-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .prompt-card {
+          min-height: 88px;
+        }
+
+        .prompt-icon {
+          margin-bottom: 10px;
+        }
+
+        .task-overview {
+          grid-template-columns: 1fr;
+        }
+
+        .task-side-note {
+          display: none;
+        }
+
+        .composer-area,
+        .app[data-variant="B"] .composer-area,
+        .app[data-variant="C"] .composer-area {
+          width: calc(100% - 34px);
+          margin-bottom: 46px;
+          padding-bottom: 70px;
+        }
+
+        .composer-toolbar {
+          flex-wrap: wrap;
+        }
+
+        .composer-toolbar__right {
+          display: grid;
+          grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 32px 34px;
+          width: 100%;
+          margin-left: 0;
+        }
+
+        .composer-toolbar__right .tool-pill:first-child {
+          display: none;
+        }
+
+        .composer-toolbar__right .tool-pill {
+          min-width: 0;
+          padding: 0 6px;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+
+        .composer-footnote {
+          display: none;
+        }
+
+        .variant-switcher {
+          right: 50%;
+          bottom: 10px;
+          transform: translateX(50%);
+        }
+
+        .toast {
+          bottom: 62px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="prototype-shell">
+      <div class="prototype-note">移动端原型 · 用户只描述目标，系统根据语意自动匹配能力</div>
+      <main id="app" class="app" data-variant="A">
+        <aside class="session-rail">
+          <div class="brand">
+            <span class="brand-mark">✦</span>
+            <div class="brand-copy">
+              <strong>工作助手</strong>
+              <span>AI workspace prototype</span>
+            </div>
+          </div>
+          <nav class="workspace-nav" aria-label="助手工作区">
+            <button class="is-active" type="button" data-workspace="chat"><span class="workspace-nav__icon">◌</span><span>对话</span></button>
+            <button type="button" data-workspace="automations"><span class="workspace-nav__icon">◷</span><span>定时任务</span><em>2</em></button>
+            <button type="button" data-workspace="tools"><span class="workspace-nav__icon">⌁</span><span>工具</span></button>
+            <button type="button" data-workspace="files"><span class="workspace-nav__icon">▤</span><span>文件</span></button>
+          </nav>
+          <button class="new-chat" type="button" data-action="new-chat"><span>＋</span> 新建对话</button>
+          <p class="rail-label">最近对话</p>
+          <div class="session-list">
+            <button class="session-item is-active" type="button">
+              <strong>本周工作安排</strong><span>刚刚 · 自动匹配能力</span>
+            </button>
+            <button class="session-item" type="button">
+              <strong>项目复盘提纲</strong><span>昨天 · 文本处理</span>
+            </button>
+            <button class="session-item" type="button">
+              <strong>数据看板解读</strong><span>周一 · 数据分析</span>
+            </button>
+          </div>
+          <div class="rail-spacer"></div>
+          <button class="rail-action" type="button" data-action="history"><span>◷</span> 查看全部历史</button>
+          <button class="rail-action" type="button" data-action="settings"><span>⚙</span> 助手设置</button>
+        </aside>
+
+        <section class="chat-stage">
+          <header class="topbar">
+            <div class="topbar-title">
+              <button id="nav-toggle" class="icon-button nav-toggle" type="button" title="打开助手导航" aria-label="打开助手导航">☰</button>
+              <span class="topbar-mark">✦</span>
+              <div>
+                <h1 id="variant-title">AI 助手</h1>
+                <p id="variant-subtitle">把目标告诉我，剩下的交给我</p>
+              </div>
+            </div>
+            <div class="topbar-actions">
+              <button class="quiet-button" type="button" data-action="history">历史会话</button>
+              <button id="theme-toggle" class="icon-button theme-toggle" type="button" title="切换暗色主题" aria-label="切换暗色主题">☾</button>
+              <button class="quiet-button" type="button" data-action="new-chat">新对话</button>
+            </div>
+          </header>
+
+          <div class="auto-status">
+            <div class="auto-status__main">
+              <span class="auto-status__dot"></span>
+              <span id="auto-status-text">能力自动匹配已开启</span>
+            </div>
+            <button type="button" data-action="routing">查看本轮判断</button>
+          </div>
+
+          <div id="conversation" class="conversation" aria-live="polite"></div>
+
+          <div class="composer-area">
+            <form id="composer" class="composer">
+              <textarea id="message-input" rows="1" placeholder="描述你想完成的事，例如：帮我汇总本周项目数据"></textarea>
+              <div class="composer-toolbar">
+                <div class="composer-toolbar__left">
+                  <button class="attach-button" type="button" data-action="attachment">＋ 添加文件</button>
+                </div>
+                <div class="composer-toolbar__right">
+                  <button class="tool-pill" type="button" data-action="model">✦ GPT-6.1 Sol</button>
+                  <button class="tool-pill" type="button" data-action="knowledge">▤ 知识库</button>
+                  <button class="tool-pill is-auto" type="button" data-action="routing">⌁ 自动匹配</button>
+                  <button class="icon-button" type="button" data-action="voice" aria-label="语音输入">◌</button>
+                  <button id="send-button" class="send-button" type="submit" disabled aria-label="发送">↑</button>
+                </div>
+              </div>
+            </form>
+            <p class="composer-footnote">插件和工具由助手按当前需求自动选择，你无需提前配置。</p>
+          </div>
+        </section>
+      </main>
+      <div id="nav-mask" class="nav-mask" hidden>
+        <aside class="nav-drawer" aria-label="助手侧边栏">
+          <div class="drawer-head">
+            <div class="brand">
+              <span class="brand-mark">✦</span>
+              <div class="brand-copy"><strong>工作助手</strong><span>AI workspace</span></div>
+            </div>
+            <button id="nav-close" class="icon-button" type="button" title="关闭侧边栏" aria-label="关闭侧边栏">×</button>
+          </div>
+          <nav class="workspace-nav" aria-label="助手工作区">
+            <button class="is-active" type="button" data-workspace="chat"><span class="workspace-nav__icon">◌</span><span>对话</span></button>
+            <button type="button" data-workspace="automations"><span class="workspace-nav__icon">◷</span><span>定时任务</span><em>2</em></button>
+            <button type="button" data-workspace="tools"><span class="workspace-nav__icon">⌁</span><span>工具</span></button>
+            <button type="button" data-workspace="files"><span class="workspace-nav__icon">▤</span><span>文件</span></button>
+          </nav>
+          <div class="drawer-divider"></div>
+          <p class="rail-label">最近对话</p>
+          <div class="session-list">
+            <button class="session-item is-active" type="button"><strong>本周工作安排</strong><span>刚刚 · 自动匹配能力</span></button>
+            <button class="session-item" type="button"><strong>项目复盘提纲</strong><span>昨天 · 文本处理</span></button>
+            <button class="session-item" type="button"><strong>数据看板解读</strong><span>周一 · 数据分析</span></button>
+          </div>
+          <button class="new-chat drawer-new-chat" type="button" data-action="new-chat"><span>＋</span> 新建对话</button>
+        </aside>
+      </div>
+    </div>
+
+    <nav class="variant-switcher" aria-label="原型方案切换">
+      <button type="button" data-variant="A" class="is-active">A · 对话优先</button>
+      <button type="button" data-variant="B">B · 任务工作台</button>
+      <button type="button" data-variant="C">C · 极简输入</button>
+    </nav>
+    <div id="toast" class="toast" role="status"></div>
+
+    <script>
+      const variants = {
+        A: {
+          title: 'AI 助手',
+          subtitle: '把目标告诉我，剩下的交给我',
+          status: '能力自动匹配已开启',
+          render: renderConversationFirst,
+        },
+        B: {
+          title: '任务工作台',
+          subtitle: '从目标到结果，逐步推进',
+          status: '系统会先理解目标，再决定是否调用能力',
+          render: renderTaskWorkspace,
+        },
+        C: {
+          title: 'AI 助手',
+          subtitle: '一句话开始，不需要选择插件',
+          status: '只输入需求，能力由系统自动判断',
+          render: renderMinimal,
+        },
+      };
+
+      const app = document.getElementById('app');
+      const conversation = document.getElementById('conversation');
+      const input = document.getElementById('message-input');
+      const sendButton = document.getElementById('send-button');
+      const toast = document.getElementById('toast');
+      const variantTitle = document.getElementById('variant-title');
+      const variantSubtitle = document.getElementById('variant-subtitle');
+      const autoStatusText = document.getElementById('auto-status-text');
+      const query = new URLSearchParams(location.search);
+      const mobilePreview = !query.has('desktop');
+      document.body.classList.toggle('mobile-preview', mobilePreview);
+      let activeVariant = query.get('variant')?.toUpperCase() || 'A';
+      let toastTimer;
+
+      if (!variants[activeVariant]) activeVariant = 'A';
+
+      function renderConversationFirst() {
+        return `
+          <section class="empty-view">
+            <div class="welcome-kicker">AI WORKSPACE / APP</div>
+            <h2 class="welcome-title">你好，我是你的工作助手。</h2>
+            <p class="welcome-description">把目标直接告诉我，模型、知识库和可用能力会按语意自动匹配。你只需要说清楚想完成什么。</p>
+            <div class="welcome-tags">
+              <span class="welcome-tag">自动匹配能力</span>
+              <span class="welcome-tag">支持文件与知识库</span>
+              <span class="welcome-tag">可继续历史会话</span>
+            </div>
+            <div class="prompt-panel">
+              <div class="prompt-heading"><strong>从一个目标开始</strong><span>点击示例即可体验</span></div>
+              <div class="prompt-grid">
+                ${promptCard('▦', '帮我总结一段内容', '文本处理能力', '帮我总结这段项目周报，并列出下一步行动项。')}
+                ${promptCard('⌁', '帮我看懂一份数据', '数据分析能力', '帮我汇总本周项目数据，告诉我最需要关注的三个变化。')}
+                ${promptCard('◷', '帮我安排一个计划', '计划整理能力', '根据这周的工作目标，帮我排一个可执行的计划。')}
+              </div>
+            </div>
+          </section>`;
+      }
+
+      function renderTaskWorkspace() {
+        return `
+          <section class="empty-view">
+            <div class="welcome-kicker">TASK WORKSPACE / APP</div>
+            <h2 class="welcome-title">先说结果，再一起拆解。</h2>
+            <p class="welcome-description">适合需要连续推进的事情。助手会根据任务内容自动决定什么时候调用数据、文件或业务能力。</p>
+            <div class="task-overview prompt-panel">
+              <section class="task-panel">
+                <h3 class="task-panel__heading">一个任务会这样开始</h3>
+                <p class="task-panel__subheading">你不需要先想“该用哪个插件”，只需要描述完成标准。</p>
+                ${taskStep('1', '说清楚目标', '例如：我要一份可以给老板看的周报。')}
+                ${taskStep('2', '助手理解上下文', '自动识别是否需要数据、文件或知识库。')}
+                ${taskStep('3', '给出结果并继续修改', '结果不满意时，直接在当前对话继续说。')}
+              </section>
+              <aside class="task-side-note">
+                <div class="task-side-note__eyebrow">design principle</div>
+                <h3>把配置藏起来</h3>
+                <p>能力选择属于系统决策，不占用用户的注意力；只有真正执行时，才在消息里显示自动匹配结果。</p>
+              </aside>
+            </div>
+          </section>`;
+      }
+
+      function renderMinimal() {
+        return `
+          <section class="minimal-view">
+            <div class="welcome-kicker">JUST ASK</div>
+            <h2 class="welcome-title">你现在想完成什么？</h2>
+            <p class="welcome-description">不需要选插件，也不用先搭流程。自然地说出目标，助手会自己判断下一步。</p>
+            <div class="minimal-prompts">
+              ${minimalPrompt('总结这段内容', '帮我总结这段项目周报。')}
+              ${minimalPrompt('分析本周数据', '帮我分析本周项目数据。')}
+              ${minimalPrompt('规划下一步', '帮我安排下周的工作计划。')}
+            </div>
+          </section>`;
+      }
+
+      function promptCard(icon, title, meta, prompt) {
+        return `<button class="prompt-card" type="button" data-prompt="${prompt}"><span class="prompt-icon">${icon}</span><strong>${title}</strong><span>${meta}</span></button>`;
+      }
+
+      function minimalPrompt(label, prompt) {
+        return `<button class="minimal-prompt" type="button" data-prompt="${prompt}">${label}</button>`;
+      }
+
+      function taskStep(number, title, detail) {
+        return `<div class="task-step"><span class="task-step__number">${number}</span><div><strong>${title}</strong><span>${detail}</span></div></div>`;
+      }
+
+      function setVariant(nextVariant, updateUrl = true) {
+        activeVariant = variants[nextVariant] ? nextVariant : 'A';
+        app.dataset.variant = activeVariant;
+        variantTitle.textContent = variants[activeVariant].title;
+        variantSubtitle.textContent = variants[activeVariant].subtitle;
+        autoStatusText.textContent = variants[activeVariant].status;
+        conversation.innerHTML = variants[activeVariant].render();
+        document.querySelectorAll('[data-variant]').forEach((button) => {
+          if (button.closest('.variant-switcher')) button.classList.toggle('is-active', button.dataset.variant === activeVariant);
+        });
+        if (updateUrl) history.replaceState({}, '', `?variant=${activeVariant}`);
+        bindPromptButtons();
+      }
+
+      function bindPromptButtons() {
+        conversation.querySelectorAll('[data-prompt]').forEach((button) => {
+          button.addEventListener('click', () => {
+            input.value = button.dataset.prompt || '';
+            input.focus();
+            updateSendState();
+          });
+        });
+      }
+
+      function resolveCapability(text) {
+        if (/数据|报表|趋势|统计|看板|指标/.test(text)) return { name: '数据分析能力', detail: '识别到数据问题，已自动匹配分析与图表能力。' };
+        if (/日程|会议|提醒|计划|安排|排期/.test(text)) return { name: '计划整理能力', detail: '识别到计划任务，已自动匹配整理与提醒能力。' };
+        if (/总结|优化|改写|润色|提炼|周报/.test(text)) return { name: '文本处理能力', detail: '识别到文本任务，已自动匹配总结与改写能力。' };
+        return { name: '通用推理能力', detail: '当前需求不需要额外工具，已使用通用推理能力完成。' };
+      }
+
+      function handleSubmit(event) {
+        event.preventDefault();
+        const text = input.value.trim();
+        if (!text) return;
+        const capability = resolveCapability(text);
+        const isEmpty = conversation.querySelector('.empty-view, .minimal-view');
+        if (isEmpty) conversation.innerHTML = '<div class="message-list"></div>';
+        const list = conversation.querySelector('.message-list') || conversation;
+        const previous = list.querySelector('.message-list') ? list.querySelector('.message-list') : list;
+        appendUserMessageTo(previous, text);
+        input.value = '';
+        updateSendState();
+        setTimeout(() => {
+          appendAssistantMessageTo(previous, resolveReply(text), capability);
+          conversation.scrollTop = conversation.scrollHeight;
+        }, 420);
+      }
+
+      function appendUserMessageTo(container, text) {
+        const row = document.createElement('div');
+        row.className = 'message-row is-user';
+        row.innerHTML = `<div class="message-bubble">${escapeHtml(text)}</div>`;
+        container.appendChild(row);
+      }
+
+      function appendAssistantMessageTo(container, text, capability) {
+        const row = document.createElement('div');
+        row.className = 'message-row';
+        row.innerHTML = `<div class="message-avatar">✦</div><div><div class="message-context"><strong>自动匹配 · ${capability.name}</strong><button type="button" data-action="routing">查看判断</button></div><div class="message-bubble">${escapeHtml(text)}</div></div>`;
+        container.appendChild(row);
+        row.querySelector('[data-action="routing"]').addEventListener('click', () => showRouting(capability));
+      }
+
+      function resolveReply(text) {
+        if (/数据|报表|趋势|统计|看板|指标/.test(text)) return '我会先梳理时间范围、关键指标和异常变化，再把结果整理成一份易读的摘要。你可以继续补充数据范围或文件。';
+        if (/日程|会议|提醒|计划|安排|排期/.test(text)) return '可以。我会先拆出目标、时间和优先级，再给你一份可以直接执行的安排。';
+        if (/总结|优化|改写|润色|提炼|周报/.test(text)) return '收到。我会先提炼核心信息，再按你的使用场景整理成更清晰的版本。';
+        return '收到。我会先理解你的目标和上下文，再给出下一步建议。';
+      }
+
+      function escapeHtml(value) {
+        return value.replace(/[&<>'"]/g, (character) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' })[character]);
+      }
+
+      function updateSendState() {
+        sendButton.disabled = !input.value.trim();
+      }
+
+      function showRouting(capability = { name: '自动匹配能力', detail: '系统会根据当前输入和会话上下文判断是否需要调用工具。' }) {
+        toast.textContent = `${capability.name}：${capability.detail}`;
+        toast.classList.add('is-visible');
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => toast.classList.remove('is-visible'), 3500);
+      }
+
+      document.getElementById('composer').addEventListener('submit', handleSubmit);
+      input.addEventListener('input', updateSendState);
+      document.querySelectorAll('.variant-switcher [data-variant]').forEach((button) => {
+        button.addEventListener('click', () => setVariant(button.dataset.variant));
+      });
+      document.querySelectorAll('[data-action]').forEach((button) => {
+        button.addEventListener('click', () => {
+          const action = button.dataset.action;
+          if (action === 'routing') showRouting();
+          else if (action === 'new-chat') setVariant(activeVariant);
+          else if (action === 'attachment') showToast('原型提示：这里接入文件上传，不涉及插件选择。');
+          else if (action === 'voice') showToast('原型提示：这里接入语音输入。');
+          else if (action === 'model') showToast('模型仍可按需调整，插件不需要手动选择。');
+          else if (action === 'knowledge') showToast('知识库是可选上下文，和插件自动匹配是两条路径。');
+          else if (action === 'history') showToast('原型提示：这里打开历史会话抽屉。');
+          else if (action === 'settings') showToast('原型提示：这里进入助手偏好设置。');
+        });
+      });
+
+      function showToast(message) {
+        toast.textContent = message;
+        toast.classList.add('is-visible');
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => toast.classList.remove('is-visible'), 3000);
+      }
+
+      setVariant(activeVariant, false);
+    </script>
+  </body>
+</html>

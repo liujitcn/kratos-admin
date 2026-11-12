@@ -119,8 +119,9 @@
   flex-direction: row;
   align-items: center;
   justify-content: center;
-  width: 76rpx;
-  height: 76rpx;
+  width: var(--kratos-control-height, 56rpx);
+  height: var(--kratos-control-height, 56rpx);
+  margin: 4rpx 0;
   border-radius: var(--kratos-page-radius);
   background: var(--kratos-color-surface);
   border: 1px solid var(--kratos-color-border);
@@ -179,6 +180,7 @@
 /* neon 小药丸标签 */
 .k-pill {
   display: inline-flex;
+  flex-direction: row;
   align-items: center;
   padding: 8rpx 20rpx;
   border-radius: var(--kratos-page-radius);
@@ -192,6 +194,7 @@
 /* 分段切换（收件箱/未读/已归档等） */
 .k-pills {
   display: inline-flex;
+  flex-direction: row;
   gap: 8rpx;
   padding: 6rpx;
   border-radius: var(--kratos-page-radius);
@@ -231,6 +234,7 @@
 }
 .k-ch {
   display: inline-flex;
+  flex-direction: row;
   align-items: center;
   gap: 12rpx;
   padding: 14rpx 24rpx;
@@ -240,6 +244,7 @@
   color: var(--kratos-color-text-muted);
   font-size: 22rpx;
   font-family: var(--kratos-font-mono);
+  white-space: nowrap;
 }
 .k-ch--pri {
   color: var(--kratos-color-primary);
@@ -251,8 +256,10 @@
  * ============================================================ */
 .k-lg-lang {
   display: inline-flex;
+  flex-direction: row;
   align-items: center;
   gap: 12rpx;
+  min-height: var(--kratos-control-height, 56rpx);
   padding: 12rpx 24rpx;
   border-radius: var(--kratos-page-radius);
   background: var(--kratos-color-surface);
@@ -260,6 +267,7 @@
   color: var(--kratos-color-text-muted);
   font-size: 22rpx;
   font-family: var(--kratos-font-mono);
+  box-sizing: border-box;
 }
 .k-lg-logo {
   position: relative;

@@ -1685,6 +1685,12 @@ function showError(error: unknown, fallback: string) {
   padding: 12rpx 20rpx;
 }
 .workspace-toolbar button {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 10rpx;
+  white-space: nowrap;
   margin: 0;
 }
 .function-mask {
@@ -1703,6 +1709,11 @@ function showError(error: unknown, fallback: string) {
   border-radius: var(--kratos-page-radius);
 }
 .function-menu button {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 10rpx;
+  width: 100%;
   margin: 12rpx 0;
 }
 .frozen-banner {
