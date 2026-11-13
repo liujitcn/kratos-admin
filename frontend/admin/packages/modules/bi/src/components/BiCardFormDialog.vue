@@ -59,6 +59,7 @@ import { defBiQueryService } from "../api/bi/admin/v1/bi_query";
 import BiDataCard from "./BiDataCard.vue";
 import BiCardChartEditor from "./BiCardChartEditor.vue";
 import { parseCardChart } from "../card-schema";
+import { normalizeBiQuerySpec } from "../bi-response";
 import type { CardChartConfig } from "../card-schema";
 
 /** 卡片编辑状态，查询条件沿用原语义计划。 */
@@ -176,7 +177,8 @@ watch(
   () => props.modelValue,
   visible => {
     if (!visible) return;
-    const current = props.card?.query ?? props.initialQuery;
+    const original = props.card?.query ?? props.initialQuery;
+    const current = original ? normalizeBiQuerySpec(original) : undefined;
     baseQuery.value = current ? (JSON.parse(JSON.stringify(current)) as BiQuerySpec) : undefined;
     Object.assign(form, defaultForm(), {
       name: props.card?.name ?? props.initialTitle ?? "",

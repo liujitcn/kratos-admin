@@ -2256,5 +2256,19 @@
   "system.ai.workspace.connection_authorizing": "Authorizing",
   "system.ai.workspace.connection_connected": "Connected",
   "system.ai.workspace.connection_expired": "Expired",
-  "system.ai.workspace.connection_reauthorization_required": "Reauthorization required"
+  "system.ai.workspace.connection_reauthorization_required": "Reauthorization required",
+  "system.ai.chat.bi_card_hint": "Data query finished. Save the result as a data card.",
+  "system.ai.chat.bi_card_action": "Create data card",
+  "system.ai.chat.bi_card_dialog_title": "Create data card",
+  "system.ai.chat.bi_card_name": "Card name",
+  "system.ai.chat.bi_card_chart_type": "Chart type",
+  "system.ai.chat.bi_card_confirm": "Create card",
+  "system.ai.chat.bi_card_name_required": "Please enter a card name",
+  "system.ai.chat.bi_card_record_missing": "No successful query record found. Ask again before saving.",
+  "system.ai.chat.bi_card_created": "Data card created. See it under BI analysis > Data card library.",
+  "system.ai.chat.bi_card_failed": "Failed to create data card",
+  "system.ai.chat.bi_chart_bar": "Bar",
+  "system.ai.chat.bi_chart_line": "Line",
+  "system.ai.chat.bi_chart_pie": "Pie",
+  "system.ai.chat.bi_chart_metric": "Metric"
 }

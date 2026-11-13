@@ -162,6 +162,14 @@ func (c *AiMessageCase) DecideAiToolApproval(ctx context.Context, req *basev1.De
 	reply.Token.Cache += previous.Cache
 	reply.Token.Total += previous.Total
 	reply.Tools = append(ai.ParseTools(message.Tools), reply.Tools...)
+	// 审批恢复的执行结果按业务规则附加结构化引导卡片（例如问数成功后的建卡入口）。
+	if reply.BlocksJSON == "" {
+		if blocks := c.aiRuntime.BuildResponseBlocks(reply.Tools); len(blocks) > 0 {
+			if raw, marshalErr := json.Marshal(blocks); marshalErr == nil {
+				reply.BlocksJSON = string(raw)
+			}
+		}
+	}
 	err = c.finishAiMessage(ctx, session, message, reply, time.Now(), message.FirstTokenMs, message.DurationMs+durationMilliseconds(startAt, time.Now()), status)
 	if err != nil {
 		return nil, err

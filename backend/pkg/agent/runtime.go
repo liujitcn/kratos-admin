@@ -2,6 +2,7 @@ package agent
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"strings"
@@ -28,14 +29,15 @@ const fallbackAIInstruction = "You are a general-purpose AI assistant. Answer na
 // Runtime 只负责把业务层准备好的输入组装为 Eino 消息并交给模型执行，不直接处理数据库、
 // OSS、鉴权或前端协议。这样 AI 助手链路可以把“业务准备”和“模型运行”分开维护。
 type Runtime struct {
-	checkPointStore CheckPointStore
-	toolsMu         sync.RWMutex
-	client          *model.AssistantClient
-	clientResolver  model.AssistantClientResolver
-	adminTools      []tool.Base
-	appTools        []tool.Base
-	toolGate        ToolAccessChecker
-	localizeMessage MessageLocalizer
+	checkPointStore    CheckPointStore
+	toolsMu            sync.RWMutex
+	client             *model.AssistantClient
+	clientResolver     model.AssistantClientResolver
+	adminTools         []tool.Base
+	appTools           []tool.Base
+	toolGate           ToolAccessChecker
+	localizeMessage    MessageLocalizer
+	responseBlocksHook func([]ToolUsage) []map[string]any
 }
 
 // newRuntime 创建 AI 助手运行时。
@@ -623,7 +625,7 @@ func (r *Runtime) buildAttachmentDetailLine(ctx context.Context, name string, it
 
 // buildResponse 将 Eino 消息收敛为业务层统一回复结构。
 func (r *Runtime) buildResponse(message *einoMessage.AgenticMessage, token TokenUsage, tools []ToolUsage, modelName string) *Response {
-	return &Response{
+	response := &Response{
 		Content:        einoMessage.Text(message),
 		Token:          token,
 		Tools:          normalizeToolUsages(tools),
@@ -632,6 +634,21 @@ func (r *Runtime) buildResponse(message *einoMessage.AgenticMessage, token Token
 		Fallback:       false,
 		FallbackReason: "",
 	}
+	// 业务模块可按本轮工具结果注入结构化引导卡片，例如问数成功后的建卡入口。
+	if blocks := r.BuildResponseBlocks(response.Tools); len(blocks) > 0 {
+		if raw, err := json.Marshal(blocks); err == nil {
+			response.BlocksJSON = string(raw)
+		}
+	}
+	return response
+}
+
+// BuildResponseBlocks 调用业务注册的响应引导块钩子，供审批恢复等旁路落库路径复用。
+func (r *Runtime) BuildResponseBlocks(tools []ToolUsage) []map[string]any {
+	if r == nil || r.responseBlocksHook == nil || len(tools) == 0 {
+		return nil
+	}
+	return r.responseBlocksHook(tools)
 }
 
 // resolveAssistantClient 按当前请求选择模型客户端，旧调用方使用静态客户端。

@@ -2256,5 +2256,19 @@
   "system.ai.workspace.connection_authorizing": "認証中",
   "system.ai.workspace.connection_connected": "接続済み",
   "system.ai.workspace.connection_expired": "期限切れ",
-  "system.ai.workspace.connection_reauthorization_required": "再認証が必要"
+  "system.ai.workspace.connection_reauthorization_required": "再認証が必要",
+  "system.ai.chat.bi_card_hint": "データ照会が完了しました。結果をデータカードに保存できます。",
+  "system.ai.chat.bi_card_action": "データカードを生成",
+  "system.ai.chat.bi_card_dialog_title": "データカードを生成",
+  "system.ai.chat.bi_card_name": "カード名",
+  "system.ai.chat.bi_card_chart_type": "チャート種類",
+  "system.ai.chat.bi_card_confirm": "カードを作成",
+  "system.ai.chat.bi_card_name_required": "カード名を入力してください",
+  "system.ai.chat.bi_card_record_missing": "成功した照会記録が見つかりません。再度質問してください。",
+  "system.ai.chat.bi_card_created": "データカードを作成しました。「BI分析 → データカードライブラリ」で確認できます。",
+  "system.ai.chat.bi_card_failed": "データカードの作成に失敗しました",
+  "system.ai.chat.bi_chart_bar": "縦棒グラフ",
+  "system.ai.chat.bi_chart_line": "折れ線グラフ",
+  "system.ai.chat.bi_chart_pie": "円グラフ",
+  "system.ai.chat.bi_chart_metric": "指標カード"
 }

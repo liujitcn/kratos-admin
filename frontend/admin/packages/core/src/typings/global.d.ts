@@ -1,3 +1,5 @@
+/// <reference path="./window.d.ts" />
+
 /* Menu */
 declare namespace Menu {
   interface MenuOptions {

@@ -27,7 +27,7 @@ import (
 	"gorm.io/gorm/schema"
 )
 
-// TestBiCardSourceAndIsolation 验证卡片绑定真实成功记录，拒绝伪造查询和跨账号引用。
+// TestBiCardSourceAndIsolation 验证问数只复用智能问数记录，卡片拒绝预览来源和跨账号引用。
 func TestBiCardSourceAndIsolation(t *testing.T) {
 	c, _ := newBiWorkflowTestCases(t)
 	ctx := biCardTestContext(1, 10, 42)
@@ -47,6 +47,17 @@ func TestBiCardSourceAndIsolation(t *testing.T) {
 	result := asked.Result
 	if err != nil || result.QueryRecordId <= 0 {
 		t.Fatalf("查询未生成可引用记录: %v %v", result, err)
+	}
+	if result.QueryRecordId == manual.QueryRecordId {
+		t.Fatal("智能问数复用了不能建卡的普通预览记录")
+	}
+	var repeated *adminv1.AskBiQueryResponse
+	repeated, err = c.biQueryCase.AskBiQuery(ctx, &adminv1.AskBiQueryRequest{Question: "统计用户数"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if repeated.Result.QueryRecordId != result.QueryRecordId {
+		t.Fatal("相同智能问数没有复用成功记录")
 	}
 	form := &adminv1.BiCardForm{Name: "用户数", Query: spec, ChartType: "metric", QueryRecordId: result.QueryRecordId}
 	var saved *adminv1.BiCard

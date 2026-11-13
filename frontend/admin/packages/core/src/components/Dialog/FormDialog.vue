@@ -127,8 +127,10 @@ function handleVisibleChange(value: boolean) {
   emit("update:modelValue", value);
 }
 
-/** 对外透传确定事件，保持页面业务提交流程不变。 */
-function handleConfirm() {
+/** 确定前先执行表单校验：失败时展示字段错误并保持弹窗，通过后对外透传确定事件。 */
+async function handleConfirm() {
+  const passed = (await validate()) !== false;
+  if (!passed) return;
   emit("confirm");
 }
 

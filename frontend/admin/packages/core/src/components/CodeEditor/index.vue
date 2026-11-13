@@ -6,6 +6,10 @@
 import { onBeforeUnmount, onMounted, ref, watch } from "vue";
 import * as monaco from "monaco-editor";
 import editorWorker from "monaco-editor/esm/vs/editor/editor.worker?worker";
+import typescriptWorker from "monaco-editor/esm/vs/language/typescript/ts.worker?worker";
+import jsonWorker from "monaco-editor/esm/vs/language/json/json.worker?worker";
+import cssWorker from "monaco-editor/esm/vs/language/css/css.worker?worker";
+import htmlWorker from "monaco-editor/esm/vs/language/html/html.worker?worker";
 
 /** 代码编辑器属性。 */
 interface CodeEditorProps {
@@ -35,7 +39,12 @@ function createEditor() {
   if (!editorHost.value) return;
   // Monaco 默认从 CDN 加载 worker，Vite 打包场景必须指向本地 worker 文件。
   self.MonacoEnvironment = {
-    getWorker() {
+    /** 为各语言服务创建对应的本地 Worker。 */
+    getWorker(_moduleId, label) {
+      if (label === "typescript" || label === "javascript") return new typescriptWorker();
+      if (label === "json") return new jsonWorker();
+      if (["css", "scss", "less"].includes(label)) return new cssWorker();
+      if (["html", "handlebars", "razor"].includes(label)) return new htmlWorker();
       return new editorWorker();
     }
   };

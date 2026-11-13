@@ -2,6 +2,8 @@
 
 kratos-admin 管理端 BI 分析模块，提供数据源建模、智能问数、查询记录、数据卡片、仪表盘设计与个人工作台。
 
+`src/demo/` 向 Core 组件文档贡献本模块 11 个组件的说明、源码用法和 API，可独立运行的图表与布局使用本地数据。参数变化后在 workspace 根执行 `pnpm generate:component-docs`。
+
 ## 安装与接入
 
 在 Vue 3 + Vite 管理端项目中安装，与 core、System 保持相同版本：
@@ -20,6 +22,8 @@ pnpm add @liujitcn/kratos-admin-core @liujitcn/kratos-admin-system @liujitcn/kra
 ```
 
 模块依赖 `@liujitcn/kratos-admin-core` 和 `@liujitcn/kratos-admin-system`。宿主需使用 core 的 Vite 配置扫描模块页面，并连接提供 BI API、菜单和权限的 kratos-admin 后端。
+
+通过 System 的 `AdminAiExtension.biCardDialog` 提供助手问数建卡弹窗，按需加载现有卡片表单。数据源与来源记录由 BI 请求封装读取，卡片表单统一补齐 HTTP 省略的查询集合；普通预览与仪表盘执行记录不作为智能问数的复用来源。
 
 ## 目录与公开入口
 

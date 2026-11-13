@@ -232,6 +232,13 @@
                 <template v-else-if="item.role !== 'user'">
                   <AiMarkdown v-if="!isThinkingPlaceholder(item)" :content="item.content" :streaming="item.progressState === 'streaming'" />
                   <slot name="flow-blocks" :message="item" :active-flow-message-id="activeFlowMessageID" />
+                  <!-- 问数成功后引导一键生成数据卡片，避免用户手动拼接查询定义。 -->
+                  <div v-if="canCreateBiCard(item)" class="agent-message-bi-card">
+                    <span class="agent-message-bi-card__hint">{{ t("system.ai.chat.bi_card_hint") }}</span>
+                    <el-button size="small" type="primary" @click="openBiCardDialog(item)">
+                      {{ t("system.ai.chat.bi_card_action") }}
+                    </el-button>
+                  </div>
                   <el-collapse v-if="item.fallback_reason" class="agent-message-error__detail" accordion>
                     <el-collapse-item :title="t('system.ai.chat.title.error_detail')" :name="String(item.id)">
                       <pre>{{ resolvePersistedMessage(item.fallback_reason) }}</pre>
@@ -448,17 +455,26 @@
         />
       </div>
     </template>
+    <!-- 问数结果快速建卡：复用 BI 模块的完整创建卡片表单，与卡片库保持一致。 -->
+    <component
+      v-if="biCardDialogComponent"
+      :is="biCardDialogComponent"
+      v-model="biCardDialog.visible"
+      :guide="biCardDialog.guide"
+      @saved="handleBiCardSaved"
+    />
   </main>
 </template>
 
 <script setup lang="ts" name="ChatPanel">
-import { computed, defineAsyncComponent, h, nextTick, ref, watch } from "vue";
+import { computed, defineAsyncComponent, h, nextTick, reactive, ref, watch } from "vue";
 import type { Component, ObjectDirective } from "vue";
 import { Attachments, BubbleList } from "vue-element-plus-x";
 import type { FilesCardProps } from "vue-element-plus-x/types/FilesCard";
 import { ArrowDown, Check, CopyDocument, DataAnalysis, Delete, EditPen, Link, Loading, Memo, PieChart, Refresh, User } from "@element-plus/icons-vue";
 import { ElMessage } from "element-plus";
 import { getCurrentLocale, t } from "@liujitcn/kratos-admin-core";
+import { getAdminAiExtension } from "@liujitcn/kratos-admin-system";
 import { formatDateTime } from "@liujitcn/kratos-admin-core/format";
 import type { AiAction } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_message";
 import { type AiAttachment, type AiSession } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_session";
@@ -475,7 +491,7 @@ import { resolveTimestamp } from "../message";
 const AiMarkdown = defineAsyncComponent(() => import("./AiMarkdown.vue"));
 import { buildAIAttachmentFileCard, resolveAIAttachmentUrl } from "../attachment";
 import { defFileService } from "@liujitcn/kratos-admin-core/api/base/v1/file";
-import type { AiActivityItem, ChatMessageAction, ChatMessageEditPayload, ChatMessageItem, ReplySourceTag, SubmitPayload } from "../types";
+import type { AIFlowBlock, AiActivityItem, ChatMessageAction, ChatMessageEditPayload, ChatMessageItem, ReplySourceTag, SubmitPayload } from "../types";
 
 /** 消息操作按钮配置。 */
 type MessageActionOption = {
@@ -642,6 +658,17 @@ const isEmptyState = computed(() => props.messages.length === 0);
 const bubbleRef = ref<{ scrollToBottom: (smooth?: boolean) => void } | null>(null);
 const chatContentRef = ref<HTMLElement | null>(null);
 
+const senderKey = computed(() => props.activeSession?.id || "empty-session");
+
+const bubbleList = computed<ChatMessageItem[]>(() =>
+  (props.messages ?? []).map(item => ({
+    ...item,
+    key: String(item.key ?? item.id ?? `${item.role}-${item.created_at?.seconds ?? 0}`),
+    content: String(item.content ?? ""),
+    placement: item.placement ?? "start"
+  }))
+);
+
 // 流式跟随：高频分片输出会让组件内自动跟随状态失效，内容更新时若用户处于底部附近则主动滚动到最新内容。
 watch(
   () => {
@@ -659,17 +686,6 @@ watch(
     if (distanceToBottom > 240) return;
     bubbleRef.value?.scrollToBottom(false);
   }
-);
-
-const senderKey = computed(() => props.activeSession?.id || "empty-session");
-
-const bubbleList = computed<ChatMessageItem[]>(() =>
-  (props.messages ?? []).map(item => ({
-    ...item,
-    key: String(item.key ?? item.id ?? `${item.role}-${item.created_at?.seconds ?? 0}`),
-    content: String(item.content ?? ""),
-    placement: item.placement ?? "start"
-  }))
 );
 
 const lastEditableUserMessageKey = computed(() => {
@@ -1000,6 +1016,42 @@ function resolveActivityTitle(activity: AiActivityItem) {
   if (activity.phase === "reasoning") return activity.summary || t("system.ai.chat.status.thinking");
   if (activity.phase === "tool") return resolveActivityToolTitle(activity);
   return t("system.ai.chat.status.answering");
+}
+
+/** 已成功创建卡片的消息不再展示引导入口。 */
+const biCardDoneKeys = reactive(new Set<string>());
+const biCardDialogComponent = getAdminAiExtension().biCardDialog;
+/** 快速建卡弹窗状态：引导块来自后端注入，完整表单复用 BI 模块组件。 */
+const biCardDialog = reactive({
+  visible: false,
+  sourceKey: "",
+  guide: undefined as AIFlowBlock | undefined
+});
+
+/** 读取消息中后端注入的问数引导块。 */
+function resolveBiCardGuide(item: ChatMessageItem) {
+  return (item.blocks ?? []).find(block => block.type === "bi_card_guide");
+}
+
+/** 消息携带问数引导块且尚未建卡时展示生成入口。 */
+function canCreateBiCard(item: ChatMessageItem): boolean {
+  return Boolean(biCardDialogComponent) && item.role !== "user" && Boolean(resolveBiCardGuide(item)) && !biCardDoneKeys.has(item.key);
+}
+
+/** 打开已启用 BI 模块贡献的建卡弹窗。 */
+function openBiCardDialog(item: ChatMessageItem) {
+  const guide = resolveBiCardGuide(item);
+  if (!guide) return;
+  biCardDialog.sourceKey = item.key;
+  biCardDialog.guide = guide;
+  biCardDialog.visible = true;
+}
+
+/** 建卡成功后隐藏引导入口并提示查看位置。 */
+function handleBiCardSaved() {
+  if (biCardDialog.sourceKey) biCardDoneKeys.add(biCardDialog.sourceKey);
+  biCardDialog.visible = false;
+  ElMessage.success(t("system.ai.chat.bi_card_created"));
 }
 
 /** 返回活动中的本地化工具展示名称。 */
@@ -1641,6 +1693,29 @@ function formatAttachmentSize(size?: number): string {
   margin-top: 8px;
   color: var(--admin-page-text-secondary);
   border-top: 1px solid var(--el-border-color-lighter);
+}
+/* 问数成功后的生成卡片引导条：紧贴回复正文，弱化背景突出按钮。 */
+.agent-message-bi-card {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 720px;
+  margin-top: 8px;
+  padding: 8px 12px;
+  color: var(--admin-page-text-secondary);
+  background-color: var(--el-fill-color-light);
+  border-radius: 8px;
+}
+.agent-message-bi-card__hint {
+  font-size: 13px;
+}
+.agent-message-bi-card__source {
+  margin: 0;
+  color: var(--admin-page-text-secondary);
+  font-size: 12px;
+  word-break: break-all;
 }
 .agent-message-activity__summary {
   display: flex;

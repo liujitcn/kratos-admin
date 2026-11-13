@@ -2256,5 +2256,19 @@
   "system.ai.workspace.connection_authorizing": "授权中",
   "system.ai.workspace.connection_connected": "已连接",
   "system.ai.workspace.connection_expired": "已过期",
-  "system.ai.workspace.connection_reauthorization_required": "需要重新授权"
+  "system.ai.workspace.connection_reauthorization_required": "需要重新授权",
+  "system.ai.chat.bi_card_hint": "智能问数已完成，可将结果保存为数据卡片",
+  "system.ai.chat.bi_card_action": "生成数据卡片",
+  "system.ai.chat.bi_card_dialog_title": "生成数据卡片",
+  "system.ai.chat.bi_card_name": "卡片名称",
+  "system.ai.chat.bi_card_chart_type": "图表类型",
+  "system.ai.chat.bi_card_confirm": "创建卡片",
+  "system.ai.chat.bi_card_name_required": "请输入卡片名称",
+  "system.ai.chat.bi_card_record_missing": "未找到成功的问数记录，请重新问数后再试",
+  "system.ai.chat.bi_card_created": "数据卡片已创建，可在「BI分析 → 数据卡片库」查看",
+  "system.ai.chat.bi_card_failed": "创建数据卡片失败",
+  "system.ai.chat.bi_chart_bar": "柱状图",
+  "system.ai.chat.bi_chart_line": "折线图",
+  "system.ai.chat.bi_chart_pie": "饼图",
+  "system.ai.chat.bi_chart_metric": "指标卡"
 }

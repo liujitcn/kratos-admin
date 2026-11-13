@@ -12,6 +12,7 @@ import (
 	"strings"
 	"time"
 
+	kratosErrors "github.com/go-kratos/kratos/v3/errors"
 	"github.com/liujitcn/gorm-kit/repository"
 	"github.com/liujitcn/kratos-admin/backend/adapter/kit"
 	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/bi/admin/v1"
@@ -340,7 +341,7 @@ func (c *BiSourceCase) TestBiSource(ctx context.Context, req *adminv1.TestBiSour
 	var database *configuredDatabase
 	database, err = openConfiguredSource(ctx, c.GormClients, &models.BiSource{SourceName: sourceName(form), Driver: form.GetDriver(), Host: form.GetHost(), Port: form.GetPort(), DatabaseName: form.GetDatabaseName(), Username: form.GetUsername(), Password: password, SslMode: form.GetSslMode()}, password)
 	if err != nil {
-		return &adminv1.TestBiSourceResponse{Message: err.Error()}, nil
+		return &adminv1.TestBiSourceResponse{Success: false, Message: testSourceFailureMessage(err)}, nil
 	}
 	defer database.Close()
 	return &adminv1.TestBiSourceResponse{Success: true, Message: "数据源连接测试通过"}, nil
@@ -763,4 +764,13 @@ func configuredSourceTableCount(schemaJSON string) int32 {
 		return 0
 	}
 	return int32(len(model.Tables))
+}
+
+// testSourceFailureMessage 提取连接测试失败的简短原因，避免把完整错误链透出给前端。
+func testSourceFailureMessage(err error) string {
+	var ex *kratosErrors.Error
+	if errors.As(err, &ex) && ex.Message != "" {
+		return ex.Message
+	}
+	return "连接 BI 数据源失败"
 }

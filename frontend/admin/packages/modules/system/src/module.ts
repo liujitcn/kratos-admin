@@ -1,5 +1,6 @@
 import type { Component } from "vue";
-import { defineAdminModule } from "@liujitcn/kratos-admin-core";
+import { ADMIN_COMPONENT_DOCS, defineAdminModule } from "@liujitcn/kratos-admin-core";
+import { systemComponentDocs } from "./demo/catalog";
 import Ai from "./components/ai/Ai.vue";
 import ForcedPasswordDialog from "./components/account/ForcedPasswordDialog.vue";
 import Notification from "./components/notification/Notification.vue";
@@ -24,6 +25,7 @@ const viewModules = import.meta.glob<{ default: Component }>("./views/**/*.vue")
 export const systemAdminModule = defineAdminModule({
   name: "system",
   views: viewModules,
+  extensions: { [ADMIN_COMPONENT_DOCS]: systemComponentDocs },
   headerTools: [
     { name: "notification", component: Notification },
     { name: "ai", component: Ai },

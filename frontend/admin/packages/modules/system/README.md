@@ -2,6 +2,8 @@
 
 System 管理端业务模块。系统管理、个人中心（含 MFA 与三方账号绑定）、AI 助手、开放授权客户端的请求、RPC、页面与模块定义在同一个 npm 包内维护；宿主只有安装并注册本包后，才会提供这些能力。
 
+`src/demo/` 向 Core 组件文档贡献本模块 14 个组件的说明、源码用法和 API。可独立展示的组件使用本地演示；账号、权限和真实服务容器只提供接入说明。参数变化后在 workspace 根执行 `pnpm generate:component-docs`。
+
 ## 目录结构
 
 ```text
@@ -222,9 +224,11 @@ System 的 API 与 RPC 都按 Proto 完整层级维护，API 文件名与对应 
 
 AI Provider 在“AI助手 → 模型管理”维护，AI 模型在“AI助手 → AI模型”维护；模型按分类（聊天、向量、重排、图片、视频、语音）挂在供应商下，表单按分类展示个性化配置字段，聊天与向量模型可在保存前测试连通性，结果仅保存在当前页面状态。AI 对话页位于“AI助手 → AI助手”，顶部入口可直接打开该页面；对话页通过独立的聊天模型选项接口选择已启用的聊天模型。模型 API Key 使用存储脱敏策略加密，管理接口只返回是否已配置状态。
 
-System 导出 `ADMIN_AI_EXTENSION`、`AdminAiExtension` 和 `getAdminAiExtension()`。其他业务模块可以在 `AdminModule.extensions` 中使用该扩展名提供 `flowBlocks` 组件，AI 会话页会读取并渲染它。
+System 导出 `ADMIN_AI_EXTENSION`、`AdminAiExtension` 和 `getAdminAiExtension()`。其他业务模块可以在 `AdminModule.extensions` 中使用该扩展名提供 `flowBlocks` 组件，AI 会话页会读取并渲染它。BI 模块通过同一扩展的 `biCardDialog` 注册问数建卡弹窗，System 不直接依赖 BI。
 
-仓库当前没有内置流程卡片组件，也没有默认注册该扩展；未提供时 AI 会话仍按普通消息展示。扩展组件由实际业务模块自行实现，不属于 System 的内置能力。
+AI 扩展按字段合并，不同模块提供的流程卡片与建卡弹窗可以共存；同一字段由后注册的模块覆盖，读取时不修改模块原始配置。
+
+仓库当前没有内置流程卡片组件；未提供 `flowBlocks` 时 AI 会话仍按普通消息展示。未启用 BI 时隐藏问数建卡入口。扩展组件由实际业务模块自行实现，不属于 System 的内置能力。
 
 ## 命令
 

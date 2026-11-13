@@ -53,6 +53,10 @@
       "types": "./dist/package/declarations/src/views/*.d.ts",
       "default": "./dist/package/src/views/*"
     },
+    "./components/*": {
+      "types": "./dist/package/declarations/src/components/*.d.ts",
+      "default": "./dist/package/src/components/*"
+    },
     "./locales/*": "./dist/package/src/locales/*",
     "./module": {
       "types": "./dist/package/declarations/src/module.d.ts",

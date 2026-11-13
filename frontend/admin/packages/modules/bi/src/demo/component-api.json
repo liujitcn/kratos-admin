@@ -1,0 +1,380 @@
+{
+  "BiCardChartEditor.vue": {
+    "props": [
+      {
+        "name": "modelValue",
+        "description": "",
+        "type": "CardChartConfig",
+        "required": true
+      },
+      {
+        "name": "chartType",
+        "description": "",
+        "type": "string",
+        "required": true
+      },
+      {
+        "name": "query",
+        "description": "",
+        "type": "BiQuerySpec",
+        "required": true
+      },
+      {
+        "name": "result",
+        "description": "",
+        "type": "BiQueryResult",
+        "required": false
+      }
+    ],
+    "events": [
+      {
+        "name": "update:modelValue",
+        "description": "",
+        "type": "(value: CardChartConfig) => void"
+      },
+      {
+        "name": "update:chartType",
+        "description": "",
+        "type": "(value: string) => void"
+      }
+    ],
+    "slots": [],
+    "methods": []
+  },
+  "BiCardFormDialog.vue": {
+    "props": [
+      {
+        "name": "modelValue",
+        "description": "",
+        "type": "boolean",
+        "required": true
+      },
+      {
+        "name": "sources",
+        "description": "",
+        "type": "BiSourceDescriptor[]",
+        "required": true
+      },
+      {
+        "name": "card",
+        "description": "",
+        "type": "BiCard",
+        "required": false
+      },
+      {
+        "name": "initialQuery",
+        "description": "",
+        "type": "BiQuerySpec",
+        "required": false
+      },
+      {
+        "name": "initialResult",
+        "description": "",
+        "type": "BiQueryResult",
+        "required": false
+      },
+      {
+        "name": "initialTitle",
+        "description": "",
+        "type": "string",
+        "required": false
+      },
+      {
+        "name": "initialChartType",
+        "description": "",
+        "type": "string",
+        "required": false
+      }
+    ],
+    "events": [
+      {
+        "name": "update:modelValue",
+        "description": "",
+        "type": "(value: boolean) => void"
+      },
+      {
+        "name": "saved",
+        "description": "",
+        "type": "(card: BiCard) => void"
+      }
+    ],
+    "slots": [],
+    "methods": []
+  },
+  "BiCardLibrary.vue": {
+    "props": [],
+    "events": [],
+    "slots": [],
+    "methods": []
+  },
+  "BiCardVisualization.vue": {
+    "props": [
+      {
+        "name": "card",
+        "description": "",
+        "type": "BiCard",
+        "required": true
+      },
+      {
+        "name": "result",
+        "description": "",
+        "type": "BiQueryResult",
+        "required": true
+      },
+      {
+        "name": "compact",
+        "description": "",
+        "type": "boolean",
+        "required": false
+      }
+    ],
+    "events": [],
+    "slots": [],
+    "methods": []
+  },
+  "BiChart.vue": {
+    "props": [
+      {
+        "name": "chart",
+        "description": "",
+        "type": "BiChartSchema",
+        "required": true
+      },
+      {
+        "name": "rows",
+        "description": "",
+        "type": "any[]",
+        "required": true
+      },
+      {
+        "name": "theme",
+        "description": "",
+        "type": "BiResolvedTheme",
+        "required": true
+      },
+      {
+        "name": "loading",
+        "description": "",
+        "type": "boolean",
+        "required": false,
+        "default": "false"
+      },
+      {
+        "name": "error",
+        "description": "",
+        "type": "string | null",
+        "required": false,
+        "default": "null"
+      },
+      {
+        "name": "emptyText",
+        "description": "",
+        "type": "string",
+        "required": false,
+        "default": "\"\""
+      }
+    ],
+    "events": [
+      {
+        "name": "chart-click",
+        "description": "",
+        "type": "(event: BiChartEvent) => void"
+      }
+    ],
+    "slots": [],
+    "methods": []
+  },
+  "BiDashboard.vue": {
+    "props": [
+      {
+        "name": "schema",
+        "description": "",
+        "type": "DashboardLayout",
+        "required": true
+      },
+      {
+        "name": "results",
+        "description": "",
+        "type": "Map<string, BiQueryResult | undefined>",
+        "required": true
+      }
+    ],
+    "events": [],
+    "slots": [],
+    "methods": []
+  },
+  "BiDashboardMenuDialog.vue": {
+    "props": [
+      {
+        "name": "modelValue",
+        "description": "",
+        "type": "boolean",
+        "required": true
+      },
+      {
+        "name": "dashboard",
+        "description": "",
+        "type": "BiDashboard",
+        "required": false
+      }
+    ],
+    "events": [
+      {
+        "name": "update:modelValue",
+        "description": "",
+        "type": "(value: boolean) => void"
+      }
+    ],
+    "slots": [],
+    "methods": []
+  },
+  "BiDataCard.vue": {
+    "props": [
+      {
+        "name": "card",
+        "description": "",
+        "type": "BiCard",
+        "required": true
+      },
+      {
+        "name": "sourceName",
+        "description": "",
+        "type": "string",
+        "required": false,
+        "default": "\"\""
+      },
+      {
+        "name": "previewResult",
+        "description": "",
+        "type": "BiQueryResult",
+        "required": false
+      },
+      {
+        "name": "refreshKey",
+        "description": "",
+        "type": "number",
+        "required": false,
+        "default": "0"
+      },
+      {
+        "name": "rangeDays",
+        "description": "",
+        "type": "number",
+        "required": false,
+        "default": "0"
+      },
+      {
+        "name": "showPeriodFilter",
+        "description": "",
+        "type": "boolean",
+        "required": false,
+        "default": "false"
+      },
+      {
+        "name": "showCategory",
+        "description": "",
+        "type": "boolean",
+        "required": false,
+        "default": "true"
+      }
+    ],
+    "events": [
+      {
+        "name": "update:rangeDays",
+        "description": "",
+        "type": "(value: number) => void"
+      }
+    ],
+    "slots": [
+      {
+        "name": "actions",
+        "description": "",
+        "type": "() => unknown"
+      },
+      {
+        "name": "footer",
+        "description": "",
+        "type": "() => unknown"
+      }
+    ],
+    "methods": []
+  },
+  "BiDesigner.vue": {
+    "props": [
+      {
+        "name": "modelValue",
+        "description": "",
+        "type": "DashboardLayout",
+        "required": true
+      },
+      {
+        "name": "cards",
+        "description": "",
+        "type": "BiCard[]",
+        "required": true
+      }
+    ],
+    "events": [
+      {
+        "name": "update:modelValue",
+        "description": "",
+        "type": "(value: DashboardLayout) => void"
+      },
+      {
+        "name": "edit-card",
+        "description": "",
+        "type": "(value: BiCard) => void"
+      },
+      {
+        "name": "create-card",
+        "description": "",
+        "type": "() => void"
+      }
+    ],
+    "slots": [],
+    "methods": []
+  },
+  "BiSourceModelDialog.vue": {
+    "props": [
+      {
+        "name": "modelValue",
+        "description": "",
+        "type": "boolean",
+        "required": true
+      },
+      {
+        "name": "source",
+        "description": "",
+        "type": "BiSource",
+        "required": false
+      }
+    ],
+    "events": [
+      {
+        "name": "update:modelValue",
+        "description": "",
+        "type": "(value: boolean) => void"
+      },
+      {
+        "name": "saved",
+        "description": "",
+        "type": "(source: BiSource) => void"
+      }
+    ],
+    "slots": [],
+    "methods": []
+  },
+  "BiWorkbenchPreview.vue": {
+    "props": [
+      {
+        "name": "dashboard",
+        "description": "",
+        "type": "BiDashboard",
+        "required": true
+      }
+    ],
+    "events": [],
+    "slots": [],
+    "methods": []
+  }
+}

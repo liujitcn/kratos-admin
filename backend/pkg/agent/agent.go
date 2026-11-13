@@ -34,12 +34,15 @@ type RuntimeConfig struct {
 	AppTools []Tool
 	// LocalizeMessage 是可选消息本地化器；未提供时使用消息的英文兜底文案。
 	LocalizeMessage MessageLocalizer
+	// ResponseBlocksHook 根据本轮工具结果生成附加结构化卡片；返回 nil 时不注入回复。
+	ResponseBlocksHook func([]ToolUsage) []map[string]any
 }
 
 // NewRuntime 创建可被外部模块复用的 AI Runtime。
 func NewRuntime(config RuntimeConfig) *Runtime {
 	runtime := newRuntime(config.Client, config.ClientResolver, config.Checker, config.AdminTools, config.AppTools, config.LocalizeMessage)
 	runtime.checkPointStore = config.CheckPointStore
+	runtime.responseBlocksHook = config.ResponseBlocksHook
 	return runtime
 }
 

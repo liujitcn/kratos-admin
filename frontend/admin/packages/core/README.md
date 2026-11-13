@@ -6,6 +6,8 @@ kratos-admin 前端底座包。它不包含具体业务模块，提供登录、M
 
 浏览器认证使用 Cookie-only 刷新令牌与内存访问令牌。Core 不持久化任何访问令牌或刷新令牌，刷新请求统一携带 `X-Refresh-Token-Transport: cookie` 并启用凭据 Cookie。
 
+内置组件文档视图 `kratos-admin/demo/docs/index` 聚合已注册模块的 `ADMIN_COMPONENT_DOCS` 扩展；`src/demo.ts` 导出文档契约，`src/views/demo/docs/examples/` 维护 Core 组件清单和本地演示。Core 不依赖业务模块，System 与 BI 自行贡献说明和惰性示例。参数元数据由 workspace 根命令 `pnpm generate:component-docs` 生成，禁止手改 JSON。
+
 ## 目录结构
 
 ```text

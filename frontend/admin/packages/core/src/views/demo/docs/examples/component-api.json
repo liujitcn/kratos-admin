@@ -1,0 +1,2521 @@
+{
+  "Card/DataPanelCard.vue": {
+    "props": [
+      {
+        "name": "title",
+        "description": "",
+        "type": "string",
+        "required": true
+      },
+      {
+        "name": "description",
+        "description": "",
+        "type": "string",
+        "required": false,
+        "default": "\"\""
+      },
+      {
+        "name": "primary",
+        "description": "",
+        "type": "boolean",
+        "required": false,
+        "default": "false"
+      }
+    ],
+    "events": [],
+    "slots": [
+      {
+        "name": "extra",
+        "description": "",
+        "type": "() => unknown"
+      },
+      {
+        "name": "default",
+        "description": "",
+        "type": "() => unknown"
+      }
+    ],
+    "methods": []
+  },
+  "CodeBlock/index.vue": {
+    "props": [
+      {
+        "name": "code",
+        "description": "代码原文。",
+        "type": "string",
+        "required": true
+      },
+      {
+        "name": "language",
+        "description": "高亮语言，缺省时自动检测。",
+        "type": "string",
+        "required": false,
+        "default": "\"\""
+      },
+      {
+        "name": "maxHeight",
+        "description": "代码区最大高度。",
+        "type": "string",
+        "required": false,
+        "default": "\"420px\""
+      }
+    ],
+    "events": [],
+    "slots": [],
+    "methods": []
+  },
+  "CodeEditor/index.vue": {
+    "props": [
+      {
+        "name": "modelValue",
+        "description": "编辑器源码。",
+        "type": "string",
+        "required": true
+      },
+      {
+        "name": "language",
+        "description": "Monaco 语言标识。",
+        "type": "string",
+        "required": false,
+        "default": "\"javascript\""
+      },
+      {
+        "name": "height",
+        "description": "编辑器高度。",
+        "type": "string",
+        "required": false,
+        "default": "\"360px\""
+      },
+      {
+        "name": "readonly",
+        "description": "是否只读。",
+        "type": "boolean",
+        "required": false,
+        "default": "false"
+      }
+    ],
+    "events": [
+      {
+        "name": "update:modelValue",
+        "description": "",
+        "type": "(value: string) => void"
+      }
+    ],
+    "slots": [],
+    "methods": []
+  },
+  "CronExpression/index.vue": {
+    "props": [
+      {
+        "name": "modelValue",
+        "description": "",
+        "type": "string",
+        "required": false,
+        "default": "\"\""
+      },
+      {
+        "name": "placeholder",
+        "description": "",
+        "type": "string",
+        "required": false,
+        "default": "\"\""
+      }
+    ],
+    "events": [
+      {
+        "name": "update:modelValue",
+        "description": "",
+        "type": "(value: string) => void"
+      }
+    ],
+    "slots": [],
+    "methods": []
+  },
+  "Dialog/FormDialog.vue": {
+    "props": [
+      {
+        "name": "modelValue",
+        "description": "",
+        "type": "boolean",
+        "required": true
+      },
+      {
+        "name": "title",
+        "description": "",
+        "type": "string",
+        "required": false,
+        "default": "\"\""
+      },
+      {
+        "name": "width",
+        "description": "",
+        "type": "string | number",
+        "required": false,
+        "default": "\"500px\""
+      },
+      {
+        "name": "top",
+        "description": "",
+        "type": "string",
+        "required": false,
+        "default": "\"8vh\""
+      },
+      {
+        "name": "model",
+        "description": "",
+        "type": "Record<string, any>",
+        "required": true
+      },
+      {
+        "name": "fields",
+        "description": "",
+        "type": "ProFormField[]",
+        "required": true
+      },
+      {
+        "name": "rules",
+        "description": "",
+        "type": "Partial<Record<string, Record<string, any> | Arrayable<FormItemRule>>>",
+        "required": false,
+        "default": "() => ({})"
+      },
+      {
+        "name": "labelWidth",
+        "description": "",
+        "type": "string",
+        "required": false,
+        "default": "\"6em\""
+      },
+      {
+        "name": "labelPosition",
+        "description": "",
+        "type": "ProFormLabelPosition",
+        "required": false,
+        "default": "\"right\""
+      },
+      {
+        "name": "gutter",
+        "description": "",
+        "type": "number",
+        "required": false,
+        "default": "20"
+      },
+      {
+        "name": "colSpan",
+        "description": "",
+        "type": "number",
+        "required": false,
+        "default": "24"
+      },
+      {
+        "name": "confirmText",
+        "description": "",
+        "type": "string",
+        "required": false,
+        "default": "\"\""
+      },
+      {
+        "name": "cancelText",
+        "description": "",
+        "type": "string",
+        "required": false,
+        "default": "\"\""
+      },
+      {
+        "name": "confirmLoading",
+        "description": "",
+        "type": "boolean",
+        "required": false,
+        "default": "false"
+      },
+      {
+        "name": "destroyOnClose",
+        "description": "",
+        "type": "boolean",
+        "required": false,
+        "default": "false"
+      },
+      {
+        "name": "closeOnClickModal",
+        "description": "",
+        "type": "boolean",
+        "required": false,
+        "default": "true"
+      },
+      {
+        "name": "closeOnPressEscape",
+        "description": "",
+        "type": "boolean",
+        "required": false,
+        "default": "true"
+      },
+      {
+        "name": "formProps",
+        "description": "",
+        "type": "Record<string, any>",
+        "required": false,
+        "default": "() => ({})"
+      }
+    ],
+    "events": [
+      {
+        "name": "update:modelValue",
+        "description": "",
+        "type": "(value: boolean) => void"
+      },
+      {
+        "name": "confirm",
+        "description": "",
+        "type": "() => void"
+      },
+      {
+        "name": "cancel",
+        "description": "",
+        "type": "() => void"
+      },
+      {
+        "name": "close",
+        "description": "",
+        "type": "() => void"
+      },
+      {
+        "name": "closed",
+        "description": "",
+        "type": "() => void"
+      }
+    ],
+    "slots": [
+      {
+        "name": "[slotName]",
+        "description": "动态具名插槽",
+        "type": "(scope: Record<string, unknown>) => unknown"
+      },
+      {
+        "name": "footer",
+        "description": "",
+        "type": "() => unknown"
+      }
+    ],
+    "methods": [
+      {
+        "name": "open",
+        "description": "异步加载弹窗数据，并只提交最新一次打开请求。",
+        "type": "<T>(options: DialogOpenOptions<T>) => Promise<boolean>"
+      },
+      {
+        "name": "close",
+        "description": "关闭弹窗并使未完成的打开请求失效。",
+        "type": "() => void"
+      },
+      {
+        "name": "validate",
+        "description": "校验内部 ProForm。",
+        "type": "() => Promise<boolean | undefined>"
+      },
+      {
+        "name": "resetFields",
+        "description": "重置内部 ProForm。",
+        "type": "() => void"
+      },
+      {
+        "name": "clearValidate",
+        "description": "清理内部 ProForm 校验状态。",
+        "type": "(props?: string | string[]) => void"
+      }
+    ]
+  },
+  "Dialog/PasswordVerifyDialog.vue": {
+    "props": [
+      {
+        "name": "modelValue",
+        "description": "弹窗显示状态。",
+        "type": "boolean",
+        "required": true
+      },
+      {
+        "name": "title",
+        "description": "弹窗标题。",
+        "type": "string",
+        "required": false,
+        "default": "\"\""
+      },
+      {
+        "name": "description",
+        "description": "密码输入前的可选补充说明。",
+        "type": "string",
+        "required": false,
+        "default": "\"\""
+      },
+      {
+        "name": "width",
+        "description": "弹窗宽度。",
+        "type": "string | number",
+        "required": false,
+        "default": "\"500px\""
+      },
+      {
+        "name": "top",
+        "description": "弹窗顶部距离。",
+        "type": "string",
+        "required": false,
+        "default": "\"8vh\""
+      },
+      {
+        "name": "passwordLabel",
+        "description": "密码字段标题。",
+        "type": "string",
+        "required": false,
+        "default": "\"\""
+      },
+      {
+        "name": "passwordPlaceholder",
+        "description": "密码输入提示。",
+        "type": "string",
+        "required": false,
+        "default": "\"\""
+      },
+      {
+        "name": "confirmText",
+        "description": "确认按钮文案。",
+        "type": "string",
+        "required": false,
+        "default": "\"\""
+      },
+      {
+        "name": "cancelText",
+        "description": "取消按钮文案。",
+        "type": "string",
+        "required": false,
+        "default": "\"\""
+      },
+      {
+        "name": "confirmLoading",
+        "description": "外部业务提交状态。",
+        "type": "boolean",
+        "required": false,
+        "default": "false"
+      },
+      {
+        "name": "destroyOnClose",
+        "description": "是否关闭时销毁内容。",
+        "type": "boolean",
+        "required": false,
+        "default": "false"
+      },
+      {
+        "name": "closeOnClickModal",
+        "description": "是否允许点击遮罩关闭。",
+        "type": "boolean",
+        "required": false,
+        "default": "false"
+      },
+      {
+        "name": "closeOnPressEscape",
+        "description": "是否允许按 Esc 关闭。",
+        "type": "boolean",
+        "required": false,
+        "default": "true"
+      },
+      {
+        "name": "labelWidth",
+        "description": "表单标签宽度。",
+        "type": "string",
+        "required": false,
+        "default": "\"6em\""
+      },
+      {
+        "name": "labelPosition",
+        "description": "表单标签布局方向。",
+        "type": "ProFormLabelPosition",
+        "required": false,
+        "default": "\"right\""
+      }
+    ],
+    "events": [
+      {
+        "name": "update:modelValue",
+        "description": "",
+        "type": "(value: boolean) => void"
+      },
+      {
+        "name": "confirm",
+        "description": "",
+        "type": "(password: SecretCrypto) => void"
+      },
+      {
+        "name": "cancel",
+        "description": "",
+        "type": "() => void"
+      },
+      {
+        "name": "close",
+        "description": "",
+        "type": "() => void"
+      },
+      {
+        "name": "closed",
+        "description": "",
+        "type": "() => void"
+      }
+    ],
+    "slots": [],
+    "methods": []
+  },
+  "Dialog/ProDialog.vue": {
+    "props": [
+      {
+        "name": "modelValue",
+        "description": "",
+        "type": "boolean",
+        "required": true
+      },
+      {
+        "name": "title",
+        "description": "",
+        "type": "string",
+        "required": false,
+        "default": "\"\""
+      },
+      {
+        "name": "width",
+        "description": "",
+        "type": "string | number",
+        "required": false,
+        "default": "\"500px\""
+      },
+      {
+        "name": "top",
+        "description": "",
+        "type": "string",
+        "required": false,
+        "default": "\"8vh\""
+      },
+      {
+        "name": "confirmText",
+        "description": "",
+        "type": "string",
+        "required": false,
+        "default": "\"\""
+      },
+      {
+        "name": "cancelText",
+        "description": "",
+        "type": "string",
+        "required": false,
+        "default": "\"\""
+      },
+      {
+        "name": "confirmLoading",
+        "description": "",
+        "type": "boolean",
+        "required": false,
+        "default": "false"
+      },
+      {
+        "name": "destroyOnClose",
+        "description": "",
+        "type": "boolean",
+        "required": false,
+        "default": "false"
+      },
+      {
+        "name": "closeOnClickModal",
+        "description": "",
+        "type": "boolean",
+        "required": false,
+        "default": "true"
+      },
+      {
+        "name": "closeOnPressEscape",
+        "description": "",
+        "type": "boolean",
+        "required": false,
+        "default": "true"
+      },
+      {
+        "name": "showFooter",
+        "description": "是否展示弹窗底部操作区。",
+        "type": "boolean",
+        "required": false,
+        "default": "true"
+      }
+    ],
+    "events": [
+      {
+        "name": "update:modelValue",
+        "description": "",
+        "type": "(value: boolean) => void"
+      },
+      {
+        "name": "confirm",
+        "description": "",
+        "type": "() => void"
+      },
+      {
+        "name": "cancel",
+        "description": "",
+        "type": "() => void"
+      },
+      {
+        "name": "close",
+        "description": "",
+        "type": "() => void"
+      },
+      {
+        "name": "closed",
+        "description": "",
+        "type": "() => void"
+      }
+    ],
+    "slots": [
+      {
+        "name": "header",
+        "description": "",
+        "type": "(scope: Record<string, unknown>) => unknown"
+      },
+      {
+        "name": "default",
+        "description": "",
+        "type": "() => unknown"
+      },
+      {
+        "name": "footer",
+        "description": "",
+        "type": "() => unknown"
+      }
+    ],
+    "methods": [
+      {
+        "name": "open",
+        "description": "异步加载弹窗数据，并只提交最新一次打开请求。",
+        "type": "<T>(options: DialogOpenOptions<T>) => Promise<boolean>"
+      },
+      {
+        "name": "close",
+        "description": "关闭弹窗并使未完成的打开请求失效。",
+        "type": "() => void"
+      }
+    ]
+  },
+  "Dict/DictLabel.vue": {
+    "props": [
+      {
+        "name": "code",
+        "description": "",
+        "type": "string",
+        "required": true
+      },
+      {
+        "name": "modelValue",
+        "description": "",
+        "type": "string | number",
+        "required": false
+      },
+      {
+        "name": "size",
+        "description": "",
+        "type": "\"default\" | \"large\" | \"small\"",
+        "required": false,
+        "default": "\"default\""
+      }
+    ],
+    "events": [],
+    "slots": [],
+    "methods": []
+  },
+  "Dict/index.vue": {
+    "props": [
+      {
+        "name": "code",
+        "description": "",
+        "type": "string",
+        "required": true
+      },
+      {
+        "name": "codeType",
+        "description": "",
+        "type": "DictCodeType",
+        "required": false,
+        "default": "\"number\""
+      },
+      {
+        "name": "modelValue",
+        "description": "",
+        "type": "DictOptionValue | DictOptionValue[]",
+        "required": false
+      },
+      {
+        "name": "type",
+        "description": "",
+        "type": "DictType",
+        "required": false,
+        "default": "\"select\""
+      },
+      {
+        "name": "placeholder",
+        "description": "",
+        "type": "string",
+        "required": false,
+        "default": "\"\""
+      },
+      {
+        "name": "disabled",
+        "description": "",
+        "type": "boolean",
+        "required": false,
+        "default": "false"
+      },
+      {
+        "name": "style",
+        "description": "",
+        "type": "CSSProperties",
+        "required": false,
+        "default": "() => ({ width: \"300px\" }) as CSSProperties"
+      }
+    ],
+    "events": [
+      {
+        "name": "update:modelValue",
+        "description": "",
+        "type": "(value: DictOptionValue | DictOptionValue[] | undefined) => void"
+      }
+    ],
+    "slots": [],
+    "methods": []
+  },
+  "ECharts/index.vue": {
+    "props": [
+      {
+        "name": "option",
+        "description": "",
+        "type": "ECOption",
+        "required": true
+      },
+      {
+        "name": "renderer",
+        "description": "",
+        "type": "\"canvas\" | \"svg\"",
+        "required": false,
+        "default": "\"canvas\""
+      },
+      {
+        "name": "resize",
+        "description": "",
+        "type": "boolean",
+        "required": false,
+        "default": "true"
+      },
+      {
+        "name": "theme",
+        "description": "",
+        "type": "string | object",
+        "required": false
+      },
+      {
+        "name": "width",
+        "description": "",
+        "type": "string | number",
+        "required": false
+      },
+      {
+        "name": "height",
+        "description": "",
+        "type": "string | number",
+        "required": false
+      },
+      {
+        "name": "onClick",
+        "description": "",
+        "type": "((event: ECElementEvent) => any)",
+        "required": false
+      },
+      {
+        "name": "onMouseup",
+        "description": "",
+        "type": "((event: ECElementEvent) => any)",
+        "required": false
+      }
+    ],
+    "events": [],
+    "slots": [],
+    "methods": [
+      {
+        "name": "getInstance",
+        "description": "",
+        "type": "() => EChartsType | undefined"
+      },
+      {
+        "name": "resize",
+        "description": "重设图表尺寸，附带 300ms 过渡动画；可通过 resize 入参关闭。",
+        "type": "() => void"
+      },
+      {
+        "name": "draw",
+        "description": "按最新 option 全量重绘图表（notMerge 替换，避免残留旧系列配置）。",
+        "type": "() => void"
+      }
+    ]
+  },
+  "ErrorMessage/index.vue": {
+    "props": [
+      {
+        "name": "code",
+        "description": "HTTP 状态码。",
+        "type": "string",
+        "required": true
+      },
+      {
+        "name": "image",
+        "description": "状态插图地址。",
+        "type": "string",
+        "required": true
+      },
+      {
+        "name": "message",
+        "description": "用户提示文案。",
+        "type": "string",
+        "required": true
+      }
+    ],
+    "events": [],
+    "slots": [],
+    "methods": []
+  },
+  "Grid/components/GridItem.vue": {
+    "props": [
+      {
+        "name": "offset",
+        "description": "",
+        "type": "number",
+        "required": false,
+        "default": "0"
+      },
+      {
+        "name": "span",
+        "description": "",
+        "type": "number",
+        "required": false,
+        "default": "1"
+      },
+      {
+        "name": "suffix",
+        "description": "",
+        "type": "boolean",
+        "required": false,
+        "default": "false"
+      },
+      {
+        "name": "xs",
+        "description": "",
+        "type": "Responsive",
+        "required": false,
+        "default": "undefined"
+      },
+      {
+        "name": "sm",
+        "description": "",
+        "type": "Responsive",
+        "required": false,
+        "default": "undefined"
+      },
+      {
+        "name": "md",
+        "description": "",
+        "type": "Responsive",
+        "required": false,
+        "default": "undefined"
+      },
+      {
+        "name": "lg",
+        "description": "",
+        "type": "Responsive",
+        "required": false,
+        "default": "undefined"
+      },
+      {
+        "name": "xl",
+        "description": "",
+        "type": "Responsive",
+        "required": false,
+        "default": "undefined"
+      }
+    ],
+    "events": [],
+    "slots": [
+      {
+        "name": "default",
+        "description": "",
+        "type": "() => unknown"
+      }
+    ],
+    "methods": []
+  },
+  "Grid/index.vue": {
+    "props": [
+      {
+        "name": "cols",
+        "description": "",
+        "type": "number | Record<BreakPoint, number>",
+        "required": false,
+        "default": "() => ({ xs: 1, sm: 2, md: 2, lg: 3, xl: 4 })"
+      },
+      {
+        "name": "collapsed",
+        "description": "",
+        "type": "boolean",
+        "required": false,
+        "default": "false"
+      },
+      {
+        "name": "collapsedRows",
+        "description": "",
+        "type": "number",
+        "required": false,
+        "default": "1"
+      },
+      {
+        "name": "gap",
+        "description": "",
+        "type": "number | [number, number]",
+        "required": false,
+        "default": "0"
+      }
+    ],
+    "events": [],
+    "slots": [
+      {
+        "name": "default",
+        "description": "",
+        "type": "() => unknown"
+      }
+    ],
+    "methods": [
+      {
+        "name": "breakPoint",
+        "description": "",
+        "type": "BreakPoint"
+      }
+    ]
+  },
+  "ImportExcel/index.vue": {
+    "props": [],
+    "events": [],
+    "slots": [
+      {
+        "name": "empty",
+        "description": "",
+        "type": "() => unknown"
+      },
+      {
+        "name": "tip",
+        "description": "",
+        "type": "() => unknown"
+      }
+    ],
+    "methods": [
+      {
+        "name": "acceptParams",
+        "description": "",
+        "type": "(params: ExcelParameterProps) => void"
+      }
+    ]
+  },
+  "Loading/index.vue": {
+    "props": [],
+    "events": [],
+    "slots": [],
+    "methods": []
+  },
+  "LocaleSwitch/index.vue": {
+    "props": [],
+    "events": [],
+    "slots": [],
+    "methods": []
+  },
+  "MarkdownEditor/index.vue": {
+    "props": [
+      {
+        "name": "modelValue",
+        "description": "Markdown 原文。",
+        "type": "string",
+        "required": true
+      },
+      {
+        "name": "isDark",
+        "description": "是否使用暗色主题。",
+        "type": "boolean",
+        "required": false,
+        "default": "false"
+      },
+      {
+        "name": "height",
+        "description": "编辑器高度。",
+        "type": "string",
+        "required": false,
+        "default": "\"360px\""
+      },
+      {
+        "name": "placeholder",
+        "description": "输入占位文案。",
+        "type": "string",
+        "required": false,
+        "default": "\"\""
+      },
+      {
+        "name": "maxLength",
+        "description": "最大字符数。",
+        "type": "number",
+        "required": false,
+        "default": "undefined"
+      }
+    ],
+    "events": [
+      {
+        "name": "update:modelValue",
+        "description": "",
+        "type": "(value: string) => void"
+      }
+    ],
+    "slots": [],
+    "methods": []
+  },
+  "MarkdownPreview/index.vue": {
+    "props": [
+      {
+        "name": "modelValue",
+        "description": "Markdown 原文。",
+        "type": "string",
+        "required": true
+      },
+      {
+        "name": "isDark",
+        "description": "是否使用暗色主题。",
+        "type": "boolean",
+        "required": false,
+        "default": "false"
+      },
+      {
+        "name": "id",
+        "description": "预览根节点 ID。",
+        "type": "string",
+        "required": false,
+        "default": "\"\""
+      },
+      {
+        "name": "maxCodeHeight",
+        "description": "代码块最大高度。",
+        "type": "string",
+        "required": false,
+        "default": "\"480px\""
+      }
+    ],
+    "events": [],
+    "slots": [],
+    "methods": []
+  },
+  "Mfa/MfaRecoveryCodesDialog.vue": {
+    "props": [
+      {
+        "name": "modelValue",
+        "description": "弹窗显示状态。",
+        "type": "boolean",
+        "required": false,
+        "default": "false"
+      },
+      {
+        "name": "codes",
+        "description": "本次生成的一次性恢复码。",
+        "type": "string[]",
+        "required": false,
+        "default": "() => []"
+      }
+    ],
+    "events": [
+      {
+        "name": "update:modelValue",
+        "description": "",
+        "type": "(value: boolean) => void"
+      },
+      {
+        "name": "confirm",
+        "description": "",
+        "type": "() => void"
+      }
+    ],
+    "slots": [],
+    "methods": []
+  },
+  "Mfa/MfaSetupPanel.vue": {
+    "props": [
+      {
+        "name": "uri",
+        "description": "TOTP 绑定地址。",
+        "type": "string",
+        "required": true
+      }
+    ],
+    "events": [],
+    "slots": [],
+    "methods": []
+  },
+  "PasswordStrength/index.vue": {
+    "props": [
+      {
+        "name": "password",
+        "description": "当前密码值。",
+        "type": "string",
+        "required": false,
+        "default": "\"\""
+      },
+      {
+        "name": "tip",
+        "description": "底部提示文案。",
+        "type": "string",
+        "required": false,
+        "default": "\"\""
+      },
+      {
+        "name": "policy",
+        "description": "已知的密码策略；传入后直接用于摘要展示。",
+        "type": "CurrentPasswordPolicy",
+        "required": false,
+        "default": "undefined"
+      },
+      {
+        "name": "loadCurrentPolicy",
+        "description": "是否加载当前登录用户生效的密码策略。",
+        "type": "boolean",
+        "required": false,
+        "default": "false"
+      }
+    ],
+    "events": [],
+    "slots": [],
+    "methods": []
+  },
+  "ProForm/components/DynamicList.vue": {
+    "props": [
+      {
+        "name": "modelValue",
+        "description": "",
+        "type": "string[]",
+        "required": false,
+        "default": "() => []"
+      },
+      {
+        "name": "inputProps",
+        "description": "",
+        "type": "Record<string, any>",
+        "required": false,
+        "default": "() => ({})"
+      }
+    ],
+    "events": [
+      {
+        "name": "update:modelValue",
+        "description": "",
+        "type": "(value: string[]) => void"
+      }
+    ],
+    "slots": [],
+    "methods": []
+  },
+  "ProForm/components/KvList.vue": {
+    "props": [
+      {
+        "name": "modelValue",
+        "description": "",
+        "type": "KvItem[]",
+        "required": false,
+        "default": "() => []"
+      },
+      {
+        "name": "keyInputProps",
+        "description": "",
+        "type": "Record<string, any>",
+        "required": false,
+        "default": "() => ({})"
+      },
+      {
+        "name": "valueInputProps",
+        "description": "",
+        "type": "Record<string, any>",
+        "required": false,
+        "default": "() => ({})"
+      },
+      {
+        "name": "addText",
+        "description": "",
+        "type": "string",
+        "required": false,
+        "default": "\"\""
+      },
+      {
+        "name": "addButtonProps",
+        "description": "",
+        "type": "Record<string, any>",
+        "required": false,
+        "default": "() => ({})"
+      }
+    ],
+    "events": [
+      {
+        "name": "update:modelValue",
+        "description": "",
+        "type": "(value: KvItem[]) => void"
+      }
+    ],
+    "slots": [],
+    "methods": []
+  },
+  "ProForm/components/ProFormItem.vue": {
+    "props": [
+      {
+        "name": "field",
+        "description": "",
+        "type": "ProFormField",
+        "required": true
+      },
+      {
+        "name": "model",
+        "description": "",
+        "type": "Record<string, any>",
+        "required": true
+      }
+    ],
+    "events": [],
+    "slots": [
+      {
+        "name": "[field.suffixSlotName]",
+        "description": "动态具名插槽",
+        "type": "(scope: { field: unknown; model: unknown }) => unknown"
+      },
+      {
+        "name": "[field.slotName]",
+        "description": "动态具名插槽",
+        "type": "(scope: Record<string, unknown> & { field: unknown; model: unknown }) => unknown"
+      },
+      {
+        "name": "[field.slotName ?? field.prop]",
+        "description": "动态具名插槽",
+        "type": "(scope: { field: unknown; model: unknown }) => unknown"
+      }
+    ],
+    "methods": []
+  },
+  "ProForm/components/SecretInput.vue": {
+    "props": [
+      {
+        "name": "modelValue",
+        "description": "字段值。",
+        "type": "string",
+        "required": false
+      },
+      {
+        "name": "secret",
+        "description": "查看配置：声明后眼睛点击时按需拉取明文。",
+        "type": "boolean | ProFormSecretConfig",
+        "required": false
+      },
+      {
+        "name": "resource",
+        "description": "查看的资源标识。",
+        "type": "string",
+        "required": false
+      },
+      {
+        "name": "fieldName",
+        "description": "查看的字段名。",
+        "type": "string",
+        "required": false
+      },
+      {
+        "name": "recordId",
+        "description": "记录ID。",
+        "type": "number",
+        "required": false
+      },
+      {
+        "name": "configured",
+        "description": "是否已配置密钥。",
+        "type": "boolean",
+        "required": false
+      }
+    ],
+    "events": [
+      {
+        "name": "update:modelValue",
+        "description": "",
+        "type": "(value: string) => void"
+      }
+    ],
+    "slots": [],
+    "methods": []
+  },
+  "ProForm/index.vue": {
+    "props": [
+      {
+        "name": "model",
+        "description": "",
+        "type": "Record<string, any>",
+        "required": true
+      },
+      {
+        "name": "fields",
+        "description": "",
+        "type": "ProFormField[]",
+        "required": true
+      },
+      {
+        "name": "rules",
+        "description": "",
+        "type": "Partial<Record<string, Record<string, any> | Arrayable<FormItemRule>>>",
+        "required": false,
+        "default": "() => ({})"
+      },
+      {
+        "name": "labelWidth",
+        "description": "",
+        "type": "string",
+        "required": false,
+        "default": "\"6em\""
+      },
+      {
+        "name": "labelPosition",
+        "description": "",
+        "type": "ProFormLabelPosition",
+        "required": false,
+        "default": "\"right\""
+      },
+      {
+        "name": "gutter",
+        "description": "",
+        "type": "number",
+        "required": false,
+        "default": "20"
+      },
+      {
+        "name": "colSpan",
+        "description": "",
+        "type": "number",
+        "required": false,
+        "default": "24"
+      }
+    ],
+    "events": [],
+    "slots": [
+      {
+        "name": "[name: string]",
+        "description": "动态具名插槽",
+        "type": "(props: any) => any"
+      },
+      {
+        "name": "[slotName]",
+        "description": "动态具名插槽",
+        "type": "(scope: Record<string, unknown>) => unknown"
+      },
+      {
+        "name": "[field.suffixSlotName]",
+        "description": "动态具名插槽",
+        "type": "(scope: { model: unknown; field: unknown }) => unknown"
+      }
+    ],
+    "methods": [
+      {
+        "name": "validate",
+        "description": "校验表单。",
+        "type": "() => Promise<boolean>"
+      },
+      {
+        "name": "resetFields",
+        "description": "重置表单。",
+        "type": "() => void"
+      },
+      {
+        "name": "clearValidate",
+        "description": "清理表单校验状态。",
+        "type": "(props?: string | string[]) => void"
+      }
+    ]
+  },
+  "ProTable/components/ColSetting.vue": {
+    "props": [
+      {
+        "name": "colSetting",
+        "description": "",
+        "type": "ColumnProps<DefaultRow>[]",
+        "required": true
+      }
+    ],
+    "events": [],
+    "slots": [],
+    "methods": [
+      {
+        "name": "openColSetting",
+        "description": "打开列设置抽屉（由父组件通过 ref 调用）。",
+        "type": "() => void"
+      }
+    ]
+  },
+  "ProTable/components/Pagination.vue": {
+    "props": [
+      {
+        "name": "pageable",
+        "description": "",
+        "type": "Pageable",
+        "required": true
+      },
+      {
+        "name": "handleSizeChange",
+        "description": "",
+        "type": "(size: number) => void",
+        "required": true
+      },
+      {
+        "name": "handleCurrentChange",
+        "description": "",
+        "type": "(currentPage: number) => void",
+        "required": true
+      }
+    ],
+    "events": [],
+    "slots": [],
+    "methods": []
+  },
+  "ProTable/components/TableColumn.vue": {
+    "props": [
+      {
+        "name": "column",
+        "description": "",
+        "type": "ColumnProps<DefaultRow>",
+        "required": true
+      },
+      {
+        "name": "resolveAlign",
+        "description": "",
+        "type": "((column: ColumnProps) => TableAlign)",
+        "required": false
+      }
+    ],
+    "events": [],
+    "slots": [],
+    "methods": []
+  },
+  "ProTable/index.vue": {
+    "props": [
+      {
+        "name": "columns",
+        "description": "",
+        "type": "ColumnProps<DefaultRow>[]",
+        "required": false,
+        "default": "() => []"
+      },
+      {
+        "name": "headerActions",
+        "description": "",
+        "type": "HeaderActionProps<DefaultRow>[]",
+        "required": false,
+        "default": "() => []"
+      },
+      {
+        "name": "data",
+        "description": "",
+        "type": "any[]",
+        "required": false
+      },
+      {
+        "name": "requestApi",
+        "description": "",
+        "type": "((params: any) => Promise<any>)",
+        "required": false
+      },
+      {
+        "name": "requestAuto",
+        "description": "",
+        "type": "boolean",
+        "required": false,
+        "default": "true"
+      },
+      {
+        "name": "requestError",
+        "description": "",
+        "type": "((params: any) => void)",
+        "required": false
+      },
+      {
+        "name": "dataCallback",
+        "description": "",
+        "type": "((data: any) => any)",
+        "required": false
+      },
+      {
+        "name": "title",
+        "description": "",
+        "type": "string",
+        "required": false
+      },
+      {
+        "name": "pagination",
+        "description": "",
+        "type": "boolean",
+        "required": false,
+        "default": "true"
+      },
+      {
+        "name": "initParam",
+        "description": "",
+        "type": "any",
+        "required": false,
+        "default": "{}"
+      },
+      {
+        "name": "border",
+        "description": "",
+        "type": "boolean",
+        "required": false,
+        "default": "true"
+      },
+      {
+        "name": "toolButton",
+        "description": "",
+        "type": "boolean | (\"refresh\" | \"setting\" | \"search\")[]",
+        "required": false,
+        "default": "true"
+      },
+      {
+        "name": "rowKey",
+        "description": "",
+        "type": "string",
+        "required": false,
+        "default": "\"id\""
+      },
+      {
+        "name": "restoreSelectedRowKeys",
+        "description": "",
+        "type": "(string | number)[]",
+        "required": false,
+        "default": "() => []"
+      },
+      {
+        "name": "searchCol",
+        "description": "",
+        "type": "number | Record<BreakPoint, number>",
+        "required": false,
+        "default": "() => ({ xs: 1, sm: 2, md: 2, lg: 3, xl: 4 })"
+      }
+    ],
+    "events": [
+      {
+        "name": "search",
+        "description": "",
+        "type": "() => void"
+      },
+      {
+        "name": "reset",
+        "description": "",
+        "type": "() => void"
+      },
+      {
+        "name": "refresh",
+        "description": "",
+        "type": "() => void"
+      },
+      {
+        "name": "dragSort",
+        "description": "",
+        "type": "({ newIndex?: number; oldIndex?: number; }) => void"
+      }
+    ],
+    "slots": [
+      {
+        "name": "tableHeader",
+        "description": "",
+        "type": "(scope: { \"selected-list\": unknown; \"selected-list-ids\": unknown; \"is-selected\": unknown }) => unknown"
+      },
+      {
+        "name": "toolButton",
+        "description": "",
+        "type": "() => unknown"
+      },
+      {
+        "name": "default",
+        "description": "",
+        "type": "() => unknown"
+      },
+      {
+        "name": "[item.type]",
+        "description": "动态具名插槽",
+        "type": "(scope: Record<string, unknown>) => unknown"
+      },
+      {
+        "name": "[slot]",
+        "description": "动态具名插槽",
+        "type": "(scope: Record<string, unknown>) => unknown"
+      },
+      {
+        "name": "append",
+        "description": "",
+        "type": "() => unknown"
+      },
+      {
+        "name": "empty",
+        "description": "",
+        "type": "() => unknown"
+      },
+      {
+        "name": "pagination",
+        "description": "",
+        "type": "() => unknown"
+      }
+    ],
+    "methods": [
+      {
+        "name": "element",
+        "description": "",
+        "type": "TableInstance | undefined"
+      },
+      {
+        "name": "loading",
+        "description": "",
+        "type": "boolean"
+      },
+      {
+        "name": "tableData",
+        "description": "",
+        "type": "any[]"
+      },
+      {
+        "name": "radio",
+        "description": "",
+        "type": "string"
+      },
+      {
+        "name": "pageable",
+        "description": "",
+        "type": "{ page_num: number; page_size: number; total: number; }"
+      },
+      {
+        "name": "searchParam",
+        "description": "",
+        "type": "{ [key: string]: any; }"
+      },
+      {
+        "name": "searchInitParam",
+        "description": "",
+        "type": "{ [key: string]: any; }"
+      },
+      {
+        "name": "isSelected",
+        "description": "",
+        "type": "boolean"
+      },
+      {
+        "name": "selectedList",
+        "description": "",
+        "type": "any[]"
+      },
+      {
+        "name": "selectedListIds",
+        "description": "",
+        "type": "(string | number)[]"
+      },
+      {
+        "name": "getTableList",
+        "description": "请求表格数据；未启用跨刷新保留勾选时，同步清空随数据刷新而失效的多选状态。",
+        "type": "() => Promise<void>"
+      },
+      {
+        "name": "search",
+        "description": "",
+        "type": "() => void"
+      },
+      {
+        "name": "reset",
+        "description": "",
+        "type": "() => void"
+      },
+      {
+        "name": "handleSizeChange",
+        "description": "",
+        "type": "(val: number) => void"
+      },
+      {
+        "name": "handleCurrentChange",
+        "description": "",
+        "type": "(val: number) => void"
+      },
+      {
+        "name": "clearSelection",
+        "description": "",
+        "type": "() => void | undefined"
+      },
+      {
+        "name": "getTotal",
+        "description": "返回当前表格分页总数，供父组件读取统计数量。",
+        "type": "() => number"
+      },
+      {
+        "name": "enumMap",
+        "description": "",
+        "type": "Map<string, { [key: string]: any; }[]> & Omit<Map<string, { [key: string]: any; }[]>, keyof Map<any, any>>"
+      },
+      {
+        "name": "refreshEnums",
+        "description": "刷新表格列枚举，供外部筛选条件改变后重新加载关联选项。",
+        "type": "() => Promise<void>"
+      }
+    ]
+  },
+  "RichTextPreview/index.vue": {
+    "props": [
+      {
+        "name": "modelValue",
+        "description": "待展示的 HTML 内容。",
+        "type": "string",
+        "required": true
+      }
+    ],
+    "events": [],
+    "slots": [],
+    "methods": []
+  },
+  "SearchForm/components/SearchFormItem.vue": {
+    "props": [
+      {
+        "name": "column",
+        "description": "",
+        "type": "ColumnProps<DefaultRow>",
+        "required": true
+      },
+      {
+        "name": "searchParam",
+        "description": "",
+        "type": "{ [key: string]: any; }",
+        "required": true
+      }
+    ],
+    "events": [],
+    "slots": [
+      {
+        "name": "default",
+        "description": "",
+        "type": "() => unknown"
+      }
+    ],
+    "methods": []
+  },
+  "SearchForm/index.vue": {
+    "props": [
+      {
+        "name": "columns",
+        "description": "搜索配置列",
+        "type": "SearchColumn[]",
+        "required": false,
+        "default": "() => []"
+      },
+      {
+        "name": "searchParam",
+        "description": "搜索参数",
+        "type": "{ [key: string]: any; }",
+        "required": false,
+        "default": "() => ({})"
+      },
+      {
+        "name": "searchCol",
+        "description": "",
+        "type": "number | Record<BreakPoint, number>",
+        "required": true
+      },
+      {
+        "name": "search",
+        "description": "搜索方法",
+        "type": "(params: any) => void",
+        "required": true
+      },
+      {
+        "name": "reset",
+        "description": "重置方法",
+        "type": "(params: any) => void",
+        "required": true
+      },
+      {
+        "name": "showOperation",
+        "description": "是否展示搜索、重置等操作按钮",
+        "type": "boolean",
+        "required": false,
+        "default": "true"
+      }
+    ],
+    "events": [],
+    "slots": [
+      {
+        "name": "[resolveSearchSlotName(item)]",
+        "description": "动态具名插槽",
+        "type": "(scope: { field: unknown; model: unknown; column: unknown; \"search-param\": unknown; prop: unknown }) => unknown"
+      }
+    ],
+    "methods": []
+  },
+  "SelectFilter/index.vue": {
+    "props": [
+      {
+        "name": "data",
+        "description": "选择的列表数据",
+        "type": "SelectDataProps[]",
+        "required": false,
+        "default": "() => []"
+      },
+      {
+        "name": "defaultValues",
+        "description": "默认值",
+        "type": "{ [key: string]: any; }",
+        "required": false,
+        "default": "() => ({})"
+      }
+    ],
+    "events": [
+      {
+        "name": "change",
+        "description": "",
+        "type": "(value: any) => void"
+      }
+    ],
+    "slots": [
+      {
+        "name": "default",
+        "description": "",
+        "type": "(scope: { row: unknown }) => unknown"
+      }
+    ],
+    "methods": []
+  },
+  "SelectIcon/index.vue": {
+    "props": [
+      {
+        "name": "iconValue",
+        "description": "",
+        "type": "string",
+        "required": false,
+        "default": "\"\""
+      },
+      {
+        "name": "title",
+        "description": "",
+        "type": "string",
+        "required": false,
+        "default": "\"\""
+      },
+      {
+        "name": "clearable",
+        "description": "",
+        "type": "boolean",
+        "required": false,
+        "default": "true"
+      },
+      {
+        "name": "placeholder",
+        "description": "",
+        "type": "string",
+        "required": false,
+        "default": "\"\""
+      }
+    ],
+    "events": [
+      {
+        "name": "update:iconValue",
+        "description": "",
+        "type": "(value: string) => void"
+      }
+    ],
+    "slots": [],
+    "methods": []
+  },
+  "SvgIcon/index.vue": {
+    "props": [
+      {
+        "name": "iconClass",
+        "description": "图标名称",
+        "type": "string",
+        "required": true
+      },
+      {
+        "name": "prefix",
+        "description": "图标的前缀 ==> 非必传（默认为\"icon\"）",
+        "type": "string",
+        "required": false,
+        "default": "\"icon\""
+      },
+      {
+        "name": "size",
+        "description": "图标尺寸 ==> 非必传",
+        "type": "string | number",
+        "required": false,
+        "default": "\"\""
+      },
+      {
+        "name": "iconStyle",
+        "description": "图标的样式 ==> 非必传",
+        "type": "CSSProperties",
+        "required": false,
+        "default": "() => ({})"
+      }
+    ],
+    "events": [],
+    "slots": [],
+    "methods": []
+  },
+  "SwitchDark/index.vue": {
+    "props": [],
+    "events": [],
+    "slots": [],
+    "methods": []
+  },
+  "TenantSelect/index.vue": {
+    "props": [
+      {
+        "name": "modelValue",
+        "description": "当前选择的租户。",
+        "type": "string | number",
+        "required": false,
+        "default": "undefined"
+      },
+      {
+        "name": "options",
+        "description": "外部传入的租户选项。",
+        "type": "SelectOptionResponse_Option[]",
+        "required": false,
+        "default": "undefined"
+      },
+      {
+        "name": "loading",
+        "description": "是否显示加载状态。",
+        "type": "boolean",
+        "required": false,
+        "default": "false"
+      }
+    ],
+    "events": [
+      {
+        "name": "update:modelValue",
+        "description": "更新当前租户。",
+        "type": "(value: string | number | undefined) => void"
+      },
+      {
+        "name": "change",
+        "description": "租户发生变化。",
+        "type": "(value: string | number | undefined) => void"
+      }
+    ],
+    "slots": [],
+    "methods": []
+  },
+  "TenantText/index.vue": {
+    "props": [
+      {
+        "name": "tenantId",
+        "description": "租户ID。",
+        "type": "string | number",
+        "required": false
+      },
+      {
+        "name": "tenantName",
+        "description": "已知的租户名称。",
+        "type": "string",
+        "required": false
+      },
+      {
+        "name": "options",
+        "description": "外部传入的租户选项。",
+        "type": "SelectOptionResponse_Option[]",
+        "required": false
+      }
+    ],
+    "events": [],
+    "slots": [],
+    "methods": []
+  },
+  "TreeFilter/index.vue": {
+    "props": [
+      {
+        "name": "requestApi",
+        "description": "请求分类数据的 api ==> 非必传",
+        "type": "((data?: any) => Promise<any>)",
+        "required": false
+      },
+      {
+        "name": "data",
+        "description": "分类数据，如果有分类数据，则不会执行 api 请求 ==> 非必传",
+        "type": "{ [key: string]: any; }[]",
+        "required": false
+      },
+      {
+        "name": "title",
+        "description": "treeFilter 标题 ==> 非必传",
+        "type": "string",
+        "required": false
+      },
+      {
+        "name": "id",
+        "description": "选择的id ==> 非必传，默认为 “id”",
+        "type": "string",
+        "required": false,
+        "default": "\"id\""
+      },
+      {
+        "name": "label",
+        "description": "显示的label ==> 非必传，默认为 “label”",
+        "type": "string",
+        "required": false,
+        "default": "\"label\""
+      },
+      {
+        "name": "multiple",
+        "description": "是否为多选 ==> 非必传，默认为 false",
+        "type": "boolean",
+        "required": false,
+        "default": "false"
+      },
+      {
+        "name": "defaultValue",
+        "description": "默认选中的值 ==> 非必传",
+        "type": "any",
+        "required": false
+      },
+      {
+        "name": "showAll",
+        "description": "单选模式下是否展示“全部”节点 ==> 非必传，默认为 true",
+        "type": "boolean",
+        "required": false,
+        "default": "true"
+      },
+      {
+        "name": "lazy",
+        "description": "是否按节点懒加载子节点",
+        "type": "boolean",
+        "required": false,
+        "default": "false"
+      },
+      {
+        "name": "parentKey",
+        "description": "懒加载请求使用的父节点字段",
+        "type": "string",
+        "required": false,
+        "default": "\"parent_id\""
+      }
+    ],
+    "events": [
+      {
+        "name": "change",
+        "description": "",
+        "type": "(value: any) => void"
+      }
+    ],
+    "slots": [
+      {
+        "name": "default",
+        "description": "",
+        "type": "(scope: { row: unknown }) => unknown"
+      }
+    ],
+    "methods": [
+      {
+        "name": "treeData",
+        "description": "",
+        "type": "{ [key: string]: any }[]"
+      },
+      {
+        "name": "treeAllData",
+        "description": "",
+        "type": "{ [key: string]: any }[]"
+      },
+      {
+        "name": "treeRef",
+        "description": "",
+        "type": "InstanceType<typeof ElTree> | undefined"
+      }
+    ]
+  },
+  "Upload/File.vue": {
+    "props": [
+      {
+        "name": "fileInfo",
+        "description": "",
+        "type": "UploadUserFile",
+        "required": false,
+        "default": "undefined"
+      },
+      {
+        "name": "api",
+        "description": "",
+        "type": "((file: File) => Promise<FileInfo>)",
+        "required": false
+      },
+      {
+        "name": "disabled",
+        "description": "",
+        "type": "boolean",
+        "required": false,
+        "default": "false"
+      },
+      {
+        "name": "fileSize",
+        "description": "",
+        "type": "number",
+        "required": false,
+        "default": "20"
+      },
+      {
+        "name": "fileType",
+        "description": "",
+        "type": "string[]",
+        "required": false,
+        "default": "() => []"
+      },
+      {
+        "name": "uploadType",
+        "description": "",
+        "type": "string",
+        "required": false,
+        "default": "\"file\""
+      },
+      {
+        "name": "accessMode",
+        "description": "文件访问方式，默认需要访问令牌。",
+        "type": "BaseFileAccessMode",
+        "required": false,
+        "default": "BaseFileAccessMode.BASE_FILE_ACCESS_MODE_AUTHORIZED"
+      }
+    ],
+    "events": [
+      {
+        "name": "update:fileInfo",
+        "description": "",
+        "type": "(value: UploadUserFile | undefined) => void"
+      }
+    ],
+    "slots": [],
+    "methods": []
+  },
+  "Upload/Files.vue": {
+    "props": [
+      {
+        "name": "fileList",
+        "description": "",
+        "type": "UploadUserFile[]",
+        "required": false,
+        "default": "() => []"
+      },
+      {
+        "name": "api",
+        "description": "",
+        "type": "((file: File) => Promise<FileInfo>)",
+        "required": false
+      },
+      {
+        "name": "disabled",
+        "description": "",
+        "type": "boolean",
+        "required": false,
+        "default": "false"
+      },
+      {
+        "name": "limit",
+        "description": "",
+        "type": "number",
+        "required": false,
+        "default": "5"
+      },
+      {
+        "name": "fileSize",
+        "description": "",
+        "type": "number",
+        "required": false,
+        "default": "20"
+      },
+      {
+        "name": "fileType",
+        "description": "",
+        "type": "string[]",
+        "required": false,
+        "default": "() => []"
+      },
+      {
+        "name": "uploadType",
+        "description": "",
+        "type": "string",
+        "required": false,
+        "default": "\"file\""
+      },
+      {
+        "name": "accessMode",
+        "description": "文件访问方式，默认需要访问令牌。",
+        "type": "BaseFileAccessMode",
+        "required": false,
+        "default": "BaseFileAccessMode.BASE_FILE_ACCESS_MODE_AUTHORIZED"
+      }
+    ],
+    "events": [
+      {
+        "name": "update:fileList",
+        "description": "",
+        "type": "(value: UploadUserFile[]) => void"
+      }
+    ],
+    "slots": [],
+    "methods": []
+  },
+  "Upload/Img.vue": {
+    "props": [
+      {
+        "name": "imageUrl",
+        "description": "图片地址 ==> 必传",
+        "type": "string",
+        "required": false,
+        "default": "\"\""
+      },
+      {
+        "name": "api",
+        "description": "上传图片的 api 方法，默认使用当前文件服务 ==> 非必传",
+        "type": "((file: File) => Promise<FileInfo>)",
+        "required": false
+      },
+      {
+        "name": "uploadType",
+        "description": "",
+        "type": "string",
+        "required": false,
+        "default": "\"image\""
+      },
+      {
+        "name": "accessMode",
+        "description": "文件访问方式，默认需要访问令牌。",
+        "type": "BaseFileAccessMode",
+        "required": false,
+        "default": "BaseFileAccessMode.BASE_FILE_ACCESS_MODE_AUTHORIZED"
+      },
+      {
+        "name": "drag",
+        "description": "是否支持拖拽上传 ==> 非必传（默认为 true）",
+        "type": "boolean",
+        "required": false,
+        "default": "true"
+      },
+      {
+        "name": "disabled",
+        "description": "是否禁用上传组件 ==> 非必传（默认为 false）",
+        "type": "boolean",
+        "required": false,
+        "default": "false"
+      },
+      {
+        "name": "fileSize",
+        "description": "图片大小限制 ==> 非必传（默认为 5M）",
+        "type": "number",
+        "required": false,
+        "default": "5"
+      },
+      {
+        "name": "fileType",
+        "description": "图片类型限制 ==> 非必传（默认为 [\"image/jpeg\", \"image/png\", \"image/gif\"]）",
+        "type": "File.ImageMimeType[]",
+        "required": false,
+        "default": "() => [\"image/jpeg\", \"image/png\", \"image/gif\"]"
+      },
+      {
+        "name": "height",
+        "description": "组件高度 ==> 非必传（默认为 150px）",
+        "type": "string",
+        "required": false,
+        "default": "\"150px\""
+      },
+      {
+        "name": "width",
+        "description": "组件宽度 ==> 非必传（默认为 150px）",
+        "type": "string",
+        "required": false,
+        "default": "\"150px\""
+      },
+      {
+        "name": "borderRadius",
+        "description": "组件边框圆角 ==> 非必传（默认为全局圆角）",
+        "type": "string",
+        "required": false,
+        "default": "\"var(--admin-page-radius)\""
+      }
+    ],
+    "events": [
+      {
+        "name": "update:imageUrl",
+        "description": "",
+        "type": "(value: string) => void"
+      }
+    ],
+    "slots": [
+      {
+        "name": "empty",
+        "description": "",
+        "type": "() => unknown"
+      },
+      {
+        "name": "tip",
+        "description": "",
+        "type": "() => unknown"
+      }
+    ],
+    "methods": []
+  },
+  "Upload/Imgs.vue": {
+    "props": [
+      {
+        "name": "fileList",
+        "description": "",
+        "type": "UploadUserFile[]",
+        "required": false,
+        "default": "() => []"
+      },
+      {
+        "name": "api",
+        "description": "上传图片的 api 方法，默认使用当前文件服务 ==> 非必传",
+        "type": "((file: File) => Promise<FileInfo>)",
+        "required": false
+      },
+      {
+        "name": "uploadType",
+        "description": "",
+        "type": "string",
+        "required": false,
+        "default": "\"image\""
+      },
+      {
+        "name": "accessMode",
+        "description": "文件访问方式，默认需要访问令牌。",
+        "type": "BaseFileAccessMode",
+        "required": false,
+        "default": "BaseFileAccessMode.BASE_FILE_ACCESS_MODE_AUTHORIZED"
+      },
+      {
+        "name": "drag",
+        "description": "是否支持拖拽上传 ==> 非必传（默认为 true）",
+        "type": "boolean",
+        "required": false,
+        "default": "true"
+      },
+      {
+        "name": "disabled",
+        "description": "是否禁用上传组件 ==> 非必传（默认为 false）",
+        "type": "boolean",
+        "required": false,
+        "default": "false"
+      },
+      {
+        "name": "limit",
+        "description": "最大图片上传数 ==> 非必传（默认为 5张）",
+        "type": "number",
+        "required": false,
+        "default": "5"
+      },
+      {
+        "name": "fileSize",
+        "description": "图片大小限制 ==> 非必传（默认为 5M）",
+        "type": "number",
+        "required": false,
+        "default": "5"
+      },
+      {
+        "name": "fileType",
+        "description": "图片类型限制 ==> 非必传（默认为 [\"image/jpeg\", \"image/png\", \"image/gif\"]）",
+        "type": "File.ImageMimeType[]",
+        "required": false,
+        "default": "() => [\"image/jpeg\", \"image/png\", \"image/gif\"]"
+      },
+      {
+        "name": "height",
+        "description": "组件高度 ==> 非必传（默认为 150px）",
+        "type": "string",
+        "required": false,
+        "default": "\"150px\""
+      },
+      {
+        "name": "width",
+        "description": "组件宽度 ==> 非必传（默认为 150px）",
+        "type": "string",
+        "required": false,
+        "default": "\"150px\""
+      },
+      {
+        "name": "borderRadius",
+        "description": "组件边框圆角 ==> 非必传（默认为全局圆角）",
+        "type": "string",
+        "required": false,
+        "default": "\"var(--admin-page-radius)\""
+      }
+    ],
+    "events": [
+      {
+        "name": "update:fileList",
+        "description": "",
+        "type": "(value: UploadUserFile[]) => void"
+      }
+    ],
+    "slots": [
+      {
+        "name": "empty",
+        "description": "",
+        "type": "() => unknown"
+      },
+      {
+        "name": "tip",
+        "description": "",
+        "type": "() => unknown"
+      }
+    ],
+    "methods": []
+  },
+  "WangEditor/index.vue": {
+    "props": [
+      {
+        "name": "value",
+        "description": "富文本值 ==> 必传",
+        "type": "string",
+        "required": true
+      },
+      {
+        "name": "toolbarConfig",
+        "description": "工具栏配置 ==> 非必传（默认为空）",
+        "type": "Partial<IToolbarConfig>",
+        "required": false,
+        "default": "() => { return { excludeKeys: [] }; }"
+      },
+      {
+        "name": "editorConfig",
+        "description": "编辑器配置 ==> 非必传（默认为空）",
+        "type": "Partial<IEditorConfig>",
+        "required": false,
+        "default": "() => { return { MENU_CONF: {} }; }"
+      },
+      {
+        "name": "height",
+        "description": "富文本高度 ==> 非必传（默认为 500px）",
+        "type": "string",
+        "required": false,
+        "default": "\"500px\""
+      },
+      {
+        "name": "mode",
+        "description": "富文本模式 ==> 非必传（默认为 default）",
+        "type": "\"default\" | \"simple\"",
+        "required": false,
+        "default": "\"default\""
+      },
+      {
+        "name": "hideToolBar",
+        "description": "是否隐藏工具栏 ==> 非必传（默认为false）",
+        "type": "boolean",
+        "required": false,
+        "default": "false"
+      },
+      {
+        "name": "disabled",
+        "description": "是否禁用编辑器 ==> 非必传（默认为false）",
+        "type": "boolean",
+        "required": false,
+        "default": "false"
+      },
+      {
+        "name": "uploadType",
+        "description": "富文本上传业务类型 ==> 非必传（默认为 content）",
+        "type": "string",
+        "required": false,
+        "default": "\"content\""
+      }
+    ],
+    "events": [
+      {
+        "name": "update:value",
+        "description": "",
+        "type": "(value: string) => void"
+      },
+      {
+        "name": "check-validate",
+        "description": "",
+        "type": "() => void"
+      }
+    ],
+    "slots": [],
+    "methods": [
+      {
+        "name": "editor",
+        "description": "",
+        "type": "any"
+      }
+    ]
+  },
+  "YamlEditor/index.vue": {
+    "props": [
+      {
+        "name": "modelValue",
+        "description": "",
+        "type": "string",
+        "required": true
+      },
+      {
+        "name": "placeholderText",
+        "description": "",
+        "type": "string",
+        "required": false,
+        "default": "\"\""
+      },
+      {
+        "name": "minHeight",
+        "description": "",
+        "type": "string",
+        "required": false,
+        "default": "\"280px\""
+      },
+      {
+        "name": "maxHeight",
+        "description": "编辑器最大高度；内容超出后编辑器不再撑高页面，改为内部滚动。",
+        "type": "string",
+        "required": false,
+        "default": "undefined"
+      },
+      {
+        "name": "wrap",
+        "description": "是否默认开启自动换行，可通过工具栏切换。",
+        "type": "boolean",
+        "required": false,
+        "default": "true"
+      },
+      {
+        "name": "invalid",
+        "description": "",
+        "type": "boolean",
+        "required": false,
+        "default": "false"
+      },
+      {
+        "name": "lineLabel",
+        "description": "",
+        "type": "string",
+        "required": false,
+        "default": "\"lines\""
+      },
+      {
+        "name": "formatPosition",
+        "description": "根据光标行列生成状态栏文案。",
+        "type": "((line: number, column: number) => string)",
+        "required": false,
+        "default": "(line: number, column: number) => `Ln ${line}, Col ${column}`"
+      }
+    ],
+    "events": [
+      {
+        "name": "update:modelValue",
+        "description": "",
+        "type": "(value: string) => void"
+      }
+    ],
+    "slots": [],
+    "methods": []
+  }
+}

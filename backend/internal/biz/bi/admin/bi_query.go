@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/sha256"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"slices"
 	"sort"
@@ -27,6 +28,7 @@ import (
 	authData "github.com/liujitcn/kratos-kit/auth/data"
 	"github.com/liujitcn/kratos-kit/database/gorm"
 	"google.golang.org/protobuf/proto"
+	gormio "gorm.io/gorm"
 )
 
 const (
@@ -34,6 +36,9 @@ const (
 	biHardMaxLimit   int32 = 1000
 	biQueryTimeout         = 15 * time.Second
 	biMaxResultBytes       = 48 * 1024
+	biTimeLayout           = "2006-01-02 15:04:05"
+	// biDuplicateQueryWindow 是判定重复问数的回看窗口：模型在审批恢复后常会重复发起同参查询。
+	biDuplicateQueryWindow = time.Minute
 )
 
 // BiQueryCase 提供 BI 数据源目录、语义查询预览和自然语言问数。
@@ -160,11 +165,24 @@ chart_type 只支持 bar、line、area、pie、donut、scatter、radar、gauge�
 	if err != nil {
 		return nil, err
 	}
-	var result bi.QueryResult
-	executed = true
-	result, err = c.execute(ctx, scope, validated, recordContext)
+	var reusable *models.BiQuery
+	reusable, err = c.findReusableQueryRecord(ctx, scope, validated)
 	if err != nil {
-		return nil, err
+		return nil, errorsx.WrapInternal(err, "检查重复问数失败")
+	}
+	executed = true
+	var result bi.QueryResult
+	if reusable != nil {
+		// 审批恢复后模型常会重复发起同参问数，直接复用窗口内的成功结果，避免重复执行。
+		if err = json.Unmarshal([]byte(reusable.ResultSnapshot), &result); err != nil {
+			return nil, errorsx.Internal("读取重复问数结果失败").WithCause(err)
+		}
+		result.QueryRecordID = reusable.ID
+	} else {
+		result, err = c.execute(ctx, scope, validated, recordContext)
+		if err != nil {
+			return nil, err
+		}
 	}
 	// 保留符合真实结果结构的图型建议，无分组时仍允许仪表图。
 	fallback := "bar"
@@ -183,6 +201,29 @@ chart_type 只支持 bar、line、area、pie、donut、scatter、radar、gauge�
 		ChartType: output.ChartType,
 		Title:     output.Title,
 	}, nil
+}
+
+// findReusableQueryRecord 仅复用同一访问范围和查询计划的成功智能问数记录，排除普通预览与仪表盘执行。
+func (c *BiQueryCase) findReusableQueryRecord(ctx context.Context, scope bi.Scope, spec bi.QuerySpec) (*models.BiQuery, error) {
+	hash := biQueryHash(spec)
+	if hash == "" {
+		return nil, nil
+	}
+	query := c.biQueryRepo.Query(ctx).BiQuery
+	since := time.Now().Add(-biDuplicateQueryWindow)
+	opts := []repository.QueryOption{
+		repository.Where(query.TenantID.Eq(scope.TenantID), query.UserID.Eq(scope.UserID), query.ProjectID.Eq(scope.ProjectID),
+			query.QueryHash.Eq(hash), query.Status.Eq(int32(adminv1.BiQueryStatus_BI_QUERY_STATUS_SUCCESS)), query.Question.Neq(""), query.CreatedAt.Gt(since)),
+		repository.Order(query.ID.Desc()),
+	}
+	record, err := c.biQueryRepo.Find(ctx, opts...)
+	if errors.Is(err, gormio.ErrRecordNotFound) {
+		return nil, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+	return record, nil
 }
 
 // execute 执行语义查询，并将成功或失败统一写入查询记录。
@@ -204,10 +245,19 @@ func (c *BiQueryCase) execute(ctx context.Context, scope bi.Scope, spec bi.Query
 	defer cancel()
 	executionSpec := spec
 	if spec.TimeRange != nil {
+		var start, end string
+		start, err = resolveRelativeTime(spec.TimeRange.Start, startedAt)
+		if err != nil {
+			return bi.QueryResult{}, err
+		}
+		end, err = resolveRelativeTime(spec.TimeRange.End, startedAt)
+		if err != nil {
+			return bi.QueryResult{}, err
+		}
 		executionSpec.Filters = append(append([]bi.FilterSpec{}, spec.Filters...), bi.FilterSpec{
 			Field:    spec.TimeRange.Field,
 			Operator: "between",
-			Values:   []string{spec.TimeRange.Start, spec.TimeRange.End},
+			Values:   []string{start, end},
 		})
 		executionSpec.TimeRange = nil
 	}
@@ -254,15 +304,8 @@ func (c *BiQueryCase) recordQuery(ctx context.Context, scope bi.Scope, spec bi.Q
 	}
 	var err error
 	if spec.SourceCode != "" {
-		var payload []byte
-		payload, err = json.Marshal(spec)
-		if err != nil {
-			log.Error("序列化 BI 查询计划失败", "error", err)
-		} else {
-			record.QueryJSON = string(payload)
-			digest := sha256.Sum256(payload)
-			record.QueryHash = fmt.Sprintf("%x", digest[:])
-		}
+		record.QueryJSON = biQuerySpecJSON(spec)
+		record.QueryHash = biQueryHash(spec)
 	}
 	if queryErr != nil {
 		record.Status = int32(adminv1.BiQueryStatus_BI_QUERY_STATUS_FAILED)
@@ -603,4 +646,60 @@ func compareResultValues(left, right string) int {
 		}
 	}
 	return strings.Compare(left, right)
+}
+
+// resolveRelativeTime 将问数时间范围中的 now 相对表达式折叠为数据库可比较的绝对时间，
+// 支持 now、now-Nd/Nh/Nw/Nm；非相对表达式原样返回，形如 now-abc 的非法表达式显式报错，
+// 避免相对时间原样进入 SQL 比较后静默匹配不到任何数据。
+// biQuerySpecJSON 序列化查询计划，作为记录留痕与哈希计算的统一输入。
+func biQuerySpecJSON(spec bi.QuerySpec) string {
+	payload, err := json.Marshal(spec)
+	if err != nil {
+		log.Error("序列化 BI 查询计划失败", "error", err)
+		return ""
+	}
+	return string(payload)
+}
+
+// biQueryHash 计算查询计划的稳定哈希，用于识别重复问数。
+func biQueryHash(spec bi.QuerySpec) string {
+	payload := biQuerySpecJSON(spec)
+	if payload == "" {
+		return ""
+	}
+	digest := sha256.Sum256([]byte(payload))
+	return fmt.Sprintf("%x", digest[:])
+}
+
+// resolveRelativeTime 将问数时间范围中的 now 相对表达式折叠为数据库可比较的绝对时间，
+// 支持 now、now-Nd/Nh/Nw/Nm；非相对表达式原样返回，形如 now-abc 的非法表达式显式报错，
+// 避免相对时间原样进入 SQL 比较后静默匹配不到任何数据。
+func resolveRelativeTime(value string, now time.Time) (string, error) {
+	text := strings.TrimSpace(value)
+	if !strings.HasPrefix(strings.ToLower(text), "now") {
+		return text, nil
+	}
+	offset := strings.ToLower(strings.TrimSpace(text[3:]))
+	if offset == "" {
+		return now.Format(biTimeLayout), nil
+	}
+	if len(offset) < 3 || offset[0] != '-' {
+		return "", errorsx.InvalidArgument("BI 时间范围表达式无效: " + value)
+	}
+	amount, err := strconv.Atoi(offset[1 : len(offset)-1])
+	if err != nil {
+		return "", errorsx.InvalidArgument("BI 时间范围表达式无效: " + value)
+	}
+	switch offset[len(offset)-1] {
+	case 'd':
+		return now.AddDate(0, 0, -amount).Format(biTimeLayout), nil
+	case 'w':
+		return now.AddDate(0, 0, -7*amount).Format(biTimeLayout), nil
+	case 'm':
+		return now.AddDate(0, -amount, 0).Format(biTimeLayout), nil
+	case 'h':
+		return now.Add(-time.Duration(amount) * time.Hour).Format(biTimeLayout), nil
+	default:
+		return "", errorsx.InvalidArgument("BI 时间范围表达式无效: " + value)
+	}
 }

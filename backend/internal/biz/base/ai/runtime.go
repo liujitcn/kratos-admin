@@ -35,12 +35,13 @@ func NewRuntime(
 	}
 	return &Runtime{
 		Runtime: agent.NewRuntime(agent.RuntimeConfig{
-			CheckPointStore: checkPointStore,
-			ClientResolver:  modelRegistry,
-			Checker:         checker,
-			AdminTools:      toRuntimeTools(adminTools),
-			AppTools:        toRuntimeTools(appTools),
-			LocalizeMessage: localizeMessage,
+			CheckPointStore:    checkPointStore,
+			ClientResolver:     modelRegistry,
+			Checker:            checker,
+			AdminTools:         toRuntimeTools(adminTools),
+			AppTools:           toRuntimeTools(appTools),
+			LocalizeMessage:    localizeMessage,
+			ResponseBlocksHook: buildResponseBlocks,
 		}),
 		modelRegistry:   modelRegistry,
 		fixedFlows:      fixedFlowRegistry{flowNames: make(map[string]struct{})},

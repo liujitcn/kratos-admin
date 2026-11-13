@@ -106,6 +106,10 @@ frontend/admin
 
 `pnpm lint:stylelint` 显式使用根配置并排除未渲染的 CLI 模板和构建产物；现有源码样式错误需按独立清理任务处理。
 
+Demo 演示下新增“组件文档”，菜单组件为 `kratos-admin/demo/docs/index`，统一说明已启用模块的自定义组件（Core 46、System 14、BI 11）。总览默认每页 4 项，可切换 4 / 8 / 12 项；API 每页 6 行。详情支持本地演示、展开源码、API 和关联组件逐级返回，返回保留原筛选与页码。依赖真实业务上下文的组件提供接入代码与使用说明。
+
+各模块通过 `AdminModule.extensions[ADMIN_COMPONENT_DOCS]` 注册清单；Core 示例集中在 `src/views/demo/docs/examples/`，System / BI 示例保留在各自模块的 `src/demo/`，预览组件按需加载。调整组件公开参数后执行 `pnpm generate:component-docs`，通过源码生成各清单同目录的 `component-api.json`；`pnpm test:component-docs` 检查提取行为、组件覆盖和生成结果，已纳入 `pnpm test`。
+
 ```bash
 cd frontend/admin
 pnpm install

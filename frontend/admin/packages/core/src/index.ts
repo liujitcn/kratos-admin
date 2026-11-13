@@ -5,6 +5,7 @@ import "../types/generated/auto-imports.d.ts";
 import "../types/generated/components.d.ts";
 
 export * from "./modules";
+export * from "./demo";
 export * from "./locales";
 export { defLanguageService } from "./api/base/v1/language";
 export { setAdminDocumentTitle } from "./documentTitle";

@@ -1,0 +1,471 @@
+{
+  "AiModelSelector/index.vue": {
+    "props": [
+      {
+        "name": "modelProviders",
+        "description": "已启用的供应商及模型。",
+        "type": "AiProviderModelOption[]",
+        "required": true
+      },
+      {
+        "name": "providerId",
+        "description": "当前供应商编号。",
+        "type": "number",
+        "required": true
+      },
+      {
+        "name": "modelName",
+        "description": "当前模型名称。",
+        "type": "string",
+        "required": true
+      },
+      {
+        "name": "disabled",
+        "description": "选择器是否禁用。",
+        "type": "boolean",
+        "required": false,
+        "default": "false"
+      }
+    ],
+    "events": [
+      {
+        "name": "change",
+        "description": "更新当前供应商与模型。",
+        "type": "(providerId: number, modelName: string) => void"
+      }
+    ],
+    "slots": [],
+    "methods": []
+  },
+  "AiSessionPanel/index.vue": {
+    "props": [
+      {
+        "name": "active",
+        "description": "当前活动会话编号。",
+        "type": "string",
+        "required": true
+      },
+      {
+        "name": "keyword",
+        "description": "会话搜索关键词。",
+        "type": "string",
+        "required": true
+      },
+      {
+        "name": "sessions",
+        "description": "过滤后的会话列表。",
+        "type": "T[]",
+        "required": true
+      },
+      {
+        "name": "editable",
+        "description": "可隐藏记录编辑菜单，供只读问数历史复用。",
+        "type": "boolean",
+        "required": false
+      },
+      {
+        "name": "hideCollapse",
+        "description": "历史弹层不显示桌面折叠控件。",
+        "type": "boolean",
+        "required": false
+      },
+      {
+        "name": "title",
+        "description": "复用列表时提供当前业务的标题和搜索提示。",
+        "type": "string",
+        "required": false
+      },
+      {
+        "name": "searchPlaceholder",
+        "description": "",
+        "type": "string",
+        "required": false
+      }
+    ],
+    "events": [
+      {
+        "name": "update:active",
+        "description": "更新当前活动会话。",
+        "type": "(value: string) => void"
+      },
+      {
+        "name": "update:keyword",
+        "description": "更新搜索关键词。",
+        "type": "(value: string) => void"
+      },
+      {
+        "name": "change",
+        "description": "通知父组件会话已切换。",
+        "type": "(item: T) => void"
+      },
+      {
+        "name": "action",
+        "description": "会话操作菜单。",
+        "type": "(payload: { action: SessionAction; item: T; }) => void"
+      },
+      {
+        "name": "create",
+        "description": "创建新的会话。",
+        "type": "() => void"
+      },
+      {
+        "name": "toggleCollapse",
+        "description": "收起会话栏。",
+        "type": "() => void"
+      }
+    ],
+    "slots": [
+      {
+        "name": "navigation",
+        "description": "",
+        "type": "() => unknown"
+      },
+      {
+        "name": "session-meta",
+        "description": "",
+        "type": "(scope: { item: unknown }) => unknown"
+      }
+    ],
+    "methods": []
+  },
+  "account/ChangePasswordForm.vue": {
+    "props": [],
+    "events": [],
+    "slots": [],
+    "methods": []
+  },
+  "account/ForcedPasswordDialog.vue": {
+    "props": [],
+    "events": [],
+    "slots": [],
+    "methods": []
+  },
+  "ai/Ai.vue": {
+    "props": [],
+    "events": [],
+    "slots": [],
+    "methods": []
+  },
+  "api/ApiTransfer.vue": {
+    "props": [
+      {
+        "name": "options",
+        "description": "API 选项列表。",
+        "type": "ApiTransferOption[]",
+        "required": true
+      },
+      {
+        "name": "titles",
+        "description": "左右面板标题。",
+        "type": "string[]",
+        "required": true
+      },
+      {
+        "name": "panelHeight",
+        "description": "穿梭框面板高度。",
+        "type": "number",
+        "required": false,
+        "default": "360"
+      },
+      {
+        "name": "modelValue",
+        "description": "双向绑定值",
+        "type": "string[]",
+        "required": true
+      }
+    ],
+    "events": [
+      {
+        "name": "update:modelValue",
+        "description": "更新双向绑定值",
+        "type": "(value: string[]) => void"
+      }
+    ],
+    "slots": [
+      {
+        "name": "default",
+        "description": "",
+        "type": "(props: { option: ApiTransferOption; }) => unknown"
+      }
+    ],
+    "methods": []
+  },
+  "i18n/DynamicI18nCell.vue": {
+    "props": [
+      {
+        "name": "source",
+        "description": "",
+        "type": "string",
+        "required": true
+      },
+      {
+        "name": "targetKey",
+        "description": "",
+        "type": "string",
+        "required": false
+      },
+      {
+        "name": "targetId",
+        "description": "",
+        "type": "number",
+        "required": false
+      },
+      {
+        "name": "i18ns",
+        "description": "",
+        "type": "BaseI18n[]",
+        "required": false
+      },
+      {
+        "name": "editable",
+        "description": "",
+        "type": "boolean",
+        "required": false,
+        "default": "true"
+      }
+    ],
+    "events": [],
+    "slots": [],
+    "methods": []
+  },
+  "i18n/DynamicI18nEditor.vue": {
+    "props": [
+      {
+        "name": "modelValue",
+        "description": "",
+        "type": "DynamicI18nValue[]",
+        "required": true
+      },
+      {
+        "name": "source",
+        "description": "",
+        "type": "string",
+        "required": false,
+        "default": "\"\""
+      },
+      {
+        "name": "maxlength",
+        "description": "",
+        "type": "number",
+        "required": false,
+        "default": "100"
+      },
+      {
+        "name": "multiline",
+        "description": "",
+        "type": "boolean",
+        "required": false,
+        "default": "false"
+      },
+      {
+        "name": "disabled",
+        "description": "",
+        "type": "boolean",
+        "required": false,
+        "default": "false"
+      },
+      {
+        "name": "readonly",
+        "description": "",
+        "type": "boolean",
+        "required": false,
+        "default": "false"
+      }
+    ],
+    "events": [
+      {
+        "name": "update:modelValue",
+        "description": "",
+        "type": "(value: DynamicI18nValue[]) => void"
+      }
+    ],
+    "slots": [
+      {
+        "name": "trigger",
+        "description": "",
+        "type": "(scope: { open: unknown }) => unknown"
+      }
+    ],
+    "methods": []
+  },
+  "log/LogTable.vue": {
+    "props": [
+      {
+        "name": "config",
+        "description": "",
+        "type": "LogTableConfig",
+        "required": true
+      }
+    ],
+    "events": [],
+    "slots": [],
+    "methods": [
+      {
+        "name": "handleOpenDialog",
+        "description": "打开审计详情弹窗。",
+        "type": "(id: string) => Promise<void>"
+      },
+      {
+        "name": "proTable",
+        "description": "",
+        "type": "ProTableInstance | undefined"
+      }
+    ]
+  },
+  "notification/Notification.vue": {
+    "props": [],
+    "events": [],
+    "slots": [],
+    "methods": []
+  },
+  "tenant-project-grant/ProjectGrantDialog.vue": {
+    "props": [],
+    "events": [],
+    "slots": [],
+    "methods": [
+      {
+        "name": "open",
+        "description": "打开指定主体的授权表单，目标租户切换后重新加载直接授权。",
+        "type": "(type: BaseTenantProjectGrantSubjectType, id: number, tenantId: number) => Promise<void>"
+      }
+    ]
+  },
+  "tenant-project/TenantProjectManager.vue": {
+    "props": [
+      {
+        "name": "extraColumns",
+        "description": "追加到基础列表的表格列，可通过 after 指定插入位置。",
+        "type": "TenantProjectExtraColumn[]",
+        "required": false,
+        "default": "() => []"
+      },
+      {
+        "name": "extraActions",
+        "description": "追加到基础操作列的业务操作。",
+        "type": "TenantProjectAction[]",
+        "required": false,
+        "default": "() => []"
+      },
+      {
+        "name": "loadExtraData",
+        "description": "加载当前页外部业务字段。",
+        "type": "TenantProjectExtraDataLoader",
+        "required": false
+      }
+    ],
+    "events": [
+      {
+        "name": "extra-data-error",
+        "description": "外部业务字段加载失败。",
+        "type": "(error: unknown) => void"
+      }
+    ],
+    "slots": [
+      {
+        "name": "[slotName]",
+        "description": "动态具名插槽",
+        "type": "(scope: Record<string, unknown> & { \"tenant-project\": unknown }) => unknown"
+      }
+    ],
+    "methods": [
+      {
+        "name": "refresh",
+        "description": "刷新项目列表。",
+        "type": "() => Promise<void>"
+      },
+      {
+        "name": "getTableList",
+        "description": "兼容表格实例的刷新方法名称。",
+        "type": "() => Promise<void>"
+      }
+    ]
+  },
+  "tenant-project/TenantProjectSelect.vue": {
+    "props": [
+      {
+        "name": "modelValue",
+        "description": "当前选中的租户项目。",
+        "type": "TenantProjectSelection",
+        "required": false,
+        "default": "undefined"
+      },
+      {
+        "name": "options",
+        "description": "外部传入的租户项目树。",
+        "type": "TreeBaseTenantProjectResponse_Option[]",
+        "required": false,
+        "default": "undefined"
+      }
+    ],
+    "events": [
+      {
+        "name": "update:modelValue",
+        "description": "更新租户项目选择。",
+        "type": "(value: TenantProjectSelection | undefined) => void"
+      },
+      {
+        "name": "change",
+        "description": "租户项目选择变化。",
+        "type": "(value: TenantProjectSelection | undefined) => void"
+      }
+    ],
+    "slots": [],
+    "methods": []
+  },
+  "tenant-project/TenantProjectText.vue": {
+    "props": [
+      {
+        "name": "row",
+        "description": "包含租户和项目字段的列表行。",
+        "type": "Record<string, any>",
+        "required": false,
+        "default": "() => ({})"
+      },
+      {
+        "name": "projectId",
+        "description": "仅传项目 ID 时使用的项目 ID。",
+        "type": "number",
+        "required": false,
+        "default": "undefined"
+      },
+      {
+        "name": "tenantId",
+        "description": "仅传项目 ID 时使用的租户 ID。",
+        "type": "number",
+        "required": false,
+        "default": "undefined"
+      },
+      {
+        "name": "resourceLabelKey",
+        "description": "二级资源名称国际化键，默认使用项目。",
+        "type": "string",
+        "required": false,
+        "default": "\"common.field.project\""
+      },
+      {
+        "name": "projectField",
+        "description": "项目名称字段。",
+        "type": "string",
+        "required": false,
+        "default": "\"project_name\""
+      },
+      {
+        "name": "tenantField",
+        "description": "租户名称字段。",
+        "type": "string",
+        "required": false,
+        "default": "\"tenant_name\""
+      },
+      {
+        "name": "tenantOptions",
+        "description": "租户选项，用于只有租户ID时解析名称。",
+        "type": "SelectOptionResponse_Option[]",
+        "required": false,
+        "default": "() => []"
+      }
+    ],
+    "events": [],
+    "slots": [],
+    "methods": []
+  }
+}
