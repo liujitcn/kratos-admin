@@ -90,7 +90,7 @@ onLoad((query) => {
 <style lang="scss">
 .protocol-page {
   min-height: 100vh;
-  padding: 0 24rpx 24rpx;
+  padding: 0 20rpx 24rpx;
   box-sizing: border-box;
   background: var(--kratos-bg-gradient);
 }

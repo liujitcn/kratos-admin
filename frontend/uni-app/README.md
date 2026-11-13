@@ -96,6 +96,8 @@ export const moduleManifest = [coreModule, systemModule]
 
 自定义顶部导航统一使用 core 的 `KratosNavBar`：普通页、tabBar 页和有无操作按钮共用相同标题栏高度，组件负责安全区、返回行为、按钮尺寸与微信胶囊避让。新页面只传标题和操作，外层不要重复添加顶部安全区或导航栏高度；具体用法见 [通用顶部导航](packages/core/README.md#通用顶部导航)。
 
+登录页同样复用公共导航栏，通过 `action` 命名插槽保留原生语言选择。H5 系统弹窗的外层页面保持透明，遮罩下继续显示来源页面；确认框尺寸和排版与 Taro H5 保持一致。
+
 System 的 `KratosMyPage` 负责个人信息、AI 助手和顶部设置入口；默认“我的”页面保留空的 `extensions` 扩展区，当前宿主不预置其他业务卡片。页面覆盖规则见 [system 个人中心扩展](packages/modules/system/README.md#个人中心扩展)。
 
 公共设置页通过 `KratosSettingsPage` 的 `extensions` 和 `security` 插槽扩展页面顶部与账户安全分组；System 的修改密码入口仅在 H5 装配，并调用 Base 账户安全服务。

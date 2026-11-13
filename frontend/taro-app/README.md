@@ -61,6 +61,8 @@ core 不依赖 UI 或业务模块；system 只通过 core 和 UI 的公开 expor
 
 自定义顶部导航统一使用 core 的 `KratosNavBar`：普通页、tabBar 页和有无操作按钮共用相同标题栏高度，组件负责安全区、返回行为、按钮尺寸与微信胶囊避让。新页面只传标题和操作，外层不要重复添加顶部安全区或导航栏高度；具体用法见 [通用顶部导航](packages/core/README.md#通用顶部导航)。
 
+登录页传入空标题复用公共导航栏，通过 React `children` 操作插槽保留原生语言选择，返回按钮与其他页面使用相同布局。
+
 System 的 `KratosMyPage` 负责个人信息、AI 助手和顶部设置入口；默认“我的”页面保留空的 children 扩展区，当前宿主不预置其他业务卡片。页面覆盖规则见 [system 个人中心扩展](packages/modules/system/README.md#个人中心扩展)。
 
 异常退出后，下次命令会根据 `.kratos-taro-app-pages-state.json` 自动恢复。H5 和微信小程序开发进程可以同时持有同一份页面装配事务；所有进程退出后，runner 才恢复宿主文件。开发产物分别写入 `dist/dev/h5` 和 `dist/dev/mp-weixin`，生产默认写入 `dist/build/h5` 和 `dist/build/mp-weixin`；显式设置 `KRATOS_TARO_OUTPUT_ROOT` 时优先使用该目录。

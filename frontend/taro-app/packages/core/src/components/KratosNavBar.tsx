@@ -1,6 +1,6 @@
 import { Image, Text, View } from '@tarojs/components'
 import Taro from '@tarojs/taro'
-import type { CSSProperties } from 'react'
+import type { CSSProperties, ReactNode } from 'react'
 import { useI18n } from '../locales'
 import { useThemeStore } from '../stores'
 import { getMpCapsuleRightGap } from '../utils'
@@ -29,6 +29,8 @@ export interface KratosNavBarProps {
   back?: boolean
   /** 可选的页面操作按钮。 */
   action?: KratosNavBarAction
+  /** 自定义操作区，传入时替代 action 默认按钮。 */
+  children?: ReactNode
   /** 自定义返回操作；不传时返回上一页，失败后回到首页。 */
   onBack?: () => void
 }
@@ -41,11 +43,15 @@ const iconPaths: Record<string, string> = {
 }
 
 /** KratosNavBar 统一页面标题、返回与操作按钮，并处理安全区和微信胶囊避让。 */
-export default function KratosNavBar({ title, variant = 'page', back, action, onBack }: KratosNavBarProps) {
+export default function KratosNavBar({ title, variant = 'page', back, action, children, onBack }: KratosNavBarProps) {
   const { t } = useI18n()
   const themeStore = useThemeStore()
   const capsuleGap = getMpCapsuleRightGap()
-  const navStyle = { '--kratos-nav-bar-capsule-gap': `${capsuleGap}px` } as CSSProperties
+  const statusBarHeight = process.env.TARO_ENV === 'weapp' ? Taro.getWindowInfo().statusBarHeight : 0
+  const navStyle = {
+    '--kratos-nav-bar-capsule-gap': `${capsuleGap}px`,
+    '--kratos-nav-bar-status-bar-height': `${statusBarHeight}px`,
+  } as CSSProperties
   const showBack = back ?? variant === 'page'
   const iconPath = action?.icon ? iconPaths[action.icon] : undefined
   const color = themeStore.colors.text
@@ -75,12 +81,12 @@ export default function KratosNavBar({ title, variant = 'page', back, action, on
           <View className='kratos-nav-bar__button kratos-nav-bar__back' aria-label={t('common.action.back')} onClick={goBack} />
         )}
         <View className='kratos-nav-bar__title'>{title}</View>
-        {action && (
+        {children ?? (action && (
           <View className={`kratos-nav-bar__button kratos-nav-bar__action${showActionLabel ? ' kratos-nav-bar__action--label' : ''}`} aria-label={action.label} onClick={action.onClick}>
             {showActionIcon && <Image className='kratos-nav-bar__icon' src={actionIcon} mode='aspectFit' aria-hidden='true' />}
             {showActionLabel && <Text className='kratos-nav-bar__label'>{action.label}</Text>}
           </View>
-        )}
+        ))}
       </View>
     </View>
   )

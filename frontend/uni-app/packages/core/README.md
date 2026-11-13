@@ -75,6 +75,10 @@ registerThemeColors({
 
 所有自定义顶部导航统一使用公开组件 `KratosNavBar`，页面只提供标题和业务操作，不再定义导航高度、安全区、标题居中、按钮尺寸或微信胶囊避让。普通页与 tabBar 页的标题栏使用相同高度，按钮显隐不会改变标题位置。页面外层只维护水平与底部留白，顶部留白由组件处理；tabBar 页的导航栏还统一预留内容间距。
 
+导航内容区固定为 `44px`，上方仅保留设备安全区；微信小程序读取实际状态栏高度。标题和按钮在内容区垂直居中，按钮为 `28px`，导航内字号与图标均使用逻辑像素，避免随屏宽缩放后超出导航栏。此尺寸规范与 Taro 共用。
+
+登录页传入空标题并复用同一导航栏，返回按钮与资料、设置页的位置一致。`action` 命名插槽可以放置原生 picker 等操作控件，并替代 `action` 属性对应的默认按钮；插槽内容负责自身的右侧对齐和微信胶囊避让。
+
 ```vue
 <script setup lang="ts">
 import KratosNavBar from '@liujitcn/kratos-uni-app-core/components/KratosNavBar.uvue'

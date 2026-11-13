@@ -13,42 +13,36 @@ page {
   box-sizing: border-box;
 }
 
-/* 自绘头部：左返回（复用 k-ic）、右上角语言（复用 k-lg-lang），替代原生导航栏 */
+/* 页面维护固定定位和水平留白，导航高度、安全区和返回按钮由公共组件负责。 */
 .login-header {
   position: fixed;
   top: 0;
   right: 0;
   left: 0;
   z-index: 3;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  height: 44PX;
-  padding: env(safe-area-inset-top) 20px 0;
-  box-sizing: content-box;
-}
-
-/* #ifdef weapp */
-.login-header {
-  /* 右上角避让小程序胶囊 */
-  padding-right: 220px;
-}
-/* #endif */
-
-/* k-ic 已提供方形图标按钮视觉，这里只补字号以容纳返回符号 */
-.login-back {
-  font-size: 36px;
-  line-height: 1;
+  padding: 0 20px;
+  box-sizing: border-box;
 }
 
 .login-locale {
+  margin-left: auto;
   max-width: calc(100% - 120px);
+}
+
+.kratos-nav-bar--weapp .login-locale {
+  margin-left: 0;
+  max-width: calc(100% - 28PX - 8PX - var(--kratos-nav-bar-capsule-gap));
 }
 
 /* k-lg-lang 已提供视觉样式，这里只补多语言文案的截断处理 */
 .login-locale__value {
-  max-width: 240px;
+  min-height: 28PX;
+  height: 28PX;
+  max-width: 120PX;
+  padding: 0 12PX;
   overflow: hidden;
+  font-size: 11PX;
+  line-height: 14PX;
   text-overflow: ellipsis;
   white-space: nowrap;
 }

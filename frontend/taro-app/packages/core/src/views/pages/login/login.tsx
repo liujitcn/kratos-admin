@@ -14,6 +14,7 @@ import { encryptPassword } from '../../../utils/secretCrypto'
 import { createWebAuthnCredential, getWebAuthnAssertion } from '../../../utils/webauthn'
 import MfaRecoveryCodesDialog from '../../../components/MfaRecoveryCodesDialog'
 import MfaSetupPanel from '../../../components/MfaSetupPanel'
+import KratosNavBar from '../../../components/KratosNavBar'
 import BehaviorCaptcha from './components/BehaviorCaptcha'
 import type { BehaviorCaptchaData, BehaviorCaptchaPoint } from './components/types'
 import './login.scss'
@@ -613,26 +614,25 @@ export default function LoginPage() {
   return (
     <View className={`login-page ${themeStore.theme === 'light' ? 'theme-light' : 'theme-dark'}`}>
       <View className='login-header'>
-        <View className='k-ic login-back' aria-hidden onClick={goBack}>
-          ‹
-        </View>
-        <Picker
-          className='login-locale'
-          mode='selector'
-          range={languageOptions.map((item) => item.native_name)}
-          value={Math.max(
-            0,
-            languageOptions.findIndex((item) => item.language_code === locale),
-          )}
-          onChange={(event) => {
-            const nextLocale = languageOptions[Number(event.detail.value)]?.language_code as
-              | SupportedLocale
-              | undefined
-            if (nextLocale) void setLocale(nextLocale)
-          }}
-        >
-          <View className='k-lg-lang login-locale__value'>{currentLanguageName}</View>
-        </Picker>
+        <KratosNavBar title='' onBack={goBack}>
+          <Picker
+            className='login-locale'
+            mode='selector'
+            range={languageOptions.map((item) => item.native_name)}
+            value={Math.max(
+              0,
+              languageOptions.findIndex((item) => item.language_code === locale),
+            )}
+            onChange={(event) => {
+              const nextLocale = languageOptions[Number(event.detail.value)]?.language_code as
+                | SupportedLocale
+                | undefined
+              if (nextLocale) void setLocale(nextLocale)
+            }}
+          >
+            <View className='k-lg-lang login-locale__value'>{currentLanguageName}</View>
+          </Picker>
+        </KratosNavBar>
       </View>
       <View className='login-hero'>
         <View className='k-lg-logo login-logo-shell'>

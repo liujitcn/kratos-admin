@@ -1,7 +1,7 @@
 .kratos-nav-bar {
   flex-shrink: 0;
   box-sizing: border-box;
-  padding-top: calc(env(safe-area-inset-top) + 24px);
+  padding-top: env(safe-area-inset-top);
 }
 
 .kratos-nav-bar--tab {
@@ -12,20 +12,20 @@
   position: relative;
   display: flex;
   align-items: center;
-  gap: 16px;
-  height: 76px;
+  gap: 8PX;
+  height: 44PX;
 }
 
 .kratos-nav-bar__title {
   position: absolute;
   top: 50%;
   left: 50%;
-  max-width: calc(100% - 190px);
+  max-width: calc(100% - 95PX);
   overflow: hidden;
   color: var(--kratos-color-text);
-  font-size: 32px;
+  font-size: 16PX;
   font-weight: 400;
-  line-height: 44px;
+  line-height: 22PX;
   text-overflow: ellipsis;
   white-space: nowrap;
   transform: translate(-50%, -50%);
@@ -33,12 +33,12 @@
 
 .kratos-nav-bar__button {
   display: flex;
-  flex: 0 0 76px;
+  flex: 0 0 28PX;
   align-items: center;
   justify-content: center;
   box-sizing: border-box;
-  width: 76px;
-  height: 76px;
+  width: 28PX;
+  height: 28PX;
   border: 1PX solid var(--kratos-color-border);
   border-radius: var(--kratos-page-radius);
   background: var(--kratos-color-surface);
@@ -48,8 +48,8 @@
 
 .kratos-nav-bar__back::before {
   display: block;
-  width: 16px;
-  height: 16px;
+  width: 8PX;
+  height: 8PX;
   border-left: 2PX solid var(--kratos-color-primary);
   border-bottom: 2PX solid var(--kratos-color-primary);
   content: '';
@@ -62,35 +62,31 @@
 
 .kratos-nav-bar__action--label {
   flex: 0 1 auto;
-  gap: 10px;
-  min-width: 76px;
-  max-width: calc(50% - 48px);
+  gap: 5PX;
+  min-width: 28PX;
+  max-width: calc(50% - 24PX);
   width: auto;
-  padding: 0 20px;
+  padding: 0 10PX;
 }
 
 .kratos-nav-bar__icon {
   flex-shrink: 0;
   display: block;
-  width: 34px;
-  height: 34px;
+  width: 17PX;
+  height: 17PX;
 }
 
 .kratos-nav-bar__label {
   min-width: 0;
   overflow: hidden;
-  font-size: 22px;
-  line-height: 28px;
+  font-size: 11PX;
+  line-height: 14PX;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .kratos-nav-bar--weapp {
-  padding-top: 44PX;
-
-  .kratos-nav-bar__row {
-    height: 88px;
-  }
+  padding-top: var(--kratos-nav-bar-status-bar-height);
 
   /* 原生胶囊占据右侧，操作按钮与返回按钮统一放在左侧。 */
   .kratos-nav-bar__action {
@@ -98,6 +94,6 @@
   }
 
   .kratos-nav-bar__title {
-    max-width: calc(100% - 190px - var(--kratos-nav-bar-capsule-gap));
+    max-width: calc(100% - 95PX - var(--kratos-nav-bar-capsule-gap));
   }
 }

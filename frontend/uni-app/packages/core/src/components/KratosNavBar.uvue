@@ -15,6 +15,7 @@ const props = withDefaults(defineProps<KratosNavBarProps>(), {
 const { t } = useI18n()
 const themeStore = useThemeStore()
 const capsuleGap = getMpCapsuleRightGap()
+const statusBarHeight = uni.getWindowInfo().statusBarHeight
 const showBack = computed(() => props.back ?? props.variant === 'page')
 const iconPaths: Record<string, string> = {
   settings:
@@ -47,7 +48,10 @@ function goBack() {
   <view
     class="kratos-nav-bar"
     :class="{ 'kratos-nav-bar--tab': variant === 'tab' }"
-    :style="{ '--kratos-nav-bar-capsule-gap': `${capsuleGap}px` }"
+    :style="{
+      '--kratos-nav-bar-capsule-gap': `${capsuleGap}px`,
+      '--kratos-nav-bar-status-bar-height': `${statusBarHeight}px`,
+    }"
   >
     <view class="kratos-nav-bar__row">
       <view
@@ -59,22 +63,24 @@ function goBack() {
         <view class="kratos-nav-bar__back-icon" aria-hidden="true" />
       </view>
       <text class="kratos-nav-bar__title">{{ title }}</text>
-      <view
-        v-if="action"
-        class="kratos-nav-bar__button kratos-nav-bar__action"
-        :class="{ 'kratos-nav-bar__action--label': showActionLabel }"
-        :aria-label="action.label"
-        @tap="action.onClick"
-      >
-        <image
-          v-if="showActionIcon"
-          class="kratos-nav-bar__icon"
-          :src="actionIcon"
-          mode="aspectFit"
-          aria-hidden="true"
-        />
-        <text v-if="showActionLabel" class="kratos-nav-bar__label">{{ action.label }}</text>
-      </view>
+      <slot name="action">
+        <view
+          v-if="action"
+          class="kratos-nav-bar__button kratos-nav-bar__action"
+          :class="{ 'kratos-nav-bar__action--label': showActionLabel }"
+          :aria-label="action.label"
+          @tap="action.onClick"
+        >
+          <image
+            v-if="showActionIcon"
+            class="kratos-nav-bar__icon"
+            :src="actionIcon"
+            mode="aspectFit"
+            aria-hidden="true"
+          />
+          <text v-if="showActionLabel" class="kratos-nav-bar__label">{{ action.label }}</text>
+        </view>
+      </slot>
     </view>
   </view>
 </template>
@@ -83,7 +89,7 @@ function goBack() {
 .kratos-nav-bar {
   flex-shrink: 0;
   box-sizing: border-box;
-  padding-top: calc(env(safe-area-inset-top) + 24rpx);
+  padding-top: env(safe-area-inset-top);
 }
 
 .kratos-nav-bar--tab {
@@ -95,20 +101,20 @@ function goBack() {
   display: flex;
   flex-direction: row;
   align-items: center;
-  gap: 16rpx;
-  height: 76rpx;
+  gap: 8px;
+  height: 44px;
 }
 
 .kratos-nav-bar__title {
   position: absolute;
   top: 50%;
   left: 50%;
-  max-width: calc(100% - 190rpx);
+  max-width: calc(100% - 95px);
   overflow: hidden;
   color: var(--kratos-color-text);
-  font-size: 32rpx;
+  font-size: 16px;
   font-weight: 400;
-  line-height: 44rpx;
+  line-height: 22px;
   text-overflow: ellipsis;
   white-space: nowrap;
   transform: translate(-50%, -50%);
@@ -117,12 +123,12 @@ function goBack() {
 .kratos-nav-bar__button {
   display: flex;
   flex-direction: row;
-  flex: 0 0 var(--kratos-control-height, 56rpx);
+  flex: 0 0 28px;
   align-items: center;
   justify-content: center;
   box-sizing: border-box;
-  width: var(--kratos-control-height, 56rpx);
-  height: var(--kratos-control-height, 56rpx);
+  width: 28px;
+  height: 28px;
   border: 1px solid var(--kratos-color-border);
   border-radius: var(--kratos-page-radius);
   background: var(--kratos-color-surface);
@@ -132,8 +138,8 @@ function goBack() {
 
 .kratos-nav-bar__back-icon {
   display: block;
-  width: 16rpx;
-  height: 16rpx;
+  width: 8px;
+  height: 8px;
   border-left: 2px solid var(--kratos-color-primary);
   border-bottom: 2px solid var(--kratos-color-primary);
   transform: rotate(45deg);
@@ -145,36 +151,32 @@ function goBack() {
 
 .kratos-nav-bar__action--label {
   flex: 0 1 auto;
-  gap: 10rpx;
-  min-width: var(--kratos-control-height, 56rpx);
-  max-width: calc(50% - 48rpx);
+  gap: 5px;
+  min-width: 28px;
+  max-width: calc(50% - 24px);
   width: auto;
-  padding: 0 20rpx;
+  padding: 0 10px;
 }
 
 .kratos-nav-bar__icon {
   flex-shrink: 0;
   display: block;
-  width: 34rpx;
-  height: 34rpx;
+  width: 17px;
+  height: 17px;
 }
 
 .kratos-nav-bar__label {
   min-width: 0;
   overflow: hidden;
-  font-size: 22rpx;
-  line-height: 28rpx;
+  font-size: 11px;
+  line-height: 14px;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 /* #ifdef MP-WEIXIN */
 .kratos-nav-bar {
-  padding-top: 44px;
-}
-
-.kratos-nav-bar__row {
-  height: 88rpx;
+  padding-top: var(--kratos-nav-bar-status-bar-height);
 }
 
 /* 原生胶囊占据右侧，操作按钮与返回按钮统一放在左侧。 */
@@ -183,7 +185,7 @@ function goBack() {
 }
 
 .kratos-nav-bar__title {
-  max-width: calc(100% - 190rpx - var(--kratos-nav-bar-capsule-gap));
+  max-width: calc(100% - 95px - var(--kratos-nav-bar-capsule-gap));
 }
 /* #endif */
 </style>

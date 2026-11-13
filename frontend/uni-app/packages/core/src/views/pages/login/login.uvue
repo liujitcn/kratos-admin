@@ -16,6 +16,7 @@ import { navigateAppRoute } from '../../../navigation'
 import { getLanguageOptions, useI18n, type SupportedLocale } from '../../../locales'
 import MfaRecoveryCodesDialog from '../../../components/MfaRecoveryCodesDialog.uvue'
 import MfaSetupPanel from '../../../components/MfaSetupPanel.uvue'
+import KratosNavBar from '../../../components/KratosNavBar.uvue'
 
 // go-captcha-uni 仅在 H5 端使用，小程序端不支持 defineAsyncComponent，需按平台裁剪。
 // #ifdef H5
@@ -914,21 +915,18 @@ onUnload(() => {
 <template>
   <view class="login-page" :class="themeStore.themeClass">
     <view class="login-header">
-      <view
-        class="k-ic login-back"
-        :aria-label="t('common.action.back')"
-        @tap="goBack"
-      >
-        <view class="login-back-icon" aria-hidden="true" />
-      </view>
-      <picker
-        class="login-locale"
-        :range="localeLabels"
-        :value="localeIndex"
-        @change="onLocaleChange"
-      >
-        <text class="k-lg-lang login-locale__value">{{ localeLabels[localeIndex] }}</text>
-      </picker>
+      <KratosNavBar title="" :on-back="goBack">
+        <template #action>
+          <picker
+            class="login-locale"
+            :range="localeLabels"
+            :value="localeIndex"
+            @change="onLocaleChange"
+          >
+            <text class="k-lg-lang login-locale__value">{{ localeLabels[localeIndex] }}</text>
+          </picker>
+        </template>
+      </KratosNavBar>
     </view>
     <view class="login-hero">
       <view class="k-lg-logo login-logo-shell">
@@ -1207,51 +1205,38 @@ onUnload(() => {
   }
 }
 
-/* 自绘头部：左返回（复用 k-ic）、右上角语言（复用 k-lg-lang），替代原生导航栏 */
+/* 固定定位与水平留白由页面维护，安全区、返回按钮和行高统一复用公共导航栏。 */
 .login-header {
   position: fixed;
   top: 0;
   right: 0;
   left: 0;
   z-index: 3;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-  height: calc(env(safe-area-inset-top) + 24rpx + 76rpx);
-  padding: calc(env(safe-area-inset-top) + 24rpx) 20rpx 0;
+  padding: 0 20rpx;
   box-sizing: border-box;
 }
 
-/* #ifdef MP-WEIXIN */
-.login-header {
-  /* 右上角避让小程序胶囊 */
-  padding-right: 220rpx;
-}
-/* #endif */
-
-/* k-ic 已提供方形图标按钮视觉，返回箭头与公共导航栏保持一致。 */
-.login-back {
-  flex-shrink: 0;
-}
-
-.login-back-icon {
-  display: block;
-  width: 16rpx;
-  height: 16rpx;
-  border-bottom: 2px solid var(--kratos-color-primary);
-  border-left: 2px solid var(--kratos-color-primary);
-  transform: rotate(45deg);
-}
-
 .login-locale {
+  margin-left: auto;
   max-width: calc(100% - 120rpx);
 }
 
+/* #ifdef MP-WEIXIN */
+.login-locale {
+  margin-left: 0;
+  max-width: calc(100% - 28px - 8px - var(--kratos-nav-bar-capsule-gap));
+}
+/* #endif */
+
 /* k-lg-lang 已提供视觉样式，这里只补多语言文案的截断处理 */
 .login-locale__value {
-  max-width: 240rpx;
+  min-height: 28px;
+  height: 28px;
+  max-width: 120px;
+  padding: 0 12px;
   overflow: hidden;
+  font-size: 11px;
+  line-height: 14px;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
