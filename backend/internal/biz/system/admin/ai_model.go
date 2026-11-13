@@ -380,10 +380,18 @@ func chatModelConfig(provider *models.AiProvider, item *models.AiModel) (*modelc
 	if chatConfig.APIType == "RESPONSES" {
 		apiType = modelconfig.APITypeResponses
 	}
+	// 供应商 config 支持 stream=false 关闭流式：聚合网关的流式协议存在双发与
+	// 混组兼容问题时改为非流式调用，未配置时缺省保持流式。
+	disableStreaming := false
+	if streamRaw, ok := config.AsMap()["stream"]; ok {
+		enabled, _ := streamRaw.(bool)
+		disableStreaming = !enabled
+	}
 	return &modelconfig.ModelConfig{
 		Provider: modelconfig.Provider(provider.Provider), ModelName: item.ModelName, APIKey: provider.APIKey,
 		BaseURL: provider.BaseURL, Organization: organization, Temperature: chatConfig.Temperature, MaxTokens: chatConfig.MaxTokens,
 		TimeoutSeconds: chatConfig.TimeoutSeconds, MaxRetries: chatConfig.MaxRetries, APIType: apiType,
+		DisableStreaming: disableStreaming,
 	}, nil
 }
 

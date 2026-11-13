@@ -22,7 +22,9 @@ import (
 )
 
 // defaultMaxIterations 限制单轮 Agent 的模型与工具循环次数，避免工具调用链异常时拖垮请求。
-const defaultMaxIterations = 4
+// 聚合网关的 tool_search 元工具检索会占用多个前置轮次，工具执行后仍需总结轮，
+// 上限过低会在工具结果就绪后耗尽轮次导致整轮失败。
+const defaultMaxIterations = 8
 
 // maxCheckpointInputBytes 为快照重复保存上下文及模型、工具输出预留空间。
 const maxCheckpointInputBytes = 28 * 1024 * 1024
@@ -72,8 +74,12 @@ type Request struct {
 	LocalizeMessage func(context.Context, string, map[string]any, string) string
 	// ModelOptions 是传给底层 Eino 模型的请求选项。
 	ModelOptions []model.Option
-	// Stream 是否启用模型流式输出。
+	// Stream 表示本次调用是否处于 SSE 流式场景，控制文本增量透传；模型实际调用
+	// 方式由 ModelStreaming 独立控制，禁用流式的供应商仍可整段透传文本。
 	Stream bool
+	// ModelStreaming 表示是否启用模型流式调用（ADK EnableStreaming）。供应商被
+	// 禁用流式时应为 false，此时由非流式事件兜底整段透传文本。
+	ModelStreaming bool
 	// OnDelta 用户可见文本增量回调。
 	OnDelta func(string)
 }
@@ -134,9 +140,9 @@ func (r *Runner) Run(ctx context.Context, request Request) (*Result, error) {
 	runner := adk.NewTypedRunner(adk.TypedRunnerConfig[*schema.AgenticMessage]{
 		Agent:           agent,
 		CheckPointStore: r.checkPointStore,
-		// Responses 的服务端工具事件与文本块可能混合返回，统一由 Runner 消费事件，避免
-		// ADK 自动合并时丢失工具事件。
-		EnableStreaming: request.Stream,
+		// 流式输出经模型层的 normalizeAgenticStream 归一化（混合块重排为顺序流式标记），
+		// ADK 内部合并不会再因混合块序列失败；工具事件由 Runner 统一消费透传。
+		EnableStreaming: request.ModelStreaming,
 	})
 	runOptions := []adk.AgentRunOption{adk.WithCallbacks(callback.NewHandler())}
 	if len(request.ModelOptions) > 0 {
@@ -306,6 +312,9 @@ func consumeMessageStream(
 	chunks := make([]*schema.AgenticMessage, 0)
 	reasoningText := make(map[int]string)
 	answerStarted := false
+	// 透传开关在流开始时确定：部分网关先发完整消息事件（已整段透传），后续流式 chunk 不再重复透传；
+	// 正常流式网关在本流内逐 chunk 透传，不受此开关影响。
+	deltaDisabled := streamText.Len() > 0
 	for {
 		chunk, err := reader.Recv()
 		// io.EOF 是正常流结束信号，不应作为模型调用错误返回。
@@ -328,7 +337,7 @@ func consumeMessageStream(
 		emitToolActivities(ctx, chunk)
 		emitReasoningSummary(ctx, chunk, reasoningText)
 		// 只有处于 SSE 模式、chunk 属于助手文本且不包含工具调用时，才向前端透传。
-		if !stream || onDelta == nil || chunk.Role != schema.AgenticRoleTypeAssistant || hasToolCall(chunk) {
+		if !stream || onDelta == nil || deltaDisabled || chunk.Role != schema.AgenticRoleTypeAssistant || hasToolCall(chunk) {
 			continue
 		}
 		text := message.AITextOnly(chunk)

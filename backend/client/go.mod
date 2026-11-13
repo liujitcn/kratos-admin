@@ -4,8 +4,8 @@ go 1.27.3
 
 require (
 	github.com/go-kratos/kratos/v3 v3.0.0
-	github.com/liujitcn/kratos-admin/backend/api v0.0.33
-	github.com/liujitcn/kratos-core/client v0.0.18
+	github.com/liujitcn/kratos-admin/backend/api v0.0.34
+	github.com/liujitcn/kratos-core/client v0.0.19
 	github.com/liujitcn/kratos-kit/api v0.0.44
 )
 

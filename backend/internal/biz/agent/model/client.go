@@ -14,6 +14,7 @@ import (
 	"github.com/cloudwego/eino/components/model"
 	"github.com/cloudwego/eino/schema"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/securityconfig"
+	kitaiEino "github.com/liujitcn/kratos-kit/ai/eino"
 	modelconfig "github.com/liujitcn/kratos-kit/ai/model"
 	"github.com/openai/openai-go/v3"
 	"github.com/openai/openai-go/v3/option"
@@ -107,7 +108,9 @@ func NewAssistantClientWithName(modelCfg *modelconfig.ModelConfig, name string) 
 	if client.name == "" {
 		client.name = modelCfg.ModelName
 	}
-	client.AgenticModel = agenticModel
+	// 聚合网关的流式协议存在双发与混组兼容问题时按配置回退非流式调用。
+	client.DisableStreaming = modelCfg.DisableStreaming
+	client.AgenticModel = kitaiEino.NewNormalizedAgenticModel(agenticModel)
 	return client
 }
 
@@ -117,6 +120,9 @@ type AssistantClient struct {
 	name       string
 	apiType    modelconfig.APIType
 	fileClient *openai.Client
+	// DisableStreaming 表示该供应商是否禁用流式输出；聚合网关存在流式协议兼容
+	// 问题（双发、混组）时置 true，改为非流式调用并整段透传。默认零值即启用流式。
+	DisableStreaming bool
 }
 
 // Enabled 判断 AI 助手模型客户端是否可用。

@@ -292,8 +292,11 @@ func (r *Runtime) runADK(
 		Recorder:         recorder,
 		LocalizeMessage:  r.localizeMessage,
 		ModelOptions:     modelOptions,
-		Stream:           stream,
-		OnDelta:          onDelta,
+		// Stream 控制 SSE 增量透传意图；ModelStreaming 控制模型实际调用方式，
+		// 禁用流式的供应商（聚合网关流式协议不兼容）回退非流式调用并整段透传。
+		Stream:         stream,
+		ModelStreaming: stream && !client.DisableStreaming,
+		OnDelta:        onDelta,
 	})
 	if err == nil && result != nil && len(result.Pending) == 0 && len(einoMessage.ToolCalls(result.Message)) == 0 && hasUnparsedToolCall(result.Message) {
 		return nil, recorder, fmt.Errorf("model returned an unparsed tool call")
@@ -384,7 +387,10 @@ func (r *Runtime) buildMessages(ctx context.Context, input RuntimeInput, client 
 		if item.Content == "" {
 			continue
 		}
-		historyMessage := einoMessage.TextByRole(item.Role, item.Content)
+		historyMessage := historyMessageWithImages(item)
+		if historyMessage == nil {
+			historyMessage = einoMessage.TextByRole(item.Role, item.Content)
+		}
 		if historyMessage == nil {
 			continue
 		}
@@ -396,6 +402,27 @@ func (r *Runtime) buildMessages(ctx context.Context, input RuntimeInput, client 
 	}
 	messages = append(messages, r.buildUserMessage(ctx, input, client))
 	return messages
+}
+
+// historyMessageWithImages 把携带图片字节的历史用户消息构造为多模态消息，
+// 使多轮追问时模型仍能看到最近一张图片；无图片字节时返回 nil 走纯文本构造。
+func historyMessageWithImages(item Message) *einoMessage.AgenticMessage {
+	if item.Role != RoleUser {
+		return nil
+	}
+	images := make([]einoMessage.ImageData, 0, len(item.Attachments))
+	attachmentLines := make([]string, 0, len(item.Attachments))
+	for _, attachment := range item.Attachments {
+		if len(attachment.Bytes) == 0 {
+			continue
+		}
+		images = append(images, einoMessage.ImageData{Bytes: attachment.Bytes, MIMEType: attachment.MIMEType})
+		attachmentLines = append(attachmentLines, attachment.Name)
+	}
+	if len(images) == 0 {
+		return nil
+	}
+	return buildUserMessageParts(item.Content, attachmentLines, images, nil, "")
 }
 
 // enabledToolInfos 按 base_api.agent_status 过滤当前终端可暴露给 Agent 的工具。

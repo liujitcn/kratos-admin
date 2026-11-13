@@ -453,7 +453,9 @@ func (c *AiMessageCase) buildHistory(ctx context.Context, tenantID int64, sessio
 	if err != nil {
 		return nil, err
 	}
-	return buildHistoryFromMessages(list), nil
+	history := buildHistoryFromMessages(list)
+	c.fillLatestHistoryImageBytes(ctx, history)
+	return history, nil
 }
 
 // regenerateAiMessage 使用已有输入重新生成当前轮次输出。
@@ -578,7 +580,9 @@ func (c *AiMessageCase) buildHistoryBeforeMessage(ctx context.Context, tenantID 
 	if err != nil {
 		return nil, err
 	}
-	return buildHistoryFromMessages(list), nil
+	history := buildHistoryFromMessages(list)
+	c.fillLatestHistoryImageBytes(ctx, history)
+	return history, nil
 }
 
 // generateAiReply 生成当前消息的 AI 助手回复。
@@ -1339,8 +1343,9 @@ func buildHistoryFromMessages(list []*models.AiMessage) []ai.Message {
 		input := ai.ParseInputContent(item.InputContent)
 		if input.Content != "" {
 			history = append(history, ai.Message{
-				Role:    ai.RoleUser,
-				Content: input.Content,
+				Role:        ai.RoleUser,
+				Content:     input.Content,
+				Attachments: historyImageAttachments(item.Attachments),
 			})
 		}
 		output := ai.ParseOutputContent(item.OutputContent)
@@ -1354,6 +1359,47 @@ func buildHistoryFromMessages(list []*models.AiMessage) []ai.Message {
 		}
 	}
 	return history
+}
+
+// historyImageAttachments 解析用户历史消息的图片附件元数据，供多模态上下文挑选。
+func historyImageAttachments(raw string) []ai.Attachment {
+	images := make([]ai.Attachment, 0)
+	for _, item := range ai.ParseAttachments(raw) {
+		if item == nil || !strings.HasPrefix(item.MimeType, "image/") {
+			continue
+		}
+		images = append(images, ai.Attachment{Name: item.Name, Size: item.Size, URL: item.Url, MIMEType: item.MimeType})
+	}
+	if len(images) == 0 {
+		return nil
+	}
+	return images
+}
+
+// fillLatestHistoryImageBytes 将最近一条带图用户消息的图片字节读入历史上下文，
+// 使多轮追问时模型仍能看到该图片；更早的历史图片不再重传，其信息已沉淀在历史回复文本中。
+func (c *AiMessageCase) fillLatestHistoryImageBytes(ctx context.Context, history []ai.Message) {
+	for index := len(history) - 1; index >= 0; index-- {
+		item := history[index]
+		if item.Role != ai.RoleUser || len(item.Attachments) == 0 {
+			continue
+		}
+		for i := range item.Attachments {
+			attachment := item.Attachments[i]
+			objectPath, err := objectFilePath(attachment.URL)
+			if err != nil {
+				continue
+			}
+			content, err := c.OSS.GetFileByte(objectPath)
+			if err != nil {
+				log.Warn("读取历史对话图片失败，本轮多模态上下文将缺少该图片", "url", attachment.URL, "error", err)
+				continue
+			}
+			attachment.Bytes = content
+			item.Attachments[i] = attachment
+		}
+		return
+	}
 }
 
 // durationMilliseconds 计算两个时间点之间的毫秒数。

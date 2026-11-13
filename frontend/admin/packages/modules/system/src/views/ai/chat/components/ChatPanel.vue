@@ -73,8 +73,8 @@
     </template>
 
     <template v-else>
-      <div class="agent-chat-content">
-        <BubbleList class="agent-message-list" :list="bubbleList" max-height="100%" :auto-scroll="true">
+      <div ref="chatContentRef" class="agent-chat-content">
+        <BubbleList ref="bubbleRef" class="agent-message-list" :list="bubbleList" max-height="100%" :auto-scroll="true">
           <template #content="{ item }">
             <div class="agent-message-body" :class="{ 'is-user': item.role === 'user' }">
               <div
@@ -116,7 +116,8 @@
                     <ArrowDown />
                   </el-icon>
                 </button>
-                <div v-if="isActivityExpanded(item)" class="agent-message-activity__list">
+                <!-- 只有一个活动时标题行已完整表达，不再渲染展开列表避免同文案两行。 -->
+                <div v-if="isActivityExpanded(item) && (item.activities?.length ?? 0) > 1" class="agent-message-activity__list">
                   <div v-for="activity in item.activities" :key="activity.id" class="agent-message-activity__item">
                     <span class="agent-message-activity__item-icon" :class="resolveActivityStatusClass(activity.status)">
                       <el-icon :class="{ 'is-loading': activity.status === 'running' }"><Loading v-if="activity.status === 'running'" /><Check v-else /></el-icon>
@@ -229,7 +230,7 @@
                   </el-collapse>
                 </div>
                 <template v-else-if="item.role !== 'user'">
-                  <AiMarkdown :content="item.content" :streaming="item.progressState === 'streaming'" />
+                  <AiMarkdown v-if="!isThinkingPlaceholder(item)" :content="item.content" :streaming="item.progressState === 'streaming'" />
                   <slot name="flow-blocks" :message="item" :active-flow-message-id="activeFlowMessageID" />
                   <el-collapse v-if="item.fallback_reason" class="agent-message-error__detail" accordion>
                     <el-collapse-item :title="t('system.ai.chat.title.error_detail')" :name="String(item.id)">
@@ -238,7 +239,6 @@
                   </el-collapse>
                 </template>
                 <span v-else>{{ item.content }}</span>
-                <span v-if="item.progressState === 'streaming'" class="agent-thinking-dots"> <i></i><i></i><i></i> </span>
               </div>
               <div v-if="item.attachments?.length && item.role === 'user'" class="agent-message-attachments">
                 <Attachments :items="buildMessageAttachmentItems(item.attachments)" overflow="wrap" :hide-upload="true" />
@@ -452,7 +452,7 @@
 </template>
 
 <script setup lang="ts" name="ChatPanel">
-import { computed, defineAsyncComponent, h, nextTick, ref } from "vue";
+import { computed, defineAsyncComponent, h, nextTick, ref, watch } from "vue";
 import type { Component, ObjectDirective } from "vue";
 import { Attachments, BubbleList } from "vue-element-plus-x";
 import type { FilesCardProps } from "vue-element-plus-x/types/FilesCard";
@@ -638,6 +638,28 @@ const emit = defineEmits<{
 }>();
 
 const isEmptyState = computed(() => props.messages.length === 0);
+
+const bubbleRef = ref<{ scrollToBottom: (smooth?: boolean) => void } | null>(null);
+const chatContentRef = ref<HTMLElement | null>(null);
+
+// 流式跟随：高频分片输出会让组件内自动跟随状态失效，内容更新时若用户处于底部附近则主动滚动到最新内容。
+watch(
+  () => {
+    const last = bubbleList.value[bubbleList.value.length - 1];
+    if (!last || last.role === "user") return "";
+    const activities = last.activities ?? [];
+    return `${last.key}:${last.content?.length ?? 0}:${activities.length}:${activities[activities.length - 1]?.status ?? ""}`;
+  },
+  async () => {
+    await nextTick();
+    const container = chatContentRef.value?.querySelector<HTMLElement>(".agent-message-list .el-bubble-list__list");
+    if (!container) return;
+    const distanceToBottom = container.scrollHeight - container.scrollTop - container.clientHeight;
+    // 用户上翻阅读历史时不强行拉回，交还给组件自身的回到底部交互。
+    if (distanceToBottom > 240) return;
+    bubbleRef.value?.scrollToBottom(false);
+  }
+);
 
 const senderKey = computed(() => props.activeSession?.id || "empty-session");
 
@@ -948,6 +970,11 @@ function toggleActivity(item: ChatMessageItem) {
 /** 判断消息是否仍有进行中的活动。 */
 function hasRunningActivity(item: ChatMessageItem) {
   return (item.activities ?? []).some(activity => activity.status === "running");
+}
+
+/** 判断流式消息是否仍停留在“正在整理回复”占位文案：此时处理过程行与首条增量会接管展示，正文占位与三点动画一并隐藏。 */
+function isThinkingPlaceholder(item: ChatMessageItem) {
+  return item.progressState === "streaming" && item.content === t("system.ai.chat.message.thinking");
 }
 
 /** 返回活动时间线顶部摘要。 */
@@ -1751,27 +1778,6 @@ function formatAttachmentSize(size?: number): string {
     background: var(--el-fill-color-blank);
     border: 1px solid var(--el-border-color-light);
     border-radius: var(--admin-page-radius);
-  }
-}
-.agent-thinking-dots {
-  display: inline-flex;
-  flex: 0 0 auto;
-  gap: 4px;
-  align-items: center;
-  color: var(--admin-page-text-secondary);
-  i {
-    display: inline-block;
-    width: 6px;
-    height: 6px;
-    background: currentcolor;
-    border-radius: 50%;
-    animation: thinking-bounce 1.2s infinite ease-in-out;
-  }
-  i:nth-child(2) {
-    animation-delay: 0.15s;
-  }
-  i:nth-child(3) {
-    animation-delay: 0.3s;
   }
 }
 .agent-message-attachments {

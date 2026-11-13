@@ -73,6 +73,9 @@ type Message struct {
 	Content string `json:"content"`
 	// Tools 当前历史轮次实际使用过的工具，仅用于短追问时延续候选工具。
 	Tools []ToolUsage `json:"tools"`
+	// Attachments 用户历史消息携带的图片附件；仅最近一条带图用户消息的字节会被
+	// 填充并作为多模态输入，避免逐轮重传全部历史图片。
+	Attachments []Attachment `json:"attachments"`
 }
 
 // Attachment 表示 AI 助手运行时可消费的附件。

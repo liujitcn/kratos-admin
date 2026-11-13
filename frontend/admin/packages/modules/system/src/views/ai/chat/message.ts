@@ -313,6 +313,17 @@ export function markAIMessageRegenerating(current: ChatMessageItem[], sessionID:
     return {
       ...item,
       content: thinkingMessageContent(),
+      // 上一轮的活动时间线（可能带着误导性的“已完成”）必须清空，换成重新生成中的运行状态。
+      activities: [
+        {
+          id: "regenerating",
+          phase: "reasoning" as const,
+          status: "running" as const,
+          summary: "",
+          tool_name: "",
+          tool_title: ""
+        }
+      ],
       fallback: false,
       fallback_reason: "",
       token: normalizeToken(),

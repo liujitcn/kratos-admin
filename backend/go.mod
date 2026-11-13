@@ -32,12 +32,13 @@ require (
 	github.com/liujitcn/go-utils/crypto v0.0.19
 	github.com/liujitcn/go-utils/http v0.0.10
 	github.com/liujitcn/go-utils/translator v0.0.7
-	github.com/liujitcn/gorm-kit v0.0.40
-	github.com/liujitcn/kratos-admin/backend/api v0.0.33
-	github.com/liujitcn/kratos-core v0.0.56
+	github.com/liujitcn/gorm-kit v0.0.41
+	github.com/liujitcn/kratos-admin/backend/api v0.0.35
+	github.com/liujitcn/kratos-core v0.0.57
 	github.com/liujitcn/kratos-core/api v0.0.7
 	github.com/liujitcn/kratos-kit v0.1.0
-	github.com/liujitcn/kratos-kit/ai/model v0.0.11
+	github.com/liujitcn/kratos-kit/ai/eino v0.0.18
+	github.com/liujitcn/kratos-kit/ai/model v0.0.12
 	github.com/liujitcn/kratos-kit/api v0.0.44
 	github.com/liujitcn/kratos-kit/auth v0.0.36
 	github.com/liujitcn/kratos-kit/auth/authn v0.0.28
@@ -72,7 +73,6 @@ require (
 	github.com/liujitcn/kratos-kit/transport/sse v0.0.19
 	github.com/liujitcn/kratos-kit/utils v0.0.29
 	github.com/mark3labs/mcp-go v1.5.0
-	github.com/mattn/go-sqlite3 v1.14.52
 	github.com/microcosm-cc/bluemonday v1.0.27
 	github.com/modelcontextprotocol/go-sdk v1.7.0
 	github.com/openai/openai-go/v3 v3.44.0
@@ -157,8 +157,8 @@ require (
 	github.com/bmatcuk/doublestar/v4 v4.10.2 // indirect
 	github.com/boombuler/barcode v1.0.1-0.20190219062509-6c824513bacc // indirect
 	github.com/bsm/redislock v0.10.0 // indirect
-	github.com/buger/jsonparser v1.1.2 // indirect
-	github.com/bytedance/gopkg v0.1.3 // indirect
+	github.com/buger/jsonparser v1.6.1 // indirect
+	github.com/bytedance/gopkg v0.1.4 // indirect
 	github.com/bytedance/sonic v1.15.4 // indirect
 	github.com/bytedance/sonic/loader v0.5.2 // indirect
 	github.com/casbin/casbin/v2 v2.135.0 // indirect
@@ -170,7 +170,7 @@ require (
 	github.com/clbanning/mxj/v2 v2.7.0 // indirect
 	github.com/clipperhouse/displaywidth v0.11.0 // indirect
 	github.com/clipperhouse/uax29/v2 v2.7.0 // indirect
-	github.com/cloudwego/base64x v0.1.6 // indirect
+	github.com/cloudwego/base64x v0.1.7 // indirect
 	github.com/cloudwego/eino-ext/libs/acl/openai v0.1.18-0.20260924031408-10df7cac3f6d // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/dlclark/regexp2/v2 v2.9.1 // indirect
@@ -179,7 +179,7 @@ require (
 	github.com/ebitengine/purego v0.11.1 // indirect
 	github.com/eclipse/paho.golang v0.10.0 // indirect
 	github.com/emicklei/go-restful/v3 v3.14.0 // indirect
-	github.com/evanphx/json-patch v0.5.2 // indirect
+	github.com/evanphx/json-patch v5.9.11+incompatible // indirect
 	github.com/fatih/color v1.19.0 // indirect
 	github.com/felixge/httpsnoop v1.1.0 // indirect
 	github.com/fsnotify/fsnotify v1.10.1 // indirect
@@ -287,10 +287,11 @@ require (
 	github.com/liujitcn/kratos-kit/transport/hptimer v0.0.11 // indirect
 	github.com/liujitcn/kratos-kit/transport/keepalive v0.0.19 // indirect
 	github.com/lufia/plan9stats v0.0.0-20260330125221-c963978e514e // indirect
-	github.com/mailru/easyjson v0.7.7 // indirect
+	github.com/mailru/easyjson v0.9.2 // indirect
 	github.com/mattn/go-colorable v0.1.16 // indirect
 	github.com/mattn/go-isatty v0.0.24 // indirect
 	github.com/mattn/go-runewidth v0.0.31 // indirect
+	github.com/mattn/go-sqlite3 v1.14.52 // indirect
 	github.com/meguminnnnnnnnn/go-openai v0.1.6 // indirect
 	github.com/minio/crc64nvme v1.1.1 // indirect
 	github.com/minio/md5-simd v1.1.2 // indirect
@@ -330,7 +331,7 @@ require (
 	github.com/segmentio/asm v1.2.1 // indirect
 	github.com/segmentio/encoding v0.5.4 // indirect
 	github.com/shopspring/decimal v1.5.0 // indirect
-	github.com/sirupsen/logrus v1.9.4 // indirect
+	github.com/sirupsen/logrus v1.10.2 // indirect
 	github.com/slongfield/pyfmt v0.0.0-20220222012616-ea85ff4c361f // indirect
 	github.com/spf13/cast v1.7.1 // indirect
 	github.com/spf13/cobra v1.10.2 // indirect
@@ -341,9 +342,9 @@ require (
 	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/sms v1.3.172 // indirect
 	github.com/tengattack/gluacrypto v0.0.0-20240324200146-54b58c95c255 // indirect
 	github.com/tetratelabs/wazero v1.12.0 // indirect
-	github.com/tidwall/gjson v1.18.0 // indirect
-	github.com/tidwall/match v1.1.1 // indirect
-	github.com/tidwall/pretty v1.2.1 // indirect
+	github.com/tidwall/gjson v1.20.0 // indirect
+	github.com/tidwall/match v1.2.0 // indirect
+	github.com/tidwall/pretty v1.2.2 // indirect
 	github.com/tidwall/sjson v1.2.5 // indirect
 	github.com/tinylib/msgp v1.6.5 // indirect
 	github.com/tklauser/go-sysconf v0.4.0 // indirect
@@ -384,7 +385,7 @@ require (
 	go.uber.org/zap v1.28.0 // indirect
 	go.yaml.in/yaml/v2 v2.4.4 // indirect
 	go.yaml.in/yaml/v3 v3.0.5 // indirect
-	golang.org/x/arch v0.11.0 // indirect
+	golang.org/x/arch v0.32.0 // indirect
 	golang.org/x/crypto v0.58.0 // indirect
 	golang.org/x/exp v0.0.0-20261014143641-f0251eb4aa3e // indirect
 	golang.org/x/image v0.47.0 // indirect
@@ -428,5 +429,3 @@ require (
 	sigs.k8s.io/structured-merge-diff/v6 v6.4.2 // indirect
 	sigs.k8s.io/yaml v1.6.0 // indirect
 )
-
-replace github.com/liujitcn/kratos-admin/backend/api => ./api
