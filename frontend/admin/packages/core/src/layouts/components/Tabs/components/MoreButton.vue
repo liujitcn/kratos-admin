@@ -51,6 +51,7 @@ const currentTabPath = computed(() => getAdminTabPath(route));
 
 // refresh current page
 const refreshCurrentPage: Function = inject("refresh") as Function;
+/** 刷新当前页签：先移除 keepAlive 缓存再重新挂载组件。 */
 const refresh = () => {
   setTimeout(() => {
     route.meta.keepAlive && keepAliveStore.removeKeepAliveName(currentTabPath.value);

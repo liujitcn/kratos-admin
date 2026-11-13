@@ -91,6 +91,7 @@ const config = computed<LogTableConfig>(() => ({
   get: getDetail
 }));
 
+/** 分页查询数据访问日志，并适配 ProTable 的列表结构。 */
 async function requestTable(params: Record<string, unknown>) {
   const response = await defBaseDataAccessLogService.PageBaseDataAccessLog(
     buildPageRequest({ ...params, tenant_id: toRequestTenantId(params.tenant_id) } as unknown as PageBaseDataAccessLogRequest)
@@ -98,6 +99,7 @@ async function requestTable(params: Record<string, unknown>) {
   return { list: response.base_data_access_logs as unknown as Record<string, unknown>[], total: response.total };
 }
 
+/** 查询单条数据访问日志详情。 */
 async function getDetail(id: string) {
   return (await defBaseDataAccessLogService.GetBaseDataAccessLog({ id })) as unknown as Record<string, unknown>;
 }

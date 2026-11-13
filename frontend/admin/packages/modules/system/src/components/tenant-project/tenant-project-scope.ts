@@ -134,6 +134,7 @@ export function useTenantProjectScope(options: TenantProjectScopeOptions = {}): 
   return { isDefaultTenant, scopeLabel, allLabel, treeOptions, projectOptions, displayMap, loadOptions, projectSelections, normalizeParams, column };
 }
 
+/** 渲染租户项目树搜索项：展开下拉时按需懒加载选项。 */
 function renderTenantProjectSearch(
   scope: SearchRenderScope,
   loadOptions: (force?: boolean) => Promise<TreeBaseTenantProjectResponse_Option[] | SelectOptionResponse_Option[]>,

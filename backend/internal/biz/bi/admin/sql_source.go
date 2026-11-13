@@ -452,6 +452,7 @@ func buildConfiguredQuery(driver string, item *models.BiSource, schema dto.Confi
 	return queryText, args, resultColumns, nil
 }
 
+// quoteSourceTable 按驱动转义并拼接数据源表名，配置了 Schema 时追加限定前缀。
 func quoteSourceTable(driver, schemaName, tableName string) string {
 	if schemaName == "" {
 		return quoteSourceIdentifier(driver, tableName)
@@ -459,6 +460,8 @@ func quoteSourceTable(driver, schemaName, tableName string) string {
 	return quoteSourceIdentifier(driver, schemaName) + "." + quoteSourceIdentifier(driver, tableName)
 }
 
+// quoteSourceIdentifier 按驱动转义标识符并加引号，PostgreSQL 使用双引号、MySQL 系使用反引号，
+// 是拼接数据源 SQL 时防止标识符注入与关键字冲突的唯一出口。
 func quoteSourceIdentifier(driver, value string) string {
 	if strings.EqualFold(driver, "postgres") {
 		return `"` + strings.ReplaceAll(value, `"`, `""`) + `"`
@@ -466,6 +469,7 @@ func quoteSourceIdentifier(driver, value string) string {
 	return "`" + strings.ReplaceAll(value, "`", "``") + "`"
 }
 
+// sourcePlaceholder 生成参数占位符：PostgreSQL 使用 $N 序号占位，MySQL 系使用问号占位。
 func sourcePlaceholder(driver string, index int) string {
 	if strings.EqualFold(driver, "postgres") {
 		return "$" + strconv.Itoa(index)
@@ -473,6 +477,7 @@ func sourcePlaceholder(driver string, index int) string {
 	return "?"
 }
 
+// formatConfiguredValue 将数据库扫描出的任意单元格值格式化为结果字符串，统一时间与二进制类型的展示形式。
 func formatConfiguredValue(value any) string {
 	switch item := value.(type) {
 	case nil:

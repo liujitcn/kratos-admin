@@ -86,6 +86,7 @@ onMounted(async () => {
   loadedOptions.value = response.list ?? [];
 });
 
+/** 把 "type:tenantId[:projectId]" 格式的选中值解析为结构化选择对象。 */
 function parseSelection(value?: string): TenantProjectSelection | undefined {
   if (!value) return undefined;
   const [type, tenantId, projectId] = value.split(":");

@@ -181,6 +181,7 @@ type archiveResourceDefinition struct {
 	archiveTableName string
 }
 
+// archiveResource 解析可归档资源：校验表名白名单、按表名约定确定时间列（日志表用 occurred_at），并推导归档表名。
 func archiveResource(tableName string) (archiveResourceDefinition, error) {
 	if !archiveTableNamePattern.MatchString(tableName) || strings.HasPrefix(tableName, "base_table_") {
 		return archiveResourceDefinition{}, fmt.Errorf("数据表名称不在可归档范围: %s", tableName)
@@ -468,6 +469,7 @@ func dumpPostgresArchiveFile(ctx context.Context, client *gorm.Client, databaseC
 	return nil
 }
 
+// countArchiveRows 统计指定截止时间前待归档的行数，用于归档前的预检提示。
 func countArchiveRows(ctx context.Context, client *gorm.Client, resource archiveResourceDefinition, cutoff time.Time) (int64, error) {
 	var count int64
 	//nolint:forbidigo // 表名和字段名来自受控归档资源定义，时间值通过参数绑定。

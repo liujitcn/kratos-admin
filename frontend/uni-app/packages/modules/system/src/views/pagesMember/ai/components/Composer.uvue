@@ -61,10 +61,12 @@ const selectedModelDisplayName = computed(() => {
   return matched?.display_name || fallbackModelDisplayName(props.modelName)
 })
 
+/** 输入框内容同步到父组件（v-model）。 */
 function handleInput(event: Event) {
   emit('update:modelValue', ((event as unknown as InputEventValue).detail?.value || '').toString())
 }
 
+/** 打开模型选择弹层；发送中或无可用供应商时忽略。 */
 function openModelPicker() {
   if (props.sending || !props.modelProviders.length) {
     return
@@ -72,11 +74,13 @@ function openModelPicker() {
   showModelPicker.value = true
 }
 
+/** 选中模型后关闭弹层并通知父组件。 */
 function handleModelSelect(providerId: number, modelName: string) {
   showModelPicker.value = false
   emit('model-change', providerId, modelName)
 }
 
+/** 打开知识库选择弹层；发送中或无可选项时忽略。 */
 function openKnowledgePicker() {
   if (props.sending || !props.knowledgeOptions.length) {
     return
@@ -84,6 +88,7 @@ function openKnowledgePicker() {
   showKnowledgePicker.value = true
 }
 
+/** 切换知识库选中态（多选），以最新集合通知父组件。 */
 function handleKnowledgeToggle(knowledgeId: number) {
   const current = new Set(props.knowledgeIds)
   if (current.has(knowledgeId)) {

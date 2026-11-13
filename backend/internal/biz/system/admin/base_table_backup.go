@@ -125,6 +125,7 @@ func validateTableBackupForm(baseCase *biz.BaseCase, req *adminv1.BaseTableBacku
 	return nil
 }
 
+// toBaseTableBackup 将备份策略模型转换为管理接口表单。
 func toBaseTableBackup(item *models.BaseTableBackup) *adminv1.BaseTableBackupForm {
 	return &adminv1.BaseTableBackupForm{Id: item.ID, SourceName: item.SourceName, BackupType: adminv1.BaseTableBackupType(item.BackupType), OssPrefix: item.OSSPrefix, RetentionCount: item.RetentionCount, Status: commonv1.Status(item.Status)}
 }

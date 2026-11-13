@@ -127,8 +127,11 @@ async function loadEnumOptions(
   });
 }
 
+/** 方向枚举选项回调，供表格列与搜索下拉按字典懒加载。 */
 const directionOptions = () => loadEnumOptions(DICTIONARY_CODES.direction, directionValues);
+/** 格式枚举选项回调，供表格列与搜索下拉按字典懒加载。 */
 const payloadFormatOptions = () => loadEnumOptions(DICTIONARY_CODES.payloadFormat, payloadFormatValues);
+/** 状态枚举选项回调，供表格列与搜索下拉按字典懒加载。 */
 const statusOptions = () => loadEnumOptions(DICTIONARY_CODES.status, statusValues);
 
 const columns = computed(() => {

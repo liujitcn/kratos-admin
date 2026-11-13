@@ -100,6 +100,7 @@ const transferOptions = computed<ProFormOption[]>(() =>
 
 const rules = computed(() => ({
   tenant_id: [
+    // 仅默认租户登录时才要求选择归属租户，普通租户由后端按登录租户隔离
     {
       required: isDefaultTenant.value,
       message: t("common.validation.required_select", { field: t("common.field.tenant") }),
@@ -253,19 +254,23 @@ const headerActions = computed<HeaderActionProps[]>(() => [
   }
 ]);
 
+/** 分页查询 OAuth 客户端列表，并映射为 ProTable 数据结构。 */
 async function requestOauthClientTable(params: PageOauthClientRequest) {
   const data = await defOauthClientService.PageOauthClient({
     ...buildPageRequest(params),
+    // 仅默认租户可按租户筛选，其余租户由后端按登录租户隔离
     tenant_id: isDefaultTenant.value ? params.tenant_id : undefined
   });
   return { data: { list: data.oauth_clients ?? [], total: data.total } };
 }
 
+/** 加载可授权的 API 列表选项。 */
 async function loadApiOptions() {
   const data = await defOauthClientService.OptionOauthClientApi({});
   apiOptions.value = data.base_apis ?? [];
 }
 
+/** 打开新增/编辑弹窗：并行加载租户与 API 选项，编辑时填充客户端详情。 */
 async function handleOpenDialog(id?: number) {
   resetForm();
   dialog.titleKey = id ? "common.action.edit" : "common.action.create";
@@ -280,6 +285,7 @@ async function handleOpenDialog(id?: number) {
   });
 }
 
+/** 还原表单为默认值（默认国密 SM4、启用状态）。 */
 function resetForm() {
   formDialogRef.value?.resetFields();
   formDialogRef.value?.clearValidate();
@@ -294,11 +300,13 @@ function resetForm() {
   });
 }
 
+/** 关闭弹窗并重置表单。 */
 function handleCloseDialog() {
   formDialogRef.value?.close();
   resetForm();
 }
 
+/** 校验并提交表单，按 id 区分新增或更新，成功后关闭弹窗并刷新列表。 */
 function handleSubmit() {
   formDialogRef.value?.validate()?.then(valid => {
     if (!valid) return;
@@ -318,6 +326,7 @@ function handleSubmit() {
   });
 }
 
+/** 状态开关切换前的确认流程，取消确认或切换失败时返回 false 阻止变更。 */
 async function handleSetStatus(row: OauthClient) {
   const nextStatus = row.status === Status.STATUS_ENABLE ? Status.STATUS_DISABLE : Status.STATUS_ENABLE;
   try {
@@ -340,6 +349,7 @@ async function handleSetStatus(row: OauthClient) {
   }
 }
 
+/** 兼容行删除与批量删除两种入参：优先取对象行的 id，否则回退到选中 id 列表。 */
 function handleDelete(selected?: number | string | Array<number | string> | OauthClient | OauthClient[]) {
   const rowList = Array.isArray(selected)
     ? (selected.filter(item => typeof item === "object") as OauthClient[])
@@ -374,6 +384,7 @@ function handleDelete(selected?: number | string | Array<number | string> | Oaut
     });
 }
 
+/** 轮换客户端凭证并复制到剪贴板：轮换后旧凭证立即失效，需二次确认。 */
 async function handleCopyCredentials(row: OauthClient) {
   await ElMessageBox.confirm(
     t("system.base.oauth_client.confirm.rotate_credentials"),
@@ -391,6 +402,7 @@ async function handleCopyCredentials(row: OauthClient) {
   ElMessage.success(t("core.clipboard.success"));
 }
 
+/** 加密类型的展示文案。 */
 function formatCrypto(value: OauthClientCryptoType) {
   return cryptoOptions.value.find(item => item.value === value)?.label ?? String(value);
 }

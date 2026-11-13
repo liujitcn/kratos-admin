@@ -99,15 +99,18 @@ const headerActions = computed<HeaderActionProps[]>(() => [
   { label: t("common.action.delete"), type: "danger", icon: Delete, hidden: !isDefaultTenant.value || !BUTTONS.value["base:message-provider:delete"], disabled: scope => !scope.isSelected, onClick: scope => handleDelete(scope.selectedListIds as number[]) }
 ]);
 
+/** 消息渠道表单默认值：默认停用，密钥置空表示编辑时不修改已有密钥。 */
 function defaultForm(): FormState {
   return { id: 0, provider: "", name: "", description: "", icon: "", client_id: "", client_secret: undefined, secret_configured: false, config: {}, config_items: [], sort: 0, status: Status.STATUS_DISABLE };
 }
 
+/** 分页查询消息渠道列表，并映射为 ProTable 数据结构。 */
 async function requestTable(params: Record<string, unknown>) {
   const data = await defBaseMessageProviderService.PageBaseMessageProvider(buildPageRequest<PageBaseMessageProviderRequest>(params as unknown as PageBaseMessageProviderRequest));
   return { data: { list: data.base_message_providers ?? [], total: data.total } };
 }
 
+/** 打开新增/编辑弹窗，编辑时加载详情并把 config 转为可编辑键值对。 */
 async function openDialog(id?: number) {
   await formDialogRef.value?.open({
     load: () => (id ? defBaseMessageProviderService.GetBaseMessageProvider({ id }) : undefined),
@@ -115,6 +118,7 @@ async function openDialog(id?: number) {
   });
 }
 
+/** 校验并提交表单：键值对合并回 config、密钥字段公钥加密后，按 id 区分新增或更新。 */
 async function handleSubmit() {
   if (!(await formDialogRef.value?.validate())) return;
   const config = configItemsToMap(formData.config_items);
@@ -130,6 +134,7 @@ async function handleSubmit() {
   await proTable.value?.getTableList();
 }
 
+/** 兼容行删除与批量删除两种入参，确认后删除并刷新列表。 */
 async function handleDelete(value: BaseMessageProvider | number | number[]) {
   const ids = (Array.isArray(value) ? value : typeof value === "object" ? [value.id] : normalizeSelectedIds(value)).join(",");
   if (!ids) return;
@@ -143,6 +148,7 @@ async function handleDelete(value: BaseMessageProvider | number | number[]) {
   ElMessage.success(t("common.message.operation_success"));
 }
 
+/** 状态开关切换前的确认流程，取消确认或切换失败时返回 false 阻止变更。 */
 async function handleSetStatus(row: BaseMessageProvider) {
   const status = row.status === Status.STATUS_ENABLE ? Status.STATUS_DISABLE : Status.STATUS_ENABLE;
   try {
@@ -152,10 +158,13 @@ async function handleSetStatus(row: BaseMessageProvider) {
   } catch { return false; }
 }
 
+/** 关闭弹窗并还原表单为默认值。 */
 function handleClose() { Object.assign(formData, defaultForm()); formDialogRef.value?.resetFields(); }
 
+/** 将 config 对象转为编辑用键值对列表，非字符串值先 JSON 序列化便于展示。 */
 function configToItems(config: Record<string, any> | undefined): ConfigItem[] { return Object.entries(config ?? {}).map(([key, value]) => ({ key, value: typeof value === "string" ? value : JSON.stringify(value) })); }
 
+/** 将编辑用键值对转回 config：键非空且不重复，值为空保留空串，能 JSON 解析则还原类型否则按原字符串。 */
 function configItemsToMap(items: ConfigItem[]): Record<string, unknown> | undefined {
   const result: Record<string, unknown> = {};
   for (const item of items) {

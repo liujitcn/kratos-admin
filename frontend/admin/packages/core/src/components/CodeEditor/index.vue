@@ -30,8 +30,10 @@ const editorHost = ref<HTMLElement>();
 let editor: monaco.editor.IStandaloneCodeEditor | undefined;
 let model: monaco.editor.ITextModel | undefined;
 
+/** 创建 Monaco 编辑器实例：初始化源码模型、配置 Vite worker，并把内容变更同步给父组件。 */
 function createEditor() {
   if (!editorHost.value) return;
+  // Monaco 默认从 CDN 加载 worker，Vite 打包场景必须指向本地 worker 文件。
   self.MonacoEnvironment = {
     getWorker() {
       return new editorWorker();
@@ -54,6 +56,7 @@ function createEditor() {
   });
 }
 
+/** 组件卸载时销毁编辑器与模型实例，避免 Monaco 资源泄漏。 */
 function disposeEditor() {
   editor?.dispose();
   model?.dispose();

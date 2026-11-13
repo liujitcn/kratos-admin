@@ -15,6 +15,7 @@ import type { AiActivityItem, AiStreamPayload, AIFlowBlock, ChatMessageItem, Rep
 const THINKING_MESSAGE_ID_PREFIX = "ai-thinking";
 const LOCAL_USER_MESSAGE_ID_PREFIX = "ai-user-local";
 const PENDING_STREAM_MESSAGE_ID = "pending";
+/** “思考中”占位文案（跟随当前语言）。 */
 const thinkingMessageContent = () => t("system.ai.chat.message.thinking");
 
 /** 生成流式消息分组键，确保同一轮回复只更新当前占位气泡。 */

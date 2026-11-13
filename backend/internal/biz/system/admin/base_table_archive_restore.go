@@ -126,6 +126,7 @@ func (c *BaseTableArchiveRestoreCase) ExecuteBaseTableArchiveRestore(ctx context
 	return c.UpdateByID(ctx, entity)
 }
 
+// toBaseTableArchiveRestore 将归档恢复记录模型转换为接口响应。
 func toBaseTableArchiveRestore(item *models.BaseTableArchiveRestore) *adminv1.BaseTableArchiveRestore {
 	return &adminv1.BaseTableArchiveRestore{Id: item.ID, ArchiveRecordId: item.ArchiveRecordID, TableName: item.TableName_, RestoreMode: adminv1.BaseTableArchiveRestoreMode(item.RestoreMode), RestoreRange: item.RestoreRange, RestoredRows: item.RestoredRows, OperatorId: item.OperatorID, Status: adminv1.BaseTableArchiveRestoreStatus(item.Status), Error: item.Error, StartedAt: item.StartedAt.Format(time.RFC3339), FinishedAt: item.FinishedAt.Format(time.RFC3339)}
 }
@@ -319,6 +320,8 @@ func importPostgresSQLFile(ctx context.Context, databaseConfig *configv1.Data_Da
 	return 0, nil
 }
 
+// mysqlCommandArgs 将 GORM MySQL DSN 转换为 mysql 客户端命令行参数：unix socket 与 TCP 主机端口分别映射，
+// 供调用外部 mysql 命令恢复时使用；密码经环境变量传递，不进入命令行参数。
 func mysqlCommandArgs(dsn *mysql.Config, database string) []string {
 	args := make([]string, 0, 8)
 	if dsn.Net == "unix" && dsn.Addr != "" {

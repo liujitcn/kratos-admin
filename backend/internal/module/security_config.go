@@ -64,6 +64,7 @@ func loadSecurityConfig(baseConfigCase *biz.BaseConfigCase) (securityconfig.Conf
 	return config, nil
 }
 
+// splitSecurityValues 将运行配置中逗号分隔的多值字段拆分为去空白后的值列表。
 func splitSecurityValues(values ...string) []string {
 	result := make([]string, 0, len(values))
 	for _, value := range values {

@@ -26,6 +26,7 @@ export const BI_PALETTES: Record<string, string[]> = {
   ],
 };
 
+/** 解析配色方案：命中内置色板用之，否则回退当前主题默认色板。 */
 export function resolvePalette(key: string | undefined, theme: BiResolvedTheme): string[] {
   if (key && BI_PALETTES[key]) return BI_PALETTES[key];
   return theme.palette;

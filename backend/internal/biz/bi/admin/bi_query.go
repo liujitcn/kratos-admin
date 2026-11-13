@@ -382,6 +382,7 @@ func (c *BiQueryCase) validate(ctx context.Context, scope bi.Scope, spec bi.Quer
 	return spec, descriptor, nil
 }
 
+// toSourceDescriptor 将领域层数据源字段描述（维度、度量、行数上限）转换为接口响应结构。
 func toSourceDescriptor(value bi.SourceDescriptor) *adminv1.BiSourceDescriptor {
 	dimensions := make([]*adminv1.BiFieldDescriptor, 0, len(value.Dimensions))
 	for _, item := range value.Dimensions {
@@ -394,6 +395,7 @@ func toSourceDescriptor(value bi.SourceDescriptor) *adminv1.BiSourceDescriptor {
 	return &adminv1.BiSourceDescriptor{Code: value.Code, Name: value.Name, Description: value.Description, Version: value.Version, Dimensions: dimensions, Measures: measures, MaxRows: value.MaxRows}
 }
 
+// fromProtoQuerySpec 将接口请求中的查询规格转换为领域查询对象，供执行器校验和下推执行。
 func fromProtoQuerySpec(value *adminv1.BiQuerySpec) bi.QuerySpec {
 	measures := make([]bi.MeasureSpec, 0, len(value.GetMeasures()))
 	for _, item := range value.GetMeasures() {
@@ -414,10 +416,12 @@ func fromProtoQuerySpec(value *adminv1.BiQuerySpec) bi.QuerySpec {
 	return bi.QuerySpec{SourceCode: value.GetSourceCode(), Dimensions: value.GetDimensions(), Measures: measures, Filters: filters, TimeRange: timeRange, Orders: orders, Limit: value.GetLimit()}
 }
 
+// toProtoQuerySpec 将领域查询对象转换回接口结构，用于查询记录详情回显原始查询条件。
 func toProtoQuerySpec(value bi.QuerySpec) *adminv1.BiQuerySpec {
 	return &adminv1.BiQuerySpec{SourceCode: value.SourceCode, Dimensions: value.Dimensions, Measures: toProtoMeasuresFromSpec(value.Measures), Filters: toProtoFiltersFromSpec(value.Filters), TimeRange: toProtoTimeRange(value.TimeRange), Orders: toProtoOrdersFromSpec(value.Orders), Limit: value.Limit}
 }
 
+// toProtoMeasures 将 AI 问数解析出的度量列表转换为接口查询规格。
 func toProtoMeasures(value []dto.AskMeasure) []*adminv1.BiMeasureSpec {
 	items := make([]*adminv1.BiMeasureSpec, 0, len(value))
 	for _, item := range value {
@@ -426,6 +430,7 @@ func toProtoMeasures(value []dto.AskMeasure) []*adminv1.BiMeasureSpec {
 	return items
 }
 
+// toProtoFilters 将 AI 问数解析出的筛选条件转换为接口查询规格。
 func toProtoFilters(value []dto.AskFilter) []*adminv1.BiFilterSpec {
 	items := make([]*adminv1.BiFilterSpec, 0, len(value))
 	for _, item := range value {
@@ -434,6 +439,7 @@ func toProtoFilters(value []dto.AskFilter) []*adminv1.BiFilterSpec {
 	return items
 }
 
+// toProtoAskTimeRange 将 AI 问数解析出的时间范围转换为接口查询规格，未解析到时间条件时返回空。
 func toProtoAskTimeRange(value *dto.AskTimeRange) *adminv1.BiTimeRangeSpec {
 	if value == nil {
 		return nil
@@ -441,6 +447,7 @@ func toProtoAskTimeRange(value *dto.AskTimeRange) *adminv1.BiTimeRangeSpec {
 	return &adminv1.BiTimeRangeSpec{Field: value.Field, Start: value.Start, End: value.End}
 }
 
+// toProtoOrders 将 AI 问数解析出的排序要求转换为接口查询规格。
 func toProtoOrders(value []dto.AskOrder) []*adminv1.BiOrderSpec {
 	items := make([]*adminv1.BiOrderSpec, 0, len(value))
 	for _, item := range value {
@@ -449,6 +456,7 @@ func toProtoOrders(value []dto.AskOrder) []*adminv1.BiOrderSpec {
 	return items
 }
 
+// toProtoMeasuresFromSpec 将领域度量规格转换为接口结构，用于查询记录回显。
 func toProtoMeasuresFromSpec(value []bi.MeasureSpec) []*adminv1.BiMeasureSpec {
 	items := make([]*adminv1.BiMeasureSpec, 0, len(value))
 	for _, item := range value {
@@ -457,6 +465,7 @@ func toProtoMeasuresFromSpec(value []bi.MeasureSpec) []*adminv1.BiMeasureSpec {
 	return items
 }
 
+// toProtoFiltersFromSpec 将领域筛选规格转换为接口结构，用于查询记录回显。
 func toProtoFiltersFromSpec(value []bi.FilterSpec) []*adminv1.BiFilterSpec {
 	items := make([]*adminv1.BiFilterSpec, 0, len(value))
 	for _, item := range value {
@@ -465,6 +474,7 @@ func toProtoFiltersFromSpec(value []bi.FilterSpec) []*adminv1.BiFilterSpec {
 	return items
 }
 
+// toProtoTimeRange 将领域时间范围规格转换为接口结构，无时间条件时返回空。
 func toProtoTimeRange(value *bi.TimeRangeSpec) *adminv1.BiTimeRangeSpec {
 	if value == nil {
 		return nil
@@ -472,6 +482,7 @@ func toProtoTimeRange(value *bi.TimeRangeSpec) *adminv1.BiTimeRangeSpec {
 	return &adminv1.BiTimeRangeSpec{Field: value.Field, Start: value.Start, End: value.End}
 }
 
+// toProtoOrdersFromSpec 将领域排序规格转换为接口结构，用于查询记录回显。
 func toProtoOrdersFromSpec(value []bi.OrderSpec) []*adminv1.BiOrderSpec {
 	items := make([]*adminv1.BiOrderSpec, 0, len(value))
 	for _, item := range value {
@@ -576,6 +587,8 @@ func applyResultOrders(result bi.QueryResult, orders []bi.OrderSpec, limit int32
 	return result
 }
 
+// compareResultValues 比较结果单元格值：两侧都能解析为数字时按数值比较，否则退回字符串比较，
+// 保证数值列排序符合数值语义而非字典序。
 func compareResultValues(left, right string) int {
 	leftNumber, leftErr := strconv.ParseFloat(left, 64)
 	rightNumber, rightErr := strconv.ParseFloat(right, 64)

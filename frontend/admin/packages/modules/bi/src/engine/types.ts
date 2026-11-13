@@ -38,12 +38,15 @@ export interface ChartEngine {
 
 // ============ 注册表 ============
 
+/** 已注册的图表引擎注册表。 */
 const engines = new Map<string, ChartEngine>();
 
+/** 注册图表引擎实现（如 ECharts 适配器），同名覆盖。 */
 export function registerEngine(name: string, engine: ChartEngine): void {
   engines.set(name, engine);
 }
 
+/** 按名称取图表引擎，缺省回退 echarts；未注册时抛出带安装指引的错误。 */
 export function getEngine(name: string | undefined): ChartEngine {
   const key = name || "echarts";
   const engine = engines.get(key);
@@ -55,6 +58,7 @@ export function getEngine(name: string | undefined): ChartEngine {
   return engine;
 }
 
+/** 判断图表引擎是否已注册，缺省检查 echarts。 */
 export function hasEngine(name: string | undefined): boolean {
   return engines.has(name || "echarts");
 }

@@ -109,6 +109,7 @@ const onLocaleChange = (event: { detail: { value: string | number } }) => {
   if (nextLocale) void setLocale(nextLocale)
 }
 
+/** 切换用户协议勾选状态。 */
 const toggleAgreePrivacy = () => {
   isAgreePrivacy.value = !isAgreePrivacy.value
 }
@@ -116,6 +117,7 @@ const toggleAgreePrivacy = () => {
 let agreePrivacyShakeTimer: ReturnType<typeof setTimeout> | undefined
 let loginSuccessTimer: ReturnType<typeof setTimeout> | undefined
 
+/** 未勾选协议时抖动协议勾选框，引导用户注意勾选项。 */
 const triggerAgreePrivacyShake = () => {
   isAgreePrivacyShakeY.value = true
   if (agreePrivacyShakeTimer) clearTimeout(agreePrivacyShakeTimer)
@@ -511,13 +513,17 @@ const rotateCaptchaScale = computed(() => rotateCaptchaImageSize / behaviorCaptc
 
 // 行为验证码按展示尺寸渲染，提交前再换算回服务端原始坐标。
 const toDisplayCaptchaX = (value: number) => Math.round(value * behaviorCaptchaScaleX.value)
+/** 把服务端原始纵坐标按展示比例换算为展示坐标。 */
 const toDisplayCaptchaY = (value: number) => Math.round(value * behaviorCaptchaScaleY.value)
+/** 把服务端原始旋转尺寸按展示比例换算。 */
 const toDisplayRotateSize = (value: number) => Math.round(value * rotateCaptchaScale.value)
+/** 提交前把展示横坐标换算回服务端原始坐标，并夹取在原图宽度内。 */
 const toOriginalCaptchaX = (value: number) =>
   Math.min(
     behaviorCaptchaSource.width,
     Math.max(0, Math.round(value / behaviorCaptchaScaleX.value)),
   )
+/** 提交前把展示纵坐标换算回服务端原始坐标，并夹取在原图高度内。 */
 const toOriginalCaptchaY = (value: number) =>
   Math.min(
     behaviorCaptchaSource.height,
@@ -908,7 +914,13 @@ onUnload(() => {
 <template>
   <view class="login-page" :class="themeStore.themeClass">
     <view class="login-header">
-      <text class="k-ic login-back" aria-hidden="true" @tap="goBack">‹</text>
+      <view
+        class="k-ic login-back"
+        :aria-label="t('common.action.back')"
+        @tap="goBack"
+      >
+        <view class="login-back-icon" aria-hidden="true" />
+      </view>
       <picker
         class="login-locale"
         :range="localeLabels"
@@ -1206,9 +1218,9 @@ onUnload(() => {
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
-  height: 44px;
-  padding: env(safe-area-inset-top) 20rpx 0;
-  box-sizing: content-box;
+  height: calc(env(safe-area-inset-top) + 24rpx + 76rpx);
+  padding: calc(env(safe-area-inset-top) + 24rpx) 20rpx 0;
+  box-sizing: border-box;
 }
 
 /* #ifdef MP-WEIXIN */
@@ -1218,10 +1230,18 @@ onUnload(() => {
 }
 /* #endif */
 
-/* k-ic 已提供方形图标按钮视觉，这里只补字号以容纳返回符号 */
+/* k-ic 已提供方形图标按钮视觉，返回箭头与公共导航栏保持一致。 */
 .login-back {
-  font-size: 36rpx;
-  line-height: 1;
+  flex-shrink: 0;
+}
+
+.login-back-icon {
+  display: block;
+  width: 16rpx;
+  height: 16rpx;
+  border-bottom: 2px solid var(--kratos-color-primary);
+  border-left: 2px solid var(--kratos-color-primary);
+  transform: rotate(45deg);
 }
 
 .login-locale {

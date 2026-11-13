@@ -34,6 +34,7 @@ const assemblySizeList = computed(() => [
   { label: t("core.header.size.small"), value: "small" }
 ]);
 
+/** 应用全局组件尺寸设置。 */
 const setAssemblySize = (item: AssemblySizeType) => {
   if (assemblySize.value === item) return;
   globalStore.setGlobalState("assemblySize", item);

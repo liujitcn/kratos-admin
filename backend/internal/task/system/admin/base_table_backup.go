@@ -231,6 +231,7 @@ func (t *TableBackupTask) backupOne(ctx context.Context, config *models.BaseTabl
 	return t.rotateBackupRecords(ctx, config)
 }
 
+// failBackupRecord 把备份记录标记为失败并落库；保留原备份错误并附加记录更新失败信息。
 func (t *TableBackupTask) failBackupRecord(ctx context.Context, record *models.BaseTableBackupRecord, backupErr error) error {
 	record.Status = int32(adminv1.BaseTableBackupRecordStatus_BASE_TABLE_BACKUP_RECORD_STATUS_FAILED)
 	record.Error = i18n.EncodeMessage("system.backup.error.backup_task_failed", nil)
@@ -276,6 +277,7 @@ func (t *TableBackupTask) rotateBackupRecords(ctx context.Context, config *model
 	return nil
 }
 
+// databaseConfigByName 按数据源名称解析数据库配置；默认数据源走 database 节点，其余查 databases 映射。
 func databaseConfigByName(baseCase *biz.BaseCase, sourceName string) (*configv1.Data_Database, error) {
 	dataConfig := baseCase.GetConfig().GetData()
 	if dataConfig == nil {
@@ -433,6 +435,7 @@ func rotateBackups(directory string, retention int) error {
 	return nil
 }
 
+// writeBackupChecksum 为备份文件生成 sha256 与 HMAC 完整性校验文件（.sha256/.hmac），密钥取备份配置。
 func writeBackupChecksum(path, integrityKey string) error {
 	input, err := os.Open(path)
 	if err != nil {
@@ -464,6 +467,7 @@ func writeBackupChecksum(path, integrityKey string) error {
 	return nil
 }
 
+// writeSyncedFile 写入文件并强制刷盘，确保备份元数据在掉电场景下不丢失。
 func writeSyncedFile(path string, content []byte, perm os.FileMode) error {
 	file, err := os.OpenFile(path, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, perm)
 	if err != nil {

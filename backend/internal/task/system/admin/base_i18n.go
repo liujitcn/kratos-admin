@@ -45,10 +45,12 @@ type BaseI18nTask struct {
 
 type i18nIndex map[string]map[dto.I18nKey]*models.BaseI18N
 
+// get 按 目标键 + 目标ID + 语言 三元组查索引，未命中返回 nil。
 func (i i18nIndex) get(targetKey string, targetID int64, locale string) *models.BaseI18N {
 	return i[targetKey][dto.I18nKey{TargetID: targetID, Locale: locale}]
 }
 
+// set 把一条翻译记录写入索引，按需惰性初始化目标键分组。
 func (i i18nIndex) set(row *models.BaseI18N) {
 	rows := i[row.TargetKey]
 	if rows == nil {
@@ -183,6 +185,7 @@ func (t *BaseI18nTask) Exec(ctx context.Context, _ map[string]string) ([]string,
 	return output, nil
 }
 
+// loadI18nIndex 全量加载翻译表构建内存索引，任务运行期间直接查内存避免逐条回库。
 func (t *BaseI18nTask) loadI18nIndex(ctx context.Context) (i18nIndex, error) {
 	query := t.i18nCase.Query(ctx).BaseI18N
 	rows, err := t.i18nCase.List(ctx, repository.Order(query.ID.Asc()))

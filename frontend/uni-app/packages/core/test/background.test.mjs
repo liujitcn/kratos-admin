@@ -21,10 +21,11 @@ test('H5 picker 弹层提供暗色主题覆盖', () => {
   assert.match(baseStyles, /uni-picker-action-confirm[\s\S]*kratos-color-primary/)
 })
 
-test('H5 modal 保留旧版按钮边界样式', () => {
+test('H5 modal 使用实际运行时遮罩并保留按钮边界样式', () => {
+  assert.match(baseStyles, /html \.uni-mask[\s\S]*kratos-color-mask/)
   assert.match(baseStyles, /uni-modal__ft::after[\s\S]*uni-modal__btn::after/)
-  assert.match(baseStyles, /html \.uni-modal-dialog[\s\S]*background-color:/)
-  assert.match(baseStyles, /uni-modal-dialog__message[\s\S]*color:/)
+  assert.match(baseStyles, /html body \.uni-modal[\s\S]*max-width: 300px/)
+  assert.match(baseStyles, /uni-modal__bd[\s\S]*kratos-color-text-muted/)
 })
 
 test('消息分类图标与文字保持横向且不换行', () => {

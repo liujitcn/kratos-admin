@@ -53,6 +53,7 @@ export const BI_THEME_DARK: BiResolvedTheme = {
   tooltipBg: "#1d1e1f",
 };
 
+/** 按明暗模式解析 BI 主题令牌。 */
 export function resolveTheme(mode: "light" | "dark"): BiResolvedTheme {
   return mode === "dark" ? BI_THEME_DARK : BI_THEME_LIGHT;
 }

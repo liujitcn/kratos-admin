@@ -63,6 +63,7 @@ const title = computed(() => configStore.display.sysName || import.meta.env.VITE
 const configuredLogoUrl = computed(() => configStore.display.adminLogo);
 const { logoUrl, handleLogoError } = useLogoUrl(configuredLogoUrl);
 
+/** 处理横向菜单点击：外链新窗口打开，其余路由跳转。 */
 const handleClickMenu = (subItem: RouteItem) => {
   const target = getRouteTarget(subItem);
   if (!target) return;

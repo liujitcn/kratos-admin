@@ -46,6 +46,7 @@ const themeStore = useThemeStore()
 /** 只放行 http(s) 外链，其它协议按非法地址处理。 */
 const isAllowedUrl = (value: string) => /^https?:\/\//i.test(value)
 
+/** 解码 URI 组件，遇到非法编码序列时返回原文不抛错。 */
 const safeDecodeURIComponent = (value: string) => {
   try {
     return decodeURIComponent(value)

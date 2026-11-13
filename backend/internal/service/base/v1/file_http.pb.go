@@ -178,6 +178,7 @@ func _FileService_DownloadFile0_HTTP_Handler(srv FileServiceHTTPServer) func(ctx
 	}
 }
 
+// convertUploadFileInfo 把 multipart 上传文件转换为协议对象：限制大小、规整业务类型与文件分类，并关闭上传流。
 func convertUploadFileInfo(multipartFile multipart.File, fileType, contentType, fileName string) (*basev1.UploadFileInfo, error) {
 	defer func(multipartFile multipart.File) {
 		err := multipartFile.Close()

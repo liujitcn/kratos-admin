@@ -189,10 +189,12 @@ func GeneratedMenuI18ns(table *Table, column *CodeGenColumn, action string, stat
 	return i18ns
 }
 
+// localizedResourceMessages 构造资源名称的多语言键值对，供各语言文件统一引用资源显示名。
 func localizedResourceMessages(prefix string, resource string) map[string]string {
 	return map[string]string{prefix + ".resource": resource}
 }
 
+// localizedTableComment 解析表注释的目标语言文案：主语言用默认注释，其他语言按目标语言、当前语言、默认注释依次回退。
 func localizedTableComment(table *Table, localeValue string, currentLocale string, primaryLocale string) string {
 	if table == nil {
 		return ""
@@ -206,6 +208,7 @@ func localizedTableComment(table *Table, localeValue string, currentLocale strin
 	return DefaultString(table.I18NConfig[currentLocale].Comment, DefaultString(table.TableComment, table.BusinessName))
 }
 
+// localizedLeftTreeComment 解析左树标题的目标语言文案，优先左树专属配置，未配置时回退到表注释。
 func localizedLeftTreeComment(table *Table, localeValue string, currentLocale string, primaryLocale string) string {
 	config := LeftTreeConfigFromTable(table)
 	if localeValue == primaryLocale {
@@ -217,6 +220,7 @@ func localizedLeftTreeComment(table *Table, localeValue string, currentLocale st
 	return DefaultString(table.I18NConfig[currentLocale].LeftTreeComment, DefaultString(config.Comment, localizedTableComment(table, localeValue, currentLocale, primaryLocale)))
 }
 
+// localizedColumnComment 解析列注释的目标语言文案，回退链与表注释一致，最终退到列名兜底。
 func localizedColumnComment(column *CodeGenColumn, localeValue string, currentLocale string, primaryLocale string) string {
 	if column == nil {
 		return ""
@@ -230,6 +234,7 @@ func localizedColumnComment(column *CodeGenColumn, localeValue string, currentLo
 	return DefaultString(column.I18NConfig[currentLocale].Comment, DefaultString(column.Comment, column.Name))
 }
 
+// localizedPasswordStrength 生成指定语言的密码强度提示文案。
 func localizedPasswordStrength(localeValue string, currentLocale string) string {
 	return localizeCodegen(localeValue, currentLocale, "password_strength", nil, "password_strength")
 }
@@ -244,10 +249,12 @@ func frontendStaticOptionLocaleKey(table *Table, column *CodeGenColumn, value an
 	return FrontendLocaleKeyPrefix(table) + ".option." + stringcase.ToSnakeCase(column.Name) + ".value" + hex.EncodeToString(digest[:6])
 }
 
+// frontendLocalePath 将资源名转换为前端语言文件路径片段：蛇形命名的下划线替换为点分。
 func frontendLocalePath(value string) string {
 	return strings.ReplaceAll(stringcase.ToSnakeCase(value), "_", ".")
 }
 
+// parseCodeGenStaticOptions 解析列选项配置中的静态选项 JSON，配置非法或为空时返回空列表。
 func parseCodeGenStaticOptions(option CodeGenColumnOptionConfig) []CodeGenStaticOption {
 	var options []CodeGenStaticOption
 	if json.Unmarshal([]byte(option.SourceValue), &options) != nil {
@@ -256,6 +263,7 @@ func parseCodeGenStaticOptions(option CodeGenColumnOptionConfig) []CodeGenStatic
 	return options
 }
 
+// localizedGeneratedStaticLabel 将静态选项的常见默认标签（启用、禁用、是、否等）替换为对应语言文案，未命中时保留原标签。
 func localizedGeneratedStaticLabel(label string, localeValue string, currentLocale string) string {
 	messageKey, ok := codegenStaticMessageKeys[label]
 	if !ok {
@@ -296,6 +304,7 @@ func replaceCodegenMessagePlaceholders(message string, values map[string]string)
 	return message
 }
 
+// fullCodegenMessageKey 补全文案键的统一前缀；common 键和已带前缀的键原样返回。
 func fullCodegenMessageKey(key string) string {
 	if strings.HasPrefix(key, "common.") || strings.HasPrefix(key, codegenMessagePrefix) {
 		return key

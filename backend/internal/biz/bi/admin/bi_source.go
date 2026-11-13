@@ -447,6 +447,7 @@ func (c *BiSourceCase) findEnabledSource(ctx context.Context, tenantID int64, co
 	return item, schema, nil
 }
 
+// findSource 按租户和编号查找数据源记录，记录不存在时返回资源未找到错误。
 func (c *BiSourceCase) findSource(ctx context.Context, tenantID, id int64) (*models.BiSource, error) {
 	query := c.sourceRepo.Query(ctx).BiSource
 	item, err := c.sourceRepo.Find(ctx, repository.Where(query.ID.Eq(id)), repository.Where(query.TenantID.Eq(tenantID)))
@@ -674,6 +675,7 @@ func compatibleSourceTypes(left, right string) bool {
 	return sourceFieldType(left) == sourceFieldType(right)
 }
 
+// validateSourceField 校验语义模型中单个字段定义：编码、名称、物理列必填且标识符合法，类型限定在支持的取值内。
 func validateSourceField(code, name, column string, fieldType bi.FieldType) error {
 	if code == "" || name == "" || column == "" {
 		return errorsx.InvalidArgument("字段编码、名称和物理列不能为空")
@@ -687,6 +689,7 @@ func validateSourceField(code, name, column string, fieldType bi.FieldType) erro
 	return nil
 }
 
+// supportedAggregation 判断度量聚合方式是否属于支持的聚合函数（count、sum、avg、min、max）。
 func supportedAggregation(value string) bool {
 	switch strings.ToLower(value) {
 	case "count", "sum", "avg", "min", "max":
@@ -696,6 +699,7 @@ func supportedAggregation(value string) bool {
 	}
 }
 
+// normalizeMaxRows 将数据源单次查询的返回行数收敛到安全区间，缺省 100 行、上限 1000 行，避免误配导致全表拉取。
 func normalizeMaxRows(maxRows int32) int32 {
 	if maxRows <= 0 {
 		return 100
@@ -717,6 +721,7 @@ func sourceName(form *adminv1.BiSourceForm) string {
 	return ""
 }
 
+// supportedSourceDriver 判断独立数据库连接的驱动类型是否在支持范围内（MySQL、Doris、TiDB、PostgreSQL）。
 func supportedSourceDriver(value string) bool {
 	switch strings.ToLower(value) {
 	case "mysql", "doris", "tidb", "postgres":
@@ -726,6 +731,7 @@ func supportedSourceDriver(value string) bool {
 	}
 }
 
+// sourcePassword 从脱敏存储中还原独立连接的密码；密码未配置或复用服务端客户端时无独立密码。
 func (c *BiSourceCase) sourcePassword(ctx context.Context, item *models.BiSource) (string, error) {
 	if item.Password == "" || item.Host == "" {
 		return "", nil

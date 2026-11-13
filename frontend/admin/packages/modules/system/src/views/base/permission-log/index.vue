@@ -85,6 +85,7 @@ const config = computed<LogTableConfig>(() => ({
   get: getDetail
 }));
 
+/** 分页查询权限日志，并适配 ProTable 的列表结构。 */
 async function requestTable(params: Record<string, unknown>) {
   const response = await defBasePermissionLogService.PageBasePermissionLog(
     buildPageRequest({ ...params, tenant_id: toRequestTenantId(params.tenant_id) } as unknown as PageBasePermissionLogRequest)
@@ -92,6 +93,7 @@ async function requestTable(params: Record<string, unknown>) {
   return { list: response.base_permission_logs as unknown as Record<string, unknown>[], total: response.total };
 }
 
+/** 查询单条权限日志详情。 */
 async function getDetail(id: string) {
   return (await defBasePermissionLogService.GetBasePermissionLog({ id })) as unknown as Record<string, unknown>;
 }

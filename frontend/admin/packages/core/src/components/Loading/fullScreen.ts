@@ -27,6 +27,9 @@ const endLoading = () => {
  * @description 显示全屏加载
  * */
 let needLoadingRequestCount = 0;
+/**
+ * @description 请求计数从 0 变为 1 时才真正开启全屏遮罩，并发请求共用同一个 loading
+ * */
 export const showFullScreenLoading = () => {
   if (needLoadingRequestCount === 0) {
     startLoading();

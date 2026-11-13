@@ -87,17 +87,20 @@ const treeData = ref<{ [key: string]: any }[]>([]);
 const treeAllData = ref<{ [key: string]: any }[]>([]);
 
 const selected = ref();
+/** 按单选/多选模式归一化 defaultValue：多选强制数组，单选仅接受非空字符串。 */
 const setSelected = () => {
   if (props.multiple) selected.value = Array.isArray(props.defaultValue) ? props.defaultValue : [props.defaultValue];
   else selected.value = typeof props.defaultValue === "string" && props.defaultValue ? props.defaultValue : undefined;
 };
 
+/** 懒加载模式下根据 has_children 标记推导节点是否为叶子。 */
 const normalizeLazyNodes = (nodes: { [key: string]: any }[] = []) =>
   nodes.map(node => ({
     ...node,
     isLeaf: !node.has_children
   }));
 
+/** 写入树数据并维护两份副本：treeData 为原始数据，treeAllData 在头部注入“全部”节点。 */
 const updateTreeData = (data: { [key: string]: any }[]) => {
   treeData.value = props.lazy ? normalizeLazyNodes(data) : data;
   const allNode = { id: "", [props.label]: t("common.value.all"), isLeaf: true };
@@ -113,6 +116,7 @@ onBeforeMount(async () => {
   }
 });
 
+/** el-tree 懒加载回调：根层级以 0 作为父节点 id 请求，失败时回退空数组避免节点卡在加载态。 */
 const loadTreeNode = async (
   node: { level: number; data?: { [key: string]: any } },
   resolve: (data: { [key: string]: any }[]) => void
@@ -121,6 +125,7 @@ const loadTreeNode = async (
     resolve([]);
     return;
   }
+  // level 0 为虚拟根节点，无真实数据 id
   const parentId = node.level === 0 ? 0 : node.data?.[props.id];
   try {
     const { data } = await props.requestApi({ [props.parentKey]: parentId, lazy: true });

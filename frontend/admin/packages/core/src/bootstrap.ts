@@ -113,6 +113,7 @@ async function refreshLocalizedRuntimeData() {
   updateDocumentTitle();
 }
 
+/** 语言切换后把最新菜单元信息回写到路由记录，并同步已打开页签的标题。 */
 function syncLocalizedRouteState() {
   const authStore = useAuthStore(pinia);
   const tabsStore = useTabsStore(pinia);
@@ -130,6 +131,7 @@ function syncLocalizedRouteState() {
   );
 }
 
+/** 按当前路由更新浏览器标签页标题，标题优先取国际化键，其次取路由静态标题。 */
 function updateDocumentTitle() {
   const route = router.currentRoute.value;
   const titleKey = typeof route.meta.titleKey === "string" ? route.meta.titleKey : "";

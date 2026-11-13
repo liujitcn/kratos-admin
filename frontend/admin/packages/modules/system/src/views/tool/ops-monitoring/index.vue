@@ -368,6 +368,7 @@ const nodeMetricLabelKeys = [
 const byteUnits = ["B", "KB", "MB", "GB", "TB", "PB"];
 const trafficSummary = computed(() => traffic.value?.traffic);
 
+/** 核心指标卡片数据，实时取流量摘要并按当前语言格式化。 */
 const kpiItems = computed<KpiItem[]>(() => [
   {
     label: t("system.ops_monitoring.kpi.throughput"),
@@ -403,6 +404,7 @@ const kpiItems = computed<KpiItem[]>(() => [
   }
 ]);
 
+/** 将流量趋势点换算为 SVG 折线坐标；无数据时用 4 个零点占位保持图形骨架。 */
 const trendChart = computed<TrendChart>(() => {
   const source = traffic.value?.points ?? [];
   const rawPoints = source.length
@@ -442,6 +444,7 @@ const trendAriaLabel = computed(
       { value: `${formatNumber(trafficSummary.value?.p95_latency_ms)} ms` }
     )}`
 );
+/** 横轴时间刻度，仅取首、中、尾三点去重展示，避免标签拥挤。 */
 const trendAxis = computed(() => {
   if (!traffic.value?.points.length) return [];
   const lastIndex = trendPoints.value.length - 1;
@@ -468,6 +471,7 @@ let monitoringTimer: number | undefined;
 let monitoringActive = false;
 let monitoringRun = 0;
 
+/** 并行拉取六类监控数据，单项接口失败不影响其余面板展示。 */
 async function loadMonitoring() {
   loading.value = true;
   const results = await Promise.allSettled([
@@ -488,34 +492,42 @@ async function loadMonitoring() {
   loading.value = false;
 }
 
+/** 写入流量数据并同步聚合时间窗口。 */
 function setTraffic(value: OpsTrafficResponse) {
   traffic.value = value;
   windowMinutes.value = value.window_minutes || windowMinutes.value;
 }
 
+/** 写入服务健康响应。 */
 function setServices(value: OpsServicesResponse) {
   services.value = value;
 }
 
+/** 写入存储监控响应。 */
 function setStorage(value: OpsStorageResponse) {
   storage.value = value;
 }
 
+/** 写入端点监控响应。 */
 function setEndpoints(value: OpsEndpointsResponse) {
   endpoints.value = value;
 }
 
+/** 写入节点监控响应。 */
 function setNodes(value: OpsNodesResponse) {
   nodes.value = value;
 }
 
+/** 写入告警列表响应。 */
 function setAlerts(value: OpsAlertsResponse) {
   alerts.value = value;
 }
 
+/** 启动监控：先立即加载一次，再开启 5 秒轮询；避免组件快速切换时残留旧轮询。 */
 async function startMonitoring() {
   if (monitoringActive) return;
   monitoringActive = true;
+  // 记录本次启动序号，若首次加载期间被 stop，则放弃注册轮询
   const run = ++monitoringRun;
   await loadMonitoring();
   if (!monitoringActive || run !== monitoringRun) return;
@@ -524,6 +536,7 @@ async function startMonitoring() {
   }, 5000);
 }
 
+/** 停止轮询并递增运行序号，使仍在进行中的首次加载结果失效。 */
 function stopMonitoring() {
   monitoringActive = false;
   monitoringRun += 1;
@@ -532,11 +545,13 @@ function stopMonitoring() {
   monitoringTimer = undefined;
 }
 
+/** 按当前语言格式化数值，空值展示占位符。 */
 function formatNumber(value?: number) {
   if (value === undefined || Number.isNaN(value)) return "--";
   return new Intl.NumberFormat(getCurrentLocale(), { maximumFractionDigits: 2 }).format(value);
 }
 
+/** 将时间点格式化为当前语言的时分显示，非法时间回退为占位符。 */
 function formatClock(value?: string) {
   if (!value) return "--:--";
   const date = new Date(value);
@@ -549,6 +564,7 @@ function formatTrendPoint(point: TrendPoint) {
   return `${point.time || "--:--"} / QPS ${formatNumber(point.qps)} req/s / P95 ${formatNumber(point.latency)} ms`;
 }
 
+/** 将告警时间转换为"刚刚 / N 分钟前"等相对时间文案。 */
 function formatRelativeTime(value?: string) {
   if (!value) return "--";
   const timestamp = new Date(value).getTime();
@@ -561,6 +577,7 @@ function formatRelativeTime(value?: string) {
   return t("system.ops_monitoring.days_ago", { count: Math.round(hours / 24) });
 }
 
+/** 后端返回的是按请求语言翻译过的状态文案，这里反查 i18n key 再按当前语言重新翻译。 */
 function translateStatus(status?: string) {
   const localeKey = monitoringStatusKeys.find(key => t(key) === status);
   if (localeKey) return t(localeKey);
@@ -572,6 +589,7 @@ function isNormalStatus(status?: string) {
   return status === t("system.ops_monitoring.status.normal");
 }
 
+/** 将存储节点数据映射为卡片展示项，推导状态颜色并约束容量在 0-100。 */
 function mapStorage(item: OpsStorage) {
   return {
     ...item,
@@ -584,6 +602,7 @@ function mapStorage(item: OpsStorage) {
   };
 }
 
+/** 将接口监控数据映射为表格行，数值统一格式化为展示文案。 */
 function mapEndpoint(endpoint: OpsEndpoint): EndpointItem {
   return {
     route: endpoint.route,
@@ -595,6 +614,7 @@ function mapEndpoint(endpoint: OpsEndpoint): EndpointItem {
   };
 }
 
+/** 将实例资源数据映射为指标条目，使用率达到 70% 时标记警告色。 */
 function mapNode(node: OpsNode): NodeItem {
   return {
     name: node.name,
@@ -638,6 +658,7 @@ function translateNodeMetricLabel(label: string) {
   return localeKey ? t(localeKey) : label;
 }
 
+/** 将告警数据映射为列表项，状态非正常时标记警告色。 */
 function mapAlert(alert: OpsAlert) {
   return {
     title: alert.title,

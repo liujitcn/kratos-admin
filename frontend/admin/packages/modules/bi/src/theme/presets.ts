@@ -227,6 +227,7 @@ export const BI_SEMANTIC_COLORS = {
   offline: "#5f88b0",
 } as const;
 
+/** 按键取仪表盘主题预设；auto 或未命中返回 null（跟随宿主主题）。 */
 export function getDashboardThemePreset(key: string | undefined): BiDashboardThemePreset | null {
   if (!key || key === "auto") return null;
   return BI_DASHBOARD_THEMES[key] ?? null;

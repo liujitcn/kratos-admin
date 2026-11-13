@@ -48,6 +48,7 @@ const ANONYMOUS_CACHE_KEY = 'kratos-uni-app:navigation:anonymous'
 const AUTHENTICATED_CACHE_KEY = 'kratos-uni-app:navigation:authenticated'
 /** 固定移动端菜单根目录编号。 */
 export const APP_MENU_ROOT_ID = 99000000
+/** 构建内置兜底菜单，远端菜单不可用且无缓存时保证核心页面可达。 */
 const createDefaultMenus = (): AppMenu[] => [
   {
     id: 99010000,
@@ -401,15 +402,18 @@ export function launchAppStatus(state: import('./module').BootstrapViewKey, deta
   uni.reLaunch({ url: `/${route}?${query}` })
 }
 
+/** 菜单缓存按登录身份和语言区分，避免不同身份或语言串用同一份配置。 */
 function resolveCacheKey(): string {
   const identity = hasValidToken() ? AUTHENTICATED_CACHE_KEY : ANONYMOUS_CACHE_KEY
   return `${identity}:${getCurrentLocale()}`
 }
 
+/** 读取本地缓存的菜单配置，结构损坏时清除缓存返回 undefined。 */
 function readCachedMenus(cacheKey: string): AppMenu[] | undefined {
   const cached = uni.getStorageSync(cacheKey) as unknown
   if (!Array.isArray(cached)) return
   try {
+    // 缓存标题在保存时已按当时语言翻译，读取时对固定入口按当前语言重译。
     const cachedMenus = (cached as AppMenu[]).map((menu) => ({
       ...menu,
       title:
@@ -425,10 +429,12 @@ function readCachedMenus(cacheKey: string): AppMenu[] | undefined {
   }
 }
 
+/** 将后端菜单响应整表转换为移动端菜单列表。 */
 function normalizeMenuResponse(response: ListBaseMenuResponse): AppMenu[] {
   return response.items.map(normalizeMenu)
 }
 
+/** 将后端菜单项映射为移动端菜单结构并补齐默认值。 */
 function normalizeMenu(item: BaseMenu): AppMenu {
   const meta = item.meta
   const app = meta?.app
@@ -454,6 +460,7 @@ function resolveMenuTitle(viewKey: string, title: string): string {
   return titleKey ? t(titleKey) : ''
 }
 
+/** 校验整份菜单的编号、命名、访问模式、父子层级与 tab 数量，任一不合法即拒绝整份配置。 */
 function validateMenus(nextMenus: AppMenu[]): AppMenu[] {
   // 多端共用后端时菜单可能携带本应用未注册的视图键，过滤跳过而不是让整份菜单失效。
   const knownMenus = nextMenus.filter((menu) => {

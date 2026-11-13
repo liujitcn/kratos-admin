@@ -23,6 +23,7 @@ onMounted(() => {
   });
 });
 
+/** 切换浏览器全屏；浏览器不支持时先提示再尝试切换。 */
 const handleFullScreen = () => {
   if (!screenfull.isEnabled) ElMessage.warning(t("core.header.fullscreen_unsupported"));
   screenfull.toggle();

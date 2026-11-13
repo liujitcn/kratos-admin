@@ -78,6 +78,7 @@ function indexProject(tenantId: number, projectId: number, projectName: string, 
   sharedCatalog.projectMap.set(String(projectId), info);
 }
 
+/** 递归遍历租户项目树，把项目节点写入共享名称映射。 */
 function indexTree(options: TreeBaseTenantProjectResponse_Option[], tenantName = "") {
   for (const option of options) {
     if (option.type === "project") {

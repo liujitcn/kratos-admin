@@ -41,6 +41,7 @@ function matchFilter(row: BiRow, f: BiChartFilter): boolean {
   }
 }
 
+/** 按图表过滤条件筛选数据行，全部条件需同时满足；无过滤条件时原样返回。 */
 export function applyFilters(rows: BiRow[], filters: BiChartFilter[] | undefined): BiRow[] {
   if (!filters?.length) return rows;
   return rows.filter((row) => filters.every((f) => matchFilter(row, f)));
@@ -126,6 +127,7 @@ export function aggregateRows(
   return out;
 }
 
+/** 按图表排序配置对数据行排序（不改变原数组），以首个维度为键、首个度量为次键。 */
 export function sortRows(rows: BiRow[], chart: BiChartSchema): BiRow[] {
   const sort: BiChartSort | undefined = chart.sort;
   if (!sort) return rows;
@@ -155,6 +157,7 @@ export function transformRows(chart: BiChartSchema, inputRows: BiRow[]): BiRow[]
 
 export type BiFieldType = "number" | "date" | "string";
 
+/** 从采样数据推断字段类型（数值/日期/字符串），空数据或类型混杂时回退字符串。 */
 export function inferFieldType(rows: BiRow[] | undefined, field: string): BiFieldType {
   if (!rows?.length) return "string";
   let sawValue = false;

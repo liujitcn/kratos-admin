@@ -32,7 +32,9 @@ export interface LocaleOption {
   native_name: string;
 }
 
+/** 默认语言区域，取自生成配置。 */
 export const DEFAULT_LOCALE: SupportedLocale = GENERATED_DEFAULT_LOCALE;
+/** 语言偏好在 localStorage 的存储键。 */
 export const LOCALE_STORAGE_KEY = "kratos-admin:locale";
 
 const mutableLocale = ref<SupportedLocale>(DEFAULT_LOCALE);
@@ -221,6 +223,7 @@ export function useLocaleStore() {
   };
 }
 
+/** 基于全部已打包语言构建兜底语言选项，接口未返回语言配置时使用。 */
 function getFallbackLanguageOptions(): LocaleOption[] {
   return SUPPORTED_LOCALES.map(languageCode => {
     return {
@@ -230,10 +233,12 @@ function getFallbackLanguageOptions(): LocaleOption[] {
   });
 }
 
+/** 从该语言自身的语言包读取本地语言名称，读取不到时回退为语言代码。 */
 function fallbackNativeLanguageName(languageCode: SupportedLocale): string {
   return getLocaleText(languageCode, `common.language.${languageCode}`) || languageCode;
 }
 
+/** 应用语言：重放数据库自定义覆盖、切换 vue-i18n 与 dayjs，并同步 html lang。 */
 function applyLocale(locale: SupportedLocale): void {
   adminI18n.global.setLocaleMessage(locale, { ...(customLocaleMessages.get(locale) ?? defaultLocaleMessages.get(locale) ?? {}) });
   mutableLocale.value = locale;
@@ -243,20 +248,25 @@ function applyLocale(locale: SupportedLocale): void {
   document.documentElement.lang = locale;
 }
 
+/** 校验语言键归属：core 模块仅允许 common./core. 前缀，业务模块必须使用自身模块名前缀。 */
 function assertLocaleKeyNamespace(moduleName: string, key: string): void {
   const valid =
     moduleName === "kratos-admin" ? key.startsWith("common.") || key.startsWith("core.") : key.startsWith(`${moduleName}.`);
   if (!valid) throw new Error(runtimeMessage("locale_namespace_invalid", { module: moduleName, key }));
 }
 
+/** 提取参与一致性校验的文案键集合。 */
 function requiredLocaleKeys(messages: LocaleMessages): string[] {
+  // 语言名称键（common.language.*）是各语言独有的本地名称，不要求跨语言键集合一致，故排除
   return Object.keys(messages)
     .filter(key => !key.startsWith("common.language."))
     .sort();
 }
 
+/** 校验翻译占位符集合与默认语言一致，不一致时告警并由调用方回退默认文案。 */
 function hasMatchingLocalePlaceholders(moduleName: string, key: string, message: string, sourceMessage: string): boolean {
   const placeholders = (value: string) => [...value.matchAll(/\{([A-Za-z0-9_]+)\}/g)].map(match => match[1]).sort();
+  // 排序后用不可见分隔符拼接比较，保证占位符顺序无关
   if (placeholders(message).join("\u0000") !== placeholders(sourceMessage).join("\u0000")) {
     warnLocaleIssue(`${moduleName} 的 ${key} 占位符集合不一致，已回退到 ${DEFAULT_LOCALE}`);
     return false;

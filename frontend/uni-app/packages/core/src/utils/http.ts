@@ -148,6 +148,7 @@ type Data = {
 const authErrorCodeSet = new Set(['401', '403'])
 const authErrorReasonSet = new Set(['UNAUTHENTICATED', 'PERMISSION_DENIED'])
 
+/** 识别响应体中的认证失效/无权限错误，兼容数字 code 与顶层 reason 两种形态。 */
 function isAuthErrorResponse(data: unknown) {
   if (!data || typeof data !== 'object') {
     return false
@@ -172,6 +173,7 @@ function shouldSkipAuthExpiredPrompt(url: string) {
   return AUTH_EXPIRED_EXCLUDED_URL_SET.has(url)
 }
 
+/** 推导请求认证模式：显式指定优先，其次 no-auth 头或公共认证接口视为免登录，默认必须登录。 */
 function resolveAuthMode(options: HttpRequestOptions, url: string): AuthMode {
   if (options.authMode) {
     return options.authMode
@@ -309,6 +311,7 @@ function handleTokenRefresh() {
   return refreshTokenPromise
 }
 
+/** 按认证模式取访问令牌：required 缺失或失效时弹窗引导重登，optional 静默降级为匿名。 */
 async function getAccessTokenByMode(authMode: AuthMode) {
   if (authMode === 'none') {
     return ''
@@ -343,6 +346,7 @@ async function getAccessTokenByMode(authMode: AuthMode) {
   return ''
 }
 
+/** 调用刷新令牌接口并持久化新的访问令牌、刷新令牌与有效期。 */
 async function refreshAccessToken() {
   const refreshToken = getRefreshToken()
   if (!refreshToken) {
@@ -460,6 +464,7 @@ async function promptRelogin() {
   }
 }
 
+/** 按认证模式处理服务端判定失效：required 弹窗引导重登，其余静默清理登录态。 */
 function handleAuthExpiredByMode(authMode: AuthMode, url: string, responseData: Data) {
   if (authMode === 'required' && !shouldSkipAuthExpiredPrompt(url)) {
     void promptRelogin()
@@ -475,6 +480,7 @@ function handleAuthExpiredByMode(authMode: AuthMode, url: string, responseData: 
   }
 }
 
+/** 静默清理本地登录态并广播登出事件，供界面同步退出而不发起跳转。 */
 function silentClearAuthData() {
   clearToken()
   uni.removeStorageSync('user')

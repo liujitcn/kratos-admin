@@ -69,6 +69,8 @@ func IsStringColumn(column *CodeGenColumn) bool {
 	return goType == "string"
 }
 
+// buildExpectedProtoChecks 依据页面类型和字段配置推导该表应生成的 Proto 方法清单，
+// 作为生成流水线的一致性校验基准：树形页、左树、状态字段各自追加对应接口。
 func (c *renderer) buildExpectedProtoChecks(table *Table, columns []*CodeGenColumn) []*ProtoCheck {
 	protoPath := c.defaultProtoPath(table)
 	entity := table.EntityName

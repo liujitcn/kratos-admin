@@ -114,6 +114,7 @@ func (c *BaseTableBackupRestoreCase) ExecuteBaseTableBackupRestore(ctx context.C
 	return c.UpdateByID(ctx, entity)
 }
 
+// toBaseTableBackupRestore 将备份恢复记录模型转换为接口响应。
 func toBaseTableBackupRestore(item *models.BaseTableBackupRestore) *adminv1.BaseTableBackupRestore {
 	return &adminv1.BaseTableBackupRestore{Id: item.ID, BackupRecordId: item.BackupRecordID, SourceName: item.SourceName, TargetSourceName: item.TargetSourceName, TargetDatabase: item.TargetDatabase, RestoreMode: adminv1.BaseTableBackupRestoreMode(item.RestoreMode), OperatorId: item.OperatorID, Status: adminv1.BaseTableBackupRestoreStatus(item.Status), Error: item.Error, StartedAt: item.StartedAt.Format(time.RFC3339), FinishedAt: item.FinishedAt.Format(time.RFC3339)}
 }
@@ -195,6 +196,8 @@ func verifyTargetDatabase(databaseConfig *configv1.Data_Database, targetDatabase
 	return nil
 }
 
+// verifyBackupBytes 对下载的备份字节依次执行 SHA-256 摘要与 HMAC-SHA256 校验，
+// 防止备份对象在存储中被篡改或损坏；任一元数据缺失即拒绝恢复。
 func verifyBackupBytes(dataValue []byte, record *models.BaseTableBackupRecord, integrityKey string) error {
 	if strings.TrimSpace(record.Sha256) == "" || strings.TrimSpace(record.Hmac) == "" {
 		return fmt.Errorf("备份完整性校验元数据为空")
@@ -214,10 +217,12 @@ func verifyBackupBytes(dataValue []byte, record *models.BaseTableBackupRecord, i
 	return nil
 }
 
+// decryptBackupFile 使用运行配置的加密密钥解密备份文件到指定目标路径。
 func decryptBackupFile(ctx context.Context, encryptionKey, source, target string) error {
 	return backup.DecryptFile(ctx, encryptionKey, source, target)
 }
 
+// gunzipFile 将 gzip 压缩的备份文件解压为可导入的 SQL 文件。
 func gunzipFile(source, target string) error {
 	input, err := os.Open(source)
 	if err != nil {

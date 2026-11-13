@@ -130,6 +130,7 @@ const runningStreamTaskMap = new Map<string, StreamTask>()
 const pendingDeltaMap = new Map<string, AiStreamPayload>()
 let pendingDeltaTimer = 0
 
+/** 构建本地默认快捷指令，作为远端快捷入口加载前的兜底文案。 */
 const createStarterShortcuts = (): AiShortcut[] => [
   {
     key: 'summarize',
@@ -244,6 +245,7 @@ onShow(() => {
   pageVisible.value = true
   void refreshPendingCount()
   if (resultRefreshTimer) clearInterval(resultRefreshTimer)
+  // 每 5 秒轮询一次：仅限聊天页空闲且存在只读结果或待审批消息时刷新，避免无关请求。
   resultRefreshTimer = setInterval(() => {
     if (
       activeFunction.value === 'chat' &&
@@ -286,10 +288,12 @@ onBeforeUnmount(() => {
   activeSessionID.value = ''
 })
 
+/** 切换会话抽屉显示状态。 */
 const toggleSessionDrawer = () => {
   showSessionDrawer.value = !showSessionDrawer.value
 }
 
+/** 切换到指定会话；该会话不在流式发送中时重新拉取历史消息。 */
 const selectSession = (sessionID: string) => {
   activeFunction.value = 'chat'
   activeSessionID.value = sessionID
@@ -301,6 +305,7 @@ const selectSession = (sessionID: string) => {
   scrollChatToBottom()
 }
 
+/** 新建远端会话并切换为当前会话。 */
 const createSession = async () => {
   try {
     const sessionID = await createRemoteSession()
@@ -317,6 +322,7 @@ const createSession = async () => {
   }
 }
 
+/** 复制消息内容到剪贴板并提示结果。 */
 const copyMessage = (item: ChatMessageItem) => {
   uni.setClipboardData({
     data: item.content,
@@ -324,6 +330,7 @@ const copyMessage = (item: ChatMessageItem) => {
   })
 }
 
+/** 删除消息：本地乐观消息只移除本地记录，服务端消息先调接口再清理。 */
 const deleteMessage = async (item: ChatMessageItem) => {
   const sessionID = activeSessionID.value
   if (!sessionID || currentSessionReadOnly.value) {
@@ -344,6 +351,7 @@ const deleteMessage = async (item: ChatMessageItem) => {
   }
 }
 
+/** 仅允许对会话中最后一条非生成中、非待审批的 AI 消息重新生成。 */
 const canRegenerateMessage = (item: ChatMessageItem) =>
   !currentSessionReadOnly.value &&
   item.role === 'ai' &&
@@ -353,6 +361,7 @@ const canRegenerateMessage = (item: ChatMessageItem) =>
   item.status !== AiMessageStatus.AI_MESSAGE_STATUS_WAITING_APPROVAL &&
   currentMessages.value[currentMessages.value.length - 1]?.messageID === item.messageID
 
+/** 重新生成最后一条 AI 回复，并以服务端返回的消息列表刷新会话。 */
 const regenerateMessage = async (item: ChatMessageItem) => {
   if (!canRegenerateMessage(item)) {
     return
@@ -374,6 +383,7 @@ const regenerateMessage = async (item: ChatMessageItem) => {
   }
 }
 
+/** 弹出消息操作菜单，按只读状态和可重新生成条件动态组装选项。 */
 const handleMessageAction = (item: ChatMessageItem) => {
   const itemList = currentSessionReadOnly.value
     ? [t('system.ai.action.copy')]
@@ -394,6 +404,7 @@ const handleMessageAction = (item: ChatMessageItem) => {
   })
 }
 
+/** 发送输入框内容；只有附件没有文字时用占位文案代替正文。 */
 const handleSend = async () => {
   if (isSubmitDisabled.value) {
     return
@@ -405,6 +416,7 @@ const handleSend = async () => {
   await sendAiPayload({ text, attachments })
 }
 
+/** 直接将快捷指令的提示词作为一条消息发送。 */
 const handleStarterPrompt = async (shortcut: AiShortcut) => {
   if (currentSessionReadOnly.value || currentSessionSending.value || loadingSessions.value) {
     return
@@ -415,6 +427,7 @@ const handleStarterPrompt = async (shortcut: AiShortcut) => {
   })
 }
 
+/** 快捷指令翻页：循环切到下一组展示。 */
 const refreshStarterPrompts = () => {
   if (!canRefreshStarterPrompts.value) {
     return
@@ -422,6 +435,7 @@ const refreshStarterPrompts = () => {
   starterPromptGroupIndex.value = (starterPromptGroupIndex.value + 1) % starterPromptPageCount.value
 }
 
+/** 切换语音录制状态；只读会话不允许录音。 */
 const handleToggleRecord = () => {
   if (currentSessionReadOnly.value) return
   isRecording.value = !isRecording.value
@@ -431,6 +445,7 @@ const handleToggleRecord = () => {
   })
 }
 
+/** 选择图片并上传为会话附件，总数不超过 MAX_ATTACHMENT_COUNT。 */
 const handleAttachment = () => {
   if (currentSessionReadOnly.value || uploadingAttachment.value || currentSessionSending.value) {
     return
@@ -485,10 +500,12 @@ const handleAttachment = () => {
   })
 }
 
+/** 从待发送列表中移除附件。 */
 const removeSelectedAttachment = (attachment: AiAttachment) => {
   selectedAttachments.value = selectedAttachments.value.filter((item) => item !== attachment)
 }
 
+/** 预览附件图片：以当前图为起点预览全部可用图链。 */
 const previewAttachment = (attachment: AiAttachment, attachments: AiAttachment[]) => {
   const current = formatSrc(attachment.url)
   const urls = attachments.map((item) => formatSrc(item.url)).filter(Boolean)
@@ -573,6 +590,7 @@ function handleKnowledgeChange(knowledgeIds: number[]) {
   selectedKnowledgeIds.value = knowledgeIds
 }
 
+/** 发送消息主流程：确保会话存在后乐观插入本地用户消息与思考占位，再启动请求任务。 */
 async function sendAiPayload(payload: { text: string; attachments: AiAttachment[] }) {
   const sessionID = await ensureActiveSession()
   if (!sessionID || isSessionSending(sessionID)) {
@@ -593,6 +611,7 @@ async function sendAiPayload(payload: { text: string; attachments: AiAttachment[
   return runAiTask(sessionID, payload)
 }
 
+/** 执行一次消息请求任务：按平台选择 chunked/fetch 流式通道，失败时把占位消息标记为失败。 */
 async function runAiTask(
   sessionID: string,
   payload: { text: string; attachments: AiAttachment[] },
@@ -700,6 +719,7 @@ async function runAiTask(
   }
 }
 
+/** 流式事件分发：增量进缓冲合并，完成走收尾流程，其余按错误处理。 */
 function handleAiStreamEvent(event: AiStreamEvent, task?: StreamTask) {
   if (event.event === 'delta') {
     handleAiDelta(event.payload)
@@ -712,6 +732,7 @@ function handleAiStreamEvent(event: AiStreamEvent, task?: StreamTask) {
   handleAiError(event.payload, task)
 }
 
+/** 处理流式增量：空分片忽略，其余进入缓冲合并。 */
 function handleAiDelta(payload: AiStreamPayload) {
   if (!payload.delta) {
     return
@@ -719,6 +740,7 @@ function handleAiDelta(payload: AiStreamPayload) {
   queueAiDelta(payload)
 }
 
+/** 流式完成：冲刷缓冲分片，用服务端最终消息替换本地占位并同步会话摘要。 */
 function handleAiFinish(payload: AiStreamPayload, task?: StreamTask) {
   const sessionID = payload.session_id
   if (!sessionID) {
@@ -747,6 +769,7 @@ function handleAiFinish(payload: AiStreamPayload, task?: StreamTask) {
   }
 }
 
+/** 流式错误：优先采用服务端返回的消息列表，否则将本地流式消息标记为失败。 */
 function handleAiError(payload: AiStreamPayload, task?: StreamTask) {
   const sessionID = payload.session_id
   if (!sessionID) {
@@ -798,6 +821,7 @@ function queueAiDelta(payload: AiStreamPayload) {
   }, 32) as unknown as number
 }
 
+/** 把缓冲的增量分片一次性写入对应流式消息并滚动到底部。 */
 function flushAiDelta() {
   if (pendingDeltaTimer) {
     clearTimeout(pendingDeltaTimer)
@@ -821,6 +845,7 @@ function flushAiDelta() {
   }
 }
 
+/** 清空待冲刷的分片缓冲与定时器，页面卸载时调用。 */
 function clearPendingDelta() {
   if (pendingDeltaTimer) {
     clearTimeout(pendingDeltaTimer)
@@ -829,6 +854,7 @@ function clearPendingDelta() {
   pendingDeltaMap.clear()
 }
 
+/** 解析非流式响应：兼容 JSON 结构与 SSE 事件流文本两种返回形态。 */
 function normalizeNonStreamMessages(response: unknown) {
   const jsonResponse = response as { messages?: AiMessage[] }
   if (Array.isArray(jsonResponse?.messages)) {
@@ -847,6 +873,7 @@ function normalizeNonStreamMessages(response: unknown) {
   return []
 }
 
+/** 用服务端消息替换本地占位与流式消息，其余未受影响的消息保持不变。 */
 function replacePendingMessages(
   current: ChatMessageItem[],
   nextMessages: ChatMessageItem[],
@@ -859,6 +886,7 @@ function replacePendingMessages(
     if (!item.localOnly) {
       return true
     }
+    // 服务端已确认该用户消息时丢弃本地乐观副本，避免同一条消息出现两次。
     if (payload?.message_id && item.role === 'user') {
       return !nextMessages.some(
         (message) => message.role === 'user' && message.messageID === payload.message_id,
@@ -879,14 +907,17 @@ function replacePendingMessages(
   return sortMessages(Array.from(messageMap.values()))
 }
 
+/** 构造流式消息键：会话 ID + 消息 ID，用于在消息列表中定位流式消息。 */
 function buildStreamMessageKey(sessionID: string, messageID: string) {
   return `${sessionID}:${messageID}`
 }
 
+/** 构造本地占位消息键：占位消息统一使用固定 PENDING_MESSAGE_ID。 */
 function buildPendingStreamMessageKey(sessionID: string) {
   return buildStreamMessageKey(sessionID, PENDING_MESSAGE_ID)
 }
 
+/** 首次进入时拉取会话列表，成功后确保存在可用的当前会话。 */
 async function ensureSessionsLoaded() {
   if (loadingSessions.value || sessions.value.length > 0) {
     return
@@ -903,6 +934,7 @@ async function ensureSessionsLoaded() {
   }
 }
 
+/** 确定发送目标会话：已有当前会话则复用，否则取首个会话，仍没有就新建。 */
 async function ensureActiveSession() {
   if (activeSessionID.value) {
     return activeSessionID.value
@@ -923,6 +955,7 @@ async function ensureActiveSession() {
   return sessionID
 }
 
+/** 调用服务端创建新会话并写入本地会话列表。 */
 async function createRemoteSession() {
   const response = await defAiSessionService.CreateAiSession({
     title: t('system.ai.new_session'),
@@ -937,6 +970,7 @@ async function createRemoteSession() {
   return session.id
 }
 
+/** 加载指定会话的历史消息，并丢弃切换会话后返回的过期响应。 */
 async function loadMessages(sessionID: string) {
   if (!sessionID) {
     return
@@ -945,6 +979,7 @@ async function loadMessages(sessionID: string) {
   loadingSessionID.value = sessionID
   try {
     const response = await defAiSessionService.ListAiMessage({ session_id: sessionID })
+    // 响应返回时用户已切走，丢弃过期结果避免消息串会话。
     if (loadingSessionID.value !== sessionID) {
       return
     }
@@ -990,6 +1025,7 @@ async function waitForMessagesLoaded(sessionID: string) {
   }
 }
 
+/** 补全会话字段默认值，保证本地状态结构完整。 */
 function normalizeSession(session?: Partial<AiSession> | null): AiSession {
   return {
     id: String(session?.id ?? ''),
@@ -1005,6 +1041,7 @@ function normalizeSession(session?: Partial<AiSession> | null): AiSession {
   }
 }
 
+/** 归一化会话列表：逐条清洗并过滤无 ID 的无效项。 */
 function normalizeSessionList(list?: AiSession[] | null) {
   if (!Array.isArray(list)) {
     return []
@@ -1012,6 +1049,7 @@ function normalizeSessionList(list?: AiSession[] | null) {
   return list.map((item) => normalizeSession(item)).filter((item) => item.id)
 }
 
+/** 清洗快捷指令列表：过滤无效项、补齐文案字段并按 sort 升序排列。 */
 function normalizeStarterShortcuts(list?: AiShortcut[] | null) {
   return [...(list || [])]
     .filter((item) => Boolean(item?.key && (item.title || item.prompt)))
@@ -1025,6 +1063,7 @@ function normalizeStarterShortcuts(list?: AiShortcut[] | null) {
     .sort((left, right) => left.sort - right.sort)
 }
 
+/** 将每条服务端消息拆分为 user 和 ai 两行视图消息并排序。 */
 function normalizeMessageList(list?: AiMessage[] | null) {
   if (!Array.isArray(list)) {
     return []
@@ -1037,10 +1076,12 @@ function normalizeMessageList(list?: AiMessage[] | null) {
   )
 }
 
+/** 判断消息列表中是否存在成功状态的 AI 回复。 */
 function hasSuccessfulAiMessages(list: ChatMessageItem[]) {
   return list.some((item) => item.status === AiMessageStatus.AI_MESSAGE_STATUS_SUCCESS)
 }
 
+/** 把服务端消息映射为视图模型：按角色取输入/输出内容并补齐统计与默认值。 */
 function mapMessageItem(message: AiMessage, role: ChatRole): ChatMessageItem {
   const inputContent = {
     kind: message.input_content?.kind || 'text',
@@ -1086,6 +1127,7 @@ function mapMessageItem(message: AiMessage, role: ChatRole): ChatMessageItem {
   }
 }
 
+/** 构建乐观插入的本地用户消息，待服务端确认后由 replacePendingMessages 替换。 */
 function createLocalUserMessage(payload: { text: string; attachments: AiAttachment[] }) {
   const now = Date.now()
   const message = mapMessageItem(
@@ -1112,6 +1154,7 @@ function createLocalUserMessage(payload: { text: string; attachments: AiAttachme
   return message
 }
 
+/** 构建发送中的“思考中”占位消息；streamKey 用于首个增量到达后升级为真实流式消息。 */
 function createThinkingMessage(options?: { sessionID?: string; messageID?: string }) {
   const now = Date.now()
   const streamKey = options?.sessionID
@@ -1152,6 +1195,7 @@ function createThinkingMessage(options?: { sessionID?: string; messageID?: strin
   return message
 }
 
+/** 确保流式消息存在：优先把 pending 占位升级为真实消息编号，不存在时新建占位。 */
 function ensureStreamingMessage(current: ChatMessageItem[], payload: AiStreamPayload) {
   const sessionID = payload.session_id
   const messageID = payload.message_id
@@ -1177,6 +1221,7 @@ function ensureStreamingMessage(current: ChatMessageItem[], payload: AiStreamPay
   return sortMessages([...next, createThinkingMessage({ sessionID, messageID })])
 }
 
+/** 把增量文本追加到对应流式消息，首个增量到达时清除“思考中”占位文案。 */
 function appendStreamingDelta(current: ChatMessageItem[], payload: AiStreamPayload) {
   if (!payload.delta) {
     return current
@@ -1195,6 +1240,7 @@ function appendStreamingDelta(current: ChatMessageItem[], payload: AiStreamPaylo
   })
 }
 
+/** 请求整体失败时把本地乐观消息标记为失败态。 */
 function markThinkingMessageFailed(current: ChatMessageItem[]) {
   return current.map((item) => {
     if (!item.localOnly) {
@@ -1208,6 +1254,7 @@ function markThinkingMessageFailed(current: ChatMessageItem[]) {
   })
 }
 
+/** 把指定流式消息标记为失败并展示失败文案。 */
 function markStreamingError(current: ChatMessageItem[], payload: AiStreamPayload) {
   const streamKey = buildStreamMessageKey(payload.session_id, payload.message_id)
   return current.map((item) => {
@@ -1222,6 +1269,7 @@ function markStreamingError(current: ChatMessageItem[], payload: AiStreamPayload
   })
 }
 
+/** 消息排序：先按创建时间，同一时刻用户消息在前，再按消息编号稳定排序。 */
 function sortMessages(list: ChatMessageItem[]) {
   return [...list].sort((left, right) => {
     const leftTime = resolveTimestamp(left.created_at)
@@ -1236,12 +1284,14 @@ function sortMessages(list: ChatMessageItem[]) {
   })
 }
 
+/** 更新或前置插入会话，保证最近使用的会话排在列表首位。 */
 function upsertSession(session: AiSession) {
   const next = sessions.value.filter((item) => item.id !== session.id)
   next.unshift(session)
   sessions.value = next
 }
 
+/** 记录会话的发送中状态，供输入区禁用与占位文案切换。 */
 function setSessionSending(sessionID: string, sending: boolean) {
   if (!sessionID) {
     return
@@ -1249,10 +1299,12 @@ function setSessionSending(sessionID: string, sending: boolean) {
   sendingSessionMap.value = { ...sendingSessionMap.value, [sessionID]: sending }
 }
 
+/** 查询会话是否处于发送中。 */
 function isSessionSending(sessionID: string) {
   return Boolean(sessionID && sendingSessionMap.value[sessionID])
 }
 
+/** 终止所有进行中的流式任务，页面卸载时调用防止后台继续写消息。 */
 function cancelAllStreamTasks() {
   runningStreamTaskMap.forEach((task) => {
     task.finished = true
@@ -1261,6 +1313,7 @@ function cancelAllStreamTasks() {
   runningStreamTaskMap.clear()
 }
 
+/** 两帧后先清空再恢复底部锚点，触发 scroll-into-view 重新滚动到底部。 */
 function scrollChatToBottom() {
   void nextTick(() => {
     chatBottomAnchor.value = ''
@@ -1270,16 +1323,19 @@ function scrollChatToBottom() {
   })
 }
 
+/** 将 protobuf Timestamp（秒 + 纳秒）换算为毫秒时间戳。 */
 function resolveTimestamp(timestamp: AiMessage['created_at'] | AiSession['updated_at']) {
   const seconds = Number(timestamp?.seconds || 0)
   const nanos = Number(timestamp?.nanos || 0)
   return seconds * 1000 + Math.floor(nanos / 1_000_000)
 }
 
+/** 判断附件是否为图片类型。 */
 function isImageAttachment(attachment: AiAttachment) {
   return attachment.mime_type.startsWith('image/')
 }
 
+/** 附件尺寸展示文案：无尺寸时显示通用“附件”，否则按 KB 取整。 */
 function formatAttachmentMeta(attachment: AiAttachment) {
   if (!attachment.size) {
     return t('system.ai.attachment')
@@ -1287,6 +1343,7 @@ function formatAttachmentMeta(attachment: AiAttachment) {
   return `${Math.max(1, Math.round(attachment.size / 1024))} KB`
 }
 
+/** 拼接工具调用展示名：联网搜索用本地化文案，其余优先标题。 */
 function formatTools(tools: AiToolCall[]) {
   return tools
     .map((item) =>
@@ -1296,11 +1353,13 @@ function formatTools(tools: AiToolCall[]) {
     .join(' · ')
 }
 
+/** 关闭功能菜单与插件选择弹层（Esc 或页面切换时调用）。 */
 function closeWorkspaceOverlays() {
   showFunctionMenu.value = false
   showPluginPicker.value = false
 }
 
+/** 切换工作区页签并收起功能菜单。 */
 function selectFunction(feature: (typeof functionOptions)[number]) {
   activeFunction.value = feature
   showFunctionMenu.value = false
@@ -1444,16 +1503,19 @@ async function refreshPendingCount() {
   }
 }
 
+/** 判断工具审批是否已过有效期。 */
 function approvalExpired(item: ChatMessageItem) {
   const expires = resolveTimestamp(item.output_content?.approval?.expires_at)
   return Boolean(expires && expires <= Date.now())
 }
 
+/** 格式化审批截止时间为本地时间字符串，无值时显示占位符。 */
 function formatApprovalExpiry(item: ChatMessageItem) {
   const expires = resolveTimestamp(item.output_content?.approval?.expires_at)
   return expires ? new Date(expires).toLocaleString() : '—'
 }
 
+/** 统一错误提示：登录态失效由请求层弹窗处理，此处不再叠加提示。 */
 function showError(error: unknown, fallback: string) {
   // 登录态失效时请求层已弹窗引导重新登录，不再叠加失败提示。
   if (isAuthExpiredError(error)) return

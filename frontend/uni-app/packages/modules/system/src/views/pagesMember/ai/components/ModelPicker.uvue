@@ -43,10 +43,12 @@ const modelCount = computed(() =>
   pickerProviders.value.reduce((total, provider) => total + provider.models.length, 0),
 )
 
+/** 判断模型是否为当前选中项。 */
 function isSelected(providerId: number, modelName: string) {
   return props.providerId === providerId && props.modelName === modelName
 }
 
+/** 选中模型并通知父组件。 */
 function handleSelect(providerId: number, modelName: string) {
   emit('select', providerId, modelName)
 }

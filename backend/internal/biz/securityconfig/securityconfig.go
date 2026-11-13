@@ -50,6 +50,7 @@ type Config struct {
 
 var current atomic.Pointer[Config]
 
+// init 在进程启动时写入默认安全配置，保证显式 Set 之前所有读取方都拿到安全的默认值。
 func init() {
 	value := Default()
 	current.Store(&value)
@@ -159,6 +160,7 @@ func (c Config) ClientIP(request *http.Request) string {
 	return peer.String()
 }
 
+// clone 深拷贝配置中的切片和映射，确保全局快照与调用方数据不共享底层存储，避免并发读写相互影响。
 func clone(value Config) Config {
 	value.TrustedProxyCIDRs = slices.Clone(value.TrustedProxyCIDRs)
 	value.ScriptReadPaths = slices.Clone(value.ScriptReadPaths)

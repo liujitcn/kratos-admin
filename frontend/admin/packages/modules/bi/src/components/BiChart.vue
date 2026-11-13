@@ -47,6 +47,7 @@ function teardown() {
   ready.value = false;
 }
 
+/** 用最新数据与主题重新编译配置并增量更新已挂载的图表。 */
 function compileAndApply() {
   if (!handle) return;
   const engine = getEngine(props.chart.engine);

@@ -40,6 +40,7 @@ const router = useRouter();
 /** 侧边菜单渲染时必须具备路径的菜单项。 */
 type VisibleRouteItem = RouteItem & { path: string };
 
+/** 补齐菜单项可能缺失的 path，保证 el-menu 的 index 与路由跳转始终拿到字符串路径。 */
 const ensureRoutePath = (subItem: RouteItem): VisibleRouteItem => {
   return {
     ...subItem,
@@ -54,6 +55,7 @@ const getSubMenuChildren = (subItem: RouteItem) => {
   return visibleChildren[0].children ?? [];
 };
 
+/** 解析节点实际可点击的菜单项：未强制展示且仅有一个可见子级时，直接下钻到该子级。 */
 const getMenuItem = (subItem: RouteItem): VisibleRouteItem => {
   const visibleChildren = (subItem.children ?? []).filter(item => !getRouteMetaHidden(item.meta));
   if (getRouteMetaAlwaysShow(subItem.meta) || visibleChildren.length !== 1) return ensureRoutePath(subItem);

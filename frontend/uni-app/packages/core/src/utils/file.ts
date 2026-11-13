@@ -78,6 +78,7 @@ export const multiUploadFile = async (
   }
 }
 
+/** 从文件路径解析文件名与扩展名，兼容 Windows/Unix 分隔符与隐藏文件。 */
 export const getFileInfo = (url: string): FileInfo => {
   // 处理路径分隔符（兼容Windows和Unix系统）
   const parts = url.split(/[\\/]/)

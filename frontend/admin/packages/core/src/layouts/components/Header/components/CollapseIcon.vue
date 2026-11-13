@@ -8,6 +8,7 @@
 import { useGlobalStore } from "@/stores/modules/global";
 
 const globalStore = useGlobalStore();
+/** 切换侧边菜单折叠/展开。 */
 const changeCollapse = () => globalStore.setGlobalState("isCollapse", !globalStore.isCollapse);
 </script>
 

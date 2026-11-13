@@ -52,6 +52,7 @@ func PolicyFromConfig() Policy {
 	return policyFromSessionConfig(bootstrapConfig.GetAuthn().GetSession())
 }
 
+// policyFromSessionConfig 从引导配置的会话段解析空闲与绝对生命周期超时，未配置或非法值时回退内置默认策略。
 func policyFromSessionConfig(sessionConfig *configv1.Authentication_Session) Policy {
 	policy := Policy{IdleTimeout: defaultIdleTimeout, MaxLifetime: defaultMaxLifetime}
 	if sessionConfig == nil {

@@ -202,6 +202,7 @@ export function useI18n() {
   }
 }
 
+/** 校验翻译文案与默认语言的占位符集合一致，避免运行时插值缺参。 */
 function assertLocalePlaceholders(
   moduleName: string,
   key: string,
@@ -215,6 +216,7 @@ function assertLocalePlaceholders(
   }
 }
 
+/** 生成语言包注册校验失败的运行时错误文案，按当前语言输出中英文。 */
 function localeRuntimeMessage(key: string, params: Record<string, string>): string {
   const locale = getCurrentLocale().toLowerCase().startsWith('zh') ? 'zh-CN' : 'en-US'
   const templates: Record<string, Record<string, string>> = {
@@ -239,12 +241,14 @@ function localeRuntimeMessage(key: string, params: Record<string, string>): stri
   )
 }
 
+/** 取参与键集一致性校验的语言键，语言选择相关的公共键不参与校验。 */
 function requiredLocaleKeys(messages: LocaleMessages): string[] {
   return Object.keys(messages)
     .filter((key) => !key.startsWith('common.language.'))
     .sort()
 }
 
+/** 接口语言配置缺失时，按已打包语言生成兜底选项。 */
 function getFallbackLanguageOptions(): LocaleOption[] {
   return SUPPORTED_LOCALES.map((languageCode) => ({
     language_code: languageCode,
@@ -252,6 +256,7 @@ function getFallbackLanguageOptions(): LocaleOption[] {
   }))
 }
 
+/** 各语言的本地名称内置回退表：接口未提供语言名时使用。 */
 function fallbackNativeLanguageName(languageCode: SupportedLocale): string {
   return {
     'zh-CN': '简体中文',

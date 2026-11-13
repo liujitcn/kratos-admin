@@ -50,11 +50,13 @@ const columns = computed<ColumnProps[]>(() => [
   { prop: "action", label: t("common.field.action"), cellType: "actions", actions: [{ label: t("common.action.view"), type: "primary", link: true, icon: InfoFilled, onClick: scope => handleOpenDialog((scope.row as BaseScriptLog).id) }] }
 ]);
 
+/** 分页查询脚本执行日志。 */
 async function requestBaseScriptLogTable(params: PageBaseScriptLogRequest) {
   const data = await defBaseScriptLogService.PageBaseScriptLog(buildPageRequest(params));
   return { data: { list: data.base_script_logs ?? [], total: data.total } };
 }
 
+/** 加载单条日志详情并打开查看弹窗。 */
 async function handleOpenDialog(id: number) {
   const data = await defBaseScriptLogService.GetBaseScriptLog({ id });
   Object.assign(detail, data);

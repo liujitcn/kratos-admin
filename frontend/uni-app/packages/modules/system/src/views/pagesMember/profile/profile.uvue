@@ -59,6 +59,7 @@ const idTypeIndex = computed(() => {
 const idTypeLabel = computed(
   () => idTypeOptions.value[idTypeIndex.value]?.label || idTypeOptions.value[0].label,
 )
+/** 把最新资料同步进全局用户 Store，供我的页面与导航栏展示。 */
 const syncUserStoreProfile = (profile: UserProfileForm) => {
   if (!userStore.userInfo) {
     return
@@ -74,6 +75,7 @@ const syncUserStoreProfile = (profile: UserProfileForm) => {
   userStore.userInfo.id_code = profile.id_code
 }
 
+/** 拉取当前用户资料并同步 Store。 */
 const getUserData = async () => {
   const res = await defAuthService.GetUserProfile({})
   userInfo.value = res
@@ -83,6 +85,7 @@ const getUserData = async () => {
 
 const genderList = ref<BaseDictForm_DictItem[]>([])
 
+/** 加载性别字典项，供资料编辑选择。 */
 const getDictData = async () => {
   const genderCode = 'base_user_gender'
   const res = await defBaseDictService.GetBaseDict({

@@ -31,6 +31,7 @@ defineProps<{ colSetting: ColumnProps[] }>();
 const drawerVisible = ref<boolean>(false);
 const { t } = useLocaleStore();
 
+/** 打开列设置抽屉（由父组件通过 ref 调用）。 */
 const openColSetting = () => {
   drawerVisible.value = true;
 };

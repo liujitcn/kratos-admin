@@ -282,6 +282,7 @@ export class AiMessageServiceImpl implements AiMessageService {
 
 export const defAiMessageService = new AiMessageServiceImpl()
 
+/** 从 chunked 流式错误响应中提取后端业务提示，取不到时回退到状态码文案。 */
 function resolveChunkedStreamErrorMessage(response: UniApp.RequestSuccessCallbackResult) {
   const fallbackMessage = t('system.ai.request_failed_with_status', { status: response.statusCode })
   const text = decodeChunkedResponseData(response.data).trim()
@@ -297,6 +298,7 @@ function resolveChunkedStreamErrorMessage(response: UniApp.RequestSuccessCallbac
   }
 }
 
+/** 把 chunked 响应数据统一解码为文本，兼容字符串、ArrayBuffer 与对象三种形态。 */
 function decodeChunkedResponseData(data: unknown) {
   if (typeof data === 'string') {
     return data
@@ -310,6 +312,7 @@ function decodeChunkedResponseData(data: unknown) {
   return ''
 }
 
+/** 创建流式文本解码器：优先用 TextDecoder 跨分片流式解码，缺失时回退到手写 UTF-8 解码。 */
 function createChunkTextDecoder() {
   if (typeof TextDecoder !== 'undefined') {
     const decoder = new TextDecoder('utf-8')
@@ -323,6 +326,7 @@ function createChunkTextDecoder() {
     }
   }
 
+  // 手写解码需暂存分片尾部不完整的多字节序列，等下一个分片拼接后再解码。
   let pendingBytes: number[] = []
   return {
     decode(data: ArrayBuffer) {
@@ -339,6 +343,7 @@ function createChunkTextDecoder() {
   }
 }
 
+/** 计算可安全解码的字节边界，尾部不完整的多字节序列留到下一分片。 */
 function resolveUtf8Boundary(bytes: number[]) {
   let index = bytes.length - 1
   while (index >= 0 && (bytes[index] & 0xc0) === 0x80) {
@@ -355,6 +360,7 @@ function resolveUtf8Boundary(bytes: number[]) {
   return bytes.length
 }
 
+/** 根据 UTF-8 首字节推断该字符占用的字节长度。 */
 function resolveUtf8SequenceLength(lead: number) {
   if ((lead & 0x80) === 0) {
     return 1
@@ -371,6 +377,7 @@ function resolveUtf8SequenceLength(lead: number) {
   return 1
 }
 
+/** 把字节数组按 UTF-8 解码为文本，解码失败时按单字节字符兜底。 */
 function decodeUtf8Bytes(bytes: number[]) {
   if (!bytes.length) {
     return ''

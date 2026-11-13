@@ -131,10 +131,12 @@ export function rateLimitSummaryKey(algorithm: BaseRateLimitAlgorithm): string {
   }
 }
 
+/** 速率类参数类型守卫：必须为 0.001~100 万之间的有限数值。 */
 function isRate(value: number | undefined): value is number {
   return typeof value === "number" && Number.isFinite(value) && value >= 0.001 && value <= 1_000_000;
 }
 
+/** 整数区间类型守卫，用于校验限流次数、窗口秒数等参数。 */
 function isIntegerInRange(value: number | undefined, min: number, max: number): value is number {
   return typeof value === "number" && Number.isInteger(value) && value >= min && value <= max;
 }

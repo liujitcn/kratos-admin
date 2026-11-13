@@ -18,6 +18,7 @@ const { t } = useLocaleStore();
 import { ref } from "vue";
 
 const dialogVisible = ref(false);
+/** 打开修改密码弹窗（由父组件通过 ref 调用）。 */
 const openDialog = () => {
   dialogVisible.value = true;
 };

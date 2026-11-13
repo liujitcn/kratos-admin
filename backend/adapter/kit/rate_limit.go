@@ -313,6 +313,7 @@ func ParseRateLimitParams(ruleType, raw string) (RateLimitParams, error) {
 	return params, nil
 }
 
+// decodeRateLimitParams 严格解析限流规则参数 JSON：禁止未知字段，且只允许单个 JSON 值。
 func decodeRateLimitParams(raw string, target any) error {
 	decoder := json.NewDecoder(bytes.NewBufferString(raw))
 	decoder.DisallowUnknownFields()
@@ -320,6 +321,7 @@ func decodeRateLimitParams(raw string, target any) error {
 	if err != nil {
 		return fmt.Errorf("限流规则参数不是有效JSON: %w", err)
 	}
+	// 二次解码必须读到 io.EOF，否则说明请求里拼接了多个 JSON 值，属非法输入。
 	var extra json.RawMessage
 	err = decoder.Decode(&extra)
 	if err != io.EOF {

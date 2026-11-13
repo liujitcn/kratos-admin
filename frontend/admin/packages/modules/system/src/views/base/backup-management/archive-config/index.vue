@@ -78,19 +78,25 @@ const columns = computed<ColumnProps[]>(() => [
 ]);
 const headerActions = computed<HeaderActionProps[]>(() => [{ label: t("common.action.create"), type: "primary", icon: CirclePlus, hidden: !BUTTONS.value["base:table-archive:create"], onClick: () => openDialog() }, { label: t("common.action.delete"), type: "danger", icon: Delete, hidden: !BUTTONS.value["base:table-archive:delete"], disabled: scope => !scope.isSelected, onClick: scope => remove(scope.selectedListIds as number[]) }]);
 
+/** 分页查询归档配置列表，并映射为 ProTable 数据结构。 */
 async function requestTable(params: PageBaseTableArchiveRequest) {
   const data = await defBaseTableArchiveService.PageBaseTableArchive(buildPageRequest(params));
   return { data: { list: data.base_table_archives ?? [], total: data.total } };
 }
+/** 刷新配置列表。 */
 function refresh() { proTable.value?.getTableList(); }
+/** 生成归档配置表单默认值，含默认保留期、批次大小与 OSS 前缀。 */
 function defaultForm(): BaseTableArchiveForm { return { id: 0, source_name: "", table_name: "", archive_mode: BaseTableArchiveMode.BASE_TABLE_ARCHIVE_MODE_INTERNAL_DATABASE, online_retention_days: 180, archive_retention_days: 3650, batch_size: 5000, delete_after_verify: false, oss_prefix: "archive", status: Status.STATUS_ENABLE }; }
+/** 关闭弹窗并还原表单为默认值。 */
 function resetForm() { dialog.visible = false; formDialogRef.value?.resetFields(); Object.assign(formData, defaultForm()); }
+/** 打开新增/编辑弹窗：先加载数据源与详情，再按数据源联动加载表选项。 */
 async function openDialog(id?: number) {
   await formDialogRef.value?.open({
     load: async () => {
       await loadSourceOptions();
       const data = id ? await defBaseTableArchiveService.GetBaseTableArchive({ id }) : undefined;
       const form = { ...defaultForm(), ...(data ?? {}) };
+      // 新增时默认选中第一个数据源，便于直接选择数据表
       if (!form.source_name) form.source_name = String(sourceOptions.value[0]?.value ?? "");
       const loadedTableOptions = form.source_name ? await requestTableOptions(form.source_name) : [];
       return { form, loadedTableOptions };
@@ -102,6 +108,7 @@ async function openDialog(id?: number) {
     }
   });
 }
+/** 懒加载数据源下拉选项，已加载或正在加载时跳过。 */
 async function loadSourceOptions() {
   if (sourceOptions.value.length || loadingSources.value) return;
   loadingSources.value = true;
@@ -112,11 +119,13 @@ async function loadSourceOptions() {
     loadingSources.value = false;
   }
 }
+/** 切换数据源后清空已选数据表，并按新数据源重载表选项。 */
 async function handleSourceChange(value: string | number | boolean | undefined) {
   formData.source_name = String(value ?? "");
   formData.table_name = "";
   await loadTableOptions(formData.source_name);
 }
+/** 按数据源加载表选项并写入下拉数据，loading 状态由 requestTableOptions 内部维护。 */
 async function loadTableOptions(sourceName: string) {
   tableOptions.value = await requestTableOptions(sourceName);
 }
@@ -132,6 +141,7 @@ async function requestTableOptions(sourceName: string) {
     loadingTables.value = false;
   }
 }
+/** 校验并提交表单：深拷贝剥离响应式代理后，按 id 区分新增或更新。 */
 async function handleSubmit() { const valid = await formDialogRef.value?.validate(); if (!valid) return; const payload = JSON.parse(JSON.stringify(formData)) as BaseTableArchiveForm; if (payload.id) await defBaseTableArchiveService.UpdateBaseTableArchive({ base_table_archive: payload }); else await defBaseTableArchiveService.CreateBaseTableArchive({ base_table_archive: payload }); ElMessage.success(t("common.message.save_success")); resetForm(); refresh(); }
 /** 确认并切换归档配置状态。 */
 async function setStatus(row: BaseTableArchiveForm) {
@@ -161,7 +171,9 @@ async function setStatus(row: BaseTableArchiveForm) {
     return false;
   }
 }
+/** 兼容行删除与批量删除两种入参，确认后批量删除并刷新列表。 */
 async function remove(selected: number | number[] | BaseTableArchiveForm) { let ids: number[]; if (Array.isArray(selected)) ids = selected.map(Number); else if (typeof selected === "object") ids = [selected.id]; else ids = normalizeSelectedIds(selected).map(Number); if (!ids.length) return; await ElMessageBox.confirm(t("common.dialog.delete_selected", { resource: t("system.backup.archive.config") }), t("common.title.warning"), { type: "warning" }); await defBaseTableArchiveService.DeleteBaseTableArchive({ id: ids.join(",") }); ElMessage.success(t("common.message.delete_success", { resource: t("system.backup.archive.config") })); refresh(); }
+/** 归档模式的展示文案。 */
 function modeLabel(value: BaseTableArchiveMode) { return modeOptions.value.find(item => item.value === value)?.label ?? String(value); }
 /** 格式化数据表选项，优先显示中文注释并保留物理表名。 */
 function tableOptionLabel(name: string, comment: string) { return comment && comment !== name ? `${comment}（${name}）` : name; }

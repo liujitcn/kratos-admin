@@ -43,6 +43,7 @@ export function registerUserStoreExtension(extension: UserStoreExtension) {
   return () => userStoreExtensions.delete(extension)
 }
 
+/** 按注册顺序执行所有模块的用户 Store 扩展钩子，单个失败不影响其余。 */
 async function runUserStoreExtensions(event: keyof UserStoreExtension) {
   for (const extension of userStoreExtensions) {
     const handler = extension[event]

@@ -60,16 +60,19 @@ export function formatConflictMessage(
   });
 }
 
+/** 将冲突资源标识翻译为可读名称，无对应词条时回退原始标识。 */
 function conflictResourceLabel(resource: string, translate: ConflictMessageTranslator): string {
   const name = resource.startsWith("base_") ? resource.slice("base_".length) : resource;
   return translatedIdentifier([`system.base.${name}.resource`, `system.base.${name}.title`], resource, translate);
 }
 
+/** 将冲突字段名翻译为可读名称，优先取资源级词条再回退通用词条。 */
 function conflictFieldLabel(resource: string, field: string, translate: ConflictMessageTranslator): string {
   const name = resource.startsWith("base_") ? resource.slice("base_".length) : resource;
   return translatedIdentifier([`system.base.${name}.field.${field}`, `common.field.${field}`], field, translate);
 }
 
+/** 依次尝试候选词条，全部未命中时回退到原始标识符。 */
 function translatedIdentifier(keys: string[], fallback: string, translate: ConflictMessageTranslator): string {
   for (const key of keys) {
     const value = translate(key);

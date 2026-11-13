@@ -97,9 +97,11 @@ const metrics = computed(() => [
 const loginDistributionTotal = computed(() => loginDistribution.value.reduce((total, item) => total + item.count, 0));
 const operationDistributionTotal = computed(() => operationDistribution.value.reduce((total, item) => total + item.count, 0));
 
+/** 读取当前主题的 CSS 变量颜色值，未定义时回退默认色。 */
 function readThemeColor(name: string, fallback: string) {
   return getComputedStyle(document.documentElement).getPropertyValue(name).trim() || fallback;
 }
+/** 从 Element Plus 主题变量同步图表配色，使图表跟随明暗主题切换。 */
 function refreshChartTheme() {
   chartTheme.value = {
     primary: readThemeColor("--el-color-primary", "#409eff"),
@@ -144,6 +146,7 @@ const loginTrendOption = computed(() => ({
 }));
 const loginDistributionOption = computed(() => distributionOption(loginDistribution.value));
 const operationDistributionOption = computed(() => distributionOption(operationDistribution.value));
+/** 并行加载看板概览、近 7 日登录趋势与两类分布数据，失败由请求层统一提示。 */
 async function loadDashboard() {
   loading.value = true;
   try {
@@ -201,6 +204,7 @@ function distributionOption(items: BaseDashboardDistributionItem[]) {
 onMounted(() => {
   refreshChartTheme();
   loadDashboard();
+  // 图表配色取自 CSS 变量快照，需监听全局主题切换事件手动刷新
   window.addEventListener("theme-change", refreshChartTheme);
 });
 onBeforeUnmount(() => window.removeEventListener("theme-change", refreshChartTheme));

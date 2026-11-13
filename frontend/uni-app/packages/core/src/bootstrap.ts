@@ -25,6 +25,7 @@ export interface KratosAppBootstrapOptions {
   modules: KratosAppModule[]
 }
 
+/** H5 端同步 html lang 与文档标题；语言配置加载后再次调用以应用接口配置。 */
 function syncH5DocumentTitle(): void {
   // #ifdef H5
   if (typeof document === 'undefined') return

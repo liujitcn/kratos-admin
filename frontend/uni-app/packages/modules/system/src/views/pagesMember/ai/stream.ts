@@ -39,6 +39,7 @@ export type AiEventStreamTextParser = {
 
 const STREAM_EVENT_NAMES = new Set<AiStreamEventName>(['delta', 'finish', 'error'])
 
+/** 创建逐行解析 SSE 文本流的解析器：空行派发当前事件，event/data 行累计到当前项。 */
 function createSseTextParser(handler: AiStreamEventHandler) {
   let currentItem: SseOutput = {}
 

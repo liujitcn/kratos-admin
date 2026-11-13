@@ -33,11 +33,13 @@ const { keepAliveName } = storeToRefs(keepAliveStore);
 
 // 注入刷新页面方法
 const isRouterShow = ref(true);
+// 通过 v-if 先隐藏再显示路由组件实现整页刷新，供页签刷新按钮注入使用
 const refreshCurrentPage = (val: boolean) => (isRouterShow.value = val);
 provide("refresh", refreshCurrentPage);
 
 // 解决详情页 keep-alive 问题
 const wrapperMap = new Map();
+// 以路由完整路径为动态组件生成独立命名的包装组件，让 keep-alive 能按页面维度缓存
 function createComponentWrapper(component, route) {
   if (!component) return;
   const wrapperName = route.fullPath;

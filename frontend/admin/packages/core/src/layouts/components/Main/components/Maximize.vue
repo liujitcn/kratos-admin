@@ -8,6 +8,7 @@
 import { useGlobalStore } from "@/stores/modules/global";
 
 const globalStore = useGlobalStore();
+/** 退出全屏模式。 */
 const exitMaximize = () => {
   globalStore.setGlobalState("maximize", false);
 };

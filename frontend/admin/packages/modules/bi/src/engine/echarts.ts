@@ -59,6 +59,7 @@ import { registerEngine } from "./types";
 
 let registered = false;
 
+/** 按需注册 ECharts 图表与组件，仅在本引擎首次被使用时执行一次。 */
 function ensureRegistered() {
   if (registered) return;
   registered = true;
@@ -113,6 +114,7 @@ function niceMax(value: number): number {
   return nice * base;
 }
 
+/** 构建坐标轴主题样式（标签、轴线、刻度颜色）。 */
 function axisStyles(theme: BiResolvedTheme) {
   return {
     axisLabel: { color: theme.subText },
@@ -121,6 +123,7 @@ function axisStyles(theme: BiResolvedTheme) {
   };
 }
 
+/** 构建悬浮提示主题样式（背景、边框、文字颜色）。 */
 function tooltipStyles(theme: BiResolvedTheme) {
   return {
     backgroundColor: theme.tooltipBg,

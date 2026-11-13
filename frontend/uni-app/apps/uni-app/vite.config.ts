@@ -12,6 +12,7 @@ import {
 
 const workspaceRoot = resolve(dirname(fileURLToPath(import.meta.url)), '../..')
 
+/** 解析开发服务器 HTTPS 证书配置；未开启或证书缺失时报错提示路径。 */
 function resolveHttpsOptions(env: Record<string, string>, root: string) {
   if (env.VITE_APP_HTTPS !== 'true') return undefined
   const keyPath = resolve(root, env.VITE_APP_HTTPS_KEY || '../../certs/dev-key.pem')
@@ -22,6 +23,7 @@ function resolveHttpsOptions(env: Record<string, string>, root: string) {
   return { key: readFileSync(keyPath), cert: readFileSync(certPath) }
 }
 
+/** 加载工作区根目录的环境变量；*-h5 模式以对应基础环境打底、模式变量优先覆盖。 */
 function resolveEnv(mode: string) {
   const modeEnv = loadEnv(mode, workspaceRoot, '')
   if (mode === 'development-h5') {

@@ -117,6 +117,7 @@ const formData = reactive<BaseScriptForm>({
 
 const editorLanguage = computed(() => monacoLanguageMap[formData.language] ?? "plaintext");
 
+// 仅当脚本内容仍是上一语言的默认模板时才跟随切换，避免覆盖用户已编辑的代码
 watch(
   () => formData.language,
   (language, previousLanguage) => {
@@ -168,11 +169,13 @@ const headerActions = computed<HeaderActionProps[]>(() => [
   { label: t("common.action.create"), type: "success", icon: CirclePlus, hidden: () => !BUTTONS.value["base:script:create"], onClick: () => handleOpenDialog() }
 ]);
 
+/** 分页查询脚本列表，并映射为 ProTable 数据结构。 */
 async function requestBaseScriptTable(params: PageBaseScriptRequest) {
   const data = await defBaseScriptService.PageBaseScript(buildPageRequest(params));
   return { data: { list: data.base_scripts ?? [], total: data.total } };
 }
 
+/** 打开新增/编辑弹窗，编辑时先重置表单再加载脚本详情。 */
 async function handleOpenDialog(id?: number) {
   resetForm();
   dialog.editing = Boolean(id);
@@ -182,17 +185,20 @@ async function handleOpenDialog(id?: number) {
   });
 }
 
+/** 还原表单为默认值（默认 JavaScript、启用状态）。 */
 function resetForm() {
   formDialogRef.value?.resetFields();
   formDialogRef.value?.clearValidate();
   Object.assign(formData, { id: 0, name: "", hook_point: "", priority: 0, description: "", critical: false, status: Status.STATUS_ENABLE, language: BaseScriptLanguage.BASE_SCRIPT_LANGUAGE_JAVASCRIPT, source: defaultSource });
 }
 
+/** 关闭弹窗并重置表单。 */
 function handleCloseDialog() {
   formDialogRef.value?.close();
   resetForm();
 }
 
+/** 校验并提交表单，按 id 区分新增或更新，成功后关闭弹窗并刷新列表。 */
 function handleSubmit() {
   formDialogRef.value?.validate()?.then(valid => {
     if (!valid) return;
@@ -202,6 +208,7 @@ function handleSubmit() {
   });
 }
 
+/** 状态开关切换前的确认流程，取消确认或切换失败时返回 false 阻止变更。 */
 async function handleBeforeSetStatus(row: BaseScript) {
   const nextStatus = row.status === Status.STATUS_ENABLE ? Status.STATUS_DISABLE : Status.STATUS_ENABLE;
   try {
@@ -214,6 +221,7 @@ async function handleBeforeSetStatus(row: BaseScript) {
   }
 }
 
+/** 确认后删除脚本并刷新列表。 */
 function handleDelete(row: BaseScript) {
   ElMessageBox.confirm(t("system.base.script.message.confirm_delete", { name: row.name }), t("common.title.warning"), { type: "warning" }).then(async () => {
     await defBaseScriptService.DeleteBaseScript({ id: String(row.id) });
@@ -222,6 +230,7 @@ function handleDelete(row: BaseScript) {
   });
 }
 
+/** 打开试运行弹窗，并重置测试上下文与上次运行结果。 */
 function openTestRun(row: BaseScript) {
   testScript.value = row;
   testContext.value = "{}\n";
@@ -229,16 +238,19 @@ function openTestRun(row: BaseScript) {
   testDialog.visible = true;
 }
 
+/** 调用试运行接口执行当前脚本，返回结果写入弹窗展示。 */
 async function handleTestRun() {
   if (!testScript.value) return;
   testLoading.value = true;
   try {
+    // source 传空串，由后端按 id 取已保存的脚本版本执行
     testResult.value = await defBaseScriptService.TestRunBaseScript({ id: testScript.value.id, language: testScript.value.language, source: "", context_json: testContext.value });
   } finally {
     testLoading.value = false;
   }
 }
 
+/** 跳转到脚本运行日志页，携带脚本 id 与标题上下文。 */
 function openLogs(row: BaseScript) {
   navigateTo(router, "/base/script/log", { scriptId: row.id, title: t("system.base.script.title.logs", { name: row.name }) });
 }

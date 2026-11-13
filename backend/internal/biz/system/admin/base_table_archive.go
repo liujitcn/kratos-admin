@@ -159,6 +159,7 @@ func validateTableArchiveForm(baseCase *biz.BaseCase, req *adminv1.BaseTableArch
 	return nil
 }
 
+// boolToTinyint 将布尔值转换为归档表 tinyint 列存储的 0/1。
 func boolToTinyint(value bool) int32 {
 	if value {
 		return 1
@@ -166,6 +167,7 @@ func boolToTinyint(value bool) int32 {
 	return 0
 }
 
+// toBaseTableArchive 将归档策略模型转换为管理接口表单，tinyint 列还原为布尔值。
 func toBaseTableArchive(item *models.BaseTableArchive) *adminv1.BaseTableArchiveForm {
 	return &adminv1.BaseTableArchiveForm{Id: item.ID, SourceName: item.SourceName, TableName: item.TableName_, ArchiveMode: adminv1.BaseTableArchiveMode(item.ArchiveMode), OnlineRetentionDays: item.OnlineRetentionDays, ArchiveRetentionDays: item.ArchiveRetentionDays, BatchSize: item.BatchSize, DeleteAfterVerify: item.DeleteAfterVerify != 0, OssPrefix: item.OSSPrefix, Status: commonv1.Status(item.Status)}
 }

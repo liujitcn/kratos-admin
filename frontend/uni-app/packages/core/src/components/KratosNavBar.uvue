@@ -107,7 +107,7 @@ function goBack() {
   overflow: hidden;
   color: var(--kratos-color-text);
   font-size: 32rpx;
-  font-weight: 700;
+  font-weight: 400;
   line-height: 44rpx;
   text-overflow: ellipsis;
   white-space: nowrap;

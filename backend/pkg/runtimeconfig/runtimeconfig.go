@@ -458,6 +458,7 @@ func DefaultSecurityMigrationConfig() SecurityMigrationConfig {
 	return SecurityMigrationConfig{}
 }
 
+// decodeJSON 解析指定 key 的运行配置 JSON：以注册的默认值打底深合并用户值，再反序列化并执行 protovalidate 校验。
 func (r *Registry) decodeJSON(key, value string) (proto.Message, error) {
 	if strings.TrimSpace(value) == "" || strings.TrimSpace(value) == "null" {
 		return nil, errors.New("系统配置 JSON 不能为空")
@@ -486,6 +487,7 @@ func (r *Registry) decodeJSON(key, value string) (proto.Message, error) {
 	return message, nil
 }
 
+// marshalJSON 将运行配置 Proto 消息序列化为 JSON（proto 字段名、输出零值字段），供落库与下发使用。
 func marshalJSON(message proto.Message) (string, error) {
 	if message == nil {
 		return "", errors.New("运行配置 Proto 消息未配置")
@@ -498,6 +500,7 @@ func marshalJSON(message proto.Message) (string, error) {
 	return string(payload), nil
 }
 
+// mergeJSONObjects 深合并默认配置与覆盖配置：嵌套对象递归合并，其余值直接覆盖；键名兼容 lowerCamel 与 snake_case。
 func mergeJSONObjects(defaults, overrides []byte) ([]byte, error) {
 	var defaultObject map[string]json.RawMessage
 	err := json.Unmarshal(defaults, &defaultObject)
@@ -514,6 +517,7 @@ func mergeJSONObjects(defaults, overrides []byte) ([]byte, error) {
 	}
 	for key, value := range overrideObject {
 		canonicalKey := key
+		// 前端可能传 lowerCamel 键而默认值是 snake_case，先映射回默认键名再合并。
 		if _, exists := defaultObject[canonicalKey]; !exists {
 			for candidate := range defaultObject {
 				if lowerCamelFieldName(candidate) == key {
@@ -540,6 +544,7 @@ func mergeJSONObjects(defaults, overrides []byte) ([]byte, error) {
 	return json.Marshal(defaultObject)
 }
 
+// lowerCamelFieldName 把 snake_case 字段名转成 lowerCamelCase，用于兼容前端传入的 JSON 键。
 func lowerCamelFieldName(value string) string {
 	parts := strings.Split(value, "_")
 	if len(parts) == 1 {
@@ -557,6 +562,7 @@ func lowerCamelFieldName(value string) string {
 	return builder.String()
 }
 
+// mergeNestedJSONObjects 当默认值与覆盖值都是 JSON 对象时递归深合并；任一方不是对象则返回 ok=false，由调用方直接覆盖。
 func mergeNestedJSONObjects(defaults, overrides json.RawMessage) (json.RawMessage, bool, error) {
 	var defaultObject map[string]json.RawMessage
 	var err error
@@ -587,6 +593,7 @@ func mergeNestedJSONObjects(defaults, overrides json.RawMessage) (json.RawMessag
 	return merged, true, nil
 }
 
+// getJSONField 按路径逐层读取嵌套 JSON 字段，任一层缺失或不是对象即返回不存在。
 func getJSONField(object map[string]json.RawMessage, parts []string) (json.RawMessage, bool) {
 	if len(parts) == 0 {
 		return []byte{}, false
@@ -602,6 +609,7 @@ func getJSONField(object map[string]json.RawMessage, parts []string) (json.RawMe
 	return getJSONField(nested, parts[1:])
 }
 
+// setJSONField 按路径逐层写入嵌套 JSON 字段：中间层不存在时自动创建；已有节点不是对象则跳过写入。
 func setJSONField(object map[string]json.RawMessage, parts []string, value json.RawMessage) error {
 	if len(parts) == 0 {
 		return errors.New("系统配置敏感字段路径为空")
@@ -643,6 +651,7 @@ func setJSONField(object map[string]json.RawMessage, parts []string, value json.
 	return nil
 }
 
+// isRedactedJSONValue 判断 JSON 值是否为脱敏占位符，用于提交时跳过对掩码值的覆盖。
 func isRedactedJSONValue(value json.RawMessage) bool {
 	var text string
 	if err := json.Unmarshal(value, &text); err != nil {
@@ -651,6 +660,7 @@ func isRedactedJSONValue(value json.RawMessage) bool {
 	return text == RedactedValue
 }
 
+// builtinDefinitions 返回内置运行配置定义清单（日志兜底与各安全配置），作为 Registry 的初始注册项。
 func builtinDefinitions() []Definition {
 	return []Definition{
 		{
@@ -704,6 +714,7 @@ func builtinDefinitions() []Definition {
 	}
 }
 
+// mustNewRegistry 构造全局默认 Registry，初始化失败视为启动期致命错误直接 panic。
 func mustNewRegistry() *Registry {
 	registry, err := NewRegistry()
 	if err != nil {

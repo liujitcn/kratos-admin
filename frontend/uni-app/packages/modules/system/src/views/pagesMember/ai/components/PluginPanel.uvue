@@ -91,16 +91,19 @@ async function load() {
   }
 }
 
+/** 列出插件下的可用连接。 */
 function pluginConnections(plugin: AiPlugin) {
   return connections.value.filter((connection) => connection.plugin_id === plugin.id)
 }
 
+/** 判断插件（或其指定连接）是否已在当前草稿中选用。 */
 function isSelected(pluginId: string, connectionId = '') {
   return draft.value.some(
     (selection) => selection.plugin_id === pluginId && selection.connection_id === connectionId,
   )
 }
 
+/** 计算插件或连接不可选用的原因文案，返回空数组表示可选。 */
 function issue(plugin: AiPlugin, connection?: AiPluginConnection) {
   const reason = pluginSelectionIssue(plugin, tools.value[plugin.id] || [], connection,
     props.terminal === Terminal.TERMINAL_APP ? 'app' : 'admin')

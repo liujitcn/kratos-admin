@@ -88,18 +88,28 @@ const headerActions = computed<HeaderActionProps[]>(() => [
 
 onMounted(loadOptions);
 
+/** 消息模板表单默认值：内容格式默认纯文本，config 以空键值对列表承载。 */
 function defaultForm(): FormState { return { id: 0, category_id: undefined, provider_id: undefined, title: "", content: "", content_format: MessageContentFormat.MESSAGE_CONTENT_FORMAT_PLAIN_TEXT, config: {}, config_items: [] }; }
+/** 并行加载消息分类与渠道下拉选项。 */
 async function loadOptions() {
   const [categoryData, providerData] = await Promise.all([defBaseMessageCategoryService.OptionBaseMessageCategory({}), defBaseMessageProviderService.OptionBaseMessageProvider({})]);
   categories.value = (categoryData.list ?? []).map(item => ({ id: Number(item.value), name: item.label } as BaseMessageCategory));
   providers.value = (providerData.list ?? []).map(item => ({ id: Number(item.value), name: item.label, status: item.disabled ? 2 : 1 } as BaseMessageProvider));
 }
+/** 分页查询消息模板列表，并映射为 ProTable 数据结构。 */
 async function requestTable(params: Record<string, unknown>) { const data = await defBaseMessageTemplateService.PageBaseMessageTemplate(buildPageRequest<PageBaseMessageTemplateRequest>(params as unknown as PageBaseMessageTemplateRequest)); return { data: { list: data.base_message_templates ?? [], total: data.total } }; }
+/** 打开新增/编辑弹窗：刷新下拉选项，编辑时加载详情并把 config 转为可编辑键值对。 */
 async function openDialog(id?: number) { await loadOptions(); await formDialogRef.value?.open({ load: () => (id ? defBaseMessageTemplateService.GetBaseMessageTemplate({ id }) : undefined), commit: data => { Object.assign(formData, defaultForm(), data ?? {}); dialog.editing = Boolean(id); formData.config_items = configToItems(formData.config); } }); }
+/** 校验并提交表单：键值对合并回 config、剔除展示用字段后，按 id 区分新增或更新。 */
 async function handleSubmit() { if (!(await formDialogRef.value?.validate())) return; const config = configItemsToMap(formData.config_items); if (!config) return; const payload = JSON.parse(JSON.stringify(formData)) as BaseMessageTemplateForm & { config_items?: ConfigItem[] }; delete payload.config_items; payload.config = config; if (payload.id) await defBaseMessageTemplateService.UpdateBaseMessageTemplate({ base_message_template: payload }); else await defBaseMessageTemplateService.CreateBaseMessageTemplate({ base_message_template: payload }); ElMessage.success(t("common.message.operation_success")); dialog.visible = false; await proTable.value?.getTableList(); }
+/** 兼容行删除与批量删除两种入参，确认后删除并刷新列表。 */
 async function handleDelete(value: BaseMessageTemplate | number | number[]) { const ids = (Array.isArray(value) ? value : typeof value === "object" ? [value.id] : normalizeSelectedIds(value)).join(","); if (!ids) return; try { await ElMessageBox.confirm(t("common.confirm.delete"), t("common.title.warning"), { type: "warning" }); } catch { return; } await defBaseMessageTemplateService.DeleteBaseMessageTemplate({ id: ids }); await proTable.value?.getTableList(); ElMessage.success(t("common.message.operation_success")); }
+/** 关闭弹窗并还原表单为默认值。 */
 function handleClose() { Object.assign(formData, defaultForm()); formDialogRef.value?.resetFields(); }
+/** 内容格式的展示文案。 */
 function contentFormatLabel(value: MessageContentFormat) { return contentFormatOptions.value.find(item => item.value === value)?.label ?? ""; }
+/** 将 config 对象转为编辑用键值对列表，非字符串值先 JSON 序列化便于展示。 */
 function configToItems(config: Record<string, any> | undefined): ConfigItem[] { return Object.entries(config ?? {}).map(([key, value]) => ({ key, value: typeof value === "string" ? value : JSON.stringify(value) })); }
+/** 将编辑用键值对转回 config：键非空且不重复，值为空保留空串，能 JSON 解析则还原类型否则按原字符串。 */
 function configItemsToMap(items: ConfigItem[]): Record<string, unknown> | undefined { const result: Record<string, unknown> = {}; for (const item of items) { const key = item.key.trim(); if (!key || Object.prototype.hasOwnProperty.call(result, key)) { ElMessage.error(t("system.base.message_template.message.config_invalid")); return undefined; } const value = item.value.trim(); if (!value) { result[key] = ""; continue; } try { result[key] = JSON.parse(value); } catch { result[key] = value; } } return result; }
 </script>

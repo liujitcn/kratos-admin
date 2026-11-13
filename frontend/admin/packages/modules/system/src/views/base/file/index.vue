@@ -248,6 +248,7 @@ async function handleDelete(row: BaseFile) {
   }
 }
 
+/** 将字节数格式化为带单位的可读文件大小。 */
 function formatFileSize(size: number) {
   if (!size) return "0 B";
   const units = ["B", "KB", "MB", "GB"];

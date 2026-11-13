@@ -18,10 +18,12 @@ const BI_ENV_KEY: InjectionKey<BiEnv> = Symbol("BI_ENV");
 
 const DEFAULT_ENV: BiEnv = {};
 
+/** 宿主应用向 BI 模块注入运行环境（主题模式等）。 */
 export function provideBiEnv(env: BiEnv) {
   provide(BI_ENV_KEY, env);
 }
 
+/** 在 BI 模块内读取宿主注入的环境；未注入时返回零配置默认值。 */
 export function useBiEnv(): BiEnv {
   return inject(BI_ENV_KEY, DEFAULT_ENV);
 }
@@ -30,6 +32,7 @@ export function useBiEnv(): BiEnv {
 const darkRef = ref(false);
 let bound = false;
 
+/** 确保全局暗色监听只绑定一次，后续组件复用同一响应式源。 */
 function ensureDarkBinding() {
   if (bound || typeof document === "undefined") return;
   bound = true;

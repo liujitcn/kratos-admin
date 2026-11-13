@@ -88,6 +88,7 @@ func (c *CacheCase) PageCache(_ context.Context, req *adminv1.PageCacheRequest) 
 	return &adminv1.PageCacheResponse{CacheEntries: items, Total: int32(total)}, nil
 }
 
+// ttlSeconds 将缓存 TTL 转换为秒数供接口展示，负值（永不过期）原样保留为 -1。
 func ttlSeconds(ttl time.Duration) int64 {
 	if ttl < 0 {
 		return -1

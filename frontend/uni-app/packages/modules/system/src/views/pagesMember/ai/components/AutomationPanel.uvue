@@ -35,6 +35,7 @@ watch(
     if (refreshTimer) clearInterval(refreshTimer)
     if (!active) return
     void load()
+    // 仅存在进行中的运行时才每 5 秒轮询，避免空闲面板持续请求。
     refreshTimer = setInterval(() => {
       if (
         !errorText.value &&
@@ -83,6 +84,7 @@ async function load() {
   }
 }
 
+/** 切换状态筛选并清空选中项后重新加载列表。 */
 function selectFilter(status: string) {
   filter.value = status
   selected.value = undefined
@@ -90,6 +92,7 @@ function selectFilter(status: string) {
   void load()
 }
 
+/** 选中任务查看详情；不传任务时返回列表视图。 */
 async function chooseTask(task?: AiAutomation) {
   if (loading.value || busy.value) return
   selected.value = task
@@ -97,6 +100,7 @@ async function chooseTask(task?: AiAutomation) {
   await load()
 }
 
+/** 拉取运行记录的最新服务端快照用于详情展示。 */
 async function chooseRun(run: AiAutomationRun) {
   if (loading.value || busy.value) return
   busy.value = true
@@ -157,10 +161,12 @@ async function stopRun(run: AiAutomationRun) {
   }
 }
 
+/** 格式化任务时间戳为本地时间字符串，无值时显示占位符。 */
 function formatTime(value?: { seconds: number; nanos: number }) {
   return value?.seconds ? new Date(value.seconds * 1000).toLocaleString() : '—'
 }
 
+/** 拼接插件选择展示标签：插件名 + 连接名，缺失时回退 ID。 */
 function selectionLabel(selection: AiPluginSelection) {
   const plugin = plugins.value.find((item) => item.id === selection.plugin_id)
   const connection = connections.value.find((item) => item.id === selection.connection_id)

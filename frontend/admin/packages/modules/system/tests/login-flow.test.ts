@@ -3,6 +3,7 @@ import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { test } from "node:test";
 
+/** 以模块目录为基准读取仓库内源码文件，供测试做静态文本断言。 */
 function readSource(path: string) {
   return readFile(join(process.cwd(), path), "utf8");
 }

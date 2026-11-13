@@ -17,10 +17,12 @@ const { t } = useI18n()
 
 const selectedCount = computed(() => props.selectedIds.length)
 
+/** 判断知识库是否已选中。 */
 function isSelected(knowledgeId: number) {
   return props.selectedIds.includes(knowledgeId)
 }
 
+/** 切换知识库选中态并通知父组件。 */
 function handleToggle(knowledgeId: number) {
   emit('toggle', knowledgeId)
 }

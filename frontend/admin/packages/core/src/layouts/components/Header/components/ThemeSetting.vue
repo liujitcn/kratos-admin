@@ -10,6 +10,7 @@
 import mittBus from "@/utils/mittBus";
 import { useLocaleStore } from "@/locales";
 const { t } = useLocaleStore();
+/** 通过全局事件总线打开主题设置抽屉。 */
 const openDrawer = () => {
   mittBus.emit("openThemeDrawer");
 };

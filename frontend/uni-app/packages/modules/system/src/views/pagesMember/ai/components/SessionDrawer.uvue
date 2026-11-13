@@ -30,10 +30,12 @@ const themeStore = useThemeStore()
 const primaryIconColor = computed(() => themeStore.colors.aiPrimary)
 const mutedIconColor = computed(() => themeStore.colors.aiTextMuted)
 
+/** 会话搜索关键字同步到父组件。 */
 function handleKeywordInput(event: Event) {
   emit('update:keyword', ((event as unknown as InputEventValue).detail?.value || '').toString())
 }
 
+/** 会话时间展示：今天显示时分，其余显示月-日。 */
 function formatSessionTime(session: AiSession) {
   const seconds = Number(session.updated_at?.seconds ?? 0)
   const nanos = Number(session.updated_at?.nanos ?? 0)

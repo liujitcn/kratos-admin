@@ -76,112 +76,88 @@ html.theme-dark page {
   background-color: #060a12;
 }
 
-html .uni-modal {
-  background-color: var(--kratos-color-surface-solid, #ffffff);
-  color: var(--kratos-color-text, #102232);
-  font-family: var(--kratos-font-sans, sans-serif);
-}
-
-html .uni-modal__hd {
-  padding: 16px 24px 8px;
-}
-
-html .uni-modal__title {
-  color: var(--kratos-color-text, #102232);
-  font-size: 18px;
-  line-height: 25px;
-}
-
-html .uni-modal__bd {
-  min-height: 40px;
-  padding: 8px 24px 16px;
-  color: var(--kratos-color-text-muted, #5a7083);
-  font-size: 15px;
-  line-height: 21px;
-}
-
-html .uni-modal__ft {
-  font-size: 18px;
-  line-height: 48px;
-}
-
-html .uni-modal__ft::after,
-html .uni-modal__btn::after {
-  border-color: var(--kratos-color-border, #e3eaf2);
-  color: var(--kratos-color-border, #e3eaf2);
-}
-
-html .uni-modal__btn_primary {
-  color: var(--kratos-color-primary, #039e8c) !important;
-}
-
-html .uni-modal__btn_default {
-  color: var(--kratos-color-text-muted, #5a7083) !important;
-}
-
-/* uni-app x H5 弹窗使用 uni-modal-dialog 结构，仅同步主题，不覆盖运行时默认尺寸。 */
-html .uni-modal-mask {
+/* uni-app x 的遮罩节点是 .uni-mask，和 Taro 的 showModal 使用同一遮罩令牌。 */
+html .uni-mask {
   background-color: var(--kratos-color-mask, rgba(16, 34, 50, 0.45)) !important;
 }
 
-html .uni-modal-dialog {
-  border-radius: var(--kratos-page-radius, 12rpx) !important;
+/* 对齐 Taro H5 弹窗的尺寸、间距和常规字重，覆盖 uni-app x 的 uvue 默认值。 */
+html body .uni-modal {
+  width: 80% !important;
+  max-width: 300px !important;
+  border-radius: 3px !important;
   background-color: var(--kratos-color-surface-solid, #ffffff) !important;
-}
-
-html .uni-modal-dialog__inner {
-  border-radius: var(--kratos-page-radius, 12rpx) !important;
-  background-color: var(--kratos-color-surface-solid, #ffffff) !important;
-}
-
-html .uni-modal-dialog__title {
   color: var(--kratos-color-text, #102232) !important;
+  font-family: var(--kratos-font-sans, sans-serif);
+  line-height: 1.6 !important;
 }
 
-html .uni-modal-dialog__message {
+html body .uni-modal__hd {
+  padding: 16px 24px 8px !important;
+}
+
+html body .uni-modal__title {
+  color: var(--kratos-color-text, #102232) !important;
+  font-size: 18px !important;
+  font-weight: 400 !important;
+  line-height: 25px !important;
+}
+
+html body .uni-modal__bd {
+  min-height: 40px !important;
+  margin-bottom: 0 !important;
+  padding: 8px 24px 16px !important;
   color: var(--kratos-color-text-muted, #5a7083) !important;
+  font-size: 15px !important;
+  line-height: 21px !important;
 }
 
-html .uni-modal-dialog__divider,
-html .uni-modal-dialog__split {
-  background-color: var(--kratos-color-border, #e3eaf2) !important;
+html body .uni-modal__ft {
+  font-size: 18px !important;
+  line-height: 48px !important;
 }
 
-html .uni-modal-dialog__action-text {
-  color: var(--kratos-color-text-muted, #5a7083) !important;
+html body .uni-modal__btn {
+  font-weight: 400 !important;
 }
 
-html .uni-modal-dialog__action-text--confirm {
+html body .uni-modal__ft::after,
+html body .uni-modal__btn::after {
+  border-color: var(--kratos-color-border, #e3eaf2) !important;
+  color: var(--kratos-color-border, #e3eaf2) !important;
+}
+
+html body .uni-modal__btn_primary {
   color: var(--kratos-color-primary, #039e8c) !important;
 }
 
-html.theme-dark .uni-modal {
-  background-color: #070d18;
+html body .uni-modal__btn_default {
+  color: var(--kratos-color-text-muted, #5a7083) !important;
 }
 
-html.theme-dark .uni-modal-dialog,
-html.theme-dark .uni-modal-dialog__inner {
+html.theme-dark body .uni-modal {
   background-color: var(--kratos-color-surface-solid, #070d18) !important;
 }
 
-html.theme-dark .uni-modal-dialog__title {
+html.theme-dark body .uni-modal__title {
   color: var(--kratos-color-text, #e9f4f6) !important;
 }
 
-html.theme-dark .uni-modal-dialog__message {
+html.theme-dark body .uni-modal__bd {
   color: var(--kratos-color-text-muted, #8aa0b4) !important;
 }
 
-html.theme-dark .uni-modal-dialog__divider,
-html.theme-dark .uni-modal-dialog__split {
-  background-color: var(--kratos-color-border, rgba(255, 255, 255, 0.08)) !important;
+html.theme-dark body .uni-modal__ft::after,
+html.theme-dark body .uni-modal__btn::after {
+  border-color: var(--kratos-color-border, rgba(255, 255, 255, 0.08)) !important;
+  color: var(--kratos-color-border, rgba(255, 255, 255, 0.08)) !important;
 }
 
-html.theme-dark .uni-modal-dialog__action-text {
+html.theme-dark body .uni-modal__btn_default {
   color: var(--kratos-color-text-muted, #8aa0b4) !important;
 }
 
-html.theme-dark .uni-modal-dialog__action-text--confirm {
+html.theme-dark body .uni-modal__btn_primary {
   color: var(--kratos-color-primary, #28f0d4) !important;
 }
 

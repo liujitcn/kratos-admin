@@ -58,6 +58,7 @@ func (c *BaseTableArchiveRecordCase) GetBaseTableArchiveRecord(ctx context.Conte
 	return toBaseTableArchiveRecord(item), nil
 }
 
+// toBaseTableArchiveRecord 将归档执行记录模型转换为接口响应。
 func toBaseTableArchiveRecord(item *models.BaseTableArchiveRecord) *adminv1.BaseTableArchiveRecord {
 	return &adminv1.BaseTableArchiveRecord{Id: item.ID, ArchiveId: item.ArchiveID, SourceName: item.SourceName, TableName: item.TableName_, ArchiveMode: adminv1.BaseTableArchiveMode(item.ArchiveMode), CutoffAt: item.CutoffAt.Format(time.RFC3339), Cursor: item.Cursor, ScannedRows: item.ScannedRows, ArchivedRows: item.ArchivedRows, DeletedRows: item.DeletedRows, ArchiveTableName: item.ArchiveTableName, ObjectKey: item.ObjectKey, SizeBytes: item.SizeBytes, Sha256: item.Sha256, Status: adminv1.BaseTableArchiveRecordStatus(item.Status), Error: item.Error, StartedAt: item.StartedAt.Format(time.RFC3339), FinishedAt: item.FinishedAt.Format(time.RFC3339)}
 }

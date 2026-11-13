@@ -1,13 +1,16 @@
 import path from "path";
 
+/** 判断当前构建模式是否为开发环境。 */
 export function isDevFn(mode: string): boolean {
   return mode === "development";
 }
 
+/** 判断当前构建模式是否为生产环境。 */
 export function isProdFn(mode: string): boolean {
   return mode === "production";
 }
 
+/** 判断当前构建模式是否为测试环境。 */
 export function isTestFn(mode: string): boolean {
   return mode === "test";
 }
@@ -20,6 +23,7 @@ export function isReportMode(): boolean {
 }
 
 // Read all environment variable configuration files to process.env
+/** 归一化环境变量：换行转义还原、布尔/端口转类型、代理配置反序列化为对象。 */
 export function wrapperEnv(envConf: Recordable): ViteEnv {
   const ret: any = {};
 

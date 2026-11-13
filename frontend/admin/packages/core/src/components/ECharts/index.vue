@@ -36,6 +36,7 @@ const echartsStyle = computed(() => {
 const chartRef = ref<HTMLDivElement | HTMLCanvasElement>();
 const chartInstance = ref<EChartsType>();
 
+/** 按最新 option 全量重绘图表（notMerge 替换，避免残留旧系列配置）。 */
 const draw = () => {
   if (chartInstance.value) {
     chartInstance.value.setOption(props.option, { notMerge: true });
@@ -46,9 +47,12 @@ watch(props, () => {
   draw();
 });
 
+/** 图表元素点击事件透传给父组件。 */
 const handleClick = (event: ECElementEvent) => props.onClick && props.onClick(event);
+/** 图表元素松开事件透传给父组件。 */
 const handleMouseup = (event: ECElementEvent) => props.onMouseup && props.onMouseup(event);
 
+/** 初始化图表：同一 DOM 已有实例则复用（keep-alive 场景），否则创建实例并绑定事件。 */
 const init = () => {
   if (!chartRef.value) return;
   chartInstance.value = echarts.getInstanceByDom(chartRef.value);
@@ -65,6 +69,7 @@ const init = () => {
   }
 };
 
+/** 重设图表尺寸，附带 300ms 过渡动画；可通过 resize 入参关闭。 */
 const resize = () => {
   if (chartInstance.value && props.resize) {
     chartInstance.value.resize({ animation: { duration: 300 } });

@@ -64,15 +64,20 @@ async function requestTable(params: PageBaseTableBackupRequest) {
   const data = await defBaseTableBackupService.PageBaseTableBackup(buildPageRequest(params));
   return { data: { list: data.base_table_backups ?? [], total: data.total } };
 }
+/** 刷新配置列表。 */
 function refresh() { proTable.value?.getTableList(); }
+/** 生成备份配置表单默认值，含全量备份类型、OSS 前缀与保留份数。 */
 function defaultForm(): BaseTableBackupForm { return { id: 0, source_name: "", backup_type: BaseTableBackupType.BASE_TABLE_BACKUP_TYPE_FULL, oss_prefix: "backup/database", retention_count: 7, status: Status.STATUS_ENABLE }; }
+/** 关闭弹窗并还原表单为默认值。 */
 function resetForm() { dialog.visible = false; formDialogRef.value?.resetFields(); Object.assign(formData, defaultForm()); }
+/** 打开新增/编辑弹窗：先加载数据源与详情，新增时默认选中第一个数据源。 */
 async function openDialog(id?: number) {
   await formDialogRef.value?.open({
     load: async () => {
       await loadSourceOptions();
       const data = id ? await defBaseTableBackupService.GetBaseTableBackup({ id }) : undefined;
       const form = { ...defaultForm(), ...(data ?? {}) };
+      // 新增时默认选中第一个数据源，减少手动选择成本
       if (!form.source_name) form.source_name = String(sourceOptions.value[0]?.value ?? "");
       return form;
     },
@@ -82,6 +87,7 @@ async function openDialog(id?: number) {
     }
   });
 }
+/** 懒加载数据源下拉选项，已加载或正在加载时跳过。 */
 async function loadSourceOptions() {
   if (sourceOptions.value.length || loadingSources.value) return;
   loadingSources.value = true;
@@ -92,6 +98,7 @@ async function loadSourceOptions() {
     loadingSources.value = false;
   }
 }
+/** 校验并提交表单：深拷贝剥离响应式代理后，按 id 区分新增或更新。 */
 async function handleSubmit() { const valid = await formDialogRef.value?.validate(); if (!valid) return; const payload = JSON.parse(JSON.stringify(formData)) as BaseTableBackupForm; if (payload.id) await defBaseTableBackupService.UpdateBaseTableBackup({ base_table_backup: payload }); else await defBaseTableBackupService.CreateBaseTableBackup({ base_table_backup: payload }); ElMessage.success(t("common.message.save_success")); resetForm(); refresh(); }
 /** 确认并切换备份配置状态。 */
 async function setStatus(row: BaseTableBackupForm) {
@@ -121,6 +128,8 @@ async function setStatus(row: BaseTableBackupForm) {
     return false;
   }
 }
+/** 兼容行删除与批量删除两种入参，确认后批量删除并刷新列表。 */
 async function remove(selected: number | number[] | BaseTableBackupForm) { let ids: number[]; if (Array.isArray(selected)) ids = selected.map(Number); else if (typeof selected === "object") ids = [selected.id]; else ids = normalizeSelectedIds(selected).map(Number); if (!ids.length) return; await ElMessageBox.confirm(t("common.dialog.delete_selected", { resource: t("system.backup.backup.config") }), t("common.title.warning"), { type: "warning" }); await defBaseTableBackupService.DeleteBaseTableBackup({ id: ids.join(",") }); ElMessage.success(t("common.message.delete_success", { resource: t("system.backup.backup.config") })); refresh(); }
+/** 备份类型的展示文案。 */
 function backupTypeLabel(value: BaseTableBackupType) { return backupTypeOptions.value.find(item => item.value === value)?.label ?? String(value); }
 </script>

@@ -88,6 +88,7 @@ const config = computed<LogTableConfig>(() => ({
   get: getDetail
 }));
 
+/** 分页查询策略评估日志，并适配 ProTable 的列表结构。 */
 async function requestTable(params: Record<string, unknown>) {
   const response = await defBasePolicyEvaluationLogService.PageBasePolicyEvaluationLog(
     buildPageRequest({ ...params, tenant_id: toRequestTenantId(params.tenant_id) } as unknown as PageBasePolicyEvaluationLogRequest)
@@ -95,6 +96,7 @@ async function requestTable(params: Record<string, unknown>) {
   return { list: response.base_policy_evaluation_logs as unknown as Record<string, unknown>[], total: response.total };
 }
 
+/** 查询单条策略评估日志详情。 */
 async function getDetail(id: string) {
   return (await defBasePolicyEvaluationLogService.GetBasePolicyEvaluationLog({ id })) as unknown as Record<string, unknown>;
 }

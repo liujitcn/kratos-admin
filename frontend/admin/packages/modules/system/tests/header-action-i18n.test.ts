@@ -6,10 +6,12 @@ import { test } from "node:test";
 const pagePaths = ["src/views/base/message-category/index.vue", "src/views/base/message/index.vue"];
 const localeNames = ["zh-CN", "en-US", "ja-JP", "zh-TW"];
 
+/** 以模块目录为基准读取仓库内源码文件，供测试做静态文本断言。 */
 function readSource(path: string) {
   return readFile(join(process.cwd(), path), "utf8");
 }
 
+/** 从页面源码的 headerActions 配置中提取全部国际化键。 */
 function headerActionKeys(source: string) {
   const block = source.match(/const headerActions[\s\S]*?^\]\);/m)?.[0];
   assert.ok(block, "页面缺少 headerActions 配置");
