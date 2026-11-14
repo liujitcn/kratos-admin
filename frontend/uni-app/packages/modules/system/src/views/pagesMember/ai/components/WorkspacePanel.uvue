@@ -1,0 +1,920 @@
+<script setup lang="ts">
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { useI18n } from '@liujitcn/kratos-uni-app-core'
+import { useThemeStore } from '@liujitcn/kratos-uni-app-core/stores'
+import { defAiAutomationService } from '../../../../api/base/v1/ai_automation'
+import {
+  defAiFileService,
+  isAiWorkspaceTextFile,
+  openAiWorkspaceFile,
+} from '../../../../api/base/v1/ai_file'
+import { defAiPluginService } from '../../../../api/base/v1/ai_plugin'
+import { AiFileView, type AiFile } from '../../../../rpc/base/v1/ai_file'
+import { Terminal } from '../../../../rpc/base/v1/ai_tool'
+import type { AiAutomation, AiAutomationRun } from '../../../../rpc/base/v1/ai_automation'
+import type { AiPlugin, AiPluginConnection, AiPluginTool } from '../../../../rpc/base/v1/ai_plugin'
+import type { AiKnowledgeOption } from '../../../../rpc/base/v1/ai_knowledge'
+import type { AiProviderModelOption } from '../../../../rpc/base/v1/ai_provider'
+import { resolveModelDisplayName } from '../modelDisplay'
+import {
+  type AiWorkspaceView,
+  formatWorkspaceFileSize,
+  formatWorkspaceKnowledge,
+  formatWorkspaceSchedule,
+  formatWorkspaceTime,
+  workspacePluginIssue,
+  workspaceAutomationStatus,
+  workspaceTimestamp,
+} from '../workspace'
+import DetailsSheet from './DetailsSheet.uvue'
+
+const props = defineProps<{
+  view: AiWorkspaceView
+  modelProviders: AiProviderModelOption[]
+  knowledgeOptions: AiKnowledgeOption[]
+}>()
+const emit = defineEmits<{
+  result: [run: AiAutomationRun]
+  pending: [count: number]
+  title: [key: string]
+}>()
+const { locale, t } = useI18n()
+const theme = useThemeStore()
+const keyword = ref('')
+const status = ref('')
+const fileView = ref(AiFileView.AI_FILE_VIEW_ALL)
+const pluginTab = ref('catalog')
+const scope = ref('')
+const pluginFilter = ref('')
+const loading = ref(true)
+const errorText = ref('')
+const tasks = ref<AiAutomation[]>([])
+const runs = ref<AiAutomationRun[]>([])
+const files = ref<AiFile[]>([])
+const plugins = ref<AiPlugin[]>([])
+const connections = ref<AiPluginConnection[]>([])
+const tools = ref<Record<string, AiPluginTool[]>>({})
+const fileTotals = ref<Record<number, number>>({})
+const page = ref(1)
+const recordsTask = ref<AiAutomation>()
+const selectedRun = ref<AiAutomationRun>()
+const detailTask = ref<AiAutomation>()
+const detailFile = ref<AiFile>()
+const detailPlugin = ref<AiPlugin>()
+const detailConnection = ref<AiPluginConnection>()
+const detailTool = ref<AiPluginTool>()
+const fileText = ref('')
+const previewLoading = ref(false)
+const expandedPluginTool = ref('')
+let sequence = 0
+let previewSequence = 0
+let searchTimer: ReturnType<typeof setTimeout> | undefined
+
+const statuses = ['', 'active', 'paused', 'attention', 'archived']
+const fileViews = [
+  { value: AiFileView.AI_FILE_VIEW_ALL, label: 'all_files' },
+  { value: AiFileView.AI_FILE_VIEW_UPLOADED, label: 'uploaded_files' },
+  { value: AiFileView.AI_FILE_VIEW_GENERATED, label: 'generated_files' },
+  { value: AiFileView.AI_FILE_VIEW_TRASHED, label: 'trash' },
+]
+const pluginTabs = ['catalog', 'accounts', 'tools']
+const scopes = ['', 'system', 'tenant', 'private']
+const scopeLabels = computed(() =>
+  scopes.map((value) => t(`system.ai.workspace.${value || 'all'}`)),
+)
+const visiblePlugins = computed(() =>
+  plugins.value.filter(
+    (item) =>
+      (!scope.value || item.visibility === scope.value) &&
+      `${item.name} ${item.description}`.toLowerCase().includes(keyword.value.toLowerCase()),
+  ),
+)
+const visibleConnections = computed(() =>
+  connections.value.filter(
+    (item) =>
+      (!pluginFilter.value || item.plugin_id === pluginFilter.value) &&
+      `${item.label} ${pluginName(item.plugin_id)}`
+        .toLowerCase()
+        .includes(keyword.value.toLowerCase()),
+  ),
+)
+const visibleTools = computed(() =>
+  Object.values(tools.value)
+    .flat()
+    .filter(
+      (item) =>
+        (!pluginFilter.value || item.plugin_id === pluginFilter.value) &&
+        `${item.source_name} ${item.description}`
+          .toLowerCase()
+          .includes(keyword.value.toLowerCase()),
+    ),
+)
+const sheetTitle = computed(
+  () =>
+    detailTask.value?.configuration?.name ||
+    detailFile.value?.file_name ||
+    detailPlugin.value?.name ||
+    detailConnection.value?.label ||
+    detailTool.value?.source_name ||
+    '',
+)
+const titleKey = computed(() =>
+  selectedRun.value ? 'run_details' : recordsTask.value ? 'history' : props.view,
+)
+watch(titleKey, (value) => emit('title', `system.ai.workspace.${value}`), { immediate: true })
+
+/** 同一工作区只应用最新请求，卸载或切换后丢弃迟到结果。 */
+async function request<T>(operation: () => Promise<T>, apply: (value: T) => void) {
+  const current = ++sequence
+  loading.value = true
+  errorText.value = ''
+  try {
+    const response = await operation()
+    if (current === sequence) apply(response)
+  } catch (error) {
+    if (current === sequence)
+      errorText.value =
+        error instanceof Error ? error.message : t('system.ai.workspace.load_failed')
+  } finally {
+    if (current === sequence) loading.value = false
+  }
+}
+
+/** 刷新只读工作区，文件列表页单独维护分页和分类数量。 */
+async function load() {
+  clearTimeout(searchTimer)
+  if (props.view === 'automations') {
+    if (recordsTask.value) {
+      const id = recordsTask.value.id
+      await request(
+        () => defAiAutomationService.ListAiAutomationRun({ automation_id: id, limit: 100 }),
+        (value) => {
+          runs.value = value.runs || []
+        },
+      )
+    } else {
+      await request(
+        async () => {
+          const responses = await Promise.all([
+            defAiAutomationService.ListAiAutomation({
+              status: status.value,
+              keyword: keyword.value,
+            }),
+            ...(status.value
+              ? []
+              : [
+                  defAiAutomationService.ListAiAutomation({
+                    status: 'archived',
+                    keyword: keyword.value,
+                  }),
+                ]),
+          ])
+          return {
+            responses,
+            items: [
+              ...new Map(
+                responses
+                  .flatMap((value) => value.automations || [])
+                  .map((item) => [item.id, item]),
+              ).values(),
+            ].sort(
+              (left, right) =>
+                workspaceTimestamp(right.updated_at) - workspaceTimestamp(left.updated_at),
+            ),
+          }
+        },
+        (value) => {
+          tasks.value = value.items
+          emit('pending', value.responses[0]?.pending_count || 0)
+        },
+      )
+    }
+  } else if (props.view === 'files') {
+    const requestedView = fileView.value
+    const requestedPage = page.value
+    await request(
+      async () => {
+        const [response, counts] = await Promise.all([
+          defAiFileService.PageAiFile({
+            view: requestedView,
+            keyword: keyword.value,
+            page_num: requestedPage,
+            page_size: 20,
+          }),
+          requestedPage === 1
+            ? Promise.all(
+                fileViews
+                  .filter((item) => item.value !== requestedView)
+                  .map(async (item) => ({
+                    view: item.value,
+                    response: await defAiFileService.PageAiFile({
+                      view: item.value,
+                      keyword: keyword.value,
+                      page_num: 1,
+                      page_size: 1,
+                    }),
+                  })),
+              )
+            : Promise.resolve([]),
+        ])
+        return { response, counts }
+      },
+      (value) => {
+        files.value =
+          requestedPage === 1
+            ? value.response.files || []
+            : [...files.value, ...(value.response.files || [])]
+        fileTotals.value = {
+          ...fileTotals.value,
+          [requestedView]: Number(value.response.total || 0),
+          ...Object.fromEntries(
+            value.counts.map((item) => [item.view, Number(item.response.total || 0)]),
+          ),
+        }
+      },
+    )
+  } else if (props.view === 'plugins') {
+    await request(
+      async () => {
+        const [catalog, accounts] = await Promise.all([
+          defAiPluginService.ListAiPlugin({ terminal: Terminal.TERMINAL_APP, keyword: '' }),
+          defAiPluginService.ListAiPluginConnection({ plugin_id: '' }),
+        ])
+        const definitions = catalog.plugins || []
+        const snapshots = await Promise.all(
+          definitions.map(
+            async (plugin) =>
+              [
+                plugin.id,
+                (
+                  await defAiPluginService.ListAiPluginTool({
+                    plugin_id: plugin.id,
+                    terminal: Terminal.TERMINAL_APP,
+                  })
+                ).tools || [],
+              ] as const,
+          ),
+        )
+        return { definitions, accounts: accounts.connections || [], snapshots }
+      },
+      (value) => {
+        plugins.value = value.definitions
+        connections.value = value.accounts
+        tools.value = Object.fromEntries(value.snapshots)
+      },
+    )
+  }
+}
+
+/** 仅在文件列表还有下一页时追加。 */
+function loadMore() {
+  if (
+    props.view !== 'files' ||
+    loading.value ||
+    files.value.length >= (fileTotals.value[fileView.value] || 0)
+  )
+    return
+  page.value += 1
+  void load()
+}
+
+/** 状态筛选先于搜索框展示，组合条件统一提交服务端。 */
+function chooseStatus(value: string) {
+  status.value = value
+  void load()
+}
+/** 切换文件分类并从第一页读取。 */
+function chooseFileView(value: AiFileView) {
+  fileView.value = value
+  page.value = 1
+  void load()
+}
+/** 插件页签只切换已取得的只读快照。 */
+function choosePluginTab(value: string) {
+  pluginTab.value = value
+  pluginFilter.value = ''
+  keyword.value = ''
+}
+/** 从卡片打开当前任务的执行记录，不展示全部执行记录入口。 */
+function openRuns(task: AiAutomation) {
+  closeDetails()
+  selectedRun.value = undefined
+  recordsTask.value = task
+  runs.value = []
+  void load()
+}
+/** 按当前身份重新获取任务详情。 */
+function openTask(task: AiAutomation) {
+  void request(
+    () => defAiAutomationService.GetAiAutomation({ id: task.id }),
+    (value) => {
+      detailTask.value = value
+    },
+  )
+}
+/** 按当前身份重新获取执行详情。 */
+function openRun(run: AiAutomationRun) {
+  void request(
+    () => defAiAutomationService.GetAiAutomationRun({ id: run.id }),
+    (value) => {
+      selectedRun.value = value
+    },
+  )
+}
+/** 插件详情使用应用端目录快照及已鉴权工具列表。 */
+function openPlugin(plugin: AiPlugin) {
+  closeDetails()
+  detailPlugin.value = plugin
+}
+/** 查看插件关联账号或工具，不改变安装与连接。 */
+function openPluginTab(value: string, id: string) {
+  closeDetails()
+  pluginTab.value = value
+  pluginFilter.value = id
+  keyword.value = ''
+}
+/** 关闭只读弹层并使正在加载的预览失效。 */
+function closeDetails() {
+  expandedPluginTool.value = ''
+  previewSequence += 1
+  detailTask.value = undefined
+  detailFile.value = undefined
+  detailPlugin.value = undefined
+  detailConnection.value = undefined
+  detailTool.value = undefined
+  fileText.value = ''
+  previewLoading.value = false
+}
+/** 导航栏返回先关闭弹层或详情，再回任务列表。 */
+function goBack(): boolean {
+  if (sheetTitle.value) {
+    closeDetails()
+    return true
+  }
+  if (selectedRun.value) {
+    selectedRun.value = undefined
+    return true
+  }
+  if (recordsTask.value) {
+    recordsTask.value = undefined
+    runs.value = []
+    void load()
+    return true
+  }
+  return false
+}
+/** 打开文件信息；回收站仅展示元数据。 */
+function openFile(file: AiFile) {
+  closeDetails()
+  detailFile.value = file
+  if (file.status !== 'trashed' && isAiWorkspaceTextFile(file)) void readFile(file, true)
+}
+/** 文件内容通过鉴权服务读取，错误保留在当前详情中。 */
+async function readFile(file: AiFile, preview: boolean) {
+  const current = ++previewSequence
+  previewLoading.value = true
+  errorText.value = ''
+  try {
+    const text = await openAiWorkspaceFile(file, preview)
+    if (current === previewSequence) fileText.value = text
+  } catch (error) {
+    if (current === previewSequence)
+      errorText.value =
+        error instanceof Error ? error.message : t('system.ai.workspace.file_unavailable')
+  } finally {
+    if (current === previewSequence) previewLoading.value = false
+  }
+}
+/** 插件名称缺失时仍显示其确定编号。 */
+function pluginName(id: string) {
+  return plugins.value.find((plugin) => plugin.id === id)?.name || id
+}
+/** 未知服务端状态显示原值，避免把错误状态当成成功。 */
+function statusLabel(value: string) {
+  const key = `system.ai.workspace.${value}`
+  const label = t(key)
+  return label === key ? value : label
+}
+/** 依据目录与审核状态展示不可调用原因。 */
+function pluginIssue(plugin: AiPlugin) {
+  const reason = workspacePluginIssue(plugin, tools.value[plugin.id] || [])
+  return reason ? statusLabel(reason) : t('system.ai.workspace.auto_available')
+}
+/** 时间展示沿用任务时区。 */
+function formatTime(value: Parameters<typeof formatWorkspaceTime>[0], timezone?: string) {
+  return formatWorkspaceTime(value, locale.value, timezone)
+}
+/** 参数按 JSON 排版，内容始终作为文本展示。 */
+function schemaText(value: string) {
+  try {
+    return JSON.stringify(JSON.parse(value || '{}'), null, 2)
+  } catch {
+    return value
+  }
+}
+watch(
+  keyword,
+  () => {
+    page.value = 1
+    if (props.view !== 'plugins') {
+      sequence += 1
+      clearTimeout(searchTimer)
+      searchTimer = setTimeout(() => void load(), 250)
+    }
+  },
+  { flush: 'sync' },
+)
+onMounted(() => void load())
+onBeforeUnmount(() => {
+  sequence += 1
+  previewSequence += 1
+  clearTimeout(searchTimer)
+})
+defineExpose({ goBack })
+</script>
+
+<template>
+  <view class="ai-workspace-root">
+    <scroll-view
+      class="ai-workspace-scroll"
+      scroll-y
+      :show-scrollbar="false"
+      @scrolltolower="loadMore"
+    >
+      <view class="ai-workspace">
+        <view v-if="errorText" class="ai-workspace-error"
+          >{{ errorText
+          }}<button class="ai-workspace-button" @tap="load">
+            {{ t('system.ai.workspace.retry') }}
+          </button></view
+        >
+        <view v-if="loading" class="ai-workspace-meta">{{ t('system.ai.workspace.loading') }}</view>
+        <template v-if="view === 'automations'">
+          <view v-if="selectedRun" class="ai-workspace-card">
+            <view class="ai-workspace-head"
+              ><view class="ai-workspace-title">{{ selectedRun.configuration?.name }}</view
+              ><text class="ai-workspace-tag">{{ statusLabel(selectedRun.status) }}</text></view
+            >
+            <view class="ai-workspace-description">{{ selectedRun.summary }}</view>
+            <view v-if="selectedRun.error_code" class="ai-workspace-error">{{
+              selectedRun.error_code
+            }}</view>
+            <view class="ai-workspace-meta"
+              >{{ t('system.ai.workspace.time') }}：{{
+                formatTime(selectedRun.created_at, selectedRun.configuration?.schedule?.timezone)
+              }}</view
+            >
+            <view class="ai-workspace-meta"
+              >{{ t('system.ai.workspace.model') }}：{{
+                resolveModelDisplayName(modelProviders, selectedRun.configuration?.model_name || '')
+              }}</view
+            >
+            <view class="ai-workspace-meta"
+              >{{ t('system.ai.workspace.timezone') }}：{{
+                selectedRun.configuration?.schedule?.timezone
+              }}</view
+            >
+            <view class="ai-workspace-meta"
+              >{{ t('system.ai.knowledge.title') }}：{{
+                formatWorkspaceKnowledge(
+                  selectedRun.configuration?.knowledge_base_ids,
+                  knowledgeOptions,
+                )
+              }}</view
+            >
+            <view class="ai-workspace-title">{{ t('system.ai.workspace.frozen_instruction') }}</view
+            ><text class="ai-workspace-pre" selectable>{{
+              selectedRun.configuration?.prompt
+            }}</text>
+            <view v-if="selectedRun.status === 'waiting_approval'" class="ai-workspace-hint">{{
+              t('system.ai.workspace.review_on_admin')
+            }}</view>
+            <view v-if="selectedRun.result_unknown" class="ai-workspace-hint">{{
+              t('system.ai.workspace.unknown_result')
+            }}</view>
+            <view class="ai-workspace-actions"
+              ><button
+                class="ai-workspace-button is-primary"
+                :disabled="!selectedRun.session_id || selectedRun.session_deleted"
+                @tap="emit('result', selectedRun)"
+              >
+                {{ t('system.ai.workspace.view_result') }}
+              </button></view
+            >
+          </view>
+          <template v-else-if="recordsTask">
+            <view class="ai-workspace-head"
+              ><text class="ai-workspace-title">{{ recordsTask.configuration?.name }}</text
+              ><button class="ai-workspace-button" :disabled="loading" @tap="load">
+                {{ t('system.ai.workspace.refresh') }}
+              </button></view
+            >
+            <view v-for="run in runs" :key="run.id" class="ai-workspace-card">
+              <view class="ai-workspace-head"
+                ><view class="ai-workspace-title">{{ run.configuration?.name }}</view
+                ><text class="ai-workspace-tag">{{ statusLabel(run.status) }}</text></view
+              >
+              <view class="ai-workspace-meta">{{
+                formatTime(run.created_at, run.configuration?.schedule?.timezone)
+              }}</view
+              ><view class="ai-workspace-description">{{ run.summary }}</view>
+              <view class="ai-workspace-actions"
+                ><button class="ai-workspace-button" @tap="openRun(run)">
+                  {{ t('system.ai.workspace.view_details') }}</button
+                ><button
+                  class="ai-workspace-button is-primary"
+                  :disabled="!run.session_id || run.session_deleted"
+                  @tap="emit('result', run)"
+                >
+                  {{ t('system.ai.workspace.view_result') }}
+                </button></view
+              >
+            </view>
+            <view v-if="!loading && !errorText && !runs.length" class="ai-workspace-empty">{{
+              t('system.ai.workspace.no_runs')
+            }}</view>
+          </template>
+          <template v-else>
+            <view class="ai-workspace-tabs"
+              ><button
+                v-for="value in statuses"
+                :key="value"
+                class="ai-workspace-chip"
+                :class="{ 'is-active': status === value }"
+                @tap="chooseStatus(value)"
+              >
+                {{ statusLabel(value || 'all') }}
+              </button></view
+            >
+            <view class="ai-workspace-search"
+              ><uni-icons type="search" size="16" :color="theme.colors.aiTextMuted" /><input
+                v-model="keyword"
+                class="ai-workspace-input"
+                :maxlength="100"
+                :placeholder="t('system.ai.workspace.search_tasks')"
+                placeholder-class="ai-workspace-placeholder"
+                confirm-type="search"
+                @confirm="load"
+            /></view>
+            <view v-for="task in tasks" :key="task.id" class="ai-workspace-card">
+              <view class="ai-workspace-head"
+                ><view class="ai-workspace-title" @tap="openTask(task)">{{
+                  task.configuration?.name
+                }}</view
+                ><text
+                  class="ai-workspace-tag"
+                  :class="{ 'is-warning': workspaceAutomationStatus(task) === 'attention' }"
+                  >{{ statusLabel(workspaceAutomationStatus(task)) }}</text
+                ></view
+              >
+              <view class="ai-workspace-description">{{ task.configuration?.prompt }}</view
+              ><view class="ai-workspace-meta"
+                >{{ formatWorkspaceSchedule(task.configuration?.schedule, t) }} ·
+                {{ task.configuration?.schedule?.timezone }}</view
+              >
+              <view class="ai-workspace-meta"
+                >{{ t('system.ai.workspace.next_run') }}：{{
+                  formatTime(task.next_fire_at, task.configuration?.schedule?.timezone)
+                }}</view
+              ><view v-if="task.problem" class="ai-workspace-hint">{{ task.problem }}</view>
+              <view
+                v-else-if="task.last_run?.status === 'waiting_approval'"
+                class="ai-workspace-hint"
+                >{{ t('system.ai.workspace.review_on_admin') }}</view
+              >
+              <view class="ai-workspace-actions"
+                ><button class="ai-workspace-button" :disabled="loading" @tap="openTask(task)">
+                  {{ t('system.ai.workspace.view_details') }}</button
+                ><button class="ai-workspace-button" @tap="openRuns(task)">
+                  {{ t('system.ai.workspace.history') }}
+                </button></view
+              >
+            </view>
+            <view v-if="!loading && !errorText && !tasks.length" class="ai-workspace-empty">{{
+              t('system.ai.workspace.no_tasks')
+            }}</view>
+          </template>
+        </template>
+        <template v-else-if="view === 'files'">
+          <view class="ai-workspace-tabs"
+            ><button
+              v-for="item in fileViews"
+              :key="item.value"
+              class="ai-workspace-chip"
+              :class="{ 'is-active': fileView === item.value }"
+              @tap="chooseFileView(item.value)"
+            >
+              {{ statusLabel(item.label)
+              }}<text v-if="fileTotals[item.value] !== undefined">
+                {{ fileTotals[item.value] }}</text
+              >
+            </button></view
+          >
+          <view class="ai-workspace-search"
+            ><uni-icons type="search" size="16" :color="theme.colors.aiTextMuted" /><input
+              v-model="keyword"
+              class="ai-workspace-input"
+              :maxlength="100"
+              :placeholder="t('system.ai.workspace.search_files')"
+              placeholder-class="ai-workspace-placeholder"
+              confirm-type="search"
+              @confirm="load"
+          /></view>
+          <view
+            v-for="file in files"
+            :key="file.id"
+            class="ai-workspace-card ai-workspace-file"
+            @tap="openFile(file)"
+            ><uni-icons type="list" size="23" :color="theme.colors.aiPrimary" /><view
+              class="ai-workspace-file-copy"
+              ><text class="ai-workspace-title">{{ file.file_name }}</text
+              ><view class="ai-workspace-meta"
+                >{{ formatWorkspaceFileSize(file.size) }} ·
+                {{
+                  statusLabel(file.source_type === 'upload' ? 'uploaded_files' : 'generated_files')
+                }}</view
+              ><view class="ai-workspace-meta">{{ formatTime(file.created_at) }}</view></view
+            ><uni-icons type="right" size="20" :color="theme.colors.aiTextMuted"
+          /></view>
+          <view v-if="!loading && !errorText && !files.length" class="ai-workspace-empty">{{
+            t('system.ai.workspace.no_files')
+          }}</view
+          ><button
+            v-if="files.length < (fileTotals[fileView] || 0)"
+            class="ai-workspace-button"
+            :disabled="loading"
+            @tap="loadMore"
+          >
+            {{ t('system.ai.workspace.load_more') }}
+          </button>
+        </template>
+        <template v-else-if="view === 'plugins'">
+          <view class="ai-workspace-tabs"
+            ><button
+              v-for="value in pluginTabs"
+              :key="value"
+              class="ai-workspace-chip"
+              :class="{ 'is-active': pluginTab === value }"
+              @tap="choosePluginTab(value)"
+            >
+              {{ statusLabel(value) }}
+            </button></view
+          >
+          <view class="ai-workspace-meta">{{ t('system.ai.workspace.auto_hint') }}</view
+          ><view class="ai-workspace-search"
+            ><uni-icons type="search" size="16" :color="theme.colors.aiTextMuted" /><input
+              v-model="keyword"
+              class="ai-workspace-input"
+              :placeholder="
+                t(
+                  `system.ai.workspace.${pluginTab === 'accounts' ? 'search_accounts' : pluginTab === 'tools' ? 'search_tools' : 'search_plugins'}`,
+                )
+              "
+              placeholder-class="ai-workspace-placeholder"
+          /></view>
+          <template v-if="pluginTab === 'catalog'">
+            <picker
+              :range="scopeLabels"
+              :value="scopes.indexOf(scope)"
+              @change="scope = scopes[Number($event.detail.value)] || ''"
+              ><view class="ai-workspace-select"
+                ><text
+                  >{{ t('system.ai.workspace.scope') }} ·
+                  {{ scopeLabels[scopes.indexOf(scope)] }}</text
+                ><uni-icons type="down" size="12" :color="theme.colors.aiTextMuted" /></view
+            ></picker>
+            <view v-for="plugin in visiblePlugins" :key="plugin.id" class="ai-workspace-card"
+              ><view class="ai-workspace-head"
+                ><view class="ai-workspace-title" @tap="openPlugin(plugin)">{{ plugin.name }}</view
+                ><text class="ai-workspace-tag">{{ plugin.source }}</text></view
+              ><view class="ai-workspace-description">{{ plugin.description }}</view
+              ><view class="ai-workspace-head"
+                ><view class="ai-workspace-meta">{{ statusLabel(plugin.visibility) }}</view
+                ><text class="ai-workspace-tag">{{ pluginIssue(plugin) }}</text></view
+              ><view class="ai-workspace-actions"
+                ><button class="ai-workspace-button" @tap="openPlugin(plugin)">
+                  {{ t('system.ai.workspace.view_details') }}</button
+                ><button
+                  v-if="plugin.source === 'MCP'"
+                  class="ai-workspace-button"
+                  @tap="openPluginTab('accounts', plugin.id)"
+                >
+                  {{ t('system.ai.workspace.view_accounts') }}</button
+                ><button class="ai-workspace-button" @tap="openPluginTab('tools', plugin.id)">
+                  {{ t('system.ai.workspace.view_tools') }}
+                </button></view
+              ></view
+            >
+            <view
+              v-if="!loading && !errorText && !visiblePlugins.length"
+              class="ai-workspace-empty"
+              >{{ t('system.ai.workspace.no_plugins') }}</view
+            >
+          </template>
+          <template v-else-if="pluginTab === 'accounts'"
+            ><view
+              v-for="connection in visibleConnections"
+              :key="connection.id"
+              class="ai-workspace-card"
+              ><view class="ai-workspace-head"
+                ><view class="ai-workspace-title">{{ connection.label }}</view
+                ><text class="ai-workspace-tag">{{
+                  statusLabel(`connection_${connection.state}`)
+                }}</text></view
+              ><view class="ai-workspace-meta"
+                >{{ pluginName(connection.plugin_id) }} ·
+                {{ statusLabel(connection.sharing === 'tenant' ? 'shared' : 'personal') }}</view
+              ><view class="ai-workspace-meta"
+                >{{ t('system.ai.workspace.authorization_scope') }}：{{
+                  connection.scopes || '—'
+                }}</view
+              ><view v-if="connection.last_error" class="ai-workspace-hint">{{
+                connection.last_error
+              }}</view
+              ><view class="ai-workspace-actions"
+                ><button class="ai-workspace-button" @tap="detailConnection = connection">
+                  {{ t('system.ai.workspace.view_details') }}
+                </button></view
+              ></view
+            ><view
+              v-if="!loading && !errorText && !visibleConnections.length"
+              class="ai-workspace-empty"
+              >{{ t('system.ai.workspace.no_accounts') }}</view
+            ></template
+          >
+          <template v-else
+            ><view v-for="tool in visibleTools" :key="tool.id" class="ai-workspace-card"
+              ><view class="ai-workspace-head"
+                ><view class="ai-workspace-title">{{ tool.source_name }}</view
+                ><text class="ai-workspace-tag">{{
+                  statusLabel(tool.effective_enabled ? 'enabled' : 'disabled')
+                }}</text></view
+              ><view class="ai-workspace-meta"
+                >{{ pluginName(tool.plugin_id) }} ·
+                {{
+                  t(
+                    tool.effect === 'read'
+                      ? 'system.ai.workspace.read_only'
+                      : 'system.ai.workspace.needs_confirmation',
+                  )
+                }}</view
+              ><view class="ai-workspace-description">{{ tool.description }}</view
+              ><view class="ai-workspace-actions"
+                ><button class="ai-workspace-button" @tap="detailTool = tool">
+                  {{ t('system.ai.workspace.parameters_policy') }}
+                </button></view
+              ></view
+            ><view
+              v-if="!loading && !errorText && !visibleTools.length"
+              class="ai-workspace-empty"
+              >{{ t('system.ai.workspace.no_tools') }}</view
+            ></template
+          >
+        </template>
+      </view>
+    </scroll-view>
+    <DetailsSheet
+      v-if="sheetTitle"
+      :title="sheetTitle"
+      :footer="Boolean(detailTask || detailFile?.status === 'active' || detailPlugin)"
+      @close="closeDetails"
+    >
+      <view v-if="errorText" class="ai-workspace-error">{{ errorText }}</view>
+      <template v-if="detailTask"
+        ><view class="ai-workspace-description">{{ detailTask.configuration?.prompt }}</view
+        ><view class="ai-workspace-meta"
+          >{{ formatWorkspaceSchedule(detailTask.configuration?.schedule, t) }} ·
+          {{ detailTask.configuration?.schedule?.timezone }}</view
+        ><view class="ai-workspace-meta"
+          >{{ t('system.ai.workspace.model') }}：{{
+            resolveModelDisplayName(modelProviders, detailTask.configuration?.model_name || '')
+          }}</view
+        ><view class="ai-workspace-meta"
+          >{{ t('system.ai.knowledge.title') }}：{{
+            formatWorkspaceKnowledge(detailTask.configuration?.knowledge_base_ids, knowledgeOptions)
+          }}</view
+        ><view class="ai-workspace-meta"
+          >{{ t('system.ai.workspace.next_run') }}：{{
+            formatTime(detailTask.next_fire_at, detailTask.configuration?.schedule?.timezone)
+          }}</view
+        ></template
+      >
+      <template v-else-if="detailFile"
+        ><view class="ai-workspace-meta"
+          >{{ formatWorkspaceFileSize(detailFile.size) }} ·
+          {{
+            statusLabel(detailFile.source_type === 'upload' ? 'uploaded_files' : 'generated_files')
+          }}
+          · {{ formatTime(detailFile.created_at) }}</view
+        ><view v-if="detailFile.status === 'trashed'" class="ai-workspace-hint">{{
+          t('system.ai.workspace.trash_readonly')
+        }}</view
+        ><view v-else-if="previewLoading" class="ai-workspace-meta">{{
+          t('system.ai.workspace.loading')
+        }}</view
+        ><text v-else-if="fileText" selectable class="ai-workspace-pre">{{ fileText }}</text
+        ><view v-else class="ai-workspace-meta">{{
+          t('system.ai.workspace.file_preview_hint')
+        }}</view></template
+      >
+      <template v-else-if="detailPlugin"
+        ><view class="ai-workspace-description">{{ detailPlugin.description }}</view
+        ><view class="ai-workspace-meta"
+          >{{ detailPlugin.source }} · {{ statusLabel(detailPlugin.visibility) }}</view
+        ><view class="ai-workspace-meta"
+          >{{ t('system.ai.workspace.code') }}：{{ detailPlugin.code }}</view
+        ><view v-if="detailPlugin.endpoint" class="ai-workspace-meta"
+          >{{ t('system.ai.workspace.endpoint') }}：{{ detailPlugin.endpoint }}</view
+        ><view class="ai-workspace-meta"
+          >{{ t('system.ai.workspace.terminals') }}：{{
+            (detailPlugin.installation?.terminals || []).map(statusLabel).join('、')
+          }}</view
+        ><view class="ai-workspace-meta">{{ pluginIssue(detailPlugin) }}</view
+        ><view class="ai-workspace-title"
+          >{{ t('system.ai.workspace.tools') }} · {{ (tools[detailPlugin.id] || []).length }}</view
+        ><view v-for="tool in tools[detailPlugin.id] || []" :key="tool.id" class="ai-workspace-card"
+          ><view
+            class="ai-workspace-title"
+            @tap="expandedPluginTool = expandedPluginTool === tool.id ? '' : tool.id"
+            >{{ tool.source_name }} {{ expandedPluginTool === tool.id ? '−' : '+' }}</view
+          ><template v-if="expandedPluginTool === tool.id"
+            ><view class="ai-workspace-meta">{{ tool.description }}</view
+            ><view class="ai-workspace-meta"
+              >{{ statusLabel(tool.allowed ? 'enabled' : 'disabled') }} ·
+              {{ statusLabel(tool.effect === 'read' ? 'read_only' : 'needs_confirmation') }}</view
+            ><view class="ai-workspace-meta">{{ (tool.prompts || []).join('\n') || '—' }}</view
+            ><text selectable class="ai-workspace-pre">{{
+              schemaText(tool.input_schema)
+            }}</text></template
+          ></view
+        ></template
+      >
+      <template v-else-if="detailConnection"
+        ><view class="ai-workspace-meta"
+          >{{ pluginName(detailConnection.plugin_id) }} ·
+          {{ statusLabel(`connection_${detailConnection.state}`) }}</view
+        ><view class="ai-workspace-meta"
+          >{{ t('system.ai.workspace.auth_type') }}：{{ detailConnection.auth_type }}</view
+        ><view class="ai-workspace-meta"
+          >{{ t('system.ai.workspace.authorization_scope') }}：{{
+            detailConnection.scopes || '—'
+          }}</view
+        ><view class="ai-workspace-meta">{{
+          statusLabel(detailConnection.sharing === 'tenant' ? 'shared' : 'personal')
+        }}</view
+        ><view v-if="detailConnection.last_error" class="ai-workspace-hint">{{
+          detailConnection.last_error
+        }}</view></template
+      >
+      <template v-else-if="detailTool"
+        ><view class="ai-workspace-description">{{ detailTool.description }}</view
+        ><view class="ai-workspace-meta"
+          >{{
+            t(
+              detailTool.effect === 'read'
+                ? 'system.ai.workspace.read_only'
+                : 'system.ai.workspace.needs_confirmation',
+            )
+          }}
+          · {{ statusLabel(detailTool.allowed ? 'enabled' : 'disabled') }}</view
+        ><text selectable class="ai-workspace-pre">{{ schemaText(detailTool.input_schema) }}</text
+        ><view class="ai-workspace-meta">{{
+          (detailTool.prompts || []).join('\n')
+        }}</view></template
+      >
+      <template #footer
+        ><button v-if="detailTask" class="ai-workspace-button" @tap="openRuns(detailTask)">
+          {{ t('system.ai.workspace.history') }}</button
+        ><template v-else-if="detailFile && detailFile.status === 'active'"
+          ><button
+            class="ai-workspace-button"
+            :disabled="previewLoading"
+            @tap="readFile(detailFile, true)"
+          >
+            {{ t('system.ai.workspace.open_file') }}</button
+          ><button
+            class="ai-workspace-button is-primary"
+            :disabled="previewLoading"
+            @tap="readFile(detailFile, false)"
+          >
+            {{ t('common.action.download') }}
+          </button></template
+        ><template v-else-if="detailPlugin"
+          ><button
+            v-if="detailPlugin.source === 'MCP'"
+            class="ai-workspace-button"
+            @tap="openPluginTab('accounts', detailPlugin.id)"
+          >
+            {{ t('system.ai.workspace.view_accounts') }}</button
+          ><button class="ai-workspace-button" @tap="openPluginTab('tools', detailPlugin.id)">
+            {{ t('system.ai.workspace.view_tools') }}
+          </button></template
+        ></template
+      >
+    </DetailsSheet>
+  </view>
+</template>
+
+<style lang="scss" scoped>
+@use '../workspace.scss';
+</style>

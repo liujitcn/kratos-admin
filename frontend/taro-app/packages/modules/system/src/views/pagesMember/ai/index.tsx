@@ -1,8 +1,7 @@
-import { ScrollView, Text, View } from '@tarojs/components'
+import { Button, ScrollView, Text, View } from '@tarojs/components'
 import Taro, { useLoad } from '@tarojs/taro'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import {
-  formatSrc,
   getCurrentLocale,
   KratosNavBar,
   t,
@@ -11,12 +10,15 @@ import {
   useThemeStore,
 } from '@liujitcn/kratos-taro-app-core'
 import { isAuthExpiredError } from '@liujitcn/kratos-taro-app-core/utils/http'
-import { defAiMessageService, StreamAiMessageByChunkedRequest } from '../../../api/base/v1/ai_message'
+import {
+  defAiMessageService,
+  StreamAiMessageByChunkedRequest,
+} from '../../../api/base/v1/ai_message'
 import { defAiSessionService } from '../../../api/base/v1/ai_session'
 import { defAiToolService } from '../../../api/base/v1/ai_tool'
 import { defAiModelService } from '../../../api/base/v1/ai_provider'
 import { defAiKnowledgeService } from '../../../api/base/v1/ai_knowledge'
-import { getAiAutomationRun } from '../../../api/base/v1/ai_automation'
+import { getAiAutomationRun, defAiAutomationService } from '../../../api/base/v1/ai_automation'
 import { parseAiResultParams } from './resultLink'
 import type { AiAttachment, AiMessage, AiSession } from '../../../rpc/base/v1/ai_session'
 import type { AiProviderModelOption } from '../../../rpc/base/v1/ai_provider'
@@ -26,6 +28,11 @@ import { AiMessageStatus } from '../../../rpc/base/v1/ai_session'
 import { Terminal } from '../../../rpc/base/v1/ai_tool'
 import Composer from './components/Composer'
 import SessionDrawer from './components/SessionDrawer'
+import WorkspacePanel from './components/WorkspacePanel'
+import DetailsSheet from './components/DetailsSheet'
+import { type AiWorkspaceHandle, type AiWorkspaceView, workspaceTimestamp } from './workspace'
+import type { AiAutomationRun } from '../../../rpc/base/v1/ai_automation'
+import { openAiWorkspaceFile } from '../../../api/base/v1/ai_file'
 import WelcomePanel from './components/WelcomePanel'
 import ApprovalCard from './components/ApprovalCard'
 import { resolveModelDisplayName } from './modelDisplay'
@@ -76,19 +83,21 @@ export default function AiPage() {
   const windowInfo = Taro.getWindowInfo() as ReturnType<typeof Taro.getWindowInfo> & {
     safeAreaInsets?: { top?: number; bottom?: number }
   }
-  let safeAreaTop = windowInfo.safeArea?.top || windowInfo.statusBarHeight || windowInfo.safeAreaInsets?.top || 0
+  let safeAreaTop =
+    windowInfo.safeArea?.top || windowInfo.statusBarHeight || windowInfo.safeAreaInsets?.top || 0
   if (process.env.TARO_ENV === 'weapp') safeAreaTop ||= 44
-  // 部分微信基础库只返回 safeArea 坐标，需要用屏幕高度反推底部安全区。
-  const measuredSafeAreaBottom =
-    windowInfo.safeAreaInsets?.bottom ??
-    (windowInfo.screenHeight && windowInfo.safeArea?.bottom
-      ? Math.max(windowInfo.screenHeight - windowInfo.safeArea.bottom, 0)
-      : 0)
-  const safeAreaBottom = Math.max(measuredSafeAreaBottom, 9)
-  const composerBottom = `${safeAreaBottom + 48}px`
   const drawerTopPadding = `${safeAreaTop + 12}px`
 
   const [showSessionDrawer, setShowSessionDrawer] = useState(false)
+  const [activeView, setActiveView] = useState<AiWorkspaceView>('chat')
+  const [workspaceTitle, setWorkspaceTitle] = useState('system.ai.workspace.automations')
+  const [pendingCount, setPendingCount] = useState(0)
+  const [currentRun, setCurrentRun] = useState<AiAutomationRun>()
+  const [replyMenu, setReplyMenu] = useState<ChatMessageItem>()
+  const [replyDetails, setReplyDetails] = useState(false)
+  const [attachmentText, setAttachmentText] = useState<{ name: string; content: string }>()
+  const [expandedTools, setExpandedTools] = useState('')
+  const workspacePanel = useRef<AiWorkspaceHandle>(null)
   const [activeSessionID, setActiveSessionIDState] = useState('')
   const [inputText, setInputText] = useState('')
   const [isRecording, setIsRecording] = useState(false)
@@ -110,6 +119,11 @@ export default function AiPage() {
   const [selectedKnowledgeIds, setSelectedKnowledgeIds] = useState<number[]>([])
   const [starterShortcuts, setStarterShortcuts] = useState<AiShortcut[]>(createDefaultShortcuts)
 
+  const inputTextRef = useRef(inputText)
+  const attachmentsRef = useRef(selectedAttachments)
+  inputTextRef.current = inputText
+  attachmentsRef.current = selectedAttachments
+  const draftsRef = useRef<Record<string, { text: string; attachments: AiAttachment[] }>>({})
   const activeSessionIDRef = useRef('')
   const sessionsRef = useRef<AiSession[]>([])
   const messagesRef = useRef<MessageMap>({})
@@ -127,23 +141,34 @@ export default function AiPage() {
     if (!keyword) return sessions
     return sessions.filter((item) => item.title.includes(keyword) || item.summary.includes(keyword))
   }, [sessionKeyword, sessions])
-  const currentSessionReadOnly = Boolean(sessions.find(session => session.id === activeSessionID)?.read_only)
-  const isSessionReadOnly = (id: string) => Boolean(sessionsRef.current.find(session => session.id === id)?.read_only)
+  const currentSessionReadOnly = Boolean(
+    sessions.find((session) => session.id === activeSessionID)?.read_only,
+  )
+  const isSessionReadOnly = (id: string) =>
+    Boolean(sessionsRef.current.find((session) => session.id === id)?.read_only)
   const currentMessages = messages[activeSessionID] ?? []
   const hasMessages = currentMessages.length > 0
   const currentSessionSending = Boolean(activeSessionID && sendingSessionMap[activeSessionID])
-  const starterPromptPageCount = Math.max(1, Math.ceil(starterShortcuts.length / STARTER_PROMPT_PAGE_SIZE))
+  const starterPromptPageCount = Math.max(
+    1,
+    Math.ceil(starterShortcuts.length / STARTER_PROMPT_PAGE_SIZE),
+  )
   const canRefreshStarterPrompts = starterShortcuts.length > STARTER_PROMPT_PAGE_SIZE
-  const starterPromptStart = (starterPromptGroupIndex % starterPromptPageCount) * STARTER_PROMPT_PAGE_SIZE
-  const starterPrompts = starterShortcuts.slice(starterPromptStart, starterPromptStart + STARTER_PROMPT_PAGE_SIZE)
+  const starterPromptStart =
+    (starterPromptGroupIndex % starterPromptPageCount) * STARTER_PROMPT_PAGE_SIZE
+  const starterPrompts = starterShortcuts.slice(
+    starterPromptStart,
+    starterPromptStart + STARTER_PROMPT_PAGE_SIZE,
+  )
   const hour = new Date().getHours()
-  const greetingPeriod = hour < 11
-    ? t('system.ai.period.morning')
-    : hour < 14
-      ? t('system.ai.period.noon')
-      : hour < 18
-        ? t('system.ai.period.afternoon')
-        : t('system.ai.period.evening')
+  const greetingPeriod =
+    hour < 11
+      ? t('system.ai.period.morning')
+      : hour < 14
+        ? t('system.ai.period.noon')
+        : hour < 18
+          ? t('system.ai.period.afternoon')
+          : t('system.ai.period.evening')
   const aiGreetingMessage = t('system.ai.greeting', { period: greetingPeriod })
   const composerPlaceholder = isRecording
     ? t('system.ai.recording')
@@ -156,11 +181,24 @@ export default function AiPage() {
     currentSessionReadOnly ||
     uploadingAttachment ||
     currentSessionSending ||
-    currentMessages.some(item => item.status === AiMessageStatus.AI_MESSAGE_STATUS_WAITING_APPROVAL) ||
+    currentMessages.some(
+      (item) => item.status === AiMessageStatus.AI_MESSAGE_STATUS_WAITING_APPROVAL,
+    ) ||
     isRecording ||
     (!inputText.trim() && selectedAttachments.length === 0)
 
   const setActiveSessionID = (sessionID: string) => {
+    const previous = activeSessionIDRef.current
+    if (previous !== sessionID) {
+      if (previous)
+        draftsRef.current[previous] = {
+          text: inputTextRef.current,
+          attachments: [...attachmentsRef.current],
+        }
+      const draft = draftsRef.current[sessionID]
+      setInputText(draft?.text || '')
+      setSelectedAttachments(draft?.attachments || [])
+    }
     activeSessionIDRef.current = sessionID
     setActiveSessionIDState(sessionID)
   }
@@ -208,7 +246,8 @@ export default function AiPage() {
     setSendingSessionMap(next)
   }
 
-  const isSessionSending = (sessionID: string) => Boolean(sessionID && sendingSessionMapRef.current[sessionID])
+  const isSessionSending = (sessionID: string) =>
+    Boolean(sessionID && sendingSessionMapRef.current[sessionID])
 
   /** 等待指定会话的历史加载完成，避免发送消息与加载竞态。 */
   const waitForMessagesLoaded = async (sessionID: string) => {
@@ -265,7 +304,9 @@ export default function AiPage() {
     if (task) task.success = hasSuccessfulAiMessages(nextMessages)
     const current = messagesRef.current[sessionID] ?? []
     const streamKey = payload.message_id ? buildStreamMessageKey(sessionID, payload.message_id) : ''
-    const hasLocalStreamingMessages = current.some((item) => item.localOnly && item.streamKey === streamKey)
+    const hasLocalStreamingMessages = current.some(
+      (item) => item.localOnly && item.streamKey === streamKey,
+    )
     updateSessionMessages(
       sessionID,
       nextMessages.length || !hasLocalStreamingMessages
@@ -387,9 +428,12 @@ export default function AiPage() {
       const shortcuts = normalizeStarterShortcuts(response.shortcuts).filter((item) => !item.action)
       const providers = providerResponse.providers ?? []
       setModelProviders(providers)
-      const options = knowledgeResult.status === 'fulfilled' ? knowledgeResult.value.options ?? [] : []
+      const options =
+        knowledgeResult.status === 'fulfilled' ? (knowledgeResult.value.options ?? []) : []
       setKnowledgeOptions(options)
-      setSelectedKnowledgeIds((ids) => ids.filter((id) => options.some((option) => option.id === id)))
+      setSelectedKnowledgeIds((ids) =>
+        ids.filter((id) => options.some((option) => option.id === id)),
+      )
       applyModelSelection(providers)
       if (shortcuts.length) {
         setStarterShortcuts(shortcuts)
@@ -456,7 +500,9 @@ export default function AiPage() {
       let handledByStream = false
       if (process.env.TARO_ENV === 'weapp') {
         const parser = createAiEventStreamTextParser((event) => handleAiStreamEvent(event, task))
-        const chunkedTask = StreamAiMessageByChunkedRequest(request, { onChunk: (text) => parser.push(text) })
+        const chunkedTask = StreamAiMessageByChunkedRequest(request, {
+          onChunk: (text) => parser.push(text),
+        })
         task = {
           aborted: false,
           finished: false,
@@ -488,9 +534,15 @@ export default function AiPage() {
           },
         }
         runningStreamTaskMap.current.set(sessionID, task)
-        const response = await defAiMessageService.StreamAiMessage(request, { signal: controller.signal })
+        const response = await defAiMessageService.StreamAiMessage(request, {
+          signal: controller.signal,
+        })
         if (!response.body) throw new Error(t('system.ai.stream_empty'))
-        await readAiEventStream(response.body, (event) => handleAiStreamEvent(event, task), controller.signal)
+        await readAiEventStream(
+          response.body,
+          (event) => handleAiStreamEvent(event, task),
+          controller.signal,
+        )
         if (!task.finished && !task.aborted) throw new Error(t('system.ai.response_incomplete'))
         handledByStream = true
       }
@@ -524,7 +576,11 @@ export default function AiPage() {
     // 发送前等待进行中的历史加载结束，避免本地消息与历史加载竞态。
     await waitForMessagesLoaded(sessionID)
     updateSessionMessages(sessionID, (current) =>
-      sortMessages([...current, createLocalUserMessage(payload), createThinkingMessage({ sessionID })]),
+      sortMessages([
+        ...current,
+        createLocalUserMessage(payload),
+        createThinkingMessage({ sessionID }),
+      ]),
     )
     scrollChatToBottom()
     setSessionSending(sessionID, true)
@@ -543,14 +599,10 @@ export default function AiPage() {
     if (!params) return
     try {
       if (params.run_id) {
-        const run = await getAiAutomationRun({ id: params.run_id })
-        if (run.session_deleted || !run.session_id) throw new Error(t('system.ai.load_messages_failed'))
-        upsertSession(normalizeSession({ id: run.session_id, title: run.configuration?.name, plugins: run.configuration?.plugins || [], automation_id: run.automation_id, automation_run_id: run.id, read_only: true }))
-        setActiveSessionID(run.session_id)
-        await loadMessages(run.session_id)
+        await openAutomationResult(params.run_id)
         return
       }
-      const session = sessionsRef.current.find(item => item.id === params.session_id)
+      const session = sessionsRef.current.find((item) => item.id === params.session_id)
       if (!session) throw new Error(t('system.ai.load_messages_failed'))
       setActiveSessionID(session.id)
       await loadMessages(session.id)
@@ -581,6 +633,7 @@ export default function AiPage() {
   }, [])
 
   const selectSession = (sessionID: string) => {
+    setActiveView('chat')
     setActiveSessionID(sessionID)
     setShowSessionDrawer(false)
     if (!messagesRef.current[sessionID]?.length || !isSessionSending(sessionID)) {
@@ -592,6 +645,7 @@ export default function AiPage() {
 
   const createSession = async () => {
     try {
+      setActiveView('chat')
       const sessionID = await createRemoteSession()
       if (!sessionID) return
       setActiveSessionID(sessionID)
@@ -603,117 +657,15 @@ export default function AiPage() {
     }
   }
 
-  const deleteSession = async (sessionID: string) => {
-    const session = sessionsRef.current.find((item) => item.id === sessionID)
-    const result = await Taro.showModal({
-      title: t('system.ai.delete_session'),
-      content: t('system.ai.delete_session_confirm', {
-        title: session?.title || t('system.ai.current_session'),
-      }),
-      confirmText: t('common.action.delete'),
-      confirmColor: themeStore.colors.aiDanger,
-      cancelColor: themeStore.colors.aiTextMuted,
-    })
-    if (!result.confirm) return
-    try {
-      await defAiSessionService.DeleteAiSession({ id: sessionID })
-      setSessions((current) => current.filter((item) => item.id !== sessionID))
-      const nextMessages = { ...messagesRef.current }
-      delete nextMessages[sessionID]
-      setMessages(nextMessages)
-      if (activeSessionIDRef.current === sessionID) {
-        setActiveSessionID('')
-        await ensureActiveSession()
-      }
-    } catch (error) {
-      showError(error, t('system.ai.delete_session_failed'))
-    }
-  }
-
-  const handleSessionAction = async (session: AiSession) => {
-    try {
-      const result = await Taro.showActionSheet({ itemList: [t('system.ai.delete_session')] })
-      if (result.tapIndex === 0) await deleteSession(session.id)
-    } catch {
-      // 用户取消操作无需提示。
-    }
-  }
-
   const copyMessage = async (item: ChatMessageItem) => {
     await Taro.setClipboardData({ data: item.content })
     await Taro.showToast({ icon: 'none', title: t('system.ai.copy_success') })
   }
 
-  const deleteMessage = async (item: ChatMessageItem) => {
-    const sessionID = activeSessionIDRef.current
-    if (!sessionID || isSessionReadOnly(sessionID)) return
-    try {
-      if (!item.localOnly) {
-        await defAiMessageService.DeleteAiMessage({ session_id: sessionID, message_id: item.messageID })
-      }
-      updateSessionMessages(sessionID, (current) => current.filter((message) => message.messageID !== item.messageID))
-    } catch (error) {
-      showError(error, t('system.ai.delete_message_failed'))
-    }
-  }
-
-  const canRegenerateMessage = (item: ChatMessageItem) => {
-    const current = messagesRef.current[activeSessionIDRef.current] ?? []
-    return !isSessionReadOnly(activeSessionIDRef.current) && item.role === 'ai' && !item.localOnly && !isSessionSending(activeSessionIDRef.current)
-      && item.status !== AiMessageStatus.AI_MESSAGE_STATUS_GENERATING
-      && item.status !== AiMessageStatus.AI_MESSAGE_STATUS_WAITING_APPROVAL
-      && current[current.length - 1]?.messageID === item.messageID
-  }
-
-  const regenerateMessage = async (item: ChatMessageItem) => {
-    const sessionID = activeSessionIDRef.current
-    if (!canRegenerateMessage(item)) return
-    setSessionSending(sessionID, true)
-    try {
-      const response = await defAiMessageService.RegenerateAiMessage({ session_id: sessionID, message_id: item.messageID })
-      updateSessionMessages(sessionID, normalizeMessageList(response.messages))
-      if (response.session) upsertSession(normalizeSession(response.session))
-    } catch (error) {
-      showError(error, t('system.ai.regenerate_failed'))
-    } finally {
-      setSessionSending(sessionID, false)
-    }
-  }
-
-  const handleMessageAction = async (item: ChatMessageItem) => {
-    try {
-      const itemList = isSessionReadOnly(activeSessionIDRef.current) ? [t('system.ai.action.copy')] : canRegenerateMessage(item)
-        ? [t('system.ai.action.copy'), t('common.action.delete'), t('system.ai.action.regenerate')]
-        : [t('system.ai.action.copy'), t('common.action.delete')]
-      const { tapIndex } = await Taro.showActionSheet({ itemList })
-      if (tapIndex === 0) await copyMessage(item)
-      else if (tapIndex === 1) await deleteMessage(item)
-      else await regenerateMessage(item)
-    } catch {
-      // 用户取消操作无需提示。
-    }
-  }
-
-  /** decideApproval 仅提交一次性审批编号，参数与权限由服务端重新校验。 */
-  const decideApproval = async (sessionID: string, item: ChatMessageItem, approved: boolean) => {
-    const approval = item.output_content?.approval
-    if (!approval || sendingSessionMapRef.current[sessionID] || item.status !== AiMessageStatus.AI_MESSAGE_STATUS_WAITING_APPROVAL) return
-    setSessionSending(sessionID, true)
-    try {
-      const response = await defAiMessageService.DecideAiToolApproval({
-        session_id: sessionID,
-        message_id: item.messageID,
-        approval_id: approval.id,
-        approved,
-      })
-      if (response.session) upsertSession(normalizeSession(response.session))
-      updateSessionMessages(sessionID, current => replacePendingMessages(current, normalizeMessageList(response.messages)))
-    } catch (error) {
-      showError(error, t('system.ai.request_failed'))
-    } finally {
-      if (activeSessionIDRef.current === sessionID) await loadMessages(sessionID)
-      setSessionSending(sessionID, false)
-    }
+  /** 消息菜单只提供复制和信息查看，不修改历史消息。 */
+  const handleMessageAction = (item: ChatMessageItem) => {
+    setReplyMenu(item)
+    setReplyDetails(false)
   }
 
   const handleSend = async () => {
@@ -755,7 +707,9 @@ export default function AiPage() {
         url: file.url,
         mime_type: 'image/*',
       }))
-      setSelectedAttachments((current) => [...current, ...attachments].slice(0, MAX_ATTACHMENT_COUNT))
+      setSelectedAttachments((current) =>
+        [...current, ...attachments].slice(0, MAX_ATTACHMENT_COUNT),
+      )
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error)
       if (!/cancel/i.test(message)) showError(error, t('system.ai.upload_failed'))
@@ -764,25 +718,127 @@ export default function AiPage() {
     }
   }
 
-  const previewAttachment = (attachment: AiAttachment, attachments: AiAttachment[]) => {
-    const current = formatSrc(attachment.url)
-    const urls = attachments.map((item) => formatSrc(item.url)).filter(Boolean)
-    if (current) void Taro.previewImage({ current, urls: urls.length ? urls : [current] })
+  /** 附件经鉴权服务读取，文本使用只读弹层展示。 */
+  const previewAttachment = async (attachment: AiAttachment) => {
+    try {
+      const content = await openAiWorkspaceFile(
+        {
+          file_name: attachment.name,
+          link_url: attachment.url,
+          mime_type: attachment.mime_type,
+          extension: attachment.name.split('.').pop() || '',
+        },
+        true,
+      )
+      if (content) setAttachmentText({ name: attachment.name, content })
+    } catch (error) {
+      showError(error, t('system.ai.workspace.file_unavailable'))
+    }
   }
 
+  /** 从本人执行查询重新校验结果元数据，再打开冻结会话。 */
+  async function openAutomationResult(id: string) {
+    try {
+      const run = await getAiAutomationRun({ id })
+      if (!run.session_id || run.session_deleted)
+        throw new Error(t('system.ai.workspace.result_deleted'))
+      upsertSession(
+        normalizeSession({
+          id: run.session_id,
+          title: run.configuration?.name,
+          plugins: run.configuration?.plugins || [],
+          automation_id: run.automation_id,
+          automation_run_id: run.id,
+          read_only: true,
+        }),
+      )
+      setActiveView('chat')
+      setCurrentRun(run)
+      setShowSessionDrawer(false)
+      setActiveSessionID(run.session_id)
+      await loadMessages(run.session_id)
+    } catch (error) {
+      showError(error, t('system.ai.load_messages_failed'))
+    }
+  }
+
+  /** 只切换助手内部视图，不销毁当前对话草稿。 */
+  const changeWorkspace = (view: AiWorkspaceView) => {
+    setActiveView(view)
+    setWorkspaceTitle(`system.ai.workspace.${view}`)
+    setShowSessionDrawer(false)
+  }
+
+  /** 停止本轮流式生成，其他会话继续运行。 */
+  const stopGeneration = () => {
+    const id = activeSessionIDRef.current
+    const task = runningStreamTaskMap.current.get(id)
+    if (!task || task.finished) return
+    flushAiDelta()
+    task.abort()
+    updateSessionMessages(id, (items) =>
+      items.map((item) =>
+        item.role === 'ai' && item.status === AiMessageStatus.AI_MESSAGE_STATUS_GENERATING
+          ? {
+              ...item,
+              status: AiMessageStatus.AI_MESSAGE_STATUS_FAILED,
+              content:
+                item.content && item.content !== t('system.ai.thinking')
+                  ? item.content
+                  : t('system.ai.workspace.generation_stopped'),
+            }
+          : item,
+      ),
+    )
+  }
+
+  useEffect(() => {
+    void defAiAutomationService
+      .ListAiAutomation({ status: '', keyword: '' })
+      .then((value) => setPendingCount(value.pending_count || 0))
+      .catch((error) => showError(error, t('system.ai.workspace.load_failed')))
+  }, [])
+
   return (
-    <View
-      className={`ai-page ${themeStore.theme === 'light' ? 'theme-light' : 'theme-dark'}`}
-    >
+    <View className={`ai-page ${themeStore.theme === 'light' ? 'theme-light' : 'theme-dark'}`}>
       <View className='ai-navbar'>
         <KratosNavBar
-          title={t('system.ai.chat_title')}
-          action={{ icon: 'history', label: t('system.ai.history'), onClick: () => setShowSessionDrawer((open) => !open) }}
+          title={t(activeView === 'chat' ? 'system.ai.chat_title' : workspaceTitle)}
+          onBack={
+            activeView === 'chat'
+              ? undefined
+              : () => {
+                  if (!workspacePanel.current?.goBack()) setActiveView('chat')
+                }
+          }
+          action={{
+            icon: 'history',
+            label: t('system.ai.history'),
+            onClick: () => setShowSessionDrawer((open) => !open),
+          }}
         />
       </View>
-      {currentSessionReadOnly ? <View className='loading-session'>{t('system.ai.workspace.frozen_result')}</View> : null}
+      {activeView !== 'chat' ? (
+        <WorkspacePanel
+          key={activeView}
+          ref={workspacePanel}
+          view={activeView}
+          modelProviders={modelProviders}
+          knowledgeOptions={knowledgeOptions}
+          onTitle={setWorkspaceTitle}
+          onPending={setPendingCount}
+          onResult={(run) => void openAutomationResult(run.id)}
+        />
+      ) : null}
+      {activeView === 'chat' && currentSessionReadOnly ? (
+        <View className='loading-session'>
+          {t('system.ai.workspace.frozen_result')}
+          {currentRun ? ` · ${t(`system.ai.workspace.${currentRun.status}`)}` : ''}
+        </View>
+      ) : null}
       <ScrollView
         className='ai-body'
+        style={{ display: activeView === 'chat' ? 'block' : 'none' }}
         scrollY
         scrollWithAnimation
         scrollIntoView={chatBottomAnchor}
@@ -794,7 +850,9 @@ export default function AiPage() {
             loading={loadingSessions || loadingShortcuts}
             shortcuts={starterPrompts}
             canRefresh={canRefreshStarterPrompts}
-            onRefresh={() => setStarterPromptGroupIndex((index) => (index + 1) % starterPromptPageCount)}
+            onRefresh={() =>
+              setStarterPromptGroupIndex((index) => (index + 1) % starterPromptPageCount)
+            }
             onShortcutTap={(shortcut) => {
               if (!currentSessionSending && !loadingSessions) {
                 void sendAiPayload({ text: shortcut.prompt || shortcut.title, attachments: [] })
@@ -814,16 +872,27 @@ export default function AiPage() {
                   onLongPress={() => void handleMessageAction(item)}
                 >
                   {item.role === 'ai' && item.model ? (
-                    <View className='reply-meta'><Text className='reply-tag'>{t('system.ai.model_reply')}</Text><Text className='reply-model'>{resolveModelDisplayName(modelProviders, item.model)}</Text></View>
+                    <View className='reply-meta'>
+                      <Text className='reply-tag'>{t('system.ai.model_reply')}</Text>
+                      <Text className='reply-model'>
+                        {resolveModelDisplayName(modelProviders, item.model)}
+                      </Text>
+                    </View>
+                  ) : null}
+                  {item.tools.length ? (
+                    <View
+                      className='ai-message-activity'
+                      onClick={() => setExpandedTools(expandedTools === item.key ? '' : item.key)}
+                    >
+                      {t('system.ai.workspace.called_tools', { count: item.tools.length })}
+                      {expandedTools === item.key ? (
+                        <View className='ai-workspace-meta'>{formatTools(item.tools)}</View>
+                      ) : null}
+                    </View>
                   ) : null}
                   <View className='bubble-content'>{item.content}</View>
                   {item.role === 'ai' && item.output_content?.approval ? (
-                    <ApprovalCard
-                      approval={item.output_content.approval}
-                      status={item.status}
-                      busy={currentSessionSending}
-                      onDecision={(approved) => void decideApproval(activeSessionID, item, approved)}
-                    />
+                    <ApprovalCard approval={item.output_content.approval} status={item.status} />
                   ) : null}
                   {item.attachments.length ? (
                     <View className='attachment-list'>
@@ -831,56 +900,75 @@ export default function AiPage() {
                         <View
                           key={attachment.id || attachment.url || attachment.name}
                           className='attachment-card'
-                          onClick={() => previewAttachment(attachment, item.attachments)}
+                          onClick={() => void previewAttachment(attachment)}
                         >
-                          <View className='attachment-icon'>{isImageAttachment(attachment) ? t('system.ai.image_attachment') : t('system.ai.attachment')}</View>
+                          <View className='attachment-icon'>
+                            {isImageAttachment(attachment)
+                              ? t('system.ai.image_attachment')
+                              : t('system.ai.attachment')}
+                          </View>
                           <View className='attachment-info'>
                             <View className='attachment-name'>{attachment.name}</View>
-                            <View className='attachment-meta'>{formatAttachmentMeta(attachment)}</View>
+                            <View className='attachment-meta'>
+                              {formatAttachmentMeta(attachment)}
+                            </View>
                           </View>
                         </View>
                       ))}
                     </View>
                   ) : null}
-                  {item.tools.length ? <View className='tool-row'>{t('system.ai.tool_called', { tools: formatTools(item.tools) })}</View> : null}
+                  <View className='ai-message-actions'>
+                    <Button className='ai-message-action' onClick={() => void copyMessage(item)}>
+                      {t('system.ai.action.copy')}
+                    </Button>
+                    <Button className='ai-message-action' onClick={() => handleMessageAction(item)}>
+                      {t('system.ai.workspace.more')}
+                    </Button>
+                  </View>
                 </View>
               </View>
             ))}
             <View id='chat-bottom' className='chat-bottom' />
           </View>
         )}
-        {loadingSessionID ? <View className='loading-session'>{t('system.ai.load_messages')}</View> : null}
+        {loadingSessionID ? (
+          <View className='loading-session'>{t('system.ai.load_messages')}</View>
+        ) : null}
       </ScrollView>
-      {!currentSessionReadOnly ? <Composer
-        value={inputText}
-        attachments={selectedAttachments}
-        modelProviders={modelProviders}
-        providerId={selectedProviderId}
-        modelName={selectedModelName}
-        knowledgeOptions={knowledgeOptions}
-        knowledgeIds={selectedKnowledgeIds}
-        modelPlaceholder={t('system.ai.model.model_placeholder')}
-        placeholder={composerPlaceholder}
-        bottom={composerBottom}
-        recording={isRecording}
-        sending={currentSessionSending}
-        disabled={isSubmitDisabled}
-        onChange={setInputText}
-        onAttach={() => void handleAttachment()}
-        onRecord={() => {
-          setIsRecording((recording) => {
-            void Taro.showToast({
-              icon: 'none',
-              title: !recording ? t('system.ai.recognizing') : t('system.ai.speech_stopped'),
+      {activeView === 'chat' && !currentSessionReadOnly ? (
+        <Composer
+          value={inputText}
+          attachments={selectedAttachments}
+          modelProviders={modelProviders}
+          providerId={selectedProviderId}
+          modelName={selectedModelName}
+          knowledgeOptions={knowledgeOptions}
+          knowledgeIds={selectedKnowledgeIds}
+          modelPlaceholder={t('system.ai.model.model_placeholder')}
+          placeholder={composerPlaceholder}
+          recording={isRecording}
+          sending={currentSessionSending}
+          disabled={isSubmitDisabled}
+          onChange={setInputText}
+          onAttach={() => void handleAttachment()}
+          onRecord={() => {
+            setIsRecording((recording) => {
+              void Taro.showToast({
+                icon: 'none',
+                title: !recording ? t('system.ai.recognizing') : t('system.ai.speech_stopped'),
+              })
+              return !recording
             })
-            return !recording
-          })
-        }}
-        onSend={() => void handleSend()}
-        onModelChange={handleModelChange}
-        onKnowledgeChange={handleKnowledgeChange}
-        onRemoveAttachment={(attachment) => setSelectedAttachments((current) => current.filter((item) => item !== attachment))}
-      /> : null}
+          }}
+          onSend={() => void handleSend()}
+          onStop={stopGeneration}
+          onModelChange={handleModelChange}
+          onKnowledgeChange={handleKnowledgeChange}
+          onRemoveAttachment={(attachment) =>
+            setSelectedAttachments((current) => current.filter((item) => item !== attachment))
+          }
+        />
+      ) : null}
       <SessionDrawer
         open={showSessionDrawer}
         topPadding={drawerTopPadding}
@@ -888,12 +976,66 @@ export default function AiPage() {
         loading={loadingSessions}
         sessions={filteredSessions}
         activeSessionId={activeSessionID}
+        view={activeView}
+        pending={pendingCount}
+        onWorkspace={changeWorkspace}
         onClose={() => setShowSessionDrawer(false)}
         onCreate={() => void createSession()}
         onSelect={selectSession}
-        onAction={(session) => void handleSessionAction(session)}
         onKeywordChange={setSessionKeyword}
       />
+      {replyMenu ? (
+        <DetailsSheet
+          title={t(
+            replyDetails ? 'system.ai.workspace.reply_info' : 'system.ai.workspace.message_actions',
+          )}
+          onClose={() => setReplyMenu(undefined)}
+        >
+          {replyDetails ? (
+            <>
+              <View className='ai-workspace-meta'>
+                {t('system.ai.workspace.model')}：
+                {resolveModelDisplayName(modelProviders, replyMenu.model)}
+              </View>
+              <View className='ai-workspace-meta'>
+                {t('system.ai.workspace.token_total')}：{replyMenu.tokenTotal || '—'}
+              </View>
+              <View className='ai-workspace-meta'>
+                {t('system.ai.workspace.first_token')}：
+                {replyMenu.firstTokenMs ? `${replyMenu.firstTokenMs} ms` : '—'}
+              </View>
+              <View className='ai-workspace-meta'>
+                {t('system.ai.workspace.duration')}：
+                {replyMenu.durationMs ? `${replyMenu.durationMs} ms` : '—'}
+              </View>
+            </>
+          ) : (
+            <View className='ai-detail-menu'>
+              <Button
+                className='ai-workspace-button'
+                onClick={() => {
+                  void copyMessage(replyMenu)
+                  setReplyMenu(undefined)
+                }}
+              >
+                {t('system.ai.action.copy')}
+              </Button>
+              {replyMenu.role === 'ai' ? (
+                <Button className='ai-workspace-button' onClick={() => setReplyDetails(true)}>
+                  {t('system.ai.workspace.reply_info')}
+                </Button>
+              ) : null}
+            </View>
+          )}
+        </DetailsSheet>
+      ) : null}
+      {attachmentText ? (
+        <DetailsSheet title={attachmentText.name} onClose={() => setAttachmentText(undefined)}>
+          <Text className='ai-workspace-pre' selectable>
+            {attachmentText.content}
+          </Text>
+        </DetailsSheet>
+      ) : null}
     </View>
   )
 }
@@ -932,7 +1074,11 @@ function normalizeStarterShortcuts(list?: AiShortcut[] | null) {
 
 function normalizeMessageList(list?: AiMessage[] | null) {
   if (!Array.isArray(list)) return []
-  return sortMessages(list.filter(Boolean).flatMap((item) => [mapMessageItem(item, 'user'), mapMessageItem(item, 'ai')]))
+  return sortMessages(
+    list
+      .filter(Boolean)
+      .flatMap((item) => [mapMessageItem(item, 'user'), mapMessageItem(item, 'ai')]),
+  )
 }
 
 /** 合并历史加载结果与仍在流式中的本地消息，避免加载覆盖进行中的对话。 */
@@ -952,7 +1098,10 @@ function hasSuccessfulAiMessages(list: ChatMessageItem[]) {
 }
 
 function mapMessageItem(message: AiMessage, role: ChatRole): ChatMessageItem {
-  const inputContent = { kind: message.input_content?.kind || 'text', content: message.input_content?.content ?? '' }
+  const inputContent = {
+    kind: message.input_content?.kind || 'text',
+    content: message.input_content?.content ?? '',
+  }
   const outputContent = {
     kind: message.output_content?.kind || 'text',
     content: message.output_content?.content ?? '',
@@ -995,19 +1144,22 @@ function mapMessageItem(message: AiMessage, role: ChatRole): ChatMessageItem {
 
 function createLocalUserMessage(payload: { text: string; attachments: AiAttachment[] }) {
   const now = Date.now()
-  const message = mapMessageItem({
-    id: `${LOCAL_USER_MESSAGE_PREFIX}-${now}`,
-    tenant_id: 0,
-    input_content: { kind: 'text', content: payload.text },
-    output_content: undefined,
-    attachments: payload.attachments,
-    created_at: { seconds: Math.floor(now / 1000), nanos: (now % 1000) * 1_000_000 },
-    status: AiMessageStatus.AI_MESSAGE_STATUS_GENERATING,
-    token: { input: 0, output: 0, cache: 0, total: 0 },
-    tools: [],
-    first_token_ms: 0,
-    duration_ms: 0,
-  }, 'user')
+  const message = mapMessageItem(
+    {
+      id: `${LOCAL_USER_MESSAGE_PREFIX}-${now}`,
+      tenant_id: 0,
+      input_content: { kind: 'text', content: payload.text },
+      output_content: undefined,
+      attachments: payload.attachments,
+      created_at: { seconds: Math.floor(now / 1000), nanos: (now % 1000) * 1_000_000 },
+      status: AiMessageStatus.AI_MESSAGE_STATUS_GENERATING,
+      token: { input: 0, output: 0, cache: 0, total: 0 },
+      tools: [],
+      first_token_ms: 0,
+      duration_ms: 0,
+    },
+    'user',
+  )
   message.localOnly = true
   message.status = AiMessageStatus.AI_MESSAGE_STATUS_GENERATING
   return message
@@ -1018,22 +1170,33 @@ function createThinkingMessage(options?: { sessionID?: string; messageID?: strin
   const streamKey = options?.sessionID
     ? buildStreamMessageKey(options.sessionID, options.messageID || PENDING_MESSAGE_ID)
     : undefined
-  const message = mapMessageItem({
+  const message = mapMessageItem(
+    {
       id: streamKey || `ai-thinking-${now}`,
       tenant_id: 0,
       input_content: undefined,
-    output_content: {
-      kind: 'text', content: t('system.ai.thinking'), reply_source: '', model: '', fallback: false,
-      fallback_reason: '', flow: '', step: '', blocks_json: '', approval: undefined,
+      output_content: {
+        kind: 'text',
+        content: t('system.ai.thinking'),
+        reply_source: '',
+        model: '',
+        fallback: false,
+        fallback_reason: '',
+        flow: '',
+        step: '',
+        blocks_json: '',
+        approval: undefined,
+      },
+      attachments: [],
+      created_at: { seconds: Math.floor(now / 1000), nanos: (now % 1000) * 1_000_000 },
+      status: AiMessageStatus.AI_MESSAGE_STATUS_GENERATING,
+      token: { input: 0, output: 0, cache: 0, total: 0 },
+      tools: [],
+      first_token_ms: 0,
+      duration_ms: 0,
     },
-    attachments: [],
-    created_at: { seconds: Math.floor(now / 1000), nanos: (now % 1000) * 1_000_000 },
-    status: AiMessageStatus.AI_MESSAGE_STATUS_GENERATING,
-    token: { input: 0, output: 0, cache: 0, total: 0 },
-    tools: [],
-    first_token_ms: 0,
-    duration_ms: 0,
-  }, 'ai')
+    'ai',
+  )
   message.localOnly = true
   message.streamKey = streamKey
   return message
@@ -1062,7 +1225,11 @@ function appendStreamingDelta(current: ChatMessageItem[], payload: AiStreamPaylo
   return current.map((item) => {
     if (item.streamKey !== streamKey || item.role === 'user') return item
     const baseContent = item.content === t('system.ai.thinking') ? '' : item.content
-    return { ...item, content: `${baseContent}${payload.delta}`, status: AiMessageStatus.AI_MESSAGE_STATUS_GENERATING }
+    return {
+      ...item,
+      content: `${baseContent}${payload.delta}`,
+      status: AiMessageStatus.AI_MESSAGE_STATUS_GENERATING,
+    }
   })
 }
 
@@ -1082,19 +1249,29 @@ function markStreamingError(current: ChatMessageItem[], payload: AiStreamPayload
   const streamKey = buildStreamMessageKey(payload.session_id, payload.message_id)
   return current.map((item) =>
     item.localOnly && item.streamKey === streamKey
-      ? { ...item, status: AiMessageStatus.AI_MESSAGE_STATUS_FAILED, content: t('system.ai.failed_response') }
+      ? {
+          ...item,
+          status: AiMessageStatus.AI_MESSAGE_STATUS_FAILED,
+          content: t('system.ai.failed_response'),
+        }
       : item,
   )
 }
 
-function replacePendingMessages(current: ChatMessageItem[], nextMessages: ChatMessageItem[], payload?: AiStreamPayload) {
+function replacePendingMessages(
+  current: ChatMessageItem[],
+  nextMessages: ChatMessageItem[],
+  payload?: AiStreamPayload,
+) {
   const sessionID = payload?.session_id ?? ''
   const streamKey = payload?.message_id ? buildStreamMessageKey(sessionID, payload.message_id) : ''
   const pendingStreamKey = sessionID ? buildPendingStreamMessageKey(sessionID) : ''
   const stableMessages = current.filter((item) => {
     if (!item.localOnly) return true
     if (payload?.message_id && item.role === 'user') {
-      return !nextMessages.some((message) => message.role === 'user' && message.messageID === payload.message_id)
+      return !nextMessages.some(
+        (message) => message.role === 'user' && message.messageID === payload.message_id,
+      )
     }
     return streamKey ? item.streamKey !== streamKey && item.streamKey !== pendingStreamKey : false
   })
@@ -1133,8 +1310,9 @@ function buildPendingStreamMessageKey(sessionID: string) {
   return buildStreamMessageKey(sessionID, PENDING_MESSAGE_ID)
 }
 
+/** 兼容实际 JSON 的 RFC3339 时间及 protobuf 时间对象。 */
 function resolveTimestamp(timestamp: AiMessage['created_at'] | AiSession['updated_at']) {
-  return Number(timestamp?.seconds || 0) * 1000 + Math.floor(Number(timestamp?.nanos || 0) / 1_000_000)
+  return workspaceTimestamp(timestamp)
 }
 
 function isImageAttachment(attachment: AiAttachment) {
@@ -1148,7 +1326,12 @@ function formatAttachmentMeta(attachment: AiAttachment) {
 }
 
 function formatTools(tools: AiToolCall[]) {
-  return tools.map((item) => (item.name === 'web_search' ? t('system.ai.web_search') : item.title || item.name)).filter(Boolean).join(' · ')
+  return tools
+    .map((item) =>
+      item.name === 'web_search' ? t('system.ai.web_search') : item.title || item.name,
+    )
+    .filter(Boolean)
+    .join(' · ')
 }
 
 function showError(error: unknown, fallback: string) {

@@ -18,16 +18,16 @@ import type { AiShortcut, AiToolCall } from '../../../rpc/base/v1/ai_tool'
 import { AiMessageStatus } from '../../../rpc/base/v1/ai_session'
 import { Terminal } from '../../../rpc/base/v1/ai_tool'
 import { uploadFile } from '@liujitcn/kratos-uni-app-core/utils/file'
-import { formatSrc } from '@liujitcn/kratos-uni-app-core/utils/index'
 import { isAuthExpiredError } from '@liujitcn/kratos-uni-app-core/utils/http'
 import Composer from './components/Composer.uvue'
 import SessionDrawer from './components/SessionDrawer.uvue'
-import PluginPanel from './components/PluginPanel.uvue'
-import AutomationPanel from './components/AutomationPanel.uvue'
+import WorkspacePanel from './components/WorkspacePanel.uvue'
+import DetailsSheet from './components/DetailsSheet.uvue'
+import { type AiWorkspaceHandle, type AiWorkspaceView, workspaceTimestamp } from './workspace'
+import { openAiWorkspaceFile } from '../../../api/base/v1/ai_file'
 import { parseAiResultParams } from './resultLink'
 import { defAiAutomationService } from '../../../api/base/v1/ai_automation'
 import type { AiAutomationRun } from '../../../rpc/base/v1/ai_automation'
-import type { AiPluginSelection } from '../../../rpc/base/v1/ai_plugin'
 import WelcomePanel from './components/WelcomePanel.uvue'
 import { useI18n } from '@liujitcn/kratos-uni-app-core'
 import { useThemeStore } from '@liujitcn/kratos-uni-app-core/stores'
@@ -87,22 +87,16 @@ let safeAreaTop =
 // #ifdef MP-WEIXIN
 safeAreaTop = safeAreaTop || 44
 // #endif
-const safeAreaBottom = Math.max(windowInfo.safeAreaInsets?.bottom || 0, 9)
-const windowHeight = windowInfo.windowHeight || windowInfo.screenHeight || 667
-const composerBottom = `${safeAreaBottom + 48}px`
 const drawerTopPadding = `${safeAreaTop + 12}px`
-const pickerTopPadding = `${safeAreaTop + 56}px`
-const functionMenuTop = `${safeAreaTop + 90}px`
 
-const functionOptions = ['chat', 'automations', 'plugins'] as const
-const functionIcons = { chat: 'chat', automations: 'calendar', plugins: 'link' }
-const activeFunction = ref<(typeof functionOptions)[number]>('chat')
+const activeFunction = ref<AiWorkspaceView>('chat')
+const workspacePanel = ref<AiWorkspaceHandle>()
+const workspaceTitle = ref('system.ai.workspace.automations')
+const replyMenu = ref<ChatMessageItem>()
+const replyDetails = ref(false)
+const attachmentText = ref<{ name: string; content: string }>()
+const expandedTools = ref('')
 const pageVisible = ref(true)
-const showFunctionMenu = ref(false)
-const showPluginPicker = ref(false)
-const savingPlugins = ref(false)
-const approvalBusy = ref(false)
-const continuing = ref(false)
 const pendingCount = ref(0)
 const currentRun = ref<AiAutomationRun>()
 let resultRefreshTimer: ReturnType<typeof setInterval> | undefined
@@ -186,7 +180,6 @@ const currentSession = computed(() =>
   sessions.value.find((session) => session.id === activeSessionID.value),
 )
 const currentSessionReadOnly = computed(() => Boolean(currentSession.value?.read_only))
-const currentPlugins = computed(() => currentSession.value?.plugins || [])
 const hasMessages = computed(() => currentMessages.value.length > 0)
 const currentSessionSending = computed(() => isSessionSending(activeSessionID.value))
 const starterPromptPageCount = computed(() => {
@@ -322,86 +315,19 @@ const createSession = async () => {
   }
 }
 
-/** 复制消息内容到剪贴板并提示结果。 */
+/** 复制消息内容到剪贴板、收起操作层并提示结果。 */
 const copyMessage = (item: ChatMessageItem) => {
+  replyMenu.value = undefined
   uni.setClipboardData({
     data: item.content,
     success: () => uni.showToast({ icon: 'none', title: t('system.ai.copy_success') }),
   })
 }
 
-/** 删除消息：本地乐观消息只移除本地记录，服务端消息先调接口再清理。 */
-const deleteMessage = async (item: ChatMessageItem) => {
-  const sessionID = activeSessionID.value
-  if (!sessionID || currentSessionReadOnly.value) {
-    return
-  }
-  try {
-    if (!item.localOnly) {
-      await defAiMessageService.DeleteAiMessage({
-        session_id: sessionID,
-        message_id: item.messageID,
-      })
-    }
-    messages.value[sessionID] = (messages.value[sessionID] ?? []).filter(
-      (message) => message.messageID !== item.messageID,
-    )
-  } catch (error) {
-    showError(error, t('system.ai.delete_message_failed'))
-  }
-}
-
-/** 仅允许对会话中最后一条非生成中、非待审批的 AI 消息重新生成。 */
-const canRegenerateMessage = (item: ChatMessageItem) =>
-  !currentSessionReadOnly.value &&
-  item.role === 'ai' &&
-  !item.localOnly &&
-  !currentSessionSending.value &&
-  item.status !== AiMessageStatus.AI_MESSAGE_STATUS_GENERATING &&
-  item.status !== AiMessageStatus.AI_MESSAGE_STATUS_WAITING_APPROVAL &&
-  currentMessages.value[currentMessages.value.length - 1]?.messageID === item.messageID
-
-/** 重新生成最后一条 AI 回复，并以服务端返回的消息列表刷新会话。 */
-const regenerateMessage = async (item: ChatMessageItem) => {
-  if (!canRegenerateMessage(item)) {
-    return
-  }
-  setSessionSending(activeSessionID.value, true)
-  try {
-    const response = await defAiMessageService.RegenerateAiMessage({
-      session_id: activeSessionID.value,
-      message_id: item.messageID,
-    })
-    messages.value[activeSessionID.value] = normalizeMessageList(response.messages)
-    if (response.session) {
-      upsertSession(normalizeSession(response.session))
-    }
-  } catch (error) {
-    showError(error, t('system.ai.regenerate_failed'))
-  } finally {
-    setSessionSending(activeSessionID.value, false)
-  }
-}
-
-/** 弹出消息操作菜单，按只读状态和可重新生成条件动态组装选项。 */
+/** 消息菜单仅提供复制和回复信息，不修改历史消息。 */
 const handleMessageAction = (item: ChatMessageItem) => {
-  const itemList = currentSessionReadOnly.value
-    ? [t('system.ai.action.copy')]
-    : canRegenerateMessage(item)
-      ? [t('system.ai.action.copy'), t('common.action.delete'), t('system.ai.action.regenerate')]
-      : [t('system.ai.action.copy'), t('common.action.delete')]
-  uni.showActionSheet({
-    itemList,
-    success: ({ tapIndex }) => {
-      if (tapIndex === 0) {
-        copyMessage(item)
-      } else if (tapIndex === 1) {
-        void deleteMessage(item)
-      } else {
-        void regenerateMessage(item)
-      }
-    },
-  })
+  replyMenu.value = item
+  replyDetails.value = false
 }
 
 /** 发送输入框内容；只有附件没有文字时用占位文案代替正文。 */
@@ -506,13 +432,22 @@ const removeSelectedAttachment = (attachment: AiAttachment) => {
 }
 
 /** 预览附件图片：以当前图为起点预览全部可用图链。 */
-const previewAttachment = (attachment: AiAttachment, attachments: AiAttachment[]) => {
-  const current = formatSrc(attachment.url)
-  const urls = attachments.map((item) => formatSrc(item.url)).filter(Boolean)
-  if (!current) {
-    return
+/** 图片和文档经鉴权文件服务预览，文本在只读弹层中展示。 */
+const previewAttachment = async (attachment: AiAttachment) => {
+  try {
+    const content = await openAiWorkspaceFile(
+      {
+        file_name: attachment.name,
+        link_url: attachment.url,
+        mime_type: attachment.mime_type,
+        extension: attachment.name.split('.').pop() || '',
+      },
+      true,
+    )
+    if (content) attachmentText.value = { name: attachment.name, content }
+  } catch (error) {
+    showError(error, t('system.ai.workspace.file_unavailable'))
   }
-  uni.previewImage({ current, urls: urls.length ? urls : [current] })
 }
 
 /** 加载当前终端可用的通用 AI 快捷入口。 */
@@ -1323,11 +1258,9 @@ function scrollChatToBottom() {
   })
 }
 
-/** 将 protobuf Timestamp（秒 + 纳秒）换算为毫秒时间戳。 */
+/** 兼容实际 JSON 的 RFC3339 时间及 protobuf 时间对象。 */
 function resolveTimestamp(timestamp: AiMessage['created_at'] | AiSession['updated_at']) {
-  const seconds = Number(timestamp?.seconds || 0)
-  const nanos = Number(timestamp?.nanos || 0)
-  return seconds * 1000 + Math.floor(nanos / 1_000_000)
+  return workspaceTimestamp(timestamp)
 }
 
 /** 判断附件是否为图片类型。 */
@@ -1353,37 +1286,11 @@ function formatTools(tools: AiToolCall[]) {
     .join(' · ')
 }
 
-/** 关闭功能菜单与插件选择弹层（Esc 或页面切换时调用）。 */
+/** 收起当前页面的会话和资料弹层。 */
 function closeWorkspaceOverlays() {
-  showFunctionMenu.value = false
-  showPluginPicker.value = false
-}
-
-/** 切换工作区页签并收起功能菜单。 */
-function selectFunction(feature: (typeof functionOptions)[number]) {
-  activeFunction.value = feature
-  showFunctionMenu.value = false
-}
-
-/** 保存当前会话的具体插件账号，选用本身不执行工具。 */
-async function savePlugins(plugins: AiPluginSelection[]) {
-  if (savingPlugins.value || currentSessionReadOnly.value || currentSessionSending.value) return
-  const previousSessionID = activeSessionID.value
-  savingPlugins.value = true
-  try {
-    const sessionID = activeSessionID.value || (await createRemoteSession())
-    if (!sessionID) return
-    const response = await defAiSessionService.SetAiSessionPlugins({ id: sessionID, plugins })
-    if (response.session) upsertSession(normalizeSession(response.session))
-    if (activeSessionID.value === previousSessionID) {
-      activeSessionID.value = sessionID
-      showPluginPicker.value = false
-    }
-  } catch (error) {
-    showError(error, t('system.ai.workspace.action_failed'))
-  } finally {
-    savingPlugins.value = false
-  }
+  showSessionDrawer.value = false
+  replyMenu.value = undefined
+  attachmentText.value = undefined
 }
 
 /** 通知参数仅定位资源，先查询本人记录再打开结果。 */
@@ -1435,63 +1342,6 @@ async function refreshCurrentRun(runID: string) {
   }
 }
 
-/** 从冻结结果创建普通会话，原结果仍保留。 */
-async function continueDiscussion() {
-  const runID = currentSession.value?.automation_run_id
-  if (
-    !runID ||
-    continuing.value ||
-    !currentRun.value ||
-    ['queued', 'running', 'waiting_approval'].includes(currentRun.value.status)
-  )
-    return
-  continuing.value = true
-  try {
-    const response = await defAiAutomationService.ContinueAiAutomationRun({ id: runID })
-    if (response.session) {
-      upsertSession(normalizeSession(response.session))
-      selectSession(response.session.id)
-    }
-  } catch (error) {
-    showError(error, t('system.ai.workspace.action_failed'))
-  } finally {
-    continuing.value = false
-  }
-}
-
-/** 仅提交本人确认决定，工具和参数均使用服务端冻结值。 */
-async function decideApproval(item: ChatMessageItem, approved: boolean) {
-  const approval = item.output_content?.approval
-  if (
-    !approval ||
-    approvalBusy.value ||
-    item.status !== AiMessageStatus.AI_MESSAGE_STATUS_WAITING_APPROVAL
-  )
-    return
-  const sessionID = activeSessionID.value
-  approvalBusy.value = true
-  try {
-    const response = await defAiMessageService.DecideAiToolApproval({
-      session_id: sessionID,
-      message_id: item.messageID,
-      approval_id: approval.id,
-      approved,
-    })
-    if (response.session) upsertSession(normalizeSession(response.session))
-    await loadMessages(sessionID)
-    await refreshPendingCount()
-    if (currentSession.value?.automation_run_id)
-      currentRun.value = await defAiAutomationService.GetAiAutomationRun({
-        id: currentSession.value.automation_run_id,
-      })
-  } catch (error) {
-    showError(error, t('system.ai.workspace.action_failed'))
-    await loadMessages(sessionID)
-  } finally {
-    approvalBusy.value = false
-  }
-}
-
 /** 刷新功能入口的本人待确认数量。 */
 async function refreshPendingCount() {
   try {
@@ -1522,67 +1372,85 @@ function showError(error: unknown, fallback: string) {
   const message = error instanceof Error ? error.message : fallback
   uni.showToast({ icon: 'none', title: message || fallback })
 }
+
+/** 切换内部只读工作区，保留当前对话和输入草稿。 */
+function changeWorkspace(view: AiWorkspaceView) {
+  activeFunction.value = view
+  workspaceTitle.value = `system.ai.workspace.${view}`
+  showSessionDrawer.value = false
+}
+
+/** 导航返回先关闭工作区详情，再回普通对话。 */
+function goWorkspaceBack() {
+  if (workspacePanel.value?.goBack()) return
+  activeFunction.value = 'chat'
+}
+
+/** 停止本轮流式生成，不影响其他会话。 */
+function stopGeneration() {
+  const id = activeSessionID.value
+  const task = runningStreamTaskMap.get(id)
+  if (!task || task.finished) return
+  flushAiDelta()
+  task.abort()
+  messages.value[id] = (messages.value[id] || []).map((item) =>
+    item.role === 'ai' && item.status === AiMessageStatus.AI_MESSAGE_STATUS_GENERATING
+      ? {
+          ...item,
+          status: AiMessageStatus.AI_MESSAGE_STATUS_FAILED,
+          content:
+            item.content && item.content !== t('system.ai.thinking')
+              ? item.content
+              : t('system.ai.workspace.generation_stopped'),
+        }
+      : item,
+  )
+}
+
+/** 普通会话的输入和附件按会话保存，工作区切换不清空草稿。 */
+const draftCache = new Map<string, { text: string; attachments: AiAttachment[] }>()
+watch(
+  activeSessionID,
+  (next, previous) => {
+    if (previous)
+      draftCache.set(previous, {
+        text: inputText.value,
+        attachments: [...selectedAttachments.value],
+      })
+    const draft = draftCache.get(next)
+    inputText.value = draft?.text || ''
+    selectedAttachments.value = draft?.attachments || []
+  },
+  { flush: 'sync' },
+)
 </script>
 
 <template>
   <view class="ai-page" :class="themeStore.themeClass" @keydown.esc="closeWorkspaceOverlays">
-    <view class="ai-navbar">
-      <KratosNavBar :title="t('system.ai.chat_title')" />
-    </view>
-
-    <view class="workspace-toolbar">
-      <button size="mini" @tap="showFunctionMenu = !showFunctionMenu">
-        <uni-icons type="list" size="16" :color="themeStore.colors.aiPrimary" />
-        {{ t('system.ai.workspace.functions') }} ·
-        {{ t(`system.ai.workspace.${activeFunction}`) }} ▾
-      </button>
-      <button size="mini" @tap="toggleSessionDrawer">{{ t('system.ai.history') }}</button>
-      <button size="mini" @tap="createSession">{{ t('system.ai.new_session') }}</button>
-    </view>
-    <view v-if="showFunctionMenu" class="function-mask" @tap="showFunctionMenu = false">
-      <view class="function-menu" :style="{ top: functionMenuTop }" @tap.stop>
-        <button v-for="feature in functionOptions" :key="feature" @tap="selectFunction(feature)">
-          <uni-icons
-            :type="functionIcons[feature]"
-            size="18"
-            :color="themeStore.colors.aiPrimary"
-          />
-          {{ t(`system.ai.workspace.${feature}`)
-          }}<text v-if="feature === 'automations' && pendingCount"> · {{ pendingCount }}</text>
-        </button>
-      </view>
-    </view>
-    <AutomationPanel
-      v-show="activeFunction === 'automations'"
-      :active="pageVisible && activeFunction === 'automations'"
+    <view class="ai-navbar"
+      ><KratosNavBar
+        :title="t(activeFunction === 'chat' ? 'system.ai.chat_title' : workspaceTitle)"
+        :on-back="activeFunction === 'chat' ? undefined : goWorkspaceBack"
+        :action="{ icon: 'history', label: t('system.ai.history'), onClick: toggleSessionDrawer }"
+    /></view>
+    <WorkspacePanel
+      v-if="activeFunction !== 'chat'"
+      :key="activeFunction"
+      ref="workspacePanel"
+      :view="activeFunction"
+      :model-providers="modelProviders"
+      :knowledge-options="knowledgeOptions"
       @result="openAutomationResult"
       @pending="pendingCount = $event"
+      @title="workspaceTitle = $event"
     />
-    <PluginPanel
-      v-show="activeFunction === 'plugins'"
-      :active="pageVisible && activeFunction === 'plugins'"
-      :terminal="currentSession?.terminal ?? AI_TERMINAL"
-      :selected="currentPlugins"
-    />
-    <view v-if="activeFunction === 'chat' && currentSessionReadOnly" class="frozen-banner">
-      <text>{{ t('system.ai.workspace.frozen_result') }}</text>
-      <text v-if="currentRun">{{ t(`system.ai.workspace.${currentRun.status}`) }}</text>
-      <text v-if="currentRun?.result_unknown || currentRun?.status === 'unknown'">{{
+    <view v-if="activeFunction === 'chat' && currentSessionReadOnly" class="frozen-banner"
+      ><text>{{ t('system.ai.workspace.frozen_result') }}</text
+      ><text v-if="currentRun">{{ t(`system.ai.workspace.${currentRun.status}`) }}</text
+      ><text v-if="currentRun?.result_unknown">{{
         t('system.ai.workspace.unknown_result')
-      }}</text>
-      <button
-        size="mini"
-        :loading="continuing"
-        :disabled="
-          continuing ||
-          !currentRun ||
-          ['queued', 'running', 'waiting_approval'].includes(currentRun.status)
-        "
-        @tap="continueDiscussion"
-      >
-        {{ t('system.ai.workspace.continue_discussion') }}
-      </button>
-    </view>
+      }}</text></view
+    >
     <scroll-view
       v-show="activeFunction === 'chat'"
       class="ai-body"
@@ -1591,17 +1459,15 @@ function showError(error: unknown, fallback: string) {
       :scroll-into-view="chatBottomAnchor"
       :show-scrollbar="false"
     >
-      <template v-if="!hasMessages">
-        <WelcomePanel
-          :greeting-message="aiGreetingMessage"
-          :loading="loadingSessions || loadingShortcuts"
-          :shortcuts="starterPrompts"
-          :can-refresh="canRefreshStarterPrompts"
-          @refresh="refreshStarterPrompts"
-          @shortcut-tap="handleStarterPrompt"
-        />
-      </template>
-
+      <WelcomePanel
+        v-if="!hasMessages"
+        :greeting-message="aiGreetingMessage"
+        :loading="loadingSessions || loadingShortcuts"
+        :shortcuts="starterPrompts"
+        :can-refresh="canRefreshStarterPrompts"
+        @refresh="refreshStarterPrompts"
+        @shortcut-tap="handleStarterPrompt"
+      />
       <view v-else class="chat-list">
         <view
           v-for="item in currentMessages"
@@ -1618,76 +1484,69 @@ function showError(error: unknown, fallback: string) {
             ]"
             @longpress="handleMessageAction(item)"
           >
-            <view v-if="item.role === 'ai' && item.model" class="reply-meta">
-              <text class="reply-tag">{{ t('system.ai.model_reply') }}</text>
-              <text class="reply-model">{{
+            <view v-if="item.role === 'ai' && item.model" class="reply-meta"
+              ><text class="reply-tag">{{ t('system.ai.model_reply') }}</text
+              ><text class="reply-model">{{
                 resolveModelDisplayName(modelProviders, item.model)
-              }}</text>
-            </view>
+              }}</text></view
+            >
+            <view
+              v-if="item.tools.length"
+              class="ai-message-activity"
+              @tap="expandedTools = expandedTools === item.key ? '' : item.key"
+              >{{ t('system.ai.workspace.called_tools', { count: item.tools.length })
+              }}<view v-if="expandedTools === item.key" class="ai-workspace-meta">{{
+                formatTools(item.tools)
+              }}</view></view
+            >
             <view class="bubble-content">{{ item.content }}</view>
-            <view v-if="item.attachments.length" class="attachment-list">
-              <view
+            <view v-if="item.attachments.length" class="attachment-list"
+              ><view
                 v-for="attachment in item.attachments"
                 :key="attachment.id || attachment.url || attachment.name"
                 class="attachment-card"
-                @tap="previewAttachment(attachment, item.attachments)"
-              >
-                <view class="attachment-icon">{{
+                @tap="previewAttachment(attachment)"
+                ><view class="attachment-icon">{{
                   isImageAttachment(attachment)
                     ? t('system.ai.image_attachment')
                     : t('system.ai.attachment')
-                }}</view>
-                <view class="attachment-info">
-                  <view class="attachment-name">{{ attachment.name }}</view>
-                  <view class="attachment-meta">{{ formatAttachmentMeta(attachment) }}</view>
-                </view>
-              </view>
-            </view>
-            <view v-if="item.role === 'ai' && item.output_content?.approval" class="approval-card">
-              <view>{{ t('system.ai.workspace.needs_confirmation') }}</view>
-              <view
+                }}</view
+                ><view class="attachment-info"
+                  ><view class="attachment-name">{{ attachment.name }}</view
+                  ><view class="attachment-meta">{{ formatAttachmentMeta(attachment) }}</view></view
+                ></view
+              ></view
+            >
+            <view v-if="item.role === 'ai' && item.output_content?.approval" class="approval-card"
+              ><view>{{ t('system.ai.workspace.review_on_admin') }}</view
+              ><view
                 v-for="call in item.output_content.approval.calls"
                 :key="call.name"
                 class="approval-call"
-              >
-                <view>{{ call.title || call.name }}</view>
-                <text selectable>{{ call.arguments }}</text>
-              </view>
-              <view>{{ t('system.ai.workspace.expires') }} · {{ formatApprovalExpiry(item) }}</view>
-              <view v-if="approvalExpired(item)">{{
+                ><view>{{ call.title || call.name }}</view
+                ><text selectable>{{ call.arguments }}</text></view
+              ><view>{{ t('system.ai.workspace.expires') }} · {{ formatApprovalExpiry(item) }}</view
+              ><view v-if="approvalExpired(item)">{{
                 t('system.ai.workspace.approval_expired')
-              }}</view>
-              <view
-                v-else-if="item.status === AiMessageStatus.AI_MESSAGE_STATUS_WAITING_APPROVAL"
-                class="workspace-toolbar"
-              >
-                <button
-                  size="mini"
-                  :disabled="approvalBusy"
-                  :loading="approvalBusy"
-                  @tap="decideApproval(item, true)"
-                >
-                  {{ t('system.ai.workspace.approve') }}
-                </button>
-                <button size="mini" :disabled="approvalBusy" @tap="decideApproval(item, false)">
-                  {{ t('system.ai.workspace.reject') }}
-                </button>
-              </view>
-            </view>
-            <view v-if="item.tools.length" class="tool-row">{{
-              t('system.ai.tool_called', { tools: formatTools(item.tools) })
-            }}</view>
+              }}</view></view
+            >
+            <view class="ai-message-actions"
+              ><button class="ai-message-action" @tap="copyMessage(item)">
+                {{ t('system.ai.action.copy') }}</button
+              ><button class="ai-message-action" @tap="handleMessageAction(item)">
+                {{ t('system.ai.workspace.more') }}
+              </button></view
+            >
           </view>
         </view>
-        <view id="chat-bottom" class="chat-bottom"></view>
+        <view id="chat-bottom" class="chat-bottom" />
       </view>
       <view v-if="loadingSessionID" class="loading-session">{{
         t('system.ai.load_messages')
       }}</view>
     </scroll-view>
-
     <Composer
-      v-show="activeFunction === 'chat' && !currentSessionReadOnly"
+      v-if="activeFunction === 'chat' && !currentSessionReadOnly"
       v-model="inputText"
       :attachments="selectedAttachments"
       :model-providers="modelProviders"
@@ -1695,93 +1554,82 @@ function showError(error: unknown, fallback: string) {
       :model-name="selectedModelName"
       :knowledge-options="knowledgeOptions"
       :knowledge-ids="selectedKnowledgeIds"
-      :plugin-count="currentPlugins.length"
-      @plugins="showPluginPicker = true"
       :model-placeholder="t('system.ai.model.model_placeholder')"
       :placeholder="composerPlaceholder"
-      :bottom="composerBottom"
       :recording="isRecording"
       :sending="currentSessionSending"
       :disabled="isSubmitDisabled"
       @attach="handleAttachment"
       @record="handleToggleRecord"
       @send="handleSend"
+      @stop="stopGeneration"
       @model-change="handleModelChange"
       @knowledge-change="handleKnowledgeChange"
       @remove-attachment="removeSelectedAttachment"
     />
-
-    <PluginPanel
-      v-if="showPluginPicker"
-      :active="showPluginPicker"
-      :terminal="currentSession?.terminal ?? AI_TERMINAL"
-      picker
-      :top-padding="pickerTopPadding"
-      :selected="currentPlugins"
-      :saving="savingPlugins"
-      @save="savePlugins"
-      @close="showPluginPicker = false"
-    />
     <SessionDrawer
       :open="showSessionDrawer"
       :top-padding="drawerTopPadding"
+      :view="activeFunction"
+      :pending="pendingCount"
       :keyword="sessionKeyword"
       :loading="loadingSessions"
       :sessions="filteredSessions"
       :active-session-id="activeSessionID"
       @close="showSessionDrawer = false"
       @create="createSession"
+      @workspace="changeWorkspace"
       @select="selectSession"
       @update:keyword="sessionKeyword = $event"
     />
+    <DetailsSheet
+      v-if="replyMenu"
+      :title="
+        t(replyDetails ? 'system.ai.workspace.reply_info' : 'system.ai.workspace.message_actions')
+      "
+      @close="replyMenu = undefined"
+      ><view v-if="!replyDetails" class="ai-detail-menu"
+        ><button class="ai-workspace-button" @tap="copyMessage(replyMenu)">
+          {{ t('system.ai.action.copy') }}</button
+        ><button
+          v-if="replyMenu.role === 'ai'"
+          class="ai-workspace-button"
+          @tap="replyDetails = true"
+        >
+          {{ t('system.ai.workspace.reply_info') }}
+        </button></view
+      ><view v-else
+        ><view class="ai-workspace-meta"
+          >{{ t('system.ai.workspace.model') }}：{{
+            resolveModelDisplayName(modelProviders, replyMenu.model)
+          }}</view
+        ><view class="ai-workspace-meta"
+          >{{ t('system.ai.workspace.token_total') }}：{{ replyMenu.tokenTotal || '—' }}</view
+        ><view class="ai-workspace-meta"
+          >{{ t('system.ai.workspace.first_token') }}：{{
+            replyMenu.firstTokenMs ? `${replyMenu.firstTokenMs} ms` : '—'
+          }}</view
+        ><view class="ai-workspace-meta"
+          >{{ t('system.ai.workspace.duration') }}：{{
+            replyMenu.durationMs ? `${replyMenu.durationMs} ms` : '—'
+          }}</view
+        ></view
+      ></DetailsSheet
+    >
+    <DetailsSheet
+      v-if="attachmentText"
+      :title="attachmentText.name"
+      @close="attachmentText = undefined"
+      ><text selectable class="ai-workspace-pre">{{ attachmentText.content }}</text></DetailsSheet
+    >
   </view>
 </template>
 
 <style lang="scss">
-.workspace-toolbar {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 10rpx;
-  padding: 12rpx 20rpx;
-}
-.workspace-toolbar button {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-  gap: 10rpx;
-  white-space: nowrap;
-  margin: 0;
-}
-.function-mask {
-  position: absolute;
-  inset: 0;
-  z-index: 1001;
-  background: var(--kratos-color-mask);
-}
-.function-menu {
-  position: absolute;
-  top: 180rpx;
-  left: 20rpx;
-  min-width: 300rpx;
-  padding: 16rpx;
-  background: var(--kratos-color-surface-solid);
-  border-radius: var(--kratos-page-radius);
-}
-.function-menu button {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 10rpx;
-  width: 100%;
-  margin: 12rpx 0;
-}
+@use './workspace.scss';
 .frozen-banner {
   display: flex;
   flex-direction: row;
-  align-items: center;
   flex-wrap: wrap;
   gap: 12rpx;
   padding: 16rpx 24rpx;
@@ -1791,7 +1639,7 @@ function showError(error: unknown, fallback: string) {
 .approval-card {
   margin-top: 20rpx;
   padding: 20rpx;
-  border: 1rpx solid var(--kratos-color-border-accent);
+  border: 1px solid var(--kratos-color-border-accent);
   border-radius: var(--kratos-page-radius);
   font-size: 24rpx;
 }

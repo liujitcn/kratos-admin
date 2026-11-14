@@ -10,6 +10,7 @@ import (
 	"slices"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/cloudwego/eino/schema"
 	"github.com/eino-contrib/jsonschema"
@@ -106,6 +107,39 @@ func (c *AiPluginCase) SyncBuiltinTools(ctx context.Context) error {
 	}
 	return c.toolRepo.Update(ctx, &models.AiPluginTool{State: "removed"}, opts...)
 
+}
+
+// ResolveAutomaticAppToolPool 自动组装当前用户获准在应用端使用的只读插件工具。
+func (c *AiPluginCase) ResolveAutomaticAppToolPool(ctx context.Context) (agent.ToolPool, error) {
+	var err error
+	var catalog *basev1.ListAiPluginResponse
+	catalog, err = c.ListAiPlugin(ctx, &basev1.ListAiPluginRequest{Terminal: basev1.Terminal_TERMINAL_APP})
+	if err != nil {
+		return agent.ToolPool{}, err
+	}
+	var accounts *basev1.ListAiPluginConnectionResponse
+	accounts, err = c.ListAiPluginConnection(ctx, &basev1.ListAiPluginConnectionRequest{})
+	if err != nil {
+		return agent.ToolPool{}, err
+	}
+	tools := make(map[string][]*basev1.AiPluginTool, len(catalog.Plugins))
+	for _, definition := range catalog.Plugins {
+		if definition.UnavailableReason != "" {
+			continue
+		}
+		var response *basev1.ListAiPluginToolResponse
+		response, err = c.ListAiPluginTool(ctx, &basev1.ListAiPluginToolRequest{PluginId: definition.Id, Terminal: basev1.Terminal_TERMINAL_APP})
+		if err != nil {
+			return agent.ToolPool{}, err
+		}
+		tools[definition.Id] = response.Tools
+	}
+	var selections []*basev1.AiPluginSelection
+	selections, err = automaticAppPluginSelections(catalog.Plugins, tools, accounts.Connections, time.Now().Unix())
+	if err != nil {
+		return agent.ToolPool{}, err
+	}
+	return c.ResolveToolPool(ctx, "app", selections)
 }
 
 // ResolveToolPool 对当前身份、安装、终端、账号和审核策略取交集；空选择产生空工具池。
@@ -543,4 +577,44 @@ func pluginPoolRevision(refs []dto.AiPluginResolvedTool) string {
 // pluginTerminalAllowed 严格匹配持久化终端集合。
 func pluginTerminalAllowed(terminals, terminal string) bool {
 	return (terminal == "admin" || terminal == "app") && slices.Contains(strings.Split(terminals, ","), terminal)
+}
+
+// automaticAppPluginSelections 从公开目录和本人可见账号中筛选已审核的只读引用，保持具体账号归属。
+func automaticAppPluginSelections(definitions []*basev1.AiPlugin, tools map[string][]*basev1.AiPluginTool, accounts []*basev1.AiPluginConnection, now int64) ([]*basev1.AiPluginSelection, error) {
+	connections := make(map[string]*basev1.AiPluginConnection, len(accounts))
+	for _, account := range accounts {
+		if account.State == "connected" && (account.ExpiresAt == 0 || account.ExpiresAt > now) {
+			connections[account.Id] = account
+		}
+	}
+	selections := make([]*basev1.AiPluginSelection, 0)
+	seen := make(map[string]bool)
+	for _, definition := range definitions {
+		if definition.UnavailableReason != "" || !definition.Enabled || !definition.Assembled || !definition.GetInstallation().GetEnabled() || !slices.Contains(definition.GetInstallation().GetTerminals(), "app") {
+			continue
+		}
+		for _, tool := range tools[definition.Id] {
+			if tool.PluginId != definition.Id || !tool.EffectiveEnabled || tool.Effect != "read" || tool.State != "discovered" {
+				continue
+			}
+			if definition.Source == "MCP" {
+				account := connections[tool.ConnectionId]
+				if account == nil || account.PluginId != definition.Id {
+					continue
+				}
+			} else if tool.ConnectionId != "" {
+				continue
+			}
+			key := definition.Id + ":" + tool.ConnectionId
+			if seen[key] {
+				continue
+			}
+			seen[key] = true
+			selections = append(selections, &basev1.AiPluginSelection{PluginId: definition.Id, ConnectionId: tool.ConnectionId})
+		}
+	}
+	if len(selections) > 64 {
+		return nil, errorsx.InvalidArgument("可自动使用的插件账号超过64个，请在管理端调整可用范围")
+	}
+	return selections, nil
 }

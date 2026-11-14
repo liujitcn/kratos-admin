@@ -1,0 +1,36 @@
+<script setup lang="ts">
+import { useI18n } from '@liujitcn/kratos-uni-app-core'
+defineProps<{ title: string; footer?: boolean }>()
+const emit = defineEmits<{ close: [] }>()
+const { t } = useI18n()
+</script>
+
+<template>
+  <view class="ai-detail-overlay">
+    <view class="ai-detail-mask" @tap="emit('close')" />
+    <view class="ai-detail-sheet">
+      <view class="ai-detail-handle" />
+      <view class="ai-detail-head"
+        ><view class="ai-detail-title">{{ title }}</view
+        ><button
+          class="ai-detail-close"
+          :aria-label="t('system.ai.workspace.close')"
+          @tap="emit('close')"
+        >
+          ×
+        </button></view
+      >
+      <scroll-view class="ai-detail-body" scroll-y :show-scrollbar="false"><slot /></scroll-view>
+      <view v-if="footer" class="ai-detail-footer"><slot name="footer" /></view>
+    </view>
+  </view>
+</template>
+
+<style lang="scss" scoped>
+@use '../workspace.scss';
+
+.ai-detail-footer :deep(.ai-workspace-button) {
+  flex: 1;
+  min-height: 84rpx;
+}
+</style>

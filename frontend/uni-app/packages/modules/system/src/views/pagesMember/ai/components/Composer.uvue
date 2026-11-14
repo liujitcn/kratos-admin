@@ -29,10 +29,8 @@ const props = defineProps<{
   knowledgeOptions: AiKnowledgeOption[]
   /** 当前选择的知识库编号列表。 */
   knowledgeIds: number[]
-  pluginCount: number
   modelPlaceholder: string
   placeholder: string
-  bottom: string
   recording: boolean
   sending: boolean
   disabled: boolean
@@ -40,10 +38,10 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   'update:modelValue': [value: string]
-  plugins: []
   attach: []
   record: []
   send: []
+  stop: []
   'remove-attachment': [attachment: AiAttachment]
   'model-change': [providerId: number, modelName: string]
   'knowledge-change': [knowledgeIds: number[]]
@@ -101,39 +99,36 @@ function handleKnowledgeToggle(knowledgeId: number) {
 </script>
 
 <template>
-  <view class="composer" :style="{ paddingBottom: bottom }">
-    <view
-      class="composer-model-chip"
-      :class="{ 'is-disabled': sending || !modelProviders.length }"
-      @tap="openModelPicker"
-    >
-      <text class="composer-model-chip__spark">✦</text>
-      <text class="composer-model-chip__label">{{
-        selectedModelDisplayName || modelPlaceholder
-      }}</text>
-      <uni-icons type="down" size="12" :color="iconColor" />
-    </view>
-    <view
-      class="composer-model-chip"
-      :class="{
-        'is-disabled': sending || !knowledgeOptions.length,
-        'is-selected': knowledgeIds.length > 0,
-      }"
-      @tap="openKnowledgePicker"
-    >
-      <text class="composer-model-chip__spark">📚</text>
-      <text class="composer-model-chip__label">{{
-        knowledgeIds.length > 0
-          ? t('system.ai.knowledge.selected_count', { count: knowledgeIds.length })
-          : t('system.ai.knowledge.title')
-      }}</text>
-      <uni-icons type="down" size="12" :color="iconColor" />
-    </view>
-    <button class="composer-model-chip" :disabled="sending" @tap="emit('plugins')">
-      <text class="composer-model-chip__label"
-        >{{ t('system.ai.workspace.plugins') }} · {{ pluginCount }}</text
+  <view class="composer">
+    <view class="composer-options">
+      <view
+        class="composer-model-chip"
+        :class="{ 'is-disabled': sending || !modelProviders.length }"
+        @tap="openModelPicker"
       >
-    </button>
+        <text class="composer-model-chip__spark">✦</text>
+        <text class="composer-model-chip__label">{{
+          selectedModelDisplayName || modelPlaceholder
+        }}</text>
+        <uni-icons type="down" size="12" :color="iconColor" />
+      </view>
+      <view
+        class="composer-model-chip"
+        :class="{
+          'is-disabled': sending || !knowledgeOptions.length,
+          'is-selected': knowledgeIds.length > 0,
+        }"
+        @tap="openKnowledgePicker"
+      >
+        <text class="composer-model-chip__spark">📚</text>
+        <text class="composer-model-chip__label">{{
+          knowledgeIds.length > 0
+            ? t('system.ai.knowledge.selected_count', { count: knowledgeIds.length })
+            : t('system.ai.knowledge.title')
+        }}</text>
+        <uni-icons type="down" size="12" :color="iconColor" />
+      </view>
+    </view>
     <view class="composer-main">
       <button class="attach-button" hover-class="none" @tap="emit('attach')">
         <uni-icons type="plusempty" size="30" :color="iconColor" />
@@ -169,12 +164,20 @@ function handleKnowledgeToggle(knowledgeId: number) {
       </view>
       <button
         class="send-button"
-        :class="{ 'is-disabled': disabled, 'is-sending': sending }"
-        :disabled="disabled"
+        :class="{ 'is-disabled': disabled && !sending, 'is-sending': sending }"
+        :disabled="disabled && !sending"
+        :aria-label="
+          t(sending ? 'system.ai.workspace.stop_generation' : 'system.ai.workspace.send')
+        "
         hover-class="none"
-        @tap="emit('send')"
+        @tap="sending ? emit('stop') : emit('send')"
       >
-        <uni-icons type="paperplane" size="28" :color="disabled ? iconColor : primaryIconColor" />
+        <view v-if="sending" class="composer-stop-icon" /><uni-icons
+          v-else
+          type="paperplane"
+          size="28"
+          :color="disabled ? iconColor : primaryIconColor"
+        />
       </button>
     </view>
 
@@ -206,7 +209,6 @@ function handleKnowledgeToggle(knowledgeId: number) {
   border-radius: 0;
   background: transparent;
   line-height: normal;
-
 }
 
 .composer {
@@ -379,5 +381,23 @@ function handleKnowledgeToggle(knowledgeId: number) {
 .send-button:not(.is-disabled) {
   background: var(--kratos-color-primary-soft-2, rgba(3, 158, 140, 0.1));
   border: 1rpx solid var(--kratos-color-primary-edge, rgba(0, 150, 134, 0.3));
+}
+
+.composer-options {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 10rpx;
+}
+.composer-options .composer-model-chip {
+  min-width: 0;
+  max-width: 62%;
+  margin: 0 0 12rpx;
+}
+.composer-stop-icon {
+  width: 24rpx;
+  height: 24rpx;
+  border-radius: 4rpx;
+  background: var(--kratos-color-primary);
 }
 </style>

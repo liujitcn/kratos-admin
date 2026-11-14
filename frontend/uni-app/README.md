@@ -4,7 +4,7 @@
 
 账号密码、OAuth 票据兑换和微信登录统一返回 `mfa_remember_days`，表示当前登录策略允许的 MFA 设备免验证天数；为 `0` 时不提供记住设备选项。
 
-账号密码登录与管理端共用 `POST /api/v1/base/session`，三方跳转授权共用 `/api/v1/base/oauth/authorization`，认证、Token 权限和本人 AI 对话均共享，可跨端查看和继续。并发登录遵循现有登录策略：允许时可同时使用，禁止时后登录撤销已有会话。AI 对话继续使用已保存的工具配置，并校验当前权限与审批。
+账号密码登录与管理端共用 `POST /api/v1/base/session`，三方跳转授权共用 `/api/v1/base/oauth/authorization`，认证、Token 权限和本人 AI 对话均共享，可跨端查看和继续。并发登录遵循现有登录策略：允许时可同时使用，禁止时后登录撤销已有会话。应用端新普通空配置对话自动匹配已授权只读工具，已有显式配置继续沿用；权限始终由服务端校验。
 
 `frontend/uni-app` 是独立的 pnpm workspace，提供可直接运行的 uni-app x 宿主、可发布应用底座、system 业务模块和项目脚手架。技术栈为 `uni-app x + Vue 3 + TypeScript + Vite + Pinia + Sass`，当前支持 H5、微信小程序和 x App 构建。
 
@@ -259,3 +259,5 @@ CLI 直接生成完整宿主、本地业务模块、四种语言源文件与注�
 构建日志使用 Turbo 普通文本界面，按任务分组输出并关闭颜色，适用于终端和 IDE 控制台。仓库统一构建入口会显示各平台的开始与完成阶段。
 
 应用配置加载成功后，core 会将 `i18n_customs` 按 `locale + key` 覆盖已注册的本地文案，并刷新页面翻译。仅覆盖已有 key 的非空文案；未配置或已删除的覆盖项恢复本地默认值，未知语言和未知 key 忽略。切换语言时沿用配置重载流程。
+
+AI 助手已统一定时任务、文件、插件只读工作区和明暗主题，详情见 [System AI 助手](packages/modules/system/README.md#ai-助手只读工作区)。

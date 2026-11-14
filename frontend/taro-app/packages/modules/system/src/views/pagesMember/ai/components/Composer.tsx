@@ -8,7 +8,7 @@ import type { AiKnowledgeOption } from '../../../../rpc/base/v1/ai_knowledge'
 import { fallbackModelDisplayName } from '../modelDisplay'
 import KnowledgePicker from './KnowledgePicker'
 import ModelPicker from './ModelPicker'
-import './Composer.scss'
+import './composer.scss'
 
 /** AI 助手输入框与模型选择器参数。 */
 type ComposerProps = {
@@ -25,7 +25,6 @@ type ComposerProps = {
   /** 选择器未配置时显示的本地化占位文字。 */
   modelPlaceholder: string
   placeholder: string
-  bottom: string
   recording: boolean
   sending: boolean
   disabled: boolean
@@ -33,6 +32,7 @@ type ComposerProps = {
   onAttach: () => void
   onRecord: () => void
   onSend: () => void
+  onStop: () => void
   onRemoveAttachment: (attachment: AiAttachment) => void
   onModelChange: (providerId: number, modelName: string) => void
   onKnowledgeChange: (knowledgeIds: number[]) => void
@@ -79,28 +79,30 @@ export default function Composer(props: ComposerProps) {
   }
 
   return (
-    <View className='composer' style={{ paddingBottom: props.bottom }}>
-      <View
-        className={`composer-model-chip${props.sending || !props.modelProviders.length ? ' is-disabled' : ''}`}
-        onClick={openModelPicker}
-      >
-        <Text className='composer-model-chip__spark'>✦</Text>
-        <Text className='composer-model-chip__label'>
-          {selectedModelDisplayName || props.modelPlaceholder}
-        </Text>
-        <UniIcon type='down' size={12} color={iconColor} />
-      </View>
-      <View
-        className={`composer-model-chip${props.sending || !props.knowledgeOptions.length ? ' is-disabled' : ''}${props.knowledgeIds.length ? ' is-selected' : ''}`}
-        onClick={openKnowledgePicker}
-      >
-        <Text className='composer-model-chip__spark'>📚</Text>
-        <Text className='composer-model-chip__label'>
-          {props.knowledgeIds.length
-            ? t('system.ai.knowledge.selected_count', { count: props.knowledgeIds.length })
-            : t('system.ai.knowledge.title')}
-        </Text>
-        <UniIcon type='down' size={12} color={iconColor} />
+    <View className='composer'>
+      <View className='composer-options'>
+        <View
+          className={`composer-model-chip${props.sending || !props.modelProviders.length ? ' is-disabled' : ''}`}
+          onClick={openModelPicker}
+        >
+          <Text className='composer-model-chip__spark'>✦</Text>
+          <Text className='composer-model-chip__label'>
+            {selectedModelDisplayName || props.modelPlaceholder}
+          </Text>
+          <UniIcon type='down' size={12} color={iconColor} />
+        </View>
+        <View
+          className={`composer-model-chip${props.sending || !props.knowledgeOptions.length ? ' is-disabled' : ''}${props.knowledgeIds.length ? ' is-selected' : ''}`}
+          onClick={openKnowledgePicker}
+        >
+          <Text className='composer-model-chip__spark'>📚</Text>
+          <Text className='composer-model-chip__label'>
+            {props.knowledgeIds.length
+              ? t('system.ai.knowledge.selected_count', { count: props.knowledgeIds.length })
+              : t('system.ai.knowledge.title')}
+          </Text>
+          <UniIcon type='down' size={12} color={iconColor} />
+        </View>
       </View>
       <View className='composer-main'>
         <Button className='attach-button' hoverClass='none' onClick={props.onAttach}>
@@ -138,16 +140,23 @@ export default function Composer(props: ComposerProps) {
           </Button>
         </View>
         <Button
-          className={`send-button${props.disabled ? ' is-disabled' : ''}${props.sending ? ' is-sending' : ''}`}
-          disabled={props.disabled}
+          className={`send-button${props.disabled && !props.sending ? ' is-disabled' : ''}${props.sending ? ' is-sending' : ''}`}
+          disabled={(props.disabled && !props.sending) || undefined}
+          aria-label={t(
+            props.sending ? 'system.ai.workspace.stop_generation' : 'system.ai.workspace.send',
+          )}
           hoverClass='none'
-          onClick={props.onSend}
+          onClick={props.sending ? props.onStop : props.onSend}
         >
-          <UniIcon
-            type='paperplane'
-            size={28}
-            color={props.disabled ? iconColor : primaryIconColor}
-          />
+          {props.sending ? (
+            <View className='composer-stop-icon' />
+          ) : (
+            <UniIcon
+              type='paperplane'
+              size={28}
+              color={props.disabled ? iconColor : primaryIconColor}
+            />
+          )}
         </Button>
       </View>
 

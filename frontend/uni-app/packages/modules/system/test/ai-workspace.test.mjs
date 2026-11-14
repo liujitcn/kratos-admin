@@ -14,51 +14,48 @@ async function loadRules() {
   return import(`data:text/javascript;base64,${Buffer.from(outputText).toString('base64')}`)
 }
 
-test('插件选用保留具体账号并拒绝失效或无有效工具的连接', async () => {
-  const { pluginSelectionIssue } = await loadRules()
+test('只读工作区时间兼容真实JSON时间、空值和计划时区', async () => {
+  const { workspaceTimestamp, formatWorkspaceTime, formatWorkspaceSchedule } = await loadRules()
+  assert.equal(workspaceTimestamp(undefined), 0)
+  assert.equal(workspaceTimestamp({ seconds: 2, nanos: 500000000 }), 2500)
+  assert.equal(workspaceTimestamp('2026-11-13T01:00:00Z'), Date.parse('2026-11-13T01:00:00Z'))
+  assert.match(formatWorkspaceTime('2026-11-13T01:00:00Z', 'zh-CN', 'Asia/Shanghai'), /09:00/)
+  assert.equal(formatWorkspaceTime(undefined, 'zh-CN'), '—')
+  const messages = {
+    'system.ai.workspace.weekly': '每周',
+    'system.ai.workspace.weekday_1': '一',
+    'system.ai.workspace.weekday_5': '五',
+  }
+  assert.equal(
+    formatWorkspaceSchedule(
+      { frequency: 'weekly', weekdays: [1, 5], time: '09:00', timezone: 'Asia/Shanghai' },
+      (key) => messages[key] || key,
+    ),
+    '每周一、五 09:00',
+  )
+})
+
+test('插件查看按当前终端和服务端实际可用状态显示原因', async () => {
+  const { workspacePluginIssue } = await loadRules()
   const plugin = {
     enabled: true,
-    source: 'MCP',
+    assembled: true,
     installation: { enabled: true, terminals: ['app'] },
   }
-  const connection = { id: '2', state: 'connected', expires_at: 0 }
-  const tools = [{ connection_id: '2', effective_enabled: true }]
-  assert.equal(pluginSelectionIssue(plugin, tools, connection), '')
+  assert.equal(workspacePluginIssue(plugin, [{ effective_enabled: true }]), '')
+  assert.equal(workspacePluginIssue(plugin, []), 'no_tools')
   assert.equal(
-    pluginSelectionIssue(plugin, tools, { ...connection, state: 'disconnected' }),
-    'connection_unavailable',
-  )
-  assert.equal(pluginSelectionIssue(plugin, tools, { ...connection, id: '3' }), 'no_tools')
-  assert.equal(
-    pluginSelectionIssue({ ...plugin, unavailable_reason: '管理员停用' }, tools, connection),
-    '管理员停用',
+    workspacePluginIssue({ ...plugin, installation: { enabled: true, terminals: ['admin'] } }, [
+      { effective_enabled: true },
+    ]),
+    'terminal_unavailable',
   )
   assert.equal(
-    pluginSelectionIssue({ ...plugin, source: 'LOCAL', assembled: false }, tools),
-    'not_assembled',
+    workspacePluginIssue({ ...plugin, unavailable_reason: '授权已撤销' }, [
+      { effective_enabled: true },
+    ]),
+    '授权已撤销',
   )
-})
-
-test('停止本次只适用于活动记录，结果未知不能被当作已取消', async () => {
-  const { canStopAutomationRun } = await loadRules()
-  for (const status of ['queued', 'running', 'waiting_approval'])
-    assert.equal(canStopAutomationRun({ status }), true)
-  for (const status of ['unknown', 'canceled', 'succeeded', 'failed', 'expired', 'skipped'])
-    assert.equal(canStopAutomationRun({ status }), false)
-  assert.equal(canStopAutomationRun({ status: 'running', cancel_requested: true }), false)
-})
-
-test('跨端继续对话时插件选择沿用会话的工具能力配置', async () => {
-  const { pluginSelectionIssue } = await loadRules()
-  const plugin = {
-    enabled: true,
-    source: 'LOCAL',
-    assembled: true,
-    installation: { enabled: true, terminals: ['admin'] },
-  }
-  const tools = [{ connection_id: '', effective_enabled: true }]
-  assert.equal(pluginSelectionIssue(plugin, tools, undefined, 'admin'), '')
-  assert.equal(pluginSelectionIssue(plugin, tools, undefined, 'app'), 'terminal_unavailable')
 })
 
 test('提醒链接只提取正整数资源编号，不接受角色、来源或只读标记', async () => {
@@ -78,4 +75,15 @@ test('提醒链接只提取正整数资源编号，不接受角色、来源或�
   )
   assert.equal(parseAiResultParams({ run_id: '../3', session_id: '-2' }), undefined)
   assert.equal(parseAiResultParams({ run_id: 3 }), undefined)
+})
+
+test('任务待处理状态覆盖等待确认和依赖错误，归档状态保持明确', async () => {
+  const { workspaceAutomationStatus } = await loadRules()
+  assert.equal(workspaceAutomationStatus({ status: 'active' }), 'active')
+  assert.equal(
+    workspaceAutomationStatus({ status: 'active', last_run: { status: 'waiting_approval' } }),
+    'attention',
+  )
+  assert.equal(workspaceAutomationStatus({ status: 'paused', problem: '依赖不可用' }), 'attention')
+  assert.equal(workspaceAutomationStatus({ status: 'archived', problem: '旧记录' }), 'archived')
 })

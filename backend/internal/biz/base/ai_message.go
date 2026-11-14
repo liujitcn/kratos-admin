@@ -1466,7 +1466,7 @@ func (c *AiMessageCase) expireAiGeneratingMessages(ctx context.Context, session 
 	})
 }
 
-// bindAiSessionTools 按共享会话的工具配置重建当前用户的请求池。
+// bindAiSessionTools 应用端普通空配置会话自动匹配只读能力，其余会话沿用已冻结的引用。
 func (c *AiMessageCase) bindAiSessionTools(ctx context.Context, session *models.AiSession) (context.Context, error) {
 	if c.aiPluginCase == nil {
 		return ctx, nil
@@ -1478,7 +1478,11 @@ func (c *AiMessageCase) bindAiSessionTools(ctx context.Context, session *models.
 	terminal := ai.NormalizeTerminalString(session.Terminal)
 	ctx = agent.ContextWithTerminal(ctx, terminal)
 	var pool agent.ToolPool
-	pool, err = c.aiPluginCase.ResolveToolPool(ctx, terminal, selections)
+	if terminal == "app" && session.AutomationRunID == 0 && len(selections) == 0 {
+		pool, err = c.aiPluginCase.ResolveAutomaticAppToolPool(ctx)
+	} else {
+		pool, err = c.aiPluginCase.ResolveToolPool(ctx, terminal, selections)
+	}
 	if err != nil {
 		return ctx, err
 	}

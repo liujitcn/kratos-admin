@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="zh-CN" class="theme-light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Taro AI 助手侧栏原型</title>
+    <link rel="stylesheet" href="/preview.css" />
+  </head>
+  <body>
+    <div class="preview-shell">
+      <div class="preview-controls" aria-label="原型评审控件">
+        <span>Taro 原型 · 本地演示</span>
+        <button type="button" data-theme="light" aria-pressed="true">明亮</button>
+        <button type="button" data-theme="dark" aria-pressed="false">暗黑</button>
+        <button type="button" id="preview-drawer">侧栏</button>
+        <button type="button" data-action="reset-demo-confirm">重置</button>
+      </div>
+      <main class="preview-phone">
+        <div class="ai-page">
+          <header class="ai-navbar">
+            <div class="kratos-nav-bar">
+              <div class="kratos-nav-bar__row">
+                <button class="kratos-nav-bar__button kratos-nav-bar__back" type="button" aria-label="返回对话" id="back"><span class="kratos-nav-bar__back-icon" aria-hidden="true"></span></button>
+                <div class="kratos-nav-bar__title" id="page-title">AI 助手</div>
+                <button class="kratos-nav-bar__button kratos-nav-bar__action" type="button" aria-label="打开历史会话侧栏" id="drawer-button">
+                  <svg class="kratos-nav-bar__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+                </button>
+              </div>
+            </div>
+          </header>
+          <section id="content" class="ai-body" aria-live="polite"></section>
+          <footer id="composer" class="composer">
+            <div class="composer-chip-row">
+              <button class="composer-model-chip" type="button" data-action="open-model"><span class="composer-model-chip__spark">✦</span><span id="model-label" class="composer-model-chip__label">GPT 6.1 Sol</span><span class="kratos-uni-icon" style="font-size:12px;color:var(--kratos-color-text-muted)">&#xe6b8;</span></button>
+              <button class="composer-model-chip" type="button" data-action="open-knowledge"><span class="composer-model-chip__spark">📚</span><span id="knowledge-label" class="composer-model-chip__label">知识库</span><span class="kratos-uni-icon" style="font-size:12px;color:var(--kratos-color-text-muted)">&#xe6b8;</span></button>
+            </div>
+            <div class="composer-main">
+              <button class="attach-button" type="button" data-action="attach" aria-label="添加附件"><span class="kratos-uni-icon" style="font-size:30px">&#xe67b;</span></button>
+              <div class="composer-card">
+                <div id="message-attachments" class="composer-attachments"></div>
+                <div class="composer-input"><textarea id="message-input" class="taro-textarea" rows="1" placeholder="继续输入问题" aria-label="输入问题"></textarea></div>
+                <button class="voice-button" type="button" data-action="voice" aria-label="语音输入"><span class="kratos-uni-icon" style="font-size:28px;color:var(--kratos-color-text-muted)">&#xe671;</span></button>
+              </div>
+              <button id="message-send" class="send-button is-disabled" type="button" aria-label="发送" disabled><span class="kratos-uni-icon" style="font-size:28px;color:var(--kratos-color-text-muted)">&#xe672;</span></button>
+            </div>
+          </footer>
+          <div id="mask" class="session-mask" hidden></div>
+          <aside id="drawer" class="session-drawer" aria-label="历史会话侧栏" aria-hidden="true" inert>
+            <nav class="session-workspaces" aria-label="助手功能">
+              <button class="session-workspace" type="button" data-view="automations"><span class="kratos-uni-icon">&#xe6c0;</span><span>定时任务</span><span id="pending-count" class="preview-nav-count" hidden></span></button>
+              <button class="session-workspace" type="button" data-view="files"><span class="kratos-uni-icon">&#xe644;</span><span>文件</span></button>
+              <button class="session-workspace" type="button" data-view="plugins"><span class="kratos-uni-icon">&#xe6ce;</span><span>插件</span></button>
+            </nav>
+            <div class="session-drawer__head">
+              <div class="session-drawer__title">历史会话</div>
+              <button class="session-create" id="new-chat" type="button"><span class="kratos-uni-icon" style="font-size:16px">&#xe67b;</span><span>新建</span></button>
+            </div>
+            <label class="session-search"><span class="kratos-uni-icon" style="font-size:16px;color:var(--kratos-color-text-muted)">&#xe654;</span><input id="session-search" class="session-search-input" type="search" placeholder="搜索会话" aria-label="搜索会话" /></label>
+            <div id="session-list" class="session-list"></div>
+          </aside>
+          <nav class="kratos-tab-bar" aria-label="底部导航">
+            <div class="kratos-tab-bar__item"><svg class="kratos-tab-bar__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 11 12 3l9 8M5 10v10h14V10"/></svg><span class="kratos-tab-bar__text">首页</span></div>
+            <div class="kratos-tab-bar__item"><svg class="kratos-tab-bar__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 5h16v12H8l-4 4z"/></svg><span class="kratos-tab-bar__text">消息</span><i class="kratos-tab-bar__badge"></i></div>
+            <div class="kratos-tab-bar__item" style="color:var(--kratos-color-primary)"><svg class="kratos-tab-bar__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM4 21c0-4 3.5-6 8-6s8 2 8 6"/></svg><span class="kratos-tab-bar__text kratos-tab-bar__text--active">我的</span></div>
+          </nav>
+          <input id="upload-input" type="file" multiple hidden />
+          <div id="preview-toast" class="preview-toast" role="status" hidden></div>
+          <div id="sheet-overlay" class="preview-sheet-overlay" hidden>
+            <div class="preview-sheet-mask" data-action="close-sheet"></div>
+            <section class="knowledge-picker__sheet preview-sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-title">
+              <div class="knowledge-picker__handle"></div>
+              <div class="knowledge-picker__head">
+                <div id="sheet-title" class="knowledge-picker__title"></div>
+                <button id="sheet-close" class="knowledge-picker__close" type="button" data-action="close-sheet" aria-label="关闭弹层">×</button>
+              </div>
+              <div id="sheet-body" class="preview-sheet-body"></div>
+              <div id="sheet-footer" class="preview-sheet-footer" hidden></div>
+            </section>
+          </div>
+        </div>
+      </main>
+    </div>
+    <script type="module" src="/app.mjs"></script>
+  </body>
+</html>

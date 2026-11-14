@@ -77,6 +77,14 @@ System 模块还把 AI 图标注册为顶部工具。结构化流程块组件不
 
 uni-app x 位于 `frontend/uni-app/packages/modules/system/src/views/pagesMember/ai`，Taro 位于 `frontend/taro-app/packages/modules/system/src/views/pagesMember/ai`。两端都提供会话抽屉、欢迎快捷入口、输入与附件、消息流和多端 SSE 解析，页面属于 `pagesMember` 分包，使用同一 `base.v1` RPC 和 API 封装。H5 使用 Fetch SSE；微信小程序使用各自平台的分块请求能力。
 
+### 移动端只读工作区
+
+uni-app x 与 Taro 以同一原型实现定时任务、文件和插件工作区；内部视图切换不销毁聊天草稿。侧栏顶部为工作区入口，下方保留会话搜索与新建。定时任务状态在上、搜索在下，不提供全部任务执行记录入口；只查询指定任务的执行记录。文件分类采用 `AiFileService.PageAiFile`，两端 System RPC 由 Buf 模板生成。
+
+移动端的任务、文件和插件管理操作全部只读：不提供配置、连接、运行、停止、审批、重命名、回收站恢复或删除。任务结果禁止发送与历史修改，操作确认参数仅展示并提示到管理端处理。文件内容使用鉴权下载接口，HTML/SVG 作为纯文本预览。
+
+应用端普通会话无显式插件引用时，由 `ResolveAutomaticAppToolPool` 从当前用户可见目录和账号中选择已安装、开放应用端且实际可用的只读工具；按插件及具体账号去重，再复用 `ResolveToolPool` 的权限与修订校验。过期、未连接、跨插件账号、未审核或写入工具均不进入自动池。已有显式引用、管理端会话及自动化执行的冻结引用继续保持原有语义。自动池无可用引用时使用明确的空工具池，超过64个账号引用明确报错。
+
 ## AI 知识库
 
 知识库是独立于会话主库的 RAG 能力，接口包为 `rag.admin.v1`（`backend/api/proto/rag/admin/v1/`），包含三个服务：`AiKnowledgeService`（知识库 CRUD 与模型选项）、`AiKnowledgeDocService`（文档分页、文本/文件上传、删除、重新处理）、`AiKnowledgeChunkService.SearchAiKnowledge`（检索），HTTP 前缀 `/api/v1/admin/rag/*`。

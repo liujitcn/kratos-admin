@@ -7,7 +7,9 @@
   background: transparent;
   line-height: normal;
 
-  &::after { border: none; }
+  &::after {
+    border: none;
+  }
 }
 
 .composer {
@@ -17,7 +19,7 @@
   padding: 14px 24px 18px;
   overflow: hidden;
   background: var(--kratos-color-surface, #fff);
-  border-top: 1PX solid var(--kratos-color-border-accent, rgba(0, 150, 134, 0.28));
+  border-top: 1px solid var(--kratos-color-border-accent, rgba(0, 150, 134, 0.28));
   box-sizing: border-box;
 }
 
@@ -31,7 +33,7 @@
   margin: 0 8px 12px;
   color: var(--kratos-color-text, #102232);
   background: var(--kratos-color-surface, #fff);
-  border: 1PX solid var(--kratos-color-border-accent, rgba(0, 150, 134, 0.28));
+  border: 1px solid var(--kratos-color-border-accent, rgba(0, 150, 134, 0.28));
   border-radius: var(--kratos-page-radius);
   box-sizing: border-box;
 }
@@ -64,7 +66,7 @@
   gap: 16px;
   min-height: 124px;
   padding: 22px 18px;
-  border: 1PX solid var(--kratos-color-border, #e3eaf2);
+  border: 1px solid var(--kratos-color-border, #e3eaf2);
   border-radius: var(--kratos-page-radius);
   background: var(--kratos-color-surface, #fff);
   box-sizing: border-box;
@@ -77,7 +79,7 @@
   justify-content: center;
   width: 72px;
   height: 72px;
-  border: 1PX solid var(--kratos-color-border, #e3eaf2);
+  border: 1px solid var(--kratos-color-border, #e3eaf2);
   border-radius: 50%;
   background: var(--kratos-color-surface, #fff);
   color: var(--kratos-color-text-muted, #5a7083);
@@ -94,7 +96,7 @@
   gap: 10px;
   min-height: 72px;
   padding: 0 12px 0 28px;
-  border: 1PX solid var(--kratos-color-border, #e3eaf2);
+  border: 1px solid var(--kratos-color-border, #e3eaf2);
   border-radius: var(--kratos-page-radius);
   background: var(--kratos-color-surface-2, #eef4fa);
   box-shadow: none;
@@ -115,7 +117,7 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   padding: 6px 12px;
-  border: 1PX solid var(--kratos-color-primary-edge, rgba(0, 150, 134, 0.3));
+  border: 1px solid var(--kratos-color-primary-edge, rgba(0, 150, 134, 0.3));
   border-radius: var(--kratos-page-radius);
   color: var(--kratos-color-primary, #039e8c);
   font-size: 20px;
@@ -137,7 +139,10 @@
   background: transparent;
 }
 
-.composer-placeholder { color: var(--kratos-color-text-dim, #9aabbb); font-size: 29px; }
+.composer-placeholder {
+  color: var(--kratos-color-text-dim, #9aabbb);
+  font-size: 29px;
+}
 
 /* H5 的 Taro textarea 是自定义宿主，样式需要落到内部原生 textarea。 */
 /* #ifdef h5 */
@@ -175,11 +180,41 @@
   border-radius: 50%;
 }
 
-.voice-button { width: 60px; height: 60px; background-color: transparent; }
-.voice-button.active { background: var(--kratos-color-primary-soft, rgba(3, 158, 140, 0.08)); }
-.send-button { width: 74px; height: 74px; background: var(--kratos-color-track, #e8eef5); }
-.send-button.is-disabled { background: var(--kratos-color-track, #e8eef5); }
+.voice-button {
+  width: 60px;
+  height: 60px;
+  background-color: transparent;
+}
+.voice-button.active {
+  background: var(--kratos-color-primary-soft, rgba(3, 158, 140, 0.08));
+}
+.send-button {
+  width: 74px;
+  height: 74px;
+  background: var(--kratos-color-track, #e8eef5);
+}
+.send-button.is-disabled {
+  background: var(--kratos-color-track, #e8eef5);
+}
 .send-button:not(.is-disabled) {
   background: var(--kratos-color-primary-soft-2, rgba(3, 158, 140, 0.1));
-  border: 1PX solid var(--kratos-color-primary-edge, rgba(0, 150, 134, 0.3));
+  border: 1px solid var(--kratos-color-primary-edge, rgba(0, 150, 134, 0.3));
+}
+
+.composer-options {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+}
+.composer-options .composer-model-chip {
+  min-width: 0;
+  max-width: 62%;
+  margin: 0 0 12px;
+}
+.composer-stop-icon {
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  background: var(--kratos-color-primary);
 }

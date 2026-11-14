@@ -86,7 +86,7 @@ func (c *AiSessionCase) ListAiSession(ctx context.Context, req *basev1.ListAiSes
 	return &basev1.ListAiSessionResponse{Sessions: sessions}, nil
 }
 
-// CreateAiSession 创建当前用户的新会话。
+// CreateAiSession 创建当前用户的新会话，应用端缺省空配置由消息运行时自动匹配只读工具。
 func (c *AiSessionCase) CreateAiSession(ctx context.Context, req *basev1.CreateAiSessionRequest) (*basev1.AiSession, error) {
 	authInfo, err := c.GetAuthInfo(ctx)
 	if err != nil {
@@ -96,7 +96,11 @@ func (c *AiSessionCase) CreateAiSession(ctx context.Context, req *basev1.CreateA
 	terminal := ai.NormalizeTerminal(req.GetTerminal())
 	selections := req.Plugins
 	if selections == nil {
-		selections = []*basev1.AiPluginSelection{{PluginId: "1"}}
+		if terminal == int32(basev1.Terminal_TERMINAL_APP) {
+			selections = make([]*basev1.AiPluginSelection, 0)
+		} else {
+			selections = []*basev1.AiPluginSelection{{PluginId: "1"}}
+		}
 	}
 	_, err = c.aiPluginCase.ResolveToolPool(ctx, ai.NormalizeTerminalString(terminal), selections)
 	if err != nil {
@@ -423,7 +427,7 @@ func (c *AiSessionCase) ToDTO(model *models.AiSession) *basev1.AiSession {
 	return session
 }
 
-// SetAiSessionPlugins 仅在本人普通会话空闲时保存明确选择；空列表明确禁用全部插件。
+// SetAiSessionPlugins 仅在本人普通会话空闲时保存引用；应用端普通空列表由消息运行时自动匹配。
 func (c *AiSessionCase) SetAiSessionPlugins(ctx context.Context, req *basev1.SetAiSessionPluginsRequest) (*basev1.AiSession, error) {
 	session, err := c.FindCurrentUserSessionByRawID(ctx, req.Id)
 	if err != nil {
@@ -478,7 +482,7 @@ func (c *AiSessionCase) SetAiSessionPlugins(ctx context.Context, req *basev1.Set
 	return c.ToDTO(session), nil
 }
 
-// Plugins 读取会话选择，旧NULL仅映射内置工具；显式空数组保持禁用全部。
+// Plugins 读取持久化引用，旧NULL仅映射内置工具；应用端普通空数组由消息运行时自动匹配。
 func (c *AiSessionCase) Plugins(session *models.AiSession) ([]*basev1.AiPluginSelection, error) {
 	return parseAiSessionPlugins(session.Plugins)
 }
