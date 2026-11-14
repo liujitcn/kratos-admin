@@ -9,6 +9,13 @@
   padding: 0 20px var(--kratos-tab-bar-space, calc(104px + env(safe-area-inset-bottom)));
 }
 
+.profile-loading {
+  padding: 120px 0;
+  color: var(--kratos-color-text-muted);
+  font-size: 26px;
+  text-align: center;
+}
+
 /* 头像卡 */
 .profile-id {
   margin-top: 8px;
@@ -43,14 +50,31 @@
   padding: 10px 28px 28px;
 }
 
-/* 子项字段包在 Picker 中会命中 :first-child，恢复分隔线 */
-.profile-field--sub {
+/* 统一输入框、只读内容与 Picker 行的最小高度，保持分隔线位置稳定。 */
+.profile-form .k-field {
+  min-height: 104px;
+}
+
+/* Picker 内字段会命中 .k-field:first-child，提高局部选择器优先级以恢复分隔线。 */
+.profile-form .k-field.profile-field--sub {
   border-top: 1PX solid var(--kratos-color-border);
 }
 
 .profile-input {
   flex: 1;
-  min-height: 46px;
+  min-width: 0;
+  height: 46px;
+}
+
+/* H5 输入框内层使用与外层相同的高度、字号和右对齐方式。 */
+.profile-input .weui-input {
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  box-sizing: border-box;
+  color: inherit;
+  font: inherit;
+  text-align: inherit;
 }
 
 .profile-radios {

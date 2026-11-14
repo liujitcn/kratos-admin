@@ -221,7 +221,7 @@ const onLogout = () => {
       </view>
       <slot name="security" />
 
-      <text class="k-set-cat">{{ t('core.settings.section_appearance') }}</text>
+      <text class="k-set-cat settings-category--following">{{ t('core.settings.section_appearance') }}</text>
       <picker :range="themeModeLabels" :value="themeModeIndex" @change="onThemeModeChange">
         <view class="k-set-row k-set-row--arrow">
           <view class="k-set-row__lead">
@@ -250,7 +250,7 @@ const onLogout = () => {
       </picker>
 
       <!-- #ifdef MP-WEIXIN -->
-      <text class="k-set-cat">{{ t('core.settings.section_more') }}</text>
+      <text class="k-set-cat settings-category--following">{{ t('core.settings.section_more') }}</text>
       <button
         hover-class="none"
         class="k-set-row k-set-row--arrow settings-row--button"
@@ -315,6 +315,11 @@ const onLogout = () => {
 }
 .settings-content {
   padding-bottom: 20rpx;
+}
+
+/* 纵向布局已包含上一行的 20rpx 底部间距，补齐与 Taro 外边距折叠后的分组距离。 */
+.settings-category--following {
+  margin-top: 12rpx;
 }
 
 /* 行图标图片尺寸（挂在 .k-set-row__icon 内的 image 上） */

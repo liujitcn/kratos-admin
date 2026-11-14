@@ -46,13 +46,12 @@
   line-height: 0;
 }
 
-.kratos-nav-bar__back::before {
+.kratos-nav-bar__back-icon {
   display: block;
   width: 8PX;
   height: 8PX;
   border-left: 2PX solid var(--kratos-color-primary);
   border-bottom: 2PX solid var(--kratos-color-primary);
-  content: '';
   transform: rotate(45deg);
 }
 

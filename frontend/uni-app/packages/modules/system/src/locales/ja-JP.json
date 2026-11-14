@@ -136,6 +136,8 @@
   "system.notification.action.archive": "アーカイブ",
   "system.notification.action.restore": "復元",
   "system.notification.action.delete": "削除",
+  "system.notification.archive_confirm": "このメッセージをアーカイブしますか？",
+  "system.notification.delete_confirm": "このメッセージを削除しますか？",
   "system.workflow.notification.title.withdrawn": "承認待ちの申請が取り下げられました",
   "system.workflow.notification.content.withdrawn": "申請者が申請を取り下げたため、これ以上の対応は不要です",
   "system.workflow.notification.title.rejected": "申請が却下されました",

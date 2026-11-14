@@ -155,6 +155,8 @@
   "system.notification.action.archive": "歸檔",
   "system.notification.action.restore": "恢復",
   "system.notification.action.delete": "刪除",
+  "system.notification.archive_confirm": "確定要歸檔這則訊息嗎？",
+  "system.notification.delete_confirm": "確定要刪除這則訊息嗎？",
   "system.workflow.notification.title.withdrawn": "待審批申請已被撤回",
   "system.workflow.notification.content.withdrawn": "申請人已撤回該申請，無需繼續處理",
   "system.workflow.notification.title.rejected": "您的申請已被駁回",

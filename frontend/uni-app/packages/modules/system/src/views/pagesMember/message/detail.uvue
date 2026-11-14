@@ -52,9 +52,9 @@ async function loadDetail(id: number) {
             :color="detail.category_color || '#64748b'"
             aria-hidden="true"
           />
-          <text>{{ detail.category_name }}</text>
+          <text class="detail-meta__text">{{ detail.category_name }}</text>
         </view>
-        <text>{{ detail.received_at }}</text>
+        <text class="detail-meta__text">{{ detail.received_at }}</text>
       </view>
       <rich-text
         v-if="detail.content_format === MessageContentFormat.MESSAGE_CONTENT_FORMAT_RICH_TEXT"
@@ -105,6 +105,10 @@ async function loadDetail(id: number) {
   font-size: 22rpx;
   font-family: var(--kratos-font-mono);
 }
+.detail-meta__text {
+  font-size: 22rpx;
+  font-family: var(--kratos-font-mono);
+}
 .detail-category {
   display: inline-flex;
   flex-direction: row;
@@ -116,6 +120,7 @@ async function loadDetail(id: number) {
 }
 .detail-category__icon {
   margin-right: 8rpx;
+  line-height: 1;
 }
 .detail-content {
   display: block;

@@ -1,4 +1,4 @@
-import { useDidShow } from '@tarojs/taro'
+import Taro, { useDidShow } from '@tarojs/taro'
 import { Button, Text, View } from '@tarojs/components'
 import { useRef, useState } from 'react'
 import {
@@ -136,17 +136,38 @@ export default function MessageInboxPage() {
     setUnreadTotal(await refreshNotificationSummary())
   }
 
-  /** 归档或恢复一条消息。 */
+  /** toggleArchive 确认后归档消息，恢复操作沿用原有流程。 */
   async function toggleArchive(item: Notification) {
     if (item.archived_at) await defNotificationService.RestoreNotification({ id: item.id })
-    else if (item.allow_archive) await defNotificationService.ArchiveNotification({ id: item.id })
+    else {
+      if (!item.allow_archive) return
+      const result = await Taro.showModal({
+        title: t('system.notification.action.archive'),
+        content: t('system.notification.archive_confirm'),
+        confirmText: t('system.notification.action.archive'),
+        cancelText: t('common.action.cancel'),
+        confirmColor: themeStore.colors.aiPrimary,
+        cancelColor: themeStore.colors.aiTextMuted,
+      })
+      if (!result.confirm) return
+      await defNotificationService.ArchiveNotification({ id: item.id })
+    }
     await refresh()
     setUnreadTotal(await refreshNotificationSummary())
   }
 
-  /** 删除一条消息。 */
+  /** deleteItem 确认后删除消息并刷新列表和未读数。 */
   async function deleteItem(item: Notification) {
     if (!item.allow_delete) return
+    const result = await Taro.showModal({
+      title: t('system.notification.action.delete'),
+      content: t('system.notification.delete_confirm'),
+      confirmText: t('system.notification.action.delete'),
+      cancelText: t('common.action.cancel'),
+      confirmColor: themeStore.colors.aiDanger,
+      cancelColor: themeStore.colors.aiTextMuted,
+    })
+    if (!result.confirm) return
     await defNotificationService.DeleteNotification({ id: item.id })
     await refresh()
     setUnreadTotal(await refreshNotificationSummary())

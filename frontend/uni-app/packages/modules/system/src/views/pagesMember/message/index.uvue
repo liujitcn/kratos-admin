@@ -71,17 +71,38 @@ async function markAllRead() {
   await refreshNotificationSummary()
 }
 
-/** 归档或恢复一条消息。 */
+/** toggleArchive 确认后归档消息，恢复操作沿用原有流程。 */
 async function toggleArchive(item: Notification) {
   if (item.archived_at) await defNotificationService.RestoreNotification({ id: item.id })
-  else if (item.allow_archive) await defNotificationService.ArchiveNotification({ id: item.id })
+  else {
+    if (!item.allow_archive) return
+    const result = await uni.showModal({
+      title: t('system.notification.action.archive'),
+      content: t('system.notification.archive_confirm'),
+      confirmText: t('system.notification.action.archive'),
+      cancelText: t('common.action.cancel'),
+      confirmColor: themeStore.colors.primary,
+      cancelColor: themeStore.colors.textMuted,
+    })
+    if (!result.confirm) return
+    await defNotificationService.ArchiveNotification({ id: item.id })
+  }
   await refresh()
   await refreshNotificationSummary()
 }
 
-/** 删除一条消息。 */
+/** deleteItem 确认后删除消息并刷新列表和未读数。 */
 async function deleteItem(item: Notification) {
   if (!item.allow_delete) return
+  const result = await uni.showModal({
+    title: t('system.notification.action.delete'),
+    content: t('system.notification.delete_confirm'),
+    confirmText: t('system.notification.action.delete'),
+    cancelText: t('common.action.cancel'),
+    confirmColor: themeStore.colors.danger,
+    cancelColor: themeStore.colors.textMuted,
+  })
+  if (!result.confirm) return
   await defNotificationService.DeleteNotification({ id: item.id })
   await refresh()
   await refreshNotificationSummary()
@@ -158,7 +179,7 @@ const emptyHintKey = computed(() => {
           :color="category.color || '#64748b'"
           aria-hidden="true"
         />
-        <text>{{ category.name }}</text>
+        <text class="message-category__label">{{ category.name }}</text>
       </view>
     </view>
     <view class="k-pills message-tabs">
@@ -252,7 +273,11 @@ const emptyHintKey = computed(() => {
 .message-tabs {
   display: flex;
   flex-direction: row;
-  margin-top: 4rpx;
+  margin-top: 0;
+}
+.message-category__label {
+  font-size: 22rpx;
+  font-family: var(--kratos-font-mono);
 }
 .message-tab {
   flex: 1;

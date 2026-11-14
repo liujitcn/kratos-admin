@@ -78,7 +78,9 @@ export default function KratosNavBar({ title, variant = 'page', back, action, ch
     >
       <View className='kratos-nav-bar__row'>
         {showBack && (
-          <View className='kratos-nav-bar__button kratos-nav-bar__back' aria-label={t('common.action.back')} onClick={goBack} />
+          <View className='kratos-nav-bar__button kratos-nav-bar__back' aria-label={t('common.action.back')} onClick={goBack}>
+            <View className='kratos-nav-bar__back-icon' aria-hidden='true' />
+          </View>
         )}
         <View className='kratos-nav-bar__title'>{title}</View>
         {children ?? (action && (

@@ -29,6 +29,7 @@ onBeforeUnmount(() => {
 
 // 获取个人信息，修改个人信息需提供初始值
 const userInfo = ref({} as UserProfileForm)
+const loadState = ref<'loading' | 'ready' | 'error'>('loading')
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const idCodePattern = /^[A-Za-z0-9][A-Za-z0-9-]{0,63}$/
 const idTypeOptions = computed(() => [
@@ -75,23 +76,22 @@ const syncUserStoreProfile = (profile: UserProfileForm) => {
   userStore.userInfo.id_code = profile.id_code
 }
 
-/** 拉取当前用户资料并同步 Store。 */
-const getUserData = async () => {
-  const res = await defAuthService.GetUserProfile({})
-  userInfo.value = res
-  // 同步 Store 的头像和昵称，用于我的页面展示
-  syncUserStoreProfile(res)
-}
-
 const genderList = ref<BaseDictForm_DictItem[]>([])
 
-/** 加载性别字典项，供资料编辑选择。 */
-const getDictData = async () => {
-  const genderCode = 'base_user_gender'
-  const res = await defBaseDictService.GetBaseDict({
-    code: genderCode,
-  })
-  genderList.value = res.items || []
+/** loadData 同时读取资料和字典，全部就绪后再展示编辑区域。 */
+const loadData = async () => {
+  try {
+    const [profile, gender] = await Promise.all([
+      defAuthService.GetUserProfile({}),
+      defBaseDictService.GetBaseDict({ code: 'base_user_gender' }),
+    ])
+    userInfo.value = profile
+    genderList.value = gender.items || []
+    syncUserStoreProfile(profile)
+    loadState.value = 'ready'
+  } catch {
+    loadState.value = 'error'
+  }
 }
 
 onLoad(() => {
@@ -100,7 +100,7 @@ onLoad(() => {
     return
   }
 
-  Promise.all([getUserData(), getDictData()])
+  void loadData()
 })
 // 修改头像
 const onAvatarChange = async () => {
@@ -254,107 +254,114 @@ const onSubmit = async () => {
       <!-- 导航栏：统一子页头（单一返回 + 标题） -->
       <KratosNavBar :title="t('system.profile.title')" />
 
-      <!-- 头像卡：点击更换头像 -->
-      <view class="k-glass k-glass--lit k-pfx profile-id" @tap="onAvatarChange">
-        <view class="profile-id__main">
-          <view class="k-pfx__av">
-            <image
-              class="profile-av-img"
-              :src="userInfo?.avatar ? formatSrc(userInfo?.avatar) : defaultAvatar"
-              mode="aspectFill"
+      <template v-if="loadState === 'ready'">
+        <!-- 头像卡：点击更换头像 -->
+        <view class="k-glass k-glass--lit k-pfx profile-id" @tap="onAvatarChange">
+          <view class="profile-id__main">
+            <view class="k-pfx__av">
+              <image
+                class="profile-av-img"
+                :src="userInfo?.avatar ? formatSrc(userInfo?.avatar) : defaultAvatar"
+                mode="aspectFill"
+              />
+            </view>
+            <view class="profile-id__meta">
+              <text class="k-pfx__nm">{{ userInfo?.nick_name || t('system.profile.title') }}</text>
+              <text class="k-pfx__ac">{{ userInfo?.user_name }}</text>
+            </view>
+          </view>
+          <text class="k-pfx__ent">{{ t('system.profile.avatar_change') }}</text>
+        </view>
+
+        <!-- 表单 -->
+        <view class="k-glass profile-form">
+          <view class="k-phd">
+            <view class="k-phd__title">
+              <view class="k-phd__mark" aria-hidden="true" />
+              <text>{{ t('system.profile.title') }}</text>
+            </view>
+          </view>
+
+          <view class="k-field" v-if="userInfo?.user_name">
+            <text class="k-field__k">{{ t('system.profile.account') }}</text>
+            <text class="k-field__v">{{ userInfo?.user_name }}</text>
+          </view>
+          <!-- #ifdef MP-WEIXIN -->
+          <!-- 手机号 -->
+          <view class="k-field">
+            <text class="k-field__k">{{ t('system.profile.mobile') }}</text>
+            <text v-if="userInfo.phone" class="k-field__v">{{ userInfo.phone }}</text>
+            <button
+              v-else
+              class="profile-auth-button"
+              open-type="getPhoneNumber"
+              @getphonenumber="onGetPhoneNumber"
+            >
+              {{ t('system.profile.phone_authorization') }}
+            </button>
+          </view>
+          <!-- #endif -->
+          <view class="k-field">
+            <text class="k-field__k">{{ t('system.profile.nick_name') }}</text>
+            <input
+              class="k-field__v profile-input"
+              type="text"
+              :placeholder="t('system.profile.nick_name_placeholder')"
+              v-model="userInfo.nick_name"
             />
           </view>
-          <view class="profile-id__meta">
-            <text class="k-pfx__nm">{{ userInfo?.nick_name || t('system.profile.title') }}</text>
-            <text class="k-pfx__ac">{{ userInfo?.user_name }}</text>
+          <view class="k-field">
+            <text class="k-field__k">{{ t('system.profile.email') }}</text>
+            <input
+              class="k-field__v profile-input"
+              type="text"
+              :placeholder="t('system.profile.email_placeholder')"
+              v-model="userInfo.email"
+            />
           </view>
-        </view>
-        <text class="k-pfx__ent">{{ t('system.profile.avatar_change') }}</text>
-      </view>
-
-      <!-- 表单 -->
-      <view class="k-glass profile-form">
-        <view class="k-phd">
-          <view class="k-phd__title">
-            <view class="k-phd__mark" aria-hidden="true" />
-            <text>{{ t('system.profile.title') }}</text>
-          </view>
-        </view>
-
-        <view class="k-field" v-if="userInfo?.user_name">
-          <text class="k-field__k">{{ t('system.profile.account') }}</text>
-          <text class="k-field__v">{{ userInfo?.user_name }}</text>
-        </view>
-        <!-- #ifdef MP-WEIXIN -->
-        <!-- 手机号 -->
-        <view class="k-field">
-          <text class="k-field__k">{{ t('system.profile.mobile') }}</text>
-          <text v-if="userInfo.phone" class="k-field__v">{{ userInfo.phone }}</text>
-          <button
-            v-else
-            class="profile-auth-button"
-            open-type="getPhoneNumber"
-            @getphonenumber="onGetPhoneNumber"
+          <picker
+            mode="selector"
+            :range="idTypeOptions"
+            range-key="label"
+            :value="idTypeIndex"
+            @change="onIdTypeChange"
           >
-            {{ t('system.profile.phone_authorization') }}
-          </button>
-        </view>
-        <!-- #endif -->
-        <view class="k-field">
-          <text class="k-field__k">{{ t('system.profile.nick_name') }}</text>
-          <input
-            class="k-field__v profile-input"
-            type="text"
-            :placeholder="t('system.profile.nick_name_placeholder')"
-            v-model="userInfo.nick_name"
-          />
-        </view>
-        <view class="k-field">
-          <text class="k-field__k">{{ t('system.profile.email') }}</text>
-          <input
-            class="k-field__v profile-input"
-            type="text"
-            :placeholder="t('system.profile.email_placeholder')"
-            v-model="userInfo.email"
-          />
-        </view>
-        <picker
-          mode="selector"
-          :range="idTypeOptions"
-          range-key="label"
-          :value="idTypeIndex"
-          @change="onIdTypeChange"
-        >
-          <view class="k-field profile-field--sub">
-            <text class="k-field__k">{{ t('system.profile.id_type') }}</text>
-          <text class="k-field__v">{{ idTypeLabel }}</text>
+            <view class="k-field profile-field--sub">
+              <text class="k-field__k">{{ t('system.profile.id_type') }}</text>
+              <text class="k-field__v">{{ idTypeLabel }}</text>
+            </view>
+          </picker>
+          <view class="k-field">
+            <text class="k-field__k">{{ t('system.profile.id_code') }}</text>
+            <input
+              class="k-field__v profile-input"
+              type="text"
+              :placeholder="t('system.profile.id_code_placeholder')"
+              v-model="userInfo.id_code"
+            />
           </view>
-        </picker>
-        <view class="k-field">
-          <text class="k-field__k">{{ t('system.profile.id_code') }}</text>
-          <input
-            class="k-field__v profile-input"
-            type="text"
-            :placeholder="t('system.profile.id_code_placeholder')"
-            v-model="userInfo.id_code"
-          />
-        </view>
-        <view class="k-field">
-          <text class="k-field__k">{{ t('system.profile.gender') }}</text>
-          <radio-group class="profile-radios" @change="onGenderChange">
-            <label class="profile-radio" v-for="(item, index) in genderList" :key="index">
-              <radio
-                :value="item.value"
-                :color="themeStore.colors.aiPrimary"
-                :checked="userInfo?.gender === Number(item.value)"
-              />
-              {{ item.label }}
-            </label>
-          </radio-group>
-        </view>
+          <view class="k-field">
+            <text class="k-field__k">{{ t('system.profile.gender') }}</text>
+            <radio-group class="profile-radios" @change="onGenderChange">
+              <label class="profile-radio" v-for="(item, index) in genderList" :key="index">
+                <radio
+                  :value="item.value"
+                  :color="themeStore.colors.aiPrimary"
+                  :checked="userInfo?.gender === Number(item.value)"
+                />
+                {{ item.label }}
+              </label>
+            </radio-group>
+          </view>
 
-        <!-- 提交按钮 -->
-        <button @tap="onSubmit" class="k-save">{{ t('common.action.save') }}</button>
+          <!-- 提交按钮 -->
+          <button @tap="onSubmit" class="k-save">{{ t('common.action.save') }}</button>
+        </view>
+      </template>
+      <view v-else class="profile-loading">
+        <text class="profile-loading__text">{{
+          t(loadState === 'loading' ? 'core.status.loading' : 'core.status.PAGE_UNAVAILABLE')
+        }}</text>
       </view>
     </view>
   </view>
@@ -370,6 +377,16 @@ const onSubmit = async () => {
 /* 导航组件统一处理顶部空间，页面只维护内容的水平与底部留白。 */
 .profile-content {
   padding: 0 20rpx var(--kratos-tab-bar-space, calc(104rpx + env(safe-area-inset-bottom)));
+}
+
+.profile-loading {
+  padding: 120rpx 0;
+}
+
+.profile-loading__text {
+  color: var(--kratos-color-text-muted);
+  font-size: 26rpx;
+  text-align: center;
 }
 
 /* 头像卡 */
@@ -407,13 +424,19 @@ const onSubmit = async () => {
   padding: 10rpx 28rpx 28rpx;
 }
 
-/* 子项字段包在 picker 中会命中 :first-child，恢复分隔线 */
-.profile-field--sub {
-  border-top: 1rpx solid var(--kratos-color-border);
+/* 统一输入框、只读内容与 Picker 行的最小高度，保持分隔线位置稳定。 */
+.profile-form .k-field {
+  min-height: 104rpx;
+}
+
+/* Picker 内字段会命中 .k-field:first-child，提高局部选择器优先级以恢复分隔线。 */
+.profile-form .k-field.profile-field--sub {
+  border-top: 1px solid var(--kratos-color-border);
 }
 
 .profile-input {
   flex: 1;
+  min-width: 0;
   height: 46rpx;
 }
 

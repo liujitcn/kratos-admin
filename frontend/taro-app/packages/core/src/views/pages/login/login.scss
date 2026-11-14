@@ -8,9 +8,17 @@ page {
   flex-direction: column;
   justify-content: center;
   min-height: 100vh;
-  padding: 48px 20px calc(56px + env(safe-area-inset-bottom));
+  padding: 48px 20px calc(var(--kratos-tab-bar-space, 104px) + 20px);
+  overflow-y: auto;
   background: var(--kratos-bg-gradient);
   box-sizing: border-box;
+}
+
+/* 矮屏保持顶部对齐，避免视口高度变化时整块表单重新居中。 */
+@media screen and (max-height: 720PX) {
+  .login-page {
+    justify-content: flex-start;
+  }
 }
 
 /* 页面维护固定定位和水平留白，导航高度、安全区和返回按钮由公共组件负责。 */
@@ -48,8 +56,15 @@ page {
 }
 
 .login-hero {
+  display: flex;
+  flex-shrink: 0;
+  flex-direction: column;
   margin-bottom: 44px;
   text-align: center;
+}
+
+.login-logo-shell {
+  overflow: hidden;
 }
 
 /* k-lg-logo 已提供渐变底板，这里只约束内部实际 Logo 图片尺寸 */
@@ -65,12 +80,16 @@ page {
 
 /* k-glass/k-glass--lit 已提供卡片底色与描边，这里只补内部留白 */
 .login-panel {
+  display: flex;
+  flex-shrink: 0;
+  flex-direction: column;
   padding: 36px 30px 30px;
 }
 
 .login-form {
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 
 .login-bind-tip {
@@ -79,6 +98,10 @@ page {
   font-size: 24px;
   line-height: 1.5;
   text-align: center;
+}
+
+.login-form .k-lg-field__input {
+  line-height: 1.4;
 }
 
 /* k-lg-field__input 已提供输入框视觉，这里只修复 Taro H5 端 weui-input 内层尺寸 */
@@ -215,10 +238,9 @@ page {
 }
 
 .login-tips {
+  display: flex;
+  flex-direction: column;
   margin-top: 26px;
-  color: var(--kratos-color-text-muted);
-  font-size: 22px;
-  line-height: 1.6;
 }
 
 .mfa-mask {
@@ -307,7 +329,10 @@ page {
 .login-agree-link,
 .login-agree-desc,
 .login-agree-separator {
+  flex-shrink: 0;
   min-width: 0;
+  font-size: 16PX;
+  line-height: normal;
   overflow-wrap: anywhere;
 }
 

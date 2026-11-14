@@ -101,6 +101,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState('')
   const [passwordVisible, setPasswordVisible] = useState(false)
   const [captchaImage, setCaptchaImage] = useState('')
+  const [captchaImageWidth, setCaptchaImageWidth] = useState(170)
   const [captchaType, setCaptchaType] = useState('')
   const [behaviorVisible, setBehaviorVisible] = useState(false)
   const [behaviorLoading, setBehaviorLoading] = useState(false)
@@ -205,6 +206,7 @@ export default function LoginPage() {
     setMiniForm((current) => ({ ...current, [key]: value }))
   }
 
+  /** refreshCaptcha 加载验证码，并按原图比例确定展示尺寸。 */
   const refreshCaptcha = async (requestedType = captchaType || configuredCaptchaType) => {
     if (!requestedType) throw new Error(t('core.login.captcha_type_missing'))
     const data = await defLoginService.Captcha({ type: requestedType })
@@ -213,6 +215,9 @@ export default function LoginPage() {
     setForm((current) => ({ ...current, captcha_id: data.captcha_id, captcha_code: '' }))
     if (!behaviorCaptchaTypes.has(data.type)) {
       setBehaviorVisible(false)
+      // Taro H5 的图片加载事件返回取整后的渲染尺寸，使用原图尺寸避免比例偏差。
+      const image = await Taro.getImageInfo({ src: data.captcha_base64 })
+      setCaptchaImageWidth(Math.min(Math.max(Math.round((60 * image.width) / image.height), 170), 300))
       setCaptchaImage(data.captcha_base64)
       return true
     }
@@ -695,8 +700,17 @@ export default function LoginPage() {
                   onConfirm={() => void onSubmit()}
                 />
                 <View className='captcha-divider' />
-                <View className='k-lg-cap captcha-trigger' onClick={() => void refreshCaptcha()}>
-                  <Image className='captcha-image' src={captchaImage} mode='aspectFit' />
+                <View
+                  className='k-lg-cap captcha-trigger'
+                  style={{ width: Taro.pxTransform(captchaImageWidth) }}
+                  onClick={() => void refreshCaptcha()}
+                >
+                  <Image
+                    className='captcha-image'
+                    style={{ width: Taro.pxTransform(captchaImageWidth) }}
+                    src={captchaImage}
+                    mode='aspectFit'
+                  />
                 </View>
               </View>
             ) : null}

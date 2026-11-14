@@ -47,6 +47,7 @@ export default function ProfilePage() {
     avatar: '',
   })
   const [genderList, setGenderList] = useState<BaseDictForm_DictItem[]>([])
+  const [loadState, setLoadState] = useState<'loading' | 'ready' | 'error'>('loading')
   const submittingRef = useRef(false)
   const navigateBackTimerRef = useRef<ReturnType<typeof setTimeout>>()
   const ensureAuthenticated = useUserStore((state) => state.ensureAuthenticated)
@@ -76,13 +77,19 @@ export default function ProfilePage() {
     return false
   }
 
+  /** loadData 同时读取资料和字典，全部就绪后再展示编辑区域。 */
   const loadData = async () => {
-    const [profile, gender] = await Promise.all([
-      useUserStore.getState().getUserProfile(),
-      defBaseDictService.GetBaseDict({ code: 'base_user_gender' }),
-    ])
-    setUserInfo(profile)
-    setGenderList(gender.items || [])
+    try {
+      const [profile, gender] = await Promise.all([
+        useUserStore.getState().getUserProfile(),
+        defBaseDictService.GetBaseDict({ code: 'base_user_gender' }),
+      ])
+      setUserInfo(profile)
+      setGenderList(gender.items || [])
+      setLoadState('ready')
+    } catch {
+      setLoadState('error')
+    }
   }
 
   useLoad(() => {
@@ -156,81 +163,89 @@ export default function ProfilePage() {
       <View className='profile-content'>
         <KratosNavBar title={t('system.profile.title')} />
 
-        <View className='k-glass k-glass--lit k-pfx profile-id' onClick={() => void onAvatarChange()}>
-          <View className='profile-id__main'>
-            <View className='k-pfx__av'>
-              <Image className='profile-av-img' src={userInfo.avatar ? formatSrc(userInfo.avatar) : defaultAvatar} mode='aspectFill' />
+        {loadState === 'ready' ? (
+          <>
+            <View className='k-glass k-glass--lit k-pfx profile-id' onClick={() => void onAvatarChange()}>
+              <View className='profile-id__main'>
+                <View className='k-pfx__av'>
+                  <Image className='profile-av-img' src={userInfo.avatar ? formatSrc(userInfo.avatar) : defaultAvatar} mode='aspectFill' />
+                </View>
+                <View className='profile-id__meta'>
+                  <View className='k-pfx__nm'>{userInfo.nick_name || t('system.profile.title')}</View>
+                  <View className='k-pfx__ac'>{userInfo.user_name}</View>
+                </View>
+              </View>
+              <View className='k-pfx__ent'>{t('system.profile.avatar_change')}</View>
             </View>
-            <View className='profile-id__meta'>
-              <View className='k-pfx__nm'>{userInfo.nick_name || t('system.profile.title')}</View>
-              <View className='k-pfx__ac'>{userInfo.user_name}</View>
-            </View>
-          </View>
-          <View className='k-pfx__ent'>{t('system.profile.avatar_change')}</View>
-        </View>
 
-        <View className='k-glass profile-form'>
-          <View className='k-phd'>
-            <View className='k-phd__title'>{t('system.profile.title')}</View>
-          </View>
+            <View className='k-glass profile-form'>
+              <View className='k-phd'>
+                <View className='k-phd__title'>{t('system.profile.title')}</View>
+              </View>
 
-          {userInfo.user_name ? (
-            <View className='k-field'>
-              <Text className='k-field__k'>{t('system.profile.account')}</Text>
-              <Text className='k-field__v'>{userInfo.user_name}</Text>
-            </View>
-          ) : null}
-          {process.env.TARO_ENV === 'weapp' ? (
-            <View className='k-field'>
-              <Text className='k-field__k'>{t('system.profile.mobile')}</Text>
-              {userInfo.phone ? (
-                <Text className='k-field__v'>{userInfo.phone}</Text>
-              ) : (
-                <Button className='profile-auth-button' openType='getPhoneNumber' onGetPhoneNumber={onGetPhoneNumber}>{t('system.profile.phone_authorization')}</Button>
-              )}
-            </View>
-          ) : null}
-          <View className='k-field'>
-            <Text className='k-field__k'>{t('system.profile.nick_name')}</Text>
-            <Input className='k-field__v profile-input' placeholder={t('system.profile.nick_name_placeholder')} value={userInfo.nick_name} onInput={(event) => setUserInfo((current) => ({ ...current, nick_name: event.detail.value }))} />
-          </View>
-          <View className='k-field'>
-            <Text className='k-field__k'>{t('system.profile.email')}</Text>
-            <Input className='k-field__v profile-input' type='text' placeholder={t('system.profile.email_placeholder')} value={userInfo.email} onInput={(event) => setUserInfo((current) => ({ ...current, email: event.detail.value }))} />
-          </View>
-          <Picker
-            mode='selector'
-            range={idTypeOptions.map((item) => item.label)}
-            value={idTypeIndex}
-            onChange={(event) => setUserInfo((current) => ({ ...current, id_type: idTypeOptions[Number(event.detail.value)]?.value ?? BaseUserIDType.BASE_USER_ID_TYPE_UNSPECIFIED }))}
-          >
-            <View className='k-field profile-field--sub'>
-              <Text className='k-field__k'>{t('system.profile.id_type')}</Text>
-              <Text className='k-field__v'>{idTypeOptions[idTypeIndex]?.label}</Text>
-            </View>
-          </Picker>
-          <View className='k-field'>
-            <Text className='k-field__k'>{t('system.profile.id_code')}</Text>
-            <Input className='k-field__v profile-input' type='text' placeholder={t('system.profile.id_code_placeholder')} value={userInfo.id_code} onInput={(event) => setUserInfo((current) => ({ ...current, id_code: event.detail.value }))} />
-          </View>
-          <View className='k-field'>
-            <Text className='k-field__k'>{t('system.profile.gender')}</Text>
-            <RadioGroup className='profile-radios' onChange={(event) => setUserInfo((current) => ({ ...current, gender: Number(event.detail.value) }))}>
-              {genderList.map((item) => (
-                <Label className='profile-radio' key={item.value}>
-                  <Radio
-                    value={item.value}
-                    color={themeStore.colors.aiPrimary}
-                    checked={userInfo.gender === Number(item.value)}
-                  />
-                  {item.label}
-                </Label>
-              ))}
-            </RadioGroup>
-          </View>
+              {userInfo.user_name ? (
+                <View className='k-field'>
+                  <Text className='k-field__k'>{t('system.profile.account')}</Text>
+                  <Text className='k-field__v'>{userInfo.user_name}</Text>
+                </View>
+              ) : null}
+              {process.env.TARO_ENV === 'weapp' ? (
+                <View className='k-field'>
+                  <Text className='k-field__k'>{t('system.profile.mobile')}</Text>
+                  {userInfo.phone ? (
+                    <Text className='k-field__v'>{userInfo.phone}</Text>
+                  ) : (
+                    <Button className='profile-auth-button' openType='getPhoneNumber' onGetPhoneNumber={onGetPhoneNumber}>{t('system.profile.phone_authorization')}</Button>
+                  )}
+                </View>
+              ) : null}
+              <View className='k-field'>
+                <Text className='k-field__k'>{t('system.profile.nick_name')}</Text>
+                <Input className='k-field__v profile-input' placeholder={t('system.profile.nick_name_placeholder')} value={userInfo.nick_name} onInput={(event) => setUserInfo((current) => ({ ...current, nick_name: event.detail.value }))} />
+              </View>
+              <View className='k-field'>
+                <Text className='k-field__k'>{t('system.profile.email')}</Text>
+                <Input className='k-field__v profile-input' type='text' placeholder={t('system.profile.email_placeholder')} value={userInfo.email} onInput={(event) => setUserInfo((current) => ({ ...current, email: event.detail.value }))} />
+              </View>
+              <Picker
+                mode='selector'
+                range={idTypeOptions.map((item) => item.label)}
+                value={idTypeIndex}
+                onChange={(event) => setUserInfo((current) => ({ ...current, id_type: idTypeOptions[Number(event.detail.value)]?.value ?? BaseUserIDType.BASE_USER_ID_TYPE_UNSPECIFIED }))}
+              >
+                <View className='k-field profile-field--sub'>
+                  <Text className='k-field__k'>{t('system.profile.id_type')}</Text>
+                  <Text className='k-field__v'>{idTypeOptions[idTypeIndex]?.label}</Text>
+                </View>
+              </Picker>
+              <View className='k-field'>
+                <Text className='k-field__k'>{t('system.profile.id_code')}</Text>
+                <Input className='k-field__v profile-input' type='text' placeholder={t('system.profile.id_code_placeholder')} value={userInfo.id_code} onInput={(event) => setUserInfo((current) => ({ ...current, id_code: event.detail.value }))} />
+              </View>
+              <View className='k-field'>
+                <Text className='k-field__k'>{t('system.profile.gender')}</Text>
+                <RadioGroup className='profile-radios' onChange={(event) => setUserInfo((current) => ({ ...current, gender: Number(event.detail.value) }))}>
+                  {genderList.map((item) => (
+                    <Label className='profile-radio' key={item.value}>
+                      <Radio
+                        value={item.value}
+                        color={themeStore.colors.aiPrimary}
+                        checked={userInfo.gender === Number(item.value)}
+                      />
+                      {item.label}
+                    </Label>
+                  ))}
+                </RadioGroup>
+              </View>
 
-          <Button className='k-save' onClick={() => void onSubmit()}>{t('common.action.save')}</Button>
-        </View>
+              <Button className='k-save' onClick={() => void onSubmit()}>{t('common.action.save')}</Button>
+            </View>
+          </>
+        ) : (
+          <View className='profile-loading'>
+            {t(loadState === 'loading' ? 'core.status.loading' : 'core.status.PAGE_UNAVAILABLE')}
+          </View>
+        )}
       </View>
     </View>
   )

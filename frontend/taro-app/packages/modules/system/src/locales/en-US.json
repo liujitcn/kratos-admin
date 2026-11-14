@@ -155,6 +155,8 @@
   "system.notification.action.archive": "Archive",
   "system.notification.action.restore": "Restore",
   "system.notification.action.delete": "Delete",
+  "system.notification.archive_confirm": "Archive this message?",
+  "system.notification.delete_confirm": "Delete this message?",
   "system.workflow.notification.title.withdrawn": "Pending approval request withdrawn",
   "system.workflow.notification.content.withdrawn": "The applicant withdrew this request; no further action is needed",
   "system.workflow.notification.title.rejected": "Your request was rejected",

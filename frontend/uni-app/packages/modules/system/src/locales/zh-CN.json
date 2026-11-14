@@ -136,6 +136,8 @@
   "system.notification.action.archive": "归档",
   "system.notification.action.restore": "恢复",
   "system.notification.action.delete": "删除",
+  "system.notification.archive_confirm": "确定要归档这条消息吗？",
+  "system.notification.delete_confirm": "确定要删除这条消息吗？",
   "system.workflow.notification.title.withdrawn": "待审批申请已被撤回",
   "system.workflow.notification.content.withdrawn": "申请人已撤回该申请，无需继续处理",
   "system.workflow.notification.title.rejected": "您的申请已被驳回",
