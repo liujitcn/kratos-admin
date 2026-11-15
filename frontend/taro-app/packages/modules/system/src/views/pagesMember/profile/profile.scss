@@ -97,9 +97,21 @@
   transform-origin: center;
 }
 
+/* H5 Label 内层使用行内基线，统一居中与 24px 占位以对齐 uni-app。 */
+taro-label-core.profile-radio > :first-child,
 .profile-radio taro-radio-core {
-  transform: scale(0.6);
-  transform-origin: center;
+  display: flex;
+  align-items: center;
+}
+
+.profile-radio taro-radio-core {
+  height: 24PX;
+  transform: none;
+}
+
+/* H5 图标自带左右留白，统一为 uni-app 单选框的 29px 占位。 */
+.profile-radio taro-radio-core .weui-icon-checked::before {
+  margin: 0 5PX 0 1PX;
 }
 
 .profile-auth-button {

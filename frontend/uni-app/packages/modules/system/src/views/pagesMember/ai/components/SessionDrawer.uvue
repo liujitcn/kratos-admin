@@ -98,7 +98,7 @@ function formatSessionTime(session: AiSession) {
       <view class="session-drawer__title">{{ t('system.ai.history') }}</view>
       <button class="session-create" hover-class="none" @tap="emit('create')">
         <uni-icons type="plusempty" size="16" :color="primaryIconColor" />
-        <text>{{ t('common.action.new') }}</text>
+        <text class="session-create__label">{{ t('common.action.new') }}</text>
       </button>
     </view>
     <view class="session-search">
@@ -228,6 +228,12 @@ function formatSessionTime(session: AiSession) {
   box-sizing: border-box;
 }
 
+.session-create__label {
+  color: var(--kratos-color-primary, #28f0d4);
+  font-size: 24rpx;
+  line-height: 50rpx;
+}
+
 .session-search-input {
   flex: 1;
   min-width: 0;
@@ -337,7 +343,7 @@ function formatSessionTime(session: AiSession) {
   flex-shrink: 0;
   padding-bottom: 16rpx;
   margin-bottom: 12rpx;
-  border-bottom: 1px solid var(--kratos-color-border);
+  border-bottom: 1rpx solid var(--kratos-color-border);
 }
 .session-workspace {
   display: flex;
@@ -362,6 +368,9 @@ function formatSessionTime(session: AiSession) {
 }
 .session-workspace__label {
   flex: 1;
+  color: inherit;
+  font-size: 26rpx;
+  line-height: 36rpx;
 }
 .session-workspace__count {
   min-width: 32rpx;

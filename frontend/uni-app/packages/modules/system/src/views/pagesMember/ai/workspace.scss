@@ -32,7 +32,7 @@
   margin: 0 10rpx 0 0;
   padding: 12rpx 16rpx;
   min-height: 0;
-  border: 1px solid var(--kratos-color-border);
+  border: 1rpx solid var(--kratos-color-border);
   border-radius: var(--kratos-page-radius);
   color: var(--kratos-color-text-muted);
   background: var(--kratos-color-surface);
@@ -44,6 +44,11 @@
   color: var(--kratos-color-primary);
   background: var(--kratos-color-primary-soft);
 }
+.ai-workspace-chip-count {
+  color: inherit;
+  font-size: 22rpx;
+  line-height: 32rpx;
+}
 .ai-workspace-search {
   display: flex;
   flex-direction: row;
@@ -51,7 +56,7 @@
   height: 64rpx;
   padding: 0 18rpx;
   margin-bottom: 18rpx;
-  border: 1px solid var(--kratos-color-border);
+  border: 1rpx solid var(--kratos-color-border);
   border-radius: var(--kratos-page-radius);
   background: var(--kratos-color-surface-2);
 }
@@ -70,9 +75,13 @@
   color: var(--kratos-color-text-dim);
 }
 .ai-workspace-card {
+  /* #ifdef H5 */
+  /* 与 Taro 块布局保持一致，让相邻操作区的外边距正常合并。 */
+  display: block;
+  /* #endif */
   padding: 22rpx;
   margin-bottom: 18rpx;
-  border: 1px solid var(--kratos-color-border);
+  border: 1rpx solid var(--kratos-color-border);
   border-radius: var(--kratos-page-radius);
   background: var(--kratos-color-surface);
 }
@@ -138,7 +147,7 @@
   min-height: 70rpx;
   margin: 0;
   padding: 10rpx 20rpx;
-  border: 1px solid var(--kratos-color-border);
+  border: 1rpx solid var(--kratos-color-border);
   border-radius: var(--kratos-page-radius);
   color: var(--kratos-color-text-muted);
   background: var(--kratos-color-surface-solid);
@@ -157,7 +166,7 @@
 .ai-workspace-hint {
   padding: 16rpx 20rpx;
   margin-top: 14rpx;
-  border: 1px solid var(--kratos-color-border-accent);
+  border: 1rpx solid var(--kratos-color-border-accent);
   border-radius: var(--kratos-page-radius);
   color: var(--kratos-color-text-muted);
   background: var(--kratos-color-primary-soft);
@@ -184,7 +193,7 @@
   justify-content: space-between;
   padding: 16rpx 20rpx;
   margin-bottom: 18rpx;
-  border: 1px solid var(--kratos-color-border);
+  border: 1rpx solid var(--kratos-color-border);
   border-radius: var(--kratos-page-radius);
   color: var(--kratos-color-text-muted);
   background: var(--kratos-color-surface);
@@ -195,6 +204,10 @@
   flex-direction: row;
   align-items: center;
   gap: 16rpx;
+}
+.ai-workspace-select-label {
+  color: var(--kratos-color-text-muted);
+  font-size: 24rpx;
 }
 .ai-workspace-file-copy {
   display: flex;
@@ -211,7 +224,7 @@
   display: block;
   padding: 18rpx;
   margin: 14rpx 0;
-  border: 1px solid var(--kratos-color-border);
+  border: 1rpx solid var(--kratos-color-border);
   border-radius: var(--kratos-page-radius);
   color: var(--kratos-color-text);
   background: var(--kratos-color-surface-2);
@@ -298,7 +311,7 @@
   gap: 16rpx;
   padding-top: 20rpx;
   margin-top: 18rpx;
-  border-top: 1px solid var(--kratos-color-border);
+  border-top: 1rpx solid var(--kratos-color-border);
 }
 .ai-detail-footer .ai-workspace-button {
   flex: 1;

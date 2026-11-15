@@ -278,7 +278,7 @@ const onSubmit = async () => {
           <view class="k-phd">
             <view class="k-phd__title">
               <view class="k-phd__mark" aria-hidden="true" />
-              <text>{{ t('system.profile.title') }}</text>
+              <text class="profile-title">{{ t('system.profile.title') }}</text>
             </view>
           </view>
 
@@ -347,6 +347,9 @@ const onSubmit = async () => {
                 <radio
                   :value="item.value"
                   :color="themeStore.colors.aiPrimary"
+                  background-color="transparent"
+                  border-color="#c9c9c9"
+                  :icon-color="themeStore.colors.onPrimary"
                   :checked="userInfo?.gender === Number(item.value)"
                 />
                 {{ item.label }}
@@ -422,6 +425,12 @@ const onSubmit = async () => {
 .profile-form {
   margin-top: 24rpx;
   padding: 10rpx 28rpx 28rpx;
+}
+
+.profile-title {
+  color: var(--kratos-color-text);
+  font-size: 27rpx;
+  font-weight: 700;
 }
 
 /* 统一输入框、只读内容与 Picker 行的最小高度，保持分隔线位置稳定。 */

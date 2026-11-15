@@ -1444,13 +1444,11 @@ watch(
       @pending="pendingCount = $event"
       @title="workspaceTitle = $event"
     />
-    <view v-if="activeFunction === 'chat' && currentSessionReadOnly" class="frozen-banner"
-      ><text>{{ t('system.ai.workspace.frozen_result') }}</text
-      ><text v-if="currentRun">{{ t(`system.ai.workspace.${currentRun.status}`) }}</text
-      ><text v-if="currentRun?.result_unknown">{{
-        t('system.ai.workspace.unknown_result')
-      }}</text></view
-    >
+    <view v-if="activeFunction === 'chat' && currentSessionReadOnly" class="loading-session">
+      {{ t('system.ai.workspace.frozen_result')
+      }}{{ currentRun ? ` · ${t(`system.ai.workspace.${currentRun.status}`)}` : ''
+      }}{{ currentRun?.result_unknown ? ` · ${t('system.ai.workspace.unknown_result')}` : '' }}
+    </view>
     <scroll-view
       v-show="activeFunction === 'chat'"
       class="ai-body"
@@ -1524,7 +1522,7 @@ watch(
                 :key="call.name"
                 class="approval-call"
                 ><view>{{ call.title || call.name }}</view
-                ><text selectable>{{ call.arguments }}</text></view
+                ><text class="approval-arguments" selectable>{{ call.arguments }}</text></view
               ><view>{{ t('system.ai.workspace.expires') }} · {{ formatApprovalExpiry(item) }}</view
               ><view v-if="approvalExpired(item)">{{
                 t('system.ai.workspace.approval_expired')
@@ -1627,19 +1625,29 @@ watch(
 
 <style lang="scss">
 @use './workspace.scss';
-.frozen-banner {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  gap: 12rpx;
-  padding: 16rpx 24rpx;
-  color: var(--kratos-color-text-muted);
+
+/* #ifdef H5 */
+/* x 默认给每个 view/text 设置 16px，使用低优先级继承以保留各组件的字号。 */
+uni-app :where(.ai-page) :deep(uni-view),
+uni-app :where(.ai-page) :deep(uni-text) {
+  font-size: inherit;
+}
+
+/* 沿用 Taro 的块布局，保持详情和审批内容的外边距合并规则一致。 */
+uni-app :where(.ai-page) :deep(.uni-scroll-view-content),
+uni-app :where(.ai-page) :deep(.approval-card) {
+  display: block;
+}
+/* #endif */
+
+.approval-arguments {
+  color: inherit;
   font-size: 24rpx;
 }
 .approval-card {
   margin-top: 20rpx;
   padding: 20rpx;
-  border: 1px solid var(--kratos-color-border-accent);
+  border: 1rpx solid var(--kratos-color-border-accent);
   border-radius: var(--kratos-page-radius);
   font-size: 24rpx;
 }
@@ -1657,6 +1665,7 @@ watch(
   height: 100dvh;
   overflow: hidden;
   color: var(--kratos-color-text);
+  font-size: 14px;
   background: var(--kratos-bg-gradient);
 }
 
@@ -1734,6 +1743,16 @@ watch(
 
 .reply-tag {
   color: var(--kratos-color-primary);
+}
+
+.reply-tag,
+.reply-model {
+  font-size: 20rpx;
+  font-family: var(--kratos-font-mono);
+}
+
+.reply-model {
+  color: var(--kratos-color-text-muted);
 }
 
 .attachment-list {

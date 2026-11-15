@@ -54,7 +54,7 @@ const mutedIconColor = computed(() => themeStore.colors.aiTextDim)
           <view class="prompt-card__title">{{ t('system.ai.shortcut_question') }}</view>
         </view>
         <button v-if="canRefresh" class="prompt-refresh" hover-class="none" @tap="emit('refresh')">
-          <text>{{ t('system.ai.refresh') }}</text>
+          <text class="prompt-refresh__label">{{ t('system.ai.refresh') }}</text>
           <uni-icons type="refresh" size="25" :color="primaryIconColor" />
         </button>
       </view>
@@ -317,7 +317,7 @@ const mutedIconColor = computed(() => themeStore.colors.aiTextDim)
 .welcome-bubble {
   color: var(--kratos-color-text, #e9f4f6);
   background: var(--kratos-color-surface, #fff);
-  border: 1rpx solid var(--kratos-color-border, rgba(255, 255, 255, 0.08));
+  border: 1px solid var(--kratos-color-border, rgba(255, 255, 255, 0.08));
   box-sizing: border-box;
 }
 
@@ -348,7 +348,7 @@ const mutedIconColor = computed(() => themeStore.colors.aiTextDim)
 .prompt-card {
   margin-top: 34rpx;
   padding: 30rpx 28rpx 24rpx;
-  border: 1rpx solid var(--kratos-color-border-accent, rgba(120, 230, 215, 0.16));
+  border: 1px solid var(--kratos-color-border-accent, rgba(120, 230, 215, 0.16));
   border-radius: var(--kratos-page-radius);
   background: var(--kratos-color-surface, #fff);
   box-shadow: var(--kratos-glow-soft, none);
@@ -398,6 +398,12 @@ const mutedIconColor = computed(() => themeStore.colors.aiTextDim)
   line-height: 38rpx;
 }
 
+.prompt-refresh__label {
+  color: var(--kratos-color-primary, #28f0d4);
+  font-size: 25rpx;
+  line-height: 50rpx;
+}
+
 .prompt-item {
   display: flex;
   flex-direction: row;
@@ -405,7 +411,7 @@ const mutedIconColor = computed(() => themeStore.colors.aiTextDim)
   width: 100%;
   min-height: 96rpx;
   padding: 16rpx 16rpx 16rpx 0;
-  border-top: 1rpx solid var(--kratos-color-border, rgba(255, 255, 255, 0.08));
+  border-top: 1px solid var(--kratos-color-border, rgba(255, 255, 255, 0.08));
   color: var(--kratos-color-text, #e9f4f6);
   text-align: left;
   box-sizing: border-box;
@@ -420,7 +426,6 @@ const mutedIconColor = computed(() => themeStore.colors.aiTextDim)
   width: 36rpx;
   height: 36rpx;
   margin-right: 24rpx;
-  border: 1rpx solid var(--kratos-color-primary-edge, rgba(40, 240, 212, 0.3));
   border-radius: var(--kratos-page-radius);
   color: var(--kratos-color-primary, #28f0d4);
   font-size: 24rpx;
@@ -454,7 +459,7 @@ const mutedIconColor = computed(() => themeStore.colors.aiTextDim)
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  color: var(--kratos-color-text-dim, #4e6378);
+  color: var(--kratos-color-text-muted, #8aa0b4);
   font-size: 22rpx;
   line-height: 30rpx;
 }

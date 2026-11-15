@@ -605,7 +605,7 @@ defineExpose({ goBack })
               @tap="chooseFileView(item.value)"
             >
               {{ statusLabel(item.label)
-              }}<text v-if="fileTotals[item.value] !== undefined">
+              }}<text v-if="fileTotals[item.value] !== undefined" class="ai-workspace-chip-count">
                 {{ fileTotals[item.value] }}</text
               >
             </button></view
@@ -678,7 +678,7 @@ defineExpose({ goBack })
               :value="scopes.indexOf(scope)"
               @change="scope = scopes[Number($event.detail.value)] || ''"
               ><view class="ai-workspace-select"
-                ><text
+                ><text class="ai-workspace-select-label"
                   >{{ t('system.ai.workspace.scope') }} ·
                   {{ scopeLabels[scopes.indexOf(scope)] }}</text
                 ><uni-icons type="down" size="12" :color="theme.colors.aiTextMuted" /></view
