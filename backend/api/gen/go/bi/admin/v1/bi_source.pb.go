@@ -929,11 +929,12 @@ func (x *ListBiSourceTablesResponse) GetTables() []*BiSourceSchemaTable {
 
 // 保存数据源语义模型的请求。
 type SaveBiSourceModelRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`      // 数据源ID
-	Model         *BiSourceModel         `protobuf:"bytes,2,opt,name=model,proto3" json:"model,omitempty"` // 数据源语义模型
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state                 protoimpl.MessageState `protogen:"open.v1"`
+	Id                    int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                                                      // 数据源ID
+	Model                 *BiSourceModel         `protobuf:"bytes,2,opt,name=model,proto3" json:"model,omitempty"`                                                                 // 数据源语义模型
+	ExpectedSourceVersion int32                  `protobuf:"varint,3,opt,name=expected_source_version,json=expectedSourceVersion,proto3" json:"expected_source_version,omitempty"` // 预期数据源版本
+	unknownFields         protoimpl.UnknownFields
+	sizeCache             protoimpl.SizeCache
 }
 
 func (x *SaveBiSourceModelRequest) Reset() {
@@ -978,6 +979,13 @@ func (x *SaveBiSourceModelRequest) GetModel() *BiSourceModel {
 		return x.Model
 	}
 	return nil
+}
+
+func (x *SaveBiSourceModelRequest) GetExpectedSourceVersion() int32 {
+	if x != nil {
+		return x.ExpectedSourceVersion
+	}
+	return 0
 }
 
 // 数据源可用的表、关联关系和业务语义。
@@ -1291,12 +1299,12 @@ func (x *BiSourceDimension) GetFilterable() bool {
 // 数据源语义指标。
 type BiSourceMeasure struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Code          string                 `protobuf:"bytes,1,opt,name=code,proto3" json:"code,omitempty"`                 // 语义编码
-	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`                 // 展示名称
-	Type          string                 `protobuf:"bytes,3,opt,name=type,proto3" json:"type,omitempty"`                 // BI字段类型
-	Table         string                 `protobuf:"bytes,4,opt,name=table,proto3" json:"table,omitempty"`               // 所属表标识
-	Column        string                 `protobuf:"bytes,5,opt,name=column,proto3" json:"column,omitempty"`             // 数据库字段
-	Aggregations  []string               `protobuf:"bytes,6,rep,name=aggregations,proto3" json:"aggregations,omitempty"` // 允许的聚合函数
+	Code          string                 `protobuf:"bytes,1,opt,name=code,proto3" json:"code,omitempty"`             // 语义编码
+	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`             // 展示名称
+	Type          string                 `protobuf:"bytes,3,opt,name=type,proto3" json:"type,omitempty"`             // BI字段类型
+	Expression    string                 `protobuf:"bytes,4,opt,name=expression,proto3" json:"expression,omitempty"` // 固定聚合表达式
+	Unit          string                 `protobuf:"bytes,5,opt,name=unit,proto3" json:"unit,omitempty"`             // 指标单位
+	Revision      int64                  `protobuf:"varint,6,opt,name=revision,proto3" json:"revision,omitempty"`    // 服务端指标修订号
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1352,25 +1360,25 @@ func (x *BiSourceMeasure) GetType() string {
 	return ""
 }
 
-func (x *BiSourceMeasure) GetTable() string {
+func (x *BiSourceMeasure) GetExpression() string {
 	if x != nil {
-		return x.Table
+		return x.Expression
 	}
 	return ""
 }
 
-func (x *BiSourceMeasure) GetColumn() string {
+func (x *BiSourceMeasure) GetUnit() string {
 	if x != nil {
-		return x.Column
+		return x.Unit
 	}
 	return ""
 }
 
-func (x *BiSourceMeasure) GetAggregations() []string {
+func (x *BiSourceMeasure) GetRevision() int64 {
 	if x != nil {
-		return x.Aggregations
+		return x.Revision
 	}
-	return nil
+	return 0
 }
 
 // BI 数据源配置表单。
@@ -1557,6 +1565,7 @@ type BiSource struct {
 	UpdatedAt          string                 `protobuf:"bytes,22,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`                             // 更新时间
 	ModelConfigured    bool                   `protobuf:"varint,23,opt,name=model_configured,json=modelConfigured,proto3" json:"model_configured,omitempty"`          // 是否已配置语义模型
 	TableCount         int32                  `protobuf:"varint,24,opt,name=table_count,json=tableCount,proto3" json:"table_count,omitempty"`                         // 模型选中的表数量
+	SyncSummary        *BiModelImpact         `protobuf:"bytes,25,opt,name=sync_summary,json=syncSummary,proto3" json:"sync_summary,omitempty"`                       // 公共指标同步摘要
 	unknownFields      protoimpl.UnknownFields
 	sizeCache          protoimpl.SizeCache
 }
@@ -1759,6 +1768,212 @@ func (x *BiSource) GetTableCount() int32 {
 	return 0
 }
 
+func (x *BiSource) GetSyncSummary() *BiModelImpact {
+	if x != nil {
+		return x.SyncSummary
+	}
+	return nil
+}
+
+// 公共指标编辑候选。
+type BiMetricChange struct {
+	state            protoimpl.MessageState `protogen:"open.v1"`
+	MetricCode       string                 `protobuf:"bytes,1,opt,name=metric_code,json=metricCode,proto3" json:"metric_code,omitempty"`                    // 指标编码
+	Expression       string                 `protobuf:"bytes,2,opt,name=expression,proto3" json:"expression,omitempty"`                                      // 固定聚合表达式
+	Name             string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`                                                  // 指标名称
+	Unit             string                 `protobuf:"bytes,4,opt,name=unit,proto3" json:"unit,omitempty"`                                                  // 指标单位
+	ExpectedRevision int64                  `protobuf:"varint,5,opt,name=expected_revision,json=expectedRevision,proto3" json:"expected_revision,omitempty"` // 预期指标修订号
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
+}
+
+func (x *BiMetricChange) Reset() {
+	*x = BiMetricChange{}
+	mi := &file_bi_admin_v1_bi_source_proto_msgTypes[25]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *BiMetricChange) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*BiMetricChange) ProtoMessage() {}
+
+func (x *BiMetricChange) ProtoReflect() protoreflect.Message {
+	mi := &file_bi_admin_v1_bi_source_proto_msgTypes[25]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use BiMetricChange.ProtoReflect.Descriptor instead.
+func (*BiMetricChange) Descriptor() ([]byte, []int) {
+	return file_bi_admin_v1_bi_source_proto_rawDescGZIP(), []int{25}
+}
+
+func (x *BiMetricChange) GetMetricCode() string {
+	if x != nil {
+		return x.MetricCode
+	}
+	return ""
+}
+
+func (x *BiMetricChange) GetExpression() string {
+	if x != nil {
+		return x.Expression
+	}
+	return ""
+}
+
+func (x *BiMetricChange) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *BiMetricChange) GetUnit() string {
+	if x != nil {
+		return x.Unit
+	}
+	return ""
+}
+
+func (x *BiMetricChange) GetExpectedRevision() int64 {
+	if x != nil {
+		return x.ExpectedRevision
+	}
+	return 0
+}
+
+// 公共指标变更前后定义。
+type BiMetricDifference struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Before        *BiSourceMeasure       `protobuf:"bytes,1,opt,name=before,proto3" json:"before,omitempty"` // 原指标定义
+	After         *BiSourceMeasure       `protobuf:"bytes,2,opt,name=after,proto3" json:"after,omitempty"`   // 候选指标定义
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *BiMetricDifference) Reset() {
+	*x = BiMetricDifference{}
+	mi := &file_bi_admin_v1_bi_source_proto_msgTypes[26]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *BiMetricDifference) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*BiMetricDifference) ProtoMessage() {}
+
+func (x *BiMetricDifference) ProtoReflect() protoreflect.Message {
+	mi := &file_bi_admin_v1_bi_source_proto_msgTypes[26]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use BiMetricDifference.ProtoReflect.Descriptor instead.
+func (*BiMetricDifference) Descriptor() ([]byte, []int) {
+	return file_bi_admin_v1_bi_source_proto_rawDescGZIP(), []int{26}
+}
+
+func (x *BiMetricDifference) GetBefore() *BiSourceMeasure {
+	if x != nil {
+		return x.Before
+	}
+	return nil
+}
+
+func (x *BiMetricDifference) GetAfter() *BiSourceMeasure {
+	if x != nil {
+		return x.After
+	}
+	return nil
+}
+
+// 公共指标同步影响摘要。
+type BiModelImpact struct {
+	state              protoimpl.MessageState `protogen:"open.v1"`
+	Changes            []*BiMetricDifference  `protobuf:"bytes,1,rep,name=changes,proto3" json:"changes,omitempty"`                                                  // 指标变更
+	AffectedCards      int32                  `protobuf:"varint,2,opt,name=affected_cards,json=affectedCards,proto3" json:"affected_cards,omitempty"`                // 受影响卡片数量
+	AffectedDashboards int32                  `protobuf:"varint,3,opt,name=affected_dashboards,json=affectedDashboards,proto3" json:"affected_dashboards,omitempty"` // 需要重新发布的仪表盘数量
+	SourceVersion      int32                  `protobuf:"varint,4,opt,name=source_version,json=sourceVersion,proto3" json:"source_version,omitempty"`                // 数据源版本
+	unknownFields      protoimpl.UnknownFields
+	sizeCache          protoimpl.SizeCache
+}
+
+func (x *BiModelImpact) Reset() {
+	*x = BiModelImpact{}
+	mi := &file_bi_admin_v1_bi_source_proto_msgTypes[27]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *BiModelImpact) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*BiModelImpact) ProtoMessage() {}
+
+func (x *BiModelImpact) ProtoReflect() protoreflect.Message {
+	mi := &file_bi_admin_v1_bi_source_proto_msgTypes[27]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use BiModelImpact.ProtoReflect.Descriptor instead.
+func (*BiModelImpact) Descriptor() ([]byte, []int) {
+	return file_bi_admin_v1_bi_source_proto_rawDescGZIP(), []int{27}
+}
+
+func (x *BiModelImpact) GetChanges() []*BiMetricDifference {
+	if x != nil {
+		return x.Changes
+	}
+	return nil
+}
+
+func (x *BiModelImpact) GetAffectedCards() int32 {
+	if x != nil {
+		return x.AffectedCards
+	}
+	return 0
+}
+
+func (x *BiModelImpact) GetAffectedDashboards() int32 {
+	if x != nil {
+		return x.AffectedDashboards
+	}
+	return 0
+}
+
+func (x *BiModelImpact) GetSourceVersion() int32 {
+	if x != nil {
+		return x.SourceVersion
+	}
+	return 0
+}
+
 var File_bi_admin_v1_bi_source_proto protoreflect.FileDescriptor
 
 const file_bi_admin_v1_bi_source_proto_rawDesc = "" +
@@ -1819,10 +2034,11 @@ const file_bi_admin_v1_bi_source_proto_rawDesc = "" +
 	"\acolumns\x18\x05 \x03(\v2!.bi.admin.v1.BiSourceSchemaColumnB\x12\xbaG\x0f\x92\x02\f字段列表R\acolumns\x122\n" +
 	"\acomment\x18\x06 \x01(\tB\x18\xbaG\x15\x92\x02\x12表或视图注释R\acomment\"p\n" +
 	"\x1aListBiSourceTablesResponse\x12R\n" +
-	"\x06tables\x18\x01 \x03(\v2 .bi.admin.v1.BiSourceSchemaTableB\x18\xbaG\x15\x92\x02\x12数据库表结构R\x06tables\"\x99\x01\n" +
+	"\x06tables\x18\x01 \x03(\v2 .bi.admin.v1.BiSourceSchemaTableB\x18\xbaG\x15\x92\x02\x12数据库表结构R\x06tables\"\xf5\x01\n" +
 	"\x18SaveBiSourceModelRequest\x12(\n" +
 	"\x02id\x18\x01 \x01(\x03B\x18\xbaG\x0e\x92\x02\v数据源ID\xbaH\x04\"\x02 \x00R\x02id\x12S\n" +
-	"\x05model\x18\x02 \x01(\v2\x1a.bi.admin.v1.BiSourceModelB!\xbaG\x18\x92\x02\x15数据源语义模型\xbaH\x03\xc8\x01\x01R\x05model\"\x98\x03\n" +
+	"\x05model\x18\x02 \x01(\v2\x1a.bi.admin.v1.BiSourceModelB!\xbaG\x18\x92\x02\x15数据源语义模型\xbaH\x03\xc8\x01\x01R\x05model\x12Z\n" +
+	"\x17expected_source_version\x18\x03 \x01(\x05B\"\xbaG\x18\x92\x02\x15预期数据源版本\xbaH\x04\x1a\x02 \x00R\x15expectedSourceVersion\"\x98\x03\n" +
 	"\rBiSourceModel\x12>\n" +
 	"\n" +
 	"base_table\x18\x01 \x01(\tB\x1f\xbaG\x12\x92\x02\x0f事实表标识\xbaH\ar\x05\x10\x01\x18\x80\x04R\tbaseTable\x12Q\n" +
@@ -1854,14 +2070,16 @@ const file_bi_admin_v1_bi_source_proto_rawDesc = "" +
 	"\x06column\x18\x05 \x01(\tB\x15\xbaG\x12\x92\x02\x0f数据库字段R\x06column\x128\n" +
 	"\n" +
 	"filterable\x18\x06 \x01(\bB\x18\xbaG\x15\x92\x02\x12是否允许过滤R\n" +
-	"filterable\"\xa8\x02\n" +
+	"filterable\"\xbd\x02\n" +
 	"\x0fBiSourceMeasure\x12&\n" +
 	"\x04code\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f语义编码R\x04code\x12&\n" +
 	"\x04name\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f展示名称R\x04name\x12(\n" +
-	"\x04type\x18\x03 \x01(\tB\x14\xbaG\x11\x92\x02\x0eBI字段类型R\x04type\x12+\n" +
-	"\x05table\x18\x04 \x01(\tB\x15\xbaG\x12\x92\x02\x0f所属表标识R\x05table\x12-\n" +
-	"\x06column\x18\x05 \x01(\tB\x15\xbaG\x12\x92\x02\x0f数据库字段R\x06column\x12?\n" +
-	"\faggregations\x18\x06 \x03(\tB\x1b\xbaG\x18\x92\x02\x15允许的聚合函数R\faggregations\"\xa0\t\n" +
+	"\x04type\x18\x03 \x01(\tB\x14\xbaG\x11\x92\x02\x0eBI字段类型R\x04type\x12E\n" +
+	"\n" +
+	"expression\x18\x04 \x01(\tB%\xbaG\x18\x92\x02\x15固定聚合表达式\xbaH\ar\x05\x10\x01\x18\x80\x10R\n" +
+	"expression\x12-\n" +
+	"\x04unit\x18\x05 \x01(\tB\x19\xbaG\x0f\x92\x02\f指标单位\xbaH\x04r\x02\x18 R\x04unit\x12:\n" +
+	"\brevision\x18\x06 \x01(\x03B\x1e\xbaG\x1b\x92\x02\x18服务端指标修订号R\brevision\"\xa0\t\n" +
 	"\fBiSourceForm\x12!\n" +
 	"\x02id\x18\x01 \x01(\x03B\x11\xbaG\x0e\x92\x02\v数据源IDR\x02id\x12\xaa\x01\n" +
 	"\x04code\x18\x02 \x01(\tB\x95\x01\xbaG\x12\x92\x02\x0f数据源编码\xbaH}\xba\x01c\n" +
@@ -1882,8 +2100,7 @@ const file_bi_admin_v1_bi_source_proto_rawDesc = "" +
 	"\vschema_name\x18\r \x01(\tB*\xbaG\x1f\x92\x02\x1c数据库 Schema，可为空\xbaH\x05r\x03\x18\x80\x01R\n" +
 	"schemaName\x12=\n" +
 	"\bmax_rows\x18\x0e \x01(\x05B\"\xbaG\x15\x92\x02\x12最大结果行数\xbaH\a\x1a\x05\x18\xe8\a(\x01R\amaxRows\x12A\n" +
-	"\x06status\x18\x0f \x01(\x05B)\xbaG\x1d\x92\x02\x1a状态：1启用，2禁用\xbaH\x06\x1a\x040\x010\x02R\x06status\"\xc4\n" +
-	"\n" +
+	"\x06status\x18\x0f \x01(\x05B)\xbaG\x1d\x92\x02\x1a状态：1启用，2禁用\xbaH\x06\x1a\x040\x010\x02R\x06status\"\xa3\v\n" +
 	"\bBiSource\x12!\n" +
 	"\x02id\x18\x01 \x01(\x03B\x11\xbaG\x0e\x92\x02\v数据源IDR\x02id\x12+\n" +
 	"\ttenant_id\x18\x02 \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDR\btenantId\x12)\n" +
@@ -1916,8 +2133,25 @@ const file_bi_admin_v1_bi_source_proto_rawDesc = "" +
 	"updated_at\x18\x16 \x01(\tB\x12\xbaG\x0f\x92\x02\f更新时间R\tupdatedAt\x12L\n" +
 	"\x10model_configured\x18\x17 \x01(\bB!\xbaG\x1e\x92\x02\x1b是否已配置语义模型R\x0fmodelConfigured\x12?\n" +
 	"\vtable_count\x18\x18 \x01(\x05B\x1e\xbaG\x1b\x92\x02\x18模型选中的表数量R\n" +
-	"tableCount2\xb9\n" +
+	"tableCount\x12]\n" +
+	"\fsync_summary\x18\x19 \x01(\v2\x1a.bi.admin.v1.BiModelImpactB\x1e\xbaG\x1b\x92\x02\x18公共指标同步摘要R\vsyncSummary\"\xb7\x02\n" +
+	"\x0eBiMetricChange\x123\n" +
+	"\vmetric_code\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f指标编码R\n" +
+	"metricCode\x12E\n" +
 	"\n" +
+	"expression\x18\x02 \x01(\tB%\xbaG\x18\x92\x02\x15固定聚合表达式\xbaH\ar\x05\x10\x01\x18\x80\x10R\n" +
+	"expression\x120\n" +
+	"\x04name\x18\x03 \x01(\tB\x1c\xbaG\x0f\x92\x02\f指标名称\xbaH\ar\x05\x10\x01\x18\x80\x01R\x04name\x12-\n" +
+	"\x04unit\x18\x04 \x01(\tB\x19\xbaG\x0f\x92\x02\f指标单位\xbaH\x04r\x02\x18 R\x04unit\x12H\n" +
+	"\x11expected_revision\x18\x05 \x01(\x03B\x1b\xbaG\x18\x92\x02\x15预期指标修订号R\x10expectedRevision\"\xaf\x01\n" +
+	"\x12BiMetricDifference\x12K\n" +
+	"\x06before\x18\x01 \x01(\v2\x1c.bi.admin.v1.BiSourceMeasureB\x15\xbaG\x12\x92\x02\x0f原指标定义R\x06before\x12L\n" +
+	"\x05after\x18\x02 \x01(\v2\x1c.bi.admin.v1.BiSourceMeasureB\x18\xbaG\x15\x92\x02\x12候选指标定义R\x05after\"\xbd\x02\n" +
+	"\rBiModelImpact\x12M\n" +
+	"\achanges\x18\x01 \x03(\v2\x1f.bi.admin.v1.BiMetricDifferenceB\x12\xbaG\x0f\x92\x02\f指标变更R\achanges\x12B\n" +
+	"\x0eaffected_cards\x18\x02 \x01(\x05B\x1b\xbaG\x18\x92\x02\x15受影响卡片数量R\raffectedCards\x12[\n" +
+	"\x13affected_dashboards\x18\x03 \x01(\x05B*\xbaG'\x92\x02$需要重新发布的仪表盘数量R\x12affectedDashboards\x12<\n" +
+	"\x0esource_version\x18\x04 \x01(\x05B\x15\xbaG\x12\x92\x02\x0f数据源版本R\rsourceVersion2\xc8\v\n" +
 	"\x0fBiSourceService\x12t\n" +
 	"\fPageBiSource\x12 .bi.admin.v1.PageBiSourceRequest\x1a!.bi.admin.v1.PageBiSourceResponse\"\x1f\x82\xd3\xe4\x93\x02\x19\x12\x17/api/v1/admin/bi/source\x12k\n" +
 	"\vGetBiSource\x12\x1f.bi.admin.v1.GetBiSourceRequest\x1a\x15.bi.admin.v1.BiSource\"$\x82\xd3\xe4\x93\x02\x1e\x12\x1c/api/v1/admin/bi/source/{id}\x12t\n" +
@@ -1927,8 +2161,9 @@ const file_bi_admin_v1_bi_source_proto_rawDesc = "" +
 	"\x11SetBiSourceStatus\x12%.bi.admin.v1.SetBiSourceStatusRequest\x1a\x15.bi.admin.v1.BiSource\".\x82\xd3\xe4\x93\x02(:\x01*\x1a#/api/v1/admin/bi/source/{id}/status\x12\xa4\x01\n" +
 	"\x16OptionBiSourceDatabase\x12*.bi.admin.v1.OptionBiSourceDatabaseRequest\x1a+.bi.admin.v1.OptionBiSourceDatabaseResponse\"1\x82\xd3\xe4\x93\x02+\x12)/api/v1/admin/bi/source/options/databases\x12\x81\x01\n" +
 	"\fTestBiSource\x12 .bi.admin.v1.TestBiSourceRequest\x1a!.bi.admin.v1.TestBiSourceResponse\",\x82\xd3\xe4\x93\x02&:\x06source\"\x1c/api/v1/admin/bi/source/test\x12\x92\x01\n" +
-	"\x12ListBiSourceTables\x12&.bi.admin.v1.ListBiSourceTablesRequest\x1a'.bi.admin.v1.ListBiSourceTablesResponse\"+\x82\xd3\xe4\x93\x02%\x12#/api/v1/admin/bi/source/{id}/tables\x12\x84\x01\n" +
-	"\x11SaveBiSourceModel\x12%.bi.admin.v1.SaveBiSourceModelRequest\x1a\x15.bi.admin.v1.BiSource\"1\x82\xd3\xe4\x93\x02+:\x05model\x1a\"/api/v1/admin/bi/source/{id}/modelB\xb7\x01\n" +
+	"\x12ListBiSourceTables\x12&.bi.admin.v1.ListBiSourceTablesRequest\x1a'.bi.admin.v1.ListBiSourceTablesResponse\"+\x82\xd3\xe4\x93\x02%\x12#/api/v1/admin/bi/source/{id}/tables\x12\x80\x01\n" +
+	"\x11SaveBiSourceModel\x12%.bi.admin.v1.SaveBiSourceModelRequest\x1a\x15.bi.admin.v1.BiSource\"-\x82\xd3\xe4\x93\x02':\x01*\x1a\"/api/v1/admin/bi/source/{id}/model\x12\x90\x01\n" +
+	"\x14PreviewBiSourceModel\x12%.bi.admin.v1.SaveBiSourceModelRequest\x1a\x1a.bi.admin.v1.BiModelImpact\"5\x82\xd3\xe4\x93\x02/:\x01*\"*/api/v1/admin/bi/source/{id}/model/previewB\xb7\x01\n" +
 	"\x0fcom.bi.admin.v1B\rBiSourceProtoP\x01ZGgithub.com/liujitcn/kratos-admin/backend/api/gen/go/bi/admin/v1;adminv1\xa2\x02\x03BAX\xaa\x02\vBi.Admin.V1\xca\x02\vBi\\Admin\\V1\xe2\x02\x17Bi\\Admin\\V1\\GPBMetadata\xea\x02\rBi::Admin::V1b\x06proto3"
 
 var (
@@ -1943,7 +2178,7 @@ func file_bi_admin_v1_bi_source_proto_rawDescGZIP() []byte {
 	return file_bi_admin_v1_bi_source_proto_rawDescData
 }
 
-var file_bi_admin_v1_bi_source_proto_msgTypes = make([]protoimpl.MessageInfo, 25)
+var file_bi_admin_v1_bi_source_proto_msgTypes = make([]protoimpl.MessageInfo, 28)
 var file_bi_admin_v1_bi_source_proto_goTypes = []any{
 	(*PageBiSourceRequest)(nil),            // 0: bi.admin.v1.PageBiSourceRequest
 	(*PageBiSourceResponse)(nil),           // 1: bi.admin.v1.PageBiSourceResponse
@@ -1970,7 +2205,10 @@ var file_bi_admin_v1_bi_source_proto_goTypes = []any{
 	(*BiSourceMeasure)(nil),                // 22: bi.admin.v1.BiSourceMeasure
 	(*BiSourceForm)(nil),                   // 23: bi.admin.v1.BiSourceForm
 	(*BiSource)(nil),                       // 24: bi.admin.v1.BiSource
-	(*commonv1.SecretCrypto)(nil),          // 25: common.v1.SecretCrypto
+	(*BiMetricChange)(nil),                 // 25: bi.admin.v1.BiMetricChange
+	(*BiMetricDifference)(nil),             // 26: bi.admin.v1.BiMetricDifference
+	(*BiModelImpact)(nil),                  // 27: bi.admin.v1.BiModelImpact
+	(*commonv1.SecretCrypto)(nil),          // 28: common.v1.SecretCrypto
 }
 var file_bi_admin_v1_bi_source_proto_depIdxs = []int32{
 	24, // 0: bi.admin.v1.PageBiSourceResponse.sources:type_name -> bi.admin.v1.BiSource
@@ -1985,32 +2223,38 @@ var file_bi_admin_v1_bi_source_proto_depIdxs = []int32{
 	20, // 9: bi.admin.v1.BiSourceModel.relations:type_name -> bi.admin.v1.BiSourceRelation
 	21, // 10: bi.admin.v1.BiSourceModel.dimensions:type_name -> bi.admin.v1.BiSourceDimension
 	22, // 11: bi.admin.v1.BiSourceModel.measures:type_name -> bi.admin.v1.BiSourceMeasure
-	25, // 12: bi.admin.v1.BiSourceForm.password:type_name -> common.v1.SecretCrypto
-	0,  // 13: bi.admin.v1.BiSourceService.PageBiSource:input_type -> bi.admin.v1.PageBiSourceRequest
-	2,  // 14: bi.admin.v1.BiSourceService.GetBiSource:input_type -> bi.admin.v1.GetBiSourceRequest
-	3,  // 15: bi.admin.v1.BiSourceService.CreateBiSource:input_type -> bi.admin.v1.CreateBiSourceRequest
-	4,  // 16: bi.admin.v1.BiSourceService.UpdateBiSource:input_type -> bi.admin.v1.UpdateBiSourceRequest
-	5,  // 17: bi.admin.v1.BiSourceService.DeleteBiSource:input_type -> bi.admin.v1.DeleteBiSourceRequest
-	7,  // 18: bi.admin.v1.BiSourceService.SetBiSourceStatus:input_type -> bi.admin.v1.SetBiSourceStatusRequest
-	8,  // 19: bi.admin.v1.BiSourceService.OptionBiSourceDatabase:input_type -> bi.admin.v1.OptionBiSourceDatabaseRequest
-	11, // 20: bi.admin.v1.BiSourceService.TestBiSource:input_type -> bi.admin.v1.TestBiSourceRequest
-	13, // 21: bi.admin.v1.BiSourceService.ListBiSourceTables:input_type -> bi.admin.v1.ListBiSourceTablesRequest
-	17, // 22: bi.admin.v1.BiSourceService.SaveBiSourceModel:input_type -> bi.admin.v1.SaveBiSourceModelRequest
-	1,  // 23: bi.admin.v1.BiSourceService.PageBiSource:output_type -> bi.admin.v1.PageBiSourceResponse
-	24, // 24: bi.admin.v1.BiSourceService.GetBiSource:output_type -> bi.admin.v1.BiSource
-	24, // 25: bi.admin.v1.BiSourceService.CreateBiSource:output_type -> bi.admin.v1.BiSource
-	24, // 26: bi.admin.v1.BiSourceService.UpdateBiSource:output_type -> bi.admin.v1.BiSource
-	6,  // 27: bi.admin.v1.BiSourceService.DeleteBiSource:output_type -> bi.admin.v1.DeleteBiSourceResponse
-	24, // 28: bi.admin.v1.BiSourceService.SetBiSourceStatus:output_type -> bi.admin.v1.BiSource
-	9,  // 29: bi.admin.v1.BiSourceService.OptionBiSourceDatabase:output_type -> bi.admin.v1.OptionBiSourceDatabaseResponse
-	12, // 30: bi.admin.v1.BiSourceService.TestBiSource:output_type -> bi.admin.v1.TestBiSourceResponse
-	16, // 31: bi.admin.v1.BiSourceService.ListBiSourceTables:output_type -> bi.admin.v1.ListBiSourceTablesResponse
-	24, // 32: bi.admin.v1.BiSourceService.SaveBiSourceModel:output_type -> bi.admin.v1.BiSource
-	23, // [23:33] is the sub-list for method output_type
-	13, // [13:23] is the sub-list for method input_type
-	13, // [13:13] is the sub-list for extension type_name
-	13, // [13:13] is the sub-list for extension extendee
-	0,  // [0:13] is the sub-list for field type_name
+	28, // 12: bi.admin.v1.BiSourceForm.password:type_name -> common.v1.SecretCrypto
+	27, // 13: bi.admin.v1.BiSource.sync_summary:type_name -> bi.admin.v1.BiModelImpact
+	22, // 14: bi.admin.v1.BiMetricDifference.before:type_name -> bi.admin.v1.BiSourceMeasure
+	22, // 15: bi.admin.v1.BiMetricDifference.after:type_name -> bi.admin.v1.BiSourceMeasure
+	26, // 16: bi.admin.v1.BiModelImpact.changes:type_name -> bi.admin.v1.BiMetricDifference
+	0,  // 17: bi.admin.v1.BiSourceService.PageBiSource:input_type -> bi.admin.v1.PageBiSourceRequest
+	2,  // 18: bi.admin.v1.BiSourceService.GetBiSource:input_type -> bi.admin.v1.GetBiSourceRequest
+	3,  // 19: bi.admin.v1.BiSourceService.CreateBiSource:input_type -> bi.admin.v1.CreateBiSourceRequest
+	4,  // 20: bi.admin.v1.BiSourceService.UpdateBiSource:input_type -> bi.admin.v1.UpdateBiSourceRequest
+	5,  // 21: bi.admin.v1.BiSourceService.DeleteBiSource:input_type -> bi.admin.v1.DeleteBiSourceRequest
+	7,  // 22: bi.admin.v1.BiSourceService.SetBiSourceStatus:input_type -> bi.admin.v1.SetBiSourceStatusRequest
+	8,  // 23: bi.admin.v1.BiSourceService.OptionBiSourceDatabase:input_type -> bi.admin.v1.OptionBiSourceDatabaseRequest
+	11, // 24: bi.admin.v1.BiSourceService.TestBiSource:input_type -> bi.admin.v1.TestBiSourceRequest
+	13, // 25: bi.admin.v1.BiSourceService.ListBiSourceTables:input_type -> bi.admin.v1.ListBiSourceTablesRequest
+	17, // 26: bi.admin.v1.BiSourceService.SaveBiSourceModel:input_type -> bi.admin.v1.SaveBiSourceModelRequest
+	17, // 27: bi.admin.v1.BiSourceService.PreviewBiSourceModel:input_type -> bi.admin.v1.SaveBiSourceModelRequest
+	1,  // 28: bi.admin.v1.BiSourceService.PageBiSource:output_type -> bi.admin.v1.PageBiSourceResponse
+	24, // 29: bi.admin.v1.BiSourceService.GetBiSource:output_type -> bi.admin.v1.BiSource
+	24, // 30: bi.admin.v1.BiSourceService.CreateBiSource:output_type -> bi.admin.v1.BiSource
+	24, // 31: bi.admin.v1.BiSourceService.UpdateBiSource:output_type -> bi.admin.v1.BiSource
+	6,  // 32: bi.admin.v1.BiSourceService.DeleteBiSource:output_type -> bi.admin.v1.DeleteBiSourceResponse
+	24, // 33: bi.admin.v1.BiSourceService.SetBiSourceStatus:output_type -> bi.admin.v1.BiSource
+	9,  // 34: bi.admin.v1.BiSourceService.OptionBiSourceDatabase:output_type -> bi.admin.v1.OptionBiSourceDatabaseResponse
+	12, // 35: bi.admin.v1.BiSourceService.TestBiSource:output_type -> bi.admin.v1.TestBiSourceResponse
+	16, // 36: bi.admin.v1.BiSourceService.ListBiSourceTables:output_type -> bi.admin.v1.ListBiSourceTablesResponse
+	24, // 37: bi.admin.v1.BiSourceService.SaveBiSourceModel:output_type -> bi.admin.v1.BiSource
+	27, // 38: bi.admin.v1.BiSourceService.PreviewBiSourceModel:output_type -> bi.admin.v1.BiModelImpact
+	28, // [28:39] is the sub-list for method output_type
+	17, // [17:28] is the sub-list for method input_type
+	17, // [17:17] is the sub-list for extension type_name
+	17, // [17:17] is the sub-list for extension extendee
+	0,  // [0:17] is the sub-list for field type_name
 }
 
 func init() { file_bi_admin_v1_bi_source_proto_init() }
@@ -2025,7 +2269,7 @@ func file_bi_admin_v1_bi_source_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_bi_admin_v1_bi_source_proto_rawDesc), len(file_bi_admin_v1_bi_source_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   25,
+			NumMessages:   28,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

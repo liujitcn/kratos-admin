@@ -24,6 +24,7 @@ const OperationBiSourceServiceGetBiSource = "/bi.admin.v1.BiSourceService/GetBiS
 const OperationBiSourceServiceListBiSourceTables = "/bi.admin.v1.BiSourceService/ListBiSourceTables"
 const OperationBiSourceServiceOptionBiSourceDatabase = "/bi.admin.v1.BiSourceService/OptionBiSourceDatabase"
 const OperationBiSourceServicePageBiSource = "/bi.admin.v1.BiSourceService/PageBiSource"
+const OperationBiSourceServicePreviewBiSourceModel = "/bi.admin.v1.BiSourceService/PreviewBiSourceModel"
 const OperationBiSourceServiceSaveBiSourceModel = "/bi.admin.v1.BiSourceService/SaveBiSourceModel"
 const OperationBiSourceServiceSetBiSourceStatus = "/bi.admin.v1.BiSourceService/SetBiSourceStatus"
 const OperationBiSourceServiceTestBiSource = "/bi.admin.v1.BiSourceService/TestBiSource"
@@ -42,6 +43,8 @@ type BiSourceServiceHTTPServer interface {
 	OptionBiSourceDatabase(context.Context, *OptionBiSourceDatabaseRequest) (*OptionBiSourceDatabaseResponse, error)
 	// PageBiSource 分页查询当前租户的数据源配置。
 	PageBiSource(context.Context, *PageBiSourceRequest) (*PageBiSourceResponse, error)
+	// PreviewBiSourceModel 预览公共模型变更和关联影响，不写入模型。
+	PreviewBiSourceModel(context.Context, *SaveBiSourceModelRequest) (*BiModelImpact, error)
 	// SaveBiSourceModel 保存经过校验的多表语义模型。
 	SaveBiSourceModel(context.Context, *SaveBiSourceModelRequest) (*BiSource, error)
 	// SetBiSourceStatus 修改数据源启用状态。
@@ -64,6 +67,7 @@ func RegisterBiSourceServiceHTTPServer(s *http.Server, srv BiSourceServiceHTTPSe
 	r.Handle("POST", "/api/v1/admin/bi/source/test", _BiSourceService_TestBiSource0_HTTP_Handler(srv))
 	r.Handle("GET", "/api/v1/admin/bi/source/{id}/tables", _BiSourceService_ListBiSourceTables0_HTTP_Handler(srv))
 	r.Handle("PUT", "/api/v1/admin/bi/source/{id}/model", _BiSourceService_SaveBiSourceModel0_HTTP_Handler(srv))
+	r.Handle("POST", "/api/v1/admin/bi/source/{id}/model/preview", _BiSourceService_PreviewBiSourceModel0_HTTP_Handler(srv))
 }
 
 func _BiSourceService_PageBiSource0_HTTP_Handler(srv BiSourceServiceHTTPServer) func(ctx http.Context) error {
@@ -264,10 +268,7 @@ func _BiSourceService_ListBiSourceTables0_HTTP_Handler(srv BiSourceServiceHTTPSe
 func _BiSourceService_SaveBiSourceModel0_HTTP_Handler(srv BiSourceServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in SaveBiSourceModelRequest
-		if err := ctx.Bind(&in.Model); err != nil {
-			return err
-		}
-		if err := ctx.BindQuery(&in); err != nil {
+		if err := ctx.Bind(&in); err != nil {
 			return err
 		}
 		if err := ctx.BindVars(&in); err != nil {
@@ -286,6 +287,28 @@ func _BiSourceService_SaveBiSourceModel0_HTTP_Handler(srv BiSourceServiceHTTPSer
 	}
 }
 
+func _BiSourceService_PreviewBiSourceModel0_HTTP_Handler(srv BiSourceServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in SaveBiSourceModelRequest
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindVars(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationBiSourceServicePreviewBiSourceModel)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.PreviewBiSourceModel(ctx, req.(*SaveBiSourceModelRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*BiModelImpact)
+		return ctx.Result(200, reply)
+	}
+}
+
 type BiSourceServiceHTTPClient interface {
 	// CreateBiSource 创建数据源配置。
 	CreateBiSource(ctx context.Context, req *CreateBiSourceRequest, opts ...http.CallOption) (rsp *BiSource, err error)
@@ -299,6 +322,8 @@ type BiSourceServiceHTTPClient interface {
 	OptionBiSourceDatabase(ctx context.Context, req *OptionBiSourceDatabaseRequest, opts ...http.CallOption) (rsp *OptionBiSourceDatabaseResponse, err error)
 	// PageBiSource 分页查询当前租户的数据源配置。
 	PageBiSource(ctx context.Context, req *PageBiSourceRequest, opts ...http.CallOption) (rsp *PageBiSourceResponse, err error)
+	// PreviewBiSourceModel 预览公共模型变更和关联影响，不写入模型。
+	PreviewBiSourceModel(ctx context.Context, req *SaveBiSourceModelRequest, opts ...http.CallOption) (rsp *BiModelImpact, err error)
 	// SaveBiSourceModel 保存经过校验的多表语义模型。
 	SaveBiSourceModel(ctx context.Context, req *SaveBiSourceModelRequest, opts ...http.CallOption) (rsp *BiSource, err error)
 	// SetBiSourceStatus 修改数据源启用状态。
@@ -420,18 +445,36 @@ func (c *BiSourceServiceHTTPClientImpl) PageBiSource(ctx context.Context, in *Pa
 	return &out, nil
 }
 
+// PreviewBiSourceModel 预览公共模型变更和关联影响，不写入模型。
+func (c *BiSourceServiceHTTPClientImpl) PreviewBiSourceModel(ctx context.Context, in *SaveBiSourceModelRequest, opts ...http.CallOption) (*BiModelImpact, error) {
+	var out BiModelImpact
+	pattern := "/api/v1/admin/bi/source/{id}/model/preview"
+	path := http.BuildPath(pattern, in)
+	opts = append([]http.CallOption{
+		http.Accept("application/protojson"),
+		http.ContentType("application/protojson"),
+		http.Operation(OperationBiSourceServicePreviewBiSourceModel),
+		http.PathTemplate(pattern),
+	}, opts...)
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
 // SaveBiSourceModel 保存经过校验的多表语义模型。
 func (c *BiSourceServiceHTTPClientImpl) SaveBiSourceModel(ctx context.Context, in *SaveBiSourceModelRequest, opts ...http.CallOption) (*BiSource, error) {
 	var out BiSource
 	pattern := "/api/v1/admin/bi/source/{id}/model"
-	path := http.BuildPath(pattern, in, http.WithQueryParams(), http.WithOmitFields("model"))
+	path := http.BuildPath(pattern, in)
 	opts = append([]http.CallOption{
 		http.Accept("application/protojson"),
 		http.ContentType("application/protojson"),
 		http.Operation(OperationBiSourceServiceSaveBiSourceModel),
 		http.PathTemplate(pattern),
 	}, opts...)
-	err := c.cc.Invoke(ctx, "PUT", path, in.Model, &out, opts...)
+	err := c.cc.Invoke(ctx, "PUT", path, in, &out, opts...)
 	if err != nil {
 		return nil, err
 	}

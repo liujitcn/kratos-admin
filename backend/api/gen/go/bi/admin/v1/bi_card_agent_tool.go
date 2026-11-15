@@ -53,6 +53,18 @@ func NewBiCardServiceAgentTools(biCardServiceServer BiCardServiceServer) ([]tool
 		return nil, err
 	}
 	ts = append(ts, saveBiWorkbenchTool)
+	var getBiCardTool tool.InvokableTool
+	getBiCardTool, err = NewBiCardServiceGetBiCardAgentTool(biCardServiceServer)
+	if err != nil {
+		return nil, err
+	}
+	ts = append(ts, getBiCardTool)
+	var previewBiCardSqlTool tool.InvokableTool
+	previewBiCardSqlTool, err = NewBiCardServicePreviewBiCardSqlAgentTool(biCardServiceServer)
+	if err != nil {
+		return nil, err
+	}
+	ts = append(ts, previewBiCardSqlTool)
 	return ts, nil
 }
 
@@ -136,6 +148,34 @@ func NewBiCardServiceSaveBiWorkbenchAgentTool(biCardServiceServer BiCardServiceS
 				req = &SaveBiWorkbenchRequest{}
 			}
 			return biCardServiceServer.SaveBiWorkbench(ctx, req)
+		},
+	)
+}
+
+// NewBiCardServiceGetBiCardAgentTool 创建获取卡片及有权编辑的公共公式的 Agent Tool。
+func NewBiCardServiceGetBiCardAgentTool(biCardServiceServer BiCardServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*GetBiCardRequest, *BiCard](
+		"bi_admin_v1_bi_card_service_get_bi_card",
+		"获取卡片及有权编辑的公共公式。",
+		func(ctx context.Context, req *GetBiCardRequest) (*BiCard, error) {
+			if req == nil {
+				req = &GetBiCardRequest{}
+			}
+			return biCardServiceServer.GetBiCard(ctx, req)
+		},
+	)
+}
+
+// NewBiCardServicePreviewBiCardSqlAgentTool 创建预览当前卡片的公共指标公式候选的 Agent Tool。
+func NewBiCardServicePreviewBiCardSqlAgentTool(biCardServiceServer BiCardServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*PreviewBiCardSqlRequest, *PreviewBiCardSqlResponse](
+		"bi_admin_v1_bi_card_service_preview_bi_card_sql",
+		"预览当前卡片的公共指标公式候选。",
+		func(ctx context.Context, req *PreviewBiCardSqlRequest) (*PreviewBiCardSqlResponse, error) {
+			if req == nil {
+				req = &PreviewBiCardSqlRequest{}
+			}
+			return biCardServiceServer.PreviewBiCardSql(ctx, req)
 		},
 	)
 }

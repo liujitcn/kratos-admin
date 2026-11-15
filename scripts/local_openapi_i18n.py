@@ -3312,6 +3312,76 @@ JA_EXACT.update({
 })
 
 
+# BI 卡片与公共指标的完整文案，避免单词替换丢失业务语义。
+EN_EXACT.update({
+    "保存数据源语义模型的请求。": "Save a source semantic model request.",
+    "公共指标变更前后定义。": "Public metric definitions before and after a change.",
+    "公共指标同步影响摘要。": "Public metric synchronization impact summary.",
+    "公共指标或模型已变更，需要重新发布": "Public metrics or the model have changed; republishing is required.",
+    "公共指标编辑候选。": "Public metric edit candidate.",
+    "卡片ID，创建时为0": "Card ID; zero when creating.",
+    "卡片公式预览结果。": "Card formula preview result.",
+    "卡片公式预览请求。": "Card formula preview request.",
+    "卡片并发版本": "Card concurrency version",
+    "原始智能问数记录ID": "Original natural-language query record ID",
+    "受影响卡片数量": "Number of affected cards",
+    "固定聚合表达式": "Fixed aggregate expression",
+    "成功公式预览记录ID": "Successful formula preview record ID",
+    "执行定义种类": "Execution definition kind",
+    "指标修订号": "Metric revision",
+    "授权编辑的公共指标定义": "Public metric definitions authorized for editing",
+    "授权编辑的完整参数化SQL": "Full parameterized SQL authorized for editing",
+    "数据源并发版本": "Source concurrency version",
+    "是否可编辑公共指标公式": "Whether public metric formulas can be edited",
+    "最后人工验证记录ID": "Last manual validation record ID",
+    "服务端指标修订号": "Server-managed metric revision",
+    "获取卡片及有权编辑的公共公式。": "Get a card and the public formulas authorized for editing.",
+    "选中公共指标变更候选": "Selected public metric change candidates",
+    "需要重新发布的仪表盘数量": "Number of dashboards requiring republishing",
+    "预期卡片版本": "Expected card version",
+    "预期卡片版本，创建时为0": "Expected card version; zero when creating.",
+    "预期指标修订号": "Expected metric revision",
+    "预期数据源版本": "Expected source version",
+    "预览公共模型变更和关联影响，不写入模型。": "Preview public model changes and their impact without saving the model.",
+    "预览当前卡片的公共指标公式候选。": "Preview public metric formula candidates for the current card.",
+    "预览绑定的数据源版本": "Source version bound to the preview",
+    "查询已启用的AI供应商选项。\n 字面路径必须先于 /{id} 声明：gorilla mux 按注册顺序匹配，否则会被 {id} 路由抢占。": "List enabled AI provider options. Literal routes must be registered before /{id}, because gorilla mux matches routes in registration order.",
+    "查询已启用的embedding模型选项（知识库向量化模型下拉）。\n 字面路径必须先于 /{id} 声明：gorilla mux 按注册顺序匹配，否则会被 {id} 路由抢占。": "List enabled embedding model options for knowledge-base vectorization. Literal routes must be registered before /{id}, because gorilla mux matches routes in registration order."
+})
+JA_EXACT.update({
+    "保存数据源语义模型的请求。": "データソースの意味モデルの保存リクエスト。",
+    "公共指标变更前后定义。": "共通指標の変更前後の定義。",
+    "公共指标同步影响摘要。": "共通指標の同期による影響の概要。",
+    "公共指标或模型已变更，需要重新发布": "共通指標またはモデルが変更され、再公開が必要です。",
+    "公共指标编辑候选。": "共通指標の編集候補。",
+    "卡片ID，创建时为0": "カード ID。新規作成時は0。",
+    "卡片公式预览结果。": "カードの式のプレビュー結果。",
+    "卡片公式预览请求。": "カードの式のプレビューリクエスト。",
+    "卡片并发版本": "カードの同時更新制御バージョン",
+    "原始智能问数记录ID": "元の自然言語クエリの記録 ID",
+    "受影响卡片数量": "影響を受けるカード数",
+    "固定聚合表达式": "固定集約式",
+    "成功公式预览记录ID": "成功した式プレビューの記録 ID",
+    "执行定义种类": "実行定義の種類",
+    "指标修订号": "指標のリビジョン",
+    "授权编辑的公共指标定义": "編集が許可された共通指標の定義",
+    "授权编辑的完整参数化SQL": "編集権限で参照可能なパラメーター化 SQL 全文",
+    "数据源并发版本": "データソースの同時更新制御バージョン",
+    "是否可编辑公共指标公式": "共通指標の式を編集できるか",
+    "最后人工验证记录ID": "最後の手動検証の記録 ID",
+    "服务端指标修订号": "サーバーが管理する指標リビジョン",
+    "获取卡片及有权编辑的公共公式。": "カードと編集が許可された共通指標の式を取得します。",
+    "选中公共指标变更候选": "選択した共通指標の変更候補",
+    "需要重新发布的仪表盘数量": "再公開が必要なダッシュボード数",
+    "预期卡片版本": "想定するカードのバージョン",
+    "预期卡片版本，创建时为0": "想定するカードのバージョン。新規作成時は0。",
+    "预期指标修订号": "想定する指標のリビジョン",
+    "预期数据源版本": "想定するデータソースのバージョン",
+    "预览公共模型变更和关联影响，不写入模型。": "モデルを保存せずに共通モデルの変更と関連する影響をプレビューします。",
+    "预览当前卡片的公共指标公式候选。": "現在のカードの共通指標の式の候補をプレビューします。",
+    "预览绑定的数据源版本": "プレビューに関連付けられたデータソースのバージョン"
+})
+
 def contains_simplified(value: str) -> bool:
     """判断译文是否仍包含明显的简体中文残留。"""
     return any(marker in value for marker in SIMPLIFIED_MARKERS)

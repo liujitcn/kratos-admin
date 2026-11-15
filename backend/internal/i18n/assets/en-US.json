@@ -137,6 +137,30 @@
   "base.ai.approval.session_id.positive": {
     "other": "The session number is invalid"
   },
+  "base.ai.file.delete.id.positive": {
+    "other": "File ID must be greater than 0"
+  },
+  "base.ai.file.page.keyword.max_len": {
+    "other": "File name keyword cannot exceed 100 characters"
+  },
+  "base.ai.file.page.page_num.positive": {
+    "other": "Page number must be greater than 0"
+  },
+  "base.ai.file.page.page_size.range": {
+    "other": "Page size must be between 1 and 100"
+  },
+  "base.ai.file.rename.file_name.valid": {
+    "other": "File name cannot be empty or exceed 255 characters"
+  },
+  "base.ai.file.rename.id.positive": {
+    "other": "File ID must be greater than 0"
+  },
+  "base.ai.file.restore.id.positive": {
+    "other": "File ID must be greater than 0"
+  },
+  "base.ai.file.trash.id.positive": {
+    "other": "File ID must be greater than 0"
+  },
   "base.ai.message.attachment_prompt": {
     "other": "Please continue analyzing the attached content"
   },
@@ -722,6 +746,9 @@
   "legacy.error.0196b093ca02959f": {
     "other": "Failed to update the role: built-in role codes cannot be modified"
   },
+  "legacy.error.01b71530aff69748": {
+    "other": "The public metric version has changed. Refresh and preview again."
+  },
   "legacy.error.01c8029537c813fd": {
     "other": "Failed to close the table structure query"
   },
@@ -748,6 +775,9 @@
   },
   "legacy.error.034b0adab4e608e8": {
     "other": "Failed to query language"
+  },
+  "legacy.error.03be4b2cd229dfde": {
+    "other": "The source version has changed. Refresh and preview again."
   },
   "legacy.error.03d3bc599618bca5": {
     "other": "Failed to create backup config"
@@ -830,6 +860,9 @@
   "legacy.error.082f8954f62749dc": {
     "other": "Burst must be between 1 and %d"
   },
+  "legacy.error.084b8ec03cdbb90f": {
+    "other": "The card's public metrics have changed. Refresh the card."
+  },
   "legacy.error.0860e716d6b0f753": {
     "other": "Failed to subscribe to SSE event stream"
   },
@@ -881,6 +914,9 @@
   "legacy.error.0a7fb1b3f8eaf265": {
     "other": "Failed to obtain the BI database connection"
   },
+  "legacy.error.0a90b08f1f22d48d": {
+    "other": "A successful card formula preview is required."
+  },
   "legacy.error.0ad5ac1b6de56f07": {
     "other": "The login policy does not exist"
   },
@@ -898,6 +934,9 @@
   },
   "legacy.error.0ba482d3cbbbf2d5": {
     "other": "You do not have permission to access the plugin"
+  },
+  "legacy.error.0bcc4cd098945869": {
+    "other": "The document is not bound to an Xberg MCP connection and cannot be retried"
   },
   "legacy.error.0c182ab409f0a51d": {
     "other": "Message action parameter nesting is too deep"
@@ -1070,6 +1109,9 @@
   "legacy.error.13ef79bb92bde2f9": {
     "other": "Failed to query business operation log detail"
   },
+  "legacy.error.1412f899645540f6": {
+    "other": "Failed to read result columns."
+  },
   "legacy.error.141f07d40c870162": {
     "other": "Web search request failed"
   },
@@ -1127,6 +1169,9 @@
   "legacy.error.1652eac10085aecc": {
     "other": "Failed to query user list"
   },
+  "legacy.error.1653a9026fc27bd4": {
+    "other": "BI could not generate a complete query plan. Check that the data source defines the required measures and dimensions."
+  },
   "legacy.error.1681f52b573f0af5": {
     "other": "Failed to mark all as read"
   },
@@ -1178,6 +1223,9 @@
   "legacy.error.18f0b5e30636fefe": {
     "other": "Smart query execution failed"
   },
+  "legacy.error.1918b6a58243b070": {
+    "other": "The Xberg extract tool has duplicate snapshots"
+  },
   "legacy.error.191e089185824060": {
     "other": "The execution client is invalid"
   },
@@ -1223,6 +1271,9 @@
   "legacy.error.1b5afde0daadb968": {
     "other": "Failed to record one-time password usage window"
   },
+  "legacy.error.1b69a3d458814ade": {
+    "other": "Failed to get card details."
+  },
   "legacy.error.1b7373bb974cf330": {
     "other": "Failed to update API config"
   },
@@ -1259,6 +1310,9 @@
   "legacy.error.1ccaab6141afce81": {
     "other": "Default data source is not initialized"
   },
+  "legacy.error.1d0c4f5b997fc5da": {
+    "other": "The source code cannot be changed after creation."
+  },
   "legacy.error.1d476a8114cf0eca": {
     "other": "Failed to read client bound tenant"
   },
@@ -1267,6 +1321,9 @@
   },
   "legacy.error.1d65089c82e93a8f": {
     "other": "The BI data source does not exist"
+  },
+  "legacy.error.1d8918d6b774c812": {
+    "other": "Failed to permanently delete the AI file"
   },
   "legacy.error.1d9e58fc4d11cc80": {
     "other": "The plugin does not exist"
@@ -1315,6 +1372,9 @@
   },
   "legacy.error.20e379d993bbb25c": {
     "other": "Config value cannot be empty"
+  },
+  "legacy.error.20e4ed395d9839a4": {
+    "other": "The execution parameter order is invalid."
   },
   "legacy.error.20eb653252a9bb73": {
     "other": "Failed to set output redaction policy status"
@@ -1430,6 +1490,9 @@
   "legacy.error.26a98594498a94ca": {
     "other": "Tenant code cannot be empty"
   },
+  "legacy.error.26e1250866323287": {
+    "other": "Public metrics or the model have changed. Republish the dashboard."
+  },
   "legacy.error.2703b88803392bf3": {
     "other": "Failed to query AI knowledge base options"
   },
@@ -1475,8 +1538,14 @@
   "legacy.error.2873504bb9691115": {
     "other": "Authorization is required again"
   },
+  "legacy.error.28bf06cb7d46dc1e": {
+    "other": "Metric codes and names must be unique within a source."
+  },
   "legacy.error.28e090f1a6d5560b": {
     "other": "Failed to query message category"
+  },
+  "legacy.error.28febc070b420067": {
+    "other": "The key in a multiple-text configuration cannot be empty"
   },
   "legacy.error.291d427436dbaf83": {
     "other": "Failed to get password policy"
@@ -1489,6 +1558,9 @@
   },
   "legacy.error.2937cc9333bbb190": {
     "other": "Failed to start read-only transaction"
+  },
+  "legacy.error.29446486f52cb1c3": {
+    "other": "The public model is incompatible with a referencing card's chart fields."
   },
   "legacy.error.2964607aae8c25ca": {
     "other": "Failed to bind third-party account"
@@ -1529,8 +1601,14 @@
   "legacy.error.2b625f1ddf0290c4": {
     "other": "The authorization configuration changed before execution. Start again"
   },
+  "legacy.error.2b82f4a808a13f6d": {
+    "other": "Failed to read result types."
+  },
   "legacy.error.2bba60c6b758c7d3": {
     "other": "Failed to create message category"
+  },
+  "legacy.error.2bc077cdbe0047e1": {
+    "other": "The BI filter operator does not match the number of values."
   },
   "legacy.error.2bcdb4bb0f0550e6": {
     "other": "Failed to set role menu permissions because they exceed the permission limit"
@@ -1579,6 +1657,9 @@
   },
   "legacy.error.2de441703db096ce": {
     "other": "The system configuration content is invalid"
+  },
+  "legacy.error.2dfd535f6c7fc25b": {
+    "other": "The card execution definition failed validation."
   },
   "legacy.error.2e0ad0ebc1dfeb09": {
     "other": "File path cannot be empty"
@@ -1654,6 +1735,9 @@
   },
   "legacy.error.31baae75af000f44": {
     "other": "Failed to open realtime console"
+  },
+  "legacy.error.31bf8cec98af0e9a": {
+    "other": "A referencing card has an invalid query. The public model cannot be saved."
   },
   "legacy.error.31d2b7d8c6338edd": {
     "other": "Provider extension config must be a JSON object: %w"
@@ -1754,6 +1838,9 @@
   "legacy.error.3772108e1c6666ab": {
     "other": "The session has expired. Please sign in again"
   },
+  "legacy.error.37b276db57c29da2": {
+    "other": "This preview has already been saved. Reload the card."
+  },
   "legacy.error.380bffbcf0a41ea9": {
     "other": "Failed to retrieve message providers"
   },
@@ -1829,6 +1916,9 @@
   "legacy.error.3bec0ef0dea8740e": {
     "other": "Failed to create login policy"
   },
+  "legacy.error.3c06bffa55d68820": {
+    "other": "Only public metrics selected by this card can be changed, without duplicates."
+  },
   "legacy.error.3c17a593ba4eedf5": {
     "other": "Archive config does not exist"
   },
@@ -1903,6 +1993,12 @@
   },
   "legacy.error.3efadf56e15bf357": {
     "other": "Failed to delete menu"
+  },
+  "legacy.error.3f5b5c48391732ca": {
+    "other": "The query has changed. Ask again before creating a card."
+  },
+  "legacy.error.3f6cc54bd9060b1f": {
+    "other": "The execution identity parameter is invalid."
   },
   "legacy.error.3f810684fb05da18": {
     "other": "The schedule name, instructions and pinned model are required"
@@ -1982,6 +2078,9 @@
   "legacy.error.435d2092fabb1d0c": {
     "other": "Failed to build message provider %d(%s): %w"
   },
+  "legacy.error.4379b6b2611e92d2": {
+    "other": "The adapter metric does not exist."
+  },
   "legacy.error.43ac2c9a541832d6": {
     "other": "Failed to query storage-redactable tables"
   },
@@ -1993,6 +2092,9 @@
   },
   "legacy.error.43c2f70a29b0150b": {
     "other": "Tokens_per_second must be between %g and %g"
+  },
+  "legacy.error.43dcaf96b3684a99": {
+    "other": "The query result type does not match the public model."
   },
   "legacy.error.43ff9b33e2653511": {
     "other": "Failed to query BI dashboard data"
@@ -2024,6 +2126,9 @@
   "legacy.error.449da1cde21dcfbd": {
     "other": "Failed to update dictionary item"
   },
+  "legacy.error.44ac3e0a66a49397": {
+    "other": "The execution filter parameter is invalid."
+  },
   "legacy.error.44b45b049ae6f2a2": {
     "other": "Failed to query OAuth client credentials"
   },
@@ -2047,6 +2152,12 @@
   },
   "legacy.error.45a39797c58eacad": {
     "other": "Role operation failed: the default role status cannot be modified"
+  },
+  "legacy.error.45c4719a2654ded5": {
+    "other": "Failed to check for an existing query."
+  },
+  "legacy.error.45dfba890e01f2b6": {
+    "other": "The AI file does not exist or you do not have access"
   },
   "legacy.error.45f4c29f6502180e": {
     "other": "Only tables containing a tenant ID can be selected"
@@ -2092,6 +2203,9 @@
   },
   "legacy.error.47bf82767ab9f996": {
     "other": "Web search failed"
+  },
+  "legacy.error.47cdc5f24bd1a158": {
+    "other": "The configuration value has an invalid format"
   },
   "legacy.error.47fcdd027d998032": {
     "other": "Failed to convert the provider custom configuration"
@@ -2219,6 +2333,9 @@
   "legacy.error.4dfa744b4c9598b5": {
     "other": "Failed to revoke tenant user sign-in tokens"
   },
+  "legacy.error.4e0054bfb83c5711": {
+    "other": "The card version has changed. Refresh and try again."
+  },
   "legacy.error.4e1ccac86ed4d69a": {
     "other": "Failed to page permission logs"
   },
@@ -2269,6 +2386,9 @@
   },
   "legacy.error.508e0bd781aa07f1": {
     "other": "No access to the dashboard draft"
+  },
+  "legacy.error.5093032b0010f3c1": {
+    "other": "The Xberg document extraction result is invalid"
   },
   "legacy.error.5122a126fad7b798": {
     "other": "The platform has not configured an OAuth client for this plugin"
@@ -2372,6 +2492,9 @@
   "legacy.error.556b8b82f553a15e": {
     "other": "The third-party sign-in state has expired"
   },
+  "legacy.error.55cf4f9958084301": {
+    "other": "The current Xberg connection has not reviewed the extract tool"
+  },
   "legacy.error.55e4ff7f51a5c57e": {
     "other": "This version is already published"
   },
@@ -2410,6 +2533,9 @@
   },
   "legacy.error.57a2444f2e6a208a": {
     "other": "The automation configuration has changed"
+  },
+  "legacy.error.57abac08c92c7b8b": {
+    "other": "The public metric name or unit is invalid."
   },
   "legacy.error.57ea342b782c0e6b": {
     "other": "The conversation has an unfinished run. Plugin selection cannot be changed yet"
@@ -2453,6 +2579,9 @@
   "legacy.error.59cd5fcd2d88a55d": {
     "other": "Grant subject type is invalid"
   },
+  "legacy.error.59d1f9ec5475a9a9": {
+    "other": "The card's manual preview source is invalid."
+  },
   "legacy.error.59d7e6022ca5603c": {
     "other": "Failed to read the BI source password"
   },
@@ -2464,6 +2593,9 @@
   },
   "legacy.error.5a31e2a9d1da4296": {
     "other": "Selective restore is not supported for OSS archives"
+  },
+  "legacy.error.5a3df6dc5b931c17": {
+    "other": "The document file name and content cannot be empty"
   },
   "legacy.error.5a46008137ae3c3f": {
     "other": "Failed to delete administrative area"
@@ -2557,6 +2689,9 @@
   },
   "legacy.error.5dbeb80f31fb77e3": {
     "other": "Failed to generate MFA key"
+  },
+  "legacy.error.5e35c4b3830081f3": {
+    "other": "Failed to parse the reserved username configuration"
   },
   "legacy.error.5e49e05b84d732ea": {
     "other": "Invalid AI model category"
@@ -2735,6 +2870,9 @@
   "legacy.error.6a0af2f6030bd38a": {
     "other": "Failed to delete AI knowledge base"
   },
+  "legacy.error.6a0f321480047980": {
+    "other": "Public metrics have changed. Republish or refresh."
+  },
   "legacy.error.6a2d2bbcff20daf0": {
     "other": "The rule is referenced by storage redaction policies and cannot be deleted"
   },
@@ -2800,6 +2938,9 @@
   },
   "legacy.error.6c754072edfff142": {
     "other": "Branch message does not exist"
+  },
+  "legacy.error.6c77bdfb0f912237": {
+    "other": "Failed to read the source model."
   },
   "legacy.error.6c784f84a1e53d3e": {
     "other": "MCP user authentication failed"
@@ -2879,41 +3020,14 @@
   "legacy.error.70cd0f3093a0e441": {
     "other": "Failed to validate session state"
   },
-  "legacy.error.28febc070b420067": {
-    "other": "The key in a multiple-text configuration cannot be empty"
-  },
-  "legacy.error.47cdc5f24bd1a158": {
-    "other": "The configuration value has an invalid format"
-  },
-  "legacy.error.c5b8236066d773cb": {
-    "other": "Failed to generate identity security configuration"
-  },
-  "legacy.error.ebc50e1f7a35066f": {
-    "other": "Failed to clear the legacy account rename configuration"
-  },
-  "legacy.error.79e1ef64ed687e81": {
-    "other": "Failed to read the reserved username configuration"
-  },
-  "legacy.error.5e35c4b3830081f3": {
-    "other": "Failed to parse the reserved username configuration"
-  },
-  "legacy.error.d11630b62e6fedb8": {
-    "other": "The reserved username configuration is missing or disabled"
-  },
-  "legacy.error.91b8df65f0a75e4a": {
-    "other": "Script dry runs must reference a saved script"
-  },
-  "legacy.error.71167d40ba8f999c": {
-    "other": "Script dry runs cannot submit inline source"
-  },
-  "system.config.security.key_value.key.required": {
-    "other": "The security configuration key cannot be empty"
-  },
   "legacy.error.70e0900c1017d449": {
     "other": "AI assistant has no enabled model"
   },
   "legacy.error.710dd04852eca77e": {
     "other": "Message template ID cannot be empty"
+  },
+  "legacy.error.71167d40ba8f999c": {
+    "other": "Script dry runs cannot submit inline source"
   },
   "legacy.error.7116ac01a15300ff": {
     "other": "User role does not match the tenant"
@@ -2926,6 +3040,9 @@
   },
   "legacy.error.71b964ddddb7e887": {
     "other": "Failed to read login source policy"
+  },
+  "legacy.error.71ba6d3269b7c2c3": {
+    "other": "The execution parameter source is invalid."
   },
   "legacy.error.71bb10fe5b515e43": {
     "other": "The number of password character classes must be greater than zero"
@@ -3098,6 +3215,9 @@
   "legacy.error.7849340589beebfc": {
     "other": "The workbench contains an inaccessible or unpublished dashboard"
   },
+  "legacy.error.7861392d80b7ec93": {
+    "other": "The preview has not succeeded."
+  },
   "legacy.error.7871e907338a7317": {
     "other": "Project grant does not exist"
   },
@@ -3109,6 +3229,9 @@
   },
   "legacy.error.788dcfa4a8975496": {
     "other": "Client does not belong to the current tenant"
+  },
+  "legacy.error.78a0509b45b4a492": {
+    "other": "Failed to read the public model."
   },
   "legacy.error.7902d3e31eea1542": {
     "other": "Failed to restore notification"
@@ -3140,6 +3263,9 @@
   "legacy.error.79c663c3b9bbbc6e": {
     "other": "Failed to read card query settings"
   },
+  "legacy.error.79e1ef64ed687e81": {
+    "other": "Failed to read the reserved username configuration"
+  },
   "legacy.error.7a155b68e77f7b3e": {
     "other": "Failed to delete message"
   },
@@ -3169,6 +3295,9 @@
   },
   "legacy.error.7bdaeb66d03d3063": {
     "other": "This step has expired. Continue from the latest message"
+  },
+  "legacy.error.7c2ff7623108c867": {
+    "other": "Public metrics for registered adapters are maintained in the host code."
   },
   "legacy.error.7c35f73ae4b6a74e": {
     "other": "Display name cannot exceed 100 characters"
@@ -3200,6 +3329,9 @@
   "legacy.error.7d9df526e40f29cf": {
     "other": "Failed to update the user: the user number cannot be modified"
   },
+  "legacy.error.7dc26525d7beb27c": {
+    "other": "The formula candidate or version has changed. Preview again."
+  },
   "legacy.error.7ddf413a97a025d8": {
     "other": "No captcha type is enabled"
   },
@@ -3220,6 +3352,9 @@
   },
   "legacy.error.7f2e31e4312fc8b8": {
     "other": "Failed to create scheduled task"
+  },
+  "legacy.error.800715ced110fb33": {
+    "other": "Generated file metadata is incomplete"
   },
   "legacy.error.800ad5e277d8f771": {
     "other": "Rate limit rule parameters are not valid JSON: %w"
@@ -3317,6 +3452,9 @@
   "legacy.error.840a1544b634b15c": {
     "other": "Failed to iterate database table structures"
   },
+  "legacy.error.84317c7b0ad90e29": {
+    "other": "Failed to query AI files with pagination"
+  },
   "legacy.error.844039c078368bf3": {
     "other": "Tool request contract was not found"
   },
@@ -3365,6 +3503,9 @@
   "legacy.error.87b7f25f6e118d2d": {
     "other": "Secret field does not exist"
   },
+  "legacy.error.882624c8cf932368": {
+    "other": "Failed to delete the AI file object"
+  },
   "legacy.error.88866be60ba8716d": {
     "other": "User operation failed: the built-in administrator account can only be modified in the personal center"
   },
@@ -3388,6 +3529,9 @@
   },
   "legacy.error.895609297b4cc810": {
     "other": "MySQL-compatible connection settings are incomplete"
+  },
+  "legacy.error.8960195949851874": {
+    "other": "The database client bound to the BI source does not exist."
   },
   "legacy.error.89948745c30efa6b": {
     "other": "Client token identity does not match"
@@ -3422,6 +3566,9 @@
   "legacy.error.8b1e46dc72244e15": {
     "other": "Failed to generate the BI query"
   },
+  "legacy.error.8b2e13980a428eca": {
+    "other": "The card version or creation source has changed. Refresh the card."
+  },
   "legacy.error.8b4129c122309dd6": {
     "other": "Only the owner can use an account for a private plugin"
   },
@@ -3433,6 +3580,9 @@
   },
   "legacy.error.8b5a995b29d45525": {
     "other": "PostgreSQL connection settings are incomplete"
+  },
+  "legacy.error.8b6f81c885714529": {
+    "other": "The public metric is referenced by a current publication. Remove the reference first."
   },
   "legacy.error.8b7757274fb40557": {
     "other": "Failed to read web search response"
@@ -3554,6 +3704,9 @@
   "legacy.error.91b00ce081033154": {
     "other": "Failed to query system config"
   },
+  "legacy.error.91b8df65f0a75e4a": {
+    "other": "Script dry runs must reference a saved script"
+  },
   "legacy.error.91c0093168823546": {
     "other": "Invalid AI provider or model selection"
   },
@@ -3598,6 +3751,9 @@
   },
   "legacy.error.940716542da56181": {
     "other": "Wait for this run to finish before continuing the discussion"
+  },
+  "legacy.error.941e8aec57e2cb3a": {
+    "other": "Select a successful natural-language query from the current account."
   },
   "legacy.error.94214c40a9264d8a": {
     "other": "Failed to create system config"
@@ -3673,6 +3829,9 @@
   },
   "legacy.error.98607017b11fd268": {
     "other": "An API key must be configured before enabling an OpenAI-compatible provider"
+  },
+  "legacy.error.9862236e9d13483d": {
+    "other": "The current published snapshot is invalid. The public model cannot be saved."
   },
   "legacy.error.988c6bbc8a789ec2": {
     "other": "You do not have permission to delete the plugin"
@@ -3758,6 +3917,9 @@
   "legacy.error.9f2257503116e08f": {
     "other": "The inbound redaction policy does not exist"
   },
+  "legacy.error.9f3bd4f89eba27ec": {
+    "other": "Failed to read public metrics."
+  },
   "legacy.error.a02d1bad8ef6fd46": {
     "other": "Duplicate AI provider name"
   },
@@ -3782,6 +3944,9 @@
   "legacy.error.a14efca145af09f5": {
     "other": "A button or external link cannot be a parent menu"
   },
+  "legacy.error.a172626b5bd5ea56": {
+    "other": "The source is referenced by cards. Remove the references first."
+  },
   "legacy.error.a195d637f77c8be3": {
     "other": "Failed to delete AI knowledge base document"
   },
@@ -3802,6 +3967,9 @@
   },
   "legacy.error.a2bfb226f0e00e12": {
     "other": "Failed to aggregate user registration data"
+  },
+  "legacy.error.a2c8f04a1c8ccc6a": {
+    "other": "Public metrics or the model have changed. Republish or refresh."
   },
   "legacy.error.a35fcb70f28d8d05": {
     "other": "Failed to create the plugin definition"
@@ -3824,6 +3992,9 @@
   "legacy.error.a4c906a269af199d": {
     "other": "Business table name can only contain lowercase letters, numbers and underscores, and must start with a letter"
   },
+  "legacy.error.a4cf20de4d78749f": {
+    "other": "Failed to preview public metric formulas."
+  },
   "legacy.error.a4ec9260f17d6542": {
     "other": "The dashboard does not exist"
   },
@@ -3838,6 +4009,9 @@
   },
   "legacy.error.a577df26d1942267": {
     "other": "OAuth token refresh failed. Please authorize again"
+  },
+  "legacy.error.a58f34980e0d7a58": {
+    "other": "BI query fields must not be duplicated."
   },
   "legacy.error.a6000e305f5d2fef": {
     "other": "Failed to revoke old client token"
@@ -3926,11 +4100,20 @@
   "legacy.error.a937731e83d53b1f": {
     "other": "The tool configuration has changed"
   },
+  "legacy.error.a93d7d4d9ef7e0a7": {
+    "other": "The card's original query source cannot be changed."
+  },
   "legacy.error.a9a6a83a7d22e27e": {
     "other": "The username or password is incorrect"
   },
   "legacy.error.aa3f19b0635bde95": {
     "other": "The BI query needs at least one dimension or measure"
+  },
+  "legacy.error.aa4dd4c15970b3c3": {
+    "other": "Permission to edit source public metrics is required."
+  },
+  "legacy.error.aa5dea4f4d157fa2": {
+    "other": "The preview context is invalid."
   },
   "legacy.error.ab10b5713ba93cbd": {
     "other": "Failed to delete post"
@@ -3973,6 +4156,9 @@
   },
   "legacy.error.ad41477a76b25935": {
     "other": "User department does not match the tenant"
+  },
+  "legacy.error.ad534d579379c306": {
+    "other": "The card execution scope is invalid."
   },
   "legacy.error.ad53bc40c159c03e": {
     "other": "Left-tree configuration format is invalid"
@@ -4082,6 +4268,9 @@
   "legacy.error.b2fbb90f787f4e6e": {
     "other": "Third-party login ticket is invalid"
   },
+  "legacy.error.b35eea6a692dc18a": {
+    "other": "Failed to preview public model changes."
+  },
   "legacy.error.b3729212cf4d6ce7": {
     "other": "Failed to initialize the tenant administrator account"
   },
@@ -4123,6 +4312,9 @@
   },
   "legacy.error.b4d563372fcfa9f9": {
     "other": "Failed to execute archive restore"
+  },
+  "legacy.error.b4d912bc39f62f01": {
+    "other": "Failed to read the existing query result."
   },
   "legacy.error.b4e8a6a8f46414d5": {
     "other": "Failed to clear client auth failure state"
@@ -4175,6 +4367,9 @@
   "legacy.error.b6e4cd4d62d790ac": {
     "other": "The run has stopped. No new approval requests can be created"
   },
+  "legacy.error.b6f75cf6cede5d4c": {
+    "other": "The Xberg MCP plugin is not initialized"
+  },
   "legacy.error.b74cf37538de3767": {
     "other": "Only directories, menus, or external links can be created under a level-two directory"
   },
@@ -4222,6 +4417,9 @@
   },
   "legacy.error.b9a452b87cde115a": {
     "other": "Current authentication method does not support regenerating recovery codes"
+  },
+  "legacy.error.ba0da82a346c0fe8": {
+    "other": "The query result is not a valid number."
   },
   "legacy.error.ba2694f62e4fbbaf": {
     "other": "Failed to delete message: message does not exist"
@@ -4274,6 +4472,9 @@
   "legacy.error.bc29a25559a6df0a": {
     "other": "Failed to query message"
   },
+  "legacy.error.bc2e21273445c1ed": {
+    "other": "The public metric code, name, unit or type is invalid."
+  },
   "legacy.error.bc52216171131e30": {
     "other": "Authorized APIs cannot be duplicated"
   },
@@ -4319,6 +4520,9 @@
   "legacy.error.be74ce92a610e199": {
     "other": "Message audience cannot be duplicated"
   },
+  "legacy.error.bed8dc7b14f9cdbd": {
+    "other": "A referencing card has an invalid execution definition."
+  },
   "legacy.error.bef4cc844929c21e": {
     "other": "Query conditions changed. Preview again before saving the card"
   },
@@ -4342,6 +4546,9 @@
   },
   "legacy.error.c04abdd20cec9b79": {
     "other": "Failed to start code generation task"
+  },
+  "legacy.error.c057036e72b637c4": {
+    "other": "The public metric formula is invalid."
   },
   "legacy.error.c09382006eddcbe1": {
     "other": "A trusted execution client is required"
@@ -4409,6 +4616,9 @@
   "legacy.error.c343976847d80363": {
     "other": "Failed to delete script"
   },
+  "legacy.error.c39aa6cc1e27e61b": {
+    "other": "The original query uses outdated public metrics. Ask again."
+  },
   "legacy.error.c3dd71d006f793b2": {
     "other": "Failed to close file scan temp file"
   },
@@ -4445,6 +4655,9 @@
   "legacy.error.c59e66d856edd7b2": {
     "other": "A run is in progress. Stop it and wait for it to finish first"
   },
+  "legacy.error.c5b8236066d773cb": {
+    "other": "Failed to generate identity security configuration"
+  },
   "legacy.error.c5c1f6bacfa7c53d": {
     "other": "A card referenced by the dashboard does not exist"
   },
@@ -4465,6 +4678,9 @@
   },
   "legacy.error.c67d0141c0b9fad9": {
     "other": "Rate limit rule code and algorithm type cannot be modified"
+  },
+  "legacy.error.c68afecefc9bcf3e": {
+    "other": "The query result columns do not match the metric definition."
   },
   "legacy.error.c6b03a85bc8fbf37": {
     "other": "Client is not authorized for any interface"
@@ -4508,6 +4724,9 @@
   "legacy.error.c916f58aa90099af": {
     "other": "Invalid workflow definition status"
   },
+  "legacy.error.c9556f01140f087f": {
+    "other": "The Xberg extract tool must be reviewed as read-only"
+  },
   "legacy.error.ca07a343943ddc8b": {
     "other": "Please select an initialized data source"
   },
@@ -4516,6 +4735,9 @@
   },
   "legacy.error.ca4de5b792e75311": {
     "other": "Failed to query file asset detail"
+  },
+  "legacy.error.ca581ba6d67de40c": {
+    "other": "Public metric names must be unique within a source."
   },
   "legacy.error.caa548273af1521b": {
     "other": "Proto file must be in the selected Proto directory and use the .proto extension"
@@ -4598,6 +4820,9 @@
   "legacy.error.ce12956616b6dbc9": {
     "other": "The tenant, data source, table and field cannot be modified after a storage redaction policy is created"
   },
+  "legacy.error.ce16215836d2b4f2": {
+    "other": "More than 64 plugin accounts are available for automatic use. Adjust their availability in the admin console."
+  },
   "legacy.error.ce1a849baef38a91": {
     "other": "Workflow instance not pending"
   },
@@ -4658,6 +4883,9 @@
   "legacy.error.d10dca63ec27b6dc": {
     "other": "The sharing scope is invalid"
   },
+  "legacy.error.d11630b62e6fedb8": {
+    "other": "The reserved username configuration is missing or disabled"
+  },
   "legacy.error.d132998d88c706a1": {
     "other": "The installation policy has changed"
   },
@@ -4699,6 +4927,9 @@
   },
   "legacy.error.d2a00e4240f15d1a": {
     "other": "Failed to start MFA binding"
+  },
+  "legacy.error.d2d80d1897b105d0": {
+    "other": "The public model changed during the preview. Preview again."
   },
   "legacy.error.d2ec820d108540bb": {
     "other": "The provider identifier already exists"
@@ -4799,6 +5030,12 @@
   "legacy.error.d828018e33550bad": {
     "other": "Failed to replace the connection token"
   },
+  "legacy.error.d82fc7e6d81366ff": {
+    "other": "Select a successful preview for the current account and project."
+  },
+  "legacy.error.d9052760af199a40": {
+    "other": "Failed to restore the AI file"
+  },
   "legacy.error.d91665d16fe86915": {
     "other": "Failed to create AI assistant session"
   },
@@ -4870,6 +5107,9 @@
   },
   "legacy.error.dba508e1212691b7": {
     "other": "Failed to redact the system configuration"
+  },
+  "legacy.error.dc28c8781a7b9231": {
+    "other": "Failed to read the card execution definition."
   },
   "legacy.error.dc59b5d3f802f135": {
     "other": "The execution identity's permissions have changed. Run again"
@@ -5048,6 +5288,9 @@
   "legacy.error.e4e9e34d4382eba4": {
     "other": "Failed to read AI assistant attachment"
   },
+  "legacy.error.e54d74d9a4f84e95": {
+    "other": "The AI file metadata repository is not configured"
+  },
   "legacy.error.e54f076ca472029b": {
     "other": "The message category delivery targets were modified by someone else; please refresh and retry"
   },
@@ -5105,14 +5348,23 @@
   "legacy.error.e870b4dcb0ded0c7": {
     "other": "Failed to close the column query"
   },
+  "legacy.error.e87cd6217bb74a9f": {
+    "other": "The Xberg connection ID is invalid"
+  },
   "legacy.error.e8898dac472aab91": {
     "other": "Select a valid IANA time zone"
   },
   "legacy.error.e8cf0f814577dae5": {
     "other": "Session ID is invalid"
   },
+  "legacy.error.e8e32768940551eb": {
+    "other": "Permission to edit this card is required."
+  },
   "legacy.error.e90c95c33b3164fe": {
     "other": "You do not have permission to view sensitive fields of another tenant"
+  },
+  "legacy.error.e991ef0cedf77342": {
+    "other": "The card changed while fetching data. Refresh the card."
   },
   "legacy.error.e99cd8d50d6e7bac": {
     "other": "Third-party authorization failed"
@@ -5122,6 +5374,9 @@
   },
   "legacy.error.ea95a44ecebf2fb5": {
     "other": "The user position does not exist"
+  },
+  "legacy.error.eaadce03cad94f36": {
+    "other": "Successfully preview the public metric formulas first."
   },
   "legacy.error.eb0a5c7ed1c8c6e5": {
     "other": "Failed to download historical log file"
@@ -5134,6 +5389,9 @@
   },
   "legacy.error.eb7376c11e576e01": {
     "other": "Failed to create department"
+  },
+  "legacy.error.ebc50e1f7a35066f": {
+    "other": "Failed to clear the legacy account rename configuration"
   },
   "legacy.error.ebe9b8ff030be0c3": {
     "other": "The login policy ID cannot be empty"
@@ -5185,6 +5443,9 @@
   },
   "legacy.error.ee100b158fba5e1d": {
     "other": "Failed to initialize the tenant's built-in AI plugins"
+  },
+  "legacy.error.ee43728499601770": {
+    "other": "Failed to rename the AI file"
   },
   "legacy.error.ee51f88c960defb8": {
     "other": "Failed to issue client access token"
@@ -5302,6 +5563,12 @@
   },
   "legacy.error.f2c0e88cba67443f": {
     "other": "Failed to delete the role"
+  },
+  "legacy.error.f2fbd02fff596eac": {
+    "other": "Failed to verify source model permissions."
+  },
+  "legacy.error.f2ff27bfab244681": {
+    "other": "The public model cannot serve a referencing card. Remove the reference first."
   },
   "legacy.error.f33330b7049a8649": {
     "other": "Failed to generate log pagination cursor"
@@ -5441,6 +5708,9 @@
   "legacy.error.f9b9133ecf174317": {
     "other": "Failed to parse the original field encryption algorithm"
   },
+  "legacy.error.f9c813c8e3406a2b": {
+    "other": "The card has no execution definition. Ask again and save it."
+  },
   "legacy.error.f9cf7294d51dc2ec": {
     "other": "Failed to update the user: built-in roles cannot be selected"
   },
@@ -5471,11 +5741,17 @@
   "legacy.error.fb6e60ccc57170bd": {
     "other": "An output redaction policy already exists for the same API response field"
   },
+  "legacy.error.fb6ec860a2af1663": {
+    "other": "Failed to move the AI file to the recycle bin"
+  },
   "legacy.error.fb8499e034556fe9": {
     "other": "The assistant reply is still being generated"
   },
   "legacy.error.fbbe9543a088d94b": {
     "other": "Failed to query redaction rule detail"
+  },
+  "legacy.error.fbf7c3e26ada65c6": {
+    "other": "The card execution definition has changed. Refresh the card."
   },
   "legacy.error.fc25e0d9642770e1": {
     "other": "Failed to delete the dictionary: dictionary items exist"
@@ -7652,6 +7928,9 @@
   "system.code.gen.password_strength": {
     "other": "Password strength"
   },
+  "system.config.security.key_value.key.required": {
+    "other": "The security configuration key cannot be empty"
+  },
   "system.mcp.tool_check_failed": {
     "other": "Could not verify MCP tool access. Check the service logs."
   },
@@ -7801,80 +8080,5 @@
   },
   "获取当前用户生效的密码策略": {
     "other": "Get the password policy effective for the current user"
-  },
-  "base.ai.file.page.keyword.max_len": {
-    "other": "File name keyword cannot exceed 100 characters"
-  },
-  "base.ai.file.page.page_num.positive": {
-    "other": "Page number must be greater than 0"
-  },
-  "base.ai.file.page.page_size.range": {
-    "other": "Page size must be between 1 and 100"
-  },
-  "base.ai.file.rename.id.positive": {
-    "other": "File ID must be greater than 0"
-  },
-  "base.ai.file.rename.file_name.valid": {
-    "other": "File name cannot be empty or exceed 255 characters"
-  },
-  "base.ai.file.trash.id.positive": {
-    "other": "File ID must be greater than 0"
-  },
-  "base.ai.file.restore.id.positive": {
-    "other": "File ID must be greater than 0"
-  },
-  "base.ai.file.delete.id.positive": {
-    "other": "File ID must be greater than 0"
-  },
-  "legacy.error.0bcc4cd098945869": {
-    "other": "The document is not bound to an Xberg MCP connection and cannot be retried"
-  },
-  "legacy.error.e54d74d9a4f84e95": {
-    "other": "The AI file metadata repository is not configured"
-  },
-  "legacy.error.882624c8cf932368": {
-    "other": "Failed to delete the AI file object"
-  },
-  "legacy.error.800715ced110fb33": {
-    "other": "Generated file metadata is incomplete"
-  },
-  "legacy.error.45dfba890e01f2b6": {
-    "other": "The AI file does not exist or you do not have access"
-  },
-  "legacy.error.e87cd6217bb74a9f": {
-    "other": "The Xberg connection ID is invalid"
-  },
-  "legacy.error.5a3df6dc5b931c17": {
-    "other": "The document file name and content cannot be empty"
-  },
-  "legacy.error.b6f75cf6cede5d4c": {
-    "other": "The Xberg MCP plugin is not initialized"
-  },
-  "legacy.error.c9556f01140f087f": {
-    "other": "The Xberg extract tool must be reviewed as read-only"
-  },
-  "legacy.error.1918b6a58243b070": {
-    "other": "The Xberg extract tool has duplicate snapshots"
-  },
-  "legacy.error.55cf4f9958084301": {
-    "other": "The current Xberg connection has not reviewed the extract tool"
-  },
-  "legacy.error.5093032b0010f3c1": {
-    "other": "The Xberg document extraction result is invalid"
-  },
-  "legacy.error.84317c7b0ad90e29": {
-    "other": "Failed to query AI files with pagination"
-  },
-  "legacy.error.ee43728499601770": {
-    "other": "Failed to rename the AI file"
-  },
-  "legacy.error.fb6ec860a2af1663": {
-    "other": "Failed to move the AI file to the recycle bin"
-  },
-  "legacy.error.d9052760af199a40": {
-    "other": "Failed to restore the AI file"
-  },
-  "legacy.error.1d8918d6b774c812": {
-    "other": "Failed to permanently delete the AI file"
   }
 }

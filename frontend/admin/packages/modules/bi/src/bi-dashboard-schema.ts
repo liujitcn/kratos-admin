@@ -1,12 +1,12 @@
 import { flowPlace } from "./schema/layout";
-import { normalizeBiQueryResult, normalizeBiQuerySpec } from "./bi-response";
+import { normalizeBiQueryResult } from "./bi-response";
 import type { BiCard } from "./rpc/bi/admin/v1/bi_card";
 import type { BiDashboardDataResponse } from "./rpc/bi/admin/v1/bi_dashboard";
-import type { BiQuerySpec } from "./rpc/bi/admin/v1/bi_query";
+import type { BiResultColumn } from "./rpc/bi/admin/v1/bi_query";
 
 /** 仪表盘只保存名称、卡片引用与栅格位置，外观跟随管理端主题。 */
 export interface DashboardLayout {
-  schemaVersion: 3;
+  schemaVersion: 4;
   name: string;
   cards: DashboardCardLayout[];
 }
@@ -15,7 +15,6 @@ export interface DashboardLayout {
 export interface DashboardCardLayout {
   id: string;
   card_id: number;
-  query_record_id?: number;
   x?: number;
   y?: number;
   w: number;
@@ -23,34 +22,45 @@ export interface DashboardCardLayout {
   name?: string;
   chart_type?: string;
   chart_json?: string;
-  query?: BiQuerySpec;
+  card_version?: number;
+  columns?: BiResultColumn[];
 }
 
 /** 读取当前协议的仪表盘布局，不接收旧图表与数据集结构。 */
 export function parseDashboardLayout(value: string): DashboardLayout {
-  if (!value) return { schemaVersion: 3, name: "", cards: [] };
+  if (!value) return { schemaVersion: 4, name: "", cards: [] };
   const layout = JSON.parse(value) as DashboardLayout;
-  if (layout.schemaVersion !== 3 || !Array.isArray(layout.cards)) throw new Error("仪表盘布局格式无效");
-  return { schemaVersion: 3, name: layout.name, cards: layout.cards };
+  if (layout.schemaVersion !== 4 || !Array.isArray(layout.cards)) throw new Error("仪表盘布局格式无效");
+  return { schemaVersion: 4, name: layout.name, cards: layout.cards };
 }
 
 /** 将发布快照还原成只读数据卡片，保留当次图表配置。 */
 export function dashboardSnapshotCard(item: DashboardCardLayout): BiCard {
+  const columns = (item.columns ?? []).map(column => ({ ...column, unit: column.unit ?? "", revision: column.revision ?? 0 }));
   return {
     id: item.card_id,
     tenant_id: 0,
     project_id: 0,
     owner_id: 0,
-    query_record_id: item.query_record_id || 0,
+    query_record_id: 0,
     name: item.name || "",
-    source_code: item.query?.source_code || "",
-    query: item.query ? normalizeBiQuerySpec(item.query) : undefined,
+    source_code: "",
+    query: { source_code: "", dimensions: columns.filter(column => column.role === "dimension").map(column => column.code), measures: columns.filter(column => column.role === "measure").map(column => ({ code: column.code })), filters: [], orders: [], time_range: undefined, limit: 1000 },
     chart_type: item.chart_type || "bar",
     chart_json: item.chart_json || "",
     refresh_seconds: 0,
     is_shared: false,
     updated_at: "",
     category: "shared",
+    version: item.card_version ?? 0,
+    validation_query_record_id: 0,
+    execution_kind: "",
+    source_version: 0,
+    can_edit_metrics: false,
+    metric_definitions: [],
+    sql: "",
+    sync_summary: undefined,
+    columns,
     can_edit: false
   };
 }

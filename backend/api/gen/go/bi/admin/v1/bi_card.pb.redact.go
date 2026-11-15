@@ -117,6 +117,28 @@ func (s *redactedBiCardServiceServer) SaveBiWorkbench(ctx context.Context, in *S
 	return res, err
 }
 
+// GetBiCard is the redacted wrapper for the actual BiCardServiceServer.GetBiCard method
+// Unary RPC
+func (s *redactedBiCardServiceServer) GetBiCard(ctx context.Context, in *GetBiCardRequest) (*BiCard, error) {
+	res, err := s.srv.GetBiCard(ctx, in)
+	if !s.bypass.CheckInternal(ctx) {
+		// Apply redaction to the response
+		redact.ApplyWith(redact.WithDirection(redact.WithOperation(ctx, "/bi.admin.v1.BiCardService/GetBiCard"), redact.DirectionResponse), nil, res)
+	}
+	return res, err
+}
+
+// PreviewBiCardSql is the redacted wrapper for the actual BiCardServiceServer.PreviewBiCardSql method
+// Unary RPC
+func (s *redactedBiCardServiceServer) PreviewBiCardSql(ctx context.Context, in *PreviewBiCardSqlRequest) (*PreviewBiCardSqlResponse, error) {
+	res, err := s.srv.PreviewBiCardSql(ctx, in)
+	if !s.bypass.CheckInternal(ctx) {
+		// Apply redaction to the response
+		redact.ApplyWith(redact.WithDirection(redact.WithOperation(ctx, "/bi.admin.v1.BiCardService/PreviewBiCardSql"), redact.DirectionResponse), nil, res)
+	}
+	return res, err
+}
+
 // Ensure PageBiCardRequest implements the Redactor interface at compile time.
 var _ redact.Redactor = (*PageBiCardRequest)(nil)
 
@@ -211,6 +233,14 @@ func (x *SaveBiCardRequest) Redact() {
 	// Safe field: Id
 
 	// Safe field: Card
+
+	// Safe field: ExpectedCardVersion
+
+	// Safe field: ExpectedSourceVersion
+
+	// Safe field: PreviewQueryRecordId
+
+	// Safe field: MeasureChanges
 }
 
 // Ensure DeleteBiCardRequest implements the Redactor interface at compile time.
@@ -287,6 +317,24 @@ func (x *BiCard) Redact() {
 	// Safe field: Category
 
 	// Safe field: CanEdit
+
+	// Safe field: Version
+
+	// Safe field: ValidationQueryRecordId
+
+	// Safe field: ExecutionKind
+
+	// Safe field: SourceVersion
+
+	// Safe field: CanEditMetrics
+
+	// Safe field: MetricDefinitions
+
+	// Safe field: Sql
+
+	// Safe field: SyncSummary
+
+	// Safe field: Columns
 }
 
 // Ensure GetBiWorkbenchRequest implements the Redactor interface at compile time.
@@ -327,4 +375,62 @@ func (x *SaveBiWorkbenchRequest) Redact() {
 	// Safe field: DashboardIds
 
 	// Safe field: FavoriteIds
+}
+
+// Ensure GetBiCardRequest implements the Redactor interface at compile time.
+var _ redact.Redactor = (*GetBiCardRequest)(nil)
+
+// Redact method implementation for GetBiCardRequest
+func (x *GetBiCardRequest) Redact() {
+	if x == nil {
+		return
+	}
+
+	// Safe field: Id
+}
+
+// Ensure PreviewBiCardSqlRequest implements the Redactor interface at compile time.
+var _ redact.Redactor = (*PreviewBiCardSqlRequest)(nil)
+
+// Redact method implementation for PreviewBiCardSqlRequest
+func (x *PreviewBiCardSqlRequest) Redact() {
+	if x == nil {
+		return
+	}
+
+	// Safe field: Id
+
+	// Safe field: ExpectedCardVersion
+
+	// Safe field: ExpectedSourceVersion
+
+	// Safe field: QueryRecordId
+
+	// Safe field: Query
+
+	// Safe field: MeasureChanges
+}
+
+// Ensure PreviewBiCardSqlResponse implements the Redactor interface at compile time.
+var _ redact.Redactor = (*PreviewBiCardSqlResponse)(nil)
+
+// Redact method implementation for PreviewBiCardSqlResponse
+func (x *PreviewBiCardSqlResponse) Redact() {
+	if x == nil {
+		return
+	}
+
+	// Safe field: PreviewQueryRecordId
+
+	// Safe field: Result
+
+	// Safe field: Sql
+
+	// Safe field: MetricDefinitions
+
+	// Safe field: CanEditMetrics
+
+	// Safe field: SourceVersion
+
+	// Safe field: Impact
 }

@@ -18,6 +18,7 @@
           <span v-else class="bi-workbench-preview__empty">{{ t("common.message.no_data") }}</span>
         </div>
       </div>
+      <el-tag v-if="dashboard.requires_republish" type="warning">{{ t("bi.sql.requires_republish") }}</el-tag>
       <span v-if="!layout.cards.length" class="bi-workbench-preview__empty">{{ t("bi.dashboard.empty") }}</span>
     </template>
   </div>
@@ -36,7 +37,7 @@ import BiCardVisualization from "./BiCardVisualization.vue";
 
 const props = defineProps<{ dashboard: BiDashboard }>();
 const host = ref<HTMLElement>();
-const layout = ref<DashboardLayout>({ schemaVersion: 3, name: "", cards: [] });
+const layout = ref<DashboardLayout>({ schemaVersion: 4, name: "", cards: [] });
 const results = ref(new Map<string, BiQueryResult | undefined>());
 const loading = ref(true);
 const error = ref("");

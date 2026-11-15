@@ -250,5 +250,21 @@
   "bi.card.ask_create": "智慧問數建立卡片",
   "bi.card.ask_required": "請先透過智慧問數取得真實資料，再儲存卡片",
   "bi.dashboard.menu_position": "放置位置",
-  "bi.dashboard.menu_saved": "儀表板選單已儲存"
+  "bi.dashboard.menu_saved": "儀表板選單已儲存",
+  "bi.sql.formulas": "共用指標公式",
+  "bi.sql.expression": "指標公式",
+  "bi.sql.unit": "單位",
+  "bi.sql.shared_notice": "公式屬於資料來源共用指標；儲存後同步所有引用卡片，相關儀表板需要重新發佈。",
+  "bi.sql.readonly_notice": "目前帳號不能編輯共用指標，可繼續修改圖表顯示。",
+  "bi.sql.full_sql": "完整 SQL（唯讀）",
+  "bi.sql.impact": "將更新 {cards} 張卡片，{dashboards} 個儀表板需要重新發佈。",
+  "bi.sql.synced": "已儲存並同步 {cards} 張卡片，{dashboards} 個儀表板需要重新發佈。",
+  "bi.sql.refresh_model": "重新整理共用指標並保留草稿",
+  "bi.sql.repreview": "已保留草稿，請重新預覽並核對變更後儲存。",
+  "bi.sql.preview_changes": "檢查變更影響",
+  "bi.sql.already_applied": "該預覽已經儲存，已重新讀取對應卡片。",
+  "bi.sql.definition_status": "指標口徑",
+  "bi.sql.requires_republish": "需要重新發佈",
+  "bi.sql.current": "目前口徑",
+  "bi.sql.save_pending": "上次儲存結果尚未確認，請重試儲存後繼續編輯。"
 }

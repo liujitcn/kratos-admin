@@ -6619,7 +6619,44 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/bi.admin.v1.BiCard'
+    /api/v1/admin/bi/card/sql-preview:
+        post:
+            tags:
+                - BiCardService
+            description: 預覽當前卡片的公共指標公式候選。
+            operationId: BiCardService_PreviewBiCardSql
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/bi.admin.v1.PreviewBiCardSqlRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/bi.admin.v1.PreviewBiCardSqlResponse'
     /api/v1/admin/bi/card/{id}:
+        get:
+            tags:
+                - BiCardService
+            description: 獲取卡片及有權編輯的公共公式。
+            operationId: BiCardService_GetBiCard
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/bi.admin.v1.BiCard'
         delete:
             tags:
                 - BiCardService
@@ -7029,7 +7066,7 @@ paths:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/bi.admin.v1.BiSourceModel'
+                            $ref: '#/components/schemas/bi.admin.v1.SaveBiSourceModelRequest'
                 required: true
             responses:
                 "200":
@@ -7038,6 +7075,31 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/bi.admin.v1.BiSource'
+    /api/v1/admin/bi/source/{id}/model/preview:
+        post:
+            tags:
+                - BiSourceService
+            description: 預覽公共模型變更和關聯影響，不寫入模型。
+            operationId: BiSourceService_PreviewBiSourceModel
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/bi.admin.v1.SaveBiSourceModelRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/bi.admin.v1.BiModelImpact'
     /api/v1/admin/bi/source/{id}/status:
         put:
             tags:
@@ -13058,6 +13120,37 @@ components:
                 can_edit:
                     type: boolean
                     description: 當前使用者是否可編輯
+                version:
+                    type: string
+                    description: 卡片併發版本
+                validation_query_record_id:
+                    type: string
+                    description: 最後人工驗證記錄ID
+                execution_kind:
+                    type: string
+                    description: 執行定義種類
+                source_version:
+                    type: integer
+                    description: 資料來源併發版本
+                    format: int32
+                can_edit_metrics:
+                    type: boolean
+                    description: 是否可編輯公共指標公式
+                metric_definitions:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/bi.admin.v1.BiSourceMeasure'
+                    description: 授權編輯的公共指標定義
+                sql:
+                    type: string
+                    description: 授權編輯的完整引數化SQL
+                sync_summary:
+                    $ref: '#/components/schemas/bi.admin.v1.BiModelImpact'
+                columns:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/bi.admin.v1.BiResultColumn'
+                    description: 結果欄位定義
             description: 資料卡片記錄。
         bi.admin.v1.BiCardCounts:
             type: object
@@ -13146,6 +13239,9 @@ components:
                 can_edit:
                     type: boolean
                     description: 當前使用者是否可編輯
+                requires_republish:
+                    type: boolean
+                    description: 公共指標或模型已變更，需要重新發布
             description: BI 儀表板記錄。
         bi.admin.v1.BiDashboardCardResult:
             type: object
@@ -13211,11 +13307,12 @@ components:
                 type:
                     type: string
                     description: 指標型別
-                aggregations:
-                    type: array
-                    items:
-                        type: string
-                    description: 允許的聚合函數
+                unit:
+                    type: string
+                    description: 指標單位
+                revision:
+                    type: string
+                    description: 指標修訂號
             description: BI 指標描述。
         bi.admin.v1.BiMeasureSpec:
             type: object
@@ -13223,10 +13320,55 @@ components:
                 code:
                     type: string
                     description: 指標編碼
-                aggregation:
-                    type: string
-                    description: 聚合函數
             description: BI 指標查詢項。
+        bi.admin.v1.BiMetricChange:
+            type: object
+            properties:
+                metric_code:
+                    type: string
+                    description: 指標編碼
+                expression:
+                    type: string
+                    description: 固定聚合表示式
+                name:
+                    type: string
+                    description: 指標名稱
+                unit:
+                    type: string
+                    description: 指標單位
+                expected_revision:
+                    type: string
+                    description: 預期指標修訂號
+            description: 公共指標編輯候選。
+        bi.admin.v1.BiMetricDifference:
+            type: object
+            properties:
+                before:
+                    $ref: '#/components/schemas/bi.admin.v1.BiSourceMeasure'
+                after:
+                    $ref: '#/components/schemas/bi.admin.v1.BiSourceMeasure'
+            description: 公共指標變更前後定義。
+        bi.admin.v1.BiModelImpact:
+            type: object
+            properties:
+                changes:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/bi.admin.v1.BiMetricDifference'
+                    description: 指標變更
+                affected_cards:
+                    type: integer
+                    description: 受影響卡片數量
+                    format: int32
+                affected_dashboards:
+                    type: integer
+                    description: 需要重新發布的儀表盤數量
+                    format: int32
+                source_version:
+                    type: integer
+                    description: 資料來源版本
+                    format: int32
+            description: 公共指標同步影響摘要。
         bi.admin.v1.BiOrderSpec:
             type: object
             properties:
@@ -13326,6 +13468,9 @@ components:
                 query_record_id:
                     type: string
                     description: 本次成功查詢記錄ID，可作爲數據卡片來源
+                queried_at:
+                    type: string
+                    description: 查詢時間
             description: BI 查詢結果。
         bi.admin.v1.BiQuerySpec:
             type: object
@@ -13372,6 +13517,15 @@ components:
                 type:
                     type: string
                     description: 列類型
+                role:
+                    type: string
+                    description: 結果角色：dimension或measure
+                unit:
+                    type: string
+                    description: 指標單位
+                revision:
+                    type: string
+                    description: 指標修訂號
             description: BI 結果列。
         bi.admin.v1.BiResultRow:
             type: object
@@ -13462,6 +13616,8 @@ components:
                     type: integer
                     description: 模型選中的表數量
                     format: int32
+                sync_summary:
+                    $ref: '#/components/schemas/bi.admin.v1.BiModelImpact'
             description: BI 資料來源配置。
         bi.admin.v1.BiSourceDatabase:
             type: object
@@ -13589,17 +13745,15 @@ components:
                 type:
                     type: string
                     description: BI欄位型別
-                table:
+                expression:
                     type: string
-                    description: 所屬表標識
-                column:
+                    description: 固定聚合表示式
+                unit:
                     type: string
-                    description: 資料庫欄位
-                aggregations:
-                    type: array
-                    items:
-                        type: string
-                    description: 允許的聚合函數
+                    description: 指標單位
+                revision:
+                    type: string
+                    description: 服務端指標修訂號
             description: 數據源語義指標。
         bi.admin.v1.BiSourceModel:
             type: object
@@ -13836,6 +13990,56 @@ components:
                     description: 總數
                     format: int32
             description: BI 資料來源分頁響應。
+        bi.admin.v1.PreviewBiCardSqlRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 卡片ID，建立時為0
+                expected_card_version:
+                    type: string
+                    description: 預期卡片版本
+                expected_source_version:
+                    type: integer
+                    description: 預期資料來源版本
+                    format: int32
+                query_record_id:
+                    type: string
+                    description: 原始智慧問數記錄ID
+                query:
+                    $ref: '#/components/schemas/bi.admin.v1.BiQuerySpec'
+                measure_changes:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/bi.admin.v1.BiMetricChange'
+                    description: 選中公共指標變更候選
+            description: 卡片公式預覽請求。
+        bi.admin.v1.PreviewBiCardSqlResponse:
+            type: object
+            properties:
+                preview_query_record_id:
+                    type: string
+                    description: 成功公式預覽記錄ID
+                result:
+                    $ref: '#/components/schemas/bi.admin.v1.BiQueryResult'
+                sql:
+                    type: string
+                    description: 授權編輯的完整引數化SQL
+                metric_definitions:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/bi.admin.v1.BiSourceMeasure'
+                    description: 授權編輯的公共指標定義
+                can_edit_metrics:
+                    type: boolean
+                    description: 是否可編輯公共指標公式
+                source_version:
+                    type: integer
+                    description: 預覽繫結的資料來源版本
+                    format: int32
+                impact:
+                    $ref: '#/components/schemas/bi.admin.v1.BiModelImpact'
+            description: 卡片公式預覽結果。
         bi.admin.v1.PreviewBiQueryRequest:
             type: object
             properties:
@@ -13860,6 +14064,21 @@ components:
                     description: 卡片ID，0表示新建
                 card:
                     $ref: '#/components/schemas/bi.admin.v1.BiCardForm'
+                expected_card_version:
+                    type: string
+                    description: 預期卡片版本，建立時為0
+                expected_source_version:
+                    type: integer
+                    description: 預期資料來源版本
+                    format: int32
+                preview_query_record_id:
+                    type: string
+                    description: 成功公式預覽記錄ID
+                measure_changes:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/bi.admin.v1.BiMetricChange'
+                    description: 選中公共指標變更候選
             description: 儲存資料卡片請求。
         bi.admin.v1.SaveBiDashboardRequest:
             type: object
@@ -13867,6 +14086,19 @@ components:
                 dashboard:
                     $ref: '#/components/schemas/bi.admin.v1.BiDashboard'
             description: 保存 BI 儀表板請求。
+        bi.admin.v1.SaveBiSourceModelRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 資料來源ID
+                model:
+                    $ref: '#/components/schemas/bi.admin.v1.BiSourceModel'
+                expected_source_version:
+                    type: integer
+                    description: 預期資料來源版本
+                    format: int32
+            description: 儲存資料來源語義模型的請求。
         bi.admin.v1.SaveBiWorkbenchRequest:
             type: object
             properties:

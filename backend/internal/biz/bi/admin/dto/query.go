@@ -9,6 +9,16 @@ import (
 
 // BiQueryRecordContext 保存一次查询的提问和仪表盘执行上下文。
 type BiQueryRecordContext struct {
+	// Kind 标识问数、预览或保存资产执行。
+	Kind int32
+	// RangeDays 是受控周期覆盖，只影响执行参数。
+	RangeDays int32
+	// CardID 标识当前执行的卡片。
+	CardID int64
+	// Execution 冻结本次实际执行定义。
+	Execution *CardExecution
+	// Preview 冻结候选版本及公共指标差异。
+	Preview *CardPreviewContext
 	// Question 保存自然语言问题，非问数查询为空。
 	Question string
 	// DashboardID 标识执行所属仪表盘。
@@ -64,10 +74,9 @@ type AskOutput struct {
 	Error     string `json:"error"`
 }
 
-// AskMeasure 模型选择的语义指标和聚合函数。
+// AskMeasure 模型选择的固定公共指标。
 type AskMeasure struct {
-	Code        string `json:"code"`
-	Aggregation string `json:"aggregation"`
+	Code string `json:"code"`
 }
 
 // AskFilter 模型生成的过滤条件。

@@ -6619,7 +6619,44 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/bi.admin.v1.BiCard'
+    /api/v1/admin/bi/card/sql-preview:
+        post:
+            tags:
+                - BiCardService
+            description: 現在のカードの共通指標の式の候補をプレビューします。
+            operationId: BiCardService_PreviewBiCardSql
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/bi.admin.v1.PreviewBiCardSqlRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/bi.admin.v1.PreviewBiCardSqlResponse'
     /api/v1/admin/bi/card/{id}:
+        get:
+            tags:
+                - BiCardService
+            description: カードと編集が許可された共通指標の式を取得します。
+            operationId: BiCardService_GetBiCard
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/bi.admin.v1.BiCard'
         delete:
             tags:
                 - BiCardService
@@ -7029,7 +7066,7 @@ paths:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/bi.admin.v1.BiSourceModel'
+                            $ref: '#/components/schemas/bi.admin.v1.SaveBiSourceModelRequest'
                 required: true
             responses:
                 "200":
@@ -7038,6 +7075,31 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/bi.admin.v1.BiSource'
+    /api/v1/admin/bi/source/{id}/model/preview:
+        post:
+            tags:
+                - BiSourceService
+            description: モデルを保存せずに共通モデルの変更と関連する影響をプレビューします。
+            operationId: BiSourceService_PreviewBiSourceModel
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/bi.admin.v1.SaveBiSourceModelRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/bi.admin.v1.BiModelImpact'
     /api/v1/admin/bi/source/{id}/status:
         put:
             tags:
@@ -10787,7 +10849,7 @@ components:
             properties:
                 name:
                     type: string
-                    description: 名前
+                    description: 名称
                 prompt:
                     type: string
                     description: 明確なタスクの指示
@@ -11052,7 +11114,7 @@ components:
                     description: 固定コード
                 name:
                     type: string
-                    description: 名前
+                    description: 名称
                 description:
                     type: string
                     description: 説明
@@ -11061,7 +11123,7 @@ components:
                     description: ソース：API、LOCAL、MCP
                 visibility:
                     type: string
-                    description: "スコープ: システム、テナント、プライベート"
+                    description: 范围：system、tenant、private
                 tenant_id:
                     type: string
                     description: 所属テナントID
@@ -11145,7 +11207,7 @@ components:
                     description: 固定コード
                 name:
                     type: string
-                    description: 名前
+                    description: 名称
                 description:
                     type: string
                     description: 説明
@@ -11201,7 +11263,7 @@ components:
             properties:
                 id:
                     type: string
-                    description: ツールID
+                    description: 工具ID
                 plugin_id:
                     type: string
                     description: プラグインID
@@ -11595,7 +11657,7 @@ components:
             properties:
                 id:
                     type: string
-                    description: 番号
+                    description: 编号
             description: 結果から会話を続けるリクエスト。
         base.v1.CreateAiAutomationRequest:
             type: object
@@ -12790,7 +12852,7 @@ components:
                     description: プラグインID
                 tool_id:
                     type: string
-                    description: ツールID
+                    description: 工具ID
                 contract_hash:
                     type: string
                     description: 審査対象の仕様ハッシュ
@@ -12843,7 +12905,7 @@ components:
             properties:
                 id:
                     type: string
-                    description: 番号
+                    description: 编号
             description: 停止今回のリクエスト。
         base.v1.TrashAiFileRequest:
             type: object
@@ -13058,6 +13120,37 @@ components:
                 can_edit:
                     type: boolean
                     description: 現在のユーザー〜かどうか可能な编辑
+                version:
+                    type: string
+                    description: カードの同時更新制御バージョン
+                validation_query_record_id:
+                    type: string
+                    description: 最後の手動検証の記録 ID
+                execution_kind:
+                    type: string
+                    description: 実行定義の種類
+                source_version:
+                    type: integer
+                    description: データソースの同時更新制御バージョン
+                    format: int32
+                can_edit_metrics:
+                    type: boolean
+                    description: 共通指標の式を編集できるか
+                metric_definitions:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/bi.admin.v1.BiSourceMeasure'
+                    description: 編集が許可された共通指標の定義
+                sql:
+                    type: string
+                    description: 編集権限で参照可能なパラメーター化 SQL 全文
+                sync_summary:
+                    $ref: '#/components/schemas/bi.admin.v1.BiModelImpact'
+                columns:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/bi.admin.v1.BiResultColumn'
+                    description: 結果フィールド定义
             description: データ卡片記録。
         bi.admin.v1.BiCardCounts:
             type: object
@@ -13146,6 +13239,9 @@ components:
                 can_edit:
                     type: boolean
                     description: 現在のユーザー〜かどうか可能な编辑
+                requires_republish:
+                    type: boolean
+                    description: 共通指標またはモデルが変更され、再公開が必要です。
             description: BI 仪表盘記録。
         bi.admin.v1.BiDashboardCardResult:
             type: object
@@ -13192,7 +13288,7 @@ components:
                     description: フィールドコード
                 operator:
                     type: string
-                    description: "演算子: eq、in、 between、contains"
+                    description: 操作符：eq、in、between、contains
                 values:
                     type: array
                     items:
@@ -13211,11 +13307,12 @@ components:
                 type:
                     type: string
                     description: メトリクス種類
-                aggregations:
-                    type: array
-                    items:
-                        type: string
-                    description: 允许の集約函数
+                unit:
+                    type: string
+                    description: "メトリクス単位: "
+                revision:
+                    type: string
+                    description: 指標のリビジョン
             description: BI メトリクス説明。
         bi.admin.v1.BiMeasureSpec:
             type: object
@@ -13223,10 +13320,55 @@ components:
                 code:
                     type: string
                     description: メトリクスコード
-                aggregation:
-                    type: string
-                    description: 集約函数
             description: BI メトリクス検索項目。
+        bi.admin.v1.BiMetricChange:
+            type: object
+            properties:
+                metric_code:
+                    type: string
+                    description: メトリクスコード
+                expression:
+                    type: string
+                    description: 固定集約式
+                name:
+                    type: string
+                    description: メトリクス名
+                unit:
+                    type: string
+                    description: "メトリクス単位: "
+                expected_revision:
+                    type: string
+                    description: 想定する指標のリビジョン
+            description: 共通指標の編集候補。
+        bi.admin.v1.BiMetricDifference:
+            type: object
+            properties:
+                before:
+                    $ref: '#/components/schemas/bi.admin.v1.BiSourceMeasure'
+                after:
+                    $ref: '#/components/schemas/bi.admin.v1.BiSourceMeasure'
+            description: 共通指標の変更前後の定義。
+        bi.admin.v1.BiModelImpact:
+            type: object
+            properties:
+                changes:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/bi.admin.v1.BiMetricDifference'
+                    description: メトリクス变更
+                affected_cards:
+                    type: integer
+                    description: 影響を受けるカード数
+                    format: int32
+                affected_dashboards:
+                    type: integer
+                    description: 再公開が必要なダッシュボード数
+                    format: int32
+                source_version:
+                    type: integer
+                    description: データソースバージョン
+                    format: int32
+            description: 共通指標の同期による影響の概要。
         bi.admin.v1.BiOrderSpec:
             type: object
             properties:
@@ -13326,6 +13468,9 @@ components:
                 query_record_id:
                     type: string
                     description: 今回の成功検索記録ID，可能な作としてデータ卡片ソース
+                queried_at:
+                    type: string
+                    description: 検索時刻
             description: BI 検索結果。
         bi.admin.v1.BiQuerySpec:
             type: object
@@ -13372,6 +13517,15 @@ components:
                 type:
                     type: string
                     description: 列種類
+                role:
+                    type: string
+                    description: 結果ロール：dimensionまたはmeasure
+                unit:
+                    type: string
+                    description: "メトリクス単位: "
+                revision:
+                    type: string
+                    description: 指標のリビジョン
             description: BI 結果列。
         bi.admin.v1.BiResultRow:
             type: object
@@ -13462,6 +13616,8 @@ components:
                     type: integer
                     description: 模型选中の表件数
                     format: int32
+                sync_summary:
+                    $ref: '#/components/schemas/bi.admin.v1.BiModelImpact'
             description: BI データソース設定。
         bi.admin.v1.BiSourceDatabase:
             type: object
@@ -13589,17 +13745,15 @@ components:
                 type:
                     type: string
                     description: BIフィールド型
-                table:
+                expression:
                     type: string
-                    description: 所属表識別子
-                column:
+                    description: 固定集約式
+                unit:
                     type: string
-                    description: データベースフィールド
-                aggregations:
-                    type: array
-                    items:
-                        type: string
-                    description: 允许の集約函数
+                    description: "メトリクス単位: "
+                revision:
+                    type: string
+                    description: サーバーが管理する指標リビジョン
             description: データソース语义メトリクス。
         bi.admin.v1.BiSourceModel:
             type: object
@@ -13836,6 +13990,56 @@ components:
                     description: 合計件数
                     format: int32
             description: BI データソースページネーションレスポンス。
+        bi.admin.v1.PreviewBiCardSqlRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: カード ID。新規作成時は0。
+                expected_card_version:
+                    type: string
+                    description: 想定するカードのバージョン
+                expected_source_version:
+                    type: integer
+                    description: 想定するデータソースのバージョン
+                    format: int32
+                query_record_id:
+                    type: string
+                    description: 元の自然言語クエリの記録 ID
+                query:
+                    $ref: '#/components/schemas/bi.admin.v1.BiQuerySpec'
+                measure_changes:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/bi.admin.v1.BiMetricChange'
+                    description: 選択した共通指標の変更候補
+            description: カードの式のプレビューリクエスト。
+        bi.admin.v1.PreviewBiCardSqlResponse:
+            type: object
+            properties:
+                preview_query_record_id:
+                    type: string
+                    description: 成功した式プレビューの記録 ID
+                result:
+                    $ref: '#/components/schemas/bi.admin.v1.BiQueryResult'
+                sql:
+                    type: string
+                    description: 編集権限で参照可能なパラメーター化 SQL 全文
+                metric_definitions:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/bi.admin.v1.BiSourceMeasure'
+                    description: 編集が許可された共通指標の定義
+                can_edit_metrics:
+                    type: boolean
+                    description: 共通指標の式を編集できるか
+                source_version:
+                    type: integer
+                    description: プレビューに関連付けられたデータソースのバージョン
+                    format: int32
+                impact:
+                    $ref: '#/components/schemas/bi.admin.v1.BiModelImpact'
+            description: カードの式のプレビュー結果。
         bi.admin.v1.PreviewBiQueryRequest:
             type: object
             properties:
@@ -13860,6 +14064,21 @@ components:
                     description: 卡片ID，0表示新しい建
                 card:
                     $ref: '#/components/schemas/bi.admin.v1.BiCardForm'
+                expected_card_version:
+                    type: string
+                    description: 想定するカードのバージョン。新規作成時は0。
+                expected_source_version:
+                    type: integer
+                    description: 想定するデータソースのバージョン
+                    format: int32
+                preview_query_record_id:
+                    type: string
+                    description: 成功した式プレビューの記録 ID
+                measure_changes:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/bi.admin.v1.BiMetricChange'
+                    description: 選択した共通指標の変更候補
             description: 保存データ卡片リクエスト。
         bi.admin.v1.SaveBiDashboardRequest:
             type: object
@@ -13867,6 +14086,19 @@ components:
                 dashboard:
                     $ref: '#/components/schemas/bi.admin.v1.BiDashboard'
             description: 保存 BI 仪表盘リクエスト。
+        bi.admin.v1.SaveBiSourceModelRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: データソースID
+                model:
+                    $ref: '#/components/schemas/bi.admin.v1.BiSourceModel'
+                expected_source_version:
+                    type: integer
+                    description: 想定するデータソースのバージョン
+                    format: int32
+            description: データソースの意味モデルの保存リクエスト。
         bi.admin.v1.SaveBiWorkbenchRequest:
             type: object
             properties:
@@ -14091,7 +14323,7 @@ components:
                     description: 失敗原因
                 extractor_connection_id:
                     type: string
-                    description: Xberg MCP が接続 ID を抽出します
+                    description: Xberg MCP抽取连接ID
                 created_at:
                     type: string
                     description: 作成時刻

@@ -283,4 +283,6 @@ func (x *BiDashboard) Redact() {
 	// Safe field: UpdatedAt
 
 	// Safe field: CanEdit
+
+	// Safe field: RequiresRepublish
 }

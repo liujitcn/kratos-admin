@@ -54,8 +54,10 @@ export interface BiMeasureDescriptor {
   name: string;
   /** 指标类型 */
   type: string;
-  /** 允许的聚合函数 */
-  aggregations: string[];
+  /** 指标单位 */
+  unit: string;
+  /** 指标修订号 */
+  revision: number;
 }
 
 /** BI 查询预览请求。 */
@@ -106,8 +108,6 @@ export interface BiOrderSpec {
 export interface BiMeasureSpec {
   /** 指标编码 */
   code: string;
-  /** 聚合函数 */
-  aggregation: string;
 }
 
 /** BI 过滤条件。 */
@@ -132,6 +132,8 @@ export interface BiQueryResult {
   elapsed_ms: number;
   /** 本次成功查询记录ID */
   query_record_id: number;
+  /** 查询时间 */
+  queried_at: string;
 }
 
 /** BI 结果列。 */
@@ -142,6 +144,12 @@ export interface BiResultColumn {
   name: string;
   /** 列类型 */
   type: string;
+  /** 结果角色：dimension或measure */
+  role: string;
+  /** 指标单位 */
+  unit: string;
+  /** 指标修订号 */
+  revision: number;
 }
 
 /** BI 结果行。 */

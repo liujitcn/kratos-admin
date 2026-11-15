@@ -6,21 +6,35 @@ import { fileURLToPath } from "node:url";
 import { runInNewContext } from "node:vm";
 import ts from "typescript";
 import * as vue from "vue";
+import { renderToString } from "vue/server-renderer";
+import { ElButton, ElEmpty, ElIcon, ElSkeleton, ElTag } from "element-plus";
+import { ArrowRight } from "@element-plus/icons-vue";
 import { flowPlace } from "../src/schema/layout.ts";
 import { orderWorkbenchDashboards } from "../src/card-schema.ts";
 import * as response from "../src/bi-response.ts";
 
 const require = createRequire(import.meta.url);
-const { parse, compileScript } = require("vue/compiler-sfc");
+const { parse, compileScript, compileTemplate } = require("vue/compiler-sfc");
 
 /** 运行实际布局模块与组件脚本，外部接口只在测试边界替换。 */
-function load(relativePath, mocks = {}, globals = {}) {
+function load(relativePath, mocks = {}, globals = {}, renderTemplate = false) {
   const filename = fileURLToPath(new URL(relativePath, import.meta.url));
   let source = readFileSync(filename, "utf8");
   if (filename.endsWith(".vue")) {
     const { descriptor } = parse(source, { filename });
-    source =
-      compileScript(descriptor, { id: "dashboard-test", genDefaultAs: "component" }).content + "\nmodule.exports = component;";
+    const script = compileScript(descriptor, { id: "dashboard-test", genDefaultAs: "component" });
+    source = script.content;
+    if (renderTemplate) {
+      const template = compileTemplate({
+        source: descriptor.template.content,
+        filename,
+        id: "dashboard-test",
+        compilerOptions: { bindingMetadata: script.bindings }
+      });
+      assert.deepEqual(template.errors, []);
+      source += `\n${template.code}\ncomponent.render = render;`;
+    }
+    source += "\nmodule.exports = component;";
   }
   const module = { exports: {} };
   runInNewContext(
@@ -40,9 +54,9 @@ function load(relativePath, mocks = {}, globals = {}) {
       ElMessage: { error: () => undefined },
       ...globals,
       require: name => {
+        if (Object.hasOwn(mocks, name)) return mocks[name];
         if (name.endsWith(".vue")) return {};
-        assert.ok(Object.hasOwn(mocks, name), `未配置测试依赖: ${name}`);
-        return mocks[name];
+        assert.fail(`未配置测试依赖: ${name}`);
       }
     }
   );
@@ -53,14 +67,14 @@ const schema = load("../src/bi-dashboard-schema.ts", { "./schema/layout": { flow
 
 test("仪表盘布局不再持久化固定主题，保留卡片位置和发布快照", () => {
   const cards = [{ id: "card_1", card_id: 1, w: 6, h: 4, x: 0, y: 0, query: { source_code: "sales" } }];
-  const layout = schema.parseDashboardLayout(JSON.stringify({ schemaVersion: 3, name: "销售", theme: { key: "dark" }, cards }));
+  const layout = schema.parseDashboardLayout(JSON.stringify({ schemaVersion: 4, name: "销售", theme: { key: "dark" }, cards }));
   assert.equal(layout.name, "销售");
   assert.equal(Object.hasOwn(layout, "theme"), false);
   assert.equal(JSON.stringify(layout.cards), JSON.stringify(cards));
 });
 
 test("卡片库禁止重复和超限加入，尺寸调整与移除只修改对应引用", () => {
-  const props = vue.reactive({ modelValue: { schemaVersion: 3, name: "销售", cards: [] }, cards: [] });
+  const props = vue.reactive({ modelValue: { schemaVersion: 4, name: "销售", cards: [] }, cards: [] });
   const component = load("../src/components/BiDesigner.vue", {
     vue,
     "@liujitcn/kratos-admin-core": { t: key => key },
@@ -108,6 +122,7 @@ test("列表编辑同步名称与布局，保留版本和卡片，失败时保�
     "../../api/bi/admin/v1/bi_card": {},
     "../../api/bi/admin/v1/bi_dashboard": {
       defBiDashboardService: {
+        GetBiDashboard: async () => original,
         SaveBiDashboard: async value => {
           if (fail) throw new Error("保存失败");
           saved.push(value.dashboard);
@@ -124,7 +139,7 @@ test("列表编辑同步名称与布局，保留版本和卡片，失败时保�
     description: "说明",
     draft_version: 3,
     published_version: 2,
-    schema_json: JSON.stringify({ schemaVersion: 3, name: "原名称", cards: [{ id: "card_1", card_id: 1, w: 6, h: 4 }] })
+    schema_json: JSON.stringify({ schemaVersion: 4, name: "原名称", cards: [{ id: "card_1", card_id: 1, w: 6, h: 4 }] })
   };
   state.edit(original);
   state.form.name = "新名称";
@@ -208,6 +223,57 @@ test("工作台排序自动保存并保留最新卡片收藏，重复操作被�
   assert.deepEqual(errors, ["保存失败"]);
 });
 
+test("工作台隔离旧布局和损坏布局，提示重新发布并继续展示有效入口", async () => {
+  const layout = JSON.stringify({ schemaVersion: 4, name: "销售", cards: [{ card_id: 1 }, { card_id: 2 }] });
+  const dashboards = [
+    { id: 1, name: "旧仪表盘", published_version: 2, schema_json: JSON.stringify({ schemaVersion: 3, cards: [] }) },
+    { id: 2, name: "损坏仪表盘", published_version: 3, schema_json: "{" },
+    { id: 3, name: "有效仪表盘", published_version: 4, schema_json: layout },
+    { id: 4, name: "指标过期仪表盘", published_version: 5, schema_json: layout, requires_republish: true }
+  ];
+  const previews = [];
+  const component = load(
+    "../src/views/workbench/index.vue",
+    {
+      vue: { ...vue, onMounted: () => undefined, onActivated: () => undefined },
+      "vue-router": { useRouter: () => ({}) },
+      "@liujitcn/kratos-admin-core": { t: (key, params) => params ? `${key}:${params.count}` : key },
+      "../../card-schema": { orderWorkbenchDashboards },
+      "../../bi-dashboard-schema": schema,
+      "../../api/bi/admin/v1/bi_card": {
+        defBiCardService: { GetBiWorkbench: async () => ({ dashboard_ids: [1, 2, 3, 4], dashboards }) }
+      },
+      "../../components/BiWorkbenchPreview.vue": {
+        props: ["dashboard"],
+        setup: props => {
+          previews.push(props.dashboard.id);
+          return () => null;
+        }
+      }
+    },
+    {},
+    true
+  );
+  const setup = component.setup;
+  component.setup = async (props, context) => {
+    const state = setup(props, context);
+    await state.load();
+    return state;
+  };
+  const app = vue.createSSRApp(component);
+  for (const [name, component] of Object.entries({ ElButton, ElEmpty, ElIcon, ElSkeleton, ElTag, ArrowRight }))
+    app.component(name, component);
+  const html = await renderToString(app);
+  assert.equal((html.match(/<article\b/g) ?? []).length, 4);
+  for (const item of dashboards) assert.ok(html.includes(item.name));
+  assert.equal((html.match(/bi.sql.requires_republish/g) ?? []).length, 3);
+  assert.equal((html.match(/bi.dashboard.manage/g) ?? []).length, 3);
+  assert.equal((html.match(/bi.workbench.open_dashboard/g) ?? []).length, 1);
+  assert.ok(html.includes("bi.card.total:2"));
+  assert.deepEqual(previews, [3]);
+  assert.equal(dashboards[0].requires_republish, undefined);
+});
+
 test("管理页收藏开关成功后才切换，保留顺序与卡片收藏，草稿和失败不改状态", async () => {
   const item = { id: 3, published_version: 1 };
   const draft = { id: 4, published_version: 0 };
@@ -266,4 +332,47 @@ test("管理页收藏开关成功后才切换，保留顺序与卡片收藏，�
   assert.equal(state.savingFavorite.value, false);
   assert.equal(row.favorite, true);
   assert.deepEqual(Array.from(config.dashboard_ids), [3, 2]);
+});
+
+test("发布卡片只凭安全结果字段恢复图表，不接收业务过滤和内部查询", () => {
+ const card=schema.dashboardSnapshotCard({id:"item",card_id:3,w:6,h:4,name:"销售",chart_type:"bar",card_version:8,columns:[{code:"day",name:"日期",type:"date",role:"dimension"},{code:"sales",name:"销售额",type:"number",role:"measure",unit:"元",revision:7}]});
+ assert.deepEqual(Array.from(card.query.dimensions),["day"]);
+ assert.equal(card.query.measures[0].code,"sales");
+ assert.equal(card.query.source_code,"");
+ assert.equal(card.query.filters.length,0);
+ assert.equal(card.version,8);
+ assert.equal(card.columns[1].unit,"元");
+});
+
+test("过期发布可以生成新草稿并重新发布，已存在新草稿时直接发布", async () => {
+ const calls=[];
+ const layout=JSON.stringify({schemaVersion:4,name:"销售",cards:[{id:"card_1",card_id:9,x:0,y:0,w:6,h:4}]});
+ const component=load("../src/views/manage/index.vue",{
+  vue,"vue-router":{useRouter:()=>({})},"@liujitcn/kratos-admin-core":{t:key=>key},"@liujitcn/kratos-admin-core/table":{},"@liujitcn/kratos-admin-core/components/ProTable":{},"@liujitcn/kratos-admin-core/stores/runtime":{useAuthStore:()=>({flatMenuListGet:[]})},"../../bi-dashboard-schema":schema,"../../api/bi/admin/v1/bi_card":{},
+  "../../api/bi/admin/v1/bi_dashboard":{defBiDashboardService:{GetBiDashboard:async req=>{calls.push(["get",req.id]);return {id:req.id,draft_version:3,published_version:3,schema_json:layout}},SaveBiDashboard:async req=>{assert.equal(req.dashboard.schema_json,layout,"重新发布须先取得完整布局，保留已有卡片");calls.push(["save",req.dashboard.draft_version]);return {...req.dashboard,draft_version:4}},PublishBiDashboard:async req=>calls.push(["publish",req.version])}}
+ },{ElMessage:{success:()=>undefined,error:message=>assert.fail(message)}});
+ const state=component.setup({},{expose:()=>undefined});
+ const item={id:1,draft_version:3,published_version:3,requires_republish:true,can_edit:true};
+ const action=state.columns.value.find(column=>column.prop==="operation").actions.find(action=>action.label==="bi.dashboard.publish");
+ assert.equal(action.disabled({row:item}),false);
+ await state.publish(item);
+ await state.publish({...item,draft_version:5});
+ assert.deepEqual(calls,[["get",1],["save",3],["publish",4],["publish",5]]);
+});
+
+test("管理列表编辑名称和说明时保留完整卡片布局", async () => {
+ const layout={schemaVersion:4,name:"销售",cards:[{id:"card_1",card_id:9,x:0,y:0,w:6,h:4}]};
+ const item={id:1,name:"销售",code:"sales",draft_version:3,published_version:3,schema_json:""};
+ const saved=[];
+ const component=load("../src/views/manage/index.vue",{
+  vue,"vue-router":{useRouter:()=>({})},"@liujitcn/kratos-admin-core":{t:key=>key},"@liujitcn/kratos-admin-core/table":{},"@liujitcn/kratos-admin-core/components/ProTable":{},"@liujitcn/kratos-admin-core/stores/runtime":{useAuthStore:()=>({flatMenuListGet:[]})},"../../bi-dashboard-schema":schema,"../../api/bi/admin/v1/bi_card":{},
+  "../../api/bi/admin/v1/bi_dashboard":{defBiDashboardService:{GetBiDashboard:async()=>({...item,schema_json:JSON.stringify(layout)}),SaveBiDashboard:async req=>saved.push(req.dashboard)}}
+ },{ElMessage:{error:message=>assert.fail(message)}});
+ const state=component.setup({},{expose:()=>undefined});
+ state.dialog.value={validate:async()=>true,clearValidate:()=>undefined};
+ state.edit(item);
+ state.form.name="净销售额";
+ await state.submit();
+ assert.equal(JSON.parse(saved[0].schema_json).name,"净销售额");
+ assert.deepEqual(JSON.parse(saved[0].schema_json).cards,layout.cards);
 });

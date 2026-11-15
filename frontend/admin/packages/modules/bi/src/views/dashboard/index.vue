@@ -21,7 +21,7 @@ const route = useRoute();
 const id = computed(() => {
   return Number(route.params.id || route.path.match(/^\/reports\/dashboard\/([1-9]\d*)$/)?.[1] || 0);
 });
-const layout = ref<DashboardLayout>({ schemaVersion: 3, name: "", cards: [] });
+const layout = ref<DashboardLayout>({ schemaVersion: 4, name: "", cards: [] });
 const results = ref(new Map<string, BiQueryResult | undefined>());
 const loading = ref(false),
   error = ref("");
@@ -31,7 +31,7 @@ async function load() {
   const current = ++request;
   error.value = "";
   results.value = new Map();
-  layout.value = { schemaVersion: 3, name: "", cards: [] };
+  layout.value = { schemaVersion: 4, name: "", cards: [] };
   if (!Number.isSafeInteger(id.value) || id.value <= 0) {
     error.value = t("bi.dashboard.invalid_id");
     return;

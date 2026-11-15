@@ -25,6 +25,7 @@ func RegisterBiSourceServiceMCPTools(mcpServer *server.MCPServer, biSourceServic
 	RegisterBiSourceServiceTestBiSourceMCPTool(mcpServer, biSourceServiceServer)
 	RegisterBiSourceServiceListBiSourceTablesMCPTool(mcpServer, biSourceServiceServer)
 	RegisterBiSourceServiceSaveBiSourceModelMCPTool(mcpServer, biSourceServiceServer)
+	RegisterBiSourceServicePreviewBiSourceModelMCPTool(mcpServer, biSourceServiceServer)
 }
 
 // RegisterBiSourceServicePageBiSourceMCPTool 注册分页查询当前租户的数据源配置的 MCP Tool。
@@ -259,6 +260,30 @@ func RegisterBiSourceServiceSaveBiSourceModelMCPTool(mcpServer *server.MCPServer
 			}
 			var reply *BiSource
 			reply, err = biSourceServiceServer.SaveBiSourceModel(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
+		},
+	)
+}
+
+// RegisterBiSourceServicePreviewBiSourceModelMCPTool 注册预览公共模型变更和关联影响，不写入模型的 MCP Tool。
+func RegisterBiSourceServicePreviewBiSourceModelMCPTool(mcpServer *server.MCPServer, biSourceServiceServer BiSourceServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("bi_admin_v1_bi_source_service_preview_bi_source_model",
+			mcp.WithDescription("预览公共模型变更和关联影响，不写入模型。"),
+			mcp.WithInputSchema[*SaveBiSourceModelRequest](),
+			mcp.WithOutputSchema[*BiModelImpact](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &SaveBiSourceModelRequest{}
+			err := request.BindArguments(req)
+			if err != nil {
+				return nil, err
+			}
+			var reply *BiModelImpact
+			reply, err = biSourceServiceServer.PreviewBiSourceModel(ctx, req)
 			if err != nil {
 				return mcp.NewToolResultError(err.Error()), nil
 			}

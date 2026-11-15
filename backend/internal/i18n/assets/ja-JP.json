@@ -137,6 +137,30 @@
   "base.ai.approval.session_id.positive": {
     "other": "セッション番号が無効です"
   },
+  "base.ai.file.delete.id.positive": {
+    "other": "ファイルIDは0より大きくしてください"
+  },
+  "base.ai.file.page.keyword.max_len": {
+    "other": "ファイル名キーワードは100文字以内で指定してください"
+  },
+  "base.ai.file.page.page_num.positive": {
+    "other": "ページ番号は0より大きくしてください"
+  },
+  "base.ai.file.page.page_size.range": {
+    "other": "1ページあたりの行数は1から100の範囲で指定してください"
+  },
+  "base.ai.file.rename.file_name.valid": {
+    "other": "ファイル名は空にできず、255文字以内で指定してください"
+  },
+  "base.ai.file.rename.id.positive": {
+    "other": "ファイルIDは0より大きくしてください"
+  },
+  "base.ai.file.restore.id.positive": {
+    "other": "ファイルIDは0より大きくしてください"
+  },
+  "base.ai.file.trash.id.positive": {
+    "other": "ファイルIDは0より大きくしてください"
+  },
   "base.ai.message.attachment_prompt": {
     "other": "添付された内容に基づいて分析を続けてください"
   },
@@ -722,6 +746,9 @@
   "legacy.error.0196b093ca02959f": {
     "other": "ロールの更新に失敗しました。組み込みロールのコードは変更できません"
   },
+  "legacy.error.01b71530aff69748": {
+    "other": "共通指標のバージョンが変更されました。再読み込みしてプレビューしてください。"
+  },
   "legacy.error.01c8029537c813fd": {
     "other": "テーブル構造クエリを終了できませんでした"
   },
@@ -748,6 +775,9 @@
   },
   "legacy.error.034b0adab4e608e8": {
     "other": "言語の照会に失敗しました"
+  },
+  "legacy.error.03be4b2cd229dfde": {
+    "other": "データソースのバージョンが変更されました。再読み込みしてプレビューしてください。"
   },
   "legacy.error.03d3bc599618bca5": {
     "other": "バックアップ設定の作成に失敗しました"
@@ -830,6 +860,9 @@
   "legacy.error.082f8954f62749dc": {
     "other": "burst は 1 から %d の間で指定してください"
   },
+  "legacy.error.084b8ec03cdbb90f": {
+    "other": "カードの共通指標が変更されました。カードを再読み込みしてください。"
+  },
   "legacy.error.0860e716d6b0f753": {
     "other": "SSEイベントストリームの購読に失敗しました"
   },
@@ -881,6 +914,9 @@
   "legacy.error.0a7fb1b3f8eaf265": {
     "other": "BIデータベース接続の取得に失敗しました"
   },
+  "legacy.error.0a90b08f1f22d48d": {
+    "other": "カードの式の成功したプレビューが必要です。"
+  },
   "legacy.error.0ad5ac1b6de56f07": {
     "other": "ログインポリシーが存在しません"
   },
@@ -898,6 +934,9 @@
   },
   "legacy.error.0ba482d3cbbbf2d5": {
     "other": "プラグインにアクセスする権限がありません"
+  },
+  "legacy.error.0bcc4cd098945869": {
+    "other": "ドキュメントにXberg MCP接続が紐付いていないため、再試行できません"
   },
   "legacy.error.0c182ab409f0a51d": {
     "other": "メッセージアクションパラメータのネストが深すぎます"
@@ -1070,6 +1109,9 @@
   "legacy.error.13ef79bb92bde2f9": {
     "other": "業務操作ログ詳細の照会に失敗しました"
   },
+  "legacy.error.1412f899645540f6": {
+    "other": "結果の列の取得に失敗しました。"
+  },
   "legacy.error.141f07d40c870162": {
     "other": "ウェブ検索リクエストに失敗しました"
   },
@@ -1127,6 +1169,9 @@
   "legacy.error.1652eac10085aecc": {
     "other": "ユーザーリストの照会に失敗しました"
   },
+  "legacy.error.1653a9026fc27bd4": {
+    "other": "BI の質問から完全なクエリプランを生成できませんでした。データソースに必要な指標とディメンションが設定されているか確認してください。"
+  },
   "legacy.error.1681f52b573f0af5": {
     "other": "すべて既読にする操作に失敗しました"
   },
@@ -1178,6 +1223,9 @@
   "legacy.error.18f0b5e30636fefe": {
     "other": "スマート問い合わせの実行に失敗しました"
   },
+  "legacy.error.1918b6a58243b070": {
+    "other": "Xberg extractツールに重複するスナップショットがあります"
+  },
   "legacy.error.191e089185824060": {
     "other": "実行クライアントが無効です"
   },
@@ -1223,6 +1271,9 @@
   "legacy.error.1b5afde0daadb968": {
     "other": "ワンタイムパスワード使用ウィンドウの記録に失敗しました"
   },
+  "legacy.error.1b69a3d458814ade": {
+    "other": "カードの詳細の取得に失敗しました。"
+  },
   "legacy.error.1b7373bb974cf330": {
     "other": "API設定の更新に失敗しました"
   },
@@ -1259,6 +1310,9 @@
   "legacy.error.1ccaab6141afce81": {
     "other": "デフォルトデータソースが初期化されていません"
   },
+  "legacy.error.1d0c4f5b997fc5da": {
+    "other": "作成後にデータソースのコードは変更できません。"
+  },
   "legacy.error.1d476a8114cf0eca": {
     "other": "クライアントの連携テナント読み取りに失敗しました"
   },
@@ -1267,6 +1321,9 @@
   },
   "legacy.error.1d65089c82e93a8f": {
     "other": "BIデータソースが存在しません"
+  },
+  "legacy.error.1d8918d6b774c812": {
+    "other": "AIファイルを完全に削除できませんでした"
   },
   "legacy.error.1d9e58fc4d11cc80": {
     "other": "プラグインが存在しません"
@@ -1315,6 +1372,9 @@
   },
   "legacy.error.20e379d993bbb25c": {
     "other": "設定値を空にすることはできません"
+  },
+  "legacy.error.20e4ed395d9839a4": {
+    "other": "実行パラメーターの順序が無効です。"
   },
   "legacy.error.20eb653252a9bb73": {
     "other": "出力リダクションポリシーのステータス設定に失敗しました"
@@ -1430,6 +1490,9 @@
   "legacy.error.26a98594498a94ca": {
     "other": "テナント コードを空にすることはできません"
   },
+  "legacy.error.26e1250866323287": {
+    "other": "共通指標またはモデルが更新されました。ダッシュボードを再公開してください。"
+  },
   "legacy.error.2703b88803392bf3": {
     "other": "AIナレッジベースオプションの照会に失敗しました"
   },
@@ -1475,8 +1538,14 @@
   "legacy.error.2873504bb9691115": {
     "other": "再度認可が必要です"
   },
+  "legacy.error.28bf06cb7d46dc1e": {
+    "other": "同じデータソース内の指標コードと名前は重複できません。"
+  },
   "legacy.error.28e090f1a6d5560b": {
     "other": "メッセージカテゴリの照会に失敗しました"
+  },
+  "legacy.error.28febc070b420067": {
+    "other": "複数テキスト設定のキーを空にすることはできません"
   },
   "legacy.error.291d427436dbaf83": {
     "other": "パスワードポリシーの取得に失敗しました"
@@ -1489,6 +1558,9 @@
   },
   "legacy.error.2937cc9333bbb190": {
     "other": "読み取り専用トランザクションの開始に失敗しました"
+  },
+  "legacy.error.29446486f52cb1c3": {
+    "other": "共通モデルが参照カードのグラフの列と互換性がありません。"
   },
   "legacy.error.2964607aae8c25ca": {
     "other": "サードパーティアカウントの連携に失敗しました"
@@ -1529,8 +1601,14 @@
   "legacy.error.2b625f1ddf0290c4": {
     "other": "実行前に認可設定が変更されました。再度実行してください"
   },
+  "legacy.error.2b82f4a808a13f6d": {
+    "other": "結果の型の取得に失敗しました。"
+  },
   "legacy.error.2bba60c6b758c7d3": {
     "other": "メッセージカテゴリの作成に失敗しました"
+  },
+  "legacy.error.2bc077cdbe0047e1": {
+    "other": "BI フィルターの演算子と値の数が一致しません。"
   },
   "legacy.error.2bcdb4bb0f0550e6": {
     "other": "ロールのメニュー権限が上限を超えているため設定に失敗しました"
@@ -1579,6 +1657,9 @@
   },
   "legacy.error.2de441703db096ce": {
     "other": "システム設定の内容が無効です"
+  },
+  "legacy.error.2dfd535f6c7fc25b": {
+    "other": "カードの実行定義の検証に失敗しました。"
   },
   "legacy.error.2e0ad0ebc1dfeb09": {
     "other": "ファイルパスを空にすることはできません"
@@ -1654,6 +1735,9 @@
   },
   "legacy.error.31baae75af000f44": {
     "other": "リアルタイムコンソールのオープンに失敗しました"
+  },
+  "legacy.error.31bf8cec98af0e9a": {
+    "other": "参照カードのクエリ設定が無効なため、共通モデルを保存できません。"
   },
   "legacy.error.31d2b7d8c6338edd": {
     "other": "プロバイダー拡張設定は JSON オブジェクトである必要があります: %w"
@@ -1754,6 +1838,9 @@
   "legacy.error.3772108e1c6666ab": {
     "other": "セッションの有効期限が切れています。もう一度サインインしてください"
   },
+  "legacy.error.37b276db57c29da2": {
+    "other": "このプレビューは保存済みです。カードを再読み込みしてください。"
+  },
   "legacy.error.380bffbcf0a41ea9": {
     "other": "メッセージプロバイダーを取得できませんでした"
   },
@@ -1829,6 +1916,9 @@
   "legacy.error.3bec0ef0dea8740e": {
     "other": "ログインポリシーの作成に失敗しました"
   },
+  "legacy.error.3c06bffa55d68820": {
+    "other": "このカードで選択済みの共通指標のみ変更できます。重複は指定できません。"
+  },
   "legacy.error.3c17a593ba4eedf5": {
     "other": "アーカイブ設定が存在しません"
   },
@@ -1903,6 +1993,12 @@
   },
   "legacy.error.3efadf56e15bf357": {
     "other": "メニューの削除に失敗しました"
+  },
+  "legacy.error.3f5b5c48391732ca": {
+    "other": "クエリ条件が変更されました。再度質問してカードを作成してください。"
+  },
+  "legacy.error.3f6cc54bd9060b1f": {
+    "other": "実行時の識別パラメーターが無効です。"
   },
   "legacy.error.3f810684fb05da18": {
     "other": "スケジュール名、指示、固定モデルは必須です"
@@ -1982,6 +2078,9 @@
   "legacy.error.435d2092fabb1d0c": {
     "other": "メッセージプロバイダー %d(%s) の構築に失敗しました: %w"
   },
+  "legacy.error.4379b6b2611e92d2": {
+    "other": "アダプターの指標が存在しません。"
+  },
   "legacy.error.43ac2c9a541832d6": {
     "other": "ストレージリダクション対象テーブルの照会に失敗しました"
   },
@@ -1993,6 +2092,9 @@
   },
   "legacy.error.43c2f70a29b0150b": {
     "other": "tokens_per_second は %g から %g の間で指定してください"
+  },
+  "legacy.error.43dcaf96b3684a99": {
+    "other": "クエリ結果の型が共通モデルと一致しません。"
   },
   "legacy.error.43ff9b33e2653511": {
     "other": "BIダッシュボードのデータ取得に失敗しました"
@@ -2024,6 +2126,9 @@
   "legacy.error.449da1cde21dcfbd": {
     "other": "辞書項目の更新に失敗しました"
   },
+  "legacy.error.44ac3e0a66a49397": {
+    "other": "実行時のフィルターパラメーターが無効です。"
+  },
   "legacy.error.44b45b049ae6f2a2": {
     "other": "OAuthクライアント資格情報の照会に失敗しました"
   },
@@ -2047,6 +2152,12 @@
   },
   "legacy.error.45a39797c58eacad": {
     "other": "ロール操作に失敗しました。デフォルトロールの状態は変更できません"
+  },
+  "legacy.error.45c4719a2654ded5": {
+    "other": "既存の質問の確認に失敗しました。"
+  },
+  "legacy.error.45dfba890e01f2b6": {
+    "other": "AIファイルが存在しないか、アクセス権がありません"
   },
   "legacy.error.45f4c29f6502180e": {
     "other": "テナントIDを含むテーブルのみ選択できます"
@@ -2092,6 +2203,9 @@
   },
   "legacy.error.47bf82767ab9f996": {
     "other": "ウェブ検索に失敗しました"
+  },
+  "legacy.error.47cdc5f24bd1a158": {
+    "other": "設定値の形式が無効です"
   },
   "legacy.error.47fcdd027d998032": {
     "other": "プロバイダーのカスタム設定の変換に失敗しました"
@@ -2219,6 +2333,9 @@
   "legacy.error.4dfa744b4c9598b5": {
     "other": "テナントユーザーのログイン トークンの取り消しに失敗しました"
   },
+  "legacy.error.4e0054bfb83c5711": {
+    "other": "カードのバージョンが変更されました。再読み込みして再試行してください。"
+  },
   "legacy.error.4e1ccac86ed4d69a": {
     "other": "権限ログのページング照会に失敗しました"
   },
@@ -2269,6 +2386,9 @@
   },
   "legacy.error.508e0bd781aa07f1": {
     "other": "ダッシュボードの下書きにアクセスできません"
+  },
+  "legacy.error.5093032b0010f3c1": {
+    "other": "Xbergドキュメント抽出結果が無効です"
   },
   "legacy.error.5122a126fad7b798": {
     "other": "このプラグイン用のOAuthクライアントがプラットフォームに設定されていません"
@@ -2372,6 +2492,9 @@
   "legacy.error.556b8b82f553a15e": {
     "other": "サードパーティログインの状態が無効です"
   },
+  "legacy.error.55cf4f9958084301": {
+    "other": "現在のXberg接続ではextractツールが審査されていません"
+  },
   "legacy.error.55e4ff7f51a5c57e": {
     "other": "このバージョンは公開済みです"
   },
@@ -2410,6 +2533,9 @@
   },
   "legacy.error.57a2444f2e6a208a": {
     "other": "自動化設定が変更されました"
+  },
+  "legacy.error.57abac08c92c7b8b": {
+    "other": "共通指標の名前または単位が無効です。"
   },
   "legacy.error.57ea342b782c0e6b": {
     "other": "会話に未完了の実行があるため、プラグインを変更できません"
@@ -2453,6 +2579,9 @@
   "legacy.error.59cd5fcd2d88a55d": {
     "other": "付与主体タイプが無効です"
   },
+  "legacy.error.59d1f9ec5475a9a9": {
+    "other": "カードの手動プレビューの作成元が無効です。"
+  },
   "legacy.error.59d7e6022ca5603c": {
     "other": "BIデータソースのパスワード取得に失敗しました"
   },
@@ -2464,6 +2593,9 @@
   },
   "legacy.error.5a31e2a9d1da4296": {
     "other": "OSSアーカイブでは選択的な復元をサポートしていません"
+  },
+  "legacy.error.5a3df6dc5b931c17": {
+    "other": "ドキュメントのファイル名と内容は必須です"
   },
   "legacy.error.5a46008137ae3c3f": {
     "other": "行政区の削除に失敗しました"
@@ -2557,6 +2689,9 @@
   },
   "legacy.error.5dbeb80f31fb77e3": {
     "other": "MFAキーの生成に失敗しました"
+  },
+  "legacy.error.5e35c4b3830081f3": {
+    "other": "予約済みユーザー名設定の解析に失敗しました"
   },
   "legacy.error.5e49e05b84d732ea": {
     "other": "AIモデルの分類が無効です"
@@ -2735,6 +2870,9 @@
   "legacy.error.6a0af2f6030bd38a": {
     "other": "AIナレッジベースの削除に失敗しました"
   },
+  "legacy.error.6a0f321480047980": {
+    "other": "共通指標が更新されました。再公開または再読み込みしてください。"
+  },
   "legacy.error.6a2d2bbcff20daf0": {
     "other": "保存時マスキングポリシーがこのルールを参照しているため、削除できません"
   },
@@ -2800,6 +2938,9 @@
   },
   "legacy.error.6c754072edfff142": {
     "other": "分岐メッセージが存在しません"
+  },
+  "legacy.error.6c77bdfb0f912237": {
+    "other": "データソースモデルの取得に失敗しました。"
   },
   "legacy.error.6c784f84a1e53d3e": {
     "other": "MCPユーザー認証に失敗しました"
@@ -2879,41 +3020,14 @@
   "legacy.error.70cd0f3093a0e441": {
     "other": "セッション状態の検証に失敗しました"
   },
-  "legacy.error.28febc070b420067": {
-    "other": "複数テキスト設定のキーを空にすることはできません"
-  },
-  "legacy.error.47cdc5f24bd1a158": {
-    "other": "設定値の形式が無効です"
-  },
-  "legacy.error.c5b8236066d773cb": {
-    "other": "アカウントセキュリティ設定の生成に失敗しました"
-  },
-  "legacy.error.ebc50e1f7a35066f": {
-    "other": "既存アカウント変更設定の消去に失敗しました"
-  },
-  "legacy.error.79e1ef64ed687e81": {
-    "other": "予約済みユーザー名設定の読み取りに失敗しました"
-  },
-  "legacy.error.5e35c4b3830081f3": {
-    "other": "予約済みユーザー名設定の解析に失敗しました"
-  },
-  "legacy.error.d11630b62e6fedb8": {
-    "other": "予約済みユーザー名設定が存在しないか無効です"
-  },
-  "legacy.error.91b8df65f0a75e4a": {
-    "other": "スクリプトの試行実行には保存済みスクリプトが必要です"
-  },
-  "legacy.error.71167d40ba8f999c": {
-    "other": "スクリプトの試行実行にインラインソースは指定できません"
-  },
-  "system.config.security.key_value.key.required": {
-    "other": "セキュリティ設定のキーを空にすることはできません"
-  },
   "legacy.error.70e0900c1017d449": {
     "other": "AIアシスタントに有効なモデルがありません"
   },
   "legacy.error.710dd04852eca77e": {
     "other": "メッセージテンプレート ID を空にすることはできません"
+  },
+  "legacy.error.71167d40ba8f999c": {
+    "other": "スクリプトの試行実行にインラインソースは指定できません"
   },
   "legacy.error.7116ac01a15300ff": {
     "other": "ユーザーロールが所属テナントと一致しません"
@@ -2926,6 +3040,9 @@
   },
   "legacy.error.71b964ddddb7e887": {
     "other": "ログインソースポリシーの読み取りに失敗しました"
+  },
+  "legacy.error.71ba6d3269b7c2c3": {
+    "other": "実行パラメーターの取得元が無効です。"
   },
   "legacy.error.71bb10fe5b515e43": {
     "other": "パスワードの複雑さに必要な文字種数は0より大きくしてください"
@@ -3098,6 +3215,9 @@
   "legacy.error.7849340589beebfc": {
     "other": "ワークスペースに未公開またはアクセスできないダッシュボードがあります"
   },
+  "legacy.error.7861392d80b7ec93": {
+    "other": "プレビューがまだ成功していません。"
+  },
   "legacy.error.7871e907338a7317": {
     "other": "プロジェクト付与が存在しません"
   },
@@ -3109,6 +3229,9 @@
   },
   "legacy.error.788dcfa4a8975496": {
     "other": "クライアントが現在のテナントに属していません"
+  },
+  "legacy.error.78a0509b45b4a492": {
+    "other": "共通モデルの取得に失敗しました。"
   },
   "legacy.error.7902d3e31eea1542": {
     "other": "通知の復元に失敗しました"
@@ -3140,6 +3263,9 @@
   "legacy.error.79c663c3b9bbbc6e": {
     "other": "カードのクエリ設定を読み込めませんでした"
   },
+  "legacy.error.79e1ef64ed687e81": {
+    "other": "予約済みユーザー名設定の読み取りに失敗しました"
+  },
   "legacy.error.7a155b68e77f7b3e": {
     "other": "メッセージの削除に失敗しました"
   },
@@ -3169,6 +3295,9 @@
   },
   "legacy.error.7bdaeb66d03d3063": {
     "other": "このステップは期限切れです。最新のメッセージから操作を続けてください"
+  },
+  "legacy.error.7c2ff7623108c867": {
+    "other": "コード登録データソースの共通指標はホスト側のコードで管理します。"
   },
   "legacy.error.7c35f73ae4b6a74e": {
     "other": "表示名は100文字以内で入力してください"
@@ -3200,6 +3329,9 @@
   "legacy.error.7d9df526e40f29cf": {
     "other": "ユーザーの更新に失敗しました。ユーザー番号は変更できません"
   },
+  "legacy.error.7dc26525d7beb27c": {
+    "other": "式の候補またはバージョンが変更されました。再度プレビューしてください。"
+  },
   "legacy.error.7ddf413a97a025d8": {
     "other": "有効なCAPTCHAタイプがありません"
   },
@@ -3220,6 +3352,9 @@
   },
   "legacy.error.7f2e31e4312fc8b8": {
     "other": "スケジュールタスクの作成に失敗しました"
+  },
+  "legacy.error.800715ced110fb33": {
+    "other": "生成ファイルのメタデータが不完全です"
   },
   "legacy.error.800ad5e277d8f771": {
     "other": "レート制限ルールのパラメータが有効な JSON ではありません: %w"
@@ -3317,6 +3452,9 @@
   "legacy.error.840a1544b634b15c": {
     "other": "データベースのテーブル構造の処理に失敗しました"
   },
+  "legacy.error.84317c7b0ad90e29": {
+    "other": "AIファイルのページ検索に失敗しました"
+  },
   "legacy.error.844039c078368bf3": {
     "other": "ツールのリクエスト定義が見つかりません"
   },
@@ -3365,6 +3503,9 @@
   "legacy.error.87b7f25f6e118d2d": {
     "other": "シークレットフィールドが存在しません"
   },
+  "legacy.error.882624c8cf932368": {
+    "other": "AIファイルオブジェクトの削除に失敗しました"
+  },
   "legacy.error.88866be60ba8716d": {
     "other": "ユーザー操作に失敗しました。組み込み管理者アカウントは個人センターでのみ変更できます"
   },
@@ -3388,6 +3529,9 @@
   },
   "legacy.error.895609297b4cc810": {
     "other": "MySQL互換の接続設定が不足しています"
+  },
+  "legacy.error.8960195949851874": {
+    "other": "BI データソースに関連付けられたデータベースクライアントが存在しません。"
   },
   "legacy.error.89948745c30efa6b": {
     "other": "クライアントトークンの身元が一致しません"
@@ -3422,6 +3566,9 @@
   "legacy.error.8b1e46dc72244e15": {
     "other": "BIクエリの生成に失敗しました"
   },
+  "legacy.error.8b2e13980a428eca": {
+    "other": "カードのバージョンまたは作成元が変更されました。再読み込みしてください。"
+  },
   "legacy.error.8b4129c122309dd6": {
     "other": "個人プラグインのアカウントは所有者のみ使用できます"
   },
@@ -3433,6 +3580,9 @@
   },
   "legacy.error.8b5a995b29d45525": {
     "other": "PostgreSQLの接続設定が不足しています"
+  },
+  "legacy.error.8b6f81c885714529": {
+    "other": "共通指標が現在の公開バージョンで参照されています。先に参照を解除してください。"
   },
   "legacy.error.8b7757274fb40557": {
     "other": "ウェブ検索レスポンスの読み取りに失敗しました"
@@ -3554,6 +3704,9 @@
   "legacy.error.91b00ce081033154": {
     "other": "システム設定の照会に失敗しました"
   },
+  "legacy.error.91b8df65f0a75e4a": {
+    "other": "スクリプトの試行実行には保存済みスクリプトが必要です"
+  },
   "legacy.error.91c0093168823546": {
     "other": "AI プロバイダーまたはモデルの選択が無効です"
   },
@@ -3598,6 +3751,9 @@
   },
   "legacy.error.940716542da56181": {
     "other": "今回の実行が完了してから会話を続けてください"
+  },
+  "legacy.error.941e8aec57e2cb3a": {
+    "other": "現在のアカウントで成功した自然言語クエリを選択してください。"
   },
   "legacy.error.94214c40a9264d8a": {
     "other": "システム設定の作成に失敗しました"
@@ -3673,6 +3829,9 @@
   },
   "legacy.error.98607017b11fd268": {
     "other": "OpenAI 互換プロバイダーを有効にする前に API キーを設定する必要があります"
+  },
+  "legacy.error.9862236e9d13483d": {
+    "other": "現在の公開スナップショットが無効なため、共通モデルを保存できません。"
   },
   "legacy.error.988c6bbc8a789ec2": {
     "other": "プラグインを削除する権限がありません"
@@ -3758,6 +3917,9 @@
   "legacy.error.9f2257503116e08f": {
     "other": "インバウンド保護ポリシーが存在しません"
   },
+  "legacy.error.9f3bd4f89eba27ec": {
+    "other": "共通指標の取得に失敗しました。"
+  },
   "legacy.error.a02d1bad8ef6fd46": {
     "other": "AI プロバイダー名が重複しています"
   },
@@ -3782,6 +3944,9 @@
   "legacy.error.a14efca145af09f5": {
     "other": "ボタンまたは外部リンクを親メニューにすることはできません"
   },
+  "legacy.error.a172626b5bd5ea56": {
+    "other": "データソースがカードで参照されています。先に参照を解除してください。"
+  },
   "legacy.error.a195d637f77c8be3": {
     "other": "AIナレッジベースのドキュメント削除に失敗しました"
   },
@@ -3802,6 +3967,9 @@
   },
   "legacy.error.a2bfb226f0e00e12": {
     "other": "ユーザー登録データの集計に失敗しました"
+  },
+  "legacy.error.a2c8f04a1c8ccc6a": {
+    "other": "共通指標またはモデルが更新されました。再公開または再読み込みしてください。"
   },
   "legacy.error.a35fcb70f28d8d05": {
     "other": "プラグイン定義を作成できませんでした"
@@ -3824,6 +3992,9 @@
   "legacy.error.a4c906a269af199d": {
     "other": "ビジネステーブル名は小文字・数字・アンダースコアのみを含み、文字で始まる必要があります"
   },
+  "legacy.error.a4cf20de4d78749f": {
+    "other": "共通指標の式のプレビューに失敗しました。"
+  },
   "legacy.error.a4ec9260f17d6542": {
     "other": "ダッシュボードが存在しません"
   },
@@ -3838,6 +4009,9 @@
   },
   "legacy.error.a577df26d1942267": {
     "other": "OAuthトークンの更新に失敗しました。再度認可してください"
+  },
+  "legacy.error.a58f34980e0d7a58": {
+    "other": "BI クエリの列は重複できません。"
   },
   "legacy.error.a6000e305f5d2fef": {
     "other": "古いクライアントトークンの失効に失敗しました"
@@ -3926,11 +4100,20 @@
   "legacy.error.a937731e83d53b1f": {
     "other": "ツール設定が変更されました"
   },
+  "legacy.error.a93d7d4d9ef7e0a7": {
+    "other": "カードの元の質問は変更できません。"
+  },
   "legacy.error.a9a6a83a7d22e27e": {
     "other": "ユーザー名またはパスワードが正しくありません"
   },
   "legacy.error.aa3f19b0635bde95": {
     "other": "BIクエリにはディメンションまたは指標が必要です"
+  },
+  "legacy.error.aa4dd4c15970b3c3": {
+    "other": "データソースの共通指標を変更する権限がありません。"
+  },
+  "legacy.error.aa5dea4f4d157fa2": {
+    "other": "プレビューのコンテキストが無効です。"
   },
   "legacy.error.ab10b5713ba93cbd": {
     "other": "役職の削除に失敗しました"
@@ -3973,6 +4156,9 @@
   },
   "legacy.error.ad41477a76b25935": {
     "other": "ユーザーの部門が所属テナントと一致しません"
+  },
+  "legacy.error.ad534d579379c306": {
+    "other": "カードの実行範囲が無効です。"
   },
   "legacy.error.ad53bc40c159c03e": {
     "other": "左ツリー設定の形式が正しくありません"
@@ -4082,6 +4268,9 @@
   "legacy.error.b2fbb90f787f4e6e": {
     "other": "サードパーティログインチケットが無効です"
   },
+  "legacy.error.b35eea6a692dc18a": {
+    "other": "共通モデルの変更プレビューに失敗しました。"
+  },
   "legacy.error.b3729212cf4d6ce7": {
     "other": "テナント管理者アカウントの初期化に失敗しました"
   },
@@ -4123,6 +4312,9 @@
   },
   "legacy.error.b4d563372fcfa9f9": {
     "other": "アーカイブ復元の実行に失敗しました"
+  },
+  "legacy.error.b4d912bc39f62f01": {
+    "other": "既存の質問結果の取得に失敗しました。"
   },
   "legacy.error.b4e8a6a8f46414d5": {
     "other": "クライアント認証失敗状態のクリアに失敗しました"
@@ -4175,6 +4367,9 @@
   "legacy.error.b6e4cd4d62d790ac": {
     "other": "実行が停止したため、新しい承認要求を作成できません"
   },
+  "legacy.error.b6f75cf6cede5d4c": {
+    "other": "Xberg MCPプラグインが初期化されていません"
+  },
   "legacy.error.b74cf37538de3767": {
     "other": "第2階層のディレクトリには、ディレクトリ、メニュー、外部リンクのみ作成できます"
   },
@@ -4222,6 +4417,9 @@
   },
   "legacy.error.b9a452b87cde115a": {
     "other": "現在の認証方式はリカバリーコードの再生成に対応していません"
+  },
+  "legacy.error.ba0da82a346c0fe8": {
+    "other": "クエリ結果が有効な数値ではありません。"
   },
   "legacy.error.ba2694f62e4fbbaf": {
     "other": "メッセージの削除に失敗しました（メッセージが存在しません）"
@@ -4274,6 +4472,9 @@
   "legacy.error.bc29a25559a6df0a": {
     "other": "メッセージの照会に失敗しました"
   },
+  "legacy.error.bc2e21273445c1ed": {
+    "other": "共通指標のコード、名前、単位または型が無効です。"
+  },
   "legacy.error.bc52216171131e30": {
     "other": "認証するAPIを重複させることはできません"
   },
@@ -4319,6 +4520,9 @@
   "legacy.error.be74ce92a610e199": {
     "other": "メッセージの受信者を重複させることはできません"
   },
+  "legacy.error.bed8dc7b14f9cdbd": {
+    "other": "参照カードの実行定義が無効です。"
+  },
   "legacy.error.bef4cc844929c21e": {
     "other": "クエリ条件が変更されました。再度プレビューしてから保存してください"
   },
@@ -4342,6 +4546,9 @@
   },
   "legacy.error.c04abdd20cec9b79": {
     "other": "コード生成タスクの開始に失敗しました"
+  },
+  "legacy.error.c057036e72b637c4": {
+    "other": "共通指標の式が無効です。"
   },
   "legacy.error.c09382006eddcbe1": {
     "other": "信頼された実行クライアントが必要です"
@@ -4409,6 +4616,9 @@
   "legacy.error.c343976847d80363": {
     "other": "スクリプトの削除に失敗しました"
   },
+  "legacy.error.c39aa6cc1e27e61b": {
+    "other": "元の質問で使用した共通指標が更新されました。再度質問してください。"
+  },
   "legacy.error.c3dd71d006f793b2": {
     "other": "ファイルスキャン一時ファイルのクローズに失敗しました"
   },
@@ -4445,6 +4655,9 @@
   "legacy.error.c59e66d856edd7b2": {
     "other": "実行中です。現在の実行を停止し、終了するまでお待ちください"
   },
+  "legacy.error.c5b8236066d773cb": {
+    "other": "アカウントセキュリティ設定の生成に失敗しました"
+  },
   "legacy.error.c5c1f6bacfa7c53d": {
     "other": "ダッシュボードが参照するカードが存在しません"
   },
@@ -4465,6 +4678,9 @@
   },
   "legacy.error.c67d0141c0b9fad9": {
     "other": "レート制限ルールのコードとアルゴリズム種別は変更できません"
+  },
+  "legacy.error.c68afecefc9bcf3e": {
+    "other": "クエリ結果の列が指標の定義と一致しません。"
   },
   "legacy.error.c6b03a85bc8fbf37": {
     "other": "クライアントはどのインターフェースも認可されていません"
@@ -4508,6 +4724,9 @@
   "legacy.error.c916f58aa90099af": {
     "other": "ワークフロー定義の状態が無効です"
   },
+  "legacy.error.c9556f01140f087f": {
+    "other": "Xberg extractツールは読み取り専用として審査される必要があります"
+  },
   "legacy.error.ca07a343943ddc8b": {
     "other": "初期化済みのデータソースを選択してください"
   },
@@ -4516,6 +4735,9 @@
   },
   "legacy.error.ca4de5b792e75311": {
     "other": "ファイル資産詳細の照会に失敗しました"
+  },
+  "legacy.error.ca581ba6d67de40c": {
+    "other": "同じデータソース内の共通指標名は重複できません。"
   },
   "legacy.error.caa548273af1521b": {
     "other": "Protoファイルは選択したProtoディレクトリにあり、.proto拡張子である必要があります"
@@ -4598,6 +4820,9 @@
   "legacy.error.ce12956616b6dbc9": {
     "other": "保存時マスキングポリシー作成後は、テナント・データソース・テーブル・フィールドを変更できません"
   },
+  "legacy.error.ce16215836d2b4f2": {
+    "other": "自動利用可能なプラグインアカウントが64件を超えています。管理画面で利用範囲を調整してください。"
+  },
   "legacy.error.ce1a849baef38a91": {
     "other": "フローインスタンスは承認中ではありません"
   },
@@ -4658,6 +4883,9 @@
   "legacy.error.d10dca63ec27b6dc": {
     "other": "共有範囲が無効です"
   },
+  "legacy.error.d11630b62e6fedb8": {
+    "other": "予約済みユーザー名設定が存在しないか無効です"
+  },
   "legacy.error.d132998d88c706a1": {
     "other": "インストールポリシーが変更されました"
   },
@@ -4699,6 +4927,9 @@
   },
   "legacy.error.d2a00e4240f15d1a": {
     "other": "MFA連携の開始に失敗しました"
+  },
+  "legacy.error.d2d80d1897b105d0": {
+    "other": "プレビュー中に共通モデルが変更されました。再度プレビューしてください。"
   },
   "legacy.error.d2ec820d108540bb": {
     "other": "プロバイダー識別子が重複しています"
@@ -4799,6 +5030,12 @@
   "legacy.error.d828018e33550bad": {
     "other": "接続トークンを再設定できませんでした"
   },
+  "legacy.error.d82fc7e6d81366ff": {
+    "other": "現在のアカウントとプロジェクトで成功したプレビューを選択してください。"
+  },
+  "legacy.error.d9052760af199a40": {
+    "other": "AIファイルを復元できませんでした"
+  },
   "legacy.error.d91665d16fe86915": {
     "other": "AIアシスタントセッションの作成に失敗しました"
   },
@@ -4870,6 +5107,9 @@
   },
   "legacy.error.dba508e1212691b7": {
     "other": "システム設定の保護に失敗しました"
+  },
+  "legacy.error.dc28c8781a7b9231": {
+    "other": "カードの実行定義の取得に失敗しました。"
   },
   "legacy.error.dc59b5d3f802f135": {
     "other": "実行ユーザーの権限が変更されました。再度実行してください"
@@ -5048,6 +5288,9 @@
   "legacy.error.e4e9e34d4382eba4": {
     "other": "AIアシスタントの添付ファイル読み取りに失敗しました"
   },
+  "legacy.error.e54d74d9a4f84e95": {
+    "other": "AIファイルのメタデータリポジトリが未設定です"
+  },
   "legacy.error.e54f076ca472029b": {
     "other": "メッセージカテゴリの配信先が他のユーザーによって変更されました。更新して再試行してください"
   },
@@ -5105,14 +5348,23 @@
   "legacy.error.e870b4dcb0ded0c7": {
     "other": "列クエリを終了できませんでした"
   },
+  "legacy.error.e87cd6217bb74a9f": {
+    "other": "Xberg接続番号が不正です"
+  },
   "legacy.error.e8898dac472aab91": {
     "other": "有効なIANAタイムゾーンを選択してください"
   },
   "legacy.error.e8cf0f814577dae5": {
     "other": "セッション番号が不正です"
   },
+  "legacy.error.e8e32768940551eb": {
+    "other": "このデータカードを編集する権限がありません。"
+  },
   "legacy.error.e90c95c33b3164fe": {
     "other": "他のテナントの機密項目を表示する権限がありません"
+  },
+  "legacy.error.e991ef0cedf77342": {
+    "other": "データ取得中にカードが更新されました。再読み込みしてください。"
   },
   "legacy.error.e99cd8d50d6e7bac": {
     "other": "サードパーティ認可に失敗しました"
@@ -5122,6 +5374,9 @@
   },
   "legacy.error.ea95a44ecebf2fb5": {
     "other": "ユーザーの役職が存在しません"
+  },
+  "legacy.error.eaadce03cad94f36": {
+    "other": "先に共通指標の式のプレビューを成功させてください。"
   },
   "legacy.error.eb0a5c7ed1c8c6e5": {
     "other": "履歴ログファイルのダウンロードに失敗しました"
@@ -5134,6 +5389,9 @@
   },
   "legacy.error.eb7376c11e576e01": {
     "other": "部門の作成に失敗しました"
+  },
+  "legacy.error.ebc50e1f7a35066f": {
+    "other": "既存アカウント変更設定の消去に失敗しました"
   },
   "legacy.error.ebe9b8ff030be0c3": {
     "other": "ログインポリシーIDを空にすることはできません"
@@ -5185,6 +5443,9 @@
   },
   "legacy.error.ee100b158fba5e1d": {
     "other": "テナントの組み込みAIプラグインを初期化できませんでした"
+  },
+  "legacy.error.ee43728499601770": {
+    "other": "AIファイルの名前変更に失敗しました"
   },
   "legacy.error.ee51f88c960defb8": {
     "other": "クライアントアクセストークンの発行に失敗しました"
@@ -5302,6 +5563,12 @@
   },
   "legacy.error.f2c0e88cba67443f": {
     "other": "ロールの削除に失敗しました"
+  },
+  "legacy.error.f2fbd02fff596eac": {
+    "other": "データソースモデルの権限確認に失敗しました。"
+  },
+  "legacy.error.f2ff27bfab244681": {
+    "other": "共通モデルが参照カードの要件を満たしません。先に参照を解除してください。"
   },
   "legacy.error.f33330b7049a8649": {
     "other": "ログページングカーソルの生成に失敗しました"
@@ -5441,6 +5708,9 @@
   "legacy.error.f9b9133ecf174317": {
     "other": "元フィールド暗号化アルゴリズムの解析に失敗しました"
   },
+  "legacy.error.f9c813c8e3406a2b": {
+    "other": "カードの実行定義が生成されていません。再度質問して保存してください。"
+  },
   "legacy.error.f9cf7294d51dc2ec": {
     "other": "ユーザーの更新に失敗しました。組み込みロールは選択できません"
   },
@@ -5471,11 +5741,17 @@
   "legacy.error.fb6e60ccc57170bd": {
     "other": "同じAPIレスポンスフィールドの出力マスキングポリシーが既に存在します"
   },
+  "legacy.error.fb6ec860a2af1663": {
+    "other": "AIファイルをごみ箱に移動できませんでした"
+  },
   "legacy.error.fb8499e034556fe9": {
     "other": "アシスタントの返信はまだ生成中です"
   },
   "legacy.error.fbbe9543a088d94b": {
     "other": "リダクションルール詳細の照会に失敗しました"
+  },
+  "legacy.error.fbf7c3e26ada65c6": {
+    "other": "カードの実行定義が変更されました。再読み込みしてください。"
   },
   "legacy.error.fc25e0d9642770e1": {
     "other": "辞書の削除に失敗しました。配下に項目が存在します"
@@ -7652,6 +7928,9 @@
   "system.code.gen.password_strength": {
     "other": "強度のヒント"
   },
+  "system.config.security.key_value.key.required": {
+    "other": "セキュリティ設定のキーを空にすることはできません"
+  },
   "system.mcp.tool_check_failed": {
     "other": "MCPツールへのアクセスを確認できません。サービスログを確認してください。"
   },
@@ -7801,80 +8080,5 @@
   },
   "获取当前用户生效的密码策略": {
     "other": "現在のユーザーに適用されるパスワードポリシーを取得"
-  },
-  "base.ai.file.page.keyword.max_len": {
-    "other": "ファイル名キーワードは100文字以内で指定してください"
-  },
-  "base.ai.file.page.page_num.positive": {
-    "other": "ページ番号は0より大きくしてください"
-  },
-  "base.ai.file.page.page_size.range": {
-    "other": "1ページあたりの行数は1から100の範囲で指定してください"
-  },
-  "base.ai.file.rename.id.positive": {
-    "other": "ファイルIDは0より大きくしてください"
-  },
-  "base.ai.file.rename.file_name.valid": {
-    "other": "ファイル名は空にできず、255文字以内で指定してください"
-  },
-  "base.ai.file.trash.id.positive": {
-    "other": "ファイルIDは0より大きくしてください"
-  },
-  "base.ai.file.restore.id.positive": {
-    "other": "ファイルIDは0より大きくしてください"
-  },
-  "base.ai.file.delete.id.positive": {
-    "other": "ファイルIDは0より大きくしてください"
-  },
-  "legacy.error.0bcc4cd098945869": {
-    "other": "ドキュメントにXberg MCP接続が紐付いていないため、再試行できません"
-  },
-  "legacy.error.e54d74d9a4f84e95": {
-    "other": "AIファイルのメタデータリポジトリが未設定です"
-  },
-  "legacy.error.882624c8cf932368": {
-    "other": "AIファイルオブジェクトの削除に失敗しました"
-  },
-  "legacy.error.800715ced110fb33": {
-    "other": "生成ファイルのメタデータが不完全です"
-  },
-  "legacy.error.45dfba890e01f2b6": {
-    "other": "AIファイルが存在しないか、アクセス権がありません"
-  },
-  "legacy.error.e87cd6217bb74a9f": {
-    "other": "Xberg接続番号が不正です"
-  },
-  "legacy.error.5a3df6dc5b931c17": {
-    "other": "ドキュメントのファイル名と内容は必須です"
-  },
-  "legacy.error.b6f75cf6cede5d4c": {
-    "other": "Xberg MCPプラグインが初期化されていません"
-  },
-  "legacy.error.c9556f01140f087f": {
-    "other": "Xberg extractツールは読み取り専用として審査される必要があります"
-  },
-  "legacy.error.1918b6a58243b070": {
-    "other": "Xberg extractツールに重複するスナップショットがあります"
-  },
-  "legacy.error.55cf4f9958084301": {
-    "other": "現在のXberg接続ではextractツールが審査されていません"
-  },
-  "legacy.error.5093032b0010f3c1": {
-    "other": "Xbergドキュメント抽出結果が無効です"
-  },
-  "legacy.error.84317c7b0ad90e29": {
-    "other": "AIファイルのページ検索に失敗しました"
-  },
-  "legacy.error.ee43728499601770": {
-    "other": "AIファイルの名前変更に失敗しました"
-  },
-  "legacy.error.fb6ec860a2af1663": {
-    "other": "AIファイルをごみ箱に移動できませんでした"
-  },
-  "legacy.error.d9052760af199a40": {
-    "other": "AIファイルを復元できませんでした"
-  },
-  "legacy.error.1d8918d6b774c812": {
-    "other": "AIファイルを完全に削除できませんでした"
   }
 }

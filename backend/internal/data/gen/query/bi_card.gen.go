@@ -35,6 +35,9 @@ func newBiCard(db *gorm.DB, opts ...gen.DOOption) biCard {
 	_biCard.Name = field.NewString(tableName, "name")
 	_biCard.SourceCode = field.NewString(tableName, "source_code")
 	_biCard.QueryJSON = field.NewString(tableName, "query_json")
+	_biCard.ExecutionJSON = field.NewString(tableName, "execution_json")
+	_biCard.Version = field.NewInt64(tableName, "version")
+	_biCard.ValidationQueryRecordID = field.NewInt64(tableName, "validation_query_record_id")
 	_biCard.ChartType = field.NewString(tableName, "chart_type")
 	_biCard.ChartJSON = field.NewString(tableName, "chart_json")
 	_biCard.RefreshSeconds = field.NewInt32(tableName, "refresh_seconds")
@@ -54,24 +57,27 @@ func newBiCard(db *gorm.DB, opts ...gen.DOOption) biCard {
 type biCard struct {
 	biCardDo biCardDo
 
-	ALL            field.Asterisk
-	ID             field.Int64  // 卡片ID
-	TenantID       field.Int64  // 租户ID
-	ProjectID      field.Int64  // 项目ID，0表示租户级
-	OwnerID        field.Int64  // 所有者用户ID，0表示系统内置
-	QueryRecordID  field.Int64  // 来源查询记录ID
-	Name           field.String // 卡片名称
-	SourceCode     field.String // 语义数据源编码
-	QueryJSON      field.String // 语义查询配置
-	ChartType      field.String // 图表类型
-	ChartJSON      field.String // 图表字段映射与样式配置
-	RefreshSeconds field.Int32  // 自动刷新间隔秒数，0表示手动，86400表示每日02:00
-	IsShared       field.Int32  // 是否共享：0私有，1项目内共享
-	CreatedBy      field.Int64  // 创建者ID
-	UpdatedBy      field.Int64  // 更新者ID
-	CreatedAt      field.Time   // 创建时间
-	UpdatedAt      field.Time   // 更新时间
-	DeletedAt      field.Field  // 删除时间
+	ALL                     field.Asterisk
+	ID                      field.Int64  // 卡片ID
+	TenantID                field.Int64  // 租户ID
+	ProjectID               field.Int64  // 项目ID，0表示租户级
+	OwnerID                 field.Int64  // 所有者用户ID，0表示系统内置
+	QueryRecordID           field.Int64  // 来源查询记录ID
+	Name                    field.String // 卡片名称
+	SourceCode              field.String // 语义数据源编码
+	QueryJSON               field.String // 语义查询配置
+	ExecutionJSON           field.String // 卡片当前执行定义
+	Version                 field.Int64  // 卡片并发版本
+	ValidationQueryRecordID field.Int64  // 最后人工验证记录ID
+	ChartType               field.String // 图表类型
+	ChartJSON               field.String // 图表字段映射与样式配置
+	RefreshSeconds          field.Int32  // 自动刷新间隔秒数，0表示手动，86400表示每日02:00
+	IsShared                field.Int32  // 是否共享：0私有，1项目内共享
+	CreatedBy               field.Int64  // 创建者ID
+	UpdatedBy               field.Int64  // 更新者ID
+	CreatedAt               field.Time   // 创建时间
+	UpdatedAt               field.Time   // 更新时间
+	DeletedAt               field.Field  // 删除时间
 
 	fieldMap map[string]field.Expr
 }
@@ -96,6 +102,9 @@ func (b *biCard) updateTableName(table string) *biCard {
 	b.Name = field.NewString(table, "name")
 	b.SourceCode = field.NewString(table, "source_code")
 	b.QueryJSON = field.NewString(table, "query_json")
+	b.ExecutionJSON = field.NewString(table, "execution_json")
+	b.Version = field.NewInt64(table, "version")
+	b.ValidationQueryRecordID = field.NewInt64(table, "validation_query_record_id")
 	b.ChartType = field.NewString(table, "chart_type")
 	b.ChartJSON = field.NewString(table, "chart_json")
 	b.RefreshSeconds = field.NewInt32(table, "refresh_seconds")
@@ -129,7 +138,7 @@ func (b *biCard) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (b *biCard) fillFieldMap() {
-	b.fieldMap = make(map[string]field.Expr, 17)
+	b.fieldMap = make(map[string]field.Expr, 20)
 	b.fieldMap["id"] = b.ID
 	b.fieldMap["tenant_id"] = b.TenantID
 	b.fieldMap["project_id"] = b.ProjectID
@@ -138,6 +147,9 @@ func (b *biCard) fillFieldMap() {
 	b.fieldMap["name"] = b.Name
 	b.fieldMap["source_code"] = b.SourceCode
 	b.fieldMap["query_json"] = b.QueryJSON
+	b.fieldMap["execution_json"] = b.ExecutionJSON
+	b.fieldMap["version"] = b.Version
+	b.fieldMap["validation_query_record_id"] = b.ValidationQueryRecordID
 	b.fieldMap["chart_type"] = b.ChartType
 	b.fieldMap["chart_json"] = b.ChartJSON
 	b.fieldMap["refresh_seconds"] = b.RefreshSeconds

@@ -229,7 +229,16 @@ const previewCard = computed<BiCard>(() => ({
   is_shared: false,
   updated_at: "",
   category: "mine",
-  can_edit: true
+  can_edit: true,
+  version: 0,
+  validation_query_record_id: 0,
+  execution_kind: "",
+  source_version: 0,
+  can_edit_metrics: false,
+  metric_definitions: [],
+  sql: "",
+  sync_summary: undefined,
+  columns: response.value?.result?.columns ?? []
 }));
 const tableRows = computed(() =>
   (response.value?.result?.rows || []).map(row => Object.fromEntries(row.values.map((value, index) => [String(index), value])))

@@ -250,5 +250,21 @@
   "bi.card.ask_create": "AIデータクエリで作成",
   "bi.card.ask_required": "AIデータクエリで実データを取得してから保存してください",
   "bi.dashboard.menu_position": "配置先",
-  "bi.dashboard.menu_saved": "ダッシュボードメニューを保存しました"
+  "bi.dashboard.menu_saved": "ダッシュボードメニューを保存しました",
+  "bi.sql.formulas": "共通指標の式",
+  "bi.sql.expression": "指標の式",
+  "bi.sql.unit": "単位",
+  "bi.sql.shared_notice": "式はデータソースの共通指標です。保存すると参照カードが更新され、関連ダッシュボードの再公開が必要になります。",
+  "bi.sql.readonly_notice": "共通指標の編集権限がありません。グラフの表示設定は変更できます。",
+  "bi.sql.full_sql": "SQL 全文（読み取り専用）",
+  "bi.sql.impact": "{cards} 件のカードが更新され、{dashboards} 件のダッシュボードで再公開が必要です。",
+  "bi.sql.synced": "保存して {cards} 件のカードを同期しました。{dashboards} 件のダッシュボードで再公開が必要です。",
+  "bi.sql.refresh_model": "共通指標を更新して下書きを保持",
+  "bi.sql.repreview": "下書きを保持しました。再度プレビューして変更内容を確認してから保存してください。",
+  "bi.sql.preview_changes": "変更の影響を確認",
+  "bi.sql.already_applied": "このプレビューは保存済みです。対応するカードを再取得しました。",
+  "bi.sql.definition_status": "指標の定義",
+  "bi.sql.requires_republish": "再公開が必要",
+  "bi.sql.current": "現在の定義",
+  "bi.sql.save_pending": "前回の保存結果を確認できません。保存を再試行してから編集を続けてください。"
 }

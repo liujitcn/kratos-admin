@@ -24,7 +24,7 @@ export class BiQueryServiceImpl implements BiQueryService {
       sources: (result.sources ?? []).map(source => ({
         ...source,
         dimensions: source.dimensions ?? [],
-        measures: (source.measures ?? []).map(measure => ({ ...measure, aggregations: measure.aggregations ?? [] }))
+        measures: source.measures ?? []
       }))
     }));
   }

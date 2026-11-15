@@ -31,7 +31,7 @@ import (
 func TestBiCardSourceAndIsolation(t *testing.T) {
 	c, _ := newBiWorkflowTestCases(t)
 	ctx := biCardTestContext(1, 10, 42)
-	spec := &adminv1.BiQuerySpec{SourceCode: "test", Measures: []*adminv1.BiMeasureSpec{{Code: "count", Aggregation: "count"}}}
+	spec := &adminv1.BiQuerySpec{SourceCode: "test", Measures: []*adminv1.BiMeasureSpec{{Code: "count"}}}
 	manual, err := c.biQueryCase.PreviewBiQuery(ctx, &adminv1.PreviewBiQueryRequest{Query: spec})
 	if err != nil {
 		t.Fatal(err)
@@ -86,7 +86,7 @@ func TestBiCardSourceAndIsolation(t *testing.T) {
 // TestBiCardAllChartShapes 验证十三类图表和指标卡的字段边界。
 func TestBiCardAllChartShapes(t *testing.T) {
 	var err error
-	spec := bi.QuerySpec{Dimensions: []string{"group", "target"}, Measures: []bi.MeasureSpec{{Code: "value", Aggregation: "count"}, {Code: "other", Aggregation: "count"}}}
+	spec := bi.QuerySpec{Dimensions: []string{"group", "target"}, Measures: []bi.MeasureSpec{{Code: "value"}, {Code: "other"}}}
 	result := bi.QueryResult{Columns: []bi.ResultColumn{{Code: "group", Type: bi.FieldTypeString}, {Code: "target", Type: bi.FieldTypeString}, {Code: "value", Type: bi.FieldTypeNumber}, {Code: "other", Type: bi.FieldTypeNumber}}, Rows: [][]string{{"A", "B", "10", "20"}}}
 	for _, chartType := range []string{"bar", "line", "area", "pie", "donut", "radar", "funnel", "treemap", "sunburst", "sankey", "heatmap", "scatter", "gauge", "metric"} {
 		current := spec
@@ -141,15 +141,15 @@ func newBiWorkflowTestCases(t *testing.T) (*BiCardCase, *BiDashboardCase) {
 	if err = registry.Register(biQueryRecordTestSource{}); err != nil {
 		t.Fatal(err)
 	}
-	base := &biz.BaseCase{}
-	source := NewBiSourceCase(base, store, data.NewBiSourceRepository(store), registry, nil)
+	base := &biz.BaseCase{GormClients: map[string]*databaseGorm.Client{databaseGorm.DefaultClientName: client}}
+	source := NewBiSourceCase(base, store, data.NewBiSourceRepository(store), registry, nil, data.NewBiCardRepository(store), data.NewBiDashboardRepository(store), data.NewBiDashboardVersionRepository(store), nil)
 	securityRuntimeConfig := securityconfig.Current()
 	securityRuntimeConfig.AIAllowedCIDRs = []string{"127.0.0.1/32"}
 	securityconfig.Set(securityRuntimeConfig)
 	t.Cleanup(func() { securityconfig.Set(securityconfig.Default()) })
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, request *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
-		encodeErr := json.NewEncoder(w).Encode(map[string]any{"choices": []any{map[string]any{"message": map[string]any{"role": "assistant", "content": `{"query":{"source_code":"test","measures":[{"code":"count","aggregation":"count"}],"limit":100},"chart_type":"metric","title":"用户数"}`}, "finish_reason": "stop"}}})
+		encodeErr := json.NewEncoder(w).Encode(map[string]any{"choices": []any{map[string]any{"message": map[string]any{"role": "assistant", "content": `{"query":{"source_code":"test","measures":[{"code":"count"}],"limit":100},"chart_type":"metric","title":"用户数"}`}, "finish_reason": "stop"}}})
 		if encodeErr != nil {
 			t.Error(encodeErr)
 		}

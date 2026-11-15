@@ -97,6 +97,7 @@ const columns = computed<ColumnProps[]>(() => [
       disabled: true
     }
   },
+  { prop: "requires_republish", label: t("bi.sql.definition_status"), minWidth: 140, formatter: row => t(row.requires_republish ? "bi.sql.requires_republish" : "bi.sql.current") },
   { prop: "draft_version", label: t("bi.dashboard.version"), width: 90 },
   { prop: "published_version", label: t("bi.dashboard.published_version"), width: 110 },
   { prop: "updated_at", label: t("common.field.updated_at"), minWidth: 175 },
@@ -137,7 +138,7 @@ const columns = computed<ColumnProps[]>(() => [
         icon: Promotion,
         link: true,
         hidden: scope => !(scope.row as BiDashboard).can_edit,
-        disabled: scope => (scope.row as BiDashboard).draft_version === (scope.row as BiDashboard).published_version,
+        disabled: scope => !(scope.row as BiDashboard).requires_republish && (scope.row as BiDashboard).draft_version === (scope.row as BiDashboard).published_version,
         onClick: scope => publish(scope.row as BiDashboard)
       },
       {
@@ -202,12 +203,13 @@ async function submit() {
   if (!(await dialog.value?.validate())) return;
   try {
     if (editing.value) {
+      const current = await defBiDashboardService.GetBiDashboard({ id: editing.value.id });
       await defBiDashboardService.SaveBiDashboard({
         dashboard: {
           ...editing.value,
           name: form.name,
           description: form.description,
-          schema_json: JSON.stringify({ ...parseDashboardLayout(editing.value.schema_json), name: form.name })
+          schema_json: JSON.stringify({ ...parseDashboardLayout(current.schema_json), name: form.name })
         }
       });
       creating.value = false;
@@ -226,9 +228,10 @@ async function submit() {
         status: 1,
         draft_version: 0,
         published_version: 0,
-        schema_json: JSON.stringify({ schemaVersion: 3, name: form.name, cards: [] }),
+        schema_json: JSON.stringify({ schemaVersion: 4, name: form.name, cards: [] }),
         updated_at: "",
-        can_edit: true
+        can_edit: true,
+        requires_republish: false
       }
     });
     creating.value = false;
@@ -241,7 +244,12 @@ async function submit() {
 /** 发布现有草稿，服务端负责快照和版本冲突校验。 */
 async function publish(item: BiDashboard) {
   try {
-    await defBiDashboardService.PublishBiDashboard({ id: item.id, version: item.draft_version });
+    let current = item;
+    if (item.requires_republish && item.draft_version === item.published_version) {
+      current = await defBiDashboardService.GetBiDashboard({ id: item.id });
+      current = await defBiDashboardService.SaveBiDashboard({ dashboard: current });
+    }
+    await defBiDashboardService.PublishBiDashboard({ id: current.id, version: current.draft_version });
     ElMessage.success(t("bi.dashboard.publish_success"));
     table.value?.getTableList();
   } catch (cause) {

@@ -6,7 +6,8 @@
 
 /* eslint-disable */
 import type { BiDashboard } from "./bi_dashboard";
-import type { BiQueryResult, BiQuerySpec } from "./bi_query";
+import type { BiQueryResult, BiQuerySpec, BiResultColumn } from "./bi_query";
+import type { BiMetricChange, BiModelImpact, BiSourceMeasure } from "./bi_source";
 
 /** 数据卡片分页条件。 */
 export interface PageBiCardRequest {
@@ -73,7 +74,17 @@ export interface SaveBiCardRequest {
   /** 卡片ID */
   id: number;
   /** 卡片配置 */
-  card: BiCardForm | undefined;
+  card:
+    | BiCardForm
+    | undefined;
+  /** 预期卡片版本，创建时为0 */
+  expected_card_version: number;
+  /** 预期数据源版本 */
+  expected_source_version: number;
+  /** 成功公式预览记录ID */
+  preview_query_record_id: number;
+  /** 选中公共指标变更候选 */
+  measure_changes: BiMetricChange[];
 }
 
 /** 删除数据卡片请求。 */
@@ -128,6 +139,26 @@ export interface BiCard {
   category: string;
   /** 当前用户是否可编辑 */
   can_edit: boolean;
+  /** 卡片并发版本 */
+  version: number;
+  /** 最后人工验证记录ID */
+  validation_query_record_id: number;
+  /** 执行定义种类 */
+  execution_kind: string;
+  /** 数据源并发版本 */
+  source_version: number;
+  /** 是否可编辑公共指标公式 */
+  can_edit_metrics: boolean;
+  /** 授权编辑的公共指标定义 */
+  metric_definitions: BiSourceMeasure[];
+  /** 授权编辑的完整参数化SQL */
+  sql: string;
+  /** 公共指标同步摘要 */
+  sync_summary:
+    | BiModelImpact
+    | undefined;
+  /** 结果字段定义 */
+  columns: BiResultColumn[];
 }
 
 /** 获取个人工作台请求。 */
@@ -152,6 +183,50 @@ export interface SaveBiWorkbenchRequest {
   favorite_ids: number[];
 }
 
+/** 卡片详情请求。 */
+export interface GetBiCardRequest {
+  /** 卡片ID */
+  id: number;
+}
+
+/** 卡片公式预览请求。 */
+export interface PreviewBiCardSqlRequest {
+  /** 卡片ID，创建时为0 */
+  id: number;
+  /** 预期卡片版本 */
+  expected_card_version: number;
+  /** 预期数据源版本 */
+  expected_source_version: number;
+  /** 原始智能问数记录ID */
+  query_record_id: number;
+  /** 原始语义查询配置 */
+  query:
+    | BiQuerySpec
+    | undefined;
+  /** 选中公共指标变更候选 */
+  measure_changes: BiMetricChange[];
+}
+
+/** 卡片公式预览结果。 */
+export interface PreviewBiCardSqlResponse {
+  /** 成功公式预览记录ID */
+  preview_query_record_id: number;
+  /** 预览查询结果 */
+  result:
+    | BiQueryResult
+    | undefined;
+  /** 授权编辑的完整参数化SQL */
+  sql: string;
+  /** 授权编辑的公共指标定义 */
+  metric_definitions: BiSourceMeasure[];
+  /** 是否可编辑公共指标公式 */
+  can_edit_metrics: boolean;
+  /** 预览绑定的数据源版本 */
+  source_version: number;
+  /** 公共指标同步影响 */
+  impact: BiModelImpact | undefined;
+}
+
 /** BI 数据卡片与个人工作台服务。 */
 export interface BiCardService {
   /** 分页查询当前用户可见的数据卡片。 */
@@ -166,4 +241,8 @@ export interface BiCardService {
   GetBiWorkbench(request: GetBiWorkbenchRequest): Promise<BiWorkbench>;
   /** 保存当前用户的工作台顺序与收藏。 */
   SaveBiWorkbench(request: SaveBiWorkbenchRequest): Promise<BiWorkbench>;
+  /** 获取卡片及有权编辑的公共公式。 */
+  GetBiCard(request: GetBiCardRequest): Promise<BiCard>;
+  /** 预览当前卡片的公共指标公式候选。 */
+  PreviewBiCardSql(request: PreviewBiCardSqlRequest): Promise<PreviewBiCardSqlResponse>;
 }

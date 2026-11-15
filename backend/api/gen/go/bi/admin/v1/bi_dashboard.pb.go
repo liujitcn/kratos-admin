@@ -525,22 +525,23 @@ func (x *BiDashboardCardResult) GetResult() *BiQueryResult {
 
 // BI 仪表盘记录。
 type BiDashboard struct {
-	state            protoimpl.MessageState `protogen:"open.v1"`
-	Id               int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                                      // 仪表盘ID
-	TenantId         int64                  `protobuf:"varint,2,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`                          // 租户ID
-	ProjectId        int64                  `protobuf:"varint,3,opt,name=project_id,json=projectId,proto3" json:"project_id,omitempty"`                       // 项目ID，0表示租户级
-	Code             string                 `protobuf:"bytes,4,opt,name=code,proto3" json:"code,omitempty"`                                                   // 仪表盘编码
-	Name             string                 `protobuf:"bytes,5,opt,name=name,proto3" json:"name,omitempty"`                                                   // 仪表盘名称
-	Description      string                 `protobuf:"bytes,6,opt,name=description,proto3" json:"description,omitempty"`                                     // 仪表盘说明
-	OwnerId          int64                  `protobuf:"varint,7,opt,name=owner_id,json=ownerId,proto3" json:"owner_id,omitempty"`                             // 所有者用户ID
-	Status           int32                  `protobuf:"varint,8,opt,name=status,proto3" json:"status,omitempty"`                                              // 状态：1草稿，2已发布，3停用
-	DraftVersion     int64                  `protobuf:"varint,9,opt,name=draft_version,json=draftVersion,proto3" json:"draft_version,omitempty"`              // 草稿版本
-	PublishedVersion int64                  `protobuf:"varint,10,opt,name=published_version,json=publishedVersion,proto3" json:"published_version,omitempty"` // 已发布版本
-	SchemaJson       string                 `protobuf:"bytes,11,opt,name=schema_json,json=schemaJson,proto3" json:"schema_json,omitempty"`                    // 仪表盘Schema JSON
-	UpdatedAt        string                 `protobuf:"bytes,12,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`                       // 更新时间
-	CanEdit          bool                   `protobuf:"varint,13,opt,name=can_edit,json=canEdit,proto3" json:"can_edit,omitempty"`                            // 当前用户是否可编辑
-	unknownFields    protoimpl.UnknownFields
-	sizeCache        protoimpl.SizeCache
+	state             protoimpl.MessageState `protogen:"open.v1"`
+	Id                int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                                         // 仪表盘ID
+	TenantId          int64                  `protobuf:"varint,2,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`                             // 租户ID
+	ProjectId         int64                  `protobuf:"varint,3,opt,name=project_id,json=projectId,proto3" json:"project_id,omitempty"`                          // 项目ID，0表示租户级
+	Code              string                 `protobuf:"bytes,4,opt,name=code,proto3" json:"code,omitempty"`                                                      // 仪表盘编码
+	Name              string                 `protobuf:"bytes,5,opt,name=name,proto3" json:"name,omitempty"`                                                      // 仪表盘名称
+	Description       string                 `protobuf:"bytes,6,opt,name=description,proto3" json:"description,omitempty"`                                        // 仪表盘说明
+	OwnerId           int64                  `protobuf:"varint,7,opt,name=owner_id,json=ownerId,proto3" json:"owner_id,omitempty"`                                // 所有者用户ID
+	Status            int32                  `protobuf:"varint,8,opt,name=status,proto3" json:"status,omitempty"`                                                 // 状态：1草稿，2已发布，3停用
+	DraftVersion      int64                  `protobuf:"varint,9,opt,name=draft_version,json=draftVersion,proto3" json:"draft_version,omitempty"`                 // 草稿版本
+	PublishedVersion  int64                  `protobuf:"varint,10,opt,name=published_version,json=publishedVersion,proto3" json:"published_version,omitempty"`    // 已发布版本
+	SchemaJson        string                 `protobuf:"bytes,11,opt,name=schema_json,json=schemaJson,proto3" json:"schema_json,omitempty"`                       // 仪表盘Schema JSON
+	UpdatedAt         string                 `protobuf:"bytes,12,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`                          // 更新时间
+	CanEdit           bool                   `protobuf:"varint,13,opt,name=can_edit,json=canEdit,proto3" json:"can_edit,omitempty"`                               // 当前用户是否可编辑
+	RequiresRepublish bool                   `protobuf:"varint,14,opt,name=requires_republish,json=requiresRepublish,proto3" json:"requires_republish,omitempty"` // 公共指标或模型已变更，需要重新发布
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
 }
 
 func (x *BiDashboard) Reset() {
@@ -664,6 +665,13 @@ func (x *BiDashboard) GetCanEdit() bool {
 	return false
 }
 
+func (x *BiDashboard) GetRequiresRepublish() bool {
+	if x != nil {
+		return x.RequiresRepublish
+	}
+	return false
+}
+
 var File_bi_admin_v1_bi_dashboard_proto protoreflect.FileDescriptor
 
 const file_bi_admin_v1_bi_dashboard_proto_rawDesc = "" +
@@ -697,7 +705,7 @@ const file_bi_admin_v1_bi_dashboard_proto_rawDesc = "" +
 	"schemaJson\"\x94\x01\n" +
 	"\x15BiDashboardCardResult\x12-\n" +
 	"\aitem_id\x18\x01 \x01(\tB\x14\xbaG\x11\x92\x02\x0e图表组件IDR\x06itemId\x12L\n" +
-	"\x06result\x18\x02 \x01(\v2\x1a.bi.admin.v1.BiQueryResultB\x18\xbaG\x15\x92\x02\x12图表查询结果R\x06result\"\xd4\x05\n" +
+	"\x06result\x18\x02 \x01(\v2\x1a.bi.admin.v1.BiQueryResultB\x18\xbaG\x15\x92\x02\x12图表查询结果R\x06result\"\xbe\x06\n" +
 	"\vBiDashboard\x12!\n" +
 	"\x02id\x18\x01 \x01(\x03B\x11\xbaG\x0e\x92\x02\v仪表盘IDR\x02id\x12+\n" +
 	"\ttenant_id\x18\x02 \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDR\btenantId\x12@\n" +
@@ -715,7 +723,8 @@ const file_bi_admin_v1_bi_dashboard_proto_rawDesc = "" +
 	"schemaJson\x121\n" +
 	"\n" +
 	"updated_at\x18\f \x01(\tB\x12\xbaG\x0f\x92\x02\f更新时间R\tupdatedAt\x12<\n" +
-	"\bcan_edit\x18\r \x01(\bB!\xbaG\x1e\x92\x02\x1b当前用户是否可编辑R\acanEdit2\xb7\x06\n" +
+	"\bcan_edit\x18\r \x01(\bB!\xbaG\x1e\x92\x02\x1b当前用户是否可编辑R\acanEdit\x12h\n" +
+	"\x12requires_republish\x18\x0e \x01(\bB9\xbaG6\x92\x023公共指标或模型已变更，需要重新发布R\x11requiresRepublish2\xb7\x06\n" +
 	"\x12BiDashboardService\x12\x80\x01\n" +
 	"\x0fPageBiDashboard\x12#.bi.admin.v1.PageBiDashboardRequest\x1a$.bi.admin.v1.PageBiDashboardResponse\"\"\x82\xd3\xe4\x93\x02\x1c\x12\x1a/api/v1/admin/bi/dashboard\x12w\n" +
 	"\x0eGetBiDashboard\x12\".bi.admin.v1.GetBiDashboardRequest\x1a\x18.bi.admin.v1.BiDashboard\"'\x82\xd3\xe4\x93\x02!\x12\x1f/api/v1/admin/bi/dashboard/{id}\x12w\n" +

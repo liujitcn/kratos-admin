@@ -150,7 +150,11 @@ export interface SaveBiSourceModelRequest {
   /** 数据源ID */
   id: number;
   /** 数据源语义模型 */
-  model: BiSourceModel | undefined;
+  model:
+    | BiSourceModel
+    | undefined;
+  /** 预期数据源版本 */
+  expected_source_version: number;
 }
 
 /** 数据源可用的表、关联关系和业务语义。 */
@@ -217,12 +221,12 @@ export interface BiSourceMeasure {
   name: string;
   /** BI字段类型 */
   type: string;
-  /** 所属表标识 */
-  table: string;
-  /** 数据库字段 */
-  column: string;
-  /** 允许的聚合函数 */
-  aggregations: string[];
+  /** 固定聚合表达式 */
+  expression: string;
+  /** 指标单位 */
+  unit: string;
+  /** 服务端指标修订号 */
+  revision: number;
 }
 
 /** BI 数据源配置表单。 */
@@ -311,6 +315,44 @@ export interface BiSource {
   model_configured: boolean;
   /** 模型选中的表数量 */
   table_count: number;
+  /** 公共指标同步摘要 */
+  sync_summary: BiModelImpact | undefined;
+}
+
+/** 公共指标编辑候选。 */
+export interface BiMetricChange {
+  /** 指标编码 */
+  metric_code: string;
+  /** 固定聚合表达式 */
+  expression: string;
+  /** 指标名称 */
+  name: string;
+  /** 指标单位 */
+  unit: string;
+  /** 预期指标修订号 */
+  expected_revision: number;
+}
+
+/** 公共指标变更前后定义。 */
+export interface BiMetricDifference {
+  /** 原指标定义 */
+  before:
+    | BiSourceMeasure
+    | undefined;
+  /** 候选指标定义 */
+  after: BiSourceMeasure | undefined;
+}
+
+/** 公共指标同步影响摘要。 */
+export interface BiModelImpact {
+  /** 指标变更 */
+  changes: BiMetricDifference[];
+  /** 受影响卡片数量 */
+  affected_cards: number;
+  /** 需要重新发布的仪表盘数量 */
+  affected_dashboards: number;
+  /** 数据源版本 */
+  source_version: number;
 }
 
 /** BI 数据源配置管理服务。 */
@@ -335,4 +377,6 @@ export interface BiSourceService {
   ListBiSourceTables(request: ListBiSourceTablesRequest): Promise<ListBiSourceTablesResponse>;
   /** 保存经过校验的多表语义模型。 */
   SaveBiSourceModel(request: SaveBiSourceModelRequest): Promise<BiSource>;
+  /** 预览公共模型变更和关联影响，不写入模型。 */
+  PreviewBiSourceModel(request: SaveBiSourceModelRequest): Promise<BiModelImpact>;
 }

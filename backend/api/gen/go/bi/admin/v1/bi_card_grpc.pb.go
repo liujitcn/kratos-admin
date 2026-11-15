@@ -20,12 +20,14 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	BiCardService_PageBiCard_FullMethodName      = "/bi.admin.v1.BiCardService/PageBiCard"
-	BiCardService_SaveBiCard_FullMethodName      = "/bi.admin.v1.BiCardService/SaveBiCard"
-	BiCardService_DeleteBiCard_FullMethodName    = "/bi.admin.v1.BiCardService/DeleteBiCard"
-	BiCardService_GetBiCardData_FullMethodName   = "/bi.admin.v1.BiCardService/GetBiCardData"
-	BiCardService_GetBiWorkbench_FullMethodName  = "/bi.admin.v1.BiCardService/GetBiWorkbench"
-	BiCardService_SaveBiWorkbench_FullMethodName = "/bi.admin.v1.BiCardService/SaveBiWorkbench"
+	BiCardService_PageBiCard_FullMethodName       = "/bi.admin.v1.BiCardService/PageBiCard"
+	BiCardService_SaveBiCard_FullMethodName       = "/bi.admin.v1.BiCardService/SaveBiCard"
+	BiCardService_DeleteBiCard_FullMethodName     = "/bi.admin.v1.BiCardService/DeleteBiCard"
+	BiCardService_GetBiCardData_FullMethodName    = "/bi.admin.v1.BiCardService/GetBiCardData"
+	BiCardService_GetBiWorkbench_FullMethodName   = "/bi.admin.v1.BiCardService/GetBiWorkbench"
+	BiCardService_SaveBiWorkbench_FullMethodName  = "/bi.admin.v1.BiCardService/SaveBiWorkbench"
+	BiCardService_GetBiCard_FullMethodName        = "/bi.admin.v1.BiCardService/GetBiCard"
+	BiCardService_PreviewBiCardSql_FullMethodName = "/bi.admin.v1.BiCardService/PreviewBiCardSql"
 )
 
 // BiCardServiceClient is the client API for BiCardService service.
@@ -46,6 +48,10 @@ type BiCardServiceClient interface {
 	GetBiWorkbench(ctx context.Context, in *GetBiWorkbenchRequest, opts ...grpc.CallOption) (*BiWorkbench, error)
 	// 保存当前用户的工作台顺序与收藏。
 	SaveBiWorkbench(ctx context.Context, in *SaveBiWorkbenchRequest, opts ...grpc.CallOption) (*BiWorkbench, error)
+	// 获取卡片及有权编辑的公共公式。
+	GetBiCard(ctx context.Context, in *GetBiCardRequest, opts ...grpc.CallOption) (*BiCard, error)
+	// 预览当前卡片的公共指标公式候选。
+	PreviewBiCardSql(ctx context.Context, in *PreviewBiCardSqlRequest, opts ...grpc.CallOption) (*PreviewBiCardSqlResponse, error)
 }
 
 type biCardServiceClient struct {
@@ -116,6 +122,26 @@ func (c *biCardServiceClient) SaveBiWorkbench(ctx context.Context, in *SaveBiWor
 	return out, nil
 }
 
+func (c *biCardServiceClient) GetBiCard(ctx context.Context, in *GetBiCardRequest, opts ...grpc.CallOption) (*BiCard, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(BiCard)
+	err := c.cc.Invoke(ctx, BiCardService_GetBiCard_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *biCardServiceClient) PreviewBiCardSql(ctx context.Context, in *PreviewBiCardSqlRequest, opts ...grpc.CallOption) (*PreviewBiCardSqlResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(PreviewBiCardSqlResponse)
+	err := c.cc.Invoke(ctx, BiCardService_PreviewBiCardSql_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // BiCardServiceServer is the server API for BiCardService service.
 // All implementations must embed UnimplementedBiCardServiceServer
 // for forward compatibility.
@@ -134,6 +160,10 @@ type BiCardServiceServer interface {
 	GetBiWorkbench(context.Context, *GetBiWorkbenchRequest) (*BiWorkbench, error)
 	// 保存当前用户的工作台顺序与收藏。
 	SaveBiWorkbench(context.Context, *SaveBiWorkbenchRequest) (*BiWorkbench, error)
+	// 获取卡片及有权编辑的公共公式。
+	GetBiCard(context.Context, *GetBiCardRequest) (*BiCard, error)
+	// 预览当前卡片的公共指标公式候选。
+	PreviewBiCardSql(context.Context, *PreviewBiCardSqlRequest) (*PreviewBiCardSqlResponse, error)
 	mustEmbedUnimplementedBiCardServiceServer()
 }
 
@@ -161,6 +191,12 @@ func (UnimplementedBiCardServiceServer) GetBiWorkbench(context.Context, *GetBiWo
 }
 func (UnimplementedBiCardServiceServer) SaveBiWorkbench(context.Context, *SaveBiWorkbenchRequest) (*BiWorkbench, error) {
 	return nil, status.Error(codes.Unimplemented, "method SaveBiWorkbench not implemented")
+}
+func (UnimplementedBiCardServiceServer) GetBiCard(context.Context, *GetBiCardRequest) (*BiCard, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetBiCard not implemented")
+}
+func (UnimplementedBiCardServiceServer) PreviewBiCardSql(context.Context, *PreviewBiCardSqlRequest) (*PreviewBiCardSqlResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method PreviewBiCardSql not implemented")
 }
 func (UnimplementedBiCardServiceServer) mustEmbedUnimplementedBiCardServiceServer() {}
 func (UnimplementedBiCardServiceServer) testEmbeddedByValue()                       {}
@@ -291,6 +327,42 @@ func _BiCardService_SaveBiWorkbench_Handler(srv interface{}, ctx context.Context
 	return interceptor(ctx, in, info, handler)
 }
 
+func _BiCardService_GetBiCard_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetBiCardRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BiCardServiceServer).GetBiCard(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: BiCardService_GetBiCard_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BiCardServiceServer).GetBiCard(ctx, req.(*GetBiCardRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _BiCardService_PreviewBiCardSql_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PreviewBiCardSqlRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BiCardServiceServer).PreviewBiCardSql(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: BiCardService_PreviewBiCardSql_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BiCardServiceServer).PreviewBiCardSql(ctx, req.(*PreviewBiCardSqlRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // BiCardService_ServiceDesc is the grpc.ServiceDesc for BiCardService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -321,6 +393,14 @@ var BiCardService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "SaveBiWorkbench",
 			Handler:    _BiCardService_SaveBiWorkbench_Handler,
+		},
+		{
+			MethodName: "GetBiCard",
+			Handler:    _BiCardService_GetBiCard_Handler,
+		},
+		{
+			MethodName: "PreviewBiCardSql",
+			Handler:    _BiCardService_PreviewBiCardSql_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

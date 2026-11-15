@@ -8,10 +8,12 @@
     :model="form"
     :fields="fields"
     :rules="rules"
-    :confirm-loading="saving"
-    :close-on-click-modal="!saving"
-    :form-props="{ disabled: saving }"
-    @update:model-value="emit('update:modelValue', $event)"
+    :confirm-loading="saving || loadingDetails"
+    :close-on-click-modal="!saving && !pendingSave"
+    :close-on-press-escape="!saving && !pendingSave"
+    :show-close="!saving && !pendingSave"
+    :form-props="{ disabled: saving || loadingDetails || Boolean(pendingSave) }"
+    @update:model-value="value => { if (!saving && !pendingSave) emit('update:modelValue', value); }"
     @confirm="submit"
     :destroy-on-close="true"
     @closed="reset"
@@ -22,15 +24,28 @@
           <el-select disabled v-model="measure.code" :aria-label="t('bi.card.measure')">
             <el-option v-for="item in source?.measures ?? []" :key="item.code" :label="item.name" :value="item.code" />
           </el-select>
-          <el-select disabled v-model="measure.aggregation" :aria-label="t('bi.card.aggregation')">
-            <el-option
-              v-for="aggregation in source?.measures.find(item => item.code === measure.code)?.aggregations ?? []"
-              :key="aggregation"
-              :label="t(`bi.card.aggregation.${aggregation}`)"
-              :value="aggregation"
-            />
-          </el-select>
+          <span>{{ source?.measures.find(item => item.code === measure.code)?.unit }}</span>
         </div>
+      </div>
+    </template>
+    <template #formulas>
+      <div v-loading="loadingDetails" class="bi-card-formulas">
+        <el-alert :title="t(canEditMetrics ? 'bi.sql.shared_notice' : 'bi.sql.readonly_notice')" type="info" show-icon :closable="false" />
+        <el-alert v-if="pendingSave && !saving" :title="t('bi.sql.save_pending')" type="warning" show-icon :closable="false" />
+        <div v-for="metric in editedMetrics" :key="metric.code" class="bi-card-formulas__metric">
+          <strong>{{ metric.name }} <small>{{ metric.unit }}</small></strong>
+          <CodeEditor v-model="metric.expression" language="sql" height="120px" :readonly="!canEditMetrics || Boolean(pendingSave)" />
+        </div>
+        <template v-if="sql">
+          <strong>{{ t('bi.sql.full_sql') }}</strong>
+          <CodeEditor :model-value="sql" language="sql" height="220px" readonly />
+        </template>
+        <el-alert v-if="impact?.changes?.length" :title="t('bi.sql.impact', { cards: impact.affected_cards, dashboards: impact.affected_dashboards })" type="warning" show-icon :closable="false" />
+        <div v-for="change in impact?.changes ?? []" :key="change.after?.code ?? change.before?.code" class="bi-card-formulas__diff">
+          <strong>{{ change.after?.name ?? change.before?.name }}</strong>
+          <code>{{ change.before?.expression }} → {{ change.after?.expression }}</code>
+        </div>
+        <el-button v-if="card" :disabled="saving || previewing || Boolean(pendingSave)" @click="loadDetails(true)">{{ t('bi.sql.refresh_model') }}</el-button>
       </div>
     </template>
     <template #chart>
@@ -41,21 +56,23 @@
       <el-empty v-else :image-size="36" :description="t('bi.card.preview_empty')" />
     </template>
     <template #footer>
-      <el-button :disabled="saving" @click="emit('update:modelValue', false)">{{ t("common.action.cancel") }}</el-button>
-      <el-button :loading="previewing" :disabled="saving" @click="preview">{{ t("bi.card.preview") }}</el-button>
-      <el-button type="primary" :loading="saving" @click="submit">{{ t("bi.card.save") }}</el-button>
+      <el-button :disabled="saving || Boolean(pendingSave)" @click="emit('update:modelValue', false)">{{ t("common.action.cancel") }}</el-button>
+      <el-button :loading="previewing" :disabled="saving || loadingDetails || Boolean(pendingSave)" @click="preview">{{ t("bi.card.preview") }}</el-button>
+      <el-button type="primary" :loading="saving" :disabled="loadingDetails" @click="submit">{{ t("bi.card.save") }}</el-button>
     </template>
   </FormDialog>
 </template>
 <script setup lang="ts">
 import { computed, reactive, ref, watch } from "vue";
 import { t } from "@liujitcn/kratos-admin-core";
+import CodeEditor from "@liujitcn/kratos-admin-core/components/CodeEditor/index.vue";
 import FormDialog from "@liujitcn/kratos-admin-core/components/Dialog/FormDialog.vue";
 import type { ProFormField } from "@liujitcn/kratos-admin-core/components/ProForm/interface";
-import type { BiCard } from "../rpc/bi/admin/v1/bi_card";
+import type { BiCard, SaveBiCardRequest } from "../rpc/bi/admin/v1/bi_card";
 import type { BiMeasureSpec, BiQueryResult, BiQuerySpec, BiSourceDescriptor } from "../rpc/bi/admin/v1/bi_query";
 import { defBiCardService } from "../api/bi/admin/v1/bi_card";
-import { defBiQueryService } from "../api/bi/admin/v1/bi_query";
+import type { BiModelImpact, BiSourceMeasure } from "../rpc/bi/admin/v1/bi_source";
+import { metricChanges, mergeMetricDrafts, appliedCardID } from "../metric-edit";
 import BiDataCard from "./BiDataCard.vue";
 import BiCardChartEditor from "./BiCardChartEditor.vue";
 import { parseCardChart } from "../card-schema";
@@ -90,8 +107,20 @@ const previewResult = ref<BiQueryResult>();
 const sourceRecordID = ref(0);
 const chartConfig = ref<CardChartConfig>({ encoding: {}, style: { showLegend: true, showLabel: false } });
 const saving = ref(false);
+const pendingSave = ref<SaveBiCardRequest>();
 const previewing = ref(false);
+const loadingDetails = ref(false);
+const canEditMetrics = ref(false);
+const originalMetrics = ref<BiSourceMeasure[]>([]);
+const editedMetrics = ref<BiSourceMeasure[]>([]);
+const sql = ref("");
+const impact = ref<BiModelImpact>();
+const previewRecordID = ref(0);
+const cardVersion = ref(0);
+const sourceVersion = ref(0);
+const changes = computed(() => metricChanges(originalMetrics.value, editedMetrics.value));
 let previewRequest = 0;
+let session = 0;
 const source = computed(() => props.sources.find(item => item.code === form.source_code));
 const query = computed<BiQuerySpec>(() => ({
   source_code: form.source_code,
@@ -117,6 +146,7 @@ const previewCard = computed<BiCard>(() => ({
   is_shared: form.is_shared,
   updated_at: "",
   category: "mine",
+  version: 0, validation_query_record_id: 0, execution_kind: "", source_version: 0, can_edit_metrics: false, metric_definitions: [], sql: "", sync_summary: undefined, columns: [],
   can_edit: true
 }));
 const fields = computed<ProFormField[]>(() => [
@@ -142,6 +172,7 @@ const fields = computed<ProFormField[]>(() => [
     }
   },
   { prop: "measures", label: t("bi.card.measure"), component: "slot", slotName: "measures", colSpan: 12 },
+  { prop: "formulas", label: t("bi.sql.formulas"), component: "slot", slotName: "formulas", colSpan: 24 },
   { prop: "chart", label: t("bi.card.chart_type"), component: "slot", slotName: "chart", colSpan: 12 },
   { prop: "preview", label: t("bi.card.preview"), component: "slot", slotName: "preview", colSpan: 12 },
   {
@@ -176,7 +207,12 @@ function defaultForm(): BiCardEditState {
 watch(
   () => props.modelValue,
   visible => {
+    session++;
+    previewRequest++;
     if (!visible) return;
+    saving.value = false;
+    previewing.value = false;
+    loadingDetails.value = false;
     const original = props.card?.query ?? props.initialQuery;
     const current = original ? normalizeBiQuerySpec(original) : undefined;
     baseQuery.value = current ? (JSON.parse(JSON.stringify(current)) as BiQuerySpec) : undefined;
@@ -192,6 +228,16 @@ watch(
     previewResult.value = props.initialResult;
     sourceRecordID.value = props.card?.query_record_id || props.initialResult?.query_record_id || 0;
     chartConfig.value = parseCardChart(props.card ?? { chart_json: "" });
+    cardVersion.value = props.card?.version ?? 0;
+    sourceVersion.value = source.value?.version ?? 0;
+    previewRecordID.value = 0;
+    impact.value = undefined;
+    originalMetrics.value = [];
+    editedMetrics.value = [];
+    sql.value = "";
+    canEditMetrics.value = false;
+    if (props.card) void loadDetails(false);
+    else void preview();
   }
 );
 watch(
@@ -205,40 +251,95 @@ watch(
   { deep: true, flush: "sync" }
 );
 
-/** 预览当前语义配置，忽略配置变化前的迟到响应。 */
+/** 公式变化后使成功预览失效；样式编辑不影响公式预览。 */
+watch(editedMetrics, () => {
+  previewRequest++;
+  previewRecordID.value = 0;
+  impact.value = undefined;
+  sql.value = "";
+  previewResult.value = undefined;
+}, { deep: true, flush: "sync" });
+
+/** 读取当前卡片的源版本和授权公式，冲突刷新保留本地公式输入。 */
+async function loadDetails(preserve: boolean) {
+  if (!props.card || pendingSave.value) return;
+  const request = ++previewRequest;
+  const currentSession = session;
+  loadingDetails.value = true;
+  try {
+    const detail = await defBiCardService.GetBiCard({ id: props.card.id });
+    if (request !== previewRequest || !props.modelValue) return;
+    cardVersion.value = detail.version;
+    sourceVersion.value = detail.source_version;
+    canEditMetrics.value = detail.can_edit_metrics;
+    const definitions = detail.metric_definitions ?? [];
+    originalMetrics.value = definitions.map(item => ({ ...item }));
+    editedMetrics.value = preserve ? mergeMetricDrafts(definitions, editedMetrics.value) : definitions.map(item => ({ ...item }));
+    sql.value = changes.value.length ? "" : detail.sql;
+    if (preserve) ElMessage.info(t("bi.sql.repreview"));
+  } catch (cause) {
+    ElMessage.error(cause instanceof Error ? cause.message : t("bi.query.error"));
+  } finally {
+    if (currentSession === session) loadingDetails.value = false;
+  }
+}
+
+/** 真实预览精确公共公式候选，并忽略编辑前的迟到响应。 */
 async function preview() {
-  if (!(await dialogRef.value?.validate()) || previewing.value) return;
+  if (previewing.value || loadingDetails.value || pendingSave.value) return;
   if (!sourceRecordID.value) {
     ElMessage.warning(t("bi.card.ask_required"));
     return;
   }
   const request = ++previewRequest;
+  const currentSession = session;
   previewing.value = true;
   try {
-    const result = await defBiQueryService.PreviewBiQuery({ query: query.value });
-    if (request === previewRequest) {
-      previewResult.value = result;
+    const response = await defBiCardService.PreviewBiCardSql({
+      id: props.card?.id ?? 0,
+      expected_card_version: cardVersion.value,
+      expected_source_version: sourceVersion.value,
+      query_record_id: sourceRecordID.value,
+      query: query.value,
+      measure_changes: changes.value
+    });
+    if (request !== previewRequest || !props.modelValue) return;
+    canEditMetrics.value = response.can_edit_metrics;
+    sourceVersion.value = response.source_version;
+    if (!originalMetrics.value.length) {
+      originalMetrics.value = (response.metric_definitions ?? []).map(item => ({ ...item }));
+      editedMetrics.value = originalMetrics.value.map(item => ({ ...item }));
     }
+    previewResult.value = response.result;
+    previewRecordID.value = response.preview_query_record_id;
+    sql.value = response.sql;
+    impact.value = response.impact;
   } catch (cause) {
     ElMessage.error(cause instanceof Error ? cause.message : t("bi.query.error"));
   } finally {
-    previewing.value = false;
+    if (currentSession === session) previewing.value = false;
   }
 }
 
-/** 仅保存与原始智能问数关联的卡片，图表编辑不改变查询定义。 */
+/** 保存精确候选，结果未知时重试冻结请求，避免新预览绕过一次消费。 */
 async function submit() {
-  if (!(await dialogRef.value?.validate()) || saving.value || previewing.value) return;
-  if (!sourceRecordID.value) {
+  if ((!pendingSave.value && !(await dialogRef.value?.validate())) || saving.value || previewing.value || loadingDetails.value) return;
+  if (!pendingSave.value && !sourceRecordID.value) {
     ElMessage.warning(t("bi.card.ask_required"));
     return;
   }
-  if (!previewResult.value) await preview();
-  if (!previewResult.value || !sourceRecordID.value) return;
+  if (!pendingSave.value && changes.value.length && !previewRecordID.value) {
+    ElMessage.warning(t("bi.sql.repreview"));
+    return;
+  }
   saving.value = true;
   try {
-    const saved = await defBiCardService.SaveBiCard({
+    pendingSave.value ??= JSON.parse(JSON.stringify({
       id: props.card?.id ?? 0,
+      expected_card_version: cardVersion.value,
+      expected_source_version: sourceVersion.value,
+      preview_query_record_id: previewRecordID.value,
+      measure_changes: changes.value,
       card: {
         name: form.name,
         query: query.value,
@@ -248,11 +349,29 @@ async function submit() {
         refresh_seconds: form.refresh_seconds,
         is_shared: form.is_shared
       }
-    });
+    })) as SaveBiCardRequest;
+    const saved = await defBiCardService.SaveBiCard(pendingSave.value);
+    pendingSave.value = undefined;
     emit("saved", saved);
     emit("update:modelValue", false);
-    ElMessage.success(t("bi.card.saved"));
+    ElMessage.success(saved.sync_summary?.changes?.length ? t("bi.sql.synced", { cards: saved.sync_summary.affected_cards, dashboards: saved.sync_summary.affected_dashboards }) : t("bi.card.saved"));
   } catch (cause) {
+    const id = appliedCardID(cause);
+    if (id) {
+      try {
+        const saved = await defBiCardService.GetBiCard({ id });
+        pendingSave.value = undefined;
+        emit("saved", saved);
+        emit("update:modelValue", false);
+        ElMessage.info(t("bi.sql.already_applied"));
+        return;
+      } catch (readError) {
+        ElMessage.error(readError instanceof Error ? readError.message : t("bi.card.save_failed"));
+        return;
+      }
+    }
+    const status = (cause as { response?: { status?: number } } | null)?.response?.status;
+    if (status && status >= 400 && status < 500) pendingSave.value = undefined;
     ElMessage.error(cause instanceof Error ? cause.message : t("bi.card.save_failed"));
   } finally {
     saving.value = false;
@@ -262,9 +381,15 @@ async function submit() {
 /** 关闭弹窗后清空表单、预览与校验状态。 */
 function reset() {
   previewRequest++;
+  pendingSave.value = undefined;
   baseQuery.value = undefined;
   Object.assign(form, defaultForm());
   previewResult.value = undefined;
+  previewRecordID.value = 0;
+  originalMetrics.value = [];
+  editedMetrics.value = [];
+  impact.value = undefined;
+  sql.value = "";
   sourceRecordID.value = 0;
   chartConfig.value = { encoding: {}, style: { showLegend: true, showLabel: false } };
   dialogRef.value?.clearValidate();
@@ -272,6 +397,10 @@ function reset() {
 </script>
 
 <style scoped>
+.bi-card-formulas { display: flex; width: 100%; min-width: 0; flex-direction: column; gap: 12px; }
+.bi-card-formulas__metric, .bi-card-formulas__diff { display: flex; min-width: 0; flex-direction: column; gap: 6px; }
+.bi-card-formulas__diff code { overflow-wrap: anywhere; color: var(--el-text-color-regular); }
+
 .bi-card-measures {
   display: flex;
   width: 100%;
@@ -280,12 +409,12 @@ function reset() {
 }
 .bi-card-measures__row {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(90px, 0.65fr) auto;
+  grid-template-columns: minmax(0, 1fr) auto;
   gap: 8px;
 }
 @media (max-width: 480px) {
   .bi-card-measures__row {
-    grid-template-columns: minmax(0, 1fr) 90px auto;
+    grid-template-columns: minmax(0, 1fr) auto;
   }
 }
 </style>

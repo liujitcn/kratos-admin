@@ -120,3 +120,13 @@ func (s *BiSourceService) SaveBiSourceModel(ctx context.Context, req *adminv1.Sa
 	}
 	return result, nil
 }
+
+// PreviewBiSourceModel 预览公共模型变更。
+func (s *BiSourceService) PreviewBiSourceModel(ctx context.Context, req *adminv1.SaveBiSourceModelRequest) (*adminv1.BiModelImpact, error) {
+	result, err := s.biSourceCase.PreviewBiSourceModel(ctx, req)
+	if err != nil {
+		log.Error(fmt.Sprintf("PreviewBiSourceModel %v", err))
+		return nil, errorsx.WrapInternal(err, "预览公共模型变更失败")
+	}
+	return result, nil
+}

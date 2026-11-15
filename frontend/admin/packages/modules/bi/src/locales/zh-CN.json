@@ -250,5 +250,21 @@
   "bi.card.ask_create": "智能问数创建卡片",
   "bi.card.ask_required": "请先通过智能问数获取真实数据，再保存卡片",
   "bi.dashboard.menu_position": "放置位置",
-  "bi.dashboard.menu_saved": "仪表盘菜单已保存"
+  "bi.dashboard.menu_saved": "仪表盘菜单已保存",
+  "bi.sql.formulas": "公共指标公式",
+  "bi.sql.expression": "指标公式",
+  "bi.sql.unit": "单位",
+  "bi.sql.shared_notice": "公式属于数据源公共指标；保存后同步所有引用卡片，相关仪表盘需要重新发布。",
+  "bi.sql.readonly_notice": "当前账号不能编辑公共指标，可继续修改图表展示。",
+  "bi.sql.full_sql": "完整 SQL（只读）",
+  "bi.sql.impact": "将更新 {cards} 张卡片，{dashboards} 个仪表盘需要重新发布。",
+  "bi.sql.synced": "已保存并同步 {cards} 张卡片，{dashboards} 个仪表盘需要重新发布。",
+  "bi.sql.refresh_model": "刷新公共指标并保留草稿",
+  "bi.sql.repreview": "已保留草稿，请重新预览并核对变更后保存。",
+  "bi.sql.preview_changes": "检查变更影响",
+  "bi.sql.already_applied": "该预览已经保存，已重新读取对应卡片。",
+  "bi.sql.definition_status": "指标口径",
+  "bi.sql.requires_republish": "需要重新发布",
+  "bi.sql.current": "当前口径",
+  "bi.sql.save_pending": "上次保存结果尚未确认，请重试保存后继续编辑。"
 }

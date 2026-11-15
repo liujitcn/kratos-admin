@@ -29,3 +29,7 @@ Models 自动创建 AI 插件、自动化和 AI 文件表；`default_data.up.sql
 消息分类 ID `6`、code `ai_automation` 仅开启站内 inbox，`provider_id=[]`，不创建或启用任何外部 Provider。运行结果提醒由业务发布为 `VIEW_KEY` 到既有 `AI` 页面，携带 `automation_id`、`run_id`、`session_id`；不在初始化 SQL 写入真实运行或消息。分类只控制投递，结果归属与审批权限仍由服务端校验。
 
 管理端与应用端共用公开登录 `POST /api/v1/base/session` 和跳转授权 `POST /api/v1/base/oauth/authorization`，对应 operation 统一列入最小/完整认证白名单。`base_api` 仍统一由 Proto/OpenAPI 启动同步，公开登录不额外创建菜单权限或静态 API 种子。登录认证和本人 AI 对话跨端共享，并发登录由原策略控制；角色/API 权限、租户、资源归属和审批继续生效，本次不调整表结构或种子。
+
+BI 卡片 SQL 改造由生成 Model 维护 `bi_card.execution_json/version/validation_query_record_id` 和 `bi_query.kind/card_id/execution_json/context_json/applied_card_id/applied_card_version`，查询索引为 `idx_bi_query_card_id_created_at`。`bi_source.schema_json` 使用 MEDIUMTEXT 保存固定聚合公式、单位及修订；模型结构另有 `model_revision`。首次启用生成模型时须在开发环境备份并补齐已有 JSON 行，不清除卡片或问数记录；旧执行定义和布局不自动转换。
+
+卡片原入口增加 `GetBiCard`、`PreviewBiCardSql` 权限，数据源新增/编辑按钮增加 `PreviewBiSourceModel`；物理模型、公式和 SQL 由 Biz 再验模型管理权。`base_api` 仍由 Proto/OpenAPI 在启动时同步，HTTP 路径分别为 `GET /api/v1/admin/bi/card/{id}`、`POST /api/v1/admin/bi/card/sql-preview` 和 `POST /api/v1/admin/bi/source/{id}/model/preview`。已运行 v0.0.1 的环境需另行补齐菜单授权，不会自动重放本脚本。

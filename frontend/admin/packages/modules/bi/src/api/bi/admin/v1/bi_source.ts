@@ -1,6 +1,7 @@
 import service from "@liujitcn/kratos-admin-core/request";
 import type {
   BiSource,
+  BiModelImpact,
   BiSourceForm,
   BiSourceService,
   ListBiSourceTablesRequest,
@@ -71,8 +72,13 @@ export class BiSourceServiceImpl implements BiSourceService {
 
   /** 保存数据源语义模型。 */
   SaveBiSourceModel(request: SaveBiSourceModelRequest): Promise<BiSource> {
-    return service({url: `${BI_SOURCE_URL}/${request.id}/model`, method: "put", data: request.model});
+    return service({url: `${BI_SOURCE_URL}/${request.id}/model`, method: "put", data: request});
   }
+  /** 预览公共模型差异和同步影响，不保存候选。 */
+  PreviewBiSourceModel(request: SaveBiSourceModelRequest): Promise<BiModelImpact> {
+    return service({url: `${BI_SOURCE_URL}/${request.id}/model/preview`, method: "post", data: request});
+  }
+
 }
 
 export const defBiSourceService = new BiSourceServiceImpl();

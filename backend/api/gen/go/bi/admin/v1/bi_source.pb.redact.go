@@ -163,6 +163,17 @@ func (s *redactedBiSourceServiceServer) SaveBiSourceModel(ctx context.Context, i
 	return res, err
 }
 
+// PreviewBiSourceModel is the redacted wrapper for the actual BiSourceServiceServer.PreviewBiSourceModel method
+// Unary RPC
+func (s *redactedBiSourceServiceServer) PreviewBiSourceModel(ctx context.Context, in *SaveBiSourceModelRequest) (*BiModelImpact, error) {
+	res, err := s.srv.PreviewBiSourceModel(ctx, in)
+	if !s.bypass.CheckInternal(ctx) {
+		// Apply redaction to the response
+		redact.ApplyWith(redact.WithDirection(redact.WithOperation(ctx, "/bi.admin.v1.BiSourceService/PreviewBiSourceModel"), redact.DirectionResponse), nil, res)
+	}
+	return res, err
+}
+
 // Ensure PageBiSourceRequest implements the Redactor interface at compile time.
 var _ redact.Redactor = (*PageBiSourceRequest)(nil)
 
@@ -413,6 +424,8 @@ func (x *SaveBiSourceModelRequest) Redact() {
 	// Safe field: Id
 
 	// Safe field: Model
+
+	// Safe field: ExpectedSourceVersion
 }
 
 // Ensure BiSourceModel implements the Redactor interface at compile time.
@@ -510,11 +523,11 @@ func (x *BiSourceMeasure) Redact() {
 
 	// Safe field: Type
 
-	// Safe field: Table
+	// Safe field: Expression
 
-	// Safe field: Column
+	// Safe field: Unit
 
-	// Safe field: Aggregations
+	// Safe field: Revision
 }
 
 // Ensure BiSourceForm implements the Redactor interface at compile time.
@@ -613,4 +626,58 @@ func (x *BiSource) Redact() {
 	// Safe field: ModelConfigured
 
 	// Safe field: TableCount
+
+	// Safe field: SyncSummary
+}
+
+// Ensure BiMetricChange implements the Redactor interface at compile time.
+var _ redact.Redactor = (*BiMetricChange)(nil)
+
+// Redact method implementation for BiMetricChange
+func (x *BiMetricChange) Redact() {
+	if x == nil {
+		return
+	}
+
+	// Safe field: MetricCode
+
+	// Safe field: Expression
+
+	// Safe field: Name
+
+	// Safe field: Unit
+
+	// Safe field: ExpectedRevision
+}
+
+// Ensure BiMetricDifference implements the Redactor interface at compile time.
+var _ redact.Redactor = (*BiMetricDifference)(nil)
+
+// Redact method implementation for BiMetricDifference
+func (x *BiMetricDifference) Redact() {
+	if x == nil {
+		return
+	}
+
+	// Safe field: Before
+
+	// Safe field: After
+}
+
+// Ensure BiModelImpact implements the Redactor interface at compile time.
+var _ redact.Redactor = (*BiModelImpact)(nil)
+
+// Redact method implementation for BiModelImpact
+func (x *BiModelImpact) Redact() {
+	if x == nil {
+		return
+	}
+
+	// Safe field: Changes
+
+	// Safe field: AffectedCards
+
+	// Safe field: AffectedDashboards
+
+	// Safe field: SourceVersion
 }

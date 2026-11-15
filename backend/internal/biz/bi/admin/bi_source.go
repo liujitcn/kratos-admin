@@ -17,14 +17,18 @@ import (
 	"github.com/liujitcn/kratos-admin/backend/adapter/kit"
 	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/bi/admin/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/bi/admin/dto"
+	queryCompiler "github.com/liujitcn/kratos-admin/backend/internal/biz/bi/admin/query"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 	"github.com/liujitcn/kratos-admin/backend/pkg/bi"
 	"github.com/liujitcn/kratos-core/biz"
 	_const "github.com/liujitcn/kratos-core/const"
 	"github.com/liujitcn/kratos-core/errorsx"
+	"github.com/liujitcn/kratos-kit/auth/authz/engine"
+	authData "github.com/liujitcn/kratos-kit/auth/data"
 	databaseGorm "github.com/liujitcn/kratos-kit/database/gorm"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 var biSourceIdentifierPattern = regexp.MustCompile(`^[A-Za-z_][A-Za-z0-9_]*$`)
@@ -36,22 +40,26 @@ type BiSourceCase struct {
 	sourceRepo     *data.BiSourceRepository
 	registry       *bi.Registry
 	redactResolver *kit.RedactPolicyResolver
+	cardRepo       *data.BiCardRepository
+	dashboardRepo  *data.BiDashboardRepository
+	versionRepo    *data.BiDashboardVersionRepository
+	authorizer     engine.Engine
 }
 
 // NewBiSourceCase 创建 BI 数据源配置业务实例。
-func NewBiSourceCase(baseCase *biz.BaseCase, tx data.Transaction, sourceRepo *data.BiSourceRepository, registry *bi.Registry, redactResolver *kit.RedactPolicyResolver) *BiSourceCase {
-	return &BiSourceCase{BaseCase: baseCase, tx: tx, sourceRepo: sourceRepo, registry: registry, redactResolver: redactResolver}
+func NewBiSourceCase(baseCase *biz.BaseCase, tx data.Transaction, sourceRepo *data.BiSourceRepository, registry *bi.Registry, redactResolver *kit.RedactPolicyResolver, cardRepo *data.BiCardRepository, dashboardRepo *data.BiDashboardRepository, versionRepo *data.BiDashboardVersionRepository, authorizer engine.Engine) *BiSourceCase {
+	return &BiSourceCase{BaseCase: baseCase, tx: tx, sourceRepo: sourceRepo, registry: registry, redactResolver: redactResolver, cardRepo: cardRepo, dashboardRepo: dashboardRepo, versionRepo: versionRepo, authorizer: authorizer}
 }
 
 // List 返回当前访问范围内的静态和可配置数据源目录。
 func (c *BiSourceCase) List(ctx context.Context, scope bi.Scope) ([]bi.SourceDescriptor, error) {
-	var err error
 	result, err := c.registry.List(ctx, scope)
 	if err != nil {
 		return nil, err
 	}
 	query := c.sourceRepo.Query(ctx).BiSource
-	items, err := c.sourceRepo.List(ctx,
+	var items []*models.BiSource
+	items, err = c.sourceRepo.List(ctx,
 		repository.Where(query.TenantID.Eq(scope.TenantID)),
 		repository.Where(query.Status.Eq(_const.STATUS_STATUS_ENABLE)),
 		repository.Order(query.Code.Asc()),
@@ -73,20 +81,11 @@ func (c *BiSourceCase) List(ctx context.Context, scope bi.Scope) ([]bi.SourceDes
 
 // Execute 执行静态 Adapter 或可配置语义数据源查询。
 func (c *BiSourceCase) Execute(ctx context.Context, scope bi.Scope, spec bi.QuerySpec) (bi.QueryResult, error) {
-	if c.registry.Has(spec.SourceCode) {
-		return c.registry.Execute(ctx, scope, spec)
-	}
-	item, schema, err := c.findEnabledSource(ctx, scope.TenantID, spec.SourceCode)
+	execution, err := c.compile(ctx, scope, spec)
 	if err != nil {
 		return bi.QueryResult{}, err
 	}
-	var database *configuredDatabase
-	database, err = c.openSource(ctx, item)
-	if err != nil {
-		return bi.QueryResult{}, err
-	}
-	defer database.Close()
-	return executeConfiguredSource(ctx, database, item, schema, scope, spec)
+	return c.executeDefinition(ctx, scope, spec, execution, 0, time.Now())
 }
 
 // openSource 校验宿主连接权限后打开数据源，已有配置执行时同样不能绕过权限。
@@ -142,13 +141,20 @@ func (c *BiSourceCase) PageBiSource(ctx context.Context, req *adminv1.PageBiSour
 	if req.Status != nil {
 		opts = append(opts, repository.Where(query.Status.Eq(req.GetStatus())))
 	}
-	items, total, err := c.sourceRepo.Page(ctx, req.GetPageNum(), req.GetPageSize(), opts...)
+	var items []*models.BiSource
+	var total int64
+	items, total, err = c.sourceRepo.Page(ctx, req.GetPageNum(), req.GetPageSize(), opts...)
 	if err != nil {
 		return nil, err
 	}
 	result := make([]*adminv1.BiSource, 0, len(items))
 	for _, item := range items {
-		result = append(result, toBiSource(item))
+		var response *adminv1.BiSource
+		response, err = c.sourceResponse(ctx, item)
+		if err != nil {
+			return nil, err
+		}
+		result = append(result, response)
 	}
 	return &adminv1.PageBiSourceResponse{Sources: result, Total: int32(total)}, nil
 }
@@ -159,11 +165,12 @@ func (c *BiSourceCase) GetBiSource(ctx context.Context, req *adminv1.GetBiSource
 	if err != nil {
 		return nil, err
 	}
-	item, err := c.findSource(ctx, authInfo.TenantId, req.GetId())
+	var item *models.BiSource
+	item, err = c.findSource(ctx, authInfo.TenantId, req.GetId())
 	if err != nil {
 		return nil, err
 	}
-	return toBiSource(item), nil
+	return c.sourceResponse(ctx, item)
 }
 
 // CreateBiSource 创建当前租户的数据源配置。
@@ -195,82 +202,123 @@ func (c *BiSourceCase) CreateBiSource(ctx context.Context, req *adminv1.CreateBi
 		}
 		return nil, err
 	}
-	return toBiSource(item), nil
+	return c.sourceResponse(ctx, item)
 }
 
-// UpdateBiSource 更新当前租户的数据源配置。
+// UpdateBiSource 在源锁内更新连接信息，不允许编码重置或绕过派生卡片同步。
 func (c *BiSourceCase) UpdateBiSource(ctx context.Context, req *adminv1.UpdateBiSourceRequest) (*adminv1.BiSource, error) {
 	authInfo, err := c.GetAuthInfo(ctx)
 	if err != nil {
 		return nil, err
 	}
 	form := req.GetSource()
-	if form == nil || form.GetId() <= 0 {
-		return nil, errorsx.InvalidArgument("BI 数据源配置ID无效")
-	}
-	var item *models.BiSource
-	item, err = c.findSource(ctx, authInfo.TenantId, form.GetId())
-	if err != nil {
-		return nil, err
-	}
 	if err = c.validateForm(ctx, form); err != nil {
 		return nil, err
 	}
-	if c.registry.Has(form.GetCode()) && form.GetCode() != item.Code {
-		return nil, errorsx.Conflict("数据源编码已被静态 Adapter 占用")
-	}
-	connectionChanged := item.SourceName != sourceName(form) || item.Driver != form.GetDriver() || item.Host != form.GetHost() || item.Port != form.GetPort() || item.DatabaseName != form.GetDatabaseName() || item.Username != form.GetUsername() || item.SslMode != form.GetSslMode() || item.SchemaName != form.GetSchemaName()
-	item.Code = form.GetCode()
-	item.Name = form.GetName()
-	item.Description = form.GetDescription()
-	item.SourceName = sourceName(form)
-	item.Driver = form.GetDriver()
-	item.Host = form.GetHost()
-	item.Port = form.GetPort()
-	item.DatabaseName = form.GetDatabaseName()
-	item.Username = form.GetUsername()
-	item.SslMode = form.GetSslMode()
-	if password := form.GetPassword().GetText(); password != "" {
-		item.Password = password
-	}
-	item.SchemaName = form.GetSchemaName()
-	if connectionChanged {
-		item.TableName_ = ""
-		item.TenantColumn = ""
-		item.SchemaJSON = "{}"
-		item.Status = _const.STATUS_STATUS_DISABLE
-	}
-	item.Version++
-	item.MaxRows = normalizeMaxRows(form.GetMaxRows())
-	item.UpdatedBy = authInfo.UserId
-	item.UpdatedAt = time.Now()
-	if err = c.sourceRepo.UpdateByID(ctx, item); err != nil {
-		if errorsx.IsDuplicateKey(err) {
-			return nil, errorsx.Conflict("当前租户的数据源编码已存在").WithCause(err)
-		}
+	var initial *models.BiSource
+	initial, err = c.findSource(ctx, authInfo.TenantId, form.GetId())
+	if err != nil {
 		return nil, err
 	}
-	return toBiSource(item), nil
+	if initial.Code != form.GetCode() {
+		return nil, errorsx.InvalidArgument("数据源编码创建后不可修改")
+	}
+	var item *models.BiSource
+	err = c.tx.Transaction(ctx, func(txCtx context.Context) error {
+		item, err = c.lockSource(txCtx, authInfo.TenantId, initial.Code)
+		if err != nil {
+			return err
+		}
+		connectionChanged := item.SourceName != sourceName(form) || item.Driver != form.GetDriver() || item.Host != form.GetHost() || item.Port != form.GetPort() || item.DatabaseName != form.GetDatabaseName() || item.Username != form.GetUsername() || item.SslMode != form.GetSslMode() || item.SchemaName != form.GetSchemaName()
+		if connectionChanged {
+			if err = c.requireUnusedSource(txCtx, item); err != nil {
+				return err
+			}
+			item.Status = _const.STATUS_STATUS_DISABLE
+			var previous dto.ConfiguredSourceSchema
+			if err = json.Unmarshal([]byte(item.SchemaJSON), &previous); err != nil {
+				return err
+			}
+			var payload []byte
+			payload, err = marshalConfiguredSourceModel(dto.ConfiguredSourceSchema{ModelRevision: previous.ModelRevision + 1})
+			if err != nil {
+				return err
+			}
+			item.SchemaJSON = string(payload)
+			item.TableName_, item.TenantColumn = "", ""
+		}
+		if item.MaxRows != normalizeMaxRows(form.GetMaxRows()) && hasConfiguredSourceModel(item.SchemaJSON) {
+			var model dto.ConfiguredSourceSchema
+			if err = json.Unmarshal([]byte(item.SchemaJSON), &model); err != nil {
+				return err
+			}
+			model.ModelRevision++
+			item.MaxRows = normalizeMaxRows(form.GetMaxRows())
+			_, err = c.synchronizeModel(txCtx, item, model, 0, true)
+			if err != nil {
+				return err
+			}
+			var payload []byte
+			payload, err = marshalConfiguredSourceModel(model)
+			if err != nil {
+				return err
+			}
+			item.SchemaJSON = string(payload)
+		}
+		item.Name = form.GetName()
+		item.Description = form.GetDescription()
+		item.SourceName = sourceName(form)
+		item.Driver = form.GetDriver()
+		item.Host = form.GetHost()
+		item.Port = form.GetPort()
+		item.DatabaseName = form.GetDatabaseName()
+		item.Username = form.GetUsername()
+		item.SslMode = form.GetSslMode()
+		item.SchemaName = form.GetSchemaName()
+		item.MaxRows = normalizeMaxRows(form.GetMaxRows())
+		if form.GetPassword().GetText() != "" {
+			item.Password = form.GetPassword().GetText()
+		}
+		item.Version++
+		item.UpdatedBy = authInfo.UserId
+		item.UpdatedAt = time.Now()
+		return c.sourceRepo.UpdateByID(txCtx, item)
+	})
+	if err != nil {
+		return nil, err
+	}
+	return c.sourceResponse(ctx, item)
 }
 
-// DeleteBiSource 删除当前租户的数据源配置。
+// DeleteBiSource 在源锁内检查现存卡片和当前发布版本，保留软删除编码唯一约束。
 func (c *BiSourceCase) DeleteBiSource(ctx context.Context, req *adminv1.DeleteBiSourceRequest) (*adminv1.DeleteBiSourceResponse, error) {
 	authInfo, err := c.GetAuthInfo(ctx)
 	if err != nil {
 		return nil, err
 	}
-	var item *models.BiSource
-	item, err = c.findSource(ctx, authInfo.TenantId, req.GetId())
+	var initial *models.BiSource
+	initial, err = c.findSource(ctx, authInfo.TenantId, req.GetId())
 	if err != nil {
 		return nil, err
 	}
-	if err = c.sourceRepo.DeleteByIDs(ctx, []int64{item.ID}); err != nil {
+	err = c.tx.Transaction(ctx, func(txCtx context.Context) error {
+		var item *models.BiSource
+		item, err = c.lockSource(txCtx, authInfo.TenantId, initial.Code)
+		if err != nil {
+			return err
+		}
+		if err = c.requireUnusedSource(txCtx, item); err != nil {
+			return err
+		}
+		return c.sourceRepo.DeleteByIDs(txCtx, []int64{item.ID})
+	})
+	if err != nil {
 		return nil, err
 	}
 	return &adminv1.DeleteBiSourceResponse{}, nil
 }
 
-// SetBiSourceStatus 修改当前租户的数据源启用状态。
+// SetBiSourceStatus 在源锁内修改可用性并增加并发版本，不覆盖并发提交的公共模型。
 func (c *BiSourceCase) SetBiSourceStatus(ctx context.Context, req *adminv1.SetBiSourceStatusRequest) (*adminv1.BiSource, error) {
 	authInfo, err := c.GetAuthInfo(ctx)
 	if err != nil {
@@ -279,21 +327,30 @@ func (c *BiSourceCase) SetBiSourceStatus(ctx context.Context, req *adminv1.SetBi
 	if req.GetStatus() != _const.STATUS_STATUS_ENABLE && req.GetStatus() != _const.STATUS_STATUS_DISABLE {
 		return nil, errorsx.InvalidArgument("数据源状态无效")
 	}
-	var item *models.BiSource
-	item, err = c.findSource(ctx, authInfo.TenantId, req.GetId())
+	var initial *models.BiSource
+	initial, err = c.findSource(ctx, authInfo.TenantId, req.GetId())
 	if err != nil {
 		return nil, err
 	}
-	if req.GetStatus() == _const.STATUS_STATUS_ENABLE && !hasConfiguredSourceModel(item.SchemaJSON) {
-		return nil, errorsx.InvalidArgument("请先完成数据源表结构和语义模型配置")
-	}
-	item.Status = req.GetStatus()
-	item.UpdatedBy = authInfo.UserId
-	item.UpdatedAt = time.Now()
-	if err = c.sourceRepo.UpdateByID(ctx, item); err != nil {
+	var item *models.BiSource
+	err = c.tx.Transaction(ctx, func(txCtx context.Context) error {
+		item, err = c.lockSource(txCtx, authInfo.TenantId, initial.Code)
+		if err != nil {
+			return err
+		}
+		if req.GetStatus() == _const.STATUS_STATUS_ENABLE && !hasConfiguredSourceModel(item.SchemaJSON) {
+			return errorsx.InvalidArgument("请先完成数据源表结构和语义模型配置")
+		}
+		item.Status = req.GetStatus()
+		item.Version++
+		item.UpdatedBy = authInfo.UserId
+		item.UpdatedAt = time.Now()
+		return c.sourceRepo.UpdateByID(txCtx, item)
+	})
+	if err != nil {
 		return nil, err
 	}
-	return toBiSource(item), nil
+	return c.sourceResponse(ctx, item)
 }
 
 // OptionBiSourceDatabase 仅向默认租户返回服务端已经装配的数据库客户端。
@@ -349,7 +406,12 @@ func (c *BiSourceCase) TestBiSource(ctx context.Context, req *adminv1.TestBiSour
 
 // ListBiSourceTables 查询当前租户数据源中的表和字段结构。
 func (c *BiSourceCase) ListBiSourceTables(ctx context.Context, req *adminv1.ListBiSourceTablesRequest) (*adminv1.ListBiSourceTablesResponse, error) {
-	authInfo, err := c.GetAuthInfo(ctx)
+	err := c.requireModelPermission(ctx)
+	if err != nil {
+		return nil, err
+	}
+	var authInfo *authData.UserTokenPayload
+	authInfo, err = c.GetAuthInfo(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -372,55 +434,51 @@ func (c *BiSourceCase) ListBiSourceTables(ctx context.Context, req *adminv1.List
 	return &adminv1.ListBiSourceTablesResponse{Tables: tables}, nil
 }
 
-// SaveBiSourceModel 校验并保存数据源多表语义模型。
+// SaveBiSourceModel 在同一元数据事务中保存公共模型并同步所有引用卡片。
 func (c *BiSourceCase) SaveBiSourceModel(ctx context.Context, req *adminv1.SaveBiSourceModelRequest) (*adminv1.BiSource, error) {
-	if req.GetModel() == nil {
-		return nil, errorsx.InvalidArgument("数据源语义模型不能为空")
-	}
-	authInfo, err := c.GetAuthInfo(ctx)
+	prepared, candidate, err := c.prepareModel(ctx, req)
 	if err != nil {
 		return nil, err
 	}
 	var item *models.BiSource
-	item, err = c.findSource(ctx, authInfo.TenantId, req.GetId())
+	var impact *adminv1.BiModelImpact
+	err = c.tx.Transaction(ctx, func(txCtx context.Context) error {
+		item, err = c.lockSource(txCtx, prepared.TenantID, prepared.Code)
+		if err != nil {
+			return err
+		}
+		if item.Version != req.GetExpectedSourceVersion() {
+			return errorsx.Conflict("数据源版本已变化，请刷新后重新预览")
+		}
+		impact, err = c.synchronizeModel(txCtx, item, candidate, 0, true)
+		if err != nil {
+			return err
+		}
+		var payload []byte
+		payload, err = marshalConfiguredSourceModel(candidate)
+		if err != nil {
+			return err
+		}
+		base := candidate.Tables[findModelTable(candidate.Tables, candidate.BaseTable)]
+		item.SchemaName, item.TableName_, item.TenantColumn = base.SchemaName, base.Name, base.TenantColumn
+		item.SchemaJSON = string(payload)
+		item.Version++
+		item.Status = _const.STATUS_STATUS_ENABLE
+		item.UpdatedAt = time.Now()
+		var authInfo *authData.UserTokenPayload
+		authInfo, err = c.GetAuthInfo(txCtx)
+		if err != nil {
+			return err
+		}
+		item.UpdatedBy = authInfo.UserId
+		return c.sourceRepo.UpdateByID(txCtx, item)
+	})
 	if err != nil {
 		return nil, err
 	}
-	var database *configuredDatabase
-	database, err = c.openSource(ctx, item)
-	if err != nil {
-		return nil, err
-	}
-	defer database.Close()
-	var discovered []*adminv1.BiSourceSchemaTable
-	discovered, err = discoverSourceTables(ctx, database, item)
-	if err != nil {
-		return nil, err
-	}
-	var model dto.ConfiguredSourceSchema
-	model, err = configuredSourceModel(req.GetModel(), discovered)
-	if err != nil {
-		return nil, err
-	}
-	var schemaJSON []byte
-	schemaJSON, err = marshalConfiguredSourceModel(model)
-	if err != nil {
-		return nil, err
-	}
-	baseTable := findSchemaTable(discovered, model.BaseTable)
-	item.SchemaName = baseTable.SchemaName
-	item.TableName_ = baseTable.Name
-	baseIndex := findModelTable(model.Tables, model.BaseTable)
-	item.TenantColumn = model.Tables[baseIndex].TenantColumn
-	item.SchemaJSON = string(schemaJSON)
-	item.Status = _const.STATUS_STATUS_ENABLE
-	item.Version++
-	item.UpdatedBy = authInfo.UserId
-	item.UpdatedAt = time.Now()
-	if err = c.sourceRepo.UpdateByID(ctx, item); err != nil {
-		return nil, err
-	}
-	return toBiSource(item), nil
+	result := toBiSource(item)
+	result.SyncSummary = impact
+	return result, nil
 }
 
 // findEnabledSource 查询当前租户已启用且已配置模型的数据源。
@@ -430,6 +488,7 @@ func (c *BiSourceCase) findEnabledSource(ctx context.Context, tenantID int64, co
 		repository.Where(query.TenantID.Eq(tenantID)),
 		repository.Where(query.Code.Eq(code)),
 		repository.Where(query.Status.Eq(_const.STATUS_STATUS_ENABLE)),
+		repository.Clauses(clause.Locking{Strength: "SHARE"}),
 	)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -516,7 +575,11 @@ func configuredSourceModel(input *adminv1.BiSourceModel, discovered []*adminv1.B
 		for _, column := range metadata.GetColumns() {
 			columns[table.GetKey()][column.GetName()] = column
 		}
-		model.Tables = append(model.Tables, dto.ConfiguredSourceTable{Key: table.GetKey(), SchemaName: metadata.GetSchemaName(), Name: metadata.GetName(), TenantColumn: table.GetTenantColumn(), X: table.GetX(), Y: table.GetY()})
+		fields := make(map[string]bi.FieldType, len(metadata.GetColumns()))
+		for _, column := range metadata.GetColumns() {
+			fields[column.GetName()] = sourceFieldType(column.GetDataType())
+		}
+		model.Tables = append(model.Tables, dto.ConfiguredSourceTable{Fields: fields, Key: table.GetKey(), SchemaName: metadata.GetSchemaName(), Name: metadata.GetName(), TenantColumn: table.GetTenantColumn(), X: table.GetX(), Y: table.GetY()})
 	}
 	if selected[model.BaseTable] == nil {
 		return dto.ConfiguredSourceSchema{}, errorsx.InvalidArgument("事实表必须包含在选中的数据表中")
@@ -582,27 +645,22 @@ func configuredSourceModel(input *adminv1.BiSourceModel, discovered []*adminv1.B
 	if len(input.GetMeasures()) == 0 {
 		return dto.ConfiguredSourceSchema{}, errorsx.InvalidArgument("至少配置一个语义指标")
 	}
+	metricNames := make(map[string]bool, len(input.GetMeasures()))
+	fields := model.Tables[findModelTable(model.Tables, model.BaseTable)].Fields
 	for _, measure := range input.GetMeasures() {
-		field := columns[measure.GetTable()][measure.GetColumn()]
-		if measure.GetTable() != model.BaseTable || field == nil || validateSourceField(measure.GetCode(), measure.GetName(), measure.GetColumn(), bi.FieldTypeNumber) != nil {
-			return dto.ConfiguredSourceSchema{}, errorsx.InvalidArgument("指标必须映射到事实表字段")
+		if !biSourceIdentifierPattern.MatchString(measure.GetCode()) || measure.GetName() == "" || strings.TrimSpace(measure.GetName()) != measure.GetName() || len([]rune(measure.GetName())) > 128 || len([]rune(measure.GetUnit())) > 32 || measure.GetType() != "number" {
+			return dto.ConfiguredSourceSchema{}, errorsx.InvalidArgument("公共指标编码、名称、单位或类型无效")
 		}
-		if _, exists := fieldCodes[measure.GetCode()]; exists {
-			return dto.ConfiguredSourceSchema{}, errorsx.InvalidArgument("语义字段编码不能重复")
+		if _, exists := fieldCodes[measure.GetCode()]; exists || metricNames[measure.GetName()] {
+			return dto.ConfiguredSourceSchema{}, errorsx.InvalidArgument("同一数据源的指标编码和名称不能重复")
 		}
-		if len(measure.GetAggregations()) == 0 {
-			return dto.ConfiguredSourceSchema{}, errorsx.InvalidArgument("指标至少需要一个聚合函数")
-		}
-		aggregations := make([]string, 0, len(measure.GetAggregations()))
-		for _, aggregation := range measure.GetAggregations() {
-			aggregation = strings.ToLower(aggregation)
-			if !supportedAggregation(aggregation) || (aggregation != "count" && sourceFieldType(field.GetDataType()) != bi.FieldTypeNumber) {
-				return dto.ConfiguredSourceSchema{}, errorsx.InvalidArgument("指标聚合函数与数据库字段类型不匹配")
-			}
-			aggregations = append(aggregations, aggregation)
+		expression, err := queryCompiler.Parse(measure.GetExpression(), fields)
+		if err != nil {
+			return dto.ConfiguredSourceSchema{}, errorsx.InvalidArgument("公共指标公式无效: " + measure.GetCode()).WithCause(err)
 		}
 		fieldCodes[measure.GetCode()] = struct{}{}
-		model.Measures = append(model.Measures, dto.ConfiguredSourceMeasure{Code: measure.GetCode(), Name: measure.GetName(), Type: bi.FieldTypeNumber, Aggregations: aggregations, Table: measure.GetTable(), Column: measure.GetColumn()})
+		metricNames[measure.GetName()] = true
+		model.Measures = append(model.Measures, dto.ConfiguredSourceMeasure{Code: measure.GetCode(), Name: measure.GetName(), Type: bi.FieldTypeNumber, Expression: expression.Canonical(), Unit: measure.GetUnit()})
 	}
 	return model, nil
 }
@@ -622,7 +680,7 @@ func marshalConfiguredSourceModel(model dto.ConfiguredSourceSchema) ([]byte, err
 	if err != nil {
 		return nil, errorsx.Internal("生成数据源语义模型失败").WithCause(err)
 	}
-	if len(encoded) > 50000 {
+	if len(encoded) > 4<<20 {
 		return nil, errorsx.InvalidArgument("数据源语义模型超过大小限制")
 	}
 	return encoded, nil
@@ -688,16 +746,6 @@ func validateSourceField(code, name, column string, fieldType bi.FieldType) erro
 		return errorsx.InvalidArgument("字段类型不支持")
 	}
 	return nil
-}
-
-// supportedAggregation 判断度量聚合方式是否属于支持的聚合函数（count、sum、avg、min、max）。
-func supportedAggregation(value string) bool {
-	switch strings.ToLower(value) {
-	case "count", "sum", "avg", "min", "max":
-		return true
-	default:
-		return false
-	}
 }
 
 // normalizeMaxRows 将数据源单次查询的返回行数收敛到安全区间，缺省 100 行、上限 1000 行，避免误配导致全表拉取。
@@ -773,4 +821,18 @@ func testSourceFailureMessage(err error) string {
 		return ex.Message
 	}
 	return "连接 BI 数据源失败"
+}
+
+// sourceResponse 统一限制连接管理出口中的物理模型信息，普通读权限仅得到配置元数据。
+func (c *BiSourceCase) sourceResponse(ctx context.Context, item *models.BiSource) (*adminv1.BiSource, error) {
+	result := toBiSource(item)
+	err := c.requireModelPermission(ctx)
+	if kratosErrors.Code(err) == 403 {
+		result.SchemaJson = ""
+		return result, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
 }

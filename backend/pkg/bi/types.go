@@ -52,8 +52,10 @@ type MeasureDescriptor struct {
 	Name string `json:"name"`
 	// Type 是结果类型。
 	Type FieldType `json:"type"`
-	// Aggregations 是允许的聚合函数。
-	Aggregations []string `json:"aggregations"`
+	// Unit 是固定指标单位。
+	Unit string `json:"unit"`
+	// Revision 是指标定义修订号。
+	Revision int64 `json:"revision"`
 }
 
 // SourceDescriptor 描述一个宿主注册的数据源。
@@ -74,12 +76,10 @@ type SourceDescriptor struct {
 	MaxRows int32 `json:"maxRows"`
 }
 
-// MeasureSpec 表示一次查询中的指标和聚合方式。
+// MeasureSpec 表示一次查询引用的固定公共指标。
 type MeasureSpec struct {
 	// Code 是指标编码。
 	Code string `json:"code"`
-	// Aggregation 是聚合函数。
-	Aggregation string `json:"aggregation"`
 }
 
 // FilterSpec 表示一次查询中的字段过滤条件。
@@ -136,10 +136,18 @@ type ResultColumn struct {
 	Name string `json:"name"`
 	// Type 是结果列类型。
 	Type FieldType `json:"type"`
+	// Role 明确维度和指标角色。
+	Role string `json:"role"`
+	// Unit 是公共指标单位。
+	Unit string `json:"unit"`
+	// Revision 是公共指标定义修订。
+	Revision int64 `json:"revision"`
 }
 
 // QueryResult 是所有 BI 数据源统一返回的结果。
 type QueryResult struct {
+	// QueriedAt 是本次执行时间。
+	QueriedAt string `json:"queried_at"`
 	// QueryRecordID 标识本次成功执行的来源记录。
 	QueryRecordID int64 `json:"query_record_id"`
 	// Columns 是结果列。

@@ -34,9 +34,15 @@ func newBiQuery(db *gorm.DB, opts ...gen.DOOption) biQuery {
 	_biQuery.DashboardID = field.NewInt64(tableName, "dashboard_id")
 	_biQuery.DashboardVersion = field.NewInt64(tableName, "dashboard_version")
 	_biQuery.WidgetID = field.NewString(tableName, "widget_id")
+	_biQuery.Kind = field.NewInt32(tableName, "kind")
+	_biQuery.CardID = field.NewInt64(tableName, "card_id")
 	_biQuery.SourceCode = field.NewString(tableName, "source_code")
 	_biQuery.Question = field.NewString(tableName, "question")
 	_biQuery.QueryJSON = field.NewString(tableName, "query_json")
+	_biQuery.ExecutionJSON = field.NewString(tableName, "execution_json")
+	_biQuery.ContextJSON = field.NewString(tableName, "context_json")
+	_biQuery.AppliedCardID = field.NewInt64(tableName, "applied_card_id")
+	_biQuery.AppliedCardVersion = field.NewInt64(tableName, "applied_card_version")
 	_biQuery.QueryHash = field.NewString(tableName, "query_hash")
 	_biQuery.Status = field.NewInt32(tableName, "status")
 	_biQuery.RowCount = field.NewInt32(tableName, "row_count")
@@ -57,27 +63,33 @@ func newBiQuery(db *gorm.DB, opts ...gen.DOOption) biQuery {
 type biQuery struct {
 	biQueryDo biQueryDo
 
-	ALL              field.Asterisk
-	ID               field.Int64  // 查询记录ID
-	TenantID         field.Int64  // 租户ID
-	UserID           field.Int64  // 用户ID
-	ProjectID        field.Int64  // 项目ID
-	DashboardID      field.Int64  // 仪表盘ID
-	DashboardVersion field.Int64  // 仪表盘版本
-	WidgetID         field.String // 图表组件ID
-	SourceCode       field.String // 数据源编码
-	Question         field.String // 自然语言问题，非问数查询为空
-	QueryJSON        field.String // 语义查询计划JSON
-	QueryHash        field.String // 查询计划哈希
-	Status           field.Int32  // 问数状态：枚举【BiQueryStatus】
-	RowCount         field.Int32  // 结果行数
-	Truncated        field.Int32  // 是否截断：0否，1是
-	ElapsedMs        field.Int64  // 查询耗时毫秒，问数包含模型生成耗时
-	ErrorMsg         field.String // 失败原因
-	ResultSnapshot   field.String // 完整类型化查询结果快照JSON
-	CreatedAt        field.Time   // 创建时间
-	UpdatedAt        field.Time   // 更新时间
-	DeletedAt        field.Field  // 删除时间
+	ALL                field.Asterisk
+	ID                 field.Int64  // 查询记录ID
+	TenantID           field.Int64  // 租户ID
+	UserID             field.Int64  // 用户ID
+	ProjectID          field.Int64  // 项目ID
+	DashboardID        field.Int64  // 仪表盘ID
+	DashboardVersion   field.Int64  // 仪表盘版本
+	WidgetID           field.String // 图表组件ID
+	Kind               field.Int32  // 查询种类
+	CardID             field.Int64  // 来源卡片ID
+	SourceCode         field.String // 数据源编码
+	Question           field.String // 自然语言问题，非问数查询为空
+	QueryJSON          field.String // 语义查询计划JSON
+	ExecutionJSON      field.String // 实际执行定义快照
+	ContextJSON        field.String // 预览候选与来源上下文
+	AppliedCardID      field.Int64  // 已应用卡片ID
+	AppliedCardVersion field.Int64  // 已应用卡片版本
+	QueryHash          field.String // 查询计划哈希
+	Status             field.Int32  // 问数状态：枚举【BiQueryStatus】
+	RowCount           field.Int32  // 结果行数
+	Truncated          field.Int32  // 是否截断：0否，1是
+	ElapsedMs          field.Int64  // 查询耗时毫秒，问数包含模型生成耗时
+	ErrorMsg           field.String // 失败原因
+	ResultSnapshot     field.String // 完整类型化查询结果快照JSON
+	CreatedAt          field.Time   // 创建时间
+	UpdatedAt          field.Time   // 更新时间
+	DeletedAt          field.Field  // 删除时间
 
 	fieldMap map[string]field.Expr
 }
@@ -101,9 +113,15 @@ func (b *biQuery) updateTableName(table string) *biQuery {
 	b.DashboardID = field.NewInt64(table, "dashboard_id")
 	b.DashboardVersion = field.NewInt64(table, "dashboard_version")
 	b.WidgetID = field.NewString(table, "widget_id")
+	b.Kind = field.NewInt32(table, "kind")
+	b.CardID = field.NewInt64(table, "card_id")
 	b.SourceCode = field.NewString(table, "source_code")
 	b.Question = field.NewString(table, "question")
 	b.QueryJSON = field.NewString(table, "query_json")
+	b.ExecutionJSON = field.NewString(table, "execution_json")
+	b.ContextJSON = field.NewString(table, "context_json")
+	b.AppliedCardID = field.NewInt64(table, "applied_card_id")
+	b.AppliedCardVersion = field.NewInt64(table, "applied_card_version")
 	b.QueryHash = field.NewString(table, "query_hash")
 	b.Status = field.NewInt32(table, "status")
 	b.RowCount = field.NewInt32(table, "row_count")
@@ -138,7 +156,7 @@ func (b *biQuery) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (b *biQuery) fillFieldMap() {
-	b.fieldMap = make(map[string]field.Expr, 20)
+	b.fieldMap = make(map[string]field.Expr, 26)
 	b.fieldMap["id"] = b.ID
 	b.fieldMap["tenant_id"] = b.TenantID
 	b.fieldMap["user_id"] = b.UserID
@@ -146,9 +164,15 @@ func (b *biQuery) fillFieldMap() {
 	b.fieldMap["dashboard_id"] = b.DashboardID
 	b.fieldMap["dashboard_version"] = b.DashboardVersion
 	b.fieldMap["widget_id"] = b.WidgetID
+	b.fieldMap["kind"] = b.Kind
+	b.fieldMap["card_id"] = b.CardID
 	b.fieldMap["source_code"] = b.SourceCode
 	b.fieldMap["question"] = b.Question
 	b.fieldMap["query_json"] = b.QueryJSON
+	b.fieldMap["execution_json"] = b.ExecutionJSON
+	b.fieldMap["context_json"] = b.ContextJSON
+	b.fieldMap["applied_card_id"] = b.AppliedCardID
+	b.fieldMap["applied_card_version"] = b.AppliedCardVersion
 	b.fieldMap["query_hash"] = b.QueryHash
 	b.fieldMap["status"] = b.Status
 	b.fieldMap["row_count"] = b.RowCount

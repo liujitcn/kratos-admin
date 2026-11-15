@@ -18,7 +18,7 @@ import { demoCard, demoLayout, demoResults } from "./fixtures";
 
 defineProps<{ componentId: string }>();
 const active = ref(true);
-const layout = ref<DashboardLayout>({ schemaVersion: 3, name: "本地布局草稿", cards: [] });
+const layout = ref<DashboardLayout>({ schemaVersion: 4, name: "本地布局草稿", cards: [] });
 const feedback = ref("布局修改仅保存在当前示例中");
 
 onActivated(() => {

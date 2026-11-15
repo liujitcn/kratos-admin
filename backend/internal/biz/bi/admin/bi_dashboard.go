@@ -23,6 +23,7 @@ import (
 	databaseGorm "github.com/liujitcn/kratos-kit/database/gorm"
 	"gorm.io/gen/field"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 const (
@@ -73,6 +74,10 @@ func (c *BiDashboardCase) PageBiDashboard(ctx context.Context, req *adminv1.Page
 	result := make([]*adminv1.BiDashboard, 0, len(items))
 	for _, item := range items {
 		current := toBiDashboard(item, "")
+		current.RequiresRepublish, err = c.requiresRepublish(ctx, item)
+		if err != nil {
+			return nil, err
+		}
 		current.CanEdit = item.OwnerID == authInfo.UserId
 		result = append(result, current)
 	}
@@ -100,6 +105,10 @@ func (c *BiDashboardCase) GetBiDashboard(ctx context.Context, req *adminv1.GetBi
 		return nil, err
 	}
 	result := toBiDashboard(item, version.SchemaJSON)
+	result.RequiresRepublish, err = c.requiresRepublish(ctx, item)
+	if err != nil {
+		return nil, err
+	}
 	result.CanEdit = item.OwnerID == authInfo.UserId
 	return result, nil
 }
@@ -171,6 +180,10 @@ func (c *BiDashboardCase) SaveBiDashboard(ctx context.Context, req *adminv1.Save
 		return nil, err
 	}
 	response := toBiDashboard(result, schemaJSON)
+	response.RequiresRepublish, err = c.requiresRepublish(ctx, result)
+	if err != nil {
+		return nil, err
+	}
 	response.CanEdit = true
 	return response, nil
 }
@@ -181,9 +194,22 @@ func (c *BiDashboardCase) PublishBiDashboard(ctx context.Context, req *adminv1.P
 	if err != nil {
 		return nil, err
 	}
+	var initial *models.BiDashboard
+	initial, err = c.findAccessibleDashboard(ctx, authInfo, req.GetId(), biDashboardPermissionEdit)
+	if err != nil {
+		return nil, err
+	}
+	var initialVersion *models.BiDashboardVersion
+	initialVersion, err = c.findVersion(ctx, initial.ID, req.GetVersion())
+	if err != nil {
+		return nil, err
+	}
 	var result *models.BiDashboard
 	var schemaJSON string
 	err = c.tx.Transaction(ctx, func(txCtx context.Context) error {
+		if err = c.lockPublishInputs(txCtx, authInfo.TenantId, initialVersion.SchemaJSON); err != nil {
+			return err
+		}
 		result, err = c.findAccessibleDashboard(txCtx, authInfo, req.GetId(), biDashboardPermissionEdit)
 		if err != nil {
 			return err
@@ -243,6 +269,10 @@ func (c *BiDashboardCase) PublishBiDashboard(ctx context.Context, req *adminv1.P
 		return nil, err
 	}
 	response := toBiDashboard(result, schemaJSON)
+	response.RequiresRepublish, err = c.requiresRepublish(ctx, result)
+	if err != nil {
+		return nil, err
+	}
 	response.CanEdit = true
 	return response, nil
 }
@@ -297,6 +327,9 @@ func (c *BiDashboardCase) GetBiDashboardData(ctx context.Context, req *adminv1.G
 		return nil, err
 	}
 	scope := bi.Scope{TenantID: authInfo.TenantId, ProjectID: item.ProjectID, UserID: authInfo.UserId, Terminal: "admin"}
+	if err = c.validatePublishedExecutions(ctx, scope, layout); err != nil {
+		return nil, err
+	}
 	results := make([]*adminv1.BiDashboardCardResult, 0, len(layout.Cards))
 	for _, placed := range layout.Cards {
 		if placed.Query == nil {
@@ -308,19 +341,26 @@ func (c *BiDashboardCase) GetBiDashboardData(ctx context.Context, req *adminv1.G
 			return nil, err
 		}
 		var value bi.QueryResult
-		value, err = c.biQueryCase.execute(ctx, scope, spec, &dto.BiQueryRecordContext{DashboardID: item.ID, DashboardVersion: number, WidgetID: placed.ID})
+		value, err = c.biQueryCase.execute(ctx, scope, spec, &dto.BiQueryRecordContext{Kind: dto.QueryKindDashboard, CardID: placed.CardID, Execution: placed.Execution, DashboardID: item.ID, DashboardVersion: number, WidgetID: placed.ID})
 		if err != nil {
 			return nil, err
 		}
 		results = append(results, &adminv1.BiDashboardCardResult{ItemId: placed.ID, Result: toProtoQueryResult(value)})
 	}
-	return &adminv1.BiDashboardDataResponse{SchemaJson: version.SchemaJSON, Cards: results}, nil
+	if err = c.validatePublishedExecutions(ctx, scope, layout); err != nil {
+		return nil, err
+	}
+	return &adminv1.BiDashboardDataResponse{SchemaJson: toBiDashboard(item, version.SchemaJSON).SchemaJson, Cards: results}, nil
 }
 
 // findAccessibleDashboard 限制租户、项目和草稿所有权，发布页面沿用项目与菜单授权。
 func (c *BiDashboardCase) findAccessibleDashboard(ctx context.Context, authInfo *authData.UserTokenPayload, id int64, permission int32) (*models.BiDashboard, error) {
 	query := c.dashboardRepo.Query(ctx).BiDashboard
-	item, err := c.dashboardRepo.Find(ctx, repository.Where(query.ID.Eq(id), query.TenantID.Eq(authInfo.TenantId)))
+	opts := []repository.QueryOption{repository.Where(query.ID.Eq(id), query.TenantID.Eq(authInfo.TenantId))}
+	if permission == biDashboardPermissionEdit {
+		opts = append(opts, repository.Clauses(clause.Locking{Strength: "UPDATE"}))
+	}
+	item, err := c.dashboardRepo.Find(ctx, opts...)
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, errorsx.ResourceNotFound("仪表盘不存在")
 	}
@@ -339,7 +379,7 @@ func (c *BiDashboardCase) findAccessibleDashboard(ctx context.Context, authInfo 
 // findVersion 按仪表盘编号读取独立版本。
 func (c *BiDashboardCase) findVersion(ctx context.Context, id, version int64) (*models.BiDashboardVersion, error) {
 	query := c.versionRepo.Query(ctx).BiDashboardVersion
-	item, err := c.versionRepo.Find(ctx, repository.Where(query.DashboardID.Eq(id), query.Version.Eq(version)))
+	item, err := c.versionRepo.Find(ctx, repository.Where(query.DashboardID.Eq(id), query.Version.Eq(version)), repository.Clauses(clause.Locking{Strength: "SHARE"}))
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, errorsx.ResourceNotFound("仪表盘版本不存在")
 	}
@@ -355,7 +395,11 @@ func (c *BiDashboardCase) resolveSchema(ctx context.Context, authInfo *authData.
 	query := c.cardRepo.Query(ctx).BiCard
 	for index, placed := range layout.Cards {
 		var item *models.BiCard
-		item, err = c.cardRepo.Find(ctx, repository.Where(query.ID.Eq(placed.CardID), query.TenantID.Eq(authInfo.TenantId)))
+		opts := []repository.QueryOption{repository.Where(query.ID.Eq(placed.CardID), query.TenantID.Eq(authInfo.TenantId))}
+		if publish {
+			opts = append(opts, repository.Clauses(clause.Locking{Strength: "UPDATE"}))
+		}
+		item, err = c.cardRepo.Find(ctx, opts...)
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, errorsx.ResourceNotFound("仪表盘引用的卡片不存在")
 		}
@@ -365,26 +409,60 @@ func (c *BiDashboardCase) resolveSchema(ctx context.Context, authInfo *authData.
 		if !canAccessBiCard(authInfo, item, false) || item.ProjectID != projectID {
 			return nil, errorsx.PermissionDenied("不能引用其他租户、项目或私有卡片")
 		}
+		placed = dto.DashboardCard{ID: placed.ID, CardID: placed.CardID, X: placed.X, Y: placed.Y, W: placed.W, H: placed.H}
 		placed.Name = ""
 		placed.ChartType = ""
 		placed.ChartJSON = ""
 		placed.Query = nil
 		placed.QueryRecordID = 0
+		placed.Execution = nil
+		placed.CardVersion = 0
+		placed.ValidationQueryRecordID = 0
 		if publish {
 			var spec bi.QuerySpec
 			if err = json.Unmarshal([]byte(item.QueryJSON), &spec); err != nil {
 				return nil, errorsx.Internal("读取卡片查询失败").WithCause(err)
 			}
 			scope := bi.Scope{TenantID: authInfo.TenantId, ProjectID: projectID, UserID: authInfo.UserId, Terminal: "admin"}
-			spec, _, err = c.biQueryCase.validate(ctx, scope, spec)
-			if err != nil {
-				return nil, err
-			}
 			ownerScope := scope
 			ownerScope.UserID = item.OwnerID
 			if _, err = c.biQueryCase.cardSourceRecord(ctx, ownerScope, item.QueryRecordID, spec); err != nil {
 				return nil, err
 			}
+			var execution *dto.CardExecution
+			execution, err = decodeExecution(item.ExecutionJSON)
+			if err != nil {
+				return nil, err
+			}
+			var compiled *dto.CardExecution
+			compiled, err = c.biQueryCase.biSourceCase.compile(ctx, scope, spec)
+			if err != nil {
+				return nil, err
+			}
+			if execution.Hash != compiled.Hash {
+				return nil, errorsx.Conflict("卡片公共指标已变化，请刷新卡片")
+			}
+			if item.ValidationQueryRecordID > 0 {
+				recordQuery := c.biQueryCase.biQueryRepo.Query(ctx).BiQuery
+				var record *models.BiQuery
+				record, err = c.biQueryCase.biQueryRepo.Find(ctx, repository.Where(recordQuery.ID.Eq(item.ValidationQueryRecordID), recordQuery.TenantID.Eq(item.TenantID), recordQuery.ProjectID.Eq(item.ProjectID), recordQuery.UserID.Eq(item.OwnerID), recordQuery.Kind.Eq(dto.QueryKindCardSQLPreview), recordQuery.Status.Eq(int32(adminv1.BiQueryStatus_BI_QUERY_STATUS_SUCCESS))))
+				if err != nil {
+					return nil, errorsx.Conflict("卡片人工预览来源无效")
+				}
+				var preview dto.CardPreviewContext
+				if err = json.Unmarshal([]byte(record.ContextJSON), &preview); err != nil {
+					return nil, errorsx.Conflict("卡片人工预览来源无效")
+				}
+				if preview.QueryRecordID != item.QueryRecordID || (preview.CardID != 0 && preview.CardID != item.ID) || record.AppliedCardID != item.ID {
+					return nil, errorsx.Conflict("卡片人工预览来源无效")
+				}
+			}
+			if _, err = validateCardChart(item.ChartType, item.ChartJSON, spec, bi.QueryResult{Columns: execution.Columns}); err != nil {
+				return nil, err
+			}
+			placed.Execution = execution
+			placed.CardVersion = item.Version
+			placed.ValidationQueryRecordID = item.ValidationQueryRecordID
 			placed.QueryRecordID = item.QueryRecordID
 			placed.Name = item.Name
 			placed.ChartType = item.ChartType
@@ -398,6 +476,15 @@ func (c *BiDashboardCase) resolveSchema(ctx context.Context, authInfo *authData.
 
 // toBiDashboard 转换仪表盘记录，编辑权限由调用方补齐。
 func toBiDashboard(item *models.BiDashboard, schemaJSON string) *adminv1.BiDashboard {
+	var layout dto.DashboardSchema
+	if schemaJSON != "" {
+		if err := json.Unmarshal([]byte(schemaJSON), &layout); err != nil {
+			schemaJSON = ""
+		} else {
+			payload, _ := json.Marshal(layout.Display()) // 白名单结构只包含 JSON 原生值。
+			schemaJSON = string(payload)
+		}
+	}
 	return &adminv1.BiDashboard{Id: item.ID, TenantId: item.TenantID, ProjectId: item.ProjectID, Code: item.Code, Name: item.Name, Description: item.Description, OwnerId: item.OwnerID, Status: item.Status, DraftVersion: item.DraftVersion, PublishedVersion: item.PublishedVersion, SchemaJson: schemaJSON, UpdatedAt: item.UpdatedAt.Format(time.RFC3339)}
 }
 
@@ -419,7 +506,7 @@ func parseDashboardSchema(value string) (*dto.DashboardSchema, error) {
 	if err != nil {
 		return nil, errorsx.InvalidArgument("仪表盘布局格式无效").WithCause(err)
 	}
-	if layout.SchemaVersion != 3 || len(layout.Cards) > biDashboardMaxCards {
+	if layout.SchemaVersion != 4 || len(layout.Cards) > biDashboardMaxCards {
 		return nil, errorsx.InvalidArgument("仪表盘版本无效或超过20张卡片")
 	}
 	seen := make(map[int64]bool, len(layout.Cards))

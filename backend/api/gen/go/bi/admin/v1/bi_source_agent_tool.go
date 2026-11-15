@@ -77,6 +77,12 @@ func NewBiSourceServiceAgentTools(biSourceServiceServer BiSourceServiceServer) (
 		return nil, err
 	}
 	ts = append(ts, saveBiSourceModelTool)
+	var previewBiSourceModelTool tool.InvokableTool
+	previewBiSourceModelTool, err = NewBiSourceServicePreviewBiSourceModelAgentTool(biSourceServiceServer)
+	if err != nil {
+		return nil, err
+	}
+	ts = append(ts, previewBiSourceModelTool)
 	return ts, nil
 }
 
@@ -216,6 +222,20 @@ func NewBiSourceServiceSaveBiSourceModelAgentTool(biSourceServiceServer BiSource
 				req = &SaveBiSourceModelRequest{}
 			}
 			return biSourceServiceServer.SaveBiSourceModel(ctx, req)
+		},
+	)
+}
+
+// NewBiSourceServicePreviewBiSourceModelAgentTool 创建预览公共模型变更和关联影响，不写入模型的 Agent Tool。
+func NewBiSourceServicePreviewBiSourceModelAgentTool(biSourceServiceServer BiSourceServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*SaveBiSourceModelRequest, *BiModelImpact](
+		"bi_admin_v1_bi_source_service_preview_bi_source_model",
+		"预览公共模型变更和关联影响，不写入模型。",
+		func(ctx context.Context, req *SaveBiSourceModelRequest) (*BiModelImpact, error) {
+			if req == nil {
+				req = &SaveBiSourceModelRequest{}
+			}
+			return biSourceServiceServer.PreviewBiSourceModel(ctx, req)
 		},
 	)
 }

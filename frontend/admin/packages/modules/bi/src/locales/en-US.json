@@ -250,5 +250,21 @@
   "bi.card.ask_create": "Create with AI query",
   "bi.card.ask_required": "Ask the AI for source data before saving a card",
   "bi.dashboard.menu_position": "Menu location",
-  "bi.dashboard.menu_saved": "Dashboard menu saved"
+  "bi.dashboard.menu_saved": "Dashboard menu saved",
+  "bi.sql.formulas": "Public metric formulas",
+  "bi.sql.expression": "Metric expression",
+  "bi.sql.unit": "Unit",
+  "bi.sql.shared_notice": "These formulas define shared source metrics. Saving updates all referencing cards; affected dashboards must be republished.",
+  "bi.sql.readonly_notice": "You can edit the chart display. Permission to manage the source model is required to edit public metrics.",
+  "bi.sql.full_sql": "Full SQL (read only)",
+  "bi.sql.impact": "Updates {cards} cards; {dashboards} dashboards need republishing.",
+  "bi.sql.synced": "Saved and synchronized {cards} cards; {dashboards} dashboards need republishing.",
+  "bi.sql.refresh_model": "Refresh public metrics and keep drafts",
+  "bi.sql.repreview": "Drafts are kept. Preview again and review the changes before saving.",
+  "bi.sql.preview_changes": "Preview change impact",
+  "bi.sql.already_applied": "This preview was already saved. The corresponding card has been reloaded.",
+  "bi.sql.definition_status": "Metric definition",
+  "bi.sql.requires_republish": "Republish required",
+  "bi.sql.current": "Current definition",
+  "bi.sql.save_pending": "The previous save is unconfirmed. Retry saving before continuing to edit."
 }

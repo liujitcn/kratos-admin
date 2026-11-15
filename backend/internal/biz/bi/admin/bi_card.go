@@ -9,6 +9,9 @@ import (
 	"strings"
 	"time"
 
+	queryCompiler "github.com/liujitcn/kratos-admin/backend/internal/biz/bi/admin/query"
+	"gorm.io/gorm/clause"
+
 	kratosErrors "github.com/go-kratos/kratos/v3/errors"
 	"github.com/liujitcn/gorm-kit/repository"
 	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/bi/admin/v1"
@@ -163,81 +166,234 @@ func (c *BiCardCase) loadWorkbench(ctx context.Context, authInfo *authData.UserT
 	return &config, nil
 }
 
-// SaveBiCard 校验语义查询并保存卡片，所有者和项目均由服务端确定。
+// SaveBiCard 原子保存当前执行定义、公共公式和预览消费状态，原始问数来源保持不变。
 func (c *BiCardCase) SaveBiCard(ctx context.Context, req *adminv1.SaveBiCardRequest) (*adminv1.BiCard, error) {
 	authInfo, err := c.GetAuthInfo(ctx)
 	if err != nil {
 		return nil, err
 	}
 	form := req.GetCard()
-	now := time.Now()
-	item := &models.BiCard{TenantID: authInfo.TenantId, OwnerID: authInfo.UserId, CreatedBy: authInfo.UserId, CreatedAt: now}
+	if err = validateBiCardForm(form); err != nil {
+		return nil, err
+	}
+	var item *models.BiCard
+	var projectID int64
 	if req.GetId() > 0 {
 		item, err = c.findCard(ctx, authInfo, req.GetId(), true)
 		if err != nil {
 			return nil, err
 		}
+		projectID = item.ProjectID
+		if form.GetQueryRecordId() != item.QueryRecordID {
+			return nil, errorsx.InvalidArgument("卡片原始问数来源不可修改")
+		}
 	} else {
-		item.ProjectID, err = projectIDForAuth(authInfo)
+		projectID, err = projectIDForAuth(authInfo)
 		if err != nil {
 			return nil, err
 		}
 	}
-	if err = validateBiCardForm(form); err != nil {
-		return nil, err
-	}
-	scope := bi.Scope{TenantID: authInfo.TenantId, ProjectID: item.ProjectID, UserID: authInfo.UserId, Terminal: "admin"}
+	scope := bi.Scope{TenantID: authInfo.TenantId, ProjectID: projectID, UserID: authInfo.UserId, Terminal: "admin"}
 	var spec bi.QuerySpec
 	spec, _, err = c.biQueryCase.validate(ctx, scope, fromProtoQuerySpec(form.GetQuery()))
 	if err != nil {
 		return nil, err
 	}
-	var record *models.BiQuery
-	record, err = c.biQueryCase.cardSourceRecord(ctx, scope, form.GetQueryRecordId(), spec)
+	var origin *models.BiQuery
+	origin, err = c.biQueryCase.cardSourceRecord(ctx, scope, form.GetQueryRecordId(), spec)
 	if err != nil {
 		return nil, err
 	}
-	var result bi.QueryResult
-	if err = json.Unmarshal([]byte(record.ResultSnapshot), &result); err != nil {
-		return nil, errorsx.Internal("读取来源查询结果失败").WithCause(err)
+	if item != nil && !biQuerySpecMatches(item.QueryJSON, spec) {
+		return nil, errorsx.InvalidArgument("查询条件已变化，请重新问数后新建卡片")
 	}
-	var chartJSON string
-	chartJSON, err = validateCardChart(form.GetChartType(), form.GetChartJson(), spec, result)
-	if err != nil {
-		return nil, err
-	}
-	item.QueryRecordID = record.ID
-	item.ChartJSON = chartJSON
-	var queryJSON []byte
-	queryJSON, err = json.Marshal(spec)
-	if err != nil {
-		return nil, errorsx.Internal("保存卡片查询配置失败").WithCause(err)
-	}
-	item.Name = form.GetName()
-	item.SourceCode = spec.SourceCode
-	item.QueryJSON = string(queryJSON)
-	item.ChartType = form.GetChartType()
-	item.RefreshSeconds = form.GetRefreshSeconds()
-	item.IsShared = 0
-	if form.GetIsShared() {
-		item.IsShared = 1
-	}
-	item.UpdatedBy = authInfo.UserId
-	item.UpdatedAt = now
-	if item.ID == 0 {
-		err = c.cardRepo.Create(ctx, item)
-	} else {
-		query := c.cardRepo.Query(ctx).BiCard
-		opts := []repository.QueryOption{
-			repository.Where(query.ID.Eq(item.ID), query.TenantID.Eq(authInfo.TenantId), query.OwnerID.Eq(authInfo.UserId)),
-			repository.Select(query.Name, query.SourceCode, query.QueryJSON, query.QueryRecordID, query.ChartJSON, query.ChartType, query.RefreshSeconds, query.IsShared, query.UpdatedBy, query.UpdatedAt),
+	sourceCase := c.biQueryCase.biSourceCase
+	if len(req.GetMeasureChanges()) > 0 {
+		if err = sourceCase.requireModelPermission(ctx); err != nil {
+			return nil, err
 		}
-		err = c.cardRepo.Update(ctx, item, opts...)
 	}
+	var impact *adminv1.BiModelImpact
+	err = sourceCase.tx.Transaction(ctx, func(txCtx context.Context) error {
+		var source *models.BiSource
+		var model dto.ConfiguredSourceSchema
+		if !sourceCase.registry.Has(spec.SourceCode) {
+			source, err = sourceCase.lockSource(txCtx, scope.TenantID, spec.SourceCode)
+			if err != nil {
+				return err
+			}
+			if err = json.Unmarshal([]byte(source.SchemaJSON), &model); err != nil {
+				return err
+			}
+		} else if len(req.GetMeasureChanges()) > 0 {
+			return errorsx.PermissionDenied("代码注册数据源的公共指标由宿主代码维护")
+		}
+		recordID := req.GetPreviewQueryRecordId()
+		if recordID == 0 && req.GetId() == 0 {
+			recordID = origin.ID
+		}
+		var record *models.BiQuery
+		if recordID > 0 {
+			record, err = c.lockCardRecord(txCtx, scope, recordID)
+			if err != nil {
+				return err
+			}
+		}
+		if source != nil && source.Version != req.GetExpectedSourceVersion() {
+			return errorsx.Conflict("数据源版本已变化，请刷新后重新预览")
+		}
+		query := c.cardRepo.Query(txCtx).BiCard
+		opts := []repository.QueryOption{repository.Where(query.TenantID.Eq(scope.TenantID), query.SourceCode.Eq(spec.SourceCode)), repository.Order(query.ID.Asc()), repository.Clauses(clause.Locking{Strength: "UPDATE"})}
+		var cards []*models.BiCard
+		cards, err = c.cardRepo.List(txCtx, opts...)
+		if err != nil {
+			return err
+		}
+		if req.GetId() > 0 {
+			item = nil
+			for _, card := range cards {
+				if card.ID == req.GetId() {
+					item = card
+					break
+				}
+			}
+			if item == nil || !canAccessBiCard(authInfo, item, true) {
+				return errorsx.PermissionDenied("无权编辑数据卡片")
+			}
+			if item.Version != req.GetExpectedCardVersion() {
+				return errorsx.Conflict("卡片版本已变化，请刷新后重试")
+			}
+		} else {
+			item = &models.BiCard{TenantID: scope.TenantID, ProjectID: scope.ProjectID, OwnerID: scope.UserID, QueryRecordID: origin.ID, CreatedBy: scope.UserID, CreatedAt: time.Now()}
+		}
+		var execution *dto.CardExecution
+		execution, err = sourceCase.compile(txCtx, scope, spec)
+		if err != nil {
+			return err
+		}
+		var changes []dto.ConfiguredSourceMeasure
+		var candidate dto.ConfiguredSourceSchema
+		if source != nil {
+			candidate, err = cardCandidateModel(model, spec, req.GetMeasureChanges(), source.Version+1)
+			if err != nil {
+				return err
+			}
+			for _, metric := range candidate.Measures {
+				for _, previous := range model.Measures {
+					if metric.Code == previous.Code && metric.Revision != previous.Revision {
+						changes = append(changes, metric)
+					}
+				}
+			}
+			if len(changes) > 0 {
+				var driver string
+				driver, err = sourceCase.driverForSource(source)
+				if err != nil {
+					return err
+				}
+				execution, err = queryCompiler.Compile(driver, source.MaxRows, candidate, spec)
+				if err != nil {
+					return err
+				}
+			}
+		}
+		if req.GetId() == 0 && origin.QueryHash != execution.Hash && len(changes) == 0 {
+			return errorsx.Conflict("原问数的公共指标已更新，请重新问数")
+		}
+		if len(changes) > 0 && req.GetPreviewQueryRecordId() == 0 {
+			return errorsx.InvalidArgument("请先成功预览公共指标公式")
+		}
+		if req.GetPreviewQueryRecordId() > 0 {
+			if record.Kind != dto.QueryKindCardSQLPreview {
+				return errorsx.InvalidArgument("必须使用卡片公式的成功预览")
+			}
+			var preview dto.CardPreviewContext
+			if err = json.Unmarshal([]byte(record.ContextJSON), &preview); err != nil {
+				return errorsx.InvalidArgument("预览上下文无效")
+			}
+			if preview.SourceVersion != req.GetExpectedSourceVersion() || preview.CardID != req.GetId() || preview.CardVersion != req.GetExpectedCardVersion() || preview.QueryRecordID != origin.ID || preview.CandidateHash != cardCandidateHash(execution, changes) || record.QueryHash != execution.Hash {
+				return errorsx.Conflict("公式候选或版本已变化，请重新预览")
+			}
+			item.ValidationQueryRecordID = record.ID
+		} else if req.GetId() == 0 && (record.Kind != dto.QueryKindAsk || record.ID != origin.ID) {
+			return errorsx.InvalidArgument("请选择当前账号的成功智能问数记录")
+		}
+		var chartJSON string
+		chartJSON, err = validateCardChart(form.GetChartType(), form.GetChartJson(), spec, bi.QueryResult{Columns: execution.Columns})
+		if err != nil {
+			return err
+		}
+		if len(changes) > 0 {
+			impact, err = sourceCase.synchronizeModel(txCtx, source, candidate, item.ID, true)
+			if err != nil {
+				return err
+			}
+			if item.ID == 0 {
+				impact.AffectedCards++
+			}
+			var payload []byte
+			payload, err = marshalConfiguredSourceModel(candidate)
+			if err != nil {
+				return err
+			}
+			source.SchemaJSON = string(payload)
+			source.Version++
+			source.UpdatedBy = scope.UserID
+			source.UpdatedAt = time.Now()
+			if err = sourceCase.sourceRepo.UpdateByID(txCtx, source); err != nil {
+				return err
+			}
+		}
+		var executionJSON []byte
+		executionJSON, err = json.Marshal(execution)
+		if err != nil {
+			return err
+		}
+		item.Name = form.GetName()
+		item.SourceCode = spec.SourceCode
+		item.QueryJSON = biQuerySpecJSON(spec)
+		item.ExecutionJSON = string(executionJSON)
+		item.ChartType = form.GetChartType()
+		item.ChartJSON = chartJSON
+		item.RefreshSeconds = form.GetRefreshSeconds()
+		item.IsShared = 0
+		if form.GetIsShared() {
+			item.IsShared = 1
+		}
+		item.Version++
+		item.UpdatedBy = scope.UserID
+		item.UpdatedAt = time.Now()
+		if item.ID == 0 {
+			err = c.cardRepo.Create(txCtx, item)
+		} else {
+			err = c.cardRepo.Update(txCtx, item, repository.Where(query.ID.Eq(item.ID), query.TenantID.Eq(scope.TenantID), query.OwnerID.Eq(scope.UserID)), repository.Select(query.Name, query.SourceCode, query.QueryJSON, query.ExecutionJSON, query.Version, query.ValidationQueryRecordID, query.ChartType, query.ChartJSON, query.RefreshSeconds, query.IsShared, query.UpdatedBy, query.UpdatedAt))
+		}
+		if err != nil {
+			return err
+		}
+		if record != nil {
+			record.AppliedCardID = item.ID
+			record.AppliedCardVersion = item.Version
+			recordQuery := c.biQueryCase.biQueryRepo.Query(txCtx).BiQuery
+			err = c.biQueryCase.biQueryRepo.Update(txCtx, record, repository.Where(recordQuery.ID.Eq(record.ID), recordQuery.TenantID.Eq(scope.TenantID), recordQuery.AppliedCardID.Eq(0)), repository.Select(recordQuery.AppliedCardID, recordQuery.AppliedCardVersion))
+		}
+		return err
+	})
 	if err != nil {
 		return nil, err
 	}
-	return toBiCard(item, authInfo.UserId)
+	var result *adminv1.BiCard
+	result, err = toBiCard(item, scope.UserID)
+	if err != nil {
+		return nil, err
+	}
+	result.SyncSummary = impact
+	if impact != nil {
+		result.SourceVersion = impact.SourceVersion
+	} else {
+		result.SourceVersion = req.GetExpectedSourceVersion()
+	}
+	return result, nil
 }
 
 // findCard 在取数、编辑和删除前检查卡片所属租户、项目与所有者。
@@ -295,17 +451,25 @@ func (c *BiCardCase) GetBiCardData(ctx context.Context, req *adminv1.GetBiCardDa
 		return nil, errorsx.Internal("读取卡片查询配置失败").WithCause(err)
 	}
 	scope := bi.Scope{TenantID: authInfo.TenantId, ProjectID: item.ProjectID, UserID: authInfo.UserId, Terminal: "admin"}
-	var descriptor bi.SourceDescriptor
-	spec, descriptor, err = c.biQueryCase.validate(ctx, scope, spec)
+	var execution *dto.CardExecution
+	execution, err = decodeExecution(item.ExecutionJSON)
 	if err != nil {
 		return nil, err
 	}
-	spec = applyBiCardPeriod(spec, descriptor, req.GetRangeDays(), time.Now())
 	var result bi.QueryResult
-	result, err = c.biQueryCase.execute(ctx, scope, spec, nil)
+	result, err = c.biQueryCase.execute(ctx, scope, spec, &dto.BiQueryRecordContext{Kind: dto.QueryKindCard, CardID: item.ID, Execution: execution, RangeDays: req.GetRangeDays()})
 	if err != nil {
 		return nil, err
 	}
+	var current *models.BiCard
+	current, err = c.findCard(ctx, authInfo, item.ID, false)
+	if err != nil {
+		return nil, err
+	}
+	if current.Version != item.Version {
+		return nil, errorsx.Conflict("取数期间卡片已更新，请刷新")
+	}
+
 	return toProtoQueryResult(result), nil
 }
 
@@ -348,7 +512,12 @@ func (c *BiCardCase) buildWorkbench(ctx context.Context, authInfo *authData.User
 			return nil, err
 		}
 		result.DashboardIds = append(result.DashboardIds, id)
-		result.Dashboards = append(result.Dashboards, toBiDashboard(item, version.SchemaJSON))
+		dashboard := toBiDashboard(item, version.SchemaJSON)
+		dashboard.RequiresRepublish, err = c.dashboardCase.requiresRepublish(ctx, item)
+		if err != nil {
+			return nil, err
+		}
+		result.Dashboards = append(result.Dashboards, dashboard)
 	}
 	if len(config.FavoriteIDs) > 0 {
 		query := c.cardRepo.Query(ctx).BiCard
@@ -489,7 +658,11 @@ func toBiCard(item *models.BiCard, userID int64) (*adminv1.BiCard, error) {
 	} else if item.OwnerID == userID {
 		category = "mine"
 	}
-	return &adminv1.BiCard{Id: item.ID, TenantId: item.TenantID, ProjectId: item.ProjectID, OwnerId: item.OwnerID, Name: item.Name, SourceCode: item.SourceCode, Query: toProtoQuerySpec(spec), ChartType: item.ChartType, ChartJson: item.ChartJSON, QueryRecordId: item.QueryRecordID, RefreshSeconds: item.RefreshSeconds, IsShared: item.IsShared == 1, UpdatedAt: item.UpdatedAt.Format(time.RFC3339Nano), Category: category, CanEdit: item.OwnerID != 0 && item.OwnerID == userID}, nil
+	var execution dto.CardExecution
+	if err = json.Unmarshal([]byte(item.ExecutionJSON), &execution); err != nil {
+		return nil, errorsx.Internal("读取卡片执行定义失败").WithCause(err)
+	}
+	return &adminv1.BiCard{ExecutionKind: execution.Kind, Columns: toProtoQueryResult(bi.QueryResult{Columns: execution.Columns}).Columns, Id: item.ID, TenantId: item.TenantID, ProjectId: item.ProjectID, OwnerId: item.OwnerID, Name: item.Name, SourceCode: item.SourceCode, Query: toProtoQuerySpec(spec), ChartType: item.ChartType, ChartJson: item.ChartJSON, QueryRecordId: item.QueryRecordID, RefreshSeconds: item.RefreshSeconds, IsShared: item.IsShared == 1, UpdatedAt: item.UpdatedAt.Format(time.RFC3339Nano), Version: item.Version, ValidationQueryRecordId: item.ValidationQueryRecordID, Category: category, CanEdit: item.OwnerID != 0 && item.OwnerID == userID}, nil
 }
 
 // validateCardChart 校验图表字段只引用真实结果，并根据图型检查数据结构。

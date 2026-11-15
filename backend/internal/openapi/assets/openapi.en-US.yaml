@@ -6619,7 +6619,44 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/bi.admin.v1.BiCard'
+    /api/v1/admin/bi/card/sql-preview:
+        post:
+            tags:
+                - BiCardService
+            description: Preview public metric formula candidates for the current card.
+            operationId: BiCardService_PreviewBiCardSql
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/bi.admin.v1.PreviewBiCardSqlRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/bi.admin.v1.PreviewBiCardSqlResponse'
     /api/v1/admin/bi/card/{id}:
+        get:
+            tags:
+                - BiCardService
+            description: Get a card and the public formulas authorized for editing.
+            operationId: BiCardService_GetBiCard
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/bi.admin.v1.BiCard'
         delete:
             tags:
                 - BiCardService
@@ -7029,7 +7066,7 @@ paths:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/bi.admin.v1.BiSourceModel'
+                            $ref: '#/components/schemas/bi.admin.v1.SaveBiSourceModelRequest'
                 required: true
             responses:
                 "200":
@@ -7038,6 +7075,31 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/bi.admin.v1.BiSource'
+    /api/v1/admin/bi/source/{id}/model/preview:
+        post:
+            tags:
+                - BiSourceService
+            description: Preview public model changes and their impact without saving the model.
+            operationId: BiSourceService_PreviewBiSourceModel
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/bi.admin.v1.SaveBiSourceModelRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/bi.admin.v1.BiModelImpact'
     /api/v1/admin/bi/source/{id}/status:
         put:
             tags:
@@ -13058,6 +13120,37 @@ components:
                 can_edit:
                     type: boolean
                     description: Whether the current user can edit
+                version:
+                    type: string
+                    description: Card concurrency version
+                validation_query_record_id:
+                    type: string
+                    description: Last manual validation record ID
+                execution_kind:
+                    type: string
+                    description: Execution definition kind
+                source_version:
+                    type: integer
+                    description: Source concurrency version
+                    format: int32
+                can_edit_metrics:
+                    type: boolean
+                    description: Whether public metric formulas can be edited
+                metric_definitions:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/bi.admin.v1.BiSourceMeasure'
+                    description: Public metric definitions authorized for editing
+                sql:
+                    type: string
+                    description: Full parameterized SQL authorized for editing
+                sync_summary:
+                    $ref: '#/components/schemas/bi.admin.v1.BiModelImpact'
+                columns:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/bi.admin.v1.BiResultColumn'
+                    description: result field definition
             description: Data card record.
         bi.admin.v1.BiCardCounts:
             type: object
@@ -13146,6 +13239,9 @@ components:
                 can_edit:
                     type: boolean
                     description: Whether the current user can edit
+                requires_republish:
+                    type: boolean
+                    description: Public metrics or the model have changed; republishing is required.
             description: BI dashboard record.
         bi.admin.v1.BiDashboardCardResult:
             type: object
@@ -13211,11 +13307,12 @@ components:
                 type:
                     type: string
                     description: metric type
-                aggregations:
-                    type: array
-                    items:
-                        type: string
-                    description: Allowed aggregation functions
+                unit:
+                    type: string
+                    description: "metric Unit: "
+                revision:
+                    type: string
+                    description: Metric revision
             description: BI metric description.
         bi.admin.v1.BiMeasureSpec:
             type: object
@@ -13223,10 +13320,55 @@ components:
                 code:
                     type: string
                     description: metric code
-                aggregation:
-                    type: string
-                    description: Aggregation function
             description: BI metric Query item.
+        bi.admin.v1.BiMetricChange:
+            type: object
+            properties:
+                metric_code:
+                    type: string
+                    description: metric code
+                expression:
+                    type: string
+                    description: Fixed aggregate expression
+                name:
+                    type: string
+                    description: metric name
+                unit:
+                    type: string
+                    description: "metric Unit: "
+                expected_revision:
+                    type: string
+                    description: Expected metric revision
+            description: Public metric edit candidate.
+        bi.admin.v1.BiMetricDifference:
+            type: object
+            properties:
+                before:
+                    $ref: '#/components/schemas/bi.admin.v1.BiSourceMeasure'
+                after:
+                    $ref: '#/components/schemas/bi.admin.v1.BiSourceMeasure'
+            description: Public metric definitions before and after a change.
+        bi.admin.v1.BiModelImpact:
+            type: object
+            properties:
+                changes:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/bi.admin.v1.BiMetricDifference'
+                    description: metric change
+                affected_cards:
+                    type: integer
+                    description: Number of affected cards
+                    format: int32
+                affected_dashboards:
+                    type: integer
+                    description: Number of dashboards requiring republishing
+                    format: int32
+                source_version:
+                    type: integer
+                    description: data source version
+                    format: int32
+            description: Public metric synchronization impact summary.
         bi.admin.v1.BiOrderSpec:
             type: object
             properties:
@@ -13326,6 +13468,9 @@ components:
                 query_record_id:
                     type: string
                     description: Successful query record ID, usable as a card source
+                queried_at:
+                    type: string
+                    description: Query time
             description: BI query result.
         bi.admin.v1.BiQuerySpec:
             type: object
@@ -13372,6 +13517,15 @@ components:
                 type:
                     type: string
                     description: Column type
+                role:
+                    type: string
+                    description: "result role: dimensionormeasure"
+                unit:
+                    type: string
+                    description: "metric Unit: "
+                revision:
+                    type: string
+                    description: Metric revision
             description: BI result column.
         bi.admin.v1.BiResultRow:
             type: object
@@ -13462,6 +13616,8 @@ components:
                     type: integer
                     description: Number of tables selected in the model
                     format: int32
+                sync_summary:
+                    $ref: '#/components/schemas/bi.admin.v1.BiModelImpact'
             description: BI data source configuration.
         bi.admin.v1.BiSourceDatabase:
             type: object
@@ -13589,17 +13745,15 @@ components:
                 type:
                     type: string
                     description: BIfield type
-                table:
+                expression:
                     type: string
-                    description: Owning table identifier
-                column:
+                    description: Fixed aggregate expression
+                unit:
                     type: string
-                    description: database field
-                aggregations:
-                    type: array
-                    items:
-                        type: string
-                    description: Allowed aggregation functions
+                    description: "metric Unit: "
+                revision:
+                    type: string
+                    description: Server-managed metric revision
             description: Data source semantic measure.
         bi.admin.v1.BiSourceModel:
             type: object
@@ -13836,6 +13990,56 @@ components:
                     description: total count
                     format: int32
             description: BI data source paginated response.
+        bi.admin.v1.PreviewBiCardSqlRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: Card ID; zero when creating.
+                expected_card_version:
+                    type: string
+                    description: Expected card version
+                expected_source_version:
+                    type: integer
+                    description: Expected source version
+                    format: int32
+                query_record_id:
+                    type: string
+                    description: Original natural-language query record ID
+                query:
+                    $ref: '#/components/schemas/bi.admin.v1.BiQuerySpec'
+                measure_changes:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/bi.admin.v1.BiMetricChange'
+                    description: Selected public metric change candidates
+            description: Card formula preview request.
+        bi.admin.v1.PreviewBiCardSqlResponse:
+            type: object
+            properties:
+                preview_query_record_id:
+                    type: string
+                    description: Successful formula preview record ID
+                result:
+                    $ref: '#/components/schemas/bi.admin.v1.BiQueryResult'
+                sql:
+                    type: string
+                    description: Full parameterized SQL authorized for editing
+                metric_definitions:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/bi.admin.v1.BiSourceMeasure'
+                    description: Public metric definitions authorized for editing
+                can_edit_metrics:
+                    type: boolean
+                    description: Whether public metric formulas can be edited
+                source_version:
+                    type: integer
+                    description: Source version bound to the preview
+                    format: int32
+                impact:
+                    $ref: '#/components/schemas/bi.admin.v1.BiModelImpact'
+            description: Card formula preview result.
         bi.admin.v1.PreviewBiQueryRequest:
             type: object
             properties:
@@ -13860,6 +14064,21 @@ components:
                     description: Card ID; zero creates a card
                 card:
                     $ref: '#/components/schemas/bi.admin.v1.BiCardForm'
+                expected_card_version:
+                    type: string
+                    description: Expected card version; zero when creating.
+                expected_source_version:
+                    type: integer
+                    description: Expected source version
+                    format: int32
+                preview_query_record_id:
+                    type: string
+                    description: Successful formula preview record ID
+                measure_changes:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/bi.admin.v1.BiMetricChange'
+                    description: Selected public metric change candidates
             description: Save data card request.
         bi.admin.v1.SaveBiDashboardRequest:
             type: object
@@ -13867,6 +14086,19 @@ components:
                 dashboard:
                     $ref: '#/components/schemas/bi.admin.v1.BiDashboard'
             description: Save BI dashboard request.
+        bi.admin.v1.SaveBiSourceModelRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: data source ID
+                model:
+                    $ref: '#/components/schemas/bi.admin.v1.BiSourceModel'
+                expected_source_version:
+                    type: integer
+                    description: Expected source version
+                    format: int32
+            description: Save a source semantic model request.
         bi.admin.v1.SaveBiWorkbenchRequest:
             type: object
             properties:

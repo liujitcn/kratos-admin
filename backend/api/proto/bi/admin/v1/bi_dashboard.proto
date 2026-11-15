@@ -119,4 +119,6 @@ message BiDashboard {
   string schema_json = 11 [(gnostic.openapi.v3.property) = {description: "仪表盘Schema JSON"}]; // 仪表盘Schema JSON
   string updated_at = 12 [(gnostic.openapi.v3.property) = {description: "更新时间"}]; // 更新时间
   bool can_edit = 13 [(gnostic.openapi.v3.property) = {description: "当前用户是否可编辑"}]; // 当前用户是否可编辑
+  bool requires_republish = 14 [(gnostic.openapi.v3.property) = {description: "公共指标或模型已变更，需要重新发布"}]; // 公共指标或模型已变更，需要重新发布
+
 }

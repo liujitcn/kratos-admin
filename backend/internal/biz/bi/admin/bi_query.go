@@ -19,6 +19,7 @@ import (
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/agent/model"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/agent/structured"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/bi/admin/dto"
+	queryCompiler "github.com/liujitcn/kratos-admin/backend/internal/biz/bi/admin/query"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 	"github.com/liujitcn/kratos-admin/backend/pkg/agent"
@@ -133,12 +134,13 @@ func (c *BiQueryCase) AskBiQuery(ctx context.Context, req *adminv1.AskBiQueryReq
 	var response *message.AgenticMessage
 	response, err = client.Generate(ctx, []*message.AgenticMessage{
 		message.SystemText(`你是 BI 语义查询引擎。只能根据给定数据源目录输出单个 JSON 对象，不得输出 SQL、表名、Markdown 或解释。
-JSON 格式为 {"query":{"source_code":"数据源编码","dimensions":[],"measures":[{"code":"指标编码","aggregation":"count"}],"filters":[],"time_range":null,"orders":[],"limit":100},"chart_type":"bar","title":"统计标题"}。
+目录缺少问题所需的指标或维度时，只输出 {"error":"明确说明缺少的指标或维度，并提示配置对应的数据源模型"}，不得输出空查询、猜测编码或用含义不同的指标替代。只能回答部分问题时也应说明限制，不得把部分结果当作完整答案。
+JSON 格式为 {"query":{"source_code":"数据源编码","dimensions":[],"measures":[{"code":"指标编码"}],"filters":[],"time_range":null,"orders":[],"limit":100},"chart_type":"bar","title":"统计标题"}。
 chart_type 只支持 bar、line、area、pie、donut、scatter、radar、gauge、funnel、treemap、sunburst、sankey、heatmap、metric。无分组的总数使用 metric；桑基、热力和旭日需要两个分类维度；散点需要两个数值字段。
 所有编码必须使用目录中的 code；limit 必须为整数。每次最多 2 个分组维度、5 个指标、10 个过滤条件、2 个排序条件。
 过滤格式为 {"field":"维度编码","operator":"eq","values":["0"]}，操作符只支持 eq、in、between、contains；values 必须为字符串数组，数字条件也写成字符串。
 排序格式为 {"field":"已选字段编码","direction":"desc"}，direction 只支持 asc、desc。
-统计总数时 dimensions 为空，使用目录中允许 count 聚合的指标。无过滤或排序需求时使用空数组；无时间范围需求时 time_range 为 null，否则使用 {"field":"时间维度编码","start":"开始时间","end":"结束时间"}。`),
+指标只能选择目录中的固定编码，不得输出 aggregation 或 SQL；统计总数时 dimensions 为空，选择目录中表示数量的固定指标。无过滤或排序需求时使用空数组；无时间范围需求时 time_range 为 null，否则使用 {"field":"时间维度编码","start":"开始时间","end":"结束时间"}。`),
 		message.UserText("可用数据源目录:" + string(dictionary) + "\n用户问题:" + question),
 	})
 	if err != nil {
@@ -151,6 +153,9 @@ chart_type 只支持 bar、line、area、pie、donut、scatter、radar、gauge�
 	// 模型判定问题无法回答时返回 error 字段，应直接透传拒绝原因而不是当作空查询计划校验。
 	if output.Error != "" {
 		return nil, errorsx.InvalidArgument(output.Error)
+	}
+	if output.Query.SourceCode == "" || len(output.Query.Measures) == 0 {
+		return nil, errorsx.InvalidArgument("BI 问数未生成完整查询计划，请检查数据源是否配置了所需指标和维度")
 	}
 	var validated bi.QuerySpec
 	validated, _, err = c.validate(ctx, scope, fromProtoQuerySpec(&adminv1.BiQuerySpec{
@@ -205,7 +210,11 @@ chart_type 只支持 bar、line、area、pie、donut、scatter、radar、gauge�
 
 // findReusableQueryRecord 仅复用同一访问范围和查询计划的成功智能问数记录，排除普通预览与仪表盘执行。
 func (c *BiQueryCase) findReusableQueryRecord(ctx context.Context, scope bi.Scope, spec bi.QuerySpec) (*models.BiQuery, error) {
-	hash := biQueryHash(spec)
+	execution, err := c.biSourceCase.compile(ctx, scope, spec)
+	if err != nil {
+		return nil, err
+	}
+	hash := execution.Hash
 	if hash == "" {
 		return nil, nil
 	}
@@ -213,10 +222,11 @@ func (c *BiQueryCase) findReusableQueryRecord(ctx context.Context, scope bi.Scop
 	since := time.Now().Add(-biDuplicateQueryWindow)
 	opts := []repository.QueryOption{
 		repository.Where(query.TenantID.Eq(scope.TenantID), query.UserID.Eq(scope.UserID), query.ProjectID.Eq(scope.ProjectID),
-			query.QueryHash.Eq(hash), query.Status.Eq(int32(adminv1.BiQueryStatus_BI_QUERY_STATUS_SUCCESS)), query.Question.Neq(""), query.CreatedAt.Gt(since)),
+			query.QueryHash.Eq(hash), query.Status.Eq(int32(adminv1.BiQueryStatus_BI_QUERY_STATUS_SUCCESS)), query.Question.Neq(""), query.Kind.Eq(dto.QueryKindAsk), query.CreatedAt.Gt(since)),
 		repository.Order(query.ID.Desc()),
 	}
-	record, err := c.biQueryRepo.Find(ctx, opts...)
+	var record *models.BiQuery
+	record, err = c.biQueryRepo.Find(ctx, opts...)
 	if errors.Is(err, gormio.ErrRecordNotFound) {
 		return nil, nil
 	}
@@ -226,7 +236,7 @@ func (c *BiQueryCase) findReusableQueryRecord(ctx context.Context, scope bi.Scop
 	return record, nil
 }
 
-// execute 执行语义查询，并将成功或失败统一写入查询记录。
+// execute 执行语义查询，保留配置源的数据库排序，并将成功或失败统一写入查询记录。
 func (c *BiQueryCase) execute(ctx context.Context, scope bi.Scope, spec bi.QuerySpec, recordContext *dto.BiQueryRecordContext) (result bi.QueryResult, err error) {
 	startedAt := time.Now()
 	if recordContext == nil {
@@ -243,29 +253,39 @@ func (c *BiQueryCase) execute(ctx context.Context, scope bi.Scope, spec bi.Query
 	}()
 	queryCtx, cancel := context.WithTimeout(ctx, biQueryTimeout)
 	defer cancel()
-	executionSpec := spec
-	if spec.TimeRange != nil {
-		var start, end string
-		start, err = resolveRelativeTime(spec.TimeRange.Start, startedAt)
+	if recordContext.Execution == nil {
+		recordContext.Execution, err = c.biSourceCase.compile(ctx, scope, spec)
 		if err != nil {
 			return bi.QueryResult{}, err
 		}
-		end, err = resolveRelativeTime(spec.TimeRange.End, startedAt)
-		if err != nil {
-			return bi.QueryResult{}, err
-		}
-		executionSpec.Filters = append(append([]bi.FilterSpec{}, spec.Filters...), bi.FilterSpec{
-			Field:    spec.TimeRange.Field,
-			Operator: "between",
-			Values:   []string{start, end},
-		})
-		executionSpec.TimeRange = nil
 	}
-	result, err = c.biSourceCase.Execute(queryCtx, scope, executionSpec)
+	if recordContext.Preview == nil {
+		if err = c.biSourceCase.checkExecution(ctx, scope, spec, recordContext.Execution); err != nil {
+			return bi.QueryResult{}, err
+		}
+	}
+	result, err = c.biSourceCase.executeDefinition(queryCtx, scope, spec, recordContext.Execution, recordContext.RangeDays, startedAt)
 	if err != nil {
 		return bi.QueryResult{}, errorsx.WrapInternal(err, "执行 BI 查询失败")
 	}
-	result = applyResultOrders(result, spec.Orders, spec.Limit)
+	if recordContext.Preview == nil {
+		if err = c.biSourceCase.checkExecution(ctx, scope, spec, recordContext.Execution); err != nil {
+			return bi.QueryResult{}, err
+		}
+	}
+	if len(result.Columns) != len(recordContext.Execution.Columns) {
+		return bi.QueryResult{}, errorsx.InvalidArgument("查询结果字段与指标定义不一致")
+	}
+	for index, column := range recordContext.Execution.Columns {
+		if result.Columns[index].Code != column.Code {
+			return bi.QueryResult{}, errorsx.InvalidArgument("查询结果字段与指标定义不一致")
+		}
+	}
+	result.Columns = recordContext.Execution.Columns
+	result.QueriedAt = startedAt.Format(time.RFC3339Nano)
+	if recordContext.Execution.Kind == "adapter" {
+		result = applyResultOrders(result, spec.Orders, recordContext.Execution.Limit)
+	}
 	if queryResultBytes(result) > biMaxResultBytes {
 		return bi.QueryResult{}, errorsx.InvalidArgument("BI 查询结果超过大小限制，请缩小查询范围")
 	}
@@ -276,7 +296,7 @@ func (c *BiQueryCase) execute(ctx context.Context, scope bi.Scope, spec bi.Query
 // cardSourceRecord 仅接受所属账号成功执行的智能问数记录，并核对完整查询定义。
 func (c *BiQueryCase) cardSourceRecord(ctx context.Context, scope bi.Scope, id int64, spec bi.QuerySpec) (*models.BiQuery, error) {
 	query := c.biQueryRepo.Query(ctx).BiQuery
-	record, err := c.biQueryRepo.Find(ctx, repository.Where(query.ID.Eq(id), query.TenantID.Eq(scope.TenantID), query.UserID.Eq(scope.UserID), query.ProjectID.Eq(scope.ProjectID), query.Status.Eq(int32(adminv1.BiQueryStatus_BI_QUERY_STATUS_SUCCESS)), query.Question.Neq("")))
+	record, err := c.biQueryRepo.Find(ctx, repository.Where(query.ID.Eq(id), query.TenantID.Eq(scope.TenantID), query.UserID.Eq(scope.UserID), query.ProjectID.Eq(scope.ProjectID), query.Status.Eq(int32(adminv1.BiQueryStatus_BI_QUERY_STATUS_SUCCESS)), query.Question.Neq(""), query.Kind.Eq(dto.QueryKindAsk)))
 	if err != nil {
 		return nil, errorsx.InvalidArgument("请选择当前账号和项目下成功的智能问数记录")
 	}
@@ -293,19 +313,50 @@ func (c *BiQueryCase) cardSourceRecord(ctx context.Context, scope bi.Scope, id i
 // recordQuery 保存完整类型化结果，成功记录返回可供卡片引用的编号。
 func (c *BiQueryCase) recordQuery(ctx context.Context, scope bi.Scope, spec bi.QuerySpec, result bi.QueryResult, queryErr error, recordContext *dto.BiQueryRecordContext) int64 {
 	record := &models.BiQuery{
-		TenantID: scope.TenantID, UserID: scope.UserID, ProjectID: scope.ProjectID,
+		TenantID: scope.TenantID, UserID: scope.UserID, ProjectID: scope.ProjectID, ExecutionJSON: "{}", ContextJSON: "{}",
 		DashboardID: recordContext.DashboardID, DashboardVersion: recordContext.DashboardVersion, WidgetID: recordContext.WidgetID,
-		SourceCode: spec.SourceCode, Question: recordContext.Question,
+		SourceCode: spec.SourceCode, Question: recordContext.Question, Kind: recordContext.Kind, CardID: recordContext.CardID,
 		Status: int32(adminv1.BiQueryStatus_BI_QUERY_STATUS_SUCCESS), RowCount: int32(len(result.Rows)),
 		ElapsedMs: time.Since(recordContext.StartedAt).Milliseconds(),
 	}
 	if result.Truncated {
 		record.Truncated = 1
 	}
+	if record.Kind == 0 {
+		switch {
+		case record.Question != "":
+			record.Kind = dto.QueryKindAsk
+		case record.DashboardID > 0:
+			record.Kind = dto.QueryKindDashboard
+		case record.CardID > 0:
+			record.Kind = dto.QueryKindCard
+		default:
+			record.Kind = dto.QueryKindPreview
+		}
+	}
 	var err error
 	if spec.SourceCode != "" {
 		record.QueryJSON = biQuerySpecJSON(spec)
 		record.QueryHash = biQueryHash(spec)
+		if recordContext.Execution != nil {
+			var encoded []byte
+			encoded, err = json.Marshal(recordContext.Execution)
+			if err != nil {
+				log.Error("保存执行定义失败", "error", err)
+				return 0
+			}
+			record.ExecutionJSON = string(encoded)
+			record.QueryHash = recordContext.Execution.Hash
+		}
+		if recordContext.Preview != nil {
+			var encoded []byte
+			encoded, err = json.Marshal(recordContext.Preview)
+			if err != nil {
+				log.Error("保存预览上下文失败", "error", err)
+				return 0
+			}
+			record.ContextJSON = string(encoded)
+		}
 	}
 	if queryErr != nil {
 		record.Status = int32(adminv1.BiQueryStatus_BI_QUERY_STATUS_FAILED)
@@ -353,12 +404,6 @@ func (c *BiQueryCase) validate(ctx context.Context, scope bi.Scope, spec bi.Quer
 	if len(spec.Dimensions) > 2 || len(spec.Measures) == 0 || len(spec.Measures) > 5 || len(spec.Filters) > 10 || len(spec.Orders) > 2 {
 		return bi.QuerySpec{}, bi.SourceDescriptor{}, errorsx.InvalidArgument("BI 查询维度、指标或过滤条件超出限制")
 	}
-	if spec.Limit <= 0 {
-		spec.Limit = biDefaultLimit
-	}
-	if spec.Limit > biHardMaxLimit {
-		spec.Limit = biHardMaxLimit
-	}
 	descriptors, err := c.biSourceCase.List(ctx, scope)
 	if err != nil {
 		return bi.QuerySpec{}, bi.SourceDescriptor{}, errorsx.WrapInternal(err, "查询 BI 数据源目录失败")
@@ -373,54 +418,9 @@ func (c *BiQueryCase) validate(ctx context.Context, scope bi.Scope, spec bi.Quer
 	if descriptor.Code == "" {
 		return bi.QuerySpec{}, bi.SourceDescriptor{}, errorsx.ResourceNotFound("BI 数据源不存在")
 	}
-	if descriptor.MaxRows > 0 && spec.Limit > descriptor.MaxRows {
-		spec.Limit = descriptor.MaxRows
-	}
-	dimensions := make(map[string]bi.FieldDescriptor, len(descriptor.Dimensions))
-	for _, item := range descriptor.Dimensions {
-		dimensions[item.Code] = item
-	}
-	for _, code := range spec.Dimensions {
-		if _, ok := dimensions[code]; !ok {
-			return bi.QuerySpec{}, bi.SourceDescriptor{}, errorsx.InvalidArgument(fmt.Sprintf("BI 维度不存在: %s", code))
-		}
-	}
-	measures := make(map[string]bi.MeasureDescriptor, len(descriptor.Measures))
-	for _, item := range descriptor.Measures {
-		measures[item.Code] = item
-	}
-	for _, item := range spec.Measures {
-		measure, ok := measures[item.Code]
-		if !ok || !slices.Contains(measure.Aggregations, item.Aggregation) {
-			return bi.QuerySpec{}, bi.SourceDescriptor{}, errorsx.InvalidArgument(fmt.Sprintf("BI 指标或聚合函数不可用: %s/%s", item.Code, item.Aggregation))
-		}
-	}
-	for _, item := range spec.Filters {
-		field, ok := dimensions[item.Field]
-		if !ok || !field.Filterable || len(item.Values) == 0 {
-			return bi.QuerySpec{}, bi.SourceDescriptor{}, errorsx.InvalidArgument(fmt.Sprintf("BI 过滤字段不可用: %s", item.Field))
-		}
-		if item.Operator != "eq" && item.Operator != "in" && item.Operator != "between" && item.Operator != "contains" {
-			return bi.QuerySpec{}, bi.SourceDescriptor{}, errorsx.InvalidArgument("BI 过滤操作符不支持")
-		}
-	}
-	if spec.TimeRange != nil {
-		field, ok := dimensions[spec.TimeRange.Field]
-		if !ok || field.Type != bi.FieldTypeDate || !field.Filterable || spec.TimeRange.Start == "" || spec.TimeRange.End == "" {
-			return bi.QuerySpec{}, bi.SourceDescriptor{}, errorsx.InvalidArgument("BI 时间范围不可用")
-		}
-	}
-	selected := make(map[string]struct{}, len(spec.Dimensions)+len(spec.Measures))
-	for _, code := range spec.Dimensions {
-		selected[code] = struct{}{}
-	}
-	for _, item := range spec.Measures {
-		selected[item.Code] = struct{}{}
-	}
-	for _, item := range spec.Orders {
-		if _, ok := selected[item.Field]; !ok || (item.Direction != "asc" && item.Direction != "desc") {
-			return bi.QuerySpec{}, bi.SourceDescriptor{}, errorsx.InvalidArgument("BI 排序字段或方向不可用")
-		}
+	spec, err = queryCompiler.ValidateSpec(descriptor, spec)
+	if err != nil {
+		return bi.QuerySpec{}, bi.SourceDescriptor{}, err
 	}
 	return spec, descriptor, nil
 }
@@ -433,7 +433,7 @@ func toSourceDescriptor(value bi.SourceDescriptor) *adminv1.BiSourceDescriptor {
 	}
 	measures := make([]*adminv1.BiMeasureDescriptor, 0, len(value.Measures))
 	for _, item := range value.Measures {
-		measures = append(measures, &adminv1.BiMeasureDescriptor{Code: item.Code, Name: item.Name, Type: string(item.Type), Aggregations: item.Aggregations})
+		measures = append(measures, &adminv1.BiMeasureDescriptor{Code: item.Code, Name: item.Name, Type: string(item.Type), Unit: item.Unit, Revision: item.Revision})
 	}
 	return &adminv1.BiSourceDescriptor{Code: value.Code, Name: value.Name, Description: value.Description, Version: value.Version, Dimensions: dimensions, Measures: measures, MaxRows: value.MaxRows}
 }
@@ -442,7 +442,7 @@ func toSourceDescriptor(value bi.SourceDescriptor) *adminv1.BiSourceDescriptor {
 func fromProtoQuerySpec(value *adminv1.BiQuerySpec) bi.QuerySpec {
 	measures := make([]bi.MeasureSpec, 0, len(value.GetMeasures()))
 	for _, item := range value.GetMeasures() {
-		measures = append(measures, bi.MeasureSpec{Code: item.GetCode(), Aggregation: item.GetAggregation()})
+		measures = append(measures, bi.MeasureSpec{Code: item.GetCode()})
 	}
 	filters := make([]bi.FilterSpec, 0, len(value.GetFilters()))
 	for _, item := range value.GetFilters() {
@@ -468,7 +468,7 @@ func toProtoQuerySpec(value bi.QuerySpec) *adminv1.BiQuerySpec {
 func toProtoMeasures(value []dto.AskMeasure) []*adminv1.BiMeasureSpec {
 	items := make([]*adminv1.BiMeasureSpec, 0, len(value))
 	for _, item := range value {
-		items = append(items, &adminv1.BiMeasureSpec{Code: item.Code, Aggregation: item.Aggregation})
+		items = append(items, &adminv1.BiMeasureSpec{Code: item.Code})
 	}
 	return items
 }
@@ -503,7 +503,7 @@ func toProtoOrders(value []dto.AskOrder) []*adminv1.BiOrderSpec {
 func toProtoMeasuresFromSpec(value []bi.MeasureSpec) []*adminv1.BiMeasureSpec {
 	items := make([]*adminv1.BiMeasureSpec, 0, len(value))
 	for _, item := range value {
-		items = append(items, &adminv1.BiMeasureSpec{Code: item.Code, Aggregation: item.Aggregation})
+		items = append(items, &adminv1.BiMeasureSpec{Code: item.Code})
 	}
 	return items
 }
@@ -538,13 +538,13 @@ func toProtoOrdersFromSpec(value []bi.OrderSpec) []*adminv1.BiOrderSpec {
 func toProtoQueryResult(value bi.QueryResult) *adminv1.BiQueryResult {
 	columns := make([]*adminv1.BiResultColumn, 0, len(value.Columns))
 	for _, item := range value.Columns {
-		columns = append(columns, &adminv1.BiResultColumn{Code: item.Code, Name: item.Name, Type: string(item.Type)})
+		columns = append(columns, &adminv1.BiResultColumn{Code: item.Code, Name: item.Name, Type: string(item.Type), Role: item.Role, Unit: item.Unit, Revision: item.Revision})
 	}
 	rows := make([]*adminv1.BiResultRow, 0, len(value.Rows))
 	for _, item := range value.Rows {
 		rows = append(rows, &adminv1.BiResultRow{Values: item})
 	}
-	return &adminv1.BiQueryResult{Columns: columns, Rows: rows, Truncated: value.Truncated, ElapsedMs: value.ElapsedMS, QueryRecordId: value.QueryRecordID}
+	return &adminv1.BiQueryResult{Columns: columns, Rows: rows, Truncated: value.Truncated, ElapsedMs: value.ElapsedMS, QueryRecordId: value.QueryRecordID, QueriedAt: value.QueriedAt}
 }
 
 // projectIDForAuth 在认证范围明确只有一个项目时传递项目范围；无法表达有限多项目范围时拒绝执行。
@@ -702,4 +702,13 @@ func resolveRelativeTime(value string, now time.Time) (string, error) {
 	default:
 		return "", errorsx.InvalidArgument("BI 时间范围表达式无效: " + value)
 	}
+}
+
+// biQuerySpecMatches 比较规范化语义，避免 nil 与空集合造成查询来源误判。
+func biQuerySpecMatches(raw string, spec bi.QuerySpec) bool {
+	var stored bi.QuerySpec
+	if err := json.Unmarshal([]byte(raw), &stored); err != nil {
+		return false
+	}
+	return queryCompiler.SpecHash(stored) == queryCompiler.SpecHash(spec)
 }

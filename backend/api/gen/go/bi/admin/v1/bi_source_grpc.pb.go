@@ -30,6 +30,7 @@ const (
 	BiSourceService_TestBiSource_FullMethodName           = "/bi.admin.v1.BiSourceService/TestBiSource"
 	BiSourceService_ListBiSourceTables_FullMethodName     = "/bi.admin.v1.BiSourceService/ListBiSourceTables"
 	BiSourceService_SaveBiSourceModel_FullMethodName      = "/bi.admin.v1.BiSourceService/SaveBiSourceModel"
+	BiSourceService_PreviewBiSourceModel_FullMethodName   = "/bi.admin.v1.BiSourceService/PreviewBiSourceModel"
 )
 
 // BiSourceServiceClient is the client API for BiSourceService service.
@@ -58,6 +59,8 @@ type BiSourceServiceClient interface {
 	ListBiSourceTables(ctx context.Context, in *ListBiSourceTablesRequest, opts ...grpc.CallOption) (*ListBiSourceTablesResponse, error)
 	// 保存经过校验的多表语义模型。
 	SaveBiSourceModel(ctx context.Context, in *SaveBiSourceModelRequest, opts ...grpc.CallOption) (*BiSource, error)
+	// 预览公共模型变更和关联影响，不写入模型。
+	PreviewBiSourceModel(ctx context.Context, in *SaveBiSourceModelRequest, opts ...grpc.CallOption) (*BiModelImpact, error)
 }
 
 type biSourceServiceClient struct {
@@ -168,6 +171,16 @@ func (c *biSourceServiceClient) SaveBiSourceModel(ctx context.Context, in *SaveB
 	return out, nil
 }
 
+func (c *biSourceServiceClient) PreviewBiSourceModel(ctx context.Context, in *SaveBiSourceModelRequest, opts ...grpc.CallOption) (*BiModelImpact, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(BiModelImpact)
+	err := c.cc.Invoke(ctx, BiSourceService_PreviewBiSourceModel_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // BiSourceServiceServer is the server API for BiSourceService service.
 // All implementations must embed UnimplementedBiSourceServiceServer
 // for forward compatibility.
@@ -194,6 +207,8 @@ type BiSourceServiceServer interface {
 	ListBiSourceTables(context.Context, *ListBiSourceTablesRequest) (*ListBiSourceTablesResponse, error)
 	// 保存经过校验的多表语义模型。
 	SaveBiSourceModel(context.Context, *SaveBiSourceModelRequest) (*BiSource, error)
+	// 预览公共模型变更和关联影响，不写入模型。
+	PreviewBiSourceModel(context.Context, *SaveBiSourceModelRequest) (*BiModelImpact, error)
 	mustEmbedUnimplementedBiSourceServiceServer()
 }
 
@@ -233,6 +248,9 @@ func (UnimplementedBiSourceServiceServer) ListBiSourceTables(context.Context, *L
 }
 func (UnimplementedBiSourceServiceServer) SaveBiSourceModel(context.Context, *SaveBiSourceModelRequest) (*BiSource, error) {
 	return nil, status.Error(codes.Unimplemented, "method SaveBiSourceModel not implemented")
+}
+func (UnimplementedBiSourceServiceServer) PreviewBiSourceModel(context.Context, *SaveBiSourceModelRequest) (*BiModelImpact, error) {
+	return nil, status.Error(codes.Unimplemented, "method PreviewBiSourceModel not implemented")
 }
 func (UnimplementedBiSourceServiceServer) mustEmbedUnimplementedBiSourceServiceServer() {}
 func (UnimplementedBiSourceServiceServer) testEmbeddedByValue()                         {}
@@ -435,6 +453,24 @@ func _BiSourceService_SaveBiSourceModel_Handler(srv interface{}, ctx context.Con
 	return interceptor(ctx, in, info, handler)
 }
 
+func _BiSourceService_PreviewBiSourceModel_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SaveBiSourceModelRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BiSourceServiceServer).PreviewBiSourceModel(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: BiSourceService_PreviewBiSourceModel_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BiSourceServiceServer).PreviewBiSourceModel(ctx, req.(*SaveBiSourceModelRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // BiSourceService_ServiceDesc is the grpc.ServiceDesc for BiSourceService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -481,6 +517,10 @@ var BiSourceService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "SaveBiSourceModel",
 			Handler:    _BiSourceService_SaveBiSourceModel_Handler,
+		},
+		{
+			MethodName: "PreviewBiSourceModel",
+			Handler:    _BiSourceService_PreviewBiSourceModel_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

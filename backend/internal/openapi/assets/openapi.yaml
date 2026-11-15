@@ -6619,7 +6619,44 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/bi.admin.v1.BiCard'
+    /api/v1/admin/bi/card/sql-preview:
+        post:
+            tags:
+                - BiCardService
+            description: 预览当前卡片的公共指标公式候选。
+            operationId: BiCardService_PreviewBiCardSql
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/bi.admin.v1.PreviewBiCardSqlRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/bi.admin.v1.PreviewBiCardSqlResponse'
     /api/v1/admin/bi/card/{id}:
+        get:
+            tags:
+                - BiCardService
+            description: 获取卡片及有权编辑的公共公式。
+            operationId: BiCardService_GetBiCard
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/bi.admin.v1.BiCard'
         delete:
             tags:
                 - BiCardService
@@ -7029,7 +7066,7 @@ paths:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/bi.admin.v1.BiSourceModel'
+                            $ref: '#/components/schemas/bi.admin.v1.SaveBiSourceModelRequest'
                 required: true
             responses:
                 "200":
@@ -7038,6 +7075,31 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/bi.admin.v1.BiSource'
+    /api/v1/admin/bi/source/{id}/model/preview:
+        post:
+            tags:
+                - BiSourceService
+            description: 预览公共模型变更和关联影响，不写入模型。
+            operationId: BiSourceService_PreviewBiSourceModel
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/bi.admin.v1.SaveBiSourceModelRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/bi.admin.v1.BiModelImpact'
     /api/v1/admin/bi/source/{id}/status:
         put:
             tags:
@@ -13058,6 +13120,37 @@ components:
                 can_edit:
                     type: boolean
                     description: 当前用户是否可编辑
+                version:
+                    type: string
+                    description: 卡片并发版本
+                validation_query_record_id:
+                    type: string
+                    description: 最后人工验证记录ID
+                execution_kind:
+                    type: string
+                    description: 执行定义种类
+                source_version:
+                    type: integer
+                    description: 数据源并发版本
+                    format: int32
+                can_edit_metrics:
+                    type: boolean
+                    description: 是否可编辑公共指标公式
+                metric_definitions:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/bi.admin.v1.BiSourceMeasure'
+                    description: 授权编辑的公共指标定义
+                sql:
+                    type: string
+                    description: 授权编辑的完整参数化SQL
+                sync_summary:
+                    $ref: '#/components/schemas/bi.admin.v1.BiModelImpact'
+                columns:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/bi.admin.v1.BiResultColumn'
+                    description: 结果字段定义
             description: 数据卡片记录。
         bi.admin.v1.BiCardCounts:
             type: object
@@ -13146,6 +13239,9 @@ components:
                 can_edit:
                     type: boolean
                     description: 当前用户是否可编辑
+                requires_republish:
+                    type: boolean
+                    description: 公共指标或模型已变更，需要重新发布
             description: BI 仪表盘记录。
         bi.admin.v1.BiDashboardCardResult:
             type: object
@@ -13211,11 +13307,12 @@ components:
                 type:
                     type: string
                     description: 指标类型
-                aggregations:
-                    type: array
-                    items:
-                        type: string
-                    description: 允许的聚合函数
+                unit:
+                    type: string
+                    description: 指标单位
+                revision:
+                    type: string
+                    description: 指标修订号
             description: BI 指标描述。
         bi.admin.v1.BiMeasureSpec:
             type: object
@@ -13223,10 +13320,55 @@ components:
                 code:
                     type: string
                     description: 指标编码
-                aggregation:
-                    type: string
-                    description: 聚合函数
             description: BI 指标查询项。
+        bi.admin.v1.BiMetricChange:
+            type: object
+            properties:
+                metric_code:
+                    type: string
+                    description: 指标编码
+                expression:
+                    type: string
+                    description: 固定聚合表达式
+                name:
+                    type: string
+                    description: 指标名称
+                unit:
+                    type: string
+                    description: 指标单位
+                expected_revision:
+                    type: string
+                    description: 预期指标修订号
+            description: 公共指标编辑候选。
+        bi.admin.v1.BiMetricDifference:
+            type: object
+            properties:
+                before:
+                    $ref: '#/components/schemas/bi.admin.v1.BiSourceMeasure'
+                after:
+                    $ref: '#/components/schemas/bi.admin.v1.BiSourceMeasure'
+            description: 公共指标变更前后定义。
+        bi.admin.v1.BiModelImpact:
+            type: object
+            properties:
+                changes:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/bi.admin.v1.BiMetricDifference'
+                    description: 指标变更
+                affected_cards:
+                    type: integer
+                    description: 受影响卡片数量
+                    format: int32
+                affected_dashboards:
+                    type: integer
+                    description: 需要重新发布的仪表盘数量
+                    format: int32
+                source_version:
+                    type: integer
+                    description: 数据源版本
+                    format: int32
+            description: 公共指标同步影响摘要。
         bi.admin.v1.BiOrderSpec:
             type: object
             properties:
@@ -13326,6 +13468,9 @@ components:
                 query_record_id:
                     type: string
                     description: 本次成功查询记录ID，可作为数据卡片来源
+                queried_at:
+                    type: string
+                    description: 查询时间
             description: BI 查询结果。
         bi.admin.v1.BiQuerySpec:
             type: object
@@ -13372,6 +13517,15 @@ components:
                 type:
                     type: string
                     description: 列类型
+                role:
+                    type: string
+                    description: 结果角色：dimension或measure
+                unit:
+                    type: string
+                    description: 指标单位
+                revision:
+                    type: string
+                    description: 指标修订号
             description: BI 结果列。
         bi.admin.v1.BiResultRow:
             type: object
@@ -13462,6 +13616,8 @@ components:
                     type: integer
                     description: 模型选中的表数量
                     format: int32
+                sync_summary:
+                    $ref: '#/components/schemas/bi.admin.v1.BiModelImpact'
             description: BI 数据源配置。
         bi.admin.v1.BiSourceDatabase:
             type: object
@@ -13589,17 +13745,15 @@ components:
                 type:
                     type: string
                     description: BI字段类型
-                table:
+                expression:
                     type: string
-                    description: 所属表标识
-                column:
+                    description: 固定聚合表达式
+                unit:
                     type: string
-                    description: 数据库字段
-                aggregations:
-                    type: array
-                    items:
-                        type: string
-                    description: 允许的聚合函数
+                    description: 指标单位
+                revision:
+                    type: string
+                    description: 服务端指标修订号
             description: 数据源语义指标。
         bi.admin.v1.BiSourceModel:
             type: object
@@ -13836,6 +13990,56 @@ components:
                     description: 总数
                     format: int32
             description: BI 数据源分页响应。
+        bi.admin.v1.PreviewBiCardSqlRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 卡片ID，创建时为0
+                expected_card_version:
+                    type: string
+                    description: 预期卡片版本
+                expected_source_version:
+                    type: integer
+                    description: 预期数据源版本
+                    format: int32
+                query_record_id:
+                    type: string
+                    description: 原始智能问数记录ID
+                query:
+                    $ref: '#/components/schemas/bi.admin.v1.BiQuerySpec'
+                measure_changes:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/bi.admin.v1.BiMetricChange'
+                    description: 选中公共指标变更候选
+            description: 卡片公式预览请求。
+        bi.admin.v1.PreviewBiCardSqlResponse:
+            type: object
+            properties:
+                preview_query_record_id:
+                    type: string
+                    description: 成功公式预览记录ID
+                result:
+                    $ref: '#/components/schemas/bi.admin.v1.BiQueryResult'
+                sql:
+                    type: string
+                    description: 授权编辑的完整参数化SQL
+                metric_definitions:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/bi.admin.v1.BiSourceMeasure'
+                    description: 授权编辑的公共指标定义
+                can_edit_metrics:
+                    type: boolean
+                    description: 是否可编辑公共指标公式
+                source_version:
+                    type: integer
+                    description: 预览绑定的数据源版本
+                    format: int32
+                impact:
+                    $ref: '#/components/schemas/bi.admin.v1.BiModelImpact'
+            description: 卡片公式预览结果。
         bi.admin.v1.PreviewBiQueryRequest:
             type: object
             properties:
@@ -13860,6 +14064,21 @@ components:
                     description: 卡片ID，0表示新建
                 card:
                     $ref: '#/components/schemas/bi.admin.v1.BiCardForm'
+                expected_card_version:
+                    type: string
+                    description: 预期卡片版本，创建时为0
+                expected_source_version:
+                    type: integer
+                    description: 预期数据源版本
+                    format: int32
+                preview_query_record_id:
+                    type: string
+                    description: 成功公式预览记录ID
+                measure_changes:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/bi.admin.v1.BiMetricChange'
+                    description: 选中公共指标变更候选
             description: 保存数据卡片请求。
         bi.admin.v1.SaveBiDashboardRequest:
             type: object
@@ -13867,6 +14086,19 @@ components:
                 dashboard:
                     $ref: '#/components/schemas/bi.admin.v1.BiDashboard'
             description: 保存 BI 仪表盘请求。
+        bi.admin.v1.SaveBiSourceModelRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 数据源ID
+                model:
+                    $ref: '#/components/schemas/bi.admin.v1.BiSourceModel'
+                expected_source_version:
+                    type: integer
+                    description: 预期数据源版本
+                    format: int32
+            description: 保存数据源语义模型的请求。
         bi.admin.v1.SaveBiWorkbenchRequest:
             type: object
             properties:

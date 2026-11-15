@@ -8,8 +8,8 @@ export const demoQuery: BiQuerySpec = {
   source_code: "demo_sales",
   dimensions: ["region", "channel"],
   measures: [
-    { code: "amount", aggregation: "sum" },
-    { code: "orders", aggregation: "sum" }
+    { code: "amount" },
+    { code: "orders" }
   ],
   filters: [],
   limit: 100,
@@ -20,10 +20,10 @@ export const demoQuery: BiQuerySpec = {
 /** 查询结果的值与 columns 顺序一一对应，数值遵循 RPC 的字符串格式。 */
 export const demoResult: BiQueryResult = {
   columns: [
-    { code: "region", name: "区域", type: "string" },
-    { code: "channel", name: "渠道", type: "string" },
-    { code: "amount", name: "服务金额", type: "number" },
-    { code: "orders", name: "服务次数", type: "number" }
+    { code: "region", name: "区域", type: "string", role: "dimension", unit: "", revision: 1 },
+    { code: "channel", name: "渠道", type: "string", role: "dimension", unit: "", revision: 1 },
+    { code: "amount", name: "服务金额", type: "number", role: "measure", unit: "元", revision: 1 },
+    { code: "orders", name: "服务次数", type: "number", role: "measure", unit: "次", revision: 1 }
   ],
   rows: [
     { values: ["华东", "线上", "128", "24"] },
@@ -35,7 +35,8 @@ export const demoResult: BiQueryResult = {
   ],
   truncated: false,
   elapsed_ms: 0,
-  query_record_id: 0
+  query_record_id: 0,
+  queried_at: ""
 };
 
 /** 图表编辑器的本地初始字段映射。 */
@@ -60,7 +61,16 @@ export const demoCard: BiCard = {
   is_shared: false,
   updated_at: "",
   category: "mine",
-  can_edit: false
+  can_edit: false,
+  version: 1,
+  validation_query_record_id: 0,
+  execution_kind: "",
+  source_version: 1,
+  can_edit_metrics: false,
+  metric_definitions: [],
+  sql: "",
+  sync_summary: undefined,
+  columns: demoResult.columns
 };
 
 /** 无分组指标结果，用于数值卡片。 */
@@ -69,7 +79,8 @@ export const demoMetricResult: BiQueryResult = {
   rows: [{ values: ["680", "130"] }],
   truncated: false,
   elapsed_ms: 0,
-  query_record_id: 0
+  query_record_id: 0,
+  queried_at: ""
 };
 
 /** 指标卡片沿用原查询字段，使用无分组的汇总结果。 */
@@ -83,7 +94,7 @@ export const demoMetricCard: BiCard = {
 
 /** 仪表盘发布快照和数据结果使用布局项 id 关联。 */
 export const demoLayout: DashboardLayout = {
-  schemaVersion: 3,
+  schemaVersion: 4,
   name: "本地经营概览",
   cards: [
     {
@@ -96,7 +107,7 @@ export const demoLayout: DashboardLayout = {
       name: demoCard.name,
       chart_type: demoCard.chart_type,
       chart_json: demoCard.chart_json,
-      query: demoCard.query
+      columns: demoResult.columns
     },
     {
       id: "service-metrics",
@@ -108,7 +119,7 @@ export const demoLayout: DashboardLayout = {
       name: demoMetricCard.name,
       chart_type: demoMetricCard.chart_type,
       chart_json: demoMetricCard.chart_json,
-      query: demoMetricCard.query
+      columns: demoMetricResult.columns
     }
   ]
 };

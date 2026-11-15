@@ -107,9 +107,9 @@ message BiMeasureDescriptor {
     (gnostic.openapi.v3.property) = {description: "指标类型"}
   ]; // 指标类型
 
-  repeated string aggregations = 4 [
-    (gnostic.openapi.v3.property) = {description: "允许的聚合函数"}
-  ]; // 允许的聚合函数
+  string unit = 4 [(gnostic.openapi.v3.property) = {description: "指标单位"}]; // 指标单位
+  int64 revision = 5 [(gnostic.openapi.v3.property) = {description: "指标修订号"}]; // 指标修订号
+
 }
 
 // BI 查询预览请求。
@@ -193,10 +193,7 @@ message BiMeasureSpec {
     (buf.validate.field).string = {min_len: 1, max_len: 128}
   ]; // 指标编码
 
-  string aggregation = 2 [
-    (gnostic.openapi.v3.property) = {description: "聚合函数"},
-    (buf.validate.field).string = {min_len: 1, max_len: 32}
-  ]; // 聚合函数
+
 }
 
 // BI 过滤条件。
@@ -236,6 +233,8 @@ message BiQueryResult {
   ]; // 查询耗时毫秒
 
   int64 query_record_id = 5 [(gnostic.openapi.v3.property) = {description: "本次成功查询记录ID，可作为数据卡片来源"}]; // 本次成功查询记录ID
+  string queried_at = 6 [(gnostic.openapi.v3.property) = {description: "查询时间"}]; // 查询时间
+
 }
 
 // BI 结果列。
@@ -251,6 +250,10 @@ message BiResultColumn {
   string type = 3 [
     (gnostic.openapi.v3.property) = {description: "列类型"}
   ]; // 列类型
+  string role = 4 [(gnostic.openapi.v3.property) = {description: "结果角色：dimension或measure"}]; // 结果角色：dimension或measure
+  string unit = 5 [(gnostic.openapi.v3.property) = {description: "指标单位"}]; // 指标单位
+  int64 revision = 6 [(gnostic.openapi.v3.property) = {description: "指标修订号"}]; // 指标修订号
+
 }
 
 // BI 结果行。

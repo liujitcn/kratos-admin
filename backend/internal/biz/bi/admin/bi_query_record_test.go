@@ -29,7 +29,7 @@ import (
 
 // TestAskBiQueryPersistsRecords 验证新版问数的成功和失败均能从记录页接口读取。
 func TestAskBiQueryPersistsRecords(t *testing.T) {
-	plan := `{"query":{"source_code":"test","measures":[{"code":"count","aggregation":"count"}]},"chart_type":"metric","title":"用户数量"}`
+	plan := `{"query":{"source_code":"test","measures":[{"code":"count"}]},"chart_type":"metric","title":"用户数量"}`
 	tests := []struct {
 		name        string
 		modelStatus int
@@ -43,7 +43,11 @@ func TestAskBiQueryPersistsRecords(t *testing.T) {
 		{name: "未启用模型", wantError: "AI供应商或模型选择无效"},
 		{name: "模型调用失败", modelStatus: http.StatusBadRequest, wantError: "BI 问数生成失败"},
 		{name: "模型拒绝回答", modelStatus: http.StatusOK, output: `{"error":"问题超出数据范围"}`, wantError: "问题超出数据范围"},
-		{name: "查询计划非法", modelStatus: http.StatusOK, output: `{}`, wantError: "BI 查询维度、指标或过滤条件超出限制"},
+		{name: "未生成查询计划", modelStatus: http.StatusOK, output: `{}`, wantError: "BI 问数未生成完整查询计划，请检查数据源是否配置了所需指标和维度"},
+		{name: "查询计划为空", modelStatus: http.StatusOK, output: `{"query":null}`, wantError: "BI 问数未生成完整查询计划，请检查数据源是否配置了所需指标和维度"},
+		{name: "未选择指标", modelStatus: http.StatusOK, output: `{"query":{"source_code":"test","measures":[]}}`, wantError: "BI 问数未生成完整查询计划，请检查数据源是否配置了所需指标和维度"},
+		{name: "未选择数据源", modelStatus: http.StatusOK, output: `{"query":{"measures":[{"code":"count"}]}}`, wantError: "BI 问数未生成完整查询计划，请检查数据源是否配置了所需指标和维度"},
+		{name: "分组维度确实超限", modelStatus: http.StatusOK, output: `{"query":{"source_code":"test","dimensions":["a","b","c"],"measures":[{"code":"count"}]}}`, wantError: "BI 查询维度、指标或过滤条件超出限制"},
 		{name: "查询执行失败", modelStatus: http.StatusOK, output: plan, queryErr: errors.New("数据源连接失败"), wantError: "执行 BI 查询失败"},
 		{name: "查询取消", modelStatus: http.StatusOK, output: plan, queryErr: context.Canceled, cancelQuery: true, wantError: "执行 BI 查询失败"},
 	}
@@ -81,7 +85,7 @@ func TestAskBiQueryPersistsRecords(t *testing.T) {
 				modelStore.Replace([]model.ProviderModel{{Config: &modelconfig.ModelConfig{Provider: modelconfig.ProviderOpenAICompatible, ModelName: "test", APIKey: "test", BaseURL: server.URL, MaxRetries: 0}}})
 			}
 			baseCase := &biz.BaseCase{}
-			sourceCase := NewBiSourceCase(baseCase, store, data.NewBiSourceRepository(store), registry, nil)
+			sourceCase := NewBiSourceCase(baseCase, store, data.NewBiSourceRepository(store), registry, nil, data.NewBiCardRepository(store), data.NewBiDashboardRepository(store), data.NewBiDashboardVersionRepository(store), nil)
 			queryRepo := data.NewBiQueryRepository(store)
 			c := NewBiQueryCase(baseCase, sourceCase, modelStore, queryRepo)
 			var answer *adminv1.AskBiQueryResponse
@@ -149,9 +153,9 @@ func TestBiExecutionsUseQueryRecords(t *testing.T) {
 			}
 			baseCase := &biz.BaseCase{}
 			queryRepo := data.NewBiQueryRepository(store)
-			sourceCase := NewBiSourceCase(baseCase, store, data.NewBiSourceRepository(store), registry, nil)
+			sourceCase := NewBiSourceCase(baseCase, store, data.NewBiSourceRepository(store), registry, nil, data.NewBiCardRepository(store), data.NewBiDashboardRepository(store), data.NewBiDashboardVersionRepository(store), nil)
 			c := NewBiQueryCase(baseCase, sourceCase, nil, queryRepo)
-			spec := &adminv1.BiQuerySpec{SourceCode: "test", Measures: []*adminv1.BiMeasureSpec{{Code: "count", Aggregation: "count"}}}
+			spec := &adminv1.BiQuerySpec{SourceCode: "test", Measures: []*adminv1.BiMeasureSpec{{Code: "count"}}}
 			if test.dashboard {
 				_, err = c.execute(ctx, bi.Scope{TenantID: 1, UserID: 10, ProjectID: 42}, fromProtoQuerySpec(spec), &dto.BiQueryRecordContext{DashboardID: 7, DashboardVersion: 2, WidgetID: "users"})
 			} else {
@@ -271,7 +275,7 @@ func (biQueryRecordTestSource) Code() string { return "test" }
 
 // Descriptor 返回测试数据源支持的计数指标。
 func (biQueryRecordTestSource) Descriptor(context.Context, bi.Scope) (bi.SourceDescriptor, error) {
-	return bi.SourceDescriptor{Code: "test", Measures: []bi.MeasureDescriptor{{Code: "count", Aggregations: []string{"count"}}}}, nil
+	return bi.SourceDescriptor{Code: "test", Measures: []bi.MeasureDescriptor{{Code: "count", Name: "用户数量", Type: bi.FieldTypeNumber, Revision: 1}}}, nil
 }
 
 // Execute 返回测试结果或指定的执行错误。

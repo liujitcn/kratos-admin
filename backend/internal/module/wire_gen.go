@@ -315,7 +315,10 @@ func BuildModules(dispatcher *aiautomation.Dispatcher, migrations *migration.Mig
 	aiSearchService := base.NewAiSearchService(aiSearchCase)
 	biSourceRepository := data2.NewBiSourceRepository(dataData)
 	biRegistry := bi.NewRegistry()
-	biSourceCase := admin2.NewBiSourceCase(baseCase, transaction, biSourceRepository, biRegistry, redactResolver)
+	biCardRepository := data2.NewBiCardRepository(dataData)
+	biDashboardRepository := data2.NewBiDashboardRepository(dataData)
+	biDashboardVersionRepository := data2.NewBiDashboardVersionRepository(dataData)
+	biSourceCase := admin2.NewBiSourceCase(baseCase, transaction, biSourceRepository, biRegistry, redactResolver, biCardRepository, biDashboardRepository, biDashboardVersionRepository, authorizer)
 	biQueryRepository := data2.NewBiQueryRepository(dataData)
 	biQueryCase := admin2.NewBiQueryCase(baseCase, biSourceCase, registry, biQueryRepository)
 	biQueryService := admin3.NewBiQueryService(biQueryCase)
@@ -604,10 +607,7 @@ func BuildModules(dispatcher *aiautomation.Dispatcher, migrations *migration.Mig
 		AiKnowledgeDoc:   aiKnowledgeDocService,
 		AiKnowledgeChunk: aiKnowledgeChunkService,
 	}
-	biCardRepository := data2.NewBiCardRepository(dataData)
 	biWorkbenchRepository := data2.NewBiWorkbenchRepository(dataData)
-	biDashboardRepository := data2.NewBiDashboardRepository(dataData)
-	biDashboardVersionRepository := data2.NewBiDashboardVersionRepository(dataData)
 	biDashboardCase := admin2.NewBiDashboardCase(baseCase, transaction, biDashboardRepository, biDashboardVersionRepository, biCardRepository, biQueryCase)
 	biCardCase := admin2.NewBiCardCase(baseCase, biCardRepository, biWorkbenchRepository, biQueryCase, biDashboardCase)
 	biCardService := admin3.NewBiCardService(biCardCase)

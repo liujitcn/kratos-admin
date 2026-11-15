@@ -109,7 +109,7 @@ import BiDesigner from "../components/BiDesigner.vue";
 import type { DashboardLayout } from "../bi-dashboard-schema";
 import { demoCard } from "./fixtures";
 
-const layout = ref<DashboardLayout>({ schemaVersion: 3, name: "本地布局草稿", cards: [] });
+const layout = ref<DashboardLayout>({ schemaVersion: 4, name: "本地布局草稿", cards: [] });
 // demoCard.id 为 0，refresh_seconds 为 0，不触发真实取数。
 const cards = [demoCard];
 </script>

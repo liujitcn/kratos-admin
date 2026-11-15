@@ -163,7 +163,9 @@ func (x *BiMeasureDescriptor) Redact() {
 
 	// Safe field: Type
 
-	// Safe field: Aggregations
+	// Safe field: Unit
+
+	// Safe field: Revision
 }
 
 // Ensure PreviewBiQueryRequest implements the Redactor interface at compile time.
@@ -242,8 +244,6 @@ func (x *BiMeasureSpec) Redact() {
 	}
 
 	// Safe field: Code
-
-	// Safe field: Aggregation
 }
 
 // Ensure BiFilterSpec implements the Redactor interface at compile time.
@@ -280,6 +280,8 @@ func (x *BiQueryResult) Redact() {
 	// Safe field: ElapsedMs
 
 	// Safe field: QueryRecordId
+
+	// Safe field: QueriedAt
 }
 
 // Ensure BiResultColumn implements the Redactor interface at compile time.
@@ -296,6 +298,12 @@ func (x *BiResultColumn) Redact() {
 	// Safe field: Name
 
 	// Safe field: Type
+
+	// Safe field: Role
+
+	// Safe field: Unit
+
+	// Safe field: Revision
 }
 
 // Ensure BiResultRow implements the Redactor interface at compile time.

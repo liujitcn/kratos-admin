@@ -4,6 +4,7 @@ package bi.admin.v1;
 
 import "bi/admin/v1/bi_query.proto";
 import "bi/admin/v1/bi_dashboard.proto";
+import "bi/admin/v1/bi_source.proto";
 import "buf/validate/validate.proto";
 import "gnostic/openapi/v3/annotations.proto";
 import "google/api/annotations.proto";
@@ -40,6 +41,15 @@ service BiCardService {
       body: "*"
     };
   }
+  // 获取卡片及有权编辑的公共公式。
+  rpc GetBiCard(GetBiCardRequest) returns (BiCard) {
+    option (google.api.http) = {get: "/api/v1/admin/bi/card/{id}"};
+  }
+  // 预览当前卡片的公共指标公式候选。
+  rpc PreviewBiCardSql(PreviewBiCardSqlRequest) returns (PreviewBiCardSqlResponse) {
+    option (google.api.http) = {post: "/api/v1/admin/bi/card/sql-preview" body: "*"};
+  }
+
 }
 
 // 数据卡片分页条件。
@@ -157,6 +167,11 @@ message SaveBiCardRequest {
     (gnostic.openapi.v3.property) = {description: "卡片配置"},
     (buf.validate.field).required = true
   ]; // 卡片配置
+  int64 expected_card_version = 3 [(gnostic.openapi.v3.property) = {description: "预期卡片版本，创建时为0"}]; // 预期卡片版本，创建时为0
+  int32 expected_source_version = 4 [(gnostic.openapi.v3.property) = {description: "预期数据源版本"}]; // 预期数据源版本
+  int64 preview_query_record_id = 5 [(gnostic.openapi.v3.property) = {description: "成功公式预览记录ID"}]; // 成功公式预览记录ID
+  repeated BiMetricChange measure_changes = 6 [(gnostic.openapi.v3.property) = {description: "选中公共指标变更候选"}, (buf.validate.field).repeated.max_items = 5]; // 选中公共指标变更候选
+
 }
 
 // 删除数据卡片请求。
@@ -203,6 +218,16 @@ message BiCard {
   string updated_at = 13 [(gnostic.openapi.v3.property) = {description: "更新时间"}]; // 更新时间
   string category = 14 [(gnostic.openapi.v3.property) = {description: "分类：system系统、mine自建、shared分享"}]; // 卡片分类
   bool can_edit = 15 [(gnostic.openapi.v3.property) = {description: "当前用户是否可编辑"}]; // 当前用户是否可编辑
+  int64 version = 16 [(gnostic.openapi.v3.property) = {description: "卡片并发版本"}]; // 卡片并发版本
+  int64 validation_query_record_id = 17 [(gnostic.openapi.v3.property) = {description: "最后人工验证记录ID"}]; // 最后人工验证记录ID
+  string execution_kind = 18 [(gnostic.openapi.v3.property) = {description: "执行定义种类"}]; // 执行定义种类
+  int32 source_version = 19 [(gnostic.openapi.v3.property) = {description: "数据源并发版本"}]; // 数据源并发版本
+  bool can_edit_metrics = 20 [(gnostic.openapi.v3.property) = {description: "是否可编辑公共指标公式"}]; // 是否可编辑公共指标公式
+  repeated BiSourceMeasure metric_definitions = 21 [(gnostic.openapi.v3.property) = {description: "授权编辑的公共指标定义"}]; // 授权编辑的公共指标定义
+  string sql = 22 [(gnostic.openapi.v3.property) = {description: "授权编辑的完整参数化SQL"}]; // 授权编辑的完整参数化SQL
+  BiModelImpact sync_summary = 23 [(gnostic.openapi.v3.property) = {description: "公共指标同步摘要"}]; // 公共指标同步摘要
+  repeated BiResultColumn columns = 24 [(gnostic.openapi.v3.property) = {description: "结果字段定义"}]; // 结果字段定义
+
 }
 
 // 获取个人工作台请求。
@@ -233,4 +258,30 @@ message SaveBiWorkbenchRequest {
       expression: "this.size() <= 50 && this.unique() && this.all(id, id > 0)"
     }
   ]; // 收藏卡片ID
+}
+
+// 卡片详情请求。
+message GetBiCardRequest {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "卡片ID"}, (buf.validate.field).int64.gt = 0]; // 卡片ID
+}
+
+// 卡片公式预览请求。
+message PreviewBiCardSqlRequest {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "卡片ID，创建时为0"}, (buf.validate.field).int64.gte = 0]; // 卡片ID，创建时为0
+  int64 expected_card_version = 2 [(gnostic.openapi.v3.property) = {description: "预期卡片版本"}]; // 预期卡片版本
+  int32 expected_source_version = 3 [(gnostic.openapi.v3.property) = {description: "预期数据源版本"}]; // 预期数据源版本
+  int64 query_record_id = 4 [(gnostic.openapi.v3.property) = {description: "原始智能问数记录ID"}, (buf.validate.field).int64.gt = 0]; // 原始智能问数记录ID
+  BiQuerySpec query = 5 [(gnostic.openapi.v3.property) = {description: "原始语义查询配置"}, (buf.validate.field).required = true]; // 原始语义查询配置
+  repeated BiMetricChange measure_changes = 6 [(gnostic.openapi.v3.property) = {description: "选中公共指标变更候选"}, (buf.validate.field).repeated.max_items = 5]; // 选中公共指标变更候选
+}
+
+// 卡片公式预览结果。
+message PreviewBiCardSqlResponse {
+  int64 preview_query_record_id = 1 [(gnostic.openapi.v3.property) = {description: "成功公式预览记录ID"}]; // 成功公式预览记录ID
+  BiQueryResult result = 2 [(gnostic.openapi.v3.property) = {description: "预览查询结果"}]; // 预览查询结果
+  string sql = 3 [(gnostic.openapi.v3.property) = {description: "授权编辑的完整参数化SQL"}]; // 授权编辑的完整参数化SQL
+  repeated BiSourceMeasure metric_definitions = 4 [(gnostic.openapi.v3.property) = {description: "授权编辑的公共指标定义"}]; // 授权编辑的公共指标定义
+  bool can_edit_metrics = 5 [(gnostic.openapi.v3.property) = {description: "是否可编辑公共指标公式"}]; // 是否可编辑公共指标公式
+  int32 source_version = 6 [(gnostic.openapi.v3.property) = {description: "预览绑定的数据源版本"}]; // 预览绑定的数据源版本
+  BiModelImpact impact = 7 [(gnostic.openapi.v3.property) = {description: "公共指标同步影响"}]; // 公共指标同步影响
 }

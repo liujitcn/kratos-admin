@@ -21,6 +21,8 @@ func RegisterBiCardServiceMCPTools(mcpServer *server.MCPServer, biCardServiceSer
 	RegisterBiCardServiceGetBiCardDataMCPTool(mcpServer, biCardServiceServer)
 	RegisterBiCardServiceGetBiWorkbenchMCPTool(mcpServer, biCardServiceServer)
 	RegisterBiCardServiceSaveBiWorkbenchMCPTool(mcpServer, biCardServiceServer)
+	RegisterBiCardServiceGetBiCardMCPTool(mcpServer, biCardServiceServer)
+	RegisterBiCardServicePreviewBiCardSqlMCPTool(mcpServer, biCardServiceServer)
 }
 
 // RegisterBiCardServicePageBiCardMCPTool 注册分页查询当前用户可见的数据卡片的 MCP Tool。
@@ -159,6 +161,54 @@ func RegisterBiCardServiceSaveBiWorkbenchMCPTool(mcpServer *server.MCPServer, bi
 			}
 			var reply *BiWorkbench
 			reply, err = biCardServiceServer.SaveBiWorkbench(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
+		},
+	)
+}
+
+// RegisterBiCardServiceGetBiCardMCPTool 注册获取卡片及有权编辑的公共公式的 MCP Tool。
+func RegisterBiCardServiceGetBiCardMCPTool(mcpServer *server.MCPServer, biCardServiceServer BiCardServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("bi_admin_v1_bi_card_service_get_bi_card",
+			mcp.WithDescription("获取卡片及有权编辑的公共公式。"),
+			mcp.WithInputSchema[*GetBiCardRequest](),
+			mcp.WithOutputSchema[*BiCard](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &GetBiCardRequest{}
+			err := request.BindArguments(req)
+			if err != nil {
+				return nil, err
+			}
+			var reply *BiCard
+			reply, err = biCardServiceServer.GetBiCard(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
+		},
+	)
+}
+
+// RegisterBiCardServicePreviewBiCardSqlMCPTool 注册预览当前卡片的公共指标公式候选的 MCP Tool。
+func RegisterBiCardServicePreviewBiCardSqlMCPTool(mcpServer *server.MCPServer, biCardServiceServer BiCardServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("bi_admin_v1_bi_card_service_preview_bi_card_sql",
+			mcp.WithDescription("预览当前卡片的公共指标公式候选。"),
+			mcp.WithInputSchema[*PreviewBiCardSqlRequest](),
+			mcp.WithOutputSchema[*PreviewBiCardSqlResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &PreviewBiCardSqlRequest{}
+			err := request.BindArguments(req)
+			if err != nil {
+				return nil, err
+			}
+			var reply *PreviewBiCardSqlResponse
+			reply, err = biCardServiceServer.PreviewBiCardSql(ctx, req)
 			if err != nil {
 				return mcp.NewToolResultError(err.Error()), nil
 			}

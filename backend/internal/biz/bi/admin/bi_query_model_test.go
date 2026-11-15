@@ -64,7 +64,7 @@ func TestAskBiQueryUsesSelectedModel(t *testing.T) {
 					calls[index].Add(1)
 					w.Header().Set("Content-Type", "application/json")
 					if err = json.NewEncoder(w).Encode(map[string]any{
-						"choices": []any{map[string]any{"message": map[string]any{"role": "assistant", "content": `{"query":{"source_code":"test","measures":[{"code":"count","aggregation":"count"}]},"chart_type":"metric","title":"用户数量"}`}, "finish_reason": "stop"}},
+						"choices": []any{map[string]any{"message": map[string]any{"role": "assistant", "content": `{"query":{"source_code":"test","measures":[{"code":"count"}]},"chart_type":"metric","title":"用户数量"}`}, "finish_reason": "stop"}},
 					}); err != nil {
 						t.Error(err)
 					}
@@ -92,7 +92,7 @@ func TestAskBiQueryUsesSelectedModel(t *testing.T) {
 			}
 			store := newBiQueryRecordTestStore(t)
 			baseCase := &biz.BaseCase{}
-			sourceCase := NewBiSourceCase(baseCase, store, data.NewBiSourceRepository(store), registry, nil)
+			sourceCase := NewBiSourceCase(baseCase, store, data.NewBiSourceRepository(store), registry, nil, data.NewBiCardRepository(store), data.NewBiDashboardRepository(store), data.NewBiDashboardVersionRepository(store), nil)
 			c := NewBiQueryCase(baseCase, sourceCase, modelStore, data.NewBiQueryRepository(store))
 			_, err = c.AskBiQuery(ctx, &adminv1.AskBiQueryRequest{Question: "统计用户数量", ProviderId: test.providerID, ModelName: test.modelName})
 			if test.wantError {

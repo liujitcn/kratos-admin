@@ -107,6 +107,8 @@ export interface BiDashboard {
   updated_at: string;
   /** 当前用户是否可编辑 */
   can_edit: boolean;
+  /** 公共指标或模型已变更，需要重新发布 */
+  requires_republish: boolean;
 }
 
 /** BI 仪表盘管理服务。 */

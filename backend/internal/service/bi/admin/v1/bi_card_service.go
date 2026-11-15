@@ -80,3 +80,23 @@ func (s *BiCardService) SaveBiWorkbench(ctx context.Context, req *adminv1.SaveBi
 	}
 	return result, nil
 }
+
+// GetBiCard 获取卡片详情。
+func (s *BiCardService) GetBiCard(ctx context.Context, req *adminv1.GetBiCardRequest) (*adminv1.BiCard, error) {
+	result, err := s.biCardCase.GetBiCard(ctx, req)
+	if err != nil {
+		log.Error(fmt.Sprintf("GetBiCard %v", err))
+		return nil, errorsx.WrapInternal(err, "获取卡片详情失败")
+	}
+	return result, nil
+}
+
+// PreviewBiCardSql 预览公共指标公式。
+func (s *BiCardService) PreviewBiCardSql(ctx context.Context, req *adminv1.PreviewBiCardSqlRequest) (*adminv1.PreviewBiCardSqlResponse, error) {
+	result, err := s.biCardCase.PreviewBiCardSql(ctx, req)
+	if err != nil {
+		log.Error(fmt.Sprintf("PreviewBiCardSql %v", err))
+		return nil, errorsx.WrapInternal(err, "预览公共指标公式失败")
+	}
+	return result, nil
+}

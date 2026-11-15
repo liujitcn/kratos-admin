@@ -343,11 +343,15 @@ func (x *BiCardForm) GetIsShared() bool {
 
 // 保存数据卡片请求。
 type SaveBiCardRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`    // 卡片ID
-	Card          *BiCardForm            `protobuf:"bytes,2,opt,name=card,proto3" json:"card,omitempty"` // 卡片配置
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state                 protoimpl.MessageState `protogen:"open.v1"`
+	Id                    int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                                                      // 卡片ID
+	Card                  *BiCardForm            `protobuf:"bytes,2,opt,name=card,proto3" json:"card,omitempty"`                                                                   // 卡片配置
+	ExpectedCardVersion   int64                  `protobuf:"varint,3,opt,name=expected_card_version,json=expectedCardVersion,proto3" json:"expected_card_version,omitempty"`       // 预期卡片版本，创建时为0
+	ExpectedSourceVersion int32                  `protobuf:"varint,4,opt,name=expected_source_version,json=expectedSourceVersion,proto3" json:"expected_source_version,omitempty"` // 预期数据源版本
+	PreviewQueryRecordId  int64                  `protobuf:"varint,5,opt,name=preview_query_record_id,json=previewQueryRecordId,proto3" json:"preview_query_record_id,omitempty"`  // 成功公式预览记录ID
+	MeasureChanges        []*BiMetricChange      `protobuf:"bytes,6,rep,name=measure_changes,json=measureChanges,proto3" json:"measure_changes,omitempty"`                         // 选中公共指标变更候选
+	unknownFields         protoimpl.UnknownFields
+	sizeCache             protoimpl.SizeCache
 }
 
 func (x *SaveBiCardRequest) Reset() {
@@ -390,6 +394,34 @@ func (x *SaveBiCardRequest) GetId() int64 {
 func (x *SaveBiCardRequest) GetCard() *BiCardForm {
 	if x != nil {
 		return x.Card
+	}
+	return nil
+}
+
+func (x *SaveBiCardRequest) GetExpectedCardVersion() int64 {
+	if x != nil {
+		return x.ExpectedCardVersion
+	}
+	return 0
+}
+
+func (x *SaveBiCardRequest) GetExpectedSourceVersion() int32 {
+	if x != nil {
+		return x.ExpectedSourceVersion
+	}
+	return 0
+}
+
+func (x *SaveBiCardRequest) GetPreviewQueryRecordId() int64 {
+	if x != nil {
+		return x.PreviewQueryRecordId
+	}
+	return 0
+}
+
+func (x *SaveBiCardRequest) GetMeasureChanges() []*BiMetricChange {
+	if x != nil {
+		return x.MeasureChanges
 	}
 	return nil
 }
@@ -531,24 +563,33 @@ func (x *GetBiCardDataRequest) GetRangeDays() int32 {
 
 // 数据卡片记录。
 type BiCard struct {
-	state          protoimpl.MessageState `protogen:"open.v1"`
-	Id             int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                                // 卡片ID
-	TenantId       int64                  `protobuf:"varint,2,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`                    // 租户ID
-	ProjectId      int64                  `protobuf:"varint,3,opt,name=project_id,json=projectId,proto3" json:"project_id,omitempty"`                 // 项目ID
-	OwnerId        int64                  `protobuf:"varint,4,opt,name=owner_id,json=ownerId,proto3" json:"owner_id,omitempty"`                       // 所有者用户ID
-	QueryRecordId  int64                  `protobuf:"varint,5,opt,name=query_record_id,json=queryRecordId,proto3" json:"query_record_id,omitempty"`   // 来源查询记录ID
-	Name           string                 `protobuf:"bytes,6,opt,name=name,proto3" json:"name,omitempty"`                                             // 卡片名称
-	SourceCode     string                 `protobuf:"bytes,7,opt,name=source_code,json=sourceCode,proto3" json:"source_code,omitempty"`               // 语义数据源编码
-	Query          *BiQuerySpec           `protobuf:"bytes,8,opt,name=query,proto3" json:"query,omitempty"`                                           // 语义查询配置
-	ChartType      string                 `protobuf:"bytes,9,opt,name=chart_type,json=chartType,proto3" json:"chart_type,omitempty"`                  // 图表类型
-	ChartJson      string                 `protobuf:"bytes,10,opt,name=chart_json,json=chartJson,proto3" json:"chart_json,omitempty"`                 // 图表字段映射与样式配置JSON
-	RefreshSeconds int32                  `protobuf:"varint,11,opt,name=refresh_seconds,json=refreshSeconds,proto3" json:"refresh_seconds,omitempty"` // 自动刷新间隔秒数
-	IsShared       bool                   `protobuf:"varint,12,opt,name=is_shared,json=isShared,proto3" json:"is_shared,omitempty"`                   // 是否共享
-	UpdatedAt      string                 `protobuf:"bytes,13,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`                 // 更新时间
-	Category       string                 `protobuf:"bytes,14,opt,name=category,proto3" json:"category,omitempty"`                                    // 卡片分类
-	CanEdit        bool                   `protobuf:"varint,15,opt,name=can_edit,json=canEdit,proto3" json:"can_edit,omitempty"`                      // 当前用户是否可编辑
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
+	state                   protoimpl.MessageState `protogen:"open.v1"`
+	Id                      int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                                                               // 卡片ID
+	TenantId                int64                  `protobuf:"varint,2,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`                                                   // 租户ID
+	ProjectId               int64                  `protobuf:"varint,3,opt,name=project_id,json=projectId,proto3" json:"project_id,omitempty"`                                                // 项目ID
+	OwnerId                 int64                  `protobuf:"varint,4,opt,name=owner_id,json=ownerId,proto3" json:"owner_id,omitempty"`                                                      // 所有者用户ID
+	QueryRecordId           int64                  `protobuf:"varint,5,opt,name=query_record_id,json=queryRecordId,proto3" json:"query_record_id,omitempty"`                                  // 来源查询记录ID
+	Name                    string                 `protobuf:"bytes,6,opt,name=name,proto3" json:"name,omitempty"`                                                                            // 卡片名称
+	SourceCode              string                 `protobuf:"bytes,7,opt,name=source_code,json=sourceCode,proto3" json:"source_code,omitempty"`                                              // 语义数据源编码
+	Query                   *BiQuerySpec           `protobuf:"bytes,8,opt,name=query,proto3" json:"query,omitempty"`                                                                          // 语义查询配置
+	ChartType               string                 `protobuf:"bytes,9,opt,name=chart_type,json=chartType,proto3" json:"chart_type,omitempty"`                                                 // 图表类型
+	ChartJson               string                 `protobuf:"bytes,10,opt,name=chart_json,json=chartJson,proto3" json:"chart_json,omitempty"`                                                // 图表字段映射与样式配置JSON
+	RefreshSeconds          int32                  `protobuf:"varint,11,opt,name=refresh_seconds,json=refreshSeconds,proto3" json:"refresh_seconds,omitempty"`                                // 自动刷新间隔秒数
+	IsShared                bool                   `protobuf:"varint,12,opt,name=is_shared,json=isShared,proto3" json:"is_shared,omitempty"`                                                  // 是否共享
+	UpdatedAt               string                 `protobuf:"bytes,13,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`                                                // 更新时间
+	Category                string                 `protobuf:"bytes,14,opt,name=category,proto3" json:"category,omitempty"`                                                                   // 卡片分类
+	CanEdit                 bool                   `protobuf:"varint,15,opt,name=can_edit,json=canEdit,proto3" json:"can_edit,omitempty"`                                                     // 当前用户是否可编辑
+	Version                 int64                  `protobuf:"varint,16,opt,name=version,proto3" json:"version,omitempty"`                                                                    // 卡片并发版本
+	ValidationQueryRecordId int64                  `protobuf:"varint,17,opt,name=validation_query_record_id,json=validationQueryRecordId,proto3" json:"validation_query_record_id,omitempty"` // 最后人工验证记录ID
+	ExecutionKind           string                 `protobuf:"bytes,18,opt,name=execution_kind,json=executionKind,proto3" json:"execution_kind,omitempty"`                                    // 执行定义种类
+	SourceVersion           int32                  `protobuf:"varint,19,opt,name=source_version,json=sourceVersion,proto3" json:"source_version,omitempty"`                                   // 数据源并发版本
+	CanEditMetrics          bool                   `protobuf:"varint,20,opt,name=can_edit_metrics,json=canEditMetrics,proto3" json:"can_edit_metrics,omitempty"`                              // 是否可编辑公共指标公式
+	MetricDefinitions       []*BiSourceMeasure     `protobuf:"bytes,21,rep,name=metric_definitions,json=metricDefinitions,proto3" json:"metric_definitions,omitempty"`                        // 授权编辑的公共指标定义
+	Sql                     string                 `protobuf:"bytes,22,opt,name=sql,proto3" json:"sql,omitempty"`                                                                             // 授权编辑的完整参数化SQL
+	SyncSummary             *BiModelImpact         `protobuf:"bytes,23,opt,name=sync_summary,json=syncSummary,proto3" json:"sync_summary,omitempty"`                                          // 公共指标同步摘要
+	Columns                 []*BiResultColumn      `protobuf:"bytes,24,rep,name=columns,proto3" json:"columns,omitempty"`                                                                     // 结果字段定义
+	unknownFields           protoimpl.UnknownFields
+	sizeCache               protoimpl.SizeCache
 }
 
 func (x *BiCard) Reset() {
@@ -684,6 +725,69 @@ func (x *BiCard) GetCanEdit() bool {
 		return x.CanEdit
 	}
 	return false
+}
+
+func (x *BiCard) GetVersion() int64 {
+	if x != nil {
+		return x.Version
+	}
+	return 0
+}
+
+func (x *BiCard) GetValidationQueryRecordId() int64 {
+	if x != nil {
+		return x.ValidationQueryRecordId
+	}
+	return 0
+}
+
+func (x *BiCard) GetExecutionKind() string {
+	if x != nil {
+		return x.ExecutionKind
+	}
+	return ""
+}
+
+func (x *BiCard) GetSourceVersion() int32 {
+	if x != nil {
+		return x.SourceVersion
+	}
+	return 0
+}
+
+func (x *BiCard) GetCanEditMetrics() bool {
+	if x != nil {
+		return x.CanEditMetrics
+	}
+	return false
+}
+
+func (x *BiCard) GetMetricDefinitions() []*BiSourceMeasure {
+	if x != nil {
+		return x.MetricDefinitions
+	}
+	return nil
+}
+
+func (x *BiCard) GetSql() string {
+	if x != nil {
+		return x.Sql
+	}
+	return ""
+}
+
+func (x *BiCard) GetSyncSummary() *BiModelImpact {
+	if x != nil {
+		return x.SyncSummary
+	}
+	return nil
+}
+
+func (x *BiCard) GetColumns() []*BiResultColumn {
+	if x != nil {
+		return x.Columns
+	}
+	return nil
 }
 
 // 获取个人工作台请求。
@@ -837,11 +941,234 @@ func (x *SaveBiWorkbenchRequest) GetFavoriteIds() []int64 {
 	return nil
 }
 
+// 卡片详情请求。
+type GetBiCardRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"` // 卡片ID
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetBiCardRequest) Reset() {
+	*x = GetBiCardRequest{}
+	mi := &file_bi_admin_v1_bi_card_proto_msgTypes[12]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetBiCardRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetBiCardRequest) ProtoMessage() {}
+
+func (x *GetBiCardRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_bi_admin_v1_bi_card_proto_msgTypes[12]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetBiCardRequest.ProtoReflect.Descriptor instead.
+func (*GetBiCardRequest) Descriptor() ([]byte, []int) {
+	return file_bi_admin_v1_bi_card_proto_rawDescGZIP(), []int{12}
+}
+
+func (x *GetBiCardRequest) GetId() int64 {
+	if x != nil {
+		return x.Id
+	}
+	return 0
+}
+
+// 卡片公式预览请求。
+type PreviewBiCardSqlRequest struct {
+	state                 protoimpl.MessageState `protogen:"open.v1"`
+	Id                    int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                                                      // 卡片ID，创建时为0
+	ExpectedCardVersion   int64                  `protobuf:"varint,2,opt,name=expected_card_version,json=expectedCardVersion,proto3" json:"expected_card_version,omitempty"`       // 预期卡片版本
+	ExpectedSourceVersion int32                  `protobuf:"varint,3,opt,name=expected_source_version,json=expectedSourceVersion,proto3" json:"expected_source_version,omitempty"` // 预期数据源版本
+	QueryRecordId         int64                  `protobuf:"varint,4,opt,name=query_record_id,json=queryRecordId,proto3" json:"query_record_id,omitempty"`                         // 原始智能问数记录ID
+	Query                 *BiQuerySpec           `protobuf:"bytes,5,opt,name=query,proto3" json:"query,omitempty"`                                                                 // 原始语义查询配置
+	MeasureChanges        []*BiMetricChange      `protobuf:"bytes,6,rep,name=measure_changes,json=measureChanges,proto3" json:"measure_changes,omitempty"`                         // 选中公共指标变更候选
+	unknownFields         protoimpl.UnknownFields
+	sizeCache             protoimpl.SizeCache
+}
+
+func (x *PreviewBiCardSqlRequest) Reset() {
+	*x = PreviewBiCardSqlRequest{}
+	mi := &file_bi_admin_v1_bi_card_proto_msgTypes[13]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *PreviewBiCardSqlRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PreviewBiCardSqlRequest) ProtoMessage() {}
+
+func (x *PreviewBiCardSqlRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_bi_admin_v1_bi_card_proto_msgTypes[13]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use PreviewBiCardSqlRequest.ProtoReflect.Descriptor instead.
+func (*PreviewBiCardSqlRequest) Descriptor() ([]byte, []int) {
+	return file_bi_admin_v1_bi_card_proto_rawDescGZIP(), []int{13}
+}
+
+func (x *PreviewBiCardSqlRequest) GetId() int64 {
+	if x != nil {
+		return x.Id
+	}
+	return 0
+}
+
+func (x *PreviewBiCardSqlRequest) GetExpectedCardVersion() int64 {
+	if x != nil {
+		return x.ExpectedCardVersion
+	}
+	return 0
+}
+
+func (x *PreviewBiCardSqlRequest) GetExpectedSourceVersion() int32 {
+	if x != nil {
+		return x.ExpectedSourceVersion
+	}
+	return 0
+}
+
+func (x *PreviewBiCardSqlRequest) GetQueryRecordId() int64 {
+	if x != nil {
+		return x.QueryRecordId
+	}
+	return 0
+}
+
+func (x *PreviewBiCardSqlRequest) GetQuery() *BiQuerySpec {
+	if x != nil {
+		return x.Query
+	}
+	return nil
+}
+
+func (x *PreviewBiCardSqlRequest) GetMeasureChanges() []*BiMetricChange {
+	if x != nil {
+		return x.MeasureChanges
+	}
+	return nil
+}
+
+// 卡片公式预览结果。
+type PreviewBiCardSqlResponse struct {
+	state                protoimpl.MessageState `protogen:"open.v1"`
+	PreviewQueryRecordId int64                  `protobuf:"varint,1,opt,name=preview_query_record_id,json=previewQueryRecordId,proto3" json:"preview_query_record_id,omitempty"` // 成功公式预览记录ID
+	Result               *BiQueryResult         `protobuf:"bytes,2,opt,name=result,proto3" json:"result,omitempty"`                                                              // 预览查询结果
+	Sql                  string                 `protobuf:"bytes,3,opt,name=sql,proto3" json:"sql,omitempty"`                                                                    // 授权编辑的完整参数化SQL
+	MetricDefinitions    []*BiSourceMeasure     `protobuf:"bytes,4,rep,name=metric_definitions,json=metricDefinitions,proto3" json:"metric_definitions,omitempty"`               // 授权编辑的公共指标定义
+	CanEditMetrics       bool                   `protobuf:"varint,5,opt,name=can_edit_metrics,json=canEditMetrics,proto3" json:"can_edit_metrics,omitempty"`                     // 是否可编辑公共指标公式
+	SourceVersion        int32                  `protobuf:"varint,6,opt,name=source_version,json=sourceVersion,proto3" json:"source_version,omitempty"`                          // 预览绑定的数据源版本
+	Impact               *BiModelImpact         `protobuf:"bytes,7,opt,name=impact,proto3" json:"impact,omitempty"`                                                              // 公共指标同步影响
+	unknownFields        protoimpl.UnknownFields
+	sizeCache            protoimpl.SizeCache
+}
+
+func (x *PreviewBiCardSqlResponse) Reset() {
+	*x = PreviewBiCardSqlResponse{}
+	mi := &file_bi_admin_v1_bi_card_proto_msgTypes[14]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *PreviewBiCardSqlResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PreviewBiCardSqlResponse) ProtoMessage() {}
+
+func (x *PreviewBiCardSqlResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_bi_admin_v1_bi_card_proto_msgTypes[14]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use PreviewBiCardSqlResponse.ProtoReflect.Descriptor instead.
+func (*PreviewBiCardSqlResponse) Descriptor() ([]byte, []int) {
+	return file_bi_admin_v1_bi_card_proto_rawDescGZIP(), []int{14}
+}
+
+func (x *PreviewBiCardSqlResponse) GetPreviewQueryRecordId() int64 {
+	if x != nil {
+		return x.PreviewQueryRecordId
+	}
+	return 0
+}
+
+func (x *PreviewBiCardSqlResponse) GetResult() *BiQueryResult {
+	if x != nil {
+		return x.Result
+	}
+	return nil
+}
+
+func (x *PreviewBiCardSqlResponse) GetSql() string {
+	if x != nil {
+		return x.Sql
+	}
+	return ""
+}
+
+func (x *PreviewBiCardSqlResponse) GetMetricDefinitions() []*BiSourceMeasure {
+	if x != nil {
+		return x.MetricDefinitions
+	}
+	return nil
+}
+
+func (x *PreviewBiCardSqlResponse) GetCanEditMetrics() bool {
+	if x != nil {
+		return x.CanEditMetrics
+	}
+	return false
+}
+
+func (x *PreviewBiCardSqlResponse) GetSourceVersion() int32 {
+	if x != nil {
+		return x.SourceVersion
+	}
+	return 0
+}
+
+func (x *PreviewBiCardSqlResponse) GetImpact() *BiModelImpact {
+	if x != nil {
+		return x.Impact
+	}
+	return nil
+}
+
 var File_bi_admin_v1_bi_card_proto protoreflect.FileDescriptor
 
 const file_bi_admin_v1_bi_card_proto_rawDesc = "" +
 	"\n" +
-	"\x19bi/admin/v1/bi_card.proto\x12\vbi.admin.v1\x1a\x1abi/admin/v1/bi_query.proto\x1a\x1ebi/admin/v1/bi_dashboard.proto\x1a\x1bbuf/validate/validate.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\"\xf6\x03\n" +
+	"\x19bi/admin/v1/bi_card.proto\x12\vbi.admin.v1\x1a\x1abi/admin/v1/bi_query.proto\x1a\x1ebi/admin/v1/bi_dashboard.proto\x1a\x1bbi/admin/v1/bi_source.proto\x1a\x1bbuf/validate/validate.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\"\xf6\x03\n" +
 	"\x11PageBiCardRequest\x12&\n" +
 	"\x04name\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f卡片名称R\x04name\x12<\n" +
 	"\vsource_code\x18\x02 \x01(\tB\x1b\xbaG\x18\x92\x02\x15语义数据源编码R\n" +
@@ -873,10 +1200,14 @@ const file_bi_admin_v1_bi_card_proto_rawDesc = "" +
 	"chart_json\x18\x05 \x01(\tB4\xbaG(\x92\x02%图表字段映射与样式配置JSON\xbaH\x06r\x04\x18\x80\x80\x01R\tchartJson\x12\xe7\x01\n" +
 	"\x0frefresh_seconds\x18\x06 \x01(\x05B\xbd\x01\xbaGD\x92\x02A自动刷新间隔秒数，0表示手动，86400表示每日02:00\xbaHs\xba\x01p\n" +
 	"\x1dbi_card.refresh_seconds.range\x12#刷新间隔应为0或30至86400秒\x1a*this == 0 || (this >= 30 && this <= 86400)R\x0erefreshSeconds\x12D\n" +
-	"\tis_shared\x18\a \x01(\bB'\xbaG$\x92\x02!是否共享到当前项目范围R\bisShared\"\x91\x01\n" +
+	"\tis_shared\x18\a \x01(\bB'\xbaG$\x92\x02!是否共享到当前项目范围R\bisShared\"\x91\x04\n" +
 	"\x11SaveBiCardRequest\x125\n" +
 	"\x02id\x18\x01 \x01(\x03B%\xbaG\x1b\x92\x02\x18卡片ID，0表示新建\xbaH\x04\"\x02(\x00R\x02id\x12E\n" +
-	"\x04card\x18\x02 \x01(\v2\x17.bi.admin.v1.BiCardFormB\x18\xbaG\x0f\x92\x02\f卡片配置\xbaH\x03\xc8\x01\x01R\x04card\"<\n" +
+	"\x04card\x18\x02 \x01(\v2\x17.bi.admin.v1.BiCardFormB\x18\xbaG\x0f\x92\x02\f卡片配置\xbaH\x03\xc8\x01\x01R\x04card\x12\\\n" +
+	"\x15expected_card_version\x18\x03 \x01(\x03B(\xbaG%\x92\x02\"预期卡片版本，创建时为0R\x13expectedCardVersion\x12S\n" +
+	"\x17expected_source_version\x18\x04 \x01(\x05B\x1b\xbaG\x18\x92\x02\x15预期数据源版本R\x15expectedSourceVersion\x12W\n" +
+	"\x17preview_query_record_id\x18\x05 \x01(\x03B \xbaG\x1d\x92\x02\x1a成功公式预览记录IDR\x14previewQueryRecordId\x12r\n" +
+	"\x0fmeasure_changes\x18\x06 \x03(\v2\x1b.bi.admin.v1.BiMetricChangeB,\xbaG!\x92\x02\x1e选中公共指标变更候选\xbaH\x05\x92\x01\x02\x10\x05R\x0emeasureChanges\"<\n" +
 	"\x13DeleteBiCardRequest\x12%\n" +
 	"\x02id\x18\x01 \x01(\x03B\x15\xbaG\v\x92\x02\b卡片ID\xbaH\x04\"\x02 \x00R\x02id\"\x16\n" +
 	"\x14DeleteBiCardResponse\"\x89\x02\n" +
@@ -884,7 +1215,7 @@ const file_bi_admin_v1_bi_card_proto_rawDesc = "" +
 	"\x02id\x18\x01 \x01(\x03B\x15\xbaG\v\x92\x02\b卡片ID\xbaH\x04\"\x02 \x00R\x02id\x12\xc9\x01\n" +
 	"\n" +
 	"range_days\x18\x02 \x01(\x05B\xa9\x01\xbaGF\x92\x02C统计周期天数：0沿用卡片配置，7或30覆盖日期范围\xbaH]\xba\x01Z\n" +
-	"\x18bi_card.range_days.valid\x12*仅支持卡片配置、近7日或近30日\x1a\x12this in [0, 7, 30]R\trangeDays\"\xad\a\n" +
+	"\x18bi_card.range_days.valid\x12*仅支持卡片配置、近7日或近30日\x1a\x12this in [0, 7, 30]R\trangeDays\"\xf9\f\n" +
 	"\x06BiCard\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b卡片IDR\x02id\x12+\n" +
 	"\ttenant_id\x18\x02 \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDR\btenantId\x12@\n" +
@@ -906,7 +1237,16 @@ const file_bi_admin_v1_bi_card_proto_rawDesc = "" +
 	"\n" +
 	"updated_at\x18\r \x01(\tB\x12\xbaG\x0f\x92\x02\f更新时间R\tupdatedAt\x12S\n" +
 	"\bcategory\x18\x0e \x01(\tB7\xbaG4\x92\x021分类：system系统、mine自建、shared分享R\bcategory\x12<\n" +
-	"\bcan_edit\x18\x0f \x01(\bB!\xbaG\x1e\x92\x02\x1b当前用户是否可编辑R\acanEdit\"\x17\n" +
+	"\bcan_edit\x18\x0f \x01(\bB!\xbaG\x1e\x92\x02\x1b当前用户是否可编辑R\acanEdit\x122\n" +
+	"\aversion\x18\x10 \x01(\x03B\x18\xbaG\x15\x92\x02\x12卡片并发版本R\aversion\x12]\n" +
+	"\x1avalidation_query_record_id\x18\x11 \x01(\x03B \xbaG\x1d\x92\x02\x1a最后人工验证记录IDR\x17validationQueryRecordId\x12?\n" +
+	"\x0eexecution_kind\x18\x12 \x01(\tB\x18\xbaG\x15\x92\x02\x12执行定义种类R\rexecutionKind\x12B\n" +
+	"\x0esource_version\x18\x13 \x01(\x05B\x1b\xbaG\x18\x92\x02\x15数据源并发版本R\rsourceVersion\x12Q\n" +
+	"\x10can_edit_metrics\x18\x14 \x01(\bB'\xbaG$\x92\x02!是否可编辑公共指标公式R\x0ecanEditMetrics\x12t\n" +
+	"\x12metric_definitions\x18\x15 \x03(\v2\x1c.bi.admin.v1.BiSourceMeasureB'\xbaG$\x92\x02!授权编辑的公共指标定义R\x11metricDefinitions\x129\n" +
+	"\x03sql\x18\x16 \x01(\tB'\xbaG$\x92\x02!授权编辑的完整参数化SQLR\x03sql\x12]\n" +
+	"\fsync_summary\x18\x17 \x01(\v2\x1a.bi.admin.v1.BiModelImpactB\x1e\xbaG\x1b\x92\x02\x18公共指标同步摘要R\vsyncSummary\x12O\n" +
+	"\acolumns\x18\x18 \x03(\v2\x1b.bi.admin.v1.BiResultColumnB\x18\xbaG\x15\x92\x02\x12结果字段定义R\acolumns\"\x17\n" +
 	"\x15GetBiWorkbenchRequest\"\x8e\x02\n" +
 	"\vBiWorkbench\x12W\n" +
 	"\rdashboard_ids\x18\x01 \x03(\x03B2\xbaG/\x92\x02,工作台仪表盘ID，按展示顺序排列R\fdashboardIds\x127\n" +
@@ -918,7 +1258,24 @@ const file_bi_admin_v1_bi_card_proto_rawDesc = "" +
 	"\rdashboard_ids\x18\x01 \x03(\x03B\xd6\x01\xbaG1\x92\x02.工作台仪表盘ID，最多50个且不重复\xbaH\x9e\x01\xba\x01\x9a\x01\n" +
 	" bi_workbench.dashboard_ids.valid\x12:工作台最多50个仪表盘，ID须为正数且不重复\x1a:this.size() <= 50 && this.unique() && this.all(id, id > 0)R\fdashboardIds\x12\xed\x01\n" +
 	"\ffavorite_ids\x18\x02 \x03(\x03B\xc9\x01\xbaG+\x92\x02(收藏卡片ID，最多50个且不重复\xbaH\x97\x01\xba\x01\x93\x01\n" +
-	"\x1fbi_workbench.favorite_ids.valid\x124最多收藏50张卡片，ID须为正数且不重复\x1a:this.size() <= 50 && this.unique() && this.all(id, id > 0)R\vfavoriteIds2\xc1\x05\n" +
+	"\x1fbi_workbench.favorite_ids.valid\x124最多收藏50张卡片，ID须为正数且不重复\x1a:this.size() <= 50 && this.unique() && this.all(id, id > 0)R\vfavoriteIds\"9\n" +
+	"\x10GetBiCardRequest\x12%\n" +
+	"\x02id\x18\x01 \x01(\x03B\x15\xbaG\v\x92\x02\b卡片ID\xbaH\x04\"\x02 \x00R\x02id\"\x8e\x04\n" +
+	"\x17PreviewBiCardSqlRequest\x125\n" +
+	"\x02id\x18\x01 \x01(\x03B%\xbaG\x1b\x92\x02\x18卡片ID，创建时为0\xbaH\x04\"\x02(\x00R\x02id\x12L\n" +
+	"\x15expected_card_version\x18\x02 \x01(\x03B\x18\xbaG\x15\x92\x02\x12预期卡片版本R\x13expectedCardVersion\x12S\n" +
+	"\x17expected_source_version\x18\x03 \x01(\x05B\x1b\xbaG\x18\x92\x02\x15预期数据源版本R\x15expectedSourceVersion\x12O\n" +
+	"\x0fquery_record_id\x18\x04 \x01(\x03B'\xbaG\x1d\x92\x02\x1a原始智能问数记录ID\xbaH\x04\"\x02 \x00R\rqueryRecordId\x12T\n" +
+	"\x05query\x18\x05 \x01(\v2\x18.bi.admin.v1.BiQuerySpecB$\xbaG\x1b\x92\x02\x18原始语义查询配置\xbaH\x03\xc8\x01\x01R\x05query\x12r\n" +
+	"\x0fmeasure_changes\x18\x06 \x03(\v2\x1b.bi.admin.v1.BiMetricChangeB,\xbaG!\x92\x02\x1e选中公共指标变更候选\xbaH\x05\x92\x01\x02\x10\x05R\x0emeasureChanges\"\xe6\x04\n" +
+	"\x18PreviewBiCardSqlResponse\x12W\n" +
+	"\x17preview_query_record_id\x18\x01 \x01(\x03B \xbaG\x1d\x92\x02\x1a成功公式预览记录IDR\x14previewQueryRecordId\x12L\n" +
+	"\x06result\x18\x02 \x01(\v2\x1a.bi.admin.v1.BiQueryResultB\x18\xbaG\x15\x92\x02\x12预览查询结果R\x06result\x129\n" +
+	"\x03sql\x18\x03 \x01(\tB'\xbaG$\x92\x02!授权编辑的完整参数化SQLR\x03sql\x12t\n" +
+	"\x12metric_definitions\x18\x04 \x03(\v2\x1c.bi.admin.v1.BiSourceMeasureB'\xbaG$\x92\x02!授权编辑的公共指标定义R\x11metricDefinitions\x12Q\n" +
+	"\x10can_edit_metrics\x18\x05 \x01(\bB'\xbaG$\x92\x02!是否可编辑公共指标公式R\x0ecanEditMetrics\x12K\n" +
+	"\x0esource_version\x18\x06 \x01(\x05B$\xbaG!\x92\x02\x1e预览绑定的数据源版本R\rsourceVersion\x12R\n" +
+	"\x06impact\x18\a \x01(\v2\x1a.bi.admin.v1.BiModelImpactB\x1e\xbaG\x1b\x92\x02\x18公共指标同步影响R\x06impact2\xb6\a\n" +
 	"\rBiCardService\x12l\n" +
 	"\n" +
 	"PageBiCard\x12\x1e.bi.admin.v1.PageBiCardRequest\x1a\x1f.bi.admin.v1.PageBiCardResponse\"\x1d\x82\xd3\xe4\x93\x02\x17\x12\x15/api/v1/admin/bi/card\x12c\n" +
@@ -927,7 +1284,9 @@ const file_bi_admin_v1_bi_card_proto_rawDesc = "" +
 	"\fDeleteBiCard\x12 .bi.admin.v1.DeleteBiCardRequest\x1a!.bi.admin.v1.DeleteBiCardResponse\"\"\x82\xd3\xe4\x93\x02\x1c*\x1a/api/v1/admin/bi/card/{id}\x12w\n" +
 	"\rGetBiCardData\x12!.bi.admin.v1.GetBiCardDataRequest\x1a\x1a.bi.admin.v1.BiQueryResult\"'\x82\xd3\xe4\x93\x02!\x12\x1f/api/v1/admin/bi/card/{id}/data\x12r\n" +
 	"\x0eGetBiWorkbench\x12\".bi.admin.v1.GetBiWorkbenchRequest\x1a\x18.bi.admin.v1.BiWorkbench\"\"\x82\xd3\xe4\x93\x02\x1c\x12\x1a/api/v1/admin/bi/workbench\x12w\n" +
-	"\x0fSaveBiWorkbench\x12#.bi.admin.v1.SaveBiWorkbenchRequest\x1a\x18.bi.admin.v1.BiWorkbench\"%\x82\xd3\xe4\x93\x02\x1f:\x01*\x1a\x1a/api/v1/admin/bi/workbenchB\xb5\x01\n" +
+	"\x0fSaveBiWorkbench\x12#.bi.admin.v1.SaveBiWorkbenchRequest\x1a\x18.bi.admin.v1.BiWorkbench\"%\x82\xd3\xe4\x93\x02\x1f:\x01*\x1a\x1a/api/v1/admin/bi/workbench\x12c\n" +
+	"\tGetBiCard\x12\x1d.bi.admin.v1.GetBiCardRequest\x1a\x13.bi.admin.v1.BiCard\"\"\x82\xd3\xe4\x93\x02\x1c\x12\x1a/api/v1/admin/bi/card/{id}\x12\x8d\x01\n" +
+	"\x10PreviewBiCardSql\x12$.bi.admin.v1.PreviewBiCardSqlRequest\x1a%.bi.admin.v1.PreviewBiCardSqlResponse\",\x82\xd3\xe4\x93\x02&:\x01*\"!/api/v1/admin/bi/card/sql-previewB\xb5\x01\n" +
 	"\x0fcom.bi.admin.v1B\vBiCardProtoP\x01ZGgithub.com/liujitcn/kratos-admin/backend/api/gen/go/bi/admin/v1;adminv1\xa2\x02\x03BAX\xaa\x02\vBi.Admin.V1\xca\x02\vBi\\Admin\\V1\xe2\x02\x17Bi\\Admin\\V1\\GPBMetadata\xea\x02\rBi::Admin::V1b\x06proto3"
 
 var (
@@ -942,48 +1301,68 @@ func file_bi_admin_v1_bi_card_proto_rawDescGZIP() []byte {
 	return file_bi_admin_v1_bi_card_proto_rawDescData
 }
 
-var file_bi_admin_v1_bi_card_proto_msgTypes = make([]protoimpl.MessageInfo, 12)
+var file_bi_admin_v1_bi_card_proto_msgTypes = make([]protoimpl.MessageInfo, 15)
 var file_bi_admin_v1_bi_card_proto_goTypes = []any{
-	(*PageBiCardRequest)(nil),      // 0: bi.admin.v1.PageBiCardRequest
-	(*PageBiCardResponse)(nil),     // 1: bi.admin.v1.PageBiCardResponse
-	(*BiCardCounts)(nil),           // 2: bi.admin.v1.BiCardCounts
-	(*BiCardForm)(nil),             // 3: bi.admin.v1.BiCardForm
-	(*SaveBiCardRequest)(nil),      // 4: bi.admin.v1.SaveBiCardRequest
-	(*DeleteBiCardRequest)(nil),    // 5: bi.admin.v1.DeleteBiCardRequest
-	(*DeleteBiCardResponse)(nil),   // 6: bi.admin.v1.DeleteBiCardResponse
-	(*GetBiCardDataRequest)(nil),   // 7: bi.admin.v1.GetBiCardDataRequest
-	(*BiCard)(nil),                 // 8: bi.admin.v1.BiCard
-	(*GetBiWorkbenchRequest)(nil),  // 9: bi.admin.v1.GetBiWorkbenchRequest
-	(*BiWorkbench)(nil),            // 10: bi.admin.v1.BiWorkbench
-	(*SaveBiWorkbenchRequest)(nil), // 11: bi.admin.v1.SaveBiWorkbenchRequest
-	(*BiQuerySpec)(nil),            // 12: bi.admin.v1.BiQuerySpec
-	(*BiDashboard)(nil),            // 13: bi.admin.v1.BiDashboard
-	(*BiQueryResult)(nil),          // 14: bi.admin.v1.BiQueryResult
+	(*PageBiCardRequest)(nil),        // 0: bi.admin.v1.PageBiCardRequest
+	(*PageBiCardResponse)(nil),       // 1: bi.admin.v1.PageBiCardResponse
+	(*BiCardCounts)(nil),             // 2: bi.admin.v1.BiCardCounts
+	(*BiCardForm)(nil),               // 3: bi.admin.v1.BiCardForm
+	(*SaveBiCardRequest)(nil),        // 4: bi.admin.v1.SaveBiCardRequest
+	(*DeleteBiCardRequest)(nil),      // 5: bi.admin.v1.DeleteBiCardRequest
+	(*DeleteBiCardResponse)(nil),     // 6: bi.admin.v1.DeleteBiCardResponse
+	(*GetBiCardDataRequest)(nil),     // 7: bi.admin.v1.GetBiCardDataRequest
+	(*BiCard)(nil),                   // 8: bi.admin.v1.BiCard
+	(*GetBiWorkbenchRequest)(nil),    // 9: bi.admin.v1.GetBiWorkbenchRequest
+	(*BiWorkbench)(nil),              // 10: bi.admin.v1.BiWorkbench
+	(*SaveBiWorkbenchRequest)(nil),   // 11: bi.admin.v1.SaveBiWorkbenchRequest
+	(*GetBiCardRequest)(nil),         // 12: bi.admin.v1.GetBiCardRequest
+	(*PreviewBiCardSqlRequest)(nil),  // 13: bi.admin.v1.PreviewBiCardSqlRequest
+	(*PreviewBiCardSqlResponse)(nil), // 14: bi.admin.v1.PreviewBiCardSqlResponse
+	(*BiQuerySpec)(nil),              // 15: bi.admin.v1.BiQuerySpec
+	(*BiMetricChange)(nil),           // 16: bi.admin.v1.BiMetricChange
+	(*BiSourceMeasure)(nil),          // 17: bi.admin.v1.BiSourceMeasure
+	(*BiModelImpact)(nil),            // 18: bi.admin.v1.BiModelImpact
+	(*BiResultColumn)(nil),           // 19: bi.admin.v1.BiResultColumn
+	(*BiDashboard)(nil),              // 20: bi.admin.v1.BiDashboard
+	(*BiQueryResult)(nil),            // 21: bi.admin.v1.BiQueryResult
 }
 var file_bi_admin_v1_bi_card_proto_depIdxs = []int32{
 	8,  // 0: bi.admin.v1.PageBiCardResponse.cards:type_name -> bi.admin.v1.BiCard
 	2,  // 1: bi.admin.v1.PageBiCardResponse.counts:type_name -> bi.admin.v1.BiCardCounts
-	12, // 2: bi.admin.v1.BiCardForm.query:type_name -> bi.admin.v1.BiQuerySpec
+	15, // 2: bi.admin.v1.BiCardForm.query:type_name -> bi.admin.v1.BiQuerySpec
 	3,  // 3: bi.admin.v1.SaveBiCardRequest.card:type_name -> bi.admin.v1.BiCardForm
-	12, // 4: bi.admin.v1.BiCard.query:type_name -> bi.admin.v1.BiQuerySpec
-	13, // 5: bi.admin.v1.BiWorkbench.dashboards:type_name -> bi.admin.v1.BiDashboard
-	0,  // 6: bi.admin.v1.BiCardService.PageBiCard:input_type -> bi.admin.v1.PageBiCardRequest
-	4,  // 7: bi.admin.v1.BiCardService.SaveBiCard:input_type -> bi.admin.v1.SaveBiCardRequest
-	5,  // 8: bi.admin.v1.BiCardService.DeleteBiCard:input_type -> bi.admin.v1.DeleteBiCardRequest
-	7,  // 9: bi.admin.v1.BiCardService.GetBiCardData:input_type -> bi.admin.v1.GetBiCardDataRequest
-	9,  // 10: bi.admin.v1.BiCardService.GetBiWorkbench:input_type -> bi.admin.v1.GetBiWorkbenchRequest
-	11, // 11: bi.admin.v1.BiCardService.SaveBiWorkbench:input_type -> bi.admin.v1.SaveBiWorkbenchRequest
-	1,  // 12: bi.admin.v1.BiCardService.PageBiCard:output_type -> bi.admin.v1.PageBiCardResponse
-	8,  // 13: bi.admin.v1.BiCardService.SaveBiCard:output_type -> bi.admin.v1.BiCard
-	6,  // 14: bi.admin.v1.BiCardService.DeleteBiCard:output_type -> bi.admin.v1.DeleteBiCardResponse
-	14, // 15: bi.admin.v1.BiCardService.GetBiCardData:output_type -> bi.admin.v1.BiQueryResult
-	10, // 16: bi.admin.v1.BiCardService.GetBiWorkbench:output_type -> bi.admin.v1.BiWorkbench
-	10, // 17: bi.admin.v1.BiCardService.SaveBiWorkbench:output_type -> bi.admin.v1.BiWorkbench
-	12, // [12:18] is the sub-list for method output_type
-	6,  // [6:12] is the sub-list for method input_type
-	6,  // [6:6] is the sub-list for extension type_name
-	6,  // [6:6] is the sub-list for extension extendee
-	0,  // [0:6] is the sub-list for field type_name
+	16, // 4: bi.admin.v1.SaveBiCardRequest.measure_changes:type_name -> bi.admin.v1.BiMetricChange
+	15, // 5: bi.admin.v1.BiCard.query:type_name -> bi.admin.v1.BiQuerySpec
+	17, // 6: bi.admin.v1.BiCard.metric_definitions:type_name -> bi.admin.v1.BiSourceMeasure
+	18, // 7: bi.admin.v1.BiCard.sync_summary:type_name -> bi.admin.v1.BiModelImpact
+	19, // 8: bi.admin.v1.BiCard.columns:type_name -> bi.admin.v1.BiResultColumn
+	20, // 9: bi.admin.v1.BiWorkbench.dashboards:type_name -> bi.admin.v1.BiDashboard
+	15, // 10: bi.admin.v1.PreviewBiCardSqlRequest.query:type_name -> bi.admin.v1.BiQuerySpec
+	16, // 11: bi.admin.v1.PreviewBiCardSqlRequest.measure_changes:type_name -> bi.admin.v1.BiMetricChange
+	21, // 12: bi.admin.v1.PreviewBiCardSqlResponse.result:type_name -> bi.admin.v1.BiQueryResult
+	17, // 13: bi.admin.v1.PreviewBiCardSqlResponse.metric_definitions:type_name -> bi.admin.v1.BiSourceMeasure
+	18, // 14: bi.admin.v1.PreviewBiCardSqlResponse.impact:type_name -> bi.admin.v1.BiModelImpact
+	0,  // 15: bi.admin.v1.BiCardService.PageBiCard:input_type -> bi.admin.v1.PageBiCardRequest
+	4,  // 16: bi.admin.v1.BiCardService.SaveBiCard:input_type -> bi.admin.v1.SaveBiCardRequest
+	5,  // 17: bi.admin.v1.BiCardService.DeleteBiCard:input_type -> bi.admin.v1.DeleteBiCardRequest
+	7,  // 18: bi.admin.v1.BiCardService.GetBiCardData:input_type -> bi.admin.v1.GetBiCardDataRequest
+	9,  // 19: bi.admin.v1.BiCardService.GetBiWorkbench:input_type -> bi.admin.v1.GetBiWorkbenchRequest
+	11, // 20: bi.admin.v1.BiCardService.SaveBiWorkbench:input_type -> bi.admin.v1.SaveBiWorkbenchRequest
+	12, // 21: bi.admin.v1.BiCardService.GetBiCard:input_type -> bi.admin.v1.GetBiCardRequest
+	13, // 22: bi.admin.v1.BiCardService.PreviewBiCardSql:input_type -> bi.admin.v1.PreviewBiCardSqlRequest
+	1,  // 23: bi.admin.v1.BiCardService.PageBiCard:output_type -> bi.admin.v1.PageBiCardResponse
+	8,  // 24: bi.admin.v1.BiCardService.SaveBiCard:output_type -> bi.admin.v1.BiCard
+	6,  // 25: bi.admin.v1.BiCardService.DeleteBiCard:output_type -> bi.admin.v1.DeleteBiCardResponse
+	21, // 26: bi.admin.v1.BiCardService.GetBiCardData:output_type -> bi.admin.v1.BiQueryResult
+	10, // 27: bi.admin.v1.BiCardService.GetBiWorkbench:output_type -> bi.admin.v1.BiWorkbench
+	10, // 28: bi.admin.v1.BiCardService.SaveBiWorkbench:output_type -> bi.admin.v1.BiWorkbench
+	8,  // 29: bi.admin.v1.BiCardService.GetBiCard:output_type -> bi.admin.v1.BiCard
+	14, // 30: bi.admin.v1.BiCardService.PreviewBiCardSql:output_type -> bi.admin.v1.PreviewBiCardSqlResponse
+	23, // [23:31] is the sub-list for method output_type
+	15, // [15:23] is the sub-list for method input_type
+	15, // [15:15] is the sub-list for extension type_name
+	15, // [15:15] is the sub-list for extension extendee
+	0,  // [0:15] is the sub-list for field type_name
 }
 
 func init() { file_bi_admin_v1_bi_card_proto_init() }
@@ -993,13 +1372,14 @@ func file_bi_admin_v1_bi_card_proto_init() {
 	}
 	file_bi_admin_v1_bi_query_proto_init()
 	file_bi_admin_v1_bi_dashboard_proto_init()
+	file_bi_admin_v1_bi_source_proto_init()
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_bi_admin_v1_bi_card_proto_rawDesc), len(file_bi_admin_v1_bi_card_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   12,
+			NumMessages:   15,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

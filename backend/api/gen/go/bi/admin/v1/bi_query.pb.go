@@ -272,10 +272,11 @@ func (x *BiFieldDescriptor) GetFilterable() bool {
 // BI 指标描述。
 type BiMeasureDescriptor struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Code          string                 `protobuf:"bytes,1,opt,name=code,proto3" json:"code,omitempty"`                 // 指标编码
-	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`                 // 指标名称
-	Type          string                 `protobuf:"bytes,3,opt,name=type,proto3" json:"type,omitempty"`                 // 指标类型
-	Aggregations  []string               `protobuf:"bytes,4,rep,name=aggregations,proto3" json:"aggregations,omitempty"` // 允许的聚合函数
+	Code          string                 `protobuf:"bytes,1,opt,name=code,proto3" json:"code,omitempty"`          // 指标编码
+	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`          // 指标名称
+	Type          string                 `protobuf:"bytes,3,opt,name=type,proto3" json:"type,omitempty"`          // 指标类型
+	Unit          string                 `protobuf:"bytes,4,opt,name=unit,proto3" json:"unit,omitempty"`          // 指标单位
+	Revision      int64                  `protobuf:"varint,5,opt,name=revision,proto3" json:"revision,omitempty"` // 指标修订号
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -331,11 +332,18 @@ func (x *BiMeasureDescriptor) GetType() string {
 	return ""
 }
 
-func (x *BiMeasureDescriptor) GetAggregations() []string {
+func (x *BiMeasureDescriptor) GetUnit() string {
 	if x != nil {
-		return x.Aggregations
+		return x.Unit
 	}
-	return nil
+	return ""
+}
+
+func (x *BiMeasureDescriptor) GetRevision() int64 {
+	if x != nil {
+		return x.Revision
+	}
+	return 0
 }
 
 // BI 查询预览请求。
@@ -593,8 +601,7 @@ func (x *BiOrderSpec) GetDirection() string {
 // BI 指标查询项。
 type BiMeasureSpec struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Code          string                 `protobuf:"bytes,1,opt,name=code,proto3" json:"code,omitempty"`               // 指标编码
-	Aggregation   string                 `protobuf:"bytes,2,opt,name=aggregation,proto3" json:"aggregation,omitempty"` // 聚合函数
+	Code          string                 `protobuf:"bytes,1,opt,name=code,proto3" json:"code,omitempty"` // 指标编码
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -632,13 +639,6 @@ func (*BiMeasureSpec) Descriptor() ([]byte, []int) {
 func (x *BiMeasureSpec) GetCode() string {
 	if x != nil {
 		return x.Code
-	}
-	return ""
-}
-
-func (x *BiMeasureSpec) GetAggregation() string {
-	if x != nil {
-		return x.Aggregation
 	}
 	return ""
 }
@@ -712,6 +712,7 @@ type BiQueryResult struct {
 	Truncated     bool                   `protobuf:"varint,3,opt,name=truncated,proto3" json:"truncated,omitempty"`                                // 是否因限制截断
 	ElapsedMs     int64                  `protobuf:"varint,4,opt,name=elapsed_ms,json=elapsedMs,proto3" json:"elapsed_ms,omitempty"`               // 查询耗时毫秒
 	QueryRecordId int64                  `protobuf:"varint,5,opt,name=query_record_id,json=queryRecordId,proto3" json:"query_record_id,omitempty"` // 本次成功查询记录ID
+	QueriedAt     string                 `protobuf:"bytes,6,opt,name=queried_at,json=queriedAt,proto3" json:"queried_at,omitempty"`                // 查询时间
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -781,12 +782,22 @@ func (x *BiQueryResult) GetQueryRecordId() int64 {
 	return 0
 }
 
+func (x *BiQueryResult) GetQueriedAt() string {
+	if x != nil {
+		return x.QueriedAt
+	}
+	return ""
+}
+
 // BI 结果列。
 type BiResultColumn struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Code          string                 `protobuf:"bytes,1,opt,name=code,proto3" json:"code,omitempty"` // 列编码
-	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"` // 列名称
-	Type          string                 `protobuf:"bytes,3,opt,name=type,proto3" json:"type,omitempty"` // 列类型
+	Code          string                 `protobuf:"bytes,1,opt,name=code,proto3" json:"code,omitempty"`          // 列编码
+	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`          // 列名称
+	Type          string                 `protobuf:"bytes,3,opt,name=type,proto3" json:"type,omitempty"`          // 列类型
+	Role          string                 `protobuf:"bytes,4,opt,name=role,proto3" json:"role,omitempty"`          // 结果角色：dimension或measure
+	Unit          string                 `protobuf:"bytes,5,opt,name=unit,proto3" json:"unit,omitempty"`          // 指标单位
+	Revision      int64                  `protobuf:"varint,6,opt,name=revision,proto3" json:"revision,omitempty"` // 指标修订号
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -840,6 +851,27 @@ func (x *BiResultColumn) GetType() string {
 		return x.Type
 	}
 	return ""
+}
+
+func (x *BiResultColumn) GetRole() string {
+	if x != nil {
+		return x.Role
+	}
+	return ""
+}
+
+func (x *BiResultColumn) GetUnit() string {
+	if x != nil {
+		return x.Unit
+	}
+	return ""
+}
+
+func (x *BiResultColumn) GetRevision() int64 {
+	if x != nil {
+		return x.Revision
+	}
+	return 0
 }
 
 // BI 结果行。
@@ -1041,12 +1073,13 @@ const file_bi_admin_v1_bi_query_proto_rawDesc = "" +
 	"\x04type\x18\x03 \x01(\tB+\xbaG(\x92\x02%字段类型：string、number、dateR\x04type\x128\n" +
 	"\n" +
 	"filterable\x18\x04 \x01(\bB\x18\xbaG\x15\x92\x02\x12是否允许过滤R\n" +
-	"filterable\"\xce\x01\n" +
+	"filterable\"\xe8\x01\n" +
 	"\x13BiMeasureDescriptor\x12&\n" +
 	"\x04code\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f指标编码R\x04code\x12&\n" +
 	"\x04name\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f指标名称R\x04name\x12&\n" +
-	"\x04type\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f指标类型R\x04type\x12?\n" +
-	"\faggregations\x18\x04 \x03(\tB\x1b\xbaG\x18\x92\x02\x15允许的聚合函数R\faggregations\"g\n" +
+	"\x04type\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f指标类型R\x04type\x12&\n" +
+	"\x04unit\x18\x04 \x01(\tB\x12\xbaG\x0f\x92\x02\f指标单位R\x04unit\x121\n" +
+	"\brevision\x18\x05 \x01(\x03B\x15\xbaG\x12\x92\x02\x0f指标修订号R\brevision\"g\n" +
 	"\x15PreviewBiQueryRequest\x12N\n" +
 	"\x05query\x18\x01 \x01(\v2\x18.bi.admin.v1.BiQuerySpecB\x1e\xbaG\x15\x92\x02\x12语义查询计划\xbaH\x03\xc8\x01\x01R\x05query\"\x81\x04\n" +
 	"\vBiQuerySpec\x12@\n" +
@@ -1067,25 +1100,29 @@ const file_bi_admin_v1_bi_query_proto_rawDesc = "" +
 	"\x03end\x18\x03 \x01(\tB\x1b\xbaG\x0f\x92\x02\f范围终点\xbaH\x06r\x04\x10\x01\x18@R\x03end\"\xa0\x01\n" +
 	"\vBiOrderSpec\x12G\n" +
 	"\x05field\x18\x01 \x01(\tB1\xbaG$\x92\x02!已选择的维度或指标编码\xbaH\ar\x05\x10\x01\x18\x80\x01R\x05field\x12H\n" +
-	"\tdirection\x18\x02 \x01(\tB*\xbaG\x1e\x92\x02\x1b排序方向：asc 或 desc\xbaH\x06r\x04\x10\x01\x18\x04R\tdirection\"\x80\x01\n" +
+	"\tdirection\x18\x02 \x01(\tB*\xbaG\x1e\x92\x02\x1b排序方向：asc 或 desc\xbaH\x06r\x04\x10\x01\x18\x04R\tdirection\"A\n" +
 	"\rBiMeasureSpec\x120\n" +
-	"\x04code\x18\x01 \x01(\tB\x1c\xbaG\x0f\x92\x02\f指标编码\xbaH\ar\x05\x10\x01\x18\x80\x01R\x04code\x12=\n" +
-	"\vaggregation\x18\x02 \x01(\tB\x1b\xbaG\x0f\x92\x02\f聚合函数\xbaH\x06r\x04\x10\x01\x18 R\vaggregation\"\xc0\x01\n" +
+	"\x04code\x18\x01 \x01(\tB\x1c\xbaG\x0f\x92\x02\f指标编码\xbaH\ar\x05\x10\x01\x18\x80\x01R\x04code\"\xc0\x01\n" +
 	"\fBiFilterSpec\x122\n" +
 	"\x05field\x18\x01 \x01(\tB\x1c\xbaG\x0f\x92\x02\f字段编码\xbaH\ar\x05\x10\x01\x18\x80\x01R\x05field\x12S\n" +
 	"\boperator\x18\x02 \x01(\tB7\xbaG+\x92\x02(操作符：eq、in、between、contains\xbaH\x06r\x04\x10\x01\x18 R\boperator\x12'\n" +
-	"\x06values\x18\x03 \x03(\tB\x0f\xbaG\f\x92\x02\t过滤值R\x06values\"\xf2\x02\n" +
+	"\x06values\x18\x03 \x03(\tB\x0f\xbaG\f\x92\x02\t过滤值R\x06values\"\xa5\x03\n" +
 	"\rBiQueryResult\x12F\n" +
 	"\acolumns\x18\x01 \x03(\v2\x1b.bi.admin.v1.BiResultColumnB\x0f\xbaG\f\x92\x02\t结果列R\acolumns\x12=\n" +
 	"\x04rows\x18\x02 \x03(\v2\x18.bi.admin.v1.BiResultRowB\x0f\xbaG\f\x92\x02\t结果行R\x04rows\x129\n" +
 	"\ttruncated\x18\x03 \x01(\bB\x1b\xbaG\x18\x92\x02\x15是否因限制截断R\ttruncated\x127\n" +
 	"\n" +
 	"elapsed_ms\x18\x04 \x01(\x03B\x18\xbaG\x15\x92\x02\x12查询耗时毫秒R\telapsedMs\x12f\n" +
-	"\x0fquery_record_id\x18\x05 \x01(\x03B>\xbaG;\x92\x028本次成功查询记录ID，可作为数据卡片来源R\rqueryRecordId\"\x7f\n" +
+	"\x0fquery_record_id\x18\x05 \x01(\x03B>\xbaG;\x92\x028本次成功查询记录ID，可作为数据卡片来源R\rqueryRecordId\x121\n" +
+	"\n" +
+	"queried_at\x18\x06 \x01(\tB\x12\xbaG\x0f\x92\x02\f查询时间R\tqueriedAt\"\x98\x02\n" +
 	"\x0eBiResultColumn\x12#\n" +
 	"\x04code\x18\x01 \x01(\tB\x0f\xbaG\f\x92\x02\t列编码R\x04code\x12#\n" +
 	"\x04name\x18\x02 \x01(\tB\x0f\xbaG\f\x92\x02\t列名称R\x04name\x12#\n" +
-	"\x04type\x18\x03 \x01(\tB\x0f\xbaG\f\x92\x02\t列类型R\x04type\"E\n" +
+	"\x04type\x18\x03 \x01(\tB\x0f\xbaG\f\x92\x02\t列类型R\x04type\x12<\n" +
+	"\x04role\x18\x04 \x01(\tB(\xbaG%\x92\x02\"结果角色：dimension或measureR\x04role\x12&\n" +
+	"\x04unit\x18\x05 \x01(\tB\x12\xbaG\x0f\x92\x02\f指标单位R\x04unit\x121\n" +
+	"\brevision\x18\x06 \x01(\x03B\x15\xbaG\x12\x92\x02\x0f指标修订号R\brevision\"E\n" +
 	"\vBiResultRow\x126\n" +
 	"\x06values\x18\x01 \x03(\tB\x1e\xbaG\x1b\x92\x02\x18按列顺序排列的值R\x06values\"\xf1\x01\n" +
 	"\x11AskBiQueryRequest\x12>\n" +

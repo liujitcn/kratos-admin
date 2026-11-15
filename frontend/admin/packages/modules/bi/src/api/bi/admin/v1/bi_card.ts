@@ -7,6 +7,9 @@ import type {
   DeleteBiCardRequest,
   DeleteBiCardResponse,
   GetBiCardDataRequest,
+  GetBiCardRequest,
+  PreviewBiCardSqlRequest,
+  PreviewBiCardSqlResponse,
   GetBiWorkbenchRequest,
   PageBiCardRequest,
   PageBiCardResponse,
@@ -32,6 +35,18 @@ export class BiCardServiceImpl implements BiCardService {
         favorite: result.counts?.favorite ?? 0,
         shared: result.counts?.shared ?? 0
       }
+    }));
+  }
+  /** 详情仅在有权修改公共模型时携带公式与 SQL。 */
+  GetBiCard(request: GetBiCardRequest): Promise<BiCard> {
+    return service<GetBiCardRequest, BiCard>({ url: `${BI_CARD_URL}/${request.id}`, method: "get" }).then(normalizeBiCard);
+  }
+  /** 预览当前卡片的公共指标候选。 */
+  PreviewBiCardSql(request: PreviewBiCardSqlRequest): Promise<PreviewBiCardSqlResponse> {
+    return service<PreviewBiCardSqlRequest, PreviewBiCardSqlResponse>({ url: `${BI_CARD_URL}/sql-preview`, method: "post", data: request }).then(result => ({
+      ...result,
+      metric_definitions: result.metric_definitions ?? [],
+      result: result.result ? normalizeBiQueryResult(result.result) : undefined
     }));
   }
   /** 保存当前用户的数据卡片。 */

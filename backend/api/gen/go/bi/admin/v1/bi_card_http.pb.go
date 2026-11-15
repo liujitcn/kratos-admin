@@ -19,21 +19,27 @@ var _ = new(context.Context)
 const _ = http.SupportPackageIsVersion3
 
 const OperationBiCardServiceDeleteBiCard = "/bi.admin.v1.BiCardService/DeleteBiCard"
+const OperationBiCardServiceGetBiCard = "/bi.admin.v1.BiCardService/GetBiCard"
 const OperationBiCardServiceGetBiCardData = "/bi.admin.v1.BiCardService/GetBiCardData"
 const OperationBiCardServiceGetBiWorkbench = "/bi.admin.v1.BiCardService/GetBiWorkbench"
 const OperationBiCardServicePageBiCard = "/bi.admin.v1.BiCardService/PageBiCard"
+const OperationBiCardServicePreviewBiCardSql = "/bi.admin.v1.BiCardService/PreviewBiCardSql"
 const OperationBiCardServiceSaveBiCard = "/bi.admin.v1.BiCardService/SaveBiCard"
 const OperationBiCardServiceSaveBiWorkbench = "/bi.admin.v1.BiCardService/SaveBiWorkbench"
 
 type BiCardServiceHTTPServer interface {
 	// DeleteBiCard 删除自己的数据卡片。
 	DeleteBiCard(context.Context, *DeleteBiCardRequest) (*DeleteBiCardResponse, error)
+	// GetBiCard 获取卡片及有权编辑的公共公式。
+	GetBiCard(context.Context, *GetBiCardRequest) (*BiCard, error)
 	// GetBiCardData 在当前用户权限范围内执行卡片查询。
 	GetBiCardData(context.Context, *GetBiCardDataRequest) (*BiQueryResult, error)
 	// GetBiWorkbench 获取当前用户的工作台与收藏。
 	GetBiWorkbench(context.Context, *GetBiWorkbenchRequest) (*BiWorkbench, error)
 	// PageBiCard 分页查询当前用户可见的数据卡片。
 	PageBiCard(context.Context, *PageBiCardRequest) (*PageBiCardResponse, error)
+	// PreviewBiCardSql 预览当前卡片的公共指标公式候选。
+	PreviewBiCardSql(context.Context, *PreviewBiCardSqlRequest) (*PreviewBiCardSqlResponse, error)
 	// SaveBiCard 创建或修改自己的数据卡片。
 	SaveBiCard(context.Context, *SaveBiCardRequest) (*BiCard, error)
 	// SaveBiWorkbench 保存当前用户的工作台顺序与收藏。
@@ -48,6 +54,8 @@ func RegisterBiCardServiceHTTPServer(s *http.Server, srv BiCardServiceHTTPServer
 	r.Handle("GET", "/api/v1/admin/bi/card/{id}/data", _BiCardService_GetBiCardData0_HTTP_Handler(srv))
 	r.Handle("GET", "/api/v1/admin/bi/workbench", _BiCardService_GetBiWorkbench0_HTTP_Handler(srv))
 	r.Handle("PUT", "/api/v1/admin/bi/workbench", _BiCardService_SaveBiWorkbench0_HTTP_Handler(srv))
+	r.Handle("GET", "/api/v1/admin/bi/card/{id}", _BiCardService_GetBiCard0_HTTP_Handler(srv))
+	r.Handle("POST", "/api/v1/admin/bi/card/sql-preview", _BiCardService_PreviewBiCardSql0_HTTP_Handler(srv))
 }
 
 func _BiCardService_PageBiCard0_HTTP_Handler(srv BiCardServiceHTTPServer) func(ctx http.Context) error {
@@ -170,15 +178,60 @@ func _BiCardService_SaveBiWorkbench0_HTTP_Handler(srv BiCardServiceHTTPServer) f
 	}
 }
 
+func _BiCardService_GetBiCard0_HTTP_Handler(srv BiCardServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in GetBiCardRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindVars(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationBiCardServiceGetBiCard)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.GetBiCard(ctx, req.(*GetBiCardRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*BiCard)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _BiCardService_PreviewBiCardSql0_HTTP_Handler(srv BiCardServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in PreviewBiCardSqlRequest
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationBiCardServicePreviewBiCardSql)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.PreviewBiCardSql(ctx, req.(*PreviewBiCardSqlRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*PreviewBiCardSqlResponse)
+		return ctx.Result(200, reply)
+	}
+}
+
 type BiCardServiceHTTPClient interface {
 	// DeleteBiCard 删除自己的数据卡片。
 	DeleteBiCard(ctx context.Context, req *DeleteBiCardRequest, opts ...http.CallOption) (rsp *DeleteBiCardResponse, err error)
+	// GetBiCard 获取卡片及有权编辑的公共公式。
+	GetBiCard(ctx context.Context, req *GetBiCardRequest, opts ...http.CallOption) (rsp *BiCard, err error)
 	// GetBiCardData 在当前用户权限范围内执行卡片查询。
 	GetBiCardData(ctx context.Context, req *GetBiCardDataRequest, opts ...http.CallOption) (rsp *BiQueryResult, err error)
 	// GetBiWorkbench 获取当前用户的工作台与收藏。
 	GetBiWorkbench(ctx context.Context, req *GetBiWorkbenchRequest, opts ...http.CallOption) (rsp *BiWorkbench, err error)
 	// PageBiCard 分页查询当前用户可见的数据卡片。
 	PageBiCard(ctx context.Context, req *PageBiCardRequest, opts ...http.CallOption) (rsp *PageBiCardResponse, err error)
+	// PreviewBiCardSql 预览当前卡片的公共指标公式候选。
+	PreviewBiCardSql(ctx context.Context, req *PreviewBiCardSqlRequest, opts ...http.CallOption) (rsp *PreviewBiCardSqlResponse, err error)
 	// SaveBiCard 创建或修改自己的数据卡片。
 	SaveBiCard(ctx context.Context, req *SaveBiCardRequest, opts ...http.CallOption) (rsp *BiCard, err error)
 	// SaveBiWorkbench 保存当前用户的工作台顺序与收藏。
@@ -204,6 +257,23 @@ func (c *BiCardServiceHTTPClientImpl) DeleteBiCard(ctx context.Context, in *Dele
 		http.PathTemplate(pattern),
 	}, opts...)
 	err := c.cc.Invoke(ctx, "DELETE", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+// GetBiCard 获取卡片及有权编辑的公共公式。
+func (c *BiCardServiceHTTPClientImpl) GetBiCard(ctx context.Context, in *GetBiCardRequest, opts ...http.CallOption) (*BiCard, error) {
+	var out BiCard
+	pattern := "/api/v1/admin/bi/card/{id}"
+	path := http.BuildPath(pattern, in, http.WithQueryParams())
+	opts = append([]http.CallOption{
+		http.Accept("application/protojson"),
+		http.Operation(OperationBiCardServiceGetBiCard),
+		http.PathTemplate(pattern),
+	}, opts...)
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -255,6 +325,24 @@ func (c *BiCardServiceHTTPClientImpl) PageBiCard(ctx context.Context, in *PageBi
 		http.PathTemplate(pattern),
 	}, opts...)
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+// PreviewBiCardSql 预览当前卡片的公共指标公式候选。
+func (c *BiCardServiceHTTPClientImpl) PreviewBiCardSql(ctx context.Context, in *PreviewBiCardSqlRequest, opts ...http.CallOption) (*PreviewBiCardSqlResponse, error) {
+	var out PreviewBiCardSqlResponse
+	pattern := "/api/v1/admin/bi/card/sql-preview"
+	path := http.BuildPath(pattern, in)
+	opts = append([]http.CallOption{
+		http.Accept("application/protojson"),
+		http.ContentType("application/protojson"),
+		http.Operation(OperationBiCardServicePreviewBiCardSql),
+		http.PathTemplate(pattern),
+	}, opts...)
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
 	if err != nil {
 		return nil, err
 	}

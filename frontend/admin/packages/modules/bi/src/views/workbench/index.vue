@@ -7,7 +7,7 @@
     >
     <div v-else class="bi-workbench__grid" :aria-busy="saving">
       <article
-        v-for="(item, index) in dashboards"
+        v-for="(item, index) in entries"
         :key="item.id"
         class="bi-workbench__entry"
         :class="{ 'is-dragging': dragged === index }"
@@ -22,21 +22,30 @@
         @keydown.alt.left.prevent="move(index, index - 1)"
         @keydown.alt.right.prevent="move(index, index + 1)"
       >
-        <BiWorkbenchPreview :key="`${item.id}:${item.published_version}`" :dashboard="item" />
+        <BiWorkbenchPreview
+          v-if="!item.requires_republish"
+          :key="`${item.id}:${item.published_version}`"
+          :dashboard="item"
+        />
         <div class="bi-workbench__info">
           <div class="bi-workbench__title">
             <h3 :title="item.name">{{ item.name }}</h3>
-            <el-tag size="small" effect="light">{{ t("bi.dashboard.status_published") }}</el-tag>
+            <el-tag size="small" effect="light" :type="item.requires_republish ? 'warning' : undefined">{{
+              t(item.requires_republish ? "bi.sql.requires_republish" : "bi.dashboard.status_published")
+            }}</el-tag>
           </div>
           <p class="bi-workbench__meta">
-            {{ t("bi.card.total", { count: parseDashboardLayout(item.schema_json).cards.length }) }} · v{{
+            <span v-if="item.cardCount !== undefined">{{ t("bi.card.total", { count: item.cardCount }) }} · </span>v{{
               item.published_version
             }}
           </p>
           <p v-if="item.description" class="bi-workbench__description">{{ item.description }}</p>
           <footer>
-            <el-button type="primary" @click="router.push(`/bi/dashboard/${item.id}`)"
-              >{{ t("bi.workbench.open_dashboard") }}<el-icon class="el-icon--right"><ArrowRight /></el-icon
+            <el-button
+              type="primary"
+              @click="router.push(item.requires_republish ? '/bi/manage' : `/bi/dashboard/${item.id}`)"
+              >{{ t(item.requires_republish ? "bi.dashboard.manage" : "bi.workbench.open_dashboard")
+              }}<el-icon class="el-icon--right"><ArrowRight /></el-icon
             ></el-button>
           </footer>
         </div>
@@ -45,7 +54,7 @@
   </main>
 </template>
 <script setup lang="ts">
-import { onActivated, onMounted, ref } from "vue";
+import { computed, onActivated, onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
 import { t } from "@liujitcn/kratos-admin-core";
 import type { BiDashboard } from "../../rpc/bi/admin/v1/bi_dashboard";
@@ -60,6 +69,16 @@ const router = useRouter(),
   saving = ref(false),
   dragged = ref(-1);
 let loaded = false;
+// 单条布局失效只影响对应入口，保留收藏与排序。
+const entries = computed(() =>
+  dashboards.value.map(item => {
+    try {
+      return { ...item, cardCount: parseDashboardLayout(item.schema_json).cards.length };
+    } catch {
+      return { ...item, cardCount: undefined, requires_republish: true };
+    }
+  })
+);
 /** 读取收藏的仪表盘，重新进入时同步管理页的收藏变化。 */
 async function load() {
   loading.value = true;

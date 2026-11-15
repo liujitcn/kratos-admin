@@ -7,7 +7,7 @@
     destroy-on-close
     class="bi-source-model-dialog"
   >
-    <div v-loading="loading" class="source-model">
+    <div v-loading="loading || saving" class="source-model">
       <el-steps :active="step" finish-status="success" align-center>
         <el-step :title="t('bi.source.model.step.tables')" />
         <el-step :title="t('bi.source.model.step.relations')" />
@@ -162,24 +162,16 @@
           </header>
           <el-table :data="model.measures" size="small" border>
             <el-table-column :label="t('bi.source.model.field.code')" min-width="135">
-              <template #default="{ row }"><el-input v-model="row.code" /></template>
+              <template #default="{ row }"><el-input v-model="row.code" :disabled="row.revision > 0" maxlength="128" /></template>
             </el-table-column>
             <el-table-column :label="t('bi.source.model.field.display_name')" min-width="135">
               <template #default="{ row }"><el-input v-model="row.name" /></template>
             </el-table-column>
-            <el-table-column :label="t('bi.source.model.field.column')" min-width="180">
-              <template #default="{ row }">
-                <el-select v-model="row.column" @change="row.type = 'number'; row.aggregations = defaultAggregations(row.column)">
-                  <el-option v-for="column in tableFor(model.base_table)?.columns" :key="column.name" :label="schemaLabel(column)" :value="column.name" />
-                </el-select>
-              </template>
+            <el-table-column :label="t('bi.sql.expression')" min-width="360">
+              <template #default="{ row }"><CodeEditor v-model="row.expression" language="sql" height="120px" /></template>
             </el-table-column>
-            <el-table-column :label="t('bi.source.model.field.aggregation')" min-width="220">
-              <template #default="{ row }">
-                <el-select v-model="row.aggregations" multiple collapse-tags>
-                  <el-option v-for="aggregation in aggregationOptions(row.column)" :key="aggregation" :label="aggregation" :value="aggregation" />
-                </el-select>
-              </template>
+            <el-table-column :label="t('bi.sql.unit')" min-width="100">
+              <template #default="{ row }"><el-input v-model="row.unit" maxlength="32" /></template>
             </el-table-column>
             <el-table-column width="64" align="center">
               <template #default="{ $index }"><el-button text type="danger" :icon="Delete" @click="model.measures.splice($index, 1)" /></template>
@@ -187,6 +179,14 @@
           </el-table>
         </div>
 
+        <el-alert :title="t('bi.sql.shared_notice')" type="info" show-icon :closable="false" />
+        <div v-if="impact" class="source-model__preview">
+          <el-alert :title="t('bi.sql.impact', { cards: impact.affected_cards, dashboards: impact.affected_dashboards })" type="warning" show-icon :closable="false" />
+          <div v-for="change in impact.changes ?? []" :key="change.after?.code ?? change.before?.code">
+            <strong>{{ change.after?.name ?? change.before?.name }}</strong>
+            <pre>{{ change.before?.expression ?? '∅' }} → {{ change.after?.expression ?? '∅' }}</pre>
+          </div>
+        </div>
         <div v-if="previewResult" class="source-model__preview">
           <header>
             <strong>{{ t('bi.query.result') }}</strong>
@@ -207,7 +207,9 @@
         <el-button v-if="step > 0" @click="step--">{{ t('bi.source.model.action.previous') }}</el-button>
         <el-button v-if="step < 2" type="primary" @click="nextStep">{{ t('bi.source.model.action.next') }}</el-button>
         <template v-else>
-          <el-button type="primary" :loading="saving" @click="saveModel">{{ t('bi.source.model.action.save') }}</el-button>
+          <el-button :disabled="loading || saving" :loading="analyzing" @click="analyzeModel">{{ t('bi.sql.preview_changes') }}</el-button>
+          <el-button :disabled="loading || saving || analyzing" @click="refreshVersion">{{ t('bi.sql.refresh_model') }}</el-button>
+          <el-button type="primary" :loading="saving" :disabled="!impactReady" @click="saveModel">{{ t('bi.source.model.action.save') }}</el-button>
           <el-button :icon="DataAnalysis" :disabled="!modelSaved" :loading="previewing" @click="previewModel">{{ t('bi.source.model.action.preview') }}</el-button>
           <el-button v-if="modelSaved" @click="open = false">{{ t('bi.source.model.action.done') }}</el-button>
         </template>
@@ -225,12 +227,14 @@ import { Controls } from "@vue-flow/controls";
 import { MiniMap } from "@vue-flow/minimap";
 import { CirclePlus, DataAnalysis, Delete } from "@element-plus/icons-vue";
 import { t } from "@liujitcn/kratos-admin-core";
+import CodeEditor from "@liujitcn/kratos-admin-core/components/CodeEditor/index.vue";
 import { defBiQueryService } from "../api/bi/admin/v1/bi_query";
 import { defBiSourceService } from "../api/bi/admin/v1/bi_source";
 import { formatSourceModelLayout } from "./source-model-layout";
 import type { BiQueryResult } from "../rpc/bi/admin/v1/bi_query";
 import type {
   BiSource,
+  BiModelImpact,
   BiSourceDimension,
   BiSourceMeasure,
   BiSourceModel,
@@ -254,7 +258,7 @@ interface StoredSourceModel {
   /** 语义维度。 */
   dimensions?: Array<BiSourceDimension & {filterable?: boolean}>;
   /** 语义指标。 */
-  measures?: Array<BiSourceMeasure & {aggregations?: string[]}>;
+  measures?: BiSourceMeasure[];
 }
 
 const props = defineProps<{modelValue: boolean; source?: BiSource}>();
@@ -265,6 +269,13 @@ const { fitView, updateNodeInternals, viewportHelper } = useVueFlow(flowId);
 const loading = ref(false);
 const saving = ref(false);
 const previewing = ref(false);
+const analyzing = ref(false);
+const sourceVersion = ref(0);
+const impact = ref<BiModelImpact>();
+const impactSnapshot = ref("");
+const impactReady = computed(() => Boolean(impact.value) && impactSnapshot.value === JSON.stringify(model.value));
+let modelRequest = 0;
+let modelSession = 0;
 const step = ref(0);
 const tableFilter = ref("");
 const schemaTables = ref<BiSourceSchemaTable[]>([]);
@@ -323,10 +334,15 @@ const edges = computed<Edge[]>(() => model.value.relations.map((relation, index)
 })));
 const previewRows = computed(() => previewResult.value?.rows.map(row => Object.fromEntries(row.values.map((value, index) => [`value_${index}`, value]))) ?? []);
 
-watch(() => props.modelValue, visible => {
+watch(() => [props.modelValue, props.source?.id] as const, ([visible]) => {
+  modelSession++;
+  modelRequest++;
+  loading.value = saving.value = analyzing.value = previewing.value = false;
+  impact.value = undefined;
+  previewResult.value = undefined;
   if (visible) void loadModel();
 });
-watch(model, () => { previewResult.value = undefined; }, {deep: true});
+watch(model, () => { previewResult.value = undefined; impact.value = undefined; modelRequest++; }, {deep: true, flush: "sync"});
 watch(nodes, async () => {
   await nextTick();
   updateNodeInternals();
@@ -335,20 +351,30 @@ watch(nodes, async () => {
 /** 初始化数据库结构和已保存的语义模型。 */
 async function loadModel() {
   if (!props.source) return;
+  const currentSession = modelSession;
+  const sourceID = props.source.id;
   loading.value = true;
   step.value = 0;
-	savedModelSnapshot.value = "";
+  savedModelSnapshot.value = "";
+  sourceVersion.value = 0;
+  schemaTables.value = [];
+  model.value = emptyModel();
   previewResult.value = undefined;
   try {
-    const result = await defBiSourceService.ListBiSourceTables({id: props.source.id});
+    const [current, result] = await Promise.all([
+      defBiSourceService.GetBiSource({id: sourceID}),
+      defBiSourceService.ListBiSourceTables({id: sourceID})
+    ]);
+    if (!isCurrentSession(currentSession, sourceID)) return;
+    sourceVersion.value = current.version;
     schemaTables.value = result.tables ?? [];
-    model.value = readStoredModel(props.source.schema_json);
+    model.value = readStoredModel(current.schema_json);
     if (!model.value.tables.length) model.value = emptyModel();
-	savedModelSnapshot.value = props.source.model_configured ? JSON.stringify(model.value) : "";
+    savedModelSnapshot.value = current.model_configured ? JSON.stringify(model.value) : "";
   } catch (cause) {
-    ElMessage.error(cause instanceof Error ? cause.message : t("bi.query.error"));
+    if (isCurrentSession(currentSession, sourceID)) ElMessage.error(cause instanceof Error ? cause.message : t("bi.query.error"));
   } finally {
-    loading.value = false;
+    if (isCurrentSession(currentSession, sourceID)) loading.value = false;
   }
 }
 
@@ -367,7 +393,7 @@ function readStoredModel(value: string): BiSourceModel {
         join_type: relation.joinType ?? relation.join_type ?? "left"
       })),
       dimensions: (stored.dimensions ?? []).map(dimension => ({...dimension, filterable: dimension.filterable ?? false})),
-      measures: (stored.measures ?? []).map(measure => ({...measure, aggregations: measure.aggregations ?? []}))
+      measures: (stored.measures ?? []).map(measure => ({...measure, unit: measure.unit ?? "", revision: measure.revision ?? 0}))
     };
   } catch {
     return emptyModel();
@@ -384,10 +410,9 @@ function isSelected(key: string): boolean {
   return model.value.tables.some(table => table.key === key);
 }
 
-/** 更换事实表时仅保留仍属于新事实表的指标。 */
+/** 更换事实表后保留公式草稿，保存前由服务端按新事实表校验字段。 */
 function setBaseTable(key: string) {
   model.value.base_table = key;
-  model.value.measures = model.value.measures.filter(measure => measure.table === key);
 }
 
 /** 查询模型表节点以编辑租户隔离字段。 */
@@ -413,7 +438,6 @@ function toggleTable(table: BiSourceSchemaTable, selected: boolean) {
   model.value.tables = model.value.tables.filter(item => item.key !== table.key);
   model.value.relations = model.value.relations.filter(item => item.left_table !== table.key && item.right_table !== table.key);
   model.value.dimensions = model.value.dimensions.filter(item => item.table !== table.key);
-  model.value.measures = model.value.measures.filter(item => item.table !== table.key);
   if (model.value.base_table === table.key) model.value.base_table = model.value.tables[0]?.key ?? "";
   selectedRelationIndex.value = -1;
 }
@@ -441,16 +465,6 @@ function fieldType(table: string, column: string): string {
   return "string";
 }
 
-/** 返回当前度量字段可用的聚合函数。 */
-function aggregationOptions(column: string): string[] {
-  return fieldType(model.value.base_table, column) === "number" ? ["count", "sum", "avg", "min", "max"] : ["count"];
-}
-
-/** 为新增度量选择默认聚合方式。 */
-function defaultAggregations(column: string): string[] {
-  return fieldType(model.value.base_table, column) === "number" ? ["sum"] : ["count"];
-}
-
 /** 增加一条语义维度。 */
 function addDimension() {
   const table = selectedTables.value[0];
@@ -466,7 +480,7 @@ function addMeasure() {
   const column = table?.columns.find(item => fieldType(table.key, item.name) === "number") ?? table?.columns[0];
   if (!table || !column) return;
   const code = semanticCode(table.name, column.name, model.value.measures.length);
-  model.value.measures.push({code, name: column.name, type: "number", table: table.key, column: column.name, aggregations: defaultAggregations(column.name)});
+  model.value.measures.push({code, name: column.name, type: "number", expression: fieldType(table.key, column.name) === "number" ? `SUM(${column.name})` : "COUNT(*)", unit: "", revision: 0});
 }
 
 /** 生成合法且稳定的语义字段编码。 */
@@ -553,44 +567,99 @@ function nextStep() {
   step.value++;
 }
 
+/** 预览公共定义差异和全部引用卡片的静态编译影响。 */
+async function analyzeModel() {
+  if (!props.source || loading.value || analyzing.value || saving.value) return;
+  const currentSession = modelSession;
+  const sourceID = props.source.id;
+  const request = ++modelRequest;
+  const snapshot = JSON.stringify(model.value);
+  analyzing.value = true;
+  try {
+    const result = await defBiSourceService.PreviewBiSourceModel({id: sourceID, model: model.value, expected_source_version: sourceVersion.value});
+    if (request !== modelRequest || !isCurrentSession(currentSession, sourceID)) return;
+    impact.value = result;
+    impactSnapshot.value = snapshot;
+  } catch (cause) {
+    if (isCurrentSession(currentSession, sourceID)) ElMessage.error(cause instanceof Error ? cause.message : t("bi.query.error"));
+  } finally {
+    if (isCurrentSession(currentSession, sourceID)) analyzing.value = false;
+  }
+}
+
+/** 版本冲突后保留当前草稿，刷新版本并要求重新检查全部差异。 */
+async function refreshVersion() {
+  if (!props.source) return;
+  const currentSession = modelSession;
+  const sourceID = props.source.id;
+  loading.value = true;
+  try {
+    const result = await defBiSourceService.GetBiSource({id: sourceID});
+    if (!isCurrentSession(currentSession, sourceID)) return;
+    sourceVersion.value = result.version;
+    impact.value = undefined;
+    modelRequest++;
+    ElMessage.info(t("bi.sql.repreview"));
+  } catch (cause) {
+    if (isCurrentSession(currentSession, sourceID)) ElMessage.error(cause instanceof Error ? cause.message : t("bi.query.error"));
+  } finally {
+    if (isCurrentSession(currentSession, sourceID)) loading.value = false;
+  }
+}
+
 /** 保存关系模型并启用数据源。 */
 async function saveModel() {
-  if (!props.source) return;
+  if (!props.source || loading.value || !impactReady.value || saving.value) return;
+  const currentSession = modelSession;
+  const sourceID = props.source.id;
   saving.value = true;
   try {
-    const result = await defBiSourceService.SaveBiSourceModel({id: props.source.id, model: model.value});
-	savedModelSnapshot.value = JSON.stringify(model.value);
+    const result = await defBiSourceService.SaveBiSourceModel({id: sourceID, model: model.value, expected_source_version: sourceVersion.value});
+    if (!isCurrentSession(currentSession, sourceID)) return;
+    sourceVersion.value = result.version;
+    model.value = readStoredModel(result.schema_json);
+    savedModelSnapshot.value = JSON.stringify(model.value);
     previewResult.value = undefined;
     emit("saved", result);
-    ElMessage.success(t("bi.source.model.message.saved"));
+    ElMessage.success(t("bi.sql.synced", { cards: result.sync_summary?.affected_cards ?? 0, dashboards: result.sync_summary?.affected_dashboards ?? 0 }));
   } catch (cause) {
-    ElMessage.error(cause instanceof Error ? cause.message : t("bi.query.error"));
+    if (isCurrentSession(currentSession, sourceID)) ElMessage.error(cause instanceof Error ? cause.message : t("bi.query.error"));
   } finally {
-    saving.value = false;
+    if (isCurrentSession(currentSession, sourceID)) saving.value = false;
   }
 }
 
 /** 使用一个维度和指标预览已保存模型。 */
 async function previewModel() {
   if (!props.source || !modelSaved.value || !model.value.measures.length) return;
+  const currentSession = modelSession;
+  const sourceID = props.source.id;
+  const request = modelRequest;
   previewing.value = true;
   try {
     const dimension = model.value.dimensions[0];
     const measure = model.value.measures[0];
-    previewResult.value = await defBiQueryService.PreviewBiQuery({query: {
+    const result = await defBiQueryService.PreviewBiQuery({query: {
       source_code: props.source.code,
       dimensions: dimension ? [dimension.code] : [],
-      measures: [{code: measure.code, aggregation: measure.aggregations[0] ?? "count"}],
+      measures: [{code: measure.code}],
       filters: [],
       limit: 10,
       time_range: undefined,
       orders: []
     }});
+    if (request !== modelRequest || !isCurrentSession(currentSession, sourceID)) return;
+    previewResult.value = result;
   } catch (cause) {
-    ElMessage.error(cause instanceof Error ? cause.message : t("bi.query.error"));
+    if (isCurrentSession(currentSession, sourceID)) ElMessage.error(cause instanceof Error ? cause.message : t("bi.query.error"));
   } finally {
-    previewing.value = false;
+    if (isCurrentSession(currentSession, sourceID)) previewing.value = false;
   }
+}
+
+/** 关闭、重开或切换源后，旧请求不能写入当前模型或清除新请求状态。 */
+function isCurrentSession(currentSession: number, sourceID: number): boolean {
+  return currentSession === modelSession && props.modelValue && sourceID === props.source?.id;
 }
 </script>
 
