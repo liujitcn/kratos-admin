@@ -114,6 +114,12 @@ taro-label-core.profile-radio > :first-child,
   margin: 0 5PX 0 1PX;
 }
 
+/* Taro H5 的选中图标会回退到微信默认绿色，覆盖为当前主题色。 */
+.profile-radio taro-radio-core[checked=''] .weui-icon-checked::before {
+  border-color: var(--kratos-color-primary);
+  color: var(--kratos-color-primary) !important;
+}
+
 .profile-auth-button {
   height: 60px;
   margin: 0;
