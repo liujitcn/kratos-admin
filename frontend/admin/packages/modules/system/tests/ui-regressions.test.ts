@@ -127,7 +127,7 @@ test("scheduled job failure markers resolve through every registered system loca
 test("web search tool titles use localized labels across all chat clients", async () => {
   const [adminChat, uniChat, taroChat] = await Promise.all([
     readSource("src/views/ai/chat/components/ChatPanel.vue"),
-    readSource("../../../../uni-app/packages/modules/system/src/views/pagesMember/ai/index.vue"),
+    readSource("../../../../uni-app/packages/modules/system/src/views/pagesMember/ai/index.uvue"),
     readSource("../../../../taro-app/packages/modules/system/src/views/pagesMember/ai/index.tsx")
   ]);
 
@@ -158,7 +158,7 @@ test("system notification list and detail responses expose only their required f
     readSource("src/rpc/base/v1/notification.ts"),
     readSource("src/components/notification/Notification.vue"),
     readSource("src/views/message/inbox/index.vue"),
-    readSource("../../../../uni-app/packages/modules/system/src/views/pagesMember/message/detail.vue"),
+    readSource("../../../../uni-app/packages/modules/system/src/views/pagesMember/message/detail.uvue"),
     readSource("../../../../taro-app/packages/modules/system/src/views/pagesMember/message/detail.tsx")
   ]);
 
@@ -197,8 +197,8 @@ test("workflow notifications use persisted i18n markers across all message clien
     readSource("src/components/notification/Notification.vue"),
     readSource("src/views/message/inbox/index.vue"),
     readSource("src/views/base/message/index.vue"),
-    readSource("../../../../uni-app/packages/modules/system/src/views/pagesMember/message/index.vue"),
-    readSource("../../../../uni-app/packages/modules/system/src/views/pagesMember/message/detail.vue"),
+    readSource("../../../../uni-app/packages/modules/system/src/views/pagesMember/message/index.uvue"),
+    readSource("../../../../uni-app/packages/modules/system/src/views/pagesMember/message/detail.uvue"),
     readSource("../../../../taro-app/packages/modules/system/src/views/pagesMember/message/index.tsx"),
     readSource("../../../../taro-app/packages/modules/system/src/views/pagesMember/message/detail.tsx")
   ]);
@@ -241,7 +241,7 @@ test("workflow notifications use persisted i18n markers across all message clien
 
 test("消息详情页与消息列表使用统一的页面左右边距", async () => {
   const [uniDetail, taroDetail] = await Promise.all([
-    readSource("../../../../uni-app/packages/modules/system/src/views/pagesMember/message/detail.vue"),
+    readSource("../../../../uni-app/packages/modules/system/src/views/pagesMember/message/detail.uvue"),
     readSource("../../../../taro-app/packages/modules/system/src/views/pagesMember/message/message.scss")
   ]);
 
