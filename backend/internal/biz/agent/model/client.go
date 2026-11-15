@@ -14,7 +14,7 @@ import (
 	"github.com/cloudwego/eino/components/model"
 	"github.com/cloudwego/eino/schema"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/securityconfig"
-	kitaiEino "github.com/liujitcn/kratos-kit/ai/eino"
+	"github.com/liujitcn/kratos-kit/ai/eino"
 	modelconfig "github.com/liujitcn/kratos-kit/ai/model"
 	"github.com/openai/openai-go/v3"
 	"github.com/openai/openai-go/v3/option"
@@ -110,7 +110,7 @@ func NewAssistantClientWithName(modelCfg *modelconfig.ModelConfig, name string) 
 	}
 	// 聚合网关的流式协议存在双发与混组兼容问题时按配置回退非流式调用。
 	client.DisableStreaming = modelCfg.DisableStreaming
-	client.AgenticModel = kitaiEino.NewNormalizedAgenticModel(agenticModel)
+	client.AgenticModel = eino.NewNormalizedAgenticModel(agenticModel)
 	return client
 }
 

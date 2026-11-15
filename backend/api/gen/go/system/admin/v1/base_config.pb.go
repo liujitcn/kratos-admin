@@ -778,15 +778,16 @@ const file_system_admin_v1_base_config_proto_rawDesc = "" +
 	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\"\x86\x01\n" +
 	"\x14GetBaseConfigRequest\x12n\n" +
 	"\x02id\x18\x01 \x01(\x03B^\xbaG\v\x92\x02\b配置ID\xbaHM\xba\x01J\n" +
-	"(system.admin.base.config.get.id.required\x12\x14配置ID不能为空\x1a\bthis > 0R\x02id\"\xd4\v\n" +
+	"(system.admin.base.config.get.id.required\x12\x14配置ID不能为空\x1a\bthis > 0R\x02id\"\xbe\n" +
+	"\n" +
 	"\x0eBaseConfigForm\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b配置IDR\x02id\x12\xb9\x01\n" +
 	"\x04site\x18\x02 \x01(\x0e2\x17.base.v1.BaseConfigSiteB\x8b\x01\xbaG&\x92\x02#位置：枚举【BaseConfigSite】\xbaH_\xba\x01W\n" +
 	"-system.admin.base.config.entity.site.required\x12\x1b请选择系统配置位置\x1a\tthis != 0\x82\x01\x02\x10\x01R\x04site\x12\xf9\x01\n" +
 	"\x04name\x18\x03 \x01(\tB\xe4\x01\xbaG\x0f\x92\x02\f配置名称\xbaH\xce\x01\xba\x01]\n" +
 	"-system.admin.base.config.entity.name.required\x12\x1b请输入系统配置名称\x1a\x0fthis.size() > 0\xba\x01k\n" +
-	"/system.admin.base.config.entity.name.max_length\x12%配置名称不能超过 50 个字符\x1a\x11this.size() <= 50R\x04name\x12\xbf\x02\n" +
-	"\x04type\x18\x04 \x01(\x0e2\x1f.system.admin.v1.BaseConfigTypeB\x89\x02\xbaG\xa3\x01\x92\x02\x9f\x01配置类型：1、文本，2、图片，3、富文本，4、字典，5、布尔，6、表单，7、JSON结构，8、动态列表，9、多文本，10、文件\xbaH_\xba\x01W\n" +
+	"/system.admin.base.config.entity.name.max_length\x12%配置名称不能超过 50 个字符\x1a\x11this.size() <= 50R\x04name\x12\xa9\x01\n" +
+	"\x04type\x18\x04 \x01(\x0e2\x1f.system.admin.v1.BaseConfigTypeBt\xbaG\x0f\x92\x02\f配置类型\xbaH_\xba\x01W\n" +
 	"-system.admin.base.config.entity.type.required\x12\x1b请选择系统配置类型\x1a\tthis != 0\x82\x01\x02\x10\x01R\x04type\x12\xef\x01\n" +
 	"\x03key\x18\x05 \x01(\tB\xdc\x01\xbaG\f\x92\x02\t配置key\xbaH\xc9\x01\xba\x01\\\n" +
 	",system.admin.base.config.entity.key.required\x12\x1b请输入系统配置编码\x1a\x0fthis.size() > 0\xba\x01g\n" +
