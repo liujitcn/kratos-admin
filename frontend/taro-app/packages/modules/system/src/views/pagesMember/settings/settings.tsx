@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react'
 import {
   useLocaleStore,
   navigateToLogin,
+  navigateAppView,
   type SupportedLocale,
   useI18n,
   useThemeStore,
@@ -14,7 +15,6 @@ import {
 import { defMfaService } from '@liujitcn/kratos-taro-app-core/api/base/v1/mfa'
 import { isAuthExpiredError } from '@liujitcn/kratos-taro-app-core/utils/http'
 import PasswordVerifyDialog from './components/PasswordVerifyDialog'
-import ChangePasswordEntry from './components/ChangePasswordEntry'
 import './settings.scss'
 
 /** SettingsPage 展示应用设置与账号安全操作。 */
@@ -67,6 +67,7 @@ export default function SettingsPage() {
       authorization: createIcon('<circle cx="8" cy="15" r="4"/><path d="m11 12 7-7 3 3-7 7"/><path d="m15 8 2 2"/>', warning),
       feedback: createIcon('<path d="M4 5h16v12H8l-4 4z"/>', violet),
       contact: createIcon('<path d="M4 5c0 9 6 15 15 15 1 0 2-1 2-2v-2l-4-2-2 2a11 11 0 0 1-5-5l2-2-2-4H6c-1 0-2 1-2 2Z"/>', primary),
+      password: createIcon('<rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/><path d="M12 14v2"/>', warning),
     }
   }, [themeStore.colors.aiPrimary, themeStore.colors.aiWarning, themeStore.colors.aiViolet])
 
@@ -192,7 +193,34 @@ export default function SettingsPage() {
             </View>
           ) : null}
 
-          {process.env.TARO_ENV === 'h5' ? <ChangePasswordEntry /> : null}
+          {/* 修改密码：与 uni 端一致跳独立页，替代原 H5 弹层入口。 */}
+          {authenticated ? (
+            <View
+              className='k-set-row k-set-row--arrow'
+              onClick={() => {
+                if (!ensureAuthenticated()) {
+                  navigateToLogin()
+                  return
+                }
+                navigateAppView('PASSWORD')
+              }}
+            >
+              <View className='k-set-row__lead'>
+                <View className='k-set-row__icon'>
+                  <Image
+                    className='settings-row__icon'
+                    src={settingsIcons.password}
+                    mode='aspectFit'
+                  />
+                </View>
+                <Text className='k-set-row__title'>{t('system.settings.password_title')}</Text>
+              </View>
+              <Text className='k-set-row__value settings-row__value'>
+                {t('system.settings.password_action')}
+              </Text>
+              <View className='k-set-row__arrow' />
+            </View>
+          ) : null}
 
           <View className='k-set-cat'>{t('system.settings.section_appearance')}</View>
           <Picker

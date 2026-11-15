@@ -239,7 +239,13 @@ const wxLogin = async () => {
   loading.value = true
   let loginCode = ''
   try {
-    loginCode = (await wx.login()).code
+    // 游客模式/部分环境下 wx.login 可能既不成功也不回调，加超时兜底给出明确反馈。
+    loginCode = await Promise.race([
+      (async () => (await wx.login()).code)(),
+      new Promise<never>((_, reject) =>
+        setTimeout(() => reject(new Error('wx login timeout')), 8000),
+      ),
+    ])
   } catch {
     await uni.showToast({ icon: 'none', title: t('core.login.wechat_failed') })
     loading.value = false
@@ -290,7 +296,13 @@ const bindMiniAccount = async () => {
   loading.value = true
   try {
     const password = await encryptPassword(miniPasswordValue.value)
-    const code = (await wx.login()).code
+    // 与 wxLogin 一致的超时兜底：环境异常时不让按钮永久卡在 loading。
+    const code = await Promise.race([
+      (async () => (await wx.login()).code)(),
+      new Promise<never>((_, reject) =>
+        setTimeout(() => reject(new Error('wx login timeout')), 8000),
+      ),
+    ])
     const response = await userStore.bindOauthSession({
       provider: wechatMiniProvider,
       code,

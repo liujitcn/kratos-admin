@@ -10,6 +10,7 @@ export const systemModule = defineKratosTaroModule({
     PROFILE_HOME: 'pages/my/my',
     PROFILE: 'pagesMember/profile/profile',
     SETTINGS: 'pagesMember/settings/settings',
+    PASSWORD: 'pagesMember/password/password',
     AI: 'pagesMember/ai/index',
     MESSAGE_INBOX: 'pagesMember/message/index',
     MESSAGE_DETAIL: 'pagesMember/message/detail',

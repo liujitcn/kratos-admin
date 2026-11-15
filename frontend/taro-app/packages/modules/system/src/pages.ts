@@ -9,6 +9,7 @@ export const systemPages: Record<string, KratosTaroPageConfig> = {
     },
   },
   'pagesMember/settings/settings': { style: { navigationStyle: 'custom', navigationBarTitleText: '' } },
+  'pagesMember/password/password': { style: { navigationStyle: 'custom', navigationBarTitleText: '' } },
   'pagesMember/ai/index': {
     style: {
       navigationStyle: 'custom',

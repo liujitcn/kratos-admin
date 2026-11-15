@@ -169,9 +169,11 @@ const onLogout = () => {
   if (logoutLoading.value) {
     return
   }
-  // 模态弹窗
+  // 模态弹窗：显式指定中文按钮文案，避免 uni 默认的 OK/Cancel 英文按钮。
   uni.showModal({
     content: t('core.settings.logout_confirm'),
+    confirmText: t('common.action.confirm'),
+    cancelText: t('common.action.cancel'),
     confirmColor: themeStore.colors.primary,
     cancelColor: themeStore.colors.textMuted,
     success: async (res) => {
@@ -181,9 +183,10 @@ const onLogout = () => {
 
       logoutLoading.value = true
       try {
-        // 先完成退出和本地登录态清理，再返回个人中心，避免 onShow 读取到旧登录态。
+        // 先完成退出和本地登录态清理，再清栈直达登录页：navigateBack 会回到
+        // 仍驻留的受限页面，uni 端页面 onShow 不复查登录态，会停留在旧内容上。
         await userStore.logout()
-        uni.navigateBack()
+        navigateToLogin()
       } catch (error) {
         if (!isAuthExpiredError(error)) {
           await uni.showToast({
@@ -222,7 +225,8 @@ const onLogout = () => {
       <slot name="security" />
 
       <text class="k-set-cat settings-category--following">{{ t('core.settings.section_appearance') }}</text>
-      <picker :range="themeModeLabels" :value="themeModeIndex" @change="onThemeModeChange">
+      <!-- key 绑定当前值：uni picker 打开时内部游标不同步 value 变化，强制重建保证定位与当前值一致。 -->
+      <picker :key="`theme-${themeModeIndex}`" :range="themeModeLabels" :value="themeModeIndex" @change="onThemeModeChange">
         <view class="k-set-row k-set-row--arrow">
           <view class="k-set-row__lead">
             <view class="k-set-row__icon">
@@ -236,7 +240,7 @@ const onLogout = () => {
           <view class="k-set-row__arrow" aria-hidden="true" />
         </view>
       </picker>
-      <picker :range="localeLabels" :value="localeIndex" @change="onLocaleChange">
+      <picker :key="`locale-${localeIndex}`" :range="localeLabels" :value="localeIndex" @change="onLocaleChange">
         <view class="k-set-row k-set-row--arrow">
           <view class="k-set-row__lead">
             <view class="k-set-row__icon">

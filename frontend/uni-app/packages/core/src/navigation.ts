@@ -453,11 +453,18 @@ function normalizeMenu(item: BaseMenu): AppMenu {
   }
 }
 
-/** 为缺少后端标题的菜单提供稳定的本地化文案。 */
+/**
+ * 菜单标题本地化：后端只下发源语言标题，viewKey 有本地化词条时优先取词条，
+ * 语言切换立即生效；无词条的 viewKey（如管理端自定义页面）回退后端标题。
+ */
 function resolveMenuTitle(viewKey: string, title: string): string {
-  if (title) return title
   const titleKey = fallbackMenuTitleKeys[viewKey]
-  return titleKey ? t(titleKey) : ''
+  if (titleKey) {
+    const localized = t(titleKey)
+    // 词条缺失时 t() 返回 key 本身，此时退回后端标题而不是展示 key。
+    if (localized && localized !== titleKey) return localized
+  }
+  return title
 }
 
 /** 校验整份菜单的编号、命名、访问模式、父子层级与 tab 数量，任一不合法即拒绝整份配置。 */

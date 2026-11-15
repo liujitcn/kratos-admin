@@ -608,6 +608,8 @@
   position: relative;
   overflow: hidden;
   padding: 26px 28px;
+  /* 显式声明容器字号：两端默认继承值不同（uni 16px / taro 14px），统一与标题协调的字号。 */
+  font-size: 26px;
   border-radius: var(--kratos-page-radius);
   background: var(--kratos-color-surface);
   border: 1PX solid var(--kratos-color-border);
