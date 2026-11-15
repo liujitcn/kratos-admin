@@ -45,6 +45,12 @@
         "packages/core/src/components/PasswordStrength/index.vue"
       ],
       "@liujitcn/kratos-admin-core/components/ProForm/index.vue": ["packages/core/src/components/ProForm/index.vue"],
+      "@liujitcn/kratos-admin-core/components/ProForm/components/DynamicList.vue": [
+        "packages/core/src/components/ProForm/components/DynamicList.vue"
+      ],
+      "@liujitcn/kratos-admin-core/components/ProForm/components/KvList.vue": [
+        "packages/core/src/components/ProForm/components/KvList.vue"
+      ],
       "@liujitcn/kratos-admin-core/components/ProForm/interface": ["packages/core/src/components/ProForm/interface/index.ts"],
       "@liujitcn/kratos-admin-core/components/ProTable": ["packages/core/src/components/ProTable.ts"],
       "@liujitcn/kratos-admin-core/components/ProTable/interface": ["packages/core/src/components/ProTable/interface/index.ts"],
@@ -54,6 +60,7 @@
       "@liujitcn/kratos-admin-core/components/SelectIcon/index.vue": ["packages/core/src/components/SelectIcon/index.vue"],
       "@liujitcn/kratos-admin-core/components/TreeFilter/index.vue": ["packages/core/src/components/TreeFilter/index.vue"],
       "@liujitcn/kratos-admin-core/components/Upload/Img.vue": ["packages/core/src/components/Upload/Img.vue"],
+      "@liujitcn/kratos-admin-core/components/Upload/File.vue": ["packages/core/src/components/Upload/File.vue"],
       "@liujitcn/kratos-admin-core/components/WangEditor/index.vue": ["packages/core/src/components/WangEditor/index.vue"],
       "@liujitcn/kratos-admin-core/config": ["packages/core/src/config/index.ts"],
       "@liujitcn/kratos-admin-core/format": ["packages/core/src/format.ts"],
