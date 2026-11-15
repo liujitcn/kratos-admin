@@ -162,8 +162,13 @@ async function loadNavigationRuntime(state) {
             }
             return {
               loader: 'js',
-              contents: `export function getCurrentLocale() { return 'zh-CN' }
-                export function t(key) { return key }`,
+              contents: `const messages = {
+                  'core.navigation.home': '首页',
+                  'core.navigation.message': '消息',
+                  'core.navigation.my': '我的',
+                }
+                export function getCurrentLocale() { return 'zh-CN' }
+                export function t(key) { return messages[key] ?? '' }`,
             }
           })
         },
@@ -274,7 +279,7 @@ test('动态菜单缺失标题时仅按公共 viewKey 回退本地化标题', as
 
   assert.deepEqual(
     runtime.useAppNavigation().tabBar.value.map((item) => item.title),
-    ['core.navigation.home', '', 'core.navigation.message', 'core.navigation.my'],
+    ['首页', '', '消息', '我的'],
   )
 })
 
