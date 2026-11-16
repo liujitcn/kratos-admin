@@ -4,6 +4,7 @@ module.exports = {
   parserOptions: {
     project: false,
     requireConfigFile: false,
+    warnOnUnsupportedTypeScriptVersion: false,
   },
   rules: {
     'react/react-in-jsx-scope': 'off',

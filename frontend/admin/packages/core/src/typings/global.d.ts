@@ -1,82 +1,84 @@
-/// <reference path="./window.d.ts" />
+import "./window";
 
-/* Menu */
-declare namespace Menu {
-  interface MenuOptions {
-    path: string;
-    name: string;
-    component?: string | (() => Promise<unknown>);
-    redirect?: string;
-    meta: MetaProps;
-    children?: MenuOptions[];
+declare global {
+  /* Menu */
+  namespace Menu {
+    interface MenuOptions {
+      path: string;
+      name: string;
+      component?: string | (() => Promise<unknown>);
+      redirect?: string;
+      meta: MetaProps;
+      children?: MenuOptions[];
+    }
+    interface MetaProps {
+      icon: string;
+      title: string;
+      activeMenu?: string;
+      link?: string;
+      hide: boolean;
+      full: boolean;
+      affix: boolean;
+      keepAlive: boolean;
+    }
   }
-  interface MetaProps {
-    icon: string;
-    title: string;
-    activeMenu?: string;
-    link?: string;
-    hide: boolean;
-    full: boolean;
-    affix: boolean;
-    keepAlive: boolean;
+
+  /* FileType */
+  namespace File {
+    type ImageMimeType =
+      | "image/apng"
+      | "image/bmp"
+      | "image/gif"
+      | "image/jpeg"
+      | "image/pjpeg"
+      | "image/png"
+      | "image/svg+xml"
+      | "image/tiff"
+      | "image/webp"
+      | "image/x-icon";
+
+    type ExcelMimeType = "application/vnd.ms-excel" | "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
   }
-}
 
-/* FileType */
-declare namespace File {
-  type ImageMimeType =
-    | "image/apng"
-    | "image/bmp"
-    | "image/gif"
-    | "image/jpeg"
-    | "image/pjpeg"
-    | "image/png"
-    | "image/svg+xml"
-    | "image/tiff"
-    | "image/webp"
-    | "image/x-icon";
+  /* Vite */
+  type Recordable<T = any> = Record<string, T>;
 
-  type ExcelMimeType = "application/vnd.ms-excel" | "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
-}
+  interface ViteEnv {
+    VITE_USER_NODE_ENV: "development" | "production" | "test";
+    VITE_GLOB_APP_TITLE: string;
+    VITE_PORT: number;
+    VITE_OPEN: boolean;
+    VITE_REPORT: boolean;
+    VITE_ROUTER_MODE: "hash" | "history";
+    VITE_BUILD_COMPRESS: "gzip" | "brotli" | "gzip,brotli" | "none";
+    VITE_BUILD_COMPRESS_DELETE_ORIGIN_FILE: boolean;
+    VITE_DROP_CONSOLE: boolean;
+    VITE_PWA: boolean;
+    VITE_DEVTOOLS: boolean;
+    VITE_PUBLIC_PATH: string;
+    VITE_API_URL: string;
+    VITE_PROXY: [string, string][];
+    /** 是否启用 Vite HTTPS 开发服务。 */
+    VITE_HTTPS: boolean;
+    /** HTTPS 私钥路径，相对于宿主 apps/admin 目录。 */
+    VITE_HTTPS_KEY: string;
+    /** HTTPS 证书路径，相对于宿主 apps/admin 目录。 */
+    VITE_HTTPS_CERT: string;
+    VITE_CODEINSPECTOR: boolean;
+  }
 
-/* Vite */
-declare type Recordable<T = any> = Record<string, T>;
+  interface ImportMetaEnv extends ViteEnv {
+    __: unknown;
+  }
 
-declare interface ViteEnv {
-  VITE_USER_NODE_ENV: "development" | "production" | "test";
-  VITE_GLOB_APP_TITLE: string;
-  VITE_PORT: number;
-  VITE_OPEN: boolean;
-  VITE_REPORT: boolean;
-  VITE_ROUTER_MODE: "hash" | "history";
-  VITE_BUILD_COMPRESS: "gzip" | "brotli" | "gzip,brotli" | "none";
-  VITE_BUILD_COMPRESS_DELETE_ORIGIN_FILE: boolean;
-  VITE_DROP_CONSOLE: boolean;
-  VITE_PWA: boolean;
-  VITE_DEVTOOLS: boolean;
-  VITE_PUBLIC_PATH: string;
-  VITE_API_URL: string;
-  VITE_PROXY: [string, string][];
-  /** 是否启用 Vite HTTPS 开发服务。 */
-  VITE_HTTPS: boolean;
-  /** HTTPS 私钥路径，相对于宿主 apps/admin 目录。 */
-  VITE_HTTPS_KEY: string;
-  /** HTTPS 证书路径，相对于宿主 apps/admin 目录。 */
-  VITE_HTTPS_CERT: string;
-  VITE_CODEINSPECTOR: boolean;
-}
-
-interface ImportMetaEnv extends ViteEnv {
-  __: unknown;
-}
-
-/* __APP_INFO__ */
-declare const __APP_INFO__: {
-  pkg: {
-    name: string;
-    version: string;
-    dependencies: Recordable<string>;
-    devDependencies: Recordable<string>;
+  /* __APP_INFO__ */
+  const __APP_INFO__: {
+    pkg: {
+      name: string;
+      version: string;
+      dependencies: Recordable<string>;
+      devDependencies: Recordable<string>;
+    };
+    lastBuildTime: string;
   };
-  lastBuildTime: string;
-};
+}

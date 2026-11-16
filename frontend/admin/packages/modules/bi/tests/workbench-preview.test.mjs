@@ -349,7 +349,7 @@ test("数据源模型使用最新版本，检查影响后才能保存，刷新�
  const saved=[];
  const props=vue.reactive({modelValue:false,source:{id:1,version:7,code:"sales",schema_json:"{}"}});
  const state=setupComponent("BiSourceModelDialog",props,{
-  vue,"@liujitcn/kratos-admin-core":{t:key=>key},"@element-plus/icons-vue":{},
+  vue:{...vue,useId:()=>"test"},"@liujitcn/kratos-admin-core":{t:key=>key},"@element-plus/icons-vue":{},
   "@vue-flow/core":{useVueFlow:()=>({fitView:()=>undefined,updateNodeInternals:()=>undefined,viewportHelper:vue.ref({viewportInitialized:false})}),Position:{Right:"right",Left:"left"}},
   "@vue-flow/background":{},"@vue-flow/controls":{},"@vue-flow/minimap":{},"./source-model-layout":{formatSourceModelLayout:()=>undefined},
   "../api/bi/admin/v1/bi_query":{defBiQueryService:{}},
@@ -386,7 +386,7 @@ for (const operation of ["loadModel", "refreshVersion", "saveModel"]) {
   const source=id=>({id,version:id,code:`source${id}`,schema_json:stored(id),model_configured:true});
   const props=vue.reactive({modelValue:false,source:source(1)});
   const state=setupComponent("BiSourceModelDialog",props,{
-   vue,"@liujitcn/kratos-admin-core":{t:key=>key},"@element-plus/icons-vue":{},
+   vue:{...vue,useId:()=>"test"},"@liujitcn/kratos-admin-core":{t:key=>key},"@element-plus/icons-vue":{},
    "@vue-flow/core":{useVueFlow:()=>({fitView:()=>undefined,updateNodeInternals:()=>undefined,viewportHelper:vue.ref({viewportInitialized:false})}),Position:{Right:"right",Left:"left"}},
    "@vue-flow/background":{},"@vue-flow/controls":{},"@vue-flow/minimap":{},"./source-model-layout":{formatSourceModelLayout:()=>undefined},
    "../api/bi/admin/v1/bi_query":{defBiQueryService:{}},

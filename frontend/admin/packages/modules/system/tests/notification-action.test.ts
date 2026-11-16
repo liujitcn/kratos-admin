@@ -50,7 +50,7 @@ test("自动化通知只转交字符串编号，不损失雪花ID精度或接受
       query: { automation_id: "8001", run_id: "9223372036854775807", session_id: "9001" }
     }
   );
-  assert.deepEqual(resolveNotificationAction("AI", JSON.stringify({ run_id: 9223372036854775807, session_id: "../other" })), {
+  assert.deepEqual(resolveNotificationAction("AI", JSON.stringify({ run_id: Number.MAX_SAFE_INTEGER, session_id: "../other" })), {
     name: "AiChat"
   });
 });
