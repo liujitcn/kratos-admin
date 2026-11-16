@@ -1,4 +1,4 @@
-import "./window";
+import "./window.d.ts";
 
 declare global {
   /* Menu */
