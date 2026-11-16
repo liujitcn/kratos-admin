@@ -15,19 +15,19 @@ import (
 	"testing"
 	"time"
 
-	kratosErrors "github.com/go-kratos/kratos/v3/errors"
+	"github.com/go-kratos/kratos/v3/errors"
 	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/bi/admin/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/bi/admin/dto"
-	queryCompiler "github.com/liujitcn/kratos-admin/backend/internal/biz/bi/admin/query"
+	"github.com/liujitcn/kratos-admin/backend/internal/biz/bi/admin/query"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 	"github.com/liujitcn/kratos-admin/backend/pkg/bi"
 	configv1 "github.com/liujitcn/kratos-kit/api/gen/go/config/v1"
-	authnEngine "github.com/liujitcn/kratos-kit/auth/authn/engine"
+	"github.com/liujitcn/kratos-kit/auth/authn/engine"
 	"github.com/liujitcn/kratos-kit/auth/data"
-	databaseGorm "github.com/liujitcn/kratos-kit/database/gorm"
+	"github.com/liujitcn/kratos-kit/database/gorm"
 	"github.com/liujitcn/kratos-kit/database/gorm/driver"
 	"google.golang.org/protobuf/proto"
-	gormMysql "gorm.io/driver/mysql"
+	"gorm.io/driver/mysql"
 )
 
 // TestCloudSCPMySQLJoins 用真实只读业务连接及隔离元数据库验证五表查询和公共指标闭环。
@@ -149,7 +149,7 @@ func TestCloudSCPMySQLJoins(t *testing.T) {
 				candidate := proto.Clone(model).(*adminv1.BiSourceModel)
 				test.mutate(candidate)
 				_, err = configuredSourceModel(candidate, metadata.Tables)
-				if kratosErrors.Code(err) != 400 {
+				if errors.Code(err) != 400 {
 					t.Fatalf("非法关系未被拒绝: %v", err)
 				}
 			})
@@ -235,7 +235,7 @@ func TestCloudSCPMySQLJoins(t *testing.T) {
 			checkCloudSCPRows(t, database.db, result, "SELECT "+selectSQL+from+tail, []any{1, 1, 1, 1, 1}, false)
 		}
 		for _, version := range []int64{0, dashboard.PublishedVersion} {
-			if _, err = dashboards.GetBiDashboardData(ctx, &adminv1.GetBiDashboardDataRequest{Id: dashboard.Id, Version: version}); kratosErrors.Code(err) != 409 {
+			if _, err = dashboards.GetBiDashboardData(ctx, &adminv1.GetBiDashboardDataRequest{Id: dashboard.Id, Version: version}); errors.Code(err) != 409 {
 				t.Fatalf("旧发布仍可执行: %v", err)
 			}
 		}
@@ -306,7 +306,7 @@ func TestCloudSCPDoris(t *testing.T) {
 		candidate.Tables = append(candidate.Tables, &adminv1.BiSourceModelTable{Key: users, TenantColumn: "tenant_id"})
 		candidate.Relations = []*adminv1.BiSourceRelation{{LeftTable: base, LeftColumn: "user_id", RightTable: users, RightColumn: "user_id", JoinType: "left"}}
 		_, err = configuredSourceModel(candidate, metadata.Tables)
-		if kratosErrors.Code(err) != 400 || !strings.Contains(err.Error(), "唯一") {
+		if errors.Code(err) != 400 || !strings.Contains(err.Error(), "唯一") {
 			t.Fatalf("未安全阻断无法证明唯一性的关联: %v", err)
 		}
 		t.Log("限制已复现：Doris 未返回可用单列唯一键，BI 当前不能建立真实交易表的复合键多表模型")
@@ -346,7 +346,7 @@ func TestCloudSCPDoris(t *testing.T) {
 		configured = reviseSourceModel(dto.ConfiguredSourceSchema{}, configured, 2)
 		spec := bi.QuerySpec{SourceCode: source.Code, Measures: []bi.MeasureSpec{{Code: "trades"}}}
 		var execution *dto.CardExecution
-		execution, err = queryCompiler.Compile("doris", 100, configured, spec)
+		execution, err = query.Compile("doris", 100, configured, spec)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -367,7 +367,7 @@ func TestCloudSCPDoris(t *testing.T) {
 	})
 	t.Run("项目授权边界", func(t *testing.T) {
 		_, err = sourceCase.Execute(ctx, bi.Scope{TenantID: 1, UserID: 10, ProjectID: 2}, bi.QuerySpec{SourceCode: source.Code, Measures: []bi.MeasureSpec{{Code: "trades"}}})
-		if kratosErrors.Code(err) != 403 {
+		if errors.Code(err) != 403 {
 			t.Fatalf("配置源项目权限边界失效: %v", err)
 		}
 	})
@@ -434,7 +434,7 @@ func newCloudSCPTestCases(t *testing.T, key string) (*BiCardCase, *BiDashboardCa
 		t.Fatal(err)
 	}
 	previousOpen, registered := driver.Opens[entry.Driver]
-	driver.Opens[entry.Driver] = gormMysql.Open
+	driver.Opens[entry.Driver] = mysql.Open
 	t.Cleanup(func() {
 		if registered {
 			driver.Opens[entry.Driver] = previousOpen
@@ -442,9 +442,9 @@ func newCloudSCPTestCases(t *testing.T, key string) (*BiCardCase, *BiDashboardCa
 			delete(driver.Opens, entry.Driver)
 		}
 	})
-	var client *databaseGorm.Client
+	var client *gorm.Client
 	var cleanup func()
-	client, cleanup, err = databaseGorm.NewGormClient(&configv1.Data_Database{Driver: entry.Driver, Source: dsn}, databaseGorm.WithName(key))
+	client, cleanup, err = gorm.NewGormClient(&configv1.Data_Database{Driver: entry.Driver, Source: dsn}, gorm.WithName(key))
 	if err != nil {
 		t.Fatal("打开真实数据源失败，请检查本机私有连接配置")
 	}
@@ -453,8 +453,8 @@ func newCloudSCPTestCases(t *testing.T, key string) (*BiCardCase, *BiDashboardCa
 	cards.GormClients[key] = client
 	sourceCase := cards.biQueryCase.biSourceCase
 	sourceCase.authorizer = modelTestAuthorizer{}
-	identity := &data.UserTokenPayload{TenantId: 1, TenantCode: databaseGorm.DefaultTenantCode, UserId: 10, DataScope: databaseGorm.DataScopeAll}
-	ctx, cancel := context.WithTimeout(authnEngine.ContextWithAuthClaims(t.Context(), identity.MakeAuthClaims()), 90*time.Second)
+	identity := &data.UserTokenPayload{TenantId: 1, TenantCode: gorm.DefaultTenantCode, UserId: 10, DataScope: gorm.DataScopeAll}
+	ctx, cancel := context.WithTimeout(engine.ContextWithAuthClaims(t.Context(), identity.MakeAuthClaims()), 90*time.Second)
 	t.Cleanup(cancel)
 	source := &models.BiSource{TenantID: 1, Code: "cloud_scp_test", Name: "cloud-scp 临时测试源", Driver: entry.Driver, DatabaseName: entry.Database, SourceName: key, SchemaJSON: "{}", Version: 1, MaxRows: 100, Status: 1}
 	if err = sourceCase.sourceRepo.Create(ctx, source); err != nil {

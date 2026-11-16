@@ -6,14 +6,14 @@ import (
 	"strings"
 	"testing"
 
-	kratosErrors "github.com/go-kratos/kratos/v3/errors"
+	"github.com/go-kratos/kratos/v3/errors"
 	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/bi/admin/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/bi/admin/dto"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 	"github.com/liujitcn/kratos-admin/backend/pkg/bi"
-	authnEngine "github.com/liujitcn/kratos-kit/auth/authn/engine"
+	"github.com/liujitcn/kratos-kit/auth/authn/engine"
 	"github.com/liujitcn/kratos-kit/auth/data"
-	databaseGorm "github.com/liujitcn/kratos-kit/database/gorm"
+	"github.com/liujitcn/kratos-kit/database/gorm"
 )
 
 // TestDashboardDisplayDoesNotExposeExecution 验证统一仪表盘转换不能外泄 SQL、参数或业务过滤。
@@ -39,9 +39,9 @@ func TestSourceLimitChangePreservesSavedQuery(t *testing.T) {
 	cards, dashboards := newBiWorkflowTestCases(t)
 	sourceCase := cards.biQueryCase.biSourceCase
 	sourceCase.authorizer = modelTestAuthorizer{}
-	identity := &data.UserTokenPayload{TenantId: 1, TenantCode: databaseGorm.DefaultTenantCode, UserId: 10, DataScope: databaseGorm.DataScopeAll}
-	ctx := authnEngine.ContextWithAuthClaims(t.Context(), identity.MakeAuthClaims())
-	db := cards.GormClients[databaseGorm.DefaultClientName].DB
+	identity := &data.UserTokenPayload{TenantId: 1, TenantCode: gorm.DefaultTenantCode, UserId: 10, DataScope: gorm.DataScopeAll}
+	ctx := engine.ContextWithAuthClaims(t.Context(), identity.MakeAuthClaims())
+	db := cards.GormClients[gorm.DefaultClientName].DB
 	err := db.AutoMigrate(&modelTestOrder{})
 	if err != nil {
 		t.Fatal(err)
@@ -59,7 +59,7 @@ func TestSourceLimitChangePreservesSavedQuery(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	source := &models.BiSource{TenantID: 1, Code: "limited", Name: "上限测试", SourceName: databaseGorm.DefaultClientName, Status: 1, Version: 1, MaxRows: 100, SchemaJSON: string(payload)}
+	source := &models.BiSource{TenantID: 1, Code: "limited", Name: "上限测试", SourceName: gorm.DefaultClientName, Status: 1, Version: 1, MaxRows: 100, SchemaJSON: string(payload)}
 	if err = sourceCase.sourceRepo.Create(ctx, source); err != nil {
 		t.Fatal(err)
 	}
@@ -99,7 +99,7 @@ func TestSourceLimitChangePreservesSavedQuery(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			if _, err = dashboards.GetBiDashboardData(ctx, &adminv1.GetBiDashboardDataRequest{Id: dashboard.Id}); kratosErrors.Code(err) != 409 {
+			if _, err = dashboards.GetBiDashboardData(ctx, &adminv1.GetBiDashboardDataRequest{Id: dashboard.Id}); errors.Code(err) != 409 {
 				t.Fatalf("源上限变化后旧发布未失效: %v", err)
 			}
 			t.Run("重新发布取数", func(t *testing.T) {

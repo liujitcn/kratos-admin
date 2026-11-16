@@ -7,15 +7,15 @@ import (
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/bi/admin/dto"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 	"github.com/liujitcn/kratos-admin/backend/pkg/bi"
-	authnEngine "github.com/liujitcn/kratos-kit/auth/authn/engine"
+	"github.com/liujitcn/kratos-kit/auth/authn/engine"
 	"github.com/liujitcn/kratos-kit/auth/data"
-	databaseGorm "github.com/liujitcn/kratos-kit/database/gorm"
+	"github.com/liujitcn/kratos-kit/database/gorm"
 )
 
 // TestConfiguredSQLPreservesDatabaseOrder 防止返回前再次按数值排序破坏数据库字符串排序和 Top-N 顺序。
 func TestConfiguredSQLPreservesDatabaseOrder(t *testing.T) {
 	cards, _ := newBiWorkflowTestCases(t)
-	db := cards.GormClients[databaseGorm.DefaultClientName].DB
+	db := cards.GormClients[gorm.DefaultClientName].DB
 	err := db.AutoMigrate(&modelTestOrder{})
 	if err != nil {
 		t.Fatal(err)
@@ -29,9 +29,9 @@ func TestConfiguredSQLPreservesDatabaseOrder(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	identity := &data.UserTokenPayload{TenantId: 1, TenantCode: databaseGorm.DefaultTenantCode, UserId: 10, DataScope: databaseGorm.DataScopeAll}
-	ctx := authnEngine.ContextWithAuthClaims(t.Context(), identity.MakeAuthClaims())
-	if err = cards.biQueryCase.biSourceCase.sourceRepo.Create(ctx, &models.BiSource{TenantID: 1, Code: "ordered", Name: "排序", SourceName: databaseGorm.DefaultClientName, Status: 1, Version: 1, MaxRows: 100, SchemaJSON: string(payload)}); err != nil {
+	identity := &data.UserTokenPayload{TenantId: 1, TenantCode: gorm.DefaultTenantCode, UserId: 10, DataScope: gorm.DataScopeAll}
+	ctx := engine.ContextWithAuthClaims(t.Context(), identity.MakeAuthClaims())
+	if err = cards.biQueryCase.biSourceCase.sourceRepo.Create(ctx, &models.BiSource{TenantID: 1, Code: "ordered", Name: "排序", SourceName: gorm.DefaultClientName, Status: 1, Version: 1, MaxRows: 100, SchemaJSON: string(payload)}); err != nil {
 		t.Fatal(err)
 	}
 	for _, test := range []struct {
