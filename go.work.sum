@@ -356,7 +356,7 @@ github.com/leonklingele/grouper v1.1.2/go.mod h1:6D0M/HVkhs2yRKRFZUoGjeDy7EZTfFB
 github.com/liujitcn/go-scripts v0.0.1 h1:90OTz7ylJLbf4AeC59hwWQA3DAB907WV6GYrSWyKc+E=
 github.com/liujitcn/go-scripts v0.0.1/go.mod h1:Pugr/TDrJ3zAKePT8OdjpCBVV55gn4qJfcqrbpnAk9A=
 github.com/liujitcn/go-scripts/hostmodule v0.0.1/go.mod h1:J2DfILhOoqLOarfTJDx+QcbUhnGsMoxxKZ7y8EaPcp4=
-github.com/liujitcn/kratos-admin/backend/api v0.0.35/go.mod h1:Ah9J7JL8b/gw1x4JOI0M2Tb10NnGB+r0idiZQYsHqg4=
+github.com/liujitcn/kratos-admin/backend/api v0.0.36/go.mod h1:Ah9J7JL8b/gw1x4JOI0M2Tb10NnGB+r0idiZQYsHqg4=
 github.com/liujitcn/kratos-kit/auth v0.0.35/go.mod h1:BZpQR8KFGtT9YYa3xknK6wenf9khxTvF0AByr7Ciwnk=
 github.com/liujitcn/kratos-kit/auth/authn v0.0.27/go.mod h1:vR++xTsEtO5kO3qn9Nr0fRV43eDcW7ATrcCaZSCoKrk=
 github.com/liujitcn/kratos-kit/auth/authn/middleware v0.0.24/go.mod h1:HvVfP5d8uvWTD7kvyHzLRIdZGNgsW1BzWNlRq8rBRwI=

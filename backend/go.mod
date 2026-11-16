@@ -33,7 +33,7 @@ require (
 	github.com/liujitcn/go-utils/http v0.0.10
 	github.com/liujitcn/go-utils/translator v0.0.7
 	github.com/liujitcn/gorm-kit v0.0.41
-	github.com/liujitcn/kratos-admin/backend/api v0.0.35
+	github.com/liujitcn/kratos-admin/backend/api v0.0.36
 	github.com/liujitcn/kratos-core v0.0.57
 	github.com/liujitcn/kratos-core/api v0.0.7
 	github.com/liujitcn/kratos-kit v0.1.0
