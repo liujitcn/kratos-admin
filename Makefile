@@ -59,7 +59,7 @@ DOCKERFILE ?= backend/Dockerfile
 DOCKER_PLATFORMS ?= linux/amd64,linux/arm64
 # 双架构镜像写入本地容器镜像存储，并明确使用 Docker media types。
 DOCKER_LOCAL_OUTPUT ?= --output type=image,oci-mediatypes=false,store=true
-DOCKER_GOPROXY ?= $(or $(shell go env GOPROXY 2>/dev/null),https://proxy.golang.org,direct)
+DOCKER_GOPROXY ?= https://proxy.golang.org,direct
 IMAGE ?= kratos/kratos-admin
 DOCKER_PUSH_IMAGE ?= swr.cn-north-4.myhuaweicloud.com/liujitcngit pull up/$(IMAGE)
 PROJECT_VERSION_FILE ?= $(BACKEND_DIR)/internal/const/project.go
