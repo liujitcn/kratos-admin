@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
-"""统一升级根项目、后端模块和前端 npm 包的版本并推送 tag。"""
+"""先发布 backend/api，再统一升级后端模块和前端 npm 包并推送 tag。"""
 
 from __future__ import annotations
 
 import argparse
 import json
+import os
 import re
 import shutil
 import subprocess
@@ -14,6 +15,11 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 PROJECT_VERSION_FILE = ROOT / "backend/internal/const/project.go"
+API_MODULE = "github.com/liujitcn/kratos-admin/backend/api"
+API_DEPENDENCY_FILES = (
+    ROOT / "backend/go.mod",
+    ROOT / "backend/client/go.mod",
+)
 PACKAGE_FILES = (
     ROOT / "frontend/admin/packages/core/package.json",
     ROOT / "frontend/admin/packages/modules/system/package.json",
@@ -30,12 +36,21 @@ PACKAGE_FILES = (
 )
 TAG_RE = re.compile(r"^v(\d+)\.(\d+)\.(\d+)$")
 PROJECT_VERSION_RE = re.compile(r'(?m)^(\s*Version\s*=\s*")[^"]+("\s*)$')
+API_MODULE_VERSION_RE = re.compile(
+    rf"(?m)^([ \t]*(?:require[ \t]+)?{re.escape(API_MODULE)}[ \t]+)v[^\s]+([ \t]*(?://.*)?$)"
+)
 NPM_WORKFLOW = "publish-npm.yml"
 
 
-def run(cmd: list[str], *, cwd: Path = ROOT, check: bool = True) -> str:
+def run(
+    cmd: list[str], *, cwd: Path = ROOT, check: bool = True, env: dict[str, str] | None = None
+) -> str:
     """执行命令并返回标准输出。"""
-    result = subprocess.run(cmd, cwd=cwd, capture_output=True, text=True)
+    process_env = None
+    if env:
+        process_env = os.environ.copy()
+        process_env.update(env)
+    result = subprocess.run(cmd, cwd=cwd, capture_output=True, text=True, env=process_env)
     if check and result.returncode != 0:
         detail = result.stderr.strip() or result.stdout.strip()
         raise RuntimeError(f"命令执行失败: {' '.join(cmd)}\n{detail}")
@@ -109,9 +124,9 @@ def ensure_release_branch(branch: str) -> str:
     return remote_ref
 
 
-def latest_tag(prefix: str) -> tuple[tuple[int, int, int], str] | None:
+def latest_tag(prefix: str, *, pattern: str | None = None) -> tuple[tuple[int, int, int], str] | None:
     """读取指定前缀下最大的语义化版本 tag。"""
-    tags = run(["git", "tag", "--list", f"{prefix}v*"]).splitlines()
+    tags = run(["git", "tag", "--list", pattern or f"{prefix}v*"]).splitlines()
     parsed: list[tuple[tuple[int, int, int], str]] = []
     for tag in tags:
         if not tag.startswith(prefix):
@@ -147,7 +162,7 @@ def resolve_version(requested: str | None) -> tuple[int, int, int]:
         return parse_version(requested)
 
     root_latest = latest_tag("")
-    backend_latest = latest_tag("backend/")
+    backend_latest = latest_tag("backend/", pattern="backend/v*")
     if root_latest and backend_latest and root_latest[0] != backend_latest[0]:
         raise RuntimeError(
             f"根目录与 backend 最新 tag 不一致: {root_latest[1]} / {backend_latest[1]}，请显式指定 VERSION 修复版本线"
@@ -177,15 +192,25 @@ def tag_commit(tag: str) -> str:
 
 
 def release_tags(version: tuple[int, int, int]) -> tuple[str, ...]:
-    """生成统一版本对应的三个发布 tag。"""
+    """生成统一版本对应的 API、客户端、后端和发布 tag。"""
     root_tag = tag_text(version)
-    return root_tag, f"backend/{root_tag}", f"npm/{root_tag}"
+    return (
+        f"backend/api/{root_tag}",
+        f"backend/client/{root_tag}",
+        f"backend/{root_tag}",
+        root_tag,
+        f"npm/{root_tag}",
+    )
 
 
-def resolve_release_tags(version: tuple[int, int, int]) -> tuple[str, ...]:
+def resolve_release_tags(
+    version: tuple[int, int, int], *, skip: tuple[str, ...] = ()
+) -> tuple[str, ...]:
     """生成本次发布需要推送的 tag。"""
     tags = release_tags(version)
     for tag in tags:
+        if tag in skip:
+            continue
         if tag_exists_locally(tag) or tag_exists_remotely(tag):
             raise RuntimeError(f"tag 已存在，拒绝覆盖: {tag}")
     return tags
@@ -204,8 +229,16 @@ def release_version_at_head() -> tuple[int, int, int] | None:
     if tag_commit(root_latest[1]) != head:
         return None
 
-    for prefix in ("backend/", "npm/"):
+    for prefix in ("backend/api/", "backend/client/"):
         component_latest = latest_tag(prefix)
+        if component_latest and component_latest[0] > root_latest[0]:
+            if tag_commit(component_latest[1]) == head:
+                return None
+            raise RuntimeError(
+                f"{prefix.rstrip('/')} 最新 tag {component_latest[1]} 高于根目录 {root_latest[1]}，请先修复版本线"
+            )
+    for prefix, pattern in (("backend/", "backend/v*"), ("npm/", None)):
+        component_latest = latest_tag(prefix, pattern=pattern)
         if component_latest and component_latest[0] > root_latest[0]:
             raise RuntimeError(
                 f"{prefix.rstrip('/')} 最新 tag {component_latest[1]} 高于根目录 {root_latest[1]}，请先修复版本线"
@@ -252,6 +285,50 @@ def update_project_version(version: tuple[int, int, int]) -> bool:
     return True
 
 
+def update_api_module_version(path: Path, version: tuple[int, int, int]) -> bool:
+    """将指定 Go 模块的 backend/api 依赖更新到发布版本。"""
+    try:
+        content = path.read_text(encoding="utf-8")
+    except OSError as err:
+        raise RuntimeError(f"无法读取 Go 模块文件: {path}: {err}") from err
+    updated, count = API_MODULE_VERSION_RE.subn(
+        rf"\g<1>v{version_text(version)}\g<2>", content
+    )
+    if count != 1:
+        raise RuntimeError(f"Go 模块文件中应有且只有一个 {API_MODULE} 依赖: {path}")
+    if updated == content:
+        return False
+    path.write_text(updated, encoding="utf-8")
+    return True
+
+
+def update_api_dependencies(version: tuple[int, int, int]) -> list[Path]:
+    """更新 backend 与 backend/client 的 API 依赖并同步模块校验文件。"""
+    changed: list[Path] = []
+    for path in API_DEPENDENCY_FILES:
+        if update_api_module_version(path, version):
+            changed.append(path)
+        run(["go", "mod", "tidy"], cwd=path.parent, env={"GOWORK": "off"})
+    return changed
+
+
+def commit_api_changes(version: tuple[int, int, int]) -> None:
+    """先提交 backend/api 的工作区改动，确保 API tag 包含当前契约。"""
+    if not run(["git", "status", "--porcelain", "--", "backend/api"]):
+        return
+    run(["git", "add", "-A", "--", "backend/api"])
+    run(
+        [
+            "git",
+            "commit",
+            "--only",
+            "backend/api",
+            "-m",
+            f"chore(release): 发布 backend/api v{version_text(version)}",
+        ]
+    )
+
+
 def commit_all_changes(version: tuple[int, int, int]) -> None:
     """提交版本更新以及工作区中的全部本地改动。"""
     status = run(["git", "status", "--porcelain"])
@@ -278,10 +355,35 @@ def push_tag(tag: str) -> None:
     print(f"已推送 tag: {tag}")
 
 
+def ensure_api_tag(version: tuple[int, int, int], commit: str) -> None:
+    """先创建并推送指向当前 API 提交的模块 tag。"""
+    tag = release_tags(version)[0]
+    current = tag_commit(tag)
+    if current and current != commit:
+        raise RuntimeError(f"tag {tag} 已指向其他提交，拒绝覆盖")
+    if not current:
+        run(["git", "tag", tag, commit])
+    if tag_exists_remotely(tag):
+        print(f"已存在 tag: {tag}")
+        return
+    run(["git", "push", "origin", tag])
+    print(f"已推送 tag: {tag}")
+
+
 def ensure_release_tags(version: tuple[int, int, int], commit: str) -> None:
     """复用当前版本 tag，并补推中断时缺失的同版本 tag。"""
+    api_tag = release_tags(version)[0]
     for tag in release_tags(version):
         current = tag_commit(tag)
+        if tag == api_tag:
+            if not current:
+                raise RuntimeError(f"缺少 API tag: {tag}，无法恢复发布")
+            if tag_exists_remotely(tag):
+                print(f"已存在 tag: {tag}")
+                continue
+            run(["git", "push", "origin", tag])
+            print(f"已补推 tag: {tag}")
+            continue
         if current and current != commit:
             raise RuntimeError(f"tag {tag} 已指向其他提交，拒绝覆盖")
         if not current:
@@ -382,7 +484,9 @@ def run_backend_tests() -> None:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="统一发布根项目、backend tag 和 frontend npm 包")
+    parser = argparse.ArgumentParser(
+        description="统一发布 backend/api、backend/client、backend 和 frontend npm 包"
+    )
     parser.add_argument("--version", help="目标版本，支持 X.Y.Z 或 vX.Y.Z；不指定时自动递增")
     parser.add_argument("--dry-run", action="store_true", help="仅检查并打印目标，不修改文件、不提交、不推送")
     args = parser.parse_args()
@@ -408,10 +512,15 @@ def main() -> int:
             return 0
 
         version = resolve_version(args.version)
-        tags = resolve_release_tags(version)
+        api_tag = release_tags(version)[0]
+        tags = resolve_release_tags(version, skip=(api_tag,))
         target = version_text(version)
         print(f"发布版本: {target}")
-        print(f"发布顺序: 全量提交 -> frontend package -> 推送分支 -> {' -> '.join(tags)}")
+        print(
+            "发布顺序: 提交 backend/api 改动（如有） -> backend/api tag "
+            "-> 更新 backend/client 与 backend API 依赖 "
+            f"-> 提交 -> frontend package -> 推送分支 -> {' -> '.join(tags)}"
+        )
 
         if args.dry_run:
             print("dry-run：未修改文件、未提交、未推送。")
@@ -419,6 +528,9 @@ def main() -> int:
 
         ensure_github_cli()
 
+        commit_api_changes(version)
+        ensure_api_tag(version, run(["git", "rev-parse", "HEAD"]))
+        update_api_dependencies(version)
         update_project_version(version)
         update_package_versions(version)
         run_backend_tests()

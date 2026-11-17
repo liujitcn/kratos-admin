@@ -289,7 +289,7 @@ docker-stop: docker-check
 
 # ===== 发布 =====
 
-# 统一升级、提交、打包并发布 Backend 与前端 npm 包。
+# 按 API、客户端、后端和前端 npm 的顺序统一升级、提交、打包并发布。
 tag:
 	@$(MAKE) i18n-check
 	@$(PYTHON) scripts/tag_release.py $(if $(strip $(VERSION)),--version "$(VERSION)",)
@@ -310,7 +310,7 @@ help:
 	@echo "  make package                      生成后端压缩包和全部 npm 包"
 	@echo "  make docker-build                 构建并写入默认 AMD64、ARM64 双架构镜像"
 	@echo "  make docker-push                  按 TAG 标记并推送 Docker 镜像"
-	@echo "  make tag VERSION=0.0.1            统一发布（会提交并推送）"
+	@echo "  make tag VERSION=0.0.1            统一发布 API、客户端、后端和前端（会提交并推送）"
 	@echo ""
 	@echo "可用目标:"
 	@awk '/^[a-zA-Z\-_0-9]+:/ { \
