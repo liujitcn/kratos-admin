@@ -86,7 +86,11 @@ export interface BiQueryRecord {
   /** 用户账号 */
   user_name: string;
   /** 完整类型化查询结果，仅详情返回 */
-  result: BiQueryResult | undefined;
+  result:
+    | BiQueryResult
+    | undefined;
+  /** 问数建议图表类型 */
+  chart_type: string;
 }
 
 /** BI 查询记录管理服务。 */

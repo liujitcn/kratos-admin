@@ -9,6 +9,7 @@ import (
 	"github.com/liujitcn/go-utils/mapper"
 	"github.com/liujitcn/gorm-kit/repository"
 	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/bi/admin/v1"
+	"github.com/liujitcn/kratos-admin/backend/internal/biz/bi/admin/dto"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 	"github.com/liujitcn/kratos-admin/backend/pkg/bi"
@@ -143,5 +144,15 @@ func (c *BiQueryRecordCase) queryUserNames(ctx context.Context, userIDs []int64)
 func (c *BiQueryRecordCase) toBiQueryRecord(item *models.BiQuery, userName string) *adminv1.BiQueryRecord {
 	record := c.recordMapper.ToDTO(item)
 	record.UserName = userName
+	if item.ContextJSON != "" {
+		var metadata dto.BiQueryRecordMetadata
+		var err error
+		err = json.Unmarshal([]byte(item.ContextJSON), &metadata)
+		if err != nil {
+			// 旧记录或其他查询类型的上下文没有图表元数据，交给前端按查询结构回退。
+		} else {
+			record.ChartType = metadata.ChartType
+		}
+	}
 	return record
 }

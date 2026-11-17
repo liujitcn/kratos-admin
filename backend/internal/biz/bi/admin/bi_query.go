@@ -136,7 +136,7 @@ func (c *BiQueryCase) AskBiQuery(ctx context.Context, req *adminv1.AskBiQueryReq
 		message.SystemText(`你是 BI 语义查询引擎。只能根据给定数据源目录输出单个 JSON 对象，不得输出 SQL、表名、Markdown 或解释。
 目录缺少问题所需的指标或维度时，只输出 {"error":"明确说明缺少的指标或维度，并提示配置对应的数据源模型"}，不得输出空查询、猜测编码或用含义不同的指标替代。只能回答部分问题时也应说明限制，不得把部分结果当作完整答案。
 JSON 格式为 {"query":{"source_code":"数据源编码","dimensions":[],"measures":[{"code":"指标编码"}],"filters":[],"time_range":null,"orders":[],"limit":100},"chart_type":"bar","title":"统计标题"}。
-chart_type 只支持 bar、line、area、pie、donut、scatter、radar、gauge、funnel、treemap、sunburst、sankey、heatmap、metric。无分组的总数使用 metric；桑基、热力和旭日需要两个分类维度；散点需要两个数值字段。
+chart_type 只支持 bar、line、area、pie、donut、scatter、radar、gauge、funnel、treemap、sunburst、sankey、heatmap、metric、metric_grid。无分组的总数使用 metric；metric_grid 是不分组的多指标卡，每个单元可用一个当前数值列和一个比较数值列；桑基、热力和旭日需要两个分类维度；散点需要两个数值字段。
 所有编码必须使用目录中的 code；limit 必须为整数。每次最多 2 个分组维度、5 个指标、10 个过滤条件、2 个排序条件。
 过滤格式为 {"field":"维度编码","operator":"eq","values":["0"]}，操作符只支持 eq、in、between、contains；values 必须为字符串数组，数字条件也写成字符串。
 排序格式为 {"field":"已选字段编码","direction":"desc"}，direction 只支持 asc、desc。
@@ -157,6 +157,14 @@ chart_type 只支持 bar、line、area、pie、donut、scatter、radar、gauge�
 	if output.Query.SourceCode == "" || len(output.Query.Measures) == 0 {
 		return nil, errorsx.InvalidArgument("BI 问数未生成完整查询计划，请检查数据源是否配置了所需指标和维度")
 	}
+	fallback := "bar"
+	if len(output.Query.Dimensions) == 0 {
+		fallback = "metric"
+	}
+	if !slices.Contains(biCardChartTypes, output.ChartType) {
+		output.ChartType = fallback
+	}
+	recordContext.ChartType = output.ChartType
 	var validated bi.QuerySpec
 	validated, _, err = c.validate(ctx, scope, fromProtoQuerySpec(&adminv1.BiQuerySpec{
 		SourceCode: output.Query.SourceCode,
@@ -190,15 +198,16 @@ chart_type 只支持 bar、line、area、pie、donut、scatter、radar、gauge�
 		}
 	}
 	// 保留符合真实结果结构的图型建议，无分组时仍允许仪表图。
-	fallback := "bar"
 	if len(validated.Dimensions) == 0 {
 		fallback = "metric"
 	}
-	if !slices.Contains(biCardChartTypes, output.ChartType) {
-		output.ChartType = fallback
-	}
 	if _, err = validateCardChart(output.ChartType, "", validated, result); err != nil {
 		output.ChartType = fallback
+	}
+	if reusable == nil && recordContext.ChartType != output.ChartType {
+		if err = c.updateQueryChartType(ctx, scope, result.QueryRecordID, output.ChartType); err != nil {
+			return nil, errorsx.WrapInternal(err, "保存 BI 问数图表类型失败")
+		}
 	}
 	return &adminv1.AskBiQueryResponse{
 		Query:     toProtoQuerySpec(validated),
@@ -356,6 +365,14 @@ func (c *BiQueryCase) recordQuery(ctx context.Context, scope bi.Scope, spec bi.Q
 				return 0
 			}
 			record.ContextJSON = string(encoded)
+		} else if recordContext.ChartType != "" {
+			var encoded []byte
+			encoded, err = json.Marshal(dto.BiQueryRecordMetadata{ChartType: recordContext.ChartType})
+			if err != nil {
+				log.Error("保存问数图表类型失败", "error", err)
+				return 0
+			}
+			record.ContextJSON = string(encoded)
 		}
 	}
 	if queryErr != nil {
@@ -379,6 +396,29 @@ func (c *BiQueryCase) recordQuery(ctx context.Context, scope bi.Scope, spec bi.Q
 		return 0
 	}
 	return record.ID
+}
+
+// updateQueryChartType 条件更新成功智能问数记录的最终图表类型。
+func (c *BiQueryCase) updateQueryChartType(ctx context.Context, scope bi.Scope, id int64, chartType string) error {
+	if id <= 0 || chartType == "" {
+		return nil
+	}
+	payload, err := json.Marshal(dto.BiQueryRecordMetadata{ChartType: chartType})
+	if err != nil {
+		return err
+	}
+	query := c.biQueryRepo.Query(ctx).BiQuery
+	record := &models.BiQuery{ContextJSON: string(payload)}
+	updateCtx, cancel := context.WithTimeout(context.WithoutCancel(ctx), biQueryTimeout)
+	defer cancel()
+	return c.biQueryRepo.Update(updateCtx, record, repository.Where(
+		query.ID.Eq(id),
+		query.TenantID.Eq(scope.TenantID),
+		query.UserID.Eq(scope.UserID),
+		query.ProjectID.Eq(scope.ProjectID),
+		query.Kind.Eq(dto.QueryKindAsk),
+		query.Status.Eq(int32(adminv1.BiQueryStatus_BI_QUERY_STATUS_SUCCESS)),
+	), repository.Select(query.ContextJSON))
 }
 
 // scope 从认证信息和调用上下文构建可信的查询访问范围。

@@ -165,4 +165,6 @@ func (x *BiQueryRecord) Redact() {
 	// Safe field: UserName
 
 	// Safe field: Result
+
+	// Safe field: ChartType
 }

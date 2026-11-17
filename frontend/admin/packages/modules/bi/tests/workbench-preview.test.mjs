@@ -267,6 +267,7 @@ test("缩略图保留真实数据和图表类型，隐藏密集控件且不改�
     const mocks = {
       vue,
       "@liujitcn/kratos-admin-core": { t: key => key },
+      "@element-plus/icons-vue": { ArrowUp: {}, ArrowDown: {}, Minus: {} },
       "../card-schema": { buildCardChart },
       "../env": { useBiTheme: () => vue.ref({}) }
     };

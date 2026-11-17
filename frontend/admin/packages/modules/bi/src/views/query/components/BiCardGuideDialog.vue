@@ -5,6 +5,7 @@
     :initial-query="guide?.query"
     :initial-result="result"
     :initial-title="guide?.default_name"
+    :initial-chart-type="guide?.chart_type"
     @update:model-value="emit('update:modelValue', $event)"
     @saved="emit('saved')"
   />
@@ -23,6 +24,7 @@ interface BiCardGuide {
   query?: BiQuerySpec;
   query_record_id?: number;
   default_name?: string;
+  chart_type?: string;
 }
 
 const props = defineProps<{ modelValue: boolean; guide?: BiCardGuide }>();

@@ -21,6 +21,8 @@ type BiQueryRecordContext struct {
 	Preview *CardPreviewContext
 	// Question 保存自然语言问题，非问数查询为空。
 	Question string
+	// ChartType 保存问数模型建议的图表类型。
+	ChartType string
 	// DashboardID 标识执行所属仪表盘。
 	DashboardID int64
 	// DashboardVersion 标识执行的仪表盘版本。
@@ -29,6 +31,12 @@ type BiQueryRecordContext struct {
 	WidgetID string
 	// StartedAt 用于计算整次查询耗时。
 	StartedAt time.Time
+}
+
+// BiQueryRecordMetadata 保存查询记录的可选展示元数据。
+type BiQueryRecordMetadata struct {
+	// ChartType 是问数模型建议的图表类型。
+	ChartType string `json:"chart_type,omitempty"`
 }
 
 // BiAskFilterValues 表示模型返回的过滤值，统一为查询协议使用的字符串。

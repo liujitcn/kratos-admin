@@ -136,3 +136,133 @@ test("完整展示配置用于桑基、热力、旭日与散点，不丢失第�
     assert.equal(actual.rows[0].value, "10");
   }
 });
+
+test("指标网格按当前值和比较值配对，保留单位并计算方向百分比", () => {
+  const actual = buildCardChart(
+    {
+      id: 3,
+      chart_type: "metric_grid",
+      query: {
+        dimensions: [],
+        measures: [{ code: "revenue" }, { code: "revenue_prev" }, { code: "orders" }, { code: "orders_prev" }]
+      },
+      chart_json: JSON.stringify({
+        metricGrid: {
+          items: [
+            { value: "revenue", compare: "revenue_prev" },
+            { value: "orders", compare: "orders_prev", compareLabel: "较昨日" }
+          ]
+        }
+      })
+    },
+    {
+      columns: [
+        { code: "revenue", name: "今日营收", type: "number", unit: "元" },
+        { code: "revenue_prev", name: "昨日营收", type: "number", unit: "元" },
+        { code: "orders", name: "今日订单", type: "number", unit: "单" },
+        { code: "orders_prev", name: "昨日订单", type: "number", unit: "单" }
+      ],
+      rows: [{ values: ["12847", "12000", "1036", "1100"] }]
+    }
+  );
+
+  assert.equal(actual.metricOnly, true);
+  assert.deepEqual(actual.metrics.map(item => item.code), ["revenue", "orders"]);
+  assert.deepEqual(actual.metrics[0], {
+    code: "revenue",
+    name: "今日营收",
+    value: "12847",
+    unit: "元",
+    compareValue: "12000",
+    compareLabel: "较昨日",
+    delta: "7.06",
+    trend: "up"
+  });
+  assert.equal(actual.metrics[1].delta, "-5.82");
+  assert.equal(actual.metrics[1].trend, "down");
+});
+
+test("指标网格无配置回退查询指标，比较值为空或为零时不生成趋势", () => {
+  const result = {
+    columns: [
+      { code: "revenue", name: "营收", type: "number", unit: "元" },
+      { code: "orders", name: "订单", type: "number", unit: "单" },
+      { code: "revenue_prev", name: "昨日营收", type: "number", unit: "元" },
+      { code: "orders_prev", name: "昨日订单", type: "number", unit: "单" }
+    ],
+    rows: [{ values: ["12", "3", "", "0"] }]
+  };
+  const fallback = buildCardChart({ id: 4, chart_type: "metric_grid", query: { dimensions: [], measures: [{ code: "revenue" }, { code: "orders" }] } }, result);
+  assert.deepEqual(fallback.metrics.map(item => item.code), ["revenue", "orders"]);
+  assert.equal(fallback.metrics[0].unit, "元");
+  assert.equal(fallback.metrics[0].delta, undefined);
+
+  const noChange = buildCardChart(
+    {
+      id: 4,
+      chart_type: "metric_grid",
+      query: { dimensions: [], measures: [{ code: "revenue" }, { code: "orders" }] },
+      chart_json: JSON.stringify({ metricGrid: { items: [{ value: "revenue", compare: "revenue_prev" }, { value: "orders", compare: "orders_prev" }] } })
+    },
+    result
+  );
+  assert.equal(noChange.metrics[0].delta, undefined);
+  assert.equal(noChange.metrics[1].delta, undefined);
+  assert.ok(!JSON.stringify(noChange.metrics).includes("NaN"));
+
+  const edge = buildCardChart(
+    {
+      id: 5,
+      chart_type: "metric_grid",
+      query: { dimensions: [], measures: [{ code: "revenue" }] },
+      chart_json: JSON.stringify({ metricGrid: { items: [{ value: "revenue", compare: "revenue_prev" }] } })
+    },
+    {
+      columns: [
+        { code: "revenue", name: "营收", type: "number", unit: "元" },
+        { code: "revenue_prev", name: "对比营收", type: "number", unit: "元" }
+      ],
+      rows: [{ values: ["-12.50", "-10.00"] }]
+    }
+  );
+  assert.equal(edge.metrics[0].delta, "-25.00");
+  assert.equal(edge.metrics[0].trend, "down");
+
+  const malformed = buildCardChart(
+    {
+      id: 6,
+      chart_type: "metric_grid",
+      query: { dimensions: [], measures: [{ code: "revenue" }] },
+      chart_json: JSON.stringify({ metricGrid: { items: [{ value: "revenue", compare: "revenue_prev" }] } })
+    },
+    {
+      columns: [
+        { code: "revenue", name: "营收", type: "number", unit: "元" },
+        { code: "revenue_prev", name: "对比营收", type: "number", unit: "元" }
+      ],
+      rows: [{ values: ["12.50", "not-a-number"] }]
+    }
+  );
+  assert.equal(malformed.metrics[0].delta, undefined);
+  assert.ok(!JSON.stringify(malformed.metrics).includes("NaN"));
+});
+
+test("指标网格趋势保留超过安全整数范围的变化方向", () => {
+  const actual = buildCardChart(
+    {
+      id: 7,
+      chart_type: "metric_grid",
+      query: { dimensions: [], measures: [{ code: "current" }] },
+      chart_json: JSON.stringify({ metricGrid: { items: [{ value: "current", compare: "previous" }] } })
+    },
+    {
+      columns: [
+        { code: "current", name: "当前", type: "number" },
+        { code: "previous", name: "之前", type: "number" }
+      ],
+      rows: [{ values: ["9007199254740993", "9007199254740992"] }]
+    }
+  );
+  assert.equal(actual.metrics[0].delta, "0.00");
+  assert.equal(actual.metrics[0].trend, "up");
+});

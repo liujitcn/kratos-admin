@@ -4,6 +4,7 @@
       <div class="bi-data-card__heading">
         <h3 class="bi-data-card__title">
           <el-icon class="bi-data-card__icon"><component :is="icon" /></el-icon>{{ card.name }}
+          <el-tag v-if="card.chart_type === 'metric_grid'" size="small" effect="light" type="success">{{ t("bi.card.ai_generated") }}</el-tag>
         </h3>
         <div class="bi-data-card__meta">
           <el-tag v-if="showCategory" size="small" effect="plain" type="info">{{ t(`bi.card.category.${card.category || "mine"}`) }}</el-tag>

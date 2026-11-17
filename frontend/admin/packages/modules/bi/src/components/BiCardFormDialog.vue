@@ -221,7 +221,7 @@ watch(
       source_code: current?.source_code || props.sources[0]?.code || "",
       dimensions: [...(current?.dimensions ?? [])],
       measures: (current?.measures ?? []).map(item => ({ ...item })),
-      chart_type: props.card?.chart_type || (current && !current.dimensions.length ? "metric" : props.initialChartType || "bar"),
+      chart_type: props.card?.chart_type || props.initialChartType || (current && !current.dimensions.length ? "metric" : "bar"),
       refresh_seconds: props.card?.refresh_seconds ?? 0,
       is_shared: props.card?.is_shared ?? false
     });

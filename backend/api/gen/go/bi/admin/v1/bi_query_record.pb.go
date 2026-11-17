@@ -275,6 +275,7 @@ type BiQueryRecord struct {
 	CreatedAt        string                 `protobuf:"bytes,17,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`                      // 创建时间
 	UserName         string                 `protobuf:"bytes,18,opt,name=user_name,json=userName,proto3" json:"user_name,omitempty"`                         // 用户账号
 	Result           *BiQueryResult         `protobuf:"bytes,19,opt,name=result,proto3" json:"result,omitempty"`                                             // 完整类型化查询结果，仅详情返回
+	ChartType        string                 `protobuf:"bytes,20,opt,name=chart_type,json=chartType,proto3" json:"chart_type,omitempty"`                      // 问数建议图表类型
 	unknownFields    protoimpl.UnknownFields
 	sizeCache        protoimpl.SizeCache
 }
@@ -442,6 +443,13 @@ func (x *BiQueryRecord) GetResult() *BiQueryResult {
 	return nil
 }
 
+func (x *BiQueryRecord) GetChartType() string {
+	if x != nil {
+		return x.ChartType
+	}
+	return ""
+}
+
 var File_bi_admin_v1_bi_query_record_proto protoreflect.FileDescriptor
 
 const file_bi_admin_v1_bi_query_record_proto_rawDesc = "" +
@@ -459,7 +467,7 @@ const file_bi_admin_v1_bi_query_record_proto_rawDesc = "" +
 	"\aqueries\x18\x01 \x03(\v2\x1a.bi.admin.v1.BiQueryRecordB\x1e\xbaG\x1b\x92\x02\x18智能问数记录列表R\aqueries\x12\"\n" +
 	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\":\n" +
 	"\x11GetBiQueryRequest\x12%\n" +
-	"\x02id\x18\x01 \x01(\x03B\x15\xbaG\v\x92\x02\b记录ID\xbaH\x04\"\x02 \x00R\x02id\"\x8a\t\n" +
+	"\x02id\x18\x01 \x01(\x03B\x15\xbaG\v\x92\x02\b记录ID\xbaH\x04\"\x02 \x00R\x02id\"\xc9\t\n" +
 	"\rBiQueryRecord\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b记录IDR\x02id\x12+\n" +
 	"\ttenant_id\x18\x02 \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDR\btenantId\x12'\n" +
@@ -486,7 +494,9 @@ const file_bi_admin_v1_bi_query_record_proto_rawDesc = "" +
 	"\n" +
 	"created_at\x18\x11 \x01(\tB\x12\xbaG\x0f\x92\x02\f创建时间R\tcreatedAt\x12/\n" +
 	"\tuser_name\x18\x12 \x01(\tB\x12\xbaG\x0f\x92\x02\f用户账号R\buserName\x12g\n" +
-	"\x06result\x18\x13 \x01(\v2\x1a.bi.admin.v1.BiQueryResultB3\xbaG0\x92\x02-完整类型化查询结果，仅详情返回R\x06result*i\n" +
+	"\x06result\x18\x13 \x01(\v2\x1a.bi.admin.v1.BiQueryResultB3\xbaG0\x92\x02-完整类型化查询结果，仅详情返回R\x06result\x12=\n" +
+	"\n" +
+	"chart_type\x18\x14 \x01(\tB\x1e\xbaG\x1b\x92\x02\x18问数建议图表类型R\tchartType*i\n" +
 	"\rBiQueryStatus\x12\x1f\n" +
 	"\x1bBI_QUERY_STATUS_UNSPECIFIED\x10\x00\x12\x1b\n" +
 	"\x17BI_QUERY_STATUS_SUCCESS\x10\x01\x12\x1a\n" +

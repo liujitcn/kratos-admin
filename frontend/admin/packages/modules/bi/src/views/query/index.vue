@@ -222,7 +222,7 @@ const previewCard = computed<BiCard>(() => ({
   name: response.value?.title || "BI",
   source_code: response.value?.query?.source_code || "",
   query: response.value?.query,
-  chart_type: response.value?.query?.dimensions.length ? response.value.chart_type || "bar" : "metric",
+  chart_type: response.value?.query?.dimensions.length ? response.value.chart_type || "bar" : response.value?.chart_type || "metric",
   chart_json: "",
   query_record_id: response.value?.result?.query_record_id || 0,
   refresh_seconds: 0,
@@ -310,7 +310,7 @@ async function selectRecord(id: number) {
       query: spec,
       result: normalizeBiQueryResult(item.result),
       title: item.question || t("bi.query.result"),
-      chart_type: spec.dimensions.length ? "bar" : "metric"
+      chart_type: item.chart_type || (spec.dimensions.length ? "bar" : "metric")
     };
   } catch (cause) {
     if (current === request) error.value = resolveAskError(cause);

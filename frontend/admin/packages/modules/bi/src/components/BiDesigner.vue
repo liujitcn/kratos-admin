@@ -9,7 +9,7 @@
         <div v-for="card in cards" :key="card.id" class="bi-designer__library-item">
           <h4>{{ card.name }}</h4>
           <div class="bi-designer__library-meta">
-            <span>{{ card.chart_type === "metric" ? t("bi.card.chart.metric") : messages(`types.${card.chart_type}`) }}</span>
+            <span>{{ ["metric", "metric_grid"].includes(card.chart_type) ? t(`bi.card.chart.${card.chart_type}`) : messages(`types.${card.chart_type}`) }}</span>
             <span v-if="addedCardIDs.has(card.id)" class="bi-designer__added">
               <el-icon><component :is="checkIcon" /></el-icon>{{ t("bi.card.added") }}
             </span>

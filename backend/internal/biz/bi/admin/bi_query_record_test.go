@@ -37,9 +37,11 @@ func TestAskBiQueryPersistsRecords(t *testing.T) {
 		queryErr    error
 		cancelQuery bool
 		wantError   string
+		wantChart   string
 	}{
-		{name: "成功", modelStatus: http.StatusOK, output: plan},
-		{name: "图型建议不匹配", modelStatus: http.StatusOK, output: strings.Replace(plan, `"metric"`, `"pie"`, 1)},
+		{name: "成功", modelStatus: http.StatusOK, output: plan, wantChart: "metric"},
+		{name: "指标网格建议", modelStatus: http.StatusOK, output: strings.Replace(plan, `"metric"`, `"metric_grid"`, 1), wantChart: "metric_grid"},
+		{name: "图型建议不匹配", modelStatus: http.StatusOK, output: strings.Replace(plan, `"metric"`, `"pie"`, 1), wantChart: "metric"},
 		{name: "未启用模型", wantError: "AI供应商或模型选择无效"},
 		{name: "模型调用失败", modelStatus: http.StatusBadRequest, wantError: "BI 问数生成失败"},
 		{name: "模型拒绝回答", modelStatus: http.StatusOK, output: `{"error":"问题超出数据范围"}`, wantError: "问题超出数据范围"},
@@ -93,8 +95,8 @@ func TestAskBiQueryPersistsRecords(t *testing.T) {
 			if test.wantError == "" && err != nil || test.wantError != "" && (err == nil || !strings.Contains(err.Error(), test.wantError)) {
 				t.Fatalf("问数结果错误: %v, wantError=%q", err, test.wantError)
 			}
-			if test.wantError == "" && answer.ChartType != "metric" {
-				t.Fatal("未按结果结构修正图型建议")
+			if test.wantError == "" && answer.ChartType != test.wantChart {
+				t.Fatalf("未按结果结构修正图型建议: got=%q want=%q", answer.ChartType, test.wantChart)
 			}
 			recordCase := NewBiQueryRecordCase(baseCase, queryRepo, data.NewBaseUserRepository(store))
 			var page *adminv1.PageBiQueryResponse
@@ -124,6 +126,9 @@ func TestAskBiQueryPersistsRecords(t *testing.T) {
 			}
 			if record.SourceCode != "test" || record.QueryJson == "" || len(record.QueryHash) != 64 {
 				t.Fatalf("查询计划或数据源未保存: %v", record)
+			}
+			if record.ChartType != test.wantChart {
+				t.Fatalf("问数图表类型未保存: got=%q want=%q", record.ChartType, test.wantChart)
 			}
 		})
 	}

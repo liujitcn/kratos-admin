@@ -12,9 +12,10 @@ const biAskToolName = "bi_admin_v1_bi_query_service_ask_bi_query"
 
 // aiAskOutput 对应智能问数工具出参中建卡引导需要的字段。
 type aiAskOutput struct {
-	Title  string         `json:"title"`
-	Query  map[string]any `json:"query"`
-	Result struct {
+	Title     string         `json:"title"`
+	ChartType string         `json:"chart_type"`
+	Query     map[string]any `json:"query"`
+	Result    struct {
 		QueryRecordID int64             `json:"query_record_id"`
 		Rows          []json.RawMessage `json:"rows"`
 	} `json:"result"`
@@ -46,5 +47,6 @@ func buildBiCardGuideBlocks(tool agent.ToolUsage) []map[string]any {
 		"query_record_id": output.Result.QueryRecordID,
 		"query":           output.Query,
 		"default_name":    output.Title,
+		"chart_type":      output.ChartType,
 	}}
 }

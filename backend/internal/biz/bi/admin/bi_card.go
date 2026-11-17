@@ -28,7 +28,7 @@ import (
 )
 
 // biCardChartTypes 与接口校验一致，供问数建议和卡片保存共同使用。
-var biCardChartTypes = []string{"bar", "line", "area", "pie", "donut", "gauge", "metric", "scatter", "radar", "funnel", "treemap", "sunburst", "sankey", "heatmap"}
+var biCardChartTypes = []string{"bar", "line", "area", "pie", "donut", "gauge", "metric", "metric_grid", "scatter", "radar", "funnel", "treemap", "sunburst", "sankey", "heatmap"}
 
 // BiCardCase 管理语义数据卡片、收藏和个人工作台。
 type BiCardCase struct {
@@ -618,7 +618,7 @@ func validateBiCardForm(form *adminv1.BiCardForm) error {
 	if !slices.Contains(biCardChartTypes, form.GetChartType()) {
 		return errorsx.InvalidArgument("不支持的卡片图表类型")
 	}
-	if form.GetChartType() == "metric" && len(form.GetQuery().GetDimensions()) > 0 {
+	if slices.Contains([]string{"metric", "metric_grid"}, form.GetChartType()) && len(form.GetQuery().GetDimensions()) > 0 {
 		return errorsx.InvalidArgument("指标卡不能选择分组维度")
 	}
 
@@ -706,8 +706,10 @@ func validateCardChart(chartType, raw string, spec bi.QuerySpec, result bi.Query
 		config.Encoding.Series = spec.Dimensions[1]
 	}
 	fields := make(map[string]bi.FieldType, len(result.Columns))
+	columns := make(map[string]bi.ResultColumn, len(result.Columns))
 	for _, column := range result.Columns {
 		fields[column.Code] = column.Type
+		columns[column.Code] = column
 	}
 	encoding := config.Encoding
 	for _, name := range append([]string{encoding.Dimension, encoding.Measure, encoding.Series}, encoding.Measures...) {
@@ -734,7 +736,7 @@ func validateCardChart(chartType, raw string, spec bi.QuerySpec, result bi.Query
 		if encoding.Dimension == "" || encoding.Series == "" || encoding.Dimension == encoding.Series {
 			return "", errorsx.InvalidArgument("当前图表需要两个分类字段和一个数值字段")
 		}
-	case "metric", "gauge":
+	case "metric", "metric_grid", "gauge":
 		if len(spec.Dimensions) > 0 {
 			return "", errorsx.InvalidArgument("指标卡和仪表图需要不分组的查询结果")
 		}
@@ -742,6 +744,43 @@ func validateCardChart(chartType, raw string, spec bi.QuerySpec, result bi.Query
 		if encoding.Dimension == "" {
 			return "", errorsx.InvalidArgument("当前图表需要分类或日期字段")
 		}
+	}
+	if chartType == "metric_grid" {
+		var items []dto.MetricGridItem
+		if config.MetricGrid != nil {
+			items = append(items, config.MetricGrid.Items...)
+		}
+		if len(items) == 0 {
+			for _, measure := range spec.Measures {
+				if len(items) == 4 {
+					break
+				}
+				items = append(items, dto.MetricGridItem{Value: measure.Code})
+			}
+		}
+		if len(items) == 0 || len(items) > 4 {
+			return "", errorsx.InvalidArgument("指标网格需要一至四个指标")
+		}
+		for _, item := range items {
+			current, ok := columns[item.Value]
+			if !ok || current.Type != bi.FieldTypeNumber {
+				return "", errorsx.InvalidArgument("指标网格当前指标必须是数值字段")
+			}
+			if item.Compare == "" {
+				continue
+			}
+			if item.Value == item.Compare {
+				return "", errorsx.InvalidArgument("指标网格当前指标和比较指标不能相同")
+			}
+			compare, ok := columns[item.Compare]
+			if !ok || compare.Type != bi.FieldTypeNumber {
+				return "", errorsx.InvalidArgument("指标网格比较指标必须是数值字段")
+			}
+			if current.Unit != "" && compare.Unit != "" && current.Unit != compare.Unit {
+				return "", errorsx.InvalidArgument("指标网格当前指标和比较指标单位必须一致")
+			}
+		}
+		config.MetricGrid = &dto.MetricGridConfig{Items: items}
 	}
 	var payload []byte
 	payload, err = json.Marshal(config)

@@ -140,7 +140,8 @@ message BiCardForm {
         "sunburst",
         "sankey",
         "heatmap",
-        "metric"
+        "metric",
+        "metric_grid"
       ]
     }
   ]; // 图表类型

@@ -112,6 +112,48 @@ func TestBiCardAllChartShapes(t *testing.T) {
 	}
 }
 
+// TestBiCardMetricGridValidation 验证指标网格的当前列、比较列和单位边界。
+func TestBiCardMetricGridValidation(t *testing.T) {
+	spec := bi.QuerySpec{Measures: []bi.MeasureSpec{{Code: "revenue"}, {Code: "revenue_prev"}, {Code: "orders"}, {Code: "orders_prev"}}}
+	result := bi.QueryResult{Columns: []bi.ResultColumn{
+		{Code: "revenue", Type: bi.FieldTypeNumber, Unit: "元"},
+		{Code: "revenue_prev", Type: bi.FieldTypeNumber, Unit: "元"},
+		{Code: "orders", Type: bi.FieldTypeNumber, Unit: "单"},
+		{Code: "orders_prev", Type: bi.FieldTypeNumber, Unit: "单"},
+		{Code: "status", Type: bi.FieldTypeString},
+	}}
+	valid, err := validateCardChart("metric_grid", `{"metricGrid":{"items":[{"value":"revenue","compare":"revenue_prev"},{"value":"orders","compare":"orders_prev","compareLabel":"较昨日"}]}}`, spec, result)
+	if err != nil || !strings.Contains(valid, `"metricGrid"`) {
+		t.Fatalf("合法指标网格未通过: %s %v", valid, err)
+	}
+
+	tooMany := `{"metricGrid":{"items":[{"value":"revenue"},{"value":"revenue_prev"},{"value":"orders"},{"value":"orders_prev"},{"value":"revenue"}]}}`
+	cases := []struct {
+		name   string
+		raw    string
+		spec   bi.QuerySpec
+		result bi.QueryResult
+	}{
+		{name: "当前字段不存在", raw: `{"metricGrid":{"items":[{"value":"missing"}]}}`, spec: spec, result: result},
+		{name: "比较字段不存在", raw: `{"metricGrid":{"items":[{"value":"revenue","compare":"missing"}]}}`, spec: spec, result: result},
+		{name: "比较字段不是数值", raw: `{"metricGrid":{"items":[{"value":"revenue","compare":"status"}]}}`, spec: spec, result: result},
+		{name: "当前和比较字段相同", raw: `{"metricGrid":{"items":[{"value":"revenue","compare":"revenue"}]}}`, spec: spec, result: result},
+		{name: "单位不一致", raw: `{"metricGrid":{"items":[{"value":"revenue","compare":"revenue_prev"}]}}`, spec: spec, result: bi.QueryResult{Columns: []bi.ResultColumn{
+			{Code: "revenue", Type: bi.FieldTypeNumber, Unit: "元"},
+			{Code: "revenue_prev", Type: bi.FieldTypeNumber, Unit: "美元"},
+		}}},
+		{name: "超过四个单元", raw: tooMany, spec: spec, result: result},
+		{name: "包含分组维度", raw: `{"metricGrid":{"items":[{"value":"revenue"}]}}`, spec: bi.QuerySpec{Dimensions: []string{"day"}, Measures: []bi.MeasureSpec{{Code: "revenue"}}}, result: result},
+	}
+	for _, item := range cases {
+		t.Run(item.name, func(t *testing.T) {
+			if _, err = validateCardChart("metric_grid", item.raw, item.spec, item.result); err == nil {
+				t.Fatalf("非法指标网格被接受: %s", item.raw)
+			}
+		})
+	}
+}
+
 // newBiWorkflowTestCases 使用真实仓储验证卡片、仪表盘和工作台闭环。
 func newBiWorkflowTestCases(t *testing.T) (*BiCardCase, *BiDashboardCase) {
 	t.Helper()

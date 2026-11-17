@@ -70,4 +70,5 @@ message BiQueryRecord {
   string created_at = 17 [(gnostic.openapi.v3.property) = {description: "创建时间"}]; // 创建时间
   string user_name = 18 [(gnostic.openapi.v3.property) = {description: "用户账号"}]; // 用户账号
   BiQueryResult result = 19 [(gnostic.openapi.v3.property) = {description: "完整类型化查询结果，仅详情返回"}]; // 完整类型化查询结果，仅详情返回
+  string chart_type = 20 [(gnostic.openapi.v3.property) = {description: "问数建议图表类型"}]; // 问数建议图表类型
 }
