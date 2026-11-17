@@ -8080,5 +8080,23 @@
   },
   "获取当前用户生效的密码策略": {
     "other": "Get the password policy effective for the current user"
+  },
+  "legacy.error.0a4f944c316a0fd5": {
+    "other": "The metric grid requires one to four metrics"
+  },
+  "legacy.error.1508709477b5bce4": {
+    "other": "Failed to save the BI query chart type"
+  },
+  "legacy.error.4e831354038e2ff3": {
+    "other": "The current metric in the metric grid must be a numeric field"
+  },
+  "legacy.error.8402659bc66d6dee": {
+    "other": "The current and comparison metrics in the metric grid must be different"
+  },
+  "legacy.error.97b010e4b843c888": {
+    "other": "The current and comparison metrics in the metric grid must use the same unit"
+  },
+  "legacy.error.f3317e9d97b10647": {
+    "other": "The comparison metric in the metric grid must be a numeric field"
   }
 }

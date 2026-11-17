@@ -13445,6 +13445,9 @@ components:
                     description: ユーザー账号
                 result:
                     $ref: '#/components/schemas/bi.admin.v1.BiQueryResult'
+                chart_type:
+                    type: string
+                    description: 推奨チャート種類
             description: BI 検索記録。
         bi.admin.v1.BiQueryResult:
             type: object

@@ -3345,6 +3345,7 @@ EN_EXACT.update({
     "预览公共模型变更和关联影响，不写入模型。": "Preview public model changes and their impact without saving the model.",
     "预览当前卡片的公共指标公式候选。": "Preview public metric formula candidates for the current card.",
     "预览绑定的数据源版本": "Source version bound to the preview",
+    "问数建议图表类型": "Suggested chart type",
     "查询已启用的AI供应商选项。\n 字面路径必须先于 /{id} 声明：gorilla mux 按注册顺序匹配，否则会被 {id} 路由抢占。": "List enabled AI provider options. Literal routes must be registered before /{id}, because gorilla mux matches routes in registration order.",
     "查询已启用的embedding模型选项（知识库向量化模型下拉）。\n 字面路径必须先于 /{id} 声明：gorilla mux 按注册顺序匹配，否则会被 {id} 路由抢占。": "List enabled embedding model options for knowledge-base vectorization. Literal routes must be registered before /{id}, because gorilla mux matches routes in registration order."
 })
@@ -3379,7 +3380,8 @@ JA_EXACT.update({
     "预期数据源版本": "想定するデータソースのバージョン",
     "预览公共模型变更和关联影响，不写入模型。": "モデルを保存せずに共通モデルの変更と関連する影響をプレビューします。",
     "预览当前卡片的公共指标公式候选。": "現在のカードの共通指標の式の候補をプレビューします。",
-    "预览绑定的数据源版本": "プレビューに関連付けられたデータソースのバージョン"
+    "预览绑定的数据源版本": "プレビューに関連付けられたデータソースのバージョン",
+    "问数建议图表类型": "推奨チャート種類"
 })
 
 def contains_simplified(value: str) -> bool:

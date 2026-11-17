@@ -13445,6 +13445,9 @@ components:
                     description: user account
                 result:
                     $ref: '#/components/schemas/bi.admin.v1.BiQueryResult'
+                chart_type:
+                    type: string
+                    description: Suggested chart type
             description: BI Query record.
         bi.admin.v1.BiQueryResult:
             type: object
