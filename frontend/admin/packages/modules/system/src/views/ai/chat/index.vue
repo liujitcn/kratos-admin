@@ -37,11 +37,11 @@
       @approval-decision="handleApprovalDecision"
     >
       <template #flow-blocks="{ message, activeFlowMessageId }">
-        <component
-          v-if="aiFlowBlocks && message.blocks?.length"
-          :is="aiFlowBlocks"
+        <AiFlowBlocks
+          v-if="message.blocks?.length"
           :message="message"
           :active-flow-message-id="activeFlowMessageId"
+          :renderers="aiFlowBlockRenderers"
           @flow-action="handleFlowAction"
         />
       </template>
@@ -86,7 +86,7 @@ import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { useRoute } from "vue-router";
 import { ElMessage, ElMessageBox } from "element-plus";
 import { getCurrentLocale, t } from "@liujitcn/kratos-admin-core";
-import { getAdminAiExtension } from "@liujitcn/kratos-admin-system";
+import { getAdminAiFlowBlockRenderers } from "@liujitcn/kratos-admin-system";
 import { defAiMessageService } from "@liujitcn/kratos-admin-system/api/base/v1/ai_message";
 import { defAiSessionService } from "@liujitcn/kratos-admin-system/api/base/v1/ai_session";
 import { defAiToolService } from "@liujitcn/kratos-admin-system/api/base/v1/ai_tool";
@@ -99,6 +99,7 @@ import type { AiKnowledgeOption } from "@liujitcn/kratos-admin-system/rpc/base/v
 import type { AiShortcut } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_tool";
 import { AiMessageStatus } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_session";
 import { Terminal } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_tool";
+import AiFlowBlocks from "@liujitcn/kratos-admin-system/components/ai/AiFlowBlocks.vue";
 import ChatPanel from "./components/ChatPanel.vue";
 import { useMediaQuery } from "@vueuse/core";
 import { defAiPluginService } from "@liujitcn/kratos-admin-system/api/base/v1/ai_plugin";
@@ -210,7 +211,7 @@ const currentMessages = computed(() => messages.value[activeSessionID.value] ?? 
 
 const currentSessionSending = computed(() => isSessionSending(activeSessionID.value));
 
-const aiFlowBlocks = computed(() => getAdminAiExtension().flowBlocks);
+const aiFlowBlockRenderers = getAdminAiFlowBlockRenderers();
 
 /** 切换会话时同步当前活动会话。 */
 function handleSessionChange(item: AiSession) {

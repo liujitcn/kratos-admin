@@ -1,5 +1,5 @@
-export { ADMIN_AI_EXTENSION, getAdminAiExtension } from "./ai";
-export type { AdminAiExtension } from "./ai";
+export { ADMIN_AI_EXTENSION, getAdminAiExtension, getAdminAiFlowBlockRenderers } from "./ai";
+export type { AdminAiExtension, AdminAiFlowBlockRenderer } from "./ai";
 export { default as TenantProjectManager } from "./components/tenant-project/TenantProjectManager.vue";
 export { default as TenantProjectSelect } from "./components/tenant-project/TenantProjectSelect.vue";
 export { default as TenantProjectText } from "./components/tenant-project/TenantProjectText.vue";

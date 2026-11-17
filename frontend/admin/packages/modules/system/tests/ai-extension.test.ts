@@ -42,6 +42,39 @@ test("AI 扩展同一字段由后注册模块覆盖，同时保留其他字段",
   assert.equal(extension.biCardDialog, biCardDialog);
 });
 
+test("AI 流程渲染器按模块组合，并兼容旧版单组件扩展", () => {
+  const { core, ai } = createRegistry();
+  const legacy = {};
+  const orders = {};
+  const dashboard = {};
+  core.registerAdminModules([
+    { name: "legacy", extensions: { [ai.ADMIN_AI_EXTENSION]: { flowBlocks: legacy } } },
+    {
+      name: "bi",
+      extensions: {
+        [ai.ADMIN_AI_EXTENSION]: {
+          flowBlockRenderers: [{ key: "orders", component: orders, types: ["order"] }]
+        }
+      }
+    },
+    {
+      name: "dashboard",
+      extensions: {
+        [ai.ADMIN_AI_EXTENSION]: {
+          flowBlockRenderers: [{ key: "summary", component: dashboard, types: ["summary"] }]
+        }
+      }
+    }
+  ]);
+
+  const renderers = ai.getAdminAiFlowBlockRenderers();
+  assert.equal(renderers.map(item => item.key).join(","), "legacy:flowBlocks,bi:orders,dashboard:summary");
+  assert.equal(renderers[0].component, legacy);
+  assert.equal(renderers[1].types?.join(","), "order");
+  assert.equal(renderers[2].component, dashboard);
+  assert.equal(ai.getAdminAiExtension().flowBlockRenderers?.length, 3);
+});
+
 test("未提供 AI 扩展时返回空能力集合", () => {
   const { core, ai } = createRegistry();
   core.registerAdminModule({ name: "system" });

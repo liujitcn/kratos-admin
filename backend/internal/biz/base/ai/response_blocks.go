@@ -21,29 +21,23 @@ var (
 	responseBlockRules   []ResponseBlockRule
 )
 
-// RegisterResponseBlockRule 注册响应引导块规则；相同工具名按后者覆盖。
+// RegisterResponseBlockRule 注册响应引导块规则；同一工具可以组合多个规则。
 func RegisterResponseBlockRule(rule ResponseBlockRule) {
 	if rule.ToolName == "" || rule.Build == nil {
 		return
 	}
 	responseBlockRulesMu.Lock()
 	defer responseBlockRulesMu.Unlock()
-	for index, existing := range responseBlockRules {
-		if existing.ToolName == rule.ToolName {
-			responseBlockRules[index] = rule
-			return
-		}
-	}
 	responseBlockRules = append(responseBlockRules, rule)
 }
 
-// buildResponseBlocks 按注册规则匹配本轮工具结果，生成面向用户的结构化引导卡片。
-// 命中多条规则时只取第一个产出，保证单条回复至多携带一组引导块。
+// buildResponseBlocks 按工具执行顺序和规则注册顺序合并本轮结构化编排块。
 func buildResponseBlocks(tools []agent.ToolUsage) []map[string]any {
 	responseBlockRulesMu.RLock()
 	rules := append([]ResponseBlockRule(nil), responseBlockRules...)
 	responseBlockRulesMu.RUnlock()
 	log.Info("BI 引导块诊断", "rules", len(rules), "tools", len(tools))
+	blocks := make([]map[string]any, 0)
 	for _, tool := range tools {
 		log.Info("BI 引导块诊断: tool", "name", tool.Name, "status", tool.Status, "output_len", len(tool.Output))
 		if tool.Status != "success" {
@@ -53,12 +47,15 @@ func buildResponseBlocks(tools []agent.ToolUsage) []map[string]any {
 			if rule.ToolName != tool.Name {
 				continue
 			}
-			if blocks := rule.Build(tool); len(blocks) > 0 {
+			if values := rule.Build(tool); len(values) > 0 {
 				log.Info("BI 引导块诊断: 注入成功")
-				return blocks
+				blocks = append(blocks, values...)
 			}
 		}
 	}
-	log.Info("BI 引导块诊断: 未注入")
-	return nil
+	if len(blocks) == 0 {
+		log.Info("BI 引导块诊断: 未注入")
+		return nil
+	}
+	return blocks
 }
