@@ -196,6 +196,8 @@ Gotenberg 与第三方 MCP 适配器使用 `docker compose --env-file docker-com
 
 需要同时启动三套 MCP 时，可使用聚合文件：`docker compose --env-file docker-compose/gotenberg/.env -f docker-compose/docker-compose.yaml up -d --build`。
 
+这批镜像可用 `make -C docker-compose docker-build` 构建 amd64/arm64 双架构版本（上游镜像经 FROM 换壳转为 Docker manifest list，自建镜像按上述提交 pin 源码构建），再经 `make -C docker-compose docker-push` 推送华为云 SWR 与 Harbor（与主镜像同 namespace/项目，tag 与 Compose 引用一致）；支持按仓库 `docker-push-harbor` / `docker-push-hw` 或按镜像单独推送，速览见 `make -C docker-compose help`。
+
 `I18N_LOCALES` 使用逗号分隔的 BCP 47 语言代码列表（默认从后端语言包自动发现，排除主语言），控制 OpenAPI 的目标语言。`make i18n` 生成 OpenAPI 多语言 YAML。离线生成使用 `I18N_OFFLINE=1 make i18n`。
 
 `backend/api/gen`、`backend/internal/data/gen`、各前端包的 `src/rpc`、OpenAPI 及 `wire_gen.go` 都是生成产物，不得手工修改。所有前端 RPC 的 Buf 配置统一位于 `backend/api`，管理端通过 `make -C frontend ts-admin` 生成，应用端分别通过 `make -C frontend ts-uni-app` 和 `make -C frontend ts-taro-app` 生成；需要一次生成三端时执行 `make -C frontend ts`，全仓生成使用根目录 `make gen`。

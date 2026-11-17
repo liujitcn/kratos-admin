@@ -82,3 +82,6 @@ service_tmp/
 /.superpowers/
 /.codex-workflow/
 /docs/plans/
+
+# docker-compose markitdown 构建的第三方上游源码（make prepare-markitdown 克隆，不入库）
+/docker-compose/markitdown/upstream/
