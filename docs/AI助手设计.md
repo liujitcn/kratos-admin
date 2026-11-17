@@ -71,7 +71,7 @@ Agent Tool 来自生成代码，`agent_status` 控制是否可被 AI 使用；`m
 
 AI 助手目录下另有管理页面：`views/base/ai-provider`（AI 供应商）和 `views/ai/session`（AI 会话）。查询记录页属于 BI 模块的 `views/query-record`，通过 `bi.admin.v1.BiQueryRecordService` 查询 `bi_query`，展示问题、数据源、语义查询计划、状态、行数、耗时与结果快照。AI 知识库在独立模块 `frontend/admin/packages/modules/rag`（`@liujitcn/kratos-admin-rag`），页面为该包的 `views/ai-knowledge`。
 
-System 模块还把 AI 图标注册为顶部工具。结构化流程块组件不是内置固定实现；其他业务模块可通过 `ADMIN_AI_EXTENSION` 提供旧版 `flowBlocks`，或通过 `flowBlockRenderers` 注册带类型筛选的可组合渲染器，页面按模块顺序编排多个组件。
+System 模块还把 AI 图标注册为顶部工具。结构化流程块组件不是内置固定实现；其他业务模块可通过 `ADMIN_AI_EXTENSION` 提供旧版 `flowBlocks`，或通过 `flowBlockRenderers` 注册带类型筛选的可组合渲染器，页面按模块顺序编排多个组件。需要由流程块打开的业务弹窗通过 `dialogs` 按业务键注册，旧的 BI 专用字段仅保留兼容读取。
 
 ## 应用端
 

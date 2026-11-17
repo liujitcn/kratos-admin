@@ -94,17 +94,17 @@ import { defAiModelService } from "@liujitcn/kratos-admin-system/api/base/v1/ai_
 import { defAiKnowledgeService } from "@liujitcn/kratos-admin-system/api/base/v1/ai_knowledge";
 import type { AiAction } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_message";
 import type { AiSession } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_session";
-import type { AiProviderModelOption } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_provider";
-import type { AiKnowledgeOption } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_knowledge";
 import type { AiShortcut } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_tool";
 import { AiMessageStatus } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_session";
 import { Terminal } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_tool";
 import AiFlowBlocks from "@liujitcn/kratos-admin-system/components/ai/AiFlowBlocks.vue";
-import ChatPanel from "./components/ChatPanel.vue";
+import { useAiChatState } from "@liujitcn/kratos-admin-system/components/ai/useAiChatState";
+import ChatPanel from "@liujitcn/kratos-admin-system/components/ai/ChatPanel.vue";
 import { useMediaQuery } from "@vueuse/core";
 import { defAiPluginService } from "@liujitcn/kratos-admin-system/api/base/v1/ai_plugin";
 import { defAiAutomationService } from "@liujitcn/kratos-admin-system/api/base/v1/ai_automation";
 import type { AiPlugin, AiPluginConnection, AiPluginSelection } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_plugin";
+import { useAiChatStream } from "@liujitcn/kratos-admin-system/components/ai/useAiChatStream";
 import AssistantNavigation from "./workspace/AssistantNavigation.vue";
 import AutomationPanel from "./workspace/AutomationPanel.vue";
 import FilePanel from "./workspace/FilePanel.vue";
@@ -112,32 +112,21 @@ import PluginPanel from "./workspace/PluginPanel.vue";
 import { pluginSelectionKey } from "./workspace/state";
 import type { AssistantView } from "./workspace/state";
 import {
-  appendStreamingDelta,
-  completeStreamingActivities,
   createLocalUserMessage,
   createThinkingMessage,
-  ensureStreamingMessage,
-  hasStreamingDelta,
   markAIMessageRegenerating,
-  markStreamingError,
-  markThinkingMessageFailed,
   markSpeakingMessage,
   normalizeMessageList,
   normalizeSession,
   normalizeSessionList,
-  resolveTimestamp,
   replacePendingMessages,
-  sortMessages,
-  upsertStreamingActivity
+  sortMessages
 } from "./message";
-import { readAiEventStream } from "./stream";
 import {
   resolveModelSelection,
   saveModelSelection
 } from "@liujitcn/kratos-admin-system/components/AiModelSelector/modelSelection";
 import type {
-  AiStreamEvent,
-  AiStreamPayload,
   ChatMessageAction,
   ChatMessageEditPayload,
   ChatMessageItem,
@@ -153,7 +142,6 @@ const mobile = useMediaQuery("(max-width: 768px)");
 const route = useRoute();
 const assistantView = ref<AssistantView>("chat");
 const filePanelRef = ref<InstanceType<typeof FilePanel>>();
-const drafts = ref<Record<string, SubmitPayload>>({});
 const pendingAutomationCount = ref(0);
 const automationPanel = ref<InstanceType<typeof AutomationPanel>>();
 const plugins = ref<AiPlugin[]>([]),
@@ -164,37 +152,42 @@ const pluginsLoading = ref(false),
 const savingPlugins = ref(false),
   pluginSelection = ref<AiPluginSelection[]>([]);
 
+const {
+  drafts,
+  activeSessionID,
+  loadingSessions,
+  loadingSessionID,
+  loadingShortcuts,
+  sessions,
+  starterShortcuts,
+  modelProviders,
+  selectedProviderId,
+  selectedModelName,
+  knowledgeOptions,
+  selectedKnowledgeIds,
+  messages,
+  activeSession,
+  currentMessages,
+  currentSessionSending,
+  isSessionSending,
+  setSessionSending,
+  upsertSession
+} = useAiChatState();
+
+const aiStream = useAiChatStream({
+  messages,
+  setSessionSending,
+  onSession: session => upsertSession(normalizeSession(session)),
+  onError: error => ElMessage.error(error.message)
+});
+
 const sessionKeyword = ref("");
-const activeSessionID = ref("");
 const sessionPanelCollapsed = ref(false);
-const sendingSessionMap = ref<Record<string, boolean>>({});
-const loadingSessions = ref(false);
-const loadingSessionID = ref("");
-const loadingShortcuts = ref(false);
-const sessions = ref<AiSession[]>([]);
-const starterShortcuts = ref<AiShortcut[]>([]);
-const modelProviders = ref<AiProviderModelOption[]>([]);
-const selectedProviderId = ref(0);
-const selectedModelName = ref("");
-const knowledgeOptions = ref<AiKnowledgeOption[]>([]);
-const selectedKnowledgeIds = ref<number[]>([]);
-const messages = ref<Record<string, ChatMessageItem[]>>({});
-const pendingDeltaMap = new Map<string, AiStreamPayload>();
-const runningStreamTaskMap = new Map<string, AiStreamTask>();
 /** 每个会话最近一次消息列表请求的序号，用于丢弃晚到的旧列表响应。 */
 const loadMessagesSeq = new Map<string, number>();
-let pendingDeltaFrame = 0;
 let speakingMessageID = "";
 let createSessionPromise: Promise<string | undefined> | undefined;
 let loadSessionsPromise: Promise<void> | undefined;
-
-/** 当前会话的流式任务状态。 */
-type AiStreamTask = {
-  /** 用于取消当前 Fetch 与 ReadableStream 读取。 */
-  controller: AbortController;
-  /** 是否已收到 finish 或 error 事件。 */
-  finished: boolean;
-};
 
 const filteredSessions = computed(() => {
   const keyword = sessionKeyword.value.trim();
@@ -202,14 +195,9 @@ const filteredSessions = computed(() => {
   return sessions.value.filter(item => item.title.includes(keyword) || item.summary.includes(keyword));
 });
 
-const activeSession = computed(() => sessions.value.find(item => item.id === activeSessionID.value));
 const pluginTerminal = computed(() => assistantView.value === "automations"
   ? Terminal.TERMINAL_ADMIN
   : activeSession.value?.terminal ?? Terminal.TERMINAL_ADMIN);
-
-const currentMessages = computed(() => messages.value[activeSessionID.value] ?? []);
-
-const currentSessionSending = computed(() => isSessionSending(activeSessionID.value));
 
 const aiFlowBlockRenderers = getAdminAiFlowBlockRenderers();
 
@@ -286,66 +274,12 @@ async function sendAiPayload(payload: SubmitPayload) {
   const thinkingMessage = createThinkingMessage({ sessionID });
   messages.value[sessionID] = sortMessages([...(messages.value[sessionID] ?? []), localUserMessage, thinkingMessage]);
   setSessionSending(sessionID, true);
-  void runAiStreamTask(sessionID, payload);
+  void aiStream.run(sessionID, payload, {
+    providerID: selectedProviderId.value,
+    modelName: selectedModelName.value,
+    knowledgeBaseIDs: selectedKnowledgeIds.value
+  });
   return true;
-}
-
-/** 后台消费单个会话的 direct stream，不阻塞其他会话输入。 */
-async function runAiStreamTask(sessionID: string, payload: SubmitPayload) {
-  const controller = new AbortController();
-  const task: AiStreamTask = {
-    controller,
-    finished: false
-  };
-  runningStreamTaskMap.set(sessionID, task);
-  try {
-    const response = await defAiMessageService.StreamAiMessage(
-      {
-        session_id: sessionID,
-        content: payload.text,
-        provider_id: selectedProviderId.value,
-        model_name: selectedModelName.value,
-        knowledge_base_ids: selectedKnowledgeIds.value,
-        attachments: payload.attachments.map(item => ({
-          id: item.id,
-          name: item.name,
-          size: item.size,
-          url: item.url,
-          mime_type: item.mime_type
-        })),
-        action: payload.action
-      },
-      {
-        signal: controller.signal
-      }
-    );
-
-    if (!response.body) {
-      throw new Error(t("system.ai.chat.message.empty_stream"));
-    }
-    await readAiEventStream(
-      response.body,
-      event => {
-        handleAiStreamEvent(event, task);
-      },
-      controller.signal
-    );
-    if (!task.finished && !controller.signal.aborted) {
-      throw new Error(t("system.ai.chat.message.incomplete_stream"));
-    }
-  } catch (error) {
-    if (controller.signal.aborted) return;
-    messages.value[sessionID] = markThinkingMessageFailed(messages.value[sessionID] ?? [], {
-      sessionID
-    });
-    const message = error instanceof Error ? error.message : t("system.ai.chat.message.request_failed");
-    ElMessage.error(message);
-  } finally {
-    if (runningStreamTaskMap.get(sessionID) === task) {
-      runningStreamTaskMap.delete(sessionID);
-      setSessionSending(sessionID, false);
-    }
-  }
 }
 
 /** 处理聊天气泡上的重试、分支、朗读、复制和删除操作。 */
@@ -612,142 +546,6 @@ function markAllMessagesSpeaking(messageID?: string) {
   });
 }
 
-/** 判断指定会话是否存在未完成的发送任务。 */
-function isSessionSending(sessionID: string) {
-  return Boolean(sessionID && sendingSessionMap.value[sessionID]);
-}
-
-/** 更新单个会话的发送状态，避免后台会话阻塞当前会话输入。 */
-function setSessionSending(sessionID: string, sending: boolean) {
-  if (!sessionID) return;
-  const nextMap = { ...sendingSessionMap.value };
-  if (sending) {
-    nextMap[sessionID] = true;
-  } else {
-    delete nextMap[sessionID];
-  }
-  sendingSessionMap.value = nextMap;
-}
-
-/** 取消指定会话仍在后台读取的流式任务。 */
-function cancelSessionStreamTask(sessionID: string) {
-  const task = runningStreamTaskMap.get(sessionID);
-  if (!task) return;
-  task.finished = true;
-  task.controller.abort();
-  runningStreamTaskMap.delete(sessionID);
-  setSessionSending(sessionID, false);
-}
-
-/** 取消页面内所有后台流式任务。 */
-function cancelAllStreamTasks() {
-  Array.from(runningStreamTaskMap.keys()).forEach(sessionID => cancelSessionStreamTask(sessionID));
-}
-
-/** 处理 AI 助手流式文本增量。 */
-function handleAiDelta(payload: AiStreamPayload) {
-  if (!hasStreamingDelta(payload)) return;
-  queueAiDelta(payload);
-}
-
-/** 处理 AI 助手流式结束事件。 */
-function handleAiFinish(payload: AiStreamPayload, task?: AiStreamTask) {
-  const sessionID = String(payload.session_id ?? "");
-  if (!sessionID) return;
-  if (task) task.finished = true;
-  flushAiDelta();
-  const nextMessages = normalizeMessageList(payload.messages as never[]);
-  const current = completeStreamingActivities(messages.value[sessionID] ?? [], payload);
-  const messageID = String(payload.message_id ?? "");
-  const streamKey = messageID ? `${sessionID}:${messageID}` : "";
-  const hasLocalStreamingMessages = current.some(item => item.streamKey === streamKey && item.localOnly);
-  messages.value[sessionID] =
-    nextMessages.length || !hasLocalStreamingMessages ? replacePendingMessages(current, nextMessages, payload) : current;
-  if (payload.session) {
-    upsertSession(normalizeSession(payload.session as AiSession));
-  }
-}
-
-/** 处理 AI 助手运行活动事件。 */
-function handleAiActivity(payload: AiStreamPayload) {
-  const sessionID = String(payload.session_id ?? "");
-  if (!sessionID || !payload.activity) return;
-  const streamingMessages = ensureStreamingMessage(messages.value[sessionID] ?? [], payload);
-  messages.value[sessionID] = upsertStreamingActivity(streamingMessages, payload);
-}
-
-/** 处理 AI 助手流式异常事件。 */
-function handleAiError(payload: AiStreamPayload, task?: AiStreamTask) {
-  const sessionID = String(payload.session_id ?? "");
-  if (!sessionID || !messages.value[sessionID]) return;
-  if (task) task.finished = true;
-  flushAiDelta();
-  const nextMessages = normalizeMessageList(payload.messages as never[]);
-  if (nextMessages.length) {
-    messages.value[sessionID] = replacePendingMessages(messages.value[sessionID] ?? [], nextMessages, payload);
-    return;
-  }
-  const streamingMessages = ensureStreamingMessage(messages.value[sessionID] ?? [], payload);
-  messages.value[sessionID] = markStreamingError(streamingMessages, payload);
-}
-
-/** 根据解析结果派发 AI 助手 direct stream 事件。 */
-function handleAiStreamEvent(event: AiStreamEvent, task?: AiStreamTask) {
-  switch (event.event) {
-    case "delta":
-      handleAiDelta(event.payload);
-      break;
-    case "activity":
-      handleAiActivity(event.payload);
-      break;
-    case "finish":
-    case "approval_required":
-      handleAiFinish(event.payload, task);
-      break;
-    case "error":
-      handleAiError(event.payload, task);
-      break;
-  }
-}
-
-/** 合并同一帧内的流式分片，减少频繁重排导致的卡顿。 */
-function queueAiDelta(payload: AiStreamPayload) {
-  const sessionID = String(payload.session_id ?? "");
-  const messageID = String(payload.message_id ?? "");
-  if (!sessionID || !messageID || !messages.value[sessionID]) return;
-
-  const key = `${sessionID}:${messageID}`;
-  const cachedPayload = pendingDeltaMap.get(key);
-  pendingDeltaMap.set(key, {
-    ...payload,
-    delta: `${cachedPayload?.delta ?? ""}${payload.delta ?? ""}`
-  });
-
-  if (pendingDeltaFrame) return;
-  pendingDeltaFrame = window.requestAnimationFrame(() => {
-    pendingDeltaFrame = 0;
-    flushAiDelta();
-  });
-}
-
-/** 立即刷新已缓存的流式分片。 */
-function flushAiDelta() {
-  if (pendingDeltaFrame) {
-    window.cancelAnimationFrame(pendingDeltaFrame);
-    pendingDeltaFrame = 0;
-  }
-  if (pendingDeltaMap.size === 0) return;
-
-  const payloadList = Array.from(pendingDeltaMap.values());
-  pendingDeltaMap.clear();
-  for (const payload of payloadList) {
-    const sessionID = String(payload.session_id ?? "");
-    if (!sessionID || !messages.value[sessionID]) continue;
-    const streamingMessages = ensureStreamingMessage(messages.value[sessionID] ?? [], payload);
-    messages.value[sessionID] = appendStreamingDelta(streamingMessages, payload);
-  }
-}
-
 /** 首次打开时加载会话列表，并拉取当前会话消息。 */
 async function ensureSessionsLoaded(force = false) {
   if (loadSessionsPromise) return loadSessionsPromise;
@@ -879,7 +677,7 @@ async function handleDeleteSession(item: AiSession) {
   );
 
   await defAiSessionService.DeleteAiSession({ id: item.id });
-  cancelSessionStreamTask(item.id);
+  aiStream.cancelSession(item.id);
   sessions.value = sessions.value.filter(session => session.id !== item.id);
   delete messages.value[item.id];
   delete drafts.value[item.id];
@@ -947,17 +745,6 @@ function normalizeStarterShortcuts(list?: AiShortcut[] | null) {
       group: String((item as AiShortcut & { group?: string }).group ?? "")
     }))
     .sort((left, right) => left.sort - right.sort);
-}
-
-/** 更新或插入会话，并按更新时间排序。 */
-function upsertSession(session: AiSession) {
-  const nextList = sessions.value.filter(item => item.id !== session.id);
-  nextList.unshift(session);
-  sessions.value = nextList.sort((left, right) => {
-    const leftTime = resolveTimestamp(left.updated_at);
-    const rightTime = resolveTimestamp(right.updated_at);
-    return rightTime - leftTime;
-  });
 }
 
 /** 按聊天会话或自动化所需的工具能力读取目录与明确账号。 */
@@ -1083,12 +870,6 @@ onMounted(async () => {
 
 onBeforeUnmount(() => {
   stopSpeaking();
-  cancelAllStreamTasks();
-  if (pendingDeltaFrame) {
-    window.cancelAnimationFrame(pendingDeltaFrame);
-    pendingDeltaFrame = 0;
-  }
-  pendingDeltaMap.clear();
 });
 </script>
 

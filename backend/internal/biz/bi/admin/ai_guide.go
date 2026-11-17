@@ -42,6 +42,7 @@ func buildBiCardGuideBlocks(tool agent.ToolUsage) []map[string]any {
 	}
 	return []map[string]any{{
 		"type":            "bi_card_guide",
+		"dialog":          "bi_card_guide",
 		"title":           "生成数据卡片",
 		"desc":            "智能问数已完成，可将本次结果保存为数据卡片。",
 		"query_record_id": output.Result.QueryRecordID,

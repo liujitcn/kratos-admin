@@ -457,8 +457,8 @@
     </template>
     <!-- 问数结果快速建卡：复用 BI 模块的完整创建卡片表单，与卡片库保持一致。 -->
     <component
-      v-if="biCardDialogComponent"
-      :is="biCardDialogComponent"
+      v-if="biCardDialog.component"
+      :is="biCardDialog.component"
       v-model="biCardDialog.visible"
       :guide="biCardDialog.guide"
       @saved="handleBiCardSaved"
@@ -1020,12 +1020,15 @@ function resolveActivityTitle(activity: AiActivityItem) {
 
 /** 已成功创建卡片的消息不再展示引导入口。 */
 const biCardDoneKeys = reactive(new Set<string>());
-const biCardDialogComponent = getAdminAiExtension().biCardDialog;
+const aiExtension = getAdminAiExtension();
+const aiDialogs = aiExtension.dialogs ?? {};
+const legacyBiCardDialogComponent = aiExtension.biCardDialog;
 /** 快速建卡弹窗状态：引导块来自后端注入，完整表单复用 BI 模块组件。 */
 const biCardDialog = reactive({
   visible: false,
   sourceKey: "",
-  guide: undefined as AIFlowBlock | undefined
+  guide: undefined as AIFlowBlock | undefined,
+  component: undefined as Component | undefined
 });
 
 /** 读取消息中后端注入的问数引导块。 */
@@ -1033,9 +1036,16 @@ function resolveBiCardGuide(item: ChatMessageItem) {
   return (item.blocks ?? []).find(block => block.type === "bi_card_guide");
 }
 
+/** 按流程块声明的业务键解析弹窗，旧 BI 字段只作为兼容回退。 */
+function resolveAiDialog(block: AIFlowBlock) {
+  const key = String(block.dialog || block.type || "");
+  return aiDialogs[key] ?? (key === "bi_card_guide" ? legacyBiCardDialogComponent : undefined);
+}
+
 /** 消息携带问数引导块且尚未建卡时展示生成入口。 */
 function canCreateBiCard(item: ChatMessageItem): boolean {
-  return Boolean(biCardDialogComponent) && item.role !== "user" && Boolean(resolveBiCardGuide(item)) && !biCardDoneKeys.has(item.key);
+  const guide = resolveBiCardGuide(item);
+  return Boolean(guide && resolveAiDialog(guide)) && item.role !== "user" && !biCardDoneKeys.has(item.key);
 }
 
 /** 打开已启用 BI 模块贡献的建卡弹窗。 */
@@ -1044,6 +1054,7 @@ function openBiCardDialog(item: ChatMessageItem) {
   if (!guide) return;
   biCardDialog.sourceKey = item.key;
   biCardDialog.guide = guide;
+  biCardDialog.component = resolveAiDialog(guide);
   biCardDialog.visible = true;
 }
 

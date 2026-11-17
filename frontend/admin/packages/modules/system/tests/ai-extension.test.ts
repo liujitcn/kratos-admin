@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
@@ -42,6 +43,19 @@ test("AI 扩展同一字段由后注册模块覆盖，同时保留其他字段",
   assert.equal(extension.biCardDialog, biCardDialog);
 });
 
+test("AI 弹窗按业务键合并不同模块的注册", () => {
+  const { core, ai } = createRegistry();
+  const first = {};
+  const second = {};
+  core.registerAdminModules([
+    { name: "first", extensions: { [ai.ADMIN_AI_EXTENSION]: { dialogs: { first } } } },
+    { name: "second", extensions: { [ai.ADMIN_AI_EXTENSION]: { dialogs: { second } } } }
+  ]);
+  const extension = ai.getAdminAiExtension();
+  assert.equal(extension.dialogs?.first, first);
+  assert.equal(extension.dialogs?.second, second);
+});
+
 test("AI 流程渲染器按模块组合，并兼容旧版单组件扩展", () => {
   const { core, ai } = createRegistry();
   const legacy = {};
@@ -79,6 +93,19 @@ test("未提供 AI 扩展时返回空能力集合", () => {
   const { core, ai } = createRegistry();
   core.registerAdminModule({ name: "system" });
   assert.equal(Object.keys(ai.getAdminAiExtension()).length, 0);
+});
+
+test("AI 聊天公开入口只转发现有组件和协议边界", async () => {
+  const [component, protocol, state] = await Promise.all([
+    readFile(join(process.cwd(), "src/components/ai/ChatPanel.vue"), "utf8"),
+    readFile(join(process.cwd(), "src/components/ai/chat.ts"), "utf8"),
+    readFile(join(process.cwd(), "src/components/ai/useAiChatState.ts"), "utf8")
+  ]);
+  assert.match(component, /views\/ai\/chat\/components\/ChatPanel\.vue/);
+  assert.match(protocol, /AIFlowBlock/);
+  assert.match(protocol, /readAiEventStream/);
+  assert.match(state, /export function useAiChatState/);
+  assert.match(protocol, /useAiChatStream/);
 });
 
 /** 为每个用例创建真实模块注册表，避免注册状态相互污染。 */

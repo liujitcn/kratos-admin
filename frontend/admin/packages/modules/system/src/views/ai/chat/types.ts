@@ -33,6 +33,8 @@ export type AIFlowBlock = {
   title?: string;
   /** 卡片说明。 */
   desc?: string;
+  /** 可选业务弹窗注册键，由管理端扩展注册表解析。 */
+  dialog?: string;
   /** 单一可执行动作。 */
   action?: AiAction;
   /** 多个可执行动作。 */

@@ -20,7 +20,9 @@ export interface AdminAiExtension {
   flowBlocks?: Component;
   /** 可与其他业务模块并列组合的流程块渲染器。 */
   flowBlockRenderers?: AdminAiFlowBlockRenderer[];
-  /** BI 模块按需提供的问数建卡弹窗。 */
+  /** 按业务键注册的 AI 弹窗组件，键由流程块的 dialog 字段选择。 */
+  dialogs?: Record<string, Component>;
+  /** @deprecated 使用 dialogs.bi_card_guide 注册问数建卡弹窗。 */
   biCardDialog?: Component;
 }
 
@@ -30,6 +32,11 @@ export function getAdminAiExtension(): AdminAiExtension {
     (extension, module) => Object.assign(extension, module.extensions?.[ADMIN_AI_EXTENSION]),
     {}
   );
+  const dialogs = getRegisteredAdminModules().reduce<Record<string, Component>>((result, module) => {
+    const value = module.extensions?.[ADMIN_AI_EXTENSION] as AdminAiExtension | undefined;
+    return Object.assign(result, value?.dialogs);
+  }, {});
+  if (Object.keys(dialogs).length) extension.dialogs = dialogs;
   const flowBlockRenderers = getAdminAiFlowBlockRenderers();
   if (flowBlockRenderers.length) extension.flowBlockRenderers = flowBlockRenderers;
   return extension;

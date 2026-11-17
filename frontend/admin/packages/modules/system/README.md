@@ -41,7 +41,11 @@ packages/modules/system
 | `src/components/api/ApiTransfer.vue` | 菜单与限流策略共用的 API 穿梭选择器。 |
 | `src/components/api/apiTransfer.ts` | 加载 API 目录并生成统一的穿梭框选项。 |
 | `src/components/ai/Ai.vue` | System 提供的 AI 顶部工具入口。 |
+| `src/components/ai/ChatPanel.vue` | 可嵌入其他管理端布局的 AI 聊天展示组件公开入口。 |
 | `src/components/ai/AiFlowBlocks.vue` | 按模块注册顺序筛选并组合 AI 结构化流程块渲染器。 |
+| `src/components/ai/chat.ts` | AI 聊天消息类型、归一化辅助函数和 direct stream 解析器公开入口。 |
+| `src/components/ai/useAiChatState.ts` | 不依赖页面布局的会话、消息、模型、知识库和草稿状态容器。 |
+| `src/components/ai/useAiChatStream.ts` | 不依赖页面布局的 direct stream、活动时间线和取消状态容器。 |
 | `src/components/account/ChangePasswordForm.vue` | 个人中心与强制改密弹窗共用的修改密码表单。 |
 | `src/components/account/ForcedPasswordDialog.vue` | 登录成功后在当前业务页面展示的强制改密弹窗。 |
 | `src/components/i18n/DynamicI18nCell.vue` | 翻译资源列表单元格，悬停预览当前语言之外的内容。 |
@@ -225,7 +229,7 @@ System 的 API 与 RPC 都按 Proto 完整层级维护，API 文件名与对应 
 
 AI Provider 在“AI助手 → 模型管理”维护，AI 模型在“AI助手 → AI模型”维护；模型按分类（聊天、向量、重排、图片、视频、语音）挂在供应商下，表单按分类展示个性化配置字段，聊天与向量模型可在保存前测试连通性，结果仅保存在当前页面状态。AI 对话页位于“AI助手 → AI助手”，顶部入口可直接打开该页面；对话页通过独立的聊天模型选项接口选择已启用的聊天模型。模型 API Key 使用存储脱敏策略加密，管理接口只返回是否已配置状态。
 
-System 导出 `ADMIN_AI_EXTENSION`、`AdminAiExtension`、`AdminAiFlowBlockRenderer`、`getAdminAiExtension()` 和 `getAdminAiFlowBlockRenderers()`。其他业务模块可以在 `AdminModule.extensions` 中使用该扩展名提供旧版 `flowBlocks` 组件，或提供带 `key`、`component`、可选 `types` 的 `flowBlockRenderers` 列表；AI 会话页会按模块注册顺序组合渲染器，并把匹配类型的流程块交给对应组件。BI 模块通过同一扩展的 `biCardDialog` 注册问数建卡弹窗，System 不直接依赖 BI。
+System 导出 `ADMIN_AI_EXTENSION`、`AdminAiExtension`、`AdminAiFlowBlockRenderer`、`getAdminAiExtension()` 和 `getAdminAiFlowBlockRenderers()`。其他业务模块可以在 `AdminModule.extensions` 中使用该扩展名提供旧版 `flowBlocks` 组件，或提供带 `key`、`component`、可选 `types` 的 `flowBlockRenderers` 列表；AI 会话页会按模块注册顺序组合渲染器，并把匹配类型的流程块交给对应组件。弹窗通过 `dialogs` 按业务键注册，旧 `biCardDialog` 仅作为兼容字段保留。
 
 AI 扩展按能力合并，不同模块提供的流程块渲染器与建卡弹窗可以共存；旧版单组件扩展继续可用，读取时不修改模块原始配置。
 
