@@ -13,8 +13,8 @@ HARBOR_PUSH_PREFIX ?= harbor.newcapec.cn/zhihuinengyuan
 GOTENBERG_SOURCE ?= docker.m.daocloud.io/gotenberg/gotenberg:9
 XBERG_SOURCE ?= ghcr.io/xberg-io/xberg:latest
 
-# markitdown 上游源码（固定提交；本机直连 GitHub 与 debian/pypi 官方源不通，prepare 时克隆到本地并换清华源构建）。
-MARKITDOWN_UPSTREAM_DIR ?= markitdown/upstream
+# markitdown 源码（固定提交；本机直连 GitHub 与 debian/pypi 官方源不通，prepare 时克隆到本地并换清华源构建）。
+MARKITDOWN_REPO_DIR ?= ../../../microsoft/markitdown
 MARKITDOWN_PIN ?= ed178952a6672abdfd35b5f9e76a80b6cefc086e
 MARKITDOWN_CLONE_PROXY ?= http://127.0.0.1:7897
 
@@ -53,17 +53,17 @@ build-xberg:
 
 # 准备 markitdown 上游源码：克隆固定提交并将 Dockerfile 的 apt/pip 源换为清华镜像（官方源直连不通）。
 prepare-markitdown:
-	@test -d "$(MARKITDOWN_UPSTREAM_DIR)/.git" || (mkdir -p "$(MARKITDOWN_UPSTREAM_DIR)" && cd "$(MARKITDOWN_UPSTREAM_DIR)" && git init -q && git remote add origin https://github.com/microsoft/markitdown.git)
-	@cd "$(MARKITDOWN_UPSTREAM_DIR)" && (https_proxy=$(MARKITDOWN_CLONE_PROXY) git fetch --depth 1 -q origin "$(MARKITDOWN_PIN)" || test -s .git/FETCH_HEAD) && git checkout -q FETCH_HEAD
-	@perl -pi -e 's|RUN apt-get update|RUN sed -i "s/deb.debian.org/mirrors.tuna.tsinghua.edu.cn/g" /etc/apt/sources.list.d/debian.sources \\\n    && apt-get update|' "$(MARKITDOWN_UPSTREAM_DIR)/packages/markitdown-mcp/Dockerfile"
-	@sed -i '' 's|pip install --no-cache-dir /app|pip install --no-cache-dir -i https://pypi.tuna.tsinghua.edu.cn/simple /app|' "$(MARKITDOWN_UPSTREAM_DIR)/packages/markitdown-mcp/Dockerfile"
+	@test -d "$(MARKITDOWN_REPO_DIR)/.git" || (mkdir -p "$(MARKITDOWN_REPO_DIR)" && cd "$(MARKITDOWN_REPO_DIR)" && git init -q && git remote add origin https://github.com/microsoft/markitdown.git)
+	@cd "$(MARKITDOWN_REPO_DIR)" && (https_proxy=$(MARKITDOWN_CLONE_PROXY) git fetch --depth 1 -q origin "$(MARKITDOWN_PIN)" || git cat-file -e "$(MARKITDOWN_PIN)^{commit}") && git checkout -q "$(MARKITDOWN_PIN)"
+	@perl -pi -e 's|RUN apt-get update|RUN sed -i "s/deb.debian.org/mirrors.tuna.tsinghua.edu.cn/g" /etc/apt/sources.list.d/debian.sources \\\n    && apt-get update|' "$(MARKITDOWN_REPO_DIR)/packages/markitdown-mcp/Dockerfile"
+	@sed -i '' 's|pip install --no-cache-dir /app|pip install --no-cache-dir -i https://pypi.tuna.tsinghua.edu.cn/simple /app|' "$(MARKITDOWN_REPO_DIR)/packages/markitdown-mcp/Dockerfile"
 	@echo "==> markitdown 上游源码已就绪: $(MARKITDOWN_PIN)（apt/pip 已换清华源）"
 
 # 自建镜像：从上游源码目录双平台构建（依赖 prepare-markitdown 换源）。
 build-markitdown: prepare-markitdown
 	@"$(DOCKER)" buildx build --platform "$(DOCKER_PLATFORMS)" --provenance=false --load \
 		-t "$(SWR_PUSH_PREFIX)/$(MARKITDOWN_IMAGE)" -t "$(HARBOR_PUSH_PREFIX)/$(MARKITDOWN_IMAGE)" \
-		"$(MARKITDOWN_UPSTREAM_DIR)/packages/markitdown-mcp"
+		"$(MARKITDOWN_REPO_DIR)/packages/markitdown-mcp"
 
 # 自建镜像：gotenberg-mcp，构建上下文与 compose 保持同一提交 pin。
 build-gotenberg-mcp:
