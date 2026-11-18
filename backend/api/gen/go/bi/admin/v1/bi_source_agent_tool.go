@@ -71,6 +71,12 @@ func NewBiSourceServiceAgentTools(biSourceServiceServer BiSourceServiceServer) (
 		return nil, err
 	}
 	ts = append(ts, listBiSourceTablesTool)
+	var pageBiSourceTableDataTool tool.InvokableTool
+	pageBiSourceTableDataTool, err = NewBiSourceServicePageBiSourceTableDataAgentTool(biSourceServiceServer)
+	if err != nil {
+		return nil, err
+	}
+	ts = append(ts, pageBiSourceTableDataTool)
 	var saveBiSourceModelTool tool.InvokableTool
 	saveBiSourceModelTool, err = NewBiSourceServiceSaveBiSourceModelAgentTool(biSourceServiceServer)
 	if err != nil {
@@ -208,6 +214,20 @@ func NewBiSourceServiceListBiSourceTablesAgentTool(biSourceServiceServer BiSourc
 				req = &ListBiSourceTablesRequest{}
 			}
 			return biSourceServiceServer.ListBiSourceTables(ctx, req)
+		},
+	)
+}
+
+// NewBiSourceServicePageBiSourceTableDataAgentTool 创建分页查询数据源中指定表的数据的 Agent Tool。
+func NewBiSourceServicePageBiSourceTableDataAgentTool(biSourceServiceServer BiSourceServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*PageBiSourceTableDataRequest, *PageBiSourceTableDataResponse](
+		"bi_admin_v1_bi_source_service_page_bi_source_table_data",
+		"分页查询数据源中指定表的数据。",
+		func(ctx context.Context, req *PageBiSourceTableDataRequest) (*PageBiSourceTableDataResponse, error) {
+			if req == nil {
+				req = &PageBiSourceTableDataRequest{}
+			}
+			return biSourceServiceServer.PageBiSourceTableData(ctx, req)
 		},
 	)
 }

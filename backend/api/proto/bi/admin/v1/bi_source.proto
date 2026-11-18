@@ -66,6 +66,11 @@ service BiSourceService {
     option (google.api.http) = {get: "/api/v1/admin/bi/source/{id}/tables"};
   }
 
+  // 分页查询数据源中指定表的数据。
+  rpc PageBiSourceTableData(PageBiSourceTableDataRequest) returns (PageBiSourceTableDataResponse) {
+    option (google.api.http) = {get: "/api/v1/admin/bi/source/{id}/table-data"};
+  }
+
   // 保存经过校验的多表语义模型。
   rpc SaveBiSourceModel(SaveBiSourceModelRequest) returns (BiSource) {
     option (google.api.http) = {
@@ -213,6 +218,44 @@ message BiSourceSchemaTable {
 // 查询数据源表结构的响应。
 message ListBiSourceTablesResponse {
   repeated BiSourceSchemaTable tables = 1 [(gnostic.openapi.v3.property) = {description: "数据库表结构"}]; // 数据库表结构
+}
+
+// 分页查询数据源表数据的请求。
+message PageBiSourceTableDataRequest {
+  int64 id = 1 [
+    (gnostic.openapi.v3.property) = {description: "数据源ID"},
+    (buf.validate.field).int64 = {gt: 0}
+  ]; // 数据源ID
+  string table_key = 2 [
+    json_name = "tableKey",
+    (gnostic.openapi.v3.property) = {description: "表结构标识"},
+    (buf.validate.field).string = {min_len: 1, max_len: 512}
+  ]; // 表结构标识
+  string tenant_column = 3 [
+    json_name = "tenantColumn",
+    (gnostic.openapi.v3.property) = {description: "租户隔离字段，为空表示不追加租户过滤"},
+    (buf.validate.field).string = {max_len: 128}
+  ]; // 租户隔离字段，为空表示不追加租户过滤
+  int64 page_num = 101 [
+    (gnostic.openapi.v3.property) = {description: "页码", default: {number: 1}},
+    (buf.validate.field).int64 = {gte: 1, lte: 1000000}
+  ]; // 页码
+  int64 page_size = 102 [
+    (gnostic.openapi.v3.property) = {description: "每页数量", default: {number: 20}},
+    (buf.validate.field).int64 = {gte: 1, lte: 100}
+  ]; // 每页数量
+}
+
+// 分页查询数据源表数据的响应。
+message PageBiSourceTableDataResponse {
+  repeated BiSourceSchemaColumn columns = 1 [(gnostic.openapi.v3.property) = {description: "表字段"}]; // 表字段
+  repeated BiSourceTableDataRow rows = 2 [(gnostic.openapi.v3.property) = {description: "数据行"}]; // 数据行
+  int32 total = 3 [(gnostic.openapi.v3.property) = {description: "数据总数"}]; // 数据总数
+}
+
+// 数据源表中的一行数据。
+message BiSourceTableDataRow {
+  repeated string values = 1 [(gnostic.openapi.v3.property) = {description: "按字段顺序排列的单元格值"}]; // 按字段顺序排列的单元格值
 }
 
 // 保存数据源语义模型的请求。

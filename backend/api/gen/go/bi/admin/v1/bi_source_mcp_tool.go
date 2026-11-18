@@ -24,6 +24,7 @@ func RegisterBiSourceServiceMCPTools(mcpServer *server.MCPServer, biSourceServic
 	RegisterBiSourceServiceOptionBiSourceDatabaseMCPTool(mcpServer, biSourceServiceServer)
 	RegisterBiSourceServiceTestBiSourceMCPTool(mcpServer, biSourceServiceServer)
 	RegisterBiSourceServiceListBiSourceTablesMCPTool(mcpServer, biSourceServiceServer)
+	RegisterBiSourceServicePageBiSourceTableDataMCPTool(mcpServer, biSourceServiceServer)
 	RegisterBiSourceServiceSaveBiSourceModelMCPTool(mcpServer, biSourceServiceServer)
 	RegisterBiSourceServicePreviewBiSourceModelMCPTool(mcpServer, biSourceServiceServer)
 }
@@ -236,6 +237,30 @@ func RegisterBiSourceServiceListBiSourceTablesMCPTool(mcpServer *server.MCPServe
 			}
 			var reply *ListBiSourceTablesResponse
 			reply, err = biSourceServiceServer.ListBiSourceTables(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
+		},
+	)
+}
+
+// RegisterBiSourceServicePageBiSourceTableDataMCPTool 注册分页查询数据源中指定表的数据的 MCP Tool。
+func RegisterBiSourceServicePageBiSourceTableDataMCPTool(mcpServer *server.MCPServer, biSourceServiceServer BiSourceServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("bi_admin_v1_bi_source_service_page_bi_source_table_data",
+			mcp.WithDescription("分页查询数据源中指定表的数据。"),
+			mcp.WithInputSchema[*PageBiSourceTableDataRequest](),
+			mcp.WithOutputSchema[*PageBiSourceTableDataResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &PageBiSourceTableDataRequest{}
+			err := request.BindArguments(req)
+			if err != nil {
+				return nil, err
+			}
+			var reply *PageBiSourceTableDataResponse
+			reply, err = biSourceServiceServer.PageBiSourceTableData(ctx, req)
 			if err != nil {
 				return mcp.NewToolResultError(err.Error()), nil
 			}

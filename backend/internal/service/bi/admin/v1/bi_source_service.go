@@ -111,6 +111,16 @@ func (s *BiSourceService) ListBiSourceTables(ctx context.Context, req *adminv1.L
 	return result, nil
 }
 
+// PageBiSourceTableData 分页查询 BI 数据源表数据。
+func (s *BiSourceService) PageBiSourceTableData(ctx context.Context, req *adminv1.PageBiSourceTableDataRequest) (*adminv1.PageBiSourceTableDataResponse, error) {
+	result, err := s.biSourceCase.PageBiSourceTableData(ctx, req)
+	if err != nil {
+		log.Error(fmt.Sprintf("PageBiSourceTableData %v", err))
+		return nil, errorsx.WrapInternal(err, "分页查询 BI 表数据失败")
+	}
+	return result, nil
+}
+
 // SaveBiSourceModel 保存 BI 数据源语义模型。
 func (s *BiSourceService) SaveBiSourceModel(ctx context.Context, req *adminv1.SaveBiSourceModelRequest) (*adminv1.BiSource, error) {
 	result, err := s.biSourceCase.SaveBiSourceModel(ctx, req)

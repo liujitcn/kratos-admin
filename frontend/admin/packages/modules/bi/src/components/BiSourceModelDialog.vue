@@ -40,6 +40,9 @@
               <el-option v-for="column in table.columns" :key="column.name" :label="schemaLabel(column)" :value="column.name" />
             </el-select>
             <el-tag size="small" effect="plain">{{ table.table_type }}</el-tag>
+            <el-tooltip :content="t('bi.source.model.action.preview_table')" placement="top">
+              <el-button text :icon="View" :aria-label="t('bi.source.model.action.preview_table')" @click="openTableData(table)" />
+            </el-tooltip>
           </div>
           <el-empty v-if="!filteredTables.length" :description="t('bi.source.model.tables_empty')" />
         </el-scrollbar>
@@ -216,18 +219,34 @@
       </div>
     </template>
   </el-dialog>
+
+  <el-dialog v-model="tablePreviewOpen" :title="tablePreviewTitle" width="min(1200px, 92vw)" destroy-on-close @closed="closeTablePreview">
+    <ProTable
+      v-if="previewTable"
+      :key="`${props.source?.id ?? 0}-${previewTable.key}`"
+      row-key="__row_id"
+      :columns="dataPreviewColumns"
+      :init-param="previewInitParam"
+      :request-api="requestTableData"
+      :request-error="handlePreviewError"
+      :tool-button="false"
+    />
+  </el-dialog>
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, ref, useId, watch } from "vue";
+import { computed, h, nextTick, ref, useId, watch } from "vue";
 import { VueFlow, Handle, MarkerType, Panel, Position, useVueFlow } from "@vue-flow/core";
 import type { Connection, Edge, EdgeMouseEvent, Node, NodeDragEvent } from "@vue-flow/core";
 import { Background } from "@vue-flow/background";
 import { Controls } from "@vue-flow/controls";
 import { MiniMap } from "@vue-flow/minimap";
-import { CirclePlus, DataAnalysis, Delete } from "@element-plus/icons-vue";
+import { CirclePlus, DataAnalysis, Delete, View } from "@element-plus/icons-vue";
 import { t } from "@liujitcn/kratos-admin-core";
 import CodeEditor from "@liujitcn/kratos-admin-core/components/CodeEditor/index.vue";
+import ProTable from "@liujitcn/kratos-admin-core/components/ProTable";
+import type { ColumnProps } from "@liujitcn/kratos-admin-core/components/ProTable/interface";
+import { buildPageRequest } from "@liujitcn/kratos-admin-core/table";
 import { defBiQueryService } from "../api/bi/admin/v1/bi_query";
 import { defBiSourceService } from "../api/bi/admin/v1/bi_source";
 import { formatSourceModelLayout } from "./source-model-layout";
@@ -241,7 +260,8 @@ import type {
   BiSourceModelTable,
   BiSourceRelation,
   BiSourceSchemaColumn,
-  BiSourceSchemaTable
+  BiSourceSchemaTable,
+  PageBiSourceTableDataResponse
 } from "../rpc/bi/admin/v1/bi_source";
 import "@vue-flow/core/dist/style.css";
 import "@vue-flow/controls/dist/style.css";
@@ -284,6 +304,18 @@ const selectedRelationIndex = ref(-1);
 const savedModelSnapshot = ref("");
 const modelSaved = computed(() => savedModelSnapshot.value !== "" && savedModelSnapshot.value === JSON.stringify(model.value));
 const previewResult = ref<BiQueryResult>();
+const tablePreviewOpen = ref(false);
+const previewTable = ref<BiSourceSchemaTable>();
+const previewInitParam = ref({id: 0, table_key: "", tenant_column: "", page_size: 20});
+let tablePreviewRequest = 0;
+const tablePreviewTitle = computed(() => previewTable.value ? schemaLabel(previewTable.value) : t("bi.source.model.preview.title"));
+const dataPreviewColumns = computed<ColumnProps[]>(() => (previewTable.value?.columns ?? []).map(column => ({
+  prop: column.name,
+  label: column.comment || column.name,
+  minWidth: 140,
+  showOverflowTooltip: true,
+  headerRender: () => h("span", {title: column.name}, column.comment || column.name)
+})));
 const selectedTables = computed(() => schemaTables.value.filter(table => model.value.tables.some(item => item.key === table.key)));
 const filteredTables = computed(() => schemaTables.value.filter(table => `${table.schema_name}.${schemaLabel(table)}`.toLowerCase().includes(tableFilter.value.toLowerCase())));
 const selectedRelation = computed(() => model.value.relations[selectedRelationIndex.value]);
@@ -337,6 +369,9 @@ const previewRows = computed(() => previewResult.value?.rows.map(row => Object.f
 watch(() => [props.modelValue, props.source?.id] as const, ([visible]) => {
   modelSession++;
   modelRequest++;
+  tablePreviewRequest++;
+  tablePreviewOpen.value = false;
+  previewTable.value = undefined;
   loading.value = saving.value = analyzing.value = previewing.value = false;
   impact.value = undefined;
   previewResult.value = undefined;
@@ -445,6 +480,64 @@ function toggleTable(table: BiSourceSchemaTable, selected: boolean) {
 /** 查询指定表的发现结构。 */
 function tableFor(key: string): BiSourceSchemaTable | undefined {
   return schemaTables.value.find(table => table.key === key);
+}
+
+/** 打开指定表的数据预览并冻结当前租户列配置。 */
+function openTableData(table: BiSourceSchemaTable) {
+  if (!props.source) return;
+  previewTable.value = table;
+  previewInitParam.value = {
+    id: props.source.id,
+    table_key: table.key,
+    tenant_column: modelTable(table.key)?.tenant_column ?? table.columns.find(column => column.name === "tenant_id")?.name ?? "",
+    page_size: 20
+  };
+  tablePreviewRequest++;
+  tablePreviewOpen.value = true;
+}
+
+/** 关闭表数据预览并使未完成请求失效。 */
+function closeTablePreview() {
+  tablePreviewRequest++;
+  previewTable.value = undefined;
+}
+
+/** 将表数据响应转换为 ProTable 所需的分页结构。 */
+function mapTableData(result: PageBiSourceTableDataResponse, tableKey: string, pageNum: number) {
+  return {
+    data: {
+      list: (result.rows ?? []).map((row, rowIndex) => ({
+        __row_id: `${tableKey}:${pageNum}:${rowIndex}`,
+        ...Object.fromEntries(result.columns.map((column, index) => [column.name, row.values[index] ?? ""]))
+      })),
+      total: result.total
+    }
+  };
+}
+
+/** 请求当前表的数据页，并忽略切换表或数据源后的迟到响应。 */
+async function requestTableData(params: Record<string, unknown>) {
+  const currentRequest = tablePreviewRequest;
+  const sourceID = props.source?.id ?? 0;
+  const table = previewTable.value;
+  if (!sourceID || !table || !tablePreviewOpen.value) return {data: {list: [], total: 0}};
+  const request = buildPageRequest({
+    ...previewInitParam.value,
+    ...params,
+    id: sourceID,
+    table_key: table.key,
+    tenant_column: previewInitParam.value.tenant_column
+  });
+  const result = await defBiSourceService.PageBiSourceTableData(request);
+  if (currentRequest !== tablePreviewRequest || !tablePreviewOpen.value || sourceID !== props.source?.id || table.key !== previewTable.value?.key) {
+    return {data: {list: [], total: 0}};
+  }
+  return mapTableData(result, table.key, request.page_num);
+}
+
+/** 展示表数据预览请求错误。 */
+function handlePreviewError(cause: unknown) {
+  if (tablePreviewOpen.value) ElMessage.error(cause instanceof Error ? cause.message : t("bi.query.error"));
 }
 
 /** 表和字段展示注释，选择值仍使用原始英文标识。 */

@@ -152,6 +152,17 @@ func (s *redactedBiSourceServiceServer) ListBiSourceTables(ctx context.Context, 
 	return res, err
 }
 
+// PageBiSourceTableData is the redacted wrapper for the actual BiSourceServiceServer.PageBiSourceTableData method
+// Unary RPC
+func (s *redactedBiSourceServiceServer) PageBiSourceTableData(ctx context.Context, in *PageBiSourceTableDataRequest) (*PageBiSourceTableDataResponse, error) {
+	res, err := s.srv.PageBiSourceTableData(ctx, in)
+	if !s.bypass.CheckInternal(ctx) {
+		// Apply redaction to the response
+		redact.ApplyWith(redact.WithDirection(redact.WithOperation(ctx, "/bi.admin.v1.BiSourceService/PageBiSourceTableData"), redact.DirectionResponse), nil, res)
+	}
+	return res, err
+}
+
 // SaveBiSourceModel is the redacted wrapper for the actual BiSourceServiceServer.SaveBiSourceModel method
 // Unary RPC
 func (s *redactedBiSourceServiceServer) SaveBiSourceModel(ctx context.Context, in *SaveBiSourceModelRequest) (*BiSource, error) {
@@ -410,6 +421,54 @@ func (x *ListBiSourceTablesResponse) Redact() {
 	}
 
 	// Safe field: Tables
+}
+
+// Ensure PageBiSourceTableDataRequest implements the Redactor interface at compile time.
+var _ redact.Redactor = (*PageBiSourceTableDataRequest)(nil)
+
+// Redact method implementation for PageBiSourceTableDataRequest
+func (x *PageBiSourceTableDataRequest) Redact() {
+	if x == nil {
+		return
+	}
+
+	// Safe field: Id
+
+	// Safe field: TableKey
+
+	// Safe field: TenantColumn
+
+	// Safe field: PageNum
+
+	// Safe field: PageSize
+}
+
+// Ensure PageBiSourceTableDataResponse implements the Redactor interface at compile time.
+var _ redact.Redactor = (*PageBiSourceTableDataResponse)(nil)
+
+// Redact method implementation for PageBiSourceTableDataResponse
+func (x *PageBiSourceTableDataResponse) Redact() {
+	if x == nil {
+		return
+	}
+
+	// Safe field: Columns
+
+	// Safe field: Rows
+
+	// Safe field: Total
+}
+
+// Ensure BiSourceTableDataRow implements the Redactor interface at compile time.
+var _ redact.Redactor = (*BiSourceTableDataRow)(nil)
+
+// Redact method implementation for BiSourceTableDataRow
+func (x *BiSourceTableDataRow) Redact() {
+	if x == nil {
+		return
+	}
+
+	// Safe field: Values
 }
 
 // Ensure SaveBiSourceModelRequest implements the Redactor interface at compile time.

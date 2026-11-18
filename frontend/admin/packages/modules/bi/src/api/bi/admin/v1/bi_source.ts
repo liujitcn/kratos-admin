@@ -12,6 +12,8 @@ import type {
   GetBiSourceRequest,
   OptionBiSourceDatabaseRequest,
   OptionBiSourceDatabaseResponse,
+  PageBiSourceTableDataRequest,
+  PageBiSourceTableDataResponse,
   PageBiSourceRequest,
   PageBiSourceResponse,
   SetBiSourceStatusRequest,
@@ -68,6 +70,11 @@ export class BiSourceServiceImpl implements BiSourceService {
   /** 查询数据源中的表和字段结构。 */
   ListBiSourceTables(request: ListBiSourceTablesRequest): Promise<ListBiSourceTablesResponse> {
     return service({url: `${BI_SOURCE_URL}/${request.id}/tables`, method: "get", params: request});
+  }
+
+  /** 分页查询数据源指定表的数据。 */
+  PageBiSourceTableData(request: PageBiSourceTableDataRequest): Promise<PageBiSourceTableDataResponse> {
+    return service({url: `${BI_SOURCE_URL}/${request.id}/table-data`, method: "get", params: request});
   }
 
   /** 保存数据源语义模型。 */

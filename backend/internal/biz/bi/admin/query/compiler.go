@@ -334,6 +334,11 @@ func quoteSourceTable(driver, schemaName, tableName string) string {
 	return quoteSourceIdentifier(driver, schemaName) + "." + quoteSourceIdentifier(driver, tableName)
 }
 
+// QuoteSourceTable 按驱动转义并拼接数据源表名。
+func QuoteSourceTable(driver, schemaName, tableName string) string {
+	return quoteSourceTable(driver, schemaName, tableName)
+}
+
 // quoteSourceIdentifier 按驱动转义标识符并加引号，PostgreSQL 使用双引号、MySQL 系使用反引号，
 // 是拼接数据源 SQL 时防止标识符注入与关键字冲突的唯一出口。
 func quoteSourceIdentifier(driver, value string) string {
@@ -341,6 +346,11 @@ func quoteSourceIdentifier(driver, value string) string {
 		return `"` + strings.ReplaceAll(value, `"`, `""`) + `"`
 	}
 	return "`" + strings.ReplaceAll(value, "`", "``") + "`"
+}
+
+// QuoteSourceIdentifier 按驱动转义数据源标识符。
+func QuoteSourceIdentifier(driver, value string) string {
+	return quoteSourceIdentifier(driver, value)
 }
 
 // Placeholder 生成参数占位符：PostgreSQL 使用 $N 序号占位，MySQL 系使用问号占位。

@@ -16,6 +16,7 @@ export const useTable = (
   requestError?: (error: any) => void
 ) => {
   let requestSerial = 0;
+  const initialPageSize = Number((initParam as {page_size?: unknown}).page_size ?? 10);
   const state = reactive<Table.StateProps>({
     // 表格加载状态
     loading: false,
@@ -26,7 +27,7 @@ export const useTable = (
       // 当前页数
       page_num: 1,
       // 每页显示条数
-      page_size: 10,
+      page_size: Number.isFinite(initialPageSize) && initialPageSize > 0 ? initialPageSize : 10,
       // 总条数
       total: 0
     },

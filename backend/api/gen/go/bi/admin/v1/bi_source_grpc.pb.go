@@ -29,6 +29,7 @@ const (
 	BiSourceService_OptionBiSourceDatabase_FullMethodName = "/bi.admin.v1.BiSourceService/OptionBiSourceDatabase"
 	BiSourceService_TestBiSource_FullMethodName           = "/bi.admin.v1.BiSourceService/TestBiSource"
 	BiSourceService_ListBiSourceTables_FullMethodName     = "/bi.admin.v1.BiSourceService/ListBiSourceTables"
+	BiSourceService_PageBiSourceTableData_FullMethodName  = "/bi.admin.v1.BiSourceService/PageBiSourceTableData"
 	BiSourceService_SaveBiSourceModel_FullMethodName      = "/bi.admin.v1.BiSourceService/SaveBiSourceModel"
 	BiSourceService_PreviewBiSourceModel_FullMethodName   = "/bi.admin.v1.BiSourceService/PreviewBiSourceModel"
 )
@@ -57,6 +58,8 @@ type BiSourceServiceClient interface {
 	TestBiSource(ctx context.Context, in *TestBiSourceRequest, opts ...grpc.CallOption) (*TestBiSourceResponse, error)
 	// 发现已保存数据源中的表、字段和唯一键。
 	ListBiSourceTables(ctx context.Context, in *ListBiSourceTablesRequest, opts ...grpc.CallOption) (*ListBiSourceTablesResponse, error)
+	// 分页查询数据源中指定表的数据。
+	PageBiSourceTableData(ctx context.Context, in *PageBiSourceTableDataRequest, opts ...grpc.CallOption) (*PageBiSourceTableDataResponse, error)
 	// 保存经过校验的多表语义模型。
 	SaveBiSourceModel(ctx context.Context, in *SaveBiSourceModelRequest, opts ...grpc.CallOption) (*BiSource, error)
 	// 预览公共模型变更和关联影响，不写入模型。
@@ -161,6 +164,16 @@ func (c *biSourceServiceClient) ListBiSourceTables(ctx context.Context, in *List
 	return out, nil
 }
 
+func (c *biSourceServiceClient) PageBiSourceTableData(ctx context.Context, in *PageBiSourceTableDataRequest, opts ...grpc.CallOption) (*PageBiSourceTableDataResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(PageBiSourceTableDataResponse)
+	err := c.cc.Invoke(ctx, BiSourceService_PageBiSourceTableData_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *biSourceServiceClient) SaveBiSourceModel(ctx context.Context, in *SaveBiSourceModelRequest, opts ...grpc.CallOption) (*BiSource, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(BiSource)
@@ -205,6 +218,8 @@ type BiSourceServiceServer interface {
 	TestBiSource(context.Context, *TestBiSourceRequest) (*TestBiSourceResponse, error)
 	// 发现已保存数据源中的表、字段和唯一键。
 	ListBiSourceTables(context.Context, *ListBiSourceTablesRequest) (*ListBiSourceTablesResponse, error)
+	// 分页查询数据源中指定表的数据。
+	PageBiSourceTableData(context.Context, *PageBiSourceTableDataRequest) (*PageBiSourceTableDataResponse, error)
 	// 保存经过校验的多表语义模型。
 	SaveBiSourceModel(context.Context, *SaveBiSourceModelRequest) (*BiSource, error)
 	// 预览公共模型变更和关联影响，不写入模型。
@@ -245,6 +260,9 @@ func (UnimplementedBiSourceServiceServer) TestBiSource(context.Context, *TestBiS
 }
 func (UnimplementedBiSourceServiceServer) ListBiSourceTables(context.Context, *ListBiSourceTablesRequest) (*ListBiSourceTablesResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ListBiSourceTables not implemented")
+}
+func (UnimplementedBiSourceServiceServer) PageBiSourceTableData(context.Context, *PageBiSourceTableDataRequest) (*PageBiSourceTableDataResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method PageBiSourceTableData not implemented")
 }
 func (UnimplementedBiSourceServiceServer) SaveBiSourceModel(context.Context, *SaveBiSourceModelRequest) (*BiSource, error) {
 	return nil, status.Error(codes.Unimplemented, "method SaveBiSourceModel not implemented")
@@ -435,6 +453,24 @@ func _BiSourceService_ListBiSourceTables_Handler(srv interface{}, ctx context.Co
 	return interceptor(ctx, in, info, handler)
 }
 
+func _BiSourceService_PageBiSourceTableData_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PageBiSourceTableDataRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BiSourceServiceServer).PageBiSourceTableData(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: BiSourceService_PageBiSourceTableData_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BiSourceServiceServer).PageBiSourceTableData(ctx, req.(*PageBiSourceTableDataRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _BiSourceService_SaveBiSourceModel_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(SaveBiSourceModelRequest)
 	if err := dec(in); err != nil {
@@ -513,6 +549,10 @@ var BiSourceService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ListBiSourceTables",
 			Handler:    _BiSourceService_ListBiSourceTables_Handler,
+		},
+		{
+			MethodName: "PageBiSourceTableData",
+			Handler:    _BiSourceService_PageBiSourceTableData_Handler,
 		},
 		{
 			MethodName: "SaveBiSourceModel",

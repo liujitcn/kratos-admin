@@ -3,9 +3,11 @@ package admin
 import (
 	"cmp"
 	"context"
+	"database/sql"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"math"
 	"regexp"
 	"slices"
 	"sort"
@@ -434,6 +436,41 @@ func (c *BiSourceCase) ListBiSourceTables(ctx context.Context, req *adminv1.List
 	return &adminv1.ListBiSourceTablesResponse{Tables: tables}, nil
 }
 
+// PageBiSourceTableData 分页查询当前租户数据源中指定表的数据。
+func (c *BiSourceCase) PageBiSourceTableData(ctx context.Context, req *adminv1.PageBiSourceTableDataRequest) (*adminv1.PageBiSourceTableDataResponse, error) {
+	err := c.requireModelPermission(ctx)
+	if err != nil {
+		return nil, err
+	}
+	var authInfo *authData.UserTokenPayload
+	authInfo, err = c.GetAuthInfo(ctx)
+	if err != nil {
+		return nil, err
+	}
+	var item *models.BiSource
+	item, err = c.findSource(ctx, authInfo.TenantId, req.GetId())
+	if err != nil {
+		return nil, err
+	}
+	var database *configuredDatabase
+	database, err = c.openSource(ctx, item)
+	if err != nil {
+		return nil, err
+	}
+	defer database.Close()
+	var tables []*adminv1.BiSourceSchemaTable
+	tables, err = discoverSourceTables(ctx, database, item)
+	if err != nil {
+		return nil, err
+	}
+	var table *adminv1.BiSourceSchemaTable
+	table, err = findSourceTableDataTarget(tables, req.GetTableKey(), req.GetTenantColumn())
+	if err != nil {
+		return nil, err
+	}
+	return pageSourceTableData(ctx, database, table, req.GetTenantColumn(), authInfo.TenantId, req.GetPageNum(), req.GetPageSize())
+}
+
 // SaveBiSourceModel 在同一元数据事务中保存公共模型并同步所有引用卡片。
 func (c *BiSourceCase) SaveBiSourceModel(ctx context.Context, req *adminv1.SaveBiSourceModelRequest) (*adminv1.BiSource, error) {
 	prepared, candidate, err := c.prepareModel(ctx, req)
@@ -833,6 +870,101 @@ func (c *BiSourceCase) sourceResponse(ctx context.Context, item *models.BiSource
 	}
 	if err != nil {
 		return nil, err
+	}
+	return result, nil
+}
+
+// findSourceTableDataTarget 从重新发现的表结构中校验预览目标和租户字段。
+func findSourceTableDataTarget(tables []*adminv1.BiSourceSchemaTable, tableKey, tenantColumn string) (*adminv1.BiSourceSchemaTable, error) {
+	var table *adminv1.BiSourceSchemaTable
+	for _, item := range tables {
+		if item.GetKey() == tableKey {
+			table = item
+			break
+		}
+	}
+	if table == nil {
+		return nil, errorsx.InvalidArgument("表结构不存在或已变化")
+	}
+	if tenantColumn == "" {
+		return table, nil
+	}
+	for _, column := range table.GetColumns() {
+		if column.GetName() == tenantColumn {
+			return table, nil
+		}
+	}
+	return nil, errorsx.InvalidArgument("租户字段不存在或已变化")
+}
+
+// pageSourceTableData 执行白名单表字段上的只读计数和分页查询。
+func pageSourceTableData(ctx context.Context, database *configuredDatabase, table *adminv1.BiSourceSchemaTable, tenantColumn string, tenantID, pageNum, pageSize int64) (*adminv1.PageBiSourceTableDataResponse, error) {
+	if pageNum < 1 || pageNum > 1000000 || pageSize < 1 || pageSize > 100 {
+		return nil, errorsx.InvalidArgument("分页参数无效")
+	}
+	columns := table.GetColumns()
+	if len(columns) == 0 {
+		return nil, errorsx.InvalidArgument("表结构没有可预览字段")
+	}
+	for _, column := range columns {
+		if !biSourceIdentifierPattern.MatchString(column.GetName()) {
+			return nil, errorsx.InvalidArgument("表字段标识不合法")
+		}
+	}
+	tableName := queryCompiler.QuoteSourceTable(database.driver, table.GetSchemaName(), table.GetName())
+	whereSQL := ""
+	args := make([]any, 0, 3)
+	if tenantColumn != "" {
+		whereSQL = " WHERE " + queryCompiler.QuoteSourceIdentifier(database.driver, tenantColumn) + " = " + queryCompiler.Placeholder(database.driver, 1)
+		args = append(args, tenantID)
+	}
+	var total int64
+	err := database.db.QueryRowContext(ctx, "SELECT COUNT(*) FROM "+tableName+whereSQL, args...).Scan(&total) //nolint:forbidigo // 表和字段来自重新发现白名单，租户值使用参数绑定。
+	if err != nil {
+		return nil, errorsx.Internal("统计 BI 表数据失败").WithCause(err)
+	}
+	if total > math.MaxInt32 {
+		return nil, errorsx.InvalidArgument("数据总数超过接口支持范围")
+	}
+	orderColumn := columns[0].GetName()
+	for _, column := range columns {
+		if column.GetPrimaryKey() {
+			orderColumn = column.GetName()
+			break
+		}
+	}
+	selectParts := make([]string, 0, len(columns))
+	for _, column := range columns {
+		selectParts = append(selectParts, queryCompiler.QuoteSourceIdentifier(database.driver, column.GetName()))
+	}
+	limitIndex := len(args) + 1
+	offsetIndex := limitIndex + 1
+	args = append(args, pageSize, (pageNum-1)*pageSize)
+	queryText := "SELECT " + strings.Join(selectParts, ", ") + " FROM " + tableName + whereSQL + " ORDER BY " + queryCompiler.QuoteSourceIdentifier(database.driver, orderColumn) + " LIMIT " + queryCompiler.Placeholder(database.driver, limitIndex) + " OFFSET " + queryCompiler.Placeholder(database.driver, offsetIndex)
+	var rows *sql.Rows
+	rows, err = database.db.QueryContext(ctx, queryText, args...) //nolint:forbidigo // 表和字段来自重新发现白名单，分页值使用参数绑定。
+	if err != nil {
+		return nil, errorsx.Internal("查询 BI 表数据失败").WithCause(err)
+	}
+	defer func() { _ = rows.Close() }()
+	result := &adminv1.PageBiSourceTableDataResponse{Columns: columns, Total: int32(total)}
+	for rows.Next() {
+		values := make([]any, len(columns))
+		pointers := make([]any, len(values))
+		for index := range values {
+			pointers[index] = &values[index]
+		}
+		if err = rows.Scan(pointers...); err != nil {
+			return nil, errorsx.Internal("读取 BI 表数据失败").WithCause(err)
+		}
+		row := &adminv1.BiSourceTableDataRow{Values: make([]string, 0, len(values))}
+		for _, value := range values {
+			row.Values = append(row.Values, formatConfiguredValue(value))
+		}
+		result.Rows = append(result.Rows, row)
+	}
+	if err = rows.Err(); err != nil {
+		return nil, errorsx.Internal("遍历 BI 表数据失败").WithCause(err)
 	}
 	return result, nil
 }

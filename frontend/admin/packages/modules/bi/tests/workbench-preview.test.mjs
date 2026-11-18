@@ -350,7 +350,7 @@ test("数据源模型使用最新版本，检查影响后才能保存，刷新�
  const saved=[];
  const props=vue.reactive({modelValue:false,source:{id:1,version:7,code:"sales",schema_json:"{}"}});
  const state=setupComponent("BiSourceModelDialog",props,{
-  vue:{...vue,useId:()=>"test"},"@liujitcn/kratos-admin-core":{t:key=>key},"@element-plus/icons-vue":{},
+  vue:{...vue,useId:()=>"test"},"@liujitcn/kratos-admin-core":{t:key=>key},"@liujitcn/kratos-admin-core/components/ProTable":{},"@liujitcn/kratos-admin-core/table":{buildPageRequest:params=>({...params,page_num:Number(params.page_num??1),page_size:Number(params.page_size??10)})},"@element-plus/icons-vue":{},
   "@vue-flow/core":{useVueFlow:()=>({fitView:()=>undefined,updateNodeInternals:()=>undefined,viewportHelper:vue.ref({viewportInitialized:false})}),Position:{Right:"right",Left:"left"}},
   "@vue-flow/background":{},"@vue-flow/controls":{},"@vue-flow/minimap":{},"./source-model-layout":{formatSourceModelLayout:()=>undefined},
   "../api/bi/admin/v1/bi_query":{defBiQueryService:{}},
@@ -387,7 +387,7 @@ for (const operation of ["loadModel", "refreshVersion", "saveModel"]) {
   const source=id=>({id,version:id,code:`source${id}`,schema_json:stored(id),model_configured:true});
   const props=vue.reactive({modelValue:false,source:source(1)});
   const state=setupComponent("BiSourceModelDialog",props,{
-   vue:{...vue,useId:()=>"test"},"@liujitcn/kratos-admin-core":{t:key=>key},"@element-plus/icons-vue":{},
+   vue:{...vue,useId:()=>"test"},"@liujitcn/kratos-admin-core":{t:key=>key},"@liujitcn/kratos-admin-core/components/ProTable":{},"@liujitcn/kratos-admin-core/table":{buildPageRequest:params=>({...params,page_num:Number(params.page_num??1),page_size:Number(params.page_size??10)})},"@element-plus/icons-vue":{},
    "@vue-flow/core":{useVueFlow:()=>({fitView:()=>undefined,updateNodeInternals:()=>undefined,viewportHelper:vue.ref({viewportInitialized:false})}),Position:{Right:"right",Left:"left"}},
    "@vue-flow/background":{},"@vue-flow/controls":{},"@vue-flow/minimap":{},"./source-model-layout":{formatSourceModelLayout:()=>undefined},
    "../api/bi/admin/v1/bi_query":{defBiQueryService:{}},
@@ -421,4 +421,65 @@ for (const operation of ["loadModel", "refreshVersion", "saveModel"]) {
 test("重复预览冲突只定位服务端明确给出的已保存卡片", () => {
  assert.equal(metricEdit.appliedCardID({response:{data:{code:409,metadata:{card_id:"42",card_version:"3"}}}}),42);
  for(const cause of [new Error("42"),{response:{data:{code:403,metadata:{card_id:"42"}}}},{response:{data:{code:409,metadata:{card_id:"NaN"}}}}]) assert.equal(metricEdit.appliedCardID(cause),0);
+});
+
+test("数据源模型表预览使用当前表和租户列，并优先使用中文字段注释", async () => {
+ const calls=[];
+ let emptyResponse=false;
+ const props=vue.reactive({modelValue:false,source:{id:7,name:"销售数据",code:"sales"}});
+ const state=setupComponent("BiSourceModelDialog",props,{
+  vue:{...vue,useId:()=>"test"},
+  "@liujitcn/kratos-admin-core":{t:key=>key},
+  "@liujitcn/kratos-admin-core/components/ProTable":{},
+  "@liujitcn/kratos-admin-core/table":{buildPageRequest:params=>({...params,page_num:Number(params.page_num??1),page_size:Number(params.page_size??10)})},
+  "@element-plus/icons-vue":{},
+  "@vue-flow/core":{useVueFlow:()=>({fitView:()=>undefined,updateNodeInternals:()=>undefined,viewportHelper:vue.ref({viewportInitialized:false})}),Position:{Right:"right",Left:"left"}},
+  "@vue-flow/background":{},"@vue-flow/controls":{},"@vue-flow/minimap":{},"./source-model-layout":{formatSourceModelLayout:()=>undefined},
+  "../api/bi/admin/v1/bi_query":{defBiQueryService:{}},
+  "../api/bi/admin/v1/bi_source":{defBiSourceService:{
+   GetBiSource:async()=>({}),ListBiSourceTables:async()=>({tables:[]}),
+   PageBiSourceTableData:async request=>{calls.push(request);return emptyResponse ? {columns:[{name:"id",comment:"编号"},{name:"amount",comment:""}],total:21} : {columns:[{name:"id",comment:"编号"},{name:"amount",comment:""}],rows:[{values:["1","20"]}],total:21}}
+  }}
+ });
+ state.model.value.tables=[{key:"public.orders",tenant_column:"tenant_id",x:0,y:0}];
+ state.openTableData({key:"public.orders",schema_name:"public",name:"orders",columns:[{name:"id",comment:"编号"},{name:"amount",comment:""}]});
+ const result=await state.requestTableData({page_num:2,page_size:20});
+ assert.deepEqual(calls,[{id:7,table_key:"public.orders",tenant_column:"tenant_id",page_num:2,page_size:20}]);
+ assert.equal(state.dataPreviewColumns.value[0].label,"编号");
+ assert.equal(state.dataPreviewColumns.value[1].label,"amount");
+ assert.equal(result.data.list.length,1);
+ assert.equal(result.data.list[0].id,"1");
+ assert.equal(result.data.list[0].amount,"20");
+ assert.equal(result.data.list[0].__row_id,"public.orders:2:0");
+ assert.equal(result.data.total,21);
+ emptyResponse=true;
+ const emptyResult=await state.requestTableData({page_num:3,page_size:20});
+ assert.equal(emptyResult.data.list.length,0);
+ assert.equal(emptyResult.data.total,21);
+});
+
+test("数据源模型表预览忽略切换表后的迟到响应", async () => {
+ const pending=Promise.withResolvers();
+ const props=vue.reactive({modelValue:false,source:{id:7,name:"销售数据",code:"sales"}});
+ const state=setupComponent("BiSourceModelDialog",props,{
+  vue:{...vue,useId:()=>"test"},
+  "@liujitcn/kratos-admin-core":{t:key=>key},
+  "@liujitcn/kratos-admin-core/components/ProTable":{},
+  "@liujitcn/kratos-admin-core/table":{buildPageRequest:params=>({...params,page_num:Number(params.page_num??1),page_size:Number(params.page_size??10)})},
+  "@element-plus/icons-vue":{},
+  "@vue-flow/core":{useVueFlow:()=>({fitView:()=>undefined,updateNodeInternals:()=>undefined,viewportHelper:vue.ref({viewportInitialized:false})}),Position:{Right:"right",Left:"left"}},
+  "@vue-flow/background":{},"@vue-flow/controls":{},"@vue-flow/minimap":{},"./source-model-layout":{formatSourceModelLayout:()=>undefined},
+  "../api/bi/admin/v1/bi_query":{defBiQueryService:{}},
+  "../api/bi/admin/v1/bi_source":{defBiSourceService:{
+   GetBiSource:async()=>({}),ListBiSourceTables:async()=>({tables:[]}),
+   PageBiSourceTableData:async()=>pending.promise
+  }}
+ });
+ state.openTableData({key:"public.orders",schema_name:"public",name:"orders",columns:[{name:"id",comment:"编号"}]});
+ const loading=state.requestTableData({page_num:1,page_size:20});
+ state.openTableData({key:"public.refunds",schema_name:"public",name:"refunds",columns:[{name:"id",comment:"编号"}]});
+ pending.resolve({columns:[{name:"id",comment:"编号"}],rows:[{values:["1"]}],total:1});
+ const result=await loading;
+ assert.equal(result.data.list.length,0);
+ assert.equal(state.previewTable.value.key,"public.refunds");
 });

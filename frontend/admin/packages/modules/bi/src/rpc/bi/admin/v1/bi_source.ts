@@ -145,6 +145,36 @@ export interface ListBiSourceTablesResponse {
   tables: BiSourceSchemaTable[];
 }
 
+/** 分页查询数据源表数据的请求。 */
+export interface PageBiSourceTableDataRequest {
+  /** 数据源ID */
+  id: number;
+  /** 表结构标识 */
+  table_key: string;
+  /** 租户隔离字段，为空表示不追加租户过滤 */
+  tenant_column: string;
+  /** 页码 */
+  page_num: number;
+  /** 每页数量 */
+  page_size: number;
+}
+
+/** 分页查询数据源表数据的响应。 */
+export interface PageBiSourceTableDataResponse {
+  /** 表字段 */
+  columns: BiSourceSchemaColumn[];
+  /** 数据行 */
+  rows: BiSourceTableDataRow[];
+  /** 数据总数 */
+  total: number;
+}
+
+/** 数据源表中的一行数据。 */
+export interface BiSourceTableDataRow {
+  /** 按字段顺序排列的单元格值 */
+  values: string[];
+}
+
 /** 保存数据源语义模型的请求。 */
 export interface SaveBiSourceModelRequest {
   /** 数据源ID */
@@ -375,6 +405,8 @@ export interface BiSourceService {
   TestBiSource(request: TestBiSourceRequest): Promise<TestBiSourceResponse>;
   /** 发现已保存数据源中的表、字段和唯一键。 */
   ListBiSourceTables(request: ListBiSourceTablesRequest): Promise<ListBiSourceTablesResponse>;
+  /** 分页查询数据源中指定表的数据。 */
+  PageBiSourceTableData(request: PageBiSourceTableDataRequest): Promise<PageBiSourceTableDataResponse>;
   /** 保存经过校验的多表语义模型。 */
   SaveBiSourceModel(request: SaveBiSourceModelRequest): Promise<BiSource>;
   /** 预览公共模型变更和关联影响，不写入模型。 */
