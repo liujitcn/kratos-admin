@@ -3,17 +3,17 @@
     <div class="api-doc-page__layout">
       <el-card class="code-gen-sub-card api-doc-page__navigation" shadow="never">
         <div v-if="documents.length" class="api-doc-page__document-list">
-          <button
+          <el-button text
             v-for="document in documents"
             :key="document.key"
-            type="button"
+            native-type="button"
             class="api-doc-page__document"
             :class="{ 'is-active': selectedDocumentKey === document.key }"
             @click="handleDocumentChange(document.key)"
           >
             <span class="api-doc-page__document-name">{{ document.name }}</span>
             <span class="api-doc-page__document-key">{{ document.key }}</span>
-          </button>
+          </el-button>
         </div>
         <el-empty v-else :image-size="56" :description="t('system.base.api.doc.message.empty')" />
       </el-card>

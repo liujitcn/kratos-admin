@@ -6,16 +6,16 @@
       <nav aria-label="组件分类">
         <details v-for="group in navigationGroups" :key="group.label" :open="group.open">
           <summary>{{ group.label }}</summary>
-          <button
+          <el-button text
             v-for="entry in group.entries"
             :key="entry.id"
             class="docs-nav-item"
-            type="button"
+            native-type="button"
             :aria-current="state.id === entry.id ? 'page' : undefined"
             @click="selectDoc(entry.id)"
           >
             {{ entry.label }}
-          </button>
+          </el-button>
         </details>
       </nav>
       <el-empty v-if="!navigationEntries.length" description="没有匹配的组件" :image-size="50" />
@@ -49,16 +49,16 @@
         <section v-for="group in overviewGroups" :key="group.label" class="docs-overview-group">
           <h2>{{ group.label }}</h2>
           <div class="docs-cards">
-            <button
+            <el-button text
               v-for="entry in group.entries"
               :key="entry.id"
               class="docs-component-card"
-              type="button"
+              native-type="button"
               @click="selectDoc(entry.id)"
             >
               <strong>{{ entry.label }}</strong>
               <p>{{ entry.description }}</p>
-            </button>
+            </el-button>
           </div>
         </section>
         <el-empty v-if="!filteredEntries.length" description="没有匹配的组件" />

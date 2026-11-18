@@ -3,16 +3,16 @@
     <section class="lock-setup-dialog" role="dialog" aria-modal="true" :aria-label="t('core.layout.lock_screen')">
       <header class="lock-dialog-header">
         <h2>{{ t("core.layout.lock_screen") }}</h2>
-        <button class="lock-icon-button" type="button" :aria-label="t('common.action.close')" @click="closeSetup">
+        <el-button text class="lock-icon-button" native-type="button" :aria-label="t('common.action.close')" @click="closeSetup">
           <el-icon><Close /></el-icon>
-        </button>
+        </el-button>
       </header>
       <div class="lock-dialog-body">
         <div class="lock-avatar lock-avatar--setup">
           <img :src="avatarSrc" :alt="t('core.layout.avatar')" @error="handleAvatarError" />
         </div>
         <div class="lock-user-name">{{ displayName }}</div>
-        <form class="lock-form" @submit.prevent="handleLock">
+        <el-form class="lock-form" @submit.prevent="handleLock">
           <el-input
             v-model="setupPassword"
             class="lock-input"
@@ -28,27 +28,27 @@
             <el-icon><Lock /></el-icon>
             {{ t("core.layout.lock_screen_action") }}
           </el-button>
-        </form>
+        </el-form>
       </div>
     </section>
   </div>
 
   <div v-if="lockScreenStore.isLocked" class="lock-screen" role="dialog" aria-modal="true">
     <div class="lock-screen__trigger-wrap">
-      <button
+      <el-button text
         v-if="!lockScreenStore.unlockVisible"
         class="lock-screen__trigger"
-        type="button"
+        native-type="button"
         @click="openUnlock"
       >
         <el-icon :size="26"><Lock /></el-icon>
         <span>{{ t("core.layout.lock_screen_unlock_hint") }}</span>
-      </button>
+      </el-button>
       <section v-else class="unlock-panel" :aria-label="t('core.layout.lock_screen')">
         <div class="lock-avatar lock-avatar--unlock">
           <img :src="avatarSrc" :alt="t('core.layout.avatar')" @error="handleAvatarError" />
         </div>
-        <form class="lock-form" @submit.prevent="handleUnlock">
+        <el-form class="lock-form" @submit.prevent="handleUnlock">
           <el-input
             ref="unlockInputRef"
             v-model="unlockPassword"
@@ -65,15 +65,15 @@
           <el-button class="lock-submit" type="primary" size="large" native-type="submit" :loading="unlocking">
             {{ t("core.layout.lock_screen_enter") }}
           </el-button>
-        </form>
-        <button class="lock-text-button" type="button" :disabled="loggingOut" @click="returnToLogin">
+        </el-form>
+        <el-button text class="lock-text-button" native-type="button" :disabled="loggingOut" @click="returnToLogin">
           <el-icon><SwitchButton /></el-icon>
           <span>{{ t("core.layout.lock_screen_return_login") }}</span>
-        </button>
-        <button class="lock-text-button" type="button" @click="closeUnlock">
+        </el-button>
+        <el-button text class="lock-text-button" native-type="button" @click="closeUnlock">
           <el-icon><ArrowLeft /></el-icon>
           <span>{{ t("common.action.back") }}</span>
-        </button>
+        </el-button>
       </section>
     </div>
     <div class="lock-screen__clock" :class="{ 'lock-screen__clock--compact': lockScreenStore.unlockVisible }" aria-live="polite">

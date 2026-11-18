@@ -82,10 +82,10 @@
                   @change="handleModelChange"
                 />
                 <el-tooltip :content="t(recording ? 'bi.query.stop_voice_input' : 'bi.query.voice_input')" placement="top">
-                  <button
+                  <el-button text
                     class="bi-query-compose__button"
                     :class="{ 'is-active': recording }"
-                    type="button"
+                    native-type="button"
                     :disabled="loading"
                     :aria-pressed="recording"
                     :aria-label="t(recording ? 'bi.query.stop_voice_input' : 'bi.query.voice_input')"
@@ -94,12 +94,12 @@
                     <el-icon :class="{ 'is-loading': recording }"
                       ><component :is="recording ? icons.Loading : icons.Microphone"
                     /></el-icon>
-                  </button>
+                  </el-button>
                 </el-tooltip>
                 <el-tooltip :content="t('bi.query.ask')" placement="top">
-                  <button
+                  <el-button text
                     class="bi-query-compose__button bi-query-compose__button--send"
-                    type="button"
+                    native-type="button"
                     :disabled="loading || loadingModels || recording || !question.trim()"
                     :aria-label="t('bi.query.ask')"
                     @click="ask"
@@ -107,7 +107,7 @@
                     <el-icon :class="{ 'is-loading': loading }"
                       ><component :is="loading ? icons.Loading : icons.Promotion"
                     /></el-icon>
-                  </button>
+                  </el-button>
                 </el-tooltip>
               </div>
             </div>

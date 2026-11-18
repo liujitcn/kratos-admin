@@ -27,9 +27,9 @@
         <div class="agent-prefix-actions">
           <el-popover placement="top-start" :width="236" trigger="click" popper-class="agent-sender-popover">
             <template #reference>
-              <button
+              <el-button text
                 class="agent-icon-button"
-                type="button"
+                native-type="button"
                 :disabled="sending || uploading"
                 :aria-label="t('system.ai.chat.action.upload_attachment')"
               >
@@ -37,14 +37,14 @@
                   <Loading v-if="uploading" />
                   <Paperclip v-else />
                 </el-icon>
-              </button>
+              </el-button>
             </template>
             <div class="agent-popover-card">
               <div class="agent-popover-title">{{ t("system.ai.chat.action.upload_attachment") }}</div>
               <div class="agent-popover-desc">{{ t("system.ai.chat.message.attachment_hint") }}</div>
-              <button class="agent-popover-action" type="button" :disabled="sending || uploading" @click="handleSelectAttachment">
+              <el-button text class="agent-popover-action" native-type="button" :disabled="sending || uploading" @click="handleSelectAttachment">
                 {{ uploading ? t("system.ai.chat.status.uploading") : t("system.ai.chat.action.select_local_file") }}
-              </button>
+              </el-button>
             </div>
           </el-popover>
           <span class="agent-action-text">{{ actionHintText }}</span>
@@ -70,10 +70,10 @@
             popper-class="agent-model-popper"
           >
             <template #reference>
-              <button
+              <el-button text
                 class="agent-model-selector"
                 :class="{ 'is-disabled': sending || !knowledgeOptions.length, 'is-selected': selectedKnowledgeCount > 0 }"
-                type="button"
+                native-type="button"
                 :disabled="sending || !knowledgeOptions.length"
                 :aria-label="t('system.ai.knowledge.title')"
               >
@@ -84,7 +84,7 @@
                     : t("system.ai.knowledge.title")
                 }}</span>
                 <el-icon class="agent-model-selector__arrow"><ArrowDown /></el-icon>
-              </button>
+              </el-button>
             </template>
             <div v-if="knowledgeOptions.length" class="agent-model-panel">
               <div class="agent-model-panel__head">
@@ -92,12 +92,12 @@
                 <span class="agent-model-panel__meta">{{ t("system.ai.knowledge.select_hint") }}</span>
               </div>
               <div class="agent-model-panel__list">
-                <button
+                <el-button text
                   v-for="option in knowledgeOptions"
                   :key="option.id"
                   class="agent-model-row"
                   :class="{ 'is-selected': isKnowledgeSelected(option.id) }"
-                  type="button"
+                  native-type="button"
                   @click="handleKnowledgeToggle(option.id)"
                 >
                   <span class="agent-model-row__name">{{ option.name }}</span>
@@ -108,13 +108,13 @@
                   <el-icon v-if="isKnowledgeSelected(option.id)" class="agent-model-row__check">
                     <Check />
                   </el-icon>
-                </button>
+                </el-button>
               </div>
-              <button v-if="aiKnowledgeRoute" class="agent-model-panel__manage" type="button" @click="openKnowledgeManage">
+              <el-button text v-if="aiKnowledgeRoute" class="agent-model-panel__manage" native-type="button" @click="openKnowledgeManage">
                 <el-icon><Setting /></el-icon>
                 <span>{{ t("system.ai.knowledge.manage") }}</span>
                 <el-icon class="agent-model-panel__manage-arrow"><ArrowRight /></el-icon>
-              </button>
+              </el-button>
             </div>
             <div v-else class="agent-model-panel agent-model-panel--empty">
               {{ t("system.ai.knowledge.empty") }}
@@ -124,10 +124,10 @@
             :content="recording ? t('system.ai.chat.action.stop_voice_input') : t('system.ai.chat.action.voice_input')"
             placement="top"
           >
-            <button
+            <el-button text
               class="agent-icon-button"
               :class="{ 'is-active': recording }"
-              type="button"
+              native-type="button"
               :disabled="sending"
               :aria-pressed="recording"
               :aria-label="recording ? t('system.ai.chat.action.stop_voice_input') : t('system.ai.chat.action.voice_input')"
@@ -137,30 +137,32 @@
                 <Loading v-if="recording" />
                 <Microphone v-else />
               </el-icon>
-            </button>
+            </el-button>
           </el-tooltip>
           <el-tooltip :content="t('system.ai.chat.action.send')" placement="top">
-            <button
+            <el-button text
               class="agent-send-button"
-              type="button"
+              native-type="button"
               :disabled="sending || uploading || recording || isSubmitDisabled"
               :aria-label="t('system.ai.chat.action.send')"
               @click="handleSubmit()"
             >
               <el-icon v-if="!sending"><Promotion /></el-icon>
               <el-icon v-else class="is-loading"><Loading /></el-icon>
-            </button>
+            </el-button>
           </el-tooltip>
         </div>
       </template>
     </BaseXSender>
 
-    <input
+    <el-upload
       ref="fileInputRef"
       class="agent-file-input"
-      type="file"
       multiple
       :accept="acceptedAttachmentTypes"
+      action="#"
+      :auto-upload="false"
+      :show-file-list="false"
       @change="handleFileChange"
     />
   </div>
@@ -183,6 +185,7 @@ import {
   Setting
 } from "@element-plus/icons-vue";
 import { ElMessage, ElPopover } from "element-plus";
+import type { UploadFile, UploadFiles, UploadInstance } from "element-plus";
 import { resolveRequestErrorMessage, t, useSpeechRecognition } from "@liujitcn/kratos-admin-core";
 import type { SpeechRecognitionError } from "@liujitcn/kratos-admin-core";
 import { navigateTo } from "@liujitcn/kratos-admin-core/navigation";
@@ -235,7 +238,7 @@ watch(
   () => emit("draft-change", { text: inputText.value, attachments: [...selectedAttachments.value] }),
   { deep: true }
 );
-const fileInputRef = ref<HTMLInputElement>();
+const fileInputRef = ref<UploadInstance>();
 const router = useRouter();
 const authStore = useAuthStore();
 const aiKnowledgeRoute = computed(() => authStore.flatMenuListGet.find(item => item.name === "AiKnowledge" && item.path));
@@ -390,13 +393,14 @@ function handleInputChange() {
 /** 打开本地文件选择框。 */
 function handleSelectAttachment() {
   if (uploading.value || props.sending) return;
-  fileInputRef.value?.click();
+  (fileInputRef.value?.$el.querySelector(".el-upload__input") as HTMLInputElement | null)?.click();
 }
 
 /** 将本地文件列表上传后同步到输入器附件区。 */
-async function handleFileChange(event: Event) {
-  const target = event.target as HTMLInputElement;
-  await uploadAttachments(Array.from(target.files ?? []));
+async function handleFileChange(file: UploadFile, uploadFiles: UploadFiles) {
+  // el-upload 对多选文件逐项触发 change，只在最后一项统一提交整批文件。
+  if (file !== uploadFiles.at(-1)) return;
+  await uploadAttachments(uploadFiles.flatMap(item => (item.raw ? [item.raw] : [])));
 }
 
 /** 处理粘贴文件，和点击上传保持同一份附件状态。 */
@@ -493,7 +497,7 @@ function handleDeleteCard(item: { uid?: string | number }) {
 
 /** 清空文件输入框，保证重复选择同名文件时仍能触发 change。 */
 function resetFileInput() {
-  if (fileInputRef.value) fileInputRef.value.value = "";
+  fileInputRef.value?.clearFiles();
 }
 </script>
 

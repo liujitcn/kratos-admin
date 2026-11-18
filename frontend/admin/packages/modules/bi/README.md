@@ -23,15 +23,13 @@ pnpm add @liujitcn/kratos-admin-core @liujitcn/kratos-admin-system @liujitcn/kra
 
 模块依赖 `@liujitcn/kratos-admin-core` 和 `@liujitcn/kratos-admin-system`。宿主需使用 core 的 Vite 配置扫描模块页面，并连接提供 BI API、菜单和权限的 kratos-admin 后端。
 
-通过 System 的 `AdminAiExtension.dialogs.bi_card_guide` 提供助手问数建卡弹窗，旧 `biCardDialog` 字段仍兼容读取。数据源与来源记录由 BI 请求封装读取，卡片表单统一补齐 HTTP 省略的查询集合；普通预览与仪表盘执行记录不作为智能问数的复用来源。
+通过 System 的 `AdminAiExtension.biCardDialog` 提供助手问数建卡弹窗，按需加载现有卡片表单。数据源与来源记录由 BI 请求封装读取，卡片表单统一补齐 HTTP 省略的查询集合；普通预览与仪表盘执行记录不作为智能问数的复用来源。
 
 ## 目录与公开入口
 
 - `src/api/bi/admin/v1`：BI 请求封装，对应 `./api/*`。
 - `src/rpc`：由 Proto 生成的协议类型，对应 `./rpc/*`。
 - `src/views`：数据源、问数、卡片、仪表盘和工作台页面，对应 `./views/*`。
-- `src/views/assistant/index.vue`：AI 助手与 BI 卡片三栏智能问数工作台。
-- `src/components/BiAssistantWorkbench.vue`、`BiAssistantCardZone.vue`：三栏工作台容器和可拖拽卡片区。
 - `src/components`：模块内部的图表、建模和仪表盘组件。
 - `src/locales`：zh-CN、zh-TW、en-US、ja-JP 语言包，对应 `./locales/*`。
 - `src/module.ts`：`biAdminModule` 定义，通过主入口或 `./module` 导出。

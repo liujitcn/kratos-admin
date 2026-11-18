@@ -16,29 +16,29 @@
       >
       <template #navigation>
         <nav class="assistant-nav" :aria-label="t('system.ai.workspace.navigation')">
-          <button
+          <el-button text
             v-for="item in functions"
             :key="item.key"
             :class="{ 'is-active': view === item.key }"
-            type="button"
+            native-type="button"
             @click="emit('view', item.key)"
           >
             <el-icon><component :is="item.icon" /></el-icon><span>{{ item.label }}</span>
             <el-badge v-if="item.key === 'automations' && pending" :value="pending" />
-          </button>
+          </el-button>
         </nav>
       </template>
     </SessionPanel>
     <template v-else-if="!mobile">
       <el-tooltip :content="t('system.ai.chat.action.expand_sessions')" placement="right">
-        <button
+        <el-button text
           class="assistant-icon"
-          type="button"
+          native-type="button"
           :aria-label="t('system.ai.chat.action.expand_sessions')"
           @click="emit('toggle')"
         >
           <el-icon><Expand /></el-icon>
-        </button>
+        </el-button>
       </el-tooltip>
       <nav class="assistant-nav" :aria-label="t('system.ai.workspace.navigation')">
         <el-tooltip
@@ -47,47 +47,47 @@
           :content="item.key === 'automations' ? `${item.label} (${pending})` : item.label"
           placement="right"
         >
-          <button
-            type="button"
+          <el-button text
+            native-type="button"
             :class="{ 'is-active': view === item.key }"
             :aria-label="item.key === 'automations' ? `${item.label} (${pending})` : item.label"
             @click="emit('view', item.key)"
           >
             <el-icon><component :is="item.icon" /></el-icon><i v-if="item.key === 'automations' && pending" class="pending-dot" />
-          </button>
+          </el-button>
         </el-tooltip>
       </nav>
       <div class="assistant-nav-divider" />
       <el-tooltip :content="t('system.ai.chat.action.new_conversation')" placement="right"
-        ><button
+        ><el-button text
           class="assistant-icon"
-          type="button"
+          native-type="button"
           :aria-label="t('system.ai.chat.action.new_conversation')"
           @click="emit('create')"
         >
-          <el-icon><Plus /></el-icon></button
+          <el-icon><Plus /></el-icon></el-button
       ></el-tooltip>
       <el-tooltip :content="t('system.ai.chat.title.recent_conversations')" placement="right"
-        ><button
+        ><el-button text
           class="assistant-icon"
-          type="button"
+          native-type="button"
           :aria-label="t('system.ai.chat.title.recent_conversations')"
           @click="historyOpen = true"
         >
-          <el-icon><RefreshLeft /></el-icon></button
+          <el-icon><RefreshLeft /></el-icon></el-button
       ></el-tooltip>
     </template>
     <template v-else>
       <el-dropdown trigger="click" @command="changeView">
-        <button
+        <el-button text
           class="assistant-mobile-trigger"
-          type="button"
+          native-type="button"
           :aria-label="`${t('system.ai.workspace.functions')} · ${currentLabel} (${pending})`"
         >
           {{ t("system.ai.workspace.functions") }} · {{ currentLabel }} <el-badge v-if="pending" :value="pending" /><el-icon
             ><ArrowDown
           /></el-icon>
-        </button>
+        </el-button>
         <template #dropdown
           ><el-dropdown-menu>
             <el-dropdown-item v-for="item in functions" :key="item.key" :command="item.key" :icon="item.icon"
@@ -95,22 +95,22 @@
             /></el-dropdown-item> </el-dropdown-menu
         ></template>
       </el-dropdown>
-      <button
+      <el-button text
         class="assistant-icon"
-        type="button"
+        native-type="button"
         :aria-label="t('system.ai.chat.title.recent_conversations')"
         @click="historyOpen = true"
       >
         <el-icon><RefreshLeft /></el-icon>
-      </button>
-      <button
+      </el-button>
+      <el-button text
         class="assistant-icon"
-        type="button"
+        native-type="button"
         :aria-label="t('system.ai.chat.action.new_conversation')"
         @click="emit('create')"
       >
         <el-icon><Plus /></el-icon>
-      </button>
+      </el-button>
     </template>
     <ProDialog
       v-model="historyOpen"

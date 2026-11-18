@@ -91,16 +91,16 @@
         placement="top"
         :trigger="['hover', 'focus']"
       >
-        <button
+        <el-button text
           class="oauth-provider-button"
-          type="button"
+          native-type="button"
           :aria-label="provider.nameKey.includes('.') ? t(provider.nameKey) : provider.nameKey"
           :title="provider.nameKey.includes('.') ? t(provider.nameKey) : provider.nameKey"
           :disabled="oauthTicketLoading || oauthLoadingProvider === provider.provider"
           @click="handleOauthLogin(provider)"
         >
           <component :is="getOauthProviderIcon(provider)" />
-        </button>
+        </el-button>
       </el-tooltip>
     </div>
   </div>

@@ -2,10 +2,10 @@
   <div class="profile-page">
     <section class="profile-shell">
       <aside class="profile-nav">
-        <button
+        <el-button text
           v-for="tab in profileTabs"
           :key="tab.value"
-          type="button"
+          native-type="button"
           class="nav-item"
           :class="{ 'nav-item--active': activeTab === tab.value }"
           @click="handleTabChange(tab.value)"
@@ -15,7 +15,7 @@
             <span>{{ tab.description }}</span>
           </div>
           <el-icon><ArrowRight /></el-icon>
-        </button>
+        </el-button>
       </aside>
 
       <main class="profile-content">

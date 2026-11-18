@@ -9,17 +9,17 @@
     popper-class="agent-model-popper"
   >
     <template #reference>
-      <button
+      <el-button text
         class="agent-model-selector"
         :class="{ 'is-disabled': disabled || !modelOptions.length }"
-        type="button"
+        native-type="button"
         :disabled="disabled || !modelOptions.length"
         :aria-label="t('system.ai.model.title')"
       >
         <el-icon class="agent-model-selector__spark"><MagicStick /></el-icon>
         <span class="agent-model-selector__label">{{ selectedModelDisplayName || t("system.ai.model.model_placeholder") }}</span>
         <el-icon class="agent-model-selector__arrow"><ArrowDown /></el-icon>
-      </button>
+      </el-button>
     </template>
     <div v-if="modelOptions.length" class="agent-model-panel">
       <div class="agent-model-panel__head">
@@ -34,13 +34,13 @@
       <div class="agent-model-panel__list">
         <template v-for="provider in modelOptions" :key="provider.providerId">
           <div class="agent-model-panel__group">{{ provider.label }}</div>
-          <button
+          <el-button text
             v-for="model in provider.models"
             :key="model.name"
             class="agent-model-row"
             :disabled="disabled"
             :class="{ 'is-selected': isModelSelected(provider.providerId, model.name) }"
-            type="button"
+            native-type="button"
             @click="handleModelSelect(provider.providerId, model.name)"
           >
             <span class="agent-model-row__name">{{ model.displayName }}</span>
@@ -48,14 +48,14 @@
             <el-icon v-if="isModelSelected(provider.providerId, model.name)" class="agent-model-row__check">
               <Check />
             </el-icon>
-          </button>
+          </el-button>
         </template>
       </div>
-      <button v-if="aiProviderRoute" class="agent-model-panel__manage" type="button" @click="openModelManage">
+      <el-button text v-if="aiProviderRoute" class="agent-model-panel__manage" native-type="button" @click="openModelManage">
         <el-icon><Setting /></el-icon>
         <span>{{ t("system.ai.model.manage") }}</span>
         <el-icon class="agent-model-panel__manage-arrow"><ArrowRight /></el-icon>
-      </button>
+      </el-button>
     </div>
     <div v-else class="agent-model-panel agent-model-panel--empty">
       {{ t("system.ai.model.empty") }}

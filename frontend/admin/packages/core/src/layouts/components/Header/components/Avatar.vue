@@ -15,24 +15,24 @@
           </div>
         </div>
         <div class="user-panel__actions">
-          <button
+          <el-button text
             v-for="action in availableUserMenuActions"
             :key="action.name"
             class="action-btn action-btn--primary"
-            type="button"
+            native-type="button"
             @click.stop="handleUserMenuAction(action.path)"
           >
             <el-icon v-if="action.icon"><component :is="action.icon" /></el-icon>
 			<span>{{ t(action.labelKey) }}</span>
-          </button>
-          <button class="action-btn action-btn--lock" type="button" @click.stop="lockScreen">
+          </el-button>
+          <el-button text class="action-btn action-btn--lock" native-type="button" @click.stop="lockScreen">
             <el-icon><Lock /></el-icon>
             <span>{{ t("core.layout.lock_screen") }}</span>
-          </button>
-          <button class="action-btn action-btn--danger" type="button" @click="logout">
+          </el-button>
+          <el-button text class="action-btn action-btn--danger" native-type="button" @click="logout">
             <el-icon><SwitchButton /></el-icon>
             <span>{{ t("common.action.logout") }}</span>
-          </button>
+          </el-button>
         </div>
       </div>
     </template>

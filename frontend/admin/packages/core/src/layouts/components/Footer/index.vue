@@ -1,6 +1,6 @@
 <template>
   <div class="footer flx-center">
-    <a :href="icpLink" target="_blank" rel="noopener noreferrer">{{ footerText }}</a>
+    <el-link underline="never" :href="icpLink" target="_blank" rel="noopener noreferrer">{{ footerText }}</el-link>
   </div>
 </template>
 

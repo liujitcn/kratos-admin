@@ -9,15 +9,15 @@
         @update:model-value="handleKeywordUpdate"
       />
       <el-tooltip :content="t('system.ai.chat.action.collapse_sessions')" placement="top">
-        <button
+        <el-button text
           v-if="!hideCollapse"
           class="agent-panel-icon"
-          type="button"
+          native-type="button"
           :aria-label="t('system.ai.chat.action.collapse_sessions')"
           @click="$emit('toggleCollapse')"
         >
           <el-icon><DArrowLeft /></el-icon>
-        </button>
+        </el-button>
       </el-tooltip>
     </div>
     <slot name="navigation" />
@@ -25,15 +25,15 @@
     <div class="agent-panel-header">
       <div class="agent-panel-title">{{ title || t("system.ai.chat.title.recent_conversations") }}</div>
       <div class="agent-panel-actions">
-        <button
+        <el-button text
           class="agent-panel-create"
-          type="button"
+          native-type="button"
           :aria-label="t('system.ai.chat.action.new_conversation')"
           @click="handleCreateSession"
         >
           <el-icon><Plus /></el-icon>
           <span>{{ t("common.action.create") }}</span>
-        </button>
+        </el-button>
       </div>
     </div>
     <ul class="agent-session-list">
@@ -44,9 +44,9 @@
         :class="{ 'is-active': item.id === active }"
         @click="handleSessionChange(item)"
       >
-        <button
+        <el-button text
           class="agent-session-item"
-          type="button"
+          native-type="button"
           :title="item.title"
           :aria-current="item.id === active ? 'page' : undefined"
         >
@@ -56,7 +56,7 @@
               <slot name="session-meta" :item="item">{{ item.summary }}</slot>
             </div>
           </div>
-        </button>
+        </el-button>
         <el-dropdown
           v-if="editable !== false"
           class="agent-session-menu"
@@ -65,9 +65,9 @@
           @click.stop
           @command="command => handleMenuCommand(command, item)"
         >
-          <button class="agent-session-more" type="button" :aria-label="t('system.ai.chat.action.conversation_menu')">
+          <el-button text class="agent-session-more" native-type="button" :aria-label="t('system.ai.chat.action.conversation_menu')">
             <el-icon><MoreFilled /></el-icon>
-          </button>
+          </el-button>
           <template #dropdown>
             <el-dropdown-menu>
               <el-dropdown-item command="rename" :icon="EditPen">{{ t("system.ai.chat.action.rename") }}</el-dropdown-item>

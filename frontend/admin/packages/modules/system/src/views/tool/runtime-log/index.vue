@@ -8,8 +8,8 @@
         </el-tooltip>
       </div>
 
-      <button
-        type="button"
+      <el-button text
+        native-type="button"
         class="source-item source-item--live"
         :class="{ 'is-active': activeSource.kind === 'live' }"
         @click="selectLiveConsole"
@@ -22,7 +22,7 @@
             {{ connectionStatusText }}
           </small>
         </span>
-      </button>
+      </el-button>
 
       <div class="source-panel__section">
         <div class="source-panel__label">
@@ -38,10 +38,10 @@
       </div>
 
       <el-scrollbar class="source-panel__list">
-        <button
+        <el-button text
           v-for="file in filteredFiles"
           :key="file.file_id"
-          type="button"
+          native-type="button"
           class="source-item source-item--file"
           :class="{ 'is-active': activeFile?.file_id === file.file_id }"
           @click="selectHistoryFile(file)"
@@ -52,7 +52,7 @@
             <small>{{ formatFileSize(file.size_bytes) }} · {{ formatDateTime(file.modified_at) }}</small>
           </span>
           <el-tag v-if="file.is_compressed" size="small" effect="plain">GZ</el-tag>
-        </button>
+        </el-button>
         <el-empty
           v-if="!filesLoading && filteredFiles.length === 0"
           :image-size="64"

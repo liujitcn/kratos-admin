@@ -42,10 +42,10 @@
       <section v-else class="migration-workspace" :aria-label="t('system.base.migration.title.history')">
         <aside class="migration-list-panel">
           <div class="migration-list-scroll" role="listbox" :aria-label="t('system.base.migration.title.list')">
-            <button
+            <el-button text
               v-for="history in histories"
               :key="history.id"
-              type="button"
+              native-type="button"
               class="migration-list-item"
               :class="{ 'is-active': selectedMigrationId === history.id }"
               :aria-selected="selectedMigrationId === history.id"
@@ -58,7 +58,7 @@
                 {{ history.module || t("system.base.migration.value.default_module") }} · {{ history.data_source || t("system.base.migration.value.default_source") }}
               </div>
               <time :datetime="history.created_at">{{ formatDateTime(history.created_at) }}</time>
-            </button>
+            </el-button>
           </div>
 
           <div v-if="pageable.total > pageable.page_size" class="migration-pagination">

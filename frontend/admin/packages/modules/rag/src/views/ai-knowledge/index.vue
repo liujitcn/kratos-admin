@@ -162,11 +162,13 @@
       </div>
     </el-drawer>
 
-    <input
+    <el-upload
       ref="docFileInputRef"
       class="rag-knowledge-file-input"
-      type="file"
+      action="#"
+      :auto-upload="false"
       multiple
+      :show-file-list="false"
       @change="handleDocFileChange"
     />
   </div>
@@ -175,7 +177,7 @@
 <script setup lang="ts">
 import { computed, reactive, ref, watch } from "vue";
 import { ElMessage, ElMessageBox } from "element-plus";
-import type { FormRules } from "element-plus";
+import type { FormRules, UploadFile, UploadFiles, UploadInstance } from "element-plus";
 import { CirclePlus, Delete, DocumentAdd, EditPen, Refresh, Search, Upload } from "@element-plus/icons-vue";
 import ProTable from "@liujitcn/kratos-admin-core/components/ProTable";
 import FormDialog from "@liujitcn/kratos-admin-core/components/Dialog/FormDialog.vue";
@@ -218,7 +220,7 @@ const globalStore = useGlobalStore();
 const table = ref<ProTableInstance>();
 const dialogRef = ref<InstanceType<typeof FormDialog>>();
 const textDialogRef = ref<InstanceType<typeof FormDialog>>();
-const docFileInputRef = ref<HTMLInputElement>();
+const docFileInputRef = ref<UploadInstance>();
 const dialog = reactive({ visible: false, editing: false });
 const textDialog = reactive({ visible: false });
 const form = reactive<AiKnowledgeFormState>(defaultForm());
@@ -449,14 +451,15 @@ async function loadDocs() {
 
 /** 触发文档文件选择。 */
 function selectDocFile() {
-  docFileInputRef.value?.click();
+  (docFileInputRef.value?.$el.querySelector(".el-upload__input") as HTMLInputElement | null)?.click();
 }
 
 /** 读取选择的文档文件并逐个上传，展示整体进度。 */
-async function handleDocFileChange(event: Event) {
-  const input = event.target as HTMLInputElement;
-  const files = Array.from(input.files ?? []);
-  input.value = "";
+async function handleDocFileChange(file: UploadFile, uploadFiles: UploadFiles) {
+  // el-upload 对多选文件逐项触发 change，只在最后一项统一处理整批文件。
+  if (file !== uploadFiles.at(-1)) return;
+  const files = uploadFiles.flatMap(item => (item.raw ? [item.raw] : []));
+  docFileInputRef.value?.clearFiles();
   if (!files.length || !docsDrawer.knowledge) return;
   const accepted: File[] = [];
   const rejected: string[] = [];

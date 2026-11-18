@@ -17,7 +17,15 @@
           <el-button class="avatar-trigger" circle type="primary" @click="triggerFileUpload">
             <el-icon><Camera /></el-icon>
           </el-button>
-          <input ref="fileInputRef" type="file" class="hidden-input" accept="image/*" @change="handleFileChange" />
+          <el-upload
+            ref="fileInputRef"
+            class="hidden-input"
+            action="#"
+            :auto-upload="false"
+            :show-file-list="false"
+            accept="image/*"
+            @change="handleFileChange"
+          />
         </div>
         <div class="avatar-copy">
           <strong>{{ t("system.profile.account.field.avatar") }}</strong>
@@ -96,6 +104,7 @@ import { defProfileAuthService } from "@liujitcn/kratos-admin-system/api/system/
 import type { UserProfileForm } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/auth";
 import { BaseUserIDType } from "@liujitcn/kratos-admin-system/rpc/system/common/v1/common";
 import { defFileService } from "@liujitcn/kratos-admin-core/api/base/v1/file";
+import type { UploadFile, UploadInstance } from "element-plus";
 import defaultAvatar from "@liujitcn/kratos-admin-core/assets/images/avatar.png";
 import ProDialog from "@liujitcn/kratos-admin-core/components/Dialog/ProDialog.vue";
 import ProForm from "@liujitcn/kratos-admin-core/components/ProForm/index.vue";
@@ -113,7 +122,7 @@ const emit = defineEmits<{
   refreshed: [];
 }>();
 
-const fileInputRef = ref<HTMLInputElement | null>(null);
+const fileInputRef = ref<UploadInstance>();
 const accountFormRef = ref<ProFormInstance>();
 const accountDialogVisible = ref(false);
 const submitLoading = ref(false);
@@ -227,7 +236,7 @@ function handleAvatarError() {
 
 /** 触发头像文件选择。 */
 function triggerFileUpload() {
-  fileInputRef.value?.click();
+  (fileInputRef.value?.$el.querySelector(".el-upload__input") as HTMLInputElement | null)?.click();
 }
 
 /** 打开基本资料编辑弹窗，并回填当前资料。 */
@@ -241,9 +250,8 @@ function openAccountDialog() {
 }
 
 /** 处理头像文件上传并同步到个人资料。 */
-async function handleFileChange(event: Event) {
-  const target = event.target as HTMLInputElement;
-  const file = target.files?.[0];
+async function handleFileChange(uploadFile: UploadFile) {
+  const file = uploadFile.raw;
   if (!file) return;
 
   try {
@@ -259,7 +267,7 @@ async function handleFileChange(event: Event) {
   } catch (_error) {
     ElMessage.error(t("system.profile.account.message.avatar_upload_failed"));
   } finally {
-    target.value = "";
+    fileInputRef.value?.clearFiles();
   }
 }
 

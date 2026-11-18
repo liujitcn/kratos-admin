@@ -6,8 +6,8 @@
         <span>YAML</span>
       </span>
       <div class="yaml-editor__actions">
-        <button
-          type="button"
+        <el-button text
+          native-type="button"
           class="yaml-editor__action"
           :class="{ 'is-active': wrapEnabled }"
           :title="t('core.yaml_editor.action.wrap')"
@@ -15,9 +15,9 @@
           @click="toggleWrap"
         >
           <el-icon :size="15"><WrapText /></el-icon>
-        </button>
-        <button
-          type="button"
+        </el-button>
+        <el-button text
+          native-type="button"
           class="yaml-editor__action"
           :title="t('core.markdown.action.copy_code')"
           :aria-label="t('core.markdown.action.copy_code')"
@@ -27,7 +27,7 @@
             <Select v-if="copied" />
             <CopyDocument v-else />
           </el-icon>
-        </button>
+        </el-button>
       </div>
     </div>
     <div ref="editorHost" class="yaml-editor__host" />

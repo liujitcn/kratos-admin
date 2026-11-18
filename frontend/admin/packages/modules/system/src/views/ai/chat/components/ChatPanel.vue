@@ -18,27 +18,27 @@
             </div>
             <div class="agent-shortcuts__actions">
               <span class="agent-shortcuts__count">{{ shortcutBatchLabel }}</span>
-              <button
+              <el-button text
                 v-if="canRefreshShortcutBatch"
                 class="agent-shortcuts__refresh"
-                type="button"
+                native-type="button"
                 :disabled="sending"
                 @click="refreshShortcutBatch"
               >
                 <span>{{ t("system.ai.chat.action.refresh_shortcuts") }}</span>
                 <el-icon><Refresh /></el-icon>
-              </button>
+              </el-button>
             </div>
           </div>
           <div v-if="loadingShortcuts" class="agent-shortcuts__loading">
             {{ t("system.ai.chat.message.loading_shortcuts") }}
           </div>
           <div v-else class="agent-shortcuts__grid">
-            <button
+            <el-button text
               v-for="shortcut in shortcutVisibleList"
               :key="shortcut.key"
               class="agent-shortcut"
-              type="button"
+              native-type="button"
               :disabled="sending"
               @click="handleShortcutClick(shortcut)"
             >
@@ -49,7 +49,7 @@
                 <span class="agent-shortcut__title">{{ shortcut.title }}</span>
                 <span class="agent-shortcut__meta">{{ resolveShortcutMeta(shortcut) }}</span>
               </span>
-            </button>
+            </el-button>
           </div>
         </section>
         <div class="agent-chat-empty__sender">
@@ -102,9 +102,9 @@
                 class="agent-message-activity"
                 :aria-label="t('system.ai.chat.title.activity')"
               >
-                <button
+                <el-button text
                   class="agent-message-activity__summary"
-                  type="button"
+                  native-type="button"
                   :aria-expanded="isActivityExpanded(item)"
                   @click="toggleActivity(item)"
                 >
@@ -115,7 +115,7 @@
                   <el-icon class="agent-message-activity__summary-arrow" :class="{ 'is-expanded': isActivityExpanded(item) }">
                     <ArrowDown />
                   </el-icon>
-                </button>
+                </el-button>
                 <!-- 只有一个活动时标题行已完整表达，不再渲染展开列表避免同文案两行。 -->
                 <div v-if="isActivityExpanded(item) && (item.activities?.length ?? 0) > 1" class="agent-message-activity__list">
                   <div v-for="activity in item.activities" :key="activity.id" class="agent-message-activity__item">
@@ -157,14 +157,14 @@
                         {{ resolveToolStatusText(tool.status) }}
                         <el-icon v-if="!isToolFailed(tool.status)"><Check /></el-icon>
                       </span>
-                      <button
+                      <el-button text
                         class="agent-message-tool-copy"
-                        type="button"
+                        native-type="button"
                         :aria-label="t('system.ai.chat.action.copy_request')"
                         @click.stop="handleCopyToolRequest(tool)"
                       >
                         <el-icon><CopyDocument /></el-icon>
-                      </button>
+                      </el-button>
                     </span>
                   </template>
                   <div class="agent-message-tool-payload">
@@ -257,13 +257,13 @@
                   class="agent-generated-file"
                   @click="openGeneratedFile(file)"
                 >
-                  <a
+                  <el-link underline="never"
                     class="agent-generated-file__name"
                     :href="resolveAIAttachmentUrl(file.url)"
                     target="_blank"
                     rel="noopener"
                     @click.prevent="openGeneratedFile(file)"
-                  >{{ file.name }}</a>
+                  >{{ file.name }}</el-link>
                   <span class="agent-generated-file__size">{{ formatAttachmentSize(file.size) }}</span>
                   <span class="agent-generated-file__actions">
                     <el-button link type="primary" @click.stop="openGeneratedFile(file)">
@@ -294,26 +294,26 @@
                     @confirm="handleMessageAction(action.key, item)"
                   >
                     <template #reference>
-                      <button
+                      <el-button text
                         class="agent-message-action"
-                        type="button"
+                        native-type="button"
                         :disabled="sending || item.progressState === 'streaming'"
                         :aria-label="action.label"
                       >
                         <el-icon><component :is="action.icon" /></el-icon>
-                      </button>
+                      </el-button>
                     </template>
                   </el-popconfirm>
                   <el-tooltip v-else :content="action.label" placement="top">
-                    <button
+                    <el-button text
                       class="agent-message-action"
-                      type="button"
+                      native-type="button"
                       :disabled="sending || item.progressState === 'streaming'"
                       :aria-label="action.label"
                       @click="handleMessageAction(action.key, item)"
                     >
                       <el-icon><component :is="action.icon" /></el-icon>
-                    </button>
+                    </el-button>
                   </el-tooltip>
                 </template>
                 <el-popover
@@ -324,16 +324,16 @@
                   width="260"
                 >
                   <template #reference>
-                    <button
+                    <el-button text
                       class="agent-message-action agent-message-runtime-trigger"
-                      type="button"
+                      native-type="button"
                       :aria-label="t('system.ai.chat.action.view_runtime')"
                       :disabled="item.progressState === 'streaming'"
                     >
                       <el-icon><DataAnalysis /></el-icon>
                       <span v-if="resolveTokenTotal(item) > 0">{{ formatCompactNumber(resolveTokenTotal(item)) }}</span>
                       <span v-if="item.duration_ms > 0">{{ formatDurationMs(item.duration_ms) }}</span>
-                    </button>
+                    </el-button>
                   </template>
                   <div class="agent-runtime-detail">
                     <div class="agent-runtime-detail__title">{{ t("system.ai.chat.title.runtime") }}</div>
@@ -404,27 +404,27 @@
             </div>
             <div class="agent-shortcuts__actions">
               <span class="agent-shortcuts__count">{{ shortcutBatchLabel }}</span>
-              <button
+              <el-button text
                 v-if="canRefreshShortcutBatch"
                 class="agent-shortcuts__refresh"
-                type="button"
+                native-type="button"
                 :disabled="sending"
                 @click="refreshShortcutBatch"
               >
                 <span>{{ t("system.ai.chat.action.refresh_shortcuts") }}</span>
                 <el-icon><Refresh /></el-icon>
-              </button>
+              </el-button>
             </div>
           </div>
           <div v-if="loadingShortcuts" class="agent-shortcuts__loading">
             {{ t("system.ai.chat.message.loading_shortcuts") }}
           </div>
           <div v-else class="agent-shortcuts__grid">
-            <button
+            <el-button text
               v-for="shortcut in shortcutVisibleList"
               :key="shortcut.key"
               class="agent-shortcut"
-              type="button"
+              native-type="button"
               :disabled="sending"
               @click="handleShortcutClick(shortcut)"
             >
@@ -435,7 +435,7 @@
                 <span class="agent-shortcut__title">{{ shortcut.title }}</span>
                 <span class="agent-shortcut__meta">{{ resolveShortcutMeta(shortcut) }}</span>
               </span>
-            </button>
+            </el-button>
           </div>
         </section>
         <XSender
@@ -651,8 +651,6 @@ const emit = defineEmits<{
   messageEdit: [payload: ChatMessageEditPayload];
   /** 确认或拒绝冻结的工具调用。 */
   approvalDecision: [item: ChatMessageItem, approved: boolean];
-  /** 业务弹窗完成后回传其生成结果。 */
-  "bi-card-saved": [card: unknown];
 }>();
 
 const isEmptyState = computed(() => props.messages.length === 0);
@@ -1061,10 +1059,9 @@ function openBiCardDialog(item: ChatMessageItem) {
 }
 
 /** 建卡成功后隐藏引导入口并提示查看位置。 */
-function handleBiCardSaved(card?: unknown) {
+function handleBiCardSaved() {
   if (biCardDialog.sourceKey) biCardDoneKeys.add(biCardDialog.sourceKey);
   biCardDialog.visible = false;
-  emit("bi-card-saved", card);
   ElMessage.success(t("system.ai.chat.bi_card_created"));
 }
 

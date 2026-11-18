@@ -1,8 +1,8 @@
 <template>
   <div class="core-code-block" :style="{ '--core-code-block-max-height': props.maxHeight }">
-    <button
+    <el-button text
       class="core-code-block__copy"
-      type="button"
+      native-type="button"
       :title="t('core.markdown.action.copy_code')"
       :aria-label="t('core.markdown.action.copy_code')"
       @click="copyCode"
@@ -11,7 +11,7 @@
         <Select v-if="copied" />
         <CopyDocument v-else />
       </el-icon>
-    </button>
+    </el-button>
     <pre class="core-code-block__pre"><code class="hljs" v-html="highlightedHtml"></code></pre>
   </div>
 </template>

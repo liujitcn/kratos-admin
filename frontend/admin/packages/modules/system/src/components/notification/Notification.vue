@@ -18,12 +18,12 @@
         <el-button link type="primary" @click="markAllRead">{{ t("system.notification.action.mark_all_read") }}</el-button>
       </div>
       <div class="notification-list">
-        <button
+        <el-button text
           v-for="item in notifications"
           :key="item.id"
           class="notification-item"
           :class="{ 'is-unread': !item.read_at }"
-          type="button"
+          native-type="button"
           @click="openNotification(item)"
         >
           <span class="notification-category-icon" :style="{ color: item.category_color || undefined }" aria-hidden="true">
@@ -32,7 +32,7 @@
           <span class="notification-status" :style="{ backgroundColor: item.category_color || undefined }" aria-hidden="true"></span>
           <span class="notification-title">{{ resolvePersistedMessage(item.title) }}</span>
           <span class="notification-time">{{ item.received_at }}</span>
-        </button>
+        </el-button>
         <el-empty v-if="notifications.length === 0" :description="t('system.notification.empty')" :image-size="72" />
       </div>
       <el-button class="notification-more" text @click="openInbox">{{ t("system.notification.action.view_all") }}</el-button>
