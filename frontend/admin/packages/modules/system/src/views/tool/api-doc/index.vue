@@ -156,8 +156,10 @@ onBeforeUnmount(() => {
   gap: 3px;
   width: 100%;
   min-width: 0;
+  height: auto;
   padding: 10px 12px;
   font: inherit;
+  line-height: normal;
   color: var(--admin-page-text-primary);
   text-align: left;
   cursor: pointer;

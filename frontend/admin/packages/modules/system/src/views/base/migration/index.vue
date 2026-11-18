@@ -393,7 +393,9 @@ onMounted(() => {
 .migration-list-item {
   display: block;
   width: 100%;
+  height: auto;
   padding: 14px 18px;
+  line-height: normal;
   color: var(--admin-page-text-primary);
   text-align: left;
   cursor: pointer;

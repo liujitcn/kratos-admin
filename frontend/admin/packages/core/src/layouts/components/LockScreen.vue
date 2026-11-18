@@ -402,7 +402,9 @@ const handleAvatarError = () => {
   flex-direction: column;
   gap: 6px;
   align-items: center;
+  height: auto;
   padding: 10px 18px;
+  line-height: normal;
   font-size: 16px;
   font-weight: 600;
   color: var(--el-text-color-secondary);
@@ -431,8 +433,10 @@ const handleAvatarError = () => {
   display: inline-flex;
   gap: 7px;
   align-items: center;
+  height: auto;
   padding: 4px 8px;
   margin-top: 24px;
+  line-height: normal;
   font-size: 15px;
   color: var(--el-text-color-secondary);
   cursor: pointer;

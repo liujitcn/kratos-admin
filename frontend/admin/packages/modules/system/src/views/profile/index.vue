@@ -171,6 +171,8 @@ onMounted(async () => {
   align-items: center;
   justify-content: space-between;
   width: 100%;
+  height: auto;
+  min-height: 71px;
   padding: 14px 12px;
   color: #606266;
   text-align: left;

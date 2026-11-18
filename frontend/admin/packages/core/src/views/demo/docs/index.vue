@@ -376,10 +376,13 @@ function scrollTo(section: string) {
   gap: 12px;
 }
 .docs-component-card {
+  height: auto;
   padding: 16px;
   font: inherit;
+  line-height: normal;
   color: var(--admin-page-text-primary);
   text-align: left;
+  white-space: normal;
   cursor: pointer;
   background: var(--admin-page-card-bg);
   border: 1px solid var(--admin-page-card-border);

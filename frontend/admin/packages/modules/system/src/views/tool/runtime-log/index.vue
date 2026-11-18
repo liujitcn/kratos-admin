@@ -543,9 +543,11 @@ onBeforeUnmount(() => {
   display: flex;
   width: 100%;
   min-height: 54px;
+  height: auto;
   align-items: center;
   gap: 10px;
   padding: 8px 10px;
+  line-height: normal;
   color: var(--admin-page-text-primary);
   text-align: left;
   cursor: pointer;
