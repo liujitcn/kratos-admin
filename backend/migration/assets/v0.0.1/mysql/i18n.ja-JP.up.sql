@@ -643,3 +643,4 @@ INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VAL
 INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_menu.meta.title', 91040000, 'ja-JP', 'ダッシュボード管理');
 INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_menu.meta.title', 91060000, 'ja-JP', 'デザイナー');
 INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_menu.meta.title', 91070000, 'ja-JP', 'ダッシュボード');
+INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_menu.meta.title', 91080000, 'ja-JP', 'AI BI 分析ワークベンチ');

@@ -651,6 +651,8 @@ const emit = defineEmits<{
   messageEdit: [payload: ChatMessageEditPayload];
   /** 确认或拒绝冻结的工具调用。 */
   approvalDecision: [item: ChatMessageItem, approved: boolean];
+  /** 业务弹窗完成后回传其生成结果。 */
+  "bi-card-saved": [card: unknown];
 }>();
 
 const isEmptyState = computed(() => props.messages.length === 0);
@@ -1059,9 +1061,10 @@ function openBiCardDialog(item: ChatMessageItem) {
 }
 
 /** 建卡成功后隐藏引导入口并提示查看位置。 */
-function handleBiCardSaved() {
+function handleBiCardSaved(card?: unknown) {
   if (biCardDialog.sourceKey) biCardDoneKeys.add(biCardDialog.sourceKey);
   biCardDialog.visible = false;
+  emit("bi-card-saved", card);
   ElMessage.success(t("system.ai.chat.bi_card_created"));
 }
 

@@ -7,7 +7,7 @@
     :initial-title="guide?.default_name"
     :initial-chart-type="guide?.chart_type"
     @update:model-value="emit('update:modelValue', $event)"
-    @saved="emit('saved')"
+    @saved="emit('saved', $event)"
   />
 </template>
 
@@ -17,6 +17,7 @@ import BiCardFormDialog from "../../../components/BiCardFormDialog.vue";
 import { defBiQueryService } from "../../../api/bi/admin/v1/bi_query";
 import { defBiQueryRecordService } from "../../../api/bi/admin/v1/bi_query_record";
 import { normalizeBiQueryResult } from "../../../bi-response";
+import type { BiCard } from "../../../rpc/bi/admin/v1/bi_card";
 import type { BiQueryResult, BiQuerySpec, BiSourceDescriptor } from "../../../rpc/bi/admin/v1/bi_query";
 
 /** 助手消息中的 BI 建卡引导，由问数工具提供。 */
@@ -28,7 +29,7 @@ interface BiCardGuide {
 }
 
 const props = defineProps<{ modelValue: boolean; guide?: BiCardGuide }>();
-const emit = defineEmits<{ "update:modelValue": [value: boolean]; saved: [] }>();
+const emit = defineEmits<{ "update:modelValue": [value: boolean]; saved: [card: BiCard] }>();
 const visible = ref(false);
 const sources = ref<BiSourceDescriptor[]>([]);
 const result = ref<BiQueryResult>();

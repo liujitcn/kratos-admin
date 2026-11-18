@@ -643,3 +643,4 @@ INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('b
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91040000, 'en-US', 'Dashboard Management') ON CONFLICT DO NOTHING;
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91060000, 'en-US', 'Designer') ON CONFLICT DO NOTHING;
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91070000, 'en-US', 'Dashboard') ON CONFLICT DO NOTHING;
+INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_menu.meta.title', 91080000, 'en-US', 'AI BI Workbench') ON CONFLICT DO NOTHING;
