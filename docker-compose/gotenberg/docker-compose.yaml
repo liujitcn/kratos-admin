@@ -12,13 +12,15 @@ services:
       - --chromium-deny-private-ips
       - --libreoffice-deny-private-ips
     ports:
-      - "192.168.60.52:3000:3000"
+      - "${LAN_IP:-192.168.60.83}:13000:3000"
     healthcheck:
       test: ["CMD", "curl", "-fsS", "http://localhost:3000/health"]
       interval: 15s
       timeout: 5s
       retries: 5
       start_period: 20s
+    tmpfs:
+      - /tmp:size=2g
     restart: unless-stopped
 
   mcp:
@@ -30,10 +32,10 @@ services:
     container_name: gotenberg-mcp
     environment:
       MCP_TRANSPORT: streamable-http
-      PUBLIC_BASE_URL: "${PUBLIC_BASE_URL:-http://192.168.60.52:8002}"
+      PUBLIC_BASE_URL: "${PUBLIC_BASE_URL:-http://192.168.60.83:18002}"
       MCP_AUTH_TOKEN: "${MCP_AUTH_TOKEN:?MCP_AUTH_TOKEN must be set; use --env-file docker-compose/gotenberg/.env}"
       FILE_SIGNING_KEY: "${FILE_SIGNING_KEY:-}"
-      ALLOWED_HOSTS: "${ALLOWED_HOSTS:-192.168.60.52:8002,192.168.60.52}"
+      ALLOWED_HOSTS: "${ALLOWED_HOSTS:-192.168.60.83:18002,192.168.60.83}"
       GOTENBERG_URL: http://gotenberg:3000
       GOTENBERG_TIMEOUT: "${GOTENBERG_TIMEOUT:-120}"
       FILE_TTL_HOURS: "${FILE_TTL_HOURS:-24}"
@@ -43,9 +45,9 @@ services:
       OAUTH_ENABLED: "${OAUTH_ENABLED:-false}"
       HOST_DATA_DIR: "${HOST_DATA_DIR:-}"
     ports:
-      - "192.168.60.52:8002:8000"
+      - "${LAN_IP:-192.168.60.83}:18002:8000"
     volumes:
-      - gotenberg-mcp-data:/data
+      - ./data/mcp:/data
     depends_on:
       gotenberg:
         condition: service_healthy
@@ -60,7 +62,3 @@ services:
       retries: 5
       start_period: 10s
     restart: unless-stopped
-
-volumes:
-  gotenberg-mcp-data:
-    name: gotenberg-mcp_gotenberg-mcp-data

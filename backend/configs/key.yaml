@@ -1,5 +1,8 @@
-type: file
+type: vault
 scope: default
 root_version: v1
-file:
-  path: /Users/liujun/Documents/certs/root.key
+root_name: secret/data/certs/root.key
+vault:
+  address: http://192.168.60.83:8200
+  namespace: ''
+  value_key: value

@@ -1,6 +1,6 @@
 services:
   xberg-mcp:
-    image: ghcr.io/xberg-io/xberg:latest
+    image: ghcr.io/xberg-io/xberg:1.3.9
     container_name: xberg-mcp
     command:
       - mcp
@@ -11,15 +11,11 @@ services:
       - --port
       - "8001"
       - --allowed-host
-      - 192.168.60.52
+      - ${LAN_IP:-192.168.60.83}
       - --allowed-host
-      - 192.168.60.52:8001
+      - ${LAN_IP:-192.168.60.83}:18001
     ports:
-      - "192.168.60.52:8001:8001"
+      - "${LAN_IP:-192.168.60.83}:18001:8001"
     volumes:
-      - xberg-mcp-cache:/app/.xberg
+      - ./data/xberg:/app/.xberg
     restart: unless-stopped
-
-volumes:
-  xberg-mcp-cache:
-    name: docker-compose_xberg-mcp-cache

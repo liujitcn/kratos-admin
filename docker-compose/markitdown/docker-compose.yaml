@@ -12,7 +12,7 @@ services:
       - --port
       - "8000"
     ports:
-      - "192.168.60.52:8003:8000"
+      - "${LAN_IP:-192.168.60.83}:18003:8000"
     volumes:
       - ./data:/workdir
     healthcheck:

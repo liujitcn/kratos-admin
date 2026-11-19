@@ -68,6 +68,9 @@ service_tmp/
 /backend/configs/full/root.key
 /backend/configs/ai.local.yaml
 /gorse/data/
+/docker-compose/gotenberg/data/
+/docker-compose/xberg/data/
+/docker-compose/*/.env
 
 .pnpm-store/
 *.tgz
