@@ -9,6 +9,12 @@
   padding: 0 10px;
   overflow: hidden;
   box-sizing: border-box;
+  margin: 0;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1;
+  vertical-align: middle;
   color: var(--admin-page-text-secondary);
   cursor: pointer;
   background: var(--admin-page-card-bg);
@@ -90,6 +96,9 @@
     height: 36px;
     margin-top: 6px;
     padding: 0 6px;
+    box-sizing: border-box;
+    margin-right: 0;
+    line-height: 1;
     font-size: 12.5px;
     font-weight: 600;
     color: var(--el-color-primary);
@@ -121,7 +130,11 @@
   height: 42px;
   margin-bottom: 2px;
   padding: 0 10px;
+  box-sizing: border-box;
+  margin-right: 0;
   font-size: 13.5px;
+  font-family: inherit;
+  line-height: 1;
   color: var(--admin-page-text-primary);
   text-align: left;
   cursor: pointer;

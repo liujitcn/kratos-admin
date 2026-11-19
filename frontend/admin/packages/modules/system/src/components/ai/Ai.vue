@@ -26,7 +26,11 @@ const authStore = useAuthStore();
 const configStore = useConfigStore();
 const aiRoute = computed(() => {
   if (!configStore.aiEnabled) return undefined;
-  return authStore.flatMenuListGet.find(item => item.name === "AiChat" && item.path);
+  const targetName = configStore.aiWorkbenchMode ? "BiAssistant" : "AiChat";
+  return (
+    authStore.flatMenuListGet.find(item => item.name === targetName && item.path) ??
+    authStore.flatMenuListGet.find(item => item.name === "AiChat" && item.path)
+  );
 });
 
 /** 从顶部入口打开 AI 助手会话页。 */

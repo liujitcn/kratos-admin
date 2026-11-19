@@ -210,6 +210,12 @@ function selectSession(item: AiSession) {
   gap: 10px;
   min-height: 40px;
   padding: 8px 12px;
+  box-sizing: border-box;
+  margin: 0;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 20px;
   border: 0;
   border-radius: var(--admin-page-radius);
   color: var(--admin-page-text-regular);

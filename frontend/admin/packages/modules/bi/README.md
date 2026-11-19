@@ -29,7 +29,7 @@ pnpm add @liujitcn/kratos-admin-core @liujitcn/kratos-admin-system @liujitcn/kra
 
 - `src/api/bi/admin/v1`：BI 请求封装，对应 `./api/*`。
 - `src/rpc`：由 Proto 生成的协议类型，对应 `./rpc/*`。
-- `src/views`：数据源、问数、卡片、仪表盘、工作台和 AI BI 智能问数工作台页面，对应 `./views/*`；AI BI 工作台由隐藏菜单 `BiAssistant` 注册，首页提供入口。
+- `src/views`：数据源、问数、卡片、仪表盘、工作台和 AI BI 智能问数工作台页面，对应 `./views/*`；AI BI 工作台由隐藏菜单 `BiAssistant` 注册。页内导航从当前会话开始，可切换、新建和搜索会话，也可打开工作台工具箱。
 - `src/components`：模块内部的图表、建模和仪表盘组件。
 - `src/locales`：zh-CN、zh-TW、en-US、ja-JP 语言包，对应 `./locales/*`。
 - `src/module.ts`：`biAdminModule` 定义，通过主入口或 `./module` 导出。

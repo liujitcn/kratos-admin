@@ -9,6 +9,7 @@ import { applyCustomLocaleMessages } from "@/locales";
 const CAPTCHA_TYPE_KEY = "captchaType";
 const SHOW_TENANT_CODE_KEY = "showTenantCode";
 const I18N_DRAFT_ENABLED_KEY = "i18n.draft.enabled";
+const AI_WORKBENCH_MODE_KEY = "aiWorkbenchMode";
 
 const DEFAULT_SITE_DISPLAY_CONFIG: SiteDisplayConfig = {
   sysName: import.meta.env.VITE_GLOB_APP_TITLE,
@@ -86,7 +87,8 @@ export const useConfigStore = defineStore("admin-config", {
     captcha: { ...DEFAULT_LOGIN_CAPTCHA_CONFIG },
     showTenantCode: true,
     i18nDraftEnabled: false,
-    aiEnabled: false
+    aiEnabled: false,
+    aiWorkbenchMode: false
   }),
   getters: {},
   actions: {
@@ -114,6 +116,7 @@ export const useConfigStore = defineStore("admin-config", {
       this.i18nDraftEnabled = false;
       // 避免登出或切换租户后沿用上一租户的 AI 菜单显隐状态。
       this.aiEnabled = false;
+      this.aiWorkbenchMode = false;
     },
     /**
      * 加载管理端站点配置，并以服务端返回值覆盖本地默认值。
@@ -133,6 +136,7 @@ export const useConfigStore = defineStore("admin-config", {
       this.showTenantCode = !["false", "0"].includes((configMap[SHOW_TENANT_CODE_KEY] ?? "true").toLowerCase());
       this.i18nDraftEnabled = configMap[I18N_DRAFT_ENABLED_KEY] === "true";
       this.aiEnabled = configResponse.ai_enabled === true;
+      this.aiWorkbenchMode = ["true", "1"].includes((configMap[AI_WORKBENCH_MODE_KEY] ?? "false").toLowerCase());
       return this.display;
     },
     /**

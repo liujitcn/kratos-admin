@@ -34,6 +34,7 @@ INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('b
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_config.name', 1170, 'zh-TW', '登入驗證碼型別') ON CONFLICT DO NOTHING;
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_config.name', 1180, 'zh-TW', '多因素認證策略') ON CONFLICT DO NOTHING;
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_config.name', 1190, 'zh-TW', '多因素認證方式') ON CONFLICT DO NOTHING;
+INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_config.name', 1195, 'zh-TW', 'AI助手工作台模式') ON CONFLICT DO NOTHING;
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_config.name', 1200, 'zh-TW', '主標題') ON CONFLICT DO NOTHING;
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_config.name', 1210, 'zh-TW', '副標題') ON CONFLICT DO NOTHING;
 INSERT INTO "base_i18n" ("target_key", "target_id", "locale", "name") VALUES ('base_config.name', 1220, 'zh-TW', '應用LOGO') ON CONFLICT DO NOTHING;

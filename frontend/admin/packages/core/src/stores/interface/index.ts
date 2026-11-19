@@ -132,4 +132,6 @@ export interface SiteConfigState {
   i18nDraftEnabled: boolean;
   /** AI 助手是否可用。 */
   aiEnabled: boolean;
+  /** 是否将顶部 AI 助手入口切换到 BI 工作台。 */
+  aiWorkbenchMode: boolean;
 }

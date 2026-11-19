@@ -1,9 +1,6 @@
 <template>
   <el-container class="bi-assistant-workbench">
-    <el-header class="bi-assistant-workbench__topbar" @click="handleTopbarClick">
-      <h1>AI 助手</h1>
-      <span class="bi-assistant-workbench__topbar-sep" />
-
+    <header class="bi-assistant-workbench__topbar" @click="handleTopbarClick">
       <div class="bi-assistant-workbench__session-wrap">
         <button
           class="bi-assistant-workbench__session-switch"
@@ -127,7 +124,7 @@
           <span>{{ item.label }}</span><small>{{ item.actionLabel }}</small>
         </button>
       </div>
-    </el-header>
+    </header>
 
     <el-main class="bi-assistant-workbench__body">
       <el-aside class="bi-assistant-workbench__zone" :class="{ 'is-collapsed': collapsed.left }">
@@ -844,18 +841,11 @@ onBeforeUnmount(() => document.removeEventListener("click", closeTopbarPopovers)
   display: flex;
   flex: none;
   align-items: center;
-  gap: 12px;
-  height: 50px;
-  min-height: 50px;
-  padding: 0 16px;
+  gap: 6px;
+  box-sizing: border-box;
+  min-height: 42px;
+  padding: 4px 10px;
   border-bottom: 1px solid var(--admin-page-divider-strong);
-}
-.bi-assistant-workbench__topbar > h1 {
-  flex: none;
-  margin: 0;
-  color: var(--admin-page-text-primary);
-  font-size: 15px;
-  font-weight: 600;
 }
 .bi-assistant-workbench__topbar-sep {
   width: 1px;
@@ -870,12 +860,11 @@ onBeforeUnmount(() => document.removeEventListener("click", closeTopbarPopovers)
 }
 .bi-assistant-workbench__session-switch {
   display: inline-flex;
-  width: 260px;
   max-width: 260px;
   height: 32px;
   align-items: center;
   gap: 6px;
-  padding: 0 8px 0 10px;
+  padding: 0 8px;
   color: var(--admin-page-text-primary);
   font-size: 13px;
   font-weight: 500;
@@ -955,10 +944,10 @@ onBeforeUnmount(() => document.removeEventListener("click", closeTopbarPopovers)
   background: var(--el-fill-color-light);
 }
 .bi-assistant-workbench__topbar-search.open {
-  width: 220px;
+  width: min(220px, 100%);
   padding-right: 6px;
   cursor: text;
-  background: #fff;
+  background: var(--el-bg-color-overlay);
   border-color: var(--el-color-primary-light-7);
   box-shadow: 0 1px 4px rgb(15 23 42 / 6%);
 }
@@ -1011,7 +1000,7 @@ onBeforeUnmount(() => document.removeEventListener("click", closeTopbarPopovers)
 .bi-assistant-workbench__menu-pop {
   position: absolute;
   z-index: 30;
-  background: #fff;
+  background: var(--el-bg-color-overlay);
   border: 1px solid var(--el-border-color-lighter);
   box-shadow: 0 8px 24px rgb(15 23 42 / 14%);
 }
@@ -1019,7 +1008,7 @@ onBeforeUnmount(() => document.removeEventListener("click", closeTopbarPopovers)
   top: 40px;
   left: 0;
   display: flex;
-  width: 320px;
+  width: min(320px, calc(100vw - 32px));
   max-height: 440px;
   flex-direction: column;
   overflow: hidden;
@@ -1144,9 +1133,10 @@ onBeforeUnmount(() => document.removeEventListener("click", closeTopbarPopovers)
   background: var(--el-color-primary-light-9);
 }
 .bi-assistant-workbench__toolbox {
-  top: 44px;
-  right: 52px;
-  width: 288px;
+  top: 100%;
+  right: 10px;
+  box-sizing: border-box;
+  width: min(288px, calc(100% - 20px));
   padding: 12px;
   border-radius: 8px;
 }
@@ -1216,8 +1206,8 @@ onBeforeUnmount(() => document.removeEventListener("click", closeTopbarPopovers)
   background: var(--el-color-warning);
 }
 .bi-assistant-workbench__menu-pop {
-  top: 44px;
-  right: 52px;
+  top: 100%;
+  right: 10px;
   min-width: 220px;
   padding: 4px;
   border-radius: 6px;
@@ -1479,7 +1469,7 @@ onBeforeUnmount(() => document.removeEventListener("click", closeTopbarPopovers)
     grid-template-columns: minmax(220px, 260px) minmax(420px, 1fr) minmax(220px, 260px);
   }
   .bi-assistant-workbench__session-switch {
-    width: min(260px, 24vw);
+    max-width: min(260px, 24vw);
   }
 }
 @media (max-width: 980px) {
@@ -1492,7 +1482,7 @@ onBeforeUnmount(() => document.removeEventListener("click", closeTopbarPopovers)
     flex-wrap: wrap;
   }
   .bi-assistant-workbench__session-switch {
-    width: min(220px, 34vw);
+    max-width: min(220px, 34vw);
   }
   .bi-assistant-workbench__body {
     grid-template-columns: 1fr 1fr;

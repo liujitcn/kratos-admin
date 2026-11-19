@@ -1463,7 +1463,11 @@ function formatAttachmentSize(size?: number): string {
   align-items: center;
   height: 26px;
   padding: 0 8px;
+  box-sizing: border-box;
+  margin: 0;
   font-size: 12px;
+  font-family: inherit;
+  font-weight: 400;
   line-height: 1;
   color: var(--el-color-primary);
   cursor: pointer;
@@ -1507,6 +1511,11 @@ function formatAttachmentSize(size?: number): string {
   min-width: 0;
   min-height: 70px;
   padding: 12px;
+  box-sizing: border-box;
+  margin: 0;
+  font: inherit;
+  line-height: 1.2;
+  justify-content: initial;
   color: var(--admin-page-text-primary);
   text-align: left;
   cursor: pointer;
@@ -2040,6 +2049,10 @@ function formatAttachmentSize(size?: number): string {
   width: 24px;
   height: 24px;
   padding: 0;
+  box-sizing: border-box;
+  margin: 0;
+  font: inherit;
+  line-height: 1;
   color: var(--admin-page-text-secondary);
   cursor: pointer;
   background: transparent;
@@ -2181,7 +2194,12 @@ function formatAttachmentSize(size?: number): string {
   justify-content: center;
   width: 28px;
   height: 28px;
+  box-sizing: border-box;
+  margin: 0;
   color: var(--admin-page-text-secondary);
+  padding: 0;
+  font: inherit;
+  line-height: 1;
   cursor: pointer;
   background: transparent;
   border: 0;

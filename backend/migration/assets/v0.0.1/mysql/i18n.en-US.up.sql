@@ -34,6 +34,7 @@ INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VAL
 INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_config.name', 1170, 'en-US', 'Login CAPTCHA Type');
 INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_config.name', 1180, 'en-US', 'Multi-factor Authentication Policy');
 INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_config.name', 1190, 'en-US', 'Multi-factor Authentication Method');
+INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_config.name', 1195, 'en-US', 'AI Assistant Workbench Mode');
 INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_config.name', 1200, 'en-US', 'Main Title');
 INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_config.name', 1210, 'en-US', 'Subtitle');
 INSERT IGNORE INTO `base_i18n` (`target_key`, `target_id`, `locale`, `name`) VALUES ('base_config.name', 1220, 'en-US', 'Application Logo');

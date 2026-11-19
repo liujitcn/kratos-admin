@@ -24,7 +24,7 @@ AI 工具人工确认表 `ai_tool_approval` 由已注册的 `AiToolApproval` Mod
 
 存量库启用 `enable_migrate` 后会自动补齐注册模型的表结构，但不会自动重放本版本的初始化数据；菜单权限、字典数据仍需按开发环境流程重建或补齐。脚本和执行型工具由运行时硬性封闭，不受 `agent_status` 开关绕过。
 
-AI 对话沿用管理菜单 `90990000` 与移动菜单 `99101000`，BI 智能问数工作台使用隐藏管理菜单 `90991000`，由首页入口打开，不增加独立插件或自动化菜单。管理端菜单授予 `AiPluginService`、`AiAutomationService` 和 `SetAiSessionPlugins`；移动端仅授予目录/账号/工具查询、本人任务与记录查询、运行一次、停止本次、结果继续讨论及本人审批，不授予插件或计划管理写操作。
+AI 对话沿用管理菜单 `90990000` 与移动菜单 `99101000`，BI 智能问数工作台使用隐藏管理菜单 `90991000`，由顶部 AI 助手入口按 `aiWorkbenchMode` 配置切换，不增加独立插件或自动化菜单。管理端菜单授予 `AiPluginService`、`AiAutomationService` 和 `SetAiSessionPlugins`；移动端仅授予目录/账号/工具查询、本人任务与记录查询、运行一次、停止本次、结果继续讨论及本人审批，不授予插件或计划管理写操作。
 
 Models 自动创建 AI 插件、自动化和 AI 文件表；`default_data.up.sql` 维护内置、Xberg、Gotenberg、MarkItDown 插件种子及默认租户安装。AI 文件对象存储目录继续复用 `ai/`，不与 `base_file` 双写；当前没有存量 AI 文件，不包含历史数据迁移。三个 MCP 端点使用 `192.168.60.52` 私网白名单和 `allow_private` 配置，Gotenberg Bearer Token 需在连接页面录入。`default_data.up.sql` 登记唯一 `base_job`：ID `1008`、`base.AiAutomationDispatch`、秒级 cron `0 * * * * *`；用户计划不逐条登记系统任务。调度读取持久化计划、租约和状态，浏览器无需保持在线。
 

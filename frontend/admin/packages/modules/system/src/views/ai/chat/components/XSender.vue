@@ -589,6 +589,12 @@ function resetFileInput() {
     border-color 0.2s ease,
     background-color 0.2s ease,
     opacity 0.2s ease;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font: inherit;
+  line-height: 1;
+  vertical-align: middle;
   &:hover {
     color: var(--el-color-primary);
     background: var(--el-color-primary-light-9);
@@ -642,8 +648,11 @@ function resetFileInput() {
   width: 100%;
   height: 36px;
   margin-top: 12px;
+  box-sizing: border-box;
+  padding: 0;
   font-size: 13px;
   font-weight: 600;
+  line-height: 1;
   color: var(--el-color-primary);
   cursor: pointer;
   background: var(--el-color-primary-light-9);

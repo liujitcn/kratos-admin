@@ -177,6 +177,11 @@ function handleCreateSession() {
   justify-content: center;
   width: 26px;
   height: 26px;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font: inherit;
+  line-height: 1;
   color: var(--admin-page-text-secondary);
   cursor: pointer;
   background: var(--el-fill-color-light);
@@ -213,8 +218,11 @@ function handleCreateSession() {
   align-items: center;
   height: 26px;
   padding: 0 9px;
+  box-sizing: border-box;
+  margin: 0;
   font-size: 12px;
   font-weight: 600;
+  line-height: 1;
   color: var(--el-color-primary);
   cursor: pointer;
   background: var(--el-color-primary-light-9);
@@ -282,6 +290,10 @@ function handleCreateSession() {
   min-width: 0;
   min-height: 66px;
   padding: 11px 14px 11px 32px;
+  box-sizing: border-box;
+  margin: 0;
+  font: inherit;
+  line-height: 1.2;
   text-align: left;
   cursor: pointer;
   background: transparent;
@@ -323,6 +335,11 @@ function handleCreateSession() {
   justify-content: center;
   width: 24px;
   height: 24px;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font: inherit;
+  line-height: 1;
   color: var(--admin-page-text-secondary);
   cursor: pointer;
   background: transparent;
