@@ -174,6 +174,28 @@ func (x *PageBaseRedactOutputPolicyResponse) Redact() {
 	// Safe field: Total
 }
 
+// Ensure BaseRedactOutputPolicyGroup implements the Redactor interface at compile time.
+var _ redact.Redactor = (*BaseRedactOutputPolicyGroup)(nil)
+
+// Redact method implementation for BaseRedactOutputPolicyGroup
+func (x *BaseRedactOutputPolicyGroup) Redact() {
+	if x == nil {
+		return
+	}
+
+	// Safe field: Id
+
+	// Safe field: TenantId
+
+	// Safe field: ServiceName
+
+	// Safe field: Operation
+
+	// Safe field: MessageRef
+
+	// Safe field: Policies
+}
+
 // Ensure GetBaseRedactOutputPolicyRequest implements the Redactor interface at compile time.
 var _ redact.Redactor = (*GetBaseRedactOutputPolicyRequest)(nil)
 

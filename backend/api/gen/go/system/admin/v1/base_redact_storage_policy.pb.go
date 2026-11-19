@@ -130,9 +130,9 @@ func (x *PageBaseRedactStoragePolicyRequest) GetPageSize() int64 {
 
 // 入库脱敏策略分页响应。
 type PageBaseRedactStoragePolicyResponse struct {
-	state                     protoimpl.MessageState     `protogen:"open.v1"`
-	BaseRedactStoragePolicies []*BaseRedactStoragePolicy `protobuf:"bytes,1,rep,name=base_redact_storage_policies,json=baseRedactStoragePolicies,proto3" json:"base_redact_storage_policies,omitempty"` // 入库脱敏策略列表
-	Total                     int32                      `protobuf:"varint,2,opt,name=total,proto3" json:"total,omitempty"`                                                                             // 总数
+	state                     protoimpl.MessageState          `protogen:"open.v1"`
+	BaseRedactStoragePolicies []*BaseRedactStoragePolicyGroup `protobuf:"bytes,1,rep,name=base_redact_storage_policies,json=baseRedactStoragePolicies,proto3" json:"base_redact_storage_policies,omitempty"` // 按数据表聚合的入库脱敏策略列表
+	Total                     int32                           `protobuf:"varint,2,opt,name=total,proto3" json:"total,omitempty"`                                                                             // 总数
 	unknownFields             protoimpl.UnknownFields
 	sizeCache                 protoimpl.SizeCache
 }
@@ -167,7 +167,7 @@ func (*PageBaseRedactStoragePolicyResponse) Descriptor() ([]byte, []int) {
 	return file_system_admin_v1_base_redact_storage_policy_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *PageBaseRedactStoragePolicyResponse) GetBaseRedactStoragePolicies() []*BaseRedactStoragePolicy {
+func (x *PageBaseRedactStoragePolicyResponse) GetBaseRedactStoragePolicies() []*BaseRedactStoragePolicyGroup {
 	if x != nil {
 		return x.BaseRedactStoragePolicies
 	}
@@ -181,6 +181,91 @@ func (x *PageBaseRedactStoragePolicyResponse) GetTotal() int32 {
 	return 0
 }
 
+// 按数据表聚合的入库脱敏策略。
+type BaseRedactStoragePolicyGroup struct {
+	state         protoimpl.MessageState     `protogen:"open.v1"`
+	Id            int64                      `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                        // 分组代表策略ID
+	TenantId      int64                      `protobuf:"varint,2,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`            // 租户ID，默认租户策略为全局策略
+	SourceName    string                     `protobuf:"bytes,3,opt,name=source_name,json=sourceName,proto3" json:"source_name,omitempty"`       // 数据源名称
+	TableName     string                     `protobuf:"bytes,4,opt,name=table_name,json=tableName,proto3" json:"table_name,omitempty"`          // 数据库表名
+	TableComment  string                     `protobuf:"bytes,5,opt,name=table_comment,json=tableComment,proto3" json:"table_comment,omitempty"` // 数据表注释
+	Policies      []*BaseRedactStoragePolicy `protobuf:"bytes,6,rep,name=policies,proto3" json:"policies,omitempty"`                             // 分组内字段策略
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *BaseRedactStoragePolicyGroup) Reset() {
+	*x = BaseRedactStoragePolicyGroup{}
+	mi := &file_system_admin_v1_base_redact_storage_policy_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *BaseRedactStoragePolicyGroup) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*BaseRedactStoragePolicyGroup) ProtoMessage() {}
+
+func (x *BaseRedactStoragePolicyGroup) ProtoReflect() protoreflect.Message {
+	mi := &file_system_admin_v1_base_redact_storage_policy_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use BaseRedactStoragePolicyGroup.ProtoReflect.Descriptor instead.
+func (*BaseRedactStoragePolicyGroup) Descriptor() ([]byte, []int) {
+	return file_system_admin_v1_base_redact_storage_policy_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *BaseRedactStoragePolicyGroup) GetId() int64 {
+	if x != nil {
+		return x.Id
+	}
+	return 0
+}
+
+func (x *BaseRedactStoragePolicyGroup) GetTenantId() int64 {
+	if x != nil {
+		return x.TenantId
+	}
+	return 0
+}
+
+func (x *BaseRedactStoragePolicyGroup) GetSourceName() string {
+	if x != nil {
+		return x.SourceName
+	}
+	return ""
+}
+
+func (x *BaseRedactStoragePolicyGroup) GetTableName() string {
+	if x != nil {
+		return x.TableName
+	}
+	return ""
+}
+
+func (x *BaseRedactStoragePolicyGroup) GetTableComment() string {
+	if x != nil {
+		return x.TableComment
+	}
+	return ""
+}
+
+func (x *BaseRedactStoragePolicyGroup) GetPolicies() []*BaseRedactStoragePolicy {
+	if x != nil {
+		return x.Policies
+	}
+	return nil
+}
+
 // 入库脱敏策略详情查询条件。
 type GetBaseRedactStoragePolicyRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -191,7 +276,7 @@ type GetBaseRedactStoragePolicyRequest struct {
 
 func (x *GetBaseRedactStoragePolicyRequest) Reset() {
 	*x = GetBaseRedactStoragePolicyRequest{}
-	mi := &file_system_admin_v1_base_redact_storage_policy_proto_msgTypes[2]
+	mi := &file_system_admin_v1_base_redact_storage_policy_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -203,7 +288,7 @@ func (x *GetBaseRedactStoragePolicyRequest) String() string {
 func (*GetBaseRedactStoragePolicyRequest) ProtoMessage() {}
 
 func (x *GetBaseRedactStoragePolicyRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_base_redact_storage_policy_proto_msgTypes[2]
+	mi := &file_system_admin_v1_base_redact_storage_policy_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -216,7 +301,7 @@ func (x *GetBaseRedactStoragePolicyRequest) ProtoReflect() protoreflect.Message 
 
 // Deprecated: Use GetBaseRedactStoragePolicyRequest.ProtoReflect.Descriptor instead.
 func (*GetBaseRedactStoragePolicyRequest) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_base_redact_storage_policy_proto_rawDescGZIP(), []int{2}
+	return file_system_admin_v1_base_redact_storage_policy_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *GetBaseRedactStoragePolicyRequest) GetId() int64 {
@@ -244,7 +329,7 @@ type BaseRedactStoragePolicyForm struct {
 
 func (x *BaseRedactStoragePolicyForm) Reset() {
 	*x = BaseRedactStoragePolicyForm{}
-	mi := &file_system_admin_v1_base_redact_storage_policy_proto_msgTypes[3]
+	mi := &file_system_admin_v1_base_redact_storage_policy_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -256,7 +341,7 @@ func (x *BaseRedactStoragePolicyForm) String() string {
 func (*BaseRedactStoragePolicyForm) ProtoMessage() {}
 
 func (x *BaseRedactStoragePolicyForm) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_base_redact_storage_policy_proto_msgTypes[3]
+	mi := &file_system_admin_v1_base_redact_storage_policy_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -269,7 +354,7 @@ func (x *BaseRedactStoragePolicyForm) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BaseRedactStoragePolicyForm.ProtoReflect.Descriptor instead.
 func (*BaseRedactStoragePolicyForm) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_base_redact_storage_policy_proto_rawDescGZIP(), []int{3}
+	return file_system_admin_v1_base_redact_storage_policy_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *BaseRedactStoragePolicyForm) GetId() int64 {
@@ -345,7 +430,7 @@ type CreateBaseRedactStoragePolicyRequest struct {
 
 func (x *CreateBaseRedactStoragePolicyRequest) Reset() {
 	*x = CreateBaseRedactStoragePolicyRequest{}
-	mi := &file_system_admin_v1_base_redact_storage_policy_proto_msgTypes[4]
+	mi := &file_system_admin_v1_base_redact_storage_policy_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -357,7 +442,7 @@ func (x *CreateBaseRedactStoragePolicyRequest) String() string {
 func (*CreateBaseRedactStoragePolicyRequest) ProtoMessage() {}
 
 func (x *CreateBaseRedactStoragePolicyRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_base_redact_storage_policy_proto_msgTypes[4]
+	mi := &file_system_admin_v1_base_redact_storage_policy_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -370,7 +455,7 @@ func (x *CreateBaseRedactStoragePolicyRequest) ProtoReflect() protoreflect.Messa
 
 // Deprecated: Use CreateBaseRedactStoragePolicyRequest.ProtoReflect.Descriptor instead.
 func (*CreateBaseRedactStoragePolicyRequest) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_base_redact_storage_policy_proto_rawDescGZIP(), []int{4}
+	return file_system_admin_v1_base_redact_storage_policy_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *CreateBaseRedactStoragePolicyRequest) GetBaseRedactStoragePolicy() []*BaseRedactStoragePolicyForm {
@@ -390,7 +475,7 @@ type UpdateBaseRedactStoragePolicyRequest struct {
 
 func (x *UpdateBaseRedactStoragePolicyRequest) Reset() {
 	*x = UpdateBaseRedactStoragePolicyRequest{}
-	mi := &file_system_admin_v1_base_redact_storage_policy_proto_msgTypes[5]
+	mi := &file_system_admin_v1_base_redact_storage_policy_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -402,7 +487,7 @@ func (x *UpdateBaseRedactStoragePolicyRequest) String() string {
 func (*UpdateBaseRedactStoragePolicyRequest) ProtoMessage() {}
 
 func (x *UpdateBaseRedactStoragePolicyRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_base_redact_storage_policy_proto_msgTypes[5]
+	mi := &file_system_admin_v1_base_redact_storage_policy_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -415,7 +500,7 @@ func (x *UpdateBaseRedactStoragePolicyRequest) ProtoReflect() protoreflect.Messa
 
 // Deprecated: Use UpdateBaseRedactStoragePolicyRequest.ProtoReflect.Descriptor instead.
 func (*UpdateBaseRedactStoragePolicyRequest) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_base_redact_storage_policy_proto_rawDescGZIP(), []int{5}
+	return file_system_admin_v1_base_redact_storage_policy_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *UpdateBaseRedactStoragePolicyRequest) GetBaseRedactStoragePolicy() []*BaseRedactStoragePolicyForm {
@@ -435,7 +520,7 @@ type DeleteBaseRedactStoragePolicyRequest struct {
 
 func (x *DeleteBaseRedactStoragePolicyRequest) Reset() {
 	*x = DeleteBaseRedactStoragePolicyRequest{}
-	mi := &file_system_admin_v1_base_redact_storage_policy_proto_msgTypes[6]
+	mi := &file_system_admin_v1_base_redact_storage_policy_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -447,7 +532,7 @@ func (x *DeleteBaseRedactStoragePolicyRequest) String() string {
 func (*DeleteBaseRedactStoragePolicyRequest) ProtoMessage() {}
 
 func (x *DeleteBaseRedactStoragePolicyRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_base_redact_storage_policy_proto_msgTypes[6]
+	mi := &file_system_admin_v1_base_redact_storage_policy_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -460,7 +545,7 @@ func (x *DeleteBaseRedactStoragePolicyRequest) ProtoReflect() protoreflect.Messa
 
 // Deprecated: Use DeleteBaseRedactStoragePolicyRequest.ProtoReflect.Descriptor instead.
 func (*DeleteBaseRedactStoragePolicyRequest) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_base_redact_storage_policy_proto_rawDescGZIP(), []int{6}
+	return file_system_admin_v1_base_redact_storage_policy_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *DeleteBaseRedactStoragePolicyRequest) GetId() string {
@@ -481,7 +566,7 @@ type SetBaseRedactStoragePolicyStatusRequest struct {
 
 func (x *SetBaseRedactStoragePolicyStatusRequest) Reset() {
 	*x = SetBaseRedactStoragePolicyStatusRequest{}
-	mi := &file_system_admin_v1_base_redact_storage_policy_proto_msgTypes[7]
+	mi := &file_system_admin_v1_base_redact_storage_policy_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -493,7 +578,7 @@ func (x *SetBaseRedactStoragePolicyStatusRequest) String() string {
 func (*SetBaseRedactStoragePolicyStatusRequest) ProtoMessage() {}
 
 func (x *SetBaseRedactStoragePolicyStatusRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_base_redact_storage_policy_proto_msgTypes[7]
+	mi := &file_system_admin_v1_base_redact_storage_policy_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -506,7 +591,7 @@ func (x *SetBaseRedactStoragePolicyStatusRequest) ProtoReflect() protoreflect.Me
 
 // Deprecated: Use SetBaseRedactStoragePolicyStatusRequest.ProtoReflect.Descriptor instead.
 func (*SetBaseRedactStoragePolicyStatusRequest) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_base_redact_storage_policy_proto_rawDescGZIP(), []int{7}
+	return file_system_admin_v1_base_redact_storage_policy_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *SetBaseRedactStoragePolicyStatusRequest) GetId() int64 {
@@ -547,7 +632,7 @@ type BaseRedactStoragePolicy struct {
 
 func (x *BaseRedactStoragePolicy) Reset() {
 	*x = BaseRedactStoragePolicy{}
-	mi := &file_system_admin_v1_base_redact_storage_policy_proto_msgTypes[8]
+	mi := &file_system_admin_v1_base_redact_storage_policy_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -559,7 +644,7 @@ func (x *BaseRedactStoragePolicy) String() string {
 func (*BaseRedactStoragePolicy) ProtoMessage() {}
 
 func (x *BaseRedactStoragePolicy) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_base_redact_storage_policy_proto_msgTypes[8]
+	mi := &file_system_admin_v1_base_redact_storage_policy_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -572,7 +657,7 @@ func (x *BaseRedactStoragePolicy) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BaseRedactStoragePolicy.ProtoReflect.Descriptor instead.
 func (*BaseRedactStoragePolicy) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_base_redact_storage_policy_proto_rawDescGZIP(), []int{8}
+	return file_system_admin_v1_base_redact_storage_policy_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *BaseRedactStoragePolicy) GetId() int64 {
@@ -690,7 +775,7 @@ type ListBaseRedactStorageTableRequest struct {
 
 func (x *ListBaseRedactStorageTableRequest) Reset() {
 	*x = ListBaseRedactStorageTableRequest{}
-	mi := &file_system_admin_v1_base_redact_storage_policy_proto_msgTypes[9]
+	mi := &file_system_admin_v1_base_redact_storage_policy_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -702,7 +787,7 @@ func (x *ListBaseRedactStorageTableRequest) String() string {
 func (*ListBaseRedactStorageTableRequest) ProtoMessage() {}
 
 func (x *ListBaseRedactStorageTableRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_base_redact_storage_policy_proto_msgTypes[9]
+	mi := &file_system_admin_v1_base_redact_storage_policy_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -715,7 +800,7 @@ func (x *ListBaseRedactStorageTableRequest) ProtoReflect() protoreflect.Message 
 
 // Deprecated: Use ListBaseRedactStorageTableRequest.ProtoReflect.Descriptor instead.
 func (*ListBaseRedactStorageTableRequest) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_base_redact_storage_policy_proto_rawDescGZIP(), []int{9}
+	return file_system_admin_v1_base_redact_storage_policy_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *ListBaseRedactStorageTableRequest) GetSourceName() string {
@@ -736,7 +821,7 @@ type BaseRedactStorageTable struct {
 
 func (x *BaseRedactStorageTable) Reset() {
 	*x = BaseRedactStorageTable{}
-	mi := &file_system_admin_v1_base_redact_storage_policy_proto_msgTypes[10]
+	mi := &file_system_admin_v1_base_redact_storage_policy_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -748,7 +833,7 @@ func (x *BaseRedactStorageTable) String() string {
 func (*BaseRedactStorageTable) ProtoMessage() {}
 
 func (x *BaseRedactStorageTable) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_base_redact_storage_policy_proto_msgTypes[10]
+	mi := &file_system_admin_v1_base_redact_storage_policy_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -761,7 +846,7 @@ func (x *BaseRedactStorageTable) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BaseRedactStorageTable.ProtoReflect.Descriptor instead.
 func (*BaseRedactStorageTable) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_base_redact_storage_policy_proto_rawDescGZIP(), []int{10}
+	return file_system_admin_v1_base_redact_storage_policy_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *BaseRedactStorageTable) GetName() string {
@@ -788,7 +873,7 @@ type ListBaseRedactStorageTableResponse struct {
 
 func (x *ListBaseRedactStorageTableResponse) Reset() {
 	*x = ListBaseRedactStorageTableResponse{}
-	mi := &file_system_admin_v1_base_redact_storage_policy_proto_msgTypes[11]
+	mi := &file_system_admin_v1_base_redact_storage_policy_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -800,7 +885,7 @@ func (x *ListBaseRedactStorageTableResponse) String() string {
 func (*ListBaseRedactStorageTableResponse) ProtoMessage() {}
 
 func (x *ListBaseRedactStorageTableResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_base_redact_storage_policy_proto_msgTypes[11]
+	mi := &file_system_admin_v1_base_redact_storage_policy_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -813,7 +898,7 @@ func (x *ListBaseRedactStorageTableResponse) ProtoReflect() protoreflect.Message
 
 // Deprecated: Use ListBaseRedactStorageTableResponse.ProtoReflect.Descriptor instead.
 func (*ListBaseRedactStorageTableResponse) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_base_redact_storage_policy_proto_rawDescGZIP(), []int{11}
+	return file_system_admin_v1_base_redact_storage_policy_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *ListBaseRedactStorageTableResponse) GetTables() []*BaseRedactStorageTable {
@@ -834,7 +919,7 @@ type ListBaseRedactStorageColumnRequest struct {
 
 func (x *ListBaseRedactStorageColumnRequest) Reset() {
 	*x = ListBaseRedactStorageColumnRequest{}
-	mi := &file_system_admin_v1_base_redact_storage_policy_proto_msgTypes[12]
+	mi := &file_system_admin_v1_base_redact_storage_policy_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -846,7 +931,7 @@ func (x *ListBaseRedactStorageColumnRequest) String() string {
 func (*ListBaseRedactStorageColumnRequest) ProtoMessage() {}
 
 func (x *ListBaseRedactStorageColumnRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_base_redact_storage_policy_proto_msgTypes[12]
+	mi := &file_system_admin_v1_base_redact_storage_policy_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -859,7 +944,7 @@ func (x *ListBaseRedactStorageColumnRequest) ProtoReflect() protoreflect.Message
 
 // Deprecated: Use ListBaseRedactStorageColumnRequest.ProtoReflect.Descriptor instead.
 func (*ListBaseRedactStorageColumnRequest) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_base_redact_storage_policy_proto_rawDescGZIP(), []int{12}
+	return file_system_admin_v1_base_redact_storage_policy_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *ListBaseRedactStorageColumnRequest) GetSourceName() string {
@@ -889,7 +974,7 @@ type BaseRedactStorageColumn struct {
 
 func (x *BaseRedactStorageColumn) Reset() {
 	*x = BaseRedactStorageColumn{}
-	mi := &file_system_admin_v1_base_redact_storage_policy_proto_msgTypes[13]
+	mi := &file_system_admin_v1_base_redact_storage_policy_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -901,7 +986,7 @@ func (x *BaseRedactStorageColumn) String() string {
 func (*BaseRedactStorageColumn) ProtoMessage() {}
 
 func (x *BaseRedactStorageColumn) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_base_redact_storage_policy_proto_msgTypes[13]
+	mi := &file_system_admin_v1_base_redact_storage_policy_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -914,7 +999,7 @@ func (x *BaseRedactStorageColumn) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BaseRedactStorageColumn.ProtoReflect.Descriptor instead.
 func (*BaseRedactStorageColumn) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_base_redact_storage_policy_proto_rawDescGZIP(), []int{13}
+	return file_system_admin_v1_base_redact_storage_policy_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *BaseRedactStorageColumn) GetName() string {
@@ -955,7 +1040,7 @@ type ListBaseRedactStorageColumnResponse struct {
 
 func (x *ListBaseRedactStorageColumnResponse) Reset() {
 	*x = ListBaseRedactStorageColumnResponse{}
-	mi := &file_system_admin_v1_base_redact_storage_policy_proto_msgTypes[14]
+	mi := &file_system_admin_v1_base_redact_storage_policy_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -967,7 +1052,7 @@ func (x *ListBaseRedactStorageColumnResponse) String() string {
 func (*ListBaseRedactStorageColumnResponse) ProtoMessage() {}
 
 func (x *ListBaseRedactStorageColumnResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_base_redact_storage_policy_proto_msgTypes[14]
+	mi := &file_system_admin_v1_base_redact_storage_policy_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -980,7 +1065,7 @@ func (x *ListBaseRedactStorageColumnResponse) ProtoReflect() protoreflect.Messag
 
 // Deprecated: Use ListBaseRedactStorageColumnResponse.ProtoReflect.Descriptor instead.
 func (*ListBaseRedactStorageColumnResponse) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_base_redact_storage_policy_proto_rawDescGZIP(), []int{14}
+	return file_system_admin_v1_base_redact_storage_policy_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *ListBaseRedactStorageColumnResponse) GetColumns() []*BaseRedactStorageColumn {
@@ -1011,10 +1096,19 @@ const file_system_admin_v1_base_redact_storage_policy_proto_rawDesc = "" +
 	"\b_rule_idB\f\n" +
 	"\n" +
 	"_tenant_idB\t\n" +
-	"\a_status\"\xd5\x01\n" +
-	"#PageBaseRedactStoragePolicyResponse\x12\x89\x01\n" +
-	"\x1cbase_redact_storage_policies\x18\x01 \x03(\v2(.system.admin.v1.BaseRedactStoragePolicyB\x1e\xbaG\x1b\x92\x02\x18入库脱敏策略列表R\x19baseRedactStoragePolicies\x12\"\n" +
-	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\"\xaf\x01\n" +
+	"\a_status\"\xef\x01\n" +
+	"#PageBaseRedactStoragePolicyResponse\x12\xa3\x01\n" +
+	"\x1cbase_redact_storage_policies\x18\x01 \x03(\v2-.system.admin.v1.BaseRedactStoragePolicyGroupB3\xbaG0\x92\x02-按数据表聚合的入库脱敏策略列表R\x19baseRedactStoragePolicies\x12\"\n" +
+	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\"\xa8\x03\n" +
+	"\x1cBaseRedactStoragePolicyGroup\x12*\n" +
+	"\x02id\x18\x01 \x01(\x03B\x1a\xbaG\x17\x92\x02\x14分组代表策略IDR\x02id\x12O\n" +
+	"\ttenant_id\x18\x02 \x01(\x03B2\xbaG/\x92\x02,租户ID，默认租户策略为全局策略R\btenantId\x126\n" +
+	"\vsource_name\x18\x03 \x01(\tB\x15\xbaG\x12\x92\x02\x0f数据源名称R\n" +
+	"sourceName\x124\n" +
+	"\n" +
+	"table_name\x18\x04 \x01(\tB\x15\xbaG\x12\x92\x02\x0f数据库表名R\ttableName\x12:\n" +
+	"\rtable_comment\x18\x05 \x01(\tB\x15\xbaG\x12\x92\x02\x0f数据表注释R\ftableComment\x12a\n" +
+	"\bpolicies\x18\x06 \x03(\v2(.system.admin.v1.BaseRedactStoragePolicyB\x1b\xbaG\x18\x92\x02\x15分组内字段策略R\bpolicies\"\xaf\x01\n" +
 	"!GetBaseRedactStoragePolicyRequest\x12\x89\x01\n" +
 	"\x02id\x18\x01 \x01(\x03By\xbaG\x11\x92\x02\x0e入库策略ID\xbaHb\xba\x01_\n" +
 	"7system.admin.base.redact.storage_policy.get.id.required\x12\x1a入库策略ID不能为空\x1a\bthis > 0R\x02id\"\xd3\v\n" +
@@ -1122,57 +1216,59 @@ func file_system_admin_v1_base_redact_storage_policy_proto_rawDescGZIP() []byte 
 	return file_system_admin_v1_base_redact_storage_policy_proto_rawDescData
 }
 
-var file_system_admin_v1_base_redact_storage_policy_proto_msgTypes = make([]protoimpl.MessageInfo, 15)
+var file_system_admin_v1_base_redact_storage_policy_proto_msgTypes = make([]protoimpl.MessageInfo, 16)
 var file_system_admin_v1_base_redact_storage_policy_proto_goTypes = []any{
 	(*PageBaseRedactStoragePolicyRequest)(nil),      // 0: system.admin.v1.PageBaseRedactStoragePolicyRequest
 	(*PageBaseRedactStoragePolicyResponse)(nil),     // 1: system.admin.v1.PageBaseRedactStoragePolicyResponse
-	(*GetBaseRedactStoragePolicyRequest)(nil),       // 2: system.admin.v1.GetBaseRedactStoragePolicyRequest
-	(*BaseRedactStoragePolicyForm)(nil),             // 3: system.admin.v1.BaseRedactStoragePolicyForm
-	(*CreateBaseRedactStoragePolicyRequest)(nil),    // 4: system.admin.v1.CreateBaseRedactStoragePolicyRequest
-	(*UpdateBaseRedactStoragePolicyRequest)(nil),    // 5: system.admin.v1.UpdateBaseRedactStoragePolicyRequest
-	(*DeleteBaseRedactStoragePolicyRequest)(nil),    // 6: system.admin.v1.DeleteBaseRedactStoragePolicyRequest
-	(*SetBaseRedactStoragePolicyStatusRequest)(nil), // 7: system.admin.v1.SetBaseRedactStoragePolicyStatusRequest
-	(*BaseRedactStoragePolicy)(nil),                 // 8: system.admin.v1.BaseRedactStoragePolicy
-	(*ListBaseRedactStorageTableRequest)(nil),       // 9: system.admin.v1.ListBaseRedactStorageTableRequest
-	(*BaseRedactStorageTable)(nil),                  // 10: system.admin.v1.BaseRedactStorageTable
-	(*ListBaseRedactStorageTableResponse)(nil),      // 11: system.admin.v1.ListBaseRedactStorageTableResponse
-	(*ListBaseRedactStorageColumnRequest)(nil),      // 12: system.admin.v1.ListBaseRedactStorageColumnRequest
-	(*BaseRedactStorageColumn)(nil),                 // 13: system.admin.v1.BaseRedactStorageColumn
-	(*ListBaseRedactStorageColumnResponse)(nil),     // 14: system.admin.v1.ListBaseRedactStorageColumnResponse
-	(commonv1.Status)(0),                            // 15: common.v1.Status
-	(*emptypb.Empty)(nil),                           // 16: google.protobuf.Empty
+	(*BaseRedactStoragePolicyGroup)(nil),            // 2: system.admin.v1.BaseRedactStoragePolicyGroup
+	(*GetBaseRedactStoragePolicyRequest)(nil),       // 3: system.admin.v1.GetBaseRedactStoragePolicyRequest
+	(*BaseRedactStoragePolicyForm)(nil),             // 4: system.admin.v1.BaseRedactStoragePolicyForm
+	(*CreateBaseRedactStoragePolicyRequest)(nil),    // 5: system.admin.v1.CreateBaseRedactStoragePolicyRequest
+	(*UpdateBaseRedactStoragePolicyRequest)(nil),    // 6: system.admin.v1.UpdateBaseRedactStoragePolicyRequest
+	(*DeleteBaseRedactStoragePolicyRequest)(nil),    // 7: system.admin.v1.DeleteBaseRedactStoragePolicyRequest
+	(*SetBaseRedactStoragePolicyStatusRequest)(nil), // 8: system.admin.v1.SetBaseRedactStoragePolicyStatusRequest
+	(*BaseRedactStoragePolicy)(nil),                 // 9: system.admin.v1.BaseRedactStoragePolicy
+	(*ListBaseRedactStorageTableRequest)(nil),       // 10: system.admin.v1.ListBaseRedactStorageTableRequest
+	(*BaseRedactStorageTable)(nil),                  // 11: system.admin.v1.BaseRedactStorageTable
+	(*ListBaseRedactStorageTableResponse)(nil),      // 12: system.admin.v1.ListBaseRedactStorageTableResponse
+	(*ListBaseRedactStorageColumnRequest)(nil),      // 13: system.admin.v1.ListBaseRedactStorageColumnRequest
+	(*BaseRedactStorageColumn)(nil),                 // 14: system.admin.v1.BaseRedactStorageColumn
+	(*ListBaseRedactStorageColumnResponse)(nil),     // 15: system.admin.v1.ListBaseRedactStorageColumnResponse
+	(commonv1.Status)(0),                            // 16: common.v1.Status
+	(*emptypb.Empty)(nil),                           // 17: google.protobuf.Empty
 }
 var file_system_admin_v1_base_redact_storage_policy_proto_depIdxs = []int32{
-	15, // 0: system.admin.v1.PageBaseRedactStoragePolicyRequest.status:type_name -> common.v1.Status
-	8,  // 1: system.admin.v1.PageBaseRedactStoragePolicyResponse.base_redact_storage_policies:type_name -> system.admin.v1.BaseRedactStoragePolicy
-	15, // 2: system.admin.v1.BaseRedactStoragePolicyForm.status:type_name -> common.v1.Status
-	3,  // 3: system.admin.v1.CreateBaseRedactStoragePolicyRequest.base_redact_storage_policy:type_name -> system.admin.v1.BaseRedactStoragePolicyForm
-	3,  // 4: system.admin.v1.UpdateBaseRedactStoragePolicyRequest.base_redact_storage_policy:type_name -> system.admin.v1.BaseRedactStoragePolicyForm
-	15, // 5: system.admin.v1.SetBaseRedactStoragePolicyStatusRequest.status:type_name -> common.v1.Status
-	15, // 6: system.admin.v1.BaseRedactStoragePolicy.status:type_name -> common.v1.Status
-	10, // 7: system.admin.v1.ListBaseRedactStorageTableResponse.tables:type_name -> system.admin.v1.BaseRedactStorageTable
-	13, // 8: system.admin.v1.ListBaseRedactStorageColumnResponse.columns:type_name -> system.admin.v1.BaseRedactStorageColumn
-	0,  // 9: system.admin.v1.BaseRedactStoragePolicyService.PageBaseRedactStoragePolicy:input_type -> system.admin.v1.PageBaseRedactStoragePolicyRequest
-	9,  // 10: system.admin.v1.BaseRedactStoragePolicyService.ListBaseRedactStorageTable:input_type -> system.admin.v1.ListBaseRedactStorageTableRequest
-	12, // 11: system.admin.v1.BaseRedactStoragePolicyService.ListBaseRedactStorageColumn:input_type -> system.admin.v1.ListBaseRedactStorageColumnRequest
-	2,  // 12: system.admin.v1.BaseRedactStoragePolicyService.GetBaseRedactStoragePolicy:input_type -> system.admin.v1.GetBaseRedactStoragePolicyRequest
-	4,  // 13: system.admin.v1.BaseRedactStoragePolicyService.CreateBaseRedactStoragePolicy:input_type -> system.admin.v1.CreateBaseRedactStoragePolicyRequest
-	5,  // 14: system.admin.v1.BaseRedactStoragePolicyService.UpdateBaseRedactStoragePolicy:input_type -> system.admin.v1.UpdateBaseRedactStoragePolicyRequest
-	6,  // 15: system.admin.v1.BaseRedactStoragePolicyService.DeleteBaseRedactStoragePolicy:input_type -> system.admin.v1.DeleteBaseRedactStoragePolicyRequest
-	7,  // 16: system.admin.v1.BaseRedactStoragePolicyService.SetBaseRedactStoragePolicyStatus:input_type -> system.admin.v1.SetBaseRedactStoragePolicyStatusRequest
-	1,  // 17: system.admin.v1.BaseRedactStoragePolicyService.PageBaseRedactStoragePolicy:output_type -> system.admin.v1.PageBaseRedactStoragePolicyResponse
-	11, // 18: system.admin.v1.BaseRedactStoragePolicyService.ListBaseRedactStorageTable:output_type -> system.admin.v1.ListBaseRedactStorageTableResponse
-	14, // 19: system.admin.v1.BaseRedactStoragePolicyService.ListBaseRedactStorageColumn:output_type -> system.admin.v1.ListBaseRedactStorageColumnResponse
-	3,  // 20: system.admin.v1.BaseRedactStoragePolicyService.GetBaseRedactStoragePolicy:output_type -> system.admin.v1.BaseRedactStoragePolicyForm
-	16, // 21: system.admin.v1.BaseRedactStoragePolicyService.CreateBaseRedactStoragePolicy:output_type -> google.protobuf.Empty
-	16, // 22: system.admin.v1.BaseRedactStoragePolicyService.UpdateBaseRedactStoragePolicy:output_type -> google.protobuf.Empty
-	16, // 23: system.admin.v1.BaseRedactStoragePolicyService.DeleteBaseRedactStoragePolicy:output_type -> google.protobuf.Empty
-	16, // 24: system.admin.v1.BaseRedactStoragePolicyService.SetBaseRedactStoragePolicyStatus:output_type -> google.protobuf.Empty
-	17, // [17:25] is the sub-list for method output_type
-	9,  // [9:17] is the sub-list for method input_type
-	9,  // [9:9] is the sub-list for extension type_name
-	9,  // [9:9] is the sub-list for extension extendee
-	0,  // [0:9] is the sub-list for field type_name
+	16, // 0: system.admin.v1.PageBaseRedactStoragePolicyRequest.status:type_name -> common.v1.Status
+	2,  // 1: system.admin.v1.PageBaseRedactStoragePolicyResponse.base_redact_storage_policies:type_name -> system.admin.v1.BaseRedactStoragePolicyGroup
+	9,  // 2: system.admin.v1.BaseRedactStoragePolicyGroup.policies:type_name -> system.admin.v1.BaseRedactStoragePolicy
+	16, // 3: system.admin.v1.BaseRedactStoragePolicyForm.status:type_name -> common.v1.Status
+	4,  // 4: system.admin.v1.CreateBaseRedactStoragePolicyRequest.base_redact_storage_policy:type_name -> system.admin.v1.BaseRedactStoragePolicyForm
+	4,  // 5: system.admin.v1.UpdateBaseRedactStoragePolicyRequest.base_redact_storage_policy:type_name -> system.admin.v1.BaseRedactStoragePolicyForm
+	16, // 6: system.admin.v1.SetBaseRedactStoragePolicyStatusRequest.status:type_name -> common.v1.Status
+	16, // 7: system.admin.v1.BaseRedactStoragePolicy.status:type_name -> common.v1.Status
+	11, // 8: system.admin.v1.ListBaseRedactStorageTableResponse.tables:type_name -> system.admin.v1.BaseRedactStorageTable
+	14, // 9: system.admin.v1.ListBaseRedactStorageColumnResponse.columns:type_name -> system.admin.v1.BaseRedactStorageColumn
+	0,  // 10: system.admin.v1.BaseRedactStoragePolicyService.PageBaseRedactStoragePolicy:input_type -> system.admin.v1.PageBaseRedactStoragePolicyRequest
+	10, // 11: system.admin.v1.BaseRedactStoragePolicyService.ListBaseRedactStorageTable:input_type -> system.admin.v1.ListBaseRedactStorageTableRequest
+	13, // 12: system.admin.v1.BaseRedactStoragePolicyService.ListBaseRedactStorageColumn:input_type -> system.admin.v1.ListBaseRedactStorageColumnRequest
+	3,  // 13: system.admin.v1.BaseRedactStoragePolicyService.GetBaseRedactStoragePolicy:input_type -> system.admin.v1.GetBaseRedactStoragePolicyRequest
+	5,  // 14: system.admin.v1.BaseRedactStoragePolicyService.CreateBaseRedactStoragePolicy:input_type -> system.admin.v1.CreateBaseRedactStoragePolicyRequest
+	6,  // 15: system.admin.v1.BaseRedactStoragePolicyService.UpdateBaseRedactStoragePolicy:input_type -> system.admin.v1.UpdateBaseRedactStoragePolicyRequest
+	7,  // 16: system.admin.v1.BaseRedactStoragePolicyService.DeleteBaseRedactStoragePolicy:input_type -> system.admin.v1.DeleteBaseRedactStoragePolicyRequest
+	8,  // 17: system.admin.v1.BaseRedactStoragePolicyService.SetBaseRedactStoragePolicyStatus:input_type -> system.admin.v1.SetBaseRedactStoragePolicyStatusRequest
+	1,  // 18: system.admin.v1.BaseRedactStoragePolicyService.PageBaseRedactStoragePolicy:output_type -> system.admin.v1.PageBaseRedactStoragePolicyResponse
+	12, // 19: system.admin.v1.BaseRedactStoragePolicyService.ListBaseRedactStorageTable:output_type -> system.admin.v1.ListBaseRedactStorageTableResponse
+	15, // 20: system.admin.v1.BaseRedactStoragePolicyService.ListBaseRedactStorageColumn:output_type -> system.admin.v1.ListBaseRedactStorageColumnResponse
+	4,  // 21: system.admin.v1.BaseRedactStoragePolicyService.GetBaseRedactStoragePolicy:output_type -> system.admin.v1.BaseRedactStoragePolicyForm
+	17, // 22: system.admin.v1.BaseRedactStoragePolicyService.CreateBaseRedactStoragePolicy:output_type -> google.protobuf.Empty
+	17, // 23: system.admin.v1.BaseRedactStoragePolicyService.UpdateBaseRedactStoragePolicy:output_type -> google.protobuf.Empty
+	17, // 24: system.admin.v1.BaseRedactStoragePolicyService.DeleteBaseRedactStoragePolicy:output_type -> google.protobuf.Empty
+	17, // 25: system.admin.v1.BaseRedactStoragePolicyService.SetBaseRedactStoragePolicyStatus:output_type -> google.protobuf.Empty
+	18, // [18:26] is the sub-list for method output_type
+	10, // [10:18] is the sub-list for method input_type
+	10, // [10:10] is the sub-list for extension type_name
+	10, // [10:10] is the sub-list for extension extendee
+	0,  // [0:10] is the sub-list for field type_name
 }
 
 func init() { file_system_admin_v1_base_redact_storage_policy_proto_init() }
@@ -1187,7 +1283,7 @@ func file_system_admin_v1_base_redact_storage_policy_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_system_admin_v1_base_redact_storage_policy_proto_rawDesc), len(file_system_admin_v1_base_redact_storage_policy_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   15,
+			NumMessages:   16,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

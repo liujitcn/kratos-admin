@@ -23,7 +23,7 @@ test("自定义业务页面沿用统一卡片外观和页面间距", async () =>
   assert.match(loginPolicy, /<el-card class="admin-page-card">/);
   assert.doesNotMatch(loginPolicy, /\.login-policy-page\s*\{[^}]*padding:/s);
 
-  assert.equal(dashboard.match(/<el-card[^>]*admin-page-card/g)?.length, 4);
+  assert.equal(dashboard.match(/<el-card[^>]*admin-page-card/g)?.length, 5);
   assert.doesNotMatch(dashboard, /\.dashboard-page\s*\{[^}]*padding:/s);
   assert.doesNotMatch(dashboard, /dashboard-header|updatedAt/);
 

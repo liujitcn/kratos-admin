@@ -7125,6 +7125,41 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/bi.admin.v1.BiSource'
+    /api/v1/admin/bi/source/{id}/table-data:
+        get:
+            tags:
+                - BiSourceService
+            description: Paginated query for data source中specified table data.
+            operationId: BiSourceService_PageBiSourceTableData
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: table_key
+                  in: query
+                  schema:
+                    type: string
+                - name: tenant_column
+                  in: query
+                  schema:
+                    type: string
+                - name: page_num
+                  in: query
+                  schema:
+                    type: string
+                - name: page_size
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/bi.admin.v1.PageBiSourceTableDataResponse'
     /api/v1/admin/bi/source/{id}/tables:
         get:
             tags:
@@ -13868,6 +13903,15 @@ components:
                     type: string
                     description: Table or view comment
             description: Table or view structure in the database.
+        bi.admin.v1.BiSourceTableDataRow:
+            type: object
+            properties:
+                values:
+                    type: array
+                    items:
+                        type: string
+                    description: By field顺序排列of 单元格value
+            description: data sourcetablein一line data.
         bi.admin.v1.BiTimeRangeSpec:
             type: object
             properties:
@@ -13993,6 +14037,24 @@ components:
                     description: total count
                     format: int32
             description: BI data source paginated response.
+        bi.admin.v1.PageBiSourceTableDataResponse:
+            type: object
+            properties:
+                columns:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/bi.admin.v1.BiSourceSchemaColumn'
+                    description: table field
+                rows:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/bi.admin.v1.BiSourceTableDataRow'
+                    description: data line
+                total:
+                    type: integer
+                    description: data total count
+                    format: int32
+            description: Paginated query for data sourcetabledataof response.
         bi.admin.v1.PreviewBiCardSqlRequest:
             type: object
             properties:
@@ -17671,6 +17733,30 @@ components:
                     type: string
                     description: Remarks
             description: outbound redaction policy form.
+        system.admin.v1.BaseRedactOutputPolicyGroup:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 分组代table policy ID
+                tenant_id:
+                    type: string
+                    description: tenant ID, defaulttenantpolicyas global policy
+                service_name:
+                    type: string
+                    description: service name
+                operation:
+                    type: string
+                    description: RPCcomplete操作name
+                message_ref:
+                    type: string
+                    description: proto message complete name
+                policies:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.BaseRedactOutputPolicy'
+                    description: 分组内field policy
+            description: By api and Protomessageaggregationof outbound redaction policy.
         system.admin.v1.BaseRedactRule:
             type: object
             properties:
@@ -17843,6 +17929,30 @@ components:
                     type: string
                     description: Remarks
             description: inbound redaction policy form.
+        system.admin.v1.BaseRedactStoragePolicyGroup:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 分组代table policy ID
+                tenant_id:
+                    type: string
+                    description: tenant ID, defaulttenantpolicyas global policy
+                source_name:
+                    type: string
+                    description: data source name
+                table_name:
+                    type: string
+                    description: database table name
+                table_comment:
+                    type: string
+                    description: Data table comment
+                policies:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.BaseRedactStoragePolicy'
+                    description: 分组内field policy
+            description: By datatableaggregationof inbound redaction policy.
         system.admin.v1.BaseRedactStorageTable:
             type: object
             properties:
@@ -20734,8 +20844,8 @@ components:
                 base_redact_output_policies:
                     type: array
                     items:
-                        $ref: '#/components/schemas/system.admin.v1.BaseRedactOutputPolicy'
-                    description: outbound redaction policy list
+                        $ref: '#/components/schemas/system.admin.v1.BaseRedactOutputPolicyGroup'
+                    description: By api and Protomessageaggregationof outbound redaction policy list
                 total:
                     type: integer
                     description: total count
@@ -20760,8 +20870,8 @@ components:
                 base_redact_storage_policies:
                     type: array
                     items:
-                        $ref: '#/components/schemas/system.admin.v1.BaseRedactStoragePolicy'
-                    description: inbound redaction policy list
+                        $ref: '#/components/schemas/system.admin.v1.BaseRedactStoragePolicyGroup'
+                    description: By datatableaggregationof inbound redaction policy list
                 total:
                     type: integer
                     description: total count

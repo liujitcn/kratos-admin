@@ -56,8 +56,18 @@ message PageBaseRedactOutputPolicyRequest {
 
 // 出库脱敏策略分页响应。
 message PageBaseRedactOutputPolicyResponse {
-  repeated BaseRedactOutputPolicy base_redact_output_policies = 1 [(gnostic.openapi.v3.property) = {description: "出库脱敏策略列表"}]; // 出库脱敏策略列表
+  repeated BaseRedactOutputPolicyGroup base_redact_output_policies = 1 [(gnostic.openapi.v3.property) = {description: "按接口和Proto消息聚合的出库脱敏策略列表"}]; // 按接口和Proto消息聚合的出库脱敏策略列表
   int32 total = 2 [(gnostic.openapi.v3.property) = {description: "总数"}]; // 总数
+}
+
+// 按接口和Proto消息聚合的出库脱敏策略。
+message BaseRedactOutputPolicyGroup {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "分组代表策略ID"}]; // 分组代表策略ID
+  int64 tenant_id = 2 [(gnostic.openapi.v3.property) = {description: "租户ID，默认租户策略为全局策略"}]; // 租户ID，默认租户策略为全局策略
+  string service_name = 3 [(gnostic.openapi.v3.property) = {description: "服务名"}]; // 服务名
+  string operation = 4 [(gnostic.openapi.v3.property) = {description: "RPC完整操作名"}]; // RPC完整操作名
+  string message_ref = 5 [(gnostic.openapi.v3.property) = {description: "Proto消息完整名称"}]; // Proto消息完整名称
+  repeated BaseRedactOutputPolicy policies = 6 [(gnostic.openapi.v3.property) = {description: "分组内字段策略"}]; // 分组内字段策略
 }
 
 // 出库脱敏策略详情查询条件。

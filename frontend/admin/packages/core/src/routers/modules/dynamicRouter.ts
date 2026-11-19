@@ -136,7 +136,7 @@ export const initDynamicRouter = async () => {
     // 3.添加动态路由
     const resolvedRouteItems = buildResolvedRouteItems(authStore.authMenuListGet);
     resolvedRouteItems.forEach(({ item, path, redirect }) => {
-      if (item.name === "AiChat" && !configStore.aiEnabled) return;
+      if ((item.name === "AiChat" || item.name === "BiAssistant") && !configStore.aiEnabled) return;
       if (item.type === BaseMenuType.BASE_MENU_TYPE_EXT_LINK) return;
       const routeRecord = createRouteRecord(item, path, redirect);
 

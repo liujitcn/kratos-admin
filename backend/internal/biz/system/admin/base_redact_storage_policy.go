@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"strings"
 	"time"
 
@@ -69,8 +70,7 @@ func (c *BaseRedactStoragePolicyCase) PageBaseRedactStoragePolicy(ctx context.Co
 		opts = append(opts, repository.Where(query.Status.Eq(int32(req.GetStatus()))))
 	}
 	var list []*models.BaseRedactStoragePolicy
-	var total int64
-	list, total, err = c.Page(ctx, req.GetPageNum(), req.GetPageSize(), opts...)
+	list, err = c.List(ctx, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -79,16 +79,29 @@ func (c *BaseRedactStoragePolicyCase) PageBaseRedactStoragePolicy(ctx context.Co
 	if err != nil {
 		return nil, err
 	}
-	result := make([]*adminv1.BaseRedactStoragePolicy, 0, len(list))
+	groups := make([]*adminv1.BaseRedactStoragePolicyGroup, 0, len(list))
+	groupIndexes := make(map[string]int, len(list))
 	for _, item := range list {
+		key := fmt.Sprintf("%d\x00%s\x00%s", item.TenantID, item.SourceName, item.TableName_)
+		index, ok := groupIndexes[key]
+		if !ok {
+			index = len(groups)
+			groupIndexes[key] = index
+			groups = append(groups, &adminv1.BaseRedactStoragePolicyGroup{Id: item.ID, TenantId: item.TenantID, SourceName: item.SourceName, TableName: item.TableName_, TableComment: comments[item.SourceName+"\x00"+item.TableName_]})
+		}
 		var dto *adminv1.BaseRedactStoragePolicy
 		dto, err = c.toBaseRedactStoragePolicy(ctx, item, comments)
 		if err != nil {
 			return nil, err
 		}
-		result = append(result, dto)
+		groups[index].Policies = append(groups[index].Policies, dto)
 	}
-	return &adminv1.PageBaseRedactStoragePolicyResponse{BaseRedactStoragePolicies: result, Total: int32(total)}, nil
+	start := (req.GetPageNum() - 1) * req.GetPageSize()
+	if start > int64(len(groups)) {
+		start = int64(len(groups))
+	}
+	end := min(start+req.GetPageSize(), int64(len(groups)))
+	return &adminv1.PageBaseRedactStoragePolicyResponse{BaseRedactStoragePolicies: groups[start:end], Total: int32(len(groups))}, nil
 }
 
 // listTableComments 批量查询本页策略涉及的数据表注释，返回数据源和表名组合键到注释的映射。

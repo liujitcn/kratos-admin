@@ -25,7 +25,7 @@ function normalizeRouteTree(menuList: RouteItem[], parentPath = "", aiEnabled = 
   return menuList.map(item => {
     const currentPath = normalizeRoutePath(item.path, parentPath);
     const meta =
-      item.name === "AiChat"
+      item.name === "AiChat" || item.name === "BiAssistant"
         ? {
             ...item.meta,
             params: item.meta?.params ?? [],

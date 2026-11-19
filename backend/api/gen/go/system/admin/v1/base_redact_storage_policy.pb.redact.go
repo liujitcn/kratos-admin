@@ -183,6 +183,28 @@ func (x *PageBaseRedactStoragePolicyResponse) Redact() {
 	// Safe field: Total
 }
 
+// Ensure BaseRedactStoragePolicyGroup implements the Redactor interface at compile time.
+var _ redact.Redactor = (*BaseRedactStoragePolicyGroup)(nil)
+
+// Redact method implementation for BaseRedactStoragePolicyGroup
+func (x *BaseRedactStoragePolicyGroup) Redact() {
+	if x == nil {
+		return
+	}
+
+	// Safe field: Id
+
+	// Safe field: TenantId
+
+	// Safe field: SourceName
+
+	// Safe field: TableName
+
+	// Safe field: TableComment
+
+	// Safe field: Policies
+}
+
 // Ensure GetBaseRedactStoragePolicyRequest implements the Redactor interface at compile time.
 var _ redact.Redactor = (*GetBaseRedactStoragePolicyRequest)(nil)
 

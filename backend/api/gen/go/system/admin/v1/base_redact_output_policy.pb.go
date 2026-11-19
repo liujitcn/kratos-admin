@@ -195,9 +195,9 @@ func (x *PageBaseRedactOutputPolicyRequest) GetPageSize() int64 {
 
 // 出库脱敏策略分页响应。
 type PageBaseRedactOutputPolicyResponse struct {
-	state                    protoimpl.MessageState    `protogen:"open.v1"`
-	BaseRedactOutputPolicies []*BaseRedactOutputPolicy `protobuf:"bytes,1,rep,name=base_redact_output_policies,json=baseRedactOutputPolicies,proto3" json:"base_redact_output_policies,omitempty"` // 出库脱敏策略列表
-	Total                    int32                     `protobuf:"varint,2,opt,name=total,proto3" json:"total,omitempty"`                                                                          // 总数
+	state                    protoimpl.MessageState         `protogen:"open.v1"`
+	BaseRedactOutputPolicies []*BaseRedactOutputPolicyGroup `protobuf:"bytes,1,rep,name=base_redact_output_policies,json=baseRedactOutputPolicies,proto3" json:"base_redact_output_policies,omitempty"` // 按接口和Proto消息聚合的出库脱敏策略列表
+	Total                    int32                          `protobuf:"varint,2,opt,name=total,proto3" json:"total,omitempty"`                                                                          // 总数
 	unknownFields            protoimpl.UnknownFields
 	sizeCache                protoimpl.SizeCache
 }
@@ -232,7 +232,7 @@ func (*PageBaseRedactOutputPolicyResponse) Descriptor() ([]byte, []int) {
 	return file_system_admin_v1_base_redact_output_policy_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *PageBaseRedactOutputPolicyResponse) GetBaseRedactOutputPolicies() []*BaseRedactOutputPolicy {
+func (x *PageBaseRedactOutputPolicyResponse) GetBaseRedactOutputPolicies() []*BaseRedactOutputPolicyGroup {
 	if x != nil {
 		return x.BaseRedactOutputPolicies
 	}
@@ -246,6 +246,91 @@ func (x *PageBaseRedactOutputPolicyResponse) GetTotal() int32 {
 	return 0
 }
 
+// 按接口和Proto消息聚合的出库脱敏策略。
+type BaseRedactOutputPolicyGroup struct {
+	state         protoimpl.MessageState    `protogen:"open.v1"`
+	Id            int64                     `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                     // 分组代表策略ID
+	TenantId      int64                     `protobuf:"varint,2,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`         // 租户ID，默认租户策略为全局策略
+	ServiceName   string                    `protobuf:"bytes,3,opt,name=service_name,json=serviceName,proto3" json:"service_name,omitempty"` // 服务名
+	Operation     string                    `protobuf:"bytes,4,opt,name=operation,proto3" json:"operation,omitempty"`                        // RPC完整操作名
+	MessageRef    string                    `protobuf:"bytes,5,opt,name=message_ref,json=messageRef,proto3" json:"message_ref,omitempty"`    // Proto消息完整名称
+	Policies      []*BaseRedactOutputPolicy `protobuf:"bytes,6,rep,name=policies,proto3" json:"policies,omitempty"`                          // 分组内字段策略
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *BaseRedactOutputPolicyGroup) Reset() {
+	*x = BaseRedactOutputPolicyGroup{}
+	mi := &file_system_admin_v1_base_redact_output_policy_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *BaseRedactOutputPolicyGroup) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*BaseRedactOutputPolicyGroup) ProtoMessage() {}
+
+func (x *BaseRedactOutputPolicyGroup) ProtoReflect() protoreflect.Message {
+	mi := &file_system_admin_v1_base_redact_output_policy_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use BaseRedactOutputPolicyGroup.ProtoReflect.Descriptor instead.
+func (*BaseRedactOutputPolicyGroup) Descriptor() ([]byte, []int) {
+	return file_system_admin_v1_base_redact_output_policy_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *BaseRedactOutputPolicyGroup) GetId() int64 {
+	if x != nil {
+		return x.Id
+	}
+	return 0
+}
+
+func (x *BaseRedactOutputPolicyGroup) GetTenantId() int64 {
+	if x != nil {
+		return x.TenantId
+	}
+	return 0
+}
+
+func (x *BaseRedactOutputPolicyGroup) GetServiceName() string {
+	if x != nil {
+		return x.ServiceName
+	}
+	return ""
+}
+
+func (x *BaseRedactOutputPolicyGroup) GetOperation() string {
+	if x != nil {
+		return x.Operation
+	}
+	return ""
+}
+
+func (x *BaseRedactOutputPolicyGroup) GetMessageRef() string {
+	if x != nil {
+		return x.MessageRef
+	}
+	return ""
+}
+
+func (x *BaseRedactOutputPolicyGroup) GetPolicies() []*BaseRedactOutputPolicy {
+	if x != nil {
+		return x.Policies
+	}
+	return nil
+}
+
 // 出库脱敏策略详情查询条件。
 type GetBaseRedactOutputPolicyRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -256,7 +341,7 @@ type GetBaseRedactOutputPolicyRequest struct {
 
 func (x *GetBaseRedactOutputPolicyRequest) Reset() {
 	*x = GetBaseRedactOutputPolicyRequest{}
-	mi := &file_system_admin_v1_base_redact_output_policy_proto_msgTypes[2]
+	mi := &file_system_admin_v1_base_redact_output_policy_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -268,7 +353,7 @@ func (x *GetBaseRedactOutputPolicyRequest) String() string {
 func (*GetBaseRedactOutputPolicyRequest) ProtoMessage() {}
 
 func (x *GetBaseRedactOutputPolicyRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_base_redact_output_policy_proto_msgTypes[2]
+	mi := &file_system_admin_v1_base_redact_output_policy_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -281,7 +366,7 @@ func (x *GetBaseRedactOutputPolicyRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetBaseRedactOutputPolicyRequest.ProtoReflect.Descriptor instead.
 func (*GetBaseRedactOutputPolicyRequest) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_base_redact_output_policy_proto_rawDescGZIP(), []int{2}
+	return file_system_admin_v1_base_redact_output_policy_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *GetBaseRedactOutputPolicyRequest) GetId() int64 {
@@ -311,7 +396,7 @@ type BaseRedactOutputPolicyForm struct {
 
 func (x *BaseRedactOutputPolicyForm) Reset() {
 	*x = BaseRedactOutputPolicyForm{}
-	mi := &file_system_admin_v1_base_redact_output_policy_proto_msgTypes[3]
+	mi := &file_system_admin_v1_base_redact_output_policy_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -323,7 +408,7 @@ func (x *BaseRedactOutputPolicyForm) String() string {
 func (*BaseRedactOutputPolicyForm) ProtoMessage() {}
 
 func (x *BaseRedactOutputPolicyForm) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_base_redact_output_policy_proto_msgTypes[3]
+	mi := &file_system_admin_v1_base_redact_output_policy_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -336,7 +421,7 @@ func (x *BaseRedactOutputPolicyForm) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BaseRedactOutputPolicyForm.ProtoReflect.Descriptor instead.
 func (*BaseRedactOutputPolicyForm) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_base_redact_output_policy_proto_rawDescGZIP(), []int{3}
+	return file_system_admin_v1_base_redact_output_policy_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *BaseRedactOutputPolicyForm) GetId() int64 {
@@ -426,7 +511,7 @@ type CreateBaseRedactOutputPolicyRequest struct {
 
 func (x *CreateBaseRedactOutputPolicyRequest) Reset() {
 	*x = CreateBaseRedactOutputPolicyRequest{}
-	mi := &file_system_admin_v1_base_redact_output_policy_proto_msgTypes[4]
+	mi := &file_system_admin_v1_base_redact_output_policy_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -438,7 +523,7 @@ func (x *CreateBaseRedactOutputPolicyRequest) String() string {
 func (*CreateBaseRedactOutputPolicyRequest) ProtoMessage() {}
 
 func (x *CreateBaseRedactOutputPolicyRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_base_redact_output_policy_proto_msgTypes[4]
+	mi := &file_system_admin_v1_base_redact_output_policy_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -451,7 +536,7 @@ func (x *CreateBaseRedactOutputPolicyRequest) ProtoReflect() protoreflect.Messag
 
 // Deprecated: Use CreateBaseRedactOutputPolicyRequest.ProtoReflect.Descriptor instead.
 func (*CreateBaseRedactOutputPolicyRequest) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_base_redact_output_policy_proto_rawDescGZIP(), []int{4}
+	return file_system_admin_v1_base_redact_output_policy_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *CreateBaseRedactOutputPolicyRequest) GetBaseRedactOutputPolicy() []*BaseRedactOutputPolicyForm {
@@ -471,7 +556,7 @@ type UpdateBaseRedactOutputPolicyRequest struct {
 
 func (x *UpdateBaseRedactOutputPolicyRequest) Reset() {
 	*x = UpdateBaseRedactOutputPolicyRequest{}
-	mi := &file_system_admin_v1_base_redact_output_policy_proto_msgTypes[5]
+	mi := &file_system_admin_v1_base_redact_output_policy_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -483,7 +568,7 @@ func (x *UpdateBaseRedactOutputPolicyRequest) String() string {
 func (*UpdateBaseRedactOutputPolicyRequest) ProtoMessage() {}
 
 func (x *UpdateBaseRedactOutputPolicyRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_base_redact_output_policy_proto_msgTypes[5]
+	mi := &file_system_admin_v1_base_redact_output_policy_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -496,7 +581,7 @@ func (x *UpdateBaseRedactOutputPolicyRequest) ProtoReflect() protoreflect.Messag
 
 // Deprecated: Use UpdateBaseRedactOutputPolicyRequest.ProtoReflect.Descriptor instead.
 func (*UpdateBaseRedactOutputPolicyRequest) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_base_redact_output_policy_proto_rawDescGZIP(), []int{5}
+	return file_system_admin_v1_base_redact_output_policy_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *UpdateBaseRedactOutputPolicyRequest) GetBaseRedactOutputPolicy() []*BaseRedactOutputPolicyForm {
@@ -516,7 +601,7 @@ type DeleteBaseRedactOutputPolicyRequest struct {
 
 func (x *DeleteBaseRedactOutputPolicyRequest) Reset() {
 	*x = DeleteBaseRedactOutputPolicyRequest{}
-	mi := &file_system_admin_v1_base_redact_output_policy_proto_msgTypes[6]
+	mi := &file_system_admin_v1_base_redact_output_policy_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -528,7 +613,7 @@ func (x *DeleteBaseRedactOutputPolicyRequest) String() string {
 func (*DeleteBaseRedactOutputPolicyRequest) ProtoMessage() {}
 
 func (x *DeleteBaseRedactOutputPolicyRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_base_redact_output_policy_proto_msgTypes[6]
+	mi := &file_system_admin_v1_base_redact_output_policy_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -541,7 +626,7 @@ func (x *DeleteBaseRedactOutputPolicyRequest) ProtoReflect() protoreflect.Messag
 
 // Deprecated: Use DeleteBaseRedactOutputPolicyRequest.ProtoReflect.Descriptor instead.
 func (*DeleteBaseRedactOutputPolicyRequest) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_base_redact_output_policy_proto_rawDescGZIP(), []int{6}
+	return file_system_admin_v1_base_redact_output_policy_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *DeleteBaseRedactOutputPolicyRequest) GetId() string {
@@ -562,7 +647,7 @@ type SetBaseRedactOutputPolicyStatusRequest struct {
 
 func (x *SetBaseRedactOutputPolicyStatusRequest) Reset() {
 	*x = SetBaseRedactOutputPolicyStatusRequest{}
-	mi := &file_system_admin_v1_base_redact_output_policy_proto_msgTypes[7]
+	mi := &file_system_admin_v1_base_redact_output_policy_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -574,7 +659,7 @@ func (x *SetBaseRedactOutputPolicyStatusRequest) String() string {
 func (*SetBaseRedactOutputPolicyStatusRequest) ProtoMessage() {}
 
 func (x *SetBaseRedactOutputPolicyStatusRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_base_redact_output_policy_proto_msgTypes[7]
+	mi := &file_system_admin_v1_base_redact_output_policy_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -587,7 +672,7 @@ func (x *SetBaseRedactOutputPolicyStatusRequest) ProtoReflect() protoreflect.Mes
 
 // Deprecated: Use SetBaseRedactOutputPolicyStatusRequest.ProtoReflect.Descriptor instead.
 func (*SetBaseRedactOutputPolicyStatusRequest) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_base_redact_output_policy_proto_rawDescGZIP(), []int{7}
+	return file_system_admin_v1_base_redact_output_policy_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *SetBaseRedactOutputPolicyStatusRequest) GetId() int64 {
@@ -629,7 +714,7 @@ type BaseRedactOutputPolicy struct {
 
 func (x *BaseRedactOutputPolicy) Reset() {
 	*x = BaseRedactOutputPolicy{}
-	mi := &file_system_admin_v1_base_redact_output_policy_proto_msgTypes[8]
+	mi := &file_system_admin_v1_base_redact_output_policy_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -641,7 +726,7 @@ func (x *BaseRedactOutputPolicy) String() string {
 func (*BaseRedactOutputPolicy) ProtoMessage() {}
 
 func (x *BaseRedactOutputPolicy) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_base_redact_output_policy_proto_msgTypes[8]
+	mi := &file_system_admin_v1_base_redact_output_policy_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -654,7 +739,7 @@ func (x *BaseRedactOutputPolicy) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BaseRedactOutputPolicy.ProtoReflect.Descriptor instead.
 func (*BaseRedactOutputPolicy) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_base_redact_output_policy_proto_rawDescGZIP(), []int{8}
+	return file_system_admin_v1_base_redact_output_policy_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *BaseRedactOutputPolicy) GetId() int64 {
@@ -779,7 +864,7 @@ type GetBaseRedactOutputFieldDocRequest struct {
 
 func (x *GetBaseRedactOutputFieldDocRequest) Reset() {
 	*x = GetBaseRedactOutputFieldDocRequest{}
-	mi := &file_system_admin_v1_base_redact_output_policy_proto_msgTypes[9]
+	mi := &file_system_admin_v1_base_redact_output_policy_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -791,7 +876,7 @@ func (x *GetBaseRedactOutputFieldDocRequest) String() string {
 func (*GetBaseRedactOutputFieldDocRequest) ProtoMessage() {}
 
 func (x *GetBaseRedactOutputFieldDocRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_base_redact_output_policy_proto_msgTypes[9]
+	mi := &file_system_admin_v1_base_redact_output_policy_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -804,7 +889,7 @@ func (x *GetBaseRedactOutputFieldDocRequest) ProtoReflect() protoreflect.Message
 
 // Deprecated: Use GetBaseRedactOutputFieldDocRequest.ProtoReflect.Descriptor instead.
 func (*GetBaseRedactOutputFieldDocRequest) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_base_redact_output_policy_proto_rawDescGZIP(), []int{9}
+	return file_system_admin_v1_base_redact_output_policy_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *GetBaseRedactOutputFieldDocRequest) GetApiId() int64 {
@@ -834,10 +919,18 @@ const file_system_admin_v1_base_redact_output_policy_proto_rawDesc = "" +
 	"\n" +
 	"_tenant_idB\a\n" +
 	"\x05_modeB\t\n" +
-	"\a_status\"\xd1\x01\n" +
-	"\"PageBaseRedactOutputPolicyResponse\x12\x86\x01\n" +
-	"\x1bbase_redact_output_policies\x18\x01 \x03(\v2'.system.admin.v1.BaseRedactOutputPolicyB\x1e\xbaG\x1b\x92\x02\x18出库脱敏策略列表R\x18baseRedactOutputPolicies\x12\"\n" +
-	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\"\xad\x01\n" +
+	"\a_status\"\xf6\x01\n" +
+	"\"PageBaseRedactOutputPolicyResponse\x12\xab\x01\n" +
+	"\x1bbase_redact_output_policies\x18\x01 \x03(\v2,.system.admin.v1.BaseRedactOutputPolicyGroupB>\xbaG;\x92\x028按接口和Proto消息聚合的出库脱敏策略列表R\x18baseRedactOutputPolicies\x12\"\n" +
+	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\"\xa8\x03\n" +
+	"\x1bBaseRedactOutputPolicyGroup\x12*\n" +
+	"\x02id\x18\x01 \x01(\x03B\x1a\xbaG\x17\x92\x02\x14分组代表策略IDR\x02id\x12O\n" +
+	"\ttenant_id\x18\x02 \x01(\x03B2\xbaG/\x92\x02,租户ID，默认租户策略为全局策略R\btenantId\x122\n" +
+	"\fservice_name\x18\x03 \x01(\tB\x0f\xbaG\f\x92\x02\t服务名R\vserviceName\x126\n" +
+	"\toperation\x18\x04 \x01(\tB\x18\xbaG\x15\x92\x02\x12RPC完整操作名R\toperation\x12>\n" +
+	"\vmessage_ref\x18\x05 \x01(\tB\x1d\xbaG\x1a\x92\x02\x17Proto消息完整名称R\n" +
+	"messageRef\x12`\n" +
+	"\bpolicies\x18\x06 \x03(\v2'.system.admin.v1.BaseRedactOutputPolicyB\x1b\xbaG\x18\x92\x02\x15分组内字段策略R\bpolicies\"\xad\x01\n" +
 	" GetBaseRedactOutputPolicyRequest\x12\x88\x01\n" +
 	"\x02id\x18\x01 \x01(\x03Bx\xbaG\x11\x92\x02\x0e出库策略ID\xbaHa\xba\x01^\n" +
 	"6system.admin.base.redact.output_policy.get.id.required\x12\x1a出库策略ID不能为空\x1a\bthis > 0R\x02id\"\xe0\f\n" +
@@ -929,53 +1022,55 @@ func file_system_admin_v1_base_redact_output_policy_proto_rawDescGZIP() []byte {
 }
 
 var file_system_admin_v1_base_redact_output_policy_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_system_admin_v1_base_redact_output_policy_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
+var file_system_admin_v1_base_redact_output_policy_proto_msgTypes = make([]protoimpl.MessageInfo, 11)
 var file_system_admin_v1_base_redact_output_policy_proto_goTypes = []any{
 	(BaseRedactOutputPolicyMode)(0),                // 0: system.admin.v1.BaseRedactOutputPolicyMode
 	(*PageBaseRedactOutputPolicyRequest)(nil),      // 1: system.admin.v1.PageBaseRedactOutputPolicyRequest
 	(*PageBaseRedactOutputPolicyResponse)(nil),     // 2: system.admin.v1.PageBaseRedactOutputPolicyResponse
-	(*GetBaseRedactOutputPolicyRequest)(nil),       // 3: system.admin.v1.GetBaseRedactOutputPolicyRequest
-	(*BaseRedactOutputPolicyForm)(nil),             // 4: system.admin.v1.BaseRedactOutputPolicyForm
-	(*CreateBaseRedactOutputPolicyRequest)(nil),    // 5: system.admin.v1.CreateBaseRedactOutputPolicyRequest
-	(*UpdateBaseRedactOutputPolicyRequest)(nil),    // 6: system.admin.v1.UpdateBaseRedactOutputPolicyRequest
-	(*DeleteBaseRedactOutputPolicyRequest)(nil),    // 7: system.admin.v1.DeleteBaseRedactOutputPolicyRequest
-	(*SetBaseRedactOutputPolicyStatusRequest)(nil), // 8: system.admin.v1.SetBaseRedactOutputPolicyStatusRequest
-	(*BaseRedactOutputPolicy)(nil),                 // 9: system.admin.v1.BaseRedactOutputPolicy
-	(*GetBaseRedactOutputFieldDocRequest)(nil),     // 10: system.admin.v1.GetBaseRedactOutputFieldDocRequest
-	(commonv1.Status)(0),                           // 11: common.v1.Status
-	(*emptypb.Empty)(nil),                          // 12: google.protobuf.Empty
-	(*BaseApiDoc)(nil),                             // 13: system.admin.v1.BaseApiDoc
+	(*BaseRedactOutputPolicyGroup)(nil),            // 3: system.admin.v1.BaseRedactOutputPolicyGroup
+	(*GetBaseRedactOutputPolicyRequest)(nil),       // 4: system.admin.v1.GetBaseRedactOutputPolicyRequest
+	(*BaseRedactOutputPolicyForm)(nil),             // 5: system.admin.v1.BaseRedactOutputPolicyForm
+	(*CreateBaseRedactOutputPolicyRequest)(nil),    // 6: system.admin.v1.CreateBaseRedactOutputPolicyRequest
+	(*UpdateBaseRedactOutputPolicyRequest)(nil),    // 7: system.admin.v1.UpdateBaseRedactOutputPolicyRequest
+	(*DeleteBaseRedactOutputPolicyRequest)(nil),    // 8: system.admin.v1.DeleteBaseRedactOutputPolicyRequest
+	(*SetBaseRedactOutputPolicyStatusRequest)(nil), // 9: system.admin.v1.SetBaseRedactOutputPolicyStatusRequest
+	(*BaseRedactOutputPolicy)(nil),                 // 10: system.admin.v1.BaseRedactOutputPolicy
+	(*GetBaseRedactOutputFieldDocRequest)(nil),     // 11: system.admin.v1.GetBaseRedactOutputFieldDocRequest
+	(commonv1.Status)(0),                           // 12: common.v1.Status
+	(*emptypb.Empty)(nil),                          // 13: google.protobuf.Empty
+	(*BaseApiDoc)(nil),                             // 14: system.admin.v1.BaseApiDoc
 }
 var file_system_admin_v1_base_redact_output_policy_proto_depIdxs = []int32{
 	0,  // 0: system.admin.v1.PageBaseRedactOutputPolicyRequest.mode:type_name -> system.admin.v1.BaseRedactOutputPolicyMode
-	11, // 1: system.admin.v1.PageBaseRedactOutputPolicyRequest.status:type_name -> common.v1.Status
-	9,  // 2: system.admin.v1.PageBaseRedactOutputPolicyResponse.base_redact_output_policies:type_name -> system.admin.v1.BaseRedactOutputPolicy
-	0,  // 3: system.admin.v1.BaseRedactOutputPolicyForm.mode:type_name -> system.admin.v1.BaseRedactOutputPolicyMode
-	11, // 4: system.admin.v1.BaseRedactOutputPolicyForm.status:type_name -> common.v1.Status
-	4,  // 5: system.admin.v1.CreateBaseRedactOutputPolicyRequest.base_redact_output_policy:type_name -> system.admin.v1.BaseRedactOutputPolicyForm
-	4,  // 6: system.admin.v1.UpdateBaseRedactOutputPolicyRequest.base_redact_output_policy:type_name -> system.admin.v1.BaseRedactOutputPolicyForm
-	11, // 7: system.admin.v1.SetBaseRedactOutputPolicyStatusRequest.status:type_name -> common.v1.Status
-	0,  // 8: system.admin.v1.BaseRedactOutputPolicy.mode:type_name -> system.admin.v1.BaseRedactOutputPolicyMode
-	11, // 9: system.admin.v1.BaseRedactOutputPolicy.status:type_name -> common.v1.Status
-	1,  // 10: system.admin.v1.BaseRedactOutputPolicyService.PageBaseRedactOutputPolicy:input_type -> system.admin.v1.PageBaseRedactOutputPolicyRequest
-	3,  // 11: system.admin.v1.BaseRedactOutputPolicyService.GetBaseRedactOutputPolicy:input_type -> system.admin.v1.GetBaseRedactOutputPolicyRequest
-	5,  // 12: system.admin.v1.BaseRedactOutputPolicyService.CreateBaseRedactOutputPolicy:input_type -> system.admin.v1.CreateBaseRedactOutputPolicyRequest
-	6,  // 13: system.admin.v1.BaseRedactOutputPolicyService.UpdateBaseRedactOutputPolicy:input_type -> system.admin.v1.UpdateBaseRedactOutputPolicyRequest
-	7,  // 14: system.admin.v1.BaseRedactOutputPolicyService.DeleteBaseRedactOutputPolicy:input_type -> system.admin.v1.DeleteBaseRedactOutputPolicyRequest
-	8,  // 15: system.admin.v1.BaseRedactOutputPolicyService.SetBaseRedactOutputPolicyStatus:input_type -> system.admin.v1.SetBaseRedactOutputPolicyStatusRequest
-	10, // 16: system.admin.v1.BaseRedactOutputPolicyService.GetBaseRedactOutputFieldDoc:input_type -> system.admin.v1.GetBaseRedactOutputFieldDocRequest
-	2,  // 17: system.admin.v1.BaseRedactOutputPolicyService.PageBaseRedactOutputPolicy:output_type -> system.admin.v1.PageBaseRedactOutputPolicyResponse
-	4,  // 18: system.admin.v1.BaseRedactOutputPolicyService.GetBaseRedactOutputPolicy:output_type -> system.admin.v1.BaseRedactOutputPolicyForm
-	12, // 19: system.admin.v1.BaseRedactOutputPolicyService.CreateBaseRedactOutputPolicy:output_type -> google.protobuf.Empty
-	12, // 20: system.admin.v1.BaseRedactOutputPolicyService.UpdateBaseRedactOutputPolicy:output_type -> google.protobuf.Empty
-	12, // 21: system.admin.v1.BaseRedactOutputPolicyService.DeleteBaseRedactOutputPolicy:output_type -> google.protobuf.Empty
-	12, // 22: system.admin.v1.BaseRedactOutputPolicyService.SetBaseRedactOutputPolicyStatus:output_type -> google.protobuf.Empty
-	13, // 23: system.admin.v1.BaseRedactOutputPolicyService.GetBaseRedactOutputFieldDoc:output_type -> system.admin.v1.BaseApiDoc
-	17, // [17:24] is the sub-list for method output_type
-	10, // [10:17] is the sub-list for method input_type
-	10, // [10:10] is the sub-list for extension type_name
-	10, // [10:10] is the sub-list for extension extendee
-	0,  // [0:10] is the sub-list for field type_name
+	12, // 1: system.admin.v1.PageBaseRedactOutputPolicyRequest.status:type_name -> common.v1.Status
+	3,  // 2: system.admin.v1.PageBaseRedactOutputPolicyResponse.base_redact_output_policies:type_name -> system.admin.v1.BaseRedactOutputPolicyGroup
+	10, // 3: system.admin.v1.BaseRedactOutputPolicyGroup.policies:type_name -> system.admin.v1.BaseRedactOutputPolicy
+	0,  // 4: system.admin.v1.BaseRedactOutputPolicyForm.mode:type_name -> system.admin.v1.BaseRedactOutputPolicyMode
+	12, // 5: system.admin.v1.BaseRedactOutputPolicyForm.status:type_name -> common.v1.Status
+	5,  // 6: system.admin.v1.CreateBaseRedactOutputPolicyRequest.base_redact_output_policy:type_name -> system.admin.v1.BaseRedactOutputPolicyForm
+	5,  // 7: system.admin.v1.UpdateBaseRedactOutputPolicyRequest.base_redact_output_policy:type_name -> system.admin.v1.BaseRedactOutputPolicyForm
+	12, // 8: system.admin.v1.SetBaseRedactOutputPolicyStatusRequest.status:type_name -> common.v1.Status
+	0,  // 9: system.admin.v1.BaseRedactOutputPolicy.mode:type_name -> system.admin.v1.BaseRedactOutputPolicyMode
+	12, // 10: system.admin.v1.BaseRedactOutputPolicy.status:type_name -> common.v1.Status
+	1,  // 11: system.admin.v1.BaseRedactOutputPolicyService.PageBaseRedactOutputPolicy:input_type -> system.admin.v1.PageBaseRedactOutputPolicyRequest
+	4,  // 12: system.admin.v1.BaseRedactOutputPolicyService.GetBaseRedactOutputPolicy:input_type -> system.admin.v1.GetBaseRedactOutputPolicyRequest
+	6,  // 13: system.admin.v1.BaseRedactOutputPolicyService.CreateBaseRedactOutputPolicy:input_type -> system.admin.v1.CreateBaseRedactOutputPolicyRequest
+	7,  // 14: system.admin.v1.BaseRedactOutputPolicyService.UpdateBaseRedactOutputPolicy:input_type -> system.admin.v1.UpdateBaseRedactOutputPolicyRequest
+	8,  // 15: system.admin.v1.BaseRedactOutputPolicyService.DeleteBaseRedactOutputPolicy:input_type -> system.admin.v1.DeleteBaseRedactOutputPolicyRequest
+	9,  // 16: system.admin.v1.BaseRedactOutputPolicyService.SetBaseRedactOutputPolicyStatus:input_type -> system.admin.v1.SetBaseRedactOutputPolicyStatusRequest
+	11, // 17: system.admin.v1.BaseRedactOutputPolicyService.GetBaseRedactOutputFieldDoc:input_type -> system.admin.v1.GetBaseRedactOutputFieldDocRequest
+	2,  // 18: system.admin.v1.BaseRedactOutputPolicyService.PageBaseRedactOutputPolicy:output_type -> system.admin.v1.PageBaseRedactOutputPolicyResponse
+	5,  // 19: system.admin.v1.BaseRedactOutputPolicyService.GetBaseRedactOutputPolicy:output_type -> system.admin.v1.BaseRedactOutputPolicyForm
+	13, // 20: system.admin.v1.BaseRedactOutputPolicyService.CreateBaseRedactOutputPolicy:output_type -> google.protobuf.Empty
+	13, // 21: system.admin.v1.BaseRedactOutputPolicyService.UpdateBaseRedactOutputPolicy:output_type -> google.protobuf.Empty
+	13, // 22: system.admin.v1.BaseRedactOutputPolicyService.DeleteBaseRedactOutputPolicy:output_type -> google.protobuf.Empty
+	13, // 23: system.admin.v1.BaseRedactOutputPolicyService.SetBaseRedactOutputPolicyStatus:output_type -> google.protobuf.Empty
+	14, // 24: system.admin.v1.BaseRedactOutputPolicyService.GetBaseRedactOutputFieldDoc:output_type -> system.admin.v1.BaseApiDoc
+	18, // [18:25] is the sub-list for method output_type
+	11, // [11:18] is the sub-list for method input_type
+	11, // [11:11] is the sub-list for extension type_name
+	11, // [11:11] is the sub-list for extension extendee
+	0,  // [0:11] is the sub-list for field type_name
 }
 
 func init() { file_system_admin_v1_base_redact_output_policy_proto_init() }
@@ -991,7 +1086,7 @@ func file_system_admin_v1_base_redact_output_policy_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_system_admin_v1_base_redact_output_policy_proto_rawDesc), len(file_system_admin_v1_base_redact_output_policy_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   10,
+			NumMessages:   11,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

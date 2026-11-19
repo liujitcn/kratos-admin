@@ -25,6 +25,9 @@
             <el-tooltip content="导出数据" placement="top">
               <el-button text circle :icon="Download" @click.stop="emit('export', card)" />
             </el-tooltip>
+            <el-tooltip content="放大查看" placement="top">
+              <el-button text circle :icon="ZoomIn" @click.stop="emit('preview', card)" />
+            </el-tooltip>
           </div>
         </template>
         <template #footer>
@@ -43,7 +46,7 @@
 </template>
 
 <script setup lang="ts">
-import { CopyDocument, DataAnalysis, Delete, Download, Refresh } from "@element-plus/icons-vue";
+import { CopyDocument, DataAnalysis, Delete, Download, Refresh, ZoomIn } from "@element-plus/icons-vue";
 import { t } from "@liujitcn/kratos-admin-core";
 import type { BiCard } from "../rpc/bi/admin/v1/bi_card";
 import BiDataCard from "./BiDataCard.vue";
@@ -64,5 +67,6 @@ const emit = defineEmits<{
   quote: [card: BiCard];
   remove: [card: BiCard];
   export: [card: BiCard];
+  preview: [card: BiCard];
 }>();
 </script>

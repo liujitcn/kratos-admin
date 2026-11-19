@@ -7125,6 +7125,41 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/bi.admin.v1.BiSource'
+    /api/v1/admin/bi/source/{id}/table-data:
+        get:
+            tags:
+                - BiSourceService
+            description: ページネーション検索データソース中指定表のデータ。
+            operationId: BiSourceService_PageBiSourceTableData
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: table_key
+                  in: query
+                  schema:
+                    type: string
+                - name: tenant_column
+                  in: query
+                  schema:
+                    type: string
+                - name: page_num
+                  in: query
+                  schema:
+                    type: string
+                - name: page_size
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/bi.admin.v1.PageBiSourceTableDataResponse'
     /api/v1/admin/bi/source/{id}/tables:
         get:
             tags:
@@ -10849,7 +10884,7 @@ components:
             properties:
                 name:
                     type: string
-                    description: 名称
+                    description: 名前
                 prompt:
                     type: string
                     description: 明確なタスクの指示
@@ -11114,7 +11149,7 @@ components:
                     description: 固定コード
                 name:
                     type: string
-                    description: 名称
+                    description: 名前
                 description:
                     type: string
                     description: 説明
@@ -11123,7 +11158,7 @@ components:
                     description: ソース：API、LOCAL、MCP
                 visibility:
                     type: string
-                    description: 范围：system、tenant、private
+                    description: "スコープ: システム、テナント、プライベート"
                 tenant_id:
                     type: string
                     description: 所属テナントID
@@ -11207,7 +11242,7 @@ components:
                     description: 固定コード
                 name:
                     type: string
-                    description: 名称
+                    description: 名前
                 description:
                     type: string
                     description: 説明
@@ -11263,7 +11298,7 @@ components:
             properties:
                 id:
                     type: string
-                    description: 工具ID
+                    description: ツールID
                 plugin_id:
                     type: string
                     description: プラグインID
@@ -11657,7 +11692,7 @@ components:
             properties:
                 id:
                     type: string
-                    description: 编号
+                    description: 番号
             description: 結果から会話を続けるリクエスト。
         base.v1.CreateAiAutomationRequest:
             type: object
@@ -12852,7 +12887,7 @@ components:
                     description: プラグインID
                 tool_id:
                     type: string
-                    description: 工具ID
+                    description: ツールID
                 contract_hash:
                     type: string
                     description: 審査対象の仕様ハッシュ
@@ -12905,7 +12940,7 @@ components:
             properties:
                 id:
                     type: string
-                    description: 编号
+                    description: 番号
             description: 停止今回のリクエスト。
         base.v1.TrashAiFileRequest:
             type: object
@@ -13288,7 +13323,7 @@ components:
                     description: フィールドコード
                 operator:
                     type: string
-                    description: 操作符：eq、in、between、contains
+                    description: "演算子: eq、in、 between、contains"
                 values:
                     type: array
                     items:
@@ -13868,6 +13903,15 @@ components:
                     type: string
                     description: 表または视图コメント
             description: データベース中の表または视图结构。
+        bi.admin.v1.BiSourceTableDataRow:
+            type: object
+            properties:
+                values:
+                    type: array
+                    items:
+                        type: string
+                    description: 按フィールド顺序排列の单元の格値
+            description: データソース表中の一行データ。
         bi.admin.v1.BiTimeRangeSpec:
             type: object
             properties:
@@ -13993,6 +14037,24 @@ components:
                     description: 合計件数
                     format: int32
             description: BI データソースページネーションレスポンス。
+        bi.admin.v1.PageBiSourceTableDataResponse:
+            type: object
+            properties:
+                columns:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/bi.admin.v1.BiSourceSchemaColumn'
+                    description: 表フィールド
+                rows:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/bi.admin.v1.BiSourceTableDataRow'
+                    description: データ行
+                total:
+                    type: integer
+                    description: データ合計件数
+                    format: int32
+            description: ページネーション検索データソース表データのレスポンス。
         bi.admin.v1.PreviewBiCardSqlRequest:
             type: object
             properties:
@@ -14326,7 +14388,7 @@ components:
                     description: 失敗原因
                 extractor_connection_id:
                     type: string
-                    description: Xberg MCP抽取连接ID
+                    description: Xberg MCP が接続 ID を抽出します
                 created_at:
                     type: string
                     description: 作成時刻
@@ -17671,6 +17733,30 @@ components:
                     type: string
                     description: 備考
             description: 出力マスキングポリシーフォーム。
+        system.admin.v1.BaseRedactOutputPolicyGroup:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 分组代表ポリシーID
+                tenant_id:
+                    type: string
+                    description: テナント ID，デフォルトテナントポリシーとしてグローバルポリシー
+                service_name:
+                    type: string
+                    description: サービス名
+                operation:
+                    type: string
+                    description: RPC完全な操作名
+                message_ref:
+                    type: string
+                    description: Protoメッセージ完全な名称
+                policies:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.BaseRedactOutputPolicy'
+                    description: 分组内フィールドポリシー
+            description: 按API和Protoメッセージ集約の出力マスキングポリシー。
         system.admin.v1.BaseRedactRule:
             type: object
             properties:
@@ -17843,6 +17929,30 @@ components:
                     type: string
                     description: 備考
             description: 保存マスキングポリシーフォーム。
+        system.admin.v1.BaseRedactStoragePolicyGroup:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 分组代表ポリシーID
+                tenant_id:
+                    type: string
+                    description: テナント ID，デフォルトテナントポリシーとしてグローバルポリシー
+                source_name:
+                    type: string
+                    description: データソース名称
+                table_name:
+                    type: string
+                    description: データベーステーブル名
+                table_comment:
+                    type: string
+                    description: データテーブルのコメント
+                policies:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.BaseRedactStoragePolicy'
+                    description: 分组内フィールドポリシー
+            description: 按データ表集約の保存マスキングポリシー。
         system.admin.v1.BaseRedactStorageTable:
             type: object
             properties:
@@ -20734,8 +20844,8 @@ components:
                 base_redact_output_policies:
                     type: array
                     items:
-                        $ref: '#/components/schemas/system.admin.v1.BaseRedactOutputPolicy'
-                    description: 出力マスキングポリシー一覧
+                        $ref: '#/components/schemas/system.admin.v1.BaseRedactOutputPolicyGroup'
+                    description: 按API和Protoメッセージ集約の出力マスキングポリシー一覧
                 total:
                     type: integer
                     description: 合計件数
@@ -20760,8 +20870,8 @@ components:
                 base_redact_storage_policies:
                     type: array
                     items:
-                        $ref: '#/components/schemas/system.admin.v1.BaseRedactStoragePolicy'
-                    description: 保存マスキングポリシー一覧
+                        $ref: '#/components/schemas/system.admin.v1.BaseRedactStoragePolicyGroup'
+                    description: 按データ表集約の保存マスキングポリシー一覧
                 total:
                     type: integer
                     description: 合計件数

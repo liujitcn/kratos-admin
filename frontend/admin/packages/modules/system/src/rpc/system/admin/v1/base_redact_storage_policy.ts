@@ -36,10 +36,26 @@ export interface PageBaseRedactStoragePolicyRequest {
 
 /** 入库脱敏策略分页响应。 */
 export interface PageBaseRedactStoragePolicyResponse {
-  /** 入库脱敏策略列表 */
-  base_redact_storage_policies: BaseRedactStoragePolicy[];
+  /** 按数据表聚合的入库脱敏策略列表 */
+  base_redact_storage_policies: BaseRedactStoragePolicyGroup[];
   /** 总数 */
   total: number;
+}
+
+/** 按数据表聚合的入库脱敏策略。 */
+export interface BaseRedactStoragePolicyGroup {
+  /** 分组代表策略ID */
+  id: number;
+  /** 租户ID，默认租户策略为全局策略 */
+  tenant_id: number;
+  /** 数据源名称 */
+  source_name: string;
+  /** 数据库表名 */
+  table_name: string;
+  /** 数据表注释 */
+  table_comment: string;
+  /** 分组内字段策略 */
+  policies: BaseRedactStoragePolicy[];
 }
 
 /** 入库脱敏策略详情查询条件。 */

@@ -497,6 +497,24 @@ test("入库脱敏策略清空已有规则时提交删除请求", async () => {
   assert.match(source, /DeleteBaseRedactStoragePolicy\(\{ id: removedIds\.join\(","\) \}\)/);
 });
 
+test("入库脱敏策略编辑回填同表全部字段", async () => {
+  const source = await readSource("src/views/base/redact-storage-policy/index.vue");
+  assert.match(source, /PageBaseRedactStoragePolicy\(\{ table_name: tableName, column_name: "", source_name: sourceName, tenant_id: tenantId/);
+  assert.match(source, /for \(const policy of policies\) \{[\s\S]*?applyPolicy\(row, policy\)/);
+});
+
+test("脱敏策略列表按表和接口消息分组并批量操作", async () => {
+  const [storageSource, outputSource] = await Promise.all([
+    readSource("src/views/base/redact-storage-policy/index.vue"),
+    readSource("src/views/base/redact-output-policy/index.vue")
+  ]);
+  assert.match(storageSource, /base_redact_storage_policies \?\? \[\]/);
+  assert.match(storageSource, /item\.policies\.map\(policy => policy\.id\)/);
+  assert.match(outputSource, /base_redact_output_policies \?\? \[\]/);
+  assert.match(outputSource, /item\.policies\.map\(policy => policy\.id\)/);
+  assert.match(outputSource, /group\?\.policies/);
+});
+
 test("SSE 和资源地址只使用有效的协议与路由格式", async () => {
   const [sseSource, utilsSource] = await Promise.all([
     readSource("src/api/base/v1/sse.ts"),

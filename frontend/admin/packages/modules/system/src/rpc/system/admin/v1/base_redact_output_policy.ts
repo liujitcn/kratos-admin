@@ -51,10 +51,26 @@ export interface PageBaseRedactOutputPolicyRequest {
 
 /** 出库脱敏策略分页响应。 */
 export interface PageBaseRedactOutputPolicyResponse {
-  /** 出库脱敏策略列表 */
-  base_redact_output_policies: BaseRedactOutputPolicy[];
+  /** 按接口和Proto消息聚合的出库脱敏策略列表 */
+  base_redact_output_policies: BaseRedactOutputPolicyGroup[];
   /** 总数 */
   total: number;
+}
+
+/** 按接口和Proto消息聚合的出库脱敏策略。 */
+export interface BaseRedactOutputPolicyGroup {
+  /** 分组代表策略ID */
+  id: number;
+  /** 租户ID，默认租户策略为全局策略 */
+  tenant_id: number;
+  /** 服务名 */
+  service_name: string;
+  /** RPC完整操作名 */
+  operation: string;
+  /** Proto消息完整名称 */
+  message_ref: string;
+  /** 分组内字段策略 */
+  policies: BaseRedactOutputPolicy[];
 }
 
 /** 出库脱敏策略详情查询条件。 */

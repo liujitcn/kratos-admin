@@ -17,6 +17,22 @@
           <strong class="metric-value">{{ metric.value }}</strong>
         </el-card>
       </section>
+      <section v-if="biAssistantRoute" class="dashboard-entry-grid">
+        <el-card class="dashboard-entry-card admin-page-card" shadow="never">
+          <div class="dashboard-entry-content">
+            <div class="dashboard-entry-copy">
+              <span class="dashboard-entry-icon"><el-icon><DataAnalysis /></el-icon></span>
+              <div>
+                <strong>{{ t("system.dashboard.ai_bi_assistant") }}</strong>
+                <p>{{ t("system.dashboard.ai_bi_assistant_description") }}</p>
+              </div>
+            </div>
+            <el-button type="primary" :icon="DataAnalysis" @click="openBiAssistant">
+              {{ t("system.dashboard.open_ai_bi_assistant") }}
+            </el-button>
+          </div>
+        </el-card>
+      </section>
       <section class="chart-grid">
         <el-card class="chart-card chart-card-wide admin-page-card">
           <template #header
@@ -52,7 +68,11 @@
 
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref } from "vue";
+import { useRouter } from "vue-router";
+import { DataAnalysis } from "@element-plus/icons-vue";
 import ECharts from "@liujitcn/kratos-admin-core/components/ECharts/index.vue";
+import { navigateTo } from "@liujitcn/kratos-admin-core/navigation";
+import { useAuthStore, useConfigStore } from "@liujitcn/kratos-admin-core/stores/runtime";
 import { defBaseDashboardService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/base_dashboard";
 import type {
   BaseDashboardDistributionItem,
@@ -61,11 +81,18 @@ import type {
 } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_dashboard";
 import { t } from "@liujitcn/kratos-admin-core";
 
+const router = useRouter();
+const authStore = useAuthStore();
+const configStore = useConfigStore();
 const loading = ref(true);
 const overview = ref<BaseDashboardOverview>();
 const trend = ref<BaseDashboardTrendPoint[]>([]);
 const loginDistribution = ref<BaseDashboardDistributionItem[]>([]);
 const operationDistribution = ref<BaseDashboardDistributionItem[]>([]);
+const biAssistantRoute = computed(() => {
+  if (!configStore.aiEnabled) return undefined;
+  return authStore.flatMenuListGet.find(item => item.name === "BiAssistant" && item.path);
+});
 const chartTheme = ref({
   primary: "#409eff",
   success: "#67c23a",
@@ -146,6 +173,12 @@ const loginTrendOption = computed(() => ({
 }));
 const loginDistributionOption = computed(() => distributionOption(loginDistribution.value));
 const operationDistributionOption = computed(() => distributionOption(operationDistribution.value));
+/** 打开隐藏的 BI 智能问数工作台。 */
+async function openBiAssistant() {
+  const path = biAssistantRoute.value?.path;
+  if (!path) return;
+  await navigateTo(router, path);
+}
 /** 并行加载看板概览、近 7 日登录趋势与两类分布数据，失败由请求层统一提示。 */
 async function loadDashboard() {
   loading.value = true;
@@ -237,7 +270,8 @@ onBeforeUnmount(() => window.removeEventListener("theme-change", refreshChartThe
   font-size: 12px;
 }
 .metric-grid,
-.chart-grid {
+.chart-grid,
+.dashboard-entry-grid {
   display: grid;
   gap: 16px;
 }
@@ -298,6 +332,43 @@ onBeforeUnmount(() => window.removeEventListener("theme-change", refreshChartThe
   --metric-color: var(--el-color-danger);
   --metric-bg: var(--el-color-danger-light-9);
 }
+.dashboard-entry-grid {
+  margin-bottom: 16px;
+}
+.dashboard-entry-card :deep(.el-card__body) {
+  padding: 16px 20px;
+}
+.dashboard-entry-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.dashboard-entry-copy {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 12px;
+}
+.dashboard-entry-icon {
+  display: grid;
+  width: 38px;
+  height: 38px;
+  flex: none;
+  place-items: center;
+  border-radius: var(--admin-page-radius);
+  color: var(--el-color-primary);
+  background: var(--el-color-primary-light-9);
+}
+.dashboard-entry-copy strong {
+  color: var(--admin-page-text-primary);
+  font-size: 15px;
+}
+.dashboard-entry-copy p {
+  margin: 4px 0 0;
+  color: var(--admin-page-text-secondary);
+  font-size: 12px;
+}
 .chart-grid {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
@@ -344,8 +415,13 @@ onBeforeUnmount(() => window.removeEventListener("theme-change", refreshChartThe
     gap: 8px;
   }
   .metric-grid,
-  .chart-grid {
+  .chart-grid,
+  .dashboard-entry-grid {
     grid-template-columns: 1fr;
+  }
+  .dashboard-entry-content {
+    align-items: flex-start;
+    flex-direction: column;
   }
   .chart-card-wide {
     grid-column: auto;

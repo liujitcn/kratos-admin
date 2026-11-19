@@ -109,8 +109,7 @@ import AssistantNavigation from "./workspace/AssistantNavigation.vue";
 import AutomationPanel from "./workspace/AutomationPanel.vue";
 import FilePanel from "./workspace/FilePanel.vue";
 import PluginPanel from "./workspace/PluginPanel.vue";
-import { pluginSelectionKey } from "./workspace/state";
-import type { AssistantView } from "./workspace/state";
+import { isAssistantView, pluginSelectionKey, type AssistantView } from "./workspace/state";
 import {
   createLocalUserMessage,
   createThinkingMessage,
@@ -140,7 +139,7 @@ defineOptions({
 
 const mobile = useMediaQuery("(max-width: 768px)");
 const route = useRoute();
-const assistantView = ref<AssistantView>("chat");
+const assistantView = ref<AssistantView>(resolveAssistantView(route.query.view));
 const filePanelRef = ref<InstanceType<typeof FilePanel>>();
 const pendingAutomationCount = ref(0);
 const automationPanel = ref<InstanceType<typeof AutomationPanel>>();
@@ -200,6 +199,11 @@ const pluginTerminal = computed(() => assistantView.value === "automations"
   : activeSession.value?.terminal ?? Terminal.TERMINAL_ADMIN);
 
 const aiFlowBlockRenderers = getAdminAiFlowBlockRenderers();
+
+/** 将外部入口的查询参数转换为助手工作区视图。 */
+function resolveAssistantView(value: unknown): AssistantView {
+  return typeof value === "string" && isAssistantView(value) ? value : "chat";
+}
 
 /** 切换会话时同步当前活动会话。 */
 function handleSessionChange(item: AiSession) {

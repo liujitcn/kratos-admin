@@ -7125,6 +7125,41 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/bi.admin.v1.BiSource'
+    /api/v1/admin/bi/source/{id}/table-data:
+        get:
+            tags:
+                - BiSourceService
+            description: 分页查询数据源中指定表的数据。
+            operationId: BiSourceService_PageBiSourceTableData
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: table_key
+                  in: query
+                  schema:
+                    type: string
+                - name: tenant_column
+                  in: query
+                  schema:
+                    type: string
+                - name: page_num
+                  in: query
+                  schema:
+                    type: string
+                - name: page_size
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/bi.admin.v1.PageBiSourceTableDataResponse'
     /api/v1/admin/bi/source/{id}/tables:
         get:
             tags:
@@ -13868,6 +13903,15 @@ components:
                     type: string
                     description: 表或视图注释
             description: 数据库中的表或视图结构。
+        bi.admin.v1.BiSourceTableDataRow:
+            type: object
+            properties:
+                values:
+                    type: array
+                    items:
+                        type: string
+                    description: 按字段顺序排列的单元格值
+            description: 数据源表中的一行数据。
         bi.admin.v1.BiTimeRangeSpec:
             type: object
             properties:
@@ -13993,6 +14037,24 @@ components:
                     description: 总数
                     format: int32
             description: BI 数据源分页响应。
+        bi.admin.v1.PageBiSourceTableDataResponse:
+            type: object
+            properties:
+                columns:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/bi.admin.v1.BiSourceSchemaColumn'
+                    description: 表字段
+                rows:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/bi.admin.v1.BiSourceTableDataRow'
+                    description: 数据行
+                total:
+                    type: integer
+                    description: 数据总数
+                    format: int32
+            description: 分页查询数据源表数据的响应。
         bi.admin.v1.PreviewBiCardSqlRequest:
             type: object
             properties:
@@ -17671,6 +17733,30 @@ components:
                     type: string
                     description: 备注
             description: 出库脱敏策略表单。
+        system.admin.v1.BaseRedactOutputPolicyGroup:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 分组代表策略ID
+                tenant_id:
+                    type: string
+                    description: 租户ID，默认租户策略为全局策略
+                service_name:
+                    type: string
+                    description: 服务名
+                operation:
+                    type: string
+                    description: RPC完整操作名
+                message_ref:
+                    type: string
+                    description: Proto消息完整名称
+                policies:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.BaseRedactOutputPolicy'
+                    description: 分组内字段策略
+            description: 按接口和Proto消息聚合的出库脱敏策略。
         system.admin.v1.BaseRedactRule:
             type: object
             properties:
@@ -17843,6 +17929,30 @@ components:
                     type: string
                     description: 备注
             description: 入库脱敏策略表单。
+        system.admin.v1.BaseRedactStoragePolicyGroup:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 分组代表策略ID
+                tenant_id:
+                    type: string
+                    description: 租户ID，默认租户策略为全局策略
+                source_name:
+                    type: string
+                    description: 数据源名称
+                table_name:
+                    type: string
+                    description: 数据库表名
+                table_comment:
+                    type: string
+                    description: 数据表注释
+                policies:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.BaseRedactStoragePolicy'
+                    description: 分组内字段策略
+            description: 按数据表聚合的入库脱敏策略。
         system.admin.v1.BaseRedactStorageTable:
             type: object
             properties:
@@ -20734,8 +20844,8 @@ components:
                 base_redact_output_policies:
                     type: array
                     items:
-                        $ref: '#/components/schemas/system.admin.v1.BaseRedactOutputPolicy'
-                    description: 出库脱敏策略列表
+                        $ref: '#/components/schemas/system.admin.v1.BaseRedactOutputPolicyGroup'
+                    description: 按接口和Proto消息聚合的出库脱敏策略列表
                 total:
                     type: integer
                     description: 总数
@@ -20760,8 +20870,8 @@ components:
                 base_redact_storage_policies:
                     type: array
                     items:
-                        $ref: '#/components/schemas/system.admin.v1.BaseRedactStoragePolicy'
-                    description: 入库脱敏策略列表
+                        $ref: '#/components/schemas/system.admin.v1.BaseRedactStoragePolicyGroup'
+                    description: 按数据表聚合的入库脱敏策略列表
                 total:
                     type: integer
                     description: 总数

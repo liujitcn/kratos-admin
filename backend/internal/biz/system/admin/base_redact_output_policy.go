@@ -2,6 +2,7 @@ package biz
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"strings"
 	"time"
@@ -70,21 +71,33 @@ func (c *BaseRedactOutputPolicyCase) PageBaseRedactOutputPolicy(ctx context.Cont
 		opts = append(opts, repository.Where(query.Status.Eq(int32(req.GetStatus()))))
 	}
 	var list []*models.BaseRedactOutputPolicy
-	var total int64
-	list, total, err = c.Page(ctx, req.GetPageNum(), req.GetPageSize(), opts...)
+	list, err = c.List(ctx, opts...)
 	if err != nil {
 		return nil, err
 	}
-	result := make([]*adminv1.BaseRedactOutputPolicy, 0, len(list))
+	groups := make([]*adminv1.BaseRedactOutputPolicyGroup, 0, len(list))
+	groupIndexes := make(map[string]int, len(list))
 	for _, item := range list {
+		key := fmt.Sprintf("%d\x00%s\x00%s\x00%s", item.TenantID, item.ServiceName, item.Operation, item.MessageRef)
+		index, ok := groupIndexes[key]
+		if !ok {
+			index = len(groups)
+			groupIndexes[key] = index
+			groups = append(groups, &adminv1.BaseRedactOutputPolicyGroup{Id: item.ID, TenantId: item.TenantID, ServiceName: item.ServiceName, Operation: item.Operation, MessageRef: item.MessageRef})
+		}
 		var dto *adminv1.BaseRedactOutputPolicy
 		dto, err = c.toBaseRedactOutputPolicy(ctx, item)
 		if err != nil {
 			return nil, err
 		}
-		result = append(result, dto)
+		groups[index].Policies = append(groups[index].Policies, dto)
 	}
-	return &adminv1.PageBaseRedactOutputPolicyResponse{BaseRedactOutputPolicies: result, Total: int32(total)}, nil
+	start := (req.GetPageNum() - 1) * req.GetPageSize()
+	if start > int64(len(groups)) {
+		start = int64(len(groups))
+	}
+	end := min(start+req.GetPageSize(), int64(len(groups)))
+	return &adminv1.PageBaseRedactOutputPolicyResponse{BaseRedactOutputPolicies: groups[start:end], Total: int32(len(groups))}, nil
 }
 
 // GetBaseRedactOutputPolicy 查询出库脱敏策略详情。
